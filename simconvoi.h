@@ -1393,7 +1393,7 @@ public:
 	 */
 	void emergency_go_to_depot();
 
-	koordhashtable_tpl<id_pair, average_tpl<uint16> > * get_average_journey_times() const;
+	koordhashtable_tpl<id_pair, average_tpl<uint16> > * get_average_journey_times();
 	inline koordhashtable_tpl<id_pair, average_tpl<uint16> > * get_average_journey_times_this_convoy_only() const { return average_journey_times; }
 
 	/**

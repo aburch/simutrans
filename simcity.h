@@ -178,6 +178,11 @@ private:
 	// this counter indicates which building will be processed next
 	uint32 step_count;
 
+public: //DESYNC DEBUG
+	uint32 get_step_count()  const { return step_count; }
+
+private:
+
 	/**
 	 * step so every house is asked once per month, 
 	 * assuming 21 bits per month and a passenger factor of 8
@@ -546,7 +551,10 @@ public:
 	// (called when removed by player, or by town)
 	void remove_gebaeude_from_stadt(gebaeude_t *gb);
 
-	// this function adds houses to the city house list. ordered for multithreaded loading
+	/**
+	 * This function adds houses to the city house list.
+	 * @param ordered true for multithreaded loading, will insert buidings ordered, will not update city limits
+	 */
 	void add_gebaeude_to_stadt(const gebaeude_t *gb, bool ordered=false);
 
 	/**
@@ -667,6 +675,7 @@ public:
 	bool get_citygrowth() const { return allow_citygrowth; }
 
 	void step(long delta_t);
+	void step2(long delta_t);
 
 	void neuer_monat(bool check);
 
@@ -819,7 +828,6 @@ public:
 	// @author: jamespetts
 	// September 2010
 	uint16 get_max_dimension();
-
 };
 
 #endif

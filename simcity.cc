@@ -954,6 +954,12 @@ void stadt_t::cityrules_rdwr(loadsave_t *file)
 		file->rdwr_long(bridge_success_percentage);
 	}
 
+	if(file->get_experimental_version() >= 12 || (file->get_version() >= 112007 && file->get_experimental_version() >= 11))
+	{
+		file->rdwr_long(renovations_try);
+		file->rdwr_long(renovations_count);
+	}
+
 	file->rdwr_short(ind_start_score);
 	file->rdwr_short(ind_neighbour_score[0]);
 	file->rdwr_short(ind_neighbour_score[1]);
@@ -2506,7 +2512,10 @@ void stadt_t::step(long delta_t)
 		step_grow_city();
 		next_growth_step -= stadt_t::city_growth_step;
 	}
+}
 
+void stadt_t::step2(long delta_t)
+{
 	// create passenger rate proportional to town size
 	while(step_interval < next_step) {
 		step_passagiere();
@@ -3153,8 +3162,6 @@ void stadt_t::step_passagiere()
 	// Add 1 because the simuconf.tab setting is for maximum *alternative* destinations, whereas we need maximum *actual* desintations 
 	const uint8 max_destinations = (s.get_max_alternative_destinations() < 16 ? s.get_max_alternative_destinations() : 15) + 1;
 
-	minivec_tpl<halthandle_t> destination_list[16];
-
 	// Find passenger destination
 	for(int pax_routed = 0, pax_left_to_do = 0; pax_routed < num_pax; pax_routed += pax_left_to_do) 
 	{	
@@ -3265,6 +3272,8 @@ void stadt_t::step_passagiere()
 		ware_t pax(wtyp);
 		halthandle_t start_halt;
 
+		minivec_tpl<halthandle_t> destination_list[16];
+
 		while(route_status != public_transport && route_status != private_car && route_status != on_foot && current_destination < destination_count)
 		{
 			const uint32 straight_line_distance = shortest_distance(origin_pos, destinations[current_destination].location);
@@ -3296,7 +3305,7 @@ void stadt_t::step_passagiere()
 			// (default: 1), they can take passengers within the wider square of the passenger radius. This is intended,
 			// and is as a result of using the below method for all destination types.
 
-							
+			destination_list[current_destination].resize(dest_plan->get_haltlist_count());							
 			for (int h = dest_plan->get_haltlist_count() - 1; h >= 0; h--) 
 			{
 				halthandle_t halt = dest_list[h].halt;

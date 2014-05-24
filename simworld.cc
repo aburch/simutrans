@@ -270,24 +270,89 @@ void karte_t::world_xy_loop(xy_loop_func function, bool sync_x_steps)
 }
 
 
+checklist_t::checklist_t(uint32 _ss, uint32 _st, uint8 _nfc, uint32 _random_seed, uint16 _halt_entry, uint16 _line_entry, uint16 _convoy_entry, bool _processing, uint8 _current_compartment, uint32 _limit_rebuild, uint32 _limit_filter, uint32 _limit_fill, uint32 _limit_explore, uint32 _limit_reroute, uint32 *_rands)
+	: ss(_ss), st(_st), nfc(_nfc), random_seed(_random_seed), halt_entry(_halt_entry), line_entry(_line_entry), convoy_entry(_convoy_entry), processing(_processing), current_compartment(_current_compartment), limit_rebuild(_limit_rebuild), limit_filter(_limit_filter), limit_fill(_limit_fill), limit_explore(_limit_explore), limit_reroute(_limit_reroute)
+{
+	for(  uint8 i = 0;  i < CHK_RANDS; i++  ) {
+		rand[i]	 = _rands[i];
+	}
+
+	uint8 i = 0;
+	while(  i < path_explorer_t::get_max_categories()  &&  i < 10  ) {
+		paths_available[i] = path_explorer_t::get_paths_available(i);
+		refresh_completed[i] = path_explorer_t::get_refresh_completed(i);
+		refresh_requested[i] = path_explorer_t::get_refresh_requested(i);
+		current_phase[i] = path_explorer_t::get_current_phase(i);
+		phase_counter[i] = path_explorer_t::get_phase_counter(i);
+		working_halt_count[i] = path_explorer_t::get_working_halt_count(i);
+		all_halt_count[i] = path_explorer_t::get_all_halt_count(i);
+		transfer_count[i] = path_explorer_t::get_transfer_count(i);
+		total_iterations[i] = path_explorer_t::get_total_iterations(i);
+		i++;
+	}
+	for(  ; i < 10;  i++  ) {
+		paths_available[i] = refresh_completed[i] = refresh_requested[i] = false;
+		current_phase[i] = 0;
+		phase_counter[i] = working_halt_count[i] = all_halt_count[i] = transfer_count[i] = 0;
+		total_iterations[i] = 0;
+	}
+}
+
+
 void checklist_t::rdwr(memory_rw_t *buffer)
 {
+	buffer->rdwr_long(ss);
+	buffer->rdwr_long(st);
+	buffer->rdwr_byte(nfc);
 	buffer->rdwr_long(random_seed);
 	buffer->rdwr_short(halt_entry);
 	buffer->rdwr_short(line_entry);
 	buffer->rdwr_short(convoy_entry);
-	if(umgebung_t::networkmode)
-	{
-		buffer->rdwr_long(industry_density_proportion);
-		buffer->rdwr_long(actual_industry_density);
-		buffer->rdwr_long(traffic);
+
+	// desync debug
+	buffer->rdwr_long(limit_rebuild);
+	buffer->rdwr_long(limit_filter);
+	buffer->rdwr_long(limit_fill);
+	buffer->rdwr_long(limit_explore);
+	buffer->rdwr_long(limit_reroute);
+
+	for(  uint8 i = 0;  i < CHK_RANDS;  i++  ) {
+		buffer->rdwr_long(rand[i]);
+	}
+		buffer->rdwr_bool(processing);
+		buffer->rdwr_byte(current_compartment);
+	for(  uint8 i = 0;  i < 10;  i++  ) {
+		buffer->rdwr_bool(paths_available[i]);
+		buffer->rdwr_bool(refresh_completed[i]);
+		buffer->rdwr_bool(refresh_requested[i]);
+		buffer->rdwr_byte(current_phase[i]);
+		buffer->rdwr_short(phase_counter[i]);
+		buffer->rdwr_short(working_halt_count[i]);
+		buffer->rdwr_short(all_halt_count[i]);
+		buffer->rdwr_short(transfer_count[i]);
+		buffer->rdwr_long(total_iterations[i]);
 	}
 }
 
 
 int checklist_t::print(char *buffer, const char *entity) const
 {
-	return sprintf(buffer, "%s=[rand=%u halt=%u line=%u cnvy=%u ind_dns_prop=%u act_ind_dens=%u traffic=%u] ", entity, random_seed, halt_entry, line_entry, convoy_entry, industry_density_proportion, actual_industry_density, traffic);
+	return sprintf(buffer, "%s=[ss=%u st=%u nfc=%u rand=%u halt=%u line=%u cnvy=%u ssr=%u,%u,%u,%u,%u,%u,%u,%u str=%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u proc=%d curr_cmpt=%u lim=%u,%u,%u,%u,%u pa=%d,%d,%d,%d,%d,%d,%d,%d,%d,%d rc=%d,%d,%d,%d,%d,%d,%d,%d,%d,%d rr=%d,%d,%d,%d,%d,%d,%d,%d,%d,%d curr_ph=%u,%u,%u,%u,%u,%u,%u,%u,%u,%u ph_c=%u,%u,%u,%u,%u,%u,%u,%u,%u,%u whc=%u,%u,%u,%u,%u,%u,%u,%u,%u,%u ahc=%u,%u,%u,%u,%u,%u,%u,%u,%u,%u tc=%u,%u,%u,%u,%u,%u,%u,%u,%u,%u tot_iter=%u,%u,%u,%u,%u,%u,%u,%u,%u,%u] ",
+		entity, ss, st, nfc, random_seed, halt_entry, line_entry, convoy_entry,
+		rand[0], rand[1], rand[2], rand[3], rand[4], rand[5], rand[6], rand[7], rand[8],
+		rand[9], rand[10], rand[11], rand[12], rand[13], rand[14], rand[15], rand[16], rand[17], rand[18], rand[19], rand[20], rand[21], rand[22], rand[23],
+		processing, current_compartment,
+		limit_rebuild, limit_filter, limit_fill, limit_explore, limit_reroute,
+		paths_available[0], paths_available[1], paths_available[2], paths_available[3], paths_available[4], paths_available[5], paths_available[6], paths_available[7], paths_available[8], paths_available[9],
+		refresh_completed[0], refresh_completed[1], refresh_completed[2], refresh_completed[3], refresh_completed[4], refresh_completed[5], refresh_completed[6], refresh_completed[7], refresh_completed[8], refresh_completed[9],
+		refresh_requested[0], refresh_requested[1], refresh_requested[2], refresh_requested[3], refresh_requested[4], refresh_requested[5], refresh_requested[6], refresh_requested[7], refresh_requested[8], refresh_requested[9],
+		current_phase[0], current_phase[1], current_phase[2], current_phase[3], current_phase[4], current_phase[5], current_phase[6], current_phase[7], current_phase[8], current_phase[9],
+		phase_counter[0], phase_counter[1], phase_counter[2], phase_counter[3], phase_counter[4], phase_counter[5], phase_counter[6], phase_counter[7], phase_counter[8], phase_counter[9],
+		working_halt_count[0], working_halt_count[1], working_halt_count[2], working_halt_count[3], working_halt_count[4], working_halt_count[5], working_halt_count[6], working_halt_count[7], working_halt_count[8], working_halt_count[9],
+		all_halt_count[0], all_halt_count[1], all_halt_count[2], all_halt_count[3], all_halt_count[4], all_halt_count[5], all_halt_count[6], all_halt_count[7], all_halt_count[8], all_halt_count[9],
+		transfer_count[0], transfer_count[1], transfer_count[2], transfer_count[3], transfer_count[4], transfer_count[5], transfer_count[6], transfer_count[7], transfer_count[8], transfer_count[9],
+		total_iterations[0], total_iterations[1], total_iterations[2], total_iterations[3], total_iterations[4], total_iterations[5], total_iterations[6], total_iterations[7], total_iterations[8], total_iterations[9]
+	);
 }
 
 
@@ -2213,7 +2278,7 @@ static int raise_frame_counter = 0;
  * new heights for each corner given
  * only test corners in ctest to avoid infinite loops
  */
-bool karte_t::can_raise_to(sint16 x, sint16 y, bool keep_water, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw, uint8 ctest) const
+bool karte_t::can_raise_to(sint16 x, sint16 y, bool keep_water, bool allow_deep_water, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw, uint8 ctest) const
 {
 	bool ok = false;
 	if(is_within_limits(x,y)) {
@@ -2226,8 +2291,14 @@ bool karte_t::can_raise_to(sint16 x, sint16 y, bool keep_water, sint8 hsw, sint8
 		const sint8 h0_nw = corner4(ctest) ? (gr->ist_wasser() ? min(grundwasser, lookup_hgt(koord(x,y)))     : h0 + corner4(gr->get_grund_hang()) ) : hnw+1;
 
 		const sint8 max_hgt = max(max(hsw,hse),max(hne,hnw));
+		const sint8 min_hgt = min(min(hsw,hse),min(hne,hnw));
 
 		if (gr->ist_wasser()  &&  keep_water  &&  max_hgt > grundwasser) {
+			return false;
+		}
+
+		if(min_hgt < grundwasser && !allow_deep_water) 
+		{
 			return false;
 		}
 
@@ -2239,39 +2310,39 @@ bool karte_t::can_raise_to(sint16 x, sint16 y, bool keep_water, sint8 hsw, sint8
 		ok = can_raise_plan_to( x, y, max_hgt);
 		// sw
 		if (ok && h0_sw < hsw) {
-			ok = can_raise_to( x-1, y+1, keep_water, hsw-1, hsw-1, hsw, hsw-1, 11);
+			ok = can_raise_to( x-1, y+1, keep_water, allow_deep_water, hsw-1, hsw-1, hsw, hsw-1, 11);
 		}
 		// s
 		if (ok && (h0_se < hse || h0_sw < hsw) && ((ctest&3)==3)) {
 			const sint8 hs = max(hse, hsw) -1;
-			ok = can_raise_to(x,y+1, keep_water, hs, hs, hse, hsw, 3);
+			ok = can_raise_to(x,y+1, keep_water, allow_deep_water, hs, hs, hse, hsw, 3);
 		}
 		// se
 		if (ok && h0_se < hse) {
-			ok = can_raise_to(x+1,y+1, keep_water, hse-1, hse-1, hse-1, hse, 7);
+			ok = can_raise_to(x+1,y+1, keep_water, allow_deep_water, hse-1, hse-1, hse-1, hse, 7);
 		}
 		// e
 		if (ok && (h0_se < hse || h0_ne < hne) && ((ctest&6)==6)) {
 			const sint8 he = max(hse, hne) -1;
-			ok = can_raise_to(x+1,y, keep_water, hse, he, he, hne, 6);
+			ok = can_raise_to(x+1,y, keep_water, allow_deep_water, hse, he, he, hne, 6);
 		}
 		// ne
 		if (ok && h0_ne < hne) {
-			ok = can_raise_to(x+1,y-1, keep_water, hne, hne-1, hne-1, hne-1, 14);
+			ok = can_raise_to(x+1,y-1, keep_water, allow_deep_water, hne, hne-1, hne-1, hne-1, 14);
 		}
 		// n
 		if (ok && (h0_nw < hnw || h0_ne < hne) && ((ctest&12)==12)) {
 			const sint8 hn = max(hnw, hne) -1;
-			ok = can_raise_to(x,y-1, keep_water, hnw, hne, hn, hn, 12);
+			ok = can_raise_to(x,y-1, keep_water, allow_deep_water, hnw, hne, hn, hn, 12);
 		}
 		// nw
 		if (ok && h0_nw < hnw) {
-			ok = can_raise_to(x-1,y-1, keep_water, hnw-1, hnw, hnw-1, hnw-1, 13);
+			ok = can_raise_to(x-1,y-1, keep_water, allow_deep_water, hnw-1, hnw, hnw-1, hnw-1, 13);
 		}
 		// w
 		if (ok && (h0_nw < hnw || h0_sw < hsw) && ((ctest&9)==9)) {
 			const sint8 hw = max(hnw, hsw) -1;
-			ok = can_raise_to(x-1,y, keep_water, hw, hsw, hnw, hw, 9);
+			ok = can_raise_to(x-1,y, keep_water, allow_deep_water, hw, hsw, hnw, hw, 9);
 		}
 	}
 	else {
@@ -2404,7 +2475,7 @@ void karte_t::raise_grid_to(sint16 x, sint16 y, sint8 h)
 }
 
 
-int karte_t::grid_raise(koord pos)
+int karte_t::grid_raise(koord pos, bool allow_deep_water)
 {
 	int n = 0;
 
@@ -2422,7 +2493,7 @@ int karte_t::grid_raise(koord pos)
 		const sint8 hne = hgt + corner3(corner_to_raise);
 		const sint8 hnw = hgt + corner4(corner_to_raise);
 
-		if (can_raise_to(x, y, false, hsw, hse, hne, hnw)) {
+		if (can_raise_to(x, y, false, allow_deep_water, hsw, hse, hne, hnw)) {
 			n = raise_to(x, y, hsw, hse, hne, hnw);
 			// force world full redraw, or background could be dirty.
 			set_dirty();
@@ -2661,7 +2732,7 @@ bool karte_t::can_ebne_planquadrat(koord pos, sint8 hgt, bool keep_water, bool m
 		return can_lower_to(pos.x, pos.y, hgt, hgt, hgt, hgt);
 	}
 	else {
-		return can_raise_to(pos.x, pos.y, keep_water, hgt, hgt, hgt, hgt);
+		return can_raise_to(pos.x, pos.y, keep_water, true, hgt, hgt, hgt, hgt);
 	}
 }
 
@@ -2680,7 +2751,7 @@ bool karte_t::ebne_planquadrat(spieler_t *sp, koord pos, sint8 hgt, bool keep_wa
 		}
 	}
 	else {
-		if(  can_raise_to(pos.x, pos.y, keep_water, hgt, hgt, hgt, hgt)  ) {
+		if(  can_raise_to(pos.x, pos.y, keep_water, true, hgt, hgt, hgt, hgt)  ) {
 			n = raise_to(pos.x, pos.y, hgt, hgt, hgt, hgt);
 			ok = true;
 		}
@@ -3418,6 +3489,7 @@ bool karte_t::sync_remove(sync_steppable *obj)	// entfernt alle dinge == obj aus
  */
 void karte_t::sync_step(long delta_t, bool sync, bool display )
 {
+rands[0] = get_random_seed();
 	set_random_mode( SYNC_STEP_RANDOM );
 	haltestelle_t::pedestrian_limit = 0;
 	if(sync) {
@@ -3437,11 +3509,13 @@ void karte_t::sync_step(long delta_t, bool sync, bool display )
 		 * => they are now in a hastable!
 		 */
 		sync_eyecandy_step( delta_t );
+rands[1] = get_random_seed();
 
 		/* pedestrians do not require exact sync and are added/removed frequently
 		 * => they are now in a hastable!
 		 */
 		sync_way_eyecandy_step( delta_t );
+rands[2] = get_random_seed();
 
 		clear_random_mode( INTERACTIVE_RANDOM );
 
@@ -3501,6 +3575,7 @@ void karte_t::sync_step(long delta_t, bool sync, bool display )
 
 		sync_step_running = false;
 	}
+rands[3] = get_random_seed();
 
 	if(display) {
 		// only omitted in fast forward mode for the magic steps
@@ -3531,6 +3606,7 @@ void karte_t::sync_step(long delta_t, bool sync, bool display )
 		update_frame_sleep_time(delta_t);
 	}
 	clear_random_mode( SYNC_STEP_RANDOM );
+rands[4] = get_random_seed();
 }
 
 
@@ -4104,6 +4180,7 @@ void karte_t::notify_record( convoihandle_t cnv, sint32 max_speed, koord pos )
 
 void karte_t::step()
 {
+rands[8] = get_random_seed();
 	DBG_DEBUG4("karte_t::step", "start step");
 	unsigned long time = dr_time();
 
@@ -4130,6 +4207,7 @@ void karte_t::step()
 		DBG_DEBUG4("karte_t::step", "calling neuer_monat");
 		new_month();
 	}
+rands[9] = get_random_seed();
 
 	DBG_DEBUG4("karte_t::step", "time calculations");
 	if(  step_mode==NORMAL  ) {
@@ -4204,12 +4282,14 @@ void karte_t::step()
 			tile_counter = 0;
 		}
 	}
+rands[10] = get_random_seed();
 
 	// to make sure the tick counter will be updated
 	INT_CHECK("karte_t::step 1");
 
 	// Knightly : calling global path explorer
 	path_explorer_t::step();
+rands[11] = get_random_seed();
 	INT_CHECK("karte_t::step 2");
 	
 	DBG_DEBUG4("karte_t::step 4", "step %d convois", convoi_array.get_count());
@@ -4221,6 +4301,7 @@ void karte_t::step()
 			INT_CHECK("karte_t::step 5");
 		}
 	}
+rands[12] = get_random_seed();
 
 	if(cities_awaiting_private_car_route_check.get_count() > 0 && (steps % 12) == 0)
 	{
@@ -4228,15 +4309,29 @@ void karte_t::step()
 		city->check_all_private_car_routes();
 		city->set_check_road_connexions(false);
 	}
+rands[13] = get_random_seed();
 
 
 	// now step all towns (to generate passengers)
 	DBG_DEBUG4("karte_t::step 6", "step cities");
 	sint64 bev=0;
+rands[21] = 0;
+rands[22] = 0;
 	FOR(weighted_vector_tpl<stadt_t*>, const i, stadt) {
 		i->step(delta_t);
+		rands[21] += i->get_einwohner();
+		rands[22] += i->get_buildings();
+	}
+rands[14] = get_random_seed();
+rands[23] = 0;
+	FOR(weighted_vector_tpl<stadt_t*>, const i, stadt) {
+		i->step2(delta_t);
+rands[23] += i->get_step_count();
 		bev += i->get_finance_history_month(0, HIST_CITICENS);
 	}
+rands[15] = get_random_seed();
+
+
 
 	// the inhabitants stuff
 	finance_history_month[0][WORLD_CITICENS] = bev;
@@ -4245,6 +4340,7 @@ void karte_t::step()
 	FOR(vector_tpl<fabrik_t*>, const f, fab_list) {
 		f->step(delta_t);
 	}
+rands[16] = get_random_seed();
 
 	finance_history_year[0][WORLD_FACTORIES] = finance_history_month[0][WORLD_FACTORIES] = fab_list.get_count();
 
@@ -4253,6 +4349,7 @@ void karte_t::step()
 	pumpe_t::step_all( delta_t );
 	senke_t::step_all( delta_t );
 	powernet_t::step_all( delta_t );
+rands[17] = get_random_seed();
 
 	DBG_DEBUG4("karte_t::step", "step players");
 	// then step all players
@@ -4261,9 +4358,11 @@ void karte_t::step()
 			spieler[i]->step();
 		}
 	}
+rands[18] = get_random_seed();
 
 	DBG_DEBUG4("karte_t::step", "step halts");
 	haltestelle_t::step_all();
+rands[19] = get_random_seed();
 
 	// Re-check paths if the time has come. 
 	// Long months means that it might be necessary to do
@@ -4334,6 +4433,7 @@ void karte_t::step()
 		get_scenario()->step();
 	}
 	DBG_DEBUG4("karte_t::step", "end");
+rands[20] = get_random_seed();
 }
 
 
@@ -5511,6 +5611,16 @@ void karte_t::load(loadsave_t *file)
 	}
 
 	loaded_rotation = settings.get_rotation();
+
+	if(  umgebung_t::networkmode  ) {
+		// clear the checklist history
+		for(  int i=0;  i<LAST_CHECKLISTS_COUNT;  ++i  ) {
+			last_checklists[i] = checklist_t();
+		}
+		for(  int i = 0;  i < CHK_RANDS  ;  i++  ) {
+			rands[i] = 0;
+		}
+	}
 
 #ifndef DEBUG_SIMRAND_CALLS
 	if(  umgebung_t::networkmode  ) {
@@ -7129,7 +7239,7 @@ bool karte_t::interactive(uint32 quit_month)
 						// out of sync => drop client (but we can only compare if nwt->last_sync_step is not too old)
 						else if(  is_checklist_available(nwt->last_sync_step)  &&  LCHKLST(nwt->last_sync_step)!=nwt->last_checklist  ) {
 							// lost synchronisation -> server kicks client out actively
-							char buf[256];
+							char buf[2048];
 							const int offset = LCHKLST(nwt->last_sync_step).print(buf, "server");
 							nwt->last_checklist.print(buf + offset, "initiator");
 							dbg->warning("karte_t::interactive", "kicking client due to checklist mismatch : sync_step=%u %s", nwt->last_sync_step, buf);
@@ -7208,10 +7318,13 @@ bool karte_t::interactive(uint32 quit_month)
 					// this was the random number at the previous sync step on the server
 					const checklist_t &server_checklist = nwcheck->server_checklist;
 					const uint32 server_sync_step = nwcheck->server_sync_step;
-					char buf[256];
+					char buf[2048];
 					const int offset = server_checklist.print(buf, "server");
 					LCHKLST(server_sync_step).print(buf + offset, "client");
 					dbg->warning("karte_t::interactive", "sync_step=%u  %s", server_sync_step, buf);
+					if(  !is_checklist_available(server_sync_step)  ) {
+						dbg->error("karte_t::interactive", "checklist not available: %u", server_sync_step)					;
+					}
 					if( LCHKLST(server_sync_step)!=server_checklist  ) {
 						dbg->warning("karte_t::interactive", "disconnecting due to checklist mismatch" );
 						printf("Desync due to checklist mismatch\nsync_step=%u  %s", server_sync_step, buf);
@@ -7228,7 +7341,7 @@ bool karte_t::interactive(uint32 quit_month)
 						nwc_tool_t *nwt = dynamic_cast<nwc_tool_t *>(nwc);
 						if(  is_checklist_available(nwt->last_sync_step)  &&  LCHKLST(nwt->last_sync_step)!=nwt->last_checklist  ) {
 							// lost synchronisation ...
-							char buf[256];
+							char buf[2048];
 							const int offset = nwt->last_checklist.print(buf, "server");
 							LCHKLST(nwt->last_sync_step).print(buf + offset, "executor");
 							dbg->warning("karte_t::interactive", "skipping command due to checklist mismatch : sync_step=%u %s", nwt->last_sync_step, buf);
@@ -7305,10 +7418,13 @@ bool karte_t::interactive(uint32 quit_month)
 						network_frame_count = 0;
 					}
 					sync_steps = steps * settings.get_frames_per_step() + network_frame_count;
-					LCHKLST(sync_steps) = checklist_t(get_random_seed(), halthandle_t::get_next_check(), linehandle_t::get_next_check(), convoihandle_t::get_next_check(), industry_density_proportion, actual_industry_density,finance_history_year[0][WORLD_CITYCARS] );
+					LCHKLST(sync_steps) = checklist_t(sync_steps, (uint32)steps, network_frame_count, get_random_seed(), halthandle_t::get_next_check(), linehandle_t::get_next_check(), convoihandle_t::get_next_check(),
+						path_explorer_t::is_processing(), path_explorer_t::get_current_compartment(), path_explorer_t::get_limit_rebuild_connexions(), path_explorer_t::get_limit_filter_eligible(), path_explorer_t::get_limit_fill_matrix(), (uint32)path_explorer_t::get_limit_explore_paths(), path_explorer_t::get_limit_reroute_goods(),
+						rands
+					);
 
 #ifdef DEBUG_SIMRAND_CALLS
-					char buf[256];
+					char buf[2048];
 					LCHKLST(sync_steps).print(buf, "chklist");
 					dbg->warning("karte_t::interactive", "sync_step=%u  %s", sync_steps, buf);
 #endif

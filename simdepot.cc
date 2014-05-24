@@ -754,7 +754,6 @@ vehikel_t* depot_t::get_oldest_vehicle(const vehikel_besch_t* besch)
 }
 
 
-//<<<<<<< HEAD
 ///**
 // * sets/gets the line that was selected the last time in the depot-dialog
 // */

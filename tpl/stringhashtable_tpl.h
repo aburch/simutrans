@@ -13,6 +13,8 @@
  */
 class stringhash_t {
 public:
+	typedef int diff_type;
+
 	static uint32 hash(const char *key)
 	{
 		uint32 hash = 0;
@@ -33,7 +35,7 @@ public:
 		printf("%s", key);
 	}
 
-	static int comp(const char *key1, const char *key2)
+	static diff_type comp(const char *key1, const char *key2)
 	{
 		return strcmp(key1, key2);
 	}

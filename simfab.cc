@@ -57,6 +57,8 @@
 #include "simwin.h"
 #include "simgraph.h"
 
+#include "path_explorer.h"
+
 // Fabrik_t
 
 
@@ -674,9 +676,6 @@ fabrik_t::fabrik_t(karte_t* wl, loadsave_t* file)
 	city = NULL;
 
 	rdwr(file);
-	has_calculated_intransit_percentages = false;
-	// Cannot calculate intransit percentages here,
-	// as this can only be done when paths are available.
 
 	delta_sum = 0;
 	delta_menge = 0;
@@ -833,7 +832,6 @@ fabrik_t::fabrik_t(koord3d pos_, spieler_t* spieler, const fabrik_besch_t* fabes
 	times_expanded = 0;
 
 	calc_max_intransit_percentages();
-	has_calculated_intransit_percentages = true;
 
 	update_scaled_electric_amount();
 	update_scaled_pax_demand();
@@ -1473,6 +1471,10 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 			}
 		}
 	}
+
+	has_calculated_intransit_percentages = false;
+	// Cannot calculate intransit percentages here,
+	// as this can only be done when paths are available.
 }
 
 
@@ -1596,9 +1598,8 @@ sint8 fabrik_t::is_needed(const ware_besch_t *typ) const
 {
 	FOR(array_tpl<ware_production_t>, const& i, eingang) {
 		if(  i.get_typ() == typ  ) {
-			// not needed (false) if overflowing or too much already sent
-			const bool transit_ok = max_intransit_percentages.get(typ->get_catg())  == 0 ? true : (i.transit * 100) < ((i.max >> fabrik_t::precision_bits) * max_intransit_percentages.get(typ->get_catg()));
-			return (i.menge < i.max)  &&  transit_ok;
+			// not needed (false) if overflowing or too much already sent			
+			return max_intransit_percentages.get(typ->get_catg()) == 0 ? (i.menge < i.max) : ((i.transit + (i.menge >> fabrik_t::precision_bits)) * 200) < ((i.max >> fabrik_t::precision_bits) * (sint32)max_intransit_percentages.get(typ->get_catg()));
 		}
 	}
 	return -1;  // not needed here
@@ -1620,7 +1621,6 @@ void fabrik_t::step(long delta_t)
 		// Can only do it here (once after loading) as paths
 		// are not available when loading, even in laden_a....
 		calc_max_intransit_percentages();
-		has_calculated_intransit_percentages = true;
 	}
 	
 	if(  delta_t==0  ) {
@@ -2863,6 +2863,14 @@ slist_tpl<const ware_besch_t*> *fabrik_t::get_produced_goods() const
 void fabrik_t::calc_max_intransit_percentages()
 {
 	max_intransit_percentages.clear();
+
+	if(!path_explorer_t::get_paths_available(path_explorer_t::get_current_compartment()))
+	{
+		has_calculated_intransit_percentages = false;
+		return;
+	}
+
+	has_calculated_intransit_percentages = true;
 	const uint16 base_max_intransit_percentage = welt->get_settings().get_factory_maximum_intransit_percentage();
 	
 	uint32 index = 0;
@@ -2901,8 +2909,7 @@ uint32 fabrik_t::get_lead_time(const ware_besch_t* wtype)
 	}
 	
 	// Tenths of minutes.
-	uint32 tenths_of_minutes_total = 0;
-	uint32 connected_supplier_count = 0;
+	uint32 longest_lead_time = 65535;
 
 	FOR(vector_tpl<koord>, const& supplier, suppliers)
 	{
@@ -2935,10 +2942,9 @@ uint32 fabrik_t::get_lead_time(const ware_besch_t* wtype)
 					}
 				}
 
-				if(best_journey_time < 65535)
+				if(best_journey_time < 65535 && (best_journey_time > longest_lead_time || longest_lead_time == 65535))
 				{
-					connected_supplier_count ++;
-					tenths_of_minutes_total += best_journey_time;
+					longest_lead_time = best_journey_time;
 				}
 				break;
 			}
@@ -2946,7 +2952,7 @@ uint32 fabrik_t::get_lead_time(const ware_besch_t* wtype)
 		
 	}
 
-	return connected_supplier_count > 0 ? tenths_of_minutes_total / connected_supplier_count : 65535;
+	return longest_lead_time;
 }
 
 uint32 fabrik_t::get_time_to_consume_stock(uint32 index)

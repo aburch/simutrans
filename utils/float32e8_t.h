@@ -55,7 +55,7 @@ protected:
 			}
 			else
 			{
-				return _ild[x];
+				return _ild[(uint8)x];
 			}
 		}
 	}
