@@ -499,8 +499,6 @@ haltestelle_t::haltestelle_t(loadsave_t* file)
 
 	alle_haltestellen.append(self);
 
-	check_waiting = 0;
-
 	// Added by : Knightly
 	inauguration_time = 0;
 }
@@ -1235,6 +1233,12 @@ void haltestelle_t::step()
 							add_pax_unhappy(tmp.menge);
 						}
 
+						if(tmp.is_freight())
+						{
+							// Make sure to adjust the destination factory's in-transit figure.
+							fabrik_t::update_transit(tmp, false);
+						}
+
 						// Experimental 7.2 - if they are discarded, a refund is due.
 
 						if(tmp.get_origin().is_bound() && get_besitzer()->get_finance()->get_account_balance() > 0)
@@ -1863,6 +1867,7 @@ uint16 haltestelle_t::find_route(const vector_tpl<halthandle_t>& destination_hal
 		path_explorer_t::get_catg_path_between(ware_catg, self, *destination_halt, test_time, test_transfer);
 
 		if(!destination_halt->is_bound()) 
+
 		{
 			// This halt has been deleted recently.  Don't go there.
 			continue;
@@ -2397,11 +2402,10 @@ uint32 haltestelle_t::starte_mit_route(ware_t ware)
 	// no valid next stops? Or we are the next stop?
 	if(ware.get_zwischenziel() == self)
 	{
-		dbg->error("haltestelle_t::starte_mit_route()","route cannot contain us as first transfer stop => recalc route!");
+		// Route cannot contain self as first transfer.
 		if(find_route(ware) == 65535)
 		{
 			// no route found?
-			dbg->error("haltestelle_t::starte_mit_route()","no route found!");
 			return ware.menge;
 		}
 	}
@@ -2461,7 +2465,7 @@ uint32 haltestelle_t::liefere_an(ware_t ware, uint8 walked_between_stations)
 		// Check for an excessively long number of walking steps.  If we have one, complain and fail.
 		//
 		// This was the 4th consecutive attempt to walk between stations.  Fail.
-		dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s has walked too many times", ware.menge, translator::translate(ware.get_name()), get_name() );
+		//dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s has walked too many times", ware.menge, translator::translate(ware.get_name()), get_name() );
 		return ware.menge;
 	}
 
@@ -3573,7 +3577,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 		file->rdwr_short(transfer_time);
 	}
 
-	if(file->get_experimental_version() >= 12)
+	if(file->get_experimental_version() >= 12 || (file->get_version() >= 112007 && file->get_experimental_version() >= 11))
 	{
 		file->rdwr_byte(check_waiting);
 
@@ -3633,6 +3637,10 @@ void haltestelle_t::rdwr(loadsave_t *file)
 				estimated_convoy_departure_times.put(convoy_id, time);
 			}
 		}
+	}
+	else
+	{
+		check_waiting = 0;
 	}
 
 	// So compute it fresh every time

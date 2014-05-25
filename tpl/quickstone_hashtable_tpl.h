@@ -17,6 +17,8 @@
 template<class key_t>
 class quickstone_hash_tpl {
 public:
+	typedef long diff_type;
+
 	static uint16 hash(const quickstone_tpl<key_t> key)
 	{
 		return key.get_id();
@@ -32,9 +34,9 @@ public:
 		printf("%p", (void *)key.get_id());
 	}
 
-	static long comp(quickstone_tpl<key_t> key1, quickstone_tpl<key_t> key2)
+	static diff_type comp(quickstone_tpl<key_t> key1, quickstone_tpl<key_t> key2)
 	{
-		return (long)(key1.get_id() - key2.get_id());
+		return (key1.get_id() - key2.get_id());
 	}
 };
 

@@ -979,7 +979,7 @@ const char *wkz_raise_lower_base_t::move( spieler_t *sp, uint16 buttonstate, koo
 }
 
 
-const char* wkz_raise_lower_base_t::drag(spieler_t *sp, koord k, sint16 height, int &n)
+const char* wkz_raise_lower_base_t::drag(spieler_t *sp, koord k, sint16 height, int &n, bool allow_deep_water)
 {
 	if(  !welt->is_within_grid_limits(k)  ) {
 		return "";
@@ -988,7 +988,7 @@ const char* wkz_raise_lower_base_t::drag(spieler_t *sp, koord k, sint16 height, 
 
 	// dragging may be going up or down!
 	while(  welt->lookup_hgt(k) < height  &&  height <= welt->get_maximumheight()  ) {
-		int diff = welt->grid_raise( sp, k, err );
+		int diff = welt->grid_raise( sp, k, allow_deep_water, err);
 		if(  diff == 0  ) {
 			break;
 		}
@@ -1091,11 +1091,13 @@ const char *wkz_raise_t::work(spieler_t* sp, koord3d pos )
 			int n = 0;	// tiles changed
 			if (!strempty(default_param)) {
 				// called by dragging or by AI
-				err = drag(sp, k, atoi(default_param), n);
+				err = drag(sp, k, atoi(default_param), n, sp->is_public_service());
 			}
 			else {
-				n = welt->grid_raise(sp, k, err);
+				n = welt->grid_raise(sp, k, sp->is_public_service(), err);
 			}
+
+			
 
 			if(n>0) 
 			{
@@ -1184,7 +1186,7 @@ const char *wkz_lower_t::work( spieler_t *sp, koord3d pos )
 			int n = 0; // tiles changed
 			if (!strempty(default_param)) {
 				// called by dragging or by AI
-				err = drag(sp, k, atoi(default_param), n);
+				err = drag(sp, k, atoi(default_param), n, sp->is_public_service());
 			}
 			else {
 				n = welt->grid_lower(sp, k, err);

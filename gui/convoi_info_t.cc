@@ -428,8 +428,10 @@ enable_home:
 		const int pos_y0 = pos.y + view.get_pos().y + LINESPACE + D_V_SPACE + 2;
 		const char *caption = translator::translate("%s:");
 
-		// Bernd Gabriel, Nov, 14 2009: no longer needed: //use median speed to avoid flickering
-		//existing_convoy_t convoy(*cnv.get_rep());
+		//use median speed to avoid flickering
+		mean_convoi_speed += speed_to_kmh(cnv->get_akt_speed()*4);
+		mean_convoi_speed /= 2;
+
 		uint32 empty_weight = convoy.get_vehicle_summary().weight;
 		uint32 gross_weight = convoy.get_weight_summary().weight;
 		{
@@ -438,7 +440,7 @@ enable_home:
 			const sint32 min_speed = convoy.calc_max_speed(convoy.get_weight_summary());
 			const sint32 max_speed = convoy.calc_max_speed(weight_summary_t(empty_weight, convoy.get_current_friction()));
 			sprintf(tmp, translator::translate(min_speed == max_speed ? "%i km/h (max. %ikm/h)" : "%i km/h (max. %i %s %ikm/h)"), 
-				speed_to_kmh(cnv->get_akt_speed()), min_speed, translator::translate("..."), max_speed );
+				(mean_convoi_speed+3)/4, min_speed, translator::translate("..."), max_speed );
 			display_proportional(pos_x, pos_y, tmp, ALIGN_LEFT, COL_BLACK, true );
 		}
 

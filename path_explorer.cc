@@ -265,6 +265,7 @@ path_explorer_t::compartment_t::compartment_t()
 
 	phase_counter = 0;
 	iterations = 0;
+	total_iterations = 0;
 
 	via_index = 0;
 	origin_cluster_index = 0;
@@ -462,6 +463,7 @@ void path_explorer_t::compartment_t::reset(const bool reset_finished_set)
 
 	phase_counter = 0;
 	iterations = 0;
+	total_iterations = 0;
 
 	via_index = 0;
 	origin_cluster_index = 0;
@@ -502,6 +504,7 @@ void path_explorer_t::compartment_t::step()
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case phase_check_flag :
 		{
+			dbg->message("void path_explorer_t::compartment_t::step()", "Phase 0 started");
 			if (refresh_requested)
 			{
 				refresh_requested = false;	// immediately reset it so that we can take new requests
@@ -531,7 +534,6 @@ void path_explorer_t::compartment_t::step()
 
 			start = dr_time();	// start timing
 #endif
-
 			vector_tpl<halthandle_t>::const_iterator halt_iter = haltestelle_t::get_alle_haltestellen().begin();
 			all_halts_count = (uint16) haltestelle_t::get_alle_haltestellen().get_count();
 
@@ -688,7 +690,7 @@ void path_explorer_t::compartment_t::step()
 
 			printf("\t\tCurrent Step : %lu \n", step_count);
 #endif
-
+			dbg->message("void path_explorer_t::compartment_t::step()", "Phase 2 started");
 			const ware_besch_t *const ware_type = warenbauer_t::get_info_catg_index(catg);
 
 			linkage_t current_linkage;
@@ -706,9 +708,6 @@ void path_explorer_t::compartment_t::step()
 			uint32 accumulated_journey_time;
 			quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*> *catg_connexions;
 			haltestelle_t::connexion *new_connexion;
-
-			vector_tpl<convoihandle_t> convoys_to_reset;
-			vector_tpl<linehandle_t> lines_to_reset;
 
 			start = dr_time();	// start timing
 
@@ -789,7 +788,7 @@ void path_explorer_t::compartment_t::step()
 						}
 						else
 						{
-							journey_time = current_linkage.line->get_average_journey_times().get(pair).get_average();
+							journey_time = current_linkage.line->get_average_journey_times().access(pair)->reduce();
 						}
 					}
 					else if ( current_linkage.convoy.is_bound() && current_linkage.convoy->get_average_journey_times().is_contained(pair) )
@@ -801,7 +800,7 @@ void path_explorer_t::compartment_t::step()
 						}
 						else
 						{
-							journey_time = current_linkage.convoy->get_average_journey_times().get(pair).get_average();
+							journey_time = current_linkage.convoy->get_average_journey_times().access(pair)->reduce();
 						}
 					}
 
@@ -867,13 +866,10 @@ void path_explorer_t::compartment_t::step()
 						new_connexion->transfer_time = catg != warenbauer_t::passagiere->get_catg_index() ? halt_list[h]->get_transshipment_time() : halt_list[h]->get_transfer_time();
 						if(current_linkage.line.is_bound())
 						{
-							average_tpl<uint16>* ave    = current_linkage.line->get_average_journey_times().access(halt_pair);
+							average_tpl<uint16>* ave = current_linkage.line->get_average_journey_times().access(halt_pair);
 							if(ave && ave->count > 0)
 							{
-								new_connexion->journey_time = ave->get_average();
-								// Reset the data once they have been read once.
-								lines_to_reset.append(new_connexion->best_line);
-								convoys_to_reset.append(new_connexion->best_convoy);
+								new_connexion->journey_time = ave->reduce();
 							}
 							else
 							{
@@ -886,9 +882,7 @@ void path_explorer_t::compartment_t::step()
 							average_tpl<uint16>* ave = current_linkage.convoy->get_average_journey_times().access(halt_pair);
 							if(ave && ave->count > 0)
 							{
-								new_connexion->journey_time = ave->get_average();
-								// Reset the data once they have been read once.
-								convoys_to_reset.append(new_connexion->best_convoy);
+								new_connexion->journey_time = ave->reduce();
 							}
 							else
 							{
@@ -927,8 +921,8 @@ void path_explorer_t::compartment_t::step()
 				++phase_counter;
 
 				// iteration control
-				++iterations;
-				if (use_limits && iterations == limit_rebuild_connexions)
+				++total_iterations;
+				if ( use_limits && iterations == limit_rebuild_connexions)
 				{
 					break;
 				}
@@ -994,25 +988,6 @@ void path_explorer_t::compartment_t::step()
 
 			iterations = 0;	// reset iteration counter
 
-			ITERATE(lines_to_reset, n)
-			{
-				if(lines_to_reset[n].is_bound())
-				{
-					lines_to_reset[n]->get_average_journey_times().clear();
-				}
-			}
-
-			lines_to_reset.clear();
-
-			ITERATE(convoys_to_reset, m)
-			{
-				if(convoys_to_reset[m].is_bound())
-				{
-					convoys_to_reset[m]->get_average_journey_times().clear();
-				}
-			}
-			convoys_to_reset.clear();
-
 #ifndef DEBUG_EXPLORER_SPEED
 			return;
 #endif
@@ -1028,7 +1003,7 @@ void path_explorer_t::compartment_t::step()
 
 			printf("\t\tCurrent Step : %lu \n", step_count);
 #endif
-
+			dbg->message("void path_explorer_t::compartment_t::step()", "Phase 3 started");
 			// create working halt list only if we are not resuming and there is at least one halt
 			if ( phase_counter == 0 && all_halts_count > 0 )
 			{
@@ -1068,6 +1043,7 @@ void path_explorer_t::compartment_t::step()
 				
 				// iteration control
 				++iterations;
+				++total_iterations;
 				if ( use_limits && iterations == limit_filter_eligible )
 				{
 					break;
@@ -1152,7 +1128,7 @@ void path_explorer_t::compartment_t::step()
 
 			printf("\t\tCurrent Step : %lu \n", step_count);
 #endif
-
+			dbg->message("void path_explorer_t::compartment_t::step()", "Phase 4 started");
 			// build working matrix and transfer list only if we are not resuming
 			if (phase_counter == 0)
 			{
@@ -1265,6 +1241,7 @@ void path_explorer_t::compartment_t::step()
 				
 				// iteration control
 				++iterations;
+				++total_iterations;
 				if ( use_limits && iterations == limit_fill_matrix )
 				{
 					break;
@@ -1353,7 +1330,7 @@ void path_explorer_t::compartment_t::step()
 
 			printf("\t\tCurrent Step : %lu \n", step_count);
 #endif
-
+			dbg->message("void path_explorer_t::compartment_t::step()", "Phase 5 started");
 			// temporary variables
 			uint32 combined_time;
 			uint32 target_member_index;
@@ -1390,7 +1367,8 @@ void path_explorer_t::compartment_t::step()
 					}
 
 					// should take into account the iterations above
-					iterations += (uint32)working_halt_count + ( inbound_connections->get_total_member_count() << 1 );
+					iterations_processed += (uint32)working_halt_count + ( inbound_connections->get_total_member_count() << 1 );
+					total_iterations += (uint32)working_halt_count + ( inbound_connections->get_total_member_count() << 1 );
 				}
 
 				// for each origin cluster
@@ -1445,6 +1423,7 @@ void path_explorer_t::compartment_t::step()
 
 							// iteration control
 							iterations_processed += target_halt_list.get_count();
+							total_iterations += target_halt_list.get_count();
 							if ( use_limits && iterations_processed >= limit_explore_paths )
 							{
 								goto loop_termination;
@@ -1591,6 +1570,8 @@ void path_explorer_t::compartment_t::step()
 				paths_available = true;
 			}
 			
+			iterations = 0;	// reset iteration counter // desync debug
+
 			return;
 		}
 
@@ -1604,7 +1585,7 @@ void path_explorer_t::compartment_t::step()
 
 			printf("\t\tCurrent Step : %lu \n", step_count);
 #endif
-
+			dbg->message("void path_explorer_t::compartment_t::step()", "Phase 6 started");
 			start = dr_time();	// start timing
 
 			while (phase_counter < all_halts_count)
@@ -1620,6 +1601,7 @@ void path_explorer_t::compartment_t::step()
 				{
 					// only halts with relevant goods packets are counted
 					++iterations;
+					++total_iterations;
 				}
 
 				++phase_counter;
@@ -1694,6 +1676,7 @@ void path_explorer_t::compartment_t::step()
 
 				refresh_start_time = 0;
 				refresh_completed = true;
+				dbg->message("void path_explorer_t::compartment_t::step()", "Refresh completed");
 			}
 
 			iterations = 0;	// reset iteration counter
