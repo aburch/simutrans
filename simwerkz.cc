@@ -899,7 +899,7 @@ const char *wkz_raise_lower_base_t::move( spieler_t *sp, uint16 buttonstate, koo
 }
 
 
-const char* wkz_raise_lower_base_t::drag(spieler_t *sp, koord k, sint16 height, int &n)
+const char* wkz_raise_lower_base_t::drag(spieler_t *sp, koord k, sint16 height, int &n, bool allow_deep_water)
 {
 	if(  !welt->is_within_grid_limits(k)  ) {
 		return "";
@@ -908,7 +908,7 @@ const char* wkz_raise_lower_base_t::drag(spieler_t *sp, koord k, sint16 height, 
 
 	// dragging may be going up or down!
 	while(  welt->lookup_hgt(k) < height  &&  height <= welt->get_maximumheight()  ) {
-		int diff = welt->grid_raise( sp, k, err );
+		int diff = welt->grid_raise( sp, k, allow_deep_water, err);
 		if(  diff == 0  ) {
 			break;
 		}
@@ -955,22 +955,22 @@ const char *wkz_raise_t::check_pos(spieler_t *sp, koord3d pos )
 		is_dragging = false;
 		return "";
 	}
-	if (! welt->is_within_grid_limits(pos)) {
+	if (! welt->is_within_grid_limits(pos.get_2d())) {
 		return "";
 	}
-	sint8 h = (sint8) get_drag_height(pos);
+	sint8 h = (sint8) get_drag_height(pos.get_2d());
 	if (h > grund_t::underground_level) {
 			return "Terraforming not possible\nhere in underground view";
 	}
 	if(!sp->is_public_service())
 	{
-		if(welt->lookup_hgt(pos) < welt->get_grundwasser() - 1)
+		if(welt->lookup_hgt(pos.get_2d()) < welt->get_grundwasser() - 1)
 		{
 			return "Cannot terraform in deep water";
 		}
 		for(int n = 0; n < 16; n ++)
 		{
-			const koord kn = pos.second_neighbours[n] + pos;
+			const koord kn = pos.get_2d().second_neighbours[n] + pos.get_2d();
 			const sint8 height = welt->lookup_hgt(kn);
 			if(height < (welt->get_grundwasser()))
 			{
@@ -1011,22 +1011,24 @@ const char *wkz_raise_t::work(spieler_t* sp, koord3d pos )
 			int n = 0;	// tiles changed
 			if (!strempty(default_param)) {
 				// called by dragging or by AI
-				err = drag(sp, k, atoi(default_param), n);
+				err = drag(sp, k, atoi(default_param), n, sp->is_public_service());
 			}
 			else {
-				n = welt->grid_raise(sp, k, err);
+				n = welt->grid_raise(sp, k, sp->is_public_service(), err);
 			}
+
+			
 
 			if(n>0) 
 			{
 				const sint64 cost = welt->get_settings().cst_alter_land * n;
-				spieler_t::book_construction_costs(sp, cost, pos, ignore_wt);
+				spieler_t::book_construction_costs(sp, cost, pos.get_2d(), ignore_wt);
 				// update image
 				for(int j=-n; j<=n; j++) 
 				{
 					for(int i=-n; i<=n; i++) 
 					{
-						const planquadrat_t* p = welt->access(pos + koord(i, j));
+						const planquadrat_t* p = welt->access(pos.get_2d() + koord(i, j));
 						if (p)  
 						{
 							grund_t* g = p->get_kartenboden();
@@ -1104,7 +1106,7 @@ const char *wkz_lower_t::work( spieler_t *sp, koord3d pos )
 			int n = 0; // tiles changed
 			if (!strempty(default_param)) {
 				// called by dragging or by AI
-				err = drag(sp, k, atoi(default_param), n);
+				err = drag(sp, k, atoi(default_param), n, sp->is_public_service());
 			}
 			else {
 				n = welt->grid_lower(sp, k, err);
@@ -1527,7 +1529,7 @@ const char *wkz_marker_t::work( spieler_t *sp, koord3d pos )
 	if(!welt->is_within_limits(pos.get_2d())) 
 		return "Cannot set marker off the edge of the world.\n";
 	
-	grund_t *gr = welt->lookup_kartenboden(pos);
+	grund_t *gr = welt->lookup_kartenboden(pos.get_2d());
 	if (!gr) 
 		return "Cannot set marker here.\n";
 
@@ -1676,7 +1678,7 @@ const char *wkz_transformer_t::work( spieler_t *sp, koord3d pos )
 	{
 		return CREDIT_MESSAGE;
 	}
-	grund_t *gr=welt->lookup_kartenboden(pos);
+	grund_t *gr=welt->lookup_kartenboden(pos.get_2d());
 
 	if(  !welt->get_settings().get_allow_underground_transformers()  &&  pos.z!=gr->get_hoehe()  ) {
 		// no underground transformers allowed
@@ -1693,16 +1695,16 @@ const char *wkz_transformer_t::work( spieler_t *sp, koord3d pos )
 	// search for factory
 	// must be independent of network mode
 	if (gr->get_pos().z <= pos.z) {
-		fab = leitung_t::suche_fab_4(pos);
+		fab = leitung_t::suche_fab_4(pos.get_2d());
 	}
 	else if (gr->get_pos().z == pos.z+1) {
-		fab = fabrik_t::get_fab(pos);
+		fab = fabrik_t::get_fab(pos.get_2d());
 		underground = true;
 	}
 
 	// Check whether the transformer (substation) is within city limits.
 	// @author: jamespetts	
-	stadt_t* city = welt->get_city(pos);
+	stadt_t* city = welt->get_city(pos.get_2d());
 
 	if(fab != NULL)
 	{
@@ -1735,7 +1737,7 @@ const char *wkz_transformer_t::work( spieler_t *sp, koord3d pos )
 		}
 
 		tunnelboden_t* tunnel = new tunnelboden_t(pos, 0);
-		welt->access(pos)->boden_hinzufuegen(tunnel);
+		welt->access(pos.get_2d())->boden_hinzufuegen(tunnel);
 		tunnel->obj_add(new tunnel_t(pos, sp, tunnel_besch));
 		spieler_t::add_maintenance( sp, tunnel_besch->get_wartung(), tunnel_besch->get_finance_waytype() );
 		gr = tunnel;
@@ -4145,15 +4147,15 @@ DBG_MESSAGE("wkz_dockbau()","building dock from square (%d,%d) to (%d,%d)", k.x,
 			return "Das Feld gehoert\neinem anderen Spieler\n";
 		}
 		// ok, really new stop on this tile then
-		halt = haltestelle_t::create(pos, sp);
+		halt = haltestelle_t::create(pos.get_2d(), sp);
 		if(halt.is_bound() && env_t::networkmode)
 		{
 			cbuffer_t message;
-			const stadt_t* nearest_city = welt->suche_naechste_stadt(pos);
+			const stadt_t* nearest_city = welt->suche_naechste_stadt(pos.get_2d());
 			const char * city_name = nearest_city ? nearest_city->get_name() : "open countryside";
-			const char* preposition = welt->get_city(pos) || !nearest_city ? "in" : "near";
+			const char* preposition = welt->get_city(pos.get_2d()) || !nearest_city ? "in" : "near";
 			message.printf("%s has built a new %s %s %s.", sp->get_name(), "Dock", preposition, city_name);
-			welt->get_message()->add_message(message, pos, message_t::ai, sp->get_player_color1());
+			welt->get_message()->add_message(message, pos.get_2d(), message_t::ai, sp->get_player_color1());
 		}
 	}
 	hausbauer_t::baue(halt->get_besitzer(), bau_pos, layout, besch, &halt);
@@ -4385,17 +4387,17 @@ DBG_MESSAGE("wkz_halt_aux()", "building %s on square %d,%d for waytype %x", besc
 		if(  bd && bd->get_halt().is_bound()  ) {
 			return "Das Feld gehoert\neinem anderen Spieler\n";
 		}
-		halt = haltestelle_t::create(pos, sp);
+		halt = haltestelle_t::create(pos.get_2d(), sp);
 		if(halt.is_bound() && env_t::networkmode)
 		{
 			cbuffer_t message;
-			const stadt_t* nearest_city = welt->suche_naechste_stadt(pos);
+			const stadt_t* nearest_city = welt->suche_naechste_stadt(pos.get_2d());
 			const char * city_name = nearest_city ? nearest_city->get_name() : "open countryside";
-			const char* preposition = welt->get_city(pos) || !nearest_city ? "in" : "near";
+			const char* preposition = welt->get_city(pos.get_2d()) || !nearest_city ? "in" : "near";
 			int const lang = welt->get_settings().get_name_language_id();
 			const char *stop = translator::translate(type_name, lang);
 			message.printf("%s has built a new %s %s %s.", sp->get_name(), stop, preposition, city_name);
-			welt->get_message()->add_message(message, pos, message_t::ai, sp->get_player_color1());
+			welt->get_message()->add_message(message, pos.get_2d(), message_t::ai, sp->get_player_color1());
 		}
 	}
 	hausbauer_t::neues_gebaeude(halt->get_besitzer(), bd->get_pos(), layout, besch, &halt);
@@ -4426,8 +4428,8 @@ DBG_MESSAGE("wkz_halt_aux()", "building %s on square %d,%d for waytype %x", besc
 		}
 		adjusted_cost -= welt->calc_adjusted_monthly_figure(maint * 60);
 	}
-	spieler_t::book_construction_costs(sp,  adjusted_cost, pos, wegtype);
-	if(  env_t::station_coverage_show  &&  welt->get_zeiger()->get_pos().get_2d()==pos  ) {
+	spieler_t::book_construction_costs(sp,  adjusted_cost, pos.get_2d(), wegtype);
+	if(  env_t::station_coverage_show  &&  welt->get_zeiger()->get_pos().get_2d()==pos.get_2d()  ) {
 		// since we are larger now ...
 		halt->mark_unmark_coverage( true );
 	}
@@ -5566,7 +5568,7 @@ const char *wkz_build_haus_t::work( spieler_t *sp, koord3d pos )
 		if(gb) {
 			// building successful
 			if(  besch->get_utyp()!=haus_besch_t::attraction_land  &&  besch->get_utyp()!=haus_besch_t::attraction_city  ) {
-				stadt_t *city = welt->get_city( pos );
+				stadt_t *city = welt->get_city( pos.get_2d() );
 				if(city) {
 					city->add_gebaeude_to_stadt(gb);
 					city->reset_city_borders();
@@ -6039,7 +6041,7 @@ DBG_MESSAGE("wkz_headquarter()", "building headquarter at (%d,%d)", pos.x, pos.y
 			if(ok) {
 				// then build it
 				hq = hausbauer_t::baue(sp, gr->get_pos(), rotate, besch, NULL);
-				stadt_t *city = welt->get_city( pos );
+				stadt_t *city = welt->get_city( pos.get_2d() );
 				if(city) {
 					city->add_gebaeude_to_stadt(hq);
 					welt->add_building_to_world_list(hq);

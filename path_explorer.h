@@ -267,6 +267,7 @@ private:
 		// phase counters
 		uint16 phase_counter;
 		uint32 iterations;
+		uint32 total_iterations; // for desync debug only
 
 		// phase counters for path searching
 		uint16 via_index;
@@ -315,11 +316,11 @@ private:
 		static bool local_limits_changed;
 
 		// default iteration limits
-		static const uint32 default_rebuild_connexions = 4096;
-		static const uint32 default_filter_eligible = 4096;
-		static const uint32 default_fill_matrix = 4096;
-		static const uint64 default_explore_paths = 1048576;
-		static const uint32 default_reroute_goods = 4096;
+		static const uint32 default_rebuild_connexions  = 0x0400;
+		static const uint32 default_filter_eligible = 0x00018000;
+		static const uint32 default_fill_matrix     = 0x00010000;
+		static const uint64 default_explore_paths   = 0x01000000;
+		static const uint32 default_reroute_goods       = 0x0100;
 
 		// phase indices
 		static const uint8 phase_check_flag = 0;
@@ -355,9 +356,17 @@ private:
 		void step();
 		void reset(const bool reset_finished_set);
 
-		bool are_paths_available() { return paths_available; }
-		bool is_refresh_completed() { return refresh_completed; }
-		bool is_refresh_requested() { return refresh_requested; }
+		bool are_paths_available() const { return paths_available; }
+		bool is_refresh_completed() const { return refresh_completed; }
+		bool is_refresh_requested() const { return refresh_requested; }
+
+		// Note that these are only used for the client/server synchronisation checklist for diagnostic purposes.
+		uint8 get_current_phase() const { return current_phase; }
+		uint16 get_phase_counter() const { return phase_counter; }
+		uint16 get_working_halt_count() const { return working_halt_count; }
+		uint16 get_all_halt_count() const { return all_halts_count; }
+		uint16 get_transfer_count() const { return transfer_count; }
+		uint32 get_total_iterations() { const uint32 ti = total_iterations; total_iterations = 0; return ti; }
 
 		void set_category(uint8 category);
 		void set_refresh() { refresh_requested = true; }
@@ -365,8 +374,8 @@ private:
 		bool get_path_between(const halthandle_t origin_halt, const halthandle_t target_halt,
 							  uint16 &aggregate_time, halthandle_t &next_transfer);
 
-		const char *get_category_name() { return ( catg_name ? catg_name : "" ); }
-		const char *get_current_phase_name() { return phase_name[current_phase]; }
+		const char *get_category_name() const { return ( catg_name ? catg_name : "" ); }
+		const char *get_current_phase_name() const { return phase_name[current_phase]; }
 
 		static void initialise_connexion_list();
 
@@ -455,7 +464,19 @@ public:
 	static bool is_processing() { return processing; }
 	static const char *get_current_category_name() { return goods_compartment[current_compartment].get_category_name(); }
 	static const char *get_current_phase_name() { return goods_compartment[current_compartment].get_current_phase_name(); }
-
+	
+	// Note that these are only used for the client/server synchronisation checklist for diagnostic purposes.
+	static uint8 get_current_compartment() { return current_compartment; }
+	static uint8 get_max_categories() { return max_categories; }
+	static bool get_paths_available(uint8 i) { return goods_compartment[i].are_paths_available(); }
+	static bool get_refresh_completed(uint8 i) { return goods_compartment[i].is_refresh_completed(); }
+	static bool get_refresh_requested(uint8 i) { return goods_compartment[i].is_refresh_requested(); }
+	static uint8 get_current_phase(uint8 i) { return goods_compartment[i].get_current_phase(); }
+	static uint16 get_phase_counter(uint8 i) { return goods_compartment[i].get_phase_counter(); }
+	static uint16 get_working_halt_count(uint8 i) { return goods_compartment[i].get_working_halt_count(); }
+	static uint16 get_all_halt_count(uint8 i) { return goods_compartment[i].get_all_halt_count(); }
+	static uint16 get_transfer_count(uint8 i) { return goods_compartment[i].get_transfer_count(); }
+	static uint32 get_total_iterations(uint8 i) { return goods_compartment[i].get_total_iterations(); }
 };
 
 #endif

@@ -315,7 +315,10 @@ grund_t* vehikel_basis_t::betrete_feld()
 		gr = welt->lookup_kartenboden(get_pos().get_2d());
 		set_pos( gr->get_pos() );
 	}
-	gr->obj_add(this);
+	if(!gr->obj_add(this))
+	{
+		dbg->error("vehikel_basis_t::betrete_feld()","'%s failed to be added to the object list", get_name());
+	}
 	weg = gr->get_weg(get_waytype());
 	return gr;
 }
@@ -858,7 +861,7 @@ uint16 vehikel_t::unload_freight(halthandle_t halt, sint64 & revenue_from_unload
 					if(halt != end_halt && welt->get_settings().is_avoid_overcrowding() && tmp.is_passenger() && !halt->is_within_walking_distance_of(via_halt) && halt->is_overcrowded(tmp.get_besch()->get_catg_index()))
 					{
 						// The avoid_overcrowding setting is activated
-						// Halt overcrowded - discard goods/passengers, and collect no revenue.
+						// Halt overcrowded - discard passengers, and collect no revenue.
 						// Experimetal 7.2 - also calculate a refund.
 
 						if(tmp.get_origin().is_bound() && get_besitzer()->get_finance()->get_account_balance() > 0)
@@ -881,10 +884,7 @@ uint16 vehikel_t::unload_freight(halthandle_t halt, sint64 & revenue_from_unload
 						}
 
 						// Add passengers to unhappy (due to overcrowding) passengers.
-						if(tmp.is_passenger())
-						{
-							halt->add_pax_unhappy(tmp.menge);
-						}
+						halt->add_pax_unhappy(tmp.menge);
 					}
 					else
 					{
@@ -4549,6 +4549,10 @@ bool schiff_t::ist_weg_frei(int &restart_speed,bool)
 		}
 		if(  gr->get_top()>192  ) {
 			// too many ships already here ..
+			if(gr->get_top() > 251)
+			{
+				dbg->warning("bool schiff_t::ist_weg_frei", "Too many ships (%i) on a tile", gr->get_top());
+			}
 			return false;
 		}
 		weg_t *w = gr->get_weg(water_wt);

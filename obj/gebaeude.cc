@@ -897,7 +897,7 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 		}
 
 		// List of stops potentially within walking distance.
-		const planquadrat_t* plan = welt->access(get_pos());
+		const planquadrat_t* plan = welt->access(get_pos().get_2d());
 		const nearby_halt_t *const halt_list = plan->get_haltlist();
 		bool any_suitable_stops_passengers = false;
 		bool any_suitable_stops_mail = false;

@@ -449,7 +449,7 @@ bool spieler_t::neuer_monat()
 				}
 			}
 			
-			if(welt->get_active_player_nr() != player_nr || umgebung_t::networkmode)  // Not the active player or a multi-player game
+			if(welt->get_active_player_nr() != player_nr || env_t::networkmode)  // Not the active player or a multi-player game
 			{
 				// AI players play by the same rules as human players regarding bankruptcy.
 				if(  account_balance < finance->get_hard_credit_limit() && welt->get_settings().bankruptcy_allowed() )

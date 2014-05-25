@@ -311,24 +311,90 @@ void karte_t::world_xy_loop(xy_loop_func function, uint8 flags)
 }
 
 
-void checklist_t::rdwr(memory_rw_t *buffer)
+checklist_t::checklist_t(uint32 _ss, uint32 _st, uint8 _nfc, uint32 _random_seed, uint16 _halt_entry, uint16 _line_entry, uint16 _convoy_entry, bool _processing, uint8 _current_compartment, uint32 _limit_rebuild, uint32 _limit_filter, uint32 _limit_fill, uint32 _limit_explore, uint32 _limit_reroute, uint32 *_rands)
+	: ss(_ss), st(_st), nfc(_nfc), random_seed(_random_seed), halt_entry(_halt_entry), line_entry(_line_entry), convoy_entry(_convoy_entry), processing(_processing), current_compartment(_current_compartment), limit_rebuild(_limit_rebuild), limit_filter(_limit_filter), limit_fill(_limit_fill), limit_explore(_limit_explore), limit_reroute(_limit_reroute)
 {
-	buffer->rdwr_long(random_seed);
-	buffer->rdwr_short(halt_entry);
-	buffer->rdwr_short(line_entry);
-	buffer->rdwr_short(convoy_entry);
-	if(env_t::networkmode)
-	{
-		buffer->rdwr_long(industry_density_proportion);
-		buffer->rdwr_long(actual_industry_density);
-		buffer->rdwr_long(traffic);
+	for(  uint8 i = 0;  i < CHK_RANDS; i++  ) {
+		rand[i]	 = _rands[i];
+	}
+
+	uint8 i = 0;
+	while(  i < path_explorer_t::get_max_categories()  &&  i < 10  ) {
+		paths_available[i] = path_explorer_t::get_paths_available(i);
+		refresh_completed[i] = path_explorer_t::get_refresh_completed(i);
+		refresh_requested[i] = path_explorer_t::get_refresh_requested(i);
+		current_phase[i] = path_explorer_t::get_current_phase(i);
+		phase_counter[i] = path_explorer_t::get_phase_counter(i);
+		working_halt_count[i] = path_explorer_t::get_working_halt_count(i);
+		all_halt_count[i] = path_explorer_t::get_all_halt_count(i);
+		transfer_count[i] = path_explorer_t::get_transfer_count(i);
+		total_iterations[i] = path_explorer_t::get_total_iterations(i);
+		i++;
+	}
+	for(  ; i < 10;  i++  ) {
+		paths_available[i] = refresh_completed[i] = refresh_requested[i] = false;
+		current_phase[i] = 0;
+		phase_counter[i] = working_halt_count[i] = all_halt_count[i] = transfer_count[i] = 0;
+		total_iterations[i] = 0;
 	}
 }
 
 
+void checklist_t::rdwr(memory_rw_t *buffer)
+{
+	buffer->rdwr_long(ss);
+	buffer->rdwr_long(st);
+	buffer->rdwr_byte(nfc);
+	buffer->rdwr_long(random_seed);
+	buffer->rdwr_short(halt_entry);
+	buffer->rdwr_short(line_entry);
+	buffer->rdwr_short(convoy_entry);
+
+	// desync debug
+	buffer->rdwr_long(limit_rebuild);
+	buffer->rdwr_long(limit_filter);
+	buffer->rdwr_long(limit_fill);
+	buffer->rdwr_long(limit_explore);
+	buffer->rdwr_long(limit_reroute);
+
+	for(  uint8 i = 0;  i < CHK_RANDS;  i++  ) {
+		buffer->rdwr_long(rand[i]);
+	}
+		buffer->rdwr_bool(processing);
+		buffer->rdwr_byte(current_compartment);
+	for(  uint8 i = 0;  i < 10;  i++  ) {
+		buffer->rdwr_bool(paths_available[i]);
+		buffer->rdwr_bool(refresh_completed[i]);
+		buffer->rdwr_bool(refresh_requested[i]);
+		buffer->rdwr_byte(current_phase[i]);
+		buffer->rdwr_short(phase_counter[i]);
+		buffer->rdwr_short(working_halt_count[i]);
+		buffer->rdwr_short(all_halt_count[i]);
+		buffer->rdwr_short(transfer_count[i]);
+		buffer->rdwr_long(total_iterations[i]);
+	}
+}
+
+
+
 int checklist_t::print(char *buffer, const char *entity) const
 {
-	return sprintf(buffer, "%s=[rand=%u halt=%u line=%u cnvy=%u ind_dns_prop=%u act_ind_dens=%u traffic=%u] ", entity, random_seed, halt_entry, line_entry, convoy_entry, industry_density_proportion, actual_industry_density, traffic);
+	return sprintf(buffer, "%s=[ss=%u st=%u nfc=%u rand=%u halt=%u line=%u cnvy=%u ssr=%u,%u,%u,%u,%u,%u,%u,%u str=%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u proc=%d curr_cmpt=%u lim=%u,%u,%u,%u,%u pa=%d,%d,%d,%d,%d,%d,%d,%d,%d,%d rc=%d,%d,%d,%d,%d,%d,%d,%d,%d,%d rr=%d,%d,%d,%d,%d,%d,%d,%d,%d,%d curr_ph=%u,%u,%u,%u,%u,%u,%u,%u,%u,%u ph_c=%u,%u,%u,%u,%u,%u,%u,%u,%u,%u whc=%u,%u,%u,%u,%u,%u,%u,%u,%u,%u ahc=%u,%u,%u,%u,%u,%u,%u,%u,%u,%u tc=%u,%u,%u,%u,%u,%u,%u,%u,%u,%u tot_iter=%u,%u,%u,%u,%u,%u,%u,%u,%u,%u] ",
+		entity, ss, st, nfc, random_seed, halt_entry, line_entry, convoy_entry,
+		rand[0], rand[1], rand[2], rand[3], rand[4], rand[5], rand[6], rand[7], rand[8],
+		rand[9], rand[10], rand[11], rand[12], rand[13], rand[14], rand[15], rand[16], rand[17], rand[18], rand[19], rand[20], rand[21], rand[22], rand[23],
+		processing, current_compartment,
+		limit_rebuild, limit_filter, limit_fill, limit_explore, limit_reroute,
+		paths_available[0], paths_available[1], paths_available[2], paths_available[3], paths_available[4], paths_available[5], paths_available[6], paths_available[7], paths_available[8], paths_available[9],
+		refresh_completed[0], refresh_completed[1], refresh_completed[2], refresh_completed[3], refresh_completed[4], refresh_completed[5], refresh_completed[6], refresh_completed[7], refresh_completed[8], refresh_completed[9],
+		refresh_requested[0], refresh_requested[1], refresh_requested[2], refresh_requested[3], refresh_requested[4], refresh_requested[5], refresh_requested[6], refresh_requested[7], refresh_requested[8], refresh_requested[9],
+		current_phase[0], current_phase[1], current_phase[2], current_phase[3], current_phase[4], current_phase[5], current_phase[6], current_phase[7], current_phase[8], current_phase[9],
+		phase_counter[0], phase_counter[1], phase_counter[2], phase_counter[3], phase_counter[4], phase_counter[5], phase_counter[6], phase_counter[7], phase_counter[8], phase_counter[9],
+		working_halt_count[0], working_halt_count[1], working_halt_count[2], working_halt_count[3], working_halt_count[4], working_halt_count[5], working_halt_count[6], working_halt_count[7], working_halt_count[8], working_halt_count[9],
+		all_halt_count[0], all_halt_count[1], all_halt_count[2], all_halt_count[3], all_halt_count[4], all_halt_count[5], all_halt_count[6], all_halt_count[7], all_halt_count[8], all_halt_count[9],
+		transfer_count[0], transfer_count[1], transfer_count[2], transfer_count[3], transfer_count[4], transfer_count[5], transfer_count[6], transfer_count[7], transfer_count[8], transfer_count[9],
+		total_iterations[0], total_iterations[1], total_iterations[2], total_iterations[3], total_iterations[4], total_iterations[5], total_iterations[6], total_iterations[7], total_iterations[8], total_iterations[9]
+	);
 }
 
 
@@ -2765,11 +2831,11 @@ void karte_t::terraformer_t::iterate(bool raise)
 }
 
 
-const char* karte_t::terraformer_t::can_raise_all(const spieler_t *sp, bool keep_water) const
+const char* karte_t::terraformer_t::can_raise_all(const spieler_t *sp, bool allow_deep_water, bool keep_water) const
 {
 	const char* err = NULL;
 	FOR(vector_tpl<node_t>, const &i, list) {
-		err = welt->can_raise_to(sp, i.x, i.y, keep_water, i.h[0], i.h[1], i.h[2], i.h[3]);
+		err = welt->can_raise_to(sp, i.x, i.y, keep_water, allow_deep_water, i.h[0], i.h[1], i.h[2], i.h[3]);
 		if (err) return err;
 	}
 	return NULL;
@@ -2806,15 +2872,21 @@ int karte_t::terraformer_t::lower_all()
 }
 
 
-const char* karte_t::can_raise_to(const spieler_t *sp, sint16 x, sint16 y, bool keep_water, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw) const
+const char* karte_t::can_raise_to(const spieler_t *sp, sint16 x, sint16 y, bool keep_water, bool allow_deep_water, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw) const
 {
 	assert(is_within_limits(x,y));
 	grund_t *gr = lookup_kartenboden_nocheck(x,y);
 	const sint8 water_hgt = get_water_hgt_nocheck(x,y);
 
 	const sint8 max_hgt = max(max(hsw,hse),max(hne,hnw));
+	const sint8 min_hgt = min(min(hsw,hse),min(hne,hnw));
 
 	if(  gr->ist_wasser()  &&  keep_water  &&  max_hgt > water_hgt  ) {
+		return "";
+	}
+
+	if(min_hgt < grundwasser && !allow_deep_water) 
+	{
 		return "";
 	}
 
@@ -2990,7 +3062,7 @@ void karte_t::raise_grid_to(sint16 x, sint16 y, sint8 h)
 }
 
 
-int karte_t::grid_raise(const spieler_t *sp, koord k, const char*&err)
+int karte_t::grid_raise(const spieler_t *sp, koord k, bool allow_deep_water, const char*&err)
 {
 	int n = 0;
 
@@ -3014,13 +3086,14 @@ int karte_t::grid_raise(const spieler_t *sp, koord k, const char*&err)
 		digger.add_raise_node(x, y, hsw, hse, hne, hnw);
 		digger.iterate(true);
 
-		err = digger.can_raise_all(sp);
+		err = digger.can_raise_all(sp, allow_deep_water);
 		if (err) return 0;
 
 		n = digger.raise_all();
 
 		// force world full redraw, or background could be dirty.
 		set_dirty();
+
 	}
 	return (n+3)>>2;
 }
@@ -4146,6 +4219,7 @@ bool karte_t::sync_remove(sync_steppable *obj)	// entfernt alle dinge == obj aus
  */
 void karte_t::sync_step(long delta_t, bool sync, bool display )
 {
+rands[0] = get_random_seed();
 	set_random_mode( SYNC_STEP_RANDOM );
 	haltestelle_t::pedestrian_limit = 0;
 	if(sync) {
@@ -4165,11 +4239,13 @@ void karte_t::sync_step(long delta_t, bool sync, bool display )
 		 * => they are now in a hastable!
 		 */
 		sync_eyecandy_step( delta_t );
+rands[1] = get_random_seed();
 
 		/* pedestrians do not require exact sync and are added/removed frequently
 		 * => they are now in a hastable!
 		 */
 		sync_way_eyecandy_step( delta_t );
+rands[2] = get_random_seed();
 
 		clear_random_mode( INTERACTIVE_RANDOM );
 
@@ -4229,6 +4305,7 @@ void karte_t::sync_step(long delta_t, bool sync, bool display )
 
 		sync_step_running = false;
 	}
+rands[3] = get_random_seed();
 
 	if(display) {
 		// only omitted in fast forward mode for the magic steps
@@ -4260,6 +4337,7 @@ void karte_t::sync_step(long delta_t, bool sync, bool display )
 		update_frame_sleep_time(delta_t);
 	}
 	clear_random_mode( SYNC_STEP_RANDOM );
+rands[4] = get_random_seed();
 }
 
 
@@ -4790,6 +4868,7 @@ void karte_t::set_schedule_counter()
 
 void karte_t::step()
 {
+rands[8] = get_random_seed();
 	DBG_DEBUG4("karte_t::step", "start step");
 	unsigned long time = dr_time();
 
@@ -4815,6 +4894,7 @@ void karte_t::step()
 		DBG_DEBUG4("karte_t::step", "calling neuer_monat");
 		new_month();
 	}
+rands[9] = get_random_seed();
 
 	DBG_DEBUG4("karte_t::step", "time calculations");
 	if(  step_mode==NORMAL  ) {
@@ -4889,12 +4969,14 @@ void karte_t::step()
 			tile_counter = 0;
 		}
 	}
+rands[10] = get_random_seed();
 
 	// to make sure the tick counter will be updated
 	INT_CHECK("karte_t::step 1");
 
 	// Knightly : calling global path explorer
 	path_explorer_t::step();
+rands[11] = get_random_seed();
 	INT_CHECK("karte_t::step 2");
 	
 	DBG_DEBUG4("karte_t::step 4", "step %d convois", convoi_array.get_count());
@@ -4906,6 +4988,7 @@ void karte_t::step()
 			INT_CHECK("karte_t::step 5");
 		}
 	}
+rands[12] = get_random_seed();
 
 	if(cities_awaiting_private_car_route_check.get_count() > 0 && (steps % 12) == 0)
 	{
@@ -4913,6 +4996,7 @@ void karte_t::step()
 		city->check_all_private_car_routes();
 		city->set_check_road_connexions(false);
 	}
+rands[13] = get_random_seed();
 
 
 	// now step all towns 
@@ -4943,6 +5027,7 @@ void karte_t::step()
 	FOR(vector_tpl<fabrik_t*>, const f, fab_list) {
 		f->step(delta_t);
 	}
+rands[16] = get_random_seed();
 
 	finance_history_year[0][WORLD_FACTORIES] = finance_history_month[0][WORLD_FACTORIES] = fab_list.get_count();
 
@@ -4951,6 +5036,7 @@ void karte_t::step()
 	pumpe_t::step_all( delta_t );
 	senke_t::step_all( delta_t );
 	powernet_t::step_all( delta_t );
+rands[17] = get_random_seed();
 
 	DBG_DEBUG4("karte_t::step", "step players");
 	// then step all players
@@ -4959,9 +5045,11 @@ void karte_t::step()
 			spieler[i]->step();
 		}
 	}
+rands[18] = get_random_seed();
 
 	DBG_DEBUG4("karte_t::step", "step halts");
 	haltestelle_t::step_all();
+rands[19] = get_random_seed();
 
 	// Re-check paths if the time has come. 
 	// Long months means that it might be necessary to do
@@ -5032,6 +5120,7 @@ void karte_t::step()
 		get_scenario()->step();
 	}
 	DBG_DEBUG4("karte_t::step", "end");
+rands[20] = get_random_seed();
 }
 
 void karte_t::step_passengers_and_mail(long delta_t)
@@ -5090,15 +5179,15 @@ sint32 karte_t::get_tiles_of_gebaeude(gebaeude_t* const gb, vector_tpl<const pla
 	if(size == koord(1,1))
 	{
 		// A single tiled building - just add the single tile.
-		tile_list.append(access_nocheck(gb->get_pos()));
+		tile_list.append(access_nocheck(gb->get_pos().get_2d()));
 	}
 	else
 	{
 		// A multi-tiled building: check all tiles. Any tile within the 
 		// coverage radius of a building connects the whole building.
 		koord3d k = gb->get_pos();
-		const koord start_pos = k - tile->get_offset();
-		const koord end_pos = k + size;
+		const koord start_pos = k.get_2d() - tile->get_offset();
+		const koord end_pos = k.get_2d() + size;
 		
 		for(k.y = start_pos.y; k.y < end_pos.y; k.y ++) 
 		{
@@ -5112,7 +5201,7 @@ sint32 karte_t::get_tiles_of_gebaeude(gebaeude_t* const gb, vector_tpl<const pla
 					// There may be buildings with holes.
 					if(gb_part && gb_part->get_tile()->get_besch() == hb) 
 					{
-						tile_list.append(access_nocheck(k));
+						tile_list.append(access_nocheck(k.get_2d()));
 					}
 				}
 			}
@@ -5175,11 +5264,11 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 	{
 		city->set_generated_passengers(num_pax, history_type + 1);
 	}
-	else if(get_city(first_origin->get_pos()))
+	else if(get_city(first_origin->get_pos().get_2d()))
 	{
 		// If the passengers start from a non-city building, this must be an onward journey,
 		// so register the passengers as being created in the ultimate origin city.
-		get_city(first_origin->get_pos())->set_generated_passengers(num_pax, history_type + 1);
+		get_city(first_origin->get_pos().get_2d())->set_generated_passengers(num_pax, history_type + 1);
 	}
 	
 	koord3d origin_pos = gb->get_pos();
@@ -5394,7 +5483,7 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 					route_status = no_route;
 				}
 
-				const uint32 straight_line_distance = shortest_distance(origin_pos, destination_pos);
+				const uint32 straight_line_distance = shortest_distance(origin_pos.get_2d(), destination_pos);
 				// Careful -- use uint32 here to avoid overflow cutoff errors.
 				// This number may be very long.
 				walking_time = walking_time_tenths_from_distance(straight_line_distance);
@@ -5732,7 +5821,7 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 				city->set_private_car_trip(pax_left_to_do, destination_town);
 				city->merke_passagier_ziel(destination_pos, COL_TURQUOISE);
 #ifdef DESTINATION_CITYCARS
-				city->erzeuge_verkehrsteilnehmer(origin_pos, car_minutes, destination_pos, pax_left_to_do);
+				city->erzeuge_verkehrsteilnehmer(origin_pos.get_2d(), car_minutes, destination_pos, pax_left_to_do);
 #endif
 				set_return_trip = true;
 				// We cannot do this on arrival, as the ware packets do not remember their origin building.
@@ -5927,7 +6016,7 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 								// use normal amount for return pas/mail
 								return_pax.menge = pax_left_to_do;
 							}
-							return_pax.set_zielpos(origin_pos);
+							return_pax.set_zielpos(origin_pos.get_2d());
 							return_pax.set_ziel(start_halt);
 							if(ret_halt->find_route(return_pax) != 65535)
 							{
@@ -5988,7 +6077,7 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 
 #ifdef DESTINATION_CITYCARS
 						//citycars with destination
-						city->erzeuge_verkehrsteilnehmer(first_destination.location, car_minutes, origin_pos, pax_left_to_do);
+						city->erzeuge_verkehrsteilnehmer(first_destination.location, car_minutes, origin_pos.get_2d(), pax_left_to_do);
 #endif
 
 						if(current_destination.type == factory)
@@ -6004,7 +6093,7 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 						}
 						if(city)
 						{
-							city->merke_passagier_ziel(origin_pos, COL_DARK_ORANGE);
+							city->merke_passagier_ziel(origin_pos.get_2d(), COL_DARK_ORANGE);
 						}
 					}
 				}
@@ -6020,7 +6109,7 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 						else if(city)
 						{
 							// Local, attraction or industry.
-							city->merke_passagier_ziel(origin_pos, COL_DARK_YELLOW);
+							city->merke_passagier_ziel(origin_pos.get_2d(), COL_DARK_YELLOW);
 							city->add_walking_passengers(pax_left_to_do);
 						}
 					}
@@ -6073,7 +6162,7 @@ karte_t::destination karte_t::find_destination(trip_type trip)
 		return current_destination;
 	}
 
-	current_destination.location = gb->get_pos();
+	current_destination.location = gb->get_pos().get_2d();
 	current_destination.building = gb;
 
 	// Add the correct object type.
@@ -7226,9 +7315,21 @@ void karte_t::load(loadsave_t *file)
 
 	loaded_rotation = settings.get_rotation();
 
+
 	// some functions (laden_abschliessen) need to know what version was loaded
 	load_version.version = file->get_version();
 	load_version.experimental_version = file->get_experimental_version();
+
+	if(  env_t::networkmode  ) {
+		// clear the checklist history
+		for(  int i=0;  i<LAST_CHECKLISTS_COUNT;  ++i  ) {
+			last_checklists[i] = checklist_t();
+		}
+		for(  int i = 0;  i < CHK_RANDS  ;  i++  ) {
+			rands[i] = 0;
+		}
+	}
+
 
 #ifndef DEBUG_SIMRAND_CALLS
 	if(  env_t::networkmode  ) {
@@ -8797,6 +8898,7 @@ bool karte_t::interactive(uint32 quit_month)
 
 		if(  env_t::networkmode  ) {
 			process_network_commands(&ms_difference);
+
 		}
 		else {
 			// we wait here for maximum 9ms
@@ -8863,10 +8965,13 @@ bool karte_t::interactive(uint32 quit_month)
 						network_frame_count = 0;
 					}
 					sync_steps = steps * settings.get_frames_per_step() + network_frame_count;
-					LCHKLST(sync_steps) = checklist_t(get_random_seed(), halthandle_t::get_next_check(), linehandle_t::get_next_check(), convoihandle_t::get_next_check(), industry_density_proportion, actual_industry_density,finance_history_year[0][WORLD_CITYCARS] );
+					LCHKLST(sync_steps) = checklist_t(sync_steps, (uint32)steps, network_frame_count, get_random_seed(), halthandle_t::get_next_check(), linehandle_t::get_next_check(), convoihandle_t::get_next_check(),
+						path_explorer_t::is_processing(), path_explorer_t::get_current_compartment(), path_explorer_t::get_limit_rebuild_connexions(), path_explorer_t::get_limit_filter_eligible(), path_explorer_t::get_limit_fill_matrix(), (uint32)path_explorer_t::get_limit_explore_paths(), path_explorer_t::get_limit_reroute_goods(),
+						rands
+					);
 
 #ifdef DEBUG_SIMRAND_CALLS
-					char buf[256];
+					char buf[2048];
 					LCHKLST(sync_steps).print(buf, "chklist");
 					dbg->warning("karte_t::interactive", "sync_step=%u  %s", sync_steps, buf);
 #endif

@@ -715,7 +715,7 @@ void planquadrat_t::add_to_haltlist(halthandle_t halt)
 	if(halt.is_bound()) 
 	{
 		// Quick and dirty way to our 2d co-ordinates 
-		const koord pos = get_kartenboden()->get_pos();
+		const koord pos = get_kartenboden()->get_pos().get_2d();
 		const koord halt_next_pos = halt->get_next_pos(pos);
 		const uint8 distance = (uint8)shortest_distance(halt_next_pos, pos);
 		if(halt_list_count > 0)

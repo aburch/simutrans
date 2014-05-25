@@ -830,6 +830,12 @@ void stadt_t::cityrules_rdwr(loadsave_t *file)
 		file->rdwr_long(bridge_success_percentage);
 	}
 
+	if(file->get_experimental_version() >= 12 || (file->get_version() >= 112007 && file->get_experimental_version() >= 11))
+	{
+		file->rdwr_long(renovations_try);
+		file->rdwr_long(renovations_count);
+	}
+
 	file->rdwr_short(ind_start_score);
 	file->rdwr_short(ind_neighbour_score[0]);
 	file->rdwr_short(ind_neighbour_score[1]);
@@ -2753,7 +2759,7 @@ void stadt_t::add_road_connexion(uint16 journey_time_per_tile, const gebaeude_t*
 	connected_attractions.set(attraction_pos.get_2d(), journey_time_per_tile);
 
 	// Add all tiles of an attraction here.
-	if(!attraction->get_tile() || attraction_pos == koord::invalid)
+	if(!attraction->get_tile() || attraction_pos.get_2d() == koord::invalid)
 	{
 		return;
 	}
@@ -4968,7 +4974,7 @@ int private_car_destination_finder_t::get_kosten(const grund_t* gr, sint32 max_s
 	}
 
 	const uint32 max_tile_speed = w->get_max_speed(); // This returns speed in km/h.
-	const planquadrat_t* plan = welt->access_nocheck(gr->get_pos());
+	const planquadrat_t* plan = welt->access_nocheck(gr->get_pos().get_2d());
 	const stadt_t* city = plan->get_city();
 	const bool is_diagonal = w->is_diagonal();
 

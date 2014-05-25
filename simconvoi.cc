@@ -75,7 +75,6 @@
 #define WTT_LOADING 500
 #define WAIT_INFINITE 9223372036854775807ll
 
-
 karte_ptr_t convoi_t::welt;
 
 /*
@@ -416,7 +415,7 @@ void convoi_t::laden_abschliessen()
 
 	bool realing_position = false;
 	if(  anz_vehikel>0  ) {
-DBG_MESSAGE("convoi_t::laden_abschliessen()","state=%s, next_stop_index=%d", state_names[state], next_stop_index );
+		DBG_MESSAGE("convoi_t::laden_abschliessen()","state=%s, next_stop_index=%d", state_names[state], next_stop_index );
 
 	const uint32 max_route_index = get_route() ? get_route()->get_count() - 1 : 0;
 
@@ -472,7 +471,7 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","state=%s, next_stop_index=%d", sta
 							}
 							step_pos += ribi_t::ist_kurve(v->get_fahrtrichtung()) ? diagonal_vehicle_steps_per_tile : VEHICLE_STEPS_PER_TILE;
 						}
-						dbg->message("convoi_t::laden_abschliessen()", "v: pos(%s) steps(%d) len=%d ribi=%d prev (%s) step(%d)", v->get_pos().get_str(), v->get_steps(), v->get_besch()->get_length()*16, v->get_fahrtrichtung(),  drive_pos.get_2d().get_str(), step_pos);
+						DBG_MESSAGE("convoi_t::laden_abschliessen()", "v: pos(%s) steps(%d) len=%d ribi=%d prev (%s) step(%d)", v->get_pos().get_str(), v->get_steps(), v->get_besch()->get_length()*16, v->get_fahrtrichtung(),  drive_pos.get_2d().get_str(), step_pos);
 						if(  abs( v->get_steps() - step_pos )>15  ) {
 							// not where it should be => realing
 							realing_position = true;
@@ -525,7 +524,7 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_ind
 	// put convoi agian right on track?
 	if(realing_position  &&  anz_vehikel>1) {
 		// display just a warning
-		dbg->warning("convoi_t::laden_abschliessen()","cnv %i is currently too long.",self.get_id());
+		DBG_MESSAGE("convoi_t::laden_abschliessen()","cnv %i is currently too long.",self.get_id());
 
 		if (route.empty()) {
 			// realigning needs a route
@@ -3116,19 +3115,30 @@ convoi_t::reverse_order(bool rev)
 	{
 		if(!back()->get_besch()->is_bidirectional())
 		{
-			//Do not change the order at all if the last vehicle is not bidirectional
+			// Do not change the order at all if the last vehicle is not bidirectional
 			return;
 		}
 
 		a++;
 		if(front()->get_besch()->get_leistung() > 0)
 		{
-			// If this is a locomotive, check for tenders. 
-			a += front()->get_besch()->get_nachfolger_count();
-			if(anz_vehikel > a && fahr[a]->get_besch()->get_leistung() > 0)
+			// If this is a locomotive, check for tenders/pair units.
+			if(front()->get_besch()->get_nachfolger_count() > 0 && fahr[1]->get_besch()->get_vorgaenger_count() > 0)
 			{
-				// Check for double-headed tender locomotives
-				a += fahr[a]->get_besch()->get_nachfolger_count();
+				a ++;
+			}
+
+			// Check for double-headed (and triple headed, etc.) tender locomotives
+			uint8 first = a;
+			uint8 second = a + 1;
+			while(anz_vehikel > second && (fahr[first]->get_besch()->get_leistung() > 0 || fahr[second]->get_besch()->get_leistung() > 0))
+			{
+				if(fahr[first]->get_besch()->get_nachfolger_count() > 0 && fahr[second]->get_besch()->get_vorgaenger_count() > 0)
+				{
+					a ++;
+				}
+				first++;
+				second++;
 			}
 			if(anz_vehikel > 1 && fahr[1]->get_besch()->get_leistung() == 0 && fahr[1]->get_besch()->get_nachfolger_count() == 1 && fahr[1]->get_besch()->get_nachfolger(0) && fahr[1]->get_besch()->get_nachfolger(0)->get_leistung() == 0 && fahr[1]->get_besch()->get_nachfolger(0)->get_preis() == 0)
 			{
@@ -3137,8 +3147,8 @@ convoi_t::reverse_order(bool rev)
 			}
 		}
 
-		//Check whether this is a Garrett type vehicle
-		if(front()->get_besch()->get_leistung() == 0 && front()->get_besch()->get_zuladung() == 0)
+		// Check whether this is a Garrett type vehicle (with unpowered front units).
+		if(fahr[0]->get_besch()->get_leistung() == 0 && fahr[0]->get_besch()->get_zuladung() == 0)
 		{
 			// Possible Garrett
 			const uint8 count = front()->get_besch()->get_nachfolger_count();
@@ -3149,7 +3159,7 @@ convoi_t::reverse_order(bool rev)
 			}
 		}
 
-		//Check for a goods train with a brake van
+		// Check for a goods train with a brake van
 		if((fahr[anz_vehikel - 2]->get_besch()->get_ware()->get_catg_index() > 1)
 			&& 	fahr[anz_vehikel - 2]->get_besch()->get_can_be_at_rear() == false)
 		{
@@ -3249,7 +3259,9 @@ void convoi_t::rdwr(loadsave_t *file)
 
 	file->rdwr_long(wait_lock);
 	// some versions may produce broken savegames apparently
-	if(wait_lock > 1470000) { // max as set by NO_ROUTE
+	if(wait_lock > 1470000 && file->get_experimental_version() < 11)
+	{ 
+		// max as was set by NO_ROUTE in former times. This code is deprecated now as the wait_lock can be higher with the convoy spacing feature.
 		dbg->warning("convoi_t::sync_prepre()","Convoi %d: wait lock out of bounds: wait_lock = %d, setting to 1470000",self.get_id(), wait_lock);
 		wait_lock = 1470000;
 	}
@@ -4433,11 +4445,11 @@ void convoi_t::laden() //"load" (Babelfish)
 							// More than one entry - might be a timetable issue.
 							if(journey_time > average_journey_time * 2)
 							{
-								dbg->message("void convoi_t::laden()", "Possible timetable anomaly detected. Skipping inserting journey time (convoy).");
+								//dbg->message("void convoi_t::laden()", "Possible timetable anomaly detected. Skipping inserting journey time (convoy).");
 							}
 							else if(journey_time < average_journey_time / 2)
 							{
-								dbg->message("void convoi_t::laden()", "Possible timetable anomaly detected. Resetting average journey times (convoy).");
+								//dbg->message("void convoi_t::laden()", "Possible timetable anomaly detected. Resetting average journey times (convoy).");
 								average->reset();
 								allow_resetting_line_average = true;
 								goto write_basic;
@@ -4496,11 +4508,11 @@ write_basic:
 								// More than one entry - might be a timetable issue.
 								if(journey_time > average_journey_time * 2)
 								{
-									dbg->message("void convoi_t::laden()", "Possible timetable anomaly detected. Skipping inserting journey time (line).");
+									//dbg->message("void convoi_t::laden()", "Possible timetable anomaly detected. Skipping inserting journey time (line).");
 								}
 								else if(allow_resetting_line_average && journey_time < average_journey_time / 2)
 								{
-									dbg->message("void convoi_t::laden()", "Possible timetable anomaly detected. Resetting average journey times (line).");
+									//dbg->message("void convoi_t::laden()", "Possible timetable anomaly detected. Resetting average journey times (line).");
 									average->reset();
 									goto write_basic_line;
 								}
@@ -4687,7 +4699,8 @@ sint64 convoi_t::calc_revenue(const ware_t& ware, array_tpl<sint64> & apportione
 	}
 	const departure_data_t dep = departures.get(ware.get_last_transfer().get_id());
 	uint32 travel_distance = dep.get_overall_distance();
-	if (travel_distance == 0) {
+	if (travel_distance == 0)
+	{
 		// Something went wrong, make a wild guess
 		travel_distance = max_distance / 2;
 	}
@@ -4702,6 +4715,7 @@ sint64 convoi_t::calc_revenue(const ware_t& ware, array_tpl<sint64> & apportione
 	sint64 journey_tenths = 0;
 	sint64 average_speed;
 	bool valid_journey_time = false;
+	
 	if(ware.get_last_transfer().is_bound())
 	{
 		const grund_t* gr = welt->lookup(front()->get_pos());
@@ -4715,7 +4729,8 @@ sint64 convoi_t::calc_revenue(const ware_t& ware, array_tpl<sint64> & apportione
 				{
 					dbg->warning("sint64 convoi_t::calc_revenue", "Average speed (%i) for %s exceeded maximum speed (%i); falling back to overall average", average_speed, get_name(), speed_to_kmh(get_min_top_speed()));
 				}
-				else {
+				else 
+				{
 					// We seem to have a believable speed...
 					if(average_speed == 0)
 					{
@@ -6076,6 +6091,7 @@ DBG_MESSAGE("convoi_t::go_to_depot()","convoi state %i => cannot change schedule
 	else if (!transport_success)
 	{
 		txt = "Depot found but could not be inserted in schedule.  This is a bug!";
+		dbg->warning("convoi_t::go_to_depot()", "Depot found but could not be inserted in schedule for convoy %s", get_name());
 		success = false;
 	}
 	if ( (!success || show_success) && get_besitzer() == welt->get_active_player())
@@ -6743,17 +6759,18 @@ journey_times_map& convoi_t::get_average_journey_times()
 		if(line->get_is_alternating_circle_route() && reverse_schedule)
 		{
 			return line->get_average_journey_times_reverse_circular();
-		}
-		else
-		{
-			return line->get_average_journey_times();
-		}
-	}
-	else
-	{
-		return average_journey_times;
-	}
+ 		}
+ 		else
+ 		{
+ 			return line->get_average_journey_times();
+ 		}
+ 	}
+ 	else
+ 	{
+ 		return average_journey_times;
+ 	}
 }
+
 
 void convoi_t::clear_departures()
 {

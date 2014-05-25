@@ -66,9 +66,10 @@ protected:
 	bool is_dragging;
 	sint16 drag_height;
 
-	const char* drag(spieler_t*, koord k, sint16 h, int &n);
+	const char* drag(spieler_t*, koord k, sint16 h, int &n, bool allow_deep_water);
 	virtual sint16 get_drag_height(koord k) = 0;
 	bool check_dragging();
+
 public:
 	wkz_raise_lower_base_t(uint16 id) : werkzeug_t(id | GENERAL_TOOL), is_dragging(false), drag_height(0) { offset = Z_GRID; }
 	image_id get_icon(spieler_t*) const OVERRIDE { return grund_t::underground_mode==grund_t::ugm_all ? IMG_LEER : icon; }
