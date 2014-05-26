@@ -2077,7 +2077,6 @@ bool haltestelle_t::hole_ab( slist_tpl<ware_t> &fracht, const ware_besch_t *wtyp
 				const halthandle_t next_transfer = next_to_load->get_zwischenziel();
 				if(plan_halt.is_bound() && next_transfer == plan_halt && plan_halt->is_enabled(catg_index))
 				{
-					
 					// Check to see whether this is the convoy departing from this stop that will arrive at the destination the soonest.
 
 					const arrival_times_map& next_transfer_arrivals = next_transfer->get_estimated_convoy_arrival_times();
@@ -2106,6 +2105,15 @@ bool haltestelle_t::hole_ab( slist_tpl<ware_t> &fracht, const ware_besch_t *wtyp
 								continue;
 							}
 
+							// Check to see whether the convoy is running late. 
+							const sint64 this_stop_arrival = estimated_convoy_arrival_times.get(iter.key);
+							if(this_stop_arrival <= welt->get_zeit_ms() && !loading_here.is_contained(arrival_convoy))
+							{
+								// Assume that it will be as late again as it already is (e.g., if it is 2 minutes late so far, assume a total delay of 4 minutes)
+								const sint64 estimated_total_delay = (welt->get_zeit_ms() - this_stop_arrival) * 2;
+								current_time += estimated_total_delay;
+							}
+
 							if(current_time < best_arrival_time)
 							{
 								best_arrival_time = current_time;
@@ -2120,19 +2128,20 @@ bool haltestelle_t::hole_ab( slist_tpl<ware_t> &fracht, const ware_besch_t *wtyp
 						skipped = true;
 						continue;
 					}
-
-					const uint32 time_till_departure = (cnv->go_on_ticks - welt->get_zeit_ms());
+	
 					// Don't board a vehicle which is waiting for spacing until near its departure time
 					// Assures that passengers will board the first train to leave, not the first train to arrive
-					if ((fpl->get_current_eintrag().ladegrad > 0) && (fpl->get_spacing() > 0))
+					// This is no longer necessary given the arrival times code.
+					/*if((fpl->get_current_eintrag().ladegrad > 0) && (fpl->get_spacing() > 0) && cnv->go_on_ticks < WAIT_INFINITE)
 					{
+						const uint32 time_till_departure = (cnv->go_on_ticks - welt->get_zeit_ms());
 						if((welt->ticks_to_tenths_of_minutes(time_till_departure)) > 100)
 						{
 							fpl->increment_index(&index, &reverse);
 							skipped = true;
 							continue;
 						}
-					}
+					}*/
 
 					// Refuse to be overcrowded if alternative exists
 					connexion * const next_connexion = connexions[catg_index]->get(next_transfer);
@@ -3580,7 +3589,14 @@ void haltestelle_t::rdwr(loadsave_t *file)
 	if(file->get_experimental_version() >= 12 || (file->get_version() >= 112007 && file->get_experimental_version() >= 11))
 	{
 		file->rdwr_byte(check_waiting);
+	}
+	else
+	{
+		check_waiting = 0;
+	}
 
+	if(file->get_experimental_version() >= 12)
+	{
 		// Load/save the estimated arrival and departure times.
 		uint16 convoy_id;
 		sint64 time;
@@ -3609,7 +3625,6 @@ void haltestelle_t::rdwr(loadsave_t *file)
 				file->rdwr_short(convoy_id);
 				file->rdwr_longlong(time);
 			}
-			
 		}
 
 		if(file->is_loading())
@@ -3638,10 +3653,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 			}
 		}
 	}
-	else
-	{
-		check_waiting = 0;
-	}
+	
 
 	// So compute it fresh every time
 	calc_transfer_time();
