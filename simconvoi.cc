@@ -4056,7 +4056,12 @@ void convoi_t::rdwr(loadsave_t *file)
 			{
 				uint32 count = 0;
 				file->rdwr_long(count);
-				clear_departures();
+				// Do NOT use clear_departures here, as this clears the estimated times
+				// in the halts that have already been loaded, as the halts load before 
+				// the convoys.
+				departures.clear();
+				departures_already_booked.clear();
+				journey_times_between_schedule_points.clear();
 				for(int i = 0; i < count; i ++)
 				{
 					file->rdwr_short(departure_point.entry);
