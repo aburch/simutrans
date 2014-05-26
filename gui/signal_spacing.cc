@@ -14,7 +14,7 @@
 
 #define L_DIALOG_WIDTH (200)
 
-uint8 signal_spacing_frame_t::signal_spacing = 2;
+uint8 signal_spacing_frame_t::signal_spacing = 16;
 bool signal_spacing_frame_t::remove = true;
 bool signal_spacing_frame_t::replace = true;
 
@@ -31,7 +31,7 @@ signal_spacing_frame_t::signal_spacing_frame_t(spieler_t *sp_, wkz_roadsign_t* t
 	signal_spacing_inp.set_width_by_len(3);
 	signal_spacing_inp.set_pos( scr_coord( L_DIALOG_WIDTH - D_MARGIN_RIGHT - signal_spacing_inp.get_size().w, cursor.y ) );
 	signal_spacing_inp.add_listener(this);
-	signal_spacing_inp.set_limits(1,50);
+	signal_spacing_inp.set_limits(1,512);
 	signal_spacing_inp.set_value(signal_spacing);
 	signal_spacing_inp.set_increment_mode(1);
 	add_komponente( &signal_spacing_inp );

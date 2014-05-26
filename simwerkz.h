@@ -392,7 +392,7 @@ private:
 	const char *place_sign_intern( spieler_t *, grund_t*, const roadsign_besch_t* b = NULL);
 
 	struct signal_info {
-		signal_info() : spacing(2), remove_intermediate(true), replace_other(true) {}
+		signal_info() : spacing(16), remove_intermediate(true), replace_other(true) {}
 
 		uint8 spacing; // place signals every n tiles
 		bool  remove_intermediate;
