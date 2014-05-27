@@ -2418,7 +2418,7 @@ void stadt_t::bewerte_res_com_ind(const koord pos, int &ind_score, int &com_scor
 
 // return the eight neighbors:
 // orthogonal before diagonal
-static koord neighbors[] = {
+static koord const neighbors[] = {
 	koord( 0,  1),
 	koord( 1,  0),
 	koord( 0, -1),
@@ -2432,7 +2432,7 @@ static koord neighbors[] = {
 
 
 // return layout
-static int building_layout[] = {0,0,1,4,2,0,5,1,3,7,1,0,6,3,2,0};
+static int const building_layout[] = { 0, 0, 1, 4, 2, 0, 5, 1, 3, 7, 1, 0, 6, 3, 2, 0 };
 
 
 void stadt_t::build_city_building(const koord k)

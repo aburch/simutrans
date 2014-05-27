@@ -37,7 +37,7 @@ static sint32 categories[MAX_MESG_TABS] =
 	(1 << message_t::general) | (1 << message_t::new_vehicle)
 };
 
-static const char *tab_strings[]=
+static char const* const tab_strings[]=
 {
 	"Chat_msg",
 	"Scenario_msg",

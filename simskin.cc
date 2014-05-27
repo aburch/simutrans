@@ -72,7 +72,7 @@ const skin_besch_t* skinverwaltung_t::tunnel_texture     = NULL;
 slist_tpl<const skin_besch_t *>skinverwaltung_t::extra_obj;
 
 
-static spezial_obj_tpl<skin_besch_t> misc_objekte[] = {
+static spezial_obj_tpl<skin_besch_t> const misc_objekte[] = {
 	{ &skinverwaltung_t::senke,             "PowerDest"    },
 	{ &skinverwaltung_t::pumpe,             "PowerSource"  },
 	{ &skinverwaltung_t::construction_site, "Construction" },
@@ -81,7 +81,7 @@ static spezial_obj_tpl<skin_besch_t> misc_objekte[] = {
 	{ NULL, NULL }
 };
 
-static spezial_obj_tpl<skin_besch_t> menu_objekte[] = {
+static spezial_obj_tpl<skin_besch_t> const menu_objekte[] = {
 	// new menu system
 	{ &skinverwaltung_t::button,            "Button"   },
 	{ &skinverwaltung_t::round_button,      "Roundbutton"  },
@@ -100,7 +100,7 @@ static spezial_obj_tpl<skin_besch_t> menu_objekte[] = {
 	{ NULL, NULL }
 };
 
-static spezial_obj_tpl<skin_besch_t> symbol_objekte[] = {
+static spezial_obj_tpl<skin_besch_t> const symbol_objekte[] = {
 	{ &skinverwaltung_t::seasons_icons,      "Seasons"        },
 	{ &skinverwaltung_t::message_options,    "MessageOptions" },
 	{ &skinverwaltung_t::color_options,      "ColorOptions"   },
@@ -118,7 +118,7 @@ static spezial_obj_tpl<skin_besch_t> symbol_objekte[] = {
 };
 
 // simutrans will work without those
-static spezial_obj_tpl<skin_besch_t> fakultative_objekte[] = {
+static spezial_obj_tpl<skin_besch_t> const fakultative_objekte[] = {
 	{ &skinverwaltung_t::biglogosymbol,      "BigLogo"        },
 	{ &skinverwaltung_t::mouse_cursor,       "Mouse"          },
 	{ &skinverwaltung_t::zughaltsymbol,      "TrainStop"      },
@@ -138,7 +138,7 @@ static spezial_obj_tpl<skin_besch_t> fakultative_objekte[] = {
 	{ NULL, NULL }
 };
 
-static spezial_obj_tpl<skin_besch_t> cursor_objekte[] = {
+static spezial_obj_tpl<skin_besch_t> const cursor_objekte[] = {
 	// old cursors
 	{ &skinverwaltung_t::bauigelsymbol,  "Builder"      },
 	{ &skinverwaltung_t::cursor_general, "GeneralTools" },
@@ -149,7 +149,7 @@ static spezial_obj_tpl<skin_besch_t> cursor_objekte[] = {
 
 bool skinverwaltung_t::alles_geladen(skintyp_t type)
 {
-	spezial_obj_tpl<skin_besch_t>* sb;
+	spezial_obj_tpl<skin_besch_t> const* sb;
 	switch (type) {
 		case menu:    sb = menu_objekte+1;       break;
 		case cursor:  sb = cursor_objekte;     break;
@@ -170,7 +170,7 @@ bool skinverwaltung_t::alles_geladen(skintyp_t type)
 
 bool skinverwaltung_t::register_besch(skintyp_t type, const skin_besch_t* besch)
 {
-	spezial_obj_tpl<skin_besch_t>* sb;
+	spezial_obj_tpl<skin_besch_t> const* sb;
 	switch (type) {
 		case menu:    sb = menu_objekte;   break;
 		case cursor:  sb = cursor_objekte; break;

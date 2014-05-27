@@ -28,7 +28,7 @@ ware_besch_t *warenbauer_t::load_passagiere = NULL;
 ware_besch_t *warenbauer_t::load_post = NULL;
 ware_besch_t *warenbauer_t::load_nichts = NULL;
 
-static spezial_obj_tpl<ware_besch_t> spezial_objekte[] = {
+static spezial_obj_tpl<ware_besch_t> const spezial_objekte[] = {
 	{ &warenbauer_t::passagiere,    "Passagiere" },
 	{ &warenbauer_t::post,	    "Post" },
 	{ &warenbauer_t::nichts,	    "None" },

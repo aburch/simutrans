@@ -4750,7 +4750,7 @@ bool wkz_build_haus_t::init( spieler_t * )
 }
 
 // TODO: merge this into building_layout defined in simcity.cc
-static int building_layout[] = {0,0,1,4,2,0,5,1,3,7,1,0,6,3,2,0};
+static int const building_layout[] = { 0, 0, 1, 4, 2, 0, 5, 1, 3, 7, 1, 0, 6, 3, 2, 0 };
 
 const char *wkz_build_haus_t::work( spieler_t *sp, koord3d pos )
 {
