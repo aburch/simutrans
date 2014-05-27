@@ -194,7 +194,7 @@ bool hausbauer_t::alles_geladen()
 	}
 
 	// now sort them according level
-	warne_ungeladene(spezial_objekte, 1);
+	warne_ungeladene(spezial_objekte);
 	return true;
 }
 

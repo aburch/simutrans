@@ -61,9 +61,9 @@ template<class besch_t> bool alles_geladen(spezial_obj_tpl<besch_t>* so)
  * @param so List to check.
  * @param count Number of elements to check.
  */
-template<class besch_t> void warne_ungeladene(spezial_obj_tpl<besch_t>* so, int count)
+template<class besch_t> void warne_ungeladene(spezial_obj_tpl<besch_t>* so)
 {
-	for (; count-- && so->name; ++so) {
+	for (; so->name; ++so) {
 		if (!*so->besch) {
 			dbg->message("warne_ungeladene", "Object %s not found, feature disabled", so->name);
 		}
