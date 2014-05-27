@@ -9,7 +9,6 @@
 obj_besch_t * xref_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
 	xref_besch_t* besch = new(node.size - 4 - 1) xref_besch_t();
-	besch->node_info = new obj_besch_t*[node.children];
 
 	char buf[4 + 1];
 	fread(buf, 1, 5, fp);

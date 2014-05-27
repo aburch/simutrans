@@ -32,7 +32,6 @@ obj_besch_t *factory_field_class_reader_t::read_node(FILE *fp, obj_node_info_t &
 	ALLOCA(char, besch_buf, node.size);
 
 	field_class_besch_t *besch = new field_class_besch_t();
-	besch->node_info = new obj_besch_t*[node.children];
 
 	// Hajo: Read data
 	fread(besch_buf, node.size, 1, fp);
@@ -61,7 +60,6 @@ obj_besch_t *factory_field_group_reader_t::read_node(FILE *fp, obj_node_info_t &
 	ALLOCA(char, besch_buf, node.size);
 
 	field_group_besch_t *besch = new field_group_besch_t();
-	besch->node_info = new obj_besch_t*[node.children];
 
 	// Hajo: Read data
 	fread(besch_buf, node.size, 1, fp);
@@ -140,7 +138,6 @@ obj_besch_t *factory_smoke_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	ALLOCA(char, besch_buf, node.size);
 
 	rauch_besch_t *besch = new rauch_besch_t();
-	besch->node_info = new obj_besch_t*[node.children];
 
 	// Hajo: Read data
 	fread(besch_buf, node.size, 1, fp);
@@ -168,7 +165,6 @@ obj_besch_t *factory_supplier_reader_t::read_node(FILE *fp, obj_node_info_t &nod
 	ALLOCA(char, besch_buf, node.size);
 
 	fabrik_lieferant_besch_t *besch = new fabrik_lieferant_besch_t();
-	besch->node_info = new obj_besch_t*[node.children];
 
 	// Hajo: Read data
 	fread(besch_buf, node.size, 1, fp);
@@ -203,7 +199,6 @@ obj_besch_t *factory_product_reader_t::read_node(FILE *fp, obj_node_info_t &node
 	ALLOCA(char, besch_buf, node.size);
 
 	fabrik_produkt_besch_t *besch = new fabrik_produkt_besch_t();
-	besch->node_info = new obj_besch_t*[node.children];
 
 	// Hajo: Read data
 	fread(besch_buf, node.size, 1, fp);
@@ -238,7 +233,6 @@ obj_besch_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	ALLOCA(char, besch_buf, node.size);
 
 	fabrik_besch_t *besch = new fabrik_besch_t();
-	besch->node_info = new obj_besch_t*[node.children];
 
 	// Hajo: Read data
 	fread(besch_buf, node.size, 1, fp);

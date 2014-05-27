@@ -32,8 +32,6 @@ obj_besch_t * way_obj_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	ALLOCA(char, besch_buf, node.size);
 
 	way_obj_besch_t *besch = new way_obj_besch_t();
-	besch->node_info = new obj_besch_t*[node.children];
-	// DBG_DEBUG("way_reader_t::read_node()", "node size = %d", node.size);
 
 	// Hajo: Read data
 	fread(besch_buf, node.size, 1, fp);
