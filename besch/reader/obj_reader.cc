@@ -232,9 +232,9 @@ void obj_reader_t::read_nodes(FILE* fp, obj_besch_t*& data, int register_nodes, 
 //DBG_DEBUG("obj_reader_t::read_nodes()","Reading %.4s-node of length %d with '%s'",	reinterpret_cast<const char *>(&node.type),	node.size,	reader->get_type_name());
 		data = reader->read_node(fp, node);
 		if (node.children != 0) {
-			data->node_info = new obj_besch_t*[node.children];
+			data->children = new obj_besch_t*[node.children];
 			for (int i = 0; i < node.children; i++) {
-				read_nodes(fp, data->node_info[i], register_nodes + 1, version);
+				read_nodes(fp, data->children[i], register_nodes + 1, version);
 			}
 		}
 
