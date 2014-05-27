@@ -31,6 +31,10 @@ protected:
 	obj_besch_t** node_info;
 
 public:
+	obj_besch_t() : node_info() {}
+
+	~obj_besch_t() { delete node_info; }
+
 	void* operator new(size_t size)
 	{
 		return ::operator new(size);

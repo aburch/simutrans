@@ -300,13 +300,6 @@ void obj_reader_t::skip_nodes(FILE *fp,uint32 version)
 }
 
 
-void obj_reader_t::delete_node(obj_besch_t *data)
-{
-	delete [] data->node_info;
-	delete data;
-}
-
-
 void obj_reader_t::resolve_xrefs()
 {
 	slist_tpl<obj_besch_t *> xref_nodes;
@@ -332,7 +325,7 @@ void obj_reader_t::resolve_xrefs()
 	}
 
 	while (!xref_nodes.empty()) {
-		delete_node(xref_nodes.remove_first());
+		delete xref_nodes.remove_first();
 	}
 
 	loaded.clear();

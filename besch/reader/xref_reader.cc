@@ -31,7 +31,7 @@ void xref_reader_t::register_obj(obj_besch_t *&data)
 	if (besch->name[0] != '\0' || besch->fatal) {
 		xref_to_resolve(besch->type, besch->name, &data, besch->fatal);
 	} else {
-		delete_node(data);
+		delete data;
 		data = NULL;
 	}
 }

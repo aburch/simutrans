@@ -81,8 +81,6 @@ class obj_reader_t
 	static void skip_nodes(FILE *fp,uint32 version);
 
 protected:
-	static void delete_node(obj_besch_t *node);
-
 	obj_reader_t() { /* Beware: Cannot register here! */}
 	virtual ~obj_reader_t() {}
 
