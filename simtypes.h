@@ -49,16 +49,12 @@
 #	define OVERRIDE
 #endif
 
-#ifdef __cplusplus
-#	define ENUM_BITSET(T) \
-		static inline T operator ~  (T  a)      { return     (T)~(unsigned)a;                } \
-		static inline T operator &  (T  a, T b) { return     (T)((unsigned)a & (unsigned)b); } \
-		static inline T operator &= (T& a, T b) { return a = (T)((unsigned)a & (unsigned)b); } \
-		static inline T operator |  (T  a, T b) { return     (T)((unsigned)a | (unsigned)b); } \
-		static inline T operator |= (T& a, T b) { return a = (T)((unsigned)a | (unsigned)b); }
-#else
-#	define ENUM_BITSET(T)
-#endif
+#define ENUM_BITSET(T) \
+	static inline T operator ~  (T  a)      { return     (T)~(unsigned)a;                } \
+	static inline T operator &  (T  a, T b) { return     (T)((unsigned)a & (unsigned)b); } \
+	static inline T operator &= (T& a, T b) { return a = (T)((unsigned)a & (unsigned)b); } \
+	static inline T operator |  (T  a, T b) { return     (T)((unsigned)a | (unsigned)b); } \
+	static inline T operator |= (T& a, T b) { return a = (T)((unsigned)a | (unsigned)b); }
 
 /* divers enums:
  * better defined here than scattered in thousand files ...
@@ -147,8 +143,6 @@ typedef unsigned long long  uint64;
 #	define NORETURN      __attribute__ ((noreturn))
 #endif
 
-#ifdef __cplusplus
-
 template<typename T> static inline int sgn(T x)
 {
 		if (x < 0) return -1;
@@ -217,10 +211,5 @@ union value_t
 	const void* p;
 	long i;
 };
-
-#else
-// c definitionen
-typedef enum bool { false, true } bool;
-#endif
 
 #endif

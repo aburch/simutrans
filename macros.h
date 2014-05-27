@@ -4,7 +4,7 @@
 #include "simtypes.h"
 
 // XXX Workaround: Old GCCs choke on type check.
-#if defined __cplusplus && (!defined __GNUC__ || GCC_ATLEAST(3, 0))
+#if !defined __GNUC__ || GCC_ATLEAST(3, 0)
 // Ensures that the argument has array type.
 template <typename T, unsigned N> static inline void lengthof_check(T (&)[N]) {}
 #	define lengthof(x) (1 ? sizeof(x) / sizeof(*(x)) : (lengthof_check((x)), 0))
@@ -33,7 +33,6 @@ static inline int clamp(int x, int min, int max)
 }
 
 
-#ifdef __cplusplus
 namespace sim {
 
 template<class T> inline void swap(T& a, T& b)
@@ -47,6 +46,5 @@ template<class T> inline void swap(T& a, T& b)
 template<typename T> static inline T up_cast(T x) { return x; }
 
 }
-#endif
 
 #endif

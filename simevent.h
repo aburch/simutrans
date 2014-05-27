@@ -173,7 +173,6 @@ struct event_t {
 		{ }
 };
 
-#ifdef __cplusplus
 /**
  * Translate event origin. Useful when transferring events to sub-components.
  * @author Hj. Malthaner
@@ -185,7 +184,6 @@ static inline void translate_event(event_t* const ev, int x, int y)
 	ev->my += y;
 	ev->cy += y;
 }
-#endif
 
 /**
  * Return one event. Does *not* wait.
