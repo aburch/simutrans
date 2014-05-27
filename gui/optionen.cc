@@ -50,12 +50,6 @@ const char *option_buttons_text[] =
 };
 
 
-/* currently not used yet
-const char *option_buttons_tooltip[6] =
-{
-	"Sprache", "Farbe", "Helligk. u. Farben", "Sound settings", "Spielerliste", "Scenario information"
-};*/
-
 optionen_gui_t::optionen_gui_t() :
 	gui_frame_t( translator::translate("Einstellungen aendern"))
 {
