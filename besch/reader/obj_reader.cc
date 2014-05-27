@@ -256,21 +256,6 @@ void obj_reader_t::read_nodes(FILE* fp, obj_besch_t*& data, int register_nodes, 
 }
 
 
-obj_besch_t *obj_reader_t::read_node(FILE *fp, obj_node_info_t &node)
-{
-	obj_besch_t* besch = new(node.size) obj_besch_t();
-	besch->node_info = new obj_besch_t*[node.children];
-
-	if(node.size>0) {
-		// not 32/64 Bit compatible for everything but char!
-		dbg->warning("obj_reader_t::read_node()","native called on type %.4s (size %i), will break on 64Bit if type!=ASCII",reinterpret_cast<const char *>(&node.type),node.size);
-		fread(besch + 1, node.size, 1, fp);
-	}
-
-	return besch;
-}
-
-
 void obj_reader_t::skip_nodes(FILE *fp,uint32 version)
 {
 	obj_node_info_t node;

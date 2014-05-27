@@ -16,3 +16,9 @@ bool ground_reader_t::successfully_loaded() const
 {
     return grund_besch_t::alles_geladen();
 }
+
+
+obj_besch_t* ground_reader_t::read_node(FILE*, obj_node_info_t& info)
+{
+	return obj_reader_t::read_node<grund_besch_t>(info);
+}
