@@ -2,7 +2,6 @@
 #define __OBJ_READER_H
 
 #include <stdio.h>
-#include <string.h>
 
 #include "../obj_besch.h"
 #include "../obj_node_info.h"
