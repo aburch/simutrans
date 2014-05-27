@@ -26,7 +26,6 @@ protected:
 
 public:
 	obj_infowin_t(const obj_t* obj);
-	virtual ~obj_infowin_t() {}
 
 	obj_t const* get_obj() const { return view.get_obj(); }
 

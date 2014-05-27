@@ -62,7 +62,6 @@ private:
 
 public:
 	gui_numberinput_t();
-	virtual ~gui_numberinput_t() {}
 
 	void set_size(scr_size size) OVERRIDE;
 	void set_width_by_len(size_t width, const char* symbols = NULL) {

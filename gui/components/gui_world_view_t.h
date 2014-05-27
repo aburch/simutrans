@@ -38,8 +38,6 @@ public:
 
 	world_view_t();
 
-	virtual ~world_view_t() {}
-
 	bool infowin_event(event_t const*) OVERRIDE;
 
 	/**
