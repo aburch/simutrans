@@ -110,8 +110,6 @@ private:
 public:
 	ai_goods_t(karte_t *wl, uint8 nr);
 
-	virtual ~ai_goods_t() {}
-
 	// this type of AIs identifier
 	virtual uint8 get_ai_id() const { return AI_GOODS; }
 
