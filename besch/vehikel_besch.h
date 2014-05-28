@@ -211,14 +211,16 @@ public:
 
 	// default vehicle (used for way seach and similar tasks)
 	// since it has no images and not even a name knot any calls to this will case a crash
-	vehikel_besch_t(uint8 wtyp, uint16 speed, engine_t engine) : geared_power(0), geared_force(0) {
-		freight_image_type = livery_image_type = cost = upgrade_price = zuladung = overcrowded_capacity = axle_load = running_cost = intro_date = vorgaenger = nachfolger = catering_level = upgrades = 0;
+	vehikel_besch_t(uint8 wtyp, uint16 speed, engine_t engine, uint16 al = 0, uint32 weight = 1) : geared_power(0), geared_force(0) {
+		freight_image_type = livery_image_type = cost = upgrade_price = zuladung = overcrowded_capacity = running_cost = intro_date = vorgaenger = nachfolger = catering_level = upgrades = 0;
 		fixed_cost = DEFAULT_FIXED_VEHICLE_MAINTENANCE;
-		leistung = gewicht = comfort = 1;
+		leistung = comfort = 1;
 		gear = GEAR_FACTOR;
 		len = 8;
 		sound = -1;
 		wt = wtyp;
+		axle_load = al;
+		gewicht = weight;
 		engine_type = (uint8)engine;
 		topspeed = speed;
 		is_tilting = bidirectional = can_lead_from_rear = available_only_as_upgrade = false;

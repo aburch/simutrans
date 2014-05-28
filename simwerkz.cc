@@ -572,6 +572,18 @@ DBG_MESSAGE("wkz_remover()", "check tunnel/bridge");
 	if(gr->ist_bruecke()  &&  gr->ist_karten_boden()) {
 DBG_MESSAGE("wkz_remover()",  "removing bridge from %d,%d,%d",gr->get_pos().x, gr->get_pos().y, gr->get_pos().z);
 		bruecke_t* br = gr->find<bruecke_t>();
+		// If this is a public right of way being deleted by anyone other than the public service player,
+		// then it cannot be deleted unless there is a diversionary route within a specified number of tiles.
+		
+		if(!sp->is_public_service() && gr->get_weg(br->get_waytype())->is_public_right_of_way())
+		{
+			msg = check_diversionary_route(pos, gr->get_weg(br->get_waytype()), sp);
+			if(msg)
+			{
+				return false;
+			}
+		}
+
 		if(br->get_besch()->get_waytype() == road_wt)
 		{
 			welt->set_recheck_road_connexions();
@@ -583,6 +595,16 @@ DBG_MESSAGE("wkz_remover()",  "removing bridge from %d,%d,%d",gr->get_pos().x, g
 	// beginning/end of tunnel
 	if(gr->ist_tunnel()  &&  gr->ist_karten_boden()) {
 DBG_MESSAGE("wkz_remover()",  "removing tunnel  from %d,%d,%d",gr->get_pos().x, gr->get_pos().y, gr->get_pos().z);
+		
+		if(!sp->is_public_service() && gr->get_weg_nr(0)->is_public_right_of_way())
+		{
+			msg = check_diversionary_route(pos, gr->get_weg_nr(0), sp);
+			if(msg)
+			{
+				return false;
+			}
+		}
+
 		if(gr->get_weg_nr(0)->get_waytype() == road_wt)
 		{
 			welt->set_recheck_road_connexions();
@@ -748,74 +770,11 @@ DBG_MESSAGE("wkz_remover()", "removing way");
 		// then it cannot be deleted unless there is a diversionary route within a specified number of tiles.
 		if(!sp->is_public_service() && w->is_public_right_of_way())
 		{
-			minivec_tpl<weg_t*> neighbouring_ways(2);
-			for(int n = 0; n < 8; n ++)
+			msg = check_diversionary_route(pos, w, sp);
+			if(msg)
 			{
-				const koord k = pos.get_2d().neighbours[n] + pos.get_2d();
-				const grund_t* gr = welt->lookup_kartenboden(k);
-				if(!gr)
-				{
-					continue;
-				}
-				weg_t* neighbouring_way = gr->get_weg(w->get_waytype());
-				if(neighbouring_way)
-				{
-					neighbouring_ways.append(neighbouring_way);
-				}
+				return false;
 			}
-
-			if(neighbouring_ways.get_count() > 1)
-			{
-				// It is necessary to do this to simulate the way not being there for testing purposes.
-				grund_t* way_gr = welt->lookup(w->get_pos());
-				koord3d start = koord3d::invalid;
-				koord3d end;
-				vehikel_besch_t diversion_check_type(w->get_waytype(), kmh_to_speed(w->get_max_speed()), vehikel_besch_t::diesel);
-				minivec_tpl<route_t> diversionary_routes;
-				uint32 successful_diversions = 0;
-				uint32 necessary_diversions = 0;
-				FOR(minivec_tpl<weg_t*>, const& way, neighbouring_ways)
-				{
-					end = start;
-					start = way->get_pos();
-					if(end != koord3d::invalid)
-					{
-						route_t diversionary_route;
-						vehikel_t *diversion_checker = vehikelbauer_t::baue(start, sp, NULL, &diversion_check_type);
-						diversion_checker->set_flag(obj_t::not_on_map);
-						diversion_checker->set_besitzer(welt->get_spieler(1));	
-						const uint32 bridge_weight = 0; // TODO: Set this properly.
-						if(diversionary_route.calc_route(welt, start, end, diversion_checker, w->get_max_speed(), w->get_max_axle_load(), 0, welt->get_settings().get_max_diversion_tiles() * 100, bridge_weight))
-						{
-							// Only increment this counter if the ways were already connected.
-							necessary_diversions ++;
-						}
-						const bool route_good = diversionary_route.calc_route(welt, start, end, diversion_checker, w->get_max_speed(), w->get_max_axle_load(), 0, welt->get_settings().get_max_diversion_tiles() * 100, bridge_weight, w->get_pos());
-						if(route_good && (diversionary_route.get_count() < welt->get_settings().get_max_diversion_tiles()))
-						{
-							successful_diversions ++;
-							diversionary_routes.append(diversionary_route);
-						}
-						delete diversion_checker;
-					}
-				}
-
-				if(successful_diversions < necessary_diversions)
-				{
-					msg = "Cannot remove a public right of way without providing an adequate diversionary route";	
-					return false;
-				}
-
-				FOR(minivec_tpl<route_t>, const& diversionary_route, diversionary_routes)
-				{
-					for(int n = 0; n < diversionary_route.get_count(); n++)
-					{
-						// All diversionary routes must themselves be set as public rights of way.
-						weg_t* way = welt->lookup(diversionary_route.position_bei(n))->get_weg(w->get_waytype());
-						way->set_public_right_of_way();
-					}
-				}
-			}	
 		}
 	
 		if(w->get_waytype() == road_wt)
@@ -918,7 +877,78 @@ DBG_MESSAGE("wkz_remover()", "removing way");
 	return true;
 }
 
+char const* wkz_remover_t::check_diversionary_route(koord3d pos, weg_t* w, spieler_t* sp)
+{
+	minivec_tpl<weg_t*> neighbouring_ways(2);
+	for(int n = 0; n < 8; n ++)
+	{
+		const koord k = pos.get_2d().neighbours[n] + pos.get_2d();
+		const grund_t* gr = welt->lookup_kartenboden(k);
+		if(!gr)
+		{
+			continue;
+		}
+		weg_t* neighbouring_way = gr->get_weg(w->get_waytype());
+		if(neighbouring_way)
+		{
+			neighbouring_ways.append(neighbouring_way);
+		}
+	}
 
+	if(neighbouring_ways.get_count() > 1)
+	{
+		// It is necessary to do this to simulate the way not being there for testing purposes.
+		grund_t* way_gr = welt->lookup(w->get_pos());
+		koord3d start = koord3d::invalid;
+		koord3d end;
+		vehikel_besch_t diversion_check_type(w->get_waytype(), kmh_to_speed(w->get_max_speed()), vehikel_besch_t::diesel, w->get_max_axle_load());
+		minivec_tpl<route_t> diversionary_routes;
+		uint32 successful_diversions = 0;
+		uint32 necessary_diversions = 0;
+		FOR(minivec_tpl<weg_t*>, const& way, neighbouring_ways)
+		{
+			end = start;
+			start = way->get_pos();
+			if(end != koord3d::invalid)
+			{
+				route_t diversionary_route;
+				vehikel_t *diversion_checker = vehikelbauer_t::baue(start, sp, NULL, &diversion_check_type);
+				diversion_checker->set_flag(obj_t::not_on_map);
+				diversion_checker->set_besitzer(welt->get_spieler(1));	
+				const uint32 max_axle_load = way_gr->ist_bruecke() ? 1 : w->get_max_axle_load(); // TODO: Use proper axle load when axle load for bridges is introduced.
+				const uint32 bridge_weight = w->get_max_axle_load() * 2; // This is something of a fudge, but it is reasonable to assume that most road vehicles have 2 axles.
+				if(diversionary_route.calc_route(welt, start, end, diversion_checker, w->get_max_speed(), max_axle_load, 0, welt->get_settings().get_max_diversion_tiles() * 100, bridge_weight))
+				{
+					// Only increment this counter if the ways were already connected.
+					necessary_diversions ++;
+				}
+				const bool route_good = !way_gr->ist_bruecke() && diversionary_route.calc_route(welt, start, end, diversion_checker, w->get_max_speed(), max_axle_load, 0, welt->get_settings().get_max_diversion_tiles() * 100, bridge_weight, w->get_pos());
+				if(route_good && (diversionary_route.get_count() < welt->get_settings().get_max_diversion_tiles()))
+				{
+					successful_diversions ++;
+					diversionary_routes.append(diversionary_route);
+				}
+				delete diversion_checker;
+			}
+		}
+
+		if(successful_diversions < necessary_diversions)
+		{
+			return "Cannot remove a public right of way without providing an adequate diversionary route";	
+		}
+
+		FOR(minivec_tpl<route_t>, const& diversionary_route, diversionary_routes)
+		{
+			for(int n = 0; n < diversionary_route.get_count(); n++)
+			{
+				// All diversionary routes must themselves be set as public rights of way.
+				weg_t* way = welt->lookup(diversionary_route.position_bei(n))->get_weg(w->get_waytype());
+				way->set_public_right_of_way();
+			}
+		}
+	}	
+	return NULL;
+}
 
 const char *wkz_remover_t::work( spieler_t *sp, koord3d pos )
 {

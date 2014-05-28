@@ -56,6 +56,7 @@ private:
 public:
 	wkz_remover_t() : werkzeug_t(WKZ_REMOVER | GENERAL_TOOL) {}
 	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate("Abriss"); }
+	char const* check_diversionary_route(koord3d pos, weg_t* w, spieler_t* sp);
 	char const* work(spieler_t*, koord3d) OVERRIDE;
 	bool is_init_network_save() const OVERRIDE { return true; }
 };
