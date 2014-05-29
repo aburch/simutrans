@@ -724,8 +724,7 @@ void planquadrat_t::add_to_haltlist(halthandle_t halt)
 			halt_list_remove(halt);
 			
 			for(unsigned insert_pos = 0; insert_pos < halt_list_count; insert_pos++)
-			{
-				
+			{			
 				if(shortest_distance(halt_list[insert_pos].halt->get_next_pos(pos), pos) > distance) 
 				{
 					halt_list_insert_at(halt, insert_pos, distance);

@@ -506,6 +506,14 @@ private:
 	arrival_times_map estimated_convoy_arrival_times;
 	arrival_times_map estimated_convoy_departure_times;
 
+	/**
+	 * Calculates the earliest time in ticks that passengers/mail/goods can arrive
+	 * at the given halt in light of the current estimated departure times.
+	 */
+	sint64 calc_earliest_arrival_time_at(halthandle_t halt);
+
+	uint32 deposit_ware_at_destination(ware_t ware);
+
 public:
 #ifdef DEBUG_SIMRAND_CALLS
 	bool loading;

@@ -1225,11 +1225,30 @@ void haltestelle_t::step()
 							dbg->message("haltestelle_t::step", "%u) discard after %u of %u minutes: %u %s to \"%s\"",
 							i, waiting_tenths, max_wait_tenths, tmp.menge, tmp.get_besch()->get_name(), tmp.get_ziel()->get_name());
 #endif
-
+						bool passengers_walked = false;
 						// Waiting too long: discard
 						if(tmp.is_passenger())
 						{
-							// Passengers - use unhappy graph.
+							// Check to see whether they can walk to their ultimate destination or next transfer first.
+							const uint16 max_walking_distance = welt->get_settings().get_station_coverage() / 2;
+							if(shortest_distance(get_next_pos(tmp.get_zielpos()), tmp.get_zielpos()) <= max_walking_distance)
+							{
+								// Passengers can walk to their ultimate destination.
+								deposit_ware_at_destination(tmp);
+								passengers_walked = true;
+							}
+
+							if(shortest_distance(get_next_pos(tmp.get_zwischenziel()->get_basis_pos()), get_next_pos(tmp.get_zwischenziel()->get_basis_pos())) <= max_walking_distance)
+							{
+								// Passengers can walk to their next transfer.
+								erzeuge_fussgaenger(get_basis_pos3d(), tmp.menge);
+								tmp.set_last_transfer(self);
+								tmp.get_zwischenziel()->liefere_an(tmp, 1);
+								passengers_walked = true;
+							}
+						
+							// Passengers - use unhappy graph. Even passengers able to walk to their destination or
+							// next transfer are not happy about it if they expected to be able to take a ride there.
 							add_pax_unhappy(tmp.menge);
 						}
 
@@ -1241,7 +1260,7 @@ void haltestelle_t::step()
 
 						// Experimental 7.2 - if they are discarded, a refund is due.
 
-						if(tmp.get_origin().is_bound() && get_besitzer()->get_finance()->get_account_balance() > 0)
+						if(!passengers_walked && tmp.get_origin().is_bound() && get_besitzer()->get_finance()->get_account_balance() > 0)
 						{
 							// Cannot refund unless we know the origin.
 							// Also, ought not refund unless the player is solvent.
@@ -2078,48 +2097,10 @@ bool haltestelle_t::hole_ab( slist_tpl<ware_t> &fracht, const ware_besch_t *wtyp
 				if(plan_halt.is_bound() && next_transfer == plan_halt && plan_halt->is_enabled(catg_index))
 				{
 					// Check to see whether this is the convoy departing from this stop that will arrive at the destination the soonest.
-
+		
+					const sint64 best_arrival_time = calc_earliest_arrival_time_at(next_transfer);
 					const arrival_times_map& next_transfer_arrivals = next_transfer->get_estimated_convoy_arrival_times();
-
 					const sint64 this_arrival_time = next_transfer_arrivals.get(cnv->self.get_id());
-					sint64 best_arrival_time = this_arrival_time;
-					sint64 current_time;
-					convoihandle_t arrival_convoy;
-					FOR(arrival_times_map, const& iter, estimated_convoy_departure_times)
-					{
-						arrival_convoy.set_id(iter.key);
-						if(!arrival_convoy.is_bound())
-						{
-							continue;
-						}
-
-						if(next_transfer_arrivals.is_contained(iter.key))
-						{
-							// Potentially relevant convoy - stops at the next transfer
-							current_time = next_transfer_arrivals.get(iter.key);
-							// Check to see whether it has already left this stop but has not arrived at the destination yet.
-							if(current_time < iter.value)
-							{
-								// It is possible that this is faster even so.
-								// TODO: Add calculation code here based on the point to point times rather than skipping.
-								continue;
-							}
-
-							// Check to see whether the convoy is running late. 
-							const sint64 this_stop_arrival = estimated_convoy_arrival_times.get(iter.key);
-							if(this_stop_arrival <= welt->get_zeit_ms() && !loading_here.is_contained(arrival_convoy))
-							{
-								// Assume that it will be as late again as it already is (e.g., if it is 2 minutes late so far, assume a total delay of 4 minutes)
-								const sint64 estimated_total_delay = (welt->get_zeit_ms() - this_stop_arrival) * 2;
-								current_time += estimated_total_delay;
-							}
-
-							if(current_time < best_arrival_time)
-							{
-								best_arrival_time = current_time;
-							}
-						}
-					}
 
 					if(best_arrival_time < this_arrival_time)
 					{
@@ -2375,7 +2356,6 @@ void haltestelle_t::add_ware_to_halt(ware_t ware, bool from_saved)
 		// here, if no free entries found
 	}
 	warray->append(ware);
-
 }
 
 
@@ -2468,19 +2448,26 @@ uint32 haltestelle_t::liefere_an(ware_t ware, uint8 walked_between_stations)
 	bool talk = !strcmp(get_name(), "Newton Abbot Railway Station");
 #endif
 
-	if (walked_between_stations >= 4) {
+	if (walked_between_stations > 4) 
+	{
 		// With repeated walking between stations -- and as long as the walking takes no actual time
 		// (which is a bug which should be fixed) -- there is some danger of infinite loops.
 		// Check for an excessively long number of walking steps.  If we have one, complain and fail.
 		//
-		// This was the 4th consecutive attempt to walk between stations.  Fail.
-		//dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s has walked too many times", ware.menge, translator::translate(ware.get_name()), get_name() );
+		// This was the 5th consecutive attempt to walk between stations.  Fail.
+		dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s has walked between too many consecutive stops: terminating early to avoid infinite loops", ware.menge, translator::translate(ware.get_name()), get_name() );
 		return ware.menge;
 	}
 
 	// no valid next stops?
 	if(!ware.get_ziel().is_bound() || !ware.get_zwischenziel().is_bound())
 	{
+		if(ware.is_passenger() && shortest_distance(ware.get_zielpos(), get_next_pos(ware.get_zielpos())) < welt->get_settings().get_station_coverage() / 2)
+		{
+			// Passengers can walk to their destination if it is close enough.
+			return deposit_ware_at_destination(ware);
+		}
+		
 		// write a log entry and discard the goods
 		dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer a route to their destination!", ware.menge, translator::translate(ware.get_name()), get_name() );
 		return 0;
@@ -2504,72 +2491,17 @@ uint32 haltestelle_t::liefere_an(ware_t ware, uint8 walked_between_stations)
 	if(ware.get_ziel() == self && plan->is_connected(self)) 
 	{
 		// yes, we have arrived!
-		gebaeude_t* gb_dest = gb;
-		if(fab) 
-		{
-			// Packet is headed to a factory;
-			// the factory exists;
-			if (fab_list.is_contained(fab) || !ware.is_freight())
-			{
-				// the factory is considered linked to this halt or it is no freight
-				// FIXME: this should be delayed by transshipment time / walking time.
-				if( !ware.is_passenger() || ware.is_commuting_trip)
-				{
-					// Only book arriving passengers for commuting trips.
-					liefere_an_fabrik(ware);
-				}
-				gb_dest = welt->lookup(fab->get_pos())->find<gebaeude_t>();
-			}
-			else
-			{
-				gb_dest = NULL;
-			}
-		}
-
-		if(gb_dest)
-		{
-			// Arrived!  Passengers & mail vanish mysteriously upon arrival.
-			// FIXME: walking time delay should be implemented right here!
-			if(ware.is_passenger()) 
-			{	
-				if(ware.is_commuting_trip)
-				{
-					if(gb_dest->get_tile()->get_besch()->get_typ() != gebaeude_t::wohnung)
-					{
-						// Do not record the passengers coming back home again.
-						gb_dest->set_commute_trip(ware.menge);
-					}
-				}
-				else if(gb_dest->get_tile()->get_besch()->get_typ() != gebaeude_t::wohnung)
-				{
-					gb_dest->add_passengers_succeeded_visiting(ware.menge);
-				}
-
-				// Arriving passengers may create pedestrians
-				if(welt->get_settings().get_show_pax())
-				{
-					int menge = ware.menge;
-					FOR(slist_tpl<tile_t>, const& i, tiles)
-					{
-						if(menge <= 0) 
-						{
-							break;
-						}
-						menge = erzeuge_fussgaenger(i.grund->get_pos(), menge);
-					}
-				}
-			}
-	#ifdef DEBUG_SIMRAND_CALLS
-			if (talk)
-				dbg->message("haltestelle_t::liefere_an", "%d arrived at station \"%s\" waren[0].count %d", ware.menge, get_name(), get_warray(0)->get_count());
-	#endif
-			return ware.menge;
-		}
+		return deposit_ware_at_destination(ware);	
 	}
 
 	if(find_route(ware) == 65535)
 	{
-		// target no longer there => delete
+		if(ware.is_passenger() && is_within_walking_distance_of(ware.get_zwischenziel()) && ware.get_zwischenziel() != self && ware.get_zwischenziel().is_bound())
+		{
+			// There is no longer a route, but we can walk to the next stop
+			goto walking;
+		}
+		// target no longer reachable => delete
 
 		//INT_CHECK("simhalt 1364");
 
@@ -2579,21 +2511,57 @@ uint32 haltestelle_t::liefere_an(ware_t ware, uint8 walked_between_stations)
 		return ware.menge;
 	}
 
-	if(ware.is_passenger()
-		&& is_within_walking_distance_of(ware.get_zwischenziel())
-		&& !connexions[0]->get(ware.get_zwischenziel())->best_convoy.is_bound()
-		&& !connexions[0]->get(ware.get_zwischenziel())->best_line.is_bound()
-		)
+	if(ware.is_passenger())
 	{
-		// We would like to prohibit "back to back walking" but it requires altering the path explorer.
-		// If this is within walking distance of the next transfer, and there is not a faster way there, walk there.
-		erzeuge_fussgaenger(get_basis_pos3d(), ware.menge);
-		ware.set_last_transfer(self);
-#ifdef DEBUG_SIMRAND_CALLS
-		if (talk)
-			dbg->message("haltestelle_t::liefere_an", "%d walk to station \"%s\" waren[0].count %d", ware.menge, ware.get_zwischenziel()->get_name(), get_warray(0)->get_count());
-#endif
-		return ware.get_zwischenziel()->liefere_an(ware, walked_between_stations + 1);
+		// Check whether, on arriving, passengers can walk to their next stop or ultimate destination more quickly than waiting for the next convoy.
+		const uint16 straight_line_distance_destination = shortest_distance(get_init_pos(), ware.get_zielpos()); 
+		const bool destination_is_within_coverage = straight_line_distance_destination <= (welt->get_settings().get_station_coverage() / 2);
+		if(is_within_walking_distance_of(ware.get_ziel()) || is_within_walking_distance_of(ware.get_zwischenziel()) || destination_is_within_coverage)
+		{
+			const sint64 best_arrival_time_destination_stop = calc_earliest_arrival_time_at(ware.get_ziel());
+			sint64 best_arrival_time_transfer = ware.get_zwischenziel() != ware.get_ziel() ? calc_earliest_arrival_time_at(ware.get_zwischenziel()) : SINT64_MAX_VALUE;
+
+			const sint64 arrival_after_walking_to_destination = welt->seconds_to_ticks(welt->walking_time_tenths_from_distance((uint32)straight_line_distance_destination) * 6) + welt->get_zeit_ms();
+
+			const uint16 straight_line_distance_to_next_transfer = shortest_distance(get_init_pos(), ware.get_zwischenziel()->get_next_pos(get_next_pos(ware.get_zwischenziel()->get_basis_pos())));
+			const sint64 arrival_after_walking_to_next_transfer = welt->seconds_to_ticks(welt->walking_time_tenths_from_distance((uint32)straight_line_distance_to_next_transfer) * 6) + welt->get_zeit_ms();
+			
+			sint64 extra_time_to_ultimate_destination = 0;
+			if(best_arrival_time_transfer < SINT64_MAX_VALUE)
+			{
+				// This cannot be evaluated properly if we cannot get the arrival time.
+				if(best_arrival_time_destination_stop < best_arrival_time_transfer)
+				{
+					ware.set_zwischenziel(ware.get_ziel());
+					best_arrival_time_transfer = best_arrival_time_destination_stop;
+					const uint16 distance_destination_stop_to_destination = shortest_distance(ware.get_zielpos(), ware.get_ziel()->get_next_pos(ware.get_zielpos()));
+					extra_time_to_ultimate_destination = welt->seconds_to_ticks(welt->walking_time_tenths_from_distance((uint32)distance_destination_stop_to_destination) * 6);
+				}
+		
+				if(destination_is_within_coverage && arrival_after_walking_to_destination < best_arrival_time_transfer + extra_time_to_ultimate_destination)
+				{
+					return deposit_ware_at_destination(ware);
+				}
+
+				if(arrival_after_walking_to_next_transfer < best_arrival_time_transfer)
+				{
+					goto walking;
+				}
+			}
+		}
+
+		if(!connexions[0]->get(ware.get_zwischenziel())->best_convoy.is_bound()	&& !connexions[0]->get(ware.get_zwischenziel())->best_line.is_bound())
+		{
+			// If this is within walking distance of the next transfer, and there is not a faster way there, walk there.
+	walking:
+			erzeuge_fussgaenger(get_basis_pos3d(), ware.menge);
+			ware.set_last_transfer(self);
+	#ifdef DEBUG_SIMRAND_CALLS
+			if (talk)
+				dbg->message("haltestelle_t::liefere_an", "%d walk to station \"%s\" waren[0].count %d", ware.menge, ware.get_zwischenziel()->get_name(), get_warray(0)->get_count());
+	#endif
+			return ware.get_zwischenziel()->liefere_an(ware, walked_between_stations + 1);
+		}
 	}
 
 	// add to internal storage
@@ -2605,7 +2573,72 @@ uint32 haltestelle_t::liefere_an(ware_t ware, uint8 walked_between_stations)
 	return ware.menge;
 }
 
+uint32 haltestelle_t::deposit_ware_at_destination(ware_t ware)
+{
+	const grund_t* gr = welt->lookup_kartenboden(ware.get_zielpos());
+	gebaeude_t* gb_dest = gr->find<gebaeude_t>();
+	fabrik_t* const fab = gb_dest ? gb_dest->get_fabrik() : NULL;
+	if(fab) 
+	{
+		// Packet is headed to a factory;
+		// the factory exists;
+		if (fab_list.is_contained(fab) || !ware.is_freight())
+		{
+			// the factory is considered linked to this halt or it is no freight
+			// FIXME: this should be delayed by transshipment time / walking time.
+			if( !ware.is_passenger() || ware.is_commuting_trip)
+			{
+				// Only book arriving passengers for commuting trips.
+				liefere_an_fabrik(ware);
+			}
+			gb_dest = welt->lookup(fab->get_pos())->find<gebaeude_t>();
+		}
+		else
+		{
+			gb_dest = NULL;
+		}
+	}
 
+	if(gb_dest)
+	{
+		// Arrived!  Passengers & mail vanish mysteriously upon arrival.
+		// FIXME: walking time delay should be implemented right here!
+		if(ware.is_passenger()) 
+		{	
+			if(ware.is_commuting_trip)
+			{
+				if(gb_dest->get_tile()->get_besch()->get_typ() != gebaeude_t::wohnung)
+				{
+					// Do not record the passengers coming back home again.
+					gb_dest->set_commute_trip(ware.menge);
+				}
+			}
+			else if(gb_dest->get_tile()->get_besch()->get_typ() != gebaeude_t::wohnung)
+			{
+				gb_dest->add_passengers_succeeded_visiting(ware.menge);
+			}
+
+			// Arriving passengers may create pedestrians
+			if(welt->get_settings().get_show_pax())
+			{
+				int menge = ware.menge;
+				FOR(slist_tpl<tile_t>, const& i, tiles)
+				{
+					if(menge <= 0) 
+					{
+						break;
+					}
+					menge = erzeuge_fussgaenger(i.grund->get_pos(), menge);
+				}
+			}
+		}
+#ifdef DEBUG_SIMRAND_CALLS
+		if (talk)
+			dbg->message("haltestelle_t::liefere_an", "%d arrived at station \"%s\" waren[0].count %d", ware.menge, get_name(), get_warray(0)->get_count());
+#endif
+		return ware.menge;
+	}
+}
 
 void haltestelle_t::info(cbuffer_t & buf, bool dummy) const
 {
@@ -4631,4 +4664,48 @@ void haltestelle_t::remove_convoy(convoihandle_t convoy)
 			}
 		}
 	}
+}
+
+sint64 haltestelle_t::calc_earliest_arrival_time_at(halthandle_t halt)
+{
+	const arrival_times_map& next_transfer_arrivals = halt->get_estimated_convoy_arrival_times();
+	sint64 best_arrival_time = SINT64_MAX_VALUE;
+	sint64 current_time;
+	convoihandle_t arrival_convoy;
+	FOR(arrival_times_map, const& iter, estimated_convoy_departure_times)
+	{
+		arrival_convoy.set_id(iter.key);
+		if(!arrival_convoy.is_bound())
+		{
+			continue;
+		}
+
+		if(next_transfer_arrivals.is_contained(iter.key))
+		{
+			// Potentially relevant convoy - stops at the next transfer
+			current_time = next_transfer_arrivals.get(iter.key);
+			// Check to see whether it has already left this stop but has not arrived at the destination yet.
+			if(current_time < iter.value)
+			{
+				// It is possible that this is faster even so.
+				// TODO: Add calculation code here based on the point to point times rather than skipping.
+				continue;
+			}
+
+			// Check to see whether the convoy is running late. 
+			const sint64 this_stop_arrival = estimated_convoy_arrival_times.get(iter.key);
+			if(this_stop_arrival <= welt->get_zeit_ms() && !loading_here.is_contained(arrival_convoy))
+			{
+				// Assume that it will be as late again as it already is (e.g., if it is 2 minutes late so far, assume a total delay of 4 minutes)
+				const sint64 estimated_total_delay = (welt->get_zeit_ms() - this_stop_arrival) * 2;
+				current_time += estimated_total_delay;
+			}
+
+			if(current_time < best_arrival_time)
+			{
+				best_arrival_time = current_time;
+			}
+		}
+	}
+	return best_arrival_time;
 }
