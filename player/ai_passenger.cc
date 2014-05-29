@@ -74,7 +74,7 @@ bool ai_passenger_t::set_active(bool new_state)
 halthandle_t ai_passenger_t::get_our_hub( const stadt_t *s ) const
 {
 	FOR(vector_tpl<halthandle_t>, const halt, haltestelle_t::get_alle_haltestellen()) {
-		if(  halt->get_besitzer()==(const spieler_t *)this  ) {
+		if (halt->get_besitzer() == sim::up_cast<spieler_t const*>(this)) {
 			if(  halt->get_pax_enabled()  &&  (halt->get_station_type()&haltestelle_t::busstop)!=0  ) {
 				koord h=halt->get_basis_pos();
 				if(h.x>=s->get_linksoben().x  &&  h.y>=s->get_linksoben().y  &&  h.x<=s->get_rechtsunten().x  &&  h.y<=s->get_rechtsunten().y  ) {
