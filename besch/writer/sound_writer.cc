@@ -26,11 +26,7 @@ void sound_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 	node.write_uint16(fp, uv16, 2);
 
 	node.write_uint16(fp, len, 4);
-	if(  len > 0  ) {
-		node.write_data_at(fp, str.c_str(), 6, len );
-	}
-	node.write_data_at(fp, (const char *)"", 6+len, 1 );
-
+	node.write_data_at(fp, str.c_str(), 6, len + 1);
 
 	node.write(fp);
 }
