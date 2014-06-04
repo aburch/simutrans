@@ -2960,9 +2960,10 @@ uint32 fabrik_t::get_time_to_consume_stock(uint32 index)
 	// This should work in principle, but as things currently stand, 
 	// rounding errors result in monthly consumption that is too high
 	// in some cases (especially where the base production figure is low).
-	const uint32 vb = besch->get_lieferant(index)->get_verbrauch();
+	const fabrik_lieferant_besch_t* flb = besch->get_lieferant(index);
+	const uint32 vb = flb ? flb->get_verbrauch() : 0;
 	const sint32 base_production = get_current_production();
-	const sint32 consumed_per_month = (base_production * vb) >> 8;
+	const sint32 consumed_per_month = vb == 0 ? 1 : (base_production * vb) >> 8;
 
 	const sint32 input_capacity = (eingang[index].max >> fabrik_t::precision_bits);
 
