@@ -6928,14 +6928,6 @@ void karte_t::announce_server(int status)
 		// Always send status, either online or offline
 		if (  status == 0  ||  status == 1  ) {
 			buf.append( "&st=1" );
-		}
-		else {
-			buf.append( "&st=0" );
-		}
-
-
-		// Add fields sent only on server startup (cannot change during the course of a game)
-		if (  status == 0  ) {
 #ifndef REVISION
 #	define REVISION 0
 #endif
@@ -6975,9 +6967,6 @@ void karte_t::announce_server(int status)
 			buf.append( "&infurl=" );
 			encode_URI( buf, env_t::server_infurl.c_str() );
 
-			// TODO send minimap data as well							// TODO
-		}
-		if (  status == 0  ||  status == 1  ) {
 			// Now add the game data part
 			uint8 active = 0, locked = 0;
 			for(  uint8 i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
@@ -6998,6 +6987,9 @@ void karte_t::announce_server(int status)
 			buf.printf( "&factories=%u", fab_list.get_count() );
 			buf.printf( "&convoys=%u",   convoys().get_count());
 			buf.printf( "&stops=%u",     haltestelle_t::get_alle_haltestellen().get_count() );
+		}
+		else {
+			buf.append( "&st=0" );
 		}
 
 		network_http_post( ANNOUNCE_SERVER, ANNOUNCE_URL, buf, NULL );
