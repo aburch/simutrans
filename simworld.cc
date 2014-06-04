@@ -6120,7 +6120,7 @@ no_route:
 
 #ifdef DESTINATION_CITYCARS
 					//citycars with destination
-					city->erzeuge_verkehrsteilnehmer(first_destination.location, car_minutes, origin_pos.get_2d(), units_this_step);
+					city->erzeuge_verkehrsteilnehmer(current_destination.location, car_minutes, origin_pos.get_2d(), units_this_step);
 #endif
 
 					if(current_destination.type == factory && (trip == commuting_trip || trip == mail_trip))
