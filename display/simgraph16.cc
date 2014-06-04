@@ -3315,7 +3315,7 @@ static void pix_alpha_15(PIXVAL *dest, const PIXVAL *src, const PIXVAL *alphamap
 
 	const uint16 rmask = alpha_flags & ALPHA_RED ? 0x001f : 0;
 	const uint16 gmask = alpha_flags & ALPHA_GREEN ? 0x03e0 : 0;
-	const uint16 bmask = alpha_flags & ALPHA_BLUE ? 0x7b00 : 0;
+	const uint16 bmask = alpha_flags & ALPHA_BLUE ? 0x7c00 : 0;
 
 	while(  dest < end  ) {
 		// read mask components - always 15bpp
@@ -3329,17 +3329,17 @@ static void pix_alpha_15(PIXVAL *dest, const PIXVAL *src, const PIXVAL *alphamap
 			alpha_value = alpha_value > 15 ? alpha_value + 1 : alpha_value;
 
 			//read screen components - 15bpp
-			const uint16 rbs = (*dest) & 0x7b1f;
+			const uint16 rbs = (*dest) & 0x7c1f;
 			const uint16 gs =  (*dest) & 0x03e0;
 
 			// read image components - 15bpp
-			const uint16 rbi = (*src) & 0x7b1f;
+			const uint16 rbi = (*src) & 0x7c1f;
 			const uint16 gi =  (*src) & 0x03e0;
 
 			// calculate and write destination components - 16bpp
 			const uint16 rbd = ((rbi * alpha_value) + (rbs * (32 - alpha_value))) >> 5;
 			const uint16 gd  = ((gi  * alpha_value) + (gs  * (32 - alpha_value))) >> 5;
-			*dest = (rbd & 0x7b1f) | (gd & 0x03e0);
+			*dest = (rbd & 0x7c1f) | (gd & 0x03e0);
 		}
 
 		dest++;
@@ -3355,7 +3355,7 @@ static void pix_alpha_16(PIXVAL *dest, const PIXVAL *src, const PIXVAL *alphamap
 
 	const uint16 rmask = alpha_flags & ALPHA_RED ? 0x001f : 0;
 	const uint16 gmask = alpha_flags & ALPHA_GREEN ? 0x03e0 : 0;
-	const uint16 bmask = alpha_flags & ALPHA_BLUE ? 0x7b00 : 0;
+	const uint16 bmask = alpha_flags & ALPHA_BLUE ? 0x7c00 : 0;
 
 	while(  dest < end  ) {
 		// read mask components - always 15bpp
@@ -3395,7 +3395,7 @@ static void pix_alpha_recode_15(PIXVAL *dest, const PIXVAL *src, const PIXVAL *a
 
 	const uint16 rmask = alpha_flags & ALPHA_RED ? 0x001f : 0;
 	const uint16 gmask = alpha_flags & ALPHA_GREEN ? 0x03e0 : 0;
-	const uint16 bmask = alpha_flags & ALPHA_BLUE ? 0x7b00 : 0;
+	const uint16 bmask = alpha_flags & ALPHA_BLUE ? 0x7c00 : 0;
 
 	while(  dest < end  ) {
 		// read mask components - always 15bpp
@@ -3409,17 +3409,17 @@ static void pix_alpha_recode_15(PIXVAL *dest, const PIXVAL *src, const PIXVAL *a
 			alpha_value = alpha_value > 15 ? alpha_value + 1 : alpha_value;
 
 			//read screen components - 15bpp
-			const uint16 rbs = (*dest) & 0x7b1f;
+			const uint16 rbs = (*dest) & 0x7c1f;
 			const uint16 gs =  (*dest) & 0x03e0;
 
 			// read image components - 15bpp
-			const uint16 rbi = (rgbmap_current[*src]) & 0x7b1f;
+			const uint16 rbi = (rgbmap_current[*src]) & 0x7c1f;
 			const uint16 gi =  (rgbmap_current[*src]) & 0x03e0;
 
 			// calculate and write destination components - 16bpp
 			const uint16 rbd = ((rbi * alpha_value) + (rbs * (32 - alpha_value))) >> 5;
 			const uint16 gd  = ((gi  * alpha_value) + (gs  * (32 - alpha_value))) >> 5;
-			*dest = (rbd & 0x7b1f) | (gd & 0x03e0);
+			*dest = (rbd & 0x7c1f) | (gd & 0x03e0);
 		}
 
 		dest++;
@@ -3435,7 +3435,7 @@ static void pix_alpha_recode_16(PIXVAL *dest, const PIXVAL *src, const PIXVAL *a
 
 	const uint16 rmask = alpha_flags & ALPHA_RED ? 0x001f : 0;
 	const uint16 gmask = alpha_flags & ALPHA_GREEN ? 0x03e0 : 0;
-	const uint16 bmask = alpha_flags & ALPHA_BLUE ? 0x7b00 : 0;
+	const uint16 bmask = alpha_flags & ALPHA_BLUE ? 0x7c00 : 0;
 
 	while(  dest < end  ) {
 		// read mask components - always 15bpp
