@@ -9,7 +9,7 @@
 #define STR(x) STR_HELPER(x)
 
 // For test purposes themes can be disabled or an alternative theme.tab file can be used.
-//  -1 = No theme, use interrnal fallback
+//  -1 = No theme, use internal fallback
 //   0 = Normal use, read theme.tab
 // n>0 = Use alternative file named theme_n.tab
 
@@ -32,6 +32,8 @@ public:
 	static const skin_besch_t *werkzeuge_dialoge;
 	/// icon images for toolbars
 	static const skin_besch_t *werkzeuge_toolbars;
+	/// icon to skin toolbar background
+	static const skin_besch_t *werkzeuge_background;
 	/// @}
 
 	/**

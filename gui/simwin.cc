@@ -1464,7 +1464,27 @@ void win_display_flush(double konto)
 	// display main menu
 	werkzeug_waehler_t *main_menu = werkzeug_t::toolbar_tool[0]->get_werkzeug_waehler();
 	display_set_clip_wh( 0, 0, disp_width, menu_height+1 );
-	display_fillbox_wh( 0, 0, disp_width, menu_height, MN_GREY2, false );
+	if(  skinverwaltung_t::werkzeuge_background  ) {
+		image_id back_img = skinverwaltung_t::werkzeuge_background->get_bild_nr(0);
+		scr_coord_val w = env_t::iconsize.w;
+		scr_rect row = scr_rect( 0, 0, disp_width, menu_height );
+		display_fit_img_to_width( back_img, w );
+		// tile it wide
+		while(  w <= row.w  ) {
+			display_color_img( back_img, row.x, row.y, 0, false, true );
+			row.x += w;
+			row.w -= w;
+		}
+		// for the rest we have to clip the rectangle
+		if(  row.w > 0  ) {
+			clip_dimension const cl = display_get_clip_wh();
+			display_set_clip_wh( cl.x, cl.y, max(0, min(row.get_right(), cl.xx) - cl.x), cl.h );
+			display_color_img( back_img, row.x, row.y, 0, false, true );
+			display_set_clip_wh( cl.x, cl.y, cl.w, cl.h );
+		}
+	} else {
+		display_fillbox_wh_rgb( 0, 0, disp_width, menu_height, MN_GREY2, false );
+	}
 	// .. extra logic to enable tooltips
 	tooltip_element = menu_height > get_maus_y() ? main_menu : NULL;
 	void *old_inside_event_handling = inside_event_handling;
