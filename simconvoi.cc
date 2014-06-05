@@ -669,7 +669,7 @@ void convoi_t::add_running_cost( const weg_t *weg )
  */
 void convoi_t::calc_acceleration(uint32 delta_t)
 {
-	if(  !recalc_data  &&  abs( akt_speed_soll-akt_speed) < 24  ) {
+	if(  !recalc_data  &&  abs( akt_speed_soll-akt_speed ) < 1  ) {
 		// very close to max speed => go with max speed and finish calculation here
 		akt_speed = akt_speed_soll;
 		return;
