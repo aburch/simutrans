@@ -677,6 +677,7 @@ public:
 	{
 		koord location;
 		uint16 type; //1 = town; others as #define above.
+		pax_return_type will_return;
 		destination_object object; 
 		factory_entry_t* factory_entry;
 		destination() { factory_entry = NULL; }
@@ -749,13 +750,7 @@ public:
 	 * such ein (zufälliges) ziel für einen Passagier
 	 * @author Hj. Malthaner
 	 */
-
-	destination find_destination(factory_set_t &target_factories, 
-		const sint64 generated, 
-		pax_return_type* will_return, 
-		uint32 min_distance = 0, 
-		uint32 max_distance = 16384,
-		koord origin = koord::invalid);
+	destination find_destination(factory_set_t &target_factories, const sint64 generated, uint32 min_distance = 0, uint32 max_distance = 16384, koord origin = koord::invalid);
 
 	/**
 	 * Gibt die Gruendungsposition der Stadt zurueck.

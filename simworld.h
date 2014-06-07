@@ -64,7 +64,7 @@ class network_world_command_t;
 class ware_besch_t;
 class memory_rw_t;
 
-#define CHK_RANDS 24
+#define CHK_RANDS 32
 
 struct checklist_t
 {
@@ -76,76 +76,32 @@ struct checklist_t
 	uint16 line_entry;
 	uint16 convoy_entry;
 
-
 	uint32 rand[CHK_RANDS];
-	// Path explorer values
-	bool processing;
-	uint8 current_compartment;
-	uint32 limit_rebuild;
-	uint32 limit_filter;
-	uint32 limit_fill;
-	uint32 limit_explore; // 64 trunc to 32
-	uint32 limit_reroute;
 
-	// For the current compartment 
-	// (No sensible way of doing it for every possible compartment) --(just do for first 10)
-	bool paths_available[10];
-	bool refresh_completed[10];
-	bool refresh_requested[10];
-	uint8 current_phase[10];
-	uint16 phase_counter[10];
-	uint16 working_halt_count[10];
-	uint16 all_halt_count[10];
-	uint16 transfer_count[10];
-	uint32 total_iterations[10];
 
-	checklist_t(uint32 _ss, uint32 _st, uint8 _nfc, uint32 _random_seed, uint16 _halt_entry, uint16 _line_entry, uint16 _convoy_entry, bool _processing, uint8 _current_compartment, uint32 _limit_rebuild, uint32 _limit_filter, uint32 _limit_fill, uint32 _limit_explore, uint32 _limit_reroute, uint32 *_rands);
-	checklist_t() : ss(0), st(0), nfc(0), random_seed(0), halt_entry(0), line_entry(0), convoy_entry(0), processing(false), current_compartment(0), limit_rebuild(0), limit_filter(0), limit_fill(0), limit_explore(0), limit_reroute(0)
+	checklist_t(uint32 _ss, uint32 _st, uint8 _nfc, uint32 _random_seed, uint16 _halt_entry, uint16 _line_entry, uint16 _convoy_entry, uint32 *_rands);
+	checklist_t() : ss(0), st(0), nfc(0), random_seed(0), halt_entry(0), line_entry(0), convoy_entry(0)
 	{
 		for(  uint8 i = 0;  i < CHK_RANDS;  i++  ) {
 			rand[i] = 0;
-		}
-		for(  uint8 i = 0;  i < 10;  i++  ) {
-			paths_available[i] = refresh_completed[i] = refresh_requested[i] = false;
-			current_phase[i] = 0;
-			phase_counter[i] = working_halt_count[i] = all_halt_count[i] = transfer_count[i] = 0;
-			total_iterations[i] = 0;
 		}
 	}
 
 	bool operator == (const checklist_t &other) const
 	{
-		bool compartments_equal = true;
-		for(  uint8 i = 0;  i < CHK_RANDS  &&  compartments_equal;  i++  ) {
-			compartments_equal = compartments_equal  &&  rand[i] == other.rand[i];
-		}
-		for(  uint8 i = 0;  i < 10  &&  compartments_equal;  i++  ) {
-			compartments_equal = compartments_equal  &&  paths_available[i] == other.paths_available[i];
-			compartments_equal = compartments_equal  &&  refresh_completed[i] == other.refresh_completed[i];
-			compartments_equal = compartments_equal  &&  refresh_requested[i] == other.refresh_requested[i];
-			compartments_equal = compartments_equal  &&  current_phase[i] == other.current_phase[i];
-			compartments_equal = compartments_equal  &&  phase_counter[i] == other.phase_counter[i];
-			compartments_equal = compartments_equal  &&  working_halt_count[i] == other.working_halt_count[i];
-			compartments_equal = compartments_equal  &&  all_halt_count[i] == other.all_halt_count[i];
-			compartments_equal = compartments_equal  &&  transfer_count[i] == other.transfer_count[i];
-			compartments_equal = compartments_equal  &&  total_iterations[i] == other.total_iterations[i];
+		bool rands_equal = true;
+		for(  uint8 i = 0;  i < CHK_RANDS  &&  rands_equal;  i++  ) {
+			rands_equal = rands_equal  &&  rand[i] == other.rand[i];
 		}
 
-		return ( compartments_equal &&
+		return ( rands_equal &&
 			ss == other.ss &&
 			st == other.st &&
 			nfc == other.nfc &&
 			random_seed == other.random_seed &&
 			halt_entry == other.halt_entry && 
 			line_entry == other.line_entry && 
-			convoy_entry == other.convoy_entry &&
-			processing == other.processing &&
-			current_compartment == other.current_compartment &&
-			limit_explore == other.limit_explore &&
-			limit_filter == other.limit_filter &&
-			limit_fill == other.limit_fill &&
-			limit_rebuild == other.limit_rebuild &&
-			limit_reroute == other.limit_reroute
+			convoy_entry == other.convoy_entry
 			);
 	}
 	bool operator != (const checklist_t &other) const { return !( (*this)==other ); }
@@ -939,6 +895,10 @@ private:
 	void update_map_intern(sint16, sint16, sint16, sint16);
 
 public:
+	void set_rands(uint8 num, uint32 val) { rands[num] = val; }
+	void inc_rands(uint8 num) { rands[num]++; }
+
+
 	/**
 	 * Announce server and current state to listserver.
 	 * @param status Specifies what information should be announced
