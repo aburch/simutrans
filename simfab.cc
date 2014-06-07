@@ -1641,7 +1641,7 @@ void fabrik_t::step(long delta_t)
 	else {
 		// not a producer => then consume electricity ...
 		if(  !besch->is_electricity_producer()  &&  scaled_electric_amount>0  ) {
-			// one may be thinking of linking this to actual production only
+			// TODO: Consider linking this to actual production only
 
 			prodfactor_electric = (sint32)( ( (sint64)(besch->get_electric_boost()) * (sint64)power + (sint64)(scaled_electric_amount >> 1) ) / (sint64)scaled_electric_amount );
 
