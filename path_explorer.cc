@@ -504,7 +504,6 @@ void path_explorer_t::compartment_t::step()
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case phase_check_flag :
 		{
-			dbg->message("void path_explorer_t::compartment_t::step()", "Phase 0 started");
 			if (refresh_requested)
 			{
 				refresh_requested = false;	// immediately reset it so that we can take new requests
@@ -534,7 +533,6 @@ void path_explorer_t::compartment_t::step()
 
 			start = dr_time();	// start timing
 #endif
-			dbg->message("void path_explorer_t::compartment_t::step()", "Phase 1 started");
 			slist_tpl<halthandle_t>::iterator halt_iter = haltestelle_t::get_alle_haltestellen().begin();
 			all_halts_count = (uint16) haltestelle_t::get_alle_haltestellen().get_count();
 
@@ -691,7 +689,6 @@ void path_explorer_t::compartment_t::step()
 
 			printf("\t\tCurrent Step : %lu \n", step_count);
 #endif
-			dbg->message("void path_explorer_t::compartment_t::step()", "Phase 2 started");
 			const ware_besch_t *const ware_type = warenbauer_t::get_info_catg_index(catg);
 
 			linkage_t current_linkage;
@@ -1018,7 +1015,6 @@ void path_explorer_t::compartment_t::step()
 
 			printf("\t\tCurrent Step : %lu \n", step_count);
 #endif
-			dbg->message("void path_explorer_t::compartment_t::step()", "Phase 3 started");
 			// create working halt list only if we are not resuming and there is at least one halt
 			if ( phase_counter == 0 && all_halts_count > 0 )
 			{
@@ -1143,7 +1139,6 @@ void path_explorer_t::compartment_t::step()
 
 			printf("\t\tCurrent Step : %lu \n", step_count);
 #endif
-			dbg->message("void path_explorer_t::compartment_t::step()", "Phase 4 started");
 			// build working matrix and transfer list only if we are not resuming
 			if (phase_counter == 0)
 			{
@@ -1345,7 +1340,6 @@ void path_explorer_t::compartment_t::step()
 
 			printf("\t\tCurrent Step : %lu \n", step_count);
 #endif
-			dbg->message("void path_explorer_t::compartment_t::step()", "Phase 5 started");
 			// temporary variables
 			uint32 combined_time;
 			uint32 target_member_index;
@@ -1600,7 +1594,6 @@ void path_explorer_t::compartment_t::step()
 
 			printf("\t\tCurrent Step : %lu \n", step_count);
 #endif
-			dbg->message("void path_explorer_t::compartment_t::step()", "Phase 6 started");
 			start = dr_time();	// start timing
 
 			while (phase_counter < all_halts_count)
@@ -1691,7 +1684,6 @@ void path_explorer_t::compartment_t::step()
 
 				refresh_start_time = 0;
 				refresh_completed = true;
-				dbg->message("void path_explorer_t::compartment_t::step()", "Refresh completed");
 			}
 
 			iterations = 0;	// reset iteration counter

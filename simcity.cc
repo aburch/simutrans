@@ -3067,7 +3067,7 @@ void stadt_t::step_passagiere()
 	}
 	gebaeude_t* gb = buildings[step_count];
 
-	const int num_pax =
+	const sint32 num_pax =
 		(wtyp == warenbauer_t::passagiere) ?
 			(gb->get_tile()->get_besch()->get_level()) :
 			(gb->get_tile()->get_besch()->get_post_level());
@@ -3083,7 +3083,7 @@ void stadt_t::step_passagiere()
 	const nearby_halt_t *const halt_list = plan->get_haltlist();
 
 	vector_tpl<nearby_halt_t> start_halts(plan->get_haltlist_count());
-	for (int h = plan->get_haltlist_count() - 1; h >= 0; h--) 
+	for(  sint32 h = plan->get_haltlist_count() - 1;  h >= 0;  h--  )
 	{
 		nearby_halt_t halt = halt_list[h];
 		if (halt.halt->is_enabled(wtyp) && !halt.halt->is_overcrowded(wtyp->get_catg_index())) 
@@ -3098,7 +3098,7 @@ void stadt_t::step_passagiere()
 	// Check run in batches to save computational effort.
 	const sint16 private_car_percent = wtyp == warenbauer_t::passagiere ? get_private_car_ownership(welt->get_timeline_year_month()) : 0; 
 	// Only passengers have private cars
-	const bool has_private_car = private_car_percent > 0 ? simrand(100, "void stadt_t::step_passagiere() (has private car?)") <= (uint16)private_car_percent : false;
+	const bool has_private_car = private_car_percent > 0 ? simrand(100, "void stadt_t::step_passagiere() (has private car?)") <= (uint32)private_car_percent : false;
 	
 	// Record the most useful set of information about why passengers cannot reach their chosen destination:
 	// Too slow > overcrowded > no route. Tiebreaker: higher destination preference.
@@ -3110,7 +3110,7 @@ void stadt_t::step_passagiere()
 	const uint8 max_destinations = (s.get_max_alternative_destinations() < 16 ? s.get_max_alternative_destinations() : 15) + 1;
 
 	// Find passenger destination
-	for(int pax_routed = 0, pax_left_to_do = 0; pax_routed < num_pax; pax_routed += pax_left_to_do) 
+	for(sint32 pax_routed = 0, pax_left_to_do = 0; pax_routed < num_pax; pax_routed += pax_left_to_do)
 	{	
 		/* number of passengers that want to travel
 		* Hajo: for efficiency we try to route not every
@@ -3120,9 +3120,6 @@ void stadt_t::step_passagiere()
 		*/
 
 		pax_left_to_do = min(passenger_packet_size, num_pax - pax_routed);
-
-		// search target for the passenger
-		pax_return_type will_return;
 
 		const uint8 destination_count = simrand(max_destinations, "void stadt_t::step_passagiere() (number of destinations?)") + 1;
 
@@ -3145,7 +3142,7 @@ void stadt_t::step_passagiere()
 			/*longdistance*/
 			simrand_normal(range_longdistance_tolerance, "void stadt_t::step_passagiere() (longdistance tolerance?)") + min_longdistance_tolerance;
 		destination destinations[16];
-		for(int destinations_assigned = 0; destinations_assigned < destination_count; destinations_assigned ++)
+		for(  uint8 destinations_assigned = 0;  destinations_assigned < destination_count;  destinations_assigned++  )
 		{				
 			if(range == local)
 			{
@@ -3153,23 +3150,23 @@ void stadt_t::step_passagiere()
 				if(passenger_routing_choice <= adjusted_passenger_routing_local_chance)
 				{
 					// Will always be a destination in the current town.
-					destinations[destinations_assigned] = find_destination(target_factories, city_history_month[0][history_type+1], &will_return, 0, local_passengers_max_distance, origin_pos);	
+					destinations[destinations_assigned] = find_destination(target_factories, city_history_month[0][history_type+1], 0, local_passengers_max_distance, origin_pos);
 				}
 				else
 				{
-					destinations[destinations_assigned] = find_destination(target_factories, city_history_month[0][history_type+1], &will_return, local_passengers_min_distance, local_passengers_max_distance, origin_pos);
+					destinations[destinations_assigned] = find_destination(target_factories, city_history_month[0][history_type+1], local_passengers_min_distance, local_passengers_max_distance, origin_pos);
 				}
 			}
 			else if(range == midrange)
 			{
 				//Medium
-				destinations[destinations_assigned] = find_destination(target_factories, city_history_month[0][history_type+1], &will_return, midrange_passengers_min_distance, midrange_passengers_max_distance, origin_pos);
+				destinations[destinations_assigned] = find_destination(target_factories, city_history_month[0][history_type+1], midrange_passengers_min_distance, midrange_passengers_max_distance, origin_pos);
 			}
 			else
 			//else if(range == longdistance)
 			{
 				//Long distance
-				destinations[destinations_assigned] = find_destination(target_factories, city_history_month[0][history_type+1], &will_return, longdistance_passengers_min_distance, longdistance_passengers_max_distance, origin_pos); 
+				destinations[destinations_assigned] = find_destination(target_factories, city_history_month[0][history_type+1], longdistance_passengers_min_distance, longdistance_passengers_max_distance, origin_pos);
 			}
 		}
 
@@ -3253,7 +3250,7 @@ void stadt_t::step_passagiere()
 			// and is as a result of using the below method for all destination types.
 
 			destination_list[current_destination].resize(dest_plan->get_haltlist_count());							
-			for (int h = dest_plan->get_haltlist_count() - 1; h >= 0; h--) 
+			for(  sint32 h = dest_plan->get_haltlist_count() - 1;  h >= 0; h--  )
 			{
 				halthandle_t halt = dest_list[h].halt;
 				if (halt->is_enabled(wtyp)) 
@@ -3449,7 +3446,6 @@ void stadt_t::step_passagiere()
 		} // While loop (route_status)
 
 		bool set_return_trip = false;
-		stadt_t* destination_town;
 
 		switch(route_status)
 		{
@@ -3463,7 +3459,7 @@ void stadt_t::step_passagiere()
 			pax.set_origin(start_halt);
 			start_halt->starte_mit_route(pax);
 			merke_passagier_ziel(destinations[current_destination].location, COL_YELLOW);
-			set_return_trip = will_return != no_return;
+			set_return_trip = destinations[current_destination].will_return != no_return;
 			// create pedestrians in the near area?
 			if (s.get_random_pedestrians() && wtyp == warenbauer_t::passagiere) 
 			{
@@ -3475,7 +3471,7 @@ void stadt_t::step_passagiere()
 				// The generated passengers were *4 above to allow for this discrimination by preference of
 				// destination. 1st choice (current_destination == 0): 100% - 2nd choice: 75%; 3rd or subsequent
 				// choice: 50%.
-				const int multiplier = current_destination == 0 ? 4 : current_destination == 1 ? 3 : 2;
+				const uint16 multiplier = current_destination == 0 ? 4 : current_destination == 1 ? 3 : 2;
 				if(range == local)
 				{
 					gb->add_passengers_succeeded_local(pax_left_to_do * multiplier);
@@ -3493,19 +3489,18 @@ void stadt_t::step_passagiere()
 			{
 				destinations[current_destination].factory_entry->factory->liefere_an(wtyp, pax_left_to_do);
 			}
-			destination_town = destinations[current_destination].type == 1 ? destinations[current_destination].object.town : NULL;
-			set_private_car_trip(pax_left_to_do, destination_town);
+			set_private_car_trip(pax_left_to_do, destinations[current_destination].type == 1 ? destinations[current_destination].object.town : NULL);
 			merke_passagier_ziel(destinations[current_destination].location, COL_TURQUOISE);
 #ifdef DESTINATION_CITYCARS
 			erzeuge_verkehrsteilnehmer(origin_pos, car_minutes, destinations[current_destination].location, pax_left_to_do);
 #endif
-			set_return_trip = will_return != no_return;
+			set_return_trip = destinations[current_destination].will_return != no_return;
 			if(wtyp != warenbauer_t::post)
 			{
 				// The generated passengers were *4 above to allow for this discrimination by preference of
 				// destination. 1st choice (current_destination == 0): 100% - 2nd choice: 75%; 3rd or subsequent
 				// choice: 50%.
-				const int multiplier = current_destination == 0 ? 4 : current_destination == 1 ? 3 : 2;
+				const uint16 multiplier = current_destination == 0 ? 4 : current_destination == 1 ? 3 : 2;
 				if(range == local)
 				{
 					gb->add_passengers_succeeded_local(pax_left_to_do * multiplier);
@@ -3536,13 +3531,13 @@ void stadt_t::step_passagiere()
 			{
 				add_walking_passengers(pax_left_to_do);
 			}
-			set_return_trip = will_return != no_return;
+			set_return_trip = destinations[current_destination].will_return != no_return;
 			if(wtyp != warenbauer_t::post)
 			{
 				// The generated passengers were *4 above to allow for this discrimination by preference of
 				// destination. 1st choice (current_destination == 0): 100% - 2nd choice: 75%; 3rd or subsequent
 				// choice: 50%.
-				const int multiplier = current_destination == 0 ? 4 : current_destination == 1 ? 3 : 2;
+				const uint16 multiplier = current_destination == 0 ? 4 : current_destination == 1 ? 3 : 2;
 				if(range == local)
 				{
 					gb->add_passengers_succeeded_local(pax_left_to_do * multiplier);
@@ -3569,7 +3564,7 @@ void stadt_t::step_passagiere()
 		case no_route:
 
 			bool crowded_halts = false;
-			int destinations_checked;
+			uint8 destinations_checked;
 
 			if(start_halts.get_count() > 0)
 			{
@@ -3593,7 +3588,7 @@ void stadt_t::step_passagiere()
 				// Re-search for start halts, which must have been crowded, or else
 				// they would not have been excluded from the first search.
 				ware_t test_passengers(wtyp); 
-				for(int h = plan->get_haltlist_count() - 1; h >= 0; h--)
+				for(  sint32 h = plan->get_haltlist_count() - 1;  h >= 0;  h--  )
 				{
 					destinations_checked = 0;
 					halthandle_t halt = halt_list[h].halt;
@@ -3633,7 +3628,7 @@ void stadt_t::step_passagiere()
 
 			// Because passengers/mail now register as transported on delivery, these are needed here
 			// to keep an accurate record of the proportion transported.
-			stadt_t* const destination_town = destinations[0].type == 1 ? destinations[0].object.town : NULL;
+			stadt_t* const destination_town = destinations[current_destination].type == 1 ? destinations[current_destination].object.town : NULL;
 			if(destination_town)
 			{
 				destination_town->set_generated_passengers(pax_left_to_do, history_type + 1);
@@ -3662,7 +3657,7 @@ void stadt_t::step_passagiere()
 			{
 				// we just have to ensure that the ware can be delivered at this station
 				bool found = false;
-				for (uint i = 0; i < plan->get_haltlist_count(); i++) 
+				for(  uint8 i = 0;  i < plan->get_haltlist_count();  i++  )
 				{
 					halthandle_t test_halt = halt_list[i].halt;
 				
@@ -3688,7 +3683,7 @@ void stadt_t::step_passagiere()
 					{
 						ware_t return_pax(wtyp, ret_halt);
 						return_pax.to_factory = 0;
-						if(will_return != city_return && wtyp==warenbauer_t::post) 
+						if(destinations[current_destination].will_return != city_return  &&  wtyp == warenbauer_t::post)
 						{
 						// attractions/factory generate more mail than they recieve
 							return_pax.menge = pax_left_to_do * 3;
@@ -3759,7 +3754,7 @@ void stadt_t::step_passagiere()
 
 #ifdef DESTINATION_CITYCARS
 					//citycars with destination
-					erzeuge_verkehrsteilnehmer(destinations[0].location, car_minutes, origin_pos, pax_left_to_do);
+					erzeuge_verkehrsteilnehmer(destinations[current_destination].location, car_minutes, origin_pos, pax_left_to_do);
 #endif
 
 					if(destinations[current_destination].factory_entry)
@@ -3782,16 +3777,8 @@ void stadt_t::step_passagiere()
 				merke_passagier_ziel(origin_pos, COL_DARK_YELLOW);
 				if(wtyp == warenbauer_t::passagiere && destination_town)
 				{
-					if(destination_town)
-					{
 						destination_town->add_walking_passengers(pax_left_to_do);
 					}
-					else
-					{
-						// Local, attraction or industry.
-						add_walking_passengers(pax_left_to_do);
-					}
-				}
 				if(destinations[current_destination].factory_entry)
 				{
 					destinations[current_destination].factory_entry->factory->book_stat( pax_left_to_do, ( wtyp==warenbauer_t::passagiere ? FAB_PAX_DEPARTED : FAB_MAIL_DEPARTED ) );
@@ -3954,12 +3941,13 @@ void stadt_t::recalc_target_attractions()
 /* this function generates a random target for passenger/mail
  * changing this strongly affects selection of targets and thus game strategy
  */
-stadt_t::destination stadt_t::find_destination(factory_set_t &target_factories, const sint64 generated, pax_return_type* will_return, uint32 min_distance, uint32 max_distance, koord origin)
+stadt_t::destination stadt_t::find_destination(factory_set_t &target_factories, const sint64 generated, uint32 min_distance, uint32 max_distance, koord origin)
 {
 	const int rand = simrand(100, "stadt_t::destination stadt_t::find_destination (init)");
 	destination current_destination;
 	current_destination.object.town = NULL;
 	current_destination.type = 1;
+	current_destination.will_return = no_return;
 	if(origin == koord::invalid)
 	{
 		origin = this->get_pos();
@@ -3974,8 +3962,8 @@ stadt_t::destination stadt_t::find_destination(factory_set_t &target_factories, 
 		{
 			entry = target_factories.get_random_entry();
 		} 
-		*will_return = factory_return;	// worker will return
 		current_destination.type = FACTORY_PAX;
+		current_destination.will_return = factory_return;	// worker will return
 		uint8 counter = 0;
 		do
 		{
@@ -3997,9 +3985,9 @@ stadt_t::destination stadt_t::find_destination(factory_set_t &target_factories, 
 	
 	else if(rand <welt->get_settings().get_tourist_percentage() + welt->get_settings().get_factory_worker_percentage() && welt->get_ausflugsziele().get_sum_weight() > 0 ) 
 	{ 		
-		*will_return = tourist_return;	// tourists will return
 		const gebaeude_t* gb = pick_any_weighted(target_attractions);
 		current_destination.type = TOURIST_PAX;
+		current_destination.will_return = tourist_return;	// tourists will return
 		uint8 counter = 0;
 		do
 		{
@@ -4020,7 +4008,7 @@ stadt_t::destination stadt_t::find_destination(factory_set_t &target_factories, 
 		stadt_t* nearest_miss = NULL;
 		bool town_within_range = false;
 		uint32 difference;
-		uint32 nearest_miss_difference = 2147483647; // uint32 max.
+		uint32 nearest_miss_difference = UINT32_MAX_VALUE;
 
 		if(max_distance == 0)
 		{
@@ -4111,14 +4099,12 @@ stadt_t::destination stadt_t::find_destination(factory_set_t &target_factories, 
 		}
 
 		// long distance traveller? => then we return
+		current_destination.will_return = city_return; //*will_return = (this != zielstadt) ? city_return : no_return; // Sometimes having people not returning creates anomalies such as larger cities generating fewer passenger trips overall.
+		current_destination.object.town = zielstadt;
 		// zielstadt = "Destination city"
 		do
 		{
-			//*will_return = (this != zielstadt) ? city_return : no_return;
-			// Sometimes having people not returning creates anomalies such as larger cities generating fewer passenger trips overall.
-			*will_return = city_return;
 			current_destination.location = zielstadt->get_zufallspunkt(min_distance, max_distance, origin); //"random dot"
-			current_destination.object.town = zielstadt;
 		} while(current_destination.location == origin); // The destination must not be the same as the origin, so keep retrying until it is not.
 		return current_destination;
 	}
@@ -5301,6 +5287,7 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb)
 
 void stadt_t::erzeuge_verkehrsteilnehmer(koord pos, uint16 journey_tenths_of_minutes, koord target, uint8 number_of_passengers)
 {
+welt->inc_rands(28);
 	// Account for (1) the number of passengers; and (2) the occupancy level.
 	const uint32 round_up = simrand(2, "void stadt_t::erzeuge_verkehrsteilnehmer") == 1 ? 900 : 0;
 	const sint32 number_of_trips = ((((sint32)number_of_passengers) * traffic_level) + round_up) / 1000;
