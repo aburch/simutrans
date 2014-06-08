@@ -469,7 +469,7 @@ uint64 sqrt_i64(uint64 num)
 {
 	// taken from http://en.wikipedia.org/wiki/Methods_of_computing_square_roots
     uint64 res = 0;
-    uint64 bit = 1 << 30; // The second-to-top bit is set: 1<<14 for short
+    uint64 bit = (uint64)1 << 62; // The second-to-top bit is set: 1<<14 for short
 
     // "bit" starts at the highest power of four <= the argument.
     while(  bit > num  ) {
