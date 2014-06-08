@@ -349,9 +349,9 @@ uint32 vehikel_basis_t::fahre_basis(uint32 distance)
 
 	grund_t *gr = NULL; // if hopped, then this is new position
 
-	uint32 steps_target = steps_to_do + steps;
+	uint32 steps_target = steps_to_do + (uint32)steps;
 
-	if(  steps_target > steps_next  ) {
+	if(  steps_target > (uint32)steps_next  ) {
 		// We are going far enough to hop.
 
 		// We'll be adding steps_next+1 for each hop, as if we

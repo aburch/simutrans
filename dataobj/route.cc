@@ -956,7 +956,7 @@ void route_t::postprocess_water_route(karte_t *welt)
 {
 	route.clear();
 	const uint32 distance = shortest_distance(start.get_2d(), ziel.get_2d()) * 600;
-	if(distance > welt->get_settings().get_max_route_steps())
+	if(fahr->get_waytype() == water_wt && distance > welt->get_settings().get_max_route_steps())
 	{
 		// Do not actually try to calculate the route if it is doomed to failure.
 		// This ensures that the game does not become overloaded if a line
