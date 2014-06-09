@@ -1958,16 +1958,19 @@ void stadt_t::rdwr(loadsave_t* file)
 		file->rdwr_long(wachstum);
 	}
 
-	// These are recalculated when the buildings are added to the city, so reset these to avoid
-	// doubling these figures for every load/save cycle.
-	city_history_month[0][HIST_CITICENS] = 0;
-	city_history_year[0][HIST_CITICENS] = 0;
+	if(file->is_loading())
+	{
+		// These are recalculated when the buildings are added to the city, so reset these to avoid
+		// doubling these figures for every load/save cycle.
+		city_history_month[0][HIST_CITICENS] = 0;
+		city_history_year[0][HIST_CITICENS] = 0;
 
-	city_history_month[0][HIST_JOBS] = 0;
-	city_history_year[0][HIST_JOBS] = 0;
+		city_history_month[0][HIST_JOBS] = 0;
+		city_history_year[0][HIST_JOBS] = 0;
 
-	city_history_month[0][HIST_VISITOR_DEMAND] = 0;
-	city_history_year[0][HIST_VISITOR_DEMAND] = 0;
+		city_history_month[0][HIST_VISITOR_DEMAND] = 0;
+		city_history_year[0][HIST_VISITOR_DEMAND] = 0;
+	}
 }
 
 
