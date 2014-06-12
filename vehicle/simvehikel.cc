@@ -1043,6 +1043,16 @@ bool vehikel_t::hop_check()
 			return false;
 		}
 
+		// check for recently built bridges/tunnels etc.
+		if(  route_index < cnv->get_route()->get_count()-1  ) {
+			koord3d pos_next_next = cnv->get_route()->position_bei(route_index+1);
+			if(  (pos_next_next.z == get_pos().z)  ^  (bd->get_weg_hang() == hang_t::flach)  ) {
+				// way likely destroyed or altered => reroute
+				cnv->suche_neue_route();
+				return false;
+			}
+		}
+
 		// check for one-way sign etc.
 		if(air_wt!=get_waytype()  &&  route_index<cnv->get_route()->get_count()-1) {
 			uint8 dir = get_ribi(bd);
