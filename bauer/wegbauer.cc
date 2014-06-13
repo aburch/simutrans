@@ -637,7 +637,7 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 			gb = to->get_depot();
 		}
 		if(gb) {
-			// no halt => citybuilding => do not touch
+			// citybuilding => do not touch
 			const haus_tile_besch_t* tile = gb->get_tile();
 
 			// also check for too high buildings ...
@@ -646,7 +646,7 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 				return false;
 			}
 
-			if(!check_owner(gb->get_besitzer(),sp) || tile->get_hintergrund(0,1,0)!=IMG_LEER) 
+			if(tile->get_hintergrund(0,1,0)!=IMG_LEER) 
 			{
 				return false;
 			}
