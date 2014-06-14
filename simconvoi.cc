@@ -669,8 +669,12 @@ void convoi_t::add_running_cost( const weg_t *weg )
  */
 void convoi_t::calc_acceleration(uint32 delta_t)
 {
-	if(  !recalc_data  &&  akt_speed_soll == akt_speed  ) {
+	if(  !recalc_data  &&  (
+		(sum_friction_weight == sum_gesamtgewicht  &&  akt_speed_soll <= akt_speed  &&  akt_speed_soll+24 >= akt_speed)  ||
+		(sum_friction_weight > sum_gesamtgewicht  &&  akt_speed_soll == akt_speed)  )
+		) {
 		// at max speed => go with max speed and finish calculation here
+		// at slopes/curves, only do this if there is absolutely now change
 		akt_speed = akt_speed_soll;
 		return;
 	}

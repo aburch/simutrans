@@ -1955,13 +1955,15 @@ bool grund_t::remove_everything_from_way(spieler_t* sp, waytype_t wt, ribi_t::ri
 					costs -= sign->get_besch()->get_preis();
 					delete sign;
 				}
-			} else if (signal_t* const signal = obj_cast<signal_t>(obj)) {
+			}
+			else if (signal_t* const signal = obj_cast<signal_t>(obj)) {
 				// signal: not on crossings => remove all
 				if (signal->get_besch()->get_wtyp() == wt) {
 					costs -= signal->get_besch()->get_preis();
 					delete signal;
 				}
-			} else if (wayobj_t* const wayobj = obj_cast<wayobj_t>(obj)) {
+			}
+			else if (wayobj_t* const wayobj = obj_cast<wayobj_t>(obj)) {
 				// wayobj: check dir
 				if (add == ribi_t::keine && wayobj->get_besch()->get_wtyp() == wt) {
 					uint8 new_dir=wayobj->get_dir()&add;
@@ -1974,13 +1976,16 @@ bool grund_t::remove_everything_from_way(spieler_t* sp, waytype_t wt, ribi_t::ri
 						delete wayobj;
 					}
 				}
-			} else if (stadtauto_t* const citycar = obj_cast<stadtauto_t>(obj)) {
+			}
+			else if (stadtauto_t* const citycar = obj_cast<stadtauto_t>(obj)) {
 				// citycar: just delete
 				if (wt == road_wt) delete citycar;
-			} else if (fussgaenger_t* const pedestrian = obj_cast<fussgaenger_t>(obj)) {
+			}
+			else if (fussgaenger_t* const pedestrian = obj_cast<fussgaenger_t>(obj)) {
 				// pedestrians: just delete
 				if (wt == road_wt) delete pedestrian;
-			} else if (tunnel_t* const tunnel = obj_cast<tunnel_t>(obj)) {
+			}
+			else if (tunnel_t* const tunnel = obj_cast<tunnel_t>(obj)) {
 				// remove tunnel portal, if not the last tile ...
 				// must be done before weg_entfernen() to get maintenance right
 				uint8 wt = tunnel->get_besch()->get_waytype();
