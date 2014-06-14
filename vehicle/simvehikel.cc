@@ -1043,25 +1043,25 @@ bool vehikel_t::hop_check()
 			return false;
 		}
 
-		// check for recently built bridges/tunnels etc.
-		if(  route_index < cnv->get_route()->get_count()-1  ) {
-			koord3d pos_next_next = cnv->get_route()->position_bei(route_index+1);
-			if(  (pos_next_next.z == get_pos().z)  ^  (bd->get_weg_hang() == hang_t::flach)  ) {
-				// way likely destroyed or altered => reroute
-				cnv->suche_neue_route();
-				return false;
-			}
-		}
-
 		// check for one-way sign etc.
-		if(air_wt!=get_waytype()  &&  route_index<cnv->get_route()->get_count()-1) {
+		const waytype_t wt = get_waytype();
+		if(  air_wt != wt  &&  route_index < cnv->get_route()->get_count()-1  ) {
 			uint8 dir = get_ribi(bd);
 			koord3d nextnext_pos = cnv->get_route()->position_bei(route_index+1);
 			uint8 new_dir = ribi_typ(nextnext_pos.get_2d()-pos_next.get_2d());
-			if((dir&new_dir)==0) {
-				// new one way sign here?
+			if(  (dir&new_dir) == 0  ) {
+				// new one way sign or unconnected branch here?
 				cnv->suche_neue_route();
 				return false;
+			}
+			// check for recently built bridges/tunnels or reverse branches (really slows down the game, so we do this only on slopes)
+			if(  bd->get_weg_hang()  ) {
+				grund_t *from;
+				if(  !bd->get_neighbour( from, get_waytype(), ribi_typ( get_pos(), pos_next ) )  ) {
+					// way likely destroyed or altered => reroute
+					cnv->suche_neue_route();
+					return false;
+				}
 			}
 		}
 
