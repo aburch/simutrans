@@ -6727,7 +6727,8 @@ void convoi_t::clear_replace()
 			const uint32 TEST_eta = welt->ticks_to_tenths_of_minutes(eta);
 			const uint32 TEST_etd = welt->ticks_to_tenths_of_minutes(etd);
 			const uint32 TEST_loading_time = welt->ticks_to_tenths_of_minutes(current_loading_time);
-			const char* TEST_halt_name = halt->get_name();*/
+			const char* TEST_halt_name = halt.is_bound() ? halt->get_name() : "Unknown";*/
+			
 
 			if(halt.is_bound() && !halts_already_processed.is_contained(halt.get_id()))
 			{

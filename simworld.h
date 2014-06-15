@@ -1431,7 +1431,7 @@ public:
 		// S / a / c / d = T / (e * f)
 		// (S / a / c / d) * (e * f) = T
 
-		return (seconds * 4096L * 1000L) / get_settings().get_meters_per_tile() / 30L / 6L;
+		return ((sint64)seconds * 4096L * 1000L) / (sint64)get_settings().get_meters_per_tile() / 30L / 6L;
 	}
 
 	/**
