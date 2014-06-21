@@ -3,6 +3,7 @@
 #include <string.h>
 #include "../simtypes.h"
 #include "../simmem.h"
+#include "../simdebug.h"
 #include "../macros.h"
 #include "font.h"
 #include "../utils/simstring.h"
@@ -41,12 +42,7 @@ static void dsp_decode_bdf_data_row(uint8 *target, int y, int xoff, int g_width,
 	// now store them, and the second nibble store interleaved
 	target[y] = data>>8;
 	if(g_width+xoff>8) {
-		if((y&1)==0) {
-			target[12 + (y / 2)] |= data & 0x00F0;
-		}
-		else {
-			target[12 + (y / 2)] |= (data>>4) & 0x000F;
-		}
+		target[y+CHARACTER_HEIGHT] = data;
 	}
 }
 
@@ -54,7 +50,7 @@ static void dsp_decode_bdf_data_row(uint8 *target, int y, int xoff, int g_width,
 /**
  * Reads a single character
  */
-static void dsp_read_bdf_glyph(FILE *fin, uint8 *data, uint8 *screen_w, int char_limit, int f_height, int f_desc)
+static sint32 dsp_read_bdf_glyph(FILE *fin, uint8 *data, uint8 *screen_w, int char_limit, int f_height, int f_desc)
 {
 	uint32	char_nr = 0;
 	int g_width, h, g_desc;
@@ -94,10 +90,10 @@ static void dsp_read_bdf_glyph(FILE *fin, uint8 *data, uint8 *screen_w, int char
 			const int top = f_height + f_desc - h - g_desc;
 			int y;
 
-			// maximum size 12 pixels
+			// maximum size CHARACTER_HEIGHT pixels
 			h += top;
-			if (h > 12) {
-				h = 12;
+			if (h > CHARACTER_HEIGHT) {
+				h = CHARACTER_HEIGHT;
 			}
 
 			// read for height times
@@ -115,24 +111,18 @@ static void dsp_read_bdf_glyph(FILE *fin, uint8 *data, uint8 *screen_w, int char
 			uint8 start_h=0, i;
 
 			// find the start offset
-			for( i=0;  i<6;  i++  ) {
-				if(data[CHARACTER_LEN*char_nr + i*2]==0  &&  (data[CHARACTER_LEN*char_nr + 12+i]&0xF0)==0) {
-					start_h++;
-				}
-				else {
-					break;
-				}
-				if(data[CHARACTER_LEN*char_nr + i *2 + 1]==0  &&  (data[CHARACTER_LEN*char_nr + 12+i]&0x0F)==0) {
+			for( i=0;  i<23;  i++  ) {
+				if(data[CHARACTER_LEN*char_nr + i]==0  &&  data[CHARACTER_LEN*char_nr+CHARACTER_HEIGHT+i]==0) {
 					start_h++;
 				}
 				else {
 					break;
 				}
 			}
-			if(start_h==12) {
+			if(start_h==CHARACTER_HEIGHT) {
 				g_width = 0;
 			}
-			data[CHARACTER_LEN * char_nr + CHARACTER_LEN-2] = start_h;
+			data[CHARACTER_LEN*char_nr + CHARACTER_LEN-2] = start_h;
 			data[CHARACTER_LEN*char_nr + CHARACTER_LEN-1] = g_width;
 			if (d_width == -1) {
 #ifdef DEBUG
@@ -143,7 +133,7 @@ static void dsp_read_bdf_glyph(FILE *fin, uint8 *data, uint8 *screen_w, int char
 			}
 			screen_w[char_nr] = d_width;
 			// finished
-			return;
+			return char_nr;
 		}
 	}
 }
@@ -159,6 +149,7 @@ static bool dsp_read_bdf_font(FILE* fin, font_type* font)
 	int	f_height;
 	int f_desc;
 	int f_chars = 0;
+	sint32 max_glyph = 0;
 
 	while (!feof(fin)) {
 		char str[256];
@@ -189,12 +180,15 @@ static bool dsp_read_bdf_font(FILE* fin, font_type* font)
 			}
 
 			data[32 * CHARACTER_LEN] = 0; // screen width of space
-			screen_widths[32] = clamp(f_height / 2, 3, 12);
+			screen_widths[32] = clamp(f_height / 2, 3, 23);
 			continue;
 		}
 
 		if (strstart(str, "STARTCHAR") && f_chars > 0) {
-			dsp_read_bdf_glyph(fin, data, screen_widths, f_chars, f_height, f_desc);
+			sint32 chr = dsp_read_bdf_glyph(fin, data, screen_widths, f_chars, f_height, f_desc);
+			if(  chr > max_glyph  ) {
+				max_glyph = chr;
+			}
 			continue;
 		}
 	}
@@ -207,8 +201,8 @@ static bool dsp_read_bdf_font(FILE* fin, font_type* font)
 		screen_widths[0] = 8;
 		data[0] = 0;
 		data[1] = 0x7E;
-		const int real_font_height = (  f_height>12  ?  12  :  f_height  );
-		for (h = 2; h < real_font_height - 2; h++) {
+		const int real_font_height = (  f_height>CHARACTER_HEIGHT  ?  CHARACTER_HEIGHT  :  f_height  );
+		for (h = f_desc; h < real_font_height + f_desc-1; h++) {
 			data[h] = 0x42;
 		}
 		data[h++] = 0x7E;
@@ -222,11 +216,135 @@ static bool dsp_read_bdf_font(FILE* fin, font_type* font)
 		font->char_data    = data;
 		font->height       = f_height;
 		font->descent      = f_desc;
-		font->num_chars    = f_chars;
+		font->num_chars    = max_glyph+1;
+
+		// Use only needed amount
+		font->char_data = (uint8 *)realloc( font->char_data, font->num_chars );
+
 		return true;
 	}
 	return false;
 }
+
+
+#ifdef USE_FREETYPE
+#include <ft2build.h>
+#include FT_FREETYPE_H
+#include FT_GLYPH_H
+#include FT_TRUETYPE_TABLES_H
+
+FT_Library ft_library = NULL;
+
+bool load_FT_font( font_type* fnt, const char* fname, int pixel_height )
+{
+	int error;
+	if(  !ft_library  &&  FT_Init_FreeType(&ft_library) != FT_Err_Ok  ) {
+		ft_library = NULL;
+		return false;
+	}
+	// for now we assume we know the filename, this is system dependent
+	FT_Face face;
+	error = FT_New_Face( ft_library, fname, 0, &face );/* create face object */
+	if(  error  ) {
+		dbg->error( "load_FT_font", "Cannot load %s", fname );
+	}
+	FT_Set_Pixel_Sizes( face, 0, pixel_height );
+
+	fnt->char_data = (uint8 *)calloc( 65536, CHARACTER_LEN );
+	fnt->screen_width = (uint8 *)malloc( 65536 );
+
+	sint16 ascent = face->size->metrics.ascender/64;
+	fnt->height       = min( face->size->metrics.height/64, 23 );
+	fnt->descent      = face->size->metrics.descender/64;
+	fnt->num_chars    = 0;
+
+	for(  uint32 char_nr=0;  char_nr<65535;  char_nr++  ) {
+
+		if(  char_nr!=0  &&  !FT_Get_Char_Index( face, char_nr )  ) {
+			// character not there ...
+			fnt->screen_width[char_nr] = 255;
+			continue;
+		}
+
+		/* load glyph image into the slot (erase previous one) */
+		error = FT_Load_Char( face, char_nr, FT_LOAD_RENDER | FT_LOAD_MONOCHROME );
+		if(  error  ) {
+			// character not there ...
+			fnt->screen_width[char_nr] = 255;
+			continue;
+		}
+
+		error = FT_Render_Glyph( face->glyph, FT_RENDER_MODE_MONO );
+		if(  error  ||  face->glyph->bitmap.pitch == 0  ) {
+			// character not there ...
+			fnt->screen_width[char_nr] = 255;
+			continue;
+		}
+
+		// use only needed amount
+		fnt->num_chars = char_nr+1;
+
+		/* now render into cache
+		 * the bitmap is at slot->bitmap
+		 * the character base is at slot->bitmap_left, CELL_HEIGHT - slot->bitmap_top
+		 */
+
+		// if the character is too high
+		int y_off = ascent - face->glyph->bitmap_top;
+		int by_off = 0;
+		if(  y_off < 0  ) {
+			by_off -= y_off;
+			y_off = 0;
+		}
+
+		// asked for monocrome so slot->pixel_mode == FT_PIXEL_MODE_MONO
+		for(  int y = y_off, by = by_off;  y < CHARACTER_HEIGHT  &&  by < face->glyph->bitmap.rows;  y++, by++ ) {
+			fnt->char_data[(char_nr*CHARACTER_LEN)+y] = face->glyph->bitmap.buffer[by * face->glyph->bitmap.pitch];
+		}
+
+		if(  face->glyph->bitmap.width > 8  ) {
+			// render second row
+			for(  int y = y_off, by = by_off;  y < CHARACTER_HEIGHT  &&  by < face->glyph->bitmap.rows;  y++, by++ ) {
+				fnt->char_data[(char_nr*CHARACTER_LEN)+CHARACTER_HEIGHT+y] = face->glyph->bitmap.buffer[by * face->glyph->bitmap.pitch+1];
+			}
+		}
+
+		fnt->screen_width[char_nr] = face->glyph->bitmap.width+1;
+		fnt->char_data[CHARACTER_LEN * char_nr + CHARACTER_LEN-2] = y_off;	// h_offset
+		fnt->char_data[CHARACTER_LEN * char_nr + CHARACTER_LEN-1] = max(16,face->glyph->bitmap.width);
+	}
+
+	// Use only needed amount
+	fnt->char_data = (uint8 *)realloc( fnt->char_data, fnt->num_chars*CHARACTER_LEN );
+
+	fnt->screen_width[' '] = fnt->screen_width['n'];
+
+	FT_Done_Face( face );
+	FT_Done_FreeType( ft_library );
+	ft_library = NULL;
+	return true;
+}
+#endif
+
+
+void debug_font( font_type* fnt)
+{
+	dbg->debug("debug_font", "Loaded font %s with %i characters\n", fnt->fname, fnt->num_chars);
+	dbg->debug("debug_font", "height: %i, descent: %i", fnt->height, fnt->descent );
+	for(  int char_nr = 32;  char_nr<128; char_nr ++  ) {
+		char msg[1024], *c;
+		c = msg + sprintf( msg,"char %c: width %i, top %i\n", char_nr, fnt->char_data[(char_nr*CHARACTER_LEN)+CHARACTER_LEN-1], fnt->char_data[(char_nr*CHARACTER_LEN)+CHARACTER_LEN-2] );
+		for(  int y = 0;  y < CHARACTER_HEIGHT;  y++ ) {
+			for(  int x = 0;  x < 8  &&  x < fnt->char_data[(char_nr*CHARACTER_LEN)+CHARACTER_LEN-1];  x++ ) {
+				*c++ = (fnt->char_data[(char_nr*CHARACTER_LEN)+y] >> (7-x)) & 1 ? '*' : ' ';
+			}
+			*c++ = '\n';
+		}
+		*c++ = 0;
+		dbg->debug("character data", msg );
+	}
+}
+
 
 
 bool load_font(font_type* fnt, const char* fname)
@@ -234,8 +352,16 @@ bool load_font(font_type* fnt, const char* fname)
 	FILE* f = fopen(fname, "rb");
 	int c;
 
+#ifdef USE_FREETYPE
+	if(  load_FT_font( fnt, "C:\\Windows\\Fonts\\msmincho.ttc", 18 )  ) {
+		debug_font( fnt );
+		return true;
+	}
+#endif
+
 	if (f == NULL) {
 		fprintf(stderr, "Error: Cannot open '%s'\n", fname);
+
 		return false;
 	}
 	c = getc(f);
@@ -377,10 +503,11 @@ bool load_font(font_type* fnt, const char* fname)
 
 	fprintf(stderr, "Loading BDF font '%s'\n", fname);
 	if (dsp_read_bdf_font(f, fnt)) {
-		fprintf(stderr, "Loading BDF font %s with %i characters\n", fname, fnt->num_chars);
+		debug_font( fname, fnt );
 		fclose(f);
 		return true;
 	}
 	fclose(f);
+
 	return false;
 }

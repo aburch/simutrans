@@ -5,6 +5,7 @@
 
 struct font_type
 {
+	char fname[1024];
 	sint16	height;
 	sint16	descent;
 	uint16 num_chars;
@@ -14,12 +15,12 @@ struct font_type
 
 /*
  * characters are stored dense in a array
- * first 12 bytes are the first row
- * then come nibbles with the second part (6 bytes)
+ * 23 rows of bytes, second row for widths between 8 and 16
  * then the start offset for drawing
  * then a byte with the real width
  */
-#define CHARACTER_LEN (20)
+#define CHARACTER_LEN (48)
+#define CHARACTER_HEIGHT (23)
 
 
 /**

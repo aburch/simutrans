@@ -365,6 +365,12 @@ bool gui_theme_t::themes_init(const char *file_name)
 	gui_theme_t::gui_button_size.h = (uint32)contents.get_int("gui_button_height", gui_theme_t::gui_button_size.h );
 	gui_theme_t::gui_edit_size.h = (uint32)contents.get_int("gui_edit_height", gui_theme_t::gui_edit_size.h );
 
+	// make them fit at least the font height
+	gui_theme_t::gui_titlebar_height = max( LINESPACE+2, gui_theme_t::gui_titlebar_height );
+	gui_theme_t::gui_button_size.h = max( LINESPACE+2, gui_theme_t::gui_button_size.h );
+	gui_theme_t::gui_edit_size.h = max( LINESPACE+2, gui_theme_t::gui_edit_size.h );
+
+
 	// since the arrows are used in scrollbars, the need similar sizes
 	gui_theme_t::gui_arrow_left_size.w = (uint32)contents.get_int("gui_horizontal_arrow_width",  gui_theme_t::gui_arrow_left_size.w );
 	gui_theme_t::gui_arrow_left_size.h = (uint32)contents.get_int("gui_horizontal_arrow_height", gui_theme_t::gui_arrow_left_size.h );
