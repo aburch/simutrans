@@ -113,6 +113,8 @@ void pakselector_t::fill_list()
 	savegame_frame_t::fill_list();
 	action_button_width = 0;
 
+	entries.sort(dir_entry_t::compare);
+
 	FOR(slist_tpl<dir_entry_t>, const& i, entries) {
 
 		if (i.type == LI_HEADER) {

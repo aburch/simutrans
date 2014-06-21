@@ -9,6 +9,7 @@
 #define gui_savegame_frame_h
 
 #include <string>
+#include <cstring>
 
 #include "gui_frame.h"
 #include "../tpl/slist_tpl.h"
@@ -79,6 +80,18 @@ protected:
 		gui_label_t    *label;  //@< Label placed in the third column.
 		dirlist_item_t  type;   //@< Item type, data or header.
 		const char     *info;   //@< A qualified path (might be relative) to the file, not just the name
+		static int compare (const dir_entry_t & l, const dir_entry_t &r) {
+			if (( NULL == l.info ) && ( NULL != r.info )) {
+				return -1;
+			}
+			if (( NULL == r.info ) && ( NULL != l.info )) {
+				return 1;
+			}
+			if (( NULL != l.info ) && ( NULL != r.info )) {
+				return strcmp ( l.info, r.info );
+			}
+			return 0;
+		}
 	};
 
 	// Standard GUI controls in dialogue
