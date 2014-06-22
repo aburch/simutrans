@@ -475,7 +475,7 @@ public:
 			return;
 		}
 
-		for(  int i=1;  i < node_count;  ++i  ) {
+		for(  uint i=1;  i < node_count;  ++i  ) {
 			int changes = 0;
 			if(  compare( head->data, head->next->data ) > 0  ) {
 				node_t * tmp = head;
