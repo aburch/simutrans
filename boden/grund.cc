@@ -969,7 +969,11 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 r
 
 						sint16 hgt_diff = gr->get_disp_height() - get_disp_height() + min( corner_a, corner_b ) - back_height;
 						while(  hgt_diff > 2  ||  (hgt_diff > 0  &&  corner_a != corner_b)  ) {
-							display_normal( sl_draw->get_bild( 4+4*(hgt_diff>1)+11*i ), xpos, ypos + yoff, 0, true, dirty CLIP_NUM_PAR );
+							uint16 img_index = 22+(hgt_diff>1)+2*i;
+							if( sl_draw->get_bild( img_index ) == IMG_LEER ) {
+								img_index = 4+4*(hgt_diff>1)+11*i;
+							}
+							display_normal( sl_draw->get_bild( img_index ), xpos, ypos + yoff, 0, true, dirty CLIP_NUM_PAR );
 							yoff     -= tile_raster_scale_y( TILE_HEIGHT_STEP * (hgt_diff > 1 ? 2 : 1), raster_tile_width );
 							hgt_diff -= 2;
 						}
