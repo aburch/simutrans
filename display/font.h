@@ -11,6 +11,12 @@ struct font_type
 	uint16 num_chars;
 	uint8 *screen_width;
 	uint8 *char_data;
+
+	font_type()
+	: height(0), descent(0), num_chars(0), screen_width(NULL), char_data(NULL)
+	{
+		fname[0]= 0;
+	}
 };
 
 /*

@@ -279,7 +279,7 @@ static xrange      xranges[MAX_POLY_CLIPS];
  */
 static bool has_unicode = false;
 
-static font_type large_font = { "unknown filename", 0, 0, 0, NULL, NULL };
+static font_type large_font;
 
 // needed for resizing gui
 int large_font_ascent = 9;
