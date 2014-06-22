@@ -4573,58 +4573,33 @@ int display_text_proportional_len_clip_rgb(KOORD_VAL x, KOORD_VAL y, const char*
 		if(  y_offset>char_yoffset  ) {
 			char_yoffset = (uint8)y_offset;
 		}
-		screen_pos = (y+char_yoffset) * disp_width + x;
 
-		p = char_data + char_yoffset;
-		for (h = char_yoffset; h < char_height; h++) {
-			unsigned int dat = *p++ & mask1;
-			PIXVAL* dst = textur + screen_pos;
-
+		for(  int i=0;  i<2;  i++  ) {
+			p = char_data + char_yoffset + i*CHARACTER_HEIGHT;
+			const uint8 m =  i ? mask2 : mask1;
+			if(  m  ) {
+				screen_pos = (y+char_yoffset) * disp_width + x + i*8;
+				for (h = char_yoffset; h < char_height; h++) {
+					unsigned int dat = *p++ & m;
+					PIXVAL* dst = textur + screen_pos;
 #ifdef USE_C
-			if (dat != 0) {
-				if (dat & 0x80) dst[0] = color;
-				if (dat & 0x40) dst[1] = color;
-				if (dat & 0x20) dst[2] = color;
-				if (dat & 0x10) dst[3] = color;
-				if (dat & 0x08) dst[4] = color;
-				if (dat & 0x04) dst[5] = color;
-				if (dat & 0x02) dst[6] = color;
-				if (dat & 0x01) dst[7] = color;
-			}
+					if (dat != 0) {
+						if (dat & 0x80) dst[0] = color;
+						if (dat & 0x40) dst[1] = color;
+						if (dat & 0x20) dst[2] = color;
+						if (dat & 0x10) dst[3] = color;
+						if (dat & 0x08) dst[4] = color;
+						if (dat & 0x04) dst[5] = color;
+						if (dat & 0x02) dst[6] = color;
+						if (dat & 0x01) dst[7] = color;
+					}
 #else
-			// assemble variant of the above, using table and string instructions:
-			// optimized for long pipelines ...
-#			include "text_pixel.c"
+					// assemble variant of the above, using table and string instructions:
+					// optimized for long pipelines ...
+#					include "text_pixel.c"
 #endif
-			screen_pos += disp_width;
-		}
-
-		// maybe repeat for second byte for wider characters
-		if (char_width_1 > 8 && mask2 != 0) {
-			p = char_data + char_yoffset+CHARACTER_HEIGHT;
-			screen_pos = (y+char_yoffset) * disp_width + x + 8;
-			for (h = char_yoffset; h < char_height; h++) {
-				unsigned int dat = *p++ & mask2;
-				PIXVAL* dst = textur + screen_pos;
-
-//#ifdef USE_C
-				if (dat != 0) {
-					if (dat & 0x80) dst[0] = color;
-					if (dat & 0x40) dst[1] = color;
-					if (dat & 0x20) dst[2] = color;
-					if (dat & 0x10) dst[3] = color;
-					if (dat & 0x08) dst[4] = color;
-					if (dat & 0x04) dst[5] = color;
-					if (dat & 0x02) dst[6] = color;
-					if (dat & 0x01) dst[7] = color;
+					screen_pos += disp_width;
 				}
-//#else
-// TODO - FIX ASSEMBLY VERSION AS CANNOT INCLUDE TWICE IN GCC
-				// assemble variant of the above, using table and string instructions:
-				// optimized for long pipelines ...
-//#				include "text_pixel.c"
-//#endif
-				screen_pos += disp_width;
 			}
 		}
 		// next char: screen width
