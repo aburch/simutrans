@@ -4607,7 +4607,7 @@ int display_text_proportional_len_clip_rgb(KOORD_VAL x, KOORD_VAL y, const char*
 				unsigned int dat = *p++ & mask2;
 				PIXVAL* dst = textur + screen_pos;
 
-#ifdef USE_C
+//#ifdef USE_C
 				if (dat != 0) {
 					if (dat & 0x80) dst[0] = color;
 					if (dat & 0x40) dst[1] = color;
@@ -4618,11 +4618,12 @@ int display_text_proportional_len_clip_rgb(KOORD_VAL x, KOORD_VAL y, const char*
 					if (dat & 0x02) dst[6] = color;
 					if (dat & 0x01) dst[7] = color;
 				}
-#else
+//#else
+// TODO - FIX ASSEMBLY VERSION AS CANNOT INCLUDE TWICE IN GCC
 				// assemble variant of the above, using table and string instructions:
 				// optimized for long pipelines ...
-#				include "text_pixel.c"
-#endif
+//#				include "text_pixel.c"
+//#endif
 				screen_pos += disp_width;
 			}
 		}
