@@ -48,7 +48,8 @@ static void dsp_decode_bdf_data_row(uint8 *target, int y, int xoff, int g_width,
 
 
 /**
- * Reads a single character
+ * Reads a single character.
+ * @returns index of character successfully read, or -1 on error
  */
 static sint32 dsp_read_bdf_glyph(FILE *fin, uint8 *data, uint8 *screen_w, int char_limit, int f_height, int f_desc)
 {
@@ -136,6 +137,7 @@ static sint32 dsp_read_bdf_glyph(FILE *fin, uint8 *data, uint8 *screen_w, int ch
 			return char_nr;
 		}
 	}
+	return -1;
 }
 
 
@@ -503,7 +505,7 @@ bool load_font(font_type* fnt, const char* fname)
 
 	fprintf(stderr, "Loading BDF font '%s'\n", fname);
 	if (dsp_read_bdf_font(f, fnt)) {
-		debug_font( fname, fnt );
+		debug_font( fnt );
 		fclose(f);
 		return true;
 	}
