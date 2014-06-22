@@ -204,8 +204,8 @@ static bool dsp_read_bdf_font(FILE* fin, font_type* font)
 		data[0] = 0;
 		data[1] = 0x7E;
 		const int real_font_height = (  f_height>CHARACTER_HEIGHT  ?  CHARACTER_HEIGHT  :  f_height  );
-		for (h = f_desc; h < real_font_height + f_desc-1; h++) {
-			data[h] = 0x42;
+		for(h = 2; h < real_font_height - 2; h++) {
+			data[h-f_desc+2] = 0x42;
 		}
 		data[h++] = 0x7E;
 		for (; h < CHARACTER_LEN-2; h++) {
@@ -221,7 +221,7 @@ static bool dsp_read_bdf_font(FILE* fin, font_type* font)
 		font->num_chars    = max_glyph+1;
 
 		// Use only needed amount
-		font->char_data = (uint8 *)realloc( font->char_data, font->num_chars );
+		font->char_data = (uint8 *)realloc( font->char_data, font->num_chars*CHARACTER_LEN );
 
 		return true;
 	}
