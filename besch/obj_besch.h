@@ -23,7 +23,7 @@ class obj_besch_t {
 public:
 	obj_besch_t() : children() {}
 
-	~obj_besch_t() { delete children; }
+	~obj_besch_t() { delete [] children; }
 
 	void* operator new(size_t size)
 	{
