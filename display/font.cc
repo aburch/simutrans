@@ -205,7 +205,7 @@ static bool dsp_read_bdf_font(FILE* fin, font_type* font)
 		data[1] = 0x7E;
 		const int real_font_height = (  f_height>CHARACTER_HEIGHT  ?  CHARACTER_HEIGHT  :  f_height  );
 		for(h = 2; h < real_font_height - 2; h++) {
-			data[h-f_desc+2] = 0x42;
+			data[h] = 0x42;
 		}
 		data[h++] = 0x7E;
 		for (; h < CHARACTER_LEN-2; h++) {
