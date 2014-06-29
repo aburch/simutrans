@@ -155,6 +155,10 @@ private:
 	*/
 	bool public_right_of_way; 
 
+	uint16 creation_month_year;
+	uint16 last_renewal_month_year;
+	uint32 tonnes_since_last_renewal;
+
 protected:
 
 	enum image_type { image_flat, image_slope, image_diagonal, image_switch };
