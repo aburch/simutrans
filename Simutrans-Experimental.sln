@@ -77,10 +77,10 @@ Global
 		{0621B295-BEB7-4767-82F1-F27995610323}.Release (IP v. 4 only)|Win32.Build.0 = Release (IP v. 4 only)|Win32
 		{0621B295-BEB7-4767-82F1-F27995610323}.Release (IP v. 4 only)|x64.ActiveCfg = Release (IP v. 4 only)|x64
 		{0621B295-BEB7-4767-82F1-F27995610323}.Release (IP v. 4 only)|x64.Build.0 = Release (IP v. 4 only)|x64
-		{0621B295-BEB7-4767-82F1-F27995610323}.Release (large address)|Win32.ActiveCfg = Release (large address)|Win32
-		{0621B295-BEB7-4767-82F1-F27995610323}.Release (large address)|Win32.Build.0 = Release (large address)|Win32
-		{0621B295-BEB7-4767-82F1-F27995610323}.Release (large address)|x64.ActiveCfg = Release (large address)|x64
-		{0621B295-BEB7-4767-82F1-F27995610323}.Release (large address)|x64.Build.0 = Release (large address)|x64
+		{0621B295-BEB7-4767-82F1-F27995610323}.Release (large address)|Win32.ActiveCfg = Release (single threaded)|Win32
+		{0621B295-BEB7-4767-82F1-F27995610323}.Release (large address)|Win32.Build.0 = Release (single threaded)|Win32
+		{0621B295-BEB7-4767-82F1-F27995610323}.Release (large address)|x64.ActiveCfg = Release (single threaded)|x64
+		{0621B295-BEB7-4767-82F1-F27995610323}.Release (large address)|x64.Build.0 = Release (single threaded)|x64
 		{0621B295-BEB7-4767-82F1-F27995610323}.Release (SDL)|Win32.ActiveCfg = Release (SDL)|Win32
 		{0621B295-BEB7-4767-82F1-F27995610323}.Release (SDL)|Win32.Build.0 = Release (SDL)|Win32
 		{0621B295-BEB7-4767-82F1-F27995610323}.Release (SDL)|x64.ActiveCfg = Release (SDL)|x64
