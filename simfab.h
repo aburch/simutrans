@@ -415,6 +415,8 @@ private:
 
 	bool has_calculated_intransit_percentages;
 
+	void adjust_production_for_fields();
+
 protected:
 
 	void delete_all_fields();
