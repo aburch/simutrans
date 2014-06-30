@@ -109,7 +109,7 @@ public:
 
 	void set_scale(uint16 scale_factor)
 	{
-		cost = set_scale_generic<sint32>(base_cost, scale_factor);
+		cost = set_scale_generic<sint64>(base_cost, scale_factor);
 		if (base_cost && !cost) cost = 1;
 		maintenance = set_scale_generic<sint32>(base_maintenance, scale_factor);
 		if (base_maintenance && !maintenance) maintenance = 1;
