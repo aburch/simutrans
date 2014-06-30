@@ -54,7 +54,7 @@ wolke_t::~wolke_t()
 {
 	mark_image_dirty( get_bild(), 0 );
 	if(  insta_zeit != 2499  ) {
-		if(  !get_flag(not_on_map)  &&  !welt->sync_way_eyecandy_remove( this )  ) {
+		if(  !welt->sync_way_eyecandy_remove( this )  ) {
 			dbg->error( "wolke_t::~wolke_t()", "wolke not in the correct sync list" );
 		}
 	}

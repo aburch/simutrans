@@ -2276,6 +2276,7 @@ void fabrik_t::neuer_monat()
 						}
 
 						recalc_storage_capacities();
+						adjust_production_for_fields();
 						// Re-calculate electricity conspumption, mail and passenger demand, etc.
 						update_scaled_electric_amount();
 						update_scaled_pax_demand();
@@ -2714,6 +2715,13 @@ void fabrik_t::laden_abschliessen()
 	}
 
 	// adjust production base to be at least as large as fields productivity
+	adjust_production_for_fields();
+
+	mark_connected_roads(false);
+}
+
+void fabrik_t::adjust_production_for_fields()
+{
 	uint32 prodbase_adjust = 1;
 	const field_group_besch_t *fb = besch->get_field_group();
 	if(fb) {
@@ -2726,9 +2734,7 @@ void fabrik_t::laden_abschliessen()
 	}
 	// set production, update all production related numbers
 	set_base_production( max(prodbase, prodbase_adjust) );
-	mark_connected_roads(false);
 }
-
 
 void fabrik_t::rotate90( const sint16 y_size )
 {
