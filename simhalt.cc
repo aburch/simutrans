@@ -2493,7 +2493,8 @@ uint32 haltestelle_t::liefere_an(ware_t ware, uint8 walked_between_stations)
 		// yes, we have arrived!
 		return deposit_ware_at_destination(ware);	
 	}
-
+	uint16 straight_line_distance_destination;
+	bool destination_is_within_coverage;
 	if(find_route(ware) == 65535)
 	{
 		if(ware.is_passenger() && is_within_walking_distance_of(ware.get_zwischenziel()) && ware.get_zwischenziel() != self && ware.get_zwischenziel().is_bound())
@@ -2514,8 +2515,8 @@ uint32 haltestelle_t::liefere_an(ware_t ware, uint8 walked_between_stations)
 	if(ware.is_passenger())
 	{
 		// Check whether, on arriving, passengers can walk to their next stop or ultimate destination more quickly than waiting for the next convoy.
-		const uint16 straight_line_distance_destination = shortest_distance(get_init_pos(), ware.get_zielpos()); 
-		const bool destination_is_within_coverage = straight_line_distance_destination <= (welt->get_settings().get_station_coverage() / 2);
+		straight_line_distance_destination = shortest_distance(get_init_pos(), ware.get_zielpos()); 
+		destination_is_within_coverage = straight_line_distance_destination <= (welt->get_settings().get_station_coverage() / 2);
 		if(is_within_walking_distance_of(ware.get_ziel()) || is_within_walking_distance_of(ware.get_zwischenziel()) || destination_is_within_coverage)
 		{
 			const sint64 best_arrival_time_destination_stop = calc_earliest_arrival_time_at(ware.get_ziel());
