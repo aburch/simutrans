@@ -2287,6 +2287,7 @@ void fabrik_t::neuer_monat()
 						}
 
 						recalc_storage_capacities();
+						adjust_production_for_fields();
 						// Re-calculate electricity conspumption, mail and passenger demand, etc.
 						update_scaled_electric_amount();
 						update_scaled_pax_demand();
@@ -2751,11 +2752,28 @@ void fabrik_t::laden_abschliessen()
 		}
 	}
 
-	mark_connected_roads(false);
+	// adjust production base to be at least as large as fields productivity
+	adjust_production_for_fields();
 
+	mark_connected_roads(false);
 	add_to_world_list();
 }
 
+void fabrik_t::adjust_production_for_fields()
+{
+	uint32 prodbase_adjust = 1;
+	const field_group_besch_t *fb = besch->get_field_group();
+	if(fb) {
+		for(uint32 i=0; i<fields.get_count(); i++) {
+			const field_class_besch_t *fc = fb->get_field_class( fields[i].field_class_index );
+			if (fc) {
+				prodbase_adjust += fc->get_field_production();
+			}
+		}
+	}
+	// set production, update all production related numbers
+	set_base_production( max(prodbase, prodbase_adjust) );
+}
 
 void fabrik_t::rotate90( const sint16 y_size )
 {
