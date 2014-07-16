@@ -4513,7 +4513,19 @@ void convoi_t::laden() //"load" (Babelfish)
 		uint8 schedule_entry = fpl->get_aktuell();
 		fpl->increment_index(&schedule_entry, &rev); 
 		departure_point_t this_departure(schedule_entry, !rev);
-		sint64 latest_journey_time = welt->ticks_to_tenths_of_minutes(arrival_time - departures.get(departure_point_t(schedule_entry, !rev)).departure_time);
+		sint64 latest_journey_time;
+		const bool departure_missing = !departures.is_contained(this_departure);
+		const sint32 journey_distance_meters = journey_distance * welt->get_settings().get_meters_per_tile();
+		if(departure_missing)
+		{
+			//Fall back to ultimate backup: half maximum speed.
+			const sint32 assumed_average_speed = speed_to_kmh(get_min_top_speed()) * 5; // (Equivalent to / 2 * 10)
+			latest_journey_time = (journey_distance_meters * 6) / assumed_average_speed;
+		}
+		else
+		{
+			latest_journey_time = welt->ticks_to_tenths_of_minutes(arrival_time - departures.get(this_departure).departure_time);
+		}
 		if(latest_journey_time <= 0)
 		{
 			// Necessary to prevent divisions by zero.
@@ -4535,7 +4547,6 @@ void convoi_t::laden() //"load" (Babelfish)
 			journey_times_between_schedule_points.put(this_departure, ave);
 		}
 
-		const sint32 journey_distance_meters = journey_distance * welt->get_settings().get_meters_per_tile();
 		sint32 average_speed = (journey_distance_meters * 3) / ((sint32)latest_journey_time * 5);
 
 		// For some odd reason, in some cases, laden() is called when the journey time is
