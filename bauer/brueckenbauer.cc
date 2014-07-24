@@ -436,7 +436,7 @@ bool brueckenbauer_t::is_start_of_bridge( const grund_t *gr )
 			return true;
 		}
 		// now check for end of rampless bridges
-		ribi_t::ribi ribi = gr->get_weg_ribi_unmasked( gr->get_weg_nr(0)->get_waytype() );
+		ribi_t::ribi ribi = gr->get_weg_ribi_unmasked( gr->get_leitung() ? powerline_wt : gr->get_weg_nr(0)->get_waytype() );
 		for(  int i=0;  i<4;  i++  ) {
 			if(  ribi_t::nsow[i] & ribi  ) {
 				grund_t *to = welt->lookup( gr->get_pos()+koord(ribi_t::nsow[i]) );
