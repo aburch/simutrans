@@ -1277,6 +1277,14 @@ const char *wkz_setslope_t::wkz_set_slope_work( spieler_t *sp, koord3d pos, int 
 				}
 			}
 
+			// if there is a powerline here we need to treat it as newly built as it may connect to neighbours
+			leitung_t *lt = gr1->get_leitung();
+			if(  lt  ) {
+				// remove maintenance for existing powerline
+				spieler_t::add_maintenance(lt->get_besitzer(), -lt->get_besch()->get_wartung(), powerline_wt);
+				lt->laden_abschliessen();
+			}
+
 			if(  gr1->ist_karten_boden()  ) {
 				if(  new_slope!=hang_t::flach  ) {
 					// no lakes on slopes ...
