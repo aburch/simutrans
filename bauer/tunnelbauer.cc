@@ -169,32 +169,15 @@ koord3d tunnelbauer_t::finde_ende(spieler_t *sp, koord3d pos, koord zv, const tu
 		// next tile
 		gr = welt->lookup(pos);
 		if(  gr == NULL  ) {
-			// check tile below
-			gr = welt->lookup( pos + koord3d(0, 0, -1) );
-			// check tiles one level above and below
-			if(  welt->get_settings().get_way_height_clearance()==2  ) {
-				if (gr == NULL) {
-					gr = welt->lookup( pos + koord3d(0, 0, 1) );
-				}
-				// tile one level above/below should end on same level
-				if (gr  &&  gr->get_vmove(ribi_typ(-zv)) != pos.z) {
-					return koord3d::invalid;
-				}
-			}
-			// check two levels below
-			if (gr == NULL) {
-				gr = welt->lookup( pos + koord3d(0, 0, -2) );
-				if(  gr  &&  welt->get_settings().get_way_height_clearance()==2  ) {
-					// should not end at -1
-					if (gr->get_vmove(ribi_typ(-zv)) == pos.z-1) {
-						return koord3d::invalid;
-					}
-				}
-			}
-			if(  gr  &&  gr->get_weg_hang() == hang_t::flach  ) {
-				// Don't care about _flat_ tunnels below.
-				gr = NULL;
-			}
+			// check for slope down ...
+			gr = welt->lookup(pos + koord3d(0,0,-1));
+ 			if(  !gr  ) {
+				gr = welt->lookup(pos + koord3d(0,0,-2));
+ 			}
+ 			if(  gr  &&  gr->get_weg_hang() == hang_t::flach  ) {
+ 				// Don't care about _flat_ tunnels below.
+ 				gr = NULL;
+ 			}
 		}
 
 		if(gr) {
