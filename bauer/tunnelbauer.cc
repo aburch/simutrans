@@ -570,9 +570,20 @@ const char *tunnelbauer_t::remove(spieler_t *sp, koord3d start, waytype_t wegtyp
 		if(  from->kann_alle_obj_entfernen(sp)  ) {
 			return "Der Tunnel ist nicht frei!\n";
 		}
-		if(  !remove_all  &&  ribi_t::is_threeway(from->get_weg_ribi_unmasked(delete_wegtyp))  ) {
+
+		ribi_t::ribi waytype_ribi = ribi_t::keine;
+		if(  wegtyp == powerline_wt  ) {
+			if(  from->get_leitung()  ) {
+				waytype_ribi = from->get_leitung()->get_ribi();
+			}
+		}
+		else {
+			waytype_ribi = from->get_weg_ribi_unmasked(delete_wegtyp);
+		}
+		if(  !remove_all  &&  ribi_t::is_threeway(waytype_ribi)  ) {
 			return "This tunnel branches. You can try Control+Click to remove.";
 		}
+
 		// Nachbarn raussuchen
 		for(int r = 0; r < 4; r++) {
 			if((zv == koord::invalid || zv == koord::nsow[r]) &&
