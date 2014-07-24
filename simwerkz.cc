@@ -547,7 +547,8 @@ DBG_MESSAGE("wkz_remover()",  "removing bridge from %d,%d,%d",gr->get_pos().x, g
 	// beginning/end of tunnel
 	if(gr->ist_tunnel()  &&  gr->ist_karten_boden()) {
 DBG_MESSAGE("wkz_remover()",  "removing tunnel  from %d,%d,%d",gr->get_pos().x, gr->get_pos().y, gr->get_pos().z);
-		msg = tunnelbauer_t::remove(sp, gr->get_pos(), gr->get_weg_nr(0)->get_waytype(), is_ctrl_pressed());
+		waytype_t wegtyp =  gr->get_leitung() ? powerline_wt : gr->get_weg_nr(0)->get_waytype();
+		msg = tunnelbauer_t::remove(sp, gr->get_pos(), wegtyp, is_ctrl_pressed());
 		return msg == NULL;
 	}
 

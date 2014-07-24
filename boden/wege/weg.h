@@ -192,7 +192,7 @@ public:
 	virtual void info(cbuffer_t & buf) const;
 
 	/**
-	 * @return NULL wenn OK, ansonsten eine Fehlermeldung
+	 * @return NULL if OK, otherwise an error message
 	 * @author Hj. Malthaner
 	 */
 	virtual const char *ist_entfernbar(const spieler_t *sp);

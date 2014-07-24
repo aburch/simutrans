@@ -124,6 +124,12 @@ public:
 	* @author Hj. Malthaner
 	*/
 	virtual void rdwr(loadsave_t *file);
+
+	/**
+	 * @return NULL if OK, otherwise an error message
+	 * @author Hj. Malthaner
+	 */
+	virtual const char *ist_entfernbar(const spieler_t *sp);
 };
 
 
