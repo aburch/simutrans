@@ -155,6 +155,24 @@ koord3d tunnelbauer_t::finde_ende(spieler_t *sp, koord3d pos, koord zv, const tu
 
 		// check if ground is below tunnel level
 		gr = welt->lookup_kartenboden(pos.get_2d());
+
+		// steep slopes and we are appearing at the top of one
+		if(  gr->get_hoehe() == pos.z-1  &&  env_t::pak_height_conversion_factor==1  ) {
+			const hang_t::typ new_slope = hang_typ(-zv);
+			sint8 hsw = pos.z + corner1(new_slope);
+			sint8 hse = pos.z + corner2(new_slope);
+			sint8 hne = pos.z + corner3(new_slope);
+			sint8 hnw = pos.z + corner4(new_slope);
+			karte_t::terraformer_t raise(welt);
+			raise.add_raise_node(pos.x, pos.y, hsw, hse, hne, hnw);
+			raise.iterate(true);
+			if (raise.can_raise_all(sp)) {
+				// returned true therefore error reported
+				return koord3d::invalid;
+			}
+			// if we can adjust height here we can build an entrance so don't need checks below
+			return pos;
+		}
 		if(  gr->get_hoehe() < pos.z  ){
 			return koord3d::invalid;
 		}
@@ -173,11 +191,16 @@ koord3d tunnelbauer_t::finde_ende(spieler_t *sp, koord3d pos, koord zv, const tu
 			gr = welt->lookup(pos + koord3d(0,0,-1));
  			if(  !gr  ) {
 				gr = welt->lookup(pos + koord3d(0,0,-2));
- 			}
- 			if(  gr  &&  gr->get_weg_hang() == hang_t::flach  ) {
- 				// Don't care about _flat_ tunnels below.
- 				gr = NULL;
- 			}
+			}
+			if(  gr  &&  gr->get_weg_hang() == hang_t::flach  ) {
+				// Don't care about _flat_ tunnels below.
+				gr = NULL;
+			}
+
+			if(  !gr  &&  env_t::pak_height_conversion_factor==2  ) {
+				// check for one above
+				gr = welt->lookup(pos + koord3d(0,0,1));
+			}
 		}
 
 		if(gr) {
@@ -197,8 +220,30 @@ koord3d tunnelbauer_t::finde_ende(spieler_t *sp, koord3d pos, koord zv, const tu
 				}
 			}
 			const uint8 slope = gr->get_grund_hang();
-			const uint8 slope_height = welt->get_settings().get_way_height_clearance();
-			if(  gr->get_typ() != grund_t::boden  ||  slope != hang_typ(-zv) * slope_height  ||  gr->is_halt()  ||  ((wegtyp != powerline_wt) ? gr->get_leitung() != NULL : gr->hat_wege())  ) {
+			const hang_t::typ new_slope = hang_typ(-zv) * welt->get_settings().get_way_height_clearance();
+
+			if(  gr->ist_karten_boden()  &&  ( slope!=new_slope  ||  pos.z!=gr->get_pos().z )  ) {
+				// lower terrain to match - most of time shouldn't need to raise
+				// however player might have manually altered terrain so check this anyway
+				sint8 hsw = pos.z + corner1(new_slope);
+				sint8 hse = pos.z + corner2(new_slope);
+				sint8 hne = pos.z + corner3(new_slope);
+				sint8 hnw = pos.z + corner4(new_slope);
+				karte_t::terraformer_t raise(welt), lower(welt);
+				raise.add_raise_node(pos.x, pos.y, hsw, hse, hne, hnw);
+				raise.iterate(false);
+				lower.add_lower_node(pos.x, pos.y, hsw, hse, hne, hnw);
+				lower.iterate(false);
+				if (raise.can_lower_all(sp) || lower.can_lower_all(sp)) {
+					// returned true therefore error reported
+					return koord3d::invalid;
+				}
+				// if we can adjust height here we can build an entrance so don't need checks below
+				return pos;
+			}
+
+
+			if(  gr->get_typ() != grund_t::boden  ||  slope != new_slope  ||  gr->is_halt()  ||  ((wegtyp != powerline_wt) ? gr->get_leitung() != NULL : gr->hat_wege())  ) {
 				// must end on boden_t and correct slope and not on halts
 				// ways cannot end on powerlines, powerlines cannot end on ways
 				return koord3d::invalid;
@@ -319,6 +364,33 @@ const char *tunnelbauer_t::baue( spieler_t *sp, koord pos, const tunnel_besch_t 
 	}
 
 	// Begin and end found, we can build
+
+	const grund_t *end_gr = welt->lookup(end);
+	hang_t::typ end_slope = hang_typ(-zv) * env_t::pak_height_conversion_factor;
+	if(  full_tunnel  &&  (!end_gr  ||  end_gr->get_grund_hang()!=end_slope)  ) {
+		// end slope not at correct height - we have already checked in finde_ende that we can change this
+		sint8 hsw = end.z + corner1(end_slope);
+		sint8 hse = end.z + corner2(end_slope);
+		sint8 hne = end.z + corner3(end_slope);
+		sint8 hnw = end.z + corner4(end_slope);
+
+		int n = 0;
+
+		karte_t::terraformer_t raise(welt),lower(welt);
+		raise.add_raise_node(end.x, end.y, hsw, hse, hne, hnw);
+		lower.add_lower_node(end.x, end.y, hsw, hse, hne, hnw);
+		raise.iterate(true);
+		lower.iterate(false);
+		err = raise.can_raise_all(sp);
+		if (!err) err = lower.can_lower_all(sp);
+		if (err) return 0;
+
+// TODO: this is rather hackish as 4 seems to come from nowhere but works most of the time
+// feel free to change if you have a better idea!
+		n = (raise.raise_all()+lower.lower_all())/4;
+		spieler_t::book_construction_costs(sp, welt->get_settings().cst_alter_land * n, end.get_2d(), besch->get_waytype());
+	}
+
 	if(!baue_tunnel(sp, gr->get_pos(), end, zv, besch)) {
 		return "Ways not connected";
 	}
