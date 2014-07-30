@@ -4293,7 +4293,7 @@ unsigned short get_next_char_with_metrics(const char* &text, unsigned char &byte
 /* returns true, if this is a valid character */
 bool has_character( utf16 char_code )
 {
-	if(  char_code >= large_font.num_chars  ||  (pixel_width = large_font.screen_width[char_code]) == 0  ) {
+	if(  char_code >= large_font.num_chars  ||  large_font.screen_width[char_code] == 0  ) {
 		// missing characters
 		return false;
 	}
