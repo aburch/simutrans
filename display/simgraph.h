@@ -388,6 +388,9 @@ long get_prev_char(const char* text, long pos);
 
 KOORD_VAL display_get_char_width(utf16 c);
 
+/* returns true, if this is a valid character */
+bool has_character( utf16 char_code );
+
 /**
  * Returns the width of the widest character in a string.
  * @param text  pointer to a string of characters to evaluate.

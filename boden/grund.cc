@@ -771,13 +771,14 @@ void grund_t::calc_back_bild(const sint8 hgt,const sint8 slope_this)
 	sint8 back_bild_nr=0;
 	bool is_building = get_typ()==grund_t::fundament;
 	const bool isvisible = is_visible();
-	bool fence[2]={false, false};
+	bool fence[2] = {false, false};
 	const koord k = get_pos().get_2d();
 
 	clear_flag(grund_t::draw_as_obj);
 	weg_t const* w;
-	if (((w = get_weg_nr(0)) && w->get_besch()->is_draw_as_obj()) ||
-			((w = get_weg_nr(1)) && w->get_besch()->is_draw_as_obj())) {
+	if(  (  (w = get_weg_nr(0))  &&  w->get_besch()->is_draw_as_obj()  )  ||
+			(  (w = get_weg_nr(1))  &&  w->get_besch()->is_draw_as_obj()  )
+	  ) {
 		set_flag(grund_t::draw_as_obj);
 	}
 

@@ -2829,7 +2829,7 @@ bool stadt_t::baue_strasse(const koord k, spieler_t* sp, bool forced)
 
 	// we must not built on water or runways etc.
 	// only crossing or tramways allowed
-	if (bd->hat_weg(track_wt)) {
+	if(  bd->hat_weg(track_wt)  ) {
 		weg_t* sch = bd->get_weg(track_wt);
 		if (sch->get_besch()->get_styp() != 7) {
 			// not a tramway
@@ -2853,15 +2853,19 @@ bool stadt_t::baue_strasse(const koord k, spieler_t* sp, bool forced)
 			if(bd->get_neighbour(bd2, invalid_wt, ribi_t::nsow[r])) {
 				if(bd2->get_typ()==grund_t::fundament  ||  bd2->get_typ()==grund_t::wasser) {
 					// not connecting to a building of course ...
-				} else if (!bd2->ist_karten_boden()) {
+				}
+				else if (!bd2->ist_karten_boden()) {
 					// do not connect to elevated ways / bridges
-				} else if (bd2->get_typ()==grund_t::tunnelboden  &&  ribi_t::nsow[r]!=ribi_typ(bd2->get_grund_hang())) {
+				}
+				else if (bd2->get_typ()==grund_t::tunnelboden  &&  ribi_t::nsow[r]!=ribi_typ(bd2->get_grund_hang())) {
 					// not the correct slope
-				} else if (bd2->get_typ()==grund_t::brueckenboden
+				}
+				else if (bd2->get_typ()==grund_t::brueckenboden
 					&&  (bd2->get_grund_hang()==hang_t::flach  ?  ribi_t::nsow[r]!=ribi_typ(bd2->get_weg_hang())
 					                                           :  ribi_t::rueckwaerts(ribi_t::nsow[r])!=ribi_typ(bd2->get_grund_hang()))) {
 					// not the correct slope
-				} else if(bd2->hat_weg(road_wt)) {
+				}
+				else if(bd2->hat_weg(road_wt)) {
 					const gebaeude_t* gb = bd2->find<gebaeude_t>();
 					if(gb) {
 						uint8 layouts = gb->get_tile()->get_besch()->get_all_layouts();
