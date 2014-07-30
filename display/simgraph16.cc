@@ -4233,14 +4233,16 @@ long get_prev_char(const char* text, long pos)
 
 KOORD_VAL display_get_char_width(utf16 c)
 {
-	KOORD_VAL w = large_font.screen_width[c];
-	if(  w == 0  ) {
-		w = large_font.screen_width[0];
+	KOORD_VAL pixel_width;
+	if(  c >= large_font.num_chars  ||  (pixel_width = large_font.screen_width[c]) == 0  ) {
+		// default width for missing characters
+		return large_font.screen_width[0];
 	}
-	return w;
+	return pixel_width;
 }
 
 
+/* returns the width of this character or the default (Nr 0) character size */
 KOORD_VAL display_get_char_max_width(const char* text, size_t len) {
 
 	KOORD_VAL max_len=0;
@@ -4251,6 +4253,7 @@ KOORD_VAL display_get_char_max_width(const char* text, size_t len) {
 
 	return max_len;
 }
+
 
 /**
  * For the next logical character in the text, returns the character code
@@ -4284,6 +4287,17 @@ unsigned short get_next_char_with_metrics(const char* &text, unsigned char &byte
 		}
 	}
 	return char_code;
+}
+
+
+/* returns true, if this is a valid character */
+bool has_character( utf16 char_code )
+{
+	if(  char_code >= large_font.num_chars  ||  (pixel_width = large_font.screen_width[char_code]) == 0  ) {
+		// missing characters
+		return false;
+	}
+	return true;
 }
 
 
