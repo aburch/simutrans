@@ -3749,7 +3749,6 @@ int karte_t::lower_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8
 		}
 	}
 
-#if 0
 	if(  hneu >= water_hgt  ) {
 		// calculate water table from surrounding tiles - start off with height on this tile
 		sint8 water_table = water_hgt >= h0 ? water_hgt : groundwater - 4;
@@ -3808,7 +3807,6 @@ int karte_t::lower_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8
 			set_water_hgt(x, y, water_table );
 		}
 	}
-#endif
 
 	// calc new height and slope
 	const sint8 disp_hneu = max( hneu, water_hgt );

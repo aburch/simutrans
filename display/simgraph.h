@@ -299,7 +299,7 @@ sint32 get_prev_char(const char* text, sint32 pos);
 KOORD_VAL display_get_char_width(utf16 c);
 
 /* returns true, if this is a valid character */
-bool has_character(utf16 char_code);
+bool has_character( utf16 char_code );
 
 /**
 * Returns the width of the widest character in a string.
