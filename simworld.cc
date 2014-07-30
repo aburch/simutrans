@@ -3706,6 +3706,7 @@ int karte_t::lower_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8
 	int n=0;
 	assert(is_within_limits(x,y));
 	grund_t *gr = lookup_kartenboden_nocheck(x,y);
+	const uint8 old_slope = gr->get_grund_hang();
 	sint8 water_hgt = get_water_hgt_nocheck(x,y);
 	const sint8 h0 = gr->get_hoehe();
 	// old height
@@ -3734,6 +3735,21 @@ int karte_t::lower_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8
 	const sint8 hneu = min( min( hn_sw, hn_se ), min( hn_ne, hn_nw ) );
 	const sint8 hmaxneu = max( max( hn_sw, hn_se ), max( hn_ne, hn_nw ) );
 
+	// only slope could have been shores
+	if(  old_slope  ) {
+		// if there are any shore corners, then the new tile must be all water since it is lowered
+		const bool make_water =
+			get_water_hgt_nocheck(x,y) <= lookup_hgt_nocheck(x,y)  ||
+			get_water_hgt_nocheck(x+1,y) <= lookup_hgt_nocheck(x+1,y)  ||
+			get_water_hgt_nocheck(x,y+1) <= lookup_hgt_nocheck(x,y+1)  ||
+			get_water_hgt_nocheck(x+1,y+1) <= lookup_hgt_nocheck(x+1,y+1);
+		if(  make_water  ) {
+			sint8 water_table = water_hgt >= hneu ? water_hgt : hneu;
+			set_water_hgt(x, y, water_table );
+		}
+	}
+
+#if 0
 	if(  hneu >= water_hgt  ) {
 		// calculate water table from surrounding tiles - start off with height on this tile
 		sint8 water_table = water_hgt >= h0 ? water_hgt : groundwater - 4;
@@ -3792,6 +3808,7 @@ int karte_t::lower_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8
 			set_water_hgt(x, y, water_table );
 		}
 	}
+#endif
 
 	// calc new height and slope
 	const sint8 disp_hneu = max( hneu, water_hgt );
