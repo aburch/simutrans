@@ -3470,8 +3470,13 @@ void fabrik_t::add_supplier(koord ziel)
 				// now update transit limits
 				FOR(  array_tpl<ware_production_t>,  &w,  input ) {
 					if(  w_out.get_typ() == w.get_typ()  ) {
-						sint32 max_storage = (w_out.max * welt->get_settings().get_factory_maximum_intransit_percentage()) / 100;
+						const sint32 max_storage = (sint32)(((sint64)w_out.max * (sint64)welt->get_settings().get_factory_maximum_intransit_percentage()) / 100);
+						const sint32 old_max_transit = w.max_transit;
 						w.max_transit += max_storage;
+						if(  w.max_transit < old_max_transit  ) {
+							// we have overflown, so we use the max value
+							w.max_transit = 0x7fffffff;
+						}
 						break;
 					}
 				}
@@ -3501,8 +3506,13 @@ void fabrik_t::rem_supplier(koord pos)
 					// now update transit limits
 					FOR(  array_tpl<ware_production_t>,  &w,  input ) {
 						if(  w_out.get_typ() == w.get_typ()  ) {
-							sint32 max_storage = (w_out.max * welt->get_settings().get_factory_maximum_intransit_percentage()) / 100;
+							const sint32 max_storage = (sint32)(((sint64)w_out.max * (sint64)welt->get_settings().get_factory_maximum_intransit_percentage()) / 100);
+							const sint32 old_max_transit = w.max_transit;
 							w.max_transit += max_storage;
+							if(  w.max_transit < old_max_transit  ) {
+								// we have overflown, so we use the max value
+								w.max_transit = 0x7fffffff;
+							}
 							break;
 						}
 					}
