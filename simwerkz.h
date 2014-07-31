@@ -199,6 +199,7 @@ public:
 	wkz_change_water_height_t() : werkzeug_t(WKZ_CHANGE_WATER_HEIGHT | GENERAL_TOOL) {}
 	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate( atoi(default_param)>=0 ? "Increase water height" : "Decrease water height" ); }
 	bool init(spieler_t*) OVERRIDE;
+	image_id get_icon(spieler_t *sp) const OVERRIDE { return (!env_t::networkmode  ||  sp->get_player_nr()==1) ? icon : IMG_LEER; }
 	char const* work(spieler_t*, koord3d) OVERRIDE;
 	bool is_init_network_save() const OVERRIDE { return true; }
 };

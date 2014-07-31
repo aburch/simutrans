@@ -1671,10 +1671,10 @@ const char *wkz_set_climate_t::get_tooltip(spieler_t const*) const
 	return tooltip_with_price( temp,  welt->get_settings().cst_alter_climate );
 }
 
-uint8 wkz_set_climate_t::is_valid_pos(spieler_t *, const koord3d &, const char *&, const koord3d &)
+uint8 wkz_set_climate_t::is_valid_pos(spieler_t *sp, const koord3d &, const char *&, const koord3d &)
 {
-	// do really nothing ...
-	return 2;
+	// no dragging in networkmode but for admin
+	return env_t::networkmode ? (sp->get_player_nr()==1)+1 : 2;
 }
 
 void wkz_set_climate_t::mark_tiles(spieler_t *, const koord3d &start, const koord3d &end)
@@ -1780,10 +1780,10 @@ const char *wkz_set_climate_t::do_work( spieler_t *sp, const koord3d &start, con
 /* change water height
  * @author kieron
  */
-bool wkz_change_water_height_t::init( spieler_t * )
+bool wkz_change_water_height_t::init( spieler_t *sp )
 {
 	cursor = atoi(default_param) > 0 ? werkzeug_t::general_tool[WKZ_RAISE_LAND]->cursor : werkzeug_t::general_tool[WKZ_LOWER_LAND]->cursor;
-	return true;
+	return !env_t::networkmode  ||  sp->get_player_nr()==1;
 }
 
 
