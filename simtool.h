@@ -211,6 +211,7 @@ public:
 	tool_change_water_height_t() : tool_t(TOOL_CHANGE_WATER_HEIGHT | GENERAL_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate( atoi(default_param)>=0 ? "Increase water height" : "Decrease water height" ); }
 	bool init(player_t*) OVERRIDE;
+	image_id get_icon(player_t *player) const OVERRIDE { return (!env_t::networkmode  ||  player->is_public_service()) ? icon : IMG_EMPTY; }
 	char const* work(player_t*, koord3d) OVERRIDE;
 	bool is_init_network_save() const OVERRIDE { return true; }
 };
