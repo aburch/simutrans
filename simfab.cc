@@ -2135,8 +2135,13 @@ void fabrik_t::add_supplier(koord ziel)
 						sint64 next = 1 + ( distance * welt->get_settings().get_factory_maximum_intransit_percentage() * (w.max >> fabrik_t::precision_bits) ) / 131072;
 						w.max_transit += (next - w.max_transit)/(w.count_suppliers);
 #else
-						sint32 max_storage = 1 + ( (w_out.max * welt->get_settings().get_factory_maximum_intransit_percentage() ) >> fabrik_t::precision_bits) / 100;
+						const sint32 max_storage = (sint32)(1 + ( ((sint64)w_out.max * (sint64)welt->get_settings().get_factory_maximum_intransit_percentage() ) >> fabrik_t::precision_bits) / 100);
+						const sint32 old_max_transit = w.max_transit;
 						w.max_transit += max_storage;
+						if(  w.max_transit < old_max_transit  ) {
+							// we have overflown, so we use the max value
+							w.max_transit = 0x7fffffff;
+						}
 #endif
 						break;
 					}
@@ -2174,8 +2179,13 @@ void fabrik_t::rem_supplier(koord pos)
 							sint64 next = 1 + ( distance * welt->get_settings().get_factory_maximum_intransit_percentage() * (w.max >> fabrik_t::precision_bits) ) / 131072;
 							w.max_transit += (next - w.max_transit)/(w.count_suppliers);
 #else
-							sint32 max_storage = 1 + ( (w_out.max * welt->get_settings().get_factory_maximum_intransit_percentage() ) >> fabrik_t::precision_bits) / 100;
+							const sint32 max_storage = (sint32)(1 + ( ((sint64)w_out.max * (sint64)welt->get_settings().get_factory_maximum_intransit_percentage() ) >> fabrik_t::precision_bits) / 100);
+							const sint32 old_max_transit = w.max_transit;
 							w.max_transit += max_storage;
+							if(  w.max_transit < old_max_transit  ) {
+								// we have overflown, so we use the max value
+								w.max_transit = 0x7fffffff;
+							}
 #endif
 							break;
 						}
