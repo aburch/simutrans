@@ -208,6 +208,10 @@ void modal_dialogue( gui_frame_t *gui, ptrdiff_t magic, karte_t *welt, bool (*qu
 		return;
 	}
 
+	// switch off autosave
+	sint32 old_autosave = env_t::autosave;
+	env_t::autosave = 0;
+
 	event_t ev;
 	create_win( (display_get_width()-gui->get_windowsize().w)/2, (display_get_height()-gui->get_windowsize().h)/2, gui, w_info, magic );
 
@@ -299,6 +303,9 @@ void modal_dialogue( gui_frame_t *gui, ptrdiff_t magic, karte_t *welt, bool (*qu
 			display_get_event(&ev);
 		} while (!IS_LEFTRELEASE(&ev));
 	}
+
+	// restore autosave
+	env_t::autosave = old_autosave;
 }
 
 
