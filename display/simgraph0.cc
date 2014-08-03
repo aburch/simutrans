@@ -337,6 +337,11 @@ unsigned short get_prev_char_with_metrics(const char* &, const char *const, unsi
 	return 0;
 }
 
+bool has_character( utf16 char_code )
+{
+	return false;
+}
+
 size_t display_fit_proportional(const char *, scr_coord_val, scr_coord_val)
 {
 	return 0;
