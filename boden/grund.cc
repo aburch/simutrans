@@ -953,7 +953,7 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 r
 					continue;
 				}
 
-				sint8 yoff = tile_raster_scale_y( -TILE_HEIGHT_STEP*back_height, raster_tile_width );
+				sint16 yoff = tile_raster_scale_y( -TILE_HEIGHT_STEP*back_height, raster_tile_width );
 				if(  back_bild[i]  ) {
 					grund_t *gr = welt->lookup_kartenboden( k + koord::nsow[(i-1)&3] );
 					if(  gr  ) {
