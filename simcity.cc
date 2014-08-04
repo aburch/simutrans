@@ -2805,8 +2805,13 @@ bool stadt_t::baue_strasse(const koord k, spieler_t* sp, bool forced)
 		else {
 			return false;
 		}
-		// new ground here
+		// kartenboden may have changed - also ensure is land
 		bd = welt->lookup_kartenboden(k);
+		if (bd->get_typ() == grund_t::wasser) {
+			welt->set_water_hgt(k, bd->get_hoehe()-1);
+			welt->access(k)->correct_water();
+			bd = welt->lookup_kartenboden(k);
+		}
 	}
 
 	// initially allow all possible directions ...
