@@ -2805,6 +2805,8 @@ bool stadt_t::baue_strasse(const koord k, spieler_t* sp, bool forced)
 		else {
 			return false;
 		}
+		// new ground here
+		bd = welt->lookup_kartenboden(k);
 	}
 
 	// initially allow all possible directions ...
