@@ -425,12 +425,14 @@ void planquadrat_t::display_obj(const sint16 xpos, const sint16 ypos, const sint
 		for(  ;  i < ground_size;  i++  ) {
 			const grund_t* gr = data.some[i];
 			const sint8 h = gr->get_hoehe();
+			const hang_t::typ slope = gr->get_grund_hang();
+			const sint8 htop = h + max(max(corner1(slope), corner2(slope)),max(corner3(slope), corner4(slope)));
 			// above ground
 			if(  h > h0  ) {
 				break;
 			}
 			// not too low?
-			if(  h >= hmin  ) {
+			if(  htop >= hmin  ) {
 				const sint16 yypos = ypos - tile_raster_scale_y( (h - h0) * TILE_HEIGHT_STEP, raster_tile_width );
 #ifdef MULTI_THREAD
 				gr->display_boden( xpos, yypos, raster_tile_width, clip_num );
@@ -470,12 +472,14 @@ void planquadrat_t::display_obj(const sint16 xpos, const sint16 ypos, const sint
 #endif
 			for(  uint8 j = i;  j < ground_size;  j++  ) {
 				const sint8 h = data.some[j]->get_hoehe();
+				const hang_t::typ slope = data.some[j]->get_grund_hang();
+				const sint8 htop = h + max(max(corner1(slope), corner2(slope)),max(corner3(slope), corner4(slope)));
 				// too high?
 				if(  h > hmax  ) {
 					break;
 				}
 				// not too low?
-				if(  h >= hmin  ) {
+				if(  htop >= hmin  ) {
 					// something on top: clip horizontally to prevent trees etc shining trough bridges
 					const sint16 yh = ypos - tile_raster_scale_y( (h - h0) * TILE_HEIGHT_STEP, raster_tile_width ) + ((3 * raster_tile_width) >> 2);
 					if(  yh >= p_cr.y  ) {
@@ -508,12 +512,14 @@ void planquadrat_t::display_obj(const sint16 xpos, const sint16 ypos, const sint
 	for(  ;  i < ground_size;  i++  ) {
 		const grund_t* gr = data.some[i];
 		const sint8 h = gr->get_hoehe();
+		const hang_t::typ slope = gr->get_grund_hang();
+		const sint8 htop = h + max(max(corner1(slope), corner2(slope)),max(corner3(slope), corner4(slope)));
 		// too high?
 		if(  h > hmax  ) {
 			break;
 		}
 		// not too low?
-		if(  h >= hmin  ) {
+		if(  htop >= hmin  ) {
 			const sint16 yypos = ypos - tile_raster_scale_y( (h - h0) * TILE_HEIGHT_STEP, raster_tile_width );
 #ifdef MULTI_THREAD
 			gr->display_boden( xpos, yypos, raster_tile_width, clip_num );

@@ -450,7 +450,7 @@ public:
 			switch(underground_mode) {
 				case ugm_none: return ist_karten_boden();
 				case ugm_all:  return true;
-				case ugm_level:return  pos.z == underground_level  ||  (ist_karten_boden()  &&  pos.z <= underground_level);
+				case ugm_level:return  pos.z == underground_level  ||  pos.z+max(max(corner1(slope),corner2(slope)),max(corner3(slope),corner4(slope))) == underground_level  ||  (ist_karten_boden()  &&  pos.z <= underground_level);
 			}
 		}
 		else {
