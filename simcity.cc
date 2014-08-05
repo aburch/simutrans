@@ -2796,6 +2796,7 @@ bool stadt_t::baue_strasse(const koord k, spieler_t* sp, bool forced)
 	// dwachs: If not able to built here, try to make artificial slope
 	hang_t::typ slope = bd->get_grund_hang();
 	if (!hang_t::ist_wegbar(slope)) {
+		climate c = welt->get_climate(k);
 		if (welt->can_ebne_planquadrat(NULL, k, bd->get_hoehe()+1, true)) {
 			welt->ebne_planquadrat(NULL, k, bd->get_hoehe()+1, true);
 		}
@@ -2810,6 +2811,7 @@ bool stadt_t::baue_strasse(const koord k, spieler_t* sp, bool forced)
 		if (bd->get_typ() == grund_t::wasser) {
 			welt->set_water_hgt(k, bd->get_hoehe()-1);
 			welt->access(k)->correct_water();
+			welt->set_climate(k, c, true);
 			bd = welt->lookup_kartenboden(k);
 		}
 	}
