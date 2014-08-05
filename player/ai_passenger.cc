@@ -493,8 +493,16 @@ halthandle_t ai_passenger_t::build_airport(const stadt_t* city, koord pos, int r
 	const koord dx( size.x/2, size.y/2 );
 	for(  sint16 i=0;  i!=size.y+dx.y;  i+=dx.y  ) {
 		for( sint16 j=0;  j!=size.x+dx.x;  j+=dx.x  ) {
+			climate c = welt->get_climate(pos+koord(j,i));
 			if(!welt->flatten_tile(this,pos+koord(j,i),h)) {
 				return halthandle_t();
+			}
+			// ensure is land
+			grund_t* bd = welt->lookup_kartenboden(pos+koord(j,i));
+			if (bd->get_typ() == grund_t::wasser) {
+				welt->set_water_hgt(pos+koord(j,i), bd->get_hoehe()-1);
+				welt->access(pos+koord(j,i))->correct_water();
+				welt->set_climate(pos+koord(j,i), c, true);
 			}
 		}
 	}

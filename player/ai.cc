@@ -499,9 +499,25 @@ bool ai_t::create_simple_road_transport(koord platz1, koord size1, koord platz2,
 	clean_marker(platz1,size1);
 	clean_marker(platz2,size2);
 
+	climate c1 = welt->get_climate(platz1);
+	climate c2 = welt->get_climate(platz2);
+
 	if(  !(welt->flatten_tile( this, platz1, welt->lookup_kartenboden(platz1)->get_hoehe() )  &&  welt->flatten_tile( this, platz2, welt->lookup_kartenboden(platz2)->get_hoehe() ))  ) {
 		// no flat land here?!?
 		return false;
+	}
+	// ensure is land
+	grund_t* bd = welt->lookup_kartenboden(platz1);
+	if (bd->get_typ() == grund_t::wasser) {
+		welt->set_water_hgt(platz1, bd->get_hoehe()-1);
+		welt->access(platz1)->correct_water();
+		welt->set_climate(platz1, c2, true);
+	}
+	bd = welt->lookup_kartenboden(platz2);
+	if (bd->get_typ() == grund_t::wasser) {
+		welt->set_water_hgt(platz2, bd->get_hoehe()-1);
+		welt->access(platz2)->correct_water();
+		welt->set_climate(platz2, c2, true);
 	}
 
 	// is there already a connection?
