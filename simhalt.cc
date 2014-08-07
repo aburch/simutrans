@@ -498,6 +498,7 @@ haltestelle_t::haltestelle_t(loadsave_t* file)
 	rdwr(file);
 
 	alle_haltestellen.append(self);
+	restart_halt_iterator = true;
 
 	// Added by : Knightly
 	inauguration_time = 0;
@@ -509,6 +510,7 @@ haltestelle_t::haltestelle_t(koord k, spieler_t* sp)
 	self = halthandle_t(this);
 	assert( !alle_haltestellen.is_contained(self) );
 	alle_haltestellen.append(self);
+	restart_halt_iterator = true;
 
 	//markers[ self.get_id() ] = current_marker;
 
