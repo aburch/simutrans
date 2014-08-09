@@ -19,6 +19,7 @@
 #	include <direct.h>
 #	include <windows.h>
 #	include <shellapi.h>
+#	include <Shlobj.h>
 #	define PATH_MAX MAX_PATH
 #else
 #	include <limits.h>
@@ -108,6 +109,27 @@ char const* dr_query_homedir()
 	dr_mkdir(b2);
 
 	return buffer;
+}
+
+
+char *dr_query_fontpath( const char *fontname )
+{
+	static char buffer[PATH_MAX];
+
+#if defined _WIN32
+	if(  SHGetFolderPathA(NULL, CSIDL_FONTS, NULL, SHGFP_TYPE_CURRENT, buffer)  ) {
+		strcpy( buffer, "C:\\Windows\\Fonts" );
+	}
+	strcat( buffer, "\\" );
+	strcat( buffer, fontname );
+	return buffer;
+#elif defined __APPLE__
+	// not implemented yet
+	return fontname;
+#else
+	// seems non-trivial to work on any system ...
+	return fontname;
+#endif
 }
 
 

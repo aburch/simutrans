@@ -4185,22 +4185,39 @@ bool display_load_font(const char* fname)
 {
 	font_type fnt;
 
-	// skip reloading if already in memory
-	if(  strcmp( large_font.fname, fname ) == 0  ) {
-		return true;
-	}
-	tstrncpy( large_font.fname, fname, lengthof(large_font.fname) );
-
-	if(  load_font(&fnt, fname)  ) {
-		free(large_font.screen_width);
-		free(large_font.char_data);
-		large_font = fnt;
-		large_font_ascent = large_font.height + large_font.descent;
-		large_font_total_height = large_font.height;
-		return true;
+	if(  fname == NULL  ) {
+		// reload last font
+		if(  load_font(&fnt, large_font.fname)  ) {
+			free(large_font.screen_width);
+			free(large_font.char_data);
+			large_font = fnt;
+			large_font_ascent = large_font.height + large_font.descent;
+			large_font_total_height = large_font.height;
+			return true;
+		}
+		else {
+			return false;
+		}
 	}
 	else {
-		return false;
+
+		// skip reloading if already in memory
+		if(  strcmp( large_font.fname, fname ) == 0  ) {
+			return true;
+		}
+		tstrncpy( large_font.fname, fname, lengthof(large_font.fname) );
+
+		if(  load_font(&fnt, fname)  ) {
+			free(large_font.screen_width);
+			free(large_font.char_data);
+			large_font = fnt;
+			large_font_ascent = large_font.height + large_font.descent;
+			large_font_total_height = large_font.height;
+			return true;
+		}
+		else {
+			return false;
+		}
 	}
 }
 

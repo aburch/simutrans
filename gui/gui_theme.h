@@ -271,6 +271,9 @@ public:
 
 	static bool gui_drop_shadows;
 
+	// on loading font, try to get one this size
+	static uint8 request_linespace;
+
 public:
 	// default dimensions and colors
 	static void init_gui_defaults();

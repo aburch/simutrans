@@ -230,6 +230,9 @@ static bool dsp_read_bdf_font(FILE* fin, font_type* font)
 
 
 #ifdef USE_FREETYPE
+#include "../gui/gui_theme.h"
+#include "../simsys.h"
+
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include FT_GLYPH_H
@@ -237,7 +240,7 @@ static bool dsp_read_bdf_font(FILE* fin, font_type* font)
 
 FT_Library ft_library = NULL;
 
-bool load_FT_font( font_type* fnt, const char* fname, int pixel_height )
+bool load_FT_font( font_type* fnt, const char* short_name, int pixel_height )
 {
 	int error;
 	if(  !ft_library  &&  FT_Init_FreeType(&ft_library) != FT_Err_Ok  ) {
@@ -245,10 +248,16 @@ bool load_FT_font( font_type* fnt, const char* fname, int pixel_height )
 		return false;
 	}
 	// for now we assume we know the filename, this is system dependent
+	char *fname = dr_query_fontpath( short_name );
+
+	// Ok, we guessed something abou the finename, now actually load it
 	FT_Face face;
 	error = FT_New_Face( ft_library, fname, 0, &face );/* create face object */
 	if(  error  ) {
 		dbg->error( "load_FT_font", "Cannot load %s", fname );
+		FT_Done_FreeType( ft_library );
+		ft_library = NULL;
+		return false;
 	}
 	FT_Set_Pixel_Sizes( face, 0, pixel_height );
 
@@ -259,6 +268,7 @@ bool load_FT_font( font_type* fnt, const char* fname, int pixel_height )
 	fnt->height       = min( face->size->metrics.height/64, 23 );
 	fnt->descent      = face->size->metrics.descender/64;
 	fnt->num_chars    = 0;
+	tstrncpy( fnt->fname, short_name, lengthof(fnt->fname) );
 
 	for(  uint32 char_nr=0;  char_nr<65535;  char_nr++  ) {
 
@@ -355,7 +365,7 @@ bool load_font(font_type* fnt, const char* fname)
 	int c;
 
 #ifdef USE_FREETYPE
-	if(  load_FT_font( fnt, "C:\\Windows\\Fonts\\msmincho.ttc", 18 )  ) {
+	if(  load_FT_font( fnt, fname, gui_theme_t::request_linespace )  ) {
 		debug_font( fnt );
 		return true;
 	}

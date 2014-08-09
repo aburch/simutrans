@@ -98,6 +98,7 @@ image_id gui_theme_t::check_button_img[3];
 image_id gui_theme_t::pos_button_img[3];
 
 bool gui_theme_t::gui_drop_shadows;
+uint8 gui_theme_t::request_linespace = 11;
 
 /**
  * Initializes theme related parameters to hard coded default values.
@@ -149,6 +150,7 @@ void gui_theme_t::init_gui_defaults()
 	gui_vspace           = 4;
 	gui_divider_size.h   = D_V_SPACE*2;
 
+	request_linespace    = 11;
 	gui_drop_shadows     = false;
 }
 
@@ -330,6 +332,13 @@ bool gui_theme_t::themes_init(const char *file_name)
 
 	// theme name to find out current theme
 	std::string theme_name = contents.get( "name" );
+
+	// reload current font if requested size differs
+	uint8 new_size = contents.get_int("font_size", gui_theme_t::request_linespace );
+	if(  new_size != 0  &&  LINESPACE != new_size  ) {
+		gui_theme_t::request_linespace = new_size;
+		display_load_font( NULL );
+	}
 
 	// first get the images ( to be able to overload default sizes)
 	const std::string buttonpak = contents.get("themeimages");
