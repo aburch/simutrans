@@ -41,7 +41,7 @@ int sprachengui_t::cmp_language_button(sprachengui_t::language_button_t a, sprac
 void sprachengui_t::init_font_from_lang()
 {
 	static const char *default_name = "PROP_FONT_FILE";
-	const char * prop_font_file = translator::translate(default_name);
+	const char *prop_font_file = translator::translate(default_name);
 
 	// Hajo: fallback if entry is missing
 	// -> use latin-1 font
@@ -50,11 +50,19 @@ void sprachengui_t::init_font_from_lang()
 	}
 
 	// load large font
-	char prop_font_file_name [1024];
-	sprintf(prop_font_file_name, "%s%s", FONT_PATH_X, prop_font_file);
-	chdir(env_t::program_dir);
-	display_load_font(prop_font_file_name);
-	chdir(env_t::user_dir);
+	char prop_font_file_name[1024];
+	sprintf( prop_font_file_name, "%s%s", FONT_PATH_X, prop_font_file);
+	tstrncpy( prop_font_file_name, prop_font_file, lengthof(prop_font_file_name) );
+	chdir( env_t::program_dir );
+	chdir( "font" );
+	bool ok = false;
+	char *f = strtok( prop_font_file_name, ";" );
+	do {
+		ok = display_load_font(prop_font_file_name);
+		f = strtok( NULL, ";" );
+	}
+	while(  !ok  &&  f  );
+	chdir( env_t::user_dir );
 
 	const char * p = translator::translate("SEP_THOUSAND");
 	char c = ',';
