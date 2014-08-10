@@ -90,7 +90,7 @@ char const* dr_query_homedir();
 unsigned short* dr_textur_init();
 
 // returns the file path to a font file
-char *dr_query_fontpath( const char * fontname );
+const char *dr_query_fontpath( const char * fontname );
 
 void dr_textur(int xp, int yp, int w, int h);
 

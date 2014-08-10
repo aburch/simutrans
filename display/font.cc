@@ -248,7 +248,7 @@ bool load_FT_font( font_type* fnt, const char* short_name, int pixel_height )
 		return false;
 	}
 	// for now we assume we know the filename, this is system dependent
-	char *fname = dr_query_fontpath( short_name );
+	const char *fname = dr_query_fontpath( short_name );
 
 	// Ok, we guessed something abou the finename, now actually load it
 	FT_Face face;

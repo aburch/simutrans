@@ -112,7 +112,7 @@ char const* dr_query_homedir()
 }
 
 
-char *dr_query_fontpath( const char *fontname )
+const char *dr_query_fontpath( const char *fontname )
 {
 	static char buffer[PATH_MAX];
 
