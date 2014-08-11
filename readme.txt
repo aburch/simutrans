@@ -49,6 +49,10 @@ For all other systems, it is recommended you get latest GCC 3.46 or higher
 and matching zlib, libbzip2, and libpng and a game library. For linux
 systems you may have to use tools like apt-get or yast2.
 
+To built on Haiku you must use GCC4 (type "setarch x86" in the current
+nightlies). To incorporate bz2lib, download make bz2lib and add them
+manually (via FLAGS = -I/dwonloadeddir -L/downloadeddir).
+
 A subversion will be also a good idea. You can find some of them on:
 http://subversion.tigris.org/
 or you some other client.
