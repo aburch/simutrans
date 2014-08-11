@@ -4,6 +4,9 @@
 #include <stddef.h>
 #include <string>
 
+#ifdef __HAIKU__
+#include <strings.h>
+#endif
 
 #ifndef STRICMP
 #ifdef _MSC_VER

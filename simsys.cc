@@ -605,10 +605,9 @@ const char *dr_get_locale_string()
 {
 	static char code[4];
 	BMessage result;
-	BLocaleRoster bl;
 	const char *str;
 	code[0] = 0;
-	if(  B_OK == bl.GetPreferredLanguages( &result )  ) {
+	if(  B_OK == BLocaleRoster::Default()->GetPreferredLanguages( &result )  ) {
 		result.FindString( (const char *)"language", &str );
 		for(  int i=0;  i<lengthof(code)-1  &&  isalpha(str[i]);  i++  ) {
 			code[i] = tolower(str[i]);
