@@ -1221,7 +1221,8 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	max_no_of_trees_on_square = contents.get_int("max_no_of_trees_on_square", max_no_of_trees_on_square );
 	tree_climates = contents.get_int("tree_climates", tree_climates );
 	no_tree_climates = contents.get_int("no_tree_climates", no_tree_climates );
-	no_trees	= contents.get_int("no_trees", no_trees );
+	no_trees = contents.get_int("no_trees", no_trees );
+	lake = !contents.get_int("no_lakes", !lake );
 
 	// these are pak specific; the diagonal length affect travelling time (is game critical)
 	pak_diagonal_multiplier = contents.get_int("diagonal_multiplier", pak_diagonal_multiplier );
