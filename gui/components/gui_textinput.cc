@@ -401,6 +401,12 @@ void gui_textinput_t::display_with_focus(scr_coord offset, bool has_focus)
 		if(  has_focus  ) {
 			// update reference time for cursor blinking if focus has just been received
 			cursor_reference_time = dr_time();
+
+			// screen keyboard support
+			dr_start_textinput();
+		}
+		else {
+			dr_stop_textinput();
 		}
 		focus_recieved = has_focus;
 	}

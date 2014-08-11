@@ -465,6 +465,14 @@ void dr_sleep(uint32 usec)
 	rest(usec);
 }
 
+void dr_start_textinput()
+{
+}
+
+void dr_stop_textinput()
+{
+}
+
 
 int main(int argc, char **argv)
 {

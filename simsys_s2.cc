@@ -632,6 +632,15 @@ void dr_sleep(uint32 usec)
 	SDL_Delay( usec );
 }
 
+void dr_start_textinput()
+{
+    SDL_StartTextInput();
+}
+
+void dr_stop_textinput()
+{
+    SDL_StopTextInput();
+}
 
 #ifdef _MSC_VER
 // Needed for MS Visual C++ with /SUBSYSTEM:CONSOLE to work , if /SUBSYSTEM:WINDOWS this function is compiled but unreachable

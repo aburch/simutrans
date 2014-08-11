@@ -19,6 +19,10 @@
 #include "display/simgraph.h"
 #include "simdebug.h"
 
+#include "gui/simwin.h"
+#include "gui/components/gui_komponente.h"
+#include "gui/components/gui_textinput.h"
+
 
 // needed for wheel
 #ifndef WM_MOUSEWHEEL
@@ -393,6 +397,31 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 	static int last_mb = 0;	// last mouse button state
 	switch (msg) {
 
+#if 0
+		// help: this is ignored by the IME sio far
+		case WM_IME_REQUEST:
+			switch( wParam ) {
+				case IMR_QUERYCHARPOSITION:
+					// IME wants to open
+					if(  gui_komponente_t *c = win_get_focus()  ) {
+						scr_coord gui_xy = win_get_pos( win_get_top() );
+						if(  gui_textinput_t *tinp = dynamic_cast<gui_textinput_t *>(c)  ) {
+							IMECHARPOSITION *icp = ((IMECHARPOSITION *)lParam);
+							icp->dwSize = sizeof(IMECHARPOSITION);
+							icp->pt.x = tinp->get_pos().x+gui_xy.x+tinp->get_current_cursor_x();
+							icp->pt.y = tinp->get_pos().y+gui_xy.y;
+							icp->cLineHeight = LINESPACE;
+							icp->rcDocument.left = tinp->get_pos().x+gui_xy.x;
+							icp->rcDocument.top = tinp->get_pos().y+gui_xy.y;
+							icp->rcDocument.right = tinp->get_pos().x+gui_xy.x+tinp->get_size().w;
+							icp->rcDocument.bottom = tinp->get_pos().y+gui_xy.y+tinp->get_size().h;
+							return 1;
+						}
+					}
+			}
+			break;
+#endif
+
 		case WM_TIMER:	// dummy timer even to keep windows thinking we are still active
 			return 0;
 
@@ -681,6 +710,13 @@ void dr_sleep(uint32 millisec)
 	Sleep(millisec);
 }
 
+void dr_start_textinput()
+{
+}
+
+void dr_stop_textinput()
+{
+}
 
 #ifdef _MSC_VER
 // Needed for MS Visual C++ with /SUBSYSTEM:CONSOLE to work , if /SUBSYSTEM:WINDOWS this function is compiled but unreachable
