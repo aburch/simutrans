@@ -1539,6 +1539,10 @@ DBG_DEBUG("insert to close","(%i,%i,%i)  f=%i",gr->get_pos().x,gr->get_pos().y,g
 		FOR(vector_tpl<next_gr_t>, const& r, next_gr) {
 			to = r.gr;
 
+			if(  to==NULL) {
+				continue;
+			}
+
 			// new values for cost g
 			uint32 new_g = tmp->g + r.cost;
 
