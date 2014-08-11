@@ -4651,8 +4651,8 @@ int display_text_proportional_len_clip_rgb(KOORD_VAL x, KOORD_VAL y, const char*
 
 
 /*
- * Display a string that if abreviated by the (language specific) ellipse character if too wide
- * If enoguh space is given, it just display the full string
+ * Displays a string which is abbreviated by the (language specific) ellipse character if too wide
+ * If enough space is given then it just displays the full string
  * @returns screen_width
  */
 KOORD_VAL display_proportional_ellipse_rgb( scr_rect r, const char *text, int align, const PIXVAL color, const bool dirty )
@@ -4688,11 +4688,14 @@ KOORD_VAL display_proportional_ellipse_rgb( scr_rect r, const char *text, int al
 			current_offset += pixel_width;
 			max_idx += byte_length;
 		}
+		// if it does not fit
 		if(  max_screen_width <= (current_offset+pixel_width)  ) {
-			// this fits not!
+			KOORD_VAL w = 0;
 			// since we know the length already, we try to center the text with the remaining pixels of the last character
-			KOORD_VAL w = (max_screen_width-max_offset_before_ellipse-eclipse_width+1)/2;
-			w = display_text_proportional_len_clip_rgb( r.x+w, r.y, text, ALIGN_LEFT | DT_CLIP, color, dirty, max_idx_before_ellipse );
+			if(  align & ALIGN_CENTER_H  ) {
+				w = (max_screen_width-max_offset_before_ellipse-eclipse_width)/2;
+			}
+			w += display_text_proportional_len_clip_rgb( r.x+w, r.y, text, ALIGN_LEFT | DT_CLIP, color, dirty, max_idx_before_ellipse );
 			w += display_text_proportional_len_clip_rgb( r.x+w, r.y, translator::translate("..."), ALIGN_LEFT | DT_CLIP, color, dirty, -1 );
 			return w;
 		}
