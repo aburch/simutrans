@@ -147,10 +147,10 @@ void reset_textur(void *new_textur);
 
 int display_set_unicode(int use_unicode);
 
-/* Loads the font
+/* Loads the font, returns the number of characters in it
  * @author prissi
  */
-bool display_load_font(const char* fname);
+uint16 display_load_font(const char* fname);
 
 uint16 get_image_count();
 void register_image(struct bild_t*);

@@ -4181,7 +4181,7 @@ int display_set_unicode(int use_unicode)
 }
 
 
-bool display_load_font(const char* fname)
+uint16 display_load_font(const char* fname)
 {
 	font_type fnt;
 
@@ -4193,17 +4193,17 @@ bool display_load_font(const char* fname)
 			large_font = fnt;
 			large_font_ascent = large_font.height + large_font.descent;
 			large_font_total_height = large_font.height;
-			return true;
+			return large_font.num_chars;
 		}
 		else {
-			return false;
+			return 0;
 		}
 	}
 	else {
 
 		// skip reloading if already in memory
 		if(  strcmp( large_font.fname, fname ) == 0  ) {
-			return true;
+			return large_font.num_chars;
 		}
 		tstrncpy( large_font.fname, fname, lengthof(large_font.fname) );
 
@@ -4213,10 +4213,10 @@ bool display_load_font(const char* fname)
 			large_font = fnt;
 			large_font_ascent = large_font.height + large_font.descent;
 			large_font_total_height = large_font.height;
-			return true;
+			return large_font.num_chars;
 		}
 		else {
-			return false;
+			return 0;
 		}
 	}
 }
