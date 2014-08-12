@@ -69,9 +69,9 @@ int display_set_unicode(int)
 	return false;
 }
 
-bool display_load_font(const char*)
+uint16 display_load_font(const char*)
 {
-	return true;
+	return 1;
 }
 
 sint16 display_get_width()
