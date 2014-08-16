@@ -79,7 +79,7 @@ optionen_gui_t::optionen_gui_t() :
 			case BUTTON_QUIT:
 				cursor.y -= D_V_SPACE;
 				divider.init( scr_coord(D_MARGIN_LEFT, cursor.y), cursor.x - D_MARGIN_LEFT + D_BUTTON_WIDTH );
-				add_komponente( &divider );
+				add_component( &divider );
 				cursor.y += divider.get_size().h; //+D_V_SPACE;
 				break;
 
@@ -88,7 +88,7 @@ optionen_gui_t::optionen_gui_t() :
 		// Add button at cursor
 		option_buttons[i].init( button_t::roundbox, option_buttons_text[i], cursor, scr_size( D_BUTTON_WIDTH, D_BUTTON_HEIGHT ) );
 		option_buttons[i].add_listener(this);
-		add_komponente( option_buttons+i );
+		add_component( option_buttons+i );
 		cursor.y += D_BUTTON_HEIGHT + D_V_SPACE;
 	}
 

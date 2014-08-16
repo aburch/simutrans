@@ -84,7 +84,7 @@ void settings_general_stats_t::init(settings_t const* const sets)
 		}
 	}
 	savegame.set_focusable( false );
-	add_komponente( &savegame );
+	add_component( &savegame );
 	savegame.add_listener( this );
 	INIT_LB( "savegame version" );
 	label.back()->set_pos( scr_coord( 70 + 6, label.back()->get_pos().y + 2 ) );

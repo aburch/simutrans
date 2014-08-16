@@ -21,7 +21,7 @@ class karte_t;
 class scr_coord;
 class loadsave_t;
 class gui_frame_t;
-class gui_komponente_t;
+class gui_component_t;
 struct event_t;
 
 /* Types for the window */
@@ -132,7 +132,7 @@ void win_set_pos(gui_frame_t *ig, int x, int y);
 gui_frame_t *win_get_top();
 
 // Knightly : returns the focused component of the top window
-gui_komponente_t *win_get_focus();
+gui_component_t *win_get_focus();
 
 int win_get_open_count();
 

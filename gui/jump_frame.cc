@@ -29,17 +29,17 @@ jump_frame_t::jump_frame_t() :
 	input.add_listener(this);
 	input.set_pos(cursor);
 	input.set_size(scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
-	add_komponente(&input);
+	add_component(&input);
 	cursor.y += D_BUTTON_HEIGHT + D_V_SPACE;
 
 	divider1.set_pos(cursor);
 	divider1.set_size(scr_size(D_BUTTON_WIDTH,D_DIVIDER_HEIGHT));
-	add_komponente(&divider1);
+	add_component(&divider1);
 	cursor.y += D_DIVIDER_HEIGHT + D_V_SPACE;
 
 	jumpbutton.init( button_t::roundbox, "Jump to", cursor );
 	jumpbutton.add_listener(this);
-	add_komponente(&jumpbutton);
+	add_component(&jumpbutton);
 
 	set_focus(&input);
 	set_windowsize(scr_size(cursor.x + D_BUTTON_WIDTH + D_MARGIN_RIGHT, cursor.y + D_BUTTON_HEIGHT + D_MARGIN_BOTTOM + D_TITLEBAR_HEIGHT));

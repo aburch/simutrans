@@ -1,5 +1,5 @@
 /*
- * A class for distribution of tabs through the gui_komponente_t component.
+ * A class for distribution of tabs through the gui_component_t component.
  * @author Hj. Malthaner
  */
 
@@ -19,14 +19,14 @@ class bild_besch_t;
 class gui_tab_panel_t :
 	public gui_action_creator_t,
 	public action_listener_t,
-	public gui_komponente_t
+	public gui_component_t
 {
 private:
 	struct tab
 	{
-		tab(gui_komponente_t* c, const char *name, const bild_besch_t *b, const char *tool) : component(c), title(name), img(b), tooltip(tool), x_offset(4) {}
+		tab(gui_component_t* c, const char *name, const bild_besch_t *b, const char *tool) : component(c), title(name), img(b), tooltip(tool), x_offset(4) {}
 
-		gui_komponente_t* component;
+		gui_component_t* component;
 		const char *title;
 		const bild_besch_t *img;
 		const char *tooltip;
@@ -51,15 +51,15 @@ public:
 	 * @param name is name for tab component
 	 * @author Hj. Malthaner
 	 */
-	void add_tab(gui_komponente_t *c, const char *name, const skin_besch_t *b=NULL, const char *tooltip=NULL );
+	void add_tab(gui_component_t *c, const char *name, const skin_besch_t *b=NULL, const char *tooltip=NULL );
 
 	/**
 	 * Get the active component/active tab
 	 * @author Hj. Malthaner
 	 */
-	gui_komponente_t* get_aktives_tab() const { return get_tab(active_tab); }
+	gui_component_t* get_aktives_tab() const { return get_tab(active_tab); }
 
-	gui_komponente_t* get_tab( uint8 i ) const { return i < tabs.get_count() ? tabs.at(i).component : NULL; }
+	gui_component_t* get_tab( uint8 i ) const { return i < tabs.get_count() ? tabs.at(i).component : NULL; }
 
 	int get_active_tab_index() const { return min((int)tabs.get_count()-1,active_tab); }
 	void set_active_tab_index( int i ) { active_tab = min((int)tabs.get_count()-1,i); }
@@ -101,7 +101,7 @@ public:
 	 */
 	virtual bool is_focusable() { return get_aktives_tab()->is_focusable(); }
 
-	gui_komponente_t *get_focus() { return get_aktives_tab()->get_focus(); }
+	gui_component_t *get_focus() { return get_aktives_tab()->get_focus(); }
 
 	/**
 	 * Get the relative position of the focused component.

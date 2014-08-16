@@ -17,7 +17,7 @@
  * @author Volker Meyer
  * @date  12.06.2003
  */
-class gui_speedbar_t : public gui_komponente_t
+class gui_speedbar_t : public gui_component_t
 {
 private:
 	struct info_t {

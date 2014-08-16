@@ -20,7 +20,7 @@ void obj_view_t::set_size(scr_size size)
 		}
 	}
 
-	gui_komponente_t::set_size(size);
+	gui_component_t::set_size(size);
 	world_view_t::calc_offsets(size, max_dy_off);
 }
 

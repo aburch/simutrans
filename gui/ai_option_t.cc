@@ -30,14 +30,14 @@ ai_option_t::ai_option_t( spieler_t *sp ) :
 	scr_coord cursor(D_MARGIN_LEFT,D_MARGIN_TOP);
 
 	label_cs.set_pos( cursor );
-	add_komponente( &label_cs );
+	add_component( &label_cs );
 	cursor.y += LINESPACE;
 
 	construction_speed.init( ai->get_construction_speed(), 25, 1000000, gui_numberinput_t::POWER2, false );
 	construction_speed.set_pos( cursor );
 	construction_speed.set_size( scr_size( L_DIALOG_WIDTH - D_MARGINS_X, D_EDIT_HEIGHT ) );
 	construction_speed.add_listener( this );
-	add_komponente( &construction_speed );
+	add_component( &construction_speed );
 	cursor.y += max(D_EDIT_HEIGHT, LINESPACE) + D_V_SPACE;
 
 	// find out if the mode is available and can be activated
@@ -49,13 +49,13 @@ ai_option_t::ai_option_t( spieler_t *sp ) :
 	if(  buttons[0].pressed==ai->has_road_transport()  ) {
 		if(  ai->has_road_transport()  ) {
 			buttons[0].disable();
-			add_komponente( buttons+0 );
+			add_component( buttons+0 );
 			cursor.y += max(D_CHECKBOX_HEIGHT, LINESPACE) + D_V_SPACE;
 		}
 	}
 	else {
 		ai->set_road_transport( buttons[0].pressed );
-		add_komponente( buttons+0 );
+		add_component( buttons+0 );
 		cursor.y += max(D_CHECKBOX_HEIGHT, LINESPACE) + D_V_SPACE;
 	}
 
@@ -66,13 +66,13 @@ ai_option_t::ai_option_t( spieler_t *sp ) :
 	if(  buttons[1].pressed==ai->has_rail_transport()  ) {
 		if(  ai->has_rail_transport()  ) {
 			buttons[1].disable();
-			add_komponente( buttons+1 );
+			add_component( buttons+1 );
 			cursor.y += max(D_CHECKBOX_HEIGHT, LINESPACE) + D_V_SPACE;
 		}
 	}
 	else {
 		ai->set_rail_transport( buttons[1].pressed );
-		add_komponente( buttons+1 );
+		add_component( buttons+1 );
 		cursor.y += max(D_CHECKBOX_HEIGHT, LINESPACE) + D_V_SPACE;
 	}
 
@@ -83,13 +83,13 @@ ai_option_t::ai_option_t( spieler_t *sp ) :
 	if(  buttons[2].pressed==ai->has_ship_transport()  ) {
 		if(  ai->has_ship_transport()  ) {
 			buttons[2].disable();
-			add_komponente( buttons+2 );
+			add_component( buttons+2 );
 			cursor.y += max(D_CHECKBOX_HEIGHT, LINESPACE) + D_V_SPACE;
 		}
 	}
 	else {
 		ai->set_ship_transport( buttons[2].pressed );
-		add_komponente( buttons+2 );
+		add_component( buttons+2 );
 		cursor.y += max(D_CHECKBOX_HEIGHT, LINESPACE) + D_V_SPACE;
 	}
 
@@ -100,13 +100,13 @@ ai_option_t::ai_option_t( spieler_t *sp ) :
 	if(  buttons[3].pressed==ai->has_air_transport()  ) {
 		if(  ai->has_air_transport()  ) {
 			buttons[3].disable();
-			add_komponente( buttons+3 );
+			add_component( buttons+3 );
 			cursor.y += max(D_CHECKBOX_HEIGHT, LINESPACE) + D_V_SPACE;
 		}
 	}
 	else {
 		ai->set_air_transport( buttons[3].pressed );
-		add_komponente( buttons+3 );
+		add_component( buttons+3 );
 		cursor.y += max(D_CHECKBOX_HEIGHT, LINESPACE) + D_V_SPACE;
 	}
 

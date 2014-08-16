@@ -36,7 +36,7 @@ scenario_info_t::scenario_info_t() :
 	tabs.add_tab(&scrolly_rule, translator::translate("Scenario Rules"));
 	tabs.add_tab(&scrolly_result, translator::translate("Scenario Result"));
 	tabs.add_tab(&scrolly_about, translator::translate("About scenario"));
-	add_komponente(&tabs);
+	add_component(&tabs);
 	tabs.add_listener(this);
 
 	// fetch texts
@@ -116,12 +116,12 @@ void scenario_info_t::draw(scr_coord pos, scr_size size)
 	gui_frame_t::draw(pos, size);
 }
 
-bool scenario_info_t::action_triggered( gui_action_creator_t *komp, value_t v)
+bool scenario_info_t::action_triggered( gui_action_creator_t *comp, value_t v)
 {
-	if (komp == &tabs) {
+	if (  comp == &tabs  ) {
 		set_dirty();
 	}
-	if (komp == &info  ||  komp == &goal  ||  komp ==  &rule  ||  komp ==  &result  ||  komp == &about) {
+	if (  comp == &info  ||  comp == &goal  ||  comp ==  &rule  ||  comp ==  &result  ||  comp == &about  ) {
 		// parse hyperlink
 		const char *link = (const char*)v.p;
 		if (link  && *link) {

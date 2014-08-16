@@ -287,7 +287,7 @@ money_frame_t::money_frame_t(spieler_t *sp)
 		scenario.set_pos( scr_coord( 10,1 ) );
 		welt->get_scenario()->update_scenario_texts();
 		scenario.set_text( welt->get_scenario()->description_text );
-		add_komponente(&scenario);
+		add_component(&scenario);
 	}
 
 	//CHART YEAR
@@ -319,44 +319,44 @@ money_frame_t::money_frame_t(spieler_t *sp)
 	year_month_tabs.add_tab( &month_dummy, translator::translate("Months"));
 	year_month_tabs.set_pos(scr_coord(0, LINESPACE-2));
 	year_month_tabs.set_size(scr_size(lyl_x+25, D_TAB_HEADER_HEIGHT));
-	add_komponente(&year_month_tabs);
+	add_component(&year_month_tabs);
 
-	add_komponente(&conmoney);
-	add_komponente(&nvmoney);
-	add_komponente(&vrmoney);
-	add_komponente(&mmoney);
-	add_komponente(&imoney);
-	add_komponente(&tmoney);
-	add_komponente(&omoney);
-	add_komponente(&toll);
-	add_komponente(&transport);
+	add_component(&conmoney);
+	add_component(&nvmoney);
+	add_component(&vrmoney);
+	add_component(&mmoney);
+	add_component(&imoney);
+	add_component(&tmoney);
+	add_component(&omoney);
+	add_component(&toll);
+	add_component(&transport);
 
-	add_komponente(&old_conmoney);
-	add_komponente(&old_nvmoney);
-	add_komponente(&old_vrmoney);
-	add_komponente(&old_mmoney);
-	add_komponente(&old_imoney);
-	add_komponente(&old_tmoney);
-	add_komponente(&old_omoney);
-	add_komponente(&old_toll);
-	add_komponente(&old_transport);
+	add_component(&old_conmoney);
+	add_component(&old_nvmoney);
+	add_component(&old_vrmoney);
+	add_component(&old_mmoney);
+	add_component(&old_imoney);
+	add_component(&old_tmoney);
+	add_component(&old_omoney);
+	add_component(&old_toll);
+	add_component(&old_transport);
 
-	add_komponente(&lylabel);
-	add_komponente(&tylabel);
+	add_component(&lylabel);
+	add_component(&tylabel);
 
-	add_komponente(&tylabel2);
-	add_komponente(&gtmoney);
-	add_komponente(&vtmoney);
-	add_komponente(&money);
-	add_komponente(&margin);
+	add_component(&tylabel2);
+	add_component(&gtmoney);
+	add_component(&vtmoney);
+	add_component(&money);
+	add_component(&margin);
 
-	add_komponente(&maintenance_label);
-	add_komponente(&maintenance_money);
+	add_component(&maintenance_label);
+	add_component(&maintenance_money);
 
-	add_komponente(&warn);
+	add_component(&warn);
 
-	add_komponente(&chart);
-	add_komponente(&mchart);
+	add_component(&chart);
+	add_component(&mchart);
 
 	// easier headquarter access
 	old_level = sp->get_headquarter_level();
@@ -367,14 +367,14 @@ money_frame_t::money_frame_t(spieler_t *sp)
 		// misuse headquarter button for AI configure
 		headquarter.init(button_t::box, "Configure AI", scr_coord(582-12-120, 0), scr_size(120, BUTTONSPACE));
 		headquarter.add_listener(this);
-		add_komponente(&headquarter);
+		add_component(&headquarter);
 		headquarter.set_tooltip( "Configure AI setttings" );
 	}
 	else if(old_level > 0  ||  hausbauer_t::get_headquarter(0,welt->get_timeline_year_month())!=NULL) {
 
 		headquarter.init(button_t::box, old_pos!=koord::invalid ? "upgrade HQ" : "build HQ", scr_coord(582-12-120, 0), scr_size(120, BUTTONSPACE));
 		headquarter.add_listener(this);
-		add_komponente(&headquarter);
+		add_component(&headquarter);
 		headquarter.set_tooltip( NULL );
 		headquarter.disable();
 
@@ -392,20 +392,20 @@ money_frame_t::money_frame_t(spieler_t *sp)
 		headquarter_view.set_location( welt->lookup_kartenboden( sp->get_headquarter_pos() )->get_pos() );
 	}
 	headquarter_view.set_pos( scr_coord(582-12-120, BUTTONSPACE) );
-	add_komponente(&headquarter_view);
+	add_component(&headquarter_view);
 
 	// add filter buttons
 	for(int ibutton=0;  ibutton<9;  ibutton++) {
 		filterButtons[ibutton].init(button_t::box, cost_type_name[ibutton], scr_coord(left, top+ibutton*BUTTONSPACE-2), scr_size(120, BUTTONSPACE));
 		filterButtons[ibutton].add_listener(this);
 		filterButtons[ibutton].background_color = cost_type_color[ibutton];
-		add_komponente(filterButtons + ibutton);
+		add_component(filterButtons + ibutton);
 	}
 	for(int ibutton=9;  ibutton<MAX_PLAYER_COST_BUTTON;  ibutton++) {
 		filterButtons[ibutton].init(button_t::box, cost_type_name[ibutton], scr_coord(left+335, top+(ibutton-4)*BUTTONSPACE-2), scr_size(120, BUTTONSPACE));
 		filterButtons[ibutton].add_listener(this);
 		filterButtons[ibutton].background_color = cost_type_color[ibutton];
-		add_komponente(filterButtons + ibutton);
+		add_component(filterButtons + ibutton);
 	}
 
 	// states ...
@@ -431,7 +431,7 @@ money_frame_t::money_frame_t(spieler_t *sp)
 	}
 	transport_type_c.set_selection(0);
 	transport_type_c.set_focusable( false );
-	add_komponente(&transport_type_c);
+	add_component(&transport_type_c);
 	transport_type_c.add_listener( this );
 
 
@@ -556,12 +556,12 @@ void money_frame_t::draw(scr_coord pos, scr_size size)
 		if(  sp->get_ai_id()!=spieler_t::HUMAN  ) {
 			headquarter.set_text( sp->get_headquarter_pos()!=koord::invalid ? "upgrade HQ" : "build HQ" );
 		}
-		remove_komponente(&headquarter_view);
+		remove_component(&headquarter_view);
 		old_level = sp->get_headquarter_level();
 		old_pos = sp->get_headquarter_pos();
 		if(  old_pos!=koord::invalid  ) {
 			headquarter_view.set_location( welt->lookup_kartenboden(old_pos)->get_pos() );
-			add_komponente(&headquarter_view);
+			add_component(&headquarter_view);
 		}
 	}
 
@@ -584,9 +584,9 @@ void money_frame_t::draw(scr_coord pos, scr_size size)
 }
 
 
-bool money_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
+bool money_frame_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 {
-	if(komp==&headquarter) {
+	if(  comp == &headquarter  ) {
 		if(  sp->get_ai_id()!=spieler_t::HUMAN  ) {
 			create_win( new ai_option_t(sp), w_info, magic_ai_options_t+sp->get_player_nr() );
 		}
@@ -597,7 +597,7 @@ bool money_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 	}
 
 	for ( int i = 0; i<MAX_PLAYER_COST_BUTTON; i++) {
-		if (komp == &filterButtons[i]) {
+		if (  comp == &filterButtons[i]  ) {
 			bFilterStates[sp->get_player_nr()] ^= (1<<i);
 			if (bFilterStates[sp->get_player_nr()] & (1<<i)) {
 				chart.show_curve(i);
@@ -610,7 +610,7 @@ bool money_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 			return true;
 		}
 	}
-	if(komp == &transport_type_c) {
+	if(  comp == &transport_type_c) {
 		int tmp = transport_type_c.get_selection();
 		if((0 <= tmp) && (tmp < transport_type_c.count_elements())) {
 			transport_type_option = transport_types[tmp];

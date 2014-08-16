@@ -266,10 +266,10 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 		bt_promote_to_line.init( button_t::roundbox, "promote to line", scr_coord( BUTTON3_X, ypos ) );
 		bt_promote_to_line.set_tooltip("Create a new line based on this schedule");
 		bt_promote_to_line.add_listener(this);
-		add_komponente(&bt_promote_to_line);
+		add_component(&bt_promote_to_line);
 
 		lb_line.align_to( &bt_promote_to_line, ALIGN_CENTER_V, scr_coord( D_MARGIN_LEFT, 0 ) );
-		add_komponente( &lb_line );
+		add_component( &lb_line );
 
 		ypos += D_BUTTON_HEIGHT+1;
 
@@ -281,7 +281,7 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 
 		init_line_selector();
 		line_selector.add_listener(this);
-		add_komponente(&line_selector);
+		add_component(&line_selector);
 
 		ypos += D_BUTTON_HEIGHT+3;
 	}
@@ -295,11 +295,11 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 	numimp_load.set_limits( 0, 100 );
 	numimp_load.set_increment_mode( gui_numberinput_t::PROGRESS );
 	numimp_load.add_listener(this);
-	add_komponente(&numimp_load);
+	add_component(&numimp_load);
 
 	lb_load.set_width( label_width );
 	lb_load.align_to( &numimp_load, ALIGN_CENTER_V, scr_coord( D_MARGIN_LEFT, 0 ) );
-	add_komponente( &lb_load );
+	add_component( &lb_load );
 
 	ypos += numimp_load.get_size().h;
 
@@ -312,30 +312,30 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 	lb_waitlevel.set_text_pointer( str_parts_month );
 	lb_waitlevel.set_size( numimp_load.get_size() - scr_size( D_ARROW_LEFT_WIDTH + D_ARROW_RIGHT_WIDTH , 0 ) );
 	lb_waitlevel.align_to( &numimp_load, ALIGN_EXTERIOR_V | ALIGN_TOP | ALIGN_LEFT, scr_coord( gui_theme_t::gui_arrow_left_size.w, 0 ) );
-	add_komponente(&lb_waitlevel);
+	add_component(&lb_waitlevel);
 
 	// waiting in parts per month
 	bt_wait_prev.set_typ( button_t::arrowleft );
 	bt_wait_prev.align_to( &lb_waitlevel, ALIGN_EXTERIOR_H | ALIGN_RIGHT | ALIGN_CENTER_V );
 	bt_wait_prev.add_listener(this);
-	add_komponente( &bt_wait_prev );
+	add_component( &bt_wait_prev );
 
 	bt_wait_next.set_typ( button_t::arrowright );
 	bt_wait_next.align_to( &lb_waitlevel, ALIGN_EXTERIOR_H | ALIGN_LEFT | ALIGN_CENTER_V );
 	bt_wait_next.add_listener(this);
 	lb_waitlevel.set_width( bt_wait_next.get_pos().x-bt_wait_prev.get_pos().x-bt_wait_prev.get_size().w );
-	add_komponente( &bt_wait_next );
+	add_component( &bt_wait_next );
 
 	lb_wait.set_width( label_width );
 	lb_wait.align_to( &lb_waitlevel, ALIGN_CENTER_V, scr_coord( D_MARGIN_LEFT, 0 ) );
-	add_komponente( &lb_wait );
+	add_component( &lb_wait );
 
 	if(  !env_t::hide_rail_return_ticket  ||  fpl->get_waytype()==road_wt  ||  fpl->get_waytype()==air_wt  ||  fpl->get_waytype()==water_wt  ) {
 		//  hide the return ticket on rail stuff, where it causes much trouble
 		bt_return.init(button_t::roundbox, "return ticket", scr_coord(BUTTON3_X, ypos ), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT) );
 		bt_return.set_tooltip("Add stops for backward travel");
 		bt_return.add_listener(this);
-		add_komponente(&bt_return);
+		add_component(&bt_return);
 	}
 
 	ypos += lb_waitlevel.get_size().h;
@@ -344,26 +344,26 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 	bt_add.set_tooltip("Appends stops at the end of the schedule");
 	bt_add.add_listener(this);
 	bt_add.pressed = true;
-	add_komponente(&bt_add);
+	add_component(&bt_add);
 
 	bt_insert.init(button_t::roundbox_state, "Ins Stop", scr_coord(BUTTON2_X, ypos ), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT) );
 	bt_insert.set_tooltip("Insert stop before the current stop");
 	bt_insert.add_listener(this);
 	bt_insert.pressed = false;
-	add_komponente(&bt_insert);
+	add_component(&bt_insert);
 
 	bt_remove.init(button_t::roundbox_state, "Del Stop", scr_coord(BUTTON3_X, ypos ), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT) );
 	bt_remove.set_tooltip("Delete the current stop");
 	bt_remove.add_listener(this);
 	bt_remove.pressed = false;
-	add_komponente(&bt_remove);
+	add_component(&bt_remove);
 
 	ypos += D_BUTTON_HEIGHT+2;
 
 	scrolly.set_pos( scr_coord( 0, ypos ) );
 	scrolly.set_show_scroll_x(true);
 	scrolly.set_scroll_amount_y(LINESPACE+1);
-	add_komponente(&scrolly);
+	add_component(&scrolly);
 
 	mode = adding;
 	update_selection();

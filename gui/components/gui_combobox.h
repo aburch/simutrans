@@ -23,7 +23,7 @@
 
 class gui_combobox_t :
 	public gui_action_creator_t,
-	public gui_komponente_t,
+	public gui_component_t,
 	public action_listener_t
 {
 private:

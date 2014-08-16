@@ -52,7 +52,7 @@
 
 
 button_t::button_t() :
-	gui_komponente_t(true)
+	gui_component_t(true)
 {
 	b_no_translate = false;
 	pressed = false;
@@ -166,7 +166,7 @@ void button_t::set_tooltip(const char * t)
 
 bool button_t::getroffen(int x,int y)
 {
-	bool hit=gui_komponente_t::getroffen(x, y);
+	bool hit=gui_component_t::getroffen(x, y);
 	if(  pressed  &&  !hit  &&  type <= STATE_MASK  ) {
 		// moved away
 		pressed = 0;

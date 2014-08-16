@@ -26,7 +26,7 @@ privatesign_info_t::privatesign_info_t(roadsign_t* s) :
 			players[i].disable();
 		}
 		players[i].pressed = (i>=8? sign->get_ticks_ow() & (1<<(i-8)) : sign->get_ticks_ns() & (1<<i) )!=0;
-		add_komponente( &players[i] );
+		add_component( &players[i] );
 	}
 }
 

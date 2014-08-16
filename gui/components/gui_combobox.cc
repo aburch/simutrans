@@ -23,7 +23,7 @@
 
 
 gui_combobox_t::gui_combobox_t() :
-	gui_komponente_t(true),
+	gui_component_t(true),
 	droplist(gui_scrolled_list_t::listskin)
 {
 	bt_prev.set_typ(button_t::arrowleft);
@@ -47,7 +47,7 @@ gui_combobox_t::gui_combobox_t() :
 
 
 /**
- * Events werden hiermit an die GUI-Komponenten
+ * Events werden hiermit an die GUI-components
  * gemeldet
  * @author Hj. Malthaner
  */
@@ -166,14 +166,14 @@ DBG_MESSAGE("gui_combobox_t::infowin_event()","close");
 
 
 /* selection now handled via callback */
-bool gui_combobox_t::action_triggered( gui_action_creator_t *komp,value_t p)
+bool gui_combobox_t::action_triggered( gui_action_creator_t *comp,value_t p)
 {
-	if (komp == &droplist) {
+	if (  comp == &droplist  ) {
 DBG_MESSAGE("gui_combobox_t::infowin_event()","scroll selected %i",p.i);
 		finish = true;
 		set_selection(p.i);
 	}
-	else if (komp == &textinp) {
+	else if (  comp == &textinp  ) {
 		rename_selected_item();
 	}
 	return false;
@@ -283,14 +283,14 @@ void gui_combobox_t::close_box()
 
 void gui_combobox_t::set_pos(scr_coord pos_par)
 {
-	gui_komponente_t::set_pos( pos_par );
+	gui_component_t::set_pos( pos_par );
 	droplist.set_pos( scr_coord( pos_par.x, pos_par.y + textinp.get_size().h ) );
 }
 
 
 void gui_combobox_t::set_size(scr_size size)
 {
-	gui_komponente_t::set_size( size );
+	gui_component_t::set_size( size );
 
 	textinp.set_size( scr_size( size.w - bt_prev.get_size().w - bt_next.get_size().w - 3 * D_H_SPACE / 2, D_EDIT_HEIGHT ) );
 	textinp.align_to( &bt_prev, ALIGN_LEFT | ALIGN_EXTERIOR_H | ALIGN_CENTER_V, scr_coord( pos.x + D_H_SPACE / 2, pos.y ) );

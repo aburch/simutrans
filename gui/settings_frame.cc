@@ -33,10 +33,10 @@ settings_frame_t::settings_frame_t(settings_t* const s) :
 {
 	revert_to_default.init( button_t::roundbox, "Simuconf.tab", scr_coord( BUTTON1_X, 0) );
 	revert_to_default.add_listener( this );
-	add_komponente( &revert_to_default );
+	add_component( &revert_to_default );
 	revert_to_last_save.init( button_t::roundbox, "Default.sve", scr_coord( BUTTON2_X, 0) );
 	revert_to_last_save.add_listener( this );
-	add_komponente( &revert_to_last_save );
+	add_component( &revert_to_last_save );
 
 	general.init( sets );
 	display.init( sets );
@@ -58,7 +58,7 @@ settings_frame_t::settings_frame_t(settings_t* const s) :
 	tabs.add_tab(&scrolly_routing, translator::translate("Routing"));
 	tabs.add_tab(&scrolly_costs, translator::translate("Costs"));
 	tabs.add_tab(&scrolly_climates, translator::translate("Climate Control"));
-	add_komponente(&tabs);
+	add_component(&tabs);
 
 	set_windowsize(scr_size(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT+D_BUTTON_HEIGHT+D_TAB_HEADER_HEIGHT+18*(D_BUTTON_HEIGHT/2)+2+1));
 	set_min_windowsize(scr_size(BUTTON3_X, D_TITLEBAR_HEIGHT+D_BUTTON_HEIGHT+D_TAB_HEADER_HEIGHT+6*(D_BUTTON_HEIGHT/2)+2+1));

@@ -10,18 +10,18 @@ base_infowin_t::base_infowin_t(const char *name, const spieler_t *sp) :
 {
 	buf.clear();
 	textarea.set_pos(scr_coord(D_MARGIN_LEFT,D_MARGIN_TOP));
-	add_komponente(&textarea);
+	add_component(&textarea);
 	recalc_size();
 }
 
 
-void base_infowin_t::set_embedded(gui_komponente_t *other)
+void base_infowin_t::set_embedded(gui_component_t *other)
 {
 	if (embedded) {
-		remove_komponente(embedded);
+		remove_component(embedded);
 	}
 	embedded = other;
-	add_komponente(embedded);
+	add_component(embedded);
 
 	if (embedded) {
 		scr_size size = embedded->get_size();
@@ -29,7 +29,7 @@ void base_infowin_t::set_embedded(gui_komponente_t *other)
 		textarea.recalc_size();
 
 		embedded->set_pos(textarea.get_pos() + scr_coord(textarea.get_size().w - size.w, 0) );
-		add_komponente(embedded);
+		add_component(embedded);
 	}
 	recalc_size();
 }

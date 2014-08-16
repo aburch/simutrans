@@ -63,36 +63,36 @@ citybuilding_edit_frame_t::citybuilding_edit_frame_t(spieler_t* sp_) :
 	bt_res.init( button_t::square_state, "residential house", scr_coord(get_tab_panel_width()+2*MARGIN, offset_of_comp-4 ) );
 	bt_res.add_listener(this);
 	bt_res.pressed = true;
-	add_komponente(&bt_res);
+	add_component(&bt_res);
 	offset_of_comp += D_BUTTON_HEIGHT;
 
 	bt_com.init( button_t::square_state, "shops and stores", scr_coord(get_tab_panel_width()+2*MARGIN, offset_of_comp-4 ) );
 	bt_com.add_listener(this);
 	bt_com.pressed = true;
-	add_komponente(&bt_com);
+	add_component(&bt_com);
 	offset_of_comp += D_BUTTON_HEIGHT;
 
 	bt_ind.init( button_t::square_state, "industrial building", scr_coord(get_tab_panel_width()+2*MARGIN, offset_of_comp-4 ) );
 	bt_ind.add_listener(this);
-	add_komponente(&bt_ind);
+	add_component(&bt_ind);
 	bt_com.pressed = true;
 	offset_of_comp += D_BUTTON_HEIGHT;
 
 	lb_rotation_info.set_pos( scr_coord( get_tab_panel_width()+2*MARGIN, offset_of_comp-4 ) );
-	add_komponente(&lb_rotation_info);
+	add_component(&lb_rotation_info);
 
 	bt_left_rotate.init( button_t::repeatarrowleft, NULL, scr_coord(get_tab_panel_width()+2*MARGIN+COLUMN_WIDTH/2-16,	offset_of_comp-4 ) );
 	bt_left_rotate.add_listener(this);
-	add_komponente(&bt_left_rotate);
+	add_component(&bt_left_rotate);
 
 	bt_right_rotate.init( button_t::repeatarrowright, NULL, scr_coord(get_tab_panel_width()+2*MARGIN+COLUMN_WIDTH/2+50, offset_of_comp-4 ) );
 	bt_right_rotate.add_listener(this);
-	add_komponente(&bt_right_rotate);
+	add_component(&bt_right_rotate);
 
 	//lb_rotation.set_pos( scr_coord( get_tab_panel_width()+2*MARGIN+COLUMN_WIDTH/2+44, offset_of_comp-4 ) );
 	lb_rotation.set_width( bt_right_rotate.get_pos().x - bt_left_rotate.get_pos().x - bt_left_rotate.get_size().w );
 	lb_rotation.align_to(&bt_left_rotate, ALIGN_LEFT | ALIGN_EXTERIOR_H | ALIGN_CENTER_V);
-	add_komponente(&lb_rotation);
+	add_component(&lb_rotation);
 	offset_of_comp += D_BUTTON_HEIGHT;
 
 	fill_list( is_show_trans_name );

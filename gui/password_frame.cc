@@ -39,13 +39,13 @@ password_frame_t::password_frame_t( spieler_t *sp ) :
 		player_name.add_listener(this);
 		player_name.set_pos(cursor);
 		player_name.set_size(scr_size(L_DIALOG_WIDTH-D_MARGINS_X, D_EDIT_HEIGHT));
-		add_komponente(&player_name);
+		add_component(&player_name);
 		cursor.y += max(D_EDIT_HEIGHT, LINESPACE);
 	}
 	else {
 		const_player_name.set_text( sp->get_name() );
 		const_player_name.set_pos(scr_coord(D_MARGIN_LEFT, D_MARGIN_TOP));
-		add_komponente(&const_player_name);
+		add_component(&const_player_name);
 		cursor.y += LINESPACE;
 	}
 	cursor.y += D_V_SPACE;
@@ -58,12 +58,12 @@ password_frame_t::password_frame_t( spieler_t *sp ) :
 	password.add_listener(this);
 	password.set_pos( scr_coord( cursor.x+fnlabel.get_size().w+D_H_SPACE, cursor.y ) );
 	password.set_size( scr_size( L_DIALOG_WIDTH-D_MARGIN_RIGHT-password.get_pos().x, D_EDIT_HEIGHT ) );
-	add_komponente( &password );
+	add_component( &password );
 	set_focus( &password );
 
 	// and now we can align us too ...
 	fnlabel.align_to(&password, ALIGN_CENTER_V|ALIGN_EXTERIOR_H|ALIGN_RIGHT, scr_coord(D_H_SPACE,0) );
-	add_komponente(&fnlabel);
+	add_component(&fnlabel);
 
 	cursor.y += max(D_EDIT_HEIGHT, LINESPACE);
 	set_windowsize(scr_size(L_DIALOG_WIDTH, D_TITLEBAR_HEIGHT+cursor.y+D_MARGIN_BOTTOM));

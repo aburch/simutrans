@@ -50,14 +50,14 @@ fabrik_info_t::fabrik_info_t(fabrik_t* fab_, const gebaeude_t* gb) :
 	input.set_pos(scr_coord(D_MARGIN_LEFT,D_MARGIN_TOP));
 	input.set_text( fabname, lengthof(fabname) );
 	input.add_listener(this);
-	add_komponente(&input);
+	add_component(&input);
 
-	add_komponente(&view);
+	add_component(&view);
 
 	prod.set_pos( scr_coord( D_MARGIN_LEFT, D_MARGIN_TOP+D_BUTTON_HEIGHT+D_V_SPACE ) );
 	fab->info_prod( prod_buf );
 	prod.recalc_size();
-	add_komponente( &prod );
+	add_component( &prod );
 
 	const sint16 offset_below_viewport = D_MARGIN_TOP+D_BUTTON_HEIGHT+D_V_SPACE+ max( prod.get_size().h, view.get_size().h + 8 ) + D_V_SPACE;
 
@@ -65,7 +65,7 @@ fabrik_info_t::fabrik_info_t(fabrik_t* fab_, const gebaeude_t* gb) :
 	chart_button.init(button_t::roundbox_state, "Chart", scr_coord(BUTTON3_X,offset_below_viewport), scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
 	chart_button.set_tooltip("Show/hide statistics");
 	chart_button.add_listener(this);
-	add_komponente(&chart_button);
+	add_component(&chart_button);
 
 	// Hajo: "About" button only if translation is available
 	char key[256];
@@ -75,7 +75,7 @@ fabrik_info_t::fabrik_info_t(fabrik_t* fab_, const gebaeude_t* gb) :
 		details_button.init( button_t::roundbox, "Details", scr_coord(BUTTON4_X,offset_below_viewport), scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
 //		details_button.set_tooltip("Factory details");
 		details_button.add_listener(this);
-		add_komponente(&details_button);
+		add_component(&details_button);
 	}
 
 	// calculate height
@@ -87,7 +87,7 @@ fabrik_info_t::fabrik_info_t(fabrik_t* fab_, const gebaeude_t* gb) :
 	update_info();
 
 	scrolly.set_pos(scr_coord(0, offset_below_viewport+D_BUTTON_HEIGHT+D_V_SPACE+6));
-	add_komponente(&scrolly);
+	add_component(&scrolly);
 
 	set_min_windowsize(scr_size(total_width, D_TITLEBAR_HEIGHT+scrolly.get_pos().y+LINESPACE*5+D_MARGINS_Y));
 	scr_coord_val y = min( D_TITLEBAR_HEIGHT+scrolly.get_pos().y+fab_info.get_size().h+D_MARGINS_Y,  display_get_height() - env_t::iconsize.h - 16);
@@ -217,15 +217,15 @@ bool fabrik_info_t::is_weltpos()
  * components should be triggered.
  * V.Meyer
  */
-bool fabrik_info_t::action_triggered( gui_action_creator_t *komp, value_t v)
+bool fabrik_info_t::action_triggered( gui_action_creator_t *comp, value_t v)
 {
-	if(komp == &chart_button) {
+	if(comp == &chart_button) {
 		chart_button.pressed ^= 1;
 		if(  !chart_button.pressed  ) {
-			remove_komponente( &chart );
+			remove_component( &chart );
 		}
 		else {
-			add_komponente( &chart );
+			add_component( &chart );
 		}
 		const scr_coord offset = chart_button.pressed ? scr_coord(0, chart.get_size().h - 6) : scr_coord(0, -(chart.get_size().h - 6));
 		set_min_windowsize(get_min_windowsize() + offset);
@@ -234,10 +234,10 @@ bool fabrik_info_t::action_triggered( gui_action_creator_t *komp, value_t v)
 		scrolly.set_pos( scrolly.get_pos() + offset );
 		resize( scr_coord(0,(chart_button.pressed ? chart.get_size().h : -chart.get_size().h) ) );
 	}
-	else if(komp == &input) {
+	else if(  comp == &input  ) {
 		rename_factory();
 	}
-	else if(komp == &details_button) {
+	else if(  comp == &details_button  ) {
 		help_frame_t * frame = new help_frame_t();
 		char key[256];
 		sprintf(key, "factory_%s_details", fab->get_besch()->get_name());
@@ -271,7 +271,7 @@ template <typename T> static void make_buttons(button_t*& dst, T const& coords, 
 			b->set_typ(button_t::posbutton);
 			b->set_targetpos(get_coord(i));
 			b->add_listener(listener);
-			fab_info.add_komponente(b);
+			fab_info.add_component(b);
 		}
 		y_off += 2 * LINESPACE;
 	}
@@ -290,7 +290,7 @@ void fabrik_info_t::update_info()
 	// needs to update all text
 	fab_info.set_pos( scr_coord(0,0) );
 	txt.set_pos( scr_coord(D_MARGIN_LEFT,0) );
-	fab_info.add_komponente(&txt);
+	fab_info.add_component(&txt);
 
 	int y_off = LINESPACE;
 	make_buttons(lieferbuttons,   fab->get_lieferziele(),   y_off, fab_info, this);
@@ -382,19 +382,19 @@ fabrik_info_t::fabrik_info_t() :
 	input.set_pos(scr_coord(D_MARGIN_LEFT,D_MARGIN_TOP));
 	input.set_text( fabname, lengthof(fabname) );
 	input.add_listener(this);
-	add_komponente(&input);
+	add_component(&input);
 
-	add_komponente(&view);
+	add_component(&view);
 
 	prod.set_pos( scr_coord( D_MARGIN_LEFT, D_MARGIN_TOP+D_BUTTON_HEIGHT+D_V_SPACE ) );
-	add_komponente( &prod );
+	add_component( &prod );
 
 	chart_button.init(button_t::roundbox_state, "Chart", scr_coord(BUTTON3_X,0), scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
 	chart_button.set_tooltip("Show/hide statistics");
 	chart_button.add_listener(this);
-	add_komponente(&chart_button);
+	add_component(&chart_button);
 
-	add_komponente(&scrolly);
+	add_component(&scrolly);
 
 	const sint16 total_width = D_MARGIN_LEFT + 3*(D_BUTTON_WIDTH + D_H_SPACE) + max( D_BUTTON_WIDTH, view.get_size().w ) + D_MARGIN_RIGHT;
 	set_min_windowsize(scr_size(total_width, D_TITLEBAR_HEIGHT+scrolly.get_pos().y+LINESPACE*5+D_MARGIN_BOTTOM));
@@ -464,11 +464,11 @@ void fabrik_info_t::rdwr( loadsave_t *file )
 			details_button.init( button_t::roundbox, "Details", scr_coord(BUTTON4_X,offset_below_viewport), scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
 //			details_button.set_tooltip("Factory details");
 			details_button.add_listener(this);
-			add_komponente(&details_button);
+			add_component(&details_button);
 		}
 
 		if(  chart_button.pressed  ) {
-			add_komponente( &chart );
+			add_component( &chart );
 			const scr_coord offset = scr_coord(0, chart.get_size().h - 6);
 			chart_button.set_pos( chart_button.get_pos() + offset );
 			details_button.set_pos( details_button.get_pos() + offset );

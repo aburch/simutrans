@@ -36,7 +36,7 @@ world_view_t::world_view_t() :
 
 
 /**
- * Events werden hiermit an die GUI-Komponenten
+ * Events werden hiermit an die GUI-components
  * gemeldet
  * @author Hj. Malthaner
  */
@@ -205,7 +205,7 @@ void world_view_t::internal_draw(const scr_coord offset, obj_t const* const obj)
  */
 void world_view_t::set_size(scr_size size)
 {
-	gui_komponente_t::set_size(size);
+	gui_component_t::set_size(size);
 	calc_offsets(size, 5);
 }
 

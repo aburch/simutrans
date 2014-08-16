@@ -6,8 +6,8 @@
  */
 
 /**
- * A container for other gui_komponenten. Is itself
- * a gui_komponente, and can therefor be nested.
+ * A container for other gui_components. Is itself
+ * a gui_component, and can therefore be nested.
  *
  * @author Hj. Malthaner
  * @date 03-Mar-01
@@ -22,13 +22,13 @@
 #include "../../tpl/slist_tpl.h"
 #include "gui_komponente.h"
 
-class gui_container_t : public gui_komponente_t
+class gui_container_t : public gui_component_t
 {
 private:
-	slist_tpl <gui_komponente_t *> komponenten;
+	slist_tpl <gui_component_t *> components;
 
-	// holds the GUI Komponent that has the focus in this window
-	gui_komponente_t *komp_focus;
+	// holds the GUI component that has the focus in this window
+	gui_component_t *comp_focus;
 
 	bool list_dirty:1;
 
@@ -51,13 +51,13 @@ public:
 	* Adds a Component to the Container.
 	* @author Hj. Malthaner
 	*/
-	void add_komponente(gui_komponente_t *komp);
+	void add_component(gui_component_t *comp);
 
 	/**
 	* Removes a Component in the Container.
 	* @author Hj. Malthaner
 	*/
-	void remove_komponente(gui_komponente_t *komp);
+	void remove_component(gui_component_t *comp);
 
 	bool infowin_event(event_t const*) OVERRIDE;
 
@@ -86,20 +86,20 @@ public:
 	 * gui_container_t::infowin_event (e.g. in action_triggered)
 	 * will have NO effect.
 	 */
-	void set_focus( gui_komponente_t *komp_focus );
+	void set_focus( gui_component_t *comp_focus );
 
 	/**
 	 * returns element that has the focus
 	 * that is: go down the hierarchy as much as possible
 	 */
-	virtual gui_komponente_t *get_focus();
+	virtual gui_component_t *get_focus();
 
 	/**
 	 * Get the relative position of the focused component.
 	 * Used for auto-scrolling inside a scroll pane.
 	 * @author Knightly
 	 */
-	virtual scr_coord get_focus_pos() { return komp_focus ? pos+komp_focus->get_focus_pos() : scr_coord::invalid; }
+	virtual scr_coord get_focus_pos() { return comp_focus ? pos+comp_focus->get_focus_pos() : scr_coord::invalid; }
 };
 
 #endif

@@ -253,25 +253,25 @@ halt_list_frame_t::halt_list_frame_t(spieler_t *sp) :
 	filter_frame = NULL;
 
 	sort_label.set_pos(scr_coord(BUTTON1_X, 2));
-	add_komponente(&sort_label);
+	add_component(&sort_label);
 	sortedby.init(button_t::roundbox, "", scr_coord(BUTTON1_X, 14), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
 	sortedby.add_listener(this);
-	add_komponente(&sortedby);
+	add_component(&sortedby);
 
 	sorteddir.init(button_t::roundbox, "", scr_coord(BUTTON2_X, 14), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
 	sorteddir.add_listener(this);
-	add_komponente(&sorteddir);
+	add_component(&sorteddir);
 
 	filter_label.set_pos(scr_coord(BUTTON3_X, 2));
-	add_komponente(&filter_label);
+	add_component(&filter_label);
 
 	filter_on.init(button_t::roundbox, translator::translate(get_filter(any_filter) ? "hl_btn_filter_enable" : "hl_btn_filter_disable"), scr_coord(BUTTON3_X, 14), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
 	filter_on.add_listener(this);
-	add_komponente(&filter_on);
+	add_component(&filter_on);
 
 	filter_details.init(button_t::roundbox, translator::translate("hl_btn_filter_settings"), scr_coord(BUTTON4_X, 14), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
 	filter_details.add_listener(this);
-	add_komponente(&filter_details);
+	add_component(&filter_details);
 
 	display_list();
 
@@ -376,22 +376,22 @@ bool halt_list_frame_t::infowin_event(const event_t *ev)
  * This method is called if an action is triggered
  * @author Markus Weber/Volker Meyer
  */
-bool halt_list_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
+bool halt_list_frame_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 {
-	if (komp == &filter_on) {
+	if (  comp == &filter_on  ) {
 		set_filter(any_filter, !get_filter(any_filter));
 		filter_on.set_text(get_filter(any_filter) ? "hl_btn_filter_enable" : "hl_btn_filter_disable");
 		display_list();
 	}
-	else if (komp == &sortedby) {
+	else if (  comp == &sortedby  ) {
 		set_sortierung((sort_mode_t)((get_sortierung() + 1) % SORT_MODES));
 		display_list();
 	}
-	else if (komp == &sorteddir) {
+	else if (  comp == &sorteddir  ) {
 		set_reverse(!get_reverse());
 		display_list();
 	}
-	else if (komp == &filter_details) {
+	else if (  comp == &filter_details  ) {
 		if (filter_frame) {
 			destroy_win(filter_frame);
 		}
@@ -413,13 +413,13 @@ void halt_list_frame_t::resize(const scr_coord size_change)
 	gui_frame_t::resize(size_change);
 	scr_size size = get_windowsize()-scr_size(0,47);
 	vscroll.set_visible(false);
-	remove_komponente(&vscroll);
+	remove_component(&vscroll);
 	vscroll.set_knob( size.h/28, num_filtered_stops );
 	if(  num_filtered_stops<=size.h/28  ) {
 		vscroll.set_knob_offset(0);
 	}
 	else {
-		add_komponente(&vscroll);
+		add_component(&vscroll);
 		vscroll.set_visible(true);
 		vscroll.set_pos(scr_coord(size.w-D_SCROLLBAR_WIDTH, 47-D_TITLEBAR_HEIGHT-1));
 		vscroll.set_size(size-D_SCROLLBAR_SIZE);

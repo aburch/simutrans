@@ -5,8 +5,8 @@
  * (see licence.txt)
  */
 
-#ifndef ifc_gui_komponente_h
-#define ifc_gui_komponente_h
+#ifndef ifc_gui_component_h
+#define ifc_gui_component_h
 
 #include "../../display/scr_coord.h"
 #include "../../simevent.h"
@@ -20,7 +20,7 @@ class karte_ptr_t;
  *
  * @author Hj. Malthaner
  */
-class gui_komponente_t
+class gui_component_t
 {
 private:
 	/**
@@ -55,13 +55,13 @@ public:
 	 * Basic constructor, initialises member variables
 	 * @author Hj. Malthaner
 	 */
-	gui_komponente_t(bool _focusable = false) : visible(true), focusable(_focusable) {}
+	gui_component_t(bool _focusable = false) : visible(true), focusable(_focusable) {}
 
 	/**
 	 * Virtual destructor so all descendant classes are destructed right
 	 * @author Hj. Malthaner
 	 */
-	virtual ~gui_komponente_t() {}
+	virtual ~gui_component_t() {}
 
 	/**
 	 * Initialises the component's position and size.
@@ -182,7 +182,7 @@ public:
 	 * child classes like scrolled list of tabs should
 	 * return a child component.
 	 */
-	virtual gui_komponente_t *get_focus() {
+	virtual gui_component_t *get_focus() {
 		return is_focusable() ? this : 0;
 	}
 
@@ -202,7 +202,7 @@ public:
 	 * @param offset_par Offset added to final alignment
 	 * @author Max Kielland
 	 */
-	void align_to(gui_komponente_t* component_par, control_alignment_t alignment_par, scr_coord offset_par = scr_coord(0,0) );
+	void align_to(gui_component_t* component_par, control_alignment_t alignment_par, scr_coord offset_par = scr_coord(0,0) );
 
 	/**
 	 * @returns bounding box position and size.
@@ -215,7 +215,7 @@ public:
 /**
  * Base class for all GUI components that need access to the world.
  */
-class gui_world_component_t: public gui_komponente_t
+class gui_world_component_t: public gui_component_t
 {
 protected:
 	static karte_ptr_t welt;

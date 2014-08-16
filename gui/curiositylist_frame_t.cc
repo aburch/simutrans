@@ -47,19 +47,19 @@ curiositylist_frame_t::curiositylist_frame_t() :
 	scrolly(&stats)
 {
 	sort_label.set_pos(scr_coord(BUTTON1_X, 2));
-	add_komponente(&sort_label);
+	add_component(&sort_label);
 
 	sortedby.init(button_t::roundbox, "", scr_coord(BUTTON1_X, 14), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
 	sortedby.add_listener(this);
-	add_komponente(&sortedby);
+	add_component(&sortedby);
 
 	sorteddir.init(button_t::roundbox, "", scr_coord(BUTTON2_X, 14), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
 	sorteddir.add_listener(this);
-	add_komponente(&sorteddir);
+	add_component(&sorteddir);
 
 	scrolly.set_pos(scr_coord(0,14+D_BUTTON_HEIGHT+2));
 	scrolly.set_scroll_amount_y(LINESPACE+1);
-	add_komponente(&scrolly);
+	add_component(&scrolly);
 
 	display_list();
 

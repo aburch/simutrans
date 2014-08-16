@@ -62,7 +62,7 @@ savegame_frame_t::savegame_frame_t(const char *suffix, bool only_directories, co
 	label_enabled = true;
 
 	fnlabel.set_pos(cursor);
-	add_komponente(&fnlabel);
+	add_component(&fnlabel);
 
 	// Input box for game name
 	tstrncpy(ibuf, "", lengthof(ibuf));
@@ -70,7 +70,7 @@ savegame_frame_t::savegame_frame_t(const char *suffix, bool only_directories, co
 	input.set_size( scr_size ( D_BUTTON_WIDTH, D_EDIT_HEIGHT ) );
 	input.set_text(ibuf, 128);
 	fnlabel.align_to(&input,ALIGN_CENTER_V);
-	add_komponente(&input);
+	add_component(&input);
 	cursor.y += D_EDIT_HEIGHT;
 	cursor.y += D_V_SPACE;
 
@@ -79,18 +79,18 @@ savegame_frame_t::savegame_frame_t(const char *suffix, bool only_directories, co
 	scrolly.set_scroll_amount_y(D_BUTTON_HEIGHT + D_FOCUS_OFFSET_V);
 	scrolly.set_size_corner(false);
 	scrolly.set_scrollbar_mode( scrollbar_t::show_auto );
-	add_komponente(&scrolly);
+	add_component(&scrolly);
 
 	// Controls below will be sized and positioned in set_windowsize()
-	add_komponente(&divider1);
+	add_component(&divider1);
 
 	savebutton.init( button_t::roundbox, "Ok" );
 	savebutton.add_listener( this );
-	add_komponente( &savebutton );
+	add_component( &savebutton );
 
 	cancelbutton.init( button_t::roundbox, "Cancel" );
 	cancelbutton.add_listener( this );
-	add_komponente( &cancelbutton );
+	add_component( &cancelbutton );
 
 	set_focus( &input );
 
@@ -294,7 +294,7 @@ void savegame_frame_t::list_filled( void )
 		gui_label_t* const label   = i.label;
 
 		if(i.type == LI_HEADER) {
-			button_frame.add_komponente(label);
+			button_frame.add_component(label);
 			if(this->num_sections < 2) {
 				// If just 1 section added, we won't print the header, skipping the y increment
 				label->set_visible(false);
@@ -315,9 +315,9 @@ void savegame_frame_t::list_filled( void )
 			delete_button->add_listener(this);
 			action_button->add_listener(this);
 
-			button_frame.add_komponente(delete_button);
-			button_frame.add_komponente(action_button);
-			button_frame.add_komponente(label);
+			button_frame.add_component(delete_button);
+			button_frame.add_component(action_button);
+			button_frame.add_component(label);
 
 			// Update button frame's height
 			height += row_height;

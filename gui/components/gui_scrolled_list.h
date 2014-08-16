@@ -23,7 +23,7 @@
 class gui_scrolled_list_t :
 	public gui_action_creator_t,
 	public action_listener_t,
-	public gui_komponente_t
+	public gui_component_t
 {
 public:
 	enum type { windowskin, listskin };

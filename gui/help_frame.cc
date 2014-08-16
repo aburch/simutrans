@@ -39,7 +39,7 @@ help_frame_t::help_frame_t() :
 	helptext.add_listener(this);
 
 	scrolly_helptext.set_show_scroll_x(true);
-	add_komponente(&scrolly_helptext);
+	add_component(&scrolly_helptext);
 
 	set_resizemode(diagonal_resize);
 	set_min_windowsize( scr_size( D_MARGIN_LEFT + (D_SCROLLBAR_WIDTH<<1) + DIALOG_MIN_WIDTH + D_MARGIN_RIGHT, D_TITLEBAR_HEIGHT + D_MARGIN_TOP + (D_SCROLLBAR_HEIGHT<<1) + D_MARGIN_BOTTOM) );
@@ -63,14 +63,14 @@ help_frame_t::help_frame_t(char const* const filename) :
 
 	helptext.set_pos( scr_coord(D_MARGIN_LEFT,D_MARGIN_TOP) );
 	scrolly_helptext.set_show_scroll_x(true);
-	add_komponente(&scrolly_helptext);
+	add_component(&scrolly_helptext);
 	helptext.add_listener(this);
 
 	generaltext.set_pos( scr_coord(D_MARGIN_LEFT,D_MARGIN_TOP) );
 	scrolly_generaltext.set_pos( scr_coord( 0, 0) );
 	scrolly_generaltext.set_show_scroll_x(true);
 	scrolly_generaltext.set_visible( true );
-	add_komponente(&scrolly_generaltext);
+	add_component(&scrolly_generaltext);
 	generaltext.add_listener(this);
 
 	add_helpfile( introduction, NULL, "simutrans.txt", true, 0 );
@@ -165,7 +165,7 @@ help_frame_t::help_frame_t(char const* const filename) :
 	set_helpfile( filename, true );
 
 	//scrolly_helptext.set_show_scroll_x(true);
-	//add_komponente(&scrolly_helptext);
+	//add_component(&scrolly_helptext);
 
 	set_resizemode(diagonal_resize);
 	set_min_windowsize(scr_size(200, D_TITLEBAR_HEIGHT + D_MARGIN_TOP + (D_SCROLLBAR_HEIGHT) + D_MARGIN_BOTTOM));

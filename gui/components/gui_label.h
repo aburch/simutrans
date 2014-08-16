@@ -26,7 +26,7 @@
  * @author: Volker Meyer
  * @date 25.05.03
  */
-class gui_label_t : public gui_komponente_t
+class gui_label_t : public gui_component_t
 {
 public:
 	enum align_t {
@@ -49,7 +49,7 @@ private:
 	const char * tooltip;
 
 protected:
-	using gui_komponente_t::init;
+	using gui_component_t::init;
 
 public:
 	gui_label_t(const char* text=NULL, COLOR_VAL color=SYSCOL_STATIC_TEXT, align_t align=left);

@@ -72,44 +72,44 @@ goods_frame_t::goods_frame_t() :
 	speed_bonus[0] = 0;
 	speed_down.init(button_t::repeatarrowleft, "", scr_coord(BUTTON4_X-20, y), scr_size(10,D_BUTTON_HEIGHT));
 	speed_down.add_listener(this);
-	add_komponente(&speed_down);
+	add_component(&speed_down);
 
 	change_speed_label.set_text(speed_bonus);
 	change_speed_label.set_width(display_get_char_max_width("-0123456789")*4);
 	change_speed_label.align_to(&speed_down, ALIGN_LEFT | ALIGN_EXTERIOR_H | ALIGN_CENTER_V,scr_coord(D_V_SPACE,0));
-	add_komponente(&change_speed_label);
+	add_component(&change_speed_label);
 
 	speed_up.init(button_t::repeatarrowright, "",speed_down.get_pos());
 	speed_up.align_to(&change_speed_label, ALIGN_LEFT | ALIGN_EXTERIOR_H, scr_coord(D_V_SPACE,0));
 	speed_up.add_listener(this);
-	add_komponente(&speed_up);
+	add_component(&speed_up);
 	y=D_BUTTON_HEIGHT+4+5*LINESPACE;
 
 	filter_goods_toggle.init(button_t::square_state, "Show only used", scr_coord(BUTTON1_X, y));
 	filter_goods_toggle.set_tooltip(translator::translate("Only show goods which are currently handled by factories"));
 	filter_goods_toggle.add_listener(this);
 	filter_goods_toggle.pressed = filter_goods;
-	add_komponente(&filter_goods_toggle);
+	add_component(&filter_goods_toggle);
 	y += LINESPACE+2;
 
 	sort_label.set_pos(scr_coord(BUTTON1_X, y));
-	add_komponente(&sort_label);
+	add_component(&sort_label);
 
 	y += LINESPACE+1;
 
 	sortedby.init(button_t::roundbox, "", scr_coord(BUTTON1_X, y), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
 	sortedby.add_listener(this);
-	add_komponente(&sortedby);
+	add_component(&sortedby);
 
 	sorteddir.init(button_t::roundbox, "", scr_coord(BUTTON2_X, y), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
 	sorteddir.add_listener(this);
-	add_komponente(&sorteddir);
+	add_component(&sorteddir);
 
 	y += D_BUTTON_HEIGHT+2;
 
 	scrolly.set_pos(scr_coord(1, y));
 	scrolly.set_scroll_amount_y(LINESPACE+1);
-	add_komponente(&scrolly);
+	add_component(&scrolly);
 
 	sort_list();
 

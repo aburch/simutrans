@@ -93,7 +93,7 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	// Brightness label
 	brightness_label.init("1LIGHT_CHOOSE",cursor);
 	brightness_label.set_width( label_width );
-	add_komponente(&brightness_label);
+	add_component(&brightness_label);
 	cursor.y += LINESPACE + D_V_SPACE;
 
 	// brightness edit
@@ -115,7 +115,7 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	// Scroll speed label
 	scrollspeed_label.init("3LIGHT_CHOOSE",cursor);
 	scrollspeed_label.set_width( label_width );
-	add_komponente(&scrollspeed_label);
+	add_component(&scrollspeed_label);
 	cursor.y += LINESPACE;
 
 	// Scroll speed edit
@@ -128,7 +128,7 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 
 	// Divider 1
 	divider1.set_pos( cursor );
-	add_komponente(&divider1);
+	add_component(&divider1);
 	cursor.y += D_DIVIDER_HEIGHT;
 
 	// Transparent instead of hidden checkbox
@@ -155,7 +155,7 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	// Hide buildings label
 	hide_buildings_label.set_pos( cursor + scr_coord (buttons[12].get_size().w + D_H_SPACE,0));
 	hide_buildings_label.align_to(&buttons[12], ALIGN_CENTER_V);
-	add_komponente(&hide_buildings_label);
+	add_component(&hide_buildings_label);
 	cursor.y += buttons[12].get_size().h + D_V_SPACE;
 
 	// Hide buildings and trees under mouse cursor checkbox
@@ -176,7 +176,7 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 
 	// Divider 2
 	divider2.set_pos( cursor );
-	add_komponente(&divider2);
+	add_component(&divider2);
 	cursor.y += D_DIVIDER_HEIGHT;
 
 	// Transparent station coverage
@@ -210,7 +210,7 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 
 	// Divider 3
 	divider3.set_pos( cursor );
-	add_komponente(&divider3);
+	add_component(&divider3);
 	cursor.y += D_DIVIDER_HEIGHT;
 
 	// Pedestrians in towns checkbox
@@ -232,7 +232,7 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	// Traffic density label
 	traffic_density_label.init("6WORLD_CHOOSE",cursor);
 	traffic_density_label.set_width( label_width );
-	add_komponente(&traffic_density_label);
+	add_component(&traffic_density_label);
 
 	// Traffic density edit
 	traffic_density.set_pos( cursor );
@@ -252,7 +252,7 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	// Convoy tooltip label
 	convoy_tooltip_label.init("", cursor + scr_coord (buttons[0].get_size().w + D_H_SPACE,0) );
 	convoy_tooltip_label.align_to(&buttons[0], ALIGN_CENTER_V);
-	add_komponente(&convoy_tooltip_label);
+	add_component(&convoy_tooltip_label);
 	cursor.y += buttons[0].get_size().h + D_V_SPACE;
 
 	// Show schedule's stop checkbox
@@ -264,7 +264,7 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 
 	// Divider 4
 	divider4.set_pos( cursor );
-	add_komponente(&divider4);
+	add_component(&divider4);
 	cursor.y += D_DIVIDER_HEIGHT;
 
 	// add controls to info container
@@ -275,32 +275,32 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	frame_time_label.init("Frame time:", label_cursor, COL_BLACK );
 	sprintf(frame_time_buf," ***** ms" );
 	frame_time_value_label.init( frame_time_buf, scr_coord(0, label_cursor.y), SYSCOL_TEXT_HIGHLIGHT );
-	label_container.add_komponente( &frame_time_label );
-	value_container.add_komponente( &frame_time_value_label );
+	label_container.add_component( &frame_time_label );
+	value_container.add_component( &frame_time_value_label );
 	label_cursor.y += LINESPACE;
 
 	// Idle time label
 	idle_time_label.init("Idle:", label_cursor, COL_BLACK);
 	sprintf(idle_time_buf," ***** ms" );
 	idle_time_value_label.init( idle_time_buf, scr_coord(0, label_cursor.y), SYSCOL_TEXT_HIGHLIGHT );
-	label_container.add_komponente( &idle_time_label );
-	value_container.add_komponente( &idle_time_value_label );
+	label_container.add_component( &idle_time_label );
+	value_container.add_component( &idle_time_value_label );
 	label_cursor.y += LINESPACE;
 
 	// FPS label
 	fps_label.init("FPS:", label_cursor, COL_BLACK );
 	sprintf(fps_buf," *** fps*" );
 	fps_value_label.init( fps_buf, scr_coord(0, label_cursor.y), SYSCOL_TEXT_HIGHLIGHT );
-	label_container.add_komponente( &fps_label );
-	value_container.add_komponente( &fps_value_label );
+	label_container.add_component( &fps_label );
+	value_container.add_component( &fps_value_label );
 	label_cursor.y += LINESPACE;
 
 	// Simloops label
 	simloops_label.init("Sim:", label_cursor, COL_BLACK );
 	sprintf(simloops_buf," ********" );
 	simloops_value_label.init( simloops_buf, scr_coord(0, label_cursor.y), SYSCOL_TEXT_HIGHLIGHT );
-	label_container.add_komponente( &simloops_label );
-	value_container.add_komponente( &simloops_value_label );
+	label_container.add_component( &simloops_label );
+	value_container.add_component( &simloops_value_label );
 	label_cursor.y += LINESPACE;
 
 	// Align all values with labels
@@ -315,40 +315,40 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	}
 
 	// add buttons for sensible keyboard tab order
-	add_komponente( buttons+23 );
-	add_komponente( buttons+17 );
-	add_komponente( buttons+16 );
-	add_komponente( &inp_underground_level );
-	add_komponente( buttons+20 );
-	add_komponente( buttons+9 );
-	add_komponente( &brightness );
-	add_komponente( buttons+6 );
-	add_komponente( &scrollspeed );
-	add_komponente( buttons+10 );
-	add_komponente( buttons+11 );
-	add_komponente( &cursor_hide_range );
-	add_komponente( buttons+21);
-	add_komponente( buttons+12 );
-	add_komponente( buttons+13 );
-	add_komponente( buttons+14 );
-	add_komponente( buttons+15 );
-	add_komponente( buttons+18 );
-	add_komponente( buttons+19 );
-	add_komponente( buttons+8 );
-	add_komponente( buttons+7 );
-	add_komponente( &traffic_density );
-	add_komponente( buttons+0 );
-	add_komponente( buttons+1 );
-	add_komponente( buttons+22);
+	add_component( buttons+23 );
+	add_component( buttons+17 );
+	add_component( buttons+16 );
+	add_component( &inp_underground_level );
+	add_component( buttons+20 );
+	add_component( buttons+9 );
+	add_component( &brightness );
+	add_component( buttons+6 );
+	add_component( &scrollspeed );
+	add_component( buttons+10 );
+	add_component( buttons+11 );
+	add_component( &cursor_hide_range );
+	add_component( buttons+21);
+	add_component( buttons+12 );
+	add_component( buttons+13 );
+	add_component( buttons+14 );
+	add_component( buttons+15 );
+	add_component( buttons+18 );
+	add_component( buttons+19 );
+	add_component( buttons+8 );
+	add_component( buttons+7 );
+	add_component( &traffic_density );
+	add_component( buttons+0 );
+	add_component( buttons+1 );
+	add_component( buttons+22);
 
 	// unused buttons
-	// add_komponente( buttons+2 );
-	// add_komponente( buttons+3 );
-	// add_komponente( buttons+4 );
-	// add_komponente( buttons+5 );
+	// add_component( buttons+2 );
+	// add_component( buttons+3 );
+	// add_component( buttons+4 );
+	// add_component( buttons+5 );
 
-	add_komponente( &label_container );
-	add_komponente( &value_container );
+	add_component( &label_container );
+	add_component( &value_container );
 	cursor.y += label_container.get_size().h;
 
 	set_resizemode(gui_frame_t::horizonal_resize);

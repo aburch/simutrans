@@ -88,7 +88,7 @@ halt_list_filter_frame_t::halt_list_filter_frame_t(spieler_t *sp, halt_list_fram
 	for(  int i=0;  i<FILTER_BUTTONS;  i++  ) {
 		filter_buttons[i].init(button_t::square, filter_buttons_text[i], filter_buttons_pos[i]);
 		filter_buttons[i].add_listener(this);
-		add_komponente(filter_buttons + i);
+		add_component(filter_buttons + i);
 		if(  filter_buttons_types[i] < halt_list_frame_t::sub_filter  ) {
 			filter_buttons[i].background_color = COL_WHITE;
 		}
@@ -97,21 +97,21 @@ halt_list_filter_frame_t::halt_list_filter_frame_t(spieler_t *sp, halt_list_fram
 	name_filter_input.set_size(scr_size(100, D_BUTTON_HEIGHT));
 	name_filter_input.set_pos(scr_coord(5, D_BUTTON_HEIGHT));
 	name_filter_input.add_listener(this);
-	add_komponente(&name_filter_input);
+	add_component(&name_filter_input);
 
 	ware_alle_an.init(button_t::roundbox, "hlf_btn_alle", scr_coord(125, D_BUTTON_HEIGHT), scr_size(41, D_BUTTON_HEIGHT));
 	ware_alle_an.add_listener(this);
-	add_komponente(&ware_alle_an);
+	add_component(&ware_alle_an);
 	ware_keine_an.init(button_t::roundbox, "hlf_btn_keine", scr_coord(167, D_BUTTON_HEIGHT), scr_size(41, D_BUTTON_HEIGHT));
 	ware_keine_an.add_listener(this);
-	add_komponente(&ware_keine_an);
+	add_component(&ware_keine_an);
 	ware_invers_an.init(button_t::roundbox, "hlf_btn_invers", scr_coord(209, D_BUTTON_HEIGHT), scr_size(41, D_BUTTON_HEIGHT));
 	ware_invers_an.add_listener(this);
-	add_komponente(&ware_invers_an);
+	add_component(&ware_invers_an);
 
 	ware_scrolly_an.set_pos(scr_coord(125, 2*D_BUTTON_HEIGHT+4));
 	ware_scrolly_an.set_scroll_amount_y(D_BUTTON_HEIGHT);
-	add_komponente(&ware_scrolly_an);
+	add_component(&ware_scrolly_an);
 
 	int n=0;
 	for(  int i=0;  i<warenbauer_t::get_waren_anzahl();  i++  ) {
@@ -119,7 +119,7 @@ halt_list_filter_frame_t::halt_list_filter_frame_t(spieler_t *sp, halt_list_fram
 		if(  ware != warenbauer_t::nichts  ) {
 			ware_item_t *item = new ware_item_t(this, NULL, ware);
 			item->init(button_t::square, translator::translate(ware->get_name()), scr_coord(5, D_BUTTON_HEIGHT*n++));
-			ware_cont_an.add_komponente(item);
+			ware_cont_an.add_component(item);
 		}
 	}
 	ware_cont_an.set_size(scr_size(100, n*D_BUTTON_HEIGHT));
@@ -127,17 +127,17 @@ halt_list_filter_frame_t::halt_list_filter_frame_t(spieler_t *sp, halt_list_fram
 
 	ware_alle_ab.init(button_t::roundbox, "hlf_btn_alle", scr_coord(265, D_BUTTON_HEIGHT), scr_size(41, D_BUTTON_HEIGHT));
 	ware_alle_ab.add_listener(this);
-	add_komponente(&ware_alle_ab);
+	add_component(&ware_alle_ab);
 	ware_keine_ab.init(button_t::roundbox, "hlf_btn_keine", scr_coord(307, D_BUTTON_HEIGHT), scr_size(41, D_BUTTON_HEIGHT));
 	ware_keine_ab.add_listener(this);
-	add_komponente(&ware_keine_ab);
+	add_component(&ware_keine_ab);
 	ware_invers_ab.init(button_t::roundbox, "hlf_btn_invers", scr_coord(349, D_BUTTON_HEIGHT), scr_size(41, D_BUTTON_HEIGHT));
 	ware_invers_ab.add_listener(this);
-	add_komponente(&ware_invers_ab);
+	add_component(&ware_invers_ab);
 
 	ware_scrolly_ab.set_pos(scr_coord(265, 2*D_BUTTON_HEIGHT+4));
 	ware_scrolly_ab.set_scroll_amount_y(D_BUTTON_HEIGHT);
-	add_komponente(&ware_scrolly_ab);
+	add_component(&ware_scrolly_ab);
 
 	n=0;
 	for(  int i=0;  i<warenbauer_t::get_waren_anzahl();  i++  ) {
@@ -145,7 +145,7 @@ halt_list_filter_frame_t::halt_list_filter_frame_t(spieler_t *sp, halt_list_fram
 		if(  ware != warenbauer_t::nichts  ) {
 		ware_item_t *item = new ware_item_t(this, ware, NULL);
 		item->init(button_t::square, translator::translate(ware->get_name()), scr_coord(5, D_BUTTON_HEIGHT*n++));
-			ware_cont_ab.add_komponente(item);
+			ware_cont_ab.add_component(item);
 		}
 	}
 	ware_cont_ab.set_size(scr_size(100, n*D_BUTTON_HEIGHT));

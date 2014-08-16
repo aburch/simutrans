@@ -68,7 +68,7 @@ ki_kontroll_t::ki_kontroll_t() :
 			player_active[i-2].align_to( &player_get_finances[i], ALIGN_CENTER_V );
 			player_active[i-2].add_listener(this);
 			if(sp  &&  sp->get_ai_id()!=spieler_t::HUMAN  &&  player_tools_allowed) {
-				add_komponente( player_active+i-2 );
+				add_component( player_active+i-2 );
 			}
 		}
 		cursor.x += D_CHECKBOX_WIDTH + D_H_SPACE;
@@ -79,7 +79,7 @@ ki_kontroll_t::ki_kontroll_t() :
 
 		// Allow player change to human and public only (no AI)
 		if (sp  &&  player_change_allowed) {
-			add_komponente(player_change_to+i);
+			add_component(player_change_to+i);
 		}
 		cursor.x += D_ARROW_RIGHT_WIDTH + D_H_SPACE;
 
@@ -107,13 +107,13 @@ ki_kontroll_t::ki_kontroll_t() :
 		player_select[i].add_listener(this);
 		if(  sp != NULL  ) {
 			player_get_finances[i].set_text( sp->get_name() );
-			add_komponente( player_get_finances+i );
+			add_component( player_get_finances+i );
 			player_select[i].set_visible(false);
 		}
 		else {
 			// init player selection dialogue
 			if (player_tools_allowed) {
-				add_komponente( player_select+i );
+				add_component( player_select+i );
 			}
 			player_get_finances[i].set_visible(false);
 		}
@@ -125,7 +125,7 @@ ki_kontroll_t::ki_kontroll_t() :
 		player_lock[i].enable( welt->get_spieler(i) );
 		player_lock[i].add_listener(this);
 		if (player_tools_allowed) {
-			add_komponente( player_lock+i );
+			add_component( player_lock+i );
 		}
 		cursor.x += D_EDIT_HEIGHT + D_H_SPACE;
 
@@ -133,7 +133,7 @@ ki_kontroll_t::ki_kontroll_t() :
 		account_str[i][0] = 0;
 		ai_income[i] = new gui_label_t(account_str[i], MONEY_PLUS, gui_label_t::money);
 		ai_income[i]->align_to(&player_select[i],ALIGN_CENTER_V);
-		add_komponente( ai_income[i] );
+		add_component( ai_income[i] );
 
 		player_change_to[i].align_to( &player_lock[i], ALIGN_CENTER_V );
 		if(  i >= 2  ) {
@@ -151,7 +151,7 @@ ki_kontroll_t::ki_kontroll_t() :
 		freeplay.disable();
 	}
 	freeplay.pressed = welt->get_settings().is_freeplay();
-	add_komponente( &freeplay );
+	add_component( &freeplay );
 	cursor.y += max(D_CHECKBOX_HEIGHT, LINESPACE);
 
 	set_windowsize( scr_size( L_DIALOG_WIDTH, D_TITLEBAR_HEIGHT + cursor.y + D_MARGIN_BOTTOM ) );
@@ -171,19 +171,19 @@ ki_kontroll_t::~ki_kontroll_t()
  * This method is called if an action is triggered
  * @author Hj. Malthaner
  */
-bool ki_kontroll_t::action_triggered( gui_action_creator_t *komp,value_t p )
+bool ki_kontroll_t::action_triggered( gui_action_creator_t *comp,value_t p )
 {
 	static char param[16];
 
 	// Free play button?
-	if(  komp==&freeplay  ) {
+	if(  comp == &freeplay  ) {
 		welt->call_change_player_tool(karte_t::toggle_freeplay, 255, 0);
 		return true;
 	}
 
 	// Check the GUI list of buttons
 	for(int i=0; i<MAX_PLAYER_COUNT-1; i++) {
-		if(i>=2  &&  komp==(player_active+i-2)) {
+		if(  i>=2  &&  comp == (player_active+i-2)  ) {
 			// switch AI on/off
 			if(  welt->get_spieler(i)==NULL  ) {
 				// create new AI
@@ -200,7 +200,7 @@ bool ki_kontroll_t::action_triggered( gui_action_creator_t *komp,value_t p )
 		}
 
 		// Finance button pressed
-		if(komp==(player_get_finances+i)) {
+		if(  comp == (player_get_finances+i)  ) {
 			// get finances
 			player_get_finances[i].pressed = false;
 			create_win( new money_frame_t(welt->get_spieler(i)), w_info, magic_finances_t+welt->get_spieler(i)->get_player_nr() );
@@ -208,14 +208,14 @@ bool ki_kontroll_t::action_triggered( gui_action_creator_t *komp,value_t p )
 		}
 
 		// Changed active player
-		if(komp==(player_change_to+i)) {
+		if(  comp == (player_change_to+i)  ) {
 			// make active player
 			welt->switch_active_player(i,false);
 			break;
 		}
 
 		// Change player name and/or password
-		if(komp==(player_lock+i)  &&  welt->get_spieler(i)) {
+		if(  comp == (player_lock+i)  &&  welt->get_spieler(i)  ) {
 			if (!welt->get_spieler(i)->is_unlock_pending()) {
 				// set password
 				create_win( -1, -1, new password_frame_t(welt->get_spieler(i)), w_info, magic_pwd_t + i );
@@ -224,12 +224,12 @@ bool ki_kontroll_t::action_triggered( gui_action_creator_t *komp,value_t p )
 		}
 
 		// New player assigned in an empty slot
-		if(komp==(player_select+i)) {
+		if(  comp == (player_select+i)  ) {
 
 			// make active player
-			remove_komponente( player_active+i-2 );
+			remove_component( player_active+i-2 );
 			if(  p.i<spieler_t::MAX_AI  &&  p.i>0  ) {
-				add_komponente( player_active+i-2 );
+				add_component( player_active+i-2 );
 				welt->get_settings().set_player_type(i, (uint8)p.i);
 			}
 			else {
@@ -254,9 +254,9 @@ void ki_kontroll_t::update_data()
 			if (player_select[i].is_visible()) {
 				player_select[i].set_visible(false);
 				player_get_finances[i].set_visible(true);
-				add_komponente(player_get_finances+i);
+				add_component(player_get_finances+i);
 				if (welt->get_settings().get_allow_player_change() || !welt->get_spieler(1)->is_locked()) {
-					add_komponente(player_change_to+i);
+					add_component(player_change_to+i);
 				}
 				player_get_finances[i].set_text(sp->get_name());
 			}
@@ -267,9 +267,9 @@ void ki_kontroll_t::update_data()
 
 			// human players cannot be deactivated
 			if (i>1) {
-				remove_komponente( player_active+i-2 );
+				remove_component( player_active+i-2 );
 				if(  sp->get_ai_id()!=spieler_t::HUMAN  ) {
-					add_komponente( player_active+i-2 );
+					add_component( player_active+i-2 );
 				}
 			}
 
@@ -279,15 +279,15 @@ void ki_kontroll_t::update_data()
 			// inactive player => button needs removal?
 			if (player_get_finances[i].is_visible()) {
 				player_get_finances[i].set_visible(false);
-				remove_komponente(player_get_finances+i);
-				remove_komponente(player_change_to+i);
+				remove_component(player_get_finances+i);
+				remove_component(player_change_to+i);
 				player_select[i].set_visible(true);
 			}
 
 			if (i>1) {
-				remove_komponente( player_active+i-2 );
+				remove_component( player_active+i-2 );
 				if(  0<player_select[i].get_selection()  &&  player_select[i].get_selection()<spieler_t::MAX_AI) {
-					add_komponente( player_active+i-2 );
+					add_component( player_active+i-2 );
 				}
 			}
 

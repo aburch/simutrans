@@ -113,17 +113,17 @@ welt_gui_t::welt_gui_t(settings_t* const sets_par) :
 	// Component creation
 	// Map preview
 	map_preview.init(scr_coord(L_COLUMN1_X+edit_Width+D_H_SPACE, cursor.y));
-	add_komponente( &map_preview );
+	add_component( &map_preview );
 
 	// World setting label
 	world_title_label.init("1WORLD_CHOOSE",cursor);
 	world_title_label.set_width(L_COLUMN1_X+edit_Width - cursor.x);
-	add_komponente( &world_title_label );
+	add_component( &world_title_label );
 	cursor.y += LINESPACE; // label
 
 	// divider 1
 	divider_1.init(cursor,L_DIALOG_WIDTH - D_MARGIN_LEFT -  D_H_SPACE - MAP_PREVIEW_SIZE_X - D_MARGIN_RIGHT);
-	add_komponente( &divider_1 );
+	add_component( &divider_1 );
 	cursor.y += D_DIVIDER_HEIGHT;
 
 	// Map number edit
@@ -131,19 +131,19 @@ welt_gui_t::welt_gui_t(settings_t* const sets_par) :
 	inp_map_number.set_pos(scr_coord(L_COLUMN1_X, cursor.y));
 	inp_map_number.set_size(scr_size(edit_Width, D_EDIT_HEIGHT));
 	inp_map_number.add_listener( this );
-	add_komponente( &inp_map_number );
+	add_component( &inp_map_number );
 
 	// Map number label
 	map_number_label.init("2WORLD_CHOOSE",cursor);
 	map_number_label.set_width( label_width );
 	map_number_label.align_to(&inp_map_number,ALIGN_CENTER_V);
-	add_komponente( &map_number_label );
+	add_component( &map_number_label );
 	cursor.y += D_EDIT_HEIGHT;
 
 	// Map size label
 	size_label.init("Size (%d MB):",cursor);
 	size_label.set_width( label_width );
-	add_komponente( &size_label );
+	add_component( &size_label );
 	cursor.y += LINESPACE;
 
 	// Map X size edit
@@ -151,7 +151,7 @@ welt_gui_t::welt_gui_t(settings_t* const sets_par) :
 	inp_x_size.set_pos( scr_coord(L_COLUMN1_X,cursor.y) );
 	inp_x_size.set_size(scr_size(edit_Width, D_EDIT_HEIGHT));
 	inp_x_size.add_listener(this);
-	add_komponente( &inp_x_size );
+	add_component( &inp_x_size );
 	cursor.y += D_EDIT_HEIGHT;
 
 	// Map size Y edit
@@ -159,7 +159,7 @@ welt_gui_t::welt_gui_t(settings_t* const sets_par) :
 	inp_y_size.set_pos(scr_coord(L_COLUMN1_X,cursor.y) );
 	inp_y_size.set_size(scr_size(edit_Width, D_EDIT_HEIGHT));
 	inp_y_size.add_listener(this);
-	add_komponente( &inp_y_size );
+	add_component( &inp_y_size );
 	cursor.y += D_EDIT_HEIGHT;
 	cursor.y += D_V_SPACE;
 
@@ -167,13 +167,13 @@ welt_gui_t::welt_gui_t(settings_t* const sets_par) :
 	random_map.init(button_t::roundbox,"Random map",cursor,scr_size(L_BUTTON_EXTRA_WIDE, D_BUTTON_HEIGHT));
 	random_map.set_tooltip("chooses a random map");
 	random_map.add_listener( this );
-	add_komponente( &random_map );
+	add_component( &random_map );
 
 	// Load height map button
 	load_map.init(button_t::roundbox,"Lade Relief",scr_coord(L_BUTTON_COLUMN_2, cursor.y),scr_size(L_BUTTON_EXTRA_WIDE, D_BUTTON_HEIGHT));
 	load_map.set_tooltip("load height data from file");
 	load_map.add_listener( this );
-	add_komponente( &load_map );
+	add_component( &load_map );
 	cursor.y += D_BUTTON_HEIGHT + D_V_SPACE;
 
 	label_width = L_COLUMN2_X - D_MARGIN_LEFT - D_H_SPACE;
@@ -184,13 +184,13 @@ welt_gui_t::welt_gui_t(settings_t* const sets_par) :
 	inp_number_of_towns.add_listener(this);
 	inp_number_of_towns.set_limits(0,999);
 	inp_number_of_towns.set_value(abs(sets->get_anzahl_staedte()) );
-	add_komponente( &inp_number_of_towns );
+	add_component( &inp_number_of_towns );
 
 	// Number of towns label
 	cities_label.init("5WORLD_CHOOSE",cursor);
 	cities_label.set_width( label_width );
 	cities_label.align_to(&inp_number_of_towns,ALIGN_CENTER_V);
-	add_komponente( &cities_label );
+	add_component( &cities_label );
 	cursor.y += D_EDIT_HEIGHT;
 
 	// Town size edit
@@ -200,13 +200,13 @@ welt_gui_t::welt_gui_t(settings_t* const sets_par) :
 	inp_town_size.set_limits(0,999999);
 	inp_town_size.set_increment_mode(50);
 	inp_town_size.set_value( sets->get_mittlere_einwohnerzahl() );
-	add_komponente( &inp_town_size );
+	add_component( &inp_town_size );
 
 	// Town size label
 	median_label.init("Median Citizen per town",cursor);
 	median_label.set_width( label_width );
 	median_label.align_to(&inp_town_size,ALIGN_CENTER_V);
-	add_komponente( &median_label );
+	add_component( &median_label );
 	cursor.y += D_EDIT_HEIGHT;
 
 	// Intercity road length edit
@@ -216,13 +216,13 @@ welt_gui_t::welt_gui_t(settings_t* const sets_par) :
 	inp_intercity_road_len.set_limits(0,9999);
 	inp_intercity_road_len.set_value( env_t::intercity_road_length );
 	inp_intercity_road_len.set_increment_mode( env_t::intercity_road_length>=1000 ? 100 : 20 );
-	add_komponente( &inp_intercity_road_len );
+	add_component( &inp_intercity_road_len );
 
 	// Intercity road length label
 	intercity_label.init("Intercity road len:",cursor);
 	intercity_label.set_width( label_width );
 	intercity_label.align_to(&inp_intercity_road_len,ALIGN_CENTER_V);
-	add_komponente( &intercity_label );
+	add_component( &intercity_label );
 	cursor.y += D_EDIT_HEIGHT;
 
 	// Factories edit
@@ -231,13 +231,13 @@ welt_gui_t::welt_gui_t(settings_t* const sets_par) :
 	inp_other_industries.add_listener(this);
 	inp_other_industries.set_limits(0,999);
 	inp_other_industries.set_value(abs(sets->get_factory_count()) );
-	add_komponente( &inp_other_industries );
+	add_component( &inp_other_industries );
 
 	// Factories label
 	factories_label.init("No. of Factories",cursor);
 	factories_label.set_width( label_width );
 	factories_label.align_to(&inp_other_industries,ALIGN_CENTER_V);
-	add_komponente( &factories_label );
+	add_component( &factories_label );
 	cursor.y += D_EDIT_HEIGHT;
 
 	// Tourist attr. edit
@@ -246,13 +246,13 @@ welt_gui_t::welt_gui_t(settings_t* const sets_par) :
 	inp_tourist_attractions.add_listener(this);
 	inp_tourist_attractions.set_limits(0,999);
 	inp_tourist_attractions.set_value(abs(sets->get_tourist_attractions()) );
-	add_komponente( &inp_tourist_attractions );
+	add_component( &inp_tourist_attractions );
 
 	// Tourist attr. label
 	tourist_label.init("Tourist attractions",cursor);
 	tourist_label.set_width( label_width );
 	tourist_label.align_to(&inp_tourist_attractions,ALIGN_CENTER_V);
-	add_komponente( &tourist_label );
+	add_component( &tourist_label );
 	cursor.y += D_EDIT_HEIGHT;
 	cursor.y += D_V_SPACE;
 
@@ -263,7 +263,7 @@ welt_gui_t::welt_gui_t(settings_t* const sets_par) :
 	inp_intro_date.set_limits(game_start,game_ends);
 	inp_intro_date.set_increment_mode(10);
 	inp_intro_date.set_value(abs(sets->get_starting_year()) );
-	add_komponente( &inp_intro_date );
+	add_component( &inp_intro_date );
 
 	// Use timeline checkbox
 	use_intro_dates.init(button_t::square_state,"Use timeline start year", cursor);
@@ -271,7 +271,7 @@ welt_gui_t::welt_gui_t(settings_t* const sets_par) :
 	use_intro_dates.align_to(&inp_intro_date,ALIGN_CENTER_V);
 	use_intro_dates.pressed = sets->get_use_timeline()&1;
 	use_intro_dates.add_listener( this );
-	add_komponente( &use_intro_dates );
+	add_component( &use_intro_dates );
 	cursor.y += D_EDIT_HEIGHT;
 
 	// Use beginner mode checkbox
@@ -280,53 +280,53 @@ welt_gui_t::welt_gui_t(settings_t* const sets_par) :
 	use_beginner_mode.set_tooltip("Higher transport fees, crossconnect all factories");
 	use_beginner_mode.pressed = sets->get_beginner_mode();
 	use_beginner_mode.add_listener( this );
-	add_komponente( &use_beginner_mode );
+	add_component( &use_beginner_mode );
 	cursor.y += D_CHECKBOX_HEIGHT;
 
 	// divider 2
 	divider_2.init(cursor,L_DIALOG_WIDTH-D_MARGIN_LEFT-D_MARGIN_RIGHT);
-	add_komponente( &divider_2 );
+	add_component( &divider_2 );
 	cursor.y += D_DIVIDER_HEIGHT;
 
 	// Map settings button
 	open_setting_gui.init(button_t::roundbox, "Setting", cursor, scr_size(L_BUTTON_EXTRA_WIDE, D_BUTTON_HEIGHT));
 	open_setting_gui.pressed = win_get_magic( magic_settings_frame_t );
 	open_setting_gui.add_listener( this );
-	add_komponente( &open_setting_gui );
+	add_component( &open_setting_gui );
 
 	// Landscape settings button
 	open_climate_gui.init(button_t::roundbox,"Climate Control", scr_coord(L_BUTTON_COLUMN_2,cursor.y), scr_size(L_BUTTON_EXTRA_WIDE, D_BUTTON_HEIGHT));
 	open_climate_gui.pressed = win_get_magic( magic_climate );
 	open_climate_gui.add_listener( this );
-	add_komponente( &open_climate_gui );
+	add_component( &open_climate_gui );
 	cursor.y += D_BUTTON_HEIGHT;
 
 	// divider 3
 	divider_3.init(cursor,L_DIALOG_WIDTH-D_MARGIN_LEFT-D_MARGIN_RIGHT);
-	add_komponente( &divider_3 );
+	add_component( &divider_3 );
 	cursor.y += D_DIVIDER_HEIGHT;
 
 	// load game
 	load_game.init(button_t::roundbox, "Load game", cursor, scr_size(L_BUTTON_EXTRA_WIDE, D_BUTTON_HEIGHT));
 	load_game.add_listener( this );
-	add_komponente( &load_game );
+	add_component( &load_game );
 
 	// load scenario
 	load_scenario.init(button_t::roundbox,"Load scenario", scr_coord(L_BUTTON_COLUMN_2,cursor.y), scr_size(L_BUTTON_EXTRA_WIDE, D_BUTTON_HEIGHT));
 	load_scenario.add_listener( this );
-	add_komponente( &load_scenario );
+	add_component( &load_scenario );
 	cursor.y += D_BUTTON_HEIGHT;
 	cursor.y += D_V_SPACE;
 
 	// start game
 	start_game.init(button_t::roundbox, "Starte Spiel", cursor, scr_size(L_BUTTON_EXTRA_WIDE, D_BUTTON_HEIGHT));
 	start_game.add_listener( this );
-	add_komponente( &start_game );
+	add_component( &start_game );
 
 	// quit game
 	quit_game.init(button_t::roundbox,"Beenden", scr_coord(L_BUTTON_COLUMN_2,cursor.y), scr_size(L_BUTTON_EXTRA_WIDE, D_BUTTON_HEIGHT));
 	quit_game.add_listener( this );
-	add_komponente( &quit_game );
+	add_component( &quit_game );
 	cursor.y += D_BUTTON_HEIGHT;
 
 	set_windowsize( scr_size(L_DIALOG_WIDTH, D_TITLEBAR_HEIGHT + cursor.y + D_MARGIN_BOTTOM) );

@@ -403,7 +403,7 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 			switch( wParam ) {
 				case IMR_QUERYCHARPOSITION:
 					// IME wants to open
-					if(  gui_komponente_t *c = win_get_focus()  ) {
+					if(  gui_component_t *c = win_get_focus()  ) {
 						scr_coord gui_xy = win_get_pos( win_get_top() );
 						if(  gui_textinput_t *tinp = dynamic_cast<gui_textinput_t *>(c)  ) {
 							IMECHARPOSITION *icp = ((IMECHARPOSITION *)lParam);

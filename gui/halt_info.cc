@@ -106,9 +106,9 @@ halt_info_t::halt_info_t(halthandle_t halt) :
 	tstrncpy(edit_name, halt->get_name(), lengthof(edit_name));
 	input.set_text(edit_name, lengthof(edit_name));
 	input.add_listener(this);
-	add_komponente(&input);
+	add_component(&input);
 
-	add_komponente(&view);
+	add_component(&view);
 
 	// chart
 	chart.set_pos(scr_coord(66,offset_below_viewport+2));
@@ -127,12 +127,12 @@ halt_info_t::halt_info_t(halthandle_t halt) :
 		filterButtons[cost].background_color = cost_type_color[cost];
 		filterButtons[cost].set_visible(false);
 		filterButtons[cost].pressed = false;
-		add_komponente(filterButtons + cost);
+		add_component(filterButtons + cost);
 	}
-	add_komponente(&chart);
+	add_component(&chart);
 	chart_total_size = filterButtons[MAX_HALT_COST-1].get_pos().y + D_BUTTON_HEIGHT + D_V_SPACE - (chart.get_pos().y - 13);
 
-	add_komponente(&sort_label);
+	add_component(&sort_label);
 
 	const sint16 yoff = offset_below_viewport + D_V_SPACE;
 
@@ -140,26 +140,26 @@ halt_info_t::halt_info_t(halthandle_t halt) :
 	sort_button.init(button_t::roundbox, sort_text[env_t::default_sortmode],scr_coord(BUTTON1_X, yoff), scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
 	sort_button.set_tooltip("Sort waiting list by");
 	sort_button.add_listener(this);
-	add_komponente(&sort_button);
+	add_component(&sort_button);
 
 	toggler_departures.init( button_t::roundbox_state, "Departure board", scr_coord( BUTTON2_X, yoff ), scr_size( D_BUTTON_WIDTH, D_BUTTON_HEIGHT ) );
 	toggler_departures.set_tooltip("Show/hide estimated arrival times");
 	toggler_departures.add_listener( this );
-	add_komponente( &toggler_departures );
+	add_component( &toggler_departures );
 
 	toggler.init(button_t::roundbox_state, "Chart", scr_coord(BUTTON3_X, yoff), scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
 	toggler.set_tooltip("Show/hide statistics");
 	toggler.add_listener(this);
-	add_komponente(&toggler);
+	add_component(&toggler);
 
 	button.init(button_t::roundbox, "Details", scr_coord(BUTTON4_X, yoff), scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
 	button.set_tooltip("Open station/stop details");
 	button.add_listener(this);
-	add_komponente(&button);
+	add_component(&button);
 
 	scrolly.set_pos(scr_coord(D_MARGIN_LEFT, yoff + D_BUTTON_HEIGHT + D_V_SPACE ));
 	scrolly.set_show_scroll_x(true);
-	add_komponente(&scrolly);
+	add_component(&scrolly);
 
 	set_windowsize(scr_size(total_width, view.get_size().h+208+D_SCROLLBAR_HEIGHT));
 	set_min_windowsize(scr_size(total_width, view.get_size().h+131+D_SCROLLBAR_HEIGHT));

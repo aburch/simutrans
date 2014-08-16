@@ -99,20 +99,20 @@ citylist_frame_t::citylist_frame_t() :
 	scrolly(&stats)
 {
 	sort_label.set_pos(scr_coord(BUTTON1_X, 40-D_BUTTON_HEIGHT-(LINESPACE+1)));
-	add_komponente(&sort_label);
+	add_component(&sort_label);
 
 	sortedby.init(button_t::roundbox, "", scr_coord(BUTTON1_X, 40-D_BUTTON_HEIGHT), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
 	sortedby.add_listener(this);
-	add_komponente(&sortedby);
+	add_component(&sortedby);
 
 	sorteddir.init(button_t::roundbox, "", scr_coord(BUTTON2_X, 40-D_BUTTON_HEIGHT), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
 	sorteddir.add_listener(this);
-	add_komponente(&sorteddir);
+	add_component(&sorteddir);
 
 	show_stats.init(button_t::roundbox_state, "Chart", scr_coord(BUTTON4_X, 40-D_BUTTON_HEIGHT), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
 	show_stats.set_tooltip("Show/hide statistics");
 	show_stats.add_listener(this);
-	add_komponente(&show_stats);
+	add_component(&show_stats);
 
 	// name buttons
 	sortedby.set_text(sort_text[get_sortierung()]);
@@ -124,7 +124,7 @@ citylist_frame_t::citylist_frame_t() :
 	year_month_tabs.set_size(scr_size(D_DEFAULT_WIDTH, CHART_HEIGHT-D_BUTTON_HEIGHT*3-D_TITLEBAR_HEIGHT));
 //	year_month_tabs.add_listener(this);
 	year_month_tabs.set_visible(false);
-	add_komponente(&year_month_tabs);
+	add_component(&year_month_tabs);
 
 	const sint16 yb = 42+CHART_HEIGHT-D_BUTTON_HEIGHT*3-8;
 	chart.set_pos(scr_coord(60,8+D_TAB_HEADER_HEIGHT));
@@ -151,12 +151,12 @@ citylist_frame_t::citylist_frame_t() :
 		filterButtons[cost].background_color = hist_type_color[cost];
 		filterButtons[cost].set_visible(false);
 		filterButtons[cost].pressed = false;
-		add_komponente(filterButtons + cost);
+		add_component(filterButtons + cost);
 	}
 
 	scrolly.set_pos(scr_coord(1,42));
 	scrolly.set_scroll_amount_y(LINESPACE+1);
-	add_komponente(&scrolly);
+	add_component(&scrolly);
 
 	set_windowsize(scr_size(D_DEFAULT_WIDTH, TOTAL_HEIGHT+CHART_HEIGHT));
 	set_min_windowsize(scr_size(D_DEFAULT_WIDTH, TOTAL_HEIGHT));

@@ -153,34 +153,34 @@ map_frame_t::map_frame_t() :
 	b_show_legend.init(button_t::roundbox_state, "Show legend", cursor);
 	b_show_legend.set_tooltip("Shows buttons on special topics.");
 	b_show_legend.add_listener(this);
-	add_komponente(&b_show_legend);
+	add_component(&b_show_legend);
 	cursor.x += D_BUTTON_WIDTH + D_H_SPACE;
 
 	// industry list button
 	b_show_directory.init(button_t::roundbox_state, "Show industry", cursor);
 	b_show_directory.set_tooltip("Shows a listing with all industries on the map.");
 	b_show_directory.add_listener(this);
-	add_komponente(&b_show_directory);
+	add_component(&b_show_directory);
 	cursor.x += D_BUTTON_WIDTH + D_H_SPACE;
 
 	// scale button
 	b_show_scale.init(button_t::roundbox_state, "Show map scale", cursor);
 	b_show_scale.set_tooltip("Shows the color code for several selections.");
 	b_show_scale.add_listener(this);
-	add_komponente(&b_show_scale);
+	add_component(&b_show_scale);
 	cursor = scr_coord(D_MARGIN_LEFT, cursor.y + D_BUTTON_HEIGHT + D_V_SPACE);
 
 	// second row of controls
 	// zoom levels label
 	zoom_label.set_pos(cursor);
 	zoom_label.set_color(SYSCOL_TEXT);
-	add_komponente( &zoom_label );
+	add_component( &zoom_label );
 	cursor.x += zoom_label.get_size().w + D_H_SPACE;
 
 	// zoom levels arrow left
 	zoom_buttons[0].init(button_t::repeatarrowleft, NULL,cursor);
 	zoom_buttons[0].add_listener( this );
-	add_komponente( zoom_buttons+0 );
+	add_component( zoom_buttons+0 );
 	cursor.x += zoom_buttons[0].get_size().w;
 
 	// zoom level value label
@@ -188,13 +188,13 @@ map_frame_t::map_frame_t() :
 	zoom_value_label.set_size( scr_size(zoom_label_width,LINESPACE) );
 	zoom_value_label.set_align(gui_label_t::centered);
 	zoom_value_label.set_color(SYSCOL_TEXT);
-	add_komponente( &zoom_value_label );
+	add_component( &zoom_value_label );
 	cursor.x += zoom_label_width;
 
 	// zoom levels arrow right
 	zoom_buttons[1].init(button_t::repeatarrowright, NULL, cursor);
 	zoom_buttons[1].add_listener( this );
-	add_komponente( zoom_buttons+1 );
+	add_component( zoom_buttons+1 );
 	cursor.x += zoom_buttons[1].get_size().w + D_H_SPACE;
 
 	// rotate map 45° (isometric view)
@@ -202,7 +202,7 @@ map_frame_t::map_frame_t() :
 	b_rotate45.set_tooltip("Similar view as the main window");
 	b_rotate45.add_listener(this);
 	b_rotate45.pressed = karte->isometric;
-	add_komponente(&b_rotate45);
+	add_component(&b_rotate45);
 
 	// align second row
 	// Max Kielland: This will be done automatically (and properly) by the new gui_layout_t control in the near future.
@@ -215,14 +215,14 @@ map_frame_t::map_frame_t() :
 	// filter container
 	filter_container.set_pos(cursor);
 	filter_container.set_visible(false);
-	add_komponente(&filter_container);
+	add_component(&filter_container);
 
 	// insert selections: show networks, in filter container
 	b_overlay_networks.init(button_t::square_state, "Networks");
 	b_overlay_networks.set_tooltip("Overlay schedules/network");
 	b_overlay_networks.add_listener(this);
 	b_overlay_networks.pressed = (env_t::default_mapmode & reliefkarte_t::MAP_LINES)!=0;
-	filter_container.add_komponente( &b_overlay_networks );
+	filter_container.add_component( &b_overlay_networks );
 
 	// player combo for network overlay
 	viewed_player_c.set_pos( scr_coord(D_BUTTON_WIDTH + D_H_SPACE, 0) );
@@ -242,7 +242,7 @@ map_frame_t::map_frame_t() :
 	reliefkarte_t::get_karte()->player_showed_on_map = -1;
 	viewed_player_c.set_focusable( true );
 	viewed_player_c.add_listener( this );
-	filter_container.add_komponente(&viewed_player_c);
+	filter_container.add_component(&viewed_player_c);
 
 	// freight combo for network overlay
 	freight_type_c.set_pos( scr_coord(2*D_BUTTON_WIDTH+3*D_H_SPACE, 0) );
@@ -280,7 +280,7 @@ map_frame_t::map_frame_t() :
 	reliefkarte_t::get_karte()->freight_type_group_index_showed_on_map = NULL;
 	freight_type_c.set_focusable( true );
 	freight_type_c.add_listener( this );
-	filter_container.add_komponente(&freight_type_c);
+	filter_container.add_component(&freight_type_c);
 
 	// mode of transpost combo for network overlay
 	transport_type_c.set_pos(scr_coord(3 * (D_BUTTON_WIDTH + D_H_SPACE), 0));
@@ -296,7 +296,7 @@ map_frame_t::map_frame_t() :
 	reliefkarte_t::get_karte()->transport_type_showed_on_map = simline_t::line;
 	transport_type_c.set_focusable( true );
 	transport_type_c.add_listener( this );
-	filter_container.add_komponente(&transport_type_c);
+	filter_container.add_component(&transport_type_c);
 
 	b_overlay_networks_load_factor.init(button_t::square_state, "Free Capacity");
 	b_overlay_networks_load_factor.set_pos(scr_coord(4*(D_BUTTON_WIDTH+D_H_SPACE), 0));
@@ -304,7 +304,7 @@ map_frame_t::map_frame_t() :
 	b_overlay_networks_load_factor.add_listener(this);
 	b_overlay_networks_load_factor.pressed = 0;
 	reliefkarte_t::get_karte()->show_network_load_factor = 0;
-	filter_container.add_komponente( &b_overlay_networks_load_factor );
+	filter_container.add_component( &b_overlay_networks_load_factor );
 
 	// insert filter buttons in legend container
 	for (int index=0; index<MAP_MAX_BUTTONS; index++) {
@@ -314,32 +314,32 @@ map_frame_t::map_frame_t() :
 		filter_buttons[index].background_color = filter_buttons[index].pressed ? button_init[index].select_color : button_init[index].color;
 		filter_buttons[index].text_color = filter_buttons[index].pressed ? COL_WHITE : COL_BLACK;
 		filter_buttons[index].add_listener(this);
-		filter_container.add_komponente(filter_buttons + index);
+		filter_container.add_component(filter_buttons + index);
 	}
 
 	// directory container
 	directory_container.set_pos(cursor);
 	directory_container.set_visible(false);
-	add_komponente(&directory_container);
+	add_component(&directory_container);
 
 	// factory list: show used button
 	b_filter_factory_list.init(button_t::square_state, "Show only used");
 	b_filter_factory_list.set_tooltip("In the industry legend show only currently existing factories");
 	b_filter_factory_list.add_listener(this);
-	directory_container.add_komponente( &b_filter_factory_list );
+	directory_container.add_component( &b_filter_factory_list );
 	update_factory_legend();
 
 	// scale container
 	scale_container.set_pos(cursor);
 	scale_container.set_visible(false);
-	add_komponente(&scale_container);
-	scale_container.add_komponente(&min_label);
-	scale_container.add_komponente(&max_label);
+	add_component(&scale_container);
+	scale_container.add_component(&min_label);
+	scale_container.add_component(&max_label);
 
 	// map scrolly
 	scrolly.set_show_scroll_x(true);
 	scrolly.set_scroll_discrete_y(false);
-	add_komponente(&scrolly);
+	add_component(&scrolly);
 
 	// restore window size and options
 	set_windowsize( window_size );
@@ -421,37 +421,37 @@ void map_frame_t::show_hide_directory(const bool show)
 }
 
 
-bool map_frame_t::action_triggered( gui_action_creator_t *komp, value_t)
+bool map_frame_t::action_triggered( gui_action_creator_t *comp, value_t)
 {
-	if(komp==&b_show_legend) {
+	if(  comp == &b_show_legend  ) {
 		show_hide_legend( !b_show_legend.pressed );
 	}
-	else if(komp==&b_show_scale) {
+	else if(  comp == &b_show_scale  ) {
 		show_hide_scale( !b_show_scale.pressed );
 	}
-	else if(komp==&b_show_directory) {
+	else if(  comp == &b_show_directory  ) {
 		show_hide_directory( !b_show_directory.pressed );
 	}
-	else if (komp==&b_filter_factory_list) {
+	else if (  comp == &b_filter_factory_list  ) {
 		filter_factory_list = !filter_factory_list;
 		show_hide_directory( b_show_directory.pressed );
 	}
-	else if(komp==zoom_buttons+1) {
+	else if(  comp == zoom_buttons+1  ) {
 		// zoom out
 		zoom(true);
 	}
-	else if(komp==zoom_buttons+0) {
+	else if(  comp == zoom_buttons+0  ) {
 		// zoom in
 		zoom(false);
 	}
-	else if(komp==&b_rotate45) {
+	else if(  comp == &b_rotate45  ) {
 		// rotated/straight map
 		reliefkarte_t::get_karte()->isometric ^= 1;
 		b_rotate45.pressed = reliefkarte_t::get_karte()->isometric;
 		reliefkarte_t::get_karte()->calc_map_size();
 		scrolly.set_size( scrolly.get_size() );
 	}
-	else if(komp==&b_overlay_networks) {
+	else if(  comp == &b_overlay_networks  ) {
 		b_overlay_networks.pressed ^= 1;
 		if(  b_overlay_networks.pressed  ) {
 			env_t::default_mapmode |= reliefkarte_t::MAP_LINES;
@@ -461,26 +461,26 @@ bool map_frame_t::action_triggered( gui_action_creator_t *komp, value_t)
 		}
 		reliefkarte_t::get_karte()->set_mode(  (reliefkarte_t::MAP_MODES)env_t::default_mapmode  );
 	}
-	else if (komp == &viewed_player_c) {
+	else if (  comp == &viewed_player_c  ) {
 		reliefkarte_t::get_karte()->player_showed_on_map = viewable_players[viewed_player_c.get_selection()];
 		reliefkarte_t::get_karte()->invalidate_map_lines_cache();
 	}
-	else if (komp == &transport_type_c) {
+	else if (  comp == &transport_type_c  ) {
 		reliefkarte_t::get_karte()->transport_type_showed_on_map = viewable_transport_types[transport_type_c.get_selection()];
 		reliefkarte_t::get_karte()->invalidate_map_lines_cache();
 	}
-	else if (komp == &freight_type_c) {
+	else if (  comp == &freight_type_c  ) {
 		reliefkarte_t::get_karte()->freight_type_group_index_showed_on_map = viewable_freight_types[freight_type_c.get_selection()];
 		reliefkarte_t::get_karte()->invalidate_map_lines_cache();
 	}
-	else if (komp == &b_overlay_networks_load_factor) {
+	else if (  comp == &b_overlay_networks_load_factor  ) {
 		reliefkarte_t::get_karte()->show_network_load_factor = !reliefkarte_t::get_karte()->show_network_load_factor;
 		b_overlay_networks_load_factor.pressed = !b_overlay_networks_load_factor.pressed;
 		reliefkarte_t::get_karte()->invalidate_map_lines_cache();
 	}
 	else {
 		for(  int i=0;  i<MAP_MAX_BUTTONS;  i++  ) {
-			if(  komp == filter_buttons+i  ) {
+			if(  comp == filter_buttons+i  ) {
 				if(  filter_buttons[i].pressed  ) {
 					env_t::default_mapmode &= ~button_init[i].mode;
 				}
@@ -521,7 +521,7 @@ void map_frame_t::zoom(bool magnify)
 
 
 /**
- * Events werden hiermit an die GUI-Komponenten
+ * Events werden hiermit an die GUI-components
  * gemeldet
  * @author Hj. Malthaner
  */
@@ -540,7 +540,7 @@ bool map_frame_t::infowin_event(const event_t *ev)
 	}
 
 	// comboboxes shoudl loose their focus on close
-	gui_komponente_t *focus = win_get_focus();
+	gui_component_t *focus = win_get_focus();
 	if(  focus == &viewed_player_c  ) {
 		if(  !viewed_player_c.is_dropped()  ) {
 			set_focus( NULL );

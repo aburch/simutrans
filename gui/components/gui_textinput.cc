@@ -22,7 +22,7 @@
 #include "../../dataobj/translator.h"
 
 gui_textinput_t::gui_textinput_t() :
-	gui_komponente_t(true),
+	gui_component_t(true),
 	text(NULL),
 	max(0),
 	head_cursor_pos(0),
@@ -81,7 +81,7 @@ bool gui_textinput_t::remove_selection()
 
 
 /**
- * Events werden hiermit an die GUI-Komponenten
+ * Events werden hiermit an die GUI-components
  * gemeldet
  * @author Hj. Malthaner
  */

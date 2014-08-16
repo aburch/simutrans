@@ -50,16 +50,16 @@ convoi_detail_t::convoi_detail_t(convoihandle_t cnv)
 	sale_button.init(button_t::roundbox, "Verkauf", scr_coord(BUTTON4_X, 0), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
 	sale_button.set_tooltip("Remove vehicle from map. Use with care!");
 	sale_button.add_listener(this);
-	add_komponente(&sale_button);
+	add_component(&sale_button);
 
 	withdraw_button.init(button_t::roundbox, "withdraw", scr_coord(BUTTON3_X, 0), scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
 	withdraw_button.set_tooltip("Convoi is sold when all wagons are empty.");
 	withdraw_button.add_listener(this);
-	add_komponente(&withdraw_button);
+	add_component(&withdraw_button);
 
 	scrolly.set_pos(scr_coord(0, 2+16+5*LINESPACE));
 	scrolly.set_show_scroll_x(true);
-	add_komponente(&scrolly);
+	add_component(&scrolly);
 
 	set_windowsize(scr_size(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT+50+17*(LINESPACE+1)+D_SCROLLBAR_HEIGHT-6));
 	set_min_windowsize(scr_size(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT+50+3*(LINESPACE+1)+D_SCROLLBAR_HEIGHT-3));

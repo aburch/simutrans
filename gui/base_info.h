@@ -18,13 +18,13 @@ protected:
 	gui_fixedwidth_textarea_t textarea;
 
 	/// the embedded component
-	gui_komponente_t *embedded;
+	gui_component_t *embedded;
 
 	/// recalcs size of text, adjusts window-size if necessary
 	void recalc_size();
 
 	/// sets position and size of @p other, adds it to the window
-	void set_embedded(gui_komponente_t *other);
+	void set_embedded(gui_component_t *other);
 
 public:
 	base_infowin_t(const char *name, const spieler_t *sp=NULL);

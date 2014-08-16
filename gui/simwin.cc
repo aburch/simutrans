@@ -414,7 +414,7 @@ gui_frame_t *win_get_top()
  * returns the focused component of the top window
  * @author Knightly
  */
-gui_komponente_t *win_get_focus()
+gui_onente_t *win_get_focus()
 {
 	return wins.empty() ? 0 : wins.back().gui->get_focus();
 }
@@ -857,30 +857,30 @@ int top_win(int win, bool keep_state )
 void display_win(int win)
 {
 	// ok, now process it
-	gui_frame_t *komp = wins[win].gui;
-	scr_size size = komp->get_windowsize();
+	gui_frame_t *comp = wins[win].gui;
+	scr_size size = comp->get_windowsize();
 	scr_coord pos = wins[win].pos;
-	PLAYER_COLOR_VAL title_color = (komp->get_titelcolor()&0xF8)+env_t::front_window_bar_color;
+	PLAYER_COLOR_VAL title_color = (comp->get_titelcolor()&0xF8)+env_t::front_window_bar_color;
 	PLAYER_COLOR_VAL text_color = +env_t::front_window_text_color;
 	if(  (unsigned)win!=wins.get_count()-1  ) {
 		// not top => maximum brightness
 		title_color = (title_color&0xF8)+env_t::bottom_window_bar_color;
 		text_color = env_t::bottom_window_text_color;
 	}
-	bool need_dragger = komp->get_resizemode() != gui_frame_t::no_resize;
+	bool need_dragger = comp->get_resizemode() != gui_frame_t::no_resize;
 
 	// %HACK (Mathew Hounsell) So draw will know if gadget is needed.
-	wins[win].flags.help = ( komp->get_hilfe_datei() != NULL );
+	wins[win].flags.help = ( comp->get_hilfe_datei() != NULL );
 	if(  wins[win].flags.title  ) {
 		win_draw_window_title(wins[win].pos,
 				size,
 				title_color,
-				komp->get_name(),
+				comp->get_name(),
 				text_color,
-				komp->get_weltpos(false),
+				comp->get_weltpos(false),
 				wins[win].gadget_state,
 				wins[win].sticky,
-				komp->is_weltpos(),
+				comp->is_weltpos(),
 				wins[win].flags );
 	}
 	if(  wins[win].dirty  ) {
@@ -898,7 +898,7 @@ void display_win(int win)
 		}
 	}
 	if(!wins[win].rollup) {
-		komp->draw(wins[win].pos, size);
+		comp->draw(wins[win].pos, size);
 
 		// draw dragger
 		if(need_dragger) {

@@ -50,35 +50,35 @@ extend_edit_gui_t::extend_edit_gui_t(const char *name, spieler_t* sp_) :
 	tabs.add_tab(&scl, translator::translate("Translation"));//land
 	tabs.add_tab(&scl, translator::translate("Object"));//city
 	tabs.add_listener(this);
-	add_komponente(&tabs);
+	add_component(&tabs);
 
 	bt_climates.init( button_t::square_state, "ignore climates", scr_coord(tab_panel_width+2*MARGIN, MARGIN) );
 	bt_climates.add_listener(this);
-	add_komponente(&bt_climates);
+	add_component(&bt_climates);
 
 	bt_timeline.init( button_t::square_state, "Use timeline start year", scr_coord(tab_panel_width+2*MARGIN, D_BUTTON_HEIGHT+MARGIN) );
 	bt_timeline.pressed = welt->get_settings().get_use_timeline();
 	bt_timeline.add_listener(this);
-	add_komponente(&bt_timeline);
+	add_component(&bt_timeline);
 
 	bt_obsolete.init( button_t::square_state, "Show obsolete", scr_coord(tab_panel_width+2*MARGIN, 2*D_BUTTON_HEIGHT+MARGIN) );
 	bt_obsolete.add_listener(this);
-	add_komponente(&bt_obsolete);
+	add_component(&bt_obsolete);
 
 	offset_of_comp = MARGIN+3*D_BUTTON_HEIGHT+4;
 
 	// item list
 	info_text.set_pos(scr_coord(0, 10));
-	cont.add_komponente(&info_text);
+	cont.add_component(&info_text);
 	cont.set_pos( scr_coord( 0, 0 ) );
 
 	scrolly.set_visible(true);
-	add_komponente(&scrolly);
+	add_component(&scrolly);
 
 	// image placeholder
 	for(  sint16 i=3;  i>=0;  i--  ) {
 		img[i].set_image(IMG_LEER);
-		add_komponente( &img[i] );
+		add_component( &img[i] );
 	}
 
 	// resize button

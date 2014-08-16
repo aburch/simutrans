@@ -14,15 +14,15 @@
 #include "gui_komponente.h"
 #include "gui_scrollbar.h"
 
-class gui_scrollpane_t : public gui_komponente_t
+class gui_scrollpane_t : public gui_component_t
 {
 private:
 	/**
 	 * The scrolling component
 	 * @author Hj. Malthaner
 	 */
-	gui_komponente_t *komp;
-	scr_size old_komp_size;
+	gui_component_t *comp;
+	scr_size old_comp_size;
 
 	/**
 	 * Scrollbar X/Y
@@ -38,10 +38,10 @@ private:
 
 public:
 	/**
-	 * @param komp, the scrolling component
+	 * @param comp, the scrolling component
 	 * @author Hj. Malthaner
 	 */
-	gui_scrollpane_t(gui_komponente_t *komp);
+	gui_scrollpane_t(gui_component_t *comp);
 
 	/**
 	 * This method MUST be used to set the size of scrollpanes.
@@ -86,19 +86,19 @@ public:
 	 * Returns true if the hosted component is focusable
 	 * @author Knightly
 	 */
-	virtual bool is_focusable() { return komp->is_focusable(); }
+	virtual bool is_focusable() { return comp->is_focusable(); }
 
 	/**
 	 * returns element that has the focus
 	 */
-	gui_komponente_t *get_focus() { return komp->get_focus(); }
+	gui_component_t *get_focus() { return comp->get_focus(); }
 
 	/**
 	 * Get the relative position of the focused component.
 	 * Used for auto-scrolling inside a scroll pane.
 	 * @author Knightly
 	 */
-	virtual scr_coord get_focus_pos() { return pos + ( komp->get_focus_pos() - scr_coord( scroll_x.get_knob_offset(), scroll_y.get_knob_offset() ) ); }
+	virtual scr_coord get_focus_pos() { return pos + ( comp->get_focus_pos() - scr_coord( scroll_x.get_knob_offset(), scroll_y.get_knob_offset() ) ); }
 };
 
 #endif

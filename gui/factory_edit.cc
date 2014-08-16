@@ -59,39 +59,39 @@ factory_edit_frame_t::factory_edit_frame_t(spieler_t* sp_) :
 
 	bt_city_chain.init( button_t::square_state, "Only city chains", scr_coord(get_tab_panel_width()+2*MARGIN, offset_of_comp-4 ) );
 	bt_city_chain.add_listener(this);
-	add_komponente(&bt_city_chain);
+	add_component(&bt_city_chain);
 	offset_of_comp += D_BUTTON_HEIGHT;
 
 	bt_land_chain.init( button_t::square_state, "Only land chains", scr_coord(get_tab_panel_width()+2*MARGIN, offset_of_comp-4 ) );
 	bt_land_chain.add_listener(this);
-	add_komponente(&bt_land_chain);
+	add_component(&bt_land_chain);
 	offset_of_comp += D_BUTTON_HEIGHT;
 
 	lb_rotation_info.set_pos( scr_coord( get_tab_panel_width()+2*MARGIN, offset_of_comp-4 ) );
-	add_komponente(&lb_rotation_info);
+	add_component(&lb_rotation_info);
 
 	bt_left_rotate.init( button_t::repeatarrowleft, NULL, scr_coord(get_tab_panel_width()+2*MARGIN+COLUMN_WIDTH/2-16,	offset_of_comp-4 ) );
 	bt_left_rotate.add_listener(this);
-	add_komponente(&bt_left_rotate);
+	add_component(&bt_left_rotate);
 
 	bt_right_rotate.init( button_t::repeatarrowright, NULL, scr_coord(get_tab_panel_width()+2*MARGIN+COLUMN_WIDTH/2+50-2, offset_of_comp-4 ) );
 	bt_right_rotate.add_listener(this);
-	add_komponente(&bt_right_rotate);
+	add_component(&bt_right_rotate);
 
 	//lb_rotation.set_pos( scr_coord( get_tab_panel_width()+2*MARGIN+COLUMN_WIDTH/2+44, offset_of_comp-4 ) );
 	lb_rotation.set_width( bt_right_rotate.get_pos().x - bt_left_rotate.get_pos().x - bt_left_rotate.get_size().w );
 	lb_rotation.align_to(&bt_left_rotate,ALIGN_EXTERIOR_H | ALIGN_LEFT | ALIGN_CENTER_V);
-	add_komponente(&lb_rotation);
+	add_component(&lb_rotation);
 	offset_of_comp += D_BUTTON_HEIGHT;
 
 	lb_production_info.set_pos( scr_coord( get_tab_panel_width()+2*MARGIN, offset_of_comp-4 ) );
-	add_komponente(&lb_production_info);
+	add_component(&lb_production_info);
 
 	inp_production.set_pos(scr_coord(get_tab_panel_width()+2*MARGIN+COLUMN_WIDTH/2-16,	offset_of_comp-4-2 ));
 	inp_production.set_size(scr_size( 76, 12 ));
 	inp_production.set_limits(0,9999);
 	inp_production.add_listener( this );
-	add_komponente(&inp_production);
+	add_component(&inp_production);
 
 	offset_of_comp += D_BUTTON_HEIGHT;
 

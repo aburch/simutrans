@@ -22,7 +22,7 @@
 char gui_numberinput_t::tooltip[256];
 
 gui_numberinput_t::gui_numberinput_t() :
-	gui_komponente_t(true)
+	gui_component_t(true)
 {
 	bt_left.set_typ(button_t::repeatarrowleft );
 	bt_left.add_listener(this );
@@ -46,7 +46,7 @@ gui_numberinput_t::gui_numberinput_t() :
 
 void gui_numberinput_t::set_size(scr_size size_par) {
 
-	gui_komponente_t::set_size(size_par);
+	gui_component_t::set_size(size_par);
 
 	textinp.set_size( scr_size( size_par.w - bt_left.get_size().w - bt_right.get_size().w, size_par.h) );
 	bt_left.align_to(&textinp, ALIGN_CENTER_V);
@@ -100,18 +100,18 @@ void gui_numberinput_t::set_limits(sint32 _min, sint32 _max)
 }
 
 
-bool gui_numberinput_t::action_triggered( gui_action_creator_t *komp, value_t /* */)
+bool gui_numberinput_t::action_triggered( gui_action_creator_t *comp, value_t /* */)
 {
-	if(  komp == &textinp  ) {
+	if(  comp == &textinp  ) {
 		// .. if enter / esc pressed
 		set_value( get_text_value() );
 		if(check_value(value)) {
 			call_listeners(value_t(value));
 		}
 	}
-	else if(  komp == &bt_left  ||  komp == &bt_right  ) {
+	else if(  comp == &bt_left  ||  comp == &bt_right  ) {
 		// value changed and feasible
-		sint32 new_value = (komp == &bt_left) ? get_prev_value() : get_next_value();
+		sint32 new_value = (comp == &bt_left) ? get_prev_value() : get_next_value();
 		if(  new_value!=value  ) {
 			set_value( new_value );
 			if(check_value(new_value)) {

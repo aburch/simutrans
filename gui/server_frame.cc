@@ -50,7 +50,7 @@ server_frame_t::server_frame_t() :
 	if (  !env_t::networkmode  ) {
 		info_list.set_pos( scr_coord( D_MARGIN_LEFT, pos_y ) );
 		info_list.set_text( "Select a server to join:" );
-		add_komponente( &info_list );
+		add_component( &info_list );
 		pos_y += LINESPACE;
 		pos_y += D_V_SPACE;
 
@@ -61,9 +61,9 @@ server_frame_t::server_frame_t() :
 		serverlist.add_listener( this );
 		serverlist.set_selection( 0 );
 		serverlist.set_highlight_color( 0 );
-		add_komponente( &serverlist );
+		add_component( &serverlist );
 
-		add_komponente( &add );
+		add_component( &add );
 
 		pos_y += serverlist_height;
 		pos_y += D_V_SPACE;
@@ -73,7 +73,7 @@ server_frame_t::server_frame_t() :
 			show_mismatched.init( button_t::square_state, "Show mismatched", scr_coord( D_MARGIN_LEFT, pos_y ), scr_size( (ww - D_MARGIN_LEFT - D_H_SPACE - D_MARGIN_RIGHT) / 2, D_BUTTON_HEIGHT) );
 			show_mismatched.set_tooltip( "Show servers where game version or pakset does not match your client" );
 			show_mismatched.add_listener( this );
-			add_komponente( &show_mismatched );
+			add_component( &show_mismatched );
 		}
 
 		// Show offline checkbox
@@ -81,7 +81,7 @@ server_frame_t::server_frame_t() :
 			show_offline.init( button_t::square_state, "Show offline", scr_coord( D_MARGIN_LEFT + (ww - D_MARGIN_LEFT - D_H_SPACE - D_MARGIN_RIGHT) / 2 + D_H_SPACE, pos_y ), scr_size( (ww - D_MARGIN_LEFT - D_H_SPACE - D_MARGIN_RIGHT) / 2, D_BUTTON_HEIGHT) );
 			show_offline.set_tooltip( "Show servers that are offline" );
 			show_offline.add_listener( this );
-			add_komponente( &show_offline );
+			add_component( &show_offline );
 		}
 
 		pos_y += D_BUTTON_HEIGHT;
@@ -89,7 +89,7 @@ server_frame_t::server_frame_t() :
 
 		info_manual.set_pos( scr_coord( D_MARGIN_LEFT, pos_y ) );
 		info_manual.set_text( "Or enter a server manually:" );
-		add_komponente( &info_manual );
+		add_component( &info_manual );
 		pos_y += LINESPACE;
 		pos_y += D_V_SPACE;	// TODO less?
 
@@ -98,7 +98,7 @@ server_frame_t::server_frame_t() :
 		addinput.set_text( newserver_name, sizeof( newserver_name ) );
 		addinput.set_size( scr_size( ww - D_MARGIN_LEFT - D_MARGIN_RIGHT - D_BUTTON_WIDTH - D_H_SPACE, D_BUTTON_HEIGHT ) );
 		addinput.add_listener( this );
-		add_komponente( &addinput );
+		add_component( &addinput );
 
 		add.init( button_t::roundbox, "Query server", scr_coord( ww - D_BUTTON_WIDTH - D_MARGIN_RIGHT, pos_y ), scr_size( D_BUTTON_WIDTH, D_BUTTON_HEIGHT) );
 		add.add_listener( this );
@@ -109,18 +109,18 @@ server_frame_t::server_frame_t() :
 	}
 
 	revision.set_pos( scr_coord( D_MARGIN_LEFT, pos_y ) );
-	add_komponente( &revision );
+	add_component( &revision );
 	show_mismatched.pressed = gi.get_game_engine_revision() == 0;
 
 	pos_y += LINESPACE;
 
 	pak_version.set_pos( scr_coord( D_MARGIN_LEFT, pos_y ) );
-	add_komponente( &pak_version );
+	add_component( &pak_version );
 
 #if DEBUG>=4
 	pos_y += LINESPACE;
 	pakset_checksum.set_pos( scr_coord( D_MARGIN_LEFT, pos_y ) );
-	add_komponente( &pakset_checksum );
+	add_component( &pakset_checksum );
 #endif
 
 	pos_y += LINESPACE;
@@ -128,7 +128,7 @@ server_frame_t::server_frame_t() :
 
 	date.set_pos( scr_coord( ww - D_MARGIN_LEFT - date.get_size().w, pos_y ) );
 	//date.set_align( gui_label_t::right );
-	add_komponente( &date );
+	add_component( &date );
 
 	// Leave room for elements added during draw phase (multiline text + map)
 	pos_y += LINESPACE * 8;
@@ -138,14 +138,14 @@ server_frame_t::server_frame_t() :
 	const int nick_width = 80;
 	nick_label.set_pos( scr_coord( D_MARGIN_LEFT, pos_y + D_GET_CENTER_ALIGN_OFFSET(LINESPACE,D_BUTTON_HEIGHT) ) );
 	nick_label.set_text( "Nickname:" );
-	add_komponente( &nick_label );
+	add_component( &nick_label );
 
 	nick.set_pos( scr_coord( D_MARGIN_LEFT + D_H_SPACE + nick_width, pos_y ) );
 	nick.add_listener(this);
 	nick.set_text( nick_buf, lengthof( nick_buf ) );
 	nick.set_size( scr_size( ww - D_MARGIN_LEFT - D_H_SPACE - D_MARGIN_RIGHT - nick_width, D_BUTTON_HEIGHT ) );
 	tstrncpy( nick_buf, env_t::nickname.c_str(), min( lengthof( nick_buf ), env_t::nickname.length() + 1 ) );
-	add_komponente( &nick );
+	add_component( &nick );
 
 	pos_y += D_BUTTON_HEIGHT;
 
@@ -156,12 +156,12 @@ server_frame_t::server_frame_t() :
 
 		find_mismatch.init( button_t::roundbox, "find mismatch", scr_coord( ww - D_MARGIN_RIGHT - D_H_SPACE - button_width * 2, pos_y ), scr_size( button_width, D_BUTTON_HEIGHT) );
 		find_mismatch.add_listener( this );
-		add_komponente( &find_mismatch );
+		add_component( &find_mismatch );
 
 		join.init( button_t::roundbox, "join game", scr_coord( ww - D_MARGIN_RIGHT - button_width, pos_y ), scr_size( button_width, D_BUTTON_HEIGHT) );
 		join.disable();
 		join.add_listener( this );
-		add_komponente( &join );
+		add_component( &join );
 
 		// only update serverlist, when not already in network mode
 		// otherwise desync to current game may happen

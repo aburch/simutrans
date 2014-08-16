@@ -16,7 +16,7 @@
 
 
 
-class gui_image_t : public gui_komponente_t
+class gui_image_t : public gui_component_t
 {
 		control_alignment_t alignment;
 		image_id            id;

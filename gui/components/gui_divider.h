@@ -21,7 +21,7 @@ class skinverwaltung_t;
  * @date 30-Oct-01
  * @author Markus Weber
  */
-class gui_divider_t : public gui_komponente_t
+class gui_divider_t : public gui_component_t
 {
 public:
 	gui_divider_t() { size.h = D_DIVIDER_HEIGHT; }

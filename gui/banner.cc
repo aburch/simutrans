@@ -83,37 +83,37 @@ banner_t::banner_t() : gui_frame_t(""),
 
 	// Position logo in relation to text drawn by draw()
 	logo.set_pos( scr_coord(width - D_MARGIN_RIGHT - skinverwaltung_t::logosymbol->get_bild(0)->get_pic()->w, D_MARGIN_TOP + L_LINESPACE_EXTRA_5 + L_LINESPACE_EXTRA_7 ) );
-	add_komponente( &logo );
+	add_component( &logo );
 
 	// New game button
 	new_map.init( button_t::roundbox, "Neue Karte", cursor, button_size );
 	new_map.add_listener( this );
-	add_komponente( &new_map );
+	add_component( &new_map );
 	cursor.x += button_size.w + D_H_SPACE;
 
 	// Load game button
 	load_map.init( button_t::roundbox, "Load game", cursor, button_size );
 	load_map.add_listener( this );
-	add_komponente( &load_map );
+	add_component( &load_map );
 	cursor.x += button_size.w + D_H_SPACE;
 
 	// Load scenario button
 	load_scenario.init( button_t::roundbox, "Load scenario", cursor, button_size );
 	load_scenario.add_listener( this );
-	add_komponente( &load_scenario );
+	add_component( &load_scenario );
 	cursor.y += D_BUTTON_HEIGHT + D_V_SPACE;
 	cursor.x  = D_MARGIN_LEFT + button_size.w + D_H_SPACE;
 
 	// Play online button
 	join_map.init( button_t::roundbox, "join game", cursor, button_size );
 	join_map.add_listener( this );
-	add_komponente( &join_map );
+	add_component( &join_map );
 	cursor.x += button_size.w + D_H_SPACE;
 
 	// Quit button
 	quit.init( button_t::roundbox, "Beenden", cursor, button_size );
 	quit.add_listener( this );
-	add_komponente( &quit );
+	add_component( &quit );
 	cursor += D_BUTTON_SIZE;
 
 	set_windowsize( scr_size( width, D_TITLEBAR_HEIGHT + cursor.y + D_MARGIN_BOTTOM ) );

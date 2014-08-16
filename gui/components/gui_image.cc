@@ -26,7 +26,7 @@ void gui_image_t::set_size( scr_size size_par )
 		size_par = scr_size( x+w+remove_offset.x, y+h+remove_offset.y );
 	}
 
-	gui_komponente_t::set_size(size_par);
+	gui_component_t::set_size(size_par);
 }
 
 

@@ -101,18 +101,18 @@ sprachengui_t::sprachengui_t() :
 
 	flags.enable_offset_removal(true);
 	flags.set_pos( scr_coord(L_DIALOG_WIDTH-D_MARGIN_RIGHT-flags.get_size().w, cursor.y) );
-	add_komponente( &flags);
+	add_component( &flags);
 
 	buf.clear();
 	buf.append(translator::translate("LANG_CHOOSE\n"));
 	text_label.set_pos( cursor );
 	text_label.set_buf(&buf); // force recalculation of size (size)
-	add_komponente( &text_label );
+	add_component( &text_label );
 	cursor.y += text_label.get_size().h;
 
 	seperator.set_pos( cursor );
 	seperator.set_width( L_DIALOG_WIDTH-D_MARGINS_X-D_H_SPACE-flags.get_size().w );
-	add_komponente( &seperator );
+	add_component( &seperator );
 	cursor.y = max( seperator.get_pos().y + D_DIVIDER_HEIGHT, flags.get_pos().y + flags.get_size().h);
 
 	const translator::lang_info* lang = translator::get_langs();
@@ -173,7 +173,7 @@ sprachengui_t::sprachengui_t() :
 		const scr_coord_val y = cursor.y + (max(D_CHECKBOX_HEIGHT, LINESPACE) + D_V_SPACE) * (right ? i - (count + 1) / 2: i);
 		buttons[i].button->set_pos( scr_coord( x, y + D_V_SPACE ) );
 		buttons[i].button->set_width( width );
-		add_komponente( buttons[i].button );
+		add_component( buttons[i].button );
 	}
 
 	chdir(env_t::user_dir);

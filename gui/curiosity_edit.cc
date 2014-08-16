@@ -58,35 +58,35 @@ curiosity_edit_frame_t::curiosity_edit_frame_t(spieler_t* sp_) :
 	bt_city_attraction.init( button_t::square_state, "City attraction", scr_coord(get_tab_panel_width()+2*MARGIN, offset_of_comp-4 ) );
 	bt_city_attraction.add_listener(this);
 	bt_city_attraction.pressed = true;
-	add_komponente(&bt_city_attraction);
+	add_component(&bt_city_attraction);
 	offset_of_comp += D_BUTTON_HEIGHT;
 
 	bt_land_attraction.init( button_t::square_state, "Land attraction", scr_coord(get_tab_panel_width()+2*MARGIN, offset_of_comp-4 ) );
 	bt_land_attraction.add_listener(this);
 	bt_land_attraction.pressed = true;
-	add_komponente(&bt_land_attraction);
+	add_component(&bt_land_attraction);
 	offset_of_comp += D_BUTTON_HEIGHT;
 
 	bt_monuments.init( button_t::square_state, "Monument", scr_coord(get_tab_panel_width()+2*MARGIN, offset_of_comp-4 ) );
 	bt_monuments.add_listener(this);
-	add_komponente(&bt_monuments);
+	add_component(&bt_monuments);
 	offset_of_comp += D_BUTTON_HEIGHT;
 
 	lb_rotation_info.set_pos( scr_coord( get_tab_panel_width()+2*MARGIN, offset_of_comp-4 ) );
-	add_komponente(&lb_rotation_info);
+	add_component(&lb_rotation_info);
 
 	bt_left_rotate.init( button_t::repeatarrowleft, NULL, scr_coord(get_tab_panel_width()+2*MARGIN+COLUMN_WIDTH/2-16, offset_of_comp-4 ) );
 	bt_left_rotate.add_listener(this);
-	add_komponente(&bt_left_rotate);
+	add_component(&bt_left_rotate);
 
 	bt_right_rotate.init( button_t::repeatarrowright, NULL, scr_coord(get_tab_panel_width()+2*MARGIN+COLUMN_WIDTH/2+50, offset_of_comp-4 ) );
 	bt_right_rotate.add_listener(this);
-	add_komponente(&bt_right_rotate);
+	add_component(&bt_right_rotate);
 
 	//lb_rotation.set_pos( scr_coord( get_tab_panel_width()+2*MARGIN+COLUMN_WIDTH/2+44, offset_of_comp-4 ) );
 	lb_rotation.set_width( bt_right_rotate.get_pos().x - bt_left_rotate.get_pos().x - bt_left_rotate.get_size().w );
 	lb_rotation.align_to(&bt_left_rotate,ALIGN_EXTERIOR_H | ALIGN_LEFT | ALIGN_CENTER_V);
-	add_komponente(&lb_rotation);
+	add_component(&lb_rotation);
 	offset_of_comp += D_BUTTON_HEIGHT;
 
 	fill_list( is_show_trans_name );

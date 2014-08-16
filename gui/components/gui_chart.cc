@@ -27,7 +27,7 @@ void gui_chart_t::set_background(int i)
 }
 
 
-gui_chart_t::gui_chart_t() : gui_komponente_t()
+gui_chart_t::gui_chart_t() : gui_component_t()
 {
 	// no toolstips at the start
 	tooltipcoord = scr_coord::invalid;
@@ -330,7 +330,7 @@ void gui_chart_t::calc_gui_chart_values(sint64 *baseline, float *scale, char *cm
 
 
 /**
- * Events werden hiermit an die GUI-Komponenten
+ * Events werden hiermit an die GUI-components
  * gemeldet
  * @author Hj. Malthaner
  */

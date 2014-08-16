@@ -26,7 +26,7 @@
 
 class gui_numberinput_t :
 	public gui_action_creator_t,
-	public gui_komponente_t,
+	public gui_component_t,
 	public action_listener_t
 {
 private:
@@ -112,7 +112,7 @@ public:
 	void enable() { b_enabled = true; set_focusable(true); bt_left.enable(); bt_right.enable(); }
 	void disable() { b_enabled = false; set_focusable(false); bt_left.disable(); bt_right.disable(); }
 	bool enabled() const { return b_enabled; }
-	virtual bool is_focusable() { return b_enabled && gui_komponente_t::is_focusable(); }
+	virtual bool is_focusable() { return b_enabled && gui_component_t::is_focusable(); }
 };
 
 #endif

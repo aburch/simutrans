@@ -35,7 +35,7 @@ label_info_t::label_info_t(label_t* l) :
 	const int min_width = max(290, display_calc_proportional_string_len_width(p_name, strlen(p_name)) + view.get_size().w + 30);
 
 	view.set_pos( scr_coord(min_width - view.get_size().w - 10 , 21) );
-	add_komponente( &view );
+	add_component( &view );
 
 	grund_t *gr = welt->lookup(l->get_pos());
 	if(gr->get_text()) {
@@ -48,13 +48,13 @@ label_info_t::label_info_t(label_t* l) :
 	input.set_pos(scr_coord(10,4));
 	input.set_size(scr_size(min_width-20, 13));
 	input.set_text(edit_name, lengthof(edit_name));
-	add_komponente(&input);
+	add_component(&input);
 	input.add_listener(this);
 
 	// text (player name)
 	player_name.set_pos(scr_coord(10, 21));
 	player_name.set_text(p_name);
-	add_komponente(&player_name);
+	add_component(&player_name);
 
 	set_focus(&input);
 	set_windowsize(scr_size(min_width, view.get_size().h+47));

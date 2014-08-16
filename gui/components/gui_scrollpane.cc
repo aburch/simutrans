@@ -16,21 +16,21 @@
 
 
 /**
- * @param komp, the scrolling component
+ * @param comp, the scrolling component
  * @author Hj. Malthaner
  */
-gui_scrollpane_t::gui_scrollpane_t(gui_komponente_t *komp) :
+gui_scrollpane_t::gui_scrollpane_t(gui_component_t *comp) :
 	scroll_x(scrollbar_t::horizontal),
 	scroll_y(scrollbar_t::vertical)
 {
-	this->komp = komp;
+	this->comp = comp;
 
 	b_show_scroll_x = false;
 	set_scroll_discrete_x(false);
 	b_show_scroll_y = true;
 	b_has_size_corner = true;
 
-	old_komp_size = scr_size::invalid;
+	old_comp_size = scr_size::invalid;
 }
 
 
@@ -44,31 +44,31 @@ void gui_scrollpane_t::recalc_sliders(scr_size size)
 	scroll_y.set_pos( scr_coord(size.w-D_SCROLLBAR_WIDTH, 0) );
 	if(  b_show_scroll_y  &&  scroll_y.is_visible()  ) {
 		scroll_x.set_size( size-D_SCROLLBAR_SIZE );
-		scroll_x.set_knob( size.w-D_SCROLLBAR_WIDTH, komp->get_size().w + komp->get_pos().x );
+		scroll_x.set_knob( size.w-D_SCROLLBAR_WIDTH, comp->get_size().w + comp->get_pos().x );
 	}
 	else if(  b_has_size_corner  ) {
 		scroll_x.set_size( size-D_SCROLLBAR_SIZE );
-		scroll_x.set_knob( size.w, komp->get_size().w + komp->get_pos().x );
+		scroll_x.set_knob( size.w, comp->get_size().w + comp->get_pos().x );
 	}
 	else {
 		scroll_x.set_size( size-D_SCROLLBAR_SIZE );
-		scroll_x.set_knob( size.w, komp->get_size().w + komp->get_pos().x );
+		scroll_x.set_knob( size.w, comp->get_size().w + comp->get_pos().x );
 	}
 
 	if(  b_show_scroll_x  &&  scroll_x.is_visible()  ) {
 		scroll_y.set_size( size-D_SCROLLBAR_SIZE );
-		scroll_y.set_knob( size.h-D_SCROLLBAR_HEIGHT, komp->get_size().h + komp->get_pos().y );
+		scroll_y.set_knob( size.h-D_SCROLLBAR_HEIGHT, comp->get_size().h + comp->get_pos().y );
 	}
 	else if(  b_has_size_corner  ) {
 		scroll_y.set_size( size-D_SCROLLBAR_SIZE );
-		scroll_y.set_knob( size.h, komp->get_size().h + komp->get_pos().y );
+		scroll_y.set_knob( size.h, comp->get_size().h + comp->get_pos().y );
 	}
 	else {
 		scroll_y.set_size( size-scr_coord(D_SCROLLBAR_WIDTH,0) );
-		scroll_y.set_knob( size.h, komp->get_size().h + komp->get_pos().y );
+		scroll_y.set_knob( size.h, comp->get_size().h + comp->get_pos().y );
 	}
 
-	old_komp_size = komp->get_size()+komp->get_pos();
+	old_comp_size = comp->get_size()+comp->get_pos();
 }
 
 
@@ -78,9 +78,9 @@ void gui_scrollpane_t::recalc_sliders(scr_size size)
  */
 void gui_scrollpane_t::set_size(scr_size size)
 {
-	gui_komponente_t::set_size(size);
+	gui_component_t::set_size(size);
 	// automatically increase/decrease slider area
-	scr_coord k = komp->get_size()+komp->get_pos();
+	scr_coord k = comp->get_size()+comp->get_pos();
 	scroll_x.set_visible( (k.x > size.w)  &&  b_show_scroll_x  );
 	scroll_y.set_visible(  (k.y > size.h)  &&  b_show_scroll_y  );
 	// and then resize slider
@@ -89,7 +89,7 @@ void gui_scrollpane_t::set_size(scr_size size)
 
 
 /**
- * Events werden hiermit an die GUI-Komponenten
+ * Events werden hiermit an die GUI-components
  * gemeldet
  * @author Hj. Malthaner
  */
@@ -114,25 +114,25 @@ bool gui_scrollpane_t::infowin_event(const event_t *ev)
 		// translate according to scrolled position
 		bool swallow;
 		event_t ev2 = *ev;
-		translate_event(&ev2, scroll_x.get_knob_offset() - komp->get_pos().x, scroll_y.get_knob_offset() - komp->get_pos().y);
+		translate_event(&ev2, scroll_x.get_knob_offset() - comp->get_pos().x, scroll_y.get_knob_offset() - comp->get_pos().y);
 
 		// hand event to component
-		swallow = komp->infowin_event(&ev2);
+		swallow = comp->infowin_event(&ev2);
 
 		// Knightly : check if we need to scroll to the focused component
 		if(  IS_LEFTCLICK(ev)  ||  (ev->ev_class==EVENT_KEYBOARD  &&  ev->ev_code==9)  ) {
-			const gui_komponente_t *const focused_komp = komp->get_focus();
-			if(  focused_komp  ) {
-				const scr_size komp_size = focused_komp->get_size();
-				const scr_coord relative_pos = komp->get_focus_pos();
+			const gui_component_t *const focused_comp = comp->get_focus();
+			if(  focused_comp  ) {
+				const scr_size comp_size = focused_comp->get_size();
+				const scr_coord relative_pos = comp->get_focus_pos();
 				if(  b_show_scroll_x  ) {
 					const sint32 knob_offset_x = scroll_x.get_knob_offset();
 					const sint32 view_width = size.w-D_SCROLLBAR_WIDTH;
 					if(  relative_pos.x<knob_offset_x  ) {
 						scroll_x.set_knob_offset(relative_pos.x);
 					}
-					else if(  relative_pos.x+komp_size.w>knob_offset_x+view_width  ) {
-						scroll_x.set_knob_offset(relative_pos.x+komp_size.w-view_width);
+					else if(  relative_pos.x+comp_size.w>knob_offset_x+view_width  ) {
+						scroll_x.set_knob_offset(relative_pos.x+comp_size.w-view_width);
 					}
 				}
 				if(  b_show_scroll_y  ) {
@@ -141,8 +141,8 @@ bool gui_scrollpane_t::infowin_event(const event_t *ev)
 					if(  relative_pos.y<knob_offset_y  ) {
 						scroll_y.set_knob_offset(relative_pos.y);
 					}
-					else if(  relative_pos.y+komp_size.h>knob_offset_y+view_height  ) {
-						scroll_y.set_knob_offset(relative_pos.y+komp_size.h-view_height);
+					else if(  relative_pos.y+comp_size.h>knob_offset_y+view_height  ) {
+						scroll_y.set_knob_offset(relative_pos.y+comp_size.h-view_height);
 					}
 				}
 			}
@@ -150,7 +150,7 @@ bool gui_scrollpane_t::infowin_event(const event_t *ev)
 
 		// Hajo: hack: component could have changed size
 		// this recalculates the scrollbars
-		if(  old_komp_size!=komp->get_size()  ) {
+		if(  old_comp_size!=comp->get_size()  ) {
 			recalc_sliders(get_size());
 		}
 		return swallow;
@@ -202,7 +202,7 @@ scr_rect gui_scrollpane_t::get_client( void )
 void gui_scrollpane_t::draw(scr_coord pos)
 {
 	// check, if we need to recalc slider size
-	if(  old_komp_size  !=  komp->get_size()  ) {
+	if(  old_comp_size  !=  comp->get_size()  ) {
 		recalc_sliders( size );
 	}
 
@@ -210,7 +210,7 @@ void gui_scrollpane_t::draw(scr_coord pos)
 	scr_rect client = get_client() + pos;
 
 	PUSH_CLIP( client.x, client.y, client.w, client.h )
-		komp->draw( client.get_pos()-scr_coord(scroll_x.get_knob_offset(), scroll_y.get_knob_offset()) );
+		comp->draw( client.get_pos()-scr_coord(scroll_x.get_knob_offset(), scroll_y.get_knob_offset()) );
 	POP_CLIP()
 
 	// sliding bar background color is now handled by the scrollbar!

@@ -71,7 +71,7 @@ station_building_select_t::station_building_select_t(const haus_besch_t *besch) 
 			img[i*4+j].set_pos( pos );
 			img[i*4+j].set_image(IMG_LEER);
 			img[i*4+j].set_pos( pos );
-			add_komponente( &img[i*4+j] );
+			add_component( &img[i*4+j] );
 		}
 	}
 	// now the images (maximum is 2x2 size)
@@ -101,13 +101,13 @@ station_building_select_t::station_building_select_t(const haus_besch_t *besch) 
 	sprintf(buf, "X=%i, Y=%i", besch->get_b(0), besch->get_h(0) );
 	txt.set_text_pointer(buf);
 	txt.set_pos( scr_coord(D_MARGIN_LEFT, D_MARGIN_TOP) );
-	add_komponente( &txt );
+	add_component( &txt );
 
 	// button
 	for(int i=0; i<layout; i++) {
 		actionbutton[i].init( button_t::roundbox, translator::translate(label_text[i]), base_offsets[i+row*2]+scr_coord((width-D_BUTTON_WIDTH)/2, height), scr_size( D_BUTTON_WIDTH,D_BUTTON_HEIGHT ) );
 		actionbutton[i].add_listener(this);
-		add_komponente(&actionbutton[i]);
+		add_component(&actionbutton[i]);
 	}
 	set_windowsize(scr_size(width*2+10+D_MARGINS_X, (height+D_BUTTON_HEIGHT)*(row+1)+(10*row)+D_MARGINS_Y+D_TITLEBAR_HEIGHT+LINESPACE));
 }

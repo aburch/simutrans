@@ -68,7 +68,7 @@ enlarge_map_frame_t::enlarge_map_frame_t() :
 	scr_coord cursor = scr_coord(D_MARGIN_LEFT, D_MARGIN_TOP);
 
 	memory.set_pos( scr_coord(cursor) );
-	add_komponente( &memory );
+	add_component( &memory );
 
 	inp_x_size.set_pos(scr_coord(LEFT_ARROW, cursor.y) );
 	inp_x_size.set_size(scr_size(RIGHT_ARROW-LEFT_ARROW+10, D_EDIT_HEIGHT));
@@ -77,7 +77,7 @@ enlarge_map_frame_t::enlarge_map_frame_t() :
 	inp_x_size.set_limits( welt->get_size().x, 32766 );
 	inp_x_size.set_increment_mode( sets->get_groesse_x()>=512 ? 128 : 64 );
 	inp_x_size.wrap_mode( false );
-	add_komponente( &inp_x_size );
+	add_component( &inp_x_size );
 	cursor.y += max(D_EDIT_HEIGHT, LINESPACE) + D_V_SPACE;
 
 	inp_y_size.set_pos(scr_coord(LEFT_ARROW, cursor.y) );
@@ -87,7 +87,7 @@ enlarge_map_frame_t::enlarge_map_frame_t() :
 	inp_y_size.set_value( sets->get_groesse_y() );
 	inp_y_size.set_increment_mode( sets->get_groesse_y()>=512 ? 128 : 64 );
 	inp_y_size.wrap_mode( false );
-	add_komponente( &inp_y_size );
+	add_component( &inp_y_size );
 
 	// city stuff
 	cursor.y = max(2*max(D_EDIT_HEIGHT, LINESPACE)+D_V_SPACE, preview_size+2)+D_MARGIN_TOP+D_V_SPACE;
@@ -96,13 +96,13 @@ enlarge_map_frame_t::enlarge_map_frame_t() :
 	inp_number_of_towns.add_listener(this);
 	inp_number_of_towns.set_limits(0,999);
 	inp_number_of_towns.set_value(abs(sets->get_anzahl_staedte()) );
-	add_komponente( &inp_number_of_towns );
+	add_component( &inp_number_of_towns );
 
 	// Number of towns label
 	cities_label.init("5WORLD_CHOOSE",cursor);
 	cities_label.set_width( RIGHT_COLUMN );
 	cities_label.align_to(&inp_number_of_towns, ALIGN_CENTER_V);
-	add_komponente( &cities_label );
+	add_component( &cities_label );
 	cursor.y += max(D_EDIT_HEIGHT, LINESPACE) + D_V_SPACE;
 
 	inp_town_size.set_pos(scr_coord(RIGHT_COLUMN, cursor.y) );
@@ -111,24 +111,24 @@ enlarge_map_frame_t::enlarge_map_frame_t() :
 	inp_town_size.set_limits(0,999999);
 	inp_town_size.set_increment_mode(50);
 	inp_town_size.set_value( sets->get_mittlere_einwohnerzahl() );
-	add_komponente( &inp_town_size );
+	add_component( &inp_town_size );
 
 	// Town size label
 	median_label.init("Median Citizen per town",cursor);
 	median_label.set_width( RIGHT_COLUMN );
 	median_label.align_to(&inp_town_size, ALIGN_CENTER_V);
-	add_komponente( &median_label );
+	add_component( &median_label );
 	cursor.y += max(D_EDIT_HEIGHT, LINESPACE);
 
 	// Divider
 	divider_1.init(cursor, L_DIALOG_WIDTH-D_MARGINS_X);
-	add_komponente( &divider_1 );
+	add_component( &divider_1 );
 	cursor.y += D_DIVIDER_HEIGHT;
 
 	// start game
 	start_button.init( button_t::roundbox, "enlarge map", scr_coord(D_MARGIN_LEFT, cursor.y), scr_size(L_DIALOG_WIDTH-D_MARGINS_X, D_BUTTON_HEIGHT) );
 	start_button.add_listener( this );
-	add_komponente( &start_button );
+	add_component( &start_button );
 	cursor.y += D_BUTTON_HEIGHT;
 
 	set_windowsize( scr_size(L_DIALOG_WIDTH, cursor.y+D_TITLEBAR_HEIGHT+D_MARGIN_BOTTOM) );

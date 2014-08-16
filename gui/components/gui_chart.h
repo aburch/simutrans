@@ -18,7 +18,7 @@
  * Draws a group of curves.
  * @author Hendrik Siegeln
  */
-class gui_chart_t : public gui_komponente_t
+class gui_chart_t : public gui_component_t
 {
 public:
 	/**

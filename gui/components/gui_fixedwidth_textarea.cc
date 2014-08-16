@@ -25,7 +25,7 @@ void gui_fixedwidth_textarea_t::recalc_size()
 {
 	scr_size newsize = calc_display_text(scr_coord::invalid, false);
 	if (newsize.h != size.h) {
-		gui_komponente_t::set_size( newsize );
+		gui_component_t::set_size( newsize );
 	}
 }
 
@@ -35,7 +35,7 @@ void gui_fixedwidth_textarea_t::set_width(const sint16 width)
 {
 	if(  width>0  ) {
 		// height is simply reset to 0 as it requires recalculation anyway
-		gui_komponente_t::set_size( scr_size(width, 0) );
+		gui_component_t::set_size( scr_size(width, 0) );
 	}
 }
 

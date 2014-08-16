@@ -2,7 +2,7 @@
 #include "../../simworld.h"
 
 gui_map_preview_t::gui_map_preview_t() :
-	gui_komponente_t()
+	gui_component_t()
 {
 	map_data = NULL;
 	map_size = scr_size(0,0);

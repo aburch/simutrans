@@ -47,12 +47,12 @@ class settings_t;
 	ni->set_pos( scr_coord( 0, ypos ) );\
 	ni->set_size( scr_size( 37+7*max(1,(sint16)(log10((double)(c)+1.0)+0.5)), D_EDIT_HEIGHT ) );\
 	numinp.append( ni );\
-	add_komponente( ni );\
+	add_component( ni );\
 	gui_label_t *lb = new gui_label_t();\
 	lb->set_text_pointer(t);\
 	lb->align_to(ni, ALIGN_CENTER_V + ALIGN_EXTERIOR_H + ALIGN_LEFT, scr_coord(D_H_SPACE,0) );\
 	label.append( lb );\
-	add_komponente( lb );\
+	add_component( lb );\
 	ypos += D_EDIT_HEIGHT;\
 }\
 
@@ -66,12 +66,12 @@ class settings_t;
 	ni->set_pos( scr_coord( 0, ypos ) );\
 	ni->set_size( scr_size( 37+7*max(1,(sint16)(log10((double)(c)+1.0)+0.5)), D_EDIT_HEIGHT ) );\
 	numinp.append( ni );\
-	add_komponente( ni );\
+	add_component( ni );\
 	gui_label_t *lb = new gui_label_t();\
 	lb->set_text_pointer(t);\
 	lb->align_to(ni, ALIGN_CENTER_V + ALIGN_EXTERIOR_H + ALIGN_LEFT, scr_coord(D_H_SPACE,0) );\
 	label.append( lb );\
-	add_komponente( lb );\
+	add_component( lb );\
 	ypos += D_EDIT_HEIGHT;\
 }\
 
@@ -84,7 +84,7 @@ class settings_t;
 	lb->set_text_pointer(t);\
 	lb->set_pos( scr_coord( 0, ypos ) );\
 	label.append( lb );\
-	add_komponente( lb );\
+	add_component( lb );\
 	ypos += LINESPACE;\
 }\
 
@@ -97,7 +97,7 @@ class settings_t;
 	bt->init( button_t::square_automatic, (t), scr_coord( 0, ypos ) );\
 	bt->pressed = (a);\
 	button.append( bt );\
-	add_komponente( bt );\
+	add_component( bt );\
 	ypos += D_CHECKBOX_HEIGHT;\
 }\
 

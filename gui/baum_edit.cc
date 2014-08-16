@@ -50,7 +50,7 @@ baum_edit_frame_t::baum_edit_frame_t(spieler_t* sp_) :
 {
 	bt_timeline.set_text( "Random age" );
 
-	remove_komponente( &bt_obsolete );
+	remove_component( &bt_obsolete );
 	//offset_of_comp -= D_BUTTON_HEIGHT;
 
 	besch = NULL;
