@@ -414,7 +414,7 @@ gui_frame_t *win_get_top()
  * returns the focused component of the top window
  * @author Knightly
  */
-gui_onente_t *win_get_focus()
+gui_componente_t *win_get_focus()
 {
 	return wins.empty() ? 0 : wins.back().gui->get_focus();
 }
