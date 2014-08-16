@@ -4428,6 +4428,7 @@ bool stadt_t::baue_strasse(const koord k, spieler_t* sp, bool forced)
 			// Hajo: city roads should not belong to any player => so we can ignore any contruction costs ...
 			weg->set_besch(welt->get_city_road());
 			weg->set_gehweg(true);
+			weg->set_public_right_of_way();
 			bd->neuen_weg_bauen(weg, connection_roads, sp);
 			bd->calc_bild();
 		}

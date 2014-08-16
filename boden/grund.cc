@@ -1917,6 +1917,77 @@ sint32 grund_t::weg_entfernen(waytype_t wegtyp, bool ribi_rem)
 	return 0;
 }
 
+bool grund_t::removing_road_would_disconnect_city_building()
+{
+	koord pos = get_pos().get_2d();
+	// Players other than the public player cannot delete a road leaving no access to any city building.
+	for(int n = 0; n < 8; n ++)
+	{
+		const koord k = pos.neighbours[n] + pos;
+		const grund_t* gr3 = welt->lookup_kartenboden(k);
+		const gebaeude_t* gb = gr3 ? gr3->find<gebaeude_t>() : NULL;
+		if(gb && gb->get_besitzer() == NULL)
+		{
+			// This is a city building - check for other road connexion.
+			bool unconnected_city_buildings = true;
+			for(int m = 0; m < 8; m ++)
+			{
+				const koord kx = k.neighbours[m] + k;
+				const grund_t* grx = welt->lookup_kartenboden(kx);
+				if (grx == this)
+				{
+					// The road being deleted does not count - but others
+					// at different heights DO count.
+					continue;
+				}
+				const weg_t* w = grx ? grx->get_weg(road_wt) : NULL;
+				if(w && w->get_ribi() && !ribi_t::ist_einfach(w->get_ribi()))
+				{
+					// We must check that the road is itself connected to somewhere other
+					// than the road that we are trying to delete.
+					for(int q = 0; q < 4; q ++)
+					{
+						const koord ky = kx.nsow[q] + kx;
+						const grund_t* gry = welt->lookup_kartenboden(ky);
+						if (gry == this)
+						{
+							// The road being deleted does not count - but others
+							// at different heights DO count.
+							continue;
+						}
+						const weg_t* wy = gry ? gry->get_weg(road_wt) : NULL;
+						if(wy)
+						{
+							if (wy->get_ribi() == 0) {
+								// disconnected road tiles do not count
+								continue;
+							}
+							if (ribi_t::ist_einfach(wy->get_ribi())) {
+								// only a single connection, but is it to the road we're trying to remove?
+								grund_t *grz;
+								if(gry->get_neighbour(grz, road_wt, wy->get_ribi())) {
+									if (grz == this) {
+										continue;
+									}
+								}
+							}
+
+							unconnected_city_buildings = false;
+							break;
+						}
+					}
+				}
+			}
+
+			if(unconnected_city_buildings)
+			{
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
 
 // this funtion is called many many times => make it as fast as possible
 // i.e. no reverse lookup of ribis from koord

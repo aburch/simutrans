@@ -765,6 +765,8 @@ public:
 	 */
 	sint32 weg_entfernen(waytype_t wegtyp, bool ribi_rem);
 
+	bool removing_road_would_disconnect_city_building();
+
 	/**
 	 * Description;
 	 *      Look for an adjacent way in the given direction. Think of an object
