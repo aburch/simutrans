@@ -2605,11 +2605,18 @@ bool convoi_t::set_schedule(schedule_t * f)
 		}
 	}
 
+	if (fpl == f && old_fpl) {
+		fpl = old_fpl;
+	}
+	
 	// happens to be identical?
 	if(fpl!=f) {
 		// now check, we we have been bond to a line we are about to lose:
 		bool changed = false;
 		if(  line.is_bound()  ) {
+			if(  !f->matches(welt, fpl)) {
+				changed = true;
+			}
 			if(  !f->matches( welt, line->get_schedule() )  ) {
 				// change from line to individual schedule
 				//		-> unset line now and register stops from new schedule later
