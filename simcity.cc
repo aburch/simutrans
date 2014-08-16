@@ -4173,11 +4173,11 @@ bool stadt_t::build_bridge(grund_t* bd, ribi_t::ribi direction) {
 	const char *err = NULL;
 	// Prefer "non-AI bridge"
 	koord3d end = brueckenbauer_t::finde_ende(NULL, bd->get_pos(), zv, bridge, err, false);
-	if(  err || koord_distance(k, end.get_2d()) > 3  ) {
+	if(  err && *err || koord_distance(k, end.get_2d()) > 3  ) {
 		// allow "AI bridge"
 		end = brueckenbauer_t::finde_ende(NULL, bd->get_pos(), zv, bridge, err, true);
 	}
-	if(  err || koord_distance(k, end.get_2d()) > 3  ) {
+	if(  err && *err || koord_distance(k, end.get_2d()) > 3  ) {
 		// no bridge short enough
 		return false;
 	}
