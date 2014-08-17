@@ -2011,7 +2011,7 @@ bool grund_t::unpave_planet(int dx, int dy, road_network_plan_t &road_tiles)
 			}
 		} else {
 			weg_t *weg = gr[i]->get_weg(road_wt);
-			if (weg && weg->get_besitzer() == NULL) {
+			if (weg) {
 				continue;
 			} else {
 				return false;
