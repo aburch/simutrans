@@ -4471,8 +4471,8 @@ bool stadt_t::baue_strasse(const koord k, spieler_t* sp, bool forced)
 		}
 	}
 
-	while (bd->would_pave_planet()) {
-		if (!bd->unpave_planet()) {
+	while (bd->would_create_excessive_roads()) {
+		if (!bd->remove_excessive_roads()) {
 			return NULL;
 		}
 	}

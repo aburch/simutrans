@@ -774,17 +774,17 @@ public:
 	 * Check whether building a road would result in a 2x2 square
 	 * of road tiles.
 	 */
-	bool would_pave_planet(int dx, int dy, road_network_plan_t &);
-	bool would_pave_planet(road_network_plan_t &);
-	bool would_pave_planet();
+	bool would_create_excessive_roads(int dx, int dy, road_network_plan_t &);
+	bool would_create_excessive_roads(road_network_plan_t &);
+	bool would_create_excessive_roads();
 
 	/**
 	 * Check whether we can remove enough roads to avoid creating
 	 * a 2x2 square of road tiles.
 	 */
-	bool unpave_planet(int dx, int dy, road_network_plan_t &);
-	bool unpave_planet(road_network_plan_t &);
-	bool unpave_planet();
+	bool remove_excessive_roads(int dx, int dy, road_network_plan_t &);
+	bool remove_excessive_roads(road_network_plan_t &);
+	bool remove_excessive_roads();
 
 	int count_neighbouring_roads(road_network_plan_t &);
 
