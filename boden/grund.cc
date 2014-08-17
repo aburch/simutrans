@@ -1917,7 +1917,7 @@ sint32 grund_t::weg_entfernen(waytype_t wegtyp, bool ribi_rem)
 	return 0;
 }
 
-bool grund_t::would_pave_planet(int dx, int dy, road_network_plan_t &road_tiles)
+bool grund_t::would_create_excessive_roads(int dx, int dy, road_network_plan_t &road_tiles)
 {
 	grund_t *gr[4];
 	koord k = this->get_pos().get_2d();
@@ -1972,7 +1972,7 @@ bool grund_t::would_pave_planet(int dx, int dy, road_network_plan_t &road_tiles)
  *    . s s . .            . s s . .
  */
 
-bool grund_t::unpave_planet(int dx, int dy, road_network_plan_t &road_tiles)
+bool grund_t::remove_excessive_roads(int dx, int dy, road_network_plan_t &road_tiles)
 {
 	koord k = this->get_pos().get_2d();
 
@@ -2042,33 +2042,33 @@ bool grund_t::unpave_planet(int dx, int dy, road_network_plan_t &road_tiles)
 	return true;
 }
 
-bool grund_t::would_pave_planet(road_network_plan_t &road_tiles)
+bool grund_t::would_create_excessive_roads(road_network_plan_t &road_tiles)
 {
-	return (would_pave_planet(-1, -1, road_tiles) ||
-		would_pave_planet(-1,  1, road_tiles) ||
-		would_pave_planet( 1, -1, road_tiles) ||
-		would_pave_planet( 1,  1, road_tiles));
+	return (would_create_excessive_roads(-1, -1, road_tiles) ||
+		would_create_excessive_roads(-1,  1, road_tiles) ||
+		would_create_excessive_roads( 1, -1, road_tiles) ||
+		would_create_excessive_roads( 1,  1, road_tiles));
 }
 
-bool grund_t::would_pave_planet()
+bool grund_t::would_create_excessive_roads()
 {
 	road_network_plan_t road_tiles;
 
-	return would_pave_planet(road_tiles);
+	return would_create_excessive_roads(road_tiles);
 }
 
-bool grund_t::unpave_planet(road_network_plan_t &road_tiles)
+bool grund_t::remove_excessive_roads(road_network_plan_t &road_tiles)
 {
-	return (unpave_planet(-1, -1, road_tiles) ||
-		unpave_planet(-1,  1, road_tiles) ||
-		unpave_planet( 1, -1, road_tiles) ||
-		unpave_planet( 1,  1, road_tiles));
+	return (remove_excessive_roads(-1, -1, road_tiles) ||
+		remove_excessive_roads(-1,  1, road_tiles) ||
+		remove_excessive_roads( 1, -1, road_tiles) ||
+		remove_excessive_roads( 1,  1, road_tiles));
 }
 
-bool grund_t::unpave_planet()
+bool grund_t::remove_excessive_roads()
 {
 	road_network_plan_t road_tiles;
-	bool ret = unpave_planet(road_tiles);
+	bool ret = remove_excessive_roads(road_tiles);
 
 	if (ret) {
 		FOR(grund_t::road_network_plan_t, i, road_tiles) {
@@ -2110,8 +2110,8 @@ bool grund_t::fixup_road_network_plan(road_network_plan_t &road_tiles)
 		if (i.value == true) {
 			grund_t *gr = welt->lookup_kartenboden(i.key);
 
-			while (gr->would_pave_planet(road_tiles)) {
-				if (!gr->unpave_planet(road_tiles)) {
+			while (gr->would_create_excessive_roads(road_tiles)) {
+				if (!gr->remove_excessive_roads(road_tiles)) {
 					return false;
 				}
 			}
