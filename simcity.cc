@@ -3061,13 +3061,13 @@ void stadt_t::check_bau_spezial(bool new_town)
 				// We build the monument only if there is already at least one road
 				for (int i = 0; i < total_size.x && !ok; i++) {
 					ok = ok ||
-						welt->access(best_pos + koord(i, -1))->get_kartenboden()->hat_weg(road_wt) ||
-						welt->access(best_pos + koord(i, total_size.y))->get_kartenboden()->hat_weg(road_wt);
+						welt->access(best_pos + koord(i, 0))->get_kartenboden()->hat_weg(road_wt) ||
+						welt->access(best_pos + koord(i, total_size.y-1))->get_kartenboden()->hat_weg(road_wt);
 				}
 				for (int i = 0; i < total_size.y && !ok; i++) {
 					ok = ok ||
-						welt->access(best_pos + koord(total_size.x, i))->get_kartenboden()->hat_weg(road_wt) ||
-						welt->access(best_pos + koord(-1, i))->get_kartenboden()->hat_weg(road_wt);
+						welt->access(best_pos + koord(total_size.x-1, i))->get_kartenboden()->hat_weg(road_wt) ||
+						welt->access(best_pos + koord(0, i))->get_kartenboden()->hat_weg(road_wt);
 				}
 				if (ok) {
 					// build roads around the monument
