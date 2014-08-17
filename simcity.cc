@@ -3128,7 +3128,7 @@ void stadt_t::check_bau_spezial(bool new_town)
 					sint16 h=welt->lookup_kartenboden(best_pos)->get_hoehe();
 					FOR(grund_t::road_network_plan_t, i, road_tiles) {
 						koord k = i.key;
-						const grund_t *gr = welt->lookup_kartenboden(k);
+						grund_t *gr = welt->lookup_kartenboden(k);
 						if (!i.value) {
 							gr->weg_entfernen(road_wt, true);
 						}
