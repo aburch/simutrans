@@ -1932,6 +1932,14 @@ bool grund_t::would_pave_planet(int dx, int dy, road_network_plan_t &road_tiles)
 			return false;
 		}
 
+		if (gr[i]->ist_bruecke() || gr[i]->ist_tunnel()) {
+			return false;
+		}
+
+		if (gr[i]->get_leitung() != NULL) {
+			return false;
+		}
+
 		koord k2 = gr[i]->get_pos().get_2d();
 
 		if (road_tiles.is_contained(k2)) {
@@ -1941,7 +1949,8 @@ bool grund_t::would_pave_planet(int dx, int dy, road_network_plan_t &road_tiles)
 				return false;
 			}
 		} else {
-			if (gr[i]->hat_weg(road_wt)) {
+			weg_t *weg = gr[i]->get_weg(road_wt);
+			if (weg && weg->get_besitzer() == NULL) {
 				continue;
 			} else {
 				return false;
@@ -1984,6 +1993,14 @@ bool grund_t::unpave_planet(int dx, int dy, road_network_plan_t &road_tiles)
 			return false;
 		}
 
+		if (gr[i]->ist_bruecke() || gr[i]->ist_tunnel()) {
+			return false;
+		}
+
+		if (gr[i]->get_leitung() != NULL) {
+			return false;
+		}
+
 		koord k2 = gr[i]->get_pos().get_2d();
 
 		if (road_tiles.is_contained(k2)) {
@@ -1993,7 +2010,8 @@ bool grund_t::unpave_planet(int dx, int dy, road_network_plan_t &road_tiles)
 				return false;
 			}
 		} else {
-			if (gr[i]->hat_weg(road_wt)) {
+			weg_t *weg = gr[i]->get_weg(road_wt);
+			if (weg && weg->get_besitzer() == NULL) {
 				continue;
 			} else {
 				return false;
