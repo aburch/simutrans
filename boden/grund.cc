@@ -1917,6 +1917,210 @@ sint32 grund_t::weg_entfernen(waytype_t wegtyp, bool ribi_rem)
 	return 0;
 }
 
+bool grund_t::would_pave_planet(int dx, int dy, road_network_plan_t &road_tiles)
+{
+	grund_t *gr[4];
+	koord k = this->get_pos().get_2d();
+
+	gr[0] = welt->lookup_kartenboden(k + koord(0,0));
+	gr[1] = welt->lookup_kartenboden(k + koord(0,dy));
+	gr[2] = welt->lookup_kartenboden(k + koord(dx,0));
+	gr[3] = welt->lookup_kartenboden(k + koord(dx,dy));
+
+	for (int i=1; i < 4; i++) {
+		if (!gr[i]) {
+			return false;
+		}
+
+		koord k2 = gr[i]->get_pos().get_2d();
+
+		if (road_tiles.is_contained(k2)) {
+			if (road_tiles.get(k2)) {
+				continue;
+			} else {
+				return false;
+			}
+		} else {
+			if (gr[i]->hat_weg(road_wt)) {
+				continue;
+			} else {
+				return false;
+			}
+		}
+	}
+
+	return true;
+}
+
+/* avoid the pave-the-planet phenomenon: when extending diagonal
+ * roads, straighten them by removing a tile of the diagonal road
+ * which would otherwise result in a junction/roundabout:
+ *
+ *    . . . . .            . . . . .
+ *    . . . . s            . . . . s
+ *    . . X s s   becomes  . . s s s
+ *    . . s s .            . . s . .
+ *    . s s . .            . s s . .
+ */
+
+bool grund_t::unpave_planet(int dx, int dy, road_network_plan_t &road_tiles)
+{
+	koord k = this->get_pos().get_2d();
+
+	if (road_tiles.is_contained(k + koord(dx,dy)) &&
+	    !road_tiles.get(k + koord(dx,dy))) {
+		return false;
+	}
+
+	grund_t *gr[4];
+
+	gr[0] = welt->lookup_kartenboden(k + koord(0,0));
+	gr[1] = welt->lookup_kartenboden(k + koord(0,dy));
+	gr[2] = welt->lookup_kartenboden(k + koord(dx,0));
+	gr[3] = welt->lookup_kartenboden(k + koord(dx,dy));
+
+	for (int i=1; i < 4; i++) {
+		if (!gr[i]) {
+			return false;
+		}
+
+		koord k2 = gr[i]->get_pos().get_2d();
+
+		if (road_tiles.is_contained(k2)) {
+			if (road_tiles.get(k2)) {
+				continue;
+			} else {
+				return false;
+			}
+		} else {
+			if (gr[i]->hat_weg(road_wt)) {
+				continue;
+			} else {
+				return false;
+			}
+		}
+	}
+
+	koord k3 = k + koord(dx,dy);
+
+	if (road_tiles.get(k3)) {
+		return false;
+	}
+
+	if (gr[3]->removing_road_would_disconnect_city_building()) {
+		return false;
+	}
+
+	if (gr[3]->removing_road_would_break_monument_loop()) {
+		return false;
+	}
+
+	if (gr[3]->count_neighbouring_roads(road_tiles) >= 3) {
+		return false;
+	}
+
+	road_tiles.set(k3, false);
+
+	return true;
+}
+
+bool grund_t::would_pave_planet(road_network_plan_t &road_tiles)
+{
+	return (would_pave_planet(-1, -1, road_tiles) ||
+		would_pave_planet(-1,  1, road_tiles) ||
+		would_pave_planet( 1, -1, road_tiles) ||
+		would_pave_planet( 1,  1, road_tiles));
+}
+
+bool grund_t::would_pave_planet()
+{
+	road_network_plan_t road_tiles;
+
+	return would_pave_planet(road_tiles);
+}
+
+bool grund_t::unpave_planet(road_network_plan_t &road_tiles)
+{
+	return (unpave_planet(-1, -1, road_tiles) ||
+		unpave_planet(-1,  1, road_tiles) ||
+		unpave_planet( 1, -1, road_tiles) ||
+		unpave_planet( 1,  1, road_tiles));
+}
+
+bool grund_t::unpave_planet()
+{
+	road_network_plan_t road_tiles;
+	bool ret = unpave_planet(road_tiles);
+
+	if (ret) {
+		FOR(grund_t::road_network_plan_t, i, road_tiles) {
+			koord k = i.key;
+			grund_t *gr = welt->lookup_kartenboden(k);
+			if (!i.value) {
+				gr->weg_entfernen(road_wt, true);
+			}
+		}
+	}
+
+	return ret;
+}
+
+int grund_t::count_neighbouring_roads(road_network_plan_t &road_tiles)
+{
+	int count = 0;
+
+	for (int i = 0; i < 4; i++) {
+		koord k = ribi_t::nsow[i] + pos.get_2d();
+
+		if (road_tiles.get(k)) {
+			count++;
+		} else {
+			grund_t *gr = welt->lookup_kartenboden(k);
+
+			if (gr && gr->hat_weg(road_wt)) {
+				count++;
+			}
+		}
+	}
+
+	return count;
+}
+
+bool grund_t::fixup_road_network_plan(road_network_plan_t &road_tiles)
+{
+	FOR(road_network_plan_t, i, road_tiles) {
+		if (i.value == true) {
+			grund_t *gr = welt->lookup_kartenboden(i.key);
+
+			while (gr->would_pave_planet(road_tiles)) {
+				if (!gr->unpave_planet(road_tiles)) {
+					return false;
+				}
+			}
+		}
+	}
+
+	return true;
+}
+
+bool grund_t::removing_road_would_break_monument_loop()
+{
+	koord pos = get_pos().get_2d();
+
+	for(int n = 0; n < 8; n ++)
+	{
+		const koord k = pos.neighbours[n] + pos;
+		const grund_t* gr3 = welt->lookup_kartenboden(k);
+		const gebaeude_t* gb = gr3 ? gr3->find<gebaeude_t>() : NULL;
+		if(gb && gb->is_monument())
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
 bool grund_t::removing_road_would_disconnect_city_building()
 {
 	koord pos = get_pos().get_2d();

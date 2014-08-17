@@ -905,19 +905,56 @@ class denkmal_platz_sucher_t : public platzsucher_t {
 				return false;
 			}
 
-			if (ist_randfeld(d)) {
-				return
-					gr->get_grund_hang() == hang_t::flach &&     // Flach
-					gr->get_typ() == grund_t::boden &&           // Boden -> no building
-					(!gr->hat_wege() || gr->hat_weg(road_wt)) && // only roads
-					gr->kann_alle_obj_entfernen(NULL) == NULL;   // Irgendwas verbaut den Platz?
-			} else {
-				return
-					gr->get_grund_hang() == hang_t::flach &&
-					gr->get_typ() == grund_t::boden &&
-					gr->ist_natur() &&                         // Keine Wege hier
-					gr->kann_alle_obj_entfernen(NULL) == NULL; // Irgendwas verbaut den Platz?
+			uint8 obj_idx;
+			uint8 obj_count = gr->obj_count();
+
+			for (obj_idx = 0; obj_idx < obj_count; obj_idx++) {
+				obj_t *obj = gr->obj_bei(obj_idx);
+
+				if (obj->get_besitzer() != NULL &&
+				    obj->get_besitzer() != welt->get_spieler(1)) {
+					/* XXX player-owned roads okay to remove? */
+					/* XXX player-owned trams/electrification okay if ist_randfeld()? */
+					return false;
+				}
+
+				gebaeude_t *gb = obj_cast<gebaeude_t>(obj);
+
+				if (gb && gb->get_haustyp() == gebaeude_t::unbekannt) {
+					return false;
+				}
 			}
+
+			if (gr->get_grund_hang() != hang_t::flach) {
+				return false;
+			}
+
+			if (gr->get_typ() == grund_t::fundament) {
+				sint8 new_hgt;
+				const uint8 new_slope = welt->recalc_natural_slope(gr->get_pos().get_2d(),new_hgt);
+
+				if (new_slope != hang_t::flach) {
+					return false;
+				}
+			}
+
+			if (gr->hat_wege() && !gr->hat_weg(road_wt)) {
+				return false;
+			}
+
+			if (gr->kann_alle_obj_entfernen(NULL) != NULL) {
+				return false;
+			}
+
+			if (ist_randfeld(d)) {
+			} else {
+				/* XXX necessary? */
+				if (gr->hat_weg(tram_wt)) {
+					return false;
+				}
+			}
+
+			return true;
 		}
 };
 
@@ -3056,44 +3093,68 @@ void stadt_t::check_bau_spezial(bool new_town)
 					return;
 				}
 
+				grund_t::road_network_plan_t road_tiles;
+
+				for (int i = 0; i < total_size.y; i++) {
+					road_tiles.set(best_pos + koord(0,i), true);
+					road_tiles.set(best_pos + koord(total_size.x-1,i), true);
+				}
+				for (int i = 1; i < total_size.x-1; i++) {
+					road_tiles.set(best_pos + koord(i,0), true);
+					road_tiles.set(best_pos + koord(i,total_size.y-1), true);
+				}
+				for (int i = 1; i < total_size.x-1; i++) {
+					for (int j = 1; j < total_size.y-1; j++) {
+						road_tiles.set(best_pos + koord(i,j), false);
+					}
+				}
+
 				bool ok=false;
 
-				// We build the monument only if there is already at least one road
-				for (int i = 0; i < total_size.x && !ok; i++) {
-					ok = ok ||
-						welt->access(best_pos + koord(i, 0))->get_kartenboden()->hat_weg(road_wt) ||
-						welt->access(best_pos + koord(i, total_size.y-1))->get_kartenboden()->hat_weg(road_wt);
+				FOR(grund_t::road_network_plan_t, i, road_tiles) {
+					if (i.value == true) {
+						ok = ok || welt->access(i.key)->get_kartenboden()->hat_weg(road_wt);
+					}
 				}
-				for (int i = 0; i < total_size.y && !ok; i++) {
-					ok = ok ||
-						welt->access(best_pos + koord(total_size.x-1, i))->get_kartenboden()->hat_weg(road_wt) ||
-						welt->access(best_pos + koord(0, i))->get_kartenboden()->hat_weg(road_wt);
+
+				if (!ok) {
+					return;
 				}
+
+				ok = grund_t::fixup_road_network_plan(road_tiles);
+
 				if (ok) {
 					// build roads around the monument
 					sint16 h=welt->lookup_kartenboden(best_pos)->get_hoehe();
-					for (int i = 0; i < total_size.y; i++) {
-						// only build in same height and not on slopes...
-						const grund_t *gr = welt->lookup_kartenboden(best_pos + koord(0, i));
-						if(gr->get_hoehe()==h  &&  gr->get_grund_hang()==0) {
-							baue_strasse(best_pos + koord(0, i), NULL, true);
-						}
-						gr = welt->lookup_kartenboden(best_pos + koord(total_size.x - 1, i));
-						if(gr->get_hoehe()==h  &&  gr->get_grund_hang()==0) {
-							baue_strasse(best_pos + koord(total_size.x - 1, i), NULL, true);
+					FOR(grund_t::road_network_plan_t, i, road_tiles) {
+						koord k = i.key;
+						const grund_t *gr = welt->lookup_kartenboden(k);
+						if (!i.value) {
+							gr->weg_entfernen(road_wt, true);
 						}
 					}
-					for (int i = 0; i < total_size.x; i++) {
-						// only build in same height and not on slopes...
-						const grund_t *gr = welt->lookup_kartenboden(best_pos + koord(i, 0));
-						if(gr->get_hoehe()==h  &&  gr->get_grund_hang()==0) {
-							baue_strasse(best_pos + koord(i, 0), NULL, true);
-						}
-						gr = welt->lookup_kartenboden(best_pos + koord(i, total_size.y - 1));
-						if(gr->get_hoehe()==h  &&  gr->get_grund_hang()==0) {
-							baue_strasse(best_pos + koord(i, total_size.y - 1), NULL, true);
+
+					FOR(grund_t::road_network_plan_t, i, road_tiles) {
+						koord k = i.key;
+						const grund_t *gr = welt->lookup_kartenboden(k);
+						if (i.value) {
+							if(gr->get_hoehe()==h  &&  gr->get_grund_hang()==0) {
+								gebaeude_t *gb = gr->find<gebaeude_t>();
+								if (gb) {
+									hausbauer_t::remove(NULL, gb);
+								}
+								if (gr->hat_weg(road_wt)) {
+									continue;
+								}
+								if (!baue_strasse(k, NULL, true)) {
+									/* This should no longer happen */
+									fprintf(stderr, "failed to build road at <%d,%d>\n", k.x, k.y);
+									assert(false);
+								}
+							}
 						}
 					}
+
 					// and then build it
 					gebaeude_t* gb = hausbauer_t::baue(besitzer_p, welt->lookup_kartenboden(best_pos + koord(1, 1))->get_pos(), 0, besch);
 					hausbauer_t::denkmal_gebaut(besch);
@@ -4407,6 +4468,12 @@ bool stadt_t::baue_strasse(const koord k, spieler_t* sp, bool forced)
 					}
 				}
 			}
+		}
+	}
+
+	while (bd->would_pave_planet()) {
+		if (!bd->unpave_planet()) {
+			return NULL;
 		}
 	}
 

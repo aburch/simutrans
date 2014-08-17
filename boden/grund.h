@@ -16,6 +16,7 @@
 #include "../dataobj/koord3d.h"
 #include "../dataobj/objlist.h"
 #include "wege/weg.h"
+#include "../tpl/koordhashtable_tpl.h"
 
 
 class spieler_t;
@@ -766,6 +767,39 @@ public:
 	sint32 weg_entfernen(waytype_t wegtyp, bool ribi_rem);
 
 	bool removing_road_would_disconnect_city_building();
+	bool removing_road_would_break_monument_loop();
+
+	typedef koordhashtable_tpl<koord, bool> road_network_plan_t;
+	/**
+	 * Check whether building a road would result in a 2x2 square
+	 * of road tiles.
+	 */
+	bool would_pave_planet(int dx, int dy, road_network_plan_t &);
+	bool would_pave_planet(road_network_plan_t &);
+	bool would_pave_planet();
+
+	/**
+	 * Check whether we can remove enough roads to avoid creating
+	 * a 2x2 square of road tiles.
+	 */
+	bool unpave_planet(int dx, int dy, road_network_plan_t &);
+	bool unpave_planet(road_network_plan_t &);
+	bool unpave_planet();
+
+	int count_neighbouring_roads(road_network_plan_t &);
+
+	/**
+	 * These are a little complicated: when building or removing
+	 * roads, we want to know whether the whole construction
+	 * process succeeds before actually building anything; so we
+	 * use a hash table to keep track of all additions and
+	 * removals to the road network that we have planned.
+	 *
+	 * A true entry means a road tile is being added, a false
+	 * entry means it is being removed, no entry means that road
+	 * tile remains unchanged. */
+
+	static bool fixup_road_network_plan(road_network_plan_t &);
 
 	/**
 	 * Description;
