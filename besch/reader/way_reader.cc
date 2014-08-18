@@ -188,7 +188,7 @@ obj_besch_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->set_way_constraints(way_constraints);
 		if(experimental_version < 1 || !experimental)
 		{
-			besch->topspeed_gradient_1 = besch->topspeed_gradient_1 = besch->topspeed;
+			besch->topspeed_gradient_1 = besch->topspeed_gradient_2 = besch->topspeed;
 			besch->max_altitude = 0;
 			besch->max_vehicles_on_tile = 251;
 		}
