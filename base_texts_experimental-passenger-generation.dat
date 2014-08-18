@@ -75,3 +75,7 @@ note=This is the tooltip text for a convoy whose next stop is out of range.
 obj=program_text
 name=Cannot remove a public right of way without providing an adequate diversionary route
 note=This is the error message shown when a player tries to delete a public right of way without a diversionary route.
+-
+obj=program_text
+name=There is already a marker here.\n
+note=This is the error message shown when a player tries to place a marker on top of an already existing marker.

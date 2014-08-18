@@ -1621,7 +1621,7 @@ const char *wkz_marker_t::work( spieler_t *sp, koord3d pos )
 		return "Das Feld gehoert\neinem anderen Spieler\n";
 	}
 
-	return "There's already a marker here.\n";
+	return "There is already a marker here.\n";
 }
 
 
