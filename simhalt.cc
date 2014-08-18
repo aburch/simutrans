@@ -1444,9 +1444,9 @@ uint32 haltestelle_t::reroute_goods(const uint8 catg)
 			// If the passengers have re-routed so that they now
 			// walk to the next transfer, go there immediately.
 			if(ware.is_passenger()
-				&& is_within_walking_distance_of(ware.get_zwischenziel())
-				&& !connexions[0]->get(ware.get_zwischenziel())->best_convoy.is_bound()
-				&& !connexions[0]->get(ware.get_zwischenziel())->best_line.is_bound())
+			   && is_within_walking_distance_of(ware.get_zwischenziel())
+			   && !get_preferred_convoy(ware.get_zwischenziel(), 0).is_bound()
+			   && !get_preferred_line(ware.get_zwischenziel(), 0).is_bound())
 			{
 				// FIXME: The passengers need to actually be delayed by the walking time
 				erzeuge_fussgaenger(get_basis_pos3d(), ware.menge);
@@ -2402,10 +2402,9 @@ uint32 haltestelle_t::starte_mit_route(ware_t ware)
 	}
 
 	if(ware.is_passenger()
-		&& is_within_walking_distance_of(ware.get_zwischenziel())
-		&& !connexions[0]->get(ware.get_zwischenziel())->best_convoy.is_bound()
-		&& !connexions[0]->get(ware.get_zwischenziel())->best_line.is_bound()
-		)
+	   && is_within_walking_distance_of(ware.get_zwischenziel())
+	   && !get_preferred_convoy(ware.get_zwischenziel(), 0).is_bound()
+	   && !get_preferred_line(ware.get_zwischenziel(), 0).is_bound())
 	{
 		// We allow walking from the first station because of the way passenger return journeys work;
 		// they automatically start from the destination halt for the outgoing journey
@@ -2553,7 +2552,8 @@ uint32 haltestelle_t::liefere_an(ware_t ware, uint8 walked_between_stations)
 			}
 		}
 
-		if(!connexions[0]->get(ware.get_zwischenziel())->best_convoy.is_bound()	&& !connexions[0]->get(ware.get_zwischenziel())->best_line.is_bound())
+		if (!get_preferred_convoy(ware.get_zwischenziel(), 0).is_bound()
+		    && !get_preferred_line(ware.get_zwischenziel(), 0).is_bound())
 		{
 			// If this is within walking distance of the next transfer, and there is not a faster way there, walk there.
 	walking:
