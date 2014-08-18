@@ -2385,11 +2385,13 @@ bool grund_t::remove_everything_from_way(spieler_t* sp, waytype_t wt, ribi_t::ri
 		// need to remove railblocks to recalcualte connections
 		// remove all ways or just some?
 		if(add==ribi_t::keine) {
+			spieler_t* owner = weg->get_besitzer();
+			koord3d pos = weg->get_pos();
 			costs -= weg_entfernen(wt, true);
-			if(weg->get_besitzer() == sp)
+			if(owner == sp)
 			{
 				// Need to sell the land on which the way is situated
-				costs =- welt->get_land_value(weg->get_pos());
+				costs =- welt->get_land_value(pos);
 			}
 			if(flags&is_kartenboden) {
 				// remove ribis from sea tiles
