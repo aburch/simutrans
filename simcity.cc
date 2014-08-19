@@ -2651,6 +2651,9 @@ void stadt_t::calc_growth()
 // does constructions ...
 void stadt_t::step_grow_city(bool new_town)
 {
+	// Do not try to expand further after we failed.
+	bool failure = false;
+
 	// Try harder to build if this is a new town
 	int num_tries = new_town ? 50 : 30;
 
@@ -2663,8 +2666,14 @@ void stadt_t::step_grow_city(bool new_town)
 	while ( --growth_steps >= 0 ) {
 		bev ++; // Hajo: bevoelkerung wachsen lassen ("grow population" - Google)
 
-		for (int i = 0; i < num_tries && bev * 2 > won + arb + 100; i++) {
-			baue(new_town);
+		if (!failure) {
+			int i;
+
+			for (i = 0; i < num_tries && bev * 2 > won + arb + 100; i++) {
+				baue(new_town);
+			}
+
+			failure = i == num_tries;
 		}
 
 		check_bau_spezial(new_town);
@@ -4471,9 +4480,11 @@ bool stadt_t::baue_strasse(const koord k, spieler_t* sp, bool forced)
 		}
 	}
 
-	while (bd->would_create_excessive_roads()) {
-		if (!bd->remove_excessive_roads()) {
-			return NULL;
+	if (connection_roads != ribi_t::keine || forced) {
+		while (bd->would_create_excessive_roads()) {
+			if (!bd->remove_excessive_roads()) {
+				return false;
+			}
 		}
 	}
 
@@ -4638,9 +4649,13 @@ void stadt_t::baue(bool new_town)
 			}
 			// ok => then built road
 			if (best_strasse.found()) {
-				baue_strasse(best_strasse.get_pos(), NULL, false);
-				INT_CHECK("simcity 5175");
-				return;
+				if (baue_strasse(best_strasse.get_pos(), NULL, false)) {
+					INT_CHECK("simcity 5175");
+					return;
+				} else {
+					candidates.remove_at(idx, false);
+					continue;
+				}
 			}
 
 			// not good for road => test for house
