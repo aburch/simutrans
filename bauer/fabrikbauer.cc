@@ -145,7 +145,7 @@ public:
 						return false;
 					}
 				}
-				else if (  !next_to_road  &&  (-1 < x && x < b) || (-1 < y && y < h)  ) {
+				else if (  !next_to_road  &&  ((-1 < x && x < b) || (-1 < y && y < h))  ) {
 					// Border (because previous clause didn't trigger) but not corner.
 					// Look for a road.
 					next_to_road = gr->hat_weg(road_wt);
