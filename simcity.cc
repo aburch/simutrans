@@ -3156,7 +3156,9 @@ void stadt_t::check_bau_spezial(bool new_town)
 									continue;
 								}
 
-								assert(baue_strasse(k, NULL, true));
+								bool success = baue_strasse(k, NULL, true);
+
+								assert(success);
 							}
 						}
 					}
