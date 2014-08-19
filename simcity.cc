@@ -3155,11 +3155,8 @@ void stadt_t::check_bau_spezial(bool new_town)
 								if (gr->hat_weg(road_wt)) {
 									continue;
 								}
-								if (!baue_strasse(k, NULL, true)) {
-									/* This should no longer happen */
-									fprintf(stderr, "failed to build road at <%d,%d>\n", k.x, k.y);
-									assert(false);
-								}
+
+								assert(baue_strasse(k, NULL, true));
 							}
 						}
 					}
