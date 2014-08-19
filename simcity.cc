@@ -2625,10 +2625,10 @@ void stadt_t::calc_growth()
 	const sint64 tpm = welt->ticks_per_world_month;
 	const sint64 old_ticks_per_world_month = 1LL << 18;
 	if (tpm > old_ticks_per_world_month) {
-		new_wachstum *= (tpm / old_ticks_per_world_month);
+		new_wachstum /= (tpm / old_ticks_per_world_month);
 	}
 	else {
-		new_wachstum /= (old_ticks_per_world_month / tpm);
+		new_wachstum *= (old_ticks_per_world_month / tpm);
 	}
 
 	wachstum += new_wachstum;
