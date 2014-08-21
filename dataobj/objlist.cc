@@ -1129,17 +1129,22 @@ void objlist_t::display_obj_quick_and_dirty( const sint16 xpos, const sint16 ypo
 	}
 	else if(capacity==1) {
 		if(start_offset==0) {
+			// only draw background on request
 #ifdef MULTI_THREAD
 			obj.one->display( xpos, ypos, clip_num );
-			obj.one->display_after(xpos, ypos, clip_num );
 #else
 			obj.one->display( xpos, ypos );
-			obj.one->display_after( xpos, ypos, is_global );
-			if(  is_global  ) {
-				obj.one->clear_flag( obj_t::dirty );
-			}
 #endif
 		}
+		// foreground need to be drawn in any case
+#ifdef MULTI_THREAD
+		obj.one->display_after(xpos, ypos, clip_num );
+#else
+		obj.one->display_after( xpos, ypos, is_global );
+		if(  is_global  ) {
+			obj.one->clear_flag( obj_t::dirty );
+		}
+#endif
 		return;
 	}
 
