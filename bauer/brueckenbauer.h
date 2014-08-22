@@ -30,6 +30,8 @@ private:
 
 	static karte_ptr_t welt;
 
+	static bool is_blocked(koord3d pos, spieler_t *sp, const bruecke_besch_t *besch, const char *&error_msg);
+	static bool is_monorail_junction(koord3d pos, spieler_t *sp, const bruecke_besch_t *besch, const char *&error_msg);
 public:
 	/**
 	 * Finds the position of the end of the bridge. Does all kind of checks.
@@ -42,11 +44,12 @@ public:
 	 * @param zv   desired direction of the bridge
 	 * @param besch the description of the bridge
 	 * @param error_msg an error message when the search fails.
+	 * @param bridge_height on success, the height of the bridge that we can build
 	 * @param ai_bridge if this bridge is being built by an AI
 	 * @param min_length the minimum length of the bridge.
 	 * @return the position of the other end of the bridge or koord3d::invalid if no possible end is found
 	 */
-	static koord3d finde_ende(spieler_t *sp, koord3d pos, const koord zv, const bruecke_besch_t *besch, const char *&error_msg, bool ai_bridge=false, uint32 min_length=0 );
+	static koord3d finde_ende(spieler_t *sp, koord3d pos, const koord zv, const bruecke_besch_t *besch, const char *&error_msg, sint8 &bridge_height, bool ai_bridge=false, uint32 min_length=0 );
 
 	/**
 	 * Checks whether given tile @p gr is suitable for placing bridge ramp.
@@ -84,10 +87,11 @@ public:
 	 * @param start start position.
 	 * @param end end position
 	 * @param zv direction the bridge will face
+	 * @param bridge_height the height above start.z that the bridge will have
 	 * @param besch bridge description.
 	 * @param weg_besch description of the way to be built on the bridge
 	 */
-	static void baue_bruecke(spieler_t *sp, const koord3d start, const koord3d end, koord zv, const bruecke_besch_t *besch, const weg_besch_t *weg_besch);
+	static void baue_bruecke(spieler_t *sp, const koord3d start, const koord3d end, koord zv, sint8 bridge_height, const bruecke_besch_t *besch, const weg_besch_t *weg_besch);
 
 	/**
 	 * Registers a new bridge type and adds it to the list of build tools.

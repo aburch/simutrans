@@ -2366,7 +2366,11 @@ const char *wkz_brueckenbau_t::do_work( spieler_t *sp, const koord3d &start, con
 	}
 	else {
 		const koord zv(ribi_typ(end-start));
-		brueckenbauer_t::baue_bruecke( sp, start, end, zv, besch, wegbauer_t::weg_search(besch->get_waytype(), besch->get_topspeed(), welt->get_timeline_year_month(), weg_t::type_flat));
+		sint8 bridge_height;
+		const char *error;
+		koord3d end2 = brueckenbauer_t::finde_ende(sp, start, zv, besch, error, bridge_height, false, koord_distance(start, end));
+		assert(end2 == end);
+		brueckenbauer_t::baue_bruecke( sp, start, end, zv, bridge_height, besch, wegbauer_t::weg_search(besch->get_waytype(), besch->get_topspeed(), welt->get_timeline_year_month(), weg_t::type_flat));
 		return NULL; // all checks are performed before building.
 	}
 }
@@ -2384,6 +2388,12 @@ void wkz_brueckenbau_t::mark_tiles(  spieler_t *sp, const koord3d &start, const 
 	const ribi_t::ribi ribi_mark = ribi_typ(end-start);
 	const koord zv(ribi_mark);
 	const bruecke_besch_t *besch = brueckenbauer_t::get_besch(default_param);
+	const char *error;
+	sint8 bridge_height;
+	koord3d end2 = brueckenbauer_t::finde_ende(sp, start, zv, besch, error, bridge_height, false, koord_distance(start, end));
+
+	assert(end == end2);
+
 	sint64 costs = 0;
 	// start
 	grund_t *gr = welt->lookup(start);
@@ -2393,7 +2403,7 @@ void wkz_brueckenbau_t::mark_tiles(  spieler_t *sp, const koord3d &start, const 
 	// single height -> height is 1
 	// double height -> height is 2
 	const hang_t::typ slope = gr->get_grund_hang();
-	const uint8 max_height = slope ? ((slope & 7) ? 1 : 2) : (besch->has_double_ramp()?2:1);
+	uint8 max_height = slope ?  hang_t::max_diff(slope) : bridge_height;
 
 	zeiger_t *way = new zeiger_t(start, sp );
 	const bruecke_besch_t::img_t img0 = besch->get_end( slope, slope, hang_typ(zv)*max_height );
@@ -2505,51 +2515,63 @@ uint8 wkz_brueckenbau_t::is_valid_pos(  spieler_t *sp, const koord3d &pos, const
 	}
 
 	if(  is_first_click()  ) {
-		// first click
-		ribi_t::ribi rw = ribi_t::keine;
-		if (wt==powerline_wt) {
-			if (gr->hat_wege()) {
-				return 0;
-			}
-			if (gr->find<leitung_t>()) {
-				rw |= gr->find<leitung_t>()->get_ribi();
-			}
-		}
-		else {
-			if (gr->find<leitung_t>()) {
-				return 0;
-			}
-			if(wt!=road_wt) {
-			// only road bridges can have other ways on it (ie trams)
-				if(gr->has_two_ways()  ||  (gr->hat_wege() && gr->get_weg_nr(0)->get_waytype()!=wt) ) {
+		if(  gr->ist_karten_boden()  ) {
+			// first click
+			ribi_t::ribi rw = ribi_t::keine;
+			if (wt==powerline_wt) {
+				if (gr->hat_wege()) {
 					return 0;
 				}
-				if(gr->hat_wege()){
-					rw |= gr->get_weg_nr(0)->get_ribi_unmasked();
+				if (gr->find<leitung_t>()) {
+					rw |= gr->find<leitung_t>()->get_ribi();
 				}
 			}
 			else {
-				// If road and tram, we have to check both ribis.
-				for(int i=0;i<2;i++) {
-					const weg_t *w = gr->get_weg_nr(i);
-					if (w) {
-						if (w->get_waytype()!=road_wt  &&  (w->get_waytype()!=track_wt  ||  w->get_besch()->get_styp()!=tram_wt)) {
-							return 0;
-						}
-						rw |= w->get_ribi_unmasked();
+				if (gr->find<leitung_t>()) {
+					return 0;
+				}
+				if(wt!=road_wt) {
+					// only road bridges can have other ways on it (ie trams)
+					if(gr->has_two_ways()  ||  (gr->hat_wege() && gr->get_weg_nr(0)->get_waytype()!=wt) ) {
+						return 0;
 					}
-					else break;
+					if(gr->hat_wege()){
+						rw |= gr->get_weg_nr(0)->get_ribi_unmasked();
+					}
+				}
+				else {
+					// If road and tram, we have to check both ribis.
+					for(int i=0;i<2;i++) {
+						const weg_t *w = gr->get_weg_nr(i);
+						if (w) {
+							if (w->get_waytype()!=road_wt  &&  (w->get_waytype()!=track_wt  ||  w->get_besch()->get_styp()!=tram_wt)) {
+								return 0;
+							}
+							rw |= w->get_ribi_unmasked();
+						}
+						else break;
+					}
 				}
 			}
+			// ribi from slope
+			rw |= ribi_typ(gr->get_grund_hang());
+			if(  rw!=ribi_t::keine && !ribi_t::ist_einfach(rw)  ) {
+				return 0;
+			}
+			// determine possible directions
+			ribi = ribi_t::rueckwaerts(rw);
+			return (ribi!=ribi_t::keine ? 2 : 0) | (ribi_t::ist_einfach(ribi) ? 1 : 0);
+		} else {
+			if(  gr->get_weg_hang()  ) {
+				return 0;
+			}
+
+			if(  gr->get_typ() != grund_t::monorailboden  ) {
+				return 0;
+			}
+
+			return 2;
 		}
-		// ribi from slope
-		rw |= ribi_typ(gr->get_grund_hang());
-		if(  rw!=ribi_t::keine && !ribi_t::ist_einfach(rw)  ) {
-			return 0;
-		}
-		// determine possible directions
-		ribi = ribi_t::rueckwaerts(rw);
-		return (ribi!=ribi_t::keine ? 2 : 0) | (ribi_t::ist_einfach(ribi) ? 1 : 0);
 	}
 	else {
 		// second click
@@ -2575,7 +2597,8 @@ uint8 wkz_brueckenbau_t::is_valid_pos(  spieler_t *sp, const koord3d &pos, const
 
 		// check whether we can build a bridge here
 		const char *error = NULL;
-		koord3d end = brueckenbauer_t::finde_ende(sp, start, koord(test), besch, error, false, koord_distance(start, pos));
+		sint8 bridge_height;
+ 		koord3d end = brueckenbauer_t::finde_ende(sp, start, koord(test), besch, error, bridge_height, false, koord_distance(start, pos));
 		if (end!=pos) {
 			return 0;
 		}
