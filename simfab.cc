@@ -1716,10 +1716,11 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 			}
 			else {
 				// overflowed with our own ware and we have still nearly full stock
-				if(  ausgang[produkt].menge>= (3 * ausgang[produkt].max) >> 2  ) {
+//				if(  ausgang[produkt].menge>= (3 * ausgang[produkt].max) >> 2  ) {
 					/* Station too full, notify player */
-					best_halt->bescheid_station_voll();
-				}
+//					best_halt->bescheid_station_voll();
+//				}
+// for now report only serious overcrowding on transfer stops
 				return;
 			}
 		}
