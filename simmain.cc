@@ -201,7 +201,9 @@ static void show_times(karte_t *welt, karte_ansicht_t *view)
 #endif
 
 
-void modal_dialogue( gui_frame_t *gui, ptrdiff_t magic, karte_t *welt, bool (*quit)() )
+typedef bool (*quit_t)();
+
+void modal_dialogue( gui_frame_t *gui, ptrdiff_t magic, karte_t *welt, quit_t quit )
 {
 	if(  display_get_width()==0  ) {
 		dbg->error( "modal_dialogue()", "called without a display driver => nothing will be shown!" );
