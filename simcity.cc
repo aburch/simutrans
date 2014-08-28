@@ -4379,9 +4379,11 @@ bool stadt_t::baue_strasse(const koord k, spieler_t* sp, bool forced)
 	if (!hang_t::ist_wegbar(slope)) {
 		if (welt->can_ebne_planquadrat(NULL, k, bd->get_hoehe()+1, true)) {
 			welt->ebne_planquadrat(NULL, k, bd->get_hoehe()+1, true);
+			bd = welt->lookup_kartenboden(k);
 		}
 		else if(  bd->get_hoehe() > welt->get_water_hgt(k)  &&  welt->can_ebne_planquadrat(NULL, k, bd->get_hoehe() )  ) {
 			welt->ebne_planquadrat(NULL, k, bd->get_hoehe());
+			bd = welt->lookup_kartenboden(k);
 		}
 		else {
 			return false;
