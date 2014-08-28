@@ -9015,7 +9015,8 @@ bool karte_t::interactive(uint32 quit_month)
 
 #ifdef DEBUG_SIMRAND_CALLS
 					char buf[2048];
-					LCHKLST(sync_steps).print(buf, "chklist");
+					const int offset = LCHKLST(sync_steps).print(buf, "chklist");
+					assert(offset<2048);
 					dbg->warning("karte_t::interactive", "sync_step=%u  %s", sync_steps, buf);
 #endif
 
