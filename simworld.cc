@@ -8747,9 +8747,11 @@ void karte_t::process_network_commands(sint32 *ms_difference)
 				// out of sync => drop client (but we can only compare if nwt->last_sync_step is not too old)
 				else if(  is_checklist_available(nwt->last_sync_step)  &&  LCHKLST(nwt->last_sync_step)!=nwt->last_checklist  ) {
 					// lost synchronisation -> server kicks client out actively
-					char buf[256];
+					char buf[2048];
 					const int offset = LCHKLST(nwt->last_sync_step).print(buf, "server");
-					nwt->last_checklist.print(buf + offset, "initiator");
+					assert(offset < 2048);
+					const int offset2 = offset + nwt->last_checklist.print(buf + offset, "initiator");
+					assert(offset2 < 2048);
 					dbg->warning("karte_t::process_network_commands", "kicking client due to checklist mismatch : sync_step=%u %s", nwt->last_sync_step, buf);
 					socket_list_t::remove_client( nwc->get_sender() );
 					delete nwc;
@@ -8804,9 +8806,11 @@ void karte_t::do_network_world_command(network_world_command_t *nwc)
 		// this was the random number at the previous sync step on the server
 		const checklist_t &server_checklist = nwcheck->server_checklist;
 		const uint32 server_sync_step = nwcheck->server_sync_step;
-		char buf[256];
+		char buf[2048];
 		const int offset = server_checklist.print(buf, "server");
-		LCHKLST(server_sync_step).print(buf + offset, "client");
+		assert(offset < 2048);
+		const int offset2 = offset + LCHKLST(server_sync_step).print(buf + offset, "client");
+		assert(offset2 < 2048);
 		dbg->warning("karte_t:::do_network_world_command", "sync_step=%u  %s", server_sync_step, buf);
 		if(  LCHKLST(server_sync_step)!=server_checklist  ) {
 			dbg->warning("karte_t:::do_network_world_command", "disconnecting due to checklist mismatch" );
@@ -8818,9 +8822,11 @@ void karte_t::do_network_world_command(network_world_command_t *nwc)
 			nwc_tool_t *nwt = dynamic_cast<nwc_tool_t *>(nwc);
 			if(  is_checklist_available(nwt->last_sync_step)  &&  LCHKLST(nwt->last_sync_step)!=nwt->last_checklist  ) {
 				// lost synchronisation ...
-				char buf[256];
+				char buf[2048];
 				const int offset = nwt->last_checklist.print(buf, "server");
-				LCHKLST(nwt->last_sync_step).print(buf + offset, "executor");
+				assert(offset < 2048);
+				const int offset2 = offset + LCHKLST(nwt->last_sync_step).print(buf + offset, "executor");
+				assert(offset2 < 2048);
 				dbg->warning("karte_t:::do_network_world_command", "skipping command due to checklist mismatch : sync_step=%u %s", nwt->last_sync_step, buf);
 				if(  !env_t::server  ) {
 					network_disconnect();
