@@ -213,7 +213,7 @@ void display_base_img(const unsigned, KOORD_VAL, KOORD_VAL, const signed char, c
 {
 }
 
-void display_fit_img_to_width( const image_id n, sint16 new_w )
+void display_fit_img_to_width( const image_id, sint16)
 {
 }
 
@@ -337,7 +337,7 @@ unsigned short get_prev_char_with_metrics(const char* &, const char *const, unsi
 	return 0;
 }
 
-bool has_character( utf16 char_code )
+bool has_character( utf16 )
 {
 	return false;
 }

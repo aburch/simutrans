@@ -114,9 +114,9 @@ char const* dr_query_homedir()
 
 const char *dr_query_fontpath( const char *fontname )
 {
+#if defined _WIN32
 	static char buffer[PATH_MAX];
 
-#if defined _WIN32
 	if(  SHGetFolderPathA(NULL, CSIDL_FONTS, NULL, SHGFP_TYPE_CURRENT, buffer)  ) {
 		strcpy( buffer, "C:\\Windows\\Fonts" );
 	}
