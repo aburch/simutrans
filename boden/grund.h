@@ -767,6 +767,7 @@ public:
 	sint32 weg_entfernen(waytype_t wegtyp, bool ribi_rem);
 
 	bool removing_road_would_disconnect_city_building();
+	bool removing_road_would_disrupt_public_right_of_way();
 	bool removing_road_would_break_monument_loop();
 
 	typedef koordhashtable_tpl<koord, bool> road_network_plan_t;

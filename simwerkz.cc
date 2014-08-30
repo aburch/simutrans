@@ -27,6 +27,7 @@
 #include "boden/grund.h"
 #include "boden/wasser.h"
 #include "boden/wege/schiene.h"
+#include "boden/wege/strasse.h"
 #include "boden/tunnelboden.h"
 #include "boden/monorailboden.h"
 
@@ -264,6 +265,9 @@ static grund_t *wkz_intern_koord_to_weg_grund(spieler_t *sp, karte_t *welt, koor
 		}
 	}
 
+	if(  wt == invalid_wt  ) {
+		return gr;
+	}
 
 	// has some rail or monorail?
 	if(  !gr->hat_weg(wt)  ) {
@@ -793,8 +797,9 @@ DBG_MESSAGE("wkz_remover()", "removing way");
 
 		wt = w->get_besch()->get_finance_waytype();
 		const sint64 land_refund_cost = welt->get_land_value(w->get_pos()); // Refund the land value to the player who owned the way, as by bulldozing, the player is selling the land.
+		spieler_t* owner = w->get_besitzer();
 		sint64 cost_sum = gr->weg_entfernen(w->get_waytype(), true);
-		if(sp == w->get_besitzer())
+		if(sp == owner)
 		{
 			cost_sum -= land_refund_cost;
 		}
@@ -802,7 +807,7 @@ DBG_MESSAGE("wkz_remover()", "removing way");
 		{
 			spieler_t::book_construction_costs(sp, -cost_sum, k, wt);
 		}
-		spieler_t::book_construction_costs( w->get_besitzer(), -land_refund_cost, k, wt);
+		spieler_t::book_construction_costs( owner, -land_refund_cost, k, wt);
 	}
 	else {
 		// remove ways and tunnel
@@ -2416,7 +2421,6 @@ const weg_besch_t *wkz_wegebau_t::get_besch( uint16 timeline_year_month, bool re
 			besch = wegbauer_t::weg_search(wt, 0xffffffff, timeline_year_month, weg_t::type_flat);
 		}
 	}
-	assert(besch);
 	if(!besch)
 	{
 		return NULL;
@@ -4929,10 +4933,18 @@ const char* wkz_roadsign_t::check_pos_intern(spieler_t *sp, koord3d pos)
 			return error;
 		}
 
-		if(besch->is_private_way() && ((!ribi_t::ist_gerade(dir) || weg->get_besitzer() != sp) && (sp->get_player_nr() != 1 || weg->get_besitzer() != NULL)))
+		if(besch->is_private_way() &&
+		   (!ribi_t::ist_gerade(dir) || weg->get_besitzer() != sp ||
+		    gr->removing_road_would_disconnect_city_building() ||
+		    gr->removing_road_would_disrupt_public_right_of_way()) &&
+		   (sp->get_player_nr() != 1 || weg->get_besitzer() != NULL))
 		{
 			// Private way signs only on straight tiles, and only on ways belonging to the player building them.
 			return error;
+		}
+		if(besch->is_private_way()) {
+			weg->set_gehweg(false);
+			weg->set_public_right_of_way(false);
 		}
 
 		const bool two_way = besch->is_single_way()  ||  besch->is_signal() ||  besch->is_pre_signal();

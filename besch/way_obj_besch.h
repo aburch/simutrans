@@ -44,6 +44,7 @@ private:
      * @author Hj. Malthaner
      */
 	uint8 own_wtyp;
+	uint8 is_fence_flag;
 
 	/*Way constraints for, e.g., loading gauges, types of electrification, etc.
 	* @author: jamespetts*/
@@ -59,10 +60,15 @@ public:
 	*/
 	waytype_t get_own_wtyp() const { return (waytype_t)own_wtyp; }
 
+	bool is_fence() const { return is_fence_flag; }
+
 	// way objects can have a front and a backimage, unlike ways ...
 	image_id get_front_image_id(ribi_t::ribi ribi) const { return get_child<bildliste_besch_t>(2)->get_bild_nr(ribi); }
 
 	image_id get_back_image_id(ribi_t::ribi ribi) const { return get_child<bildliste_besch_t>(3)->get_bild_nr(ribi); }
+
+	// way objects can have a front and a backimage, unlike ways ...
+	image_id get_fence_image_id(int index, ribi_t::ribi ribi) const { return get_child<bildliste_besch_t>(index)->get_bild_nr(ribi); }
 
 	image_id get_front_slope_image_id(hang_t::typ hang) const
 	{

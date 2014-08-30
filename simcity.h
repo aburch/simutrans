@@ -375,6 +375,7 @@ private:
 	 *
 	 * @author Hj. Malthaner, V. Meyer
 	 */
+	bool maybe_build_road(koord k);
 	bool baue_strasse(const koord k, spieler_t *sp, bool forced);
 
 	void baue(bool new_town);
@@ -386,6 +387,7 @@ private:
 	 * @author Hj. Malthaner
 	 */
 
+	bool bewerte_loc_has_public_road(koord pos);
 	bool bewerte_loc(koord pos, const rule_t &regel, int rotation);
 
 

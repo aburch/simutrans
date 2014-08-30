@@ -18,6 +18,7 @@
 #include "../simworld.h"
 
 #include "../bauer/wegbauer.h"
+#include "../bauer/vehikelbauer.h" /* for diversion route checking */
 
 #include "../besch/grund_besch.h"
 #include "../besch/haus_besch.h"
@@ -1838,7 +1839,11 @@ sint64 grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp, ko
 		}
 
 		// Add a pavement to the new road if the old road also had a pavement.
-		weg->set_gehweg(alter_weg && alter_weg->hat_gehweg());
+		if (alter_weg && alter_weg->hat_gehweg()) {
+			strasse_t *str = static_cast<strasse_t *>(weg);
+			str->set_gehweg(true);
+			weg->set_public_right_of_way();
+		}
 
 		// Add a pavement to roads adopted by the city.  This avoids the
 		// "I deleted the road and replaced it, so now there's no pavement" phenomenon.
@@ -1846,7 +1851,9 @@ sint64 grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp, ko
 		if (city_adopts_this)
 		{
 			// Add road and set speed limit.
-			weg->set_gehweg(true);
+			strasse_t *str = static_cast<strasse_t *>(weg);
+			str->set_gehweg(true);
+			weg->set_public_right_of_way();
 		}
 		else if(sp && !ist_wasser() && !city_adopts_this)
 		{
@@ -1936,6 +1943,12 @@ bool grund_t::would_create_excessive_roads(int dx, int dy, road_network_plan_t &
 			return false;
 		}
 
+		wayobj_t *wo;
+		if ((wo = gr[i]->get_wayobj(road_wt)) &&
+		    wo->get_besch()->is_fence()) {
+			return false;
+		}
+
 		if (gr[i]->get_leitung() != NULL) {
 			return false;
 		}
@@ -1998,6 +2011,12 @@ bool grund_t::remove_excessive_roads(int dx, int dy, road_network_plan_t &road_t
 		}
 
 		if (gr[i]->get_leitung() != NULL) {
+			return false;
+		}
+
+		wayobj_t *wo;
+		if ((wo = gr[i]->get_wayobj(road_wt)) &&
+		    wo->get_besch()->is_fence()) {
 			return false;
 		}
 
@@ -2163,7 +2182,8 @@ bool grund_t::removing_road_would_disconnect_city_building()
 					continue;
 				}
 				const weg_t* w = grx ? grx->get_weg(road_wt) : NULL;
-				if(w && w->get_ribi() && !ribi_t::ist_einfach(w->get_ribi()))
+				wayobj_t* wo = grx ? grx->get_wayobj(road_wt) : NULL;
+				if(w && (!wo || !wo->get_besch()->is_fence()) && w->get_ribi() && !ribi_t::ist_einfach(w->get_ribi()))
 				{
 					// We must check that the road is itself connected to somewhere other
 					// than the road that we are trying to delete.
@@ -2208,6 +2228,104 @@ bool grund_t::removing_road_would_disconnect_city_building()
 		}
 	}
 
+	return false;
+}
+
+bool grund_t::removing_road_would_disrupt_public_right_of_way()
+{
+	weg_t *w = get_weg(road_wt);
+	if (!w || !w->is_public_right_of_way()) {
+		return false;
+	}
+	minivec_tpl<weg_t*> neighbouring_ways(2);
+	for(int n = 0; n < 8; n ++)
+	{
+		const koord k = pos.get_2d().neighbours[n] + pos.get_2d();
+		const grund_t* gr = welt->lookup_kartenboden(k);
+		if(!gr)
+		{
+			continue;
+		}
+		weg_t* neighbouring_way = gr->get_weg(w->get_waytype());
+		if(neighbouring_way && neighbouring_way->is_public_right_of_way())
+		{
+			neighbouring_ways.append(neighbouring_way);
+		}
+	}
+
+	if(neighbouring_ways.get_count() > 1)
+	{
+		// It is necessary to do this to simulate the way not being there for testing purposes.
+		grund_t* way_gr = welt->lookup(w->get_pos());
+		koord3d start = koord3d::invalid;
+		koord3d end;
+		vehikel_besch_t diversion_check_type(w->get_waytype(), kmh_to_speed(w->get_max_speed()), vehikel_besch_t::diesel, w->get_max_axle_load());
+		minivec_tpl<route_t> diversionary_routes;
+		uint32 successful_diversions = 0;
+		uint32 necessary_diversions = 0;
+		FOR(minivec_tpl<weg_t*>, const& way, neighbouring_ways)
+		{
+			end = start;
+			start = way->get_pos();
+			if(end != koord3d::invalid)
+			{
+				route_t diversionary_route;
+				vehikel_t *diversion_checker = vehikelbauer_t::baue(start, welt->get_spieler(1), NULL, &diversion_check_type);
+				diversion_checker->set_flag(obj_t::not_on_map);
+				diversion_checker->set_besitzer(welt->get_spieler(1));
+				const uint32 max_axle_load = way_gr->ist_bruecke() ? 1 : w->get_max_axle_load(); // TODO: Use proper axle load when axle load for bridges is introduced.
+				const uint32 bridge_weight = w->get_max_axle_load() * 2; // This is something of a fudge, but it is reasonable to assume that most road vehicles have 2 axles.
+				if(diversionary_route.calc_route(welt, start, end, diversion_checker, w->get_max_speed(), max_axle_load, 0, welt->get_settings().get_max_diversion_tiles() * 100, bridge_weight))
+				{
+					// Only increment this counter if the ways were already connected.
+					necessary_diversions ++;
+				}
+				const bool route_good = !way_gr->ist_bruecke() && diversionary_route.calc_route(welt, start, end, diversion_checker, w->get_max_speed(), max_axle_load, 0, welt->get_settings().get_max_diversion_tiles() * 100, bridge_weight, w->get_pos());
+				if(route_good && (diversionary_route.get_count() < welt->get_settings().get_max_diversion_tiles()))
+				{
+					successful_diversions ++;
+					diversionary_routes.append(diversionary_route);
+				}
+				delete diversion_checker;
+			}
+		}
+
+		if(successful_diversions < necessary_diversions)
+		{
+ 			return true;
+		}
+
+		FOR(minivec_tpl<route_t>, const& diversionary_route, diversionary_routes)
+		{
+			for(int n = 0; n < diversionary_route.get_count(); n++)
+			{
+				grund_t *gr = welt->lookup(diversionary_route.position_bei(n));
+				weg_t* way = gr->get_weg(w->get_waytype());
+				if (w->get_waytype() == road_wt) {
+					roadsign_t *rs = gr->find<roadsign_t>();
+					if (rs && rs->get_besch()->is_private_way()) {
+						return false;
+					}
+
+					wayobj_t *wo = gr->get_wayobj(road_wt);
+					if (wo && wo->get_besch()->is_fence()) {
+						return false;
+					}
+				}
+			}
+		}
+
+		FOR(minivec_tpl<route_t>, const& diversionary_route, diversionary_routes)
+		{
+			for(int n = 0; n < diversionary_route.get_count(); n++)
+			{
+				// All diversionary routes must themselves be set as public rights of way.
+				weg_t* way = welt->lookup(diversionary_route.position_bei(n))->get_weg(w->get_waytype());
+
+				way->set_public_right_of_way();
+			}
+		}
+	}
 	return false;
 }
 

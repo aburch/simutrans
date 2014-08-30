@@ -73,12 +73,17 @@ obj_besch_t * way_obj_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->own_wtyp = decode_uint8(p);
 		if(experimental)
 		{
-			if(experimental_version == 0)
+			if(experimental_version >= 0)
 			{
 				way_constraints.set_permissive(decode_uint8(p));
 				way_constraints.set_prohibitive(decode_uint8(p));
 			}
-			else
+			if(experimental_version == 1) {
+				besch->is_fence_flag = decode_uint8(p);
+			} else {
+				besch->is_fence_flag = 0;
+			}
+			if(experimental_version > 1)
 			{
 				dbg->fatal( "way_obj_reader_t::read_node()","Incompatible pak file version for Simutrans-E, number %i", experimental_version );
 			}

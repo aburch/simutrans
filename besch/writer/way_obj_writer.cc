@@ -23,7 +23,7 @@ void way_obj_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& 
 	};
 	int ribi, hang;
 
-	obj_node_t node(this, 22, &parent);
+	obj_node_t node(this, 23, &parent);
 
 
 	// Hajo: Version needs high bit set as trigger -> this is required
@@ -37,7 +37,7 @@ void way_obj_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& 
 	// Finally, this is the experimental version number. This is *added*
 	// to the standard version number, to be subtracted again when read.
 	// Start at 0x100 and increment in hundreds (hex).
-	version += 0x100;
+	version += 0x200;
 
 	uint32 price       = obj.get_int("cost",        100);
 	uint32 maintenance = obj.get_int("maintenance", 100);
@@ -51,6 +51,7 @@ void way_obj_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& 
 
 	uint8 wtyp     =  get_waytype(obj.get("waytype"));
 	uint8 own_wtyp =  get_waytype(obj.get("own_waytype"));
+	uint8 is_fence =  obj.get_int("is_fence", 0);
 
 	// Way constraints
 	// One byte for permissive, one byte for prohibitive.
@@ -95,6 +96,7 @@ void way_obj_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& 
 	node.write_uint8 (outfp, own_wtyp,					19);
 	node.write_uint8(outfp, permissive_way_constraints,	20);
 	node.write_uint8(outfp, prohibitive_way_constraints,21);
+	node.write_uint8(outfp, is_fence, 22);
 
 	write_head(outfp, node, obj);
 
@@ -156,11 +158,136 @@ void way_obj_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& 
 	imagelist_writer_t::instance()->write_obj(outfp, node, front_list);
 	imagelist_writer_t::instance()->write_obj(outfp, node, back_list);
 
+	front_list.clear();
+	back_list.clear();
+
 	slist_tpl<string> cursorkeys;
 	cursorkeys.append(string(obj.get("cursor")));
 	cursorkeys.append(string(obj.get("icon")));
 	cursorskin_writer_t::instance()->write_obj(outfp, node, obj, cursorkeys);
 
+	if (is_fence) {	
+		for (ribi = 0; ribi < 16; ribi++) {
+			char buf[40];
+			sprintf(buf, "frontimageupn[%s]", ribi_codes[ribi]);
+			string str = obj.get(buf);
+			front_list.append(str);
+			sprintf(buf, "backimageupn[%s]", ribi_codes[ribi]);
+			string str2 = obj.get(buf);
+			back_list.append(str2);
+		}
+		imagelist_writer_t::instance()->write_obj(outfp, node, front_list);
+		imagelist_writer_t::instance()->write_obj(outfp, node, back_list);
+		
+		front_list.clear();
+		back_list.clear();
+		
+		for (ribi = 0; ribi < 16; ribi++) {
+			char buf[40];
+			sprintf(buf, "frontimageupe[%s]", ribi_codes[ribi]);
+			string str = obj.get(buf);
+			front_list.append(str);
+			sprintf(buf, "backimageupe[%s]", ribi_codes[ribi]);
+			string str2 = obj.get(buf);
+			back_list.append(str2);
+		}
+		imagelist_writer_t::instance()->write_obj(outfp, node, front_list);
+		imagelist_writer_t::instance()->write_obj(outfp, node, back_list);
+
+		front_list.clear();
+		back_list.clear();
+		
+		for (ribi = 0; ribi < 16; ribi++) {
+			char buf[40];
+			sprintf(buf, "frontimageups[%s]", ribi_codes[ribi]);
+			string str = obj.get(buf);
+			front_list.append(str);
+			sprintf(buf, "backimageups[%s]", ribi_codes[ribi]);
+			string str2 = obj.get(buf);
+			back_list.append(str2);
+		}
+		imagelist_writer_t::instance()->write_obj(outfp, node, front_list);
+		imagelist_writer_t::instance()->write_obj(outfp, node, back_list);
+
+		front_list.clear();
+		back_list.clear();
+		
+		for (ribi = 0; ribi < 16; ribi++) {
+			char buf[40];
+			sprintf(buf, "frontimageupw[%s]", ribi_codes[ribi]);
+			string str = obj.get(buf);
+			front_list.append(str);
+			sprintf(buf, "backimageupw[%s]", ribi_codes[ribi]);
+			string str2 = obj.get(buf);
+			back_list.append(str2);
+		}
+		imagelist_writer_t::instance()->write_obj(outfp, node, front_list);
+		imagelist_writer_t::instance()->write_obj(outfp, node, back_list);
+		
+		front_list.clear();
+		back_list.clear();
+		
+		for (ribi = 0; ribi < 16; ribi++) {
+			char buf[40];
+			sprintf(buf, "frontimageup2n[%s]", ribi_codes[ribi]);
+			string str = obj.get(buf);
+			front_list.append(str);
+			sprintf(buf, "backimageup2n[%s]", ribi_codes[ribi]);
+			string str2 = obj.get(buf);
+			back_list.append(str2);
+		}
+		imagelist_writer_t::instance()->write_obj(outfp, node, front_list);
+		imagelist_writer_t::instance()->write_obj(outfp, node, back_list);
+		
+		front_list.clear();
+		back_list.clear();
+		
+		for (ribi = 0; ribi < 16; ribi++) {
+			char buf[40];
+			sprintf(buf, "frontimageup2e[%s]", ribi_codes[ribi]);
+			string str = obj.get(buf);
+			front_list.append(str);
+			sprintf(buf, "backimageup2e[%s]", ribi_codes[ribi]);
+			string str2 = obj.get(buf);
+			back_list.append(str2);
+		}
+		imagelist_writer_t::instance()->write_obj(outfp, node, front_list);
+		imagelist_writer_t::instance()->write_obj(outfp, node, back_list);
+		
+		front_list.clear();
+		back_list.clear();
+		
+		for (ribi = 0; ribi < 16; ribi++) {
+			char buf[40];
+			sprintf(buf, "frontimageup2s[%s]", ribi_codes[ribi]);
+			string str = obj.get(buf);
+			front_list.append(str);
+			sprintf(buf, "backimageup2s[%s]", ribi_codes[ribi]);
+			string str2 = obj.get(buf);
+			back_list.append(str2);
+		}
+		imagelist_writer_t::instance()->write_obj(outfp, node, front_list);
+		imagelist_writer_t::instance()->write_obj(outfp, node, back_list);
+		
+		front_list.clear();
+		back_list.clear();
+		
+		for (ribi = 0; ribi < 16; ribi++) {
+			char buf[40];
+			sprintf(buf, "frontimageup2w[%s]", ribi_codes[ribi]);
+			string str = obj.get(buf);
+			front_list.append(str);
+			sprintf(buf, "backimageup2w[%s]", ribi_codes[ribi]);
+			string str2 = obj.get(buf);
+			back_list.append(str2);
+		}
+		imagelist_writer_t::instance()->write_obj(outfp, node, front_list);
+		imagelist_writer_t::instance()->write_obj(outfp, node, back_list);
+		
+		front_list.clear();
+		back_list.clear();
+	}
 	// node.write_data(fp, &besch);
 	node.write(outfp);
 }
+	

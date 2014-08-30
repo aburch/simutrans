@@ -380,7 +380,7 @@ public:
 	bool should_city_adopt_this(const spieler_t* sp);
 
 	bool is_public_right_of_way() const { return public_right_of_way; }
-	void set_public_right_of_way() { public_right_of_way = true; }
+	void set_public_right_of_way(bool arg=true) { public_right_of_way = arg; }
 
 } GCC_PACKED;
 

@@ -32,6 +32,7 @@
 
 #include "../boden/grund.h"
 #include "../boden/wege/weg.h"
+#include "../boden/wege/strasse.h"
 
 #include "../tpl/stringhashtable_tpl.h"
 
@@ -359,7 +360,9 @@ void wayobj_t::calc_bild()
 		}
 
 		set_yoff( -gr->get_weg_yoff() );
-		dir &= w->get_ribi_unmasked();
+		if (!besch->is_fence()) {
+			dir &= w->get_ribi_unmasked();
+		}
 
 		// if there is a slope, we are finished, only four choices here (so far)
 		hang = gr->get_weg_hang();
@@ -445,6 +448,21 @@ void wayobj_t::extend_wayobj_t(koord3d pos, spieler_t *besitzer, ribi_t::ribi di
 			}
 		}
 
+		if(besch->is_fence()) {
+			if (gr->removing_road_would_disrupt_public_right_of_way() ||
+			    gr->removing_road_would_disconnect_city_building() ||
+			    gr->removing_road_would_break_monument_loop()) {
+				return;
+			}
+
+			strasse_t *str = static_cast<strasse_t *>(gr->get_weg(road_wt));
+			if (str == NULL) {
+				return;
+			}
+			str->set_gehweg(false);
+			gr->get_weg(road_wt)->set_public_right_of_way(false);
+		}
+
 		// nothing found => make a new one
 		wayobj_t *wo = new wayobj_t(pos,besitzer,dir,besch);
 		gr->obj_add(wo);
@@ -452,6 +470,13 @@ void wayobj_t::extend_wayobj_t(koord3d pos, spieler_t *besitzer, ribi_t::ribi di
 		wo->calc_bild();
 		wo->mark_image_dirty( wo->get_after_bild(), 0 );
 		wo->set_flag(obj_t::dirty);
+		gr->calc_bild();
+		for(int r = 0; r < 4; r++) {
+			grund_t *to;
+			if(gr->get_neighbour(to, invalid_wt, ribi_t::nsow[r])) {
+				to->calc_bild();
+			}
+		}
 		spieler_t::book_construction_costs( besitzer,  -besch->get_preis(), pos.get_2d(), besch->get_wtyp());
 
 		for( uint8 i = 0; i < 4; i++ ) {
