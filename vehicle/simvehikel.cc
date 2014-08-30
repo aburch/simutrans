@@ -2072,9 +2072,13 @@ bool automobil_t::ist_weg_frei(int &restart_speed, bool second_check)
 		const roadsign_t *rs = NULL;
 		if(str->has_sign()) {
 			rs = gr->find<roadsign_t>();
-			if(rs) {
+			route_t const& r = *cnv->get_route();
+
+			if(rs  &&  (route_index+1u < r.get_count())) {
+				// route position after road sign
+				koord3d pos_next_next = r.position_bei(route_index + 1u);
 				// since at the corner, our direction may be diagonal, we make it straight
-				const uint8 richtung = ribi_typ(get_pos().get_2d(),pos_next.get_2d());
+				const uint8 richtung = ribi_typ(pos_next, pos_next_next);
 
 				if(rs->get_besch()->is_traffic_light()  &&  (rs->get_dir()&richtung)==0) {
 					// wait here
