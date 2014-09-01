@@ -262,7 +262,7 @@ void fabrik_t::update_transit_intern( const ware_t *ware, bool add )
 	FOR(  array_tpl<ware_production_t>,  &w,  eingang ) {
 		if(  w.get_typ()->get_index() == ware->index  ) {
 
-			w.book_stat(add ? ware->menge : -ware->menge, FAB_GOODS_TRANSIT );
+			w.book_stat(add ? ware->menge : -(sint64)ware->menge, FAB_GOODS_TRANSIT );
 			return;
 		}
 	}
