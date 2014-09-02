@@ -1783,7 +1783,9 @@ sint32 vehikel_t::calc_speed_limit(const weg_t *w, const weg_t *weg_previous, fi
 		}
 
 		// Now apply the adjusted corner limit
-		corner_speed_limit = min((averaged_base_limit * limit_adjustment_percentage) / 100, hard_limit);
+		if (direction_difference > 0) {
+			corner_speed_limit = min((averaged_base_limit * limit_adjustment_percentage) / 100, hard_limit);
+		}
 
 #ifndef debug_corners
 	}
