@@ -51,7 +51,6 @@ void way_obj_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& 
 
 	uint8 wtyp     =  get_waytype(obj.get("waytype"));
 	uint8 own_wtyp =  get_waytype(obj.get("own_waytype"));
-	uint8 is_fence =  obj.get_int("is_fence", 0);
 
 	// Way constraints
 	// One byte for permissive, one byte for prohibitive.
@@ -96,7 +95,8 @@ void way_obj_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& 
 	node.write_uint8 (outfp, own_wtyp,					19);
 	node.write_uint8(outfp, permissive_way_constraints,	20);
 	node.write_uint8(outfp, prohibitive_way_constraints,21);
-	node.write_uint8(outfp, is_fence, 22);
+	char dummy = 0;
+	node.write_uint8(outfp, dummy, 22);
 
 	write_head(outfp, node, obj);
 

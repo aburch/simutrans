@@ -541,7 +541,7 @@ bool stadt_t::bewerte_loc_has_public_road(const koord pos)
 
 	if (weg) {
 		wayobj_t *wo = gr->get_wayobj(road_wt);
-		if (wo && wo->get_besch()->is_fence()) {
+		if (wo && wo->get_besch()->is_noise_barrier()) {
 			return false;
 		}
 
@@ -4616,7 +4616,7 @@ bool stadt_t::baue_strasse(const koord k, spieler_t* sp, bool forced)
 			wayobj_t *wo = bd2->get_wayobj(road_wt);
 			if ((rs && rs->get_besch()->is_private_way()) ||
 			    (w2 && !w2->is_public_right_of_way()) ||
-			    (wo && wo->get_besch()->is_fence())) {
+			    (wo && wo->get_besch()->is_noise_barrier())) {
 				connection_roads &= ~ribi_t::nsow[r];
 			} else {
 				w2->ribi_add(ribi_t::rueckwaerts(ribi_t::nsow[r]));

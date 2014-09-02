@@ -360,7 +360,9 @@ void wayobj_t::calc_bild()
 		}
 
 		set_yoff( -gr->get_weg_yoff() );
-		if (!besch->is_fence()) {
+		if (get_besch()->is_noise_barrier()) {
+			dir |= w->get_ribi_unmasked();
+		} else {
 			dir &= w->get_ribi_unmasked();
 		}
 
@@ -448,7 +450,7 @@ void wayobj_t::extend_wayobj_t(koord3d pos, spieler_t *besitzer, ribi_t::ribi di
 			}
 		}
 
-		if(besch->is_fence()) {
+		if(besch->is_noise_barrier()) {
 			if (gr->removing_road_would_disrupt_public_right_of_way() ||
 			    gr->removing_road_would_disconnect_city_building() ||
 			    gr->removing_road_would_break_monument_loop()) {

@@ -1945,7 +1945,7 @@ bool grund_t::would_create_excessive_roads(int dx, int dy, road_network_plan_t &
 
 		wayobj_t *wo;
 		if ((wo = gr[i]->get_wayobj(road_wt)) &&
-		    wo->get_besch()->is_fence()) {
+		    wo->get_besch()->is_noise_barrier()) {
 			return false;
 		}
 
@@ -2016,7 +2016,7 @@ bool grund_t::remove_excessive_roads(int dx, int dy, road_network_plan_t &road_t
 
 		wayobj_t *wo;
 		if ((wo = gr[i]->get_wayobj(road_wt)) &&
-		    wo->get_besch()->is_fence()) {
+		    wo->get_besch()->is_noise_barrier()) {
 			return false;
 		}
 
@@ -2183,7 +2183,7 @@ bool grund_t::removing_road_would_disconnect_city_building()
 				}
 				const weg_t* w = grx ? grx->get_weg(road_wt) : NULL;
 				wayobj_t* wo = grx ? grx->get_wayobj(road_wt) : NULL;
-				if(w && (!wo || !wo->get_besch()->is_fence()) && w->get_ribi() && !ribi_t::ist_einfach(w->get_ribi()))
+				if(w && (!wo || !wo->get_besch()->is_noise_barrier()) && w->get_ribi() && !ribi_t::ist_einfach(w->get_ribi()))
 				{
 					// We must check that the road is itself connected to somewhere other
 					// than the road that we are trying to delete.
@@ -2308,7 +2308,7 @@ bool grund_t::removing_road_would_disrupt_public_right_of_way()
 					}
 
 					wayobj_t *wo = gr->get_wayobj(road_wt);
-					if (wo && wo->get_besch()->is_fence()) {
+					if (wo && wo->get_besch()->is_noise_barrier()) {
 						return false;
 					}
 				}

@@ -26,7 +26,7 @@ void strasse_t::set_gehweg(bool janein)
 	grund_t *gr = welt->lookup(get_pos());
 	wayobj_t *wo = gr ? gr->get_wayobj(road_wt) : NULL;
 
-	if (wo && wo->get_besch()->is_fence()) {
+	if (wo && wo->get_besch()->is_noise_barrier()) {
 		janein = false;
 	}
 

@@ -79,9 +79,7 @@ obj_besch_t * way_obj_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				way_constraints.set_prohibitive(decode_uint8(p));
 			}
 			if(experimental_version == 1) {
-				besch->is_fence_flag = decode_uint8(p);
-			} else {
-				besch->is_fence_flag = 0;
+				decode_uint8(p);
 			}
 			if(experimental_version > 1)
 			{
