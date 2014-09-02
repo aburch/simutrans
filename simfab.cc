@@ -372,7 +372,7 @@ void fabrik_t::update_scaled_pax_demand()
 		const uint16 employment_capacity = besch->get_haus()->get_employment_capacity();
 		const int passenger_level = get_passenger_level_jobs();
 
-		const sint64 base_visitor_demand = building ? building->get_adjusted_visitor_demand() : besch->get_haus()->get_population_and_visitor_demand_capacity();
+		const sint64 base_visitor_demand = building ? building->get_visitor_demand() : besch->get_haus()->get_population_and_visitor_demand_capacity();
 		const sint64 base_worker_demand = employment_capacity == 65535 ? passenger_level : employment_capacity;
 		
 		// formula : base_pax_demand * (current_production_base / besch_production_base); (prod >> 1) is for rounding
