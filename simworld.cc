@@ -4509,7 +4509,7 @@ void karte_t::new_month()
 		const uint32 chance = simrand(100, "void karte_t::new_month()");
 		if(chance < percentage)
 		{
-			fabrikbauer_t::increase_industry_density(this, true, true);
+			fabrikbauer_t::increase_industry_density(true, true);
 		}
 	}
 
