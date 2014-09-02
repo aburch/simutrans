@@ -59,38 +59,6 @@ public:
 	* @author V. Meyer
 	*/
 	image_id get_bild() const {
-		if (besch->is_fence()) {
-			ribi_t::ribi dir2 = (~dir)&15;
-			grund_t *gr;
-			hang_t::typ hang = 0;
-			if((gr = welt->lookup(get_pos()))) {
-				hang = gr->get_weg_hang();
-				dir2 &= ~gr->get_weg_ribi_unmasked(road_wt);
-			}
-
-			int index = 2;
-
-			switch(hang) {
-			case hang_t::nord:
-				index = 9; break;
-			case hang_t::ost:
-				index = 11; break;
-			case hang_t::sued:
-				index = 13; break;
-			case hang_t::west:
-				index = 15; break;
-			case 2*hang_t::nord:
-				index = 17; break;
-			case 2*hang_t::ost:
-				index = 19; break;;
-			case 2*hang_t::sued:
-				index = 21; break;
-			case 2*hang_t::west:
-				index = 23; break;
-			}
-			index++;
-			return besch->get_fence_image_id(index, dir2);
-		}
 		return hang ? besch->get_back_slope_image_id(hang) :
 			(diagonal ? besch->get_back_diagonal_image_id(dir) : besch->get_back_image_id(dir));
 	}
@@ -100,36 +68,6 @@ public:
 	* @author V. Meyer
 	*/
 	image_id get_after_bild() const {
-		if (besch->is_fence()) {
-			ribi_t::ribi dir2 = (~dir)&15;
-			grund_t *gr;
-			if((gr = welt->lookup(get_pos()))) {
-				hang_t::typ hang = gr->get_weg_hang();
-				dir2 &= ~gr->get_weg_ribi_unmasked(road_wt);
-			}
-
-			int index = 2;
-
-			switch(hang) {
-			case hang_t::nord:
-				index = 9; break;
-			case hang_t::ost:
-				index = 11; break;
-			case hang_t::sued:
-				index = 13; break;
-			case hang_t::west:
-				index = 15; break;
-			case 2*hang_t::nord:
-				index = 17; break;
-			case 2*hang_t::ost:
-				index = 19; break;
-			case 2*hang_t::sued:
-				index = 21; break;
-			case 2*hang_t::west:
-				index = 23; break;
-			}
-			return besch->get_fence_image_id(index, dir2);
-		}
 		return hang ? besch->get_front_slope_image_id(hang) :
 			diagonal ? besch->get_front_diagonal_image_id(dir) : besch->get_front_image_id(dir);
 	}
