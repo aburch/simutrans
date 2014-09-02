@@ -83,6 +83,7 @@ BEGIN {
 	export_types["building_desc_x::enables_freight"] = "bool()"
 	export_types["building_desc_x::get_type"] = "building_desc_x::building_type()"
 	export_types["building_desc_x::get_waytype"] = "way_types()"
+	export_types["::get_building_list"] = "array<building_desc_x>(building_desc_x::building_type)"
 	export_types["way_desc_x::has_double_slopes"] = "bool()"
 	export_types["way_desc_x::get_system_type"] = "integer()"
 	export_types["good_desc_x::get_catg_index"] = "integer()"

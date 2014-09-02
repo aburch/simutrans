@@ -10,12 +10,14 @@
 #include "../api_function.h"
 #include "../../besch/haus_besch.h"
 #include "../../besch/ware_besch.h"
+#include "../../bauer/hausbauer.h"
 #include "../../bauer/warenbauer.h"
 #include "../../simworld.h"
 
 #define begin_enum(name)
 #define end_enum()
 #define enum_slot create_slot
+#define STATIC
 
 using namespace script_api;
 
@@ -82,6 +84,16 @@ bool is_obsolete_future(const obj_besch_timelined_t* besch, mytime_t time, uint8
 }
 
 
+const vector_tpl<const haus_besch_t*>& get_building_list(haus_besch_t::utyp type)
+{
+	const vector_tpl<const haus_besch_t*>* p = hausbauer_t::get_list(type);
+
+	static const vector_tpl<const haus_besch_t*> dummy;
+
+	return p ? *p : dummy;
+}
+
+
 // export of haus_besch_t::utyp only here
 namespace script_api {
 	declare_specialized_param(haus_besch_t::utyp, "i", "building_desc_x::building_type");
@@ -89,6 +101,11 @@ namespace script_api {
 	SQInteger param<haus_besch_t::utyp>::push(HSQUIRRELVM vm, const haus_besch_t::utyp & u)
 	{
 		return param<uint16>::push(vm, u);
+	}
+
+	haus_besch_t::utyp param<haus_besch_t::utyp>::get(HSQUIRRELVM vm, SQInteger index)
+	{
+		return (haus_besch_t::utyp)param<uint16>::get(vm, index);
 	}
 };
 
@@ -250,6 +267,14 @@ void export_goods_desc(HSQUIRRELVM vm)
 	 * @returns way type, can be @ref wt_invalid.
 	 */
 	register_method(vm, &haus_besch_t::get_finance_waytype, "get_waytype");
+
+	/**
+	 * Returns an array with all buildings of the given type.
+	 * @warning If @p type is one of building_desc_x::harbour, building_desc_x::depot, building_desc_x::station, building_desc_x::station_extension then always the same list is generated.
+	 *          You have to filter out e.g. station buildings yourself.
+	 */
+	STATIC register_method(vm, &get_building_list, "get_building_list");
+
 	end_class(vm);
 
 	/**

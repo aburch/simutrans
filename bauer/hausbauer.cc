@@ -906,10 +906,15 @@ const vector_tpl<const haus_besch_t*>* hausbauer_t::get_list(const haus_besch_t:
 	switch (typ) {
 		case haus_besch_t::denkmal:         return &ungebaute_denkmaeler;
 		case haus_besch_t::attraction_land: return &sehenswuerdigkeiten_land;
-		case haus_besch_t::firmensitz:      return NULL;
+		case haus_besch_t::firmensitz:      return &headquarter;
 		case haus_besch_t::rathaus:         return &rathaeuser;
 		case haus_besch_t::attraction_city: return &sehenswuerdigkeiten_city;
-		case haus_besch_t::fabrik:          return NULL;
+		case haus_besch_t::hafen:
+		case haus_besch_t::hafen_geb:
+		case haus_besch_t::depot:
+		case haus_besch_t::generic_stop:
+		case haus_besch_t::generic_extension:
+		                                    return &station_building;
 		default:                            return NULL;
 	}
 }
