@@ -185,23 +185,31 @@ static SQInteger get_slice_params(HSQUIRRELVM v,SQInteger &sidx,SQInteger &eidx,
 static SQInteger base_print(HSQUIRRELVM v)
 {
 	const SQChar *str;
-	if (!SQ_SUCCEEDED(sq_tostring(v,2))) {
-		return SQ_ERROR;
+	if(SQ_SUCCEEDED(sq_tostring(v,2)))
+	{
+		if(SQ_SUCCEEDED(sq_getstring(v,-1,&str))) {
+			if(_ss(v)->_printfunc) {
+				_ss(v)->_printfunc(v,_SC("%s"),str);
+			}
+			return 0;
+		}
 	}
-	sq_getstring(v,-1,&str);
-	if(_ss(v)->_printfunc) _ss(v)->_printfunc(v,_SC("%s"),str);
-	return 0;
+	return SQ_ERROR;
 }
 
 static SQInteger base_error(HSQUIRRELVM v)
 {
 	const SQChar *str;
-	if (!SQ_SUCCEEDED(sq_tostring(v,2))) {
-		return SQ_ERROR;
+	if(SQ_SUCCEEDED(sq_tostring(v,2)))
+	{
+		if(SQ_SUCCEEDED(sq_getstring(v,-1,&str))) {
+			if(_ss(v)->_errorfunc) {
+				_ss(v)->_errorfunc(v,_SC("%s"),str);
+			}
+			return 0;
+		}
 	}
-	sq_getstring(v,-1,&str);
-	if(_ss(v)->_errorfunc) _ss(v)->_errorfunc(v,_SC("%s"),str);
-	return 0;
+	return SQ_ERROR;
 }
 
 static SQInteger base_compilestring(HSQUIRRELVM v)
@@ -382,8 +390,10 @@ static SQInteger default_delegate_tointeger(HSQUIRRELVM v)
 
 static SQInteger default_delegate_tostring(HSQUIRRELVM v)
 {
-	sq_tostring(v,1);
-	return 1;
+	if (SQ_SUCCEEDED(sq_tostring(v,1))) {
+		return 1;
+	}
+	return SQ_ERROR;
 }
 
 static SQInteger obj_delegate_weakref(HSQUIRRELVM v)
