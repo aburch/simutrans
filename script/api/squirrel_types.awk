@@ -57,6 +57,7 @@ BEGIN {
 	export_types["factory_production_x::get_storage"] = "array<integer>()"
 	export_types["factory_production_x::get_received"] = "array<integer>()"
 	export_types["factory_production_x::get_consumed"] = "array<integer>()"
+	export_types["factory_production_x::get_in_transit"] = "array<integer>()"
 	export_types["factory_production_x::get_delivered"] = "array<integer>()"
 	export_types["factory_production_x::get_produced"] = "array<integer>()"
 	export_types["obj_desc_x::get_name"] = "string()"
