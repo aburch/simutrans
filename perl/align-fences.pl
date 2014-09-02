@@ -124,7 +124,7 @@ sub assemble {
     my ($l, $front, $outimg, $yoff) = @_;
     my @l = @$l;
 
-    for my $i (0..3) {
+    for my $i (1..3) {
 	my $x = ($i&3);
 	my $y = $yoff;
 	my $af = align_fences->new($resolution);
@@ -139,7 +139,7 @@ sub assemble {
 	$outimg->compose(src=>$af->get_img(), tx=>$x*$resolution, ty=>$y*$resolution);
     }
 
-    for my $i (0..3) {
+    for my $i (1..3) {
 	my $x = ($i&3);
 	my $y = $yoff + 1;
 	my $af = align_fences->new($resolution);
@@ -155,197 +155,45 @@ sub assemble {
     }
 }
 
-for my $b ("plexi", "plexinoground") {
-    my $outimg = Imager->new(xsize=>$resolution*4, ysize=>$resolution*18,channels=>3);
+sub assemble_slope {
+    my ($l, $outimg, $yoff, $xoff, $lr) = @_;
 
-    my $l = [
-	[["$b.0.1", 96,-80],["$b.0.1", 32,-48],["$b.0.1",-32,-16],["$b.0.1",-96, 16],],
-	[["$b.0.0",-96,-80],["$b.0.0",-32,-48],["$b.0.0", 32,-16],["$b.0.0", 96, 16],],
+    my $y = $yoff;
+    my $af = align_fences->new($resolution);
 
-	[["$b.0.1", 96,-16],["$b.0.1", 32, 16],["$b.0.1",-32, 48],["$b.0.1",-96, 80],],
-	[["$b.0.0",-96,-16],["$b.0.0",-32, 16],["$b.0.0", 32, 48],["$b.0.0", 96, 80],],
-	];
-
-    assemble($l, 0, $outimg, 0);
-
-    my $colimg = Imager->new(xsize=>$resolution*4, ysize=>$resolution*2, channels=>3);
-
-    assemble($l, 0, $colimg, 0);
-
-    for my $xn (0..3) {
-	for my $yn (0..1) {
-	    my $partimg = $colimg->crop(left=>$xn * 128, top=>$yn * 128,
-					width=>128, height=>128);
-
-#	    $partimg = Imager::transform2({ expr => "x0=64; y0=64; return if(x > 64,getp1(x,y+int((x-64)/2)),getp1(x,y+int((64-x)/2)))"}, $partimg);
-	    $partimg = Imager::transform2({ expr => "x0=64; y0=64; return if(x > 64,getp1(x,y+int((x-x0)/2)),getp1(x,y))"}, $partimg);
-#	    $partimg = Imager::transform2({ expr => "x0=64; y0=64; return if(x > 64,getp1(x,y+int((x-64)/2)),getp1(x,y+int((64-x)/2)))"}, $partimg);
-
-	    $outimg->compose(src=>$partimg, tx=>$xn*128, ty=>($yn+2)*128);
+    for my $spec (@$l) {
+	if ($lr == 2) {
+	    $af->assemble($spec, 0, 128);
+	} elsif ($lr) {
+	    $af->assemble($spec, 0, 64);
+	} else {
+	    $af->assemble($spec, 64, 128);
 	}
     }
 
-    $l = [
-	[["$b.3.4",-32,-16],],
-	[["$b.0.0",32,-48],],
-	[["$b.3.4",32,16],],
-	[["$b.0.0",-32,16],],
-	];
-
-    #assemble($l, 0, $outimg, 2);
-
-    $l = [
-	[["$b.0.1",-32,-48],],
-	[["$b.3.5",32,-16],],
-	[["$b.0.1",32,16],],
-	[["$b.3.5",-32,16],],
-	];
-
-    assemble($l, 0, $outimg, 4);
-    $l = [
-	[["$b.2.2",-32,-8],],
-	[["$b.0.0",32,-32],],
-	[["$b.2.2",32,24],],
-	[["$b.0.0",-32,16],],
-	];
-
-    assemble($l, 0, $outimg, 6);
-
-    $l = [
-	[["$b.0.1",-32,-32],],
-	[["$b.2.3",32,-8],],
-	[["$b.0.1",32,16],],
-	[["$b.2.3",-32,24],],
-	];
-
-    assemble($l, 0, $outimg, 8);
-
-    $l = [
-	[["$b.0.1",-32,-16],],
-	[["$b.3.2",32,-16],],
-	[["$b.0.1",32,-16],],
-	[["$b.3.2",-32,16],],
-	];
-
-    assemble($l, 0, $outimg, 10);
-
-    $l = [
-	[["$b.3.3",-32,-16],],
-	[["$b.0.0",32,-16],],
-	[["$b.3.3",32,16],],
-	[["$b.0.0",-32,-16],],
-	];
-
-    assemble($l, 0, $outimg, 12);
-
-    $l = [
-	[["$b.0.1",-32,-16],],
-	[["$b.0.4",32,-24],],
-	[["$b.0.1",32,0],],
-	[["$b.0.4",-32,8],],
-	];
-
-    assemble($l, 0, $outimg, 14);
-
-    $l = [
-	[["$b.0.5",-32,-24],],
-	[["$b.0.0",32,-16],],
-	[["$b.0.5",32,8],],
-	[["$b.0.0",-32,0],],
-	];
-
-    assemble($l, 0, $outimg, 16);
-
-    $outimg->write(file=>"out-$b.png");
-    dispatch($b, "$b.4.1", "$b.4.0");
+    $outimg->compose(src=>$af->get_img(), tx=>$xoff*$resolution, ty=>$yoff*$resolution);
 }
 
-for my $b ("palissade", "berlinwallfixed") {
-    my $outimg = Imager->new(xsize=>$resolution*4, ysize=>$resolution*18,channels=>3);
+sub lseries2 {
+    my ($b0, $b1, $y0, $y1, $ystep) = @_;
+    my @l;
 
-    my $l = [
-	[["$b.0.1", 96,-80],["$b.0.1", 32,-48],["$b.0.1",-32,-16],["$b.0.1",-96, 16],],
-	[["$b.0.0",-96,-80],["$b.0.0",-32,-48],["$b.0.0", 32,-16],["$b.0.0", 96, 16],],
+    if (defined($ystep)) {
+	push @l, [$b0, -96, $y0 - 3 * $ystep/2];
+	push @l, [$b0,  32, $y0 + 1 * $ystep/2];
+	push @l, [$b1, -32, $y1 - 1 * $ystep/2];
+	push @l, [$b1,  96, $y1 + 3 * $ystep/2];
+    } else {
+	$ystep = 32;
+	push @l, [$b1,  32, $y1 - 1 * $ystep/2];
+	push @l, [$b0, -32, $y0 + 1 * $ystep/2];
+    }
 
-	[["$b.0.1", 96,-16],["$b.0.1", 32, 16],["$b.0.1",-32, 48],["$b.0.1",-96, 80],],
-	[["$b.0.0",-96,-16],["$b.0.0",-32, 16],["$b.0.0", 32, 48],["$b.0.0", 96, 80],],
-	];
+    if ($ystep < 0) {
+	@l = reverse @l;
+    }
 
-    assemble($l, 0, $outimg, 0);
-
-    $l = [
-	[["$b.3.4",-32,-16],],
-	[["$b.0.0",32,-48],],
-	[["$b.3.4",32,16],],
-	[["$b.0.0",-32,16],],
-	];
-
-    assemble($l, 0, $outimg, 2);
-
-    $l = [
-	[["$b.0.1",-32,-48],],
-	[["$b.3.5",32,-16],],
-	[["$b.0.1",32,16],],
-	[["$b.3.5",-32,16],],
-	];
-
-    assemble($l, 0, $outimg, 4);
-    $l = [
-	[["$b.0.2",-32,-8],],
-	[["$b.0.0",32,-32],],
-	[["$b.0.2",32,24],],
-	[["$b.0.0",-32,16],],
-	];
-
-    assemble($l, 0, $outimg, 6);
-
-    $l = [
-	[["$b.0.1",-32,-32],],
-	[["$b.0.3",32,-8],],
-	[["$b.0.1",32,16],],
-	[["$b.0.3",-32,24],],
-	];
-
-    assemble($l, 0, $outimg, 8);
-
-    $l = [
-	[["$b.0.1",-32,-16],],
-	[["$b.3.2",32,-16],],
-	[["$b.0.1",32,-16],],
-	[["$b.3.2",-32,16],],
-	];
-
-    assemble($l, 0, $outimg, 10);
-
-    $l = [
-	[["$b.3.3",-32,-16],],
-	[["$b.0.0",32,-16],],
-	[["$b.3.3",32,16],],
-	[["$b.0.0",-32,-16],],
-	];
-
-    assemble($l, 0, $outimg, 12);
-
-    $l = [
-	[["$b.0.1",-32,-16],],
-	[["$b.0.4",32,-8],],
-	[["$b.0.1",32,0],],
-	[["$b.0.4",-32,24],],
-	];
-
-    assemble($l, 0, $outimg, 14);
-
-    $l = [
-	[["$b.0.5",-32,-8],],
-	[["$b.0.0",32,-16],],
-	[["$b.0.5",32,24],],
-	[["$b.0.0",-32,0],],
-	];
-
-    assemble($l, 0, $outimg, 16);
-
-    $outimg->write(file=>"out-$b.png");
-    dispatch($b, undef, "$b.4.0");
+    return \@l;
 }
 
 sub lseries {
@@ -364,90 +212,51 @@ sub lseries {
     return \@l;
 }
 
-for my $b ("blockwall") {
-    my $outimg = Imager->new(xsize=>$resolution*4, ysize=>$resolution*18,channels=>3);
+for my $b ("palissade", "plexi", "plexinoground3") {
+    my $outimg = Imager->new(xsize=>$resolution*4, ysize=>$resolution*7,channels=>3);
 
     my $l = [
-	lseries("$b.0.0", -32,-32),
-	lseries("$b.0.1", -32, 32),
-	lseries("$b.0.0",  32,-32),
-	lseries("$b.0.1",  32, 32),];
+	lseries("$b.0.1",-32,-32),
+	lseries("$b.0.0", 0,-32),
+
+	lseries("$b.0.1", 0,32),
+	lseries("$b.0.0",32,32),
+	];
 
     assemble($l, 0, $outimg, 0);
 
-    $l = [
-	[["$b.3.0",-32,-16],],
-	[["$b.0.1",32,-48],],
-	[["$b.3.0",32,16],],
-	[["$b.0.1",-32,16],],
-	];
+    assemble_slope(lseries("$b.0.2",-32,-48), $outimg, 2, 0, 1);
+    assemble_slope(lseries("$b.0.2", 48,-48), $outimg, 2, 1, 0);
+    assemble_slope(lseries("$b.0.3",-32, 48), $outimg, 2, 2, 0);
+    assemble_slope(lseries("$b.0.3", 48, 48), $outimg, 2, 3, 1);
 
-    assemble($l, 0, $outimg, 2);
+    assemble_slope(lseries("$b.0.4",-16, 16), $outimg, 3, 2, 0);
+    assemble_slope(lseries("$b.0.4", 32, 16), $outimg, 3, 3, 1);
+    assemble_slope(lseries("$b.0.5",-16,-16), $outimg, 3, 0, 1);
+    assemble_slope(lseries("$b.0.5", 32,-16), $outimg, 3, 1, 0);
 
-    $l = [
-	[["$b.0.0",-32,-48],],
-	[["$b.3.1",32,-16],],
-	[["$b.0.0",32,16],],
-	[["$b.3.1",-32,16],],
-	];
+    assemble_slope(lseries("$b.3.2",-16,  0), $outimg, 4, 0, 1);
+    assemble_slope(lseries("$b.3.2", 16,  0), $outimg, 4, 1, 0);
+    assemble_slope(lseries("$b.3.3",-16,  0), $outimg, 4, 2, 0);
+    assemble_slope(lseries("$b.3.3", 16,  0), $outimg, 4, 3, 1);
 
-    assemble($l, 0, $outimg, 4);
-    $l = [
-	[["$b.3.2",-32,-8],],
-	[["$b.0.1",32,-32],],
-	[["$b.3.2",32,24],],
-	[["$b.0.1",-32,16],],
-	];
+    assemble_slope(lseries("$b.3.4",-48,-64), $outimg, 5, 0, 1);
+    assemble_slope(lseries("$b.3.4", 48,-64), $outimg, 5, 1, 0);
+    assemble_slope(lseries("$b.3.5",-48, 64), $outimg, 5, 2, 0);
+    assemble_slope(lseries("$b.3.5", 48, 64), $outimg, 5, 3, 1);
 
-    assemble($l, 0, $outimg, 6);
+    # assemble_slope(lseries("$b.1.4",-48,  0), $outimg, 6, 0, 1);
+    # assemble_slope(lseries("$b.1.4",-48,  0), $outimg, 6, 1, 0);
+    # assemble_slope(lseries("$b.1.5",-48,  0), $outimg, 6, 2, 0);
+    # assemble_slope(lseries("$b.1.5",-48,  0), $outimg, 6, 3, 1);
 
-    $l = [
-	[["$b.0.0",-32,-32],],
-	[["$b.3.3",32,-8],],
-	[["$b.0.0",32,16],],
-	[["$b.3.3",-32,24],],
-	];
-
-    assemble($l, 0, $outimg, 8);
-
-    $l = [
-	[["$b.0.0",-32,-16],],
-	[["$b.4.1",32,-16],],
-	[["$b.0.0",32,-16],],
-	[["$b.4.1",-32,16],],
-	];
-
-    assemble($l, 0, $outimg, 10);
-
-    $l = [
-	[["$b.4.1",-32,-16],],
-	[["$b.0.1",32,-16],],
-	[["$b.4.1",32,16],],
-	[["$b.0.1",-32,-16],],
-	];
-
-    assemble($l, 0, $outimg, 12);
-
-    $l = [
-	[["$b.0.0",-32,-16],],
-	[["$b.5.2",32,-8],],
-	[["$b.0.0",32,0],],
-	[["$b.5.2",-32,24],],
-	];
-
-    assemble($l, 0, $outimg, 14);
-
-    $l = [
-	[["$b.5.3",-32,-8],],
-	[["$b.0.1",32,-16],],
-	[["$b.5.3",32,24],],
-	[["$b.0.1",-32,0],],
-	];
-
-    assemble($l, 0, $outimg, 16);
+    assemble_slope(lseries2("$b.1.4", "$b.1.5",  -16, 16, 0), $outimg, 6, 0, 2);
+    assemble_slope(lseries2("$b.1.4", "$b.1.5",  -16, 16, 0), $outimg, 6, 1, 2);
+    assemble_slope(lseries2("$b.2.4", "$b.2.5",    0,  0, undef), $outimg, 6, 2, 2);
+    assemble_slope(lseries2("$b.2.4", "$b.2.5",    0,  0, undef), $outimg, 6, 3, 2);
 
     $outimg->write(file=>"out-$b.png");
-    dispatch($b);
+    dispatch($b, "$b.4.1", "$b.4.0");
 }
 
 sub dispatch {
@@ -468,79 +277,63 @@ own_waytype=noise_barrier
 EOF
     print "cursor=$cursor\n";
     print "icon=> $icon\n";
-    print "is_fence=1\n";
 
-    print "BackImage[0]=out-$b.0.1\n";
-    print "BackImage[1]=out-$b.0.2\n";
-    print "BackImage[2]=out-$b.0.3\n";
+    print "BackImage[N]=out-$b.0.1\n";
+    print "BackImage[S]=out-$b.0.1\n";
+    print "BackImage[NS]=out-$b.0.1\n";
+    print "BackImage[NE]=out-$b.0.1\n";
+    print "BackImage[NSE]=out-$b.0.1\n";
 
-    print "BackImage[3]=out-$b.16.1\n";
-    print "BackImage[4]=out-$b.16.2\n";
-    print "BackImage[5]=out-$b.16.3\n";
+    print "BackImage[W]=out-$b.0.2\n";
+    print "BackImage[E]=out-$b.0.2\n";
+    print "BackImage[EW]=out-$b.0.2\n";
+    print "BackImage[SW]=out-$b.0.2\n";
+    print "BackImage[SEW]=out-$b.0.2\n";
 
-    print "BackImage[6]=out-$b.8.1\n";
-    print "BackImage[7]=out-$b.8.2\n";
-    print "BackImage[8]=out-$b.8.3\n";
+    print "FrontImage[N]=out-$b.1.1\n";
+    print "FrontImage[S]=out-$b.1.1\n";
+    print "FrontImage[NS]=out-$b.1.1\n";
+    print "FrontImage[SW]=out-$b.1.1\n";
+    print "FrontImage[NSW]=out-$b.1.1\n";
 
-    print "BackImage[9]=out-$b.6.1\n";
-    print "BackImage[10]=out-$b.6.2\n";
-    print "BackImage[11]=out-$b.6.3\n";
+    print "FrontImage[E]=out-$b.1.2\n";
+    print "FrontImage[W]=out-$b.1.2\n";
+    print "FrontImage[EW]=out-$b.1.2\n";
+    print "FrontImage[NE]=out-$b.1.2\n";
+    print "FrontImage[NEW]=out-$b.1.2\n";
 
-    print "BackImage[12]=out-$b.14.1\n";
-    print "BackImage[13]=out-$b.14.2\n";
-    print "BackImage[14]=out-$b.14.3\n";
+    print "BackImage[SE]=out-$b.0.3\n";
+    print "FrontImage[NW]=out-$b.1.3\n";
 
-    print "BackImage[15]=out-$b.12.1\n";
-    print "BackImage[16]=out-$b.12.2\n";
-    print "BackImage[17]=out-$b.12.3\n";
+    print "BackImageUp2[3]=out-$b.4.0\n";
+    print "FrontImageUp2[3]=out-$b.4.1\n";
+    print "BackImageUp[3]=out-$b.3.0\n";
+    print "FrontImageUp[3]=out-$b.3.1\n";
 
-    print "BackImage[18]=out-$b.4.1\n";
-    print "BackImage[19]=out-$b.4.2\n";
-    print "BackImage[20]=out-$b.4.3\n";
+    print "BackImageUp2[6]=out-$b.4.2\n";
+    print "FrontImageUp2[6]=out-$b.4.3\n";
+    print "BackImageUp[6]=out-$b.3.2\n";
+    print "FrontImageUp[6]=out-$b.3.3\n";
 
-    print "BackImage[21]=out-$b.2.1\n";
-    print "BackImage[22]=out-$b.2.2\n";
-    print "BackImage[23]=out-$b.2.3\n";
+    print "BackImageUp2[9]=out-$b.5.2\n";
+    print "FrontImageUp2[9]=out-$b.5.3\n";
+    print "BackImageUp[9]=out-$b.2.2\n";
+    print "FrontImageUp[9]=out-$b.2.3\n";
 
-    print "BackImage[24]=out-$b.10.1\n";
-    print "BackImage[25]=out-$b.10.2\n";
-    print "BackImage[26]=out-$b.10.3\n";
+    print "BackImageUp2[12]=out-$b.5.0\n";
+    print "FrontImageUp2[12]=out-$b.5.1\n";
+    print "BackImageUp[12]=out-$b.2.0\n";
+    print "FrontImageUp[12]=out-$b.2.1\n";
 
-    print "FrontImage[0]=out-$b.1.1\n";
-    print "FrontImage[1]=out-$b.1.2\n";
-    print "FrontImage[2]=out-$b.1.3\n";
+    print "FrontDiagonal[NE]=out-$b.6.2\n";
+    print "FrontDiagonal[SW]=out-$b.6.2\n";
+    print "FrontDiagonal[SE]=out-$b.6.0\n";
+    print "FrontDiagonal[NW]=out-$b.6.0\n";
 
-    print "FrontImage[3]=out-$b.17.1\n";
-    print "FrontImage[4]=out-$b.17.2\n";
-    print "FrontImage[5]=out-$b.17.3\n";
-
-    print "FrontImage[6]=out-$b.9.1\n";
-    print "FrontImage[7]=out-$b.9.2\n";
-    print "FrontImage[8]=out-$b.9.3\n";
-
-    print "FrontImage[9]=out-$b.7.1\n";
-    print "FrontImage[10]=out-$b.7.2\n";
-    print "FrontImage[11]=out-$b.7.3\n";
-
-    print "FrontImage[12]=out-$b.15.1\n";
-    print "FrontImage[13]=out-$b.15.2\n";
-    print "FrontImage[14]=out-$b.15.3\n";
-
-    print "FrontImage[15]=out-$b.13.1\n";
-    print "FrontImage[16]=out-$b.13.2\n";
-    print "FrontImage[17]=out-$b.13.3\n";
-
-    print "FrontImage[18]=out-$b.5.1\n";
-    print "FrontImage[19]=out-$b.5.2\n";
-    print "FrontImage[20]=out-$b.5.3\n";
-
-    print "FrontImage[21]=out-$b.3.1\n";
-    print "FrontImage[22]=out-$b.3.2\n";
-    print "FrontImage[23]=out-$b.3.3\n";
-
-    print "FrontImage[24]=out-$b.11.1\n";
-    print "FrontImage[25]=out-$b.11.2\n";
-    print "FrontImage[26]=out-$b.11.3\n";
+    print "BackDiagonal[NE]=out-$b.6.2\n";
+    print "BackDiagonal[SW]=out-$b.6.2\n";
+    print "BackDiagonal[SE]=out-$b.6.0\n";
+    print "BackDiagonal[NW]=out-$b.6.0\n";
 
     print "-------\n";
 }
