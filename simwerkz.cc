@@ -2407,7 +2407,7 @@ const char *wkz_fahrplan_ins_t::work( spieler_t *sp, koord3d pos )
 
 
 /* way construction */
-const weg_besch_t *wkz_wegebau_t::defaults[17] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+const weg_besch_t *wkz_wegebau_t::defaults[18] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
 const weg_besch_t *wkz_wegebau_t::get_besch( uint16 timeline_year_month, bool remember ) const
 {
@@ -2420,6 +2420,7 @@ const weg_besch_t *wkz_wegebau_t::get_besch( uint16 timeline_year_month, bool re
 			besch = wegbauer_t::weg_search(wt, 0xffffffff, timeline_year_month, weg_t::type_flat);
 		}
 	}
+	assert(besch);
 	if(!besch)
 	{
 		return NULL;
