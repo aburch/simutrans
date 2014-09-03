@@ -2231,6 +2231,48 @@ bool grund_t::removing_road_would_disconnect_city_building()
 	return false;
 }
 
+class public_driver_t: public fahrer_t {
+public:
+	fahrer_t *other;
+
+	static fahrer_t* apply(fahrer_t *test_driver) {
+		karte_t *welt = world();
+		public_driver_t *td2 = new public_driver_t();
+		td2->other = test_driver;
+		return td2;
+	}
+
+	~public_driver_t() {
+		delete(other);
+	}
+
+	bool ist_befahrbar(const grund_t *gr) const {
+		if (!other->ist_befahrbar(gr)) {
+			return false;
+		}
+
+
+		if (get_waytype() == road_wt) {
+			const roadsign_t *rs = gr->find<roadsign_t>();
+			if (rs && rs->get_besch()->is_private_way() ) {
+				return false;
+			}
+
+			const wayobj_t *wo = gr->get_wayobj(get_waytype());
+			if (wo && wo->get_besch()->is_noise_barrier()) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	virtual ribi_t::ribi get_ribi(const grund_t* gr) const { return other->get_ribi(gr); }
+	virtual waytype_t get_waytype() const { return other->get_waytype(); }
+	virtual int get_kosten(const grund_t *gr, const sint32 c, koord p) { return other->get_kosten(gr,c,p); }
+	virtual bool ist_ziel(const grund_t *gr,const grund_t *gr2) { return other->ist_ziel(gr,gr2); }
+};
+
 bool grund_t::removing_road_would_disrupt_public_right_of_way()
 {
 	weg_t *w = get_weg(road_wt);
@@ -2273,6 +2315,8 @@ bool grund_t::removing_road_would_disrupt_public_right_of_way()
 				vehikel_t *diversion_checker = vehikelbauer_t::baue(start, welt->get_spieler(1), NULL, &diversion_check_type);
 				diversion_checker->set_flag(obj_t::not_on_map);
 				diversion_checker->set_besitzer(welt->get_spieler(1));
+				fahrer_t *driver = diversion_checker;
+				driver = public_driver_t::apply(driver);
 				const uint32 max_axle_load = way_gr->ist_bruecke() ? 1 : w->get_max_axle_load(); // TODO: Use proper axle load when axle load for bridges is introduced.
 				const uint32 bridge_weight = w->get_max_axle_load() * 2; // This is something of a fudge, but it is reasonable to assume that most road vehicles have 2 axles.
 				if(diversionary_route.calc_route(welt, start, end, diversion_checker, w->get_max_speed(), max_axle_load, 0, welt->get_settings().get_max_diversion_tiles() * 100, bridge_weight))
