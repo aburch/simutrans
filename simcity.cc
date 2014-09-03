@@ -3975,27 +3975,20 @@ void stadt_t::build_city_building(const koord k, bool new_town)
 					strasse_t *str = static_cast<strasse_t *>(weg);
 					str->set_gehweg(true);
 				} else {
-					bool make_public = false;
-					for (int j = 0; j < 4; j++) {
-						// Neighbors goes through these in 'preferred' order, orthogonal first
-						grund_t *gr2;
-						if (gr->get_neighbour(gr2, road_wt, ribi_t::nsow[j])) {
-							strasse_t* weg2 = (strasse_t*)gr2->get_weg(road_wt);
-							if (weg2->is_public_right_of_way()) {
-								make_public = true;
-								break;
-							}
-						}
+					bool make_public = true;
+
+					const wayobj_t *wo = gr->get_wayobj(road_wt);
+					if (wo && wo->is_noise_barrier()) {
+						make_public = false;
 					}
 
 					const roadsign_t* rs = gr->find<roadsign_t>();
 					if (rs && rs->get_besch()->is_private_way()) {
 						make_public = false;
-					} else {
-						strasse_t *str = static_cast<strasse_t *>(weg);
-						str->set_gehweg(true);
 					}
 					if (make_public) {
+						strasse_t *str = static_cast<strasse_t *>(weg);
+						str->set_gehweg(true);
 						weg->set_public_right_of_way();
 					}
 				}
@@ -4176,17 +4169,11 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb)
 					strasse_t *str = static_cast<strasse_t *>(weg);
 					str->set_gehweg(true);
 				} else {
-					bool make_public = false;
-					for (int j = 0; j < 4; j++) {
-						// Neighbors goes through these in 'preferred' order, orthogonal first
-						grund_t *gr2;
-						if (gr->get_neighbour(gr2, road_wt, ribi_t::nsow[j])) {
-							strasse_t* weg2 = (strasse_t*)gr2->get_weg(road_wt);
-							if (weg2->is_public_right_of_way()) {
-								make_public = true;
-								break;
-							}
-						}
+					bool make_public = true;
+
+					const wayobj_t *wo = gr->get_wayobj(road_wt);
+					if (wo && wo->is_noise_barrier()) {
+						make_public = false;
 					}
 
 					const roadsign_t* rs = gr->find<roadsign_t>();
@@ -4630,34 +4617,27 @@ bool stadt_t::baue_strasse(const koord k, spieler_t* sp, bool forced)
 		if (bd->weg_erweitern(road_wt, connection_roads)) {
 			weg_t *weg = bd->get_weg(road_wt);
 			weg->set_besch(welt->get_city_road());
-				if (weg->is_public_right_of_way()) {
+			if (weg->is_public_right_of_way()) {
+				strasse_t *str = static_cast<strasse_t *>(weg);
+				str->set_gehweg(true);
+			} else {
+				bool make_public = true;
+
+				const wayobj_t *wo = gr->get_wayobj(road_wt);
+				if (wo && wo->is_noise_barrier()) {
+					make_public = false;
+				}
+
+				const roadsign_t* rs = gr->find<roadsign_t>();
+				if (rs && rs->get_besch()->is_private_way()) {
+					make_public = false;
+				}
+				if (make_public) {
 					strasse_t *str = static_cast<strasse_t *>(weg);
 					str->set_gehweg(true);
-					weg->set_gehweg(true);
-				} else {
-					bool make_public = false;
-					for (int j = 0; j < 4; j++) {
-						// Neighbors goes through these in 'preferred' order, orthogonal first
-						grund_t *gr2;
-						if (bd->get_neighbour(gr2, road_wt, ribi_t::nsow[j])) {
-							strasse_t* weg2 = (strasse_t*)gr2->get_weg(road_wt);
-							if (weg2->is_public_right_of_way()) {
-								make_public = true;
-								break;
-							}
-						}
-					}
-
-					const roadsign_t* rs = bd->find<roadsign_t>();
-					if (rs && rs->get_besch()->is_private_way()) {
-						make_public = false;
-					}
-					if (make_public) {
-						strasse_t *str = static_cast<strasse_t *>(weg);
-						str->set_gehweg(true);
-						weg->set_public_right_of_way();
-					}
+					weg->set_public_right_of_way();
 				}
+			}
 		} else {
 			weg_t *weg = new strasse_t();
 			// Hajo: city roads should not belong to any player => so we can ignore any contruction costs ...
