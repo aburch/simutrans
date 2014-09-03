@@ -797,9 +797,8 @@ DBG_MESSAGE("wkz_remover()", "removing way");
 
 		wt = w->get_besch()->get_finance_waytype();
 		const sint64 land_refund_cost = welt->get_land_value(w->get_pos()); // Refund the land value to the player who owned the way, as by bulldozing, the player is selling the land.
-		spieler_t* owner = w->get_besitzer();
 		sint64 cost_sum = gr->weg_entfernen(w->get_waytype(), true);
-		if(sp == owner)
+		if(sp == w->get_besitzer())
 		{
 			cost_sum -= land_refund_cost;
 		}
@@ -807,7 +806,7 @@ DBG_MESSAGE("wkz_remover()", "removing way");
 		{
 			spieler_t::book_construction_costs(sp, -cost_sum, k, wt);
 		}
-		spieler_t::book_construction_costs( owner, -land_refund_cost, k, wt);
+		spieler_t::book_construction_costs( w->get_besitzer(), -land_refund_cost, k, wt);
 	}
 	else {
 		// remove ways and tunnel
