@@ -3978,7 +3978,7 @@ void stadt_t::build_city_building(const koord k, bool new_town)
 					bool make_public = true;
 
 					const wayobj_t *wo = gr->get_wayobj(road_wt);
-					if (wo && wo->is_noise_barrier()) {
+					if (wo && wo->get_besch()->is_noise_barrier()) {
 						make_public = false;
 					}
 
@@ -4172,7 +4172,7 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb)
 					bool make_public = true;
 
 					const wayobj_t *wo = gr->get_wayobj(road_wt);
-					if (wo && wo->is_noise_barrier()) {
+					if (wo && wo->get_besch()->is_noise_barrier()) {
 						make_public = false;
 					}
 
@@ -4623,12 +4623,12 @@ bool stadt_t::baue_strasse(const koord k, spieler_t* sp, bool forced)
 			} else {
 				bool make_public = true;
 
-				const wayobj_t *wo = gr->get_wayobj(road_wt);
-				if (wo && wo->is_noise_barrier()) {
+				const wayobj_t *wo = bd->get_wayobj(road_wt);
+				if (wo && wo->get_besch()->is_noise_barrier()) {
 					make_public = false;
 				}
 
-				const roadsign_t* rs = gr->find<roadsign_t>();
+				const roadsign_t* rs = bd->find<roadsign_t>();
 				if (rs && rs->get_besch()->is_private_way()) {
 					make_public = false;
 				}

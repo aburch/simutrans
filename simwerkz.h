@@ -249,7 +249,7 @@ public:
 
 class wkz_wegebau_t : public two_click_werkzeug_t {
 private:
-	static const weg_besch_t *defaults[17];	// default ways for all types
+	static const weg_besch_t *defaults[18];	// default ways for all types
 
 	char const* do_work(spieler_t*, koord3d const&, koord3d const&) OVERRIDE;
 	void mark_tiles(spieler_t*, koord3d const&, koord3d const&) OVERRIDE;
