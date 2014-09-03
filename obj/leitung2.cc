@@ -434,7 +434,7 @@ void leitung_t::rdwr(loadsave_t *file)
 // players can remove public owned powerlines
 const char *leitung_t::ist_entfernbar(const spieler_t *sp)
 {
-	if(  get_player_nr()==1  ) {
+	if(  get_player_nr()==1  &&  sp  ) {
 		return NULL;
 	}
 	return obj_t::ist_entfernbar(sp);
