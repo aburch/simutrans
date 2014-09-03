@@ -66,9 +66,6 @@ public:
 
 	image_id get_back_image_id(ribi_t::ribi ribi) const { return get_child<bildliste_besch_t>(3)->get_bild_nr(ribi); }
 
-	// way objects can have a front and a backimage, unlike ways ...
-	image_id get_fence_image_id(int index, ribi_t::ribi ribi) const { return get_child<bildliste_besch_t>(index)->get_bild_nr(ribi); }
-
 	image_id get_front_slope_image_id(hang_t::typ hang) const
 	{
 		int nr;

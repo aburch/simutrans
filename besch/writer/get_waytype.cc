@@ -13,8 +13,6 @@ waytype_t get_waytype(const char* waytype)
 
 	if (!STRICMP(waytype, "none")) {
 		uv8 = ignore_wt;
-	} else if (!STRICMP(waytype, "invalid")) {
-		uv8 = invalid_wt;
 	} else if (!STRICMP(waytype, "road")) {
 		uv8 = road_wt;
 	} else if (!STRICMP(waytype, "track")) {

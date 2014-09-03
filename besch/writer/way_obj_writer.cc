@@ -23,7 +23,7 @@ void way_obj_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& 
 	};
 	int ribi, hang;
 
-	obj_node_t node(this, 23, &parent);
+	obj_node_t node(this, 22, &parent);
 
 
 	// Hajo: Version needs high bit set as trigger -> this is required
@@ -37,7 +37,7 @@ void way_obj_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& 
 	// Finally, this is the experimental version number. This is *added*
 	// to the standard version number, to be subtracted again when read.
 	// Start at 0x100 and increment in hundreds (hex).
-	version += 0x200;
+	version += 0x100;
 
 	uint32 price       = obj.get_int("cost",        100);
 	uint32 maintenance = obj.get_int("maintenance", 100);
@@ -95,8 +95,6 @@ void way_obj_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& 
 	node.write_uint8 (outfp, own_wtyp,					19);
 	node.write_uint8(outfp, permissive_way_constraints,	20);
 	node.write_uint8(outfp, prohibitive_way_constraints,21);
-	char dummy = 0;
-	node.write_uint8(outfp, dummy, 22);
 
 	write_head(outfp, node, obj);
 
@@ -158,9 +156,6 @@ void way_obj_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& 
 	imagelist_writer_t::instance()->write_obj(outfp, node, front_list);
 	imagelist_writer_t::instance()->write_obj(outfp, node, back_list);
 
-	front_list.clear();
-	back_list.clear();
-
 	slist_tpl<string> cursorkeys;
 	cursorkeys.append(string(obj.get("cursor")));
 	cursorkeys.append(string(obj.get("icon")));
@@ -169,4 +164,3 @@ void way_obj_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& 
 	// node.write_data(fp, &besch);
 	node.write(outfp);
 }
-	
