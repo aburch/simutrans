@@ -4,6 +4,9 @@
  *
  * @section api-trunk Current trunk
  *
+ * - Added building_desc_x::get_building_list
+ * - Added factory_production_x::get_in_transit
+ *
  * @section api-120-0 Release 120.0
  *
  * - Added line_x, line_list_x
