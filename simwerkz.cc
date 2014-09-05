@@ -846,7 +846,7 @@ char const* wkz_remover_t::check_diversionary_route(koord3d pos, weg_t* w, spiel
 		if(gr->get_neighbour(to, w->get_waytype(), ribi_t::nsow[n])) {
 			weg_t *way = to->get_weg(w->get_waytype());
 
-			if(way && way->is_public_right_of_way() && way->get_max_speed() > 0) {
+			if(way && way->get_max_speed() > 0) {
 				neighbouring_grounds.append(to);
 			}
 		}
@@ -896,7 +896,7 @@ char const* wkz_remover_t::check_diversionary_route(koord3d pos, weg_t* w, spiel
 
 		FOR(minivec_tpl<route_t>, const& diversionary_route, diversionary_routes)
 		{
-			for(int n = 0; n < diversionary_route.get_count(); n++)
+			for(int n = 1; n < diversionary_route.get_count()-1; n++)
 			{
 				// All diversionary routes must themselves be set as public rights of way.
 				weg_t* way = welt->lookup(diversionary_route.position_bei(n))->get_weg(w->get_waytype());
