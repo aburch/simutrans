@@ -837,81 +837,12 @@ DBG_MESSAGE("wkz_remover()", "removing way");
 
 char const* wkz_remover_t::check_diversionary_route(koord3d pos, weg_t* w, spieler_t* sp)
 {
-	minivec_tpl<grund_t*> neighbouring_grounds(2);
 	grund_t *gr = welt->lookup(pos);
-	for(int n = 0; n < 4; n ++)
-	{
-		grund_t *to;
-		if(w->get_waytype() == water_wt && gr->get_neighbour(to, invalid_wt, ribi_t::nsow[n] ) && to->get_typ() == grund_t::wasser) {
-			neighbouring_grounds.append(to);
-			continue;
-		}
 
-		if(gr->get_neighbour(to, w->get_waytype(), ribi_t::nsow[n])) {
-			weg_t *way = to->get_weg(w->get_waytype());
-
-			if(way && way->get_max_speed() > 0) {
-				neighbouring_grounds.append(to);
-			}
-		}
+	if(gr->removing_way_would_disrupt_public_right_of_way(w->get_waytype())) {
+		return "Cannot remove a public right of way without providing an adequate diversionary route";
 	}
 
-	if(neighbouring_grounds.get_count() > 1)
-	{
-		// It is necessary to do this to simulate the way not being there for testing purposes.
-		grund_t* way_gr = welt->lookup(w->get_pos());
-		koord3d start = koord3d::invalid;
-		koord3d end;
-		vehikel_besch_t diversion_check_type(w->get_waytype(), kmh_to_speed(w->get_max_speed()), vehikel_besch_t::diesel, w->get_max_axle_load());
-		minivec_tpl<route_t> diversionary_routes;
-		uint32 successful_diversions = 0;
-		uint32 necessary_diversions = 0;
-		FOR(minivec_tpl<grund_t*>, const& gr, neighbouring_grounds)
-		{
-			end = start;
-			start = gr->get_pos();
-			if(end != koord3d::invalid)
-			{
-				route_t diversionary_route;
-				vehikel_t *diversion_checker = vehikelbauer_t::baue(start, sp, NULL, &diversion_check_type);
-				diversion_checker->set_flag(obj_t::not_on_map);
-				diversion_checker->set_besitzer(welt->get_spieler(1));	
-				const uint32 max_axle_load = way_gr->ist_bruecke() ? 1 : w->get_max_axle_load(); // TODO: Use proper axle load when axle load for bridges is introduced.
-				const uint32 bridge_weight = min(999, w->get_max_axle_load() * (w->get_waytype() == road_wt) ? 2 : 1); // This is something of a fudge, but it is reasonable to assume that most road vehicles have 2 axles.
-				if(diversionary_route.calc_route(welt, start, end, diversion_checker, w->get_max_speed(), max_axle_load, 0, welt->get_settings().get_max_diversion_tiles() * 100, bridge_weight))
-				{
-					// Only increment this counter if the ways were already connected.
-					necessary_diversions ++;
-				}
-				const bool route_good = !way_gr->ist_bruecke() && diversionary_route.calc_route(welt, start, end, diversion_checker, w->get_max_speed(), max_axle_load, 0, welt->get_settings().get_max_diversion_tiles() * 100, bridge_weight, w->get_pos());
-				if(route_good && (diversionary_route.get_count() < welt->get_settings().get_max_diversion_tiles()))
-				{
-					successful_diversions ++;
-					diversionary_routes.append(diversionary_route);
-				}
-				delete diversion_checker;
-			}
-		}
-
-		if(successful_diversions < necessary_diversions)
-		{
-			return "Cannot remove a public right of way without providing an adequate diversionary route";	
-		}
-
-		FOR(minivec_tpl<route_t>, const& diversionary_route, diversionary_routes)
-		{
-			for(int n = 1; n < diversionary_route.get_count()-1; n++)
-			{
-				// All diversionary routes must themselves be set as public rights of way.
-				weg_t* way = welt->lookup(diversionary_route.position_bei(n))->get_weg(w->get_waytype());
-				if (way) {
-					way->set_public_right_of_way();
-				}
-			}
-		}
-	} else if(w->get_waytype() == water_wt && w->get_max_speed() > 0) {
-		return "Cannot remove a public right of way without providing an adequate diversionary route";	
-	}
 	return NULL;
 }
 
@@ -4943,7 +4874,7 @@ const char* wkz_roadsign_t::check_pos_intern(spieler_t *sp, koord3d pos)
 		if(besch->is_private_way() &&
 		   (!ribi_t::ist_gerade(dir) || weg->get_besitzer() != sp ||
 		    gr->removing_road_would_disconnect_city_building() ||
-		    gr->removing_road_would_disrupt_public_right_of_way()) &&
+		    gr->removing_way_would_disrupt_public_right_of_way(road_wt)) &&
 		   (sp->get_player_nr() != 1 || weg->get_besitzer() != NULL))
 		{
 			// Private way signs only on straight tiles, and only on ways belonging to the player building them.

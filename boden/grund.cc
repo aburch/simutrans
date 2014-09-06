@@ -2273,29 +2273,32 @@ public:
 	virtual bool ist_ziel(const grund_t *gr,const grund_t *gr2) { return other->ist_ziel(gr,gr2); }
 };
 
-bool grund_t::removing_road_would_disrupt_public_right_of_way()
+bool grund_t::removing_way_would_disrupt_public_right_of_way(waytype_t wt)
 {
-	weg_t *w = get_weg(road_wt);
+	weg_t *w = get_weg(wt);
 	if (!w || !w->is_public_right_of_way()) {
 		return false;
 	}
-	minivec_tpl<weg_t*> neighbouring_ways(2);
-	for(int n = 0; n < 8; n ++)
+	minivec_tpl<grund_t*> neighbouring_grounds(2);
+	grund_t *gr = welt->lookup(pos);
+	for(int n = 0; n < 4; n ++)
 	{
-		const koord k = pos.get_2d().neighbours[n] + pos.get_2d();
-		const grund_t* gr = welt->lookup_kartenboden(k);
-		if(!gr)
-		{
+		grund_t *to;
+		if(w->get_waytype() == water_wt && gr->get_neighbour(to, invalid_wt, ribi_t::nsow[n] ) && to->get_typ() == grund_t::wasser) {
+			neighbouring_grounds.append(to);
 			continue;
 		}
-		weg_t* neighbouring_way = gr->get_weg(w->get_waytype());
-		if(neighbouring_way && neighbouring_way->is_public_right_of_way())
-		{
-			neighbouring_ways.append(neighbouring_way);
+
+		if(gr->get_neighbour(to, w->get_waytype(), ribi_t::nsow[n])) {
+			weg_t *way = to->get_weg(w->get_waytype());
+
+			if(way && way->get_max_speed() > 0) {
+				neighbouring_grounds.append(to);
+			}
 		}
 	}
 
-	if(neighbouring_ways.get_count() > 1)
+	if(neighbouring_grounds.get_count() > 1)
 	{
 		// It is necessary to do this to simulate the way not being there for testing purposes.
 		grund_t* way_gr = welt->lookup(w->get_pos());
@@ -2305,10 +2308,10 @@ bool grund_t::removing_road_would_disrupt_public_right_of_way()
 		minivec_tpl<route_t> diversionary_routes;
 		uint32 successful_diversions = 0;
 		uint32 necessary_diversions = 0;
-		FOR(minivec_tpl<weg_t*>, const& way, neighbouring_ways)
+		FOR(minivec_tpl<grund_t*>, const& gr, neighbouring_grounds)
 		{
 			end = start;
-			start = way->get_pos();
+			start = gr->get_pos();
 			if(end != koord3d::invalid)
 			{
 				route_t diversionary_route;
@@ -2318,7 +2321,7 @@ bool grund_t::removing_road_would_disrupt_public_right_of_way()
 				fahrer_t *driver = diversion_checker;
 				driver = public_driver_t::apply(driver);
 				const uint32 max_axle_load = way_gr->ist_bruecke() ? 1 : w->get_max_axle_load(); // TODO: Use proper axle load when axle load for bridges is introduced.
-				const uint32 bridge_weight = w->get_max_axle_load() * 2; // This is something of a fudge, but it is reasonable to assume that most road vehicles have 2 axles.
+				const uint32 bridge_weight = min(999, w->get_max_axle_load() * (w->get_waytype() == road_wt) ? 2 : 1); // This is something of a fudge, but it is reasonable to assume that most road vehicles have 2 axles.
 				if(diversionary_route.calc_route(welt, start, end, diversion_checker, w->get_max_speed(), max_axle_load, 0, welt->get_settings().get_max_diversion_tiles() * 100, bridge_weight))
 				{
 					// Only increment this counter if the ways were already connected.
@@ -2336,37 +2339,18 @@ bool grund_t::removing_road_would_disrupt_public_right_of_way()
 
 		if(successful_diversions < necessary_diversions)
 		{
- 			return true;
+			return true;
 		}
 
 		FOR(minivec_tpl<route_t>, const& diversionary_route, diversionary_routes)
 		{
-			for(int n = 0; n < diversionary_route.get_count(); n++)
-			{
-				grund_t *gr = welt->lookup(diversionary_route.position_bei(n));
-				weg_t* way = gr->get_weg(w->get_waytype());
-				if (w->get_waytype() == road_wt) {
-					roadsign_t *rs = gr->find<roadsign_t>();
-					if (rs && rs->get_besch()->is_private_way()) {
-						return false;
-					}
-
-					wayobj_t *wo = gr->get_wayobj(road_wt);
-					if (wo && wo->get_besch()->is_noise_barrier()) {
-						return false;
-					}
-				}
-			}
-		}
-
-		FOR(minivec_tpl<route_t>, const& diversionary_route, diversionary_routes)
-		{
-			for(int n = 0; n < diversionary_route.get_count(); n++)
+			for(int n = 1; n < diversionary_route.get_count()-1; n++)
 			{
 				// All diversionary routes must themselves be set as public rights of way.
 				weg_t* way = welt->lookup(diversionary_route.position_bei(n))->get_weg(w->get_waytype());
-
-				way->set_public_right_of_way();
+				if (way) {
+					way->set_public_right_of_way();
+				}
 			}
 		}
 	}

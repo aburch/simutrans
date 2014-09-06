@@ -451,7 +451,7 @@ void wayobj_t::extend_wayobj_t(koord3d pos, spieler_t *besitzer, ribi_t::ribi di
 		}
 
 		if(besch->is_noise_barrier()) {
-			if (gr->removing_road_would_disrupt_public_right_of_way() ||
+			if (gr->removing_way_would_disrupt_public_right_of_way(road_wt) ||
 			    gr->removing_road_would_disconnect_city_building() ||
 			    gr->removing_road_would_break_monument_loop()) {
 				return;
