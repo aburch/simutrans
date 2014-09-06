@@ -19,7 +19,7 @@
 #	include <direct.h>
 #	include <windows.h>
 #	include <shellapi.h>
-#	include <Shlobj.h>
+#	include <shlobj.h>
 #	define PATH_MAX MAX_PATH
 #else
 #	include <limits.h>
