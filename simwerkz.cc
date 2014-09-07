@@ -4204,7 +4204,7 @@ DBG_MESSAGE("wkz_halt_aux()", "building %s on square %d,%d for waytype %x", besc
 	}
 
 	wayobj_t *wo = bd->get_wayobj(wegtype);
-	if(  wo && wo->clashes_with_halts()  ) {
+	if(  wo && wo->clashes_with_halt()  ) {
 		return "Cannot combine way object and halt.";
 	}
 
