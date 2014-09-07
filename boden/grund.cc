@@ -2236,7 +2236,6 @@ public:
 	fahrer_t *other;
 
 	static fahrer_t* apply(fahrer_t *test_driver) {
-		karte_t *welt = world();
 		public_driver_t *td2 = new public_driver_t();
 		td2->other = test_driver;
 		return td2;
