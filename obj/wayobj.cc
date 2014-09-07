@@ -427,7 +427,7 @@ void wayobj_t::calc_bild()
 
 /* better use this constrcutor for new wayobj; it will extend a matching obj or make an new one
  */
-void wayobj_t::extend_wayobj_t(koord3d pos, spieler_t *besitzer, ribi_t::ribi dir, const way_obj_besch_t *besch)
+const char *wayobj_t::extend_wayobj_t(koord3d pos, spieler_t *besitzer, ribi_t::ribi dir, const way_obj_besch_t *besch)
 {
 	grund_t *gr=welt->lookup(pos);
 	if(gr) 
@@ -446,20 +446,26 @@ void wayobj_t::extend_wayobj_t(koord3d pos, spieler_t *besitzer, ribi_t::ribi di
 				existing_wayobj->mark_image_dirty( existing_wayobj->get_after_bild(), 0 );
 				existing_wayobj->mark_image_dirty( existing_wayobj->get_bild(), 0 );
 				existing_wayobj->set_flag(obj_t::dirty);
-				return;
+				return NULL;
 			}
 		}
 
 		if(besch->is_noise_barrier()) {
-			if (gr->removing_way_would_disrupt_public_right_of_way(road_wt) ||
-			    gr->removing_road_would_disconnect_city_building() ||
+			if (gr->removing_way_would_disrupt_public_right_of_way(road_wt)) {
+				return "Cannot remove a public right of way without providing an adequate diversionary route";
+			}
+			if (gr->removing_road_would_disconnect_city_building() ||
 			    gr->removing_road_would_break_monument_loop()) {
-				return;
+				return "Cannot delete a road where to do so would leave a city building unconnected by road.";
+			}
+
+			if (gr->get_halt().is_bound()) {
+				return "Cannot combine way object and halt.";
 			}
 
 			strasse_t *str = static_cast<strasse_t *>(gr->get_weg(road_wt));
 			if (str == NULL) {
-				return;
+				return "";
 			}
 			str->set_gehweg(false);
 			gr->get_weg(road_wt)->set_public_right_of_way(false);
@@ -497,6 +503,8 @@ void wayobj_t::extend_wayobj_t(koord3d pos, spieler_t *besitzer, ribi_t::ribi di
 			}
 		}
 	}
+
+	return NULL;
 }
 
 

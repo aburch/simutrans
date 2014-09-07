@@ -103,6 +103,9 @@ public:
 	void entferne(spieler_t *sp);
 
 	const char* ist_entfernbar(const spieler_t *sp) OVERRIDE;
+	bool clashes_with_halt() {
+		return get_besch()->get_own_wtyp() == noise_barrier_wt;
+	}
 
 	/**
 	* calculate image after loading
@@ -122,7 +125,7 @@ public:
 	static const way_obj_besch_t *default_oberleitung;
 
 	// use this constructor; it will extend a matching existing wayobj
-	static void extend_wayobj_t(koord3d pos, spieler_t *besitzer, ribi_t::ribi dir, const way_obj_besch_t *besch);
+	static const char *extend_wayobj_t(koord3d pos, spieler_t *besitzer, ribi_t::ribi dir, const way_obj_besch_t *besch);
 
 	static bool register_besch(way_obj_besch_t *besch);
 	static bool alles_geladen();

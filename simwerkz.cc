@@ -3661,7 +3661,11 @@ const char *wkz_wayobj_t::do_work( spieler_t * sp, const koord3d &start, const k
 	koord3d_vector_t const& r = verbindung.get_route();
 	for(uint32 i=0;  i<verbindung.get_count();  i++  ) {
 		if( build ) {
-			wayobj_t::extend_wayobj_t(r[i], sp, r.get_ribi(i), besch);
+			const char *msg = wayobj_t::extend_wayobj_t(r[i], sp, r.get_ribi(i), besch);
+
+			if (msg) {
+				return msg;
+			}
 		}
 		else {
 			if (wayobj_t* const wo = welt->lookup(r[i])->find<wayobj_t>()) {
@@ -4197,6 +4201,11 @@ DBG_MESSAGE("wkz_halt_aux()", "building %s on square %d,%d for waytype %x", besc
 
 	if(  bd->hat_weg(air_wt)  &&  bd->get_weg(air_wt)->get_besch()->get_styp()!=0  ) {
 		return "Flugzeughalt muss auf\nRunway liegen!\n";
+	}
+
+	wayobj_t *wo = bd->get_wayobj(wegtype);
+	if(  wo && wo->clashes_with_halts()  ) {
+		return "Cannot combine way object and halt.";
 	}
 
 	// find out orientation ...
