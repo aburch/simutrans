@@ -265,9 +265,6 @@ static grund_t *wkz_intern_koord_to_weg_grund(spieler_t *sp, karte_t *welt, koor
 		}
 	}
 
-	if(  wt == invalid_wt  ) {
-		return gr;
-	}
 
 	// has some rail or monorail?
 	if(  !gr->hat_weg(wt)  ) {
