@@ -79,3 +79,7 @@ note=This is the error message shown when a player tries to delete a public righ
 obj=program_text
 name=There is already a marker here.\n
 note=This is the error message shown when a player tries to place a marker on top of an already existing marker.
+-
+obj=program_text
+name=Cannot combine way object and halt.
+note=This is the error message shown when a player tries to build a halt on a road with noise barrier or a noise barrier on a road with a halt.
