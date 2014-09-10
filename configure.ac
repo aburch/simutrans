@@ -5,13 +5,25 @@ AC_INIT(simutrans, version-0.1)
 AC_PROG_CC
 AC_LANG(C++)
 
-AC_CHECK_LIB(png, png_read_image)
-AC_CHECK_LIB(pthread, pthread_mutex_destroy)
-AC_CHECK_LIB(bz2, BZ2_bzReadOpen)
+# architecture
+AC_C_BIGENDIAN([AC_SUBST(endian, 'SIM_BIG_ENDIAN')], [AC_SUBST(endian, '')], [AC_SUBST(endian, '')], [AC_SUBST(endian, '')])
+
+# missing libs
+AC_CHECK_LIB(png, png_read_image, [], [AC_MSG_WARN([Error, bz2lib is missing!])] )
+AC_CHECK_LIB(bz2, BZ2_bzReadOpen, [], [AC_MSG_WARN([Error, libpng is missing!])] )
+
+#optional freetype
+AC_CHECK_LIB(freetype2, load_FT_font, [AC_SUBST(freetype2, '-DUSE_FREETYPE')], [AC_SUBST(freetype2, '')] )
+
+# optional (but highly recommended) multithreading
+AC_CHECK_LIB(pthread, pthread_mutex_destroy, [AC_SUBST(multithread, 1)], [AC_SUBST(multithread, 0)] )
+
+# find OS and backend by libs ...
 AC_CHECK_LIB(SDL2, SDL_GetRenderDriverInfo)
 AC_CHECK_LIB(SDL, SDL_Init)
 AC_CHECK_LIB(allegro, get_desktop_resolution)
 
+# ... and headers
 AC_CHECK_HEADERS(QTKit/QTMovie.h)
 AC_CHECK_HEADERS(windows.h)
 AC_CHECK_HEADERS(LocaleRoster.h)
@@ -40,9 +52,11 @@ else
 	AC_MSG_ERROR([Unknow OS!])
 fi
 
-AC_ARG_ENABLE([server], [AS_HELP_STRING([--enable-server],[Builds a server without graphics])] )
 
 # and backend ...
+AC_ARG_ENABLE([server], [AS_HELP_STRING([--enable-server],[Builds a server without graphics])], [], [enable_server=no])
+
+# first test if forced as server
 if test "x$enable_server" != "xno"
 then
 	AC_SUBST(backend, posix)
@@ -74,15 +88,6 @@ else
 fi
 
 
-# no multthreading without pthreads ...
-if test "$ac_cv_lib_pthread_pthread_mutex_destroy" == yes
-then
-	AC_SUBST(multithread, 1)
-else
-	AC_SUBST(multithread, 0)
-fi
-
-
 # are we in a svn?
 if svn info
 then
@@ -92,24 +97,13 @@ else
 fi
 
 
-#switch off assembler on 64 bit
+#switch off assembler on 64 bit (MISSING: Check for GNU Assembler and i86)
 AC_CHECK_SIZEOF(void*)
 if test "$ac_cv_sizeof_voidp" == 4
 then
 	AC_SUBST(flags, '')
 else
 	AC_SUBST(flags, '-DUSE_C')
-fi
-
-# missing libs
-if test "$ac_cv_lib_bz2_BZ2_bzReadOpen" == no
-then
-	AC_MSG_WARN([Error, the bz2lib is missing!])
-fi
-
-if test "$ac_cv_lib_png_png_read_image" == no
-then
-	AC_MSG_WARN([Error, the libpng is missing!])
 fi
 
 

@@ -17,7 +17,7 @@ WITH_REVISION = @svn@
 
 MULTI_THREAD = @multithread@ # Enable multithreading
 
-FLAGS = @flags@
+FLAGS = @flags@ @freetype2@
 
 MAKEOBJ_PROGDIR = $(shell pwd)
 NETTOOL_PROGDIR = $(shell pwd)
