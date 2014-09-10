@@ -6,7 +6,7 @@ AC_PROG_CC
 AC_LANG(C++)
 
 # architecture
-AC_C_BIGENDIAN([AC_SUBST(endian, 'SIM_BIG_ENDIAN')], [AC_SUBST(endian, '')], [AC_SUBST(endian, '')], [AC_SUBST(endian, '')])
+AC_C_BIGENDIAN([AC_SUBST(endian, '-DSIM_BIG_ENDIAN')], [AC_SUBST(endian, '')], [AC_SUBST(endian, '')], [AC_SUBST(endian, '')])
 
 # missing libs
 AC_CHECK_LIB(png, png_read_image, [], [AC_MSG_WARN([Error, bz2lib is missing!])] )
