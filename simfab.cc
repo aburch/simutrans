@@ -3372,8 +3372,10 @@ void fabrik_t::finish_rd()
 	recalc_nearby_halts();
 	
 	// now we have a valid storage limit
-	if (welt->get_settings().is_crossconnect_factories()) {
-		add_all_suppliers();
+	if(  welt->get_settings().is_crossconnect_factories()  ) {
+		FOR(  vector_tpl<fabrik_t*>,  const fab,  welt->get_fab_list()  ) {
+			fab->add_supplier(this);
+		}
 	}
 	else {
 		// add as supplier to target(s)
