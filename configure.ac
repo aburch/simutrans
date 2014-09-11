@@ -63,17 +63,17 @@ then
 	AC_SUBST(color, 0)
 elif test "$ac_cv_header_windows_h" == yes
 then
-	AC_SUBST(backend, GDI)
+	AC_SUBST(backend, gdi)
 	AC_SUBST(color, 16)
 	AC_MSG_WARN([Using GDI backend!])
 elif test "$ac_cv_lib_SDL2_SDL_GetRenderDriverInfo" == yes
 then
-	AC_SUBST(backend, SDL2)
+	AC_SUBST(backend, sdl2)
 	AC_SUBST(color, 16)
 	AC_MSG_WARN([Using SDL2 backend!])
 elif test "$ac_cv_lib_SDL_SDL_Init" == yes
 then
-	AC_SUBST(backend, SDL)
+	AC_SUBST(backend, sdl)
 	AC_SUBST(color, 16)
 	AC_MSG_WARN([Using SDL backend!])
 elif test "$ac_cv_lib_allegro_get_desktop_resolution" == yes
@@ -82,7 +82,7 @@ then
 	AC_SUBST(color, 16)
 	AC_MSG_WARN([Using SDL2 backend!])
 else
-	AC_SUBST(backend, Posix)
+	AC_SUBST(backend, posix)
 	AC_SUBST(color, 0)
 	AC_MSG_WARN([No backend found, use server (posix)!])
 fi
