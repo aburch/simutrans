@@ -9,8 +9,8 @@ AC_LANG(C++)
 AC_C_BIGENDIAN([AC_SUBST(endian, '-DSIM_BIG_ENDIAN')], [AC_SUBST(endian, '')], [AC_SUBST(endian, '')], [AC_SUBST(endian, '')])
 
 # missing libs
-AC_CHECK_LIB(png, png_read_image, [], [AC_MSG_WARN([Error, bz2lib is missing!])] )
-AC_CHECK_LIB(bz2, BZ2_bzReadOpen, [], [AC_MSG_WARN([Error, libpng is missing!])] )
+AC_CHECK_LIB(png, png_read_image, [], [AC_MSG_WARN([Error, libpng is missing!])] )
+AC_CHECK_LIB(bz2, BZ2_bzReadOpen, [], [AC_MSG_WARN([Error, libbz2 is missing!])] )
 
 #optional freetype
 AC_CHECK_LIB(freetype2, load_FT_font, [AC_SUBST(freetype2, '-DUSE_FREETYPE')], [AC_SUBST(freetype2, '')] )
@@ -100,10 +100,13 @@ fi
 #switch off assembler on 64 bit (MISSING: Check for GNU Assembler and i86)
 AC_CHECK_SIZEOF(void*)
 if test "$ac_cv_sizeof_voidp" == 4
-then
-	AC_SUBST(flags, '')
-else
-	AC_SUBST(flags, '-DUSE_C')
+	then
+	if test "$ac_cv_cxx_compiler_gnu" == yes
+	then
+		AC_SUBST(flags, '')
+	else
+		AC_SUBST(flags, '-DUSE_C')
+	fi
 fi
 
 
