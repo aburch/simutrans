@@ -389,6 +389,10 @@ public:
 	/// @}
 
 
+	/// if true this will show a softkeyboard only when editing text
+	/// default is off
+	static bool hide_keyboard;
+
 	/// default settings
 	/// read in simmain.cc from various tab files
 	/// @see simmain.cc

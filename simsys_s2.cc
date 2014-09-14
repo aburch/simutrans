@@ -251,6 +251,11 @@ int dr_os_open(int w, int const h, int const fullscreen)
 	blank = SDL_CreateCursor( blank_cursor, blank_cursor, 8, 2, 0, 0 );
 	SDL_ShowCursor(1);
 
+	if(  !env_t::hide_keyboard  ) {
+		// endable keyboard input at all times unless requested otherwise
+	    SDL_StartTextInput();
+	}
+
 	display_set_actual_width( w );
 	return w;
 }
@@ -383,7 +388,6 @@ int dr_screenshot(const char *filename, int x, int y, int w, int h)
 	}
 #endif
 	return SDL_SaveBMP( screen, filename ) == 0 ? 1 : -1;
-	return 0;
 }
 
 
@@ -632,14 +636,20 @@ void dr_sleep(uint32 usec)
 	SDL_Delay( usec );
 }
 
+
 void dr_start_textinput()
 {
-    SDL_StartTextInput();
+	if(  env_t::hide_keyboard  ) {
+	    SDL_StartTextInput();
+	}
 }
+
 
 void dr_stop_textinput()
 {
-    SDL_StopTextInput();
+	if(  env_t::hide_keyboard  ) {
+	    SDL_StopTextInput();
+	}
 }
 
 #ifdef _MSC_VER

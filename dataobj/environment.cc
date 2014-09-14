@@ -125,6 +125,7 @@ uint8 env_t::front_window_text_color;
 uint8 env_t::bottom_window_bar_color;
 uint8 env_t::bottom_window_text_color;
 
+bool env_t::hide_keyboard = false;
 
 // Hajo: Define default settings.
 void env_t::init()

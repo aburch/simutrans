@@ -845,6 +845,8 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	env_t::show_delete_buttons = contents.get_int("show_delete_buttons",env_t::show_delete_buttons ) != 0;
 	env_t::chat_window_transparency = contents.get_int("chat_transparency",env_t::chat_window_transparency );
 
+	env_t::hide_keyboard = contents.get_int("hide_keyboard",env_t::hide_keyboard ) != 0;
+
 	// network stuff
 	env_t::server_frames_ahead = contents.get_int("server_frames_ahead", env_t::server_frames_ahead );
 	env_t::additional_client_frames_behind = contents.get_int("additional_client_frames_behind", env_t::additional_client_frames_behind);

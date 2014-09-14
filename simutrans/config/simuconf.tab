@@ -209,6 +209,12 @@ factory_enforce_demand = 1
 
 ##################################display stuff#################################
 
+# if run on a mobile device, setting hide_keyboard=1 will only show the keyboard
+# when there is text to input in a dialoge. Other than that textinput will not
+# be possible (no keyboard short cuts).
+# Currently only supported with SDL2
+hide_keyboard = 0
+
 # if defined, the default tool will try to calculate straight ways (like OpenTTD)
 straight_way_without_control = 0
 
