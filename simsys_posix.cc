@@ -13,9 +13,15 @@
 #include <windows.h>
 #endif
 
+#include <signal.h>
+
 #include "macros.h"
+#include "simdebug.h"
+#include "simevent.h"
 #include "simsys.h"
 
+
+static bool sigterm_received = false;
 
 bool dr_os_init(const int*)
 {
@@ -91,11 +97,20 @@ static inline unsigned int ModifierKeys()
 }
 
 void GetEvents()
-{
-}
+ {
+	if(  sigterm_received  ) {
+		sys_event.type = SIM_SYSTEM;
+		sys_event.code = SYSTEM_QUIT;
+	}
+ }
+
 
 void GetEventsNoWait()
 {
+	if(  sigterm_received  ) {
+		sys_event.type = SIM_SYSTEM;
+		sys_event.code = SYSTEM_QUIT;
+	}
 }
 
 void show_pointer(int)
@@ -148,8 +163,16 @@ void dr_stop_textinput()
 }
 
 
-int main(int argc, char **argv)
+static void posix_sigterm(int)
 {
-	gettimeofday(&first,NULL);
-	return sysmain(argc, argv);
+	dbg->important("Received SIGTERM, exiting...");
+	sigterm_received = 1;
 }
+
+
+int main(int argc, char **argv)
+ {
+	signal( SIGTERM, posix_sigterm );
+ 	gettimeofday(&first,NULL);
+ 	return sysmain(argc, argv);
+ }
