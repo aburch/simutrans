@@ -22,33 +22,46 @@ ifeq ($(OSTYPE),amiga)
   STD_LIBS ?= -lunix -lSDL_mixer -lsmpeg -lvorbisfile -lvorbis -logg
   CFLAGS += -mcrt=newlib -DUSE_C -DSIM_BIG_ENDIAN -gstabs+
   LDFLAGS += -Bstatic -non_shared
-else ifeq ($(OSTYPE),beos)
-  LIBS += -lnet
-else ifneq ($(findstring $(OSTYPE), cygwin mingw),)
-  ifeq ($(OSTYPE),cygwin)
-    CFLAGS  += -I/usr/include/mingw -mwin32
-    LDFLAGS += -mno-cygwin
-  else ifeq ($(OSTYPE),mingw)
-    CFLAGS  += -DPNG_STATIC -DZLIB_STATIC
-    ifeq ($(BACKEND),gdi)
-      LIBS += -lunicows
-    endif
-    LDFLAGS += -static-libgcc -static-libstdc++
-    LIBS    += -lmingw32
-  endif
-  SOURCES += simsys_w32_png.cc
-  CFLAGS  += -DNOMINMAX -DWIN32_LEAN_AND_MEAN -DWINVER=0x0501 -D_WIN32_IE=0x0500
-  LIBS    += -lgdi32 -lwinmm -lws2_32
-  # Disable the console on Windows unless WIN32_CONSOLE is set or graphics are disabled
-  ifneq ($(WIN32_CONSOLE),)
-    LDFLAGS += -mconsole
-  else ifeq ($(BACKEND),posix)
-    LDFLAGS += -mconsole
+else
+# BeOS (obsolete)
+  ifeq ($(OSTYPE),beos)
+    LIBS += -lnet
   else
-    LDFLAGS += -mwindows
+    ifneq ($(findstring $(OSTYPE), cygwin mingw),)
+      ifeq ($(OSTYPE),cygwin)
+        CFLAGS  += -I/usr/include/mingw -mwin32
+        LDFLAGS += -mno-cygwin
+      else
+        ifeq ($(OSTYPE),mingw)
+          CFLAGS  += -DPNG_STATIC -DZLIB_STATIC
+          ifeq ($(BACKEND),gdi)
+            LIBS += -lunicows
+          endif
+          LDFLAGS += -static-libgcc -static-libstdc++
+          LIBS    += -lmingw32
+        endif
+      endif
+      SOURCES += simsys_w32_png.cc
+      CFLAGS  += -DNOMINMAX -DWIN32_LEAN_AND_MEAN -DWINVER=0x0501 -D_WIN32_IE=0x0500
+      LIBS    += -lgdi32 -lwinmm -lws2_32
+      # Disable the console on Windows unless WIN32_CONSOLE is set or graphics are disabled
+      ifneq ($(WIN32_CONSOLE),)
+        LDFLAGS += -mconsole
+      else
+        ifeq ($(BACKEND),posix)
+          LDFLAGS += -mconsole
+        else
+          LDFLAGS += -mwindows
+        endif
+      endif
+    else
+# Haiku (needs to activate the GCC 4x)
+      setarch x86
+      ifeq ($(OSTYPE),haiku)
+        LIBS += -lnetwork -lbe -llocale
+      endif
+    endif
   endif
-else ifeq ($(OSTYPE),haiku)
-  LIBS += -lnetwork -lbe -llocale
 endif
 
 ifeq ($(OSTYPE),mingw)
