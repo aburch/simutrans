@@ -461,39 +461,37 @@ void weg_t::calc_bild()
 			set_images(image_slope, hang, snow);
 		}
 		else {
+			static int recursion = 0; /* Communicate among different instances of this method */
+
 			// flat way
 			set_images(image_flat, ribi, snow);
 
-			// try diagonal image
-			if(  besch->has_diagonal_bild()  ) {
-
-				bool const old_is_diagonal = is_diagonal();
-
-				check_diagonal();
-
-				if(is_diagonal()  || old_is_diagonal) {
-					static int recursion = 0; /* Communicate among different instances of this method */
-
-					// recalc image of neighbors also when this changed to non-diagonal
-					if(recursion == 0) {
-						recursion++;
-						for(int r = 0; r < 4; r++) {
-							if(  from->get_neighbour(to, get_waytype(), ribi_t::nsow[r])  ) {
-								// can fail on water tiles
-								if(  weg_t *w=to->get_weg(get_waytype())  )  {
-									w->calc_bild();
-								}
+			// recalc image of neighbors also when this changed to non-diagonal
+			if(recursion == 0) {
+				recursion++;
+				for(int r = 0; r < 4; r++) {
+					if(  from->get_neighbour(to, get_waytype(), ribi_t::nsow[r])  ) {
+						// can fail on water tiles
+						if(  weg_t *w=to->get_weg(get_waytype())  )  {
+							// and will only change the outcome, if it has a diagonal image ...
+							if(  w->get_besch()->has_diagonal_bild  ) {
+								w->calc_bild();
 							}
 						}
-						recursion--;
 					}
+				}
+				recursion--;
+			}
 
-					// now apply diagonal image
-					if(is_diagonal()) {
-						if( besch->get_diagonal_bild_nr(ribi, snow) != IMG_LEER  ||
-						    besch->get_diagonal_bild_nr(ribi, snow, true) != IMG_LEER) {
-							set_images(image_diagonal, ribi, snow);
-						}
+			// try diagonal image
+			if(  besch->has_diagonal_bild()  ) {
+				check_diagonal();
+
+				// now apply diagonal image
+				if(is_diagonal()) {
+					if( besch->get_diagonal_bild_nr(ribi, snow) != IMG_LEER  ||
+					    besch->get_diagonal_bild_nr(ribi, snow, true) != IMG_LEER) {
+						set_images(image_diagonal, ribi, snow);
 					}
 				}
 			}
