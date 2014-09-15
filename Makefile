@@ -56,8 +56,8 @@ else
       endif
     else
 # Haiku (needs to activate the GCC 4x)
-      setarch x86
       ifeq ($(OSTYPE),haiku)
+        setarch x86
         LIBS += -lnetwork -lbe -llocale
       endif
     endif
