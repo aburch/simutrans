@@ -187,7 +187,7 @@ bool loadsave_t::rd_open(const char *filename)
 			MEMZERO(buf);
 			if(  BZ2_bzRead( &fd->bse, fd->bzfp, buf, sizeof(SAVEGAME_PREFIX) )==sizeof(SAVEGAME_PREFIX)  &&  fd->bse==BZ_OK  ) {
 				// get the rest of the string
-				for(  int i=sizeof(SAVEGAME_PREFIX);  buf[i-1]>=32  &&  i<79;  i++  ) {
+				for(  int i=sizeof(SAVEGAME_PREFIX);  (uint8)buf[i-1] >= 32  &&  i<79;  i++  ) {
 					buf[i] = lsgetc();
 				}
 				ok = fd->bse==BZ_OK;
