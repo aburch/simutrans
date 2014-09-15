@@ -7,6 +7,7 @@
 
 #include "siminteraction.h"
 
+#include "simversion.h"
 #include "dataobj/environment.h"
 #include "gui/gui_frame.h"
 #include "gui/help_frame.h"
@@ -315,6 +316,44 @@ bool interaction_t::process_event( event_t &ev )
 		// quit the program if this window is closed
 		destroy_all_win(true);
 		env_t::quit_simutrans = true;
+
+		// we may be requested to save the game before exit
+		if(  env_t::server  &&  env_t::server_save_game_on_quit  ) {
+
+			// to ensure only one attempt is made
+			env_t::server_save_game_on_quit = false;
+
+			// following code quite similar to nwc_sync_t::do_coomand
+			chdir( env_t::user_dir );
+
+			// first save password hashes
+			char fn[256];
+			sprintf( fn, "server%d-pwdhash.sve", env_t::server );
+			loadsave_t file;
+			if(file.wr_open(fn, loadsave_t::save_mode, "hashes", SAVEGAME_VER_NR )) {
+				world->rdwr_player_password_hashes( &file );
+				file.close();
+			}
+
+			// remove passwords before transfer on the server and set default client mask
+			// they will be restored in karte_t::laden
+			uint16 unlocked_players = 0;
+			for(  int i=0;  i<PLAYER_UNOWNED; i++  ) {
+				spieler_t *sp = world->get_spieler(i);
+				if(  sp==NULL  ||  sp->access_password_hash().empty()  ) {
+					unlocked_players |= (1<<i);
+				}
+				else {
+					sp->access_password_hash().clear();
+				}
+			}
+
+			// save game
+			sprintf( fn, "server%d-restore.sve", env_t::server );
+			bool old_restore_UI = env_t::restore_UI;
+			env_t::restore_UI = true;
+			world->save( fn, loadsave_t::save_mode, SERVER_SAVEGAME_VER_NR, false );
+		}
 		return true;
 	}
 

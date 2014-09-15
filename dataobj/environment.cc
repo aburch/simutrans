@@ -39,6 +39,7 @@ std::string env_t::server_infurl;
 std::string env_t::server_admin_pw;
 std::string env_t::server_motd_filename;
 vector_tpl<std::string> env_t::listen;
+bool env_t::server_save_game_on_quit = false;
 
 long env_t::server_frames_ahead = 4;
 long env_t::additional_client_frames_behind = 0;

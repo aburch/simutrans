@@ -75,6 +75,9 @@ public:
 
 	static uint8 chat_window_transparency;
 
+	/// if true a kill event will save the  game under recovery#portnr#.sve
+	static bool server_save_game_on_quit;
+
 	/// @} end of Network-related settings
 
 
