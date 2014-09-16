@@ -33,6 +33,10 @@ icon_width = 32
 # in default theme white text
 gui_text_highlight= #FFFFFF
 
+# if we need to add offsets of the text from the borders of buttons
+#gui_color_button_text_offset = top, left, bottom, right
+#gui_button_text_offset = top, left, bottom, right
+
 ##################################window stuff##################################
 
 # when moving, you can use windows to snap onto each other seamlessly
