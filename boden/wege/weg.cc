@@ -474,7 +474,7 @@ void weg_t::calc_bild()
 						// can fail on water tiles
 						if(  weg_t *w=to->get_weg(get_waytype())  )  {
 							// and will only change the outcome, if it has a diagonal image ...
-							if(  w->get_besch()->has_diagonal_bild  ) {
+							if(  w->get_besch()->has_diagonal_bild()  ) {
 								w->calc_bild();
 							}
 						}
