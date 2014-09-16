@@ -19,6 +19,7 @@
 #include "simevent.h"
 #include "display/simgraph.h"
 #include "simdebug.h"
+#include "dataobj/environment.h"
 
 
 static Uint8 hourglass_cursor[] = {
