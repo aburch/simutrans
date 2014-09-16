@@ -271,9 +271,9 @@ void button_t::draw(scr_coord offset)
 				display_img_stretch( gui_theme_t::button_tiles[get_state_offset()], area );
 				display_img_stretch_blend( gui_theme_t::button_color_tiles[b_enabled && pressed], area, background_color | TRANSPARENT75_FLAG | OUTLINE_FLAG );
 				if(  text  ) {
-					// move the text to leave evt. space for a colored box top or left of it
-					scr_rect area_text = area;
-					area_text.set_pos(gui_theme_t::gui_button_text_offset + area.get_pos());
+					// move the text to leave evt. space for a colored box top left or bottom right of it
+					scr_rect area_text = area - gui_theme_t::gui_color_button_text_offset_right;
+					area_text.set_pos( gui_theme_t::gui_color_button_text_offset + area.get_pos() );
 					display_proportional_ellipse( area_text, translated_text, ALIGN_CENTER_H | ALIGN_CENTER_V | DT_CLIP, text_color, true );
 				}
 				if(  win_get_focus()==this  ) {
@@ -286,9 +286,9 @@ void button_t::draw(scr_coord offset)
 			{
 				display_img_stretch( gui_theme_t::round_button_tiles[get_state_offset()], area );
 				if(  text  ) {
-					// move the text to leave evt. space for a colored box top or left of it
-					scr_rect area_text = area;
-					area_text.set_pos(gui_theme_t::gui_button_text_offset + area.get_pos());
+					// move the text to leave evt. space for a colored box top left or bottom right of it
+					scr_rect area_text = area - gui_theme_t::gui_button_text_offset_right;
+					area_text.set_pos( gui_theme_t::gui_button_text_offset + area.get_pos() );
 					display_proportional_ellipse( area_text, translated_text, ALIGN_CENTER_H | ALIGN_CENTER_V | DT_CLIP, text_color, true );
 				}
 				if(  win_get_focus()==this  ) {

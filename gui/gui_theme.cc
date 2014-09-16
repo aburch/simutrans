@@ -61,6 +61,8 @@ scr_size gui_theme_t::gui_edit_size;
 scr_size gui_theme_t::gui_gadget_size;
 scr_size gui_theme_t::gui_indicator_size;
 scr_coord gui_theme_t::gui_focus_offset;
+scr_coord gui_theme_t::gui_button_text_offset_right;
+scr_coord gui_theme_t::gui_color_button_text_offset_right;
 
 KOORD_VAL gui_theme_t::gui_titlebar_height;
 KOORD_VAL gui_theme_t::gui_frame_left;
@@ -397,10 +399,19 @@ bool gui_theme_t::themes_init(const char *file_name)
 	gui_theme_t::gui_pos_button_size.w = (uint32)contents.get_int("gui_posbutton_width",  gui_theme_t::gui_pos_button_size.w );
 	gui_theme_t::gui_pos_button_size.h = (uint32)contents.get_int("gui_posbutton_height", gui_theme_t::gui_pos_button_size.h );
 
-	gui_theme_t::button_color_text = (uint32)contents.get_color("gui_button_color_text", gui_theme_t::button_color_text );
-	gui_theme_t::button_color_disabled_text = (uint32)contents.get_color("gui_button_color_disabled_text", gui_theme_t::button_color_disabled_text );
-	gui_theme_t::gui_color_button_text_offset = contents.get_scr_size("gui_color_button_text_offset", gui_theme_t::gui_color_button_text_offset );
-	gui_theme_t::gui_button_text_offset = contents.get_scr_size("gui_button_text_offset", gui_theme_t::gui_button_text_offset );
+	// read ../dataobj/tabfile.h for clarification of this area
+	int *color_button_text_offsets = contents.get_ints("gui_color_button_text_offset");
+	int *button_text_offsets = contents.get_ints("gui_button_text_offset");
+	if(  color_button_text_offsets[0] > 2  ) {
+		gui_theme_t::gui_color_button_text_offset = scr_size(color_button_text_offsets[1], color_button_text_offsets[2]);
+		gui_theme_t::gui_color_button_text_offset_right = scr_coord(color_button_text_offsets[3], 0);
+	}
+	if(  button_text_offsets[0] > 2  ) {
+		gui_theme_t::gui_button_text_offset = scr_size(button_text_offsets[1], button_text_offsets[2]);
+		gui_theme_t::gui_button_text_offset_right = scr_coord(button_text_offsets[3], 0);
+	}
+	delete color_button_text_offsets;
+	delete button_text_offsets;
 
 	// default iconsize (square for now)
 	env_t::iconsize.h = env_t::iconsize.w = contents.get_int("icon_width",env_t::iconsize.w );

@@ -238,6 +238,8 @@ public:
 	static scr_size gui_indicator_size;
 	static scr_size gui_gadget_size;
 	static scr_coord gui_focus_offset;
+	static scr_coord gui_color_button_text_offset_right; // extra right offset for the text (in case of asymmetric or buttons with color on the right)
+	static scr_coord gui_button_text_offset_right;       // extra right offset for the text (in case of asymmetric or buttons with checkmark on the right)
 
 	static KOORD_VAL gui_titlebar_height;
 	static KOORD_VAL gui_frame_left;
