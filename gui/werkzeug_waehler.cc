@@ -9,16 +9,18 @@
  * This class defines all toolbar dialogues, i.e. the part the user will see
  */
 
-#include "../display/simimg.h"
-#include "../simworld.h"
-#include "../gui/simwin.h"
-#include "../display/simgraph.h"
-#include "../simmenu.h"
 #include "../dataobj/environment.h"
-#include "../utils/for.h"
-#include "werkzeug_waehler.h"
-#include "../gui/gui_frame.h"
+#include "../display/simimg.h"
+#include "../display/simgraph.h"
 #include "../player/simplay.h"
+#include "../utils/for.h"
+#include "../utils/simstring.h"
+#include "../simworld.h"
+#include "../simmenu.h"
+#include "../simskin.h"
+#include "gui_frame.h"
+#include "simwin.h"
+#include "werkzeug_waehler.h"
 
 #define MIN_WIDTH (80)
 
@@ -56,7 +58,7 @@ void werkzeug_waehler_t::add_werkzeug(werkzeug_t *w)
 	int ww = max(2,(display_get_width()/env_t::iconsize.w)-2);	// to avoid zero or negative ww on posix (no graphic) backends
 	tool_icon_width = tools.get_count();
 DBG_DEBUG4("werkzeug_waehler_t::add_tool()","ww=%i, tool_icon_width=%i",ww,tool_icon_width);
-	if(allow_break  &&  (ww<tool_icon_width  ||  (env_t::toolbar_max_width>0  &&  env_t::toolbar_max_width<tool_icon_width))) {
+	if(  allow_break  &&  (ww<tool_icon_width  ||  (env_t::toolbar_max_width>0  &&  env_t::toolbar_max_width<tool_icon_width))  ) {
 		//break them
 		int rows = (tool_icon_width/ww)+1;
 DBG_DEBUG4("werkzeug_waehler_t::add_tool()","ww=%i, rows=%i",ww,rows);
@@ -169,26 +171,27 @@ bool werkzeug_waehler_t::infowin_event(const event_t *ev)
 void werkzeug_waehler_t::draw(scr_coord pos, scr_size)
 {
 	spieler_t *sp = welt->get_active_player();
+
 	for(  uint i = tool_icon_disp_start;  i < tool_icon_disp_end;  i++  ) {
 		const image_id icon_img = tools[i].tool->get_icon(sp);
+		const scr_coord draw_pos = pos + scr_coord(( (i-tool_icon_disp_start)%tool_icon_width )*env_t::iconsize.w, D_TITLEBAR_HEIGHT+( (i-tool_icon_disp_start)/tool_icon_width )*env_t::iconsize.h);
+		const char *param = tools[i].tool->get_default_param();
 
-		const scr_coord draw_pos=pos+scr_coord(((i-tool_icon_disp_start)%tool_icon_width)*env_t::iconsize.w,D_TITLEBAR_HEIGHT+((i-tool_icon_disp_start)/tool_icon_width)*env_t::iconsize.h);
-		if(icon_img == IMG_LEER) {
-			// Hajo: no icon image available, draw a blank
-			// DDD box as replacement
-
-			// top
-			display_fillbox_wh(draw_pos.x, draw_pos.y, env_t::iconsize.w, 1, MN_GREY4, dirty);
-			// body
-			display_fillbox_wh(draw_pos.x+1, draw_pos.y+1, env_t::iconsize.w-2, env_t::iconsize.h-2, MN_GREY2, dirty);
-			// bottom
-			display_fillbox_wh(draw_pos.x, draw_pos.y+env_t::iconsize.h-1, env_t::iconsize.w, 1, MN_GREY0, dirty);
-			// Left
-			display_fillbox_wh(draw_pos.x, draw_pos.y, 1, env_t::iconsize.h, MN_GREY4, dirty);
-			// Right
-			display_fillbox_wh(draw_pos.x+env_t::iconsize.w-1, draw_pos.y, 1, env_t::iconsize.h, MN_GREY0, dirty);
+		// we don't draw in main menu as it is already made in simwin.cc
+		// no background if separator starts with "-b" and has an icon defined
+		if(  toolbar_id>0  &&  !(strstart((param==NULL)? "" : param, "-b"))  ) {
+			if(  skinverwaltung_t::werkzeuge_background  &&  skinverwaltung_t::werkzeuge_background->get_bild_nr(toolbar_id) != IMG_LEER  ) {
+				const image_id back_img = skinverwaltung_t::werkzeuge_background->get_bild_nr(toolbar_id);
+				display_fit_img_to_width( back_img, env_t::iconsize.w );
+				display_color_img( back_img, draw_pos.x, draw_pos.y, 0, false, true );
+			}
+			else {
+				display_fillbox_wh_rgb( draw_pos.x, draw_pos.y, env_t::iconsize.w, env_t::iconsize.h, MN_GREY2, false );
+			}
 		}
-		else {
+
+		// if there's no image we simply skip, button will be transparent showing toolbar background
+		if(  icon_img != IMG_LEER  ) {
 			bool tool_dirty = dirty  ||  tools[i].tool->is_selected() ^ tools[i].selected;
 			display_fit_img_to_width( icon_img, env_t::iconsize.w );
 			display_color_img(icon_img, draw_pos.x, draw_pos.y, sp->get_player_nr(), false, tool_dirty);
@@ -197,7 +200,7 @@ void werkzeug_waehler_t::draw(scr_coord pos, scr_size)
 			tools[i].selected = tools[i].tool->is_selected();
 		}
 	}
-	if (dirty  &&  (tool_icon_disp_end-tool_icon_disp_start < tool_icon_width*tool_icon_height) ) {
+	if(  dirty  &&  (tool_icon_disp_end-tool_icon_disp_start < tool_icon_width*tool_icon_height)  ) {
 		// mark empty space empty
 		mark_rect_dirty_wc(pos.x, pos.y, pos.x + tool_icon_width*env_t::iconsize.w, pos.y + tool_icon_height*env_t::iconsize.h);
 	}
@@ -207,9 +210,9 @@ void werkzeug_waehler_t::draw(scr_coord pos, scr_size)
 	const sint16 my = get_maus_y();
 	const sint16 xdiff = (mx - pos.x) / env_t::iconsize.w;
 	const sint16 ydiff = (my - pos.y - D_TITLEBAR_HEIGHT) / env_t::iconsize.h;
-	if(xdiff>=0  &&  xdiff<tool_icon_width  &&  ydiff>=0  &&  mx>=pos.x  &&  my>=pos.y+D_TITLEBAR_HEIGHT) {
+	if(  xdiff>=0  &&  xdiff<tool_icon_width  &&  ydiff>=0  &&  mx>=pos.x  &&  my>=pos.y+D_TITLEBAR_HEIGHT  ) {
 		const int tipnr = xdiff+(tool_icon_width*ydiff)+tool_icon_disp_start;
-		if (tipnr < (int)tool_icon_disp_end) {
+		if(  tipnr < (int)tool_icon_disp_end  ) {
 			win_set_tooltip(get_maus_x() + TOOLTIP_MOUSE_OFFSET_X, pos.y + TOOLTIP_MOUSE_OFFSET_Y + ((ydiff+1)*env_t::iconsize.h) + 12, tools[tipnr].tool->get_tooltip(welt->get_active_player()), tools[tipnr].tool, this);
 		}
 	}

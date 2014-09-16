@@ -1464,8 +1464,8 @@ void win_display_flush(double konto)
 	// display main menu
 	werkzeug_waehler_t *main_menu = werkzeug_t::toolbar_tool[0]->get_werkzeug_waehler();
 	display_set_clip_wh( 0, 0, disp_width, menu_height+1 );
-	if(  skinverwaltung_t::werkzeuge_background  ) {
-		image_id back_img = skinverwaltung_t::werkzeuge_background->get_bild_nr(0);
+	if(  skinverwaltung_t::werkzeuge_background  &&  skinverwaltung_t::werkzeuge_background->get_bild_nr(0) != IMG_LEER  ) {
+		const image_id back_img = skinverwaltung_t::werkzeuge_background->get_bild_nr(0);
 		scr_coord_val w = env_t::iconsize.w;
 		scr_rect row = scr_rect( 0, 0, disp_width, menu_height );
 		display_fit_img_to_width( back_img, w );
