@@ -20,6 +20,7 @@
 #include "simcolor.h"
 #include "simconvoi.h"
 #include "simdebug.h"
+#include "simdepot.h"
 #include "simfab.h"
 #include "simhalt.h"
 #include "simintr.h"
@@ -2476,7 +2477,10 @@ uint32 haltestelle_t::liefere_an(ware_t ware, uint8 walked_between_stations)
 
 	const planquadrat_t* plan = welt->access(ware.get_zielpos());
 	const grund_t* gr = plan ? plan->get_kartenboden() : NULL;
-	gebaeude_t* const gb = gr ? gr->find<gebaeude_t>() : NULL;
+	gebaeude_t* gb = gr ? gr->find<gebaeude_t>() : NULL;
+	if(!gb && gr) {
+		gb = gr->get_depot();
+	}
 	fabrik_t* const fab = gb ? gb->get_fabrik() : NULL;
 	if(!gb || ware.is_freight() && !fab)
 	{
@@ -2581,6 +2585,9 @@ uint32 haltestelle_t::deposit_ware_at_destination(ware_t ware)
 	const grund_t* gr = welt->lookup_kartenboden(ware.get_zielpos());
 	gebaeude_t* gb_dest = gr->find<gebaeude_t>();
 	fabrik_t* const fab = gb_dest ? gb_dest->get_fabrik() : NULL;
+	if(!gb_dest) {
+		gb_dest = gr->get_depot();
+	}
 	if(fab) 
 	{
 		// Packet is headed to a factory;
@@ -2610,13 +2617,13 @@ uint32 haltestelle_t::deposit_ware_at_destination(ware_t ware)
 		{	
 			if(ware.is_commuting_trip)
 			{
-				if(gb_dest->get_tile()->get_besch()->get_typ() != gebaeude_t::wohnung)
+				if(gb_dest && gb_dest->get_tile()->get_besch()->get_typ() != gebaeude_t::wohnung)
 				{
 					// Do not record the passengers coming back home again.
 					gb_dest->set_commute_trip(ware.menge);
 				}
 			}
-			else if(gb_dest->get_tile()->get_besch()->get_typ() != gebaeude_t::wohnung)
+			else if(gb_dest && gb_dest->get_tile()->get_besch()->get_typ() != gebaeude_t::wohnung)
 			{
 				gb_dest->add_passengers_succeeded_visiting(ware.menge);
 			}
