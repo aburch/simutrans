@@ -326,10 +326,9 @@ bool brueckenbauer_t::is_monorail_junction(koord3d pos, spieler_t *sp, const bru
 	return false;
 }
 
-#define set_bridge_height() do { if (height_okay(start_height)) { bridge_height = 0; } else if (height_okay(start_height+1)) { bridge_height = 1; } else if (height_okay(start_height+2)) { bridge_height = 2; } else { assert(false); } } while(0)
 #define height_okay(h) (((h) < min_bridge_height || (h) > max_height) ? false : height_okay_array[h-min_bridge_height])
 
-koord3d brueckenbauer_t::finde_ende(spieler_t *sp, koord3d pos, const koord zv, const bruecke_besch_t *besch, const char *&error_msg, sint8 &bridge_height, bool ai_bridge, uint32 min_length )
+koord3d brueckenbauer_t::finde_ende(spieler_t *sp, koord3d pos, const koord zv, const bruecke_besch_t *besch, const char *&error_msg, sint8 &bridge_height, bool ai_bridge, uint32 min_length, bool high_bridge )
 {
 	const grund_t *gr2 = welt->lookup( pos );
 	if(  !gr2  ) {
@@ -486,6 +485,7 @@ koord3d brueckenbauer_t::finde_ende(spieler_t *sp, koord3d pos, const koord zv, 
 			} else if (end_slope == hang_t::flach) {
 				if ((hang_height+1 >= start_height && height_okay(hang_height+1)) ||
 				    (hang_height+2 >= start_height && height_okay(hang_height+2))) {
+					bool finish = false;
 					/* now we have a flat tile below */
 					error_msg = check_tile( gr, sp, besch->get_waytype(), ribi_typ(zv) );
 
@@ -498,9 +498,7 @@ koord3d brueckenbauer_t::finde_ende(spieler_t *sp, koord3d pos, const koord zv, 
 						for(sint8 z = hang_height + 3; z <= max_height; z++) {
 							height_okay_array[z-min_bridge_height] = false;
 						}
-						// success
-						set_bridge_height();
-						return gr->get_pos();
+						finish = true;
 					}
 
 					if(  *error_msg == 0 ) {
@@ -509,9 +507,33 @@ koord3d brueckenbauer_t::finde_ende(spieler_t *sp, koord3d pos, const koord zv, 
 								height_okay_array[z-min_bridge_height] = false;
 							}
 							// in the way, or find shortest and empty => ok
-							set_bridge_height();
-							return gr->get_pos();
+							finish = true;
 						}
+					}
+
+					if (finish) {
+						if (high_bridge) {
+							if (height_okay(start_height+2)) {
+								bridge_height = 2;
+							} else if (height_okay(start_height+1)) {
+								bridge_height = 1;
+							} else if (height_okay(start_height+0)) {
+								bridge_height = 0;
+							} else {
+								assert(false);
+							}
+						} else {
+							if (height_okay(start_height)) {
+								bridge_height = 0;
+							} else if (height_okay(start_height+1)) {
+								bridge_height = 1;
+							} else if (height_okay(start_height+2)) {
+								bridge_height = 2;
+							} else {
+								assert(false);
+							}
+						}
+						return gr->get_pos();
 					}
 				}
 			}
