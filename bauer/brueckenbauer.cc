@@ -348,7 +348,7 @@ koord3d brueckenbauer_t::finde_ende(spieler_t *sp, koord3d pos, const koord zv, 
 
 		//  Check for buildings underneath that exceed the bridge's level limit
 		if( const grund_t* gr = welt->lookup(pos) ) {
-			if (const gebaeude_t* gb = gr->find<gebaeude_t>()) {
+			if (const gebaeude_t* gb = gr->get_building()) {
 				const uint8 max_level = welt->get_settings().get_max_elevated_way_building_level();
 				if( gb->get_tile()->get_besch()->get_level() > max_level && !haltestelle_t::get_halt(gb->get_pos(), NULL).is_bound())
 				{

@@ -1692,6 +1692,16 @@ depot_t* grund_t::get_depot() const
 	return dynamic_cast<depot_t *>(first_obj());
 }
 
+gebaeude_t *grund_t::get_building() const
+{
+	gebaeude_t *gb = find<gebaeude_t>();
+	if (gb) {
+		return gb;
+	}
+
+	return get_depot();
+}
+
 
 bool grund_t::weg_erweitern(waytype_t wegtyp, ribi_t::ribi ribi)
 {
