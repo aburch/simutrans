@@ -72,11 +72,44 @@ const bruecke_besch_t *brueckenbauer_t::get_besch(const char *name)
 }
 
 
+// "successfully load" (Babelfish)
+bool brueckenbauer_t::laden_erfolgreich()
+{
+	bool strasse_da = false;
+	bool schiene_da = false;
+
+	FOR(stringhashtable_tpl<bruecke_besch_t*>, const& i, bruecken_by_name) {
+		bruecke_besch_t const* const besch = i.value;
+
+		if(besch && besch->get_waytype() == track_wt) {
+			schiene_da = true;
+		}
+		if(besch && besch->get_waytype() == road_wt) {
+			strasse_da = true;
+		}
+	}
+
+	if(!schiene_da) {
+		DBG_MESSAGE("brueckenbauer_t", "No rail bridge found - feature disabled");
+	}
+
+	if(!strasse_da) {
+		DBG_MESSAGE("brueckenbauer_t", "No road bridge found - feature disabled");
+	}
+
+	return true;
+}
+
+
 stringhashtable_tpl<bruecke_besch_t *> * brueckenbauer_t::get_all_bridges() 
 { 
 	return &bruecken_by_name; 
 }
 
+/**
+ * Find a matchin bridge
+ * @author Hj. Malthaner
+ */
 const bruecke_besch_t *brueckenbauer_t::find_bridge(const waytype_t wtyp, const sint32 min_speed, const uint16 time)
 {
 	const bruecke_besch_t *find_besch=NULL;
@@ -86,7 +119,8 @@ const bruecke_besch_t *brueckenbauer_t::find_bridge(const waytype_t wtyp, const 
 		if(  besch->get_waytype()==wtyp  &&  besch->is_available(time)  ) {
 			if(find_besch==NULL  ||
 				(find_besch->get_topspeed()<min_speed  &&  find_besch->get_topspeed()<besch->get_topspeed())  ||
-				(besch->get_topspeed()>=min_speed  &&  besch->get_wartung()<find_besch->get_wartung())
+				(besch->get_topspeed()>=min_speed  &&  (besch->get_wartung()<find_besch->get_wartung() ||
+				(besch->get_wartung()==find_besch->get_wartung() &&  besch->get_preis()<find_besch->get_preis())))
 			) {
 				find_besch = besch;
 			}
@@ -974,7 +1008,7 @@ const char *brueckenbauer_t::remove(spieler_t *sp, koord3d pos_start, waytype_t 
 					dir1 = ribi_t::ost;
 					dir2 = ribi_t::west;
 				}
-				
+
 				grund_t *to;
 				if(from->get_neighbour(to, from->get_weg_nr(0)->get_waytype(), dir1)) {
 					if (!to->ist_bruecke()) {

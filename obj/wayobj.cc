@@ -390,7 +390,6 @@ void wayobj_t::calc_bild()
 			if(diagonal) {
 				// with this, we avoid calling us endlessly
 				// HACK (originally by hajo?)
-				// this needs changing if this is ever to be multi-threaded
 				static int rekursion = 0;
 
 				if(rekursion == 0) {
