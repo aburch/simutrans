@@ -611,6 +611,8 @@ public:
 	*/
 	depot_t *get_depot() const;
 
+	gebaeude_t *get_building() const;
+
 	/*
 	* Interface zur Abfrage der Wege
 	* ==============================
@@ -767,6 +769,7 @@ public:
 	sint32 weg_entfernen(waytype_t wegtyp, bool ribi_rem);
 
 	bool removing_road_would_disconnect_city_building();
+	bool removing_way_would_disrupt_public_right_of_way(waytype_t wt);
 	bool removing_road_would_break_monument_loop();
 
 	typedef koordhashtable_tpl<koord, bool> road_network_plan_t;

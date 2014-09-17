@@ -887,13 +887,15 @@ uint16 vehikel_t::unload_freight(halthandle_t halt, sint64 & revenue_from_unload
 
 						// Add passengers to unhappy (due to overcrowding) passengers.
 						halt->add_pax_unhappy(tmp.menge);
+
+						total_freight -= tmp.menge;
 					}
 					else
 					{
 						const uint32 menge = halt->liefere_an(tmp); //"supply" (Babelfish)
 						sum_menge += menge;
 						index = tmp.get_index(); // Note that there is only one freight type per vehicle
-						total_freight -= menge;
+						total_freight -= tmp.menge;
 						cnv->invalidate_weight_summary();
 
 						// Calculate the revenue for each packet.

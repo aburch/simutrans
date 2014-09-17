@@ -13,16 +13,33 @@
 #include "../../besch/weg_besch.h"
 #include "../../bauer/wegbauer.h"
 #include "../../dataobj/translator.h"
+#include "../../dataobj/ribi.h"
+#include "../../utils/cbuffer_t.h"
+#include "../../vehicle/simvehikel.h" /* for calc_richtung */
+#include "../../obj/wayobj.h"
 
 const weg_besch_t *strasse_t::default_strasse=NULL;
 
 
 void strasse_t::set_gehweg(bool janein)
 {
+	grund_t *gr = welt->lookup(get_pos());
+	wayobj_t *wo = gr ? gr->get_wayobj(road_wt) : NULL;
+
+	if (wo && wo->get_besch()->is_noise_barrier()) {
+		janein = false;
+	}
+
 	weg_t::set_gehweg(janein);
 	if(janein && get_besch() && get_besch()->get_topspeed() > welt->get_city_road()->get_topspeed()) 
 	{
 		set_max_speed(welt->get_city_road()->get_topspeed());
+	}
+	if(!janein && get_besch()) {
+		set_max_speed(get_besch()->get_topspeed());
+	}
+	if(gr) {
+		gr->calc_bild();
 	}
 }
 

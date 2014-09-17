@@ -33,6 +33,8 @@ waytype_t get_waytype(const char* waytype)
 		uv8 = tram_wt;
 	} else if (!STRICMP(waytype, "tram_track")) {
 		uv8 = tram_wt;
+	} else if (!STRICMP(waytype, "noise_barrier")) {
+		uv8 = noise_barrier_wt;
 	} else if (!STRICMP(waytype, "power")) {
 		uv8 = powerline_wt;
 	} else {

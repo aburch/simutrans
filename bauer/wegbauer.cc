@@ -631,11 +631,7 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 
 		//max_elevated_way_building_level
 
-		gebaeude_t *gb = to->find<gebaeude_t>();
-		if(gb==NULL) {
-			// but depots might be overlooked ...
-			gb = to->get_depot();
-		}
+		gebaeude_t *gb = to->get_building();
 		if(gb) {
 			// citybuilding => do not touch
 			const haus_tile_besch_t* tile = gb->get_tile();
@@ -2446,7 +2442,11 @@ void wegbauer_t::baue_strasse()
 				// These issues arise from city expansion and contraction, so reconsider this
 				// after city limits work better.
 				bool city_adopts_this = weg->should_city_adopt_this(sp);
-				weg->set_gehweg(build_sidewalk || weg->hat_gehweg() || city_adopts_this);
+				if(build_sidewalk || weg->hat_gehweg() || city_adopts_this) {
+					strasse_t *str = static_cast<strasse_t *>(weg);
+					str->set_gehweg(true);
+					weg->set_public_right_of_way();
+				}
 
 				if (city_adopts_this) {
 					weg->set_besitzer(NULL);
@@ -2464,7 +2464,10 @@ void wegbauer_t::baue_strasse()
 			strasse_t * str = new strasse_t();
 
 			str->set_besch(besch);
-			str->set_gehweg(build_sidewalk);
+			if (build_sidewalk) {
+				str->set_gehweg(build_sidewalk);
+				str->set_public_right_of_way();
+			}
 			cost = gr->neuen_weg_bauen(str, route.get_short_ribi(i), sp, &route) + besch->get_preis();
 
 			// prissi: into UNDO-list, so we can remove it later

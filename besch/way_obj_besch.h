@@ -59,6 +59,8 @@ public:
 	*/
 	waytype_t get_own_wtyp() const { return (waytype_t)own_wtyp; }
 
+	bool is_noise_barrier() const { return own_wtyp == noise_barrier_wt; }
+
 	// way objects can have a front and a backimage, unlike ways ...
 	image_id get_front_image_id(ribi_t::ribi ribi) const { return get_child<bildliste_besch_t>(2)->get_bild_nr(ribi); }
 

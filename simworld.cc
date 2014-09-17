@@ -5304,7 +5304,7 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 			{
 				continue;
 			}
-			gb = gr->find<gebaeude_t>();
+			gb = gr->get_building();
 					
 			if(!gb)
 			{

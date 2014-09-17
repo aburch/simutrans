@@ -863,7 +863,7 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 				else if(  weg_t *weg = gr->get_weg_nr(0)  ) {
 					set_relief_farbe(k, weg->get_besitzer()==NULL ? COL_ORANGE : weg->get_besitzer()->get_player_color1()+3 );
 				}
-				if(  gebaeude_t *gb = gr->find<gebaeude_t>()  ) {
+				if(  gebaeude_t *gb = gr->get_building()  ) {
 					if(  gb->get_besitzer()!=NULL  ) {
 						set_relief_farbe(k, gb->get_besitzer()->get_player_color1()+3 );
 					}

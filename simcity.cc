@@ -44,6 +44,7 @@
 #include "obj/gebaeude.h"
 #include "obj/roadsign.h"
 #include "obj/leitung2.h"
+#include "obj/wayobj.h"
 
 #include "dataobj/translator.h"
 #include "dataobj/settings.h"
@@ -52,6 +53,13 @@
 #include "dataobj/environment.h"
 
 #include "sucher/bauplatz_sucher.h"
+#include "bauer/brueckenbauer.h"
+#include "bauer/tunnelbauer.h"
+#include "bauer/fabrikbauer.h"
+#include "bauer/wegbauer.h"
+#include "bauer/hausbauer.h"
+#include "bauer/vehikelbauer.h"
+#include "bauer/hausbauer.h"
 #include "bauer/wegbauer.h"
 #include "bauer/brueckenbauer.h"
 #include "bauer/hausbauer.h"
@@ -526,6 +534,28 @@ static char const* const allowed_chars_in_rule = "SsnHhTtUu";
 //						break;
 //				}
 //			}
+bool stadt_t::bewerte_loc_has_public_road(const koord pos)
+{
+	grund_t *gr = welt->lookup_kartenboden(pos);
+	weg_t *weg = gr->get_weg(road_wt);
+
+	if (weg) {
+		wayobj_t *wo = gr->get_wayobj(road_wt);
+		if (wo && wo->get_besch()->is_noise_barrier()) {
+			return false;
+		}
+
+		const roadsign_t* rs = gr->find<roadsign_t>();
+		if (rs && rs->get_besch()->is_private_way()) {
+			return false;
+		}
+
+		return true;
+	}
+
+	return false;
+}
+
 bool stadt_t::bewerte_loc(const koord pos, const rule_t &regel, int rotation)
 {
 	//printf("Test for (%s) in rotation %d\n", pos.get_str(), rotation);
@@ -549,16 +579,20 @@ bool stadt_t::bewerte_loc(const koord pos, const rule_t &regel, int rotation)
 		}
 		switch (r.flag) {
 			case 's':
-				// road?
-				if (!gr->hat_weg(road_wt)) return false;
+				// public road?
+				if (!bewerte_loc_has_public_road(k)) return false;
 				break;
 			case 'S':
-				// not road?
-				if (gr->hat_weg(road_wt)) return false;
+				// no road at all, not even a private one?
+				if (bewerte_loc_has_public_road(k)) return false;
 				break;
 			case 'h':
-				// is house
-				if (gr->get_typ() != grund_t::fundament  ||  gr->obj_bei(0)->get_typ()!=obj_t::gebaeude) return false;
+				// is house.
+				if (gr->get_typ() != grund_t::fundament  ||
+				    (gr->obj_bei(0) && gr->obj_bei(0)->get_typ()!=obj_t::gebaeude))
+				{
+					return false;
+				}
 				break;
 			case 'H':
 				// no house
@@ -611,12 +645,27 @@ sint32 stadt_t::bewerte_pos(const koord pos, const rule_t &regel)
 	return 0;
 }
 
-
-void stadt_t::bewerte_strasse(koord k, sint32 rd, const rule_t &regel)
+bool stadt_t::maybe_build_road(koord k)
 {
-	if (simrand(rd, "void stadt_t::bewerte_strasse") == 0) {
-		best_strasse.check(k, bewerte_pos(k, regel));
+	best_strasse.reset(k);
+	const uint32 num_road_rules = road_rules.get_count();
+	uint32 offset = simrand(num_road_rules, "void stadt_t::baue");	// start with random rule
+	for (uint32 i = 0; i < num_road_rules  &&  !best_strasse.found(); i++) {
+		uint32 rule = ( i+offset ) % num_road_rules;
+		sint32 rd = 8 + road_rules[rule]->chance;
+
+		if (simrand(rd, "void stadt_t::bewerte_strasse") == 0) {
+			best_strasse.check(k, bewerte_pos(k, *road_rules[rule]));
+		}
 	}
+
+	if (best_strasse.found()) {
+		bool success = baue_strasse(best_strasse.get_pos(), NULL, false);
+		INT_CHECK("simcity 5095");
+		return success;
+	}
+
+	return false;
 }
 
 
@@ -939,6 +988,10 @@ class denkmal_platz_sucher_t : public platzsucher_t {
 			}
 
 			if (gr->hat_wege() && !gr->hat_weg(road_wt)) {
+				return false;
+			}
+
+			if (gr->ist_bruecke() || gr->ist_tunnel()) {
 				return false;
 			}
 
@@ -3918,7 +3971,27 @@ void stadt_t::build_city_building(const koord k, bool new_town)
 				// We found a road... (yes, it is OK to face a road with a different hang)
 				// Extend the sidewalk (this has the effect of reducing the speed limit to the city speed limit,
 				// which is the speed limit of the current city road).
-				weg->set_gehweg(true);
+				if (weg->is_public_right_of_way()) {
+					strasse_t *str = static_cast<strasse_t *>(weg);
+					str->set_gehweg(true);
+				} else {
+					bool make_public = true;
+
+					const wayobj_t *wo = gr->get_wayobj(road_wt);
+					if (wo && wo->get_besch()->is_noise_barrier()) {
+						make_public = false;
+					}
+
+					const roadsign_t* rs = gr->find<roadsign_t>();
+					if (rs && rs->get_besch()->is_private_way()) {
+						make_public = false;
+					}
+					if (make_public) {
+						strasse_t *str = static_cast<strasse_t *>(weg);
+						str->set_gehweg(true);
+						weg->set_public_right_of_way();
+					}
+				}
 				if (gr->get_weg_hang() == gr->get_grund_hang()) 
 				{
 					// This is not a bridge, tunnel, etc.
@@ -4092,7 +4165,27 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb)
 			weg_t * const weg = gr->get_weg(road_wt);
 			if (weg) {
 				// Extend the sidewalk
-				weg->set_gehweg(true);
+				if (weg->is_public_right_of_way()) {
+					strasse_t *str = static_cast<strasse_t *>(weg);
+					str->set_gehweg(true);
+				} else {
+					bool make_public = true;
+
+					const wayobj_t *wo = gr->get_wayobj(road_wt);
+					if (wo && wo->get_besch()->is_noise_barrier()) {
+						make_public = false;
+					}
+
+					const roadsign_t* rs = gr->find<roadsign_t>();
+					if (rs && rs->get_besch()->is_private_way()) {
+						make_public = false;
+					}
+					if (make_public) {
+						strasse_t *str = static_cast<strasse_t *>(weg);
+						str->set_gehweg(true);
+						weg->set_public_right_of_way();
+					}
+				}
 				if (gr->get_weg_hang() == gr->get_grund_hang()) {
 					// This is not a bridge, tunnel, etc.
 					// if not current city road standard OR BETTER, then replace it
@@ -4196,10 +4289,10 @@ welt->inc_rands(28);
 					grund_t* gr = welt->lookup_kartenboden(k);
 					const weg_t* weg = gr->get_weg(road_wt);
 
-					if (weg != NULL && (
-								gr->get_weg_ribi_unmasked(road_wt) == ribi_t::nordsued ||
-								gr->get_weg_ribi_unmasked(road_wt) == ribi_t::ostwest
-							)) 
+					if (weg != NULL &&
+					    weg->is_public_right_of_way() &&
+					    (gr->get_weg_ribi_unmasked(road_wt) == ribi_t::nordsued ||
+					     gr->get_weg_ribi_unmasked(road_wt) == ribi_t::ostwest))
 					{
 						if (!stadtauto_t::list_empty()) 
 						{
@@ -4486,9 +4579,18 @@ bool stadt_t::baue_strasse(const koord k, spieler_t* sp, bool forced)
 	}
 
 	if (connection_roads != ribi_t::keine || forced) {
-		while (bd->would_create_excessive_roads()) {
-			if (!bd->remove_excessive_roads()) {
+		grund_t::road_network_plan_t road_tiles;
+		while (bd->would_create_excessive_roads(road_tiles)) {
+			if (!bd->remove_excessive_roads(road_tiles)) {
 				return false;
+			}
+		}
+
+		FOR(grund_t::road_network_plan_t, i, road_tiles) {
+			koord k = i.key;
+			grund_t *gr = welt->lookup_kartenboden(k);
+			if (!i.value) {
+				gr->weg_entfernen(road_wt, true);
 			}
 		}
 	}
@@ -4498,19 +4600,51 @@ bool stadt_t::baue_strasse(const koord k, spieler_t* sp, bool forced)
 		if (ribi_t::nsow[r] & connection_roads) {
 			grund_t* bd2 = welt->lookup_kartenboden(k + koord::nsow[r]);
 			weg_t* w2 = bd2->get_weg(road_wt);
-			w2->ribi_add(ribi_t::rueckwaerts(ribi_t::nsow[r]));
-			bd2->calc_bild();
-			bd2->set_flag( grund_t::dirty );
+			const roadsign_t* rs = bd2->find<roadsign_t>();
+			wayobj_t *wo = bd2->get_wayobj(road_wt);
+			if ((rs && rs->get_besch()->is_private_way()) ||
+			    (w2 && !w2->is_public_right_of_way()) ||
+			    (wo && wo->get_besch()->is_noise_barrier())) {
+				connection_roads &= ~ribi_t::nsow[r];
+			} else {
+				w2->ribi_add(ribi_t::rueckwaerts(ribi_t::nsow[r]));
+				bd2->calc_bild();
+				bd2->set_flag( grund_t::dirty );
+			}
 		}
 	}
 
 	if (connection_roads != ribi_t::keine || forced) {
+		if (bd->weg_erweitern(road_wt, connection_roads)) {
+			weg_t *weg = bd->get_weg(road_wt);
+			weg->set_besch(welt->get_city_road());
+			if (weg->is_public_right_of_way()) {
+				strasse_t *str = static_cast<strasse_t *>(weg);
+				str->set_gehweg(true);
+			} else {
+				bool make_public = true;
 
-		if (!bd->weg_erweitern(road_wt, connection_roads)) {
-			strasse_t* weg = new strasse_t();
+				const wayobj_t *wo = bd->get_wayobj(road_wt);
+				if (wo && wo->get_besch()->is_noise_barrier()) {
+					make_public = false;
+				}
+
+				const roadsign_t* rs = bd->find<roadsign_t>();
+				if (rs && rs->get_besch()->is_private_way()) {
+					make_public = false;
+				}
+				if (make_public) {
+					strasse_t *str = static_cast<strasse_t *>(weg);
+					str->set_gehweg(true);
+					weg->set_public_right_of_way();
+				}
+			}
+		} else {
+			weg_t *weg = new strasse_t();
 			// Hajo: city roads should not belong to any player => so we can ignore any contruction costs ...
 			weg->set_besch(welt->get_city_road());
-			weg->set_gehweg(true);
+			strasse_t *str = static_cast<strasse_t *>(weg);
+			str->set_gehweg(true);
 			weg->set_public_right_of_way();
 			bd->neuen_weg_bauen(weg, connection_roads, sp);
 			bd->calc_bild();
@@ -4520,14 +4654,16 @@ bool stadt_t::baue_strasse(const koord k, spieler_t* sp, bool forced)
 			ribi_t::ribi direction = ribi_t::rueckwaerts(connection_roads);
 			koord zv = koord(direction);
 			grund_t *bd_next = welt->lookup_kartenboden( k + zv );
-			if(  bd_next && (bd_next->ist_wasser() || bd_next->hat_weg(water_wt))  ) {
-				// ok there is a river or a canal (yes, cities bridge canals)
+			if(  bd_next &&
+			     (bd_next->ist_wasser() || bd_next->hat_weg(water_wt) ||
+			      (bd_next->hat_weg(road_wt) && !bd_next->get_weg(road_wt)->is_public_right_of_way()))) {
+				// ok there is a river, a canal, a private road, or a lake (yes, cities bridge canals)
 				build_bridge(bd, direction);
 			}
 		}
-		return true;
 	}
-	return false;
+
+	return true;
 }
 
 
@@ -4554,28 +4690,16 @@ void stadt_t::baue(bool new_town)
 
 		// checks only make sense on empty ground
 		if(gr->ist_natur()) {
-
-			// since only a single location is checked, we can stop after we have found a positive rule
-			best_strasse.reset(k);
-			const uint32 num_road_rules = road_rules.get_count();
-			uint32 offset = simrand(num_road_rules, "void stadt_t::baue");	// start with random rule
-			for (uint32 i = 0; i < num_road_rules  &&  !best_strasse.found(); i++) {
-				uint32 rule = ( i+offset ) % num_road_rules;
-				bewerte_strasse(k, 8 + road_rules[rule]->chance, *road_rules[rule]);
-			}
-			// ok => then built road
-			if (best_strasse.found()) {
-				baue_strasse(best_strasse.get_pos(), NULL, false);
+			if (maybe_build_road(k)) {
 				INT_CHECK("simcity 5095");
 				return;
 			}
-
 			// not good for road => test for house
 
 			// since only a single location is checked, we can stop after we have found a positive rule
 			best_haus.reset(k);
 			const uint32 num_house_rules = house_rules.get_count();
-			offset = simrand(num_house_rules, "void stadt_t::baue");	// start with random rule
+			uint32 offset = simrand(num_house_rules, "void stadt_t::baue");	// start with random rule
 			for(  uint32 i = 0;  i < num_house_rules  &&  !best_haus.found();  i++  ) {
 				uint32 rule = ( i+offset ) % num_house_rules;
 				bewerte_haus(k, 8 + house_rules[rule]->chance, *house_rules[rule]);
@@ -4644,31 +4768,16 @@ void stadt_t::baue(bool new_town)
 			const uint32 idx = simrand( candidates.get_count(), "void stadt_t::baue" );
 			const koord k = candidates[idx];
 
-			// we can stop after we have found a positive rule
-			best_strasse.reset(k);
-			const uint32 num_road_rules = road_rules.get_count();
-			uint32 offset = simrand(num_road_rules, "void stadt_t::baue");	// start with random rule
-			for (uint32 i = 0; i < num_road_rules  &&  !best_strasse.found(); i++) {
-				uint32 rule = ( i+offset ) % num_road_rules;
-				bewerte_strasse(k, 8 + road_rules[rule]->chance, *road_rules[rule]);
+			if (maybe_build_road(k)) {
+				INT_CHECK("simcity 5095");
+				return;
 			}
-			// ok => then built road
-			if (best_strasse.found()) {
-				if (baue_strasse(best_strasse.get_pos(), NULL, false)) {
-					INT_CHECK("simcity 5175");
-					return;
-				} else {
-					candidates.remove_at(idx, false);
-					continue;
-				}
-			}
-
 			// not good for road => test for house
 
 			// we can stop after we have found a positive rule
 			best_haus.reset(k);
 			const uint32 num_house_rules = house_rules.get_count();
-			offset = simrand(num_house_rules, "void stadt_t::baue");	// start with random rule
+			uint32 offset = simrand(num_house_rules, "void stadt_t::baue");	// start with random rule
 			for (uint32 i = 0; i < num_house_rules  &&  !best_haus.found(); i++) {
 				uint32 rule = ( i+offset ) % num_house_rules;
 				bewerte_haus(k, 8 + house_rules[rule]->chance, *house_rules[rule]);
