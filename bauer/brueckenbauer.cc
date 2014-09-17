@@ -21,18 +21,21 @@
 #include "../boden/boden.h"
 #include "../boden/brueckenboden.h"
 
+#include "../gui/messagebox.h"
 #include "../gui/werkzeug_waehler.h"
 #include "../gui/karte.h"
 
 #include "../besch/bruecke_besch.h"
+#include "../besch/haus_besch.h"
 
 #include "../dataobj/marker.h"
 #include "../dataobj/scenario.h"
+#include "../dataobj/crossing_logic.h"
+
 #include "../obj/bruecke.h"
 #include "../obj/leitung2.h"
 #include "../obj/pillar.h"
 #include "../obj/signal.h"
-#include "../dataobj/crossing_logic.h"
 
 #include "../tpl/stringhashtable_tpl.h"
 #include "../tpl/vector_tpl.h"
@@ -297,6 +300,17 @@ bool brueckenbauer_t::is_blocked(koord3d pos, spieler_t *sp, const bruecke_besch
 		else if(  gr2->get_typ() != grund_t::boden  && gr2->get_typ() != grund_t::tunnelboden  ) {
 			// not through bridges
 			return true;
+		}
+	}
+
+	if(grund_t *gr = welt->lookup_kartenboden(pos.get_2d())) {
+		if (const gebaeude_t* gb = gr->get_building()) {
+			const uint8 max_level = welt->get_settings().get_max_elevated_way_building_level();
+			if( gb->get_tile()->get_besch()->get_level() > max_level && !haltestelle_t::get_halt(gb->get_pos(), NULL).is_bound())
+			{
+				error_msg = "Bridges cannot be built over large buildings.";
+				return true;
+			}
 		}
 	}
 
