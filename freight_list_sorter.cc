@@ -326,7 +326,7 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 			{
 				koord zielpos = ware.get_zielpos();
 				const grund_t* gr = welt->lookup_kartenboden(zielpos);
-				const gebaeude_t* const gb = gr ? gr->find<gebaeude_t>() : NULL;
+				const gebaeude_t* const gb = gr ? gr->get_building() : NULL;
 				cbuffer_t dbuf;
 				if (gb)
 				{

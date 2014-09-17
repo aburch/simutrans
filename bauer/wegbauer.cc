@@ -631,11 +631,7 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 
 		//max_elevated_way_building_level
 
-		gebaeude_t *gb = to->find<gebaeude_t>();
-		if(gb==NULL) {
-			// but depots might be overlooked ...
-			gb = to->get_depot();
-		}
+		gebaeude_t *gb = to->get_building();
 		if(gb) {
 			// citybuilding => do not touch
 			const haus_tile_besch_t* tile = gb->get_tile();

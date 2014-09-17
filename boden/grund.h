@@ -611,6 +611,8 @@ public:
 	*/
 	depot_t *get_depot() const;
 
+	gebaeude_t *get_building() const;
+
 	/*
 	* Interface zur Abfrage der Wege
 	* ==============================
