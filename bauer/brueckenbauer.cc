@@ -467,6 +467,7 @@ koord3d brueckenbauer_t::finde_ende(spieler_t *sp, koord3d pos, const koord zv, 
 		// now check for end of bridge conditions
 		if(length >= min_length && hang_t::ist_wegbar(end_slope) &&
 		   (gr->get_typ()==grund_t::boden || gr->get_typ()==grund_t::tunnelboden)) {
+			bool finish = false;
 			if(height_okay(hang_height) && end_slope == hang_t::flach &&
 			   (hang_height == max_height || ai_bridge || min_length)) {
 				/* now we have a flat tile below */
@@ -474,8 +475,10 @@ koord3d brueckenbauer_t::finde_ende(spieler_t *sp, koord3d pos, const koord zv, 
 
 				if(  !error_msg  ||  (!*error_msg) ) {
 					// success
-					bridge_height = hang_height - start_height;
-					return gr->get_pos();
+					for(sint8 z = hang_height + 3; z <= max_height; z++) {
+						height_okay_array[z-min_bridge_height] = false;
+					}
+					finish = true;
 				}
 			} else if(  height_okay(hang_height) &&
 				    (hang_height == max_height || ai_bridge || min_length) ) {
@@ -499,7 +502,6 @@ koord3d brueckenbauer_t::finde_ende(spieler_t *sp, koord3d pos, const koord zv, 
 			} else if (end_slope == hang_t::flach) {
 				if ((hang_height+1 >= start_height && height_okay(hang_height+1)) ||
 				    (hang_height+2 >= start_height && height_okay(hang_height+2))) {
-					bool finish = false;
 					/* now we have a flat tile below */
 					error_msg = check_tile( gr, sp, besch->get_waytype(), ribi_typ(zv) );
 
@@ -525,31 +527,32 @@ koord3d brueckenbauer_t::finde_ende(spieler_t *sp, koord3d pos, const koord zv, 
 						}
 					}
 
-					if (finish) {
-						if (high_bridge) {
-							if (height_okay(start_height+2)) {
-								bridge_height = 2;
-							} else if (height_okay(start_height+1)) {
-								bridge_height = 1;
-							} else if (height_okay(start_height+0)) {
-								bridge_height = 0;
-							} else {
-								assert(false);
-							}
-						} else {
-							if (height_okay(start_height)) {
-								bridge_height = 0;
-							} else if (height_okay(start_height+1)) {
-								bridge_height = 1;
-							} else if (height_okay(start_height+2)) {
-								bridge_height = 2;
-							} else {
-								assert(false);
-							}
-						}
-						return gr->get_pos();
+				}
+			}
+
+			if (finish) {
+				if (high_bridge) {
+					if (height_okay(start_height+2)) {
+						bridge_height = 2;
+					} else if (height_okay(start_height+1)) {
+						bridge_height = 1;
+					} else if (height_okay(start_height+0)) {
+						bridge_height = 0;
+					} else {
+						assert(false);
+					}
+				} else {
+					if (height_okay(start_height)) {
+						bridge_height = 0;
+					} else if (height_okay(start_height+1)) {
+						bridge_height = 1;
+					} else if (height_okay(start_height+2)) {
+						bridge_height = 2;
+					} else {
+						assert(false);
 					}
 				}
+				return gr->get_pos();
 			}
 			// slope, which ends too low => we can continue
 		}
