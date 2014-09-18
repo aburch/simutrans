@@ -1072,7 +1072,7 @@ const char *brueckenbauer_t::remove(spieler_t *sp, koord3d pos_start, waytype_t 
 					return "Cannot delete a bridge from its centre";
 				}
 				
-				zv = koord(dir1_okay ? dir1 : dir2);
+				zv = koord(dir1_okay ? dir2 : dir1);
 				part_list.insert(pos);
 			}
 		}
