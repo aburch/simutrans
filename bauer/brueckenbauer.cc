@@ -1223,6 +1223,7 @@ const char *brueckenbauer_t::remove(spieler_t *sp, koord3d pos_start, waytype_t 
 			else {
 				bridge_ribi = ~ribi_typ(gr->get_weg_hang());
 			}
+			bridge_ribi &= ~(ribi_t::rueckwaerts(~bridge_ribi));
 			ribi &= bridge_ribi;
 
 			bruecke_t *br = gr->find<bruecke_t>();
