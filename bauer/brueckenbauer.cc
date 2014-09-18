@@ -478,6 +478,9 @@ koord3d brueckenbauer_t::finde_ende(spieler_t *sp, koord3d pos, const koord zv, 
 					for(sint8 z = hang_height + 3; z <= max_height; z++) {
 						height_okay_array[z-min_bridge_height] = false;
 					}
+					for(sint8 z = min_bridge_height; z < hang_height; z++) {
+						height_okay_array[z-min_bridge_height] = false;
+					}
 					finish = true;
 				}
 			} else if(  height_okay(hang_height) &&
@@ -1024,7 +1027,6 @@ const char *brueckenbauer_t::remove(spieler_t *sp, koord3d pos_start, waytype_t 
 			}
 			else if(from->get_weg_hang() != hang_t::flach) {
 				zv = koord(from->get_weg_hang());
-				end_list.insert(pos);
 			}
 			end_list.insert(pos);
 		}
@@ -1036,7 +1038,6 @@ const char *brueckenbauer_t::remove(spieler_t *sp, koord3d pos_start, waytype_t 
 				}
 				else if(from->get_weg_hang() != hang_t::flach) {
 					zv = koord(from->get_weg_hang());
-					end_list.insert(pos);
 				}
 				end_list.insert(pos);
 			}
