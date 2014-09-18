@@ -731,46 +731,42 @@ void brueckenbauer_t::baue_bruecke(spieler_t *sp, const koord3d start, const koo
 		end_slope_height += hang_t::max_diff(end_slope);
 	}
 
-	if(  start_gr->ist_karten_boden()  ) {
-		if (slope || bridge_height != 0) {
-			// needs a ramp to start on ground
-			add_height = slope ?  hang_t::max_diff(slope) : bridge_height;
-			baue_auffahrt( sp, start, ribi, slope?0:hang_typ(zv)*add_height, besch );
-			if(  besch->get_waytype() != powerline_wt  ) {
-				ribi = welt->lookup(start)->get_weg_ribi_unmasked(besch->get_waytype());
-			}
-		} else {
-			if(  !start_gr->weg_erweitern( besch->get_waytype(), ribi )  ) {
-				// builds new way
-				weg_t * const weg = weg_t::alloc( besch->get_waytype() );
-				weg->set_besch( weg_besch );
-				const hang_t::typ hang = start_gr ? start_gr->get_weg_hang() :  hang_t::flach;
-				if(hang != hang_t::flach)
+	if (slope || bridge_height != 0) {
+		// needs a ramp to start on ground
+		add_height = slope ?  hang_t::max_diff(slope) : bridge_height;
+		baue_auffahrt( sp, start, ribi, slope?0:hang_typ(zv)*add_height, besch );
+		if(  besch->get_waytype() != powerline_wt  ) {
+			ribi = welt->lookup(start)->get_weg_ribi_unmasked(besch->get_waytype());
+		}
+	} else {
+		if(  !start_gr->weg_erweitern( besch->get_waytype(), ribi )  ) {
+			// builds new way
+			weg_t * const weg = weg_t::alloc( besch->get_waytype() );
+			weg->set_besch( weg_besch );
+			const hang_t::typ hang = start_gr ? start_gr->get_weg_hang() :  hang_t::flach;
+			if(hang != hang_t::flach)
+			{
+				const uint slope_height = (hang & 7) ? 1 : 2;
+				if(slope_height == 1)
 				{
-					const uint slope_height = (hang & 7) ? 1 : 2;
-					if(slope_height == 1)
-					{
-						weg->set_max_speed(besch->get_topspeed_gradient_1());
-					}
-					else
-					{
-						weg->set_max_speed(besch->get_topspeed_gradient_2());
-					}
+					weg->set_max_speed(besch->get_topspeed_gradient_1());
 				}
 				else
 				{
-					weg->set_max_speed(besch->get_topspeed());
+					weg->set_max_speed(besch->get_topspeed_gradient_2());
 				}
-				weg->set_max_axle_load( besch->get_max_weight() );
-				// Necessary to avoid the "default" way (which might have constraints) setting the constraints here.
-				weg->clear_way_constraints();
-				weg->add_way_constraints(besch->get_way_constraints());
-				spieler_t::book_construction_costs( sp, -start_gr->neuen_weg_bauen( weg, ribi, sp ) -weg->get_besch()->get_preis(), end.get_2d(), weg->get_waytype());
 			}
-			start_gr->calc_bild();
+			else
+			{
+				weg->set_max_speed(besch->get_topspeed());
+			}
+			weg->set_max_axle_load( besch->get_max_weight() );
+			// Necessary to avoid the "default" way (which might have constraints) setting the constraints here.
+			weg->clear_way_constraints();
+			weg->add_way_constraints(besch->get_way_constraints());
+			spieler_t::book_construction_costs( sp, -start_gr->neuen_weg_bauen( weg, ribi, sp ) -weg->get_besch()->get_preis(), end.get_2d(), weg->get_waytype());
 		}
-	} else {
-		ribi = ribi_t::rueckwaerts( ribi_typ(zv) );
+		start_gr->calc_bild();
 	}
 
 	koord3d pos = start+koord3d( zv.x, zv.y, add_height );
