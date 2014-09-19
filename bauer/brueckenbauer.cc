@@ -518,9 +518,7 @@ koord3d brueckenbauer_t::finde_ende(spieler_t *sp, koord3d pos, const koord zv, 
 							height_okay_array[z-min_bridge_height] = false;
 						}
 						finish = true;
-					}
-
-					if(  *error_msg == 0 ) {
+					} else if(  *error_msg == 0 ) {
 						if(  (ai_bridge  ||  min_length)  ) {
 							for(sint8 z = hang_height + 3; z <= max_height; z++) {
 								height_okay_array[z-min_bridge_height] = false;
