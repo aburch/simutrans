@@ -14,6 +14,7 @@
 #include "line_management_gui.h"
 #include "components/gui_convoiinfo.h"
 #include "line_item.h"
+#include "simwin.h"
 
 #include "../simcolor.h"
 #include "../simdepot.h"
@@ -24,7 +25,6 @@
 #include "../simskin.h"
 #include "../simconvoi.h"
 #include "../vehicle/simvehikel.h"
-#include "../gui/simwin.h"
 #include "../simlinemgmt.h"
 #include "../simmenu.h"
 #include "../utils/simstring.h"
@@ -228,7 +228,7 @@ schedule_list_gui_t::schedule_list_gui_t(spieler_t *sp_) :
 	chart.set_dimension(12, 1000);
 	chart.set_pos( scr_coord(LINE_NAME_COLUMN_WIDTH+50,11) );
 	chart.set_seed(0);
-	chart.set_background(MN_GREY1);
+	chart.set_background(SYSCOL_CHART_BACKGROUND);
 	add_component(&chart);
 
 	// add filter buttons

@@ -15,11 +15,12 @@
 #include "gui_scrollbar.h"
 #include "gui_scrolled_list.h"
 
+#include "../simwin.h"
+
 #include "../../display/simgraph.h"
 #include "../../simcolor.h"
 #include "../../besch/skin_besch.h"
 #include "../../simskin.h"
-#include "../../gui/simwin.h"
 
 
 // help for sorting
@@ -44,9 +45,9 @@ bool  gui_scrolled_list_t::const_text_scrollitem_t::sort( vector_tpl<scrollitem_
 scr_coord_val gui_scrolled_list_t::const_text_scrollitem_t::draw( scr_coord pos, scr_coord_val w, bool selected, bool focus )
 {
 	if(selected) {
-		// the selection is grey on color
-		display_fillbox_wh_clip( pos.x+3, pos.y-1, w-5, LINESPACE, COL_BLUE, true);
-		return display_proportional_clip( pos.x+7, pos.y, get_text(), ALIGN_LEFT, (focus ? COL_WHITE : MN_GREY3), true);
+		// selected element
+		display_fillbox_wh_clip( pos.x+3, pos.y-1, w-5, D_BUTTON_HEIGHT, (focus ? SYSCOL_LIST_BACKGROUND_SELECTED_F : SYSCOL_LIST_BACKGROUND_SELECTED_NF), true);
+		return display_proportional_clip( pos.x+7, pos.y, get_text(), ALIGN_LEFT, (focus ? SYSCOL_LIST_TEXT_SELECTED_FOCUS : SYSCOL_LIST_TEXT_SELECTED_NOFOCUS), true);
 	}
 	else {
 		// normal text

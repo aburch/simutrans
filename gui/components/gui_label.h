@@ -52,9 +52,9 @@ protected:
 	using gui_component_t::init;
 
 public:
-	gui_label_t(const char* text=NULL, COLOR_VAL color=SYSCOL_STATIC_TEXT, align_t align=left);
+	gui_label_t(const char* text=NULL, COLOR_VAL color=SYSCOL_TEXT, align_t align=left);
 
-	void init( const char* text_par, scr_coord pos_par, COLOR_VAL color_par=SYSCOL_STATIC_TEXT, align_t align_par=left) {
+	void init( const char* text_par, scr_coord pos_par, COLOR_VAL color_par=SYSCOL_TEXT, align_t align_par=left) {
 		set_pos  ( pos_par   );
 		set_text ( text_par  );
 		set_color( color_par );

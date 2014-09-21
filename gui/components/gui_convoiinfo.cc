@@ -22,6 +22,7 @@
 #include "../../dataobj/translator.h"
 
 #include "../../utils/simstring.h"
+#include "../gui_frame.h"
 
 
 gui_convoiinfo_t::gui_convoiinfo_t(convoihandle_t cnv)

@@ -9,12 +9,12 @@
 
 #include "money_frame.h"
 #include "ai_option_t.h"
+#include "simwin.h"
 
 #include "../simworld.h"
 #include "../simdebug.h"
 #include "../display/simgraph.h"
 #include "../simcolor.h"
-#include "../gui/simwin.h"
 #include "../utils/simstring.h"
 #include "../dataobj/translator.h"
 #include "../dataobj/environment.h"
@@ -295,7 +295,7 @@ money_frame_t::money_frame_t(spieler_t *sp)
 	chart.set_size(scr_size(457,120));
 	chart.set_dimension(MAX_PLAYER_HISTORY_YEARS, 10000);
 	chart.set_seed(welt->get_last_year());
-	chart.set_background(MN_GREY1);
+	chart.set_background(SYSCOL_CHART_BACKGROUND);
 	//CHART YEAR END
 
 	//CHART MONTH
@@ -303,7 +303,7 @@ money_frame_t::money_frame_t(spieler_t *sp)
 	mchart.set_size(scr_size(457,120));
 	mchart.set_dimension(MAX_PLAYER_HISTORY_MONTHS, 10000);
 	mchart.set_seed(0);
-	mchart.set_background(MN_GREY1);
+	mchart.set_background(SYSCOL_CHART_BACKGROUND);
 	//CHART MONTH END
 
 	// add chart curves
@@ -365,14 +365,14 @@ money_frame_t::money_frame_t(spieler_t *sp)
 
 	if(  sp->get_ai_id()!=spieler_t::HUMAN  ) {
 		// misuse headquarter button for AI configure
-		headquarter.init(button_t::box, "Configure AI", scr_coord(582-12-120, 0), scr_size(120, BUTTONSPACE));
+		headquarter.init(button_t::roundbox, "Configure AI", scr_coord(582-12-120, 0), scr_size(120, BUTTONSPACE));
 		headquarter.add_listener(this);
 		add_component(&headquarter);
 		headquarter.set_tooltip( "Configure AI setttings" );
 	}
 	else if(old_level > 0  ||  hausbauer_t::get_headquarter(0,welt->get_timeline_year_month())!=NULL) {
 
-		headquarter.init(button_t::box, old_pos!=koord::invalid ? "upgrade HQ" : "build HQ", scr_coord(582-12-120, 0), scr_size(120, BUTTONSPACE));
+		headquarter.init(button_t::roundbox, old_pos!=koord::invalid ? "upgrade HQ" : "build HQ", scr_coord(582-12-120, 0), scr_size(120, BUTTONSPACE));
 		headquarter.add_listener(this);
 		add_component(&headquarter);
 		headquarter.set_tooltip( NULL );

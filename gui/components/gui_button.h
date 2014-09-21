@@ -34,9 +34,9 @@ public:
 	 * the _state buttons must be changed by the caller!
 	 * _automatic buttons do everything themselves, i.e. depress/release alternately
 	 *
-	 * square:        button with text on the right side next to it
-	 * box:           button with is used for many selection purposes; can have colored background
-	 * roundbox:      button for "load" cancel and such options
+	 * square:        a checkbox with text on the right side next to it
+	 * box:           button which is used for many selection purposes, can have colored background
+	 * roundbox:      button for "load", "cancel" and such options
 	 * arrow-buttons: buttons with arrows, cannot have text
 	 * repeat arrows: calls the caller until the mouse is released
 	 * scrollbar:     well you guess it. Not used by gui_frame_t things ...

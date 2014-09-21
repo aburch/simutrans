@@ -115,7 +115,7 @@ halt_info_t::halt_info_t(halthandle_t halt) :
 	chart.set_size(scr_size(total_width-66-10, 100));
 	chart.set_dimension(12, 10000);
 	chart.set_visible(false);
-	chart.set_background(MN_GREY1);
+	chart.set_background(SYSCOL_CHART_BACKGROUND);
 	const sint16 offset_below_chart = chart.get_pos().y + 100 +
 	                                  +6+LINESPACE+D_V_SPACE; // chart x-axis labels plus space
 	for (int cost = 0; cost<MAX_HALT_COST; cost++) {

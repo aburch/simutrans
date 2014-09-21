@@ -5,6 +5,7 @@
 #include "../../display/simgraph.h"
 #include "../../dataobj/translator.h"
 #include "../../utils/simstring.h"
+#include "../gui_theme.h"
 
 #include "gui_flowtext.h"
 
@@ -45,7 +46,7 @@ void gui_flowtext_t::set_text(const char *text)
 				tail++;
 			}
 
-			// parse a tag (not allowed to exeec 511 letters)
+			// parse a tag (not allowed to exceed 511 letters)
 			for (int i = 0; *lead != '>' && *lead > 0 && i < 511; i++) {
 				lead++;
 			}
@@ -243,8 +244,8 @@ scr_size gui_flowtext_t::output(scr_coord offset, bool doit, bool return_max_wid
 
 	int xpos         = 0;
 	int ypos         = 0;
-	int color        = COL_BLACK;
-	int double_color = COL_BLACK;
+	int color        = SYSCOL_TEXT;
+	int double_color = SYSCOL_TEXT_SHADOW;
 	bool double_it   = false;
 	bool link_it     = false;	// true, if currently underlining for a link
 	int extra_pixel  = 0;		// extra pixel before next line
@@ -319,7 +320,7 @@ scr_size gui_flowtext_t::output(scr_coord offset, bool doit, bool return_max_wid
 				break;
 
 			case ATT_A_START:
-				color = COL_BLUE;
+				color = SYSCOL_TEXT_TITLE;
 				// link == links.end() if there is an endtag </a> is missing
 				if (link!=links.end()) {
 					link->tl.x = xpos;
@@ -334,54 +335,53 @@ scr_size gui_flowtext_t::output(scr_coord offset, bool doit, bool return_max_wid
 				link->br.y = ypos + LINESPACE;
 				++link;
 				link_it = false;
-				color = COL_BLACK;
+				color = SYSCOL_TEXT;
 				break;
 
 			case ATT_H1_START:
-				color        = COL_WHITE;
-				double_color = COL_BLACK;
+				color        = SYSCOL_TEXT_TITLE;
 				double_it    = true;
 				break;
 
 			case ATT_H1_END:
-				color     = COL_BLACK;
 				double_it = false;
 				if(doit) {
-					display_fillbox_wh_clip(offset.x + 1, offset.y + ypos + LINESPACE, xpos, 1, COL_WHITE, false);
-					display_fillbox_wh_clip(offset.x,     offset.y + ypos + LINESPACE-1,     xpos, 1, color, false);
+					display_fillbox_wh_clip(offset.x + 1, offset.y + ypos + LINESPACE,   xpos, 1, color,        false);
+					display_fillbox_wh_clip(offset.x,     offset.y + ypos + LINESPACE-1, xpos, 1, double_color, false);
 				}
 				xpos = 0;
 				extra_pixel = 0;
 				ypos += LINESPACE+2;
+				color = SYSCOL_TEXT;
 				break;
 
 			case ATT_EM_START:
-				color = COL_WHITE;
+				color = SYSCOL_TEXT_HIGHLIGHT;
 				break;
 
 			case ATT_EM_END:
-				color = COL_BLACK;
+				color = SYSCOL_TEXT;
 				break;
 
 			case ATT_IT_START:
-				color        = COL_BLACK;
-				double_color = COL_YELLOW;
-				double_it    = true;
+				color     = SYSCOL_TEXT_HIGHLIGHT;
+				double_it = true;
 				break;
 
 			case ATT_IT_END:
+				color     = SYSCOL_TEXT;
 				double_it = false;
 				break;
 
 			case ATT_STRONG_START:
 				if(  !double_it  ) {
-					color = COL_RED;
+					color = SYSCOL_TEXT_STRONG;
 				}
 				break;
 
 			case ATT_STRONG_END:
 				if(  !double_it  ) {
-					color = COL_BLACK;
+					color = SYSCOL_TEXT;
 				}
 				break;
 

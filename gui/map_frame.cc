@@ -16,9 +16,9 @@
 #include "karte.h"
 #include "map_frame.h"
 
+#include "simwin.h"
 
 #include "../simworld.h"
-#include "../gui/simwin.h"
 #include "../display/simgraph.h"
 #include "../display/viewport.h"
 #include "../simcolor.h"
@@ -793,7 +793,7 @@ void map_frame_t::draw(scr_coord pos, scr_size size)
 			const int ypos = pos.y+D_TITLEBAR_HEIGHT + offset_y + (u / columns) * line_height;
 			display_fillbox_wh(xpos, ypos + D_GET_CENTER_ALIGN_OFFSET(D_INDICATOR_BOX_HEIGHT,LINESPACE), D_INDICATOR_BOX_WIDTH, D_INDICATOR_BOX_HEIGHT, i.colour, false);
 			display_ddd_box(xpos, ypos + D_GET_CENTER_ALIGN_OFFSET(D_INDICATOR_BOX_HEIGHT,LINESPACE), D_INDICATOR_BOX_WIDTH, D_INDICATOR_BOX_HEIGHT,SYSCOL_SHADOW,SYSCOL_SHADOW,false);
-			display_proportional(xpos + D_INDICATOR_BOX_WIDTH + 2, ypos, i.text.c_str(), ALIGN_LEFT, SYSCOL_STATIC_TEXT, false);
+			display_proportional(xpos + D_INDICATOR_BOX_WIDTH + 2, ypos, i.text.c_str(), ALIGN_LEFT, SYSCOL_TEXT, false);
 		}
 	}
 }

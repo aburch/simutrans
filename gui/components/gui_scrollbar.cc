@@ -225,9 +225,8 @@ void scrollbar_t::draw(scr_coord pos_par)
 
 	// Draw place holder if scrollbar is full in auto mode
 	if ( visible_mode == show_auto  &&  full  ) {
-		// Draw place holder, might be themed...
-		display_fillbox_wh(pos_par.x+2, pos_par.y+2, size.w-4, size.h-4, SYSCOL_FACE,false);
-		display_ddd_box(pos_par.x+1, pos_par.y+1, size.w-2, size.h-2, SYSCOL_DISABLED_TEXT,SYSCOL_DISABLED_TEXT,false);
+		// Draw place holder themed with scrollbar background
+		display_img_stretch( gui_theme_t::v_scroll_back_tiles, scr_rect( pos_par, size ) );
 		return;
 	}
 

@@ -1559,10 +1559,10 @@ void win_display_flush(double konto)
 
 	char const *time = tick_to_string( wl->get_zeit_ms(), true );
 
-	// bottom text background
+	// statusbar background
 	display_set_clip_wh( 0, 0, disp_width, disp_height );
-	display_fillbox_wh(0, disp_height-16, disp_width, 1, MN_GREY4, false);
-	display_fillbox_wh(0, disp_height-15, disp_width, 15, MN_GREY1, false);
+	display_fillbox_wh(0, disp_height-16, disp_width, 1, SYSCOL_STATUSBAR_DIVIDER, false);
+	display_fillbox_wh(0, disp_height-15, disp_width, 15, SYSCOL_STATUSBAR_BACKGROUND, false);
 
 	bool tooltip_check = get_maus_y()>disp_height-15;
 	if(  tooltip_check  ) {
@@ -1656,8 +1656,8 @@ void win_display_flush(double konto)
 	}
 #endif
 
-	scr_coord_val w_left = 20+display_proportional(20, disp_height-12, time, ALIGN_LEFT, COL_BLACK, true);
-	scr_coord_val w_right  = display_proportional(right_border-4, disp_height-12, info, ALIGN_RIGHT, COL_BLACK, true);
+	scr_coord_val w_left = 20+display_proportional(20, disp_height-12, time, ALIGN_LEFT, SYSCOL_STATUSBAR_TEXT, true);
+	scr_coord_val w_right  = display_proportional(right_border-4, disp_height-12, info, ALIGN_RIGHT, SYSCOL_STATUSBAR_TEXT, true);
 	scr_coord_val middle = (disp_width+((w_left+8)&0xFFF0)-((w_right+8)&0xFFF0))/2;
 
 	if(wl->get_active_player()) {

@@ -18,7 +18,7 @@
 typedef unsigned short PLAYER_COLOR_VAL;
 typedef unsigned char COLOR_VAL;
 
-// Menu colours (they don't change beetween day and night)
+// Menu colours (they don't change between day and night)
 #define MN_GREY0  (229)
 #define MN_GREY1  (230)
 #define MN_GREY2  (231)
@@ -74,9 +74,6 @@ typedef unsigned char COLOR_VAL;
 
 #define WIN_TITEL     (154)
 
-#define MONEY_PLUS   COL_BLACK
-#define MONEY_MINUS  COL_RED
-
 // used in many dialogues graphs
 #define COL_REVENUE         (142)
 #define COL_OPERATION       (132)
@@ -108,18 +105,39 @@ typedef unsigned char COLOR_VAL;
 #define COL_ARRIVED         COL_DARK_ORANGE
 #define COL_DEPARTED        COL_DARK_YELLOW
 
-#define SYSCOL_HIGHLIGHT            gui_theme_t::gui_color_highlight
-#define SYSCOL_SHADOW               gui_theme_t::gui_color_shadow
-#define SYSCOL_FACE                 gui_theme_t::gui_color_face
-#define SYSCOL_BUTTON_TEXT          gui_theme_t::button_color_text
-#define SYSCOL_DISABLED_BUTTON_TEXT gui_theme_t::button_color_disabled_text
-#define SYSCOL_TEXT                 gui_theme_t::gui_color_text
-#define SYSCOL_TEXT_HIGHLIGHT       gui_theme_t::gui_color_text_highlight
-#define SYSCOL_SELECTED_TEXT        gui_theme_t::gui_color_selected_text
-#define SYSCOL_SELECTED_BACGROUND   gui_theme_t::gui_color_selected_background
-#define SYSCOL_STATIC_TEXT          gui_theme_t::gui_color_static_text
-#define SYSCOL_DISABLED_TEXT        gui_theme_t::gui_color_disabled_text
-#define SYSCOL_FOCUS                gui_theme_t::button_color_focus
-#define SYSCOL_WORKAREA             gui_theme_t::gui_color_workarea
-#define SYSCOL_CURSOR               gui_theme_t::gui_color_cursor
+#define SYSCOL_TEXT                         gui_theme_t::gui_color_text
+#define SYSCOL_TEXT_HIGHLIGHT               gui_theme_t::gui_color_text_highlight
+#define SYSCOL_TEXT_SHADOW                  gui_theme_t::gui_color_text_shadow
+#define SYSCOL_TEXT_TITLE                   gui_theme_t::gui_color_text_title
+#define SYSCOL_TEXT_STRONG                  gui_theme_t::gui_color_text_strong
+#define SYSCOL_EDIT_TEXT                    gui_theme_t::gui_color_edit_text
+#define SYSCOL_EDIT_TEXT_SELECTED           gui_theme_t::gui_color_edit_text_selected
+#define SYSCOL_EDIT_TEXT_DISABLED           gui_theme_t::gui_color_edit_text_disabled
+#define SYSCOL_EDIT_BACKGROUND_SELECTED     gui_theme_t::gui_color_edit_background_selected
+#define SYSCOL_CURSOR_BEAM                  gui_theme_t::gui_color_edit_beam
+#define SYSCOL_CHART_BACKGROUND             gui_theme_t::gui_color_chart_background
+#define SYSCOL_CHART_LINES_ZERO             gui_theme_t::gui_color_chart_lines_zero
+#define SYSCOL_CHART_LINES_ODD              gui_theme_t::gui_color_chart_lines_odd
+#define SYSCOL_CHART_LINES_EVEN             gui_theme_t::gui_color_chart_lines_even
+#define SYSCOL_LIST_TEXT_SELECTED_FOCUS     gui_theme_t::gui_color_list_text_selected_focus
+#define SYSCOL_LIST_TEXT_SELECTED_NOFOCUS   gui_theme_t::gui_color_list_text_selected_nofocus
+#define SYSCOL_LIST_BACKGROUND_SELECTED_F   gui_theme_t::gui_color_list_background_selected_f
+#define SYSCOL_LIST_BACKGROUND_SELECTED_NF  gui_theme_t::gui_color_list_background_selected_nf
+#define SYSCOL_BUTTON_TEXT                  gui_theme_t::gui_color_button_text
+#define SYSCOL_BUTTON_TEXT_DISABLED         gui_theme_t::gui_color_button_text_disabled
+#define SYSCOL_BUTTON_TEXT_SELECTED         gui_theme_t::gui_color_button_text_selected
+#define SYSCOL_COLORED_BUTTON_TEXT          gui_theme_t::gui_color_colored_button_text
+#define SYSCOL_COLORED_BUTTON_TEXT_SELECTED gui_theme_t::gui_color_colored_button_text_selected
+#define SYSCOL_CHECKBOX_TEXT                gui_theme_t::gui_color_checkbox_text
+#define SYSCOL_CHECKBOX_TEXT_DISABLED       gui_theme_t::gui_color_checkbox_text_disabled
+#define SYSCOL_TICKER_BACKGROUND            gui_theme_t::gui_color_ticker_background
+#define SYSCOL_TICKER_DIVIDER               gui_theme_t::gui_color_ticker_divider
+#define SYSCOL_STATUSBAR_TEXT               gui_theme_t::gui_color_statusbar_text
+#define SYSCOL_STATUSBAR_BACKGROUND         gui_theme_t::gui_color_statusbar_background
+#define SYSCOL_STATUSBAR_DIVIDER            gui_theme_t::gui_color_statusbar_divider
+#define SYSCOL_HIGHLIGHT                    gui_theme_t::gui_highlight_color
+#define SYSCOL_SHADOW                       gui_theme_t::gui_shadow_color
+
+#define MONEY_PLUS   SYSCOL_TEXT
+#define MONEY_MINUS  COL_RED
 #endif

@@ -21,7 +21,7 @@
 #include "../display/viewport.h"
 #include "../simworld.h"
 #include "../simmenu.h"
-#include "../gui/simwin.h"
+#include "simwin.h"
 
 #include "../dataobj/fahrplan.h"
 #include "../dataobj/translator.h"
@@ -131,7 +131,7 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	chart.set_size(scr_size(total_width-88-10, 88));
 	chart.set_dimension(12, 10000);
 	chart.set_visible(false);
-	chart.set_background(MN_GREY1);
+	chart.set_background(SYSCOL_CHART_BACKGROUND);
 	const sint16 offset_below_chart = offset_below_viewport+D_BUTTON_HEIGHT+11 // chart position
 	                                  +88                                      // chart size
 	                                  +6+LINESPACE+D_V_SPACE;                  // chart x-axis labels plus space

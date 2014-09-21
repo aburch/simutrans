@@ -13,6 +13,7 @@
 #include "simcolor.h"
 #include "tpl/slist_tpl.h"
 #include "utils/simstring.h"
+#include "gui/gui_frame.h"
 
 
 // how much scrolling per call?
@@ -121,7 +122,7 @@ void ticker::draw()
 		// redraw ticker partially
 		else {
 			display_scroll_band( start_y+4, X_DIST, TICKER_HEIGHT-3 );
-			display_fillbox_wh(width-X_DIST, start_y+1, X_DIST, TICKER_HEIGHT, MN_GREY2, true);
+			display_fillbox_wh(width-X_DIST, start_y+1, X_DIST, TICKER_HEIGHT, SYSCOL_TICKER_BACKGROUND, true);
 			// ok, ready for the text
 			PUSH_CLIP( 0, start_y + 1, width - 1, TICKER_HEIGHT );
 			FOR(slist_tpl<node>, & n, list) {
@@ -159,8 +160,8 @@ void ticker::redraw_ticker()
 		const int width = display_get_width();
 
 		// just draw the ticker grey ... (to be sure ... )
-		display_fillbox_wh(0, start_y, width, 1, COL_BLACK, true);
-		display_fillbox_wh(0, start_y+1, width, TICKER_HEIGHT, MN_GREY2, true);
+		display_fillbox_wh(0, start_y, width, 1, SYSCOL_TICKER_DIVIDER, true);
+		display_fillbox_wh(0, start_y+1, width, TICKER_HEIGHT, SYSCOL_TICKER_BACKGROUND, true);
 		FOR(slist_tpl<node>, & n, list) {
 			n.xpos -= X_DIST;
 			if (n.xpos < width) {

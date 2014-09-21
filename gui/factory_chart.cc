@@ -155,7 +155,7 @@ void factory_chart_t::set_factory(const fabrik_t *_factory)
 	goods_chart.set_pos( scr_coord(10 + 80, D_TAB_HEADER_HEIGHT ) );
 	goods_chart.set_size( scr_size( CHART_WIDTH, CHART_HEIGHT ) );
 	goods_chart.set_dimension(12, 10000);
-	goods_chart.set_background(MN_GREY1);
+	goods_chart.set_background(SYSCOL_CHART_BACKGROUND);
 	const uint32 input_count = factory->get_eingang().get_count();
 	const uint32 output_count = factory->get_ausgang().get_count();
 	if(  input_count>0  ||  output_count>0  ) {
@@ -222,7 +222,7 @@ void factory_chart_t::set_factory(const fabrik_t *_factory)
 	prod_chart.set_pos( scr_coord(10 + 80, 10) );
 	prod_chart.set_size( scr_size( CHART_WIDTH, CHART_HEIGHT ) );
 	prod_chart.set_dimension(12, 10000);
-	prod_chart.set_background(MN_GREY1);
+	prod_chart.set_background(SYSCOL_CHART_BACKGROUND);
 	for(  int s=0;  s<MAX_FAB_STAT;  ++s  ) {
 		prod_chart.add_curve( prod_color[s], factory->get_stats(), MAX_FAB_STAT, s, MAX_MONTH, false, false, true, 0, prod_convert[s] );
 		prod_buttons[s].init(button_t::box_state, prod_type[s], scr_coord( D_MARGIN_LEFT+(D_H_SPACE+D_BUTTON_WIDTH)*button_pos[s].x, offset_below_chart+(D_H_SPACE+D_BUTTON_HEIGHT)*button_pos[s].y));

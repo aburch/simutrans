@@ -14,7 +14,7 @@
 #include "../../simcolor.h"
 #include "../../display/simgraph.h"
 #include "../../simevent.h"
-#include "../../gui/simwin.h"
+#include "../simwin.h"
 
 #include "../../dataobj/translator.h"
 
@@ -57,7 +57,7 @@ button_t::button_t() :
 	b_no_translate = false;
 	pressed = false;
 	translated_tooltip = tooltip = NULL;
-	background_color = SYSCOL_FACE;
+	background_color = COL_WHITE;
 	b_enabled = true;
 
 	// By default a box button
@@ -88,7 +88,7 @@ void button_t::set_typ(enum type t)
 	switch (type&STATE_MASK) {
 
 		case square:
-			text_color = SYSCOL_BUTTON_TEXT;
+			text_color = SYSCOL_CHECKBOX_TEXT;
 			if(  !strempty(translated_text)  ) {
 				set_text(translated_text);
 				set_size( scr_size( gui_theme_t::gui_checkbox_size.w + D_H_SPACE + proportional_string_width( translated_text ), max(gui_theme_t::gui_checkbox_size.h,LINESPACE)) );
@@ -121,8 +121,9 @@ void button_t::set_typ(enum type t)
 			set_size( gui_theme_t::gui_arrow_down_size );
 			break;
 
-		case roundbox:
 		case box:
+			text_color = SYSCOL_COLORED_BUTTON_TEXT;
+		case roundbox:
 			set_size( scr_size(gui_theme_t::gui_button_size.w, max(D_BUTTON_HEIGHT,LINESPACE)) );
 			break;
 
@@ -262,7 +263,8 @@ void button_t::draw(scr_coord offset)
 	}
 
 	const scr_rect area( offset+pos, size );
-	const COLOR_VAL text_color = b_enabled ? this->text_color : SYSCOL_DISABLED_BUTTON_TEXT;
+	COLOR_VAL text_color = pressed ? SYSCOL_BUTTON_TEXT_SELECTED : this->text_color;
+	text_color = b_enabled ? text_color : SYSCOL_BUTTON_TEXT_DISABLED;
 
 	switch (type&STATE_MASK) {
 
@@ -271,6 +273,7 @@ void button_t::draw(scr_coord offset)
 				display_img_stretch( gui_theme_t::button_tiles[get_state_offset()], area );
 				display_img_stretch_blend( gui_theme_t::button_color_tiles[b_enabled && pressed], area, background_color | TRANSPARENT75_FLAG | OUTLINE_FLAG );
 				if(  text  ) {
+					text_color = pressed ? SYSCOL_COLORED_BUTTON_TEXT_SELECTED : text_color;
 					// move the text to leave evt. space for a colored box top left or bottom right of it
 					scr_rect area_text = area - gui_theme_t::gui_color_button_text_offset_right;
 					area_text.set_pos( gui_theme_t::gui_color_button_text_offset + area.get_pos() );
@@ -301,6 +304,7 @@ void button_t::draw(scr_coord offset)
 			{
 				display_img_aligned( gui_theme_t::check_button_img[ get_state_offset() ], area, ALIGN_CENTER_V, true );
 				if(  text  ) {
+					text_color = b_enabled ? this->text_color : SYSCOL_CHECKBOX_TEXT_DISABLED;
 					scr_rect area_text = area;
 					area_text.x += gui_theme_t::gui_checkbox_size.w + D_H_SPACE;
 					display_proportional_ellipse( area_text, translated_text, ALIGN_LEFT | ALIGN_CENTER_V | DT_CLIP, text_color, true );

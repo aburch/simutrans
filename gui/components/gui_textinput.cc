@@ -17,7 +17,7 @@
 
 #include "../gui_frame.h"
 #include "gui_textinput.h"
-#include "../../gui/simwin.h"
+#include "../simwin.h"
 #include "../../simsys.h"
 #include "../../dataobj/translator.h"
 
@@ -29,7 +29,7 @@ gui_textinput_t::gui_textinput_t() :
 	tail_cursor_pos(0),
 	scroll_offset(0),
 	align(ALIGN_LEFT),
-	textcol(COL_BLACK),
+	textcol(SYSCOL_EDIT_TEXT),
 	text_dirty(false),
 	cursor_reference_time(0),
 	focus_recieved(false)
@@ -418,8 +418,6 @@ void gui_textinput_t::display_with_focus(scr_coord offset, bool has_focus)
 void gui_textinput_t::display_with_cursor(scr_coord offset, bool cursor_active, bool cursor_visible)
 {
 	display_img_stretch( gui_theme_t::editfield, scr_rect( pos+offset, size ) );
-//	display_fillbox_wh_clip(pos.x+offset.x+1, pos.y+offset.y+1,size.w-2, size.h-2, SYSCOL_WORKAREA, true);
-//	display_ddd_box_clip( pos.x + offset.x, pos.y + offset.y, size.w, size.h, SYSCOL_SHADOW, SYSCOL_HIGHLIGHT );
 
 	if(  text  ) {
 		// Knightly : recalculate scroll offset
@@ -481,13 +479,13 @@ void gui_textinput_t::display_with_cursor(scr_coord offset, bool cursor_active, 
 				const size_t end_pos = ::max(head_cursor_pos, tail_cursor_pos);
 				const scr_coord_val start_offset = proportional_string_len_width(text, start_pos);
 				const scr_coord_val highlight_width = proportional_string_len_width(text+start_pos, end_pos-start_pos);
-				display_fillbox_wh_clip(pos.x+offset.x+2-scroll_offset+start_offset, pos.y+offset.y+D_GET_CENTER_ALIGN_OFFSET(LINESPACE,size.h), highlight_width, 11, COL_GREY2, true);
-				display_text_proportional_len_clip(pos.x+offset.x+2-scroll_offset+start_offset, pos.y+offset.y+D_GET_CENTER_ALIGN_OFFSET(LINESPACE,size.h), text+start_pos, ALIGN_LEFT|DT_CLIP, COL_GREY5, false, end_pos-start_pos);
+				display_fillbox_wh_clip(pos.x+offset.x+2-scroll_offset+start_offset, pos.y+offset.y+D_GET_CENTER_ALIGN_OFFSET(LINESPACE,size.h), highlight_width, LINESPACE, SYSCOL_EDIT_BACKGROUND_SELECTED, true);
+				display_text_proportional_len_clip(pos.x+offset.x+2-scroll_offset+start_offset, pos.y+offset.y+D_GET_CENTER_ALIGN_OFFSET(LINESPACE,size.h), text+start_pos, ALIGN_LEFT|DT_CLIP, SYSCOL_EDIT_TEXT_SELECTED, false, end_pos-start_pos);
 			}
 
 			// display blinking cursor
 			if(  cursor_visible  ) {
-				display_fillbox_wh_clip(pos.x+offset.x+1-scroll_offset+cursor_offset, pos.y+offset.y+D_GET_CENTER_ALIGN_OFFSET(LINESPACE,size.h), 1, 11, COL_WHITE, true);
+				display_fillbox_wh_clip(pos.x+offset.x+1-scroll_offset+cursor_offset, pos.y+offset.y+D_GET_CENTER_ALIGN_OFFSET(LINESPACE,size.h), 1, LINESPACE, SYSCOL_CURSOR_BEAM, true);
 			}
 		}
 
@@ -534,8 +532,7 @@ bool gui_hidden_textinput_t::infowin_event(const event_t *ev)
 
 void gui_hidden_textinput_t::display_with_cursor(scr_coord const offset, bool, bool const cursor_visible)
 {
-	display_fillbox_wh_clip(pos.x+offset.x+1, pos.y+offset.y+1,size.w-2, size.h-2, MN_GREY1, true);
-	display_ddd_box_clip(pos.x+offset.x, pos.y+offset.y,size.w, size.h,MN_GREY0, MN_GREY4);
+	display_img_stretch( gui_theme_t::editfield, scr_rect( pos+offset, size ) );
 
 	if(  text  ) {
 		// the text will be all asterisk, thus we draw them letter by letter
@@ -557,7 +554,7 @@ void gui_hidden_textinput_t::display_with_cursor(scr_coord const offset, bool, b
 		do {
 			// cursor?
 			if(  cursor_visible  &&  text_pos==head_cursor_pos  ) {
-				display_fillbox_wh_clip( xpos, pos.y+offset.y+1, 1, 11, COL_WHITE, true);
+				display_fillbox_wh_clip( xpos, pos.y+offset.y+1+(size.h-LINESPACE)/2, 1, LINESPACE, SYSCOL_CURSOR_BEAM, true);
 			}
 			c = utf8_to_utf16((utf8 const*)text + text_pos, &text_pos);
 			if(c) {
