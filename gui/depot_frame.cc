@@ -16,7 +16,7 @@
 #include "../vehicle/simvehicle.h"
 #include "../simconvoi.h"
 #include "../simdepot.h"
-#include "../gui/simwin.h"
+#include "simwin.h"
 #include "../simcolor.h"
 #include "../simdebug.h"
 #include "../display/simgraph.h"
