@@ -1503,7 +1503,7 @@ DBG_DEBUG("wegbauer_t::intern_calc_route()","steps=%i  (max %i) in route, open %
 	route_t::RELEASE_NODE();
 
 	// target reached?
-	if( !ziel.is_contained(gr->get_pos())  ||  step>=route_t::MAX_STEP  ||  tmp->parent==NULL) {
+	if(  !ziel.is_contained(gr->get_pos())  ||  step>=route_t::MAX_STEP  ||  tmp->parent==NULL  ||  tmp->g > maximum  ) {
 		if (step>=route_t::MAX_STEP) {
 			dbg->warning("wegbauer_t::intern_calc_route()","Too many steps (%i>=max %i) in route (too long/complex)",step,route_t::MAX_STEP);
 		}
