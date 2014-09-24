@@ -617,11 +617,15 @@ public:
 	bool recall_ware( ware_t& w, uint32 menge );
 
 	/**
-	 * fetches goods from this halt
-	 * @param fracht goods will be put into this list, vehicle has to load it
-	 * @author Hj. Malthaner, dwachs
+	 * Fetches goods from this halt
+	 * @param load Output parameter. Goods will be put into this list, the vehicle has to load them.
+	 * @param good_category Specifies the kind of good (or compatible goods) we are requesting to fetch from this stop.
+	 * @param amount How many units of the cargo we can fetch.
+	 * @param schedule Schedule of the vehicle requesting the fetch.
+	 * @param sp Company that's requesting the fetch.
+	 * @author Dwachs
 	 */
-	void hole_ab( slist_tpl<ware_t> &fracht, const ware_besch_t *warentyp, uint32 menge, const schedule_t *fpl, const spieler_t *sp );
+	void fetch_goods( slist_tpl<ware_t> &load, const ware_besch_t *good_category, uint32 requested_amount, const schedule_t *schedule, const spieler_t *sp );
 
 	/* liefert ware an. Falls die Ware zu wartender Ware dazugenommen
 	 * werden kann, kann ware_t gelöscht werden! D.h. man darf ware nach

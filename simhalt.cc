@@ -1857,28 +1857,27 @@ bool haltestelle_t::recall_ware( ware_t& w, uint32 menge )
 
 
 
-// will load something compatible with wtyp into the car which schedule is fpl
-void haltestelle_t::hole_ab( slist_tpl<ware_t> &fracht, const ware_besch_t *wtyp, uint32 maxi, const schedule_t *fpl, const spieler_t *sp )
+void haltestelle_t::fetch_goods( slist_tpl<ware_t> &load, const ware_besch_t *good_category, uint32 requested_amount, const schedule_t *schedule, const spieler_t *sp )
 {
 	// prissi: first iterate over the next stop, then over the ware
 	// might be a little slower, but ensures that passengers to nearest stop are served first
 	// this allows for separate high speed and normal service
-	vector_tpl<ware_t> *warray = waren[wtyp->get_catg_index()];
+	vector_tpl<ware_t> *warray = waren[good_category->get_catg_index()];
 
 	if(  warray  &&  !warray->empty()  ) {
 		// da wir schon an der aktuellem haltestelle halten
 		// startet die schleife ab 1, d.h. dem naechsten halt
-		const uint8 count = fpl->get_count();
+		const uint8 count = schedule->get_count();
 		for(  uint8 i=1;  i<count;  i++  ) {
-			const uint8 wrap_i = (i + fpl->get_aktuell()) % count;
+			const uint8 wrap_i = (i + schedule->get_aktuell()) % count;
 
-			const halthandle_t plan_halt = haltestelle_t::get_halt(fpl->eintrag[wrap_i].pos, sp);
+			const halthandle_t plan_halt = haltestelle_t::get_halt(schedule->eintrag[wrap_i].pos, sp);
 			if(plan_halt == self) {
 				// we will come later here again ...
 				break;
 			}
 			else if(  !plan_halt.is_bound()  ) {
-				if(  grund_t *gr = welt->lookup( fpl->eintrag[wrap_i].pos )  ) {
+				if(  grund_t *gr = welt->lookup( schedule->eintrag[wrap_i].pos )  ) {
 					if(  gr->get_depot()  ) {
 						// do not load for stops after a depot
 						break;
@@ -1915,7 +1914,7 @@ void haltestelle_t::hole_ab( slist_tpl<ware_t> &fracht, const ware_besch_t *wtyp
 					// compatible car and right target stop?
 					if(  tmp.get_zwischenziel()==plan_halt  ) {
 
-						if(  plan_halt->is_overcrowded(wtyp->get_catg_index())  ) {
+						if(  plan_halt->is_overcrowded(good_category->get_catg_index())  ) {
 							if (welt->get_settings().is_avoid_overcrowding() && tmp.get_ziel() != plan_halt) {
 								// do not go for transfer to overcrowded transfer stop
 								continue;
@@ -1924,23 +1923,23 @@ void haltestelle_t::hole_ab( slist_tpl<ware_t> &fracht, const ware_besch_t *wtyp
 
 						// not too much?
 						ware_t neu(tmp);
-						if(  tmp.menge > maxi  ) {
+						if(  tmp.menge > requested_amount  ) {
 							// not all can be loaded
-							neu.menge = maxi;
-							tmp.menge -= maxi;
-							maxi = 0;
+							neu.menge = requested_amount;
+							tmp.menge -= requested_amount;
+							requested_amount = 0;
 						}
 						else {
-							maxi -= tmp.menge;
+							requested_amount -= tmp.menge;
 							// leave an empty entry => joining will more often work
 							tmp.menge = 0;
 						}
-						fracht.insert(neu);
+						load.insert(neu);
 
 						book(neu.menge, HALT_DEPARTED);
 						resort_freight_info = true;
 
-						if (maxi==0) {
+						if (requested_amount==0) {
 							return;
 						}
 					}

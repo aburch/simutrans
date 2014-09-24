@@ -795,7 +795,7 @@ uint16 vehikel_t::load_freight(halthandle_t halt)
 		const uint16 hinein = besch->get_zuladung() - total_freight;
 
 		slist_tpl<ware_t> zuladung;
-		halt->hole_ab( zuladung, besch->get_ware(), hinein, cnv->get_schedule(), cnv->get_besitzer() );
+		halt->fetch_goods( zuladung, besch->get_ware(), hinein, cnv->get_schedule(), cnv->get_besitzer() );
 
 		if(  zuladung.empty()  ) {
 			// now empty, but usually, we can get it here ...
