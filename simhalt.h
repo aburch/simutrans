@@ -713,9 +713,14 @@ public:
 	bool recall_ware( ware_t& w, uint32 menge );
 
 	/**
-	 * fetches goods from this halt. returns true if other convois on the same line should try loading these goods because this convoi is awaiting spacing, if not preferred, or is overcrowded
-	 * @param fracht goods will be put into this list, vehicle has to load it
-	 * @author Hj. Malthaner, dwachs
+	 * Fetches goods from this halt. Returns true if other convois on the same line should try loading these goods because this convoi is awaiting spacing, if not preferred, or is overcrowded
+	 * Fetches goods from this halt
+	 * @param load Output parameter. Goods will be put into this list, the vehicle has to load them.
+	 * @param good_category Specifies the kind of good (or compatible goods) we are requesting to fetch from this stop.
+	 * @param amount How many units of the cargo we can fetch.
+	 * @param schedule Schedule of the vehicle requesting the fetch.
+	 * @param player Company that's requesting the fetch.
+	 * @author Dwachs
 	 */
 	bool fetch_goods( slist_tpl<ware_t> &load, const goods_desc_t *good_category, uint32 requested_amount, const schedule_t *schedule, const player_t *player, convoi_t* cnv, bool overcrowd, const uint8 g_class, const bool use_lower_classes, bool& other_classes_available);
 
