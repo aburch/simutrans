@@ -263,10 +263,8 @@ public:
 	/// buildings and trees near mouse cursor will be hidden.
 	static bool hide_under_cursor;
 
-
 	/// Hide buildings and trees within range of mouse cursor
 	static uint16 cursor_hide_range;
-
 
 	/// color used for cursor overlay blending
 	static uint8 cursor_overlay_color;
@@ -292,7 +290,6 @@ public:
 
 	/// time per water animation frame (0=off)
 	static uint32 water_animation;
-
 
 	/// how many internal pixel per height step (default 16)
 	static sint8 pak_tile_height_step;
@@ -382,6 +379,9 @@ public:
 	static uint32 cluster_size;
 	static bool cities_ignore_height;
 	static uint8 cities_like_water;
+
+	// AI construction speed for new games (default 8000)
+	static uint32 default_ai_construction_speed;
 
 	/**
 	 * Name of rivers; first the river with the lowest number
