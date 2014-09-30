@@ -157,6 +157,9 @@ no_routing_over_overcrowded = 0
 # in beginner mode, all good prices are multiplied by a factor (default 1500=1.5)
 beginner_price_factor = 1500
 
+# Construction speed of new AIs, the heigher the faster (default 8000)
+#ai_construction_speed = 8000
+
 ##################################factory stuff#################################
 
 # when a city reaches 2^n times of this number

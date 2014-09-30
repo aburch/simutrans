@@ -206,6 +206,7 @@ settings_t::settings_t() :
 		default_player_color[i][1] = 255;
 	}
 	default_player_color_random = false;
+	default_ai_construction_speed = env_t::default_ai_construction_speed;
 
 	/* the big cost section */
 	freeplay = false;
@@ -761,6 +762,12 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_longlong( cst_alter_climate );
 			file->rdwr_byte( way_height_clearance );
 		}
+		if(  file->get_version()>=120002  ) {
+			file->rdwr_long( default_ai_construction_speed );
+		}
+		else if(  file->is_loading()  ) {
+			default_ai_construction_speed = env_t::default_ai_construction_speed;
+		}
 		// otherwise the default values of the last one will be used
 	}
 }
@@ -1200,6 +1207,7 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 			default_player_color[i][1] = c2;
 		}
 	}
+	default_ai_construction_speed = env_t::default_ai_construction_speed = contents.get_int("ai_construction_speed", env_t::default_ai_construction_speed );
 
 	maint_building = contents.get_int("maintenance_building", maint_building );
 

@@ -25,6 +25,7 @@
 
 #include "../besch/haus_besch.h"
 
+#include "../dataobj/environment.h"
 #include "../dataobj/loadsave.h"
 
 #include "../obj/zeiger.h"
@@ -69,7 +70,6 @@ bool ai_bauplatz_mit_strasse_sucher_t::ist_platz_ok(koord pos, sint16 b, sint16 
 
 
 /************************** and now the "real" helper functions ***************/
-
 
 /* return the halt on the map ground */
 halthandle_t ai_t::get_halt(const koord pos ) const
@@ -558,6 +558,14 @@ void ai_t::tell_tool_result(werkzeug_t *tool, koord3d pos, const char *err, bool
 	spieler_t::tell_tool_result(tool, pos, err, local);
 
 	// TODO: process the result...
+}
+
+
+/* create new AI */
+ai_t::ai_t(karte_t *wl, uint8 nr) : spieler_t( wl, nr )
+{
+	road_transport = rail_transport = air_transport = ship_transport = false;
+	construction_speed = env_t::default_ai_construction_speed;
 }
 
 

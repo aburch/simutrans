@@ -268,7 +268,8 @@ obj_besch_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->pax_demand = decode_uint16(p);
 		besch->mail_demand = decode_uint16(p);
 		DBG_DEBUG("factory_reader_t::read_node()","version=3, platz=%i, lieferanten=%i, pax=%i", besch->platzierung, besch->lieferanten, besch->pax_level );
-	} else if(version == 2) {
+	}
+	else if(version == 2) {
 		// Versioned node, version 2
 		besch->platzierung = (site_t)decode_uint16(p);
 		besch->produktivitaet = decode_uint16(p);
