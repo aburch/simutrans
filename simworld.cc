@@ -10606,7 +10606,6 @@ bool karte_t::interactive(uint32 quit_month)
 // 2 - shutdown
 void karte_t::announce_server(int status)
 {
-	assert(env_t::server  &&  env_t::server_announce);
 	DBG_DEBUG( "announce_server()", "status: %i",  status );
 	// Announce game info to server, format is:
 	// st=on&dns=server.com&port=13353&rev=1234&pak=pak128&name=some+name&time=3,1923&size=256,256&active=[0-16]&locked=[0-16]&clients=[0-16]&towns=15&citizens=3245&factories=33&convoys=56&stops=17
