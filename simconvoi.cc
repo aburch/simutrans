@@ -3365,7 +3365,7 @@ COLOR_VAL convoi_t::get_status_color() const
 {
 	if(state==INITIAL) {
 		// in depot/under assembly
-		return COL_WHITE;
+		return SYSCOL_TEXT_HIGHLIGHT;
 	}
 	else if (state == WAITING_FOR_CLEARANCE_ONE_MONTH || state == CAN_START_ONE_MONTH || get_state() == NO_ROUTE) {
 		// stuck or no route
@@ -3383,7 +3383,7 @@ COLOR_VAL convoi_t::get_status_color() const
 		return COL_BLUE;
 	}
 	// normal state
-	return COL_BLACK;
+	return SYSCOL_TEXT;
 }
 
 

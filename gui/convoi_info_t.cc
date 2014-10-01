@@ -291,17 +291,17 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 		mean_convoi_speed += speed_to_kmh(cnv->get_akt_speed()*4);
 		mean_convoi_speed /= 2;
 		buf.printf( translator::translate("%i km/h (max. %ikm/h)"), (mean_convoi_speed+3)/4, speed_to_kmh(cnv->get_min_top_speed()) );
-		display_proportional( xpos, ypos, buf, ALIGN_LEFT, COL_BLACK, true );
+		display_proportional( xpos, ypos, buf, ALIGN_LEFT, SYSCOL_TEXT, true );
 		ypos += LINESPACE;
 
 		// next important: income stuff
-		int len = display_proportional( xpos, ypos, translator::translate("Gewinn"), ALIGN_LEFT, COL_BLACK, true ) + 5;
+		int len = display_proportional( xpos, ypos, translator::translate("Gewinn"), ALIGN_LEFT, SYSCOL_TEXT, true ) + 5;
 		money_to_string( tmp, cnv->get_jahresgewinn()/100.0 );
 		len += display_proportional( xpos+len, ypos, tmp, ALIGN_LEFT, cnv->get_jahresgewinn()>0?MONEY_PLUS:MONEY_MINUS, true )+5;
 		money_to_string( tmp+1, cnv->get_running_cost()/100.0 );
 		strcat( tmp, "/km)" );
 		tmp[0] = '(';
-		display_proportional( xpos+len, ypos, tmp, ALIGN_LEFT, COL_BLACK, true );
+		display_proportional( xpos+len, ypos, tmp, ALIGN_LEFT, SYSCOL_TEXT, true );
 		ypos += LINESPACE;
 
 		// the weight entry
@@ -312,7 +312,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 		info_buf.append( "t (" );
 		info_buf.append( (cnv->get_sum_gesamtgewicht()-cnv->get_sum_gewicht())/1000.0, 1 );
 		info_buf.append( "t)" );
-		display_proportional( xpos, ypos, info_buf, ALIGN_LEFT, COL_BLACK, true );
+		display_proportional( xpos, ypos, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true );
 		ypos += LINESPACE;
 
 		// next stop
@@ -320,7 +320,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 		info_buf.clear();
 		info_buf.append(translator::translate("Fahrtziel"));
 		fahrplan_gui_t::gimme_short_stop_name(info_buf, welt, cnv->get_besitzer(), fpl->get_current_eintrag(), 34);
-		len = display_proportional_clip( xpos, ypos, info_buf, ALIGN_LEFT, COL_BLACK, true );
+		len = display_proportional_clip( xpos, ypos, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true );
 
 		// convoi load indicator
 		const scr_coord_val offset = max( len+D_MARGIN_LEFT, 167)+3;
@@ -333,7 +333,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 		 * @author hsiegeln
 		 */
 		if(  cnv->get_line().is_bound()  ) {
-			len = display_proportional( xpos+D_BUTTON_HEIGHT, ypos, translator::translate("Serves Line:"), ALIGN_LEFT, COL_BLACK, true );
+			len = display_proportional( xpos+D_BUTTON_HEIGHT, ypos, translator::translate("Serves Line:"), ALIGN_LEFT, SYSCOL_TEXT, true );
 			display_proportional_clip( xpos+D_BUTTON_HEIGHT+D_H_SPACE+len, ypos, cnv->get_line()->get_name(), ALIGN_LEFT, cnv->get_line()->get_state_color(), true );
 		}
 		POP_CLIP();

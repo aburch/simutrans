@@ -53,7 +53,7 @@ citybuilding_edit_frame_t::citybuilding_edit_frame_t(spieler_t* sp_) :
 	extend_edit_gui_t(translator::translate("citybuilding builder"), sp_),
 	hauslist(16),
 	lb_rotation( rot_str, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::right ),
-	lb_rotation_info( translator::translate("Rotation"), COL_BLACK, gui_label_t::left )
+	lb_rotation_info( translator::translate("Rotation"), SYSCOL_TEXT, gui_label_t::left )
 {
 	rot_str[0] = 0;
 	besch = NULL;
@@ -147,7 +147,7 @@ void citybuilding_edit_frame_t::fill_list( bool translate )
 		switch (i->get_typ()) {
 			case gebaeude_t::wohnung: color = COL_BLUE;       break;
 			case gebaeude_t::gewerbe: color = COL_DARK_GREEN; break;
-			default:                  color = COL_BLACK;      break;
+			default:                  color = SYSCOL_TEXT;      break;
 		}
 		char const* const name = translate ? translator::translate(i->get_name()) : i->get_name();
 		scl.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(name, color));

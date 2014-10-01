@@ -45,8 +45,8 @@ factory_edit_frame_t::factory_edit_frame_t(spieler_t* sp_) :
 	extend_edit_gui_t(translator::translate("factorybuilder"), sp_),
 	fablist(16),
 	lb_rotation( rot_str, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::right ),
-	lb_rotation_info( translator::translate("Rotation"), COL_BLACK, gui_label_t::left ),
-	lb_production_info( translator::translate("Produktion"), COL_BLACK, gui_label_t::left )
+	lb_rotation_info( translator::translate("Rotation"), SYSCOL_TEXT, gui_label_t::left ),
+	lb_production_info( translator::translate("Produktion"), SYSCOL_TEXT, gui_label_t::left )
 {
 	rot_str[0] = 0;
 	prod_str[0] = 0;
@@ -146,7 +146,7 @@ void factory_edit_frame_t::fill_list( bool translate )
 		COLOR_VAL const color =
 			i->is_consumer_only() ? COL_BLUE       :
 			i->is_producer_only() ? COL_DARK_GREEN :
-			COL_BLACK;
+			SYSCOL_TEXT;
 		char const* const name = translate ? translator::translate(i->get_name()) : i->get_name();
 		scl.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(name, color));
 		if (i == fab_besch) {

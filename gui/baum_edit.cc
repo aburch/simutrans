@@ -78,7 +78,7 @@ void baum_edit_frame_t::fill_list( bool translate )
 	scl.set_selection(-1);
 	FOR(vector_tpl<baum_besch_t const*>, const i, baumlist) {
 		char const* const name = translate ? translator::translate(i->get_name()): i->get_name();
-		scl.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(name, COL_BLACK));
+		scl.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(name, SYSCOL_TEXT));
 		if (i == besch) {
 			scl.set_selection(scl.get_count()-1);
 		}

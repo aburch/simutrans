@@ -63,26 +63,26 @@ void goods_stats_t::draw(scr_coord offset)
 
 		buf.clear();
 		buf.printf("%s", translator::translate(wtyp->get_name()));
-		display_proportional_clip(offset.x + 14, yoff,	buf, ALIGN_LEFT, COL_BLACK, true);
+		display_proportional_clip(offset.x + 14, yoff,	buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 
 		// prissi
 		const sint32 grundwert128 = wtyp->get_preis() * welt->get_settings().get_bonus_basefactor();	// bonus price will be always at least this
 		const sint32 grundwert_bonus = wtyp->get_preis()*(1000l+(bonus-100l)*wtyp->get_speed_bonus());
 		const sint32 price = (grundwert128>grundwert_bonus ? grundwert128 : grundwert_bonus);
 		money_to_string( money_buf, price/300000.0 );
-		display_proportional_clip(offset.x + 130, yoff, money_buf, 	ALIGN_RIGHT, 	COL_BLACK, true);
+		display_proportional_clip(offset.x + 130, yoff, money_buf, 	ALIGN_RIGHT, SYSCOL_TEXT, true);
 
 		buf.clear();
 		buf.printf("%d%%", wtyp->get_speed_bonus());
-		display_proportional_clip(offset.x + 155, yoff, buf, ALIGN_RIGHT, COL_BLACK, true);
+		display_proportional_clip(offset.x + 155, yoff, buf, ALIGN_RIGHT, SYSCOL_TEXT, true);
 
 		buf.clear();
 		buf.printf("%s", translator::translate(wtyp->get_catg_name()));
-		display_proportional_clip(offset.x + 165, yoff, buf, 	ALIGN_LEFT, COL_BLACK, 	true);
+		display_proportional_clip(offset.x + 165, yoff, buf, 	ALIGN_LEFT, SYSCOL_TEXT, 	true);
 
 		buf.clear();
 		buf.printf("%dKg", wtyp->get_weight_per_unit());
-		display_proportional_clip(offset.x + 310, yoff, buf, ALIGN_RIGHT, COL_BLACK, true);
+		display_proportional_clip(offset.x + 310, yoff, buf, ALIGN_RIGHT, SYSCOL_TEXT, true);
 
 		yoff += LINESPACE+1;
 	}

@@ -272,7 +272,7 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	scr_coord label_cursor = scr_coord(0,0);
 
 	// Frame time label
-	frame_time_label.init("Frame time:", label_cursor, COL_BLACK );
+	frame_time_label.init("Frame time:", label_cursor, SYSCOL_TEXT );
 	sprintf(frame_time_buf," ***** ms" );
 	frame_time_value_label.init( frame_time_buf, scr_coord(0, label_cursor.y), SYSCOL_TEXT_HIGHLIGHT );
 	label_container.add_component( &frame_time_label );
@@ -280,7 +280,7 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	label_cursor.y += LINESPACE;
 
 	// Idle time label
-	idle_time_label.init("Idle:", label_cursor, COL_BLACK);
+	idle_time_label.init("Idle:", label_cursor, SYSCOL_TEXT);
 	sprintf(idle_time_buf," ***** ms" );
 	idle_time_value_label.init( idle_time_buf, scr_coord(0, label_cursor.y), SYSCOL_TEXT_HIGHLIGHT );
 	label_container.add_component( &idle_time_label );
@@ -288,7 +288,7 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	label_cursor.y += LINESPACE;
 
 	// FPS label
-	fps_label.init("FPS:", label_cursor, COL_BLACK );
+	fps_label.init("FPS:", label_cursor, SYSCOL_TEXT );
 	sprintf(fps_buf," *** fps*" );
 	fps_value_label.init( fps_buf, scr_coord(0, label_cursor.y), SYSCOL_TEXT_HIGHLIGHT );
 	label_container.add_component( &fps_label );
@@ -296,7 +296,7 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	label_cursor.y += LINESPACE;
 
 	// Simloops label
-	simloops_label.init("Sim:", label_cursor, COL_BLACK );
+	simloops_label.init("Sim:", label_cursor, SYSCOL_TEXT );
 	sprintf(simloops_buf," ********" );
 	simloops_value_label.init( simloops_buf, scr_coord(0, label_cursor.y), SYSCOL_TEXT_HIGHLIGHT );
 	label_container.add_component( &simloops_label );

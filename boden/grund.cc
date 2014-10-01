@@ -153,7 +153,7 @@ PLAYER_COLOR_VAL grund_t::text_farbe() const
 		}
 	}
 
-	return COL_WHITE;
+	return SYSCOL_TEXT_HIGHLIGHT;
 }
 
 

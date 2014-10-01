@@ -182,7 +182,7 @@ void fahrplan_gui_stats_t::draw(scr_coord offset)
 			buf.clear();
 			buf.printf("%i) ", ++i);
 			gimme_stop_name(buf, welt, sp, e);
-			PLAYER_COLOR_VAL const c = sel == 0 ? COL_WHITE : COL_BLACK;
+			PLAYER_COLOR_VAL const c = sel == 0 ? SYSCOL_TEXT_HIGHLIGHT : SYSCOL_TEXT;
 			sint16           const w = display_proportional_clip(offset.x + 4 + 10, offset.y, buf, ALIGN_LEFT, c, true);
 			if (width < w) {
 				width = w;
@@ -238,7 +238,7 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 	gui_frame_t( translator::translate("Fahrplan"), sp_),
 	lb_line("Serves Line:"),
 	lb_wait("month wait time"),
-	lb_waitlevel(NULL, COL_WHITE, gui_label_t::right),
+	lb_waitlevel(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::right),
 	lb_load("Full load"),
 	stats(sp_),
 	scrolly(&stats),
@@ -417,16 +417,16 @@ void fahrplan_gui_t::update_selection()
 		fpl->set_aktuell( min(fpl->get_count()-1,fpl->get_aktuell()) );
 		const uint8 aktuell = fpl->get_aktuell();
 		if(  haltestelle_t::get_halt(fpl->eintrag[aktuell].pos, sp).is_bound()  ) {
-			lb_load.set_color( COL_BLACK );
+			lb_load.set_color( SYSCOL_TEXT );
 			numimp_load.enable();
 			numimp_load.set_value( fpl->eintrag[aktuell].ladegrad );
 			if(  fpl->eintrag[aktuell].ladegrad>0  ) {
 				bt_wait_prev.enable();
-				lb_wait.set_color( COL_BLACK );
+				lb_wait.set_color( SYSCOL_TEXT );
 				if(  fpl->eintrag[aktuell].waiting_time_shift>0  ) {
 					sprintf( str_parts_month, "1/%d",  1<<(16-fpl->eintrag[aktuell].waiting_time_shift) );
 				}
-				lb_waitlevel.set_color( COL_WHITE );
+				lb_waitlevel.set_color( SYSCOL_TEXT_HIGHLIGHT );
 				bt_wait_next.enable();
 			}
 		}
@@ -653,7 +653,7 @@ void fahrplan_gui_t::init_line_selector()
 	}
 	if(  !new_line.is_bound()  ) {
 		selection = 0;
-		line_selector.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("<no line>"), COL_BLACK ) );
+		line_selector.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("<no line>"), SYSCOL_TEXT ) );
 	}
 
 	FOR(  vector_tpl<linehandle_t>,  line,  lines  ) {
@@ -726,7 +726,7 @@ fahrplan_gui_t::fahrplan_gui_t():
 gui_frame_t( translator::translate("Fahrplan"), NULL),
 	lb_line("Serves Line:"),
 	lb_wait("month wait time"),
-	lb_waitlevel(NULL, COL_WHITE, gui_label_t::right),
+	lb_waitlevel(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::right),
 	lb_load("Full load"),
 	stats(NULL),
 	scrolly(&stats),

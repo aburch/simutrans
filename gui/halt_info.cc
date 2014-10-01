@@ -288,7 +288,7 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 		info_buf.printf("%s: %u", translator::translate("Storage capacity"), halt->get_capacity(0));
 		left = pos.x+10;
 		// passengers
-		left += display_proportional(left, top, info_buf, ALIGN_LEFT, COL_BLACK, true);
+		left += display_proportional(left, top, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 		if (welt->get_settings().is_separate_halt_capacities()) {
 			// here only for separate capacities
 			display_color_img(skinverwaltung_t::passagiere->get_bild_nr(0), left, top, 0, false, false);
@@ -296,13 +296,13 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 			// post
 			info_buf.clear();
 			info_buf.printf(",  %u", halt->get_capacity(1));
-			left += display_proportional(left, top, info_buf, ALIGN_LEFT, COL_BLACK, true);
+			left += display_proportional(left, top, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 			display_color_img(skinverwaltung_t::post->get_bild_nr(0), left, top, 0, false, false);
 			left += 10;
 			// goods
 			info_buf.clear();
 			info_buf.printf(",  %u", halt->get_capacity(2));
-			left += display_proportional(left, top, info_buf, ALIGN_LEFT, COL_BLACK, true);
+			left += display_proportional(left, top, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 			display_color_img(skinverwaltung_t::waren->get_bild_nr(0), left, top, 0, false, false);
 			left = 53+LINESPACE;
 		}
@@ -311,7 +311,7 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 		// information about the passengers happiness
 		info_buf.clear();
 		halt->info(info_buf);
-		display_multiline_text(pos.x+10, pos.y+53+LINESPACE, info_buf, COL_BLACK);
+		display_multiline_text( pos.x+10, pos.y+53+LINESPACE, info_buf, SYSCOL_TEXT );
 	}
 }
 

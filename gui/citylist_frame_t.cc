@@ -231,5 +231,5 @@ void citylist_frame_t::draw(scr_coord pos, scr_size size)
 	}
 	gui_frame_t::draw(pos,size);
 
-	display_proportional(pos.x+2, pos.y+18, citylist_stats_t::total_bev_string, ALIGN_LEFT,COL_BLACK,true);
+	display_proportional( pos.x+2, pos.y+18, citylist_stats_t::total_bev_string, ALIGN_LEFT, SYSCOL_TEXT, true );
 }

@@ -312,7 +312,7 @@ map_frame_t::map_frame_t() :
 		filter_buttons[index].set_tooltip( button_init[index].tooltip_text );
 		filter_buttons[index].pressed = button_init[index].mode&env_t::default_mapmode;
 		filter_buttons[index].background_color = filter_buttons[index].pressed ? button_init[index].select_color : button_init[index].color;
-		filter_buttons[index].text_color = filter_buttons[index].pressed ? COL_WHITE : COL_BLACK;
+		filter_buttons[index].text_color = filter_buttons[index].pressed ? SYSCOL_TEXT_HIGHLIGHT : SYSCOL_TEXT;
 		filter_buttons[index].add_listener(this);
 		filter_container.add_component(filter_buttons + index);
 	}
