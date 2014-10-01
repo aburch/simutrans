@@ -153,7 +153,7 @@ void factory_edit_frame_t::fill_list( bool translate )
 		COLOR_VAL const color =
 			i->is_consumer_only() ? COL_BLUE       :
 			i->is_producer_only() ? COL_DARK_GREEN :
-			COL_BLACK;
+			SYSCOL_TEXT;
 		char const* const name = translate ? translator::translate(i->get_name()) : i->get_name();
 		scl.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(name, color));
 		if (i == fac_desc) {

@@ -288,7 +288,7 @@ void schedule_gui_stats_t::draw(scr_coord offset)
 		}
 		distance = (double)(shortest_distance(last_stop_pos, schedule->entries[0].pos.get_2d()) * welt->get_settings().get_meters_per_tile()) / 1000;
 		buf.printf(" %.1f%s", distance, "km");
-		PLAYER_COLOR_VAL c = sel == 0 ? COL_WHITE : COL_BLACK;
+		PLAYER_COLOR_VAL c = sel == 0 ? SYSCOL_TEXT_HIGHLIGHT : SYSCOL_TEXT;
 		sint16           w = display_proportional_clip(offset.x + 4 + 10, offset.y, buf, ALIGN_LEFT, c, true);
 		if (width < w) 
 		{
@@ -343,7 +343,7 @@ schedule_gui_t::schedule_gui_t(schedule_t* sch_, player_t* player_, convoihandle
 	gui_frame_t( translator::translate("Fahrplan"), player_),
 	lb_line("Serves Line:"),
 	lb_wait("month wait time"),
-	lb_waitlevel_as_clock(NULL, COL_WHITE, gui_label_t::right),
+	lb_waitlevel_as_clock(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::right),
 	lb_load("Full load"),
 	lb_spacing("Spacing cnv/month, shift"),
 	lb_spacing_as_clock(NULL, SYSCOL_TEXT, gui_label_t::right),
@@ -990,7 +990,7 @@ schedule_gui_t::schedule_gui_t():
 gui_frame_t( translator::translate("Fahrplan"), NULL),
 	lb_line("Serves Line:"),
 	lb_wait("month wait time"),
-	lb_waitlevel_as_clock(NULL, COL_WHITE, gui_label_t::right),
+	lb_waitlevel_as_clock(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::right),
 	lb_load("Full load"),
 	stats(NULL),
 	scrolly(&stats),

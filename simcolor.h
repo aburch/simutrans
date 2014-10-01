@@ -155,4 +155,5 @@ typedef unsigned char COLOR_VAL;
 
 #define MONEY_PLUS   SYSCOL_TEXT
 #define MONEY_MINUS  COL_RED
+
 #endif
