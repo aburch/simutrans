@@ -162,7 +162,8 @@ static char const* tooltip_with_price_maintenance_capacity(karte_t* const welt, 
 		if(enables&4) {
 			n += sprintf( werkzeug_t::toolstr+n, " %s", translator::translate("Fracht") );
 		}
-	} else if (!welt->get_settings().is_separate_halt_capacities()) {
+	}
+	else if (!welt->get_settings().is_separate_halt_capacities()) {
 		n += sprintf( werkzeug_t::toolstr+n, ", %s %d", translator::translate("Storage capacity"), capacity );
 	}
 
@@ -536,8 +537,8 @@ DBG_MESSAGE("wkz_remover()", "bound=%i",halt.is_bound());
 
 DBG_MESSAGE("wkz_remover()", "check tunnel/bridge");
 
-	// beginning/end of bridge?
-	if(  brueckenbauer_t::is_start_of_bridge(gr)  ) {
+	// bridge?
+	if(gr->ist_bruecke()) {
 DBG_MESSAGE("wkz_remover()",  "removing bridge from %d,%d,%d",gr->get_pos().x, gr->get_pos().y, gr->get_pos().z);
 		bruecke_t* br = gr->find<bruecke_t>();
 		msg = brueckenbauer_t::remove(sp, gr->get_pos(), br->get_besch()->get_waytype());
@@ -2368,7 +2369,7 @@ const char *wkz_brueckenbau_t::do_work( spieler_t *sp, const koord3d &start, con
 		const koord zv(ribi_typ(end-start));
 		sint8 bridge_height;
 		const char *error;
-		koord3d end2 = brueckenbauer_t::finde_ende(sp, start, zv, besch, error, bridge_height, false, koord_distance(start, end));
+		koord3d end2 = brueckenbauer_t::finde_ende(sp, start, zv, besch, error, bridge_height, false, koord_distance(start, end), is_ctrl_pressed());
 		assert(end2 == end);
 		brueckenbauer_t::baue_bruecke( sp, start, end, zv, bridge_height, besch, wegbauer_t::weg_search(besch->get_waytype(), besch->get_topspeed(), welt->get_timeline_year_month(), weg_t::type_flat));
 		return NULL; // all checks are performed before building.
@@ -2390,7 +2391,7 @@ void wkz_brueckenbau_t::mark_tiles(  spieler_t *sp, const koord3d &start, const 
 	const bruecke_besch_t *besch = brueckenbauer_t::get_besch(default_param);
 	const char *error;
 	sint8 bridge_height;
-	koord3d end2 = brueckenbauer_t::finde_ende(sp, start, zv, besch, error, bridge_height, false, koord_distance(start, end));
+	koord3d end2 = brueckenbauer_t::finde_ende(sp, start, zv, besch, error, bridge_height, false, koord_distance(start, end), is_ctrl_pressed());
 
 	assert(end == end2);
 
@@ -2459,7 +2460,7 @@ void wkz_brueckenbau_t::mark_tiles(  spieler_t *sp, const koord3d &start, const 
 	// flat -> height is 1 if conversion factor 1, 2 if conversion factor 2
 	// single height -> height is 1
 	// double height -> height is 2
-	const hang_t::typ end_slope = gr->get_grund_hang();
+	const hang_t::typ end_slope = gr->get_weg_hang();
 	const uint8 end_max_height = end_slope ? ((end_slope & 7) ? 1 : 2) : (pos.z-end.z);
 
 	if(  gr->ist_karten_boden()  &&  end.z + end_max_height == start.z + max_height  ) {
@@ -2561,33 +2562,28 @@ uint8 wkz_brueckenbau_t::is_valid_pos(  spieler_t *sp, const koord3d &pos, const
 			// determine possible directions
 			ribi = ribi_t::rueckwaerts(rw);
 			return (ribi!=ribi_t::keine ? 2 : 0) | (ribi_t::ist_einfach(ribi) ? 1 : 0);
-		} else {
+		}
+		else {
 			if(  gr->get_weg_hang()  ) {
 				return 0;
 			}
 
-			if(  gr->get_typ() != grund_t::monorailboden  ) {
+			if(  gr->get_typ() != grund_t::monorailboden  &&
+			     gr->get_typ() != grund_t::tunnelboden  ) {
 				return 0;
 			}
+
+			if(!gr->get_weg_nr(0)) {
+				return 0;
+			}
+
+			ribi = ~gr->get_weg_nr(0)->get_ribi_unmasked();
 
 			return 2;
 		}
 	}
 	else {
 		// second click
-
-		// get initial height of bridge from start tile
-		// flat -> height is 1 if conversion factor 1, 2 if conversion factor 2
-		// single height -> height is 1
-		// double height -> height is 2
-		const hang_t::typ slope = gr->get_grund_hang();
-		const uint8 max_height = slope ? ((slope & 7) ? 1 : 2) : welt->get_settings().get_way_height_clearance();
-		const hang_t::typ start_slope = welt->lookup(start)->get_grund_hang();
-		const uint8 start_max_height = start_slope ? ((start_slope & 7) ? 1 : 2) : welt->get_settings().get_way_height_clearance();
-		const uint8 height_difference = abs( start.z + start_max_height - pos.z - max_height );
-		if(  height_difference>1  &&  besch->get_hintergrund(bruecke_besch_t::N_Start2, 0) == IMG_LEER  ) {
-			return 0;
-		}
 
 		// dragging in the right direction?
 		ribi_t::ribi test = ribi_typ(pos - start);
@@ -2598,7 +2594,7 @@ uint8 wkz_brueckenbau_t::is_valid_pos(  spieler_t *sp, const koord3d &pos, const
 		// check whether we can build a bridge here
 		const char *error = NULL;
 		sint8 bridge_height;
- 		koord3d end = brueckenbauer_t::finde_ende(sp, start, koord(test), besch, error, bridge_height, false, koord_distance(start, pos));
+ 		koord3d end = brueckenbauer_t::finde_ende(sp, start, koord(test), besch, error, bridge_height, false, koord_distance(start, pos), is_ctrl_pressed());
 		if (end!=pos) {
 			return 0;
 		}
@@ -4415,7 +4411,8 @@ void wkz_roadsign_t::mark_tiles( spieler_t *sp, const koord3d &start, const koor
 				dummy_rs->set_dir(rs ? rs->get_dir() : (ribi_t::ribi)ribi_t::keine);
 				cost += rs ? (rs->get_besch()==besch ? 0  : besch->get_preis()+rs->get_besch()->get_preis()) : besch->get_preis();
 			}
-		} else if (s.remove_intermediate && rs && !rs->ist_entfernbar(sp)) {
+		}
+		else if (s.remove_intermediate && rs && !rs->ist_entfernbar(sp)) {
 				zeiger_t* zeiger = new zeiger_t(gr->get_pos(), sp );
 				marked.append(zeiger);
 				zeiger->set_bild( werkzeug_t::general_tool[WKZ_REMOVER]->cursor );
@@ -4553,13 +4550,15 @@ const char *wkz_roadsign_t::place_sign_intern( spieler_t *sp, grund_t* gr, const
 					}
 					// if nothing found, we have two ways again ...
 					rs->set_dir(dir);
-				} else {
+				}
+				else {
 					// add a new signal at position zero!
 					rs = new signal_t(sp, gr->get_pos(), dir, besch);
 					DBG_MESSAGE("wkz_roadsign()", "new signal, dir is %i", dir);
 					goto built_sign;
 				}
-			} else {
+			}
+			else {
 				// if there is already a sign, we might need to inverse the direction
 				rs = gr->find<roadsign_t>();
 				if (rs) {
