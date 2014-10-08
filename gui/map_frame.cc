@@ -503,7 +503,7 @@ bool map_frame_t::action_triggered( gui_action_creator_t *comp, value_t)
 		for(  int i=0;  i<MAP_MAX_BUTTONS;  i++  ) {
 			filter_buttons[i].pressed = (button_init[i].mode&env_t::default_mapmode)!=0;
 			filter_buttons[i].background_color = filter_buttons[i].pressed ? button_init[i].select_color : button_init[i].color;
-			filter_buttons[i].text_color = filter_buttons[i].pressed ? COL_WHITE : COL_BLACK;
+			filter_buttons[i].text_color = filter_buttons[i].pressed ? SYSCOL_TEXT_HIGHLIGHT : SYSCOL_TEXT;
 		}
 	}
 	return true;

@@ -8,6 +8,7 @@
 #include "dataobj/fahrplan.h"
 #include "dataobj/translator.h"
 #include "dataobj/loadsave.h"
+#include "gui/gui_theme.h"
 #include "player/simplay.h"
 #include "player/finance.h" // convert_money
 #include "vehicle/simvehikel.h"
@@ -389,7 +390,7 @@ void simline_t::recalc_status()
 {
 	if(financial_history[0][LINE_CONVOIS]==0) {
 		// noconvois assigned to this line
-		state_color = COL_WHITE;
+		state_color = SYSCOL_TEXT_HIGHLIGHT;
 		withdraw = false;
 	}
 	else if(financial_history[0][LINE_PROFIT]<0) {
@@ -412,7 +413,7 @@ void simline_t::recalc_status()
 	}
 	else {
 		// normal state
-		state_color = COL_BLACK;
+		state_color = SYSCOL_TEXT;
 	}
 }
 
