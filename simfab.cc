@@ -3310,10 +3310,10 @@ void fabrik_t::info_conn(cbuffer_t& buf) const
 				}
 
 				if (is_active_lieferziel(lieferziel)) {
-					buf.printf("\n      %s - %s (%d,%d)", translator::translate(fab->get_name()), distance_display, lieferziel.x, lieferziel.y);
+					buf.printf("\n      %s - %s (%d,%d)", fab->get_name(), distance_display, lieferziel.x, lieferziel.y);
 				}
 				else {
-					buf.printf("\n   %s - %s (%d,%d)", translator::translate(fab->get_name()), distance_display, lieferziel.x, lieferziel.y);
+					buf.printf("\n   %s - %s (%d,%d)", fab->get_name(), distance_display, lieferziel.x, lieferziel.y);
 				}
 			}
 		}
@@ -3343,10 +3343,10 @@ void fabrik_t::info_conn(cbuffer_t& buf) const
 				}
 				if(  src->is_active_lieferziel(get_pos().get_2d())  ) 
 				{
-					buf.printf("\n      %s - %s (%d,%d)", translator::translate(src->get_name()), distance_display, supplier.x, supplier.y);
+					buf.printf("\n      %s - %s (%d,%d)", src->get_name(), distance_display, supplier.x, supplier.y);
 				}
 				else {
-					buf.printf("\n   %s - %s (%d,%d)", translator::translate(src->get_name()), distance_display, supplier.x, supplier.y);
+					buf.printf("\n   %s - %s (%d,%d)", src->get_name(), distance_display, supplier.x, supplier.y);
 				}
 			}
 		}
