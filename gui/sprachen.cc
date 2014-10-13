@@ -166,8 +166,7 @@ sprachengui_t::sprachengui_t() :
 	// now set position
 	const uint32 count = buttons.get_count();
 	const scr_coord_val width = ((L_DIALOG_WIDTH - D_MARGINS_X - D_H_SPACE) >> 1);
-	for(uint32 i=0; i<count; i++)
-	{
+	for(uint32 i=0; i<count; i++) {
 		const bool right = (2*i >= count);
 		const scr_coord_val x = cursor.x + (right ? width + D_H_SPACE : 0);
 		const scr_coord_val y = cursor.y + (max(D_CHECKBOX_HEIGHT, LINESPACE) + D_V_SPACE) * (right ? i - (count + 1) / 2: i);
@@ -198,4 +197,11 @@ bool sprachengui_t::action_triggered( gui_action_creator_t *komp, value_t)
 
 	}
 	return true;
+}
+
+
+sprachengui_t::~sprachengui_t()
+{
+	// reload font
+	sprachengui_t::init_font_from_lang();
 }
