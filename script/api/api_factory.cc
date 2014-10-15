@@ -180,6 +180,11 @@ void export_factory(HSQUIRRELVM vm)
 	register_method(vm, &fabrik_t::get_name, "get_name");
 
 	/**
+	 * Change name.
+	 */
+	register_method(vm, &fabrik_t::set_name, "set_name");
+
+	/**
 	 * Get monthly statistics of production.
 	 * @returns array, index [0] corresponds to current month
 	 */
