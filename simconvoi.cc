@@ -1018,8 +1018,11 @@ bool convoi_t::drive_to()
 								// maybe we need to restore index
 								uint32 dummy2;
 								aircraft_t::flight_state dummy1;
-								uint32 new_search, new_landing;
-								plane->get_event_index( dummy1, dummy2, new_search, new_landing );
+								uint32 new_takeoff, new_search, new_landing;
+								plane->get_event_index( dummy1, new_takeoff, new_search, new_landing );
+								if(  takeoff == 0x7FFFFFFF  &&  new_takeoff != 0x7FFFFFFF  ) {
+									takeoff = new_takeoff + count_offset;
+								}
 								if(  landing == 0x7FFFFFFF  &&  new_landing != 0x7FFFFFFF  ) {
 									landing = new_landing + count_offset;
 								}
