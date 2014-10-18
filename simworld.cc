@@ -529,7 +529,12 @@ bool karte_t::get_height_data_from_file( const char *filename, sint8 grundwasser
 					int R = fgetc(file);
 					int G = fgetc(file);
 					int B = fgetc(file);
-					hfield[x+(y*w)] =  ((((R*2+G*3+B)/4 - 224)) & 0xFFF0)/16;
+					if(  env_t::pak_height_conversion_factor == 2  ) {
+						hfield[x+(y*w)] = (((R*2+G*3+B)/4 - 224) & 0xFFF8)/8;
+					}
+					else {
+						hfield[x+(y*w)] = (( ((R*2+G*3+B)/4 - 224)) & 0xFFF0)/16;
+					}
 				}
 			}
 
