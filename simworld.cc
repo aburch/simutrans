@@ -386,7 +386,12 @@ bool karte_t::get_height_data_from_file( const char *filename, sint8 grundwasser
 					int G = fgetc(file);
 					int R = fgetc(file);
 					fgetc(file);	// dummy
-					h_table[i] = (( ((R*2+G*3+B)/4 - 224)) & 0xFFF0)/16;
+					if(  env_t::pak_height_conversion_factor == 2  ) {
+						h_table[i] = (((R*2+G*3+B)/4 - 224) & 0xFFF8)/8;
+					}
+					else {
+						h_table[i] = (( ((R*2+G*3+B)/4 - 224)) & 0xFFF0)/16;
+					}
 				}
 				// now read the data
 				fseek( file, data_offset, SEEK_SET );
@@ -456,7 +461,12 @@ bool karte_t::get_height_data_from_file( const char *filename, sint8 grundwasser
 						int B = fgetc(file);
 						int G = fgetc(file);
 						int R = fgetc(file);
-						hfield[x+offset] = ((((R*2+G*3+B)/4 - 224)) & 0xFFF0)/16;
+						if(  env_t::pak_height_conversion_factor == 2  ) {
+							hfield[x+offset] = (((R*2+G*3+B)/4 - 224) & 0xFFF8)/8;
+						}
+						else {
+							hfield[x+offset] = (( ((R*2+G*3+B)/4 - 224)) & 0xFFF0)/16;
+						}
 					}
 					fseek( file, (4-((w*3)&3))&3, SEEK_CUR );	// skip superfluos bytes at the end of each scanline
 				}
