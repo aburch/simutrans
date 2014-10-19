@@ -86,13 +86,47 @@ public:
 	static bool ist_wegbar(typ x)  { return (flags[x] & (wegbar_ns | wegbar_ow)) != 0; }
 	static bool ist_wegbar_ns(typ x)  { return (flags[x] & wegbar_ns) != 0; }
 	static bool ist_wegbar_ow(typ x)  { return (flags[x] & wegbar_ow) != 0; }
-	static bool is_sloping_upwards(const typ slope, const sint16 relative_pos_x, const sint16 relative_pos_y)
+
+	// Knightly : check if the slope is upwards, relative to the previous tile
+	// returns 1 for single upwards and 2 for double upwards
+	static sint16 get_sloping_upwards(const typ slope, const sint16 relative_pos_x, const sint16 relative_pos_y)
 	{
-		// Knightly : check if the slope is upwards, relative to the previous tile
-		return (( relative_pos_y < 0  &&  (slope == nord  ||   slope == 2 * nord) )  ||
-				( relative_pos_y > 0  &&  (slope == sued  ||   slope == 2 * sued) )  ||
-				( relative_pos_x < 0  &&  (slope == west  ||   slope == 2 * west) )  ||
-				( relative_pos_x > 0  &&  (slope == ost   ||   slope == 2 * ost ) )  );
+		if(  relative_pos_y < 0  ) {
+			if(  slope == nord  ) {
+				return 1;
+			}
+			else if(  slope == 2 * nord  ) {
+				return 2;
+			}
+			return 0;
+		}
+		if(  relative_pos_y > 0  ) {
+			if(  slope == sued  ) {
+				return 1;
+			}
+			else if(  slope == 2 * sued  ) {
+				return 2;
+			}
+			return 0;
+		}
+		if(  relative_pos_x < 0  ) {
+			if(  slope == west  ) {
+				return 1;
+			}
+			else if(  slope == 2 * west  ) {
+				return 2;
+			}
+			return 0;
+		}
+		if(  relative_pos_x > 0  ) {
+			if(  slope == ost  ) {
+				return 1;
+			}
+			else if(  slope == 2 * ost  ) {
+				return 2;
+			}
+		}
+		return 0;
 	}
 };
 
