@@ -3,8 +3,10 @@
 
 #ifdef MULTI_THREAD
 
-#if _XOPEN_SOURCE < 600
-// enable barriers by this
+#if _XOPEN_SOURCE < 600 && !defined(__APPLE__)
+// On Posix systems, this enables barriers.
+// On OS X, barriers are not supported anyway, and defining this would
+// cause PTHREAD_RECURSIVE_MUTEX_INITIALIZER to not get defined.
 #define _XOPEN_SOURCE 600
 #endif
 
