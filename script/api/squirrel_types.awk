@@ -43,6 +43,7 @@ BEGIN {
 	export_types["factory_x::get_consumers"] = "array<coord>()"
 	export_types["factory_x::get_suppliers"] = "array<coord>()"
 	export_types["factory_x::get_name"] = "string()"
+	export_types["factory_x::set_name"] = "void(string)"
 	export_types["factory_x::get_production"] = "array<integer>()"
 	export_types["factory_x::get_power"] = "array<integer>()"
 	export_types["factory_x::get_boost_electric"] = "array<integer>()"
