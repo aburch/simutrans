@@ -353,6 +353,7 @@ bool interaction_t::process_event( event_t &ev )
 			bool old_restore_UI = env_t::restore_UI;
 			env_t::restore_UI = true;
 			world->save( fn, loadsave_t::save_mode, SERVER_SAVEGAME_VER_NR, false );
+			env_t::restore_UI = old_restore_UI;
 		}
 		return true;
 	}

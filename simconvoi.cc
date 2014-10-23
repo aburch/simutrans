@@ -1016,7 +1016,6 @@ bool convoi_t::drive_to()
 							route.append( &next_segment);
 							if(  plane  ) {
 								// maybe we need to restore index
-								uint32 dummy2;
 								aircraft_t::flight_state dummy1;
 								uint32 new_takeoff, new_search, new_landing;
 								plane->get_event_index( dummy1, new_takeoff, new_search, new_landing );
