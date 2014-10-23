@@ -1210,6 +1210,22 @@ sint32 haltestelle_t::rebuild_connections()
 }
 
 
+void haltestelle_t::rebuild_linked_connections()
+{
+	vector_tpl<halthandle_t> all; // all halts connected to this halt
+	for(  uint8 i=0;  i<warenbauer_t::get_max_catg_index();  i++  ){
+		vector_tpl<connection_t>& connections = all_links[i].connections;
+
+		FOR(vector_tpl<connection_t>, &c, connections) {
+			all.append_unique( c.halt );
+		}
+	}
+	FOR(vector_tpl<halthandle_t>, h, all) {
+		h->rebuild_connections();
+	}
+}
+
+
 void haltestelle_t::fill_connected_component(uint8 catg_idx, uint16 comp)
 {
 	if (all_links[catg_idx].catg_connected_component != UNDECIDED_CONNECTED_COMPONENT) {
@@ -2317,6 +2333,11 @@ void haltestelle_t::make_public_and_join( spieler_t *sp )
 			if(!halt->existiert_in_welt()) {
 				// transfer goods
 				halt->transfer_goods(self);
+
+				// rebuild connections of all linked halts
+				// otherwise these halts would lose connections and freight might get lost
+				// (until complete rebuild_connections task is finished)
+				halt->rebuild_linked_connections();
 
 				destroy(halt);
 			}

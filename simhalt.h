@@ -415,6 +415,12 @@ public:
 	 */
 	sint32 rebuild_connections();
 
+	/**
+	 * Rebuilds connections of all halts connected to this halt.
+	 * Prepares deletion of this halt without losing connections and routed freight.
+	 */
+	void rebuild_linked_connections();
+
 	uint8 get_reconnect_counter() const  { return reconnect_counter; }
 
 	void rotate90( const sint16 y_size );
