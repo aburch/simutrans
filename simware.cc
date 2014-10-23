@@ -14,6 +14,7 @@
 #include "simhalt.h"
 #include "simtypes.h"
 #include "simware.h"
+#include "simworld.h"
 #include "dataobj/loadsave.h"
 #include "dataobj/koord.h"
 
@@ -175,4 +176,18 @@ void ware_t::update_factory_target()
 			zielpos = fab->get_pos().get_2d();
 		}
 	}
+}
+
+
+sint64 ware_t::calc_revenue(const ware_besch_t* besch, waytype_t wt, sint32 speedkmh)
+{
+	static karte_ptr_t welt;
+
+	const sint32 ref_kmh = welt->get_average_speed( wt );
+	const sint32 kmh_base = (100 * speedkmh) / ref_kmh - 100;
+
+	const sint32 grundwert128    = welt->get_settings().get_bonus_basefactor(); // minimal bonus factor
+	const sint32 grundwert_bonus = 1000+kmh_base*besch->get_speed_bonus();      // speed bonus factor
+	// take the larger of both
+	return besch->get_preis() * (grundwert128 > grundwert_bonus ? grundwert128 : grundwert_bonus);
 }

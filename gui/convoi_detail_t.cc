@@ -19,6 +19,7 @@
 #include "../simcolor.h"
 #include "../display/simgraph.h"
 #include "../simworld.h"
+#include "../simware.h"
 #include "../gui/simwin.h"
 
 #include "../dataobj/fahrplan.h"
@@ -235,9 +236,7 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 		cbuffer_t buf;
 
 		// for bonus stuff
-		const sint32 ref_kmh = welt->get_average_speed( cnv->front()->get_waytype() );
 		const sint32 cnv_kmh = (cnv->front()->get_waytype() == air_wt) ? speed_to_kmh(cnv->get_min_top_speed()) : cnv->get_speedbonus_kmh();
-		const sint32 kmh_base = (100 * cnv_kmh) / ref_kmh - 100;
 
 		static cbuffer_t freight_info;
 		for(unsigned veh=0;  veh<cnv->get_vehikel_anzahl(); veh++ ) {
@@ -293,9 +292,7 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 
 				// bonus stuff
 				int len = 5+display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, translator::translate("Max income:"), ALIGN_LEFT, SYSCOL_TEXT, true );
-				const sint32 grundwert128 = v->get_fracht_typ()->get_preis() * welt->get_settings().get_bonus_basefactor();	// bonus price will be always at least this
-				const sint32 grundwert_bonus = v->get_fracht_typ()->get_preis()*(1000l+kmh_base*v->get_fracht_typ()->get_speed_bonus());
-				const sint32 price = (v->get_fracht_max()*(grundwert128>grundwert_bonus ? grundwert128 : grundwert_bonus))/3000 - v->get_betriebskosten();
+				const sint32 price = (v->get_fracht_max()* ware_t::calc_revenue(v->get_fracht_typ(), cnv->front()->get_waytype(), cnv_kmh) )/3000 - v->get_betriebskosten();
 				money_to_string( number, price/100.0 );
 				display_proportional_clip( pos.x+w+offset.x+len, pos.y+offset.y+total_height+extra_y, number, ALIGN_LEFT, price>0?MONEY_PLUS:MONEY_MINUS, true );
 				extra_y += LINESPACE;

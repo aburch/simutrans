@@ -114,6 +114,15 @@ public:
 	 * Must be called after factories have been rotated!
 	 */
 	void rotate90( sint16 y_size );
+
+	/**
+	 * Calculates transport revenue per tile and freight unit.
+	 * Takes speedbonus into account!
+	 * @param besch the freight
+	 * @param wt waytype of vehicle
+	 * @param speedkmh actual achieved speed in km/h
+	 */
+	static sint64 calc_revenue(const ware_besch_t* besch, waytype_t wt, sint32 speedkmh);
 };
 
 #endif

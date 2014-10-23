@@ -1254,70 +1254,57 @@ sint64 vehikel_t::calc_gewinn(koord start, koord end) const
 		return 0;
 	}
 
-	//const long dist = abs(end.x - start.x) + abs(end.y - start.y);
-	const sint32 ref_kmh = welt->get_average_speed( get_besch()->get_waytype() );
-
-	// kmh_base = lesser of min_top_speed, power limited top speed, and average way speed limits on trip, except aircraft which are not power limited and don't have speed limits
+	// cnv_kmh = lesser of min_top_speed, power limited top speed, and average way speed limits on trip, except aircraft which are not power limited and don't have speed limits
 	sint32 cnv_kmh = cnv->get_speedbonus_kmh();
-	const sint32 kmh_base = (100 * cnv_kmh) / ref_kmh - 100;
 
 	sint64 value = 0;
 
-	if(  welt->get_settings().get_pay_for_total_distance_mode() == settings_t::TO_DESTINATION  ) {
-		// pay only the distance, we get closer to our destination
-		FOR(slist_tpl<ware_t>, const& ware, fracht) {
-			if(  ware.menge==0  ) {
-				continue;
-			}
+	// cache speedbonus price
+	const ware_besch_t* last_freight = NULL;
+	sint64 freight_revenue = 0;
 
-			// now only use the real gain in difference for the revenue (may as well be negative!)
-			const koord &zwpos = ware.get_zielpos();
-			// cast of koord_distance to sint32 is necessary otherwise the r-value would be interpreted as unsigned, leading to overflows
-			const sint32 dist = (sint32)koord_distance( zwpos, start ) - (sint32)koord_distance( end, zwpos );
-
-			const sint32 grundwert128 = ware.get_besch()->get_preis() * welt->get_settings().get_bonus_basefactor();	// bonus price will be always at least this
-			const sint32 grundwert_bonus = (ware.get_besch()->get_preis()*(1000+kmh_base*ware.get_besch()->get_speed_bonus()));
-			const sint64 price = (sint64)(grundwert128>grundwert_bonus ? grundwert128 : grundwert_bonus) * (sint64)dist * (sint64)ware.menge;
-
-			// sum up new price
-			value += price;
-		}
-	} else if (welt->get_settings().get_pay_for_total_distance_mode() == settings_t::TO_TRANSFER) {
-		// pay distance traveled to next transfer stop
-		FOR(slist_tpl<ware_t>, const& ware, fracht) {
-			if(ware.menge==0  ||  !ware.get_zwischenziel().is_bound()) {
-				continue;
-			}
-
-			// now only use the real gain in difference for the revenue (may as well be negative!)
-			const koord &zwpos = ware.get_zwischenziel()->get_basis_pos();
-			// cast of koord_distance to sint32 is necessary otherwise the r-value would be interpreted as unsigned, leading to overflows
-			const sint32 dist = (sint32)koord_distance( zwpos, start ) - (sint32)koord_distance( end, zwpos );
-
-			const sint32 grundwert128 = ware.get_besch()->get_preis() * welt->get_settings().get_bonus_basefactor();	// bonus price will be always at least this
-			const sint32 grundwert_bonus = (ware.get_besch()->get_preis()*(1000+kmh_base*ware.get_besch()->get_speed_bonus()));
-			const sint64 price = (sint64)(grundwert128>grundwert_bonus ? grundwert128 : grundwert_bonus) * (sint64)dist * (sint64)ware.menge;
-
-			// sum up new price
-			value += price;
-		}
-	}
-	else {
+	sint32 dist = 0;
+	if(  welt->get_settings().get_pay_for_total_distance_mode() == settings_t::TO_PREVIOUS  ) {
 		// pay distance traveled
-		const long dist = koord_distance( start, end );
-		FOR(slist_tpl<ware_t>, const& ware, fracht) {
-			if(ware.menge==0  ||  !ware.get_zwischenziel().is_bound()) {
-				continue;
-			}
+		dist = koord_distance( start, end );
+	}
 
-			// now only use the real gain in difference for the revenue (may as well be negative!)
-			const sint32 grundwert128 = ware.get_besch()->get_preis() * welt->get_settings().get_bonus_basefactor();	// bonus price will be always at least this
-			const sint32 grundwert_bonus = (ware.get_besch()->get_preis()*(1000+kmh_base*ware.get_besch()->get_speed_bonus()));
-			const sint64 price = (sint64)(grundwert128>grundwert_bonus ? grundwert128 : grundwert_bonus) * (sint64)dist * (sint64)ware.menge;
-
-			// sum up new price
-			value += price;
+	FOR(slist_tpl<ware_t>, const& ware, fracht) {
+		if(  ware.menge==0  ) {
+			continue;
 		}
+		// which distance will be paid?
+		switch(welt->get_settings().get_pay_for_total_distance_mode()) {
+			case settings_t::TO_TRANSFER: {
+				// pay distance traveled to next transfer stop
+
+				// now only use the real gain in difference for the revenue (may as well be negative!)
+				const koord &zwpos = ware.get_zwischenziel().is_bound()? ware.get_zwischenziel()->get_basis_pos() : end;
+				// cast of koord_distance to sint32 is necessary otherwise the r-value would be interpreted as unsigned, leading to overflows
+				dist = (sint32)koord_distance( zwpos, start ) - (sint32)koord_distance( end, zwpos );
+				break;
+			}
+			case settings_t::TO_DESTINATION: {
+				// pay only the distance, we get closer to our destination
+
+				// now only use the real gain in difference for the revenue (may as well be negative!)
+				const koord &zwpos = ware.get_zielpos();
+				// cast of koord_distance to sint32 is necessary otherwise the r-value would be interpreted as unsigned, leading to overflows
+				dist = (sint32)koord_distance( zwpos, start ) - (sint32)koord_distance( end, zwpos );
+				break;
+			}
+			default: ; // no need to recompute
+		}
+
+		// calculate freight revenue incl. speed-bonus
+		if (ware.get_besch() != last_freight) {
+			freight_revenue = ware_t::calc_revenue(ware.get_besch(), get_besch()->get_waytype(), cnv_kmh);
+			last_freight = ware.get_besch();
+		}
+		const sint64 price = freight_revenue * (sint64)dist * (sint64)ware.menge;
+
+		// sum up new price
+		value += price;
 	}
 
 	// Hajo: Rounded value, in cents
