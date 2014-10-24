@@ -175,10 +175,14 @@ function recursive_save(table, indent, table_stack)
 				break
 			case "array":
 			case "table":
-				if (!(val in table_stack)) {
+				if (!table_stack.find(val)) {
 						table_stack.push( table )
 						str += recursive_save(val, indent + "\t", table_stack )
 						table_stack.pop()
+				}
+				else {
+					// cyclic reference - good luck with resolving
+					str += "null"
 				}
 				break
 			case "instance":
