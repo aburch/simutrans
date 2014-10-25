@@ -763,7 +763,7 @@ bool gebaeude_t::is_monument() const
 
 bool gebaeude_t::is_headquarter() const
 {
-	return tile->get_desc()->is_headquarter();
+	return tile->get_desc()->is_headquarters();
 }
 
 bool gebaeude_t::is_attraction() const
