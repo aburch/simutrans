@@ -263,6 +263,9 @@ public:
 
 	bool is_connected_with_town() const;
 
+	/// @returns headquarter level (or -1 if building is not headquarter)
+	int get_headquarter_level() const  { return (ist_firmensitz() ? get_extra() : -1) ; }
+
 	/**
 	* the level is used in many places: for price, for capacity, ...
 	* @author Hj. Malthaner
