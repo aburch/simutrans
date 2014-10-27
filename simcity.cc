@@ -2345,7 +2345,8 @@ void stadt_t::check_bau_rathaus(bool new_town)
 			bauer.route_fuer(wegbauer_t::strasse | wegbauer_t::terraform_flag, welt->get_city_road());
 			bauer.calc_route(welt->lookup_kartenboden(alte_str)->get_pos(), welt->lookup_kartenboden(townhall_road)->get_pos());
 			bauer.baue();
-		} else if (neugruendung) {
+		}
+		else if (neugruendung) {
 			lo = best_pos+offset - koord(2, 2);
 			ur = best_pos+offset + koord(besch->get_b(layout), besch->get_h(layout)) + koord(2, 2);
 		}

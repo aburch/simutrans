@@ -3837,6 +3837,7 @@ DBG_MESSAGE("wkz_halt_aux()", "building %s on square %d,%d for waytype %x", besc
 
 	halthandle_t old_halt = bd->get_halt();
 	sint64 old_cost = 0;
+	bool recalc_schedule = false;
 
 	halthandle_t halt;
 
@@ -3854,6 +3855,9 @@ DBG_MESSAGE("wkz_halt_aux()", "building %s on square %d,%d for waytype %x", besc
 		gb->entferne( NULL );
 		delete gb;
 		halt = old_halt;
+		if(  old_besch->get_enabled() != besch->get_enabled()  ) {
+			recalc_schedule = true;
+		}
 	}
 	else {
 		halt = suche_nahe_haltestelle(sp,welt,bd->get_pos());
@@ -3892,6 +3896,12 @@ DBG_MESSAGE("wkz_halt_aux()", "building %s on square %d,%d for waytype %x", besc
 		// since we are larger now ...
 		halt->mark_unmark_coverage( true );
 	}
+
+	// the new station (after upgrading) might accept different goods => needs new schedule
+	if(  recalc_schedule  ) {
+		welt->set_schedule_counter();
+	}
+
 	return NULL;
 }
 
