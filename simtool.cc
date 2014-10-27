@@ -4922,6 +4922,7 @@ DBG_MESSAGE("tool_halt_aux()", "building %s on square %d,%d for waytype %x", des
 
 	halthandle_t old_halt = bd->get_halt();
 	sint64 old_cost = 0;
+	bool recalc_schedule = false;
 
 	halthandle_t halt;
 
@@ -4970,6 +4971,9 @@ DBG_MESSAGE("tool_halt_aux()", "building %s on square %d,%d for waytype %x", des
 			gb->cleanup( NULL );
 			delete gb;
 			halt = old_halt;
+			if(  old_desc->get_enabled() != desc->get_enabled()  ) {
+				recalc_schedule = true;
+			}
 		}
 	}
 	else {
@@ -5064,6 +5068,12 @@ DBG_MESSAGE("tool_halt_aux()", "building %s on square %d,%d for waytype %x", des
 		// since we are larger now ...
 		halt->mark_unmark_coverage( true );
 	}
+
+	// the new station (after upgrading) might accept different goods => needs new schedule
+	if(  recalc_schedule  ) {
+		welt->set_schedule_counter();
+	}
+
 	return NULL;
 }
 
