@@ -304,8 +304,8 @@ void hausbauer_t::remove( spieler_t *sp, gebaeude_t *gb )
 	koord size = tile->get_besch()->get_groesse( layout );
 	koord k;
 
-	if(tile->get_besch()->get_utyp()==haus_besch_t::firmensitz) {
-		gb->get_besitzer()->add_headquarter( tile->get_besch()->get_extra(), koord::invalid );
+	if(  tile->get_besch()->get_utyp() == haus_besch_t::firmensitz  ) {
+		gb->get_besitzer()->add_headquarter( 0, koord::invalid );
 	}
 	if(tile->get_besch()->get_utyp()==haus_besch_t::denkmal) {
 		ungebaute_denkmaeler.append_unique(tile->get_besch());

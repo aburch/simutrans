@@ -553,7 +553,7 @@ void money_frame_t::draw(scr_coord pos, scr_size size)
 	}
 
 	if(old_level!=sp->get_headquarter_level()  ||  old_pos!=sp->get_headquarter_pos()) {
-		if(  sp->get_ai_id()!=spieler_t::HUMAN  ) {
+		if(  sp->get_ai_id() == spieler_t::HUMAN  ) {
 			headquarter.set_text( sp->get_headquarter_pos()!=koord::invalid ? "upgrade HQ" : "build HQ" );
 		}
 		remove_component(&headquarter_view);
