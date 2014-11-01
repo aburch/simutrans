@@ -2055,28 +2055,33 @@ bool automobil_t::ist_weg_frei(int &restart_speed, bool second_check)
 
 		// first: check roadsigns
 		const roadsign_t *rs = NULL;
-		if(str->has_sign()) {
+		if(  str->has_sign()  ) {
 			rs = gr->find<roadsign_t>();
 			route_t const& r = *cnv->get_route();
 
-			if(rs  &&  (route_index+1u < r.get_count())) {
-				// route position after road sign
-				koord3d pos_next_next = r.position_bei(route_index + 1u);
+			if(  rs  &&  (route_index + 1u < r.get_count())  ) {
 				// since at the corner, our direction may be diagonal, we make it straight
-				const uint8 richtung = ribi_typ(pos_next, pos_next_next);
+				uint8 richtung = ribi_typ( get_pos().get_2d(), pos_next.get_2d() );
 
-				if(rs->get_besch()->is_traffic_light()  &&  (rs->get_dir()&richtung)==0) {
+				if(  rs->get_besch()->is_traffic_light()  &&  (rs->get_dir()&richtung) == 0  ) {
 					// wait here
 					restart_speed = 16;
 					return false;
 				}
 				// check, if we reached a choose point
-				else if(  rs->is_free_route(richtung)  &&  !target_halt.is_bound()  ) {
-					if(  second_check  ) {
-						return false;
-					}
-					if(  !choose_route( restart_speed, richtung, route_index )  ) {
-						return false;
+				else {
+					// route position after road sign
+					const koord pos_next_next = r.position_bei(route_index + 1u).get_2d();
+					// since at the corner, our direction may be diagonal, we make it straight
+					richtung = ribi_typ( pos_next.get_2d(), pos_next_next );
+
+					if(  rs->is_free_route(richtung)  &&  !target_halt.is_bound()  ) {
+						if(  second_check  ) {
+							return false;
+						}
+						if(  !choose_route( restart_speed, richtung, route_index )  ) {
+							return false;
+						}
 					}
 				}
 			}
