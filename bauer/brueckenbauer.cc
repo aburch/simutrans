@@ -304,7 +304,7 @@ koord3d brueckenbauer_t::finde_ende(spieler_t *sp, koord3d pos, const koord zv, 
 	const hang_t::typ slope = gr2->get_weg_hang();
 	const sint8 start_height = gr2->get_hoehe() + hang_t::max_diff(slope);
 	sint8 min_bridge_height = start_height; /* was  + (slope==0) */
-	sint8 min_height = start_height - (1+besch->has_double_ramp()); // + (slope==0);
+	sint8 min_height = start_height - (1+besch->has_double_ramp()) + (slope==0);
 	sint8 max_height = start_height + (slope ? 0 : (1+besch->has_double_ramp()));
 
 	// when a bridge starts on an elevated way, only downwards ramps are allowed
