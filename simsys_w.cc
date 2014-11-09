@@ -95,7 +95,13 @@ static void create_window(DWORD const ex_style, DWORD const style, int const x, 
 {
 	RECT r = { 0, 0, w, h };
 	AdjustWindowRectEx(&r, style, false, ex_style);
-	hwnd = CreateWindowExA(ex_style, "Simu", SIM_TITLE, style, x, y, r.right - r.left, r.bottom - r.top, 0, 0, hInstance, 0);
+
+	// Convert char* string to a wchar_t* string.
+	WCHAR *wSIM_TITLE = new wchar_t[lengthof(SIM_TITLE)];
+	size_t convertedChars = 0;
+	mbstowcs_s(&convertedChars, wSIM_TITLE, lengthof(SIM_TITLE), SIM_TITLE, _TRUNCATE);
+
+	hwnd = CreateWindowExW(ex_style, L"Simu", wSIM_TITLE, style, x, y, r.right - r.left, r.bottom - r.top, 0, 0, hInstance, 0);
 	ShowWindow(hwnd, SW_SHOW);
 	SetTimer( hwnd, 0, 1111, NULL );	// HACK: so windows thinks we are not dead when processing a timer every 1111 ms ...
 }
