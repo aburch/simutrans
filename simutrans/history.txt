@@ -1,3 +1,7 @@
+	FIX: waypoints on runways to force certain runways for planes work finally (hopefully)
+	FIX: some bridge starting on flat tile going done were not correct
+
+
 Release of 120.0: (r7175 on 28-Apr-2014):
 	CHG: zoom with mouse wheel zooms to the cursor position, not to the center of screen as it used to
 	CHG: system events management rearranged, simutrans should more responsive to user events, specially on low framerates
