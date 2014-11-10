@@ -99,7 +99,7 @@ static void create_window(DWORD const ex_style, DWORD const style, int const x, 
 	// Try with a wide character window; need the title with full width
 	WCHAR *wSIM_TITLE = new wchar_t[lengthof(SIM_TITLE)];
 	size_t convertedChars = 0;
-	mbstowcs_s(&convertedChars, wSIM_TITLE, lengthof(SIM_TITLE), SIM_TITLE, _TRUNCATE);
+	mbstowcs( wSIM_TITLE, SIM_TITLE, lengthof(SIM_TITLE) );
 	hwnd = CreateWindowExW(ex_style, L"Simu", wSIM_TITLE, style, x, y, r.right - r.left, r.bottom - r.top, 0, 0, hInstance, 0);
 
 	ShowWindow(hwnd, SW_SHOW);
