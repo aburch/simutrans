@@ -112,19 +112,28 @@ ifneq ($(PROFILE),)
 endif
 
 ifneq ($(MULTI_THREAD),)
-  CFLAGS += -DMULTI_THREAD
-  ifeq ($(OSTYPE),mingw)
+  ifeq ($(shell expr $(MULTI_THREAD) \>= 1), 1)
+    CFLAGS += -DMULTI_THREAD
+    ifeq ($(OSTYPE),mingw)
 #use lpthreadGC2d for debug alternatively
-    LDFLAGS += -lpthreadGC2
-  else
-    LDFLAGS += -lpthread
+      LDFLAGS += -lpthreadGC2
+    else
+      LDFLAGS += -lpthread
+    endif
   endif
 endif
 
+
 ifneq ($(WITH_REVISION),)
-  REV = $(shell svnversion)
-  ifneq ($(REV),)
-    CFLAGS  += -DREVISION="$(REV)"
+  ifeq ($(shell expr $(WITH_REVISION) \>= 1), 1)
+    ifeq ($(shell expr $(WITH_REVISION) \>= 2), 1)
+      REV = $(WITH_REVISION)
+    else
+      REV = $(shell svnversion)
+    endif
+    ifneq ($(REV),)
+      CFLAGS  += -DREVISION="$(REV)"
+    endif
   endif
 endif
 
