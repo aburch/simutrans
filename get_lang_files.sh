@@ -36,12 +36,12 @@ else
         exit 6
     fi
 fi
-unzip -tv "language_pack-Base+texts.zip" || {
+unzip -otv "language_pack-Base+texts.zip" || {
    echo "Error: file language_pack-Base+texts.zip seems to be defective" >&2
    rm -f "language_pack-Base+texts.zip"
    exit 5
 }
-unzip "language_pack-Base+texts.zip"
+unzip -o "language_pack-Base+texts.zip"
 rm language_pack-Base+texts.zip
 # remove Chris English (may become british ... )
 rm ce.tab
