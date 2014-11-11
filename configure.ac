@@ -23,11 +23,6 @@ AC_CHECK_LIB(SDL2, SDL_GetRenderDriverInfo)
 AC_CHECK_LIB(SDL, SDL_Init)
 AC_CHECK_LIB(allegro, get_desktop_resolution)
 
-# ... and headers
-AC_LANG_PUSH(Objective C++)
-AC_CHECK_HEADERS(QTKit/QTMovie.h)
-AC_LANG_POP(Objective C++)
-
 AC_CHECK_HEADERS(windows.h)
 AC_CHECK_HEADERS(LocaleRoster.h)
 
@@ -41,6 +36,9 @@ then
 	AC_SUBST(os_type, haiku)
 elif uname |grep "Darwin"
 then
+	AC_LANG_PUSH(Objective C++)
+	AC_CHECK_HEADERS(QTKit/QTMovie.h)
+	AC_LANG_POP(Objective C++)
 	AC_SUBST(os_type, mac)
 elif uname | grep "Linux"
 then
