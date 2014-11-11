@@ -150,7 +150,6 @@ ifneq ($(MULTI_THREAD),)
   endif
 endif
 
-
 ifneq ($(WITH_REVISION),)
   ifeq ($(shell expr $(WITH_REVISION) \>= 1), 1)
     ifeq ($(shell expr $(WITH_REVISION) \>= 2), 1)
