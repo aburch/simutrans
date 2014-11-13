@@ -736,6 +736,12 @@ gebaeude_t *hausbauer_t::build_station_extension_depot(player_t *player, koord3d
 			if(gr_tmp && gr_tmp->get_weg_yoff()/TILE_HEIGHT_STEP == 1) {
 				gr = gr_tmp;
 			}
+			else {
+				gr_tmp = welt->lookup( pos+koord3d( (layout & 1 ? koord::east : koord::south),offset - 1) );
+				if(gr_tmp && gr_tmp->get_weg_yoff()/TILE_HEIGHT_STEP == 1) {
+					gr = gr_tmp;
+				}
+			}
 		}
 
 		if(gr) {
@@ -771,9 +777,15 @@ gebaeude_t *hausbauer_t::build_station_extension_depot(player_t *player, koord3d
 		gr = welt->lookup( pos+koord3d( (layout & 1 ? koord::west :  koord::north), offset) );
 		if(!gr) {
 			// check whether bridge end tile
-			grund_t * gr_tmp = welt->lookup( pos+koord3d( (layout & 1 ? koord::west :  koord::north),offset - 1) );
+			grund_t * gr_tmp = welt->lookup( pos+koord3d( (layout & 1 ? koord::east :  koord::south),offset - 1) );
 			if(gr_tmp && gr_tmp->get_weg_yoff()/TILE_HEIGHT_STEP == 1) {
 				gr = gr_tmp;
+			}
+			else {
+				gr_tmp = welt->lookup( pos+koord3d( (layout & 1 ? koord::east : koord::south),offset - 1) );
+				if(gr_tmp && gr_tmp->get_weg_yoff()/TILE_HEIGHT_STEP == 1) {
+					gr = gr_tmp;
+				}
 			}
 		}
 		if(gr) {
