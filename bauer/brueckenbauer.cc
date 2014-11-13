@@ -193,7 +193,7 @@ const char *check_tile( const grund_t *gr, const spieler_t *sp, waytype_t wt, ri
 
 		if(  w->get_waytype() != wt  ) {
 			// now check for perpendicular and crossing
-			if(  (ribi_t::doppelt(ribi) ^ ribi_t::doppelt(check_ribi) ) == ribi_t::alle  &&  crossing_logic_t::get_crossing(wt, w->get_waytype(), 0, 0, 0)  ) {
+			if(  (ribi_t::doppelt(ribi) ^ ribi_t::doppelt(check_ribi) ) == ribi_t::alle  &&  crossing_logic_t::get_crossing(wt, w->get_waytype(), 0, 0, sp->get_welt()->get_timeline_year_month()  )  ) {
 				return NULL;
 			}
 			return "A bridge must start on a way!";
