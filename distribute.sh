@@ -30,9 +30,9 @@ elif [ $OST = "mingw" ]; then
   SDLTEST=${SDLTEST/\#.*/}
   SDLTEST=${SDLTEST/ /}
   if [ "$SDLTEST" == "sdl" ]  ||  [ "$SDLTEST" == "sdl2" ]; then
-    simarchivbase=simuwin
-  else
     simarchivbase=simuwin-sdl
+  else
+    simarchivbase=simuwin
 # Missing: Copy matching SDL dll!
   fi
   updatepath="/nsis/"
