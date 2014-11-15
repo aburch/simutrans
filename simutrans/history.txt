@@ -1,5 +1,8 @@
+Release of 120.0.1: (r7373 on 15-Nov-2014):
 	FIX: waypoints on runways to force certain runways for planes work finally (hopefully)
 	FIX: some bridge starting on flat tile going done were not correct
+	FIX: Unicode input under Windows 8
+	FIX: lot of issues with new landscape code
 
 
 Release of 120.0: (r7175 on 28-Apr-2014):
