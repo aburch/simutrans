@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2001 Hansjörg Malthaner
+ * Copyright (c) 2001 HansjÃ¶rg Malthaner
  *
  * This file is part of the Simutrans project under the artistic license.
  */

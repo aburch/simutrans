@@ -30,7 +30,7 @@ enum line_cost_t {
 	LINE_OPERATIONS,			//  5 | 4 | the cost of operations this line generated
 	LINE_PROFIT,				//  6 | 5 | total profit of line
 	LINE_CONVOIS,				//  7 | 2 | number of convois for this line
-	LINE_DISTANCE,				//  8 | 6 | distance converd by all convois
+	LINE_DISTANCE,				//  8 | 6 | distance covered by all convois
 	LINE_REFUNDS,				//  9 |   | Total refunds paid to passengers/goods owners desiring to use this line but kept waiting too long to do so.
 	LINE_DEPARTURES,			// 10 |   | number of departures of convoys on this line from scheduled points
 	LINE_DEPARTURES_SCHEDULED,	// 11 |   | number of departures scheduled on this line from scheduled departure points

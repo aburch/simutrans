@@ -55,7 +55,7 @@ enum city_cost {
 	HIST_MAIL_TRANSPORTED,	// letters that could be sent
 	HIST_MAIL_GENERATED,	// all letters generated
 	HIST_GOODS_RECIEVED,	// times all storages were not empty
-	HIST_GOODS_NEEDED,		// times sotrages checked
+	HIST_GOODS_NEEDED,		// times storages checked
 	HIST_POWER_RECIEVED,	// power consumption
 	HIST_POWER_NEEDED,		// Power demand by the city.
 	HIST_CONGESTION,		// Level of congestion in the city, expressed in percent.
@@ -340,7 +340,7 @@ public:
 
 	void add_all_buildings_to_world_list();
 
-	/* end of history related thingies */
+	/* end of history related things */
 private:
 	sint32 best_haus_wert;
 	sint32 best_strasse_wert;
@@ -400,7 +400,7 @@ private:
 	void bewerte_res_com_ind(const koord pos, int &ind, int &com, int &res);
 
 	/**
-	 * Build/renovates a city building at Planquadrat x,y
+	 * Build/renovates a city building at Planquadrat (tile) x,y
 	 */
 	void build_city_building(koord pos, bool new_town, bool map_generation);
 	bool renovate_city_building(gebaeude_t *gb, bool map_generation = false);
@@ -534,8 +534,7 @@ public:
 	sint32 get_homeless()   const { return bev - won; }
 
 	/**
-	 * Gibt den Namen der City zurück.
-	 * "Specifies the name of the town." (Google)
+	 * Return the city name.
 	 * @author Hj. Malthaner
 	 */
 	const char *get_name() const { return name; }
