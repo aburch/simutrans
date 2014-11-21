@@ -6,7 +6,7 @@
  *
  * All moving stuff (vehikel_basis_t) and all player vehicle (derived from vehikel_t)
  *
- * 01.11.99  getrennt von simobj.cc
+ * 01.11.99  Moved from simobj.cc
  *
  * Hansjoerg Malthaner, Nov. 1999
  */
@@ -678,7 +678,7 @@ void vehikel_t::set_convoi(convoi_t *c)
 	assert(  c==NULL  ||  cnv==NULL  ||  cnv==(convoi_t *)1  ||  c==cnv);
 	cnv = c;
 	if(cnv) {
-		// we need to reestablish the finish flag after loading
+		// we need to re-establish the finish flag after loading
 		if(ist_erstes) {
 			route_t const& r = *cnv->get_route();
 			check_for_finish = r.empty() || route_index >= r.get_count() || get_pos() == r.position_bei(route_index);
@@ -739,7 +739,7 @@ uint16 vehikel_t::unload_freight(halthandle_t halt)
 					//			   via_halt->get_name(),
 					//			   halt->get_name());
 
-					// hier sollte nur ordentliche ware verabeitet werden
+					// here, only ordinary goods should be processed
 					int menge = halt->liefere_an(tmp);
 					sum_menge += menge;
 					total_freight -= menge;
@@ -1070,10 +1070,10 @@ bool vehikel_t::hop_check()
 		// mit der spaeter weitergefahren wird
 		if(!ist_weg_frei(restart_speed,false)) {
 
-			// convoi anhalten, wenn strecke nicht frei
+			// stop convoi, when the way is not free
 			cnv->warten_bis_weg_frei(restart_speed);
 
-			// nicht weiterfahren
+			// don't continue
 			return false;
 		}
 	}
@@ -2798,7 +2798,7 @@ bool waggon_t::is_weg_frei_signal( uint16 next_block, int &restart_speed )
 		return is_weg_frei_choose_signal( sig, next_block, restart_speed );
 	}
 
-	dbg->error( "waggon_t::is_weg_frei_signal()", "falled through at signal at %s", cnv->get_route()->position_bei(next_block).get_str() );
+	dbg->error( "waggon_t::is_weg_frei_signal()", "felt through at signal at %s", cnv->get_route()->position_bei(next_block).get_str() );
 	return false;
 }
 
@@ -3401,7 +3401,7 @@ bool aircraft_t::find_route_to_stop_position()
 		// calculate route to free position:
 
 		// if we fail, we will wait in a step, much more simulation friendly
-		// and the route finder is not reentrant!
+		// and the route finder is not re-entrant!
 		if(!cnv->is_waiting()) {
 			target_halt = halthandle_t();
 			return false;
@@ -3855,7 +3855,7 @@ bool aircraft_t::ist_weg_frei( int & restart_speed, bool )
 	if(route_index==suchen  &&  state==landing  &&  !target_halt.is_bound()) {
 
 		// if we fail, we will wait in a step, much more simulation friendly
-		// and the route finder is not reentrant!
+		// and the route finder is not re-entrant!
 		if(!cnv->is_waiting()) {
 			return false;
 		}

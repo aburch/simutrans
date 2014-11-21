@@ -316,7 +316,7 @@ public:
 	virtual const char *ist_entfernbar(const spieler_t *sp);
 
 	/**
-	 * Draw backgroung image of object
+	 * Draw background image of object
 	 * (everything that could be potentially behind vehicles)
 	 */
 #ifdef MULTI_THREAD

@@ -70,8 +70,8 @@ spieler_t::spieler_t(karte_t *wl, uint8 nr) :
 	welt = wl;
 	player_nr = nr;
 	player_age = 0;
-	automat = false;		// Start nicht als automatischer Spieler
-	locked = false;	/* allowe to change anything */
+	automat = false;		// Don't start as an AI player
+	locked = false;			// allowed to change anything
 	unlock_pending = false;
 
 	headquarter_pos = koord::invalid;
@@ -320,7 +320,7 @@ bool spieler_t::neuer_monat()
 
 	simlinemgmt.new_month();
 
-	// Bankrott ?
+	// Bankrupt ?
 	if(  finance->get_account_balance() < 0  ) {
 		finance->increase_account_overdrawn();
 		if(  !welt->get_settings().is_freeplay()  &&  player_nr != 1  ) {
@@ -345,14 +345,14 @@ bool spieler_t::neuer_monat()
 			// no assets => nothing to go bankrupt about again
 			else if(  finance->get_maintenance(TT_ALL) != 0  ||  finance->has_convoi()  ) {
 
-				// for AI, we only declare bankrupt, if total assest are below zero
+				// for AI, we only declare bankrupt, if total assets are below zero
 				if(  finance->get_netwealth() < 0  ) {
 					return false;
 				}
 				// tell the current player (even during networkgames)
 				if(  welt->get_active_player_nr()==player_nr  ) {
 					if(  finance->get_netwealth()*10 < welt->get_settings().get_starting_money(welt->get_current_month()/12)  ){
-						// netweath nearly spent (problem!)
+						// net wealth nearly spent (problem!)
 						welt->get_message()->add_message( translator::translate("Net wealth near zero"), koord::invalid, message_t::problems, player_nr, IMG_LEER );
 					}
 					else {
@@ -497,7 +497,7 @@ void spieler_t::ai_bankrupt()
 		}
 	}
 
-	// remove headquarter pos
+	// remove headquarters pos
 	headquarter_pos = koord::invalid;
 
 	// remove all stops
@@ -644,8 +644,8 @@ void spieler_t::ai_bankrupt()
 
 
 /**
- * Speichert Zustand des Spielers
- * @param file Datei, in die gespeichert wird
+ * Stores/save the player state
+ * @param file, where the data will be saved
  * @author Hj. Malthaner
  */
 void spieler_t::rdwr(loadsave_t *file)
@@ -723,7 +723,7 @@ DBG_DEBUG("spieler_t::rdwr()","player %i: loading %i halts.",welt->sp2num( this 
 		init_undo(road_wt,0);
 	}
 
-	// headquarter stuff
+	// headquarters stuff
 	if (file->get_version() < 86004)
 	{
 		headquarter_level = 0;
@@ -740,7 +740,7 @@ DBG_DEBUG("spieler_t::rdwr()","player %i: loading %i halts.",welt->sp2num( this 
 		}
 	}
 
-	// linemanagement
+	// line management
 	if(file->get_version()>=88003) {
 		simlinemgmt.rdwr(file,this);
 	}
@@ -810,7 +810,7 @@ DBG_MESSAGE("spieler_t::bescheid_vehikel_problem","Vehicle %s can't find a route
 		case convoi_t::WAITING_FOR_CLEARANCE_ONE_MONTH:
 		case convoi_t::CAN_START_ONE_MONTH:
 		case convoi_t::CAN_START_TWO_MONTHS:
-DBG_MESSAGE("spieler_t::bescheid_vehikel_problem","Vehicle %s stucked!", cnv->get_name(),ziel.x,ziel.y);
+DBG_MESSAGE("spieler_t::bescheid_vehikel_problem","Vehicle %s stuck!", cnv->get_name(),ziel.x,ziel.y);
 			{
 				cbuffer_t buf;
 				buf.printf( translator::translate("Vehicle %s is stucked!"), cnv->get_name());
@@ -883,7 +883,7 @@ sint64 spieler_t::undo()
 					case obj_t::movingobj:
 						break;
 					// special case airplane
-					// they can be everywhere, so we allow for everythign but runway undo
+					// they can be everywhere, so we allow for everything but runway undo
 					case obj_t::aircraft: {
 						if(undo_type!=air_wt) {
 							break;

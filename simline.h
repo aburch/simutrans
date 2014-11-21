@@ -22,7 +22,7 @@
 #define LINE_REVENUE		3 // the income this line generated
 #define LINE_OPERATIONS     4 // the cost of operations this line generated
 #define LINE_PROFIT         5 // total profit of line
-#define LINE_DISTANCE       6 // distance converd by all convois
+#define LINE_DISTANCE       6 // distance covered by all convois
 #define LINE_MAXSPEED       7 // maximum speed for bonus calculation of all convois
 #define LINE_WAYTOLL        8 // way toll paid by vehicles of line
 #define MAX_LINE_COST   9 // Total number of cost items
@@ -128,7 +128,7 @@ public:
 	uint8 get_state_color() const { return state_color; }
 
 	/*
-	 * return fahrplan of line
+	 * return fahrplan (schedule) of line
 	 * @author hsiegeln
 	 */
 	schedule_t * get_schedule() const { return fpl; }

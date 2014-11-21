@@ -58,7 +58,7 @@
 
 #define PACKET_SIZE (7)
 
-// since we use 32 bit per growth steps, we use this varible to take care of the remaining sub citicen growth
+// since we use 32 bit per growth steps, we use this variable to take care of the remaining sub citizen growth
 #define CITYGROWTH_PER_CITICEN (0x0000000100000000ll)
 
 karte_ptr_t stadt_t::welt; // one is enough ...
@@ -74,7 +74,7 @@ karte_ptr_t stadt_t::welt; // one is enough ...
 const uint32 stadt_t::city_growth_step = 21000;
 
 /**
- * this is the default faktor to prefer clustering
+ * this is the default factor to prefer clustering
  */
 uint32 stadt_t::cluster_factor = 10;
 
@@ -154,11 +154,11 @@ static vector_tpl<rule_t *> road_rules;
 
 /**
  * Symbols in rules:
- * S = darf keine Strasse sein
- * s = muss Strasse sein
- * n = muss Natur sein
- * H = darf kein Haus sein
- * h = muss Haus sein
+ * S = not a road
+ * s = is a road
+ * n = is nature/empty
+ * H = not a house
+ * h = is a house
  * T = not a stop	// added in 88.03.3
  * t = is a stop // added in 88.03.3
  * u = good slope for way
@@ -489,7 +489,7 @@ void stadt_t::cityrules_rdwr(loadsave_t *file)
 /**
  * denkmal_platz_sucher_t:
  *
- * Sucht einen freien Bauplatz
+ * Search a free place for a building
  * Im Gegensatz zum bauplatz_sucher_t werden Strassen auf den Raendern
  * toleriert.
  *
@@ -945,7 +945,7 @@ stadt_t::~stadt_t()
 		reliefkarte_t::get_karte()->set_city(NULL);
 	}
 
-	// olny if there is still a world left to delete from
+	// only if there is still a world left to delete from
 	if( welt->get_size().x > 1 ) {
 
 		welt->lookup_kartenboden(pos)->set_text(NULL);
@@ -1361,7 +1361,7 @@ void stadt_t::set_name(const char *new_name)
 }
 
 
-/* show city info dialoge
+/* show city info dialogue
  * @author prissi
  */
 void stadt_t::zeige_info()
@@ -1516,7 +1516,7 @@ void stadt_t::neuer_monat( bool recalc_destinations )
 	}
 
 	if (!stadtauto_t::list_empty()  &&  s.get_verkehr_level()>0) {
-		// spawn eventuall citycars
+		// spawn eventual citycars
 		// the more transported, the less are spawned
 		// the larger the city, the more spawned ...
 
@@ -1573,8 +1573,8 @@ void stadt_t::neuer_monat( bool recalc_destinations )
 
 void stadt_t::calc_growth()
 {
-	// now iterate over all factories to get the ratio of producing version nonproducing factories
-	// we use the incoming storage as a measure und we will only look for end consumers (power stations, markets)
+	// now iterate over all factories to get the ratio of producing version non-producing factories
+	// we use the incoming storage as a measure and we will only look for end consumers (power stations, markets)
 	FOR(vector_tpl<factory_entry_t>, const& i, target_factories_pax.get_entries()) {
 		fabrik_t *const fab = i.factory;
 		if (fab->get_lieferziele().empty() && !fab->get_suppliers().empty()) {
@@ -1665,12 +1665,12 @@ void stadt_t::step_grow_city( bool new_town )
  */
 void stadt_t::step_passagiere()
 {
-	// post oder pax erzeugen ?
+	// post or pax erzeugen ?
 	const ware_besch_t *const wtyp = ( simrand(400)<300 ? warenbauer_t::passagiere : warenbauer_t::post );
 	const int history_type = (wtyp == warenbauer_t::passagiere) ? HIST_PAS_TRANSPORTED : HIST_MAIL_TRANSPORTED;
 	factory_set_t &target_factories = (  wtyp==warenbauer_t::passagiere ? target_factories_pax : target_factories_mail );
 
-	// restart at first buiulding?
+	// restart at first building?
 	if (step_count >= buildings.get_count()) {
 		step_count = 0;
 	}
@@ -1944,7 +1944,7 @@ koord stadt_t::find_destination(factory_set_t &target_factories, const sint64 ge
 		return pick_any_weighted( target_attractions )->get_pos().get_2d();
 	}
 	else {
-		// since the locality is already taken into accout for us, we just use the random weight
+		// since the locality is already taken into account for us, we just use the random weight
 		const stadt_t *const selected_city = pick_any_weighted( target_cities );
 		// no return trip if the destination is inside the same city
 		*will_return = selected_city == this ? no_return : city_return;
@@ -1967,7 +1967,7 @@ void stadt_t::merke_passagier_ziel(koord k, uint8 color)
 
 /**
  * bauplatz_mit_strasse_sucher_t:
- * Sucht einen freien Bauplatz mithilfe der Funktion suche_platz().
+ * Search a free place for a building using function suche_platz() (search place).
  * added: Minimum distance between monuments
  * @author V. Meyer/prissi
  */
@@ -2052,7 +2052,7 @@ class bauplatz_mit_strasse_sucher_t: public bauplatz_sucher_t
 
 void stadt_t::check_bau_spezial(bool new_town)
 {
-	// touristenattraktion bauen
+	// tourist attraction buildings
 	const haus_besch_t* besch = hausbauer_t::get_special( bev, haus_besch_t::attraction_city, welt->get_timeline_year_month(), new_town, welt->get_climate(pos) );
 	if (besch != NULL) {
 		if (simrand(100) < (uint)besch->get_chance()) {
@@ -2081,7 +2081,7 @@ void stadt_t::check_bau_spezial(bool new_town)
 	}
 
 	if ((bev & 511) == 0) {
-		// errect a monoment
+		// Build a monument
 		besch = hausbauer_t::waehle_denkmal(welt->get_timeline_year_month());
 		if (besch) {
 			koord total_size = koord(2 + besch->get_b(), 2 + besch->get_h());
@@ -2265,7 +2265,7 @@ void stadt_t::check_bau_rathaus(bool new_town)
 		int layout = umziehen || neugruendung ? simrand(besch->get_all_layouts()) : old_layout % besch->get_all_layouts();
 		// on which side should we place the road?
 		uint8 dir;
-		// offset of bulding within searched place, start and end of road
+		// offset of building within searched place, start and end of road
 		koord offset(0,0), road0(0,0),road1(0,0);
 		dir = ribi_t::layout_to_ribi[layout & 3];
 		switch(dir) {
@@ -2307,7 +2307,7 @@ void stadt_t::check_bau_rathaus(bool new_town)
 		}
 		// check, if the was something found
 		if(best_pos==koord::invalid) {
-			dbg->error( "stadt_t::check_bau_rathaus", "no better postion found!" );
+			dbg->error( "stadt_t::check_bau_rathaus", "no better position found!" );
 			return;
 		}
 		gebaeude_t const* const new_gb = hausbauer_t::baue(besitzer_p, welt->lookup_kartenboden(best_pos + offset)->get_pos(), layout, besch);
@@ -2441,7 +2441,7 @@ void stadt_t::build_city_building(const koord k)
 	grund_t* gr = welt->lookup_kartenboden(k);
 	const koord3d pos(gr->get_pos());
 
-	// Not building on ways (this was actually tested before be the cityrules), btu you can construct manually
+	// Not building on ways (this was actually tested before be the cityrules), but you can construct manually
 	if(  !gr->ist_natur() ) {
 		return;
 	}
@@ -2449,7 +2449,7 @@ void stadt_t::build_city_building(const koord k)
 	if( gr->kann_alle_obj_entfernen(NULL) != NULL ) {
 		return;
 	}
-	// Refuse to build on a slope, when there is a groudn right on top of it (=> the house would sit on the bridge then!)
+	// Refuse to build on a slope, when there is a ground right on top of it (=> the house would sit on the bridge then!)
 	if(  gr->get_grund_hang() != hang_t::flach  &&  welt->lookup(koord3d(k, welt->max_hgt(k))) != NULL  ) {
 		return;
 	}
@@ -2930,7 +2930,7 @@ bool stadt_t::baue_strasse(const koord k, spieler_t* sp, bool forced)
 
 		if (!bd->weg_erweitern(road_wt, connection_roads)) {
 			strasse_t* weg = new strasse_t();
-			// Hajo: city roads should not belong to any player => so we can ignore any contruction costs ...
+			// Hajo: city roads should not belong to any player => so we can ignore any construction costs ...
 			weg->set_besch(welt->get_city_road());
 			weg->set_gehweg(true);
 			bd->neuen_weg_bauen(weg, connection_roads, sp);
@@ -3065,7 +3065,7 @@ vector_tpl<koord>* stadt_t::random_place(const sint32 anzahl, sint16 old_x, sint
 		const koord k = list->remove_first();
 		places.at( (2*k.x)/minimum_city_distance, (2*k.y)/minimum_city_distance).append(k);
 	}
-	// weigthed index vector into places array
+	// weighted index vector into places array
 	weighted_vector_tpl<koord> index_to_places(xmax*ymax);
 	for(uint32 i=0; i<xmax; i++) {
 		for(uint32 j=0; j<ymax; j++) {
@@ -3083,7 +3083,7 @@ vector_tpl<koord>* stadt_t::random_place(const sint32 anzahl, sint16 old_x, sint
 	array2d_tpl< vector_tpl<koord> > result_places(xmax2, ymax2);
 
 	for (int i = 0; i < anzahl; i++) {
-		// check distances of all cities to their respective neightbours
+		// check distances of all cities to their respective neighbours
 		while (!index_to_places.empty()) {
 			// find a random cell
 			koord const ip = pick_any_weighted(index_to_places);
@@ -3108,7 +3108,7 @@ vector_tpl<koord>* stadt_t::random_place(const sint32 anzahl, sint16 old_x, sint
 				}
 			}
 
-			// all citys are far enough => ok, find next place
+			// all cities are far enough => ok, find next place
 			result->append(k);
 			result_places.at(k2mcd).append(k);
 			break;

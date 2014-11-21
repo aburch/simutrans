@@ -131,7 +131,7 @@ const char *grund_t::get_text() const
 
 PLAYER_COLOR_VAL grund_t::text_farbe() const
 {
-	// if this gund belongs to a halt, the color should reflect the halt owner, not the grund owner!
+	// if this ground belongs to a halt, the color should reflect the halt owner, not the ground owner!
 	// Now, we use the color of label_t owner
 	if(is_halt()  &&  find<label_t>()==NULL) {
 		// only halt label
@@ -409,7 +409,7 @@ void grund_t::rdwr(loadsave_t *file)
 
 				if(weg) {
 					if(get_typ()==fundament) {
-						// remove this (but we can not correct the other wasy, since possibly not yet loaded)
+						// remove this (but we can not correct the other ways, since possibly not yet loaded)
 						dbg->error("grund_t::rdwr()","removing way from foundation at %i,%i",pos.x,pos.y);
 						// we do not delete them, to keep maintenance costs correct
 					}
@@ -441,7 +441,7 @@ void grund_t::rdwr(loadsave_t *file)
 			file->wr_obj_id(w->get_waytype());
 			w->rdwr(file);
 		}
-		file->wr_obj_id(-1);   // Ende der Wege
+		file->wr_obj_id(-1);   // Way end
 	}
 
 	// all objects on this tile
@@ -464,7 +464,7 @@ grund_t::grund_t(koord3d pos)
 {
 	this->pos = pos;
 	flags = 0;
-	set_bild(IMG_LEER);    // setzt   flags = dirty;
+	set_bild(IMG_LEER);    // set   flags = dirty;
 	back_bild_nr = 0;
 }
 
@@ -749,7 +749,7 @@ void grund_t::mark_image_dirty()
 	}
 }
 
-// artifical walls from here on ...
+// artificial walls from here on ...
 void grund_t::calc_back_bild(const sint8 hgt,const hang_t::typ slope_this)
 {
 	// full underground mode or not ground -> no back bild, no need for draw_as_obj
@@ -1404,7 +1404,7 @@ void grund_t::display_obj_all(const sint16 xpos, const sint16 ypos, const sint16
 		return;
 	}
 
-	// ships might be larg and could be clipped by vertical walls on our tile
+	// ships might be large and could be clipped by vertical walls on our tile
 	const bool ontile_se = back_bild_nr  &&  ist_wasser();
 
 	// get slope of way as displayed
@@ -1663,7 +1663,7 @@ ribi_t::ribi grund_t::get_weg_ribi_unmasked(waytype_t typ) const
 
 
 /**
-* Falls es hier ein Depot gibt, dieses zurueckliefern
+* If there's a depot here, return this
 * @author Volker Meyer
 */
 depot_t* grund_t::get_depot() const
@@ -1714,7 +1714,7 @@ sint64 grund_t::remove_trees()
 	sint64 cost=0;
 	// remove all trees ...
 	while (baum_t* const d = find<baum_t>(0)) {
-		// we must mark it by hand, sinc ewe want to join costs
+		// we must mark it by hand, since we want to join costs
 		d->mark_image_dirty( get_bild(), 0 );
 		delete d;
 		cost -= welt->get_settings().cst_remove_tree;
@@ -1816,7 +1816,7 @@ sint32 grund_t::weg_entfernen(waytype_t wegtyp, bool ribi_rem)
 			flags &= ~has_way2;
 
 			// reset speed limit/crossing info (maybe altered by crossing)
-			// Not all ways (i.e. with styp==7) will imply crossins, so wie hav to check
+			// Not all ways (i.e. with styp==7) will imply crossings, so we have to check
 			crossing_t* cr = find<crossing_t>(1);
 			if(cr) {
 				cr->entferne(0);
@@ -1840,7 +1840,7 @@ sint32 grund_t::weg_entfernen(waytype_t wegtyp, bool ribi_rem)
 }
 
 
-// this funtion is called many many times => make it as fast as possible
+// this function is called many many times => make it as fast as possible
 // i.e. no reverse lookup of ribis from koord
 bool grund_t::get_neighbour(grund_t *&to, waytype_t type, ribi_t::ribi ribi) const
 {
@@ -1908,7 +1908,7 @@ bool grund_t::remove_everything_from_way(spieler_t* sp, waytype_t wt, ribi_t::ri
 		waytype_t finance_wt = weg->get_besch()->get_finance_waytype();
 		const koord here = pos.get_2d();
 
-		// stopps
+		// stops
 		if(flags&is_halt_flag  &&  (get_halt()->get_besitzer()==sp  || sp==welt->get_spieler(1))) {
 			bool remove_halt = get_typ()!=boden;
 			// remove only if there is no other way
@@ -2011,7 +2011,7 @@ bool grund_t::remove_everything_from_way(spieler_t* sp, waytype_t wt, ribi_t::ri
 			}
 		}
 
-		// need to remove railblocks to recalcualte connections
+		// need to remove railblocks to recalculate connections
 		// remove all ways or just some?
 		if(add==ribi_t::keine) {
 			costs -= weg_entfernen(wt, true);

@@ -79,10 +79,10 @@ template<typename T> static inline T* obj_cast(obj_t* const d)
 
 
 /**
- * <p>Abstrakte Basisklasse für Untergründe in Simutrans.</p>
+ * <p>Abstract basic class for ground in Simutrans.</p>
  *
- * <p>Von der Klasse grund_t sind alle Untergruende (Land, Wasser, Strassen ...)
- * in simu abgeleitet. Jedes Planquadrat hat einen Untergrund.</p>
+ * <p>All ground types (Land, Water, Roads ...) are derived of
+ * the class grund_t in Simutrans. Every tile has a ground type.</p>
  *
  * <p>Der Boden hat Eigenschaften, die abgefragt werden koennen
  * ist_natur(), ist_wasser(), hat_wegtyp(), ist_bruecke().
@@ -216,7 +216,7 @@ public:
 	static void set_underground_mode(const uint8 ugm, const sint8 level);
 
 	/**
-	* Setzt Flags für das neuzeichnen geänderter Untergründe
+	* Set Flags for the newly drawn changed ground
 	* @author Hj. Malthaner
 	*/
 	inline void set_flag(flag_values flag) {flags |= flag;}
@@ -238,8 +238,8 @@ public:
 	void calc_bild();
 
 	/**
-	* Gibt die Nummer des Bildes des Untergrundes zurueck.
-	* @return Die Nummer des Bildes des Untergrundes.
+	* Return the number of images the ground have.
+	* @return The number of images.
 	* @author Hj. Malthaner
 	*/
 	inline image_id get_bild() const {return bild_nr;}
@@ -257,22 +257,22 @@ public:
 	void mark_image_dirty();
 
 	/**
-	* Gibt den Namen des Untergrundes zurueck.
-	* @return Den Namen des Untergrundes.
+	* Return the name of the ground.
+	* @return The name of the ground.
 	* @author Hj. Malthaner
 	*/
 	virtual const char* get_name() const = 0;
 
 	/**
-	* Gibt den Typ des Untergrundes zurueck.
-	* @return Der Typ des Untergrundes.
+	* Return the ground type.
+	* @return The ground type.
 	* @author Hj. Malthaner
 	*/
 	virtual typ get_typ() const = 0;
 
 	/**
-	* Gibt eine Beschreibung des Untergrundes (informell) zurueck.
-	* @return Einen Beschreibungstext zum Untergrund.
+	* Return the ground description texts.
+	* @return A description for the ground.
 	* @author Hj. Malthaner
 	*/
 	const char* get_text() const;
@@ -349,10 +349,10 @@ public:
 	// map rotation
 	virtual void rotate90();
 
-	// we must put the text back to thier proper location after roation ...
+	// we must put the text back to their proper location after rotation ...
 	static void finish_rotate90();
 
-	// since enlargement will require new hases
+	// since enlargement will require new hashes
 	static void enlarge_map( sint16 new_size_x, sint16 new_size_y );
 
 	void sort_trees();
@@ -421,7 +421,7 @@ public:
 	// Helper functions for underground modes
 	//
 	// returns the height for the use in underground-mode,
-	// heights above underground_level are cutted
+	// heights above underground_level are cut
 	inline sint8 get_disp_height() const {
 		return (underground_mode & ugm_level )
 			? (pos.z > underground_level ? underground_level : pos.z)
@@ -520,7 +520,7 @@ public:
 #endif
 
 	/**
-	 * similar to above but yieleds clipping error
+	 * similar to above but yields clipping error
 	 * => only used for zoom out
 	 * @param is_global set to true, if this is called during the whole screen update
 	 * @author prissi
@@ -571,7 +571,7 @@ public:
 #endif
 
 	/**
-	 * overlayer with signs, good levels and station coverage
+	 * overlay with signs, good levels and station coverage
 	 * resets the dirty flag
 	 * @author kierongreen
 	 */
@@ -619,7 +619,7 @@ public:
 	*/
 
 	/**
-	* The only way to get the typ of a way on a tile
+	* The only way to get the type (typ) of a way on a tile
 	* @author Hj. Malthaner
 	*/
 	weg_t *get_weg_nr(int i) const { return (flags&(has_way1<<i)) ? static_cast<weg_t *>(obj_bei(i)) : NULL; }
@@ -712,7 +712,7 @@ public:
 	inline bool ist_uebergang() const { return (flags&has_way2)!=0  &&  ((weg_t *)objlist.bei(1))->get_besch()->get_styp()!=7; }
 
 	/**
-	* returns the vehcile of a convoi (if there)
+	* returns the vehicle of a convoi (if there)
 	* @author V. Meyer
 	*/
 	obj_t *get_convoi_vehicle() const { return objlist.get_convoi_vehicle(); }

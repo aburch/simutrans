@@ -2615,10 +2615,10 @@ void display_img_stretch( const stretch_map_t &imag, scr_rect area )
 		area.y += (area.h-h)/2;
 	}
 
-	// bottom
+	// top row
 	display_three_image_row( imag[0][0], imag[1][0], imag[2][0], area );
 
-	// top row (assuming same height for all!)
+	// bottom row
 	if(  imag[0][2]!=IMG_LEER  ) {
 		scr_rect row( area.x, area.y+area.h-h_bottom, area.w, h_bottom );
 		display_three_image_row( imag[0][2], imag[1][2], imag[2][2], row );
@@ -2634,7 +2634,7 @@ void display_img_stretch( const stretch_map_t &imag, scr_rect area )
 			row.y += h;
 			row.h -= h;
 		}
-		// for the rest we have to clip the retangle
+		// for the rest we have to clip the rectangle
 		if(  row.h > 0  ) {
 			clip_dimension const cl = display_get_clip_wh();
 			display_set_clip_wh( cl.x, cl.y, cl.w, max(0,min(row.get_bottom(),cl.yy)-cl.y) );
@@ -2701,10 +2701,10 @@ void display_img_stretch_blend( const stretch_map_t &imag, scr_rect area, PLAYER
 		area.y += (area.h-h)/2;
 	}
 
-	// bottom
+	// top row
 	display_three_blend_row( imag[0][0], imag[1][0], imag[2][0], area, color );
 
-	// top row (assuming same height for all!)
+	// bottom row
 	if(  imag[0][2]!=IMG_LEER  ) {
 		scr_rect row( area.x, area.y+area.h-h_bottom, area.w, h_bottom );
 		display_three_blend_row( imag[0][2], imag[1][2], imag[2][2], row, color );
@@ -2720,7 +2720,7 @@ void display_img_stretch_blend( const stretch_map_t &imag, scr_rect area, PLAYER
 			row.y += h;
 			row.h -= h;
 		}
-		// for the rest we have to clip the retangle
+		// for the rest we have to clip the rectangle
 		if(  row.h > 0  ) {
 			clip_dimension const cl = display_get_clip_wh();
 			display_set_clip_wh( cl.x, cl.y, cl.w, max(0,min(row.get_bottom(),cl.yy)-cl.y) );

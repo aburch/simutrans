@@ -287,7 +287,7 @@ static grund_t *wkz_intern_koord_to_weg_grund(spieler_t *sp, karte_t *welt, koor
 
 /****************************************** now the actual tools **************************************/
 
-// werkzeuge
+// werkzeuge (tool)
 const char *wkz_abfrage_t::work( spieler_t *sp, koord3d pos )
 {
 	grund_t *gr = welt->lookup(pos);
@@ -977,7 +977,7 @@ const char *wkz_restoreslope_t::check_pos( spieler_t *, koord3d pos)
 }
 
 /**
- * Create an articial slope
+ * Create an artificial slope
  * @param param the slope type
  * @author Hj. Malthaner
  */
@@ -1052,7 +1052,7 @@ const char *wkz_setslope_t::wkz_set_slope_work( spieler_t *sp, koord3d pos, int 
 				return "Tile not empty.";
 			}
 			/* new things getting tricky:
-			 * A single way on an allup or down slope will result in
+			 * A single way on an all up or down slope will result in
 			 * a slope with the way as hinge.
 			 */
 			if(  new_slope==ALL_UP_SLOPE  ) {
@@ -1237,7 +1237,7 @@ const char *wkz_setslope_t::wkz_set_slope_work( spieler_t *sp, koord3d pos, int 
 				}
 			}
 
-			// ok, was sucess
+			// ok, it was a success
 			if(  !gr1->ist_wasser()  &&  new_slope == 0  &&  hgt == water_hgt  &&  gr1->get_typ() != grund_t::tunnelboden  ) {
 				// now water
 				gr1->obj_loesche_alle(sp);
@@ -1384,7 +1384,7 @@ const char *wkz_clear_reservation_t::work( spieler_t *, koord3d pos )
 			if(w!=NULL  &&  w->is_reserved()) {
 				/* now we do a very crude procedure:
 				 * - we search all ways for reservations of this convoi and remove them
-				 * - we set the convoi state to ROUTING_1; it must rereserve its ways then
+				 * - we set the convoi state to ROUTING_1; it must reserve again its ways then
 				 */
 				const waytype_t waytype = w->get_waytype();
 				const convoihandle_t cnv = w->get_reserved_convoi();
@@ -1567,7 +1567,7 @@ const char *wkz_add_city_t::work( spieler_t *sp, koord3d pos )
 				int const citizens = (int)(welt->get_settings().get_mittlere_einwohnerzahl() * 0.9);
 				//  stadt_t *stadt = new stadt_t(welt->get_spieler(1), pos,citizens/10+simrand(2*citizens+1));
 
-				// always start with 1/10 citicens
+				// always start with 1/10 citizens
 				stadt_t* stadt = new stadt_t(welt->get_spieler(1), k, citizens / 10);
 				if (stadt->get_buildings() == 0) {
 					delete stadt;
@@ -2113,7 +2113,7 @@ const char* wkz_wegebau_t::get_tooltip(const spieler_t *) const
 	return toolstr;
 }
 
-// default ways are not intialized synchronously for different clients
+// default ways are not initialized synchronously for different clients
 // always return the name of a way, never the string containing the waytype
 const char* wkz_wegebau_t::get_default_param(spieler_t *sp) const
 {
@@ -2644,7 +2644,7 @@ void wkz_tunnelbau_t::calc_route( wegbauer_t &bauigel, const koord3d &start, con
 
 	bauigel.route_fuer(bt | wegbauer_t::tunnel_flag, wb, besch);
 	bauigel.set_keep_existing_faster_ways( !is_ctrl_pressed() );
-	// wegbauer tries to find route to 3d coordinate if no ground at end exists or is not kartenboden
+	// wegbauer (way builder) tries to find route to 3d coordinate if no ground at end exists or is not kartenboden (map ground)
 	bauigel.calc_straight_route(start,end);
 }
 
@@ -3284,7 +3284,7 @@ const char *wkz_station_t::wkz_station_building_aux(spieler_t *sp, bool extend_p
 {
 	koord k = pos.get_2d();
 
-	// need kartenboden
+	// need kartenboden (map ground)
 	if (welt->lookup_kartenboden(k)->get_hoehe() != pos.z) {
 		return "";
 	}
@@ -3447,7 +3447,7 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 		}
 	}
 	else {
-		// rotation was pre-slected; just search for stop now
+		// rotation was pre-selected; just search for stop now
 		assert(  rotation < besch->get_all_layouts()  );
 		koord testsize = besch->get_groesse(rotation);
 		offsets = koord(0,0);
@@ -4860,12 +4860,12 @@ const char *wkz_build_haus_t::work( spieler_t *sp, koord3d pos )
 		hat_platz = welt->square_is_free( k, besch->get_b(rotation), besch->get_h(rotation), NULL, cl );
 	}
 
-	// Platz gefunden ...
+	// Place found...
 	if(hat_platz) {
 		spieler_t *gb_sp = besch->get_typ()!=gebaeude_t::unbekannt ? NULL : welt->get_spieler(1);
 		gebaeude_t *gb = hausbauer_t::baue(gb_sp, gr->get_pos(), rotation, besch);
 		if(gb) {
-			// building successfull
+			// building successful
 			if(  besch->get_utyp()!=haus_besch_t::attraction_land  &&  besch->get_utyp()!=haus_besch_t::attraction_city  ) {
 				stadt_t *city = welt->suche_naechste_stadt( k );
 				if(city) {
@@ -5189,7 +5189,7 @@ const char *wkz_link_factory_t::do_work( spieler_t *, const koord3d &start, cons
 }
 
 
-/* builds company headquarter
+/* builds company headquarters
  * @author prissi
  */
 const haus_besch_t *wkz_headquarter_t::next_level( const spieler_t *sp ) const
@@ -5227,11 +5227,11 @@ const char *wkz_headquarter_t::work( spieler_t *sp, koord3d pos )
 {
 	bool ok=false;
 	bool built = false;
-DBG_MESSAGE("wkz_headquarter()", "building headquarter at (%d,%d)", pos.x, pos.y);
+DBG_MESSAGE("wkz_headquarter()", "building headquarters at (%d,%d)", pos.x, pos.y);
 
 	const haus_besch_t* besch = next_level(sp);
 	if(besch==NULL) {
-		// no further headquarter level
+		// no further headquarters level
 		dbg->message( "wkz_headquarter()", "Already at maximum level!" );
 		return "";
 	}
@@ -5847,7 +5847,7 @@ sint8 wkz_show_underground_t::save_underground_level = -128;
 bool wkz_show_underground_t::init( spieler_t * )
 {
 	koord3d zpos = welt->get_zeiger()->get_pos();
-	// move zeiger to invalid position -> unmark tiles
+	// move zeiger (pointer) to invalid position -> unmark tiles
 	welt->get_zeiger()->change_pos( koord3d::invalid);
 
 	sint8 old_underground_level = grund_t::underground_level;
@@ -5935,7 +5935,7 @@ bool wkz_show_underground_t::init( spieler_t * )
 
 	}
 
-	// move zeiger back
+	// move zeiger (pointer) back
 	welt->get_zeiger()->change_pos( zpos);
 
 	if (ok) {
@@ -5953,13 +5953,13 @@ bool wkz_show_underground_t::init( spieler_t * )
 const char *wkz_show_underground_t::work( spieler_t *sp, koord3d pos)
 {
 	koord3d zpos = welt->get_zeiger()->get_pos();
-	// move zeiger to invalid position -> unmark tiles
+	// move zeiger (pointer) to invalid position -> unmark tiles
 	welt->get_zeiger()->change_pos( koord3d::invalid);
 
 	save_underground_level = grund_t::underground_level;
 	grund_t::set_underground_mode( grund_t::ugm_level, pos.z);
 
-	// move zeiger back
+	// move zeiger (pointer) back
 	welt->get_zeiger()->change_pos( zpos);
 
 	// renew toolbar
@@ -6034,7 +6034,7 @@ void wkz_show_underground_t::draw_after(scr_coord k, bool dirty) const
 {
 	if(  icon!=IMG_LEER  &&  is_selected()  ) {
 		display_img_blend( icon, k.x, k.y, TRANSPARENT50_FLAG|OUTLINE_FLAG|COL_BLACK, false, dirty );
-		// additionall show level in sliced mode
+		// additionally show level in sliced mode
 		if(  default_param!=NULL  &&  grund_t::underground_mode==grund_t::ugm_level  ) {
 			char level_str[16];
 			sprintf( level_str, "%i", grund_t::underground_level );
@@ -6221,7 +6221,7 @@ bool wkz_change_convoi_t::init( spieler_t *sp )
 
 		case 'l': // change line
 			{
-				// read out id and new aktuell index
+				// read out id and new aktuell (actual) index
 				uint16 id=0, aktuell=0;
 				int count=sscanf( p, "%hi,%hi", &id, &aktuell );
 				linehandle_t l;
@@ -6325,7 +6325,7 @@ bool wkz_change_line_t::init( spieler_t *sp )
 
 	// first letter is now the actual command
 	switch(  tool  ) {
-		case 'c': // create line, next paraemter line type and magic of schedule window (only right window gets updated)
+		case 'c': // create line, next parameter line type and magic of schedule window (only right window gets updated)
 			{
 				line = sp->simlinemgmt.create_line( atoi(p), sp );
 				while(  *p  &&  *p++!=','  ) {
@@ -6443,7 +6443,7 @@ bool wkz_change_line_t::init( spieler_t *sp )
  * 'b' : starts the convoi
  * 'B' : starts all convoys
  * 'c' : copies this convoi
- * 'd' : dissassembles convoi
+ * 'd' : disassembles convoi
  * 's' : sells convoi
  * 'a' : appends a vehicle (+vehikel_name) uses the oldest
  * 'i' : inserts a vehicle in front (+vehikel_name) uses the oldest
@@ -6617,7 +6617,7 @@ bool wkz_change_depot_t::init( spieler_t *sp )
 						// now check if we are allowed to buy this (we test only leading vehicle, so one can still buy hidden stuff)
 						info = new_vehicle_info.front();
 						if(  !info->is_available(welt->get_timeline_year_month())  &&  !welt->get_settings().get_allow_buying_obsolete_vehicles()  ) {
-							// only allow append/insert, if in depot do not create new obsolte vehicles
+							// only allow append/insert, if in depot do not create new obsolete vehicles
 							if(  !depot->find_oldest_newest(info, true)  ) {
 								// just fail silent
 								return false;

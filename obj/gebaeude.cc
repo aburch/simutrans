@@ -113,7 +113,7 @@ gebaeude_t::gebaeude_t(koord3d pos, spieler_t *sp, const haus_tile_besch_t *t) :
 
 
 /**
- * Destructor. Removes this from the list of sync objects if neccesary.
+ * Destructor. Removes this from the list of sync objects if necessary.
  *
  * @author Hj. Malthaner
  */
@@ -164,14 +164,14 @@ void gebaeude_t::rotate90()
 				// rotate 180 degree
 				new_offset = koord(haus_besch->get_b() - 1 - new_offset.x, haus_besch->get_h() - 1 - new_offset.y);
 			}
-			// do nothing here, since we cannot fix it porperly
+			// do nothing here, since we cannot fix it properly
 		}
 		else {
 			// rotate on ...
 			new_offset = koord(haus_besch->get_h(tile->get_layout()) - 1 - new_offset.y, new_offset.x);
 		}
 
-		// suche a tile exist?
+		// such a tile exist?
 		if(  haus_besch->get_b(layout) > new_offset.x  &&  haus_besch->get_h(layout) > new_offset.y  ) {
 			const haus_tile_besch_t* const new_tile = haus_besch->get_tile(layout, new_offset.x, new_offset.y);
 			// add new tile: but make them old (no construction)
@@ -365,7 +365,7 @@ image_id gebaeude_t::get_bild() const
 			// hide with transparency or tile without information
 			if(env_t::hide_with_transparency) {
 				if(tile->get_besch()->get_utyp() == haus_besch_t::fabrik  &&  ptr.fab->get_besch()->get_platzierung() == fabrik_besch_t::Wasser) {
-					// no ground tiles for water thingies
+					// no ground tiles for water things
 					return IMG_LEER;
 				}
 				return skinverwaltung_t::fussweg->get_bild_nr(0);
@@ -407,7 +407,7 @@ PLAYER_COLOR_VAL gebaeude_t::get_outline_colour() const
 			disp_colour = colours[0] | TRANSPARENT50_FLAG | OUTLINE_FLAG;
 		}
 		else if (env_t::hide_buildings == env_t::ALL_HIDDEN_BUILDING && tile->get_besch()->get_utyp() < haus_besch_t::weitere) {
-			// special bilding
+			// special building
 			disp_colour = colours[tile->get_besch()->get_utyp()] | TRANSPARENT50_FLAG | OUTLINE_FLAG;
 		}
 	}
@@ -443,7 +443,7 @@ image_id gebaeude_t::get_after_bild() const
 
 
 /*
- * calculate the passenger level as funtion of the city size (if there)
+ * calculate the passenger level as function of the city size (if there)
  */
 int gebaeude_t::get_passagier_level() const
 {
@@ -610,7 +610,7 @@ void gebaeude_t::info(cbuffer_t & buf) const
 		if(desc != NULL) {
 			const char *trans_desc = translator::translate(desc);
 			if(trans_desc==desc) {
-				// no descrition here
+				// no description here
 				switch(get_haustyp()) {
 					case wohnung:
 						trans_desc = translator::translate("residential house");
@@ -819,7 +819,7 @@ void gebaeude_t::rdwr(loadsave_t *file)
 			}
 		}	// here we should have a valid tile pointer or nothing ...
 
-		/* avoid double contruction of monuments:
+		/* avoid double construction of monuments:
 		 * remove them from selection lists
 		 */
 		if (tile  &&  tile->get_besch()->get_utyp() == haus_besch_t::denkmal) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2001 Hansjörg Malthaner
+ * Copyright (c) 2001 HansjÃ¶rg Malthaner
  *
  * This file is part of the Simutrans project under the artistic license.
  */
@@ -54,7 +54,7 @@ enum control_alignments_t {
 
 	// These flags does not belong in here but
 	// are defined here until we sorted this out.
-	// They are inly used in display_text_proportional_len_clip()
+	// They are only used in display_text_proportional_len_clip()
 //	DT_DIRTY         = 0x8000,
 	DT_CLIP          = 0x4000
 };
@@ -395,7 +395,7 @@ bool has_character( utf16 char_code );
  * Returns the width of the widest character in a string.
  * @param text  pointer to a string of characters to evaluate.
  * @param len   length of text buffer to evaluate. If set to 0,
- *              evaluate until nul termination.
+ *              evaluate until null termination.
  * @author      Max Kielland
  */
 KOORD_VAL display_get_char_max_width(const char* text, size_t len=0);
@@ -459,7 +459,7 @@ int display_text_proportional_len_clip_rgb(KOORD_VAL x, KOORD_VAL y, const char*
 #endif
 
 /*
- * Display a string that if abreviated by the (language specific) ellipse character if too wide
+ * Display a string that if abbreviated by the (language specific) ellipse character if too wide
  * If enough space is given, it just display the full string
  * @returns screen_width
  */

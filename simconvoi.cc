@@ -1,6 +1,6 @@
 /**
- * convoi_t Klasse für Fahrzeugverbände
- * von Hansjörg Malthaner
+ * convoi_t Class for vehicle associations
+ * Hansjörg Malthaner
  */
 
 #include <stdlib.h>
@@ -149,8 +149,8 @@ void convoi_t::init(spieler_t *sp)
 
 	max_record_speed = 0;
 	brake_speed_soll = SPEED_UNLIMITED;
-	akt_speed_soll = 0;            // Sollgeschwindigkeit
-	akt_speed = 0;                 // momentane Geschwindigkeit
+	akt_speed_soll = 0;            // target speed
+	akt_speed = 0;                 // current speed
 	sp_soll = 0;
 
 	next_stop_index = 65535;
@@ -396,7 +396,7 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","state=%s, next_stop_index=%d", sta
 						}
 						dbg->message("convoi_t::laden_abschliessen()", "v: pos(%s) steps(%d) len=%d ribi=%d prev (%s) step(%d)", v->get_pos().get_str(), v->get_steps(), v->get_besch()->get_length()*16, v->get_fahrtrichtung(),  drive_pos.get_2d().get_str(), step_pos);
 						if(  abs( v->get_steps() - step_pos )>15  ) {
-							// not where it should be => realing
+							// not where it should be => realign
 							realing_position = true;
 							dbg->warning( "convoi_t::laden_abschliessen()", "convoi (%s) is broken => realign", get_name() );
 						}
@@ -444,7 +444,7 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_ind
 		destroy();
 		return;
 	}
-	// put convoi agian right on track?
+	// put convoi again right on track?
 	if(realing_position  &&  anz_vehikel>1) {
 		// display just a warning
 		dbg->warning("convoi_t::laden_abschliessen()","cnv %i is currently too long.",self.get_id());
@@ -487,7 +487,7 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_ind
 		}
 	}
 	if(  state==LOADING  ) {
-		// the fully the shorter => reregister as older convoi
+		// the fully the shorter => register again as older convoi
 		wait_lock = 2000-loading_level*20;
 	}
 	// when saving with open window, this can happen
@@ -549,8 +549,8 @@ void convoi_t::rotate90( const sint16 y_size )
 
 
 /**
- * Gibt die Position des Convois zurück.
- * @return Position des Convois
+ * Return the convoi position.
+ * @return Convoi position
  * @author Hj. Malthaner
  */
 koord3d convoi_t::get_pos() const
@@ -630,7 +630,7 @@ void convoi_t::add_running_cost( const weg_t *weg )
 	jahresgewinn += sum_running_costs;
 
 	if(  weg  &&  weg->get_besitzer()!=get_besitzer()  &&  weg->get_besitzer()!=NULL  ) {
-		// running on non-public way costs toll (since running costas are positive => invert)
+		// running on non-public way costs toll (since running costs are positive => invert)
 		sint32 toll = -(sum_running_costs*welt->get_settings().get_way_toll_runningcost_percentage())/100l;
 		if(  welt->get_settings().get_way_toll_waycost_percentage()  ) {
 			if(  weg->is_electrified()  &&  needs_electrification()  ) {
@@ -733,7 +733,7 @@ void convoi_t::calc_acceleration(uint32 delta_t)
 
 		/* but for integer, we have to use the order below and calculate actually 64*deccel, like the sum_gear_und_leistung
 			* since akt_speed=10/128 km/h and we want 64*200kW=(100km/h)^2*100t, we must multiply by (128*2)/100
-			* But since the acceleration was too fast, we just deccelerate 4x more => >>6 instead >>8 */
+			* But since the acceleration was too fast, we just decelerate 4x more => >>6 instead >>8 */
 		//sint32 deccel = ( ( (akt_speed*sum_friction_weight)>>6 )*(akt_speed>>2) ) / 25 + (sum_gesamtgewicht*64);	// this order is needed to prevent overflows!
 		//sint32 deccel = (sint32)( ( (sint64)akt_speed * (sint64)sum_friction_weight * (sint64)akt_speed ) / (25ll*256ll) + sum_gesamtgewicht * 64ll) / 1000ll; // intermediate still overflows so sint64
 		sint32 deccel = (sint32)( ( (sint64)akt_speed * ( (sum_friction_weight * (sint64)akt_speed ) / 3125ll + 1ll) ) / 2048ll + (sum_gesamtgewicht * 64ll) / 1000ll);
@@ -803,8 +803,8 @@ bool convoi_t::sync_step(uint32 delta_t)
 
 	switch(state) {
 		case INITIAL:
-			// jemand muß start aufrufen, damit der convoi von INITIAL
-			// nach ROUTING_1 geht, das kann nicht automatisch gehen
+			// someone must start calling, so the convoi goes from
+			// INITIAL to ROUTING_1, it can't go automatically
 			break;
 
 		case FAHRPLANEINGABE:
@@ -871,7 +871,7 @@ bool convoi_t::sync_step(uint32 delta_t)
 				if(state==INITIAL) {
 					break;
 				}
-				// now move the rest (so all vehikel are moving synchroniously)
+				// now move the rest (so all vehikel are moving synchronously)
 				for(unsigned i=1; i<anz_vehikel; i++) {
 					fahr[i]->fahre_basis(sp_hat);
 				}
@@ -900,7 +900,7 @@ bool convoi_t::sync_step(uint32 delta_t)
 			break;
 
 		case SELF_DESTRUCT:
-			// see step, since destruction during a screen update ma give stange effects
+			// see step, since destruction during a screen update may give strange effects
 			break;
 
 		default:
@@ -922,7 +922,7 @@ bool convoi_t::drive_to()
 		koord3d start = fahr[0]->get_pos();
 		koord3d ziel = fpl->get_current_eintrag().pos;
 
-		// avoid stopping midhalt
+		// avoid stopping mid-halt
 		if(  start==ziel  ) {
 			halthandle_t halt = haltestelle_t::get_halt(ziel,get_besitzer());
 			if(  halt.is_bound()  &&  route.is_contained(start)  ) {
@@ -1307,7 +1307,7 @@ void convoi_t::new_month()
 	if(state==WAITING_FOR_CLEARANCE) {
 		state = WAITING_FOR_CLEARANCE_ONE_MONTH;
 		// check, if now free ...
-		// migh also reset the state!
+		// might also reset the state!
 		int restart_speed=-1;
 		if (fahr[0]->ist_weg_frei(restart_speed,false)) {
 			state = DRIVING;
@@ -1402,7 +1402,7 @@ void convoi_t::start()
 			home_depot = route.front();
 			fahr[0]->set_pos( home_depot );
 		}
-		// put the convoi on the depot ground, to get automatical rotation
+		// put the convoi on the depot ground, to get automatic rotation
 		// (vorfahren() will remove it anyway again.)
 		grund_t *gr = welt->lookup( home_depot );
 		assert(gr);
@@ -1831,7 +1831,7 @@ bool convoi_t::can_go_alte_richtung()
 
 	uint16 length = min((convoi_length/16u)+4u,route.get_count());	// maximum length in tiles to check
 
-	// we just check, wether we go back (i.e. route tiles other than zero have convoi vehicles on them)
+	// we just check, whether we go back (i.e. route tiles other than zero have convoi vehicles on them)
 	for( int index=1;  index<length;  index++ ) {
 		grund_t *gr=welt->lookup(route.position_bei(index));
 		// now check, if we are already here ...
@@ -1870,7 +1870,7 @@ bool convoi_t::can_go_alte_richtung()
 	for(i=0; i<anz_vehikel; i++) {
 		vehikel_t* v = fahr[i];
 
-		// this is such akward, since it takes into account different vehicle length
+		// this is such awkward, since it takes into account different vehicle length
 		const koord3d vehicle_start_pos = v->get_pos();
 		for( int idx=0;  idx<=length;  idx++  ) {
 			if(route.position_bei(idx)==vehicle_start_pos) {
@@ -2018,7 +2018,7 @@ void convoi_t::vorfahren()
 
 	// finally reserve route (if needed)
 	if(  fahr[0]->get_waytype()!=air_wt  &&  !at_dest  ) {
-		// do not prereserve for airplanes
+		// do not pre-reserve for airplanes
 		for(unsigned i=0; i<anz_vehikel; i++) {
 			// eventually reserve this
 			vehikel_t const& v = *fahr[i];
@@ -2069,7 +2069,7 @@ void convoi_t::rdwr(loadsave_t *file)
 
 	simline_t::rdwr_linehandle_t(file, line);
 
-	// we want persistent convoihandles so we can keep dialoges open in network games
+	// we want persistent convoihandles so we can keep dialogues open in network games
 	if(  file->is_loading()  ) {
 		if(  file->get_version()<=112002  ) {
 			self = convoihandle_t( this );
@@ -2599,7 +2599,7 @@ void convoi_t::open_schedule_window( bool show )
 {
 	DBG_MESSAGE("convoi_t::open_schedule_window()","Id = %ld, State = %d, Lock = %d",self.get_id(), state, wait_lock);
 
-	// manipulation of schedule not allowd while:
+	// manipulation of schedule not allowed while:
 	// - just starting
 	// - a line update is pending
 	if(  (state==FAHRPLANEINGABE  ||  line_update_pending.is_bound())  &&  get_besitzer()==welt->get_active_player()  ) {
@@ -2622,7 +2622,7 @@ void convoi_t::open_schedule_window( bool show )
 	alte_richtung = fahr[0]->get_fahrtrichtung();
 
 	if(  show  ) {
-		// Fahrplandialog oeffnen
+		// Open schedule dialog
 		create_win( new fahrplan_gui_t(fpl,get_besitzer(),self), w_info, (ptrdiff_t)fpl );
 		// TODO: what happens if no client opens the window??
 	}
@@ -2872,7 +2872,7 @@ sint64 convoi_t::calc_restwert() const
 
 
 /**
- * Calclulate loading_level and loading_limit. This depends on current state (loading or not).
+ * Calculate loading_level and loading_limit. This depends on current state (loading or not).
  * @author Volker Meyer
  * @date  20.06.2003
  */
@@ -2956,7 +2956,7 @@ uint32 convoi_t::get_average_kmh() const
 
 
 /**
- * Schedule convoid for self destruction. Will be executed
+ * Schedule convois for self destruction. Will be executed
  * upon next sync step
  * @author Hj. Malthaner
  */
@@ -3122,7 +3122,7 @@ sint64 convoi_t::get_purchase_cost() const
 
 /**
 * set line
-* since convoys must operate on a copy of the route's fahrplan, we apply a fresh copy
+* since convoys must operate on a copy of the route's fahrplan (schedule), we apply a fresh copy
 * @author hsiegeln
 */
 void convoi_t::set_line(linehandle_t org_line)
@@ -3149,8 +3149,8 @@ void convoi_t::set_line(linehandle_t org_line)
 
 /**
 * unset line
-* removes convoy from route without destroying its fahrplan
-* => no need to recalculate connetions!
+* removes convoy from route without destroying its fahrplan (schedule)
+* => no need to recalculate connections!
 * @author hsiegeln
 */
 void convoi_t::unset_line()
@@ -3351,7 +3351,7 @@ void convoi_t::set_next_stop_index(uint16 n)
 }
 
 
-/* including this route_index, the route was reserved the laste time
+/* including this route_index, the route was reserved the last time
  * currently only used for tracks
  */
 void convoi_t::set_next_reservation_index(uint16 n)
@@ -3458,7 +3458,7 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 		 */
 		grund_t *gr = welt->lookup(get_pos());
 		if(  gr==NULL  ) {
-			// should never happen, since there is a vehcile in front of us ...
+			// should never happen, since there is a vehicle in front of us ...
 			return false;
 		}
 		weg_t *str = gr->get_weg(road_wt);
@@ -3522,7 +3522,7 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 
 	// Distance it takes overtaking (unit: vehicle_steps) = my_speed * time_overtaking
 	// time_overtaking = tiles_to_overtake/diff_speed
-	// tiles_to_overtake = convoi_length + current pos within tile + (pos_other_convoi wihtin tile + length of other convoi) - one tile
+	// tiles_to_overtake = convoi_length + current pos within tile + (pos_other_convoi within tile + length of other convoi) - one tile
 	int distance = akt_speed*(fahr[0]->get_steps()+get_length_in_steps()+steps_other-VEHICLE_STEPS_PER_TILE)/diff_speed;
 	int time_overtaking = 0;
 
@@ -3599,7 +3599,7 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 
 	// Second phase: only facing traffic is forbidden
 	//   Since street speed can change, we do the calculation with time.
-	//   Each empty tile will substract tile_dimension/max_street_speed.
+	//   Each empty tile will subtract tile_dimension/max_street_speed.
 	//   If time is exhausted, we are guaranteed that no facing traffic will
 	//   invade the dangerous zone.
 	// Conditions for the street are milder: e.g. if no street, no facing traffic

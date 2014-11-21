@@ -38,9 +38,9 @@
 #define HALT_ARRIVED   0 // the amount of ware that arrived here
 #define HALT_DEPARTED 1 // the amount of ware that has departed from here
 #define HALT_WAITING		2 // the amount of ware waiting
-#define HALT_HAPPY		3 // number of happy passangers
-#define HALT_UNHAPPY		4 // number of unhappy passangers
-#define HALT_NOROUTE         5 // number of no-route passangers
+#define HALT_HAPPY		3 // number of happy passengers
+#define HALT_UNHAPPY		4 // number of unhappy passengers
+#define HALT_NOROUTE         5 // number of no-route passengers
 #define HALT_CONVOIS_ARRIVED             6 // number of convois arrived this month
 #define HALT_WALKED 7 // could walk to destination
 
@@ -132,14 +132,14 @@ public:
 	// add convoi to loading queue
 	void request_loading( convoihandle_t cnv );
 
-	// removes convoi from laoding quee
+	// removes convoi from loading queue
 	void finish_loading( convoihandle_t cnv ) { loading_here.remove(cnv); }
 
 	/* recalculates the station bar */
 	void recalc_status();
 
 	/**
-	 * Handles changes of schedules and the resulting rerouting.
+	 * Handles changes of schedules and the resulting re-routing.
 	 */
 	static void step_all();
 
@@ -152,8 +152,8 @@ public:
 	static void reset_routing();
 
 	/**
-	 * Tries to generate some pedestrians on the sqaure and the
-	 * adjacent sqaures. Return actual number of generated
+	 * Tries to generate some pedestrians on the square and the
+	 * adjacent squares. Return actual number of generated
 	 * pedestrians.
 	 *
 	 * @author Hj. Malthaner
@@ -307,7 +307,7 @@ private:
 	void fill_connected_component(uint8 catg, uint16 comp);
 
 
-	// Array with different categries that contains all waiting goods at this stop
+	// Array with different categories that contains all waiting goods at this stop
 	vector_tpl<ware_t> **waren;
 
 	/**
@@ -435,7 +435,7 @@ public:
 	vector_tpl<connection_t> const& get_pax_connections()  const { return all_links[warenbauer_t::INDEX_PAS].connections;  }
 	vector_tpl<connection_t> const& get_mail_connections() const { return all_links[warenbauer_t::INDEX_MAIL].connections; }
 
-	// returns the matchin warenziele
+	// returns the matching warenziele (goods objectives/destinations)
 	vector_tpl<connection_t> const& get_connections(uint8 const catg_index) const { return all_links[catg_index].connections; }
 
 	/**
@@ -449,7 +449,7 @@ public:
 	const slist_tpl<fabrik_t*>& get_fab_list() const { return fab_list; }
 
 	/**
-	 * called regularily to update status and reroute stuff
+	 * called regularly to update status and reroute stuff
 	 * @author Hj. Malthaner
 	 */
 	bool step(uint8 what, sint16 &units_remaining);
@@ -599,7 +599,7 @@ public:
 	 */
 	koord get_next_pos( koord start ) const;
 
-	// true, if this station is overcroded for this category
+	// true, if this station is overcrowded for this category
 	bool is_overcrowded( const uint8 idx ) const { return (overcrowded[idx/8] & (1<<(idx%8)))!=0; }
 
 	/**
@@ -708,7 +708,7 @@ public:
 
 	void set_name(const char *name);
 
-	// create an unique name: better to be called with valid handle, althoug it will work without
+	// create an unique name: better to be called with valid handle, although it will work without
 	char* create_name(koord k, char const* typ);
 
 	void rdwr(loadsave_t *file);

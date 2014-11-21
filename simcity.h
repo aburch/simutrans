@@ -35,10 +35,10 @@ enum city_cost {
 	HIST_CITYCARS,	// number of citycars generated
 	HIST_PAS_TRANSPORTED, // number of passengers who could start their journey
 	HIST_PAS_GENERATED,	// total number generated
-	HIST_MAIL_TRANSPORTED,	// letters that could be sended
+	HIST_MAIL_TRANSPORTED,	// letters that could be sent
 	HIST_MAIL_GENERATED,	// all letters generated
 	HIST_GOODS_RECIEVED,	// times all storages were not empty
-	HIST_GOODS_NEEDED,	// times sotrages checked
+	HIST_GOODS_NEEDED,	// times storages checked
 	HIST_POWER_RECIEVED,	// power consumption (not used at the moment!)
 	MAX_CITY_HISTORY	// Total number of items in array
 };
@@ -147,13 +147,13 @@ private:
 
 	static uint32 cluster_factor;
 
-	// attribute fuer die Bevoelkerung
-	sint32 bev;	// Bevoelkerung gesamt
-	sint32 arb;	// davon mit Arbeit
-	sint32 won;	// davon mit Wohnung
+	// attribute for the population (Bevoelkerung)
+	sint32 bev;	// total population (bevoelkerung)
+	sint32 arb;	// with a job (arbeit)
+	sint32 won;	// with a residence (wohnung)
 
 	/**
-	 * Unsupplied city growth needs
+	 * Un-supplied city growth needs
 	 * A value of 2^32 means 1 new resident
 	 * @author Nathanael Nerode (neroden)
 	 */
@@ -181,7 +181,7 @@ public:
 
 	uint32 stadtinfo_options;
 
-	/* end of histroy related thingies */
+	/* end of history related things */
 private:
 	sint32 best_haus_wert;
 	sint32 best_strasse_wert;
@@ -310,7 +310,7 @@ private:
 	void bewerte_res_com_ind(const koord pos, int &ind, int &com, int &res);
 
 	/**
-	 * Build/renovates a city building at Planquadrat x,y
+	 * Build/renovates a city building at Planquadrat (tile) x,y
 	 */
 	void build_city_building(koord pos);
 	void renovate_city_building(gebaeude_t *gb);
@@ -401,7 +401,7 @@ public:
 	sint32 get_homeless()   const { return bev - won; }
 
 	/**
-	 * Gibt den Namen der Stadt zurück.
+	 * Return the city name.
 	 * @author Hj. Malthaner
 	 */
 	const char *get_name() const { return name; }

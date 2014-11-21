@@ -605,7 +605,7 @@ void planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos) const
 				display_img_blend( img, xpos, ypos, transparent | TRANSPARENT25_FLAG, 0, 0);
 			}
 /*
-// unfourtunately, too expensive for display
+// unfortunately, too expensive for display
 			// plot player outline colours - we always plot in order of players so that the order of the stations in halt_list
 			// doesn't affect the colour displayed [since blend(col1,blend(col2,screen)) != blend(col2,blend(col1,screen))]
 			for(int spieler_count = 0; spieler_count<MAX_PLAYER_COUNT; spieler_count++) {
@@ -729,7 +729,7 @@ void planquadrat_t::add_to_haltlist(halthandle_t halt)
 
 /**
  * removes the halt from a ground
- * however this funtion check, whether there is really no other part still reachable
+ * however this function check, whether there is really no other part still reachable
  * @author prissi, neroden
  */
 void planquadrat_t::remove_from_haltlist(halthandle_t halt)
