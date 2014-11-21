@@ -15,9 +15,9 @@
 class vehikel_t;
 
 /**
- * Klasse für Schienen in Simutrans.
- * Auf den Schienen koennen Züge fahren.
- * Jede Schiene gehört zu einer Blockstrecke
+ * Class for Rails in Simutrans.
+ * Trains can run over rails.
+ * Every rail belong to a section block
  *
  * @author Hj. Malthaner
  */
@@ -81,7 +81,7 @@ public:
 	*/
 	bool unreserve( vehikel_t *);
 
-	/* called befor deletion;
+	/* called before deletion;
 	 * last chance to unreserve tiles ...
 	 */
 	virtual void entferne(spieler_t *sp);
