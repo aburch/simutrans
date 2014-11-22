@@ -3403,8 +3403,19 @@ const char *wkz_wayremover_t::do_work( spieler_t *sp, const koord3d &start, cons
 				}
 				else
 				{
-					can_delete &= gr->remove_everything_from_way(sp,wt,rem);
+					// If this is a public right of way being deleted by anyone other than the public service player,
+					// then it cannot be deleted unless there is a diversionary route within a specified number of tiles.
 					weg_t* const weg = gr->get_weg(wt);
+					if(!sp->is_public_service() && weg && weg->is_public_right_of_way())
+					{
+						if(gr->removing_way_would_disrupt_public_right_of_way(weg->get_waytype()))
+						{
+							return "Cannot remove a public right of way without providing an adequate diversionary route";
+						}
+					}
+					
+					can_delete &= gr->remove_everything_from_way(sp,wt,rem);
+					
 					if(weg)
 					{
 						weg->count_sign();
