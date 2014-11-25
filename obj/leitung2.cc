@@ -649,7 +649,14 @@ void senke_t::step(uint32 delta_t)
 	else {
 		power_load = 0;
 	}
-	fab->add_power_demand( power_demand-power_load ); // allows subsequently stepped senke to supply demand this senke couldn't
+
+	const sint32 demand_remaining = (sint32)power_demand - (sint32)power_load;
+	if( demand_remaining > 0 ) {
+		fab->add_power_demand( (uint32)demand_remaining ); // allows subsequently stepped senke to supply demand this senke couldn't
+	}
+	else {
+		fab->add_power_demand( 0 ); // All power fully satisfied.
+	}
 
 	if(  fab->get_besch()->get_electric_amount() == 65535  ){
 		// demand not specified in pak, use old fixed demands

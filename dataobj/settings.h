@@ -144,7 +144,12 @@ private:
 	bool beginner_mode;
 	sint32 beginner_price_factor;
 
-	bool just_in_time;
+	/* Industry supply model used.
+	 * 0 : Classic (no flow control?)
+	 * 1 : JIT Classic (maximum transit and storage limited)
+	 * 2 : JIT Version 2 (demand buffers with better consumption model)
+	 */
+	uint8 just_in_time;
 
 	// default 0, will be incremented after each 90 degree rotation until 4
 	uint8 rotation;
@@ -391,8 +396,8 @@ public:
 
 	bool get_beginner_mode() const {return beginner_mode;}
 
-	void set_just_in_time(bool b) { just_in_time = b; }
-	bool get_just_in_time() const {return just_in_time;}
+	void set_just_in_time(uint8 b) { just_in_time = b; }
+	uint8 get_just_in_time() const {return just_in_time;}
 
 	void set_default_climates();
 	const sint16 *get_climate_borders() const { return climate_borders; }

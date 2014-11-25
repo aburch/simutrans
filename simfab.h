@@ -66,12 +66,20 @@ class ware_t;
 
 
 // production happens in every second
-#define PRODUCTION_DELTA_T (1024)
+#define PRODUCTION_DELTA_T_BITS (10)
+#define PRODUCTION_DELTA_T (1 << PRODUCTION_DELTA_T_BITS)
 // default production factor
 #define DEFAULT_PRODUCTION_FACTOR_BITS (8)
 #define DEFAULT_PRODUCTION_FACTOR (1 << DEFAULT_PRODUCTION_FACTOR_BITS)
 // precision of apportioned demand (i.e. weights of factories at target cities)
 #define DEMAND_BITS (4)
+
+// The fixed point precision of production scale factors.
+static const uint32 PRODUCTION_SCALE_BITS = 8;
+// The minimum allowed production rate for a factory. This is to limit the time outputs take to fill completly (so factories idle sooner).
+static const sint32 OUTPUT_SCALE_MINIMUM_FRACTION = (5 << PRODUCTION_SCALE_BITS) / 100; // ~5%, 1/20 of the full production rate.
+// The number of times minimum_shipment must be in current storage before rampdown starts.
+static const sint32 OUTPUT_SCALE_RAMPDOWN_MULTIPLYER = 2; // Two shipments must be ready.
 
 
 /**
@@ -104,7 +112,7 @@ public:
 	void set_typ(const ware_besch_t *t) { type=t; }
 
 	// Knightly : functions for manipulating goods statistics
-	void roll_stats(sint64 aggregate_weight);
+	void roll_stats(uint32 factor, sint64 aggregate_weight);
 	void rdwr(loadsave_t *file);
 	const sint64* get_stats() const { return *statistics; }
 	void book_stat(sint64 value, int stat_type) { assert(stat_type<MAX_FAB_GOODS_STAT); statistics[0][stat_type] += value; }
@@ -122,14 +130,28 @@ public:
 		}
 		return value;
 	}
-	void book_weighted_sum_storage(sint64 delta_time);
+	void book_weighted_sum_storage(uint32 factor, sint64 delta_time);
 
 	sint32 menge;	// in internal units shifted by precision_bits (see step)
 	sint32 max;
 	/// Cargo currently in transit from/to this slot. Equivalent to statistics[0][FAB_GOODS_TRANSIT].
 	sint32 get_in_transit() const { return (sint32)statistics[0][FAB_GOODS_TRANSIT]; }
-	/// Current limit on cargo in transit, depending on suppliers mean distance.
-	sint32 max_transit;
+
+	/// Annonmyous union used to save memory and readability. Contains supply flow control limiters.
+	union{
+		// Classic : Current limit on cargo in transit (maximum network capacity), depending on sum of all supplier output storage.
+		sint32 max_transit;
+
+		// JIT Version 2 : Current demand for the good. Orders when greater than 0.
+		sint32 demand_buffer;
+
+		// The minimum shipment size. Used to control delivery to stops and for production ramp-down.
+		sint32 min_shipment;
+	};
+
+	// Ordering lasts at least 1 tick period to allow all suppliers time to send (fair). Used by inputs.
+	bool placing_orders;
+
 #ifdef TRANSIT_DISTANCE
 	sint32 count_suppliers;	// only needed for averaging
 #endif
@@ -240,6 +262,13 @@ private:
 
 	array_tpl<ware_production_t> eingang; ///< array for input/consumed goods
 	array_tpl<ware_production_t> ausgang; ///< array for output/produced goods
+
+	/**
+	 * Some handy cached numbers for active inputs and outputs.
+	 */
+	uint8 inactive_outputs;
+	uint8 inactive_inputs;
+	uint8 inactive_demands;
 
 	/**
 	 * Zeitakkumulator für Produktion
@@ -393,8 +422,11 @@ public:
 	sint64 get_stat(int month, int stat_type) const { assert(stat_type<MAX_FAB_STAT); return statistics[month][stat_type]; }
 	void book_stat(sint64 value, int stat_type) { assert(stat_type<MAX_FAB_STAT); statistics[0][stat_type] += value; }
 
-
+	// This updates maximum in-transit. Important for loading.
 	static void update_transit( const ware_t *ware, bool add );
+
+	// This updates transit stats for freshly produced goods. Includes logic to decrement demand counters.
+	static void apply_transit( const ware_t *ware );
 
 	/**
 	 * convert internal units to displayed values
@@ -486,7 +518,7 @@ public:
 	// true, if there was production requiring power in the last step
 	bool is_currently_producing() const { return currently_producing; }
 
-	// used to limit transformers to 1 per factory
+	// used to limit transformers to 1 per factory and for controling power bonus.
 	bool is_transformer_connected() const { return transformer_connected; }
 	void set_transformer_connected(bool connected) { transformer_connected = connected; }
 
