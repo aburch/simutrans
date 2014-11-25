@@ -775,14 +775,14 @@ fabrik_t::fabrik_t(koord3d pos_, spieler_t* spieler, const fabrik_besch_t* fabes
 	recalc_storage_capacities();
 	if( welt->get_settings().get_just_in_time() >= 2 ){
 		inactive_inputs = inactive_outputs = inactive_demands = 0;
-		if( eingang.empty() ){
+		if(  eingang.empty()  ){
 			// All sources start out with maximum product.
 			for(  uint32 out = 0;  out < ausgang.get_count();  out++  ){
 				ausgang[out].menge = ausgang[out].max;
 				inactive_outputs ++;
 			}
 		}
-		else{
+		else {
 			for(  uint32 out = 0;  out < ausgang.get_count();  out++  ){
 				ausgang[out].menge = 0;
 			}
@@ -884,6 +884,77 @@ void fabrik_t::baue(sint32 rotate, bool build_fields, bool force_initial_prodbas
 				set_base_production( max(field_prod, org_prodbase) );
 			}
 		}
+	}
+
+	/// Determine control logic
+	if( welt->get_settings().get_just_in_time() >= 2 ) {
+		// Does it do anything with goods?
+		if(  ausgang.empty() && eingang.empty()  ) {
+			control_type = besch->is_electricity_producer() ? CL_ELEC_PROD : CL_NONE;
+		}
+		// Is it a consumer?
+		else if( ausgang.empty() ) {
+			if( besch->is_electricity_producer() ) {
+				control_type = eingang.get_count() == 1 ? CL_ELEC_PLANT : CL_ELEC_CONS;
+			}
+			else {
+				control_type = eingang.get_count() == 1 ? CL_CONS_SINGLE : CL_CONS_MANY;
+			}
+		}
+		// Is it a producer?
+		else if( eingang.empty() ) {
+			control_type =  ausgang.get_count() == 1 ? CL_PROD_SINGLE : CL_PROD_MANY;
+		}
+		// It is a factory!
+		else {
+			control_type =  ausgang.get_count() == 1 ? CL_FACT_SINGLE : CL_FACT_MANY;
+		}
+	}
+	else{
+		// Classic logic.
+		if( ausgang.empty() && eingang.empty() ) {
+			control_type = CL_ELEC_CLASSIC;
+		}
+		else if( ausgang.empty() ) {
+			control_type = CL_CONS_CLASSIC;
+		}
+		else if( eingang.empty() ) {
+			control_type = CL_PROD_CLASSIC;
+		}
+		else {
+			control_type = CL_FACT_CLASSIC;
+		}
+	}
+
+	// Boost logic determines what factors boost factory production.
+	if( welt->get_settings().get_just_in_time() >= 2 ) {
+		if(  !besch->is_electricity_producer()  &&  scaled_electric_amount > 0  ) {
+			boost_type = BL_POWER;
+		}
+		else if( scaled_pax_demand > 0 || scaled_mail_demand > 0 ) {
+			boost_type = BL_PAXM;
+		}
+		else {
+			boost_type = BL_NONE;
+		}
+	}
+	else {
+		boost_type = BL_CLASSIC;
+	}
+
+	if(  welt->get_settings().get_just_in_time() >= 2  ) {
+		if( eingang.empty() ) {
+			demand_type = DL_NONE;
+		}
+		else if( ausgang.empty() ) {
+			demand_type = DL_ASYNC;
+		}
+		else {
+			demand_type = DL_SYNC;
+		}
+	}
+	else {
+		demand_type =  eingang.empty() ? DL_NONE : DL_OLD;
 	}
 }
 
@@ -1506,115 +1577,6 @@ void fabrik_t::step(uint32 delta_t)
 	// Only do something if advancing in time.
 	if(  delta_t==0  ) {
 		return;
-	}
-
-	/// Determine control logic. This should be moved to the underlying factory type (besesh?).
-
-	// Control logic type determines how a factory behaves with regards to inputs and outputs.
-	enum CL_TYPE{
-		CL_NONE,         // This factory does nothing! (might be useful for scenarios)
-		// Producers are at the bottom of every supply chain.
-		CL_PROD_SINGLE,  // Producer of a single output. Simpler logic.
-		CL_PROD_CLASSIC, // Classic producer logic.
-		CL_PROD_MANY,    // Producer of many outputs.
-		// Factories are in the middle of every supply chain.
-		CL_FACT_SINGLE,  // Factory that produces a single output. Simpler logic.
-		CL_FACT_CLASSIC, // Classic factory logic, consume at maximum output rate or minimum input.
-		CL_FACT_MANY,    // Enhanced factory logic, consume at average of output rate or minimum input averaged.
-		// Consumers are at the top of every supply chain.
-		CL_CONS_SINGLE,  // Consumer that consumes a single input. Simpler logic.
-		CL_CONS_CLASSIC, // Classic consumer logic. Can generate power.
-		CL_CONS_MANY,    // Consumer that consumes multiple inputs.
-		// Electricity producers provider power.
-		CL_ELEC_PROD,    // Simple electricity source. (green energy)
-		CL_ELEC_PLANT,   // Electricity producer with 1 input.
-		CL_ELEC_CLASSIC, // Classic electricity producer behaviour with no imputs.
-		CL_ELEC_CONS,    // Power produced based on input satisfaction.
-	} control_type;
-
-	if( welt->get_settings().get_just_in_time() >= 2 ) {
-		// Does it do anything with goods?
-		if(  ausgang.empty() && eingang.empty()  ) {
-			control_type = besch->is_electricity_producer() ? CL_ELEC_PROD : CL_NONE;
-		}
-		// Is it a consumer?
-		else if( ausgang.empty() ) {
-			if( besch->is_electricity_producer() ) {
-				control_type = eingang.get_count() == 1 ? CL_ELEC_PLANT : CL_ELEC_CONS;
-			}
-			else {
-				control_type = eingang.get_count() == 1 ? CL_CONS_SINGLE : CL_CONS_MANY;
-			}
-		}
-		// Is it a producer?
-		else if( eingang.empty() ) {
-			control_type =  ausgang.get_count() == 1 ? CL_PROD_SINGLE : CL_PROD_MANY;
-		}
-		// It is a factory!
-		else{
-			control_type =  ausgang.get_count() == 1 ? CL_FACT_SINGLE : CL_FACT_MANY;
-		}
-	}
-	else{
-		// Classic logic.
-		if( ausgang.empty() && eingang.empty() ) {
-			control_type = CL_ELEC_CLASSIC;
-		}
-		else if( ausgang.empty() ) {
-			control_type = CL_CONS_CLASSIC;
-		}
-		else if( eingang.empty() ) {
-			control_type = CL_PROD_CLASSIC;
-		}
-		else {
-			control_type = CL_FACT_CLASSIC;
-		}
-	}
-
-	// Boost logic determines what factors boost factory production.
-	enum BL_TYPE {
-		BL_NONE,    // Production cannot be boosted.
-		BL_PAXM,    // Production boosted only using passengers/mail.
-		BL_POWER,   // Production boosted with power as well. Needs aditional logic for correct ordering.
-		BL_CLASSIC, // Production boosted in classic way.
-	} boost_type;
-
-	if( welt->get_settings().get_just_in_time() >= 2 ) {
-		if(  !besch->is_electricity_producer()  &&  scaled_electric_amount > 0  ) {
-			boost_type = BL_POWER;
-		}
-		else if( scaled_pax_demand > 0 || scaled_mail_demand > 0 ) {
-			boost_type = BL_PAXM;
-		}
-		else {
-			boost_type = BL_NONE;
-		}
-	}
-	else {
-		boost_type = BL_CLASSIC;
-	}
-
-	// Demand buffer order logic;
-	enum DL_TYPE {
-		DL_NONE,    // Has no inputs to demand.
-		DL_SYNC,    // All inputs ordered together.
-		DL_ASYNC,   // All inputs ordered separatly.
-		DL_OLD      // Use maximum in-transit and storage to determine demand.
-	} demand_type;
-
-	if(  welt->get_settings().get_just_in_time() >= 2  ) {
-		if( eingang.empty() ) {
-			demand_type = DL_NONE;
-		}
-		else if( ausgang.empty() ) {
-			demand_type = DL_ASYNC;
-		}
-		else {
-			demand_type = DL_SYNC;
-		}
-	}
-	else {
-		demand_type =  eingang.empty() ? DL_NONE : DL_OLD;
 	}
 
 	/// Declare production control variables.
@@ -2910,7 +2872,7 @@ void fabrik_t::info_prod(cbuffer_t& buf) const
 					(uint32)(0.5 + (double)ausgang[index].max * (double)(besch->get_produkt(index)->get_faktor()) / (double)(1<<(fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS)))
 				);
 			}
-			else{
+			else {
 				buf.printf( "\n - %s %u/%u%s",
 					translator::translate(type->get_name()),
 					(sint32)(0.5+ausgang[index].menge / (double)(1<<fabrik_t::precision_bits)),

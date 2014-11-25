@@ -189,6 +189,44 @@ private:
 	sint64 weighted_sum_power;
 	sint64 aggregate_weight;
 
+	// Control logic type determines how a factory behaves with regards to inputs and outputs.
+	enum CL_TYPE {
+		CL_NONE,         // This factory does nothing! (might be useful for scenarios)
+		// Producers are at the bottom of every supply chain.
+		CL_PROD_SINGLE,  // Producer of a single output. Simpler logic.
+		CL_PROD_CLASSIC, // Classic producer logic.
+		CL_PROD_MANY,    // Producer of many outputs.
+		// Factories are in the middle of every supply chain.
+		CL_FACT_SINGLE,  // Factory that produces a single output. Simpler logic.
+		CL_FACT_CLASSIC, // Classic factory logic, consume at maximum output rate or minimum input.
+		CL_FACT_MANY,    // Enhanced factory logic, consume at average of output rate or minimum input averaged.
+		// Consumers are at the top of every supply chain.
+		CL_CONS_SINGLE,  // Consumer that consumes a single input. Simpler logic.
+		CL_CONS_CLASSIC, // Classic consumer logic. Can generate power.
+		CL_CONS_MANY,    // Consumer that consumes multiple inputs.
+		// Electricity producers provider power.
+		CL_ELEC_PROD,    // Simple electricity source. (green energy)
+		CL_ELEC_PLANT,   // Electricity producer with 1 input.
+		CL_ELEC_CLASSIC, // Classic electricity producer behaviour with no imputs.
+		CL_ELEC_CONS,    // Power produced based on input satisfaction.
+	} control_type;
+
+	// Demand buffer order logic;
+	enum DL_TYPE {
+		DL_NONE,    // Has no inputs to demand.
+		DL_SYNC,    // All inputs ordered together.
+		DL_ASYNC,   // All inputs ordered separatly.
+		DL_OLD      // Use maximum in-transit and storage to determine demand.
+	} demand_type;
+
+	// Boost logic determines what factors boost factory production.
+	enum BL_TYPE {
+		BL_NONE,    // Production cannot be boosted.
+		BL_PAXM,    // Production boosted only using passengers/mail.
+		BL_POWER,   // Production boosted with power as well. Needs aditional logic for correct ordering.
+		BL_CLASSIC, // Production boosted in classic way.
+	} boost_type;
+
 	// Knightly : Functions for manipulating factory statistics
 	void init_stats();
 	void set_stat(sint64 value, int stat_type) { assert(stat_type<MAX_FAB_STAT); statistics[0][stat_type] = value; }
