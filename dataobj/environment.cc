@@ -26,6 +26,8 @@ bool env_t::restore_UI = false;
 extern uint16 network_server_port;
 uint16 const &env_t::server = network_server_port;
 
+uint8 env_t::just_in_time = 1;
+
 // Disable announce by default
 uint32 env_t::server_announce = 0;
 // Minimum is every 60 seconds, default is every 15 minutes (900 seconds), maximum is 86400 (1 day)

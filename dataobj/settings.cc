@@ -153,8 +153,7 @@ settings_t::settings_t() :
 	max_factory_spacing = 40;
 	max_factory_spacing_percentage = 0; // off
 
-	/* DrSuperGood: Use improved industry flow control and production model */
-	just_in_time = 2;
+	just_in_time = env_t::just_in_time;
 
 	fussgaenger = true;
 	stadtauto_duration = 36;	// three years
@@ -416,14 +415,16 @@ void settings_t::rdwr(loadsave_t *file)
 		else {
 			beginner_mode = false;
 		}
-		if(file->get_version()>120000){
+		if(  file->get_version()>120000  ){
 			file->rdwr_byte( just_in_time );
 		}
-		else if(file->get_version()>=89004) {
-			// No longer use bool. Read and translate.
+		else if(  file->get_version()>=89004  ) {
 			bool compat = just_in_time > 0;
 			file->rdwr_bool( compat );
-			just_in_time = compat ? 1 : 0;
+			just_in_time = 0;
+			if(  compat  ) {
+				just_in_time = env_t::just_in_time ? env_t::just_in_time : 1;
+			}
 		}
 		// rotation of the map with respect to the original value
 		if(file->get_version()>=99015) {
@@ -1250,7 +1251,7 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	env_t::pak_height_conversion_factor = contents.get_int("height_conversion_factor", env_t::pak_height_conversion_factor );
 
 	// minimum clearance under under bridges: 1 or 2? (HACK: value only zero during loading of pak set config)
-	bool bounds = way_height_clearance!=0;
+	int bounds = (way_height_clearance!=0);
 	way_height_clearance  = contents.get_int("way_height_clearance", way_height_clearance );
 	if(  way_height_clearance > 2  &&  way_height_clearance < bounds  ) {
 		sint8 new_whc = clamp( way_height_clearance, bounds, 2 );
@@ -1266,8 +1267,11 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	crossconnect_factor = contents.get_int("crossconnect_factories_percentage", crossconnect_factor );
 	electric_promille = contents.get_int("electric_promille", electric_promille );
 
-	just_in_time = (uint8)contents.get_int("just_in_time", just_in_time);
-	if( just_in_time > 2 ) just_in_time = 2; // Range restriction.
+	env_t::just_in_time = (uint8)contents.get_int("just_in_time", env_t::just_in_time);
+	if( env_t::just_in_time > 2 ) {
+		env_t::just_in_time = 2; // Range restriction.
+	}
+	just_in_time = env_t::just_in_time;
 	beginner_price_factor = contents.get_int("beginner_price_factor", beginner_price_factor ); /* this manipulates the good prices in beginner mode */
 	beginner_mode = contents.get_int("first_beginner", beginner_mode ); /* start in beginner mode */
 

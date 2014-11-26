@@ -189,7 +189,8 @@ electric_promille = 330
 # true if transformers are allowed underground (default)
 allow_underground_transformers = 1
 
-# with this switch on (default), overcrowded factories will not receive goods any more
+# with this switch on overcrowded factories will not receive goods any more
+# There are three settings 0=off, 1=old_style (default), 2=new_style
 just_in_time = 1
 
 # how much amount in transport is sent before further distribution stops

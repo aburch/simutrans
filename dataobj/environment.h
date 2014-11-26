@@ -229,6 +229,9 @@ public:
 	/// use transparency to hide buildings and trees
 	static bool hide_with_transparency;
 
+	/// which is the deafult economy?
+	static uint8 just_in_time;
+
 	/// Three states to control hiding of building
 	enum hide_buildings_states {
 		NOT_HIDE=0,           ///< show all buildings
