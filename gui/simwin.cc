@@ -153,7 +153,7 @@ static void *inside_event_handling = NULL;
 // only this gui element can set a tooltip
 static void *tooltip_element = NULL;
 
-static void destroy_framed_win(simwin_t *win);
+static bool destroy_framed_win(simwin_t *win);
 
 //=========================================================================
 // Helper Functions
@@ -439,6 +439,7 @@ bool top_win( const gui_frame_t *gui, bool keep_rollup )
 	return false;
 }
 
+
 /**
  * Checks if a window is a top level window
  * @author Hj. Malthaner
@@ -542,7 +543,6 @@ void rdwr_all_win(loadsave_t *file)
 		}
 	}
 }
-
 
 
 int create_win(gui_frame_t* const gui, wintype const wt, ptrdiff_t const magic)
@@ -701,13 +701,16 @@ static void process_kill_list()
  * Destroy a framed window
  * @author Hj. Malthaner
  */
-static void destroy_framed_win(simwin_t *wins)
+static bool destroy_framed_win(simwin_t *wins)
 {
+	bool r = true;
+
 	// mark dirty
 	const scr_size size = wins->gui->get_windowsize();
 	mark_rect_dirty_wc( wins->pos.x - 1, wins->pos.y - 1, wins->pos.x + size.w + 2, wins->pos.y + size.h + 2 ); // -1, +2 for env_t::window_frame_active
 
-	if(wins->gui) {
+	gui_frame_t* gui = wins->gui; // save pointer to gui window: might be modified in event handling, or could be modified if wins points to value in kill_list and kill_list is modified! nasty surprise
+	if(  gui  ) {
 		event_t ev;
 
 		ev.ev_class = INFOWIN;
@@ -719,32 +722,34 @@ static void destroy_framed_win(simwin_t *wins)
 		ev.button_state = 0;
 
 		void *old = inside_event_handling;
-		inside_event_handling = wins->gui;
+		inside_event_handling = gui;
 		wins->gui->infowin_event(&ev);
 		inside_event_handling = old;
 	}
 
-	if(  (wins->wt&w_do_not_delete)==0  ) {
-
-		// save pointer to gui window:
-		// could be modified if wins points to value in kill_list and kill_list is modified! nasty surprise
-		gui_frame_t* gui = wins->gui;
-		// remove from kill list first
-		// otherwise delete will be called again on that window
-		for(  uint j = 0;  j < kill_list.get_count();  j++  ) {
-			if(  kill_list[j].gui == gui  ) {
-				kill_list.remove_at(j);
-				break;
+	if(  (wins->wt&w_do_not_delete) == 0  ) {
+		if(  wins->gui == gui  ) {
+			// remove from kill list first, otherwise delete will be called again on that window
+			for(  uint32 j = 0;  j < kill_list.get_count();  j++  ) {
+				if(  kill_list[j].gui == gui  ) {
+					kill_list.remove_at(j);
+					break;
+				}
 			}
+			delete gui;
 		}
-		delete gui;
+		else {
+			// wins likely modified during event handling. Assume this was just a schedule window destroying itself, and top_win() therefore modifying wins.
+			// return false to signal destroy_all_win() that wins was already modified.
+			r = false;
+		}
 	}
 	// set dirty flag to refill background
-	if(wl) {
+	if(  wl  ) {
 		wl->set_background_dirty();
 	}
+	return r;
 }
-
 
 
 bool destroy_win(const ptrdiff_t magic)
@@ -755,7 +760,6 @@ bool destroy_win(const ptrdiff_t magic)
 	}
 	return false;
 }
-
 
 
 bool destroy_win(const gui_frame_t *gui)
@@ -793,21 +797,25 @@ bool destroy_win(const gui_frame_t *gui)
 }
 
 
-
 void destroy_all_win(bool destroy_sticky)
 {
-	for ( int curWin=0 ; curWin < (int)wins.get_count() ; curWin++ ) {
-		if(  destroy_sticky  || !wins[curWin].sticky  ) {
-			if(  inside_event_handling==wins[curWin].gui  ) {
+	for(  sint32 curWin = 0;  curWin < (sint32)wins.get_count();  curWin++  ) {
+		if(  destroy_sticky  ||  !wins[curWin].sticky  ) {
+			if(  inside_event_handling == wins[curWin].gui  ) {
 				// only add this, if not already added
 				kill_list.append_unique(wins[curWin]);
+				// compact the window list
+				wins.remove_at(curWin);
+				curWin--;
 			}
 			else {
-				destroy_framed_win(&wins[curWin]);
+				if(  destroy_framed_win(&wins[curWin])  ) {
+					// compact the window list
+					wins.remove_at(curWin);
+					curWin--;
+				}
+				// else wins was already modified - assume by the schedule window closing itself during event handling
 			}
-			// compact the window list
-			wins.remove_at(curWin);
-			curWin--;
 		}
 	}
 }
@@ -1744,7 +1752,6 @@ void win_set_tooltip(int xpos, int ypos, const char *text, const void *const own
 	tooltip_xpos = xpos;
 	tooltip_ypos = ypos;
 }
-
 
 
 /**
