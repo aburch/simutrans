@@ -230,11 +230,18 @@ DBG_MESSAGE("convoi_t::~convoi_t()", "destroying %d, %p", self.get_id(), this);
 // waypoint: no stop, resp. for airplanes in air (i.e. no air strip below)
 bool convoi_t::is_waypoint( koord3d ziel ) const
 {
-	if (fahr[0]->get_waytype() == air_wt) {
+	if(  fahr[0]->get_waytype() == air_wt  ) {
+		// separate logic for airplanes, since the can have waypoints over stops etc.
 		grund_t *gr = welt->lookup_kartenboden(ziel.get_2d());
 		if(  gr == NULL  ||  gr->get_weg(air_wt) == NULL  ) {
+			// during flight always a waypoint
 			return true;
 		}
+		else if(  gr->get_depot()  ) {
+			// but a depot is not a waypoint
+			return false;
+		}
+		// so wie are on a taxiway/runway here ...
 	}
 	return !haltestelle_t::get_halt(ziel,get_besitzer()).is_bound();
 }
