@@ -1167,7 +1167,7 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 			}
 
 			// Inputs used to be with respect to actual units of production. They now are normalized with respect to factory production so require conversion.
-			const uint32 prod_factor = besch->get_lieferant(i)->get_verbrauch();
+			const uint32 prod_factor = besch ? besch->get_lieferant(i)->get_verbrauch() : 1;
 			if(  file->get_version() <= 120000  ) {
 				ware.menge = (sint32)(((sint64)menge << DEFAULT_PRODUCTION_FACTOR_BITS) / (sint64)prod_factor);
 			}
@@ -1220,7 +1220,7 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 
 			// Outputs used to be with respect to actual units of production. They now are normalized with respect to factory production so require conversion.
 			if(  file->get_version() <= 120000  ){
-				const uint32 prod_factor = besch->get_produkt(i)->get_faktor();
+				const uint32 prod_factor = besch ? besch->get_produkt(i)->get_faktor() : 1;
 				ware.menge = (sint32)(((sint64)menge << DEFAULT_PRODUCTION_FACTOR_BITS) / (sint64)prod_factor);
 			}
 			else {

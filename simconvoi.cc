@@ -241,7 +241,7 @@ bool convoi_t::is_waypoint( koord3d ziel ) const
 			// but a depot is not a waypoint
 			return false;
 		}
-		// so wie are on a taxiway/runway here ...
+		// so we are on a taxiway/runway here ...
 	}
 	return !haltestelle_t::get_halt(ziel,get_besitzer()).is_bound();
 }
