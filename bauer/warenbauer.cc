@@ -154,6 +154,11 @@ const ware_besch_t *warenbauer_t::get_info(const char* name)
 	if(  ware==NULL  ) {
 		ware = besch_names.get(translator::compatibility_name(name));
 	}
+	if(  ware == NULL  ) {
+		// to avoid crashed with NULL pointer in skripts return good NONE
+		dbg->error( "warenbauer_t::get_info()", "No besch for %s", name );
+		ware = warenbauer_t::nichts;
+	}
 	return ware;
 }
 
