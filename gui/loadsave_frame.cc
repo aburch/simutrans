@@ -96,14 +96,18 @@ loadsave_frame_t::loadsave_frame_t(bool do_load) : savegame_frame_t(".sve",false
 	// load cached entries
 	if (cached_info.empty()) {
 		loadsave_t file;
-		const char *cache_file = SAVE_PATH_X "_cached.xml";
-		if (file.rd_open(cache_file)) {
+		/* We rename the old chace file and remove any incomplete read version.
+		 * Upon an error the cache will be rebuilt then next time.
+		 */
+		remove( SAVE_PATH_X "_load_cached.xml" );
+		rename( SAVE_PATH_X "_cached.xml", SAVE_PATH_X "_load_cached.xml" );
+		if(  file.rd_open(SAVE_PATH_X "_load_cached.xml")  ) {
 			// ignore comment
 			const char *text=NULL;
 			file.rdwr_str(text);
 
 			bool ok = true;
-			while (ok) {
+			while(ok) {
 				xml_tag_t t(&file, "save_game_info");
 				// first filename
 				file.rdwr_str(text);
@@ -121,6 +125,7 @@ loadsave_frame_t::loadsave_frame_t(bool do_load) : savegame_frame_t(".sve",false
 				free(const_cast<char *>(text));
 			}
 			file.close();
+			rename( SAVE_PATH_X "_load_cached.xml", SAVE_PATH_X "_cached.xml" );
 		}
 	}
 }

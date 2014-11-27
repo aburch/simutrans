@@ -226,11 +226,11 @@ void savegame_frame_t::fill_list( void )
 	char *fullname;
 	bool not_cutting_extension = (suffix==NULL  ||  suffix[0]!='.');
 
-	if(suffix == NULL){
+	if(  suffix == NULL  ){
 		suffixnodot = NULL;
 	}
-	else{
-		suffixnodot = (suffix[0] == '.')?suffix+1:suffix;
+	else {
+		suffixnodot = (suffix[0] == '.')  ?suffix+1 : suffix;
 	}
 
 	// for each path, we search.
@@ -248,14 +248,14 @@ void savegame_frame_t::fill_list( void )
 			fullname = new char [path_c_len+strlen(name)+1];
 			sprintf(fullname,"%s%s",path_c,name);
 
-			if(check_file(fullname, suffix)){
-				if (!section_added) {
+			if(  check_file(fullname, suffix)  ){
+				if(!section_added) {
 					add_section(path);
 					section_added = true;
 				}
 				add_file(fullname, name, get_info(fullname), not_cutting_extension);
 			}
-			else{
+			else {
 				// NOTE: we just free "fullname" memory when add_file is not called. That memory will be
 				// freed in the class destructor. This way we save the cost of re-allocate/copy it inside there
 				delete [] fullname;
@@ -509,7 +509,6 @@ bool savegame_frame_t::action_triggered(gui_action_creator_t *component, value_t
 		//----------------------------
 		cancel_action(buf);
 		destroy_win(this);      //29-Oct-2001         Markus Weber    Added   savebutton case
-
 	}
 	else {
 		// File in list selected

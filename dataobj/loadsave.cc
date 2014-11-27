@@ -1080,8 +1080,8 @@ void loadsave_t::start_tag(const char *tag)
 			char buf[256];
 			// find start of tag
 			while(  lsgetc()!='<'  ) { /* nothing */ }
-			read(buf, strlen(tag));
-			if (!strstart(buf, tag)) {
+			read( buf, strlen(tag) );
+			if(  !strstart(buf, tag)  ) {
 				dbg->fatal( "loadsave_t::start_tag()","expected \"%s\", got \"%s\"", tag, buf );
 			}
 			while(  lsgetc()!='>'  )  ;
