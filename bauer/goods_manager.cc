@@ -159,6 +159,11 @@ const goods_desc_t *goods_manager_t::get_info(const char* name)
 	if(  ware==NULL  ) {
 		ware = desc_names.get(translator::compatibility_name(name));
 	}
+	if(  ware == NULL  ) {
+		// to avoid crashed with NULL pointer in skripts return good NONE
+		dbg->warning( "goods_manager_t::get_info()", "No desc for %s", name );
+		ware = goods_manager_t::none;
+	}
 	return ware;
 }
 
