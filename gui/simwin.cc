@@ -181,7 +181,7 @@ static int display_gadget_box(sint8 code,
 	}
 
 	if(pushed) {
-		display_fillbox_wh_clip(x+1, y+1, D_GADGET_WIDTH-2, D_TITLEBAR_HEIGHT-2, (color & 0xF8) + max(7, (color&0x07)+2), false);
+		display_fillbox_wh_clip(x+1, y+1, D_GADGET_WIDTH-2, D_TITLEBAR_HEIGHT-2, (color & 0xF8) + max(7, (color&0x07)+2), false );
 	}
 
 	// Do we have a gadget image?
@@ -892,6 +892,7 @@ void display_win(int win)
 				wins[win].flags );
 	}
 	if(  wins[win].dirty  ) {
+		// not sure this is still a useful call
 		mark_rect_dirty_wc( wins[win].pos.x, wins[win].pos.y, wins[win].pos.x+size.w+1, wins[win].pos.y+2 );
 		wins[win].dirty = false;
 	}
@@ -899,10 +900,10 @@ void display_win(int win)
 	if(env_t::window_frame_active  &&  (unsigned)win==wins.get_count()-1) {
 		const int y_off = wins[win].flags.title ? 0 : D_TITLEBAR_HEIGHT;
 		if(!wins[win].rollup) {
-			display_ddd_box( wins[win].pos.x-1, wins[win].pos.y-1 + y_off, size.w+2, size.h+2 - y_off, title_color, title_color+1, wins[win].gui->is_dirty() );
+			display_ddd_box( wins[win].pos.x-1, wins[win].pos.y-1 + y_off, size.w+2, size.h+2 - y_off, title_color, title_color+1, wins[win].dirty | wins[win].gui->is_dirty() );
 		}
 		else {
-			display_ddd_box( wins[win].pos.x-1, wins[win].pos.y-1 + y_off, size.w+2, D_TITLEBAR_HEIGHT + 2 - y_off, title_color, title_color+1, wins[win].gui->is_dirty() );
+			display_ddd_box( wins[win].pos.x-1, wins[win].pos.y-1 + y_off, size.w+2, D_TITLEBAR_HEIGHT + 2 - y_off, title_color, title_color+1, wins[win].dirty | wins[win].gui->is_dirty() );
 		}
 	}
 	if(!wins[win].rollup) {

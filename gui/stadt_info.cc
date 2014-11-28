@@ -23,7 +23,7 @@
 #include "../display/simgraph.h"
 
 #define PAX_DEST_X (138)
-#define PAX_DEST_Y (20)
+#define PAX_DEST_Y (4+D_TITLEBAR_HEIGHT)
 #define PAX_DEST_MARGIN (4)
 #define PAX_DEST_MIN_SIZE (16)		// minimum width/height of the minimap
 #define PAX_DEST_VERTICAL (4.0/3.0) // aspect factor where minimaps change to over/under instead of left/right

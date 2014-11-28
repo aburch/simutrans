@@ -135,12 +135,15 @@ void gui_frame_t::draw(scr_coord pos, scr_size size)
 	// draw background
 	if(  opaque  ) {
 		display_img_stretch( gui_theme_t::windowback, scr_rect( pos + scr_coord(0,D_TITLEBAR_HEIGHT), size - scr_size(0,D_TITLEBAR_HEIGHT) ) );
+		if(  dirty  ) {
+			mark_rect_dirty_wc(pos.x, pos.y, pos.x + size.w, pos.y + D_TITLEBAR_HEIGHT );
+		}
 	}
 	else {
-		display_blend_wh( pos.x+1, pos.y+D_TITLEBAR_HEIGHT, size.w-2, size.h-D_TITLEBAR_HEIGHT, color_transparent, percent_transparent );
 		if(  dirty  ) {
-			mark_rect_dirty_wc(pos.x, pos.y, pos.x + size.w, pos.y + size.h);
+			mark_rect_dirty_wc(pos.x, pos.y, pos.x + size.w, pos.y + size.h + D_TITLEBAR_HEIGHT );
 		}
+		display_blend_wh( pos.x+1, pos.y+D_TITLEBAR_HEIGHT, size.w-2, size.h-D_TITLEBAR_HEIGHT, color_transparent, percent_transparent );
 	}
 	dirty = false;
 
