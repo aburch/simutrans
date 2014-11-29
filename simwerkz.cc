@@ -965,22 +965,6 @@ const char *wkz_raise_t::check_pos(spieler_t *sp, koord3d pos )
 	if (h > grund_t::underground_level) {
 			return "Terraforming not possible\nhere in underground view";
 	}
-	if(!sp->is_public_service())
-	{
-		if(welt->lookup_hgt(pos.get_2d()) < welt->get_grundwasser() - 1)
-		{
-			return "Cannot terraform in deep water";
-		}
-		for(int n = 0; n < 16; n ++)
-		{
-			const koord kn = pos.get_2d().second_neighbours[n] + pos.get_2d();
-			const sint8 height = welt->lookup_hgt(kn);
-			if(height < (welt->get_grundwasser()))
-			{
-				return "Cannot terraform in deep water";
-			}
-		}
-	}
 	const sint64 cost = welt->get_settings().cst_alter_land;
 	if(! spieler_t::can_afford(sp, -cost) )
 	{
@@ -1074,10 +1058,7 @@ const char *wkz_lower_t::check_pos( spieler_t *sp, koord3d pos )
 	if (h > grund_t::underground_level) {
 			return "Terraforming not possible\nhere in underground view";
 	}
-	if(pos.z < welt->get_grundwasser())
-	{
-		return "Cannot terraform in deep water";
-	}
+
 	const sint64 cost = welt->get_settings().cst_alter_land;
 	if(!spieler_t::can_afford(sp, -cost))
 	{
@@ -1138,21 +1119,6 @@ const char *wkz_setslope_t::check_pos( spieler_t *, koord3d pos)
 		if(  grund_t::underground_mode == grund_t::ugm_all  &&  !gr1->ist_tunnel()  ) 
 		{
 			return "Terraforming not possible\nhere in underground view";
-		}
-
-		if(welt->lookup_hgt(pos.get_2d()) <= welt->get_grundwasser() - 1)
-		{
-			return "Cannot terraform in deep water";
-		}
-
-		for(int n = 0; n < 8; n ++)
-		{
-			const koord p = pos.get_2d().neighbours[n] + pos.get_2d();
-			const sint8 height = welt->lookup_hgt(p);
-			if(height <= (welt->get_grundwasser() - 1))
-			{
-				return "Cannot terraform in deep water";
-			}
 		}
 	}
 	else 

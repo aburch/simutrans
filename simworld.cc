@@ -2813,9 +2813,9 @@ const char* karte_t::can_raise_to(const spieler_t *sp, sint16 x, sint16 y, bool 
 		return "";
 	}
 
-	if(min_hgt < grundwasser && !allow_deep_water) 
+	if(gr->ist_wasser() && min_hgt < grundwasser && !allow_deep_water) 
 	{
-		return "";
+		return "Cannot terraform in deep water";
 	}
 
 	const char* err = can_raise_plan_to(sp, x, y, max_hgt);
@@ -3323,7 +3323,7 @@ bool karte_t::can_ebne_planquadrat(spieler_t *sp, koord k, sint8 hgt, bool keep_
 }
 
 
-// make a flat level at this position (only used for AI at the moment)
+// make a flat level at this position 
 bool karte_t::ebne_planquadrat(spieler_t *sp, koord k, sint8 hgt, bool keep_water, bool make_underwater_hill, bool justcheck)
 {
 	int n = 0;
