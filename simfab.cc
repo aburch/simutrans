@@ -58,6 +58,10 @@
 
 
 static const int FAB_MAX_INPUT = 15000;
+// Half a display unit (0.5).
+static const sint64 FAB_DISPLAY_UNIT_HALF = ((sint64)1 << (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS - 1));
+// Half a production factor unit (0.5).
+static const sint32 FAB_PRODFACT_UNIT_HALF = ((sint32)1 << (DEFAULT_PRODUCTION_FACTOR_BITS - 1));
 
 karte_ptr_t fabrik_t::welt;
 
@@ -65,7 +69,7 @@ karte_ptr_t fabrik_t::welt;
 /**
  * Convert internal values to displayed values
  */
-sint64 convert_goods(sint64 value) { return ((value + (1 << (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS - 1))) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS) ); }
+sint64 convert_goods(sint64 value) { return ((value + FAB_DISPLAY_UNIT_HALF) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS) ); }
 sint64 convert_power(sint64 value) { return ( value >> POWER_TO_MW ); }
 sint64 convert_boost(sint64 value) { return ( (value * 100 + (DEFAULT_PRODUCTION_FACTOR>>1)) >> DEFAULT_PRODUCTION_FACTOR_BITS ); }
 
@@ -2863,20 +2867,21 @@ void fabrik_t::info_prod(cbuffer_t& buf) const
 
 		for (uint32 index = 0; index < ausgang.get_count(); index++) {
 			const ware_besch_t * type = ausgang[index].get_typ();
+			const sint64 pfactor = (sint64)besch->get_produkt(index)->get_faktor();
 
 			if(  welt->get_settings().get_just_in_time() >= 2  ) {
 				buf.printf( "\n - %s %u%% : %u/%u",
 					translator::translate(type->get_name()),
-					(uint32)((besch->get_produkt(index)->get_faktor()*100l)/256.0),
-					(uint32)(0.5 + (double)ausgang[index].menge * (double)(besch->get_produkt(index)->get_faktor()) / (double)(1<<(fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS))),
-					(uint32)(0.5 + (double)ausgang[index].max * (double)(besch->get_produkt(index)->get_faktor()) / (double)(1<<(fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS)))
+					(uint32)((FAB_PRODFACT_UNIT_HALF + (sint32)pfactor * 100) >> DEFAULT_PRODUCTION_FACTOR_BITS),
+					(uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)ausgang[index].menge * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS)),
+					(uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)ausgang[index].max * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS))
 				);
 			}
 			else {
 				buf.printf( "\n - %s %u/%u%s",
 					translator::translate(type->get_name()),
-					(sint32)(0.5+ausgang[index].menge / (double)(1<<fabrik_t::precision_bits)),
-					(sint32)(ausgang[index].max >> fabrik_t::precision_bits),
+					(uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)ausgang[index].menge * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS)),
+					(uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)ausgang[index].max * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS)),
 					translator::translate(type->get_mass())
 				);
 
@@ -2885,9 +2890,7 @@ void fabrik_t::info_prod(cbuffer_t& buf) const
 					buf.append(translator::translate(type->get_catg_name()));
 				}
 
-				buf.append(", ");
-				buf.append((besch->get_produkt(index)->get_faktor()*100l)/256.0,0);
-				buf.append("%");
+				buf.printf(", %u%%", (uint32)((FAB_PRODFACT_UNIT_HALF + (sint32)pfactor * 100) >> DEFAULT_PRODUCTION_FACTOR_BITS));
 			}
 		}
 	}
@@ -2897,35 +2900,37 @@ void fabrik_t::info_prod(cbuffer_t& buf) const
 		buf.append(translator::translate("Verbrauch"));
 
 		for (uint32 index = 0; index < eingang.get_count(); index++) {
+			const sint64 pfactor = (sint64)besch->get_lieferant(index)->get_verbrauch();
+
 			if(  welt->get_settings().get_just_in_time() >= 2  ) {
 				buf.printf("\n - %s %u%% : %u/%u + %u (%+i)",
 					translator::translate(eingang[index].get_typ()->get_name()),
-					(uint32)(0.5+(besch->get_lieferant(index)->get_verbrauch()*100l)/256.0),
-					(uint32)(0.5 + (double)eingang[index].menge * (double)(besch->get_lieferant(index)->get_verbrauch()) / (double)(1<<(fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS))),
-					(uint32)(0.5 + (double)eingang[index].max * (double)(besch->get_lieferant(index)->get_verbrauch()) / (double)(1<<(fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS))),
+					(uint32)((FAB_PRODFACT_UNIT_HALF + (sint32)pfactor * 100) >> DEFAULT_PRODUCTION_FACTOR_BITS),
+					(uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)eingang[index].menge * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS)),
+					(uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)eingang[index].max * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS)),
 					(uint32)eingang[index].get_in_transit(),
-					(uint32)(0.5 + (double)eingang[index].demand_buffer * (double)(besch->get_lieferant(index)->get_verbrauch()) / (double)(1<<(fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS)))
+					(sint32)((FAB_DISPLAY_UNIT_HALF + (sint64)eingang[index].demand_buffer * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS))
 				);
 			}
 			else if(  welt->get_settings().get_factory_maximum_intransit_percentage()  ) {
 				buf.printf("\n - %s %u/%i(%i)/%u%s, %u%%",
 					translator::translate(eingang[index].get_typ()->get_name()),
-					(sint32)(0.5+eingang[index].menge / (double)(1<<fabrik_t::precision_bits)),
+					(uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)eingang[index].menge * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS)),
 					eingang[index].get_in_transit(),
 					eingang[index].max_transit,
-					(eingang[index].max >> fabrik_t::precision_bits),
+					(uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)eingang[index].max * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS)),
 					translator::translate(eingang[index].get_typ()->get_mass()),
-					(sint32)(0.5+(besch->get_lieferant(index)->get_verbrauch()*100l)/256.0)
+					(uint32)((FAB_PRODFACT_UNIT_HALF + (sint32)pfactor * 100) >> DEFAULT_PRODUCTION_FACTOR_BITS)
 				);
 			}
 			else {
 				buf.printf("\n - %s %u/%i/%u%s, %u%%",
 					translator::translate(eingang[index].get_typ()->get_name()),
-					(sint32)(0.5+eingang[index].menge / (double)(1<<fabrik_t::precision_bits)),
+					(uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)eingang[index].menge * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS)),
 					eingang[index].get_in_transit(),
-					(eingang[index].max >> fabrik_t::precision_bits),
+					(uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)eingang[index].max * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS)),
 					translator::translate(eingang[index].get_typ()->get_mass()),
-					(sint32)(0.5+(besch->get_lieferant(index)->get_verbrauch()*100l)/256.0)
+					(uint32)((FAB_PRODFACT_UNIT_HALF + (sint32)pfactor * 100) >> DEFAULT_PRODUCTION_FACTOR_BITS)
 				);
 			}
 		}
