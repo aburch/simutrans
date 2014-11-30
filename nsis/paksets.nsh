@@ -163,20 +163,20 @@ SectionEnd
 ; name does not match folder name (pak128.japan) but otherwise always selected for update
 Section /o "pak128.Japan for Simutrans 112.0 (alpha)" pak128japan
   AddSize 19338
-  StrCpy $downloadlink "http://pak128.jpn.org/souko/pak128.japan.112.0.cab"
-  StrCpy $archievename "pak128.japan.112.0.cab"
+  StrCpy $downloadlink "http://pak128.jpn.org/souko/pak128.japan.112.0b.cab"
+  StrCpy $archievename "pak128.japan.112.0b.cab"
   StrCpy $downloadname "pak128.Japan"
-  StrCpy $VersionString ""
+  StrCpy $VersionString "Pak128.Japan 112.0"
   Call DownloadInstallCabWithoutSimutrans
 SectionEnd
 
 
-Section /o "pak192.Comic 0.3 (Freeware)" pak192comic
+Section /o "pak192.Comic 0.4 (Freeware)" pak192comic
   AddSize 63430
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak192.comic/pak192comic%20for%20112-3/pak192comic-0.3-112-3up.zip"
-  StrCpy $archievename "pak192comic-0.3-112-3up.zip"
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak192.comic/pak192comic%20for%20120-0/pak192comic-0.4-120-0up.zip"
+  StrCpy $archievename "pak192comic-0.4-120-0up.zip"
   StrCpy $downloadname "pak192.comic"
-  StrCpy $VersionString "pak192.comic [Version 0.3]"
+  StrCpy $VersionString "Pak192.comic 0.4.0 (rev 468)"
   Call DownloadInstallZip
 SectionEnd
 
