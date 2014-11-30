@@ -165,6 +165,7 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	uint16 const pax_boost       = (obj.get_int("passenger_boost",        0) * 256 + 500) / 1000;
 	uint16 const mail_boost      = (obj.get_int("mail_boost",             0) * 256 + 500) / 1000;
 	uint16 const electric_amount =  obj.get_int("electricity_amount", 65535);
+	uint16 const electric_amount =  obj.get_int("electricity_demand", electric_amount);
 	uint16 const pax_demand      =  obj.get_int("passenger_demand",   65535);
 	uint16 const mail_demand     =  obj.get_int("mail_demand",        65535);
 
