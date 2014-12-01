@@ -2391,12 +2391,12 @@ void fabrik_t::step(uint32 delta_t)
 				// Orders based on demand buffer.
 				case DL_SYNC :
 				case DL_ASYNC :
-					eingang[index].placing_orders = eingang[index].demand_buffer > 0;
+					eingang[index].placing_orders = (eingang[index].demand_buffer > 0);
 					break;
 
 				// Orders based on storage and maximum transit.
 				case DL_OLD :
-					eingang[index].placing_orders = eingang[index].menge < eingang[index].max && eingang[index].get_in_transit() < eingang[index].max_transit;
+					eingang[index].placing_orders = (eingang[index].menge < eingang[index].max  &&  (eingang[index].max_transit == 0  ||  eingang[index].get_in_transit() < eingang[index].max_transit)  );
 					break;
 
 				// Unknown order logic?
