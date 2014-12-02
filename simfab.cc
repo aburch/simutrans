@@ -932,10 +932,10 @@ void fabrik_t::baue(sint32 rotate, bool build_fields, bool force_initial_prodbas
 
 	// Boost logic determines what factors boost factory production.
 	if( welt->get_settings().get_just_in_time() >= 2 ) {
-		if(  !besch->is_electricity_producer()  &&  scaled_electric_amount > 0  ) {
+		if(  !besch->is_electricity_producer()  &&  besch->get_electric_amount()  ) {
 			boost_type = BL_POWER;
 		}
-		else if( scaled_pax_demand > 0 || scaled_mail_demand > 0 ) {
+		else if(  besch->get_pax_demand() > 0  ||  besch->get_mail_demand() > 0  ) {
 			boost_type = BL_PAXM;
 		}
 		else {
