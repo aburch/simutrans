@@ -1836,8 +1836,8 @@ DBG_MESSAGE("calc_route::calc_route", "took %i ms",dr_time()-ms);
 #endif
 }
 
-void
-wegbauer_t::baue_tunnel_und_bruecken()
+
+void wegbauer_t::baue_tunnel_und_bruecken()
 {
 	if(bruecke_besch==NULL  &&  tunnel_besch==NULL) {
 		return;
@@ -2072,14 +2072,15 @@ bool wegbauer_t::baue_tunnelboden()
 			// make new tunnelboden
 			tunnelboden_t* tunnel = new tunnelboden_t(route[i], 0);
 			welt->access(route[i].get_2d())->boden_hinzufuegen(tunnel);
-			if(tunnel_besch->get_waytype()!=powerline_wt) {
+			if(  tunnel_besch->get_waytype() != powerline_wt  ) {
 				weg_t *weg = weg_t::alloc(tunnel_besch->get_waytype());
 				weg->set_besch( wb );
 				tunnel->neuen_weg_bauen(weg, route.get_ribi(i), sp);
 				tunnel->obj_add(new tunnel_t(route[i], sp, tunnel_besch));
 				weg->set_max_speed(tunnel_besch->get_topspeed());
 				spieler_t::add_maintenance( sp, -weg->get_besch()->get_wartung(), weg->get_besch()->get_finance_waytype());
-			} else {
+			}
+			else {
 				tunnel->obj_add(new tunnel_t(route[i], sp, tunnel_besch));
 				leitung_t *lt = new leitung_t(tunnel->get_pos(), sp);
 				lt->set_besch( wb );
@@ -2091,9 +2092,9 @@ bool wegbauer_t::baue_tunnelboden()
 			cost -= tunnel_besch->get_preis();
 			spieler_t::add_maintenance( sp,  tunnel_besch->get_wartung(), tunnel_besch->get_finance_waytype() );
 		}
-		else if(gr->get_typ()==grund_t::tunnelboden) {
+		else if(  gr->get_typ() == grund_t::tunnelboden  ) {
 			// check for extension only ...
-			if(tunnel_besch->get_waytype()!=powerline_wt) {
+			if(  tunnel_besch->get_waytype() != powerline_wt  ) {
 				gr->weg_erweitern( tunnel_besch->get_waytype(), route.get_ribi(i) );
 
 				tunnel_t *tunnel = gr->find<tunnel_t>();
@@ -2116,13 +2117,15 @@ bool wegbauer_t::baue_tunnelboden()
 
 					cost -= tunnel_besch->get_preis();
 				}
-			} else {
+			}
+			else {
 				leitung_t *lt = gr->get_leitung();
 				if(!lt) {
 					lt = new leitung_t(gr->get_pos(), sp);
 					lt->set_besch( wb );
 					gr->obj_add( lt );
-				} else {
+				}
+				else {
 					lt->leitung_t::laden_abschliessen();	// only change powerline aspect
 					spieler_t::add_maintenance( sp, -lt->get_besch()->get_wartung(), powerline_wt);
 				}

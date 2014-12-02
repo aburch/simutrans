@@ -443,7 +443,7 @@ DBG_MESSAGE("wkz_remover_intern()","at (%s)", pos.get_str());
 	// prissi: check powerline (can cross ground of another player)
 	leitung_t* lt = gr->get_leitung();
 	if(lt!=NULL  &&  lt->ist_entfernbar(sp)==NULL) {
-		if(gr->ist_bruecke()  &&  gr->ist_karten_boden()) {
+		if(  gr->ist_bruecke()  ) {
 			bruecke_t* br = gr->find<bruecke_t>();
 			if(  br == NULL  ) {
 				// no bridge? most likely transformer on a former bridge tile...
@@ -452,11 +452,9 @@ DBG_MESSAGE("wkz_remover_intern()","at (%s)", pos.get_str());
 				welt->access(k)->kartenboden_setzen( gr_new );
 				gr = gr_new;
 			}
-			else {
-				if (br->get_besch()->get_waytype()==powerline_wt) {
-					msg = brueckenbauer_t::remove(sp, gr->get_pos(), powerline_wt );
-					return msg == NULL;
-				}
+			else if(  br->get_besch()->get_waytype() == powerline_wt  ) {
+				msg = brueckenbauer_t::remove(sp, gr->get_pos(), powerline_wt );
+				return msg == NULL;
 			}
 		}
 		if(gr->ist_tunnel()  &&  gr->ist_karten_boden()) {

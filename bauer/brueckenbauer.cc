@@ -685,7 +685,7 @@ void brueckenbauer_t::baue_bruecke(spieler_t *sp, const koord3d start, const koo
 		end_slope_height += hang_t::max_diff(end_slope);
 	}
 
-	if (slope || bridge_height != 0) {
+	if(  slope  ||  bridge_height != 0  ) {
 		// needs a ramp to start on ground
 		add_height = slope ?  hang_t::max_diff(slope) : bridge_height;
 		baue_auffahrt( sp, start, ribi, slope?0:hang_typ(zv)*add_height, besch );
@@ -694,7 +694,17 @@ void brueckenbauer_t::baue_bruecke(spieler_t *sp, const koord3d start, const koo
 		}
 	}
 	else {
-		if(  !start_gr->weg_erweitern( besch->get_waytype(), ribi )  ) {
+		// start at cliff
+		if(  besch->get_waytype() == powerline_wt  ) {
+			leitung_t *lt = start_gr->get_leitung();
+			if(!lt) {
+				lt = new leitung_t(start_gr->get_pos(), sp);
+				lt->set_besch( weg_besch );
+				start_gr->obj_add( lt );
+				lt->laden_abschliessen();
+			}
+		}
+		else if(  !start_gr->weg_erweitern( besch->get_waytype(), ribi )  ) {
 			// builds new way
 			weg_t * const weg = weg_t::alloc( besch->get_waytype() );
 			weg->set_besch( weg_besch );
@@ -707,7 +717,7 @@ void brueckenbauer_t::baue_bruecke(spieler_t *sp, const koord3d start, const koo
 	while(  pos.get_2d() != end.get_2d()  ) {
 		brueckenboden_t *bruecke = new brueckenboden_t( pos, 0, 0 );
 		welt->access(pos.get_2d())->boden_hinzufuegen(bruecke);
-		if(besch->get_waytype() != powerline_wt) {
+		if(  besch->get_waytype() != powerline_wt  ) {
 			weg_t * const weg = weg_t::alloc(besch->get_waytype());
 			weg->set_besch(weg_besch);
 			bruecke->neuen_weg_bauen(weg, ribi_t::doppelt(ribi), sp);
@@ -885,62 +895,56 @@ const char *brueckenbauer_t::remove(spieler_t *sp, koord3d pos_start, waytype_t 
 		grund_t *to;
 		koord zv = koord::invalid;
 
-		if(pos != pos_start && from->ist_karten_boden()) {
+		if(  pos != pos_start  &&  from->ist_karten_boden()  ) {
 			// gr is start/end - test only one direction
-			if(from->get_grund_hang() != hang_t::flach) {
+			if(  from->get_grund_hang() != hang_t::flach  ) {
 				zv = -koord(from->get_grund_hang());
 			}
-			else if(from->get_weg_hang() != hang_t::flach) {
+			else if(  from->get_weg_hang() != hang_t::flach  ) {
 				zv = koord(from->get_weg_hang());
 			}
 			end_list.insert(pos);
 		}
-		else if(pos == pos_start) {
-			if(from->ist_karten_boden()) {
+		else if(  pos == pos_start  ) {
+			if(  from->ist_karten_boden()  ) {
 				// gr is start/end - test only one direction
-				if(from->get_grund_hang() != hang_t::flach) {
+				if(  from->get_grund_hang() != hang_t::flach  ) {
 					zv = -koord(from->get_grund_hang());
 				}
-				else if(from->get_weg_hang() != hang_t::flach) {
+				else if(  from->get_weg_hang() != hang_t::flach  ) {
 					zv = koord(from->get_weg_hang());
 				}
 				end_list.insert(pos);
 			}
 			else {
-				ribi_t::ribi dir1, dir2;
-				bool dir1_okay, dir2_okay;
-				if(from->get_weg_nr(0)->get_ribi_unmasked() == ribi_t::nordsued) {
-					dir1 = ribi_t::nord;
-					dir2 = ribi_t::sued;
-				}
-				else {
-					dir1 = ribi_t::ost;
-					dir2 = ribi_t::west;
-				}
+				ribi_t::ribi r = wegtyp==powerline_wt ? from->get_leitung()->get_ribi() : from->get_weg_nr(0)->get_ribi_unmasked();
+				ribi_t::ribi dir1 = r & ribi_t::nordost;
+				ribi_t::ribi dir2 = r & ribi_t::suedwest;
+				bool dir1_ok = false, dir2_ok = false;
 
 				grund_t *to;
-				if(from->get_neighbour(to, from->get_weg_nr(0)->get_waytype(), dir1)) {
+				if(from->get_neighbour(to, delete_wegtyp, dir1)) {
 					if (!to->ist_bruecke()) {
-						dir1_okay = true;
+						dir1_ok = true;
 					}
 				}
 				else {
-					dir1_okay = true;
+					dir1_ok = true;
 				}
-				if(from->get_neighbour(to, from->get_weg_nr(0)->get_waytype(), dir2)) {
+				if(from->get_neighbour(to, delete_wegtyp, dir2)) {
 					if (!to->ist_bruecke()) {
-						dir2_okay = true;
+						dir2_ok = true;
 					}
 				}
 				else {
-					dir2_okay = true;
+					dir2_ok = true;
 				}
 
-				if(!dir1_okay && !dir2_okay) {
+				if(!dir1_ok && !dir2_ok) {
 					return "Cannot delete a bridge from its centre";
 				}
 
-				zv = koord(dir1_okay ? dir2 : dir1);
+				zv = koord(dir1_ok ? dir2 : dir1);
 				part_list.insert(pos);
 			}
 		}
