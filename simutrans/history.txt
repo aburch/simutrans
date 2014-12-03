@@ -1,3 +1,7 @@
+	FIX: several issues with bridge bilding and deletion at two vertical cliffs
+	ADD: new industrial deman dmodel just_in_time=2, which models factory ordering stuff
+
+
 Release of 120.0.1: (r7373 on 15-Nov-2014):
 	FIX: waypoints on runways to force certain runways for planes work finally (hopefully)
 	FIX: some bridge starting on flat tile going done were not correct
