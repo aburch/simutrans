@@ -399,7 +399,19 @@ void planquadrat_t::angehoben()
 			// recalc water ribis
 			for(int r=0; r<4; r++) {
 				grund_t *gr2 = welt->lookup_kartenboden(k + koord::nsow[r]);
-				if (gr2  &&  gr2->ist_wasser()) {
+				if(  gr2  &&  gr2->ist_wasser()  ) {
+					gr2->calc_bild();
+				}
+			}
+		}
+		else if(  slope == 0  &&  gr->get_hoehe() == welt->get_water_hgt(k)  &&  gr->get_typ() == grund_t::wasser  ) {
+			// water at zero level => make it land
+			gr = new boden_t(gr->get_pos(), slope );
+			kartenboden_setzen( gr );
+			// recalc water ribis
+			for(int r=0; r<4; r++) {
+				grund_t *gr2 = welt->lookup_kartenboden(k + koord::nsow[r]);
+				if(  gr2  &&  gr2->ist_wasser()  ) {
 					gr2->calc_bild();
 				}
 			}

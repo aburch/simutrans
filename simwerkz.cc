@@ -825,16 +825,16 @@ sint16 wkz_raise_t::get_drag_height(koord k)
 const char *wkz_raise_t::check_pos(spieler_t *, koord3d pos )
 {
 	// check for underground mode
-	if (is_dragging  &&  drag_height-1 > grund_t::underground_level) {
+	if(  is_dragging  &&  drag_height-1 > grund_t::underground_level  ) {
 		is_dragging = false;
 		return "";
 	}
-	if (! welt->is_within_grid_limits(pos.get_2d())) {
+	if(  !welt->is_within_grid_limits(pos.get_2d())  ) {
 		return "";
 	}
 	sint8 h = (sint8) get_drag_height(pos.get_2d());
-	if (h > grund_t::underground_level) {
-			return "Terraforming not possible\nhere in underground view";
+	if(  h > grund_t::underground_level  ) {
+		return "Terraforming not possible\nhere in underground view";
 	}
 	return NULL;
 }
@@ -855,10 +855,10 @@ const char *wkz_raise_t::work(spieler_t* sp, koord3d pos )
 
 		const sint8 hgt = (sint8) get_drag_height(k);
 
-		if(hgt <= welt->get_maximumheight()) {
+		if(  hgt <= welt->get_maximumheight()  ) {
 
 			int n = 0;	// tiles changed
-			if (!strempty(default_param)) {
+			if(  !strempty(default_param)  ) {
 				// called by dragging or by AI
 				err = drag(sp, k, atoi(default_param), n);
 			}
