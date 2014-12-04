@@ -1290,7 +1290,7 @@ void depot_frame_t::draw(scr_coord pos, scr_size size)
 	uint32 total_mail = 0;
 	uint32 total_goods = 0;
 
-	uint32 total_power = 0;
+	uint64 total_power = 0;
 	uint32 total_empty_weight = 0;
 	uint32 total_max_weight = 0;
 	uint32 total_min_weight = 0;
@@ -1301,7 +1301,7 @@ void depot_frame_t::draw(scr_coord pos, scr_size size)
 			for(  unsigned i = 0;  i < cnv->get_vehikel_anzahl();  i++  ) {
 				const vehikel_besch_t *besch = cnv->get_vehikel(i)->get_besch();
 
-				total_power += besch->get_leistung()*besch->get_gear()/64;
+				total_power += besch->get_leistung()*besch->get_gear();
 
 				uint32 max_weight = 0;
 				uint32 min_weight = 100000;
@@ -1334,16 +1334,15 @@ void depot_frame_t::draw(scr_coord pos, scr_size size)
 				}
 			}
 
-			sint32 empty_kmh, max_kmh, min_kmh, cnv_min_top_kmh;
+			sint32 empty_kmh, max_kmh, min_kmh;
 			if(  cnv->front()->get_waytype() == air_wt  ) {
 				// flying aircraft have 0 friction --> speed not limited by power, so just use top_speed
-				empty_kmh = max_kmh = min_kmh = cnv_min_top_kmh = speed_to_kmh( cnv->get_min_top_speed() );
+				empty_kmh = max_kmh = min_kmh = speed_to_kmh( cnv->get_min_top_speed() );
 			}
 			else {
-				cnv_min_top_kmh = speed_to_kmh( cnv->get_min_top_speed() );
-				empty_kmh = total_power <= total_empty_weight/1000 ? 1 : min( cnv_min_top_kmh, sqrt_i32(((total_power<<8)/(total_empty_weight/1000)-(1<<8))<<8)*50 >>8 );
-				max_kmh = total_power <= total_min_weight/1000 ? 1 : min( cnv_min_top_kmh, sqrt_i32(((total_power<<8)/(total_min_weight/1000)-(1<<8))<<8)*50 >>8 );
-				min_kmh = total_power <= total_max_weight/1000 ? 1 : min( cnv_min_top_kmh, sqrt_i32(((total_power<<8)/(total_max_weight/1000)-(1<<8))<<8)*50 >>8 );
+				empty_kmh = speed_to_kmh(convoi_t::calc_max_speed(total_power, total_empty_weight, cnv->get_min_top_speed()));
+				max_kmh =   speed_to_kmh(convoi_t::calc_max_speed(total_power, total_min_weight,   cnv->get_min_top_speed()));
+				min_kmh =   speed_to_kmh(convoi_t::calc_max_speed(total_power, total_max_weight,   cnv->get_min_top_speed()));
 			}
 
 			const sint32 convoi_length = (cnv->get_vehikel_anzahl()) * CARUNITS_PER_TILE / 2 - 1;

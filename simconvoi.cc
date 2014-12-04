@@ -671,6 +671,20 @@ void convoi_t::add_running_cost( const weg_t *weg )
 }
 
 
+/**
+ * Returns residual power given power, weight, and current speed.
+ * @param speed (in internal speed unit)
+ * @param total_power sum of power times gear (see calculation of sum_gear_und_leistung)
+ * @param friction_weight weight including friction of the convoy
+ * @param total_weight weight of the convoy
+ * @returns residual power
+ */
+static inline sint32 res_power(sint64 speed, sint32 total_power, sint64 friction_weight, sint64 total_weight)
+{
+	sint32 res = total_power - (sint32)( ( (sint64)speed * ( (friction_weight * (sint64)speed ) / 3125ll + 1ll) ) / 2048ll + (total_weight * 64ll) / 1000ll);
+	return res;
+}
+
 /* Calculates (and sets) new akt_speed
  * needed for driving, entering and leaving a depot)
  */
@@ -743,15 +757,17 @@ void convoi_t::calc_acceleration(uint32 delta_t)
 			* But since the acceleration was too fast, we just decelerate 4x more => >>6 instead >>8 */
 		//sint32 deccel = ( ( (akt_speed*sum_friction_weight)>>6 )*(akt_speed>>2) ) / 25 + (sum_gesamtgewicht*64);	// this order is needed to prevent overflows!
 		//sint32 deccel = (sint32)( ( (sint64)akt_speed * (sint64)sum_friction_weight * (sint64)akt_speed ) / (25ll*256ll) + sum_gesamtgewicht * 64ll) / 1000ll; // intermediate still overflows so sint64
-		sint32 deccel = (sint32)( ( (sint64)akt_speed * ( (sum_friction_weight * (sint64)akt_speed ) / 3125ll + 1ll) ) / 2048ll + (sum_gesamtgewicht * 64ll) / 1000ll);
+		//sint32 deccel = (sint32)( ( (sint64)akt_speed * ( (sum_friction_weight * (sint64)akt_speed ) / 3125ll + 1ll) ) / 2048ll + (sum_gesamtgewicht * 64ll) / 1000ll);
 
 		// prissi: integer sucks with planes => using floats ...
 		// turfit: result can overflow sint32 and double so onto sint64. planes ok.
 		//sint32 delta_v =  (sint32)( ( (double)( (akt_speed>akt_speed_soll?0l:sum_gear_und_leistung) - deccel)*(double)delta_t)/(double)sum_gesamtgewicht);
 
+		sint64 residual_power = res_power(akt_speed, akt_speed>akt_speed_soll? 0l : sum_gear_und_leistung, sum_friction_weight, sum_gesamtgewicht);
+
 		// we normalize delta_t to 1/64th and check for speed limit */
 		//sint32 delta_v = ( ( (akt_speed>akt_speed_soll?0l:sum_gear_und_leistung) - deccel) * delta_t)/sum_gesamtgewicht;
-		sint64 delta_v = ( (sint64)((akt_speed>akt_speed_soll?0l:sum_gear_und_leistung) - deccel) * (sint64)delta_t * 1000ll) / (sint64)sum_gesamtgewicht;
+		sint64 delta_v = ( residual_power * (sint64)delta_t * 1000ll) / (sint64)sum_gesamtgewicht;
 
 		// we need more accurate arithmetic, so we store the previous value
 		delta_v += previous_delta_v;
@@ -782,6 +798,50 @@ void convoi_t::calc_acceleration(uint32 delta_t)
 		max_record_speed = akt_speed;
 		record_pos = fahr[0]->get_pos().get_2d();
 	}
+}
+
+
+/**
+ * Calculates maximal possible speed.
+ * Uses iterative technique to take care of integer arithmetic.
+ */
+sint32 convoi_t::calc_max_speed(uint64 total_power, uint64 total_weight, sint32 speed_limit)
+{
+	// precision is 0.5 km/h
+	const sint32 tol = kmh_to_speed(1)/2;
+	// bisection to find max speed
+	sint32 pl,pr,pm;
+	sint64 sl,sr,sm;
+
+	// test speed_limit
+	sr = speed_limit;
+	pr = res_power(sr, total_power, total_weight, total_weight);
+	if (pr >= 0) {
+		return sr; // convoy can travel at speed given by speed_limit
+	}
+	sl = 1;
+	pl = res_power(sl, total_power, total_weight, total_weight);
+	if (pl <= 0) {
+		return 0; // no power to move at all
+	}
+
+	// bisection algorithm to find speed for which residual power is zero
+	while (sr - sl > tol) {
+		sm = (sl + sr)/2;
+		if (sm == sl) break;
+
+		pm = res_power(sm, total_power, total_weight, total_weight);
+
+		if (((sint64)pl)*pm <= 0) {
+			pr = pm;
+			sr = sm;
+		}
+		else {
+			pl = pm;
+			sl = sm;
+		}
+	}
+	return sl;
 }
 
 
@@ -2907,7 +2967,6 @@ void convoi_t::calc_speedbonus_kmh()
 	speedbonus_kmh = cnv_min_top_kmh;
 	// flying aircraft have 0 friction --> speed not limited by power, so just use top_speed
 	if(  front()!=NULL  &&  front()->get_waytype() != air_wt  ) {
-		const sint32 total_power = sum_gear_und_leistung/64;
 		sint32 total_max_weight = 0;
 		sint32 total_weight = 0;
 		for(  unsigned i=0;  i<anz_vehikel;  i++  ) {
@@ -2928,14 +2987,12 @@ void convoi_t::calc_speedbonus_kmh()
 		}
 		// very old vehicles have zero weight ...
 		if(  total_weight>0  ) {
-			total_weight = max( 1, total_weight/1000 );
-			total_max_weight = max( 1, total_max_weight/1000 );
-			// uses weight of full passenger, mail, and special goods cars and current weight of regular goods cars for convoi weight
-			speedbonus_kmh = total_power < total_max_weight ? 1 : min( cnv_min_top_kmh, sint32( sqrt_i32( ((total_power<<8)/total_max_weight-(1<<8))<<8)*50 >>8 ) );
+
+			speedbonus_kmh = speed_to_kmh( calc_max_speed(sum_gear_und_leistung, total_max_weight, min_top_speed) );
 
 			// convoi overtakers use current actual weight for achievable speed
 			if(  front()->get_overtaker()  ) {
-				max_power_speed = kmh_to_speed( total_power < total_weight ? 1 : min( cnv_min_top_kmh, (sint32)( sqrt_i32(((total_power<<8)/total_weight-(1<<8))<<8)*50 >>8 ) ) );
+				max_power_speed = calc_max_speed(sum_gear_und_leistung, total_weight, min_top_speed);
 			}
 		}
 	}

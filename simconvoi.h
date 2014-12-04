@@ -586,6 +586,9 @@ public:
 	/// @returns weight of convoy including freight
 	const sint64 & get_sum_gesamtgewicht() const {return sum_gesamtgewicht;}
 
+	/// @returns theoretical max speed of a convoy with given @p total_power and @p total_weight
+	static sint32 calc_max_speed(uint64 total_power, uint64 total_weight, sint32 speed_limit);
+
 	uint32 get_length() const;
 
 	/**
