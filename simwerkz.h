@@ -300,6 +300,7 @@ public:
 	waytype_t get_waytype() const OVERRIDE;
 	bool remove_preview_necessary() const OVERRIDE { return !is_first_click(); }
 	void rdwr_custom_data(memory_rw_t*) OVERRIDE;
+	bool init(spieler_t*) OVERRIDE;
 };
 
 class wkz_tunnelbau_t : public two_click_werkzeug_t {
@@ -315,6 +316,7 @@ public:
 	bool is_init_network_save() const OVERRIDE { return true; }
 	waytype_t get_waytype() const OVERRIDE;
 	bool remove_preview_necessary() const OVERRIDE { return !is_first_click(); }
+	bool init(spieler_t*) OVERRIDE;
 };
 
 class wkz_wayremover_t : public two_click_werkzeug_t {

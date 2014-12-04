@@ -68,7 +68,7 @@ void brueckenbauer_t::register_besch(bruecke_besch_t *besch)
 
 const bruecke_besch_t *brueckenbauer_t::get_besch(const char *name)
 {
-	return bruecken_by_name.get(name);
+	return  (name ? bruecken_by_name.get(name) : NULL);
 }
 
 
