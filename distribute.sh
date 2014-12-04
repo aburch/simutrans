@@ -13,10 +13,7 @@ updater="get_pak.sh"
 
 OST=unknown
 # now get the OSTYPE from config.default and remove all spaces around
-OST=`grep "^OSTYPE" config.default`
-OST=${OST/OSTYPE *=/}
-OST=${OST/\#.*/}
-OST=${OST/ /}
+OST=`grep "^OSTYPE" config.default | sed "s/OSTYPE[ ]*=//" | sed "s/[ ]*\#.*//"`
 
 # now make the correct archive name
 simexe=
@@ -26,10 +23,7 @@ elif [ $OST == "haiku" ]; then
  simarchivbase=simuhaiku
 elif [ $OST = "mingw" ]; then
   simexe=.exe
-  SDLTEST=`grep "^BACKEND =" config.default`
-  SDLTEST=${SDLTEST/BACKEND *=/}
-  SDLTEST=${SDLTEST/\#.*/}
-  SDLTEST=${SDLTEST/ /}
+  SDLTEST=`grep "^BACKEND =" config.default | sed "s/BACKEND[ ]*=[ ]*//" | sed "s/[ ]*\#.*//"`
   if [ "$SDLTEST" == "sdl" ]  ||  [ "$SDLTEST" == "sdl2" ]; then
     simarchivbase=simuwin-sdl
   else
@@ -46,23 +40,20 @@ elif [ "$OST" == "amiga" ]; then
  simarchivbase=simuamiga
 fi
 
+
 # now add revesion number without any modificators
 # fetch language files
 if [ `expr match "$*" ".*-rev="` != "0" ]; then
-  REV_NR="$*"
-  REV_NR=${REV_NR/*-rev=/}
-  REV_NR=${REV_NR/ /}
-  REV_NR=${REV_NR/[^0-9]*/}
+  REV_NR=$(echo $* | sed "s/.*-rev=[ ]*//" | sed "s/[^0-9]*//")
   simarchiv=$simarchivbase-$REV_NR
 elif [ "$#" == "0"  ]  ||  [ `expr match "$*" ".*-no-rev"` == "0" ]; then
-  REV_NR=`svnversion`
-  REV_NR=${REV_NR/[0-9]*:/}
-  REV_NR=${REV_NR/M/}
+  REV_NR=`svnversion | sed "s/[0-9]*://" | sed "s/M.*//"`
   simarchiv=$simarchivbase-$REV_NR
 else
   echo "No revision given!"
   simarchiv=$simarchivbase
 fi
+
 
 # (otherwise there will be many .svn included under windows)
 distribute()
