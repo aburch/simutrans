@@ -117,6 +117,57 @@ map_ribi_ribi(backward);
 
 void export_simple(HSQUIRRELVM vm)
 {
+
+	/**
+	 * Class that holds 2d coordinates.
+	 *
+	 * Coordinates always refer to the original rotation in @ref map.file.
+	 * They will be rotated if transferred between the game engine and squirrel.
+	 */
+	begin_class(vm, "coord");
+#ifdef SQAPI_DOC // document members
+	/// x-coordinate
+	integer x;
+	/// y-coordinate
+	integer y;
+	// operators are defined in scenario_base.nut
+	coord operator + (coord other);
+	coord operator - (coord other);
+	coord operator - ();
+	coord operator * (integer fac);
+	coord operator / (integer fac);
+	/// converts coordinate to string containing the coordinates in the current rotation of the map
+	string _tostring();
+#endif
+	end_class(vm);
+
+	/**
+	 * Class that holds 3d coordinates.
+	 *
+	 * Coordinates always refer to the original rotation in @ref map.file.
+	 * They will be rotated if transferred between the game engine and squirrel.
+	 */
+	begin_class(vm, "coord3d", "coord");
+#ifdef SQAPI_DOC // document members
+	/// x-coordinate
+	integer x;
+	/// y-coordinate
+	integer y;
+	/// z-coordinate - height
+	integer z;
+	// operators are defined in scenario_base.nut
+	coord3d operator + (coord3d other);
+	coord3d operator - (coord other);
+	coord3d operator + (coord3d other);
+	coord3d operator - (coord other);
+	coord3d operator - ();
+	coord3d operator * (integer fac);
+	coord3d operator / (integer fac);
+	/// converts coordinate to string containing the coordinates in the current rotation of the map
+	string _tostring();
+#endif
+	end_class(vm);
+
 	/**
 	 * Class holding static methods to work with directions.
 	 * Directions are just bit-encoded integers.
