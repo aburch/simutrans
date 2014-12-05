@@ -4,6 +4,8 @@
  *
  * @section api-trunk Current trunk
  *
+ * - Added operators and conversion to string to ::coord and ::coord3d classes
+ * - Added ::coord_to_string, ::coord3d_to_string
  * - Added settings::get_station_coverage, settings::get_passenger_factor
  * - Added settings::get_factory_worker_radius, settings::get_factory_worker_minimum_towns, settings::get_factory_worker_maximum_towns
  * - Added settings::avoid_overcrowding, settings::no_routing_over_overcrowding, settings::separate_halt_capacities

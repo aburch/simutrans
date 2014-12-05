@@ -622,10 +622,32 @@ class time_ticks_x extends time_x {
 class coord {
 	x = -1
 	y = -1
+
+	constructor(_x, _y)  { x = _x; y = _y }
+	function _add(other) { return coord(x + other.x, y + other.y) }
+	function _sub(other) { return coord(x - other.x, y - other.y) }
+	function _mul(fac)   { return coord(x * fac, y * fac) }
+	function _div(fac)   { return coord(x / fac, y / fac) }
+	function _unm()      { return coord(-x, -y) }
+	function _typeof()   { return "coord" }
+	function _tostring() { return coord_to_string(this) }
+	function _save()     { return "coord(" + x + ", " + y + ")" }
 }
 
 class coord3d extends coord {
 	z = -1
+
+	constructor(_x, _y, _z)  { x = _x; y = _y; z = _z }
+	function _add(other) { return coord3d(x + other.x, y + other.y, z + getz(other)) }
+	function _sub(other) { return coord3d(x - other.x, y - other.y, z - getz(other)) }
+	function _mul(fac)   { return coord3d(x * fac, y * fac, z * fac) }
+	function _div(fac)   { return coord3d(x / fac, y / fac, z / fac) }
+	function _unm()      { return coord3d(-x, -y, -z) }
+	function _typeof()   { return "coord3d" }
+	function _tostring() { return coord3d_to_string(this) }
+	function _save()     { return "coord3d(" + x + ", " + y + ", " + z + ")" }
+
+	function getz(other) { return (z in other) ? other.z : 0 }
 }
 
 /**
