@@ -152,10 +152,15 @@ void building_reader_t::register_obj(obj_besch_t *&data)
 		}
 	}
 
-	if(  besch->layouts>2  &&  besch->layouts&1  ) {
-		uint8 l = besch->layouts>4 ? 4 : 2;
-		dbg->error( "building_reader_t::register_obj()", "Building %s has %i layouts (illegal) => set to %i", besch->get_name(), besch->layouts, l );
-		besch->layouts = l;
+	// allowed layouts are 1,2,4,8,16, where 8,16 is reserved for stations
+	uint8 l = besch->utype == haus_besch_t::generic_stop ? 16 : 4;
+	while (l > 0) {
+		if ((besch->layouts & l) != 0  &&  (besch->layouts != l)) {
+			dbg->error( "building_reader_t::register_obj()", "Building %s has %i layouts (illegal) => set to %i", besch->get_name(), besch->layouts, l );
+			besch->layouts = l;
+			break;
+		}
+		l >>= 1;
 	}
 
 	if(  besch->allow_underground == 255  ) {
