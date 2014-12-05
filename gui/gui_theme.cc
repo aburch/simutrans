@@ -444,8 +444,8 @@ bool gui_theme_t::themes_init(const char *file_name)
 		gui_theme_t::gui_button_text_offset = scr_size(button_text_offsets[1], button_text_offsets[2]);
 		gui_theme_t::gui_button_text_offset_right = scr_coord(button_text_offsets[3], 0);
 	}
-	delete color_button_text_offsets;
-	delete button_text_offsets;
+	delete [] color_button_text_offsets;
+	delete [] button_text_offsets;
 
 	// default iconsize (square for now)
 	env_t::iconsize.h = env_t::iconsize.w = contents.get_int("icon_width",env_t::iconsize.w );
