@@ -22,6 +22,9 @@ gui <- {}
 // table to hold routines for forbidding/allowing player tools
 rules <- {}
 
+// table to hold routines for debug
+debug <- {}
+
 // table containing all waytypes
 all_waytypes <- [wt_road, wt_rail, wt_water, wt_monorail, wt_maglev, wt_tram, wt_narrowgauge, wt_air, wt_power]
 
@@ -96,6 +99,7 @@ function get_rule_text(pl) { return "Do what you want." }
 function get_goal_text(pl) { return "The way is the target." }
 function get_info_text(pl) { return "Random scenario." }
 function get_result_text(pl) { return "You are owned." }
+function get_debug_text(pl)  { return debug.get_forbidden_text() }
 
 function min(a, b) { return a < b ? a : b }
 function max(a, b) { return a > b ? a : b }

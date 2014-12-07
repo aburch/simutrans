@@ -4,6 +4,7 @@
  *
  * @section api-trunk Current trunk
  *
+ * - Added ::get_debug_text, debug::get_forbidden_text
  * - Added operators and conversion to string to ::coord and ::coord3d classes
  * - Added ::coord_to_string, ::coord3d_to_string
  * - Added settings::get_station_coverage, settings::get_passenger_factor

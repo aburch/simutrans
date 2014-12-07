@@ -228,4 +228,17 @@ void export_scenario(HSQUIRRELVM vm)
 	STATIC register_method(vm, &scenario_t::clear_rules,  "clear");
 
 	end_class(vm);
+
+
+	/**
+	 * Table with methods help debugging.
+	 */
+	begin_class(vm, "debug", 0);
+
+	/**
+	 * @returns text containing all active rules, can be used in @ref get_debug_text
+	 */
+	STATIC register_method(vm, &scenario_t::get_forbidden_text,  "get_forbidden_text");
+
+	end_class(vm);
 }
