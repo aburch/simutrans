@@ -14,6 +14,7 @@ scenario.short_description <- "This is a random scripted scenario"
 
 scenario.author <- ""
 scenario.version <- ""
+scenario.translation <- ""
 
 // table to hold routines for gui access
 gui <- {}
@@ -88,6 +89,7 @@ function get_about_text(pl)
 	return "<em>Scenario:</em>  " +  scenario.short_description
 	+ "<br><br><em>Author:</em> " +  scenario.author
 	+ "<br><br><em>Version:</em> " +  scenario.version
+	+ "<br><br><em>Translation:</em> " +  scenario.translation
 }
 
 function get_rule_text(pl) { return "Do what you want." }
