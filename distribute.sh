@@ -19,6 +19,7 @@ OST=${OST/\#.*/}
 OST=${OST/ /}
 
 # now make the correct archive name
+simexe=
 if [ $OST == "mac" ]; then
   simarchivbase=simumac
 elif [ $OST == "haiku" ]; then
@@ -90,7 +91,7 @@ fi
 
 # now built the archive for distribution
 cd simutrans
-if [[ $OSTYPE = darwin* ]]; then
+if [ $OSTYPE = darwin* ]; then
   buildOSX
 else
   cp ../sim$simexe ./simutrans$simexe
