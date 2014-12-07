@@ -27,7 +27,12 @@ SQInteger script_api::create_class(HSQUIRRELVM vm, const char* classname, const 
 
 SQInteger script_api::begin_class(HSQUIRRELVM vm, const char* classname, const char* /* baseclasses - dummy */)
 {
-	return push_class(vm, classname);
+	if(!SQ_SUCCEEDED(push_class(vm, classname))) {
+		// push a dummy class on the stack to prevent failed assertions down the road
+		sq_newclass(vm, false);
+		return SQ_ERROR;
+	}
+	return SQ_OK;
 }
 
 
