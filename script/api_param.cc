@@ -107,7 +107,7 @@ namespace script_api {
 	}
 	SQInteger param<uint64>::push(HSQUIRRELVM vm, uint64 const& v)
 	{
-		sq_pushinteger(vm, v);
+		sq_pushinteger(vm, (SQInteger)v);
 		return 1;
 	}
 
@@ -119,7 +119,7 @@ namespace script_api {
 	}
 	SQInteger param<sint64>::push(HSQUIRRELVM vm, sint64 const& v)
 	{
-		sq_pushinteger(vm, v);
+		sq_pushinteger(vm, (SQInteger)v);
 		return 1;
 	}
 
@@ -151,7 +151,7 @@ namespace script_api {
 	}
 	SQInteger param<double>::push(HSQUIRRELVM vm, double  const& v)
 	{
-		sq_pushfloat(vm, v);
+		sq_pushfloat(vm, (SQFloat)v);
 		return 1;
 	}
 
@@ -331,7 +331,7 @@ namespace script_api {
 
 	player_t* param<player_t*>::get(HSQUIRRELVM vm, SQInteger index)
 	{
-		uint16 plnr = 0;
+		uint8 plnr = 0;
 		get_slot(vm, "nr", plnr, index);
 		if (plnr < 15) {
 			return welt->get_player(plnr);

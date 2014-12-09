@@ -1327,6 +1327,7 @@ public:
 			return value >> (-left_shift);
 		}
 	}
+
 	/**
 	 * Scales value inverse proportionally with month length.
 	 * Used to scale monthly maintenance costs and factory production.
