@@ -74,12 +74,28 @@ class ware_t;
 // precision of apportioned demand (i.e. weights of factories at target cities)
 #define DEMAND_BITS (4)
 
+/**
+ * JIT2 output scale constants.
+ */
 // The fixed point precision of production scale factors.
-static const uint32 PRODUCTION_SCALE_BITS = 8;
+// Supported range 1 to 30.
+static const uint32 PRODUCTION_SCALE_BITS = 10;
 // The minimum allowed production rate for a factory. This is to limit the time outputs take to fill completly (so factories idle sooner).
+// Fixed point form range must be between 0.0 and 1.0.
 static const sint32 OUTPUT_SCALE_MINIMUM_FRACTION = (5 << PRODUCTION_SCALE_BITS) / 100; // ~5%, 1/20 of the full production rate.
 // The number of times minimum_shipment must be in current storage before rampdown starts.
+// Must be at least 2 to allow for full production.
 static const sint32 OUTPUT_SCALE_RAMPDOWN_MULTIPLYER = 2; // Two shipments must be ready.
+
+/**
+ * Shipment size constants.
+ */
+// The maximum shipment size in whole units.
+// Must be greater than 0.
+static const uint32 SHIPMENT_MAX_SIZE = 10; // Traditional value.
+// The minimum number of whole shipments a facotry can store.
+// Must be greater than 0 to prevent division by 0.
+static const uint32 SHIPMENT_NUM_MIN = 4; // Quarters should allow reasonably fair distribution.
 
 
 /**
@@ -131,6 +147,9 @@ public:
 		return value;
 	}
 	void book_weighted_sum_storage(uint32 factor, sint64 delta_time);
+
+	// Utility methods.
+	sint32 scale_production(sint32 prod);
 
 	sint32 menge;	// in internal units shifted by precision_bits (see step)
 	sint32 max;
@@ -193,21 +212,17 @@ private:
 	enum CL_TYPE {
 		CL_NONE,         // This factory does nothing! (might be useful for scenarios)
 		// Producers are at the bottom of every supply chain.
-		CL_PROD_SINGLE,  // Producer of a single output. Simpler logic.
 		CL_PROD_CLASSIC, // Classic producer logic.
 		CL_PROD_MANY,    // Producer of many outputs.
 		// Factories are in the middle of every supply chain.
-		CL_FACT_SINGLE,  // Factory that produces a single output. Simpler logic.
 		CL_FACT_CLASSIC, // Classic factory logic, consume at maximum output rate or minimum input.
 		CL_FACT_MANY,    // Enhanced factory logic, consume at average of output rate or minimum input averaged.
 		// Consumers are at the top of every supply chain.
-		CL_CONS_SINGLE,  // Consumer that consumes a single input. Simpler logic.
 		CL_CONS_CLASSIC, // Classic consumer logic. Can generate power.
 		CL_CONS_MANY,    // Consumer that consumes multiple inputs.
 		// Electricity producers provider power.
 		CL_ELEC_PROD,    // Simple electricity source. (green energy)
-		CL_ELEC_PLANT,   // Electricity producer with 1 input.
-		CL_ELEC_CLASSIC, // Classic electricity producer behaviour with no imputs.
+		CL_ELEC_CLASSIC, // Classic electricity producer behaviour with no inputs.
 		CL_ELEC_CONS,    // Power produced based on input satisfaction.
 	} control_type;
 

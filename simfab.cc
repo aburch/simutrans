@@ -192,6 +192,32 @@ void ware_production_t::book_weighted_sum_storage(uint32 factor, sint64 delta_ti
 	set_stat( amount, FAB_GOODS_STORAGE );
 }
 
+sint32 ware_production_t::scale_production(sint32 prod){
+	// The minimum amount of output product for rampdown to occur.
+	// Ramp down only applies if twice the minimum shipment size. This is to make sure there is sufficient time to deliver goods.
+	const sint32 prod_scale_limit = min_shipment * OUTPUT_SCALE_RAMPDOWN_MULTIPLYER;
+	if( menge <= prod_scale_limit ){
+		return prod;
+	}
+
+	// Compute desired ramp down factor. Goes from 100% to 0%.
+	sint32 ramp_fact = (sint32)(((sint64)(max - menge) << PRODUCTION_SCALE_BITS) / (sint64)(max - prod_scale_limit));
+
+	// Apply minimum ramp factor clamp. This prevents factories filling too slowly.
+	if( ramp_fact < OUTPUT_SCALE_MINIMUM_FRACTION ){
+		ramp_fact = OUTPUT_SCALE_MINIMUM_FRACTION;
+	}
+
+	// Compute scaled production;
+	prod = (sint32)(((sint64)prod * (sint64)ramp_fact) >> PRODUCTION_SCALE_BITS);
+
+	// Limit result to 1.
+	if( prod <= 1 ){
+		return 1;
+	}
+	return prod;
+}
+
 
 void fabrik_t::arrival_statistics_t::init()
 {
@@ -585,12 +611,15 @@ void fabrik_t::recalc_storage_capacities()
 
 		// Determine the number of units to ship. Prefer 10 units although in future a more dynamic choice may be appropiate.
 		uint32 shipment_size;
-		if( unit_size >= 40 ) {
-			shipment_size = 10;
+		// Maximum shipment size.
+		if( unit_size >= SHIPMENT_MAX_SIZE * SHIPMENT_NUM_MIN ) {
+			shipment_size = SHIPMENT_MAX_SIZE;
 		}
-		else if( unit_size > 4 ) {
-			shipment_size = unit_size / 4;
+		// Dynamic shipment size.
+		else if( unit_size > SHIPMENT_NUM_MIN ) {
+			shipment_size = unit_size / SHIPMENT_NUM_MIN;
 		}
+		// Minimum shipment size.
 		else {
 			shipment_size = 1;
 		}
@@ -892,41 +921,36 @@ void fabrik_t::baue(sint32 rotate, bool build_fields, bool force_initial_prodbas
 
 	/// Determine control logic
 	if( welt->get_settings().get_just_in_time() >= 2 ) {
-		// Does it do anything with goods?
-		if(  ausgang.empty() && eingang.empty()  ) {
-			control_type = besch->is_electricity_producer() ? CL_ELEC_PROD : CL_NONE;
+		// Does it both consume and produce?
+		if(  !ausgang.empty() && !eingang.empty()  ) {
+			control_type = CL_FACT_MANY;
 		}
-		// Is it a consumer?
-		else if( ausgang.empty() ) {
-			if( besch->is_electricity_producer() ) {
-				control_type = eingang.get_count() == 1 ? CL_ELEC_PLANT : CL_ELEC_CONS;
-			}
-			else {
-				control_type = eingang.get_count() == 1 ? CL_CONS_SINGLE : CL_CONS_MANY;
-			}
+		// Does it produce?
+		else if( !ausgang.empty() ) {
+			control_type = CL_PROD_MANY;
 		}
-		// Is it a producer?
-		else if( eingang.empty() ) {
-			control_type =  ausgang.get_count() == 1 ? CL_PROD_SINGLE : CL_PROD_MANY;
+		// Does it consume?
+		else if( !eingang.empty() ) {
+			control_type = besch->is_electricity_producer() ? CL_ELEC_CONS : CL_CONS_MANY;
 		}
-		// It is a factory!
+		// No I/O?
 		else {
-			control_type =  ausgang.get_count() == 1 ? CL_FACT_SINGLE : CL_FACT_MANY;
+			control_type = besch->is_electricity_producer() ? CL_ELEC_PROD : CL_NONE;
 		}
 	}
 	else{
 		// Classic logic.
-		if( ausgang.empty() && eingang.empty() ) {
-			control_type = CL_ELEC_CLASSIC;
+		if(  !ausgang.empty() && !eingang.empty()  ) {
+			control_type = CL_FACT_CLASSIC;
 		}
-		else if( ausgang.empty() ) {
-			control_type = CL_CONS_CLASSIC;
-		}
-		else if( eingang.empty() ) {
+		else if( !ausgang.empty() ) {
 			control_type = CL_PROD_CLASSIC;
 		}
+		else if( !eingang.empty() ) {
+			control_type = CL_CONS_CLASSIC;
+		}
 		else {
-			control_type = CL_FACT_CLASSIC;
+			control_type = CL_ELEC_CLASSIC;
 		}
 	}
 
@@ -935,7 +959,7 @@ void fabrik_t::baue(sint32 rotate, bool build_fields, bool force_initial_prodbas
 		if(  !besch->is_electricity_producer()  &&  besch->get_electric_amount()  ) {
 			boost_type = BL_POWER;
 		}
-		else if(  besch->get_pax_demand() > 0  ||  besch->get_mail_demand() > 0  ) {
+		else if(  besch->get_pax_demand() ||  besch->get_mail_demand()  ) {
 			boost_type = BL_PAXM;
 		}
 		else {
@@ -1663,53 +1687,6 @@ void fabrik_t::step(uint32 delta_t)
 
 		switch( control_type ){
 
-		// A producer with a single output.
-		case CL_PROD_SINGLE :
-			if( inactive_outputs == 1 ) {
-				break;
-			}
-
-			currently_producing = true;
-
-			prod_comp = ausgang[0].max - ausgang[0].menge;
-
-			// Ramp down only applies if twice the minimum shipment size. This is to make sure there is sufficient time to deliver goods.
-			{
-				const sint32 prod_scale_limit = ausgang[0].min_shipment * OUTPUT_SCALE_RAMPDOWN_MULTIPLYER;
-				if( ausgang[0].menge > prod_scale_limit ){
-					// Ramp down production. This starts at 100% and falls to 0% at full.
-					prod_delta = (sint32)((sint64)prod * (sint64)prod_comp / (sint64)(ausgang[0].max - prod_scale_limit));
-
-					// Apply minimum production rate limit.
-					const sint32 prod_min_limit = (sint32)(((sint64)prod * (sint64)OUTPUT_SCALE_MINIMUM_FRACTION) >> PRODUCTION_SCALE_BITS);
-					if( prod_delta < prod_min_limit ) {
-						prod_delta = prod_min_limit;
-					}
-					else if( prod_delta <= 0 ) {
-						// In case prod is very small, must produce something.
-						prod_delta = 1;
-					}
-				}
-				else {
-					// Full production.
-					prod_delta = prod;
-				}
-			}
-
-			// Cannot produce more than can be stored.
-			if( prod_delta >= prod_comp ){
-				prod_delta = prod_comp;
-				inactive_outputs ++;
-				currently_producing = false;
-			}
-
-			delta_menge += prod_delta;
-			ausgang[0].menge += prod_delta;
-			ausgang[0].book_stat((sint64)prod_delta * (sint64)besch->get_produkt(0)->get_faktor(), FAB_GOODS_PRODUCED);
-
-			work = prod_delta;
-			break;
-
 		// Classic producer logic. Originally factories were mixed with it but it has been separated for efficiency.
 		case CL_PROD_CLASSIC :
 			currently_producing = false;
@@ -1762,26 +1739,8 @@ void fabrik_t::step(uint32 delta_t)
 					continue;
 				}
 
-				// Ramp down only applies if twice the minimum shipment size. This is to make sure there is sufficient time to deliver goods.
-				const sint32 prod_scale_limit = ausgang[product].min_shipment * OUTPUT_SCALE_RAMPDOWN_MULTIPLYER;
-				if( ausgang[product].menge > prod_scale_limit ){
-					// Ramp down production. This starts at 100% and falls to 0% at full.
-					prod_delta = (sint32)((sint64)prod * (sint64)prod_comp / (sint64)(ausgang[product].max - prod_scale_limit));
-
-					// Apply minimum production rate limit.
-					const sint32 prod_min_limit = (sint32)(((sint64)prod * (sint64)OUTPUT_SCALE_MINIMUM_FRACTION) >> PRODUCTION_SCALE_BITS);
-					if( prod_delta < prod_min_limit ) {
-						prod_delta = prod_min_limit;
-					}
-					else if( prod_delta <= 0 ) {
-						// In case prod is very small, must produce something.
-						prod_delta = 1;
-					}
-				}
-				else {
-					// Full production.
-					prod_delta = prod;
-				}
+				// Apply scaling.
+				prod_delta = ausgang[product].scale_production(prod);
 
 				// Cannot produce more than can be stored.
 				if( prod_delta >= prod_comp ){
@@ -1800,88 +1759,6 @@ void fabrik_t::step(uint32 delta_t)
 			}
 
 			work /= ausgang.get_count();
-			break;
-
-		// Factory with a single output. Slightly simpler than a factory with multiple outputs.
-		case CL_FACT_SINGLE :
-			if( inactive_outputs == 1 ) {
-				break;
-			}
-
-			prod_comp = ausgang[0].max - ausgang[0].menge;
-
-			// Ramp down only applies if twice the minimum shipment size. This is to make sure there is sufficient time to deliver goods.
-			{
-				const sint32 prod_scale_limit = ausgang[0].min_shipment * OUTPUT_SCALE_RAMPDOWN_MULTIPLYER;
-				if( ausgang[0].menge > prod_scale_limit ){
-					// Ramp down production. This starts at 100% and falls to 0% at full.
-					prod_delta = (sint32)((sint64)prod * (sint64)prod_comp / (sint64)(ausgang[0].max - prod_scale_limit));
-
-					// Apply minimum production rate limit.
-					const sint32 prod_min_limit = (sint32)(((sint64)prod * (sint64)OUTPUT_SCALE_MINIMUM_FRACTION) >> PRODUCTION_SCALE_BITS);
-					if( prod_delta < prod_min_limit ) {
-						prod_delta = prod_min_limit;
-					}
-					else if( prod_delta <= 0 ) {
-						prod_delta = 1; // In case prod is very small, must produce something.
-					}
-				}
-				else {
-					// Full production.
-					prod_delta = prod;
-				}
-			}
-
-			// Cannot produce more than can be stored.
-			if( prod_delta >= prod_comp ) {
-				prod_delta = prod_comp;
-			}
-
-			// Order at desired rate of production.
-			want = prod_delta;
-
-			if( inactive_inputs > 0 ) {
-				break;
-			}
-
-			currently_producing = true;
-
-			// Determine minimum input. This limits production.
-			cons_comp = eingang[0].menge;
-			for(  uint32 index = 1;  index < eingang.get_count();  index++  ) {
-				if(  eingang[index].menge < cons_comp  ) {
-					cons_comp = eingang[index].menge;
-				}
-			}
-
-			// Apply input limit.
-			if(  prod_delta > cons_comp  ) {
-				prod_delta = cons_comp;
-			}
-
-			// If output full, then register as full.
-			if(  prod_delta == prod_comp  ) {
-				inactive_outputs++;
-				currently_producing = false;
-			}
-
-			work = prod_delta;
-
-			// Produce output.
-			delta_menge += prod_delta;
-			ausgang[0].menge += prod_delta;
-			ausgang[0].book_stat((sint64)prod_delta * (sint64)besch->get_produkt(0)->get_faktor(), FAB_GOODS_PRODUCED);
-
-			// Consume inputs.
-			for(  uint32 index = 0;  index < eingang.get_count();  index++  ) {
-				eingang[index].menge -= prod_delta;
-				eingang[index].book_stat((sint64)prod_delta * (sint64)besch->get_lieferant(index)->get_verbrauch(), FAB_GOODS_CONSUMED);
-
-				if( eingang[index].menge == 0 ){
-					inactive_inputs++;
-					currently_producing = false;
-				}
-			}
 			break;
 
 		// Classic factory logic, work and want determined by the maximum output production rate.
@@ -1979,26 +1856,8 @@ void fabrik_t::step(uint32 delta_t)
 						continue;
 					}
 
-					// Ramp down only applies if twice the minimum shipment size. This is to make sure there is sufficient time to deliver goods.
-					const sint32 prod_scale_limit = ausgang[product].min_shipment * OUTPUT_SCALE_RAMPDOWN_MULTIPLYER;
-					if( ausgang[product].menge > prod_scale_limit ){
-						// Ramp down production. This starts at 100% and falls to 0% at full.
-						prod_delta = (sint32)((sint64)prod * (sint64)prod_comp / (sint64)(ausgang[product].max - prod_scale_limit));
-
-						// Apply minimum production rate limit.
-						const sint32 prod_min_limit = (sint32)(((sint64)prod * (sint64)OUTPUT_SCALE_MINIMUM_FRACTION) >> PRODUCTION_SCALE_BITS);
-						if(  prod_delta < prod_min_limit  ) {
-							prod_delta = prod_min_limit;
-						}
-						else if(  prod_delta <= 0  ) {
-							// In case prod is very small, must produce something.
-							prod_delta = 1;
-						}
-					}
-					else {
-						// Full production.
-						prod_delta = prod;
-					}
+					// Apply scaling.
+					prod_delta = ausgang[product].scale_production(prod);
 
 					// Cannot produce more than can be stored.
 					if( prod_delta > prod_comp ) {
@@ -2059,40 +1918,6 @@ void fabrik_t::step(uint32 delta_t)
 						currently_producing = false;
 					}
 				}
-			}
-			break;
-
-		// A consumer of a single input. Slightly more efficient than multiple inputs.
-		case CL_CONS_SINGLE :
-			// Always want to consume prod.
-			want = prod;
-
-			// Do nothing if we cannot consume anything.
-			if( inactive_inputs == 1 ) {
-				break;
-			}
-
-			currently_producing = true;
-
-			// Always want to consume prod.
-			want = prod;
-
-			// Determine amount to consume.
-			if( eingang[0].menge > prod ) {
-				work = prod;
-			}
-			else {
-				work = eingang[0].menge;
-			}
-
-			// Consume input.
-			delta_menge += work;
-			eingang[0].menge -= work;
-			eingang[0].book_stat((sint64)work * (sint64)besch->get_lieferant(0)->get_verbrauch(), FAB_GOODS_CONSUMED);
-
-			if(  eingang[0].menge <= 0  ){
-				inactive_inputs ++;
-				currently_producing = false;
 			}
 			break;
 
@@ -2191,40 +2016,6 @@ void fabrik_t::step(uint32 delta_t)
 			power = (uint32)((((sint64)scaled_electric_amount * (sint64)prod) << PRODUCTION_DELTA_T_BITS) / ((sint64)(prodbase << (precision_bits - DEFAULT_PRODUCTION_FACTOR_BITS)) * (sint64)delta_t));
 
 			work = prod;
-			break;
-
-		// A power plant has a single input and produces power.
-		case CL_ELEC_PLANT :
-			// Always want to consume prod.
-			want = prod;
-
-			// Do nothing if we cannot consume anything.
-			if( inactive_inputs == 1 ) {
-				break;
-			}
-
-			currently_producing = true;
-
-			// Determine amount to consume.
-			if(  eingang[0].menge > prod  ) {
-				work = prod;
-			}
-			else {
-				work = eingang[0].menge;
-			}
-
-			// Produce power. Power is produced realitive to scaled electric amount proportional to current production over base.
-			power = (uint32)((((sint64)scaled_electric_amount * (sint64)work) << PRODUCTION_DELTA_T_BITS) / ((sint64)(prodbase << (precision_bits - DEFAULT_PRODUCTION_FACTOR_BITS)) * (sint64)delta_t));
-
-			// Consume input.
-			delta_menge += work;
-			eingang[0].menge -= work;
-			eingang[0].book_stat((sint64)work * (sint64)besch->get_lieferant(0)->get_verbrauch(), FAB_GOODS_CONSUMED);
-
-			if(  eingang[0].menge == 0  ){
-				inactive_inputs ++;
-				currently_producing = false;
-			}
 			break;
 
 		// Classic power producing consumer. Each input produces power in parallel of the scaled electric amount.
