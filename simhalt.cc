@@ -2898,7 +2898,7 @@ void haltestelle_t::display_status(KOORD_VAL xpos, KOORD_VAL ypos)
 
 	sint16 bar_height_index = 0;
 	uint32 max_capacity;
-	for(  uint16 i = 0;  i < warenbauer_t::get_waren_anzahl();  i++  ) {
+	for(  uint8 i = 0;  i < warenbauer_t::get_waren_anzahl();  i++  ) {
 		if(  i == 2  ) {
 			continue; // ignore freight none
 		}

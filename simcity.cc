@@ -1400,7 +1400,7 @@ void stadt_t::change_size( sint64 delta_citizen, bool new_town)
 	}
 	if(  delta_citizen < 0  ) {
 		if(  bev > -delta_citizen  ) {
-			bev += delta_citizen;
+			bev += (sint32)delta_citizen;
 		}
 		else {
 //				remove_city();

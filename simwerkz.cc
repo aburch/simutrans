@@ -5826,7 +5826,7 @@ const char *wkz_make_stop_public_t::work( spieler_t *sp, koord3d p )
 					return "No suitable ground!";
 				}
 				// change maintenance and ownership
-				sint64 costs = w->get_besch()->get_wartung();
+				sint32 costs = w->get_besch()->get_wartung();
 				if(  gr->ist_im_tunnel()  ) {
 					tunnel_t *t = gr->find<tunnel_t>();
 					costs = t->get_besch()->get_wartung();

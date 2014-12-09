@@ -521,7 +521,7 @@ void pumpe_t::step(uint32 delta_t)
 void pumpe_t::laden_abschliessen()
 {
 	leitung_t::laden_abschliessen();
-	spieler_t::add_maintenance(get_besitzer(), -welt->get_settings().cst_maintain_transformer, powerline_wt);
+	spieler_t::add_maintenance(get_besitzer(), -(sint32)welt->get_settings().cst_maintain_transformer, powerline_wt);
 
 	assert(get_net());
 
@@ -622,7 +622,7 @@ senke_t::~senke_t()
 		fab = NULL;
 	}
 	senke_list.remove( this );
-	spieler_t::add_maintenance(get_besitzer(), welt->get_settings().cst_maintain_transformer, powerline_wt);
+	spieler_t::add_maintenance(get_besitzer(), (sint32)welt->get_settings().cst_maintain_transformer, powerline_wt);
 }
 
 
@@ -736,7 +736,7 @@ bool senke_t::sync_step(uint32 delta_t)
 void senke_t::laden_abschliessen()
 {
 	leitung_t::laden_abschliessen();
-	spieler_t::add_maintenance(get_besitzer(), -welt->get_settings().cst_maintain_transformer, powerline_wt);
+	spieler_t::add_maintenance(get_besitzer(), -(sint32)welt->get_settings().cst_maintain_transformer, powerline_wt);
 
 	assert(get_net());
 

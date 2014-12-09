@@ -109,8 +109,9 @@ void convoi_t::init(spieler_t *sp)
 	besitzer_p = sp;
 
 	is_electric = false;
-	sum_running_costs = sum_gesamtgewicht = sum_gewicht = sum_gear_und_leistung = sum_leistung = 0;
-	previous_delta_v = 0;
+	sum_gesamtgewicht = sum_gewicht = 0;
+	sum_running_costs = sum_gear_und_leistung = previous_delta_v = 0;
+	sum_leistung = 0;
 	min_top_speed = SPEED_UNLIMITED;
 	speedbonus_kmh = SPEED_UNLIMITED; // speed_to_kmh() not needed
 
@@ -815,12 +816,12 @@ sint32 convoi_t::calc_max_speed(uint64 total_power, uint64 total_weight, sint32 
 
 	// test speed_limit
 	sr = speed_limit;
-	pr = res_power(sr, total_power, total_weight, total_weight);
+	pr = res_power(sr, (sint32)total_power, total_weight, total_weight);
 	if (pr >= 0) {
-		return sr; // convoy can travel at speed given by speed_limit
+		return (sint32)sr; // convoy can travel at speed given by speed_limit
 	}
 	sl = 1;
-	pl = res_power(sl, total_power, total_weight, total_weight);
+	pl = res_power(sl, (sint32)total_power, total_weight, total_weight);
 	if (pl <= 0) {
 		return 0; // no power to move at all
 	}
@@ -830,7 +831,7 @@ sint32 convoi_t::calc_max_speed(uint64 total_power, uint64 total_weight, sint32 
 		sm = (sl + sr)/2;
 		if (sm == sl) break;
 
-		pm = res_power(sm, total_power, total_weight, total_weight);
+		pm = res_power(sm, (sint32)total_power, total_weight, total_weight);
 
 		if (((sint64)pl)*pm <= 0) {
 			pr = pm;
@@ -841,7 +842,7 @@ sint32 convoi_t::calc_max_speed(uint64 total_power, uint64 total_weight, sint32 
 			sl = sm;
 		}
 	}
-	return sl;
+	return (sint32)sl;
 }
 
 
