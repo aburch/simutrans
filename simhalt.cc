@@ -2647,13 +2647,18 @@ void haltestelle_t::rdwr(loadsave_t *file)
 				for(  uint32 i = 0;  i < count;  i++  ) {
 					// add to internal storage (use this function, since the old categories were different)
 					ware_t ware(file);
-					if(  ware.menge>0  &&  welt->is_within_limits(ware.get_zielpos())  ) {
+					if(  ware.get_besch()  &&  ware.menge>0  &&  welt->is_within_limits(ware.get_zielpos())  ) {
 						add_ware_to_halt(ware);
 						// restore in-transit information
 						fabrik_t::update_transit( &ware, true );
 					}
 					else if(  ware.menge>0  ) {
-						dbg->error( "haltestelle_t::rdwr()", "%i of %s to %s ignored!", ware.menge, ware.get_name(), ware.get_zielpos().get_str() );
+						if(  ware.get_besch()  ) {
+							dbg->error( "haltestelle_t::rdwr()", "%i of %s to %s ignored!", ware.menge, ware.get_name(), ware.get_zielpos().get_str() );
+						}
+						else {
+							dbg->error( "haltestelle_t::rdwr()", "%i of unknown to %s ignored!", ware.menge, ware.get_zielpos().get_str() );
+						}
 					}
 				}
 			}
