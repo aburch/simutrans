@@ -58,7 +58,8 @@ obj_besch_t * good_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->speed_bonus = decode_uint16(p);
 		besch->weight_per_unit = 100;
 
-	} else if(version == 2) {
+	}
+	else if(version == 2) {
 		// Versioned node, version 2
 
 		besch->base_value = decode_uint16(p);
@@ -66,7 +67,8 @@ obj_besch_t * good_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->speed_bonus = decode_uint16(p);
 		besch->weight_per_unit = decode_uint16(p);
 
-	} else if(version == 3) {
+	}
+	else if(version == 3) {
 		// Versioned node, version 3
 		besch->base_value = decode_uint16(p);
 		besch->catg = decode_uint8(p);
