@@ -52,7 +52,7 @@ public:
 // remove uppermost object from tile
 class wkz_remover_t : public werkzeug_t {
 private:
-	bool wkz_remover_intern(spieler_t *sp, koord3d pos, const char *&msg);
+	bool wkz_remover_intern(spieler_t *sp, koord3d pos, sint8 type, const char *&msg);
 public:
 	wkz_remover_t() : werkzeug_t(WKZ_REMOVER | GENERAL_TOOL) {}
 	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate("Abriss"); }

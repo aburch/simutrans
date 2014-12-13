@@ -392,57 +392,55 @@ const char *wkz_abfrage_t::work( spieler_t *sp, koord3d pos )
 /* delete things from a tile
  * citycars and pedestrian first and then go up to queue to more important objects
  */
-bool wkz_remover_t::wkz_remover_intern(spieler_t *sp, koord3d pos, const char *&msg)
+bool wkz_remover_t::wkz_remover_intern(spieler_t *sp, koord3d pos, sint8 type, const char *&msg)
 {
 DBG_MESSAGE("wkz_remover_intern()","at (%s)", pos.get_str());
-
-	grund_t *gr = welt->lookup(pos);
-	if (!gr) {
-		msg = "";
-		return false;
-	}
-
 	// check if there is something to remove from here ...
-	if(  gr->get_top()==0  ) {
+	grund_t *gr = welt->lookup(pos);
+	if (!gr  ||  gr->get_top()==0) {
 		msg = "";
 		return false;
 	}
 
 	// marker?
-	label_t* l = gr->find<label_t>();
-	if(l) {
-		msg = l->ist_entfernbar(sp);
-		if(msg==NULL) {
-			delete l;
-			return true;
+	if (type == obj_t::label  ||  type == obj_t::undefined) {
+		if (label_t* l = gr->find<label_t>()) {
+			msg = l->ist_entfernbar(sp);
+			if(msg==NULL) {
+				delete l;
+				return true;
+			}
+			else if(  gr->get_top()==1  ||  type == obj_t::label  ) {
+				// only complain if this is the last object on this tile ...
+				return false;
+			}
+			msg = NULL;
+			// not deletable: skip it
 		}
-		else if(  gr->get_top()==1  ) {
-			// only complain if this is the last object on this tile ...
-			return false;
-		}
-		msg = NULL;
-		// not deletable: skip it
 	}
 
 	// citycar? (we allow always)
-	stadtauto_t* citycar = gr->find<stadtauto_t>();
-	if(citycar) {
-		delete citycar;
-		return true;
+	if (type == obj_t::automobil  ||  type == obj_t::undefined) {
+		if (stadtauto_t* citycar = gr->find<stadtauto_t>()) {
+			delete citycar;
+			return true;
+		}
 	}
-
 	// pedestrians?
-	fussgaenger_t* fussgaenger = gr->find<fussgaenger_t>();
-	if(fussgaenger) {
-		delete fussgaenger;
-		return true;
+	if (type == obj_t::fussgaenger  ||  type == obj_t::undefined) {
+		if (fussgaenger_t* fussgaenger = gr->find<fussgaenger_t>()) {
+			delete fussgaenger;
+			return true;
+		}
 	}
 
 	koord k(pos.get_2d());
 
 	// prissi: check powerline (can cross ground of another player)
 	leitung_t* lt = gr->get_leitung();
-	if(lt!=NULL  &&  lt->ist_entfernbar(sp)==NULL) {
+	// check whether powerline related stuff should be removed, and if there is any to remove
+	if (  (type == obj_t::label  ||  type == obj_t::pumpe  ||  type == obj_t::senke  ||  type == obj_t::undefined)
+	       &&  lt != NULL  &&  lt->ist_entfernbar(sp) == NULL) {
 		if(  gr->ist_bruecke()  ) {
 			bruecke_t* br = gr->find<bruecke_t>();
 			if(  br == NULL  ) {
@@ -489,7 +487,7 @@ DBG_MESSAGE("wkz_remover_intern()","at (%s)", pos.get_str());
 	// check for signal
 	roadsign_t* rs = gr->find<signal_t>();
 	if (rs == NULL) rs = gr->find<roadsign_t>();
-	if(rs!=NULL) {
+	if ( (type == obj_t::signal  ||  type == obj_t::roadsign  ||  type == obj_t::undefined)  &&  rs!=NULL) {
 		msg = rs->ist_entfernbar(sp);
 		if(msg) {
 			return false;
@@ -509,7 +507,7 @@ DBG_MESSAGE("wkz_remover()",  "removing roadsign at (%s)", pos.get_str());
 	// check stations
 	halthandle_t halt = gr->get_halt();
 DBG_MESSAGE("wkz_remover()", "bound=%i",halt.is_bound());
-	if (gr->is_halt()  &&  halt.is_bound()  &&  fabrik_t::get_fab(k)==NULL) {
+	if (gr->is_halt()  &&  halt.is_bound()  &&  fabrik_t::get_fab(k)==NULL  &&  type == obj_t::undefined) {
 		// halt and not a factory (oil rig etc.)
 		const spieler_t* owner = halt->get_besitzer();
 		if(  spieler_t::check_owner( owner, sp )  ) {
@@ -519,7 +517,7 @@ DBG_MESSAGE("wkz_remover()", "bound=%i",halt.is_bound());
 
 	// catenary or something like this
 	wayobj_t* wo = gr->find<wayobj_t>();
-	if(wo) {
+	if(wo  &&  (type == obj_t::wayobj  ||  type == obj_t::undefined)) {
 		msg = wo->ist_entfernbar(sp);
 		if(msg) {
 			return false;
@@ -536,7 +534,7 @@ DBG_MESSAGE("wkz_remover()", "bound=%i",halt.is_bound());
 DBG_MESSAGE("wkz_remover()", "check tunnel/bridge");
 
 	// bridge?
-	if(gr->ist_bruecke()) {
+	if(gr->ist_bruecke()  &&  (type == obj_t::bruecke  ||  type == obj_t::undefined)) {
 DBG_MESSAGE("wkz_remover()",  "removing bridge from %d,%d,%d",gr->get_pos().x, gr->get_pos().y, gr->get_pos().z);
 		bruecke_t* br = gr->find<bruecke_t>();
 		msg = brueckenbauer_t::remove(sp, gr->get_pos(), br->get_besch()->get_waytype());
@@ -544,7 +542,7 @@ DBG_MESSAGE("wkz_remover()",  "removing bridge from %d,%d,%d",gr->get_pos().x, g
 	}
 
 	// beginning/end of tunnel
-	if(gr->ist_tunnel()  &&  gr->ist_karten_boden()) {
+	if(gr->ist_tunnel()  &&  gr->ist_karten_boden()  &&  (type == obj_t::tunnel  ||  type == obj_t::undefined)) {
 DBG_MESSAGE("wkz_remover()",  "removing tunnel  from %d,%d,%d",gr->get_pos().x, gr->get_pos().y, gr->get_pos().z);
 		waytype_t wegtyp =  gr->get_leitung() ? powerline_wt : gr->get_weg_nr(0)->get_waytype();
 		msg = tunnelbauer_t::remove(sp, gr->get_pos(), wegtyp, is_ctrl_pressed());
@@ -553,7 +551,7 @@ DBG_MESSAGE("wkz_remover()",  "removing tunnel  from %d,%d,%d",gr->get_pos().x, 
 
 	// fields
 	field_t* f = gr->find<field_t>();
-	if (f) {
+	if (f  &&  (type == obj_t::field  ||  type == obj_t::undefined)) {
 		msg = f->ist_entfernbar(sp);
 		if(msg==NULL) {
 			f->entferne(sp);
@@ -569,7 +567,8 @@ DBG_MESSAGE("wkz_remover()",  "removing tunnel  from %d,%d,%d",gr->get_pos().x, 
 
 	// depots
 	depot_t* dep = gr->get_depot();
-	if (dep) {
+	if (dep  &&  (type == obj_t::bahndepot  ||  type == obj_t::undefined)) {
+		// type == bahndepot to remove any type of depot
 		msg = dep->ist_entfernbar(sp);
 		if(msg) {
 			return false;
@@ -581,7 +580,7 @@ DBG_MESSAGE("wkz_remover()",  "removing tunnel  from %d,%d,%d",gr->get_pos().x, 
 
 	// since buildings can have more than one tile, we must handle them together
 	gebaeude_t* gb = gr->find<gebaeude_t>();
-	if(gb != NULL) {
+	if(gb != NULL  &&  (type == obj_t::gebaeude  ||  type == obj_t::undefined)) {
 		msg = gb->ist_entfernbar(sp);
 		if(msg) {
 			return false;
@@ -605,6 +604,12 @@ DBG_MESSAGE("wkz_remover()",  "removing tunnel  from %d,%d,%d",gr->get_pos().x, 
 			hausbauer_t::remove( sp, gb );
 		}
 		return true;
+	}
+
+	// if type is given, then leave here. Below other stuff and ways gets removed.
+	if (type != obj_t::undefined) {
+		msg = "";
+		return false;
 	}
 
 	// there is a powerline above this tile, but we do not own it
@@ -721,8 +726,18 @@ DBG_MESSAGE("wkz_remover()", "removing way");
 const char *wkz_remover_t::work( spieler_t *sp, koord3d pos )
 {
 	DBG_MESSAGE("wkz_remover()","at %d,%d", pos.x, pos.y);
+
+	obj_t::typ type = obj_t::undefined;
+
+	if (default_param) {
+		int t = atoi(default_param);
+		if (t != 0  &&  -1 <= t  &&  t <= 200) {
+			type = (obj_t::typ)t;
+		}
+	}
+
 	const char *fail = NULL;
-	if(!wkz_remover_intern(sp, pos, fail)) {
+	if(!wkz_remover_intern(sp, pos, type, fail)) {
 		return fail;
 	}
 
