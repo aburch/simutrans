@@ -2,10 +2,10 @@
 #define scr_coord_h
 
 #include <assert.h>
-#include "../dataobj/koord.h"
 #include "../dataobj/loadsave.h"
 #include "../simtypes.h"
 
+class koord;
 
 // Screen coordinate type
 typedef sint16 scr_coord_val;
@@ -82,8 +82,8 @@ public:
 
 private:
 	// conversions to/from koord not allowed anymore
-	scr_coord( const koord pos_par) { x = pos_par.x; y = pos_par.y; }
-	operator koord() const { return koord(x,y); }
+	scr_coord( const koord);
+	operator koord() const;
 };
 
 
@@ -175,7 +175,7 @@ public:
 
 private:
 	// conversions to/from koord not allowed anymore
-	operator koord() const { return koord(w,h); }
+	operator koord() const;
 };
 
 
@@ -357,9 +357,7 @@ public:
 	}
 private:
 	// conversions to/from koord not allowed anymore
-	scr_rect( const koord& pt ) { set( pt.x, pt.y, 0, 0 ); }
-	scr_rect( const koord& pt, const koord& size ) { set( pt.x, pt.y, size.x, size.y ); }
-	scr_rect( const koord& pt, scr_coord_val w, scr_coord_val h ) { set( pt.x, pt.y, w, h ); }
-	operator koord()     const { return koord(w,h); }
+	scr_rect( const koord&);
+	operator koord() const;
 };
 #endif
