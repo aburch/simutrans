@@ -19,6 +19,7 @@ class karte_t;
 class karte_ptr_t;
 class koord;
 class koord3d;
+class label_t;
 struct linieneintrag_t;
 class planquadrat_t;
 class plainstring;
@@ -346,6 +347,7 @@ namespace script_api {
 	declare_specialized_param(obj_t*, "t|x|y", "map_object_x");
 	declare_specialized_param(baum_t*, "t|x|y", "tree_x");
 	declare_specialized_param(gebaeude_t*, "t|x|y", "building_x");
+	declare_specialized_param(label_t*, "t|x|y", "label_x");
 	declare_specialized_param(weg_t*, "t|x|y", "way_x");
 
 	/**

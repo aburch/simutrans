@@ -608,7 +608,7 @@ DBG_MESSAGE("wkz_remover()",  "removing tunnel  from %d,%d,%d",gr->get_pos().x, 
 
 	// if type is given, then leave here. Below other stuff and ways gets removed.
 	if (type != obj_t::undefined) {
-		msg = "";
+		msg = "Requested object not found.";
 		return false;
 	}
 
@@ -1358,7 +1358,7 @@ const char *wkz_marker_t::work( spieler_t *sp, koord3d pos )
 				if (is_local_execution()) {
 					gr->find<label_t>()->zeige_info();
 				}
-				return "";
+				return NULL;
 			}
 		}
 	}
