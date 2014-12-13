@@ -226,10 +226,30 @@ public:
 hang_t::typ  hang_typ(koord dir);   // dir:nord -> hang:sued, ...
 hang_t::typ  hang_typ(ribi_t::ribi);
 
-ribi_t::ribi ribi_typ(koord dir);
-ribi_t::ribi ribi_typ(koord from, koord to);
-ribi_t::ribi ribi_typ(koord3d dir);
-ribi_t::ribi ribi_typ(koord3d from, koord3d to);
-ribi_t::ribi ribi_typ(hang_t::typ hang);  // nordhang -> sued, ... !
+/**
+ * Calculate direction bit from coordinate differences.
+ */
+ribi_t::ribi ribi_typ_intern(sint16 dx, sint16 dy);
+
+/**
+ * Calculate direction bit from direction.
+ */
+ribi_t::ribi ribi_typ(const koord& dir);
+ribi_t::ribi ribi_typ(const koord3d& dir);
+
+/**
+ * Calculate direction bit from slope.
+ * Note: hang_t::nord (slope north) will be translated to ribi_t::sued (direction south).
+ */
+ribi_t::ribi ribi_typ(hang_t::typ slope);
+
+/**
+ * Calculate direction bit for travel from @p from to @p to.
+ */
+template<class K1, class K2>
+ribi_t::ribi ribi_typ(const K1&from, const K2& to)
+{
+	return ribi_typ_intern(to.x - from.x, to.y - from.y);
+}
 
 #endif

@@ -314,62 +314,42 @@ const ribi_t::dir ribi_t::dirs[16] = {
 };
 
 
-ribi_t::ribi ribi_typ(koord from, koord to)
-{
-	return ribi_typ(to - from);
-}
-
-
 ribi_t::ribi ribi_typ(hang_t::typ hang)   // north slope -> south, ... !
 {
 	return from_hang[hang];
 }
 
 
-ribi_t::ribi ribi_typ(koord dir)
+ribi_t::ribi ribi_typ_intern(sint16 dx, sint16 dy)
 {
 	ribi_t::ribi ribi = ribi_t::keine;
 
-	if(dir.x<0) {
+	if(dx<0) {
 		ribi |= ribi_t::west;
 	}
-	else if(dir.x>0) {
+	else if(dx>0) {
 		ribi |= ribi_t::ost;
 	}
 
-	if(dir.y<0) {
+	if(dy<0) {
 		ribi |= ribi_t::nord;
 	}
-	else if(dir.y>0) {
+	else if(dy>0) {
 		ribi |= ribi_t::sued;
 	}
 	return ribi;
 }
 
 
-ribi_t::ribi ribi_typ(koord3d from, koord3d to)
+ribi_t::ribi ribi_typ(const koord& dir)
 {
-	return ribi_typ(to-from);
+	return ribi_typ_intern(dir.x, dir.y);
 }
 
 
-ribi_t::ribi ribi_typ(koord3d dir)
+ribi_t::ribi ribi_typ(const koord3d& dir)
 {
-	ribi_t::ribi ribi = ribi_t::keine;
-
-	if(dir.x<0) {
-		ribi |= ribi_t::west;
-	}
-	else if(dir.x>0) {
-		ribi |= ribi_t::ost;
-	}
-	if(dir.y<0) {
-		ribi |= ribi_t::nord;
-	}
-	else if(dir.y>0) {
-		ribi |= ribi_t::sued;
-	}
-	return ribi;
+	return ribi_typ_intern(dir.x, dir.y);
 }
 
 
