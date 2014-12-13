@@ -11,8 +11,6 @@
 
 using namespace script_api;
 
-#define STATIC
-
 
 #ifdef DOXYGEN
 /**

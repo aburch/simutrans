@@ -17,7 +17,7 @@
 #define begin_enum(name)
 #define end_enum()
 #define enum_slot create_slot
-#define STATIC
+
 
 using namespace script_api;
 

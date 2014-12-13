@@ -6,6 +6,9 @@
 #include <string>
 #include <string.h>
 
+// mark class members static in doxygen documentation of api
+#define STATIC
+
 /** @file api_function.h templates to export c++ function to and call from squirrel */
 
 namespace script_api {
@@ -20,8 +23,9 @@ namespace script_api {
 	 * @param name name of the method as visible from squirrel
 	 * @param nparamcheck for squirrel parameter checking
 	 * @param typemask for squirrel parameter checking
+	 * @param staticmethod if true then register as static method
 	 */
-	void register_function(HSQUIRRELVM vm, SQFUNCTION funcptr, const char *name, int nparamcheck, const char* typemask);
+	void register_function(HSQUIRRELVM vm, SQFUNCTION funcptr, const char *name, int nparamcheck, const char* typemask, bool staticmethod = false);
 
 	/**
 	 * Registers custom SQFUNCTION @p funcptr with templated free variables (default parameters).
@@ -35,16 +39,17 @@ namespace script_api {
 	 * @param nparamcheck for squirrel parameter checking
 	 * @param typemask for squirrel parameter checking
 	 * @param freevariables contains values of free variables
+	 * @param staticmethod if true then register as static method
 	 */
 	template<class F>
-	void register_function_fv(HSQUIRRELVM vm, SQFUNCTION funcptr, const char *name, int nparamcheck, const char* typemask, F const& freevariables)
+	void register_function_fv(HSQUIRRELVM vm, SQFUNCTION funcptr, const char *name, int nparamcheck, const char* typemask, F const& freevariables, bool staticmethod = false)
 	{
 		sq_pushstring(vm, name, -1);
 		SQInteger count = freevariables.push(vm);
 		sq_newclosure(vm, funcptr, count); //create a new function
 		sq_setnativeclosurename(vm, -1, name);
 		sq_setparamscheck(vm, nparamcheck, typemask);
-		sq_newslot(vm, -3, SQFalse);
+		sq_newslot(vm, -3, staticmethod);
 	}
 
 	// forward declarations
@@ -80,9 +85,10 @@ namespace script_api {
 	 * @param discard_first if true then a global (non-member) function can be called
 	 *                      as if it would be a member function of the class instance
 	 *                      provided as first argument
+	 * @param staticmethod if true then register as static method
 	 */
 	template<typename F>
-	void register_method(HSQUIRRELVM vm, F funcptr, const char* name, bool discard_first=false)
+	void register_method(HSQUIRRELVM vm, F funcptr, const char* name, bool discard_first = false, bool staticmethod = false)
 	{
 		sq_pushstring(vm, name, -1);
 		// pointer to function info as free variable
@@ -95,7 +101,7 @@ namespace script_api {
 		sq_setnativeclosurename(vm, -1, name);
 		std::string typemask = func_signature_t<F>::get_typemask(discard_first);
 		sq_setparamscheck(vm, func_signature_t<F>::get_nparams() - discard_first, typemask.c_str());
-		sq_newslot(vm, -3, false);
+		sq_newslot(vm, -3, staticmethod);
 
 		log_squirrel_type(func_signature_t<F>::get_squirrel_class(discard_first), name, func_signature_t<F>::get_squirrel_type(discard_first, 0));
 		//printf("CHECKTPM %d %s::%s: %s vs %s = %s\n", discard_first, func_signature_t<F>::get_squirrel_class(discard_first).c_str(), name, func_signature_t<F>::get_typemask(discard_first).c_str(), embed_call_t<F>::get_typemask(discard_first).c_str(),
@@ -119,9 +125,10 @@ namespace script_api {
 	 * @param discard_first if true then a global (non-member) function can be called
 	 *                      as if it would be a member function of the class instance
 	 *                      provided as first argument
+	 * @param staticmethod if true then register as static method
 	 */
 	template<typename F, class V>
-	void register_method_fv(HSQUIRRELVM vm, F funcptr, const char* name, V const& freevariables, bool discard_first=false)
+	void register_method_fv(HSQUIRRELVM vm, F funcptr, const char* name, V const& freevariables, bool discard_first = false, bool staticmethod = false)
 	{
 		sq_pushstring(vm, name, -1);
 		// pointer to function info as free variable
@@ -136,7 +143,7 @@ namespace script_api {
 		sq_setnativeclosurename(vm, -1, name);
 		std::string typemask = func_signature_t<F>::get_typemask(discard_first);
 		sq_setparamscheck(vm, func_signature_t<F>::get_nparams() - discard_first - count, typemask.c_str());
-		sq_newslot(vm, -3, false);
+		sq_newslot(vm, -3, staticmethod);
 
 		log_squirrel_type(func_signature_t<F>::get_squirrel_class(discard_first), name, func_signature_t<F>::get_squirrel_type(discard_first, count));
 

@@ -12,7 +12,6 @@
 
 using namespace script_api;
 
-#define STATIC
 
 void_t add_scenario_message_at(const char* text, koord pos)
 {

@@ -12,9 +12,6 @@
 
 using namespace script_api;
 
-#define STATIC
-
-
 
 mytime_ticks_t world_get_time(karte_t*)
 {

@@ -6,13 +6,13 @@
 /**
  * Auxiliary function to register function in table/class at stack top
  */
-void script_api::register_function(HSQUIRRELVM vm, SQFUNCTION funcptr, const char *name, int nparamcheck, const char* typemask)
+void script_api::register_function(HSQUIRRELVM vm, SQFUNCTION funcptr, const char *name, int nparamcheck, const char* typemask, bool staticmethod)
 {
 	sq_pushstring(vm, name, -1);
 	sq_newclosure(vm, funcptr, 0); //create a new function
 	sq_setnativeclosurename(vm, -1, name);
 	sq_setparamscheck(vm, nparamcheck, typemask);
-	sq_newslot(vm, -3, SQFalse);
+	sq_newslot(vm, -3, staticmethod);
 }
 
 static FILE* file = NULL;
