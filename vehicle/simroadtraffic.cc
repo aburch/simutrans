@@ -1441,7 +1441,7 @@ bool private_car_t::can_overtake( overtaker_t *other_overtaker, sint32 other_spe
 		gr = to;
 		check_pos = to->get_pos();
 
-		direction = ~ribi_type( check_pos.get_2d(),pos_prev ) & str->get_ribi();
+		direction = ~ribi_type( check_pos,pos_prev ) & str->get_ribi();
 	}
 
 	// Second phase: only facing traffic is forbidden
@@ -1511,7 +1511,7 @@ bool private_car_t::can_overtake( overtaker_t *other_overtaker, sint32 other_spe
 		gr = to;
 		check_pos = to->get_pos();
 
-		direction = ~ribi_type( check_pos.get_2d(),pos_prev ) & str->get_ribi();
+		direction = ~ribi_type( check_pos,pos_prev ) & str->get_ribi();
 	} while( time_overtaking > 0 );
 
 	set_tiles_overtaking( 1+n_tiles );
