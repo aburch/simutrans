@@ -134,8 +134,19 @@ void export_simple(HSQUIRRELVM vm)
 	coord operator - ();
 	coord operator * (integer fac);
 	coord operator / (integer fac);
-	/// converts coordinate to string containing the coordinates in the current rotation of the map
+	/**
+	 * Converts coordinate to string containing the coordinates in the current rotation of the map.
+	 *
+	 * Cannot be used in links in scenario texts. Use @ref href instead.
+	 */
 	string _tostring();
+	/**
+	 * Generates text to generate links to coordinates in scenario texts.
+	 * @param text text to be shown in the link
+	 * @returns a-tag with link in href
+	 * @see get_rule_text
+	 */
+	string href(string text);
 #endif
 	end_class(vm);
 
@@ -161,8 +172,19 @@ void export_simple(HSQUIRRELVM vm)
 	coord3d operator - ();
 	coord3d operator * (integer fac);
 	coord3d operator / (integer fac);
-	/// converts coordinate to string containing the coordinates in the current rotation of the map
+	/**
+	 * Converts coordinate to string containing the coordinates in the current rotation of the map.
+	 *
+	 * Cannot be used in links in scenario texts. Use @ref href instead.
+	 */
 	string _tostring();
+	/**
+	 * Generates text to generate links to coordinates in scenario texts.
+	 * @param text text to be shown in the link
+	 * @returns a-tag with link in href
+	 * @see get_rule_text
+	 */
+	string href(string text);
 #endif
 	end_class(vm);
 
