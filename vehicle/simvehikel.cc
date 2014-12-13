@@ -2035,7 +2035,7 @@ bool automobil_t::ist_weg_frei(int &restart_speed, bool second_check)
 					// route position after road sign
 					const koord pos_next_next = r.position_bei(route_index + 1u).get_2d();
 					// since at the corner, our direction may be diagonal, we make it straight
-					richtung = ribi_typ( pos_next.get_2d(), pos_next_next );
+					richtung = ribi_typ( pos_next, pos_next_next );
 
 					if(  rs->is_free_route(richtung)  &&  !target_halt.is_bound()  ) {
 						if(  second_check  ) {
