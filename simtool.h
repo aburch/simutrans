@@ -53,7 +53,7 @@ public:
 // remove uppermost object from tile
 class tool_remover_t : public tool_t {
 private:
-	bool tool_remover_intern(player_t *player, koord3d pos, const char *&msg);
+	bool tool_remover_intern(player_t *player, koord3d pos, sint8 type, const char *&msg);
 public:
 	tool_remover_t() : tool_t(TOOL_REMOVER | GENERAL_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("Abriss"); }
