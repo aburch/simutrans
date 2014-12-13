@@ -443,7 +443,6 @@ DBG_MESSAGE("tool_remover_intern()","at (%s)", pos.get_str());
 	}
 
 	// check if there is something to remove from here ...
-	grund_t *gr = welt->lookup(pos);
 	if(  gr->get_top()==0  ) {
 		msg = "";
 		return false;
@@ -734,7 +733,7 @@ DBG_MESSAGE("tool_remover()",  "removing tunnel  from %d,%d,%d",gr->get_pos().x,
 
 		// if type is given, then leave here. Below other stuff and ways gets removed.
 	if (type != obj_t::undefined) {
-		msg = "";
+		msg = "Requested object not found.";
 		return false;
 	}
 
@@ -1595,7 +1594,7 @@ const char *tool_marker_t::work( player_t *player, koord3d pos )
 			if (is_local_execution()) {
 				gr->find<label_t>()->show_info();
 			}
-			return "";
+			return NULL;
 		}
 		return "Das Feld gehoert\neinem anderen Spieler\n";
 	}
