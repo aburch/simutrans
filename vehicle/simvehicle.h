@@ -212,9 +212,9 @@ public:
 	virtual void rotate90();
 
 	template<class K1, class K2>
-	static ribi_t::ribi calc_direction(const K1& start, const K2& end)
+	static ribi_t::ribi calc_direction(const K1& from, const K2& to)
 	{
-		return ribi_type(start, end);
+		return ribi_type(from, to);
 	}
 
 	ribi_t::ribi calc_set_direction(const koord3d& start, const koord3d& ende);

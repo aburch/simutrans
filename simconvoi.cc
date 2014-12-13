@@ -3604,7 +3604,7 @@ void convoi_t::vorfahren()
 									last_pos = to->get_pos();
 								}
 								to->get_neighbour(to, wt, direction_of_travel);
-								direction_of_travel = vehicle_t::calc_direction(last_pos.get_2d(), to->get_pos().get_2d());
+								direction_of_travel = vehicle_t::calc_direction(last_pos, to->get_pos());
 								if(last_pos == to->get_pos())
 								{
 									// Prevent infinite loops.
@@ -6600,8 +6600,8 @@ bool convoi_t::check_destination_reverse(route_t* current_route, route_t* target
 
 	if(success)
 	{
-		ribi_t::ribi old_dir = front()->calc_direction(current_route->at(current_route->get_count() - 2).get_2d(), current_route->back().get_2d());
-		ribi_t::ribi new_dir = front()->calc_direction(target_rt->at(0).get_2d(), target_rt->at(1).get_2d());
+		ribi_t::ribi old_dir = front()->calc_direction(current_route->at(current_route->get_count() - 2), current_route->back());
+		ribi_t::ribi new_dir = front()->calc_direction(target_rt->at(0), target_rt->at(1));
 		return old_dir & ribi_t::backward(new_dir);
 	}
 	else
@@ -7273,7 +7273,7 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 	// First phase: no traffic except me and my overtaken car in the dangerous zone
 	unsigned int route_index = front()->get_route_index()+1;
 	koord3d pos = front()->get_pos();
-	koord3d pos_prev = route_index > 2 ? route.at(route_index-2) : pos;
+	koord3d pos_prev = (route_index > 2 ? route.at(route_index-2) : pos);
 	koord3d pos_next;
 
 	while( distance > 0 ) {
@@ -7341,7 +7341,7 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 					if(this!=ov  &&  other_overtaker!=ov) {
 						if(  overtaking_mode_loop <= oneway_mode  ) {
 							//If ov goes same directory, should not return false
-							ribi_t::ribi their_direction = ribi_t::backward( front()->calc_direction(pos_prev, pos_next.get_2d()) );
+							ribi_t::ribi their_direction = ribi_t::backward( front()->calc_direction(pos_prev, pos_next) );
 							vehicle_base_t* const v = obj_cast<vehicle_base_t>(gr->obj_bei(j));
 							if (v && v->get_direction() == their_direction && v->get_overtaker()) {
 								return false;
