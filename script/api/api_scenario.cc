@@ -12,8 +12,6 @@
 
 using namespace script_api;
 
-#define STATIC
-
 static char buf[40];
 
 
