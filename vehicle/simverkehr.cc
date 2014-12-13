@@ -482,7 +482,7 @@ bool stadtauto_t::ist_weg_frei(grund_t *gr)
 	}
 	else {
 		// driving on: check for crossings etc. too
-		const uint8 next_fahrtrichtung = this->calc_richtung(get_pos().get_2d(), pos_next_next.get_2d());
+		const uint8 next_fahrtrichtung = this->calc_richtung(get_pos(), pos_next_next);
 
 		// do not block this crossing (if possible)
 		if(ribi_t::is_threeway(str->get_ribi_unmasked())) {
@@ -493,7 +493,7 @@ bool stadtauto_t::ist_weg_frei(grund_t *gr)
 			}
 			grund_t *test = welt->lookup(pos_next_next);
 			if(  test  ) {
-				uint8 next_90fahrtrichtung = this->calc_richtung(pos_next.get_2d(), pos_next_next.get_2d());
+				uint8 next_90fahrtrichtung = this->calc_richtung(pos_next, pos_next_next);
 				frei = (NULL == no_cars_blocking( gr, NULL, this_fahrtrichtung, next_fahrtrichtung, next_90fahrtrichtung ));
 				if(  frei  ) {
 					// check, if it can leave this crossings
@@ -639,7 +639,7 @@ bool stadtauto_t::hop_check()
 	}
 
 	// traffic light phase check (since this is on next tile, it will always be necessary!)
-	const ribi_t::ribi fahrtrichtung90 = ribi_typ(get_pos().get_2d(),pos_next.get_2d());
+	const ribi_t::ribi fahrtrichtung90 = ribi_typ(get_pos(), pos_next);
 
 	if(  weg->has_sign(  )) {
 		const roadsign_t* rs = from->find<roadsign_t>();
@@ -1085,7 +1085,7 @@ bool stadtauto_t::can_overtake( overtaker_t *other_overtaker, sint32 other_speed
 
 		// Check for other vehicles in facing direction
 		// now only I know direction on this tile ...
-		ribi_t::ribi their_direction = ribi_t::rueckwaerts(calc_richtung( pos_prev_prev, to->get_pos().get_2d() ));
+		ribi_t::ribi their_direction = ribi_t::rueckwaerts(calc_richtung( pos_prev_prev, to->get_pos()));
 		const uint8 top = gr->get_top();
 		for(  uint8 j=1;  j<top;  j++ ) {
 			vehikel_basis_t* const v = obj_cast<vehikel_basis_t>(gr->obj_bei(j));

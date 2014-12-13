@@ -135,7 +135,12 @@ public:
 
 	virtual void rotate90();
 
-	static ribi_t::ribi calc_richtung(koord start, koord ende);
+	template<class K1, class K2>
+	static ribi_t::ribi calc_richtung(const K1& from, const K2& to)
+	{
+		return ribi_typ(from, to);
+	}
+
 	ribi_t::ribi calc_set_richtung(const koord3d& start, const koord3d& ende);
 
 	ribi_t::ribi get_fahrtrichtung() const {return fahrtrichtung;}

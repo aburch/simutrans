@@ -1845,7 +1845,7 @@ bool convoi_t::can_go_alte_richtung()
 	}
 
 	// going backwards? then recalculate all
-	ribi_t::ribi neue_richtung_rwr = ribi_t::rueckwaerts(fahr[0]->calc_richtung(route.front().get_2d(), route.position_bei(min(2, route.get_count() - 1)).get_2d()));
+	ribi_t::ribi neue_richtung_rwr = ribi_t::rueckwaerts(fahr[0]->calc_richtung(route.front(), route.position_bei(min(2, route.get_count() - 1))));
 //	DBG_MESSAGE("convoi_t::go_alte_richtung()","neu=%i,rwr_neu=%i,alt=%i",neue_richtung_rwr,ribi_t::rueckwaerts(neue_richtung_rwr),alte_richtung);
 	if(neue_richtung_rwr&alte_richtung) {
 		akt_speed = 8;
@@ -1947,7 +1947,7 @@ bool convoi_t::can_go_alte_richtung()
 
 				// check direction
 				uint8 richtung = v->get_fahrtrichtung();
-				uint8 neu_richtung = v->calc_richtung( route.position_bei(max(idx-1,0)).get_2d(), v->get_pos_next().get_2d());
+				uint8 neu_richtung = v->calc_richtung( route.position_bei(max(idx-1,0)), v->get_pos_next());
 				// we need to move to this place ...
 				if(neu_richtung!=richtung  &&  (i!=0  ||  anz_vehikel==1  ||  ribi_t::ist_kurve(neu_richtung)) ) {
 					// 90 deg bend!
@@ -3596,7 +3596,7 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 	// First phase: no traffic except me and my overtaken car in the dangerous zone
 	unsigned int route_index = fahr[0]->get_route_index()+1;
 	koord3d pos = fahr[0]->get_pos();
-	koord pos_prev = (route_index > 2 ? route.position_bei(route_index-2) : pos).get_2d();
+	koord3d pos_prev = route_index > 2 ? route.position_bei(route_index-2) : pos;
 	koord3d pos_next;
 
 	while( distance > 0 ) {
@@ -3658,7 +3658,7 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 			}
 		}
 		n_tiles++;
-		pos_prev = pos.get_2d();
+		pos_prev = pos;
 		pos = pos_next;
 	}
 
@@ -3699,7 +3699,7 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 		}
 
 		// Check for other vehicles in facing direction
-		ribi_t::ribi their_direction = ribi_t::rueckwaerts( fahr[0]->calc_richtung(pos_prev, pos_next.get_2d()) );
+		ribi_t::ribi their_direction = ribi_t::rueckwaerts( fahr[0]->calc_richtung(pos_prev, pos_next) );
 		const uint8 top = gr->get_top();
 		for(  uint8 j=1;  j<top;  j++ ) {
 			vehikel_basis_t* const v = obj_cast<vehikel_basis_t>(gr->obj_bei(j));
@@ -3707,7 +3707,7 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 				return false;
 			}
 		}
-		pos_prev = pos.get_2d();
+		pos_prev = pos;
 		pos = pos_next;
 	}
 

@@ -462,50 +462,6 @@ ribi_t::ribi vehikel_basis_t::calc_set_richtung(const koord3d& start, const koor
 }
 
 
-ribi_t::ribi vehikel_basis_t::calc_richtung(koord start, koord ende)
-{
-#if 0
-	// may be faster on some architectures
-	static ribi_t::ribi didj_richtung[9] =
-	{
-		ribi_t::nordwest, ribi_t::nord, ribi_t::nordost,	// dy<0
-		ribi_t::west, ribi_t::keine, ribi_t::ost,	// dy==0
-		ribi_t::suedwest, ribi_t::sued, ribi_t::suedost	// dy>0
-	};
-
-	uint8 di = 0x80 & (ende.x - start.x);
-	uint8 dj = 0x80 & (ende.y - start.y);
-	di ++ ;	// 0=(di<0), 1=(di==0), 2=(di>0)
-	dj ++ ;
-	return richtung[di+(3*dj)];
-#endif
-	ribi_t::ribi richtung;
-	const sint8 di = (ende.x - start.x);
-	const sint8 dj = (ende.y - start.y);
-	if(dj == 0 && di == 0) {
-		richtung = ribi_t::keine;
-	} else if(dj < 0 && di == 0) {
-		richtung = ribi_t::nord;
-	} else if(dj > 0 && di == 0) {
-		richtung = ribi_t::sued;
-	} else if(di < 0 && dj == 0) {
-		richtung = ribi_t::west;
-	} else if(di >0 && dj == 0) {
-		richtung = ribi_t::ost;
-	} else if(di > 0 && dj > 0) {
-		richtung = ribi_t::suedost;
-	} else if(di < 0 && dj < 0) {
-		richtung = ribi_t::nordwest;
-	} else if(di > 0 && dj < 0) {
-		richtung = ribi_t::nordost;
-	} else {
-		richtung = ribi_t::suedwest;
-	}
-	return richtung;
-
-}
-
-
 // this routine calculates the new height
 // beware of bridges, tunnels, slopes, ...
 sint8 vehikel_basis_t::calc_height(grund_t *gr)
@@ -603,7 +559,7 @@ vehikel_basis_t *vehikel_basis_t::no_cars_blocking( const grund_t *gr, const con
 					return v;
 				}
 
-				const ribi_t::ribi other_90fahrtrichtung = (gr->get_pos().get_2d() == v->get_pos_next().get_2d()) ? other_fahrtrichtung : calc_richtung(gr->get_pos().get_2d(),v->get_pos_next().get_2d());
+				const ribi_t::ribi other_90fahrtrichtung = (gr->get_pos().get_2d() == v->get_pos_next().get_2d()) ? other_fahrtrichtung : calc_richtung(gr->get_pos(), v->get_pos_next());
 				if(  other_90fahrtrichtung == next_90fahrtrichtung  ) {
 					// Want to exit in same as other   ~50% of the time
 					return v;
@@ -1048,9 +1004,9 @@ bool vehikel_t::hop_check()
 		if(  air_wt != wt  &&  route_index < cnv->get_route()->get_count()-1  ) {
 			uint8 dir = get_ribi(bd);
 			koord3d nextnext_pos = cnv->get_route()->position_bei(route_index+1);
-			uint8 new_dir = ribi_typ(nextnext_pos.get_2d()-pos_next.get_2d());
-			if(  (dir&new_dir) == 0  ) {
-				// new one way sign or unconnected branch here?
+			uint8 new_dir = ribi_typ(nextnext_pos - pos_next);
+			if((dir&new_dir)==0) {
+				// new one way sign here?
 				cnv->suche_neue_route();
 				return false;
 			}
@@ -2067,7 +2023,7 @@ bool automobil_t::ist_weg_frei(int &restart_speed, bool second_check)
 
 			if(  rs  &&  (route_index + 1u < r.get_count())  ) {
 				// since at the corner, our direction may be diagonal, we make it straight
-				uint8 richtung = ribi_typ( get_pos().get_2d(), pos_next.get_2d() );
+				uint8 richtung = ribi_typ(get_pos(), pos_next);
 
 				if(  rs->get_besch()->is_traffic_light()  &&  (rs->get_dir()&richtung) == 0  ) {
 					// wait here
@@ -2100,11 +2056,11 @@ bool automobil_t::ist_weg_frei(int &restart_speed, bool second_check)
 		if(  !cnv->is_overtaking()  ) {
 			// calculate new direction
 			route_t const& r = *cnv->get_route();
-			koord next = (route_index < r.get_count() - 1u ? r.position_bei(route_index + 1u) : pos_next).get_2d();
+			koord3d next = route_index < r.get_count() - 1u ? r.position_bei(route_index + 1u) : pos_next;
 			ribi_t::ribi curr_fahrtrichtung   = get_fahrtrichtung();
-			ribi_t::ribi curr_90fahrtrichtung = calc_richtung(get_pos().get_2d(), pos_next.get_2d());
-			ribi_t::ribi next_fahrtrichtung   = calc_richtung(get_pos().get_2d(), next);
-			ribi_t::ribi next_90fahrtrichtung = calc_richtung(pos_next.get_2d(), next);
+			ribi_t::ribi curr_90fahrtrichtung = calc_richtung(get_pos(), pos_next);
+			ribi_t::ribi next_fahrtrichtung   = calc_richtung(get_pos(), next);
+			ribi_t::ribi next_90fahrtrichtung = calc_richtung(pos_next, next);
 			obj = no_cars_blocking( gr, cnv, curr_fahrtrichtung, next_fahrtrichtung, next_90fahrtrichtung );
 
 			// do not block intersections
@@ -2140,14 +2096,14 @@ bool automobil_t::ist_weg_frei(int &restart_speed, bool second_check)
 				curr_fahrtrichtung   = next_fahrtrichtung;
 				curr_90fahrtrichtung = next_90fahrtrichtung;
 				if(  test_index + 1u < r.get_count()  ) {
-					next                 = r.position_bei(test_index + 1u).get_2d();
-					next_fahrtrichtung   = calc_richtung(r.position_bei(test_index - 1u).get_2d(), next);
-					next_90fahrtrichtung = calc_richtung(r.position_bei(test_index).get_2d(),     next);
+					next                 = r.position_bei(test_index + 1u);
+					next_fahrtrichtung   = calc_richtung(r.position_bei(test_index - 1u), next);
+					next_90fahrtrichtung = calc_richtung(r.position_bei(test_index),      next);
 					obj = no_cars_blocking( gr, cnv, curr_fahrtrichtung, next_fahrtrichtung, next_90fahrtrichtung );
 				}
 				else {
-					next                 = r.position_bei(test_index).get_2d();
-					next_90fahrtrichtung = calc_richtung(r.position_bei(test_index - 1u).get_2d(), next);
+					next                 = r.position_bei(test_index);
+					next_90fahrtrichtung = calc_richtung(r.position_bei(test_index - 1u), next);
 					if(  curr_fahrtrichtung == next_90fahrtrichtung  ||  !gr->is_halt()  ) {
 						// check cars but allow to enter intersection if we are turning even when a car is blocking the halt on the last tile of our route
 						// preserves old bus terminal behaviour
@@ -2708,7 +2664,7 @@ skip_choose:
 
 		// now it we are in a step and can use the route search
 		route_t target_rt;
-		const int richtung = ribi_typ(get_pos().get_2d(),pos_next.get_2d());	// to avoid confusion at diagonals
+		const int richtung = ribi_typ(get_pos(), pos_next);	// to avoid confusion at diagonals
 #ifdef MAX_CHOOSE_BLOCK_TILES
 		if(  !target_rt.find_route( welt, cnv->get_route()->position_bei(start_block), this, speed_to_kmh(cnv->get_min_top_speed()), richtung, MAX_CHOOSE_BLOCK_TILES )  ) {
 #else
@@ -4046,7 +4002,7 @@ void aircraft_t::rdwr_from_convoi(loadsave_t *file)
 // well lots of code to make sure, we have at least two different directions for the runway search
 uint8 aircraft_t::get_approach_ribi( koord3d start, koord3d ziel )
 {
-	uint8 dir = ribi_typ( (koord)((ziel-start).get_2d()) );	// reverse
+	uint8 dir = ribi_typ(start, ziel);	// reverse
 	// make sure, there are at last two directions to choose, or you might en up with not route
 	if(ribi_t::ist_einfach(dir)) {
 		dir |= (dir<<1);
