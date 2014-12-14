@@ -276,7 +276,6 @@ private:
 	 */
 	slist_tpl<sync_steppable *> sync_remove_list;
 
-
 	/**
 	 * Sync list.
 	 */
@@ -757,6 +756,9 @@ public:
 	 * @return Either pointer to heightfield (use delete [] for it) or NULL.
 	 */
 	static bool get_height_data_from_file( const char *filename, sint8 grundwasser, sint8 *&hfield, sint16 &ww, sint16 &hh, bool update_only_values );
+
+	/// cache the current maximum and minimum height on the map
+	sint8 max_height, min_height;
 
 	/**
 	 * Returns the messagebox message container.

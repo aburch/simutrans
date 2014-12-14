@@ -897,6 +897,7 @@ void karte_t::init_felder()
 	uint32 const y = get_size().y;
 	plan      = new planquadrat_t[x * y];
 	grid_hgts = new sint8[(x + 1) * (y + 1)];
+	max_height = min_height = 0;
 	MEMZERON(grid_hgts, (x + 1) * (y + 1));
 	water_hgts = new sint8[x * y];
 	MEMZERON(water_hgts, x * y);
@@ -1970,6 +1971,11 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 	delete [] water_hgts;
 	water_hgts = new_water_hgts;
 
+	if(  old_x==0  ) {
+		// init max and min with defaults
+		max_height, min_height = grundwasser;
+	}
+
 	setsimrand(0xFFFFFFFF, settings.get_karte_nummer());
 	clear_random_mode( 0xFFFF );
 	set_random_mode( MAP_CREATE_RANDOM );
@@ -2101,7 +2107,6 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 	else {
 		// new world -> calculate all transitions
 		world_xy_loop(&karte_t::recalc_transitions_loop, 0);
-
 		ls.set_progress(16);
 	}
 
@@ -2148,6 +2153,14 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 			for(  sint16 x=old_x-cov;  x<old_x;  x++  ) {
 				const planquadrat_t* pl = access_nocheck(x,y);
 				for(  uint8 i=0;  i < pl->get_boden_count();  i++  ) {
+					// update limits
+					if(  min_height > pl->get_boden_bei(i)->get_hoehe()  ) {
+						min_height = pl->get_boden_bei(i)->get_hoehe();
+					}
+					else if(  max_height < pl->get_boden_bei(i)->get_hoehe()  ) {
+						max_height = pl->get_boden_bei(i)->get_hoehe();
+					}
+					// update halt
 					halthandle_t h = pl->get_boden_bei(i)->get_halt();
 					if(  h.is_bound()  ) {
 						for(  sint16 xp=max(0,x-cov);  xp<x+cov+1;  xp++  ) {
@@ -2165,6 +2178,14 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 			for(  sint16 x=0;  x<old_x;  x++  ) {
 				const planquadrat_t* pl = access_nocheck(x,y);
 				for(  uint8 i=0;  i < pl->get_boden_count();  i++  ) {
+					// update limits
+					if(  min_height > pl->get_boden_bei(i)->get_hoehe()  ) {
+						min_height = pl->get_boden_bei(i)->get_hoehe();
+					}
+					else if(  max_height < pl->get_boden_bei(i)->get_hoehe()  ) {
+						max_height = pl->get_boden_bei(i)->get_hoehe();
+					}
+					// update halt
 					halthandle_t h = pl->get_boden_bei(i)->get_halt();
 					if(  h.is_bound()  ) {
 						for(  sint16 xp=x;  xp<x+cov+1;  xp++  ) {
@@ -2730,6 +2751,10 @@ int karte_t::grid_raise(const spieler_t *sp, koord k, const char*&err)
 
 		// force world full redraw, or background could be dirty.
 		set_dirty();
+
+		if(  max_height < lookup_kartenboden_gridcoords(k)->get_hoehe()  ) {
+			max_height = lookup_kartenboden_gridcoords(k)->get_hoehe();
+		}
 	}
 	return (n+3)>>2;
 }
@@ -3035,6 +3060,13 @@ int karte_t::grid_lower(const spieler_t *sp, koord k, const char*&err)
 
 		n = digger.lower_all();
 		err = NULL;
+
+		// force world full redraw, or background could be dirty.
+		set_dirty();
+
+		if(  min_height > min_hgt_nocheck( koord(x,y) )  ) {
+			min_height = min_hgt_nocheck( koord(x,y) );
+		}
 	}
 	return (n+3)>>2;
 }
@@ -5420,14 +5452,27 @@ DBG_MESSAGE("karte_t::laden()","Savegame version is %d", file.get_version());
 }
 
 
+
+#ifdef MULTI_THREAD
+static pthread_mutex_t height_mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+#endif
+
+
 void karte_t::plans_laden_abschliessen( sint16 x_min, sint16 x_max, sint16 y_min, sint16 y_max )
 {
+	sint8 min_h = min_height, max_h = max_height;
 	for(  int y = y_min;  y < y_max;  y++  ) {
 		for(  int x = x_min; x < x_max;  x++  ) {
 			const planquadrat_t *plan = access_nocheck(x,y);
 			const int boden_count = plan->get_boden_count();
 			for(  int schicht = 0;  schicht < boden_count;  schicht++  ) {
 				grund_t *gr = plan->get_boden_bei(schicht);
+				if(  min_h > gr->get_hoehe()  ) {
+					min_h = gr->get_hoehe();
+				}
+				else if(  max_h < gr->get_hoehe()  ) {
+					max_h = gr->get_hoehe();
+				}
 				for(  int n = 0;  n < gr->get_top();  n++  ) {
 					obj_t *obj = gr->obj_bei(n);
 					if(obj) {
@@ -5441,6 +5486,15 @@ void karte_t::plans_laden_abschliessen( sint16 x_min, sint16 x_max, sint16 y_min
 			}
 		}
 	}
+	// update heights
+	pthread_mutex_lock( &height_mutex );
+	if(  min_height > min_h  ) {
+		min_height = min_h;
+	}
+	if(  max_height < max_h  ) {
+		max_height = max_h;
+	}
+	pthread_mutex_unlock( &height_mutex );
 }
 
 
@@ -5501,6 +5555,7 @@ void karte_t::load(loadsave_t *file)
 	}
 
 	grundwasser = (sint8)(settings.get_grundwasser());
+	min_height = max_height = grundwasser;
 	DBG_DEBUG("karte_t::laden()","grundwasser %i",grundwasser);
 
 	init_height_to_climate();

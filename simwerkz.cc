@@ -1339,7 +1339,13 @@ const char *wkz_setslope_t::wkz_set_slope_work( spieler_t *sp, koord3d pos, int 
 			settings_t const& s = welt->get_settings();
 			spieler_t::book_construction_costs(sp, new_slope == RESTORE_SLOPE ? s.cst_alter_land : s.cst_set_slope, k, ignore_wt);
 		}
-
+		// update limits
+		if(  welt->min_height > gr1->get_hoehe()  ) {
+			welt->min_height = gr1->get_hoehe();
+		}
+		else if(  welt->max_height < gr1->get_hoehe()  ) {
+			welt->max_height = gr1->get_hoehe();
+		}
 	}
 	return ok ? NULL : "";
 }
@@ -5937,7 +5943,7 @@ bool wkz_show_underground_t::init( spieler_t * )
 		// decrease slice level
 		case 'D':
 			if(grund_t::underground_mode==grund_t::ugm_level) {
-				if(  grund_t::underground_level>welt->get_grundwasser()-5  ) {
+				if(  grund_t::underground_level > welt->min_height  ) {
 					grund_t::underground_level --;
 				}
 			}
@@ -5948,7 +5954,7 @@ bool wkz_show_underground_t::init( spieler_t * )
 		// increase slice level
 		case 'I':
 			if(grund_t::underground_mode==grund_t::ugm_level) {
-				if(  grund_t::underground_level<20  ) {
+				if(  grund_t::underground_level < welt->max_height  ) {
 					grund_t::underground_level ++;
 				}
 			}
