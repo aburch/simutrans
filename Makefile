@@ -37,7 +37,7 @@ else
           ifeq ($(BACKEND),gdi)
             LIBS += -lunicows
           endif
-          LDFLAGS += -static-libgcc -static-libstdc++
+          LDFLAGS += --large-address-aware -static-libgcc -static-libstdc++
           LIBS    += -lmingw32
         endif
       endif
