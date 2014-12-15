@@ -5487,6 +5487,7 @@ void karte_t::plans_laden_abschliessen( sint16 x_min, sint16 x_max, sint16 y_min
 		}
 	}
 	// update heights
+#ifdef MULTI_THREAD
 	pthread_mutex_lock( &height_mutex );
 	if(  min_height > min_h  ) {
 		min_height = min_h;
@@ -5495,6 +5496,10 @@ void karte_t::plans_laden_abschliessen( sint16 x_min, sint16 x_max, sint16 y_min
 		max_height = max_h;
 	}
 	pthread_mutex_unlock( &height_mutex );
+#else
+	min_height = min_h;
+	max_height = max_h;
+#endif
 }
 
 
