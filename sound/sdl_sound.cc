@@ -9,6 +9,7 @@
 #include <string.h>
 #include "sound.h"
 #include "../simmem.h"
+#include <stdio.h>
 
 /*
  * Hajo: flag if sound module should be used
