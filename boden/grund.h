@@ -138,24 +138,14 @@ protected:
 	objlist_t objlist;
 
 	/**
-	 * Flags to indicate existence of halts, ways, to mark dirty
+ 	 * Handle to halt built on this ground
 	 */
-	uint8 flags;
-
-	/**
-	 * Image of the walls
-	 */
-	sint8 back_bild_nr;
+	halthandle_t this_halt;
 
 	/**
 	 * Image number
 	 */
 	image_id bild_nr;
-
-	/**
- 	 * Handle to halt built on this ground
-	 */
-	halthandle_t this_halt;
 
 	/**
 	 * Coordinate (40 bits)
@@ -166,6 +156,17 @@ protected:
 	 * Slope (now saved locally), because different grounds need different slopes
 	 */
 	uint8 slope;
+
+	/**
+	 * Image of the walls
+	 */
+	sint8 back_bild_nr;
+
+	/**
+	 * Flags to indicate existence of halts, ways, to mark dirty
+	 */
+	uint8 flags;
+
 
 public:
 	/**
