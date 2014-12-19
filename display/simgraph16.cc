@@ -1995,7 +1995,7 @@ void register_image(struct bild_t* bild)
 		}
 		if(  anz_images > alloc_images  ) {
 			// overflow
-			dbg->fatal( "register_image", "*** Out of images (more than 65534!) ***" );
+			dbg->fatal( "register_image", "*** Out of images (more than %li!) ***", alloc_images );
 		}
 		images = REALLOC(images, imd, alloc_images);
 	}
