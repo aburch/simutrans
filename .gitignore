@@ -11,6 +11,15 @@
 *.tar.gz
 *.log
 *.out
+*.exe
+*.vcxproj.filters
+*.zip*
+*.7z
+*.dll
+*.tar*
+*.gz*
+*.ilk
+*.bz2
 ipch
 /Debug
 /Debug (SDL)
@@ -21,15 +30,14 @@ ipch
 /config.*
 /intermediates
 /makeobj/makeobj
-/makeobj/makeobj.exe
 *sim
-/sim.exe
 /binaries
 /save
 /screenshot
 /maps
 Pak*
 pak*
+PAK*
 settings.xml
 /simutrans-experimental
 Simutrans-Experimental.exe
@@ -43,7 +51,6 @@ _UpgradeReport_Files*
 /simutrans/pak*
 /simutrans/text
 *.bdf
-*.zip
 /ipch/*
 *.*sdf
 *.diff
@@ -56,3 +63,4 @@ _UpgradeReport_Files*
 /Default
 /x64
 /zlib*
+*server*-network.sve

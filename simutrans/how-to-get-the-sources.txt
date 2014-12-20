@@ -1,0 +1,15 @@
+Simutrans-Experimental uses a version control system ("VCS") called "Git". The Simutrans-Experimental Git repository is here: 
+http://github.com/jamespetts/simutrans-experimental/tree/master 
+
+The above repository contains the configuration files. The following repository contains the latest text files for Simutrans-Experimental:
+
+https://github.com/jamespetts/simutrans-experimental-text/tree
+
+
+The standard Simutrans SVN is also mirrored on Git here:
+
+http://github.com/aburch/simutrans/tree/master 
+
+Git is compatible with Linux and Windows (and possibly also MacOS X, although I have not verified that).
+
+It is recommended that those who wish to get the source code for Simutrans-Experimental setup a separate directory for doing so than that used for the normal source code. Anyone wishing to contribute to coding for the Experimental version is welcome to do so, using Git's very flexible branching system (which makes it far easier to merge a branch back into the trunk than is possible with SVN). So, unlike with standard Simutrans, to make an alteration to the code of Simutrans-Experimental, do not upload a patch file - fork the code in the standard Git way. Any modification that is included in Simutrans-Experimental will be included by way of re-merging the code, rather than applying a patch. Please let me know if you have forked the code so that I can merge back in any desirable new features!
