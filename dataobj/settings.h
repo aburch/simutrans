@@ -518,6 +518,8 @@ public:
 	uint16 range_visiting_tolerance;
 	
 private:
+	/// what is the minimum clearance required under bridges
+	sint8 way_height_clearance;
 
 	// if true, you can buy obsolete stuff
 	bool allow_buying_obsolete_vehicles;
@@ -1093,6 +1095,9 @@ public:
 	sint64 get_parallel_ways_forge_cost_percentage(waytype_t wt) const;
 
 	uint32 get_max_diversion_tiles() const { return max_diversion_tiles; }
+
+	sint8 get_way_height_clearance() const { return way_height_clearance; }
+	void set_way_height_clearance( sint8 n ) { way_height_clearance = n; }
 };
 
 #endif 

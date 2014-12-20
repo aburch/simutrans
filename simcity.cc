@@ -4336,11 +4336,12 @@ bool stadt_t::build_bridge(grund_t* bd, ribi_t::ribi direction) {
 		return false;
 	}
 	const char *err = NULL;
+	sint8 bridge_height;
 	// Prefer "non-AI bridge"
-	koord3d end = brueckenbauer_t::finde_ende(NULL, bd->get_pos(), zv, bridge, err, false);
+	koord3d end = brueckenbauer_t::finde_ende(NULL, bd->get_pos(), zv, bridge, err, bridge_height, false);
 	if(  err && *err || koord_distance(k, end.get_2d()) > 3  ) {
 		// allow "AI bridge"
-		end = brueckenbauer_t::finde_ende(NULL, bd->get_pos(), zv, bridge, err, true);
+		end = brueckenbauer_t::finde_ende(NULL, bd->get_pos(), zv, bridge, err, bridge_height, true);
 	}
 	if(  err && *err || koord_distance(k, end.get_2d()) > 3  ) {
 		// no bridge short enough
@@ -4361,7 +4362,7 @@ bool stadt_t::build_bridge(grund_t* bd, ribi_t::ribi direction) {
 		return false;
 	}
 	// OK, build the bridge
-	brueckenbauer_t::baue_bruecke(NULL, bd->get_pos(), end, zv, bridge, welt->get_city_road());
+	brueckenbauer_t::baue_bruecke(NULL, bd->get_pos(), end, zv, bridge_height, bridge, welt->get_city_road());
 	// Now connect the bridge to the road we built
 	// (Is there an easier way?)
 	baue_strasse( (end+zv).get_2d(), NULL, false );

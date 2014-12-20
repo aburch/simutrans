@@ -1187,7 +1187,8 @@ void wegbauer_t::check_for_bridge(const grund_t* parent_from, const grund_t* fro
 		const grund_t* gr_end;
 		uint32 min_length = 1;
 		for (uint8 i = 0; i < 8 && min_length <= welt->get_settings().way_max_bridge_len; ++i) {
-			end = brueckenbauer_t::finde_ende( sp, from->get_pos(), zv, bruecke_besch, error, true, min_length );
+			sint8 bridge_height;
+			end = brueckenbauer_t::finde_ende( sp, from->get_pos(), zv, bruecke_besch, error, bridge_height, true, min_length );
 			gr_end = welt->lookup(end);
 			uint32 length = koord_distance(from->get_pos(), end);
 			if(  gr_end  &&  !error  &&  !ziel.is_contained(end)  &&  brueckenbauer_t::ist_ende_ok(sp, gr_end, besch->get_wtyp(), ribi_typ(zv))  &&  length <= welt->get_settings().way_max_bridge_len  ) {
@@ -1952,7 +1953,7 @@ wegbauer_t::baue_tunnel_und_bruecken()
 
 			if(start->get_grund_hang()==0  ||  start->get_grund_hang()==hang_typ(zv*(-1))) {
 				// bridge here, since the route is saved backwards, we have to build it at the posterior end
-				brueckenbauer_t::baue( sp, route[i+1].get_2d(), bruecke_besch);
+				brueckenbauer_t::baue( sp, route[i+1], bruecke_besch);
 			}
 			else {
 				// tunnel
@@ -1982,7 +1983,7 @@ wegbauer_t::baue_tunnel_und_bruecken()
 						if( bruecke_besch ) {
 							wi->set_ribi(ribi_typ(h));
 							wi1->set_ribi(ribi_typ(hang_t::gegenueber(h)));
-							brueckenbauer_t::baue( sp, route[i].get_2d(), bruecke_besch);
+							brueckenbauer_t::baue( sp, route[i], bruecke_besch);
 						}
 					}
 					else if( tunnel_besch ) {
