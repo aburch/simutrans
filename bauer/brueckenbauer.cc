@@ -376,7 +376,7 @@ koord3d brueckenbauer_t::finde_ende(spieler_t *sp, koord3d pos, const koord zv, 
 		min_height = max_height - (1+besch->has_double_ramp());
 		min_bridge_height = start_height;
 	}
-	bool height_okay_array[max_height+1 - min_bridge_height];
+	bool height_okay_array[256];
 	for (int i = 0; i < max_height+1 - min_bridge_height; i++) {
 		height_okay_array[i] = true;
 	}
