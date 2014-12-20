@@ -44,8 +44,6 @@ _UpgradeReport_Files*
 /simutrans/text
 *.bdf
 *.zip
-*.vcxproj
-*.vcxproj.*
 /ipch/*
 *.*sdf
 *.diff
@@ -56,3 +54,5 @@ _UpgradeReport_Files*
 *.lnk
 *.pak
 /Default
+/x64
+/zlib*
