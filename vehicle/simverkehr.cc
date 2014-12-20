@@ -208,6 +208,11 @@ void verkehrsteilnehmer_t::rdwr(loadsave_t *file)
 	if(file->get_version()>89004) {
 		file->rdwr_long(time_to_life);
 	}
+	// there might be crashes if world is destroyed after loading
+	// without a sync-step being performed
+	if(file->is_loading()  &&  time_to_life<=0) {
+		time_to_life = 1;
+	}
 
 	// Hajo: avoid endless growth of the values
 	// this causes lockups near 2**32
