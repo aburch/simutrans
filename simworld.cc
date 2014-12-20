@@ -1973,7 +1973,8 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 
 	if(  old_x==0  ) {
 		// init max and min with defaults
-		max_height, min_height = grundwasser;
+		max_height = grundwasser;
+		min_height = grundwasser;
 	}
 
 	setsimrand(0xFFFFFFFF, settings.get_karte_nummer());
