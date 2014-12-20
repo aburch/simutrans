@@ -2819,15 +2819,10 @@ int automobil_t::get_kosten(const grund_t *gr, const sint32 max_speed, koord fro
 	costs += (w->get_statistics(WAY_STAT_CONVOIS)  >  ( 2 << (welt->get_settings().get_bits_per_month()-16) )  );
 
 	// effect of slope
-	hang_t::typ hang = gr->get_weg_hang();
-	if(hang)
-	{
+	if(  gr->get_weg_hang()!=0  ) {
 		// Knightly : check if the slope is upwards, relative to the previous tile
 		from_pos -= gr->get_pos().get_2d();
-		if(hang_t::is_sloping_upwards(hang, from_pos.x, from_pos.y ))
-		{
-			costs += (hang & 7) ? 75 : 150;
-		}
+		costs += 75 * hang_t::get_sloping_upwards( gr->get_weg_hang(), from_pos.x, from_pos.y );
 	}
 
 	// It is now difficult to calculate here whether the vehicle is overweight, so do this in the route finder instead.
@@ -3588,15 +3583,10 @@ int waggon_t::get_kosten(const grund_t *gr, const sint32 max_speed, koord from_p
 	int costs = (max_speed <= max_tile_speed) ? 10 : 40 - (30 * max_tile_speed) / max_speed;
 
 	// effect of slope
-	hang_t::typ hang = gr->get_weg_hang();
-	if(hang)
-	{
+	if(  gr->get_weg_hang()!=0  ) {
 		// Knightly : check if the slope is upwards, relative to the previous tile
 		from_pos -= gr->get_pos().get_2d();
-		if(hang_t::is_sloping_upwards(hang, from_pos.x, from_pos.y))
-		{
-			costs += (hang & 7) ? 125 : 250;
-		}
+		costs += 125 * hang_t::get_sloping_upwards( gr->get_weg_hang(), from_pos.x, from_pos.y );
 	}
 
 	//@author: jamespetts
