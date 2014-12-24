@@ -36,6 +36,7 @@
 #include "../obj/leitung2.h"
 #include "../obj/pillar.h"
 #include "../obj/signal.h"
+#include "../obj/wayobj.h"
 
 #include "../tpl/stringhashtable_tpl.h"
 #include "../tpl/vector_tpl.h"
@@ -759,9 +760,18 @@ void brueckenbauer_t::baue_bruecke(spieler_t *sp, const koord3d start, const koo
 				weg->set_max_speed(besch->get_topspeed());
 			}
 			weg->set_max_axle_load( besch->get_max_weight() );
+			const weg_t* old_way = start_gr ? start_gr->get_weg(weg_besch->get_wtyp()) : NULL;
+			const wayobj_t* way_object = old_way ? way_object = start_gr->get_wayobj(besch->get_waytype()) : NULL;
 			// Necessary to avoid the "default" way (which might have constraints) setting the constraints here.
 			weg->clear_way_constraints();
 			weg->add_way_constraints(besch->get_way_constraints());
+			if(old_way)
+			{		
+				if(way_object)
+				{
+					weg->add_way_constraints(way_object->get_besch()->get_way_constraints());
+				}
+			}
 			spieler_t::book_construction_costs( sp, -start_gr->neuen_weg_bauen( weg, ribi, sp ) -weg->get_besch()->get_preis(), end.get_2d(), weg->get_waytype());
 		}
 		start_gr->calc_bild();
@@ -771,12 +781,16 @@ void brueckenbauer_t::baue_bruecke(spieler_t *sp, const koord3d start, const koo
 	while(  pos.get_2d() != end.get_2d()  ) {
 		brueckenboden_t *bruecke = new brueckenboden_t( pos, 0, 0 );
 		welt->access(pos.get_2d())->boden_hinzufuegen(bruecke);
+
 		if(besch->get_waytype() != powerline_wt) {
 			weg_t * const weg = weg_t::alloc(besch->get_waytype());
 			weg->set_besch(weg_besch);
 			bruecke->neuen_weg_bauen(weg, ribi_t::doppelt(ribi), sp);
 			const grund_t* gr = welt->lookup(weg->get_pos());
 			const hang_t::typ hang = gr ? gr->get_weg_hang() :  hang_t::flach;
+			const weg_t* old_way = gr ? gr->get_weg(weg_besch->get_wtyp()) : NULL;
+			const wayobj_t* way_object = old_way ? way_object = gr->get_wayobj(besch->get_waytype()) : NULL;
+
 			if(hang != hang_t::flach) 
 			{
 				const uint slope_height = (hang & 7) ? 1 : 2;
@@ -797,6 +811,14 @@ void brueckenbauer_t::baue_bruecke(spieler_t *sp, const koord3d start, const koo
 			// Necessary to avoid the "default" way (which might have constraints) setting the constraints here.
 			weg->clear_way_constraints();
 			weg->add_way_constraints(besch->get_way_constraints());
+			if(old_way)
+			{
+				const wayobj_t* way_object = gr->get_wayobj(besch->get_waytype());
+				if(way_object)
+				{
+					weg->add_way_constraints(way_object->get_besch()->get_way_constraints());
+				}
+			}
 		}
 		else {
 			leitung_t *lt = new leitung_t(bruecke->get_pos(), sp);
@@ -835,6 +857,7 @@ void brueckenbauer_t::baue_bruecke(spieler_t *sp, const koord3d start, const koo
 	}
 
 	grund_t *gr=welt->lookup(end);
+
 	if(  need_auffahrt  ) {
 		// not ending at a bridge
 		baue_auffahrt(sp, end, ribi_typ(-zv), gr->get_weg_hang()?0:hang_typ(-zv)*(pos.z-end.z), besch);
@@ -848,6 +871,8 @@ void brueckenbauer_t::baue_bruecke(spieler_t *sp, const koord3d start, const koo
 				// builds new way
 				weg_t * const weg = weg_t::alloc( besch->get_waytype() );
 				weg->set_besch( weg_besch );
+				const weg_t* old_way = gr ? gr->get_weg(weg_besch->get_wtyp()) : NULL;
+				const wayobj_t* way_object = old_way ? way_object = gr->get_wayobj(besch->get_waytype()) : NULL;
 				const hang_t::typ hang = gr ? gr->get_weg_hang() :  hang_t::flach;
 				if(hang != hang_t::flach) 
 				{
@@ -869,6 +894,14 @@ void brueckenbauer_t::baue_bruecke(spieler_t *sp, const koord3d start, const koo
 				// Necessary to avoid the "default" way (which might have constraints) setting the constraints here.
 				weg->clear_way_constraints();
 				weg->add_way_constraints(besch->get_way_constraints());
+				if(old_way)
+				{
+					const wayobj_t* way_object = gr->get_wayobj(besch->get_waytype());
+					if(way_object)
+					{
+						weg->add_way_constraints(way_object->get_besch()->get_way_constraints());
+					}
+				}
 				spieler_t::book_construction_costs( sp, -gr->neuen_weg_bauen( weg, ribi, sp ) -weg->get_besch()->get_preis(), end.get_2d(), weg->get_waytype());
 			}
 			gr->calc_bild();
@@ -971,8 +1004,17 @@ void brueckenbauer_t::baue_auffahrt(spieler_t* sp, koord3d end, ribi_t::ribi rib
 		}
 		weg->set_max_axle_load( besch->get_max_weight() );
 		// Necessary to avoid the "default" way (which might have constraints) setting the constraints here.
+		const weg_t* old_way = gr ? gr->get_weg(weg->get_besch()->get_wtyp()) : NULL;
 		weg->clear_way_constraints();
 		weg->add_way_constraints(besch->get_way_constraints());
+		if(old_way)
+		{
+			const wayobj_t* way_object = gr->get_wayobj(besch->get_waytype());
+			if(way_object)
+			{
+				weg->add_way_constraints(way_object->get_besch()->get_way_constraints());
+			}
+		}
 	} else {
 
 		leitung_t *lt = bruecke->get_leitung();

@@ -582,7 +582,6 @@ void tunnelbauer_t::baue_einfahrt(spieler_t *sp, koord3d end, koord zv, const tu
 			{
 				weg->add_way_constraints(way_object->get_besch()->get_way_constraints());
 			}
-
 		}
 	}
 	else {
