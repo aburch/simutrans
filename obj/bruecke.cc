@@ -17,6 +17,7 @@
 #include "../dataobj/environment.h"
 
 #include "bruecke.h"
+#include "../obj/wayobj.h"
 
 
 
@@ -200,6 +201,18 @@ void bruecke_t::laden_abschliessen()
 		else
 		{
 			weg->set_max_speed(besch->get_topspeed());
+		}
+		const weg_t* old_way = gr ? gr->get_weg(besch->get_wtyp()) : NULL;
+		const wayobj_t* way_object = old_way ? way_object = gr->get_wayobj(besch->get_waytype()) : NULL;
+		// Necessary to avoid the "default" way (which might have constraints) setting the constraints here.
+		weg->clear_way_constraints();
+		weg->add_way_constraints(besch->get_way_constraints());
+		if(old_way)
+		{		
+			if(way_object)
+			{
+				weg->add_way_constraints(way_object->get_besch()->get_way_constraints());
+			}
 		}
 		// take ownership of way
 		spieler_t::add_maintenance( weg->get_besitzer(), -weg->get_besch()->get_wartung(), besch->get_finance_waytype());
