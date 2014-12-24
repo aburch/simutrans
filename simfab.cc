@@ -1599,7 +1599,16 @@ sint8 fabrik_t::is_needed(const ware_besch_t *typ) const
 	FOR(array_tpl<ware_production_t>, const& i, eingang) {
 		if(  i.get_typ() == typ  ) {
 			// not needed (false) if overflowing or too much already sent			
-			return max_intransit_percentages.get(typ->get_catg()) == 0 ? (i.menge < i.max) : ((i.transit + (i.menge >> fabrik_t::precision_bits)) * 200) < ((i.max >> fabrik_t::precision_bits) * (sint32)max_intransit_percentages.get(typ->get_catg()));
+			
+			// Original version (reported to have a bug: see http://forum.simutrans.com/index.php?topic=13898.0)
+			// return max_intransit_percentages.get(typ->get_catg()) == 0 ? (i.menge < i.max) : ((i.transit + (i.menge >> fabrik_t::precision_bits)) * 200) < ((i.max >> fabrik_t::precision_bits) * (sint32)max_intransit_percentages.get(typ->get_catg()));
+
+			// Version with fix:
+			// return max_intransit_percentages.get(typ->get_catg()) == 0 ? (i.menge < i.max) : ((i.transit + (i.menge >> fabrik_t::precision_bits)) * 50) < ((i.max >> fabrik_t::precision_bits) * (sint32)max_intransit_percentages.get(typ->get_catg()));
+
+			// Improved version (Octavius):
+			return max_intransit_percentages.get(typ->get_catg()) == 0 ? (i.menge < i.max) : ((i.transit + (i.menge >> fabrik_t::precision_bits) - (i.max >> (fabrik_t::precision_bits + 1))) * 100) < ((i.max >> fabrik_t::precision_bits) * (sint32)max_intransit_percentages.get(typ->get_catg()));
+
 		}
 	}
 	return -1;  // not needed here
