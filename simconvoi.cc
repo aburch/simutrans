@@ -6716,6 +6716,7 @@ void convoi_t::clear_replace()
 			}
 
 			journey_time_ticks = welt->seconds_to_ticks(journey_time_tenths_minutes * 6);
+			eta = etd;
 			eta += journey_time_ticks;
 			etd += journey_time_ticks;
 			halt = haltestelle_t::get_halt(fpl->eintrag[schedule_entry].pos, besitzer_p);
