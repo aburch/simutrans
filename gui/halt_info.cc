@@ -428,6 +428,12 @@ void halt_info_t::update_departures()
 			continue;
 		}
 
+		if(!cnv->get_schedule())
+		{
+			//XXX vehicle in depot.
+			continue;
+		}
+
 		halthandle_t prev_halt = haltestelle_t::get_halt(cnv->front()->last_stop_pos, cnv->get_besitzer());
 		delta_t = iter.value - cur_ticks;
 
@@ -447,6 +453,12 @@ void halt_info_t::update_departures()
 		cnv.set_id(iter.key);
 		if(!cnv.is_bound())
 		{
+			continue;
+		}
+
+		if(!cnv->get_schedule())
+		{
+			//XXX vehicle in depot.
 			continue;
 		}
 
