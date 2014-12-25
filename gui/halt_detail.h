@@ -33,6 +33,7 @@ private:
 	spieler_t *cached_active_player; // So that, if different from current, change line links
 	uint32 cached_line_count;
 	uint32 cached_convoy_count;
+	uint32 update_time;
 
 	cbuffer_t buf;
 

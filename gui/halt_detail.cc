@@ -432,10 +432,12 @@ void halt_detail_t::draw(scr_coord pos, scr_size size)
 {
 	if(halt.is_bound()) {
 		if( cached_active_player!=halt->get_welt()->get_active_player()	||  halt->registered_lines.get_count()!=cached_line_count  || 
-			halt->registered_convoys.get_count()!=cached_convoy_count  ) {
+			halt->registered_convoys.get_count()!=cached_convoy_count  ||
+		    welt->get_zeit_ms() - update_time > 10000) {
 			// fill buffer with halt detail
 			halt_detail_info();
 			cached_active_player=welt->get_active_player();
+			update_time = welt->get_zeit_ms();
 		}
 	}
 	gui_frame_t::draw( pos, size );
