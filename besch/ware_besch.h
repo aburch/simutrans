@@ -151,14 +151,7 @@ public:
 
 	void calc_checksum(checksum_t *chk) const
 	{
-		chk->input(base_values.get_count());
-		ITERATE(base_values, i)
-		{
-			chk->input(base_values[i].to_distance);
-			chk->input(base_values[i].price);
-		}
 		chk->input(catg);
-		/*chk->input(catg_index);*/ // For some reason this line causes false mismatches.
 		chk->input(speed_bonus);
 		chk->input(weight_per_unit);
 	}

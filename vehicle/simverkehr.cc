@@ -301,6 +301,12 @@ void verkehrsteilnehmer_t::rdwr(loadsave_t *file)
 		tiles_since_last_increment = 0;
 	}
 
+	// there might be crashes if world is destroyed after loading
+	// without a sync-step being performed
+	if(file->is_loading()  &&  time_to_life<=0) {
+		time_to_life = 1;
+	}
+
 	// Hajo: avoid endless growth of the values
 	// this causes lockups near 2**32
 	weg_next &= 65535;

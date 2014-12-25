@@ -1,7 +1,8 @@
-// "#warning" does not work with MS Visual Studio 2012
-//#if defined(_M_X64)  ||  defined(__x86_64__)
-//#warning "Simutrans is preferably compiled as 32 bit binary!"
-//#endif
+#if defined(_M_X64)  ||  defined(__x86_64__)
+#if __GNUC__
+#warning "Simutrans is preferably compiled as 32 bit binary!"
+#endif
+#endif
 
 
 #include <stdio.h>
