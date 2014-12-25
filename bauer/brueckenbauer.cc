@@ -474,9 +474,20 @@ koord3d brueckenbauer_t::finde_ende(spieler_t *sp, koord3d pos, const koord zv, 
 				/* now we have a flat tile below */
 				error_msg = check_tile( gr, sp, besch->get_waytype(), ribi_typ(zv) );
 
+				bool ramp_okay = true;
+
+				if(  gr->has_two_ways()  ||  (  gr->get_weg_nr(0)  &&  (gr->get_weg_nr(0)->get_waytype() != besch->get_waytype()  ||  gr->get_weg_ribi_unmasked(besch->get_waytype())!=ribi_typ(zv)  )  )  ) {
+					ramp_okay = false;
+				}
+
+				if(!height_okay_array[hang_height-min_bridge_height] &&
+				   !ramp_okay) {
+					error_msg = "A bridge must start on a way!";
+				}
+
 				if(  !error_msg  ||  (!*error_msg) ) {
 					// success
-					for(sint8 z = hang_height + 3; z <= max_height; z++) {
+					for(sint8 z = hang_height + (ramp_okay ? 3 : 1); z <= max_height; z++) {
 						height_okay_array[z-min_bridge_height] = false;
 					}
 					for(sint8 z = min_bridge_height; z < hang_height; z++) {
@@ -508,8 +519,13 @@ koord3d brueckenbauer_t::finde_ende(spieler_t *sp, koord3d pos, const koord zv, 
 				    (hang_height+2 >= start_height && height_okay(hang_height+2))) {
 					/* now we have a flat tile below */
 					error_msg = check_tile( gr, sp, besch->get_waytype(), ribi_typ(zv) );
+					bool ramp_okay = true;
 
-					if(  hang_height < max_height  &&  (  gr->has_two_ways()  ||  (  gr->get_weg_nr(0)  &&  (gr->get_weg_nr(0)->get_waytype() != besch->get_waytype()  ||  gr->get_weg_ribi_unmasked(besch->get_waytype())!=ribi_typ(zv)  )  )  )  ) {
+					if(  gr->has_two_ways()  ||  (  gr->get_weg_nr(0)  &&  (gr->get_weg_nr(0)->get_waytype() != besch->get_waytype()  ||  gr->get_weg_ribi_unmasked(besch->get_waytype())!=ribi_typ(zv)  )  )  ) {
+						ramp_okay = false;
+					}
+
+					if(  !ramp_okay  ) {
 						// no crossing or curve here (since it will a slope ramp)
 						error_msg = "A bridge must start on a way!";
 					}
