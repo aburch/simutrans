@@ -44,7 +44,7 @@ public:
 	T operator[](uint8 e)
 	{
 		uint8 i;
-		if(e > size)
+		if(e >= size)
 		{
 			dbg->fatal("fixed_list_tpl<T>::[]", "index out of bounds: %i not in 0..%d", e, size - 1);
 		}
@@ -58,7 +58,7 @@ public:
 	const T operator[](uint8 e) const
 	{
 		uint8 i;
-		if(e > size)
+		if(e >= size)
 		{
 			dbg->fatal("fixed_list_tpl<T>::[]", "index out of bounds: %i not in 0..%d", e, size - 1);
 		}
@@ -231,30 +231,6 @@ public:
 		else
 		{
 			return false;
-		}
-	}
-
-	uint8 get_index_of(T datum)
-	{
-		uint8 tmp = 255;
-
-		for(uint8 i = 0; i < N; i++)
-		{
-			if(data[i] == datum && index_is_in_range(i))
-			{
-				tmp = i;
-				break;
-			}
-		}
-
-		if(tmp > (N - 1))
-		{
-			return 255;
-		}
-		else
-		{
-			uint8 index = subtract_index(tmp, head, N);
-			return index;
 		}
 	}
 
