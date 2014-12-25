@@ -3799,6 +3799,24 @@ void haltestelle_t::laden_abschliessen(bool need_recheck_for_walking_distance)
 		if(!convoy.is_bound())
 		{
 			dead_convoys.append(iter.key);
+			continue;
+		}
+
+		bool dead = true;
+		if (convoy->get_schedule()) {
+			for(int i=0; i<convoy->get_schedule()->get_count(); i++) {
+				koord3d pos = convoy->get_schedule()->eintrag[i].pos;
+				grund_t *gr = welt->lookup(pos);
+				
+				if (gr && gr->get_halt() == self) {
+					dead = false;
+					break;
+				}
+			}
+		}
+
+		if (dead) {
+			dead_convoys.append(iter.key);
 		}
 	}
 
@@ -3808,6 +3826,25 @@ void haltestelle_t::laden_abschliessen(bool need_recheck_for_walking_distance)
 		if(!convoy.is_bound())
 		{
 			dead_convoys.append(iter.key);
+			continue;
+		}
+
+		bool dead = true;
+		if (convoy->get_schedule()) {
+			for(int i=0; i<convoy->get_schedule()->get_count(); i++) {
+				koord3d pos = convoy->get_schedule()->eintrag[i].pos;
+				grund_t *gr = welt->lookup(pos);
+				
+				if (gr && gr->get_halt() == self) {
+					dead = false;
+					break;
+				}
+			}
+		}
+
+		if (dead) {
+			dead_convoys.append(iter.key);
+
 		}
 	}
 
