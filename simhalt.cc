@@ -3791,6 +3791,31 @@ void haltestelle_t::laden_abschliessen(bool need_recheck_for_walking_distance)
 		all_names.set( current_name, self );
 	}
 
+	convoihandle_t convoy;
+	slist_tpl<uint16> dead_convoys;
+	FOR(arrival_times_map, const& iter, estimated_convoy_departure_times)
+	{
+		convoy.set_id(iter.key);
+		if(!convoy.is_bound())
+		{
+			dead_convoys.append(iter.key);
+		}
+	}
+
+	FOR(arrival_times_map, const& iter, estimated_convoy_arrival_times)
+	{
+		convoy.set_id(iter.key);
+		if(!convoy.is_bound())
+		{
+			dead_convoys.append(iter.key);
+		}
+	}
+
+	FOR(slist_tpl<uint16>, const &iter, dead_convoys)
+	{
+		clear_estimated_timings(iter);
+	}
+
 	if(need_recheck_for_walking_distance)
 	{
 		check_nearby_halts();
