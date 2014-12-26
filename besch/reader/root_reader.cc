@@ -1,5 +1,5 @@
 #include "root_reader.h"
-
+#include "../obj_besch.h"
 
 void root_reader_t::register_obj(obj_besch_t *&data)
 {

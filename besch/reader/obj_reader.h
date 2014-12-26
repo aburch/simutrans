@@ -3,13 +3,14 @@
 
 #include <stdio.h>
 
-#include "../obj_besch.h"
+
 #include "../objversion.h"
 
 #include "../../simtypes.h"
 
 
 struct obj_node_info_t;
+class obj_besch_t;
 template<class key_t, class value_t> class inthashtable_tpl;
 template<class value_t> class stringhashtable_tpl;
 template<class key_t, class value_t> class ptrhashtable_tpl;
