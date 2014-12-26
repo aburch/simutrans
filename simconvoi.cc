@@ -299,7 +299,13 @@ void convoi_t::close_windows()
 // waypoint: no stop, resp. for airplanes in air (i.e. no air strip below)
 bool convoi_t::is_waypoint( koord3d ziel ) const
 {
-	return  front()->get_waytype() == air_wt  ?  welt->lookup_kartenboden(ziel.get_2d())->get_weg(air_wt) == NULL : !haltestelle_t::get_halt(ziel,get_besitzer()).is_bound();
+		if (fahr[0]->get_waytype() == air_wt) {
+		grund_t *gr = welt->lookup_kartenboden(ziel.get_2d());
+		if(  gr == NULL  ||  gr->get_weg(air_wt) == NULL  ) {
+			return true;
+		}
+	}
+	return !haltestelle_t::get_halt(ziel,get_besitzer()).is_bound();
 }
 
 
@@ -1327,7 +1333,7 @@ bool convoi_t::drive_to()
 						if(  front()->get_waytype() != air_wt  ) {
 							 // check if the route circles back on itself (only check the first tile, should be enough)
 							looped = route.is_contained(next_segment.position_bei(1));
-	#if 0
+#if 0
 							// this will forbid an eight firure, which might be clever to avoid a problem of reserving one own track
 							for(  unsigned i = 1;  i<next_segment.get_count();  i++  ) {
 								if(  route.is_contained(next_segment.position_bei(i))  ) {
@@ -1335,7 +1341,7 @@ bool convoi_t::drive_to()
 									break;
 								}
 							}
-	#endif
+#endif
 						}
 
 						if(  looped  ) {
@@ -1350,9 +1356,14 @@ bool convoi_t::drive_to()
 								// maybe we need to restore index
 								uint32 dummy2;
 								aircraft_t::flight_state dummy1;
-								plane->get_event_index( dummy1, dummy2, search, landing );
-								search += count_offset;
-								landing += count_offset;
+								uint32 new_search, new_landing;
+								plane->get_event_index( dummy1, dummy2, new_search, new_landing );
+								if(  landing == 0x7FFFFFFF  &&  new_landing != 0x7FFFFFFF  ) {
+									landing = new_landing + count_offset;
+								}
+								if(  search == 0x7FFFFFFF  &&  new_search != 0x7FFFFFFF ) {
+									search = new_search + count_offset;
+								}
 							}
 						}
 					}
