@@ -4562,7 +4562,7 @@ void convoi_t::laden() //"load" (Babelfish)
 		{
 			// The add_check_overflow_16 function should have the effect of slowly making older timings less and less significant
 			// to this figure.
-			journey_times_between_schedule_points.access(this_departure)->add_check_overflow_16((uint16)latest_journey_time);
+			journey_times_between_schedule_points.access(this_departure)->add_autoreduce((uint16)latest_journey_time, timings_reduction_point);
 		}
 		else
 		{
@@ -4609,7 +4609,7 @@ void convoi_t::laden() //"load" (Babelfish)
 				}
 				else
 				{
-					average_journey_times.access(pair)->add_check_overflow_16(this_journey_time);
+					average_journey_times.access(pair)->add_autoreduce(this_journey_time, timings_reduction_point);
 				}
 				if(line.is_bound())
 				{
@@ -4622,7 +4622,7 @@ void convoi_t::laden() //"load" (Babelfish)
 					}
 					else
 					{
-						get_average_journey_times().access(pair)->add_check_overflow_16(this_journey_time);
+						get_average_journey_times().access(pair)->add_autoreduce(this_journey_time, timings_reduction_point);
 					}
 				}
 			}

@@ -202,6 +202,24 @@ public:
 		total = (uint16)new_total;
 	}
 
+	inline void add_autoreduce(T value, T reduce_at)
+	{
+		sint64 new_total = (sint64)total + (sint64)value;
+		count++;
+		if(count > reduce_at)
+		{
+			new_total /= 2;
+			count /= 2;
+		}
+
+		while(new_total > 65535ll)
+		{
+			new_total /= 2;
+			count /= 2;
+		}
+		total = (uint16)new_total;
+	}
+
 	inline T get_average() const
 	{
 		if(count == 0)

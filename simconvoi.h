@@ -241,6 +241,7 @@ public:
 // BG, 31.12.2012: virtual methods of lazy_convoy_t:
 private:
 	weight_summary_t weight;
+	static const sint32 timings_reduction_point = 4;
 protected:
 	virtual void update_vehicle_summary(vehicle_summary_t &vehicle);
 	virtual void update_adverse_summary(adverse_summary_t &adverse);
