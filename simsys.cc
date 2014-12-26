@@ -56,7 +56,6 @@ bool dr_movetotrash(const char *path) {
 
 	// Double \0 terminated string as required by the function.
 
-	wfilename[len]='\0';
 	wfilename[len+1]='\0';
 
 	ZeroMemory(&FileOp, sizeof(SHFILEOPSTRUCTA));
