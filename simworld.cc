@@ -2930,7 +2930,7 @@ int karte_t::raise_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8
 		assert(false);
 	}
 	// change height and slope, for water tiles only if they will become land
-	if(  !gr->ist_wasser()  ||  (hmaxneu > water_hgt)  ) {
+	if(  !gr->ist_wasser()  ||  (hmaxneu > water_hgt  ||  (hneu == water_hgt  &&  hmaxneu == water_hgt)  )  ) {
 		gr->set_pos( koord3d( x, y, disp_hneu ) );
 		gr->set_grund_hang( (hang_t::typ)sneu );
 		access_nocheck(x,y)->angehoben();
@@ -3003,12 +3003,19 @@ int karte_t::grid_raise(const spieler_t *sp, koord k, bool allow_deep_water, con
 		const sint16 y = gr->get_pos().y;
 		const sint8 hgt = gr->get_hoehe(corner_to_raise);
 
-		const sint8 f = grund_besch_t::double_grounds ?  2 : 1;
-		const sint8 o = grund_besch_t::double_grounds ?  1 : 0;
-		const sint8 hsw = hgt - o + scorner1( corner_to_raise ) * f;
-		const sint8 hse = hgt - o + scorner2( corner_to_raise ) * f;
-		const sint8 hne = hgt - o + scorner3( corner_to_raise ) * f;
-		const sint8 hnw = hgt - o + scorner4( corner_to_raise ) * f;
+		sint8 hsw, hse, hne, hnw;
+		if(  !gr->ist_wasser()  ) {
+			const sint8 f = grund_besch_t::double_grounds ?  2 : 1;
+			const sint8 o = grund_besch_t::double_grounds ?  1 : 0;
+
+			hsw = hgt - o + scorner1( corner_to_raise ) * f;
+			hse = hgt - o + scorner2( corner_to_raise ) * f;
+			hne = hgt - o + scorner3( corner_to_raise ) * f;
+			hnw = hgt - o + scorner4( corner_to_raise ) * f;
+		}
+		else {
+			hsw = hse = hne = hnw = hgt;
+		}
 
 		terraformer_t digger(this);
 		digger.add_raise_node(x, y, hsw, hse, hne, hnw);
