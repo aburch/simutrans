@@ -1918,8 +1918,7 @@ DBG_MESSAGE("calc_route::calc_route", "took %i ms",dr_time()-ms);
 #endif
 }
 
-void
-wegbauer_t::baue_tunnel_und_bruecken()
+void wegbauer_t::baue_tunnel_und_bruecken()
 {
 	if(bruecke_besch==NULL  &&  tunnel_besch==NULL) {
 		return;
