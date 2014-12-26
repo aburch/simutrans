@@ -5962,18 +5962,23 @@ DBG_MESSAGE("wkz_headquarter()", "building headquarter at (%d,%d)", pos.x, pos.y
 						}
 					}
 					hq = gb;
-					if (ok) 
+					if( ok ) 
 					{
 						welt->remove_building_from_world_list(gb);
 						// upgrade the tiles
 						koord k_hq = k - gb->get_tile()->get_offset();
-						for (sint16 x=0; x<size.x; x++) {
-							for (sint16 y=0; y<size.y; y++) {
-								if (const haus_tile_besch_t *tile = besch->get_tile(layout, x, y)) {
-									if (grund_t *gr2 = welt->lookup_kartenboden(k_hq + koord(x,y))) {
-										if (gebaeude_t *gb = gr2->find<gebaeude_t>()) {
-											if (gb  &&  gb->get_besitzer()==sp  &&  prev_besch==gb->get_tile()->get_besch()) {
+						for(  sint16 x = 0;  x < size.x;  x++  ) {
+							for(  sint16 y = 0;  y < size.y;  y++  ) {
+								if(  const haus_tile_besch_t *tile = besch->get_tile(layout, x, y)  ) 
+								{
+									if(  grund_t *gr2 = welt->lookup_kartenboden(k_hq + koord(x, y))  ) 
+									{
+										if(  gebaeude_t *gb = gr2->find<gebaeude_t>()  ) {
+											if(  gb  &&  gb->get_besitzer() == sp  &&  prev_besch == gb->get_tile()->get_besch()  ) 
+											{
+												spieler_t::add_maintenance( sp, -prev_besch->get_maintenance(), prev_besch->get_finance_waytype() );
 												gb->set_tile( tile, true );
+												spieler_t::add_maintenance( sp, besch->get_maintenance(), besch->get_finance_waytype() );
 											}
 										}
 									}
@@ -5987,8 +5992,7 @@ DBG_MESSAGE("wkz_headquarter()", "building headquarter at (%d,%d)", pos.x, pos.y
 				}
 			}
 			// did not upgrade old one, need to remove it
-			if (!built) {
-				sp->add_headquarter( prev_hq->get_tile()->get_besch()->get_extra(), koord::invalid );
+			if( !built ) {
 				// remove previous one
 				hausbauer_t::remove( sp, prev_hq );
 				// resize cursor
@@ -5998,7 +6002,7 @@ DBG_MESSAGE("wkz_headquarter()", "building headquarter at (%d,%d)", pos.x, pos.y
 
 
 		// build new one
-		if (!built) {
+		if( built ) {
 			int rotate = 0;
 
 			if(welt->square_is_free(k, size.x, size.y, NULL, besch->get_allowed_climate_bits())) {
@@ -6026,9 +6030,9 @@ DBG_MESSAGE("wkz_headquarter()", "building headquarter at (%d,%d)", pos.x, pos.y
 		}
 
 
-		if (built) {
+		if( built ) {
 			// sometimes those are not correct after rotation ...
-			sp->add_headquarter(besch->get_extra()+1, hq->get_pos().get_2d()-hq->get_tile()->get_offset() );
+			sp->add_headquarter( besch->get_extra() + 1, hq->get_pos().get_2d() - hq->get_tile()->get_offset() );
 			spieler_t::book_construction_costs(sp,  cost, k, ignore_wt);
 			// tell the world of it ...
 			cbuffer_t buf;
