@@ -43,6 +43,7 @@ class wkz_abfrage_t : public werkzeug_t {
 public:
 	wkz_abfrage_t() : werkzeug_t(WKZ_ABFRAGE | GENERAL_TOOL) {}
 	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate("Abfrage"); }
+	image_id get_icon(spieler_t *sp) const OVERRIDE { return (!env_t::networkmode || sp->get_player_nr()==1) ? icon : IMG_LEER; }
 	char const* work(spieler_t*, koord3d) OVERRIDE;
 	bool is_init_network_save() const OVERRIDE { return true; }
 	bool is_work_network_save() const OVERRIDE { return true; }
