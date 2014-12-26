@@ -31,6 +31,11 @@
 #		define IPV6_V6ONLY (27)
 #	endif
 
+#if WINVER<=0x0500
+ // compiling for Windows 2000
+# define USE_IP4_ONLY
+# endif
+
 #	define GET_LAST_ERROR() WSAGetLastError()
 #	include <errno.h>
 #	undef  EWOULDBLOCK
