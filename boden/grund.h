@@ -440,9 +440,7 @@ public:
 		/*switch(underground_mode) {// long version of the return statement above
 			case ugm_none: return(get_grund_hang());
 			case ugm_all:  return(get_grund_hang()); // get_typ()==tunnelboden && !ist_karten? hang_t::flach : get_grund_hang());
-			case ugm_level:return((pos.z > underground_level || (get_typ()==tunnelboden && ist_karten_boden() && pos.z == underground_level))
-							? hang_t::flach
-							: get_grund_hang());
+			case ugm_level:return pos.z == underground_level || pos.z+max(max(corner1(slope),corner2(slope)),max(corner3(slope),corner4(slope))) == underground_level || (ist_karten_boden() && pos.z <= underground_level);
 		}*/
 	}
 
