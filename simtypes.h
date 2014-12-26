@@ -204,9 +204,18 @@ public:
 
 	inline void add_autoreduce(T value, T reduce_at)
 	{
+		if((reduce_at % 2) != 0)
+		{
+			// This *must* be an even number, or else the 
+			// average will drift too high as "count"
+			// is truncated at each reduction. 
+			reduce_at++;
+		}
+
 		sint64 new_total = (sint64)total + (sint64)value;
 		count++;
-		if(count > reduce_at)
+		
+		if(count >= reduce_at)
 		{
 			new_total /= 2;
 			count /= 2;
