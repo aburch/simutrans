@@ -750,6 +750,9 @@ server_frames_between_checks = 32
 # Nickname when joining network games
 #nickname = John Doe
 
+# Server saves savegame when being killed (default=0 off)
+server_save_game_on_quit = 0
+
 # Chat window transparency (0=off, 25, 50 75 are possible)
 chat_transparency = 75
 
