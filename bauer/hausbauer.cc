@@ -68,7 +68,7 @@ vector_tpl<haus_besch_t*> hausbauer_t::modifiable_station_buildings;
 // all headquarters (sorted by hq-level)
 vector_tpl<const haus_besch_t *> hausbauer_t::headquarter;
 
-static spezial_obj_tpl<haus_besch_t> spezial_objekte[] = {
+static spezial_obj_tpl<haus_besch_t> const spezial_objekte[] = {
 	{ &hausbauer_t::elevated_foundation_besch,   "MonorailGround" },
 	{ NULL, NULL }
 };

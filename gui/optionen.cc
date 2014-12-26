@@ -43,7 +43,7 @@ enum BUTTONS {
 	BUTTON_QUIT
 };
 
-const char *option_buttons_text[] =
+static char const *const option_buttons_text[] =
 {
 	"Sprache", "Spieler(mz)", "Farbe", "Helligk.", "Sound",
 	"Neue Karte", "Load game", "Speichern", "Load scenario", "Scenario", "Beenden"

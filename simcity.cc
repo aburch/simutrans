@@ -3510,7 +3510,7 @@ void stadt_t::bewerte_res_com_ind(const koord pos, int &ind_score, int &com_scor
 
 // return the eight neighbors:
 // orthogonal before diagonal
-static koord neighbors[] = {
+static koord const neighbors[] = {
 	koord( 0,  1), // "south" -- lower left
 	koord( 1,  0), // "east" -- lower right
 	koord( 0, -1), // "north" -- upper left
@@ -3574,7 +3574,7 @@ static int interesting_neighbors_corners[] = {
 };
 
 // return layout
-//static int building_layout[] = {0,0,1,4,2,0,5,1,3,7,1,0,6,3,2,0};
+//static int const building_layout[] = { 0, 0, 1, 4, 2, 0, 5, 1, 3, 7, 1, 0, 6, 3, 2, 0 };
 
 // This takes a layout (0,1,2,3,4,5,6,7)
 // and returns a "streetsdir" style bitfield indicating which ways that layout is facing

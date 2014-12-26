@@ -451,7 +451,7 @@ const grund_besch_t *grund_besch_t::borders = NULL;
 const grund_besch_t *grund_besch_t::sea = NULL;
 const grund_besch_t *grund_besch_t::ausserhalb = NULL;
 
-static spezial_obj_tpl<grund_besch_t> grounds[] = {
+static spezial_obj_tpl<grund_besch_t> const grounds[] = {
     { &boden_texture,	    "ClimateTexture" },
     { &light_map,	    "LightTexture" },
     { &transition_water_texture,    "ShoreTrans" },

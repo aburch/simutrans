@@ -26,7 +26,7 @@ template<class besch_t> struct spezial_obj_tpl {
  * @param so List to operate over.
  * @parem besch Descriptor to add.
  */
-template<class besch_t> bool register_besch(spezial_obj_tpl<besch_t>* so, const besch_t* besch)
+template<class besch_t> bool register_besch(spezial_obj_tpl<besch_t> const* so, besch_t const* const besch)
 {
 	for (; so->name; ++so) {
 		if (strcmp(so->name, besch->get_name()) == 0) {
@@ -45,7 +45,7 @@ template<class besch_t> bool register_besch(spezial_obj_tpl<besch_t>* so, const 
  * Verifies the passed list for all objects to be not NULL, ie are loaded.
  * @param so List to check.
  */
-template<class besch_t> bool alles_geladen(spezial_obj_tpl<besch_t>* so)
+template<class besch_t> bool alles_geladen(spezial_obj_tpl<besch_t> const* so)
 {
 	for (; so->name; ++so) {
 		if (!*so->besch) {
@@ -61,7 +61,7 @@ template<class besch_t> bool alles_geladen(spezial_obj_tpl<besch_t>* so)
  * @param so List to check.
  * @param count Number of elements to check.
  */
-template<class besch_t> void warne_ungeladene(spezial_obj_tpl<besch_t>* so)
+template<class besch_t> void warne_ungeladene(spezial_obj_tpl<besch_t> const* so)
 {
 	for (; so->name; ++so) {
 		if (!*so->besch) {
