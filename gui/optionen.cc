@@ -29,10 +29,6 @@
 #include "../dataobj/scenario.h"
 #include "../dataobj/translator.h"
 
-#ifdef _MSC_VER
-#include <direct.h>
-#endif
-
 enum BUTTONS {
 	BUTTON_LANGUAGE = 0,
 	BUTTON_PLAYERS,
