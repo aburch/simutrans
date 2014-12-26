@@ -1486,7 +1486,7 @@ void win_display_flush(double konto)
 			display_set_clip_wh( cl.x, cl.y, cl.w, cl.h );
 		}
 	} else {
-		display_fillbox_wh_rgb( 0, 0, disp_width, menu_height, MN_GREY2, false );
+		display_fillbox_wh( 0, 0, disp_width, menu_height, MN_GREY2, false );
 	}
 	// .. extra logic to enable tooltips
 	tooltip_element = menu_height > get_maus_y() ? main_menu : NULL;
