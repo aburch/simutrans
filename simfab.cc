@@ -112,6 +112,7 @@ void ware_production_t::init_stats()
 	}
 	weighted_sum_storage = 0;
 	transit = 0;
+	max_transit = 0;
 }
 
 
@@ -145,7 +146,6 @@ void ware_production_t::rdwr(loadsave_t *file)
 {
 	if(  file->is_loading()  ) {
 		init_stats();
-		max_transit = 0;
 	}
 
 	if(  file->get_version()>112000  ) {
@@ -155,11 +155,6 @@ void ware_production_t::rdwr(loadsave_t *file)
 			}
 		}
 		file->rdwr_longlong( weighted_sum_storage );
-#ifndef CACHE_TRANSIT
-		// recalc transit always on load
-		transit = 0;
-		statistics[0][FAB_GOODS_TRANSIT] = 0;
-#endif
 	}
 	else if(  file->get_version()>=110005  ) {
 		// save/load statistics
@@ -170,6 +165,14 @@ void ware_production_t::rdwr(loadsave_t *file)
 		}
 		file->rdwr_longlong( weighted_sum_storage );
 	}
+
+#ifndef CACHE_TRANSIT
+	if(  file->is_loading()  ) {
+		// recalc transit always on load
+		transit = 0;
+		statistics[0][FAB_GOODS_TRANSIT] = 0;
+	}
+#endif
 }
 
 
