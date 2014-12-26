@@ -2827,10 +2827,6 @@ uint8 wkz_brueckenbau_t::is_valid_pos(  spieler_t *sp, const koord3d &pos, const
 		return 0;
 	}
 
-	if(  welt->lookup( pos + koord3d(0, 0, 1))  ||  (welt->get_settings().get_way_height_clearance()==2  &&  welt->lookup( pos + koord3d(0, 0, 2) ))  ) {
-		return 0;
-	}
-
 	if(  is_first_click()  ) {
 		if(  gr->ist_karten_boden()  ) {
 		// first click
