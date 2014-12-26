@@ -111,7 +111,6 @@ void ware_production_t::init_stats()
 		}
 	}
 	weighted_sum_storage = 0;
-	transit = 0;
 	max_transit = 0;
 }
 
@@ -168,8 +167,7 @@ void ware_production_t::rdwr(loadsave_t *file)
 
 	if(  file->is_loading()  ) {
 		// recalc transit always on load
-		transit = 0;
-		statistics[0][FAB_GOODS_TRANSIT] = 0;
+		set_stat(0, FAB_GOODS_TRANSIT);
 	}
 }
 
@@ -274,13 +272,8 @@ void fabrik_t::update_transit_intern( const ware_t& ware, bool add )
 {
 	FOR(  array_tpl<ware_production_t>,  &w,  eingang ) {
 		if(  w.get_typ()->get_index() == ware.index  ) {
-			if(  add  ) {
-				w.transit += ware.menge;
-			}
-			else {
-				w.transit -= ware.menge;
-			}
-			w.set_stat( w.transit, FAB_GOODS_TRANSIT );
+
+			w.book_stat(add ? ware.menge : -ware.menge, FAB_GOODS_TRANSIT );
 			return;
 		}
 	}
@@ -1236,7 +1229,6 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 			* Note, for this to work factories must be loaded before halts and vehicles
 			* (this is how it is currently done in simworld.cc)
 			*/
-			// ware.transit = ware.get_stat( 0, FAB_GOODS_TRANSIT );
 		}
 	}
 
@@ -1567,8 +1559,7 @@ sint32 fabrik_t::liefere_an(const ware_besch_t *typ, sint32 menge)
 			if(  ware.get_typ() == typ  ) {
 				// Can't use update_transit for interface reasons; we don't take a ware argument.
 				// We should, however.
-				ware.transit -= menge;
-				ware.set_stat( ware.transit, FAB_GOODS_TRANSIT );
+				ware.book_stat( -menge, FAB_GOODS_TRANSIT );
 				// Hajo: avoid overflow
 				if(  ware.menge < (FAB_MAX_INPUT - menge) << precision_bits  ) {
 					ware.menge += menge << precision_bits;
@@ -1602,13 +1593,13 @@ sint8 fabrik_t::is_needed(const ware_besch_t *typ) const
 			// not needed (false) if overflowing or too much already sent			
 			
 			// Original version (reported to have a bug: see http://forum.simutrans.com/index.php?topic=13898.0)
-			// return max_intransit_percentages.get(typ->get_catg()) == 0 ? (i.menge < i.max) : ((i.transit + (i.menge >> fabrik_t::precision_bits)) * 200) < ((i.max >> fabrik_t::precision_bits) * (sint32)max_intransit_percentages.get(typ->get_catg()));
+			// return max_intransit_percentages.get(typ->get_catg()) == 0 ? (i.menge < i.max) : ((i.get_in_transit() + (i.menge >> fabrik_t::precision_bits)) * 200) < ((i.max >> fabrik_t::precision_bits) * (sint32)max_intransit_percentages.get(typ->get_catg()));
 
 			// Version with fix:
-			// return max_intransit_percentages.get(typ->get_catg()) == 0 ? (i.menge < i.max) : ((i.transit + (i.menge >> fabrik_t::precision_bits)) * 50) < ((i.max >> fabrik_t::precision_bits) * (sint32)max_intransit_percentages.get(typ->get_catg()));
+			// return max_intransit_percentages.get(typ->get_catg()) == 0 ? (i.menge < i.max) : ((i.get_in_transit() + (i.menge >> fabrik_t::precision_bits)) * 50) < ((i.max >> fabrik_t::precision_bits) * (sint32)max_intransit_percentages.get(typ->get_catg()));
 
 			// Improved version (Octavius):
-			return max_intransit_percentages.get(typ->get_catg()) == 0 ? (i.menge < i.max) : ((i.transit + (i.menge >> fabrik_t::precision_bits) - (i.max >> (fabrik_t::precision_bits + 1))) * 100) < ((i.max >> fabrik_t::precision_bits) * (sint32)max_intransit_percentages.get(typ->get_catg()));
+			return max_intransit_percentages.get(typ->get_catg()) == 0 ? (i.menge < i.max) : ((i.get_in_transit() + (i.menge >> fabrik_t::precision_bits) - (i.max >> (fabrik_t::precision_bits + 1))) * 100) < ((i.max >> fabrik_t::precision_bits) * (sint32)max_intransit_percentages.get(typ->get_catg()));
 
 		}
 	}
@@ -2351,7 +2342,7 @@ void fabrik_t::recalc_factory_status()
 			status_ein &= ~FL_WARE_ALLELIMIT;
 		}
 		warenlager += j.menge;
-		total_transit += j.transit;
+		total_transit += j.get_in_transit();
 		if(  (j.menge >> fabrik_t::precision_bits) == 0  ) {
 			status_ein |= FL_WARE_FEHLT_WAS;
 		}
@@ -2542,7 +2533,7 @@ void fabrik_t::info_prod(cbuffer_t& buf) const
 				buf.printf("\n - %s %u/%i(%i)/%u %s, %u%%",
 					translator::translate(eingang[index].get_typ()->get_name()),
 					(sint32)(0.5+eingang[index].menge / (double)(1<<fabrik_t::precision_bits)),
-					eingang[index].transit,
+					eingang[index].get_in_transit(),
 					eingang[index].max_transit,
 					(eingang[index].max >> fabrik_t::precision_bits),
 					translator::translate(eingang[index].get_typ()->get_mass()),
@@ -2553,7 +2544,7 @@ void fabrik_t::info_prod(cbuffer_t& buf) const
 				buf.printf("\n - %s %u/%i/%u %s, %u%%",
 					translator::translate(eingang[index].get_typ()->get_name()),
 					(sint32)(0.5+eingang[index].menge / (double)(1<<fabrik_t::precision_bits)),
-					eingang[index].transit,
+					eingang[index].get_in_transit(),
 					(eingang[index].max >> fabrik_t::precision_bits),
 					translator::translate(eingang[index].get_typ()->get_mass()),
 					(sint32)(0.5+(besch->get_lieferant(index)->get_verbrauch()*100l)/256.0)
