@@ -148,7 +148,7 @@ void citylist_stats_t::draw(scr_coord offset)
 			buf.append( " (" );
 			buf.append( growth/10.0, 1 );
 			buf.append( ")" );
-			display_proportional_clip(offset.x + 4 + 10, offset.y, buf, ALIGN_LEFT, COL_BLACK, true);
+			display_proportional_clip(offset.x + 4 + 10, offset.y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 
 			// goto button
 			bool selected = sel==0;

@@ -7,6 +7,7 @@
 
 #include <string.h>
 
+#include "../gui_theme.h"
 #include "gui_fixedwidth_textarea.h"
 #include "../../dataobj/translator.h"
 #include "../../utils/cbuffer_t.h"
