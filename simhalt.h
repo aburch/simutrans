@@ -490,6 +490,8 @@ private:
 
 	waiting_time_map * waiting_times;
 
+	static const sint64 waiting_multiplication_factor = 3ll;
+	static const sint64 waiting_tolerance_ratio = 50ll;
 
 	uint8 check_waiting;
 
@@ -510,7 +512,7 @@ private:
 	 * Calculates the earliest time in ticks that passengers/mail/goods can arrive
 	 * at the given halt in light of the current estimated departure times.
 	 */
-	sint64 calc_earliest_arrival_time_at(halthandle_t halt);
+	sint64 calc_earliest_arrival_time_at(halthandle_t halt, convoihandle_t &convoi);
 
 	uint32 deposit_ware_at_destination(ware_t ware);
 

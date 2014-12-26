@@ -2100,16 +2100,52 @@ bool haltestelle_t::hole_ab( slist_tpl<ware_t> &fracht, const ware_besch_t *wtyp
 				{
 					// Check to see whether this is the convoy departing from this stop that will arrive at the destination the soonest.
 		
-					const sint64 best_arrival_time = calc_earliest_arrival_time_at(next_transfer);
+					convoihandle_t fast_convoy;
+					const sint64 best_arrival_time = calc_earliest_arrival_time_at(next_transfer, fast_convoy);
 					const arrival_times_map& next_transfer_arrivals = next_transfer->get_estimated_convoy_arrival_times();
 					const sint64 this_arrival_time = next_transfer_arrivals.get(cnv->self.get_id());
 
 					if(best_arrival_time < this_arrival_time)
 					{
-						// Do not board this convoy if another will reach the next transfer more quickly.
-						fpl->increment_index(&index, &reverse);
-						skipped = true;
-						continue;
+						// Do not board this convoy if another will reach the next transfer more quickly;
+						// but add a margin of error and, if the difference is small, board this convoy
+						// anyway on the bird in hand principle. 						
+						
+						const sint64 difference_in_arrival_times = this_arrival_time - best_arrival_time;
+						sint64 fast_here_departure_time = get_estimated_convoy_departure_times().get(fast_convoy.get_id());
+						const bool fast_is_here = loading_here.is_contained(fast_convoy);
+						sint64 fast_here_arrival_time = get_estimated_convoy_arrival_times().get(fast_convoy.get_id());
+						if(fast_here_arrival_time < welt->get_zeit_ms() && !fast_is_here)
+						{
+							// The faster convoy is late.
+							// Estimate its arrival time based on the degree of delay so far (somewhat pessimistically). 
+							fast_here_departure_time += ((welt->get_zeit_ms() - fast_here_arrival_time) * waiting_multiplication_factor);
+						}
+						
+						bool wait_for_faster_convoy = true;
+						
+						const sint64 waiting_time_for_faster_convoy = fast_here_departure_time - welt->get_zeit_ms();
+						if(!fast_is_here)
+						{
+							if(waiting_time_for_faster_convoy >= difference_in_arrival_times)
+							{
+								// Sanity check - cannot be better to wait.
+								wait_for_faster_convoy = false;
+							}
+							else if((difference_in_arrival_times * 100ll) / waiting_time_for_faster_convoy < waiting_tolerance_ratio)
+							{
+								// Do not wait for the supposedly faster convoy if the extra waiting time is out of proportion to
+								// the time likely to be saved. 
+								wait_for_faster_convoy = false;
+							}
+						}
+
+						if(wait_for_faster_convoy)
+						{
+							fpl->increment_index(&index, &reverse);
+							skipped = true;
+							continue;
+						}
 					}
 	
 					// Don't board a vehicle which is waiting for spacing until near its departure time
@@ -2520,8 +2556,8 @@ uint32 haltestelle_t::liefere_an(ware_t ware, uint8 walked_between_stations)
 		destination_is_within_coverage = straight_line_distance_destination <= (welt->get_settings().get_station_coverage() / 2);
 		if(is_within_walking_distance_of(ware.get_ziel()) || is_within_walking_distance_of(ware.get_zwischenziel()) || destination_is_within_coverage)
 		{
-			const sint64 best_arrival_time_destination_stop = calc_earliest_arrival_time_at(ware.get_ziel());
-			sint64 best_arrival_time_transfer = ware.get_zwischenziel() != ware.get_ziel() ? calc_earliest_arrival_time_at(ware.get_zwischenziel()) : SINT64_MAX_VALUE;
+			const sint64 best_arrival_time_destination_stop = calc_earliest_arrival_time_at(ware.get_ziel(), convoihandle_t());
+			sint64 best_arrival_time_transfer = ware.get_zwischenziel() != ware.get_ziel() ? calc_earliest_arrival_time_at(ware.get_zwischenziel(), convoihandle_t()) : SINT64_MAX_VALUE;
 
 			const sint64 arrival_after_walking_to_destination = welt->seconds_to_ticks(welt->walking_time_tenths_from_distance((uint32)straight_line_distance_destination) * 6) + welt->get_zeit_ms();
 
@@ -4733,7 +4769,7 @@ void haltestelle_t::remove_convoy(convoihandle_t convoy)
 	}
 }
 
-sint64 haltestelle_t::calc_earliest_arrival_time_at(halthandle_t halt)
+sint64 haltestelle_t::calc_earliest_arrival_time_at(halthandle_t halt, convoihandle_t &convoy)
 {
 	const arrival_times_map& next_transfer_arrivals = halt->get_estimated_convoy_arrival_times();
 	sint64 best_arrival_time = SINT64_MAX_VALUE;
@@ -4764,13 +4800,14 @@ sint64 haltestelle_t::calc_earliest_arrival_time_at(halthandle_t halt)
 			if(this_stop_arrival <= welt->get_zeit_ms() && !loading_here.is_contained(arrival_convoy))
 			{
 				// Assume that it will be as late again as it already is (e.g., if it is 2 minutes late so far, assume a total delay of 4 minutes)
-				const sint64 estimated_total_delay = (welt->get_zeit_ms() - this_stop_arrival) * 2;
+				const sint64 estimated_total_delay = (welt->get_zeit_ms() - this_stop_arrival) * waiting_multiplication_factor;
 				current_time += estimated_total_delay;
 			}
 
 			if(current_time < best_arrival_time)
 			{
 				best_arrival_time = current_time;
+				convoy = arrival_convoy;
 			}
 		}
 	}
