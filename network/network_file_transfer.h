@@ -22,7 +22,7 @@ const char* network_connect(const char *cp, karte_t *world);
 const char *network_send_file( uint32 client_id, const char *filename );
 
 // receive file (directly to disk)
-char const* network_receive_file(SOCKET const s, char const* const save_as, long const length);
+char const* network_receive_file(SOCKET const s, char const* const save_as, const long length, const long timeout=10000 );
 
 /*
  * Use HTTP POST request to submit poststr to an HTTP server
