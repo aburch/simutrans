@@ -3349,9 +3349,6 @@ void haltestelle_t::rdwr(loadsave_t *file)
 						 * if an intermediate program version fails to compute it right.
 						 * So *always* compute it fresh.
 						 */ 
-#ifdef CACHE_TRANSIT
-						if(  file->get_version() <= 112000  )
-#endif
 							// restore intransit information
 							fabrik_t::update_transit( ware, true );
 					}
