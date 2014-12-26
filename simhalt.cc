@@ -1614,10 +1614,7 @@ uint16 haltestelle_t::get_average_waiting_time(halthandle_t halt, uint8 category
 				total_times += times.get_element(i);
 			}
 			total_times /= count;
-			// Minimum waiting time of 2 minutes (i.e., 20 tenths of a minute)
-			// This simulates the overhead time needed to arrive at a stop and 
-			// board, etc. 
-			return total_times >= 20 ? (uint16)total_times : 20;
+			return total_times;
 		}
 		return get_service_frequency(halt, category);
 	}
@@ -1631,7 +1628,7 @@ uint16 haltestelle_t::get_service_frequency(halthandle_t destination, uint8 cate
 		return 19;
 	}*/
 
-	uint16 service_frequency = 19;
+	uint16 service_frequency = 0;
 
 	for(uint32 i = 0; i < registered_lines.get_count(); i++) 
 	{
@@ -1687,7 +1684,7 @@ uint16 haltestelle_t::get_service_frequency(halthandle_t destination, uint8 cate
 			timing = max(spacing_time, timing);
 		}
 
-		if(service_frequency == 19)
+		if(service_frequency == 0)
 		{
 			// This is the only time that this has been set so far, so compute for single line timing.
 			service_frequency = max(20, timing);
@@ -1707,7 +1704,7 @@ uint16 haltestelle_t::get_service_frequency(halthandle_t destination, uint8 cate
 			}
 			else
 			{
-				service_frequency = max(20, ((timing * 10 / proportion) + timing) / 2);
+				service_frequency = max(1, ((timing * 10 / proportion) + timing) / 2);
 			}
 		}
 	}

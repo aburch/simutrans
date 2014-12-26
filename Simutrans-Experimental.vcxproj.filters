@@ -2213,9 +2213,6 @@
     <None Include="base_texts_experimental_9.1.dat">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="..\..\..\Simutrans\simu.log">
-      <Filter>Resource Files</Filter>
-    </None>
     <None Include="..\..\..\Simutrans\simu-server.log">
       <Filter>Resource Files</Filter>
     </None>

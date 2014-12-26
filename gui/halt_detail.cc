@@ -359,7 +359,7 @@ void halt_detail_t::halt_detail_info()
 					{
 						buf.append(translator::translate("on foot)"));
 					}
-					else if(cnx->waiting_time > 19)
+					else if(cnx->waiting_time > 0)
 					{
 						char waiting_time_as_clock[32];
 						halt->get_welt()->sprintf_time_tenths(waiting_time_as_clock, sizeof(waiting_time_as_clock),  cnx->waiting_time );

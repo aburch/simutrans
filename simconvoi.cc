@@ -6678,7 +6678,7 @@ void convoi_t::clear_replace()
 				waiting_minutes = max(get_waiting_minutes(current_time - iter.arrival_time), airport_wait);
 				// Only times of one minute or larger are registered, to avoid registering zero wait-time when a passenger
 				// alights a convoy and then immediately re-boards that same convoy.
-				if(waiting_minutes > 19)
+				if(waiting_minutes > 0)
 				{
 					halt->add_waiting_time(waiting_minutes, iter.get_zwischenziel(), iter.get_besch()->get_catg_index());
 				}
