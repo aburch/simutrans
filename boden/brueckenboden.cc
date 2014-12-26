@@ -108,7 +108,7 @@ sint8 brueckenboden_t::get_weg_yoff() const
 {
 	if(  ist_karten_boden()  &&  weg_hang == 0  ) {
 		// we want to find maximum height of slope corner shortcut as we know this is n, s, e or w and single heights are not integer multiples of 8
-		return TILE_HEIGHT_STEP * ((slope & 7) ? 1 : 2);
+		return TILE_HEIGHT_STEP * hang_t::max_diff(slope);
 	}
 	else {
 		return 0;
