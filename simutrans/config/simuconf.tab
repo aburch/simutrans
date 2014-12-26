@@ -416,6 +416,12 @@ tooltip_duration = 5000
 # show graphs old style (right to left) or rather left to right (default)
 left_to_right_graphs  = 1
 
+# if run on a mobile device, setting hide_keyboard=1 will only show the keyboard
+# when there is text to input in a dialoge. Other than that textinput will not
+# be possible (no keyboard short cuts).
+# Currently only supported with SDL2
+hide_keyboard = 0
+
 ################################### Finance settings ##################################
 #
 # These values are usually set in the pak files

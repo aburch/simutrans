@@ -7,8 +7,6 @@
 #include <SDL.h>
 
 #ifdef _WIN32
-// windows.h defines min and max macros which we don't want
-#define NOMINMAX 1
 #include <windows.h>
 #endif
 
@@ -253,6 +251,11 @@ int dr_os_open(int w, int const h, int const fullscreen)
 	blank = SDL_CreateCursor( blank_cursor, blank_cursor, 8, 2, 0, 0 );
 	SDL_ShowCursor(1);
 
+	if(  !env_t::hide_keyboard  ) {
+		// endable keyboard input at all times unless requested otherwise
+	    SDL_StartTextInput();
+	}
+
 	display_set_actual_width( w );
 	return w;
 }
@@ -385,7 +388,6 @@ int dr_screenshot(const char *filename, int x, int y, int w, int h)
 	}
 #endif
 	return SDL_SaveBMP( screen, filename ) == 0 ? 1 : -1;
-	return 0;
 }
 
 
@@ -623,7 +625,7 @@ void ex_ord_update_mx_my()
 }
 
 
-unsigned long dr_time()
+uint32 dr_time()
 {
 	return SDL_GetTicks();
 }
@@ -634,6 +636,21 @@ void dr_sleep(uint32 usec)
 	SDL_Delay( usec );
 }
 
+
+void dr_start_textinput()
+{
+	if(  env_t::hide_keyboard  ) {
+	    SDL_StartTextInput();
+	}
+}
+
+
+void dr_stop_textinput()
+{
+	if(  env_t::hide_keyboard  ) {
+	    SDL_StopTextInput();
+	}
+}
 
 #ifdef _MSC_VER
 // Needed for MS Visual C++ with /SUBSYSTEM:CONSOLE to work , if /SUBSYSTEM:WINDOWS this function is compiled but unreachable
