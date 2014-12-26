@@ -42,6 +42,11 @@ bool ticker::empty()
 
 void ticker::clear_ticker()
 {
+	if (!list.empty()) {
+		const int height = display_get_height();
+		const int width  = display_get_width();
+		mark_rect_dirty_wc(0, height-TICKER_YPOS_BOTTOM, width, height);
+	}
 	list.clear();
 }
 
