@@ -22,8 +22,6 @@
 
 
 
-#ifdef __cplusplus
-
 #include "utils/log.h"
 
 /**
@@ -58,8 +56,6 @@ void init_logging(const char *logname, bool force_flush, bool log_debug, const c
 	#define LOCATION __FILE__ "(" STR(__LINE__) ") " __FUNCTION__ "() "
 #else
 	#define LOCATION
-#endif
-
 #endif
 
 #endif
