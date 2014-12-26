@@ -12,6 +12,7 @@ const skin_besch_t* skinverwaltung_t::werkzeuge_general  = NULL;
 const skin_besch_t* skinverwaltung_t::werkzeuge_simple   = NULL;
 const skin_besch_t* skinverwaltung_t::werkzeuge_dialoge  = NULL;
 const skin_besch_t* skinverwaltung_t::werkzeuge_toolbars = NULL;
+const skin_besch_t* skinverwaltung_t::werkzeuge_background = NULL;
 
 /* Window skin images are menus too! */
 const skin_besch_t* skinverwaltung_t::button = NULL;
@@ -135,6 +136,7 @@ static spezial_obj_tpl<skin_besch_t> const fakultative_objekte[] = {
 	{ &skinverwaltung_t::fastforwardsymbol,  "fastforwardsym" },
 	{ &skinverwaltung_t::pausesymbol,        "pausesym"       },
 	{ &skinverwaltung_t::station_type,       "station_type"   },
+	{ &skinverwaltung_t::werkzeuge_background,"ToolsBackground"},
 	{ NULL, NULL }
 };
 
