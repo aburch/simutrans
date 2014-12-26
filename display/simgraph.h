@@ -405,6 +405,8 @@ KOORD_VAL display_get_char_max_width(const char* text, size_t len=0);
  */
 unsigned short get_next_char_with_metrics(const char* &text, unsigned char &byte_length, unsigned char &pixel_width);
 
+bool has_character( utf16 char_code );
+
 /**
  * For the previous logical character in the text, returns the character code
  * as well as retrieves the char byte count and the screen pixel width
