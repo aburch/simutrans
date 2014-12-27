@@ -152,19 +152,19 @@ int display_set_unicode(int use_unicode);
  */
 uint16 display_load_font(const char* fname);
 
-uint16 get_image_count();
+image_id get_image_count();
 void register_image(struct bild_t*);
 
 // delete all images above a certain number ...
-void display_free_all_images_above( unsigned above );
+void display_free_all_images_above( image_id above );
 
 // unzoomed offsets
 //void display_set_base_image_offset( unsigned bild, KOORD_VAL xoff, KOORD_VAL yoff );
-void display_get_base_image_offset( unsigned bild, KOORD_VAL *xoff, KOORD_VAL *yoff, KOORD_VAL *xw, KOORD_VAL *yw );
+void display_get_base_image_offset( image_id bild, KOORD_VAL *xoff, KOORD_VAL *yoff, KOORD_VAL *xw, KOORD_VAL *yw );
 // zoomed offsets
-void display_get_image_offset( unsigned bild, KOORD_VAL *xoff, KOORD_VAL *yoff, KOORD_VAL *xw, KOORD_VAL *yw );
-void display_get_base_image_offset( unsigned bild, KOORD_VAL *xoff, KOORD_VAL *yoff, KOORD_VAL *xw, KOORD_VAL *yw );
-void display_mark_img_dirty( unsigned bild, KOORD_VAL x, KOORD_VAL y );
+void display_get_image_offset( image_id bild, KOORD_VAL *xoff, KOORD_VAL *yoff, KOORD_VAL *xw, KOORD_VAL *yw );
+void display_get_base_image_offset( image_id bild, KOORD_VAL *xoff, KOORD_VAL *yoff, KOORD_VAL *xw, KOORD_VAL *yw );
+void display_mark_img_dirty( image_id bild, KOORD_VAL x, KOORD_VAL y );
 
 int get_maus_x();
 int get_maus_y();
@@ -202,14 +202,14 @@ void display_scroll_band( const KOORD_VAL start_y, const KOORD_VAL x_offset, con
 void display_set_player_color_scheme(const int player, const COLOR_VAL col1, const COLOR_VAL col2 );
 
 // only used for GUI, display image inside a rect
-void display_img_aligned( const unsigned n, scr_rect area, int align, const int dirty);
+void display_img_aligned( const image_id n, scr_rect area, int align, const int dirty);
 
 // display image with day and night change
 #ifdef MULTI_THREAD
-void display_img_aux(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const int daynight, const int dirty, const sint8 clip_num);
+void display_img_aux(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const int daynight, const int dirty, const sint8 clip_num);
 #define display_img( n, x, y, d, c ) display_img_aux( (n), (x), (y), 0, true, (d), (c) )
 #else
-void display_img_aux(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const int daynight, const int dirty);
+void display_img_aux(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const int daynight, const int dirty);
 #define display_img( n, x, y, d ) display_img_aux( (n), (x), (y), 0, true, (d) )
 #endif
 
@@ -218,10 +218,10 @@ void display_img_aux(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const signed 
  * @author kierongreen
  */
 #ifdef MULTI_THREAD
-void display_rezoomed_img_blend(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty, const sint8 clip_num);
+void display_rezoomed_img_blend(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty, const sint8 clip_num);
 #define display_img_blend( n, x, y, c, dn, d ) display_rezoomed_img_blend( (n), (x), (y), 0, (c), (dn), (d), 0 )
 #else
-void display_rezoomed_img_blend(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty);
+void display_rezoomed_img_blend(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty);
 #define display_img_blend( n, x, y, c, dn, d ) display_rezoomed_img_blend( (n), (x), (y), 0, (c), (dn), (d) )
 #endif
 
@@ -230,27 +230,27 @@ void display_rezoomed_img_blend(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, co
 #define ALPHA_BLUE 0x4
 
 #ifdef MULTI_THREAD
-void display_rezoomed_img_alpha(const unsigned n, const unsigned alpha_n, const unsigned alpha_flags, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty, const sint8 clip_num);
+void display_rezoomed_img_alpha(const image_id n, const image_id alpha_n, const unsigned alpha_flags, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty, const sint8 clip_num);
 #define display_img_alpha( n, a, f, x, y, c, dn, d ) display_rezoomed_img_alpha( (n), (a), (f), (x), (y), 0, (c), (dn), (d), 0 )
 #else
-void display_rezoomed_img_alpha(const unsigned n, const unsigned alpha_n, const unsigned alpha_flags, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty);
+void display_rezoomed_img_alpha(const image_id n, const image_id alpha_n, const unsigned alpha_flags, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty);
 #define display_img_alpha( n, a, f, x, y, c, dn, d ) display_rezoomed_img_alpha( (n), (a), (f), (x), (y), 0, (c), (dn), (d) )
 #endif
 
 // display image with color (if there) and optional day and night change
 #ifdef MULTI_THREAD
-void display_color_img_cl(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const int daynight, const int dirty, const sint8 clip_num);
+void display_color_img_cl(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const int daynight, const int dirty, const sint8 clip_num);
 #define display_color_img( n, x, y, p, dn, d ) display_color_img_cl( (n), (x), (y), (p), (dn), (d), 0 )
 #else
-void display_color_img(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const int daynight, const int dirty);
+void display_color_img(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const int daynight, const int dirty);
 #endif
 
 // display unzoomed image
 #ifdef MULTI_THREAD
-void display_base_img_cl(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const int daynight, const int dirty, const sint8 clip_num);
+void display_base_img_cl(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const int daynight, const int dirty, const sint8 clip_num);
 #define display_base_img( n, x, y, p, dn, d ) display_base_img_cl( (n), (x), (y), (p), (dn), (d), 0 )
 #else
-void display_base_img(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const int daynight, const int dirty);
+void display_base_img(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const int daynight, const int dirty);
 #endif
 
 typedef image_id stretch_map_t[3][3];
@@ -263,22 +263,22 @@ void display_img_stretch_blend( const stretch_map_t &imag, scr_rect area, PLAYER
 
 // Knightly : display unzoomed image with alpha, either blended or as outline
 #ifdef MULTI_THREAD
-void display_base_img_blend(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty, const sint8 clip_num);
-void display_base_img_alpha(const unsigned n, const unsigned alpha_n, const unsigned alpha_flags, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty, const sint8 clip_num);
+void display_base_img_blend(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty, const sint8 clip_num);
+void display_base_img_alpha(const image_id n, const image_id alpha_n, const unsigned alpha_flags, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty, const sint8 clip_num);
 #else
-void display_base_img_blend(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty);
-void display_base_img_alpha(const unsigned n, const unsigned alpha_n, const unsigned alpha_flags, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty);
+void display_base_img_blend(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty);
+void display_base_img_alpha(const image_id n, const image_id alpha_n, const unsigned alpha_flags, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty);
 #endif
 
 // Knightly : pointer to image display procedures
 #ifdef MULTI_THREAD
-typedef void (*display_image_proc)(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const int daynight, const int dirty, const sint8 clip_num);
-typedef void (*display_blend_proc)(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty, const sint8 clip_num);
-typedef void (*display_alpha_proc)(const unsigned n, const unsigned alpha_n, const unsigned alpha_flags, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty, const sint8 clip_num);
+typedef void (*display_image_proc)(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const int daynight, const int dirty, const sint8 clip_num);
+typedef void (*display_blend_proc)(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty, const sint8 clip_num);
+typedef void (*display_alpha_proc)(const image_id n, const image_id alpha_n, const unsigned alpha_flags, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty, const sint8 clip_num);
 #else
-typedef void (*display_image_proc)(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const int daynight, const int dirty);
-typedef void (*display_blend_proc)(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty);
-typedef void (*display_alpha_proc)(const unsigned n, const unsigned alpha_n, const unsigned alpha_flags, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty);
+typedef void (*display_image_proc)(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const int daynight, const int dirty);
+typedef void (*display_blend_proc)(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty);
+typedef void (*display_alpha_proc)(const image_id n, const image_id alpha_n, const unsigned alpha_flags, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty);
 #endif
 
 // Knightly : variables for storing currently used image procedure set and tile raster width

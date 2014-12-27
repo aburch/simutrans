@@ -60,7 +60,7 @@ void mark_screen_dirty()
 {
 }
 
-void display_mark_img_dirty(unsigned, KOORD_VAL, KOORD_VAL)
+void display_mark_img_dirty(image_id, KOORD_VAL, KOORD_VAL)
 {
 }
 
@@ -123,9 +123,9 @@ void display_snapshot(int, int, int, int)
 {
 }
 
-void display_get_image_offset(unsigned bild, KOORD_VAL *xoff, KOORD_VAL *yoff, KOORD_VAL *xw, KOORD_VAL *yw)
+void display_get_image_offset(image_id bild, KOORD_VAL *xoff, KOORD_VAL *yoff, KOORD_VAL *xw, KOORD_VAL *yw)
 {
-	if (bild < 2) {
+	if(  bild < 2  ) {
 		// initialize offsets with dummy values
 		*xoff = 0;
 		*yoff = 0;
@@ -134,9 +134,9 @@ void display_get_image_offset(unsigned bild, KOORD_VAL *xoff, KOORD_VAL *yoff, K
 	}
 }
 
-void display_get_base_image_offset(unsigned bild, KOORD_VAL *xoff, KOORD_VAL *yoff, KOORD_VAL *xw, KOORD_VAL *yw)
+void display_get_base_image_offset(image_id bild, KOORD_VAL *xoff, KOORD_VAL *yoff, KOORD_VAL *xw, KOORD_VAL *yw)
 {
-	if (bild < 2) {
+	if(  bild < 2  ) {
 		// initialize offsets with dummy values
 		*xoff = 0;
 		*yoff = 0;
@@ -145,9 +145,11 @@ void display_get_base_image_offset(unsigned bild, KOORD_VAL *xoff, KOORD_VAL *yo
 	}
 }
 
+/*
 void display_set_base_image_offset(unsigned, KOORD_VAL, KOORD_VAL)
 {
 }
+*/
 
 int get_maus_x()
 {
@@ -190,25 +192,25 @@ static inline void colorpixcopy(PIXVAL *, const PIXVAL *, const PIXVAL * const)
 }
 
 #ifdef MULTI_THREAD
-void display_img_aux(const unsigned, KOORD_VAL, KOORD_VAL, const signed char, const int, const int, const sint8)
+void display_img_aux(const image_id, KOORD_VAL, KOORD_VAL, const signed char, const int, const int, const sint8)
 #else
-void display_img_aux(const unsigned, KOORD_VAL, KOORD_VAL, const signed char, const int, const int)
+void display_img_aux(const image_id, KOORD_VAL, KOORD_VAL, const signed char, const int, const int)
 #endif
 {
 }
 
 #ifdef MULTI_THREAD
-void display_color_img_cl(const unsigned, KOORD_VAL, KOORD_VAL, const signed char, const int, const int, const sint8)
+void display_color_img_cl(const image_id, KOORD_VAL, KOORD_VAL, const signed char, const int, const int, const sint8)
 #else
-void display_color_img(const unsigned, KOORD_VAL, KOORD_VAL, const signed char, const int, const int)
+void display_color_img(const image_id, KOORD_VAL, KOORD_VAL, const signed char, const int, const int)
 #endif
 {
 }
 
 #ifdef MULTI_THREAD
-void display_base_img_cl(const unsigned, KOORD_VAL, KOORD_VAL, const signed char, const int, const int, const sint8)
+void display_base_img_cl(const image_id, KOORD_VAL, KOORD_VAL, const signed char, const int, const int, const sint8)
 #else
-void display_base_img(const unsigned, KOORD_VAL, KOORD_VAL, const signed char, const int, const int)
+void display_base_img(const image_id, KOORD_VAL, KOORD_VAL, const signed char, const int, const int)
 #endif
 {
 }
@@ -226,33 +228,33 @@ void display_img_stretch_blend( const stretch_map_t &, scr_rect, PLAYER_COLOR_VA
 }
 
 #ifdef MULTI_THREAD
-void display_rezoomed_img_blend(const unsigned, KOORD_VAL, KOORD_VAL, const signed char, const PLAYER_COLOR_VAL, const int, const int, const sint8)
+void display_rezoomed_img_blend(const image_id, KOORD_VAL, KOORD_VAL, const signed char, const PLAYER_COLOR_VAL, const int, const int, const sint8)
 #else
-void display_rezoomed_img_blend(const unsigned, KOORD_VAL, KOORD_VAL, const signed char, const PLAYER_COLOR_VAL, const int, const int)
+void display_rezoomed_img_blend(const image_id, KOORD_VAL, KOORD_VAL, const signed char, const PLAYER_COLOR_VAL, const int, const int)
 #endif
 {
 }
 
 #ifdef MULTI_THREAD
-void display_rezoomed_img_alpha(const unsigned, const unsigned, const uint8, KOORD_VAL, KOORD_VAL, const signed char, const PLAYER_COLOR_VAL, const int, const int, const sint8)
+void display_rezoomed_img_alpha(const image_id, const image_id, const uint8, KOORD_VAL, KOORD_VAL, const signed char, const PLAYER_COLOR_VAL, const int, const int, const sint8)
 #else
-void display_rezoomed_img_alpha(const unsigned, const unsigned, const uint8, KOORD_VAL, KOORD_VAL, const signed char, const PLAYER_COLOR_VAL, const int, const int)
+void display_rezoomed_img_alpha(const image_id, const image_id, const uint8, KOORD_VAL, KOORD_VAL, const signed char, const PLAYER_COLOR_VAL, const int, const int)
 #endif
 {
 }
 
 #ifdef MULTI_THREAD
-void display_base_img_blend(const unsigned, KOORD_VAL, KOORD_VAL, const signed char, const PLAYER_COLOR_VAL, const int, const int, const sint8)
+void display_base_img_blend(const image_id, KOORD_VAL, KOORD_VAL, const signed char, const PLAYER_COLOR_VAL, const int, const int, const sint8)
 #else
-void display_base_img_blend(const unsigned, KOORD_VAL, KOORD_VAL, const signed char, const PLAYER_COLOR_VAL, const int, const int)
+void display_base_img_blend(const image_id, KOORD_VAL, KOORD_VAL, const signed char, const PLAYER_COLOR_VAL, const int, const int)
 #endif
 {
 }
 
 #ifdef MULTI_THREAD
-void display_base_img_alpha(const unsigned, const unsigned, const unsigned, KOORD_VAL, KOORD_VAL, const signed char, const PLAYER_COLOR_VAL, const int, const int, const sint8)
+void display_base_img_alpha(const image_id, const image_id, const unsigned, KOORD_VAL, KOORD_VAL, const signed char, const PLAYER_COLOR_VAL, const int, const int, const sint8)
 #else
-void display_base_img_alpha(const unsigned, const unsigned, const unsigned, KOORD_VAL, KOORD_VAL, const signed char, const PLAYER_COLOR_VAL, const int, const int)
+void display_base_img_alpha(const image_id, const image_id, const unsigned, KOORD_VAL, KOORD_VAL, const signed char, const PLAYER_COLOR_VAL, const int, const int)
 #endif
 {
 }
@@ -423,7 +425,7 @@ int is_display_init()
 	return false;
 }
 
-void display_free_all_images_above( unsigned)
+void display_free_all_images_above(image_id)
 {
 }
 
@@ -476,7 +478,7 @@ void display_progress(int, int)
 {
 }
 
-void display_img_aligned( const unsigned, scr_rect, int, int )
+void display_img_aligned( const image_id, scr_rect, int, int )
 {
 }
 
@@ -485,7 +487,7 @@ KOORD_VAL display_proportional_ellipse_rgb( scr_rect, const char *, int, PIXVAL,
 	return 0;
 }
 
-uint16 get_image_count()
+image_id get_image_count()
 {
 	return 0;
 }
