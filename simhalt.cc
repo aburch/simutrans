@@ -1625,7 +1625,7 @@ uint16 haltestelle_t::get_service_frequency(halthandle_t destination, uint8 cate
 {
 	/*if(!is_connected(destination, category))
 	{
-		return 19;
+		return 0;
 	}*/
 
 	uint16 service_frequency = 0;
@@ -1687,7 +1687,7 @@ uint16 haltestelle_t::get_service_frequency(halthandle_t destination, uint8 cate
 		if(service_frequency == 0)
 		{
 			// This is the only time that this has been set so far, so compute for single line timing.
-			service_frequency = max(20, timing);
+			service_frequency = max(1, timing);
 		}
 		else
 		{
@@ -1700,7 +1700,7 @@ uint16 haltestelle_t::get_service_frequency(halthandle_t destination, uint8 cate
 			{
 				// Where the timing is so much lower than the existing frequency that the proportion is zero,
 				// the infrequent service is probably insignificant in the timing so far.
-				service_frequency =  max(20, timing);
+				service_frequency =  max(1, timing);
 			}
 			else
 			{
