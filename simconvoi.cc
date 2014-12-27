@@ -4511,19 +4511,27 @@ void convoi_t::laden() //"load" (Babelfish)
 		inthashtable_tpl<uint16, sint64> best_times_in_schedule; // Key: halt ID; value: departure time.
 
 		FOR(departure_map, const& iter, departures)
-		{
-			const sint64 journey_time = welt->ticks_to_tenths_of_minutes(arrival_time - iter.value.departure_time);
+		{			
+			const sint64 journey_time_ticks = arrival_time - iter.value.departure_time;
 			const koord3d halt_position = fpl->eintrag.get_element(iter.key.entry).pos; 
 			const halthandle_t departure_halt = haltestelle_t::get_halt(halt_position, front()->get_besitzer()); 
-			if(departure_halt.is_bound() && departures_already_booked.get(id_pair(departure_halt.get_id(), this_halt_id)) != iter.value.departure_time)
+			if(departure_halt.is_bound())
 			{
 				if(best_times_in_schedule.is_contained(departure_halt.get_id()))
 				{
 					// There is more than one departure from this stop to here. Check which is the fastest.
-					const sint64 other_journey_time = arrival_time - best_times_in_schedule.get(departure_halt.get_id());
-					if(journey_time < other_journey_time)
+					const sint64 other_journey_time_ticks = arrival_time - best_times_in_schedule.get(departure_halt.get_id());
+					if(departures_already_booked.get(id_pair(departure_halt.get_id(), this_halt_id)) != iter.value.departure_time)
 					{
-						best_times_in_schedule.set(departure_halt.get_id(), iter.value.departure_time);
+						if(journey_time_ticks < other_journey_time_ticks)
+						{
+							best_times_in_schedule.set(departure_halt.get_id(), iter.value.departure_time);
+						}
+					}
+					else
+					{
+						// If the best departure is already booked, do not allow lesser departures to be registered.
+						best_times_in_schedule.remove(departure_halt.get_id());
 					}
 				}
 				else
@@ -4591,8 +4599,8 @@ void convoi_t::laden() //"load" (Babelfish)
 				const sint32 this_journey_time = (uint16)welt->ticks_to_tenths_of_minutes(arrival_time - iter.value);
 
 				departures_already_booked.set(pair, iter.value);
-				average_tpl<uint16> *average = average_journey_times.access(pair);
-				if(!average)
+				const average_tpl<uint16> *average_check = average_journey_times.access(pair);
+				if(!average_check)
 				{
 					average_tpl<uint16> average_new;
 					average_new.add(this_journey_time);
@@ -4604,7 +4612,7 @@ void convoi_t::laden() //"load" (Babelfish)
 				}
 				if(line.is_bound())
 				{
-					average_tpl<uint16> *average = get_average_journey_times().access(pair);
+					const average_tpl<uint16> *average = get_average_journey_times().access(pair);
 					if(!average)
 					{
 						average_tpl<uint16> average_new;
