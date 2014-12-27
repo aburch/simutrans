@@ -4498,7 +4498,7 @@ void convoi_t::laden() //"load" (Babelfish)
 		pos = halt->get_basis_pos();
 	}
 
-	const uint32 journey_distance = shortest_distance(front()->get_pos().get_2d(), front()->last_stop_pos.get_2d() );
+	const uint32 journey_distance = shortest_distance(front()->get_pos().get_2d(), front()->last_stop_pos.get_2d());
 
 	// last_stop_pos will be set to get_pos().get_2d() in hat_gehalten (called from inside halt->request_loading later)
 	// so code inside if will be executed once. At arrival time.
@@ -4560,8 +4560,7 @@ void convoi_t::laden() //"load" (Babelfish)
 
 		if(journey_times_between_schedule_points.is_contained(this_departure))
 		{
-			// The add_check_overflow_16 function should have the effect of slowly making older timings less and less significant
-			// to this figure.
+			// The autoreduce function has the effect of making older timings less and less significant to this figure.
 			journey_times_between_schedule_points.access(this_departure)->add_autoreduce((uint16)latest_journey_time, timings_reduction_point);
 		}
 		else
@@ -4571,7 +4570,7 @@ void convoi_t::laden() //"load" (Babelfish)
 			journey_times_between_schedule_points.put(this_departure, ave);
 		}
 
-		sint32 average_speed = (journey_distance_meters * 3) / ((sint32)latest_journey_time * 5);
+		const sint32 average_speed = (journey_distance_meters * 3) / ((sint32)latest_journey_time * 5);
 
 		// For some odd reason, in some cases, laden() is called when the journey time is
 		// excessively low, resulting in perverse average speeds and journey times.
@@ -4590,14 +4589,6 @@ void convoi_t::laden() //"load" (Babelfish)
 			{
 				id_pair pair(iter.key, this_halt_id);
 				const sint32 this_journey_time = (uint16)welt->ticks_to_tenths_of_minutes(arrival_time - iter.value);
-
-				average_speed = this_journey_time == 0 ? SINT32_MAX_VALUE : (journey_distance_meters * 3) / ((sint32)iter.value * 5);
-
-				if(average_speed > speed_to_kmh(get_min_top_speed()))
-				{
-					// Anomaly detected: do not record any further times.
-					continue;
-				}
 
 				departures_already_booked.set(pair, iter.value);
 				average_tpl<uint16> *average = average_journey_times.access(pair);
