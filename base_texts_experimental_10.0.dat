@@ -26,7 +26,7 @@ note=Used in the halt detail window to show a halt reachable by walking. Note th
 -
 obj=program_text
 name=[R]
-note=Used to show that a schedule entry is one after which the convoy must reverse.
+note=Used to show that a schedule entry is one after which the convoy must reverse. OBSOLETE
 -
 obj=program_text
 name=Reversing. %s left

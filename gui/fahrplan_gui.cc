@@ -132,7 +132,7 @@ void fahrplan_gui_t::gimme_stop_name(cbuffer_t & buf, const spieler_t *sp, const
 
 	if(entry.reverse)
 	{
-		buf.printf(" %s", translator::translate("[R]"));
+		buf.printf(" %s", "[<<]");
 	}
 }
 
@@ -175,7 +175,7 @@ void fahrplan_gui_t::gimme_short_stop_name(cbuffer_t& buf, spieler_t const* cons
 	if(entry.reverse)
 	{
 		buf.append(" ");
-		buf.append(translator::translate("[R]"));
+		buf.append("[<<]");
 	}
 }
 
@@ -307,8 +307,7 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 	gui_frame_t( translator::translate("Fahrplan"), sp_),
 	lb_line("Serves Line:"),
 	lb_wait("month wait time"),
-	lb_waitlevel(NULL, COL_WHITE, gui_label_t::right),
-	lb_waitlevel_as_clock(NULL, COL_BLACK, gui_label_t::right),
+	lb_waitlevel_as_clock(NULL, COL_WHITE, gui_label_t::right),
 	lb_load("Full load"),
 	lb_spacing("Spacing cnv/month, shift"),
 	lb_spacing_as_clock(NULL, COL_BLACK, gui_label_t::right),
@@ -363,7 +362,7 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 	const scr_coord_val label_width = min( (D_BUTTON_WIDTH<<1) + D_H_SPACE, max( lb_load.get_size().w, lb_wait.get_size().w ) );
 
 	numimp_load.set_pos( scr_coord( D_MARGIN_LEFT + label_width + D_H_SPACE, ypos ) );
-	numimp_load.set_width( 60 );
+	numimp_load.set_width( 75 );
 	numimp_load.set_value( fpl->get_current_eintrag().ladegrad );
 	numimp_load.set_limits( 0, 400 );
 	numimp_load.set_increment_mode(10);
@@ -397,25 +396,26 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 		welt->sprintf_ticks(str_parts_month_as_clock, sizeof(str_parts_month_as_clock), ticks_waiting + 1);
 	}
 
-	lb_waitlevel.set_text_pointer( str_parts_month, false );
-	lb_waitlevel.set_size( numimp_load.get_size() - scr_size( D_ARROW_LEFT_WIDTH + D_ARROW_RIGHT_WIDTH , 0 ) );
-	lb_waitlevel.align_to( &numimp_load, ALIGN_EXTERIOR_V | ALIGN_TOP | ALIGN_LEFT, scr_coord( gui_theme_t::gui_arrow_left_size.w, 0 ) );
-	add_komponente(&lb_waitlevel);
+	lb_waitlevel_as_clock.set_text_pointer(str_parts_month_as_clock, false);
+	lb_waitlevel_as_clock.set_size( numimp_load.get_size() - scr_size( D_ARROW_LEFT_WIDTH + D_ARROW_RIGHT_WIDTH, 0 ) );
+	lb_waitlevel_as_clock.set_pos( scr_coord(bt_wait_prev.get_pos().x, ypos + 2));
+	lb_waitlevel_as_clock.align_to( &numimp_load, ALIGN_EXTERIOR_V | ALIGN_TOP | ALIGN_LEFT, scr_coord( gui_theme_t::gui_arrow_left_size.w, 0 ) );
+	add_komponente(&lb_waitlevel_as_clock);
 
 	// waiting in parts per month
 	bt_wait_prev.set_typ( button_t::arrowleft );
-	bt_wait_prev.align_to( &lb_waitlevel, ALIGN_EXTERIOR_H | ALIGN_RIGHT | ALIGN_CENTER_V );
+	bt_wait_prev.align_to( &lb_waitlevel_as_clock, ALIGN_EXTERIOR_H | ALIGN_RIGHT | ALIGN_CENTER_V );
 	bt_wait_prev.add_listener(this);
 	add_komponente( &bt_wait_prev );
 
 	bt_wait_next.set_typ( button_t::arrowright );
-	bt_wait_next.align_to( &lb_waitlevel, ALIGN_EXTERIOR_H | ALIGN_LEFT | ALIGN_CENTER_V );
+	bt_wait_next.align_to( &lb_waitlevel_as_clock, ALIGN_EXTERIOR_H | ALIGN_LEFT | ALIGN_CENTER_V );
 	bt_wait_next.add_listener(this);
-	lb_waitlevel.set_width( bt_wait_next.get_pos().x-bt_wait_prev.get_pos().x-bt_wait_prev.get_size().w );
+	lb_waitlevel_as_clock.set_width( bt_wait_next.get_pos().x-bt_wait_prev.get_pos().x-bt_wait_prev.get_size().w );
 	add_komponente( &bt_wait_next );
 
 	lb_wait.set_width( label_width );
-	lb_wait.align_to( &lb_waitlevel, ALIGN_CENTER_V, scr_coord( D_MARGIN_LEFT, 0 ) );
+	lb_wait.align_to( &lb_waitlevel_as_clock, ALIGN_CENTER_V, scr_coord( D_MARGIN_LEFT, 0 ) );
 	add_komponente( &lb_wait );
 
 	bt_mirror.init(button_t::square_automatic, "return ticket", scr_coord( BUTTON3_X, ypos ), scr_size(D_BUTTON_WIDTH*2,D_BUTTON_HEIGHT) );
@@ -425,11 +425,6 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 	add_komponente(&bt_mirror);
 
 	ypos += LINESPACE;
-
-	lb_waitlevel_as_clock.set_text_pointer(str_parts_month_as_clock, false);
-	lb_waitlevel_as_clock.set_pos( scr_coord(bt_wait_prev.get_pos().x, ypos + 2));
-	lb_waitlevel_as_clock.set_width(bt_wait_next.get_pos().x - bt_wait_prev.get_pos().x);
-	add_komponente(&lb_waitlevel_as_clock);
 
 	ypos += D_BUTTON_HEIGHT;
 
@@ -562,7 +557,7 @@ void fahrplan_gui_t::update_selection()
 	sprintf(str_spacing_shift_as_clock, "%s", translator::translate("off") );
 
 	strcpy( str_parts_month, translator::translate("off") );
-	lb_waitlevel.set_color( COL_GREY3 );
+	lb_waitlevel_as_clock.set_color( COL_GREY3 );
 	bt_wait_next.disable();
 
 	if(  !fpl->empty()  ) {
@@ -587,7 +582,7 @@ void fahrplan_gui_t::update_selection()
 							fpl->eintrag[aktuell].spacing_shift * welt->ticks_per_world_month/welt->get_settings().get_spacing_shift_divisor()+1
 							);
 				}
-				lb_waitlevel.set_color( COL_WHITE );
+				lb_waitlevel_as_clock.set_color( COL_WHITE );
 				bt_wait_next.enable();
 			}
 			if(  fpl->eintrag[aktuell].ladegrad>0  &&  fpl->eintrag[aktuell].waiting_time_shift>0  ) {
@@ -922,7 +917,7 @@ fahrplan_gui_t::fahrplan_gui_t():
 gui_frame_t( translator::translate("Fahrplan"), NULL),
 	lb_line("Serves Line:"),
 	lb_wait("month wait time"),
-	lb_waitlevel(NULL, COL_WHITE, gui_label_t::right),
+	lb_waitlevel_as_clock(NULL, COL_WHITE, gui_label_t::right),
 	lb_load("Full load"),
 	stats(NULL),
 	scrolly(&stats),

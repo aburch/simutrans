@@ -5212,7 +5212,7 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 			sint64 go_on_ticks_waiting = WAIT_INFINITE;
 			if(fpl->get_current_eintrag().waiting_time_shift > 0)
 			{
-				// Max. wait for load
+				// Maximum wait time
 				go_on_ticks_waiting = welt->get_zeit_ms() + (welt->ticks_per_world_month >> (16ll - (sint64)fpl->get_current_eintrag().waiting_time_shift)) - (sint64)reversing_time;
 			}
 			go_on_ticks = (std::min)(go_on_ticks_spacing, go_on_ticks_waiting);
