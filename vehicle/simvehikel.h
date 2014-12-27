@@ -394,7 +394,7 @@ public:
 	* Get the base image.
 	* @author Hj. Malthaner
 	*/
-	int get_basis_bild() const { return besch->get_basis_bild(current_livery.c_str()); }
+	image_id get_basis_bild() const { return besch->get_basis_bild(current_livery.c_str()); }
 
 	/**
 	* @return vehicle description object

@@ -1114,7 +1114,7 @@ void mark_screen_dirty()
  * the area of this image need update
  * @author Hj. Malthaner
  */
-void display_mark_img_dirty(unsigned bild, KOORD_VAL xp, KOORD_VAL yp)
+void display_mark_img_dirty(image_id bild, KOORD_VAL xp, KOORD_VAL yp)
 {
 	if (bild < anz_images) {
 		mark_rect_dirty_wc(
@@ -1140,7 +1140,7 @@ void display_mark_img_dirty(unsigned bild, KOORD_VAL xp, KOORD_VAL yp)
  */
 static void rezoom()
 {
-	for(  uint16 n = 0;  n < anz_images;  n++  ) {
+	for(  image_id n = 0;  n < anz_images;  n++  ) {
 		if(  (images[n].recode_flags & FLAG_ZOOMABLE) != 0  &&  images[n].base_h > 0  ) {
 			images[n].recode_flags |= FLAG_REZOOM;
 		}
@@ -1218,7 +1218,7 @@ static void activate_player_color(sint8 player_nr, bool daynight)
  */
 static void recode()
 {
-	for(  uint16 n = 0;  n < anz_images;  n++  ) {
+	for(  image_id n = 0;  n < anz_images;  n++  ) {
 		images[n].player_flags = 0xFFFF;  // recode all player colors
 	}
 }
@@ -1250,7 +1250,7 @@ static void recode_img_src_target(KOORD_VAL h, PIXVAL *src, PIXVAL *target)
 }
 
 
-uint16 get_image_count()
+image_id get_image_count()
 {
 	return anz_images;
 }
@@ -1260,7 +1260,7 @@ uint16 get_image_count()
  * Handles the conversion of an image to the output color
  * @author prissi
  */
-static void recode_img(const unsigned int n, const unsigned char player_nr)
+static void recode_img(const image_id n, const sint8 player_nr)
 {
 	// Hajo: may this image be zoomed
 #ifdef MULTI_THREAD
@@ -1996,7 +1996,7 @@ void register_image(struct bild_t* bild)
 		}
 		if(  anz_images > alloc_images  ) {
 			// overflow
-			dbg->fatal( "register_image", "*** Out of images (more than %li!) ***", alloc_images );
+			dbg->fatal( "register_image", "*** Out of images (more than %li!) ***", anz_images );
 		}
 		images = REALLOC(images, imd, alloc_images);
 	}
@@ -2061,9 +2061,9 @@ void register_image(struct bild_t* bild)
 
 // delete all images above a certain number ...
 // (mostly needed when changing climate zones)
-void display_free_all_images_above( unsigned above )
+void display_free_all_images_above( image_id above )
 {
-	while( above < anz_images  ) {
+	while(  above < anz_images  ) {
 		anz_images--;
 		if(  images[anz_images].zoom_data != NULL  ) {
 			guarded_free( images[anz_images].zoom_data );
@@ -2078,9 +2078,9 @@ void display_free_all_images_above( unsigned above )
 
 
 // prissi: query offsets
-void display_get_image_offset(unsigned bild, KOORD_VAL *xoff, KOORD_VAL *yoff, KOORD_VAL *xw, KOORD_VAL *yw)
+void display_get_image_offset(image_id bild, KOORD_VAL *xoff, KOORD_VAL *yoff, KOORD_VAL *xw, KOORD_VAL *yw)
 {
-	if (bild < anz_images) {
+	if(  bild < anz_images  ) {
 		*xoff = images[bild].x;
 		*yoff = images[bild].y;
 		*xw   = images[bild].w;
@@ -2388,7 +2388,7 @@ static void display_img_nc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, 
 
 
 // only used for GUI
-void display_img_aligned( const unsigned n, scr_rect area, int align, const int dirty)
+void display_img_aligned( const image_id n, scr_rect area, int align, const int dirty)
 {
 	if(  n < anz_images  ) {
 		scr_coord_val x,y;
@@ -2423,9 +2423,9 @@ void display_img_aligned( const unsigned n, scr_rect area, int align, const int 
  * @author prissi
  */
 #ifdef MULTI_THREAD
-void display_img_aux(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const sint8 player_nr_raw, const int /*daynight*/, const int dirty, const sint8 clip_num)
+void display_img_aux(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const sint8 player_nr_raw, const int /*daynight*/, const int dirty, const sint8 clip_num)
 #else
-void display_img_aux(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const sint8 player_nr_raw, const int /*daynight*/, const int dirty)
+void display_img_aux(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const sint8 player_nr_raw, const int /*daynight*/, const int dirty)
 #endif
 {
 	if(  n < anz_images  ) {
@@ -2437,7 +2437,7 @@ void display_img_aux(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const sint8 p
 			// player colour images are rezoomed/recoloured in display_color_img
 			sp = images[n].data[use_player];
 			if(  sp == NULL  ) {
-				printf("CImg[%i] %i failed!\n", use_player, n);
+				printf("CImg[%i] %u failed!\n", use_player, n);
 				return;
 			}
 		}
@@ -2451,7 +2451,7 @@ void display_img_aux(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const sint8 p
 			}
 			sp = images[n].data[0];
 			if(  sp == NULL  ) {
-				printf("Img %i failed!\n", n);
+				printf("Img %u failed!\n", n);
 				return;
 			}
 		}
@@ -2787,9 +2787,9 @@ static void display_color_img_wc(const PIXVAL *sp, KOORD_VAL x, KOORD_VAL y, KOO
  * @author Hj. Malthaner
  */
 #ifdef MULTI_THREAD
-void display_color_img_cl(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, sint8 player_nr_raw, const int daynight, const int dirty, const sint8 clip_num)
+void display_color_img_cl(const image_id n, KOORD_VAL xp, KOORD_VAL yp, sint8 player_nr_raw, const int daynight, const int dirty, const sint8 clip_num)
 #else
-void display_color_img(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, sint8 player_nr_raw, const int daynight, const int dirty)
+void display_color_img(const image_id n, KOORD_VAL xp, KOORD_VAL yp, sint8 player_nr_raw, const int daynight, const int dirty)
 #endif
 {
 	if(  n < anz_images  ) {
@@ -2883,9 +2883,9 @@ void display_color_img(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, sint8 playe
  * @author prissi
  */
 #ifdef MULTI_THREAD
-void display_base_img_cl(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const sint8 player_nr, const int daynight, const int dirty, const sint8 clip_num)
+void display_base_img_cl(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const sint8 player_nr, const int daynight, const int dirty, const sint8 clip_num)
 #else
-void display_base_img(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const sint8 player_nr, const int daynight, const int dirty)
+void display_base_img(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const sint8 player_nr, const int daynight, const int dirty)
 #endif
 {
 	if(  base_tile_raster_width==tile_raster_width  ) {
@@ -3525,9 +3525,9 @@ static void display_img_alpha_wc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VA
  * @author kierongreen
  */
 #ifdef MULTI_THREAD
-void display_rezoomed_img_blend(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const signed char /*player_nr*/, const PLAYER_COLOR_VAL color_index, const int /*daynight*/, const int dirty, const sint8 clip_num)
+void display_rezoomed_img_blend(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const signed char /*player_nr*/, const PLAYER_COLOR_VAL color_index, const int /*daynight*/, const int dirty, const sint8 clip_num)
 #else
-void display_rezoomed_img_blend(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const signed char /*player_nr*/, const PLAYER_COLOR_VAL color_index, const int /*daynight*/, const int dirty)
+void display_rezoomed_img_blend(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const signed char /*player_nr*/, const PLAYER_COLOR_VAL color_index, const int /*daynight*/, const int dirty)
 #endif
 {
 	if(  n < anz_images  ) {
@@ -3628,9 +3628,9 @@ void display_rezoomed_img_blend(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, co
 
 
 #ifdef MULTI_THREAD
-void display_rezoomed_img_alpha(const unsigned n, const unsigned alpha_n, const unsigned alpha_flags, KOORD_VAL xp, KOORD_VAL yp, const signed char /*player_nr*/, const PLAYER_COLOR_VAL color_index, const int /*daynight*/, const int dirty, const sint8 clip_num)
+void display_rezoomed_img_alpha(const image_id n, const unsigned alpha_n, const unsigned alpha_flags, KOORD_VAL xp, KOORD_VAL yp, const signed char /*player_nr*/, const PLAYER_COLOR_VAL color_index, const int /*daynight*/, const int dirty, const sint8 clip_num)
 #else
-void display_rezoomed_img_alpha(const unsigned n, const unsigned alpha_n, const unsigned alpha_flags, KOORD_VAL xp, KOORD_VAL yp, const signed char /*player_nr*/, const PLAYER_COLOR_VAL color_index, const int /*daynight*/, const int dirty)
+void display_rezoomed_img_alpha(const image_id n, const unsigned alpha_n, const unsigned alpha_flags, KOORD_VAL xp, KOORD_VAL yp, const signed char /*player_nr*/, const PLAYER_COLOR_VAL color_index, const int /*daynight*/, const int dirty)
 #endif
 {
 	if(  n < anz_images  &&  alpha_n < anz_images  ) {
@@ -3741,9 +3741,9 @@ void display_rezoomed_img_alpha(const unsigned n, const unsigned alpha_n, const 
 
 // Knightly : For blending or outlining unzoomed image. Adapted from display_base_img() and display_unzoomed_img_blend()
 #ifdef MULTI_THREAD
-void display_base_img_blend(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty, const sint8 clip_num)
+void display_base_img_blend(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty, const sint8 clip_num)
 #else
-void display_base_img_blend(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty)
+void display_base_img_blend(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty)
 #endif
 {
 	if(  base_tile_raster_width == tile_raster_width  ) {
