@@ -83,3 +83,12 @@ note=This is the error message shown when a player tries to place a marker on to
 obj=program_text
 name=Cannot combine way object and halt.
 note=This is the error message shown when a player tries to build a halt on a road with noise barrier or a noise barrier on a road with a halt.
+-
+obj=program_text
+name=If this is set, convoys will wait until one of the specified times before departing, the specified times being fractions of a month.
+note=Tooltip for the wait for time feature in the schedule window.
+-
+obj=program_text
+name=Wait for time
+note=Label for the wait for time feature in the schedule window
+-

@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Dialog window for defining a schedule
  *
  * Hj. Malthaner
@@ -108,6 +108,12 @@ void fahrplan_gui_t::gimme_stop_name(cbuffer_t & buf, const spieler_t *sp, const
 		{
 			sprintf(modified_name, "%s", halt->get_name());
 		}
+
+		if(entry.wait_for_time)
+		{
+			buf.printf("[*] ");
+		}
+
 		if (entry.ladegrad != 0)
 		{
 			buf.printf("%d%% ", entry.ladegrad);
@@ -132,7 +138,7 @@ void fahrplan_gui_t::gimme_stop_name(cbuffer_t & buf, const spieler_t *sp, const
 
 	if(entry.reverse)
 	{
-		buf.printf(" %s", "[<<]");
+		buf.printf(" [<<]");
 	}
 }
 
@@ -162,6 +168,11 @@ void fahrplan_gui_t::gimme_short_stop_name(cbuffer_t& buf, spieler_t const* cons
 		}
 	}
 
+		if(entry.wait_for_time)
+	{
+		buf.append("[*] ");
+	}
+
 	// finally append
 	if(strlen(p)>(unsigned)max_chars)
 	{
@@ -174,8 +185,7 @@ void fahrplan_gui_t::gimme_short_stop_name(cbuffer_t& buf, spieler_t const* cons
 
 	if(entry.reverse)
 	{
-		buf.append(" ");
-		buf.append("[<<]");
+		buf.append(" [<<]");
 	}
 }
 
@@ -364,7 +374,7 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 	numimp_load.set_pos( scr_coord( D_MARGIN_LEFT + label_width + D_H_SPACE, ypos ) );
 	numimp_load.set_width( 75 );
 	numimp_load.set_value( fpl->get_current_eintrag().ladegrad );
-	numimp_load.set_limits( 0, 400 );
+	numimp_load.set_limits( 0, 100 );
 	numimp_load.set_increment_mode(10);
 	numimp_load.add_listener(this);
 	add_komponente(&numimp_load);
@@ -381,7 +391,7 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 
 	ypos += D_BUTTON_HEIGHT;
 
-	// waiting in parts per month
+	// Maximum waiting time
 	lb_wait.set_pos( scr_coord( D_MARGIN_LEFT, ypos+2 ) );
 	add_komponente(&lb_wait);
 
@@ -402,7 +412,6 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 	lb_waitlevel_as_clock.align_to( &numimp_load, ALIGN_EXTERIOR_V | ALIGN_TOP | ALIGN_LEFT, scr_coord( gui_theme_t::gui_arrow_left_size.w, 0 ) );
 	add_komponente(&lb_waitlevel_as_clock);
 
-	// waiting in parts per month
 	bt_wait_prev.set_typ( button_t::arrowleft );
 	bt_wait_prev.align_to( &lb_waitlevel_as_clock, ALIGN_EXTERIOR_H | ALIGN_RIGHT | ALIGN_CENTER_V );
 	bt_wait_prev.add_listener(this);
@@ -418,6 +427,17 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 	lb_wait.align_to( &lb_waitlevel_as_clock, ALIGN_CENTER_V, scr_coord( D_MARGIN_LEFT, 0 ) );
 	add_komponente( &lb_wait );
 
+	if(!cnv.is_bound())
+	{
+		// Wait for time
+		bt_wait_for_time.init(button_t::square_automatic, "Wait for time", scr_coord( BUTTON1_X, ypos+12 ), scr_size(D_BUTTON_WIDTH*2,D_BUTTON_HEIGHT) );
+		bt_wait_for_time.set_tooltip("If this is set, convoys will wait until one of the specified times before departing, the specified times being fractions of a month.");
+		bt_wait_for_time.pressed = fpl->get_current_eintrag().wait_for_time;
+		bt_wait_for_time.add_listener(this);
+		add_komponente(&bt_wait_for_time);
+	}
+
+	// Mirror schedule/alternate directions
 	bt_mirror.init(button_t::square_automatic, "return ticket", scr_coord( BUTTON3_X, ypos ), scr_size(D_BUTTON_WIDTH*2,D_BUTTON_HEIGHT) );
 	bt_mirror.set_tooltip("Vehicles make a round trip between the schedule endpoints, visiting all stops in reverse after reaching the end.");
 	bt_mirror.pressed = fpl->is_mirrored();
@@ -456,7 +476,7 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 
 		if (spacing_shift_mode > settings_t::SPACING_SHIFT_PER_LINE) {
 			//Same spacing button
-			bt_same_spacing_shift.init(button_t::square_automatic, "Use same shift for all stops.", scr_coord( 10 , ypos+2 ), scr_size(D_BUTTON_WIDTH*3,D_BUTTON_HEIGHT) );
+			bt_same_spacing_shift.init(button_t::square_automatic, "Use same shift for all stops.", scr_coord( BUTTON1_X , ypos+2 ), scr_size(D_BUTTON_WIDTH*3,D_BUTTON_HEIGHT) );
 			bt_same_spacing_shift.set_tooltip("Use one spacing shift value for all stops in schedule.");
 			bt_same_spacing_shift.pressed = fpl->is_same_spacing_shift();
 			bt_same_spacing_shift.add_listener(this);
@@ -547,10 +567,17 @@ void fahrplan_gui_t::update_werkzeug(bool set)
 
 void fahrplan_gui_t::update_selection()
 {
+	lb_load.set_color( COL_GREY3 );
+	numimp_load.disable();
+	numimp_load.set_value( 0 );
 	bt_wait_prev.disable();
 	lb_wait.set_color( COL_GREY3 );
 	lb_spacing.set_color( COL_GREY3 );
 	lb_spacing_as_clock.set_color( COL_GREY3 );
+	numimp_spacing.disable();
+	numimp_spacing.set_value(0);
+	numimp_spacing_shift.disable();
+	numimp_spacing_shift.set_value(0);
 	sprintf(str_spacing_as_clock, "%s", translator::translate("off") );
 	lb_spacing_shift.set_color( COL_GREY3 );
 	lb_spacing_shift_as_clock.set_color( COL_GREY3 );
@@ -563,20 +590,33 @@ void fahrplan_gui_t::update_selection()
 	if(  !fpl->empty()  ) {
 		fpl->set_aktuell( min(fpl->get_count()-1,fpl->get_aktuell()) );
 		const uint8 aktuell = fpl->get_aktuell();
+		bt_wait_for_time.pressed = fpl->get_current_eintrag().wait_for_time;
 		if(  haltestelle_t::get_halt(fpl->eintrag[aktuell].pos, sp).is_bound()  ) {
-			lb_load.set_color( COL_BLACK );
-			numimp_load.enable();
-			numimp_load.set_value( fpl->eintrag[aktuell].ladegrad );
-			numimp_spacing_shift.set_value(fpl->eintrag[aktuell].spacing_shift);
-			if(  fpl->eintrag[aktuell].ladegrad>0  ) {
+			if(!fpl->get_current_eintrag().wait_for_time)
+			{
+				lb_load.set_color( COL_BLACK );
+				numimp_load.enable();
+				numimp_load.set_value( fpl->eintrag[aktuell].ladegrad );
+			}
+			else if(!fpl->get_spacing())
+			{
+				// Cannot have wait for time without some spacing. 
+				fpl->set_spacing(1);
+				numimp_spacing.set_value(1);
+			}
+			
+			if(  fpl->eintrag[aktuell].ladegrad>0 || fpl->eintrag[aktuell].wait_for_time ) {
 				bt_wait_prev.enable();
 				lb_wait.set_color( COL_BLACK );
 				lb_spacing.set_color( COL_BLACK );
+				numimp_spacing.enable();
+				numimp_spacing_shift.enable();
+				numimp_spacing.set_value(fpl->get_spacing());
+				numimp_spacing_shift.set_value(fpl->eintrag[aktuell].spacing_shift);
 				if (fpl->get_spacing() ) {
 					lb_spacing_shift.set_color( COL_BLACK );
 					lb_spacing_as_clock.set_color( COL_BLACK );
 					lb_spacing_shift_as_clock.set_color( COL_BLACK );
-
 					welt->sprintf_ticks(str_spacing_as_clock, sizeof(str_spacing_as_clock), welt->ticks_per_world_month/fpl->get_spacing());
 					welt->sprintf_ticks(str_spacing_shift_as_clock, sizeof(str_spacing_as_clock),
 							fpl->eintrag[aktuell].spacing_shift * welt->ticks_per_world_month/welt->get_settings().get_spacing_shift_divisor()+1
@@ -585,7 +625,7 @@ void fahrplan_gui_t::update_selection()
 				lb_waitlevel_as_clock.set_color( COL_WHITE );
 				bt_wait_next.enable();
 			}
-			if(  fpl->eintrag[aktuell].ladegrad>0  &&  fpl->eintrag[aktuell].waiting_time_shift>0  ) {
+			if(  (fpl->eintrag[aktuell].ladegrad>0 || fpl->eintrag[aktuell].wait_for_time) &&  fpl->eintrag[aktuell].waiting_time_shift>0  ) {
 				sprintf( str_parts_month, "1/%d",  1<<(16-fpl->eintrag[aktuell].waiting_time_shift) );
 				sint64 ticks_waiting = welt->ticks_per_world_month >> (16-fpl->get_current_eintrag().waiting_time_shift);
 				welt->sprintf_ticks(str_parts_month_as_clock, sizeof(str_parts_month_as_clock), ticks_waiting + 1);
@@ -594,11 +634,6 @@ void fahrplan_gui_t::update_selection()
 				strcpy( str_parts_month, translator::translate("off") );
 				strcpy( str_parts_month_as_clock, translator::translate("off") );
 			}
-		}
-		else {
-			lb_load.set_color( COL_GREY3 );
-			numimp_load.disable();
-			numimp_load.set_value( 0 );
 		}
 	}
 }
@@ -782,6 +817,14 @@ DBG_MESSAGE("fahrplan_gui_t::action_triggered()","komp=%p combo=%p",komp,&line_s
 			}
 		}
 	} 
+	else if(komp == &bt_wait_for_time)
+	{
+		if(!fpl->empty())
+		{
+			fpl->eintrag[fpl->get_aktuell()].wait_for_time = bt_wait_for_time.pressed;
+			update_selection();
+		}
+	}
 	else if (komp == &line_selector) {
 		uint32 selection = p.i - !new_line.is_bound();
 //DBG_MESSAGE("fahrplan_gui_t::action_triggered()","line selection=%i",selection);

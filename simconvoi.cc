@@ -5104,6 +5104,7 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 	// any loading went on?
 	calc_loading();
 	loading_limit = fpl->get_current_eintrag().ladegrad; // ladegrad = max. load.
+	const bool wait_for_time = fpl->get_current_eintrag().wait_for_time; 
 	highest_axle_load = calc_highest_axle_load(); // Bernd Gabriel, Mar 10, 2010: was missing.
 	if(  old_last_stop_pos != front()->get_pos()  )
 	{
@@ -5193,16 +5194,19 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 			// convoys to become stuck trying to get a full load at stops where this is not possible (freight consumers, etc.).
 			loading_limit = 0;
 		}
-		if(!loading_limit || loading_level >= loading_limit)
+		if((!loading_limit || loading_level >= loading_limit) && !wait_for_time)
 		{
+			// Simple case: do not wait for a full load or a particular time.
 			go_on_ticks = (std::max)(departure_time, arrival_time);
 		}
-		else
+		else 
 		{
+			// Wait for a % load or a spacing slot.
 			sint64 go_on_ticks_spacing = WAIT_INFINITE;
+			
 			if(line.is_bound() && fpl->get_spacing() && line->count_convoys())
 			{
-				// Spacing cnv/month
+				// Departures/month
 				const sint64 spacing = welt->ticks_per_world_month / (sint64)fpl->get_spacing();
 				const sint64 spacing_shift = (sint64)fpl->get_current_eintrag().spacing_shift * welt->ticks_per_world_month / (sint64)welt->get_settings().get_spacing_shift_divisor();
 				const sint64 wait_from_ticks = ((welt->get_zeit_ms() - spacing_shift) / spacing) * spacing + spacing_shift; // remember, it is integer division
@@ -5222,7 +5226,7 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 
 	// loading is finished => maybe drive on
 	bool can_go = false;
-	can_go = loading_level >= loading_limit;
+	can_go = loading_level >= loading_limit && !wait_for_time;
 	can_go = can_go || welt->get_zeit_ms() > go_on_ticks;
 	can_go = can_go && welt->get_zeit_ms() > arrival_time + ((sint64)current_loading_time - (sint64)reversing_time);
 	can_go = can_go || no_load;
@@ -6740,14 +6744,27 @@ void convoi_t::clear_replace()
 			if(halt.is_bound() && !halts_already_processed.is_contained(halt.get_id()))
 			{
 				halt->set_estimated_arrival_time(self.get_id(), eta);
-				if(fpl->eintrag[schedule_entry].ladegrad > 0 && fpl->get_spacing() > 0)
+				const sint64 max_waiting_time = fpl->get_current_eintrag().waiting_time_shift ? welt->ticks_per_world_month >> (16ll - (sint64)fpl->get_current_eintrag().waiting_time_shift) : WAIT_INFINITE;
+				if((fpl->eintrag[schedule_entry].ladegrad > 0 || fpl->eintrag[schedule_entry].wait_for_time) && fpl->get_spacing() > 0)
 				{				
 					// Add spacing time
 					const sint64 spacing = welt->ticks_per_world_month / (sint64)fpl->get_spacing();
 					const sint64 spacing_shift = (sint64)fpl->get_current_eintrag().spacing_shift * welt->ticks_per_world_month / (sint64)welt->get_settings().get_spacing_shift_divisor();
 					const sint64 wait_from_ticks = ((eta - spacing_shift) / spacing) * spacing + spacing_shift; // remember, it is integer division
-					const sint64 spaced_departure = wait_from_ticks + spacing - reverse_delay;
+					const sint64 spaced_departure = min(max_waiting_time, (wait_from_ticks + spacing)) - reverse_delay;
 					etd += (spaced_departure - eta);
+				}
+				else if(fpl->eintrag[schedule_entry].ladegrad > 0 && fpl->get_spacing() == 0)
+				{
+					if(fpl->get_current_eintrag().waiting_time_shift)
+					{
+						etd += max_waiting_time;
+					}
+					else
+					{
+						// Add loose estimate for loading to the %
+						etd += seconds_to_ticks(900, welt->get_settings().get_meters_per_tile()); // 15 minutes.
+					}
 				}
 				etd += current_loading_time;
 			}

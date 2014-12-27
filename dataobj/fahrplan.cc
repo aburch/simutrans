@@ -23,7 +23,7 @@
 
 #include "../tpl/slist_tpl.h"
 
-linieneintrag_t schedule_t::dummy_eintrag(koord3d::invalid, 0, 0, 0, true);
+linieneintrag_t schedule_t::dummy_eintrag(koord3d::invalid, 0, 0, 0, true, false);
 
 schedule_t::schedule_t(loadsave_t* const file)
 {
@@ -54,7 +54,6 @@ void schedule_t::copy_from(const schedule_t *src)
 	bidirectional = src->is_bidirectional();
 	mirrored = src->is_mirrored();
 	same_spacing_shift = src->is_same_spacing_shift();
-
 }
 
 
@@ -123,7 +122,7 @@ halthandle_t schedule_t::get_prev_halt( spieler_t *sp ) const
 }
 
 
-bool schedule_t::insert(const grund_t* gr, uint16 ladegrad, uint8 waiting_time_shift, sint16 spacing_shift, bool show_failure)
+bool schedule_t::insert(const grund_t* gr, uint16 ladegrad, uint8 waiting_time_shift, sint16 spacing_shift, bool wait_for_time, bool show_failure)
 {
 	// stored in minivec, so we have to avoid adding too many
 	if(eintrag.get_count() >= 254) 
@@ -142,7 +141,7 @@ bool schedule_t::insert(const grund_t* gr, uint16 ladegrad, uint8 waiting_time_s
 	}
 
 	if(  ist_halt_erlaubt(gr)  ) {
-		eintrag.insert_at(aktuell, linieneintrag_t(gr->get_pos(), ladegrad, waiting_time_shift, spacing_shift, !gr->get_halt().is_bound()));
+		eintrag.insert_at(aktuell, linieneintrag_t(gr->get_pos(), ladegrad, waiting_time_shift, spacing_shift, !gr->get_halt().is_bound(), wait_for_time));
 		aktuell ++;
 		return true;
 	}
@@ -158,7 +157,7 @@ bool schedule_t::insert(const grund_t* gr, uint16 ladegrad, uint8 waiting_time_s
 
 
 
-bool schedule_t::append(const grund_t* gr, uint16 ladegrad, uint8 waiting_time_shift, sint16 spacing_shift)
+bool schedule_t::append(const grund_t* gr, uint16 ladegrad, uint8 waiting_time_shift, sint16 spacing_shift, bool wait_for_time)
 {
 	// stored in minivec, so we have to avoid adding too many
 	if(eintrag.get_count()>=254) {
@@ -173,7 +172,7 @@ bool schedule_t::append(const grund_t* gr, uint16 ladegrad, uint8 waiting_time_s
 	}
 
 	if(ist_halt_erlaubt(gr)) {
-		eintrag.append(linieneintrag_t(gr->get_pos(), ladegrad, waiting_time_shift, spacing_shift, !gr->get_halt().is_bound()), 4);
+		eintrag.append(linieneintrag_t(gr->get_pos(), ladegrad, waiting_time_shift, spacing_shift, !gr->get_halt().is_bound(), wait_for_time), 4);
 		return true;
 	}
 	else {
@@ -265,7 +264,7 @@ void schedule_t::rdwr(loadsave_t *file)
 			uint32 dummy;
 			pos.rdwr(file);
 			file->rdwr_long(dummy);
-			eintrag.append(linieneintrag_t(pos, (uint8)dummy, 0, 0, true));
+			eintrag.append(linieneintrag_t(pos, (uint8)dummy, 0, 0, true, false));
 		}
 	}
 	else {
@@ -281,6 +280,12 @@ void schedule_t::rdwr(loadsave_t *file)
 			if(file->get_experimental_version() >= 10 && file->get_version() >= 111002)
 			{
 				file->rdwr_short(eintrag[i].ladegrad);
+				if(eintrag[i].ladegrad > 100 && spacing)
+				{
+					// Loading percentages of over 100 were almost invariably used
+					// to set scheduled waiting points in 11.x and earlier.
+					eintrag[i].ladegrad = 0;
+				}
 			}
 			else
 			{
@@ -304,6 +309,18 @@ void schedule_t::rdwr(loadsave_t *file)
 				else
 				{
 					eintrag[i].reverse = false;
+				}
+#ifdef SPECIAL_RESCUE_12 // For testers who want to load games saved with earlier unreleased versions.
+				if(file->get_experimental_version() >= 12 && file->is_saving())
+#else
+				if(file->get_experimental_version() >= 12)
+#endif
+				{
+					file->rdwr_bool(eintrag[i].wait_for_time);
+				}
+				else if(file->is_loading())
+				{
+					eintrag[i].wait_for_time = eintrag[i].ladegrad > 100 && spacing;
 				}
 			}
 		}
@@ -379,6 +396,7 @@ bool schedule_t::matches(karte_t *welt, const schedule_t *fpl)
 			&& fpl->eintrag[(uint16)f2].ladegrad == eintrag[(uint16)f1].ladegrad 
 			&& fpl->eintrag[(uint8)f2].waiting_time_shift == eintrag[(uint8)f1].waiting_time_shift 
 			&& fpl->eintrag[(uint8)f2].spacing_shift == eintrag[(uint8)f1].spacing_shift
+			&& fpl->eintrag[(uint8)f2].wait_for_time == eintrag[(uint8)f1].wait_for_time
 		  ) {
 			// ladegrad/waiting ignored: identical
 			f1++;
@@ -526,7 +544,7 @@ void schedule_t::sprintf_schedule( cbuffer_t &buf ) const
 	buf.append( "|" );
 	FOR(minivec_tpl<linieneintrag_t>, const& i, eintrag) 
 	{
-		buf.printf( "%s,%i,%i,%i,%i|", i.pos.get_str(), i.ladegrad, (int)i.waiting_time_shift, (int)i.spacing_shift, (int)i.reverse );
+		buf.printf( "%s,%i,%i,%i,%i,%i|", i.pos.get_str(), i.ladegrad, (int)i.waiting_time_shift, (int)i.spacing_shift, (int)i.reverse, (int)i.wait_for_time );
 	}
 }
 
@@ -585,24 +603,24 @@ bool schedule_t::sscanf_schedule( const char *ptr )
 	p++;
 	// now scan the entries
 	while(  *p>0  ) {
-		sint16 values[7];
-		for(  sint8 i=0;  i<7;  i++  ) {
+		sint16 values[8];
+		for(  sint8 i=0;  i<8;  i++  ) {
 			values[i] = atoi( p );
 			while(  *p  &&  (*p!=','  &&  *p!='|')  ) {
 				p++;
 			}
-			if(  i<6  &&  *p!=','  ) {
+			if(  i<7  &&  *p!=','  ) {
 				dbg->error( "schedule_t::sscanf_schedule()","incomplete string!" );
 				return false;
 			}
-			if(  i==6  &&  *p!='|'  ) {
+			if(  i==7  &&  *p!='|'  ) {
 				dbg->error( "schedule_t::sscanf_schedule()","incomplete entry termination!" );
 				return false;
 			}
 			p++;
 		}
 		// ok, now we have a complete entry
-		eintrag.append(linieneintrag_t(koord3d(values[0], values[1], values[2]), values[3], values[4], values[5], (bool)values[6]));
+		eintrag.append(linieneintrag_t(koord3d(values[0], values[1], values[2]), values[3], values[4], values[5], (bool)values[6], (bool)values[7]));
 	}
 	return true;
 }
