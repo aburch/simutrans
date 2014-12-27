@@ -70,7 +70,7 @@ stringhashtable_tpl <tunnel_besch_t *> * tunnelbauer_t::get_all_tunnels()
 
 const tunnel_besch_t *tunnelbauer_t::get_besch(const char *name)
 {
-	return tunnel_by_name.get(name);
+	return (name ? tunnel_by_name.get(name) : NULL);
 }
 
 
