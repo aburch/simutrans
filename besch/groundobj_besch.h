@@ -76,7 +76,6 @@ public:
 		chk->input(distribution_weight);
 		chk->input(number_of_seasons);
 		chk->input(speed);
-		chk->input(index);
 		chk->input(trees_on_top);
 		chk->input((uint8)waytype);
 		chk->input(cost_removal);
