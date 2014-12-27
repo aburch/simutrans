@@ -537,11 +537,18 @@ void schedule_list_gui_t::display(scr_coord pos)
 	capacity = load = loadfactor = 0; // total capacity and load of line (=sum of all conv's cap/load)
 
 	sint64 profit = line->get_finance_history(0,LINE_PROFIT);
-
+	
+	sint64 total_trip_times = 0;
+	sint64 convoys_with_trip_data = 0;
 	for (int i = 0; i<icnv; i++) {
 		convoihandle_t const cnv = line->get_convoy(i);
 		// we do not want to count the capacity of depot convois
 		if (!cnv->in_depot()) {
+			total_trip_times += cnv->get_average_round_trip_time();
+			if(cnv->get_average_round_trip_time())
+			{
+				convoys_with_trip_data++;
+			}
 			for (unsigned j = 0; j<cnv->get_vehikel_anzahl(); j++) {
 				capacity += cnv->get_vehikel(j)->get_fracht_max();
 				load += cnv->get_vehikel(j)->get_fracht_menge();
@@ -554,6 +561,21 @@ void schedule_list_gui_t::display(scr_coord pos)
 	// and we do not like to divide by zero, do we?
 	if (capacity > 0) {
 		loadfactor = (load * 100) / capacity;
+	}
+
+	sint64 service_frequency = convoys_with_trip_data ? total_trip_times / convoys_with_trip_data : 0; // In ticks.
+	if(icnv)
+	{
+		service_frequency /= icnv;
+	}
+	
+	const int spacing = line->get_schedule()->get_spacing();
+	if(icnv && spacing > 0)
+	{
+		// Check whether the spacing setting affects things.
+		sint64 spacing_ticks = welt->ticks_per_world_month / (sint64)spacing;
+		const uint32 spacing_time = welt->ticks_to_tenths_of_minutes(spacing_ticks);
+		service_frequency = max(spacing_time, service_frequency);
 	}
 
 	switch(icnv) {
@@ -570,6 +592,17 @@ void schedule_list_gui_t::display(scr_coord pos)
 			break;
 		}
 	}
+
+	// Display service frequency
+	if(service_frequency)
+	{
+		buf.printf("      ");
+		buf.printf(translator::translate("Service frequency"));
+		char as_clock[32];
+		welt->sprintf_ticks(as_clock, sizeof(as_clock), service_frequency);
+		buf.printf(" %s",  as_clock);
+	}
+
 	int len=display_proportional_clip(pos.x+LINE_NAME_COLUMN_WIDTH, pos.y+16+14+SCL_HEIGHT+D_BUTTON_HEIGHT*2+4, buf, ALIGN_LEFT, COL_BLACK, true );
 
 	int len2 = display_proportional_clip(pos.x+LINE_NAME_COLUMN_WIDTH, pos.y+16+14+SCL_HEIGHT+D_BUTTON_HEIGHT*2+4+LINESPACE, translator::translate("Gewinn"), ALIGN_LEFT, COL_BLACK, true );
@@ -581,7 +614,7 @@ void schedule_list_gui_t::display(scr_coord pos)
 		number_to_string(ctmp, capacity, 2);
 		buf.clear();
 		buf.printf( translator::translate("Capacity: %s\nLoad: %d (%d%%)"), ctmp, load, loadfactor );
-		display_multiline_text(pos.x + LINE_NAME_COLUMN_WIDTH + rest_width, pos.y+16 + 14 + SCL_HEIGHT + D_BUTTON_HEIGHT*2 +4 , buf, COL_BLACK);
+		display_multiline_text(pos.x + LINE_NAME_COLUMN_WIDTH + rest_width + 24, pos.y+16 + 14 + SCL_HEIGHT + D_BUTTON_HEIGHT*2 +4 , buf, COL_BLACK);
 	}
 }
 

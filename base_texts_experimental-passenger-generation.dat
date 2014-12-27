@@ -92,3 +92,7 @@ obj=program_text
 name=Wait for time
 note=Label for the wait for time feature in the schedule window
 -
+obj=program_text
+name=Service frequency
+note=Label for the service frequency indicator in the line window.
+-
