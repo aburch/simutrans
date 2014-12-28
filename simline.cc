@@ -597,6 +597,11 @@ void simline_t::recalc_status()
 		// Overcrowded
 		state_color = COL_DARK_PURPLE;
 	}
+	else if(financial_history[1][LINE_DEPARTURES] < financial_history[1][LINE_DEPARTURES_SCHEDULED])
+	{
+		// Is missing scheduled slots.
+		state_color = COL_DARK_TURQUOISE;
+	}
 	else if(welt->use_timeline()) 
 	{
 		// Has obsolete vehicles.
