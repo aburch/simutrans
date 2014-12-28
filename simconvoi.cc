@@ -6705,6 +6705,10 @@ void convoi_t::clear_replace()
 		departure_point_t departure_point(schedule_entry, !rev_rev);
 
 		departures.set(departure_point, dep);
+		if((fpl->eintrag[schedule_entry].ladegrad > 0 || fpl->eintrag[schedule_entry].wait_for_time) && fpl->get_spacing() > 0 && line.is_bound())
+		{
+			line->book(1, LINE_DEPARTURES);
+		}
 
 		// Set the departure time from the current location (which is no longer an estimate).
 		halt->set_estimated_departure_time(self.get_id(), time);
@@ -6747,7 +6751,7 @@ void convoi_t::clear_replace()
 				const sint64 max_waiting_time = fpl->get_current_eintrag().waiting_time_shift ? welt->ticks_per_world_month >> (16ll - (sint64)fpl->get_current_eintrag().waiting_time_shift) : WAIT_INFINITE;
 				if((fpl->eintrag[schedule_entry].ladegrad > 0 || fpl->eintrag[schedule_entry].wait_for_time) && fpl->get_spacing() > 0)
 				{				
-					// Add spacing time
+					// Add spacing time. 
 					const sint64 spacing = welt->ticks_per_world_month / (sint64)fpl->get_spacing();
 					const sint64 spacing_shift = (sint64)fpl->get_current_eintrag().spacing_shift * welt->ticks_per_world_month / (sint64)welt->get_settings().get_spacing_shift_divisor();
 					const sint64 wait_from_ticks = ((eta - spacing_shift) / spacing) * spacing + spacing_shift; // remember, it is integer division

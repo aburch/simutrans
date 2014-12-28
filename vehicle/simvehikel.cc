@@ -2568,7 +2568,11 @@ void vehikel_t::display_after(int xpos, int ypos, bool is_gobal) const
 				{
 					char waiting_time[64];
 					cnv->snprintf_remaining_loading_time(waiting_time, sizeof(waiting_time));
-					if(cnv->get_loading_limit())
+					if(cnv->get_schedule()->get_current_eintrag().wait_for_time)
+					{
+						sprintf( tooltip_text, translator::translate("Waiting for schedule. %s left"), waiting_time);
+					}
+					else if(cnv->get_loading_limit())
 					{
 						if(!cnv->is_wait_infinite() && strcmp(waiting_time, "0:00"))
 						{

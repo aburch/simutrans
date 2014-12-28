@@ -285,13 +285,18 @@ void simline_t::rdwr(loadsave_t *file)
 		{
 			for (int k = MAX_MONTHS-1; k>=0; k--)
 			{
-				if(((j == LINE_AVERAGE_SPEED || j == LINE_COMFORT) && file->get_experimental_version() <= 1) || (j == LINE_REFUNDS && file->get_experimental_version() < 8))
+#ifdef SPECIAL_RESCUE_12_2
+				if(((j == LINE_AVERAGE_SPEED || j == LINE_COMFORT) && file->get_experimental_version() <= 1) || (j == LINE_REFUNDS && file->get_experimental_version() < 8) || ((j == LINE_DEPARTURES || j == LINE_DEPARTURES_SCHEDULED) && (file->get_experimental_version() < 12 || file->is_loading())))
+#else
+				if(((j == LINE_AVERAGE_SPEED || j == LINE_COMFORT) && file->get_experimental_version() <= 1) || (j == LINE_REFUNDS && file->get_experimental_version() < 8) || ((j == LINE_DEPARTURES || j == LINE_DEPARTURES_SCHEDULED) && file->get_experimental_version() < 12))
+#endif
 				{
 					// Versions of Experimental saves with 1 and below
 					// did not have settings for average speed or comfort.
 					// Thus, this value must be skipped properly to
 					// assign the values. Likewise, versions of Experimental < 8
-					// did not store refund information.
+					// did not store refund information, and those of < 12 did
+					// not store departure or scheduled departure information. 
 					if(file->is_loading())
 					{
 						financial_history[k][j] = 0;
@@ -323,7 +328,11 @@ void simline_t::rdwr(loadsave_t *file)
 
 	if(file->get_experimental_version() >= 2)
 	{
-		const uint8 counter = file->get_version() < 103000 ? LINE_DISTANCE : MAX_LINE_COST;
+#ifdef SPECIAL_RESCUE_12_2
+		const uint8 counter = file->get_version() < 103000 ? LINE_DISTANCE : file->get_experimental_version() < 12 || file->is_loading() ? LINE_REFUNDS + 1 : MAX_LINE_COST;
+#else
+		const uint8 counter = file->get_version() < 103000 ? LINE_DISTANCE : file->get_experimental_version() < 12 ? LINE_REFUNDS + 1 : MAX_LINE_COST;
+#endif
 		for(uint8 i = 0; i < counter; i ++)
 		{	
 			file->rdwr_long(rolling_average[i]);
@@ -426,6 +435,7 @@ void simline_t::laden_abschliessen()
 		register_stops(fpl);
 	}
 	recalc_status();
+	financial_history[0][LINE_DEPARTURES_SCHEDULED] = calc_departures_scheduled();
 }
 
 
@@ -443,6 +453,7 @@ DBG_DEBUG("simline_t::register_stops()", "%d fpl entries in schedule %p", fpl->g
 DBG_DEBUG("simline_t::register_stops()", "halt null");
 		}
 	}
+	financial_history[0][LINE_DEPARTURES_SCHEDULED] = calc_departures_scheduled();
 }
 
 int simline_t::get_replacing_convoys_count() const {
@@ -465,6 +476,7 @@ void simline_t::unregister_stops()
 	{
 		i->clear_departures();
 	}
+	financial_history[0][LINE_DEPARTURES_SCHEDULED] = calc_departures_scheduled();
 }
 
 
@@ -476,6 +488,7 @@ void simline_t::unregister_stops(schedule_t * fpl)
 			halt->remove_line(self);
 		}
 	}
+	financial_history[0][LINE_DEPARTURES_SCHEDULED] = calc_departures_scheduled();
 }
 
 
@@ -490,6 +503,7 @@ void simline_t::renew_stops()
 		
 		DBG_DEBUG("simline_t::renew_stops()", "Line id=%d, name='%s'", self.get_id(), name.c_str());
 	}
+	financial_history[0][LINE_DEPARTURES_SCHEDULED] = calc_departures_scheduled();
 }
 
 void simline_t::set_schedule(schedule_t* fpl)
@@ -501,6 +515,7 @@ void simline_t::set_schedule(schedule_t* fpl)
 		delete this->fpl;
 	}
 	this->fpl = fpl;
+	financial_history[0][LINE_DEPARTURES_SCHEDULED] = calc_departures_scheduled();
 }
 
 
@@ -524,6 +539,7 @@ void simline_t::new_month()
 		financial_history[0][j] = 0;
 	}
 	financial_history[0][LINE_CONVOIS] = count_convoys();
+	financial_history[0][LINE_DEPARTURES_SCHEDULED] = calc_departures_scheduled();
 
 	if(financial_history[1][LINE_AVERAGE_SPEED] == 0)
 	{
@@ -676,3 +692,21 @@ void simline_t::propogate_livery_scheme()
 	}
 }
 
+sint64 simline_t::calc_departures_scheduled()
+{
+	if(fpl->get_spacing() == 0)
+	{
+		return 0;
+	}
+	
+	sint64 timed_departure_points_count = 0ll;
+	for(int i = 0; i < fpl->get_count(); i++)
+	{		
+		if(fpl->eintrag[i].wait_for_time || fpl->eintrag[i].ladegrad > 0)
+		{
+			timed_departure_points_count ++;
+		}
+	}
+
+	return timed_departure_points_count * (sint64) fpl->get_spacing();
+}

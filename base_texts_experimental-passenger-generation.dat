@@ -96,3 +96,14 @@ obj=program_text
 name=Service frequency
 note=Label for the service frequency indicator in the line window.
 -
+obj=program_text
+name=Departures
+note=Label for the graph in the line window showing the number of departures
+-
+obj=program_text
+name=Scheduled
+note=Label for the graph in the line window showing the number of departures scheduled
+-
+obj=program_text
+name=Waiting for schedule. %s left
+note=Tooltip text for convoys awaiting a departure slot

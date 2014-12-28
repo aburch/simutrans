@@ -21,19 +21,21 @@
 
 							// Exp|Std|Description
 enum line_cost_t {
-	LINE_CAPACITY =	0,		//  0 | 0 | the amount of ware that could be transported, theoretically
-	LINE_TRANSPORTED_GOODS,	//  1 | 1 | the amount of ware that has been transported
-	LINE_AVERAGE_SPEED,		//  2 |   | average speed of all convoys in the line
-	LINE_COMFORT,			//  3 |   | the average comfort rating of all vehicles on this line (weighted by numbers)
-	LINE_REVENUE,			//  4 | 3 | the income this line generated
-	LINE_OPERATIONS,        //  5 | 4 | the cost of operations this line generated
-	LINE_PROFIT,            //  6 | 5 | total profit of line
-	LINE_CONVOIS,			//  7 | 2 | number of convois for this line
-	LINE_DISTANCE,		    //  8 | 6 | distance converd by all convois
-	LINE_REFUNDS,			//  9 |   | Total refunds paid to passengers/goods owners desiring to use this line but kept waiting too long to do so.
-//	LINE_MAXSPEED,			//    | 7 | maximum speed for bonus calculation of all convois
-//	LINE_WAYTOLL,			//    | 8 | way toll paid by vehicles of line
-	MAX_LINE_COST			// 10 | 9 | Total number of cost items
+	LINE_CAPACITY =	0,			//  0 | 0 | the amount of ware that could be transported, theoretically
+	LINE_TRANSPORTED_GOODS,		//  1 | 1 | the amount of ware that has been transported
+	LINE_AVERAGE_SPEED,			//  2 |   | average speed of all convoys in the line
+	LINE_COMFORT,				//  3 |   | the average comfort rating of all vehicles on this line (weighted by numbers)
+	LINE_REVENUE,				//  4 | 3 | the income this line generated
+	LINE_OPERATIONS,			//  5 | 4 | the cost of operations this line generated
+	LINE_PROFIT,				//  6 | 5 | total profit of line
+	LINE_CONVOIS,				//  7 | 2 | number of convois for this line
+	LINE_DISTANCE,				//  8 | 6 | distance converd by all convois
+	LINE_REFUNDS,				//  9 |   | Total refunds paid to passengers/goods owners desiring to use this line but kept waiting too long to do so.
+//	LINE_MAXSPEED,				//    | 7 | maximum speed for bonus calculation of all convois
+//	LINE_WAYTOLL,				//    | 8 | way toll paid by vehicles of line
+	LINE_DEPARTURES,			// 10 |   | number of departures of convoys on this line from scheduled points
+	LINE_DEPARTURES_SCHEDULED,	// 11 |   | number of departures scheduled on this line from scheduled departure points
+	MAX_LINE_COST				// 12 | 9 | Total number of cost items
 };
 
 class karte_ptr_t;
@@ -252,6 +254,8 @@ public:
 	void propogate_livery_scheme();
 
 	inline journey_times_map& get_average_journey_times() { return average_journey_times; }
+
+	sint64 calc_departures_scheduled();
 };
 
 
