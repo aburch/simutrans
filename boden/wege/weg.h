@@ -155,9 +155,16 @@ private:
 	*/
 	bool public_right_of_way; 
 
+	/* These are statistics showing when this way was last built and when it was last renewed.
+	 * @author: jamespetts
+	 */
 	uint16 creation_month_year;
 	uint16 last_renewal_month_year;
-	uint32 tonnes_since_last_renewal;
+
+	/* This figure gives the condition of the way: UINT32_MAX = new; 0 = unusable. 
+	 * @author: jamespetts
+	 */
+	uint32 condition;
 
 protected:
 
@@ -381,6 +388,11 @@ public:
 
 	bool is_public_right_of_way() const { return public_right_of_way; }
 	void set_public_right_of_way(bool arg=true) { public_right_of_way = arg; }
+
+	uint16 get_creation_month_year() const { return creation_month_year; }
+	uint16 get_last_renewal_monty_year() const { return last_renewal_month_year; }
+
+	uint32 get_condition() const { return condition; }
 
 } GCC_PACKED;
 
