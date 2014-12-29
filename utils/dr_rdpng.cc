@@ -1,10 +1,6 @@
 
-#ifndef LOCAL
-#include <png.h>
-#else
 #include <string>
-#include "openttd/png.h"
-#endif
+#include <png.h>
 #include <setjmp.h>
 #include <stdlib.h>
 #include <errno.h>
