@@ -135,11 +135,13 @@ typedef unsigned long long  uint64;
 #ifdef _MSC_VER
 #	define GCC_PACKED
 #	define GCC_ALIGN(a)
+#	define MSVC_ALIGN(a) __declspec(align(a))
 #	define NORETURN __declspec(noreturn)
 #	pragma warning(disable: 4200 4311 4800 4996)
 #else
 #	define GCC_PACKED    __attribute__ ((__packed__))
 #	define GCC_ALIGN(a)  __attribute__ ((aligned (a)))
+#	define MSVC_ALIGN(a)
 #	define NORETURN      __attribute__ ((noreturn))
 #endif
 
