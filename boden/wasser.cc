@@ -33,34 +33,35 @@ void wasser_t::prepare_for_refresh()
 }
 
 
-void wasser_t::calc_bild_internal()
+void wasser_t::calc_bild_internal(const bool calc_only_snowline_change)
 {
-	koord pos2d(get_pos().get_2d());
-	sint16 height = welt->get_water_hgt( pos2d );
-	set_hoehe( height );
-	slope = hang_t::flach;
+	if(  !calc_only_snowline_change  ) {
+		koord pos2d( get_pos().get_2d() );
+		sint16 height = welt->get_water_hgt( pos2d );
+		set_hoehe( height );
+		slope = hang_t::flach;
 
-	sint16 zpos = min( welt->lookup_hgt( pos2d ), height ); // otherwise slope will fail ...
+		sint16 zpos = min( welt->lookup_hgt( pos2d ), height ); // otherwise slope will fail ...
 
-	if (grund_t::underground_mode==grund_t::ugm_level && grund_t::underground_level < zpos) {
-		set_bild(IMG_LEER);
-	}
-	else {
-		set_bild( min( height - zpos, grund_besch_t::water_depth_levels ) /*grund_besch_t::get_ground_tile(0,zpos)*/ );
-	}
-
-	// test tiles to north, south, east and west and add to ribi if water
-	ribi = ribi_t::keine;
-	for(  int i=0;  i<4;  i++  ) {
-		grund_t *gr_neighbour = NULL;
-		if (get_neighbour(gr_neighbour, invalid_wt, ribi_t::nsow[i])
-		    &&  (gr_neighbour->ist_wasser()  ||  gr_neighbour->hat_weg(water_wt))) {
-			ribi |= ribi_t::nsow[i];
+		if(  grund_t::underground_mode == grund_t::ugm_level  &&  grund_t::underground_level < zpos  ) {
+			set_bild(IMG_LEER);
 		}
-	}
+		else {
+			set_bild( min( height - zpos, grund_besch_t::water_depth_levels ) /*grund_besch_t::get_ground_tile(0,zpos)*/ );
+		}
 
-	// artifical walls from here on ...
-	grund_t::calc_back_bild( height, 0 );
+		// test tiles to north, south, east and west and add to ribi if water
+		ribi = ribi_t::keine;
+		for(  uint8 i = 0;  i < 4;  i++  ) {
+			grund_t *gr_neighbour = NULL;
+			if(  get_neighbour( gr_neighbour, invalid_wt, ribi_t::nsow[i] )  &&  (gr_neighbour->ist_wasser()  ||  gr_neighbour->hat_weg( water_wt ))  ) {
+				ribi |= ribi_t::nsow[i];
+			}
+		}
+
+		// artifical walls from here on ...
+		grund_t::calc_back_bild( height, 0 );
+	}
 }
 
 

@@ -12,8 +12,9 @@
 class wasser_t : public grund_t
 {
 protected:
-	void calc_bild_internal();
 	ribi_t::ribi ribi;
+
+	void calc_bild_internal(const bool calc_only_snowline_change);
 
 public:
 	wasser_t(loadsave_t *file, koord pos ) : grund_t(koord3d(pos,0) ), ribi(ribi_t::keine) { rdwr(file); }

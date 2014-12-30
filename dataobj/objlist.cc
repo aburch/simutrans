@@ -1391,30 +1391,29 @@ void objlist_t::display_obj_overlay(const sint16 xpos, const sint16 ypos) const
 #endif
 
 
-// start next month (good for toggling seasons)
-void objlist_t::check_season(const long month)
+void objlist_t::check_season(const bool calc_only_season_change)
 {
 	if(  0 == top  ) {
 		return;
 	}
 
-	if(  capacity<=1  ) {
+	if(  capacity <= 1  ) {
 		// lets check here for consistency
-		if(  top!=capacity  ) {
+		if(  top != capacity  ) {
 			dbg->fatal( "objlist_t::check_season()", "top not matching!" );
 		}
 		obj_t *check_obj = obj.one;
-		if(  !check_obj->check_season(month)  ) {
+		if(  !check_obj->check_season( calc_only_season_change )  ) {
 			delete check_obj;
 		}
 	}
 	else {
 		// only here delete list is needed!
-		slist_tpl<obj_t *>to_remove;
+		slist_tpl<obj_t *> to_remove;
 
-		for(  uint8 i=0;  i<top;  i++  ) {
+		for(  uint8 i = 0;  i < top;  i++  ) {
 			obj_t *check_obj = obj.some[i];
-			if(  !check_obj->check_season(month)  ) {
+			if(  !check_obj->check_season( calc_only_season_change )  ) {
 				to_remove.insert( check_obj );
 			}
 		}

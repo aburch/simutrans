@@ -87,12 +87,12 @@ const char *boden_t::get_name() const
 }
 
 
-void boden_t::calc_bild_internal()
+void boden_t::calc_bild_internal(const bool calc_only_snowline_change)
 {
-	uint8 slope_this =  get_disp_slope();
-	weg_t *weg = get_weg(road_wt);
+	const hang_t::typ slope_this = get_disp_slope();
 
 	if(  is_visible()  ) {
+		const weg_t *const weg = get_weg( road_wt );
 		if(  weg  &&  weg->hat_gehweg()  ) {
 			// single or double slope? (single slopes are not divisible by 8)
 			const uint8 bild_nr = (!slope_this  ||  (slope_this & 7)) ? grund_besch_t::slopetable[slope_this] : grund_besch_t::slopetable[slope_this >> 1] + 12;
@@ -116,5 +116,8 @@ void boden_t::calc_bild_internal()
 	else {
 		set_bild(IMG_LEER);
 	}
-	grund_t::calc_back_bild( get_disp_height(), slope_this );
+
+	if(  !calc_only_snowline_change  ) {
+		grund_t::calc_back_bild( get_disp_height(), slope_this );
+	}
 }

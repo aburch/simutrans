@@ -280,30 +280,32 @@ int checklist_t::print(char *buffer, const char *entity) const
 }
 
 
-// changes the snowline height (for the seasons)
-bool karte_t::recalc_snowline()
+void karte_t::recalc_season_snowline(bool set_pending)
 {
-	static int mfactor[12] = { 99, 95, 80, 50, 25, 10, 0, 5, 20, 35, 65, 85 };
-	static uint8 month_to_season[12] = { 2, 2, 2, 3, 3, 0, 0, 0, 0, 1, 1, 2 };
+	static const sint8 mfactor[12] = { 99, 95, 80, 50, 25, 10, 0, 5, 20, 35, 65, 85 };
+	static const uint8 month_to_season[12] = { 2, 2, 2, 3, 3, 0, 0, 0, 0, 1, 1, 2 };
 
 	// calculate snowline with day precision
 	// use linear interpolation
-	const long ticks_this_month = get_zeit_ms() & (karte_t::ticks_per_world_month-1);
-	const long faktor = mfactor[last_month] + (  ( (mfactor[(last_month+1)%12]-mfactor[last_month])*(ticks_this_month>>12) ) >> (karte_t::ticks_per_world_month_shift-12) );
+	const sint32 ticks_this_month = get_zeit_ms() & (karte_t::ticks_per_world_month - 1);
+	const sint32 faktor = mfactor[last_month] + (  ( (mfactor[(last_month + 1) % 12] - mfactor[last_month]) * (ticks_this_month >> 12) ) >> (karte_t::ticks_per_world_month_shift - 12) );
 
 	// just remember them
+	const uint8 old_season = season;
 	const sint16 old_snowline = snowline;
-	const sint16 old_season = season;
 
 	// and calculate new values
-	season=month_to_season[last_month];   //  (2+last_month/3)&3; // summer always zero
-	int const winterline = settings.get_winter_snowline();
-	int const summerline = settings.get_climate_borders()[arctic_climate] + 1;
-	snowline = summerline - (sint16)(((summerline-winterline)*faktor)/100);
-	snowline = snowline + grundwasser;
+	season = month_to_season[last_month];   //  (2+last_month/3)&3; // summer always zero
+	if(  old_season != season  && set_pending  ) {
+		pending_season_change++;
+	}
 
-	// changed => we update all tiles ...
-	return (old_snowline!=snowline  ||  old_season!=season);
+	const sint16 winterline = settings.get_winter_snowline();
+	const sint16 summerline = settings.get_climate_borders()[arctic_climate] + 1;
+	snowline = summerline - (sint16)(((summerline-winterline)*faktor)/100) + grundwasser;
+	if(  old_snowline != snowline  && set_pending  ) {
+		pending_snowline_change++;
+	}
 }
 
 
@@ -928,6 +930,7 @@ void karte_t::init_felder()
 	}
 	last_frame_idx = 0;
 	pending_season_change = 0;
+	pending_snowline_change = 0;
 
 	// init global history
 	for (int year=0; year<MAX_WORLD_HISTORY_YEARS; year++) {
@@ -1509,7 +1512,7 @@ void karte_t::init(settings_t* const sets, sint8 const* const h_field)
 		warenbauer_t::set_multiplier( 1000 );
 	}
 
-	recalc_snowline();
+	recalc_season_snowline(false);
 
 	stadt.clear();
 
@@ -4448,20 +4451,27 @@ void karte_t::step()
 	INT_CHECK("karte_t::step");
 
 	// check for pending seasons change
-	if(pending_season_change>0) {
+	const bool season_change = pending_season_change > 0;
+	const bool snowline_change = pending_snowline_change > 0;
+	if(  season_change  ||  snowline_change  ) {
 		DBG_DEBUG4("karte_t::step", "pending_season_change");
 		// process
-		const uint32 end_count = min( cached_grid_size.x*cached_grid_size.y,  tile_counter + max( 16384, cached_grid_size.x*cached_grid_size.y/16 ) );
+		const uint32 end_count = min( cached_grid_size.x * cached_grid_size.y,  tile_counter + max( 16384, cached_grid_size.x * cached_grid_size.y / 16 ) );
 		while(  tile_counter < end_count  ) {
-			plan[tile_counter].check_season(current_month);
-			tile_counter ++;
-			if((tile_counter&0x3FF)==0) {
+			plan[tile_counter].check_season_snowline( season_change, snowline_change );
+			tile_counter++;
+			if(  (tile_counter & 0x3FF) == 0  ) {
 				INT_CHECK("karte_t::step");
 			}
 		}
 
-		if(  tile_counter >= (uint32)cached_grid_size.x*(uint32)cached_grid_size.y  ) {
-			pending_season_change --;
+		if(  tile_counter >= (uint32)cached_grid_size.x * (uint32)cached_grid_size.y  ) {
+			if(  season_change ) {
+				pending_season_change--;
+			}
+			if(  snowline_change  ) {
+				pending_snowline_change--;
+			}
 			tile_counter = 0;
 		}
 	}
@@ -4521,10 +4531,7 @@ void karte_t::step()
 		check_midi();
 	}
 
-	// will also call all objects if needed ...
-	if(  recalc_snowline()  ) {
-		pending_season_change ++;
-	}
+	recalc_season_snowline(true);
 
 	// number of playing clients changed
 	if(  env_t::server  &&  last_clients!=socket_list_t::get_playing_clients()  ) {
@@ -5858,7 +5865,7 @@ DBG_MESSAGE("karte_t::laden()", "messages loaded");
 	viewport->change_world_position( koord3d(mi,mj,0) );
 
 	// right season for recalculations
-	recalc_snowline();
+	recalc_season_snowline(false);
 
 DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::get_alle_wege().get_count());
 
@@ -6380,6 +6387,7 @@ void karte_t::reset_timer()
 		// other stuff needed to synchronize
 		tile_counter = 0;
 		pending_season_change = 1;
+		pending_snowline_change = 1;
 	}
 	else {
 		// make timer loop invalid

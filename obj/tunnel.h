@@ -28,6 +28,12 @@ public:
 
 	void calc_bild();
 
+	/**
+	 * Called whenever the season or snowline height changes
+	 * return false and the obj_t will be deleted
+	 */
+	bool check_season(const bool calc_only_season_change) { if(  !calc_only_season_change  ) { calc_bild(); } return true; };  // depends on snowline only
+
 	void set_bild( image_id b );
 	void set_after_bild( image_id b );
 	image_id get_bild() const {return bild;}
@@ -43,7 +49,6 @@ public:
 
 	void entferne(spieler_t *sp);
 
-	bool check_season( const long ) { calc_bild(); return true; };
 
 	uint8 get_broad_type() const { return broad_type; };
 	/**

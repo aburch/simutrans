@@ -234,8 +234,10 @@ public:
 
 	void rdwr(loadsave_t *file, koord pos );
 
-	// will toggle the seasons ...
-	void check_season(const long month);
+	/**
+	* Updates season and/or snowline dependent graphics
+	*/
+	void check_season_snowline(const bool season_change, const bool snowline_change);
 
 #ifdef MULTI_THREAD
 	void display_obj(const sint16 xpos, const sint16 ypos, const sint16 raster_tile_width, const bool is_global, const sint8 hmin, const sint8 hmax, const sint8 clip_num) const;

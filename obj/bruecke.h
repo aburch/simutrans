@@ -42,7 +42,11 @@ public:
 
 	void calc_bild();
 
-	bool check_season( const long ) { calc_bild(); return true; }
+	/**
+	 * Called whenever the season or snowline height changes
+	 * return false and the obj_t will be deleted
+	 */
+	bool check_season(const bool calc_only_season_change) { if(  !calc_only_season_change  ) { calc_bild(); } return true; }  // depends on snowline only
 
 	void laden_abschliessen();
 

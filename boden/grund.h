@@ -191,7 +191,7 @@ protected:
 	void calc_back_bild(const sint8 hgt,const sint8 slope_this);
 
 	// this is the real image calculation, called for the actual ground image
-	virtual void calc_bild_internal() = 0;
+	virtual void calc_bild_internal(const bool calc_only_snowline_change) = 0;
 
 public:
 	enum typ { boden = 1, wasser, fundament, tunnelboden, brueckenboden, monorailboden };
@@ -226,10 +226,10 @@ public:
 	inline bool get_flag(flag_values flag) const {return (flags & flag) != 0;}
 
 	/**
-	* start a new month (and toggle the seasons)
-	* @author prissi
+	* Updates snowline dependent grund_t (and derivatives) - none are season dependent
+	* Updates season and or snowline dependent objects
 	*/
-	void check_season(const long month) { calc_bild_internal(); objlist.check_season(month); }
+	void check_season_snowline(const bool season_change, const bool snowline_change) { if(  snowline_change  ) { calc_bild_internal( snowline_change ); } objlist.check_season( season_change  &&  !snowline_change ); }
 
 	/**
 	 * Dient zur Neuberechnung des Bildes, wenn sich die Umgebung

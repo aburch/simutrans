@@ -24,32 +24,34 @@ brueckenboden_t::brueckenboden_t(koord3d pos, int grund_hang, int weg_hang) : gr
 }
 
 
-void brueckenboden_t::calc_bild_internal()
+void brueckenboden_t::calc_bild_internal(const bool calc_only_snowline_change)
 {
-	if(!is_visible()) {
-		if (ist_karten_boden()) {
-			grund_t::calc_back_bild(get_disp_height(), 0);
-		}
-		else {
-			clear_back_bild();
-		}
-		set_bild(IMG_LEER);
-	}
-	else {
-		if(ist_karten_boden()) {
-			set_bild( grund_besch_t::get_ground_tile(this) );
-			grund_t::calc_back_bild(get_pos().z,slope);
-			set_flag(draw_as_obj);
-			if(  (get_grund_hang()==hang_t::west  &&  abs(back_bild_nr)>11)  ||  (get_grund_hang()==hang_t::nord  &&  get_back_bild(0)!=IMG_LEER)  ) {
-				// must draw as obj, since there is a slop here nearby
-				koord pos = get_pos().get_2d()+koord(get_grund_hang());
-				grund_t *gr = welt->lookup_kartenboden(pos);
-				gr->set_flag(grund_t::draw_as_obj);
+	if(  !calc_only_snowline_change  ) {
+		if(  !is_visible()  ) {
+			if(  ist_karten_boden()  ) {
+				grund_t::calc_back_bild( get_disp_height(), 0 );
 			}
+			else {
+				clear_back_bild();
+			}
+			set_bild(IMG_LEER);
 		}
 		else {
-			clear_back_bild();
-			set_bild( IMG_LEER );
+			if(  ist_karten_boden()  ) {
+				set_bild( grund_besch_t::get_ground_tile(this) );
+				grund_t::calc_back_bild( get_pos().z, slope );
+				set_flag( draw_as_obj );
+				if(  (get_grund_hang() == hang_t::west  &&  abs(back_bild_nr) > 11)  ||  (get_grund_hang() == hang_t::nord  &&  get_back_bild(0) != IMG_LEER)  ) {
+					// must draw as obj, since there is a slop here nearby
+					koord pos = get_pos().get_2d() + koord( get_grund_hang() );
+					grund_t *gr = welt->lookup_kartenboden( pos );
+					gr->set_flag( grund_t::draw_as_obj );
+				}
+			}
+			else {
+				clear_back_bild();
+				set_bild(IMG_LEER);
+			}
 		}
 	}
 }

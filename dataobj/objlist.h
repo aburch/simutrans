@@ -97,6 +97,11 @@ public:
 	*/
 	void calc_bild();
 
+	/**
+	 * Called whenever the season or snowline height changes
+	 */
+	void check_season(const bool calc_only_season_change);
+
 	/** display all things, faster, but will lead to clipping errors
 	 *  @author prissi
 	 */
@@ -120,9 +125,6 @@ public:
 	uint8 display_obj_vh(const sint16 xpos, const sint16 ypos, const uint8 start_offset, const ribi_t::ribi ribi, const bool ontile ) const;
 	void display_obj_fg(const sint16 xpos, const sint16 ypos, const uint8 start_offset, const bool is_global ) const;
 #endif
-
-	// start next month (good for toggling seasons)
-	void check_season(const long month);
 } GCC_PACKED;
 
 #endif

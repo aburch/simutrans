@@ -85,18 +85,17 @@ public:
 	void set_logic( crossing_logic_t *l ) { logic = l; }
 	crossing_logic_t *get_logic() { return logic; }
 
-	/*
-	* called whenever the snowline height changes
-	* return false and the obj_t will be deleted
-	* @author prissi
-	*/
-	virtual bool check_season(const long) { calc_bild(); return true; }
-
 	/**
 	 * Dient zur Neuberechnung des Bildes
 	 * @author Hj. Malthaner
 	 */
 	void calc_bild();
+
+	/**
+	* Called whenever the season or snowline height changes
+	* return false and the obj_t will be deleted
+	*/
+	bool check_season(const bool calc_only_season_change) { if(  !calc_only_season_change  ) { calc_bild(); } return true; }  // depends on snowline only
 
 	// changes the state of a traffic light
 	image_id get_bild() const { return bild; }

@@ -344,22 +344,26 @@ void weg_t::set_images(image_type typ, uint8 ribi, bool snow, bool switch_nw)
 
 
 // much faster recalculation of season image
-bool weg_t::check_season( const long )
+bool weg_t::check_season(const bool calc_only_season_change)
 {
-	// no way to calculate this or no image set (not visible, in tunnel mouth, etc)
-	if(  besch==NULL  ||  bild==IMG_LEER  ) {
+	if(  calc_only_season_change  ) { // nothing depends on season, only snowline
 		return true;
 	}
 
-	grund_t *from = welt->lookup(get_pos());
-	if(  from->ist_bruecke()  &&  from->obj_bei(0)==this  ) {
+	// no way to calculate this or no image set (not visible, in tunnel mouth, etc)
+	if(  besch == NULL  ||  bild == IMG_LEER  ) {
+		return true;
+	}
+
+	grund_t *from = welt->lookup( get_pos() );
+	if(  from->ist_bruecke()  &&  from->obj_bei(0) == this  ) {
 		// first way on a bridge (bruecke_t will set the image)
 		return true;
 	}
 
 	// use snow image if above snowline and above ground
 	bool snow = (from->ist_karten_boden()  ||  !from->ist_tunnel())  &&  (get_pos().z >= welt->get_snowline()  ||  welt->get_climate( get_pos().get_2d() ) == arctic_climate);
-	bool old_snow = (flags&IS_SNOW)!=0;
+	bool old_snow = (flags&IS_SNOW) != 0;
 	if(  !(snow ^ old_snow)  ) {
 		// season is not changing ...
 		return true;
@@ -372,28 +376,28 @@ bool weg_t::check_season( const long )
 	}
 
 	hang_t::typ hang = from->get_weg_hang();
-	if(hang != hang_t::flach) {
-		set_images(image_slope, hang, snow);
+	if(  hang != hang_t::flach  ) {
+		set_images( image_slope, hang, snow );
 		return true;
 	}
 
 	if(  is_diagonal()  ) {
-		set_images(image_diagonal, ribi, snow);
+		set_images( image_diagonal, ribi, snow );
 	}
-	else if(  ribi_t::is_threeway(ribi)  &&  besch->has_switch_bild()  ) {
+	else if(  ribi_t::is_threeway( ribi )  &&  besch->has_switch_bild()  ) {
 		// there might be two states of the switch; remember it when changing seasons
-		if(  bild==besch->get_bild_nr_switch(ribi, old_snow, false)  ) {
-			set_images(image_switch, ribi, snow, false);
+		if(  bild == besch->get_bild_nr_switch( ribi, old_snow, false )  ) {
+			set_images( image_switch, ribi, snow, false );
 		}
-		else if(  bild==besch->get_bild_nr_switch(ribi, old_snow, true)  ) {
-			set_images(image_switch, ribi, snow, true);
+		else if(  bild == besch->get_bild_nr_switch( ribi, old_snow, true )  ) {
+			set_images( image_switch, ribi, snow, true );
 		}
 		else {
-			set_images(image_flat, ribi, snow);
+			set_images( image_flat, ribi, snow );
 		}
 	}
 	else {
-		set_images(image_flat, ribi, snow);
+		set_images( image_flat, ribi, snow );
 	}
 
 	return true;

@@ -363,7 +363,7 @@ void baum_t::rotate90()
 }
 
 
-// actually calculates onyl the season
+// actually calculates only the season
 void baum_t::calc_bild()
 {
 	// summer autumn winter spring
@@ -484,39 +484,38 @@ bool baum_t::saee_baum()
 
 
 /* we should be as fast as possible, because trees are nearly the most common object on a map */
-bool baum_t::check_season(long month)
+bool baum_t::check_season(const bool)
 {
 	// take care of birth/death and seasons
-	long alter = (month - geburt);
+	sint32 age = (welt->get_current_month() - geburt);
 
 	// attention: integer underflow (geburt is 16bit, month 32bit);
-	while (alter < 0) {
-		alter += 1 << 16;
+	while(  age < 0  ) {
+		age += 1 << 16;
 	}
 
-	if(  alter>=512  &&  alter<=515  ) {
+	if(  age >= 512  &&  age <= 515  ) {
 		// only in this month a tree can span new trees
 		// only 1-3 trees will be planted....
-		uint8 const c_plant_tree_max = 1 + simrand(welt->get_settings().get_max_no_of_trees_on_square());
+		uint8 const c_plant_tree_max = 1 + simrand( welt->get_settings().get_max_no_of_trees_on_square() );
 		uint retrys = 0;
-		for(uint8 c_temp=0;  c_temp<c_plant_tree_max  &&  retrys<c_plant_tree_max;  c_temp++ ) {
+		for(  uint8 c_temp = 0;  c_temp < c_plant_tree_max  &&  retrys < c_plant_tree_max;  c_temp++  ) {
 			if(  !saee_baum()  ) {
 				retrys++;
 				c_temp--;
 			}
 		}
 		// we make the tree four months older to avoid second spawning
-		geburt = geburt-4;
+		geburt = geburt - 4;
 	}
 
 	// tree will die after 704 month (i.e. 58 years 8 month)
-	if(alter>=704) {
+	if(  age >= 704  ) {
 		mark_image_dirty( get_bild(), 0 );
 		return false;
 	}
 
 	calc_bild();
-
 	return true;
 }
 

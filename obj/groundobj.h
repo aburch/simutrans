@@ -47,10 +47,14 @@ public:
 	/// recalculates image depending on season and slope of ground
 	void calc_bild();
 
+	/**
+	 * Called whenever the season or snowline height changes
+	 * return false and the obj_t will be deleted
+	 */
+	bool check_season(const bool);
+
 	const char *get_name() const {return "Groundobj";}
 	typ get_typ() const { return groundobj; }
-
-	bool check_season(const long delta_t);
 
 	void zeige_info();
 

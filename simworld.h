@@ -244,16 +244,16 @@ private:
 	sint16 snowline;
 
 	/**
-	 * Changes the snowline height (for the seasons).
-	 * @return true if a change is needed.
+	 * Changes the season and/or snowline height
 	 * @author prissi
 	 */
-	bool recalc_snowline();
+	void recalc_season_snowline(bool set_pending);
 
 	/**
 	 * >0 means a season change is needed
 	 */
-	int pending_season_change;
+	sint8 pending_season_change;
+	sint8 pending_snowline_change;
 
 	/**
 	 * Recalculates sleep time etc.

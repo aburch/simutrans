@@ -32,14 +32,16 @@ fundament_t::fundament_t(koord3d pos, hang_t::typ hang ) : grund_t(pos)
 }
 
 
-void fundament_t::calc_bild_internal()
+void fundament_t::calc_bild_internal(const bool calc_only_snowline_change)
 {
-	slope = 0;
-	if (is_visible()) {
-		set_bild( grund_besch_t::get_ground_tile(this) );
+	if(  !calc_only_snowline_change  ) {
+		slope = 0;
+		if(  is_visible()  ) {
+			set_bild( grund_besch_t::get_ground_tile(this) );
+		}
+		else {
+			set_bild(IMG_LEER);
+		}
+		grund_t::calc_back_bild( get_disp_height(), 0 );
 	}
-	else {
-		set_bild(IMG_LEER);
-	}
-	grund_t::calc_back_bild(get_disp_height(),0);
 }

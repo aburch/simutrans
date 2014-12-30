@@ -231,7 +231,7 @@ public:
 	 * return false and the obj_t will be deleted
 	 * @author prissi
 	 */
-	virtual bool check_season(const long /*month*/) { return true; }
+	virtual bool check_season(const bool) { return true; }
 
 	/**
 	 * called during map rotation

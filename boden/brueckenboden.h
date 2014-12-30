@@ -9,7 +9,7 @@ private:
 	uint8 weg_hang;
 
 protected:
-	void calc_bild_internal();
+	void calc_bild_internal(const bool calc_only_snowline_change);
 
 public:
 	brueckenboden_t(loadsave_t *file, koord pos ) : grund_t(koord3d(pos,0) ) { rdwr(file); }

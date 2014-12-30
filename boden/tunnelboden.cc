@@ -33,40 +33,40 @@ tunnelboden_t::tunnelboden_t(loadsave_t *file, koord pos ) : boden_t(koord3d(pos
 }
 
 
-void tunnelboden_t::calc_bild_internal()
+void tunnelboden_t::calc_bild_internal(const bool calc_only_snowline_change)
 {
 	// tunnel mouth
-	if (ist_karten_boden()) {
-		if (grund_t::underground_mode==grund_t::ugm_all || (grund_t::underground_mode==grund_t::ugm_level && pos.z==grund_t::underground_level)) {
-			if (grund_t::underground_mode==grund_t::ugm_all) {
+	if(  ist_karten_boden()  ) {
+		if(  grund_t::underground_mode == grund_t::ugm_all  ||  (grund_t::underground_mode == grund_t::ugm_level  &&  pos.z == grund_t::underground_level)  ) {
+			if(  grund_t::underground_mode == grund_t::ugm_all  ) {
 				clear_back_bild();
 			}
 			else {
-				boden_t::calc_bild_internal();
+				boden_t::calc_bild_internal( calc_only_snowline_change );
 			}
 			// default tunnel ground images
-			set_bild(skinverwaltung_t::tunnel_texture->get_bild_nr(0));
-			clear_flag(draw_as_obj);
+			set_bild( skinverwaltung_t::tunnel_texture->get_bild_nr(0) );
+			clear_flag( draw_as_obj );
 		}
 		else {
 			// calculate the ground
-			boden_t::calc_bild_internal();
-			set_flag(draw_as_obj);
+			boden_t::calc_bild_internal( calc_only_snowline_change );
+			set_flag( draw_as_obj );
 		}
 
 		if(  grund_t::underground_mode == grund_t::ugm_none  ) {
 			if(  (ribi_typ(get_grund_hang()) == ribi_t::ost  &&  abs(back_bild_nr) > 11)  ||  (ribi_typ(get_grund_hang()) == ribi_t::sued  &&  get_back_bild(0) != IMG_LEER)  ) {
 				// on east or north slope: must draw as obj, since there is a slope here nearby
-				koord pos = get_pos().get_2d() + koord(get_grund_hang());
-				grund_t *gr = welt->lookup_kartenboden(pos);
-				gr->set_flag(grund_t::draw_as_obj);
+				koord pos = get_pos().get_2d() + koord( get_grund_hang() );
+				grund_t *gr = welt->lookup_kartenboden( pos );
+				gr->set_flag( grund_t::draw_as_obj );
 			}
 		}
 	}
 	// inside tunnel
-	else {
+	else if(  !calc_only_snowline_change  ) {
 		clear_back_bild();
-		if (is_visible()) {
+		if(  is_visible()  ) {
 			// default tunnel ground images
 			// single or double slope? (single slopes are not divisible by 8)
 			const uint8 slope_this =  get_disp_slope();

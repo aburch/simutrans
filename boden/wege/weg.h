@@ -146,16 +146,21 @@ public:
 
 	virtual ~weg_t();
 
-	/* seasonal image recalculation */
-	bool check_season(const long /*month*/);
-
 #ifdef MULTI_THREAD
 	void lock_mutex();
 	void unlock_mutex();
 #endif
 
-	/* actual image recalculation */
+	/**
+	 * Actual image recalculation
+	 */
 	void calc_bild();
+
+	/**
+	 * Called whenever the season or snowline height changes
+	 * return false and the obj_t will be deleted
+	 */
+	bool check_season(const bool calc_only_season_change);
 
 	/**
 	* Setzt die erlaubte Höchstgeschwindigkeit

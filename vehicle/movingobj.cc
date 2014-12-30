@@ -176,11 +176,12 @@ movingobj_t::~movingobj_t()
 }
 
 
-bool movingobj_t::check_season(long)
+bool movingobj_t::check_season(const bool)
 {
-	image_id old_image = get_bild();
+	const image_id old_image = get_bild();
 	calc_bild();
-	if(get_bild() != old_image) {
+
+	if(  get_bild() != old_image  ) {
 		mark_image_dirty( get_bild(), 0 );
 	}
 	return true;

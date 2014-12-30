@@ -125,9 +125,6 @@ public:
 	 */
 	waytype_t get_waytype() const;
 
-	// snowline height may have been changed
-	bool check_season(const long /*month*/) { calc_bild(); return true; }
-
 	image_id get_bild() const;
 	image_id get_bild(int nr) const;
 	image_id get_after_bild() const;
@@ -138,6 +135,12 @@ public:
 
 	// caches image at height 0
 	void calc_bild();
+
+	/**
+	 * Called whenever the season or snowline height changes
+	 * return false and the obj_t will be deleted
+	 */
+	bool check_season(const bool calc_only_season_change) { if(  !calc_only_season_change  ) { calc_bild(); } return true; }  // depends on snowline only
 
 	/**
 	 * @return eigener Name oder Name der Fabrik falls Teil einer Fabrik

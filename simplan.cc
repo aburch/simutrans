@@ -304,17 +304,14 @@ void planquadrat_t::rdwr(loadsave_t *file, koord pos )
 }
 
 
-// start a new month (an change seasons)
-void planquadrat_t::check_season(const long month)
+void planquadrat_t::check_season_snowline(const bool season_change, const bool snowline_change)
 {
-	if(ground_size==0) {
+	if(  ground_size == 1  ) {
+		data.one->check_season_snowline( season_change, snowline_change );
 	}
-	else if(ground_size==1) {
-		data.one->check_season(month);
-	}
-	else {
-		for(uint8 i=0;  i<ground_size;  i++) {
-			data.some[i]->check_season(month);
+	else if(  ground_size > 1  ) {
+		for(  uint8 i = 0;  i < ground_size;  i++  ) {
+			data.some[i]->check_season_snowline( season_change, snowline_change );
 		}
 	}
 }
