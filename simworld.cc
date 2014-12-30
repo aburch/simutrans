@@ -5420,7 +5420,7 @@ void karte_t::step()
 	}
 #endif
 
-	/// check for pending seasons change
+	// check for pending seasons change
 	// This is not very computationally intensive.
 	const bool season_change = pending_season_change > 0;
 	const bool snowline_change = pending_snowline_change > 0;
