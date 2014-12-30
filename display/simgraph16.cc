@@ -249,7 +249,7 @@ public:
 
 #define MAX_POLY_CLIPS 6
 #ifdef MULTI_THREAD
-static struct {
+static MSVC_ALIGN(64) struct {
 	// current clipping rectangle
 	clip_dimension clip_rect;
 	// poly clipping variables
