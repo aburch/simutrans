@@ -392,7 +392,15 @@ public:
 	uint16 get_creation_month_year() const { return creation_month_year; }
 	uint16 get_last_renewal_monty_year() const { return last_renewal_month_year; }
 
-	uint32 get_condition() const { return condition; }
+	uint32 get_remaining_wear_capacity() const { return remaining_wear_capacity; }
+	uint32 get_condition_percent() const;
+	
+	/**
+	 * Called by a convoy or a city car when it passes over a way
+	 * to cause the way to be subject to the specified amount
+	 * of wear, denominated in Standard Axles (8t) * 10,000.
+	 */
+	void wear_way(uint32 wear); 
 
 } GCC_PACKED;
 

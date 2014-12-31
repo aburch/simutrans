@@ -322,6 +322,7 @@ grund_t* vehikel_basis_t::betrete_feld()
 		dbg->error("vehikel_basis_t::betrete_feld()","'%s failed to be added to the object list", get_name());
 	}
 	weg = gr->get_weg(get_waytype());
+	
 	return gr;
 }
 
@@ -1481,7 +1482,7 @@ grund_t* vehikel_t::hop()
 	calc_bild(); //Calculate image
 
 	grund_t *gr = betrete_feld(); //"Enter field" (Google)
-	const weg_t *weg = get_weg();
+	weg_t *weg = get_weg();
 	if(  weg  )	{
 		//const grund_t *gr_prev = welt->lookup(pos_prev);
 		//const weg_t * weg_prev = gr_prev != NULL ? gr_prev->get_weg(get_waytype()) : NULL;

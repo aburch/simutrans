@@ -72,7 +72,11 @@ public:
 	typ get_typ() const { return movingobj; }
 #endif
 
-	bool check_season(const long delta_t);
+	/**
+	 * Called whenever the season or snowline height changes
+	 * return false and the obj_t will be deleted
+	 */
+	bool check_season(const bool);
 
 	void zeige_info();
 

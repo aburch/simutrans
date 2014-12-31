@@ -26,6 +26,7 @@ public:
 
 	const char *get_name() const {return "Brueckenboden";}
 	typ get_typ() const { return brueckenboden; }
+	void calc_bild_internal(const bool calc_only_snowline_change);
 
 	void info(cbuffer_t & buf, bool dummy = false) const;
 };

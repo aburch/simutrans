@@ -85,6 +85,12 @@ public:
 	 */
 	void calc_bild();
 
+	/**
+	 * Called whenever the season or snowline height changes
+	 * return false and the obj_t will be deleted
+	 */
+	bool check_season(const bool);
+
 	void rotate90();
 
 	/**
@@ -97,8 +103,6 @@ public:
 #else
 	typ get_typ() const { return baum; }
 #endif
-
-	bool check_season(const long delta_t);
 
 	void zeige_info();
 

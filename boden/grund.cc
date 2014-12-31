@@ -705,7 +705,7 @@ void grund_t::calc_bild()
 	// will automatically recalculate ways ...
 	objlist.calc_bild();
 	// since bridges may alter images of ways, this order is needed!
-	calc_bild_internal();
+	calc_bild_internal( false );
 }
 
 
@@ -776,10 +776,10 @@ void grund_t::mark_image_dirty()
 }
 
 // artifical walls from here on ...
-void grund_t::calc_back_bild(const sint8 hgt,const sint8 slope_this)
+void grund_t::calc_back_bild(const sint8 hgt, const hang_t::typ slope_this)
 {
 	// full underground mode or not ground -> no back bild, no need for draw_as_obj
-	if(  underground_mode == ugm_all  ||  !ist_karten_boden()) {
+	if( underground_mode == ugm_all || !ist_karten_boden() ) {
 		clear_flag(grund_t::draw_as_obj);
 		this->back_bild_nr = 0;
 		return;

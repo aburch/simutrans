@@ -171,12 +171,12 @@ groundobj_t::groundobj_t(koord3d pos, const groundobj_besch_t *b ) :
 }
 
 
-bool groundobj_t::check_season(long )
+bool groundobj_t::check_season(const bool)
 {
 	const image_id old_image = get_bild();
 	calc_bild();
 
-	if(get_bild() != old_image) {
+	if( get_bild() != old_image ) {
 		mark_image_dirty( get_bild(), 0 );
 	}
 	return true;
