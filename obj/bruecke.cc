@@ -19,6 +19,10 @@
 #include "bruecke.h"
 #include "../obj/wayobj.h"
 
+#ifdef MULTI_THREAD
+#include "../utils/simthread.h"
+static pthread_mutex_t bridge_calc_bild_mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+#endif
 
 
 bruecke_t::bruecke_t(loadsave_t* const file) : 
@@ -65,6 +69,7 @@ void bruecke_t::calc_bild()
 		// if we are on the bridge, put the image into the ground, so we can have two ways ...
 		if(  weg_t *weg0 = gr->get_weg_nr(0)  ) {
 #ifdef MULTI_THREAD
+			lock_mutex();
 			weg0->lock_mutex();
 #endif
 			// if on a slope then start of bridge - take the upper value
@@ -76,21 +81,27 @@ void bruecke_t::calc_bild()
 			if(  display_image==IMG_LEER && besch->get_vordergrund( img, is_snow )==IMG_LEER  ) {
 				display_image=besch->get_hintergrund( single_img[img], is_snow );
 			}
-			weg0->set_bild( display_image );
-
-			weg0->set_yoff(-gr->get_weg_yoff() );
-
+			set_bild( display_image );
+			if(slope)
+			{
+				weg0->set_yoff(-gr->get_weg_yoff() );
+				weg0->calc_bild();
+				weg0->set_flag(obj_t::dirty);
+			}
 			weg0->set_after_bild(IMG_LEER);
-			weg0->set_flag(obj_t::dirty);
+			set_flag(obj_t::dirty);
 #ifdef MULTI_THREAD
+			unlock_mutex();
 			weg0->unlock_mutex();
 #endif
-
-			if(  weg_t *weg1 = gr->get_weg_nr(1)  ) {
+			if(weg_t *weg1 = gr->get_weg_nr(1) ) {
 #ifdef MULTI_THREAD
 				weg1->lock_mutex();
 #endif
-				weg1->set_yoff(-gr->get_weg_yoff() );
+				if(slope)
+				{
+					weg1->set_yoff(-gr->get_weg_yoff() );
+				}
 #ifdef MULTI_THREAD
 				weg1->unlock_mutex();
 #endif
@@ -309,3 +320,16 @@ const char *bruecke_t::ist_entfernbar(const spieler_t *sp, bool allow_public)
 	}
 	return obj_t::ist_entfernbar(sp);
 }
+
+#ifdef MULTI_THREAD
+void bruecke_t::lock_mutex()
+{
+	pthread_mutex_lock( &bridge_calc_bild_mutex );
+}
+
+
+void bruecke_t::unlock_mutex()
+{
+	pthread_mutex_unlock( &bridge_calc_bild_mutex );
+}
+#endif

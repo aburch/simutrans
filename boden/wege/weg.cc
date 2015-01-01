@@ -243,7 +243,8 @@ weg_t::~weg_t()
 		sint32 maint = besch->get_wartung();
 		if(is_diagonal())
 		{
-			maint /= 1.4;
+			maint *= 10;
+			maint /= 14;
 		}
 		spieler_t::add_maintenance( sp,  -maint, besch->get_finance_waytype() );
 	}
@@ -560,10 +561,6 @@ bool weg_t::check_season(const bool calc_only_season_change)
 	}
 
 	grund_t *from = welt->lookup( get_pos() );
-	if(  from->ist_bruecke()  &&  from->obj_bei(0) == this  ) {
-		// first way on a bridge (bruecke_t will set the image)
-		return true;
-	}
 
 	// use snow image if above snowline and above ground
 	bool snow = (from->ist_karten_boden()  ||  !from->ist_tunnel())  &&  (get_pos().z >= welt->get_snowline()  ||  welt->get_climate( get_pos().get_2d() ) == arctic_climate);
@@ -645,15 +642,9 @@ void weg_t::calc_bild()
 	}
 	else if(  from->ist_tunnel() &&  from->ist_karten_boden()  &&  (grund_t::underground_mode==grund_t::ugm_none || (grund_t::underground_mode==grund_t::ugm_level && from->get_hoehe()<grund_t::underground_level))  ) {
 		// in tunnel mouth, no underground mode
+		// TODO: Consider special treatment of tunnel portal images here.
 		set_bild(IMG_LEER);
 		set_after_bild(IMG_LEER);
-	}
-	else if(  from->ist_bruecke()  &&  from->obj_bei(0)==this  ) {
-		// first way on a bridge (bruecke_t will set the image)
-#ifdef MULTI_THREAD
-		pthread_mutex_unlock( &weg_calc_bild_mutex );
-#endif
-		return;
 	}
 	else {
 		// use snow image if above snowline and above ground

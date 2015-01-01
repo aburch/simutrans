@@ -1429,7 +1429,7 @@ void grund_t::display_obj_all(const sint16 xpos, const sint16 ypos, const sint16
 		return;
 	}
 
-	// ships might be larg and could be clipped by vertical walls on our tile
+	// ships might be large and could be clipped by vertical walls on our tile
 	const bool ontile_se = back_bild_nr  &&  ist_wasser();
 
 	// get slope of way as displayed

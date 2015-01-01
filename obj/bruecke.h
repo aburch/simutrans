@@ -18,6 +18,8 @@ private:
 	const bruecke_besch_t *besch;
 	bruecke_besch_t::img_t img;
 
+	image_id bild;
+
 protected:
 	void rdwr(loadsave_t *file);
 
@@ -31,6 +33,11 @@ public:
 	typ get_typ() const { return bruecke; }
 #endif
 
+#ifdef MULTI_THREAD
+	void lock_mutex();
+	void unlock_mutex();
+#endif
+
 	/**
 	 * waytype associated with this object
 	 */
@@ -38,8 +45,8 @@ public:
 
 	const bruecke_besch_t *get_besch() const { return besch; }
 
-	// we will always replace first way image
-	image_id get_bild() const { return IMG_LEER; }
+	inline void set_bild( image_id b ) { bild = b; }
+	image_id get_bild() const { return bild; }
 
 	image_id get_after_bild() const;
 
