@@ -50,7 +50,7 @@ void kanal_t::rdwr(loadsave_t *file)
 		file->rdwr_str(s);
 		if(file->get_experimental_version() >= 12)
 		{
-			s = replacement_way->get_name();
+			s = replacement_way ? replacement_way->get_name() : ""; 
 			file->rdwr_str(s);
 		}
 	}
@@ -59,6 +59,7 @@ void kanal_t::rdwr(loadsave_t *file)
 		char bname[128];
 		file->rdwr_str(bname, lengthof(bname));
 		const weg_besch_t *besch = wegbauer_t::get_besch(bname);
+
 
 #ifndef SPECIAL_RESCUE_12_3
 		char rbname[128];

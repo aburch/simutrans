@@ -299,7 +299,6 @@ void weg_t::rdwr(loadsave_t *file)
 
 	if(file->get_experimental_version() >= 12)
 	{
-		std::string replacement_way_name = replacement_way ? replacement_way->get_name() : ""; 
 		bool prow = public_right_of_way;
 		file->rdwr_bool(prow);
 		public_right_of_way = prow;
@@ -399,7 +398,6 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 	}
 	buf.append("\n");
 	
-
 	for(sint8 i = 0; i < way_constraints.get_count(); i ++)
 	{
 		if(way_constraints.get_permissive(i))

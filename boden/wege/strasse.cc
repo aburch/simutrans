@@ -77,7 +77,7 @@ void strasse_t::rdwr(loadsave_t *file)
 		file->rdwr_str(s);
 		if(file->get_experimental_version() >= 12)
 		{
-			s = replacement_way->get_name();
+			s = replacement_way ? replacement_way->get_name() : ""; 
 			file->rdwr_str(s);
 		}
 	}
