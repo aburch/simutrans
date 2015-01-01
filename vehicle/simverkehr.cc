@@ -203,7 +203,7 @@ grund_t* verkehrsteilnehmer_t::hop()
 	verlasse_feld();
 	set_pos(from->get_pos());
 	calc_bild();
-	weg->wear_way(2); // TODO: Allow a simuconf.tab setting to determine what value that this should be.
+
 	return betrete_feld();
 }
 
@@ -927,7 +927,7 @@ grund_t* stadtauto_t::hop()
 {
 	// Check whether this private car should pay a road toll.
 
-	const weg_t* way = get_weg();
+	weg_t* const way = get_weg();
 	const uint32 tiles_per_km = 1000 / welt->get_settings().get_meters_per_tile();
 	if(way && tiles_since_last_increment++ > tiles_per_km)
 	{
@@ -945,6 +945,11 @@ grund_t* stadtauto_t::hop()
 	if(to==NULL) {
 		time_to_life = 0;
 		return NULL;
+	}
+
+	if(way)
+	{
+		way->wear_way(2); // TODO: Allow a simuconf.tab setting to determine what value that this should be.
 	}
 
 	verlasse_feld();
@@ -970,7 +975,7 @@ grund_t* stadtauto_t::hop()
 	}
 	pos_next = pos_next_next;
 	pos_next_next = koord3d::invalid;
-
+	
 	return to;
 }
 
