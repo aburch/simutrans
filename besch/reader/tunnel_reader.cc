@@ -106,9 +106,6 @@ obj_besch_t * tunnel_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 					besch->topspeed_gradient_2 = decode_uint16(p);
 					besch->max_altitude = decode_sint8(p);
 					besch->max_vehicles_on_tile = decode_uint8(p);
-					besch->wear_capacity = decode_uint32(p);
-					besch->way_only_cost = decode_uint32(p);
-					besch->upgrade_group = decode_sint8(p);
 				}
 				if(experimental_version > 1)
 				{
@@ -137,9 +134,6 @@ obj_besch_t * tunnel_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 					besch->topspeed_gradient_2 = decode_uint16(p);
 					besch->max_altitude = decode_sint8(p);
 					besch->max_vehicles_on_tile = decode_uint8(p);
-					besch->wear_capacity = decode_uint32(p);
-					besch->way_only_cost = decode_uint32(p);
-					besch->upgrade_group = decode_sint8(p);
 				}
 				if(experimental_version > 1)
 				{
@@ -222,7 +216,6 @@ obj_besch_t * tunnel_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			besch->topspeed_gradient_1 = besch->topspeed_gradient_2 = besch->topspeed;
 			besch->max_altitude = 0;
 			besch->max_vehicles_on_tile = 251;
-			besch->wear_capacity = 100000000;
 		}
 
 		besch->set_way_constraints(way_constraints);
@@ -230,8 +223,8 @@ obj_besch_t * tunnel_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->base_cost = besch->cost;
 		besch->base_maintenance = besch->maintenance;
 		DBG_DEBUG("tunnel_reader_t::read_node()",
-		     "version=%d waytype=%d price=%d topspeed=%d, intro_year=%d, axle_load=%d, wear_capacity=%d, upgrade_group=%d",
-			 version, besch->wt, besch->cost, besch->topspeed, besch->intro_date/12, besch->axle_load, besch->wear_capacity, besch->upgrade_group);
+		     "version=%d waytype=%d price=%d topspeed=%d, intro_year=%d, axle_load=%d",
+			 version, besch->wt, besch->cost, besch->topspeed, besch->intro_date/12, besch->axle_load);
 	}
 
 	return besch;

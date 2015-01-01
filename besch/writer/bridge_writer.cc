@@ -93,7 +93,7 @@ void write_bridge_images(FILE* outfp, obj_node_t& node, tabfileobj_t& obj, int s
 
 void bridge_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 {
-	obj_node_t node(this, 45, &parent);
+	obj_node_t node(this, 36, &parent);
 
 	uint8  wegtyp					= get_waytype(obj.get("waytype"));
 	uint16 topspeed					= obj.get_int("topspeed", 999);
@@ -110,9 +110,6 @@ void bridge_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& o
 	uint32 max_weight				= obj.get_int("max_weight", 250);
 	sint8 max_altitude				= obj.get_int("max_altitude", 0);
 	uint8 max_vehicles_on_tile		= obj.get_int("max_vehicles_on_tile", 251);
-	uint32 wear_capacity			= obj.get_int("wear_capacity", 100000000);
-	uint32 way_only_cost			= obj.get_int("way_only_cost", preis); 
-	sint8 upgrade_group				= obj.get_int("upgrade_group", -1);
 
 	// prissi: timeline
 	uint16 intro_date = obj.get_int("intro_year", DEFAULT_INTRO_DATE) * 12;
@@ -188,15 +185,12 @@ void bridge_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& o
 	node.write_uint16(outfp, topspeed_gradient_2,		31);
 	node.write_sint8(outfp, max_altitude,				33);
 	node.write_uint8(outfp, max_vehicles_on_tile,		34);
-	node.write_uint32(outfp, wear_capacity,				35);
-	node.write_uint32(outfp, way_only_cost,				39);
-	node.write_sint8(outfp, upgrade_group,				43);
 
 	char keybuf[40];
 
 	string str = obj.get("backimage[ns][0]");
 	if (str.empty()) {
-		node.write_data_at(outfp, &number_seasons, 44, sizeof(uint8));
+		node.write_data_at(outfp, &number_seasons, 35, sizeof(uint8));
 		write_head(outfp, node, obj);
 		write_bridge_images( outfp, node, obj, -1 );
 
@@ -213,7 +207,7 @@ void bridge_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& o
 			}
 		}
 
-		node.write_data_at(outfp, &number_seasons, 44, sizeof(uint8));
+		node.write_data_at(outfp, &number_seasons, 35, sizeof(uint8));
 		write_head(outfp, node, obj);
 
 		for(uint8 season = 0 ; season <= number_seasons ; season++) {

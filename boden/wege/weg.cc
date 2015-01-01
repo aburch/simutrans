@@ -892,9 +892,9 @@ void weg_t::wear_way(uint32 wear)
 	}
 	if(remaining_wear_capacity > wear)
 	{
-		const uint32 degridcation_fraction = 7; //TODO: Have this set from simuconf.tab. This roughly equates to 14%.
+		const uint32 degridation_fraction = 7; //TODO: Have this set from simuconf.tab. This roughly equates to 14%.
 		remaining_wear_capacity -= wear;
-		if(remaining_wear_capacity < besch->get_wear_capacity() / degridcation_fraction)
+		if(remaining_wear_capacity < besch->get_wear_capacity() / degridation_fraction)
 		{
 			if(!renew())
 			{

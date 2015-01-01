@@ -39,7 +39,6 @@ private:
 	uint8 max_length;	// =0 off, else maximum length
 	uint8 max_height;	// =0 off, else maximum length
 	uint32 max_weight; //@author: jamespetts. Weight limit for convoys.
-	sint8 upgrade_group; // The groups of bridges to which this bridge can upgrade (same structure, different way on the surface).
 
 	/* number of seasons (0 = none, 1 = no snow/snow
 	*/
@@ -151,8 +150,6 @@ public:
 	 * */
 	const way_constraints_of_way_t& get_way_constraints() const { return way_constraints; }
 	void set_way_constraints(const way_constraints_of_way_t& way_constraints) { this->way_constraints = way_constraints; }
-
-	int get_upgrades_count() const { return upgrade_group; }
 
 	void calc_checksum(checksum_t *chk) const;
 };
