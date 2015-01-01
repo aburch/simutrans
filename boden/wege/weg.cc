@@ -141,6 +141,7 @@ void weg_t::set_besch(const weg_besch_t *b)
 
 	const grund_t* gr = welt->lookup_kartenboden(get_pos().get_2d());
 	const hang_t::typ hang = gr ? gr->get_weg_hang() : hang_t::flach;
+
 	if(hang != hang_t::flach) 
 	{
 		const uint slope_height = (hang & 7) ? 1 : 2;

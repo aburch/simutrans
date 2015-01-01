@@ -261,23 +261,24 @@ void bruecke_t::entferne( spieler_t *sp2 )
 	if(gr) {
 		weg_t *weg = gr->get_weg( besch->get_waytype() );
 		if(weg) {
+			const weg_besch_t* const weg_besch = weg->get_besch();
 			const hang_t::typ hang = gr ? gr->get_weg_hang() : hang_t::flach;
 			if(hang != hang_t::flach) 
-			{
-				const uint slope_height = (hang & 7) ? 1 : 2;
-				if(slope_height == 1)
 				{
-					weg->set_max_speed(besch->get_topspeed_gradient_1());
+					const uint slope_height = (hang & 7) ? 1 : 2;
+					if(slope_height == 1)
+					{
+						weg->set_max_speed(min(besch->get_topspeed_gradient_1(), weg_besch->get_topspeed_gradient_1()));
+					}
+					else
+					{
+						weg->set_max_speed(min(besch->get_topspeed_gradient_2(), weg_besch->get_topspeed_gradient_2()));
+					}
 				}
 				else
 				{
-					weg->set_max_speed(besch->get_topspeed_gradient_2());
+					weg->set_max_speed(min(besch->get_topspeed(), weg_besch->get_topspeed()));
 				}
-			}
-			else
-			{
-				weg->set_max_speed(besch->get_topspeed());
-			}
 			spieler_t::add_maintenance( sp,  weg->get_besch()->get_wartung(), weg->get_besch()->get_finance_waytype());
 			// reset offsets
 			weg->set_yoff(0);

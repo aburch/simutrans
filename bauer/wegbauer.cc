@@ -2235,16 +2235,16 @@ bool wegbauer_t::baue_tunnelboden()
 					const uint slope_height = (hang & 7) ? 1 : 2;
 					if(slope_height == 1)
 					{
-						weg->set_max_speed(tunnel_besch->get_topspeed_gradient_1());
+						weg->set_max_speed(min(besch->get_topspeed_gradient_1(), tunnel_besch->get_topspeed_gradient_1()));
 					}
 					else
 					{
-						weg->set_max_speed(tunnel_besch->get_topspeed_gradient_2());
+						weg->set_max_speed(min(besch->get_topspeed_gradient_2(), tunnel_besch->get_topspeed_gradient_2()));
 					}
 				}
 				else
 				{
-					weg->set_max_speed(tunnel_besch->get_topspeed());
+					weg->set_max_speed(min(besch->get_topspeed(), tunnel_besch->get_topspeed()));
 				}
 				weg->set_max_axle_load(tunnel_besch->get_max_axle_load());
 				weg->add_way_constraints(besch->get_way_constraints());
@@ -2314,16 +2314,16 @@ bool wegbauer_t::baue_tunnelboden()
 					const uint slope_height = (hang & 7) ? 1 : 2;
 					if(slope_height == 1)
 					{
-						weg->set_max_speed(tunnel_besch->get_topspeed_gradient_1());
+						weg->set_max_speed(min(besch->get_topspeed_gradient_1(), tunnel_besch->get_topspeed_gradient_1()));
 					}
 					else
 					{
-						weg->set_max_speed(tunnel_besch->get_topspeed_gradient_2());
+						weg->set_max_speed(min(besch->get_topspeed_gradient_2(), tunnel_besch->get_topspeed_gradient_2()));
 					}
 				}
 				else
 				{
-					weg->set_max_speed(tunnel_besch->get_topspeed());
+					weg->set_max_speed(min(besch->get_topspeed(), tunnel_besch->get_topspeed()));
 				}
 				weg->set_max_axle_load(tunnel_besch->get_max_axle_load());
 				// respect max speed of catenary
