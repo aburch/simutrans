@@ -2658,10 +2658,6 @@ const char* wkz_brueckenbau_t::get_tooltip(const spieler_t *) const
 	if(besch->get_max_length()>0) {
 		n += sprintf(toolstr+n, ", %d %s", besch->get_max_length(), translator::translate("tiles"));
 	}
-	char durability_string[16]; // Need to represent billions plus commas.
-	const double wear_capacity_fractional = (double)besch->get_wear_capacity() / 10000.0;
-	number_to_string(durability_string, wear_capacity_fractional, 4);
-	n += sprintf(toolstr+n, ", %s: %s", translator::translate("Durability"), durability_string);
 	bool any_prohibitive = false;
 	for(sint8 i = 0; i < besch->get_way_constraints().get_count(); i ++)
 	{
@@ -2950,10 +2946,6 @@ const char* wkz_tunnelbau_t::get_tooltip(const spieler_t *) const
 			besch->get_topspeed(),
 			besch->get_max_axle_load());
 	}
-	char durability_string[16]; // Need to represent billions plus commas.
-	const double wear_capacity_fractional = (double)besch->get_wear_capacity() / 10000.0;
-	number_to_string(durability_string, wear_capacity_fractional, 4);
-	n += sprintf(toolstr+n, ", %s: %s", translator::translate("Durability"), durability_string);
 	bool any_prohibitive = false;
 	for(sint8 i = 0; i < besch->get_way_constraints().get_count(); i ++)
 	{
