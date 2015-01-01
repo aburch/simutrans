@@ -930,8 +930,9 @@ bool weg_t::renew()
 
 	spieler_t* const player = get_besitzer();
 	bool success = false;
-	if(player->can_afford(replacement_way->get_preis()))
+	if((!player && welt->get_city(get_pos().get_2d())) || (player && player->can_afford(replacement_way->get_preis())))
 	{
+		// Unowned ways in cities are assumed to be owned by the city and will be renewed by it.
 		const uint16 time = welt->get_timeline_year_month();
 		bool is_current = !time || replacement_way->get_intro_year_month() <= time && time < replacement_way->get_retire_year_month();
 		if(!is_current)
@@ -947,9 +948,12 @@ bool weg_t::renew()
 		
 		set_besch(replacement_way);
 		success = true;
-		player->book_way_maintenance(replacement_way->get_preis(), replacement_way->get_waytype());
+		if(player)
+		{
+			player->book_way_maintenance(replacement_way->get_preis(), replacement_way->get_waytype());
+		}
 	}
-	else if(!player->get_has_been_warned_about_no_money_for_renewals())
+	else if(player && !player->get_has_been_warned_about_no_money_for_renewals())
 	{
 		welt->get_message()->add_message( translator::translate("Not enough money to carry out essential way renewal work.\n"), get_pos().get_2d(), message_t::warnings);
 		player->set_has_been_warned_about_no_money_for_renewals(true); // Only warn once a month.
