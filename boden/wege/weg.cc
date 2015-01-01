@@ -955,7 +955,7 @@ bool weg_t::renew()
 	}
 	else if(player && !player->get_has_been_warned_about_no_money_for_renewals())
 	{
-		welt->get_message()->add_message( translator::translate("Not enough money to carry out essential way renewal work.\n"), get_pos().get_2d(), message_t::warnings);
+		welt->get_message()->add_message(translator::translate("Not enough money to carry out essential way renewal work.\n"), get_pos().get_2d(), message_t::warnings, player->get_player_nr());
 		player->set_has_been_warned_about_no_money_for_renewals(true); // Only warn once a month.
 	}
 
