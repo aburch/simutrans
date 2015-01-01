@@ -193,7 +193,7 @@ obj_besch_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			besch->topspeed_gradient_1 = besch->topspeed_gradient_2 = besch->topspeed;
 			besch->max_altitude = 0;
 			besch->max_vehicles_on_tile = 251;
-			besch->wear_capacity = besch->get_waytype() == road_wt ? 100000000 : 10000000000;
+			besch->wear_capacity = besch->get_waytype() == road_wt ? 100000000 : 4000000000;
 		}
 	}
 
