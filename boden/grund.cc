@@ -372,6 +372,7 @@ void grund_t::rdwr(loadsave_t *file)
 							w->set_max_speed(sch->get_max_speed());
 							w->set_ribi(sch->get_ribi_unmasked());
 							weg->set_max_axle_load(sch->get_max_axle_load()); 
+							weg->set_bridge_weight_limit(sch->get_bridge_weight_limit());
 							weg->add_way_constraints(sch->get_way_constraints());
 							delete sch;
 							weg = w;
@@ -2333,7 +2334,8 @@ bool grund_t::removing_way_would_disrupt_public_right_of_way(waytype_t wt)
 				diversion_checker->set_besitzer(welt->get_spieler(1));
 				fahrer_t *driver = diversion_checker;
 				driver = public_driver_t::apply(driver);
-				const uint32 max_axle_load = way_gr->ist_bruecke() ? 1 : w->get_max_axle_load(); // TODO: Use proper axle load when axle load for bridges is introduced.
+				const uint32 max_axle_load = w->get_max_axle_load(); 
+				const uint32 bridge_weight_limit = w->get_bridge_weight_limit();
 				const uint32 bridge_weight = min(999, w->get_max_axle_load() * (w->get_waytype() == road_wt) ? 2 : 1); // This is something of a fudge, but it is reasonable to assume that most road vehicles have 2 axles.
 				if(diversionary_route.calc_route(welt, start, end, diversion_checker, w->get_max_speed(), max_axle_load, 0, welt->get_settings().get_max_diversion_tiles() * 100, bridge_weight))
 				{

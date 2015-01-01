@@ -73,7 +73,8 @@ void kanal_t::rdwr(loadsave_t *file)
 #endif
 
 		const sint32 old_max_speed = get_max_speed();
-		const sint32 old_max_axle_load = get_max_axle_load();
+		const uint32 old_max_axle_load = get_max_axle_load();
+		const uint32 old_bridge_weight_limit = get_bridge_weight_limit();
 		if(besch==NULL) {
 			besch = wegbauer_t::get_besch(translator::compatibility_name(bname));
 			if(besch==NULL) {
@@ -97,6 +98,10 @@ void kanal_t::rdwr(loadsave_t *file)
 		if(old_max_axle_load > 0)
 		{
 			set_max_axle_load(old_max_axle_load);
+		}
+		if(old_bridge_weight_limit > 0)
+		{
+			set_bridge_weight_limit(old_bridge_weight_limit);
 		}
 	}
 }

@@ -179,7 +179,7 @@ void route_t::RELEASE_NODES(uint8 nodes_index)
 /* find the route to an unknown location
  * @author prissi
  */
-bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, const uint32 max_khm, uint8 start_dir, uint32 weight, uint32 max_depth, find_route_flags flags)
+bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, const uint32 max_khm, uint8 start_dir, uint32 axle_load, uint32 total_weight, uint32 max_depth, find_route_flags flags)
 {
 	bool ok = false;
 
@@ -367,16 +367,16 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 				{
 					// Bernd Gabriel, Mar 10, 2010: way limit info
 					const uint32 way_max_axle_load = w->get_max_axle_load();
-					max_axle_load = min(max_axle_load, way_max_axle_load);
+					const uint32 bridge_weight_limit = w->get_bridge_weight_limit();
 
-					if(weight > way_max_axle_load)
+					if(axle_load > way_max_axle_load || total_weight > bridge_weight_limit)
 					{
 						if(enforce_weight_limits == 2)
 						{
 							// Avoid routing over ways for which the convoy is overweight.
 							continue;
 						}
-						else if(/*enforce_weight_limits == 3 && */ way_max_axle_load > 0 && (weight * 100) / way_max_axle_load > 110)
+						else if(enforce_weight_limits == 3 && (way_max_axle_load > 0 && (axle_load * 100) / way_max_axle_load > 110) || (bridge_weight_limit > 0 && (total_weight * 100) / bridge_weight_limit > 110))
 						{
 							// Avoid routing over ways for which the convoy is more than 10% overweight.
 							continue;
@@ -669,14 +669,14 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 							const weg_t* underlying_bridge = welt->lookup(w->get_pos())->get_weg(road_wt);
 							if(!underlying_bridge)
 							{
-								goto not_a_bridge;
+								goto check_axle_load;
 							}
-							way_max_convoy_weight = underlying_bridge->get_max_axle_load();
+							way_max_convoy_weight = underlying_bridge->get_bridge_weight_limit();
 
 						}
 						else
 						{
-							way_max_convoy_weight = w->get_max_axle_load(); 
+							way_max_convoy_weight = w->get_bridge_weight_limit();
 						}
 
 						// This ensures that only that part of the convoy that is actually on the bridge counts.
@@ -704,10 +704,15 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 								break;
 							}
 						}
+						if(to->ist_bruecke())
+						{
+							// For a real bridge, also check the axle load of the underlying way.
+							goto check_axle_load;
+						}
 					}
 					else
 					{
-						not_a_bridge:
+						check_axle_load:
 						bridge_tile_count = 0;
 						const uint32 way_max_axle_load = w->get_max_axle_load();
 						max_axle_load = min(max_axle_load, way_max_axle_load);

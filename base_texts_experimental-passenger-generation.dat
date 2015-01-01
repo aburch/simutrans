@@ -155,4 +155,7 @@ note=Warning when a player has insufficient money to carry out way renewal work.
 obj=program_text
 name=Degraded
 note=Shown in the way information window for a way that is degraded.
-
+-
+obj=program_text
+name=Max. bridge weight:
+note=Shown in the way information window for the weight limit of the bridge.

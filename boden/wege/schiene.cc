@@ -189,8 +189,9 @@ void schiene_t::rdwr(loadsave_t *file)
 		}
 #endif
 
-		int old_max_speed=get_max_speed();
-		int old_max_axle_load = get_max_axle_load();
+		sint32 old_max_speed=get_max_speed();
+		uint32 old_max_axle_load = get_max_axle_load();
+		uint32 old_bridge_weight_limit = get_bridge_weight_limit();
 		const weg_besch_t *besch = wegbauer_t::get_besch(bname);
 		if(besch==NULL) {
 			int old_max_speed=get_max_speed();
@@ -216,6 +217,10 @@ void schiene_t::rdwr(loadsave_t *file)
 		if(old_max_axle_load > 0)
 		{
 			set_max_axle_load(old_max_axle_load);
+		}
+		if(old_bridge_weight_limit > 0)
+		{
+			set_bridge_weight_limit(old_bridge_weight_limit);
 		}
 		//DBG_MESSAGE("schiene_t::rdwr","track %s at (%i,%i) max_speed %i",bname,get_pos().x,get_pos().y,old_max_speed);
 	}

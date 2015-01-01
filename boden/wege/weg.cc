@@ -129,17 +129,6 @@ const char *weg_t::waytype_to_string(waytype_t wt)
 
 
 /**
- * Setzt die erlaubte Höchstgeschwindigkeit
- * @author Hj. Malthaner
- */
-
-void weg_t::set_max_axle_load(uint32 w)
-{
-	max_axle_load = w;
-}
-
-
-/**
  * Setzt neue Beschreibung. Ersetzt alte Höchstgeschwindigkeit
  * mit wert aus Beschreibung.
  *
@@ -220,7 +209,8 @@ void weg_t::init()
 {
 	ribi = ribi_maske = ribi_t::keine;
 	max_speed = 450;
-	max_axle_load = 999;
+	max_axle_load = 1000;
+	bridge_weight_limit = UINT32_MAX_VALUE;
 	besch = 0;
 	init_statistics();
 	alle_wege.insert(this);
@@ -350,7 +340,7 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 	buf.append(" ");
 	buf.append(max_speed);
 	buf.append(translator::translate("km/h\n"));
-	if(is_bridge || besch->get_styp() == weg_t::type_elevated || waytype == air_wt || waytype == water_wt)
+	if(besch->get_styp() == weg_t::type_elevated || waytype == air_wt || waytype == water_wt)
 	{
 		buf.append(translator::translate("\nMax. weight:"));
 	}
@@ -362,7 +352,15 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 	buf.append(max_axle_load);
 	buf.append(translator::translate("tonnen"));
 	buf.append("\n");
-	
+	if(is_bridge && bridge_weight_limit < UINT32_MAX_VALUE)
+	{
+		buf.append(translator::translate("Max. bridge weight:"));
+		buf.append(" ");
+		buf.append(bridge_weight_limit);
+		buf.append(translator::translate("tonnen"));
+		buf.append("\n");
+	}
+
 	buf.append("\n");
 	buf.append(translator::translate("Condition"));
 	buf.append(": ");

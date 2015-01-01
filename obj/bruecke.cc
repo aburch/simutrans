@@ -173,7 +173,7 @@ void bruecke_t::rdwr(loadsave_t *file)
 }
 
 
-// correct speed and maintenance
+// correct speed, maintenance and weight limits
 void bruecke_t::laden_abschliessen()
 {
 	grund_t *gr = welt->lookup(get_pos());
@@ -191,6 +191,7 @@ void bruecke_t::laden_abschliessen()
 	// change maintenance
 	if(besch->get_waytype()!=powerline_wt) {
 		weg_t *weg = gr->get_weg(besch->get_waytype());
+		const weg_besch_t* weg_besch = weg->get_besch();
 		if(weg==NULL) {
 			dbg->error("bruecke_t::laden_abschliessen()","Bridge without way at(%s)!", gr->get_pos().get_str() );
 			weg = weg_t::alloc( besch->get_waytype() );
@@ -202,20 +203,22 @@ void bruecke_t::laden_abschliessen()
 			const uint slope_height = (hang & 7) ? 1 : 2;
 			if(slope_height == 1)
 			{
-				weg->set_max_speed(besch->get_topspeed_gradient_1());
+				weg->set_max_speed(min(besch->get_topspeed_gradient_1(), weg_besch->get_topspeed_gradient_1()));
 			}
 			else
 			{
-				weg->set_max_speed(besch->get_topspeed_gradient_2());
+				weg->set_max_speed(min(besch->get_topspeed_gradient_2(), weg_besch->get_topspeed_gradient_2()));
 			}
 		}
 		else
 		{
-			weg->set_max_speed(besch->get_topspeed());
+			weg->set_max_speed(min(besch->get_topspeed(), weg_besch->get_topspeed()));
 		}
+		weg->set_bridge_weight_limit(besch->get_max_weight());
+		
 		const weg_t* old_way = gr ? gr->get_weg(besch->get_wtyp()) : NULL;
 		const wayobj_t* way_object = old_way ? way_object = gr->get_wayobj(besch->get_waytype()) : NULL;
-		// Necessary to avoid the "default" way (which might have constraints) setting the constraints here.
+		// Necessary to avoid the "default" way (which might have constraints) setting the constraints here. TODO: Is this still needed? Check this.
 		weg->clear_way_constraints();
 		weg->add_way_constraints(besch->get_way_constraints());
 		if(old_way)
