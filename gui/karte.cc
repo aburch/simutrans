@@ -67,7 +67,9 @@ static const uint8 map_type_color[MAX_MAP_TYPE_WATER+MAX_MAP_TYPE_LAND] =
 
 const uint8 reliefkarte_t::severity_color[MAX_SEVERITY_COLORS] =
 {
-	106, 2, 85, 86, 29, 30, 171, 71, 39, 132
+	//106, 2, 85, 86, 29, 30, 171, 71, 39, 132 // Original rainbow
+	//COL_DARK_PURPLE, 2, 85, 86, 171, 30, 29, 71, 39, 132 // Improved rainbow
+	COL_DARK_GREEN, COL_GREEN, COL_LIGHT_GREEN, COL_LIGHT_YELLOW, COL_YELLOW, 30, COL_LIGHT_ORANGE, COL_ORANGE, COL_DARK_ORANGE, COL_RED // Green/yellow/orange/red
 };
 
 // Way colours for the map
@@ -805,9 +807,28 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 					if(  passed > max_passed  ) {
 						max_passed = passed;
 					}
-					set_relief_farbe_area(k, 1, calc_severity_color_log( passed, max_passed ) );
+					set_relief_farbe(k, calc_severity_color_log( passed, max_passed ) );
 				}
 			}
+			break;
+			
+		// Show condition
+		case MAP_CONDITION:
+			
+			uint32 condition_percent;
+			if(gr->hat_wege())
+			{
+				// maximum two ways for one ground
+				const weg_t *way = gr->get_weg_nr(0);
+				condition_percent = way->get_condition_percent();
+				if(const weg_t *second_way = gr->get_weg_nr(1))
+				{
+					condition_percent = min(condition_percent, second_way->get_condition_percent());
+				}
+				const sint32 condition_percent_reciprocal = 100 - condition_percent;
+				set_relief_farbe(k, calc_severity_color(condition_percent_reciprocal, 100));
+			}
+			
 			break;
 
 		// show tracks: white: no electricity, red: electricity, yellow: signal
@@ -834,6 +855,28 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 				sint32 speed=gr->get_max_speed();
 				if(speed) {
 					set_relief_farbe(k, calc_severity_color(gr->get_max_speed(), 450));
+				}
+			}
+			break;
+
+		// Show weight limit (if present)
+		case MAP_WEIGHTLIMIT:
+			{
+				if(gr->hat_wege())
+				{
+					const weg_t* way =  gr->get_weg_nr(0);
+					if(way->get_waytype() == powerline_wt || !way->get_max_axle_load())
+					{
+						break;
+					}
+					if(gr->ist_bruecke())
+					{
+						set_relief_farbe(k, calc_severity_color(way->get_max_axle_load(), 350));
+					}
+					else
+					{
+						set_relief_farbe(k, calc_severity_color(way->get_max_axle_load(), 30));
+					}
 				}
 			}
 			break;

@@ -153,7 +153,7 @@ grund_t* verkehrsteilnehmer_t::hop()
 	int count = 0;
 
 	// 1) find the allowed directions
-	const weg_t *weg = from->get_weg(road_wt);
+	weg_t *weg = from->get_weg(road_wt);
 	if(weg==NULL) {
 		// no gound here any more?
 		pos_next = get_pos();
@@ -164,7 +164,7 @@ grund_t* verkehrsteilnehmer_t::hop()
 		}
 		return NULL;
 	}
-
+	
 	grund_t *to;
 	// add all good ribis here
 	ribi_t::ribi gegenrichtung = ribi_t::rueckwaerts( get_fahrtrichtung() );
@@ -200,10 +200,10 @@ grund_t* verkehrsteilnehmer_t::hop()
 		dy = -dy;
 		pos_next = get_pos();
 	}
-
 	verlasse_feld();
 	set_pos(from->get_pos());
 	calc_bild();
+	weg->wear_way(2); // TODO: Allow a simuconf.tab setting to determine what value that this should be.
 	return betrete_feld();
 }
 

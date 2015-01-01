@@ -81,6 +81,9 @@ protected:
 	sint32 topspeed_gradient_2; ///< maximum allowed speed in km/h for a single/double height gradient
 	sint8 max_altitude;			///< Maximum height in tiles above sea level at which this way may be built
 	uint8 max_vehicles_on_tile;	///< Maximum number of vehicles permitted on the tile at once. Only used for waterways. Default: 251
+	uint32 wear_capacity;		///< The total number of standard axle passes (*10,000 for precision) that this way can take
+	uint32 base_way_only_cost;	///< The cost of upgrading/renewing only the way on the bridge (without scale factor).
+	uint32 way_only_cost;		///< The cost of upgrading/renewing only the way on the bridge.
 
 public:
 	obj_besch_transport_related_t() : obj_besch_timelined_t(),
@@ -88,12 +91,15 @@ public:
 		maintenance(0), cost(0), wt(255), topspeed(0), topspeed_gradient_1(0), topspeed_gradient_2(0) {}
 
 	inline sint32 get_base_maintenance() const { return base_maintenance; }
-	sint32 get_maintenance() const { return maintenance; }
-	sint32 get_wartung() const { return maintenance; }
+	inline sint32 get_maintenance() const { return maintenance; }
+	inline sint32 get_wartung() const { return maintenance; }
 
 	inline sint32 get_base_cost() const { return base_cost; }
 	inline sint32 get_base_price() const { return base_cost; }
-	sint32 get_preis() const { return cost; }
+	inline sint32 get_preis() const { return cost; }
+
+	inline uint32 get_base_way_only_cost() const { return base_way_only_cost; }
+	inline uint32 get_way_only_cost() const { return way_only_cost; }
 
 	waytype_t get_waytype() const { return static_cast<waytype_t>(wt); }
 	waytype_t get_wtyp() const { return get_waytype(); }
@@ -105,7 +111,9 @@ public:
 	sint8 get_max_altitude() const { return max_altitude; }
 	uint8 get_max_vehicles_on_tile() const { return max_vehicles_on_tile; }
 
-	uint16 get_axle_load() const { return axle_load; }
+	inline uint16 get_axle_load() const { return axle_load; }
+
+	inline uint32 get_wear_capacity() const { return wear_capacity; }
 
 	void set_scale(uint16 scale_factor)
 	{
@@ -113,6 +121,8 @@ public:
 		if (base_cost && !cost) cost = 1;
 		maintenance = set_scale_generic<sint32>(base_maintenance, scale_factor);
 		if (base_maintenance && !maintenance) maintenance = 1;
+		way_only_cost = set_scale_generic<sint32>(base_way_only_cost, scale_factor);
+		if (base_way_only_cost && !way_only_cost) way_only_cost = 1;
 	}
 
 	void calc_checksum(checksum_t *chk) const;

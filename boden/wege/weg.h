@@ -153,7 +153,10 @@ private:
 	* and access settings. Permits upgrades but not downgrades, and prohibits private road signs.
 	* @author: jamespetts
 	*/
-	bool public_right_of_way; 
+	bool public_right_of_way:1; 
+		
+	// Whether the way is in a degraded state.
+	bool degraded:1;
 
 	/* These are statistics showing when this way was last built and when it was last renewed.
 	 * @author: jamespetts
@@ -164,7 +167,9 @@ private:
 	/* This figure gives the condition of the way: UINT32_MAX = new; 0 = unusable. 
 	 * @author: jamespetts
 	 */
-	uint32 condition;
+	uint32 remaining_wear_capacity;
+
+
 
 protected:
 
@@ -176,22 +181,39 @@ protected:
 	 */
 	void set_images(image_type typ, uint8 ribi, bool snow, bool switch_nw=false);
 
+	
+	/* This is the way with which this way will be replaced when it comes time for renewal.
+	 * NULL = do not replace.
+	 * @author: jamespetts
+	 */
+	const weg_besch_t *replacement_way;
+
+	/* 
+	 * Degrade the way owing to excessive wear without renewal.
+	 */
+	void degrade();
+
 public:
 	inline weg_t(waytype_t waytype, loadsave_t*) : obj_no_info_t(obj_t::way), waytype(waytype) { init(); }
 	inline weg_t(waytype_t waytype) : obj_no_info_t(obj_t::way), waytype(waytype) { init(); }
 
 	virtual ~weg_t();
 
-	/* seasonal image recalculation */
-	bool check_season(const long /*month*/);
-
 #ifdef MULTI_THREAD
 	void lock_mutex();
 	void unlock_mutex();
 #endif
 
-	/* actual image recalculation */
+	/**
+	 * Actual image recalculation
+	 */
 	void calc_bild();
+
+	/**
+	 * Called whenever the season or snowline height changes
+	 * return false and the obj_t will be deleted
+	 */
+	bool check_season(const bool calc_only_season_change);
 
 	/**
 	* Setzt die erlaubte Höchstgeschwindigkeit
@@ -389,6 +411,8 @@ public:
 	bool is_public_right_of_way() const { return public_right_of_way; }
 	void set_public_right_of_way(bool arg=true) { public_right_of_way = arg; }
 
+	bool is_degraded() const { return degraded; }
+
 	uint16 get_creation_month_year() const { return creation_month_year; }
 	uint16 get_last_renewal_monty_year() const { return last_renewal_month_year; }
 
@@ -401,6 +425,13 @@ public:
 	 * of wear, denominated in Standard Axles (8t) * 10,000.
 	 */
 	void wear_way(uint32 wear); 
+
+	void set_replacement_way(const weg_besch_t* replacement) { replacement_way = replacement; }
+
+	/**
+	 * Renew the way automatically when it is worn out.
+	 */
+	bool renew();
 
 } GCC_PACKED;
 

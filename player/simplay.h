@@ -123,6 +123,12 @@ protected:
 	 */
 	bool access[MAX_PLAYER_COUNT];
 
+	
+	/* This flag is set if the player has already been
+	 * warned this month that there is insufficient money
+	 * for automatic way renewals*/
+	bool has_been_warned_about_no_money_for_renewals;
+
 public:
 	/**
 	 * Sums up "count" with number of convois in statistics,
@@ -176,6 +182,15 @@ public:
 	 * @author neroden
 	 */
 	void book_vehicle_maintenance(const sint64 amount, const waytype_t wt=ignore_wt);
+
+	/**
+	 * Adds way maintenance to accounting statistics. 
+	 * NOTE: This is used only for way renewals as general maintenance is handled differently.
+	 * @param amount (should be negative, will be adjusted for bits_per_month)
+	 * @param wt type of transport for accounting
+	 * @author jamespetts
+	 */
+	void book_way_maintenance(const sint64 amount, const waytype_t wt=ignore_wt);
 
 	/**
 	 * Books toll paid by our company to someone else.
@@ -244,6 +259,9 @@ public:
 	void unlock(bool unlock_, bool unlock_pending_=false) { locked = !unlock_; unlock_pending = unlock_pending_; }
 
 	void check_unlock( const pwd_hash_t& hash ) { locked = (pwd_hash != hash); }
+
+	bool get_has_been_warned_about_no_money_for_renewals() const { return has_been_warned_about_no_money_for_renewals; }
+	void set_has_been_warned_about_no_money_for_renewals(bool value) { has_been_warned_about_no_money_for_renewals = value; }
 
 	// some routine needs this for direct manipulation
 	pwd_hash_t& access_password_hash() { return pwd_hash; }

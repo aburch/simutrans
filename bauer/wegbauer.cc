@@ -566,10 +566,11 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 		return false;
 	}
 
+	// Mothballed way types can only be built over existing ways of the same type.
 	const bool is_mothballed_waytype = besch->get_base_price() == 0 && besch->get_topspeed() == 0 && besch->get_base_maintenance() == 0;
-	if(is_mothballed_waytype && (!from->get_weg(besch->get_wtyp()) || !to->get_weg(besch->get_wtyp())))
+
+	if((mark_way_for_upgrade_only ||is_mothballed_waytype) && (!from->get_weg(besch->get_wtyp()) || !to->get_weg(besch->get_wtyp())))
 	{
-		// Mothballed way types can only be built over existing ways of the same type.
 		return false;
 	}
 
@@ -2375,105 +2376,114 @@ void wegbauer_t::baue_strasse()
 		grund_t* gr = welt->lookup(route[i]);
 		sint64 cost = 0;
 
-		bool extend = gr->weg_erweitern(road_wt, route.get_short_ribi(i));
-
-		// bridges/tunnels have their own track type and must not upgrade
-		if(gr->get_typ()==grund_t::brueckenboden  ||  gr->get_typ()==grund_t::tunnelboden) {
-			continue;
+		if(mark_way_for_upgrade_only)
+		{
+			// Only mark the way for upgrading when it needs renewing: do not build anything now.
+			weg_t* const way = gr->get_weg(besch->get_wtyp());
+			way->set_replacement_way(besch); 
 		}
+		else
+		{
+			bool extend = gr->weg_erweitern(road_wt, route.get_short_ribi(i));
 
-		if(extend) {
-			weg_t * weg = gr->get_weg(road_wt);
-
-			// keep faster ways or if it is the same way ... (@author prissi)
-			if(  weg->get_besch()==besch  ||  keep_existing_ways
-				||  (  keep_existing_city_roads  &&  weg->hat_gehweg()  )
-				||  (  ( keep_existing_faster_ways || (!sp->is_public_service() && weg->is_public_right_of_way())) &&  ! ( besch->is_at_least_as_good_as(weg->get_besch()) )  )
-				||  (  sp!=NULL  &&  weg->ist_entfernbar(sp)!=NULL  )
-				||  (  gr->get_typ()==grund_t::monorailboden && (bautyp&elevated_flag)==0  )
-				) {
-				//nothing to be done
-//DBG_MESSAGE("wegbauer_t::baue_strasse()","nothing to do at (%i,%i)",k.x,k.y);
+			// bridges/tunnels have their own track type and must not upgrade
+			// TODO: Make bridges/tunnels different from the underlying ways.
+			if(gr->get_typ()==grund_t::brueckenboden  ||  gr->get_typ()==grund_t::tunnelboden) {
+				continue;
 			}
-			else
-			{
-				// Remove *old* maintenance - must get besch from weg not the built in "besch",
-				// which is the way being built.
-				sint32 old_maint = weg->get_besch()->get_wartung();
-				weg->check_diagonal();
-				if(weg->is_diagonal())
+
+			if(extend) {
+				weg_t * weg = gr->get_weg(road_wt);
+
+				// keep faster ways or if it is the same way ... (@author prissi)
+				if(  weg->get_besch()==besch  ||  keep_existing_ways
+					||  (  keep_existing_city_roads  &&  weg->hat_gehweg()  )
+					||  (  ( keep_existing_faster_ways || (!sp->is_public_service() && weg->is_public_right_of_way())) &&  ! ( besch->is_at_least_as_good_as(weg->get_besch()) )  )
+					||  (  sp!=NULL  &&  weg->ist_entfernbar(sp)!=NULL  )
+					||  (  gr->get_typ()==grund_t::monorailboden && (bautyp&elevated_flag)==0  )
+					) {
+					//nothing to be done
+	//DBG_MESSAGE("wegbauer_t::baue_strasse()","nothing to do at (%i,%i)",k.x,k.y);
+				}
+				else
 				{
-					old_maint *= 10;
-					old_maint /= 14;
-				}
-				spieler_t::add_maintenance(sp, -old_maint, besch->get_finance_waytype());
+					// Remove *old* maintenance - must get besch from weg not the built in "besch",
+					// which is the way being built.
+					sint32 old_maint = weg->get_besch()->get_wartung();
+					weg->check_diagonal();
+					if(weg->is_diagonal())
+					{
+						old_maint *= 10;
+						old_maint /= 14;
+					}
+					spieler_t::add_maintenance(sp, -old_maint, besch->get_finance_waytype());
 
-				// The below does not correctly account for the cost of diagonal ways.
-				// spieler_t::add_maintenance(s, -weg->get_besch()->get_wartung());
+					// The below does not correctly account for the cost of diagonal ways.
+					// spieler_t::add_maintenance(s, -weg->get_besch()->get_wartung());
 
-				// Cost of downgrading is the cost of the inferior way (was previously the higher of the two costs in 10.15 and earlier, from Standard).
-				cost = besch->get_preis();
+					// Cost of downgrading is the cost of the inferior way (was previously the higher of the two costs in 10.15 and earlier, from Standard).
+					cost = besch->get_preis();
 
-				weg->set_besch(besch);
-				// respect max speed of catenary
-				wayobj_t const* const wo = gr->get_wayobj(besch->get_wtyp());
-				if (wo  &&  wo->get_besch()->get_topspeed() < weg->get_max_speed()) {
-					weg->set_max_speed( wo->get_besch()->get_topspeed() );
-				}
+					weg->set_besch(besch);
+					// respect max speed of catenary
+					wayobj_t const* const wo = gr->get_wayobj(besch->get_wtyp());
+					if (wo  &&  wo->get_besch()->get_topspeed() < weg->get_max_speed()) {
+						weg->set_max_speed( wo->get_besch()->get_topspeed() );
+					}
 
-				// For now, have the city fix adoption/sidewalk issues during road upgrade.
-				// These issues arise from city expansion and contraction, so reconsider this
-				// after city limits work better.
-				bool city_adopts_this = weg->should_city_adopt_this(sp);
-				if(build_sidewalk || weg->hat_gehweg() || city_adopts_this) {
-					strasse_t *str = static_cast<strasse_t *>(weg);
-					str->set_gehweg(true);
-					weg->set_public_right_of_way();
-				}
+					// For now, have the city fix adoption/sidewalk issues during road upgrade.
+					// These issues arise from city expansion and contraction, so reconsider this
+					// after city limits work better.
+					bool city_adopts_this = weg->should_city_adopt_this(sp);
+					if(build_sidewalk || weg->hat_gehweg() || city_adopts_this) {
+						strasse_t *str = static_cast<strasse_t *>(weg);
+						str->set_gehweg(true);
+						weg->set_public_right_of_way();
+					}
 
-				if (city_adopts_this) {
-					weg->set_besitzer(NULL);
-				} else {
-					weg->set_besitzer(sp);
-					// Set maintenance costs here
-					// including corrections for diagonals.
-					weg->laden_abschliessen();
+					if (city_adopts_this) {
+						weg->set_besitzer(NULL);
+					} else {
+						weg->set_besitzer(sp);
+						// Set maintenance costs here
+						// including corrections for diagonals.
+						weg->laden_abschliessen();
+					}
 				}
 			}
-		}
-		else {
-			// make new way
-			const obj_t* obj = gr->obj_bei(0);
-			strasse_t * str = new strasse_t();
+			else {
+				// make new way
+				const obj_t* obj = gr->obj_bei(0);
+				strasse_t * str = new strasse_t();
 
-			str->set_besch(besch);
-			if (build_sidewalk) {
-				str->set_gehweg(build_sidewalk);
-				str->set_public_right_of_way();
-			}
-			cost = gr->neuen_weg_bauen(str, route.get_short_ribi(i), sp, &route) + besch->get_preis();
+				str->set_besch(besch);
+				if (build_sidewalk) {
+					str->set_gehweg(build_sidewalk);
+					str->set_public_right_of_way();
+				}
+				cost = gr->neuen_weg_bauen(str, route.get_short_ribi(i), sp, &route) + besch->get_preis();
 
-			// prissi: into UNDO-list, so we can remove it later
-			if(sp!=NULL) 
-			{
-				// intercity roads have no owner, so we must check for an owner
-				sp->add_undo( route[i] );
-			}
+				// prissi: into UNDO-list, so we can remove it later
+				if(sp!=NULL) 
+				{
+					// intercity roads have no owner, so we must check for an owner
+					sp->add_undo( route[i] );
+				}
 			
-			if(sp == NULL || sp->is_public_service())
-			{
-				// If there is no owner here, this is an inter-city road built by the game on initiation;
-				// therefore, set it as a public right of way.
-				// Similarly, if this is owned by the public player, set it as a public right of way.
-				str->set_public_right_of_way();
+				if(sp == NULL || sp->is_public_service())
+				{
+					// If there is no owner here, this is an inter-city road built by the game on initiation;
+					// therefore, set it as a public right of way.
+					// Similarly, if this is owned by the public player, set it as a public right of way.
+					str->set_public_right_of_way();
+				}
 			}
-		}
-		gr->calc_bild();	// because it may be a crossing ...
-		reliefkarte_t::get_karte()->calc_map_pixel(k);
-		spieler_t::book_construction_costs(sp, cost, k, road_wt);
+			gr->calc_bild();	// because it may be a crossing ...
+			reliefkarte_t::get_karte()->calc_map_pixel(k);
+			spieler_t::book_construction_costs(sp, cost, k, road_wt);
+		} 
+		welt->set_recheck_road_connexions();
 	} // for
-	welt->set_recheck_road_connexions();
-
 }
 
 
@@ -2494,102 +2504,113 @@ void wegbauer_t::baue_schiene()
 				continue;
 			}
 
-			bool const extend = gr->weg_erweitern(besch->get_wtyp(), ribi);
-
-			// bridges/tunnels have their own track type and must not upgrade
-			if((gr->get_typ()==grund_t::brueckenboden ||  gr->get_typ()==grund_t::tunnelboden)  &&  gr->get_weg_nr(0)->get_waytype()==besch->get_wtyp()) {
-				continue;
-			}
-
-			if(extend) {
-				weg_t* const weg = gr->get_weg(besch->get_wtyp());
-				bool change_besch = true;
-
-				// do not touch fences, tram way etc. if there is already same way with different type
-				// keep faster ways or if it is the same way ... (@author prissi)
-				if (weg->get_besch() == besch																	||
-						(besch->get_styp() == 0 && weg->get_besch()->get_styp() == 7 && gr->has_two_ways())     ||
-						keep_existing_ways                                                                      ||
-						(sp != NULL && weg->ist_entfernbar(sp) != NULL)											||
-						(keep_existing_faster_ways && !(besch->is_at_least_as_good_as(weg->get_besch())) )		||
-						(gr->get_typ() == grund_t::monorailboden && !(bautyp & elevated_flag)  &&  gr->get_weg_nr(0)->get_waytype()==besch->get_wtyp()))
-				{
-					//nothing to be done
-					change_besch = false;
-				}
-
-				// build tram track over crossing -> remove crossing
-				if(  gr->has_two_ways()  &&  besch->get_styp()==7  &&  weg->get_besch()->get_styp() != 7  ) {
-					if(  crossing_t *cr = gr->find<crossing_t>(2)  ) {
-						// change to tram track
-						cr->mark_image_dirty( cr->get_bild(), 0);
-						cr->entferne(sp);
-						delete cr;
-						change_besch = true;
-						// tell way we have no crossing any more, restore speed limit
-						gr->get_weg_nr(0)->clear_crossing();
-						gr->get_weg_nr(0)->set_besch( gr->get_weg_nr(0)->get_besch() );
-						gr->get_weg_nr(1)->clear_crossing();
-					}
-				}
-
-				if(  change_besch  ) {
-					// we take ownership => we take care to maintain the roads completely ...
-					spieler_t *s = weg->get_besitzer();
-					spieler_t::add_maintenance( s, -weg->get_besch()->get_wartung(), weg->get_besch()->get_finance_waytype());
-					// cost is the more expensive one, so downgrading is between removing and new buidling
-					cost -= max( weg->get_besch()->get_preis(), besch->get_preis() );
-					weg->set_besch(besch);
-					if(besch->get_base_cost() == 0 && besch->get_base_maintenance() == 0 && besch->get_topspeed() == 0)
-					{
-						// Free to downgrade to mothballed ways
-						cost = 0;
-					}
-					// respect max speed of catenary
-					wayobj_t const* const wo = gr->get_wayobj(besch->get_wtyp());
-					if (wo  &&  wo->get_besch()->get_topspeed() < weg->get_max_speed()) {
-						weg->set_max_speed( wo->get_besch()->get_topspeed() );
-					}
-					const wayobj_t* wayobj = gr->get_wayobj(weg->get_waytype());
-					if(wayobj != NULL)
-					{
-						weg->add_way_constraints(wayobj->get_besch()->get_way_constraints());
-					}					
-					spieler_t::add_maintenance( sp, weg->get_besch()->get_wartung(), weg->get_besch()->get_finance_waytype());
-					weg->set_besitzer(sp);
-				}
-			}
-			else 
+			if(mark_way_for_upgrade_only)
 			{
-				const obj_t* obj = gr->obj_bei(0);
-				
-				weg_t* const sch = weg_t::alloc(besch->get_wtyp());
-				sch->set_pos(gr->get_pos());
-				sch->set_besch(besch);
-				const wayobj_t* wayobj = gr->get_wayobj(sch->get_waytype());
-				if(wayobj != NULL)
-				{
-					sch->add_way_constraints(wayobj->get_besch()->get_way_constraints());
-				}
-				cost = gr->neuen_weg_bauen(sch, ribi, sp, &route) - besch->get_preis();
+				// Only mark the way for upgrading when it needs renewing: do not build anything now.
+				weg_t* const way = gr->get_weg(besch->get_wtyp());
+				way->set_replacement_way(besch); 
+			}
+			else
+			{
+				bool const extend = gr->weg_erweitern(besch->get_wtyp(), ribi);
 
-				// connect canals to sea
-				if(  besch->get_wtyp() == water_wt  ) {
-					for(  int j = 0;  j < 4;  j++  ) {
-						grund_t *sea = welt->lookup_kartenboden( route[i].get_2d() + koord::nsow[j] );
-						if(  sea  &&  sea->ist_wasser()  ) {
-							gr->weg_erweitern( water_wt, ribi_t::nsow[j] );
-							sea->calc_bild();
+				// bridges/tunnels have their own track type and must not upgrade
+				// TODO: Make these separate from the underlying bridge/tunnel
+				if((gr->get_typ()==grund_t::brueckenboden ||  gr->get_typ()==grund_t::tunnelboden)  &&  gr->get_weg_nr(0)->get_waytype()==besch->get_wtyp()) {
+					continue;
+				}
+
+				if(extend) {
+					weg_t* const weg = gr->get_weg(besch->get_wtyp());
+					bool change_besch = true;
+
+					// do not touch fences, tram way etc. if there is already same way with different type
+					// keep faster ways or if it is the same way ... (@author prissi)
+					if (weg->get_besch() == besch																	||
+							(besch->get_styp() == 0 && weg->get_besch()->get_styp() == 7 && gr->has_two_ways())     ||
+							keep_existing_ways                                                                      ||
+							(sp != NULL && weg->ist_entfernbar(sp) != NULL)											||
+							(keep_existing_faster_ways && !(besch->is_at_least_as_good_as(weg->get_besch())) )		||
+							(gr->get_typ() == grund_t::monorailboden && !(bautyp & elevated_flag)  &&  gr->get_weg_nr(0)->get_waytype()==besch->get_wtyp()))
+					{
+						//nothing to be done
+						change_besch = false;
+					}
+
+					// build tram track over crossing -> remove crossing
+					if(  gr->has_two_ways()  &&  besch->get_styp()==7  &&  weg->get_besch()->get_styp() != 7  ) {
+						if(  crossing_t *cr = gr->find<crossing_t>(2)  ) {
+							// change to tram track
+							cr->mark_image_dirty( cr->get_bild(), 0);
+							cr->entferne(sp);
+							delete cr;
+							change_besch = true;
+							// tell way we have no crossing any more, restore speed limit
+							gr->get_weg_nr(0)->clear_crossing();
+							gr->get_weg_nr(0)->set_besch( gr->get_weg_nr(0)->get_besch() );
+							gr->get_weg_nr(1)->clear_crossing();
 						}
 					}
+
+					if(  change_besch  ) {
+						// we take ownership => we take care to maintain the roads completely ...
+						spieler_t *s = weg->get_besitzer();
+						spieler_t::add_maintenance( s, -weg->get_besch()->get_wartung(), weg->get_besch()->get_finance_waytype());
+						// cost is the more expensive one, so downgrading is between removing and new buidling
+						cost -= max( weg->get_besch()->get_preis(), besch->get_preis() );
+						weg->set_besch(besch);
+						if(besch->get_base_cost() == 0 && besch->get_base_maintenance() == 0 && besch->get_topspeed() == 0)
+						{
+							// Free to downgrade to mothballed ways
+							cost = 0;
+						}
+						// respect max speed of catenary
+						wayobj_t const* const wo = gr->get_wayobj(besch->get_wtyp());
+						if (wo  &&  wo->get_besch()->get_topspeed() < weg->get_max_speed()) {
+							weg->set_max_speed( wo->get_besch()->get_topspeed() );
+						}
+						const wayobj_t* wayobj = gr->get_wayobj(weg->get_waytype());
+						if(wayobj != NULL)
+						{
+							weg->add_way_constraints(wayobj->get_besch()->get_way_constraints());
+						}					
+						spieler_t::add_maintenance( sp, weg->get_besch()->get_wartung(), weg->get_besch()->get_finance_waytype());
+						weg->set_besitzer(sp);
+					}
 				}
-				// prissi: into UNDO-list, so we can remove it later
-				sp->add_undo( route[i] );
+				else 
+				{
+					const obj_t* obj = gr->obj_bei(0);
+				
+					weg_t* const sch = weg_t::alloc(besch->get_wtyp());
+					sch->set_pos(gr->get_pos());
+					sch->set_besch(besch);
+					const wayobj_t* wayobj = gr->get_wayobj(sch->get_waytype());
+					if(wayobj != NULL)
+					{
+						sch->add_way_constraints(wayobj->get_besch()->get_way_constraints());
+					}
+					cost = gr->neuen_weg_bauen(sch, ribi, sp, &route) - besch->get_preis();
+
+					// connect canals to sea
+					if(  besch->get_wtyp() == water_wt  ) {
+						for(  int j = 0;  j < 4;  j++  ) {
+							grund_t *sea = welt->lookup_kartenboden( route[i].get_2d() + koord::nsow[j] );
+							if(  sea  &&  sea->ist_wasser()  ) {
+								gr->weg_erweitern( water_wt, ribi_t::nsow[j] );
+								sea->calc_bild();
+							}
+						}
+					}
+					// prissi: into UNDO-list, so we can remove it later
+					sp->add_undo( route[i] );
+				}
+
+				spieler_t::book_construction_costs(sp, cost, gr->get_pos().get_2d(), besch->get_finance_waytype());
 			}
 
 			gr->calc_bild();
 			reliefkarte_t::get_karte()->calc_map_pixel( gr->get_pos().get_2d() );
-			spieler_t::book_construction_costs(sp, cost, gr->get_pos().get_2d(), besch->get_finance_waytype());
 
 			if((i&3)==0) 
 			{
@@ -2781,19 +2802,22 @@ DBG_MESSAGE("wegbauer_t::baue()","called, but no valid route.");
 long ms=dr_time();
 #endif
 
-	if ( (bautyp&terraform_flag)!=0  &&  (bautyp&(tunnel_flag|elevated_flag))==0  &&  bautyp!=river) {
-		// do the terraforming
-		do_terraforming();
-	}
-	// first add all new underground tiles ... (and finished if successful)
-	if(bautyp&tunnel_flag) {
-		baue_tunnelboden();
-		return;
-	}
+	if(!mark_way_for_upgrade_only)
+	{
+		if ( (bautyp&terraform_flag)!=0  &&  (bautyp&(tunnel_flag|elevated_flag))==0  &&  bautyp!=river) {
+			// do the terraforming
+			do_terraforming();
+		}
+		// first add all new underground tiles ... (and finished if successful)
+		if(bautyp&tunnel_flag) {
+			baue_tunnelboden();
+			return;
+		}
 
-	// add elevated ground for elevated tracks
-	if(bautyp&elevated_flag) {
-		baue_elevated();
+		// add elevated ground for elevated tracks
+		if(bautyp&elevated_flag) {
+			baue_elevated();
+		}
 	}
 
 

@@ -19,4 +19,5 @@ void obj_besch_transport_related_t::calc_checksum(checksum_t *chk) const
 	chk->input(topspeed-topspeed_gradient_1);
 	chk->input(topspeed-topspeed_gradient_2);
 	chk->input(axle_load);
+	chk->input(way_only_cost);
 }

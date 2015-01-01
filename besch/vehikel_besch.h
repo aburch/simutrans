@@ -196,6 +196,10 @@ private:
 	// The maximum number of km between stops (not waypoints)
 	uint16 range;
 
+	// The level of wear to which this vehicle subjects a way
+	// measured in Standard Axle loads (8t) * 10,000. 
+	uint32 way_wear_factor;
+
 	// @author: Bernd Gabriel, Dec 12, 2009: called as last action in read_node()
 	void loaded();
 
@@ -705,6 +709,8 @@ public:
 	*@author: jamespetts*/
 	uint8 get_catering_level() const { return catering_level; }
 
+	uint32 get_way_wear_factor() const { return way_wear_factor; }
+
 	void set_scale(uint16 scale_factor)
 	{ 
 		obj_besch_transport_related_t::set_scale(scale_factor);
@@ -724,6 +730,54 @@ public:
 			min_loading_time = (uint32)seconds_to_ticks(min_loading_time_seconds, scale_factor);
 		}
 #endif
+		if(way_wear_factor == UINT32_MAX_VALUE) 
+		{
+			// Uninitialised. Set it here, as cannot set it on reading because we need welt, and reading is static.
+			uint32 power;
+			// TODO: have this set from simuconf.tab
+			switch(get_waytype())
+			{
+			case monorail_wt:
+			case track_wt:
+			case tram_wt:
+			case narrowgauge_wt:
+				power = 2;
+			case maglev_wt:
+			case water_wt:
+				power = 0;
+			case road_wt:
+			case air_wt:
+			default:
+				power = 4;
+			};
+			if(power > 0)
+			{
+				uint32 axles = axle_load ? (gewicht / axle_load) / 1000 : 1; // Weight is in kg.
+				axles = max(axles, 1);
+			
+				const float32e8_t standard_axle_load(8, 1); //8t  TODO: Have this set from simuconf.tab
+				float32e8_t adjusted_standard_axle(axle_load, standard_axle_load);
+				const float32e8_t adjusted_standard_axle_original = adjusted_standard_axle;
+				float32e8_t adjusted_standard_axle_extra(gewicht % axles); 
+				adjusted_standard_axle_extra /= float32e8_t(1000, 1);
+				const float32e8_t adjusted_standard_axle_original_extra = adjusted_standard_axle_extra;
+				while(--power)
+				{
+					adjusted_standard_axle *= adjusted_standard_axle_original;
+					adjusted_standard_axle_extra *= adjusted_standard_axle_original_extra;
+				}
+			
+				adjusted_standard_axle *= axles;
+				adjusted_standard_axle += adjusted_standard_axle_extra;
+
+				adjusted_standard_axle *= 10000; 
+				way_wear_factor = (uint32)adjusted_standard_axle.to_sint32();
+			}
+			else
+			{
+				way_wear_factor = 0;
+			}
+		}
 	}
 
 	/**

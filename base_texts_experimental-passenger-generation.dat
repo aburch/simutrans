@@ -107,3 +107,52 @@ note=Label for the graph in the line window showing the number of departures sch
 obj=program_text
 name=Waiting for schedule. %s left
 note=Tooltip text for convoys awaiting a departure slot
+-
+obj=program_text
+name=Condition
+note=The text in the way information dialogue showing the condition in % of the way.
+-
+obj=program_text
+name=Durability
+note=The description in the way tooltip of the wear capacity of a way
+-
+obj=program_text
+name=Last renewed
+note=Text in the way information window showing when the way was last renewed.
+-
+obj=program_text
+name=Built
+note=Text in the way information window showing when the way was first built.
+-
+obj=program_text
+name=Way wear factor
+note=Text in the convoy information window indicating the wear (denominated in standard axle loads) exerted by this vehicle.
+-
+obj=program_text
+name=Wear
+note=Label for the minimap button showing the condition of ways.
+-
+obj=program_text
+name=Show the condition of ways
+note=Tooltip for the minimap button for showing the condition of ways.
+-
+obj=program_text
+name=Weight limit
+note=Label for the minimap button for showing the weight limit of ways.
+-
+obj=program_text
+name=Show the weight limit of ways
+note=Tooltip for the minimap button for showing the weight limit of ways.
+-
+obj=program_text
+name=To be renewed with
+note=Text in the way information window showing the way with which this way is to be renewed when renewal is needed.
+-
+obj=program_text
+name=Not enough money to carry out essential way renewal work.\n
+note=Warning when a player has insufficient money to carry out way renewal work.
+-
+obj=program_text
+name=Degraded
+note=Shown in the way information window for a way that is degraded.
+

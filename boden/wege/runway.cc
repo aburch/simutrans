@@ -33,14 +33,33 @@ void runway_t::rdwr(loadsave_t *file)
 
 	weg_t::rdwr(file);
 
-	if(file->is_saving()) {
+	if(file->is_saving()) 
+	{
 		const char *s = get_besch()->get_name();
 		file->rdwr_str(s);
+		if(file->get_experimental_version() >= 12)
+		{
+			s = replacement_way->get_name();
+			file->rdwr_str(s);
+		}
 	}
-	else {
+	else
+	{
 		char bname[128];
 		file->rdwr_str(bname, lengthof(bname));
 		const weg_besch_t *besch = wegbauer_t::get_besch(bname);
+
+#ifndef SPECIAL_RESCUE_12_3
+		char rbname[128];
+		const weg_besch_t* loaded_replacement_way = NULL;
+		if(file->get_experimental_version() >= 12)
+		{
+			char rbname[128];
+			file->rdwr_str(rbname, lengthof(rbname));
+			loaded_replacement_way = wegbauer_t::get_besch(rbname);
+		}
+#endif
+
 		int old_max_speed=get_max_speed();
 		if(besch==NULL) {
 			besch = wegbauer_t::weg_search(air_wt,old_max_speed>0 ? old_max_speed : 20, 0, (weg_t::system_type)(old_max_speed>250) );
@@ -53,6 +72,13 @@ void runway_t::rdwr(loadsave_t *file)
 		if(old_max_speed>0) {
 			set_max_speed(old_max_speed);
 		}
+
 		set_besch(besch);
+#ifndef SPECIAL_RESCUE_12_3
+		if(file->get_experimental_version() >= 12)
+		{
+			replacement_way = loaded_replacement_way;
+		}
+#endif
 	}
 }

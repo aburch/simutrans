@@ -523,7 +523,7 @@ bool baum_t::check_season(const bool)
 	if(  age >= 512  &&  age <= 515  ) {
 		// only in this month a tree can span new trees
 		// only 1-3 trees will be planted....
-		uint8 const c_plant_tree_max = 1 + simrand( welt->get_settings().get_max_no_of_trees_on_square() );
+		uint8 const c_plant_tree_max = 1 + simrand( welt->get_settings().get_max_no_of_trees_on_square(), "bool baum_t::check_season(const bool)" );
 		uint retrys = 0;
 		for(  uint8 c_temp = 0;  c_temp < c_plant_tree_max  &&  retrys < c_plant_tree_max;  c_temp++  ) {
 			if(  !saee_baum()  ) {

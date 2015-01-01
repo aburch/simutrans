@@ -111,7 +111,7 @@ stringhashtable_tpl<bruecke_besch_t *> * brueckenbauer_t::get_all_bridges()
 }
 
 /**
- * Find a matchin bridge
+ * Find a matching bridge
  * @author Hj. Malthaner
  */
 const bruecke_besch_t *brueckenbauer_t::find_bridge(const waytype_t wtyp, const sint32 min_speed, const uint16 time)
@@ -142,7 +142,7 @@ const bruecke_besch_t *brueckenbauer_t::find_bridge(const waytype_t wtyp, const 
  */
 static bool compare_bridges(const bruecke_besch_t* a, const bruecke_besch_t* b)
 {
-	return a->get_topspeed() < b->get_topspeed();
+	return a->get_topspeed() < b->get_topspeed() && a->get_axle_load() < b->get_axle_load();
 }
 
 
@@ -266,7 +266,7 @@ const char *check_tile( const grund_t *gr, const spieler_t *sp, waytype_t wt, ri
 			return err_msg;
 		}
 	}
-	return "";	// could end here by must not end here
+	return "";	// could end here but need not end here
 }
 
 bool brueckenbauer_t::is_blocked(koord3d pos, spieler_t *sp, const bruecke_besch_t *besch, const char *&error_msg)
@@ -298,7 +298,7 @@ bool brueckenbauer_t::is_blocked(koord3d pos, spieler_t *sp, const bruecke_besch
 				}
 			}
 		}
-		else if(  gr2->get_typ() != grund_t::boden  && gr2->get_typ() != grund_t::tunnelboden  ) {
+		else if( gr2->get_typ() != grund_t::boden  && gr2->get_typ() != grund_t::tunnelboden  ) {
 			// not through bridges
 			return true;
 		}
@@ -467,7 +467,7 @@ koord3d brueckenbauer_t::finde_ende(spieler_t *sp, koord3d pos, const koord zv, 
 		}
 		// now check for end of bridge conditions
 		if(length >= min_length && hang_t::ist_wegbar(end_slope) &&
-		   (gr->get_typ()==grund_t::boden || gr->get_typ()==grund_t::tunnelboden)) {
+			(gr->get_typ()==grund_t::boden || gr->get_typ() == grund_t::brueckenboden || gr->get_typ()==grund_t::tunnelboden)) {
 			bool finish = false;
 			if(height_okay(hang_height) && end_slope == hang_t::flach &&
 			   (hang_height == max_height || ai_bridge || min_length)) {
@@ -618,9 +618,9 @@ bool brueckenbauer_t::is_start_of_bridge( const grund_t *gr )
 
 bool brueckenbauer_t::ist_ende_ok(spieler_t *sp, const grund_t *gr, waytype_t wt, ribi_t::ribi r )
 {
-	// bridges can only start or end above ground
+	// bridges can only start or end above ground. Upgrading bridges is now allowed (Dec. 2014)
 	if(  gr->get_typ()!=grund_t::boden  &&  gr->get_typ()!=grund_t::monorailboden  &&
-	     gr->get_typ()!=grund_t::tunnelboden  ) {
+	     gr->get_typ()!=grund_t::tunnelboden && gr->get_typ() != grund_t::brueckenboden ) {
 		return false;
 	}
 	const char *error_msg = check_tile( gr, sp, wt, r );

@@ -163,13 +163,31 @@ void schiene_t::rdwr(loadsave_t *file)
 		set_electrify(dummy);
 	}
 
-	if(file->is_saving()) {
+	if(file->is_saving()) 
+	{
 		const char *s = get_besch()->get_name();
 		file->rdwr_str(s);
+		if(file->get_experimental_version() >= 12)
+		{
+			s = replacement_way->get_name();
+			file->rdwr_str(s);
+		}
 	}
-	else {
+	else 
+	{
 		char bname[128];
 		file->rdwr_str(bname, lengthof(bname));
+
+#ifndef SPECIAL_RESCUE_12_3
+		char rbname[128];
+		const weg_besch_t* loaded_replacement_way = NULL;
+		if(file->get_experimental_version() >= 12)
+		{
+			char rbname[128];
+			file->rdwr_str(rbname, lengthof(rbname));
+			loaded_replacement_way = wegbauer_t::get_besch(rbname);
+		}
+#endif
 
 		int old_max_speed=get_max_speed();
 		int old_max_axle_load = get_max_axle_load();
@@ -183,7 +201,14 @@ void schiene_t::rdwr(loadsave_t *file)
 			}
 			dbg->warning("schiene_t::rdwr()", "Unknown rail %s replaced by %s (old_max_speed %i)", bname, besch->get_name(), old_max_speed );
 		}
+
 		set_besch(besch);
+#ifndef SPECIAL_RESCUE_12_3
+		if(file->get_experimental_version() >= 12)
+		{
+			replacement_way = loaded_replacement_way;
+		}
+#endif
 		if(old_max_speed>0) {
 			set_max_speed(old_max_speed);
 		}

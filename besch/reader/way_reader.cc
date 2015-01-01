@@ -105,6 +105,7 @@ obj_besch_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 					besch->topspeed_gradient_2 = decode_sint32(p);
 					besch->max_altitude = decode_sint8(p);
 					besch->max_vehicles_on_tile = decode_uint8(p);
+					besch->wear_capacity = decode_uint32(p);
 				}
 				if(experimental_version > 1)
 				{
@@ -134,6 +135,7 @@ obj_besch_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 					besch->topspeed_gradient_2 = decode_sint32(p);
 					besch->max_altitude = decode_sint8(p);
 					besch->max_vehicles_on_tile = decode_uint8(p);
+					besch->wear_capacity = decode_uint32(p);
 				}
 				if(experimental_version > 1)
 				{
@@ -191,6 +193,7 @@ obj_besch_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			besch->topspeed_gradient_1 = besch->topspeed_gradient_2 = besch->topspeed;
 			besch->max_altitude = 0;
 			besch->max_vehicles_on_tile = 251;
+			besch->wear_capacity = besch->get_waytype() == road_wt ? 100000000 : 10000000000;
 		}
 	}
 
@@ -220,7 +223,7 @@ obj_besch_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 	DBG_DEBUG("way_reader_t::read_node()",
 		"version=%d, price=%d, maintenance=%d, topspeed=%d, max_weight=%d, "
-		"wtype=%d, styp=%d, intro_year=%i, axle_load=%d, "
+		"wtype=%d, styp=%d, intro_year=%i, axle_load=%d, wear_capacity=%d"
 		"way_constraints_permissive = %d, way_constraints_prohibitive = %d",
 		version,
 		besch->cost,
@@ -230,6 +233,7 @@ obj_besch_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->styp,
 		besch->intro_date/12,
 		besch->axle_load,
+		besch->wear_capacity,
 		besch->get_way_constraints().get_permissive(),
 		besch->get_way_constraints().get_prohibitive());
 

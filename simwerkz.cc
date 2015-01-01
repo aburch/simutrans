@@ -2357,6 +2357,10 @@ const char* wkz_wegebau_t::get_tooltip(const spieler_t *) const
 	n += sprintf(toolstr+n, " / km, %dkm/h, %dt",
 		besch->get_topspeed(),
 		besch->get_max_axle_load());
+	char durability_string[16]; // Need to represent billions plus commas.
+	const double wear_capacity_fractional = (double)besch->get_wear_capacity() / 10000.0;
+	number_to_string(durability_string, wear_capacity_fractional, 4);
+	n += sprintf(toolstr+n, ", %s: %s", translator::translate("Durability"), durability_string);
 	bool any_prohibitive = false;
 	for(sint8 i = 0; i < besch->get_way_constraints().get_count(); i ++)
 	{
@@ -2528,6 +2532,16 @@ void wkz_wegebau_t::calc_route( wegbauer_t &bauigel, const koord3d &start, const
 	else {
 		bauigel.set_keep_existing_faster_ways( true );
 	}
+
+	if(is_shift_pressed())
+	{
+		bauigel.set_mark_way_for_upgrade_only(true);
+	}
+	else
+	{
+		bauigel.set_mark_way_for_upgrade_only(false);
+	}
+
 	if(  is_ctrl_pressed()  ||  (env_t::straight_way_without_control  &&  !env_t::networkmode)  ) {
 		DBG_MESSAGE("wkz_wegebau()", "try straight route");
 		bauigel.calc_straight_route(start,end);
@@ -2545,14 +2559,18 @@ const char *wkz_wegebau_t::do_work( spieler_t *sp, const koord3d &start, const k
 	if(  bauigel.get_route().get_count()>1  ) {
 		sint64 cost = bauigel.calc_costs();
 		
-		if(!spieler_t::can_afford(sp, cost))
+		// Check affordability unless just marking to replace later
+		if(!is_shift_pressed() && !spieler_t::can_afford(sp, cost))
 		{
 			return CREDIT_MESSAGE;
 		}
 		welt->mute_sound(true);
 		bauigel.baue();
 		welt->mute_sound(false);
-		sound_play(SFX_CASH);
+		if(!is_shift_pressed())
+		{
+			sound_play(SFX_CASH);
+			}
 
 		return NULL;
 	}
@@ -2640,6 +2658,10 @@ const char* wkz_brueckenbau_t::get_tooltip(const spieler_t *) const
 	if(besch->get_max_length()>0) {
 		n += sprintf(toolstr+n, ", %d %s", besch->get_max_length(), translator::translate("tiles"));
 	}
+	char durability_string[16]; // Need to represent billions plus commas.
+	const double wear_capacity_fractional = (double)besch->get_wear_capacity() / 10000.0;
+	number_to_string(durability_string, wear_capacity_fractional, 4);
+	n += sprintf(toolstr+n, ", %s: %s", translator::translate("Durability"), durability_string);
 	bool any_prohibitive = false;
 	for(sint8 i = 0; i < besch->get_way_constraints().get_count(); i ++)
 	{
@@ -2928,7 +2950,10 @@ const char* wkz_tunnelbau_t::get_tooltip(const spieler_t *) const
 			besch->get_topspeed(),
 			besch->get_max_axle_load());
 	}
-
+	char durability_string[16]; // Need to represent billions plus commas.
+	const double wear_capacity_fractional = (double)besch->get_wear_capacity() / 10000.0;
+	number_to_string(durability_string, wear_capacity_fractional, 4);
+	n += sprintf(toolstr+n, ", %s: %s", translator::translate("Durability"), durability_string);
 	bool any_prohibitive = false;
 	for(sint8 i = 0; i < besch->get_way_constraints().get_count(); i ++)
 	{
@@ -3332,120 +3357,131 @@ const char *wkz_wayremover_t::do_work( spieler_t *sp, const koord3d &start, cons
 	// if successful => delete everything
 	for( uint32 i=0;  i<verbindung.get_count();  i++  ) 
 	{
-
 		grund_t *gr = welt->lookup(verbindung.position_bei(i));
 
-		// ground can be missing after deleting a bridge ...
-		if(gr  &&  !gr->ist_wasser()) 
+		if(is_shift_pressed())
 		{
-			if(gr->ist_bruecke())
+			// Do not remove the way: just set it not to be renewed.
+			weg_t* const way = gr->get_weg(wt);
+			if(way)
 			{
-				if(gr->find<bruecke_t>()->get_besch()->get_waytype()==wt)
-				{
-					if(gr->ist_karten_boden()) 
-					{
-						const char *err = NULL;
-						err = brueckenbauer_t::remove(sp,verbindung.position_bei(i),wt);
-						if(err) 
-						{
-							return err;
-						}
-						gr = welt->lookup(verbindung.position_bei(i));
-					}
-					else
-					{
-						// do not remove asphalt from a bridge ...
-						continue;
-					}
-				}
+				way->set_replacement_way(NULL);
 			}
-
-			if(wt == road_wt)
+		}
+		else
+		{
+			// ground can be missing after deleting a bridge ...
+			if(gr  &&  !gr->ist_wasser()) 
 			{
-				const koord pos = gr->get_pos().get_2d();
-				stadt_t *city = welt->get_city(pos);
-
-				if(city && !sp->is_public_service()) {
-					if (gr->removing_road_would_disconnect_city_building()) {
-						return "Cannot delete a road where to do so would leave a city building unconnected by road.";
-					}
-				}
-				welt->set_recheck_road_connexions();
-			}
-
-			// now the tricky part: delete just part of a way (or everything, if possible)
-			// calculate remaining directions
-			ribi_t::ribi rem = 15 ^ ( verbindung.get_route().get_ribi(i) );
-			// if start=end tile then delete every direction
-			if(  verbindung.get_count() <= 1  ) {
-				rem = 0;
-			}
-
-			if(  wt!=powerline_wt  ) {
-				if(!gr->get_flag(grund_t::is_kartenboden)  &&  (gr->get_typ()==grund_t::tunnelboden  ||  gr->get_typ()==grund_t::monorailboden)  &&  gr->get_weg_nr(0)->get_waytype()==wt) {
-					can_delete &= gr->remove_everything_from_way(sp,wt,rem);
-					if(can_delete  &&  gr->get_weg(wt)==NULL) {
-						if(gr->get_weg_nr(0)!=0) {
-							gr->remove_everything_from_way(sp,gr->get_weg_nr(0)->get_waytype(),ribi_t::keine);
-						}
-						gr->obj_loesche_alle(sp);
-						gr->mark_image_dirty();
-						if (gr->is_visible() && gr->get_typ()==grund_t::tunnelboden && i>0) { // visibility test does not influence execution
-							grund_t *bd = welt->access(verbindung.position_bei(i-1).get_2d())->get_kartenboden();
-							bd->calc_bild();
-							bd->set_flag(grund_t::dirty);
-						}
-						// delete tunnel ground too, if empty
-						welt->access(gr->get_pos().get_2d())->boden_entfernen(gr);
-						delete gr;
-					}
-				}
-				else
+				if(gr->ist_bruecke())
 				{
-					// If this is a public right of way being deleted by anyone other than the public service player,
-					// then it cannot be deleted unless there is a diversionary route within a specified number of tiles.
-					weg_t* const weg = gr->get_weg(wt);
-					if(!sp->is_public_service() && weg && weg->is_public_right_of_way())
+					if(gr->find<bruecke_t>()->get_besch()->get_waytype()==wt)
 					{
-						if(gr->removing_way_would_disrupt_public_right_of_way(weg->get_waytype()))
+						if(gr->ist_karten_boden()) 
 						{
-							return "Cannot remove a public right of way without providing an adequate diversionary route";
+							const char *err = NULL;
+							err = brueckenbauer_t::remove(sp,verbindung.position_bei(i),wt);
+							if(err) 
+							{
+								return err;
+							}
+							gr = welt->lookup(verbindung.position_bei(i));
+						}
+						else
+						{
+							// do not remove asphalt from a bridge ...
+							continue;
 						}
 					}
-					
-					can_delete &= gr->remove_everything_from_way(sp,wt,rem);
-					
-					if(weg)
-					{
-						weg->count_sign();
-					}
 				}
-			}
-			else {
-				leitung_t *lt = gr->get_leitung();
-				if(  lt  &&  (rem&lt->get_ribi())==0  ) {
-					// remove only single connections
-					lt->entferne(sp);
-					delete lt;
-					// delete tunnel ground too, if empty
-					if (gr->get_typ()==grund_t::tunnelboden) {
-						gr->obj_loesche_alle(sp);
-						gr->mark_image_dirty();
-						if (!gr->get_flag(grund_t::is_kartenboden)) {
+
+				if(wt == road_wt)
+				{
+					const koord pos = gr->get_pos().get_2d();
+					stadt_t *city = welt->get_city(pos);
+
+					if(city && !sp->is_public_service()) {
+						if (gr->removing_road_would_disconnect_city_building()) {
+							return "Cannot delete a road where to do so would leave a city building unconnected by road.";
+						}
+					}
+					welt->set_recheck_road_connexions();
+				}
+
+				// now the tricky part: delete just part of a way (or everything, if possible)
+				// calculate remaining directions
+				ribi_t::ribi rem = 15 ^ ( verbindung.get_route().get_ribi(i) );
+				// if start=end tile then delete every direction
+				if(  verbindung.get_count() <= 1  ) {
+					rem = 0;
+				}
+
+				if(  wt!=powerline_wt  ) {
+					if(!gr->get_flag(grund_t::is_kartenboden)  &&  (gr->get_typ()==grund_t::tunnelboden  ||  gr->get_typ()==grund_t::monorailboden)  &&  gr->get_weg_nr(0)->get_waytype()==wt) {
+						can_delete &= gr->remove_everything_from_way(sp,wt,rem);
+						if(can_delete  &&  gr->get_weg(wt)==NULL) {
+							if(gr->get_weg_nr(0)!=0) {
+								gr->remove_everything_from_way(sp,gr->get_weg_nr(0)->get_waytype(),ribi_t::keine);
+							}
+							gr->obj_loesche_alle(sp);
+							gr->mark_image_dirty();
+							if (gr->is_visible() && gr->get_typ()==grund_t::tunnelboden && i>0) { // visibility test does not influence execution
+								grund_t *bd = welt->access(verbindung.position_bei(i-1).get_2d())->get_kartenboden();
+								bd->calc_bild();
+								bd->set_flag(grund_t::dirty);
+							}
+							// delete tunnel ground too, if empty
 							welt->access(gr->get_pos().get_2d())->boden_entfernen(gr);
 							delete gr;
 						}
-						else {
-							grund_t *gr_new = new boden_t(gr->get_pos(), gr->get_grund_hang());
-							welt->access(gr->get_pos().get_2d())->boden_ersetzen(gr, gr_new);
-							gr_new->calc_bild();
+					}
+					else
+					{
+						// If this is a public right of way being deleted by anyone other than the public service player,
+						// then it cannot be deleted unless there is a diversionary route within a specified number of tiles.
+						weg_t* const weg = gr->get_weg(wt);
+						if(!sp->is_public_service() && weg && weg->is_public_right_of_way())
+						{
+							if(gr->removing_way_would_disrupt_public_right_of_way(weg->get_waytype()))
+							{
+								return "Cannot remove a public right of way without providing an adequate diversionary route";
+							}
+						}
+					
+						can_delete &= gr->remove_everything_from_way(sp,wt,rem);
+					
+						if(weg)
+						{
+							weg->count_sign();
 						}
 					}
 				}
-				// otherwise it is a crossing ...
+				else {
+					leitung_t *lt = gr->get_leitung();
+					if(  lt  &&  (rem&lt->get_ribi())==0  ) {
+						// remove only single connections
+						lt->entferne(sp);
+						delete lt;
+						// delete tunnel ground too, if empty
+						if (gr->get_typ()==grund_t::tunnelboden) {
+							gr->obj_loesche_alle(sp);
+							gr->mark_image_dirty();
+							if (!gr->get_flag(grund_t::is_kartenboden)) {
+								welt->access(gr->get_pos().get_2d())->boden_entfernen(gr);
+								delete gr;
+							}
+							else {
+								grund_t *gr_new = new boden_t(gr->get_pos(), gr->get_grund_hang());
+								welt->access(gr->get_pos().get_2d())->boden_ersetzen(gr, gr_new);
+								gr_new->calc_bild();
+							}
+						}
+					}
+					// otherwise it is a crossing ...
+				}
 			}
+			// ok, now everything removed ...
 		}
-		// ok, now everything removed ...
 	}
 
 	// return success

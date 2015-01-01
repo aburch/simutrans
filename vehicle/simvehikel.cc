@@ -1517,7 +1517,10 @@ grund_t* vehikel_t::hop()
 	cnv->must_recalc_data();
 
 	calc_drag_coefficient(gr);
-
+	if(weg)
+	{
+		weg->wear_way(besch->get_way_wear_factor());
+	}
 	hop_count ++;
 	return gr;
 }

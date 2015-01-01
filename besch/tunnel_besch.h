@@ -32,8 +32,7 @@ class tunnel_besch_t : public obj_besch_transport_infrastructure_t {
 
 private:
 	static int hang_indices[81];
-	//uint32 max_axle_load; // maximum weight for vehicles. @author: jamespetts
-
+	sint8 upgrade_group; // The other tunnels (by group) to which this can be upgraded paying only the cost of the way.
 
 	/* number of seasons (0 = none, 1 = no snow/snow)
 	*/

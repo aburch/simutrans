@@ -30,7 +30,9 @@ void maglev_t::rdwr(loadsave_t *file)
 			dbg->fatal("maglev_t::rwdr()", "No maglev way available");
 		}
 		dbg->warning("maglev_t::rwdr()", "Unknown way replaced by maglev %s (old_max_speed %i)", besch->get_name(), old_max_speed );
+		const weg_besch_t* old_replacement_way = replacement_way;
 		set_besch(besch);
+		replacement_way = old_replacement_way;
 		if(old_max_speed > 0) {
 			set_max_speed(old_max_speed);
 		}

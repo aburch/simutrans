@@ -30,6 +30,7 @@
 
 
 #include "../grund.h"
+#include "../../simmesg.h""
 #include "../../simworld.h"
 #include "../../display/simimg.h"
 #include "../../simhalt.h"
@@ -46,6 +47,8 @@
 #include "../../besch/weg_besch.h"
 #include "../../besch/roadsign_besch.h"
 #include "../../besch/haus_besch.h" // for ::should_city_adopt_this
+
+#include "../../bauer/wegbauer.h"
 
 #ifdef MULTI_THREAD
 #include "../../utils/simthread.h"
@@ -183,6 +186,10 @@ void weg_t::set_besch(const weg_besch_t *b)
 			add_way_constraints(wayobj->get_besch()->get_way_constraints());
 		}
 	}
+	remaining_wear_capacity = besch->get_wear_capacity();
+	last_renewal_month_year = welt->get_timeline_year_month();
+	degraded = false;
+	replacement_way = besch;
 }
 
 
@@ -197,6 +204,7 @@ void weg_t::init_statistics()
 			statistics[month][type] = 0;
 		}
 	}
+	creation_month_year = welt->get_timeline_year_month();
 }
 
 
@@ -216,6 +224,9 @@ void weg_t::init()
 	bild = IMG_LEER;
 	after_bild = IMG_LEER;
 	public_right_of_way = false;
+	degraded = false;
+	remaining_wear_capacity = 100000000;
+	replacement_way = NULL;
 }
 
 
@@ -288,7 +299,28 @@ void weg_t::rdwr(loadsave_t *file)
 
 	if(file->get_experimental_version() >= 12)
 	{
-		file->rdwr_bool(public_right_of_way);
+		std::string replacement_way_name = replacement_way ? replacement_way->get_name() : ""; 
+		bool prow = public_right_of_way;
+		file->rdwr_bool(prow);
+		public_right_of_way = prow;
+#ifdef SPECIAL_RESCUE_12_3
+		if(file->is_saving())
+		{
+			file->rdwr_short(creation_month_year);
+			file->rdwr_short(last_renewal_month_year);	
+			file->rdwr_long(remaining_wear_capacity);
+			bool deg = degraded;
+			file->rdwr_bool(deg);
+			degraded = deg;
+		}
+#else
+		file->rdwr_long(remaining_wear_capacity);
+		file->rdwr_short(creation_month_year);
+		file->rdwr_short(last_renewal_month_year);
+		bool deg = degraded;
+		file->rdwr_bool(deg);
+		degraded = deg;
+#endif
 	}
 }
 
@@ -303,6 +335,11 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 	if(public_right_of_way)
 	{
 		buf.append(translator::translate("Public right of way"));
+		buf.append("\n\n");
+	}
+	if(degraded)
+	{
+		buf.append(translator::translate("Degraded"));
 		buf.append("\n\n");
 	}
 	buf.append(translator::translate("Max. speed:"));
@@ -321,6 +358,48 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 	buf.append(max_axle_load);
 	buf.append(translator::translate("tonnen"));
 	buf.append("\n");
+	
+	buf.append("\n");
+	buf.append(translator::translate("Condition"));
+	buf.append(": ");
+	char tmpbuf_cond[40];
+	sprintf(tmpbuf_cond, "%u%%", get_condition_percent());
+	buf.append(tmpbuf_cond);
+	buf.append("\n");
+	buf.append(translator::translate("Built"));
+	buf.append(": ");
+	char tmpbuf_built[40];
+	sprintf(tmpbuf_built, "%s, %i", translator::get_month_name(creation_month_year%12), creation_month_year/12 );
+	buf.append(tmpbuf_built);
+	buf.append("\n");
+	buf.append(translator::translate("Last renewed"));
+	buf.append(": ");
+	char tmpbuf_renewed[40];
+	sprintf(tmpbuf_renewed, "%s, %i", translator::get_month_name(last_renewal_month_year%12), last_renewal_month_year/12 );
+	buf.append(tmpbuf_renewed);
+	buf.append("\n");
+	buf.append(translator::translate("To be renewed with"));
+	buf.append(": ");
+	if(replacement_way)
+	{
+		const uint16 time = welt->get_timeline_year_month();
+		bool is_current = !time || replacement_way->get_intro_year_month() <= time && time < replacement_way->get_retire_year_month();
+		if(!is_current)
+		{
+			buf.append(translator::translate(wegbauer_t::weg_search(replacement_way->get_waytype(), replacement_way->get_topspeed(), (const sint32)replacement_way->get_axle_load(), time, (weg_t::system_type)replacement_way->get_styp())->get_name()));
+		}
+		else
+		{
+			buf.append(translator::translate(replacement_way->get_name()));
+		}
+	}
+	else
+	{
+		buf.append(translator::translate("keine"));
+	}
+	buf.append("\n");
+	
+
 	for(sint8 i = 0; i < way_constraints.get_count(); i ++)
 	{
 		if(way_constraints.get_permissive(i))
@@ -801,8 +880,98 @@ bool weg_t::should_city_adopt_this(const spieler_t* sp)
 	return has_neighbouring_building;
 }
 
-//void weg_t::set_max_speed(sint32 s)
-//{
-//	// For TESTing only 
-//	max_speed = s;
-//}
+uint32 weg_t::get_condition_percent() const
+{
+	// Necessary to avoid overflow. Speed not important as this is for the UI.
+	// Running calculations should use fractions (e.g., "if(remaining_wear_capacity < besch->get_wear_capacity() / 6)"). 
+	const sint64 remaining_wear_capacity_percent = (sint64)remaining_wear_capacity  * 100ll;
+	const sint64 intermediate_result = remaining_wear_capacity_percent / (sint64)besch->get_wear_capacity();
+	return (uint32)intermediate_result; 
+}
+
+void weg_t::wear_way(uint32 wear)
+{
+	if(remaining_wear_capacity == UINT32_MAX_VALUE)
+	{
+		// If ways are defined with UINT32_MAX_VALUE,
+		// this feature is intended to be disabled.
+		return;
+	}
+	if(remaining_wear_capacity > wear)
+	{
+		const uint32 degridcation_fraction = 7; //TODO: Have this set from simuconf.tab. This roughly equates to 14%.
+		remaining_wear_capacity -= wear;
+		if(remaining_wear_capacity < besch->get_wear_capacity() / degridcation_fraction)
+		{
+			if(!renew())
+			{
+				degrade();
+			}
+		}
+	}
+	else
+	{
+		remaining_wear_capacity = 0;
+		if(!renew())
+		{
+			degrade();
+		}
+	}
+}
+
+bool weg_t::renew()
+{
+	if(!replacement_way)
+	{
+		return false;
+	}
+
+	spieler_t* const player = get_besitzer();
+	bool success = false;
+	if(player->can_afford(replacement_way->get_preis()))
+	{
+		const uint16 time = welt->get_timeline_year_month();
+		bool is_current = !time || replacement_way->get_intro_year_month() <= time && time < replacement_way->get_retire_year_month();
+		if(!is_current)
+		{
+			replacement_way = wegbauer_t::weg_search(replacement_way->get_waytype(), replacement_way->get_topspeed(), (const sint32)replacement_way->get_axle_load(), time, (weg_t::system_type)replacement_way->get_styp());
+		}
+		
+		if(!replacement_way)
+		{
+			// If the way search cannot find a replacement way, use the current way as a fallback.
+			replacement_way = besch;
+		}
+		
+		set_besch(replacement_way);
+		success = true;
+		player->book_way_maintenance(replacement_way->get_preis(), replacement_way->get_waytype());
+	}
+	else if(!player->get_has_been_warned_about_no_money_for_renewals())
+	{
+		welt->get_message()->add_message( translator::translate("Not enough money to carry out essential way renewal work.\n"), get_pos().get_2d(), message_t::warnings);
+		player->set_has_been_warned_about_no_money_for_renewals(true); // Only warn once a month.
+	}
+
+	return success;
+}
+
+void weg_t::degrade()
+{
+	if(remaining_wear_capacity)
+	{
+		// There is some wear left, but this way is in a degraded state. Reduce the speed limit.
+		if(!degraded)
+		{
+			// Only do this once, or else this will carry on reducing for ever.
+			max_speed /= 2;
+			degraded = true;
+		}
+	}
+	else
+	{
+		// Totally worn out: impassable. 
+		max_speed = 0;
+		degraded = true;
+	}
+}

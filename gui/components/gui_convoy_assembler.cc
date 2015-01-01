@@ -1993,6 +1993,13 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 
 		n += sprintf(buf + n, "\n");
 
+		char tmpbuf[16];
+		const double reduced_way_wear_factor = veh_type->get_way_wear_factor() / 10000.0;
+		number_to_string(tmpbuf, reduced_way_wear_factor, 4);
+		n += sprintf(buf + n, "%s: %s", translator::translate("Way wear factor"), tmpbuf);
+
+		n += sprintf(buf + n, "\n");
+
 		if(veh_type->get_waytype() == air_wt)
 		{
 			n += sprintf(buf + n, "%s: %i m \n", translator::translate("Minimum runway length"), veh_type->get_minimum_runway_length());

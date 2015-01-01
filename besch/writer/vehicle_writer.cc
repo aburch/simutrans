@@ -78,7 +78,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	int i;
 	uint8  uv8;
 
-	int total_len = 79;
+	int total_len = 83;
 
 	// prissi: must be done here, since it may affect the len of the header!
 	string sound_str = ltrim( obj.get("sound") );
@@ -122,7 +122,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	// Start at 0x100 and increment in hundreds (hex).
 	// Counting can restart at 0x100 if the Standard version increases.
 	// Standard 10, 0x100 - everything from minimum runway length and earlier.
-	// Standard 10, 0x200 - range.
+	// Standard 10, 0x200 - range, wear factor.
 	version += 0x200;
 
 	node.write_uint16(fp, version, pos);
@@ -913,6 +913,10 @@ end:
 	uint16 range = obj.get_int("range", 0);
 	node.write_uint16(fp, range, pos);
 	pos += sizeof(range);
+
+	uint32 way_wear_factor = obj.get_int("way_wear_factor", UINT32_MAX_VALUE);
+	node.write_uint32(fp, way_wear_factor, pos);
+	pos += sizeof (way_wear_factor); 
 
 	sint8 sound_str_len = sound_str.size();
 	if (sound_str_len > 0) {

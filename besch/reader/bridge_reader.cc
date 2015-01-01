@@ -13,7 +13,6 @@
 void bridge_reader_t::register_obj(obj_besch_t *&data)
 {
 	bruecke_besch_t *besch = static_cast<bruecke_besch_t *>(data);
-
 	brueckenbauer_t::register_besch(besch);
 
 	checksum_t *chk = new checksum_t();
@@ -167,6 +166,9 @@ obj_besch_t * bridge_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				besch->topspeed_gradient_2 = decode_uint16(p);
 				besch->max_altitude = decode_sint8(p);
 				besch->max_vehicles_on_tile = decode_uint8(p);
+				besch->wear_capacity = decode_uint32(p);
+				besch->way_only_cost = decode_uint32(p);
+				besch->upgrade_group = decode_sint8(p);
 			}
 			if(experimental_version > 1)
 			{
@@ -199,6 +201,9 @@ obj_besch_t * bridge_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				besch->topspeed_gradient_2 = decode_uint16(p);
 				besch->max_altitude = decode_sint8(p);
 				besch->max_vehicles_on_tile = decode_uint8(p);
+				besch->wear_capacity = decode_uint32(p);
+				besch->way_only_cost = decode_uint32(p);
+				besch->upgrade_group = decode_sint8(p);
 			}
 			if(experimental_version > 1)
 			{
@@ -224,6 +229,9 @@ obj_besch_t * bridge_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->topspeed_gradient_1 = besch->topspeed_gradient_2 = besch->topspeed;
 		besch->max_altitude = 0;
 		besch->max_vehicles_on_tile = 251;
+		besch->wear_capacity = 100000000;
+		besch->upgrade_group = -1;
+		besch->way_only_cost = besch->cost;
 	}
 
 	// pillars cannot be heigher than this to avoid drawing errors
@@ -235,14 +243,15 @@ obj_besch_t * bridge_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 	besch->base_cost = besch->cost;
 	besch->base_maintenance = besch->maintenance;
+	besch->base_way_only_cost = besch->way_only_cost;
 
 	if(  version < 9  ) {
 		besch->axle_load = 9999;
 	}
 
 	DBG_DEBUG("bridge_reader_t::read_node()",
-		"version=%d, waytype=%d, price=%d, topspeed=%d, pillars=%i, max_length=%i, max_weight%d, axle_load=%i",
-		version, besch->wt, besch->cost, besch->topspeed,besch->pillars_every,besch->max_length,besch->max_weight,besch->axle_load);
+		"version=%d, waytype=%d, price=%d, topspeed=%d, pillars=%i, max_length=%i, max_weight%d, axle_load=%i, wear_capacity=%d, upgrade_group=%d",
+		version, besch->wt, besch->cost, besch->topspeed,besch->pillars_every,besch->max_length,besch->max_weight,besch->axle_load, besch->wear_capacity, besch->upgrade_group);
 
   return besch;
 }

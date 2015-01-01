@@ -462,10 +462,12 @@ obj_besch_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				if(experimental_version == 0)
 				{
 					besch->range = 0;
+					besch->way_wear_factor = UINT32_MAX_VALUE; 
 				}
 				else
 				{
 					besch->range = decode_uint16(p);
+					besch->way_wear_factor = decode_uint32(p);
 				}
 			}
 			else
@@ -587,6 +589,7 @@ obj_besch_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->brake_force = BRAKE_FORCE_UNKNOWN;
 		besch->minimum_runway_length = 10;
 		besch->range = 0;
+		besch->way_wear_factor = UINT32_MAX_VALUE;
 	}
 	besch->set_way_constraints(way_constraints);
 
@@ -599,6 +602,7 @@ obj_besch_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	if(version<10) {
 		besch->gewicht *= 1000;
 		besch->range = 0;
+		besch->way_wear_factor = UINT32_MAX_VALUE;
 	}
 
 	if(besch->sound==LOAD_SOUND) {

@@ -262,7 +262,7 @@ void planquadrat_t::rdwr(loadsave_t *file, koord pos )
 				case -1: gr = NULL; break;
 				case grund_t::boden:	    gr = new boden_t(file, pos);                 break;
 				case grund_t::wasser:	    gr = new wasser_t(file, pos);                break;
-				case grund_t::fundament:	    gr = new fundament_t(file, pos);	       break;
+				case grund_t::fundament:	    gr = new fundament_t(file, pos);	     break;
 				case grund_t::tunnelboden:	    gr = new tunnelboden_t(file, pos);       break;
 				case grund_t::brueckenboden:    gr = new brueckenboden_t(file, pos);     break;
 				case grund_t::monorailboden:	    gr = new monorailboden_t(file, pos); break;

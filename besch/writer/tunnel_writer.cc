@@ -15,7 +15,7 @@ using std::string;
 
 void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 {
-	obj_node_t node(this, 32, &parent);
+	obj_node_t node(this, 41, &parent);
 
 	sint32 topspeed					= obj.get_int("topspeed",    1000);
 	sint32 topspeed_gradient_1		= obj.get_int("topspeed_gradient_1",    topspeed);
@@ -26,6 +26,9 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 	uint16 axle_load				= obj.get_int("axle_load",   9999);
 	sint8 max_altitude				= obj.get_int("max_altitude", 0);
 	uint8 max_vehicles_on_tile		= obj.get_int("max_vehicles_on_tile", 251);
+	uint32 wear_capacity			= obj.get_int("wear_capacity", 100000000);
+	uint32 way_only_cost			= obj.get_int("way_only_cost", preis); 
+	sint8 upgrade_group				= obj.get_int("upgrade_group", -1);
 
 	// BG, 11.02.2014: max_weight was missused as axle_load 
 	// in experimetal before standard introduced axle_load. 
@@ -139,6 +142,9 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 	node.write_uint16(fp, topspeed_gradient_2,			28);
 	node.write_sint8(fp, max_altitude,					30);
 	node.write_uint8(fp, max_vehicles_on_tile,			31);
+	node.write_uint32(fp, wear_capacity,				32);
+	node.write_uint32(fp, way_only_cost,				36); 
+	node.write_sint8(fp, upgrade_group,					40);
 
 	write_head(fp, node, obj);
 

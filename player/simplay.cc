@@ -73,6 +73,7 @@ spieler_t::spieler_t(karte_t *wl, uint8 nr) :
 	automat = false;		// Start nicht als automatischer Spieler
 	locked = false;	/* allowe to change anything */
 	unlock_pending = false;
+	has_been_warned_about_no_money_for_renewals = false;
 
 	headquarter_pos = koord::invalid;
 	headquarter_level = 0;
@@ -171,6 +172,11 @@ void spieler_t::book_revenue(const sint64 amount, const koord k, const waytype_t
 {
 	finance->book_revenue(amount, wt, index);
 	add_money_message(amount, k);
+}
+
+void spieler_t::book_way_maintenance(const sint64 amount, const waytype_t wt)
+{
+	finance->book_maintenance(amount, wt);
 }
 
 
@@ -505,6 +511,8 @@ bool spieler_t::neuer_monat()
 	finance->book_account( -finance->get_maintenance_with_bits(TT_ALL) );
 	// company gets older ...
 	player_age ++;
+
+	has_been_warned_about_no_money_for_renewals = false;
 
 	return true; // still active
 }
