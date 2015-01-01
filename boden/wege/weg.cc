@@ -186,10 +186,14 @@ void weg_t::set_besch(const weg_besch_t *b)
 			add_way_constraints(wayobj->get_besch()->get_way_constraints());
 		}
 	}
-	remaining_wear_capacity = besch->get_wear_capacity();
-	last_renewal_month_year = welt->get_timeline_year_month();
-	degraded = false;
-	replacement_way = besch;
+
+	if(!besch->is_mothballed())
+	{	
+		remaining_wear_capacity = besch->get_wear_capacity();
+		last_renewal_month_year = welt->get_timeline_year_month();
+		degraded = false;
+		replacement_way = besch;
+	}
 }
 
 
@@ -971,5 +975,11 @@ void weg_t::degrade()
 		// Totally worn out: impassable. 
 		max_speed = 0;
 		degraded = true;
+		const weg_besch_t* mothballed_type = wegbauer_t::way_search_mothballed(get_waytype(), (weg_t::system_type)besch->get_styp()); 
+		if(mothballed_type)
+		{
+			set_besch(mothballed_type);
+			calc_bild();
+		}
 	}
 }

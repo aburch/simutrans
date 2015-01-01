@@ -230,7 +230,19 @@ const weg_besch_t* wegbauer_t::weg_search(const waytype_t wtyp, const sint32 spe
 	return best;
 }
 
+const weg_besch_t *wegbauer_t::way_search_mothballed(const waytype_t wtyp, const weg_t::system_type system_type)
+{
+	FOR(stringhashtable_tpl<weg_besch_t*>, const& iter, alle_wegtypen)
+	{
+		const weg_besch_t* const test = iter.value;
+		if(test->get_wtyp() == wtyp && (test->get_styp()==system_type || system_type==weg_t::type_all) && test->is_mothballed())
+		{
+			return test;
+		}
+	}
 
+	return NULL;
+}
 
 const weg_besch_t *wegbauer_t::get_earliest_way(const waytype_t wtyp)
 {
@@ -567,9 +579,7 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 	}
 
 	// Mothballed way types can only be built over existing ways of the same type.
-	const bool is_mothballed_waytype = besch->get_base_price() == 0 && besch->get_topspeed() == 0 && besch->get_base_maintenance() == 0;
-
-	if((mark_way_for_upgrade_only ||is_mothballed_waytype) && (!from->get_weg(besch->get_wtyp()) || !to->get_weg(besch->get_wtyp())))
+	if((mark_way_for_upgrade_only || besch->is_mothballed()) && (!from->get_weg(besch->get_wtyp()) || !to->get_weg(besch->get_wtyp())))
 	{
 		return false;
 	}
@@ -2006,7 +2016,7 @@ void wegbauer_t::baue_tunnel_und_bruecken()
  */
 sint64 wegbauer_t::calc_costs()
 {
-	if(besch->get_base_cost() == 0 && besch->get_base_maintenance() == 0 && besch->get_topspeed() == 0)
+	if(besch->is_mothballed())
 	{
 		// It is free to mothball a way. No other calculations are needed, as mothballed types
 		// can only be built as downgrades.
@@ -2388,9 +2398,9 @@ void wegbauer_t::baue_strasse()
 
 			// bridges/tunnels have their own track type and must not upgrade
 			// TODO: Make bridges/tunnels different from the underlying ways.
-			if(gr->get_typ()==grund_t::brueckenboden  ||  gr->get_typ()==grund_t::tunnelboden) {
+			/*if(gr->get_typ()==grund_t::brueckenboden  ||  gr->get_typ()==grund_t::tunnelboden) {
 				continue;
-			}
+			}*/
 
 			if(extend) {
 				weg_t * weg = gr->get_weg(road_wt);
@@ -2516,9 +2526,9 @@ void wegbauer_t::baue_schiene()
 
 				// bridges/tunnels have their own track type and must not upgrade
 				// TODO: Make these separate from the underlying bridge/tunnel
-				if((gr->get_typ()==grund_t::brueckenboden ||  gr->get_typ()==grund_t::tunnelboden)  &&  gr->get_weg_nr(0)->get_waytype()==besch->get_wtyp()) {
+				/*if((gr->get_typ()==grund_t::brueckenboden ||  gr->get_typ()==grund_t::tunnelboden)  &&  gr->get_weg_nr(0)->get_waytype()==besch->get_wtyp()) {
 					continue;
-				}
+				}*/
 
 				if(extend) {
 					weg_t* const weg = gr->get_weg(besch->get_wtyp());
@@ -2559,7 +2569,7 @@ void wegbauer_t::baue_schiene()
 						// cost is the more expensive one, so downgrading is between removing and new buidling
 						cost -= max( weg->get_besch()->get_preis(), besch->get_preis() );
 						weg->set_besch(besch);
-						if(besch->get_base_cost() == 0 && besch->get_base_maintenance() == 0 && besch->get_topspeed() == 0)
+						if(besch->is_mothballed())
 						{
 							// Free to downgrade to mothballed ways
 							cost = 0;
