@@ -9,8 +9,11 @@
 
 #include "strasse.h"
 #include "../../simworld.h"
+#include "../../obj/bruecke.h"
+#include "../../obj/tunnel.h"
 #include "../../dataobj/loadsave.h"
 #include "../../besch/weg_besch.h"
+#include "../../besch/tunnel_besch.h"
 #include "../../bauer/wegbauer.h"
 #include "../../dataobj/translator.h"
 #include "../../dataobj/ribi.h"
@@ -129,24 +132,59 @@ void strasse_t::rdwr(loadsave_t *file)
 			set_bridge_weight_limit(old_bridge_weight_limit);
 		}
 		const grund_t* gr = welt->lookup(get_pos());
+		const bruecke_t *bridge = gr ? gr->find<bruecke_t>() : NULL;
+		const tunnel_t *tunnel = gr ? gr->find<tunnel_t>() : NULL;
 		const hang_t::typ hang = gr ? gr->get_weg_hang() : hang_t::flach;
-		if(hang != hang_t::flach) 
- 		{
 
+		if(hang != hang_t::flach) 
+		{
 			const uint slope_height = (hang & 7) ? 1 : 2;
 			if(slope_height == 1)
 			{
-				set_max_speed(besch->get_topspeed_gradient_1());
+				if(bridge)
+				{
+					set_max_speed(min(besch->get_topspeed_gradient_1(), bridge->get_besch()->get_topspeed_gradient_1()));
+				}
+				else if(tunnel)
+				{
+					set_max_speed(min(besch->get_topspeed_gradient_1(), tunnel->get_besch()->get_topspeed_gradient_1()));
+				}
+				else
+				{
+					set_max_speed(besch->get_topspeed_gradient_1());
+				}
 			}
 			else
 			{
-				set_max_speed(besch->get_topspeed_gradient_2());
+				if(bridge)
+				{
+					set_max_speed( min(besch->get_topspeed_gradient_2(), bridge->get_besch()->get_topspeed_gradient_2()));
+				}
+				else if(tunnel)
+				{
+					set_max_speed(min(besch->get_topspeed_gradient_2(), tunnel->get_besch()->get_topspeed_gradient_2()));
+				}
+				else
+				{
+					set_max_speed(besch->get_topspeed_gradient_2());
+				}
 			}
 		}
 		else
- 		{
- 			set_max_speed(besch->get_topspeed());
- 		}
+		{
+			if(bridge)
+				{
+					set_max_speed(min(besch->get_topspeed(), bridge->get_besch()->get_topspeed()));
+				}
+			else if(tunnel)
+				{
+					set_max_speed(min(besch->get_topspeed(), tunnel->get_besch()->get_topspeed()));
+				}
+				else
+				{
+					set_max_speed(besch->get_topspeed());
+				}
+		}
  
 		const sint32 city_road_topspeed = welt->get_city_road()->get_topspeed();
 

@@ -2428,9 +2428,6 @@ void wegbauer_t::baue_strasse()
 					}
 					spieler_t::add_maintenance(sp, -old_maint, besch->get_finance_waytype());
 
-					// The below does not correctly account for the cost of diagonal ways.
-					// spieler_t::add_maintenance(s, -weg->get_besch()->get_wartung());
-
 					// Cost of downgrading is the cost of the inferior way (was previously the higher of the two costs in 10.15 and earlier, from Standard).
 					cost = besch->get_preis();
 
