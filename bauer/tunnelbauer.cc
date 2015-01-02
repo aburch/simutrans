@@ -472,18 +472,7 @@ DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d,%d) to (%d,%d,%d) ", pos.
 				weg->set_max_speed(besch->get_topspeed());
 			}
 			weg->set_max_axle_load(besch->get_max_axle_load());
-			// Necessary to avoid the "default" way (which might have constraints) setting the constraints here.
-			weg->clear_way_constraints();
-			weg->add_way_constraints(besch->get_way_constraints());
-			if(old_way)
-			{
-				weg->add_way_constraints(old_way->get_besch()->get_way_constraints());
-				const wayobj_t* way_object = gr->get_wayobj(wegtyp);
-				if(way_object)
-				{
-					weg->add_way_constraints(way_object->get_besch()->get_way_constraints());
-				}
-			}
+
 			tunnel->neuen_weg_bauen(weg, ribi_t::doppelt(ribi), sp);
 			spieler_t::add_maintenance( sp, -weg->get_besch()->get_wartung(), weg->get_besch()->get_finance_waytype() );
 		}
@@ -554,19 +543,7 @@ DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d,%d) to (%d,%d,%d) ", pos.
 			}
 			weg->set_max_axle_load(besch->get_max_axle_load());
 			tunnel->neuen_weg_bauen(weg, ribi, sp);
-			// Necessary to avoid the "default" way (which might have constraints) setting the constraints here.
-			weg->clear_way_constraints();
-			weg->add_way_constraints(besch->get_way_constraints());
-			if(old_way)
-			{
-				weg->add_way_constraints(old_way->get_besch()->get_way_constraints());
-				const wayobj_t* way_object = gr->get_wayobj(wegtyp);
-				if(way_object)
-				{
-					weg->add_way_constraints(way_object->get_besch()->get_way_constraints());
-				}
 
-			}
 			spieler_t::add_maintenance( sp,  -weg->get_besch()->get_wartung(), weg->get_besch()->get_finance_waytype() );
 		}
 		else {
@@ -643,18 +620,7 @@ void tunnelbauer_t::baue_einfahrt(spieler_t *sp, koord3d end, koord zv, const tu
 			weg->set_max_speed(besch->get_topspeed());
 		}
 		weg->set_max_axle_load( besch->get_max_axle_load() );
-		// Necessary to avoid the "default" way (which might have constraints) setting the constraints here.
-		weg->clear_way_constraints();
-		weg->add_way_constraints(besch->get_way_constraints());
-		if(old_way)
-		{
-			weg->add_way_constraints(old_way->get_besch()->get_way_constraints());
-				
-			if(way_object)
-			{
-				weg->add_way_constraints(way_object->get_besch()->get_way_constraints());
-			}
-		}
+		
 	}
 	else {
 		leitung_t *lt = tunnel->get_leitung();
