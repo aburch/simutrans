@@ -971,7 +971,8 @@ bool weg_t::renew()
 
 	spieler_t* const player = get_besitzer();
 	bool success = false;
-	if((!player && welt->get_city(get_pos().get_2d())) || (player && player->can_afford(replacement_way->get_preis())))
+	const sint64 price = besch->get_upgrade_group() == replacement_way->get_upgrade_group() ? replacement_way->get_way_only_cost() : replacement_way->get_preis();
+	if((!player && welt->get_city(get_pos().get_2d())) || (player && player->can_afford(price)))
 	{
 		// Unowned ways in cities are assumed to be owned by the city and will be renewed by it.
 		const uint16 time = welt->get_timeline_year_month();
@@ -991,7 +992,7 @@ bool weg_t::renew()
 		success = true;
 		if(player)
 		{
-			player->book_way_maintenance(replacement_way->get_preis(), replacement_way->get_waytype());
+			player->book_way_maintenance(price, replacement_way->get_waytype());
 		}
 	}
 	else if(player && !player->get_has_been_warned_about_no_money_for_renewals())

@@ -2086,7 +2086,7 @@ sint64 wegbauer_t::calc_costs()
 				}
 				else {
 					if (weg_t const* const weg = gr->get_weg(besch->get_wtyp())) {
-						replace_cost = weg->get_besch()->get_preis() / 2;
+						replace_cost = weg->get_besch()->get_upgrade_group() == besch->get_upgrade_group() ? besch->get_way_only_cost() : besch->get_preis(); 
 						upgrading = true;
 						if( weg->get_besch() == besch ) {
 							continue; // Nothing to pay on this tile.
@@ -2165,7 +2165,16 @@ sint64 wegbauer_t::calc_costs()
 				}
 			}
 		}
-		if(!keep_existing_faster_ways || old_speedlimit < new_speedlimit) 
+		if(upgrading) 
+		{
+			costs += replace_cost;
+		}
+		else if(!gr)
+		{
+			// No ground -building a new elevated way.
+			costs += (welt->get_settings().get_forge_cost(besch->get_waytype()) + besch->get_preis());
+		}
+		else
 		{
 			costs += max(replace_cost, single_cost);
 		}
@@ -2425,8 +2434,15 @@ void wegbauer_t::baue_strasse()
 					}
 					spieler_t::add_maintenance(sp, -old_maint, besch->get_finance_waytype());
 
-					// Cost of downgrading is the cost of the inferior way (was previously the higher of the two costs in 10.15 and earlier, from Standard).
-					cost = besch->get_preis();
+					if(besch->get_upgrade_group() == weg->get_besch()->get_upgrade_group())
+					{
+						cost = besch->get_way_only_cost();
+					}
+					else
+					{
+						// Cost of downgrading is the cost of the inferior way (was previously the higher of the two costs in 10.15 and earlier, from Standard).
+						cost = besch->get_preis();
+					}
 
 					weg->set_besch(besch);
 					// respect max speed of catenary
@@ -2557,8 +2573,7 @@ void wegbauer_t::baue_schiene()
 						// we take ownership => we take care to maintain the roads completely ...
 						spieler_t *s = weg->get_besitzer();
 						spieler_t::add_maintenance( s, -weg->get_besch()->get_wartung(), weg->get_besch()->get_finance_waytype());
-						// cost is the more expensive one, so downgrading is between removing and new buidling
-						cost -= max( weg->get_besch()->get_preis(), besch->get_preis() );
+						cost -= weg->get_besch()->get_upgrade_group() == besch->get_upgrade_group() ? besch->get_way_only_cost() : besch->get_preis();
 						weg->set_besch(besch);
 						if(besch->is_mothballed())
 						{

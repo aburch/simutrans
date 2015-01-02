@@ -3639,7 +3639,7 @@ void wkz_wayobj_t::mark_tiles( spieler_t * sp, const koord3d &start, const koord
 			// Search a matching catenary on gr.
 			wayobj_t *wayobj = gr->get_wayobj( wt );
 			if( build ) {
-				cost_estimate += besch->get_preis();
+					cost_estimate += besch->get_preis();
 				if( wayobj ) {
 					show = show | wayobj->get_dir();
 					// Already a catenary here -> costs only, if new catenary is faster

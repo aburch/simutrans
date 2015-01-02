@@ -26,8 +26,8 @@ void way_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 	};
 	int ribi, hang;
 
-	// node size is 36 bytes
-	obj_node_t node(this, 41, &parent);
+	// node size is 46 bytes
+	obj_node_t node(this, 45, &parent);
 
 
 	// Hajo: Version needs high bit set as trigger -> this is required
@@ -53,6 +53,8 @@ void way_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 	axle_load					= obj.get_int("axle_load",  axle_load);
 	sint8 max_altitude			= obj.get_int("max_altitude",			0);
 	uint8 max_vehicles_on_tile	= obj.get_int("max_vehicles_on_tile",	251);
+	uint32 way_only_cost		= obj.get_int("way_only_cost", price);
+	uint8 upgrade_group			= obj.get_int("upgrade_group", 0); 
 
 	uint16 intro  = obj.get_int("intro_year", DEFAULT_INTRO_DATE) * 12;
 	intro += obj.get_int("intro_month", 1) - 1;
@@ -128,6 +130,8 @@ void way_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 	node.write_sint8(outfp, max_altitude,				34);
 	node.write_uint8(outfp, max_vehicles_on_tile,		35);
 	node.write_uint32(outfp, wear_capacity,				36);
+	node.write_uint32(outfp, way_only_cost,				40);
+	node.write_uint8(outfp, upgrade_group,				44); 
 
 	static const char* const image_type[] = { "", "front" };
 
@@ -136,7 +140,7 @@ void way_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 	sprintf(buf, "image[%s][0]", ribi_codes[0]);
 	string str = obj.get(buf);
 	if (str.empty()) {
-		node.write_data_at(outfp, &number_seasons, 40, 1);
+		node.write_data_at(outfp, &number_seasons, 23, 1);
 		write_head(outfp, node, obj);
 
 		sprintf(buf, "image[%s]", ribi_codes[0]);

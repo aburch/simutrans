@@ -82,8 +82,9 @@ protected:
 	sint8 max_altitude;			///< Maximum height in tiles above sea level at which this way may be built
 	uint8 max_vehicles_on_tile;	///< Maximum number of vehicles permitted on the tile at once. Only used for waterways. Default: 251
 	uint32 wear_capacity;		///< The total number of standard axle passes (*10,000 for precision) that this way can take
-	uint32 base_way_only_cost;	///< The cost of upgrading/renewing only the way on the bridge (without scale factor).
-	uint32 way_only_cost;		///< The cost of upgrading/renewing only the way on the bridge.
+	uint32 base_way_only_cost;	///< The cost of upgrading/renewing only the way on the elevated way (without scale factor).
+	uint32 way_only_cost;		///< The cost of upgrading/renewing only the way on the elevated way.
+	uint8 upgrade_group;		///< The group of elevated ways between which this can be upgraded for the way only cost.
 
 public:
 	obj_besch_transport_related_t() : obj_besch_timelined_t(),
@@ -100,6 +101,8 @@ public:
 
 	inline uint32 get_base_way_only_cost() const { return base_way_only_cost; }
 	inline uint32 get_way_only_cost() const { return way_only_cost; }
+
+	inline uint8 get_upgrade_group() const { return upgrade_group; }
 
 	waytype_t get_waytype() const { return static_cast<waytype_t>(wt); }
 	waytype_t get_wtyp() const { return get_waytype(); }

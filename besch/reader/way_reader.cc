@@ -106,6 +106,8 @@ obj_besch_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 					besch->max_altitude = decode_sint8(p);
 					besch->max_vehicles_on_tile = decode_uint8(p);
 					besch->wear_capacity = decode_uint32(p);
+					besch->way_only_cost = decode_uint32(p);
+					besch->upgrade_group = decode_uint8(p);
 				}
 				if(experimental_version > 1)
 				{
@@ -136,6 +138,8 @@ obj_besch_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 					besch->max_altitude = decode_sint8(p);
 					besch->max_vehicles_on_tile = decode_uint8(p);
 					besch->wear_capacity = decode_uint32(p);
+					besch->way_only_cost = decode_uint32(p);
+					besch->upgrade_group = decode_uint8(p);
 				}
 				if(experimental_version > 1)
 				{
@@ -194,6 +198,8 @@ obj_besch_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			besch->max_altitude = 0;
 			besch->max_vehicles_on_tile = 251;
 			besch->wear_capacity = besch->get_waytype() == road_wt ? 100000000 : 4000000000;
+			besch->way_only_cost = besch->cost;
+			besch->upgrade_group = 0;
 		}
 	}
 
@@ -220,6 +226,7 @@ obj_besch_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 	besch->base_cost = besch->cost;
 	besch->base_maintenance = besch->maintenance;
+	besch->base_way_only_cost = besch->way_only_cost;
 
 	DBG_DEBUG("way_reader_t::read_node()",
 		"version=%d, price=%d, maintenance=%d, topspeed=%d, max_weight=%d, "
