@@ -40,6 +40,7 @@
 #include "../../obj/roadsign.h"
 #include "../../obj/signal.h"
 #include "../../obj/crossing.h"
+#include "../../obj/bruecke.h"
 #include "../../obj/gebaeude.h" // for ::should_city_adopt_this
 #include "../../utils/cbuffer_t.h"
 #include "../../dataobj/translator.h"
@@ -140,6 +141,7 @@ void weg_t::set_besch(const weg_besch_t *b)
 	besch = b;
 
 	const grund_t* gr = welt->lookup_kartenboden(get_pos().get_2d());
+	const bruecke_t *bridge = gr ? gr->find<bruecke_t>() : NULL;
 	const hang_t::typ hang = gr ? gr->get_weg_hang() : hang_t::flach;
 
 	if(hang != hang_t::flach) 
@@ -147,16 +149,37 @@ void weg_t::set_besch(const weg_besch_t *b)
 		const uint slope_height = (hang & 7) ? 1 : 2;
 		if(slope_height == 1)
 		{
-			max_speed = besch->get_topspeed_gradient_1();
+			if(bridge)
+			{
+				max_speed = min(besch->get_topspeed_gradient_1(), bridge->get_besch()->get_topspeed_gradient_1());
+			}
+			else
+			{
+				max_speed = besch->get_topspeed_gradient_1();
+			}
 		}
 		else
 		{
-			max_speed = besch->get_topspeed_gradient_2();
+			if(bridge)
+			{
+				max_speed = min(besch->get_topspeed_gradient_2(), bridge->get_besch()->get_topspeed_gradient_2());
+			}
+			else
+			{
+				max_speed = besch->get_topspeed_gradient_2();
+			}
 		}
 	}
 	else
 	{
-		max_speed = besch->get_topspeed();
+		if(bridge)
+			{
+				max_speed = min(besch->get_topspeed(), bridge->get_besch()->get_topspeed());
+			}
+			else
+			{
+				max_speed = besch->get_topspeed();
+			}
 	}
 
 	const sint32 city_road_topspeed = welt->get_city_road()->get_topspeed();
