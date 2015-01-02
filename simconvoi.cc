@@ -3956,7 +3956,7 @@ void convoi_t::rdwr(loadsave_t *file)
 		if(file->get_experimental_version() <= 9)
 		{
 			const grund_t* gr = welt->lookup(front()->last_stop_pos);
-			if(gr)
+			if(gr && fpl)
 			{
 				departure_data_t dep;
 				uint8 entry = fpl->get_aktuell();
