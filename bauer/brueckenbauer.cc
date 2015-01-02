@@ -58,7 +58,6 @@ void brueckenbauer_t::register_besch(bruecke_besch_t *besch)
 		delete old_besch->get_builder();
 		delete old_besch;
 	}
-
 	// add the tool
 	wkz_brueckenbau_t *wkz = new wkz_brueckenbau_t();
 	wkz->set_icon( besch->get_cursor()->get_bild_nr(1) );

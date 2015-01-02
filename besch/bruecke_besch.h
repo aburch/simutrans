@@ -20,6 +20,7 @@
 #include "text_besch.h"
 #include "../simtypes.h"
 #include "../display/simimg.h"
+#include "weg_besch.h"
 
 #include "../dataobj/ribi.h"
 #include "../dataobj/way_constraints.h"
@@ -35,6 +36,8 @@ private:
 	uint8 pillars_every;	// =0 off
 	bool pillars_asymmetric;	// =0 off else leave one off for north/west slopes
 	uint offset;	// flag, because old bridges had their name/copyright at the wrong position
+	bool has_own_way_graphics; // Whether the way graphics are built into the bridge itself (do not allow display of other way graphics if this is set). This was traditional in Simutrans for a long time, so this is on by default.
+	bool has_way;
 
 	uint8 max_length;	// =0 off, else maximum length
 	uint8 max_height;	// =0 off, else maximum length
@@ -150,6 +153,16 @@ public:
 	 * */
 	const way_constraints_of_way_t& get_way_constraints() const { return way_constraints; }
 	void set_way_constraints(const way_constraints_of_way_t& way_constraints) { this->way_constraints = way_constraints; }
+
+	bool get_has_own_way_graphics() const { return has_own_way_graphics; }
+
+	const weg_besch_t *get_weg_besch() const
+	{
+		if(has_way) {
+			return get_child<weg_besch_t>(5 + number_seasons * 2);
+		}
+		return NULL;
+	}
 
 	void calc_checksum(checksum_t *chk) const;
 };

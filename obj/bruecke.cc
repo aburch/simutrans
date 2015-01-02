@@ -88,6 +88,12 @@ void bruecke_t::calc_bild()
 				weg0->calc_bild();
 				weg0->set_flag(obj_t::dirty);
 			}
+			if(besch->get_has_own_way_graphics())
+			{
+				weg0->set_bild(IMG_LEER);
+				weg0->calc_bild();
+				weg0->set_flag(obj_t::dirty);
+			}
 			weg0->set_after_bild(IMG_LEER);
 			set_flag(obj_t::dirty);
 #ifdef MULTI_THREAD
