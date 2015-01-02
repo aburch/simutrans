@@ -2390,7 +2390,10 @@ void wegbauer_t::baue_strasse()
 		{
 			// Only mark the way for upgrading when it needs renewing: do not build anything now.
 			weg_t* const way = gr->get_weg(besch->get_wtyp());
-			way->set_replacement_way(besch); 
+			if((bautyp & elevated_flag) == (way->get_besch()->get_styp() == weg_besch_t::elevated))
+			{			
+				way->set_replacement_way(besch);
+			}
 		}
 		else
 		{
@@ -2515,7 +2518,10 @@ void wegbauer_t::baue_schiene()
 			{
 				// Only mark the way for upgrading when it needs renewing: do not build anything now.
 				weg_t* const way = gr->get_weg(besch->get_wtyp());
-				way->set_replacement_way(besch); 
+				if((bautyp & elevated_flag) == (way->get_besch()->get_styp() == weg_besch_t::elevated))
+				{			
+					way->set_replacement_way(besch);
+				}
 			}
 			else
 			{
