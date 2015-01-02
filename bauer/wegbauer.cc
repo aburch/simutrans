@@ -2137,10 +2137,6 @@ sint64 wegbauer_t::calc_costs()
 
 			single_cost += forge_cost;
 
-			if (!gr) 
-			{
-				gr = welt->lookup_kartenboden(koord(route[i].x, route[i].y));
-			}
 			const obj_t* obj = gr->obj_bei(0);
 			if(!upgrading && obj == NULL || obj->get_besitzer() != sp)
 			{
