@@ -2455,10 +2455,7 @@ uint8 wkz_wegebau_t::is_valid_pos(  spieler_t *sp, const koord3d &pos, const cha
 	error = NULL;
 	grund_t *gr=welt->lookup(pos);
 	if(  gr  &&  hang_t::ist_wegbar(gr->get_weg_hang())  ) {
-		// ignore tunnel tiles (except road tunnel for tram track building ..)
-		if(  gr->get_typ() == grund_t::tunnelboden  &&  !gr->ist_karten_boden()  && !(besch->get_wtyp()==track_wt  &&  besch->get_styp()==7  && gr->hat_weg(road_wt)) ) {
-			return 0;
-		}
+
 		bool const elevated = besch->get_styp() == 1  &&  besch->get_wtyp() != air_wt;
 		// ignore water
 		if(  besch->get_wtyp() != water_wt  &&  gr->get_typ() == grund_t::wasser  ) {
@@ -2479,6 +2476,7 @@ uint8 wkz_wegebau_t::is_valid_pos(  spieler_t *sp, const koord3d &pos, const cha
 		}
 		// test if way already exists on the way and if we are allowed to connect
 		weg_t *way = gr->get_weg(besch->get_wtyp());
+
 		if(way) {
 			// allow to connect to any road, or anywhere where the player has been granted access rights.
 			if(besch->get_wtyp() == road_wt || way->get_besitzer()->allows_access_to(sp->get_player_nr()))
@@ -2549,6 +2547,7 @@ void wkz_wegebau_t::calc_route( wegbauer_t &bauigel, const koord3d &start, const
 	else {
 		bauigel.calc_route(start,end);
 	}
+
 	DBG_MESSAGE("wkz_wegebau()", "builder found route with %d squares length.", bauigel.get_count());
 }
 
@@ -3348,6 +3347,7 @@ const char *wkz_wayremover_t::do_work( spieler_t *sp, const koord3d &start, cons
 	bool can_delete = true;	// assume success
 
 	// if successful => delete everything
+	// TODO: Find a way of allowing a bridge's way to be removed and replaced with a different way type here.
 	for( uint32 i=0;  i<verbindung.get_count();  i++  ) 
 	{
 		grund_t *gr = welt->lookup(verbindung.position_bei(i));
