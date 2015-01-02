@@ -191,6 +191,7 @@ void settings_experimental_general_stats_t::init( settings_t *sets )
 	INIT_NUM("global_power_factor_percent", sets->get_global_power_factor_percent(), 0, 1000, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM("enforce_weight_limits", sets->get_enforce_weight_limits(), 0, 3, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM("max_diversion_tiles", sets->get_max_diversion_tiles(), 0, 65535, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM("way_degridation_fraction", sets->get_way_degridation_fraction(), 0, 40, gui_numberinput_t::AUTOLINEAR, false );
 
 	SEPERATOR;
 	INIT_NUM("population_per_level", sets->get_population_per_level(), 1, 1000, 1, false);
@@ -315,6 +316,7 @@ void settings_experimental_general_stats_t::read(settings_t *sets)
 	READ_NUM( sets->set_global_power_factor_percent );
 	READ_NUM( sets->set_enforce_weight_limits );
 	READ_NUM_VALUE( sets->max_diversion_tiles );
+	READ_NUM_VALUE( sets->way_degridation_fraction );
 
 	READ_NUM_VALUE(sets->population_per_level);
 	READ_NUM_VALUE(sets->visitor_demand_per_level);

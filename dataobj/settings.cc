@@ -526,6 +526,13 @@ settings_t::settings_t() :
 	commuting_trip_chance_percent = 66;
 
 	max_diversion_tiles = 16;
+
+	way_degridation_fraction = 7;
+
+	way_wear_power_factor_road_type = 4;
+	way_wear_power_factor_rail_type = 1;
+	standard_axle_load = 8;
+	citycar_way_wear_factor = 2;
 }
 
 void settings_t::set_default_climates()
@@ -1561,6 +1568,22 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_short(parallel_ways_forge_cost_percentage_air);
 
 			file->rdwr_long(max_diversion_tiles);
+#ifdef SPECIAL_RESCUE_12_3
+			if(file->is_saving())
+			{
+				file->rdwr_long(way_degridation_fraction);
+				file->rdwr_long(way_wear_power_factor_road_type);
+				file->rdwr_long(way_wear_power_factor_rail_type);
+				file->rdwr_short(standard_axle_load);
+				file->rdwr_long(citycar_way_wear_factor);
+			}
+#else
+			file->rdwr_long(way_degridation_fraction);
+			file->rdwr_long(way_wear_power_factor_road_type);
+			file->rdwr_long(way_wear_power_factor_rail_type);
+			file->rdwr_short(standard_axle_load); 
+			file->rdwr_long(citycar_way_wear_factor);
+#endif
 		}
 		else
 		{
@@ -2419,6 +2442,13 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	parallel_ways_forge_cost_percentage_air = contents.get_int("parallel_ways_forge_cost_percentage_air", parallel_ways_forge_cost_percentage_air);
 
 	max_diversion_tiles = contents.get_int("max_diversion_tiles", max_diversion_tiles);
+
+	way_degridation_fraction = contents.get_int("way_degridation_fraction", way_degridation_fraction);
+
+	way_wear_power_factor_road_type = contents.get_int("way_wear_power_factor_road_type", way_wear_power_factor_road_type);
+	way_wear_power_factor_rail_type = contents.get_int("way_wear_power_factor_rail_type", way_wear_power_factor_rail_type);
+	standard_axle_load = contents.get_int("standard_axle_load", standard_axle_load);
+	citycar_way_wear_factor = contents.get_int("citycar_way_wear_factor", citycar_way_wear_factor);
 
 	// OK, this is a bit complex.  We are at risk of loading the same livery schemes repeatedly, which
 	// gives duplicate livery schemes and utter confusion.

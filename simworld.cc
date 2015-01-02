@@ -2540,7 +2540,7 @@ void karte_t::set_scale()
 		{
 			FOR(slist_tpl<vehikel_besch_t*>, & info, vehikelbauer_t::get_info((waytype_t)i))
 			{
-				info->set_scale(scale_factor);
+				info->set_scale(scale_factor, get_settings().get_way_wear_power_factor_rail_type(), get_settings().get_way_wear_power_factor_road_type(), get_settings().get_standard_axle_load());
 			}
 		}
 	}

@@ -711,7 +711,7 @@ public:
 
 	uint32 get_way_wear_factor() const { return way_wear_factor; }
 
-	void set_scale(uint16 scale_factor)
+	void set_scale(uint16 scale_factor, uint32 way_wear_factor_rail, uint32 way_wear_factor_road, uint16 standard_axle_load)
 	{ 
 		obj_besch_transport_related_t::set_scale(scale_factor);
 
@@ -734,28 +734,28 @@ public:
 		{
 			// Uninitialised. Set it here, as cannot set it on reading because we need welt, and reading is static.
 			uint32 power;
-			// TODO: have this set from simuconf.tab
+
 			switch(get_waytype())
 			{
 			case monorail_wt:
 			case track_wt:
 			case tram_wt:
 			case narrowgauge_wt:
-				power = 2;
+				power = way_wear_factor_rail;
 			case maglev_wt:
 			case water_wt:
 				power = 0;
 			case road_wt:
 			case air_wt:
 			default:
-				power = 4;
+				power = way_wear_factor_road; 
 			};
 			if(power > 0)
 			{
 				uint32 axles = axle_load ? (gewicht / axle_load) / 1000 : 1; // Weight is in kg.
 				axles = max(axles, 1);
 			
-				const float32e8_t standard_axle_load(8, 1); //8t  TODO: Have this set from simuconf.tab
+				const float32e8_t standard_axle_load(standard_axle_load, 1); 
 				float32e8_t adjusted_standard_axle(axle_load, standard_axle_load);
 				const float32e8_t adjusted_standard_axle_original = adjusted_standard_axle;
 				float32e8_t adjusted_standard_axle_extra(gewicht % axles); 

@@ -2167,7 +2167,7 @@ sint64 wegbauer_t::calc_costs()
 		}
 		else if(!gr)
 		{
-			// No ground -building a new elevated way.
+			// No ground -building a new elevated way. Do not add the land value as it is still possible to build underneath an elevated way.
 			costs += (welt->get_settings().get_forge_cost(besch->get_waytype()) + besch->get_preis());
 		}
 		else

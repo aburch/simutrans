@@ -949,7 +949,7 @@ grund_t* stadtauto_t::hop()
 
 	if(way)
 	{
-		way->wear_way(2); // TODO: Allow a simuconf.tab setting to determine what value that this should be.
+		way->wear_way(welt->get_settings().get_citycar_way_wear_factor()); 
 	}
 
 	verlasse_feld();

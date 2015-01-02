@@ -516,7 +516,47 @@ beginner_price_factor = 1500
 # public right of way to be deleted. Diversion allows players to
 # change the course of public rights of way to accomodate, for
 # example, railways whilst protecting their integrity.
+
 max_diversion_tiles = 16
+
+# This is the fraction of the way's total wear capacity below which
+# the way will count as degraded and be automatically renewed or,
+# if the player has insufficient money or auto-renewal has been
+# disabled for the way in question, will enter a degraded state
+# in which the speed limit will be reduced. (At a state of 0,
+# the way will become totally impassable). 
+# Default: 7 (approx. 14%). 
+
+way_degridation_fraction = 7
+
+# These two settings determine the default relationship between
+# the weight of vehicles and their way wear factors. Air and
+# road vehicles use the "road_type", and all others apart from
+# maglev and water (which are hard coded to zero) use the 
+# "rail_type". This only applies to vehicles whose way wear
+# factor is not specified in the individual vehicle definitions.
+# The default for road is 4, based on the "forth power law":
+# http://www.pavementinteractive.org/article/equivalent-single-axle-load/
+# The default for rail is 1. 
+
+way_wear_power_factor_road_type = 4
+way_wear_power_factor_rail_type = 1
+
+# This is the setting to calibrate the way wear system. This
+# is only effective for vehicles which do not have their way
+# wear factor set in their individual .dat files. For an
+# explanation of the standard axle load (in tonnes), see
+# the link above.
+# The default is 8, which is the UK standard for road.
+
+standard_axle_load = 8
+
+# This is the way wear factor exerted on roads by all
+# "citycars" (that is, the automatically generated
+# private road traffic) in the game, measured in 
+# 1/10,000ths of a standard axle load. 
+# Default = 2
+citycar_way_wear_factor = 2
 
 # Type of intercity roads - must be available as PAK file.
 # Intercityroad with timeline: intercity_road[number]=name,intro-year,retire-year
