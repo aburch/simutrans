@@ -45,6 +45,7 @@ public:
 	* Note: this adds new constraints - it does not replace existing ones or reset the constraints.
 	*/
 	void add(const way_constraints_t& add) { permissive |= add.permissive; 	prohibitive |= add.prohibitive;	}
+	void remove(const way_constraints_t& remove) { permissive ^= remove.permissive; prohibitive ^= remove.prohibitive; } 
 };
 
 class way_constraints_of_vehicle_t : public way_constraints_t

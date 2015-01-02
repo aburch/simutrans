@@ -141,8 +141,11 @@ const char *weg_t::waytype_to_string(waytype_t wt)
 void weg_t::set_besch(const weg_besch_t *b)
 {
 	besch = b;
-	// TODO: Ensure that way constraints are set for both bridge and underlying way properly.
-	const grund_t* gr = welt->lookup_kartenboden(get_pos().get_2d());
+	grund_t* gr = welt->lookup(get_pos());
+	if(!gr)
+	{
+		gr = welt->lookup_kartenboden(get_pos().get_2d());
+	}
 	const bruecke_t *bridge = gr ? gr->find<bruecke_t>() : NULL;
 	const tunnel_t *tunnel = gr ? gr->find<tunnel_t>() : NULL;
 	const hang_t::typ hang = gr ? gr->get_weg_hang() : hang_t::flach;
@@ -205,14 +208,24 @@ void weg_t::set_besch(const weg_besch_t *b)
 	}
 	
 	max_axle_load = besch->get_max_axle_load();
-	way_constraints = besch->get_way_constraints();
-	if(gr)
+	
+	// Clear the old constraints then add all sources of constraints again.
+	// (Removing will not work in cases where a way and another object, 
+	// such as a bridge, tunnel or wayobject, share a constraint).
+	clear_way_constraints();
+	add_way_constraints(besch->get_way_constraints()); // Add the way's own constraints
+	if(bridge)
 	{
-		const wayobj_t* wayobj = gr->get_wayobj(get_waytype());
-		if(wayobj)
-		{
-			add_way_constraints(wayobj->get_besch()->get_way_constraints());
-		}
+		add_way_constraints(bridge->get_besch()->get_way_constraints());
+	}
+	if(tunnel)
+	{
+		add_way_constraints(tunnel->get_besch()->get_way_constraints());
+	}
+	const wayobj_t* wayobj = gr ? gr->get_wayobj(get_waytype()) : NULL;
+	if(wayobj)
+	{
+		add_way_constraints(wayobj->get_besch()->get_way_constraints());
 	}
 
 	if(!besch->is_mothballed())

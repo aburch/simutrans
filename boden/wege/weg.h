@@ -241,6 +241,7 @@ public:
 	
 	const way_constraints_of_way_t& get_way_constraints() const { return way_constraints; }
 	void add_way_constraints(const way_constraints_of_way_t& value) { way_constraints.add(value); }
+	void remove_way_constraints(const way_constraints_of_way_t& value) { way_constraints.remove(value); }
 
 	/**
 	* Ermittelt die erlaubte Höchstgeschwindigkeit
