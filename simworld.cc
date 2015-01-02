@@ -2787,11 +2787,11 @@ const char* karte_t::terraformer_t::can_raise_all(const spieler_t *sp, bool allo
 	return NULL;
 }
 
-const char* karte_t::terraformer_t::can_lower_all(const spieler_t *sp) const
+const char* karte_t::terraformer_t::can_lower_all(const spieler_t *sp, bool allow_deep_water) const
 {
 	const char* err = NULL;
 	FOR(vector_tpl<node_t>, const &i, list) {
-		err = welt->can_lower_to(sp, i.x, i.y, i.h[0], i.h[1], i.h[2], i.h[3]);
+		err = welt->can_lower_to(sp, i.x, i.y, i.h[0], i.h[1], i.h[2], i.h[3], allow_deep_water);
 		if (err) {
 			return err;
 		}
@@ -3107,9 +3107,13 @@ void karte_t::prepare_lower(terraformer_t& digger, sint16 x, sint16 y, sint8 hsw
 // lower plan
 // new heights for each corner given
 // only test corners in ctest to avoid infinite loops
-const char* karte_t::can_lower_to(const spieler_t* sp, sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw) const
+const char* karte_t::can_lower_to(const spieler_t* sp, sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw, bool allow_deep_water) const
 {
 	assert(is_within_limits(x,y));
+
+	grund_t *gr = lookup_kartenboden_nocheck(x,y);
+	const sint8 water_hgt = get_water_hgt_nocheck(x,y);
+	const sint8 min_hgt = min(min(hsw,hse),min(hne,hnw));
 
 	const sint8 hneu = min( min( hsw, hse ), min( hne, hnw ) );
 	// water heights
@@ -3121,6 +3125,11 @@ const char* karte_t::can_lower_to(const spieler_t* sp, sint16 x, sint16 y, sint8
 				return "";
 			}
 		}
+	}
+
+	if(gr->ist_wasser() && min_hgt < grundwasser && !allow_deep_water) 
+	{
+		return "Cannot terraform in deep water";
 	}
 
 	return can_lower_plan_to(sp, x, y, hneu );
@@ -3330,7 +3339,7 @@ int karte_t::grid_lower(const spieler_t *sp, koord k, const char*&err)
 		digger.add_lower_node(x, y, hsw, hse, hne, hnw);
 		digger.iterate(false);
 
-		err = digger.can_lower_all(sp);
+		err = digger.can_lower_all(sp, sp->is_public_service());
 		if (err) {
 			return 0;
 		}
@@ -3363,7 +3372,7 @@ bool karte_t::ebne_planquadrat(spieler_t *sp, koord k, sint8 hgt, bool keep_wate
 		digger.add_lower_node(k.x, k.y, hgt, hgt, hgt, hgt);
 		digger.iterate(false);
 
-		ok = digger.can_lower_all(sp) == NULL;
+		ok = digger.can_lower_all(sp, sp->is_public_service()) == NULL;
 
 		if (ok  &&  !justcheck) {
 			n += digger.lower_all();

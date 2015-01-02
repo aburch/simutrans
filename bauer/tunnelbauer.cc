@@ -239,7 +239,7 @@ koord3d tunnelbauer_t::finde_ende(spieler_t *sp, koord3d pos, koord zv, const tu
 				raise.iterate(false);
 				lower.add_lower_node(pos.x, pos.y, hsw, hse, hne, hnw);
 				lower.iterate(false);
-				if (raise.can_lower_all(sp) || lower.can_lower_all(sp)) {
+				if (raise.can_lower_all(sp, sp->is_public_service()) || lower.can_lower_all(sp, sp->is_public_service())) {
 					// returned true therefore error reported
 					return koord3d::invalid;
 				}
@@ -390,7 +390,7 @@ const char *tunnelbauer_t::baue( spieler_t *sp, koord pos, const tunnel_besch_t 
 		raise.iterate(true);
 		lower.iterate(false);
 		err = raise.can_raise_all(sp, sp->is_public_service());
-		if (!err) err = lower.can_lower_all(sp);
+		if (!err) err = lower.can_lower_all(sp, sp->is_public_service());
 		if (err) return 0;
 
 // TODO: this is rather hackish as 4 seems to come from nowhere but works most of the time

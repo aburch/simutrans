@@ -556,6 +556,7 @@ standard_axle_load = 8
 # private road traffic) in the game, measured in 
 # 1/10,000ths of a standard axle load. 
 # Default = 2
+
 citycar_way_wear_factor = 2
 
 # Type of intercity roads - must be available as PAK file.

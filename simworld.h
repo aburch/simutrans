@@ -501,7 +501,7 @@ private:
 	 * @param hnw desired height of nw-corner
 	 * @returns NULL if lower_to operation can be performed, an error message otherwise
 	 */
-	const char* can_lower_to(const spieler_t* sp, sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw) const;
+	const char* can_lower_to(const spieler_t* sp, sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw, bool allow_deep_water) const;
 
 	/**
 	 * Lowers heights of the corners of the tile at (@p x, @p y).
@@ -2057,7 +2057,7 @@ public:
 		/// Check whether raise operation would succeed
 		const char* can_raise_all(const spieler_t *sp, bool allow_deep_water, bool keep_water=false) const;
 		/// Check whether lower operation would succeed
-		const char* can_lower_all(const spieler_t *sp) const;
+		const char* can_lower_all(const spieler_t *sp, bool allow_deep_water) const;
 
 		/// Do the raise operations
 		int raise_all();
