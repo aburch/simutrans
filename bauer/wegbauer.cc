@@ -2399,12 +2399,6 @@ void wegbauer_t::baue_strasse()
 		{
 			bool extend = gr->weg_erweitern(road_wt, route.get_short_ribi(i));
 
-			// bridges/tunnels have their own track type and must not upgrade
-			// TODO: Make bridges/tunnels different from the underlying ways.
-			/*if(gr->get_typ()==grund_t::brueckenboden  ||  gr->get_typ()==grund_t::tunnelboden) {
-				continue;
-			}*/
-
 			if(extend) {
 				weg_t * weg = gr->get_weg(road_wt);
 
@@ -2526,12 +2520,6 @@ void wegbauer_t::baue_schiene()
 			else
 			{
 				bool const extend = gr->weg_erweitern(besch->get_wtyp(), ribi);
-
-				// bridges/tunnels have their own track type and must not upgrade
-				// TODO: Make these separate from the underlying bridge/tunnel
-				/*if((gr->get_typ()==grund_t::brueckenboden ||  gr->get_typ()==grund_t::tunnelboden)  &&  gr->get_weg_nr(0)->get_waytype()==besch->get_wtyp()) {
-					continue;
-				}*/
 
 				if(extend) {
 					weg_t* const weg = gr->get_weg(besch->get_wtyp());
