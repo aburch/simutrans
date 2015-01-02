@@ -3127,7 +3127,7 @@ const char* karte_t::can_lower_to(const spieler_t* sp, sint16 x, sint16 y, sint8
 		}
 	}
 
-	if(gr->ist_wasser() && min_hgt < grundwasser && !allow_deep_water) 
+	if(min_hgt < grundwasser && !allow_deep_water) 
 	{
 		return "Cannot terraform in deep water";
 	}
@@ -3372,7 +3372,7 @@ bool karte_t::ebne_planquadrat(spieler_t *sp, koord k, sint8 hgt, bool keep_wate
 		digger.add_lower_node(k.x, k.y, hgt, hgt, hgt, hgt);
 		digger.iterate(false);
 
-		ok = digger.can_lower_all(sp, sp->is_public_service()) == NULL;
+		ok = digger.can_lower_all(sp, sp ? sp->is_public_service() : true) == NULL;
 
 		if (ok  &&  !justcheck) {
 			n += digger.lower_all();
