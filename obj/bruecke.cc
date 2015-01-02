@@ -81,21 +81,29 @@ void bruecke_t::calc_bild()
 			if(  display_image==IMG_LEER && besch->get_vordergrund( img, is_snow )==IMG_LEER  ) {
 				display_image=besch->get_hintergrund( single_img[img], is_snow );
 			}
-			set_bild( display_image );
-			if(slope)
-			{
-				weg0->set_yoff(-gr->get_weg_yoff() );
-				weg0->calc_bild();
-				weg0->set_flag(obj_t::dirty);
-			}
+			
+			weg0->set_after_bild(IMG_LEER);
 			if(besch->get_has_own_way_graphics())
 			{
 				weg0->set_bild(IMG_LEER);
-				weg0->calc_bild();
+				weg0->set_yoff(-gr->get_weg_yoff() );
+
 				weg0->set_flag(obj_t::dirty);
+				set_bild(display_image);
+				set_flag(obj_t::dirty);
 			}
-			weg0->set_after_bild(IMG_LEER);
-			set_flag(obj_t::dirty);
+			else
+			{
+				if(slope)
+				{
+					weg0->set_yoff(-gr->get_weg_yoff() );
+					weg0->calc_bild();
+					weg0->set_flag(obj_t::dirty);
+				}
+				set_bild(display_image);
+				set_flag(obj_t::dirty);
+			}			
+			
 #ifdef MULTI_THREAD
 			unlock_mutex();
 			weg0->unlock_mutex();
