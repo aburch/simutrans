@@ -30,7 +30,7 @@
 
 
 #include "../grund.h"
-#include "../../simmesg.h""
+#include "../../simmesg.h"
 #include "../../simworld.h"
 #include "../../display/simimg.h"
 #include "../../simhalt.h"
