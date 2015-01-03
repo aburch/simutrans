@@ -172,7 +172,7 @@ private:
 	/**
 	 * All cursor interaction goes via this function, it will call save_mouse_funk first with
 	 * init, then with the position and with exit, when another tool is selected without click
-	 * @see simwerkz.cc for practical examples of such functions.
+	 * @see simtool.cc for practical examples of such functions.
 	 */
 	tool_t *selected_tool[MAX_PLAYER_COUNT];
 
