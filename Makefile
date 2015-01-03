@@ -157,7 +157,6 @@ SOURCES += besch/reader/bridge_reader.cc
 SOURCES += besch/reader/building_reader.cc
 SOURCES += besch/reader/citycar_reader.cc
 SOURCES += besch/reader/crossing_reader.cc
-SOURCES += besch/reader/crossing_reader.cc
 SOURCES += besch/reader/factory_reader.cc
 SOURCES += besch/reader/good_reader.cc
 SOURCES += besch/reader/ground_reader.cc
