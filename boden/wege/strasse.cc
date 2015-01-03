@@ -91,7 +91,6 @@ void strasse_t::rdwr(loadsave_t *file)
 		const weg_besch_t *besch = wegbauer_t::get_besch(bname);
 
 #ifndef SPECIAL_RESCUE_12_3
-		char rbname[128];
 		const weg_besch_t* loaded_replacement_way = NULL;
 		if(file->get_experimental_version() >= 12)
 		{
