@@ -981,7 +981,7 @@ bool weg_t::renew()
 	{
 		// Unowned ways in cities are assumed to be owned by the city and will be renewed by it.
 		const uint16 time = welt->get_timeline_year_month();
-		bool is_current = !time || replacement_way->get_intro_year_month() <= time && time < replacement_way->get_retire_year_month();
+		bool is_current = !time || (replacement_way->get_intro_year_month() <= time && time < replacement_way->get_retire_year_month());
 		if(!is_current)
 		{
 			replacement_way = wegbauer_t::weg_search(replacement_way->get_waytype(), replacement_way->get_topspeed(), (const sint32)replacement_way->get_axle_load(), time, (weg_t::system_type)replacement_way->get_styp());

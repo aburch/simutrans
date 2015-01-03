@@ -149,18 +149,7 @@ private:
 	// BG, 24.02.2012 performance enhancement avoid virtual method call, use inlined get_waytype()
 	waytype_t waytype;
 	
-protected:
 
-	/*
-	* If this flag is true, players may not delete this way even if it is unowned unless they
-	* build a diversionary route. Makes the way usable by all players regardless of ownership
-	* and access settings. Permits upgrades but not downgrades, and prohibits private road signs.
-	* @author: jamespetts
-	*/
-	bool public_right_of_way:1; 
-		
-	// Whether the way is in a degraded state.
-	bool degraded:1;	
 	
 	/* These are statistics showing when this way was last built and when it was last renewed.
 	 * @author: jamespetts
@@ -172,7 +161,21 @@ protected:
 	 * @author: jamespetts
 	 */
 	uint32 remaining_wear_capacity;
+	
+	/* FOR GCC, THE FOLLOWING PACKED FIELDS MUST COME LAST */
 
+	/*
+	* If this flag is true, players may not delete this way even if it is unowned unless they
+	* build a diversionary route. Makes the way usable by all players regardless of ownership
+	* and access settings. Permits upgrades but not downgrades, and prohibits private road signs.
+	* @author: jamespetts
+	*/
+	bool public_right_of_way:1; 
+		
+	// Whether the way is in a degraded state.
+	bool degraded:1;	
+
+protected:
 
 	enum image_type { image_flat, image_slope, image_diagonal, image_switch };
 
