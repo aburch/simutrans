@@ -378,7 +378,7 @@ void weg_t::rdwr(loadsave_t *file)
 		file->rdwr_short(cmy);
 		creation_month_year = cmy;
 		uint16 lrmy = last_renewal_month_year;
-		file->rdwr_short(last_renewal_month_year);
+		file->rdwr_short(lrmy);
 		last_renewal_month_year = lrmy;
 		bool deg = degraded;
 		file->rdwr_bool(deg);
