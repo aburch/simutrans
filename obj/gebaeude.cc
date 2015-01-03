@@ -27,7 +27,6 @@ static pthread_mutex_t add_to_city_mutex = PTHREAD_MUTEX_INITIALIZER;
 #include "../gui/simwin.h"
 #include "../simcity.h"
 #include "../player/simplay.h"
-#include "../utils/simrandom.h"
 #include "../simdebug.h"
 #include "../simintr.h"
 #include "../simskin.h"
@@ -43,6 +42,7 @@ static pthread_mutex_t add_to_city_mutex = PTHREAD_MUTEX_INITIALIZER;
 #include "../descriptor/ground_desc.h"
 
 #include "../utils/cbuffer_t.h"
+#include "../utils/simrandom.h"
 
 #include "../dataobj/loadsave.h"
 #include "../dataobj/translator.h"

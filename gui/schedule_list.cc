@@ -365,38 +365,38 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *comp, value_t 
 		// create typed line
 		assert(  tabs.get_active_tab_index() > 0  &&  tabs.get_active_tab_index()<max_idx  );
 		// update line schedule via tool!
-		tool_t *tool = create_tool( TOOL_CHANGE_LINE | SIMPLE_TOOL );
+		tool_t *tmp_tool = create_tool( TOOL_CHANGE_LINE | SIMPLE_TOOL );
 		cbuffer_t buf;
 		int type = tabs_to_lineindex[tabs.get_active_tab_index()];
 		buf.printf( "c,0,%i,0,0|%i|", type, type );
-		tool->set_default_param(buf);
-		welt->set_tool( tool, player );
+		tmp_tool->set_default_param(buf);
+		welt->set_tool( tmp_tool, player );
 		// since init always returns false, it is safe to delete immediately
-		delete tool;
+		delete tmp_tool;
 		depot_t::update_all_win();
 	}
 	else if(comp == &bt_delete_line) {
 		if(line.is_bound()) {
-			tool_t *tool = create_tool( TOOL_CHANGE_LINE | SIMPLE_TOOL );
+			tool_t *tmp_tool = create_tool( TOOL_CHANGE_LINE | SIMPLE_TOOL );
 			cbuffer_t buf;
 			buf.printf( "d,%i", line.get_id() );
-			tool->set_default_param(buf);
-			welt->set_tool( tool, player );
+			tmp_tool->set_default_param(buf);
+			welt->set_tool( tmp_tool, player );
 			// since init always returns false, it is safe to delete immediately
-			delete tool;
+			delete tmp_tool;
 			depot_t::update_all_win();
 		}
 	}
 	else if(comp == &bt_withdraw_line) {
 		bt_withdraw_line.pressed ^= 1;
 		if (line.is_bound()) {
-			tool_t *tool = create_tool( TOOL_CHANGE_LINE | SIMPLE_TOOL );
+			tool_t *tmp_tool = create_tool( TOOL_CHANGE_LINE | SIMPLE_TOOL );
 			cbuffer_t buf;
 			buf.printf( "w,%i,%i", line.get_id(), bt_withdraw_line.pressed );
-			tool->set_default_param(buf);
-			welt->set_tool( tool, player );
+			tmp_tool->set_default_param(buf);
+			welt->set_tool( tmp_tool, player );
 			// since init always returns false, it is safe to delete immediately
-			delete tool;
+			delete tmp_tool;
 		}
 	}
 	else if (comp == &bt_line_class_manager)
@@ -420,13 +420,13 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *comp, value_t 
 			livery_scheme_index = livery_scheme_indices.empty()? 0 : livery_scheme_indices[livery_selection];
 			if (line.is_bound()) 
 			{
-				tool_t *tool = create_tool( TOOL_CHANGE_LINE | SIMPLE_TOOL );
+				tool_t *tmp_tool = create_tool( TOOL_CHANGE_LINE | SIMPLE_TOOL );
 				cbuffer_t buf;
 				buf.printf( "V,%i,%i", line.get_id(), livery_scheme_index );
-				tool->set_default_param(buf);
-				welt->set_tool( tool, player );
+				tmp_tool->set_default_param(buf);
+				welt->set_tool( tmp_tool, player );
 				// since init always returns false, it is safe to delete immediately
-				delete tool;
+				delete tmp_tool;
 			}
 	}
 	else if (comp == &tabs) {
@@ -508,11 +508,11 @@ void schedule_list_gui_t::rename_line()
 			// text changed => call tool
 			cbuffer_t buf;
 			buf.printf( "l%u,%s", line.get_id(), t );
-			tool_t *tool = create_tool( TOOL_RENAME | SIMPLE_TOOL );
-			tool->set_default_param( buf );
-			welt->set_tool( tool, line->get_owner() );
+			tool_t *tmp_tool = create_tool( TOOL_RENAME | SIMPLE_TOOL );
+			tmp_tool->set_default_param( buf );
+			welt->set_tool( tmp_tool, line->get_owner() );
 			// since init always returns false, it is safe to delete immediately
-			delete tool;
+			delete tmp_tool;
 			// do not trigger this command again
 			tstrncpy(old_line_name, t, sizeof(old_line_name));
 		}

@@ -13,7 +13,6 @@
 #include "../simhalt.h"
 #include "../simline.h"
 #include "../simmenu.h"
-#include "../utils/simrandom.h"
 #include "../simmesg.h"
 #include "../simworld.h"
 
@@ -28,6 +27,7 @@
 #include "../dataobj/marker.h"
 
 #include "../utils/cbuffer_t.h"
+#include "../utils/simrandom.h"
 #include "../utils/simstring.h"
 
 #include "../vehicle/simvehicle.h"

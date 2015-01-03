@@ -18,7 +18,6 @@
 #include "../simintr.h"
 #include "../player/simplay.h"
 #include "../simplan.h"
-#include "../utils/simrandom.h"
 #include "../simdepot.h"
 
 #include "wegbauer.h"
@@ -47,6 +46,8 @@
 #include "../dataobj/marker.h"
 #include "../dataobj/translator.h"
 #include "../dataobj/scenario.h"
+
+#include "../utils/simrandom.h"
 
 // binary heap, since we only need insert and pop
 #include "../tpl/binary_heap_tpl.h" // fastest

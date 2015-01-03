@@ -43,7 +43,6 @@
 #include "simsound.h"
 #include "simsys.h"
 #include "simticker.h"
-#include "utils/simrandom.h"
 #include "simunits.h"
 #include "simversion.h"
 #include "display/simview.h"
@@ -99,7 +98,9 @@
 #include "dataobj/marker.h"
 
 #include "utils/cbuffer_t.h"
+#include "utils/simrandom.h"
 #include "utils/simstring.h"
+
 #include "network/memory_rw.h"
 
 #include "bauer/brueckenbauer.h"
@@ -4073,75 +4074,75 @@ bool karte_t::change_player_tool(uint8 cmd, uint8 player_nr, uint16 param, bool 
 }
 
 
-void karte_t::set_tool( tool_t *tool, player_t *player )
+void karte_t::set_tool( tool_t *tool_in, player_t *player )
 {
 	if(  get_random_mode()&LOAD_RANDOM  ) {
-		dbg->warning("karte_t::set_tool", "Ignored tool %i during loading.", tool->get_id() );
+		dbg->warning("karte_t::set_tool", "Ignored tool %i during loading.", tool_in->get_id() );
 		return;
 	}
-	bool scripted_call = tool->is_scripted();
+	bool scripted_call = tool_in->is_scripted();
 	// check for scenario conditions
-	if(  !scripted_call  &&  (scenario && !scenario->is_tool_allowed(player, tool->get_id(), tool->get_waytype()))  ) {
+	if(  !scripted_call  &&  (scenario && !scenario->is_tool_allowed(player, tool_in->get_id(), tool_in->get_waytype()))  ) {
 		return;
 	}
 
 	player_t* action_player = player;
-	if(tool->get_id() == (TOOL_ACCESS_TOOL | SIMPLE_TOOL))
+	if(tool_in->get_id() == (TOOL_ACCESS_TOOL | SIMPLE_TOOL))
 	{
 		uint16 id_setting_player;
 		uint16 id_receiving_player;
 		sint16 allow_access;
 
-		if(3 != sscanf(tool->get_default_param(), "g%hi,%hi,%hi", &id_setting_player, &id_receiving_player, &allow_access)) 
+		if(3 != sscanf(tool_in->get_default_param(), "g%hi,%hi,%hi", &id_setting_player, &id_receiving_player, &allow_access))
 		{
-			dbg->error( "karte_t::set_tool", "could not perform (%s)", tool->get_default_param() );
+			dbg->error( "karte_t::set_tool", "could not perform (%s)", tool_in->get_default_param() );
 			return;
 		}
 		action_player = this->get_player(id_setting_player);
 	}
 
 	// check for password-protected players
-	if(  (!tool->is_init_network_save()  ||  !tool->is_work_network_save())  &&  !scripted_call  &&
-		 !(tool->get_id()==(TOOL_CHANGE_PLAYER|SIMPLE_TOOL)  ||  tool->get_id()==(TOOL_ADD_MESSAGE|SIMPLE_TOOL))  &&
+	if(  (!tool_in->is_init_network_save()  ||  !tool_in->is_work_network_save())  &&  !scripted_call  &&
+		 !(tool_in->get_id()==(TOOL_CHANGE_PLAYER|SIMPLE_TOOL)  ||  tool_in->get_id()==(TOOL_ADD_MESSAGE|SIMPLE_TOOL))  &&
 		 action_player  &&  action_player->is_locked()  ) {
 		// player is currently password protected => request unlock first
 		create_win( -1, -1, new password_frame_t(action_player), w_info, magic_pwd_t + action_player->get_player_nr() );
 		return;
 	}
-	tool->flags |= event_get_last_control_shift();
-	if(!env_t::networkmode  ||  tool->is_init_network_save()  ) {
-		local_set_tool(tool, player);
+	tool_in->flags |= event_get_last_control_shift();
+	if(!env_t::networkmode  ||  tool_in->is_init_network_save()  ) {
+		local_set_tool(tool_in, player);
 	}
 	else {
 		// queue tool for network
-		nwc_tool_t *nwc = new nwc_tool_t(player, tool, zeiger->get_pos(), steps, map_counter, true);
+		nwc_tool_t *nwc = new nwc_tool_t(player, tool_in, zeiger->get_pos(), steps, map_counter, true);
 		network_send_server(nwc);
 	}
 }
 
 
 // set a new tool on our client, calls init
-void karte_t::local_set_tool( tool_t *tool, player_t * player )
+void karte_t::local_set_tool( tool_t *tool_in, player_t * player )
 {
-	tool->flags |= tool_t::WFL_LOCAL;
+	tool_in->flags |= tool_t::WFL_LOCAL;
 
 	if (get_scenario())
 	{
-		if (get_scenario()->is_scripted() && !get_scenario()->is_tool_allowed(player, tool->get_id())) {
-			tool->flags = 0;
+		if (get_scenario()->is_scripted() && !get_scenario()->is_tool_allowed(player, tool_in->get_id())) {
+			tool_in->flags = 0;
 			return;
 		}
 	}
 	// now call init
-	bool init_result = tool->init(player);
+	bool init_result = tool_in->init(player);
 	// for unsafe tools init() must return false
-	assert(tool->is_init_network_save()  ||  !init_result);
+	assert(tool_in->is_init_network_save()  ||  !init_result);
 
 	if (player && init_result) {
 
 		set_dirty();
 		tool_t *sp_tool = selected_tool[player->get_player_nr()];
-		if(tool != sp_tool) {
+		if(tool_in != sp_tool) {
 
 			// reinit same tool => do not play sound twice
 			sound_play(SFX_SELECT);
@@ -4163,18 +4164,18 @@ void karte_t::local_set_tool( tool_t *tool, player_t * player )
 			// remove marks
 			zeiger->change_pos( koord3d::invalid );
 			// set new cursor properties
-			tool->init_cursor(zeiger);
+			tool_in->init_cursor(zeiger);
 			// .. and mark again (if the position is acceptable for the tool)
-			if( tool->check_valid_pos(zpos.get_2d())) {
+			if( tool_in->check_valid_pos(zpos.get_2d())) {
 				zeiger->change_pos( zpos );
 			}
 			else {
 				zeiger->change_pos( koord3d::invalid );
 			}
 		}
-		selected_tool[player->get_player_nr()] = tool;
+		selected_tool[player->get_player_nr()] = tool_in;
 	}
-	tool->flags = 0;
+	tool_in->flags = 0;
 }
 
 
@@ -5762,11 +5763,11 @@ void karte_t::step()
 		cbuffer_t buf;
 		buf.printf("%d,", message_t::general | message_t::local_flag);
 		buf.printf(translator::translate("Now %u clients connected.", settings.get_name_language_id()), last_clients);
-		tool_t *tool = create_tool( TOOL_ADD_MESSAGE | SIMPLE_TOOL );
-		tool->set_default_param( buf );
-		set_tool( tool, NULL );
+		tool_t *tmp_tool = create_tool( TOOL_ADD_MESSAGE | SIMPLE_TOOL );
+		tmp_tool->set_default_param( buf );
+		set_tool( tmp_tool, NULL );
 		// since init always returns false, it is safe to delete immediately
-		delete tool;
+		delete tmp_tool;
 	}
 
 	if(  get_scenario()->is_scripted() ) {
@@ -7935,7 +7936,7 @@ DBG_MESSAGE("karte_t::save(loadsave_t *file)", "start");
 	 * THIS MUST NOT BE DONE IN NETWORK MODE!
 	 */
 	for(  uint8 sp_nr=0;  sp_nr<MAX_PLAYER_COUNT;  sp_nr++  ) {
-		if(  two_click_tool_t* tool = dynamic_cast<two_click_tool_t*>(selected_tool[sp_nr]) ) {
+		if (two_click_tool_t* tool = dynamic_cast<two_click_tool_t*>(selected_tool[sp_nr])) {
 			tool->cleanup();
 		}
 	}

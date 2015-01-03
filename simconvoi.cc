@@ -713,16 +713,16 @@ DBG_MESSAGE("convoi_t::finish_rd()","next_stop_index=%d", next_stop_index );
 // since now convoi states go via tool_t
 void convoi_t::call_convoi_tool( const char function, const char *extra)
 {
-	tool_t *tool = create_tool( TOOL_CHANGE_CONVOI | SIMPLE_TOOL );
+	tool_t *tmp_tool = create_tool( TOOL_CHANGE_CONVOI | SIMPLE_TOOL );
 	cbuffer_t param;
 	param.printf("%c,%u", function, self.get_id());
 	if(  extra  &&  *extra  ) {
 		param.printf(",%s", extra);
 	}
-	tool->set_default_param(param);
-	welt->set_tool( tool, get_owner() );
+	tmp_tool->set_default_param(param);
+	welt->set_tool( tmp_tool, get_owner() );
 	// since init always returns false, it is safe to delete immediately
-	delete tool;
+	delete tmp_tool;
 }
 
 

@@ -25,7 +25,6 @@
 #include "simplan.h"
 #include "display/simimg.h"
 #include "vehicle/simroadtraffic.h"
-#include "utils/simrandom.h"
 #include "simhalt.h"
 #include "simfab.h"
 #include "simcity.h"
@@ -66,6 +65,7 @@
 #include "bauer/hausbauer.h"
 #include "bauer/fabrikbauer.h"
 #include "utils/cbuffer_t.h"
+#include "utils/simrandom.h"
 #include "utils/simstring.h"
 #ifdef DEBUG_WEIGHTMAPS
 #include "utils/dbg_weightmap.h"

@@ -133,6 +133,7 @@
     <ClCompile Include="utils\log.cc" />
     <ClCompile Include="utils\searchfolder.cc" />
     <ClCompile Include="simmem.cc" />
+    <ClCompile Include="utils\simrandom.cc" />
     <ClCompile Include="utils\simstring.cc" />
     <ClCompile Include="dataobj\tabfile.cc" />
   </ItemGroup>
@@ -173,8 +174,8 @@
     <ClInclude Include="utils\searchfolder.h" />
     <ClInclude Include="simdebug.h" />
     <ClInclude Include="simmem.h" />
+    <ClInclude Include="utils\simrandom.h" />
     <ClInclude Include="utils\simstring.h" />
-    <ClInclude Include="simtools.h" />
     <ClInclude Include="besch\skin_besch.h" />
     <ClInclude Include="besch\sound_besch.h" />
     <ClInclude Include="dataobj\tabfile.h" />

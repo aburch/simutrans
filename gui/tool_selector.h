@@ -68,7 +68,7 @@ public:
 	 * Add a new tool with values and tooltip text.
 	 * @author Hj. Malthaner
 	 */
-	void add_tool_selector(tool_t *tool);
+	void add_tool_selector(tool_t *tool_in);
 
 	// purges toolbar
 	void reset_tools();

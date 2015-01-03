@@ -16,7 +16,6 @@
 #include "../simworld.h"
 #include "../gui/simwin.h"
 #include "../display/simimg.h"
-#include "../utils/simrandom.h"
 #include "../simintr.h"
 #include "welt.h"
 
@@ -36,6 +35,7 @@
 
 #include "../display/simgraph.h"
 
+#include "../utils/simrandom.h"
 #include "../utils/simstring.h"
 
 #define L_DIALOG_WIDTH (260)

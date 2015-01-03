@@ -238,7 +238,7 @@ bool hausbauer_t::register_desc(building_desc_t *desc)
 	if(  sd  &&  sd->get_image_id(1)!=IMG_EMPTY) {
 		tool_t *tool;
 		if(  desc->get_type()==building_desc_t::depot  ) {
-			tool = new tool_depot_t();
+			tool = new tool_build_depot_t();
 		}
 		else if(  desc->get_type()==building_desc_t::headquarters  ) {
 			tool = new tool_headquarter_t();

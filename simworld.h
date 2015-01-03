@@ -1936,12 +1936,12 @@ public:
 	/**
 	 * Set a new tool as current: calls local_set_tool or sends to server.
 	 */
-	void set_tool( tool_t *tool, player_t * player );
+	void set_tool( tool_t *tool_in, player_t * player );
 
 	/**
 	 * Set a new tool on our client, calls init.
 	 */
-	void local_set_tool( tool_t *tool, player_t * player );
+	void local_set_tool( tool_t *tool_in, player_t * player );
 	tool_t *get_tool(uint8 nr) const { return selected_tool[nr]; }
 
 	/**

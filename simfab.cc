@@ -26,7 +26,6 @@
 #include "simfab.h"
 #include "simcity.h"
 #include "simhalt.h"
-#include "utils/simrandom.h"
 #include "simware.h"
 #include "simworld.h"
 #include "descriptor/building_desc.h"
@@ -54,6 +53,7 @@
 
 #include "gui/fabrik_info.h"
 
+#include "utils/simrandom.h"
 #include "utils/cbuffer_t.h"
 
 #include "gui/simwin.h"

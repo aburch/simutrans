@@ -28,7 +28,6 @@
 #include "simmem.h"
 #include "simmesg.h"
 #include "simplan.h"
-#include "utils/simrandom.h"
 #include "player/simplay.h"
 #include "player/finance.h"
 #include "gui/simwin.h"
@@ -60,6 +59,7 @@
 #include "gui/halt_detail.h"
 #include "gui/karte.h"
 
+#include "utils/simrandom.h"
 #include "utils/simstring.h"
 
 #include "vehicle/simpeople.h"

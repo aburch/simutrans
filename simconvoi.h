@@ -899,14 +899,13 @@ public:
 	// true if this is a waypoint
 	bool is_waypoint( koord3d ) const;
 
-	/* changes the state of a convoi via tool_t; mandatory for networkmode! *
+	/* changes the state of a convoi via tool_t; mandatory for networkmode!
 	 * for list of commands and parameter see tool_t::tool_change_convoi_t
 	 */
 	void call_convoi_tool( const char function, const char *extra = NULL );
 
 	/**
-	* set state: only use by tool_t convoi tool, or not networking!
-	* @author hsiegeln
+	* set state: only use by tool_t::tool_change_convoi_t
 	*/
 	void set_state( uint16 new_state ) { assert(new_state<MAX_STATES); state = (states)new_state; }
 
