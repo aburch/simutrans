@@ -357,17 +357,29 @@ void weg_t::rdwr(loadsave_t *file)
 #ifdef SPECIAL_RESCUE_12_3
 		if(file->is_saving())
 		{
-			file->rdwr_long(remaining_wear_capacity);
-			file->rdwr_short(creation_month_year);
-			file->rdwr_short(last_renewal_month_year);	
+			uint32 rwc = remaining_wear_capacity;
+			file->rdwr_long(rwc);
+			remaining_wear_capacity = rwc;
+			uint16 cmy = creation_month_year;
+			file->rdwr_short(cmy);
+			creation_month_year = cmy;
+			uint16 lrmy = last_renewal_month_year;
+			file->rdwr_short(last_renewal_month_year);
+			last_renewal_month_year = lrmy;
 			bool deg = degraded;
 			file->rdwr_bool(deg);
 			degraded = deg;
 		}
 #else
-		file->rdwr_long(remaining_wear_capacity);
-		file->rdwr_short(creation_month_year);
+		uint32 rwc = remaining_wear_capacity;
+		file->rdwr_long(rwc);
+		remaining_wear_capacity = rwc;
+		uint16 cmy = creation_month_year;
+		file->rdwr_short(cmy);
+		creation_month_year = cmy;
+		uint16 lrmy = last_renewal_month_year;
 		file->rdwr_short(last_renewal_month_year);
+		last_renewal_month_year = lrmy;
 		bool deg = degraded;
 		file->rdwr_bool(deg);
 		degraded = deg;

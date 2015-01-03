@@ -161,8 +161,6 @@ private:
 	 * @author: jamespetts
 	 */
 	uint32 remaining_wear_capacity;
-	
-	/* FOR GCC, THE FOLLOWING PACKED FIELDS MUST COME LAST */
 
 	/*
 	* If this flag is true, players may not delete this way even if it is unowned unless they
