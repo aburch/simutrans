@@ -235,6 +235,11 @@ void weg_t::set_besch(const weg_besch_t *b)
 		degraded = false;
 		replacement_way = besch;
 	}
+	else
+	{
+		degraded = true;
+		remaining_wear_capacity = 0;
+	}
 }
 
 
