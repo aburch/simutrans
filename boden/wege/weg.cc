@@ -357,9 +357,9 @@ void weg_t::rdwr(loadsave_t *file)
 #ifdef SPECIAL_RESCUE_12_3
 		if(file->is_saving())
 		{
+			file->rdwr_long(remaining_wear_capacity);
 			file->rdwr_short(creation_month_year);
 			file->rdwr_short(last_renewal_month_year);	
-			file->rdwr_long(remaining_wear_capacity);
 			bool deg = degraded;
 			file->rdwr_bool(deg);
 			degraded = deg;

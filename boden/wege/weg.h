@@ -148,6 +148,8 @@ private:
 
 	// BG, 24.02.2012 performance enhancement avoid virtual method call, use inlined get_waytype()
 	waytype_t waytype;
+	
+protected:
 
 	/*
 	* If this flag is true, players may not delete this way even if it is unowned unless they
@@ -158,8 +160,8 @@ private:
 	bool public_right_of_way:1; 
 		
 	// Whether the way is in a degraded state.
-	bool degraded:1;
-
+	bool degraded:1;	
+	
 	/* These are statistics showing when this way was last built and when it was last renewed.
 	 * @author: jamespetts
 	 */
@@ -171,9 +173,6 @@ private:
 	 */
 	uint32 remaining_wear_capacity;
 
-
-
-protected:
 
 	enum image_type { image_flat, image_slope, image_diagonal, image_switch };
 
