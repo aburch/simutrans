@@ -97,7 +97,7 @@ private:
 public:
 
 	// Returns maximum axle load
-	uint32 get_max_axle_load() const { return axle_load < 999999 ? axle_load : 999; }
+	uint32 get_max_axle_load() const { return axle_load; }
 
 	/**
 	* @return waytype used in finance stats (needed to distinguish \
