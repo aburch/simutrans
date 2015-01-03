@@ -4534,7 +4534,7 @@ void convoi_t::laden() //"load" (Babelfish)
 						best_times_in_schedule.remove(departure_halt.get_id());
 					}
 				}
-				else
+				else if((departures_already_booked.get(id_pair(departure_halt.get_id(), this_halt_id)) != iter.value.departure_time))
 				{
 					best_times_in_schedule.put(departure_halt.get_id(), iter.value.departure_time);
 				}
