@@ -53,7 +53,7 @@ ki_kontroll_t::ki_kontroll_t() :
 
 	// check also scenario rules
 	if (welt->get_scenario()->is_scripted()) {
-		player_tools_allowed = welt->get_scenario()->is_tool_allowed(NULL, WKZ_SWITCH_PLAYER | SIMPLE_TOOL);
+		player_tools_allowed = welt->get_scenario()->is_tool_allowed(NULL, TOOL_SWITCH_PLAYER | SIMPLE_TOOL);
 		player_change_allowed &= player_tools_allowed;
 	}
 
@@ -193,8 +193,8 @@ bool ki_kontroll_t::action_triggered( gui_action_creator_t *comp,value_t p )
 			else {
 				// Current AI on/off
 				sprintf( param, "a,%i,%i", i, !welt->get_spieler(i)->is_active() );
-				werkzeug_t::simple_tool[WKZ_SET_PLAYER_TOOL]->set_default_param( param );
-				welt->set_werkzeug( werkzeug_t::simple_tool[WKZ_SET_PLAYER_TOOL], welt->get_active_player() );
+				tool_t::simple_tool[TOOL_CHANGE_PLAYER]->set_default_param( param );
+				welt->set_tool( tool_t::simple_tool[TOOL_CHANGE_PLAYER], welt->get_active_player() );
 			}
 			break;
 		}

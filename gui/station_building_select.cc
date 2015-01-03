@@ -13,7 +13,7 @@
 
 #include "../simdebug.h"
 #include "../simworld.h"
-#include "../simwerkz.h"
+#include "../simtool.h"
 #include "../gui/simwin.h"
 #include "station_building_select.h"
 #include "components/gui_button.h"
@@ -30,7 +30,7 @@ static const char label_text[4][64] = {
 
 
 char station_building_select_t::default_str[260];
-wkz_station_t station_building_select_t::wkz=wkz_station_t();
+tool_build_station_t station_building_select_t::tool=tool_build_station_t();
 
 
 station_building_select_t::station_building_select_t(const haus_besch_t *besch) :
@@ -124,8 +124,8 @@ bool station_building_select_t::action_triggered( gui_action_creator_t *komp,val
 		if(komp == &actionbutton[i]) {
 			static char default_str[1024];
 			sprintf( default_str, "%s,%i", besch->get_name(), i );
-			wkz.set_default_param(default_str);
-			welt->set_werkzeug( &wkz, welt->get_active_player() );
+			tool.set_default_param(default_str);
+			welt->set_tool( &tool, welt->get_active_player() );
 			destroy_win(this);
 		}
 	}

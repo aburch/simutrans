@@ -4,7 +4,7 @@
 #include "text_besch.h"
 
 class checksum_t;
-class werkzeug_t;
+class tool_t;
 
 /**
  * Common base class for all object descriptors, which get their name and
@@ -102,16 +102,16 @@ public:
 class obj_besch_transport_infrastructure_t : public obj_besch_transport_related_t {
 
 protected:
-	werkzeug_t *builder;  ///< default tool for building
+	tool_t *builder;  ///< default tool for building
 
 public:
 
-	werkzeug_t *get_builder() const {
+	tool_t *get_builder() const {
 		return builder;
 	}
 
-	void set_builder( werkzeug_t *w )  {
-		builder = w;
+	void set_builder( tool_t *tool )  {
+		builder = tool;
 	}
 };
 

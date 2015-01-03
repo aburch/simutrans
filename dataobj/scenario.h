@@ -329,15 +329,15 @@ public:
 	 *
 	 * @param player_nr number of player this rule applies to,
 	 *                  if this is set to MAX_PLAYER_COUNT then this acts for all players except public player
-	 * @param wkz_id id of tool
+	 * @param tool_id id of tool
 	 */
-	void forbid_tool(uint8 player_nr, uint16 wkz_id);
+	void forbid_tool(uint8 player_nr, uint16 tool_id);
 
 	/**
 	 * @ingroup squirrel-api
 	 * @see forbid_tool
 	 */
-	void allow_tool(uint8 player_nr, uint16 wkz_id);
+	void allow_tool(uint8 player_nr, uint16 tool_id);
 
 	/**
 	 * Forbid tool with certain waytype
@@ -345,16 +345,16 @@ public:
 	 *
 	 * @param player_nr number of player this rule applies to,
 	 *                  if this is set to MAX_PLAYER_COUNT then this acts for all players except public player
-	 * @param wkz_id id of tool
+	 * @param tool_id id of tool
 	 * @param wt waytype
 	 */
-	void forbid_way_tool(uint8 player_nr, uint16 wkz_id, waytype_t wt);
+	void forbid_way_tool(uint8 player_nr, uint16 tool_id, waytype_t wt);
 
 	/**
 	 * @ingroup squirrel-api
 	 * @see forbid_way_tool
 	 */
-	void allow_way_tool(uint8 player_nr, uint16 wkz_id, waytype_t wt);
+	void allow_way_tool(uint8 player_nr, uint16 tool_id, waytype_t wt);
 
 	/**
 	 * Forbid tool with certain waytype within rectangular region on the map
@@ -362,19 +362,19 @@ public:
 	 *
 	 * @param player_nr number of player this rule applies to,
 	 *                  if this is set to MAX_PLAYER_COUNT then this acts for all players except public player
-	 * @param wkz_id id of tool
+	 * @param tool_id id of tool
 	 * @param wt waytype
 	 * @param pos_nw coordinate of north-western corner of rectangle
 	 * @param pos_se coordinate of south-eastern corner of rectangle
 	 * @param err error message presented to user when trying to apply this tool
 	 */
-	void forbid_way_tool_rect(uint8 player_nr, uint16 wkz_id, waytype_t wt, koord pos_nw, koord pos_se, plainstring err);
+	void forbid_way_tool_rect(uint8 player_nr, uint16 tool_id, waytype_t wt, koord pos_nw, koord pos_se, plainstring err);
 
 	/**
 	 * @ingroup squirrel-api
 	 * @see forbid_way_tool_rect
 	 */
-	void allow_way_tool_rect(uint8 player_nr, uint16 wkz_id, waytype_t wt, koord pos_nw, koord pos_se);
+	void allow_way_tool_rect(uint8 player_nr, uint16 tool_id, waytype_t wt, koord pos_nw, koord pos_se);
 
 	/**
 	 * Forbid tool with certain waytype within cubic region on the map.
@@ -382,19 +382,19 @@ public:
 	 *
 	 * @param player_nr number of player this rule applies to,
 	 *                  if this is set to MAX_PLAYER_COUNT then this acts for all players except public player
-	 * @param wkz_id id of tool
+	 * @param tool_id id of tool
 	 * @param wt waytype
 	 * @param pos_nw coordinate of north-western corner of cube
 	 * @param pos_se coordinate of south-eastern corner of cube
 	 * @param err error message presented to user when trying to apply this tool
 	 */
-	void forbid_way_tool_cube(uint8 player_nr, uint16 wkz_id, waytype_t wt, koord3d pos_nw, koord3d pos_se, plainstring err);
+	void forbid_way_tool_cube(uint8 player_nr, uint16 tool_id, waytype_t wt, koord3d pos_nw, koord3d pos_se, plainstring err);
 
 	/**
 	 * @ingroup squirrel-api
 	 * @see forbid_way_tool_cube
 	 */
-	void allow_way_tool_cube(uint8 player_nr, uint16 wkz_id, waytype_t wt, koord3d pos_nw, koord3d pos_se);
+	void allow_way_tool_cube(uint8 player_nr, uint16 tool_id, waytype_t wt, koord3d pos_nw, koord3d pos_se);
 
 	/**
 	 * Clears all rules.
@@ -407,13 +407,13 @@ public:
 	 * Called for instance in karte_t::local_set_werkzeug to change active tool or when filling toolbars.
 	 * @return true if player can use this tool.
 	 */
-	bool is_tool_allowed(const spieler_t* sp, uint16 wkz_id, sint16 wt=invalid_wt);
+	bool is_tool_allowed(const spieler_t* sp, uint16 tool_id, sint16 wt = invalid_wt);
 
 	/**
 	 * Checks if player can use the tool at this position.
 	 * @return NULL if allowed otherwise error message
 	 */
-	const char* is_work_allowed_here(const spieler_t* sp, uint16 wkz_id, sint16 wt, koord3d pos);
+	const char* is_work_allowed_here(const spieler_t* sp, uint16 tool_id, sint16 wt, koord3d pos);
 
 	/**
 	 * Checks if player can use this schedule.

@@ -378,8 +378,8 @@ money_frame_t::money_frame_t(spieler_t *sp)
 		headquarter.set_tooltip( NULL );
 		headquarter.disable();
 
-		// reuse tooltip from wkz_headquarter_t
-		const char * c = werkzeug_t::general_tool[WKZ_HEADQUARTER]->get_tooltip(sp);
+		// reuse tooltip from tool_headquarter_t
+		const char * c = tool_t::general_tool[TOOL_HEADQUARTER]->get_tooltip(sp);
 		if(c) {
 			// only true, if the headquarter can be built/updated
 			tstrncpy(headquarter_tooltip, c, lengthof(headquarter_tooltip));
@@ -534,8 +534,8 @@ void money_frame_t::draw(scr_coord pos, scr_size size)
 		// I am on my own => allow upgrading
 		if(old_level!=sp->get_headquarter_level()) {
 
-			// reuse tooltip from wkz_headquarter_t
-			const char * c = werkzeug_t::general_tool[WKZ_HEADQUARTER]->get_tooltip(sp);
+			// reuse tooltip from tool_headquarter_t
+			const char * c = tool_t::general_tool[TOOL_HEADQUARTER]->get_tooltip(sp);
 			if(c) {
 				// only true, if the headquarter can be built/updated
 				tstrncpy(headquarter_tooltip, c, lengthof(headquarter_tooltip));
@@ -591,7 +591,7 @@ bool money_frame_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 			create_win( new ai_option_t(sp), w_info, magic_ai_options_t+sp->get_player_nr() );
 		}
 		else {
-			welt->set_werkzeug( werkzeug_t::general_tool[WKZ_HEADQUARTER], sp );
+			welt->set_tool( tool_t::general_tool[TOOL_HEADQUARTER], sp );
 		}
 		return true;
 	}

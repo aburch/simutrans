@@ -7,7 +7,7 @@
 
 #include <string.h>
 #include "../simdebug.h"
-#include "../simwerkz.h"
+#include "../simtool.h"
 #include "../gui/simwin.h"
 #include "../simworld.h"
 
@@ -121,11 +121,11 @@ bool password_frame_t::action_triggered( gui_action_creator_t *komp, value_t p )
 		// rename a player
 		cbuffer_t buf;
 		buf.printf( "p%u,%s", sp->get_player_nr(), player_name.get_text() );
-		werkzeug_t *w = create_tool( WKZ_RENAME_TOOL | SIMPLE_TOOL );
-		w->set_default_param( buf );
-		welt->set_werkzeug( w, sp );
+		tool_t *tmp_tool = create_tool( TOOL_RENAME | SIMPLE_TOOL );
+		tmp_tool->set_default_param( buf );
+		welt->set_tool( tmp_tool, sp );
 		// since init always returns false, it is safe to delete immediately
-		delete w;
+		delete tmp_tool;
 	}
 
 	if(  p.i==1  ) {

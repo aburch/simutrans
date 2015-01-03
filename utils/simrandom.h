@@ -1,8 +1,8 @@
-#ifndef SIMTOOLS_H
-#define SIMTOOLS_H
+#ifndef SIMRANDOM_H
+#define SIMRANDOM_H
 
 #include <stddef.h>
-#include "simtypes.h"
+#include "../simtypes.h"
 
 
 uint32 get_random_seed();

@@ -27,8 +27,8 @@
 #include "../simdebug.h"
 #include "../simdepot.h"
 #include "../simhalt.h"
-#include "../simtools.h"
-#include "../simwerkz.h"
+#include "../utils/simrandom.h"
+#include "../simtool.h"
 #include "../simworld.h"
 #include "../tpl/stringhashtable_tpl.h"
 #include "../tpl/weighted_vector_tpl.h"
@@ -208,7 +208,7 @@ bool hausbauer_t::register_besch(haus_besch_t *besch)
 	if(old_besch) {
 		dbg->warning( "hausbauer_t::register_besch()", "Object %s was overlaid by addon!", besch->get_name() );
 		besch_names.remove(besch->get_name());
-		werkzeug_t::general_tool.remove( old_besch->get_builder() );
+		tool_t::general_tool.remove( old_besch->get_builder() );
 		delete old_besch->get_builder();
 		delete old_besch;
 	}
@@ -216,21 +216,21 @@ bool hausbauer_t::register_besch(haus_besch_t *besch)
 	// probably needs a tool if it has a cursor
 	const skin_besch_t *sb = besch->get_cursor();
 	if(  sb  &&  sb->get_bild_nr(1)!=IMG_LEER) {
-		werkzeug_t *wkz;
+		tool_t *tool;
 		if(  besch->get_utyp()==haus_besch_t::depot  ) {
-			wkz = new wkz_depot_t();
+			tool = new tool_build_depot_t();
 		}
 		else if(  besch->get_utyp()==haus_besch_t::firmensitz  ) {
-			wkz = new wkz_headquarter_t();
+			tool = new tool_headquarter_t();
 		}
 		else {
-			wkz = new wkz_station_t();
+			tool = new tool_build_station_t();
 		}
-		wkz->set_icon( besch->get_cursor()->get_bild_nr(1) );
-		wkz->cursor = besch->get_cursor()->get_bild_nr(0),
-		wkz->set_default_param(besch->get_name());
-		werkzeug_t::general_tool.append( wkz );
-		besch->set_builder( wkz );
+		tool->set_icon( besch->get_cursor()->get_bild_nr(1) );
+		tool->cursor = besch->get_cursor()->get_bild_nr(0),
+		tool->set_default_param(besch->get_name());
+		tool_t::general_tool.append( tool );
+		besch->set_builder( tool );
 	}
 	else {
 		besch->set_builder( NULL );
@@ -256,12 +256,12 @@ void hausbauer_t::fill_menu(werkzeug_waehler_t* wzw, haus_besch_t::utyp utyp, wa
 	uint16 toolnr = 0;
 	switch(utyp) {
 		case haus_besch_t::depot:
-			toolnr = WKZ_DEPOT | GENERAL_TOOL;
+			toolnr = TOOL_BUILD_DEPOT | GENERAL_TOOL;
 			break;
 		case haus_besch_t::hafen:
 		case haus_besch_t::generic_stop:
 		case haus_besch_t::generic_extension:
-			toolnr = WKZ_STATION | GENERAL_TOOL;
+			toolnr = TOOL_BUILD_STATION | GENERAL_TOOL;
 			break;
 		default:
 			break;

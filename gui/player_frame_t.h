@@ -61,7 +61,7 @@ class ki_kontroll_t : public gui_frame_t, private action_listener_t
 
 		/**
 		 * Updates the dialogue window after changes to players states
-		 * called from wkz_change_player_t::init
+		 * called from tool_change_player_t::init
 		 * necessary for network games to keep dialogues synchronous
 		 * @author dwachs
 		 */

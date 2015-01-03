@@ -10,7 +10,7 @@
 
 #include "../simworld.h"
 #include "../simobj.h"
-#include "../simtools.h"
+#include "../utils/simrandom.h"
 #include "wolke.h"
 
 #include "../dataobj/loadsave.h"

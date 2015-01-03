@@ -175,11 +175,11 @@ halt_info_t::~halt_info_t()
 		// text changed => call tool
 		cbuffer_t buf;
 		buf.printf( "h%u,%s", halt.get_id(), edit_name );
-		werkzeug_t *w = create_tool( WKZ_RENAME_TOOL | SIMPLE_TOOL );
-		w->set_default_param( buf );
-		welt->set_werkzeug( w, halt->get_besitzer() );
+		tool_t *tool = create_tool( TOOL_RENAME | SIMPLE_TOOL );
+		tool->set_default_param( buf );
+		welt->set_tool( tool, halt->get_besitzer() );
 		// since init always returns false, it is safe to delete immediately
-		delete w;
+		delete tool;
 	}
 }
 
@@ -526,11 +526,11 @@ bool halt_info_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 			// text changed => call tool
 			cbuffer_t buf;
 			buf.printf( "h%u,%s", halt.get_id(), edit_name );
-			werkzeug_t *w = create_tool( WKZ_RENAME_TOOL | SIMPLE_TOOL );
-			w->set_default_param( buf );
-			welt->set_werkzeug( w, halt->get_besitzer() );
+			tool_t *tool = create_tool( TOOL_RENAME | SIMPLE_TOOL );
+			tool->set_default_param( buf );
+			welt->set_tool( tool, halt->get_besitzer() );
 			// since init always returns false, it is safe to delete immediately
-			delete w;
+			delete tool;
 		}
 	}
 	else {

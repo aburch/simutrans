@@ -10,7 +10,6 @@
 #include "../simobj.h"
 #include "../display/simimg.h"
 #include "../player/simplay.h"
-#include "../simtools.h"
 #include "../simtypes.h"
 
 #include "../boden/grund.h"
@@ -18,6 +17,7 @@
 
 #include "../utils/cbuffer_t.h"
 #include "../utils/simstring.h"
+#include "../utils/simrandom.h"
 
 #include "../dataobj/loadsave.h"
 #include "../dataobj/translator.h"

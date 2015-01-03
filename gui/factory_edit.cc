@@ -11,9 +11,8 @@
 
 #include <stdio.h>
 
-#include "../simtools.h"
 #include "../simworld.h"
-#include "../simwerkz.h"
+#include "../simtool.h"
 
 #include "../bauer/fabrikbauer.h"
 
@@ -23,6 +22,7 @@
 
 #include "../dataobj/translator.h"
 
+#include "../utils/simrandom.h"
 #include "../utils/simstring.h"
 #include "../utils/cbuffer_t.h"
 
@@ -30,9 +30,9 @@
 
 
 // new tool definition
-wkz_build_industries_land_t factory_edit_frame_t::land_chain_tool = wkz_build_industries_land_t();
-wkz_build_industries_city_t factory_edit_frame_t::city_chain_tool = wkz_build_industries_city_t();
-wkz_build_factory_t factory_edit_frame_t::fab_tool = wkz_build_factory_t();
+tool_build_land_chain_t factory_edit_frame_t::land_chain_tool = tool_build_land_chain_t();
+tool_city_chain_t factory_edit_frame_t::city_chain_tool = tool_city_chain_t();
+tool_build_factory_t factory_edit_frame_t::fab_tool = tool_build_factory_t();
 char factory_edit_frame_t::param_str[256];
 
 static bool compare_fabrik_besch(const fabrik_besch_t* a, const fabrik_besch_t* b)
@@ -53,7 +53,7 @@ factory_edit_frame_t::factory_edit_frame_t(spieler_t* sp_) :
 	land_chain_tool.set_default_param(param_str);
 	city_chain_tool.set_default_param(param_str);
 	fab_tool.set_default_param(param_str);
-	land_chain_tool.cursor = city_chain_tool.cursor = fab_tool.cursor = werkzeug_t::general_tool[WKZ_BUILD_FACTORY]->cursor;
+	land_chain_tool.cursor = city_chain_tool.cursor = fab_tool.cursor = tool_t::general_tool[TOOL_BUILD_FACTORY]->cursor;
 
 	fab_besch = NULL;
 
@@ -344,13 +344,13 @@ void factory_edit_frame_t::change_item_info(sint32 entry)
 		// the tools will be always updated, even though the data up there might be still current
 		sprintf( param_str, "%i%c%i,%s", bt_climates.pressed, rotation==255 ? '#' : '0'+rotation, production, fab_besch->get_name() );
 		if(bt_land_chain.pressed) {
-			welt->set_werkzeug( &land_chain_tool, sp );
+			welt->set_tool( &land_chain_tool, sp );
 		}
 		else if(bt_city_chain.pressed) {
-			welt->set_werkzeug( &city_chain_tool, sp );
+			welt->set_tool( &city_chain_tool, sp );
 		}
 		else {
-			welt->set_werkzeug( &fab_tool, sp );
+			welt->set_tool( &fab_tool, sp );
 		}
 	}
 	else if(fab_besch!=NULL) {
@@ -361,6 +361,6 @@ void factory_edit_frame_t::change_item_info(sint32 entry)
 		prod_str[0] = 0;
 		tstrncpy(rot_str, translator::translate("random"), lengthof(rot_str));
 		fab_besch = NULL;
-		welt->set_werkzeug( werkzeug_t::general_tool[WKZ_ABFRAGE], sp );
+		welt->set_tool( tool_t::general_tool[TOOL_QUERY], sp );
 	}
 }

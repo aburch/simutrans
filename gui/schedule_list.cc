@@ -312,38 +312,38 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *komp, value_t 
 		// create typed line
 		assert(  tabs.get_active_tab_index() > 0  &&  tabs.get_active_tab_index()<max_idx  );
 		// update line schedule via tool!
-		werkzeug_t *w = create_tool( WKZ_LINE_TOOL | SIMPLE_TOOL );
+		tool_t *tmp_tool = create_tool( TOOL_CHANGE_LINE | SIMPLE_TOOL );
 		cbuffer_t buf;
 		int type = tabs_to_lineindex[tabs.get_active_tab_index()];
 		buf.printf( "c,0,%i,0,0|%i|", type, type );
-		w->set_default_param(buf);
-		welt->set_werkzeug( w, sp );
+		tmp_tool->set_default_param(buf);
+		welt->set_tool( tmp_tool, sp );
 		// since init always returns false, it is safe to delete immediately
-		delete w;
+		delete tmp_tool;
 		depot_t::update_all_win();
 	}
 	else if(komp == &bt_delete_line) {
 		if(line.is_bound()) {
-			werkzeug_t *w = create_tool( WKZ_LINE_TOOL | SIMPLE_TOOL );
+			tool_t *tmp_tool = create_tool( TOOL_CHANGE_LINE | SIMPLE_TOOL );
 			cbuffer_t buf;
 			buf.printf( "d,%i", line.get_id() );
-			w->set_default_param(buf);
-			welt->set_werkzeug( w, sp );
+			tmp_tool->set_default_param(buf);
+			welt->set_tool( tmp_tool, sp );
 			// since init always returns false, it is safe to delete immediately
-			delete w;
+			delete tmp_tool;
 			depot_t::update_all_win();
 		}
 	}
 	else if(komp == &bt_withdraw_line) {
 		bt_withdraw_line.pressed ^= 1;
 		if (line.is_bound()) {
-			werkzeug_t *w = create_tool( WKZ_LINE_TOOL | SIMPLE_TOOL );
+			tool_t *tmp_tool = create_tool( TOOL_CHANGE_LINE | SIMPLE_TOOL );
 			cbuffer_t buf;
 			buf.printf( "w,%i,%i", line.get_id(), bt_withdraw_line.pressed );
-			w->set_default_param(buf);
-			welt->set_werkzeug( w, sp );
+			tmp_tool->set_default_param(buf);
+			welt->set_tool( tmp_tool, sp );
 			// since init always returns false, it is safe to delete immediately
-			delete w;
+			delete tmp_tool;
 		}
 	}
 	else if (komp == &tabs) {
@@ -425,11 +425,11 @@ void schedule_list_gui_t::rename_line()
 			// text changed => call tool
 			cbuffer_t buf;
 			buf.printf( "l%u,%s", line.get_id(), t );
-			werkzeug_t *w = create_tool( WKZ_RENAME_TOOL | SIMPLE_TOOL );
-			w->set_default_param( buf );
-			welt->set_werkzeug( w, line->get_besitzer() );
+			tool_t *tmp_tool = create_tool( TOOL_RENAME | SIMPLE_TOOL );
+			tmp_tool->set_default_param( buf );
+			welt->set_tool( tmp_tool, line->get_besitzer() );
 			// since init always returns false, it is safe to delete immediately
-			delete w;
+			delete tmp_tool;
 			// do not trigger this command again
 			tstrncpy(old_line_name, t, sizeof(old_line_name));
 		}

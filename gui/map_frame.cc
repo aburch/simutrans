@@ -30,7 +30,7 @@
 #include "../dataobj/loadsave.h"
 #include "../besch/fabrik_besch.h"
 #include "../simfab.h"
-#include "../simtools.h"
+#include "../utils/simrandom.h"
 #include "money_frame.h"
 
 static koord old_ij=koord::invalid;

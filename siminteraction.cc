@@ -14,7 +14,7 @@
 #include "network/network_cmd_ingame.h"
 #include "dataobj/scenario.h"
 #include "simevent.h"
-#include "simtools.h"
+#include "utils/simrandom.h"
 #include "simmenu.h"
 #include "player/simplay.h"
 #include "simsound.h"
@@ -63,9 +63,9 @@ void interaction_t::move_cursor( const event_t &ev )
 
 	static int mb_alt=0;
 
-	werkzeug_t *wkz = world->get_werkzeug(world->get_active_player_nr());
+	tool_t *tool = world->get_tool(world->get_active_player_nr());
 
-	const koord3d pos = viewport->get_new_cursor_position(scr_coord(ev.mx,ev.my), wkz->is_grid_tool());
+	const koord3d pos = viewport->get_new_cursor_position(scr_coord(ev.mx,ev.my), tool->is_grid_tool());
 
 	if( pos == koord3d::invalid ) {
 		zeiger->change_pos(pos);
@@ -80,15 +80,15 @@ void interaction_t::move_cursor( const event_t &ev )
 
 		zeiger->change_pos(pos);
 
-		if(  !env_t::networkmode  ||  wkz->is_move_network_save(world->get_active_player())) {
-			wkz->flags = event_get_last_control_shift() | werkzeug_t::WFL_LOCAL;
-			if(wkz->check_pos( world->get_active_player(), zeiger->get_pos() )==NULL) {
+		if(  !env_t::networkmode  ||  tool->is_move_network_save(world->get_active_player())) {
+			tool->flags = event_get_last_control_shift() | tool_t::WFL_LOCAL;
+			if(tool->check_pos( world->get_active_player(), zeiger->get_pos() )==NULL) {
 				if(  ev.button_state == 0  ) {
 					is_dragging = false;
 				}
 				else if(ev.ev_class==EVENT_DRAG) {
-					if(!is_dragging  &&  prev_pos != koord3d::invalid  &&  wkz->check_pos( world->get_active_player(), prev_pos )==NULL) {
-						const char* err = world->get_scenario()->is_work_allowed_here(world->get_active_player(), wkz->get_id(), wkz->get_waytype(), prev_pos);
+					if(!is_dragging  &&  prev_pos != koord3d::invalid  &&  tool->check_pos( world->get_active_player(), prev_pos )==NULL) {
+						const char* err = world->get_scenario()->is_work_allowed_here(world->get_active_player(), tool->get_id(), tool->get_waytype(), prev_pos);
 						if (err == NULL) {
 							is_dragging = true;
 						}
@@ -98,13 +98,13 @@ void interaction_t::move_cursor( const event_t &ev )
 					}
 				}
 				if (is_dragging) {
-					const char* err = world->get_scenario()->is_work_allowed_here(world->get_active_player(), wkz->get_id(), wkz->get_waytype(), pos);
+					const char* err = world->get_scenario()->is_work_allowed_here(world->get_active_player(), tool->get_id(), tool->get_waytype(), pos);
 					if (err == NULL) {
-						wkz->move( world->get_active_player(), is_dragging, pos );
+						tool->move( world->get_active_player(), is_dragging, pos );
 					}
 				}
 			}
-			wkz->flags = 0;
+			tool->flags = 0;
 		}
 
 		if(  (ev.button_state&7)==0  ) {
@@ -175,7 +175,7 @@ void interaction_t::interactive_event( const event_t &ev )
 						break;
 					}
 				}
-				world->set_werkzeug( werkzeug_t::dialog_tool[WKZ_HELP], world->get_active_player() );
+				world->set_tool( tool_t::dialog_tool[DIALOG_HELP], world->get_active_player() );
 				break;
 
 			// just ignore the key
@@ -199,9 +199,9 @@ void interaction_t::interactive_event( const event_t &ev )
 			default:
 				{
 					bool ok=false;
-					FOR(vector_tpl<werkzeug_t*>, const i, werkzeug_t::char_to_tool) {
+					FOR(vector_tpl<tool_t*>, const i, tool_t::char_to_tool) {
 						if (i->command_key == ev.ev_code) {
-							world->set_werkzeug(i, world->get_active_player());
+							world->set_tool(i, world->get_active_player());
 							ok = true;
 							break;
 						}
@@ -221,31 +221,31 @@ void interaction_t::interactive_event( const event_t &ev )
 		if(world->is_within_grid_limits(world->get_zeiger()->get_pos().get_2d())) {
 			const char *err = NULL;
 			bool result = true;
-			werkzeug_t *wkz = world->get_werkzeug(world->get_active_player_nr());
+			tool_t *tool = world->get_tool(world->get_active_player_nr());
 			// first check for visibility etc
-			err = wkz->check_pos( world->get_active_player(), world->get_zeiger()->get_pos() );
+			err = tool->check_pos( world->get_active_player(), world->get_zeiger()->get_pos() );
 			if (err==NULL) {
-				wkz->flags = event_get_last_control_shift();
-				if (!env_t::networkmode  ||  wkz->is_work_network_save()  ||  wkz->is_work_here_network_save( world->get_active_player(), world->get_zeiger()->get_pos() ) ) {
+				tool->flags = event_get_last_control_shift();
+				if (!env_t::networkmode  ||  tool->is_work_network_save()  ||  tool->is_work_here_network_save( world->get_active_player(), world->get_zeiger()->get_pos() ) ) {
 					// do the work
-					wkz->flags |= werkzeug_t::WFL_LOCAL;
+					tool->flags |= tool_t::WFL_LOCAL;
 					// check allowance by scenario
 					koord3d const& pos = world->get_zeiger()->get_pos();
 					if (world->get_scenario()->is_scripted()) {
-						if (!world->get_scenario()->is_tool_allowed(world->get_active_player(), wkz->get_id(), wkz->get_waytype()) ) {
+						if (!world->get_scenario()->is_tool_allowed(world->get_active_player(), tool->get_id(), tool->get_waytype()) ) {
 							err = "";
 						}
 						else {
-							err = world->get_scenario()->is_work_allowed_here(world->get_active_player(), wkz->get_id(), wkz->get_waytype(), pos);
+							err = world->get_scenario()->is_work_allowed_here(world->get_active_player(), tool->get_id(), tool->get_waytype(), pos);
 						}
 					}
 					if (err == NULL) {
-						err = wkz->work(world->get_active_player(), world->get_zeiger()->get_pos());
+						err = tool->work(world->get_active_player(), world->get_zeiger()->get_pos());
 						if( err == NULL ) {
 							// Check if we need to update pointer(zeiger) position.
-							if ( wkz->update_pos_after_use() ) {
+							if ( tool->update_pos_after_use() ) {
 								// Cursor might need movement (screen has changed, we get a new one under the mouse pointer)
-								const koord3d pos_new = viewport->get_new_cursor_position(scr_coord(ev.mx,ev.my),wkz->is_grid_tool());
+								const koord3d pos_new = viewport->get_new_cursor_position(scr_coord(ev.mx,ev.my),tool->is_grid_tool());
 								world->get_zeiger()->set_pos(pos_new);
 							}
 						}
@@ -253,18 +253,18 @@ void interaction_t::interactive_event( const event_t &ev )
 				}
 				else {
 					// queue tool for network
-					nwc_tool_t *nwc = new nwc_tool_t(world->get_active_player(), wkz, world->get_zeiger()->get_pos(), world->get_steps(), world->get_map_counter(), false);
+					nwc_tool_t *nwc = new nwc_tool_t(world->get_active_player(), tool, world->get_zeiger()->get_pos(), world->get_steps(), world->get_map_counter(), false);
 					network_send_server(nwc);
 					result = false;
 					// reset tool
-					wkz->init(world->get_active_player());
+					tool->init(world->get_active_player());
 				}
 			}
 			if (result) {
 				// play sound / error message
-				world->get_active_player()->tell_tool_result(wkz, world->get_zeiger()->get_pos(), err, true);
+				world->get_active_player()->tell_tool_result(tool, world->get_zeiger()->get_pos(), err, true);
 			}
-			wkz->flags = 0;
+			tool->flags = 0;
 		}
 	}
 
@@ -386,7 +386,7 @@ bool interaction_t::process_event( event_t &ev )
 		world->get_viewport()->set_follow_convoi( convoihandle_t() );
 		move_view(ev);
 	}
-	else if(  (left_drag  ||  world->get_werkzeug(world->get_active_player_nr())->get_id() == (WKZ_ABFRAGE | GENERAL_TOOL))  &&  IS_LEFTDRAG(&ev)  ) {
+	else if(  (left_drag  ||  world->get_tool(world->get_active_player_nr())->get_id() == (TOOL_QUERY | GENERAL_TOOL))  &&  IS_LEFTDRAG(&ev)  ) {
 		/* ok, we have the query tool selected, and we have a left drag or left release event with an actual different
 		 * => move the map */
 		if(  !left_drag  ) {

@@ -9,7 +9,7 @@
 #include "../vehicle/simvehikel.h"
 #include "../player/simplay.h"
 #include "../simdebug.h"
-#include "../simtools.h"  // for simrand
+#include "../utils/simrandom.h"
 #include "../simtypes.h"
 
 #include "../dataobj/environment.h"

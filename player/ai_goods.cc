@@ -4,7 +4,7 @@
 #include "../simfab.h"
 #include "../simmenu.h"
 #include "../simtypes.h"
-#include "../simwerkz.h"
+#include "../simtool.h"
 #include "../simunits.h"
 
 #include "finance.h"
@@ -14,7 +14,6 @@
 #include "../simintr.h"
 #include "../simline.h"
 #include "../simmesg.h"
-#include "../simtools.h"
 #include "../simworld.h"
 
 #include "../bauer/brueckenbauer.h"
@@ -28,6 +27,7 @@
 
 #include "../obj/wayobj.h"
 
+#include "../utils/simrandom.h"
 #include "../utils/simstring.h"
 #include "../utils/cbuffer_t.h"
 
@@ -385,7 +385,7 @@ bool ai_goods_t::create_ship_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 	}
 	// try to built dock
 	const haus_besch_t* h = hausbauer_t::get_random_station(haus_besch_t::hafen, water_wt, welt->get_timeline_year_month(), haltestelle_t::WARE);
-	if(h==NULL  ||  !call_general_tool(WKZ_STATION, platz1, h->get_name())) {
+	if(h==NULL  ||  !call_general_tool(TOOL_BUILD_STATION, platz1, h->get_name())) {
 		return false;
 	}
 
@@ -457,7 +457,7 @@ void ai_goods_t::create_road_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 {
 	const haus_besch_t* fh = hausbauer_t::get_random_station(haus_besch_t::generic_stop, road_wt, welt->get_timeline_year_month(), haltestelle_t::WARE);
 	// succeed in frachthof creation
-	if(fh  &&  call_general_tool(WKZ_STATION, platz1, fh->get_name())  &&  call_general_tool(WKZ_STATION, platz2, fh->get_name())  ) {
+	if(fh  &&  call_general_tool(TOOL_BUILD_STATION, platz1, fh->get_name())  &&  call_general_tool(TOOL_BUILD_STATION, platz2, fh->get_name())  ) {
 		koord3d pos1 = welt->lookup_kartenboden(platz1)->get_pos();
 		koord3d pos2 = welt->lookup_kartenboden(platz2)->get_pos();
 
@@ -522,12 +522,12 @@ void ai_goods_t::create_rail_transport_vehikel(const koord platz1, const koord p
 	if(  rail_engine->get_engine_type()==vehikel_besch_t::electric  ) {
 		// we need overhead wires
 		const way_obj_besch_t *e = wayobj_t::wayobj_search(track_wt,overheadlines_wt,welt->get_timeline_year_month());
-		wkz_wayobj_t wkz;
-		wkz.set_default_param(e->get_name());
-		wkz.init( this );
-		wkz.work( this, welt->lookup_kartenboden(platz1)->get_pos() );
-		wkz.work( this, welt->lookup_kartenboden(platz2)->get_pos() );
-		wkz.exit( this );
+		tool_build_wayobj_t tool;
+		tool.set_default_param(e->get_name());
+		tool.init( this );
+		tool.work( this, welt->lookup_kartenboden(platz1)->get_pos() );
+		tool.work( this, welt->lookup_kartenboden(platz2)->get_pos() );
+		tool.exit( this );
 	}
 
 	koord3d start_pos = welt->lookup_kartenboden(pos1.get_2d() + (abs(size1.x)>abs(size1.y) ? koord(size1.x,0) : koord(0,size1.y)))->get_pos();
@@ -609,14 +609,14 @@ int ai_goods_t::baue_bahnhof(const koord* p, int anz_vehikel)
 		) {
 			// start building, if next to an existing station
 			make_all_bahnhof = true;
-			call_general_tool( WKZ_STATION, pos, besch->get_name() );
+			call_general_tool( TOOL_BUILD_STATION, pos, besch->get_name() );
 		}
 		INT_CHECK("simplay 753");
 	}
 	// now add the other squares (going backwards)
 	for(  pos=*p;  pos!=t;  pos+=zv ) {
 		if(  !get_halt(pos).is_bound()  ) {
-			call_general_tool( WKZ_STATION, pos, besch->get_name() );
+			call_general_tool( TOOL_BUILD_STATION, pos, besch->get_name() );
 		}
 	}
 
@@ -1097,12 +1097,12 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 					// no sucess: clean route
 					char param[16];
 					sprintf( param, "%i", track_wt );
-					wkz_wayremover_t wkz;
-					wkz.set_default_param(param);
-					wkz.init( this );
-					wkz.work( this, welt->lookup_kartenboden(platz1)->get_pos() );
-					wkz.work( this, welt->lookup_kartenboden(platz2)->get_pos() );
-					wkz.exit( this );
+					tool_wayremover_t tool;
+					tool.set_default_param(param);
+					tool.init( this );
+					tool.work( this, welt->lookup_kartenboden(platz1)->get_pos() );
+					tool.work( this, welt->lookup_kartenboden(platz2)->get_pos() );
+					tool.exit( this );
 					if( (count_road != 255) && suche_platz1_platz2(start, ziel, 0) ) {
 						state = NR_BAUE_STRASSEN_ROUTE;
 					}
@@ -1164,7 +1164,7 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 					}
 				}
 				// delete harbour
-				call_general_tool( WKZ_REMOVER, harbour, NULL );
+				call_general_tool( TOOL_REMOVER, harbour, NULL );
 			}
 			harbour = koord::invalid;
 			// otherwise it may always try to built the same route!
@@ -1284,19 +1284,19 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 								}
 							}
 							// delete harbour
-							call_general_tool( WKZ_REMOVER, water_stop, NULL );
+							call_general_tool( TOOL_REMOVER, water_stop, NULL );
 						}
 					}
 
 					if(wt==track_wt) {
 						char param[16];
 						sprintf( param, "%i", track_wt );
-						wkz_wayremover_t wkz;
-						wkz.set_default_param(param);
-						wkz.init( this );
-						wkz.work( this, start_pos );
-						wkz.work( this, end_pos );
-						wkz.exit( this );
+						tool_wayremover_t tool;
+						tool.set_default_param(param);
+						tool.init( this );
+						tool.work( this, start_pos );
+						tool.work( this, end_pos );
+						tool.exit( this );
 					}
 					else {
 						// last convoi => remove completely<
@@ -1305,19 +1305,19 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 
 							char param[16];
 							sprintf( param, "%i", wt );
-							wkz_wayremover_t wkz;
-							wkz.set_default_param(param);
-							wkz.init( this );
-							wkz.work( this, start_pos );
-							if(wkz.work( this, end_pos )!=NULL) {
+							tool_wayremover_t tool;
+							tool.set_default_param(param);
+							tool.init( this );
+							tool.work( this, start_pos );
+							if(tool.work( this, end_pos )!=NULL) {
 								// cannot remove all => likely some other convois there too
 								// remove loading bays and road on start and end, if we cannot remove the whole way
-								wkz.work( this, start_pos );
-								wkz.work( this, start_pos );
-								wkz.work( this, end_pos );
-								wkz.work( this, end_pos );
+								tool.work( this, start_pos );
+								tool.work( this, start_pos );
+								tool.work( this, end_pos );
+								tool.work( this, end_pos );
 							}
-							wkz.exit( this );
+							tool.exit( this );
 						}
 					}
 					break;

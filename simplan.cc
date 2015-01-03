@@ -11,7 +11,7 @@
 #include "display/simgraph.h"
 #include "simmenu.h"
 #include "simplan.h"
-#include "simwerkz.h"
+#include "simtool.h"
 #include "simworld.h"
 #include "simhalt.h"
 #include "player/simplay.h"
@@ -569,14 +569,14 @@ void planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos) const
 
 /*	alternative method of finding selected tool - may be more useful in future but use simpler method for now
 	karte_t *welt = gr->get_welt();
-	werkzeug_t *wkz = welt->get_werkzeug(welt->get_active_player_nr());
-	int tool_id = wkz->get_id();
+	werkzeug_t *tool = welt->get_werkzeug(welt->get_active_player_nr());
+	int tool_id = tool->get_id();
 
-	if(tool_id==(WKZ_TRANSFORMER|GENERAL_TOOL)....	*/
+	if(tool_id==(TOOL_TRANSFORMER|GENERAL_TOOL)....	*/
 
 	if( (grund_t::underground_mode == grund_t::ugm_all  ||  (grund_t::underground_mode == grund_t::ugm_level  &&  gr->get_hoehe() == grund_t::underground_level+1) )
 		&&  gr->get_typ()==grund_t::fundament
-		&&  werkzeug_t::general_tool[WKZ_TRANSFORMER]->is_selected()) {
+		&&  tool_t::general_tool[TOOL_TRANSFORMER]->is_selected()) {
 		gebaeude_t *gb = gr->find<gebaeude_t>();
 		if(gb) {
 			fabrik_t* fab=gb->get_fabrik();

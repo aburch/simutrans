@@ -42,18 +42,18 @@ werkzeug_waehler_t::werkzeug_waehler_t(const char* titel, const char *helpfile, 
 
 /**
  * Add a new tool with values and tooltip text.
- * w must be created by new werkzeug_t(copy_tool)!
+ * tool_in must be created by new tool_t(copy_tool)!
  * @author Hj. Malthaner
  */
-void werkzeug_waehler_t::add_werkzeug(werkzeug_t *w)
+void werkzeug_waehler_t::add_werkzeug(tool_t *tool_in)
 {
-	image_id tool_img = w->get_icon(welt->get_active_player());
-	if(  tool_img == IMG_LEER  &&  w!=werkzeug_t::dummy  ) {
+	image_id tool_img = tool_in->get_icon(welt->get_active_player());
+	if(  tool_img == IMG_LEER  &&  tool_in!=tool_t::dummy  ) {
 		return;
 	}
 
 	// only for non-empty icons ...
-	tools.append(w);
+	tools.append(tool_in);
 
 	int ww = max(2,(display_get_width()/env_t::iconsize.w)-2);	// to avoid zero or negative ww on posix (no graphic) backends
 	tool_icon_width = tools.get_count();
@@ -119,9 +119,9 @@ bool werkzeug_waehler_t::infowin_event(const event_t *ev)
 
 			if (wz_idx < (int)tools.get_count()) {
 				// change tool
-				werkzeug_t *tool = tools[wz_idx].tool;
+				tool_t *tool = tools[wz_idx].tool;
 				if(IS_LEFTRELEASE(ev)) {
-					welt->set_werkzeug( tool, welt->get_active_player() );
+					welt->set_tool( tool, welt->get_active_player() );
 				}
 				else {
 					// right-click on toolbar icon closes toolbars and dialogues. Resets selectable simple and general tools to the query-tool
@@ -129,7 +129,7 @@ bool werkzeug_waehler_t::infowin_event(const event_t *ev)
 						// ->exit triggers werkzeug_waehler_t::infowin_event in the closing toolbar,
 						// which resets active tool to query tool
 						if(  tool->exit(welt->get_active_player())  ) {
-							welt->set_werkzeug( werkzeug_t::general_tool[WKZ_ABFRAGE], welt->get_active_player() );
+							welt->set_tool( tool_t::general_tool[TOOL_QUERY], welt->get_active_player() );
 						}
 					}
 				}
@@ -141,7 +141,7 @@ bool werkzeug_waehler_t::infowin_event(const event_t *ev)
 	else if(ev->ev_class==INFOWIN &&  ev->ev_code==WIN_CLOSE) {
 		FOR(vector_tpl<tool_data_t>, const i, tools) {
 			if (i.tool->is_selected() && i.tool->get_id() & GENERAL_TOOL) {
-				welt->set_werkzeug( werkzeug_t::general_tool[WKZ_ABFRAGE], welt->get_active_player() );
+				welt->set_tool( tool_t::general_tool[TOOL_QUERY], welt->get_active_player() );
 				break;
 			}
 		}

@@ -1,7 +1,7 @@
 #include "koord.h"
 #include "loadsave.h"
 #include "../display/scr_coord.h"
-#include "../simtools.h"
+#include "../utils/simrandom.h"
 #include "../simconst.h"
 
 

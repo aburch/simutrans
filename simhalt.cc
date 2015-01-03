@@ -26,7 +26,6 @@
 #include "simmem.h"
 #include "simmesg.h"
 #include "simplan.h"
-#include "simtools.h"
 #include "player/simplay.h"
 #include "gui/simwin.h"
 #include "simworld.h"
@@ -57,6 +56,7 @@
 #include "gui/halt_detail.h"
 #include "gui/karte.h"
 
+#include "utils/simrandom.h"
 #include "utils/simstring.h"
 
 #include "vehicle/simpeople.h"

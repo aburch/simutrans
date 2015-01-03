@@ -1,7 +1,7 @@
 #include <assert.h>
 #include <math.h>
-#include "simtools.h"
-#include "simsys.h"
+#include "simrandom.h"
+#include "../simsys.h"
 
 /* This is the mersenne random generator: More random and faster! */
 

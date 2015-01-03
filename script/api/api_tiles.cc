@@ -6,7 +6,7 @@
 #include "get_next.h"
 #include "../api_class.h"
 #include "../api_function.h"
-#include "../../simwerkz.h"
+#include "../../simtool.h"
 #include "../../simworld.h"
 
 using namespace script_api;
@@ -36,7 +36,7 @@ const char* tile_remove_object(grund_t* gr, spieler_t* sp, obj_t::typ type)
 	if (gr == NULL  ||  sp == NULL) {
 		return "";
 	}
-	wkz_remover_t w;
+	tool_remover_t w;
 	// default param is object type
 	char buf[5];
 	sprintf(buf, "%d", (int)type);

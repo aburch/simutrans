@@ -204,7 +204,7 @@ fahrplan_gui_stats_t::fahrplan_gui_stats_t(spieler_t *s)
 	sp = s;
 	if(  aktuell_mark==NULL  ) {
 		aktuell_mark = new zeiger_t(koord3d::invalid, NULL );
-		aktuell_mark->set_bild( werkzeug_t::general_tool[WKZ_FAHRPLAN_ADD]->cursor );
+		aktuell_mark->set_bild( tool_t::general_tool[TOOL_SCHEDULE_ADD]->cursor );
 	}
 }
 
@@ -380,26 +380,26 @@ void fahrplan_gui_t::update_werkzeug(bool set)
 {
 	if(!set  ||  mode==removing  ||  mode==undefined_mode) {
 		// reset tools, if still selected ...
-		if(welt->get_werkzeug(sp->get_player_nr())==werkzeug_t::general_tool[WKZ_FAHRPLAN_ADD]) {
-			if(werkzeug_t::general_tool[WKZ_FAHRPLAN_ADD]->get_default_param()==(const char *)fpl) {
-				welt->set_werkzeug( werkzeug_t::general_tool[WKZ_ABFRAGE], sp );
+		if(welt->get_tool(sp->get_player_nr())==tool_t::general_tool[TOOL_SCHEDULE_ADD]) {
+			if(tool_t::general_tool[TOOL_SCHEDULE_ADD]->get_default_param()==(const char *)fpl) {
+				welt->set_tool( tool_t::general_tool[TOOL_QUERY], sp );
 			}
 		}
-		else if(welt->get_werkzeug(sp->get_player_nr())==werkzeug_t::general_tool[WKZ_FAHRPLAN_INS]) {
-			if(werkzeug_t::general_tool[WKZ_FAHRPLAN_INS]->get_default_param()==(const char *)fpl) {
-				welt->set_werkzeug( werkzeug_t::general_tool[WKZ_ABFRAGE], sp );
+		else if(welt->get_tool(sp->get_player_nr())==tool_t::general_tool[TOOL_SCHEDULE_INS]) {
+			if(tool_t::general_tool[TOOL_SCHEDULE_INS]->get_default_param()==(const char *)fpl) {
+				welt->set_tool( tool_t::general_tool[TOOL_QUERY], sp );
 			}
 		}
 	}
 	else {
 		//  .. or set them again
 		if(mode==adding) {
-			werkzeug_t::general_tool[WKZ_FAHRPLAN_ADD]->set_default_param((const char *)fpl);
-			welt->set_werkzeug( werkzeug_t::general_tool[WKZ_FAHRPLAN_ADD], sp );
+			tool_t::general_tool[TOOL_SCHEDULE_ADD]->set_default_param((const char *)fpl);
+			welt->set_tool( tool_t::general_tool[TOOL_SCHEDULE_ADD], sp );
 		}
 		else if(mode==inserting) {
-			werkzeug_t::general_tool[WKZ_FAHRPLAN_INS]->set_default_param((const char *)fpl);
-			welt->set_werkzeug( werkzeug_t::general_tool[WKZ_FAHRPLAN_INS], sp );
+			tool_t::general_tool[TOOL_SCHEDULE_INS]->set_default_param((const char *)fpl);
+			welt->set_tool( tool_t::general_tool[TOOL_SCHEDULE_INS], sp );
 		}
 	}
 }
@@ -608,14 +608,14 @@ DBG_MESSAGE("fahrplan_gui_t::action_triggered()","komp=%p combo=%p",komp,&line_s
 	}
 	else if(komp == &bt_promote_to_line) {
 		// update line schedule via tool!
-		werkzeug_t *w = create_tool( WKZ_LINE_TOOL | SIMPLE_TOOL );
+		tool_t *tool = create_tool( TOOL_CHANGE_LINE | SIMPLE_TOOL );
 		cbuffer_t buf;
 		buf.printf( "c,0,%i,%ld,", (int)fpl->get_type(), (long)old_fpl );
 		fpl->sprintf_schedule( buf );
-		w->set_default_param(buf);
-		welt->set_werkzeug( w, sp );
+		tool->set_default_param(buf);
+		welt->set_tool( tool, sp );
 		// since init always returns false, it is safe to delete immediately
-		delete w;
+		delete tool;
 	}
 	// recheck lines
 	if(  cnv.is_bound()  ) {

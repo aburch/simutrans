@@ -21,7 +21,6 @@
 #include "simintr.h"
 #include "simlinemgmt.h"
 #include "simline.h"
-#include "simtools.h"
 #include "freight_list_sorter.h"
 
 #include "gui/karte.h"
@@ -51,6 +50,7 @@
 #include "vehicle/simvehikel.h"
 #include "vehicle/overtaker.h"
 
+#include "utils/simrandom.h"
 #include "utils/simstring.h"
 #include "utils/cbuffer_t.h"
 
@@ -523,16 +523,16 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_ind
 // since now convoi states go via werkzeug_t
 void convoi_t::call_convoi_tool( const char function, const char *extra ) const
 {
-	werkzeug_t *w = create_tool( WKZ_CONVOI_TOOL | SIMPLE_TOOL );
+	tool_t *tmp_tool = create_tool( TOOL_CHANGE_CONVOI | SIMPLE_TOOL );
 	cbuffer_t param;
 	param.printf("%c,%u", function, self.get_id());
 	if(  extra  &&  *extra  ) {
 		param.printf(",%s", extra);
 	}
-	w->set_default_param(param);
-	welt->set_werkzeug( w, get_besitzer() );
+	tmp_tool->set_default_param(param);
+	welt->set_tool( tmp_tool, get_besitzer() );
 	// since init always returns false, it is safe to delete immediately
-	delete w;
+	delete tmp_tool;
 }
 
 

@@ -23,7 +23,7 @@
 class karte_t;
 class fabrik_t;
 class koord3d;
-class werkzeug_t;
+class tool_t;
 class finance_t;
 
 /**
@@ -350,7 +350,7 @@ public:
 	 * local is true if tool was called by player on our client
 	 * @author Dwachs
 	 */
-	virtual void tell_tool_result(werkzeug_t *tool, koord3d pos, const char *err, bool local);
+	virtual void tell_tool_result(tool_t *tool, koord3d pos, const char *err, bool local);
 
 	/**
 	 * Tells the player that the factory

@@ -2034,7 +2034,7 @@ bool grund_t::remove_everything_from_way(spieler_t* sp, waytype_t wt, ribi_t::ri
 			}
 		}
 		else {
-DBG_MESSAGE("wkz_wayremover()","change remaining way to ribi %d",add);
+DBG_MESSAGE("tool_wayremover()","change remaining way to ribi %d",add);
 			// something will remain, we just change ribis
 			weg->set_ribi(add);
 			calc_bild();

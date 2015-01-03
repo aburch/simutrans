@@ -10,7 +10,7 @@
 #include "../gui/karte.h"
 #include "../simline.h"
 #include "../gui/simwin.h"
-#include "../simwerkz.h"
+#include "../simtool.h"
 #include "../simlinemgmt.h"
 #include "../utils/cbuffer_t.h"
 
@@ -55,14 +55,14 @@ bool line_management_gui_t::infowin_event(const event_t *ev)
 			}
 			if(  ev->ev_class == INFOWIN  &&  ev->ev_code == WIN_CLOSE  ) {
 				// update line schedule via tool!
-				werkzeug_t *w = create_tool( WKZ_LINE_TOOL | SIMPLE_TOOL );
+				tool_t *tool = create_tool( TOOL_CHANGE_LINE | SIMPLE_TOOL );
 				cbuffer_t buf;
 				buf.printf( "g,%i,", line.get_id() );
 				fpl->sprintf_schedule( buf );
-				w->set_default_param(buf);
-				welt->set_werkzeug( w, line->get_besitzer() );
+				tool->set_default_param(buf);
+				welt->set_tool( tool, line->get_besitzer() );
 				// since init always returns false, it is safe to delete immediately
-				delete w;
+				delete tool;
 			}
 		}
 	}

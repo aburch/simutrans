@@ -81,7 +81,7 @@
 
 
 // inclination types
-// constants used in tools wkz_setslope / wkz_restoreslope_t
+// constants used in tools tool_setslope / tool_restoreslope_t
 #define ALL_UP_SLOPE (82)
 #define ALL_DOWN_SLOPE (83)
 #define RESTORE_SLOPE (84)

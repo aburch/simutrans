@@ -20,98 +20,98 @@ void export_global_constants(HSQUIRRELVM vm)
 	 */
 	begin_enum("tool_ids");
 	/// remover tool
-	enum_slot(vm, "tool_remover",   WKZ_REMOVER | GENERAL_TOOL);
+	enum_slot(vm, "tool_remover",   TOOL_REMOVER | GENERAL_TOOL);
 	/// raise land tool
-	enum_slot(vm, "tool_raise_land", WKZ_RAISE_LAND | GENERAL_TOOL);
+	enum_slot(vm, "tool_raise_land", TOOL_RAISE_LAND | GENERAL_TOOL);
 	/// lower land tool
-	enum_slot(vm, "tool_lower_land", WKZ_LOWER_LAND | GENERAL_TOOL);
+	enum_slot(vm, "tool_lower_land", TOOL_LOWER_LAND | GENERAL_TOOL);
 	/// artificial slope
-	enum_slot(vm, "tool_setslope", WKZ_SETSLOPE | GENERAL_TOOL);
+	enum_slot(vm, "tool_setslope", TOOL_SETSLOPE | GENERAL_TOOL);
 	/// restore natural slope
-	enum_slot(vm, "tool_restoreslope", WKZ_RESTORESLOPE | GENERAL_TOOL);
+	enum_slot(vm, "tool_restoreslope", TOOL_RESTORESLOPE | GENERAL_TOOL);
 	/// set marker
-	enum_slot(vm, "tool_set_marker", WKZ_MARKER | GENERAL_TOOL);
+	enum_slot(vm, "tool_set_marker", TOOL_MARKER | GENERAL_TOOL);
 	/// clear block reservation
-	enum_slot(vm, "tool_clear_reservation", WKZ_CLEAR_RESERVATION | GENERAL_TOOL);
+	enum_slot(vm, "tool_clear_reservation", TOOL_CLEAR_RESERVATION | GENERAL_TOOL);
 	/// build transformer
-	enum_slot(vm, "tool_build_transformer", WKZ_TRANSFORMER | GENERAL_TOOL);
+	enum_slot(vm, "tool_build_transformer", TOOL_TRANSFORMER | GENERAL_TOOL);
 	/// add city
-	enum_slot(vm, "tool_add_city", WKZ_ADD_CITY | GENERAL_TOOL);
+	enum_slot(vm, "tool_add_city", TOOL_ADD_CITY | GENERAL_TOOL);
 	/// change city size
-	enum_slot(vm, "tool_change_city_size", WKZ_CHANGE_CITY_SIZE | GENERAL_TOOL);
+	enum_slot(vm, "tool_change_city_size", TOOL_CHANGE_CITY_SIZE | GENERAL_TOOL);
 	/// plant a tree
-	enum_slot(vm, "tool_plant_tree", WKZ_PLANT_TREE | GENERAL_TOOL);
-	// not needed? enum__slot(vm, "tool_fahrplan_add", WKZ_FAHRPLAN_ADD | GENERAL_TOOL);
-	// not needed? enum__slot(vm, "tool_fahrplan_ins", WKZ_FAHRPLAN_INS | GENERAL_TOOL);
+	enum_slot(vm, "tool_plant_tree", TOOL_PLANT_TREE | GENERAL_TOOL);
+	// not needed? enum__slot(vm, "tool_fahrplan_add", TOOL_FAHRPLAN_ADD | GENERAL_TOOL);
+	// not needed? enum__slot(vm, "tool_fahrplan_ins", TOOL_FAHRPLAN_INS | GENERAL_TOOL);
 	/// build ways
-	enum_slot(vm, "tool_build_way", WKZ_WEGEBAU | GENERAL_TOOL);
+	enum_slot(vm, "tool_build_way", TOOL_BUILD_WAY | GENERAL_TOOL);
 	/// build bridges
-	enum_slot(vm, "tool_build_bridge", WKZ_BRUECKENBAU | GENERAL_TOOL);
+	enum_slot(vm, "tool_build_bridge", TOOL_BUILD_BRIDGE | GENERAL_TOOL);
 	/// build tunnel
-	enum_slot(vm, "tool_build_tunnel", WKZ_TUNNELBAU | GENERAL_TOOL);
+	enum_slot(vm, "tool_build_tunnel", TOOL_BUILD_TUNNEL | GENERAL_TOOL);
 	/// remove way
-	enum_slot(vm, "tool_remove_way", WKZ_WAYREMOVER | GENERAL_TOOL);
+	enum_slot(vm, "tool_remove_way", TOOL_WAYREMOVER | GENERAL_TOOL);
 	/// build overhead wires
-	enum_slot(vm, "tool_build_wayobj", WKZ_WAYOBJ | GENERAL_TOOL);
+	enum_slot(vm, "tool_build_wayobj", TOOL_BUILD_WAYOBJ | GENERAL_TOOL);
 	/// build stations
-	enum_slot(vm, "tool_build_station", WKZ_STATION | GENERAL_TOOL);
+	enum_slot(vm, "tool_build_station", TOOL_BUILD_STATION | GENERAL_TOOL);
 	/// build signals and road signs
-	enum_slot(vm, "tool_build_roadsign", WKZ_ROADSIGN | GENERAL_TOOL);
+	enum_slot(vm, "tool_build_roadsign", TOOL_BUILD_ROADSIGN | GENERAL_TOOL);
 	/// build depot
-	enum_slot(vm, "tool_build_depot", WKZ_DEPOT | GENERAL_TOOL);
+	enum_slot(vm, "tool_build_depot", TOOL_BUILD_DEPOT | GENERAL_TOOL);
 	/// build city houses
-	enum_slot(vm, "tool_build_house", WKZ_BUILD_HAUS | GENERAL_TOOL);
+	enum_slot(vm, "tool_build_house", TOOL_BUILD_HOUSE | GENERAL_TOOL);
 	/// create industry chain with end consumer not in cities
-	enum_slot(vm, "tool_land_chain", WKZ_LAND_CHAIN | GENERAL_TOOL);
+	enum_slot(vm, "tool_land_chain", TOOL_BUILD_LAND_CHAIN | GENERAL_TOOL);
 	/// create industry chain with end consumer in cities
-	enum_slot(vm, "tool_city_chain", WKZ_CITY_CHAIN | GENERAL_TOOL);
+	enum_slot(vm, "tool_city_chain", TOOL_CITY_CHAIN | GENERAL_TOOL);
 	/// build a factory
-	enum_slot(vm, "tool_build_factory", WKZ_BUILD_FACTORY | GENERAL_TOOL);
+	enum_slot(vm, "tool_build_factory", TOOL_BUILD_FACTORY | GENERAL_TOOL);
 	/// link factories
-	enum_slot(vm, "tool_link_factory", WKZ_LINK_FACTORY | GENERAL_TOOL);
+	enum_slot(vm, "tool_link_factory", TOOL_LINK_FACTORY | GENERAL_TOOL);
 	/// build headquarter
-	enum_slot(vm, "tool_headquarter", WKZ_HEADQUARTER | GENERAL_TOOL);
+	enum_slot(vm, "tool_headquarter", TOOL_HEADQUARTER | GENERAL_TOOL);
 	/// lock map: switching players not allowed anymore
-	enum_slot(vm, "tool_lock_game", WKZ_LOCK_GAME | GENERAL_TOOL);
+	enum_slot(vm, "tool_lock_game", TOOL_LOCK_GAME | GENERAL_TOOL);
 	/// add city car
-	enum_slot(vm, "tool_add_citycar", WKZ_ADD_CITYCAR | GENERAL_TOOL);
+	enum_slot(vm, "tool_add_citycar", TOOL_ADD_CITYCAR | GENERAL_TOOL);
 	/// create forest
-	enum_slot(vm, "tool_forest", WKZ_FOREST | GENERAL_TOOL);
+	enum_slot(vm, "tool_forest", TOOL_FOREST | GENERAL_TOOL);
 	/// move stop tool
-	enum_slot(vm, "tool_stop_mover", WKZ_STOP_MOVER | GENERAL_TOOL);
+	enum_slot(vm, "tool_stop_mover", TOOL_STOP_MOVER | GENERAL_TOOL);
 	/// make stop public
-	enum_slot(vm, "tool_make_stop_public", WKZ_MAKE_STOP_PUBLIC | GENERAL_TOOL);
+	enum_slot(vm, "tool_make_stop_public", TOOL_MAKE_STOP_PUBLIC | GENERAL_TOOL);
 	/// remove way objects like overheadwires
-	enum_slot(vm, "tool_remove_wayobj", WKZ_REMOVE_WAYOBJ | GENERAL_TOOL);
-	// not needed? enum__slot(vm, "tool_sliced_and_underground_view", WKZ_SLICED_AND_UNDERGROUND_VIEW | GENERAL_TOOL);
+	enum_slot(vm, "tool_remove_wayobj", TOOL_REMOVE_WAYOBJ | GENERAL_TOOL);
+	// not needed? enum__slot(vm, "tool_sliced_and_underground_view", TOOL_SLICED_AND_UNDERGROUND_VIEW | GENERAL_TOOL);
 	/// buy a house
-	enum_slot(vm, "tool_buy_house", WKZ_BUY_HOUSE | GENERAL_TOOL);
+	enum_slot(vm, "tool_buy_house", TOOL_BUY_HOUSE | GENERAL_TOOL);
 	/// build city road with pavement
-	enum_slot(vm, "tool_build_cityroad", WKZ_CITYROAD | GENERAL_TOOL);
+	enum_slot(vm, "tool_build_cityroad", TOOL_BUILD_CITYROAD | GENERAL_TOOL);
 
 	// simple tools
 	/// increase industry density
-	enum_slot(vm, "tool_increase_industry", WKZ_INCREASE_INDUSTRY | SIMPLE_TOOL);
+	enum_slot(vm, "tool_increase_industry", TOOL_INCREASE_INDUSTRY | SIMPLE_TOOL);
 	/// switch player
-	enum_slot(vm, "tool_switch_player", WKZ_SWITCH_PLAYER | SIMPLE_TOOL);
+	enum_slot(vm, "tool_switch_player", TOOL_SWITCH_PLAYER | SIMPLE_TOOL);
 	/// step year forward
-	enum_slot(vm, "tool_step_year", WKZ_STEP_YEAR | SIMPLE_TOOL);
+	enum_slot(vm, "tool_step_year", TOOL_STEP_YEAR | SIMPLE_TOOL);
 	/// fill area with trees
-	enum_slot(vm, "tool_fill_trees", WKZ_FILL_TREES | SIMPLE_TOOL);
+	enum_slot(vm, "tool_fill_trees", TOOL_FILL_TREES | SIMPLE_TOOL);
 	/// set traffic level
-	enum_slot(vm, "tool_set_traffic_level", WKZ_TRAFFIC_LEVEL | SIMPLE_TOOL);
+	enum_slot(vm, "tool_set_traffic_level", TOOL_TRAFFIC_LEVEL | SIMPLE_TOOL);
 
 	// tools to open certain windows
 	/// open factory editor window
-	enum_slot(vm, "dialog_edit_factory", WKZ_EDIT_FACTORY | DIALOGE_TOOL);
+	enum_slot(vm, "dialog_edit_factory", DIALOG_EDIT_FACTORY | DIALOGE_TOOL);
 	/// open tourist attraction editor window
-	enum_slot(vm, "dialog_edit_attraction", WKZ_EDIT_ATTRACTION | DIALOGE_TOOL);
+	enum_slot(vm, "dialog_edit_attraction", DIALOG_EDIT_ATTRACTION | DIALOGE_TOOL);
 	/// open house editor window
-	enum_slot(vm, "dialog_edit_house", WKZ_EDIT_HOUSE | DIALOGE_TOOL);
+	enum_slot(vm, "dialog_edit_house", DIALOG_EDIT_HOUSE | DIALOGE_TOOL);
 	/// open tree editor window
-	enum_slot(vm, "dialog_edit_tree", WKZ_EDIT_TREE | DIALOGE_TOOL);
+	enum_slot(vm, "dialog_edit_tree", DIALOG_EDIT_TREE | DIALOGE_TOOL);
 	/// open map enlargement window
-	enum_slot(vm, "dialog_enlarge_map", WKZ_ENLARGE_MAP | DIALOGE_TOOL);
+	enum_slot(vm, "dialog_enlarge_map", DIALOG_ENLARGE_MAP | DIALOGE_TOOL);
 
 	end_enum();
 

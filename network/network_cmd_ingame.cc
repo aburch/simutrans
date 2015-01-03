@@ -9,7 +9,6 @@
 #include "../dataobj/loadsave.h"
 #include "../dataobj/gameinfo.h"
 #include "../dataobj/scenario.h"
-#include "../simtools.h"
 #include "../simmenu.h"
 #include "../simversion.h"
 #include "../gui/simwin.h"
@@ -18,6 +17,7 @@
 #include "../dataobj/environment.h"
 #include "../player/simplay.h"
 #include "../gui/player_frame_t.h"
+#include "../utils/simrandom.h"
 #include "../utils/cbuffer_t.h"
 #include "../utils/csv.h"
 #include "../display/viewport.h"
@@ -248,13 +248,13 @@ void nwc_nick_t::server_tools(karte_t *welt, uint32 client_id, uint8 what, const
 		}
 		default: return;
 	}
-	werkzeug_t *w = create_tool( WKZ_ADD_MESSAGE_TOOL | SIMPLE_TOOL );
-	w->set_default_param( buf );
+	tool_t *tmp_tool = create_tool( TOOL_ADD_MESSAGE | SIMPLE_TOOL );
+	tmp_tool->set_default_param( buf );
 	// queue tool for network
-	nwc_tool_t *nwc = new nwc_tool_t(NULL, w, koord3d::invalid, 0, welt->get_map_counter(), true);
+	nwc_tool_t *nwc = new nwc_tool_t(NULL, tmp_tool, koord3d::invalid, 0, welt->get_map_counter(), true);
 	network_send_server(nwc);
 	// since init always returns false, it is safe to delete immediately
-	delete w;
+	delete tmp_tool;
 }
 
 
@@ -923,29 +923,29 @@ void nwc_chg_player_t::do_command(karte_t *welt)
 nwc_tool_t::nwc_tool_t() : network_broadcast_world_command_t(NWC_TOOL, 0, 0),
 	custom_data(custom_data_buf, lengthof(custom_data_buf), true)
 {
-	wkz = NULL;
+	tool = NULL;
 }
 
 
-nwc_tool_t::nwc_tool_t(spieler_t *sp, werkzeug_t *wkz_, koord3d pos_, uint32 sync_steps, uint32 map_counter, bool init_)
+nwc_tool_t::nwc_tool_t(spieler_t *sp, tool_t *tool_, koord3d pos_, uint32 sync_steps, uint32 map_counter, bool init_)
 	: network_broadcast_world_command_t(NWC_TOOL, sync_steps, map_counter),
 	custom_data(custom_data_buf, lengthof(custom_data_buf), true)
 {
 	pos = pos_;
 	player_nr = sp ? sp->get_player_nr() : -1;
-	wkz_id = wkz_->get_id();
-	wt = wkz_->get_waytype();
-	default_param = wkz_->get_default_param(sp);
+	tool_id = tool_->get_id();
+	wt = tool_->get_waytype();
+	default_param = tool_->get_default_param(sp);
 	init = init_;
 	tool_client_id = 0;
-	flags = wkz_->flags;
+	flags = tool_->flags;
 	last_sync_step = spieler_t::get_welt()->get_last_checklist_sync_step();
 	last_checklist = spieler_t::get_welt()->get_last_checklist();
-	// write custom data of wkz_ to our internal buffer
+	// write custom data of tool_ to our internal buffer
 	if (sp) {
-		wkz_->rdwr_custom_data(&custom_data);
+		tool_->rdwr_custom_data(&custom_data);
 	}
-	wkz = NULL;
+	tool = NULL;
 }
 
 
@@ -955,21 +955,21 @@ nwc_tool_t::nwc_tool_t(const nwc_tool_t &nwt)
 {
 	pos = nwt.pos;
 	player_nr = nwt.player_nr;
-	wkz_id = nwt.wkz_id;
+	tool_id = nwt.tool_id;
 	wt = nwt.wt;
 	default_param = nwt.default_param;
 	init = nwt.init;
 	tool_client_id = nwt.our_client_id;
 	flags = nwt.flags;
-	// copy custom data of wkz to our internal buffer
+	// copy custom data of tool to our internal buffer
 	custom_data.append(nwt.custom_data);
-	wkz = NULL;
+	tool = NULL;
 }
 
 
 nwc_tool_t::~nwc_tool_t()
 {
-	delete wkz;
+	delete tool;
 }
 
 
@@ -982,13 +982,13 @@ void nwc_tool_t::rdwr()
 	sint16 posx = pos.x; packet->rdwr_short(posx); pos.x = posx;
 	sint16 posy = pos.y; packet->rdwr_short(posy); pos.y = posy;
 	sint8  posz = pos.z; packet->rdwr_byte(posz);  pos.z = posz;
-	packet->rdwr_short(wkz_id);
+	packet->rdwr_short(tool_id);
 	packet->rdwr_short(wt);
 	packet->rdwr_str(default_param);
 	packet->rdwr_bool(init);
 	packet->rdwr_long(tool_client_id);
 	packet->rdwr_byte(flags);
-	// copy custom data of wkz to/from packet
+	// copy custom data of tool to/from packet
 	if (packet->is_saving()) {
 		// write to packet
 		packet->append(custom_data);
@@ -999,20 +999,20 @@ void nwc_tool_t::rdwr()
 	}
 
 	//if (packet->is_loading()) {
-		dbg->warning("nwc_tool_t::rdwr", "rdwr id=%d client=%d plnr=%d pos=%s wkzid=%d defpar=%s init=%d flags=%d", id, tool_client_id, player_nr, pos.get_str(), wkz_id, (char const*)default_param, init, flags);
+		dbg->warning("nwc_tool_t::rdwr", "rdwr id=%d client=%d plnr=%d pos=%s tool_id=%d defpar=%s init=%d flags=%d", id, tool_client_id, player_nr, pos.get_str(), tool_id, (char const*)default_param, init, flags);
 	//}
 }
 
 
 void nwc_tool_t::init_tool()
 {
-	delete wkz;
-	// create new memory_rw_t that is in reading mode to read wkz data
+	delete tool;
+	// create new memory_rw_t that is in reading mode to read tool data
 	memory_rw_t new_custom_data(custom_data_buf, custom_data.get_current_index(), false);
 
-	if ( (wkz = create_tool(wkz_id)) ) {
-		wkz->set_default_param(default_param);
-		wkz->rdwr_custom_data(&new_custom_data);
+	if ( (tool = create_tool(tool_id)) ) {
+		tool->set_default_param(default_param);
+		tool->rdwr_custom_data(&new_custom_data);
 	}
 }
 
@@ -1027,13 +1027,13 @@ network_broadcast_world_command_t* nwc_tool_t::clone(karte_t *welt)
 	}
 
 	init_tool();
-	if (wkz == NULL) {
+	if (tool == NULL) {
 		// invalid id
 		return NULL;
 	}
 
 	// do not open dialog windows across network
-	if (  init  ?  wkz->is_init_network_save() :  wkz->is_work_network_save() ){
+	if (  init  ?  tool->is_init_network_save() :  tool->is_work_network_save() ){
 		// no reason to send request over network
 		return NULL;
 	}
@@ -1041,10 +1041,10 @@ network_broadcast_world_command_t* nwc_tool_t::clone(karte_t *welt)
 	// scripts only run on server
 	if (socket_list_t::get_client_id(packet->get_sender()) != 0) {
 		// not sent by server, clear flag
-		flags &= ~werkzeug_t::WFL_SCRIPT;
+		flags &= ~tool_t::WFL_SCRIPT;
 	}
 	// scripted calls do not need authentication check
-	bool const scripted_call = flags & werkzeug_t::WFL_SCRIPT;
+	bool const scripted_call = flags & tool_t::WFL_SCRIPT;
 
 	// check authentication and scenario rules
 	if (!scripted_call) {
@@ -1053,17 +1053,17 @@ network_broadcast_world_command_t* nwc_tool_t::clone(karte_t *welt)
 		// check for map editor tools - they need unlocked public player
 		// scenario should check itself
 		if (!scen->is_scripted()) {
-			switch( wkz_id ) {
-				case WKZ_CHANGE_CITY_SIZE | GENERAL_TOOL:
-				case WKZ_BUILD_HAUS | GENERAL_TOOL:
-				case WKZ_LAND_CHAIN | GENERAL_TOOL:
-				case WKZ_CITY_CHAIN | GENERAL_TOOL:
-				case WKZ_BUILD_FACTORY | GENERAL_TOOL:
-				case WKZ_LINK_FACTORY | GENERAL_TOOL:
-				case WKZ_ADD_CITYCAR | GENERAL_TOOL:
-				case WKZ_INCREASE_INDUSTRY | SIMPLE_TOOL:
-				case WKZ_STEP_YEAR | SIMPLE_TOOL:
-				case WKZ_FILL_TREES | SIMPLE_TOOL:
+			switch( tool_id ) {
+				case TOOL_CHANGE_CITY_SIZE | GENERAL_TOOL:
+				case TOOL_BUILD_HOUSE | GENERAL_TOOL:
+				case TOOL_BUILD_LAND_CHAIN | GENERAL_TOOL:
+				case TOOL_CITY_CHAIN | GENERAL_TOOL:
+				case TOOL_BUILD_FACTORY | GENERAL_TOOL:
+				case TOOL_LINK_FACTORY | GENERAL_TOOL:
+				case TOOL_ADD_CITYCAR | GENERAL_TOOL:
+				case TOOL_INCREASE_INDUSTRY | SIMPLE_TOOL:
+				case TOOL_STEP_YEAR | SIMPLE_TOOL:
+				case TOOL_FILL_TREES | SIMPLE_TOOL:
 					player_nr = 1;
 				default: ;
 			}
@@ -1072,7 +1072,7 @@ network_broadcast_world_command_t* nwc_tool_t::clone(karte_t *welt)
 		// check whether player is authorized do this
 		socket_info_t const& info = socket_list_t::get_client(our_client_id);
 		if ( player_nr < PLAYER_UNOWNED  &&  !info.is_player_unlocked(player_nr) ) {
-			if (wkz_id == (WKZ_ADD_MESSAGE_TOOL|SIMPLE_TOOL)) {
+			if (tool_id == (TOOL_ADD_MESSAGE|SIMPLE_TOOL)) {
 				player_nr = PLAYER_UNOWNED;
 			}
 			else {
@@ -1087,27 +1087,27 @@ network_broadcast_world_command_t* nwc_tool_t::clone(karte_t *welt)
 
 		// do scenario checks here, send error message back
 		if ( scen->is_scripted() ) {
-			if (!scen->is_tool_allowed(welt->get_spieler(player_nr), wkz_id, wt)) {
-				dbg->warning("nwc_tool_t::clone", "wkz=%d  wt=%d tool not allowed", wkz_id, wt);
+			if (!scen->is_tool_allowed(welt->get_spieler(player_nr), tool_id, wt)) {
+				dbg->warning("nwc_tool_t::clone", "tool_id=%d  wt=%d tool not allowed", tool_id, wt);
 				// TODO return error message ?
 				return NULL;
 			}
 			if (!init) {
-				const char *err = scen->is_work_allowed_here(welt->get_spieler(player_nr), wkz_id, wt, pos);
+				const char *err = scen->is_work_allowed_here(welt->get_spieler(player_nr), tool_id, wt, pos);
 				if (err == NULL) {
-					if (two_click_werkzeug_t *two_cwkz = dynamic_cast<two_click_werkzeug_t*>(wkz)) {
-						if (!two_cwkz->is_first_click()) {
-							err = scen->is_work_allowed_here(welt->get_spieler(player_nr), wkz_id, wt, two_cwkz->get_start_pos());
+					if (two_click_tool_t *two_ctool = dynamic_cast<two_click_tool_t*>(tool)) {
+						if (!two_ctool->is_first_click()) {
+							err = scen->is_work_allowed_here(welt->get_spieler(player_nr), tool_id, wt, two_ctool->get_start_pos());
 						}
 					}
 				}
 				if (err) {
 					nwc_tool_t *nwt = new nwc_tool_t(*this);
-					nwt->wkz_id = WKZ_ERR_MESSAGE_TOOL | GENERAL_TOOL;
+					nwt->tool_id = TOOL_ERROR_MESSAGE | GENERAL_TOOL;
 					nwt->default_param = err;
 					nwt->last_sync_step = welt->get_last_checklist_sync_step();
 					nwt->last_checklist = welt->get_last_checklist();
-					dbg->warning("nwc_tool_t::clone", "send sync_steps=%d  wkz=%d  error=%s", nwt->get_sync_step(), wkz_id, err);
+					dbg->warning("nwc_tool_t::clone", "send sync_steps=%d  tool_id=%d  error=%s", nwt->get_sync_step(), tool_id, err);
 					return nwt;
 				}
 			}
@@ -1118,7 +1118,7 @@ network_broadcast_world_command_t* nwc_tool_t::clone(karte_t *welt)
 	nwc_tool_t *nwt = new nwc_tool_t(*this);
 	nwt->last_sync_step = welt->get_last_checklist_sync_step();
 	nwt->last_checklist = welt->get_last_checklist();
-	dbg->warning("nwc_tool_t::clone", "send sync_steps=%d  wkz=%d %s", nwt->get_sync_step(), wkz_id, init ? "init" : "work");
+	dbg->warning("nwc_tool_t::clone", "send sync_steps=%d  tool_id=%d %s", nwt->get_sync_step(), tool_id, init ? "init" : "work");
 	return nwt;
 }
 
@@ -1126,16 +1126,16 @@ network_broadcast_world_command_t* nwc_tool_t::clone(karte_t *welt)
 bool nwc_tool_t::ignore_old_events() const
 {
 	// messages are allowed to arrive at any time (return true if message)
-	return wkz_id==(SIMPLE_TOOL|WKZ_ADD_MESSAGE_TOOL);
+	return tool_id==(SIMPLE_TOOL|TOOL_ADD_MESSAGE);
 }
 
 
 void nwc_tool_t::do_command(karte_t *welt)
 {
-	if (wkz == NULL) {
+	if (tool == NULL) {
 		init_tool();
 	}
-	DBG_MESSAGE("nwc_tool_t::do_command", "steps %d wkz %d %s", get_sync_step(), wkz_id, init ? "init" : "work");
+	DBG_MESSAGE("nwc_tool_t::do_command", "steps %d tool_id %d %s", get_sync_step(), tool_id, init ? "init" : "work");
 
 	// commands are treated differently if they come from this client or not
 	bool local = tool_client_id == network_get_client_id();
@@ -1143,49 +1143,49 @@ void nwc_tool_t::do_command(karte_t *welt)
 	spieler_t *sp = player_nr < PLAYER_UNOWNED ? welt->get_spieler(player_nr) : NULL;
 
 	// before calling work initialize new tool
-	assert(wkz);
+	assert(tool);
 	if (!init) {
-		// init command was not sent if wkz->is_init_network_safe() returned true
-		wkz->flags = 0;
+		// init command was not sent if tool->is_init_network_safe() returned true
+		tool->flags = 0;
 		// init tool
-		wkz->init(sp);
+		tool->init(sp);
 	}
 
 	// read custom data (again, necessary for two_click_werkzeug_t)
 	{
 		memory_rw_t new_custom_data(custom_data_buf, custom_data.get_current_index(), false);
-		wkz->rdwr_custom_data(&new_custom_data);
+		tool->rdwr_custom_data(&new_custom_data);
 	}
 	// set flags correctly
 	if (local) {
-		wkz->flags = flags | werkzeug_t::WFL_LOCAL;
+		tool->flags = flags | tool_t::WFL_LOCAL;
 	}
 	else {
-		wkz->flags = flags & ~werkzeug_t::WFL_LOCAL;
+		tool->flags = flags & ~tool_t::WFL_LOCAL;
 	}
-	DBG_MESSAGE("nwc_tool_t::do_command","id=%d init=%d defpar=%s flag=%d",wkz_id&0xFFF,init,(const char*)default_param,wkz->flags);
+	DBG_MESSAGE("nwc_tool_t::do_command","id=%d init=%d defpar=%s flag=%d",tool_id&0xFFF,init,(const char*)default_param,tool->flags);
 	// call INIT
 	if(  init  ) {
-		// we should be here only if wkz->init() returns false
+		// we should be here only if tool->init() returns false
 		// no need to change active tool of world
-		wkz->init(sp);
+		tool->init(sp);
 	}
 	// call WORK
 	else {
 		// remove preview tiles of active tool
-		two_click_werkzeug_t *active_wkz = dynamic_cast<two_click_werkzeug_t*>(welt->get_werkzeug(welt->get_active_player_nr()));
-		if(active_wkz  &&  active_wkz->remove_preview_necessary()) {
-			active_wkz->cleanup(true);
+		two_click_tool_t *active_tool = dynamic_cast<two_click_tool_t*>(welt->get_tool(welt->get_active_player_nr()));
+		if(active_tool  &&  active_tool->remove_preview_necessary()) {
+			active_tool->cleanup(true);
 		}
-		const char *err = wkz->work( sp, pos );
+		const char *err = tool->work( sp, pos );
 		// only local players or AIs get the callback
 		if (local  ||  sp->get_ai_id()!=spieler_t::HUMAN) {
-			sp->tell_tool_result(wkz, pos, err, local);
+			sp->tell_tool_result(tool, pos, err, local);
 		}
 		if (err) {
 			dbg->warning("nwc_tool_t::do_command","failed with '%s'",err);
 		}
-		wkz->exit(sp);
+		tool->exit(sp);
 	}
 }
 

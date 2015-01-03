@@ -8,7 +8,7 @@
 #include <string.h>
 
 #include "../simdebug.h"
-#include "../simwerkz.h"
+#include "../simtool.h"
 #include "brueckenbauer.h"
 #include "wegbauer.h"
 
@@ -50,18 +50,18 @@ void brueckenbauer_t::register_besch(bruecke_besch_t *besch)
 	if( const bruecke_besch_t *old_besch = bruecken_by_name.get(besch->get_name()) ) {
 		dbg->warning( "brueckenbauer_t::register_besch()", "Object %s was overlaid by addon!", besch->get_name() );
 		bruecken_by_name.remove(besch->get_name());
-		werkzeug_t::general_tool.remove( old_besch->get_builder() );
+		tool_t::general_tool.remove( old_besch->get_builder() );
 		delete old_besch->get_builder();
 		delete old_besch;
 	}
 
 	// add the tool
-	wkz_brueckenbau_t *wkz = new wkz_brueckenbau_t();
-	wkz->set_icon( besch->get_cursor()->get_bild_nr(1) );
-	wkz->cursor = besch->get_cursor()->get_bild_nr(0);
-	wkz->set_default_param(besch->get_name());
-	werkzeug_t::general_tool.append( wkz );
-	besch->set_builder( wkz );
+	tool_build_bridge_t *tool = new tool_build_bridge_t();
+	tool->set_icon( besch->get_cursor()->get_bild_nr(1) );
+	tool->cursor = besch->get_cursor()->get_bild_nr(0);
+	tool->set_default_param(besch->get_name());
+	tool_t::general_tool.append( tool );
+	besch->set_builder( tool );
 	bruecken_by_name.put(besch->get_name(), besch);
 }
 
@@ -106,7 +106,7 @@ static bool compare_bridges(const bruecke_besch_t* a, const bruecke_besch_t* b)
 void brueckenbauer_t::fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, sint16 /*sound_ok*/)
 {
 	// check if scenario forbids this
-	if (!welt->get_scenario()->is_tool_allowed(welt->get_active_player(), WKZ_BRUECKENBAU | GENERAL_TOOL, wtyp)) {
+	if (!welt->get_scenario()->is_tool_allowed(welt->get_active_player(), TOOL_BUILD_BRIDGE | GENERAL_TOOL, wtyp)) {
 		return;
 	}
 
@@ -343,7 +343,7 @@ koord3d brueckenbauer_t::finde_ende(spieler_t *sp, koord3d pos, const koord zv, 
 		pos = pos + zv;
 
 		// test scenario conditions
-		if(  (error_msg = scen->is_work_allowed_here(sp, WKZ_BRUECKENBAU|GENERAL_TOOL, wegtyp, pos)) != NULL  ) {
+		if(  (error_msg = scen->is_work_allowed_here(sp, TOOL_BUILD_BRIDGE|GENERAL_TOOL, wegtyp, pos)) != NULL  ) {
 			// fail silent?
 			return koord3d::invalid;
 		}

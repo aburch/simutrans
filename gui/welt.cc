@@ -22,7 +22,6 @@
 #include "../display/simimg.h"
 #include "../simmesg.h"
 #include "../simskin.h"
-#include "../simtools.h"
 #include "../simversion.h"
 
 #include "../bauer/hausbauer.h"
@@ -48,6 +47,7 @@
 
 #include "../simsys.h"
 #include "../utils/simstring.h"
+#include "../utils/simrandom.h"
 
 #include "sprachen.h"
 #include "climates.h"

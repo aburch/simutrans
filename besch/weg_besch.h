@@ -14,7 +14,7 @@
 #include "../network/checksum.h"
 
 
-class werkzeug_t;
+class tool_t;
 
 /**
  * Way type description. Contains all needed values to describe a

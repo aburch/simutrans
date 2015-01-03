@@ -117,17 +117,17 @@ depot_t *depot_t::find_depot( koord3d start, const obj_t::typ depot_type, const 
 void depot_t::call_depot_tool( char tool, convoihandle_t cnv, const char *extra)
 {
 	// call depot tool
-	werkzeug_t *w = create_tool( WKZ_DEPOT_TOOL | SIMPLE_TOOL );
+	tool_t *tmp_tool = create_tool( TOOL_CHANGE_DEPOT | SIMPLE_TOOL );
 	cbuffer_t buf;
 	buf.printf( "%c,%s,%hu", tool, get_pos().get_str(), cnv.get_id() );
 	if(  extra  ) {
 		buf.append( "," );
 		buf.append( extra );
 	}
-	w->set_default_param(buf);
-	welt->set_werkzeug( w, get_besitzer() );
+	tmp_tool->set_default_param(buf);
+	welt->set_tool( tmp_tool, get_besitzer() );
 	// since init always returns false, it is safe to delete immediately
-	delete w;
+	delete tmp_tool;
 }
 
 

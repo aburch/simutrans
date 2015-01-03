@@ -8,7 +8,7 @@
 #include "../api_function.h"
 
 #include "../../simobj.h"
-#include "../../simwerkz.h"
+#include "../../simtool.h"
 #include "../../simworld.h"
 #include "../../dataobj/scenario.h"
 #include "../../obj/baum.h"
@@ -188,7 +188,7 @@ label_t* create_marker(koord pos, spieler_t* sp, const char* text)
 	if (sp == NULL  ||  text == NULL) {
 		return NULL;
 	}
-	wkz_marker_t w;
+	tool_marker_t w;
 	w.flags = 0;
 	const char* err = w.work(sp, koord3d(pos,0));
 	if (err) {
@@ -206,7 +206,7 @@ void_t label_set_text(label_t* l, const char* text)
 		return void_t();
 	}
 	koord3d pos = l->get_pos();
-	wkz_rename_t w;
+	tool_rename_t w;
 	cbuffer_t buf;
 	buf.printf("m%hi,%hi,%hi,%s", pos.x, pos.y, pos.z, text);
 	w.set_default_param(buf);

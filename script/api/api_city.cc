@@ -52,11 +52,11 @@ static void_t set_citygrowth(stadt_t *city, bool allow)
 {
 	static char param[16];
 	sprintf(param,"g%hi,%hi,%hi", city->get_pos().x, city->get_pos().y, (short)allow );
-	werkzeug_t *wkz = werkzeug_t::simple_tool[WKZ_CHANGE_CITY_TOOL];
-	wkz->set_default_param( param );
-	wkz->flags |=  werkzeug_t::WFL_SCRIPT;
-	welt->set_werkzeug( wkz, welt->get_spieler(1) );
-	wkz->flags &= ~werkzeug_t::WFL_SCRIPT;
+	tool_t *tool = tool_t::simple_tool[TOOL_CHANGE_CITY];
+	tool->set_default_param( param );
+	tool->flags |=  tool_t::WFL_SCRIPT;
+	welt->set_tool( tool, welt->get_spieler(1) );
+	tool->flags &= ~tool_t::WFL_SCRIPT;
 	return void_t();
 }
 

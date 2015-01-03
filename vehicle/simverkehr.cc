@@ -13,7 +13,7 @@
 #include "../display/simgraph.h"
 #include "../simmesg.h"
 #include "../simworld.h"
-#include "../simtools.h"
+#include "../utils/simrandom.h"
 #include "../display/simimg.h"
 #include "../simunits.h"
 #include "../simtypes.h"

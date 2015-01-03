@@ -16,7 +16,7 @@
 #include "../network/checksum.h"
 
 
-class werkzeug_t;
+class tool_t;
 class checksum_t;
 
 /**

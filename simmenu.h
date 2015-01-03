@@ -29,135 +29,135 @@ class memory_rw_t;
 
 enum {
 	// general tools
-	WKZ_ABFRAGE=0,
-	WKZ_REMOVER,
-	WKZ_RAISE_LAND,
-	WKZ_LOWER_LAND,
-	WKZ_SETSLOPE,
-	WKZ_RESTORESLOPE,
-	WKZ_MARKER,
-	WKZ_CLEAR_RESERVATION,
-	WKZ_TRANSFORMER,
-	WKZ_ADD_CITY,
-	WKZ_CHANGE_CITY_SIZE,
-	WKZ_PLANT_TREE,
-	WKZ_FAHRPLAN_ADD,
-	WKZ_FAHRPLAN_INS,
-	WKZ_WEGEBAU,
-	WKZ_BRUECKENBAU,
-	WKZ_TUNNELBAU,
-	WKZ_WAYREMOVER,
-	WKZ_WAYOBJ,
-	WKZ_STATION,
-	WKZ_ROADSIGN,
-	WKZ_DEPOT,
-	WKZ_BUILD_HAUS,
-	WKZ_LAND_CHAIN,
-	WKZ_CITY_CHAIN,
-	WKZ_BUILD_FACTORY,
-	WKZ_LINK_FACTORY,
-	WKZ_HEADQUARTER,
-	WKZ_LOCK_GAME,
-	WKZ_ADD_CITYCAR,
-	WKZ_FOREST,
-	WKZ_STOP_MOVER,
-	WKZ_MAKE_STOP_PUBLIC,
-	WKZ_REMOVE_WAYOBJ,
-	WKZ_SLICED_AND_UNDERGROUND_VIEW,
-	WKZ_BUY_HOUSE,
-	WKZ_CITYROAD,
-	WKZ_ERR_MESSAGE_TOOL,
-	WKZ_CHANGE_WATER_HEIGHT,
-	WKZ_SET_CLIMATE,
+	TOOL_QUERY=0,
+	TOOL_REMOVER,
+	TOOL_RAISE_LAND,
+	TOOL_LOWER_LAND,
+	TOOL_SETSLOPE,
+	TOOL_RESTORESLOPE,
+	TOOL_MARKER,
+	TOOL_CLEAR_RESERVATION,
+	TOOL_TRANSFORMER,
+	TOOL_ADD_CITY,
+	TOOL_CHANGE_CITY_SIZE,
+	TOOL_PLANT_TREE,
+	TOOL_SCHEDULE_ADD,
+	TOOL_SCHEDULE_INS,
+	TOOL_BUILD_WAY,
+	TOOL_BUILD_BRIDGE,
+	TOOL_BUILD_TUNNEL,
+	TOOL_WAYREMOVER,
+	TOOL_BUILD_WAYOBJ,
+	TOOL_BUILD_STATION,
+	TOOL_BUILD_ROADSIGN,
+	TOOL_BUILD_DEPOT,
+	TOOL_BUILD_HOUSE,
+	TOOL_BUILD_LAND_CHAIN,
+	TOOL_CITY_CHAIN,
+	TOOL_BUILD_FACTORY,
+	TOOL_LINK_FACTORY,
+	TOOL_HEADQUARTER,
+	TOOL_LOCK_GAME,
+	TOOL_ADD_CITYCAR,
+	TOOL_FOREST,
+	TOOL_STOP_MOVER,
+	TOOL_MAKE_STOP_PUBLIC,
+	TOOL_REMOVE_WAYOBJ,
+	TOOL_SLICED_AND_UNDERGROUND_VIEW,
+	TOOL_BUY_HOUSE,
+	TOOL_BUILD_CITYROAD,
+	TOOL_ERROR_MESSAGE,
+	TOOL_CHANGE_WATER_HEIGHT,
+	TOOL_SET_CLIMATE,
 	GENERAL_TOOL_COUNT,
 	GENERAL_TOOL = 0x1000
 };
 
 enum {
 	// simple one click tools
-	WKZ_PAUSE = 0,
-	WKZ_FASTFORWARD,
-	WKZ_SCREENSHOT,
-	WKZ_INCREASE_INDUSTRY,
-	WKZ_UNDO,
-	WKZ_SWITCH_PLAYER,
-	WKZ_STEP_YEAR,
-	WKZ_CHANGE_GAME_SPEED,
-	WKZ_ZOOM_IN,
-	WKZ_ZOOM_OUT,
-	WKZ_SHOW_COVERAGE,
-	WKZ_SHOW_NAMES,
-	WKZ_SHOW_GRID,
-	WKZ_SHOW_TREES,
-	WKZ_SHOW_HOUSES,
-	WKZ_SHOW_UNDERGROUND,
-	WKZ_ROTATE90,
-	WKZ_QUIT,
-	WKZ_FILL_TREES,
-	WKZ_DAYNIGHT_LEVEL,
-	WKZ_VEHICLE_TOOLTIPS,
-	WKZ_TOOGLE_PAX,
-	WKZ_TOOGLE_PEDESTRIANS,
-	WKZ_TRAFFIC_LEVEL,
-	WKZ_CONVOI_TOOL,
-	WKZ_LINE_TOOL,
-	WKZ_DEPOT_TOOL,
+	TOOL_PAUSE = 0,
+	TOOL_FASTFORWARD,
+	TOOL_SCREENSHOT,
+	TOOL_INCREASE_INDUSTRY,
+	TOOL_UNDO,
+	TOOL_SWITCH_PLAYER,
+	TOOL_STEP_YEAR,
+	TOOL_CHANGE_GAME_SPEED,
+	TOOL_ZOOM_IN,
+	TOOL_ZOOM_OUT,
+	TOOL_SHOW_COVERAGE,
+	TOOL_SHOW_NAME,
+	TOOL_SHOW_GRID,
+	TOOL_SHOW_TREES,
+	TOOL_SHOW_HOUSES,
+	TOOL_SHOW_UNDERGROUND,
+	TOOL_ROTATE90,
+	TOOL_QUIT,
+	TOOL_FILL_TREES,
+	TOOL_DAYNIGHT_LEVEL,
+	TOOL_VEHICLE_TOOLTIPS,
+	TOOL_TOOGLE_PAX,
+	TOOL_TOOGLE_PEDESTRIANS,
+	TOOL_TRAFFIC_LEVEL,
+	TOOL_CHANGE_CONVOI,
+	TOOL_CHANGE_LINE,
+	TOOL_CHANGE_DEPOT,
 	UNUSED_WKZ_PWDHASH_TOOL,
-	WKZ_SET_PLAYER_TOOL,
-	WKZ_TRAFFIC_LIGHT_TOOL,
-	WKZ_CHANGE_CITY_TOOL,
-	WKZ_RENAME_TOOL,
-	WKZ_ADD_MESSAGE_TOOL,
-	WKZ_TOGGLE_RESERVATION,
-	WKZ_VIEW_OWNER,
-	WKZ_HIDE_UNDER_CURSOR,
+	TOOL_CHANGE_PLAYER,
+	TOOL_CHANGE_TRAFFIC_LIGHT,
+	TOOL_CHANGE_CITY,
+	TOOL_RENAME,
+	TOOL_ADD_MESSAGE,
+	TOOL_TOGGLE_RESERVATION,
+	TOOL_VIEW_OWNER,
+	TOOL_HIDE_UNDER_CURSOR,
 	SIMPLE_TOOL_COUNT,
 	SIMPLE_TOOL = 0x2000
 };
 
 enum {
 	// dialoge tools
-	WKZ_HELP = 0,
-	WKZ_OPTIONEN,
-	WKZ_MINIMAP,
-	WKZ_LINEOVERVIEW,
-	WKZ_MESSAGES,
-	WKZ_FINANCES,
-	WKZ_PLAYERS,
-	WKZ_DISPLAYOPTIONS,
-	WKZ_SOUND,
-	WKZ_LANGUAGE,
-	WKZ_PLAYERCOLOR,
-	WKZ_JUMP,
-	WKZ_LOAD,
-	WKZ_SAVE,
-	WKZ_LIST_HALT,
-	WKZ_LIST_CONVOI,
-	WKZ_LIST_TOWN,
-	WKZ_LIST_GOODS,
-	WKZ_LIST_FACTORY,
-	WKZ_LIST_CURIOSITY,
-	WKZ_EDIT_FACTORY,
-	WKZ_EDIT_ATTRACTION,
-	WKZ_EDIT_HOUSE,
-	WKZ_EDIT_TREE,
-	WKZ_ENLARGE_MAP,
-	WKZ_LIST_LABEL,
-	WKZ_CLIMATES,
-	WKZ_SETTINGS,
-	WKZ_GAMEINFO,
-	WKZ_THEMES,
+	DIALOG_HELP = 0,
+	DIALOG_OPTIONS,
+	DIALOG_MINIMAP,
+	DIALOG_LINEOVERVIEW,
+	DIALOG_MESSAGES,
+	DIALOG_FINANCES,
+	DIALOG_PLAYERS,
+	DIALOG_DISPLAYOPTIONS,
+	DIALOG_SOUND,
+	DIALOG_LANGUAGE,
+	DIALOG_PLAYERCOLOR,
+	DIALOG_JUMP,
+	DIALOG_LOAD,
+	DIALOG_SAVE,
+	DIALOG_LIST_HALT,
+	DIALOG_LIST_CONVOI,
+	DIALOG_LIST_TOWN,
+	DIALOG_LIST_GOODS,
+	DIALOG_LIST_FACTORY,
+	DIALOG_LIST_CURIOSITY,
+	DIALOG_EDIT_FACTORY,
+	DIALOG_EDIT_ATTRACTION,
+	DIALOG_EDIT_HOUSE,
+	DIALOG_EDIT_TREE,
+	DIALOG_ENLARGE_MAP,
+	DIALOG_LIST_LABEL,
+	DIALOG_CLIMATES,
+	DIALOG_SETTINGS,
+	DIALOG_GAMEINFO,
+	DIALOG_THEMES,
 	DIALOGE_TOOL_COUNT,
 	DIALOGE_TOOL = 0x4000
 };
 
 enum {
 	// toolbars
-	WKZ_MAINMENU = 0,
+	TOOL_MAINMENU = 0,
 	TOOLBAR_TOOL = 0x8000u
 };
 
-class werkzeug_t {
+class tool_t {
 protected:
 	image_id icon;
 private:
@@ -171,10 +171,10 @@ protected:
 public:
 	uint16 get_id() const { return id; }
 
-	static werkzeug_t *dummy;
+	static tool_t *dummy;
 
-	// for key loockup
-	static vector_tpl<werkzeug_t *>char_to_tool;
+	// for key lookup
+	static vector_tpl<tool_t *>char_to_tool;
 
 	/// cursor image
 	image_id cursor;
@@ -205,9 +205,9 @@ public:
 
 	uint16 command_key;// key to toggle action for this function
 
-	static vector_tpl<werkzeug_t *> general_tool;
-	static vector_tpl<werkzeug_t *> simple_tool;
-	static vector_tpl<werkzeug_t *> dialog_tool;
+	static vector_tpl<tool_t *> general_tool;
+	static vector_tpl<tool_t *> simple_tool;
+	static vector_tpl<tool_t *> dialog_tool;
 	static vector_tpl<toolbar_t *> toolbar_tool;
 
 	static void update_toolbars();
@@ -222,7 +222,7 @@ public:
 
 	static uint16 const dummy_id = 0xFFFFU;
 
-	werkzeug_t(uint16 const id) : id(id), cursor_area(1,1)
+	tool_t(uint16 const id) : id(id), cursor_area(1,1)
 	{
 		cursor = icon = IMG_LEER;
 		ok_sound = NO_SOUND;
@@ -233,7 +233,7 @@ public:
 		flags = 0;
 	}
 
-	virtual ~werkzeug_t() {}
+	virtual ~tool_t() {}
 
 	virtual image_id get_icon(spieler_t *) const { return icon; }
 	void set_icon(image_id i) { icon = i; }
@@ -313,9 +313,9 @@ public:
 /*
  * Class for tools that work only on ground (kartenboden)
  */
-class kartenboden_werkzeug_t : public werkzeug_t {
+class kartenboden_werkzeug_t : public tool_t {
 public:
-	kartenboden_werkzeug_t(uint16 const id) : werkzeug_t(id) {}
+	kartenboden_werkzeug_t(uint16 const id) : tool_t(id) {}
 
 	char const* check_pos(spieler_t*, koord3d) OVERRIDE;
 };
@@ -325,9 +325,9 @@ public:
  * Dragging is also possible.
  * @author Gerd Wachsmuth
  */
-class two_click_werkzeug_t : public werkzeug_t {
+class two_click_tool_t : public tool_t {
 public:
-	two_click_werkzeug_t(uint16 const id) : werkzeug_t(id) {
+	two_click_tool_t(uint16 const id) : tool_t(id) {
 		MEMZERO(start_marker);
 		first_click_var = true;
 	}
@@ -388,13 +388,13 @@ protected:
 };
 
 /* toolbar are a new overclass */
-class toolbar_t : public werkzeug_t {
+class toolbar_t : public tool_t {
 private:
 	const char *helpfile;
 	werkzeug_waehler_t *wzw;
-	slist_tpl<werkzeug_t *>tools;
+	slist_tpl<tool_t *>tools;
 public:
-	toolbar_t(uint16 const id, char const* const t, char const* const h) : werkzeug_t(id)
+	toolbar_t(uint16 const id, char const* const t, char const* const h) : tool_t(id)
 	{
 		default_param = t;
 		helpfile = h;
@@ -411,10 +411,10 @@ public:
 	// close this toolbar
 	bool exit(spieler_t*) OVERRIDE;
 	void update(spieler_t *);	// just refresh content
-	void append(werkzeug_t *w) { tools.append(w); }
+	void append(tool_t *t) { tools.append(t); }
 };
 
 // create new instance of tool
-werkzeug_t *create_tool(int toolnr);
+tool_t *create_tool(int toolnr);
 
 #endif

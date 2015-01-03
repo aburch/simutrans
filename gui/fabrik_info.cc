@@ -115,11 +115,11 @@ void fabrik_info_t::rename_factory()
 		// text changed and factory still exists => call tool
 		cbuffer_t buf;
 		buf.printf( "f%s,%s", fab->get_pos().get_str(), fabname );
-		werkzeug_t *w = create_tool( WKZ_RENAME_TOOL | SIMPLE_TOOL );
-		w->set_default_param( buf );
-		welt->set_werkzeug( w, welt->get_spieler(1));
+		tool_t *tool = create_tool( TOOL_RENAME | SIMPLE_TOOL );
+		tool->set_default_param( buf );
+		welt->set_tool( tool, welt->get_spieler(1));
 		// since init always returns false, it is safe to delete immediately
-		delete w;
+		delete tool;
 	}
 }
 

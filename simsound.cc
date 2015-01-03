@@ -19,11 +19,11 @@
 #include "simsound.h"
 #include "simsys.h"
 #include "simio.h"
-#include "simtools.h"
 #include "simdebug.h"
 
 #include "dataobj/environment.h"
 #include "utils/plainstring.h"
+#include "utils/simrandom.h"
 #include "utils/simstring.h"
 
 

@@ -11,7 +11,7 @@
 class connection_info_t;
 class packet_t;
 class spieler_t;
-class werkzeug_t;
+class tool_t;
 
 /**
  * nwc_gameinfo_t
@@ -304,7 +304,7 @@ private:
  *		@data client_id (the client that launched the tool, sent by server)
  *		@data player_nr
  *		@data init (if true call init else work)
- *		@data wkz_id
+ *		@data tool_id
  *		@data pos
  *		@data default_param
  *		@data exec (if true executes, else server sends it to clients)
@@ -316,7 +316,7 @@ public:
 	uint32 last_sync_step;
 
 	nwc_tool_t();
-	nwc_tool_t(spieler_t *sp, werkzeug_t *wkz, koord3d pos, uint32 sync_steps, uint32 map_counter, bool init);
+	nwc_tool_t(spieler_t *sp, tool_t *tool, koord3d pos, uint32 sync_steps, uint32 map_counter, bool init);
 	nwc_tool_t(const nwc_tool_t&);
 
 	// messages are allowed to arrive at any time
@@ -338,7 +338,7 @@ private:
 	// transfered data
 	plainstring default_param;
 	uint32 tool_client_id;
-	uint16 wkz_id;
+	uint16 tool_id;
 	sint16 wt; // needed for scenario checks
 	koord3d pos;
 	uint8 flags;
@@ -349,7 +349,7 @@ private:
 	memory_rw_t custom_data;
 
 	// tool that will be executed
-	werkzeug_t* wkz;
+	tool_t* tool;
 
 	// compare default_param's (NULL pointers allowed)
 	// @return true if default_param are equal

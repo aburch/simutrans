@@ -40,11 +40,10 @@
 #include "simsound.h"
 #include "simsys.h"
 #include "simticker.h"
-#include "simtools.h"
 #include "simunits.h"
 #include "simversion.h"
 #include "display/simview.h"
-#include "simwerkz.h"
+#include "simtool.h"
 #include "gui/simwin.h"
 #include "simworld.h"
 
@@ -88,7 +87,9 @@
 #include "dataobj/powernet.h"
 
 #include "utils/cbuffer_t.h"
+#include "utils/simrandom.h"
 #include "utils/simstring.h"
+
 #include "network/memory_rw.h"
 
 #include "bauer/brueckenbauer.h"
@@ -104,7 +105,6 @@
 #include "player/finance.h"
 #include "player/ai_passenger.h"
 #include "player/ai_goods.h"
-
 
 
 // advance 201 ms per sync_step in fast forward mode
@@ -1469,7 +1469,7 @@ void karte_t::init(settings_t* const sets, sint8 const* const h_field)
 	}
 
 	for(  uint i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
-		werkzeug[i] = werkzeug_t::general_tool[WKZ_ABFRAGE];
+		selected_tool[i] = tool_t::general_tool[TOOL_QUERY];
 	}
 	if(is_display_init()) {
 		display_show_pointer(false);
@@ -1572,7 +1572,7 @@ DBG_DEBUG("karte_t::init()","built timeline");
 	// finishes the line preparation and sets id 0 to invalid ...
 	spieler[0]->simlinemgmt.laden_abschliessen();
 
-	set_werkzeug( werkzeug_t::general_tool[WKZ_ABFRAGE], get_active_player() );
+	set_tool( tool_t::general_tool[TOOL_QUERY], get_active_player() );
 
 	recalc_average_speed();
 
@@ -1584,7 +1584,7 @@ DBG_DEBUG("karte_t::init()","built timeline");
 
 	active_player_nr = 0;
 	active_player = spieler[0];
-	werkzeug_t::update_toolbars();
+	tool_t::update_toolbars();
 
 	set_dirty();
 	step_mode = PAUSE_FLAG;
@@ -2219,7 +2219,7 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 		reset_timer();
 	}
 	// update main menue
-	werkzeug_t::update_toolbars();
+	tool_t::update_toolbars();
 }
 
 
@@ -2245,7 +2245,7 @@ karte_t::karte_t() :
 	sync_steps = 0;
 
 	for(  uint i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
-		werkzeug[i] = werkzeug_t::general_tool[WKZ_ABFRAGE];
+		selected_tool[i] = tool_t::general_tool[TOOL_QUERY];
 	}
 
 	viewport = new viewport_t(this);
@@ -2354,7 +2354,7 @@ const char* karte_t::can_lower_plan_to(const spieler_t *sp, sint16 x, sint16 y, 
 
 	// check allowance by scenario
 	if (get_scenario()->is_scripted()) {
-		return get_scenario()->is_work_allowed_here(sp, WKZ_LOWER_LAND|GENERAL_TOOL, ignore_wt, plan->get_kartenboden()->get_pos());
+		return get_scenario()->is_work_allowed_here(sp, TOOL_LOWER_LAND|GENERAL_TOOL, ignore_wt, plan->get_kartenboden()->get_pos());
 	}
 
 	return NULL;
@@ -2379,7 +2379,7 @@ const char* karte_t::can_raise_plan_to(const spieler_t *sp, sint16 x, sint16 y, 
 
 	// check allowance by scenario
 	if (get_scenario()->is_scripted()) {
-		return get_scenario()->is_work_allowed_here(sp, WKZ_RAISE_LAND|GENERAL_TOOL, ignore_wt, plan->get_kartenboden()->get_pos());
+		return get_scenario()->is_work_allowed_here(sp, TOOL_RAISE_LAND|GENERAL_TOOL, ignore_wt, plan->get_kartenboden()->get_pos());
 	}
 
 	return NULL;
@@ -3221,64 +3221,64 @@ bool karte_t::change_player_tool(uint8 cmd, uint8 player_nr, uint16 param, bool 
 }
 
 
-void karte_t::set_werkzeug( werkzeug_t *w, spieler_t *sp )
+void karte_t::set_tool( tool_t *tool_in, spieler_t *sp )
 {
 	if(  get_random_mode()&LOAD_RANDOM  ) {
-		dbg->warning("karte_t::set_werkzeug", "Ignored tool %i during loading.", w->get_id() );
+		dbg->warning("karte_t::set_werkzeug", "Ignored tool %i during loading.", tool_in->get_id() );
 		return;
 	}
-	bool scripted_call = w->is_scripted();
+	bool scripted_call = tool_in->is_scripted();
 	// check for scenario conditions
-	if(  !scripted_call  &&  !scenario->is_tool_allowed(sp, w->get_id(), w->get_waytype())  ) {
+	if(  !scripted_call  &&  !scenario->is_tool_allowed(sp, tool_in->get_id(), tool_in->get_waytype())  ) {
 		return;
 	}
 	// check for password-protected players
-	if(  (!w->is_init_network_save()  ||  !w->is_work_network_save())  &&  !scripted_call  &&
-		 !(w->get_id()==(WKZ_SET_PLAYER_TOOL|SIMPLE_TOOL)  ||  w->get_id()==(WKZ_ADD_MESSAGE_TOOL|SIMPLE_TOOL))  &&
+	if(  (!tool_in->is_init_network_save()  ||  !tool_in->is_work_network_save())  &&  !scripted_call  &&
+		 !(tool_in->get_id()==(TOOL_CHANGE_PLAYER|SIMPLE_TOOL)  ||  tool_in->get_id()==(TOOL_ADD_MESSAGE|SIMPLE_TOOL))  &&
 		 sp  &&  sp->is_locked()  ) {
 		// player is currently password protected => request unlock first
 		create_win( -1, -1, new password_frame_t(sp), w_info, magic_pwd_t + sp->get_player_nr() );
 		return;
 	}
-	w->flags |= event_get_last_control_shift();
-	if(!env_t::networkmode  ||  w->is_init_network_save()  ) {
-		local_set_werkzeug(w, sp);
+	tool_in->flags |= event_get_last_control_shift();
+	if(!env_t::networkmode  ||  tool_in->is_init_network_save()  ) {
+		local_set_tool(tool_in, sp);
 	}
 	else {
 		// queue tool for network
-		nwc_tool_t *nwc = new nwc_tool_t(sp, w, zeiger->get_pos(), steps, map_counter, true);
+		nwc_tool_t *nwc = new nwc_tool_t(sp, tool_in, zeiger->get_pos(), steps, map_counter, true);
 		network_send_server(nwc);
 	}
 }
 
 
 // set a new tool on our client, calls init
-void karte_t::local_set_werkzeug( werkzeug_t *w, spieler_t * sp )
+void karte_t::local_set_tool( tool_t *tool_in, spieler_t * sp )
 {
-	w->flags |= werkzeug_t::WFL_LOCAL;
+	tool_in->flags |= tool_t::WFL_LOCAL;
 
-	if (get_scenario()->is_scripted()  &&  !get_scenario()->is_tool_allowed(sp, w->get_id()) ) {
-		w->flags = 0;
+	if (get_scenario()->is_scripted()  &&  !get_scenario()->is_tool_allowed(sp, tool_in->get_id()) ) {
+		tool_in->flags = 0;
 		return;
 	}
 	// now call init
-	bool init_result = w->init(sp);
+	bool init_result = tool_in->init(sp);
 	// for unsafe tools init() must return false
-	assert(w->is_init_network_save()  ||  !init_result);
+	assert(tool_in->is_init_network_save()  ||  !init_result);
 
 	if (sp && init_result) {
 
 		set_dirty();
-		werkzeug_t *sp_wkz = werkzeug[sp->get_player_nr()];
-		if(w != sp_wkz) {
+		tool_t *sp_tool = selected_tool[sp->get_player_nr()];
+		if(tool_in != sp_tool) {
 
 			// reinit same tool => do not play sound twice
 			sound_play(SFX_SELECT);
 
 			// only exit, if it is not the same tool again ...
-			sp_wkz->flags |= werkzeug_t::WFL_LOCAL;
-			sp_wkz->exit(sp);
-			sp_wkz->flags =0;
+			sp_tool->flags |= tool_t::WFL_LOCAL;
+			sp_tool->exit(sp);
+			sp_tool->flags =0;
 		}
 
 		if(  sp==active_player  ) {
@@ -3287,18 +3287,18 @@ void karte_t::local_set_werkzeug( werkzeug_t *w, spieler_t * sp )
 			// remove marks
 			zeiger->change_pos( koord3d::invalid );
 			// set new cursor properties
-			w->init_cursor(zeiger);
+			tool_in->init_cursor(zeiger);
 			// .. and mark again (if the position is acceptable for the tool)
-			if( w->check_valid_pos(zpos.get_2d())) {
+			if( tool_in->check_valid_pos(zpos.get_2d())) {
 				zeiger->change_pos( zpos );
 			}
 			else {
 				zeiger->change_pos( koord3d::invalid );
 			}
 		}
-		werkzeug[sp->get_player_nr()] = w;
+		selected_tool[sp->get_player_nr()] = tool_in;
 	}
-	w->flags = 0;
+	tool_in->flags = 0;
 }
 
 
@@ -4222,7 +4222,7 @@ void karte_t::new_month()
 	INT_CHECK("simworld 1921");
 
 	// update toolbars (i.e. new waytypes
-	werkzeug_t::update_toolbars();
+	tool_t::update_toolbars();
 
 	// no autosave in networkmode or when the new world dialogue is shown
 	if( !env_t::networkmode  &&  env_t::autosave>0  &&  last_month%env_t::autosave==0  &&  !win_get_magic(magic_welt_gui_t)  ) {
@@ -4552,11 +4552,11 @@ void karte_t::step()
 		// add message via tool
 		cbuffer_t buf;
 		buf.printf(translator::translate("Now %u clients connected.", settings.get_name_language_id()), last_clients);
-		werkzeug_t *w = create_tool( WKZ_ADD_MESSAGE_TOOL | SIMPLE_TOOL );
-		w->set_default_param( buf );
-		set_werkzeug( w, NULL );
+		tool_t *tmp_tool = create_tool( TOOL_ADD_MESSAGE | SIMPLE_TOOL );
+		tmp_tool->set_default_param( buf );
+		set_tool( tmp_tool, NULL );
 		// since init always returns false, it is safe to delete immediately
-		delete w;
+		delete tmp_tool;
 	}
 
 	if(  get_scenario()->is_scripted() ) {
@@ -5048,14 +5048,14 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "start");
 	 * THIS MUST NOT BE DONE IN NETWORK MODE!
 	 */
 	for(  uint8 sp_nr=0;  sp_nr<MAX_PLAYER_COUNT;  sp_nr++  ) {
-		if(  two_click_werkzeug_t* tool = dynamic_cast<two_click_werkzeug_t*>(werkzeug[sp_nr]) ) {
+		if (two_click_tool_t* tool = dynamic_cast<two_click_tool_t*>(selected_tool[sp_nr])) {
 			tool->cleanup( false );
 		}
 	}
 
 	file->set_buffered(true);
 
-	// do not set value for empyt player
+	// do not set value for empty player
 	uint8 old_sp[MAX_PLAYER_COUNT];
 	for(  int i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
 		old_sp[i] = settings.get_player_type(i);
@@ -5451,8 +5451,8 @@ DBG_MESSAGE("karte_t::laden()","Savegame version is %d", file.get_version());
 		recalc_average_speed();
 		mute_sound(false);
 
-		werkzeug_t::update_toolbars();
-		set_werkzeug( werkzeug_t::general_tool[WKZ_ABFRAGE], get_active_player() );
+		tool_t::update_toolbars();
+		set_tool( tool_t::general_tool[TOOL_QUERY], get_active_player() );
 	}
 	settings.set_filename(filename);
 	display_show_load_pointer(false);
@@ -5518,7 +5518,7 @@ void karte_t::load(loadsave_t *file)
 	intr_disable();
 	dbg->message("karte_t::laden()", "Prepare for loading" );
 	for(  uint i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
-		werkzeug[i] = werkzeug_t::general_tool[WKZ_ABFRAGE];
+		selected_tool[i] = tool_t::general_tool[TOOL_QUERY];
 	}
 	destroy_all_win(true);
 
@@ -6573,8 +6573,8 @@ void karte_t::switch_active_player(uint8 new_player, bool silent)
 	else {
 		zeiger->change_pos( koord3d::invalid ); // unmark area
 		// exit active tool to remove pointers (for two_click_tool_t's, stop mover, factory linker)
-		if(werkzeug[active_player_nr]) {
-			werkzeug[active_player_nr]->exit(active_player);
+		if(selected_tool[active_player_nr]) {
+			selected_tool[active_player_nr]->exit(active_player);
 		}
 		active_player_nr = new_player;
 		active_player = spieler[new_player];
@@ -6586,12 +6586,12 @@ void karte_t::switch_active_player(uint8 new_player, bool silent)
 		}
 
 		// update menue entries
-		werkzeug_t::update_toolbars();
+		tool_t::update_toolbars();
 		set_dirty();
 	}
 
 	// update pointer image / area
-	werkzeug[active_player_nr]->init_cursor(zeiger);
+	selected_tool[active_player_nr]->init_cursor(zeiger);
 	// set position / mark area
 	zeiger->change_pos( old_zeiger_pos );
 }

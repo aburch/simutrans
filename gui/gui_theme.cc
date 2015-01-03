@@ -512,7 +512,7 @@ bool gui_theme_t::themes_init(const char *file_name)
 	env_t::toolbar_max_height =   contents.get_int("toolbar_max_height",         env_t::toolbar_max_height );
 	env_t::cursor_overlay_color = contents.get_color("cursor_overlay_color",     env_t::cursor_overlay_color );
 
-	werkzeug_t::update_toolbars();
+	tool_t::update_toolbars();
 	env_t::default_theme = theme_name.c_str();
 
 	return true;

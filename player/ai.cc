@@ -106,10 +106,10 @@ bool ai_t::is_connected( const koord start_pos, const koord dest_pos, const ware
 // prepares a general tool just like a player work do
 bool ai_t::init_general_tool( int tool, const char *param )
 {
-	const char *old_param = werkzeug_t::general_tool[tool]->get_default_param();
-	werkzeug_t::general_tool[tool]->set_default_param(param);
-	bool ok = werkzeug_t::general_tool[tool]->init( this );
-	werkzeug_t::general_tool[tool]->set_default_param(old_param);
+	const char *old_param = tool_t::general_tool[tool]->get_default_param();
+	tool_t::general_tool[tool]->set_default_param(param);
+	bool ok = tool_t::general_tool[tool]->init( this );
+	tool_t::general_tool[tool]->set_default_param(old_param);
 	return ok;
 }
 
@@ -120,9 +120,9 @@ bool ai_t::call_general_tool( int tool, koord k, const char *param )
 {
 	grund_t *gr = welt->lookup_kartenboden(k);
 	koord3d pos = gr ? gr->get_pos() : koord3d::invalid;
-	const char *old_param = werkzeug_t::general_tool[tool]->get_default_param();
-	werkzeug_t::general_tool[tool]->set_default_param(param);
-	const char * err = werkzeug_t::general_tool[tool]->work( this, pos );
+	const char *old_param = tool_t::general_tool[tool]->get_default_param();
+	tool_t::general_tool[tool]->set_default_param(param);
+	const char * err = tool_t::general_tool[tool]->work( this, pos );
 	if(err) {
 		if(*err) {
 			dbg->message("ai_t::call_general_tool()","failed for tool %i at (%s) because of \"%s\"", tool, pos.get_str(), err );
@@ -131,7 +131,7 @@ bool ai_t::call_general_tool( int tool, koord k, const char *param )
 			dbg->message("ai_t::call_general_tool()","not successful for tool %i at (%s)", tool, pos.get_str() );
 		}
 	}
-	werkzeug_t::general_tool[tool]->set_default_param(old_param);
+	tool_t::general_tool[tool]->set_default_param(old_param);
 	return err==0;
 }
 
@@ -361,7 +361,7 @@ bool ai_t::built_update_headquarter()
 			}
 			const char *err="No suitable ground!";
 			if(  place!=koord::invalid  ) {
-				err = werkzeug_t::general_tool[WKZ_HEADQUARTER]->work( this, welt->lookup_kartenboden(place)->get_pos() );
+				err = tool_t::general_tool[TOOL_HEADQUARTER]->work( this, welt->lookup_kartenboden(place)->get_pos() );
 				// success
 				if(  err==NULL  ) {
 					return true;
@@ -552,7 +552,7 @@ DBG_MESSAGE("ai_passenger_t::create_simple_road_transport()","Already connection
 }
 
 
-void ai_t::tell_tool_result(werkzeug_t *tool, koord3d pos, const char *err, bool local)
+void ai_t::tell_tool_result(tool_t *tool, koord3d pos, const char *err, bool local)
 {
 	// necessary to show error message if a human helps us poor AI
 	spieler_t::tell_tool_result(tool, pos, err, local);

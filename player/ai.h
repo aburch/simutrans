@@ -81,7 +81,7 @@ public:
 	 * AI players react upon this call and proceed
 	 * @author Dwachs
 	 */
-	virtual void tell_tool_result(werkzeug_t *tool, koord3d pos, const char *err, bool local);
+	virtual void tell_tool_result(tool_t *tool, koord3d pos, const char *err, bool local);
 
 	// find space for stations
 	bool suche_platz(koord pos, koord &size, koord *dirs);

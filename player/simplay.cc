@@ -21,7 +21,7 @@
 #include "../simmesg.h"
 #include "../simsound.h"
 #include "../simticker.h"
-#include "../simwerkz.h"
+#include "../simtool.h"
 #include "../gui/simwin.h"
 #include "../simworld.h"
 #include "../display/viewport.h"
@@ -535,7 +535,7 @@ void spieler_t::ai_bankrupt()
 	}
 
 	// deactivate active tool (remove dummy grounds)
-	welt->set_werkzeug(werkzeug_t::general_tool[WKZ_ABFRAGE], this);
+	welt->set_tool(tool_t::general_tool[TOOL_QUERY], this);
 
 	// next remove all ways, depot etc, that are not road or channels
 	for( int y=0;  y<welt->get_size().y;  y++  ) {
@@ -924,7 +924,7 @@ sint64 spieler_t::undo()
 }
 
 
-void spieler_t::tell_tool_result(werkzeug_t *tool, koord3d, const char *err, bool local)
+void spieler_t::tell_tool_result(tool_t *tool, koord3d, const char *err, bool local)
 {
 	/* tools can return three kinds of messages
 	 * NULL = success

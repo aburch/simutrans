@@ -1,6 +1,6 @@
 /*
  * Dialogue to set the signal spacing, when CTRL+clicking a signal on toolbar
- * Used by wkz_roadsign_t
+ * Used by tool_roadsign_t
  */
 
 #include "gui_frame.h"
@@ -10,7 +10,7 @@
 #include "components/gui_numberinput.h"
 
 #include "signal_spacing.h"
-#include "../simwerkz.h"
+#include "../simtool.h"
 
 #define L_DIALOG_WIDTH (200)
 
@@ -18,7 +18,7 @@ uint8 signal_spacing_frame_t::signal_spacing = 2;
 bool signal_spacing_frame_t::remove = true;
 bool signal_spacing_frame_t::replace = true;
 
-signal_spacing_frame_t::signal_spacing_frame_t(spieler_t *sp_, wkz_roadsign_t* tool_) :
+signal_spacing_frame_t::signal_spacing_frame_t(spieler_t *sp_, tool_build_roadsign_t* tool_) :
 	gui_frame_t( translator::translate("set signal spacing") ),
 	signal_label("signal spacing")
 {

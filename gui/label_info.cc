@@ -75,11 +75,11 @@ bool label_info_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 			// text changed => call tool
 			cbuffer_t buf;
 			buf.printf( "m%s,%s", label->get_pos().get_str(), edit_name );
-			werkzeug_t *w = create_tool( WKZ_RENAME_TOOL | SIMPLE_TOOL );
-			w->set_default_param( buf );
-			welt->set_werkzeug( w, label->get_besitzer() );
+			tool_t *tool = create_tool( TOOL_RENAME | SIMPLE_TOOL );
+			tool->set_default_param( buf );
+			welt->set_tool( tool, label->get_besitzer() );
 			// since init always returns false, it is safe to delete immediately
-			delete w;
+			delete tool;
 		}
 		destroy_win(this);
 	}

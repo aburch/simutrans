@@ -507,8 +507,8 @@ void rdwr_all_win(loadsave_t *file)
 							w = new schedule_list_gui_t( wl->get_spieler(id-magic_line_management_t) );
 						}
 						else if(  id>=magic_toolbar  &&  id<magic_toolbar+256  ) {
-							werkzeug_t::toolbar_tool[id-magic_toolbar]->update(wl->get_active_player());
-							w = werkzeug_t::toolbar_tool[id-magic_toolbar]->get_werkzeug_waehler();
+							tool_t::toolbar_tool[id-magic_toolbar]->update(wl->get_active_player());
+							w = tool_t::toolbar_tool[id-magic_toolbar]->get_werkzeug_waehler();
 						}
 						else {
 							dbg->fatal( "rdwr_all_win()", "No idea how to restore magic 0x%X", id );
@@ -1237,13 +1237,13 @@ bool check_pos_win(event_t *ev)
 	}
 
 	// click in main menu?
-	if (!werkzeug_t::toolbar_tool.empty()  &&
-			werkzeug_t::toolbar_tool[0]->get_werkzeug_waehler()  &&
+	if (!tool_t::toolbar_tool.empty()  &&
+			tool_t::toolbar_tool[0]->get_werkzeug_waehler()  &&
 			env_t::iconsize.h > y  &&
 			ev->ev_class != EVENT_KEYBOARD) {
 		event_t wev = *ev;
-		inside_event_handling = werkzeug_t::toolbar_tool[0];
-		werkzeug_t::toolbar_tool[0]->get_werkzeug_waehler()->infowin_event( &wev );
+		inside_event_handling = tool_t::toolbar_tool[0];
+		tool_t::toolbar_tool[0]->get_werkzeug_waehler()->infowin_event( &wev );
 		inside_event_handling = NULL;
 		// swallow event
 		return true;
@@ -1471,7 +1471,7 @@ void win_display_flush(double konto)
 	const sint16 menu_height = env_t::iconsize.h;
 
 	// display main menu
-	werkzeug_waehler_t *main_menu = werkzeug_t::toolbar_tool[0]->get_werkzeug_waehler();
+	werkzeug_waehler_t *main_menu = tool_t::toolbar_tool[0]->get_werkzeug_waehler();
 	display_set_clip_wh( 0, 0, disp_width, menu_height+1 );
 	if(  skinverwaltung_t::werkzeuge_background  &&  skinverwaltung_t::werkzeuge_background->get_bild_nr(0) != IMG_LEER  ) {
 		const image_id back_img = skinverwaltung_t::werkzeuge_background->get_bild_nr(0);

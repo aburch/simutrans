@@ -23,7 +23,6 @@
 #include "simfab.h"
 #include "simcity.h"
 #include "simhalt.h"
-#include "simtools.h"
 #include "simware.h"
 #include "simworld.h"
 #include "besch/haus_besch.h"
@@ -49,6 +48,7 @@
 
 #include "gui/fabrik_info.h"
 
+#include "utils/simrandom.h"
 #include "utils/cbuffer_t.h"
 
 #include "gui/simwin.h"

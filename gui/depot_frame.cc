@@ -25,7 +25,6 @@
 #include "../simlinemgmt.h"
 #include "../simmenu.h"
 #include "../simskin.h"
-#include "../simtools.h"
 
 #include "../tpl/slist_tpl.h"
 
@@ -49,6 +48,7 @@
 
 #include "../utils/simstring.h"
 #include "../utils/cbuffer_t.h"
+#include "../utils/simrandom.h"
 
 #include "../bauer/warenbauer.h"
 

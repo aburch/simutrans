@@ -13,12 +13,11 @@
 
 #include "../simdebug.h"
 #include "../simworld.h"
-#include "../simwerkz.h"
+#include "../simtool.h"
 #include "../simmesg.h"
 #include "../simintr.h"
 #include "../player/simplay.h"
 #include "../simplan.h"
-#include "../simtools.h"
 #include "../simdepot.h"
 
 #include "wegbauer.h"
@@ -47,6 +46,8 @@
 #include "../dataobj/marker.h"
 #include "../dataobj/translator.h"
 #include "../dataobj/scenario.h"
+
+#include "../utils/simrandom.h"
 
 // binary heap, since we only need insert and pop
 #include "../tpl/binary_heap_tpl.h" // fastest
@@ -132,19 +133,19 @@ bool wegbauer_t::register_besch(weg_besch_t *besch)
 	if(  old_besch  ) {
 		alle_wegtypen.remove(besch->get_name());
 		dbg->warning( "wegbauer_t::register_besch()", "Object %s was overlaid by addon!", besch->get_name() );
-		werkzeug_t::general_tool.remove( old_besch->get_builder() );
+		tool_t::general_tool.remove( old_besch->get_builder() );
 		delete old_besch->get_builder();
 		delete old_besch;
 	}
 
 	if(  besch->get_cursor()->get_bild_nr(1)!=IMG_LEER  ) {
 		// add the tool
-		wkz_wegebau_t *wkz = new wkz_wegebau_t();
-		wkz->set_icon( besch->get_cursor()->get_bild_nr(1) );
-		wkz->cursor = besch->get_cursor()->get_bild_nr(0);
-		wkz->set_default_param(besch->get_name());
-		werkzeug_t::general_tool.append( wkz );
-		besch->set_builder( wkz );
+		tool_build_way_t *tool = new tool_build_way_t();
+		tool->set_icon( besch->get_cursor()->get_bild_nr(1) );
+		tool->cursor = besch->get_cursor()->get_bild_nr(0);
+		tool->set_default_param(besch->get_name());
+		tool_t::general_tool.append( tool );
+		besch->set_builder( tool );
 	}
 	else {
 		besch->set_builder( NULL );
@@ -294,7 +295,7 @@ void wegbauer_t::fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, const 
 {
 	// check if scenario forbids this
 	const waytype_t rwtyp = wtyp!=track_wt  || styp!=weg_t::type_tram  ? wtyp : tram_wt;
-	if (!welt->get_scenario()->is_tool_allowed(welt->get_active_player(), WKZ_WEGEBAU | GENERAL_TOOL, rwtyp)) {
+	if (!welt->get_scenario()->is_tool_allowed(welt->get_active_player(), TOOL_BUILD_WAY | GENERAL_TOOL, rwtyp)) {
 		return;
 	}
 
@@ -542,7 +543,7 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 	bool ok = true;
 
 	// check scenario conditions
-	if (welt->get_scenario()->is_work_allowed_here(sp, (bautyp&tunnel_flag ? WKZ_TUNNELBAU : WKZ_WEGEBAU)|GENERAL_TOOL, bautyp&bautyp_mask, to->get_pos()) != NULL) {
+	if (welt->get_scenario()->is_work_allowed_here(sp, (bautyp&tunnel_flag ? TOOL_BUILD_TUNNEL : TOOL_BUILD_WAY)|GENERAL_TOOL, bautyp&bautyp_mask, to->get_pos()) != NULL) {
 		return false;
 	}
 

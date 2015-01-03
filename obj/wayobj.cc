@@ -16,7 +16,7 @@
 #include "../display/simimg.h"
 #include "../simobj.h"
 #include "../player/simplay.h"
-#include "../simwerkz.h"
+#include "../simtool.h"
 
 #include "../dataobj/loadsave.h"
 #include "../dataobj/ribi.h"
@@ -425,19 +425,19 @@ bool wayobj_t::register_besch(way_obj_besch_t *besch)
 	if(old_besch) {
 		dbg->warning( "wayobj_t::register_besch()", "Object %s was overlaid by addon!", besch->get_name() );
 		table.remove(besch->get_name());
-		werkzeug_t::general_tool.remove( old_besch->get_builder() );
+		tool_t::general_tool.remove( old_besch->get_builder() );
 		delete old_besch->get_builder();
 		delete old_besch;
 	}
 
 	if(  besch->get_cursor()->get_bild_nr(1)!=IMG_LEER  ) {
 		// only add images for wayobjexts with cursor ...
-		wkz_wayobj_t *wkz = new wkz_wayobj_t();
-		wkz->set_icon( besch->get_cursor()->get_bild_nr(1) );
-		wkz->cursor = besch->get_cursor()->get_bild_nr(0);
-		wkz->set_default_param(besch->get_name());
-		werkzeug_t::general_tool.append( wkz );
-		besch->set_builder( wkz );
+		tool_build_wayobj_t *tool = new tool_build_wayobj_t();
+		tool->set_icon( besch->get_cursor()->get_bild_nr(1) );
+		tool->cursor = besch->get_cursor()->get_bild_nr(0);
+		tool->set_default_param(besch->get_name());
+		tool_t::general_tool.append( tool );
+		besch->set_builder( tool );
 	}
 	else {
 		besch->set_builder( NULL );
@@ -456,7 +456,7 @@ DBG_DEBUG( "wayobj_t::register_besch()","%s", besch->get_name() );
 void wayobj_t::fill_menu(werkzeug_waehler_t *wzw, waytype_t wtyp, sint16 /*sound_ok*/)
 {
 	// check if scenario forbids this
-	if (!welt->get_scenario()->is_tool_allowed(welt->get_active_player(), WKZ_WAYOBJ | GENERAL_TOOL, wtyp)) {
+	if (!welt->get_scenario()->is_tool_allowed(welt->get_active_player(), TOOL_BUILD_WAYOBJ | GENERAL_TOOL, wtyp)) {
 		return;
 	}
 

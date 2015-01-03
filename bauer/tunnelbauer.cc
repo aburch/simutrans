@@ -15,7 +15,7 @@
 
 #include "../simworld.h"
 #include "../player/simplay.h"
-#include "../simwerkz.h"
+#include "../simtool.h"
 
 #include "../besch/tunnel_besch.h"
 
@@ -48,17 +48,17 @@ void tunnelbauer_t::register_besch(tunnel_besch_t *besch)
 	if( const tunnel_besch_t *old_besch = tunnel_by_name.get(besch->get_name()) ) {
 		dbg->warning( "tunnelbauer_t::register_besch()", "Object %s was overlaid by addon!", besch->get_name() );
 		tunnel_by_name.remove(besch->get_name());
-		werkzeug_t::general_tool.remove( old_besch->get_builder() );
+		tool_t::general_tool.remove( old_besch->get_builder() );
 		delete old_besch->get_builder();
 		delete old_besch;
 	}
 	// add the tool
-	wkz_tunnelbau_t *wkz = new wkz_tunnelbau_t();
-	wkz->set_icon( besch->get_cursor()->get_bild_nr(1) );
-	wkz->cursor = besch->get_cursor()->get_bild_nr(0);
-	wkz->set_default_param( besch->get_name() );
-	werkzeug_t::general_tool.append( wkz );
-	besch->set_builder( wkz );
+	tool_build_tunnel_t *tool = new tool_build_tunnel_t();
+	tool->set_icon( besch->get_cursor()->get_bild_nr(1) );
+	tool->cursor = besch->get_cursor()->get_bild_nr(0);
+	tool->set_default_param( besch->get_name() );
+	tool_t::general_tool.append( tool );
+	besch->set_builder( tool );
 	tunnel_by_name.put(besch->get_name(), besch);
 }
 
@@ -114,7 +114,7 @@ static bool compare_tunnels(const tunnel_besch_t* a, const tunnel_besch_t* b)
 void tunnelbauer_t::fill_menu(werkzeug_waehler_t* wzw, const waytype_t wtyp, sint16 /*sound_ok*/)
 {
 	// check if scenario forbids this
-	if (!welt->get_scenario()->is_tool_allowed(welt->get_active_player(), WKZ_TUNNELBAU | GENERAL_TOOL, wtyp)) {
+	if (!welt->get_scenario()->is_tool_allowed(welt->get_active_player(), TOOL_BUILD_TUNNEL | GENERAL_TOOL, wtyp)) {
 		return;
 	}
 
@@ -177,7 +177,7 @@ koord3d tunnelbauer_t::finde_ende(spieler_t *sp, koord3d pos, koord zv, const tu
 			return koord3d::invalid;
 		}
 
-		if (const char* err = welt->get_scenario()->is_work_allowed_here(sp, WKZ_TUNNELBAU|GENERAL_TOOL, wegtyp, pos)) {
+		if (const char* err = welt->get_scenario()->is_work_allowed_here(sp, TOOL_BUILD_TUNNEL|GENERAL_TOOL, wegtyp, pos)) {
 			if (msg) {
 				*msg = err;
 			}

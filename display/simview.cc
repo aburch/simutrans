@@ -22,8 +22,7 @@
 #include "../boden/wasser.h"
 #include "../dataobj/environment.h"
 #include "../obj/zeiger.h"
-
-#include "../simtools.h"
+#include "../utils/simrandom.h"
 
 karte_ansicht_t::karte_ansicht_t(karte_t *welt)
 {

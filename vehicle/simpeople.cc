@@ -11,7 +11,7 @@
 #include "../simworld.h"
 #include "../display/simimg.h"
 
-#include "../simtools.h"
+#include "../utils/simrandom.h"
 #include "../boden/grund.h"
 #include "../dataobj/loadsave.h"
 

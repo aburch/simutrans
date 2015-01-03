@@ -15,15 +15,15 @@
 #include "../tpl/vector_tpl.h"
 #include "../gui/simwin.h"
 
-class werkzeug_t;
+class tool_t;
 
 
 class werkzeug_waehler_t : public gui_frame_t
 {
 private:
 	struct tool_data_t {
-		tool_data_t(werkzeug_t* t=NULL) : tool(t), selected(false) {}
-		werkzeug_t* tool; ///< pointer to associated tool
+		tool_data_t(tool_t* t=NULL) : tool(t), selected(false) {}
+		tool_t* tool; ///< pointer to associated tool
 		bool selected;    ///< store whether tool was active during last call to werkzeug_waehler_t::draw
 	};
 	/// tool definitions
@@ -68,7 +68,7 @@ public:
 	 * Add a new tool with values and tooltip text.
 	 * @author Hj. Malthaner
 	 */
-	void add_werkzeug(werkzeug_t *w);
+	void add_werkzeug(tool_t *tool_in);
 
 	// purges toolbar
 	void reset_tools();

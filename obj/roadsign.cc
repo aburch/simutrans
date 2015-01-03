@@ -16,7 +16,7 @@
 #include "../simobj.h"
 #include "../display/simimg.h"
 #include "../player/simplay.h"
-#include "../simwerkz.h"
+#include "../simtool.h"
 #include "../simworld.h"
 
 #include "../besch/roadsign_besch.h"
@@ -653,19 +653,19 @@ bool roadsign_t::register_besch(roadsign_besch_t *besch)
 	if(old_besch) {
 		dbg->warning( "roadsign_t::register_besch()", "Object %s was overlaid by addon!", besch->get_name() );
 		table.remove(besch->get_name());
-		werkzeug_t::general_tool.remove( old_besch->get_builder() );
+		tool_t::general_tool.remove( old_besch->get_builder() );
 		delete old_besch->get_builder();
 		delete old_besch;
 	}
 
 	if(  besch->get_cursor()->get_bild_nr(1)!=IMG_LEER  ) {
 		// add the tool
-		wkz_roadsign_t *wkz = new wkz_roadsign_t();
-		wkz->set_icon( besch->get_cursor()->get_bild_nr(1) );
-		wkz->cursor = besch->get_cursor()->get_bild_nr(0);
-		wkz->set_default_param(besch->get_name());
-		werkzeug_t::general_tool.append( wkz );
-		besch->set_builder( wkz );
+		tool_build_roadsign_t *tool = new tool_build_roadsign_t();
+		tool->set_icon( besch->get_cursor()->get_bild_nr(1) );
+		tool->cursor = besch->get_cursor()->get_bild_nr(0);
+		tool->set_default_param(besch->get_name());
+		tool_t::general_tool.append( tool );
+		besch->set_builder( tool );
 	}
 	else {
 		besch->set_builder( NULL );
@@ -688,7 +688,7 @@ bool roadsign_t::register_besch(roadsign_besch_t *besch)
 void roadsign_t::fill_menu(werkzeug_waehler_t *wzw, waytype_t wtyp, sint16 /*sound_ok*/)
 {
 	// check if scenario forbids this
-	if (!welt->get_scenario()->is_tool_allowed(welt->get_active_player(), WKZ_ROADSIGN | GENERAL_TOOL, wtyp)) {
+	if (!welt->get_scenario()->is_tool_allowed(welt->get_active_player(), TOOL_BUILD_ROADSIGN | GENERAL_TOOL, wtyp)) {
 		return;
 	}
 

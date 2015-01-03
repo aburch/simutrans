@@ -562,11 +562,11 @@ void convoi_info_t::rename_cnv()
 			// text changed => call tool
 			cbuffer_t buf;
 			buf.printf( "c%u,%s", cnv.get_id(), t );
-			werkzeug_t *w = create_tool( WKZ_RENAME_TOOL | SIMPLE_TOOL );
-			w->set_default_param( buf );
-			welt->set_werkzeug( w, cnv->get_besitzer());
+			tool_t *tool = create_tool( TOOL_RENAME | SIMPLE_TOOL );
+			tool->set_default_param(buf);
+			welt->set_tool(tool, cnv->get_besitzer());
 			// since init always returns false, it is safe to delete immediately
-			delete w;
+			delete tool;
 			// do not trigger this command again
 			tstrncpy(old_cnv_name, t, sizeof(old_cnv_name));
 		}

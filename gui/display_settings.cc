@@ -404,8 +404,8 @@ bool color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 		if(  !env_t::networkmode  ||  welt->get_active_player_nr()==1  ) {
 			static char level[16];
 			sprintf(level, "%li", v.i);
-			werkzeug_t::simple_tool[WKZ_TRAFFIC_LEVEL&0xFFF]->set_default_param( level );
-			welt->set_werkzeug( werkzeug_t::simple_tool[WKZ_TRAFFIC_LEVEL&0xFFF], welt->get_active_player() );
+			tool_t::simple_tool[TOOL_TRAFFIC_LEVEL&0xFFF]->set_default_param( level );
+			welt->set_tool( tool_t::simple_tool[TOOL_TRAFFIC_LEVEL&0xFFF], welt->get_active_player() );
 		}
 		else {
 			traffic_density.set_value(welt->get_settings().get_verkehr_level());
@@ -441,14 +441,14 @@ bool color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 	// Pedestrians at stops checkbox
 	if((buttons+7)==komp) {
 		if(  !env_t::networkmode  ||  welt->get_active_player_nr()==1  ) {
-			welt->set_werkzeug( werkzeug_t::simple_tool[WKZ_TOOGLE_PAX&0xFFF], welt->get_active_player() );
+			welt->set_tool( tool_t::simple_tool[TOOL_TOOGLE_PAX&0xFFF], welt->get_active_player() );
 		}
 	} else
 
 	// Pedestrians in towns checkbox
 	if((buttons+8)==komp) {
 		if(  !env_t::networkmode  ||  welt->get_active_player_nr()==1  ) {
-			welt->set_werkzeug( werkzeug_t::simple_tool[WKZ_TOOGLE_PEDESTRIANS&0xFFF], welt->get_active_player() );
+			welt->set_tool( tool_t::simple_tool[TOOL_TOOGLE_PEDESTRIANS&0xFFF], welt->get_active_player() );
 		}
 	} else
 
@@ -495,7 +495,7 @@ bool color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 	// Underground view checkbox
 	if((buttons+16)==komp) {
 
-		// see simwerkz.cc::wkz_show_underground_t::init
+		// see simwerkz.cc::tool_show_underground_t::init
 		grund_t::set_underground_mode(buttons[16].pressed ? grund_t::ugm_none : grund_t::ugm_all, inp_underground_level.get_value());
 		buttons[16].pressed = grund_t::underground_mode == grund_t::ugm_all;
 
@@ -503,7 +503,7 @@ bool color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 		welt->update_map();
 
 		// renew toolbar
-		werkzeug_t::update_toolbars();
+		tool_t::update_toolbars();
 	} else
 
 	// Show grid checkbox
@@ -535,7 +535,7 @@ bool color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 	// Show slice map view checkbox
 	if((buttons+20)==komp) {
 
-		// see simwerkz.cc::wkz_show_underground_t::init
+		// see simwerkz.cc::tool_show_underground_t::init
 		grund_t::set_underground_mode(buttons[20].pressed ? grund_t::ugm_none : grund_t::ugm_level, inp_underground_level.get_value());
 		buttons[20].pressed = grund_t::underground_mode == grund_t::ugm_level;
 
@@ -543,18 +543,18 @@ bool color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 		welt->update_map();
 
 		// renew toolbar
-		werkzeug_t::update_toolbars();
+		tool_t::update_toolbars();
 	} else
 
 	// Hide buildings and trees under mouse cursor checkbox
 	if((buttons+21)==komp) {
 
-		// see simwerkz.cc::wkz_hide_under_cursor_t::init
+		// see simwerkz.cc::tool_hide_under_cursor_t::init
 		env_t::hide_under_cursor = !env_t::hide_under_cursor  &&  env_t::cursor_hide_range>0;
 		buttons[21].pressed = env_t::hide_under_cursor;
 
 		// renew toolbar
-		werkzeug_t::update_toolbars();
+		tool_t::update_toolbars();
 	} else
 
 	// Show schedule's stop checkbox

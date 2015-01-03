@@ -21,7 +21,7 @@
 
 
 class haus_besch_t;
-class wkz_station_t;
+class tool_build_station_t;
 
 class station_building_select_t : public gui_frame_t, action_listener_t
 {
@@ -33,7 +33,7 @@ class station_building_select_t : public gui_frame_t, action_listener_t
 	gui_image_t img[16];
 
 	static char default_str[260];
-	static wkz_station_t wkz;
+	static tool_build_station_t tool;
 
 public:
 	station_building_select_t(const haus_besch_t *besch);
