@@ -4475,7 +4475,6 @@ void convoi_t::laden() //"load" (Babelfish)
 	// @author: jamespetts
 
 	halthandle_t halt = haltestelle_t::get_halt(fpl->get_current_eintrag().pos, besitzer_p);
-	const uint16 this_halt_id = halt.get_id();
 	departure_point_t departure(fpl->get_aktuell(), reverse_schedule);
 
 	// The calculation of the journey distance does not need to use normalised halt locations for comparison, so
@@ -4499,17 +4498,17 @@ void convoi_t::laden() //"load" (Babelfish)
 	}
 
 	const uint32 journey_distance = shortest_distance(front()->get_pos().get_2d(), front()->last_stop_pos.get_2d());
+	const uint16 this_halt_id = halt.get_id();
 
 	// last_stop_pos will be set to get_pos().get_2d() in hat_gehalten (called from inside halt->request_loading later)
 	// so code inside if will be executed once. At arrival time.
 	minivec_tpl<uint8> departure_entries_to_remove(fpl->get_count());
 	bool clear_departures = false;
 
-	if(journey_distance > 0 && last_stop_id != halt.get_id())
+	if(journey_distance > 0 && last_stop_id != this_halt_id)
 	{
 		arrival_time = welt->get_zeit_ms();
 		inthashtable_tpl<uint16, sint64> best_times_in_schedule; // Key: halt ID; value: departure time.
-
 		FOR(departure_map, const& iter, departures)
 		{			
 			const sint64 journey_time_ticks = arrival_time - iter.value.departure_time;
@@ -4534,7 +4533,7 @@ void convoi_t::laden() //"load" (Babelfish)
 						best_times_in_schedule.remove(departure_halt.get_id());
 					}
 				}
-				else if((departures_already_booked.get(id_pair(departure_halt.get_id(), this_halt_id)) != iter.value.departure_time))
+				else if((departures_already_booked.get(id_pair(departure_halt.get_id(), this_halt_id)) < iter.value.departure_time))
 				{
 					best_times_in_schedule.put(departure_halt.get_id(), iter.value.departure_time);
 				}
