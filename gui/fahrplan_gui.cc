@@ -224,7 +224,7 @@ fahrplan_gui_stats_t::~fahrplan_gui_stats_t()
 fahrplan_gui_t::~fahrplan_gui_t()
 {
 	if(  sp  ) {
-		update_werkzeug( false );
+		update_tool( false );
 		// hide schedule on minimap (may not current, but for safe)
 		reliefkarte_t::get_karte()->set_current_cnv( convoihandle_t() );
 	}
@@ -376,7 +376,7 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 }
 
 
-void fahrplan_gui_t::update_werkzeug(bool set)
+void fahrplan_gui_t::update_tool(bool set)
 {
 	if(!set  ||  mode==removing  ||  mode==undefined_mode) {
 		// reset tools, if still selected ...
@@ -476,7 +476,7 @@ bool fahrplan_gui_t::infowin_event(const event_t *ev)
 			stats.highlight_schedule( fpl, false );
 		}
 
-		update_werkzeug( false );
+		update_tool( false );
 		fpl->cleanup();
 		fpl->eingabe_abschliessen();
 		// now apply the changes
@@ -520,7 +520,7 @@ bool fahrplan_gui_t::infowin_event(const event_t *ev)
 	}
 	else if(  ev->ev_class == INFOWIN  &&  (ev->ev_code == WIN_TOP  ||  ev->ev_code == WIN_OPEN)  &&  fpl!=NULL  ) {
 		// just to be sure, renew the tools ...
-		update_werkzeug( true );
+		update_tool( true );
 	}
 
 	return gui_frame_t::infowin_event(ev);
@@ -536,21 +536,21 @@ DBG_MESSAGE("fahrplan_gui_t::action_triggered()","komp=%p combo=%p",komp,&line_s
 		bt_add.pressed = true;
 		bt_insert.pressed = false;
 		bt_remove.pressed = false;
-		update_werkzeug( true );
+		update_tool( true );
 	}
 	else if(komp == &bt_insert) {
 		mode = inserting;
 		bt_add.pressed = false;
 		bt_insert.pressed = true;
 		bt_remove.pressed = false;
-		update_werkzeug( true );
+		update_tool( true );
 	}
 	else if(komp == &bt_remove) {
 		mode = removing;
 		bt_add.pressed = false;
 		bt_insert.pressed = false;
 		bt_remove.pressed = true;
-		update_werkzeug( false );
+		update_tool( false );
 	}
 	else if(komp == &numimp_load) {
 		if (!fpl->empty()) {

@@ -2300,7 +2300,7 @@ karte_t::~karte_t()
 
 	destroy();
 
-	// not deleting the werkzeuge of this map ...
+	// not deleting the tools of this map ...
 	delete viewport;
 	delete msg;
 	delete records;
@@ -3224,7 +3224,7 @@ bool karte_t::change_player_tool(uint8 cmd, uint8 player_nr, uint16 param, bool 
 void karte_t::set_tool( tool_t *tool_in, spieler_t *sp )
 {
 	if(  get_random_mode()&LOAD_RANDOM  ) {
-		dbg->warning("karte_t::set_werkzeug", "Ignored tool %i during loading.", tool_in->get_id() );
+		dbg->warning("karte_t::set_tool", "Ignored tool %i during loading.", tool_in->get_id() );
 		return;
 	}
 	bool scripted_call = tool_in->is_scripted();
@@ -5044,7 +5044,7 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "start");
 		dbg->error( "karte_t::speichern()","Some buildings may be broken by saving!" );
 	}
 
-	/* If the current tool is a two_click_werkzeug, call cleanup() in order to delete dummy grounds (tunnel + monorail preview)
+	/* If the current tool is a two_click_tool_t, call cleanup() in order to delete dummy grounds (tunnel + monorail preview)
 	 * THIS MUST NOT BE DONE IN NETWORK MODE!
 	 */
 	for(  uint8 sp_nr=0;  sp_nr<MAX_PLAYER_COUNT;  sp_nr++  ) {

@@ -495,7 +495,7 @@ bool color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 	// Underground view checkbox
 	if((buttons+16)==komp) {
 
-		// see simwerkz.cc::tool_show_underground_t::init
+		// see simtool.cc::tool_show_underground_t::init
 		grund_t::set_underground_mode(buttons[16].pressed ? grund_t::ugm_none : grund_t::ugm_all, inp_underground_level.get_value());
 		buttons[16].pressed = grund_t::underground_mode == grund_t::ugm_all;
 
@@ -535,7 +535,7 @@ bool color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 	// Show slice map view checkbox
 	if((buttons+20)==komp) {
 
-		// see simwerkz.cc::tool_show_underground_t::init
+		// see simtool.cc::tool_show_underground_t::init
 		grund_t::set_underground_mode(buttons[20].pressed ? grund_t::ugm_none : grund_t::ugm_level, inp_underground_level.get_value());
 		buttons[20].pressed = grund_t::underground_mode == grund_t::ugm_level;
 
@@ -549,7 +549,7 @@ bool color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 	// Hide buildings and trees under mouse cursor checkbox
 	if((buttons+21)==komp) {
 
-		// see simwerkz.cc::tool_hide_under_cursor_t::init
+		// see simtool.cc::tool_hide_under_cursor_t::init
 		env_t::hide_under_cursor = !env_t::hide_under_cursor  &&  env_t::cursor_hide_range>0;
 		buttons[21].pressed = env_t::hide_under_cursor;
 

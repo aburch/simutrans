@@ -1151,7 +1151,7 @@ void nwc_tool_t::do_command(karte_t *welt)
 		tool->init(sp);
 	}
 
-	// read custom data (again, necessary for two_click_werkzeug_t)
+	// read custom data (again, necessary for two_click_tool_t)
 	{
 		memory_rw_t new_custom_data(custom_data_buf, custom_data.get_current_index(), false);
 		tool->rdwr_custom_data(&new_custom_data);

@@ -569,7 +569,7 @@ void planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos) const
 
 /*	alternative method of finding selected tool - may be more useful in future but use simpler method for now
 	karte_t *welt = gr->get_welt();
-	werkzeug_t *tool = welt->get_werkzeug(welt->get_active_player_nr());
+	tool_t *tool = welt->get_tool(welt->get_active_player_nr());
 	int tool_id = tool->get_id();
 
 	if(tool_id==(TOOL_TRANSFORMER|GENERAL_TOOL)....	*/

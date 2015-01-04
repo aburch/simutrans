@@ -584,7 +584,7 @@ void local_delete_object(obj_t *remove_obj, spieler_t *sp)
 		remove_obj->entferne(sp);
 		remove_obj->set_flag(obj_t::not_on_map);
 		// all objects except zeiger (pointer) are destroyed here
-		// zeiger's will be deleted if their associated werkzeug_t (tool) terminates
+		// zeiger's will be deleted if their associated tool terminates
 		if (remove_obj->get_typ() != obj_t::zeiger) {
 			delete remove_obj;
 		}

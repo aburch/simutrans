@@ -5,7 +5,6 @@
 /* New OO tool system
 *
 * contains tools that will open windows
-* (split from simwerkz.h)
 */
 
 #ifndef SIMTOOL_DIALOGS_H

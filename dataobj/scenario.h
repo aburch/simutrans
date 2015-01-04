@@ -83,7 +83,7 @@ private:
 		forbid_type type;
 		uint8 player_nr;
 		/// id of tool to be forbidden, as set by constructors of classes derived from
-		/// werkzeug_t, @see simwerkz.h
+		/// tool_t, @see simtool.h
 		uint16 toolnr;
 		/// waytype of tool, @see waytype_t
 		sint16 waytype;
@@ -404,7 +404,7 @@ public:
 
 	/**
 	 * Checks if player can use this tool at all.
-	 * Called for instance in karte_t::local_set_werkzeug to change active tool or when filling toolbars.
+	 * Called for instance in karte_t::local_set_tool to change active tool or when filling toolbars.
 	 * @return true if player can use this tool.
 	 */
 	bool is_tool_allowed(const spieler_t* sp, uint16 tool_id, sint16 wt = invalid_wt);

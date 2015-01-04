@@ -1190,7 +1190,7 @@ public:
 	void flood_to_depth(sint8 new_water_height, sint8 *stage);
 
 	/**
-	 * Set a new tool as current: calls local_set_werkzeug or sends to server.
+	 * Set a new tool as current: calls local_set_tool or sends to server.
 	 */
 	void set_tool( tool_t *tool_in, spieler_t * sp );
 
