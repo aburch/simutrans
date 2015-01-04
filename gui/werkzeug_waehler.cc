@@ -180,8 +180,8 @@ void werkzeug_waehler_t::draw(scr_coord pos, scr_size)
 		// we don't draw in main menu as it is already made in simwin.cc
 		// no background if separator starts with "-b" and has an icon defined
 		if(  toolbar_id>0  &&  !(strstart((param==NULL)? "" : param, "-b"))  ) {
-			if(  skinverwaltung_t::werkzeuge_background  &&  skinverwaltung_t::werkzeuge_background->get_bild_nr(toolbar_id) != IMG_LEER  ) {
-				const image_id back_img = skinverwaltung_t::werkzeuge_background->get_bild_nr(toolbar_id);
+			if(  skinverwaltung_t::toolbar_background  &&  skinverwaltung_t::toolbar_background->get_bild_nr(toolbar_id) != IMG_LEER  ) {
+				const image_id back_img = skinverwaltung_t::toolbar_background->get_bild_nr(toolbar_id);
 				display_fit_img_to_width( back_img, env_t::iconsize.w );
 				display_color_img( back_img, draw_pos.x, draw_pos.y, 0, false, true );
 			}

@@ -8,11 +8,11 @@
  */
 
 // menus
-const skin_besch_t* skinverwaltung_t::werkzeuge_general  = NULL;
-const skin_besch_t* skinverwaltung_t::werkzeuge_simple   = NULL;
-const skin_besch_t* skinverwaltung_t::werkzeuge_dialoge  = NULL;
-const skin_besch_t* skinverwaltung_t::werkzeuge_toolbars = NULL;
-const skin_besch_t* skinverwaltung_t::werkzeuge_background = NULL;
+const skin_besch_t* skinverwaltung_t::tool_icons_general  = NULL;
+const skin_besch_t* skinverwaltung_t::tool_icons_simple   = NULL;
+const skin_besch_t* skinverwaltung_t::tool_icons_dialoge  = NULL;
+const skin_besch_t* skinverwaltung_t::tool_icons_toolbars = NULL;
+const skin_besch_t* skinverwaltung_t::toolbar_background = NULL;
 
 /* Window skin images are menus too! */
 const skin_besch_t* skinverwaltung_t::button = NULL;
@@ -94,10 +94,10 @@ static spezial_obj_tpl<skin_besch_t> const menu_objekte[] = {
 	{ &skinverwaltung_t::listbox,           "Listbox"      },
 	{ &skinverwaltung_t::back,              "Back"         },
 	{ &skinverwaltung_t::gadget,            "Gadget"       },
-	{ &skinverwaltung_t::werkzeuge_general, "GeneralTools" },
-	{ &skinverwaltung_t::werkzeuge_simple,  "SimpleTools"  },
-	{ &skinverwaltung_t::werkzeuge_dialoge, "DialogeTools" },
-	{ &skinverwaltung_t::werkzeuge_toolbars,"BarTools"     },
+	{ &skinverwaltung_t::tool_icons_general, "GeneralTools" },
+	{ &skinverwaltung_t::tool_icons_simple,  "SimpleTools"  },
+	{ &skinverwaltung_t::tool_icons_dialoge, "DialogeTools" },
+	{ &skinverwaltung_t::tool_icons_toolbars,"BarTools"     },
 	{ NULL, NULL }
 };
 
@@ -136,7 +136,7 @@ static spezial_obj_tpl<skin_besch_t> const fakultative_objekte[] = {
 	{ &skinverwaltung_t::fastforwardsymbol,  "fastforwardsym" },
 	{ &skinverwaltung_t::pausesymbol,        "pausesym"       },
 	{ &skinverwaltung_t::station_type,       "station_type"   },
-	{ &skinverwaltung_t::werkzeuge_background,"ToolsBackground"},
+	{ &skinverwaltung_t::toolbar_background, "ToolsBackground"},
 	{ NULL, NULL }
 };
 

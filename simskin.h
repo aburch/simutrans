@@ -25,15 +25,15 @@ public:
 	/// @{
 
 	/// icon images for advanced tools (everything that involves clicking on the map)
-	static const skin_besch_t *werkzeuge_general;
+	static const skin_besch_t *tool_icons_general;
 	/// icon images for simple tools (eg pause, fast forward)
-	static const skin_besch_t *werkzeuge_simple;
+	static const skin_besch_t *tool_icons_simple;
 	/// icon images for GUI tools (which open windows)
-	static const skin_besch_t *werkzeuge_dialoge;
+	static const skin_besch_t *tool_icons_dialoge;
 	/// icon images for toolbars
-	static const skin_besch_t *werkzeuge_toolbars;
+	static const skin_besch_t *tool_icons_toolbars;
 	/// icon to skin toolbar background
-	static const skin_besch_t *werkzeuge_background;
+	static const skin_besch_t *toolbar_background;
 	/// @}
 
 	/**
