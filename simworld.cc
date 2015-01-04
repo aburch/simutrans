@@ -7932,7 +7932,7 @@ DBG_MESSAGE("karte_t::save(loadsave_t *file)", "start");
 		dbg->error( "karte_t::save()","Some buildings may be broken by saving!" );
 	}
 
-	/* If the current tool is a two_click_werkzeug, call cleanup() in order to delete dummy grounds (tunnel + monorail preview)
+	/* If the current tool is a two_click_tool, call cleanup() in order to delete dummy grounds (tunnel + monorail preview)
 	 * THIS MUST NOT BE DONE IN NETWORK MODE!
 	 */
 	for(  uint8 sp_nr=0;  sp_nr<MAX_PLAYER_COUNT;  sp_nr++  ) {
