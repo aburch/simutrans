@@ -693,7 +693,7 @@ void spieler_t::ai_bankrupt()
 								else {
 									weg_t *way = (weg_t *)obj;
 									const weg_besch_t* mothballed_type = wegbauer_t::way_search_mothballed(way->get_waytype(), (weg_t::system_type)way->get_besch()->get_styp());
-									if(mothballed_type)
+									if(mothballed_type && way->get_waytype() != road_wt && way->get_waytype() != water_wt)
 									{
 										way->set_besch(mothballed_type);
 									}
