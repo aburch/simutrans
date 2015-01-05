@@ -293,7 +293,7 @@ public:
 	/// initializes cursor (icon, marked area)
 	void init_cursor( zeiger_t * ) const;
 
-	// returning true on exit will have werkzeug_waehler resets to query-tool on right-click
+	// returning true on exit will have tool_selector resets to query-tool on right-click
 	virtual bool exit( player_t * ) { return true; }
 
 	/* the return string can have different meanings:

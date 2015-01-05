@@ -275,8 +275,7 @@ public:
 	}
 
 	/**
-	 * Events werden hiermit an die GUI-components
-	 * gemeldet
+	 * Events are notified to GUI components via this method.
 	 * @author Hj. Malthaner
 	 */
 	virtual bool infowin_event(const event_t *ev);

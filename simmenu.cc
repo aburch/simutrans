@@ -315,7 +315,7 @@ void tool_t::exit_menu()
 
 
 // for sorting: compare tool key
-static bool compare_werkzeug(tool_t const* const a, tool_t const* const b)
+static bool compare_tool(tool_t const* const a, tool_t const* const b)
 {
 	uint16 const ac = a->command_key & ~32;
 	uint16 const bc = b->command_key & ~32;
@@ -631,7 +631,7 @@ void tool_t::read_menu(const std::string &objfilename)
 		}
 	}
 	// sort characters
-	std::sort(char_to_tool.begin(), char_to_tool.end(), compare_werkzeug);
+	std::sort(char_to_tool.begin(), char_to_tool.end(), compare_tool);
 }
 
 
@@ -787,7 +787,7 @@ void toolbar_t::update(player_t *player)
 					waytype_t way = (waytype_t)(*c!=0 ? atoi(++c) : 0);
 					hausbauer_t::fill_menu( tool_selector, utype, way, get_sound(c));
 				} else if (param[0] == '-') {
-					// add dummy werkzeug as separator
+					// add dummy tool_t as separator
 					tool_selector->add_tool_selector( dummy );
 				}
 			}
