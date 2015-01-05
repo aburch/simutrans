@@ -174,7 +174,7 @@ bool gui_container_t::infowin_event(const event_t *ev)
 					komp->infowin_event(ev);
 				}
 				else if(  komp->is_visible()  ) {
-					if(  komp->getroffen(x, y)  ) {
+					if(  komp->is_hit(x, y)  ) {
 						handle_mouseover.insert( komp );
 					}
 				}
@@ -201,7 +201,7 @@ bool gui_container_t::infowin_event(const event_t *ev)
 			gui_komponente_t *focus = komp->get_focus() ? komp : NULL;
 
 			// set focus for komponente, if komponente allows focus
-			if(  focus  &&  IS_LEFTCLICK(ev)  &&  komp->getroffen(ev->cx, ev->cy)  ) {
+			if(  focus  &&  IS_LEFTCLICK(ev)  &&  komp->is_hit(ev->cx, ev->cy)  ) {
 				/* the focus swallow all following events;
 				 * due to the activation action
 				 */

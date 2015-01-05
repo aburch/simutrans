@@ -81,12 +81,12 @@ bool gui_tab_panel_t::infowin_event(const event_t *ev)
 {
 	if(  (required_size.w>size.w  ||  offset_tab > 0)  &&  ev->ev_class!=EVENT_KEYBOARD  &&  ev->ev_code==MOUSE_LEFTBUTTON  ) {
 		// buttons pressed
-		if(  left.getroffen(ev->cx, ev->cy)  ) {
+		if(  left.is_hit(ev->cx, ev->cy)  ) {
 			event_t ev2 = *ev;
 			translate_event(&ev2, -left.get_pos().x, -left.get_pos().y);
 			return left.infowin_event(&ev2);
 		}
-		else if(  right.getroffen(ev->cx, ev->cy)  ) {
+		else if(  right.is_hit(ev->cx, ev->cy)  ) {
 			event_t ev2 = *ev;
 			translate_event(&ev2, -right.get_pos().x, -right.get_pos().y);
 			return right.infowin_event(&ev2);
@@ -127,7 +127,7 @@ bool gui_tab_panel_t::infowin_event(const event_t *ev)
 		}
 	}
 
-	if(  ev->ev_class == EVENT_KEYBOARD  ||  DOES_WINDOW_CHILDREN_NEED(ev)  ||  get_aktives_tab()->getroffen(ev->mx, ev->my)  ||  get_aktives_tab()->getroffen(ev->cx, ev->cy)) {
+	if(  ev->ev_class == EVENT_KEYBOARD  ||  DOES_WINDOW_CHILDREN_NEED(ev)  ||  get_aktives_tab()->is_hit(ev->mx, ev->my)  ||  get_aktives_tab()->is_hit(ev->cx, ev->cy)) {
 		// active tab was hit
 		event_t ev2 = *ev;
 		translate_event(&ev2, -get_aktives_tab()->get_pos().x, -get_aktives_tab()->get_pos().y );
@@ -216,7 +216,7 @@ void gui_tab_panel_t::draw(scr_coord parent_pos)
 	// now for tooltips ...
 	int my = get_maus_y()-parent_pos.y-pos.y-6;
 	if(my>=0  &&  my < TAB_HEADER_V_SIZE-1) {
-		// Reiter getroffen?
+		// Reiter is_hit?
 		int mx = get_maus_x()-parent_pos.x-pos.x-11;
 		int text_x = 4;
 		int i=0;

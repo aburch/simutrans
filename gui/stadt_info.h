@@ -65,7 +65,7 @@ public:
 
 	virtual ~stadt_info_t();
 
-	const char *get_hilfe_datei() const {return "citywindow.txt";}
+	const char *get_help_filename() const {return "citywindow.txt";}
 
 	virtual koord3d get_weltpos(bool);
 
@@ -87,7 +87,7 @@ public:
 	 * @return true if such a button is needed
 	 * @author Hj. Malthaner
 	 */
-	virtual bool has_min_sizer() const {return true;}
+	virtual bool has_min_size() const {return true;}
 
 	/**
 	 * resize window in response to a resize event

@@ -29,7 +29,7 @@ private:
 public:
 	signal_spacing_frame_t( spieler_t *, tool_build_roadsign_t * );
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
-	const char * get_hilfe_datei() const { return "signal_spacing.txt"; }
+	const char * get_help_filename() const { return "signal_spacing.txt"; }
 };
 
 #endif

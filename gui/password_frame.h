@@ -31,7 +31,7 @@ protected:
 public:
 	password_frame_t( spieler_t *sp );
 
-	const char * get_hilfe_datei() const {return "password.txt";}
+	const char * get_help_filename() const {return "password.txt";}
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 };

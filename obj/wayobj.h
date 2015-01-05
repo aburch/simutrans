@@ -22,7 +22,7 @@ class spieler_t;
 class karte_t;
 class koord;
 class grund_t;
-class werkzeug_waehler_t;
+class tool_selector_t;
 
 /**
  * Overhead powelines for elctrifed tracks.
@@ -139,7 +139,7 @@ public:
 	 * Fill menu with icons of given stops from the list
 	 * @author Hj. Malthaner
 	 */
-	static void fill_menu(werkzeug_waehler_t *wzw, waytype_t wtyp, sint16 sound_ok);
+	static void fill_menu(tool_selector_t *tool_selector, waytype_t wtyp, sint16 sound_ok);
 
 	static stringhashtable_tpl<way_obj_besch_t *>* get_all_wayobjects() { return &table; }
 };

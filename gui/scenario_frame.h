@@ -44,7 +44,7 @@ public:
 	* @return the filename for the helptext, or NULL
 	* @author Hj. Malthaner
 	*/
-	virtual const char * get_hilfe_datei() const { return "scenario.txt"; }
+	virtual const char * get_help_filename() const { return "scenario.txt"; }
 
 	scenario_frame_t();
 };

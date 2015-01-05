@@ -22,7 +22,7 @@ template<class T> class vector_tpl;
 template<class T> class slist_tpl;
 
 class scr_coord;
-class werkzeug_waehler_t;
+class tool_selector_t;
 class spieler_t;
 class toolbar_t;
 class memory_rw_t;
@@ -392,17 +392,17 @@ protected:
 class toolbar_t : public tool_t {
 private:
 	const char *helpfile;
-	werkzeug_waehler_t *wzw;
+	tool_selector_t *tool_selector;
 	slist_tpl<tool_t *>tools;
 public:
 	toolbar_t(uint16 const id, char const* const t, char const* const h) : tool_t(id)
 	{
 		default_param = t;
 		helpfile = h;
-		wzw = NULL;
+		tool_selector = NULL;
 	}
 	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate(default_param); }
-	werkzeug_waehler_t *get_tool_waehler() const { return wzw; }
+	tool_selector_t *get_tool_waehler() const { return tool_selector; }
 	image_id get_icon(spieler_t*) const OVERRIDE;
 	bool is_selected() const OVERRIDE;
 	bool is_init_network_save() const OVERRIDE { return true; }

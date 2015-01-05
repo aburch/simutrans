@@ -131,7 +131,7 @@ public:
 	 * @return false when x, y is outside button area
 	 * @author Hj. Malthaner
 	 */
-	bool getroffen(int x, int y) OVERRIDE;
+	bool is_hit(int x, int y) OVERRIDE;
 
 	bool infowin_event(event_t const*) OVERRIDE;
 

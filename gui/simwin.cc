@@ -57,7 +57,7 @@
 #include "gui_frame.h"
 
 // needed to restore/save them
-#include "werkzeug_waehler.h"
+#include "tool_selector.h"
 #include "player_frame_t.h"
 #include "money_frame.h"
 #include "halt_detail.h"
@@ -321,7 +321,7 @@ static sint8 decode_gadget_boxes(
 //-------------------------------------------------------------------------
 // (Mathew Hounsell) Re-factored
 static void win_draw_window_title(const scr_coord pos, const scr_size size,
-		const PLAYER_COLOR_VAL titel_farbe,
+		const PLAYER_COLOR_VAL title_farbe,
 		const char * const text,
 		const PLAYER_COLOR_VAL text_farbe,
 		const koord3d welt_pos,
@@ -331,14 +331,14 @@ static void win_draw_window_title(const scr_coord pos, const scr_size size,
 		simwin_gadget_flags_t &flags )
 {
 	PUSH_CLIP(pos.x, pos.y, size.w, size.h);
-	display_fillbox_wh_clip(pos.x, pos.y, size.w, 1, titel_farbe+1, false);
-	display_fillbox_wh_clip(pos.x, pos.y+1, size.w, D_TITLEBAR_HEIGHT-2, titel_farbe, false);
+	display_fillbox_wh_clip(pos.x, pos.y, size.w, 1, title_farbe+1, false);
+	display_fillbox_wh_clip(pos.x, pos.y+1, size.w, D_TITLEBAR_HEIGHT-2, title_farbe, false);
 	display_fillbox_wh_clip(pos.x, pos.y+D_TITLEBAR_HEIGHT-1, size.w, 1, COL_BLACK, false);
 	display_vline_wh_clip(pos.x+size.w-1, pos.y,   D_TITLEBAR_HEIGHT-1, COL_BLACK, false);
 
 	// Draw the gadgets and then move left and draw text.
 	flags.gotopos = (welt_pos != koord3d::invalid);
-	int width = display_gadget_boxes( &flags, pos.x+(REVERSE_GADGETS?0:size.w-D_GADGET_WIDTH-4), pos.y, titel_farbe, gadget_state, sticky, goto_pushed );
+	int width = display_gadget_boxes( &flags, pos.x+(REVERSE_GADGETS?0:size.w-D_GADGET_WIDTH-4), pos.y, title_farbe, gadget_state, sticky, goto_pushed );
 	int titlewidth = display_proportional_clip( pos.x + (REVERSE_GADGETS?width+4:4), pos.y+(D_TITLEBAR_HEIGHT-LINEASCENT)/2, text, ALIGN_LEFT, text_farbe, false );
 	if(  flags.gotopos  ) {
 		display_proportional_clip( pos.x + (REVERSE_GADGETS?width+4:4)+titlewidth+8, pos.y+(D_TITLEBAR_HEIGHT-LINEASCENT)/2, welt_pos.get_2d().get_fullstr(), ALIGN_LEFT, text_farbe, false );
@@ -392,7 +392,7 @@ gui_frame_t *win_get_magic(ptrdiff_t magic)
 gui_frame_t *win_get_oncoord( const scr_coord pt )
 {
 	for(  int i=wins.get_count()-1;  i>=0;  i--  ) {
-		if(  wins[i].gui->getroffen( pt.x-wins[i].pos.x, pt.y-wins[i].pos.y )  ) {
+		if(  wins[i].gui->is_hit( pt.x-wins[i].pos.x, pt.y-wins[i].pos.y )  ) {
 			return wins[i].gui;
 		}
 	}
@@ -610,10 +610,10 @@ int create_win(int x, int y, gui_frame_t* const gui, wintype const wt, ptrdiff_t
 		// Must Reset as the entries and thus flags are reused
 		win.flags.close = true;
 		win.flags.title = gui->has_title();
-		win.flags.help = ( gui->get_hilfe_datei() != NULL );
+		win.flags.help = ( gui->get_help_filename() != NULL );
 		win.flags.prev = gui->has_prev();
 		win.flags.next = gui->has_next();
-		win.flags.size = gui->has_min_sizer();
+		win.flags.size = gui->has_min_size();
 		win.flags.sticky = gui->has_sticky();
 		win.gui = gui;
 
@@ -862,7 +862,7 @@ void display_win(int win)
 	gui_frame_t *komp = wins[win].gui;
 	scr_size size = komp->get_windowsize();
 	scr_coord pos = wins[win].pos;
-	PLAYER_COLOR_VAL title_color = (komp->get_titelcolor()&0xF8)+env_t::front_window_bar_color;
+	PLAYER_COLOR_VAL title_color = (komp->get_titlecolor()&0xF8)+env_t::front_window_bar_color;
 	PLAYER_COLOR_VAL text_color = +env_t::front_window_text_color;
 	if(  (unsigned)win!=wins.get_count()-1  ) {
 		// not top => maximum brightness
@@ -872,7 +872,7 @@ void display_win(int win)
 	bool need_dragger = komp->get_resizemode() != gui_frame_t::no_resize;
 
 	// %HACK (Mathew Hounsell) So draw will know if gadget is needed.
-	wins[win].flags.help = ( komp->get_hilfe_datei() != NULL );
+	wins[win].flags.help = ( komp->get_help_filename() != NULL );
 	if(  wins[win].flags.title  ) {
 		win_draw_window_title(wins[win].pos,
 				size,
@@ -921,7 +921,7 @@ void display_all_win()
 	const sint16 y = get_maus_y();
 	tooltip_element = NULL;
 	for(  uint32 i = wins.get_count(); i-- != 0;  ) {
-		if(  (!wins[i].rollup  &&  wins[i].gui->getroffen(x-wins[i].pos.x,y-wins[i].pos.y))  ||
+		if(  (!wins[i].rollup  &&  wins[i].gui->is_hit(x-wins[i].pos.x,y-wins[i].pos.y))  ||
 		     (wins[i].rollup  &&  x>=wins[i].pos.x  &&  x<wins[i].pos.x+wins[i].gui->get_windowsize().w  &&  y>=wins[i].pos.y  &&  y<wins[i].pos.y+D_TITLEBAR_HEIGHT)
 		) {
 			// tooltips are only allowed for this window
@@ -1289,7 +1289,7 @@ bool check_pos_win(event_t *ev)
 	// handle all the other events
 	for(  int i=wins.get_count()-1;  i>=0  &&  !swallowed;  i=min(i,(int)wins.get_count())-1  ) {
 
-		if(  wins[i].gui->getroffen( x-wins[i].pos.x, y-wins[i].pos.y )  ) {
+		if(  wins[i].gui->is_hit( x-wins[i].pos.x, y-wins[i].pos.y )  ) {
 
 			// all events in window are swallowed
 			swallowed = true;
@@ -1309,7 +1309,7 @@ bool check_pos_win(event_t *ev)
 				wins[i].dirty = true;
 
 				// %HACK (Mathew Hounsell) So decode will know if gadget is needed.
-				wins[i].flags.help = ( wins[i].gui->get_hilfe_datei() != NULL );
+				wins[i].flags.help = ( wins[i].gui->get_help_filename() != NULL );
 
 				// Where Was It ?
 				sint8 code = decode_gadget_boxes( ( & wins[i].flags ), wins[i].pos.x + (REVERSE_GADGETS?0:wins[i].gui->get_windowsize().w-D_GADGET_WIDTH-4), x );
@@ -1332,7 +1332,7 @@ bool check_pos_win(event_t *ev)
 									wins[i].gui->infowin_event( ev );
 									break;
 								case SKIN_GADGET_HELP :
-									help_frame_t::open_help_on( wins[i].gui->get_hilfe_datei() );
+									help_frame_t::open_help_on( wins[i].gui->get_help_filename() );
 									break;
 								case SKIN_BUTTON_PREVIOUS:
 									ev->ev_class = WINDOW_CHOOSE_NEXT;
@@ -1465,7 +1465,7 @@ void win_display_flush(double konto)
 	const sint16 menu_height = env_t::iconsize.h;
 
 	// display main menu
-	werkzeug_waehler_t *main_menu = tool_t::toolbar_tool[0]->get_tool_waehler();
+	tool_selector_t *main_menu = tool_t::toolbar_tool[0]->get_tool_waehler();
 	display_set_clip_wh( 0, 0, disp_width, menu_height+1 );
 	if(  skinverwaltung_t::toolbar_background  ) {
 		image_id back_img = skinverwaltung_t::toolbar_background->get_bild_nr(0);

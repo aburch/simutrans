@@ -247,7 +247,7 @@ bool gui_scrolled_list_t::infowin_event(const event_t *ev)
 		return true;
 	}
 
-	if(  sb.is_visible()  &&  (sb.getroffen(x, y)  ||  IS_WHEELUP(ev)  ||  IS_WHEELDOWN(ev))  ) {
+	if(  sb.is_visible()  &&  (sb.is_hit(x, y)  ||  IS_WHEELUP(ev)  ||  IS_WHEELDOWN(ev))  ) {
 		event_t ev2 = *ev;
 		translate_event(&ev2, -sb.get_pos().x, -sb.get_pos().y);
 		return sb.infowin_event(&ev2);

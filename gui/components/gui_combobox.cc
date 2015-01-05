@@ -55,7 +55,7 @@ bool gui_combobox_t::infowin_event(const event_t *ev)
 {
 	if(  !droplist.is_visible()  ) {
 DBG_MESSAGE("event","%d,%d",ev->cx, ev->cy);
-		if(  bt_prev.getroffen(ev->cx, ev->cy)  ) {
+		if(  bt_prev.is_hit(ev->cx, ev->cy)  ) {
 DBG_MESSAGE("event","HOWDY!");
 			bt_prev.pressed = IS_LEFT_BUTTON_PRESSED(ev);
 			if(IS_LEFTRELEASE(ev)) {
@@ -67,7 +67,7 @@ DBG_MESSAGE("event","HOWDY!");
 			}
 			return true;
 		}
-		else if(  bt_next.getroffen(ev->cx, ev->cy)  ) {
+		else if(  bt_next.is_hit(ev->cx, ev->cy)  ) {
 			bt_next.pressed = IS_LEFT_BUTTON_PRESSED(ev);
 			if(IS_LEFTRELEASE(ev)) {
 				bt_next.pressed = false;
@@ -128,7 +128,7 @@ DBG_MESSAGE("event","HOWDY!");
 			event_t ev2 = *ev;
 			translate_event(&ev2, 0, -D_EDIT_HEIGHT - D_V_SPACE / 2);
 
-			if(droplist.getroffen(ev->cx + pos.x, ev->cy + pos.y)  ||  IS_WHEELUP(ev)  ||  IS_WHEELDOWN(ev)) {
+			if(droplist.is_hit(ev->cx + pos.x, ev->cy + pos.y)  ||  IS_WHEELUP(ev)  ||  IS_WHEELDOWN(ev)) {
 				droplist.infowin_event(&ev2);
 				// we selected something?
 				if(finish  &&  IS_LEFTRELEASE(ev)) {

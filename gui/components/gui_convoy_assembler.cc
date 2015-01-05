@@ -1750,7 +1750,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 	scr_coord relpos = scr_coord( 0, ((gui_scrollpane_t *)tabs.get_aktives_tab())->get_scroll_y() );
 	int sel_index = lst->index_at(pos + tabs.get_pos() - relpos, x, y - TAB_HEADER_V_SIZE);
 
-	if ((sel_index != -1) && (tabs.getroffen(x-pos.x,y-pos.y))) {
+	if ((sel_index != -1) && (tabs.is_hit(x-pos.x,y-pos.y))) {
 		// cursor over a vehicle in the selection list
 		const vector_tpl<gui_image_list_t::image_data_t*>& vec = (lst == &electrics ? electrics_vec : (lst == &pas ? pas_vec : (lst == &loks ? loks_vec : waggons_vec)));
 		veh_type = vehikelbauer_t::get_info(vec[sel_index]->text);
@@ -2077,13 +2077,13 @@ bool gui_convoy_assembler_t::infowin_event(const event_t *ev)
 {
 	gui_container_t::infowin_event(ev);
 
-	if(IS_LEFTCLICK(ev) &&  !action_selector.getroffen(ev->cx, ev->cy-16)) {
+	if(IS_LEFTCLICK(ev) &&  !action_selector.is_hit(ev->cx, ev->cy-16)) {
 		// close combo box; we must do it ourselves, since the box does not recieve outside events ...
 		action_selector.close_box();
 		return true;
 	}
 
-	if(IS_LEFTCLICK(ev) &&  !upgrade_selector.getroffen(ev->cx, ev->cy-16)) {
+	if(IS_LEFTCLICK(ev) &&  !upgrade_selector.is_hit(ev->cx, ev->cy-16)) {
 		// close combo box; we must do it ourselves, since the box does not recieve outside events ...
 		upgrade_selector.close_box();
 		return true;

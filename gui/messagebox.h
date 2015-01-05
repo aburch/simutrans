@@ -15,7 +15,7 @@
 class news_window : public gui_frame_t
 {
 public:
-	virtual PLAYER_COLOR_VAL get_titelcolor() const { return color; }
+	virtual PLAYER_COLOR_VAL get_titlecolor() const { return color; }
 
 	// Knightly : to extend the window with an extra component in the upper right corner
 	void extend_window_with_component(gui_komponente_t *const component, const scr_size size, const scr_coord offset = scr_coord(0,0));
@@ -35,7 +35,7 @@ class news_img : public news_window
 {
 public:
 	news_img(const char* text);
-	news_img(const char* text, image_id bild, PLAYER_COLOR_VAL color=WIN_TITEL);
+	news_img(const char* text, image_id bild, PLAYER_COLOR_VAL color=WIN_TITLE);
 
 private:
 	void init(image_id bild);
@@ -47,7 +47,7 @@ private:
 class news_loc : public news_window
 {
 public:
-	news_loc(const char* text, koord k, PLAYER_COLOR_VAL color = WIN_TITEL);
+	news_loc(const char* text, koord k, PLAYER_COLOR_VAL color = WIN_TITLE);
 
 	void map_rotate90( sint16 new_ysize );
 

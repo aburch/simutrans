@@ -51,7 +51,7 @@ void news_window::extend_window_with_component(gui_komponente_t *const component
 
 
 news_img::news_img(const char* text) :
-	news_window(text, WIN_TITEL),
+	news_window(text, WIN_TITLE),
 	bild()
 {
 	init(skinverwaltung_t::meldungsymbol->get_bild_nr(0));

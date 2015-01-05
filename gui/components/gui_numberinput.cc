@@ -227,12 +227,12 @@ void gui_numberinput_t::init( sint32 value, sint32 min, sint32 max, sint32 mode,
 bool gui_numberinput_t::infowin_event(const event_t *ev)
 {
 	// buttons pressed
-	if(  bt_left.getroffen(ev->cx, ev->cy)  &&  ev->ev_code == MOUSE_LEFTBUTTON  ) {
+	if(  bt_left.is_hit(ev->cx, ev->cy)  &&  ev->ev_code == MOUSE_LEFTBUTTON  ) {
 		event_t ev2 = *ev;
 		translate_event(&ev2, -bt_left.get_pos().x, -bt_left.get_pos().y);
 		return bt_left.infowin_event(&ev2);
 	}
-	else if(  bt_right.getroffen(ev->cx, ev->cy)  &&  ev->ev_code == MOUSE_LEFTBUTTON  ) {
+	else if(  bt_right.is_hit(ev->cx, ev->cy)  &&  ev->ev_code == MOUSE_LEFTBUTTON  ) {
 		event_t ev2 = *ev;
 		translate_event(&ev2, -bt_right.get_pos().x, -bt_right.get_pos().y);
 		return bt_right.infowin_event(&ev2);
@@ -331,7 +331,7 @@ void gui_numberinput_t::draw(scr_coord offset)
 	textinp.display_with_focus( new_offset, (win_get_focus()==this) );
 	bt_right.draw(new_offset);
 
-	if(getroffen( get_maus_x()-offset.x, get_maus_y()-offset.y )) {
+	if(is_hit( get_maus_x()-offset.x, get_maus_y()-offset.y )) {
 		sprintf( tooltip, translator::translate("enter a value between %i and %i"), min_value, max_value );
 		win_set_tooltip(get_maus_x() + TOOLTIP_MOUSE_OFFSET_X, new_offset.y + size.h + TOOLTIP_MOUSE_OFFSET_Y, tooltip, this);
 	}

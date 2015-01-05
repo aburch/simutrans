@@ -154,7 +154,7 @@ public:
 	* @return true if the coordinates are inside this component area.
 	* @author Hj. Malthaner
 	*/
-	virtual bool getroffen(int x, int y) {
+	virtual bool is_hit(int x, int y) {
 		return ( pos.x <= x && pos.y <= y && (pos.x+size.w) > x && (pos.y+size.h) > y );
 	}
 

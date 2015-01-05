@@ -117,7 +117,7 @@ public:
 	 * @return den Dateinamen für die Hilfe, oder NULL
 	 * @author Hj. Malthaner
 	 */
-	const char * get_hilfe_datei() const {return "replace.txt";}
+	const char * get_help_filename() const {return "replace.txt";}
 
 	bool infowin_event(const event_t *ev);
 

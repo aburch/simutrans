@@ -144,11 +144,11 @@ bool scrollbar_t::infowin_event(const event_t *ev)
 	else if(  is_visible()  &&  !full ) {
 		// don't respond to these messages if not visible
 		if(  IS_LEFTCLICK(ev)  ||  IS_LEFTREPEAT(ev)  ) {
-			if(  button_def[0].getroffen(x, y)  ) {
+			if(  button_def[0].is_hit(x, y)  ) {
 				button_def[0].pressed = true;
 				scroll( -knob_scroll_amount );
 			}
-			else if(  button_def[1].getroffen(x, y)  ) {
+			else if(  button_def[1].is_hit(x, y)  ) {
 				button_def[1].pressed = true;
 				scroll( +knob_scroll_amount );
 			}
@@ -204,7 +204,7 @@ bool scrollbar_t::infowin_event(const event_t *ev)
 		else if (IS_LEFTRELEASE(ev)) {
 			dragging = false;
 			for (i=0;i<2;i++) {
-				if (button_def[i].getroffen(x, y)) {
+				if (button_def[i].is_hit(x, y)) {
 					button_def[i].pressed = false;
 				}
 			}

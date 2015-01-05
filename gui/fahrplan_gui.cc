@@ -643,7 +643,7 @@ void fahrplan_gui_t::update_selection()
  */
 bool fahrplan_gui_t::infowin_event(const event_t *ev)
 {
-	if( (ev)->ev_class == EVENT_CLICK  &&  !((ev)->ev_code==MOUSE_WHEELUP  ||  (ev)->ev_code==MOUSE_WHEELDOWN)  &&  !line_selector.getroffen(ev->cx, ev->cy-16)  )  {
+	if( (ev)->ev_class == EVENT_CLICK  &&  !((ev)->ev_code==MOUSE_WHEELUP  ||  (ev)->ev_code==MOUSE_WHEELDOWN)  &&  !line_selector.is_hit(ev->cx, ev->cy-16)  )  {
 
 		// close combo box; we must do it ourselves, since the box does not receive outside events ...
 		line_selector.close_box();

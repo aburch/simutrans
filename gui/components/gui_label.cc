@@ -101,7 +101,7 @@ void gui_label_t::draw(scr_coord offset)
 
 	}
 
-	if ( tooltip  &&  getroffen(get_maus_x()-offset.x, get_maus_y()-offset.y) ) {
+	if ( tooltip  &&  is_hit(get_maus_x()-offset.x, get_maus_y()-offset.y) ) {
 		const scr_coord_val by = offset.y + pos.y;
 		const scr_coord_val bh = size.h;
 

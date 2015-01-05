@@ -121,7 +121,7 @@ private:
 	 * @return true if such a button is needed
 	 * @author Hj. Malthaner
 	 */
-	bool has_min_sizer() const {return true;}
+	bool has_min_size() const {return true;}
 
 	// true if already stored here
 	bool is_contained(const vehikel_besch_t *info);
@@ -183,7 +183,7 @@ public:
 	 * @return the filename for the helptext, or NULL
 	 * @author Hj. Malthaner
 	 */
-	const char * get_hilfe_datei() const {return "depot.txt";}
+	const char * get_help_filename() const {return "depot.txt";}
 
 	/**
 	 * Does this window need a next button in the title bar?

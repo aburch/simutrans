@@ -39,7 +39,7 @@
 #include "obj/wayobj.h"
 #include "obj/zeiger.h"
 
-#include "gui/werkzeug_waehler.h"
+#include "gui/tool_selector.h"
 
 #include "utils/simstring.h"
 #include "network/memory_rw.h"
@@ -700,7 +700,7 @@ image_id toolbar_t::get_icon(spieler_t *sp) const
 		return IMG_LEER;
 	}
 	// now have we a least one visible tool?
-	if (wzw  &&  !wzw->empty(sp)) {
+	if (tool_selector  &&  !tool_selector->empty(sp)) {
 		return icon;
 	}
 	return IMG_LEER;
@@ -732,16 +732,16 @@ static sint16 get_sound( const char *c )
 // fills and displays a toolbar
 void toolbar_t::update(spieler_t *sp)
 {
-	const bool create = (wzw == NULL);
+	const bool create = (tool_selector == NULL);
 	if(create) {
 		DBG_MESSAGE("toolbar_t::update()","create toolbar %s",default_param);
-		wzw = new werkzeug_waehler_t( default_param, helpfile, toolbar_tool.index_of(this), this!=tool_t::toolbar_tool[0] );
+		tool_selector = new tool_selector_t( default_param, helpfile, toolbar_tool.index_of(this), this!=tool_t::toolbar_tool[0] );
 	}
 	else {
 		DBG_MESSAGE("toolbar_t::update()","update toolbar %s",default_param);
 	}
 
-	wzw->reset_tools();
+	tool_selector->reset_tools();
 	// now (re)fill it
 	FOR(slist_tpl<tool_t*>, const w, tools) {
 		// no way to call this tool? => then it is most likely a metatool
@@ -757,29 +757,29 @@ void toolbar_t::update(spieler_t *sp)
 						c++;
 					}
 					weg_t::system_type subtype = (weg_t::system_type)(*c!=0 ? atoi(++c) : 0);
-					wegbauer_t::fill_menu( wzw, way, subtype, get_sound(c));
+					wegbauer_t::fill_menu( tool_selector, way, subtype, get_sound(c));
 				} else if (char const* const c = strstart(param, "bridges(")) {
 					waytype_t const way = (waytype_t)atoi(c);
-					brueckenbauer_t::fill_menu(wzw, way, get_sound(c));
+					brueckenbauer_t::fill_menu(tool_selector, way, get_sound(c));
 				} else if (char const* const c = strstart(param, "tunnels(")) {
 					waytype_t const way = (waytype_t)atoi(c);
-					tunnelbauer_t::fill_menu(wzw, way, get_sound(c));
+					tunnelbauer_t::fill_menu(tool_selector, way, get_sound(c));
 				} else if (char const* const c = strstart(param, "signs(")) {
 					waytype_t const way = (waytype_t)atoi(c);
-					roadsign_t::fill_menu(wzw, way, get_sound(c));
+					roadsign_t::fill_menu(tool_selector, way, get_sound(c));
 				} else if (char const* const c = strstart(param, "wayobjs(")) {
 					waytype_t const way = (waytype_t)atoi(c);
-					wayobj_t::fill_menu(wzw, way, get_sound(c));
+					wayobj_t::fill_menu(tool_selector, way, get_sound(c));
 				} else if (char const* c = strstart(param, "buildings(")) {
 					haus_besch_t::utyp const utype = (haus_besch_t::utyp)atoi(c);
 					while(*c  &&  *c!=','  &&  *c!=')') {
 						c++;
 					}
 					waytype_t way = (waytype_t)(*c!=0 ? atoi(++c) : 0);
-					hausbauer_t::fill_menu( wzw, utype, way, get_sound(c));
+					hausbauer_t::fill_menu( tool_selector, utype, way, get_sound(c));
 				} else if (param[0] == '-') {
 					// add dummy werkzeug as seperator
-					wzw->add_werkzeug( dummy );
+					tool_selector->add_tool_selector( dummy );
 				}
 			}
 		}
@@ -797,12 +797,12 @@ void toolbar_t::update(spieler_t *sp)
 				continue;
 			}
 			// now add it to the toolbar gui
-			wzw->add_werkzeug( w );
+			tool_selector->add_tool_selector( w );
 		}
 	}
 
 	if(  (strcmp(this->default_param,"EDITTOOLS")==0  &&  sp!=welt->get_spieler(1))  ) {
-		destroy_win(wzw);
+		destroy_win(tool_selector);
 		return;
 	}
 }
@@ -817,13 +817,13 @@ bool toolbar_t::init(spieler_t *sp)
 
 	// show/create window
 	if(  close  ) {
-		destroy_win(wzw);
+		destroy_win(tool_selector);
 		return false;
 	}
 
 	if(  this != tool_t::toolbar_tool[0]  ) {
 		// not main menu
-		create_win( wzw, w_info|w_do_not_delete|w_no_overlap, magic_toolbar+toolbar_tool.index_of(this) );
+		create_win( tool_selector, w_info|w_do_not_delete|w_no_overlap, magic_toolbar+toolbar_tool.index_of(this) );
 		DBG_MESSAGE("toolbar_t::init()", "ID=%id", get_id());
 	}
 	return false;
@@ -833,7 +833,7 @@ bool toolbar_t::init(spieler_t *sp)
 bool toolbar_t::exit(spieler_t *)
 {
 	if(  win_get_magic(magic_toolbar+toolbar_tool.index_of(this))  ) {
-		destroy_win(wzw);
+		destroy_win(tool_selector);
 	}
 	return false;
 }

@@ -21,7 +21,7 @@
 #include "../obj/zeiger.h"
 
 #include "../gui/karte.h"
-#include "../gui/werkzeug_waehler.h"
+#include "../gui/tool_selector.h"
 
 #include "../simcity.h"
 #include "../simdebug.h"
@@ -238,7 +238,7 @@ bool hausbauer_t::register_besch(haus_besch_t *besch)
 
 
 // all these menus will need a waytype ...
-void hausbauer_t::fill_menu(werkzeug_waehler_t* wzw, haus_besch_t::utyp utyp, waytype_t wt, sint16 /*sound_ok*/)
+void hausbauer_t::fill_menu(tool_selector_t* tool_selector, haus_besch_t::utyp utyp, waytype_t wt, sint16 /*sound_ok*/)
 {
 	// check if scenario forbids this
 	uint16 toolnr = 0;
@@ -263,7 +263,7 @@ DBG_DEBUG("hausbauer_t::fill_menu()","maximum %i",station_building.get_count());
 //		DBG_DEBUG("hausbauer_t::fill_menu()", "try to add %s (%p)", besch->get_name(), besch);
 		if(  besch->get_utyp()==utyp  &&  besch->get_builder()  &&  (utyp==haus_besch_t::firmensitz  ||  besch->get_extra()==(uint16)wt)  ) {
 			if(  besch->is_available(time)  ) {
-				wzw->add_werkzeug( besch->get_builder() );
+				tool_selector->add_tool_selector( besch->get_builder() );
 			}
 		}
 	}

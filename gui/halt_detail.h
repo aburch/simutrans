@@ -60,7 +60,7 @@ public:
 	 * @return the filename for the helptext, or NULL
 	 * @author Hj. Malthaner
 	 */
-	const char * get_hilfe_datei() const { return "station_details.txt"; }
+	const char * get_help_filename() const { return "station_details.txt"; }
 
 	// Set window size and adjust component sizes and/or positions accordingly
 	virtual void set_windowsize(scr_size size);

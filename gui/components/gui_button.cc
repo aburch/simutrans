@@ -162,9 +162,9 @@ void button_t::set_tooltip(const char * t)
 }
 
 
-bool button_t::getroffen(int x,int y)
+bool button_t::is_hit(int x,int y)
 {
-	bool hit=gui_komponente_t::getroffen(x, y);
+	bool hit=gui_komponente_t::is_hit(x, y);
 	if(  pressed  &&  !hit  &&  type <= STATE_MASK  ) {
 		// moved away
 		pressed = 0;
@@ -338,7 +338,7 @@ void button_t::draw(scr_coord offset)
 			break;
 	}
 
-	if(  translated_tooltip  &&  getroffen( get_maus_x()-offset.x, get_maus_y()-offset.y )  ) {
+	if(  translated_tooltip  &&  is_hit( get_maus_x()-offset.x, get_maus_y()-offset.y )  ) {
 		win_set_tooltip( get_maus_x() + TOOLTIP_MOUSE_OFFSET_X, area.get_bottom() + TOOLTIP_MOUSE_OFFSET_Y, translated_tooltip, this);
 	}
 }
