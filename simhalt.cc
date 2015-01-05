@@ -1623,11 +1623,6 @@ uint16 haltestelle_t::get_average_waiting_time(halthandle_t halt, uint8 category
 
 uint16 haltestelle_t::get_service_frequency(halthandle_t destination, uint8 category) const
 {
-	/*if(!is_connected(destination, category))
-	{
-		return 0;
-	}*/
-
 	uint16 service_frequency = 0;
 
 	for(uint32 i = 0; i < registered_lines.get_count(); i++) 
@@ -1639,11 +1634,23 @@ uint16 haltestelle_t::get_service_frequency(halthandle_t destination, uint8 cate
 		uint8 schedule_count = registered_lines[i]->get_schedule()->get_count();
 		uint32 timing = 0;
 		bool line_serves_destination = false;
+		uint32 number_of_calls_at_this_stop = 0;
+		koord current_halt;
+		koord next_halt;
 		for(uint8 n = 0; n < schedule_count; n++)
 		{
+			current_halt = registered_lines[i]->get_schedule()->eintrag[n].pos.get_2d();
+			if(n < schedule_count - 2)
+			{
+				next_halt = registered_lines[i]->get_schedule()->eintrag[n + 1].pos.get_2d();
+			}
+			else
+			{
+				next_halt = registered_lines[i]->get_schedule()->eintrag[0].pos.get_2d();
+			}
 			if(n < schedule_count - 1)
 			{
-				const uint16 average_time = registered_lines[i]->get_average_journey_times().get(id_pair(self.get_id(), destination.get_id())).get_average();
+				const uint16 average_time = registered_lines[i]->get_average_journey_times().get(id_pair(haltestelle_t::get_halt(current_halt, besitzer_p).get_id(), haltestelle_t::get_halt(current_halt, besitzer_p).get_id())).get_average();
 				if(average_time != 0 && average_time != 65535)
 				{
 					timing += average_time;
@@ -1651,7 +1658,7 @@ uint16 haltestelle_t::get_service_frequency(halthandle_t destination, uint8 cate
 				else
 				{
 					// Fallback to convoy's general average speed if a point-to-point average is not available.
-					const uint32 distance = shortest_distance(get_basis_pos(), destination->get_basis_pos());
+					const uint32 distance = shortest_distance(current_halt, next_halt);
 					const uint32 recorded_average_speed = registered_lines[i]->get_finance_history(1, LINE_AVERAGE_SPEED);
 					const uint32 average_speed = recorded_average_speed > 0 ? recorded_average_speed : speed_to_kmh(registered_lines[i]->get_convoy(0)->get_min_top_speed()) >> 1;
 					const uint32 journey_time_32 = welt->travel_time_tenths_from_distance(distance, average_speed);
@@ -1661,10 +1668,16 @@ uint16 haltestelle_t::get_service_frequency(halthandle_t destination, uint8 cate
 					timing += approximated_time;
 				}
 			}
-			if(haltestelle_t::get_halt(registered_lines[i]->get_schedule()->eintrag[n].pos, besitzer_p) == destination)
+
+			if(haltestelle_t::get_halt(current_halt, besitzer_p) == destination)
 			{
 				// This line serves this destination.
 				line_serves_destination = true;
+			}
+			
+			if(haltestelle_t::get_halt(current_halt, besitzer_p) == self)
+			{
+				number_of_calls_at_this_stop ++;
 			}
 		}
 		
@@ -1673,8 +1686,8 @@ uint16 haltestelle_t::get_service_frequency(halthandle_t destination, uint8 cate
 			continue;
 		}
 
-		// Divide the round trip time by the number of convoys in the line.
-		timing /= registered_lines[i]->count_convoys();
+		// Divide the round trip time by the number of convoys in the line and by the number of times that it calls at this stop in its schedule.
+		timing /= (registered_lines[i]->count_convoys() * number_of_calls_at_this_stop);
 
 		if(registered_lines[i]->get_schedule()->get_spacing() > 0)
 		{
