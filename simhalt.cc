@@ -1650,7 +1650,7 @@ uint16 haltestelle_t::get_service_frequency(halthandle_t destination, uint8 cate
 			}
 			if(n < schedule_count - 1)
 			{
-				const uint16 average_time = registered_lines[i]->get_average_journey_times().get(id_pair(haltestelle_t::get_halt(current_halt, besitzer_p).get_id(), haltestelle_t::get_halt(current_halt, besitzer_p).get_id())).get_average();
+				const uint16 average_time = registered_lines[i]->get_average_journey_times().get(id_pair(haltestelle_t::get_halt(current_halt, besitzer_p).get_id(), haltestelle_t::get_halt(next_halt, besitzer_p).get_id())).get_average();
 				if(average_time != 0 && average_time != 65535)
 				{
 					timing += average_time;
