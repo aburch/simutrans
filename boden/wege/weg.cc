@@ -1023,26 +1023,43 @@ bool weg_t::renew()
 
 void weg_t::degrade()
 {
-	if(remaining_wear_capacity)
+	if(public_right_of_way)
 	{
-		// There is some wear left, but this way is in a degraded state. Reduce the speed limit.
-		if(!degraded)
+		// Do not degrade public rights of way, as these should remain passable.
+		// Instead, take them out of private ownership and renew them with the default way.
+		set_besitzer(NULL); 
+		if(waytype == road_wt)
 		{
-			// Only do this once, or else this will carry on reducing for ever.
-			max_speed /= 2;
-			degraded = true;
+			set_besch(welt->get_settings().get_intercity_road_type(welt->get_timeline_year_month()));
+		}
+		else
+		{
+			set_besch(besch);
 		}
 	}
 	else
 	{
-		// Totally worn out: impassable. 
-		max_speed = 0;
-		degraded = true;
-		const weg_besch_t* mothballed_type = wegbauer_t::way_search_mothballed(get_waytype(), (weg_t::system_type)besch->get_styp()); 
-		if(mothballed_type)
+		if(remaining_wear_capacity)
 		{
-			set_besch(mothballed_type);
-			calc_bild();
+			// There is some wear left, but this way is in a degraded state. Reduce the speed limit.
+			if(!degraded)
+			{
+				// Only do this once, or else this will carry on reducing for ever.
+				max_speed /= 2;
+				degraded = true;
+			}
+		}
+		else
+		{
+			// Totally worn out: impassable. 
+			max_speed = 0;
+			degraded = true;
+			const weg_besch_t* mothballed_type = wegbauer_t::way_search_mothballed(get_waytype(), (weg_t::system_type)besch->get_styp()); 
+			if(mothballed_type)
+			{
+				set_besch(mothballed_type);
+				calc_bild();
+			}
 		}
 	}
 }
