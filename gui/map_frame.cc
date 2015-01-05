@@ -29,7 +29,7 @@
 #include "../dataobj/loadsave.h"
 #include "../besch/fabrik_besch.h"
 #include "../simfab.h"
-#include "../simtools.h"
+#include "../utils/simrandom.h"
 
 #include "../tpl/minivec_tpl.h"
 

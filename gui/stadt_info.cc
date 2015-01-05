@@ -233,11 +233,11 @@ void stadt_info_t::rename_city()
 			// text changed => call tool
 			cbuffer_t buf;
 			buf.printf( "t%u,%s", welt->get_staedte().index_of(stadt), name );
-			werkzeug_t *w = create_tool( WKZ_RENAME_TOOL | SIMPLE_TOOL );
-			w->set_default_param( buf );
-			welt->set_werkzeug( w, welt->get_spieler(1));
+			tool_t *tool = create_tool( TOOL_RENAME | SIMPLE_TOOL );
+			tool->set_default_param( buf );
+			welt->set_tool( tool, welt->get_spieler(1));
 			// since init always returns false, it is safe to delete immediately
-			delete w;
+			delete tool;
 			// do not trigger this command again
 			tstrncpy(old_name, t, sizeof(old_name));
 		}
@@ -371,8 +371,8 @@ bool stadt_info_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 	static char param[16];
 	if(  komp==&allow_growth  ) {
 		sprintf(param,"g%hi,%hi,%hi", stadt->get_pos().x, stadt->get_pos().y, (short)(!stadt->get_citygrowth()) );
-		werkzeug_t::simple_tool[WKZ_CHANGE_CITY_TOOL]->set_default_param( param );
-		welt->set_werkzeug( werkzeug_t::simple_tool[WKZ_CHANGE_CITY_TOOL], welt->get_spieler(1));
+		tool_t::simple_tool[TOOL_CHANGE_CITY]->set_default_param( param );
+		welt->set_tool( tool_t::simple_tool[TOOL_CHANGE_CITY], welt->get_spieler(1));
 		return true;
 	}
 	if(  komp==&name_input  ) {

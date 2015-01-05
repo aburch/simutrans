@@ -15,7 +15,7 @@
 
 
 class haus_besch_t;
-class werkzeug_t;
+class tool_t;
 class karte_t;
 class checksum_t;
 
@@ -234,7 +234,7 @@ class haus_besch_t : public obj_besch_timelined_t {
 		return gtyp == gebaeude_t::unbekannt && utype == u;
 	}
 
-	werkzeug_t *builder;
+	tool_t *builder;
 
 public:
 
@@ -383,12 +383,12 @@ public:
 	}
 
 	// default tool for building
-	werkzeug_t *get_builder() const {
+	tool_t *get_builder() const {
 		return builder;
 	}
 
-	void set_builder( werkzeug_t *w )  {
-		builder = w;
+	void set_builder( tool_t *tool )  {
+		builder = tool;
 	}
 
 	void calc_checksum(checksum_t *chk) const;

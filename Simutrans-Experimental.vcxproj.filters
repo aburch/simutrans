@@ -492,9 +492,6 @@
     <ClCompile Include="simticker.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="simtools.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="vehicle\simvehikel.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -502,9 +499,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="simware.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="simwerkz.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="simworld.cc">
@@ -955,6 +949,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="display\simgraph0.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="simtool.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\simrandom.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -1610,9 +1610,6 @@
     <ClInclude Include="simticker.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="simtools.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="simtypes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -1626,9 +1623,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="simware.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="simwerkz.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="simworld.h">
@@ -2163,6 +2157,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="simdings.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="simtool-dialogs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="simtool.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\simrandom.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

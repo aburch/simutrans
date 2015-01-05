@@ -14,7 +14,7 @@
 #include "../dataobj/way_constraints.h"
 #include "../network/checksum.h"
 
-class werkzeug_t;
+class tool_t;
 class karte_t;
 
 /**
@@ -268,11 +268,11 @@ public:
 	}
 
 	// default tool for building
-	werkzeug_t *get_builder() const {
+	tool_t *get_builder() const {
 		return builder;
 	}
-	void set_builder( werkzeug_t *w )  {
-		builder = w;
+	void set_builder( tool_t *tool )  {
+		builder = tool;
 	}
 
 	bool is_mothballed() const { return get_base_price() == 0 && topspeed == 0 && base_maintenance == 0; }

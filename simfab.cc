@@ -25,7 +25,7 @@
 #include "simfab.h"
 #include "simcity.h"
 #include "simhalt.h"
-#include "simtools.h"
+#include "utils/simrandom.h"
 #include "simware.h"
 #include "simworld.h"
 #include "besch/haus_besch.h"

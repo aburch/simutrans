@@ -14,7 +14,7 @@
 #include "../simobj.h"
 #include "../display/simimg.h"
 #include "../player/simplay.h"
-#include "../simtools.h"
+#include "../utils/simrandom.h"
 #include "../simtypes.h"
 #include "../simloadingscreen.h"
 

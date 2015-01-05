@@ -25,7 +25,7 @@
 #include "../simlinemgmt.h"
 #include "../simmenu.h"
 #include "../simskin.h"
-#include "../simtools.h"
+#include "../utils/simrandom.h"
 
 #include "../besch/haus_besch.h"
 

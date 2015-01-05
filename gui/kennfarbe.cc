@@ -17,7 +17,7 @@
 #include "../simskin.h"
 #include "../dataobj/translator.h"
 #include "../player/simplay.h"
-#include "../simwerkz.h"
+#include "../simtool.h"
 
 farbengui_t::farbengui_t(spieler_t *sp) :
 	gui_frame_t( translator::translate("Farbe"), sp ),
@@ -108,11 +108,11 @@ bool farbengui_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 			// re-colour a player
 			cbuffer_t buf;
 			buf.printf( "1%u,%i", sp->get_player_nr(), i*8);
-			werkzeug_t *w = create_tool( WKZ_RECOLOUR_TOOL | SIMPLE_TOOL );
-			w->set_default_param( buf );
-			sp->get_welt()->set_werkzeug( w, sp );
+			tool_t *tool = create_tool( TOOL_RECOLOUR_TOOL | SIMPLE_TOOL );
+			tool->set_default_param( buf );
+			sp->get_welt()->set_tool( tool, sp );
 			// since init always returns false, it is save to delete immediately
-			delete w;
+			delete tool;
 			return true;
 		}
 
@@ -124,11 +124,11 @@ bool farbengui_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 			// re-colour a player
 			cbuffer_t buf;
 			buf.printf( "2%u,%i", sp->get_player_nr(), i*8);
-			werkzeug_t *w = create_tool( WKZ_RECOLOUR_TOOL | SIMPLE_TOOL );
-			w->set_default_param( buf );
-			sp->get_welt()->set_werkzeug( w, sp );
+			tool_t *tool = create_tool( TOOL_RECOLOUR_TOOL | SIMPLE_TOOL );
+			tool->set_default_param( buf );
+			sp->get_welt()->set_tool( tool, sp );
 			// since init always returns false, it is save to delete immediately
-			delete w;
+			delete tool;
 			return true;
 		}
 

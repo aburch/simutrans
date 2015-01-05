@@ -77,7 +77,7 @@ ki_kontroll_t::ki_kontroll_t() :
 
 	// check also scenario rules
 	if (welt->get_scenario()->is_scripted()) {
-		player_tools_allowed = welt->get_scenario()->is_tool_allowed(NULL, WKZ_SWITCH_PLAYER | SIMPLE_TOOL);
+		player_tools_allowed = welt->get_scenario()->is_tool_allowed(NULL, TOOL_SWITCH_PLAYER | SIMPLE_TOOL);
 		player_change_allowed &= player_tools_allowed;
 	}
 
@@ -255,8 +255,8 @@ bool ki_kontroll_t::action_triggered( gui_action_creator_t *komp,value_t p )
 			else {
 				// Current AI on/off
 				sprintf( param, "a,%i,%i", i, !welt->get_spieler(i)->is_active() );
-				werkzeug_t::simple_tool[WKZ_SET_PLAYER_TOOL]->set_default_param( param );
-				welt->set_werkzeug( werkzeug_t::simple_tool[WKZ_SET_PLAYER_TOOL], welt->get_active_player() );
+				tool_t::simple_tool[TOOL_CHANGE_PLAYER]->set_default_param( param );
+				welt->set_tool( tool_t::simple_tool[TOOL_CHANGE_PLAYER], welt->get_active_player() );
 			}
 			break;
 		}
@@ -322,11 +322,11 @@ bool ki_kontroll_t::action_triggered( gui_action_creator_t *komp,value_t p )
 			
 			static char param[16];
 			sprintf(param,"g%hi,%hi,%hi", welt->get_active_player_nr(), i, access_out[i].pressed);
-			werkzeug_t *w = create_tool( WKZ_ACCESS_TOOL | SIMPLE_TOOL );
-			w->set_default_param(param);
-			welt->set_werkzeug( w, welt->get_active_player() );
+			tool_t *tool = create_tool( TOOL_ACCESS_TOOL | SIMPLE_TOOL );
+			tool->set_default_param(param);
+			welt->set_tool( tool, welt->get_active_player() );
 			// since init always returns false, it is save to delete immediately
-			delete w;
+			delete tool;
 
 			access_out[i].pressed = welt->get_active_player()->allows_access_to(i);
 		}

@@ -336,8 +336,8 @@ bool color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 		if(  !env_t::networkmode  ||  welt->get_active_player_nr()==1  ) {
 			static char level[16];
 			sprintf(level, "%li", v.i);
-			werkzeug_t::simple_tool[WKZ_TRAFFIC_LEVEL&0xFFF]->set_default_param( level );
-			welt->set_werkzeug( werkzeug_t::simple_tool[WKZ_TRAFFIC_LEVEL&0xFFF], welt->get_active_player() );
+			tool_t::simple_tool[TOOL_TRAFFIC_LEVEL&0xFFF]->set_default_param( level );
+			welt->set_tool( tool_t::simple_tool[TOOL_TRAFFIC_LEVEL&0xFFF], welt->get_active_player() );
 		}
 		else {
 			traffic_density.set_value(welt->get_settings().get_verkehr_level());
@@ -355,11 +355,11 @@ bool color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 		env_t::scroll_multi = -env_t::scroll_multi;
 	} else if((buttons+7)==komp) {
 		if(  !env_t::networkmode  ||  welt->get_active_player_nr()==1  ) {
-			welt->set_werkzeug( werkzeug_t::simple_tool[WKZ_TOOGLE_PAX&0xFFF], welt->get_active_player() );
+			welt->set_tool( tool_t::simple_tool[TOOL_TOOGLE_PAX&0xFFF], welt->get_active_player() );
 		}
 	} else if((buttons+8)==komp) {
 		if(  !env_t::networkmode  ||  welt->get_active_player_nr()==1  ) {
-			welt->set_werkzeug( werkzeug_t::simple_tool[WKZ_TOOGLE_PEDESTRIANS&0xFFF], welt->get_active_player() );
+			welt->set_tool( tool_t::simple_tool[TOOL_TOOGLE_PEDESTRIANS&0xFFF], welt->get_active_player() );
 		}
 	} else if((buttons+9)==komp) {
 		env_t::night_shift = !env_t::night_shift;
@@ -381,13 +381,13 @@ bool color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 	} else if((buttons+15)==komp) {
 		env_t::station_coverage_show = env_t::station_coverage_show==0 ? 0xFF : 0;
 	} else if((buttons+16)==komp) {
-		// see simwerkz.cc::wkz_show_underground_t::init
+		// see simwerkz.cc::tool_show_underground_t::init
 		grund_t::set_underground_mode(buttons[16].pressed ? grund_t::ugm_none : grund_t::ugm_all, inp_underground_level.get_value());
 		buttons[16].pressed = grund_t::underground_mode == grund_t::ugm_all;
 		// calc new images
 		welt->update_map();
 		// renew toolbar
-		werkzeug_t::update_toolbars();
+		tool_t::update_toolbars();
 	} else if((buttons+17)==komp) {
 		grund_t::toggle_grid();
 	} else if((buttons+18)==komp) {
@@ -406,19 +406,19 @@ bool color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 	} else if((buttons+19)==komp) {
 		env_t::show_names ^= 2;
 	} else if((buttons+20)==komp) {
-		// see simwerkz.cc::wkz_show_underground_t::init
+		// see simwerkz.cc::tool_show_underground_t::init
 		grund_t::set_underground_mode(buttons[20].pressed ? grund_t::ugm_none : grund_t::ugm_level, inp_underground_level.get_value());
 		buttons[20].pressed = grund_t::underground_mode == grund_t::ugm_level;
 		// calc new images
 		welt->update_map();
 		// renew toolbar
-		werkzeug_t::update_toolbars();
+		tool_t::update_toolbars();
 	} else if((buttons+22)==komp) {
-		// see simwerkz.cc::wkz_hide_under_cursor_t::init
+		// see simwerkz.cc::tool_hide_under_cursor_t::init
 		env_t::hide_under_cursor = !env_t::hide_under_cursor  &&  env_t::cursor_hide_range>0;
 		buttons[22].pressed = env_t::hide_under_cursor;
 		// renew toolbar
-		werkzeug_t::update_toolbars();
+		tool_t::update_toolbars();
 	} else if((buttons+23)==komp) {
 		env_t::visualize_schedule = !env_t::visualize_schedule;
 		buttons[23].pressed = env_t::visualize_schedule;

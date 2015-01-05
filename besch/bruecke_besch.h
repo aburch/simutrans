@@ -25,7 +25,7 @@
 #include "../dataobj/ribi.h"
 #include "../dataobj/way_constraints.h"
 
-class werkzeug_t;
+class tool_t;
 class checksum_t;
 
 class bruecke_besch_t : public obj_besch_transport_infrastructure_t {

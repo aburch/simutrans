@@ -11,9 +11,9 @@
 
 #include <stdio.h>
 
-#include "../simtools.h"
+#include "../utils/simrandom.h"
 #include "../simworld.h"
-#include "../simwerkz.h"
+#include "../simtool.h"
 
 #include "../bauer/hausbauer.h"
 
@@ -30,7 +30,7 @@
 
 
 // new tool definition
-wkz_build_haus_t curiosity_edit_frame_t::haus_tool=wkz_build_haus_t();
+tool_build_house_t curiosity_edit_frame_t::haus_tool=tool_build_house_t();
 char curiosity_edit_frame_t::param_str[256];
 
 
@@ -53,8 +53,8 @@ curiosity_edit_frame_t::curiosity_edit_frame_t(spieler_t* sp_) :
 	rotation = 255;
 	besch = NULL;
 	haus_tool.set_default_param(NULL);
-	haus_tool.cursor = werkzeug_t::general_tool[WKZ_BUILD_HAUS]->cursor;
-	haus_tool.id = werkzeug_t::general_tool[WKZ_BUILD_HAUS]->id;
+	haus_tool.cursor = tool_t::general_tool[TOOL_BUILD_HOUSE]->cursor;
+	haus_tool.id = tool_t::general_tool[TOOL_BUILD_HOUSE]->id;
 
 	bt_city_attraction.init( button_t::square_state, "City attraction", scr_coord(get_tab_panel_width()+2*MARGIN, offset_of_comp-4 ) );
 	bt_city_attraction.add_listener(this);
@@ -280,9 +280,9 @@ void curiosity_edit_frame_t::change_item_info(sint32 entry)
 		// the tools will be always updated, even though the data up there might be still current
 		sprintf( param_str, "%i%c%s", bt_climates.pressed, rotation==255 ? '#' : '0'+rotation, besch->get_name() );
 		haus_tool.set_default_param(param_str);
-		welt->set_werkzeug( &haus_tool, sp );
+		welt->set_tool( &haus_tool, sp );
 	}
-	else if(welt->get_werkzeug(sp->get_player_nr())==&haus_tool) {
+	else if(welt->get_tool(sp->get_player_nr())==&haus_tool) {
 		for(int i=0;  i<4;  i++  ) {
 			img[i].set_image( IMG_LEER );
 		}
@@ -293,7 +293,7 @@ void curiosity_edit_frame_t::change_item_info(sint32 entry)
 		}
 
 		besch = NULL;
-		welt->set_werkzeug( werkzeug_t::general_tool[WKZ_ABFRAGE], sp );
+		welt->set_tool( tool_t::general_tool[TOOL_QUERY], sp );
 	}
 }
 

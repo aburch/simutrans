@@ -54,8 +54,8 @@ bool privatesign_info_t::action_triggered( gui_action_creator_t *komp, value_t /
 				else {
 					sprintf( param, "%s,0,%i", sign->get_pos().get_str(), mask >> 8 );
 				}
-				werkzeug_t::simple_tool[WKZ_TRAFFIC_LIGHT_TOOL]->set_default_param( param );
-				welt->set_werkzeug( werkzeug_t::simple_tool[WKZ_TRAFFIC_LIGHT_TOOL], welt->get_active_player() );
+				tool_t::simple_tool[TOOL_CHANGE_TRAFFIC_LIGHT]->set_default_param( param );
+				welt->set_tool( tool_t::simple_tool[TOOL_CHANGE_TRAFFIC_LIGHT], welt->get_active_player() );
 				players[i].pressed = (mask >> i)&1;
 			}
 		}

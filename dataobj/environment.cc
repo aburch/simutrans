@@ -4,7 +4,7 @@
 #include "../simversion.h"
 #include "../simconst.h"
 #include "../simtypes.h"
-#include "../simtools.h"
+#include "../utils/simrandom.h"
 #include "../simcolor.h"
 #include "../simmesg.h"
 

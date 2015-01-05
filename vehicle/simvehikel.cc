@@ -70,7 +70,7 @@
 #include "../utils/simstring.h"
 #include "../utils/cbuffer_t.h"
 
-#include "../simtools.h"
+#include "../utils/simrandom.h"
 #include "../besch/ware_besch.h"
 
 #include "../convoy.h"

@@ -25,11 +25,11 @@ void line_scrollitem_t::set_text(char const* const t)
 		// text changed => call tool
 		cbuffer_t buf;
 		buf.printf( "l%u,%s", line.get_id(), t );
-		werkzeug_t *w = create_tool( WKZ_RENAME_TOOL | SIMPLE_TOOL );
-		w->set_default_param( buf );
-		line->get_besitzer()->get_welt()->set_werkzeug( w, line->get_besitzer() );
+		tool_t *tool = create_tool( TOOL_RENAME | SIMPLE_TOOL );
+		tool->set_default_param( buf );
+		line->get_besitzer()->get_welt()->set_tool( tool, line->get_besitzer() );
 		// since init always returns false, it is safe to delete immediately
-		delete w;
+		delete tool;
 	}
 }
 

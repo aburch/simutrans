@@ -31,13 +31,13 @@
 #include "simloadingscreen.h"
 #include "simticker.h"
 #include "simmesg.h"
-#include "simwerkz.h"
+#include "simtool.h"
 #include "siminteraction.h"
 
 #include "simsys.h"
 #include "display/simgraph.h"
 #include "simevent.h"
-#include "simtools.h"
+#include "utils/simrandom.h"
 
 #include "simversion.h"
 
@@ -1033,7 +1033,7 @@ int simu_main(int argc, char** argv)
 	stadt_t::electricity_consumption_init(env_t::objfilename);
 	
 	dbg->important("Reading menu configuration ...");
-	werkzeug_t::init_menu();
+	tool_t::init_menu();
 
 	// loading all paks
 	dbg->important("Reading object data from %s...", env_t::objfilename.c_str());
@@ -1052,7 +1052,7 @@ int simu_main(int argc, char** argv)
 	pakset_info_t::debug();
 
 	dbg->important("Reading menu configuration ...");
-	werkzeug_t::read_menu(env_t::objfilename);
+	tool_t::read_menu(env_t::objfilename);
 
 	if(  translator::get_language()==-1  ) {
 		ask_language();
@@ -1231,7 +1231,7 @@ DBG_MESSAGE("simmain","demo file not found at %s",buf.get_str() );
 		//  start in June ...
 		intr_set(welt, view);
 		win_set_world(welt);
-		werkzeug_t::toolbar_tool[0]->init(welt->get_active_player());
+		tool_t::toolbar_tool[0]->init(welt->get_active_player());
 		welt->set_fast_forward(true);
 		welt->sync_step(5000,true,false);
 		welt->step_month(5);
@@ -1248,7 +1248,7 @@ DBG_MESSAGE("simmain","demo file not found at %s",buf.get_str() );
 		// just init view (world was loaded from file)
 		intr_set(welt, view);
 		win_set_world(welt);
-		werkzeug_t::toolbar_tool[0]->init(welt->get_active_player());
+		tool_t::toolbar_tool[0]->init(welt->get_active_player());
 	}
 
 	welt->set_fast_forward(false);
@@ -1358,7 +1358,7 @@ DBG_MESSAGE("simmain","demo file not found at %s",buf.get_str() );
 	}
 
 	destroy_all_win( true );
-	werkzeug_t::exit_menu();
+	tool_t::exit_menu();
 
 	delete welt;
 	welt = NULL;

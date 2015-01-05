@@ -13,7 +13,7 @@
 #include "../simintr.h"
 #include "../simfab.h"
 #include "../simmesg.h"
-#include "../simtools.h"
+#include "../utils/simrandom.h"
 #include "../simcity.h"
 #include "../simhalt.h"
 #include "../player/simplay.h"

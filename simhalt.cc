@@ -28,7 +28,7 @@
 #include "simmem.h"
 #include "simmesg.h"
 #include "simplan.h"
-#include "simtools.h"
+#include "utils/simrandom.h"
 #include "player/simplay.h"
 #include "player/finance.h"
 #include "gui/simwin.h"

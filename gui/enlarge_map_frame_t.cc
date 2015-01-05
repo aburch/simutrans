@@ -16,7 +16,7 @@
 #include "../simworld.h"
 #include "../gui/simwin.h"
 #include "../display/simimg.h"
-#include "../simtools.h"
+#include "../utils/simrandom.h"
 #include "../simintr.h"
 
 #include "../dataobj/environment.h"

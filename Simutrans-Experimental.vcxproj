@@ -1550,6 +1550,7 @@
     <ClCompile Include="gui\money_frame.cc" />
     <ClCompile Include="boden\wege\monorail.cc" />
     <ClCompile Include="boden\monorailboden.cc" />
+    <ClCompile Include="utils\simrandom.cc" />
     <ClCompile Include="vehicle\movingobj.cc" />
     <ClCompile Include="boden\wege\narrowgauge.cc" />
     <ClCompile Include="besch\reader\obj_reader.cc" />
@@ -1652,11 +1653,10 @@
     <ClCompile Include="utils\simstring.cc" />
     <ClCompile Include="simsys_s.cc" />
     <ClCompile Include="simticker.cc" />
-    <ClCompile Include="simtools.cc" />
     <ClCompile Include="vehicle\simvehikel.cc" />
     <ClCompile Include="vehicle\simverkehr.cc" />
     <ClCompile Include="simware.cc" />
-    <ClCompile Include="simwerkz.cc" />
+    <ClCompile Include="simtool.cc" />
     <ClCompile Include="simworld.cc" />
     <ClCompile Include="besch\reader\skin_reader.cc" />
     <ClCompile Include="besch\sound_besch.cc" />
@@ -1772,6 +1772,7 @@
     <ClInclude Include="siminteraction.h" />
     <ClInclude Include="simloadingscreen.h" />
     <ClInclude Include="simobj.h" />
+    <ClInclude Include="simtool-dialogs.h" />
     <ClInclude Include="simunits.h" />
     <ClInclude Include="squirrel\sqstdaux.h" />
     <ClInclude Include="squirrel\sqstdblob.h" />
@@ -1954,6 +1955,7 @@
     <ClInclude Include="gui\money_frame.h" />
     <ClInclude Include="boden\wege\monorail.h" />
     <ClInclude Include="boden\monorailboden.h" />
+    <ClInclude Include="utils\simrandom.h" />
     <ClInclude Include="vehicle\movingobj.h" />
     <ClInclude Include="music\music.h" />
     <ClInclude Include="boden\wege\narrowgauge.h" />
@@ -2029,13 +2031,12 @@
     <ClInclude Include="utils\simstring.h" />
     <ClInclude Include="simsys.h" />
     <ClInclude Include="simticker.h" />
-    <ClInclude Include="simtools.h" />
     <ClInclude Include="simtypes.h" />
     <ClInclude Include="vehicle\simvehikel.h" />
     <ClInclude Include="vehicle\simverkehr.h" />
     <ClInclude Include="simversion.h" />
     <ClInclude Include="simware.h" />
-    <ClInclude Include="simwerkz.h" />
+    <ClInclude Include="simtool.h" />
     <ClInclude Include="simworld.h" />
     <ClInclude Include="besch\skin_besch.h" />
     <ClInclude Include="besch\reader\skin_reader.h" />

@@ -25,7 +25,7 @@
 #include "simplan.h"
 #include "display/simimg.h"
 #include "vehicle/simverkehr.h"
-#include "simtools.h"
+#include "utils/simrandom.h"
 #include "simhalt.h"
 #include "simfab.h"
 #include "simcity.h"

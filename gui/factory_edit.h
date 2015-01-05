@@ -11,17 +11,17 @@
 
 class fabrik_besch_t;
 
-class wkz_build_industries_land_t;
-class wkz_build_industries_city_t;
-class wkz_build_factory_t;
+class tool_build_land_chain_t;
+class tool_city_chain_t;
+class tool_build_factory_t;
 
 
 class factory_edit_frame_t : public extend_edit_gui_t
 {
 private:
-	static wkz_build_industries_land_t land_chain_tool;
-	static wkz_build_industries_city_t city_chain_tool;
-	static wkz_build_factory_t fab_tool;
+	static tool_build_land_chain_t land_chain_tool;
+	static tool_city_chain_t city_chain_tool;
+	static tool_build_factory_t fab_tool;
 	static char param_str[256];
 
 	const fabrik_besch_t *fab_besch;

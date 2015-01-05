@@ -56,7 +56,7 @@ class planquadrat_t;
 class karte_ansicht_t;
 class interaction_t;
 class sync_steppable;
-class werkzeug_t;
+class tool_t;
 class scenario_t;
 class message_t;
 class weg_besch_t;
@@ -256,7 +256,7 @@ private:
 	 * init, then with the position and with exit, when another tool is selected without click
 	 * @see simwerkz.cc for practical examples of such functions.
 	 */
-	werkzeug_t *werkzeug[MAX_PLAYER_COUNT];
+	tool_t *selected_tool[MAX_PLAYER_COUNT];
 
 	// Whether the map is currently being destroyed. 
 	// Useful to prevent access violations if objects with
@@ -1726,15 +1726,15 @@ public:
 	void flood_to_depth(sint8 new_water_height, sint8 *stage);
 
 	/**
-	 * Set a new tool as current: calls local_set_werkzeug or sends to server.
+	 * Set a new tool as current: calls local_set_tool or sends to server.
 	 */
-	void set_werkzeug( werkzeug_t *w, spieler_t * sp );
+	void set_tool( tool_t *tool, spieler_t * sp );
 
 	/**
 	 * Set a new tool on our client, calls init.
 	 */
-	void local_set_werkzeug( werkzeug_t *w, spieler_t * sp );
-	werkzeug_t *get_werkzeug(uint8 nr) const { return werkzeug[nr]; }
+	void local_set_tool( tool_t *tool, spieler_t * sp );
+	tool_t *get_tool(uint8 nr) const { return selected_tool[nr]; }
 
 	/**
 	 * Returns the (x,y) map size.

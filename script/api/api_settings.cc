@@ -23,11 +23,11 @@ void_t set_traffic_level(settings_t*, sint16 rate)
 {
 	static char level[16];
 	sprintf(level, "%i", rate);
-	werkzeug_t *wkz = werkzeug_t::simple_tool[WKZ_TRAFFIC_LEVEL];
-	wkz->set_default_param( level );
-	wkz->flags |=  werkzeug_t::WFL_SCRIPT;
-	welt->set_werkzeug( wkz, welt->get_spieler(1) );
-	wkz->flags &= ~werkzeug_t::WFL_SCRIPT;
+	tool_t *tool = tool_t::simple_tool[TOOL_TRAFFIC_LEVEL];
+	tool->set_default_param( level );
+	tool->flags |=  tool_t::WFL_SCRIPT;
+	welt->set_tool( tool, welt->get_spieler(1) );
+	tool->flags &= ~tool_t::WFL_SCRIPT;
 	return void_t();
 }
 

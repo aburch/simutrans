@@ -12,7 +12,7 @@
 #include "settings.h"
 #include "translator.h"
 #include "environment.h"
-#include "../simtools.h"
+#include "../utils/simrandom.h"
 #include "../simdebug.h"
 #include "../simworld.h"
 #include "../simcity.h"

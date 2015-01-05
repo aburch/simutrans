@@ -88,22 +88,22 @@ help_frame_t::help_frame_t(char const* const filename) :
 	// enumerate toolbars
 	bool special = false;
 	add_helpfile( toolbars, NULL, "mainmenu.txt", false, 0 );
-	FOR( vector_tpl<toolbar_t *>, iter, werkzeug_t::toolbar_tool ) {
-		if(  strstart(iter->get_werkzeug_waehler()->get_hilfe_datei(),"list.txt" )  ) {
+	FOR( vector_tpl<toolbar_t *>, iter, tool_t::toolbar_tool ) {
+		if(  strstart(iter->get_tool_waehler()->get_hilfe_datei(),"list.txt" )  ) {
 			continue;
 		}
-		add_helpfile( toolbars, iter->get_werkzeug_waehler()->get_name(), iter->get_werkzeug_waehler()->get_hilfe_datei(), false, 0 );
-		if(  strstart(iter->get_werkzeug_waehler()->get_hilfe_datei(),"railtools.txt" )  ) {
+		add_helpfile( toolbars, iter->get_tool_waehler()->get_name(), iter->get_tool_waehler()->get_hilfe_datei(), false, 0 );
+		if(  strstart(iter->get_tool_waehler()->get_hilfe_datei(),"railtools.txt" )  ) {
 			add_helpfile( toolbars, NULL, "bridges.txt", true, 1 );
 			add_helpfile( toolbars, NULL, "signals.txt", true, 1 );
 			add_helpfile( toolbars, "set signal spacing", "signal_spacing.txt", false, 1 );
 		}
-		if(  strstart(iter->get_werkzeug_waehler()->get_hilfe_datei(),"roadtools.txt" )  ) {
+		if(  strstart(iter->get_tool_waehler()->get_hilfe_datei(),"roadtools.txt" )  ) {
 			add_helpfile( toolbars, NULL, "privatesign_info.txt", false, 1 );
 			add_helpfile( toolbars, NULL, "trafficlight_info.txt", false, 1 );
 		}
-		if(  !special  &&  (  strstart(iter->get_werkzeug_waehler()->get_hilfe_datei(),"special.txt" )
-							||  strstart(iter->get_werkzeug_waehler()->get_hilfe_datei(),"edittools.txt" )  )
+		if(  !special  &&  (  strstart(iter->get_tool_waehler()->get_hilfe_datei(),"special.txt" )
+							||  strstart(iter->get_tool_waehler()->get_hilfe_datei(),"edittools.txt" )  )
 			) {
 			special = true;
 			add_helpfile( toolbars, "baum builder", "baum_build.txt", false, 1 );
@@ -296,7 +296,7 @@ void help_frame_t::set_helpfile(const char *filename, bool resize_frame )
 		buf.append( translator::translate( "<title>Keyboard Help</title>\n<h1><strong>Keyboard Help</strong></h1><p>\n" ) );
 		spieler_t *sp = welt->get_active_player();
 		const char *trad_str = translator::translate( "<em>%s</em> - %s<br>\n" );
-		FOR(vector_tpl<werkzeug_t*>, const i, werkzeug_t::char_to_tool) {
+		FOR(vector_tpl<tool_t*>, const i, tool_t::char_to_tool) {
 			char const* c = NULL;
 			char str[16];
 			switch (uint16 const key = i->command_key) {

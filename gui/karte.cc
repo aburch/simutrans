@@ -24,7 +24,7 @@
 #include "../display/scr_coord.h"
 #include "../display/simgraph.h"
 #include "../display/viewport.h"
-#include "../simtools.h"
+#include "../utils/simrandom.h"
 #include "../player/simplay.h"
 
 #include "../tpl/inthashtable_tpl.h"

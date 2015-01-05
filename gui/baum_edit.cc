@@ -11,9 +11,9 @@
 
 #include <stdio.h>
 
-#include "../simtools.h"
+#include "../utils/simrandom.h"
 #include "../simworld.h"
-#include "../simwerkz.h"
+#include "../simtool.h"
 #include "../simmenu.h"
 
 #include "../dataobj/translator.h"
@@ -29,7 +29,7 @@
 
 
 // new tool definition
-wkz_plant_tree_t baum_edit_frame_t::baum_tool;
+tool_plant_tree_t baum_edit_frame_t::baum_tool;
 char baum_edit_frame_t::param_str[256];
 
 
@@ -50,7 +50,7 @@ baum_edit_frame_t::baum_edit_frame_t(spieler_t* sp_) :
 {
 	bt_timeline.set_text( "Random age" );
 
-	baum_tool.id = werkzeug_t::general_tool[WKZ_PLANT_TREE]->id;
+	baum_tool.id = tool_t::general_tool[TOOL_PLANT_TREE]->id;
 
 	remove_komponente( &bt_obsolete );
 	//offset_of_comp -= D_BUTTON_HEIGHT;
@@ -136,11 +136,11 @@ void baum_edit_frame_t::change_item_info(sint32 entry)
 
 		sprintf( param_str, "%i%i,%s", bt_climates.pressed, bt_timeline.pressed, besch->get_name() );
 		baum_tool.set_default_param(param_str);
-		baum_tool.cursor = werkzeug_t::general_tool[WKZ_PLANT_TREE]->cursor;
-		welt->set_werkzeug( &baum_tool, sp );
+		baum_tool.cursor = tool_t::general_tool[TOOL_PLANT_TREE]->cursor;
+		welt->set_tool( &baum_tool, sp );
 	}
-	else if(welt->get_werkzeug(sp->get_player_nr())==&baum_tool) {
+	else if(welt->get_tool(sp->get_player_nr())==&baum_tool) {
 		besch = NULL;
-		welt->set_werkzeug( werkzeug_t::general_tool[WKZ_ABFRAGE], sp );
+		welt->set_tool( tool_t::general_tool[TOOL_QUERY], sp );
 	}
 }

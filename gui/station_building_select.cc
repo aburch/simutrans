@@ -13,7 +13,7 @@
 
 #include "../simdebug.h"
 #include "../simworld.h"
-#include "../simwerkz.h"
+#include "../simtool.h"
 #include "../gui/simwin.h"
 #include "station_building_select.h"
 #include "components/gui_button.h"
@@ -30,7 +30,7 @@ static const char label_text[4][64] = {
 
 
 char station_building_select_t::default_str[260];
-wkz_station_t station_building_select_t::wkz=wkz_station_t();
+tool_build_station_t station_building_select_t::tool=tool_build_station_t();
 
 
 station_building_select_t::station_building_select_t(const haus_besch_t *besch) :
@@ -61,7 +61,7 @@ station_building_select_t::station_building_select_t(const haus_besch_t *besch) 
 		base_offsets[0],                                         // 1st image if layout > 2
 	};
 
-	wkz.id = werkzeug_t::general_tool[WKZ_STATION]->id;
+	tool.id = tool_t::general_tool[TOOL_BUILD_STATION]->id;
 	// image placeholder
 	for( sint16 i=0;  i<layout;  i++ ) {
 		for( sint16 j=0;  j<4;  j++ ) {
@@ -125,8 +125,8 @@ bool station_building_select_t::action_triggered( gui_action_creator_t *komp,val
 		if(komp == &actionbutton[i]) {
 			static char default_str[1024];
 			sprintf( default_str, "%s,%i", besch->get_name(), i );
-			wkz.set_default_param(default_str);
-			welt->set_werkzeug( &wkz, welt->get_active_player() );
+			tool.set_default_param(default_str);
+			welt->set_tool( &tool, welt->get_active_player() );
 			destroy_win(this);
 		}
 	}
