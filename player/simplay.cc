@@ -35,6 +35,8 @@
 
 #include "../boden/grund.h"
 
+#include "../bauer/wegbauer.h"
+
 #include "../dataobj/settings.h"
 #include "../dataobj/scenario.h"
 #include "../dataobj/loadsave.h"
@@ -629,7 +631,7 @@ void spieler_t::ai_bankrupt()
 						if (wnr>1  ||  (!gr->ist_bruecke()  &&  !gr->ist_tunnel())) {
 							spieler_t::add_maintenance( this, -w->get_besch()->get_wartung(), w->get_besch()->get_finance_waytype() );
 						}
-						w->set_besitzer(NULL); // make public
+						w->set_besitzer(NULL); // make unowned
 					}
 				}
 			}
@@ -639,30 +641,12 @@ void spieler_t::ai_bankrupt()
 	// deactivate active tool (remove dummy grounds)
 	welt->set_werkzeug(werkzeug_t::general_tool[WKZ_ABFRAGE], this);
 
-	// next remove all ways, depot etc, that are not road or channels
+	// next, mothball all ways, depot etc, that are not road or canals if a mothballed type is available, or else remove them.
 	for( int y=0;  y<welt->get_size().y;  y++  ) {
 		for( int x=0;  x<welt->get_size().x;  x++  ) {
 			planquadrat_t *plan = welt->access(x,y);
 			for (size_t b = plan->get_boden_count(); b-- != 0;) {
 				grund_t *gr = plan->get_boden_bei(b);
-				// remove tunnel and bridges first
-				if(  gr->get_top()>0  &&  gr->obj_bei(0)->get_besitzer()==this   &&  (gr->ist_bruecke()  ||  gr->ist_tunnel())  ) {
-					koord3d pos = gr->get_pos();
-
-					waytype_t wt = gr->hat_wege() ? gr->get_weg_nr(0)->get_waytype() : powerline_wt;
-					if (gr->ist_bruecke()) {
-						brueckenbauer_t::remove( this, pos, wt );
-						// fails if powerline bridge somehow connected to powerline bridge of another player
-					}
-					else {
-						tunnelbauer_t::remove( this, pos, wt, true );
-					}
-					// maybe there are some objects left (station on bridge head etc)
-					gr = plan->get_boden_in_hoehe(pos.z);
-					if (gr == NULL) {
-						continue;
-					}
-				}
 				for (size_t i = gr->get_top(); i-- != 0;) {
 					obj_t *obj = gr->obj_bei(i);
 					if(obj->get_besitzer()==this) {
@@ -707,7 +691,16 @@ void spieler_t::ai_bankrupt()
 									w->set_besitzer( NULL );
 								}
 								else {
-									gr->weg_entfernen( w->get_waytype(), true );
+									weg_t *way = (weg_t *)obj;
+									const weg_besch_t* mothballed_type = wegbauer_t::way_search_mothballed(way->get_waytype(), (weg_t::system_type)way->get_besch()->get_styp());
+									if(mothballed_type)
+									{
+										way->set_besch(mothballed_type);
+									}
+									else
+									{
+										gr->weg_entfernen( w->get_waytype(), true );
+									}
 								}
 								break;
 							}
