@@ -417,7 +417,7 @@
     <ClCompile Include="boden\wege\weg.cc" />
     <ClCompile Include="bauer\wegbauer.cc" />
     <ClCompile Include="gui\welt.cc" />
-    <ClCompile Include="gui\werkzeug_waehler.cc" />
+    <ClCompile Include="gui\tool_selector.cc" />
     <ClCompile Include="sound\win32_sound.cc" />
     <ClCompile Include="obj\wolke.cc" />
     <ClCompile Include="besch\reader\xref_reader.cc" />
@@ -451,6 +451,7 @@
     <ClInclude Include="tpl\array2d_tpl.h" />
     <ClInclude Include="tpl\array_tpl.h" />
     <ClInclude Include="gui\banner.h" />
+    <ClInclude Include="gui\base_info.h" />
     <ClInclude Include="obj\baum.h" />
     <ClInclude Include="besch\baum_besch.h" />
     <ClInclude Include="gui\baum_edit.h" />
@@ -752,7 +753,7 @@
     <ClInclude Include="bauer\wegbauer.h" />
     <ClInclude Include="tpl\weighted_vector_tpl.h" />
     <ClInclude Include="gui\welt.h" />
-    <ClInclude Include="gui\werkzeug_waehler.h" />
+    <ClInclude Include="gui\tool_selector.h" />
     <ClInclude Include="obj\wolke.h" />
     <ClInclude Include="besch\xref_besch.h" />
     <ClInclude Include="besch\reader\xref_reader.h" />

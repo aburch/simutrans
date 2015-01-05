@@ -3513,6 +3513,7 @@
     <ClInclude Include="tpl\array2d_tpl.h" />
     <ClInclude Include="tpl\array_tpl.h" />
     <ClInclude Include="gui\banner.h" />
+    <ClInclude Include="gui\base_info.h" />
     <ClInclude Include="descriptor\tree_desc.h" />
     <ClInclude Include="gui\baum_edit.h" />
     <ClInclude Include="finder\building_placefinder.h" />
