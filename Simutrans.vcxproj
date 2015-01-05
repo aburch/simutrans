@@ -451,6 +451,7 @@
     <ClInclude Include="tpl\array2d_tpl.h" />
     <ClInclude Include="tpl\array_tpl.h" />
     <ClInclude Include="gui\banner.h" />
+    <ClInclude Include="gui\base_info.h" />
     <ClInclude Include="obj\baum.h" />
     <ClInclude Include="besch\baum_besch.h" />
     <ClInclude Include="gui\baum_edit.h" />
