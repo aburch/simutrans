@@ -72,7 +72,7 @@ public:
 	 * @return The help file name or NULL
 	 * @author Hj. Malthaner
 	 */
-	const char * get_hilfe_datei() const { return "display.txt"; }
+	const char * get_help_filename() const { return "display.txt"; }
 
 	void draw(scr_coord pos, scr_size size);
 

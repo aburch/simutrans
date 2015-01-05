@@ -94,7 +94,7 @@ public:
 	 * @return the filename for the helptext, or NULL
 	 * @author Hj. Malthaner
 	 */
-	const char * get_hilfe_datei() const {return "station.txt";}
+	const char * get_help_filename() const {return "station.txt";}
 
 	/**
 	 * Draw new component. The values to be passed refer to the window

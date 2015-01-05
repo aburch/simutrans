@@ -118,7 +118,7 @@ public:
 	 * @return the filename for the helptext, or NULL
 	 * @author Hj. Malthaner
 	 */
-	const char * get_hilfe_datei() const {return "finances.txt";}
+	const char * get_help_filename() const {return "finances.txt";}
 
 	/**
 	 * Constructor. Adds all necessary Subcomponents.

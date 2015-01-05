@@ -57,7 +57,7 @@
 #include "gui_frame.h"
 
 // needed to restore/save them
-#include "werkzeug_waehler.h"
+#include "tool_selector.h"
 #include "player_frame_t.h"
 #include "money_frame.h"
 #include "halt_detail.h"
@@ -392,7 +392,7 @@ gui_frame_t *win_get_magic(ptrdiff_t magic)
 gui_frame_t *win_get_oncoord( const scr_coord pt )
 {
 	for(  int i=wins.get_count()-1;  i>=0;  i--  ) {
-		if(  wins[i].gui->getroffen( pt.x-wins[i].pos.x, pt.y-wins[i].pos.y )  ) {
+		if(  wins[i].gui->is_hit( pt.x-wins[i].pos.x, pt.y-wins[i].pos.y )  ) {
 			return wins[i].gui;
 		}
 	}
@@ -508,7 +508,7 @@ void rdwr_all_win(loadsave_t *file)
 						}
 						else if(  id>=magic_toolbar  &&  id<magic_toolbar+256  ) {
 							tool_t::toolbar_tool[id-magic_toolbar]->update(wl->get_active_player());
-							w = tool_t::toolbar_tool[id-magic_toolbar]->get_werkzeug_waehler();
+							w = tool_t::toolbar_tool[id-magic_toolbar]->get_tool_selector();
 						}
 						else {
 							dbg->fatal( "rdwr_all_win()", "No idea how to restore magic 0x%X", id );
@@ -607,10 +607,10 @@ int create_win(int x, int y, gui_frame_t* const gui, wintype const wt, ptrdiff_t
 		// Must Reset as the entries and thus flags are reused
 		win.flags.close = true;
 		win.flags.title = gui->has_title();
-		win.flags.help = ( gui->get_hilfe_datei() != NULL );
+		win.flags.help = ( gui->get_help_filename() != NULL );
 		win.flags.prev = gui->has_prev();
 		win.flags.next = gui->has_next();
-		win.flags.size = gui->has_min_sizer();
+		win.flags.size = gui->has_min_size();
 		win.flags.sticky = gui->has_sticky();
 		win.gui = gui;
 
@@ -868,7 +868,7 @@ void display_win(int win)
 	gui_frame_t *comp = wins[win].gui;
 	scr_size size = comp->get_windowsize();
 	scr_coord pos = wins[win].pos;
-	PLAYER_COLOR_VAL title_color = (comp->get_titelcolor()&0xF8)+env_t::front_window_bar_color;
+	PLAYER_COLOR_VAL title_color = (comp->get_titlecolor()&0xF8)+env_t::front_window_bar_color;
 	PLAYER_COLOR_VAL text_color = +env_t::front_window_text_color;
 	if(  (unsigned)win!=wins.get_count()-1  ) {
 		// not top => maximum brightness
@@ -878,7 +878,7 @@ void display_win(int win)
 	bool need_dragger = comp->get_resizemode() != gui_frame_t::no_resize;
 
 	// %HACK (Mathew Hounsell) So draw will know if gadget is needed.
-	wins[win].flags.help = ( comp->get_hilfe_datei() != NULL );
+	wins[win].flags.help = ( comp->get_help_filename() != NULL );
 	if(  wins[win].flags.title  ) {
 		win_draw_window_title(wins[win].pos,
 				size,
@@ -927,7 +927,7 @@ void display_all_win()
 	const sint16 y = get_maus_y();
 	tooltip_element = NULL;
 	for(  uint32 i = wins.get_count(); i-- != 0;  ) {
-		if(  (!wins[i].rollup  &&  wins[i].gui->getroffen(x-wins[i].pos.x,y-wins[i].pos.y))  ||
+		if(  (!wins[i].rollup  &&  wins[i].gui->is_hit(x-wins[i].pos.x,y-wins[i].pos.y))  ||
 		     (wins[i].rollup  &&  x>=wins[i].pos.x  &&  x<wins[i].pos.x+wins[i].gui->get_windowsize().w  &&  y>=wins[i].pos.y  &&  y<wins[i].pos.y+D_TITLEBAR_HEIGHT)
 		) {
 			// tooltips are only allowed for this window
@@ -1238,12 +1238,12 @@ bool check_pos_win(event_t *ev)
 
 	// click in main menu?
 	if (!tool_t::toolbar_tool.empty()  &&
-			tool_t::toolbar_tool[0]->get_werkzeug_waehler()  &&
+			tool_t::toolbar_tool[0]->get_tool_selector()  &&
 			env_t::iconsize.h > y  &&
 			ev->ev_class != EVENT_KEYBOARD) {
 		event_t wev = *ev;
 		inside_event_handling = tool_t::toolbar_tool[0];
-		tool_t::toolbar_tool[0]->get_werkzeug_waehler()->infowin_event( &wev );
+		tool_t::toolbar_tool[0]->get_tool_selector()->infowin_event( &wev );
 		inside_event_handling = NULL;
 		// swallow event
 		return true;
@@ -1295,7 +1295,7 @@ bool check_pos_win(event_t *ev)
 	// handle all the other events
 	for(  int i=wins.get_count()-1;  i>=0  &&  !swallowed;  i=min(i,(int)wins.get_count())-1  ) {
 
-		if(  wins[i].gui->getroffen( x-wins[i].pos.x, y-wins[i].pos.y )  ) {
+		if(  wins[i].gui->is_hit( x-wins[i].pos.x, y-wins[i].pos.y )  ) {
 
 			// all events in window are swallowed
 			swallowed = true;
@@ -1315,7 +1315,7 @@ bool check_pos_win(event_t *ev)
 				wins[i].dirty = true;
 
 				// %HACK (Mathew Hounsell) So decode will know if gadget is needed.
-				wins[i].flags.help = ( wins[i].gui->get_hilfe_datei() != NULL );
+				wins[i].flags.help = ( wins[i].gui->get_help_filename() != NULL );
 
 				// Where Was It ?
 				sint8 code = decode_gadget_boxes( ( & wins[i].flags ), wins[i].pos.x + (REVERSE_GADGETS?0:wins[i].gui->get_windowsize().w-D_GADGET_WIDTH-4), x );
@@ -1338,7 +1338,7 @@ bool check_pos_win(event_t *ev)
 									wins[i].gui->infowin_event( ev );
 									break;
 								case SKIN_GADGET_HELP :
-									help_frame_t::open_help_on( wins[i].gui->get_hilfe_datei() );
+									help_frame_t::open_help_on( wins[i].gui->get_help_filename() );
 									break;
 								case SKIN_BUTTON_PREVIOUS:
 									ev->ev_class = WINDOW_CHOOSE_NEXT;
@@ -1471,7 +1471,7 @@ void win_display_flush(double konto)
 	const sint16 menu_height = env_t::iconsize.h;
 
 	// display main menu
-	werkzeug_waehler_t *main_menu = tool_t::toolbar_tool[0]->get_werkzeug_waehler();
+	tool_selector_t *main_menu = tool_t::toolbar_tool[0]->get_tool_selector();
 	display_set_clip_wh( 0, 0, disp_width, menu_height+1 );
 	if(  skinverwaltung_t::toolbar_background  &&  skinverwaltung_t::toolbar_background->get_bild_nr(0) != IMG_LEER  ) {
 		const image_id back_img = skinverwaltung_t::toolbar_background->get_bild_nr(0);

@@ -30,7 +30,7 @@ public:
 	 * @return the filename for the helptext, or NULL
 	 * @author Hj. Malthaner
 	 */
-	const char *get_hilfe_datei() const { return "load_relief.txt"; }
+	const char *get_help_filename() const { return "load_relief.txt"; }
 
 	load_relief_frame_t(settings_t*);
 };

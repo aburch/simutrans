@@ -133,9 +133,9 @@ public:
 	char const* work(spieler_t* const sp, koord3d const k) OVERRIDE { return tool_setslope_t::tool_set_slope_work(sp, k, RESTORE_SLOPE); }
 };
 
-class tool_marker_t : public kartenboden_werkzeug_t {
+class tool_marker_t : public kartenboden_tool_t {
 public:
-	tool_marker_t() : kartenboden_werkzeug_t(TOOL_MARKER | GENERAL_TOOL) {}
+	tool_marker_t() : kartenboden_tool_t(TOOL_MARKER | GENERAL_TOOL) {}
 	char const* get_tooltip(spieler_t const* const sp) const OVERRIDE { return tooltip_with_price("Marker", sp->get_welt()->get_settings().cst_buy_land); }
 	char const* work(spieler_t*, koord3d) OVERRIDE;
 	bool is_init_network_save() const OVERRIDE { return true; }
@@ -151,11 +151,11 @@ public:
 	bool is_init_network_save() const OVERRIDE { return true; }
 };
 
-class tool_transformer_t : public kartenboden_werkzeug_t {
+class tool_transformer_t : public kartenboden_tool_t {
 private:
 	bool is_powerline_available() const;
 public:
-	tool_transformer_t() : kartenboden_werkzeug_t(TOOL_TRANSFORMER | GENERAL_TOOL) {}
+	tool_transformer_t() : kartenboden_tool_t(TOOL_TRANSFORMER | GENERAL_TOOL) {}
 	char const* get_tooltip(spieler_t const*) const OVERRIDE;
 	image_id get_icon(spieler_t*) const OVERRIDE;
 	bool init(spieler_t*) OVERRIDE;
@@ -165,18 +165,18 @@ public:
 	waytype_t get_waytype() const OVERRIDE { return powerline_wt; }
 };
 
-class tool_add_city_t : public kartenboden_werkzeug_t {
+class tool_add_city_t : public kartenboden_tool_t {
 public:
-	tool_add_city_t() : kartenboden_werkzeug_t(TOOL_ADD_CITY | GENERAL_TOOL) {}
+	tool_add_city_t() : kartenboden_tool_t(TOOL_ADD_CITY | GENERAL_TOOL) {}
 	char const* get_tooltip(spieler_t const* const sp) const OVERRIDE { return tooltip_with_price("Found new city", sp->get_welt()->get_settings().cst_found_city); }
 	char const* work(spieler_t*, koord3d) OVERRIDE;
 	bool is_init_network_save() const OVERRIDE { return true; }
 };
 
 // buy a house to protect it from renovating
-class tool_buy_house_t : public kartenboden_werkzeug_t {
+class tool_buy_house_t : public kartenboden_tool_t {
 public:
-	tool_buy_house_t() : kartenboden_werkzeug_t(TOOL_BUY_HOUSE | GENERAL_TOOL) {}
+	tool_buy_house_t() : kartenboden_tool_t(TOOL_BUY_HOUSE | GENERAL_TOOL) {}
 	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate("Haus kaufen"); }
 	char const* work(spieler_t*, koord3d) OVERRIDE;
 	bool is_init_network_save() const OVERRIDE { return true; }
@@ -216,9 +216,9 @@ private:
 	bool is_init_network_save() const OVERRIDE { return true; }
 };
 
-class tool_plant_tree_t : public kartenboden_werkzeug_t {
+class tool_plant_tree_t : public kartenboden_tool_t {
 public:
-	tool_plant_tree_t() : kartenboden_werkzeug_t(TOOL_PLANT_TREE | GENERAL_TOOL) {}
+	tool_plant_tree_t() : kartenboden_tool_t(TOOL_PLANT_TREE | GENERAL_TOOL) {}
 	image_id get_icon(spieler_t *) const { return baum_t::get_anzahl_besch() > 0 ? icon : IMG_LEER; }
 	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate( "Plant tree" ); }
 	bool init(spieler_t*) { return baum_t::get_anzahl_besch() > 0; }
@@ -451,9 +451,9 @@ public:
  * finally building name
  * @author prissi
  */
-class tool_build_house_t : public kartenboden_werkzeug_t {
+class tool_build_house_t : public kartenboden_tool_t {
 public:
-	tool_build_house_t() : kartenboden_werkzeug_t(TOOL_BUILD_HOUSE | GENERAL_TOOL) {}
+	tool_build_house_t() : kartenboden_tool_t(TOOL_BUILD_HOUSE | GENERAL_TOOL) {}
 	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate("Built random attraction"); }
 	bool init(spieler_t*) OVERRIDE;
 	char const* work(spieler_t*, koord3d) OVERRIDE;
@@ -469,27 +469,27 @@ public:
  * finally industry name
  * NULL means random chain!
  */
-class tool_build_land_chain_t : public kartenboden_werkzeug_t {
+class tool_build_land_chain_t : public kartenboden_tool_t {
 public:
-	tool_build_land_chain_t() : kartenboden_werkzeug_t(TOOL_BUILD_LAND_CHAIN | GENERAL_TOOL) {}
+	tool_build_land_chain_t() : kartenboden_tool_t(TOOL_BUILD_LAND_CHAIN | GENERAL_TOOL) {}
 	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate("Build land consumer"); }
 	bool init(spieler_t*) OVERRIDE;
 	char const* work(spieler_t*, koord3d) OVERRIDE;
 	bool is_init_network_save() const OVERRIDE { return true; }
 };
 
-class tool_city_chain_t : public kartenboden_werkzeug_t {
+class tool_city_chain_t : public kartenboden_tool_t {
 public:
-	tool_city_chain_t() : kartenboden_werkzeug_t(TOOL_CITY_CHAIN | GENERAL_TOOL) {}
+	tool_city_chain_t() : kartenboden_tool_t(TOOL_CITY_CHAIN | GENERAL_TOOL) {}
 	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate("Build city market"); }
 	bool init(spieler_t*) OVERRIDE;
 	char const* work(spieler_t*, koord3d) OVERRIDE;
 	bool is_init_network_save() const OVERRIDE { return true; }
 };
 
-class tool_build_factory_t : public kartenboden_werkzeug_t {
+class tool_build_factory_t : public kartenboden_tool_t {
 public:
-	tool_build_factory_t() : kartenboden_werkzeug_t(TOOL_BUILD_FACTORY | GENERAL_TOOL) {}
+	tool_build_factory_t() : kartenboden_tool_t(TOOL_BUILD_FACTORY | GENERAL_TOOL) {}
 	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate("Build city market"); }
 	bool init(spieler_t*) OVERRIDE;
 	char const* work(spieler_t*, koord3d) OVERRIDE;
@@ -508,11 +508,11 @@ private:
 	image_id get_marker_image() OVERRIDE;
 };
 
-class tool_headquarter_t : public kartenboden_werkzeug_t {
+class tool_headquarter_t : public kartenboden_tool_t {
 private:
 	const haus_besch_t *next_level( const spieler_t *sp ) const;
 public:
-	tool_headquarter_t() : kartenboden_werkzeug_t(TOOL_HEADQUARTER | GENERAL_TOOL) {}
+	tool_headquarter_t() : kartenboden_tool_t(TOOL_HEADQUARTER | GENERAL_TOOL) {}
 	char const* get_tooltip(spieler_t const*) const OVERRIDE;
 	bool init(spieler_t*) OVERRIDE;
 	char const* work(spieler_t*, koord3d) OVERRIDE;

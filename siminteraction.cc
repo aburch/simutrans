@@ -170,7 +170,7 @@ void interaction_t::interactive_event( const event_t &ev )
 
 			case SIM_KEY_F1:
 				if(  gui_frame_t *win = win_get_top()  ) {
-					if(  const char *helpfile = win->get_hilfe_datei()  ) {
+					if(  const char *helpfile = win->get_help_filename()  ) {
 						help_frame_t::open_help_on( helpfile );
 						break;
 					}

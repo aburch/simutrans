@@ -520,7 +520,7 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_ind
 }
 
 
-// since now convoi states go via werkzeug_t
+// since now convoi states go via tool_t
 void convoi_t::call_convoi_tool( const char function, const char *extra ) const
 {
 	tool_t *tmp_tool = create_tool( TOOL_CHANGE_CONVOI | SIMPLE_TOOL );

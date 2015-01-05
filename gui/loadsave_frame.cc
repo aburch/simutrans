@@ -136,7 +136,7 @@ loadsave_frame_t::loadsave_frame_t(bool do_load) : savegame_frame_t(".sve",false
  * @return the filename for the helptext, or NULL
  * @author Hj. Malthaner
  */
-const char *loadsave_frame_t::get_hilfe_datei() const
+const char *loadsave_frame_t::get_help_filename() const
 {
 	return do_load ? "load.txt" : "save.txt";
 }

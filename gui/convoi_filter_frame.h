@@ -131,7 +131,7 @@ public:
 	 * Does this window need a min size button in the title bar?
 	 * @return true if such a button is needed
 	 */
-	bool has_min_sizer() const {return true;}
+	bool has_min_size() const {return true;}
 
 	/**
 	 * resize window in response to a resize event
@@ -143,7 +143,7 @@ public:
 	 * @return the filename for the helptext, or NULL
 	 * @author V. Meyer
 	 */
-	const char *get_hilfe_datei() const {return "convoi_filter.txt"; }
+	const char *get_help_filename() const {return "convoi_filter.txt"; }
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 };

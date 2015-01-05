@@ -44,7 +44,7 @@
 #include "vehicle/simpeople.h"
 
 #include "gui/line_management_gui.h"
-#include "gui/werkzeug_waehler.h"
+#include "gui/tool_selector.h"
 #include "gui/station_building_select.h"
 #include "gui/karte.h"	// to update map after construction of new industry
 #include "gui/depot_frame.h"
@@ -286,8 +286,6 @@ static grund_t *tool_intern_koord_to_weg_grund(spieler_t *sp, karte_t *welt, koo
 
 
 /****************************************** now the actual tools **************************************/
-
-// werkzeuge (tool)
 const char *tool_query_t::work( spieler_t *sp, koord3d pos )
 {
 	grund_t *gr = welt->lookup(pos);

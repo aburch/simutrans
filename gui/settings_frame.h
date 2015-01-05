@@ -53,7 +53,7 @@ public:
 	 * @return the filename for the helptext, or NULL
 	 * @author Hj. Malthaner
 	 */
-	const char *get_hilfe_datei() const {return "settings.txt";}
+	const char *get_help_filename() const {return "settings.txt";}
 
 	/**
 	* resize window in response to a resize event

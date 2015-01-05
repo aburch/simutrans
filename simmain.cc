@@ -238,7 +238,7 @@ void modal_dialogue( gui_frame_t *gui, ptrdiff_t magic, karte_t *welt, bool (*qu
 				}
 				if(  ev.ev_class == EVENT_KEYBOARD  &&  ev.ev_code == SIM_KEY_F1  ) {
 					if(  gui_frame_t *win = win_get_top()  ) {
-						if(  const char *helpfile = win->get_hilfe_datei()  ) {
+						if(  const char *helpfile = win->get_help_filename()  ) {
 							help_frame_t::open_help_on( helpfile );
 							continue;
 						}

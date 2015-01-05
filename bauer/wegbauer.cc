@@ -66,7 +66,7 @@
 #include "../tpl/stringhashtable_tpl.h"
 
 #include "../gui/karte.h"	// for debugging
-#include "../gui/werkzeug_waehler.h"
+#include "../gui/tool_selector.h"
 #include "../gui/messagebox.h"
 
 #ifdef DEBUG_ROUTES
@@ -291,7 +291,7 @@ static bool compare_ways(const weg_besch_t* a, const weg_besch_t* b)
  * Fill menu with icons of given waytype, return number of added entries
  * @author Hj. Malthaner/prissi/dariok
  */
-void wegbauer_t::fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, const weg_t::system_type styp, sint16 /*ok_sound*/)
+void wegbauer_t::fill_menu(tool_selector_t *tool_selector, const waytype_t wtyp, const weg_t::system_type styp, sint16 /*ok_sound*/)
 {
 	// check if scenario forbids this
 	const waytype_t rwtyp = wtyp!=track_wt  || styp!=weg_t::type_tram  ? wtyp : tram_wt;
@@ -314,7 +314,7 @@ void wegbauer_t::fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, const 
 
 	// now add sorted ways ...
 	FOR(vector_tpl<weg_besch_t const*>, const i, matching) {
-		wzw->add_werkzeug(i->get_builder());
+		tool_selector->add_tool_selector(i->get_builder());
 	}
 }
 

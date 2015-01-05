@@ -15,7 +15,7 @@ class grund_t;
 class karte_ptr_t;
 class spieler_t;               // Hajo: 22-Nov-01: Added forward declaration
 class weg_besch_t;
-class werkzeug_waehler_t;
+class tool_selector_t;
 
 
 
@@ -138,11 +138,11 @@ public:
 
 	/**
 	 * Fill menu with icons for all ways of the given waytype
-	 * @param wzw gui object of the toolbar
+	 * @param tool_selector gui object of the toolbar
 	 * @param wtyp way type
 	 * @param welt the current world
 	 */
-	static void fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, sint16 sound_ok);
+	static void fill_menu(tool_selector_t *tool_selector, const waytype_t wtyp, sint16 sound_ok);
 };
 
 #endif

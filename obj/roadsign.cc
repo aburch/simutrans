@@ -32,7 +32,7 @@
 
 #include "../gui/trafficlight_info.h"
 #include "../gui/privatesign_info.h"
-#include "../gui/werkzeug_waehler.h"
+#include "../gui/tool_selector.h"
 
 #include "../tpl/stringhashtable_tpl.h"
 
@@ -685,7 +685,7 @@ bool roadsign_t::register_besch(roadsign_besch_t *besch)
  * Fill menu with icons of given signals/roadsings from the list
  * @author Hj. Malthaner
  */
-void roadsign_t::fill_menu(werkzeug_waehler_t *wzw, waytype_t wtyp, sint16 /*sound_ok*/)
+void roadsign_t::fill_menu(tool_selector_t *tool_selector, waytype_t wtyp, sint16 /*sound_ok*/)
 {
 	// check if scenario forbids this
 	if (!welt->get_scenario()->is_tool_allowed(welt->get_active_player(), TOOL_BUILD_ROADSIGN | GENERAL_TOOL, wtyp)) {
@@ -704,7 +704,7 @@ void roadsign_t::fill_menu(werkzeug_waehler_t *wzw, waytype_t wtyp, sint16 /*sou
 		}
 	}
 	FOR(vector_tpl<roadsign_besch_t const*>, const i, matching) {
-		wzw->add_werkzeug(i->get_builder());
+		tool_selector->add_tool_selector(i->get_builder());
 	}
 }
 

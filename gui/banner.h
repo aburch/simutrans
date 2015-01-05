@@ -53,9 +53,9 @@ public:
 	* -borders and -body background
 	* @author Hj. Malthaner
 	*/
-	PLAYER_COLOR_VAL get_titelcolor() const {return WIN_TITEL; }
+	PLAYER_COLOR_VAL get_titlecolor() const {return WIN_TITLE; }
 
-	bool getroffen(int, int) OVERRIDE { return true; }
+	bool is_hit(int, int) OVERRIDE { return true; }
 
 	bool infowin_event(event_t const*) OVERRIDE;
 

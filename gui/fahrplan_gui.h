@@ -126,7 +126,7 @@ public:
 
 	bool infowin_event(event_t const*) OVERRIDE;
 
-	const char *get_hilfe_datei() const {return "schedule.txt";}
+	const char *get_help_filename() const {return "schedule.txt";}
 
 	/**
 	 * Draw the Frame

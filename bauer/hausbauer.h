@@ -16,7 +16,7 @@
 class gebaeude_t;
 class karte_ptr_t;
 class spieler_t;
-class werkzeug_waehler_t;
+class tool_selector_t;
 
 /**
  * This class deals with building single- and multi-tile buildings. It knows the descriptions
@@ -75,7 +75,7 @@ public:
 	 * Fills menu with icons of buildings of a given waytype.
 	 * This is needed for station extensions and headquarters.
  	 */
-	static void fill_menu(werkzeug_waehler_t* wzw, haus_besch_t::utyp, waytype_t wt, sint16 sound_ok);
+	static void fill_menu(tool_selector_t* tool_selector, haus_besch_t::utyp, waytype_t wt, sint16 sound_ok);
 
 	/// @returns a random commercial building matching the requirements.
 	static const haus_besch_t* get_commercial(int level, uint16 time, climate c, uint32 clusters = 0l);

@@ -88,9 +88,9 @@ public:
 	 * @return the filename for the helptext, or NULL
 	 * @author Hj. Malthaner
 	 */
-	const char *get_hilfe_datei() const {return "industry_info.txt";}
+	const char *get_help_filename() const {return "industry_info.txt";}
 
-	virtual bool has_min_sizer() const {return true;}
+	virtual bool has_min_size() const {return true;}
 
 	virtual koord3d get_weltpos(bool) { return fab->get_pos(); }
 

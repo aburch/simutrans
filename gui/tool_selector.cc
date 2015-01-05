@@ -20,20 +20,20 @@
 #include "../simskin.h"
 #include "gui_frame.h"
 #include "simwin.h"
-#include "werkzeug_waehler.h"
+#include "tool_selector.h"
 
 #define MIN_WIDTH (80)
 
 
-werkzeug_waehler_t::werkzeug_waehler_t(const char* titel, const char *helpfile, uint32 toolbar_id, bool allow_break) :
-	gui_frame_t( translator::translate(titel) ), tools(0)
+tool_selector_t::tool_selector_t(const char* title, const char *help_file, uint32 toolbar_id, bool allow_break) :
+	gui_frame_t( translator::translate(title) ), tools(0)
 {
 	this->toolbar_id = toolbar_id;
 	this->allow_break = allow_break;
-	this->hilfe_datei = helpfile;
+	this->help_file = help_file;
 	this->tool_icon_disp_start = 0;
 	this->tool_icon_disp_end = 0;
-	this->titel = titel;
+	this->title = title;
 	has_prev_next= false;
 	set_windowsize( scr_size(max(env_t::iconsize.w,MIN_WIDTH), D_TITLEBAR_HEIGHT) );
 	dirty = true;
@@ -45,7 +45,7 @@ werkzeug_waehler_t::werkzeug_waehler_t(const char* titel, const char *helpfile, 
  * tool_in must be created by new tool_t(copy_tool)!
  * @author Hj. Malthaner
  */
-void werkzeug_waehler_t::add_werkzeug(tool_t *tool_in)
+void tool_selector_t::add_tool_selector(tool_t *tool_in)
 {
 	image_id tool_img = tool_in->get_icon(welt->get_active_player());
 	if(  tool_img == IMG_LEER  &&  tool_in!=tool_t::dummy  ) {
@@ -57,11 +57,11 @@ void werkzeug_waehler_t::add_werkzeug(tool_t *tool_in)
 
 	int ww = max(2,(display_get_width()/env_t::iconsize.w)-2);	// to avoid zero or negative ww on posix (no graphic) backends
 	tool_icon_width = tools.get_count();
-DBG_DEBUG4("werkzeug_waehler_t::add_tool()","ww=%i, tool_icon_width=%i",ww,tool_icon_width);
+DBG_DEBUG4("tool_selector_t::add_tool()","ww=%i, tool_icon_width=%i",ww,tool_icon_width);
 	if(  allow_break  &&  (ww<tool_icon_width  ||  (env_t::toolbar_max_width>0  &&  env_t::toolbar_max_width<tool_icon_width))  ) {
 		//break them
 		int rows = (tool_icon_width/ww)+1;
-DBG_DEBUG4("werkzeug_waehler_t::add_tool()","ww=%i, rows=%i",ww,rows);
+DBG_DEBUG4("tool_selector_t::add_tool()","ww=%i, rows=%i",ww,rows);
 		// assure equal distribution if more than a single row is needed
 		tool_icon_width = (tool_icon_width+rows-1)/rows;
 		if(  env_t::toolbar_max_width > 0  ) {
@@ -79,12 +79,12 @@ DBG_DEBUG4("werkzeug_waehler_t::add_tool()","ww=%i, rows=%i",ww,rows);
 	tool_icon_disp_end = min( tool_icon_disp_start+tool_icon_width*tool_icon_height, tools.get_count() );
 	has_prev_next = ((uint32)tool_icon_width*tool_icon_height < tools.get_count());
 
-DBG_DEBUG4("werkzeug_waehler_t::add_tool()", "at position %i (width %i)", tools.get_count(), tool_icon_width);
+DBG_DEBUG4("tool_selector_t::add_tool()", "at position %i (width %i)", tools.get_count(), tool_icon_width);
 }
 
 
 // reset the tools to empty state
-void werkzeug_waehler_t::reset_tools()
+void tool_selector_t::reset_tools()
 {
 	tools.clear();
 	gui_frame_t::set_windowsize( scr_size(max(env_t::iconsize.w,MIN_WIDTH), D_TITLEBAR_HEIGHT) );
@@ -94,7 +94,7 @@ void werkzeug_waehler_t::reset_tools()
 }
 
 
-bool werkzeug_waehler_t::getroffen(int x, int y)
+bool tool_selector_t::is_hit(int x, int y)
 {
 	int dx = x/env_t::iconsize.w;
 	int dy = (y-D_TITLEBAR_HEIGHT)/env_t::iconsize.h;
@@ -107,7 +107,7 @@ bool werkzeug_waehler_t::getroffen(int x, int y)
 }
 
 
-bool werkzeug_waehler_t::infowin_event(const event_t *ev)
+bool tool_selector_t::infowin_event(const event_t *ev)
 {
 	if(IS_LEFTRELEASE(ev)  ||  IS_RIGHTRELEASE(ev)) {
 		// tooltips?
@@ -126,7 +126,7 @@ bool werkzeug_waehler_t::infowin_event(const event_t *ev)
 				else {
 					// right-click on toolbar icon closes toolbars and dialogues. Resets selectable simple and general tools to the query-tool
 					if (tool  &&  tool->is_selected()  ) {
-						// ->exit triggers werkzeug_waehler_t::infowin_event in the closing toolbar,
+						// ->exit triggers tool_selector_t::infowin_event in the closing toolbar,
 						// which resets active tool to query tool
 						if(  tool->exit(welt->get_active_player())  ) {
 							welt->set_tool( tool_t::general_tool[TOOL_QUERY], welt->get_active_player() );
@@ -148,7 +148,7 @@ bool werkzeug_waehler_t::infowin_event(const event_t *ev)
 	}
 	// reset title, language may have changed
 	else if(ev->ev_class==INFOWIN  &&  (ev->ev_code==WIN_TOP  ||  ev->ev_code==WIN_OPEN) ) {
-		set_name( translator::translate(titel) );
+		set_name( translator::translate(title) );
 	}
 	if(IS_WINDOW_CHOOSE_NEXT(ev)) {
 		if(ev->ev_code==NEXT_WINDOW) {
@@ -168,7 +168,7 @@ bool werkzeug_waehler_t::infowin_event(const event_t *ev)
 }
 
 
-void werkzeug_waehler_t::draw(scr_coord pos, scr_size)
+void tool_selector_t::draw(scr_coord pos, scr_size)
 {
 	spieler_t *sp = welt->get_active_player();
 
@@ -224,7 +224,7 @@ void werkzeug_waehler_t::draw(scr_coord pos, scr_size)
 
 
 
-bool werkzeug_waehler_t::empty(spieler_t *sp) const
+bool tool_selector_t::empty(spieler_t *sp) const
 {
 	FOR(vector_tpl<tool_data_t>, w, tools) {
 		if (w.tool->get_icon(sp) != IMG_LEER) {

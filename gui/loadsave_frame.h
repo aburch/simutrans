@@ -50,7 +50,7 @@ public:
 	* @return the filename for the helptext, or NULL
 	* @author Hj. Malthaner
 	*/
-	virtual const char *get_hilfe_datei() const;
+	virtual const char *get_help_filename() const;
 
 	loadsave_frame_t(bool do_load);
 

@@ -39,7 +39,7 @@
 #include "obj/wayobj.h"
 #include "obj/zeiger.h"
 
-#include "gui/werkzeug_waehler.h"
+#include "gui/tool_selector.h"
 
 #include "utils/simstring.h"
 #include "network/memory_rw.h"
@@ -308,7 +308,7 @@ void tool_t::exit_menu()
 
 
 // for sorting: compare tool key
-static bool compare_werkzeug(tool_t const* const a, tool_t const* const b)
+static bool compare_tool(tool_t const* const a, tool_t const* const b)
 {
 	uint16 const ac = a->command_key & ~32;
 	uint16 const bc = b->command_key & ~32;
@@ -323,7 +323,7 @@ void tool_t::read_menu(const std::string &objfilename)
 	tabfile_t menuconf;
 	// only use pak sepcific menues, since otherwise images may missing
 	if (!menuconf.open((objfilename+"config/menuconf.tab").c_str())) {
-		dbg->fatal("werkzeug_t::init_menu()", "Can't read %sconfig/menuconf.tab", objfilename.c_str() );
+		dbg->fatal("tool_t::init_menu()", "Can't read %sconfig/menuconf.tab", objfilename.c_str() );
 	}
 
 	tabfileobj_t contents;
@@ -346,7 +346,7 @@ void tool_t::read_menu(const std::string &objfilename)
 	};
 
 	// first init all tools
-	DBG_MESSAGE( "werkzeug_t::init_menu()", "Reading general menu" );
+	DBG_MESSAGE( "tool_t::init_menu()", "Reading general menu" );
 	for(  uint16 t=0; t<3; t++) {
 		for(  uint16 i=0;  i<info[t].count;  i++  ) {
 			char id[256];
@@ -377,7 +377,7 @@ void tool_t::read_menu(const std::string &objfilename)
 				}
 				else {
 					if(  icon>=info[t].icons->get_bild_anzahl()  ) {
-						dbg->warning( "werkzeug_t::init_menu()", "wrong icon (%i) given for %s[%i]", icon, info[t].type, i );
+						dbg->warning( "tool_t::init_menu()", "wrong icon (%i) given for %s[%i]", icon, info[t].type, i );
 					}
 					tool->icon = info[t].icons->get_bild_nr(icon);
 				}
@@ -392,7 +392,7 @@ void tool_t::read_menu(const std::string &objfilename)
 					if(*str!=',') {
 						uint16 cursor = (uint16)atoi(str);
 						if(  cursor>=info[t].cursor->get_bild_anzahl()  ) {
-							dbg->warning( "werkzeug_t::init_menu()", "wrong cursor (%i) given for %s[%i]", cursor, info[t].type, i );
+							dbg->warning( "tool_t::init_menu()", "wrong cursor (%i) given for %s[%i]", cursor, info[t].type, i );
 						}
 						tool->cursor = info[t].cursor->get_bild_nr(cursor);
 						do {
@@ -430,7 +430,7 @@ void tool_t::read_menu(const std::string &objfilename)
 		}
 	}
 	// now the toolbar tools
-	DBG_MESSAGE( "werkzeug_t::read_menu()", "Reading toolbars" );
+	DBG_MESSAGE( "tool_t::read_menu()", "Reading toolbars" );
 	// default size
 //	env_t::iconsize = scr_size( contents.get_int("icon_width",env_t::iconsize.w), contents.get_int("icon_height",env_t::iconsize.h) );
 	// first: add main menu
@@ -494,7 +494,7 @@ void tool_t::read_menu(const std::string &objfilename)
 					}
 					else {
 						if(  icon>=skinverwaltung_t::tool_icons_toolbars->get_bild_anzahl()  ) {
-							dbg->warning( "werkzeug_t::read_menu()", "wrong icon (%i) given for toolbar_tool[%i][%i]", icon, i, j );
+							dbg->warning( "tool_t::read_menu()", "wrong icon (%i) given for toolbar_tool[%i][%i]", icon, i, j );
 							icon = 0;
 						}
 						icon = skinverwaltung_t::tool_icons_toolbars->get_bild_nr(icon);
@@ -533,7 +533,7 @@ void tool_t::read_menu(const std::string &objfilename)
 						// compatibility mode: tool_cityroad is used for tool_wegebau with defaultparam 'cityroad'
 						if(  toolnr==TOOL_BUILD_WAY  &&  param_str  &&  strcmp(param_str,"city_road")==0) {
 							toolnr = TOOL_BUILD_CITYROAD;
-							dbg->warning("werkzeug_t::read_menu()", "toolbar[%i][%i]: replaced way-builder(id=14) with default param=cityroad by cityroad builder(id=36)", i,j);
+							dbg->warning("tool_t::read_menu()", "toolbar[%i][%i]: replaced way-builder(id=14) with default param=cityroad by cityroad builder(id=36)", i,j);
 						}
 						// now create tool
 						addtool = create_general_tool( toolnr );
@@ -547,7 +547,7 @@ void tool_t::read_menu(const std::string &objfilename)
 					}
 				}
 				else {
-					dbg->error( "werkzeug_t::read_menu()", "When parsing menuconf.tab: No general tool %i defined (max %i)!", toolnr, GENERAL_TOOL_COUNT );
+					dbg->error( "tool_t::read_menu()", "When parsing menuconf.tab: No general tool %i defined (max %i)!", toolnr, GENERAL_TOOL_COUNT );
 				}
 			}
 			else if (char const* const c = strstart(toolname, "simple_tool[")) {
@@ -563,7 +563,7 @@ void tool_t::read_menu(const std::string &objfilename)
 					}
 				}
 				else {
-					dbg->error( "werkzeug_t::read_menu()", "When parsing menuconf.tab: No simple tool %i defined (max %i)!", toolnr, SIMPLE_TOOL_COUNT );
+					dbg->error( "tool_t::read_menu()", "When parsing menuconf.tab: No simple tool %i defined (max %i)!", toolnr, SIMPLE_TOOL_COUNT );
 				}
 			} else if (char const* const c = strstart(toolname, "dialog_tool[")) {
 				uint8 const toolnr = atoi(c);
@@ -578,7 +578,7 @@ void tool_t::read_menu(const std::string &objfilename)
 					}
 				}
 				else {
-					dbg->error( "werkzeug_t::read_menu()", "When parsing menuconf.tab: No dialog tool %i defined (max %i)!", toolnr, DIALOGE_TOOL_COUNT );
+					dbg->error( "tool_t::read_menu()", "When parsing menuconf.tab: No dialog tool %i defined (max %i)!", toolnr, DIALOGE_TOOL_COUNT );
 				}
 			} else if (char const* const c = strstart(toolname, "toolbar[")) {
 				uint8 const toolnr = atoi(c);
@@ -586,7 +586,7 @@ void tool_t::read_menu(const std::string &objfilename)
 				if(toolbar_tool.get_count()==toolnr) {
 					if(param_str==NULL) {
 						param_str = "Unnamed toolbar";
-						dbg->warning( "werkzeug_t::read_menu()", "Missing title for toolbar[%d]", toolnr);
+						dbg->warning( "tool_t::read_menu()", "Missing title for toolbar[%d]", toolnr);
 					}
 					char *c = strdup(param_str);
 					const char *title = c;
@@ -619,7 +619,7 @@ void tool_t::read_menu(const std::string &objfilename)
 		}
 	}
 	// sort characters
-	std::sort(char_to_tool.begin(), char_to_tool.end(), compare_werkzeug);
+	std::sort(char_to_tool.begin(), char_to_tool.end(), compare_tool);
 }
 
 
@@ -682,7 +682,7 @@ void tool_t::init_cursor( zeiger_t *zeiger) const
 	zeiger->set_area( cursor_area, cursor_centered);
 }
 
-const char *kartenboden_werkzeug_t::check_pos(spieler_t *, koord3d pos )
+const char *kartenboden_tool_t::check_pos(spieler_t *, koord3d pos )
 {
 	grund_t *gr = welt->lookup_kartenboden(pos.get_2d());
 	return (gr  &&  !gr->is_visible()) ? "" : NULL;
@@ -697,7 +697,7 @@ image_id toolbar_t::get_icon(spieler_t *sp) const
 		return IMG_LEER;
 	}
 	// now have we a least one visible tool?
-	if (wzw  &&  !wzw->empty(sp)) {
+	if (tool_selector  &&  !tool_selector->empty(sp)) {
 		return icon;
 	}
 	return IMG_LEER;
@@ -729,16 +729,16 @@ static sint16 get_sound( const char *c )
 // fills and displays a toolbar
 void toolbar_t::update(spieler_t *sp)
 {
-	const bool create = (wzw == NULL);
+	const bool create = (tool_selector == NULL);
 	if(create) {
 		DBG_MESSAGE("toolbar_t::update()","create toolbar %s",default_param);
-		wzw = new werkzeug_waehler_t( default_param, helpfile, toolbar_tool.index_of(this), this!=tool_t::toolbar_tool[0] );
+		tool_selector = new tool_selector_t( default_param, helpfile, toolbar_tool.index_of(this), this!=tool_t::toolbar_tool[0] );
 	}
 	else {
 		DBG_MESSAGE("toolbar_t::update()","update toolbar %s",default_param);
 	}
 
-	wzw->reset_tools();
+	tool_selector->reset_tools();
 	// now (re)fill it
 	FOR(slist_tpl<tool_t*>, const w, tools) {
 		// no way to call this tool? => then it is most likely a metatool
@@ -753,29 +753,29 @@ void toolbar_t::update(spieler_t *sp)
 						c++;
 					}
 					weg_t::system_type subtype = (weg_t::system_type)(*c!=0 ? atoi(++c) : 0);
-					wegbauer_t::fill_menu( wzw, way, subtype, get_sound(c));
+					wegbauer_t::fill_menu( tool_selector, way, subtype, get_sound(c));
 				} else if (char const* const c = strstart(param, "bridges(")) {
 					waytype_t const way = (waytype_t)atoi(c);
-					brueckenbauer_t::fill_menu(wzw, way, get_sound(c));
+					brueckenbauer_t::fill_menu(tool_selector, way, get_sound(c));
 				} else if (char const* const c = strstart(param, "tunnels(")) {
 					waytype_t const way = (waytype_t)atoi(c);
-					tunnelbauer_t::fill_menu(wzw, way, get_sound(c));
+					tunnelbauer_t::fill_menu(tool_selector, way, get_sound(c));
 				} else if (char const* const c = strstart(param, "signs(")) {
 					waytype_t const way = (waytype_t)atoi(c);
-					roadsign_t::fill_menu(wzw, way, get_sound(c));
+					roadsign_t::fill_menu(tool_selector, way, get_sound(c));
 				} else if (char const* const c = strstart(param, "wayobjs(")) {
 					waytype_t const way = (waytype_t)atoi(c);
-					wayobj_t::fill_menu(wzw, way, get_sound(c));
+					wayobj_t::fill_menu(tool_selector, way, get_sound(c));
 				} else if (char const* c = strstart(param, "buildings(")) {
 					haus_besch_t::utyp const utype = (haus_besch_t::utyp)atoi(c);
 					while(*c  &&  *c!=','  &&  *c!=')') {
 						c++;
 					}
 					waytype_t way = (waytype_t)(*c!=0 ? atoi(++c) : 0);
-					hausbauer_t::fill_menu( wzw, utype, way, get_sound(c));
+					hausbauer_t::fill_menu( tool_selector, utype, way, get_sound(c));
 				} else if (param[0] == '-') {
-					// add dummy werkzeug as seperator
-					wzw->add_werkzeug( dummy );
+					// add dummy tool_t as seperator
+					tool_selector->add_tool_selector( dummy );
 				}
 			}
 		}
@@ -793,12 +793,12 @@ void toolbar_t::update(spieler_t *sp)
 				continue;
 			}
 			// now add it to the toolbar gui
-			wzw->add_werkzeug( w );
+			tool_selector->add_tool_selector( w );
 		}
 	}
 
 	if(  (strcmp(this->default_param,"EDITTOOLS")==0  &&  sp!=welt->get_spieler(1))  ) {
-		destroy_win(wzw);
+		destroy_win(tool_selector);
 		return;
 	}
 }
@@ -813,13 +813,13 @@ bool toolbar_t::init(spieler_t *sp)
 
 	// show/create window
 	if(  close  ) {
-		destroy_win(wzw);
+		destroy_win(tool_selector);
 		return false;
 	}
 
 	if(  this != tool_t::toolbar_tool[0]  ) {
 		// not main menu
-		create_win( wzw, w_info|w_do_not_delete|w_no_overlap, magic_toolbar+toolbar_tool.index_of(this) );
+		create_win( tool_selector, w_info|w_do_not_delete|w_no_overlap, magic_toolbar+toolbar_tool.index_of(this) );
 		DBG_MESSAGE("toolbar_t::init()", "ID=%id", get_id());
 	}
 	return false;
@@ -829,7 +829,7 @@ bool toolbar_t::init(spieler_t *sp)
 bool toolbar_t::exit(spieler_t *)
 {
 	if(  win_get_magic(magic_toolbar+toolbar_tool.index_of(this))  ) {
-		destroy_win(wzw);
+		destroy_win(tool_selector);
 	}
 	return false;
 }
@@ -869,7 +869,7 @@ bool two_click_tool_t::is_work_here_network_save(spieler_t *sp, koord3d pos )
 	}
 	const char *error = "";	//default: nosound
 	uint8 value = is_valid_pos( sp, pos, error, koord3d::invalid );
-	DBG_MESSAGE("two_click_werkzeug_t::is_work_here_network_save", "Position %s valid=%d", pos.get_str(), value );
+	DBG_MESSAGE("two_click_tool_t::is_work_here_network_save", "Position %s valid=%d", pos.get_str(), value );
 	if(  value == 0  ) {
 		return false;
 	}
@@ -897,7 +897,7 @@ const char *two_click_tool_t::work(spieler_t *sp, koord3d pos )
 
 	const char *error = "";	//default: nosound
 	uint8 value = is_valid_pos( sp, pos, error, !is_first_click() ? start : koord3d::invalid );
-	DBG_MESSAGE("two_click_werkzeug_t::work", "Position %s valid=%d", pos.get_str(), value );
+	DBG_MESSAGE("two_click_tool_t::work", "Position %s valid=%d", pos.get_str(), value );
 	if(  value == 0  ) {
 		flags &= ~(WFL_SHIFT | WFL_CTRL);
 		init( sp );
@@ -908,18 +908,18 @@ const char *two_click_tool_t::work(spieler_t *sp, koord3d pos )
 		// work directly if possible and ctrl is NOT pressed
 		if( (value & 1)  &&  !( (value & 2)  &&  is_ctrl_pressed())) {
 			// Work here directly.
-			DBG_MESSAGE("two_click_werkzeug_t::work", "Call tool at %s", pos.get_str() );
+			DBG_MESSAGE("two_click_tool_t::work", "Call tool at %s", pos.get_str() );
 			error = do_work( sp, pos, koord3d::invalid );
 		}
 		else {
 			// set starting position.
-			DBG_MESSAGE("two_click_werkzeug_t::work", "Setting start to %s", pos.get_str() );
+			DBG_MESSAGE("two_click_tool_t::work", "Setting start to %s", pos.get_str() );
 			start_at( pos );
 		}
 	}
 	else {
 		if( value & 2 ) {
-			DBG_MESSAGE("two_click_werkzeug_t::work", "Setting end to %s", pos.get_str() );
+			DBG_MESSAGE("two_click_tool_t::work", "Setting end to %s", pos.get_str() );
 			error = do_work( sp, start, pos );
 		}
 		flags &= ~(WFL_SHIFT | WFL_CTRL);
@@ -931,7 +931,7 @@ const char *two_click_tool_t::work(spieler_t *sp, koord3d pos )
 
 const char *two_click_tool_t::move(spieler_t *sp, uint16 buttonstate, koord3d pos )
 {
-	DBG_MESSAGE("two_click_werkzeug_t::move", "Button: %d, Pos: %s", buttonstate, pos.get_str());
+	DBG_MESSAGE("two_click_tool_t::move", "Button: %d, Pos: %s", buttonstate, pos.get_str());
 	if(  buttonstate == 0  ) {
 		return "";
 	}
@@ -988,7 +988,7 @@ void two_click_tool_t::start_at(koord3d &new_start )
 			gr->obj_add(start_marker);
 		}
 	}
-	DBG_MESSAGE("two_click_werkzeug_t::start_at", "Setting start to %s", start.get_str());
+	DBG_MESSAGE("two_click_tool_t::start_at", "Setting start to %s", start.get_str());
 }
 
 

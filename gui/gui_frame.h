@@ -133,7 +133,7 @@ public:
 	 * -borders and -body background
 	 * @author Hj. Malthaner
 	 */
-	virtual PLAYER_COLOR_VAL get_titelcolor() const;
+	virtual PLAYER_COLOR_VAL get_titlecolor() const;
 
 	/**
 	 * @return gets the window sizes
@@ -178,14 +178,14 @@ public:
 	 * @return the filename for the helptext, or NULL
 	 * @author Hj. Malthaner
 	 */
-	virtual const char * get_hilfe_datei() const {return NULL;}
+	virtual const char * get_help_filename() const {return NULL;}
 
 	/**
 	 * Does this window need a min size button in the title bar?
 	 * @return true if such a button is needed
 	 * @author Hj. Malthaner
 	 */
-	virtual bool has_min_sizer() const {return false;}
+	virtual bool has_min_size() const {return false;}
 
 	/**
 	 * Does this window need a next button in the title bar?
@@ -232,15 +232,14 @@ public:
 	/**
 	 * Returns true, if inside window area.
 	 */
-	virtual bool getroffen(int x, int y)
+	virtual bool is_hit(int x, int y)
 	{
 		scr_size size = get_windowsize();
 		return (  x>=0  &&  y>=0  &&  x<size.w  &&  y<size.h  );
 	}
 
 	/**
-	 * Events werden hiermit an die GUI-components
-	 * gemeldet
+	 * Events are notified to GUI components via this method.
 	 * @author Hj. Malthaner
 	 */
 	virtual bool infowin_event(const event_t *ev);

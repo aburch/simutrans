@@ -28,7 +28,7 @@
 #include "../besch/tunnel_besch.h"
 #include "../besch/way_obj_besch.h"
 
-#include "../gui/werkzeug_waehler.h"
+#include "../gui/tool_selector.h"
 
 #include "../boden/grund.h"
 #include "../boden/wege/weg.h"
@@ -453,7 +453,7 @@ DBG_DEBUG( "wayobj_t::register_besch()","%s", besch->get_name() );
  * Fill menu with icons of given wayobjects from the list
  * @author Hj. Malthaner
  */
-void wayobj_t::fill_menu(werkzeug_waehler_t *wzw, waytype_t wtyp, sint16 /*sound_ok*/)
+void wayobj_t::fill_menu(tool_selector_t *tool_selector, waytype_t wtyp, sint16 /*sound_ok*/)
 {
 	// check if scenario forbids this
 	if (!welt->get_scenario()->is_tool_allowed(welt->get_active_player(), TOOL_BUILD_WAYOBJ | GENERAL_TOOL, wtyp)) {
@@ -478,7 +478,7 @@ void wayobj_t::fill_menu(werkzeug_waehler_t *wzw, waytype_t wtyp, sint16 /*sound
 	// sort the tools before adding to menu
 	std::sort(matching.begin(), matching.end(), compare_wayobj_besch);
 	FOR(vector_tpl<way_obj_besch_t const*>, const i, matching) {
-		wzw->add_werkzeug(i->get_builder());
+		tool_selector->add_tool_selector(i->get_builder());
 	}
 }
 

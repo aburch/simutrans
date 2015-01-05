@@ -47,7 +47,7 @@ class ki_kontroll_t : public gui_frame_t, private action_listener_t
 		 * @return the filename for the helptext, or NULL
 		 * @author Hj. Malthaner
 		 */
-		const char * get_hilfe_datei() const {return "players.txt";}
+		const char * get_help_filename() const {return "players.txt";}
 
 		/**
 		 * Draw new component. The values to be passed refer to the window

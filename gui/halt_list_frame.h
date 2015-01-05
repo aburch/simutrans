@@ -130,7 +130,7 @@ public:
 	 * @return the filename for the helptext, or NULL
 	 * @author V. Meyer
 	 */
-	const char *get_hilfe_datei() const {return "haltlist.txt"; }
+	const char *get_help_filename() const {return "haltlist.txt"; }
 
 	static sort_mode_t get_sortierung() { return sortby; }
 	static void set_sortierung(sort_mode_t sm) { sortby = sm; }

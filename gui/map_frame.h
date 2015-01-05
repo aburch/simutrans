@@ -116,14 +116,14 @@ public:
 	 * @return the filename for the helptext, or NULL
 	 * @author Hj. Malthaner
 	 */
-	const char * get_hilfe_datei() const {return "map.txt";}
+	const char * get_help_filename() const {return "map.txt";}
 
 	/**
 	 * Does this window need a min size button in the title bar?
 	 * @return true if such a button is needed
 	 * @author Hj. Malthaner
 	 */
-	bool has_min_sizer() const {return true;}
+	bool has_min_size() const {return true;}
 
 	/**
 	 * Constructor. Adds all necessary Subcomponents.

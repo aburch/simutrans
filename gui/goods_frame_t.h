@@ -66,14 +66,14 @@ public:
 	*/
 	void resize(const scr_coord delta);
 
-	bool has_min_sizer() const {return true;}
+	bool has_min_size() const {return true;}
 
 	/**
 	 * Set the window associated helptext
 	 * @return the filename for the helptext, or NULL
 	 * @author V. Meyer
 	 */
-	const char * get_hilfe_datei() const {return "goods_filter.txt"; }
+	const char * get_help_filename() const {return "goods_filter.txt"; }
 
 	/**
 	 * Draw new component. The values to be passed refer to the window

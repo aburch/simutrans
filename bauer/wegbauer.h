@@ -19,7 +19,7 @@ class tunnel_besch_t;
 class karte_ptr_t;
 class spieler_t;
 class grund_t;
-class werkzeug_waehler_t;
+class tool_selector_t;
 
 
 /**
@@ -56,7 +56,7 @@ public:
 	 * Fill menu with icons of given waytype
 	 * @author Hj. Malthaner
 	 */
-	static void fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, const weg_t::system_type styp, sint16 ok_sound);
+	static void fill_menu(tool_selector_t *tool_selector, const waytype_t wtyp, const weg_t::system_type styp, sint16 ok_sound);
 
 	enum bautyp_t {
 		strasse=road_wt,

@@ -28,7 +28,7 @@ news_window::news_window(const char* text, PLAYER_COLOR_VAL title_color) :
 
 
 fatal_news::fatal_news(const char* text) :
-	news_window(text, WIN_TITEL)
+	news_window(text, WIN_TITLE)
 {
 	textarea.set_width(display_get_width()/2);
 	recalc_size();
@@ -36,7 +36,7 @@ fatal_news::fatal_news(const char* text) :
 
 
 news_img::news_img(const char* text) :
-	news_window(text, WIN_TITEL),
+	news_window(text, WIN_TITLE),
 	bild()
 {
 	init(skinverwaltung_t::meldungsymbol->get_bild_nr(0));

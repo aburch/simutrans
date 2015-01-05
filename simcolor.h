@@ -72,7 +72,7 @@ typedef unsigned char COLOR_VAL;
 
 #define VEHIKEL_KENN  COL_YELLOW
 
-#define WIN_TITEL     (154)
+#define WIN_TITLE     (154)
 
 // used in many dialogues graphs
 #define COL_REVENUE         (142)

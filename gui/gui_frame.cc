@@ -64,9 +64,9 @@ void gui_frame_t::set_windowsize(scr_size size)
  * -borders and -body background
  * @author Hj. Malthaner
  */
-PLAYER_COLOR_VAL gui_frame_t::get_titelcolor() const
+PLAYER_COLOR_VAL gui_frame_t::get_titlecolor() const
 {
-	return owner ? PLAYER_FLAG|(owner->get_player_color1()+1) : WIN_TITEL;
+	return owner ? PLAYER_FLAG|(owner->get_player_color1()+1) : WIN_TITLE;
 }
 
 

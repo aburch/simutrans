@@ -126,7 +126,7 @@ class welt_gui_t  :
 		 * @return the filename for the helptext, or NULL
 		 * @author Hj. Malthaner
 		 */
-		const char * get_hilfe_datei() const {return "new_world.txt";}
+		const char * get_help_filename() const {return "new_world.txt";}
 
 		settings_t* get_sets() const { return sets; }
 

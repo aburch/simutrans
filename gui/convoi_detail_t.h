@@ -89,7 +89,7 @@ public:
 	 * @return the filename for the helptext, or NULL
 	 * @author V. Meyer
 	 */
-	const char * get_hilfe_datei() const {return "convoidetail.txt"; }
+	const char * get_help_filename() const {return "convoidetail.txt"; }
 
 	/**
 	 * Set window size and adjust component sizes and/or positions accordingly

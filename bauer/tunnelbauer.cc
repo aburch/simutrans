@@ -30,7 +30,7 @@
 #include "../obj/signal.h"
 
 #include "../gui/messagebox.h"
-#include "../gui/werkzeug_waehler.h"
+#include "../gui/tool_selector.h"
 
 #include "wegbauer.h"
 #include "../tpl/stringhashtable_tpl.h"
@@ -111,7 +111,7 @@ static bool compare_tunnels(const tunnel_besch_t* a, const tunnel_besch_t* b)
  * Fill menu with icons of given waytype
  * @author Hj. Malthaner
  */
-void tunnelbauer_t::fill_menu(werkzeug_waehler_t* wzw, const waytype_t wtyp, sint16 /*sound_ok*/)
+void tunnelbauer_t::fill_menu(tool_selector_t* tool_selector, const waytype_t wtyp, sint16 /*sound_ok*/)
 {
 	// check if scenario forbids this
 	if (!welt->get_scenario()->is_tool_allowed(welt->get_active_player(), TOOL_BUILD_TUNNEL | GENERAL_TOOL, wtyp)) {
@@ -129,7 +129,7 @@ void tunnelbauer_t::fill_menu(werkzeug_waehler_t* wzw, const waytype_t wtyp, sin
 	}
 	// now sorted ...
 	FOR(vector_tpl<tunnel_besch_t const*>, const i, matching) {
-		wzw->add_werkzeug(i->get_builder());
+		tool_selector->add_tool_selector(i->get_builder());
 	}
 }
 

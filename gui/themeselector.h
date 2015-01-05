@@ -25,7 +25,7 @@ public:
 	themeselector_t ( void );
 
 	void        fill_list       ( void ) OVERRIDE;
-	const char* get_hilfe_datei ( void ) const { return ""; }
+	const char* get_help_filename ( void ) const { return ""; }
 
 	uint32      get_rdwr_id     ( void ) { return magic_themes; }
 	void        rdwr            ( loadsave_t *file );

@@ -22,7 +22,7 @@ template<class T> class vector_tpl;
 template<class T> class slist_tpl;
 
 class scr_coord;
-class werkzeug_waehler_t;
+class tool_selector_t;
 class spieler_t;
 class toolbar_t;
 class memory_rw_t;
@@ -278,7 +278,7 @@ public:
 	/// initializes cursor (icon, marked area)
 	void init_cursor( zeiger_t * ) const;
 
-	// returning true on exit will have werkzeug_waehler resets to query-tool on right-click
+	// returning true on exit will have tool_selector resets to query-tool on right-click
 	virtual bool exit( spieler_t * ) { return true; }
 
 	/* the return string can have different meanings:
@@ -313,9 +313,9 @@ public:
 /*
  * Class for tools that work only on ground (kartenboden)
  */
-class kartenboden_werkzeug_t : public tool_t {
+class kartenboden_tool_t : public tool_t {
 public:
-	kartenboden_werkzeug_t(uint16 const id) : tool_t(id) {}
+	kartenboden_tool_t(uint16 const id) : tool_t(id) {}
 
 	char const* check_pos(spieler_t*, koord3d) OVERRIDE;
 };
@@ -391,17 +391,17 @@ protected:
 class toolbar_t : public tool_t {
 private:
 	const char *helpfile;
-	werkzeug_waehler_t *wzw;
+	tool_selector_t *tool_selector;
 	slist_tpl<tool_t *>tools;
 public:
 	toolbar_t(uint16 const id, char const* const t, char const* const h) : tool_t(id)
 	{
 		default_param = t;
 		helpfile = h;
-		wzw = NULL;
+		tool_selector = NULL;
 	}
 	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate(default_param); }
-	werkzeug_waehler_t *get_werkzeug_waehler() const { return wzw; }
+	tool_selector_t *get_tool_selector() const { return tool_selector; }
 	image_id get_icon(spieler_t*) const OVERRIDE;
 	bool is_selected() const OVERRIDE;
 	bool is_init_network_save() const OVERRIDE { return true; }

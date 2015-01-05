@@ -18,7 +18,7 @@
 #include "../dataobj/environment.h"
 #include "../dataobj/translator.h"
 #include "../player/simplay.h"
-#include "werkzeug_waehler.h"
+#include "tool_selector.h"
 
 #include "help_frame.h"
 
@@ -89,21 +89,21 @@ help_frame_t::help_frame_t(char const* const filename) :
 	bool special = false;
 	add_helpfile( toolbars, NULL, "mainmenu.txt", false, 0 );
 	FOR( vector_tpl<toolbar_t *>, iter, tool_t::toolbar_tool ) {
-		if(  strstart(iter->get_werkzeug_waehler()->get_hilfe_datei(),"list.txt" )  ) {
+		if(  strstart(iter->get_tool_selector()->get_help_filename(),"list.txt" )  ) {
 			continue;
 		}
-		add_helpfile( toolbars, iter->get_werkzeug_waehler()->get_name(), iter->get_werkzeug_waehler()->get_hilfe_datei(), false, 0 );
-		if(  strstart(iter->get_werkzeug_waehler()->get_hilfe_datei(),"railtools.txt" )  ) {
+		add_helpfile( toolbars, iter->get_tool_selector()->get_name(), iter->get_tool_selector()->get_help_filename(), false, 0 );
+		if(  strstart(iter->get_tool_selector()->get_help_filename(),"railtools.txt" )  ) {
 			add_helpfile( toolbars, NULL, "bridges.txt", true, 1 );
 			add_helpfile( toolbars, NULL, "signals.txt", true, 1 );
 			add_helpfile( toolbars, "set signal spacing", "signal_spacing.txt", false, 1 );
 		}
-		if(  strstart(iter->get_werkzeug_waehler()->get_hilfe_datei(),"roadtools.txt" )  ) {
+		if(  strstart(iter->get_tool_selector()->get_help_filename(),"roadtools.txt" )  ) {
 			add_helpfile( toolbars, NULL, "privatesign_info.txt", false, 1 );
 			add_helpfile( toolbars, NULL, "trafficlight_info.txt", false, 1 );
 		}
-		if(  !special  &&  (  strstart(iter->get_werkzeug_waehler()->get_hilfe_datei(),"special.txt" )
-							||  strstart(iter->get_werkzeug_waehler()->get_hilfe_datei(),"edittools.txt" )  )
+		if(  !special  &&  (  strstart(iter->get_tool_selector()->get_help_filename(),"special.txt" )
+							||  strstart(iter->get_tool_selector()->get_help_filename(),"edittools.txt" )  )
 			) {
 			special = true;
 			add_helpfile( toolbars, "baum builder", "baum_build.txt", false, 1 );

@@ -21,7 +21,7 @@
 #include "../boden/boden.h"
 #include "../boden/brueckenboden.h"
 
-#include "../gui/werkzeug_waehler.h"
+#include "../gui/tool_selector.h"
 #include "../gui/karte.h"
 
 #include "../besch/bruecke_besch.h"
@@ -103,7 +103,7 @@ static bool compare_bridges(const bruecke_besch_t* a, const bruecke_besch_t* b)
 }
 
 
-void brueckenbauer_t::fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, sint16 /*sound_ok*/)
+void brueckenbauer_t::fill_menu(tool_selector_t *tool_selector, const waytype_t wtyp, sint16 /*sound_ok*/)
 {
 	// check if scenario forbids this
 	if (!welt->get_scenario()->is_tool_allowed(welt->get_active_player(), TOOL_BUILD_BRIDGE | GENERAL_TOOL, wtyp)) {
@@ -123,7 +123,7 @@ void brueckenbauer_t::fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, s
 
 	// now sorted ...
 	FOR(vector_tpl<bruecke_besch_t const*>, const i, matching) {
-		wzw->add_werkzeug(i->get_builder());
+		tool_selector->add_tool_selector(i->get_builder());
 	}
 }
 

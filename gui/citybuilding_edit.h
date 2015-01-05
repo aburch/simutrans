@@ -52,7 +52,7 @@ public:
 	* @return the filename for the helptext, or NULL
 	* @author Hj. Malthaner
 	*/
-	const char* get_hilfe_datei() const { return "citybuilding_build.txt"; }
+	const char* get_help_filename() const { return "citybuilding_build.txt"; }
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 };
