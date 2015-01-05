@@ -123,7 +123,7 @@ private:
 	uint32 last_schedule_count;
 
 	// set the correct tool now ...
-	void update_werkzeug(bool set);
+	void update_tool(bool set);
 
 	// changes the waiting/loading levels if allowed
 	void update_selection();

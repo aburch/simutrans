@@ -2518,7 +2518,7 @@ karte_t::~karte_t()
 
 	destroy();
 
-	// not deleting the werkzeuge of this map ...
+	// not deleting the tools of this map ...
 	delete viewport;
 	delete msg;
 	delete records;

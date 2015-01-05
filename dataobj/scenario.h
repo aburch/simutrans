@@ -78,7 +78,7 @@ private:
 		forbid_type type;
 		uint8 player_nr;
 		/// id of tool to be forbidden, as set by constructors of classes derived from
-		/// tool_t, @see simwerkz.h
+		/// tool_t, @see simtool.h
 		uint16 toolnr;
 		/// waytype of tool, @see waytype_t
 		sint16 waytype;
