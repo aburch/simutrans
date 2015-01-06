@@ -116,7 +116,6 @@
     <ClCompile Include="besch\writer\sim_writer.cc" />
     <ClCompile Include="simmem.cc" />
     <ClCompile Include="utils\simstring.cc" />
-    <ClCompile Include="simtools.cc" />
     <ClCompile Include="besch\writer\skin_writer.cc" />
     <ClCompile Include="besch\writer\sound_writer.cc" />
     <ClCompile Include="dataobj\tabfile.cc" />
