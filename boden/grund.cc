@@ -368,7 +368,7 @@ void grund_t::rdwr(loadsave_t *file)
 							dbg->warning("grund_t::rdwr()", "converting railroad to monorail at (%i,%i)",get_pos().x, get_pos().y);
 							// compatibility code: Convert to monorail
 							monorail_t *w= new monorail_t();
-							w->set_besch(sch->get_besch());
+							w->set_besch(sch->get_besch(), true);
 							w->set_max_speed(sch->get_max_speed());
 							w->set_ribi(sch->get_ribi_unmasked());
 							weg->set_max_axle_load(sch->get_max_axle_load()); 
@@ -385,7 +385,7 @@ void grund_t::rdwr(loadsave_t *file)
 					case tram_wt:
 						weg = new schiene_t(file);
 						if(weg->get_besch()->get_styp()!=weg_t::type_tram) {
-							weg->set_besch(wegbauer_t::weg_search(tram_wt,weg->get_max_speed(),0,weg_t::type_tram));
+							weg->set_besch(wegbauer_t::weg_search(tram_wt,weg->get_max_speed(),0,weg_t::type_tram), true);
 						}
 						break;
 
@@ -1920,7 +1920,7 @@ sint32 grund_t::weg_entfernen(waytype_t wegtyp, bool ribi_rem)
 				delete cr;
 				// restore speed limit
 				weg_t* w = (weg_t*)obj_bei(0);
-				w->set_besch(w->get_besch());
+				w->set_besch(w->get_besch(), true);
 				w->count_sign();
 			}
 		}

@@ -84,7 +84,7 @@ void kanal_t::rdwr(loadsave_t *file)
 			dbg->warning("kanal_t::rdwr()", "Unknown channel %s replaced by %s (old_max_speed %i)", bname, besch->get_name(), old_max_speed );
 		}
 
-		set_besch(besch);
+		set_besch(besch, true);
 
 #ifndef SPECIAL_RESCUE_12_3
 		if(file->get_experimental_version() >= 12)

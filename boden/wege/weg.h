@@ -260,7 +260,7 @@ public:
 	* worth of description.
 	* @author Hj. Malthaner
 	*/
-	void set_besch(const weg_besch_t *b);
+	void set_besch(const weg_besch_t *b, bool from_saved_game = false);
 	const weg_besch_t *get_besch() const { return besch; }
 
 	// returns a way with the matching type

@@ -789,7 +789,7 @@ void settings_t::rdwr(loadsave_t *file)
 				}
 				// several intercity roads ...
 				file->rdwr_short(num_intercity_roads);
-				if(  num_intercity_roads>=10  ) {
+				if(  num_intercity_roads>=16  ) {
 					dbg->fatal("settings_t::rdwr()", "Too many (%i) intercity roads!", num_intercity_roads);
 				}
 				for(  int i=0;  i<num_intercity_roads;  i++  ) {
@@ -1831,11 +1831,11 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 		city_roads[0].retire = NEVER;
 	}
 
-	// new: up to ten city_roads are possible
+	// up to 16 city_roads are possible
 	if(  *contents.get("city_road[0]")  ) {
 		// renew them always when a table is encountered ...
 		num_city_roads = 0;
-		for(  int i = 0;  i<10;  i++  ) {
+		for(  int i = 0;  i<16;  i++  ) {
 			char name[256];
 			sprintf( name, "city_road[%i]", i );
 			// format is "city_road[%i]=name_of_road,using from (year), using to (year)"
@@ -1884,11 +1884,11 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 		intercity_roads[0].retire = NEVER;
 	}
 
-	// new: up to ten intercity_roads are possible
+	// up to 16 intercity_roads are possible
 	if(  *contents.get("intercity_road[0]")  ) {
 		// renew them always when a table is encountered ...
 		num_intercity_roads = 0;
-		for(  int i = 0;  i<10;  i++  ) {
+		for(  int i = 0;  i<16;  i++  ) {
 			char name[256];
 			sprintf( name, "intercity_road[%i]", i );
 			// format is "intercity_road[%i]=name_of_road,using from (year), using to (year)"

@@ -138,7 +138,7 @@ const char *weg_t::waytype_to_string(waytype_t wt)
  * "Sets new description. Replaced old with maximum speed value of description." (Google)
  * @author Hj. Malthaner
  */
-void weg_t::set_besch(const weg_besch_t *b)
+void weg_t::set_besch(const weg_besch_t *b, bool from_saved_game)
 {
 	besch = b;
 	grund_t* gr = welt->lookup(get_pos());
@@ -228,17 +228,17 @@ void weg_t::set_besch(const weg_besch_t *b)
 		add_way_constraints(wayobj->get_besch()->get_way_constraints());
 	}
 
-	if(!besch->is_mothballed())
+	if(besch->is_mothballed())
 	{	
+		degraded = true;
+		remaining_wear_capacity = 0;
+	}
+	else if(!from_saved_game)
+	{
 		remaining_wear_capacity = besch->get_wear_capacity();
 		last_renewal_month_year = welt->get_timeline_year_month();
 		degraded = false;
 		replacement_way = besch;
-	}
-	else
-	{
-		degraded = true;
-		remaining_wear_capacity = 0;
 	}
 }
 
@@ -1030,7 +1030,9 @@ void weg_t::degrade()
 		set_besitzer(NULL); 
 		if(waytype == road_wt)
 		{
-			set_besch(welt->get_settings().get_intercity_road_type(welt->get_timeline_year_month()));
+			const stadt_t* city = welt->get_city(get_pos().get_2d()); 
+			const weg_besch_t* wb = city ? welt->get_settings().get_city_road_type(welt->get_timeline_year_month()) : welt->get_settings().get_intercity_road_type(welt->get_timeline_year_month());
+			set_besch(wb ? wb : besch);
 		}
 		else
 		{

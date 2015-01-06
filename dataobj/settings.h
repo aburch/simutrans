@@ -221,9 +221,9 @@ private:
 	yearmoney startingmoneyperyear[10];
 
 	uint16 num_city_roads;
-	road_timeline_t city_roads[10];
+	road_timeline_t city_roads[16];
 	uint16 num_intercity_roads;
-	road_timeline_t intercity_roads[10];
+	road_timeline_t intercity_roads[16];
 
 	/**
 	 * Use numbering for stations?
