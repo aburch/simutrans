@@ -38,7 +38,7 @@
 karte_ptr_t fabrikbauer_t::welt;
 
 /// Default factory spacing
-static int DISTANCE = 40;
+static int max_factory_spacing_general = 40;
 
 /// all factories and their exclusion areas
 static array_tpl<uint8> fab_map;
@@ -82,10 +82,10 @@ void init_fab_map( karte_t *welt )
 		add_factory_to_fab_map(welt, f);
 	}
 	if(  welt->get_settings().get_max_factory_spacing_percent()  ) {
-		DISTANCE = (welt->get_size_max() * welt->get_settings().get_max_factory_spacing_percent()) / 100l;
+		max_factory_spacing_general = (welt->get_size_max() * welt->get_settings().get_max_factory_spacing_percent()) / 100l;
 	}
 	else {
-		DISTANCE = welt->get_settings().get_max_factory_spacing();
+		max_factory_spacing_general = welt->get_settings().get_max_factory_spacing();
 	}
 }
 
@@ -730,9 +730,9 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","lieferanten %i, lcount %i (need %i
 			// for sources (oil fields, forests ... ) prefer those with a smaller distance
 			const uint32 distance = koord_distance(fab->get_pos(),our_fab->get_pos());
 
-			if(  distance >= welt->get_settings().get_min_factory_spacing()  ) {
+			if(distance >= welt->get_settings().get_min_factory_spacing() && distance < max_factory_spacing_general)
+			{
 				// Formerly a flat "6", but this was arbitrary
-				// Could also check max distance here
 
 				// ok, this would match
 				// but can she supply enough?
@@ -819,9 +819,9 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","lieferanten %i, lcount %i (need %i
 
 		INT_CHECK("fabrikbauer 697");
 
-		koord3d k = finde_zufallsbauplatz( our_fab->get_pos().get_2d(), DISTANCE, hersteller->get_haus()->get_groesse(rotate),hersteller->get_platzierung()==fabrik_besch_t::Wasser, hersteller->get_haus(), ignore_climates, 20000 );
+		koord3d k = finde_zufallsbauplatz( our_fab->get_pos().get_2d(), max_factory_spacing_general, hersteller->get_haus()->get_groesse(rotate),hersteller->get_platzierung()==fabrik_besch_t::Wasser, hersteller->get_haus(), ignore_climates, 20000 );
 		if(  k == koord3d::invalid  ) {
-			// this factory cannot buuild in the desired vincinity
+			// this factory cannot build in the desired vincinity
 			producer.remove( hersteller );
 			if(  producer.empty()  ) {
 				if(  ignore_climates  ) {
@@ -1044,7 +1044,7 @@ next_ware_check:
 						assert( !welt->cannot_save() );
 					}
 
-					uint32 last_suppliers = unlinked_consumers[u]->get_suppliers().get_count();
+					const uint32 last_suppliers = unlinked_consumers[u]->get_suppliers().get_count();
 					do 
 					{
 						nr += baue_link_hierarchie( unlinked_consumers[u], unlinked_consumers[u]->get_besch(), missing_goods_index, welt->get_spieler(1) );
@@ -1081,7 +1081,7 @@ next_ware_check:
 
 	// ok, no chains to finish, thus we must start anew
 
-	// first decide, whether a new powerplant is needed or not
+	// first decide whether a new powerplant is needed or not
 	uint32 total_electric_demand = 1;
 	uint32 electric_productivity = 0;
 
