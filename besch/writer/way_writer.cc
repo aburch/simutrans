@@ -72,7 +72,8 @@ void way_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 		wtyp = tram_wt;
 	}
 
-	uint32 wear_capacity		= obj.get_int("wear_capacity", wtyp == road_wt ? 100000000 : 4000000000);
+	// Must use get_int64 here, as get_int is limited to the length of a *signed* 32-bit integer.
+	uint32 wear_capacity		= obj.get_int64("wear_capacity", wtyp == road_wt ? 100000000 : 4000000000);
 
 	// true to draw as foregrund and not much earlier (default)
 	uint8 draw_as_obj = (obj.get_int("draw_as_ding", 0) == 1);

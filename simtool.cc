@@ -2358,7 +2358,7 @@ const char* tool_build_way_t::get_tooltip(const spieler_t *) const
 		besch->get_topspeed(),
 		besch->get_max_axle_load());
 	char durability_string[16]; // Need to represent billions plus commas.
-	const double wear_capacity_fractional = (double)besch->get_wear_capacity() / 10000.0;
+	const long double wear_capacity_fractional = (long double)besch->get_wear_capacity() / 10000.0;
 	number_to_string(durability_string, wear_capacity_fractional, 4);
 	n += sprintf(toolstr+n, ", %s: %s", translator::translate("Durability"), durability_string);
 	bool any_prohibitive = false;
