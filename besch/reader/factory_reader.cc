@@ -318,11 +318,13 @@ obj_besch_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		{
 			besch->pax_demand = 65535;
 			besch->mail_demand = 65535;
+			besch->base_max_distance_to_consumer = decode_uint16(p);
 		}
 		else
 		{
 			besch->pax_demand = decode_uint16(p);
 			besch->mail_demand = decode_uint16(p);
+			besch->base_max_distance_to_consumer = 65535;
 		}
 		DBG_DEBUG("factory_reader_t::read_node()","version=3, platz=%i, lieferanten=%i, pax=%i", besch->platzierung, besch->lieferanten, besch->pax_level );
 	} else if(version == 2) {
@@ -371,6 +373,7 @@ obj_besch_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->electric_amount = 65535;
 		besch->pax_demand = 65535;
 		besch->mail_demand = 65535;
+		besch->base_max_distance_to_consumer = 65535;
 		DBG_DEBUG("factory_reader_t::read_node()","version=2, platz=%i, lieferanten=%i, pax=%i", besch->platzierung, besch->lieferanten, besch->pax_level );
 	} else if(version == 1) 
 	{
@@ -400,6 +403,7 @@ obj_besch_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->electric_amount = 65535;
 		besch->pax_demand = 65535;
 		besch->mail_demand = 65535;
+		besch->base_max_distance_to_consumer = 65535;
 		DBG_DEBUG("factory_reader_t::read_node()","version=1, platz=%i, lieferanten=%i, pax=%i", besch->platzierung, besch->lieferanten, besch->pax_level);
 	} 
 
@@ -433,6 +437,7 @@ obj_besch_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->electric_amount = 65535;
 		besch->pax_demand = 65535;
 		besch->mail_demand = 65535;
+		besch->base_max_distance_to_consumer = 65535;
 	}
 
 	if(!experimental)
@@ -441,6 +446,8 @@ obj_besch_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->inverse_electricity_proportion = 100 / besch->electricity_proportion;
 		besch->upgrades = 0;
 	}
+
+	besch->max_distance_to_consumer = besch->base_max_distance_to_consumer;
 
 	return besch;
 }

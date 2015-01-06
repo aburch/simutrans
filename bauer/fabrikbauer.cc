@@ -158,6 +158,7 @@ public:
 
 
 stringhashtable_tpl<const fabrik_besch_t *> fabrikbauer_t::table;
+stringhashtable_tpl<fabrik_besch_t *> fabrikbauer_t::modifiable_table;
 
 
 /**
@@ -221,6 +222,7 @@ DBG_DEBUG("fabrikbauer_t::register_besch()","Correction for old factory: Increas
 		delete old_besch;
 	}
 	table.put(besch->get_name(), besch);
+	modifiable_table.put(besch->get_name(), besch);
 }
 
 
@@ -724,16 +726,16 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","lieferanten %i, lcount %i (need %i
 		// Try to find matching factories for this consumption, but don't find more than two times number of factories requested.
 		//if ((lcount != 0 || verbrauch <= 0) && lcount < lfound + 1) break;
 
+		// For reference, our_fab is the consumer and fab is the potential producer already in the game.
+
 		// connect to an existing one if this is a producer
 		if(fab->vorrat_an(ware) > -1) {
 
 			// for sources (oil fields, forests ... ) prefer those with a smaller distance
-			const uint32 distance = koord_distance(fab->get_pos(),our_fab->get_pos());
+			const uint32 distance = shortest_distance(fab->get_pos().get_2d(), our_fab->get_pos().get_2d());
 
-			if(distance >= welt->get_settings().get_min_factory_spacing() && distance < max_factory_spacing_general)
+			if(distance >= welt->get_settings().get_min_factory_spacing() && distance <= min(max_factory_spacing_general, fab->get_besch()->get_max_distance_to_consumer()))
 			{
-				// Formerly a flat "6", but this was arbitrary
-
 				// ok, this would match
 				// but can she supply enough?
 
@@ -819,7 +821,7 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","lieferanten %i, lcount %i (need %i
 
 		INT_CHECK("fabrikbauer 697");
 
-		koord3d k = finde_zufallsbauplatz( our_fab->get_pos().get_2d(), max_factory_spacing_general, hersteller->get_haus()->get_groesse(rotate),hersteller->get_platzierung()==fabrik_besch_t::Wasser, hersteller->get_haus(), ignore_climates, 20000 );
+		koord3d k = finde_zufallsbauplatz( our_fab->get_pos().get_2d(), min(max_factory_spacing_general, hersteller->get_max_distance_to_consumer()), hersteller->get_haus()->get_groesse(rotate),hersteller->get_platzierung()==fabrik_besch_t::Wasser, hersteller->get_haus(), ignore_climates, 20000 );
 		if(  k == koord3d::invalid  ) {
 			// this factory cannot build in the desired vincinity
 			producer.remove( hersteller );

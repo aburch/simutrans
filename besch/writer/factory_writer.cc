@@ -179,8 +179,9 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	uint16 const pax_boost       = (obj.get_int("passenger_boost",        0) * 256 + 500) / 1000;
 	uint16 const mail_boost      = (obj.get_int("mail_boost",             0) * 256 + 500) / 1000;
 	uint16 const electric_amount =  obj.get_int("electricity_amount", 65535);
+	uint16 const max_distance_to_consumer = obj.get_int("max_distance_to_consumer", 65535); // In km, not tiles.
 
-	obj_node_t node(this, 35, &parent);
+	obj_node_t node(this, 37, &parent);
 
 	obj.put("type", "fac");
 
@@ -269,28 +270,30 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 
 	// 0x200 - version 7.0 and greater. Includes xref factories for upgrades.
 	// 0x300 - version 12.0 and greater. Removes passenger/mail parameters,
-	// which are now in the gebaeude_t objects.
+	// which are now in the gebaeude_t objects, and adds max_distance_to_consumer.
 	version += 0x300;
 	
-	node.write_uint16(fp, version,             0); // version
-	node.write_uint16(fp, platzierung,         2);
-	node.write_uint16(fp, produktivitaet,      4);
-	node.write_uint16(fp, bereich,             6);
-	node.write_uint16(fp, gewichtung,          8);
-	node.write_uint8 (fp, kennfarbe,          10);
-	node.write_uint8 (fp, fields,             11);
-	node.write_uint16(fp, lieferanten,        12);
-	node.write_uint16(fp, produkte,           14);
-	node.write_uint16(fp, electricity_percent,16);
-	node.write_sint8 (fp, upgrades,			  18);
-	node.write_uint16(fp, expand_probability, 19);
-	node.write_uint16(fp, expand_minimum,     21);
-	node.write_uint16(fp, expand_range,       23);
-	node.write_uint16(fp, expand_times,       25);
-	node.write_uint16(fp, electric_boost,     27);
-	node.write_uint16(fp, pax_boost,          29);
-	node.write_uint16(fp, mail_boost,         31);
-	node.write_uint16(fp, electric_amount,    33);
+	node.write_uint16(fp, version,						0); // version
+	node.write_uint16(fp, platzierung,					2);
+	node.write_uint16(fp, produktivitaet,				4);
+	node.write_uint16(fp, bereich,						6);
+	node.write_uint16(fp, gewichtung,					8);
+	node.write_uint8 (fp, kennfarbe,					10);
+	node.write_uint8 (fp, fields,						11);
+	node.write_uint16(fp, lieferanten,					12);
+	node.write_uint16(fp, produkte,						14);
+	node.write_uint16(fp, electricity_percent,			16);
+	node.write_sint8 (fp, upgrades,						18);
+	node.write_uint16(fp, expand_probability,			19);
+	node.write_uint16(fp, expand_minimum,				21);
+	node.write_uint16(fp, expand_range,					23);
+	node.write_uint16(fp, expand_times,					25);
+	node.write_uint16(fp, electric_boost,				27);
+	node.write_uint16(fp, pax_boost,					29);
+	node.write_uint16(fp, mail_boost,					31);
+	node.write_uint16(fp, electric_amount,				33);
+	node.write_uint16(fp, max_distance_to_consumer,		35);
+	
 
 	node.write(fp);
 }

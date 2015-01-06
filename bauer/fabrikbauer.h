@@ -61,6 +61,9 @@ private:
 	static void finde_hersteller(weighted_vector_tpl<const fabrik_besch_t *> &producer, const ware_besch_t *ware, uint16 timeline );
 
 public:
+	/// This is only for the set_scale function in simworld.cc	
+	static stringhashtable_tpl<fabrik_besch_t *> modifiable_table;
+	
 	/// Registers the factory description so the factory can be built in-game.
 	static void register_besch(fabrik_besch_t *besch);
 

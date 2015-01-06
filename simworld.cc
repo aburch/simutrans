@@ -2597,6 +2597,12 @@ void karte_t::set_scale()
 		warenbauer_t::get_modifiable_info(i)->set_scale(scale_factor);
 	}
 
+	// Industries
+	FOR(stringhashtable_tpl<fabrik_besch_t*>, & info, fabrikbauer_t::modifiable_table)
+	{
+		info.value->set_scale(scale_factor);
+	}
+
 	// Settings
 	settings.set_scale();
 
