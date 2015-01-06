@@ -185,11 +185,9 @@ void strasse_t::rdwr(loadsave_t *file)
 				}
 		}
  
-		const sint32 city_road_topspeed = welt->get_city_road()->get_topspeed();
-
 		if(hat_gehweg() && besch->get_wtyp() == road_wt)
 		{
-			set_max_speed(min(get_max_speed(), city_road_topspeed));
+			set_max_speed(min(get_max_speed(), 50));
 		}
 	}
 }
