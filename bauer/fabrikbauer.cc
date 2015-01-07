@@ -398,7 +398,7 @@ void fabrikbauer_t::verteile_tourist(int max_number)
 		pos = finde_zufallsbauplatz(pos.get_2d(), 20, attraction->get_groesse(rotation),false,attraction,false,0x0FFFFFFF);	// so far -> land only
 		if(welt->lookup(pos)) {
 			// space found, build attraction
-			hausbauer_t::baue(welt->get_spieler(1), pos, rotation, attraction);
+			hausbauer_t::baue(welt->get_player(1), pos, rotation, attraction);
 			current_number ++;
 			retrys = max_number*4;
 		}
@@ -432,9 +432,9 @@ public:
 /*
  * Builds a single new factory.
  */
-fabrik_t* fabrikbauer_t::baue_fabrik(koord3d* parent, const fabrik_besch_t* info, sint32 initial_prod_base, int rotate, koord3d pos, spieler_t* spieler)
+fabrik_t* fabrikbauer_t::baue_fabrik(koord3d* parent, const fabrik_besch_t* info, sint32 initial_prod_base, int rotate, koord3d pos, player_t* owner)
 {
-	fabrik_t * fab = new fabrik_t(pos, spieler, info, initial_prod_base);
+	fabrik_t * fab = new fabrik_t(pos, owner, info, initial_prod_base);
 
 	// now build factory
 	fab->baue(rotate, true /*add fields*/, initial_prod_base != -1 /* force initial prodbase ? */);
@@ -451,7 +451,7 @@ fabrik_t* fabrikbauer_t::baue_fabrik(koord3d* parent, const fabrik_besch_t* info
 		koord dim = besch->get_groesse(rotate);
 
 		// create water halt
-		halthandle_t halt = haltestelle_t::create(pos.get_2d(), welt->get_spieler(1));
+		halthandle_t halt = haltestelle_t::create(pos.get_2d(), welt->get_player(1));
 		if(halt.is_bound()) {
 
 			// add all other tiles of the factory to the halt
@@ -549,7 +549,7 @@ bool fabrikbauer_t::can_factory_tree_rotate( const fabrik_besch_t *besch )
  * is the maximum number of good types for which suppliers chains are built
  * (meaning there are no unfinished factory chains).
  */
-int fabrikbauer_t::baue_hierarchie(koord3d* parent, const fabrik_besch_t* info, sint32 initial_prod_base, int rotate, koord3d* pos, spieler_t* sp, int number_of_chains )
+int fabrikbauer_t::baue_hierarchie(koord3d* parent, const fabrik_besch_t* info, sint32 initial_prod_base, int rotate, koord3d* pos, player_t* player, int number_of_chains )
 {
 	int n = 1;
 	int org_rotation = -1;
@@ -643,13 +643,13 @@ int fabrikbauer_t::baue_hierarchie(koord3d* parent, const fabrik_besch_t* info, 
 	DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","Construction of %s at (%i,%i).",info->get_name(),pos->x,pos->y);
 	INT_CHECK("fabrikbauer 594");
 
-	const fabrik_t *our_fab=baue_fabrik(parent, info, initial_prod_base, rotate, *pos, sp);
+	const fabrik_t *our_fab=baue_fabrik(parent, info, initial_prod_base, rotate, *pos, player);
 
 	INT_CHECK("fabrikbauer 596");
 
 	// now build supply chains for all products
 	for(int i=0; i<info->get_lieferanten()  &&  i<number_of_chains; i++) {
-		n += baue_link_hierarchie( our_fab, info, i, sp);
+		n += baue_link_hierarchie( our_fab, info, i, player);
 	}
 
 	// everything built -> update map if needed
@@ -675,7 +675,7 @@ int fabrikbauer_t::baue_hierarchie(koord3d* parent, const fabrik_besch_t* info, 
 }
 
 
-int fabrikbauer_t::baue_link_hierarchie(const fabrik_t* our_fab, const fabrik_besch_t* info, int lieferant_nr, spieler_t* sp)
+int fabrikbauer_t::baue_link_hierarchie(const fabrik_t* our_fab, const fabrik_besch_t* info, int lieferant_nr, player_t* player)
 {
 	int n = 0;	// number of additional factories
 	/* first we try to connect to existing factories and will do some
@@ -818,7 +818,7 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","lieferanten %i, lcount %i (need %i
 		INT_CHECK("fabrikbauer 697");
 
 DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","Try to built lieferant %s at (%i,%i) r=%i for %s.",hersteller->get_name(),k.x,k.y,rotate,info->get_name());
-		n += baue_hierarchie(&parent_pos, hersteller, -1 /*random prodbase */, rotate, &k, sp, 10000 );
+		n += baue_hierarchie(&parent_pos, hersteller, -1 /*random prodbase */, rotate, &k, player, 10000 );
 		lfound ++;
 
 		INT_CHECK( "fabrikbauer 702" );
@@ -929,7 +929,7 @@ next_ware_check:
 
 		uint32 last_suppliers = last_built_consumer->get_suppliers().get_count();
 		do {
-			nr += baue_link_hierarchie( last_built_consumer, last_built_consumer->get_besch(), last_built_consumer_ware, welt->get_spieler(1) );
+			nr += baue_link_hierarchie( last_built_consumer, last_built_consumer->get_besch(), last_built_consumer_ware, welt->get_player(1) );
 			last_built_consumer_ware ++;
 		} while(  last_built_consumer_ware < last_built_consumer->get_besch()->get_lieferanten()  &&  last_built_consumer->get_suppliers().get_count()==last_suppliers  );
 
@@ -1002,7 +1002,7 @@ next_ware_check:
 				}
 				if(welt->lookup(pos)) {
 					// Space found...
-					nr += baue_hierarchie(NULL, fab, -1 /* random prodbase */, rotation, &pos, welt->get_spieler(1), 1 );
+					nr += baue_hierarchie(NULL, fab, -1 /* random prodbase */, rotation, &pos, welt->get_player(1), 1 );
 					if(nr>0) {
 						fabrik_t *our_fab = fabrik_t::get_fab( pos.get_2d() );
 						reliefkarte_t::get_karte()->calc_map_size();

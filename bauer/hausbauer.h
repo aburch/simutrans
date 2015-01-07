@@ -15,7 +15,7 @@
 
 class gebaeude_t;
 class karte_ptr_t;
-class spieler_t;
+class player_t;
 class tool_selector_t;
 
 /**
@@ -122,7 +122,7 @@ public:
 	 * It will also take care of factories and foundations.
 	 * @param sp the player wanting to remove the building.
 	 */
-	static void remove(spieler_t *sp, gebaeude_t *gb);
+	static void remove(player_t *player, gebaeude_t *gb);
 
 	/**
 	 * Main function to build all non-traffic buildings, including factories.
@@ -134,14 +134,14 @@ public:
 	 * @return The first built part of the building. Usually at @p pos, if this
 	 *         building tile is not empty.
 	 */
-	static gebaeude_t* baue(spieler_t* sp, koord3d pos, int layout, const haus_besch_t* besch, void* param = NULL);
+	static gebaeude_t* baue(player_t* player, koord3d pos, int layout, const haus_besch_t* besch, void* param = NULL);
 
 	/**
 	 * Build all kind of stops and depots. The building size must be 1x1.
 	 * Stations with layout>4 may change the layout of neighbouring buildings. (->end of rail platforms)
 	 * @param param if building a stop, pointer to the halt handle
 	 */
-	static gebaeude_t* neues_gebaeude(spieler_t* sp, koord3d pos, int layout, const haus_besch_t* besch, void* param = NULL);
+	static gebaeude_t* neues_gebaeude(player_t* player, koord3d pos, int layout, const haus_besch_t* besch, void* param = NULL);
 
 	/// @returns house list of type @p typ
 	static const vector_tpl<const haus_besch_t *> *get_list(haus_besch_t::utyp typ);

@@ -335,11 +335,11 @@ bool halt_detail_t::action_triggered( gui_action_creator_t *, value_t extra)
 			uint16 j=k.y;
 			if(  j < halt->registered_lines.get_count()  ) {
 				linehandle_t line=halt->registered_lines[j];
-				spieler_t *sp=welt->get_active_player();
-				if(  sp==line->get_besitzer()  ) {
+				player_t *player=welt->get_active_player();
+				if(  player==line->get_besitzer()  ) {
 					//TODO:
 					// Change player => change marked lines
-					sp->simlinemgmt.show_lineinfo(sp,line);
+					player->simlinemgmt.show_lineinfo(player,line);
 					welt->set_dirty();
 				}
 			}

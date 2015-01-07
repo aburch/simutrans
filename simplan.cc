@@ -617,8 +617,8 @@ void planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos) const
 // unfortunately, too expensive for display
 			// plot player outline colours - we always plot in order of players so that the order of the stations in halt_list
 			// doesn't affect the colour displayed [since blend(col1,blend(col2,screen)) != blend(col2,blend(col1,screen))]
-			for(int spieler_count = 0; spieler_count<MAX_PLAYER_COUNT; spieler_count++) {
-				spieler_t *display_player = gr->get_welt()->get_spieler(spieler_count);
+			for(int player_count = 0; player_count<MAX_PLAYER_COUNT; player_count++) {
+				player_t *display_player = gr->get_welt()->get_player(player_count);
 				const PLAYER_COLOR_VAL transparent = PLAYER_FLAG | OUTLINE_FLAG | (display_player->get_player_color1() * 4 + 4);
 				for(int halt_count = 0; halt_count < halt_list_count; halt_count++) {
 					if(halt_list[halt_count]->get_besitzer() == display_player) {
@@ -656,12 +656,15 @@ void planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos) const
 }
 
 
-// finds halt belonging to player sp
-halthandle_t planquadrat_t::get_halt(spieler_t *sp) const
+/**
+ * Finds halt belonging to a player
+ * @param player owner of the halts we are interested in.
+ */
+halthandle_t planquadrat_t::get_halt(player_t *player) const
 {
 	for(  uint8 i=0;  i < get_boden_count();  i++  ) {
 		halthandle_t my_halt = get_boden_bei(i)->get_halt();
-		if(  my_halt.is_bound()  &&  (sp == NULL  ||  sp == my_halt->get_besitzer())  ) {
+		if(  my_halt.is_bound()  &&  (player == NULL  ||  player == my_halt->get_besitzer())  ) {
 			return my_halt;
 		}
 	}

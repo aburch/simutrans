@@ -41,8 +41,8 @@ static bool compare_fabrik_besch(const fabrik_besch_t* a, const fabrik_besch_t* 
 	return diff < 0;
 }
 
-factory_edit_frame_t::factory_edit_frame_t(spieler_t* sp_) :
-	extend_edit_gui_t(translator::translate("factorybuilder"), sp_),
+factory_edit_frame_t::factory_edit_frame_t(player_t* player_) :
+	extend_edit_gui_t(translator::translate("factorybuilder"), player_),
 	fablist(16),
 	lb_rotation( rot_str, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::right ),
 	lb_rotation_info( translator::translate("Rotation"), SYSCOL_TEXT, gui_label_t::left ),
@@ -344,13 +344,13 @@ void factory_edit_frame_t::change_item_info(sint32 entry)
 		// the tools will be always updated, even though the data up there might be still current
 		sprintf( param_str, "%i%c%i,%s", bt_climates.pressed, rotation==255 ? '#' : '0'+rotation, production, fab_besch->get_name() );
 		if(bt_land_chain.pressed) {
-			welt->set_tool( &land_chain_tool, sp );
+			welt->set_tool( &land_chain_tool, player );
 		}
 		else if(bt_city_chain.pressed) {
-			welt->set_tool( &city_chain_tool, sp );
+			welt->set_tool( &city_chain_tool, player );
 		}
 		else {
-			welt->set_tool( &fab_tool, sp );
+			welt->set_tool( &fab_tool, player );
 		}
 	}
 	else if(fab_besch!=NULL) {
@@ -361,6 +361,6 @@ void factory_edit_frame_t::change_item_info(sint32 entry)
 		prod_str[0] = 0;
 		tstrncpy(rot_str, translator::translate("random"), lengthof(rot_str));
 		fab_besch = NULL;
-		welt->set_tool( tool_t::general_tool[TOOL_QUERY], sp );
+		welt->set_tool( tool_t::general_tool[TOOL_QUERY], player );
 	}
 }

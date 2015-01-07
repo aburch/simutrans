@@ -64,7 +64,7 @@ bool ai_passenger_t::set_active(bool new_state)
 	if(  new_state  ) {
 		new_state = NULL!=vehikel_search( road_wt, 50, 80, warenbauer_t::passagiere, false);
 	}
-	return spieler_t::set_active( new_state );
+	return player_t::set_active( new_state );
 }
 
 
@@ -74,7 +74,7 @@ bool ai_passenger_t::set_active(bool new_state)
 halthandle_t ai_passenger_t::get_our_hub( const stadt_t *s ) const
 {
 	FOR(vector_tpl<halthandle_t>, const halt, haltestelle_t::get_alle_haltestellen()) {
-		if (halt->get_besitzer() == sim::up_cast<spieler_t const*>(this)) {
+		if (halt->get_besitzer() == sim::up_cast<player_t const*>(this)) {
 			if(  halt->get_pax_enabled()  &&  (halt->get_station_type()&haltestelle_t::busstop)!=0  ) {
 				koord h=halt->get_basis_pos();
 				if(h.x>=s->get_linksoben().x  &&  h.y>=s->get_linksoben().y  &&  h.x<=s->get_rechtsunten().x  &&  h.y<=s->get_rechtsunten().y  ) {
@@ -103,7 +103,7 @@ koord ai_passenger_t::find_area_for_hub( const koord lo, const koord ru, const k
 				if(  gr->get_typ()==grund_t::boden  &&  gr->get_grund_hang()==hang_t::flach  ) {
 					const obj_t* obj = gr->obj_bei(0);
 					int test_dist = koord_distance( trypos, basis );
-					if (!obj || !obj->get_besitzer() || obj->get_besitzer() == sim::up_cast<spieler_t const*>(this)) {
+					if (!obj || !obj->get_besitzer() || obj->get_besitzer() == sim::up_cast<player_t const*>(this)) {
 						if(  gr->is_halt()  &&  check_owner( gr->get_halt()->get_besitzer(), this )  &&  gr->hat_weg(road_wt)  ) {
 							// ok, one halt belongs already to us ... (should not really happen!) but might be a public stop
 							return trypos;
@@ -850,7 +850,7 @@ void ai_passenger_t::walk_city(linehandle_t const line, grund_t* const start, in
 									// our stop => nothing to do
 #if AUTOJOIN_PUBLIC
 									// we leave also public stops alone
-									if(  hl[own]->get_besitzer()==this  ||  hl[own]->get_besitzer()==welt->get_spieler(1)  ) {
+									if(  hl[own]->get_besitzer()==this  ||  hl[own]->get_besitzer()==welt->get_player(1)  ) {
 #else
 									if(  hl[own]->get_besitzer()==this  ) {
 #endif
@@ -933,9 +933,9 @@ void ai_passenger_t::cover_city_with_bus_route(koord start_pos, int number_of_st
 void ai_passenger_t::step()
 {
 	// needed for schedule of stops ...
-	spieler_t::step();
+	player_t::step();
 
-	if(!automat) {
+	if(!active) {
 		// I am off ...
 		return;
 	}
@@ -1383,7 +1383,7 @@ void ai_passenger_t::rdwr(loadsave_t *file)
 {
 	if(  file->get_version()<102002  ) {
 		// due to an error the player was never saved correctly
-		spieler_t::rdwr(file);
+		player_t::rdwr(file);
 		return;
 	}
 
@@ -1452,18 +1452,18 @@ void ai_passenger_t::rdwr(loadsave_t *file)
  * @author prissi
  * @date 30-Dec-2008
  */
-void ai_passenger_t::bescheid_vehikel_problem(convoihandle_t cnv,const koord3d ziel)
+void ai_passenger_t::report_vehicle_problem(convoihandle_t cnv,const koord3d ziel)
 {
 	if(  cnv->get_state() == convoi_t::NO_ROUTE  &&  this!=welt->get_active_player()  ) {
 			DBG_MESSAGE("ai_passenger_t::bescheid_vehikel_problem","Vehicle %s can't find a route to (%i,%i)!", cnv->get_name(),ziel.x,ziel.y);
 			cnv->self_destruct();
 			return;
 	}
-	spieler_t::bescheid_vehikel_problem( cnv, ziel );
+	player_t::report_vehicle_problem( cnv, ziel );
 }
 
 
-void ai_passenger_t::laden_abschliessen()
+void ai_passenger_t::load_finished()
 {
 	road_vehicle = vehikel_search( road_wt, 50, 80, warenbauer_t::passagiere, false);
 	if (road_vehicle == NULL) {

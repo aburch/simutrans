@@ -68,7 +68,7 @@ void simlinemgmt_t::update_line(linehandle_t line)
 }
 
 
-void simlinemgmt_t::rdwr(loadsave_t *file, spieler_t *sp)
+void simlinemgmt_t::rdwr(loadsave_t *file, player_t *player)
 {
 	xml_tag_t l( file, "simlinemgmt_t" );
 
@@ -112,7 +112,7 @@ DBG_MESSAGE("simlinemgmt_t::rdwr()","number of lines=%i",totalLines);
 			if(lt < simline_t::truckline  ||  lt > simline_t::narrowgaugeline) {
 					dbg->fatal( "simlinemgmt_t::rdwr()", "Cannot create default line!" );
 			}
-			simline_t *line = new simline_t(sp, lt, file);
+			simline_t *line = new simline_t(player, lt, file);
 			if (!line->get_handle().is_bound()) {
 				// line id was saved as zero ...
 				if (unbound_line) {
@@ -187,13 +187,13 @@ void simlinemgmt_t::new_month()
 }
 
 
-linehandle_t simlinemgmt_t::create_line(int ltype, spieler_t * sp)
+linehandle_t simlinemgmt_t::create_line(int ltype, player_t * player_)
 {
 	if(ltype < simline_t::truckline  ||  ltype > simline_t::narrowgaugeline) {
 			dbg->fatal( "simlinemgmt_t::create_line()", "Cannot create default line!" );
 	}
 
-	simline_t * line = new simline_t(sp, (simline_t::linetype)ltype);
+	simline_t * line = new simline_t(player_, (simline_t::linetype)ltype);
 
 	add_line( line->get_handle() );
 	sort_lines();
@@ -201,9 +201,9 @@ linehandle_t simlinemgmt_t::create_line(int ltype, spieler_t * sp)
 }
 
 
-linehandle_t simlinemgmt_t::create_line(int ltype, spieler_t * sp, schedule_t * fpl)
+linehandle_t simlinemgmt_t::create_line(int ltype, player_t * player_, schedule_t * fpl)
 {
-	linehandle_t line = create_line( ltype, sp );
+	linehandle_t line = create_line( ltype, player_ );
 	if(fpl) {
 		line->get_schedule()->copy_from(fpl);
 	}
@@ -222,15 +222,15 @@ void simlinemgmt_t::get_lines(int type, vector_tpl<linehandle_t>* lines) const
 }
 
 
-void simlinemgmt_t::show_lineinfo(spieler_t *sp, linehandle_t line)
+void simlinemgmt_t::show_lineinfo(player_t *player, linehandle_t line)
 {
-	gui_frame_t *schedule_list_gui = win_get_magic( magic_line_management_t + sp->get_player_nr() );
+	gui_frame_t *schedule_list_gui = win_get_magic( magic_line_management_t + player->get_player_nr() );
 	if(  schedule_list_gui  ) {
 		top_win( schedule_list_gui );
 	}
 	else {
-		schedule_list_gui = new schedule_list_gui_t(sp);
-		create_win( schedule_list_gui, w_info, magic_line_management_t+sp->get_player_nr() );
+		schedule_list_gui = new schedule_list_gui_t(player);
+		create_win( schedule_list_gui, w_info, magic_line_management_t+player->get_player_nr() );
 	}
 	dynamic_cast<schedule_list_gui_t *>(schedule_list_gui)->show_lineinfo(line);
 }

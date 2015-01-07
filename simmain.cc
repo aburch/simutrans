@@ -109,7 +109,7 @@ static void show_sizes()
 	DBG_MESSAGE("sizes", "haltestelle_t: %d\n", sizeof(haltestelle_t));
 
 	DBG_MESSAGE("sizes", "karte_t: %d", sizeof(karte_t));
-	DBG_MESSAGE("sizes", "spieler_t: %d\n", sizeof(spieler_t));
+	DBG_MESSAGE("sizes", "player_t: %d\n", sizeof(player_t));
 }
 
 

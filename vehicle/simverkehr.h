@@ -70,7 +70,7 @@ public:
 	void laden_abschliessen() {calc_bild();}
 
 	// we allow to remove all cars etc.
-	const char *ist_entfernbar(const spieler_t *) { return NULL; }
+	const char *ist_entfernbar(const player_t *) { return NULL; }
 };
 
 

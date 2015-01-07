@@ -721,7 +721,7 @@ void fabrik_t::rem_lieferziel(koord ziel)
 
 fabrik_t::fabrik_t(loadsave_t* file)
 {
-	besitzer_p = NULL;
+	owner = NULL;
 	power = 0;
 	power_demand = 0;
 	prodfactor_electric = 0;
@@ -761,14 +761,14 @@ fabrik_t::fabrik_t(loadsave_t* file)
 }
 
 
-fabrik_t::fabrik_t(koord3d pos_, spieler_t* spieler, const fabrik_besch_t* fabesch, sint32 initial_prod_base) :
+fabrik_t::fabrik_t(koord3d pos_, player_t* owner, const fabrik_besch_t* fabesch, sint32 initial_prod_base) :
 	besch(fabesch),
 	pos(pos_)
 {
 	this->pos.z = welt->max_hgt(pos.get_2d());
 	pos_origin = pos;
 
-	besitzer_p = spieler;
+	this->owner = owner;
 	prodfactor_electric = 0;
 	prodfactor_pax = 0;
 	prodfactor_mail = 0;
@@ -877,7 +877,7 @@ void fabrik_t::baue(sint32 rotate, bool build_fields, bool force_initial_prodbas
 {
 	this->rotate = rotate;
 	pos_origin = welt->lookup_kartenboden(pos_origin.get_2d())->get_pos();
-	gebaeude_t *gb = hausbauer_t::baue(besitzer_p, pos_origin, rotate, besch->get_haus(), this);
+	gebaeude_t *gb = hausbauer_t::baue(owner, pos_origin, rotate, besch->get_haus(), this);
 	pos = gb->get_pos();
 	pos_origin.z = pos.z;
 
@@ -891,7 +891,7 @@ void fabrik_t::baue(sint32 rotate, bool build_fields, bool force_initial_prodbas
 					// first make foundation below
 					grund_t *gr2 = new fundament_t(gr->get_pos(), gr->get_grund_hang());
 					welt->access(k)->boden_ersetzen(gr, gr2);
-					gr2->obj_add( new field_t(gr2->get_pos(), besitzer_p, besch->get_field_group()->get_field_class( fields[i].field_class_index ), this ) );
+					gr2->obj_add( new field_t(gr2->get_pos(), owner, besch->get_field_group()->get_field_class( fields[i].field_class_index ), this ) );
 				}
 				else {
 					// there was already a building at this position => do not restore!
@@ -1051,7 +1051,7 @@ bool fabrik_t::add_random_field(uint16 probability)
 		fields.append(new_field);
 		grund_t *gr2 = new fundament_t(gr->get_pos(), gr->get_grund_hang());
 		welt->access(k)->boden_ersetzen(gr, gr2);
-		gr2->obj_add( new field_t(gr2->get_pos(), besitzer_p, field_class, this ) );
+		gr2->obj_add( new field_t(gr2->get_pos(), owner, field_class, this ) );
 		// Knightly : adjust production base and storage capacities
 		set_base_production( prodbase + field_class->get_field_production() );
 		if(lt) {
@@ -1125,7 +1125,7 @@ void fabrik_t::rdwr(loadsave_t *file)
 {
 	xml_tag_t f( file, "fabrik_t" );
 	sint32 i;
-	sint32 spieler_n;
+	sint32 owner_n;
 	sint32 eingang_count;
 	sint32 ausgang_count;
 	sint32 anz_lieferziele;
@@ -1263,8 +1263,8 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 	}
 
 	// restore other information
-	spieler_n = welt->sp2num(besitzer_p);
-	file->rdwr_long(spieler_n);
+	owner_n = welt->sp2num(owner);
+	file->rdwr_long(owner_n);
 	file->rdwr_long(prodbase);
 	if(  file->get_version() < 110005  ) {
 		// TurfIt : prodfaktor saving no longer required
@@ -1294,13 +1294,13 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 		// Due to a omission in Volkers changes, there might be savegames
 		// in which factories were saved without an owner. In this case
 		// set the owner to the default of player 1
-		if(spieler_n == -1) {
+		if(owner_n == -1) {
 			// Use default
-			besitzer_p = welt->get_spieler(1);
+			owner = welt->get_player(1);
 		}
 		else {
 			// Restore owner pointer
-			besitzer_p = welt->get_spieler(spieler_n);
+			owner = welt->get_player(owner_n);
 		}
 	}
 

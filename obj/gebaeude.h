@@ -97,7 +97,7 @@ protected:
 
 public:
 	gebaeude_t(loadsave_t *file);
-	gebaeude_t(koord3d pos,spieler_t *sp, const haus_tile_besch_t *t);
+	gebaeude_t(koord3d pos,player_t *player, const haus_tile_besch_t *t);
 	virtual ~gebaeude_t();
 
 	void rotate90();
@@ -184,7 +184,7 @@ public:
 
 	virtual void zeige_info();
 
-	void entferne(spieler_t *sp);
+	void entferne(player_t *player);
 
 	void laden_abschliessen();
 

@@ -293,7 +293,7 @@ void hausbauer_t::neue_karte()
 }
 
 
-void hausbauer_t::remove( spieler_t *sp, gebaeude_t *gb )
+void hausbauer_t::remove( player_t *player, gebaeude_t *gb )
 {
 	const haus_tile_besch_t *tile  = gb->get_tile();
 	const haus_besch_t *hb = tile->get_besch();
@@ -338,9 +338,9 @@ void hausbauer_t::remove( spieler_t *sp, gebaeude_t *gb )
 		}
 		// tell players of the deletion
 		for(uint8 i=0; i<MAX_PLAYER_COUNT; i++) {
-			spieler_t *sp = welt->get_spieler(i);
-			if (sp) {
-				sp->notify_factory(spieler_t::notify_delete, fab);
+			player_t *player = welt->get_player(i);
+			if (player) {
+				player->notify_factory(player_t::notify_delete, fab);
 			}
 		}
 		// remove all transformers
@@ -394,11 +394,11 @@ void hausbauer_t::remove( spieler_t *sp, gebaeude_t *gb )
 				// there may be buildings with holes, so we only remove our building!
 				if(  gb_part  &&  gb_part->get_tile()==hb->get_tile(layout, k.x, k.y)  ) {
 					// ok, now we can go on with deletion
-					gb_part->entferne( sp );
+					gb_part->entferne( player );
 					delete gb_part;
 					// if this was a station building: delete ground
 					if(gr->get_halt().is_bound()) {
-						haltestelle_t::remove(sp, gr->get_pos());
+						haltestelle_t::remove(player, gr->get_pos());
 					}
 					// and maybe restore land below
 					if(gr->get_typ()==grund_t::fundament) {
@@ -446,7 +446,7 @@ void hausbauer_t::remove( spieler_t *sp, gebaeude_t *gb )
 }
 
 
-gebaeude_t* hausbauer_t::baue(spieler_t* sp, koord3d pos, int org_layout, const haus_besch_t* besch, void* param)
+gebaeude_t* hausbauer_t::baue(player_t* player_, koord3d pos, int org_layout, const haus_besch_t* besch, void* param)
 {
 	gebaeude_t* first_building = NULL;
 	koord k;
@@ -471,7 +471,7 @@ gebaeude_t* hausbauer_t::baue(spieler_t* sp, koord3d pos, int org_layout, const 
 						DBG_MESSAGE("hausbauer_t::baue()","get_tile() empty at %i,%i",k.x,k.y);
 				continue;
 			}
-			gebaeude_t *gb = new gebaeude_t(pos + k, sp, tile);
+			gebaeude_t *gb = new gebaeude_t(pos + k, player_, tile);
 			if (first_building == NULL) {
 				first_building = gb;
 			}
@@ -501,7 +501,7 @@ gebaeude_t* hausbauer_t::baue(spieler_t* sp, koord3d pos, int org_layout, const 
 					if(lt) {
 						gr->obj_remove(lt);
 					}
-					gr->obj_loesche_alle(sp);	// delete everything except vehicles
+					gr->obj_loesche_alle(player_);	// delete everything except vehicles
 				}
 
 				// build new foundation
@@ -545,7 +545,7 @@ gebaeude_t* hausbauer_t::baue(spieler_t* sp, koord3d pos, int org_layout, const 
 }
 
 
-gebaeude_t *hausbauer_t::neues_gebaeude(spieler_t *sp, koord3d pos, int built_layout, const haus_besch_t *besch, void *param)
+gebaeude_t *hausbauer_t::neues_gebaeude(player_t *player, koord3d pos, int built_layout, const haus_besch_t *besch, void *param)
 {
 	uint8 corner_layout = 6;	// assume single building (for more than 4 layouts)
 
@@ -644,28 +644,28 @@ gebaeude_t *hausbauer_t::neues_gebaeude(spieler_t *sp, koord3d pos, int built_la
 	if(  besch->get_utyp() == haus_besch_t::depot  ) {
 		switch(  besch->get_extra()  ) {
 			case track_wt:
-				gb = new bahndepot_t(pos, sp, tile);
+				gb = new bahndepot_t(pos, player, tile);
 				break;
 			case tram_wt:
-				gb = new tramdepot_t(pos, sp, tile);
+				gb = new tramdepot_t(pos, player, tile);
 				break;
 			case monorail_wt:
-				gb = new monoraildepot_t(pos, sp, tile);
+				gb = new monoraildepot_t(pos, player, tile);
 				break;
 			case maglev_wt:
-				gb = new maglevdepot_t(pos, sp, tile);
+				gb = new maglevdepot_t(pos, player, tile);
 				break;
 			case narrowgauge_wt:
-				gb = new narrowgaugedepot_t(pos, sp, tile);
+				gb = new narrowgaugedepot_t(pos, player, tile);
 				break;
 			case road_wt:
-				gb = new strassendepot_t(pos, sp, tile);
+				gb = new strassendepot_t(pos, player, tile);
 				break;
 			case water_wt:
-				gb = new schiffdepot_t(pos, sp, tile);
+				gb = new schiffdepot_t(pos, player, tile);
 				break;
 			case air_wt:
-				gb = new airdepot_t(pos, sp, tile);
+				gb = new airdepot_t(pos, player, tile);
 				break;
 			default:
 				dbg->fatal("hausbauer_t::neues_gebaeude()","waytpe %i has no depots!", besch->get_extra() );
@@ -673,7 +673,7 @@ gebaeude_t *hausbauer_t::neues_gebaeude(spieler_t *sp, koord3d pos, int built_la
 		}
 	}
 	else {
-		gb = new gebaeude_t(pos, sp, tile);
+		gb = new gebaeude_t(pos, player, tile);
 	}
 //DBG_MESSAGE("hausbauer_t::neues_gebaeude()","building stop pri=%i",pri);
 

@@ -39,12 +39,12 @@ tunnel_t::tunnel_t(loadsave_t* const file) : obj_no_info_t()
 }
 
 
-tunnel_t::tunnel_t(koord3d pos, spieler_t *sp, const tunnel_besch_t *besch) :
+tunnel_t::tunnel_t(koord3d pos, player_t *player, const tunnel_besch_t *besch) :
 	obj_no_info_t(pos)
 {
 	assert(besch);
 	this->besch = besch;
-	set_besitzer( sp );
+	set_besitzer( player );
 	bild = after_bild = IMG_LEER;
 	broad_type = 0;
 }
@@ -132,7 +132,7 @@ void tunnel_t::rdwr(loadsave_t *file)
 void tunnel_t::laden_abschliessen()
 {
 	const grund_t *gr = welt->lookup(get_pos());
-	spieler_t *sp=get_besitzer();
+	player_t *player=get_besitzer();
 
 	if(besch==NULL) {
 		// find a matching besch
@@ -155,39 +155,39 @@ void tunnel_t::laden_abschliessen()
 		}
 	}
 
-	if(sp) {
+	if(player) {
 		// change maintenance
 		weg_t *weg = gr->get_weg(besch->get_waytype());
 		if(weg) {
 			weg->set_max_speed(besch->get_topspeed());
-			spieler_t::add_maintenance( sp, -weg->get_besch()->get_wartung(), weg->get_besch()->get_finance_waytype());
+			player_t::add_maintenance( player, -weg->get_besch()->get_wartung(), weg->get_besch()->get_finance_waytype());
 		}
 		leitung_t *lt = gr->get_leitung();
 		if(lt) {
-			spieler_t::add_maintenance( sp, -lt->get_besch()->get_wartung(), powerline_wt );
+			player_t::add_maintenance( player, -lt->get_besch()->get_wartung(), powerline_wt );
 		}
-		spieler_t::add_maintenance( sp,  besch->get_wartung(), besch->get_finance_waytype() );
+		player_t::add_maintenance( player,  besch->get_wartung(), besch->get_finance_waytype() );
 	}
 }
 
 
 // correct speed and maintenance
-void tunnel_t::entferne( spieler_t *sp2 )
+void tunnel_t::entferne( player_t *player2 )
 {
-	spieler_t *sp = get_besitzer();
-	if(sp) {
+	player_t *player = get_besitzer();
+	if(player) {
 		// inside tunnel => do nothing but change maintenance
 		const grund_t *gr = welt->lookup(get_pos());
 		if(gr) {
 			weg_t *weg = gr->get_weg( besch->get_waytype() );
 			if(weg)	{
 				weg->set_max_speed( weg->get_besch()->get_topspeed() );
-				spieler_t::add_maintenance( sp,  weg->get_besch()->get_wartung(), weg->get_besch()->get_finance_waytype());
+				player_t::add_maintenance( player,  weg->get_besch()->get_wartung(), weg->get_besch()->get_finance_waytype());
 			}
-			spieler_t::add_maintenance( sp,  -besch->get_wartung(), besch->get_finance_waytype() );
+			player_t::add_maintenance( player,  -besch->get_wartung(), besch->get_finance_waytype() );
 		}
 	}
-	spieler_t::book_construction_costs(sp2, -besch->get_preis(), get_pos().get_2d(), besch->get_finance_waytype() );
+	player_t::book_construction_costs(player2, -besch->get_preis(), get_pos().get_2d(), besch->get_finance_waytype() );
 }
 
 
@@ -209,12 +209,12 @@ void tunnel_t::set_after_bild( image_id b )
 
 // returns NULL, if removal is allowed
 // players can remove public owned ways
-const char *tunnel_t::ist_entfernbar(const spieler_t *sp)
+const char *tunnel_t::ist_entfernbar(const player_t *player)
 {
 	if (get_player_nr()==1) {
 		return NULL;
 	}
 	else {
-		return obj_t::ist_entfernbar(sp);
+		return obj_t::ist_entfernbar(player);
 	}
 }

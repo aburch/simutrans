@@ -52,7 +52,7 @@ class karte_ptr_t;
 class koord3d;
 class loadsave_t;
 class schedule_t;
-class spieler_t;
+class player_t;
 class ware_t;
 
 // -------------------------- Haltestelle ----------------------------
@@ -171,7 +171,7 @@ public:
 	/*
 	 * this will only return something if this stop belongs to same player or is public, or is a dock (when on water)
 	 */
-	static halthandle_t get_halt(const koord3d pos, const spieler_t *sp );
+	static halthandle_t get_halt(const koord3d pos, const player_t *player );
 
 	static const vector_tpl<halthandle_t>& get_alle_haltestellen() { return alle_haltestellen; }
 
@@ -179,7 +179,7 @@ public:
 	 * Station factory method. Returns handles instead of pointers.
 	 * @author Hj. Malthaner
 	 */
-	static halthandle_t create(koord pos, spieler_t *sp);
+	static halthandle_t create(koord pos, player_t *player);
 
 	/**
 	 * Station factory method. Returns handles instead of pointers.
@@ -191,7 +191,7 @@ public:
 	* removes a ground tile from a station, deletes the building and, if last tile, also the halthandle
 	* @author prissi
 	*/
-	static bool remove(spieler_t *sp, koord3d pos);
+	static bool remove(player_t *player, koord3d pos);
 
 	/**
 	 * Station destruction method.
@@ -316,7 +316,7 @@ private:
 	 */
 	slist_tpl<fabrik_t *> fab_list;
 
-	spieler_t *besitzer_p;
+	player_t *owner_p;
 	static karte_ptr_t welt;
 
 	/**
@@ -369,7 +369,7 @@ private:
 	bool resort_freight_info;
 
 	haltestelle_t(loadsave_t *file);
-	haltestelle_t(koord pos, spieler_t *sp);
+	haltestelle_t(koord pos, player_t *player);
 	~haltestelle_t();
 
 public:
@@ -425,12 +425,12 @@ public:
 
 	void rotate90( const sint16 y_size );
 
-	spieler_t *get_besitzer() const {return besitzer_p;}
+	player_t *get_besitzer() const {return owner_p;}
 
 	// just for info so far
 	sint64 calc_maintenance() const;
 
-	void make_public_and_join( spieler_t *sp );
+	void make_public_and_join( player_t *player );
 
 	vector_tpl<connection_t> const& get_pax_connections()  const { return all_links[warenbauer_t::INDEX_PAS].connections;  }
 	vector_tpl<connection_t> const& get_mail_connections() const { return all_links[warenbauer_t::INDEX_MAIL].connections; }
@@ -631,7 +631,7 @@ public:
 	 * @param sp Company that's requesting the fetch.
 	 * @author Dwachs
 	 */
-	void fetch_goods( slist_tpl<ware_t> &load, const ware_besch_t *good_category, uint32 requested_amount, const schedule_t *schedule, const spieler_t *sp );
+	void fetch_goods( slist_tpl<ware_t> &load, const ware_besch_t *good_category, uint32 requested_amount, const schedule_t *schedule, const player_t *player );
 
 	/* liefert ware an. Falls die Ware zu wartender Ware dazugenommen
 	 * werden kann, kann ware_t gelöscht werden! D.h. man darf ware nach

@@ -18,7 +18,7 @@
 #define POWER_TO_MW (12)  // bitshift for converting internal power values to MW for display
 
 class powernet_t;
-class spieler_t;
+class player_t;
 class fabrik_t;
 class weg_besch_t;
 
@@ -69,11 +69,11 @@ public:
 	static fabrik_t * suche_fab_4(koord pos);
 
 	leitung_t(loadsave_t *file);
-	leitung_t(koord3d pos, spieler_t *sp);
+	leitung_t(koord3d pos, player_t *player);
 	virtual ~leitung_t();
 
 	// just book the costs for destruction
-	void entferne(spieler_t *);
+	void entferne(player_t *);
 
 	// for map rotation
 	void rotate90();
@@ -129,7 +129,7 @@ public:
 	 * @return NULL if OK, otherwise an error message
 	 * @author Hj. Malthaner
 	 */
-	virtual const char *ist_entfernbar(const spieler_t *sp);
+	virtual const char *ist_entfernbar(const player_t *player);
 };
 
 
@@ -150,7 +150,7 @@ private:
 
 public:
 	pumpe_t(loadsave_t *file);
-	pumpe_t(koord3d pos, spieler_t *sp);
+	pumpe_t(koord3d pos, player_t *player);
 	~pumpe_t();
 
 	typ get_typ() const { return pumpe; }
@@ -189,7 +189,7 @@ private:
 
 public:
 	senke_t(loadsave_t *file);
-	senke_t(koord3d pos, spieler_t *sp);
+	senke_t(koord3d pos, player_t *player);
 	~senke_t();
 
 	typ get_typ() const { return senke; }

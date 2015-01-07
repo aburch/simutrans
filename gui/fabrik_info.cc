@@ -117,7 +117,7 @@ void fabrik_info_t::rename_factory()
 		buf.printf( "f%s,%s", fab->get_pos().get_str(), fabname );
 		tool_t *tool = create_tool( TOOL_RENAME | SIMPLE_TOOL );
 		tool->set_default_param( buf );
-		welt->set_tool( tool, welt->get_spieler(1));
+		welt->set_tool( tool, welt->get_player(1));
 		// since init always returns false, it is safe to delete immediately
 		delete tool;
 	}
@@ -369,7 +369,7 @@ void gui_fabrik_info_t::draw(scr_coord offset)
 
 
 fabrik_info_t::fabrik_info_t() :
-	gui_frame_t("", welt->get_spieler(1)),
+	gui_frame_t("", welt->get_player(1)),
 	fab(NULL),
 	chart(NULL),
 	view(scr_size( max(64, get_base_tile_raster_width()), max(56, (get_base_tile_raster_width() * 7) / 8))),

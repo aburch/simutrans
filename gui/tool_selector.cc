@@ -170,10 +170,10 @@ bool tool_selector_t::infowin_event(const event_t *ev)
 
 void tool_selector_t::draw(scr_coord pos, scr_size)
 {
-	spieler_t *sp = welt->get_active_player();
+	player_t *player = welt->get_active_player();
 
 	for(  uint i = tool_icon_disp_start;  i < tool_icon_disp_end;  i++  ) {
-		const image_id icon_img = tools[i].tool->get_icon(sp);
+		const image_id icon_img = tools[i].tool->get_icon(player);
 		const scr_coord draw_pos = pos + scr_coord(( (i-tool_icon_disp_start)%tool_icon_width )*env_t::iconsize.w, D_TITLEBAR_HEIGHT+( (i-tool_icon_disp_start)/tool_icon_width )*env_t::iconsize.h);
 		const char *param = tools[i].tool->get_default_param();
 
@@ -194,7 +194,7 @@ void tool_selector_t::draw(scr_coord pos, scr_size)
 		if(  icon_img != IMG_LEER  ) {
 			bool tool_dirty = dirty  ||  tools[i].tool->is_selected() ^ tools[i].selected;
 			display_fit_img_to_width( icon_img, env_t::iconsize.w );
-			display_color_img(icon_img, draw_pos.x, draw_pos.y, sp->get_player_nr(), false, tool_dirty);
+			display_color_img(icon_img, draw_pos.x, draw_pos.y, player->get_player_nr(), false, tool_dirty);
 			tools[i].tool->draw_after( draw_pos, tool_dirty);
 			// store whether tool was selected
 			tools[i].selected = tools[i].tool->is_selected();
@@ -224,10 +224,10 @@ void tool_selector_t::draw(scr_coord pos, scr_size)
 
 
 
-bool tool_selector_t::empty(spieler_t *sp) const
+bool tool_selector_t::empty(player_t *player) const
 {
 	FOR(vector_tpl<tool_data_t>, w, tools) {
-		if (w.tool->get_icon(sp) != IMG_LEER) {
+		if (w.tool->get_icon(player) != IMG_LEER) {
 			return false;
 		}
 	}

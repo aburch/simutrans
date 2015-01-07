@@ -306,7 +306,7 @@ public:
 
 
 	/**
-	 * Calls scripted is_scenario_completed. Caches this value in statistics of spieler_t.
+	 * Calls scripted is_scenario_completed. Caches this value in statistics of player_t.
 	 * Server sends update of won/lost if necessary.
 	 */
 	void step();
@@ -407,13 +407,13 @@ public:
 	 * Called for instance in karte_t::local_set_tool to change active tool or when filling toolbars.
 	 * @return true if player can use this tool.
 	 */
-	bool is_tool_allowed(const spieler_t* sp, uint16 tool_id, sint16 wt = invalid_wt);
+	bool is_tool_allowed(const player_t* player, uint16 tool_id, sint16 wt = invalid_wt);
 
 	/**
 	 * Checks if player can use the tool at this position.
 	 * @return NULL if allowed otherwise error message
 	 */
-	const char* is_work_allowed_here(const spieler_t* sp, uint16 tool_id, sint16 wt, koord3d pos);
+	const char* is_work_allowed_here(const player_t* player, uint16 tool_id, sint16 wt, koord3d pos);
 
 	/**
 	 * Checks if player can use this schedule.
@@ -423,7 +423,7 @@ public:
 	 *
 	 * @return null if allowed, an error message otherwise
 	 */
-	const char* is_schedule_allowed(const spieler_t* sp, const schedule_t* schedule);
+	const char* is_schedule_allowed(const player_t* player, const schedule_t* schedule);
 
 
 	/// @return debug dump of forbidden tools

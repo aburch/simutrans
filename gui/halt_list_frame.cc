@@ -243,13 +243,13 @@ static bool passes_filter(haltestelle_t const& s)
 }
 
 
-halt_list_frame_t::halt_list_frame_t(spieler_t *sp) :
-	gui_frame_t( translator::translate("hl_title"), sp),
+halt_list_frame_t::halt_list_frame_t(player_t *player) :
+	gui_frame_t( translator::translate("hl_title"), player),
 	vscroll( scrollbar_t::vertical ),
 	sort_label(translator::translate("hl_txt_sort")),
 	filter_label(translator::translate("hl_txt_filter"))
 {
-	m_sp = sp;
+	m_player = player;
 	filter_frame = NULL;
 
 	sort_label.set_pos(scr_coord(BUTTON1_X, 2));
@@ -310,7 +310,7 @@ void halt_list_frame_t::display_list()
 	// create a unsorted station list
 	num_filtered_stops = 0;
 	FOR(vector_tpl<halthandle_t>, const halt, haltestelle_t::get_alle_haltestellen()) {
-		if(  halt->get_besitzer() == m_sp  ) {
+		if(  halt->get_besitzer() == m_player  ) {
 			a[n++] = halt;
 			if (passes_filter(*halt)) {
 				num_filtered_stops++;
@@ -396,7 +396,7 @@ bool halt_list_frame_t::action_triggered( gui_action_creator_t *comp,value_t /* 
 			destroy_win(filter_frame);
 		}
 		else {
-			filter_frame = new halt_list_filter_frame_t(m_sp, this);
+			filter_frame = new halt_list_filter_frame_t(m_player, this);
 			create_win(filter_frame, w_info, (ptrdiff_t)this);
 		}
 	}

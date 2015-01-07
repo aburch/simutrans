@@ -25,16 +25,16 @@
 #define L_DIALOG_WIDTH (360)
 
 
-password_frame_t::password_frame_t( spieler_t *sp ) :
-	gui_frame_t( translator::translate("Enter Password"), sp )
+password_frame_t::password_frame_t( player_t *player ) :
+	gui_frame_t( translator::translate("Enter Password"), player )
 {
 	scr_coord cursor = scr_coord(D_MARGIN_LEFT, D_MARGIN_TOP);
 
-	this->sp = sp;
+	this->player = player;
 
-	if(  !sp->is_locked()  ||  (welt->get_active_player_nr()==1  &&  !welt->get_spieler(1)->is_locked())   ) {
+	if(  !player->is_locked()  ||  (welt->get_active_player_nr()==1  &&  !welt->get_player(1)->is_locked())   ) {
 		// allow to change name name
-		tstrncpy( player_name_str, sp->get_name(), lengthof(player_name_str) );
+		tstrncpy( player_name_str, player->get_name(), lengthof(player_name_str) );
 		player_name.set_text(player_name_str, lengthof(player_name_str));
 		player_name.add_listener(this);
 		player_name.set_pos(cursor);
@@ -43,7 +43,7 @@ password_frame_t::password_frame_t( spieler_t *sp ) :
 		cursor.y += max(D_EDIT_HEIGHT, LINESPACE);
 	}
 	else {
-		const_player_name.set_text( sp->get_name() );
+		const_player_name.set_text( player->get_name() );
 		const_player_name.set_pos(scr_coord(D_MARGIN_LEFT, D_MARGIN_TOP));
 		add_component(&const_player_name);
 		cursor.y += LINESPACE;
@@ -79,7 +79,7 @@ password_frame_t::password_frame_t( spieler_t *sp ) :
 bool password_frame_t::action_triggered( gui_action_creator_t *komp, value_t p )
 {
 	if(komp == &password  &&  (ibuf[0]!=0  ||  p.i == 1)) {
-		if (sp->is_unlock_pending()) {
+		if (player->is_unlock_pending()) {
 			// unlock already pending, do not do everything twice
 			return true;
 		}
@@ -94,25 +94,25 @@ bool password_frame_t::action_triggered( gui_action_creator_t *komp, value_t p )
 			hash.set(sha1);
 		}
 		// store the hash
-		welt->store_player_password_hash( sp->get_player_nr(), hash );
+		welt->store_player_password_hash( player->get_player_nr(), hash );
 
 		if(  env_t::networkmode) {
-			sp->unlock(!sp->is_locked(), true);
+			player->unlock(!player->is_locked(), true);
 			// send hash to server: it will unlock player or change password
-			nwc_auth_player_t *nwc = new nwc_auth_player_t(sp->get_player_nr(), hash);
+			nwc_auth_player_t *nwc = new nwc_auth_player_t(player->get_player_nr(), hash);
 			network_send_server(nwc);
 		}
 		else {
 			/* if current active player is player 1 and this is unlocked, he may reset passwords
 			 * otherwise you need the valid previous password
 			 */
-			if(  !sp->is_locked()  ||  (welt->get_active_player_nr()==1  &&  !welt->get_spieler(1)->is_locked())   ) {
+			if(  !player->is_locked()  ||  (welt->get_active_player_nr()==1  &&  !welt->get_player(1)->is_locked())   ) {
 				// set password
-				sp->access_password_hash() = hash;
-				sp->unlock(true, false);
+				player->access_password_hash() = hash;
+				player->unlock(true, false);
 			}
 			else {
-				sp->check_unlock(hash);
+				player->check_unlock(hash);
 			}
 		}
 	}
@@ -120,10 +120,10 @@ bool password_frame_t::action_triggered( gui_action_creator_t *komp, value_t p )
 	if(  komp == &player_name  ) {
 		// rename a player
 		cbuffer_t buf;
-		buf.printf( "p%u,%s", sp->get_player_nr(), player_name.get_text() );
+		buf.printf( "p%u,%s", player->get_player_nr(), player_name.get_text() );
 		tool_t *tmp_tool = create_tool( TOOL_RENAME | SIMPLE_TOOL );
 		tmp_tool->set_default_param( buf );
-		welt->set_tool( tmp_tool, sp );
+		welt->set_tool( tmp_tool, player );
 		// since init always returns false, it is safe to delete immediately
 		delete tmp_tool;
 	}

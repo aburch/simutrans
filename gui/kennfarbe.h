@@ -30,7 +30,7 @@
 class farbengui_t : public gui_frame_t, action_listener_t
 {
 	private:
-		spieler_t *sp;
+		player_t *player;
 		cbuffer_t buf;
 		gui_textarea_t txt;
 		gui_label_t c1, c2;
@@ -40,7 +40,7 @@ class farbengui_t : public gui_frame_t, action_listener_t
 		button_t player_color_2[28];
 
 	public:
-		farbengui_t(spieler_t *sp);
+		farbengui_t(player_t *player);
 
 		/**
 		 * Set the window associated helptext

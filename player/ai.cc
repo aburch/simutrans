@@ -555,14 +555,14 @@ DBG_MESSAGE("ai_passenger_t::create_simple_road_transport()","Already connection
 void ai_t::tell_tool_result(tool_t *tool, koord3d pos, const char *err, bool local)
 {
 	// necessary to show error message if a human helps us poor AI
-	spieler_t::tell_tool_result(tool, pos, err, local);
+	player_t::tell_tool_result(tool, pos, err, local);
 
 	// TODO: process the result...
 }
 
 
 /* create new AI */
-ai_t::ai_t(karte_t *wl, uint8 nr) : spieler_t( wl, nr )
+ai_t::ai_t(karte_t *wl, uint8 nr) : player_t( wl, nr )
 {
 	road_transport = rail_transport = air_transport = ship_transport = false;
 	construction_speed = env_t::default_ai_construction_speed;
@@ -571,7 +571,7 @@ ai_t::ai_t(karte_t *wl, uint8 nr) : spieler_t( wl, nr )
 
 void ai_t::rdwr(loadsave_t *file)
 {
-	spieler_t::rdwr(file);
+	player_t::rdwr(file);
 
 	if(  file->get_version()<111001  ) {
 		// do not know about ai_t

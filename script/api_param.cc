@@ -329,12 +329,12 @@ namespace script_api {
 		return NULL;
 	}
 
-	spieler_t* param<spieler_t*>::get(HSQUIRRELVM vm, SQInteger index)
+	player_t* param<player_t*>::get(HSQUIRRELVM vm, SQInteger index)
 	{
 		uint8 plnr = 0;
 		get_slot(vm, "nr", plnr, index);
 		if(plnr < 15) {
-			return welt->get_spieler(plnr);
+			return welt->get_player(plnr);
 		}
 		else {
 			sq_raise_error(vm, "Invalid player index %d", plnr);
@@ -343,9 +343,9 @@ namespace script_api {
 	}
 
 
-	SQInteger param<spieler_t*>::push(HSQUIRRELVM vm, spieler_t* const& sp)
+	SQInteger param<player_t*>::push(HSQUIRRELVM vm, player_t* const& player)
 	{
-		return push_instance(vm, "player_x", sp ? sp->get_player_nr() : 16);
+		return push_instance(vm, "player_x", player ? player->get_player_nr() : 16);
 	}
 
 

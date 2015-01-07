@@ -24,7 +24,7 @@
 
 class loadsave_t;
 class karte_ptr_t;
-class spieler_t;
+class player_t;
 
 /**
  * A Class for window with Component.
@@ -60,7 +60,7 @@ private:
 	scr_size min_windowsize;
 
 	resize_modes resize_mode; // 25-may-02  markus weber added
-	const spieler_t *owner;
+	const player_t *owner;
 
 	// set true for total redraw
 	bool dirty:1;
@@ -81,7 +81,7 @@ protected:
 	 */
 	virtual void resize(const scr_coord delta);
 
-	void set_owner( const spieler_t *sp ) { owner = sp; }
+	void set_owner( const player_t *player ) { owner = player; }
 
 	void set_transparent( uint8 percent, COLOR_VAL col ) { opaque = percent==0; percent_transparent = percent; color_transparent = col; }
 
@@ -89,10 +89,10 @@ protected:
 public:
 	/**
 	 * @param name, Window title
-	 * @param sp, owner for color
+	 * @param player owner for color
 	 * @author Hj. Malthaner
 	 */
-	gui_frame_t(const char *name, const spieler_t *sp=NULL);
+	gui_frame_t(const char *name, const player_t *player=NULL);
 
 	virtual ~gui_frame_t() {}
 

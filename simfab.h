@@ -20,7 +20,7 @@
 #include "utils/plainstring.h"
 
 
-class spieler_t;
+class player_t;
 class stadt_t;
 class ware_t;
 
@@ -288,7 +288,7 @@ private:
 	// List of target cities
 	vector_tpl<stadt_t *> target_cities;
 
-	spieler_t *besitzer_p;
+	player_t *owner;
 	static karte_ptr_t welt;
 
 	const fabrik_besch_t *besch;
@@ -464,7 +464,7 @@ private:
 
 public:
 	fabrik_t(loadsave_t *file);
-	fabrik_t(koord3d pos, spieler_t* sp, const fabrik_besch_t* fabesch, sint32 initial_prod_base);
+	fabrik_t(koord3d pos, player_t* owner, const fabrik_besch_t* fabesch, sint32 initial_prod_base);
 	~fabrik_t();
 
 	/**
@@ -592,7 +592,7 @@ public:
 
 	sint32 get_kennfarbe() const { return besch->get_kennfarbe(); }
 
-	spieler_t *get_besitzer() const
+	player_t *get_besitzer() const
 	{
 		grund_t const* const p = welt->lookup(pos);
 		return p ? p->first_obj()->get_besitzer() : 0;

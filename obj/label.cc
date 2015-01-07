@@ -38,17 +38,17 @@ label_t::label_t(loadsave_t *file) :
 }
 
 
-label_t::label_t(koord3d pos, spieler_t *sp, const char *text) :
+label_t::label_t(koord3d pos, player_t *player, const char *text) :
 	obj_t(pos)
 {
-	set_besitzer( sp );
+	set_besitzer( player );
 	welt->add_label(pos.get_2d());
 	grund_t *gr=welt->lookup_kartenboden(pos.get_2d());
 	if(gr) {
 		if (text) {
 			gr->set_text(text);
 		}
-		spieler_t::book_construction_costs(sp, welt->get_settings().cst_buy_land, pos.get_2d(), ignore_wt);
+		player_t::book_construction_costs(player, welt->get_settings().cst_buy_land, pos.get_2d(), ignore_wt);
 	}
 }
 

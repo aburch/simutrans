@@ -74,8 +74,8 @@ slist_tpl<const ware_besch_t *>convoi_filter_frame_t::active_ware;
 char convoi_filter_frame_t::name_filter_text[] = "";
 
 
-convoi_filter_frame_t::convoi_filter_frame_t(spieler_t *sp, convoi_frame_t *m, uint32 f ) :
-	gui_frame_t( translator::translate("clf_title"), sp),
+convoi_filter_frame_t::convoi_filter_frame_t(player_t *player, convoi_frame_t *m, uint32 f ) :
+	gui_frame_t( translator::translate("clf_title"), player),
 	filter_flags(f),
 	main_frame(m),
 	ware_scrolly(&ware_cont)

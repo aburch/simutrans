@@ -40,7 +40,7 @@ public:
 	waytype_t get_waytype() const { return invalid_wt; }
 
 	crossing_t(loadsave_t *file);
-	crossing_t(spieler_t *sp, koord3d pos, const kreuzung_besch_t *besch, uint8 ns = 0);
+	crossing_t(player_t *player, koord3d pos, const kreuzung_besch_t *besch, uint8 ns = 0);
 
 	virtual ~crossing_t();
 
@@ -58,13 +58,13 @@ public:
 	 * @return NULL wenn OK, ansonsten eine Fehlermeldung
 	 * @author Hj. Malthaner
 	 */
-	virtual const char *ist_entfernbar(const spieler_t *sp);
+	virtual const char *ist_entfernbar(const player_t *player);
 
 	/**
 	 * crossing logic is removed here
 	 * @author prissi
 	 */
-	virtual void entferne(spieler_t *);
+	virtual void entferne(player_t *);
 
 	// returns true, if the crossing can be passed by this vehicle
 	bool request_crossing( const vehikel_basis_t *v ) { return logic->request_crossing( v ); }

@@ -178,11 +178,11 @@ halthandle_t haltestelle_t::get_halt_koord_index(koord k)
 /* we allow only for a single stop per grund
  * this will only return something if this stop belongs to same player or is public, or is a dock (when on water)
  */
-halthandle_t haltestelle_t::get_halt(const koord3d pos, const spieler_t *sp )
+halthandle_t haltestelle_t::get_halt(const koord3d pos, const player_t *player )
 {
 	const grund_t *gr = welt->lookup(pos);
 	if(gr) {
-		if(gr->get_halt().is_bound()  &&  spieler_t::check_owner(sp,gr->get_halt()->get_besitzer())  ) {
+		if(gr->get_halt().is_bound()  &&  player_t::check_owner(player,gr->get_halt()->get_besitzer())  ) {
 			return gr->get_halt();
 		}
 		// no halt? => we do the water check
@@ -193,14 +193,14 @@ halthandle_t haltestelle_t::get_halt(const koord3d pos, const spieler_t *sp )
 			// first check for own stop
 			for(  uint8 i=0;  i<cnt;  i++  ) {
 				halthandle_t halt = plan->get_haltlist()[i];
-				if(  halt->get_besitzer()==sp  &&  halt->get_station_type()&dock  ) {
+				if(  halt->get_besitzer()==player  &&  halt->get_station_type()&dock  ) {
 					return halt;
 				}
 			}
 			// then for public stop
 			for(  uint8 i=0;  i<cnt;  i++  ) {
 				halthandle_t halt = plan->get_haltlist()[i];
-				if(  halt->get_besitzer()==welt->get_spieler(1)  &&  halt->get_station_type()&dock  ) {
+				if(  halt->get_besitzer()==welt->get_player(1)  &&  halt->get_station_type()&dock  ) {
 					return halt;
 				}
 			}
@@ -231,9 +231,9 @@ koord3d haltestelle_t::get_basis_pos3d() const
  * Station factory method. Returns handles instead of pointers.
  * @author Hj. Malthaner
  */
-halthandle_t haltestelle_t::create(koord pos, spieler_t *sp)
+halthandle_t haltestelle_t::create(koord pos, player_t *player)
 {
-	haltestelle_t * p = new haltestelle_t(pos, sp);
+	haltestelle_t * p = new haltestelle_t(pos, player);
 	return p->self;
 }
 
@@ -242,7 +242,7 @@ halthandle_t haltestelle_t::create(koord pos, spieler_t *sp)
  * removes a ground tile from a station
  * @author prissi
  */
-bool haltestelle_t::remove(spieler_t *sp, koord3d pos)
+bool haltestelle_t::remove(player_t *player, koord3d pos)
 {
 	grund_t *bd = welt->lookup(pos);
 
@@ -268,7 +268,7 @@ DBG_MESSAGE("haltestelle_t::remove()","removing segment from %d,%d,%d", pos.x, p
 		gebaeude_t* gb = bd->find<gebaeude_t>();
 		if(gb) {
 			DBG_MESSAGE("haltestelle_t::remove()",  "removing building" );
-			hausbauer_t::remove( sp, gb );
+			hausbauer_t::remove( player, gb );
 			bd = NULL;	// no need to recalc image
 			// removing the building could have destroyed this halt already
 			if (!halt.is_bound()){
@@ -360,7 +360,7 @@ haltestelle_t::haltestelle_t(loadsave_t* file)
 }
 
 
-haltestelle_t::haltestelle_t(koord k, spieler_t* sp)
+haltestelle_t::haltestelle_t(koord k, player_t* player_)
 {
 	self = halthandle_t(this);
 	assert( !alle_haltestellen.is_contained(self) );
@@ -371,7 +371,7 @@ haltestelle_t::haltestelle_t(koord k, spieler_t* sp)
 	last_loading_step = welt->get_steps();
 
 	this->init_pos = k;
-	besitzer_p = sp;
+	owner_p = player_;
 
 	enables = NOT_ENABLED;
 	// force total re-routing
@@ -901,10 +901,10 @@ bool haltestelle_t::step(uint8 what, sint16 &units_remaining)
  */
 void haltestelle_t::neuer_monat()
 {
-	if(  welt->get_active_player()==besitzer_p  &&  status_color==COL_RED  ) {
+	if(  welt->get_active_player()==owner_p  &&  status_color==COL_RED  ) {
 		cbuffer_t buf;
 		buf.printf( translator::translate("%s\nis crowded."), get_name() );
-		welt->get_message()->add_message(buf, get_basis_pos(),message_t::full, PLAYER_FLAG|besitzer_p->get_player_nr(), IMG_LEER );
+		welt->get_message()->add_message(buf, get_basis_pos(),message_t::full, PLAYER_FLAG|owner_p->get_player_nr(), IMG_LEER );
 		enables &= (PAX|POST|WARE);
 	}
 
@@ -1081,7 +1081,7 @@ sint32 haltestelle_t::rebuild_connections()
 
 // DBG_MESSAGE("haltestelle_t::rebuild_destinations()", "Adding new table entries");
 
-	const spieler_t *owner;
+	const player_t *owner;
 	schedule_t *fpl;
 	const minivec_tpl<uint8> *goods_catg_index;
 
@@ -1873,7 +1873,7 @@ bool haltestelle_t::recall_ware( ware_t& w, uint32 menge )
 
 
 
-void haltestelle_t::fetch_goods( slist_tpl<ware_t> &load, const ware_besch_t *good_category, uint32 requested_amount, const schedule_t *schedule, const spieler_t *sp )
+void haltestelle_t::fetch_goods( slist_tpl<ware_t> &load, const ware_besch_t *good_category, uint32 requested_amount, const schedule_t *schedule, const player_t *player )
 {
 	// prissi: first iterate over the next stop, then over the ware
 	// might be a little slower, but ensures that passengers to nearest stop are served first
@@ -1887,7 +1887,7 @@ void haltestelle_t::fetch_goods( slist_tpl<ware_t> &load, const ware_besch_t *go
 		for(  uint8 i=1;  i<count;  i++  ) {
 			const uint8 wrap_i = (i + schedule->get_aktuell()) % count;
 
-			const halthandle_t plan_halt = haltestelle_t::get_halt(schedule->eintrag[wrap_i].pos, sp);
+			const halthandle_t plan_halt = haltestelle_t::get_halt(schedule->eintrag[wrap_i].pos, player);
 			if(plan_halt == self) {
 				// we will come later here again ...
 				break;
@@ -2241,27 +2241,27 @@ sint64 haltestelle_t::calc_maintenance() const
 
 
 // changes this to a public transfer exchange stop
-void haltestelle_t::make_public_and_join( spieler_t *sp )
+void haltestelle_t::make_public_and_join( player_t *player )
 {
-	spieler_t *public_owner=welt->get_spieler(1);
+	player_t *public_owner=welt->get_player(1);
 	slist_tpl<halthandle_t> joining;
 
 	// only something to do if not yet owner ...
-	if(besitzer_p!=public_owner) {
+	if(owner_p!=public_owner) {
 		// now recalculate maintenance
 		FOR(slist_tpl<tile_t>, const& i, tiles) {
 			grund_t* const gr = i.grund;
 			gebaeude_t* gb = gr->find<gebaeude_t>();
 			if(gb) {
-				spieler_t *gb_sp=gb->get_besitzer();
+				player_t *gb_player=gb->get_besitzer();
 				sint64 const monthly_costs = welt->get_settings().maint_building * gb->get_tile()->get_besch()->get_level();
-				spieler_t::add_maintenance( gb_sp, -monthly_costs, gb->get_waytype() );
+				player_t::add_maintenance( gb_player, -monthly_costs, gb->get_waytype() );
 				gb->set_besitzer( public_owner );
 				gb->set_flag( obj_t::dirty );
-				spieler_t::add_maintenance(public_owner, monthly_costs, gb->get_waytype() );
+				player_t::add_maintenance(public_owner, monthly_costs, gb->get_waytype() );
 				// it is not real construction cost, it is fee paid for public authority for future maintenance. So money are transferred to public authority
-				spieler_t::book_construction_costs( sp,          -monthly_costs*60, get_basis_pos(), gb->get_waytype());
-				spieler_t::book_construction_costs( public_owner, monthly_costs*60, koord::invalid, gb->get_waytype());
+				player_t::book_construction_costs( player,          -monthly_costs*60, get_basis_pos(), gb->get_waytype());
+				player_t::book_construction_costs( public_owner, monthly_costs*60, koord::invalid, gb->get_waytype());
 			}
 			// ok, valid start, now we can join them
 			// First search the same square
@@ -2286,7 +2286,7 @@ void haltestelle_t::make_public_and_join( spieler_t *sp )
 			}
 		}
 		// transfer ownership
-		besitzer_p = public_owner;
+		owner_p = public_owner;
 	}
 
 	// set name to name of first public stop
@@ -2314,16 +2314,16 @@ void haltestelle_t::make_public_and_join( spieler_t *sp )
 			gebaeude_t* gb = gr->find<gebaeude_t>();
 			if(gb) {
 				// there are also water tiles, which may not have a building
-				spieler_t *gb_sp=gb->get_besitzer();
-				if(public_owner!=gb_sp) {
-					spieler_t *gb_sp=gb->get_besitzer();
+				player_t *gb_player=gb->get_besitzer();
+				if(public_owner!=gb_player) {
+					player_t *gb_sp=gb->get_besitzer();
 					sint64 const monthly_costs = welt->get_settings().maint_building * gb->get_tile()->get_besch()->get_level();
-					spieler_t::add_maintenance( gb_sp, -monthly_costs, gb->get_waytype() );
-					spieler_t::book_construction_costs(gb_sp,         monthly_costs*60, gr->get_pos().get_2d(), gb->get_waytype());
-					spieler_t::book_construction_costs(public_owner, -monthly_costs*60, koord::invalid, gb->get_waytype());
+					player_t::add_maintenance( gb_player, -monthly_costs, gb->get_waytype() );
+					player_t::book_construction_costs(gb_player, monthly_costs*60, gr->get_pos().get_2d(), gb->get_waytype());
+					player_t::book_construction_costs(public_owner, -monthly_costs*60, koord::invalid, gb->get_waytype());
 					gb->set_besitzer(public_owner);
 					gb->set_flag(obj_t::dirty);
-					spieler_t::add_maintenance(public_owner, monthly_costs, gb->get_waytype() );
+					player_t::add_maintenance(public_owner, monthly_costs, gb->get_waytype() );
 				}
 			}
 			// transfer tiles to us
@@ -2345,10 +2345,10 @@ void haltestelle_t::make_public_and_join( spieler_t *sp )
 	}
 
 	// tell the world of it ...
-	if(  sp->get_player_nr()!=1  &&  env_t::networkmode  ) {
+	if(  player->get_player_nr()!=1  &&  env_t::networkmode  ) {
 		cbuffer_t buf;
 		buf.printf( translator::translate("%s at (%i,%i) now public stop."), get_name(), get_basis_pos().x, get_basis_pos().y );
-		welt->get_message()->add_message( buf, get_basis_pos(), message_t::ai, PLAYER_FLAG|sp->get_player_nr(), IMG_LEER );
+		welt->get_message()->add_message( buf, get_basis_pos(), message_t::ai, PLAYER_FLAG|player->get_player_nr(), IMG_LEER );
 	}
 
 	recalc_station_type();
@@ -2531,7 +2531,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 {
 	xml_tag_t h( file, "haltestelle_t" );
 
-	sint32 spieler_n;
+	sint32 owner_n;
 	koord3d k;
 
 	// will restore halthandle_t after loading
@@ -2554,13 +2554,13 @@ void haltestelle_t::rdwr(loadsave_t *file)
 	}
 
 	if(file->is_saving()) {
-		spieler_n = welt->sp2num( besitzer_p );
+		owner_n = welt->sp2num( owner_p );
 	}
 
 	if(file->get_version()<99008) {
 		init_pos.rdwr( file );
 	}
-	file->rdwr_long(spieler_n);
+	file->rdwr_long(owner_n);
 
 	if(file->get_version()<=88005) {
 		bool dummy;
@@ -2570,7 +2570,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 	}
 
 	if(file->is_loading()) {
-		besitzer_p = welt->get_spieler(spieler_n);
+		owner_p = welt->get_player(owner_n);
 		k.rdwr( file );
 		while(k!=koord3d::invalid) {
 			grund_t *gr = welt->lookup(k);
@@ -3003,19 +3003,19 @@ bool haltestelle_t::add_grund(grund_t *gr)
 	vector_tpl<linehandle_t> check_line(0);
 
 	// public halt: must iterate over all players lines / convoys
-	bool public_halt = get_besitzer() == welt->get_spieler(1);
+	bool public_halt = get_besitzer() == welt->get_player(1);
 
 	uint8 const pl_min = public_halt ? 0                : get_besitzer()->get_player_nr();
 	uint8 const pl_max = public_halt ? MAX_PLAYER_COUNT : get_besitzer()->get_player_nr()+1;
 	// iterate over all lines (public halt: all lines, other: only player's lines)
 	for(  uint8 i=pl_min;  i<pl_max;  i++  ) {
-		if(  spieler_t *sp = welt->get_spieler(i)  ) {
-			sp->simlinemgmt.get_lines(simline_t::line, &check_line);
+		if(  player_t *player = welt->get_player(i)  ) {
+			player->simlinemgmt.get_lines(simline_t::line, &check_line);
 			FOR(  vector_tpl<linehandle_t>, const j, check_line  ) {
 				// only add unknown lines
 				if(  !registered_lines.is_contained(j)  &&  j->count_convoys() > 0  ) {
 					FOR(  minivec_tpl<linieneintrag_t>, const& k, j->get_schedule()->eintrag  ) {
-						if(  get_halt(k.pos, sp) == self  ) {
+						if(  get_halt(k.pos, player) == self  ) {
 							registered_lines.append(j);
 							break;
 						}

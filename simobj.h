@@ -16,7 +16,7 @@
 
 class cbuffer_t;
 class karte_ptr_t;
-class spieler_t;
+class player_t;
 
 /**
  * Base class of all objects on the map, obj == thing
@@ -100,12 +100,12 @@ public:
 	/**
 	 * sets owner of object
 	 */
-	void set_besitzer(spieler_t *sp);
+	void set_besitzer(player_t *player);
 
 	/**
 	 * returns owner of object
 	 */
-	spieler_t * get_besitzer() const;
+	player_t * get_besitzer() const;
 
 	/**
 	 * routines to set, clear, get bit flags
@@ -206,7 +206,7 @@ public:
 	 * Routine for cleanup if object is removed (ie book maintenance, cost for removal)
 	 * @author Hj. Malthaner
 	 */
-	virtual void entferne(spieler_t *) {}
+	virtual void entferne(player_t *) {}
 
 	/**
 	 * @returns untranslated name of object
@@ -313,7 +313,7 @@ public:
 	 * @return NULL if OK, otherwise an error message
 	 * @author Hj. Malthaner
 	 */
-	virtual const char *ist_entfernbar(const spieler_t *sp);
+	virtual const char *ist_entfernbar(const player_t *player);
 
 	/**
 	 * Draw background image of object

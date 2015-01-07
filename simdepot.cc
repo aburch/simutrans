@@ -51,8 +51,8 @@ depot_t::depot_t(loadsave_t *file) : gebaeude_t()
 }
 
 
-depot_t::depot_t(koord3d pos, spieler_t *sp, const haus_tile_besch_t *t) :
-    gebaeude_t(pos, sp, t)
+depot_t::depot_t(koord3d pos, player_t *player, const haus_tile_besch_t *t) :
+    gebaeude_t(pos, player, t)
 {
 	all_depots.append(this);
 	selected_filter = VEHICLE_FILTER_RELEVANT;
@@ -69,14 +69,14 @@ depot_t::~depot_t()
 
 
 // finds the next/previous depot relative to the current position
-depot_t *depot_t::find_depot( koord3d start, const obj_t::typ depot_type, const spieler_t *sp, bool forward)
+depot_t *depot_t::find_depot( koord3d start, const obj_t::typ depot_type, const player_t *player, bool forward)
 {
 	depot_t *found = NULL;
 	koord3d found_pos = forward ? koord3d(welt->get_size().x+1,welt->get_size().y+1,welt->get_grundwasser()) : koord3d(-1,-1,-1);
 	long found_hash = forward ? 0x7FFFFFF : -1;
 	long start_hash = start.x + (8192*start.y);
 	FOR(slist_tpl<depot_t*>, const d, all_depots) {
-		if(d->get_typ()==depot_type  &&  d->get_besitzer()==sp) {
+		if(d->get_typ()==depot_type  &&  d->get_besitzer()==player) {
 			// ok, the right type of depot
 			const koord3d pos = d->get_pos();
 			if(pos==start) {
@@ -547,9 +547,9 @@ void depot_t::rdwr_vehikel(slist_tpl<vehikel_t *> &list, loadsave_t *file)
  * @return NULL wenn OK, ansonsten eine Fehlermeldung
  * @author Hj. Malthaner
  */
-const char * depot_t::ist_entfernbar(const spieler_t *sp)
+const char * depot_t::ist_entfernbar(const player_t *player)
 {
-	if(sp!=get_besitzer()  &&  sp!=welt->get_spieler(1)) {
+	if(player!=get_besitzer()  &&  player!=welt->get_player(1)) {
 		return "Das Feld gehoert\neinem anderen Spieler\n";
 	}
 	if (!vehicles.empty()) {

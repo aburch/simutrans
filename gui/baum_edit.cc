@@ -44,8 +44,8 @@ static bool compare_baum_besch(const baum_besch_t* a, const baum_besch_t* b)
 }
 
 
-baum_edit_frame_t::baum_edit_frame_t(spieler_t* sp_) :
-	extend_edit_gui_t(translator::translate("baum builder"), sp_),
+baum_edit_frame_t::baum_edit_frame_t(player_t* player_) :
+	extend_edit_gui_t(translator::translate("baum builder"), player_),
 	baumlist(16)
 {
 	bt_timeline.set_text( "Random age" );
@@ -135,10 +135,10 @@ void baum_edit_frame_t::change_item_info(sint32 entry)
 		sprintf( param_str, "%i%i,%s", bt_climates.pressed, bt_timeline.pressed, besch->get_name() );
 		baum_tool.set_default_param(param_str);
 		baum_tool.cursor = tool_t::general_tool[TOOL_PLANT_TREE]->cursor;
-		welt->set_tool( &baum_tool, sp );
+		welt->set_tool( &baum_tool, player );
 	}
-	else if(welt->get_tool(sp->get_player_nr())==&baum_tool) {
+	else if(welt->get_tool(player->get_player_nr())==&baum_tool) {
 		besch = NULL;
-		welt->set_tool( tool_t::general_tool[TOOL_QUERY], sp );
+		welt->set_tool( tool_t::general_tool[TOOL_QUERY], player );
 	}
 }

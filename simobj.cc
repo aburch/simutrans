@@ -126,17 +126,17 @@ obj_t::~obj_t()
 /**
  * sets owner of object
  */
-void obj_t::set_besitzer(spieler_t *sp)
+void obj_t::set_besitzer(player_t *player)
 {
-	int i = welt->sp2num(sp);
+	int i = welt->sp2num(player);
 	assert(i>=0);
 	besitzer_n = (uint8)i;
 }
 
 
-spieler_t *obj_t::get_besitzer() const
+player_t *obj_t::get_besitzer() const
 {
-	return welt->get_spieler(besitzer_n);
+	return welt->get_player(besitzer_n);
 }
 
 
@@ -169,9 +169,9 @@ void obj_t::zeige_info()
 
 
 // returns NULL, if removal is allowed
-const char *obj_t::ist_entfernbar(const spieler_t *sp)
+const char *obj_t::ist_entfernbar(const player_t *player)
 {
-	if(besitzer_n==PLAYER_UNOWNED  ||  welt->get_spieler(besitzer_n) == sp  ||  welt->get_spieler(1) == sp) {
+	if(besitzer_n==PLAYER_UNOWNED  ||  welt->get_player(besitzer_n) == player  ||  welt->get_player(1) == player) {
 		return NULL;
 	}
 	else {
@@ -228,9 +228,9 @@ void obj_t::display(int xpos, int ypos) const
 			if(  besitzer_n != PLAYER_UNOWNED  ) {
 				if(  obj_t::show_owner  ) {
 #ifdef MULTI_THREAD
-					display_blend( bild, xpos, ypos, besitzer_n, (welt->get_spieler(besitzer_n)->get_player_color1()+2) | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty, clip_num );
+					display_blend( bild, xpos, ypos, besitzer_n, (welt->get_player(besitzer_n)->get_player_color1()+2) | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty, clip_num );
 #else
-					display_blend( bild, xpos, ypos, besitzer_n, (welt->get_spieler(besitzer_n)->get_player_color1()+2) | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty );
+					display_blend( bild, xpos, ypos, besitzer_n, (welt->get_player(besitzer_n)->get_player_color1()+2) | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty );
 #endif
 				}
 				else {
@@ -315,9 +315,9 @@ void obj_t::display_after(int xpos, int ypos, bool) const
 		if(  besitzer_n != PLAYER_UNOWNED  ) {
 			if(  obj_t::show_owner  ) {
 #ifdef MULTI_THREAD
-				display_blend( bild, xpos, ypos, besitzer_n, (welt->get_spieler(besitzer_n)->get_player_color1()+2) | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty, clip_num );
+				display_blend( bild, xpos, ypos, besitzer_n, (welt->get_player(besitzer_n)->get_player_color1()+2) | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty, clip_num );
 #else
-				display_blend( bild, xpos, ypos, besitzer_n, (welt->get_spieler(besitzer_n)->get_player_color1()+2) | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty );
+				display_blend( bild, xpos, ypos, besitzer_n, (welt->get_player(besitzer_n)->get_player_color1()+2) | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty );
 #endif
 			}
 			else if(  obj_t::get_flag( highlight )  ) {

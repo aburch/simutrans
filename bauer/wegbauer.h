@@ -17,7 +17,7 @@ class weg_besch_t;
 class bruecke_besch_t;
 class tunnel_besch_t;
 class karte_ptr_t;
-class spieler_t;
+class player_t;
 class grund_t;
 class tool_selector_t;
 
@@ -95,7 +95,7 @@ private:
 	};
 	vector_tpl<next_gr_t> next_gr;
 
-	spieler_t *sp;
+	player_t *player_builder;
 
 	/**
 	 * Type of building operation
@@ -204,7 +204,7 @@ public:
 
 	void set_maximum(uint32 n) { maximum = n; }
 
-	wegbauer_t(spieler_t *spl);
+	wegbauer_t(player_t *player_);
 
 	void calc_straight_route(const koord3d start, const koord3d ziel);
 	void calc_route(const koord3d &start3d, const koord3d &ziel);
@@ -215,10 +215,10 @@ public:
 	*/
 	sint64 calc_costs();
 
-	bool check_crossing(const koord zv, const grund_t *bd,waytype_t wtyp, const spieler_t *sp) const;
+	bool check_crossing(const koord zv, const grund_t *bd,waytype_t wtyp, const player_t *player_) const;
 	bool check_for_leitung(const koord zv, const grund_t *bd) const;
 	// allowed owner?
-	bool check_owner( const spieler_t *sp1, const spieler_t *sp2 ) const;
+	bool check_owner( const player_t *player1, const player_t *player2 ) const;
 	// checks whether buildings on the tile allow to leave in direction dir
 	bool check_building( const grund_t *to, const koord dir ) const;
 	// allowed slope?

@@ -15,7 +15,7 @@
 #include "components/gui_numberinput.h"
 #include "../utils/cbuffer_t.h"
 
-class spieler_t;
+class player_t;
 class ai_t;
 
 class ai_option_t : public gui_frame_t, private action_listener_t
@@ -27,7 +27,7 @@ private:
 	ai_t *ai;
 
 public:
-	ai_option_t(spieler_t *sp);
+	ai_option_t(player_t *player);
 
 	/**
 	 * Set the window associated helptext

@@ -14,7 +14,7 @@ class field_t : public obj_t
 	const field_class_besch_t *besch;
 
 public:
-	field_t(const koord3d pos, spieler_t *sp, const field_class_besch_t *besch, fabrik_t *fab);
+	field_t(const koord3d pos, player_t *player, const field_class_besch_t *besch, fabrik_t *fab);
 	virtual ~field_t();
 
 	const char* get_name() const { return "Field"; }
@@ -33,9 +33,9 @@ public:
 	 * @return NULL wenn OK, ansonsten eine Fehlermeldung
 	 * @author Hj. Malthaner
 	 */
-	const char * ist_entfernbar(const spieler_t *);
+	const char * ist_entfernbar(const player_t *);
 
-	void entferne(spieler_t *sp);
+	void entferne(player_t *player);
 };
 
 #endif

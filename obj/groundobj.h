@@ -60,7 +60,7 @@ public:
 
 	void info(cbuffer_t & buf) const;
 
-	void entferne(spieler_t *sp);
+	void entferne(player_t *player);
 
 	const groundobj_besch_t* get_besch() const { return groundobj_typen[groundobjtype]; }
 

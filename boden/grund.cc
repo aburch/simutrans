@@ -136,20 +136,20 @@ PLAYER_COLOR_VAL grund_t::text_farbe() const
 	if(is_halt()  &&  find<label_t>()==NULL) {
 		// only halt label
 		const halthandle_t halt = get_halt();
-		const spieler_t *sp=halt->get_besitzer();
-		if(sp) {
-			return PLAYER_FLAG|(sp->get_player_color1()+4);
+		const player_t *player=halt->get_besitzer();
+		if(player) {
+			return PLAYER_FLAG|(player->get_player_color1()+4);
 		}
 	}
 	// else color according to current owner
 	else if(obj_bei(0)) {
-		const spieler_t *sp = obj_bei(0)->get_besitzer(); // for cityhall
+		const player_t *player = obj_bei(0)->get_besitzer(); // for cityhall
 		const label_t* l = find<label_t>();
 		if(l) {
-			sp = l->get_besitzer();
+			player = l->get_besitzer();
 		}
-		if(sp) {
-			return PLAYER_FLAG|(sp->get_player_color1()+4);
+		if(player) {
+			return PLAYER_FLAG|(player->get_player_color1()+4);
 		}
 	}
 
@@ -243,7 +243,7 @@ void grund_t::rdwr(loadsave_t *file)
 		bool label;
 		file->rdwr_bool(label);
 		if(label) {
-			objlist.add( new label_t(pos, welt->get_spieler(0), get_text() ) );
+			objlist.add( new label_t(pos, welt->get_player(0), get_text() ) );
 		}
 	}
 
@@ -417,7 +417,7 @@ void grund_t::rdwr(loadsave_t *file)
 						assert((flags&has_way2)==0);	// maximum two ways on one tile ...
 						weg->set_pos(pos);
 						if(besitzer_n!=-1) {
-							weg->set_besitzer(welt->get_spieler(besitzer_n));
+							weg->set_besitzer(welt->get_player(besitzer_n));
 						}
 						objlist.add(weg);
 						if(flags&has_way1) {
@@ -1728,7 +1728,7 @@ sint64 grund_t::remove_trees()
 }
 
 
-sint64 grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp)
+sint64 grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, player_t *player)
 {
 	sint64 cost=0;
 
@@ -1773,9 +1773,9 @@ sint64 grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp)
 		}
 
 		// just add the maintenance
-		if(sp && !ist_wasser()) {
-			spieler_t::add_maintenance( sp, weg->get_besch()->get_wartung(), weg->get_besch()->get_finance_waytype() );
-			weg->set_besitzer( sp );
+		if(player && !ist_wasser()) {
+			player_t::add_maintenance( player, weg->get_besch()->get_wartung(), weg->get_besch()->get_finance_waytype() );
+			weg->set_besitzer( player );
 		}
 
 		// may result in a crossing, but the wegebauer will recalc all images anyway
@@ -1899,7 +1899,7 @@ int grund_t::get_max_speed() const
 }
 
 
-bool grund_t::remove_everything_from_way(spieler_t* sp, waytype_t wt, ribi_t::ribi rem)
+bool grund_t::remove_everything_from_way(player_t* player_, waytype_t wt, ribi_t::ribi rem)
 {
 	// check, if the way must be totally removed?
 	weg_t *weg = get_weg(wt);
@@ -1909,7 +1909,7 @@ bool grund_t::remove_everything_from_way(spieler_t* sp, waytype_t wt, ribi_t::ri
 		const koord here = pos.get_2d();
 
 		// stops
-		if(flags&is_halt_flag  &&  (get_halt()->get_besitzer()==sp  || sp==welt->get_spieler(1))) {
+		if(flags&is_halt_flag  &&  (get_halt()->get_besitzer()==player_  || player_==welt->get_player(1))) {
 			bool remove_halt = get_typ()!=boden;
 			// remove only if there is no other way
 			if(get_weg_nr(1)==NULL) {
@@ -1930,7 +1930,7 @@ bool grund_t::remove_everything_from_way(spieler_t* sp, waytype_t wt, ribi_t::ri
 #endif
 			}
 			if (remove_halt) {
-				if (!haltestelle_t::remove(sp, pos)) {
+				if (!haltestelle_t::remove(player_, pos)) {
 					return false;
 				}
 			}
@@ -1998,7 +1998,7 @@ bool grund_t::remove_everything_from_way(spieler_t* sp, waytype_t wt, ribi_t::ri
 					if((flags&has_way2)==0) {
 						if (add==ribi_t::keine) {
 							// last way was belonging to this tunnel
-							tunnel->entferne(sp);
+							tunnel->entferne(player_);
 							delete tunnel;
 						}
 					}
@@ -2026,7 +2026,7 @@ bool grund_t::remove_everything_from_way(spieler_t* sp, waytype_t wt, ribi_t::ri
 				// make tunnel portals to normal ground
 				if (get_typ()==tunnelboden  &&  (flags&has_way1)==0) {
 					// remove remaining objs
-					obj_loesche_alle( sp );
+					obj_loesche_alle( player_ );
 					// set to normal ground
 					welt->access(here)->kartenboden_setzen( new boden_t( pos, slope ) );
 					// now this is already deleted !
@@ -2041,7 +2041,7 @@ DBG_MESSAGE("tool_wayremover()","change remaining way to ribi %d",add);
 		}
 		// we have to pay?
 		if(costs) {
-			spieler_t::book_construction_costs(sp, costs, here, finance_wt);
+			player_t::book_construction_costs(player_, costs, here, finance_wt);
 		}
 	}
 	return true;

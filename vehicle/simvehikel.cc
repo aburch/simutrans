@@ -921,12 +921,12 @@ void vehikel_t::neue_fahrt(uint16 start_route_index, bool recalc)
 }
 
 
-vehikel_t::vehikel_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp) :
+vehikel_t::vehikel_t(koord3d pos, const vehikel_besch_t* besch, player_t* player_) :
 	vehikel_basis_t(pos)
 {
 	this->besch = besch;
 
-	set_besitzer( sp );
+	set_besitzer( player_ );
 	insta_zeit = welt->get_current_month();
 	cnv = NULL;
 	speed_limit = SPEED_UNLIMITED;
@@ -1626,7 +1626,7 @@ void vehikel_t::info(cbuffer_t & buf) const
 }
 
 
-const char *vehikel_t::ist_entfernbar(const spieler_t *)
+const char *vehikel_t::ist_entfernbar(const player_t *)
 {
 	return "Fahrzeuge koennen so nicht entfernt werden";
 }
@@ -1738,8 +1738,8 @@ void vehikel_t::display_after(int xpos, int ypos, bool is_gobal) const
 
 
 
-automobil_t::automobil_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, convoi_t* cn) :
-	vehikel_t(pos, besch, sp)
+automobil_t::automobil_t(koord3d pos, const vehikel_besch_t* besch, player_t* player_, convoi_t* cn) :
+	vehikel_t(pos, besch, player_)
 {
 	cnv = cn;
 	drives_on_left = welt->get_settings().is_drive_left();
@@ -2296,8 +2296,8 @@ DBG_MESSAGE("waggon_t::waggon_t()","replaced by %s",besch->get_name());
 }
 
 
-waggon_t::waggon_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, convoi_t* cn) :
-	vehikel_t(pos, besch, sp)
+waggon_t::waggon_t(koord3d pos, const vehikel_besch_t* besch, player_t* player_, convoi_t* cn) :
+	vehikel_t(pos, besch, player_)
 {
     cnv = cn;
 }
@@ -3064,8 +3064,8 @@ schedule_t * narrowgauge_waggon_t::erzeuge_neuen_fahrplan() const
 }
 
 
-schiff_t::schiff_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, convoi_t* cn) :
-	vehikel_t(pos, besch, sp)
+schiff_t::schiff_t(koord3d pos, const vehikel_besch_t* besch, player_t* player_, convoi_t* cn) :
+	vehikel_t(pos, besch, player_)
 {
 	cnv = cn;
 }
@@ -3893,8 +3893,8 @@ aircraft_t::aircraft_t(loadsave_t *file, bool is_first, bool is_last) : vehikel_
 }
 
 
-aircraft_t::aircraft_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, convoi_t* cn) :
-	vehikel_t(pos, besch, sp)
+aircraft_t::aircraft_t(koord3d pos, const vehikel_besch_t* besch, player_t* player_, convoi_t* cn) :
+	vehikel_t(pos, besch, player_)
 {
 	cnv = cn;
 	state = taxiing;
@@ -4208,10 +4208,10 @@ void aircraft_t::display_overlay(int xpos_org, int ypos_org) const
 }
 
 
-const char *aircraft_t::ist_entfernbar(const spieler_t *sp)
+const char *aircraft_t::ist_entfernbar(const player_t *player)
 {
 	if (is_on_ground()) {
-		return vehikel_t::ist_entfernbar(sp);
+		return vehikel_t::ist_entfernbar(player);
 	}
 	return NULL;
 }

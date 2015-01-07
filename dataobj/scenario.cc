@@ -464,7 +464,7 @@ void scenario_t::clear_rules()
 }
 
 
-bool scenario_t::is_tool_allowed(const spieler_t* sp, uint16 tool_id, sint16 wt)
+bool scenario_t::is_tool_allowed(const player_t* player, uint16 tool_id, sint16 wt)
 {
 	if (what_scenario != SCRIPTED  &&  what_scenario != SCRIPTED_NETWORK) {
 		return true;
@@ -472,7 +472,7 @@ bool scenario_t::is_tool_allowed(const spieler_t* sp, uint16 tool_id, sint16 wt)
 	// first test the list
 	if (!forbidden_tools.empty()) {
 		forbidden_t test(forbidden_t::forbid_tool, PLAYER_UNOWNED, tool_id, invalid_wt);
-		uint8 player_nr = sp  ?  sp->get_player_nr() :  PLAYER_UNOWNED;
+		uint8 player_nr = player  ?  player->get_player_nr() :  PLAYER_UNOWNED;
 
 		// first test waytype invalid_wt, then wt
 		// .. and all players then specific player
@@ -494,14 +494,14 @@ bool scenario_t::is_tool_allowed(const spieler_t* sp, uint16 tool_id, sint16 wt)
 	// then call script if available
 	if (what_scenario == SCRIPTED) {
 		bool ok = true;
-		const char* err = script->call_function("is_tool_allowed", ok, (uint8)(sp  ?  sp->get_player_nr() : PLAYER_UNOWNED), tool_id, wt);
+		const char* err = script->call_function("is_tool_allowed", ok, (uint8)(player  ?  player->get_player_nr() : PLAYER_UNOWNED), tool_id, wt);
 		return err != NULL  ||  ok;
 	}
 
 	return true;
 }
 
-const char* scenario_t::is_work_allowed_here(const spieler_t* sp, uint16 tool_id, sint16 wt, koord3d pos)
+const char* scenario_t::is_work_allowed_here(const player_t* player, uint16 tool_id, sint16 wt, koord3d pos)
 {
 	if (what_scenario != SCRIPTED  &&  what_scenario != SCRIPTED_NETWORK) {
 		return NULL;
@@ -510,7 +510,7 @@ const char* scenario_t::is_work_allowed_here(const spieler_t* sp, uint16 tool_id
 	// first test the list
 	if (!forbidden_tools.empty()) {
 		forbidden_t test(forbidden_t::forbid_tool_rect, PLAYER_UNOWNED, tool_id, invalid_wt);
-		uint8 player_nr = sp  ?  sp->get_player_nr() :  PLAYER_UNOWNED;
+		uint8 player_nr = player  ?  player->get_player_nr() :  PLAYER_UNOWNED;
 
 		// first test waytype invalid_wt, then wt
 		// .. and all players then specific player
@@ -545,7 +545,7 @@ const char* scenario_t::is_work_allowed_here(const spieler_t* sp, uint16 tool_id
 	// which is done per client
 	if (what_scenario == SCRIPTED) {
 		static plainstring msg;
-		const char *err = script->call_function("is_work_allowed_here", msg, (uint8)(sp ? sp->get_player_nr() : PLAYER_UNOWNED), tool_id, pos);
+		const char *err = script->call_function("is_work_allowed_here", msg, (uint8)(player ? player->get_player_nr() : PLAYER_UNOWNED), tool_id, pos);
 
 		return err == NULL ? msg.c_str() : NULL;
 	}
@@ -553,7 +553,7 @@ const char* scenario_t::is_work_allowed_here(const spieler_t* sp, uint16 tool_id
 }
 
 
-const char* scenario_t::is_schedule_allowed(const spieler_t* sp, const schedule_t* schedule)
+const char* scenario_t::is_schedule_allowed(const player_t* player, const schedule_t* schedule)
 {
 	// sanity checks
 	if (schedule == NULL) {
@@ -566,7 +566,7 @@ const char* scenario_t::is_schedule_allowed(const spieler_t* sp, const schedule_
 	// call script
 	if (what_scenario == SCRIPTED) {
 		static plainstring msg;
-		const char *err = script->call_function("is_schedule_allowed", msg, (uint8)(sp ? sp->get_player_nr() : PLAYER_UNOWNED), schedule);
+		const char *err = script->call_function("is_schedule_allowed", msg, (uint8)(player ? player->get_player_nr() : PLAYER_UNOWNED), schedule);
 
 		return err == NULL ? msg.c_str() : NULL;
 	}
@@ -598,20 +598,20 @@ void scenario_t::step()
 
 	// first check, whether win/loss state of any player changed
 	for(uint32 i=0; i<PLAYER_UNOWNED; i++) {
-		spieler_t *sp = welt->get_spieler(i);
+		player_t *player = welt->get_player(i);
 		uint16 mask = 1 << i;
 		// player exists and has not won/lost yet
-		if (sp  &&  (((won | lost) & mask)==0)) {
+		if (player  &&  (((won | lost) & mask)==0)) {
 			sint32 percentage = 0;
-			script->call_function("is_scenario_completed", percentage, (uint8)(sp ? sp->get_player_nr() : PLAYER_UNOWNED));
+			script->call_function("is_scenario_completed", percentage, (uint8)(player ? player->get_player_nr() : PLAYER_UNOWNED));
 
 			// script might have deleted the player
-			sp = welt->get_spieler(i);
-			if (sp == NULL) {
+			player = welt->get_player(i);
+			if (player == NULL) {
 				continue;
 			}
 
-			sp->set_scenario_completion(percentage);
+			player->set_scenario_completion(percentage);
 			// won ?
 			if (percentage >= 100) {
 				new_won |= mask;
@@ -686,14 +686,14 @@ void scenario_t::update_won_lost(uint16 new_won, uint16 new_lost)
 
 void scenario_t::update_scenario_texts()
 {
-	spieler_t *sp = welt->get_active_player();
-	info_text.update(script, sp);
-	goal_text.update(script, sp);
-	rule_text.update(script, sp);
-	result_text.update(script, sp);
-	about_text.update(script, sp);
-	debug_text.update(script, sp);
-	description_text.update(script, sp);
+	player_t *player = welt->get_active_player();
+	info_text.update(script, player);
+	goal_text.update(script, player);
+	rule_text.update(script, player);
+	result_text.update(script, player);
+	about_text.update(script, player);
+	debug_text.update(script, player);
+	description_text.update(script, player);
 }
 
 
@@ -883,12 +883,12 @@ int scenario_t::get_completion(int player_nr)
 	}
 
 	sint32 percentage = 0;
-	spieler_t *sp = welt->get_spieler(player_nr);
+	player_t *player = welt->get_player(player_nr);
 
 	if ( what_scenario == SCRIPTED ) {
 		// take cached value
-		if (sp) {
-			percentage = sp->get_scenario_completion();
+		if (player) {
+			percentage = player->get_scenario_completion();
 		}
 	}
 	else if ( what_scenario == SCRIPTED_NETWORK ) {
@@ -897,8 +897,8 @@ int scenario_t::get_completion(int player_nr)
 		const char *ret = dynamic_string::fetch_result((const char*)buf, NULL, NULL);
 		percentage = ret ? atoi(ret) : 0;
 		// cache value
-		if (sp) {
-			sp->set_scenario_completion(percentage);
+		if (player) {
+			player->set_scenario_completion(percentage);
 		}
 	}
 	return min( 100, percentage);

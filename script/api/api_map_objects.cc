@@ -183,14 +183,14 @@ void begin_obj_class(HSQUIRRELVM vm, const char* name, const char* base = NULL)
 }
 
 // markers / labels
-label_t* create_marker(koord pos, spieler_t* sp, const char* text)
+label_t* create_marker(koord pos, player_t* player, const char* text)
 {
-	if (sp == NULL  ||  text == NULL) {
+	if (player == NULL || text == NULL) {
 		return NULL;
 	}
 	tool_marker_t w;
 	w.flags = 0;
-	const char* err = w.work(sp, koord3d(pos,0));
+	const char* err = w.work(player, koord3d(pos, 0));
 	if (err) {
 		return NULL;
 	}

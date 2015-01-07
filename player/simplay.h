@@ -29,13 +29,13 @@ class finance_t;
 /**
  * Class to hold informations about one player/company. AI players are derived from this class.
  */
-class spieler_t
+class player_t
 {
 public:
 	enum { EMPTY=0, HUMAN=1, AI_GOODS=2, AI_PASSENGER=3, MAX_AI, PASSWORD_PROTECTED=128 };
 
 protected:
-	char spieler_name_buf[256];
+	char player_name_buf[256];
 
 	/* "new" finance history */
 	finance_t *finance;
@@ -50,6 +50,10 @@ protected:
 	// when was the company founded
 	uint16 player_age;
 
+
+	/**
+	 * Floating massages for all players here
+	 */
 	class income_message_t {
 	public:
 		char str[33];
@@ -65,21 +69,21 @@ protected:
 	slist_tpl<income_message_t *>messages;
 
 	/**
-	 * creates new income message entry or merges with existing one if the
+	 * Creates new income message entry or merges with existing one if the
 	 * most recent one is at the same coordinate
 	 */
 	void add_message(sint64 amount, koord k);
 
 	/**
-	 * displays amount of money when koordinates are on screen
+	 * Displays amount of money when koordinates are on screen
 	 */
 	void add_money_message(sint64 amount, koord k);
 
 	/**
-	 * Kennfarbe (Fahrzeuge, Gebäude) des Speielers
+	 * Colors of the player
 	 * @author Hj. Malthaner
 	 */
-	uint8 kennfarbe1, kennfarbe2;
+	uint8 player_color_1, player_color_2;
 
 	/**
 	 * Player number; only player 0 can do interaction
@@ -99,7 +103,7 @@ protected:
 	 * Ist dieser Spieler ein automatischer Spieler?
 	 * @author Hj. Malthaner
 	 */
-	bool automat;
+	bool active;
 
 	/**
 	 * Are this player allowed to do any changes?
@@ -126,7 +130,7 @@ public:
 	 * @param tt type of transport
 	 * @author jk271
 	 */
-	static void book_construction_costs(spieler_t * const sp, const sint64 amount, const koord k, const waytype_t wt=ignore_wt);
+	static void book_construction_costs(player_t * const player, const sint64 amount, const koord k, const waytype_t wt=ignore_wt);
 
 	/**
 	 * Accounts bought/sold vehicles.
@@ -195,9 +199,9 @@ public:
 
 	finance_t * get_finance() { return finance; }
 
-	virtual bool set_active( bool b ) { return automat = b; }
+	virtual bool set_active( bool b ) { return active = b; }
 
-	bool is_active() const { return automat; }
+	bool is_active() const { return active; }
 
 	bool is_locked() const { return locked; }
 
@@ -225,13 +229,13 @@ public:
 	/* Handles player colors ...
 	* @author prissi
 	*/
-	uint8 get_player_color1() const { return kennfarbe1; }
-	uint8 get_player_color2() const { return kennfarbe2; }
+	uint8 get_player_color1() const { return player_color_1; }
+	uint8 get_player_color2() const { return player_color_2; }
 	void set_player_color(uint8 col1, uint8 col2);
 
 	/**
-	 * Name of the player
-	 * @author player
+	 * @return the name of the player; "player -1" sits in front of the screen
+	 * @author prissi
 	 */
 	const char* get_name() const;
 	void set_name(const char *);
@@ -242,21 +246,21 @@ public:
 	 * return true, if the owner is none, myself or player(1), i.e. the ownership can be taken by player test
 	 * @author prissi
 	 */
-	static bool check_owner( const spieler_t *owner, const spieler_t *test );
+	static bool check_owner( const player_t *owner, const player_t *test );
 
 	/**
-	 * @param welt Die Welt (Karte) des Spiels
-	 * @param color Kennfarbe des Spielers
+	 * @param welt World this players belong to.
+	 * @param player_nr Number assigned to this player, it's a ID.
 	 * @author Hj. Malthaner
 	 */
-	spieler_t(karte_t *welt, uint8 player_nr );
+	player_t(karte_t *welt, uint8 player_nr );
 
-	virtual ~spieler_t();
+	virtual ~player_t();
 
-	static sint32 add_maintenance(spieler_t *sp, sint32 const change, waytype_t const wt=ignore_wt)
+	static sint32 add_maintenance(player_t *player, sint32 const change, waytype_t const wt=ignore_wt)
 	{
-		if(sp) {
-			return sp->add_maintenance(change, wt);
+		if(player) {
+			return player->add_maintenance(change, wt);
 		}
 		return 0;
 	}
@@ -270,53 +274,56 @@ public:
 	void set_scenario_completion(sint32 percent);
 
 	/**
-	 * @return Kontostand als double (Gleitkomma) Wert
+	 * @return Account balance as a double (floating point) value
 	 * @author Hj. Malthaner
 	 */
-	double get_konto_als_double() const;
+	double get_account_balance_as_double() const;
 
 	/**
-	 * @return true wenn Konto Überzogen ist
+	 * @return true when account balance is overdrawn
 	 * @author Hj. Malthaner
 	 */
 	int get_account_overdrawn() const;
 
 	/**
-	 * Zeigt Meldungen aus der Queue des Spielers auf dem Bildschirm an
+	 * Displays messages from the queue of the player on the screen
+	 * Show income messages
 	 * @author Hj. Malthaner
-	 */
+     * @author prissi
+     */
 	void display_messages();
 
 	/**
-	 * Wird von welt in kurzen abständen aufgerufen
+	 * Called often by simworld.cc during simulation
+	 * @note Any action goes here (only need for AI at the moment)
 	 * @author Hj. Malthaner
 	 */
 	virtual void step();
 
 	/**
-	 * Wird von welt nach jedem monat aufgerufen
+	 * Called monthly by simworld.cc during simulation
 	 * @author Hj. Malthaner
 	 * @returns false if player has to be removed (bankrupt/inactive)
 	 */
-	virtual bool neuer_monat();
+	virtual bool new_month();
 
 	/**
-	 * Methode fuer jaehrliche Aktionen
+	 * Called yearly by simworld.cc during simulation
 	 * @author Hj. Malthaner
 	 */
-	virtual void neues_jahr() {}
+	virtual void new_year() {}
 
 	/**
-	 * Lädt oder speichert Zustand des Spielers
-	 * @param file die offene Save-Datei
-	 * @author Hj. Malthaner
-	 */
+     * Stores/loads the player state
+     * @param file, where the data will be saved/loaded
+     * @author Hj. Malthaner
+     */
 	virtual void rdwr(loadsave_t *file);
 
 	/*
-	 * called after game is fully loaded;
+	 * Called after game is fully loaded;
 	 */
-	virtual void laden_abschliessen();
+	virtual void load_finished();
 
 	virtual void rotate90( const sint16 y_size );
 
@@ -337,11 +344,11 @@ public:
 	void update_assets(sint64 const delta, const waytype_t wt = ignore_wt);
 
 	/**
-	 * Rückruf, um uns zu informieren, dass ein Vehikel ein Problem hat
+	 * Report the player one of his vehicles has a problem
 	 * @author Hansjörg Malthaner
 	 * @date 26-Nov-2001
 	 */
-	virtual void bescheid_vehikel_problem(convoihandle_t cnv,const koord3d ziel);
+	virtual void report_vehicle_problem(convoihandle_t cnv,const koord3d position);
 
 	/**
 	 * Tells the player the result of tool-work commands
@@ -370,12 +377,29 @@ private:
 	waytype_t undo_type;
 
 public:
+	/**
+	 * Function for UNDO
+	 * @date 7-Feb-2005
+	 * @author prissi
+	 */
 	void init_undo(waytype_t t, unsigned short max );
+
+	/**
+     * Function for UNDO
+     * @date 7-Feb-2005
+     * @author prissi
+     */
 	void add_undo(koord3d k);
+
+	/**
+     * Function for UNDO
+     * @date 7-Feb-2005
+     * @author prissi
+     */
 	sint64 undo();
 
-	// headquarter stuff
 private:
+	// headquarter stuff
 	sint32 headquarter_level;
 	koord headquarter_pos;
 

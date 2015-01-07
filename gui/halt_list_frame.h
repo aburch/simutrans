@@ -25,7 +25,7 @@
 #include "components/action_listener.h"
 #include "../tpl/vector_tpl.h"
 
-class spieler_t;
+class player_t;
 class ware_besch_t;
 
 class halt_list_frame_t : public gui_frame_t , private action_listener_t
@@ -49,7 +49,7 @@ public:
     };
 
 private:
-    spieler_t *m_sp;						//13-Feb-02	Added
+    player_t *m_player;						//13-Feb-02	Added
 
     static const char *sort_text[SORT_MODES];
 
@@ -92,7 +92,7 @@ private:
     static bool compare_halts(halthandle_t, halthandle_t);
 
 public:
-	halt_list_frame_t(spieler_t *sp);
+	halt_list_frame_t(player_t *player);
 
 	~halt_list_frame_t();
 

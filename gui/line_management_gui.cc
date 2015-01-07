@@ -16,8 +16,8 @@
 
 #include "line_management_gui.h"
 
-line_management_gui_t::line_management_gui_t(linehandle_t line, spieler_t* sp) :
-	fahrplan_gui_t(line->get_schedule()->copy(), sp, convoihandle_t() )
+line_management_gui_t::line_management_gui_t(linehandle_t line, player_t* player_) :
+	fahrplan_gui_t(line->get_schedule()->copy(), player_, convoihandle_t() )
 {
 	this->line = line;
 	// has this line a single running convoi?
@@ -44,7 +44,7 @@ const char *line_management_gui_t::get_name() const
 
 bool line_management_gui_t::infowin_event(const event_t *ev)
 {
-	if(  sp!=NULL  ) {
+	if(  player!=NULL  ) {
 		// not "magic_line_schedule_rdwr_dummy" during loading of UI ...
 		if(  !line.is_bound()  ) {
 			destroy_win( this );
@@ -97,13 +97,13 @@ void line_management_gui_t::rdwr(loadsave_t *file)
 	old_fpl->rdwr(file);
 	fpl->rdwr(file);
 	if(  file->is_loading()  ) {
-		spieler_t *sp = welt->get_spieler(player_nr);
-		assert(sp);	// since it was alive during saving, this should never happen
+		player_t *player = welt->get_player(player_nr);
+		assert(player);	// since it was alive during saving, this should never happen
 
 		if(  line.is_bound()  &&  old_fpl->matches( welt, line->get_schedule() )  ) {
 			// now we can open the window ...
 			scr_coord const& pos = win_get_pos(this);
-			line_management_gui_t *w = new line_management_gui_t( line, sp );
+			line_management_gui_t *w = new line_management_gui_t( line, player );
 			create_win(pos.x, pos.y, w, w_info, (ptrdiff_t)line.get_rep());
 			w->set_windowsize( size );
 			w->fpl->copy_from( fpl );
@@ -111,7 +111,7 @@ void line_management_gui_t::rdwr(loadsave_t *file)
 		else {
 			dbg->error( "line_management_gui_t::rdwr", "Could not restore schedule window for line id %i", line.get_id() );
 		}
-		sp = NULL;
+		player = NULL;
 		delete old_fpl;
 		delete fpl;
 		fpl = old_fpl = NULL;

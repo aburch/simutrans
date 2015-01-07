@@ -26,10 +26,10 @@ zeiger_t::zeiger_t(loadsave_t *file) : obj_no_info_t()
 }
 
 
-zeiger_t::zeiger_t(koord3d pos, spieler_t *sp) :
+zeiger_t::zeiger_t(koord3d pos, player_t *player) :
     obj_no_info_t(pos)
 {
-	set_besitzer( sp );
+	set_besitzer( player );
 	bild = IMG_LEER;
 	after_bild = IMG_LEER;
 	area = koord(0,0);

@@ -13,7 +13,7 @@
 #include "../dataobj/koord3d.h"
 
 class karte_ptr_t;
-class spieler_t;               // Hajo: 22-Nov-01: Added forward declaration
+class player_t;               // Hajo: 22-Nov-01: Added forward declaration
 class tunnel_besch_t;
 class weg_besch_t;
 class tool_selector_t;
@@ -30,13 +30,13 @@ class tunnelbauer_t {
 private:
 	static karte_ptr_t welt;
 
-	static bool baue_tunnel(spieler_t *sp, koord3d pos, koord3d end, koord zv, const tunnel_besch_t *besch);
-	static void baue_einfahrt(spieler_t *sp, koord3d end, koord zv, const tunnel_besch_t *besch, const weg_besch_t *weg_besch, int &cost);
+	static bool baue_tunnel(player_t *player, koord3d pos, koord3d end, koord zv, const tunnel_besch_t *besch);
+	static void baue_einfahrt(player_t *player, koord3d end, koord zv, const tunnel_besch_t *besch, const weg_besch_t *weg_besch, int &cost);
 
 	tunnelbauer_t() {} // private -> no instance please
 
 public:
-	static koord3d finde_ende(spieler_t *sp, koord3d pos, koord zv, const tunnel_besch_t *besch, bool full_tunnel=true, const char** msg=NULL);
+	static koord3d finde_ende(player_t *player, koord3d pos, koord zv, const tunnel_besch_t *besch, bool full_tunnel=true, const char** msg=NULL);
 
 	static void register_besch(tunnel_besch_t *besch);
 
@@ -46,9 +46,9 @@ public:
 
 	static void fill_menu(tool_selector_t *tool_selector, const waytype_t wtyp, sint16 sound_ok);
 
-	static const char *baue( spieler_t *sp, koord pos, const tunnel_besch_t *besch, bool full_tunnel  );
+	static const char *baue( player_t *player, koord pos, const tunnel_besch_t *besch, bool full_tunnel  );
 
-	static const char *remove(spieler_t *sp, koord3d pos, waytype_t wegtyp, bool all);
+	static const char *remove(player_t *player, koord3d pos, waytype_t wegtyp, bool all);
 };
 
 #endif

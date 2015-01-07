@@ -10,7 +10,7 @@
 
 class cbuffer_t;
 class grund_t;
-class spieler_t;
+class player_t;
 class karte_t;
 
 
@@ -106,12 +106,12 @@ public:
 	/**
 	 * returns a halthandle for the next halt in the schedule (or unbound)
 	 */
-	halthandle_t get_next_halt( spieler_t *sp, halthandle_t halt ) const;
+	halthandle_t get_next_halt( player_t *player, halthandle_t halt ) const;
 
 	/**
 	 * returns a halthandle for the previous halt in the schedule (or unbound)
 	 */
-	halthandle_t get_prev_halt( spieler_t *sp ) const;
+	halthandle_t get_prev_halt( player_t *player ) const;
 
 	/**
 	 * fügt eine koordinate an stelle aktuell in den Fahrplan ein
@@ -147,7 +147,7 @@ public:
 	 * compare this fahrplan with another, ignoring order and exact positions and waypoints
 	 * @author prissi
 	 */
-	bool similar( const schedule_t *fpl, const spieler_t *sp );
+	bool similar( const schedule_t *fpl, const player_t *player );
 
 	/**
 	 * calculates a return way for this schedule

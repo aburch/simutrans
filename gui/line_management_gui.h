@@ -11,13 +11,13 @@
 
 #include "../linehandle_t.h"
 
-class spieler_t;
+class player_t;
 class loadsave_t;
 
 class line_management_gui_t : public fahrplan_gui_t
 {
 public:
-	line_management_gui_t(linehandle_t line, spieler_t* sp);
+	line_management_gui_t(linehandle_t line, player_t* player);
 	virtual ~line_management_gui_t();
 	const char * get_name() const;
 

@@ -338,7 +338,7 @@ namespace script_api {
 	declare_specialized_param(scenario_t*, "t|x|y", "");
 	declare_specialized_param(linehandle_t, "t|x|y", "line_x");
 	declare_specialized_param(simline_t*, "t|x|y", "line_x");
-	declare_specialized_param(spieler_t*, "t|x|y", "player_x");
+	declare_specialized_param(player_t*, "t|x|y", "player_x");
 	declare_specialized_param(stadt_t*, "t|x|y", "city_x");
 	declare_specialized_param(const ware_production_t*, "t|x|y", "factory_production_x");
 	declare_param_mask(ware_production_t*, "t|x|y", "factory_production_x");

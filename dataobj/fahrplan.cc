@@ -88,11 +88,11 @@ bool schedule_t::ist_halt_erlaubt(const grund_t *gr) const
 /* returns a valid halthandle if there is a next halt in the schedule;
  * it may however not be allowed to load there, if the owner mismatches!
  */
-halthandle_t schedule_t::get_next_halt( spieler_t *sp, halthandle_t halt ) const
+halthandle_t schedule_t::get_next_halt( player_t *player, halthandle_t halt ) const
 {
 	if(  eintrag.get_count()>1  ) {
 		for(  uint i=1;  i < eintrag.get_count();  i++  ) {
-			halthandle_t h = haltestelle_t::get_halt( eintrag[ (aktuell+i) % eintrag.get_count() ].pos, sp );
+			halthandle_t h = haltestelle_t::get_halt( eintrag[ (aktuell+i) % eintrag.get_count() ].pos, player );
 			if(  h.is_bound()  &&  h != halt  ) {
 				return h;
 			}
@@ -105,11 +105,11 @@ halthandle_t schedule_t::get_next_halt( spieler_t *sp, halthandle_t halt ) const
 /* returns a valid halthandle if there is a previous halt in the schedule;
  * it may however not be allowed to load there, if the owner mismatches!
  */
-halthandle_t schedule_t::get_prev_halt( spieler_t *sp ) const
+halthandle_t schedule_t::get_prev_halt( player_t *player ) const
 {
 	if(  eintrag.get_count()>1  ) {
 		for(  uint i=1;  i < eintrag.get_count()-1u;  i++  ) {
-			halthandle_t h = haltestelle_t::get_halt( eintrag[ (aktuell+eintrag.get_count()-i) % eintrag.get_count() ].pos, sp );
+			halthandle_t h = haltestelle_t::get_halt( eintrag[ (aktuell+eintrag.get_count()-i) % eintrag.get_count() ].pos, player );
 			if(  h.is_bound()  ) {
 				return h;
 			}
@@ -348,7 +348,7 @@ public:
  * compare this schedule (fahrplan) with another, ignoring order and exact positions and waypoints
  * @author prissi
  */
-bool schedule_t::similar( const schedule_t *fpl, const spieler_t *sp )
+bool schedule_t::similar( const schedule_t *fpl, const player_t *player )
 {
 	if(  fpl == NULL  ) {
 		return false;
@@ -366,7 +366,7 @@ bool schedule_t::similar( const schedule_t *fpl, const spieler_t *sp )
 	vector_tpl<halthandle_t> halts;
 	for(  uint8 idx = 0;  idx < this->eintrag.get_count();  idx++  ) {
 		koord3d p = this->eintrag[idx].pos;
-		halthandle_t halt = haltestelle_t::get_halt( p, sp );
+		halthandle_t halt = haltestelle_t::get_halt( p, player );
 		if(  halt.is_bound()  ) {
 			halts.insert_unique_ordered( halt, HaltIdOrdering() );
 		}
@@ -374,7 +374,7 @@ bool schedule_t::similar( const schedule_t *fpl, const spieler_t *sp )
 	vector_tpl<halthandle_t> other_halts;
 	for(  uint8 idx = 0;  idx < fpl->eintrag.get_count();  idx++  ) {
 		koord3d p = fpl->eintrag[idx].pos;
-		halthandle_t halt = haltestelle_t::get_halt( p, sp );
+		halthandle_t halt = haltestelle_t::get_halt( p, player );
 		if(  halt.is_bound()  ) {
 			other_halts.insert_unique_ordered( halt, HaltIdOrdering() );
 		}

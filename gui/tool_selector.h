@@ -105,7 +105,7 @@ public:
 	virtual uint32 get_rdwr_id() { return magic_toolbar+toolbar_id; }
 
 
-	bool empty(spieler_t *sp) const;
+	bool empty(player_t *player) const;
 };
 
 #endif

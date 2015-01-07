@@ -10,7 +10,7 @@
 
 class connection_info_t;
 class packet_t;
-class spieler_t;
+class player_t;
 class tool_t;
 
 /**
@@ -316,7 +316,7 @@ public:
 	uint32 last_sync_step;
 
 	nwc_tool_t();
-	nwc_tool_t(spieler_t *sp, tool_t *tool, koord3d pos, uint32 sync_steps, uint32 map_counter, bool init);
+	nwc_tool_t(player_t *player, tool_t *tool, koord3d pos, uint32 sync_steps, uint32 map_counter, bool init);
 	nwc_tool_t(const nwc_tool_t&);
 
 	// messages are allowed to arrive at any time

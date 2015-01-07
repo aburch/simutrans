@@ -162,24 +162,24 @@ void vehikelbauer_t::rdwr_speedbonus(loadsave_t *file)
 }
 
 
-vehikel_t* vehikelbauer_t::baue(koord3d k, spieler_t* sp, convoi_t* cnv, const vehikel_besch_t* vb )
+vehikel_t* vehikelbauer_t::baue(koord3d k, player_t* player, convoi_t* cnv, const vehikel_besch_t* vb )
 {
 	vehikel_t* v;
 	switch (vb->get_waytype()) {
-		case road_wt:     v = new automobil_t(      k, vb, sp, cnv); break;
-		case monorail_wt: v = new monorail_waggon_t(k, vb, sp, cnv); break;
+		case road_wt:     v = new automobil_t(      k, vb, player, cnv); break;
+		case monorail_wt: v = new monorail_waggon_t(k, vb, player, cnv); break;
 		case track_wt:
-		case tram_wt:     v = new waggon_t(         k, vb, sp, cnv); break;
-		case water_wt:    v = new schiff_t(         k, vb, sp, cnv); break;
-		case air_wt:      v = new aircraft_t(       k, vb, sp, cnv); break;
-		case maglev_wt:   v = new maglev_waggon_t(  k, vb, sp, cnv); break;
-		case narrowgauge_wt:v = new narrowgauge_waggon_t(k, vb, sp, cnv); break;
+		case tram_wt:     v = new waggon_t(         k, vb, player, cnv); break;
+		case water_wt:    v = new schiff_t(         k, vb, player, cnv); break;
+		case air_wt:      v = new aircraft_t(       k, vb, player, cnv); break;
+		case maglev_wt:   v = new maglev_waggon_t(  k, vb, player, cnv); break;
+		case narrowgauge_wt:v = new narrowgauge_waggon_t(k, vb, player, cnv); break;
 
 		default:
 			dbg->fatal("vehikelbauer_t::baue()", "cannot built a vehicle with waytype %i", vb->get_waytype());
 	}
 
-	sp->book_new_vehicle(-(sint64)vb->get_preis(), k.get_2d(), vb->get_waytype() );
+	player->book_new_vehicle(-(sint64)vb->get_preis(), k.get_2d(), vb->get_waytype() );
 
 	return v;
 }

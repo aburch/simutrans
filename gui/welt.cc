@@ -640,7 +640,7 @@ void welt_gui_t::draw(scr_coord pos, scr_size size)
 	const uint sy = sets->get_groesse_y();
 	const uint64 memory = (
 		(uint64)sizeof(karte_t) +
-		sizeof(spieler_t) * 8 +
+		sizeof(player_t) * 8 +
 		sizeof(convoi_t) * 1000 +
 		(sizeof(schiene_t) + sizeof(vehikel_t)) * 10 * (sx + sy) +
 		sizeof(stadt_t) * sets->get_anzahl_staedte() +

@@ -22,14 +22,14 @@ private:
 	char ibuf[256], player_name_str[256];
 
 protected:
-	spieler_t *sp;
+	player_t *player;
 
 	gui_textinput_t player_name;
 	gui_hidden_textinput_t password;
 	gui_label_t fnlabel, const_player_name;
 
 public:
-	password_frame_t( spieler_t *sp );
+	password_frame_t( player_t *player );
 
 	const char * get_help_filename() const {return "password.txt";}
 

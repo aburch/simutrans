@@ -29,7 +29,7 @@
 class zeiger_t;
 class schedule_t;
 struct linieneintrag_t;
-class spieler_t;
+class player_t;
 class cbuffer_t;
 class loadsave_t;
 
@@ -42,10 +42,10 @@ private:
 
 
 	schedule_t* fpl;
-	spieler_t* sp;
+	player_t* player;
 
 public:
-	fahrplan_gui_stats_t(spieler_t *s);
+	fahrplan_gui_stats_t(player_t *player_);
 	~fahrplan_gui_stats_t();
 
 	void set_fahrplan( schedule_t* f ) { fpl = f; }
@@ -71,7 +71,7 @@ public:
 	 * Append description of entry to buf.
 	 * short version, without loading level and position
 	 */
-	static void gimme_short_stop_name(cbuffer_t& buf, karte_t* welt, spieler_t const* sp, linieneintrag_t const& entry, int max_chars);
+	static void gimme_short_stop_name(cbuffer_t& buf, karte_t* welt, player_t const* player_, linieneintrag_t const& entry, int max_chars);
 
 private:
 	enum mode_t {adding, inserting, removing, undefined_mode};
@@ -111,13 +111,13 @@ private:
 protected:
 	schedule_t *fpl;
 	schedule_t* old_fpl;
-	spieler_t *sp;
+	player_t *player;
 	convoihandle_t cnv;
 
 	linehandle_t new_line, old_line;
 
 public:
-	fahrplan_gui_t(schedule_t* fpl, spieler_t* sp, convoihandle_t cnv);
+	fahrplan_gui_t(schedule_t* fpl, player_t* player, convoihandle_t cnv);
 
 	virtual ~fahrplan_gui_t();
 

@@ -43,8 +43,8 @@ static bool compare_haus_besch(const haus_besch_t* a, const haus_besch_t* b)
 
 
 
-curiosity_edit_frame_t::curiosity_edit_frame_t(spieler_t* sp_) :
-	extend_edit_gui_t(translator::translate("curiosity builder"), sp_),
+curiosity_edit_frame_t::curiosity_edit_frame_t(player_t* player_) :
+	extend_edit_gui_t(translator::translate("curiosity builder"), player_),
 	hauslist(16),
 	lb_rotation( rot_str, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::right ),
 	lb_rotation_info( translator::translate("Rotation"), SYSCOL_TEXT, gui_label_t::left )
@@ -285,9 +285,9 @@ void curiosity_edit_frame_t::change_item_info(sint32 entry)
 		// the tools will be always updated, even though the data up there might be still current
 		sprintf( param_str, "%i%c%s", bt_climates.pressed, rotation==255 ? '#' : '0'+rotation, besch->get_name() );
 		haus_tool.set_default_param(param_str);
-		welt->set_tool( &haus_tool, sp );
+		welt->set_tool( &haus_tool, player );
 	}
-	else if(welt->get_tool(sp->get_player_nr())==&haus_tool) {
+	else if(welt->get_tool(player->get_player_nr())==&haus_tool) {
 		for(int i=0;  i<4;  i++  ) {
 			img[i].set_image( IMG_LEER );
 		}
@@ -298,7 +298,7 @@ void curiosity_edit_frame_t::change_item_info(sint32 entry)
 		}
 
 		besch = NULL;
-		welt->set_tool( tool_t::general_tool[TOOL_QUERY], sp );
+		welt->set_tool( tool_t::general_tool[TOOL_QUERY], player );
 	}
 }
 

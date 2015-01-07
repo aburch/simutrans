@@ -19,7 +19,7 @@
 #include <string>
 
 class karte_ptr_t;
-class spieler_t;
+class player_t;
 class rule_t;
 
 
@@ -99,7 +99,7 @@ public:
 
 private:
 	static karte_ptr_t welt;
-	spieler_t *besitzer_p;
+	player_t *owner;
 	plainstring name;
 
 	weighted_vector_tpl <gebaeude_t *> buildings;
@@ -324,7 +324,7 @@ private:
 	 *
 	 * @author Hj. Malthaner, V. Meyer
 	 */
-	bool baue_strasse(const koord k, spieler_t *sp, bool forced);
+	bool baue_strasse(const koord k, player_t *player, bool forced);
 
 	void baue();
 
@@ -440,13 +440,13 @@ public:
 	/**
 	 * Erzeugt eine neue Stadt auf Planquadrat (x,y) die dem Spieler sp
 	 * gehoert.
-	 * @param sp Der Besitzer der Stadt.
+	 * @param player The owner of the city
 	 * @param x x-Planquadratkoordinate
 	 * @param y y-Planquadratkoordinate
 	 * @param number of citizens
 	 * @author Hj. Malthaner
 	 */
-	stadt_t(spieler_t* sp, koord pos, sint32 citizens);
+	stadt_t(player_t* player, koord pos, sint32 citizens);
 
 	/**
 	 * Erzeugt eine neue Stadt nach Angaben aus der Datei file.

@@ -26,7 +26,7 @@ class label_t;
 class label_info_t : public gui_frame_t, private action_listener_t
 {
 private:
-	spieler_t *sp;
+	player_t *player;
 	label_t *label;
 
 	gui_label_t player_name;

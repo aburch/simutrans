@@ -25,7 +25,7 @@
 #include "components/gui_button.h"
 #include "../convoihandle_t.h"
 
-class spieler_t;
+class player_t;
 class ware_besch_t;
 
 class convoi_frame_t :
@@ -36,7 +36,7 @@ public:
 	enum sort_mode_t { nach_name=0, nach_gewinn=1, nach_typ=2, nach_id=3, SORT_MODES=4 };
 
 private:
-	spieler_t *owner;
+	player_t *owner;
 
 	static const char *sort_text[SORT_MODES];
 
@@ -91,7 +91,7 @@ public:
 	 */
 	void sort_list( char *name, uint32 filter, const slist_tpl<const ware_besch_t *> *wares );
 
-	convoi_frame_t(spieler_t *sp);
+	convoi_frame_t(player_t *player);
 
 	~convoi_frame_t();
 

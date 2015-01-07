@@ -70,9 +70,9 @@ ai_goods_t::ai_goods_t(karte_t *wl, uint8 nr) : ai_t(wl,nr)
  * Methode fuer jaehrliche Aktionen
  * @author Hj. Malthaner, Owen Rudge, hsiegeln
  */
-void ai_goods_t::neues_jahr()
+void ai_goods_t::new_year()
 {
-	spieler_t::neues_jahr();
+	player_t::new_year();
 
 	// AI will reconsider the oldest unbuiltable lines again
 	uint remove = (uint)max(0,(int)forbidden_connections.get_count()-3);
@@ -85,7 +85,7 @@ void ai_goods_t::neues_jahr()
 
 void ai_goods_t::rotate90( const sint16 y_size )
 {
-	spieler_t::rotate90( y_size );
+	player_t::rotate90( y_size );
 
 	// rotate places
 	platz1.rotate90( y_size );
@@ -103,20 +103,20 @@ void ai_goods_t::rotate90( const sint16 y_size )
 bool ai_goods_t::set_active(bool new_state)
 {
 	// something to change?
-	if(automat!=new_state) {
+	if(active!=new_state) {
 
 		if(!new_state) {
 			// deactivate AI
-			automat = false;
+			active = false;
 			state = NR_INIT;
 			start = ziel = NULL;
 		}
 		else {
 			// aktivate AI
-			automat = true;
+			active = true;
 		}
 	}
-	return automat;
+	return active;
 }
 
 
@@ -775,9 +775,9 @@ DBG_MESSAGE("ai_goods_t::create_simple_rail_transport()","building simple track 
 void ai_goods_t::step()
 {
 	// needed for schedule of stops ...
-	spieler_t::step();
+	player_t::step();
 
-	if(!automat) {
+	if(!active) {
 		// I am off ...
 		return;
 	}
@@ -1339,7 +1339,7 @@ void ai_goods_t::rdwr(loadsave_t *file)
 {
 	if(  file->get_version()<102002  ) {
 		// due to an error the player was never saved correctly
-		spieler_t::rdwr(file);
+		player_t::rdwr(file);
 		return;
 	}
 
@@ -1508,14 +1508,14 @@ void ai_goods_t::fabconnection_t::rdwr(loadsave_t *file)
  * @author prissi
  * @date 30-Dec-2008
  */
-void ai_goods_t::bescheid_vehikel_problem(convoihandle_t cnv,const koord3d ziel)
+void ai_goods_t::report_vehicle_problem(convoihandle_t cnv,const koord3d ziel)
 {
 	if(  cnv->get_state() == convoi_t::NO_ROUTE  &&  this!=welt->get_active_player()  ) {
 			DBG_MESSAGE("ai_passenger_t::bescheid_vehikel_problem","Vehicle %s can't find a route to (%i,%i)!", cnv->get_name(),ziel.x,ziel.y);
 			cnv->self_destruct();
 			return;
 	}
-	spieler_t::bescheid_vehikel_problem( cnv, ziel );
+	player_t::report_vehicle_problem( cnv, ziel );
 }
 
 

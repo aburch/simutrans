@@ -23,7 +23,7 @@ protected:
 
 public:
 	bruecke_t(loadsave_t *file);
-	bruecke_t(koord3d pos, spieler_t *sp, const bruecke_besch_t *besch, bruecke_besch_t::img_t img);
+	bruecke_t(koord3d pos, player_t *player, const bruecke_besch_t *besch, bruecke_besch_t::img_t img);
 
 	const char *get_name() const {return "Bruecke";}
 	typ get_typ() const { return bruecke; }
@@ -50,14 +50,14 @@ public:
 
 	void laden_abschliessen();
 
-	void entferne(spieler_t *sp);
+	void entferne(player_t *player);
 
 	void rotate90();
 	/**
 	 * @return NULL wenn OK, ansonsten eine Fehlermeldung
 	 * @author Hj. Malthaner
 	 */
-	virtual const char *ist_entfernbar(const spieler_t *sp);
+	virtual const char *ist_entfernbar(const player_t *player);
 };
 
 #endif

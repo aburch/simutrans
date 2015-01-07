@@ -92,15 +92,15 @@ gebaeude_t::gebaeude_t(loadsave_t *file) : obj_t()
 
 
 
-gebaeude_t::gebaeude_t(koord3d pos, spieler_t *sp, const haus_tile_besch_t *t) :
+gebaeude_t::gebaeude_t(koord3d pos, player_t *player, const haus_tile_besch_t *t) :
     obj_t(pos)
 {
-	set_besitzer( sp );
+	set_besitzer( player );
 
 	init();
 	if(t) {
 		set_tile(t,true);	// this will set init time etc.
-		spieler_t::add_maintenance(get_besitzer(), tile->get_besch()->get_maintenance(welt), tile->get_besch()->get_finance_waytype() );
+		player_t::add_maintenance(get_besitzer(), tile->get_besch()->get_maintenance(welt), tile->get_besch()->get_finance_waytype() );
 	}
 
 	// get correct y offset for bridges
@@ -136,7 +136,7 @@ gebaeude_t::~gebaeude_t()
 	count = 0;
 	anim_time = 0;
 	if(tile) {
-		spieler_t::add_maintenance(get_besitzer(), -tile->get_besch()->get_maintenance(welt), tile->get_besch()->get_finance_waytype());
+		player_t::add_maintenance(get_besitzer(), -tile->get_besch()->get_maintenance(welt), tile->get_besch()->get_finance_waytype());
 	}
 }
 
@@ -869,7 +869,7 @@ void gebaeude_t::rdwr(loadsave_t *file)
  */
 void gebaeude_t::laden_abschliessen()
 {
-	spieler_t::add_maintenance(get_besitzer(), tile->get_besch()->get_maintenance(welt), tile->get_besch()->get_finance_waytype());
+	player_t::add_maintenance(get_besitzer(), tile->get_besch()->get_maintenance(welt), tile->get_besch()->get_finance_waytype());
 
 	// citybuilding, but no town?
 	if(  tile->get_offset()==koord(0,0)  ) {
@@ -892,7 +892,7 @@ void gebaeude_t::laden_abschliessen()
 }
 
 
-void gebaeude_t::entferne(spieler_t *sp)
+void gebaeude_t::entferne(player_t *player)
 {
 //	DBG_MESSAGE("gebaeude_t::entferne()","gb %i");
 	// remove costs
@@ -903,7 +903,7 @@ void gebaeude_t::entferne(spieler_t *sp)
 		cost *= tile->get_besch()->get_level() + 1;
 	}
 
-	spieler_t::book_construction_costs(sp, cost, get_pos().get_2d(), tile->get_besch()->get_finance_waytype());
+	player_t::book_construction_costs(player, cost, get_pos().get_2d(), tile->get_besch()->get_finance_waytype());
 
 	// may need to update next buildings, in the case of start, middle, end buildings
 	if(tile->get_besch()->get_all_layouts()>1  &&  get_haustyp()==unbekannt) {

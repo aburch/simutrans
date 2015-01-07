@@ -18,13 +18,13 @@ uint8 signal_spacing_frame_t::signal_spacing = 2;
 bool signal_spacing_frame_t::remove = true;
 bool signal_spacing_frame_t::replace = true;
 
-signal_spacing_frame_t::signal_spacing_frame_t(spieler_t *sp_, tool_build_roadsign_t* tool_) :
+signal_spacing_frame_t::signal_spacing_frame_t(player_t *player_, tool_build_roadsign_t* tool_) :
 	gui_frame_t( translator::translate("set signal spacing") ),
 	signal_label("signal spacing")
 {
-	sp = sp_;
+	player = player_;
 	tool = tool_;
-	tool->get_values(sp, signal_spacing, remove, replace);
+	tool->get_values(player, signal_spacing, remove, replace);
 
 	scr_coord cursor(D_MARGIN_LEFT, D_MARGIN_TOP);
 
@@ -72,6 +72,6 @@ bool signal_spacing_frame_t::action_triggered( gui_action_creator_t *komp, value
 		replace = !replace;
 		replace_button.pressed = replace;
 	}
-	tool->set_values(sp, signal_spacing, remove, replace);
+	tool->set_values(player, signal_spacing, remove, replace);
 	return true;
 }

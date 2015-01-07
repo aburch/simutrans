@@ -20,11 +20,11 @@
 #include "field.h"
 
 
-field_t::field_t(koord3d p, spieler_t *sp, const field_class_besch_t *besch, fabrik_t *fab) : obj_t()
+field_t::field_t(koord3d p, player_t *player, const field_class_besch_t *besch, fabrik_t *fab) : obj_t()
 {
 	this->besch = besch;
 	this->fab = fab;
-	set_besitzer( sp );
+	set_besitzer( player );
 	p.z = welt->max_hgt(p.get_2d());
 	set_pos( p );
 }
@@ -38,7 +38,7 @@ field_t::~field_t()
 
 
 
-const char *field_t::ist_entfernbar(const spieler_t *)
+const char *field_t::ist_entfernbar(const player_t *)
 {
 	// we allow removal, if there is less than
 	return (fab->get_field_count() > fab->get_besch()->get_field_group()->get_min_fields()) ? NULL : "Not enough fields would remain.";
@@ -47,9 +47,9 @@ const char *field_t::ist_entfernbar(const spieler_t *)
 
 
 // remove costs
-void field_t::entferne(spieler_t *sp)
+void field_t::entferne(player_t *player)
 {
-	spieler_t::book_construction_costs(sp, welt->get_settings().cst_multiply_remove_field, get_pos().get_2d(), ignore_wt);
+	player_t::book_construction_costs(player, welt->get_settings().cst_multiply_remove_field, get_pos().get_2d(), ignore_wt);
 	mark_image_dirty( get_bild(), 0 );
 }
 

@@ -26,12 +26,12 @@
 karte_ptr_t gui_frame_t::welt;
 
 // Insert the container
-gui_frame_t::gui_frame_t(char const* const name, spieler_t const* const sp)
+gui_frame_t::gui_frame_t(char const* const name, player_t const* const player)
 {
 	this->name = name;
 	size = scr_size(200, 100);
 	min_windowsize = scr_size(0,0);
-	owner = sp;
+	owner = player;
 	container.set_pos(scr_coord(0,D_TITLEBAR_HEIGHT));
 	set_resizemode(no_resize);  //25-may-02  markus weber  added
 	opaque = true;

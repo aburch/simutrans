@@ -185,20 +185,20 @@ settings_t::settings_t() :
 	// default AIs active
 	for(  int i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
 		if(  i<2  ) {
-			automaten[i] = true;
-			spieler_type[i] = spieler_t::HUMAN;
+			player_active[i] = true;
+			player_type[i] = player_t::HUMAN;
 		}
 		else if(  i==3  ) {
-			automaten[i] = true;
-			spieler_type[i] = spieler_t::AI_PASSENGER;
+			player_active[i] = true;
+			player_type[i] = player_t::AI_PASSENGER;
 		}
 		else if(  i==6  ) {
-			automaten[i] = true;
-			spieler_type[i] = spieler_t::AI_GOODS;
+			player_active[i] = true;
+			player_type[i] = player_t::AI_GOODS;
 		}
 		else {
-			automaten[i] = false;
-			spieler_type[i] = spieler_t::EMPTY;
+			player_active[i] = false;
+			player_type[i] = player_t::EMPTY;
 		}
 		// undefined colors
 		default_player_color[i][0] = 255;
@@ -541,8 +541,8 @@ void settings_t::rdwr(loadsave_t *file)
 
 			// restore AI state
 			for(  int i=0;  i<15;  i++  ) {
-				file->rdwr_bool(automaten[i] );
-				file->rdwr_byte(spieler_type[i] );
+				file->rdwr_bool(player_active[i] );
+				file->rdwr_byte(player_type[i] );
 				if(  file->get_version()<=102002  ) {
 					char dummy[2] = { 0, 0 };
 					file->rdwr_str(dummy, lengthof(dummy) );
@@ -632,18 +632,18 @@ void settings_t::rdwr(loadsave_t *file)
 			// default AIs active
 			for(  int i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
 				if(  i<2  ) {
-					spieler_type[i] = spieler_t::HUMAN;
+					player_type[i] = player_t::HUMAN;
 				}
 				else if(  i==3  ) {
-					spieler_type[i] = spieler_t::AI_PASSENGER;
+					player_type[i] = player_t::AI_PASSENGER;
 				}
 				else if(  i<8  ) {
-					spieler_type[i] = spieler_t::AI_GOODS;
+					player_type[i] = player_t::AI_GOODS;
 				}
 				else {
-					spieler_type[i] = spieler_t::EMPTY;
+					player_type[i] = player_t::EMPTY;
 				}
-				automaten[i] = false;
+				player_active[i] = false;
 			}
 		}
 
@@ -1525,9 +1525,9 @@ void settings_t::copy_city_road(settings_t const& other)
 
 
 // returns default player colors for new players
-void settings_t::set_default_player_color(spieler_t* const sp) const
+void settings_t::set_default_player_color(player_t* const player) const
 {
-	COLOR_VAL color1 = default_player_color[sp->get_player_nr()][0];
+	COLOR_VAL color1 = default_player_color[player->get_player_nr()][0];
 	if(  color1 == 255  ) {
 		if(  default_player_color_random  ) {
 			// build a vector with all colors
@@ -1537,9 +1537,9 @@ void settings_t::set_default_player_color(spieler_t* const sp) const
 			}
 			// remove all used colors
 			for(  uint8 i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
-				spieler_t *test_sp = sp->get_welt()->get_spieler(i);
-				if(  test_sp  &&  sp!=test_sp  ) {
-					uint8 rem = 1<<(sp->get_player_color1()/8);
+				player_t *test_sp = player->get_welt()->get_player(i);
+				if(  test_sp  &&  player!=test_sp  ) {
+					uint8 rem = 1<<(player->get_player_color1()/8);
 					if(  all_colors1.is_contained(rem)  ) {
 						all_colors1.remove( rem );
 					}
@@ -1555,11 +1555,11 @@ void settings_t::set_default_player_color(spieler_t* const sp) const
 			color1 = pick_any(all_colors1);
 		}
 		else {
-			color1 = sp->get_player_nr();
+			color1 = player->get_player_nr();
 		}
 	}
 
-	COLOR_VAL color2 = default_player_color[sp->get_player_nr()][1];
+	COLOR_VAL color2 = default_player_color[player->get_player_nr()][1];
 	if(  color2 == 255  ) {
 		if(  default_player_color_random  ) {
 			// build a vector with all colors
@@ -1571,9 +1571,9 @@ void settings_t::set_default_player_color(spieler_t* const sp) const
 			all_colors2.remove( color1/8 );
 			// remove all used colors
 			for(  uint8 i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
-				spieler_t *test_sp = sp->get_welt()->get_spieler(i);
-				if(  test_sp  &&  sp!=test_sp  ) {
-					uint8 rem = 1<<(sp->get_player_color2()/8);
+				player_t *test_sp = player->get_welt()->get_player(i);
+				if(  test_sp  &&  player!=test_sp  ) {
+					uint8 rem = 1<<(player->get_player_color2()/8);
 					if(  all_colors2.is_contained(rem)  ) {
 						all_colors2.remove( rem );
 					}
@@ -1589,9 +1589,9 @@ void settings_t::set_default_player_color(spieler_t* const sp) const
 			color2 = pick_any(all_colors2);
 		}
 		else {
-			color2 = sp->get_player_nr() + 3;
+			color2 = player->get_player_nr() + 3;
 		}
 	}
 
-	sp->set_player_color( color1*8, color2*8 );
+	player->set_player_color( color1*8, color2*8 );
 }

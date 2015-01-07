@@ -27,7 +27,7 @@ protected:
 	void set_embedded(gui_component_t *other);
 
 public:
-	base_infowin_t(const char *name, const spieler_t *sp=NULL);
+	base_infowin_t(const char *name, const player_t *player=NULL);
 };
 
 

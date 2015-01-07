@@ -22,7 +22,7 @@
 #include "components/gui_textinput.h"
 
 class convoi_frame_t;
-class spieler_t;
+class player_t;
 class ware_besch_t;
 
 class convoi_filter_frame_t : public gui_frame_t , private action_listener_t
@@ -125,7 +125,7 @@ public:
 	 * Constructor. Generates all necessary Subcomponents.
 	 * @author V. Meyer
 	 */
-	convoi_filter_frame_t(spieler_t *sp, convoi_frame_t *parent, uint32 initial_filters );
+	convoi_filter_frame_t(player_t *player, convoi_frame_t *parent, uint32 initial_filters );
 
 	/**
 	 * Does this window need a min size button in the title bar?

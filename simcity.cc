@@ -965,7 +965,7 @@ stadt_t::~stadt_t()
 			}
 			else {
 				gb->set_stadt( NULL );
-				hausbauer_t::remove(welt->get_spieler(1),gb);
+				hausbauer_t::remove(welt->get_player(1),gb);
 			}
 		}
 	}
@@ -983,7 +983,7 @@ static bool name_used(weighted_vector_tpl<stadt_t*> const& cities, char const* c
 }
 
 
-stadt_t::stadt_t(spieler_t* sp, koord pos, sint32 citizens) :
+stadt_t::stadt_t(player_t* player, koord pos, sint32 citizens) :
 	buildings(16),
 	pax_destinations_old(koord(PAX_DESTINATIONS_SIZE, PAX_DESTINATIONS_SIZE)),
 	pax_destinations_new(koord(PAX_DESTINATIONS_SIZE, PAX_DESTINATIONS_SIZE))
@@ -999,7 +999,7 @@ stadt_t::stadt_t(spieler_t* sp, koord pos, sint32 citizens) :
 
 	stadtinfo_options = 3;	// citizen and growth
 
-	besitzer_p = sp;
+	owner = player;
 
 	this->pos = pos;
 	last_center = koord::invalid;
@@ -1102,10 +1102,10 @@ stadt_t::stadt_t(loadsave_t* file) :
 
 void stadt_t::rdwr(loadsave_t* file)
 {
-	sint32 besitzer_n;
+	sint32 owner_n;
 
 	if (file->is_saving()) {
-		besitzer_n = welt->sp2num(besitzer_p);
+		owner_n = welt->sp2num(owner);
 	}
 	file->rdwr_str(name);
 	pos.rdwr(file);
@@ -1121,7 +1121,7 @@ void stadt_t::rdwr(loadsave_t* file)
 	lo.y = lob;
 	ur.x = lre;
 	ur.y = lun;
-	file->rdwr_long(besitzer_n);
+	file->rdwr_long(owner_n);
 	file->rdwr_long(bev);
 	file->rdwr_long(arb);
 	file->rdwr_long(won);
@@ -1143,7 +1143,7 @@ void stadt_t::rdwr(loadsave_t* file)
 	}
 
 	if (file->is_loading()) {
-		besitzer_p = welt->get_spieler(besitzer_n);
+		owner = welt->get_player(owner_n);
 	}
 
 	if(file->is_loading()) {
@@ -2069,7 +2069,7 @@ void stadt_t::check_bau_spezial(bool new_town)
 				if (besch->get_all_layouts() > 1) {
 					rotate = (simrand(20) & 2) + is_rotate;
 				}
-				hausbauer_t::baue( besitzer_p, welt->lookup_kartenboden(best_pos)->get_pos(), rotate, besch );
+				hausbauer_t::baue( owner, welt->lookup_kartenboden(best_pos)->get_pos(), rotate, besch );
 				// tell the player, if not during initialization
 				if (!new_town) {
 					cbuffer_t buf;
@@ -2135,7 +2135,7 @@ void stadt_t::check_bau_spezial(bool new_town)
 						}
 					}
 					// and then build it
-					const gebaeude_t* gb = hausbauer_t::baue(besitzer_p, welt->lookup_kartenboden(best_pos + koord(1, 1))->get_pos(), 0, besch);
+					const gebaeude_t* gb = hausbauer_t::baue(owner, welt->lookup_kartenboden(best_pos + koord(1, 1))->get_pos(), 0, besch);
 					hausbauer_t::denkmal_gebaut(besch);
 					add_gebaeude_to_stadt(gb);
 					// tell the player, if not during initialization
@@ -2310,7 +2310,7 @@ void stadt_t::check_bau_rathaus(bool new_town)
 			dbg->error( "stadt_t::check_bau_rathaus", "no better position found!" );
 			return;
 		}
-		gebaeude_t const* const new_gb = hausbauer_t::baue(besitzer_p, welt->lookup_kartenboden(best_pos + offset)->get_pos(), layout, besch);
+		gebaeude_t const* const new_gb = hausbauer_t::baue(owner, welt->lookup_kartenboden(best_pos + offset)->get_pos(), layout, besch);
 		DBG_MESSAGE("new townhall", "use layout=%i", layout);
 		add_gebaeude_to_stadt(new_gb);
 		DBG_MESSAGE("stadt_t::check_bau_rathaus()", "add townhall (bev=%i, ptr=%p)", buildings.get_sum_weight(),welt->lookup_kartenboden(best_pos)->first_obj());
@@ -2557,9 +2557,9 @@ void stadt_t::build_city_building(const koord k)
 					weg->set_gehweg(true);
 					// if not current city road standard, then replace it
 					if(  weg->get_besch() != welt->get_city_road()  ) {
-						spieler_t *sp = weg->get_besitzer();
-						if(  sp == NULL  ||  !gr->get_depot()  ) {
-							spieler_t::add_maintenance( sp, -weg->get_besch()->get_wartung(), road_wt);
+						player_t *player = weg->get_besitzer();
+						if(  player == NULL  ||  !gr->get_depot()  ) {
+							player_t::add_maintenance( player, -weg->get_besch()->get_wartung(), road_wt);
 							weg->set_besitzer(NULL); // make public
 							weg->set_besch(welt->get_city_road());
 						}
@@ -2688,9 +2688,9 @@ void stadt_t::renovate_city_building(gebaeude_t *gb)
 					weg->set_gehweg(true);
 					// if not current city road standard, then replace it
 					if(  weg->get_besch() != welt->get_city_road()  ) {
-						spieler_t *sp = weg->get_besitzer();
-						if(  sp == NULL  ||  !gr->get_depot()  ) {
-							spieler_t::add_maintenance( sp, -weg->get_besch()->get_wartung(), road_wt);
+						player_t *player = weg->get_besitzer();
+						if(  player == NULL  ||  !gr->get_depot()  ) {
+							player_t::add_maintenance( player, -weg->get_besch()->get_wartung(), road_wt);
 
 							weg->set_besitzer(NULL); // make public
 							weg->set_besch(welt->get_city_road());
@@ -2775,7 +2775,7 @@ void stadt_t::erzeuge_verkehrsteilnehmer(koord pos, sint32 level, koord target)
  *
  * @author Hj. Malthaner, V. Meyer
  */
-bool stadt_t::baue_strasse(const koord k, spieler_t* sp, bool forced)
+bool stadt_t::baue_strasse(const koord k, player_t* player_, bool forced)
 {
 	grund_t* bd = welt->lookup_kartenboden(k);
 
@@ -2933,7 +2933,7 @@ bool stadt_t::baue_strasse(const koord k, spieler_t* sp, bool forced)
 			// Hajo: city roads should not belong to any player => so we can ignore any construction costs ...
 			weg->set_besch(welt->get_city_road());
 			weg->set_gehweg(true);
-			bd->neuen_weg_bauen(weg, connection_roads, sp);
+			bd->neuen_weg_bauen(weg, connection_roads, player_);
 			bd->calc_bild();	// otherwise the
 		}
 		// check to bridge a river
@@ -3030,7 +3030,7 @@ void stadt_t::baue()
 		// try to find a public owned building
 		for(  uint8 i=0;  i<4;  i++  ) {
 			gebaeude_t* const gb = pick_any(buildings);
-			if(  spieler_t::check_owner(gb->get_besitzer(),NULL)  ) {
+			if(  player_t::check_owner(gb->get_besitzer(),NULL)  ) {
 				renovate_city_building(gb);
 				break;
 			}

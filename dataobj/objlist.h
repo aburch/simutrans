@@ -76,7 +76,7 @@ public:
 	bool add(obj_t* obj);
 
 	bool remove(const obj_t* obj);
-	bool loesche_alle(spieler_t *sp,uint8 offset);
+	bool loesche_alle(player_t *player,uint8 offset);
 	bool ist_da(const obj_t* obj) const;
 
 	inline uint8 get_top() const {return top;}
@@ -90,7 +90,7 @@ public:
 	* @return NULL when OK, or message, why not?
 	* @author Hj. Malthaner
 	*/
-	const char * kann_alle_entfernen(const spieler_t *, uint8 ) const;
+	const char * kann_alle_entfernen(const player_t *, uint8 ) const;
 
 	/* recalcs all objects on this tile
 	* @author prissi

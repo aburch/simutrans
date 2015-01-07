@@ -84,7 +84,7 @@ public:
 	/* called before deletion;
 	 * last chance to unreserve tiles ...
 	 */
-	virtual void entferne(spieler_t *sp);
+	virtual void entferne(player_t *player);
 
 	/**
 	* gets the related convoi

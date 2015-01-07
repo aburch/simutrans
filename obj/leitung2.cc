@@ -70,9 +70,9 @@ int leitung_t::gimme_neighbours(leitung_t **conn)
 			// both ground or both tunnel or both not tunnel
 			bool const ok = (gr->ist_karten_boden()  &&  gr_base->ist_karten_boden())  ||  (gr->ist_tunnel()==gr_base->ist_tunnel());
 			if(  lt  &&  (ribi_t::rueckwaerts(ribi_t::nsow[i]) & get_powerline_ribi(gr))  &&  ok  ) {
-				const spieler_t *owner = get_besitzer();
-				const spieler_t *other = lt->get_besitzer();
-				const spieler_t *super = welt->get_spieler(1);
+				const player_t *owner = get_besitzer();
+				const player_t *other = lt->get_besitzer();
+				const player_t *super = welt->get_player(1);
 				if (owner==other  ||  owner==super  ||  other==super) {
 					conn[i] = lt;
 					count++;
@@ -105,11 +105,11 @@ leitung_t::leitung_t(loadsave_t *file) : obj_t()
 }
 
 
-leitung_t::leitung_t(koord3d pos, spieler_t *sp) : obj_t(pos)
+leitung_t::leitung_t(koord3d pos, player_t *player) : obj_t(pos)
 {
 	bild = IMG_LEER;
 	set_net(NULL);
-	set_besitzer( sp );
+	set_besitzer( player );
 	set_besch(wegbauer_t::leitung_besch);
 }
 
@@ -149,15 +149,15 @@ leitung_t::~leitung_t()
 			delete net;
 		}
 		if(!gr->ist_tunnel()) {
-			spieler_t::add_maintenance(get_besitzer(), -besch->get_wartung(), powerline_wt);
+			player_t::add_maintenance(get_besitzer(), -besch->get_wartung(), powerline_wt);
 		}
 	}
 }
 
 
-void leitung_t::entferne(spieler_t *sp)
+void leitung_t::entferne(player_t *player)
 {
-	spieler_t::book_construction_costs(sp, -besch->get_preis()/2, get_pos().get_2d(), powerline_wt);
+	player_t::book_construction_costs(player, -besch->get_preis()/2, get_pos().get_2d(), powerline_wt);
 	mark_image_dirty( bild, 0 );
 }
 
@@ -369,7 +369,7 @@ void leitung_t::laden_abschliessen()
 	grund_t *gr = welt->lookup(get_pos());
 	assert(gr);
 
-	spieler_t::add_maintenance(get_besitzer(), besch->get_wartung(), powerline_wt);
+	player_t::add_maintenance(get_besitzer(), besch->get_wartung(), powerline_wt);
 }
 
 
@@ -432,12 +432,12 @@ void leitung_t::rdwr(loadsave_t *file)
 
 // returns NULL, if removal is allowed
 // players can remove public owned powerlines
-const char *leitung_t::ist_entfernbar(const spieler_t *sp)
+const char *leitung_t::ist_entfernbar(const player_t *player)
 {
-	if(  get_player_nr()==1  &&  sp  ) {
+	if(  get_player_nr()==1  &&  player  ) {
 		return NULL;
 	}
-	return obj_t::ist_entfernbar(sp);
+	return obj_t::ist_entfernbar(player);
 }
 
 
@@ -468,11 +468,11 @@ pumpe_t::pumpe_t(loadsave_t *file ) : leitung_t( koord3d::invalid, NULL )
 }
 
 
-pumpe_t::pumpe_t(koord3d pos, spieler_t *sp) : leitung_t(pos, sp)
+pumpe_t::pumpe_t(koord3d pos, player_t *player) : leitung_t(pos, player)
 {
 	fab = NULL;
 	supply = 0;
-	spieler_t::book_construction_costs(sp, welt->get_settings().cst_transformer, get_pos().get_2d(), powerline_wt);
+	player_t::book_construction_costs(player, welt->get_settings().cst_transformer, get_pos().get_2d(), powerline_wt);
 }
 
 
@@ -483,7 +483,7 @@ pumpe_t::~pumpe_t()
 		fab = NULL;
 	}
 	pumpe_list.remove( this );
-	spieler_t::add_maintenance(get_besitzer(), (sint32)welt->get_settings().cst_maintain_transformer, powerline_wt);
+	player_t::add_maintenance(get_besitzer(), (sint32)welt->get_settings().cst_maintain_transformer, powerline_wt);
 }
 
 
@@ -521,7 +521,7 @@ void pumpe_t::step(uint32 delta_t)
 void pumpe_t::laden_abschliessen()
 {
 	leitung_t::laden_abschliessen();
-	spieler_t::add_maintenance(get_besitzer(), -(sint32)welt->get_settings().cst_maintain_transformer, powerline_wt);
+	player_t::add_maintenance(get_besitzer(), -(sint32)welt->get_settings().cst_maintain_transformer, powerline_wt);
 
 	assert(get_net());
 
@@ -600,7 +600,7 @@ senke_t::senke_t(loadsave_t *file) : leitung_t( koord3d::invalid, NULL )
 }
 
 
-senke_t::senke_t(koord3d pos, spieler_t *sp) : leitung_t(pos, sp)
+senke_t::senke_t(koord3d pos, player_t *player) : leitung_t(pos, player)
 {
 	fab = NULL;
 	einkommen = 0;
@@ -609,7 +609,7 @@ senke_t::senke_t(koord3d pos, spieler_t *sp) : leitung_t(pos, sp)
 	delta_sum = 0;
 	last_power_demand = 0;
 	power_load = 0;
-	spieler_t::book_construction_costs(sp, welt->get_settings().cst_transformer, get_pos().get_2d(), powerline_wt);
+	player_t::book_construction_costs(player, welt->get_settings().cst_transformer, get_pos().get_2d(), powerline_wt);
 	welt->sync_add(this);
 }
 
@@ -622,7 +622,7 @@ senke_t::~senke_t()
 		fab = NULL;
 	}
 	senke_list.remove( this );
-	spieler_t::add_maintenance(get_besitzer(), (sint32)welt->get_settings().cst_maintain_transformer, powerline_wt);
+	player_t::add_maintenance(get_besitzer(), (sint32)welt->get_settings().cst_maintain_transformer, powerline_wt);
 }
 
 
@@ -736,7 +736,7 @@ bool senke_t::sync_step(uint32 delta_t)
 void senke_t::laden_abschliessen()
 {
 	leitung_t::laden_abschliessen();
-	spieler_t::add_maintenance(get_besitzer(), -(sint32)welt->get_settings().cst_maintain_transformer, powerline_wt);
+	player_t::add_maintenance(get_besitzer(), -(sint32)welt->get_settings().cst_maintain_transformer, powerline_wt);
 
 	assert(get_net());
 

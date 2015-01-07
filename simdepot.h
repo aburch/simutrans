@@ -55,12 +55,12 @@ public:
 	int selected_filter;
 
 	// finds the next/previous depot relative to the current position
-	static depot_t *find_depot( koord3d start, const obj_t::typ depot_type, const spieler_t *sp, bool next);
+	static depot_t *find_depot( koord3d start, const obj_t::typ depot_type, const player_t *player, bool next);
 
 	static const slist_tpl<depot_t *>& get_depot_list() { return all_depots; }
 
 	depot_t(loadsave_t *file);
-	depot_t(koord3d pos, spieler_t *sp, const haus_tile_besch_t *t);
+	depot_t(koord3d pos, player_t *player, const haus_tile_besch_t *t);
 	virtual ~depot_t();
 
 	void call_depot_tool( char tool, convoihandle_t cnv, const char *extra );
@@ -201,7 +201,7 @@ public:
 	 * @return NULL wenn OK, ansonsten eine Fehlermeldung
 	 * @author Hj. Malthaner
 	 */
-	virtual const char * ist_entfernbar(const spieler_t *sp);
+	virtual const char * ist_entfernbar(const player_t *player);
 
 	/**
 	 * identifies the oldest vehicle of a certain type
@@ -255,7 +255,7 @@ class bahndepot_t : public depot_t
 {
 public:
 	bahndepot_t(loadsave_t *file) : depot_t(file) {}
-	bahndepot_t(koord3d pos,spieler_t *sp, const haus_tile_besch_t *t) : depot_t(pos,sp,t) {}
+	bahndepot_t(koord3d pos,player_t *player, const haus_tile_besch_t *t) : depot_t(pos,player,t) {}
 
 	virtual simline_t::linetype get_line_type() const { return simline_t::trainline; }
 
@@ -281,7 +281,7 @@ class tramdepot_t : public bahndepot_t
 {
 public:
 	tramdepot_t(loadsave_t *file):bahndepot_t(file) {}
-	tramdepot_t(koord3d pos,spieler_t *sp, const haus_tile_besch_t *t): bahndepot_t(pos,sp,t) {}
+	tramdepot_t(koord3d pos,player_t *player_, const haus_tile_besch_t *t): bahndepot_t(pos,player_,t) {}
 
 	virtual simline_t::linetype get_line_type() const { return simline_t::tramline; }
 
@@ -293,7 +293,7 @@ class monoraildepot_t : public bahndepot_t
 {
 public:
 	monoraildepot_t(loadsave_t *file):bahndepot_t(file) {}
-	monoraildepot_t(koord3d pos,spieler_t *sp, const haus_tile_besch_t *t): bahndepot_t(pos,sp,t) {}
+	monoraildepot_t(koord3d pos,player_t *player, const haus_tile_besch_t *t): bahndepot_t(pos,player,t) {}
 
 	virtual simline_t::linetype get_line_type() const { return simline_t::monorailline; }
 
@@ -305,7 +305,7 @@ class maglevdepot_t : public bahndepot_t
 {
 public:
 	maglevdepot_t(loadsave_t *file):bahndepot_t(file) {}
-	maglevdepot_t(koord3d pos,spieler_t *sp, const haus_tile_besch_t *t): bahndepot_t(pos,sp,t) {}
+	maglevdepot_t(koord3d pos,player_t *player, const haus_tile_besch_t *t): bahndepot_t(pos,player,t) {}
 
 	virtual simline_t::linetype get_line_type() const { return simline_t::maglevline; }
 
@@ -317,7 +317,7 @@ class narrowgaugedepot_t : public bahndepot_t
 {
 public:
 	narrowgaugedepot_t(loadsave_t *file):bahndepot_t(file) {}
-	narrowgaugedepot_t(koord3d pos,spieler_t *sp, const haus_tile_besch_t *t): bahndepot_t(pos,sp,t) {}
+	narrowgaugedepot_t(koord3d pos,player_t *player, const haus_tile_besch_t *t): bahndepot_t(pos,player,t) {}
 
 	virtual simline_t::linetype get_line_type() const { return simline_t::narrowgaugeline; }
 
@@ -342,7 +342,7 @@ protected:
 
 public:
 	strassendepot_t(loadsave_t *file) : depot_t(file) {}
-	strassendepot_t(koord3d pos,spieler_t *sp, const haus_tile_besch_t *t) : depot_t(pos,sp,t) {}
+	strassendepot_t(koord3d pos,player_t *player, const haus_tile_besch_t *t) : depot_t(pos,player,t) {}
 
 	virtual simline_t::linetype get_line_type() const { return simline_t::truckline; }
 
@@ -378,7 +378,7 @@ protected:
 
 public:
 	schiffdepot_t(loadsave_t *file) : depot_t(file) {}
-	schiffdepot_t(koord3d pos, spieler_t *sp, const haus_tile_besch_t *t) : depot_t(pos,sp,t) {}
+	schiffdepot_t(koord3d pos, player_t *player, const haus_tile_besch_t *t) : depot_t(pos,player,t) {}
 
 	virtual simline_t::linetype get_line_type() const { return simline_t::shipline; }
 
@@ -409,7 +409,7 @@ protected:
 
 public:
 	airdepot_t(loadsave_t *file) : depot_t(file) {}
-	airdepot_t(koord3d pos,spieler_t *sp, const haus_tile_besch_t *t) : depot_t(pos,sp,t) {}
+	airdepot_t(koord3d pos,player_t *player, const haus_tile_besch_t *t) : depot_t(pos,player,t) {}
 
 	virtual simline_t::linetype get_line_type() const { return simline_t::airline; }
 

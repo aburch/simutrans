@@ -16,7 +16,7 @@ private:
 
 public:
 	tunnel_t(loadsave_t *file);
-	tunnel_t(koord3d pos, spieler_t *sp, const tunnel_besch_t *besch);
+	tunnel_t(koord3d pos, player_t *player, const tunnel_besch_t *besch);
 
 	const char *get_name() const {return "Tunnelmuendung";}
 	typ get_typ() const { return tunnel; }
@@ -47,7 +47,7 @@ public:
 
 	void laden_abschliessen();
 
-	void entferne(spieler_t *sp);
+	void entferne(player_t *player);
 
 
 	uint8 get_broad_type() const { return broad_type; };
@@ -55,7 +55,7 @@ public:
 	 * @return NULL wenn OK, ansonsten eine Fehlermeldung
 	 * @author Hj. Malthaner
 	 */
-	virtual const char *ist_entfernbar(const spieler_t *sp);
+	virtual const char *ist_entfernbar(const player_t *player);
 };
 
 #endif

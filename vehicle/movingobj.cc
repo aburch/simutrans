@@ -268,9 +268,9 @@ void movingobj_t::info(cbuffer_t & buf) const
 
 
 
-void movingobj_t::entferne(spieler_t *sp)
+void movingobj_t::entferne(player_t *player)
 {
-	spieler_t::book_construction_costs(sp, -get_besch()->get_preis(), get_pos().get_2d(), ignore_wt);
+	player_t::book_construction_costs(player, -get_besch()->get_preis(), get_pos().get_2d(), ignore_wt);
 	mark_image_dirty( get_bild(), 0 );
 	welt->sync_remove( this );
 }

@@ -173,9 +173,9 @@ void weg_t::init()
 weg_t::~weg_t()
 {
 	alle_wege.remove(this);
-	spieler_t *sp=get_besitzer();
-	if(sp) {
-		spieler_t::add_maintenance( sp,  -besch->get_wartung(), besch->get_finance_waytype() );
+	player_t *player=get_besitzer();
+	if(player) {
+		player_t::add_maintenance( player,  -besch->get_wartung(), besch->get_finance_waytype() );
 	}
 }
 
@@ -566,19 +566,19 @@ void weg_t::neuer_monat()
 // correct speed and maintenance
 void weg_t::laden_abschliessen()
 {
-	spieler_t *sp = get_besitzer();
-	if(  sp  &&  besch  ) {
-		spieler_t::add_maintenance( sp,  besch->get_wartung(), besch->get_finance_waytype() );
+	player_t *player = get_besitzer();
+	if(  player  &&  besch  ) {
+		player_t::add_maintenance( player,  besch->get_wartung(), besch->get_finance_waytype() );
 	}
 }
 
 
 // returns NULL, if removal is allowed
 // players can remove public owned ways
-const char *weg_t::ist_entfernbar(const spieler_t *sp)
+const char *weg_t::ist_entfernbar(const player_t *player)
 {
 	if(  get_player_nr()==1  ) {
 		return NULL;
 	}
-	return obj_t::ist_entfernbar(sp);
+	return obj_t::ist_entfernbar(player);
 }

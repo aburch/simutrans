@@ -47,7 +47,7 @@
 verkehrsteilnehmer_t::verkehrsteilnehmer_t() :
 	vehikel_basis_t()
 {
-	set_besitzer( welt->get_spieler(1) );
+	set_besitzer( welt->get_player(1) );
 	time_to_life = 0;
 	weg_next = 0;
 }
@@ -110,7 +110,7 @@ verkehrsteilnehmer_t::verkehrsteilnehmer_t(grund_t* bd, uint16 random) :
 	else {
 		pos_next = welt->lookup_kartenboden(get_pos().get_2d() + koord(fahrtrichtung))->get_pos();
 	}
-	set_besitzer( welt->get_spieler(1) );
+	set_besitzer( welt->get_player(1) );
 }
 
 

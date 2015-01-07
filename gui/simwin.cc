@@ -501,10 +501,10 @@ void rdwr_all_win(loadsave_t *file)
 
 					default:
 						if(  id>=magic_finances_t  &&  id<magic_finances_t+MAX_PLAYER_COUNT  ) {
-							w = new money_frame_t( wl->get_spieler(id-magic_finances_t) );
+							w = new money_frame_t( wl->get_player(id-magic_finances_t) );
 						}
 						else if(  id>=magic_line_management_t  &&  id<magic_line_management_t+MAX_PLAYER_COUNT  ) {
-							w = new schedule_list_gui_t( wl->get_spieler(id-magic_line_management_t) );
+							w = new schedule_list_gui_t( wl->get_player(id-magic_line_management_t) );
 						}
 						else if(  id>=magic_toolbar  &&  id<magic_toolbar+256  ) {
 							tool_t::toolbar_tool[id-magic_toolbar]->update(wl->get_active_player());
@@ -1354,7 +1354,7 @@ bool check_pos_win(event_t *ev)
 									{	// change position on map (or follow)
 										koord3d k = wins[i].gui->get_weltpos(true);
 										if(  k!=koord3d::invalid  ) {
-											spieler_t::get_welt()->get_viewport()->change_world_position( k );
+											player_t::get_welt()->get_viewport()->change_world_position( k );
 										}
 									}
 									break;

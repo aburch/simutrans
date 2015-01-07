@@ -31,9 +31,9 @@ SQInteger get_object_index(HSQUIRRELVM vm)
 }
 
 
-const char* tile_remove_object(grund_t* gr, spieler_t* sp, obj_t::typ type)
+const char* tile_remove_object(grund_t* gr, player_t* player, obj_t::typ type)
 {
-	if (gr == NULL  ||  sp == NULL) {
+	if (gr == NULL  ||  player == NULL) {
 		return "";
 	}
 	tool_remover_t w;
@@ -42,7 +42,7 @@ const char* tile_remove_object(grund_t* gr, spieler_t* sp, obj_t::typ type)
 	sprintf(buf, "%d", (int)type);
 	w.set_default_param(buf);
 
-	return w.work(sp, gr->get_pos());
+	return w.work(player, gr->get_pos());
 }
 
 // return way ribis, have to implement a wrapper, to correctly rotate ribi

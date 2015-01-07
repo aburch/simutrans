@@ -118,13 +118,13 @@ public:
 
 	virtual void rdwr(loadsave_t *file);
 
-	virtual void bescheid_vehikel_problem(convoihandle_t cnv,const koord3d ziel);
+	virtual void report_vehicle_problem(convoihandle_t cnv,const koord3d ziel);
 
 	bool set_active( bool b );
 
 	void step();
 
-	void neues_jahr();
+	void new_year();
 
 	virtual void rotate90( const sint16 y_size );
 

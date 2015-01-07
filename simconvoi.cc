@@ -104,9 +104,9 @@ static int calc_min_top_speed(const array_tpl<vehikel_t*>& fahr, uint8 anz_vehik
 }
 
 
-void convoi_t::init(spieler_t *sp)
+void convoi_t::init(player_t *player)
 {
-	besitzer_p = sp;
+	besitzer_p = player;
 
 	is_electric = false;
 	sum_gesamtgewicht = sum_gewicht = 0;
@@ -174,11 +174,11 @@ convoi_t::convoi_t(loadsave_t* file) : fahr(max_vehicle, NULL)
 }
 
 
-convoi_t::convoi_t(spieler_t* sp) : fahr(max_vehicle, NULL)
+convoi_t::convoi_t(player_t* player_) : fahr(max_vehicle, NULL)
 {
 	self = convoihandle_t(this);
-	sp->book_convoi_number(1);
-	init(sp);
+	player_->book_convoi_number(1);
+	init(player_);
 	set_name( "Unnamed" );
 	welt->add_convoi( self );
 	init_financial_history();
@@ -460,7 +460,7 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_ind
 		if (route.empty()) {
 			// realigning needs a route
 			state = NO_ROUTE;
-			besitzer_p->bescheid_vehikel_problem( self, koord3d::invalid );
+			besitzer_p->report_vehicle_problem( self, koord3d::invalid );
 			dbg->error( "convoi_t::laden_abschliessen()", "No valid route, but needs realignment at (%s)!", fahr[0]->get_pos().get_str() );
 		}
 		else {
@@ -1009,7 +1009,7 @@ bool convoi_t::drive_to()
 		if(  !fahr[0]->calc_route( start, ziel, speed_to_kmh(min_top_speed), &route )  ) {
 			if(  state != NO_ROUTE  ) {
 				state = NO_ROUTE;
-				get_besitzer()->bescheid_vehikel_problem( self, ziel );
+				get_besitzer()->report_vehicle_problem( self, ziel );
 			}
 			// wait 25s before next attempt
 			wait_lock = 25000;
@@ -1051,7 +1051,7 @@ bool convoi_t::drive_to()
 						// we are stuck on our first routing attempt => give up
 						if(  state != NO_ROUTE  ) {
 							state = NO_ROUTE;
-							get_besitzer()->bescheid_vehikel_problem( self, ziel );
+							get_besitzer()->report_vehicle_problem( self, ziel );
 						}
 						// wait 25s before next attempt
 						wait_lock = 25000;
@@ -1166,7 +1166,7 @@ void convoi_t::step()
 				if(  fpl->empty()  ) {
 					// no entry => no route ...
 					state = NO_ROUTE;
-					besitzer_p->bescheid_vehikel_problem( self, koord3d::invalid );
+					besitzer_p->report_vehicle_problem( self, koord3d::invalid );
 				}
 				else {
 					// Schedule changed at station
@@ -1212,7 +1212,7 @@ void convoi_t::step()
 
 				if(  fpl->empty()  ) {
 					state = NO_ROUTE;
-					besitzer_p->bescheid_vehikel_problem( self, koord3d::invalid );
+					besitzer_p->report_vehicle_problem( self, koord3d::invalid );
 				}
 				else {
 					// check first, if we are already there:
@@ -1369,7 +1369,7 @@ void convoi_t::new_month()
 	}
 	// remind every new month again
 	if(  state==NO_ROUTE  ) {
-		get_besitzer()->bescheid_vehikel_problem( self, get_pos() );
+		get_besitzer()->report_vehicle_problem( self, get_pos() );
 	}
 	// check for traffic jam
 	if(state==WAITING_FOR_CLEARANCE) {
@@ -1399,7 +1399,7 @@ void convoi_t::new_month()
 			}
 		}
 		if(  notify  ) {
-			get_besitzer()->bescheid_vehikel_problem( self, koord3d::invalid );
+			get_besitzer()->report_vehicle_problem( self, koord3d::invalid );
 		}
 		state = WAITING_FOR_CLEARANCE_TWO_MONTHS;
 	}
@@ -1408,7 +1408,7 @@ void convoi_t::new_month()
 		state = CAN_START_ONE_MONTH;
 	}
 	else if(state==CAN_START_ONE_MONTH  ||  state==CAN_START_TWO_MONTHS  ) {
-		get_besitzer()->bescheid_vehikel_problem( self, koord3d::invalid );
+		get_besitzer()->report_vehicle_problem( self, koord3d::invalid );
 		state = CAN_START_TWO_MONTHS;
 	}
 	// check for obsolete vehicles in the convoi
@@ -1633,7 +1633,7 @@ DBG_MESSAGE("convoi_t::add_vehikel()","extend array_tpl to %i totals.",max_rail_
 		if(!has_obsolete  &&  welt->use_timeline()) {
 			has_obsolete = info->is_retired( welt->get_timeline_year_month() );
 		}
-		spieler_t::add_maintenance( get_besitzer(), info->get_maintenance(), info->get_waytype() );
+		player_t::add_maintenance( get_besitzer(), info->get_maintenance(), info->get_waytype() );
 	}
 	else {
 		return false;
@@ -1667,7 +1667,7 @@ vehikel_t *convoi_t::remove_vehikel_bei(uint16 i)
 			sum_gear_und_leistung -= info->get_leistung()*info->get_gear();
 			sum_gewicht -= info->get_gewicht();
 			sum_running_costs += info->get_betriebskosten();
-			spieler_t::add_maintenance( get_besitzer(), -info->get_maintenance(), info->get_waytype() );
+			player_t::add_maintenance( get_besitzer(), -info->get_maintenance(), info->get_waytype() );
 		}
 		sum_gesamtgewicht = sum_gewicht;
 		calc_loading();
@@ -2191,7 +2191,7 @@ void convoi_t::rdwr(loadsave_t *file)
 		if(anz_vehikel > max_vehicle) {
 			fahr.resize(max_rail_vehicle, NULL);
 		}
-		besitzer_p = welt->get_spieler( besitzer_n );
+		besitzer_p = welt->get_player( besitzer_n );
 
 		// Hajo: sanity check for values ... plus correction
 		if(sp_soll < 0) {
@@ -2279,7 +2279,7 @@ void convoi_t::rdwr(loadsave_t *file)
 				sum_gewicht += info->get_gewicht();
 				sum_running_costs -= info->get_betriebskosten();
 				is_electric |= info->get_engine_type()==vehikel_besch_t::electric;
-				spieler_t::add_maintenance( get_besitzer(), info->get_maintenance(), info->get_waytype() );
+				player_t::add_maintenance( get_besitzer(), info->get_maintenance(), info->get_waytype() );
 			}
 
 			// some versions save vehicles after leaving depot with koord3d::invalid
@@ -2739,8 +2739,8 @@ void convoi_t::laden()
 	halthandle_t halt = haltestelle_t::get_halt(fpl->get_current_eintrag().pos,besitzer_p);
 	// eigene haltestelle ?
 	if(  halt.is_bound()  ) {
-		const spieler_t* owner = halt->get_besitzer();
-		if(  owner == get_besitzer()  ||  owner == welt->get_spieler(1)  ) {
+		const player_t* owner = halt->get_besitzer();
+		if(  owner == get_besitzer()  ||  owner == welt->get_player(1)  ) {
 			// loading/unloading ...
 			halt->request_loading( self );
 		}

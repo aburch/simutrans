@@ -24,9 +24,9 @@
 
 
 
-extend_edit_gui_t::extend_edit_gui_t(const char *name, spieler_t* sp_) :
-	gui_frame_t( name, sp_ ),
-	sp(sp_),
+extend_edit_gui_t::extend_edit_gui_t(const char *name, player_t* player_) :
+	gui_frame_t( name, player_ ),
+	player(player_),
 	info_text(&buf, COLUMN_WIDTH),
 	scrolly(&cont),
 	scl(gui_scrolled_list_t::listskin)
@@ -40,7 +40,7 @@ extend_edit_gui_t::extend_edit_gui_t(const char *name, spieler_t* sp_) :
 	// init scrolled list
 	scl.set_size(scr_size(tab_panel_width, SCL_HEIGHT-14));
 	scl.set_pos(scr_coord(0,1));
-	scl.set_highlight_color(sp->get_player_color1()+1);
+	scl.set_highlight_color(player->get_player_color1()+1);
 	scl.set_selection(-1);
 	scl.add_listener(this);
 

@@ -798,10 +798,10 @@ DBG_MESSAGE("karte_t::destroy()", "sync list cleared");
 	delete [] water_hgts;
 	water_hgts = NULL;
 
-	// spieler aufraeumen
+	// player cleanup
 	for(int i=0; i<MAX_PLAYER_COUNT; i++) {
-		delete spieler[i];
-		spieler[i] = NULL;
+		delete players[i];
+		players[i] = NULL;
 	}
 DBG_MESSAGE("karte_t::destroy()", "player destroyed");
 
@@ -909,9 +909,9 @@ void karte_t::init_felder()
 
 	for(int i=0; i<MAX_PLAYER_COUNT ; i++) {
 		// old default: AI 3 passenger, other goods
-		spieler[i] = (i<2) ? new spieler_t(this,i) : NULL;
+		players[i] = (i<2) ? new player_t(this,i) : NULL;
 	}
-	active_player = spieler[0];
+	active_player = players[0];
 	active_player_nr = 0;
 
 	// defaults without timeline
@@ -1039,7 +1039,7 @@ void karte_t::create_rivers( sint16 number )
 		for(  sint32 i=0;  i<256  &&  !valid_water_tiles.empty();  i++  ) {
 			koord const end = pick_any(valid_water_tiles);
 			valid_water_tiles.remove( end );
-			wegbauer_t riverbuilder(spieler[1]);
+			wegbauer_t riverbuilder(players[1]);
 			riverbuilder.route_fuer(wegbauer_t::river, river_besch);
 			sint16 dist = koord_distance(start,end);
 			riverbuilder.set_maximum( dist*50 );
@@ -1090,7 +1090,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 			uint32 tbegin = dr_time();
 #endif
 			for(  int i=0;  i<new_anzahl_staedte;  i++  ) {
-				stadt_t* s = new stadt_t(spieler[1], (*pos)[i], 1 );
+				stadt_t* s = new stadt_t(players[1], (*pos)[i], 1 );
 				DBG_DEBUG("karte_t::distribute_groundobjs_cities()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_city_history_month())[HIST_CITICENS] );
 				if (s->get_buildings() > 0) {
 					add_stadt(s);
@@ -1173,7 +1173,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 			besch = wegbauer_t::weg_search(road_wt,80,get_timeline_year_month(),weg_t::type_flat);
 		}
 
-		wegbauer_t bauigel (spieler[1] );
+		wegbauer_t bauigel (players[1] );
 		bauigel.route_fuer(wegbauer_t::strasse | wegbauer_t::terraform_flag, besch, tunnelbauer_t::find_tunnel(road_wt,15,get_timeline_year_month()), brueckenbauer_t::find_bridge(road_wt,15,get_timeline_year_month()) );
 		bauigel.set_keep_existing_ways(true);
 		bauigel.set_maximum(env_t::intercity_road_length);
@@ -1253,7 +1253,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 			route_t verbindung;
 			vehikel_t* test_driver;
 			vehikel_besch_t test_drive_besch(road_wt, 500, vehikel_besch_t::diesel );
-			test_driver = vehikelbauer_t::baue(koord3d(), spieler[1], NULL, &test_drive_besch);
+			test_driver = vehikelbauer_t::baue(koord3d(), players[1], NULL, &test_drive_besch);
 			test_driver->set_flag( obj_t::not_on_map );
 
 			bool ready=false;
@@ -1570,20 +1570,20 @@ DBG_DEBUG("karte_t::init()","built timeline");
 	}
 
 	// finishes the line preparation and sets id 0 to invalid ...
-	spieler[0]->simlinemgmt.laden_abschliessen();
+	players[0]->simlinemgmt.laden_abschliessen();
 
 	set_tool( tool_t::general_tool[TOOL_QUERY], get_active_player() );
 
 	recalc_average_speed();
 
 	for (int i = 0; i < MAX_PLAYER_COUNT; i++) {
-		if(  spieler[i]  ) {
-			spieler[i]->set_active(settings.automaten[i]);
+		if(  players[i]  ) {
+			players[i]->set_active(settings.player_active[i]);
 		}
 	}
 
 	active_player_nr = 0;
-	active_player = spieler[0];
+	active_player = players[0];
 	tool_t::update_toolbars();
 
 	set_dirty();
@@ -2270,7 +2270,7 @@ karte_t::karte_t() :
 	last_month = 0;
 
 	for(int i=0; i<MAX_PLAYER_COUNT ; i++) {
-		spieler[i] = NULL;
+		players[i] = NULL;
 		MEMZERO(player_password_hash[i]);
 	}
 
@@ -2311,7 +2311,7 @@ karte_t::~karte_t()
 	}
 }
 
-const char* karte_t::can_lower_plan_to(const spieler_t *sp, sint16 x, sint16 y, sint8 h) const
+const char* karte_t::can_lower_plan_to(const player_t *player, sint16 x, sint16 y, sint8 h) const
 {
 	const planquadrat_t *plan = access(x,y);
 
@@ -2354,14 +2354,14 @@ const char* karte_t::can_lower_plan_to(const spieler_t *sp, sint16 x, sint16 y, 
 
 	// check allowance by scenario
 	if (get_scenario()->is_scripted()) {
-		return get_scenario()->is_work_allowed_here(sp, TOOL_LOWER_LAND|GENERAL_TOOL, ignore_wt, plan->get_kartenboden()->get_pos());
+		return get_scenario()->is_work_allowed_here(player, TOOL_LOWER_LAND|GENERAL_TOOL, ignore_wt, plan->get_kartenboden()->get_pos());
 	}
 
 	return NULL;
 }
 
 
-const char* karte_t::can_raise_plan_to(const spieler_t *sp, sint16 x, sint16 y, sint8 h) const
+const char* karte_t::can_raise_plan_to(const player_t *player, sint16 x, sint16 y, sint8 h) const
 {
 	const planquadrat_t *plan = access(x,y);
 	if(  plan == 0  ||  !is_plan_height_changeable(x, y)  ) {
@@ -2379,7 +2379,7 @@ const char* karte_t::can_raise_plan_to(const spieler_t *sp, sint16 x, sint16 y, 
 
 	// check allowance by scenario
 	if (get_scenario()->is_scripted()) {
-		return get_scenario()->is_work_allowed_here(sp, TOOL_RAISE_LAND|GENERAL_TOOL, ignore_wt, plan->get_kartenboden()->get_pos());
+		return get_scenario()->is_work_allowed_here(player, TOOL_RAISE_LAND|GENERAL_TOOL, ignore_wt, plan->get_kartenboden()->get_pos());
 	}
 
 	return NULL;
@@ -2483,21 +2483,21 @@ void karte_t::terraformer_t::iterate(bool raise)
 }
 
 
-const char* karte_t::terraformer_t::can_raise_all(const spieler_t *sp, bool keep_water) const
+const char* karte_t::terraformer_t::can_raise_all(const player_t *player, bool keep_water) const
 {
 	const char* err = NULL;
 	FOR(vector_tpl<node_t>, const &i, list) {
-		err = welt->can_raise_to(sp, i.x, i.y, keep_water, i.h[0], i.h[1], i.h[2], i.h[3]);
+		err = welt->can_raise_to(player, i.x, i.y, keep_water, i.h[0], i.h[1], i.h[2], i.h[3]);
 		if (err) return err;
 	}
 	return NULL;
 }
 
-const char* karte_t::terraformer_t::can_lower_all(const spieler_t *sp) const
+const char* karte_t::terraformer_t::can_lower_all(const player_t *player) const
 {
 	const char* err = NULL;
 	FOR(vector_tpl<node_t>, const &i, list) {
-		err = welt->can_lower_to(sp, i.x, i.y, i.h[0], i.h[1], i.h[2], i.h[3]);
+		err = welt->can_lower_to(player, i.x, i.y, i.h[0], i.h[1], i.h[2], i.h[3]);
 		if (err) {
 			return err;
 		}
@@ -2524,7 +2524,7 @@ int karte_t::terraformer_t::lower_all()
 }
 
 
-const char* karte_t::can_raise_to(const spieler_t *sp, sint16 x, sint16 y, bool keep_water, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw) const
+const char* karte_t::can_raise_to(const player_t *player, sint16 x, sint16 y, bool keep_water, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw) const
 {
 	assert(is_within_limits(x,y));
 	grund_t *gr = lookup_kartenboden_nocheck(x,y);
@@ -2536,7 +2536,7 @@ const char* karte_t::can_raise_to(const spieler_t *sp, sint16 x, sint16 y, bool 
 		return "";
 	}
 
-	const char* err = can_raise_plan_to(sp, x, y, max_hgt);
+	const char* err = can_raise_plan_to(player, x, y, max_hgt);
 
 	return err;
 }
@@ -2716,7 +2716,7 @@ void karte_t::raise_grid_to(sint16 x, sint16 y, sint8 h)
 }
 
 
-int karte_t::grid_raise(const spieler_t *sp, koord k, const char*&err)
+int karte_t::grid_raise(const player_t *player, koord k, const char*&err)
 {
 	int n = 0;
 
@@ -2747,7 +2747,7 @@ int karte_t::grid_raise(const spieler_t *sp, koord k, const char*&err)
 		digger.add_raise_node(x, y, hsw, hse, hne, hnw);
 		digger.iterate(true);
 
-		err = digger.can_raise_all(sp);
+		err = digger.can_raise_all(player);
 		if (err) {
 			return 0;
 		}
@@ -2819,7 +2819,7 @@ void karte_t::prepare_lower(terraformer_t& digger, sint16 x, sint16 y, sint8 hsw
 // lower plan
 // new heights for each corner given
 // only test corners in ctest to avoid infinite loops
-const char* karte_t::can_lower_to(const spieler_t* sp, sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw) const
+const char* karte_t::can_lower_to(const player_t* player, sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw) const
 {
 	assert(is_within_limits(x,y));
 
@@ -2835,7 +2835,7 @@ const char* karte_t::can_lower_to(const spieler_t* sp, sint16 x, sint16 y, sint8
 		}
 	}
 
-	return can_lower_plan_to(sp, x, y, hneu );
+	return can_lower_plan_to(player, x, y, hneu );
 }
 
 
@@ -3033,7 +3033,7 @@ void karte_t::lower_grid_to(sint16 x, sint16 y, sint8 h)
 }
 
 
-int karte_t::grid_lower(const spieler_t *sp, koord k, const char*&err)
+int karte_t::grid_lower(const player_t *player, koord k, const char*&err)
 {
 	int n = 0;
 
@@ -3057,7 +3057,7 @@ int karte_t::grid_lower(const spieler_t *sp, koord k, const char*&err)
 		digger.add_lower_node(x, y, hsw, hse, hne, hnw);
 		digger.iterate(false);
 
-		err = digger.can_lower_all(sp);
+		err = digger.can_lower_all(player);
 		if (err) {
 			return 0;
 		}
@@ -3076,14 +3076,14 @@ int karte_t::grid_lower(const spieler_t *sp, koord k, const char*&err)
 }
 
 
-bool karte_t::can_ebne_planquadrat(spieler_t *sp, koord k, sint8 hgt, bool keep_water, bool make_underwater_hill)
+bool karte_t::can_ebne_planquadrat(player_t *player, koord k, sint8 hgt, bool keep_water, bool make_underwater_hill)
 {
-	return ebne_planquadrat(sp, k, hgt, keep_water, make_underwater_hill, true /* justcheck */);
+	return ebne_planquadrat(player, k, hgt, keep_water, make_underwater_hill, true /* justcheck */);
 }
 
 
 // make a flat level at this position (only used for AI at the moment)
-bool karte_t::ebne_planquadrat(spieler_t *sp, koord k, sint8 hgt, bool keep_water, bool make_underwater_hill, bool justcheck)
+bool karte_t::ebne_planquadrat(player_t *player, koord k, sint8 hgt, bool keep_water, bool make_underwater_hill, bool justcheck)
 {
 	int n = 0;
 	bool ok = true;
@@ -3097,7 +3097,7 @@ bool karte_t::ebne_planquadrat(spieler_t *sp, koord k, sint8 hgt, bool keep_wate
 		digger.add_lower_node(k.x, k.y, hgt, hgt, hgt, hgt);
 		digger.iterate(false);
 
-		ok = digger.can_lower_all(sp) == NULL;
+		ok = digger.can_lower_all(player) == NULL;
 
 		if (ok  &&  !justcheck) {
 			n += digger.lower_all();
@@ -3109,7 +3109,7 @@ bool karte_t::ebne_planquadrat(spieler_t *sp, koord k, sint8 hgt, bool keep_wate
 		digger.add_raise_node(k.x, k.y, hgt, hgt, hgt, hgt);
 		digger.iterate(true);
 
-		ok = digger.can_raise_all(sp, keep_water) == NULL;
+		ok = digger.can_raise_all(player, keep_water) == NULL;
 
 		if (ok  &&  !justcheck) {
 			n += digger.raise_all();
@@ -3118,7 +3118,7 @@ bool karte_t::ebne_planquadrat(spieler_t *sp, koord k, sint8 hgt, bool keep_wate
 	// was changed => pay for it
 	if(n>0) {
 		n = (n+3) >> 2;
-		spieler_t::book_construction_costs(sp, n * settings.cst_alter_land, k, ignore_wt);
+		player_t::book_construction_costs(player, n * settings.cst_alter_land, k, ignore_wt);
 	}
 	return ok;
 }
@@ -3134,8 +3134,8 @@ void karte_t::clear_player_password_hashes()
 {
 	for(int i=0; i<MAX_PLAYER_COUNT ; i++) {
 		player_password_hash[i].clear();
-		if (spieler[i]) {
-			spieler[i]->check_unlock(player_password_hash[i]);
+		if (players[i]) {
+			players[i]->check_unlock(player_password_hash[i]);
 		}
 	}
 }
@@ -3145,7 +3145,7 @@ void karte_t::rdwr_player_password_hashes(loadsave_t *file)
 {
 	pwd_hash_t dummy;
 	for(  int i=0;  i<PLAYER_UNOWNED; i++  ) {
-		pwd_hash_t *p = spieler[i] ? &spieler[i]->access_password_hash() : &dummy;
+		pwd_hash_t *p = players[i] ? &players[i]->access_password_hash() : &dummy;
 		for(  uint8 j=0; j<20; j++) {
 			file->rdwr_byte( (*p)[j] );
 		}
@@ -3161,7 +3161,7 @@ void karte_t::call_change_player_tool(uint8 cmd, uint8 player_nr, uint16 param, 
 		network_send_server(nwc);
 	}
 	else {
-		change_player_tool(cmd, player_nr, param, !get_spieler(1)->is_locked()  ||  scripted_call, true);
+		change_player_tool(cmd, player_nr, param, !get_player(1)->is_locked()  ||  scripted_call, true);
 		// update the window
 		ki_kontroll_t* playerwin = (ki_kontroll_t*)win_get_magic(magic_ki_kontroll_t);
 		if (playerwin) {
@@ -3176,20 +3176,20 @@ bool karte_t::change_player_tool(uint8 cmd, uint8 player_nr, uint16 param, bool 
 	switch(cmd) {
 		case new_player: {
 			// only public player can start AI
-			if(  (param != spieler_t::HUMAN  &&  !public_player_unlocked)  ||  param >= spieler_t::MAX_AI  ) {
+			if(  (param != player_t::HUMAN  &&  !public_player_unlocked)  ||  param >= player_t::MAX_AI  ) {
 				return false;
 			}
 			// range check, player already existent?
-			if(  player_nr >= PLAYER_UNOWNED  ||   get_spieler(player_nr)  ) {
+			if(  player_nr >= PLAYER_UNOWNED  ||   get_player(player_nr)  ) {
 				return false;
 			}
 			if(exec) {
-				new_spieler( player_nr, (uint8) param );
+				init_new_player( player_nr, (uint8) param );
 				// activate/deactivate AI immediately
-				spieler_t *sp = get_spieler(player_nr);
-				if (param != spieler_t::HUMAN  &&  sp) {
-					sp->set_active(true);
-					settings.set_player_active(player_nr, sp->is_active());
+				player_t *player = get_player(player_nr);
+				if (param != player_t::HUMAN  &&  player) {
+					player->set_active(true);
+					settings.set_player_active(player_nr, player->is_active());
 				}
 			}
 			return true;
@@ -3206,7 +3206,7 @@ bool karte_t::change_player_tool(uint8 cmd, uint8 player_nr, uint16 param, bool 
 		}
 		case delete_player: {
 			// range check, player existent?
-			if ( player_nr >= PLAYER_UNOWNED  ||   get_spieler(player_nr)==NULL ) {
+			if ( player_nr >= PLAYER_UNOWNED  ||   get_player(player_nr)==NULL ) {
 				return false;
 			}
 			if (exec) {
@@ -3221,7 +3221,7 @@ bool karte_t::change_player_tool(uint8 cmd, uint8 player_nr, uint16 param, bool 
 }
 
 
-void karte_t::set_tool( tool_t *tool_in, spieler_t *sp )
+void karte_t::set_tool( tool_t *tool_in, player_t *player )
 {
 	if(  get_random_mode()&LOAD_RANDOM  ) {
 		dbg->warning("karte_t::set_tool", "Ignored tool %i during loading.", tool_in->get_id() );
@@ -3229,47 +3229,47 @@ void karte_t::set_tool( tool_t *tool_in, spieler_t *sp )
 	}
 	bool scripted_call = tool_in->is_scripted();
 	// check for scenario conditions
-	if(  !scripted_call  &&  !scenario->is_tool_allowed(sp, tool_in->get_id(), tool_in->get_waytype())  ) {
+	if(  !scripted_call  &&  !scenario->is_tool_allowed(player, tool_in->get_id(), tool_in->get_waytype())  ) {
 		return;
 	}
 	// check for password-protected players
 	if(  (!tool_in->is_init_network_save()  ||  !tool_in->is_work_network_save())  &&  !scripted_call  &&
 		 !(tool_in->get_id()==(TOOL_CHANGE_PLAYER|SIMPLE_TOOL)  ||  tool_in->get_id()==(TOOL_ADD_MESSAGE|SIMPLE_TOOL))  &&
-		 sp  &&  sp->is_locked()  ) {
+		 player  &&  player->is_locked()  ) {
 		// player is currently password protected => request unlock first
-		create_win( -1, -1, new password_frame_t(sp), w_info, magic_pwd_t + sp->get_player_nr() );
+		create_win( -1, -1, new password_frame_t(player), w_info, magic_pwd_t + player->get_player_nr() );
 		return;
 	}
 	tool_in->flags |= event_get_last_control_shift();
 	if(!env_t::networkmode  ||  tool_in->is_init_network_save()  ) {
-		local_set_tool(tool_in, sp);
+		local_set_tool(tool_in, player);
 	}
 	else {
 		// queue tool for network
-		nwc_tool_t *nwc = new nwc_tool_t(sp, tool_in, zeiger->get_pos(), steps, map_counter, true);
+		nwc_tool_t *nwc = new nwc_tool_t(player, tool_in, zeiger->get_pos(), steps, map_counter, true);
 		network_send_server(nwc);
 	}
 }
 
 
 // set a new tool on our client, calls init
-void karte_t::local_set_tool( tool_t *tool_in, spieler_t * sp )
+void karte_t::local_set_tool( tool_t *tool_in, player_t * player )
 {
 	tool_in->flags |= tool_t::WFL_LOCAL;
 
-	if (get_scenario()->is_scripted()  &&  !get_scenario()->is_tool_allowed(sp, tool_in->get_id()) ) {
+	if (get_scenario()->is_scripted()  &&  !get_scenario()->is_tool_allowed(player, tool_in->get_id()) ) {
 		tool_in->flags = 0;
 		return;
 	}
 	// now call init
-	bool init_result = tool_in->init(sp);
+	bool init_result = tool_in->init(player);
 	// for unsafe tools init() must return false
 	assert(tool_in->is_init_network_save()  ||  !init_result);
 
-	if (sp && init_result) {
+	if (player && init_result) {
 
 		set_dirty();
-		tool_t *sp_tool = selected_tool[sp->get_player_nr()];
+		tool_t *sp_tool = selected_tool[player->get_player_nr()];
 		if(tool_in != sp_tool) {
 
 			// reinit same tool => do not play sound twice
@@ -3277,11 +3277,11 @@ void karte_t::local_set_tool( tool_t *tool_in, spieler_t * sp )
 
 			// only exit, if it is not the same tool again ...
 			sp_tool->flags |= tool_t::WFL_LOCAL;
-			sp_tool->exit(sp);
+			sp_tool->exit(player);
 			sp_tool->flags =0;
 		}
 
-		if(  sp==active_player  ) {
+		if(  player==active_player  ) {
 			// reset pointer
 			koord3d zpos = zeiger->get_pos();
 			// remove marks
@@ -3296,7 +3296,7 @@ void karte_t::local_set_tool( tool_t *tool_in, spieler_t * sp )
 				zeiger->change_pos( koord3d::invalid );
 			}
 		}
-		selected_tool[sp->get_player_nr()] = tool_in;
+		selected_tool[player->get_player_nr()] = tool_in;
 	}
 	tool_in->flags = 0;
 }
@@ -3500,8 +3500,8 @@ DBG_MESSAGE( "karte_t::rotate90()", "called" );
 	}
 
 	for(  int i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
-		if(  spieler[i]  ) {
-			spieler[i]->rotate90( cached_size.x );
+		if(  players[i]  ) {
+			players[i]->rotate90( cached_size.x );
 		}
 	}
 
@@ -3954,8 +3954,8 @@ void karte_t::sync_step(uint32 delta_t, bool sync, bool display )
 		// only omitted in fast forward mode for the magic steps
 
 		for(int x=0; x<MAX_PLAYER_COUNT-1; x++) {
-			if(spieler[x]) {
-				spieler[x]->age_messages(delta_t);
+			if(players[x]) {
+				players[x]->age_messages(delta_t);
 			}
 		}
 
@@ -4173,19 +4173,19 @@ void karte_t::new_month()
 
 	INT_CHECK("simworld 1282");
 
-	// spieler
+	// player
 	for(uint i=0; i<MAX_PLAYER_COUNT; i++) {
 		if( i>=2  &&  last_month == 0  &&  !settings.is_freeplay() ) {
 			// remove all player (but first and second) who went bankrupt during last year
-			if(  spieler[i] != NULL  &&  spieler[i]->get_finance()->is_bancrupted()  )
+			if(  players[i] != NULL  &&  players[i]->get_finance()->is_bancrupted()  )
 			{
 				remove_player(i);
 			}
 		}
 
-		if(  spieler[i] != NULL  ) {
+		if(  players[i] != NULL  ) {
 			// if returns false -> remove player
-			if (!spieler[i]->neuer_monat()) {
+			if (!players[i]->new_month()) {
 				remove_player(i);
 			}
 		}
@@ -4256,8 +4256,8 @@ DBG_MESSAGE("karte_t::new_year()","speedbonus for %d %i, %i, %i, %i, %i, %i, %i,
 	}
 
 	for(int i=0; i<MAX_PLAYER_COUNT; i++) {
-		if(  spieler[i] != NULL  ) {
-			spieler[i]->neues_jahr();
+		if(  players[i] != NULL  ) {
+			players[i]->new_year();
 		}
 	}
 
@@ -4515,8 +4515,8 @@ void karte_t::step()
 	DBG_DEBUG4("karte_t::step", "step players");
 	// then step all players
 	for(  int i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
-		if(  spieler[i] != NULL  ) {
-			spieler[i]->step();
+		if(  players[i] != NULL  ) {
+			players[i]->step();
 		}
 	}
 
@@ -4606,8 +4606,8 @@ void karte_t::restore_history()
 	for(  int m=min(MAX_WORLD_HISTORY_MONTHS,MAX_PLAYER_HISTORY_MONTHS)-1;  m>0;  m--  ) {
 		sint64 transported = 0;
 		for(  uint i=0;  i<MAX_PLAYER_COUNT;  i++ ) {
-			if(  spieler[i]!=NULL  ) {
-				transported += spieler[i]->get_finance()->get_history_veh_month( TT_ALL, m, ATV_TRANSPORTED );
+			if(  players[i]!=NULL  ) {
+				transported += players[i]->get_finance()->get_history_veh_month( TT_ALL, m, ATV_TRANSPORTED );
 			}
 		}
 		finance_history_month[m][WORLD_TRANSPORTED_GOODS] = transported;
@@ -4649,8 +4649,8 @@ void karte_t::restore_history()
 	for(  int y=min(MAX_WORLD_HISTORY_YEARS,MAX_CITY_HISTORY_YEARS)-1;  y>0;  y--  ) {
 		sint64 transported_year = 0;
 		for(  uint i=0;  i<MAX_PLAYER_COUNT;  i++ ) {
-			if(  spieler[i]  ) {
-				transported_year += spieler[i]->get_finance()->get_history_veh_year( TT_ALL, y, ATV_TRANSPORTED );
+			if(  players[i]  ) {
+				transported_year += players[i]->get_finance()->get_history_veh_year( TT_ALL, y, ATV_TRANSPORTED );
 			}
 		}
 		finance_history_year[y][WORLD_TRANSPORTED_GOODS] = transported_year;
@@ -4715,9 +4715,9 @@ void karte_t::update_history()
 	sint64 transported = 0;
 	sint64 transported_year = 0;
 	for(  uint i=0;  i<MAX_PLAYER_COUNT;  i++ ) {
-		if(  spieler[i]!=NULL  ) {
-			transported += spieler[i]->get_finance()->get_history_veh_month( TT_ALL, 0, ATV_TRANSPORTED_GOOD );
-			transported_year += spieler[i]->get_finance()->get_history_veh_year( TT_ALL, 0, ATV_TRANSPORTED_GOOD );
+		if(  players[i]!=NULL  ) {
+			transported += players[i]->get_finance()->get_history_veh_month( TT_ALL, 0, ATV_TRANSPORTED_GOOD );
+			transported_year += players[i]->get_finance()->get_history_veh_year( TT_ALL, 0, ATV_TRANSPORTED_GOOD );
 		}
 	}
 	finance_history_month[0][WORLD_TRANSPORTED_GOODS] = transported;
@@ -5056,16 +5056,16 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "start");
 	file->set_buffered(true);
 
 	// do not set value for empty player
-	uint8 old_sp[MAX_PLAYER_COUNT];
+	uint8 old_players[MAX_PLAYER_COUNT];
 	for(  int i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
-		old_sp[i] = settings.get_player_type(i);
-		if(  spieler[i]==NULL  ) {
-			settings.set_player_type(i, spieler_t::EMPTY);
+		old_players[i] = settings.get_player_type(i);
+		if(  players[i]==NULL  ) {
+			settings.set_player_type(i, player_t::EMPTY);
 		}
 	}
 	settings.rdwr(file);
 	for(  int i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
-		settings.set_player_type(i, old_sp[i]);
+		settings.set_player_type(i, old_players[i]);
 	}
 
 	file->rdwr_long(ticks);
@@ -5151,20 +5151,20 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved %i convois",convoi_ar
 // **** REMOVE IF SOON! *********
 		if(file->get_version()<101000) {
 			if(  i<8  ) {
-				if(  spieler[i]  ) {
-					spieler[i]->rdwr(file);
+				if(  players[i]  ) {
+					players[i]->rdwr(file);
 				}
 				else {
 					// simulate old ones ...
-					spieler_t *sp = new spieler_t( this, i );
-					sp->rdwr(file);
-					delete sp;
+					player_t *player = new player_t( this, i );
+					player->rdwr(file);
+					delete player;
 				}
 			}
 		}
 		else {
-			if(  spieler[i]  ) {
-				spieler[i]->rdwr(file);
+			if(  players[i]  ) {
+				players[i]->rdwr(file);
 			}
 		}
 	}
@@ -5633,20 +5633,20 @@ DBG_MESSAGE("karte_t::laden()", "init player");
 	for(int i=0; i<MAX_PLAYER_COUNT; i++) {
 		if(  file->get_version()>=101000  ) {
 			// since we have different kind of AIs
-			delete spieler[i];
-			spieler[i] = NULL;
-			new_spieler(i, settings.spieler_type[i]);
+			delete players[i];
+			players[i] = NULL;
+			init_new_player(i, settings.player_type[i]);
 		}
 		else if(i<8) {
 			// get the old player ...
-			if(  spieler[i]==NULL  ) {
-				new_spieler( i, (i==3) ? spieler_t::AI_PASSENGER : spieler_t::AI_GOODS );
+			if(  players[i]==NULL  ) {
+				init_new_player( i, (i==3) ? player_t::AI_PASSENGER : player_t::AI_GOODS );
 			}
-			settings.spieler_type[i] = spieler[i]->get_ai_id();
+			settings.player_type[i] = players[i]->get_ai_id();
 		}
 	}
 	// so far, player 1 will be active (may change in future)
-	active_player = spieler[0];
+	active_player = players[0];
 	active_player_nr = 0;
 
 	// rdwr cityrules, speedbonus for networkgames
@@ -5771,7 +5771,7 @@ DBG_MESSAGE("karte_t::laden()", "init player");
 	// @author hsiegeln
 	if (file->get_version() > 82003  &&  file->get_version()<88003) {
 		DBG_MESSAGE("karte_t::laden()", "load linemanagement");
-		get_spieler(0)->simlinemgmt.rdwr(file, get_spieler(0));
+		get_player(0)->simlinemgmt.rdwr(file, get_player(0));
 	}
 	// end load linemanagement
 
@@ -5831,14 +5831,14 @@ DBG_MESSAGE("karte_t::laden()", "init player");
 	}
 DBG_MESSAGE("karte_t::laden()", "%d convois/trains loaded", convoi_array.get_count());
 
-	// jetzt koennen die spieler geladen werden
+	// now the player can be loaded
 	for(int i=0; i<MAX_PLAYER_COUNT; i++) {
-		if(  spieler[i]  ) {
-			spieler[i]->rdwr(file);
-			settings.automaten[i] = spieler[i]->is_active();
+		if(  players[i]  ) {
+			players[i]->rdwr(file);
+			settings.player_active[i] = players[i]->is_active();
 		}
 		else {
-			settings.automaten[i] = false;
+			settings.player_active[i] = false;
 		}
 		ls.set_progress( (get_size().y*3)/2+128+8*i );
 	}
@@ -5949,8 +5949,8 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.get_count());
 
 	// register all line stops and change line types, if needed
 	for(int i=0; i<MAX_PLAYER_COUNT ; i++) {
-		if(  spieler[i]  ) {
-			spieler[i]->laden_abschliessen();
+		if(  players[i]  ) {
+			players[i]->load_finished();
 		}
 	}
 
@@ -6004,8 +6004,8 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.get_count());
 	// network game this will be done in nwc_sync_t::do_command
 	if(  !env_t::networkmode  ) {
 		for(  uint8 i=0;  i<PLAYER_UNOWNED;  i++  ) {
-			if(  spieler[i]  ) {
-				spieler[i]->check_unlock( player_password_hash[i] );
+			if(  players[i]  ) {
+				players[i]->check_unlock( player_password_hash[i] );
 			}
 		}
 	}
@@ -6032,7 +6032,7 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.get_count());
 	if(  file->get_version()>=102004  ) {
 		if(  env_t::restore_UI  ) {
 			file->rdwr_byte( active_player_nr );
-			active_player = spieler[active_player_nr];
+			active_player = players[active_player_nr];
 			/* restore all open windows
 			 * otherwise it will be ignored
 			 * which is save, since it is the end of file
@@ -6295,13 +6295,13 @@ void karte_t::create_grounds_loop( sint16 x_min, sint16 x_max, sint16 y_min, sin
 }
 
 
-uint8 karte_t::sp2num(spieler_t *sp)
+uint8 karte_t::sp2num(player_t *player)
 {
-	if(  sp==NULL  ) {
+	if(  player==NULL  ) {
 		return PLAYER_UNOWNED;
 	}
 	for(int i=0; i<MAX_PLAYER_COUNT; i++) {
-		if(spieler[i] == sp) {
+		if(players[i] == player) {
 			return i;
 		}
 	}
@@ -6511,38 +6511,38 @@ koord karte_t::get_closest_coordinate(koord outside_pos)
 
 
 /* creates a new player with this type */
-const char *karte_t::new_spieler(uint8 new_player, uint8 type)
+const char *karte_t::init_new_player(uint8 new_player_in, uint8 type)
 {
-	if(  new_player>=PLAYER_UNOWNED  ||  get_spieler(new_player)!=NULL  ) {
+	if(  new_player_in>=PLAYER_UNOWNED  ||  get_player(new_player_in)!=NULL  ) {
 		return "Id invalid/already in use!";
 	}
 	switch( type ) {
-		case spieler_t::EMPTY: break;
-		case spieler_t::HUMAN: spieler[new_player] = new spieler_t(this,new_player); break;
-		case spieler_t::AI_GOODS: spieler[new_player] = new ai_goods_t(this,new_player); break;
-		case spieler_t::AI_PASSENGER: spieler[new_player] = new ai_passenger_t(this,new_player); break;
+		case player_t::EMPTY: break;
+		case player_t::HUMAN: players[new_player_in] = new player_t(this,new_player_in); break;
+		case player_t::AI_GOODS: players[new_player_in] = new ai_goods_t(this,new_player_in); break;
+		case player_t::AI_PASSENGER: players[new_player_in] = new ai_passenger_t(this,new_player_in); break;
 		default: return "Unknow AI type!";
 	}
-	settings.set_player_type(new_player, type);
+	settings.set_player_type(new_player_in, type);
 	return NULL;
 }
 
 
 void karte_t::remove_player(uint8 player_nr)
 {
-	if ( player_nr!=1  &&  player_nr<PLAYER_UNOWNED  &&  spieler[player_nr]!=NULL) {
-		spieler[player_nr]->ai_bankrupt();
-		delete spieler[player_nr];
-		spieler[player_nr] = 0;
+	if ( player_nr!=1  &&  player_nr<PLAYER_UNOWNED  &&  players[player_nr]!=NULL) {
+		players[player_nr]->ai_bankrupt();
+		delete players[player_nr];
+		players[player_nr] = 0;
 		nwc_chg_player_t::company_removed(player_nr);
 		// if default human, create new instace of it (to avoid crashes)
 		if(  player_nr == 0  ) {
-			spieler[0] = new spieler_t( this, 0 );
+			players[0] = new player_t( this, 0 );
 		}
 		// if currently still active => reset to default human
 		if(  player_nr == active_player_nr  ) {
 			active_player_nr = 0;
-			active_player = spieler[0];
+			active_player = players[0];
 			if(  !env_t::server  ) {
 				create_win( display_get_width()/2-128, 40, new news_img("Bankrott:\n\nDu bist bankrott.\n"), w_info, magic_none);
 			}
@@ -6555,7 +6555,7 @@ void karte_t::remove_player(uint8 player_nr)
 void karte_t::switch_active_player(uint8 new_player, bool silent)
 {
 	for(  uint8 i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
-		if(  spieler[(i+new_player)%MAX_PLAYER_COUNT] != NULL  ) {
+		if(  players[(i+new_player)%MAX_PLAYER_COUNT] != NULL  ) {
 			new_player = (i+new_player)%MAX_PLAYER_COUNT;
 			break;
 		}
@@ -6563,9 +6563,9 @@ void karte_t::switch_active_player(uint8 new_player, bool silent)
 	koord3d old_zeiger_pos = zeiger->get_pos();
 
 	// no cheating allowed?
-	if (!settings.get_allow_player_change() && spieler[1]->is_locked()) {
+	if (!settings.get_allow_player_change() && players[1]->is_locked()) {
 		active_player_nr = 0;
-		active_player = spieler[0];
+		active_player = players[0];
 		if(new_player!=0) {
 			create_win( new news_img("On this map, you are not\nallowed to change player!\n"), w_time_delete, magic_none);
 		}
@@ -6577,7 +6577,7 @@ void karte_t::switch_active_player(uint8 new_player, bool silent)
 			selected_tool[active_player_nr]->exit(active_player);
 		}
 		active_player_nr = new_player;
-		active_player = spieler[new_player];
+		active_player = players[new_player];
 		if(  !silent  ) {
 			// tell the player
 			cbuffer_t buf;
@@ -7084,9 +7084,9 @@ void karte_t::announce_server(int status)
 			// Now add the game data part
 			uint8 active = 0, locked = 0;
 			for(  uint8 i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
-				if(  spieler[i]  &&  spieler[i]->get_ai_id()!=spieler_t::EMPTY  ) {
+				if(  players[i]  &&  players[i]->get_ai_id()!=player_t::EMPTY  ) {
 					active ++;
-					if(  spieler[i]->is_locked()  ) {
+					if(  players[i]->is_locked()  ) {
 						locked ++;
 					}
 				}

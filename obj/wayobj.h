@@ -16,7 +16,7 @@
 #include "../tpl/vector_tpl.h"
 #include "../tpl/stringhashtable_tpl.h"
 
-class spieler_t;
+class player_t;
 class karte_t;
 class koord;
 class grund_t;
@@ -42,7 +42,7 @@ private:
 
 
 public:
-	wayobj_t(koord3d pos, spieler_t *besitzer, ribi_t::ribi dir, const way_obj_besch_t *besch);
+	wayobj_t(koord3d pos, player_t *besitzer, ribi_t::ribi dir, const way_obj_besch_t *besch);
 
 	wayobj_t(loadsave_t *file);
 
@@ -94,9 +94,9 @@ public:
 	void rdwr(loadsave_t *file);
 
 	// substracts cost
-	void entferne(spieler_t *sp);
+	void entferne(player_t *player);
 
-	const char* ist_entfernbar(const spieler_t *sp) OVERRIDE;
+	const char* ist_entfernbar(const player_t *player) OVERRIDE;
 
 	/**
 	* calculate image after loading
@@ -117,7 +117,7 @@ public:
 	static const way_obj_besch_t *default_oberleitung;
 
 	// use this constructor; it will extend a matching existing wayobj
-	static void extend_wayobj_t(koord3d pos, spieler_t *besitzer, ribi_t::ribi dir, const way_obj_besch_t *besch);
+	static void extend_wayobj_t(koord3d pos, player_t *besitzer, ribi_t::ribi dir, const way_obj_besch_t *besch);
 
 	static bool register_besch(way_obj_besch_t *besch);
 	static bool alles_geladen();

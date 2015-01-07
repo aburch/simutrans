@@ -574,14 +574,14 @@ bool objlist_t::remove(const obj_t* remove_obj)
  * removes object from map
  * deletes object if it is not a zeiger_t
  */
-void local_delete_object(obj_t *remove_obj, spieler_t *sp)
+void local_delete_object(obj_t *remove_obj, player_t *player)
 {
 	vehikel_basis_t* const v = obj_cast<vehikel_basis_t>(remove_obj);
 	if (v  &&  remove_obj->get_typ() != obj_t::fussgaenger  &&  remove_obj->get_typ() != obj_t::verkehr  &&  remove_obj->get_typ() != obj_t::movingobj) {
 		v->verlasse_feld();
 	}
 	else {
-		remove_obj->entferne(sp);
+		remove_obj->entferne(player);
 		remove_obj->set_flag(obj_t::not_on_map);
 		// all objects except zeiger (pointer) are destroyed here
 		// zeiger's will be deleted if their associated tool terminates
@@ -592,7 +592,7 @@ void local_delete_object(obj_t *remove_obj, spieler_t *sp)
 }
 
 
-bool objlist_t::loesche_alle(spieler_t *sp, uint8 offset)
+bool objlist_t::loesche_alle(player_t *player, uint8 offset)
 {
 	if(top<=offset) {
 		return false;
@@ -604,14 +604,14 @@ bool objlist_t::loesche_alle(spieler_t *sp, uint8 offset)
 	if(capacity>1) {
 		while(  top>offset  ) {
 			top --;
-			local_delete_object(obj.some[top], sp);
+			local_delete_object(obj.some[top], player);
 			obj.some[top] = NULL;
 			ok = true;
 		}
 	}
 	else {
 		if(capacity==1) {
-			local_delete_object(obj.one, sp);
+			local_delete_object(obj.one, player);
 			ok = true;
 			obj.one = NULL;
 			capacity = top = 0;
@@ -625,20 +625,20 @@ bool objlist_t::loesche_alle(spieler_t *sp, uint8 offset)
 
 
 /* returns the text of an error message, if obj could not be removed */
-const char *objlist_t::kann_alle_entfernen(const spieler_t *sp, uint8 offset) const
+const char *objlist_t::kann_alle_entfernen(const player_t *player, uint8 offset) const
 {
 	if(top<=offset) {
 		return NULL;
 	}
 
 	if(capacity==1) {
-		return obj.one->ist_entfernbar(sp);
+		return obj.one->ist_entfernbar(player);
 	}
 	else {
 		const char * msg = NULL;
 
 		for(uint8 i=offset; i<top; i++) {
-			msg = obj.some[i]->ist_entfernbar(sp);
+			msg = obj.some[i]->ist_entfernbar(player);
 			if(msg != NULL) {
 				return msg;
 			}

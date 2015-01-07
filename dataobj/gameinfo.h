@@ -47,7 +47,7 @@ private:
 	checksum_t pakset_checksum;
 
 	// 0 = empty, otherwise some value from simplay
-	uint8 spieler_type[MAX_PLAYER_COUNT];
+	uint8 player_type[MAX_PLAYER_COUNT];
 	uint8 clients;	// currently connected players
 
 public:
@@ -79,7 +79,7 @@ public:
 	uint32 get_game_engine_revision() const { return game_engine_revision; }
 	const char *get_name_language_iso() const { return language_code_names; }
 	const char *get_pak_name() const { return pak_name.c_str(); }
-	uint8 get_player_type(uint8 i) const { return spieler_type[i]; }
+	uint8 get_player_type(uint8 i) const { return player_type[i]; }
 	uint8 get_clients() const { return clients; }
 	const checksum_t & get_pakset_checksum() const { return pakset_checksum; }
 };

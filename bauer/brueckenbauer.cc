@@ -140,7 +140,7 @@ inline bool ribi_check( ribi_t::ribi ribi, ribi_t::ribi check_ribi )
  * if check_ribi==0, then any single tile is ok
  * @returns either (1) error_message (must  abort bridge here) (2) "" if it could end here or (3) NULL if it must end here
  */
-const char *check_tile( const grund_t *gr, const spieler_t *sp, waytype_t wt, ribi_t::ribi check_ribi )
+const char *check_tile( const grund_t *gr, const player_t *player, waytype_t wt, ribi_t::ribi check_ribi )
 {
 	// not overbuilt transformers
 	if(  gr->find<senke_t>()!=NULL  ||  gr->find<pumpe_t>()!=NULL  ) {
@@ -163,7 +163,7 @@ const char *check_tile( const grund_t *gr, const spieler_t *sp, waytype_t wt, ri
 	// we can build a ramp when there is one (or with tram two) way in our direction and no stations/depot etc.
 	if(  weg_t *w = gr->get_weg_nr(0)  ) {
 
-		if(  !spieler_t::check_owner(w->get_besitzer(),sp)  ) {
+		if(  !player_t::check_owner(w->get_besitzer(),player)  ) {
 			// not our way
 			return "Das Feld gehoert\neinem anderen Spieler\n";
 		}
@@ -171,7 +171,7 @@ const char *check_tile( const grund_t *gr, const spieler_t *sp, waytype_t wt, ri
 		// now check for direction
 		ribi_t::ribi ribi = w->get_ribi_unmasked();
 		if(  weg_t *w2 = gr->get_weg_nr(1)  ) {
-			if(  !spieler_t::check_owner(w2->get_besitzer(),sp)  ) {
+			if(  !player_t::check_owner(w2->get_besitzer(),player)  ) {
 				// not our way
 				return "Das Feld gehoert\neinem anderen Spieler\n";
 			}
@@ -193,7 +193,7 @@ const char *check_tile( const grund_t *gr, const spieler_t *sp, waytype_t wt, ri
 
 		if(  w->get_waytype() != wt  ) {
 			// now check for perpendicular and crossing
-			if(  (ribi_t::doppelt(ribi) ^ ribi_t::doppelt(check_ribi) ) == ribi_t::alle  &&  crossing_logic_t::get_crossing(wt, w->get_waytype(), 0, 0, sp->get_welt()->get_timeline_year_month()  )  ) {
+			if(  (ribi_t::doppelt(ribi) ^ ribi_t::doppelt(check_ribi) ) == ribi_t::alle  &&  crossing_logic_t::get_crossing(wt, w->get_waytype(), 0, 0, player->get_welt()->get_timeline_year_month()  )  ) {
 				return NULL;
 			}
 			return "A bridge must start on a way!";
@@ -210,7 +210,7 @@ const char *check_tile( const grund_t *gr, const spieler_t *sp, waytype_t wt, ri
 	}
 	else if(  wt == powerline_wt  ) {
 		if(  leitung_t *lt = gr->get_leitung()  ) {
-			if(  spieler_t::check_owner(lt->get_besitzer(),sp)  &&  ribi_check( lt->get_ribi(), check_ribi )  ) {
+			if(  player_t::check_owner(lt->get_besitzer(),player)  &&  ribi_check( lt->get_ribi(), check_ribi )  ) {
 				// matching powerline
 				return NULL;
 			}
@@ -219,14 +219,14 @@ const char *check_tile( const grund_t *gr, const spieler_t *sp, waytype_t wt, ri
 	}
 	// somethign here which we cannot remove => fail too
 	if(  obj_t *obj=gr->obj_bei(0)  ) {
-		if(  const char *err_msg = obj->ist_entfernbar(sp)  ) {
+		if(  const char *err_msg = obj->ist_entfernbar(player)  ) {
 			return err_msg;
 		}
 	}
 	return "";	// could end here by must not end here
 }
 
-bool brueckenbauer_t::is_blocked(koord3d pos, spieler_t *sp, const bruecke_besch_t *besch, const char *&error_msg)
+bool brueckenbauer_t::is_blocked(koord3d pos, player_t *player, const bruecke_besch_t *besch, const char *&error_msg)
 {
 	/* can't build directly above or below a way if height clearance == 2 */
 	for(int dz=-(welt->get_settings().get_way_height_clearance()-1); dz<=(welt->get_settings().get_way_height_clearance()-1); dz++) {
@@ -244,7 +244,7 @@ bool brueckenbauer_t::is_blocked(koord3d pos, spieler_t *sp, const bruecke_besch
 		if(  gr2->get_typ() == grund_t::monorailboden  ) {
 			// now check if our way
 			if(  weg_t *w = gr2->get_weg_nr(0)  ) {
-				if(  !spieler_t::check_owner(w->get_besitzer(),sp)  ) {
+				if(  !player_t::check_owner(w->get_besitzer(),player)  ) {
 					// not our way
 					error_msg = "Das Feld gehoert\neinem anderen Spieler\n";
 					return true;
@@ -264,14 +264,14 @@ bool brueckenbauer_t::is_blocked(koord3d pos, spieler_t *sp, const bruecke_besch
 	return false;
 }
 
-bool brueckenbauer_t::is_monorail_junction(koord3d pos, spieler_t *sp, const bruecke_besch_t *besch, const char *&error_msg)
+bool brueckenbauer_t::is_monorail_junction(koord3d pos, player_t *player, const bruecke_besch_t *besch, const char *&error_msg)
 {
 	// first check for elevated ground exactly in our height
 	if(  grund_t *gr2 = welt->lookup( pos )  ) {
 		if(  gr2->get_typ() == grund_t::monorailboden  ) {
 			// now check if our way
 			if(  weg_t *w = gr2->get_weg_nr(0)  ) {
-				if(  !spieler_t::check_owner(w->get_besitzer(),sp)  ) {
+				if(  !player_t::check_owner(w->get_besitzer(),player)  ) {
 					// not our way
 					error_msg = "Das Feld gehoert\neinem anderen Spieler\n";
 					return false;
@@ -289,7 +289,7 @@ bool brueckenbauer_t::is_monorail_junction(koord3d pos, spieler_t *sp, const bru
 
 #define height_okay(h) (((h) < min_bridge_height || (h) > max_height) ? false : height_okay_array[h-min_bridge_height])
 
-koord3d brueckenbauer_t::finde_ende(spieler_t *sp, koord3d pos, const koord zv, const bruecke_besch_t *besch, const char *&error_msg, sint8 &bridge_height, bool ai_bridge, uint32 min_length, bool high_bridge )
+koord3d brueckenbauer_t::finde_ende(player_t *player, koord3d pos, const koord zv, const bruecke_besch_t *besch, const char *&error_msg, sint8 &bridge_height, bool ai_bridge, uint32 min_length, bool high_bridge )
 {
 	const grund_t *gr2 = welt->lookup( pos );
 	if(  !gr2  ) {
@@ -343,7 +343,7 @@ koord3d brueckenbauer_t::finde_ende(spieler_t *sp, koord3d pos, const koord zv, 
 		pos = pos + zv;
 
 		// test scenario conditions
-		if(  (error_msg = scen->is_work_allowed_here(sp, TOOL_BUILD_BRIDGE|GENERAL_TOOL, wegtyp, pos)) != NULL  ) {
+		if(  (error_msg = scen->is_work_allowed_here(player, TOOL_BUILD_BRIDGE|GENERAL_TOOL, wegtyp, pos)) != NULL  ) {
 			// fail silent?
 			return koord3d::invalid;
 		}
@@ -386,10 +386,10 @@ koord3d brueckenbauer_t::finde_ende(spieler_t *sp, koord3d pos, const koord zv, 
 		bool abort = true;
 		for(sint8 z = min_bridge_height; z <= max_height; z++) {
 			if(height_okay(z)) {
-				if(is_blocked(koord3d(pos.get_2d(), z), sp, besch, error_msg)) {
+				if(is_blocked(koord3d(pos.get_2d(), z), player, besch, error_msg)) {
 					height_okay_array[z-min_bridge_height] = false;
 				}
-				else if(is_monorail_junction(koord3d(pos.get_2d(), z), sp, besch, error_msg)) {
+				else if(is_monorail_junction(koord3d(pos.get_2d(), z), player, besch, error_msg)) {
 					gr = welt->lookup(koord3d(pos.get_2d(), z));
 					bridge_height = z - start_height;
 					return gr->get_pos();
@@ -420,7 +420,7 @@ koord3d brueckenbauer_t::finde_ende(spieler_t *sp, koord3d pos, const koord zv, 
 			if(height_okay(hang_height) && end_slope == hang_t::flach &&
 			   (hang_height == max_height || ai_bridge || min_length)) {
 				/* now we have a flat tile below */
-				error_msg = check_tile( gr, sp, besch->get_waytype(), ribi_typ(zv) );
+				error_msg = check_tile( gr, player, besch->get_waytype(), ribi_typ(zv) );
 
 				if(  !error_msg  ||  (!*error_msg) ) {
 					// success
@@ -444,7 +444,7 @@ koord3d brueckenbauer_t::finde_ende(spieler_t *sp, koord3d pos, const koord zv, 
 					// first check slope
 					if(  ribi_typ(end_slope) == ribi_typ(zv)  ) {
 						// slope matches
-						error_msg = check_tile( gr, sp, besch->get_waytype(), ribi_typ(zv) );
+						error_msg = check_tile( gr, player, besch->get_waytype(), ribi_typ(zv) );
 						if(  !error_msg  ||  !*error_msg  ) {
 							// success
 							bridge_height = hang_height - start_height;
@@ -458,7 +458,7 @@ koord3d brueckenbauer_t::finde_ende(spieler_t *sp, koord3d pos, const koord zv, 
 				if ((hang_height+1 >= start_height && height_okay(hang_height+1)) ||
 				    (hang_height+2 >= start_height && height_okay(hang_height+2))) {
 					/* now we have a flat tile below */
-					error_msg = check_tile( gr, sp, besch->get_waytype(), ribi_typ(zv) );
+					error_msg = check_tile( gr, player, besch->get_waytype(), ribi_typ(zv) );
 
 					if(  hang_height < max_height  &&  (  gr->has_two_ways()  ||  (  gr->get_weg_nr(0)  &&  (gr->get_weg_nr(0)->get_waytype() != besch->get_waytype()  ||  gr->get_weg_ribi_unmasked(besch->get_waytype())!=ribi_typ(zv)  )  )  )  ) {
 						// no crossing or curve here (since it will a slope ramp)
@@ -559,19 +559,19 @@ bool brueckenbauer_t::is_start_of_bridge( const grund_t *gr )
 }
 
 
-bool brueckenbauer_t::ist_ende_ok(spieler_t *sp, const grund_t *gr, waytype_t wt, ribi_t::ribi r )
+bool brueckenbauer_t::ist_ende_ok(player_t *player, const grund_t *gr, waytype_t wt, ribi_t::ribi r )
 {
 	// bridges can only start or end above ground
 	if(  gr->get_typ()!=grund_t::boden  &&  gr->get_typ()!=grund_t::monorailboden  &&
 	     gr->get_typ()!=grund_t::tunnelboden  ) {
 		return false;
 	}
-	const char *error_msg = check_tile( gr, sp, wt, r );
+	const char *error_msg = check_tile( gr, player, wt, r );
 	return (error_msg == NULL  ||  *error_msg == 0  );
 }
 
 
-const char *brueckenbauer_t::baue( spieler_t *sp, const koord3d pos, const bruecke_besch_t *besch)
+const char *brueckenbauer_t::baue( player_t *player, const koord3d pos, const bruecke_besch_t *besch)
 {
 	const grund_t *gr = welt->lookup(pos);
 	if(  !(gr  &&  besch)  ) {
@@ -602,12 +602,12 @@ const char *brueckenbauer_t::baue( spieler_t *sp, const koord3d pos, const bruec
 		}
 	}
 
-	if(  (!lt  &&  !weg)  ||  !ist_ende_ok(sp, gr,besch->get_waytype(),ribi)  ) {
+	if(  (!lt  &&  !weg)  ||  !ist_ende_ok(player, gr,besch->get_waytype(),ribi)  ) {
 		DBG_MESSAGE( "brueckenbauer_t::baue()", "no way %x found", besch->get_waytype() );
 		return "A bridge must start on a way!";
 	}
 
-	if(  gr->kann_alle_obj_entfernen(sp)  ) {
+	if(  gr->kann_alle_obj_entfernen(player)  ) {
 		return "Tile not empty.";
 	}
 
@@ -631,7 +631,7 @@ const char *brueckenbauer_t::baue( spieler_t *sp, const koord3d pos, const bruec
 	// search for suitable bridge end tile
 	const char *msg;
 	sint8 bridge_height;
-	koord3d end = finde_ende(sp, gr->get_pos(), zv, besch, msg, bridge_height );
+	koord3d end = finde_ende(player, gr->get_pos(), zv, besch, msg, bridge_height );
 
 	// found something?
 	if(  koord3d::invalid == end  ) {
@@ -641,15 +641,15 @@ DBG_MESSAGE("brueckenbauer_t::baue()", "end not ok");
 
 	// check ownership
 	grund_t * gr_end = welt->lookup(end);
-	if(gr_end->kann_alle_obj_entfernen(sp)) {
+	if(gr_end->kann_alle_obj_entfernen(player)) {
 		return "Tile not empty.";
 	}
 	// check way ownership
 	if(gr_end->hat_wege()) {
-		if(gr_end->get_weg_nr(0)->ist_entfernbar(sp)!=NULL) {
+		if(gr_end->get_weg_nr(0)->ist_entfernbar(player)!=NULL) {
 			return "Tile not empty.";
 		}
-		if(gr_end->has_two_ways()  &&  gr_end->get_weg_nr(1)->ist_entfernbar(sp)!=NULL) {
+		if(gr_end->has_two_ways()  &&  gr_end->get_weg_nr(1)->ist_entfernbar(player)!=NULL) {
 			return "Tile not empty.";
 		}
 	}
@@ -657,16 +657,16 @@ DBG_MESSAGE("brueckenbauer_t::baue()", "end not ok");
 
 	// Start and end have been checked, we can start to build eventually
 	if(besch->get_waytype()==powerline_wt) {
-		baue_bruecke(sp, gr->get_pos(), end, zv, bridge_height, besch, lt->get_besch() );
+		baue_bruecke(player, gr->get_pos(), end, zv, bridge_height, besch, lt->get_besch() );
 	}
 	else {
-		baue_bruecke(sp, gr->get_pos(), end, zv, bridge_height, besch, weg->get_besch() );
+		baue_bruecke(player, gr->get_pos(), end, zv, bridge_height, besch, weg->get_besch() );
 	}
 	return NULL;
 }
 
 
-void brueckenbauer_t::baue_bruecke(spieler_t *sp, const koord3d start, const koord3d end, koord zv, sint8 bridge_height, const bruecke_besch_t *besch, const weg_besch_t *weg_besch)
+void brueckenbauer_t::baue_bruecke(player_t *player, const koord3d start, const koord3d end, koord zv, sint8 bridge_height, const bruecke_besch_t *besch, const weg_besch_t *weg_besch)
 {
 	ribi_t::ribi ribi = ribi_typ(zv);
 
@@ -688,7 +688,7 @@ void brueckenbauer_t::baue_bruecke(spieler_t *sp, const koord3d start, const koo
 	if(  slope  ||  bridge_height != 0  ) {
 		// needs a ramp to start on ground
 		add_height = slope ?  hang_t::max_diff(slope) : bridge_height;
-		baue_auffahrt( sp, start, ribi, slope?0:hang_typ(zv)*add_height, besch );
+		baue_auffahrt( player, start, ribi, slope?0:hang_typ(zv)*add_height, besch );
 		if(  besch->get_waytype() != powerline_wt  ) {
 			ribi = welt->lookup(start)->get_weg_ribi_unmasked(besch->get_waytype());
 		}
@@ -698,7 +698,7 @@ void brueckenbauer_t::baue_bruecke(spieler_t *sp, const koord3d start, const koo
 		if(  besch->get_waytype() == powerline_wt  ) {
 			leitung_t *lt = start_gr->get_leitung();
 			if(!lt) {
-				lt = new leitung_t(start_gr->get_pos(), sp);
+				lt = new leitung_t(start_gr->get_pos(), player);
 				lt->set_besch( weg_besch );
 				start_gr->obj_add( lt );
 				lt->laden_abschliessen();
@@ -708,7 +708,7 @@ void brueckenbauer_t::baue_bruecke(spieler_t *sp, const koord3d start, const koo
 			// builds new way
 			weg_t * const weg = weg_t::alloc( besch->get_waytype() );
 			weg->set_besch( weg_besch );
-			spieler_t::book_construction_costs( sp, -start_gr->neuen_weg_bauen( weg, ribi, sp ) -weg->get_besch()->get_preis(), end.get_2d(), weg->get_waytype());
+			player_t::book_construction_costs( player, -start_gr->neuen_weg_bauen( weg, ribi, player ) -weg->get_besch()->get_preis(), end.get_2d(), weg->get_waytype());
 		}
 		start_gr->calc_bild();
 	}
@@ -720,16 +720,16 @@ void brueckenbauer_t::baue_bruecke(spieler_t *sp, const koord3d start, const koo
 		if(  besch->get_waytype() != powerline_wt  ) {
 			weg_t * const weg = weg_t::alloc(besch->get_waytype());
 			weg->set_besch(weg_besch);
-			bruecke->neuen_weg_bauen(weg, ribi_t::doppelt(ribi), sp);
+			bruecke->neuen_weg_bauen(weg, ribi_t::doppelt(ribi), player);
 		}
 		else {
-			leitung_t *lt = new leitung_t(bruecke->get_pos(), sp);
+			leitung_t *lt = new leitung_t(bruecke->get_pos(), player);
 			bruecke->obj_add( lt );
 			lt->laden_abschliessen();
 		}
 		grund_t *gr = welt->lookup_kartenboden(pos.get_2d());
 		sint16 height = pos.z - gr->get_pos().z;
-		bruecke_t *br = new bruecke_t(bruecke->get_pos(), sp, besch, besch->get_simple(ribi,height-hang_t::max_diff(gr->get_grund_hang())));
+		bruecke_t *br = new bruecke_t(bruecke->get_pos(), player, besch, besch->get_simple(ribi,height-hang_t::max_diff(gr->get_grund_hang())));
 		bruecke->obj_add(br);
 		bruecke->calc_bild();
 		br->laden_abschliessen();
@@ -741,7 +741,7 @@ void brueckenbauer_t::baue_bruecke(spieler_t *sp, const koord3d start, const koo
 				while(height-->0) {
 					if( TILE_HEIGHT_STEP*height <= 127) {
 						// eventual more than one part needed, if it is too high ...
-						gr->obj_add( new pillar_t(gr->get_pos(),sp,besch,besch->get_pillar(ribi), TILE_HEIGHT_STEP*height) );
+						gr->obj_add( new pillar_t(gr->get_pos(),player,besch,besch->get_pillar(ribi), TILE_HEIGHT_STEP*height) );
 					}
 				}
 			}
@@ -761,7 +761,7 @@ void brueckenbauer_t::baue_bruecke(spieler_t *sp, const koord3d start, const koo
 	grund_t *gr = welt->lookup(end);
 	if(  need_auffahrt  ) {
 		// not ending at a bridge
-		baue_auffahrt(sp, end, ribi_typ(-zv), gr->get_weg_hang()?0:hang_typ(-zv)*(pos.z-end.z), besch);
+		baue_auffahrt(player, end, ribi_typ(-zv), gr->get_weg_hang()?0:hang_typ(-zv)*(pos.z-end.z), besch);
 	}
 	else {
 		// ending on a slope/elevated way
@@ -772,15 +772,15 @@ void brueckenbauer_t::baue_bruecke(spieler_t *sp, const koord3d start, const koo
 				// builds new way
 				weg_t * const weg = weg_t::alloc( besch->get_waytype() );
 				weg->set_besch( weg_besch );
-				spieler_t::book_construction_costs( sp, -gr->neuen_weg_bauen( weg, ribi, sp ) -weg->get_besch()->get_preis(), end.get_2d(), weg->get_waytype());
+				player_t::book_construction_costs( player, -gr->neuen_weg_bauen( weg, ribi, player ) -weg->get_besch()->get_preis(), end.get_2d(), weg->get_waytype());
 			}
 			gr->calc_bild();
 		}
 		else {
 			leitung_t *lt = gr->get_leitung();
 			if(  lt==NULL  ) {
-				lt = new leitung_t(end, sp );
-				spieler_t::book_construction_costs(sp, -weg_besch->get_preis(), gr->get_pos().get_2d(), powerline_wt);
+				lt = new leitung_t(end, player );
+				player_t::book_construction_costs(player, -weg_besch->get_preis(), gr->get_pos().get_2d(), powerline_wt);
 				gr->obj_add(lt);
 				lt->set_besch(weg_besch);
 				lt->laden_abschliessen();
@@ -790,13 +790,13 @@ void brueckenbauer_t::baue_bruecke(spieler_t *sp, const koord3d start, const koo
 	}
 
 	// if start or end are single way, and next tile is not, try to connect
-	if(  besch->get_waytype() != powerline_wt  &&  sp  ) {
+	if(  besch->get_waytype() != powerline_wt  &&  player  ) {
 		if(  grund_t *start_gr = welt->lookup(start)  ) {
 			ribi_t::ribi ribi = start_gr->get_weg_ribi_unmasked(besch->get_waytype());
 			if(  ribi_t::ist_einfach(ribi)  ) {
 				// only single tile under start => try to connect to next tile
 				koord3d next_to_start = koord3d( start.get_2d()-koord(ribi), start_gr->get_vmove( ribi_t::rueckwaerts(ribi) ) );
-				wegbauer_t bauigel(sp);
+				wegbauer_t bauigel(player);
 				bauigel.set_keep_existing_ways(true);
 				bauigel.set_keep_city_roads(true);
 				bauigel.set_maximum(20);
@@ -812,7 +812,7 @@ void brueckenbauer_t::baue_bruecke(spieler_t *sp, const koord3d start, const koo
 			if(  ribi_t::ist_einfach(ribi)  ) {
 				// only single tile under start => try to connect to next tile
 				koord3d next_to_end = koord3d( end.get_2d()-koord(ribi), end_gr->get_vmove( ribi_t::rueckwaerts(ribi) ) );
-				wegbauer_t bauigel(sp);
+				wegbauer_t bauigel(player);
 				bauigel.set_keep_existing_ways(true);
 				bauigel.set_keep_city_roads(true);
 				bauigel.set_maximum(20);
@@ -827,7 +827,7 @@ void brueckenbauer_t::baue_bruecke(spieler_t *sp, const koord3d start, const koo
 }
 
 
-void brueckenbauer_t::baue_auffahrt(spieler_t* sp, koord3d end, ribi_t::ribi ribi_neu, hang_t::typ weg_hang, const bruecke_besch_t* besch)
+void brueckenbauer_t::baue_auffahrt(player_t* player, koord3d end, ribi_t::ribi ribi_neu, hang_t::typ weg_hang, const bruecke_besch_t* besch)
 {
 	assert(weg_hang < 81);
 
@@ -851,31 +851,31 @@ void brueckenbauer_t::baue_auffahrt(spieler_t* sp, koord3d end, ribi_t::ribi rib
 		if(  !bruecke->weg_erweitern( besch->get_waytype(), ribi_neu)  ) {
 			// needs still one
 			weg = weg_t::alloc( besch->get_waytype() );
-			spieler_t::book_construction_costs(sp, -bruecke->neuen_weg_bauen( weg, ribi_neu, sp ), end.get_2d(), besch->get_waytype());
+			player_t::book_construction_costs(player, -bruecke->neuen_weg_bauen( weg, ribi_neu, player ), end.get_2d(), besch->get_waytype());
 		}
 		weg->set_max_speed( besch->get_topspeed() );
 	}
 	else {
 		leitung_t *lt = bruecke->get_leitung();
 		if(!lt) {
-			lt = new leitung_t(bruecke->get_pos(), sp);
+			lt = new leitung_t(bruecke->get_pos(), player);
 			bruecke->obj_add( lt );
 		}
 		else {
 			// remove maintenance - it will be added in leitung_t::laden_abschliessen
-			spieler_t::add_maintenance( sp, -lt->get_besch()->get_wartung(), powerline_wt);
+			player_t::add_maintenance( player, -lt->get_besch()->get_wartung(), powerline_wt);
 		}
 		// connect to neighbor tiles and networks, add maintenance
 		lt->laden_abschliessen();
 	}
-	bruecke_t *br = new bruecke_t(end, sp, besch, img);
+	bruecke_t *br = new bruecke_t(end, player, besch, img);
 	bruecke->obj_add( br );
 	br->laden_abschliessen();
 	bruecke->calc_bild();
 }
 
 
-const char *brueckenbauer_t::remove(spieler_t *sp, koord3d pos_start, waytype_t wegtyp)
+const char *brueckenbauer_t::remove(player_t *player, koord3d pos_start, waytype_t wegtyp)
 {
 	marker_t& marker = marker_t::instance(welt->get_size().x, welt->get_size().y);
 	slist_tpl<koord3d> end_list;
@@ -952,9 +952,9 @@ const char *brueckenbauer_t::remove(spieler_t *sp, koord3d pos_start, waytype_t 
 			part_list.insert(pos);
 		}
 		// can we delete everything there?
-		msg = from->kann_alle_obj_entfernen(sp);
+		msg = from->kann_alle_obj_entfernen(player);
 
-		if(msg != NULL  ||  (from->get_halt().is_bound()  &&  from->get_halt()->get_besitzer()!=sp)) {
+		if(msg != NULL  ||  (from->get_halt().is_bound()  &&  from->get_halt()->get_besitzer()!=player)) {
 			return "Die Bruecke ist nicht frei!\n";
 		}
 
@@ -990,7 +990,7 @@ const char *brueckenbauer_t::remove(spieler_t *sp, koord3d pos_start, waytype_t 
 							w->set_ribi( (~ribi_t::rueckwaerts( ribi_t::nsow[i] )) & w->get_ribi_unmasked() );
 							if(  w->get_ribi_unmasked() == 0  ) {
 								// nowthing left => then remove completel
-								prev->remove_everything_from_way( sp, wegtyp, bridge_ribi );	// removes stop and signals correctly
+								prev->remove_everything_from_way( player, wegtyp, bridge_ribi );	// removes stop and signals correctly
 								prev->weg_entfernen( wegtyp, true );
 								if(  prev->get_typ() == grund_t::monorailboden  ) {
 									welt->access( prev->get_pos().get_2d() )->boden_entfernen( prev );
@@ -1009,17 +1009,17 @@ const char *brueckenbauer_t::remove(spieler_t *sp, koord3d pos_start, waytype_t 
 
 		// first: remove bridge
 		bruecke_t *br = gr->find<bruecke_t>();
-		br->entferne(sp);
+		br->entferne(player);
 		delete br;
 
-		gr->remove_everything_from_way(sp,wegtyp,ribi_t::keine);	// removes stop and signals correctly
+		gr->remove_everything_from_way(player,wegtyp,ribi_t::keine);	// removes stop and signals correctly
 		// remove also the second way on the bridge
 		if(gr->get_weg_nr(0)!=0) {
-			gr->remove_everything_from_way(sp,gr->get_weg_nr(0)->get_waytype(),ribi_t::keine);
+			gr->remove_everything_from_way(player,gr->get_weg_nr(0)->get_waytype(),ribi_t::keine);
 		}
 
 		// we may have a second way/powerline here ...
-		gr->obj_loesche_alle(sp);
+		gr->obj_loesche_alle(player);
 		gr->mark_image_dirty();
 
 		welt->access(pos.get_2d())->boden_entfernen(gr);
@@ -1053,7 +1053,7 @@ const char *brueckenbauer_t::remove(spieler_t *sp, koord3d pos_start, waytype_t 
 						w->set_ribi( (~ribi_t::rueckwaerts( ribi_t::nsow[i] )) & w->get_ribi_unmasked() );
 						if(  w->get_ribi_unmasked() == 0  ) {
 							// nowthing left => then remove completel
-							prev->remove_everything_from_way( sp, wegtyp, bridge_ribi );	// removes stop and signals correctly
+							prev->remove_everything_from_way( player, wegtyp, bridge_ribi );	// removes stop and signals correctly
 							prev->weg_entfernen( wegtyp, true );
 							if(  prev->get_typ() == grund_t::monorailboden  ) {
 								welt->access( prev->get_pos().get_2d() )->boden_entfernen( prev );
@@ -1070,12 +1070,12 @@ const char *brueckenbauer_t::remove(spieler_t *sp, koord3d pos_start, waytype_t 
 
 		if(wegtyp==powerline_wt) {
 			while (obj_t* const br = gr->find<bruecke_t>()) {
-				br->entferne(sp);
+				br->entferne(player);
 				delete br;
 			}
 			leitung_t *lt = gr->get_leitung();
 			if (lt) {
-				spieler_t *old_owner = lt->get_besitzer();
+				player_t *old_owner = lt->get_besitzer();
 				// first delete powerline to decouple from the bridge powernet
 				lt->entferne(old_owner);
 				delete lt;
@@ -1099,27 +1099,27 @@ const char *brueckenbauer_t::remove(spieler_t *sp, koord3d pos_start, waytype_t 
 			ribi &= bridge_ribi;
 
 			bruecke_t *br = gr->find<bruecke_t>();
-			br->entferne(sp);
+			br->entferne(player);
 			delete br;
 
 			// stops on flag bridges ends with road + track on it
 			// are not correctly deleted if ways are kept
 			if (gr->is_halt()) {
-				haltestelle_t::remove(sp, gr->get_pos());
+				haltestelle_t::remove(player, gr->get_pos());
 			}
 
 			// depots at bridge ends needs to be deleted as well
 			if (depot_t *dep = gr->get_depot()) {
-				dep->entferne(sp);
+				dep->entferne(player);
 				delete dep;
 			}
 
 			// removes single signals, bridge head, pedestrians, stops, changes catenary etc
 			weg_t *weg=gr->get_weg_nr(1);
 			if(weg) {
-				gr->remove_everything_from_way(sp,weg->get_waytype(),bridge_ribi);
+				gr->remove_everything_from_way(player,weg->get_waytype(),bridge_ribi);
 			}
-			gr->remove_everything_from_way(sp,wegtyp,bridge_ribi);	// removes stop and signals correctly
+			gr->remove_everything_from_way(player,wegtyp,bridge_ribi);	// removes stop and signals correctly
 
 			// corrects the ways
 			weg = gr->get_weg(wegtyp);

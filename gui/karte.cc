@@ -85,7 +85,7 @@ const uint8 reliefkarte_t::severity_color[MAX_SEVERITY_COLORS] =
 // helper function for line segment_t
 bool reliefkarte_t::line_segment_t::operator == (const line_segment_t & k) const
 {
-	return start == k.start  &&  end == k.end  &&  sp == k.sp  &&  fpl->similar( k.fpl, sp );
+	return start == k.start  &&  end == k.end  &&  player == k.player  &&  fpl->similar( k.fpl, player );
 }
 
 // Ordering based on first start then end coordinate
@@ -1223,9 +1223,9 @@ void reliefkarte_t::draw(scr_coord pos)
 					continue;
 				}
 				//cycle on players
-				if(  welt->get_spieler( np )  &&  welt->get_spieler( np )->simlinemgmt.get_line_count() > 0   ) {
+				if(  welt->get_player( np )  &&  welt->get_player( np )->simlinemgmt.get_line_count() > 0   ) {
 
-					welt->get_spieler( np )->simlinemgmt.get_lines( simline_t::line, &linee );
+					welt->get_player( np )->simlinemgmt.get_lines( simline_t::line, &linee );
 					for(  uint32 j = 0;  j < linee.get_count();  j++  ) {
 						//cycle on lines
 
@@ -1261,9 +1261,9 @@ void reliefkarte_t::draw(scr_coord pos)
 			}
 
 			// now add all unbound convois
-			spieler_t * required_vehicle_owner = NULL;
+			player_t * required_vehicle_owner = NULL;
 			if (player_showed_on_map != -1) {
-				required_vehicle_owner = welt->get_spieler(player_showed_on_map);
+				required_vehicle_owner = welt->get_player(player_showed_on_map);
 			}
 			FOR( vector_tpl<convoihandle_t>, cnv, welt->convoys() ) {
 				if(  !cnv.is_bound()  ||  cnv->get_line().is_bound()  ) {
@@ -1347,7 +1347,7 @@ void reliefkarte_t::draw(scr_coord pos)
 			if(  event_get_last_control_shift()==2  ||  current_cnv.is_bound()  ) {
 				// on control / single convoi use only player colors
 				static COLOR_VAL last_color = color;
-				color = seg.sp->get_player_color1()+1;
+				color = seg.player->get_player_color1()+1;
 				// all lines same thickness if same color
 				if(  color == last_color  ) {
 					offset = 0;

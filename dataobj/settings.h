@@ -14,7 +14,7 @@
  * April 2000
  */
 
-class spieler_t;
+class player_t;
 class loadsave_t;
 class tabfile_t;
 class weg_besch_t;
@@ -309,9 +309,9 @@ public:
 	sint32 way_count_leaving_road;
 
 	// true if active
-	bool automaten[MAX_PLAYER_COUNT];
+	bool player_active[MAX_PLAYER_COUNT];
 	// 0 = empty, otherwise some value from simplay
-	uint8 spieler_type[MAX_PLAYER_COUNT];
+	uint8 player_type[MAX_PLAYER_COUNT];
 
 	// how fast new AI will built something
 	uint32 default_ai_construction_speed;
@@ -454,9 +454,9 @@ public:
 		language_code_names[2] = 0;
 	}
 
-	void set_player_active(uint8 i, bool b) { automaten[i] = b; }
-	void set_player_type(uint8 i, uint8 t) { spieler_type[i] = t; }
-	uint8 get_player_type(uint8 i) const { return spieler_type[i]; }
+	void set_player_active(uint8 i, bool b) { player_active[i] = b; }
+	void set_player_type(uint8 i, uint8 t) { player_type[i] = t; }
+	uint8 get_player_type(uint8 i) const { return player_type[i]; }
 
 	bool is_separate_halt_capacities() const { return separate_halt_capacities ; }
 
@@ -539,7 +539,7 @@ public:
 
 	sint16 get_used_vehicle_reduction() const { return used_vehicle_reduction; }
 
-	void set_default_player_color( spieler_t *sp ) const;
+	void set_default_player_color( player_t *player ) const;
 
 	// usually only used in network mode => no need to set them!
 	uint32 get_random_counter() const { return random_counter; }

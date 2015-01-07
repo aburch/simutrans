@@ -3,8 +3,8 @@
 static scr_coord default_margin(LINESPACE, LINESPACE);
 
 
-base_infowin_t::base_infowin_t(const char *name, const spieler_t *sp) :
-	gui_frame_t(name, sp),
+base_infowin_t::base_infowin_t(const char *name, const player_t *player) :
+	gui_frame_t(name, player),
 	textarea(&buf, 16*LINESPACE),
 	embedded(NULL)
 {

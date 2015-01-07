@@ -34,7 +34,7 @@ public:
 
 
 // AI helper functions
-class ai_t : public spieler_t
+class ai_t : public player_t
 {
 protected:
 	// set the allowed modes of transport

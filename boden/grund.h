@@ -18,7 +18,7 @@
 #include "wege/weg.h"
 
 
-class spieler_t;
+class player_t;
 class depot_t;
 class karte_ptr_t;
 class cbuffer_t;
@@ -586,7 +586,7 @@ public:
 
 	uint8  obj_add(obj_t *obj) { return objlist.add(obj); }
 	uint8 obj_remove(const obj_t* obj) { return objlist.remove(obj); }
-	bool obj_loesche_alle(spieler_t *sp) { return objlist.loesche_alle(sp,offsets[flags/has_way1]); }
+	bool obj_loesche_alle(player_t *player) { return objlist.loesche_alle(player,offsets[flags/has_way1]); }
 	bool obj_ist_da(const obj_t* obj) const { return objlist.ist_da(obj); }
 	obj_t * obj_bei(uint8 n) const { return objlist.bei(n); }
 	uint8  obj_count() const { return objlist.get_top()-offsets[flags/has_way1]; }
@@ -599,7 +599,7 @@ public:
 	* @return NULL wenn OK, oder Meldung, warum nicht
 	* @author Hj. Malthaner
 	*/
-	const char * kann_alle_obj_entfernen(const spieler_t *sp) const { return objlist.kann_alle_entfernen(sp,offsets[flags/has_way1]); }
+	const char * kann_alle_obj_entfernen(const player_t *player) const { return objlist.kann_alle_entfernen(player,offsets[flags/has_way1]); }
 
 	/**
 	* Interface zur Bauen und abfragen von Gebaeuden
@@ -738,16 +738,14 @@ public:
 	sint64 remove_trees();
 
 	/**
-	 * Bauhilfsfunktion - ein neuer weg wird mit den vorgegebenen ribis
-	 * eingetragen und der Grund dem Erbauer zugeordnet.
-	 *
+	 * A new way is built with the given ribis. Registered and assigned to the builder.
 	 * @param weg	    der neue Weg
 	 * @param ribi	    die neuen ribis
-	 * @param sp	    Spieler, dem der Boden zugeordnet wird
+	 * @param sp	    Player building the way
 	 *
 	 * @author V. Meyer
 	 */
-	sint64 neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp);
+	sint64 neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, player_t *player);
 
 	/**
 	 * Bauhilfsfunktion - die ribis eines vorhandenen weges werden erweitert
@@ -844,7 +842,7 @@ public:
 	 * powerline ond other stuff
 	 * @author prissi
 	 */
-	bool remove_everything_from_way(spieler_t *sp,waytype_t wt,ribi_t::ribi ribi_rem);
+	bool remove_everything_from_way(player_t *player,waytype_t wt,ribi_t::ribi ribi_rem);
 
 	void* operator new(size_t s);
 	void  operator delete(void* p, size_t s);

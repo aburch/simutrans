@@ -21,11 +21,11 @@
 
 #define L_DIALOG_WIDTH (200)
 
-ai_option_t::ai_option_t( spieler_t *sp ) :
-	gui_frame_t( translator::translate("Configure AI"), sp ),
+ai_option_t::ai_option_t( player_t *player ) :
+	gui_frame_t( translator::translate("Configure AI"), player ),
 	label_cs( "construction speed" )
 {
-	this->ai = dynamic_cast<ai_t *>(sp);
+	this->ai = dynamic_cast<ai_t *>(player);
 
 	scr_coord cursor(D_MARGIN_LEFT,D_MARGIN_TOP);
 

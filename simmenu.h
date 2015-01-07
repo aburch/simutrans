@@ -23,7 +23,7 @@ template<class T> class slist_tpl;
 
 class scr_coord;
 class tool_selector_t;
-class spieler_t;
+class player_t;
 class toolbar_t;
 class memory_rw_t;
 
@@ -235,12 +235,12 @@ public:
 
 	virtual ~tool_t() {}
 
-	virtual image_id get_icon(spieler_t *) const { return icon; }
+	virtual image_id get_icon(player_t *) const { return icon; }
 	void set_icon(image_id i) { icon = i; }
 
-	// returns default_param of this tool for player sp
+	// returns default_param of this tool for player
 	// if sp==NULL returns default_param that was used to create the tool
-	virtual const char* get_default_param(spieler_t* = NULL) const { return default_param; }
+	virtual const char* get_default_param(player_t* = NULL) const { return default_param; }
 	void set_default_param(const char* str) { default_param = str; }
 
 	// transfer additional information in networkgames
@@ -251,18 +251,18 @@ public:
 
 	// when true, local execution would do no harm
 	virtual bool is_init_network_save() const { return false; }
-	virtual bool is_move_network_save(spieler_t *) const { return true; }
+	virtual bool is_move_network_save(player_t *) const { return true; }
 
 	// if is_work_network_save()==false
 	// and is_work_here_network_save(...)==false
 	// then work-command is sent over network
 	virtual bool is_work_network_save() const { return false; }
-	virtual bool is_work_here_network_save(spieler_t *, koord3d) { return false; }
+	virtual bool is_work_here_network_save(player_t *, koord3d) { return false; }
 
 	// will draw a dark frame, if selected
 	virtual void draw_after(scr_coord pos, bool dirty) const;
 
-	virtual const char *get_tooltip(const spieler_t *) const { return NULL; }
+	virtual const char *get_tooltip(const player_t *) const { return NULL; }
 
 	/**
 	 * @return true if this tool operates over the grid, not the map tiles.
@@ -273,13 +273,13 @@ public:
 	 * Returning false on init will automatically invoke previous tool.
 	 * Returning true will select tool and will make it possible to call work.
 	 */
-	virtual bool init( spieler_t * ) { return true; }
+	virtual bool init( player_t * ) { return true; }
 
 	/// initializes cursor (icon, marked area)
 	void init_cursor( zeiger_t * ) const;
 
 	// returning true on exit will have tool_selector resets to query-tool on right-click
-	virtual bool exit( spieler_t * ) { return true; }
+	virtual bool exit( player_t * ) { return true; }
 
 	/* the return string can have different meanings:
 	 * NULL: ok
@@ -288,9 +288,9 @@ public:
 	 * check: called before work (and move too?) koord3d already valid coordinate, checks visibility
 	 * work / move should depend on undergroundmode for not network safe tools
 	 */
-	virtual const char *check_pos( spieler_t *, koord3d );
-	virtual const char *work( spieler_t *, koord3d ) { return NULL; }
-	virtual const char *move( spieler_t *, uint16 /* buttonstate */, koord3d ) { return ""; }
+	virtual const char *check_pos( player_t *, koord3d );
+	virtual const char *work( player_t *, koord3d ) { return NULL; }
+	virtual const char *move( player_t *, uint16 /* buttonstate */, koord3d ) { return ""; }
 
 	/**
 	 * Returns whether the 2d koordinate passed it's a valid position for this tool to highlight a tile,
@@ -317,7 +317,7 @@ class kartenboden_tool_t : public tool_t {
 public:
 	kartenboden_tool_t(uint16 const id) : tool_t(id) {}
 
-	char const* check_pos(spieler_t*, koord3d) OVERRIDE;
+	char const* check_pos(player_t*, koord3d) OVERRIDE;
 };
 
 /*
@@ -333,13 +333,13 @@ public:
 	}
 
 	void rdwr_custom_data(memory_rw_t*) OVERRIDE;
-	bool init(spieler_t*) OVERRIDE;
-	bool exit(spieler_t* const sp) OVERRIDE { return init(sp); }
+	bool init(player_t*) OVERRIDE;
+	bool exit(player_t* const player) OVERRIDE { return init(player); }
 
-	char const* work(spieler_t*, koord3d) OVERRIDE;
-	char const* move(spieler_t*, uint16 /* buttonstate */, koord3d) OVERRIDE;
+	char const* work(player_t*, koord3d) OVERRIDE;
+	char const* move(player_t*, uint16 /* buttonstate */, koord3d) OVERRIDE;
 
-	bool is_work_here_network_save(spieler_t *, koord3d) OVERRIDE;
+	bool is_work_here_network_save(player_t *, koord3d) OVERRIDE;
 
 	/**
 	 * @returns true if cleanup() needs to be called before another tool can be executed
@@ -356,14 +356,14 @@ private:
 	/*
 	 * This routine should fill marked_tiles.
 	 */
-	virtual void mark_tiles( spieler_t *, const koord3d &start, const koord3d &end ) = 0;
+	virtual void mark_tiles( player_t *, const koord3d &start, const koord3d &end ) = 0;
 
 	/*
 	 * This routine is called, if the real work should be done.
 	 * If the tool supports single clicks, end is sometimes == koord3d::invalid.
 	 * Returned string is passed by work/move.
 	 */
-	virtual const char *do_work( spieler_t *, const koord3d &start, const koord3d &end ) = 0;
+	virtual const char *do_work( player_t *, const koord3d &start, const koord3d &end ) = 0;
 
 	/*
 	 * Can the tool start/end on pos? If it is the second click, start is the position of the first click
@@ -373,7 +373,7 @@ private:
 	 * 3 = Both (1 and 2)
 	 * error will contain an error message (if this is != NULL, return value should be 0).
 	 */
-	virtual uint8 is_valid_pos( spieler_t *, const koord3d &pos, const char *&error, const koord3d &start ) = 0;
+	virtual uint8 is_valid_pos( player_t *, const koord3d &pos, const char *&error, const koord3d &start ) = 0;
 
 	virtual image_id get_marker_image();
 
@@ -400,17 +400,17 @@ public:
 		helpfile = h;
 		tool_selector = NULL;
 	}
-	char const* get_tooltip(spieler_t const*) const OVERRIDE { return translator::translate(default_param); }
+	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate(default_param); }
 	tool_selector_t *get_tool_selector() const { return tool_selector; }
-	image_id get_icon(spieler_t*) const OVERRIDE;
+	image_id get_icon(player_t*) const OVERRIDE;
 	bool is_selected() const OVERRIDE;
 	bool is_init_network_save() const OVERRIDE { return true; }
 	bool is_work_network_save() const OVERRIDE { return true; }
 	// show this toolbar
-	bool init(spieler_t*) OVERRIDE;
+	bool init(player_t*) OVERRIDE;
 	// close this toolbar
-	bool exit(spieler_t*) OVERRIDE;
-	void update(spieler_t *);	// just refresh content
+	bool exit(player_t*) OVERRIDE;
+	void update(player_t *);	// just refresh content
 	void append(tool_t *t) { tools.append(t); }
 };
 

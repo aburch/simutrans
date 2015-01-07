@@ -198,11 +198,11 @@ public:
 	void angehoben();
 
 	/**
-	* returns halthandle belonging to player sp if present
+	* returns halthandle belonging to player if present
 	* @return NULL if no halt present
 	* @author Kieron Green
 	*/
-	halthandle_t get_halt(spieler_t *sp) const;
+	halthandle_t get_halt(player_t *player) const;
 
 private:
 	// these functions are private helper functions for halt_list corrections

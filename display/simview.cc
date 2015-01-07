@@ -296,8 +296,8 @@ void karte_ansicht_t::display(bool force_dirty)
 	if(welt) {
 		// show players income/cost messages
 		for(int x=0; x<MAX_PLAYER_COUNT; x++) {
-			if(  welt->get_spieler(x)  ) {
-				welt->get_spieler(x)->display_messages();
+			if(  welt->get_player(x)  ) {
+				welt->get_player(x)->display_messages();
 			}
 		}
 	}

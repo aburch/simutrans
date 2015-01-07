@@ -38,14 +38,14 @@ crossing_t::crossing_t(loadsave_t* const file) : obj_no_info_t()
 }
 
 
-crossing_t::crossing_t(spieler_t* const sp, koord3d const pos, kreuzung_besch_t const* const besch, uint8 const ns) : obj_no_info_t(pos)
+crossing_t::crossing_t(player_t* const player_, koord3d const pos, kreuzung_besch_t const* const besch, uint8 const ns) : obj_no_info_t(pos)
 {
 	this->ns = ns;
 	this->besch = besch;
 	logic = NULL;
 	zustand = crossing_logic_t::CROSSING_INVALID;
 	bild = after_bild = IMG_LEER;
-	set_besitzer( sp );
+	set_besitzer( player_ );
 }
 
 
@@ -55,7 +55,7 @@ crossing_t::~crossing_t()
 }
 
 
-void crossing_t::entferne(spieler_t *)
+void crossing_t::entferne(player_t *)
 {
 	if(logic) {
 		crossing_logic_t *old_logic = logic;
@@ -202,12 +202,12 @@ void crossing_t::laden_abschliessen()
 
 // returns NULL, if removal is allowed
 // players can remove public owned ways
-const char *crossing_t::ist_entfernbar(const spieler_t *sp)
+const char *crossing_t::ist_entfernbar(const player_t *player)
 {
 	if (get_player_nr()==1) {
 		return NULL;
 	}
 	else {
-		return obj_t::ist_entfernbar(sp);
+		return obj_t::ist_entfernbar(player);
 	}
 }

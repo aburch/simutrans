@@ -38,18 +38,18 @@ vector_tpl<sint64> const& get_world_stat(karte_t* welt, bool monthly, sint32 IND
 }
 
 
-bool world_remove_player(karte_t *welt, spieler_t *sp)
+bool world_remove_player(karte_t *welt, player_t *player)
 {
-	if (sp == NULL) {
+	if (player == NULL) {
 		return false;
 	}
 	// first test
-	bool ok = welt->change_player_tool(karte_t::delete_player, sp->get_player_nr(), 0, true /*unlocked*/, false /*exec*/);
+	bool ok = welt->change_player_tool(karte_t::delete_player, player->get_player_nr(), 0, true /*unlocked*/, false /*exec*/);
 	if (!ok) {
 		return false;
 	}
 	// now call - will not have immediate effect in network games
-	welt->call_change_player_tool(karte_t::delete_player, sp->get_player_nr(), 0, true /*scripted*/);
+	welt->call_change_player_tool(karte_t::delete_player, player->get_player_nr(), 0, true /*scripted*/);
 	return true;
 }
 

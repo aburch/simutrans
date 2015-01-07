@@ -64,10 +64,10 @@ class tool_dummy_t : public tool_t {
 public:
 	tool_dummy_t() : tool_t(dummy_id) {}
 
-	bool init(spieler_t*) OVERRIDE { return false; }
+	bool init(player_t*) OVERRIDE { return false; }
 	bool is_init_network_save() const OVERRIDE { return true; }
 	bool is_work_network_save() const OVERRIDE { return true; }
-	bool is_move_network_save(spieler_t*) const OVERRIDE { return true; }
+	bool is_move_network_save(player_t*) const OVERRIDE { return true; }
 };
 tool_t *tool_t::dummy = new tool_dummy_t();
 
@@ -656,7 +656,7 @@ bool tool_t::is_selected() const
 	return welt->get_tool(welt->get_active_player_nr())==this;
 }
 
-const char *tool_t::check_pos(spieler_t *, koord3d pos )
+const char *tool_t::check_pos(player_t *, koord3d pos )
 {
 	grund_t *gr = welt->lookup(pos);
 	return (gr  &&  !gr->is_visible()) ? "" : NULL;
@@ -682,7 +682,7 @@ void tool_t::init_cursor( zeiger_t *zeiger) const
 	zeiger->set_area( cursor_area, cursor_centered);
 }
 
-const char *kartenboden_tool_t::check_pos(spieler_t *, koord3d pos )
+const char *kartenboden_tool_t::check_pos(player_t *, koord3d pos )
 {
 	grund_t *gr = welt->lookup_kartenboden(pos.get_2d());
 	return (gr  &&  !gr->is_visible()) ? "" : NULL;
@@ -690,14 +690,14 @@ const char *kartenboden_tool_t::check_pos(spieler_t *, koord3d pos )
 
 
 
-image_id toolbar_t::get_icon(spieler_t *sp) const
+image_id toolbar_t::get_icon(player_t *player) const
 {
 	// no image for edit tools => do not open
-	if(  icon==IMG_LEER  ||  (sp!=NULL  &&  strcmp(default_param,"EDITTOOLS")==0  &&  sp->get_player_nr()!=1)  ) {
+	if(  icon==IMG_LEER  ||  (player!=NULL  &&  strcmp(default_param,"EDITTOOLS")==0  &&  player->get_player_nr()!=1)  ) {
 		return IMG_LEER;
 	}
 	// now have we a least one visible tool?
-	if (tool_selector  &&  !tool_selector->empty(sp)) {
+	if (tool_selector  &&  !tool_selector->empty(player)) {
 		return icon;
 	}
 	return IMG_LEER;
@@ -727,7 +727,7 @@ static sint16 get_sound( const char *c )
 
 
 // fills and displays a toolbar
-void toolbar_t::update(spieler_t *sp)
+void toolbar_t::update(player_t *player)
 {
 	const bool create = (tool_selector == NULL);
 	if(create) {
@@ -783,13 +783,13 @@ void toolbar_t::update(spieler_t *sp)
 			// get the right city_road
 			if(w->get_id() == (TOOL_BUILD_CITYROAD | GENERAL_TOOL)) {
 				w->flags = 0;
-				w->init(sp);
+				w->init(player);
 			}
 			if(  create  ) {
 				DBG_DEBUG( "toolbar_t::update()", "add tool %i (param=%s)", w->get_id(), w->get_default_param() );
 			}
 			scenario_t *scen = welt->get_scenario();
-			if(  scen->is_scripted()  &&  !scen->is_tool_allowed(sp, w->get_id(), w->get_waytype())) {
+			if(  scen->is_scripted()  &&  !scen->is_tool_allowed(player, w->get_id(), w->get_waytype())) {
 				continue;
 			}
 			// now add it to the toolbar gui
@@ -797,7 +797,7 @@ void toolbar_t::update(spieler_t *sp)
 		}
 	}
 
-	if(  (strcmp(this->default_param,"EDITTOOLS")==0  &&  sp!=welt->get_spieler(1))  ) {
+	if(  (strcmp(this->default_param,"EDITTOOLS")==0  &&  player!=welt->get_player(1))  ) {
 		destroy_win(tool_selector);
 		return;
 	}
@@ -806,10 +806,10 @@ void toolbar_t::update(spieler_t *sp)
 
 
 // fills and displays a toolbar
-bool toolbar_t::init(spieler_t *sp)
+bool toolbar_t::init(player_t *player)
 {
-	update( sp );
-	bool close = (strcmp(this->default_param,"EDITTOOLS")==0  &&  sp!=welt->get_spieler(1));
+	update( player );
+	bool close = (strcmp(this->default_param,"EDITTOOLS")==0  &&  player!=welt->get_player(1));
 
 	// show/create window
 	if(  close  ) {
@@ -826,7 +826,7 @@ bool toolbar_t::init(spieler_t *sp)
 }
 
 
-bool toolbar_t::exit(spieler_t *)
+bool toolbar_t::exit(player_t *)
 {
 	if(  win_get_magic(magic_toolbar+toolbar_tool.index_of(this))  ) {
 		destroy_win(tool_selector);
@@ -835,7 +835,7 @@ bool toolbar_t::exit(spieler_t *)
 }
 
 
-bool two_click_tool_t::init(spieler_t *)
+bool two_click_tool_t::init(player_t *)
 {
 	first_click_var = true;
 	start = koord3d::invalid;
@@ -862,13 +862,13 @@ bool two_click_tool_t::is_first_click() const
 }
 
 
-bool two_click_tool_t::is_work_here_network_save(spieler_t *sp, koord3d pos )
+bool two_click_tool_t::is_work_here_network_save(player_t *player, koord3d pos )
 {
 	if(  !is_first_click()  ) {
 		return false;
 	}
 	const char *error = "";	//default: nosound
-	uint8 value = is_valid_pos( sp, pos, error, koord3d::invalid );
+	uint8 value = is_valid_pos( player, pos, error, koord3d::invalid );
 	DBG_MESSAGE("two_click_tool_t::is_work_here_network_save", "Position %s valid=%d", pos.get_str(), value );
 	if(  value == 0  ) {
 		return false;
@@ -886,7 +886,7 @@ bool two_click_tool_t::is_work_here_network_save(spieler_t *sp, koord3d pos )
 }
 
 
-const char *two_click_tool_t::work(spieler_t *sp, koord3d pos )
+const char *two_click_tool_t::work(player_t *player, koord3d pos )
 {
 	if(  !is_first_click()  &&  start_marker  ) {
 		start = start_marker->get_pos(); // if map was rotated.
@@ -896,11 +896,11 @@ const char *two_click_tool_t::work(spieler_t *sp, koord3d pos )
 	cleanup( true );
 
 	const char *error = "";	//default: nosound
-	uint8 value = is_valid_pos( sp, pos, error, !is_first_click() ? start : koord3d::invalid );
+	uint8 value = is_valid_pos( player, pos, error, !is_first_click() ? start : koord3d::invalid );
 	DBG_MESSAGE("two_click_tool_t::work", "Position %s valid=%d", pos.get_str(), value );
 	if(  value == 0  ) {
 		flags &= ~(WFL_SHIFT | WFL_CTRL);
-		init( sp );
+		init( player );
 		return error;
 	}
 
@@ -909,7 +909,7 @@ const char *two_click_tool_t::work(spieler_t *sp, koord3d pos )
 		if( (value & 1)  &&  !( (value & 2)  &&  is_ctrl_pressed())) {
 			// Work here directly.
 			DBG_MESSAGE("two_click_tool_t::work", "Call tool at %s", pos.get_str() );
-			error = do_work( sp, pos, koord3d::invalid );
+			error = do_work( player, pos, koord3d::invalid );
 		}
 		else {
 			// set starting position.
@@ -920,16 +920,16 @@ const char *two_click_tool_t::work(spieler_t *sp, koord3d pos )
 	else {
 		if( value & 2 ) {
 			DBG_MESSAGE("two_click_tool_t::work", "Setting end to %s", pos.get_str() );
-			error = do_work( sp, start, pos );
+			error = do_work( player, start, pos );
 		}
 		flags &= ~(WFL_SHIFT | WFL_CTRL);
-		init( sp ); // Do the cleanup stuff after(!) do_work (otherwise start==koord3d::invalid).
+		init( player ); // Do the cleanup stuff after(!) do_work (otherwise start==koord3d::invalid).
 	}
 	return error;
 }
 
 
-const char *two_click_tool_t::move(spieler_t *sp, uint16 buttonstate, koord3d pos )
+const char *two_click_tool_t::move(player_t *player, uint16 buttonstate, koord3d pos )
 {
 	DBG_MESSAGE("two_click_tool_t::move", "Button: %d, Pos: %s", buttonstate, pos.get_str());
 	if(  buttonstate == 0  ) {
@@ -937,7 +937,7 @@ const char *two_click_tool_t::move(spieler_t *sp, uint16 buttonstate, koord3d po
 	}
 
 	if(  start == pos  ) {
-		init( sp );
+		init( player );
 	}
 
 	const char *error = NULL;
@@ -946,7 +946,7 @@ const char *two_click_tool_t::move(spieler_t *sp, uint16 buttonstate, koord3d po
 		// start dragging.
 		cleanup( true );
 
-		uint8 value = is_valid_pos( sp, pos, error, koord3d::invalid );
+		uint8 value = is_valid_pos( player, pos, error, koord3d::invalid );
 		if( error || value == 0 ) {
 			return error;
 		}
@@ -961,13 +961,13 @@ const char *two_click_tool_t::move(spieler_t *sp, uint16 buttonstate, koord3d po
 		if( start_marker ) {
 			start = start_marker->get_pos(); // if map was rotated.
 		}
-		uint8 value = is_valid_pos( sp, pos, error, start );
+		uint8 value = is_valid_pos( player, pos, error, start );
 		if( error || value == 0 ) {
 			return error;
 		}
 		if( value & 2 ) {
 			display_show_load_pointer( true );
-			mark_tiles( sp, start, pos );
+			mark_tiles( player, start, pos );
 			display_show_load_pointer( false );
 		}
 	}

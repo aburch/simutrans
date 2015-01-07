@@ -17,7 +17,7 @@ class ware_besch_t;
 class fabrik_besch_t;
 class stadt_t;
 class karte_ptr_t;
-class spieler_t;
+class player_t;
 class fabrik_t;
 
 
@@ -101,7 +101,7 @@ public:
 	 * @param rotate building rotation (0..3)
 	 * @returns The newly constructed factory.
 	 */
-	static fabrik_t* baue_fabrik(koord3d* parent, const fabrik_besch_t* info, sint32 initial_prod_base, int rotate, koord3d pos, spieler_t* spieler);
+	static fabrik_t* baue_fabrik(koord3d* parent, const fabrik_besch_t* info, sint32 initial_prod_base, int rotate, koord3d pos, player_t* owner);
 
 	/**
 	 * Builds a new full chain of factories. Precondition before calling this function:
@@ -110,13 +110,13 @@ public:
 	 * (meaning there are no unfinished factory chains).
 	 * @returns number of factories built
 	 */
-	static int baue_hierarchie(koord3d* parent, const fabrik_besch_t* info, sint32 initial_prod_base, int rotate, koord3d* pos, spieler_t* sp, int number_of_chains );
+	static int baue_hierarchie(koord3d* parent, const fabrik_besch_t* info, sint32 initial_prod_base, int rotate, koord3d* pos, player_t* player, int number_of_chains );
 
 	/**
 	 * Helper function for baue_hierachie(): builds the connections (chain) for one single product)
 	 * @returns number of factories built
 	 */
-	static int baue_link_hierarchie(const fabrik_t* our_fab, const fabrik_besch_t* info, int lieferant_nr, spieler_t* sp);
+	static int baue_link_hierarchie(const fabrik_t* our_fab, const fabrik_besch_t* info, int lieferant_nr, player_t* player);
 
 	/**
 	 * This function is called whenever it is time for industry growth.

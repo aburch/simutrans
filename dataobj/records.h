@@ -10,7 +10,7 @@
 #include "../simconvoi.h"
 
 class message_t;
-class spieler_t;
+class player_t;
 
 /**
  * World record speed management.
@@ -43,7 +43,7 @@ private:
 		convoihandle_t cnv;
 		sint32	speed;
 		koord	pos;
-		spieler_t *besitzer;  // Owner
+		player_t *besitzer;  // Owner
 		uint32 year_month;
 
 		speed_record_t() : cnv(), speed(0), pos(koord::invalid), besitzer(NULL), year_month(0) {}
