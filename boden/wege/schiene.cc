@@ -179,7 +179,6 @@ void schiene_t::rdwr(loadsave_t *file)
 		file->rdwr_str(bname, lengthof(bname));
 
 #ifndef SPECIAL_RESCUE_12_3
-		char rbname[128];
 		const weg_besch_t* loaded_replacement_way = NULL;
 		if(file->get_experimental_version() >= 12)
 		{
