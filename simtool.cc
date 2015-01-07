@@ -4926,14 +4926,20 @@ const char* tool_build_roadsign_t::check_pos_intern(spieler_t *sp, koord3d pos)
 		   (!ribi_t::ist_gerade(dir) || weg->get_besitzer() != sp ||
 		    gr->removing_road_would_disconnect_city_building() ||
 		    gr->removing_way_would_disrupt_public_right_of_way(road_wt)) &&
-		   (sp->get_player_nr() != 1 || weg->get_besitzer() != NULL))
+			(!sp->is_public_service() || weg->get_besitzer() != NULL))
 		{
-			// Private way signs only on straight tiles, and only on ways belonging to the player building them.
+			// Private way signs only on straight tiles, and only on ways belonging to the player building them, not public rights of way.
 			return error;
 		}
 		if(besch->is_private_way()) {
 			weg->set_gehweg(false);
 			weg->set_public_right_of_way(false);
+		}
+
+		if(!sp->is_public_service() && besch->is_single_way() && gr->removing_way_would_disrupt_public_right_of_way(road_wt))
+		{
+			// Cannot interfere with the traffic flow on a public right of way.
+			return error;
 		}
 
 		const bool two_way = besch->is_single_way()  ||  besch->is_signal() ||  besch->is_pre_signal();
