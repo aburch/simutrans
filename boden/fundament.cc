@@ -44,4 +44,5 @@ void fundament_t::calc_bild_internal(const bool calc_only_snowline_change)
 		}
 		grund_t::calc_back_bild( get_disp_height(), 0 );
 	}
+	set_flag( dirty );
 }
