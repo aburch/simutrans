@@ -64,6 +64,7 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(waytype_t wt, signed char player_
 	lb_convoi_weight(NULL, COL_BLACK, gui_label_t::left),
 	lb_convoi_brake_force(NULL, COL_BLACK, gui_label_t::left),
 	lb_convoi_rolling_resistance(NULL, COL_BLACK, gui_label_t::left),
+	lb_convoi_way_wear_factor(NULL, COL_BLACK, gui_label_t::left),
 	lb_traction_types(NULL, COL_BLACK, gui_label_t::left),
 	lb_vehicle_count(NULL, COL_BLACK, gui_label_t::right),
 	lb_veh_action("Fahrzeuge:", COL_BLACK, gui_label_t::left),
@@ -113,6 +114,7 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(waytype_t wt, signed char player_
 	add_komponente(&lb_convoi_weight);
 	add_komponente(&lb_convoi_brake_force);
 	add_komponente(&lb_convoi_rolling_resistance);
+	add_komponente(&lb_convoi_way_wear_factor);
 	add_komponente(&cont_convoi_capacity);
 
 	add_komponente(&lb_traction_types);
@@ -266,6 +268,7 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(waytype_t wt, signed char player_
 	lb_convoi_weight.set_text_pointer(txt_convoi_weight);
 	lb_convoi_brake_force.set_text_pointer(txt_convoi_brake_force);
 	lb_convoi_rolling_resistance.set_text_pointer(txt_convoi_rolling_resistance);
+	lb_convoi_way_wear_factor.set_text_pointer(txt_convoi_way_wear_factor);
 
 	lb_traction_types.set_text_pointer(txt_traction_types);
 	lb_vehicle_count.set_text_pointer(txt_vehicle_count);
@@ -397,7 +400,8 @@ void gui_convoy_assembler_t::layout()
 	const scr_coord_val c1_x = D_MARGIN_LEFT;
 	const scr_size sp_size(size.w - D_MARGIN_LEFT - D_MARGIN_RIGHT, LINESPACE);
 	const scr_size lb_size((sp_size.w - D_V_SPACE) / 2, LINESPACE);
-	const scr_coord_val c2_x = c1_x + lb_size.w + D_V_SPACE;
+	const scr_coord_val c2_x = c1_x + ((lb_size.w / 5) * 4) + D_V_SPACE;
+	const scr_coord_val c3_x = c2_x + ((lb_size.w / 5) * 4) + D_V_SPACE;
 
 	/*
 	 * [CONVOI]
@@ -417,6 +421,8 @@ void gui_convoy_assembler_t::layout()
 	lb_convoi_cost.set_size(lb_size);
 	lb_convoi_value.set_pos(scr_coord(c2_x, y));
 	lb_convoi_value.set_size(lb_size);
+	lb_convoi_way_wear_factor.set_pos(scr_coord(c3_x, y));
+	lb_convoi_way_wear_factor.set_size(lb_size); 
 	y += LINESPACE + 1;
 	lb_convoi_power.set_pos(scr_coord(c1_x, y));
 	lb_convoi_power.set_size(lb_size);
@@ -651,6 +657,7 @@ void gui_convoy_assembler_t::draw(scr_coord parent_pos)
 	txt_convoi_weight.clear();
 	txt_convoi_brake_force.clear();
 	txt_convoi_rolling_resistance.clear();
+	txt_convoi_way_wear_factor.clear();
 	cont_convoi_capacity.set_visible(!vehicles.empty());
 	if (!vehicles.empty()) {
 		potential_convoy_t convoy(vehicles);
@@ -677,6 +684,7 @@ void gui_convoy_assembler_t::draw(scr_coord parent_pos)
 		uint32 total_cost = 0;
 		uint32 maint_per_km = 0;
 		uint32 maint_per_month = 0;
+		double way_wear_factor = 0.0;
 
 		for(  unsigned i = 0;  i < number_of_vehicles;  i++  ) {
 			const vehikel_besch_t *besch = vehicles.get_element(i);
@@ -687,6 +695,7 @@ void gui_convoy_assembler_t::draw(scr_coord parent_pos)
 			total_force += besch->get_tractive_effort();
  			maint_per_km += besch->get_running_cost();
  			maint_per_month += besch->get_adjusted_monthly_fixed_cost(welt);
+			way_wear_factor += (double)besch->get_way_wear_factor();
 
 			switch(  ware->get_catg_index()  ) {
 				case warenbauer_t::INDEX_PAS: {
@@ -704,8 +713,8 @@ void gui_convoy_assembler_t::draw(scr_coord parent_pos)
 				}
 			}
 		}
+		way_wear_factor /= 10000.0;
 		cont_convoi_capacity.set_totals( total_pax, total_standing_pax, total_mail, total_goods );
-
 
 		txt_convoi_count.printf("%s %d (%s %i)",
 			translator::translate("Fahrzeuge:"), vehicles.get_count(),
@@ -786,9 +795,10 @@ void gui_convoy_assembler_t::draw(scr_coord parent_pos)
 		}
 		else {
 				txt_convoi_weight.printf("%s %.3ft\n", translator::translate("Weight:"), total_empty_weight / 1000.0 );
-				txt_convoi_rolling_resistance.printf("%s %.3fkN", translator::translate("Rolling resistance:"), (rolling_resistance * (double)total_empty_weight / 1000.0) / number_of_vehicles);
+				txt_convoi_rolling_resistance.printf("%s %.3fkN\n", translator::translate("Rolling resistance:"), (rolling_resistance * (double)total_empty_weight / 1000.0) / number_of_vehicles);
 		}
-		
+		txt_convoi_way_wear_factor.clear();
+		txt_convoi_way_wear_factor.printf("%s: %.4f", translator::translate("Way wear factor"), way_wear_factor);
 	}
 
 	bt_obsolete.pressed = show_retired_vehicles;	// otherwise the button would not show depressed

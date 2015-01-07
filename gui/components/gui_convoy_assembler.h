@@ -107,6 +107,7 @@ class gui_convoy_assembler_t :
 	gui_label_t lb_convoi_weight;
 	gui_label_t lb_convoi_brake_force;
 	gui_label_t lb_convoi_rolling_resistance;
+	gui_label_t lb_convoi_way_wear_factor;
 	gui_label_t lb_convoi_line;
 	// Specifies the traction types handled by
 	// this depot.
@@ -168,6 +169,7 @@ class gui_convoy_assembler_t :
 	cbuffer_t txt_convoi_weight;
 	cbuffer_t txt_convoi_brake_force;
 	cbuffer_t txt_convoi_rolling_resistance;
+	cbuffer_t txt_convoi_way_wear_factor;
 	cbuffer_t txt_traction_types;
 	cbuffer_t txt_vehicle_count;
 
