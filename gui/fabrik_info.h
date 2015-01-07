@@ -90,7 +90,7 @@ public:
 	 */
 	const char *get_help_filename() const {return "industry_info.txt";}
 
-	virtual bool has_min_size() const {return true;}
+	virtual bool has_minimize_button() const {return true;}
 
 	virtual koord3d get_weltpos(bool) { return fab->get_pos(); }
 

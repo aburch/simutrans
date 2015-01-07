@@ -185,7 +185,7 @@ public:
 	 * @return true if such a button is needed
 	 * @author Hj. Malthaner
 	 */
-	virtual bool has_min_size() const {return false;}
+	virtual bool has_minimize_button() const {return false;}
 
 	/**
 	 * Does this window need a next button in the title bar?

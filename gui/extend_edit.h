@@ -79,7 +79,7 @@ public:
 	* @return true if such a button is needed
 	* @author Hj. Malthaner
 	*/
-	bool has_min_size() const {return true;}
+	bool has_minimize_button() const {return true;}
 
 	bool infowin_event(event_t const*) OVERRIDE;
 
