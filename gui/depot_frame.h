@@ -121,7 +121,7 @@ private:
 	 * @return true if such a button is needed
 	 * @author Hj. Malthaner
 	 */
-	bool has_min_size() const {return true;}
+	bool has_minimize_button() const {return true;}
 
 	// true if already stored here
 	bool is_contained(const vehikel_besch_t *info);

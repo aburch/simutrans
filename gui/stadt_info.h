@@ -87,7 +87,7 @@ public:
 	 * @return true if such a button is needed
 	 * @author Hj. Malthaner
 	 */
-	virtual bool has_min_size() const {return true;}
+	virtual bool has_minimize_button() const {return true;}
 
 	/**
 	 * resize window in response to a resize event

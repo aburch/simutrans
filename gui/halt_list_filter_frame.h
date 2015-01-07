@@ -117,7 +117,7 @@ public:
 	 * Does this window need a min size button in the title bar?
 	 * @return true if such a button is needed
 	 */
-	bool has_min_size() const {return true;}
+	bool has_minimize_button() const {return true;}
 
 	/**
 	 * Draw new component. The values to be passed refer to the window
