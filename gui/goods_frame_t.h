@@ -66,7 +66,7 @@ public:
 	*/
 	void resize(const scr_coord delta);
 
-	bool has_minimize_button() const {return true;}
+	bool has_min_sizer() const {return true;}
 
 	/**
 	 * Set the window associated helptext

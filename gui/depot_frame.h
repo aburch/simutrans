@@ -219,7 +219,7 @@ private:
 	 * @return true if such a button is needed
 	 * @author Hj. Malthaner
 	 */
-	bool has_minimize_button() const {return true;}
+	bool has_min_sizer() const {return true;}
 
 	// true if already stored here
 	bool is_hit(const vehikel_besch_t *info);

@@ -185,7 +185,7 @@ public:
 	 * @return true if such a button is needed
 	 * @author Hj. Malthaner
 	 */
-	virtual bool has_minimize_button() const {return false;}
+	virtual bool has_min_sizer() const {return false;}
 
 	/**
 	 * Does this window need a next button in the title bar?
@@ -201,9 +201,16 @@ public:
 	 */
 	virtual bool has_prev() const {return has_next();}
 
+	/**
+	 * Does this window need a sticky in the title bar?
+	 * @return true if such a button is needed
+	 */
 	virtual bool has_sticky() const { return true; }
 
-	// if false, title and all gadgets will be not drawn
+	/**
+	 * Does this window need its title to be shown?
+	 * @return if false title and all gadgets will be not drawn
+	 */
 	virtual bool has_title() const { return true; }
 
 	// position of a connected thing on the map

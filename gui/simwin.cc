@@ -610,7 +610,7 @@ int create_win(int x, int y, gui_frame_t* const gui, wintype const wt, ptrdiff_t
 		win.flags.help = ( gui->get_help_filename() != NULL );
 		win.flags.prev = gui->has_prev();
 		win.flags.next = gui->has_next();
-		win.flags.size = gui->has_minimize_button();
+		win.flags.size = gui->has_min_sizer();
 		win.flags.sticky = gui->has_sticky();
 		win.gui = gui;
 

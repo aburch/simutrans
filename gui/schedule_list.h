@@ -94,7 +94,7 @@ public:
 	* @return true if such a button is needed
 	* @author Hj. Malthaner
 	*/
-	bool has_minimize_button() const {return true;}
+	bool has_min_sizer() const {return true;}
 
 	/**
 	* Draw new component. The values to be passed refer to the window
