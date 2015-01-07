@@ -68,10 +68,10 @@ protected:
 	virtual void init_cell(coordinate_t x, coordinate_t y);
 
 	/**
-	 * paint_cell() is called in zeichnen(), whenever a cell has to be painted.
+	 * paint_cell() is called in draw(), whenever a cell has to be painted.
 	 *
 	 * It has to paint cell (x,y) at position offset. 
-	 * The default implementation calls zeichnen() of the component of cell (x,y), if there is one.
+	 * The default implementation calls draw() of the component of cell (x,y), if there is one.
 	 */
 	virtual void paint_cell(const scr_coord &offset, coordinate_t x, coordinate_t y);
 

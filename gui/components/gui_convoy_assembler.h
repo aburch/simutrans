@@ -38,7 +38,7 @@ private:
 public:
 	depot_convoi_capacity_t();
 	void set_totals(uint32 pax, uint32 standing_pax, uint32 mail, uint32 goods);
-	void zeichnen(koord offset);
+	void draw(scr_coord offset);
 };
 
 /**

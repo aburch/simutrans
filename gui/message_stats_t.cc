@@ -114,7 +114,7 @@ void message_stats_t::recalc_size()
 	// avoid overflow if too many messages are in the list
 	sint16 y_max = 0x7fff - LINESPACE - 1;
 
-	// loop copied from ::zeichnen(), trimmed to minimum for x_size calculation
+	// loop copied from ::draw(), trimmed to minimum for x_size calculation
 
 	FORX(slist_tpl<message_t::node*>, const i, *message_list, y_size += LINESPACE + 1) {
 		message_t::node const& n = *i;

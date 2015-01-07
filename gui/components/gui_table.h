@@ -187,12 +187,12 @@ protected:
 	 * paint_cell() is called in paint_cells(), whenever a cell has to be painted.
 	 *
 	 * It has to paint cell (x,y) at position offset. 
-	 * The default implementation calls zeichnen() of the component of cell (x,y), if there is one.
+	 * The default implementation calls draw() of the component of cell (x,y), if there is one.
 	 */
 	virtual void paint_cell(const scr_coord& offset, coordinate_t x, coordinate_t y);
 
 	/**
-	 * paint_cells() is called in zeichnen() after painting the grid.
+	 * paint_cells() is called in draw() after painting the grid.
 	 *
 	 * It has to paint the cell content. 
 	 * The default implementation calls paint_cell() with the correct cell offset for each cell.
@@ -200,7 +200,7 @@ protected:
 	virtual void paint_cells(const scr_coord& offset);
 
 	/**
-	 * paint_grid() is called in zeichnen() before painting the cells.
+	 * paint_grid() is called in draw() before painting the cells.
 	 *
 	 * The default implementation draws grid_color lines of grid_width, if the grid is set to be visible.
 	 */
@@ -296,7 +296,7 @@ public:
 	void sort_columns();
 
 	/**
-	 * zeichnen() paints the table.
+	 * draw() paints the table.
 	 */
 	virtual void draw(scr_coord offset);
 };

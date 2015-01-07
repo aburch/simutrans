@@ -416,13 +416,13 @@ void gui_convoy_assembler_t::layout()
 	lb_convoi_count.set_size(lb_size);
 	cont_convoi_capacity.set_pos(scr_coord(c2_x, y));
 	cont_convoi_capacity.set_size(lb_size);
+	lb_convoi_way_wear_factor.set_pos(scr_coord(c3_x, y));
+	lb_convoi_way_wear_factor.set_size(lb_size); 
 	y += LINESPACE + 1;
 	lb_convoi_cost.set_pos(scr_coord(c1_x, y));
 	lb_convoi_cost.set_size(lb_size);
 	lb_convoi_value.set_pos(scr_coord(c2_x, y));
 	lb_convoi_value.set_size(lb_size);
-	lb_convoi_way_wear_factor.set_pos(scr_coord(c3_x, y));
-	lb_convoi_way_wear_factor.set_size(lb_size); 
 	y += LINESPACE + 1;
 	lb_convoi_power.set_pos(scr_coord(c1_x, y));
 	lb_convoi_power.set_size(lb_size);
@@ -2141,25 +2141,25 @@ void depot_convoi_capacity_t::set_totals(uint32 pax, uint32 standing_pax, uint32
 }
 
 
-void depot_convoi_capacity_t::zeichnen(koord off)
+void depot_convoi_capacity_t::draw(scr_coord offset)
 {
 	cbuffer_t cbuf;
 
 	int w = 0;
 	cbuf.clear();
 	cbuf.printf("%s %d (%d)", translator::translate("Capacity:"), total_pax, total_standing_pax );
-	w += display_proportional_clip( pos.x+off.x + w, pos.y+off.y , cbuf, ALIGN_LEFT, COL_BLACK, true);
-	display_color_img( skinverwaltung_t::passagiere->get_bild_nr(0), pos.x + off.x + w, pos.y + off.y, 0, false, false);
+	w += display_proportional_clip( pos.x+offset.x + w, pos.y+offset.y , cbuf, ALIGN_LEFT, COL_BLACK, true);
+	display_color_img( skinverwaltung_t::passagiere->get_bild_nr(0), pos.x + offset.x + w, pos.y + offset.y, 0, false, false);
 
 	w += 16;
 	cbuf.clear();
 	cbuf.printf("%d", total_mail );
-	w += display_proportional_clip( pos.x+off.x + w, pos.y+off.y, cbuf, ALIGN_LEFT, COL_BLACK, true);
-	display_color_img( skinverwaltung_t::post->get_bild_nr(0), pos.x + off.x + w, pos.y + off.y, 0, false, false);
+	w += display_proportional_clip( pos.x+offset.x + w, pos.y+offset.y, cbuf, ALIGN_LEFT, COL_BLACK, true);
+	display_color_img( skinverwaltung_t::post->get_bild_nr(0), pos.x + offset.x + w, pos.y + offset.y, 0, false, false);
 
 	w += 16;
 	cbuf.clear();
 	cbuf.printf("%d", total_goods );
-	w += display_proportional_clip( pos.x+off.x + w, pos.y+off.y, cbuf, ALIGN_LEFT, COL_BLACK, true);
-	display_color_img( skinverwaltung_t::waren->get_bild_nr(0), pos.x + off.x + w, pos.y + off.y, 0, false, false);
+	w += display_proportional_clip( pos.x+offset.x + w, pos.y+offset.y, cbuf, ALIGN_LEFT, COL_BLACK, true);
+	display_color_img( skinverwaltung_t::waren->get_bild_nr(0), pos.x + offset.x + w, pos.y + offset.y, 0, false, false);
 }
