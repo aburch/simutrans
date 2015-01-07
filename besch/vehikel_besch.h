@@ -769,10 +769,35 @@ public:
 					adjusted_standard_axle *= adjusted_standard_axle_original;
 					adjusted_standard_axle_extra *= adjusted_standard_axle_original_extra;
 				}
+
+				// Add estimate of hamemr blow for steam locomotives
+				// See http://www.archive.org/stream/steelrailstheir02sellgoog/steelrailstheir02sellgoog_djvu.txt pp. 70-72 for details of this formula.
+				// This assumes a 2 cylinder locomotive.
+				if(get_waytype() == track_wt && leistung > 0 && engine_type == steam)
+				{
+					if(axle_load < 11)
+					{
+						if(topspeed < 90)
+						{
+							adjusted_standard_axle += (adjusted_standard_axle * float32e8_t(2, 3));
+						}
+						else
+						{
+							adjusted_standard_axle += (adjusted_standard_axle * float32e8_t(3, 4));
+						}
+					}
+					else
+					{
+						adjusted_standard_axle += (adjusted_standard_axle * float32e8_t(26, 100));
+					}
+					adjusted_standard_axle_extra += (adjusted_standard_axle * float32e8_t(26,100));
+				}
+
 				adjusted_standard_axle *= axles;
 				adjusted_standard_axle += adjusted_standard_axle_extra;
 
-				adjusted_standard_axle *= 10000; 
+				adjusted_standard_axle *= 10000; 			
+
 				way_wear_factor = (uint32)adjusted_standard_axle.to_sint32();
 			}
 			else
