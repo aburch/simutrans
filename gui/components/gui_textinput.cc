@@ -20,6 +20,7 @@
 #include "../simwin.h"
 #include "../../simsys.h"
 #include "../../dataobj/translator.h"
+#include "../../utils/simstring.h"
 
 gui_textinput_t::gui_textinput_t() :
 	gui_component_t(true),
@@ -327,6 +328,67 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 		}
 		cursor_reference_time = dr_time();	// update reference time for cursor blinking
 		return true;
+	}
+	else if(  ev->ev_class==EVENT_STRING  ) {
+		// UTF8 multi-byte sequence
+		if(  text  &&  ev->ev_ptr  ) {
+			size_t len = strlen(text);
+			utf8 *in = (utf8 *)ev->ev_ptr;
+			size_t in_pos = 0;
+
+			// Knightly : first check if it is necessary to remove selected text portion
+			if(  remove_selection()  ) {
+				// recalculate text length after deleting selection
+				len = strlen(text);
+			}
+
+			while(  *in  ) {
+				utf16 uc = utf8_to_utf16( in, &in_pos );
+
+				text_dirty = true;
+
+				// test, if we have top convert letter
+				size_t num_letter = in_pos;
+				char letter[5];
+
+				tstrncpy( letter, (const char *)in, in_pos+1 );
+				in += in_pos;
+
+				if(  uc <= 128  ||  ! translator::get_lang()->utf_encoded  ) {
+
+					// guess some east european letter
+					uint8 new_char = uc>255 ? unicode_to_latin2( uc ) : uc;
+					if(  new_char==0  ) {
+						// >255 but no translation => assume extended code page
+						new_char = (uc & 0x7F) | 0x80;
+					}
+
+					letter[0] = new_char;
+					letter[1] = 0;
+					num_letter = 1;
+				}
+
+				if(  len+num_letter >= max  ) {
+					// too many chars ...
+					break;
+				}
+
+				// insert into text?
+				if (head_cursor_pos < len) {
+					for(  sint64 pos=len+num_letter;  pos>=(sint64)head_cursor_pos;  pos--  ) {
+						text[pos] = text[pos-num_letter];
+					}
+					memcpy( text+head_cursor_pos, letter, num_letter );
+				}
+				else {
+					// append to text
+					memcpy( text+len, letter, num_letter );
+					text[len+num_letter] = 0;
+				}
+				text_dirty = true;
+				tail_cursor_pos = ( head_cursor_pos += num_letter );
+			} /* while still characters in string */
+		}
 	}
 	else if(  IS_LEFTCLICK(ev)  ) {
 		// acting on release causes unwanted recalculations of cursor position for long strings and (scroll_offset>0)

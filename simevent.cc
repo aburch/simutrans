@@ -201,9 +201,11 @@ static void fill_event(event_t* const ev)
 		// remember button press
 		lb_time = curr_time;
 		repeat_time = 400;
-	} else if (pressed_buttons == 0) {
+	}
+	else if (pressed_buttons == 0) {
 		lb_time = 0;
-	} else { // the else is to prevent race conditions
+	}
+	else { // the else is to prevent race conditions
 		/* Hajo: this would transform non-left button presses always
 		 * to repeat events. I need right button clicks.
 		 * I have no idea how this can be done cleanly, currently just
