@@ -742,13 +742,16 @@ public:
 			case tram_wt:
 			case narrowgauge_wt:
 				power = way_wear_factor_rail;
+				break;
 			case maglev_wt:
 			case water_wt:
 				power = 0;
+				break;
 			case road_wt:
 			case air_wt:
 			default:
 				power = way_wear_factor_road; 
+				break;
 			};
 			if(power > 0)
 			{
@@ -766,7 +769,6 @@ public:
 					adjusted_standard_axle *= adjusted_standard_axle_original;
 					adjusted_standard_axle_extra *= adjusted_standard_axle_original_extra;
 				}
-			
 				adjusted_standard_axle *= axles;
 				adjusted_standard_axle += adjusted_standard_axle_extra;
 
