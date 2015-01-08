@@ -328,7 +328,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 	step ++;
 
 	tmp->parent = NULL;
-	tmp->gr = welt->lookup(start);
+	tmp->gr = gr;
 	tmp->f = calc_distance(start,ziel);
 	tmp->g = 0;
 	tmp->dir = 0;
@@ -414,7 +414,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 				// if not there, then we could just take the last
 				uint8 current_dir;
 				if(tmp->parent!=NULL) {
-					current_dir = ribi_typ( tmp->parent->gr->get_pos(), to->get_pos() );
+					current_dir = next_ribi[r] | tmp->ribi_from;
 					if(tmp->dir!=current_dir) {
 						new_g += 3;
 						if(tmp->parent->dir!=tmp->dir  &&  tmp->parent->parent!=NULL) {
@@ -429,7 +429,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 
 				}
 				else {
-					current_dir = ribi_typ( gr->get_pos(), to->get_pos());
+					current_dir = next_ribi[r];
 				}
 
 				const uint32 new_f = new_g + calc_distance( to->get_pos(), ziel );
