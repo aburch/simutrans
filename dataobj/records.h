@@ -7,7 +7,7 @@
 #define records_h
 
 #include "koord.h"
-#include "../simconvoi.h"
+#include "../convoihandle_t.h"
 
 class message_t;
 class player_t;

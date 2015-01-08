@@ -51,6 +51,7 @@
 #include "dataobj/loadsave.h"
 #include "dataobj/tabfile.h"
 #include "dataobj/environment.h"
+#include "dataobj/route.h"
 
 #include "sucher/bauplatz_sucher.h"
 #include "bauer/brueckenbauer.h"

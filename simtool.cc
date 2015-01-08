@@ -18,6 +18,7 @@
 #include "simcity.h"
 #include "utils/simrandom.h"
 #include "simmesg.h"
+#include "simconvoi.h"
 #include "gui/simwin.h"
 #include "display/viewport.h"
 

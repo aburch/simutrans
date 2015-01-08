@@ -12,6 +12,8 @@
 #include "../utils/simrandom.h"  // for simrand
 #include "../simtypes.h"
 
+#include "../simconvoi.h"
+
 #include "../dataobj/environment.h"
 #include "../dataobj/tabfile.h"
 #include "../dataobj/loadsave.h"

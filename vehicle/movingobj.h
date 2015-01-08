@@ -12,6 +12,7 @@
 #include "../tpl/vector_tpl.h"
 #include "../besch/groundobj_besch.h"
 #include "../simcolor.h"
+#include "../ifc/sync_steppable.h"
 
 #include "simvehikel.h"
 

@@ -29,7 +29,6 @@
 #include "dataobj/settings.h"
 #include "network/pwd_hash.h"
 #include "dataobj/loadsave.h"
-#include "dataobj/records.h"
 
 #include "simplan.h"
 
@@ -65,6 +64,7 @@ class network_world_command_t;
 class ware_besch_t;
 class memory_rw_t;
 class viewport_t;
+class records_t;
 
 #define CHK_RANDS 32
 

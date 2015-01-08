@@ -2039,8 +2039,7 @@ ribi_t::ribi vehikel_t::richtung() const
 }
 
 
-void
-vehikel_t::calc_bild() //"Bild" = "picture" (Google)
+void vehikel_t::calc_bild() //"Bild" = "picture" (Google)
 {
 	image_id old_bild=get_bild();
 	if (fracht.empty())
@@ -2054,6 +2053,20 @@ vehikel_t::calc_bild() //"Bild" = "picture" (Google)
 	if(old_bild!=get_bild()) {
 		set_flag(obj_t::dirty);
 	}
+}
+
+// true, if this vehicle did not moved for some time
+bool vehikel_t::is_stuck()
+{
+	return cnv==NULL  ||  cnv->is_waiting();
+}
+
+void vehikel_t::update_bookkeeping(uint32 steps)
+{
+	   // Only the first vehicle in a convoy does this,
+	   // or else there is double counting.
+	   // NOTE: As of 9.0, increment_odometer() also adds running costs for *all* vehicles in the convoy.
+		if (ist_erstes) cnv->increment_odometer(steps);
 }
 
 ribi_t::ribi vehikel_t::get_direction_of_travel() const
@@ -3304,6 +3317,10 @@ bool automobil_t::ist_weg_frei(int &restart_speed, bool second_check)
 	return true;
 }
 
+overtaker_t* automobil_t::get_overtaker()
+{
+	return cnv;
+}
 
 grund_t* automobil_t::betrete_feld()
 {
@@ -5949,3 +5966,4 @@ const char *aircraft_t::ist_entfernbar(const player_t *player)
 	}
 	return NULL;
 }
+

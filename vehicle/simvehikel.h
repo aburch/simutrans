@@ -16,7 +16,6 @@
 #include <string>
 #include "../simtypes.h"
 #include "../simworld.h"
-#include "../simconvoi.h"
 #include "../simobj.h"
 #include "../halthandle_t.h"
 #include "../convoihandle_t.h"
@@ -25,6 +24,8 @@
 #include "../besch/vehikel_besch.h"
 #include "../vehicle/overtaker.h"
 #include "../tpl/slist_tpl.h"
+#include "../tpl/array_tpl.h"
+#include "../dataobj/route.h"
 
 #include "../tpl/fixed_list_tpl.h"
 
@@ -32,9 +33,8 @@ class convoi_t;
 class schedule_t;
 class signal_t;
 class ware_t;
-class route_t;
 
-// for aircrafts:
+// for aircraft:
 // length of the holding pattern.
 #define HOLDING_PATTERN_LENGTH 16
 // offset of end tile of the holding pattern before touchdown tile.
@@ -294,12 +294,7 @@ private:
 protected:
 	virtual grund_t* hop();
 
-	virtual void update_bookkeeping(uint32 steps) {
-	   // Only the first vehicle in a convoy does this,
-	   // or else there is double counting.
-	   // NOTE: As of 9.0, increment_odometer() also adds running costs for *all* vehicles in the convoy.
-		if (ist_erstes) cnv->increment_odometer(steps);
-	}
+	virtual void update_bookkeeping(uint32 steps);
 
 	// current limit (due to track etc.)
 	sint32 speed_limit;
@@ -597,7 +592,7 @@ public:
 	uint32 calc_restwert() const;
 
 	// true, if this vehicle did not moved for some time
-	virtual bool is_stuck() { return cnv==NULL  ||  cnv->is_waiting(); }
+	virtual bool is_stuck();
 
 	// this routine will display a tooltip for lost, on depot order, and stuck vehicles
 #ifdef MULTI_THREAD
@@ -690,7 +685,7 @@ public:
 
 	schedule_t * erzeuge_neuen_fahrplan() const;
 
-	virtual overtaker_t* get_overtaker() { return cnv; }
+	virtual overtaker_t* get_overtaker();
 };
 
 

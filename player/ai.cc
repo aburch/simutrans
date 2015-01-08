@@ -11,6 +11,7 @@
 #include "ai.h"
 
 #include "../simcity.h"
+#include "../simconvoi.h"
 #include "../simhalt.h"
 #include "../simintr.h"
 #include "../simmenu.h"

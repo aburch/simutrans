@@ -8,6 +8,7 @@
 #include "../player/simplay.h"
 #include "../simcolor.h"
 #include "../simmesg.h"
+#include "../simconvoi.h"
 #include "../utils/cbuffer_t.h"
 #include "../vehicle/simvehikel.h"
 

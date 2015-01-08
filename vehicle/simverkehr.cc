@@ -18,7 +18,7 @@
 #include "../simunits.h"
 #include "../simtypes.h"
 #include "../simcity.h"
-
+#include "../simconvoi.h"
 #include "../player/simplay.h"
 
 #include "simverkehr.h"

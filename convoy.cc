@@ -12,6 +12,7 @@
 #include "convoy.h"
 #include "bauer/warenbauer.h"
 #include "vehicle/simvehikel.h"
+#include "simconvoi.h"
 
 static karte_ptr_t welt;
 

@@ -92,6 +92,7 @@
 #include "dataobj/settings.h"
 #include "dataobj/environment.h"
 #include "dataobj/powernet.h"
+#include "dataobj/records.h"
 
 #include "utils/cbuffer_t.h"
 #include "utils/simstring.h"

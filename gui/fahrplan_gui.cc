@@ -12,6 +12,7 @@
 #include "../simhalt.h"
 #include "../simworld.h"
 #include "../simmenu.h"
+#include "../simconvoi.h"
 #include "../display/simgraph.h"
 #include "../display/viewport.h"
 
