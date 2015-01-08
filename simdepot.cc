@@ -800,10 +800,9 @@ void depot_t::new_month()
 	sint64 fixed_cost_costs = 0;
 	if (vehicle_count() > 0)
 	{
-		karte_t *world = get_welt();
 		FOR(slist_tpl<vehikel_t*>, const v, get_vehicle_list())
 		{
-			fixed_cost_costs += v->get_besch()->get_fixed_cost(world);
+			fixed_cost_costs += v->get_besch()->get_fixed_cost(welt);
 		}
 	}
 	if (fixed_cost_costs)

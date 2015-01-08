@@ -249,9 +249,6 @@ public:
 	sint64* get_city_history_year() { return *city_history_year; }
 	sint64* get_city_history_month() { return *city_history_month; }
 
-	// just needed by stadt_info.cc
-	static inline karte_t* get_welt() { return welt; }
-
 	uint32 stadtinfo_options;
 
 	void set_private_car_trips(uint16 number) 

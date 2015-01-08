@@ -945,10 +945,9 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 						buf.printf("\n(%s)\n\n", translator::translate("Passagiere"));
 						any_suitable_stops_passengers = true;
 					}
-					const karte_t* const world = halt->get_welt();
-					const uint16 walking_time = world->walking_time_tenths_from_distance(halt_list[h].distance);
+					const uint16 walking_time = welt->walking_time_tenths_from_distance(halt_list[h].distance);
 					char walking_time_as_clock[32];
-					world->sprintf_time_tenths(walking_time_as_clock, sizeof(walking_time_as_clock), walking_time);
+					welt->sprintf_time_tenths(walking_time_as_clock, sizeof(walking_time_as_clock), walking_time);
 					buf.printf("%s\n%s: %s\n", halt->get_name(), translator::translate("Walking time"), walking_time_as_clock);
 				}
 			}
@@ -963,10 +962,9 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 						buf.printf("\n(%s)\n\n", translator::translate("Post"));
 						any_suitable_stops_mail = true;
 					}
-					const karte_t* const world = halt->get_welt();
-					const uint16 walking_time = world->walking_time_tenths_from_distance(halt_list[h].distance);
+					const uint16 walking_time = welt->walking_time_tenths_from_distance(halt_list[h].distance);
 					char walking_time_as_clock[32];
-					world->sprintf_time_tenths(walking_time_as_clock, sizeof(walking_time_as_clock), walking_time);
+					welt->sprintf_time_tenths(walking_time_as_clock, sizeof(walking_time_as_clock), walking_time);
 					buf.printf("%s\n%s: %s\n", halt->get_name(), translator::translate("Walking time"), walking_time_as_clock);
 				}
 			}

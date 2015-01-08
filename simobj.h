@@ -210,8 +210,6 @@ public:
 	obj_t(const koord3d& pos);
 #endif
 
-	inline karte_ptr_t& get_welt() const { return welt; }
-
 	/**
 	 * Destructor: removes object from tile, should close any inspection windows
 	 * @author Hj. Malthaner

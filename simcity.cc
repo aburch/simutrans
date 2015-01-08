@@ -5103,7 +5103,7 @@ private_car_destination_finder_t::private_car_destination_finder_t(karte_t* w, a
 	last_tile_cost_diagonal = 0;
 	last_tile_cost_straight = 0;
 	last_city = NULL;
-	meters_per_tile_x100 = origin_city->get_welt()->get_settings().get_meters_per_tile() * 100; // For 100ths of a minute
+	meters_per_tile_x100 = welt->get_settings().get_meters_per_tile() * 100; // For 100ths of a minute
 }
 
 bool private_car_destination_finder_t::ist_befahrbar(const grund_t* gr) const

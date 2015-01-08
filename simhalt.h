@@ -613,8 +613,6 @@ public:
 	 */
 	void new_month();
 
-	static karte_ptr_t& get_welt() { return welt; }
-
 	// @author: jamespetts, although much is borrowed from suche_route
 	// Returns the journey time of the best possible route from this halt. Time == 65535 when there is no route.
 	uint16 find_route(ware_t &ware, const uint16 journey_time = 65535);
