@@ -28,6 +28,7 @@
 #include "../simworld.h"
 #include "../simdebug.h"
 #include "../simdepot.h"
+#include "../simconvoi.h"
 #include "../simunits.h"
 
 #include "../player/simplay.h"
@@ -1346,6 +1347,14 @@ void vehikel_t::calc_bild()
 }
 
 
+
+// true, if this vehicle did not moved for some time
+bool vehikel_t::is_stuck()
+{
+	return cnv==NULL  ||  cnv->is_waiting();
+}
+
+
 void vehikel_t::rdwr(loadsave_t *file)
 {
 	// this is only called from objlist => we save nothing ...
@@ -2197,6 +2206,12 @@ bool automobil_t::ist_weg_frei(int &restart_speed, bool second_check)
 	}
 
 	return true;
+}
+
+
+overtaker_t* automobil_t::get_overtaker()
+{
+	return cnv;
 }
 
 

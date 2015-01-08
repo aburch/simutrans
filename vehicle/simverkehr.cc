@@ -17,6 +17,7 @@
 #include "../display/simimg.h"
 #include "../simunits.h"
 #include "../simtypes.h"
+#include "../simconvoi.h"
 
 #include "simverkehr.h"
 #ifdef DESTINATION_CITYCARS

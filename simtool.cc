@@ -15,6 +15,7 @@
 #include "simevent.h"
 #include "simcity.h"
 #include "simmesg.h"
+#include "simconvoi.h"
 #include "gui/simwin.h"
 #include "display/viewport.h"
 

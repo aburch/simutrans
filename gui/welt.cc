@@ -40,6 +40,7 @@
 #include "../simcity.h"
 #include "../vehicle/simvehikel.h"
 #include "../player/simplay.h"
+#include "../simconvoi.h"
 
 #include "../simcolor.h"
 

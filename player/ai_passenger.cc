@@ -8,6 +8,7 @@
 /* simple passenger AI (not using trains, not preoptimized network) */
 
 #include "../simcity.h"
+#include "../simconvoi.h"
 #include "../simfab.h"
 #include "../simhalt.h"
 #include "../simline.h"

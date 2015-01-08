@@ -1,6 +1,7 @@
 
 /* standard good AI code */
 
+#include "../simconvoi.h"
 #include "../simfab.h"
 #include "../simmenu.h"
 #include "../simtypes.h"

@@ -13,7 +13,6 @@
 #define _simvehikel_h
 
 #include "../simtypes.h"
-#include "../simconvoi.h"
 #include "../simobj.h"
 #include "../halthandle_t.h"
 #include "../convoihandle_t.h"
@@ -431,7 +430,7 @@ public:
 	uint32 calc_restwert() const;
 
 	// true, if this vehicle did not moved for some time
-	virtual bool is_stuck() { return cnv==NULL  ||  cnv->is_waiting(); }
+	virtual bool is_stuck();
 
 	// this routine will display a tooltip for lost, on depot order, and stuck vehicles
 #ifdef MULTI_THREAD
@@ -492,7 +491,7 @@ public:
 
 	schedule_t * erzeuge_neuen_fahrplan() const;
 
-	virtual overtaker_t* get_overtaker() { return cnv; }
+	virtual overtaker_t* get_overtaker();
 };
 
 
