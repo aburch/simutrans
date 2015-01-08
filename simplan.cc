@@ -568,7 +568,6 @@ void planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos) const
 	// building transformers - show outlines of factories
 
 /*	alternative method of finding selected tool - may be more useful in future but use simpler method for now
-	karte_t *welt = gr->get_welt();
 	tool_t *tool = welt->get_tool(welt->get_active_player_nr());
 	int tool_id = tool->get_id();
 
@@ -618,7 +617,7 @@ void planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos) const
 			// plot player outline colours - we always plot in order of players so that the order of the stations in halt_list
 			// doesn't affect the colour displayed [since blend(col1,blend(col2,screen)) != blend(col2,blend(col1,screen))]
 			for(int player_count = 0; player_count<MAX_PLAYER_COUNT; player_count++) {
-				player_t *display_player = gr->get_welt()->get_player(player_count);
+				player_t *display_player = welt->get_player(player_count);
 				const PLAYER_COLOR_VAL transparent = PLAYER_FLAG | OUTLINE_FLAG | (display_player->get_player_color1() * 4 + 4);
 				for(int halt_count = 0; halt_count < halt_list_count; halt_count++) {
 					if(halt_list[halt_count]->get_besitzer() == display_player) {
