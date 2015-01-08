@@ -459,7 +459,7 @@ int simu_main(int argc, char** argv)
 			" -timeline           enables timeline\n"
 #if defined DEBUG || defined PROFILE
 			" -times              does some simple profiling\n"
-			" -until MONTH        quits when MONTH = (month*12+year-1) starts\n"
+			" -until YEAR.MONTH   quits when MONTH of YEAR starts\n"
 #endif
 			" -use_workdir        use current dir as basedir\n"
 		);
@@ -1207,7 +1207,14 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 
 	// finish after a certain month? (must be entered decimal, i.e. 12*year+month
 	if(  gimme_arg(argc, argv, "-until", 0) != NULL  ) {
-		quit_month = atoi( gimme_arg(argc, argv, "-until", 1) );
+		const char *until = gimme_arg(argc, argv, "-until", 1);
+		int year = -1, month = -1;
+		if ( sscanf(until, "%i.%i", &year, &month) == 2) {
+			quit_month = month+year*12-1;
+		}
+		else {
+			quit_month = atoi(until);
+		}
 		welt->set_fast_forward(true);
 	}
 //#endif
