@@ -76,7 +76,7 @@ depot_t *depot_t::find_depot( koord3d start, const obj_t::typ depot_type, const 
 	long found_hash = forward ? 0x7FFFFFF : -1;
 	long start_hash = start.x + (8192*start.y);
 	FOR(slist_tpl<depot_t*>, const d, all_depots) {
-		if(d->get_typ()==depot_type  &&  d->get_besitzer()==player) {
+		if(d->get_typ()==depot_type  &&  d->get_owner()==player) {
 			// ok, the right type of depot
 			const koord3d pos = d->get_pos();
 			if(pos==start) {
@@ -125,7 +125,7 @@ void depot_t::call_depot_tool( char tool, convoihandle_t cnv, const char *extra)
 		buf.append( extra );
 	}
 	tmp_tool->set_default_param(buf);
-	welt->set_tool( tmp_tool, get_besitzer() );
+	welt->set_tool( tmp_tool, get_owner() );
 	// since init always returns false, it is safe to delete immediately
 	delete tmp_tool;
 }
@@ -180,7 +180,7 @@ void depot_t::zeige_info()
 vehikel_t* depot_t::buy_vehicle(const vehikel_besch_t* info)
 {
 	DBG_DEBUG("depot_t::buy_vehicle()", info->get_name());
-	vehikel_t* veh = vehikelbauer_t::baue(get_pos(), get_besitzer(), NULL, info );
+	vehikel_t* veh = vehikelbauer_t::baue(get_pos(), get_owner(), NULL, info );
 	DBG_DEBUG("depot_t::buy_vehicle()", "vehiclebauer %p", veh);
 
 	vehicles.append(veh);
@@ -221,7 +221,7 @@ void depot_t::remove_vehicles_to_end(convoihandle_t cnv, int ipos)
 void depot_t::sell_vehicle(vehikel_t* veh)
 {
 	vehicles.remove(veh);
-	get_besitzer()->book_new_vehicle((sint64)veh->calc_restwert(), get_pos().get_2d(), get_waytype() );
+	get_owner()->book_new_vehicle((sint64)veh->calc_restwert(), get_pos().get_2d(), get_waytype() );
 	DBG_MESSAGE("depot_t::sell_vehicle()", "this=%p sells %p", this, veh);
 	delete veh;
 }
@@ -246,7 +246,7 @@ vehikel_t* depot_t::find_oldest_newest(const vehikel_besch_t* besch, bool old)
 
 convoihandle_t depot_t::add_convoi(bool local_execution)
 {
-	convoi_t* new_cnv = new convoi_t(get_besitzer());
+	convoi_t* new_cnv = new convoi_t(get_owner());
 	new_cnv->set_home_depot(get_pos());
 	convois.append(new_cnv->self);
 	depot_frame_t *win = dynamic_cast<depot_frame_t *>(win_get_magic( (ptrdiff_t)this ));
@@ -313,7 +313,7 @@ convoihandle_t depot_t::copy_convoi(convoihandle_t old_cnv, bool local_execution
 				}
 				else {
 					// buy new vehicle
-					vehikel_t* veh = vehikelbauer_t::baue(get_pos(), get_besitzer(), NULL, info );
+					vehikel_t* veh = vehikelbauer_t::baue(get_pos(), get_owner(), NULL, info );
 					veh->set_pos(get_pos());
 					new_cnv->add_vehikel(veh, false);
 				}
@@ -549,7 +549,7 @@ void depot_t::rdwr_vehikel(slist_tpl<vehikel_t *> &list, loadsave_t *file)
  */
 const char * depot_t::ist_entfernbar(const player_t *player)
 {
-	if(player!=get_besitzer()  &&  player!=welt->get_player(1)) {
+	if(player!=get_owner()  &&  player!=welt->get_player(1)) {
 		return "Das Feld gehoert\neinem anderen Spieler\n";
 	}
 	if (!vehicles.empty()) {

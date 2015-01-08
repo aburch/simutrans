@@ -182,7 +182,7 @@ void convoi_frame_t::sort_list()
 	convois.resize(last_world_convois);
 
 	FOR(vector_tpl<convoihandle_t>, const cnv, welt->convoys()) {
-		if(cnv->get_besitzer()==owner  &&   passes_filter(cnv)  ) {
+		if(cnv->get_owner()==owner  &&   passes_filter(cnv)  ) {
 			convois.append(cnv);
 		}
 	}

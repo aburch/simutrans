@@ -64,7 +64,7 @@ private:
 	/**
 	 * Owner of the object (1 - public player, 15 - unowned)
 	 */
-	uint8 besitzer_n:4;
+	uint8 owner_n:4;
 
 	/**
 	 * @see flag_values
@@ -83,7 +83,7 @@ protected:
 	obj_t();
 
 	// since we often need access during loading
-	void set_player_nr(uint8 s) { besitzer_n = s; }
+	void set_player_nr(uint8 o) { owner_n = o; }
 
 	/**
 	* Pointer to the world of this thing. Static to conserve space.
@@ -95,17 +95,17 @@ protected:
 
 public:
 	// needed for drawing images
-	sint8 get_player_nr() const { return besitzer_n; }
+	sint8 get_player_nr() const { return owner_n; }
 
 	/**
 	 * sets owner of object
 	 */
-	void set_besitzer(player_t *player);
+	void set_owner(player_t *player);
 
 	/**
 	 * returns owner of object
 	 */
-	player_t * get_besitzer() const;
+	player_t * get_owner() const;
 
 	/**
 	 * routines to set, clear, get bit flags

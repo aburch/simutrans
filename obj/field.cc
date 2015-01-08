@@ -24,7 +24,7 @@ field_t::field_t(koord3d p, player_t *player, const field_class_besch_t *besch, 
 {
 	this->besch = besch;
 	this->fab = fab;
-	set_besitzer( player );
+	set_owner( player );
 	p.z = welt->max_hgt(p.get_2d());
 	set_pos( p );
 }

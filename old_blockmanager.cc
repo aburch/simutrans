@@ -223,7 +223,7 @@ old_blockmanager_t::laden_abschliessen(karte_t *welt)
 		if(new_signal_gr  &&  dir!=0) {
 			const roadsign_besch_t *sb=roadsign_t::roadsign_search(type,wt,0);
 			if(sb!=NULL) {
-				signal_t *sig = new signal_t(new_signal_gr->get_weg(wt)->get_besitzer(),new_signal_gr->get_pos(),dir,sb);
+				signal_t *sig = new signal_t(new_signal_gr->get_weg(wt)->get_owner(),new_signal_gr->get_pos(),dir,sb);
 				new_signal_gr->obj_add(sig);
 //DBG_MESSAGE("old_blockmanager::laden_abschliessen()","signal restored at %i,%i with dir %i",gr->get_pos().x,gr->get_pos().y,dir);
 			}

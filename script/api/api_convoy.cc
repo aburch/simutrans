@@ -132,7 +132,7 @@ void export_convoy(HSQUIRRELVM vm)
 	 * Owner of convoy.
 	 * @returns owner, which is instance of player_x
 	 */
-	register_method(vm, &convoi_t::get_besitzer, "get_owner");
+	register_method(vm, &convoi_t::get_owner, "get_owner");
 	/**
 	 * Returns array of goods categories that can be transported by this convoy.
 	 * @returns array

@@ -37,7 +37,7 @@ pillar_t::pillar_t(koord3d pos, player_t *player, const bruecke_besch_t *besch, 
 	this->besch = besch;
 	this->dir = (uint8)img;
 	set_yoff(-hoehe);
-	set_besitzer( player );
+	set_owner( player );
 	asymmetric = besch->has_pillar_asymmetric();
 	calc_bild();
 }

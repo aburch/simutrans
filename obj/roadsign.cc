@@ -79,7 +79,7 @@ roadsign_t::roadsign_t(player_t *player, koord3d pos, ribi_t::ribi dir, const ro
 	zustand = 0;
 	ticks_ns = ticks_ow = 16;
 	ticks_offset = 0;
-	set_besitzer( player );
+	set_owner( player );
 	if(  besch->is_private_way()  ) {
 		// init ownership of private ways
 		ticks_ns = ticks_ow = 0;
@@ -501,9 +501,9 @@ void roadsign_t::display_after(int xpos, int ypos, bool ) const
 		if(  get_player_nr() != PLAYER_UNOWNED  ) {
 			if(  obj_t::show_owner  ) {
 #ifdef MULTI_THREAD
-				display_blend( after_bild, xpos, ypos, 0, (get_besitzer()->get_player_color1()+2) | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, dirty, clip_num );
+				display_blend( after_bild, xpos, ypos, 0, (get_owner()->get_player_color1()+2) | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, dirty, clip_num );
 #else
-				display_blend( after_bild, xpos, ypos, 0, (get_besitzer()->get_player_color1()+2) | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, dirty );
+				display_blend( after_bild, xpos, ypos, 0, (get_owner()->get_player_color1()+2) | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, dirty );
 #endif
 			}
 			else {

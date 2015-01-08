@@ -60,7 +60,7 @@ bool line_management_gui_t::infowin_event(const event_t *ev)
 				buf.printf( "g,%i,", line.get_id() );
 				fpl->sprintf_schedule( buf );
 				tool->set_default_param(buf);
-				welt->set_tool( tool, line->get_besitzer() );
+				welt->set_tool( tool, line->get_owner() );
 				// since init always returns false, it is safe to delete immediately
 				delete tool;
 			}
@@ -84,7 +84,7 @@ void line_management_gui_t::rdwr(loadsave_t *file)
 	uint8 player_nr;
 	scr_size size = get_windowsize();
 	if(  file->is_saving()  ) {
-		player_nr = line->get_besitzer()->get_player_nr();
+		player_nr = line->get_owner()->get_player_nr();
 	}
 	else {
 		// dummy types

@@ -64,7 +64,7 @@ void records_t::notify_record( convoihandle_t cnv, sint32 max_speed, koord k, ui
 		sr->speed = max_speed-1;
 		sr->year_month = current_month;
 		sr->pos = k;
-		sr->besitzer = NULL; // will be set, when accepted
+		sr->owner = NULL; // will be set, when accepted
 	}
 	else {
 		sr->cnv = cnv;
@@ -72,10 +72,10 @@ void records_t::notify_record( convoihandle_t cnv, sint32 max_speed, koord k, ui
 		sr->pos = k;
 
 		// same convoi and same position
-		if(sr->besitzer==NULL  &&  current_month!=sr->year_month) {
+		if(sr->owner==NULL  &&  current_month!=sr->year_month) {
 			// notify the world of this new record
 			sr->speed = max_speed-1;
-			sr->besitzer = cnv->get_besitzer();
+			sr->owner = cnv->get_owner();
 			const char* text;
 			switch (cnv->front()->get_waytype()) {
 				default: NOT_REACHED
@@ -90,7 +90,7 @@ void records_t::notify_record( convoihandle_t cnv, sint32 max_speed, koord k, ui
 			}
 			cbuffer_t buf;
 			buf.printf( translator::translate(text), speed_to_kmh(10*sr->speed)/10.0, sr->cnv->get_name() );
-			msg->add_message( buf, sr->pos, message_t::new_vehicle, PLAYER_FLAG|sr->besitzer->get_player_nr() );
+			msg->add_message( buf, sr->pos, message_t::new_vehicle, PLAYER_FLAG|sr->owner->get_player_nr() );
 		}
 	}
 }

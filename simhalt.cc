@@ -182,7 +182,7 @@ halthandle_t haltestelle_t::get_halt(const koord3d pos, const player_t *player )
 {
 	const grund_t *gr = welt->lookup(pos);
 	if(gr) {
-		if(gr->get_halt().is_bound()  &&  player_t::check_owner(player,gr->get_halt()->get_besitzer())  ) {
+		if(gr->get_halt().is_bound()  &&  player_t::check_owner(player,gr->get_halt()->get_owner())  ) {
 			return gr->get_halt();
 		}
 		// no halt? => we do the water check
@@ -193,14 +193,14 @@ halthandle_t haltestelle_t::get_halt(const koord3d pos, const player_t *player )
 			// first check for own stop
 			for(  uint8 i=0;  i<cnt;  i++  ) {
 				halthandle_t halt = plan->get_haltlist()[i];
-				if(  halt->get_besitzer()==player  &&  halt->get_station_type()&dock  ) {
+				if(  halt->get_owner()==player  &&  halt->get_station_type()&dock  ) {
 					return halt;
 				}
 			}
 			// then for public stop
 			for(  uint8 i=0;  i<cnt;  i++  ) {
 				halthandle_t halt = plan->get_haltlist()[i];
-				if(  halt->get_besitzer()==welt->get_player(1)  &&  halt->get_station_type()&dock  ) {
+				if(  halt->get_owner()==welt->get_player(1)  &&  halt->get_station_type()&dock  ) {
 					return halt;
 				}
 			}
@@ -1109,7 +1109,7 @@ sint32 haltestelle_t::rebuild_connections()
 			const linehandle_t line = registered_lines[current_index];
 			++current_index;
 
-			owner = line->get_besitzer();
+			owner = line->get_owner();
 			fpl = line->get_schedule();
 			goods_catg_index = &line->get_goods_catg_index();
 		}
@@ -1117,7 +1117,7 @@ sint32 haltestelle_t::rebuild_connections()
 			const convoihandle_t cnv = registered_convoys[current_index];
 			++current_index;
 
-			owner = cnv->get_besitzer();
+			owner = cnv->get_owner();
 			fpl = cnv->get_schedule();
 			goods_catg_index = &cnv->get_goods_catg_index();
 		}
@@ -2253,10 +2253,10 @@ void haltestelle_t::make_public_and_join( player_t *player )
 			grund_t* const gr = i.grund;
 			gebaeude_t* gb = gr->find<gebaeude_t>();
 			if(gb) {
-				player_t *gb_player=gb->get_besitzer();
+				player_t *gb_player=gb->get_owner();
 				sint64 const monthly_costs = welt->get_settings().maint_building * gb->get_tile()->get_besch()->get_level();
 				player_t::add_maintenance( gb_player, -monthly_costs, gb->get_waytype() );
-				gb->set_besitzer( public_owner );
+				gb->set_owner( public_owner );
 				gb->set_flag( obj_t::dirty );
 				player_t::add_maintenance(public_owner, monthly_costs, gb->get_waytype() );
 				// it is not real construction cost, it is fee paid for public authority for future maintenance. So money are transferred to public authority
@@ -2268,7 +2268,7 @@ void haltestelle_t::make_public_and_join( player_t *player )
 			const planquadrat_t *pl = welt->access(gr->get_pos().get_2d());
 			for(  uint8 i=0;  i < pl->get_boden_count();  i++  ) {
 				halthandle_t my_halt = pl->get_boden_bei(i)->get_halt();
-				if(  my_halt.is_bound()  &&  my_halt->get_besitzer()==public_owner  &&  !joining.is_contained(my_halt)  ) {
+				if(  my_halt.is_bound()  &&  my_halt->get_owner()==public_owner  &&  !joining.is_contained(my_halt)  ) {
 					joining.append(my_halt);
 				}
 			}
@@ -2278,7 +2278,7 @@ void haltestelle_t::make_public_and_join( player_t *player )
 				if(  pl2  ) {
 					for(  uint8 i=0;  i < pl2->get_boden_count();  i++  ) {
 						halthandle_t my_halt = pl2->get_boden_bei(i)->get_halt();
-						if(  my_halt.is_bound()  &&  my_halt->get_besitzer()==public_owner  &&  !joining.is_contained(my_halt)  ) {
+						if(  my_halt.is_bound()  &&  my_halt->get_owner()==public_owner  &&  !joining.is_contained(my_halt)  ) {
 							joining.append(my_halt);
 						}
 					}
@@ -2314,13 +2314,13 @@ void haltestelle_t::make_public_and_join( player_t *player )
 			gebaeude_t* gb = gr->find<gebaeude_t>();
 			if(gb) {
 				// there are also water tiles, which may not have a building
-				player_t *gb_player=gb->get_besitzer();
+				player_t *gb_player=gb->get_owner();
 				if(public_owner!=gb_player) {
 					sint64 const monthly_costs = welt->get_settings().maint_building * gb->get_tile()->get_besch()->get_level();
 					player_t::add_maintenance( gb_player, -monthly_costs, gb->get_waytype() );
 					player_t::book_construction_costs(gb_player, monthly_costs*60, gr->get_pos().get_2d(), gb->get_waytype());
 					player_t::book_construction_costs(public_owner, -monthly_costs*60, koord::invalid, gb->get_waytype());
-					gb->set_besitzer(public_owner);
+					gb->set_owner(public_owner);
 					gb->set_flag(obj_t::dirty);
 					player_t::add_maintenance(public_owner, monthly_costs, gb->get_waytype() );
 				}
@@ -3002,10 +3002,10 @@ bool haltestelle_t::add_grund(grund_t *gr)
 	vector_tpl<linehandle_t> check_line(0);
 
 	// public halt: must iterate over all players lines / convoys
-	bool public_halt = get_besitzer() == welt->get_player(1);
+	bool public_halt = get_owner() == welt->get_player(1);
 
-	uint8 const pl_min = public_halt ? 0                : get_besitzer()->get_player_nr();
-	uint8 const pl_max = public_halt ? MAX_PLAYER_COUNT : get_besitzer()->get_player_nr()+1;
+	uint8 const pl_min = public_halt ? 0                : get_owner()->get_player_nr();
+	uint8 const pl_max = public_halt ? MAX_PLAYER_COUNT : get_owner()->get_player_nr()+1;
 	// iterate over all lines (public halt: all lines, other: only player's lines)
 	for(  uint8 i=pl_min;  i<pl_max;  i++  ) {
 		if(  player_t *player = welt->get_player(i)  ) {
@@ -3026,10 +3026,10 @@ bool haltestelle_t::add_grund(grund_t *gr)
 	// Knightly : iterate over all convoys
 	FOR(vector_tpl<convoihandle_t>, const cnv, welt->convoys()) {
 		// only check lineless convoys which have matching ownership and which are not yet registered
-		if(  !cnv->get_line().is_bound()  &&  (public_halt  ||  cnv->get_besitzer()==get_besitzer())  &&  !registered_convoys.is_contained(cnv)  ) {
+		if(  !cnv->get_line().is_bound()  &&  (public_halt  ||  cnv->get_owner()==get_owner())  &&  !registered_convoys.is_contained(cnv)  ) {
 			if(  const schedule_t *const fpl = cnv->get_schedule()  ) {
 				FOR(minivec_tpl<linieneintrag_t>, const& k, fpl->eintrag) {
-					if (get_halt(k.pos, cnv->get_besitzer()) == self) {
+					if (get_halt(k.pos, cnv->get_owner()) == self) {
 						registered_convoys.append(cnv);
 						break;
 					}
@@ -3138,7 +3138,7 @@ bool haltestelle_t::rem_grund(grund_t *gr)
 	for(  size_t j = registered_lines.get_count();  j-- != 0;  ) {
 		bool ok = false;
 		FOR(  minivec_tpl<linieneintrag_t>, const& k, registered_lines[j]->get_schedule()->eintrag  ) {
-			if(  get_halt(k.pos, registered_lines[j]->get_besitzer()) == self  ) {
+			if(  get_halt(k.pos, registered_lines[j]->get_owner()) == self  ) {
 				ok = true;
 				break;
 			}
@@ -3154,7 +3154,7 @@ bool haltestelle_t::rem_grund(grund_t *gr)
 	for(  size_t j = registered_convoys.get_count();  j-- != 0;  ) {
 		bool ok = false;
 		FOR(  minivec_tpl<linieneintrag_t>, const& k, registered_convoys[j]->get_schedule()->eintrag  ) {
-			if(  get_halt(k.pos, registered_convoys[j]->get_besitzer()) == self  ) {
+			if(  get_halt(k.pos, registered_convoys[j]->get_owner()) == self  ) {
 				ok = true;
 				break;
 			}

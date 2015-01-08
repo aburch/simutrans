@@ -32,7 +32,7 @@
 
 
 fabrik_info_t::fabrik_info_t(fabrik_t* fab_, const gebaeude_t* gb) :
-	gui_frame_t("", fab_->get_besitzer()),
+	gui_frame_t("", fab_->get_owner()),
 	fab(fab_),
 	chart(fab_),
 	view(gb, scr_size( max(64, get_base_tile_raster_width()), max(56, (get_base_tile_raster_width() * 7) / 8))),

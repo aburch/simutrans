@@ -609,7 +609,7 @@ void planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos) const
 			image_id img = overlay_img(gr);
 
 			for(int halt_count = 0; halt_count < halt_list_count; halt_count++) {
-				const PLAYER_COLOR_VAL transparent = PLAYER_FLAG | OUTLINE_FLAG | (halt_list[halt_count]->get_besitzer()->get_player_color1() + 4);
+				const PLAYER_COLOR_VAL transparent = PLAYER_FLAG | OUTLINE_FLAG | (halt_list[halt_count]->get_owner()->get_player_color1() + 4);
 				display_img_blend( img, xpos, ypos, transparent | TRANSPARENT25_FLAG, 0, 0);
 			}
 /*
@@ -620,7 +620,7 @@ void planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos) const
 				player_t *display_player = welt->get_player(player_count);
 				const PLAYER_COLOR_VAL transparent = PLAYER_FLAG | OUTLINE_FLAG | (display_player->get_player_color1() * 4 + 4);
 				for(int halt_count = 0; halt_count < halt_list_count; halt_count++) {
-					if(halt_list[halt_count]->get_besitzer() == display_player) {
+					if(halt_list[halt_count]->get_owner() == display_player) {
 						display_img_blend( img, xpos, ypos, transparent | TRANSPARENT25_FLAG, 0, 0);
 					}
 				}
@@ -637,7 +637,7 @@ void planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos) const
 			const sint16 off = (raster_tile_width>>5);
 			// suitable start search
 			for (size_t h = halt_list_count; h-- != 0;) {
-				display_fillbox_wh_clip(x - h * off, y + h * off, r, r, PLAYER_FLAG | (halt_list[h]->get_besitzer()->get_player_color1() + 4), kartenboden_dirty);
+				display_fillbox_wh_clip(x - h * off, y + h * off, r, r, PLAYER_FLAG | (halt_list[h]->get_owner()->get_player_color1() + 4), kartenboden_dirty);
 			}
 		}
 	}
@@ -663,7 +663,7 @@ halthandle_t planquadrat_t::get_halt(player_t *player) const
 {
 	for(  uint8 i=0;  i < get_boden_count();  i++  ) {
 		halthandle_t my_halt = get_boden_bei(i)->get_halt();
-		if(  my_halt.is_bound()  &&  (player == NULL  ||  player == my_halt->get_besitzer())  ) {
+		if(  my_halt.is_bound()  &&  (player == NULL  ||  player == my_halt->get_owner())  ) {
 			return my_halt;
 		}
 	}

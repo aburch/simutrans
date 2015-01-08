@@ -210,7 +210,7 @@ void_t label_set_text(label_t* l, const char* text)
 	cbuffer_t buf;
 	buf.printf("m%hi,%hi,%hi,%s", pos.x, pos.y, pos.z, text);
 	w.set_default_param(buf);
-	w.init(l->get_besitzer());
+	w.init(l->get_owner());
 
 	return void_t();
 }
@@ -238,7 +238,7 @@ void export_map_objects(HSQUIRRELVM vm)
 	/**
 	 * @returns owner of the object.
 	 */
-	register_method(vm, &obj_t::get_besitzer, "get_owner");
+	register_method(vm, &obj_t::get_owner, "get_owner");
 	/**
 	 * @returns raw name.
 	 */

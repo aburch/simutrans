@@ -777,7 +777,7 @@ void fahrplan_gui_t::rdwr(loadsave_t *file)
 		if(  cnv.is_bound() ) {
 			// now we can open the window ...
 			scr_coord const& pos = win_get_pos(this);
-			fahrplan_gui_t *w = new fahrplan_gui_t( cnv->get_schedule(), cnv->get_besitzer(), cnv );
+			fahrplan_gui_t *w = new fahrplan_gui_t( cnv->get_schedule(), cnv->get_owner(), cnv );
 			create_win(pos.x, pos.y, w, w_info, (ptrdiff_t)cnv->get_schedule());
 			w->set_windowsize( size );
 			w->fpl->copy_from( fpl );

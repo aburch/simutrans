@@ -44,7 +44,7 @@ tunnel_t::tunnel_t(koord3d pos, player_t *player, const tunnel_besch_t *besch) :
 {
 	assert(besch);
 	this->besch = besch;
-	set_besitzer( player );
+	set_owner( player );
 	bild = after_bild = IMG_LEER;
 	broad_type = 0;
 }
@@ -132,7 +132,7 @@ void tunnel_t::rdwr(loadsave_t *file)
 void tunnel_t::laden_abschliessen()
 {
 	const grund_t *gr = welt->lookup(get_pos());
-	player_t *player=get_besitzer();
+	player_t *player=get_owner();
 
 	if(besch==NULL) {
 		// find a matching besch
@@ -174,7 +174,7 @@ void tunnel_t::laden_abschliessen()
 // correct speed and maintenance
 void tunnel_t::entferne( player_t *player2 )
 {
-	player_t *player = get_besitzer();
+	player_t *player = get_owner();
 	if(player) {
 		// inside tunnel => do nothing but change maintenance
 		const grund_t *gr = welt->lookup(get_pos());

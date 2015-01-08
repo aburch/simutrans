@@ -28,7 +28,7 @@ void line_scrollitem_t::set_text(char const* const t)
 		tool->set_default_param( buf );
 
 		karte_ptr_t welt;
-		welt->set_tool( tool, line->get_besitzer() );
+		welt->set_tool( tool, line->get_owner() );
 		// since init always returns false, it is safe to delete immediately
 		delete tool;
 	}

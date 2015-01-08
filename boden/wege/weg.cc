@@ -173,7 +173,7 @@ void weg_t::init()
 weg_t::~weg_t()
 {
 	alle_wege.remove(this);
-	player_t *player=get_besitzer();
+	player_t *player=get_owner();
 	if(player) {
 		player_t::add_maintenance( player,  -besch->get_wartung(), besch->get_finance_waytype() );
 	}
@@ -566,7 +566,7 @@ void weg_t::neuer_monat()
 // correct speed and maintenance
 void weg_t::laden_abschliessen()
 {
-	player_t *player = get_besitzer();
+	player_t *player = get_owner();
 	if(  player  &&  besch  ) {
 		player_t::add_maintenance( player,  besch->get_wartung(), besch->get_finance_waytype() );
 	}

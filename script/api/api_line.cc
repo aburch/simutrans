@@ -117,7 +117,7 @@ void export_line(HSQUIRRELVM vm)
 	 * Line owner.
 	 * @returns owner
 	 */
-	register_method(vm, &simline_t::get_besitzer, "get_owner");
+	register_method(vm, &simline_t::get_owner, "get_owner");
 	/**
 	 * Schedule of this line.
 	 */

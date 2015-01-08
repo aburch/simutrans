@@ -65,7 +65,7 @@ class compare_labels
 						label_t* a_l = welt->lookup_kartenboden(a)->find<label_t>();
 						label_t* b_l = welt->lookup_kartenboden(b)->find<label_t>();
 						if(a_l && b_l) {
-							cmp = a_l->get_besitzer()->get_player_nr() - b_l->get_besitzer()->get_player_nr();
+							cmp = a_l->get_owner()->get_player_nr() - b_l->get_owner()->get_player_nr();
 						}
 					}
 					break;
@@ -102,7 +102,7 @@ void labellist_stats_t::get_unique_labels(labellist::sort_mode_t sb, bool sr, bo
 		const char* name = welt->lookup_kartenboden(pos)->get_text();
 		// some old version games don't have label nor name.
 		// Check them to avoid crashes.
-		if(label  &&  name  &&  (!filter  ||  (label  &&  (label->get_besitzer() == welt->get_active_player())))) {
+		if(label  &&  name  &&  (!filter  ||  (label  &&  (label->get_owner() == welt->get_active_player())))) {
 			labels.insert_ordered( pos, compare_labels(sortby, sortreverse, filter) );
 		}
 	}
@@ -165,7 +165,7 @@ void labellist_stats_t::recalc_size()
 		buf.printf(" (%d,%d)", pos.x, pos.y);
 
 		if(  label  ) {
-			//col = (PLAYER_FLAG|label->get_besitzer()->get_player_color1());
+			//col = (PLAYER_FLAG|label->get_owner()->get_player_color1());
 			grund_t *gr = welt->lookup(label->get_pos());
 			if(  gr  &&  gr->get_text()  ) {
 				buf.append(gr->get_text());
@@ -226,7 +226,7 @@ void labellist_stats_t::draw(scr_coord offset)
 		buf.printf(" (%d,%d)", pos.x, pos.y);
 
 		if(label) {
-			col = (PLAYER_FLAG|label->get_besitzer()->get_player_color1());
+			col = (PLAYER_FLAG|label->get_owner()->get_player_color1());
 			grund_t *gr = welt->lookup(label->get_pos());
 			if(gr && gr->get_text()) {
 				buf.append(gr->get_text());

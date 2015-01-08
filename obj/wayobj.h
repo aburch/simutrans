@@ -42,7 +42,7 @@ private:
 
 
 public:
-	wayobj_t(koord3d pos, player_t *besitzer, ribi_t::ribi dir, const way_obj_besch_t *besch);
+	wayobj_t(koord3d pos, player_t *owner, ribi_t::ribi dir, const way_obj_besch_t *besch);
 
 	wayobj_t(loadsave_t *file);
 
@@ -117,7 +117,7 @@ public:
 	static const way_obj_besch_t *default_oberleitung;
 
 	// use this constructor; it will extend a matching existing wayobj
-	static void extend_wayobj_t(koord3d pos, player_t *besitzer, ribi_t::ribi dir, const way_obj_besch_t *besch);
+	static void extend_wayobj_t(koord3d pos, player_t *owner, ribi_t::ribi dir, const way_obj_besch_t *besch);
 
 	static bool register_besch(way_obj_besch_t *besch);
 	static bool alles_geladen();

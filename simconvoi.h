@@ -146,7 +146,7 @@ private:
 	* Convoi owner
 	* @author Hj. Malthaner
 	*/
-	player_t *besitzer_p;
+	player_t *owner_p;
 
 	/**
 	* Current map
@@ -695,7 +695,7 @@ public:
 	* @return Owner of this convoi
 	* @author Hj. Malthaner
 	*/
-	player_t * get_besitzer() const { return besitzer_p; }
+	player_t * get_owner() const { return owner_p; }
 
 	/**
 	* Opens an information window

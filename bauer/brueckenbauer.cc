@@ -164,7 +164,7 @@ const char *check_tile( const grund_t *gr, const player_t *player, waytype_t wt,
 	// we can build a ramp when there is one (or with tram two) way in our direction and no stations/depot etc.
 	if(  weg_t *w = gr->get_weg_nr(0)  ) {
 
-		if(  !player_t::check_owner(w->get_besitzer(),player)  ) {
+		if(  !player_t::check_owner(w->get_owner(),player)  ) {
 			// not our way
 			return "Das Feld gehoert\neinem anderen Spieler\n";
 		}
@@ -172,7 +172,7 @@ const char *check_tile( const grund_t *gr, const player_t *player, waytype_t wt,
 		// now check for direction
 		ribi_t::ribi ribi = w->get_ribi_unmasked();
 		if(  weg_t *w2 = gr->get_weg_nr(1)  ) {
-			if(  !player_t::check_owner(w2->get_besitzer(),player)  ) {
+			if(  !player_t::check_owner(w2->get_owner(),player)  ) {
 				// not our way
 				return "Das Feld gehoert\neinem anderen Spieler\n";
 			}
@@ -211,7 +211,7 @@ const char *check_tile( const grund_t *gr, const player_t *player, waytype_t wt,
 	}
 	else if(  wt == powerline_wt  ) {
 		if(  leitung_t *lt = gr->get_leitung()  ) {
-			if(  player_t::check_owner(lt->get_besitzer(),player)  &&  ribi_check( lt->get_ribi(), check_ribi )  ) {
+			if(  player_t::check_owner(lt->get_owner(),player)  &&  ribi_check( lt->get_ribi(), check_ribi )  ) {
 				// matching powerline
 				return NULL;
 			}
@@ -245,7 +245,7 @@ bool brueckenbauer_t::is_blocked(koord3d pos, player_t *player, const bruecke_be
 		if(  gr2->get_typ() == grund_t::monorailboden  ) {
 			// now check if our way
 			if(  weg_t *w = gr2->get_weg_nr(0)  ) {
-				if(  !player_t::check_owner(w->get_besitzer(),player)  ) {
+				if(  !player_t::check_owner(w->get_owner(),player)  ) {
 					// not our way
 					error_msg = "Das Feld gehoert\neinem anderen Spieler\n";
 					return true;
@@ -272,7 +272,7 @@ bool brueckenbauer_t::is_monorail_junction(koord3d pos, player_t *player, const 
 		if(  gr2->get_typ() == grund_t::monorailboden  ) {
 			// now check if our way
 			if(  weg_t *w = gr2->get_weg_nr(0)  ) {
-				if(  !player_t::check_owner(w->get_besitzer(),player)  ) {
+				if(  !player_t::check_owner(w->get_owner(),player)  ) {
 					// not our way
 					error_msg = "Das Feld gehoert\neinem anderen Spieler\n";
 					return false;
@@ -955,7 +955,7 @@ const char *brueckenbauer_t::remove(player_t *player, koord3d pos_start, waytype
 		// can we delete everything there?
 		msg = from->kann_alle_obj_entfernen(player);
 
-		if(msg != NULL  ||  (from->get_halt().is_bound()  &&  from->get_halt()->get_besitzer()!=player)) {
+		if(msg != NULL  ||  (from->get_halt().is_bound()  &&  from->get_halt()->get_owner()!=player)) {
 			return "Die Bruecke ist nicht frei!\n";
 		}
 
@@ -1029,7 +1029,7 @@ const char *brueckenbauer_t::remove(player_t *player, koord3d pos_start, waytype
 		// finally delete all pillars (if there)
 		gr = welt->lookup_kartenboden(pos.get_2d());
 		while (obj_t* const p = gr->find<pillar_t>()) {
-			p->entferne(p->get_besitzer());
+			p->entferne(p->get_owner());
 			delete p;
 		}
 		// refresh map
@@ -1076,7 +1076,7 @@ const char *brueckenbauer_t::remove(player_t *player, koord3d pos_start, waytype
 			}
 			leitung_t *lt = gr->get_leitung();
 			if (lt) {
-				player_t *old_owner = lt->get_besitzer();
+				player_t *old_owner = lt->get_owner();
 				// first delete powerline to decouple from the bridge powernet
 				lt->entferne(old_owner);
 				delete lt;

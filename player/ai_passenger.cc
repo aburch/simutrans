@@ -74,7 +74,7 @@ bool ai_passenger_t::set_active(bool new_state)
 halthandle_t ai_passenger_t::get_our_hub( const stadt_t *s ) const
 {
 	FOR(vector_tpl<halthandle_t>, const halt, haltestelle_t::get_alle_haltestellen()) {
-		if (halt->get_besitzer() == sim::up_cast<player_t const*>(this)) {
+		if (halt->get_owner() == sim::up_cast<player_t const*>(this)) {
 			if(  halt->get_pax_enabled()  &&  (halt->get_station_type()&haltestelle_t::busstop)!=0  ) {
 				koord h=halt->get_basis_pos();
 				if(h.x>=s->get_linksoben().x  &&  h.y>=s->get_linksoben().y  &&  h.x<=s->get_rechtsunten().x  &&  h.y<=s->get_rechtsunten().y  ) {
@@ -103,8 +103,8 @@ koord ai_passenger_t::find_area_for_hub( const koord lo, const koord ru, const k
 				if(  gr->get_typ()==grund_t::boden  &&  gr->get_grund_hang()==hang_t::flach  ) {
 					const obj_t* obj = gr->obj_bei(0);
 					int test_dist = koord_distance( trypos, basis );
-					if (!obj || !obj->get_besitzer() || obj->get_besitzer() == sim::up_cast<player_t const*>(this)) {
-						if(  gr->is_halt()  &&  check_owner( gr->get_halt()->get_besitzer(), this )  &&  gr->hat_weg(road_wt)  ) {
+					if (!obj || !obj->get_owner() || obj->get_owner() == sim::up_cast<player_t const*>(this)) {
+						if(  gr->is_halt()  &&  check_owner( gr->get_halt()->get_owner(), this )  &&  gr->hat_weg(road_wt)  ) {
 							// ok, one halt belongs already to us ... (should not really happen!) but might be a public stop
 							return trypos;
 						} else if(  test_dist<dist  &&  gr->hat_weg(road_wt)  &&  !gr->is_halt()  ) {
@@ -827,7 +827,7 @@ void ai_passenger_t::walk_city(linehandle_t const line, grund_t* const start, in
 
 		// ok, if connected, not marked, and not owner by somebody else
 		grund_t *to;
-		if(  start->get_neighbour(to, road_wt, ribi_t::nsow[r] )  &&  !marker->is_marked(to)  &&  check_owner(to->obj_bei(0)->get_besitzer(),this)  ) {
+		if(  start->get_neighbour(to, road_wt, ribi_t::nsow[r] )  &&  !marker->is_marked(to)  &&  check_owner(to->obj_bei(0)->get_owner(),this)  ) {
 
 			// ok, here is a valid street tile
 			marker->mark(to);
@@ -850,9 +850,9 @@ void ai_passenger_t::walk_city(linehandle_t const line, grund_t* const start, in
 									// our stop => nothing to do
 #if AUTOJOIN_PUBLIC
 									// we leave also public stops alone
-									if(  hl[own]->get_besitzer()==this  ||  hl[own]->get_besitzer()==welt->get_player(1)  ) {
+									if(  hl[own]->get_owner()==this  ||  hl[own]->get_owner()==welt->get_player(1)  ) {
 #else
-									if(  hl[own]->get_besitzer()==this  ) {
+									if(  hl[own]->get_owner()==this  ) {
 #endif
 										covered_tiles ++;
 										break;

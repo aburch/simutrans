@@ -27,7 +27,7 @@ grund_info_t::grund_info_t(const grund_t* gr_) :
 {
 	const obj_t *const d = gr->obj_bei(0);
 	if (  d!=NULL  ) {
-		set_owner( d->get_besitzer() );
+		set_owner( d->get_owner() );
 	}
 	buf.clear();
 	gr->info(buf);
@@ -50,7 +50,7 @@ void grund_info_t::draw(scr_coord pos, scr_size size)
 	set_dirty();
 	const obj_t *const d = gr->obj_bei(0);
 	if (  d!=NULL  ) {
-		set_owner( d->get_besitzer() );
+		set_owner( d->get_owner() );
 	}
 	gui_frame_t::set_name( translator::translate(gr->get_name()) );
 

@@ -592,10 +592,10 @@ public:
 
 	sint32 get_kennfarbe() const { return besch->get_kennfarbe(); }
 
-	player_t *get_besitzer() const
+	player_t *get_owner() const
 	{
 		grund_t const* const p = welt->lookup(pos);
-		return p ? p->first_obj()->get_besitzer() : 0;
+		return p ? p->first_obj()->get_owner() : 0;
 	}
 
 	void zeige_info();

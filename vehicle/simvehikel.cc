@@ -718,11 +718,11 @@ uint16 vehikel_t::unload_freight(halthandle_t halt)
 
 	if(  sum_menge  ) {
 		// book transported goods
-		get_besitzer()->book_transported( sum_menge, get_besch()->get_waytype(), index );
+		get_owner()->book_transported( sum_menge, get_besch()->get_waytype(), index );
 
 		if(  sum_delivered  ) {
 			// book delivered goods to destination
-			get_besitzer()->book_delivered( sum_delivered, get_besch()->get_waytype(), index );
+			get_owner()->book_delivered( sum_delivered, get_besch()->get_waytype(), index );
 		}
 
 		// add delivered goods to statistics
@@ -751,7 +751,7 @@ uint16 vehikel_t::load_freight(halthandle_t halt)
 		const uint16 hinein = besch->get_zuladung() - total_freight;
 
 		slist_tpl<ware_t> zuladung;
-		halt->fetch_goods( zuladung, besch->get_ware(), hinein, cnv->get_schedule(), cnv->get_besitzer() );
+		halt->fetch_goods( zuladung, besch->get_ware(), hinein, cnv->get_schedule(), cnv->get_owner() );
 
 		if(  zuladung.empty()  ) {
 			// now empty, but usually, we can get it here ...
@@ -815,7 +815,7 @@ void vehikel_t::remove_stale_freight()
 			if(  tmp.get_zwischenziel().is_bound()  ) {
 				// the original halt exists, but does we still go there?
 				FOR(minivec_tpl<linieneintrag_t>, const& i, cnv->get_schedule()->eintrag) {
-					if(  haltestelle_t::get_halt( i.pos, cnv->get_besitzer()) == tmp.get_zwischenziel()  ) {
+					if(  haltestelle_t::get_halt( i.pos, cnv->get_owner()) == tmp.get_zwischenziel()  ) {
 						found = true;
 						break;
 					}
@@ -827,7 +827,7 @@ void vehikel_t::remove_stale_freight()
 				const int max_count = cnv->get_schedule()->eintrag.get_count();
 				for(  int i=0;  i<max_count;  i++  ) {
 					// try to unload on next stop
-					halthandle_t halt = haltestelle_t::get_halt( cnv->get_schedule()->eintrag[ (i+offset)%max_count ].pos, cnv->get_besitzer() );
+					halthandle_t halt = haltestelle_t::get_halt( cnv->get_schedule()->eintrag[ (i+offset)%max_count ].pos, cnv->get_owner() );
 					if(  halt.is_bound()  ) {
 						if(  halt->is_enabled(tmp.get_index())  ) {
 							// ok, lets change here, since goods are accepted here
@@ -926,7 +926,7 @@ vehikel_t::vehikel_t(koord3d pos, const vehikel_besch_t* besch, player_t* player
 {
 	this->besch = besch;
 
-	set_besitzer( player_ );
+	set_owner( player_ );
 	insta_zeit = welt->get_current_month();
 	cnv = NULL;
 	speed_limit = SPEED_UNLIMITED;
@@ -1796,7 +1796,7 @@ bool automobil_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, rout
 	if(  r == route_t::valid_route_halt_too_short  ) {
 		cbuffer_t buf;
 		buf.printf( translator::translate("Vehicle %s cannot choose because stop too short!"), cnv->get_name());
-		welt->get_message()->add_message( (const char *)buf, ziel.get_2d(), message_t::traffic_jams, PLAYER_FLAG | cnv->get_besitzer()->get_player_nr(), cnv->front()->get_basis_bild() );
+		welt->get_message()->add_message( (const char *)buf, ziel.get_2d(), message_t::traffic_jams, PLAYER_FLAG | cnv->get_owner()->get_player_nr(), cnv->front()->get_basis_bild() );
 	}
 	return r;
 }
@@ -1927,7 +1927,7 @@ bool automobil_t::choose_route( int &restart_speed, ribi_t::dir richtung, uint16
 
 	// are we heading to a target?
 	route_t *rt = cnv->access_route();
-	target_halt = haltestelle_t::get_halt( rt->back(), get_besitzer() );
+	target_halt = haltestelle_t::get_halt( rt->back(), get_owner() );
 	if(  target_halt.is_bound()  ) {
 
 		// since convois can long than one tile, check is more difficult
@@ -2231,7 +2231,7 @@ void automobil_t::set_convoi(convoi_t *c)
 		if(target  &&  ist_erstes  &&  c->get_route()->empty()) {
 			// reinitialize the target halt
 			const route_t *rt = cnv->get_route();
-			target_halt = haltestelle_t::get_halt( rt->back(), get_besitzer() );
+			target_halt = haltestelle_t::get_halt( rt->back(), get_owner() );
 			if(  target_halt.is_bound()  ) {
 				for(  uint32 i=0;  i<c->get_tile_length()  &&  i+1<rt->get_count();  i++  ) {
 					target_halt->reserve_position( welt->lookup( rt->position_bei(rt->get_count()-i-1) ), cnv->self );
@@ -2393,7 +2393,7 @@ bool waggon_t::ist_befahrbar(const grund_t *bd) const
 	}
 
 	if (depot_t *depot = bd->get_depot()) {
-		if (depot->get_waytype() != besch->get_waytype()  ||  depot->get_besitzer() != get_besitzer()) {
+		if (depot->get_waytype() != besch->get_waytype()  ||  depot->get_owner() != get_owner()) {
 			return false;
 		}
 	}

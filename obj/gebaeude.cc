@@ -95,12 +95,12 @@ gebaeude_t::gebaeude_t(loadsave_t *file) : obj_t()
 gebaeude_t::gebaeude_t(koord3d pos, player_t *player, const haus_tile_besch_t *t) :
     obj_t(pos)
 {
-	set_besitzer( player );
+	set_owner( player );
 
 	init();
 	if(t) {
 		set_tile(t,true);	// this will set init time etc.
-		player_t::add_maintenance(get_besitzer(), tile->get_besch()->get_maintenance(welt), tile->get_besch()->get_finance_waytype() );
+		player_t::add_maintenance(get_owner(), tile->get_besch()->get_maintenance(welt), tile->get_besch()->get_finance_waytype() );
 	}
 
 	// get correct y offset for bridges
@@ -136,7 +136,7 @@ gebaeude_t::~gebaeude_t()
 	count = 0;
 	anim_time = 0;
 	if(tile) {
-		player_t::add_maintenance(get_besitzer(), -tile->get_besch()->get_maintenance(welt), tile->get_besch()->get_finance_waytype());
+		player_t::add_maintenance(get_owner(), -tile->get_besch()->get_maintenance(welt), tile->get_besch()->get_finance_waytype());
 	}
 }
 
@@ -549,7 +549,7 @@ void gebaeude_t::zeige_info()
 	bool special = ist_firmensitz() || ist_rathaus();
 
 	if(ist_firmensitz()) {
-		create_win( new money_frame_t(get_besitzer()), w_info, magic_finances_t+get_besitzer()->get_player_nr() );
+		create_win( new money_frame_t(get_owner()), w_info, magic_finances_t+get_owner()->get_player_nr() );
 	}
 	else if (ist_rathaus()) {
 		ptr.stadt->zeige_info();
@@ -676,7 +676,7 @@ void gebaeude_t::info(cbuffer_t & buf) const
 		}
 
 		buf.append("\n");
-		if(get_besitzer()==NULL) {
+		if(get_owner()==NULL) {
 			long const v = (long)( -welt->get_settings().cst_multiply_remove_haus * (tile->get_besch()->get_level() + 1) / 100 );
 			buf.printf("\n%s: %ld$\n", translator::translate("Wert"), v);
 		}
@@ -869,7 +869,7 @@ void gebaeude_t::rdwr(loadsave_t *file)
  */
 void gebaeude_t::laden_abschliessen()
 {
-	player_t::add_maintenance(get_besitzer(), tile->get_besch()->get_maintenance(welt), tile->get_besch()->get_finance_waytype());
+	player_t::add_maintenance(get_owner(), tile->get_besch()->get_maintenance(welt), tile->get_besch()->get_finance_waytype());
 
 	// citybuilding, but no town?
 	if(  tile->get_offset()==koord(0,0)  ) {

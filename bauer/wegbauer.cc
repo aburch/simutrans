@@ -350,7 +350,7 @@ bool wegbauer_t::check_crossing(const koord zv, const grund_t *bd, waytype_t wty
 		return true;
 	}
 	// right owner of the other way
-	if(!check_owner(w->get_besitzer(),player_)) {
+	if(!check_owner(w->get_owner(),player_)) {
 		return false;
 	}
 	// check for existing crossing
@@ -561,7 +561,7 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 		if(gb) {
 			// no halt => citybuilding => do not touch
 			// also check for too high buildings ...
-			if(!check_owner(gb->get_besitzer(),player_builder)  ||  gb->get_tile()->get_hintergrund(0,1,0)!=IMG_LEER) {
+			if(!check_owner(gb->get_owner(),player_builder)  ||  gb->get_tile()->get_hintergrund(0,1,0)!=IMG_LEER) {
 				return false;
 			}
 			// building above houses is expensive ... avoid it!
@@ -578,7 +578,7 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 		if(to2) {
 			if(to2->get_weg_nr(0)) {
 				// already an elevated ground here => it will have always a way object, that indicates ownership
-				ok = to2->get_typ()==grund_t::monorailboden  &&  check_owner(to2->obj_bei(0)->get_besitzer(),player_builder);
+				ok = to2->get_typ()==grund_t::monorailboden  &&  check_owner(to2->obj_bei(0)->get_owner(),player_builder);
 				ok &= to2->get_weg_nr(0)->get_besch()->get_wtyp()==besch->get_wtyp();
 			}
 			else {
@@ -707,7 +707,7 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 			}
 			// ok, regular construction here
 			// if no way there: check for right ground type, otherwise check owner
-			ok = sch==NULL  ?  (!fundament  &&  !to->ist_wasser())  :  check_owner(sch->get_besitzer(),player_builder);
+			ok = sch==NULL  ?  (!fundament  &&  !to->ist_wasser())  :  check_owner(sch->get_owner(),player_builder);
 			if(!ok) {
 				return false;
 			}
@@ -734,7 +734,7 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 			const weg_t *sch=to->get_weg(track_wt);
 			// roads are checked in check_crossing
 			// if no way there: check for right ground type, otherwise check owner
-			ok = sch==NULL  ?  (!fundament  &&  !to->ist_wasser())  :  check_owner(sch->get_besitzer(),player_builder);
+			ok = sch==NULL  ?  (!fundament  &&  !to->ist_wasser())  :  check_owner(sch->get_owner(),player_builder);
 			// tram track allowed in road tunnels, but only along existing roads / tracks
 			if(from!=to) {
 				if(from->ist_tunnel()) {
@@ -777,7 +777,7 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 			// do not connect to other powerlines
 			{
 				leitung_t *lt = to->get_leitung();
-				ok &= (lt==NULL)  ||  check_owner(player_builder, lt->get_besitzer());
+				ok &= (lt==NULL)  ||  check_owner(player_builder, lt->get_owner());
 			}
 
 			if(to->get_typ()!=grund_t::tunnelboden) {
@@ -1895,7 +1895,7 @@ void wegbauer_t::baue_tunnel_und_bruecken()
 				// now: check ownership
 				weg_t *wi = gr_i->get_weg(wt);
 				weg_t *wi1 = gr_i1->get_weg(wt);
-				if(wi->get_besitzer()==player_builder  &&  wi1->get_besitzer()==player_builder) {
+				if(wi->get_owner()==player_builder  &&  wi1->get_owner()==player_builder) {
 					// we are the owner
 					if(  h != hang_typ(zv)  ) {
 						// its a bridge
@@ -2201,7 +2201,7 @@ void wegbauer_t::baue_strasse()
 			}
 			else {
 				// we take ownership => we take care to maintain the roads completely ...
-				player_t *s = weg->get_besitzer();
+				player_t *s = weg->get_owner();
 				player_t::add_maintenance(s, -weg->get_besch()->get_wartung(), weg->get_besch()->get_finance_waytype());
 				// cost is the more expensive one, so downgrading is between removing and new building
 				cost -= max( weg->get_besch()->get_preis(), besch->get_preis() );
@@ -2213,7 +2213,7 @@ void wegbauer_t::baue_strasse()
 				}
 				weg->set_gehweg(add_sidewalk);
 				player_t::add_maintenance( player_builder, weg->get_besch()->get_wartung(), weg->get_besch()->get_finance_waytype());
-				weg->set_besitzer(player_builder);
+				weg->set_owner(player_builder);
 			}
 		}
 		else {
@@ -2293,7 +2293,7 @@ void wegbauer_t::baue_schiene()
 
 				if(  change_besch  ) {
 					// we take ownership => we take care to maintain the roads completely ...
-					player_t *s = weg->get_besitzer();
+					player_t *s = weg->get_owner();
 					player_t::add_maintenance( s, -weg->get_besch()->get_wartung(), weg->get_besch()->get_finance_waytype());
 					// cost is the more expensive one, so downgrading is between removing and new buidling
 					cost -= max( weg->get_besch()->get_preis(), besch->get_preis() );
@@ -2304,7 +2304,7 @@ void wegbauer_t::baue_schiene()
 						weg->set_max_speed( wo->get_besch()->get_topspeed() );
 					}
 					player_t::add_maintenance( player_builder, weg->get_besch()->get_wartung(), weg->get_besch()->get_finance_waytype());
-					weg->set_besitzer(player_builder);
+					weg->set_owner(player_builder);
 				}
 			}
 			else {
@@ -2373,7 +2373,7 @@ void wegbauer_t::baue_leitung()
 			// modernize the network
 			if( !keep_existing_faster_ways  ||  lt->get_besch()->get_topspeed() < besch->get_topspeed()  ) {
 				build_powerline = true;
-				player_t::add_maintenance( lt->get_besitzer(),  -lt->get_besch()->get_wartung(), powerline_wt );
+				player_t::add_maintenance( lt->get_owner(),  -lt->get_besch()->get_wartung(), powerline_wt );
 			}
 		}
 		if (build_powerline) {

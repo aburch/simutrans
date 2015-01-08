@@ -42,7 +42,7 @@
 
 
 convoi_detail_t::convoi_detail_t(convoihandle_t cnv)
-: gui_frame_t( cnv->get_name(), cnv->get_besitzer() ),
+: gui_frame_t( cnv->get_name(), cnv->get_owner() ),
   scrolly(&veh_info),
   veh_info(cnv)
 {
@@ -76,7 +76,7 @@ void convoi_detail_t::draw(scr_coord pos, scr_size size)
 		destroy_win(this);
 	}
 	else {
-		if(cnv->get_besitzer()==welt->get_active_player()) {
+		if(cnv->get_owner()==welt->get_active_player()) {
 			withdraw_button.enable();
 			sale_button.enable();
 		}
@@ -248,7 +248,7 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 			scr_coord_val x, y, w, h;
 			const image_id bild=v->get_basis_bild();
 			display_get_base_image_offset(bild, &x, &y, &w, &h );
-			display_base_img(bild,11-x+pos.x+offset.x,pos.y+offset.y+total_height-y+2,cnv->get_besitzer()->get_player_nr(),false,true);
+			display_base_img(bild,11-x+pos.x+offset.x,pos.y+offset.y+total_height-y+2,cnv->get_owner()->get_player_nr(),false,true);
 			w = max(40,w+4)+11;
 
 			// now add the other info

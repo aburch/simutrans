@@ -393,7 +393,7 @@ void player_t::calc_assets()
 	}
 	// all convois
 	FOR(vector_tpl<convoihandle_t>, const cnv, welt->convoys()) {
-		if(  cnv->get_besitzer() == this  ) {
+		if(  cnv->get_owner() == this  ) {
 			sint64 restwert = cnv->calc_restwert();
 			assets[TT_ALL] += restwert;
 			assets[finance->translate_waytype_to_tt(cnv->front()->get_waytype())] += restwert;
@@ -445,7 +445,7 @@ void player_t::ai_bankrupt()
 
 	for (size_t i = welt->convoys().get_count(); i-- != 0;) {
 		convoihandle_t const cnv = welt->convoys()[i];
-		if(cnv->get_besitzer()!=this) {
+		if(cnv->get_owner()!=this) {
 			continue;
 		}
 
@@ -473,7 +473,7 @@ void player_t::ai_bankrupt()
 	// first generate list of our stops
 	slist_tpl<halthandle_t> halt_list;
 	FOR(vector_tpl<halthandle_t>, const halt, haltestelle_t::get_alle_haltestellen()) {
-		if(  halt->get_besitzer()==this  ) {
+		if(  halt->get_owner()==this  ) {
 			halt_list.append(halt);
 		}
 	}
@@ -485,18 +485,18 @@ void player_t::ai_bankrupt()
 
 	// transfer all ways in public stops belonging to me to no one
 	FOR(vector_tpl<halthandle_t>, const halt, haltestelle_t::get_alle_haltestellen()) {
-		if(  halt->get_besitzer()==welt->get_player(1)  ) {
+		if(  halt->get_owner()==welt->get_player(1)  ) {
 			// only concerns public stops tiles
 			FOR(slist_tpl<haltestelle_t::tile_t>, const& i, halt->get_tiles()) {
 				grund_t const* const gr = i.grund;
 				for(  uint8 wnr=0;  wnr<2;  wnr++  ) {
 					weg_t *w = gr->get_weg_nr(wnr);
-					if(  w  &&  w->get_besitzer()==this  ) {
+					if(  w  &&  w->get_owner()==this  ) {
 						// take ownership
 						if (wnr>1  ||  (!gr->ist_bruecke()  &&  !gr->ist_tunnel())) {
 							player_t::add_maintenance( this, -w->get_besch()->get_wartung(), w->get_besch()->get_finance_waytype() );
 						}
-						w->set_besitzer(NULL); // make public
+						w->set_owner(NULL); // make public
 					}
 				}
 			}
@@ -513,7 +513,7 @@ void player_t::ai_bankrupt()
 			for (size_t b = plan->get_boden_count(); b-- != 0;) {
 				grund_t *gr = plan->get_boden_bei(b);
 				// remove tunnel and bridges first
-				if(  gr->get_top()>0  &&  gr->obj_bei(0)->get_besitzer()==this   &&  (gr->ist_bruecke()  ||  gr->ist_tunnel())  ) {
+				if(  gr->get_top()>0  &&  gr->obj_bei(0)->get_owner()==this   &&  (gr->ist_bruecke()  ||  gr->ist_tunnel())  ) {
 					koord3d pos = gr->get_pos();
 
 					waytype_t wt = gr->hat_wege() ? gr->get_weg_nr(0)->get_waytype() : powerline_wt;
@@ -532,7 +532,7 @@ void player_t::ai_bankrupt()
 				}
 				for (size_t i = gr->get_top(); i-- != 0;) {
 					obj_t *obj = gr->obj_bei(i);
-					if(obj->get_besitzer()==this) {
+					if(obj->get_owner()==this) {
 						switch(obj->get_typ()) {
 							case obj_t::roadsign:
 							case obj_t::signal:
@@ -553,7 +553,7 @@ void player_t::ai_bankrupt()
 								if(gr->ist_bruecke()) {
 									add_maintenance( -((leitung_t*)obj)->get_besch()->get_wartung(), powerline_wt );
 									// do not remove powerline from bridges
-									obj->set_besitzer( welt->get_player(1) );
+									obj->set_owner( welt->get_player(1) );
 								}
 								else {
 									obj->entferne(this);
@@ -567,11 +567,11 @@ void player_t::ai_bankrupt()
 							{
 								weg_t *w=(weg_t *)obj;
 								if (gr->ist_bruecke()  ||  gr->ist_tunnel()) {
-									w->set_besitzer( NULL );
+									w->set_owner( NULL );
 								}
 								else if(w->get_waytype()==road_wt  ||  w->get_waytype()==water_wt) {
 									add_maintenance( -w->get_besch()->get_wartung(), w->get_waytype() );
-									w->set_besitzer( NULL );
+									w->set_owner( NULL );
 								}
 								else {
 									gr->weg_entfernen( w->get_waytype(), true );
@@ -580,15 +580,15 @@ void player_t::ai_bankrupt()
 							}
 							case obj_t::bruecke:
 								add_maintenance( -((bruecke_t*)obj)->get_besch()->get_wartung(), obj->get_waytype() );
-								obj->set_besitzer( NULL );
+								obj->set_owner( NULL );
 								break;
 							case obj_t::tunnel:
 								add_maintenance( -((tunnel_t*)obj)->get_besch()->get_wartung(), ((tunnel_t*)obj)->get_besch()->get_finance_waytype() );
-								obj->set_besitzer( NULL );
+								obj->set_owner( NULL );
 								break;
 
 							default:
-								obj->set_besitzer( welt->get_player(1) );
+								obj->set_owner( welt->get_player(1) );
 						}
 					}
 				}

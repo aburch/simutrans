@@ -136,17 +136,17 @@ PLAYER_COLOR_VAL grund_t::text_farbe() const
 	if(is_halt()  &&  find<label_t>()==NULL) {
 		// only halt label
 		const halthandle_t halt = get_halt();
-		const player_t *player=halt->get_besitzer();
+		const player_t *player=halt->get_owner();
 		if(player) {
 			return PLAYER_FLAG|(player->get_player_color1()+4);
 		}
 	}
 	// else color according to current owner
 	else if(obj_bei(0)) {
-		const player_t *player = obj_bei(0)->get_besitzer(); // for cityhall
+		const player_t *player = obj_bei(0)->get_owner(); // for cityhall
 		const label_t* l = find<label_t>();
 		if(l) {
-			player = l->get_besitzer();
+			player = l->get_owner();
 		}
 		if(player) {
 			return PLAYER_FLAG|(player->get_player_color1()+4);
@@ -247,9 +247,9 @@ void grund_t::rdwr(loadsave_t *file)
 		}
 	}
 
-	sint8 besitzer_n=-1;
+	sint8 owner_n=-1;
 	if(file->get_version()<99005) {
-		file->rdwr_byte(besitzer_n);
+		file->rdwr_byte(owner_n);
 	}
 
 	if(file->get_version()>=88009) {
@@ -416,8 +416,8 @@ void grund_t::rdwr(loadsave_t *file)
 					else {
 						assert((flags&has_way2)==0);	// maximum two ways on one tile ...
 						weg->set_pos(pos);
-						if(besitzer_n!=-1) {
-							weg->set_besitzer(welt->get_player(besitzer_n));
+						if(owner_n!=-1) {
+							weg->set_owner(welt->get_player(owner_n));
 						}
 						objlist.add(weg);
 						if(flags&has_way1) {
@@ -453,7 +453,7 @@ void grund_t::rdwr(loadsave_t *file)
 		if(cr_besch==0) {
 			dbg->fatal("crossing_t::crossing_t()","requested for waytypes %i and %i but nothing defined!", ((weg_t *)obj_bei(0))->get_waytype(), ((weg_t *)obj_bei(1))->get_waytype() );
 		}
-		crossing_t *cr = new crossing_t(obj_bei(0)->get_besitzer(), pos, cr_besch, ribi_t::ist_gerade_ns(get_weg(cr_besch->get_waytype(1))->get_ribi_unmasked()) );
+		crossing_t *cr = new crossing_t(obj_bei(0)->get_owner(), pos, cr_besch, ribi_t::ist_gerade_ns(get_weg(cr_besch->get_waytype(1))->get_ribi_unmasked()) );
 		objlist.add( cr );
 		crossing_logic_t::add( cr, crossing_logic_t::CROSSING_INVALID );
 	}
@@ -1766,7 +1766,7 @@ sint64 grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, player_t *player)
 				if(cr_besch==0) {
 					dbg->fatal("crossing_t::crossing_t()","requested for waytypes %i and %i but nothing defined!", weg->get_waytype(), w2 );
 				}
-				crossing_t *cr = new crossing_t(obj_bei(0)->get_besitzer(), pos, cr_besch, ribi_t::ist_gerade_ns(get_weg(cr_besch->get_waytype(1))->get_ribi_unmasked()) );
+				crossing_t *cr = new crossing_t(obj_bei(0)->get_owner(), pos, cr_besch, ribi_t::ist_gerade_ns(get_weg(cr_besch->get_waytype(1))->get_ribi_unmasked()) );
 				objlist.add( cr );
 				cr->laden_abschliessen();
 			}
@@ -1775,7 +1775,7 @@ sint64 grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, player_t *player)
 		// just add the maintenance
 		if(player && !ist_wasser()) {
 			player_t::add_maintenance( player, weg->get_besch()->get_wartung(), weg->get_besch()->get_finance_waytype() );
-			weg->set_besitzer( player );
+			weg->set_owner( player );
 		}
 
 		// may result in a crossing, but the wegebauer will recalc all images anyway
@@ -1909,7 +1909,7 @@ bool grund_t::remove_everything_from_way(player_t* player_, waytype_t wt, ribi_t
 		const koord here = pos.get_2d();
 
 		// stops
-		if(flags&is_halt_flag  &&  (get_halt()->get_besitzer()==player_  || player_==welt->get_player(1))) {
+		if(flags&is_halt_flag  &&  (get_halt()->get_owner()==player_  || player_==welt->get_player(1))) {
 			bool remove_halt = get_typ()!=boden;
 			// remove only if there is no other way
 			if(get_weg_nr(1)==NULL) {

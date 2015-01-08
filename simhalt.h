@@ -425,7 +425,7 @@ public:
 
 	void rotate90( const sint16 y_size );
 
-	player_t *get_besitzer() const {return owner_p;}
+	player_t *get_owner() const {return owner_p;}
 
 	// just for info so far
 	sint64 calc_maintenance() const;

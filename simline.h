@@ -196,7 +196,7 @@ public:
 
 	bool get_withdraw() const { return withdraw; }
 
-	player_t *get_besitzer() const {return player;}
+	player_t *get_owner() const {return player;}
 
 };
 

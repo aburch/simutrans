@@ -170,7 +170,7 @@ void reliefkarte_t::add_to_schedule_cache( convoihandle_t cnv, bool with_waypoin
 
 		//cycle on stops
 		//try to read station's coordinates if there's a station at this schedule stop
-		halthandle_t station = haltestelle_t::get_halt( cur.pos, cnv->get_besitzer() );
+		halthandle_t station = haltestelle_t::get_halt( cur.pos, cnv->get_owner() );
 		if(  station.is_bound()  ) {
 			stop_cache.append_unique( station );
 			temp_stop = station->get_basis_pos();
@@ -208,7 +208,7 @@ void reliefkarte_t::add_to_schedule_cache( convoihandle_t cnv, bool with_waypoin
 			if(  (temp_stop.x-old_stop.x)*(temp_stop.y-old_stop.y) == 0  ) {
 				last_diagonal = false;
 			}
-			if(  !schedule_cache.insert_unique_ordered( line_segment_t( temp_stop, temp_offset, old_stop, old_offset, fpl, cnv->get_besitzer(), colore, last_diagonal ), LineSegmentOrdering() )  &&  add_schedule  ) {
+			if(  !schedule_cache.insert_unique_ordered( line_segment_t( temp_stop, temp_offset, old_stop, old_offset, fpl, cnv->get_owner(), colore, last_diagonal ), LineSegmentOrdering() )  &&  add_schedule  ) {
 				// append if added and not yet there
 				if(  !pt_list->is_contained( fpl )  ) {
 					pt_list->append( fpl );
@@ -237,7 +237,7 @@ void reliefkarte_t::add_to_schedule_cache( convoihandle_t cnv, bool with_waypoin
 	if(  stops > 2  ) {
 		// connect to start
 		last_diagonal ^= true;
-		schedule_cache.insert_unique_ordered( line_segment_t( first_stop, first_offset, old_stop, old_offset, fpl, cnv->get_besitzer(), colore, last_diagonal ), LineSegmentOrdering() );
+		schedule_cache.insert_unique_ordered( line_segment_t( first_stop, first_offset, old_stop, old_offset, fpl, cnv->get_owner(), colore, last_diagonal ), LineSegmentOrdering() );
 	}
 }
 
@@ -779,7 +779,7 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 			if(  plan->get_haltlist_count()>0  ) {
 				halthandle_t halt = plan->get_haltlist()[0];
 				if (halt->get_pax_enabled() && !halt->get_pax_connections().empty()) {
-					set_relief_farbe( k, halt->get_besitzer()->get_player_color1() + 3 );
+					set_relief_farbe( k, halt->get_owner()->get_player_color1() + 3 );
 				}
 			}
 			break;
@@ -790,7 +790,7 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 			if(  plan->get_haltlist_count()>0  ) {
 				halthandle_t halt = plan->get_haltlist()[0];
 				if (halt->get_post_enabled() && !halt->get_mail_connections().empty()) {
-					set_relief_farbe( k, halt->get_besitzer()->get_player_color1() + 3 );
+					set_relief_farbe( k, halt->get_owner()->get_player_color1() + 3 );
 				}
 			}
 			break;
@@ -896,14 +896,14 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 			// show ownership
 			{
 				if(  gr->is_halt()  ) {
-					set_relief_farbe(k, gr->get_halt()->get_besitzer()->get_player_color1()+3);
+					set_relief_farbe(k, gr->get_halt()->get_owner()->get_player_color1()+3);
 				}
 				else if(  weg_t *weg = gr->get_weg_nr(0)  ) {
-					set_relief_farbe(k, weg->get_besitzer()==NULL ? COL_ORANGE : weg->get_besitzer()->get_player_color1()+3 );
+					set_relief_farbe(k, weg->get_owner()==NULL ? COL_ORANGE : weg->get_owner()->get_player_color1()+3 );
 				}
 				if(  gebaeude_t *gb = gr->find<gebaeude_t>()  ) {
-					if(  gb->get_besitzer()!=NULL  ) {
-						set_relief_farbe(k, gb->get_besitzer()->get_player_color1()+3 );
+					if(  gb->get_owner()!=NULL  ) {
+						set_relief_farbe(k, gb->get_owner()->get_player_color1()+3 );
 					}
 				}
 				break;
@@ -1270,7 +1270,7 @@ void reliefkarte_t::draw(scr_coord pos)
 					// not there or already part of a line
 					continue;
 				}
-				if(  required_vehicle_owner!= NULL  &&  required_vehicle_owner != cnv->get_besitzer()  ) {
+				if(  required_vehicle_owner!= NULL  &&  required_vehicle_owner != cnv->get_owner()  ) {
 					continue;
 				}
 				if(  transport_type_showed_on_map != simline_t::line  ) {
@@ -1473,7 +1473,7 @@ void reliefkarte_t::draw(scr_coord pos)
 		}
 		else {
 			const int stype = station->get_station_type();
-			color = station->get_besitzer()->get_player_color1()+3;
+			color = station->get_owner()->get_player_color1()+3;
 
 			// invalid=0, loadingbay=1, railstation = 2, dock = 4, busstop = 8, airstop = 16, monorailstop = 32, tramstop = 64, maglevstop=128, narrowgaugestop=256
 			if(  stype > 0  ) {
@@ -1500,7 +1500,7 @@ void reliefkarte_t::draw(scr_coord pos)
 					if(  (stype>>type)&1  ) {
 						image_id img = skinverwaltung_t::station_type->get_bild_nr(type);
 						if(  img!=IMG_LEER  ) {
-							display_color_img( img, temp_stop.x+diagonal_dist+4+(icon/2)*12, temp_stop.y+diagonal_dist+4+(icon&1)*12, station->get_besitzer()->get_player_nr(), false, false );
+							display_color_img( img, temp_stop.x+diagonal_dist+4+(icon/2)*12, temp_stop.y+diagonal_dist+4+(icon&1)*12, station->get_owner()->get_player_nr(), false, false );
 							icon++;
 						}
 					}
@@ -1544,7 +1544,7 @@ void reliefkarte_t::draw(scr_coord pos)
 	if(  display_station.is_bound()  ) {
 		scr_coord temp_stop = karte_to_screen( display_station->get_basis_pos() );
 		temp_stop = temp_stop + pos;
-		display_ddd_proportional_clip( temp_stop.x + 10, temp_stop.y + 7, proportional_string_width( display_station->get_name() ) + 8, 0, display_station->get_besitzer()->get_player_color1()+3, COL_WHITE, display_station->get_name(), false );
+		display_ddd_proportional_clip( temp_stop.x + 10, temp_stop.y + 7, proportional_string_width( display_station->get_name() ) + 8, 0, display_station->get_owner()->get_player_color1()+3, COL_WHITE, display_station->get_name(), false );
 	}
 	max_waiting_change = new_max_waiting_change;	// update waiting tendencies
 
@@ -1634,7 +1634,7 @@ void reliefkarte_t::draw(scr_coord pos)
 
 	if(  mode & MAP_DEPOT  ) {
 		FOR(  slist_tpl<depot_t*>,  const d,  depot_t::get_depot_list()  ) {
-			if(  d->get_besitzer() == welt->get_active_player()  ) {
+			if(  d->get_owner() == welt->get_active_player()  ) {
 				scr_coord depot_pos = karte_to_screen( d->get_pos().get_2d() );
 				depot_pos = depot_pos + pos;
 				// offset of one to avoid

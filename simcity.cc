@@ -2557,10 +2557,10 @@ void stadt_t::build_city_building(const koord k)
 					weg->set_gehweg(true);
 					// if not current city road standard, then replace it
 					if(  weg->get_besch() != welt->get_city_road()  ) {
-						player_t *player = weg->get_besitzer();
+						player_t *player = weg->get_owner();
 						if(  player == NULL  ||  !gr->get_depot()  ) {
 							player_t::add_maintenance( player, -weg->get_besch()->get_wartung(), road_wt);
-							weg->set_besitzer(NULL); // make public
+							weg->set_owner(NULL); // make public
 							weg->set_besch(welt->get_city_road());
 						}
 					}
@@ -2688,11 +2688,11 @@ void stadt_t::renovate_city_building(gebaeude_t *gb)
 					weg->set_gehweg(true);
 					// if not current city road standard, then replace it
 					if(  weg->get_besch() != welt->get_city_road()  ) {
-						player_t *player = weg->get_besitzer();
+						player_t *player = weg->get_owner();
 						if(  player == NULL  ||  !gr->get_depot()  ) {
 							player_t::add_maintenance( player, -weg->get_besch()->get_wartung(), road_wt);
 
-							weg->set_besitzer(NULL); // make public
+							weg->set_owner(NULL); // make public
 							weg->set_besch(welt->get_city_road());
 						}
 					}
@@ -3030,7 +3030,7 @@ void stadt_t::baue()
 		// try to find a public owned building
 		for(  uint8 i=0;  i<4;  i++  ) {
 			gebaeude_t* const gb = pick_any(buildings);
-			if(  player_t::check_owner(gb->get_besitzer(),NULL)  ) {
+			if(  player_t::check_owner(gb->get_owner(),NULL)  ) {
 				renovate_city_building(gb);
 				break;
 			}

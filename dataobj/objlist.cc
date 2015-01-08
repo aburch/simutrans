@@ -887,13 +887,13 @@ void objlist_t::rdwr(loadsave_t *file, koord3d current_pos)
 					haus_tile_besch_t const* const tile = gb.get_tile();
 					if(  tile  ) {
 						switch (tile->get_besch()->get_extra()) {
-							case monorail_wt: bd = new monoraildepot_t( gb.get_pos(), gb.get_besitzer(), tile); break;
-							case tram_wt:     bd = new tramdepot_t(     gb.get_pos(), gb.get_besitzer(), tile); break;
-							default:          bd = new bahndepot_t(     gb.get_pos(), gb.get_besitzer(), tile); break;
+							case monorail_wt: bd = new monoraildepot_t( gb.get_pos(), gb.get_owner(), tile); break;
+							case tram_wt:     bd = new tramdepot_t(     gb.get_pos(), gb.get_owner(), tile); break;
+							default:          bd = new bahndepot_t(     gb.get_pos(), gb.get_owner(), tile); break;
 						}
 					}
 					else {
-						bd = new bahndepot_t( gb.get_pos(), gb.get_besitzer(), NULL );
+						bd = new bahndepot_t( gb.get_pos(), gb.get_owner(), NULL );
 					}
 					bd->rdwr_vehicles(file);
 					new_obj   = bd;
@@ -1104,13 +1104,13 @@ void objlist_t::dump() const
 		return;
 	}
 	else if(capacity==1) {
-		DBG_MESSAGE("objlist_t::dump()","one object \'%s\' owned by sp %p", obj.one->get_name(), obj.one->get_besitzer() );
+		DBG_MESSAGE("objlist_t::dump()","one object \'%s\' owned by sp %p", obj.one->get_name(), obj.one->get_owner() );
 		return;
 	}
 
 	DBG_MESSAGE("objlist_t::dump()","%i objects", top );
 	for(uint8 n=0; n<top; n++) {
-		DBG_MESSAGE( obj.some[n]->get_name(), "at %i owned by sp %p", n, obj.some[n]->get_besitzer() );
+		DBG_MESSAGE( obj.some[n]->get_name(), "at %i owned by sp %p", n, obj.some[n]->get_owner() );
 	}
 }
 

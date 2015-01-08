@@ -90,7 +90,7 @@ const int cost_type_color[MAX_HALT_COST] =
 };
 
 halt_info_t::halt_info_t(halthandle_t halt) :
-		gui_frame_t( halt->get_name(), halt->get_besitzer() ),
+		gui_frame_t( halt->get_name(), halt->get_owner() ),
 		scrolly(&text),
 		text(&freight_info),
 		sort_label(translator::translate("Hier warten/lagern:")),
@@ -177,7 +177,7 @@ halt_info_t::~halt_info_t()
 		buf.printf( "h%u,%s", halt.get_id(), edit_name );
 		tool_t *tool = create_tool( TOOL_RENAME | SIMPLE_TOOL );
 		tool->set_default_param( buf );
-		welt->set_tool( tool, halt->get_besitzer() );
+		welt->set_tool( tool, halt->get_owner() );
 		// since init always returns false, it is safe to delete immediately
 		delete tool;
 	}
@@ -405,7 +405,7 @@ void halt_info_t::update_departures()
 
 	// iterate over all convoys stopping here
 	FOR(  slist_tpl<convoihandle_t>, cnv, halt->get_loading_convois() ) {
-		halthandle_t next_halt = cnv->get_schedule()->get_next_halt(cnv->get_besitzer(),halt);
+		halthandle_t next_halt = cnv->get_schedule()->get_next_halt(cnv->get_owner(),halt);
 		if(  next_halt.is_bound()  ) {
 			halt_info_t::dest_info_t next( next_halt, 0, cnv );
 			destinations.append_unique( next );
@@ -422,8 +422,8 @@ void halt_info_t::update_departures()
 	FOR(  vector_tpl<linehandle_t>, line, halt->registered_lines ) {
 		for(  uint j = 0;  j < line->count_convoys();  j++  ) {
 			convoihandle_t cnv = line->get_convoy(j);
-			if(  cnv.is_bound()  &&  ( cnv->get_state() == convoi_t::DRIVING  ||  cnv->is_waiting() )  &&  haltestelle_t::get_halt( cnv->get_schedule()->get_current_eintrag().pos, cnv->get_besitzer() ) == halt  ) {
-				halthandle_t prev_halt = haltestelle_t::get_halt( cnv->front()->last_stop_pos, cnv->get_besitzer() );
+			if(  cnv.is_bound()  &&  ( cnv->get_state() == convoi_t::DRIVING  ||  cnv->is_waiting() )  &&  haltestelle_t::get_halt( cnv->get_schedule()->get_current_eintrag().pos, cnv->get_owner() ) == halt  ) {
+				halthandle_t prev_halt = haltestelle_t::get_halt( cnv->front()->last_stop_pos, cnv->get_owner() );
 				sint32 delta_t = cur_ticks + calc_ticks_until_arrival( cnv );
 				if(  prev_halt.is_bound()  ) {
 					halt_info_t::dest_info_t prev( prev_halt, delta_t, cnv );
@@ -437,7 +437,7 @@ void halt_info_t::update_departures()
 					}
 					origins.insert_ordered( prev, compare_hi );
 				}
-				halthandle_t next_halt = cnv->get_schedule()->get_next_halt(cnv->get_besitzer(),halt);
+				halthandle_t next_halt = cnv->get_schedule()->get_next_halt(cnv->get_owner(),halt);
 				if(  next_halt.is_bound()  ) {
 					halt_info_t::dest_info_t next( next_halt, delta_t+2000, cnv );
 					destinations.insert_ordered( next, compare_hi );
@@ -447,8 +447,8 @@ void halt_info_t::update_departures()
 	}
 
 	FOR( vector_tpl<convoihandle_t>, cnv, halt->registered_convoys ) {
-		if(  cnv.is_bound()  &&  ( cnv->get_state() == convoi_t::DRIVING  ||  cnv->is_waiting() )  &&  haltestelle_t::get_halt( cnv->get_schedule()->get_current_eintrag().pos, cnv->get_besitzer() ) == halt  ) {
-			halthandle_t prev_halt = haltestelle_t::get_halt( cnv->front()->last_stop_pos, cnv->get_besitzer() );
+		if(  cnv.is_bound()  &&  ( cnv->get_state() == convoi_t::DRIVING  ||  cnv->is_waiting() )  &&  haltestelle_t::get_halt( cnv->get_schedule()->get_current_eintrag().pos, cnv->get_owner() ) == halt  ) {
+			halthandle_t prev_halt = haltestelle_t::get_halt( cnv->front()->last_stop_pos, cnv->get_owner() );
 			sint32 delta_t = cur_ticks + calc_ticks_until_arrival( cnv );
 			if(  prev_halt.is_bound()  ) {
 				halt_info_t::dest_info_t prev( prev_halt, delta_t, cnv );
@@ -462,7 +462,7 @@ void halt_info_t::update_departures()
 				}
 				origins.insert_ordered( prev, compare_hi );
 			}
-			halthandle_t next_halt = cnv->get_schedule()->get_next_halt(cnv->get_besitzer(),halt);
+			halthandle_t next_halt = cnv->get_schedule()->get_next_halt(cnv->get_owner(),halt);
 			if(  next_halt.is_bound()  ) {
 				halt_info_t::dest_info_t next( next_halt, delta_t+2000, cnv );
 				destinations.insert_ordered( next, compare_hi );
@@ -528,7 +528,7 @@ bool halt_info_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 			buf.printf( "h%u,%s", halt.get_id(), edit_name );
 			tool_t *tool = create_tool( TOOL_RENAME | SIMPLE_TOOL );
 			tool->set_default_param( buf );
-			welt->set_tool( tool, halt->get_besitzer() );
+			welt->set_tool( tool, halt->get_owner() );
 			// since init always returns false, it is safe to delete immediately
 			delete tool;
 		}

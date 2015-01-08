@@ -26,7 +26,7 @@
 
 
 halt_detail_t::halt_detail_t(halthandle_t halt_) :
-	gui_frame_t(halt_->get_name(), halt_->get_besitzer()),
+	gui_frame_t(halt_->get_name(), halt_->get_owner()),
 	halt(halt_),
 	scrolly(&cont),
 	txt_info(&buf)
@@ -197,7 +197,7 @@ void halt_detail_t::halt_detail_info()
 	if(  !halt->registered_lines.empty()  ) {
 		for (unsigned int i = 0; i<halt->registered_lines.get_count(); i++) {
 			// Line buttons only if owner ...
-			if (welt->get_active_player()==halt->registered_lines[i]->get_besitzer()) {
+			if (welt->get_active_player()==halt->registered_lines[i]->get_owner()) {
 				button_t *b = new button_t();
 				b->init( button_t::posbutton, NULL, scr_coord(D_MARGIN_LEFT, offset_y) );
 				b->set_targetpos( koord(-1,i) );
@@ -208,7 +208,7 @@ void halt_detail_t::halt_detail_info()
 
 			// Line labels with color of player
 			label_names.append( strdup(halt->registered_lines[i]->get_name()) );
-			gui_label_t *l = new gui_label_t( label_names.back(), PLAYER_FLAG|(halt->registered_lines[i]->get_besitzer()->get_player_color1()+0) );
+			gui_label_t *l = new gui_label_t( label_names.back(), PLAYER_FLAG|(halt->registered_lines[i]->get_owner()->get_player_color1()+0) );
 			l->set_pos( scr_coord(D_MARGIN_LEFT+D_BUTTON_HEIGHT+D_H_SPACE, offset_y) );
 			linelabels.append( l );
 			cont.add_component( l );
@@ -243,7 +243,7 @@ void halt_detail_t::halt_detail_info()
 
 			// Line labels with color of player
 			label_names.append( strdup(halt->registered_convoys[i]->get_name()) );
-			gui_label_t *l = new gui_label_t( label_names.back(), PLAYER_FLAG|(halt->registered_convoys[i]->get_besitzer()->get_player_color1()+0) );
+			gui_label_t *l = new gui_label_t( label_names.back(), PLAYER_FLAG|(halt->registered_convoys[i]->get_owner()->get_player_color1()+0) );
 			l->set_pos( scr_coord(D_MARGIN_LEFT+D_BUTTON_HEIGHT+D_H_SPACE, offset_y) );
 			convoylabels.append( l );
 			cont.add_component( l );
@@ -336,7 +336,7 @@ bool halt_detail_t::action_triggered( gui_action_creator_t *, value_t extra)
 			if(  j < halt->registered_lines.get_count()  ) {
 				linehandle_t line=halt->registered_lines[j];
 				player_t *player=welt->get_active_player();
-				if(  player==line->get_besitzer()  ) {
+				if(  player==line->get_owner()  ) {
 					//TODO:
 					// Change player => change marked lines
 					player->simlinemgmt.show_lineinfo(player,line);

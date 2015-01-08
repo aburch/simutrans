@@ -23,7 +23,7 @@
 
 
 label_info_t::label_info_t(label_t* l) :
-	gui_frame_t( translator::translate("Marker"), l->get_besitzer()),
+	gui_frame_t( translator::translate("Marker"), l->get_owner()),
 	player_name(""),
 	view(l->get_pos(), scr_size( max(64, get_base_tile_raster_width()), max(56, (get_base_tile_raster_width()*7)/8) ))
 {
@@ -31,7 +31,7 @@ label_info_t::label_info_t(label_t* l) :
 	this->player = player;
 	label = l;
 
-	const char *const p_name = label->get_besitzer()->get_name();
+	const char *const p_name = label->get_owner()->get_name();
 	const int min_width = max(290, display_calc_proportional_string_len_width(p_name, strlen(p_name)) + view.get_size().w + 30);
 
 	view.set_pos( scr_coord(min_width - view.get_size().w - 10 , 21) );
@@ -68,7 +68,7 @@ label_info_t::label_info_t(label_t* l) :
  */
 bool label_info_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 {
-	if(komp == &input  &&  welt->get_active_player()==label->get_besitzer()) {
+	if(komp == &input  &&  welt->get_active_player()==label->get_owner()) {
 		// check owner to change text
 		grund_t *gd = welt->lookup(label->get_pos());
 		if(  strcmp(gd->get_text(),edit_name)  ) {
@@ -77,7 +77,7 @@ bool label_info_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 			buf.printf( "m%s,%s", label->get_pos().get_str(), edit_name );
 			tool_t *tool = create_tool( TOOL_RENAME | SIMPLE_TOOL );
 			tool->set_default_param( buf );
-			welt->set_tool( tool, label->get_besitzer() );
+			welt->set_tool( tool, label->get_owner() );
 			// since init always returns false, it is safe to delete immediately
 			delete tool;
 		}

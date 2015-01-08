@@ -5919,7 +5919,7 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.get_count());
 
 	// resolve dummy stops into real stops first ...
 	FOR(vector_tpl<halthandle_t>, const i, haltestelle_t::get_alle_haltestellen()) {
-		if (i->get_besitzer() && i->existiert_in_welt()) {
+		if (i->get_owner() && i->existiert_in_welt()) {
 			i->laden_abschliessen();
 		}
 	}
@@ -5928,7 +5928,7 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.get_count());
 	for(  vector_tpl<halthandle_t>::const_iterator i=haltestelle_t::get_alle_haltestellen().begin(); i!=haltestelle_t::get_alle_haltestellen().end();  ) {
 		halthandle_t const h = *i;
 		++i;
-		if(  !h->get_besitzer()  ||  !h->existiert_in_welt()  ) {
+		if(  !h->get_owner()  ||  !h->existiert_in_welt()  ) {
 			// this stop was only needed for loading goods ...
 			haltestelle_t::destroy(h);	// remove from list
 		}
