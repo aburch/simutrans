@@ -19,7 +19,7 @@ class fahrer_t;
 class grund_t;
 
 /**
- * Route, e.q. for vehicles
+ * Route, e.g. for vehicles
  *
  * @author Hj. Malthaner
  * @date 15.01.00
@@ -51,25 +51,22 @@ public:
 	route_t() : max_axle_load(0xFFFFFFFFl), max_convoy_weight(0xFFFFFFFFl) {};
 
 
-	// this class saves the nodes during route searches
+	/**
+	 * Nodes for A* or breadth-first search
+	 */
 	class ANode {
 	public:
 		ANode * parent;
 		const grund_t* gr;
-		uint32  f, g;
-		uint8 dir;
-		uint8 ribi_from; /// we came from this direction
-		uint16 count;
-		uint8 jps_ribi;  /// extra ribi mask for jump-point search
+		uint32 f;        ///< heuristic for cost to reach target
+		uint32 g;        ///< cost to reach this tile
+		uint8 dir;       ///< driving direction
+		uint8 ribi_from; ///< we came from this direction
+		uint16 count;    ///< length of route up to here
+		uint8 jps_ribi;  ///< extra ribi mask for jump-point search
 
+		/// sort nodes first with respect to f, then with respect to g
 		inline bool operator <= (const ANode &k) const { return f==k.f ? g<=k.g : f<=k.f; }
-#if defined(tpl_sorted_heap_tpl_h)
-		inline bool operator == (const ANode &k) const { return f==k.f  &&  g==k.g; }
-#endif
-#if defined(tpl_HOT_queue_tpl_h)
-		inline bool is_matching(const ANode &l) const { return gr==l.gr; }
-		inline uint32 get_distance() const { return f; }
-#endif
 	};
 
 // These will need to be made non-static if this is ever to be threaded.
