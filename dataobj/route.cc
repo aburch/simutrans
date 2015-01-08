@@ -375,7 +375,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 			break;
 		}
 
-		uint32 topnode_g = !queue.empty() ? queue.front()->g : max_cost;
+		uint32 topnode_f = !queue.empty() ? queue.front()->f : max_cost;
 
 		const ribi_t::ribi way_ribi =  fahr->get_ribi(gr);
 		// testing all four possible directions
@@ -456,10 +456,9 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 					}
 				}
 
-
-				if(  new_g <= topnode_g  ) {
+				if(  new_f <= topnode_f  ) {
 					// do not put in queue if the new node is the best one
-					topnode_g = new_g;
+					topnode_f = new_f;
 					if(  new_top  ) {
 						queue.insert(new_top);
 					}
