@@ -492,13 +492,6 @@ private:
 	sint64 steps_since_last_odometer_increment;
 
 	/**
-	* Set, when there was a income calculation (avoids some cheats)
-	* Since 99.15 it will stored directly in the vehicle_t
-	* @author prissi
-	*/
-	koord3d last_stop_pos;
-
-	/**
 	* Necessary for registering departure and waiting times.
 	* last_stop_pos cannot be used because sea-going ships do not
 	* stop on a halt tile.
