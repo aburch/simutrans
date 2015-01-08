@@ -142,6 +142,7 @@ inline bool ribi_check( ribi_t::ribi ribi, ribi_t::ribi check_ribi )
  */
 const char *check_tile( const grund_t *gr, const player_t *player, waytype_t wt, ribi_t::ribi check_ribi )
 {
+	static karte_ptr_t welt;
 	// not overbuilt transformers
 	if(  gr->find<senke_t>()!=NULL  ||  gr->find<pumpe_t>()!=NULL  ) {
 		return "A bridge must start on a way!";
@@ -193,7 +194,7 @@ const char *check_tile( const grund_t *gr, const player_t *player, waytype_t wt,
 
 		if(  w->get_waytype() != wt  ) {
 			// now check for perpendicular and crossing
-			if(  (ribi_t::doppelt(ribi) ^ ribi_t::doppelt(check_ribi) ) == ribi_t::alle  &&  crossing_logic_t::get_crossing(wt, w->get_waytype(), 0, 0, player->get_welt()->get_timeline_year_month()  )  ) {
+			if(  (ribi_t::doppelt(ribi) ^ ribi_t::doppelt(check_ribi) ) == ribi_t::alle  &&  crossing_logic_t::get_crossing(wt, w->get_waytype(), 0, 0, welt->get_timeline_year_month()  )  ) {
 				return NULL;
 			}
 			return "A bridge must start on a way!";

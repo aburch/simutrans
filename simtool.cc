@@ -2188,7 +2188,7 @@ bool tool_build_way_t::init( player_t *player )
 
 waytype_t tool_build_way_t::get_waytype() const
 {
-	const weg_besch_t *besch = get_besch( player_t::get_welt()->get_timeline_year_month(), false );
+	const weg_besch_t *besch = get_besch( welt->get_timeline_year_month(), false );
 	waytype_t wt = besch ? besch->get_wtyp() : invalid_wt;
 	if (  wt==track_wt  &&  besch->get_styp()==7  ) {
 		wt = tram_wt;

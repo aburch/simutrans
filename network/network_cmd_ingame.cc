@@ -939,8 +939,10 @@ nwc_tool_t::nwc_tool_t(player_t *player, tool_t *tool_, koord3d pos_, uint32 syn
 	init = init_;
 	tool_client_id = 0;
 	flags = tool_->flags;
-	last_sync_step = player_t::get_welt()->get_last_checklist_sync_step();
-	last_checklist = player_t::get_welt()->get_last_checklist();
+
+	karte_ptr_t welt;
+	last_sync_step = welt->get_last_checklist_sync_step();
+	last_checklist = welt->get_last_checklist();
 	// write custom data of tool_ to our internal buffer
 	if (player) {
 		tool_->rdwr_custom_data(&custom_data);

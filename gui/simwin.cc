@@ -1354,7 +1354,7 @@ bool check_pos_win(event_t *ev)
 									{	// change position on map (or follow)
 										koord3d k = wins[i].gui->get_weltpos(true);
 										if(  k!=koord3d::invalid  ) {
-											player_t::get_welt()->get_viewport()->change_world_position( k );
+											wl->get_viewport()->change_world_position( k );
 										}
 									}
 									break;

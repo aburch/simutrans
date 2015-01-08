@@ -328,12 +328,6 @@ public:
 	virtual void rotate90( const sint16 y_size );
 
 	/**
-	* Returns the world the player is in
-	* @author hsiegeln
-	*/
-	static karte_t *get_welt() { return welt; }
-
-	/**
 	* Calculates the assets of the player
 	*/
 	void calc_assets();

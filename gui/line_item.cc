@@ -3,7 +3,6 @@
 #include "line_item.h"
 #include "../simline.h"
 #include "../simmenu.h"
-#include "../player/simplay.h"
 #include "../utils/cbuffer_t.h"
 
 
@@ -27,7 +26,9 @@ void line_scrollitem_t::set_text(char const* const t)
 		buf.printf( "l%u,%s", line.get_id(), t );
 		tool_t *tool = create_tool( TOOL_RENAME | SIMPLE_TOOL );
 		tool->set_default_param( buf );
-		line->get_besitzer()->get_welt()->set_tool( tool, line->get_besitzer() );
+
+		karte_ptr_t welt;
+		welt->set_tool( tool, line->get_besitzer() );
 		// since init always returns false, it is safe to delete immediately
 		delete tool;
 	}

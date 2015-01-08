@@ -18,6 +18,7 @@
 #include "../../dataobj/koord.h"
 #include "../../display/simimg.h"
 
+class karte_ptr_t;
 
 /**
  * Class for buttons in Windows
@@ -82,6 +83,9 @@ private:
 		struct { sint16 x,y; } targetpos;
 	};
 	const char *translated_text;
+
+	// any click will go to this world
+	static karte_ptr_t welt;
 
 	void draw_focus_rect( scr_rect, scr_coord_val offset = 1);
 

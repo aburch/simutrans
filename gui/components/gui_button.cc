@@ -24,7 +24,6 @@
 
 // the following are only needed for the posbutton ...
 #include "../../simworld.h"
-#include "../../player/simplay.h"
 #include "../../boden/grund.h"
 #include "../../display/viewport.h"
 
@@ -49,6 +48,7 @@
 #define RB_BODY_BUTTON (202)
 #define RB_RIGHT_BUTTON (203)
 
+karte_ptr_t button_t::welt;
 
 
 button_t::button_t() :
@@ -319,7 +319,6 @@ void button_t::draw(scr_coord offset)
 			{
 				uint8 offset = get_state_offset();
 				if(  offset == 0  ) {
-					karte_t *welt = player_t::get_welt();
 					if(  grund_t *gr = welt->lookup_kartenboden(targetpos.x,targetpos.y)  ) {
 						offset = welt->get_viewport()->is_on_center( gr->get_pos() );
 					}
