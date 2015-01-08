@@ -2316,7 +2316,6 @@ void haltestelle_t::make_public_and_join( player_t *player )
 				// there are also water tiles, which may not have a building
 				player_t *gb_player=gb->get_besitzer();
 				if(public_owner!=gb_player) {
-					player_t *gb_sp=gb->get_besitzer();
 					sint64 const monthly_costs = welt->get_settings().maint_building * gb->get_tile()->get_besch()->get_level();
 					player_t::add_maintenance( gb_player, -monthly_costs, gb->get_waytype() );
 					player_t::book_construction_costs(gb_player, monthly_costs*60, gr->get_pos().get_2d(), gb->get_waytype());
