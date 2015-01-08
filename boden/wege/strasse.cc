@@ -112,13 +112,14 @@ void strasse_t::rdwr(loadsave_t *file)
 			dbg->warning("strasse_t::rdwr()", "Unknown street %s replaced by %s (old_max_speed %i)", bname, besch->get_name(), old_max_speed );
 		}
 
-		set_besch(besch, true);
+		set_besch(besch, file->get_experimental_version() >= 12);
 #ifndef SPECIAL_RESCUE_12_3
 		if(file->get_experimental_version() >= 12)
 		{
 			replacement_way = loaded_replacement_way;
 		}
 #endif
+
 		if(old_max_speed>0) {
 			set_max_speed(old_max_speed);
 		}

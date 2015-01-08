@@ -79,7 +79,7 @@ void runway_t::rdwr(loadsave_t *file)
 			set_max_speed(old_max_speed);
 		}
 
-		set_besch(besch, true);
+		set_besch(besch, file->get_experimental_version() >= 12);
 #ifndef SPECIAL_RESCUE_12_3
 		if(file->get_experimental_version() >= 12)
 		{

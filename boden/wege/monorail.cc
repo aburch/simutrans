@@ -27,7 +27,7 @@ void monorail_t::rdwr(loadsave_t *file)
 			dbg->fatal("monorail_t::rwdr()", "No monorail way available");
 		}
 		dbg->warning("monorail_t::rwdr()", "Unknown way replaced by monorail %s (old_max_speed %i)", besch->get_name(), old_max_speed );
-		set_besch(besch, true);
+		set_besch(besch, file->get_experimental_version() >= 12);
 		if(old_max_speed>0) {
 			set_max_speed(old_max_speed);
 		}
