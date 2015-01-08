@@ -54,7 +54,7 @@ verkehrsteilnehmer_t::verkehrsteilnehmer_t() :
 	vehikel_basis_t()
 #endif
 {
-	set_besitzer( welt->get_player(1) );
+	set_owner( welt->get_player(1) );
 	time_to_life = 0;
 	weg_next = 0;
 	tiles_since_last_increment = 0;
@@ -123,7 +123,7 @@ verkehrsteilnehmer_t::verkehrsteilnehmer_t(grund_t* bd, uint16 random) :
 	else {
 		pos_next = welt->lookup_kartenboden(get_pos().get_2d() + koord(fahrtrichtung))->get_pos();
 	}
-	set_besitzer( welt->get_player(1) );
+	set_owner( welt->get_player(1) );
 }
 
 
@@ -608,7 +608,7 @@ bool stadtauto_t::ist_weg_frei(grund_t *gr)
 		return false;
 	}
 
-	const player_t *player = str->get_besitzer();
+	const player_t *player = str->get_owner();
 
 	if(player != NULL && player->get_player_nr() != 1 && !player->allows_access_to(1))
 	{
@@ -932,7 +932,7 @@ grund_t* stadtauto_t::hop()
 	if(way && tiles_since_last_increment++ > tiles_per_km)
 	{
 		tiles_since_last_increment -= tiles_per_km;
-		player_t *player = way->get_besitzer();
+		player_t *player = way->get_owner();
 		if(player && player->get_player_nr() != 1)
 		{
 			const sint64 toll = welt->get_settings().get_private_car_toll_per_km();

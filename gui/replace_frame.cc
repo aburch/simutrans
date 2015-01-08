@@ -29,7 +29,7 @@ static bool _is_electrified(const karte_t* welt, const convoihandle_t& cnv)
 }
 
 replace_frame_t::replace_frame_t(convoihandle_t cnv, const char *name):
-	gui_frame_t(translator::translate("Replace"), cnv->get_besitzer()),
+	gui_frame_t(translator::translate("Replace"), cnv->get_owner()),
 	cnv(cnv),
 	replace_line(false), replace_all(false), depot(false),
 	state(state_replace), replaced_so_far(0),
@@ -45,7 +45,7 @@ replace_frame_t::replace_frame_t(convoihandle_t cnv, const char *name):
 	lb_n_skip(NULL, COL_BLACK, gui_label_t::left),
 	convoy_assembler(
 		cnv->get_vehikel(0)->get_besch()->get_waytype(),  
-		cnv->get_besitzer()->get_player_nr(), 
+		cnv->get_owner()->get_player_nr(), 
 		_is_electrified(welt, cnv))
 {	
 	const uint32 a_button_height = 14;
@@ -360,7 +360,7 @@ void replace_frame_t::update_data()
 	} else if (replace_all) {
 		for (uint32 i=0; i<welt->convoys().get_count(); i++) {
 			convoihandle_t cnv_aux=welt->convoys()[i];
-			if (cnv_aux.is_bound() && cnv_aux->get_besitzer()==cnv->get_besitzer() && cnv->has_same_vehicles(cnv_aux)) 
+			if (cnv_aux.is_bound() && cnv_aux->get_owner()==cnv->get_owner() && cnv->has_same_vehicles(cnv_aux)) 
 			{
 				uint8 present_state=get_present_state();
 				if (present_state==(uint8)(-1))
@@ -547,7 +547,7 @@ bool replace_frame_t::action_triggered( gui_action_creator_t *komp,value_t /*p*/
 				for (uint32 i=0; i<welt->convoys().get_count(); i++) 
 				{
 					convoihandle_t cnv_aux=welt->convoys()[i];
-					if (cnv_aux.is_bound() && cnv_aux->get_besitzer()==cnv->get_besitzer() && cnv->has_same_vehicles(cnv_aux)) 
+					if (cnv_aux.is_bound() && cnv_aux->get_owner()==cnv->get_owner() && cnv->has_same_vehicles(cnv_aux)) 
 					{
 						first_success = replace_convoy(cnv_aux, komp == &bt_mark);
 						if(copy == false)
@@ -601,7 +601,7 @@ bool replace_frame_t::infowin_event(const event_t *ev)
 
 void replace_frame_t::draw(scr_coord pos, scr_size size)
 {
-	if (welt->get_active_player() != cnv->get_besitzer()) {
+	if (welt->get_active_player() != cnv->get_owner()) {
 		destroy_win(this);
 		return;
 	}

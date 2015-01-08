@@ -139,7 +139,7 @@ obj_t::~obj_t()
 /**
  * sets owner of object
  */
-void obj_t::set_besitzer(player_t *player)
+void obj_t::set_owner(player_t *player)
 {
 	int i = welt->sp2num(player);
 	assert(i>=0);
@@ -147,7 +147,7 @@ void obj_t::set_besitzer(player_t *player)
 }
 
 
-player_t *obj_t::get_besitzer() const
+player_t *obj_t::get_owner() const
 {
 	return welt->get_player(owner_n);
 }
@@ -163,7 +163,7 @@ void obj_t::info(cbuffer_t & buf, bool is_bridge) const
 	char const* const owner =
 		owner_n == 1              ? translator::translate("Eigenbesitz\n")   :
 		owner_n == PLAYER_UNOWNED ? translator::translate("Kein Besitzer\n") :
-		get_besitzer()->get_name();
+		get_owner()->get_name();
 	tstrncpy(translation, owner, lengthof(translation));
 	// remove trailing linebreaks etc.
 	rtrim(translation);

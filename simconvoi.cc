@@ -305,7 +305,7 @@ bool convoi_t::is_waypoint( koord3d ziel ) const
 			return true;
 		}
 	}
-	return !haltestelle_t::get_halt(ziel,get_besitzer()).is_bound();
+	return !haltestelle_t::get_halt(ziel,get_owner()).is_bound();
 }
 
 
@@ -488,13 +488,13 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_ind
 		linehandle_t new_line = line;
 		if(  !new_line.is_bound()  ) {
 			// if there is a line with id=0 in the savegame try to assign cnv to this line
-			new_line = get_besitzer()->simlinemgmt.get_line_with_id_zero();
+			new_line = get_owner()->simlinemgmt.get_line_with_id_zero();
 		}
 		if(  new_line.is_bound()  ) {
 			if (  !fpl->matches( welt, new_line->get_schedule() )  ) {
 				// 101 version produced broken line ids => we have to find our line the hard way ...
 				vector_tpl<linehandle_t> lines;
-				get_besitzer()->simlinemgmt.get_lines(fpl->get_type(), &lines);
+				get_owner()->simlinemgmt.get_lines(fpl->get_type(), &lines);
 				new_line = linehandle_t();
 				FOR(vector_tpl<linehandle_t>, const l, lines) {
 					if(  fpl->matches( welt, l->get_schedule() )  ) {
@@ -611,7 +611,7 @@ void convoi_t::call_convoi_tool( const char function, const char *extra)
 		param.printf(",%s", extra);
 	}
 	tool->set_default_param(param);
-	welt->set_tool( tool, get_besitzer() );
+	welt->set_tool( tool, get_owner() );
 	// since init always returns false, it is safe to delete immediately
 	delete tool;
 }
@@ -715,7 +715,7 @@ void convoi_t::add_running_cost(sint64 cost, const weg_t *weg)
 {
 	jahresgewinn += cost;
 
-	if(weg && weg->get_besitzer() != get_besitzer() && weg->get_besitzer() != NULL && (!welt->get_settings().get_toll_free_public_roads() || (weg->get_waytype() != road_wt || weg->get_player_nr() != 1)))
+	if(weg && weg->get_owner() != get_owner() && weg->get_owner() != NULL && (!welt->get_settings().get_toll_free_public_roads() || (weg->get_waytype() != road_wt || weg->get_player_nr() != 1)))
 	{
 		// running on non-public way costs toll (since running costas are positive => invert)
 		sint32 toll = -(cost * welt->get_settings().get_way_toll_runningcost_percentage()) / 100l;
@@ -738,13 +738,13 @@ void convoi_t::add_running_cost(sint64 cost, const weg_t *weg)
 			// now add normal way toll be maintenance
 			toll += (weg->get_besch()->get_wartung() * welt->get_settings().get_way_toll_waycost_percentage()) / 100l;
 		}
-		weg->get_besitzer()->book_toll_received( toll, get_schedule()->get_waytype() );
-		get_besitzer()->book_toll_paid(         -toll, get_schedule()->get_waytype() );
+		weg->get_owner()->book_toll_received( toll, get_schedule()->get_waytype() );
+		get_owner()->book_toll_paid(         -toll, get_schedule()->get_waytype() );
 //		book( -toll, CONVOI_WAYTOLL);
 		book( -toll, CONVOI_PROFIT);
 	}
 
-	get_besitzer()->book_running_costs( cost, get_schedule()->get_waytype());
+	get_owner()->book_running_costs( cost, get_schedule()->get_waytype());
 	book( cost, CONVOI_OPERATIONS );
 	book( cost, CONVOI_PROFIT );
 }
@@ -1215,14 +1215,14 @@ bool convoi_t::drive_to()
 			if(distance > min_range)
 			{
 				state = OUT_OF_RANGE;
-				get_besitzer()->report_vehicle_problem(self, ziel);
+				get_owner()->report_vehicle_problem(self, ziel);
 				return false;
 			}
 		}
 
 		// avoid stopping midhalt
 		if(  start==ziel  ) {
-			halthandle_t halt = haltestelle_t::get_halt(ziel,get_besitzer());
+			halthandle_t halt = haltestelle_t::get_halt(ziel,get_owner());
 			if(  halt.is_bound()  &&  route.is_contained(start)  ) {
 				for(  uint32 i=route.index_of(start);  i<route.get_count();  i++  ) {
 					grund_t *gr = welt->lookup(route.position_bei(i));
@@ -1262,7 +1262,7 @@ bool convoi_t::drive_to()
 			linieneintrag_t const * schedule_entry = &fpl->get_current_eintrag();
 			while(success && counter--)
 			{
-				if(schedule_entry->reverse || haltestelle_t::get_halt(schedule_entry->pos, get_besitzer()).is_bound())
+				if(schedule_entry->reverse || haltestelle_t::get_halt(schedule_entry->pos, get_owner()).is_bound())
 				{
 					// convoy must stop at current route end.
 					break;
@@ -1279,7 +1279,7 @@ bool convoi_t::drive_to()
 			{
 				state = NO_ROUTE;
 				no_route_retry_count = 0;
-				get_besitzer()->report_vehicle_problem( self, ziel );
+				get_owner()->report_vehicle_problem( self, ziel );
 			}
 			// wait 25s before next attempt
 			wait_lock = 25000;
@@ -1321,7 +1321,7 @@ bool convoi_t::drive_to()
 						// we are stuck on our first routing attempt => give up
 						if(  state != NO_ROUTE  ) {
 							state = NO_ROUTE;
-							get_besitzer()->report_vehicle_problem( self, ziel );
+							get_owner()->report_vehicle_problem( self, ziel );
 						}
 						// wait 25s before next attempt
 						wait_lock = 25000;
@@ -1486,7 +1486,7 @@ void convoi_t::step()
 								{
 									if(replace->get_replacing_vehicle(i) == fahr[j]->get_besch()->get_upgrades(c))
 									{
-										veh = vehikelbauer_t::baue(get_pos(), get_besitzer(), NULL, replace->get_replacing_vehicle(i), true);
+										veh = vehikelbauer_t::baue(get_pos(), get_owner(), NULL, replace->get_replacing_vehicle(i), true);
 										upgrade_vehicle(j, veh);
 										remove_vehikel_bei(j);
 										goto end_loop;
@@ -1556,7 +1556,7 @@ end_loop:
 						if (line->get_replacing_convoys_count()==0) {
 							char buf[256];
 							sprintf(buf, translator::translate("Replacing\nvehicles of\n%-20s\ncompleted"), line->get_name());
-							welt->get_message()->add_message(buf, home_depot.get_2d(),message_t::general, PLAYER_FLAG|get_besitzer()->get_player_nr(), IMG_LEER);
+							welt->get_message()->add_message(buf, home_depot.get_2d(),message_t::general, PLAYER_FLAG|get_owner()->get_player_nr(), IMG_LEER);
 						}
 
 					}
@@ -1679,15 +1679,15 @@ end_loop:
 						}
 					}
 
-					halthandle_t h = haltestelle_t::get_halt(get_pos(), get_besitzer());
-					if(h.is_bound() && h == haltestelle_t::get_halt(fpl->get_current_eintrag().pos, get_besitzer()))
+					halthandle_t h = haltestelle_t::get_halt(get_pos(), get_owner());
+					if(h.is_bound() && h == haltestelle_t::get_halt(fpl->get_current_eintrag().pos, get_owner()))
 					{
 						// We are at the station we are scheduled to be at
 						// (possibly a different platform)
 						if (route.get_count() > 0)
 						{
 							koord3d const& pos = route.back();
-							if (h == haltestelle_t::get_halt(pos, get_besitzer()))
+							if (h == haltestelle_t::get_halt(pos, get_owner()))
 							{
 								// If this is also the station at the end of the current route
 								// (the correct platform)
@@ -1852,7 +1852,7 @@ end_loop:
 
 		// immediate action needed
 		case LEAVING_DEPOT:
-			get_besitzer()->simlinemgmt.get_lines(fpl->get_type(), &lines);	
+			get_owner()->simlinemgmt.get_lines(fpl->get_type(), &lines);	
 			FOR(vector_tpl<linehandle_t>, const l, lines)
 			{
 				if(fpl->matches(welt, l->get_schedule()))
@@ -2006,7 +2006,7 @@ void convoi_t::new_month()
 	else {
 		my_waytype = ignore_wt;
 	}
-	get_besitzer()->book_vehicle_maintenance(monthly_cost, my_waytype);
+	get_owner()->book_vehicle_maintenance(monthly_cost, my_waytype);
 
 	// everything normal: update history
 	for (int j = 0; j<MAX_CONVOI_COST; j++)
@@ -2036,11 +2036,11 @@ void convoi_t::new_month()
 	// remind every new month again
 	if(state == NO_ROUTE)
 	{
-		get_besitzer()->report_vehicle_problem(self, get_pos());
+		get_owner()->report_vehicle_problem(self, get_pos());
 	}
 	else if(state == OUT_OF_RANGE)
 	{
-		get_besitzer()->report_vehicle_problem(self, fpl->get_current_eintrag().pos);
+		get_owner()->report_vehicle_problem(self, fpl->get_current_eintrag().pos);
 	}
 	// check for traffic jam
 	if(state==WAITING_FOR_CLEARANCE) {
@@ -2070,7 +2070,7 @@ void convoi_t::new_month()
 			}
 		}
 		if(  notify  ) {
-			get_besitzer()->report_vehicle_problem( self, koord3d::invalid );
+			get_owner()->report_vehicle_problem( self, koord3d::invalid );
 		}
 		state = WAITING_FOR_CLEARANCE_TWO_MONTHS;
 	}
@@ -2079,7 +2079,7 @@ void convoi_t::new_month()
 		state = CAN_START_ONE_MONTH;
 	}
 	else if(state==CAN_START_ONE_MONTH  ||  state==CAN_START_TWO_MONTHS  ) {
-		get_besitzer()->report_vehicle_problem( self, koord3d::invalid );
+		get_owner()->report_vehicle_problem( self, koord3d::invalid );
 		state = CAN_START_TWO_MONTHS;
 	}
 	// check for obsolete vehicles in the convoi
@@ -2243,7 +2243,7 @@ void convoi_t::ziel_erreicht()
 
 		if (!replace || !replace->get_autostart()) {
 			buf.printf( translator::translate("!1_DEPOT_REACHED"), get_name() );
-			welt->get_message()->add_message(buf, v->get_pos().get_2d(),message_t::warnings, PLAYER_FLAG|get_besitzer()->get_player_nr(), IMG_LEER);
+			welt->get_message()->add_message(buf, v->get_pos().get_2d(),message_t::warnings, PLAYER_FLAG|get_owner()->get_player_nr(), IMG_LEER);
 		}
 
 		enter_depot(dp);
@@ -2362,7 +2362,7 @@ DBG_MESSAGE("convoi_t::add_vehikel()","extend array_tpl to %i totals.",max_rail_
 		if(!has_obsolete  &&  welt->use_timeline()) {
 			has_obsolete = info->is_obsolete( welt->get_timeline_year_month(), welt );
 		}
-		player_t::add_maintenance( get_besitzer(), info->get_maintenance(), info->get_waytype() );
+		player_t::add_maintenance( get_owner(), info->get_maintenance(), info->get_waytype() );
 	}
 	else {
 		return false;
@@ -2493,7 +2493,7 @@ vehikel_t *convoi_t::remove_vehikel_bei(uint16 i)
 			//sum_gear_und_leistung -= (info->get_leistung() * info->get_gear() *welt->get_settings().get_global_power_factor_percent() + 50) / 100;
 			//sum_gewicht -= info->get_gewicht();
 			//sum_running_costs += info->get_betriebskosten();
-			//player_t::add_maintenance( get_besitzer(), -info->get_maintenance(), info->get_waytype() );
+			//player_t::add_maintenance( get_owner(), -info->get_maintenance(), info->get_waytype() );
 		}
 		//sum_gesamtgewicht = sum_gewicht;
 		calc_loading();
@@ -3416,7 +3416,7 @@ void convoi_t::rdwr(loadsave_t *file)
 			// freight will be lost, but game will be loadable
 			if(i==0  &&  v->get_besch()->get_waytype()==monorail_wt  &&  v->get_typ()==obj_t::waggon) {
 				override_monorail = true;
-				vehikel_t *v_neu = new monorail_waggon_t( v->get_pos(), v->get_besch(), v->get_besitzer(), NULL );
+				vehikel_t *v_neu = new monorail_waggon_t( v->get_pos(), v->get_besch(), v->get_owner(), NULL );
 				v->loesche_fracht();
 				delete v;
 				v = v_neu;
@@ -3437,7 +3437,7 @@ void convoi_t::rdwr(loadsave_t *file)
 				//sum_gear_und_leistung += (info->get_leistung() * info->get_gear() *welt->get_settings().get_global_power_factor_percent() + 50) / 100;
 				//sum_gewicht += info->get_gewicht();
 				is_electric |= info->get_engine_type()==vehikel_besch_t::electric;
-				player_t::add_maintenance( get_besitzer(), info->get_maintenance(), info->get_waytype() );
+				player_t::add_maintenance( get_owner(), info->get_maintenance(), info->get_waytype() );
 			}
 
 			// some versions save vehicles after leaving depot with koord3d::invalid
@@ -4285,7 +4285,7 @@ void convoi_t::zeige_info()
 {
 	if(  in_depot()  ) {
 		// Knightly : if ownership matches, we can try to open the depot dialog
-		if(  get_besitzer()==welt->get_active_player()  ) {
+		if(  get_owner()==welt->get_active_player()  ) {
 			grund_t *const ground = welt->lookup( get_home_depot() );
 			if(  ground  ) {
 				depot_t *const depot = ground->get_depot();
@@ -4407,7 +4407,7 @@ void convoi_t::open_schedule_window( bool show )
 	// manipulation of schedule not allowd while:
 	// - just starting
 	// - a line update is pending
-	if(  (state==FAHRPLANEINGABE  ||  line_update_pending.is_bound())  &&  get_besitzer()==welt->get_active_player()  ) {
+	if(  (state==FAHRPLANEINGABE  ||  line_update_pending.is_bound())  &&  get_owner()==welt->get_active_player()  ) {
 		if (show) {
 			create_win( new news_img("Not allowed!\nThe convoi's schedule can\nnot be changed currently.\nTry again later!"), w_time_delete, magic_none );
 		}
@@ -4430,7 +4430,7 @@ void convoi_t::open_schedule_window( bool show )
 
 	if(  show  ) {
 		// Fahrplandialog oeffnen
-		create_win( new fahrplan_gui_t(fpl,get_besitzer(),self), w_info, (ptrdiff_t)fpl );
+		create_win( new fahrplan_gui_t(fpl,get_owner(),self), w_info, (ptrdiff_t)fpl );
 		// TODO: what happens if no client opens the window??
 	}
 	if(fpl)
@@ -4483,7 +4483,7 @@ void convoi_t::laden() //"load" (Babelfish)
 
 	const koord3d pos3d = front()->get_pos();
 	koord pos;
-	halthandle_t new_halt = haltestelle_t::get_halt(pos3d, front()->get_besitzer());
+	halthandle_t new_halt = haltestelle_t::get_halt(pos3d, front()->get_owner());
 	if(new_halt.is_bound() || !halt.is_bound())
 	{
 		pos = pos3d.get_2d();
@@ -4513,7 +4513,7 @@ void convoi_t::laden() //"load" (Babelfish)
 		{			
 			const sint64 journey_time_ticks = arrival_time - iter.value.departure_time;
 			const koord3d halt_position = fpl->eintrag.get_element(iter.key.entry).pos; 
-			const halthandle_t departure_halt = haltestelle_t::get_halt(halt_position, front()->get_besitzer()); 
+			const halthandle_t departure_halt = haltestelle_t::get_halt(halt_position, front()->get_owner()); 
 			if(departure_halt.is_bound())
 			{
 				if(best_times_in_schedule.is_contained(departure_halt.get_id()))
@@ -4647,7 +4647,7 @@ void convoi_t::laden() //"load" (Babelfish)
 	
 	if(halt.is_bound())
 	{
-		//const player_t* owner = halt->get_besitzer(); //"get owner" (Google)
+		//const player_t* owner = halt->get_owner(); //"get owner" (Google)
 		const grund_t* gr = welt->lookup(fpl->get_current_eintrag().pos);
 		const weg_t *w = gr ? gr->get_weg(fpl->get_waytype()) : NULL;
 		bool tram_stop_public = false;
@@ -4655,13 +4655,13 @@ void convoi_t::laden() //"load" (Babelfish)
 		{
 			const grund_t* gr = welt->lookup(fpl->get_current_eintrag().pos);
 			const weg_t *street = gr ? gr->get_weg(road_wt) : NULL;
-			if(street && (street->get_besitzer() == get_besitzer() || street->get_besitzer() == NULL || street->get_besitzer()->allows_access_to(get_besitzer()->get_player_nr())))
+			if(street && (street->get_owner() == get_owner() || street->get_owner() == NULL || street->get_owner()->allows_access_to(get_owner()->get_player_nr())))
 			{
 				tram_stop_public = true;
 			}
 		}
-		const player_t *player = w ? w->get_besitzer() : NULL;
-		if(halt->check_access(get_besitzer()) || (w && player == NULL) || (w && player->allows_access_to(get_besitzer()->get_player_nr())) || tram_stop_public)
+		const player_t *player = w ? w->get_owner() : NULL;
+		if(halt->check_access(get_owner()) || (w && player == NULL) || (w && player->allows_access_to(get_owner()->get_player_nr())) || tram_stop_public)
 		{
 			// loading/unloading ...
 			// NOTE: Revenue is calculated here.
@@ -5003,7 +5003,7 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 
 		// Reset last_stop_pos for all vehicles.
 		koord3d pos = v->get_pos();
-		if(haltestelle_t::get_halt(pos, v->get_besitzer()).is_bound())
+		if(haltestelle_t::get_halt(pos, v->get_owner()).is_bound())
 		{
 			v->last_stop_pos = pos;
 		}
@@ -5147,7 +5147,7 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 		}
 
 		//  Apportion revenue for air/sea ports
-		if(halt.is_bound() && halt->get_besitzer() != owner)
+		if(halt.is_bound() && halt->get_owner() != owner)
 		{
 			sint64 port_charge = 0;
 			if(gr->ist_wasser())
@@ -5161,11 +5161,11 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 				port_charge = (accumulated_revenue * welt->get_settings().get_airport_toll_revenue_percentage()) / 100;
 			}
 			if (port_charge != 0) {
-				if(welt->get_active_player() == halt->get_besitzer())
+				if(welt->get_active_player() == halt->get_owner())
 				{
-					halt->get_besitzer()->add_money_message(port_charge, front()->get_pos().get_2d());
+					halt->get_owner()->add_money_message(port_charge, front()->get_pos().get_2d());
 				}
-				halt->get_besitzer()->book_toll_received(port_charge, get_schedule()->get_waytype() );
+				halt->get_owner()->book_toll_received(port_charge, get_schedule()->get_waytype() );
 				owner->book_toll_paid(-port_charge, get_schedule()->get_waytype() );
 				book(-port_charge, CONVOI_PROFIT);
 			}
@@ -5188,7 +5188,7 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 	if(go_on_ticks == WAIT_INFINITE)
 	{
 		const sint64 departure_time = (arrival_time + (sint64)current_loading_time) - (sint64)reversing_time;
-		if(haltestelle_t::get_halt(get_pos(), get_besitzer()) != haltestelle_t::get_halt(fpl->get_current_eintrag().pos, get_besitzer()))
+		if(haltestelle_t::get_halt(get_pos(), get_owner()) != haltestelle_t::get_halt(fpl->get_current_eintrag().pos, get_owner()))
 		{
 			// Sometimes, for some reason, the loading method is entered with the wrong schedule entry. Make sure that this does not cause
 			// convoys to become stuck trying to get a full load at stops where this is not possible (freight consumers, etc.).
@@ -5737,7 +5737,7 @@ void convoi_t::register_stops()
 {
 	if(  fpl  ) {
 		FOR(minivec_tpl<linieneintrag_t>, const& i, fpl->eintrag) {
-			halthandle_t const halt = haltestelle_t::get_halt(i.pos, get_besitzer());
+			halthandle_t const halt = haltestelle_t::get_halt(i.pos, get_owner());
 			if(  halt.is_bound()  ) {
 				halt->add_convoy(self);
 			}
@@ -5754,7 +5754,7 @@ void convoi_t::unregister_stops()
 {
 	if(  fpl  ) {
 		FOR(minivec_tpl<linieneintrag_t>, const& i, fpl->eintrag) {
-			halthandle_t const halt = haltestelle_t::get_halt(i.pos, get_besitzer());
+			halthandle_t const halt = haltestelle_t::get_halt(i.pos, get_owner());
 			if(  halt.is_bound()  ) {
 				halt->remove_convoy(self);
 			}
@@ -5940,7 +5940,7 @@ public:
 	};
 	virtual bool ist_ziel( const grund_t* gr, const grund_t* )
 	{
-		return gr->get_depot() && gr->get_depot()->get_besitzer() == master->get_besitzer() && gr->get_depot()->get_tile()->get_besch()->get_enabled() & traction_type;
+		return gr->get_depot() && gr->get_depot()->get_owner() == master->get_owner() && gr->get_depot()->get_tile()->get_besch()->get_enabled() & traction_type;
 	};
 	virtual ribi_t::ribi get_ribi( const grund_t* gr) const
 	{
@@ -5960,7 +5960,7 @@ void convoi_t::set_depot_when_empty(bool new_dwe)
 	}
 	else if(new_dwe)
 	{
-		go_to_depot(get_besitzer() == welt->get_active_player());
+		go_to_depot(get_owner() == welt->get_active_player());
 	}
 }
 
@@ -6159,7 +6159,7 @@ DBG_MESSAGE("convoi_t::go_to_depot()","convoi state %i => cannot change schedule
 		dbg->warning("convoi_t::go_to_depot()", "Depot found but could not be inserted in schedule for convoy %s", get_name());
 		success = false;
 	}
-	if ( (!success || show_success) && get_besitzer() == welt->get_active_player())
+	if ( (!success || show_success) && get_owner() == welt->get_active_player())
 	{
 		create_win(new news_img(txt), w_time_delete, magic_none);
 	}
@@ -6888,7 +6888,7 @@ void convoi_t::emergency_go_to_depot()
 		depot_t* dep = welt->lookup(home_depot) ? welt->lookup(home_depot)->get_depot() : NULL;
 		if(!dep)
 		{
-			dep = depot_t::find_depot(this->get_pos(), get_depot_type(), get_besitzer(), true);
+			dep = depot_t::find_depot(this->get_pos(), get_depot_type(), get_owner(), true);
 		}
 		if(dep)
 		{
@@ -6898,7 +6898,7 @@ void convoi_t::emergency_go_to_depot()
 			cbuffer_t buf;
 			buf.printf( translator::translate("No route to depot for convoy %s: teleported to depot!"), get_name() );
 			const vehikel_t* v = front();
-			welt->get_message()->add_message(buf, v->get_pos().get_2d(),message_t::warnings, PLAYER_FLAG|get_besitzer()->get_player_nr(), IMG_LEER);
+			welt->get_message()->add_message(buf, v->get_pos().get_2d(),message_t::warnings, PLAYER_FLAG|get_owner()->get_player_nr(), IMG_LEER);
 
 			enter_depot(dep);
 			// Do NOT do the convoi_arrived here: it's done in enter_depot!
@@ -6912,7 +6912,7 @@ void convoi_t::emergency_go_to_depot()
 			cbuffer_t buf;
 			buf.printf( translator::translate("No route and no depot for convoy %s: convoy has been sold!"), get_name() );
 			const vehikel_t* v = front();
-			welt->get_message()->add_message(buf, v->get_pos().get_2d(),message_t::warnings, PLAYER_FLAG|get_besitzer()->get_player_nr(), IMG_LEER);
+			welt->get_message()->add_message(buf, v->get_pos().get_2d(),message_t::warnings, PLAYER_FLAG|get_owner()->get_player_nr(), IMG_LEER);
 
 			// The player can engineer this deliberately by blowing up depots and tracks, so it isn't always a game error.
 			// But it usually is an error, so report it as one.

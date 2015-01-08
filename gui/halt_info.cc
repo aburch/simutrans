@@ -107,7 +107,7 @@ const int cost_type_color[MAX_HALT_COST] =
 #define L_CHART_INDENT (66)
 
 halt_info_t::halt_info_t(halthandle_t halt) :
-		gui_frame_t( halt->get_name(), halt->get_besitzer() ),
+		gui_frame_t( halt->get_name(), halt->get_owner() ),
 		scrolly(&text),
 		text(&freight_info),
 		sort_label(translator::translate("Hier warten/lagern:")),
@@ -220,7 +220,7 @@ halt_info_t::~halt_info_t()
 		buf.printf( "h%u,%s", halt.get_id(), edit_name );
 		tool_t *tool = create_tool( TOOL_RENAME | SIMPLE_TOOL );
 		tool->set_default_param( buf );
-		welt->set_tool( tool, halt->get_besitzer() );
+		welt->set_tool( tool, halt->get_owner() );
 		// since init always returns false, it is safe to delete immediately
 		delete tool;
 	}
@@ -434,7 +434,7 @@ void halt_info_t::update_departures()
 			continue;
 		}
 
-		halthandle_t prev_halt = haltestelle_t::get_halt(cnv->front()->last_stop_pos, cnv->get_besitzer());
+		halthandle_t prev_halt = haltestelle_t::get_halt(cnv->front()->last_stop_pos, cnv->get_owner());
 		delta_t = iter.value - cur_ticks;
 
 		halt_info_t::dest_info_t prev(prev_halt, max(delta_t, 0l), cnv);
@@ -462,7 +462,7 @@ void halt_info_t::update_departures()
 			continue;
 		}
 
-		halthandle_t next_halt = cnv->get_schedule()->get_next_halt(cnv->get_besitzer(), halt);
+		halthandle_t next_halt = cnv->get_schedule()->get_next_halt(cnv->get_owner(), halt);
 		delta_t = iter.value - cur_ticks;
 		
 		halt_info_t::dest_info_t next(next_halt, max(delta_t, 0l), cnv);
@@ -535,7 +535,7 @@ bool halt_info_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 			buf.printf( "h%u,%s", halt.get_id(), edit_name );
 			tool_t *tool = create_tool( TOOL_RENAME | SIMPLE_TOOL );
 			tool->set_default_param( buf );
-			welt->set_tool( tool, halt->get_besitzer() );
+			welt->set_tool( tool, halt->get_owner() );
 			// since init always returns false, it is safe to delete immediately
 			delete tool;
 		}

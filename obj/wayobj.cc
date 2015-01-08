@@ -63,7 +63,7 @@ wayobj_t::wayobj_t(loadsave_t* const file) :
 }
 
 
-wayobj_t::wayobj_t(koord3d const pos, player_t* const besitzer, ribi_t::ribi const d, way_obj_besch_t const* const b) : 
+wayobj_t::wayobj_t(koord3d const pos, player_t* const owner, ribi_t::ribi const d, way_obj_besch_t const* const b) : 
 #ifdef INLINE_DING_TYPE
 	obj_no_info_t(obj_t::wayobj, pos)
 #else
@@ -72,7 +72,7 @@ wayobj_t::wayobj_t(koord3d const pos, player_t* const besitzer, ribi_t::ribi con
 {
 	besch = b;
 	dir = d;
-	set_besitzer(besitzer);
+	set_owner(owner);
 }
 
 
@@ -81,7 +81,7 @@ wayobj_t::~wayobj_t()
 	if(!besch) {
 		return;
 	}
-	player_t::add_maintenance(get_besitzer(), -besch->get_wartung(), get_waytype());
+	player_t::add_maintenance(get_owner(), -besch->get_wartung(), get_waytype());
 	if(besch->get_own_wtyp()==overheadlines_wt) {
 		grund_t *gr=welt->lookup(get_pos());
 		weg_t *weg=NULL;
@@ -310,7 +310,7 @@ void wayobj_t::laden_abschliessen()
 		}
 	}
 
-	player_t::add_maintenance(get_besitzer(), besch->get_wartung(), besch->get_wtyp());
+	player_t::add_maintenance(get_owner(), besch->get_wartung(), besch->get_wtyp());
 }
 
 
@@ -350,7 +350,7 @@ void wayobj_t::calc_bild()
 		if(!w) {
 			dbg->error("wayobj_t::calc_bild()","without way at (%s)", get_pos().get_str() );
 			// well, we are not on a way anymore? => delete us
-			entferne(get_besitzer());
+			entferne(get_owner());
 			delete this;
 			gr->set_flag(grund_t::dirty);
 #ifdef MULTI_THREAD
@@ -427,14 +427,14 @@ void wayobj_t::calc_bild()
 
 /* better use this constrcutor for new wayobj; it will extend a matching obj or make an new one
  */
-const char *wayobj_t::extend_wayobj_t(koord3d pos, player_t *besitzer, ribi_t::ribi dir, const way_obj_besch_t *besch)
+const char *wayobj_t::extend_wayobj_t(koord3d pos, player_t *owner, ribi_t::ribi dir, const way_obj_besch_t *besch)
 {
 	grund_t *gr=welt->lookup(pos);
 	if(gr) 
 	{
 		wayobj_t *existing_wayobj = gr->get_wayobj( besch->get_wtyp() );
 		if( existing_wayobj ) {
-			if(  existing_wayobj->get_besch()->get_topspeed() < besch->get_topspeed()  &&  player_t::check_owner(besitzer, existing_wayobj->get_besitzer())  ) {
+			if(  existing_wayobj->get_besch()->get_topspeed() < besch->get_topspeed()  &&  player_t::check_owner(owner, existing_wayobj->get_owner())  ) {
 				// replace slower by faster
 				dir = dir | existing_wayobj->get_dir();
 				gr->set_flag(grund_t::dirty);
@@ -472,7 +472,7 @@ const char *wayobj_t::extend_wayobj_t(koord3d pos, player_t *besitzer, ribi_t::r
 		}
 
 		// nothing found => make a new one
-		wayobj_t *wo = new wayobj_t(pos,besitzer,dir,besch);
+		wayobj_t *wo = new wayobj_t(pos,owner,dir,besch);
 		gr->obj_add(wo);
 		wo->laden_abschliessen();
 		wo->calc_bild();
@@ -485,7 +485,7 @@ const char *wayobj_t::extend_wayobj_t(koord3d pos, player_t *besitzer, ribi_t::r
 				to->calc_bild();
 			}
 		}
-		player_t::book_construction_costs( besitzer,  -besch->get_preis(), pos.get_2d(), besch->get_wtyp());
+		player_t::book_construction_costs( owner,  -besch->get_preis(), pos.get_2d(), besch->get_wtyp());
 
 		for( uint8 i = 0; i < 4; i++ ) {
 		// Extend wayobjects around the new one, that aren't already connected.

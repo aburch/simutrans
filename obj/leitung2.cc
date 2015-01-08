@@ -72,7 +72,7 @@ int leitung_t::gimme_neighbours(leitung_t **conn)
 			// both ground or both tunnel or both not tunnel
 			bool const ok = (gr->ist_karten_boden()  &&  gr_base->ist_karten_boden())  ||  (gr->ist_tunnel()==gr_base->ist_tunnel());
 			if(  lt  &&  (ribi_t::rueckwaerts(ribi_t::nsow[i]) & get_powerline_ribi(gr))  &&  ok  ) {
-				if(lt->get_besitzer()->allows_access_to(get_besitzer()->get_player_nr()) || get_besitzer()->is_public_service())
+				if(lt->get_owner()->allows_access_to(get_owner()->get_player_nr()) || get_owner()->is_public_service())
 				{
 					conn[i] = lt;
 					count++;
@@ -127,7 +127,7 @@ leitung_t::leitung_t(typ type, koord3d pos, player_t *player) : obj_t(type, pos)
 	city = NULL;
 	bild = IMG_LEER;
 	set_net(NULL);
-	set_besitzer( player );
+	set_owner( player );
 	set_besch(wegbauer_t::leitung_besch);
 	modified_production_delta_t = welt->calc_adjusted_monthly_figure(PRODUCTION_DELTA_T);
 }
@@ -140,7 +140,7 @@ leitung_t::leitung_t(koord3d pos, player_t *player) : obj_t(pos)
 	city = NULL;
 	bild = IMG_LEER;
 	set_net(NULL);
-	set_besitzer( player );
+	set_owner( player );
 	set_besch(wegbauer_t::leitung_besch);
 	modified_production_delta_t = welt->calc_adjusted_monthly_figure(PRODUCTION_DELTA_T);
 }
@@ -182,7 +182,7 @@ leitung_t::~leitung_t()
 			delete net;
 		}
 		if(!gr->ist_tunnel()) {
-			player_t::add_maintenance(get_besitzer(), -besch->get_wartung(), powerline_wt);
+			player_t::add_maintenance(get_owner(), -besch->get_wartung(), powerline_wt);
 		}
 	}
 }
@@ -197,14 +197,14 @@ void leitung_t::entferne(player_t *player) //"remove".
 		// If this is a power line crossing a way, then this is not owned in any event.
 		land_value = 0;
 	}
-	if(player == get_besitzer())
+	if(player == get_owner())
 	{
 		player_t::book_construction_costs(player, -besch->get_preis() / 2 - land_value, get_pos().get_2d(), powerline_wt);
 	}
 	else
 	{
 		player_t::book_construction_costs(player, -besch->get_preis() / 2, get_pos().get_2d(), powerline_wt);
-		player_t::book_construction_costs(get_besitzer(), -land_value, get_pos().get_2d(), powerline_wt);
+		player_t::book_construction_costs(get_owner(), -land_value, get_pos().get_2d(), powerline_wt);
 	}
 	mark_image_dirty( bild, 0 );
 }
@@ -431,7 +431,7 @@ void leitung_t::laden_abschliessen()
 	const grund_t *gr = welt->lookup(get_pos());
 	assert(gr);
 
-	player_t::add_maintenance(get_besitzer(), besch->get_wartung(), powerline_wt);
+	player_t::add_maintenance(get_owner(), besch->get_wartung(), powerline_wt);
 }
 
 
@@ -607,7 +607,7 @@ pumpe_t::~pumpe_t()
 		fab = NULL;
 	}
 	pumpe_list.remove( this );
-	player_t::add_maintenance(get_besitzer(), (sint32)welt->get_settings().cst_maintain_transformer, powerline_wt);
+	player_t::add_maintenance(get_owner(), (sint32)welt->get_settings().cst_maintain_transformer, powerline_wt);
 }
 
 
@@ -645,7 +645,7 @@ void pumpe_t::step(long delta_t)
 void pumpe_t::laden_abschliessen()
 {
 	leitung_t::laden_abschliessen();
-	player_t::add_maintenance(get_besitzer(), -welt->get_settings().cst_maintain_transformer, powerline_wt);
+	player_t::add_maintenance(get_owner(), -welt->get_settings().cst_maintain_transformer, powerline_wt);
 
 	assert(get_net());
 
@@ -773,7 +773,7 @@ senke_t::~senke_t()
 			}
 		}
 	}
-	player_t::add_maintenance(get_besitzer(), welt->get_settings().cst_maintain_transformer, powerline_wt);
+	player_t::add_maintenance(get_owner(), welt->get_settings().cst_maintain_transformer, powerline_wt);
 }
 
 
@@ -983,7 +983,7 @@ void senke_t::step(long delta_t)
 
 	// Income rollover
 	if(max_einkommen>(2000<<11)) {
-		get_besitzer()->book_revenue(einkommen >> 11, get_pos().get_2d(), powerline_wt);
+		get_owner()->book_revenue(einkommen >> 11, get_pos().get_2d(), powerline_wt);
 		einkommen = 0;
 		max_einkommen = 1;
 	}
@@ -1068,7 +1068,7 @@ bool senke_t::sync_step(long delta_t)
 void senke_t::laden_abschliessen()
 {
 	leitung_t::laden_abschliessen();
-	player_t::add_maintenance(get_besitzer(), -welt->get_settings().cst_maintain_transformer, powerline_wt);
+	player_t::add_maintenance(get_owner(), -welt->get_settings().cst_maintain_transformer, powerline_wt);
 
 	check_industry_connexion();
 #ifdef MULTI_THREAD

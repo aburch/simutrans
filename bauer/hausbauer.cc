@@ -293,7 +293,7 @@ void hausbauer_t::remove( player_t *player, gebaeude_t *gb ) //gebaeude = "build
 	koord k;
 
 	if( tile->get_besch()->get_utyp() == haus_besch_t::firmensitz ) {
-		gb->get_besitzer()->add_headquarter( 0, koord::invalid );
+		gb->get_owner()->add_headquarter( 0, koord::invalid );
 	}
 	if(tile->get_besch()->get_utyp()==haus_besch_t::denkmal) {
 		ungebaute_denkmaeler.append_unique(tile->get_besch());
@@ -359,7 +359,7 @@ void hausbauer_t::remove( player_t *player, gebaeude_t *gb ) //gebaeude = "build
 					// remove tunnel
 					if(  (sk!=NULL ||  pp!=NULL)  &&  gr->ist_im_tunnel()  &&  gr->get_top()<=1  ) {
 						if (tunnel_t *t = gr->find<tunnel_t>()) {
-							t->entferne( t->get_besitzer() );
+							t->entferne( t->get_owner() );
 							delete t;
 						}
 						const koord p = gr->get_pos().get_2d();

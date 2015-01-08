@@ -91,7 +91,7 @@ void export_halt(HSQUIRRELVM vm)
 	 * Station owner.
 	 * @returns owner
 	 */
-	register_method(vm, &haltestelle_t::get_besitzer, "get_owner");
+	register_method(vm, &haltestelle_t::get_owner, "get_owner");
 
 	/**
 	 * Quick check if there is connection for certain freight to the other halt.

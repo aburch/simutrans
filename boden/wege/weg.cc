@@ -284,7 +284,7 @@ void weg_t::init()
 weg_t::~weg_t()
 {
 	alle_wege.remove(this);
-	player_t *player=get_besitzer();
+	player_t *player=get_owner();
 	if(player  &&  besch) 
 	{
 		sint32 maint = besch->get_wartung();
@@ -827,7 +827,7 @@ void weg_t::new_month()
 // correct speed and maintenance
 void weg_t::laden_abschliessen()
 {
-	player_t *player=get_besitzer();
+	player_t *player=get_owner();
 	if(player  &&  besch) 
 	{
 		sint32 maint = besch->get_wartung();
@@ -986,7 +986,7 @@ bool weg_t::renew()
 		return false;
 	}
 
-	player_t* const player = get_besitzer();
+	player_t* const player = get_owner();
 	bool success = false;
 	const sint64 price = besch->get_upgrade_group() == replacement_way->get_upgrade_group() ? replacement_way->get_way_only_cost() : replacement_way->get_preis();
 	if((!player && welt->get_city(get_pos().get_2d())) || (player && (player->can_afford(price) || player->is_public_service())))
@@ -1027,7 +1027,7 @@ void weg_t::degrade()
 	{
 		// Do not degrade public rights of way, as these should remain passable.
 		// Instead, take them out of private ownership and renew them with the default way.
-		set_besitzer(NULL); 
+		set_owner(NULL); 
 		if(waytype == road_wt)
 		{
 			const stadt_t* city = welt->get_city(get_pos().get_2d()); 

@@ -55,7 +55,7 @@ crossing_t::crossing_t(player_t* const player, koord3d const pos, kreuzung_besch
 	logic = NULL;
 	zustand = crossing_logic_t::CROSSING_INVALID;
 	bild = after_bild = IMG_LEER;
-	set_besitzer( player );
+	set_owner( player );
 }
 
 

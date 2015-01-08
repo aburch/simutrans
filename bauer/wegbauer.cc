@@ -409,7 +409,7 @@ bool wegbauer_t::check_crossing(const koord zv, const grund_t *bd, waytype_t wty
 		return true;
 	}
 	// right owner of the other way
-	if(!check_owner(w->get_besitzer(),player) && !check_access(w, player)) 
+	if(!check_owner(w->get_owner(),player) && !check_access(w, player)) 
 	{
 		return false;
 	}
@@ -667,7 +667,7 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 		if(to2) {
 			if(to2->get_weg_nr(0)) {
 				// already an elevated ground here => it will have always a way object, that indicates ownership
-				ok = to2->get_typ()==grund_t::monorailboden  &&  check_owner(to2->obj_bei(0)->get_besitzer(),player);
+				ok = to2->get_typ()==grund_t::monorailboden  &&  check_owner(to2->obj_bei(0)->get_owner(),player);
 				ok &= to2->get_weg_nr(0)->get_besch()->get_wtyp()==besch->get_wtyp();
 			}
 			else {
@@ -796,7 +796,7 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 			}
 			// ok, regular construction here
 			// if no way there: check for right ground type, otherwise check owner
-			ok = sch == NULL ? (!fundament && !to->ist_wasser()) : check_owner(sch->get_besitzer(),player) || check_access(sch, player);
+			ok = sch == NULL ? (!fundament && !to->ist_wasser()) : check_owner(sch->get_owner(),player) || check_access(sch, player);
 			if(!ok) {
 				return false;
 			}
@@ -823,7 +823,7 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 			const weg_t *sch=to->get_weg(track_wt);
 			// roads are checked in check_crossing
 			// if no way there: check for right ground type, otherwise check owner
-			ok = sch == NULL ? (!fundament && !to->ist_wasser()) : check_owner(sch->get_besitzer(),player) || check_access(sch, player);
+			ok = sch == NULL ? (!fundament && !to->ist_wasser()) : check_owner(sch->get_owner(),player) || check_access(sch, player);
 			// tram track allowed in road tunnels, but only along existing roads / tracks
 			if(from!=to) {
 				if(from->ist_tunnel()) {
@@ -866,7 +866,7 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 			// do not connect to other powerlines
 			{
 				leitung_t *lt = to->get_leitung();
-				ok &= (lt==NULL)  || lt->get_besitzer()->allows_access_to(player->get_player_nr()) || check_owner(player, lt->get_besitzer());
+				ok &= (lt==NULL)  || lt->get_owner()->allows_access_to(player->get_player_nr()) || check_owner(player, lt->get_owner());
 			}
 
 			if(to->get_typ()!=grund_t::tunnelboden) {
@@ -892,7 +892,7 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 		{
 			const weg_t *canal = to->get_weg(water_wt);
 			// if no way there: check for right ground type, otherwise check owner
-			ok = canal == NULL ? !fundament : check_owner(canal->get_besitzer(), player) || check_access(canal, player);
+			ok = canal == NULL ? !fundament : check_owner(canal->get_owner(), player) || check_access(canal, player);
 			// calculate costs
 			if(ok) {
 				*costs = to->ist_wasser() ||  canal  ? s.way_count_straight : s.way_count_leaving_road; // prefer water very much
@@ -1986,7 +1986,7 @@ void wegbauer_t::baue_tunnel_und_bruecken()
 				// now: check ownership
 				weg_t *wi = gr_i->get_weg(wt);
 				weg_t *wi1 = gr_i1->get_weg(wt);
-				if(wi->get_besitzer()==player  &&  wi1->get_besitzer()==player) {
+				if(wi->get_owner()==player  &&  wi1->get_owner()==player) {
 					// we are the owner
 					if(  h != hang_typ(zv)  ) {
 						// its a bridge
@@ -2138,7 +2138,7 @@ sint64 wegbauer_t::calc_costs()
 			single_cost += forge_cost;
 
 			const obj_t* obj = gr->obj_bei(0);
-			if(!upgrading && (obj == NULL || obj->get_besitzer() != player))
+			if(!upgrading && (obj == NULL || obj->get_owner() != player))
 			{
 				// Only add the cost of the land if the player does not
 				// already own this land.
@@ -2458,9 +2458,9 @@ void wegbauer_t::baue_strasse()
 					}
 
 					if (city_adopts_this) {
-						weg->set_besitzer(NULL);
+						weg->set_owner(NULL);
 					} else {
-						weg->set_besitzer(player);
+						weg->set_owner(player);
 						// Set maintenance costs here
 						// including corrections for diagonals.
 						weg->laden_abschliessen();
@@ -2567,7 +2567,7 @@ void wegbauer_t::baue_schiene()
 
 					if(  change_besch  ) {
 						// we take ownership => we take care to maintain the roads completely ...
-						player_t *s = weg->get_besitzer();
+						player_t *s = weg->get_owner();
 						player_t::add_maintenance( s, -weg->get_besch()->get_wartung(), weg->get_besch()->get_finance_waytype());
 						cost -= weg->get_besch()->get_upgrade_group() == besch->get_upgrade_group() ? besch->get_way_only_cost() : besch->get_preis();
 						weg->set_besch(besch);
@@ -2587,7 +2587,7 @@ void wegbauer_t::baue_schiene()
 							weg->add_way_constraints(wayobj->get_besch()->get_way_constraints());
 						}					
 						player_t::add_maintenance( player, weg->get_besch()->get_wartung(), weg->get_besch()->get_finance_waytype());
-						weg->set_besitzer(player);
+						weg->set_owner(player);
 					}
 				}
 				else 
@@ -2666,7 +2666,7 @@ void wegbauer_t::baue_leitung()
 			// modernize the network
 			if( !keep_existing_faster_ways  ||  lt->get_besch()->get_topspeed() < besch->get_topspeed()  ) {
 				build_powerline = true;
-				player_t::add_maintenance( lt->get_besitzer(),  -lt->get_besch()->get_wartung(), powerline_wt );
+				player_t::add_maintenance( lt->get_owner(),  -lt->get_besch()->get_wartung(), powerline_wt );
 			}
 		}
 		if (build_powerline) {
@@ -2902,5 +2902,5 @@ uint32 wegbauer_t::calc_distance( const koord3d &pos, const koord3d &mini, const
 
 bool wegbauer_t::check_access(const weg_t* way, const player_t* player) const
 {
-	return way && (way->is_public_right_of_way() || way->get_besitzer() == NULL || way->get_besitzer() == player || player == NULL || way->get_besitzer()->allows_access_to(player->get_player_nr()));
+	return way && (way->is_public_right_of_way() || way->get_owner() == NULL || way->get_owner() == player || player == NULL || way->get_owner()->allows_access_to(player->get_player_nr()));
 }

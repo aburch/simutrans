@@ -960,8 +960,8 @@ class denkmal_platz_sucher_t : public platzsucher_t {
 			for (obj_idx = 0; obj_idx < obj_count; obj_idx++) {
 				obj_t *obj = gr->obj_bei(obj_idx);
 
-				if (obj->get_besitzer() != NULL &&
-				    obj->get_besitzer() != welt->get_player(1)) {
+				if (obj->get_owner() != NULL &&
+				    obj->get_owner() != welt->get_player(1)) {
 					/* XXX player-owned roads okay to remove? */
 					/* XXX player-owned trams/electrification okay if ist_randfeld()? */
 					return false;
@@ -3998,11 +3998,11 @@ void stadt_t::build_city_building(const koord k, bool new_town)
 					// if not current city road standard OR BETTER, then replace it
 					if (weg->get_besch() != welt->get_city_road())
 					{
-						player_t *player = weg->get_besitzer();
+						player_t *player = weg->get_owner();
 						if (player == NULL || !gr->get_depot())
 						{
 							player_t::add_maintenance(player, -weg->get_besch()->get_wartung(), road_wt);
-							weg->set_besitzer(NULL); // make public
+							weg->set_owner(NULL); // make public
 							if (welt->get_city_road()->is_at_least_as_good_as(weg->get_besch())) 
 							{
 								weg->set_besch(welt->get_city_road());
@@ -4191,10 +4191,10 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb)
 					// if not current city road standard OR BETTER, then replace it
 					if (weg->get_besch() != welt->get_city_road()) {
 						if (  welt->get_city_road()->is_at_least_as_good_as(weg->get_besch()) ) {
-							player_t *player = weg->get_besitzer();
+							player_t *player = weg->get_owner();
 							if (player == NULL  ||  !gr->get_depot()) {
 								player_t::add_maintenance( player, -weg->get_besch()->get_wartung(), road_wt);
-								weg->set_besitzer(NULL); // make unowned
+								weg->set_owner(NULL); // make unowned
 								weg->set_besch(welt->get_city_road());
 							}
 						}
@@ -4733,7 +4733,7 @@ void stadt_t::baue(bool new_town)
 			gebaeude_t* const gb = pick_any(buildings);
 			const uint32 dist(koord_distance(c, gb->get_pos()));
 			const uint32 distance_rate = 100 - (dist * 100) / maxdist;
-			if(  player_t::check_owner(gb->get_besitzer(),NULL)  && simrand(100, "void stadt_t::baue") < distance_rate) {
+			if(  player_t::check_owner(gb->get_owner(),NULL)  && simrand(100, "void stadt_t::baue") < distance_rate) {
 				if(renovate_city_building(gb)) { was_renovated++;}
 			}
 		}
@@ -5114,7 +5114,7 @@ bool private_car_destination_finder_t::ist_befahrbar(const grund_t* gr) const
 		const strasse_t* const str = (strasse_t*)gr->get_weg(road_wt);
 		if(str)
 		{
-			const player_t *player = str->get_besitzer();
+			const player_t *player = str->get_owner();
 			if(player != NULL && player->get_player_nr() != 1 && !player->allows_access_to(1))
 			{
 				// Private cas should have the same restrictions as to the roads on which to travel

@@ -49,7 +49,7 @@ label_t::label_t(koord3d pos, player_t *player, const char *text) :
 	obj_t(pos)
 #endif
 {
-	set_besitzer( player );
+	set_owner( player );
 	welt->add_label(pos.get_2d());
 	grund_t *gr=welt->lookup_kartenboden(pos.get_2d());
 	if(gr) {

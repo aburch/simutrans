@@ -50,7 +50,7 @@
 #include "depot_frame.h"
 
 depot_frame_t::depot_frame_t(depot_t* depot) :
-	gui_frame_t( translator::translate(depot->get_name()), depot->get_besitzer()),
+	gui_frame_t( translator::translate(depot->get_name()), depot->get_owner()),
 	depot(depot),
 	icnv(depot->convoi_count()-1),
 	lb_convois(NULL, COL_BLACK, gui_label_t::left),
@@ -80,14 +80,14 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	add_komponente(&lb_convois);
 
 	convoy_selector.add_listener(this);
-	convoy_selector.set_highlight_color( depot->get_besitzer()->get_player_color1() + 1);
+	convoy_selector.set_highlight_color( depot->get_owner()->get_player_color1() + 1);
 	add_komponente(&convoy_selector);
 
 	/*
 	* [SELECT ROUTE]:
 	*/
 	line_selector.add_listener(this);
-	line_selector.set_highlight_color( depot->get_besitzer()->get_player_color1() + 1);
+	line_selector.set_highlight_color( depot->get_owner()->get_player_color1() + 1);
 	line_selector.set_wrapping(false);
 	line_selector.set_focusable(true);
 	add_komponente(&line_selector);
@@ -394,7 +394,7 @@ void depot_frame_t::activate_convoi( convoihandle_t c )
 
 static void get_line_list(const depot_t* depot, vector_tpl<linehandle_t>* lines)
 {
-	depot->get_besitzer()->simlinemgmt.get_lines(depot->get_line_type(), lines);
+	depot->get_owner()->simlinemgmt.get_lines(depot->get_line_type(), lines);
 }
 
 
@@ -564,13 +564,13 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *komp, value_t p)
 		//	return true;
 		//} else if(komp == &bt_change_line) {
 		//	if(selected_line.is_bound()) {
-		//		create_win(new line_management_gui_t(selected_line, depot->get_besitzer()), w_info, (ptrdiff_t)selected_line.get_rep() );
+		//		create_win(new line_management_gui_t(selected_line, depot->get_owner()), w_info, (ptrdiff_t)selected_line.get_rep() );
 		//	}
 		//	return true;
 		}
 		else if(  komp == &line_button  ) {
 			if(  cnv.is_bound()  ) {
-				cnv->get_besitzer()->simlinemgmt.show_lineinfo( cnv->get_besitzer(), cnv->get_line() );
+				cnv->get_owner()->simlinemgmt.show_lineinfo( cnv->get_owner(), cnv->get_line() );
 				welt->set_dirty();
 			}
 		}
@@ -658,7 +658,7 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *komp, value_t p)
 bool depot_frame_t::infowin_event(const event_t *ev)
 {
 	// enable disable button actions
-	const bool action_allowed = welt->get_active_player() == depot->get_besitzer();
+	const bool action_allowed = welt->get_active_player() == depot->get_owner();
 	//bt_new_line.enable( action_allowed );
 	//bt_change_line.enable( action_allowed );
 	bt_copy_convoi.enable( action_allowed );
@@ -685,15 +685,15 @@ bool depot_frame_t::infowin_event(const event_t *ev)
 	if(IS_WINDOW_CHOOSE_NEXT(ev)) {
 
 		bool dir = (ev->ev_code==NEXT_WINDOW);
-		depot_t *next_dep = depot_t::find_depot( depot->get_pos(), depot->get_typ(), depot->get_besitzer(), dir == NEXT_WINDOW );
+		depot_t *next_dep = depot_t::find_depot( depot->get_pos(), depot->get_typ(), depot->get_owner(), dir == NEXT_WINDOW );
 		if(next_dep == NULL) {
 			if(dir == NEXT_WINDOW) {
 				// check the next from start of map
-				next_dep = depot_t::find_depot( koord3d(-1,-1,0), depot->get_typ(), depot->get_besitzer(), true );
+				next_dep = depot_t::find_depot( koord3d(-1,-1,0), depot->get_typ(), depot->get_owner(), true );
 			}
 			else {
 				// respective end of map
-				next_dep = depot_t::find_depot( koord3d(8192,8192,127), depot->get_typ(), depot->get_besitzer(), false );
+				next_dep = depot_t::find_depot( koord3d(8192,8192,127), depot->get_typ(), depot->get_owner(), false );
 			}
 		}
 
@@ -750,7 +750,7 @@ bool depot_frame_t::infowin_event(const event_t *ev)
 
 void depot_frame_t::draw(scr_coord pos, scr_size size)
 {
-	const bool action_allowed = welt->get_active_player() == depot->get_besitzer();
+	const bool action_allowed = welt->get_active_player() == depot->get_owner();
 	//bt_new_line.enable( action_allowed );
 	//bt_change_line.enable( action_allowed );
 	bt_copy_convoi.enable( action_allowed );
@@ -810,7 +810,7 @@ void depot_frame_t::fahrplaneingabe()
 
 	if(  cnv.is_bound()  &&  cnv->get_vehikel_anzahl() > 0  ) {
 		if(  selected_line.is_bound()  &&  event_get_last_control_shift() == 2  ) { // update line with CTRL-click
-			create_win( new line_management_gui_t( selected_line, depot->get_besitzer() ), w_info, (ptrdiff_t)selected_line.get_rep() );
+			create_win( new line_management_gui_t( selected_line, depot->get_owner() ), w_info, (ptrdiff_t)selected_line.get_rep() );
 		}
 		else { // edit individual schedule
 			// this can happen locally, since any update of the schedule is done during closing window
@@ -818,7 +818,7 @@ void depot_frame_t::fahrplaneingabe()
 			assert(fpl!=NULL);
 			gui_frame_t *fplwin = win_get_magic( (ptrdiff_t)fpl );
 			if(  fplwin == NULL  ) {
-				cnv->open_schedule_window( welt->get_active_player() == cnv->get_besitzer() );
+				cnv->open_schedule_window( welt->get_active_player() == cnv->get_owner() );
 			}
 			else {
 				top_win( fplwin );

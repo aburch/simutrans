@@ -100,7 +100,7 @@ depot_t *depot_t::find_depot( koord3d start, const obj_t::typ depot_type, const 
 	long found_hash = forward ? 0x7FFFFFF : -1;
 	long start_hash = start.x + (8192*start.y);
 	FOR(slist_tpl<depot_t*>, const d, all_depots) {
-		if(d->get_typ()==depot_type  &&  d->get_besitzer()==player) {
+		if(d->get_typ()==depot_type  &&  d->get_owner()==player) {
 			// ok, the right type of depot
 			const koord3d pos = d->get_pos();
 			if(pos==start) {
@@ -159,7 +159,7 @@ void depot_t::call_depot_tool( char tool, convoihandle_t cnv, const char *extra,
 		buf.append( extra );
 	}
 	tool_tmp->set_default_param(buf);
-	welt->set_tool( tool_tmp, get_besitzer() );
+	welt->set_tool( tool_tmp, get_owner() );
 	// since init always returns false, it is safe to delete immediately
 	delete tool_tmp;
 }
@@ -226,7 +226,7 @@ void depot_t::zeige_info()
 vehikel_t* depot_t::buy_vehicle(const vehikel_besch_t* info, uint16 livery_scheme_index)
 {
 	DBG_DEBUG("depot_t::buy_vehicle()", info->get_name());
-	vehikel_t* veh = vehikelbauer_t::baue(get_pos(), get_besitzer(), NULL, info, false, livery_scheme_index); //"besitzer" = "owner" (Google)
+	vehikel_t* veh = vehikelbauer_t::baue(get_pos(), get_owner(), NULL, info, false, livery_scheme_index); //"owner" = "owner" (Google)
 	DBG_DEBUG("depot_t::buy_vehicle()", "vehiclebauer %p", veh);
 	vehicles.append(veh);
 	DBG_DEBUG("depot_t::buy_vehicle()", "appended %i vehicle", vehicles.get_count());
@@ -246,12 +246,12 @@ void depot_t::upgrade_vehicle(convoihandle_t cnv, const vehikel_besch_t* vb)
 		{
 			if(cnv->get_vehikel(i)->get_besch()->get_upgrades(c) == vb)
 			{
-				vehikel_t* new_veh = vehikelbauer_t::baue(get_pos(), get_besitzer(), NULL, vb, true, cnv->get_livery_scheme_index()); 
+				vehikel_t* new_veh = vehikelbauer_t::baue(get_pos(), get_owner(), NULL, vb, true, cnv->get_livery_scheme_index()); 
 				cnv->upgrade_vehicle(i, new_veh);
 				if(cnv->get_vehikel(i)->get_besch()->get_nachfolger_count() == 1 && cnv->get_vehikel(i)->get_besch()->get_leistung() != 0)
 				{
 					//We need to upgrade tenders, too.	
-					vehikel_t* new_veh_2 = vehikelbauer_t::baue(get_pos(), get_besitzer(), NULL, new_veh->get_besch()->get_nachfolger(0), true); 
+					vehikel_t* new_veh_2 = vehikelbauer_t::baue(get_pos(), get_owner(), NULL, new_veh->get_besch()->get_nachfolger(0), true); 
 					cnv->upgrade_vehicle(i + 1, new_veh_2);
 					// The above assumes that tenders are free, which they are in Pak128.Britain, the cost being built into the locomotive.
 					// The below ought work more accurately, but does not work properly, for some reason.
@@ -273,9 +273,9 @@ void depot_t::upgrade_vehicle(convoihandle_t cnv, const vehikel_besch_t* vb)
 					if(count > 0 && cnv->get_vehikel(1)->get_besch()->get_leistung() > 0 && cnv->get_vehikel(1)->get_besch()->get_nachfolger_count() > 0)
 					{
 						// Garrett detected - need to upgrade all three vehicles.
-						vehikel_t* new_veh_2 = vehikelbauer_t::baue(get_pos(), get_besitzer(), NULL, new_veh->get_besch()->get_nachfolger(0), true); 
+						vehikel_t* new_veh_2 = vehikelbauer_t::baue(get_pos(), get_owner(), NULL, new_veh->get_besch()->get_nachfolger(0), true); 
 						cnv->upgrade_vehicle(i + 1, new_veh_2);
-						vehikel_t* new_veh_3 = vehikelbauer_t::baue(get_pos(), get_besitzer(), NULL, new_veh->get_besch()->get_nachfolger(0), true); 
+						vehikel_t* new_veh_3 = vehikelbauer_t::baue(get_pos(), get_owner(), NULL, new_veh->get_besch()->get_nachfolger(0), true); 
 						cnv->upgrade_vehicle(i + 2, new_veh_3);
 					}
 				}
@@ -321,7 +321,7 @@ void depot_t::sell_vehicle(vehikel_t* veh)
 {
 	vehicles.remove(veh);
 	sint64 cost = veh->calc_restwert();
-	get_besitzer()->book_new_vehicle(cost, get_pos().get_2d(), get_waytype() );
+	get_owner()->book_new_vehicle(cost, get_pos().get_2d(), get_waytype() );
 	DBG_MESSAGE("depot_t::sell_vehicle()", "this=%p sells %p", this, veh);
 	veh->before_delete();
 	delete veh;
@@ -351,7 +351,7 @@ vehikel_t* depot_t::find_oldest_newest(const vehikel_besch_t* besch, bool old, v
 
 convoihandle_t depot_t::add_convoi(bool local_execution)
 {
-	convoi_t* new_cnv = new convoi_t(get_besitzer());
+	convoi_t* new_cnv = new convoi_t(get_owner());
 	new_cnv->set_home_depot(get_pos());
 	convois.append(new_cnv->self);
 	depot_frame_t *win = dynamic_cast<depot_frame_t *>(win_get_magic( (ptrdiff_t)this ));
@@ -428,7 +428,7 @@ convoihandle_t depot_t::copy_convoi(convoihandle_t old_cnv, bool local_execution
 					// no vehicle of correct type in depot, must buy it:
 					//first test affordability.
 					sint64 total_price = info->get_preis();
-					if(!get_besitzer()->can_afford(total_price))
+					if(!get_owner()->can_afford(total_price))
 					{
 						create_win( new news_img(CREDIT_MESSAGE), w_time_delete, magic_none);
 						if(!new_cnv.is_bound())
@@ -446,7 +446,7 @@ convoihandle_t depot_t::copy_convoi(convoihandle_t old_cnv, bool local_execution
 						
 					}
 					// buy new vehicle
-					new_vehicle = vehikelbauer_t::baue(get_pos(), get_besitzer(), NULL, info, false, old_cnv->get_livery_scheme_index());
+					new_vehicle = vehikelbauer_t::baue(get_pos(), get_owner(), NULL, info, false, old_cnv->get_livery_scheme_index());
 				}
 				// append new vehicle
 				append_vehicle(new_cnv, new_vehicle, false, local_execution);
@@ -733,7 +733,7 @@ void depot_t::rdwr_vehikel(slist_tpl<vehikel_t *> &list, loadsave_t *file)
  */
 const char * depot_t::ist_entfernbar(const player_t *player)
 {
-	if(player!=get_besitzer()  &&  player!=welt->get_player(1)) {
+	if(player!=get_owner()  &&  player!=welt->get_player(1)) {
 		return "Das Feld gehoert\neinem anderen Spieler\n";
 	}
 	if (!vehicles.empty()) {
@@ -807,7 +807,7 @@ void depot_t::new_month()
 	}
 	if (fixed_cost_costs)
 	{
-		get_besitzer()->book_vehicle_maintenance( -fixed_cost_costs, get_waytype() );
+		get_owner()->book_vehicle_maintenance( -fixed_cost_costs, get_waytype() );
 	}
 
 	stadt_t* city = welt->get_city(get_pos().get_2d());
@@ -843,7 +843,7 @@ bool depot_t::is_suitable_for( const vehikel_t * test_vehicle, const uint8 tract
 	assert(test_vehicle != NULL);
 
 	// Owner must be the same
-	if (  this->get_besitzer() != test_vehicle->get_besitzer()  ) {
+	if (  this->get_owner() != test_vehicle->get_owner()  ) {
 		return false;
 	}
 

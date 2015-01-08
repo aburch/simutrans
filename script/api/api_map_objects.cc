@@ -201,7 +201,7 @@ void export_map_objects(HSQUIRRELVM vm)
 	/**
 	 * @returns owner of the object.
 	 */
-	register_method(vm, &obj_t::get_besitzer, "get_owner");
+	register_method(vm, &obj_t::get_owner, "get_owner");
 	/**
 	 * @returns raw name.
 	 */

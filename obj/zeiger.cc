@@ -37,7 +37,7 @@ zeiger_t::zeiger_t(koord3d pos, player_t *player) :
     obj_no_info_t(pos)
 #endif
 {
-	set_besitzer( player );
+	set_owner( player );
 	bild = IMG_LEER;
 	after_bild = IMG_LEER;
 	area = koord(0,0);

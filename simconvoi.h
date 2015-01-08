@@ -1137,7 +1137,7 @@ public:
 	* @author Hj. Malthaner
 	*/
 
-	player_t * get_besitzer() const { return owner; }
+	player_t * get_owner() const { return owner; }
 
 	/**
 	* Opens an information window

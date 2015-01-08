@@ -126,7 +126,7 @@ gebaeude_t::gebaeude_t(koord3d pos, player_t *player, const haus_tile_besch_t *t
     obj_t(pos)
 #endif
 {
-	set_besitzer( player );
+	set_owner( player );
 
 	init();
 	if(t) 
@@ -141,7 +141,7 @@ gebaeude_t::gebaeude_t(koord3d pos, player_t *player, const haus_tile_besch_t *t
 		{
 			maint = tile->get_besch()->get_maintenance();
 		}
-		player_t::add_maintenance(get_besitzer(), maint, tile->get_besch()->get_finance_waytype() );
+		player_t::add_maintenance(get_owner(), maint, tile->get_besch()->get_finance_waytype() );
 	}
 
 	if(tile->get_besch()->get_typ() == wohnung)
@@ -252,7 +252,7 @@ gebaeude_t::~gebaeude_t()
 		{
 			maint = tile->get_besch()->get_maintenance();
 		}
-		player_t::add_maintenance(get_besitzer(), -maint);
+		player_t::add_maintenance(get_owner(), -maint);
 	}
 	if(!welt->get_is_shutting_down())
 	{
@@ -755,7 +755,7 @@ void gebaeude_t::zeige_info()
 	bool special = ist_firmensitz() || ist_rathaus();
 
 	if(ist_firmensitz()) {
-		create_win( new money_frame_t(get_besitzer()), w_info, magic_finances_t+get_besitzer()->get_player_nr() );
+		create_win( new money_frame_t(get_owner()), w_info, magic_finances_t+get_owner()->get_player_nr() );
 	}
 	else if (ist_rathaus()) {
 		welt->suche_naechste_stadt(get_pos().get_2d())->zeige_info();
@@ -911,7 +911,7 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 		}
 
 		buf.append("\n");
-		if(get_besitzer()==NULL) {
+		if(get_owner()==NULL) {
 			buf.append("\n");
 			buf.append(translator::translate("Wert"));
 			buf.append(": ");
@@ -1337,7 +1337,7 @@ void gebaeude_t::laden_abschliessen()
 	{
 		maint = welt->get_settings().maint_building*tile->get_besch()->get_level();
 	}
-	player_t::add_maintenance(get_besitzer(), maint, tile->get_besch()->get_finance_waytype());
+	player_t::add_maintenance(get_owner(), maint, tile->get_besch()->get_finance_waytype());
 
 	// citybuilding, but no town?
 	if(  tile->get_offset()==koord(0,0)  ) {
@@ -1376,11 +1376,11 @@ void gebaeude_t::entferne(player_t *player) // "Remove" (Google)
 		// If the player does already own the building, the player is refunded the empty tile cost, as bulldozing a tile with a building
 		// means that the player no longer owns the tile, and will have to pay again to purcahse it.
 		const sint64 land_value = welt->get_land_value(get_pos()) * besch->get_groesse().x * besch->get_groesse().y;
-		cost = player != get_besitzer() ? bulldoze_cost : bulldoze_cost - land_value; // Land value is a *negative* number.
+		cost = player != get_owner() ? bulldoze_cost : bulldoze_cost - land_value; // Land value is a *negative* number.
 		player_t::book_construction_costs(player, cost, get_pos().get_2d(), tile->get_besch()->get_finance_waytype());
-		if(player != get_besitzer())
+		if(player != get_owner())
 		{
-			player_t::book_construction_costs(get_besitzer(), land_value, get_pos().get_2d(), tile->get_besch()->get_finance_waytype());
+			player_t::book_construction_costs(get_owner(), land_value, get_pos().get_2d(), tile->get_besch()->get_finance_waytype());
 		}
 	}
 	else 
@@ -1403,13 +1403,13 @@ void gebaeude_t::entferne(player_t *player) // "Remove" (Google)
 		const sint64 land_value = welt->get_land_value(get_pos()) * besch->get_groesse().x * besch->get_groesse().y;
 		if(welt->lookup(get_pos()) && !welt->lookup(get_pos())->get_weg_nr(0))
 		{
-			if(player == get_besitzer())
+			if(player == get_owner())
 			{
 				cost -= land_value;
 			}
 			else
 			{
-				player_t::book_construction_costs(get_besitzer(), -land_value, get_pos().get_2d(), tile->get_besch()->get_finance_waytype());
+				player_t::book_construction_costs(get_owner(), -land_value, get_pos().get_2d(), tile->get_besch()->get_finance_waytype());
 			}
 		}
 		player_t::book_construction_costs(player, cost, get_pos().get_2d(), tile->get_besch()->get_finance_waytype());

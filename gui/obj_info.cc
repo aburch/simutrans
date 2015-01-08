@@ -21,7 +21,7 @@
 
 
 obj_infowin_t::obj_infowin_t(const obj_t* obj) :
-	gui_frame_t(translator::translate( obj->get_name() ), obj->get_besitzer()),
+	gui_frame_t(translator::translate( obj->get_name() ), obj->get_owner()),
 	view(obj, scr_size( max(64, get_base_tile_raster_width()), max(56, (get_base_tile_raster_width()*7)/8) )),
 	textarea(&buf, 170 + view.get_size().w, view.get_size() + scr_size(10, 10))
 {

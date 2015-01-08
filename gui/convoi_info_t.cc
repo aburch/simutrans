@@ -122,7 +122,7 @@ const char *convoi_info_t::sort_text[SORT_MODES] =
 
 
 convoi_info_t::convoi_info_t(convoihandle_t cnv)
-:	gui_frame_t( cnv->get_name(), cnv->get_besitzer() ),
+:	gui_frame_t( cnv->get_name(), cnv->get_owner() ),
 	scrolly(&text),
 	text(&freight_info),
 	view(cnv->front(), scr_size(max(64, get_base_tile_raster_width()), max(56, (get_base_tile_raster_width() * 7) / 8))),
@@ -326,7 +326,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 		input.set_color(cnv->has_obsolete_vehicles() ? COL_DARK_BLUE : COL_BLACK);
 
 		// make titlebar dirty to display the correct coordinates
-		if(cnv->get_besitzer()==welt->get_active_player()) {
+		if(cnv->get_owner()==welt->get_active_player()) {
 			if(  line_bound  &&  !cnv->get_line().is_bound()  ) {
 				remove_komponente( &line_button );
 				line_bound = false;
@@ -511,7 +511,7 @@ enable_home:
 			int len = display_proportional(pos_x, pos_y, tmp, ALIGN_LEFT, COL_BLACK, true ) + 5;
 			info_buf.clear();
 			const schedule_t *fpl = cnv->get_schedule();
-			fahrplan_gui_t::gimme_short_stop_name(info_buf, cnv->get_besitzer(), fpl, fpl->get_aktuell(), 34);
+			fahrplan_gui_t::gimme_short_stop_name(info_buf, cnv->get_owner(), fpl, fpl->get_aktuell(), 34);
 			len += display_proportional_clip(pos_x + len, pos_y, info_buf, ALIGN_LEFT, COL_BLACK, true ) + 5;
 		}
 
@@ -634,7 +634,7 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 	}
 
 	if(  komp == &line_button  ) {
-		cnv->get_besitzer()->simlinemgmt.show_lineinfo( cnv->get_besitzer(), cnv->get_line() );
+		cnv->get_owner()->simlinemgmt.show_lineinfo( cnv->get_owner(), cnv->get_line() );
 		welt->set_dirty();
 	}
 
@@ -652,7 +652,7 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 	}
 
 	// some actions only allowed, when I am the player
-	if(cnv->get_besitzer()==welt->get_active_player()) {
+	if(cnv->get_owner()==welt->get_active_player()) {
 
 		if(komp == &button) {
 			cnv->call_convoi_tool( 'f', NULL );
@@ -738,7 +738,7 @@ void convoi_info_t::rename_cnv()
 			buf.printf( "c%u,%s", cnv.get_id(), t );
 			tool_t *tool = create_tool( TOOL_RENAME | SIMPLE_TOOL );
 			tool->set_default_param( buf );
-			welt->set_tool( tool, cnv->get_besitzer());
+			welt->set_tool( tool, cnv->get_owner());
 			// since init always returns false, it is safe to delete immediately
 			delete tool;
 			// do not trigger this command again

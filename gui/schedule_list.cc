@@ -495,7 +495,7 @@ void schedule_list_gui_t::rename_line()
 			buf.printf( "l%u,%s", line.get_id(), t );
 			tool_t *tool = create_tool( TOOL_RENAME | SIMPLE_TOOL );
 			tool->set_default_param( buf );
-			welt->set_tool( tool, line->get_besitzer() );
+			welt->set_tool( tool, line->get_owner() );
 			// since init always returns false, it is safe to delete immediately
 			delete tool;
 			// do not trigger this command again

@@ -92,7 +92,7 @@ protected:
 #endif
 
 	// since we often need access during loading
-	void set_player_nr(uint8 s) { owner_n = s; }
+	void set_player_nr(uint8 o) { owner_n = o; }
 
 	/**
 	* Pointer to the world of this thing. Static to conserve space.
@@ -109,12 +109,12 @@ public:
 	/**
 	 * sets owner of object
 	 */
-	void set_besitzer(player_t *player);
+	void set_owner(player_t *player);
 
 	/**
 	 * returns owner of object
 	 */
-	player_t * get_besitzer() const;
+	player_t * get_owner() const;
 
 	/**
 	 * routines to set, clear, get bit flags
