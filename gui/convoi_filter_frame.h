@@ -131,7 +131,7 @@ public:
 	 * Does this window need a min size button in the title bar?
 	 * @return true if such a button is needed
 	 */
-	bool has_minimize_button() const {return true;}
+	bool has_min_sizer() const {return true;}
 
 	/**
 	 * resize window in response to a resize event
