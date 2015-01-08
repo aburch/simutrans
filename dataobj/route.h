@@ -19,7 +19,7 @@ class fahrer_t;
 class grund_t;
 
 /**
- * Route, e.q. for vehicles
+ * Route, e.g. for vehicles
  *
  * @author Hj. Malthaner
  * @date 15.01.00
@@ -39,23 +39,22 @@ private:
 public:
 	typedef enum { no_route=0, valid_route=1, valid_route_halt_too_short=3 } route_result_t;
 
-	// this class save the nodes during route search
+	/**
+	 * Nodes for A* or breadth-first search
+	 */
 	class ANode {
 	public:
 		ANode * parent;
 		const grund_t* gr;
-		uint32  f, g;
-		uint8 dir;
-		uint8 ribi_from; /// we came from this direction
-		uint16 count;
-		uint8 jps_ribi;  /// extra ribi mask for jump-point search
+		uint32 f;        ///< heuristic for cost to reach target
+		uint32 g;        ///< cost to reach this tile
+		uint8 dir;       ///< driving direction
+		uint8 ribi_from; ///< we came from this direction
+		uint16 count;    ///< length of route up to here
+		uint8 jps_ribi;  ///< extra ribi mask for jump-point search
 
+		/// sort nodes first with respect to f, then with respect to g
 		inline bool operator <= (const ANode &k) const { return f==k.f ? g<=k.g : f<=k.f; }
-		// next one only needed for sorted_heap_tpl
-		inline bool operator == (const ANode &k) const { return f==k.f  &&  g==k.g; }
-		// next two only needed for HOT-queues
-		inline bool is_matching(const ANode &l) const { return gr==l.gr; }
-		inline uint32 get_distance() const { return f; }
 	};
 
 	static ANode *nodes;
