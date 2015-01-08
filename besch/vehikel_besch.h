@@ -741,6 +741,7 @@ public:
 			case track_wt:
 			case tram_wt:
 			case narrowgauge_wt:
+			case air_wt: // Runways should be like roads, but aircraft are so huge that it is unbalancable as such
 				power = way_wear_factor_rail;
 				break;
 			case maglev_wt:
@@ -748,7 +749,6 @@ public:
 				power = 0;
 				break;
 			case road_wt:
-			case air_wt:
 			default:
 				power = way_wear_factor_road; 
 				break;
