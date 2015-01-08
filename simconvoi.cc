@@ -159,7 +159,6 @@ void convoi_t::init(player_t *player)
 	line_update_pending = linehandle_t();
 
 	home_depot = koord3d::invalid;
-	// last_stop_pos = koord3d::invalid;
 
 	recalc_data_front = true;
 	recalc_data = true;
@@ -538,7 +537,6 @@ void convoi_t::call_convoi_tool( const char function, const char *extra ) const
 
 void convoi_t::rotate90( const sint16 y_size )
 {
-	// last_stop_pos.rotate90( y_size );
 	record_pos.rotate90( y_size );
 	home_depot.rotate90( y_size );
 	route.rotate90( y_size );

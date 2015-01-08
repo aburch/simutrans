@@ -283,13 +283,6 @@ private:
 	sint32 speedbonus_kmh; // speed used for speedbonus calculation in km/h
 	sint32 maxspeed_average_count;	// just a simple count to average for statistics
 
-	/**
-	* Set, when there was a income calculation (avoids some cheats)
-	* Since 99.15 it will stored directly in the vehikel_t
-	* @author prissi
-	*/
-	koord3d last_stop_pos;
-
 	// things for the world record
 	sint32 max_record_speed; // current convois fastest speed ever
 	koord record_pos;
