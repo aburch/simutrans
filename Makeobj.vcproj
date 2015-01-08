@@ -283,7 +283,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\simtools.cc"
+				RelativePath=".\utils\simrandom.cc"
 				>
 			</File>
 			<File
@@ -505,7 +505,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\simtools.h"
+				RelativePath=".\utils\simrandom.h"
 				>
 			</File>
 			<File
