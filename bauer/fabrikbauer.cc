@@ -1008,8 +1008,10 @@ next_ware_check:
 						reliefkarte_t::get_karte()->calc_map_size();
 						// tell the player
 						if(tell_me) {
-							stadt_t *s = our_fab->get_target_cities()[0];
-							const char *stadt_name = s ? s->get_name() : translator::translate("nowhere");
+							const char *stadt_name = translator::translate("nowhere");
+							if (!our_fab->get_target_cities().empty()) {
+								stadt_name = our_fab->get_target_cities()[0]->get_name();
+							}
 							cbuffer_t buf;
 							buf.printf( translator::translate("New factory chain\nfor %s near\n%s built with\n%i factories."), translator::translate(our_fab->get_name()), stadt_name, nr );
 							welt->get_message()->add_message(buf, pos.get_2d(), message_t::industry, CITY_KI, our_fab->get_besch()->get_haus()->get_tile(0)->get_hintergrund(0, 0, 0));
