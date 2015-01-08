@@ -39,7 +39,14 @@ void runway_t::rdwr(loadsave_t *file)
 		file->rdwr_str(s);
 		if(file->get_experimental_version() >= 12)
 		{
-			s = replacement_way->get_name();
+			if(!replacement_way)
+			{
+				s = "";
+			}
+			else
+			{
+				s = replacement_way->get_name();
+			}
 			file->rdwr_str(s);
 		}
 	}
