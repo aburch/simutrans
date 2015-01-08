@@ -23,11 +23,11 @@
 #include "components/gui_convoiinfo.h"
 #include "../simline.h"
 
-class spieler_t;
+class player_t;
 class schedule_list_gui_t : public gui_frame_t, public action_listener_t
 {
 private:
-	spieler_t *sp;
+	player_t *player;
 
 	button_t bt_new_line, bt_change_line, bt_delete_line, bt_withdraw_line;;
 	gui_container_t cont, cont_haltestellen;
@@ -76,7 +76,7 @@ private:
 	vector_tpl<uint16> livery_scheme_indices;
 
 public:
-	schedule_list_gui_t(spieler_t* sp);
+	schedule_list_gui_t(player_t* player);
 	~schedule_list_gui_t();
 	/**
 	* in top-level windows the name is displayed in titlebar

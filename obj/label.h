@@ -8,7 +8,7 @@ class label_t : public obj_t
 {
 public:
 	label_t(loadsave_t *file);
-	label_t(koord3d pos, spieler_t *sp, const char *text);
+	label_t(koord3d pos, player_t *player, const char *text);
 	~label_t();
 
 	void laden_abschliessen();

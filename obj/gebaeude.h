@@ -162,19 +162,19 @@ private:
 #ifdef INLINE_DING_TYPE
 protected:
 	gebaeude_t(obj_t::typ type);
-	gebaeude_t(obj_t::typ type, koord3d pos,spieler_t *sp, const haus_tile_besch_t *t);
-	void init(spieler_t *sp, const haus_tile_besch_t *t);
+	gebaeude_t(obj_t::typ type, koord3d pos,player_t *player, const haus_tile_besch_t *t);
+	void init(player_t *player, const haus_tile_besch_t *t);
 
 public:
 	gebaeude_t(loadsave_t *file);
-	gebaeude_t(koord3d pos,spieler_t *sp, const haus_tile_besch_t *t);
+	gebaeude_t(koord3d pos,player_t *player, const haus_tile_besch_t *t);
 #else
 protected:
 	gebaeude_t();
 
 public:
 	gebaeude_t(loadsave_t *file);
-	gebaeude_t(koord3d pos,spieler_t *sp, const haus_tile_besch_t *t);
+	gebaeude_t(koord3d pos,player_t *player, const haus_tile_besch_t *t);
 #endif
 	virtual ~gebaeude_t();
 
@@ -272,7 +272,7 @@ public:
 
 	virtual void zeige_info();
 
-	void entferne(spieler_t *sp);
+	void entferne(player_t *player);
 
 	void laden_abschliessen();
 

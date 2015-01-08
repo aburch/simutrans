@@ -36,7 +36,7 @@ public:
 
 
 // AI helper functions
-class ai_t : public spieler_t
+class ai_t : public player_t
 {
 protected:
 	// set the allowed modes of transport
@@ -49,7 +49,7 @@ protected:
 	sint32 construction_speed;
 
 public:
-	ai_t(karte_t *wl, uint8 nr) : spieler_t( wl, nr ) {
+	ai_t(karte_t *wl, uint8 nr) : player_t( wl, nr ) {
 		road_transport = rail_transport = air_transport = ship_transport = false;
 		construction_speed = 8000;
 	}

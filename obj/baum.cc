@@ -628,9 +628,9 @@ void baum_t::info(cbuffer_t & buf, bool dummy) const
 }
 
 
-void baum_t::entferne(spieler_t *sp) //"remove" (Babelfish)
+void baum_t::entferne(player_t *player) //"remove" (Babelfish)
 {
-	spieler_t::book_construction_costs(sp, welt->get_settings().cst_remove_tree, get_pos().get_2d(), ignore_wt);
+	player_t::book_construction_costs(player, welt->get_settings().cst_remove_tree, get_pos().get_2d(), ignore_wt);
 	mark_image_dirty( get_bild(), 0 );
 }
 

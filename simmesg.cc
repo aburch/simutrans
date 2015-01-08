@@ -43,8 +43,8 @@ PLAYER_COLOR_VAL message_t::node::get_player_color(karte_t *welt) const
 	// correct for player color
 	PLAYER_COLOR_VAL colorval = color;
 	if(  color&PLAYER_FLAG  ) {
-		spieler_t *sp = welt->get_spieler(color&(~PLAYER_FLAG));
-		colorval = sp ? PLAYER_FLAG+sp->get_player_color1()+1 : MN_GREY0;
+		player_t *player = welt->get_player(color&(~PLAYER_FLAG));
+		colorval = player ? PLAYER_FLAG+player->get_player_color1()+1 : MN_GREY0;
 	}
 	return colorval;
 }

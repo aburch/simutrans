@@ -86,19 +86,19 @@ roadsign_t::roadsign_t(loadsave_t *file) : obj_t ()
 
 #ifdef INLINE_DING_TYPE
 
-roadsign_t::roadsign_t(typ type, spieler_t *sp, koord3d pos, ribi_t::ribi dir, const roadsign_besch_t* besch) : obj_t(type, pos)
+roadsign_t::roadsign_t(typ type, player_t *player, koord3d pos, ribi_t::ribi dir, const roadsign_besch_t* besch) : obj_t(type, pos)
 {
-	init(sp, dir, besch);
+	init(player, dir, besch);
 }
 
-roadsign_t::roadsign_t(spieler_t *sp, koord3d pos, ribi_t::ribi dir, const roadsign_besch_t *besch) : obj_t(obj_t::roadsign, pos)
+roadsign_t::roadsign_t(player_t *player, koord3d pos, ribi_t::ribi dir, const roadsign_besch_t *besch) : obj_t(obj_t::roadsign, pos)
 {
-	init(sp, dir, besch);
+	init(player, dir, besch);
 }
 
-void roadsign_t::init(spieler_t *sp, ribi_t::ribi dir, const roadsign_besch_t *besch)
+void roadsign_t::init(player_t *player, ribi_t::ribi dir, const roadsign_besch_t *besch)
 #else
-roadsign_t::roadsign_t(spieler_t *sp, koord3d pos, ribi_t::ribi dir, const roadsign_besch_t *besch) : obj_t(pos)
+roadsign_t::roadsign_t(player_t *player, koord3d pos, ribi_t::ribi dir, const roadsign_besch_t *besch) : obj_t(pos)
 #endif
 {
 	this->besch = besch;
@@ -107,15 +107,15 @@ roadsign_t::roadsign_t(spieler_t *sp, koord3d pos, ribi_t::ribi dir, const roads
 	zustand = 0;
 	ticks_ns = ticks_ow = 16;
 	ticks_offset = 0;
-	set_besitzer( sp );
+	set_besitzer( player );
 	if(  besch->is_private_way()  ) {
 		// init ownership of private ways
 		ticks_ns = ticks_ow = 0;
-		if(  sp->get_player_nr() >= 8  ) {
-			ticks_ow = 1 << (sp->get_player_nr()-8);
+		if(  player->get_player_nr() >= 8  ) {
+			ticks_ow = 1 << (player->get_player_nr()-8);
 		}
 		else {
-			ticks_ns = 1 << sp->get_player_nr();
+			ticks_ns = 1 << player->get_player_nr();
 		}
 	}
 	/* if more than one state, we will switch direction and phase for traffic lights
@@ -623,9 +623,9 @@ void roadsign_t::rdwr(loadsave_t *file)
 }
 
 
-void roadsign_t::entferne(spieler_t *sp)
+void roadsign_t::entferne(player_t *player)
 {
-	spieler_t::book_construction_costs(sp, -besch->get_preis(), get_pos().get_2d(), get_waytype());
+	player_t::book_construction_costs(player, -besch->get_preis(), get_pos().get_2d(), get_waytype());
 }
 
 

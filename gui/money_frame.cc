@@ -137,7 +137,7 @@ const char * money_frame_t::transport_type_values[TT_MAX] = {
 /// Helper method to query data from players statistics
 sint64 money_frame_t::get_statistics_value(int tt, uint8 type, int yearmonth, bool monthly)
 {
-	const finance_t* finance = sp->get_finance();
+	const finance_t* finance = player->get_finance();
 	if (tt == TT_MAX) {
 		return monthly ? finance->get_history_com_month(yearmonth, type)
 		               : finance->get_history_com_year( yearmonth, type);
@@ -199,7 +199,7 @@ void money_frame_t::fill_chart_tables()
 
 bool money_frame_t::is_chart_table_zero(int ttoption)
 {
-	if (sp->get_finance()->get_maintenance_with_bits((transport_type)ttoption) != 0) {
+	if (player->get_finance()->get_maintenance_with_bits((transport_type)ttoption) != 0) {
 		return false;
 	}
 	// search for any non-zero values
@@ -226,8 +226,8 @@ bool money_frame_t::is_chart_table_zero(int ttoption)
 }
 
 
-money_frame_t::money_frame_t(spieler_t *sp)
-  : gui_frame_t( translator::translate("Finanzen"), sp),
+money_frame_t::money_frame_t(player_t *player)
+  : gui_frame_t( translator::translate("Finanzen"), player),
 		interest(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money),
 		old_interest(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money),
 		cash_money(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money),
@@ -268,12 +268,12 @@ money_frame_t::money_frame_t(spieler_t *sp)
 		transport_type_option(0),
 		headquarter_view(koord3d::invalid, scr_size(120, 64))
 {
-	if(welt->get_spieler(0)!=sp) {
-		sprintf(money_frame_title,translator::translate("Finances of %s"),translator::translate(sp->get_name()) );
+	if(welt->get_player(0)!=player) {
+		sprintf(money_frame_title,translator::translate("Finances of %s"),translator::translate(player->get_name()) );
 		set_name(money_frame_title);
 	}
 
-	this->sp = sp;
+	this->player = player;
 
 	const scr_coord_val top =  30;
 	const scr_coord_val left = D_MARGIN_LEFT;
@@ -344,10 +344,10 @@ money_frame_t::money_frame_t(spieler_t *sp)
 
 	// Scenario and warning location
 	warn.set_pos(scr_coord(c2_x, top+10*BUTTONSPACE));
-	if(sp->get_player_nr()!=1  &&  sp->get_welt()->get_scenario()->active()) {
+	if(player->get_player_nr()!=1  &&  player->get_welt()->get_scenario()->active()) {
 		scenario.set_pos( scr_coord( 10,1 ) );
-		sp->get_welt()->get_scenario()->update_scenario_texts();
-		scenario.set_text( sp->get_welt()->get_scenario()->description_text );
+		player->get_welt()->get_scenario()->update_scenario_texts();
+		scenario.set_text( player->get_welt()->get_scenario()->description_text );
 		add_komponente(&scenario);
 	}
 
@@ -431,12 +431,12 @@ money_frame_t::money_frame_t(spieler_t *sp)
 	add_komponente(&mchart);
 
 	// easier headquarter access
-	old_level = sp->get_headquarter_level();
-	old_pos = sp->get_headquarter_pos();
+	old_level = player->get_headquarter_level();
+	old_pos = player->get_headquarter_pos();
 	headquarter_tooltip[0] = 0;
 
 	// Headquarters is at upper right
-	if(  sp->get_ai_id()!=spieler_t::HUMAN  ) {
+	if(  player->get_ai_id()!=player_t::HUMAN  ) {
 		// misuse headquarter button for AI configure
 		headquarter.init(button_t::box, "Configure AI", scr_coord(c3_btn_x, 0), scr_size(BUTTONWIDTH, BUTTONSPACE));
 		headquarter.add_listener(this);
@@ -452,7 +452,7 @@ money_frame_t::money_frame_t(spieler_t *sp)
 		headquarter.disable();
 
 		// reuse tooltip from tool_headquarter_t
-		const char * c = tool_t::general_tool[TOOL_HEADQUARTER]->get_tooltip(sp);
+		const char * c = tool_t::general_tool[TOOL_HEADQUARTER]->get_tooltip(player);
 		if(c) {
 			// only true, if the headquarter can be built/updated
 			tstrncpy(headquarter_tooltip, c, lengthof(headquarter_tooltip));
@@ -462,7 +462,7 @@ money_frame_t::money_frame_t(spieler_t *sp)
 	}
 
 	if(old_pos!=koord::invalid) {
-		headquarter_view.set_location( welt->lookup_kartenboden( sp->get_headquarter_pos() )->get_pos() );
+		headquarter_view.set_location( welt->lookup_kartenboden( player->get_headquarter_pos() )->get_pos() );
 	}
 	headquarter_view.set_pos( scr_coord(c3_btn_x, BUTTONSPACE) );
 	add_komponente(&headquarter_view);
@@ -485,7 +485,7 @@ money_frame_t::money_frame_t(spieler_t *sp)
 
 	// states ...
 	for ( int i = 0; i<MAX_PLAYER_COST_BUTTON; i++) {
-		if (bFilterStates[sp->get_player_nr()] & (1<<i)) {
+		if (bFilterStates[player->get_player_nr()] & (1<<i)) {
 			chart.show_curve(i);
 			mchart.show_curve(i);
 		}
@@ -520,7 +520,7 @@ void money_frame_t::draw(scr_coord pos, scr_size size)
 	// Hajo: each label needs its own buffer
 	static char str_buf[35][256];
 
-	sp->get_finance()->calc_finance_history();
+	player->get_finance()->calc_finance_history();
 	fill_chart_tables();
 
 	chart.set_visible( year_month_tabs.get_active_tab_index()==0 );
@@ -581,9 +581,9 @@ void money_frame_t::draw(scr_coord pos, scr_size size)
 	str_buf[19][strlen(str_buf[19])-1] = '%';	// remove cent sign
 
 	// warning/success messages
-	if(sp->get_player_nr()!=1  &&  welt->get_scenario()->active()) {
+	if(player->get_player_nr()!=1  &&  welt->get_scenario()->active()) {
 		warn.set_color( COL_BLACK );
-		sint32 percent = welt->get_scenario()->get_completion(sp->get_player_nr());
+		sint32 percent = welt->get_scenario()->get_completion(player->get_player_nr());
 		if (percent >= 0) {
 			sprintf( str_buf[15], translator::translate("Scenario complete: %i%%"), percent );
 		}
@@ -591,21 +591,21 @@ void money_frame_t::draw(scr_coord pos, scr_size size)
 			tstrncpy(str_buf[15], translator::translate("Scenario lost!"), lengthof(str_buf[15]) );
 		}
 	}
-	else if(sp->get_finance()->get_history_com_month(0, ATC_CASH)<sp->get_finance()->get_history_com_month(0, ATC_HARD_CREDIT_LIMIT)) {
+	else if(player->get_finance()->get_history_com_month(0, ATC_CASH)<player->get_finance()->get_history_com_month(0, ATC_HARD_CREDIT_LIMIT)) {
 		warn.set_color( MONEY_MINUS );
 		tstrncpy(str_buf[15], translator::translate("Company bankrupt"), lengthof(str_buf[15]) );
 	}
-	else if(sp->get_finance()->get_history_com_month(0, ATC_CASH)<sp->get_finance()->get_history_com_month(0, ATC_SOFT_CREDIT_LIMIT)) {
+	else if(player->get_finance()->get_history_com_month(0, ATC_CASH)<player->get_finance()->get_history_com_month(0, ATC_SOFT_CREDIT_LIMIT)) {
 		warn.set_color( MONEY_MINUS );
 		tstrncpy(str_buf[15], translator::translate("Credit limit exceeded"), lengthof(str_buf[15]) );
 	}
-	else if(  sp->get_finance()->get_history_com_year(0, ATC_NETWEALTH)*10 < welt->get_settings().get_starting_money(welt->get_current_month()/12)  ){
+	else if(  player->get_finance()->get_history_com_year(0, ATC_NETWEALTH)*10 < welt->get_settings().get_starting_money(welt->get_current_month()/12)  ){
 		warn.set_color( MONEY_MINUS );
 		tstrncpy(str_buf[15], translator::translate("Net wealth negative"), lengthof(str_buf[15]) );
 	}
-	else if(  sp->get_account_overdrawn()  ) {
+	else if(  player->get_account_overdrawn()  ) {
 		warn.set_color( COL_YELLOW );
-		sprintf( str_buf[15], translator::translate("On loan since %i month(s)"), sp->get_account_overdrawn() );
+		sprintf( str_buf[15], translator::translate("On loan since %i month(s)"), player->get_account_overdrawn() );
 	}
 	else {
 		str_buf[15][0] = '\0';
@@ -613,7 +613,7 @@ void money_frame_t::draw(scr_coord pos, scr_size size)
 	warn.set_text(str_buf[15]);
 
 	// scenario description
-	if(sp->get_player_nr()!=1  &&  welt->get_scenario()->active()) {
+	if(player->get_player_nr()!=1  &&  welt->get_scenario()->active()) {
 		dynamic_string& desc = welt->get_scenario()->description_text;
 		if (desc.has_changed()) {
 			scenario.set_text( desc );
@@ -622,20 +622,20 @@ void money_frame_t::draw(scr_coord pos, scr_size size)
 	}
 
 	headquarter.disable();
-	if(  sp->get_ai_id()!=spieler_t::HUMAN  ) {
+	if(  player->get_ai_id()!=player_t::HUMAN  ) {
 		headquarter.set_tooltip( "Configure AI setttings" );
 		headquarter.set_text( "Configure AI" );
 		headquarter.enable();
 	}
-	else if(sp!=welt->get_active_player()) {
+	else if(player!=welt->get_active_player()) {
 		headquarter.set_tooltip( NULL );
 	}
 	else {
 		// I am on my own => allow upgrading
-		if(old_level!=sp->get_headquarter_level()) {
+		if(old_level!=player->get_headquarter_level()) {
 
 			// reuse tooltip from tool_headquarter_t
-			const char * c = tool_t::general_tool[TOOL_HEADQUARTER]->get_tooltip(sp);
+			const char * c = tool_t::general_tool[TOOL_HEADQUARTER]->get_tooltip(player);
 			if(c) {
 				// only true, if the headquarter can be built/updated
 				tstrncpy(headquarter_tooltip, c, lengthof(headquarter_tooltip));
@@ -652,13 +652,13 @@ void money_frame_t::draw(scr_coord pos, scr_size size)
 		}
 	}
 
-	if(old_level!=sp->get_headquarter_level()  ||  old_pos!=sp->get_headquarter_pos()) {
-		if( sp->get_ai_id() == spieler_t::HUMAN ) {
-			headquarter.set_text( sp->get_headquarter_pos()!=koord::invalid ? "upgrade HQ" : "build HQ" );
+	if(old_level!=player->get_headquarter_level()  ||  old_pos!=player->get_headquarter_pos()) {
+		if( player->get_ai_id() == player_t::HUMAN ) {
+			headquarter.set_text( player->get_headquarter_pos()!=koord::invalid ? "upgrade HQ" : "build HQ" );
 		}
 		remove_komponente(&headquarter_view);
-		old_level = sp->get_headquarter_level();
-		old_pos = sp->get_headquarter_pos();
+		old_level = player->get_headquarter_level();
+		old_pos = player->get_headquarter_pos();
 		if(  old_pos!=koord::invalid  ) {
 			headquarter_view.set_location( welt->lookup_kartenboden(old_pos)->get_pos() );
 			add_komponente(&headquarter_view);
@@ -666,7 +666,7 @@ void money_frame_t::draw(scr_coord pos, scr_size size)
 	}
 
 	// Hajo: Money is counted in credit cents (100 cents = 1 Cr)
-	sint64 maintenance = sp->get_finance()->get_maintenance_with_bits((transport_type)transport_type_option);
+	sint64 maintenance = player->get_finance()->get_maintenance_with_bits((transport_type)transport_type_option);
 	money_to_string(str_buf[16],
 		(double)(maintenance)/100.0
 	);
@@ -674,7 +674,7 @@ void money_frame_t::draw(scr_coord pos, scr_size size)
 	maintenance_money.set_color(maintenance>=0?MONEY_PLUS:MONEY_MINUS);
 
 	for (int i = 0;  i<MAX_PLAYER_COST_BUTTON;  i++) {
-		filterButtons[i].pressed = ( (bFilterStates[sp->get_player_nr()]&(1<<i)) != 0 );
+		filterButtons[i].pressed = ( (bFilterStates[player->get_player_nr()]&(1<<i)) != 0 );
 		// year_month_toggle.pressed = mchart.is_visible();
 	}
 
@@ -688,19 +688,19 @@ void money_frame_t::draw(scr_coord pos, scr_size size)
 bool money_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 {
 	if(komp==&headquarter) {
-		if(  sp->get_ai_id()!=spieler_t::HUMAN  ) {
-			create_win( new ai_option_t(sp), w_info, magic_ai_options_t+sp->get_player_nr() );
+		if(  player->get_ai_id()!=player_t::HUMAN  ) {
+			create_win( new ai_option_t(player), w_info, magic_ai_options_t+player->get_player_nr() );
 		}
 		else {
-			welt->set_tool( tool_t::general_tool[TOOL_HEADQUARTER], sp );
+			welt->set_tool( tool_t::general_tool[TOOL_HEADQUARTER], player );
 		}
 		return true;
 	}
 
 	for ( int i = 0; i<MAX_PLAYER_COST_BUTTON; i++) {
 		if (komp == &filterButtons[i]) {
-			bFilterStates[sp->get_player_nr()] ^= (1<<i);
-			if (bFilterStates[sp->get_player_nr()] & (1<<i)) {
+			bFilterStates[player->get_player_nr()] ^= (1<<i);
+			if (bFilterStates[player->get_player_nr()] & (1<<i)) {
 				chart.show_curve(i);
 				mchart.show_curve(i);
 			}
@@ -724,7 +724,7 @@ bool money_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 
 uint32 money_frame_t::get_rdwr_id()
 {
-	return magic_finances_t+sp->get_player_nr();
+	return magic_finances_t+player->get_player_nr();
 }
 
 
@@ -734,12 +734,12 @@ void money_frame_t::rdwr( loadsave_t *file )
 	file->rdwr_bool( monthly );
 
 	// button state already collected
-	file->rdwr_long( bFilterStates[sp->get_player_nr()] );
+	file->rdwr_long( bFilterStates[player->get_player_nr()] );
 
 	if(  file->is_loading()  ) {
 		// states ...
 		for( uint32 i = 0; i<MAX_PLAYER_COST_BUTTON; i++) {
-			if (bFilterStates[sp->get_player_nr()] & (1<<i)) {
+			if (bFilterStates[player->get_player_nr()] & (1<<i)) {
 				chart.show_curve(i);
 				mchart.show_curve(i);
 			}

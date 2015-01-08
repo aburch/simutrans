@@ -467,7 +467,7 @@ private:
 	/**
 	 * Checks whether the heights of the corners of the tile at (@p x, @p y) can be raised.
 	 * If the desired height of a corner is lower than its current height, this corner is ignored.
-	 * @param sp player who wants to lower
+	 * @param player player who wants to lower
 	 * @param x coordinate
 	 * @param y coordinate
 	 * @param keep_water returns false if water tiles would be raised above water
@@ -477,7 +477,7 @@ private:
 	 * @param hnw desired height of nw-corner
 	 * @returns NULL if raise_to operation can be performed, an error message otherwise
 	 */
-	const char* can_raise_to(const spieler_t* sp, sint16 x, sint16 y, bool keep_water, bool allow_deep_water, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw) const;
+	const char* can_raise_to(const player_t* player, sint16 x, sint16 y, bool keep_water, bool allow_deep_water, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw) const;
 
 	/**
 	 * Raises heights of the corners of the tile at (@p x, @p y).
@@ -492,7 +492,7 @@ private:
 	/**
 	 * Checks whether the heights of the corners of the tile at (@p x, @p y) can be lowered.
 	 * If the desired height of a corner is higher than its current height, this corner is ignored.
-	 * @param sp player who wants to lower
+	 * @param player player who wants to lower
 	 * @param x coordinate
 	 * @param y coordinate
 	 * @param hsw desired height of sw-corner
@@ -501,7 +501,7 @@ private:
 	 * @param hnw desired height of nw-corner
 	 * @returns NULL if lower_to operation can be performed, an error message otherwise
 	 */
-	const char* can_lower_to(const spieler_t* sp, sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw, bool allow_deep_water) const;
+	const char* can_lower_to(const player_t* player, sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw, bool allow_deep_water) const;
 
 	/**
 	 * Lowers heights of the corners of the tile at (@p x, @p y).
@@ -570,12 +570,12 @@ private:
 	 * The players of the game.
 	 * @note Standard human player has index 0, public player 1.
 	 */
-	spieler_t *spieler[MAX_PLAYER_COUNT];
+	player_t *players[MAX_PLAYER_COUNT];
 
 	/**
 	 * Active player.
 	 */
-	spieler_t *active_player;
+	player_t *active_player;
 
 	/**
 	 * Active player index.
@@ -1148,12 +1148,12 @@ public:
 	/**
 	 * Player management here
 	 */
-	uint8 sp2num(spieler_t *sp);
-	spieler_t * get_spieler(uint8 n) const { return spieler[n&15]; }
-	spieler_t* get_active_player() const { return active_player; }
+	uint8 sp2num(player_t *player);
+	player_t * get_player(uint8 n) const { return players[n&15]; }
+	player_t* get_active_player() const { return active_player; }
 	uint8 get_active_player_nr() const { return active_player_nr; }
 	void switch_active_player(uint8 nr, bool silent);
-	const char *new_spieler( uint8 nr, uint8 type );
+	const char *init_new_player( uint8 nr, uint8 type );
 	void store_player_password_hash( uint8 player_nr, const pwd_hash_t& hash );
 	const pwd_hash_t& get_player_password_hash( uint8 player_nr ) const { return player_password_hash[player_nr]; }
 	void clear_player_password_hashes();
@@ -1728,12 +1728,12 @@ public:
 	/**
 	 * Set a new tool as current: calls local_set_tool or sends to server.
 	 */
-	void set_tool( tool_t *tool, spieler_t * sp );
+	void set_tool( tool_t *tool, player_t * player );
 
 	/**
 	 * Set a new tool on our client, calls init.
 	 */
-	void local_set_tool( tool_t *tool, spieler_t * sp );
+	void local_set_tool( tool_t *tool, player_t * player );
 	tool_t *get_tool(uint8 nr) const { return selected_tool[nr]; }
 
 	/**
@@ -1955,11 +1955,11 @@ public:
 
 	/**
 	 * Returns an index to a halt at koord k
-	 * optionally limit to that owned by player sp
+	 * optionally limit to that owned by player player
 	 * by default create a new halt if none found
 	 * @note "create_halt"==true is used during loading old games
 	 */
-	halthandle_t get_halt_koord_index(koord k, spieler_t *sp=NULL, bool create_halt=true);
+	halthandle_t get_halt_koord_index(koord k, player_t *player=NULL, bool create_halt=true);
 
 	/**
 	 * File version used when loading (or current if generated)
@@ -1972,14 +1972,14 @@ public:
 	 * can be lowered at the specified height.
 	 * @author V. Meyer
 	 */
-	const char* can_lower_plan_to(const spieler_t *sp, sint16 x, sint16 y, sint8 h) const;
+	const char* can_lower_plan_to(const player_t *player, sint16 x, sint16 y, sint8 h) const;
 
 	/**
 	 * Checks if the planquadrat at coordinate (x,y)
 	 * can be raised at the specified height.
 	 * @author V. Meyer
 	 */
-	const char* can_raise_plan_to(const spieler_t *sp, sint16 x, sint16 y, sint8 h) const;
+	const char* can_raise_plan_to(const player_t *player, sint16 x, sint16 y, sint8 h) const;
 
 	/**
 	 * Checks if the whole planquadrat at coordinates (x,y) height can
@@ -1992,17 +1992,17 @@ public:
 	 * Increases the height of the grid coordinate (x, y) by one.
 	 * @param pos Grid coordinate.
 	 */
-	int grid_raise(const spieler_t *sp, koord pos, bool allow_deep_water, const char*&err);
+	int grid_raise(const player_t *player, koord pos, bool allow_deep_water, const char*&err);
 
 	/**
 	 * Decreases the height of the grid coordinate (x, y) by one.
 	 * @param pos Grid coordinate.
 	 */
-	int grid_lower(const spieler_t *sp, koord pos, const char*&err);
+	int grid_lower(const player_t *player, koord pos, const char*&err);
 
 	// mostly used by AI: Ask to flatten a tile
-	bool can_ebne_planquadrat(spieler_t *sp, koord k, sint8 hgt, bool keep_water=false, bool make_underwater_hill=false);
-	bool ebne_planquadrat(spieler_t *sp, koord k, sint8 hgt, bool keep_water=false, bool make_underwater_hill=false, bool justcheck=false);
+	bool can_ebne_planquadrat(player_t *player, koord k, sint8 hgt, bool keep_water=false, bool make_underwater_hill=false);
+	bool ebne_planquadrat(player_t *player, koord k, sint8 hgt, bool keep_water=false, bool make_underwater_hill=false, bool justcheck=false);
 
 	/**
 	 * Class to manage terraform operations.
@@ -2055,9 +2055,9 @@ public:
 		void iterate(bool raise);
 
 		/// Check whether raise operation would succeed
-		const char* can_raise_all(const spieler_t *sp, bool allow_deep_water, bool keep_water=false) const;
+		const char* can_raise_all(const player_t *player, bool allow_deep_water, bool keep_water=false) const;
 		/// Check whether lower operation would succeed
-		const char* can_lower_all(const spieler_t *sp, bool allow_deep_water) const;
+		const char* can_lower_all(const player_t *player, bool allow_deep_water) const;
 
 		/// Do the raise operations
 		int raise_all();

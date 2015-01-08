@@ -65,8 +65,8 @@ protected:
 	roadsign_t(typ type, loadsave_t *file);
 	void init(loadsave_t *file);
 
-	roadsign_t(typ type, spieler_t *sp, koord3d pos, ribi_t::ribi dir, const roadsign_besch_t* besch);
-	void init(spieler_t *sp, ribi_t::ribi dir, const roadsign_besch_t *besch);
+	roadsign_t(typ type, player_t *player, koord3d pos, ribi_t::ribi dir, const roadsign_besch_t* besch);
+	void init(player_t *player, ribi_t::ribi dir, const roadsign_besch_t *besch);
 public:
 #else
 	typ get_typ() const { return roadsign; }
@@ -82,7 +82,7 @@ public:
 	waytype_t get_waytype() const { return besch ? besch->get_wtyp() : invalid_wt; }
 
 	roadsign_t(loadsave_t *file);
-	roadsign_t(spieler_t *sp, koord3d pos, ribi_t::ribi dir, const roadsign_besch_t* besch);
+	roadsign_t(player_t *player, koord3d pos, ribi_t::ribi dir, const roadsign_besch_t* besch);
 
 	const roadsign_besch_t *get_besch() const {return besch;}
 
@@ -147,7 +147,7 @@ public:
 	void rotate90();
 
 	// substracts cost
-	void entferne(spieler_t *sp);
+	void entferne(player_t *player);
 
 	void laden_abschliessen();
 

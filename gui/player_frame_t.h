@@ -3,8 +3,8 @@
  * Hj. Malthaner, 2000
  */
 
-#ifndef gui_spieler_h
-#define gui_spieler_h
+#ifndef gui_player_h
+#define gui_player_h
 
 #include "../simconst.h"
 

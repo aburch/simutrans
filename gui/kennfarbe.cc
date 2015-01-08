@@ -19,16 +19,16 @@
 #include "../player/simplay.h"
 #include "../simtool.h"
 
-farbengui_t::farbengui_t(spieler_t *sp) :
-	gui_frame_t( translator::translate("Farbe"), sp ),
+farbengui_t::farbengui_t(player_t *player) :
+	gui_frame_t( translator::translate("Farbe"), player ),
 	txt(&buf),
 	c1( "Your primary color:" ),
 	c2( "Your secondary color:" ),
-	bild( skinverwaltung_t::color_options->get_bild_nr(0), sp->get_player_nr() )
+	bild( skinverwaltung_t::color_options->get_bild_nr(0), player->get_player_nr() )
 {
 	scr_coord cursor = scr_coord (D_MARGIN_TOP, D_MARGIN_LEFT);
 
-	this->sp = sp;
+	this->player = player;
 	buf.clear();
 	buf.append(translator::translate("COLOR_CHOOSE\n"));
 
@@ -52,9 +52,9 @@ farbengui_t::farbengui_t(spieler_t *sp) :
 	uint32 used_colors1 = 0;
 	uint32 used_colors2 = 0;
 	for(  int i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
-		if(  i!=sp->get_player_nr()  &&  welt->get_spieler(i)  ) {
-			used_colors1 |= 1 << (welt->get_spieler(i)->get_player_color1() / 8);
-			used_colors2 |= 1 << (welt->get_spieler(i)->get_player_color2() / 8);
+		if(  i!=player->get_player_nr()  &&  welt->get_player(i)  ) {
+			used_colors1 |= 1 << (welt->get_player(i)->get_player_color1() / 8);
+			used_colors2 |= 1 << (welt->get_player(i)->get_player_color2() / 8);
 		}
 	}
 
@@ -65,7 +65,7 @@ farbengui_t::farbengui_t(spieler_t *sp) :
 		player_color_1[i].add_listener(this);
 		add_komponente( player_color_1+i );
 	}
-	player_color_1[sp->get_player_color1()/8].pressed = true;
+	player_color_1[player->get_player_color1()/8].pressed = true;
 	cursor.y += 2*(D_BUTTON_HEIGHT+D_H_SPACE)+LINESPACE;
 
 	// Player's secondary color label
@@ -80,7 +80,7 @@ farbengui_t::farbengui_t(spieler_t *sp) :
 		player_color_2[i].add_listener(this);
 		add_komponente( player_color_2+i );
 	}
-	player_color_2[sp->get_player_color2()/8].pressed = true;
+	player_color_2[player->get_player_color2()/8].pressed = true;
 	cursor.y += 2*D_BUTTON_HEIGHT+D_H_SPACE;
 
 	// Put picture in place
@@ -107,10 +107,10 @@ bool farbengui_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 
 			// re-colour a player
 			cbuffer_t buf;
-			buf.printf( "1%u,%i", sp->get_player_nr(), i*8);
+			buf.printf( "1%u,%i", player->get_player_nr(), i*8);
 			tool_t *tool = create_tool( TOOL_RECOLOUR_TOOL | SIMPLE_TOOL );
 			tool->set_default_param( buf );
-			sp->get_welt()->set_tool( tool, sp );
+			player->get_welt()->set_tool( tool, player );
 			// since init always returns false, it is save to delete immediately
 			delete tool;
 			return true;
@@ -123,10 +123,10 @@ bool farbengui_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 			}
 			// re-colour a player
 			cbuffer_t buf;
-			buf.printf( "2%u,%i", sp->get_player_nr(), i*8);
+			buf.printf( "2%u,%i", player->get_player_nr(), i*8);
 			tool_t *tool = create_tool( TOOL_RECOLOUR_TOOL | SIMPLE_TOOL );
 			tool->set_default_param( buf );
-			sp->get_welt()->set_tool( tool, sp );
+			player->get_welt()->set_tool( tool, player );
 			// since init always returns false, it is save to delete immediately
 			delete tool;
 			return true;

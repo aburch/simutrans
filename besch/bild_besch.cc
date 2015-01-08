@@ -196,20 +196,20 @@ bild_besch_t *bild_besch_t::copy_fliphorizontal() const
 {
 	// step 1 is finding out how much memory picture will need
 	// any pixel with no components specified in opaquemask will be made transparent (so needs no space)
-	PIXVAL const* sp = get_daten();
+	PIXVAL const* player = get_daten();
 	uint16 h = pic.h;
 	uint16 len = 0;
 	if(  h > 0  ) {
 		do {
-			uint16 transparent_runlen = *sp++; // transparent
+			uint16 transparent_runlen = *player++; // transparent
 			len++;
 			do {
-				runlen = *sp++; // opaque
+				runlen = *player++; // opaque
 				len++;
 				bool run_transparent = true;
 				bool first_pixel = true;
 				while(  runlen--  ) {
-					PIXVAL p = *sp++;
+					PIXVAL p = *player++;
 
 					bool pixel_transparent = false; // here we will add code to test components...
 					if(  pixel_transparent  ) {
@@ -232,7 +232,7 @@ bild_besch_t *bild_besch_t::copy_fliphorizontal() const
 						}
 					}
 				}
-				runlen = *sp++; // transparent
+				runlen = *player++; // transparent
 				if(  !is_transparent  ) {
 					len++; // only if last pixel was opaque
 				}

@@ -115,9 +115,9 @@ static uint8 selected_tab = 0;
 /// selected line per tab
 static linehandle_t selected_line[simline_t::MAX_LINE_TYPE];
 
-schedule_list_gui_t::schedule_list_gui_t(spieler_t *sp_) :
-	gui_frame_t( translator::translate("Line Management"), sp_),
-	sp(sp_),
+schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
+	gui_frame_t( translator::translate("Line Management"), player_),
+	player(player_),
 	scrolly_convois(&cont),
 	scrolly_haltestellen(&cont_haltestellen),
 	scl(gui_scrolled_list_t::listskin),
@@ -133,12 +133,12 @@ schedule_list_gui_t::schedule_list_gui_t(spieler_t *sp_) :
 	// init scrolled list
 	scl.set_pos(scr_coord(0,1));
 	scl.set_size(scr_size(LINE_NAME_COLUMN_WIDTH-11-4, SCL_HEIGHT-18));
-	scl.set_highlight_color(sp->get_player_color1()+1);
+	scl.set_highlight_color(player->get_player_color1()+1);
 	scl.add_listener(this);
 
 	// reset selected tab / line if player changed
-	if (last_active_player != sp->get_player_nr()) {
-		last_active_player = sp->get_player_nr();
+	if (last_active_player != player->get_player_nr()) {
+		last_active_player = player->get_player_nr();
 		selected_tab = 0;
 		for(uint i=0; i<lengthof(selected_line); i++) {
 			selected_line[i] = linehandle_t();
@@ -256,12 +256,12 @@ schedule_list_gui_t::schedule_list_gui_t(spieler_t *sp_) :
 	livery_selector.set_max_size(scr_size(D_BUTTON_WIDTH - 8, LINESPACE*3+2+16));
 	livery_selector.set_highlight_color(1);
 	livery_selector.clear_elements();
-	vector_tpl<livery_scheme_t*>* schemes = sp->get_welt()->get_settings().get_livery_schemes();
+	vector_tpl<livery_scheme_t*>* schemes = player->get_welt()->get_settings().get_livery_schemes();
 	livery_scheme_indices.clear();
 	ITERATE_PTR(schemes, i)
 	{
 		livery_scheme_t* scheme = schemes->get_element(i);
-		if(scheme->is_available(sp->get_welt()->get_timeline_year_month()))
+		if(scheme->is_available(player->get_welt()->get_timeline_year_month()))
 		{
 			livery_selector.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(scheme->get_name()), COL_BLACK));
 			livery_scheme_indices.append(i);
@@ -353,7 +353,7 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *komp, value_t 
 {
 	if(komp == &bt_change_line) {
 		if(line.is_bound()) {
-			create_win( new line_management_gui_t(line, sp), w_info, (ptrdiff_t)line.get_rep() );
+			create_win( new line_management_gui_t(line, player), w_info, (ptrdiff_t)line.get_rep() );
 		}
 	}
 	else if(komp == &bt_new_line) {
@@ -365,7 +365,7 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *komp, value_t 
 		int type = tabs_to_lineindex[tabs.get_active_tab_index()];
 		buf.printf( "c,0,%i,0,0|%i|", type, type );
 		tool->set_default_param(buf);
-		welt->set_tool( tool, sp );
+		welt->set_tool( tool, player );
 		// since init always returns false, it is safe to delete immediately
 		delete tool;
 		depot_t::update_all_win();
@@ -376,7 +376,7 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *komp, value_t 
 			cbuffer_t buf;
 			buf.printf( "d,%i", line.get_id() );
 			tool->set_default_param(buf);
-			welt->set_tool( tool, sp );
+			welt->set_tool( tool, player );
 			// since init always returns false, it is safe to delete immediately
 			delete tool;
 			depot_t::update_all_win();
@@ -389,7 +389,7 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *komp, value_t 
 			cbuffer_t buf;
 			buf.printf( "w,%i,%i", line.get_id(), bt_withdraw_line.pressed );
 			tool->set_default_param(buf);
-			welt->set_tool( tool, sp );
+			welt->set_tool( tool, player );
 			// since init always returns false, it is safe to delete immediately
 			delete tool;
 		}
@@ -409,7 +409,7 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *komp, value_t 
 				cbuffer_t buf;
 				buf.printf( "V,%i,%i", line.get_id(), livery_scheme_index );
 				tool->set_default_param(buf);
-				sp->get_welt()->set_tool( tool, sp );
+				player->get_welt()->set_tool( tool, player );
 				// since init always returns false, it is save to delete immediately
 				delete tool;
 			}
@@ -507,7 +507,7 @@ void schedule_list_gui_t::rename_line()
 
 void schedule_list_gui_t::draw(scr_coord pos, scr_size size)
 {
-	if(  old_line_count != sp->simlinemgmt.get_line_count()  ) {
+	if(  old_line_count != player->simlinemgmt.get_line_count()  ) {
 		show_lineinfo( line );
 	}
 	// if search string changed, update line selection
@@ -647,7 +647,7 @@ void schedule_list_gui_t::build_line_list(int filter)
 {
 	sint32 sel = -1;
 	scl.clear_elements();
-	sp->simlinemgmt.get_lines(tabs_to_lineindex[filter], &lines);
+	player->simlinemgmt.get_lines(tabs_to_lineindex[filter], &lines);
 	vector_tpl<line_scrollitem_t *>selected_lines;
 
 	FOR(vector_tpl<linehandle_t>, const l, lines) {
@@ -668,7 +668,7 @@ void schedule_list_gui_t::build_line_list(int filter)
 	line_scrollitem_t::sort_mode = (line_scrollitem_t::sort_modes_t)current_sort_mode;
 	scl.sort( 0, NULL );
 
-	old_line_count = sp->simlinemgmt.get_line_count();
+	old_line_count = player->simlinemgmt.get_line_count();
 }
 
 
@@ -735,7 +735,7 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 		cont_haltestellen.remove_all();
 		ypos = 0;
 		FOR(minivec_tpl<linieneintrag_t>, const& i, new_line->get_schedule()->eintrag) {
-			halthandle_t const halt = haltestelle_t::get_halt(i.pos, sp);
+			halthandle_t const halt = haltestelle_t::get_halt(i.pos, player);
 			if (halt.is_bound()) {
 				halt_list_stats_t* cinfo = new halt_list_stats_t(halt);
 				cinfo->set_pos(scr_coord(0, ypos));
@@ -837,7 +837,7 @@ void schedule_list_gui_t::update_data(linehandle_t changed_line)
 
 uint32 schedule_list_gui_t::get_rdwr_id()
 {
-	return magic_line_management_t+sp->get_player_nr();
+	return magic_line_management_t+player->get_player_nr();
 }
 
 

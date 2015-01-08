@@ -572,7 +572,7 @@ DBG_MESSAGE("ai_passenger_t::create_simple_road_transport()","Already connection
 void ai_t::tell_tool_result(tool_t *tool, koord3d pos, const char *err, bool local)
 {
 	// necessary to show error message if a human helps us poor AI
-	spieler_t::tell_tool_result(tool, pos, err, local);
+	player_t::tell_tool_result(tool, pos, err, local);
 
 	// TODO: process the result...
 }
@@ -580,7 +580,7 @@ void ai_t::tell_tool_result(tool_t *tool, koord3d pos, const char *err, bool loc
 
 void ai_t::rdwr(loadsave_t *file)
 {
-	spieler_t::rdwr(file);
+	player_t::rdwr(file);
 
 	if(  file->get_version()<111001  ) {
 		// do not know about ai_t

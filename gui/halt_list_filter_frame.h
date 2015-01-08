@@ -19,7 +19,7 @@
 #include "halt_list_frame.h"
 #include "components/gui_textinput.h"
 
-class spieler_t;
+class player_t;
 
 class halt_list_filter_frame_t : public gui_frame_t , private action_listener_t
 {
@@ -97,7 +97,7 @@ private:
 	gui_container_t ware_cont_an;
 
 public:
-	halt_list_filter_frame_t(spieler_t *sp, halt_list_frame_t *main_frame);
+	halt_list_filter_frame_t(player_t *player, halt_list_frame_t *main_frame);
 	~halt_list_filter_frame_t();
 
 	/**

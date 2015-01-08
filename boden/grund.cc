@@ -140,20 +140,20 @@ PLAYER_COLOR_VAL grund_t::text_farbe() const
 	if(is_halt()  &&  find<label_t>()==NULL) {
 		// only halt label
 		const halthandle_t halt = get_halt();
-		const spieler_t *sp=halt->get_besitzer();
-		if(sp) {
-			return PLAYER_FLAG|(sp->get_player_color1()+4);
+		const player_t *player=halt->get_besitzer();
+		if(player) {
+			return PLAYER_FLAG|(player->get_player_color1()+4);
 		}
 	}
 	// else color according to current owner
 	else if(obj_bei(0)) {
-		const spieler_t *sp = obj_bei(0)->get_besitzer(); // for cityhall
+		const player_t *player = obj_bei(0)->get_besitzer(); // for cityhall
 		const label_t* l = find<label_t>();
 		if(l) {
-			sp = l->get_besitzer();
+			player = l->get_besitzer();
 		}
-		if(sp) {
-			return PLAYER_FLAG|(sp->get_player_color1()+4);
+		if(player) {
+			return PLAYER_FLAG|(player->get_player_color1()+4);
 		}
 	}
 
@@ -247,13 +247,13 @@ void grund_t::rdwr(loadsave_t *file)
 		bool label;
 		file->rdwr_bool(label);
 		if(label) {
-			objlist.add( new label_t(pos, welt->get_spieler(0), get_text() ) );
+			objlist.add( new label_t(pos, welt->get_player(0), get_text() ) );
 		}
 	}
 
-	sint8 besitzer_n=-1;
+	sint8 owner_n=-1;
 	if(file->get_version()<99005) {
-		file->rdwr_byte(besitzer_n);
+		file->rdwr_byte(owner_n);
 	}
 
 	if(file->get_version()>=88009) {
@@ -423,8 +423,8 @@ void grund_t::rdwr(loadsave_t *file)
 					else {
 						assert((flags&has_way2)==0);	// maximum two ways on one tile ...
 						weg->set_pos(pos);
-						if(besitzer_n!=-1) {
-							weg->set_besitzer(welt->get_spieler(besitzer_n));
+						if(owner_n!=-1) {
+							weg->set_besitzer(welt->get_player(owner_n));
 						}
 						objlist.add(weg);
 						if(flags&has_way1) {
@@ -1761,7 +1761,7 @@ sint64 grund_t::remove_trees()
 }
 
 
-sint64 grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp, koord3d_vector_t *route)
+sint64 grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, player_t *player, koord3d_vector_t *route)
 {
 	sint64 cost = 0;
 
@@ -1809,7 +1809,7 @@ sint64 grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp, ko
 			cost -= remove_trees();
 
 			// Add the cost of buying the land, if appropriate.
-			if(obj_bei(0) == NULL || obj_bei(0)->get_besitzer() != sp) 
+			if(obj_bei(0) == NULL || obj_bei(0)->get_besitzer() != player) 
 			{
 				// Only add the cost of the land if the player does not
 				// already own this land.
@@ -1859,7 +1859,7 @@ sint64 grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp, ko
 
 		// Add a pavement to roads adopted by the city.  This avoids the
 		// "I deleted the road and replaced it, so now there's no pavement" phenomenon.
-		bool city_adopts_this = weg->should_city_adopt_this(sp);
+		bool city_adopts_this = weg->should_city_adopt_this(player);
 		if (city_adopts_this)
 		{
 			// Add road and set speed limit.
@@ -1867,10 +1867,10 @@ sint64 grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp, ko
 			str->set_gehweg(true);
 			weg->set_public_right_of_way();
 		}
-		else if(sp && !ist_wasser() && !city_adopts_this)
+		else if(player && !ist_wasser() && !city_adopts_this)
 		{
 			// Set the owner
-			weg->set_besitzer(sp);
+			weg->set_besitzer(player);
 			// Must call this here to ensure that the diagonal cost is
 			// set as appropriate.
 			// @author: jamespetts, Februrary 2010
@@ -2326,9 +2326,9 @@ bool grund_t::removing_way_would_disrupt_public_right_of_way(waytype_t wt)
 			if(end != koord3d::invalid)
 			{
 				route_t diversionary_route;
-				vehikel_t *diversion_checker = vehikelbauer_t::baue(start, welt->get_spieler(1), NULL, &diversion_check_type);
+				vehikel_t *diversion_checker = vehikelbauer_t::baue(start, welt->get_player(1), NULL, &diversion_check_type);
 				diversion_checker->set_flag(obj_t::not_on_map);
-				diversion_checker->set_besitzer(welt->get_spieler(1));
+				diversion_checker->set_besitzer(welt->get_player(1));
 				fahrer_t *driver = diversion_checker;
 				driver = public_driver_t::apply(driver);
 				const uint32 default_road_axle_load = welt->get_city(w->get_pos().get_2d()) ? welt->get_settings().get_city_road_type(welt->get_timeline_year_month())->get_axle_load() : welt->get_settings().get_intercity_road_type(welt->get_timeline_year_month())->get_axle_load(); 
@@ -2431,7 +2431,7 @@ int grund_t::get_max_speed() const
 }
 
 
-bool grund_t::remove_everything_from_way(spieler_t* sp, waytype_t wt, ribi_t::ribi rem)
+bool grund_t::remove_everything_from_way(player_t* player, waytype_t wt, ribi_t::ribi rem)
 {
 	// check, if the way must be totally removed?
 	weg_t *weg = get_weg(wt);
@@ -2441,7 +2441,7 @@ bool grund_t::remove_everything_from_way(spieler_t* sp, waytype_t wt, ribi_t::ri
 		const koord here = pos.get_2d();
 
 		// stops
-		if(flags&is_halt_flag  &&  (get_halt()->get_besitzer()==sp  || sp==welt->get_spieler(1))) {
+		if(flags&is_halt_flag  &&  (get_halt()->get_besitzer()==player  || player==welt->get_player(1))) {
 			bool remove_halt = get_typ()!=boden;
 			// remove only if there is no other way
 			if(get_weg_nr(1)==NULL) {
@@ -2462,7 +2462,7 @@ bool grund_t::remove_everything_from_way(spieler_t* sp, waytype_t wt, ribi_t::ri
 #endif
 			}
 			if (remove_halt) {
-				if (!haltestelle_t::remove(sp, pos)) {
+				if (!haltestelle_t::remove(player, pos)) {
 					return false;
 				}
 			}
@@ -2530,7 +2530,7 @@ bool grund_t::remove_everything_from_way(spieler_t* sp, waytype_t wt, ribi_t::ri
 					if((flags&has_way2)==0) {
 						if (add==ribi_t::keine) {
 							// last way was belonging to this tunnel
-							tunnel->entferne(sp);
+							tunnel->entferne(player);
 							delete tunnel;
 						}
 					}
@@ -2546,10 +2546,10 @@ bool grund_t::remove_everything_from_way(spieler_t* sp, waytype_t wt, ribi_t::ri
 		// need to remove railblocks to recalcualte connections
 		// remove all ways or just some?
 		if(add==ribi_t::keine) {
-			spieler_t* owner = weg->get_besitzer();
+			player_t* owner = weg->get_besitzer();
 			koord3d pos = weg->get_pos();
 			costs -= weg_entfernen(wt, true);
-			if(owner == sp)
+			if(owner == player)
 			{
 				// Need to sell the land on which the way is situated
 				costs =- welt->get_land_value(pos);
@@ -2565,7 +2565,7 @@ bool grund_t::remove_everything_from_way(spieler_t* sp, waytype_t wt, ribi_t::ri
 				// make tunnel portals to normal ground
 				if (get_typ()==tunnelboden  &&  (flags&has_way1)==0) {
 					// remove remaining objs
-					obj_loesche_alle( sp );
+					obj_loesche_alle( player );
 					// set to normal ground
 					welt->access(here)->kartenboden_setzen( new boden_t( pos, slope ) );
 					// now this is already deleted !
@@ -2580,7 +2580,7 @@ DBG_MESSAGE("tool_wayremover()","change remaining way to ribi %d",add);
 		}
 		// we have to pay?
 		if(costs) {
-			spieler_t::book_construction_costs(sp, costs, here, finance_wt);
+			player_t::book_construction_costs(player, costs, here, finance_wt);
 		}
 	}
 	return true;

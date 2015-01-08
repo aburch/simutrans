@@ -677,7 +677,7 @@ fabrik_t::disconnect_supplier(koord pos) //Returns true if must be destroyed.
 
 fabrik_t::fabrik_t(loadsave_t* file)
 {
-	besitzer_p = NULL;
+	owner = NULL;
 	power = 0;
 	power_demand = 0;
 	prodfactor_electric = 0;
@@ -721,7 +721,7 @@ fabrik_t::fabrik_t(loadsave_t* file)
 }
 
 
-fabrik_t::fabrik_t(koord3d pos_, spieler_t* spieler, const fabrik_besch_t* fabesch, sint32 initial_prod_base) :
+fabrik_t::fabrik_t(koord3d pos_, player_t* player, const fabrik_besch_t* fabesch, sint32 initial_prod_base) :
 	besch(fabesch),
 	pos(pos_)
 {
@@ -729,7 +729,7 @@ fabrik_t::fabrik_t(koord3d pos_, spieler_t* spieler, const fabrik_besch_t* fabes
 	pos_origin = pos;
 	building = NULL;
 
-	besitzer_p = spieler;
+	owner = player;
 
 	prodfactor_electric = 0;
 	prodfactor_pax = 0;
@@ -950,7 +950,7 @@ fabrik_t::~fabrik_t()
 			{
 				// Orphaned, must be deleted.
 				gebaeude_t* gb = tmp->get_building();
-				hausbauer_t::remove(welt->get_spieler(1), gb);
+				hausbauer_t::remove(welt->get_player(1), gb);
 			}
 		}
 
@@ -961,7 +961,7 @@ fabrik_t::~fabrik_t()
 			{
 				// Orphaned, must be deleted.
 				gebaeude_t* gb = tmp->get_building();
-				hausbauer_t::remove(welt->get_spieler(1), gb);
+				hausbauer_t::remove(welt->get_player(1), gb);
 			}
 		}
 		if(transformer_connected)
@@ -978,7 +978,7 @@ void fabrik_t::baue(sint32 rotate, bool build_fields, bool force_initial_prodbas
 	pos_origin = welt->lookup_kartenboden(pos_origin.get_2d())->get_pos();
 	if(!building)
 	{
- 		building = hausbauer_t::baue(besitzer_p, pos_origin, rotate, besch->get_haus(), this);
+ 		building = hausbauer_t::baue(owner, pos_origin, rotate, besch->get_haus(), this);
 	}
 	pos = building->get_pos();
 	pos_origin.z = pos.z;
@@ -993,7 +993,7 @@ void fabrik_t::baue(sint32 rotate, bool build_fields, bool force_initial_prodbas
 					// first make foundation below
 					grund_t *gr2 = new fundament_t(gr->get_pos(), gr->get_grund_hang());
 					welt->access(k)->boden_ersetzen(gr, gr2);
-					gr2->obj_add( new field_t(gr2->get_pos(), besitzer_p, besch->get_field_group()->get_field_class( fields[i].field_class_index ), this ) );
+					gr2->obj_add( new field_t(gr2->get_pos(), owner, besch->get_field_group()->get_field_class( fields[i].field_class_index ), this ) );
 				}
 				else {
 					// there was already a building at this position => do not restore!
@@ -1088,7 +1088,7 @@ bool fabrik_t::add_random_field(uint16 probability)
 		fields.append(new_field);
 		grund_t *gr2 = new fundament_t(gr->get_pos(), gr->get_grund_hang());
 		welt->access(k)->boden_ersetzen(gr, gr2);
-		gr2->obj_add( new field_t(gr2->get_pos(), besitzer_p, field_class, this ) );
+		gr2->obj_add( new field_t(gr2->get_pos(), owner, field_class, this ) );
 		// Knightly : adjust production base and storage capacities
 		set_base_production( prodbase + field_class->get_field_production() );
 		if(lt) {
@@ -1161,7 +1161,7 @@ void fabrik_t::rdwr(loadsave_t *file)
 {
 	xml_tag_t f( file, "fabrik_t" );
 	sint32 i;
-	sint32 spieler_n;
+	sint32 owner_n;
 	sint32 eingang_count;
 	sint32 ausgang_count;
 	sint32 anz_lieferziele;
@@ -1266,8 +1266,8 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 	}
 
 	// restore other information
-	spieler_n = welt->sp2num(besitzer_p);
-	file->rdwr_long(spieler_n);
+	owner_n = welt->sp2num(owner);
+	file->rdwr_long(owner_n);
 	file->rdwr_long(prodbase);
 	if(  file->get_version()<110005  ) {
 		// TurfIt : prodfaktor saving no longer required
@@ -1292,13 +1292,13 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 		// Due to a omission in Volkers changes, there might be savegames
 		// in which factories were saved without an owner. In this case
 		// set the owner to the default of player 1
-		if(spieler_n == -1) {
+		if(owner_n == -1) {
 			// Use default
-			besitzer_p = welt->get_spieler(1);
+			owner = welt->get_player(1);
 		}
 		else {
 			// Restore owner pointer
-			besitzer_p = welt->get_spieler(spieler_n);
+			owner = welt->get_player(owner_n);
 		}
 	}
 
@@ -2041,7 +2041,7 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 }
 
 
-void fabrik_t::neuer_monat()
+void fabrik_t::new_month()
 {
 	// calculate weighted averages
 	if(  aggregate_weight>0  ) {
@@ -2143,7 +2143,7 @@ void fabrik_t::neuer_monat()
 		{
 			uint32 proportion = (difference * 100) / max_difference;
 			proportion *= 75; //Set to percentage value, but take into account fact will be frequently checked (would otherwise be * 100 - reduced to take into account frequency of checking)
-			const uint32 chance = (simrand(1000000, "void fabrik_t::neuer_monat()"));
+			const uint32 chance = (simrand(1000000, "void fabrik_t::new_month()"));
 			if(chance <= proportion)
 			{
 				closedown = true;
@@ -2198,7 +2198,7 @@ void fabrik_t::neuer_monat()
 					}
 					const uint32 average_density = total_density / list_count;
 					const uint32 probability = 1 / ((100 - ((adjusted_density + average_density) / max_density)) * upgrade_list.get_count()) / 100;
-					const uint32 chance = simrand(probability, "void fabrik_t::neuer_monat()");
+					const uint32 chance = simrand(probability, "void fabrik_t::new_month()");
 					if(chance < list_count)
 					{
 						// All the conditions are met: upgrade.
@@ -2213,7 +2213,7 @@ void fabrik_t::neuer_monat()
 						const char* new_name = get_name();
 						get_building()->calc_bild();
 						// Base production is randomised, so is an instance value. Must re-set from the type.
-						prodbase = besch->get_produktivitaet() + simrand(besch->get_bereich(), "void fabrik_t::neuer_monat()");
+						prodbase = besch->get_produktivitaet() + simrand(besch->get_bereich(), "void fabrik_t::new_month()");
 						// Re-add the fields
 						for(uint16 i = 0; i < adjusted_number_of_fields; i ++)
 						{
@@ -2268,7 +2268,7 @@ void fabrik_t::neuer_monat()
 						}
 						else
 						{
-							prodbase = besch->get_produktivitaet() + simrand(besch->get_bereich(), "fabrik_t::neuer_monat");
+							prodbase = besch->get_produktivitaet() + simrand(besch->get_bereich(), "fabrik_t::new_month");
 						}
 	
 						prodbase = prodbase > 0 ? prodbase : 1;

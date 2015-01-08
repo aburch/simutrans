@@ -39,7 +39,7 @@ line_cost_t simline_t::convoi_to_line_catgory(convoi_t::convoi_cost_t cnv_cost)
 karte_ptr_t simline_t::welt;
 
 
-simline_t::simline_t(spieler_t* sp, linetype type)
+simline_t::simline_t(player_t* player, linetype type)
 {
 	self = linehandle_t(this);
 	char printname[128];
@@ -49,7 +49,7 @@ simline_t::simline_t(spieler_t* sp, linetype type)
 	init_financial_history();
 	this->type = type;
 	this->fpl = NULL;
-	this->sp = sp;
+	this->player = player;
 	withdraw = false;
 	state_color = COL_WHITE;
 
@@ -65,13 +65,13 @@ simline_t::simline_t(spieler_t* sp, linetype type)
 }
 
 
-simline_t::simline_t(spieler_t* sp, linetype type, loadsave_t *file)
+simline_t::simline_t(player_t* player, linetype type, loadsave_t *file)
 {
 	// id will be read and assigned during rdwr
 	self = linehandle_t();
 	this->type = type;
 	this->fpl = NULL;
-	this->sp = sp;
+	this->player = player;
 	withdraw = false;
 	create_schedule();
 	rdwr(file);
@@ -179,7 +179,7 @@ void simline_t::add_convoy(convoihandle_t cnv, bool from_loading)
 	if(  update_schedules  ) 
 	{
 		// Added by : Knightly
-		haltestelle_t::refresh_routing(fpl, goods_catg_index, sp);
+		haltestelle_t::refresh_routing(fpl, goods_catg_index, player);
 	}
 
 	// if the schedule is flagged as bidirectional, set the initial convoy direction
@@ -427,7 +427,7 @@ void simline_t::laden_abschliessen()
 {
 	if(  !self.is_bound()  ) {
 		// get correct handle
-		self = sp->simlinemgmt.get_line_with_id_zero();
+		self = player->simlinemgmt.get_line_with_id_zero();
 		assert( self.get_rep() == this );
 		DBG_MESSAGE("simline_t::laden_abschliessen", "assigned id=%d to line %s", self.get_id(), get_name());
 	}
@@ -444,7 +444,7 @@ void simline_t::register_stops(schedule_t * fpl)
 {
 DBG_DEBUG("simline_t::register_stops()", "%d fpl entries in schedule %p", fpl->get_count(),fpl);
 	FOR(minivec_tpl<linieneintrag_t>, const& i, fpl->eintrag) {
-		halthandle_t const halt = haltestelle_t::get_halt(i.pos, sp);
+		halthandle_t const halt = haltestelle_t::get_halt(i.pos, player);
 		if(halt.is_bound()) {
 //DBG_DEBUG("simline_t::register_stops()", "halt not null");
 			halt->add_line(self);
@@ -483,7 +483,7 @@ void simline_t::unregister_stops()
 void simline_t::unregister_stops(schedule_t * fpl)
 {
 	FOR(minivec_tpl<linieneintrag_t>, const& i, fpl->eintrag) {
-		halthandle_t const halt = haltestelle_t::get_halt(i.pos, sp);
+		halthandle_t const halt = haltestelle_t::get_halt(i.pos, player);
 		if(halt.is_bound()) {
 			halt->remove_line(self);
 		}
@@ -499,7 +499,7 @@ void simline_t::renew_stops()
 		register_stops( fpl );
 	
 		// Added by Knightly
-		haltestelle_t::refresh_routing(fpl, goods_catg_index, sp);
+		haltestelle_t::refresh_routing(fpl, goods_catg_index, player);
 		
 		DBG_DEBUG("simline_t::renew_stops()", "Line id=%d, name='%s'", self.get_id(), name.c_str());
 	}
@@ -510,7 +510,7 @@ void simline_t::set_schedule(schedule_t* fpl)
 {
 	if (this->fpl) 
 	{
-		haltestelle_t::refresh_routing(fpl, goods_catg_index, sp);
+		haltestelle_t::refresh_routing(fpl, goods_catg_index, player);
 		unregister_stops();
 		delete this->fpl;
 	}
@@ -673,7 +673,7 @@ void simline_t::recalc_catg_index()
 	}
 
 	// refresh only those categories which are either removed or added to the category list
-	haltestelle_t::refresh_routing(fpl, differences, sp);
+	haltestelle_t::refresh_routing(fpl, differences, player);
 }
 
 

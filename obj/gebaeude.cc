@@ -108,25 +108,25 @@ gebaeude_t::gebaeude_t(loadsave_t *file) :
 
 
 #ifdef INLINE_DING_TYPE
-gebaeude_t::gebaeude_t(obj_t::typ type, koord3d pos, spieler_t *sp, const haus_tile_besch_t *t) :
+gebaeude_t::gebaeude_t(obj_t::typ type, koord3d pos, player_t *player, const haus_tile_besch_t *t) :
     obj_t(type, pos)
 {
-	init(sp, t);
+	init(player, t);
 }
 
-gebaeude_t::gebaeude_t(koord3d pos, spieler_t *sp, const haus_tile_besch_t *t) :
+gebaeude_t::gebaeude_t(koord3d pos, player_t *player, const haus_tile_besch_t *t) :
     obj_t(obj_t::gebaeude, pos)
 {
-	init(sp, t);
+	init(player, t);
 }
 
-void gebaeude_t::init(spieler_t *sp, const haus_tile_besch_t *t)
+void gebaeude_t::init(player_t *player, const haus_tile_besch_t *t)
 #else
-gebaeude_t::gebaeude_t(koord3d pos, spieler_t *sp, const haus_tile_besch_t *t) :
+gebaeude_t::gebaeude_t(koord3d pos, player_t *player, const haus_tile_besch_t *t) :
     obj_t(pos)
 #endif
 {
-	set_besitzer( sp );
+	set_besitzer( player );
 
 	init();
 	if(t) 
@@ -141,7 +141,7 @@ gebaeude_t::gebaeude_t(koord3d pos, spieler_t *sp, const haus_tile_besch_t *t) :
 		{
 			maint = tile->get_besch()->get_maintenance();
 		}
-		spieler_t::add_maintenance(get_besitzer(), maint, tile->get_besch()->get_finance_waytype() );
+		player_t::add_maintenance(get_besitzer(), maint, tile->get_besch()->get_finance_waytype() );
 	}
 
 	if(tile->get_besch()->get_typ() == wohnung)
@@ -252,7 +252,7 @@ gebaeude_t::~gebaeude_t()
 		{
 			maint = tile->get_besch()->get_maintenance();
 		}
-		spieler_t::add_maintenance(get_besitzer(), -maint);
+		player_t::add_maintenance(get_besitzer(), -maint);
 	}
 	if(!welt->get_is_shutting_down())
 	{
@@ -1339,7 +1339,7 @@ void gebaeude_t::laden_abschliessen()
 	{
 		maint = welt->get_settings().maint_building*tile->get_besch()->get_level();
 	}
-	spieler_t::add_maintenance(get_besitzer(), maint, tile->get_besch()->get_finance_waytype());
+	player_t::add_maintenance(get_besitzer(), maint, tile->get_besch()->get_finance_waytype());
 
 	// citybuilding, but no town?
 	if(  tile->get_offset()==koord(0,0)  ) {
@@ -1362,7 +1362,7 @@ void gebaeude_t::laden_abschliessen()
 }
 
 
-void gebaeude_t::entferne(spieler_t *sp) // "Remove" (Google)
+void gebaeude_t::entferne(player_t *player) // "Remove" (Google)
 {
 //	DBG_MESSAGE("gebaeude_t::entferne()","gb %i");
 	// remove costs
@@ -1378,11 +1378,11 @@ void gebaeude_t::entferne(spieler_t *sp) // "Remove" (Google)
 		// If the player does already own the building, the player is refunded the empty tile cost, as bulldozing a tile with a building
 		// means that the player no longer owns the tile, and will have to pay again to purcahse it.
 		const sint64 land_value = welt->get_land_value(get_pos()) * besch->get_groesse().x * besch->get_groesse().y;
-		cost = sp != get_besitzer() ? bulldoze_cost : bulldoze_cost - land_value; // Land value is a *negative* number.
-		spieler_t::book_construction_costs(sp, cost, get_pos().get_2d(), tile->get_besch()->get_finance_waytype());
-		if(sp != get_besitzer())
+		cost = player != get_besitzer() ? bulldoze_cost : bulldoze_cost - land_value; // Land value is a *negative* number.
+		player_t::book_construction_costs(player, cost, get_pos().get_2d(), tile->get_besch()->get_finance_waytype());
+		if(player != get_besitzer())
 		{
-			spieler_t::book_construction_costs(get_besitzer(), land_value, get_pos().get_2d(), tile->get_besch()->get_finance_waytype());
+			player_t::book_construction_costs(get_besitzer(), land_value, get_pos().get_2d(), tile->get_besch()->get_finance_waytype());
 		}
 	}
 	else 
@@ -1405,16 +1405,16 @@ void gebaeude_t::entferne(spieler_t *sp) // "Remove" (Google)
 		const sint64 land_value = welt->get_land_value(get_pos()) * besch->get_groesse().x * besch->get_groesse().y;
 		if(welt->lookup(get_pos()) && !welt->lookup(get_pos())->get_weg_nr(0))
 		{
-			if(sp == get_besitzer())
+			if(player == get_besitzer())
 			{
 				cost -= land_value;
 			}
 			else
 			{
-				spieler_t::book_construction_costs(get_besitzer(), -land_value, get_pos().get_2d(), tile->get_besch()->get_finance_waytype());
+				player_t::book_construction_costs(get_besitzer(), -land_value, get_pos().get_2d(), tile->get_besch()->get_finance_waytype());
 			}
 		}
-		spieler_t::book_construction_costs(sp, cost, get_pos().get_2d(), tile->get_besch()->get_finance_waytype());
+		player_t::book_construction_costs(player, cost, get_pos().get_2d(), tile->get_besch()->get_finance_waytype());
 	}
 
 	// may need to update next buildings, in the case of start, middle, end buildings

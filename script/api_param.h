@@ -24,7 +24,7 @@ class plainstring;
 class scenario_t;
 class schedule_t;
 class settings_t;
-class spieler_t;
+class player_t;
 class stadt_t;
 class ware_production_t;
 class weg_t;
@@ -332,7 +332,7 @@ namespace script_api {
 	declare_specialized_param(mytime_t, "i|t|x|y", "time_x");
 	declare_specialized_param(mytime_ticks_t, "i|t|x|y", "time_ticks_x");
 	declare_specialized_param(scenario_t*, "t|x|y", "");
-	declare_specialized_param(spieler_t*, "t|x|y", "player_x");
+	declare_specialized_param(player_t*, "t|x|y", "player_x");
 	declare_specialized_param(stadt_t*, "t|x|y", "city_x");
 	declare_specialized_param(const ware_production_t*, "t|x|y", "factory_production_x");
 	declare_param_mask(ware_production_t*, "t|x|y", "factory_production_x");

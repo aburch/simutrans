@@ -339,12 +339,12 @@ bool interaction_t::process_event( event_t &ev )
 			// they will be restored in karte_t::laden
 			uint16 unlocked_players = 0;
 			for(  int i=0;  i<PLAYER_UNOWNED; i++  ) {
-				spieler_t *sp = world->get_spieler(i);
-				if(  sp==NULL  ||  sp->access_password_hash().empty()  ) {
+				player_t *player = world->get_player(i);
+				if(  player==NULL  ||  player->access_password_hash().empty()  ) {
 					unlocked_players |= (1<<i);
 				}
 				else {
-					sp->access_password_hash().clear();
+					player->access_password_hash().clear();
 				}
 			}
 

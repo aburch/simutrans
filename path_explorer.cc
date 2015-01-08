@@ -640,7 +640,7 @@ void path_explorer_t::compartment_t::step()
 			// loop through all lines of all players
 			for (int i = 0; i < MAX_PLAYER_COUNT; ++i) 
 			{
-				spieler_t *current_player = world->get_spieler(i);
+				player_t *current_player = world->get_player(i);
 
 				if(  current_player == NULL  ) 
 				{
@@ -693,7 +693,7 @@ void path_explorer_t::compartment_t::step()
 
 			linkage_t current_linkage;
 			schedule_t *current_schedule;
-			spieler_t *current_owner;
+			player_t *current_owner;
 			uint32 current_average_speed;
 
 			uint8 entry_count;

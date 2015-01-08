@@ -11,12 +11,12 @@
 using namespace script_api;
 
 
-halthandle_t get_halt_from_koord3d(koord3d pos, const spieler_t *sp )
+halthandle_t get_halt_from_koord3d(koord3d pos, const player_t *player )
 {
-	if(  sp == NULL  ) {
+	if(  player == NULL  ) {
 		return halthandle_t();
 	}
-	return haltestelle_t::get_halt(pos, sp);
+	return haltestelle_t::get_halt(pos, player);
 }
 
 

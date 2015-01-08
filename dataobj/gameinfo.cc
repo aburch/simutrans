@@ -65,11 +65,11 @@ gameinfo_t::gameinfo_t(karte_t *welt) :
 	convoi_count = welt->convoys().get_count();
 
 	for(  int i=0;  i<MAX_PLAYER_COUNT;  i++ ) {
-		spieler_type[i] = spieler_t::EMPTY;
-		if(  spieler_t *sp = welt->get_spieler(i)  ) {
-			spieler_type[i] = sp->get_ai_id();
-			if(  !sp->access_password_hash().empty()  ) {
-				spieler_type[i] |= spieler_t::PASSWORD_PROTECTED;
+		player_type[i] = player_t::EMPTY;
+		if(  player_t *player = welt->get_player(i)  ) {
+			player_type[i] = player->get_ai_id();
+			if(  !player->access_password_hash().empty()  ) {
+				player_type[i] |= player_t::PASSWORD_PROTECTED;
 			}
 		}
 	}
@@ -176,7 +176,7 @@ void gameinfo_t::rdwr(loadsave_t *file)
 	file->rdwr_long( game_engine_revision );
 
 	for(  int i=0;  i<16;  i++  ) {
-		file->rdwr_byte( spieler_type[i] );
+		file->rdwr_byte( player_type[i] );
 	}
 	file->rdwr_byte( clients );
 

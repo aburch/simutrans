@@ -63,7 +63,7 @@ wayobj_t::wayobj_t(loadsave_t* const file) :
 }
 
 
-wayobj_t::wayobj_t(koord3d const pos, spieler_t* const besitzer, ribi_t::ribi const d, way_obj_besch_t const* const b) : 
+wayobj_t::wayobj_t(koord3d const pos, player_t* const besitzer, ribi_t::ribi const d, way_obj_besch_t const* const b) : 
 #ifdef INLINE_DING_TYPE
 	obj_no_info_t(obj_t::wayobj, pos)
 #else
@@ -81,7 +81,7 @@ wayobj_t::~wayobj_t()
 	if(!besch) {
 		return;
 	}
-	spieler_t::add_maintenance(get_besitzer(), -besch->get_wartung(), get_waytype());
+	player_t::add_maintenance(get_besitzer(), -besch->get_wartung(), get_waytype());
 	if(besch->get_own_wtyp()==overheadlines_wt) {
 		grund_t *gr=welt->lookup(get_pos());
 		weg_t *weg=NULL;
@@ -235,22 +235,22 @@ void wayobj_t::rdwr(loadsave_t *file)
 }
 
 
-void wayobj_t::entferne(spieler_t *sp)
+void wayobj_t::entferne(player_t *player)
 {
 	if(besch) {
-		spieler_t::book_construction_costs(sp, -besch->get_preis(), get_pos().get_2d(), besch->get_wtyp());
+		player_t::book_construction_costs(player, -besch->get_preis(), get_pos().get_2d(), besch->get_wtyp());
 	}
 }
 
 
 // returns NULL, if removal is allowed
 // players can remove public owned wayobjs
-const char *wayobj_t::ist_entfernbar(const spieler_t *sp)
+const char *wayobj_t::ist_entfernbar(const player_t *player)
 {
 	if(  get_player_nr()==1  ) {
 		return NULL;
 	}
-	return obj_t::ist_entfernbar(sp);
+	return obj_t::ist_entfernbar(player);
 }
 
 
@@ -310,7 +310,7 @@ void wayobj_t::laden_abschliessen()
 		}
 	}
 
-	spieler_t::add_maintenance(get_besitzer(), besch->get_wartung(), besch->get_wtyp());
+	player_t::add_maintenance(get_besitzer(), besch->get_wartung(), besch->get_wtyp());
 }
 
 
@@ -427,14 +427,14 @@ void wayobj_t::calc_bild()
 
 /* better use this constrcutor for new wayobj; it will extend a matching obj or make an new one
  */
-const char *wayobj_t::extend_wayobj_t(koord3d pos, spieler_t *besitzer, ribi_t::ribi dir, const way_obj_besch_t *besch)
+const char *wayobj_t::extend_wayobj_t(koord3d pos, player_t *besitzer, ribi_t::ribi dir, const way_obj_besch_t *besch)
 {
 	grund_t *gr=welt->lookup(pos);
 	if(gr) 
 	{
 		wayobj_t *existing_wayobj = gr->get_wayobj( besch->get_wtyp() );
 		if( existing_wayobj ) {
-			if(  existing_wayobj->get_besch()->get_topspeed() < besch->get_topspeed()  &&  spieler_t::check_owner(besitzer, existing_wayobj->get_besitzer())  ) {
+			if(  existing_wayobj->get_besch()->get_topspeed() < besch->get_topspeed()  &&  player_t::check_owner(besitzer, existing_wayobj->get_besitzer())  ) {
 				// replace slower by faster
 				dir = dir | existing_wayobj->get_dir();
 				gr->set_flag(grund_t::dirty);
@@ -485,7 +485,7 @@ const char *wayobj_t::extend_wayobj_t(koord3d pos, spieler_t *besitzer, ribi_t::
 				to->calc_bild();
 			}
 		}
-		spieler_t::book_construction_costs( besitzer,  -besch->get_preis(), pos.get_2d(), besch->get_wtyp());
+		player_t::book_construction_costs( besitzer,  -besch->get_preis(), pos.get_2d(), besch->get_wtyp());
 
 		for( uint8 i = 0; i < 4; i++ ) {
 		// Extend wayobjects around the new one, that aren't already connected.

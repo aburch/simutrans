@@ -21,7 +21,7 @@ private:
 
 public:
 	zeiger_t(loadsave_t *file);
-	zeiger_t(koord3d pos, spieler_t *sp);
+	zeiger_t(koord3d pos, player_t *player);
 
 	void change_pos(koord3d k);
 

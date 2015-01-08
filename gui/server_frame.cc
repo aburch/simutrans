@@ -230,9 +230,9 @@ void server_frame_t::update_info ()
 	if (  gi.get_clients() != 255  ) {
 		uint8 player = 0, locked = 0;
 		for (  uint8 i = 0;  i < MAX_PLAYER_COUNT;  i++  ) {
-			if (  gi.get_player_type(i)&~spieler_t::PASSWORD_PROTECTED  ) {
+			if (  gi.get_player_type(i)&~player_t::PASSWORD_PROTECTED  ) {
 				player ++;
-				if (  gi.get_player_type(i)&spieler_t::PASSWORD_PROTECTED  ) {
+				if (  gi.get_player_type(i)&player_t::PASSWORD_PROTECTED  ) {
 					locked ++;
 				}
 			}

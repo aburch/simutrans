@@ -207,9 +207,9 @@ void convoi_frame_t::sort_list( char *name, uint32 filter, const slist_tpl<const
 }
 
 
-convoi_frame_t::convoi_frame_t(spieler_t* sp) :
-	gui_frame_t( translator::translate("cl_title"), sp),
-	owner(sp),
+convoi_frame_t::convoi_frame_t(player_t* player) :
+	gui_frame_t( translator::translate("cl_title"), player),
+	owner(player),
 	vscroll( scrollbar_t::vertical ),
 	sort_label("cl_txt_sort"),
 	filter_label("Filter:")

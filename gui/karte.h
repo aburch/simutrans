@@ -13,7 +13,7 @@ class karte_ptr_t;
 class fabrik_t;
 class grund_t;
 class stadt_t;
-class spieler_t;
+class player_t;
 class schedule_t;
 class loadsave_t;
 
@@ -83,17 +83,17 @@ private:
 	public:
 		koord start, end;
 		schedule_t *fpl;
-		spieler_t *sp;
+		player_t *player;
 		waytype_t waytype;
 		uint8 colorcount;
 		uint8 start_offset;
 		uint8 end_offset;
 		bool start_diagonal;
 		line_segment_t() {}
-		line_segment_t( koord s, uint8 so, koord e, uint8 eo, schedule_t *f, spieler_t *p, uint8 cc, bool diagonal ) {
+		line_segment_t( koord s, uint8 so, koord e, uint8 eo, schedule_t *f, player_t *p, uint8 cc, bool diagonal ) {
 			fpl = f;
 			waytype = f->get_waytype();
-			sp = p;
+			player = p;
 			colorcount = cc;
 			start_diagonal = diagonal;
 			if(  s.x<e.x  ||  (s.x==e.x  &&  s.y<e.y)  ) {
@@ -225,7 +225,7 @@ public:
 	MAP_MODES get_mode() { return mode; }
 
 	// updates the map (if needed)
-	void neuer_monat();
+	void new_month();
 
 	bool infowin_event(event_t const*) OVERRIDE;
 

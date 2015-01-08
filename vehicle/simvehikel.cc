@@ -1221,16 +1221,16 @@ void vehikel_t::neue_fahrt(uint16 start_route_index, bool recalc)
 
 
 #ifdef INLINE_DING_TYPE
-vehikel_t::vehikel_t(typ type, koord3d pos, const vehikel_besch_t* besch, spieler_t* sp) :
+vehikel_t::vehikel_t(typ type, koord3d pos, const vehikel_besch_t* besch, player_t* player) :
 	vehikel_basis_t(type, pos)
 #else
-vehikel_t::vehikel_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp) :
+vehikel_t::vehikel_t(koord3d pos, const vehikel_besch_t* besch, player_t* player) :
 	vehikel_basis_t(pos)
 #endif
 {
 	this->besch = besch;
 
-	set_besitzer( sp );
+	set_besitzer( player );
 	insta_zeit = welt->get_current_month();
 	cnv = NULL;
 	speed_limit = speed_unlimited();
@@ -2498,7 +2498,7 @@ void vehikel_t::info(cbuffer_t & buf) const
 }
 #endif
 
-const char *vehikel_t::ist_entfernbar(const spieler_t *)
+const char *vehikel_t::ist_entfernbar(const player_t *)
 {
 	return "Vehicles cannot be removed";
 }
@@ -2696,11 +2696,11 @@ void vehikel_t::before_delete()
 }
 
 
-automobil_t::automobil_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, convoi_t* cn) :
+automobil_t::automobil_t(koord3d pos, const vehikel_besch_t* besch, player_t* player, convoi_t* cn) :
 #ifdef INLINE_DING_TYPE
-    vehikel_t(obj_t::automobil, pos, besch, sp)
+    vehikel_t(obj_t::automobil, pos, besch, player)
 #else
-    vehikel_t(pos, besch, sp)
+    vehikel_t(pos, besch, player)
 #endif
 {
 	cnv = cn;
@@ -3429,18 +3429,18 @@ DBG_MESSAGE("waggon_t::waggon_t()","replaced by %s",besch->get_name());
 }
 
 #ifdef INLINE_DING_TYPE
-waggon_t::waggon_t(typ type, koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, convoi_t* cn) :
-    vehikel_t(type, pos, besch, sp)
+waggon_t::waggon_t(typ type, koord3d pos, const vehikel_besch_t* besch, player_t* player, convoi_t* cn) :
+    vehikel_t(type, pos, besch, player)
 {
     cnv = cn;
 }
 #endif
 
-waggon_t::waggon_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, convoi_t* cn) :
+waggon_t::waggon_t(koord3d pos, const vehikel_besch_t* besch, player_t* player, convoi_t* cn) :
 #ifdef INLINE_DING_TYPE
-    vehikel_t(obj_t::waggon, pos, besch, sp)
+    vehikel_t(obj_t::waggon, pos, besch, player)
 #else
-	vehikel_t(pos, besch, sp)
+	vehikel_t(pos, besch, player)
 #endif
 {
     cnv = cn;
@@ -4497,11 +4497,11 @@ schedule_t * narrowgauge_waggon_t::erzeuge_neuen_fahrplan() const
 }
 
 
-schiff_t::schiff_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, convoi_t* cn) :
+schiff_t::schiff_t(koord3d pos, const vehikel_besch_t* besch, player_t* player, convoi_t* cn) :
 #ifdef INLINE_DING_TYPE
-    vehikel_t(obj_t::schiff, pos, besch, sp)
+    vehikel_t(obj_t::schiff, pos, besch, player)
 #else
-	vehikel_t(pos, besch, sp)
+	vehikel_t(pos, besch, player)
 #endif
 {
 	cnv = cn;
@@ -5610,11 +5610,11 @@ aircraft_t::aircraft_t(loadsave_t *file, bool is_first, bool is_last) :
 }
 
 
-aircraft_t::aircraft_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, convoi_t* cn) :
+aircraft_t::aircraft_t(koord3d pos, const vehikel_besch_t* besch, player_t* player, convoi_t* cn) :
 #ifdef INLINE_DING_TYPE
-    vehikel_t(obj_t::aircraft, pos, besch, sp)
+    vehikel_t(obj_t::aircraft, pos, besch, player)
 #else
-	vehikel_t(pos, besch, sp)
+	vehikel_t(pos, besch, player)
 #endif
 {
 	cnv = cn;
@@ -5942,10 +5942,10 @@ void aircraft_t::display_overlay(int xpos_org, int ypos_org) const
 }
 
 
-const char *aircraft_t::ist_entfernbar(const spieler_t *sp)
+const char *aircraft_t::ist_entfernbar(const player_t *player)
 {
 	if (is_on_ground()) {
-		return vehikel_t::ist_entfernbar(sp);
+		return vehikel_t::ist_entfernbar(player);
 	}
 	return NULL;
 }

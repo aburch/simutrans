@@ -284,8 +284,8 @@ void weg_t::init()
 weg_t::~weg_t()
 {
 	alle_wege.remove(this);
-	spieler_t *sp=get_besitzer();
-	if(sp  &&  besch) 
+	player_t *player=get_besitzer();
+	if(player  &&  besch) 
 	{
 		sint32 maint = besch->get_wartung();
 		if(is_diagonal())
@@ -293,7 +293,7 @@ weg_t::~weg_t()
 			maint *= 10;
 			maint /= 14;
 		}
-		spieler_t::add_maintenance( sp,  -maint, besch->get_finance_waytype() );
+		player_t::add_maintenance( player,  -maint, besch->get_finance_waytype() );
 	}
 }
 
@@ -813,7 +813,7 @@ void weg_t::check_diagonal()
  * new month
  * @author hsiegeln
  */
-void weg_t::neuer_monat()
+void weg_t::new_month()
 {
 	for (int type=0; type<MAX_WAY_STATISTICS; type++) {
 		for (int month=MAX_WAY_STAT_MONTHS-1; month>0; month--) {
@@ -827,8 +827,8 @@ void weg_t::neuer_monat()
 // correct speed and maintenance
 void weg_t::laden_abschliessen()
 {
-	spieler_t *sp=get_besitzer();
-	if(sp  &&  besch) 
+	player_t *player=get_besitzer();
+	if(player  &&  besch) 
 	{
 		sint32 maint = besch->get_wartung();
 		check_diagonal();
@@ -837,27 +837,27 @@ void weg_t::laden_abschliessen()
 			maint *= 10;
 			maint /= 14;
 		}
-		spieler_t::add_maintenance( sp,  maint, besch->get_finance_waytype() );
+		player_t::add_maintenance( player,  maint, besch->get_finance_waytype() );
 	}
 }
 
 
 // returns NULL, if removal is allowed
 // players can remove public owned ways (Depracated)
-const char *weg_t::ist_entfernbar(const spieler_t *sp, bool allow_public)
+const char *weg_t::ist_entfernbar(const player_t *player, bool allow_public)
 {
 	if(allow_public && get_player_nr() == 1) 
 	{
 		return NULL;
 	}
-	return obj_t::ist_entfernbar(sp);
+	return obj_t::ist_entfernbar(player);
 }
 
 /**
  *  Check whether the city should adopt the road.
  *  (Adopting the road sets a speed limit and builds a sidewalk.)
  */
-bool weg_t::should_city_adopt_this(const spieler_t* sp)
+bool weg_t::should_city_adopt_this(const player_t* player)
 {
 	if(!welt->get_settings().get_towns_adopt_player_roads())
 	{
@@ -878,7 +878,7 @@ bool weg_t::should_city_adopt_this(const spieler_t* sp)
 		// It would be too profitable for players if cities adopted tunnels
 		return false;
 	}
-	if(sp && sp->is_public_service())
+	if(player && player->is_public_service())
 	{
 		// Do not adopt public service roads, so that players can't mess with them
 		return false;
@@ -986,7 +986,7 @@ bool weg_t::renew()
 		return false;
 	}
 
-	spieler_t* const player = get_besitzer();
+	player_t* const player = get_besitzer();
 	bool success = false;
 	const sint64 price = besch->get_upgrade_group() == replacement_way->get_upgrade_group() ? replacement_way->get_way_only_cost() : replacement_way->get_preis();
 	if((!player && welt->get_city(get_pos().get_2d())) || (player && (player->can_afford(price) || player->is_public_service())))

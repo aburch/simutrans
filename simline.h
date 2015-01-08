@@ -40,7 +40,7 @@ enum line_cost_t {
 
 class karte_ptr_t;
 class loadsave_t;
-class spieler_t;
+class player_t;
 class schedule_t;
 
 class simline_t {
@@ -50,7 +50,7 @@ public:
 
 protected:
 	schedule_t * fpl;
-	spieler_t *sp;
+	player_t *player;
 	linetype type;
 
 	bool withdraw;
@@ -113,8 +113,8 @@ private:
 	journey_times_map average_journey_times;
 
 public:
-	simline_t(spieler_t *sp, linetype type);
-	simline_t(spieler_t *sp, linetype type, loadsave_t *file);
+	simline_t(player_t *player, linetype type);
+	simline_t(player_t *player, linetype type, loadsave_t *file);
 
 	~simline_t();
 
@@ -245,7 +245,7 @@ public:
 
 	bool get_withdraw() const { return withdraw; }
 
-	spieler_t *get_besitzer() const {return sp;}
+	player_t *get_besitzer() const {return player;}
 
 	void recalc_status();
 

@@ -57,7 +57,7 @@ class karte_ptr_t;
 class koord3d;
 class loadsave_t;
 class schedule_t;
-class spieler_t;
+class player_t;
 class ware_t;
 
 // elements of the lines_loaded vector
@@ -203,7 +203,7 @@ public:
 
 	/**
 	 * Returns an index to a halt at koord k
-   	 * optionally limit to that owned by player sp
+   	 * optionally limit to that owned by player player
    	 * by default create a new halt if none found
 	 * Only used during loading.
 	 */
@@ -212,8 +212,8 @@ public:
 	/*
 	 * this will only return something if this stop belongs to same player or is public, or is a dock (when on water)
 	 */
-	static halthandle_t get_halt(const koord3d pos, const spieler_t *sp );
-	static halthandle_t get_halt(const koord pos, const spieler_t *sp );
+	static halthandle_t get_halt(const koord3d pos, const player_t *player );
+	static halthandle_t get_halt(const koord pos, const player_t *player );
 
 //	static slist_tpl<halthandle_t>& get_alle_haltestellen() { return alle_haltestellen; }
 	static const vector_tpl<halthandle_t>& get_alle_haltestellen() { return alle_haltestellen; }
@@ -224,7 +224,7 @@ public:
 	 * Station factory method. Returns handles instead of pointers.
 	 * @author Hj. Malthaner
 	 */
-	static halthandle_t create(koord pos, spieler_t *sp);
+	static halthandle_t create(koord pos, player_t *player);
 
 	/**
 	 * Station factory method. Returns handles instead of pointers.
@@ -236,7 +236,7 @@ public:
 	* removes a ground tile from a station, deletes the building and, if last tile, also the halthandle
 	* @author prissi
 	*/
-	static bool remove(spieler_t *sp, koord3d pos);
+	static bool remove(player_t *player, koord3d pos);
 
 	/**
 	 * Station destruction method.
@@ -425,7 +425,7 @@ private:
 	 */
 	slist_tpl<fabrik_t *> fab_list;
 
-	spieler_t *besitzer_p;
+	player_t *owner;
 	static karte_ptr_t welt;
 
 	/**
@@ -481,7 +481,7 @@ private:
 	bool resort_freight_info;
 
 	haltestelle_t(loadsave_t *file);
-	haltestelle_t(koord pos, spieler_t *sp);
+	haltestelle_t(koord pos, player_t *player);
 	~haltestelle_t();
 
 	// Record of waiting times. Takes a list of the last 16 waiting times per type of goods.
@@ -583,12 +583,12 @@ public:
 
 	void rotate90( const sint16 y_size );
 
-	spieler_t *get_besitzer() const {return besitzer_p;}
+	player_t *get_besitzer() const {return owner;}
 
 	// just for info so far
 	sint64 calc_maintenance() const;
 
-	bool make_public_and_join( spieler_t *sp );
+	bool make_public_and_join( player_t *player );
 
 	/**
 	 * Checks if there is connection for certain freight to the other halt.
@@ -611,7 +611,7 @@ public:
 	 * Called every month/every 24 game hours
 	 * @author Hj. Malthaner
 	 */
-	void neuer_monat();
+	void new_month();
 
 	static karte_ptr_t& get_welt() { return welt; }
 
@@ -723,7 +723,7 @@ public:
 	 * @param fracht goods will be put into this list, vehicle has to load it
 	 * @author Hj. Malthaner, dwachs
 	 */
-	bool hole_ab( slist_tpl<ware_t> &fracht, const ware_besch_t *warentyp, uint32 menge, const schedule_t *fpl, const spieler_t *sp, convoi_t* cnv, bool overcrowd);
+	bool hole_ab( slist_tpl<ware_t> &fracht, const ware_besch_t *warentyp, uint32 menge, const schedule_t *fpl, const player_t *player, convoi_t* cnv, bool overcrowd);
 
 	/* liefert ware an. Falls die Ware zu wartender Ware dazugenommen
 	 * werden kann, kann ware_t gelöscht werden! D.h. man darf ware nach
@@ -925,7 +925,7 @@ public:
 	// Purpose		: To notify relevant halts to rebuild connexions and to notify all halts to recalculate paths
 	// @jamespetts: modified the code to combine with previous method and provide options about partially delayed refreshes for performance.
 
-	static void refresh_routing(const schedule_t *const sched, const minivec_tpl<uint8> &categories, const spieler_t *const player);
+	static void refresh_routing(const schedule_t *const sched, const minivec_tpl<uint8> &categories, const player_t *const player);
 
 	// Added by		: Knightly
 	// Adapted from : haltestelle_t::add_connexion()
@@ -954,7 +954,7 @@ public:
 	 */
 	int get_queue_pos(convoihandle_t cnv) const;
 
-	bool check_access(const spieler_t* sp) const;
+	bool check_access(const player_t* player) const;
 
 	bool has_no_control_tower() const;
 

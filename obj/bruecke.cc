@@ -36,7 +36,7 @@ bruecke_t::bruecke_t(loadsave_t* const file) :
 }
 
 
-bruecke_t::bruecke_t(koord3d pos, spieler_t *sp, const bruecke_besch_t *besch, bruecke_besch_t::img_t img) :
+bruecke_t::bruecke_t(koord3d pos, player_t *player, const bruecke_besch_t *besch, bruecke_besch_t::img_t img) :
 #ifdef INLINE_DING_TYPE
 	obj_no_info_t(obj_t::bruecke, pos)
 #else
@@ -45,8 +45,8 @@ bruecke_t::bruecke_t(koord3d pos, spieler_t *sp, const bruecke_besch_t *besch, b
 {
 	this->besch = besch;
 	this->img = img;
-	set_besitzer( sp );
-	spieler_t::book_construction_costs( get_besitzer(), -besch->get_preis(), get_pos().get_2d(), besch->get_waytype());
+	set_besitzer( player );
+	player_t::book_construction_costs( get_besitzer(), -besch->get_preis(), get_pos().get_2d(), besch->get_waytype());
 }
 
 
@@ -201,7 +201,7 @@ void bruecke_t::laden_abschliessen()
 		}
 	}
 
-	spieler_t *sp=get_besitzer();
+	player_t *player=get_besitzer();
 	// change maintenance
 	if(besch->get_waytype()!=powerline_wt) {
 		weg_t *weg = gr->get_weg(besch->get_waytype());
@@ -209,7 +209,7 @@ void bruecke_t::laden_abschliessen()
 		if(weg==NULL) {
 			dbg->error("bruecke_t::laden_abschliessen()","Bridge without way at(%s)!", gr->get_pos().get_str() );
 			weg = weg_t::alloc( besch->get_waytype() );
-			gr->neuen_weg_bauen( weg, 0, welt->get_spieler(1) );
+			gr->neuen_weg_bauen( weg, 0, welt->get_player(1) );
 		}
 		const hang_t::typ hang = gr->get_weg_hang();
 		if(hang != hang_t::flach) 
@@ -233,10 +233,10 @@ void bruecke_t::laden_abschliessen()
 		const weg_t* old_way = gr ? gr->get_weg(besch->get_wtyp()) : NULL;
 		const wayobj_t* way_object = old_way ? way_object = gr->get_wayobj(besch->get_waytype()) : NULL;
 		// take ownership of way
-		spieler_t::add_maintenance( weg->get_besitzer(), -weg->get_besch()->get_wartung(), besch->get_finance_waytype());
-		weg->set_besitzer(sp);
+		player_t::add_maintenance( weg->get_besitzer(), -weg->get_besch()->get_wartung(), besch->get_finance_waytype());
+		weg->set_besitzer(player);
 	}
-	spieler_t::add_maintenance( sp,  besch->get_wartung(), besch->get_finance_waytype());
+	player_t::add_maintenance( player,  besch->get_wartung(), besch->get_finance_waytype());
 
 	// with double heights may need to correct image on load (not all besch have double images)
 	// at present only start images have 2 height variants, others to follow...
@@ -257,9 +257,9 @@ void bruecke_t::laden_abschliessen()
 
 
 // correct speed and maintenance
-void bruecke_t::entferne( spieler_t *sp2 )
+void bruecke_t::entferne( player_t *player2 )
 {
-	spieler_t *sp = get_besitzer();
+	player_t *player = get_besitzer();
 	// change maintenance, reset max-speed and y-offset
 	const grund_t *gr = welt->lookup(get_pos());
 	if(gr) {
@@ -283,7 +283,7 @@ void bruecke_t::entferne( spieler_t *sp2 )
 				{
 					weg->set_max_speed(min(besch->get_topspeed(), weg_besch->get_topspeed()));
 				}
-			spieler_t::add_maintenance( sp,  weg->get_besch()->get_wartung(), weg->get_besch()->get_finance_waytype());
+			player_t::add_maintenance( player,  weg->get_besch()->get_wartung(), weg->get_besch()->get_finance_waytype());
 			// reset offsets
 			weg->set_yoff(0);
 			if (gr->get_weg_nr(1)) {
@@ -291,8 +291,8 @@ void bruecke_t::entferne( spieler_t *sp2 )
 			}
 		}
 	}
-	spieler_t::add_maintenance( sp,  -besch->get_wartung(), besch->get_finance_waytype() );
-	spieler_t::book_construction_costs( sp2, -besch->get_preis(), get_pos().get_2d(), besch->get_waytype() );
+	player_t::add_maintenance( player,  -besch->get_wartung(), besch->get_finance_waytype() );
+	player_t::book_construction_costs( player2, -besch->get_preis(), get_pos().get_2d(), besch->get_waytype() );
 }
 
 
@@ -320,13 +320,13 @@ void bruecke_t::rotate90()
 
 // returns NULL, if removal is allowed
 // players can remove public owned ways
-const char *bruecke_t::ist_entfernbar(const spieler_t *sp, bool allow_public)
+const char *bruecke_t::ist_entfernbar(const player_t *player, bool allow_public)
 {
 	if(allow_public && get_player_nr() == 1) 
 	{
 		return NULL;
 	}
-	return obj_t::ist_entfernbar(sp);
+	return obj_t::ist_entfernbar(player);
 }
 
 #ifdef MULTI_THREAD

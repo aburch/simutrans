@@ -961,7 +961,7 @@ class denkmal_platz_sucher_t : public platzsucher_t {
 				obj_t *obj = gr->obj_bei(obj_idx);
 
 				if (obj->get_besitzer() != NULL &&
-				    obj->get_besitzer() != welt->get_spieler(1)) {
+				    obj->get_besitzer() != welt->get_player(1)) {
 					/* XXX player-owned roads okay to remove? */
 					/* XXX player-owned trams/electrification okay if ist_randfeld()? */
 					return false;
@@ -1438,7 +1438,7 @@ stadt_t::~stadt_t()
 			else if(!welt->get_is_shutting_down())
 			{
 				gb->set_stadt( NULL );
-				hausbauer_t::remove(welt->get_spieler(1), gb);
+				hausbauer_t::remove(welt->get_player(1), gb);
 			}
 		}
 		// Remove substations
@@ -1472,7 +1472,7 @@ static bool name_used(weighted_vector_tpl<stadt_t*> const& cities, char const* c
 }
 
 
-stadt_t::stadt_t(spieler_t* sp, koord pos, sint32 citizens) :
+stadt_t::stadt_t(player_t* player, koord pos, sint32 citizens) :
 	buildings(16),
 	pax_destinations_old(welt->get_size()),
 	pax_destinations_new(welt->get_size())
@@ -1492,7 +1492,7 @@ stadt_t::stadt_t(spieler_t* sp, koord pos, sint32 citizens) :
 
 	stadtinfo_options = 3;	// citizen and growth
 
-	besitzer_p = sp;
+	owner = player;
 
 	this->pos = pos;
 
@@ -1608,10 +1608,10 @@ stadt_t::stadt_t(loadsave_t* file) :
 
 void stadt_t::rdwr(loadsave_t* file)
 {
-	sint32 besitzer_n;
+	sint32 owner_n;
 
 	if (file->is_saving()) {
-		besitzer_n = welt->sp2num(besitzer_p);
+		owner_n = welt->sp2num(owner);
 	}
 	file->rdwr_str(name);
 	pos.rdwr(file);
@@ -1627,7 +1627,7 @@ void stadt_t::rdwr(loadsave_t* file)
 	lo.y = lob;
 	ur.x = lre;
 	ur.y = lun;
-	file->rdwr_long(besitzer_n);
+	file->rdwr_long(owner_n);
 	file->rdwr_long(bev);
 	file->rdwr_long(arb);
 	file->rdwr_long(won);
@@ -1651,7 +1651,7 @@ void stadt_t::rdwr(loadsave_t* file)
 	}
 
 	if (file->is_loading()) {
-		besitzer_p = welt->get_spieler(besitzer_n);
+		owner = welt->get_player(owner_n);
 	}
 
 	if(file->is_loading()) {
@@ -2478,7 +2478,7 @@ void stadt_t::calc_traffic_level()
 	};
 }
 
-void stadt_t::neuer_monat(bool check) //"New month" (Google)
+void stadt_t::new_month(bool check) //"New month" (Google)
 {
 	swap<uint8>( pax_destinations_old, pax_destinations_new );
 	pax_destinations_new.clear();
@@ -3129,7 +3129,7 @@ void stadt_t::check_bau_spezial(bool new_town)
 				if (besch->get_all_layouts() > 1) {
 					rotate = (simrand(20, "void stadt_t::check_bau_spezial") & 2) + is_rotate;
 				}
-				gebaeude_t* gb = hausbauer_t::baue(besitzer_p, welt->lookup_kartenboden(best_pos)->get_pos(), rotate, besch);
+				gebaeude_t* gb = hausbauer_t::baue(owner, welt->lookup_kartenboden(best_pos)->get_pos(), rotate, besch);
 				gb->get_first_tile()->set_stadt(this);
 				add_building_to_list(gb->get_first_tile());
 				// tell the player, if not during initialization
@@ -3220,7 +3220,7 @@ void stadt_t::check_bau_spezial(bool new_town)
 					}
 
 					// and then build it
-					gebaeude_t* gb = hausbauer_t::baue(besitzer_p, welt->lookup_kartenboden(best_pos + koord(1, 1))->get_pos(), 0, besch);
+					gebaeude_t* gb = hausbauer_t::baue(owner, welt->lookup_kartenboden(best_pos + koord(1, 1))->get_pos(), 0, besch);
 					hausbauer_t::denkmal_gebaut(besch);
 					add_gebaeude_to_stadt(gb);
 					reset_city_borders();
@@ -3395,7 +3395,7 @@ void stadt_t::check_bau_rathaus(bool new_town)
 			dbg->error( "stadt_t::check_bau_rathaus", "no better postion found!" );
 			return;
 		}
-		gebaeude_t* new_gb = hausbauer_t::baue(besitzer_p, welt->lookup_kartenboden(best_pos + offset)->get_pos(), layout, besch);
+		gebaeude_t* new_gb = hausbauer_t::baue(owner, welt->lookup_kartenboden(best_pos + offset)->get_pos(), layout, besch);
 		DBG_MESSAGE("new townhall", "use layout=%i", layout);
 		add_gebaeude_to_stadt(new_gb);
 		reset_city_borders();
@@ -3998,10 +3998,10 @@ void stadt_t::build_city_building(const koord k, bool new_town)
 					// if not current city road standard OR BETTER, then replace it
 					if (weg->get_besch() != welt->get_city_road())
 					{
-						spieler_t *sp = weg->get_besitzer();
-						if (sp == NULL || !gr->get_depot())
+						player_t *player = weg->get_besitzer();
+						if (player == NULL || !gr->get_depot())
 						{
-							spieler_t::add_maintenance(sp, -weg->get_besch()->get_wartung(), road_wt);
+							player_t::add_maintenance(player, -weg->get_besch()->get_wartung(), road_wt);
 							weg->set_besitzer(NULL); // make public
 							if (welt->get_city_road()->is_at_least_as_good_as(weg->get_besch())) 
 							{
@@ -4191,9 +4191,9 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb)
 					// if not current city road standard OR BETTER, then replace it
 					if (weg->get_besch() != welt->get_city_road()) {
 						if (  welt->get_city_road()->is_at_least_as_good_as(weg->get_besch()) ) {
-							spieler_t *sp = weg->get_besitzer();
-							if (sp == NULL  ||  !gr->get_depot()) {
-								spieler_t::add_maintenance( sp, -weg->get_besch()->get_wartung(), road_wt);
+							player_t *player = weg->get_besitzer();
+							if (player == NULL  ||  !gr->get_depot()) {
+								player_t::add_maintenance( player, -weg->get_besch()->get_wartung(), road_wt);
 								weg->set_besitzer(NULL); // make unowned
 								weg->set_besch(welt->get_city_road());
 							}
@@ -4449,7 +4449,7 @@ bool stadt_t::build_bridge(grund_t* bd, ribi_t::ribi direction) {
  *
  * @author Hj. Malthaner, V. Meyer
  */
-bool stadt_t::baue_strasse(const koord k, spieler_t* sp, bool forced)
+bool stadt_t::baue_strasse(const koord k, player_t* player, bool forced)
 {
 	grund_t* bd = welt->lookup_kartenboden(k);
 
@@ -4653,7 +4653,7 @@ bool stadt_t::baue_strasse(const koord k, spieler_t* sp, bool forced)
 			strasse_t *str = static_cast<strasse_t *>(weg);
 			str->set_gehweg(true);
 			weg->set_public_right_of_way();
-			bd->neuen_weg_bauen(weg, connection_roads, sp);
+			bd->neuen_weg_bauen(weg, connection_roads, player);
 			bd->calc_bild();
 		}
 		// check to bridge a river
@@ -4733,7 +4733,7 @@ void stadt_t::baue(bool new_town)
 			gebaeude_t* const gb = pick_any(buildings);
 			const uint32 dist(koord_distance(c, gb->get_pos()));
 			const uint32 distance_rate = 100 - (dist * 100) / maxdist;
-			if(  spieler_t::check_owner(gb->get_besitzer(),NULL)  && simrand(100, "void stadt_t::baue") < distance_rate) {
+			if(  player_t::check_owner(gb->get_besitzer(),NULL)  && simrand(100, "void stadt_t::baue") < distance_rate) {
 				if(renovate_city_building(gb)) { was_renovated++;}
 			}
 		}
@@ -5114,8 +5114,8 @@ bool private_car_destination_finder_t::ist_befahrbar(const grund_t* gr) const
 		const strasse_t* const str = (strasse_t*)gr->get_weg(road_wt);
 		if(str)
 		{
-			const spieler_t *sp = str->get_besitzer();
-			if(sp != NULL && sp->get_player_nr() != 1 && !sp->allows_access_to(1))
+			const player_t *player = str->get_besitzer();
+			if(player != NULL && player->get_player_nr() != 1 && !player->allows_access_to(1))
 			{
 				// Private cas should have the same restrictions as to the roads on which to travel
 				// as players' vehicles.

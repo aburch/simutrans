@@ -95,7 +95,7 @@ public:
 	void set_time_to_life(uint32 value) { time_to_life = value; }
 
 	// we allow to remove all cars etc.
-	const char *ist_entfernbar(const spieler_t *) { return NULL; }
+	const char *ist_entfernbar(const player_t *) { return NULL; }
 };
 
 

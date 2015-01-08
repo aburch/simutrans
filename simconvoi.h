@@ -39,7 +39,7 @@
 class weg_t;
 class depot_t;
 class karte_ptr_t;
-class spieler_t;
+class player_t;
 class vehikel_t;
 class vehikel_besch_t;
 class schedule_t;
@@ -360,7 +360,7 @@ private:
 	* Convoi owner
 	* @author Hj. Malthaner
 	*/
-	spieler_t *besitzer_p;
+	player_t *owner;
 
 	/**
 	* Current map
@@ -546,7 +546,7 @@ private:
 	* Each constructor must call this method first!
 	* @author Hj. Malthaner
 	*/
-	void init(spieler_t *sp);
+	void init(player_t *player);
 
 	/**
 	* Berechne route von Start- zu Zielkoordinate
@@ -925,7 +925,7 @@ public:
 	*/
 	convoi_t(loadsave_t *file);
 
-	convoi_t(spieler_t* sp);
+	convoi_t(player_t* player);
 
 	virtual ~convoi_t();
 
@@ -1137,7 +1137,7 @@ public:
 	* @author Hj. Malthaner
 	*/
 
-	spieler_t * get_besitzer() const { return besitzer_p; }
+	player_t * get_besitzer() const { return owner; }
 
 	/**
 	* Opens an information window
@@ -1311,7 +1311,7 @@ public:
 	 * Methode fuer jaehrliche aktionen
 	 * @author Hj. Malthaner
 	 */
-	void neues_jahr();
+	void new_year();
 
 	inline void set_update_line(linehandle_t l) { line_update_pending = l; }
 

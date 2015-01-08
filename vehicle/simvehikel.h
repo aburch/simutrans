@@ -433,11 +433,11 @@ public:
 #ifdef INLINE_DING_TYPE
 protected:
 	vehikel_t(typ type);
-	vehikel_t(typ type, koord3d pos, const vehikel_besch_t* besch, spieler_t* sp);
+	vehikel_t(typ type, koord3d pos, const vehikel_besch_t* besch, player_t* player);
 public:
 #else
 	vehikel_t();
-	vehikel_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp);
+	vehikel_t(koord3d pos, const vehikel_besch_t* besch, player_t* player);
 #endif
 
 	~vehikel_t();
@@ -589,7 +589,7 @@ public:
 	*/
 	virtual schedule_t *erzeuge_neuen_fahrplan() const = 0;
 
-	const char *ist_entfernbar(const spieler_t *sp);
+	const char *ist_entfernbar(const player_t *player);
 
 	void rdwr(loadsave_t *file);
 	virtual void rdwr_from_convoi(loadsave_t *file);
@@ -666,7 +666,7 @@ public:
 
 	automobil_t(loadsave_t *file, bool first, bool last);
 	automobil_t();
-	automobil_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, convoi_t* cnv); // start und fahrplan
+	automobil_t(koord3d pos, const vehikel_besch_t* besch, player_t* player, convoi_t* cnv); // start und fahrplan
 
 	virtual void set_convoi(convoi_t *c);
 
@@ -741,7 +741,7 @@ public:
 #ifdef INLINE_DING_TYPE
 protected:
 	waggon_t(typ type, loadsave_t *file, bool is_first, bool is_last);
-	waggon_t(typ type, koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, convoi_t *cnv); // start und fahrplan
+	waggon_t(typ type, koord3d pos, const vehikel_besch_t* besch, player_t* player, convoi_t *cnv); // start und fahrplan
 	void init(loadsave_t *file, bool is_first, bool is_last);
 public:
 #else
@@ -749,7 +749,7 @@ public:
 #endif
 
 	waggon_t(loadsave_t *file, bool is_first, bool is_last);
-	waggon_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, convoi_t *cnv); // start und fahrplan
+	waggon_t(koord3d pos, const vehikel_besch_t* besch, player_t* player, convoi_t *cnv); // start und fahrplan
 	virtual ~waggon_t();
 
 	virtual void set_convoi(convoi_t *c);
@@ -772,11 +772,11 @@ public:
 #ifdef INLINE_DING_TYPE
 	// all handled by waggon_t
 	monorail_waggon_t(loadsave_t *file, bool is_first, bool is_last) : waggon_t(monorailwaggon, file,is_first, is_last) {}
-	monorail_waggon_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, convoi_t* cnv) : waggon_t(monorailwaggon, pos, besch, sp, cnv) {}
+	monorail_waggon_t(koord3d pos, const vehikel_besch_t* besch, player_t* player, convoi_t* cnv) : waggon_t(monorailwaggon, pos, besch, player, cnv) {}
 #else
 	// all handled by waggon_t
 	monorail_waggon_t(loadsave_t *file, bool is_first, bool is_last) : waggon_t(file,is_first, is_last) {}
-	monorail_waggon_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, convoi_t* cnv) : waggon_t(pos, besch, sp, cnv) {}
+	monorail_waggon_t(koord3d pos, const vehikel_besch_t* besch, player_t* player, convoi_t* cnv) : waggon_t(pos, besch, player, cnv) {}
 
 	typ get_typ() const { return monorailwaggon; }
 #endif
@@ -799,11 +799,11 @@ public:
 #ifdef INLINE_DING_TYPE
 	// all handled by waggon_t
 	maglev_waggon_t(loadsave_t *file, bool is_first, bool is_last) : waggon_t(maglevwaggon, file, is_first, is_last) {}
-	maglev_waggon_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, convoi_t* cnv) : waggon_t(maglevwaggon, pos, besch, sp, cnv) {}
+	maglev_waggon_t(koord3d pos, const vehikel_besch_t* besch, player_t* player, convoi_t* cnv) : waggon_t(maglevwaggon, pos, besch, player, cnv) {}
 #else
 	// all handled by waggon_t
 	maglev_waggon_t(loadsave_t *file, bool is_first, bool is_last) : waggon_t(file, is_first, is_last) {}
-	maglev_waggon_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, convoi_t* cnv) : waggon_t(pos, besch, sp, cnv) {}
+	maglev_waggon_t(koord3d pos, const vehikel_besch_t* besch, player_t* player, convoi_t* cnv) : waggon_t(pos, besch, player, cnv) {}
 
 	typ get_typ() const { return maglevwaggon; }
 #endif
@@ -826,11 +826,11 @@ public:
 #ifdef INLINE_DING_TYPE
 	// all handled by waggon_t
 	narrowgauge_waggon_t(loadsave_t *file, bool is_first, bool is_last) : waggon_t(narrowgaugewaggon, file, is_first, is_last) {}
-	narrowgauge_waggon_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, convoi_t* cnv) : waggon_t(narrowgaugewaggon, pos, besch, sp, cnv) {}
+	narrowgauge_waggon_t(koord3d pos, const vehikel_besch_t* besch, player_t* player, convoi_t* cnv) : waggon_t(narrowgaugewaggon, pos, besch, player, cnv) {}
 #else
 	// all handled by waggon_t
 	narrowgauge_waggon_t(loadsave_t *file, bool is_first, bool is_last) : waggon_t(file, is_first, is_last) {}
-	narrowgauge_waggon_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, convoi_t* cnv) : waggon_t(pos, besch, sp, cnv) {}
+	narrowgauge_waggon_t(koord3d pos, const vehikel_besch_t* besch, player_t* player, convoi_t* cnv) : waggon_t(pos, besch, player, cnv) {}
 
 	typ get_typ() const { return narrowgaugewaggon; }
 #endif
@@ -870,7 +870,7 @@ public:
 	virtual bool ist_ziel(const grund_t *,const grund_t *) {return 0;}
 
 	schiff_t(loadsave_t *file, bool is_first, bool is_last);
-	schiff_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, convoi_t* cnv);
+	schiff_t(koord3d pos, const vehikel_besch_t* besch, player_t* player, convoi_t* cnv);
 
 #ifdef INLINE_DING_TYPE
 #else
@@ -945,7 +945,7 @@ protected:
 
 public:
 	aircraft_t(loadsave_t *file, bool is_first, bool is_last);
-	aircraft_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, convoi_t* cnv); // start and schedule
+	aircraft_t(koord3d pos, const vehikel_besch_t* besch, player_t* player, convoi_t* cnv); // start and schedule
 
 	// to shift the events around properly
 	void get_event_index( flight_state &state_, uint32 &takeoff_, uint32 &stopsearch_, uint32 &landing_ ) { state_ = state; takeoff_ = takeoff; stopsearch_ = suchen; landing_ = touchdown; }
@@ -1014,7 +1014,7 @@ public:
 
 	bool is_on_ground() const { return flughoehe==0  &&  !(state==circling  ||  state==flying); }
 
-	const char *ist_entfernbar(const spieler_t *sp);
+	const char *ist_entfernbar(const player_t *player);
 
 	bool runway_too_short;
 

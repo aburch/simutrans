@@ -18,7 +18,7 @@
 class karte_t;
 class weg_besch_t;
 class cbuffer_t;
-class spieler_t;
+class player_t;
 template <class T> class slist_tpl;
 
 
@@ -281,7 +281,7 @@ public:
 	 * @return NULL if OK, otherwise an error message
 	 * @author Hj. Malthaner
 	 */
-	virtual const char *ist_entfernbar(const spieler_t *sp, bool allow_public = false);
+	virtual const char *ist_entfernbar(const player_t *player, bool allow_public = false);
 
 	/**
 	* Wegtyp zurückliefern
@@ -372,7 +372,7 @@ public:
 	* new month
 	* @author hsiegeln
 	*/
-	void neuer_monat();
+	void new_month();
 
 	void check_diagonal();
 
@@ -410,8 +410,8 @@ public:
 	// correct maintainace
 	void laden_abschliessen();
 
-	// Should a city adopt this, if it is being built/upgrade by player sp?
-	bool should_city_adopt_this(const spieler_t* sp);
+	// Should a city adopt this, if it is being built/upgrade by player player?
+	bool should_city_adopt_this(const player_t* player);
 
 	bool is_public_right_of_way() const { return public_right_of_way; }
 	void set_public_right_of_way(bool arg=true) { public_right_of_way = arg; }

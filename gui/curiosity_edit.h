@@ -38,7 +38,7 @@ private:
 	virtual void change_item_info( sint32 i );
 
 public:
-	curiosity_edit_frame_t(spieler_t* sp);
+	curiosity_edit_frame_t(player_t* player);
 
 	/**
 	* in top-level windows the name is displayed in titlebar

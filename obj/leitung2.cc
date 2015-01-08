@@ -122,25 +122,25 @@ leitung_t::leitung_t(loadsave_t *file) : obj_t()
 
 
 #ifdef INLINE_DING_TYPE
-leitung_t::leitung_t(typ type, koord3d pos, spieler_t *sp) : obj_t(type, pos)
+leitung_t::leitung_t(typ type, koord3d pos, player_t *player) : obj_t(type, pos)
 {
 	city = NULL;
 	bild = IMG_LEER;
 	set_net(NULL);
-	set_besitzer( sp );
+	set_besitzer( player );
 	set_besch(wegbauer_t::leitung_besch);
 	modified_production_delta_t = welt->calc_adjusted_monthly_figure(PRODUCTION_DELTA_T);
 }
 
-leitung_t::leitung_t(koord3d pos, spieler_t *sp) : obj_t(obj_t::leitung, pos)
+leitung_t::leitung_t(koord3d pos, player_t *player) : obj_t(obj_t::leitung, pos)
 #else
-leitung_t::leitung_t(koord3d pos, spieler_t *sp) : obj_t(pos)
+leitung_t::leitung_t(koord3d pos, player_t *player) : obj_t(pos)
 #endif
 {
 	city = NULL;
 	bild = IMG_LEER;
 	set_net(NULL);
-	set_besitzer( sp );
+	set_besitzer( player );
 	set_besch(wegbauer_t::leitung_besch);
 	modified_production_delta_t = welt->calc_adjusted_monthly_figure(PRODUCTION_DELTA_T);
 }
@@ -182,13 +182,13 @@ leitung_t::~leitung_t()
 			delete net;
 		}
 		if(!gr->ist_tunnel()) {
-			spieler_t::add_maintenance(get_besitzer(), -besch->get_wartung(), powerline_wt);
+			player_t::add_maintenance(get_besitzer(), -besch->get_wartung(), powerline_wt);
 		}
 	}
 }
 
 
-void leitung_t::entferne(spieler_t *sp) //"remove".
+void leitung_t::entferne(player_t *player) //"remove".
 {
 	sint64 land_value = welt->get_land_value(get_pos());
 	const weg_t* way = welt->lookup(get_pos()) ? welt->lookup(get_pos())->get_weg_nr(0) : NULL;
@@ -197,14 +197,14 @@ void leitung_t::entferne(spieler_t *sp) //"remove".
 		// If this is a power line crossing a way, then this is not owned in any event.
 		land_value = 0;
 	}
-	if(sp == get_besitzer())
+	if(player == get_besitzer())
 	{
-		spieler_t::book_construction_costs(sp, -besch->get_preis() / 2 - land_value, get_pos().get_2d(), powerline_wt);
+		player_t::book_construction_costs(player, -besch->get_preis() / 2 - land_value, get_pos().get_2d(), powerline_wt);
 	}
 	else
 	{
-		spieler_t::book_construction_costs(sp, -besch->get_preis() / 2, get_pos().get_2d(), powerline_wt);
-		spieler_t::book_construction_costs(get_besitzer(), -land_value, get_pos().get_2d(), powerline_wt);
+		player_t::book_construction_costs(player, -besch->get_preis() / 2, get_pos().get_2d(), powerline_wt);
+		player_t::book_construction_costs(get_besitzer(), -land_value, get_pos().get_2d(), powerline_wt);
 	}
 	mark_image_dirty( bild, 0 );
 }
@@ -431,7 +431,7 @@ void leitung_t::laden_abschliessen()
 	const grund_t *gr = welt->lookup(get_pos());
 	assert(gr);
 
-	spieler_t::add_maintenance(get_besitzer(), besch->get_wartung(), powerline_wt);
+	player_t::add_maintenance(get_besitzer(), besch->get_wartung(), powerline_wt);
 }
 
 
@@ -587,16 +587,16 @@ pumpe_t::pumpe_t(loadsave_t *file ) :
 }
 
 
-pumpe_t::pumpe_t(koord3d pos, spieler_t *sp) : 
+pumpe_t::pumpe_t(koord3d pos, player_t *player) : 
 #ifdef INLINE_DING_TYPE
-	leitung_t(obj_t::pumpe, pos, sp)
+	leitung_t(obj_t::pumpe, pos, player)
 #else
-	leitung_t(pos, sp)
+	leitung_t(pos, player)
 #endif
 {
 	fab = NULL;
 	supply = 0;
-	spieler_t::book_construction_costs(sp, welt->get_settings().cst_transformer, get_pos().get_2d(), powerline_wt);
+	player_t::book_construction_costs(player, welt->get_settings().cst_transformer, get_pos().get_2d(), powerline_wt);
 }
 
 
@@ -607,7 +607,7 @@ pumpe_t::~pumpe_t()
 		fab = NULL;
 	}
 	pumpe_list.remove( this );
-	spieler_t::add_maintenance(get_besitzer(), (sint32)welt->get_settings().cst_maintain_transformer, powerline_wt);
+	player_t::add_maintenance(get_besitzer(), (sint32)welt->get_settings().cst_maintain_transformer, powerline_wt);
 }
 
 
@@ -645,7 +645,7 @@ void pumpe_t::step(long delta_t)
 void pumpe_t::laden_abschliessen()
 {
 	leitung_t::laden_abschliessen();
-	spieler_t::add_maintenance(get_besitzer(), -welt->get_settings().cst_maintain_transformer, powerline_wt);
+	player_t::add_maintenance(get_besitzer(), -welt->get_settings().cst_maintain_transformer, powerline_wt);
 
 	assert(get_net());
 
@@ -729,11 +729,11 @@ senke_t::senke_t(loadsave_t *file) :
 }
 
 
-senke_t::senke_t(koord3d pos, spieler_t *sp, stadt_t* c) : 
+senke_t::senke_t(koord3d pos, player_t *player, stadt_t* c) : 
 #ifdef INLINE_DING_TYPE
-	leitung_t(obj_t::senke, pos, sp)
+	leitung_t(obj_t::senke, pos, player)
 #else
-	leitung_t(pos, sp)
+	leitung_t(pos, player)
 #endif
 {
 	fab = NULL;
@@ -748,7 +748,7 @@ senke_t::senke_t(koord3d pos, spieler_t *sp, stadt_t* c) :
 	delta_sum = 0;
 	last_power_demand = 0;
 	power_load = 0;
-	spieler_t::book_construction_costs(sp, welt->get_settings().cst_transformer, get_pos().get_2d(), powerline_wt);
+	player_t::book_construction_costs(player, welt->get_settings().cst_transformer, get_pos().get_2d(), powerline_wt);
 	welt->sync_add(this);
 }
 
@@ -773,7 +773,7 @@ senke_t::~senke_t()
 			}
 		}
 	}
-	spieler_t::add_maintenance(get_besitzer(), welt->get_settings().cst_maintain_transformer, powerline_wt);
+	player_t::add_maintenance(get_besitzer(), welt->get_settings().cst_maintain_transformer, powerline_wt);
 }
 
 
@@ -1068,7 +1068,7 @@ bool senke_t::sync_step(long delta_t)
 void senke_t::laden_abschliessen()
 {
 	leitung_t::laden_abschliessen();
-	spieler_t::add_maintenance(get_besitzer(), -welt->get_settings().cst_maintain_transformer, powerline_wt);
+	player_t::add_maintenance(get_besitzer(), -welt->get_settings().cst_maintain_transformer, powerline_wt);
 
 	check_industry_connexion();
 #ifdef MULTI_THREAD

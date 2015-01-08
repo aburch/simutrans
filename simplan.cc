@@ -624,7 +624,7 @@ void planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos) const
 			// doesn't affect the colour displayed [since blend(col1,blend(col2,screen)) != blend(col2,blend(col1,screen))]
 			for(int spieler_count = 0; spieler_count<MAX_PLAYER_COUNT; spieler_count++)
 			{
-				spieler_t *display_player = gr->get_welt()->get_spieler(spieler_count);
+				player_t *display_player = gr->get_welt()->get_player(spieler_count);
 				if(display_player)
 				{
 					const PLAYER_COLOR_VAL transparent = PLAYER_FLAG | OUTLINE_FLAG | (display_player->get_player_color1() * 4 + 4);
@@ -667,14 +667,16 @@ void planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos) const
 }
 
 
-// finds halt belonging to player sp
-// if NULL is passed, will find any halt on this tile
+/**
+ * Finds halt belonging to a player
+ * @param player owner of the halts we are interested in.
+ */
 // (somewhat random, although ground level will be preferred -- don't call this with NULL)
-halthandle_t planquadrat_t::get_halt(spieler_t *sp) const
+halthandle_t planquadrat_t::get_halt(player_t *player) const
 {
 	for(  uint8 i=0;  i < get_boden_count();  i++  ) {
 		halthandle_t my_halt = get_boden_bei(i)->get_halt();
-		if(  my_halt.is_bound()  &&  (sp == NULL  ||  sp == my_halt->get_besitzer())  ) {
+		if(  my_halt.is_bound()  &&  (player == NULL  ||  player == my_halt->get_besitzer())  ) {
 			return my_halt;
 		}
 	}

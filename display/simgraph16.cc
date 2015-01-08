@@ -1383,17 +1383,17 @@ static void rezoom_img(const image_id n)
 			images[n].h = images[n].base_h;
 			// recalculate length
 			sint16 h = images[n].base_h;
-			PIXVAL *sp = images[n].base_data;
+			PIXVAL *player = images[n].base_data;
 
 			while(  h-- > 0  ) {
 				do {
 					// clear run + colored run + next clear run
-					sp++;
-					sp += *sp + 1;
-				} while(  *sp  );
-				sp++;
+					player++;
+					player += *player + 1;
+				} while(  *player  );
+				player++;
 			}
-			images[n].len = (uint32)(size_t)(sp - images[n].base_data);
+			images[n].len = (uint32)(size_t)(player - images[n].base_data);
 			images[n].recode_flags &= ~FLAG_REZOOM;
 #ifdef MULTI_THREAD
 			pthread_mutex_unlock( &rezoom_img_mutex[n % env_t::num_threads] );
@@ -2185,10 +2185,10 @@ template<> void templated_pixcopy<colored>(PIXVAL *dest, const PIXVAL *src, cons
  */
 #ifdef MULTI_THREAD
 template<pixcopy_routines copyroutine>
-static void display_img_pc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, const PIXVAL *sp, const sint8 clip_num)
+static void display_img_pc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, const PIXVAL *player, const sint8 clip_num)
 #else
 template<pixcopy_routines copyroutine>
-static void display_img_pc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, const PIXVAL *sp)
+static void display_img_pc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, const PIXVAL *player)
 #endif
 {
 	if(  h > 0  ) {
@@ -2204,7 +2204,7 @@ static void display_img_pc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, 
 			int xpos = xp;
 
 			// display image
-			int runlen = *sp++;
+			int runlen = *player++;
 
 			// get left/right boundary, step
 			int xmin, xmax;
@@ -2218,19 +2218,19 @@ static void display_img_pc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, 
 				xpos += runlen;
 
 				// now get colored pixels
-				runlen = *sp++;
+				runlen = *player++;
 
 				// Hajo: something to display?
 				if (xmin < xmax  &&  xpos + runlen > xmin && xpos < xmax) {
 					const int left = (xpos >= xmin ? 0 : xmin - xpos);
 					const int len  = (xmax - xpos >= runlen ? runlen : xmax - xpos);
 
-					templated_pixcopy<copyroutine>(tp + xpos + left, sp + left, sp + len);
+					templated_pixcopy<copyroutine>(tp + xpos + left, player + left, player + len);
 				}
 
-				sp += runlen;
+				player += runlen;
 				xpos += runlen;
-			} while ((runlen = *sp++));
+			} while ((runlen = *player++));
 
 			tp += disp_width;
 		} while (--h);
@@ -2243,9 +2243,9 @@ static void display_img_pc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, 
  * @author Hj. Malthaner
  */
 #ifdef MULTI_THREAD
-static void display_img_wc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, const PIXVAL *sp, const sint8 clip_num)
+static void display_img_wc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, const PIXVAL *player, const sint8 clip_num)
 #else
-static void display_img_wc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, const PIXVAL *sp)
+static void display_img_wc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, const PIXVAL *player)
 #endif
 {
 	if(  h > 0  ) {
@@ -2255,14 +2255,14 @@ static void display_img_wc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, 
 			int xpos = xp;
 
 			// display image
-			uint16 runlen = *sp++;
+			uint16 runlen = *player++;
 
 			do {
 				// we start with a clear run
 				xpos += runlen;
 
 				// now get colored pixels
-				runlen = *sp++;
+				runlen = *player++;
 
 				// Hajo: something to display?
 #ifdef MULTI_THREAD
@@ -2274,12 +2274,12 @@ static void display_img_wc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, 
 					const int left = (xpos >= clip_rect.x ? 0 : clip_rect.x - xpos);
 					const int len  = (clip_rect.xx - xpos >= runlen ? runlen : clip_rect.xx - xpos);
 #endif
-					pixcopy(tp + xpos + left, sp + left, sp + len);
+					pixcopy(tp + xpos + left, player + left, player + len);
 				}
 
-				sp += runlen;
+				player += runlen;
 				xpos += runlen;
-			} while ((runlen = *sp++));
+			} while ((runlen = *player++));
 
 			tp += disp_width;
 		} while (--h);
@@ -2290,17 +2290,17 @@ static void display_img_wc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, 
 /**
  * Draw each image without clipping
  */
-static void display_img_nc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, const PIXVAL *sp)
+static void display_img_nc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, const PIXVAL *player)
 {
 	if (h > 0) {
 		PIXVAL *tp = textur + xp + yp * disp_width;
 
 		do { // line decoder
 #ifdef USE_C
-			uint16 runlen = *sp++;
+			uint16 runlen = *player++;
 #else
 			// assembler needs this size
-			uint32 runlen = *sp++;
+			uint32 runlen = *player++;
 #endif
 			PIXVAL *p = tp;
 
@@ -2310,7 +2310,7 @@ static void display_img_nc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, 
 				p += runlen;
 
 				// now get colored pixels
-				runlen = *sp++;
+				runlen = *player++;
 #ifdef USE_C
 #ifndef ALIGN_COPY
 				{
@@ -2319,22 +2319,22 @@ static void display_img_nc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, 
 					uint32 *ld;
 
 					if (runlen & 1) {
-						*p++ = *sp++;
+						*p++ = *player++;
 					}
 
-					ls = (const uint32 *)sp;
+					ls = (const uint32 *)player;
 					ld = (uint32 *)p;
 					runlen >>= 1;
 					while (runlen--) {
 						*ld++ = *ls++;
 					}
 					p = (PIXVAL*)ld;
-					sp = (const PIXVAL*)ls;
+					player = (const PIXVAL*)ls;
 				}
 #else
 				// some architectures: faster with inline of memory functions!
-				memcpy( p, sp, runlen*sizeof(PIXVAL) );
-				sp += runlen;
+				memcpy( p, player, runlen*sizeof(PIXVAL) );
+				player += runlen;
 				p += runlen;
 #endif
 #else
@@ -2345,7 +2345,7 @@ static void display_img_nc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, 
 					"shrl %2\n\t"
 					"jnc 0f\n\t"
 					// Copy first word
-					// *p++ = *sp++;
+					// *p++ = *player++;
 					"movsw\n\t"
 					"0:\n\t"
 					"negl %2\n\t"
@@ -2373,12 +2373,12 @@ static void display_img_nc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, 
 #undef MOVSD2
 #undef MOVSD1
 					"1:\n\t"
-					: "+D" (p), "+S" (sp), "+r" (runlen)
+					: "+D" (p), "+S" (player), "+r" (runlen)
 					:
 					: "cc", "memory"
 				);
 #endif
-				runlen = *sp++;
+				runlen = *player++;
 			} while (runlen != 0);
 
 			tp += disp_width;
@@ -2432,11 +2432,11 @@ void display_img_aux(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const sint8 p
 		// only use player images if needed
 		const sint8 use_player = (images[n].recode_flags & FLAG_HAS_PLAYER_COLOR) * player_nr_raw;
 		// need to go to nightmode and or re-zoomed?
-		PIXVAL *sp;
+		PIXVAL *player;
 		if(  use_player > 0  ) {
 			// player colour images are rezoomed/recoloured in display_color_img
-			sp = images[n].data[use_player];
-			if(  sp == NULL  ) {
+			player = images[n].data[use_player];
+			if(  player == NULL  ) {
 				printf("CImg[%i] %u failed!\n", use_player, n);
 				return;
 			}
@@ -2449,8 +2449,8 @@ void display_img_aux(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const sint8 p
 			else if(  (images[n].player_flags & 1)  ) {
 				recode_img( n, 0 );
 			}
-			sp = images[n].data[0];
-			if(  sp == NULL  ) {
+			player = images[n].data[0];
+			if(  player == NULL  ) {
 				printf("Img %u failed!\n", n);
 				return;
 			}
@@ -2494,12 +2494,12 @@ void display_img_aux(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const sint8 p
 			while (skip_lines--) {
 				do {
 					// clear run + colored run + next clear run
-					sp++;
-					sp += *sp + 1;
-				} while (*sp);
-				sp++;
+					player++;
+					player += *player + 1;
+				} while (*player);
+				player++;
 			}
-			// now sp is the new start of an image with height h
+			// now player is the new start of an image with height h
 		}
 
 		// new block for new variables
@@ -2511,10 +2511,10 @@ void display_img_aux(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const sint8 p
 			// clipping at poly lines?
 #ifdef MULTI_THREAD
 			if(  clips[clip_num].number_of_clips > 0  ) {
-					display_img_pc<plain>( h, xp, yp, sp, clip_num );
+					display_img_pc<plain>( h, xp, yp, player, clip_num );
 #else
 			if(  number_of_clips > 0  ) {
-					display_img_pc<plain>( h, xp, yp, sp );
+					display_img_pc<plain>( h, xp, yp, player );
 #endif
 					// since height may be reduced, start marking here
 					if(  dirty  ) {
@@ -2536,14 +2536,14 @@ void display_img_aux(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const sint8 p
 					if(  dirty  ) {
 						mark_rect_dirty_nc( xp, yp, xp + w - 1, yp + h - 1 );
 					}
-					display_img_nc( h, xp, yp, sp );
+					display_img_nc( h, xp, yp, player );
 				}
 #ifdef MULTI_THREAD
 				else if(  xp < clips[clip_num].clip_rect.xx  &&  xp + w > clips[clip_num].clip_rect.x  ) {
-					display_img_wc( h, xp, yp, sp, clip_num );
+					display_img_wc( h, xp, yp, player, clip_num );
 #else
 				else if(  xp < clip_rect.xx  &&  xp + w > clip_rect.x  ) {
-					display_img_wc( h, xp, yp, sp );
+					display_img_wc( h, xp, yp, player );
 #endif
 					// since height may be reduced, start marking here
 					if(  dirty  ) {
@@ -2735,13 +2735,13 @@ void display_img_stretch_blend( const stretch_map_t &imag, scr_rect area, PLAYER
 /**
  * Draw Image, replace player color,
  * assumes height is ok and valid data are calculated.
- * color replacement needs the original data => sp points to non-cached data
+ * color replacement needs the original data => player points to non-cached data
  * @author hajo/prissi
  */
 #ifdef MULTI_THREAD
-static void display_color_img_wc(const PIXVAL *sp, KOORD_VAL x, KOORD_VAL y, KOORD_VAL h, const sint8 clip_num )
+static void display_color_img_wc(const PIXVAL *player, KOORD_VAL x, KOORD_VAL y, KOORD_VAL h, const sint8 clip_num )
 #else
-static void display_color_img_wc(const PIXVAL *sp, KOORD_VAL x, KOORD_VAL y, KOORD_VAL h )
+static void display_color_img_wc(const PIXVAL *player, KOORD_VAL x, KOORD_VAL y, KOORD_VAL h )
 #endif
 {
 	PIXVAL *tp = textur + y * disp_width;
@@ -2751,14 +2751,14 @@ static void display_color_img_wc(const PIXVAL *sp, KOORD_VAL x, KOORD_VAL y, KOO
 
 		// Display image
 
-		uint16 runlen = *sp++;
+		uint16 runlen = *player++;
 
 		do {
 			// we start with a clear run
 			xpos += runlen;
 
 			// now get colored pixels
-			runlen = *sp++;
+			runlen = *player++;
 
 			// Hajo: something to display?
 #ifdef MULTI_THREAD
@@ -2770,12 +2770,12 @@ static void display_color_img_wc(const PIXVAL *sp, KOORD_VAL x, KOORD_VAL y, KOO
 				const int left = (xpos >= clip_rect.x ? 0 : clip_rect.x - xpos);
 				const int len  = (clip_rect.xx-xpos > runlen ? runlen : clip_rect.xx - xpos);
 #endif
-				colorpixcopy(tp + xpos + left, sp + left, sp + len);
+				colorpixcopy(tp + xpos + left, player + left, player + len);
 			}
 
-			sp += runlen;
+			player += runlen;
 			xpos += runlen;
-		} while ((runlen = *sp++));
+		} while ((runlen = *player++));
 
 		tp += disp_width;
 	} while (--h);
@@ -2835,8 +2835,8 @@ void display_color_img(const image_id n, KOORD_VAL xp, KOORD_VAL yp, sint8 playe
 
 			activate_player_color( player_nr, daynight );
 
-			// color replacement needs the original data => sp points to non-cached data
-			const PIXVAL *sp = (tile_raster_width != base_tile_raster_width  &&  images[n].zoom_data != NULL) ? images[n].zoom_data : images[n].base_data;
+			// color replacement needs the original data => player points to non-cached data
+			const PIXVAL *player = (tile_raster_width != base_tile_raster_width  &&  images[n].zoom_data != NULL) ? images[n].zoom_data : images[n].base_data;
 
 			// clip top/bottom
 #ifdef MULTI_THREAD
@@ -2850,26 +2850,26 @@ void display_color_img(const image_id n, KOORD_VAL xp, KOORD_VAL yp, sint8 playe
 					yoff--;
 					do {
 						// clear run + colored run + next clear run
-						++sp;
-						sp += *sp + 1;
-					} while (*sp);
-					sp++;
+						++player;
+						player += *player + 1;
+					} while (*player);
+					player++;
 				}
 
 				// clipping at poly lines?
 #ifdef MULTI_THREAD
 				if(  clips[clip_num].number_of_clips > 0  ) {
-					display_img_pc<colored>( h, x, y, sp, clip_num );
+					display_img_pc<colored>( h, x, y, player, clip_num );
 #else
 				if(  number_of_clips > 0  ) {
-					display_img_pc<colored>( h, x, y, sp );
+					display_img_pc<colored>( h, x, y, player );
 #endif
 				}
 				else {
 #ifdef MULTI_THREAD
-					display_color_img_wc( sp, x, y, h, clip_num );
+					display_color_img_wc( player, x, y, h, clip_num );
 #else
-					display_color_img_wc( sp, x, y, h );
+					display_color_img_wc( player, x, y, h );
 #endif
 				}
 			}
@@ -2926,8 +2926,8 @@ void display_base_img(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const sint8 
 			activate_player_color( 0, daynight );
 		}
 
-		// color replacement needs the original data => sp points to non-cached data
-		const PIXVAL *sp = images[n].base_data;
+		// color replacement needs the original data => player points to non-cached data
+		const PIXVAL *player = images[n].base_data;
 
 		// clip top/bottom
 #ifdef MULTI_THREAD
@@ -2941,25 +2941,25 @@ void display_base_img(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const sint8 
 				yoff--;
 				do {
 					// clear run + colored run + next clear run
-					++sp;
-					sp += *sp + 1;
-				} while (*sp);
-				sp++;
+					++player;
+					player += *player + 1;
+				} while (*player);
+				player++;
 			}
 			// clipping at poly lines?
 #ifdef MULTI_THREAD
 			if(  clips[clip_num].number_of_clips > 0  ) {
-				display_img_pc<colored>( h, x, y, sp, clip_num );
+				display_img_pc<colored>( h, x, y, player, clip_num );
 #else
 			if(  number_of_clips > 0  ) {
-				display_img_pc<colored>( h, x, y, sp );
+				display_img_pc<colored>( h, x, y, player );
 #endif
 			}
 			else {
 #ifdef MULTI_THREAD
-				display_color_img_wc( sp, x, y, h, clip_num );
+				display_color_img_wc( player, x, y, h, clip_num );
 #else
-				display_color_img_wc( sp, x, y, h );
+				display_color_img_wc( player, x, y, h );
 #endif
 			}
 		}
@@ -3259,9 +3259,9 @@ void display_blend_wh_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, 
 
 
 #ifdef MULTI_THREAD
-static void display_img_blend_wc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, const PIXVAL *sp, int colour, blend_proc p, const sint8 clip_num )
+static void display_img_blend_wc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, const PIXVAL *player, int colour, blend_proc p, const sint8 clip_num )
 #else
-static void display_img_blend_wc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, const PIXVAL *sp, int colour, blend_proc p )
+static void display_img_blend_wc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, const PIXVAL *player, int colour, blend_proc p )
 #endif
 {
 	if(  h > 0  ) {
@@ -3271,14 +3271,14 @@ static void display_img_blend_wc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VA
 			int xpos = xp;
 
 			// display image
-			uint16 runlen = *sp++;
+			uint16 runlen = *player++;
 
 			do {
 				// we start with a clear run
 				xpos += runlen;
 
 				// now get colored pixels
-				runlen = *sp++;
+				runlen = *player++;
 
 				// Hajo: something to display?
 #ifdef MULTI_THREAD
@@ -3290,12 +3290,12 @@ static void display_img_blend_wc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VA
 					const int left = (xpos >= clip_rect.x ? 0 : clip_rect.x - xpos);
 					const int len  = (clip_rect.xx - xpos >= runlen ? runlen : clip_rect.xx - xpos);
 #endif
-					p(tp + xpos + left, sp + left, colour, len - left);
+					p(tp + xpos + left, player + left, colour, len - left);
 				}
 
-				sp += runlen;
+				player += runlen;
 				xpos += runlen;
-			} while ((runlen = *sp++));
+			} while ((runlen = *player++));
 
 			tp += disp_width;
 		} while (--h);
@@ -3472,9 +3472,9 @@ static void pix_alpha_recode_16(PIXVAL *dest, const PIXVAL *src, const PIXVAL *a
 
 
 #ifdef MULTI_THREAD
-static void display_img_alpha_wc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, const PIXVAL *sp, const PIXVAL *alphamap, const uint8 alpha_flags, int colour, alpha_proc p, const sint8 clip_num )
+static void display_img_alpha_wc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, const PIXVAL *player, const PIXVAL *alphamap, const uint8 alpha_flags, int colour, alpha_proc p, const sint8 clip_num )
 #else
-static void display_img_alpha_wc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, const PIXVAL *sp, const PIXVAL *alphamap, const uint8 alpha_flags, int colour, alpha_proc p )
+static void display_img_alpha_wc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, const PIXVAL *player, const PIXVAL *alphamap, const uint8 alpha_flags, int colour, alpha_proc p )
 #endif
 {
 	if(  h > 0  ) {
@@ -3484,7 +3484,7 @@ static void display_img_alpha_wc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VA
 			int xpos = xp;
 
 			// display image
-			uint16 runlen = *sp++;
+			uint16 runlen = *player++;
 			alphamap++;
 
 			do {
@@ -3492,7 +3492,7 @@ static void display_img_alpha_wc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VA
 				xpos += runlen;
 
 				// now get colored pixels
-				runlen = *sp++;
+				runlen = *player++;
 				alphamap++;
 
 				// Hajo: something to display?
@@ -3505,14 +3505,14 @@ static void display_img_alpha_wc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VA
 					const int left = (xpos >= clip_rect.x ? 0 : clip_rect.x - xpos);
 					const int len  = (clip_rect.xx - xpos >= runlen ? runlen : clip_rect.xx - xpos);
 #endif
-					p( tp + xpos + left, sp + left, alphamap + left, alpha_flags, colour, len - left );
+					p( tp + xpos + left, player + left, alphamap + left, alpha_flags, colour, len - left );
 				}
 
-				sp += runlen;
+				player += runlen;
 				alphamap += runlen;
 				xpos += runlen;
 				alphamap++;
-			} while(  (runlen = *sp++)  );
+			} while(  (runlen = *player++)  );
 
 			tp += disp_width;
 		} while(  --h  );
@@ -3539,7 +3539,7 @@ void display_rezoomed_img_blend(const image_id n, KOORD_VAL xp, KOORD_VAL yp, co
 		else if(  (images[n].player_flags & 1)  ) {
 			recode_img( n, 0 );
 		}
-		PIXVAL *sp = images[n].data[0];
+		PIXVAL *player = images[n].data[0];
 
 		// now, since zooming may have change this image
 		xp += images[n].x;
@@ -3579,12 +3579,12 @@ void display_rezoomed_img_blend(const image_id n, KOORD_VAL xp, KOORD_VAL yp, co
 			while (skip_lines--) {
 				do {
 					// clear run + colored run + next clear run
-					sp++;
-					sp += *sp + 1;
-				} while (*sp);
-				sp++;
+					player++;
+					player += *player + 1;
+				} while (*player);
+				player++;
 			}
-			// now sp is the new start of an image with height h
+			// now player is the new start of an image with height h
 		}
 
 		// new block for new variables
@@ -3607,15 +3607,15 @@ void display_rezoomed_img_blend(const image_id n, KOORD_VAL xp, KOORD_VAL yp, co
 					mark_rect_dirty_nc( xp, yp, xp + w - 1, yp + h - 1 );
 				}
 #ifdef MULTI_THREAD
-				display_img_blend_wc( h, xp, yp, sp, color, pix_blend, clip_num );
+				display_img_blend_wc( h, xp, yp, player, color, pix_blend, clip_num );
 			}
 			else if(  xp < clips[clip_num].clip_rect.xx  &&  xp + w > clips[clip_num].clip_rect.x  ) {
-				display_img_blend_wc( h, xp, yp, sp, color, pix_blend, clip_num );
+				display_img_blend_wc( h, xp, yp, player, color, pix_blend, clip_num );
 #else
-				display_img_blend_wc( h, xp, yp, sp, color, pix_blend );
+				display_img_blend_wc( h, xp, yp, player, color, pix_blend );
 			}
 			else if(  xp < clip_rect.xx  &&  xp + w > clip_rect.x  ) {
-				display_img_blend_wc( h, xp, yp, sp, color, pix_blend );
+				display_img_blend_wc( h, xp, yp, player, color, pix_blend );
 #endif
 				// since height may be reduced, start marking here
 				if(  dirty  ) {
@@ -3645,7 +3645,7 @@ void display_rezoomed_img_alpha(const image_id n, const unsigned alpha_n, const 
 		if(  (images[alpha_n].recode_flags & FLAG_REZOOM)  ) {
 			rezoom_img( alpha_n );
 		}
-		PIXVAL *sp = images[n].data[0];
+		PIXVAL *player = images[n].data[0];
 		// alphamap image uses base data as we don't want to recode
 		PIXVAL *alphamap = images[alpha_n].zoom_data != NULL ? images[alpha_n].zoom_data : images[alpha_n].base_data;
 		// now, since zooming may have change this image
@@ -3688,15 +3688,15 @@ void display_rezoomed_img_alpha(const image_id n, const unsigned alpha_n, const 
 			while(  skip_lines--  ) {
 				do {
 					// clear run + colored run + next clear run
-					sp++;
-					sp += *sp + 1;
+					player++;
+					player += *player + 1;
 					alphamap++;
 					alphamap += *alphamap + 1;
-				} while(  *sp  );
-				sp++;
+				} while(  *player  );
+				player++;
 				alphamap++;
 			}
-			// now sp is the new start of an image with height h (same for alphamap)
+			// now player is the new start of an image with height h (same for alphamap)
 		}
 
 		// new block for new variables
@@ -3717,17 +3717,17 @@ void display_rezoomed_img_alpha(const image_id n, const unsigned alpha_n, const 
 					mark_rect_dirty_nc( xp, yp, xp + w - 1, yp + h - 1 );
 				}
 #ifdef MULTI_THREAD
-				display_img_alpha_wc( h, xp, yp, sp, alphamap, alpha_flags, color, alpha, clip_num );
+				display_img_alpha_wc( h, xp, yp, player, alphamap, alpha_flags, color, alpha, clip_num );
 #else
-				display_img_alpha_wc( h, xp, yp, sp, alphamap, alpha_flags, color, alpha );
+				display_img_alpha_wc( h, xp, yp, player, alphamap, alpha_flags, color, alpha );
 #endif
 			}
 #ifdef MULTI_THREAD
 			else if(  xp < clips[clip_num].clip_rect.xx  &&  xp + w > clips[clip_num].clip_rect.x  ) {
-				display_img_alpha_wc( h, xp, yp, sp, alphamap, alpha_flags, color, alpha, clip_num );
+				display_img_alpha_wc( h, xp, yp, player, alphamap, alpha_flags, color, alpha, clip_num );
 #else
 			else if(  xp < clip_rect.xx  &&  xp + w > clip_rect.x  ) {
-				display_img_alpha_wc( h, xp, yp, sp, alphamap, alpha_flags, color, alpha );
+				display_img_alpha_wc( h, xp, yp, player, alphamap, alpha_flags, color, alpha );
 #endif
 				// since height may be reduced, start marking here
 				if(  dirty  ) {
@@ -3770,7 +3770,7 @@ void display_base_img_blend(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const 
 			return;
 		}
 
-		PIXVAL *sp = images[n].base_data;
+		PIXVAL *player = images[n].base_data;
 
 		// must the height be reduced?
 #ifdef MULTI_THREAD
@@ -3795,12 +3795,12 @@ void display_base_img_blend(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const 
 			while (skip_lines--) {
 				do {
 					// clear run + colored run + next clear run
-					sp++;
-					sp += *sp + 1;
-				} while (*sp);
-				sp++;
+					player++;
+					player += *player + 1;
+				} while (*player);
+				player++;
 			}
-			// now sp is the new start of an image with height h
+			// now player is the new start of an image with height h
 		}
 
 		// new block for new variables
@@ -3830,9 +3830,9 @@ void display_base_img_blend(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const 
 					mark_rect_dirty_nc( x, y, x + w - 1, y + h - 1 );
 				}
 #ifdef MULTI_THREAD
-				display_img_blend_wc( h, x, y, sp, color, pix_blend, clip_num );
+				display_img_blend_wc( h, x, y, player, color, pix_blend, clip_num );
 #else
-				display_img_blend_wc( h, x, y, sp, color, pix_blend );
+				display_img_blend_wc( h, x, y, player, color, pix_blend );
 #endif
 			}
 			else {
@@ -3840,9 +3840,9 @@ void display_base_img_blend(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const 
 					mark_rect_dirty_wc( x, y, x + w - 1, y + h - 1 );
 				}
 #ifdef MULTI_THREAD
-				display_img_blend_wc( h, x, y, sp, color, pix_blend, clip_num );
+				display_img_blend_wc( h, x, y, player, color, pix_blend, clip_num );
 #else
-				display_img_blend_wc( h, x, y, sp, color, pix_blend );
+				display_img_blend_wc( h, x, y, player, color, pix_blend );
 #endif
 			}
 		}
@@ -3880,7 +3880,7 @@ void display_base_img_alpha(const unsigned n, const unsigned alpha_n, const unsi
 			return;
 		}
 
-		PIXVAL *sp = images[n].base_data;
+		PIXVAL *player = images[n].base_data;
 		PIXVAL *alphamap = images[alpha_n].base_data;
 
 		// must the height be reduced?
@@ -3906,18 +3906,18 @@ void display_base_img_alpha(const unsigned n, const unsigned alpha_n, const unsi
 			while(  skip_lines--  ) {
 				do {
 					// clear run + colored run + next clear run
-					sp++;
-					sp += *sp + 1;
-				} while(  *sp  );
+					player++;
+					player += *player + 1;
+				} while(  *player  );
 				do {
 					// clear run + colored run + next clear run
 					alphamap++;
 					alphamap += *alphamap + 1;
 				} while(  *alphamap  );
-				sp++;
+				player++;
 				alphamap++;
 			}
-			// now sp is the new start of an image with height h
+			// now player is the new start of an image with height h
 		}
 
 		// new block for new variables
@@ -3946,9 +3946,9 @@ void display_base_img_alpha(const unsigned n, const unsigned alpha_n, const unsi
 					mark_rect_dirty_nc( x, y, x + w - 1, y + h - 1 );
 				}
 #ifdef MULTI_THREAD
-				display_img_alpha_wc( h, x, y, sp, alphamap, alpha_flags, color, alpha_recode, clip_num );
+				display_img_alpha_wc( h, x, y, player, alphamap, alpha_flags, color, alpha_recode, clip_num );
 #else
-				display_img_alpha_wc( h, x, y, sp, alphamap, alpha_flags, color, alpha_recode );
+				display_img_alpha_wc( h, x, y, player, alphamap, alpha_flags, color, alpha_recode );
 #endif
 			}
 			else {
@@ -3956,9 +3956,9 @@ void display_base_img_alpha(const unsigned n, const unsigned alpha_n, const unsi
 					mark_rect_dirty_wc( x, y, x + w - 1, y + h - 1 );
 				}
 #ifdef MULTI_THREAD
-				display_img_alpha_wc( h, x, y, sp, alphamap, alpha_flags, color, alpha_recode, clip_num );
+				display_img_alpha_wc( h, x, y, player, alphamap, alpha_flags, color, alpha_recode, clip_num );
 #else
-				display_img_alpha_wc( h, x, y, sp, alphamap, alpha_flags, color, alpha_recode );
+				display_img_alpha_wc( h, x, y, player, alphamap, alpha_flags, color, alpha_recode );
 #endif
 			}
 		}

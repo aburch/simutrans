@@ -109,7 +109,7 @@ enum accounting_type_vehicles {
 
 class loadsave_t;
 class karte_t;
-class spieler_t;
+class player_t;
 class scenario_t;
 
 
@@ -137,7 +137,7 @@ inline sint64 convert_money(sint64 value) { return (value + 50) / 100; }
  */
 class finance_t {
 	/** transport company */
-	spieler_t * player;
+	player_t * player;
 
 	karte_t * world;
 
@@ -191,7 +191,7 @@ class finance_t {
 	// sint32 vehicle_maintenance[TT_MAX];
 
 public:
-	finance_t(spieler_t * _player, karte_t * _world);
+	finance_t(player_t * _player, karte_t * _world);
 
 	/**
 	 * Adds construction cost to finance stats.
@@ -375,7 +375,7 @@ public:
 	/**
 	 * Is player allowed to purchase something of this price, or is player
 	 * too deep in debt?  (Note that this applies to all players; the public
-     * player is special-cased in spieler_t, and skips this routine.)
+     * player is special-cased in player_t, and skips this routine.)
 	 * @returns whether player is allowed to purchase something of cost "price"
 	 * @params price
 	 */
@@ -500,7 +500,7 @@ public:
 	void new_month();
 
 	/**
-	 * rolls the finance history for player (needed when neues_jahr() or neuer_monat()) triggered
+	 * rolls the finance history for player (needed when new_year() or new_month()) triggered
 	 * @author hsiegeln, jk271
 	 */
 	void roll_history_year();

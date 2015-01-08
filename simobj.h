@@ -22,7 +22,7 @@
 
 class cbuffer_t;
 class karte_ptr_t;
-class spieler_t;
+class player_t;
 
 /**
  * Base class of all objects on the map, obj == thing
@@ -70,7 +70,7 @@ private:
 	/**
 	 * Owner of the object (1 - public player, 15 - unowned)
 	 */
-	uint8 besitzer_n:4;
+	uint8 owner_n:4;
 
 	/**
 	 * @see flag_values
@@ -92,7 +92,7 @@ protected:
 #endif
 
 	// since we often need access during loading
-	void set_player_nr(uint8 s) { besitzer_n = s; }
+	void set_player_nr(uint8 s) { owner_n = s; }
 
 	/**
 	* Pointer to the world of this thing. Static to conserve space.
@@ -104,17 +104,17 @@ protected:
 
 public:
 	// needed for drawing images
-	sint8 get_player_nr() const { return besitzer_n; }
+	sint8 get_player_nr() const { return owner_n; }
 
 	/**
 	 * sets owner of object
 	 */
-	void set_besitzer(spieler_t *sp);
+	void set_besitzer(player_t *player);
 
 	/**
 	 * returns owner of object
 	 */
-	spieler_t * get_besitzer() const;
+	player_t * get_besitzer() const;
 
 	/**
 	 * routines to set, clear, get bit flags
@@ -222,7 +222,7 @@ public:
 	 * Routine for cleanup if object is removed (ie book maintenance, cost for removal)
 	 * @author Hj. Malthaner
 	 */
-	virtual void entferne(spieler_t *) {}
+	virtual void entferne(player_t *) {}
 
 	/**
 	 * @returns untranslated name of object
@@ -336,7 +336,7 @@ public:
 	 * @return NULL if OK, otherwise an error message
 	 * @author Hj. Malthaner
 	 */
-	virtual const char *ist_entfernbar(const spieler_t *sp);
+	virtual const char *ist_entfernbar(const player_t *player);
 
 	/**
 	 * Draw backgroung image of object

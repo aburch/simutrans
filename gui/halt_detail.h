@@ -18,7 +18,7 @@
 #include "../utils/cbuffer_t.h"
 #include "../gui/simwin.h"
 
-class spieler_t;
+class player_t;
 
 
 /**
@@ -30,7 +30,7 @@ class halt_detail_t : public gui_frame_t, action_listener_t
 {
 private:
 	halthandle_t halt;
-	spieler_t *cached_active_player; // So that, if different from current, change line links
+	player_t *cached_active_player; // So that, if different from current, change line links
 	uint32 cached_line_count;
 	uint32 cached_convoy_count;
 	uint32 update_time;

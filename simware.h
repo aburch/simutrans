@@ -7,7 +7,7 @@
 
 class warenbauer_t;
 class karte_t;
-class spieler_t;
+class player_t;
 
 /** Class to handle goods packets (and their destinations) */
 class ware_t

@@ -164,18 +164,18 @@ void vehikelbauer_t::rdwr_speedbonus(loadsave_t *file)
 }
 
 
-vehikel_t* vehikelbauer_t::baue(koord3d k, spieler_t* sp, convoi_t* cnv, const vehikel_besch_t* vb, bool upgrade, uint16 livery_scheme_index )
+vehikel_t* vehikelbauer_t::baue(koord3d k, player_t* player, convoi_t* cnv, const vehikel_besch_t* vb, bool upgrade, uint16 livery_scheme_index )
 {
 	vehikel_t* v;
 	switch (vb->get_waytype()) {
-		case road_wt:     v = new automobil_t(      k, vb, sp, cnv); break;
-		case monorail_wt: v = new monorail_waggon_t(k, vb, sp, cnv); break;
+		case road_wt:     v = new automobil_t(      k, vb, player, cnv); break;
+		case monorail_wt: v = new monorail_waggon_t(k, vb, player, cnv); break;
 		case track_wt:
-		case tram_wt:     v = new waggon_t(         k, vb, sp, cnv); break;
-		case water_wt:    v = new schiff_t(         k, vb, sp, cnv); break;
-		case air_wt:      v = new aircraft_t(       k, vb, sp, cnv); break;
-		case maglev_wt:   v = new maglev_waggon_t(  k, vb, sp, cnv); break;
-		case narrowgauge_wt:v = new narrowgauge_waggon_t(k, vb, sp, cnv); break;
+		case tram_wt:     v = new waggon_t(         k, vb, player, cnv); break;
+		case water_wt:    v = new schiff_t(         k, vb, player, cnv); break;
+		case air_wt:      v = new aircraft_t(       k, vb, player, cnv); break;
+		case maglev_wt:   v = new maglev_waggon_t(  k, vb, player, cnv); break;
+		case narrowgauge_wt:v = new narrowgauge_waggon_t(k, vb, player, cnv); break;
 
 		default:
 			dbg->fatal("vehikelbauer_t::baue()", "cannot built a vehicle with waytype %i", vb->get_waytype());
@@ -186,14 +186,14 @@ vehikel_t* vehikelbauer_t::baue(koord3d k, spieler_t* sp, convoi_t* cnv, const v
 		livery_scheme_index = cnv->get_livery_scheme_index();
 	}
 
-	if(livery_scheme_index >= sp->get_welt()->get_settings().get_livery_schemes()->get_count())
+	if(livery_scheme_index >= player->get_welt()->get_settings().get_livery_schemes()->get_count())
 	{
 		// To prevent errors when loading a game with fewer livery schemes than that just played.
 		livery_scheme_index = 0;
 	}
 
-	const livery_scheme_t* const scheme = sp->get_welt()->get_settings().get_livery_scheme(livery_scheme_index);
-	uint16 date = sp->get_welt()->get_timeline_year_month();
+	const livery_scheme_t* const scheme = player->get_welt()->get_settings().get_livery_scheme(livery_scheme_index);
+	uint16 date = player->get_welt()->get_timeline_year_month();
 	if(scheme)
 	{
 		const char* livery = scheme->get_latest_available_livery(date, vb);
@@ -204,9 +204,9 @@ vehikel_t* vehikelbauer_t::baue(koord3d k, spieler_t* sp, convoi_t* cnv, const v
 		else
 		{
 			bool found = false;
-			for(uint32 j = 0; j < sp->get_welt()->get_settings().get_livery_schemes()->get_count(); j ++)
+			for(uint32 j = 0; j < player->get_welt()->get_settings().get_livery_schemes()->get_count(); j ++)
 			{
-				const livery_scheme_t* const new_scheme = sp->get_welt()->get_settings().get_livery_scheme(j);
+				const livery_scheme_t* const new_scheme = player->get_welt()->get_settings().get_livery_scheme(j);
 				const char* new_livery = new_scheme->get_latest_available_livery(date, vb);
 				if(new_livery)
 				{
@@ -236,7 +236,7 @@ vehikel_t* vehikelbauer_t::baue(koord3d k, spieler_t* sp, convoi_t* cnv, const v
 	{
 		price = vb->get_preis();
 	}
-	sp->book_new_vehicle(-price, k.get_2d(), vb->get_waytype() );
+	player->book_new_vehicle(-price, k.get_2d(), vb->get_waytype() );
 
 	return v;
 }

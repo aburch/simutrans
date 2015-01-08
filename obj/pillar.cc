@@ -36,7 +36,7 @@ pillar_t::pillar_t(loadsave_t *file) :
 }
 
 
-pillar_t::pillar_t(koord3d pos, spieler_t *sp, const bruecke_besch_t *besch, bruecke_besch_t::img_t img, int hoehe) : 
+pillar_t::pillar_t(koord3d pos, player_t *player, const bruecke_besch_t *besch, bruecke_besch_t::img_t img, int hoehe) : 
 #ifdef INLINE_DING_TYPE
 	obj_t(obj_t::pillar, pos)
 #else
@@ -46,7 +46,7 @@ pillar_t::pillar_t(koord3d pos, spieler_t *sp, const bruecke_besch_t *besch, bru
 	this->besch = besch;
 	this->dir = (uint8)img;
 	set_yoff(-hoehe);
-	set_besitzer( sp );
+	set_besitzer( player );
 	asymmetric = besch->has_pillar_asymmetric();
 	calc_bild();
 }

@@ -1396,7 +1396,7 @@ void gui_convoy_assembler_t::update_data()
 		}
 	}
 	
-	const spieler_t *sp = welt->get_active_player();
+	const player_t *player = welt->get_active_player();
 	
 	FOR(vehicle_image_map, const& i, vehicle_map) 
 	{
@@ -1443,7 +1443,7 @@ void gui_convoy_assembler_t::update_data()
 				// Only flag as too expensive that which could be purchased but for its price.
 				if(upgrade == u_buy)
 				{
-					if(!sp->can_afford(info->get_preis()))
+					if(!player->can_afford(info->get_preis()))
 					{
 						img.lcolor = COL_DARK_ORANGE;
 						img.rcolor = COL_DARK_ORANGE;
@@ -1451,7 +1451,7 @@ void gui_convoy_assembler_t::update_data()
 				}
 				else
 				{
-					if(!sp->can_afford(info->get_upgrade_price()))
+					if(!player->can_afford(info->get_upgrade_price()))
 					{
 						img.lcolor = COL_DARK_ORANGE;
 						img.rcolor = COL_DARK_ORANGE;
@@ -1525,7 +1525,7 @@ void gui_convoy_assembler_t::update_data()
 				{
 					if(vehicle_list[i]->get_upgrades(c) && (info == vehicle_list[i]->get_upgrades(c)))
 					{
-						if(!sp->can_afford(info->get_upgrade_price()))
+						if(!player->can_afford(info->get_upgrade_price()))
 						{
 							img.lcolor = COL_DARK_ORANGE;
 							img.rcolor = COL_DARK_ORANGE;

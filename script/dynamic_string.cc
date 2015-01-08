@@ -54,10 +54,10 @@ void dynamic_string::init()
 }
 
 
-void dynamic_string::update(script_vm_t *script, spieler_t *sp, bool force_update)
+void dynamic_string::update(script_vm_t *script, player_t *player, bool force_update)
 {
 	cbuffer_t buf;
-	buf.printf("%s(%d)", method, sp ? sp->get_player_nr() : PLAYER_UNOWNED);
+	buf.printf("%s(%d)", method, player ? player->get_player_nr() : PLAYER_UNOWNED);
 	const char* function = (const char*)buf;
 	plainstring s;
 
@@ -72,7 +72,7 @@ void dynamic_string::update(script_vm_t *script, spieler_t *sp, bool force_updat
 		}
 		else {
 			// call script
-			script->call_function(method, s, (uint8)(sp ? sp->get_player_nr() : PLAYER_UNOWNED));
+			script->call_function(method, s, (uint8)(player ? player->get_player_nr() : PLAYER_UNOWNED));
 			// .. and store result
 			record_result(function, s);
 		}

@@ -15,7 +15,7 @@
 
 class gebaeude_t;
 class karte_ptr_t;
-class spieler_t;
+class player_t;
 class tool_selector_t;
 
 /**
@@ -151,7 +151,7 @@ public:
 	/* use this to remove an arbitrary building
 	 * it will also take care of factories and foundations
 	 */
-	static void remove( spieler_t *sp, gebaeude_t *gb );
+	static void remove( player_t *player, gebaeude_t *gb );
 
 	/* Main function for all non-traffic buildings, including factories
 	 * building size can be larger than 1x1
@@ -160,13 +160,13 @@ public:
 	 *         part is not empty.
 	 * @author V. Meyer
 	 */
-	static gebaeude_t* baue(spieler_t* sp, koord3d pos, int layout, const haus_besch_t* besch, void* param = NULL);
+	static gebaeude_t* baue(player_t* player, koord3d pos, int layout, const haus_besch_t* besch, void* param = NULL);
 
 	/* build all kind of stops and depots
 	 * The building size must be 1x1
 	 * may change the layout of neighbouring buildings, if layout>4 and station
 	 */
-	static gebaeude_t* neues_gebaeude(spieler_t* sp, koord3d pos, int layout, const haus_besch_t* besch, void* param = NULL);
+	static gebaeude_t* neues_gebaeude(player_t* player, koord3d pos, int layout, const haus_besch_t* besch, void* param = NULL);
 
 	// currently only used for edit menu
 	static const vector_tpl<const haus_besch_t *> *get_list( haus_besch_t::utyp typ );

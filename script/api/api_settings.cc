@@ -26,7 +26,7 @@ void_t set_traffic_level(settings_t*, sint16 rate)
 	tool_t *tool = tool_t::simple_tool[TOOL_TRAFFIC_LEVEL];
 	tool->set_default_param( level );
 	tool->flags |=  tool_t::WFL_SCRIPT;
-	welt->set_tool( tool, welt->get_spieler(1) );
+	welt->set_tool( tool, welt->get_player(1) );
 	tool->flags &= ~tool_t::WFL_SCRIPT;
 	return void_t();
 }

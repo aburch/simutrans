@@ -19,7 +19,7 @@
 #define POWER_TO_MW (12)  // bitshift for converting internal power values to MW for display
 
 class powernet_t;
-class spieler_t;
+class player_t;
 class fabrik_t;
 class weg_besch_t;
 
@@ -79,11 +79,11 @@ public:
 	static fabrik_t * suche_fab_4(const koord pos);
 
 	leitung_t(loadsave_t *file);
-	leitung_t(koord3d pos, spieler_t *sp);
+	leitung_t(koord3d pos, player_t *player);
 	virtual ~leitung_t();
 
 	// just book the costs for destruction
-	void entferne(spieler_t *);
+	void entferne(player_t *);
 
 	// for map rotation
 	void rotate90();
@@ -91,7 +91,7 @@ public:
 #ifdef INLINE_DING_TYPE
 protected:
 	leitung_t(typ type, loadsave_t *file);
-	leitung_t(typ type, koord3d pos, spieler_t *sp);
+	leitung_t(typ type, koord3d pos, player_t *player);
 public:
 #else
 	typ get_typ() const { return leitung; }
@@ -164,7 +164,7 @@ private:
 
 public:
 	pumpe_t(loadsave_t *file);
-	pumpe_t(koord3d pos, spieler_t *sp);
+	pumpe_t(koord3d pos, player_t *player);
 	virtual ~pumpe_t();
 
 #ifdef INLINE_DING_TYPE
@@ -205,7 +205,7 @@ private:
 
 public:
 	senke_t(loadsave_t *file);
-	senke_t(koord3d pos, spieler_t *sp, stadt_t *c);
+	senke_t(koord3d pos, player_t *player, stadt_t *c);
 	virtual ~senke_t();
 
 #ifdef INLINE_DING_TYPE

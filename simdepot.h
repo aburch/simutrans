@@ -62,7 +62,7 @@ public:
 	bool is_suitable_for( const vehikel_t * test_vehicle, const uint8 traction_types = 0) const;
 
 	// finds the next/previous depot relative to the current position
-	static depot_t *find_depot( koord3d start, const obj_t::typ depot_type, const spieler_t *sp, bool next);
+	static depot_t *find_depot( koord3d start, const obj_t::typ depot_type, const player_t *player, bool next);
 
 	static const slist_tpl<depot_t *>& get_depot_list() { return all_depots; }
 
@@ -70,10 +70,10 @@ public:
 
 #ifdef INLINE_DING_TYPE
 	depot_t(obj_t::typ type, loadsave_t *file);
-	depot_t(obj_t::typ type, koord3d pos, spieler_t *sp, const haus_tile_besch_t *t);
+	depot_t(obj_t::typ type, koord3d pos, player_t *player, const haus_tile_besch_t *t);
 #else
 	depot_t(loadsave_t *file);
-	depot_t(koord3d pos, spieler_t *sp, const haus_tile_besch_t *t);
+	depot_t(koord3d pos, player_t *player, const haus_tile_besch_t *t);
 #endif
 	virtual ~depot_t();
 
@@ -212,7 +212,7 @@ public:
 	 * @return NULL wenn OK, ansonsten eine Fehlermeldung
 	 * @author Hj. Malthaner
 	 */
-	virtual const char * ist_entfernbar(const spieler_t *sp);
+	virtual const char * ist_entfernbar(const player_t *player);
 
 	/**
 	 * identifies the oldest vehicle of a certain type
@@ -240,7 +240,7 @@ public:
 	* @author Bernd Gabriel
 	* @date 26.06.2009
 	*/
-	void neuer_monat();
+	void new_month();
 
 	/**
 	 * Will update all depot_frame_t (new vehicles!)
@@ -286,14 +286,14 @@ class bahndepot_t : public depot_t
 #ifdef INLINE_DING_TYPE
 protected:
 	bahndepot_t(obj_t::typ type, loadsave_t *file) : depot_t(type, file) {}
-	bahndepot_t(obj_t::typ type, koord3d pos,spieler_t *sp, const haus_tile_besch_t *t) : depot_t(type, pos, sp, t) {}
+	bahndepot_t(obj_t::typ type, koord3d pos,player_t *player, const haus_tile_besch_t *t) : depot_t(type, pos, player, t) {}
 public:
 	bahndepot_t(loadsave_t *file) : depot_t(bahndepot, file) {}
-	bahndepot_t(koord3d pos,spieler_t *sp, const haus_tile_besch_t *t) : depot_t(bahndepot, pos, sp, t) {}
+	bahndepot_t(koord3d pos,player_t *player, const haus_tile_besch_t *t) : depot_t(bahndepot, pos, player, t) {}
 #else
 public:
 	bahndepot_t(loadsave_t *file) : depot_t(file) {}
-	bahndepot_t(koord3d pos,spieler_t *sp, const haus_tile_besch_t *t) : depot_t(pos,sp,t) {}
+	bahndepot_t(koord3d pos,player_t *player, const haus_tile_besch_t *t) : depot_t(pos,player,t) {}
 #endif
 
 	virtual simline_t::linetype get_line_type() const { return simline_t::trainline; }
@@ -325,10 +325,10 @@ class tramdepot_t : public bahndepot_t
 public:
 #ifdef INLINE_DING_TYPE
 	tramdepot_t(loadsave_t *file):bahndepot_t(tramdepot, file) {}
-	tramdepot_t(koord3d pos,spieler_t *sp, const haus_tile_besch_t *t): bahndepot_t(tramdepot, pos, sp, t) {}
+	tramdepot_t(koord3d pos,player_t *player, const haus_tile_besch_t *t): bahndepot_t(tramdepot, pos, player, t) {}
 #else
 	tramdepot_t(loadsave_t *file):bahndepot_t(file) {}
-	tramdepot_t(koord3d pos,spieler_t *sp, const haus_tile_besch_t *t): bahndepot_t(pos,sp,t) {}
+	tramdepot_t(koord3d pos,player_t *player, const haus_tile_besch_t *t): bahndepot_t(pos,player,t) {}
 #endif
 
 	virtual simline_t::linetype get_line_type() const { return simline_t::tramline; }
@@ -346,10 +346,10 @@ class monoraildepot_t : public bahndepot_t
 public:
 #ifdef INLINE_DING_TYPE
 	monoraildepot_t(loadsave_t *file):bahndepot_t(monoraildepot, file) {}
-	monoraildepot_t(koord3d pos,spieler_t *sp, const haus_tile_besch_t *t): bahndepot_t(monoraildepot, pos, sp, t) {}
+	monoraildepot_t(koord3d pos,player_t *player, const haus_tile_besch_t *t): bahndepot_t(monoraildepot, pos, player, t) {}
 #else
 	monoraildepot_t(loadsave_t *file):bahndepot_t(file) {}
-	monoraildepot_t(koord3d pos,spieler_t *sp, const haus_tile_besch_t *t): bahndepot_t(pos,sp,t) {}
+	monoraildepot_t(koord3d pos,player_t *player, const haus_tile_besch_t *t): bahndepot_t(pos,player,t) {}
 #endif
 
 	virtual simline_t::linetype get_line_type() const { return simline_t::monorailline; }
@@ -367,10 +367,10 @@ class maglevdepot_t : public bahndepot_t
 public:
 #ifdef INLINE_DING_TYPE
 	maglevdepot_t(loadsave_t *file):bahndepot_t(maglevdepot, file) {}
-	maglevdepot_t(koord3d pos,spieler_t *sp, const haus_tile_besch_t *t): bahndepot_t(maglevdepot, pos, sp, t) {}
+	maglevdepot_t(koord3d pos,player_t *player, const haus_tile_besch_t *t): bahndepot_t(maglevdepot, pos, player, t) {}
 #else
 	maglevdepot_t(loadsave_t *file):bahndepot_t(file) {}
-	maglevdepot_t(koord3d pos,spieler_t *sp, const haus_tile_besch_t *t): bahndepot_t(pos,sp,t) {}
+	maglevdepot_t(koord3d pos,player_t *player, const haus_tile_besch_t *t): bahndepot_t(pos,player,t) {}
 #endif
 
 	virtual simline_t::linetype get_line_type() const { return simline_t::maglevline; }
@@ -388,10 +388,10 @@ class narrowgaugedepot_t : public bahndepot_t
 public:
 #ifdef INLINE_DING_TYPE
 	narrowgaugedepot_t(loadsave_t *file):bahndepot_t(narrowgaugedepot, file) {}
-	narrowgaugedepot_t(koord3d pos,spieler_t *sp, const haus_tile_besch_t *t): bahndepot_t(narrowgaugedepot, pos, sp, t) {}
+	narrowgaugedepot_t(koord3d pos,player_t *player, const haus_tile_besch_t *t): bahndepot_t(narrowgaugedepot, pos, player, t) {}
 #else
 	narrowgaugedepot_t(loadsave_t *file):bahndepot_t(file) {}
-	narrowgaugedepot_t(koord3d pos,spieler_t *sp, const haus_tile_besch_t *t): bahndepot_t(pos,sp,t) {}
+	narrowgaugedepot_t(koord3d pos,player_t *player, const haus_tile_besch_t *t): bahndepot_t(pos,player,t) {}
 #endif
 
 	virtual simline_t::linetype get_line_type() const { return simline_t::narrowgaugeline; }
@@ -416,10 +416,10 @@ class strassendepot_t : public depot_t
 public:
 #ifdef INLINE_DING_TYPE
 	strassendepot_t(loadsave_t *file) : depot_t(strassendepot, file) {}
-	strassendepot_t(koord3d pos,spieler_t *sp, const haus_tile_besch_t *t) : depot_t(strassendepot, pos, sp, t) {}
+	strassendepot_t(koord3d pos,player_t *player, const haus_tile_besch_t *t) : depot_t(strassendepot, pos, player, t) {}
 #else
 	strassendepot_t(loadsave_t *file) : depot_t(file) {}
-	strassendepot_t(koord3d pos,spieler_t *sp, const haus_tile_besch_t *t) : depot_t(pos,sp,t) {}
+	strassendepot_t(koord3d pos,player_t *player, const haus_tile_besch_t *t) : depot_t(pos,player,t) {}
 #endif
 
 	virtual simline_t::linetype get_line_type() const { return simline_t::truckline; }
@@ -456,10 +456,10 @@ class schiffdepot_t : public depot_t
 public:
 #ifdef INLINE_DING_TYPE
 	schiffdepot_t(loadsave_t *file) : depot_t(schiffdepot, file) {}
-	schiffdepot_t(koord3d pos, spieler_t *sp, const haus_tile_besch_t *t) : depot_t(schiffdepot, pos, sp, t) {}
+	schiffdepot_t(koord3d pos, player_t *player, const haus_tile_besch_t *t) : depot_t(schiffdepot, pos, player, t) {}
 #else
 	schiffdepot_t(loadsave_t *file) : depot_t(file) {}
-	schiffdepot_t(koord3d pos, spieler_t *sp, const haus_tile_besch_t *t) : depot_t(pos,sp,t) {}
+	schiffdepot_t(koord3d pos, player_t *player, const haus_tile_besch_t *t) : depot_t(pos,player,t) {}
 #endif
 
 	virtual simline_t::linetype get_line_type() const { return simline_t::shipline; }
@@ -492,10 +492,10 @@ class airdepot_t : public depot_t
 public:
 #ifdef INLINE_DING_TYPE
 	airdepot_t(loadsave_t *file) : depot_t(airdepot, file) {}
-	airdepot_t(koord3d pos,spieler_t *sp, const haus_tile_besch_t *t) : depot_t(airdepot, pos, sp, t) {}
+	airdepot_t(koord3d pos,player_t *player, const haus_tile_besch_t *t) : depot_t(airdepot, pos, player, t) {}
 #else
 	airdepot_t(loadsave_t *file) : depot_t(file) {}
-	airdepot_t(koord3d pos,spieler_t *sp, const haus_tile_besch_t *t) : depot_t(pos,sp,t) {}
+	airdepot_t(koord3d pos,player_t *player, const haus_tile_besch_t *t) : depot_t(pos,player,t) {}
 #endif
 
 	virtual simline_t::linetype get_line_type() const { return simline_t::airline; }

@@ -88,7 +88,7 @@ private:
 	/// Helper method to update number label text and color
 	void update_label(gui_label_t &label, char *buf, int transport_type, uint8 type, int yearmonth, int label_type = MONEY, bool always_monthly = false);
 
-	spieler_t *sp;
+	player_t *player;
 
 	//@author hsiegeln
 	sint64 money_tmp, money_min, money_max;
@@ -135,7 +135,7 @@ public:
 	 * Constructor. Adds all necessary Subcomponents.
 	 * @author Hj. Malthaner, Owen Rudge
 	 */
-	money_frame_t(spieler_t *sp);
+	money_frame_t(player_t *player);
 
 	/**
 	 * Draw new component. The values to be passed refer to the window

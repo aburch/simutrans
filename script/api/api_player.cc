@@ -10,7 +10,7 @@
 
 using namespace script_api;
 
-vector_tpl<sint64> const& get_player_stat(spieler_t *sp, sint32 INDEX, sint32 TTYPE, bool monthly)
+vector_tpl<sint64> const& get_player_stat(player_t *player, sint32 INDEX, sint32 TTYPE, bool monthly)
 {
 	static vector_tpl<sint64> v;
 	v.clear();
@@ -26,8 +26,8 @@ vector_tpl<sint64> const& get_player_stat(spieler_t *sp, sint32 INDEX, sint32 TT
 		}
 		atv = true;
 	}
-	if (sp) {
-		finance_t *finance = sp->get_finance();
+	if (player) {
+		finance_t *finance = player->get_finance();
 		uint16 maxi = monthly ? MAX_PLAYER_HISTORY_MONTHS : MAX_PLAYER_HISTORY_YEARS;
 		for(uint16 i = 0; i < maxi; i++) {
 			sint64 m = atv ? ( monthly ? finance->get_history_veh_month((transport_type)TTYPE, i, INDEX) : finance->get_history_veh_year((transport_type)TTYPE, i, INDEX) )
@@ -48,18 +48,18 @@ vector_tpl<sint64> const& get_player_stat(spieler_t *sp, sint32 INDEX, sint32 TT
 	return v;
 }
 
-void_t change_player_account(spieler_t *sp, sint64 delta)
+void_t change_player_account(player_t *player, sint64 delta)
 {
-	if (sp) {
-		sp->get_finance()->book_account(delta);
+	if (player) {
+		player->get_finance()->book_account(delta);
 	}
 	return void_t();
 }
 
 
-bool player_active(spieler_t *sp)
+bool player_active(player_t *player)
 {
-	return sp != NULL;
+	return player != NULL;
 }
 
 
@@ -83,17 +83,17 @@ void export_player(HSQUIRRELVM vm)
 	 * Return headquarter level.
 	 * @returns level, level is zero if no headquarter was built
 	 */
-	register_method(vm, &spieler_t::get_headquarter_level, "get_headquarter_level");
+	register_method(vm, &player_t::get_headquarter_level, "get_headquarter_level");
 	/**
 	 * Return headquarter position.
 	 * @returns coordinate, (-1,-1) if no headquarter was built
 	 */
-	register_method(vm, &spieler_t::get_headquarter_pos,   "get_headquarter_pos");
+	register_method(vm, &player_t::get_headquarter_pos,   "get_headquarter_pos");
 	/**
 	 * Return name of company.
 	 * @returns name
 	 */
-	register_method(vm, &spieler_t::get_name,              "get_name");
+	register_method(vm, &player_t::get_name,              "get_name");
 	/**
 	 * Get monthly statistics of construction costs.
 	 * @returns array, index [0] corresponds to current month

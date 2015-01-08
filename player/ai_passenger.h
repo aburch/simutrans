@@ -86,11 +86,11 @@ public:
 	// cannot do rail
 	virtual void set_rail_transport( bool ) { rail_transport = false; }
 
-	virtual void bescheid_vehikel_problem(convoihandle_t cnv,const koord3d ziel);
+	virtual void report_vehicle_problem(convoihandle_t cnv,const koord3d ziel);
 
 	virtual void rdwr(loadsave_t *file);
 
-	virtual void laden_abschliessen();
+	virtual void load_finished();
 
 	bool set_active( bool b );
 
