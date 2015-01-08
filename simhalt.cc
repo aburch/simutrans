@@ -2942,7 +2942,6 @@ bool haltestelle_t::make_public_and_join(player_t *player)
 				// there are also water tiles, which may not have a buidling
 				player_t *gb_player=gb->get_besitzer();
 				if(public_owner!=gb_player) {
-					player_t *gb_player=gb->get_besitzer();
 					sint32 costs;
 
 					if(gb->get_tile()->get_besch()->get_base_maintenance() == COST_MAGIC)
