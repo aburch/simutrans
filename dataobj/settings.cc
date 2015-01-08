@@ -2677,6 +2677,7 @@ void settings_t::copy_city_road(settings_t const& other)
 // returns default player colors for new players
 void settings_t::set_default_player_color(player_t* const player) const
 {
+	karte_ptr_t welt;
 	COLOR_VAL color1 = default_player_color[player->get_player_nr()][0];
 	if(  color1 == 255  ) {
 		if(  default_player_color_random  ) {
@@ -2687,7 +2688,7 @@ void settings_t::set_default_player_color(player_t* const player) const
 			}
 			// remove all used colors
 			for(  uint8 i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
-				player_t *test_sp = player->get_welt()->get_player(i);
+				player_t *test_sp = welt->get_player(i);
 				if(  test_sp  &&  player!=test_sp  ) {
 					uint8 rem = 1<<(player->get_player_color1()/8);
 					if(  all_colors1.is_contained(rem)  ) {
@@ -2721,7 +2722,7 @@ void settings_t::set_default_player_color(player_t* const player) const
 			all_colors2.remove( color1/8 );
 			// remove all used colors
 			for(  uint8 i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
-				player_t *test_sp = player->get_welt()->get_player(i);
+				player_t *test_sp = welt->get_player(i);
 				if(  test_sp  &&  player!=test_sp  ) {
 					uint8 rem = 1<<(player->get_player_color2()/8);
 					if(  all_colors2.is_contained(rem)  ) {

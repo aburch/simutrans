@@ -256,12 +256,12 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	livery_selector.set_max_size(scr_size(D_BUTTON_WIDTH - 8, LINESPACE*3+2+16));
 	livery_selector.set_highlight_color(1);
 	livery_selector.clear_elements();
-	vector_tpl<livery_scheme_t*>* schemes = player->get_welt()->get_settings().get_livery_schemes();
+	vector_tpl<livery_scheme_t*>* schemes = welt->get_settings().get_livery_schemes();
 	livery_scheme_indices.clear();
 	ITERATE_PTR(schemes, i)
 	{
 		livery_scheme_t* scheme = schemes->get_element(i);
-		if(scheme->is_available(player->get_welt()->get_timeline_year_month()))
+		if(scheme->is_available(welt->get_timeline_year_month()))
 		{
 			livery_selector.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(scheme->get_name()), COL_BLACK));
 			livery_scheme_indices.append(i);
@@ -409,7 +409,7 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *komp, value_t 
 				cbuffer_t buf;
 				buf.printf( "V,%i,%i", line.get_id(), livery_scheme_index );
 				tool->set_default_param(buf);
-				player->get_welt()->set_tool( tool, player );
+				welt->set_tool( tool, player );
 				// since init always returns false, it is save to delete immediately
 				delete tool;
 			}

@@ -344,10 +344,10 @@ money_frame_t::money_frame_t(player_t *player)
 
 	// Scenario and warning location
 	warn.set_pos(scr_coord(c2_x, top+10*BUTTONSPACE));
-	if(player->get_player_nr()!=1  &&  player->get_welt()->get_scenario()->active()) {
+	if(player->get_player_nr()!=1  &&  welt->get_scenario()->active()) {
 		scenario.set_pos( scr_coord( 10,1 ) );
-		player->get_welt()->get_scenario()->update_scenario_texts();
-		scenario.set_text( player->get_welt()->get_scenario()->description_text );
+		welt->get_scenario()->update_scenario_texts();
+		scenario.set_text( welt->get_scenario()->description_text );
 		add_komponente(&scenario);
 	}
 

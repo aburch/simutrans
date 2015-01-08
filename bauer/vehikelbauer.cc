@@ -167,6 +167,7 @@ void vehikelbauer_t::rdwr_speedbonus(loadsave_t *file)
 vehikel_t* vehikelbauer_t::baue(koord3d k, player_t* player, convoi_t* cnv, const vehikel_besch_t* vb, bool upgrade, uint16 livery_scheme_index )
 {
 	vehikel_t* v;
+	static karte_ptr_t welt;
 	switch (vb->get_waytype()) {
 		case road_wt:     v = new automobil_t(      k, vb, player, cnv); break;
 		case monorail_wt: v = new monorail_waggon_t(k, vb, player, cnv); break;
@@ -186,14 +187,14 @@ vehikel_t* vehikelbauer_t::baue(koord3d k, player_t* player, convoi_t* cnv, cons
 		livery_scheme_index = cnv->get_livery_scheme_index();
 	}
 
-	if(livery_scheme_index >= player->get_welt()->get_settings().get_livery_schemes()->get_count())
+	if(livery_scheme_index >= welt->get_settings().get_livery_schemes()->get_count())
 	{
 		// To prevent errors when loading a game with fewer livery schemes than that just played.
 		livery_scheme_index = 0;
 	}
 
-	const livery_scheme_t* const scheme = player->get_welt()->get_settings().get_livery_scheme(livery_scheme_index);
-	uint16 date = player->get_welt()->get_timeline_year_month();
+	const livery_scheme_t* const scheme = welt->get_settings().get_livery_scheme(livery_scheme_index);
+	uint16 date = welt->get_timeline_year_month();
 	if(scheme)
 	{
 		const char* livery = scheme->get_latest_available_livery(date, vb);
@@ -204,9 +205,9 @@ vehikel_t* vehikelbauer_t::baue(koord3d k, player_t* player, convoi_t* cnv, cons
 		else
 		{
 			bool found = false;
-			for(uint32 j = 0; j < player->get_welt()->get_settings().get_livery_schemes()->get_count(); j ++)
+			for(uint32 j = 0; j < welt->get_settings().get_livery_schemes()->get_count(); j ++)
 			{
-				const livery_scheme_t* const new_scheme = player->get_welt()->get_settings().get_livery_scheme(j);
+				const livery_scheme_t* const new_scheme = welt->get_settings().get_livery_scheme(j);
 				const char* new_livery = new_scheme->get_latest_available_livery(date, vb);
 				if(new_livery)
 				{

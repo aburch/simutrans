@@ -110,7 +110,7 @@ bool farbengui_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 			buf.printf( "1%u,%i", player->get_player_nr(), i*8);
 			tool_t *tool = create_tool( TOOL_RECOLOUR_TOOL | SIMPLE_TOOL );
 			tool->set_default_param( buf );
-			player->get_welt()->set_tool( tool, player );
+			welt->set_tool( tool, player );
 			// since init always returns false, it is save to delete immediately
 			delete tool;
 			return true;
@@ -126,7 +126,7 @@ bool farbengui_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 			buf.printf( "2%u,%i", player->get_player_nr(), i*8);
 			tool_t *tool = create_tool( TOOL_RECOLOUR_TOOL | SIMPLE_TOOL );
 			tool->set_default_param( buf );
-			player->get_welt()->set_tool( tool, player );
+			welt->set_tool( tool, player );
 			// since init always returns false, it is save to delete immediately
 			delete tool;
 			return true;

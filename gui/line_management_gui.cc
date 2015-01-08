@@ -54,8 +54,7 @@ bool line_management_gui_t::infowin_event(const event_t *ev)
 				return true;
 			}
 			if(  ev->ev_class == INFOWIN  &&  ev->ev_code == WIN_CLOSE  ) {
-				karte_t * world = line->get_besitzer()->get_welt();
-				if (!fpl->matches(world, line->get_schedule()))
+				if (!fpl->matches(welt, line->get_schedule()))
 				{
 					// update all convoys of this line!
 					// update line schedule via tool!
@@ -64,7 +63,7 @@ bool line_management_gui_t::infowin_event(const event_t *ev)
 					buf.printf( "g,%i,", line.get_id() );
 					fpl->sprintf_schedule( buf );
 					tool->set_default_param(buf);
-					world->set_tool( tool, line->get_besitzer() );
+					welt->set_tool( tool, line->get_besitzer() );
 					// since init always returns false, it is save to delete immediately
 					delete tool;
 				}

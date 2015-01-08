@@ -2442,7 +2442,7 @@ bool tool_build_way_t::init( player_t *player )
 
 waytype_t tool_build_way_t::get_waytype() const
 {
-	const weg_besch_t *besch = get_besch( player_t::get_welt()->get_timeline_year_month(), false );
+	const weg_besch_t *besch = get_besch( welt->get_timeline_year_month(), false );
 	waytype_t wt = besch ? besch->get_wtyp() : invalid_wt;
 	if (  wt==track_wt  &&  besch->get_styp()==7  ) {
 		wt = tram_wt;
@@ -4569,7 +4569,7 @@ char const* tool_build_station_t::get_tooltip(player_t const*player) const
 		}
 		else
 		{
-			maint = player->get_welt()->get_settings().maint_building*besch->get_level();
+			maint = welt->get_settings().maint_building*besch->get_level();
 		}
 		if(besch->get_base_price() != COST_MAGIC)
 		{
@@ -4584,19 +4584,19 @@ char const* tool_build_station_t::get_tooltip(player_t const*player) const
 			case maglev_wt:
 			case tram_wt:
 			case narrowgauge_wt:
-				price = player->get_welt()->get_settings().cst_multiply_station * besch->get_level();
+				price = welt->get_settings().cst_multiply_station * besch->get_level();
 				break;
 			case road_wt:
-				price = player->get_welt()->get_settings().cst_multiply_roadstop * besch->get_level();
+				price = welt->get_settings().cst_multiply_roadstop * besch->get_level();
 				break;
 			case water_wt:
-				price = player->get_welt()->get_settings().cst_multiply_dock * besch->get_level();
+				price = welt->get_settings().cst_multiply_dock * besch->get_level();
 				break;
 			case air_wt:
-				price = player->get_welt()->get_settings().cst_multiply_airterminal * besch->get_level();
+				price = welt->get_settings().cst_multiply_airterminal * besch->get_level();
 				break;
 			case 0:
-				price = player->get_welt()->get_settings().cst_multiply_post * besch->get_level();
+				price = welt->get_settings().cst_multiply_post * besch->get_level();
 				break;
 			default:
 				return "Illegal description";
@@ -4611,7 +4611,7 @@ char const* tool_build_station_t::get_tooltip(player_t const*player) const
 		}
 		else
 		{
-			maint = player->get_welt()->get_settings().maint_building * besch->get_level();
+			maint = welt->get_settings().maint_building * besch->get_level();
 		}
 
 		if(besch->get_base_price() != COST_MAGIC)
@@ -4622,11 +4622,11 @@ char const* tool_build_station_t::get_tooltip(player_t const*player) const
 		{
 			if(besch->get_utyp() == haus_besch_t::hafen)
 			{
-				price = player->get_welt()->get_settings().cst_multiply_dock * besch->get_level();
+				price = welt->get_settings().cst_multiply_dock * besch->get_level();
 			}
 			else
 			{
-				price = player->get_welt()->get_settings().cst_multiply_post * besch->get_level();
+				price = welt->get_settings().cst_multiply_post * besch->get_level();
 			}
 		}
 		const sint16 size_multiplier = besch->get_groesse().x * besch->get_groesse().y;
@@ -4640,7 +4640,7 @@ char const* tool_build_station_t::get_tooltip(player_t const*player) const
 		return "Illegal description";
 	}
 
-	return tooltip_with_price_maintenance_level( player->get_welt(), besch->get_name(), price, maint, cap, besch->get_enabled() );
+	return tooltip_with_price_maintenance_level( welt, besch->get_name(), price, maint, cap, besch->get_enabled() );
 }
 
 waytype_t tool_build_station_t::get_waytype() const
