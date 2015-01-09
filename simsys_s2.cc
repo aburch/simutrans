@@ -452,6 +452,8 @@ static void internal_GetEvents(bool const wait)
 			return;
 		}
 	}
+
+	static char textinput[SDL_TEXTINPUTEVENT_TEXT_SIZE];
 	switch(  event.type  ) {
 		case SDL_WINDOWEVENT: {
 			if(  event.window.event == SDL_WINDOWEVENT_RESIZED  ) {
@@ -565,9 +567,9 @@ static void internal_GetEvents(bool const wait)
 			break;
 		}
 		case SDL_TEXTINPUT: {
-			size_t len = 0;
-			sys_event.type    = SIM_KEYBOARD;
-			sys_event.code    = utf8_to_utf16( (utf8*)event.text.text, &len );
+			strcpy( textinput, event.text.text );
+			sys_event.type    = SIM_STRING;
+			sys_event.ptr     = (void*)textinput;
 			sys_event.key_mod = ModifierKeys();
 			break;
 		}

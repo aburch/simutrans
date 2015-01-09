@@ -404,6 +404,10 @@ static inline unsigned int ModifierKeys()
 /* Windows eventhandler: does most of the work */
 LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
+	// Used for IME handling.
+	static utf8 *composition = NULL;
+	static size_t composition_size;
+
 	static int last_mb = 0;	// last mouse button state
 	switch (msg) {
 
@@ -635,6 +639,49 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 			sys_event.key_mod = ModifierKeys();
 			break;
 
+		case WM_IME_COMPOSITION: {
+			if (lParam & GCS_RESULTSTR) {
+				// Retrieve the composition result.
+				HIMC immcx = ImmGetContext(this_hwnd);
+				size_t u16size = ImmGetCompositionStringW(immcx, GCS_RESULTSTR, NULL, 0);
+				utf16 *u16buf = (utf16*)malloc(u16size + 2);
+				size_t copied = ImmGetCompositionStringW(immcx, GCS_RESULTSTR, u16buf, u16size + 2);
+				u16buf[copied/2] = 0;
+				ImmReleaseContext(this_hwnd, immcx);
+
+				// Grow the buffer as needed.
+				size_t u8size = u16size + u16size/2;
+				if (!composition) {
+					composition_size = u8size + 1;
+					composition = (utf8*)malloc(composition_size);
+				}
+				else if (u8size >= composition_size) {
+					composition_size = max(composition_size*2, u8size+1);
+					free(composition);
+					composition = (utf8*)malloc(composition_size);
+				}
+
+				// Convert UTF-16 to UTF-8.
+				utf16 *s = u16buf;
+				int i = 0;
+				while (*s) {
+					int charlen = utf16_to_utf8(*s, composition + i);
+					++s;
+					i += charlen;
+				}
+				composition[i] = 0;
+				free(u16buf);
+
+				sys_event.type = SIM_STRING;
+				sys_event.ptr = (void*)composition;
+			}
+			else {
+				// Beg IMM to take care of us.
+				return DefWindowProcW(this_hwnd, msg, wParam, lParam);
+			}
+			break;
+		}
+
 		case WM_CLOSE:
 			if (AllDibData != NULL) {
 				sys_event.type = SIM_SYSTEM;
@@ -643,6 +690,8 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 			break;
 
 		case WM_DESTROY:
+			free(composition);
+
 			if(  hwnd==this_hwnd  ||  AllDibData == NULL  ) {
 				sys_event.type = SIM_SYSTEM;
 				sys_event.code = SYSTEM_QUIT;

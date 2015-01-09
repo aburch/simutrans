@@ -43,7 +43,7 @@ else
       endif
       SOURCES += simsys_w32_png.cc
       CFLAGS  += -DNOMINMAX -DWIN32_LEAN_AND_MEAN -DWINVER=0x0501 -D_WIN32_IE=0x0500
-      LIBS    += -lgdi32 -lwinmm -lws2_32
+      LIBS    += -lgdi32 -lwinmm -lws2_32 -limm32
       # Disable the console on Windows unless WIN32_CONSOLE is set or graphics are disabled
       ifneq ($(WIN32_CONSOLE),)
         LDFLAGS += -mconsole

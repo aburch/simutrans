@@ -343,6 +343,7 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 			}
 
 			while(  *in  ) {
+				in_pos = 0;
 				utf16 uc = utf8_to_utf16( in, &in_pos );
 
 				text_dirty = true;
@@ -387,6 +388,7 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 				}
 				text_dirty = true;
 				tail_cursor_pos = ( head_cursor_pos += num_letter );
+				len += num_letter;
 			} /* while still characters in string */
 		}
 	}

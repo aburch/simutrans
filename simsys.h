@@ -29,6 +29,7 @@
 #define SIM_MOUSE_BUTTONS   1
 #define SIM_KEYBOARD        2
 #define SIM_MOUSE_MOVE      3
+#define SIM_STRING          4
 #define SIM_SYSTEM          254
 #define SIM_IGNORE_EVENT    255
 
@@ -48,7 +49,10 @@
 struct sys_event
 {
 	unsigned long type;
-	unsigned long code;
+	union {
+		unsigned long code;
+		void *ptr;
+	};
 	int mx;                  /* es sind negative Koodinaten mgl */
 	int my;
 	int mb;
