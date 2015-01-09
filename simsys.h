@@ -11,7 +11,7 @@
 #include "simtypes.h"
 
 // Provide chdir().
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(__CYGWIN__)
 #	include <direct.h>
 #else
 #	include <unistd.h>

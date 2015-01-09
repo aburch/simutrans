@@ -1,9 +1,14 @@
 #ifndef sim_network_h
 #define sim_network_h
 
+#if defined(_WIN32) && !defined(__CYGWIN__)
+#define USE_WINSOCK 1
+#else
+#define USE_WINSOCK 0
+#endif
 
 // windows headers
-#ifdef _WIN32
+#if USE_WINSOCK
 // must be include before all simutrans stuff!
 
 #	include <windows.h>

@@ -30,7 +30,6 @@ else
     ifneq ($(findstring $(OSTYPE), cygwin mingw),)
       ifeq ($(OSTYPE),cygwin)
         CFLAGS  += -I/usr/include/mingw -mwin32
-        LDFLAGS += -mno-cygwin
       else
         ifeq ($(OSTYPE),mingw)
           CFLAGS  += -DPNG_STATIC -DZLIB_STATIC

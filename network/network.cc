@@ -49,7 +49,7 @@ void clear_command_queue()
 	}
 }
 
-#ifdef _WIN32
+#if USE_WINSOCK
 #define RET_ERR_STR { DWORD errnr = WSAGetLastError(); if( errnr!=0 ) FormatMessageA( FORMAT_MESSAGE_FROM_SYSTEM,NULL,errnr,MAKELANGID(LANG_NEUTRAL,SUBLANG_NEUTRAL),err_str,sizeof(err_str),NULL); err = err_str; return INVALID_SOCKET; }
 #else
 #define RET_ERR_STR { err = err_str; return INVALID_SOCKET; }
@@ -79,7 +79,7 @@ static bool network_initialize()
 	if(!network_active) {
 		socket_list_t::reset();
 
-#ifdef _WIN32
+#if USE_WINSOCK
 		/* Let's load the network in windows */
 		WSADATA wsa;
 		if(int err = WSAStartup( MAKEWORD(2, 2), &wsa)) {
@@ -123,7 +123,7 @@ SOCKET network_open_address(char const* cp, char const*& err)
 	struct sockaddr_in server_name;
 	memset(&server_name,0,sizeof(server_name));
 	server_name.sin_family=AF_INET;
-#ifdef  _WIN32
+#if USE_WINSOCK
 	bool ok = true;
 	server_name.sin_addr.s_addr = inet_addr(cp);	// for windows we must first try to resolve the number
 	if((int)server_name.sin_addr.s_addr==-1) {// Bad address
@@ -530,7 +530,7 @@ network_command_t* network_check_activity(karte_t *, int timeout)
 			socklen_t size = sizeof(client_name);
 			SOCKET s = accept(accept_sock, (struct sockaddr *)&client_name, &size);
 			if(  s!=INVALID_SOCKET  ) {
-#ifdef _WIN32
+#if USE_WINSOCK
 				uint32 ip = ntohl((uint32)client_name.sin_addr.S_un.S_addr);
 #else
 				uint32 ip = ntohl((uint32)client_name.sin_addr.s_addr);
@@ -772,7 +772,7 @@ bool network_receive_data( SOCKET sender, void *dest, const uint16 len, uint16 &
 void network_close_socket( SOCKET sock )
 {
 	if(  sock != INVALID_SOCKET  ) {
-#if defined _WIN32 || defined __BEOS__
+#if USE_WINSOCK || defined __BEOS__
 		closesocket( sock );
 #else
 		close( sock );
@@ -812,7 +812,7 @@ void network_core_shutdown()
 	socket_list_t::reset();
 
 	if(network_active) {
-#if defined(_WIN32)
+#if USE_WINSOCK
 		WSACleanup();
 #endif
 	}

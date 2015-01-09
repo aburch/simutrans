@@ -12,6 +12,11 @@
 
 #include <stdio.h>
 
+#ifdef __CYGWIN__
+extern int __argc;
+extern char **__argv;
+#endif
+
 #include "macros.h"
 #include "simsys_w32_png.h"
 #include "simversion.h"

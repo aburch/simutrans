@@ -16,10 +16,14 @@
 
 
 #ifdef _WIN32
-#	include <direct.h>
 #	include <windows.h>
 #	include <shellapi.h>
 #	include <shlobj.h>
+#	if !defined(__CYGWIN__)
+#		include <direct.h>
+#	else
+#		include <sys\unistd.h>
+#	endif
 #	define PATH_MAX MAX_PATH
 #else
 #	include <limits.h>
@@ -34,7 +38,7 @@ struct sys_event sys_event;
 
 void dr_mkdir(char const* const path)
 {
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(__CYGWIN__)
 	mkdir(path);
 #else
 	mkdir(path, 0777);

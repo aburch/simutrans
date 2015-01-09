@@ -16,6 +16,11 @@
 #include <wingdi.h>
 #include <mmsystem.h>
 
+#ifdef __CYGWIN__
+extern int __argc;
+extern char **__argv;
+#endif
+
 #include "display/simgraph.h"
 #include "simdebug.h"
 
