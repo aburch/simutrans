@@ -165,8 +165,8 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 
 	// For automatic calculation of axle load
 	// (optional). This value is not written to file.
-	const uint8 axles_default = waytype == water_wt || waytype == maglev_wt ? 1 : 2;
-	const uint8 axles = obj.get_int("axles", 2);
+	const uint8 axles_default = waytype == water_wt || waytype == maglev_wt ? 1 : waytype == air_wt ? 3 : 2;
+	const uint8 axles = obj.get_int("axles", axles_default);
 
 	// axle_load (determine ways usage)
 	uint16 axle_load = obj.get_int("axle_load", (weight / axles) / 1000);
