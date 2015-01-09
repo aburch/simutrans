@@ -980,7 +980,7 @@ convoi_t::route_infos_t& convoi_t::get_route_infos()
 		vehikel_t &front = *this->front();
 		const uint32 route_count = route.get_count(); // at least ziel will be there, even if calculating a route failed.
 		const uint16 current_route_index = front.get_route_index(); // actually this is current route index + 1!!!
-		fixed_list_tpl<sint16, 16> corner_data;
+		fixed_list_tpl<sint16, 192> corner_data;
 		const waytype_t waytype = front.get_waytype();
 
 		// calc route infos
@@ -2373,6 +2373,7 @@ DBG_MESSAGE("convoi_t::add_vehikel()","extend array_tpl to %i totals.",max_rail_
 	highest_axle_load = calc_highest_axle_load();
 	longest_min_loading_time = calc_longest_min_loading_time();
 	longest_max_loading_time = calc_longest_max_loading_time();
+	calc_direction_steps();
 
 DBG_MESSAGE("convoi_t::add_vehikel()","now %i of %i total vehikels.",anz_vehikel,max_vehicle);
 	return true;
@@ -2461,6 +2462,7 @@ DBG_MESSAGE("convoi_t::upgrade_vehicle()","at pos %i of %i totals.",i,max_vehicl
 	highest_axle_load = calc_highest_axle_load();
 	longest_min_loading_time = calc_longest_min_loading_time();
 	longest_max_loading_time = calc_longest_max_loading_time();
+	calc_direction_steps();
 
 	delete old_vehicle;
 
@@ -2528,6 +2530,7 @@ vehikel_t *convoi_t::remove_vehikel_bei(uint16 i)
 	highest_axle_load = calc_highest_axle_load();
 	longest_min_loading_time = calc_longest_min_loading_time();
 	longest_max_loading_time = calc_longest_max_loading_time();
+	calc_direction_steps();
 
 	return v;
 }
@@ -3870,6 +3873,7 @@ void convoi_t::rdwr(loadsave_t *file)
 		highest_axle_load = calc_highest_axle_load();
 		longest_min_loading_time = calc_longest_min_loading_time();
 		longest_max_loading_time = calc_longest_max_loading_time();
+		calc_direction_steps();
 	}
 
 	if(file->get_experimental_version() >= 1)
@@ -6561,6 +6565,18 @@ void convoi_t::calc_min_range()
 		}
 	}
 	min_range = min;
+}
+
+void convoi_t::calc_direction_steps()
+{
+	const sint32 top_speed_kmh = speed_to_kmh(get_min_top_speed());
+	const sint32 corner_force_divider = welt->get_settings().get_corner_force_divider(fahr[0]->get_waytype()); 
+	const sint32 max_limited_radius = ((top_speed_kmh * top_speed_kmh) * corner_force_divider) / 87;
+	const sint16 max_tile_steps = max_limited_radius / welt->get_settings().get_meters_per_tile();
+	for(int i = 0; i < anz_vehikel; i ++)
+	{
+		fahr[i]->set_direction_steps(max_tile_steps);
+	}	
 }
 
 // Bernd Gabriel, 18.06.2009: extracted from new_month()

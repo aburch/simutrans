@@ -1254,10 +1254,7 @@ vehikel_t::vehikel_t(koord3d pos, const vehikel_besch_t* besch, player_t* player
 	target_halt = halthandle_t();
 
 	//@author: jamespetts
-#ifdef debug_corners
-	current_corner = 0;
-#endif
-	direction_steps = 4;
+	direction_steps = 16;
 	is_overweight = false;
 	reversed = false;
 	hop_count = 0;
@@ -1295,10 +1292,7 @@ vehikel_t::vehikel_t() :
 	alte_fahrtrichtung = fahrtrichtung = ribi_t::keine;
 
 	//@author: jamespetts
-#ifdef debug_corners
-	current_corner = 0;
-#endif
-	direction_steps = 4;
+	direction_steps = 16;
 	is_overweight = false;
 	reversed = false;
 	hop_count = 0;
@@ -1530,7 +1524,7 @@ grund_t* vehikel_t::hop()
  * taking into account the curve and weight limit.
  * @author: jamespetts/Bernd Gabriel
  */
-sint32 vehikel_t::calc_speed_limit(const weg_t *w, const weg_t *weg_previous, fixed_list_tpl<sint16, 16>* cornering_data, ribi_t::ribi current_direction, ribi_t::ribi previous_direction)
+sint32 vehikel_t::calc_speed_limit(const weg_t *w, const weg_t *weg_previous, fixed_list_tpl<sint16, 192>* cornering_data, ribi_t::ribi current_direction, ribi_t::ribi previous_direction)
 {
 	if (weg_previous)
 	{
@@ -1558,109 +1552,54 @@ sint32 vehikel_t::calc_speed_limit(const weg_t *w, const weg_t *weg_previous, fi
 	{
 		if((max_axle_load != 0 && (highest_axle_load * 100) / max_axle_load <= 110) && (bridge_weight_limit != 0 && (total_weight * 100) / bridge_weight_limit <= 110))
 		{
-			//Overweight by up to 10% - reduce speed limit to a third.
+			// Overweight by up to 10% - reduce speed limit to a third.
 			overweight_speed_limit = base_limit / 3;
 		}
 		else if((max_axle_load == 0 || (highest_axle_load * 100) / max_axle_load > 110) || (bridge_weight_limit == 0 || (total_weight * 100) / bridge_weight_limit > 110))
 		{
-			//Overweight by more than 10% - reduce speed limit by a factor of 10.
+			// Overweight by more than 10% - reduce speed limit by a factor of 10.
 			overweight_speed_limit = base_limit / 10;
 		}
 	}
 
 	waytype_t waytype = cnv->get_schedule()->get_waytype();
 
-	// Cornering settings. Vehicles must slow to take corners.
-	const sint32 max_corner_limit = welt->get_settings().get_max_corner_limit(waytype);
-	const sint32 min_corner_limit = welt->get_settings().get_min_corner_limit(waytype);
-	const uint16 max_corner_adjustment_factor = welt->get_settings().get_max_corner_adjustment_factor(waytype);
-	const uint16 min_corner_adjustment_factor = welt->get_settings().get_min_corner_adjustment_factor(waytype);
-	const uint8 min_direction_steps = welt->get_settings().get_min_direction_steps(waytype);
-	const uint8 max_direction_steps = welt->get_settings().get_max_direction_steps(waytype);
-
-#ifndef debug_corners
-	if(is_corner && max_direction_steps > 0)
+	if(!is_corner || direction_steps == 0)
 	{
-#endif
+		// If we are not counting corners, do not attempt to calculate their speed limit.
+		return overweight_speed_limit;
+	}
+	else
+	{
+		// Curve radius computed: only by the time that a 90 or 
+		// greter degree bend, or a pair of 45 degree bends is 
+		// found can an accurate radius be computed.
+
 		sint16 direction_difference = 0;
 		const sint16 direction = get_direction_degrees(ribi_t::get_dir(current_direction));
-	
-		uint16 limit_adjustment_percentage = 100;
-		if(base_limit > max_corner_limit)
-		{
-			limit_adjustment_percentage = max_corner_adjustment_factor;
-			direction_steps = max_direction_steps;
-		}
-		else if(base_limit < min_corner_limit)
-		{
-			limit_adjustment_percentage = min_corner_adjustment_factor;
-			direction_steps = min_direction_steps;
-		}
-		else
-		{
-			//Smooth the difference
-			const uint32 tmp1 = base_limit - min_corner_limit;
-			const uint32 tmp2 = max_corner_limit - min_corner_limit;
-			const uint32 percentage = (tmp1 * 100) / tmp2;
-			limit_adjustment_percentage = min_corner_adjustment_factor - (((min_corner_adjustment_factor - max_corner_adjustment_factor) * percentage) / 100);
-			direction_steps = (sint16)(((max_direction_steps - min_direction_steps) * percentage) / 100) + min_direction_steps;
-		}
-
-		if(direction_steps == 0)
-		{
-			// If we are not counting corners, do not attempt to calculate their speed limit.
-			return overweight_speed_limit;
-		}
-
-		 // Average the last few tiles (based on direction_steps) to take the adjusted speed limit.
-		sint64 averaged_base_limit_kmh = 0;
-		const sint32 start_route_index = max(0, route_index - direction_steps);
-		const uint16 end_route_index = min(route_index - 1, route_index + direction_steps);
-		route_t* route = cnv->get_route();
-		uint32 count = 0;
-		for(int n = start_route_index; n <= end_route_index; n++)
-		{
-			const grund_t* ground = welt->lookup(route->get_route().get_element(n));
-			if(!ground)
-			{
-				continue;
-			}
-			const weg_t* way = ground->get_weg(get_waytype());
-			if(!way)
-			{
-				continue;
-			}
-			averaged_base_limit_kmh += way->get_max_speed();
-			count ++;
-		}
-
-		averaged_base_limit_kmh /= count;
-
-		const sint32 averaged_base_limit = kmh_to_speed((sint32)averaged_base_limit_kmh);
-
-		if(averaged_base_limit != base_limit && averaged_base_limit > min_corner_limit && averaged_base_limit < max_corner_limit)
-		{
-			// Recalculate the percentage if the speed limit of the corner tile is different to the average or else the corner speed
-			// limit might be set too low.
-			const uint32 tmp1 = averaged_base_limit - min_corner_limit;
-			const uint32 tmp2 = max_corner_limit - min_corner_limit;
-			const uint32 percentage = (tmp1 * 100) / tmp2;
-			limit_adjustment_percentage = min_corner_adjustment_factor - (((min_corner_adjustment_factor - max_corner_adjustment_factor) * percentage) / 100);
-		}
-
 		uint16 tmp;
 
 		int counter = 0;
+		int steps_to_second_45 = 0;
 		int steps_to_90 = 0;
 		int steps_to_135 = 0;
 		int steps_to_180 = 0;
-		int smoothing_percentage = 0;
 		const uint16 meters_per_tile = welt->get_settings().get_meters_per_tile();
-		int meters = 0;
+		int direction_changes = 0;
+		sint16 previous_direction = direction;
 		for(int i = cornering_data->get_count() - 1; i >= 0 && counter <= direction_steps; i --)
 		{
 			counter ++;
-			meters = meters_per_tile * counter;
+			if(previous_direction != cornering_data->get_element(i))
+			{
+				// For detecting pairs of 45 degree corners
+				direction_changes ++;
+				if(direction_changes == 2)
+				{
+					steps_to_second_45 = counter;
+				}
+			}
+			previous_direction = cornering_data->get_element(i);
 			tmp = vehikel_t::compare_directions(direction, cornering_data->get_element(i));
 			if(tmp > direction_difference)
 			{
@@ -1669,148 +1608,87 @@ sint32 vehikel_t::calc_speed_limit(const weg_t *w, const weg_t *weg_previous, fi
 				{
 					case 90:
 						steps_to_90 = counter;
-						if(meters > 500)
-						{
-							smoothing_percentage = 100;
-						}
 						break;
 					case 135:
 						steps_to_135 = counter;
-						if(meters > 750)
-						{
-							smoothing_percentage = 100;
-						}
 						break;
 					case 180:
 						steps_to_180 = counter;
-						if(meters > 1000)
-						{
-							smoothing_percentage = 100;
-						}
 						break;
 					default:
 						break;
 				}
-
 			}
 		}
 
-#ifdef debug_corners
-		current_corner = direction_difference;
-#endif
-		const sint16 previous_direction_degrees = get_direction_degrees(ribi_t::get_dir(previous_direction));
-		if(direction_difference == 0 && current_direction != previous_direction)
+		// Calculate the radius on the basis of the most severe curve detected.
+		int radius = 0;
+		sint32 corner_limit_kmh = SINT32_MAX_VALUE;
+		
+		// This is the maximum lateral force, denominated in fractions of G. 
+		// If the number is 10, the maximum allowed lateral force is 1/10th or 0.1G. 
+		const sint32 corner_force_divider = welt->get_settings().get_corner_force_divider(waytype);
+
+		if(steps_to_180)
 		{
-			//Fallback code in case the checking the histories did not work properly (for example, if the histories were cleared recently)
-			direction_difference = compare_directions(direction, previous_direction_degrees);
+			// A 180 degree curve can be made in a minimum of 4 tiles and will have a minimum radius of half the meters_per_tile value
+			steps_to_180 = max(steps_to_180 - 3, 1);
+
+			radius = (steps_to_180 * meters_per_tile) / 2;
+			// See here for formula: https://books.google.co.uk/books?id=NbYqQSQcE2MC&pg=PA30&lpg=PA30&dq=curve+radius+speed+limit+formula+rail&source=bl&ots=mbfC3lCnX4&sig=qClyuNSarnvL-zgOj4HlTVgYOr8&hl=en&sa=X&ei=sBGwVOSGHMyBU4mHgNAC&ved=0CCYQ6AEwATgK#v=onepage&q=curve%20radius%20speed%20limit%20formula%20rail&f=false
+			corner_limit_kmh = sqrt_i32((87 * radius) / corner_force_divider); 
+		}
+		
+		if(steps_to_135)
+		{
+			// A 135 degree curve can be made in a minimum of 4 tiles and will have a minimum radius of 2/3rds the meters_per_tile value
+			steps_to_135 = max(steps_to_135 - 3, 1);
+
+			radius = ((steps_to_135 * meters_per_tile) * 2) / 3;
+			corner_limit_kmh = min(corner_limit_kmh, sqrt_i32((87 * radius) / corner_force_divider)); 
+		}
+		
+		if(steps_to_90)
+		{
+			// A 90 degree curve can be made in a minimum of 3 tiles and will have a minimum radius of the meters_per_tile value
+			steps_to_90 = max(steps_to_90 - 2, 1);
+
+			radius = steps_to_90 * meters_per_tile;
+			corner_limit_kmh = min(corner_limit_kmh, sqrt_i32((87 * radius) / corner_force_divider)); 
+		}
+		
+		if(steps_to_second_45)
+		{
+			// A pair of self-correcting 45 degree corners can be made in a minimum of 4 tiles and will have a minimum radius of twice the meters per tile value
+			steps_to_second_45 = max(steps_to_second_45 - 3, 1);
+
+			radius = (steps_to_second_45 * meters_per_tile) * 2;
+			corner_limit_kmh = min(corner_limit_kmh, sqrt_i32((87 * radius) / corner_force_divider)); 
 		}
 
-		// Maximum speeds for sharper corners no matter what the base limit of the way.
-		sint32 max_speed_135;
-		sint32 max_speed_180;
-		sint32 max_speed_90;
+		if(radius > 0)
+		{			
+			const int tilting_min_radius_effect = welt->get_settings().get_tilting_min_radius_effect();
 
-		sint32 limit_adjustment_percentage_90 = limit_adjustment_percentage / 2;
-		sint32 limit_adjustment_percentage_135 = limit_adjustment_percentage / 3;
-		sint32 limit_adjustment_percentage_180 = limit_adjustment_percentage / 4;
+			sint32 corner_limit = kmh_to_speed(corner_limit_kmh);
 
-		switch(waytype)
-		{
-			case track_wt:
-			case narrowgauge_wt:
-			case monorail_wt:
-			case maglev_wt:
-				max_speed_90 = kmh_to_speed(30);
-				max_speed_135 = kmh_to_speed(20);
-				max_speed_180 = kmh_to_speed(10);
-				break;
+			// Adjust for tilting.
+			// Tilting only makes a difference to reasonably wide corners.
+			if(is_tilting && radius < tilting_min_radius_effect)
+			{	
+				// Tilting trains can take corners faster
+				corner_limit = (corner_limit * 130) / 100;
+			}
 
-			case tram_wt:
-				max_speed_90 = kmh_to_speed(42);
-				max_speed_135 = kmh_to_speed(35);
-				max_speed_180 = kmh_to_speed(20);
-				break;
-
-			default:
-			case road_wt:
-				max_speed_90 = kmh_to_speed(45);
-				max_speed_135 = kmh_to_speed(40);
-				max_speed_180 = kmh_to_speed(35);
-				break;
-		}
-
-		//Smoothing code: smoothed corners benefit.
-		if(smoothing_percentage > 0)
-		{
-			smoothing_percentage = (steps_to_90 * 100) / (direction_steps + 1);
-			max_speed_90 += (averaged_base_limit - max_speed_90) * smoothing_percentage / 100;
-			limit_adjustment_percentage_90 += (limit_adjustment_percentage - limit_adjustment_percentage_90) * smoothing_percentage / 100;
-			if(direction_difference > 90)
+			// Now apply the adjusted corner limit
+			if (direction_difference > 0) 
 			{
-				const int smoothing_percentage_135 = (steps_to_135 * 100) / (direction_steps + 1);
-				max_speed_135 += (averaged_base_limit - max_speed_135) * smoothing_percentage_135 / 100;
-				limit_adjustment_percentage_135 += (limit_adjustment_percentage - limit_adjustment_percentage_135) * smoothing_percentage / 100;
-				smoothing_percentage = min(smoothing_percentage, smoothing_percentage_135);
-				if(direction_difference >= 180)
-				{
-					const int smoothing_percentage_180 = (steps_to_180 * 100) / (direction_steps + 1);
-					max_speed_180 += (averaged_base_limit - max_speed_180) * smoothing_percentage_180 / 100;
-					limit_adjustment_percentage_180 += (limit_adjustment_percentage - limit_adjustment_percentage_180) * smoothing_percentage / 100;
-					smoothing_percentage = min(smoothing_percentage, smoothing_percentage_180);
-				}
+				corner_speed_limit = min(base_limit, corner_limit);
 			}
 		}
-
-		// Find the maximum constraint on the corner
-		sint32 hard_limit;
-		switch(direction_difference)
-		{
-		case 0:
-		case 45:
-		default:
-			hard_limit = base_limit;
-			break;
-		case 90:
-			limit_adjustment_percentage = limit_adjustment_percentage_90;
-			hard_limit = max_speed_90;
-			break;
-		case 135:
-			limit_adjustment_percentage = max(limit_adjustment_percentage_90, limit_adjustment_percentage_135);
-			hard_limit = min(max_speed_90, max_speed_135);
-			break;
-		case 180:
-		case 270:
-			const sint32 tmp_percentage = max(limit_adjustment_percentage_90, limit_adjustment_percentage_135);
-			limit_adjustment_percentage = max(tmp_percentage, limit_adjustment_percentage_180);
-			const sint32 tmp_hard = min(max_speed_90, max_speed_135);
-			hard_limit = min(tmp_hard, max_speed_180);
-		}
-
-		// Adjust for tilting.
-		// Tilting only makes a difference on faster track and on well smoothed corners.
-		if(is_tilting && averaged_base_limit > kmh_to_speed(120) && (smoothing_percentage > 50 || direction_difference <= 45))
-		{	
-			// Tilting trains can take corners faster
-			limit_adjustment_percentage += 30;
-			if(limit_adjustment_percentage > 100)
-			{
-				// But cannot go faster on a corner than on the straight!
-				limit_adjustment_percentage = 100;
-			}
-
-			hard_limit = (hard_limit * 130) / 100;
-		}
-
-		// Now apply the adjusted corner limit
-		if (direction_difference > 0) {
-			corner_speed_limit = min((averaged_base_limit * limit_adjustment_percentage) / 100, hard_limit);
-		}
-
-#ifndef debug_corners
 	}
-#endif
 
-	//Overweight penalty not to be made cumulative to cornering penalty
+	// Overweight penalty not to be made cumulative to cornering penalty
 	if(corner_speed_limit < overweight_speed_limit)
 	{
 		new_limit = corner_speed_limit;
@@ -1824,14 +1702,7 @@ sint32 vehikel_t::calc_speed_limit(const weg_t *w, const weg_t *weg_previous, fi
 	cornering_data->trim_from_head((trim_size >= 0) ? trim_size : 0);
 
 	//Speed limit must never be 0.
-	if(new_limit > 0)
-	{
-		return new_limit;
-	}
-	else
-	{
-		return kmh_to_speed(10);
-	}
+	return max(kmh_to_speed(1), new_limit);
 }
 
 /** gets the waytype specific friction on straight flat way.
@@ -2491,7 +2362,6 @@ uint32 vehikel_t::calc_restwert() const
 	return (uint32) value;
 }
 
-
 void
 vehikel_t::zeige_info()
 {
@@ -2678,11 +2548,6 @@ void vehikel_t::display_after(int xpos, int ypos, bool is_gobal) const
 			sprintf(tooltip_text, translator::translate("Runway too short"), cnv->get_name());
 			color = COL_ORANGE;
 		}
-#ifdef debug_corners
-			sprintf(tooltip_text, translator::translate("CORNER: %i"), current_corner);
-			color = COL_GREEN;
-#endif
-
 
 		// something to show?
 		if(  tooltip_text[0]  ) {

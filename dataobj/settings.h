@@ -325,14 +325,12 @@ public:
 	
 	//The array index corresponds
 	//to the waytype index.
-	
-	uint32 max_corner_limit[10];
-	uint32 min_corner_limit[10];
-	uint16 max_corner_adjustment_factor[10];
-	uint16 min_corner_adjustment_factor[10];
-	uint8 min_direction_steps[10];
-	uint8 max_direction_steps[10];
+
+	sint32 corner_force_divider[10];
+
 	uint8 curve_friction_factor[10];
+	
+	sint32 tilting_min_radius_effect;
 
 	/* if set, goods will avoid being routed over overcrowded stops */
 	bool avoid_overcrowding;
@@ -881,13 +879,11 @@ public:
 	uint8 get_congestion_density_factor () const { return congestion_density_factor; }
 	void set_congestion_density_factor (uint8 value)  { congestion_density_factor = value; }
 
-	sint32 get_max_corner_limit(waytype_t waytype) const { return kmh_to_speed(max_corner_limit[waytype]); }
-	sint32 get_min_corner_limit (waytype_t waytype) const { return kmh_to_speed(min_corner_limit[waytype]); }
-	uint16 get_max_corner_adjustment_factor (waytype_t waytype) const { return max_corner_adjustment_factor[waytype]; }
-	uint16 get_min_corner_adjustment_factor (waytype_t waytype) const {  return  min_corner_adjustment_factor[waytype]; }
-	uint8 get_min_direction_steps (waytype_t waytype) const { return min_direction_steps[waytype]; }
-	uint8 get_max_direction_steps (waytype_t waytype) const { return max_direction_steps[waytype]; }
 	uint8 get_curve_friction_factor (waytype_t waytype) const { return curve_friction_factor[waytype]; }
+
+	sint32 get_corner_force_divider(waytype_t waytype) const { return corner_force_divider[waytype]; }
+
+	sint32 get_tilting_min_radius_effect() const { return tilting_min_radius_effect; }
 
 	uint16 get_factory_max_years_obsolete() const { return factory_max_years_obsolete; }
 

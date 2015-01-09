@@ -267,7 +267,7 @@ private:
 	// @author: jamespetts
 	// Cornering settings.
 
-	fixed_list_tpl<sint16, 16> pre_corner_direction;
+	fixed_list_tpl<sint16, 192> pre_corner_direction;
 
 	sint16 direction_steps;
 
@@ -282,12 +282,6 @@ private:
 	//@author: jamespetts
 	uint16 diagonal_costs;
 	uint16 base_costs;
-
-//#define debug_corners
-
-#ifdef debug_corners
-	uint16 current_corner;
-#endif
 
 	static sint64 sound_ticks;
 
@@ -343,7 +337,7 @@ protected:
 	bool check_access(const weg_t* way) const;
 
 public:
-	sint32 calc_speed_limit(const weg_t *weg, const weg_t *weg_previous, fixed_list_tpl<sint16, 16>* cornering_data, ribi_t::ribi current_direction, ribi_t::ribi previous_direction);
+	sint32 calc_speed_limit(const weg_t *weg, const weg_t *weg_previous, fixed_list_tpl<sint16, 192>* cornering_data, ribi_t::ribi current_direction, ribi_t::ribi previous_direction);
 
 	virtual bool ist_befahrbar(const grund_t* ) const {return false;}
 
@@ -424,6 +418,8 @@ public:
 	* @author Hj. Malthaner
 	*/
 	void neue_fahrt( uint16 start_route_index, bool recalc );
+
+		void set_direction_steps(sint16 value) { direction_steps = value; }
 
 #ifdef INLINE_DING_TYPE
 protected:

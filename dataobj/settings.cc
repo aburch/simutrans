@@ -281,53 +281,21 @@ settings_t::settings_t() :
 
 	// Cornering settings
 	// @author: jamespetts
-	max_corner_limit[waytype_t(road_wt)] = 200;
-	min_corner_limit[waytype_t(road_wt)] = 30;
-	max_corner_adjustment_factor[waytype_t(road_wt)] = 75;
-	min_corner_adjustment_factor[waytype_t(road_wt)] = 97;
-	min_direction_steps[waytype_t(road_wt)] = 3;
-	max_direction_steps[waytype_t(road_wt)] = 6;
+	corner_force_divider[waytype_t(road_wt)] = 5;
+	corner_force_divider[waytype_t(track_wt)] = 10;
+	corner_force_divider[waytype_t(tram_wt)] = 10;
+	corner_force_divider[waytype_t(monorail_wt)] = 10;
+	corner_force_divider[waytype_t(maglev_wt)] = 10;
+	corner_force_divider[waytype_t(narrowgauge_wt)] = 10;
+
 	curve_friction_factor[waytype_t(road_wt)] = 0;
-
-	max_corner_limit[waytype_t(track_wt)] = 425;
-	min_corner_limit[waytype_t(track_wt)] = 45;
-	max_corner_adjustment_factor[waytype_t(track_wt)] = 50;
-	min_corner_adjustment_factor[waytype_t(track_wt)] = 95;
-	min_direction_steps[waytype_t(track_wt)] = 4;
-	max_direction_steps[waytype_t(track_wt)] = 14;
 	curve_friction_factor[waytype_t(track_wt)] = 0;
-
-	max_corner_limit[waytype_t(tram_wt)] = 250;
-	min_corner_limit[waytype_t(tram_wt)] = 30;
-	max_corner_adjustment_factor[waytype_t(tram_wt)] = 60;
-	min_corner_adjustment_factor[waytype_t(tram_wt)] = 90;	
-	min_direction_steps[waytype_t(tram_wt)] = 3;
-	max_direction_steps[waytype_t(tram_wt)] = 10;
 	curve_friction_factor[waytype_t(tram_wt)] = 0;
-
-	max_corner_limit[waytype_t(monorail_wt)] = 425;
-	min_corner_limit[waytype_t(monorail_wt)] = 75;
-	max_corner_adjustment_factor[waytype_t(monorail_wt)] = 50;
-	min_corner_adjustment_factor[waytype_t(monorail_wt)] = 85;	
-	min_direction_steps[waytype_t(monorail_wt)] = 5;
-	max_direction_steps[waytype_t(monorail_wt)] = 16;
 	curve_friction_factor[waytype_t(monorail_wt)] =0;
-
-	max_corner_limit[waytype_t(maglev_wt)] = 500;
-	min_corner_limit[waytype_t(maglev_wt)] = 50;
-	max_corner_adjustment_factor[waytype_t(maglev_wt)] = 40;
-	min_corner_adjustment_factor[waytype_t(maglev_wt)] = 80;
-	min_direction_steps[waytype_t(maglev_wt)] = 4;
-	max_direction_steps[waytype_t(maglev_wt)] = 16;
 	curve_friction_factor[waytype_t(maglev_wt)] = 0;
-
-	max_corner_limit[waytype_t(narrowgauge_wt)] = 250;
-	min_corner_limit[waytype_t(narrowgauge_wt)] = 30;
-	max_corner_adjustment_factor[waytype_t(narrowgauge_wt)] = 67;
-	min_corner_adjustment_factor[waytype_t(narrowgauge_wt)] = 92;
-	min_direction_steps[waytype_t(narrowgauge_wt)] = 3;
-	max_direction_steps[waytype_t(narrowgauge_wt)] = 8;
 	curve_friction_factor[waytype_t(narrowgauge_wt)] = 0;
+
+	tilting_min_radius_effect = 1000;
 
 	// Revenue calibration settings
 	// @author: jamespetts
@@ -1207,28 +1175,58 @@ void settings_t::rdwr(loadsave_t *file)
 					wt = narrowgauge_wt;
 					break;
 				default:
-					dbg->fatal("einstellungen_t::rdwr", "Invalid waytype");
+					dbg->fatal("settings_t::rdwr", "Invalid waytype");
 				}
 
-				file->rdwr_long(max_corner_limit[waytype_t(wt)]);
-				file->rdwr_long(min_corner_limit[waytype_t(wt)]);
-				if(file->get_experimental_version() < 10)
+				if(file->get_experimental_version() >= 12)
 				{
-					double tmp = (double)max_corner_adjustment_factor[waytype_t(wt)] / 100.0;
-					file->rdwr_double(tmp);
-					max_corner_adjustment_factor[waytype_t(wt)] = tmp * 100.0;
-					tmp = (double)min_corner_adjustment_factor[waytype_t(wt)] / 100.0;
-					file->rdwr_double(tmp);
-					min_corner_adjustment_factor[waytype_t(wt)] = tmp * 100.0;
+#ifdef SPECIAL_RESCUE_12_4
+					if(file->is_saving())
+					{
+#endif
+						file->rdwr_long(corner_force_divider[waytype_t(wt)]);
+#ifdef SPECIAL_RESCUE_12_4
+					}
+#endif
 				}
+#ifdef SPECIAL_RESCUE_12_4
+				if(file->is_loading())
+#else
 				else
+#endif
 				{
-					file->rdwr_short(max_corner_adjustment_factor[waytype_t(wt)]);
-					file->rdwr_short(min_corner_adjustment_factor[waytype_t(wt)]);
+					// Former cornering settings. Were numerous.
+					sint32 dummy = 0;
+					sint16 dummy_short = 0;
+					sint8 dummy_byte = 0;
+					file->rdwr_long(dummy);
+					file->rdwr_long(dummy);
+					if(file->get_experimental_version() < 10)
+					{
+						double dummy_double;
+						file->rdwr_double(dummy_double);
+						file->rdwr_double(dummy_double);
+					}
+					else
+					{
+						file->rdwr_short(dummy_short);
+						file->rdwr_short(dummy_short);
+					}
+					file->rdwr_byte(dummy_byte);
+					file->rdwr_byte(dummy_byte);
 				}
-				file->rdwr_byte(min_direction_steps[waytype_t(wt)]);
-				file->rdwr_byte(max_direction_steps[waytype_t(wt)]);
-				file->rdwr_byte(curve_friction_factor[waytype_t(wt)]);
+				if(file->get_experimental_version() >= 10)
+				{
+					file->rdwr_byte(curve_friction_factor[waytype_t(wt)]);
+				}
+			}
+#ifdef SPECIAL_RESCUE_12_4
+			if(file->get_experimental_version() >= 12 && file->is_saving())
+#else
+			if(file->get_experimental_version() >= 12)
+#endif
+			{
+				file->rdwr_long(tilting_min_radius_effect);
 			}
 
 			file->rdwr_short(factory_max_years_obsolete);
@@ -1278,8 +1276,6 @@ void settings_t::rdwr(loadsave_t *file)
 				hauled_reverse_time = short_hauled_reverse_time;
 				turntable_reverse_time = short_turntable_reverse_time;
 			}
-			
-
 		}
 
 		if(file->get_experimental_version() >= 2)
@@ -2250,53 +2246,21 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	congestion_density_factor = contents.get_int("congestion_density_factor", congestion_density_factor);
 
 	// Cornering settings
-	max_corner_limit[waytype_t(road_wt)] = contents.get_int("max_corner_limit_road", max_corner_limit[waytype_t(road_wt)]);
-	min_corner_limit[waytype_t(road_wt)] = contents.get_int("min_corner_limit_road", min_corner_limit[waytype_t(road_wt)]);
-	max_corner_adjustment_factor[waytype_t(road_wt)] = contents.get_int("max_corner_adjustment_factor_road", max_corner_adjustment_factor[waytype_t(road_wt)]);
-	min_corner_adjustment_factor[waytype_t(road_wt)] = contents.get_int("min_corner_adjustment_factor_road", min_corner_adjustment_factor[waytype_t(road_wt)]);
-	min_direction_steps[waytype_t(road_wt)] = contents.get_int("min_direction_steps_road", min_direction_steps[waytype_t(road_wt)]);
-	max_direction_steps[waytype_t(road_wt)] = contents.get_int("max_direction_steps_road", max_direction_steps[waytype_t(road_wt)]);
+	corner_force_divider[waytype_t(road_wt)] = contents.get_int("corner_force_divider_road", corner_force_divider[waytype_t(road_wt)]);
+	corner_force_divider[waytype_t(track_wt)] = contents.get_int("corner_force_divider_track", corner_force_divider[waytype_t(track_wt)]);
+	corner_force_divider[waytype_t(tram_wt)] = contents.get_int("corner_force_divider_tram", corner_force_divider[waytype_t(tram_wt)]);
+	corner_force_divider[waytype_t(monorail_wt)] = contents.get_int("corner_force_divider_monorail", corner_force_divider[waytype_t(monorail_wt)]);
+	corner_force_divider[waytype_t(maglev_wt)] = contents.get_int("corner_force_divider_maglev", corner_force_divider[waytype_t(maglev_wt)]);
+	corner_force_divider[waytype_t(narrowgauge_wt)] = contents.get_int("corner_force_divider_narrowgauge", corner_force_divider[waytype_t(narrowgauge_wt)]);
+
 	curve_friction_factor[waytype_t(road_wt)] = contents.get_int("curve_friction_factor_road", curve_friction_factor[waytype_t(road_wt)]);
-
-	max_corner_limit[waytype_t(track_wt)] = contents.get_int("max_corner_limit_track", max_corner_limit[waytype_t(track_wt)]);
-	min_corner_limit[waytype_t(track_wt)] = contents.get_int("min_corner_limit_track", min_corner_limit[waytype_t(track_wt)]);
-	max_corner_adjustment_factor[waytype_t(track_wt)] = contents.get_int("max_corner_adjustment_factor_track", max_corner_adjustment_factor[waytype_t(track_wt)]);
-	min_corner_adjustment_factor[waytype_t(track_wt)] = contents.get_int("min_corner_adjustment_factor_track", min_corner_adjustment_factor[waytype_t(track_wt)]);
-	min_direction_steps[waytype_t(track_wt)] = contents.get_int("min_direction_steps_track", min_direction_steps[waytype_t(track_wt)]);
-	max_direction_steps[waytype_t(track_wt)] = contents.get_int("max_direction_steps_track", max_direction_steps[waytype_t(track_wt)]);
 	curve_friction_factor[waytype_t(track_wt)] = contents.get_int("curve_friction_factor_track", curve_friction_factor[waytype_t(track_wt)]);
-
-	max_corner_limit[waytype_t(tram_wt)] = contents.get_int("max_corner_limit_tram", max_corner_limit[waytype_t(tram_wt)]);
-	min_corner_limit[waytype_t(tram_wt)] = contents.get_int("min_corner_limit_tram", min_corner_limit[waytype_t(tram_wt)]);
-	max_corner_adjustment_factor[waytype_t(tram_wt)] = contents.get_int("max_corner_adjustment_factor_tram", max_corner_adjustment_factor[waytype_t(tram_wt)]);
-	min_corner_adjustment_factor[waytype_t(tram_wt)] = contents.get_int("min_corner_adjustment_factor_tram", min_corner_adjustment_factor[waytype_t(tram_wt)]);
-	min_direction_steps[waytype_t(tram_wt)] = contents.get_int("min_direction_steps_tram", min_direction_steps[waytype_t(tram_wt)]);
-	max_direction_steps[waytype_t(tram_wt)] = contents.get_int("max_direction_steps_tram", max_direction_steps[waytype_t(tram_wt)]);
 	curve_friction_factor[waytype_t(tram_wt)] = contents.get_int("curve_friction_factor_tram", curve_friction_factor[waytype_t(tram_wt)]);
-
-	max_corner_limit[waytype_t(monorail_wt)] = contents.get_int("max_corner_limit_monorail", max_corner_limit[waytype_t(monorail_wt)]);
-	min_corner_limit[waytype_t(monorail_wt)] = contents.get_int("min_corner_limit_monorail", min_corner_limit[waytype_t(monorail_wt)]);
-	max_corner_adjustment_factor[waytype_t(monorail_wt)] = contents.get_int("max_corner_adjustment_factor_monorail", max_corner_adjustment_factor[waytype_t(monorail_wt)]);
-	min_corner_adjustment_factor[waytype_t(monorail_wt)] = contents.get_int("min_corner_adjustment_factor_monorail", min_corner_adjustment_factor[waytype_t(monorail_wt)]);
-	min_direction_steps[waytype_t(monorail_wt)] = contents.get_int("min_direction_steps_monorail", min_direction_steps[waytype_t(monorail_wt)]);
-	max_direction_steps[waytype_t(monorail_wt)] = contents.get_int("max_direction_steps_monorail", max_direction_steps[waytype_t(monorail_wt)]);
 	curve_friction_factor[waytype_t(monorail_wt)] = contents.get_int("curve_friction_factor_monorail", curve_friction_factor[waytype_t(monorail_wt)]);
-
-	max_corner_limit[waytype_t(maglev_wt)] = contents.get_int("max_corner_limit_maglev", max_corner_limit[waytype_t(maglev_wt)]);
-	min_corner_limit[waytype_t(maglev_wt)] = contents.get_int("min_corner_limit_maglev", min_corner_limit[waytype_t(maglev_wt)]);
-	max_corner_adjustment_factor[waytype_t(maglev_wt)] = contents.get_int("max_corner_adjustment_factor_maglev", max_corner_adjustment_factor[waytype_t(maglev_wt)]);
-	min_corner_adjustment_factor[waytype_t(maglev_wt)] = contents.get_int("min_corner_adjustment_factor_maglev", min_corner_adjustment_factor[waytype_t(maglev_wt)]);
-	min_direction_steps[waytype_t(maglev_wt)] = contents.get_int("min_direction_steps_maglev", min_direction_steps[waytype_t(maglev_wt)] );
-	max_direction_steps[waytype_t(maglev_wt)] = contents.get_int("max_direction_steps_maglev", max_direction_steps[waytype_t(maglev_wt)]);
 	curve_friction_factor[waytype_t(maglev_wt)] = contents.get_int("curve_friction_factor_maglev", curve_friction_factor[waytype_t(maglev_wt)]);
-
-	max_corner_limit[waytype_t(narrowgauge_wt)] = contents.get_int("max_corner_limit_narrowgauge", max_corner_limit[waytype_t(narrowgauge_wt)]);
-	min_corner_limit[waytype_t(narrowgauge_wt)] = contents.get_int("min_corner_limit_narrowgauge", min_corner_limit[waytype_t(narrowgauge_wt)]);
-	max_corner_adjustment_factor[waytype_t(narrowgauge_wt)]  =  contents.get_int("max_corner_adjustment_factor_narrowgauge", max_corner_adjustment_factor[waytype_t(narrowgauge_wt)]);
-	min_corner_adjustment_factor[waytype_t(narrowgauge_wt)] = contents.get_int("min_corner_adjustment_factor_narrowgauge", min_corner_adjustment_factor[waytype_t(narrowgauge_wt)]);
-	min_direction_steps[waytype_t(narrowgauge_wt)] = contents.get_int("min_direction_steps_narrowgauge", min_direction_steps[waytype_t(narrowgauge_wt)]);
-	max_direction_steps[waytype_t(narrowgauge_wt)] = contents.get_int("max_direction_steps_narrowgauge", max_direction_steps[waytype_t(narrowgauge_wt)]);
 	curve_friction_factor[waytype_t(narrowgauge_wt)] = contents.get_int("curve_friction_factor_narrowgauge", curve_friction_factor[waytype_t(narrowgauge_wt)]);
+
+	tilting_min_radius_effect = contents.get_int("tilting_min_radius_effect", tilting_min_radius_effect);
 
 	// Factory settings
 	factory_max_years_obsolete = contents.get_int("max_years_obsolete", factory_max_years_obsolete);

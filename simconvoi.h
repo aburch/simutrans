@@ -1409,6 +1409,13 @@ public:
 	uint32 calc_current_loading_time(uint16 load_charge);
 	inline uint16 get_current_loading_time() const { return current_loading_time; }
 
+	/**
+	 * Calculate the number of tiles over which this convoy 
+	 * needs to check for corner radii based on its maximum
+	 * speed.
+	 */
+	void calc_direction_steps();
+
 	// @author: jamespetts
 	// Returns the number of standing passengers (etc.) in this convoy.
 	uint16 get_overcrowded() const;
