@@ -921,31 +921,28 @@ const char *brueckenbauer_t::remove(player_t *player, koord3d pos_start, waytype
 				ribi_t::ribi r = wegtyp==powerline_wt ? from->get_leitung()->get_ribi() : from->get_weg_nr(0)->get_ribi_unmasked();
 				ribi_t::ribi dir1 = r & ribi_t::nordost;
 				ribi_t::ribi dir2 = r & ribi_t::suedwest;
-				bool dir1_ok = false, dir2_ok = false;
 
 				grund_t *to;
-				if(from->get_neighbour(to, delete_wegtyp, dir1)) {
-					if (!to->ist_bruecke()) {
-						dir1_ok = true;
-					}
+				// test if we are at the end of a bridge:
+				// 1. test direction must be single or zero
+				bool is_end1 = (dir1 == ribi_t::keine);
+				// 2. if single direction: test for neighbor in that direction
+				//    there must be no neighbor or no bridge
+				if (ribi_t::ist_einfach(dir1)) {
+					is_end1 = !from->get_neighbour(to, delete_wegtyp, dir1)  ||  !to->ist_bruecke();
 				}
-				else {
-					dir1_ok = true;
-				}
-				if(from->get_neighbour(to, delete_wegtyp, dir2)) {
-					if (!to->ist_bruecke()) {
-						dir2_ok = true;
-					}
-				}
-				else {
-					dir2_ok = true;
+				// now do the same for the reverse direction
+				bool is_end2 = (dir2 == ribi_t::keine);
+				if (ribi_t::ist_einfach(dir2)) {
+					is_end2 = !from->get_neighbour(to, delete_wegtyp, dir2)  ||  !to->ist_bruecke();
 				}
 
-				if(!dir1_ok && !dir2_ok) {
+				if(!is_end1 && !is_end2) {
 					return "Cannot delete a bridge from its centre";
 				}
 
-				zv = koord(dir1_ok ? dir2 : dir1);
+				// if one is an end then go towards the other direction
+				zv = koord(is_end1 ? dir2 : dir1);
 				part_list.insert(pos);
 			}
 		}
