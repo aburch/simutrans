@@ -60,7 +60,7 @@ public:
 	void set_zustand(signalzustand z) {zustand = z; calc_bild();}
 	signalzustand get_zustand() { return (signalzustand)zustand; }
 
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
 protected:
 	roadsign_t(typ type, loadsave_t *file);
 	void init(loadsave_t *file);

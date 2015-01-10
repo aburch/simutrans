@@ -24,7 +24,7 @@
 
 
 pillar_t::pillar_t(loadsave_t *file) : 
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
 	obj_t(obj_t::pillar)
 #else
 	obj_t()
@@ -37,7 +37,7 @@ pillar_t::pillar_t(loadsave_t *file) :
 
 
 pillar_t::pillar_t(koord3d pos, player_t *player, const bruecke_besch_t *besch, bruecke_besch_t::img_t img, int hoehe) : 
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
 	obj_t(obj_t::pillar, pos)
 #else
 	obj_t(pos)

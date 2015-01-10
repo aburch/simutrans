@@ -18,7 +18,7 @@ public:
 	virtual ~field_t();
 
 	const char* get_name() const { return "Field"; }
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
 #else
 	typ get_typ() const { return obj_t::field; }
 #endif

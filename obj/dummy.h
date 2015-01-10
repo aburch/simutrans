@@ -12,7 +12,7 @@ class dummy_obj_t : public obj_t
 {
 	public:
 		dummy_obj_t(loadsave_t* file) :
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
 			obj_t(obj_t::undefined)
 #else
 			obj_t()
@@ -23,7 +23,7 @@ class dummy_obj_t : public obj_t
 			obj_t::set_flag(obj_t::not_on_map);
 		}
 
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
 #else
 		typ      get_typ()  const { return obj_t::undefined; }
 #endif

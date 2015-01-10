@@ -151,7 +151,7 @@ void movingobj_t::calc_bild()
 
 
 movingobj_t::movingobj_t(loadsave_t *file) : 
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
     vehikel_basis_t(movingobj)
 #else
     vehikel_basis_t()
@@ -165,7 +165,7 @@ movingobj_t::movingobj_t(loadsave_t *file) :
 
 
 movingobj_t::movingobj_t(koord3d pos, const groundobj_besch_t *b ) : 
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
     vehikel_basis_t(movingobj, pos)
 #else
     vehikel_basis_t(pos)

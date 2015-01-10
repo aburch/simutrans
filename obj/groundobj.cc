@@ -149,7 +149,7 @@ void groundobj_t::calc_bild()
 
 
 groundobj_t::groundobj_t(loadsave_t *file) : 
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
 	obj_t(obj_t::groundobj)
 #else
 	obj_t()
@@ -160,7 +160,7 @@ groundobj_t::groundobj_t(loadsave_t *file) :
 
 
 groundobj_t::groundobj_t(koord3d pos, const groundobj_besch_t *b ) : 
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
 	obj_t(obj_t::groundobj, pos)
 #else
 	obj_t(pos)

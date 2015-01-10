@@ -88,7 +88,7 @@ public:
 	// for map rotation
 	void rotate90();
 
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
 protected:
 	leitung_t(typ type, loadsave_t *file);
 	leitung_t(typ type, koord3d pos, player_t *player);
@@ -167,7 +167,7 @@ public:
 	pumpe_t(koord3d pos, player_t *player);
 	virtual ~pumpe_t();
 
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
 #else
 	typ get_typ() const { return pumpe; }
 #endif
@@ -208,7 +208,7 @@ public:
 	senke_t(koord3d pos, player_t *player, stadt_t *c);
 	virtual ~senke_t();
 
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
 #else
 	typ get_typ() const { return senke; }
 #endif

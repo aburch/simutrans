@@ -57,7 +57,7 @@ void obj_t::init()
 	set_flag(dirty);
 }
 
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
 obj_t::obj_t(typ type)
 	: type(type)
 {

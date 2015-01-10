@@ -46,7 +46,7 @@ static pthread_mutex_t add_to_world_list_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 slist_tpl<depot_t *> depot_t::all_depots;
 
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
 depot_t::depot_t(obj_t::typ type, loadsave_t *file) : gebaeude_t(type)
 #else
 depot_t::depot_t(loadsave_t *file) : gebaeude_t()
@@ -63,7 +63,7 @@ depot_t::depot_t(loadsave_t *file) : gebaeude_t()
 }
 
 
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
 depot_t::depot_t(obj_t::typ type, koord3d pos, player_t *player, const haus_tile_besch_t *t) :
     gebaeude_t(type, pos, player, t)
 #else

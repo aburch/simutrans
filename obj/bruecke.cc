@@ -26,7 +26,7 @@ static pthread_mutex_t bridge_calc_bild_mutex = PTHREAD_RECURSIVE_MUTEX_INITIALI
 
 
 bruecke_t::bruecke_t(loadsave_t* const file) : 
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
 	obj_no_info_t(obj_t::bruecke)
 #else
 	obj_no_info_t()
@@ -37,7 +37,7 @@ bruecke_t::bruecke_t(loadsave_t* const file) :
 
 
 bruecke_t::bruecke_t(koord3d pos, player_t *player, const bruecke_besch_t *besch, bruecke_besch_t::img_t img) :
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
 	obj_no_info_t(obj_t::bruecke, pos)
 #else
 	obj_no_info_t(pos)

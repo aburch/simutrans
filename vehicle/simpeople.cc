@@ -62,7 +62,7 @@ bool fussgaenger_t::alles_geladen()
 
 
 fussgaenger_t::fussgaenger_t(loadsave_t *file)
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
  : verkehrsteilnehmer_t(fussgaenger)
 #else
  : verkehrsteilnehmer_t()
@@ -76,7 +76,7 @@ fussgaenger_t::fussgaenger_t(loadsave_t *file)
 
 
 fussgaenger_t::fussgaenger_t(grund_t *gr) :
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
 	verkehrsteilnehmer_t(fussgaenger, gr, simrand(65535, "fussgaenger_t::fussgaenger_t (weg_next)")),
 #else
 	verkehrsteilnehmer_t(gr, simrand(65535, "fussgaenger_t::fussgaenger_t (weg_next)")),

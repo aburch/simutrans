@@ -53,7 +53,7 @@ const way_obj_besch_t *wayobj_t::default_oberleitung=NULL;
 stringhashtable_tpl<way_obj_besch_t *> wayobj_t::table;
 
 wayobj_t::wayobj_t(loadsave_t* const file) : 
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
 	obj_no_info_t(obj_t::wayobj)
 #else
 	obj_no_info_t()
@@ -64,7 +64,7 @@ wayobj_t::wayobj_t(loadsave_t* const file) :
 
 
 wayobj_t::wayobj_t(koord3d const pos, player_t* const owner, ribi_t::ribi const d, way_obj_besch_t const* const b) : 
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
 	obj_no_info_t(obj_t::wayobj, pos)
 #else
 	obj_no_info_t(pos)

@@ -96,7 +96,7 @@ fabrik_t *leitung_t::suche_fab_4(const koord pos)
 }
 
 
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
 leitung_t::leitung_t(typ type, loadsave_t *file) : obj_t(type)
 {
 	city = NULL;
@@ -121,7 +121,7 @@ leitung_t::leitung_t(loadsave_t *file) : obj_t()
 }
 
 
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
 leitung_t::leitung_t(typ type, koord3d pos, player_t *player) : obj_t(type, pos)
 {
 	city = NULL;
@@ -575,7 +575,7 @@ void pumpe_t::step_all(long delta_t)
 }
 
 pumpe_t::pumpe_t(loadsave_t *file ) : 
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
 	leitung_t( obj_t::pumpe, koord3d::invalid, NULL )
 #else
 	leitung_t( koord3d::invalid, NULL )
@@ -588,7 +588,7 @@ pumpe_t::pumpe_t(loadsave_t *file ) :
 
 
 pumpe_t::pumpe_t(koord3d pos, player_t *player) : 
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
 	leitung_t(obj_t::pumpe, pos, player)
 #else
 	leitung_t(pos, player)
@@ -711,7 +711,7 @@ void senke_t::step_all(long delta_t)
 
 
 senke_t::senke_t(loadsave_t *file) : 
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
 	leitung_t(obj_t::senke, koord3d::invalid, NULL)
 #else
 	leitung_t(koord3d::invalid, NULL)
@@ -730,7 +730,7 @@ senke_t::senke_t(loadsave_t *file) :
 
 
 senke_t::senke_t(koord3d pos, player_t *player, stadt_t* c) : 
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
 	leitung_t(obj_t::senke, pos, player)
 #else
 	leitung_t(pos, player)

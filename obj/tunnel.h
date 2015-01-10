@@ -19,7 +19,7 @@ public:
 	tunnel_t(koord3d pos, player_t *player, const tunnel_besch_t *besch);
 
 	const char *get_name() const {return "Tunnelmuendung";}
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
 #else
 	typ get_typ() const { return tunnel; }
 #endif

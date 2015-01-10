@@ -35,7 +35,7 @@ bool wolke_t::register_besch(const skin_besch_t* besch)
 
 
 wolke_t::wolke_t(koord3d pos, sint8 x_off, sint8 y_off, const skin_besch_t* besch ) :
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
     obj_no_info_t(obj_t::sync_wolke, pos)
 #else
     obj_no_info_t(pos)
@@ -62,7 +62,7 @@ wolke_t::~wolke_t()
 
 
 wolke_t::wolke_t(loadsave_t* const file) :
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
 	obj_no_info_t(obj_t::sync_wolke)
 #else
 	obj_no_info_t()
@@ -139,7 +139,7 @@ void wolke_t::rotate90()
 /***************************** just for compatibility, the old raucher and smoke clouds *********************************/
 
 raucher_t::raucher_t(loadsave_t *file) : 
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
 	obj_t(obj_t::raucher)
 #else
 	obj_t()
@@ -157,7 +157,7 @@ raucher_t::raucher_t(loadsave_t *file) :
 
 
 async_wolke_t::async_wolke_t(loadsave_t *file) : 
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
 	obj_t(obj_t::async_wolke)
 #else
 	obj_t()

@@ -8,9 +8,9 @@
 #ifndef simobjs_h
 #define simobjs_h
 
-#define INLINE_DING_TYPE
+#define INLINE_OBJ_TYPE
 
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
 #else
 #endif
 
@@ -86,7 +86,7 @@ private:
 	void init();
 
 protected:
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
 #else
 	obj_t();
 #endif
@@ -203,7 +203,7 @@ public:
 	 * This does *not* add the object to the tile
 	 * @author Hj. Malthaner
 	 */
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
 	obj_t(typ type);
 	obj_t(typ type, const koord3d& pos);
 #else
@@ -233,7 +233,7 @@ public:
 	 * @author Hj. Malthaner
 	 * @see typ
 	 */
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
 private:
 	typ type;
 public:
@@ -398,7 +398,7 @@ template<typename T> static inline T const* obj_cast(obj_t const* const d)
 class obj_no_info_t : public obj_t
 {
 public:
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
 #else
 	inline obj_no_info_t(loadsave_t* file) : obj_t(file) {}
 	inline obj_no_info_t(const koord3d& pos) : obj_t(pos) {}
@@ -407,7 +407,7 @@ public:
 	void zeige_info() {}
 
 protected:
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
 	inline obj_no_info_t(typ type) : obj_t(type) {}
 	inline obj_no_info_t(typ type, const koord3d& pos) : obj_t(type, pos) {}
 #else

@@ -24,7 +24,7 @@ class signal_t : public roadsign_t
 {
 public:
 	signal_t(loadsave_t *file);
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
 	signal_t(player_t *player, koord3d pos, ribi_t::ribi dir,const roadsign_besch_t *besch) : roadsign_t(obj_t::signal, player, pos, dir, besch) { zustand = rot;}
 #else
 	signal_t(player_t *player, koord3d pos, ribi_t::ribi dir,const roadsign_besch_t *besch) : roadsign_t(player,pos,dir,besch) { zustand = rot;}
@@ -37,7 +37,7 @@ public:
 	*/
 	virtual void info(cbuffer_t & buf, bool dummy = false) const;
 
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
 #else
 	typ get_typ() const { return obj_t::signal; }
 #endif

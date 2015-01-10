@@ -26,7 +26,7 @@ public:
 	void change_pos(koord3d k);
 
 	const char *get_name() const {return "Zeiger";}
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
 #else
 	typ get_typ() const { return zeiger; }
 #endif

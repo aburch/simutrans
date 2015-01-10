@@ -159,7 +159,7 @@ private:
 	*/
 	sint64 available_jobs_by_time;
 
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
 protected:
 	gebaeude_t(obj_t::typ type);
 	gebaeude_t(obj_t::typ type, koord3d pos,player_t *player, const haus_tile_besch_t *t);
@@ -201,7 +201,7 @@ public:
 	fabrik_t* get_fabrik() const { return is_factory ? ptr.fab : NULL; }
 	stadt_t* get_stadt() const;
 
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
 #else
 	obj_t::typ get_typ() const { return obj_t::gebaeude; }
 #endif

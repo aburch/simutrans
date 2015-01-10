@@ -31,7 +31,7 @@ static pthread_mutex_t crossing_logic_mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZE
 
 
 crossing_t::crossing_t(loadsave_t* const file) : 
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
 	obj_no_info_t(obj_t::crossing)
 #else
 	obj_no_info_t()
@@ -44,7 +44,7 @@ crossing_t::crossing_t(loadsave_t* const file) :
 
 
 crossing_t::crossing_t(player_t* const player, koord3d const pos, kreuzung_besch_t const* const besch, uint8 const ns) : 
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
 	obj_no_info_t(obj_t::crossing, pos)
 #else
 	obj_no_info_t(pos)

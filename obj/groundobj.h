@@ -54,7 +54,7 @@ public:
 	bool check_season(const bool);
 
 	const char *get_name() const {return "Groundobj";}
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
 #else
 	typ get_typ() const { return groundobj; }
 #endif

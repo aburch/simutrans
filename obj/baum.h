@@ -99,7 +99,7 @@ public:
 	void recalc_off();
 
 	const char *get_name() const {return "Baum";}
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
 #else
 	typ get_typ() const { return baum; }
 #endif

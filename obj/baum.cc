@@ -435,7 +435,7 @@ uint16 baum_t::random_tree_for_climate_intern(climate cl)
 
 
 baum_t::baum_t(loadsave_t *file) : 
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
 	obj_t(obj_t::baum)
 #else
 	obj_t()
@@ -449,7 +449,7 @@ baum_t::baum_t(loadsave_t *file) :
 
 
 baum_t::baum_t(koord3d pos) : 
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
 	obj_t(obj_t::baum, pos)
 #else
 	obj_t(pos)
@@ -466,7 +466,7 @@ baum_t::baum_t(koord3d pos) :
 
 
 baum_t::baum_t(koord3d pos, uint8 type, sint32 age, uint8 slope ) : 
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
 	obj_t(obj_t::baum, pos)
 #else
 	obj_t(pos)
@@ -481,7 +481,7 @@ baum_t::baum_t(koord3d pos, uint8 type, sint32 age, uint8 slope ) :
 
 
 baum_t::baum_t(koord3d pos, const baum_besch_t *besch) : 
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
 	obj_t(obj_t::baum, pos)
 #else
 	obj_t(pos)

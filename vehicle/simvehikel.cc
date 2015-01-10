@@ -187,7 +187,7 @@ bool vehikel_basis_t::is_about_to_hop( const sint8 neu_xoff, const sint8 neu_yof
 }
 
 
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
 vehikel_basis_t::vehikel_basis_t(typ type):
 	obj_t(type)
 #else
@@ -209,7 +209,7 @@ vehikel_basis_t::vehikel_basis_t():
 }
 
 
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
 vehikel_basis_t::vehikel_basis_t(typ type, koord3d pos):
 	obj_t(type, pos)
 #else
@@ -1220,7 +1220,7 @@ void vehikel_t::neue_fahrt(uint16 start_route_index, bool recalc)
 }
 
 
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
 vehikel_t::vehikel_t(typ type, koord3d pos, const vehikel_besch_t* besch, player_t* player) :
 	vehikel_basis_t(type, pos)
 #else
@@ -1267,7 +1267,7 @@ vehikel_t::vehikel_t(koord3d pos, const vehikel_besch_t* besch, player_t* player
 
 sint64 vehikel_t::sound_ticks = 0;
 
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
 vehikel_t::vehikel_t(typ type) :
 	vehikel_basis_t(type)
 #else
@@ -2575,7 +2575,7 @@ void vehikel_t::before_delete()
 
 
 automobil_t::automobil_t(koord3d pos, const vehikel_besch_t* besch, player_t* player, convoi_t* cn) :
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
     vehikel_t(obj_t::automobil, pos, besch, player)
 #else
     vehikel_t(pos, besch, player)
@@ -2587,7 +2587,7 @@ automobil_t::automobil_t(koord3d pos, const vehikel_besch_t* besch, player_t* pl
 }
 
 automobil_t::automobil_t() : 
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
     vehikel_t(obj_t::automobil)
 #else
     vehikel_t()
@@ -2599,7 +2599,7 @@ automobil_t::automobil_t() :
 }
 
 automobil_t::automobil_t(loadsave_t *file, bool is_first, bool is_last) : 
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
     vehikel_t(obj_t::automobil)
 #else
     vehikel_t()
@@ -3251,7 +3251,7 @@ void automobil_t::set_convoi(convoi_t *c)
 
 
 
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
 waggon_t::waggon_t(typ type, loadsave_t *file, bool is_first, bool is_last) : 
     vehikel_t(type)
 {
@@ -3310,7 +3310,7 @@ DBG_MESSAGE("waggon_t::waggon_t()","replaced by %s",besch->get_name());
 	}
 }
 
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
 waggon_t::waggon_t(typ type, koord3d pos, const vehikel_besch_t* besch, player_t* player, convoi_t* cn) :
     vehikel_t(type, pos, besch, player)
 {
@@ -3319,7 +3319,7 @@ waggon_t::waggon_t(typ type, koord3d pos, const vehikel_besch_t* besch, player_t
 #endif
 
 waggon_t::waggon_t(koord3d pos, const vehikel_besch_t* besch, player_t* player, convoi_t* cn) :
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
     vehikel_t(obj_t::waggon, pos, besch, player)
 #else
 	vehikel_t(pos, besch, player)
@@ -4380,7 +4380,7 @@ schedule_t * narrowgauge_waggon_t::erzeuge_neuen_fahrplan() const
 
 
 schiff_t::schiff_t(koord3d pos, const vehikel_besch_t* besch, player_t* player, convoi_t* cn) :
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
     vehikel_t(obj_t::schiff, pos, besch, player)
 #else
 	vehikel_t(pos, besch, player)
@@ -4390,7 +4390,7 @@ schiff_t::schiff_t(koord3d pos, const vehikel_besch_t* besch, player_t* player, 
 }
 
 schiff_t::schiff_t(loadsave_t *file, bool is_first, bool is_last) :
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
     vehikel_t(obj_t::schiff)
 #else
     vehikel_t()
@@ -5459,7 +5459,7 @@ grund_t* aircraft_t::betrete_feld()
 
 
 aircraft_t::aircraft_t(loadsave_t *file, bool is_first, bool is_last) :
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
 	vehikel_t(obj_t::aircraft)
 #else
     vehikel_t()
@@ -5493,7 +5493,7 @@ aircraft_t::aircraft_t(loadsave_t *file, bool is_first, bool is_last) :
 
 
 aircraft_t::aircraft_t(koord3d pos, const vehikel_besch_t* besch, player_t* player, convoi_t* cn) :
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
     vehikel_t(obj_t::aircraft, pos, besch, player)
 #else
 	vehikel_t(pos, besch, player)

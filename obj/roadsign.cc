@@ -47,7 +47,7 @@ const roadsign_besch_t *roadsign_t::default_signal=NULL;
 stringhashtable_tpl<const roadsign_besch_t *> roadsign_t::table;
 
 
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
 roadsign_t::roadsign_t(typ type, loadsave_t *file) : obj_t (type)
 {
 	init(file);
@@ -84,7 +84,7 @@ roadsign_t::roadsign_t(loadsave_t *file) : obj_t ()
 	}
 }
 
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
 
 roadsign_t::roadsign_t(typ type, player_t *player, koord3d pos, ribi_t::ribi dir, const roadsign_besch_t* besch) : obj_t(type, pos)
 {

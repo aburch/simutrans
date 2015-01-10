@@ -55,7 +55,7 @@ protected:
 	virtual grund_t* hop();
 	virtual void update_bookkeeping(uint32) {};
 
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
 	verkehrsteilnehmer_t(typ type);
 
 	/**

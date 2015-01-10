@@ -31,7 +31,7 @@ public:
 	bool sync_step(long delta_t);
 
 	const char* get_name() const { return "Wolke"; }
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
 #else
 	typ get_typ() const { return sync_wolke; }
 #endif
@@ -51,7 +51,7 @@ class async_wolke_t : public obj_t
 {
 public:
 	async_wolke_t(loadsave_t *file);
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
 #else
 	typ get_typ() const { return async_wolke; }
 #endif
@@ -62,7 +62,7 @@ class raucher_t : public obj_t
 {
 public:
 	raucher_t(loadsave_t *file);
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
 #else
 	typ get_typ() const { return raucher; }
 #endif

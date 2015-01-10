@@ -21,7 +21,7 @@
 
 
 field_t::field_t(koord3d p, player_t *player, const field_class_besch_t *besch, fabrik_t *fab) : 
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
 	obj_t(obj_t::field)
 #else
 	obj_t()

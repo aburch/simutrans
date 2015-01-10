@@ -38,7 +38,7 @@ public:
 	const fussgaenger_besch_t *get_besch() const { return besch; }
 
 	const char *get_name() const {return "Fussgaenger";}
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
 #else
 	typ get_typ() const { return fussgaenger; }
 #endif

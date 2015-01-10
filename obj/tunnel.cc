@@ -31,7 +31,7 @@ static pthread_mutex_t tunnel_calc_bild_mutex = PTHREAD_RECURSIVE_MUTEX_INITIALI
 
 
 tunnel_t::tunnel_t(loadsave_t* const file) : 
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
 	obj_no_info_t(obj_t::tunnel)
 #else
 	obj_no_info_t()
@@ -46,7 +46,7 @@ tunnel_t::tunnel_t(loadsave_t* const file) :
 
 
 tunnel_t::tunnel_t(koord3d pos, player_t *player, const tunnel_besch_t *besch) :
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
     obj_no_info_t(obj_t::tunnel, pos)
 #else
 	obj_no_info_t(pos)

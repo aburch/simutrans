@@ -78,7 +78,7 @@ public:
 	* @author Hj. Malthaner
 	*/
 
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
 #else
 	typ get_typ() const { return wayobj; }
 #endif

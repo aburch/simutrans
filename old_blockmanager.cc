@@ -32,7 +32,7 @@ protected:
 	uint8 zustand;
 	uint8 blockend;
 	uint8 dir;
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
 #else
 	obj_t::typ type;
 #endif
@@ -48,7 +48,7 @@ public:
 
 	bool ist_blockiert() const {return blockend != 0;}
 
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
 #else
 	obj_t::typ get_typ() const 	{ return type; }
 #endif
@@ -65,7 +65,7 @@ static slist_tpl <oldsignal_t *> signale;
 // only there to convert old games to 89.02 and higher
 
 // these two routines for compatibility
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
 oldsignal_t::oldsignal_t(loadsave_t *file, obj_t::typ type) : obj_t (type)
 {
 	rdwr(file);

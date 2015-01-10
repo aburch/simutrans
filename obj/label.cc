@@ -32,7 +32,7 @@ static pthread_mutex_t add_label_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 
 label_t::label_t(loadsave_t *file) :
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
     obj_t(obj_t::label)
 #else
 	obj_t()
@@ -43,7 +43,7 @@ label_t::label_t(loadsave_t *file) :
 
 
 label_t::label_t(koord3d pos, player_t *player, const char *text) :
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
 	obj_t(obj_t::label, pos)
 #else
 	obj_t(pos)

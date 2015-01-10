@@ -77,7 +77,7 @@ void gebaeude_t::init()
 
 
 gebaeude_t::gebaeude_t(obj_t::typ type) : 
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
 	obj_t(type)
 #else
 	obj_t()
@@ -88,7 +88,7 @@ gebaeude_t::gebaeude_t(obj_t::typ type) :
 
 
 gebaeude_t::gebaeude_t(loadsave_t *file) : 
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
 	obj_t(obj_t::gebaeude)
 #else
 	obj_t()
@@ -107,7 +107,7 @@ gebaeude_t::gebaeude_t(loadsave_t *file) :
 
 
 
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
 gebaeude_t::gebaeude_t(obj_t::typ type, koord3d pos, player_t *player, const haus_tile_besch_t *t) :
     obj_t(type, pos)
 {

@@ -23,7 +23,7 @@
 
 
 signal_t::signal_t( loadsave_t *file) :
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
 	roadsign_t(obj_t::signal, file)
 #else
 	roadsign_t(file)

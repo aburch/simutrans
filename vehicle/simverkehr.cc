@@ -46,7 +46,7 @@
 /**********************************************************************************************************************/
 /* Road users (Verkehrsteilnehmer) basis class from here on */
 
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
 verkehrsteilnehmer_t::verkehrsteilnehmer_t(typ type) :
 	vehikel_basis_t(type)
 #else
@@ -72,7 +72,7 @@ verkehrsteilnehmer_t::~verkehrsteilnehmer_t()
 }
 
 
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
 verkehrsteilnehmer_t::verkehrsteilnehmer_t(typ type, grund_t* bd, uint16 random) :
 	vehikel_basis_t(type, bd ? bd->get_pos() : koord3d::invalid)
 #else
@@ -404,7 +404,7 @@ stadtauto_t::~stadtauto_t()
 
 
 stadtauto_t::stadtauto_t(loadsave_t *file) :
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
 	verkehrsteilnehmer_t(obj_t::verkehr)
 #else
 	verkehrsteilnehmer_t()
@@ -419,7 +419,7 @@ stadtauto_t::stadtauto_t(loadsave_t *file) :
 
 
 stadtauto_t::stadtauto_t(grund_t* gr, koord const target) :
-#ifdef INLINE_DING_TYPE
+#ifdef INLINE_OBJ_TYPE
 	verkehrsteilnehmer_t(obj_t::verkehr, gr, simrand(65535, "stadtauto_t::stadtauto_t (weg_next)")),
 #else
 	verkehrsteilnehmer_t(gr, simrand(65535, "stadtauto_t::stadtauto_t (weg_next)")),
