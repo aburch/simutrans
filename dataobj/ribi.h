@@ -214,7 +214,7 @@ public:
 	static bool ist_gerade_ow(ribi x) { return (flags[x] & gerade_ow) != 0; }
 
 	static ribi doppelt(ribi x) { return doppelr[x]; }
-	static ribi rueckwaerts(ribi x) { return rwr[x]; }
+	static ribi rueckwaerts(ribi x) { return rwr[x]; } // "Backwards" (Google)
 	static ribi get_forward(ribi x) { return fwrd[x]; }	// all ribis, that are in front of this thing
 	static ribi rotate90(ribi x) { return ((x&8) ? 1|((x<<1)&0x0E) : x<<1); } // 90 to the right
 	static ribi rotate90l(ribi x) { return ((x&1) ? 8|(x>>1) : x>>1); } // 90 to the left

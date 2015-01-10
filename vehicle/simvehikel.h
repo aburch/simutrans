@@ -694,6 +694,8 @@ public:
  */
 class waggon_t : public vehikel_t
 {
+public:
+		enum { drive_by_sight, one_train_in_steam, absolute_block, absolute_block_with_cab_signalling, moving_block, radio_electric_token_block };
 protected:
 	bool ist_befahrbar(const grund_t *bd) const;
 
@@ -706,6 +708,8 @@ protected:
 	bool is_weg_frei_longblock_signal( signal_t *sig, uint16 start_index, int &restart_speed );
 
 	bool is_weg_frei_choose_signal( signal_t *sig, uint16 start_index, int &restart_speed );
+	
+	uint8 drive_mode;
 
 
 public:
@@ -725,7 +729,7 @@ public:
 
 	// reserves or un-reserves all blocks and returns the handle to the next block (if there)
 	// returns true on successful reservation
-	bool block_reserver(route_t *route, uint16 start_index, uint16 &next_signal, uint16 &next_crossing, int signal_count, bool reserve, bool force_unreserve ) const;
+	bool block_reserver(route_t *route, uint16 start_index, uint16 &next_signal, uint16 &next_crossing, int signal_count, bool reserve, bool force_unreserve );
 
 	void verlasse_feld();
 
@@ -746,6 +750,10 @@ public:
 	virtual void set_convoi(convoi_t *c);
 
 	virtual schedule_t * erzeuge_neuen_fahrplan() const;
+
+	uint8 get_drive_mode() const { return drive_mode; }
+	void set_drive_mode(uint8 value) { drive_mode = value; }
+
 };
 
 

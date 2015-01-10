@@ -3272,6 +3272,18 @@ waggon_t::waggon_tloadsave_t *file, bool is_first, bool is_last) :
 {
 	vehikel_t::rdwr_from_convoi(file);
 
+// TODO: Restore this when it is ready
+	
+//#ifdef SPECIAL_RESCUE_12_5
+//	if(file->get_experimental_version() >= 12 && file->is_saving())
+//#else
+//	if(file->get_experimental_version() >= 12)
+//#endif
+//	{
+//		file->rdwr_byte(drive_mode);
+//	}
+	drive_mode = drive_by_sight; // TODO: Remove this when the above code is enabled
+
 	if(  file->is_loading()  ) {
 		static const vehikel_besch_t *last_besch = NULL;
 
@@ -3315,6 +3327,7 @@ waggon_t::waggon_t(typ type, koord3d pos, const vehikel_besch_t* besch, player_t
     vehikel_t(type, pos, besch, player)
 {
     cnv = cn;
+	drive_mode = drive_by_sight;
 }
 #endif
 
@@ -3326,6 +3339,7 @@ waggon_t::waggon_t(koord3d pos, const vehikel_besch_t* besch, player_t* player, 
 #endif
 {
     cnv = cn;
+	drive_mode = drive_by_sight;
 }
 
 
@@ -3869,6 +3883,10 @@ bool waggon_t::ist_weg_frei(int & restart_speed,bool)
 	bool destination_is_nonreversing_waypoint = !destination.reverse && !haltestelle_t::get_halt(destination.pos, get_owner()).is_bound() && (!welt->lookup(destination.pos) || !welt->lookup(destination.pos)->get_depot());
 	if(destination_is_nonreversing_waypoint)
 	{
+		// Move on the schedule to find the next real stop.
+
+		// TODO: Consider moving this functionality to the convoy or line when giving this vehicle its next schedule entry
+		// if and when schedules are made more sophisticated (branching, etc.). 
 		schedule_t *fpl = cnv->get_schedule();
 		const uint8 index = fpl->get_aktuell();
 		uint8 modified_index = index;
@@ -3884,7 +3902,10 @@ bool waggon_t::ist_weg_frei(int & restart_speed,bool)
 			fpl->advance();
 		}
 	}
-
+	if(cnv->get_state() == convoi_t::CAN_START)
+	{
+		drive_mode = drive_by_sight;
+	}
 	const bool starting_from_stand = cnv->get_state() == convoi_t::WAITING_FOR_CLEARANCE_ONE_MONTH || cnv->get_state() == convoi_t::WAITING_FOR_CLEARANCE_TWO_MONTHS || cnv->get_state() == convoi_t::WAITING_FOR_CLEARANCE || cnv->get_state() == convoi_t::CAN_START || cnv->get_state() == convoi_t::CAN_START_ONE_MONTH || cnv->get_state() == convoi_t::CAN_START_TWO_MONTHS || cnv->get_state() == convoi_t::REVERSING;
 
 	if(destination_is_nonreversing_waypoint || starting_from_stand)
@@ -3906,8 +3927,9 @@ bool waggon_t::ist_weg_frei(int & restart_speed,bool)
 			}
 			return true;
 		}
-		if(!destination_is_nonreversing_waypoint)
+		if(starting_from_stand)
 		{
+			drive_mode = drive_by_sight;
 			cnv->set_next_stop_index( max(route_index,1)-1 );
 			if(  steps<steps_next  ) {
 				// not yet at tile border => can drive to signal safely
@@ -3919,7 +3941,7 @@ bool waggon_t::ist_weg_frei(int & restart_speed,bool)
 
 	const grund_t *gr = welt->lookup(pos_next);
 	if(gr==NULL) {
-		// way (weg) not existent (likely destroyed)
+		// way (weg) not existent (probably destroyed)
 		cnv->suche_neue_route();
 		return false;
 	}
@@ -4064,6 +4086,11 @@ bool waggon_t::ist_weg_frei(int & restart_speed,bool)
 		// next check for signal
 		if(  sch1->has_signal()  )
 		{
+			if(drive_mode == drive_by_sight)
+			{
+				// TODO: Make this more sophisticated based on actual signal type
+				drive_mode = absolute_block;
+			}
 			if(  !is_weg_frei_signal( next_block, restart_speed )  )
 			{
 				// only return false, if we are directly in front of the signal
@@ -4073,6 +4100,14 @@ bool waggon_t::ist_weg_frei(int & restart_speed,bool)
 			cnv->set_is_choosing(false);
 		}
 	}
+
+	if(drive_mode == drive_by_sight)
+	{
+		const bool ok = block_reserver( cnv->get_route(), route_index, next_signal, next_crossing, 0, true, false );
+		cnv->set_next_stop_index( min( next_crossing, next_signal ) );
+		return ok;
+	}
+
 	return true;
 }
 
@@ -4086,7 +4121,7 @@ bool waggon_t::ist_weg_frei(int & restart_speed,bool)
  * return the last checked block
  * @author prissi
  */
-bool waggon_t::block_reserver(route_t *route, uint16 start_index, uint16 &next_signal_index, uint16 &next_crossing_index, int count, bool reserve, bool force_unreserve) const
+bool waggon_t::block_reserver(route_t *route, uint16 start_index, uint16 &next_signal_index, uint16 &next_crossing_index, int count, bool reserve, bool force_unreserve)
 {
 	bool success=true;
 #ifdef MAX_CHOOSE_BLOCK_TILES
@@ -4137,13 +4172,21 @@ bool waggon_t::block_reserver(route_t *route, uint16 start_index, uint16 &next_s
 	uint16 skip_index=INVALID_INDEX;
 	next_signal_index=INVALID_INDEX;
 	next_crossing_index=INVALID_INDEX;
+	const uint32 sighting_distance_tiles = 2; // TODO: Have this set from simuconf.tab in meters.
 	bool unreserve_now = false;
-	for ( ; success  &&  count>=0  &&  i<route->get_count(); i++) {
-
+	for ( ; success  &&  count>=0  &&  i<route->get_count(); i++)
+	{
+		if(drive_mode == drive_by_sight && (i - (start_index - 1)) >= sighting_distance_tiles)
+		{
+			// In drive by sight mode, do not reserve further than can be seen. 
+			next_signal_index = i;
+			break;
+		}
 		koord3d pos = route->position_bei(i);
 		grund_t *gr = welt->lookup(pos);
 		schiene_t * sch1 = gr ? (schiene_t *)gr->get_weg(get_waytype()) : NULL;
-		if(sch1==NULL  &&  reserve) {
+		if(sch1==NULL  &&  reserve) 
+		{
 			// reserve until the end of track
 			break;
 		}
@@ -4151,23 +4194,29 @@ bool waggon_t::block_reserver(route_t *route, uint16 start_index, uint16 &next_s
 
 #ifdef MAX_CHOOSE_BLOCK_TILES
 		max_tiles--;
-		if(max_tiles<0  &&   count>1) {
+		if(max_tiles<0  &&   count>1) 
+		{
 			break;
 		}
 #endif
 		if(reserve)
 		{
-			if(sch1->has_signal()) {
-				if(count) {
+			if(sch1->has_signal())
+			{
+				if(count)
+				{
 					signs.append(gr);
 				}
 				count --;
 				next_signal_index = i;
+				drive_mode = absolute_block; // TODO: Make this based on the signal type
 			}
-			if(  !sch1->reserve( cnv->self, ribi_typ( route->position_bei(max(1u,i)-1u), route->position_bei(min(route->get_count()-1u,i+1u)) ) )  ) {
+			if(  !sch1->reserve( cnv->self, ribi_typ( route->position_bei(max(1u,i)-1u), route->position_bei(min(route->get_count()-1u,i+1u)) ) )  ) 
+			{
 				success = false;
 			}
-			if(next_crossing_index==INVALID_INDEX  &&  sch1->is_crossing()) {
+			if(next_crossing_index==INVALID_INDEX  &&  sch1->is_crossing()) 
+			{
 				next_crossing_index = i;
 			}
 			// check if there is an early platform available to stop at

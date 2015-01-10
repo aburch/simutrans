@@ -29,7 +29,7 @@ protected:
 
 	enum { SHOW_FONT=1, SHOW_BACK=2, SWITCH_AUTOMATIC=16 };
 
-	uint8 zustand:2;	// counter for steps ...
+	uint8 zustand:2;	// "Condition" (Google); counter for steps ...
 	uint8 dir:4;
 
 	uint8 automatic:1;
