@@ -644,9 +644,14 @@ void settings_t::rdwr(loadsave_t *file)
 		else {
 			beginner_mode = false;
 		}
-		if(file->get_version()>=89004) {
+		uint8 jit = just_in_time ? 1 : 0;
+		if(  file->get_version()>120000  ){
+			file->rdwr_byte( jit );
+		}
+		else if(file->get_version()>=89004) {
 			file->rdwr_bool(just_in_time);
 		}
+		just_in_time = jit; 
 		// rotation of the map with respect to the original value
 		if(file->get_version()>=99015) {
 			file->rdwr_byte(rotation);

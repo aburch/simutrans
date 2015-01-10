@@ -423,5 +423,9 @@ void env_t::rdwr(loadsave_t *file)
 	if(  file->get_version()>=112008  ) {
 		file->rdwr_bool( show_delete_buttons );
 	}
+	const char* default_theme = ""; // TODO: Implement the actual theme mechanics from Standard here. This is just to ensure save compatibility.
+	if( file->get_version()>=120001 ) {
+	 file->rdwr_str( default_theme );
+	}
 	// server settings are not saved, since the are server specific and could be different on different servers on the save computers
 }
