@@ -752,7 +752,7 @@ void settings_t::rdwr(loadsave_t *file)
 			{
 				// several roads ...
 				file->rdwr_short(num_city_roads);
-				if(  num_city_roads>=10  ) {
+				if(  num_city_roads>=16  ) {
 					dbg->fatal("settings_t::rdwr()", "Too many (%i) city roads!", num_city_roads);
 				}
 				for(  int i=0;  i<num_city_roads;  i++  ) {
