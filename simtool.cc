@@ -3768,7 +3768,7 @@ DBG_MESSAGE("tool_station_aux()", "building %s on square %d,%d for waytype %x", 
 
 	// find out orientation ...
 	uint32 layout = 0;
-	ribi_t::ribi  ribi=ribi_t::dir_invalid;
+	ribi_t::ribi ribi=ribi_t::keine;
 	if(  besch->get_all_layouts()==2  ||  besch->get_all_layouts()==8  ||  besch->get_all_layouts()==16  ) {
 		// through station
 		if(  bd->has_two_ways()  ) {

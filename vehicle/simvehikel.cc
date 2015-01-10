@@ -1927,7 +1927,7 @@ void automobil_t::get_screen_offset( int &xoff, int &yoff, const sint16 raster_w
 
 
 // chooses a route at a choose sign; returns true on success
-bool automobil_t::choose_route( int &restart_speed, ribi_t::dir richtung, uint16 index )
+bool automobil_t::choose_route( int &restart_speed, ribi_t::ribi richtung, uint16 index )
 {
 	if(  cnv->get_fpl_target()!=koord3d::invalid  ) {
 		// destination is a waypoint!

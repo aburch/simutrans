@@ -169,6 +169,9 @@ public:
 	};
 	typedef uint8 ribi;
 
+	/**
+	 * Named constants to translate direction to image number for vehicles, signs.
+	 */
 	enum _dir {
 		dir_invalid = 0,
 		dir_sued = 0,
