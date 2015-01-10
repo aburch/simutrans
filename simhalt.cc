@@ -2125,11 +2125,11 @@ bool haltestelle_t::hole_ab( slist_tpl<ware_t> &fracht, const ware_besch_t *wtyp
 						sint64 fast_here_departure_time = get_estimated_convoy_departure_times().get(fast_convoy.get_id());
 						const bool fast_is_here = loading_here.is_contained(fast_convoy);
 						sint64 fast_here_arrival_time = get_estimated_convoy_arrival_times().get(fast_convoy.get_id());
-						if(fast_here_arrival_time < welt->get_zeit_ms() && !fast_is_here)
+						if(fast_here_arrival_time <= welt->get_zeit_ms() && !fast_is_here)
 						{
 							// The faster convoy is late.
 							// Estimate its arrival time based on the degree of delay so far (somewhat pessimistically). 
-							fast_here_departure_time += ((welt->get_zeit_ms() - fast_here_arrival_time) * waiting_multiplication_factor);
+							fast_here_departure_time += (((welt->get_zeit_ms() - fast_here_arrival_time) + 1) * waiting_multiplication_factor);
 						}
 						
 						bool wait_for_faster_convoy = true;
@@ -2158,20 +2158,6 @@ bool haltestelle_t::hole_ab( slist_tpl<ware_t> &fracht, const ware_besch_t *wtyp
 						}
 					}
 	
-					// Don't board a vehicle which is waiting for spacing until near its departure time
-					// Assures that passengers will board the first train to leave, not the first train to arrive
-					// This is no longer necessary given the arrival times code.
-					/*if((fpl->get_current_eintrag().ladegrad > 0) && (fpl->get_spacing() > 0) && cnv->go_on_ticks < WAIT_INFINITE)
-					{
-						const uint32 time_till_departure = (cnv->go_on_ticks - welt->get_zeit_ms());
-						if((welt->ticks_to_tenths_of_minutes(time_till_departure)) > 100)
-						{
-							fpl->increment_index(&index, &reverse);
-							skipped = true;
-							continue;
-						}
-					}*/
-
 					// Refuse to be overcrowded if alternative exists
 					connexion * const next_connexion = connexions[catg_index]->get(next_transfer);
 					if(next_connexion  &&  overcrowded  &&  next_connexion->alternative_seats)
