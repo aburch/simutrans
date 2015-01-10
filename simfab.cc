@@ -1683,7 +1683,7 @@ void fabrik_t::step(uint32 delta_t)
 		// The amount of production available.
 		sint32 prod_comp;
 		// The amount of consumption available.
-		sint32 cons_comp;
+		sint32 cons_comp = 0;
 
 		switch( control_type ){
 
