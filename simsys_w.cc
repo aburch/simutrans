@@ -652,34 +652,42 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 				size_t u16size = ImmGetCompositionStringW(immcx, GCS_RESULTSTR, NULL, 0);
 				utf16 *u16buf = (utf16*)malloc(u16size + 2);
 				size_t copied = ImmGetCompositionStringW(immcx, GCS_RESULTSTR, u16buf, u16size + 2);
-				u16buf[copied/2] = 0;
-				ImmReleaseContext(this_hwnd, immcx);
+				if(  u16size>2  ) {
+					u16buf[copied/2] = 0;
+					ImmReleaseContext(this_hwnd, immcx);
 
-				// Grow the buffer as needed.
-				size_t u8size = u16size + u16size/2;
-				if (!composition) {
-					composition_size = u8size + 1;
-					composition = (utf8*)malloc(composition_size);
-				}
-				else if (u8size >= composition_size) {
-					composition_size = max(composition_size*2, u8size+1);
-					free(composition);
-					composition = (utf8*)malloc(composition_size);
-				}
+					// Grow the buffer as needed.
+					size_t u8size = u16size + u16size/2;
+					if (!composition) {
+						composition_size = u8size + 1;
+						composition = (utf8*)malloc(composition_size);
+					}
+					else if (u8size >= composition_size) {
+						composition_size = max(composition_size*2, u8size+1);
+						free(composition);
+						composition = (utf8*)malloc(composition_size);
+					}
 
-				// Convert UTF-16 to UTF-8.
-				utf16 *s = u16buf;
-				int i = 0;
-				while (*s) {
-					int charlen = utf16_to_utf8(*s, composition + i);
-					++s;
-					i += charlen;
-				}
-				composition[i] = 0;
-				free(u16buf);
+					// Convert UTF-16 to UTF-8.
+					utf16 *s = u16buf;
+					int i = 0;
+					while (*s) {
+						int charlen = utf16_to_utf8(*s, composition + i);
+						++s;
+						i += charlen;
+					}
+					composition[i] = 0;
+					free(u16buf);
 
-				sys_event.type = SIM_STRING;
-				sys_event.ptr = (void*)composition;
+					sys_event.type = SIM_STRING;
+					sys_event.ptr = (void*)composition;
+				}
+				else {
+					// single key
+					sys_event.type = SIM_KEYBOARD;
+					sys_event.code = u16buf[0];
+				}
+				sys_event.key_mod = ModifierKeys();
 			}
 			else {
 				// Beg IMM to take care of us.

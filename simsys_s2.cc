@@ -572,9 +572,19 @@ static void internal_GetEvents(bool const wait)
 			break;
 		}
 		case SDL_TEXTINPUT: {
-			strcpy( textinput, event.text.text );
-			sys_event.type    = SIM_STRING;
-			sys_event.ptr     = (void*)textinput;
+			size_t in_pos = 0;
+			utf16 uc = utf8_to_utf16( (utf8 *)event.text.text, &in_pos );
+			if(  event.text.text[in_pos]==0  ) {
+				// single character
+				sys_event.type    = SIM_KEYBOARD;
+				sys_event.code    = (unsigned long)uc;
+			}
+			else {
+				// string
+				strcpy( textinput, event.text.text );
+				sys_event.type    = SIM_STRING;
+				sys_event.ptr     = (void*)textinput;
+			}
 			sys_event.key_mod = ModifierKeys();
 			break;
 		}
