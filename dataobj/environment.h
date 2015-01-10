@@ -38,6 +38,9 @@ public:
 	/// name of the directory to the pak-set
 	static std::string objfilename;
 
+	/// this the the preferred GUI theme at startup
+	static plainstring default_theme; // TODO: Implement the actual mechanism for themes from Standard. This is just for save compatibility at present.
+
 
 	/**
 	 * @name Network-related settings
