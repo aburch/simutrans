@@ -320,7 +320,7 @@ void convoi_t::unreserve_route()
 		if (lok) {
 			// free all reserved blocks
 			uint16 dummy;
-			lok->block_reserver(get_route(), back()->get_route_index(), dummy, dummy, 100001, false, true);
+			lok->block_reserver(get_route(), back()->get_route_index(), dummy, 100001, false, true);
 		}
 	}
 }

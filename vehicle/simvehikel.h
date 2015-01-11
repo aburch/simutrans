@@ -695,7 +695,7 @@ public:
 class waggon_t : public vehikel_t
 {
 public:
-		enum drive_mode_t { drive_by_sight, one_train_in_steam, absolute_block, absolute_block_with_cab_signalling, moving_block, radio_electric_token_block };
+		enum drive_mode_t { drive_by_sight, one_train_in_steam, absolute_block, absolute_block_with_cab_signalling, moving_block, token_block };
 protected:
 	bool ist_befahrbar(const grund_t *bd) const;
 
@@ -728,7 +728,7 @@ public:
 
 	// reserves or un-reserves all blocks and returns the handle to the next block (if there)
 	// returns true on successful reservation
-	bool block_reserver(route_t *route, uint16 start_index, uint16 &next_signal, uint16 &next_crossing, int signal_count, bool reserve, bool force_unreserve );
+	bool block_reserver(route_t *route, uint16 start_index, uint16 &next_signal, int signal_count, bool reserve, bool force_unreserve );
 
 	void verlasse_feld();
 
