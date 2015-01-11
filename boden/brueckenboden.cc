@@ -54,6 +54,9 @@ void brueckenboden_t::calc_bild_internal(const bool calc_only_snowline_change)
 			}
 		}
 	}
+	else if(  is_visible()  &&  ist_karten_boden()  ) {
+		set_bild( grund_besch_t::get_ground_tile(this) );
+	}
 }
 
 
