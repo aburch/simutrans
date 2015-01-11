@@ -1564,7 +1564,7 @@ sint32 vehikel_t::calc_speed_limit(const weg_t *w, const weg_t *weg_previous, fi
 
 	waytype_t waytype = cnv->get_schedule()->get_waytype();
 
-	if(!is_corner || direction_steps == 0)
+	if(!is_corner || direction_steps == 0 || waytype == air_wt)
 	{
 		// If we are not counting corners, do not attempt to calculate their speed limit.
 		return overweight_speed_limit;
