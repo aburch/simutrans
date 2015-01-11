@@ -695,7 +695,7 @@ public:
 class waggon_t : public vehikel_t
 {
 public:
-		enum { drive_by_sight, one_train_in_steam, absolute_block, absolute_block_with_cab_signalling, moving_block, radio_electric_token_block };
+		enum drive_mode_t { drive_by_sight, one_train_in_steam, absolute_block, absolute_block_with_cab_signalling, moving_block, radio_electric_token_block };
 protected:
 	bool ist_befahrbar(const grund_t *bd) const;
 
@@ -710,7 +710,6 @@ protected:
 	bool is_weg_frei_choose_signal( signal_t *sig, uint16 start_index, int &restart_speed );
 	
 	uint8 drive_mode;
-
 
 public:
 	virtual waytype_t get_waytype() const { return track_wt; }

@@ -342,6 +342,24 @@ void convoi_t::reserve_route()
 	}
 }
 
+void convoi_t::reserve_own_tiles()
+{
+	if(anz_vehikel > 0) 
+	{
+		for (unsigned i = 0; i != anz_vehikel; ++i)
+		{
+			vehikel_t& v = *fahr[i];
+			grund_t* gr = welt->lookup(v.get_pos());
+			if(gr)
+			{
+				if(schiene_t *sch = (schiene_t *)gr->get_weg(front()->get_waytype())) 
+				{
+					sch->reserve(self, ribi_typ( route.position_bei(max(1u,1)-1u), route.position_bei(min(route.get_count()-1u,0+1u))));
+				}
+			}
+		}
+	}
+}
 
 uint32 convoi_t::move_to(koord3d const& k, uint16 const start_index)
 {
@@ -1278,6 +1296,7 @@ bool convoi_t::drive_to()
 				state = NO_ROUTE;
 				no_route_retry_count = 0;
 				get_owner()->report_vehicle_problem( self, ziel );
+				reserve_own_tiles();
 			}
 			// wait 25s before next attempt
 			wait_lock = 25000;

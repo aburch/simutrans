@@ -14,7 +14,7 @@
 class ai_goods_t : public ai_t
 {
 private:
-	enum zustand {
+	enum state {
 		NR_INIT,
 		NR_SAMMLE_ROUTEN,
 		NR_BAUE_ROUTE1,
@@ -29,7 +29,7 @@ private:
 	};
 
 	// vars für die KI
-	zustand state;
+	state state;
 
 	/* test more than one supplier and more than one good *
 	 * save last factory for building next supplier/consumer *

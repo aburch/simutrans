@@ -29,7 +29,7 @@ protected:
 
 	enum { SHOW_FONT=1, SHOW_BACK=2, SWITCH_AUTOMATIC=16 };
 
-	uint8 zustand:2;	// "Condition" (Google); counter for steps ...
+	uint8 state:3;	// counter for steps ...
 	uint8 dir:4;
 
 	uint8 automatic:1;
@@ -42,8 +42,7 @@ protected:
 	const roadsign_besch_t *besch;
 
 public:
-	// "Signal state" (Google)
-	enum signalzustand {rot=0, gruen=1, naechste_rot=2 }; // "Red, green, next red" (Google)
+	enum signal_aspects {danger = 0, clear = 1, caution = 2, double_caution = 3, call_on = 4 }; 
 
 	/*
 	 * return direction or the state of the traffic light
@@ -57,8 +56,8 @@ public:
 	*/
 	void set_dir(ribi_t::ribi dir);
 
-	void set_zustand(signalzustand z) {zustand = z; calc_bild();}
-	signalzustand get_zustand() { return (signalzustand)zustand; }
+	void set_state(signal_aspects s) {state = s; calc_bild();}
+	signal_aspects get_state() { return (signal_aspects)state; }
 
 #ifdef INLINE_OBJ_TYPE
 protected:

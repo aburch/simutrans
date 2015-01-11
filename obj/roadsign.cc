@@ -74,9 +74,9 @@ roadsign_t::roadsign_t(loadsave_t *file) : obj_t ()
 	else {
 		automatic = false;
 	}
-	// some sve had rather strange entries in zustand
+	// some sve had rather strange entries in state
 	if(  !automatic  ||  besch==NULL  ) {
-		zustand = 0;
+		state = 0;
 	}
 	// only traffic light need switches
 	if(  automatic  ) {
@@ -104,7 +104,7 @@ roadsign_t::roadsign_t(player_t *player, koord3d pos, ribi_t::ribi dir, const ro
 	this->besch = besch;
 	this->dir = dir;
 	bild = after_bild = IMG_LEER;
-	zustand = 0;
+	state = 0;
 	ticks_ns = ticks_ow = 16;
 	ticks_offset = 0;
 	set_owner( player );
@@ -162,6 +162,8 @@ void roadsign_t::set_dir(ribi_t::ribi dir)
 	}
 	if(  besch->is_single_way()  ||  besch->is_signal()  ||  besch->is_pre_signal()  ||  besch->is_longblock_signal()  ) {
 		// set mask, if it is a single way ...
+		// TODO: Separate the direction of the signal from the direction of the way
+		// to allow for signals that work in one direction but allow trains to pass in both.
 		weg->count_sign();
 		if(ribi_t::ist_einfach(dir)) {
 			weg->set_ribi_maske(dir);
@@ -296,7 +298,7 @@ void roadsign_t::calc_bild()
 
 	image_id tmp_bild=IMG_LEER;
 	if(!automatic) {
-		assert( zustand==0 );
+		assert( state==0 );
 
 		after_bild = IMG_LEER;
 		ribi_t::ribi temp_dir = dir;
@@ -495,10 +497,10 @@ bool roadsign_t::sync_step(long /*delta_t*/)
 		// change every ~32s
 		uint32 ticks = ((welt->get_zeit_ms()>>10)+ticks_offset) % (ticks_ns+ticks_ow);
 
-		uint8 new_zustand = (ticks >= ticks_ns) ^ (welt->get_settings().get_rotation() & 1);
-		if(zustand!=new_zustand) {
-			zustand = new_zustand;
-			dir = (new_zustand==0) ? ribi_t::nordsued : ribi_t::ostwest;
+		uint8 new_state = (ticks >= ticks_ns) ^ (welt->get_settings().get_rotation() & 1);
+		if(state!=new_state) {
+			state = new_state;
+			dir = (new_state==0) ? ribi_t::nordsued : ribi_t::ostwest;
 			calc_bild();
 		}
 	}
@@ -511,7 +513,7 @@ void roadsign_t::rotate90()
 	// only meaningful for traffic lights
 	obj_t::rotate90();
 	if(automatic  &&  !besch->is_private_way()) {
-		zustand = (zustand+1)&1;
+		state = (state+1)&1;
 		uint8 temp = ticks_ns;
 		ticks_ns = ticks_ow;
 		ticks_ow = temp;
@@ -585,9 +587,9 @@ void roadsign_t::rdwr(loadsave_t *file)
 		}
 	}
 
-	dummy = zustand;
+	dummy = state;
 	file->rdwr_byte(dummy);
-	zustand = dummy;
+	state = dummy;
 	dummy = dir;
 	file->rdwr_byte(dummy);
 	dir = dummy;

@@ -32,7 +32,7 @@ signal_t::signal_t( loadsave_t *file) :
 	if(besch==NULL) {
 		besch = roadsign_t::default_signal;
 	}
-	zustand = rot;
+	state = danger;
 }
 
 
@@ -56,7 +56,7 @@ void signal_t::calc_bild()
 {
 	after_bild = IMG_LEER;
 	image_id bild = IMG_LEER;
-
+	const bool TEST_pre_signal =  besch->is_pre_signal();
 	after_xoffset = 0;
 	after_yoffset = 0;
 	sint8 xoff = 0, yoff = 0;
@@ -114,38 +114,38 @@ void signal_t::calc_bild()
 				const sint16 YOFF = 16;
 
 				if(temp_dir&ribi_t::ost) {
-					bild = besch->get_bild_nr(3+zustand*4+offset);
+					bild = besch->get_bild_nr(3+state*4+offset);
 					xoff += XOFF;
 					yoff += -YOFF;
 				}
 
 				if(temp_dir&ribi_t::nord) {
 					if(bild!=IMG_LEER) {
-						after_bild = besch->get_bild_nr(0+zustand*4+offset);
+						after_bild = besch->get_bild_nr(0+state*4+offset);
 						after_xoffset += -XOFF;
 						after_yoffset += -YOFF;
 					}
 					else {
-						bild = besch->get_bild_nr(0+zustand*4+offset);
+						bild = besch->get_bild_nr(0+state*4+offset);
 						xoff += -XOFF;
 						yoff += -YOFF;
 					}
 				}
 
 				if(temp_dir&ribi_t::west) {
-					after_bild = besch->get_bild_nr(2+zustand*4+offset);
+					after_bild = besch->get_bild_nr(2+state*4+offset);
 					after_xoffset += -XOFF;
 					after_yoffset += YOFF;
 				}
 
 				if(temp_dir&ribi_t::sued) {
 					if(after_bild!=IMG_LEER) {
-						bild = besch->get_bild_nr(1+zustand*4+offset);
+						bild = besch->get_bild_nr(1+state*4+offset);
 						xoff += XOFF;
 						yoff += YOFF;
 					}
 					else {
-						after_bild = besch->get_bild_nr(1+zustand*4+offset);
+						after_bild = besch->get_bild_nr(1+state*4+offset);
 						after_xoffset += XOFF;
 						after_yoffset += YOFF;
 					}
@@ -153,28 +153,28 @@ void signal_t::calc_bild()
 			}
 			else {
 				if(temp_dir&ribi_t::ost) {
-					after_bild = besch->get_bild_nr(3+zustand*4+offset);
+					after_bild = besch->get_bild_nr(3+state*4+offset);
 				}
 
 				if(temp_dir&ribi_t::nord) {
 					if(after_bild==IMG_LEER) {
-						after_bild = besch->get_bild_nr(0+zustand*4+offset);
+						after_bild = besch->get_bild_nr(0+state*4+offset);
 					}
 					else {
-						bild = besch->get_bild_nr(0+zustand*4+offset);
+						bild = besch->get_bild_nr(0+state*4+offset);
 					}
 				}
 
 				if(temp_dir&ribi_t::west) {
-					bild = besch->get_bild_nr(2+zustand*4+offset);
+					bild = besch->get_bild_nr(2+state*4+offset);
 				}
 
 				if(temp_dir&ribi_t::sued) {
 					if(bild==IMG_LEER) {
-						bild = besch->get_bild_nr(1+zustand*4+offset);
+						bild = besch->get_bild_nr(1+state*4+offset);
 					}
 					else {
-						after_bild = besch->get_bild_nr(1+zustand*4+offset);
+						after_bild = besch->get_bild_nr(1+state*4+offset);
 					}
 				}
 			}

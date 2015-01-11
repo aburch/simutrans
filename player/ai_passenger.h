@@ -14,7 +14,7 @@ class marker_t;
 class ai_passenger_t : public ai_t
 {
 private:
-	enum zustand {
+	enum state {
 		NR_INIT,
 		NR_SAMMLE_ROUTEN,
 		NR_BAUE_ROUTE1,
@@ -28,7 +28,7 @@ private:
 	};
 
 	// vars für die KI
-	zustand state;
+	state state;
 
 	// we will use this vehicle!
 	const vehikel_besch_t *road_vehicle;
