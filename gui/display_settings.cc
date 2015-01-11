@@ -381,7 +381,7 @@ bool color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 	} else if((buttons+15)==komp) {
 		env_t::station_coverage_show = env_t::station_coverage_show==0 ? 0xFF : 0;
 	} else if((buttons+16)==komp) {
-		// see simwerkz.cc::tool_show_underground_t::init
+		// see simtool.cc::tool_show_underground_t::init
 		grund_t::set_underground_mode(buttons[16].pressed ? grund_t::ugm_none : grund_t::ugm_all, inp_underground_level.get_value());
 		buttons[16].pressed = grund_t::underground_mode == grund_t::ugm_all;
 		// calc new images
@@ -406,7 +406,7 @@ bool color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 	} else if((buttons+19)==komp) {
 		env_t::show_names ^= 2;
 	} else if((buttons+20)==komp) {
-		// see simwerkz.cc::tool_show_underground_t::init
+		// see simtool.cc::tool_show_underground_t::init
 		grund_t::set_underground_mode(buttons[20].pressed ? grund_t::ugm_none : grund_t::ugm_level, inp_underground_level.get_value());
 		buttons[20].pressed = grund_t::underground_mode == grund_t::ugm_level;
 		// calc new images
@@ -414,7 +414,7 @@ bool color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 		// renew toolbar
 		tool_t::update_toolbars();
 	} else if((buttons+22)==komp) {
-		// see simwerkz.cc::tool_hide_under_cursor_t::init
+		// see simtool.cc::tool_hide_under_cursor_t::init
 		env_t::hide_under_cursor = !env_t::hide_under_cursor  &&  env_t::cursor_hide_range>0;
 		buttons[22].pressed = env_t::hide_under_cursor;
 		// renew toolbar

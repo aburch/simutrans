@@ -427,7 +427,6 @@ SOURCES += simsys.cc
 SOURCES += simticker.cc
 SOURCES += simtool.cc
 SOURCES += simware.cc
-SOURCES += simwerkz.cc
 SOURCES += simworld.cc
 SOURCES += sucher/platzsucher.cc
 SOURCES += unicode.cc
