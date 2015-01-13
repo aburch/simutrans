@@ -147,7 +147,7 @@ void wayobj_t::rdwr(loadsave_t *file)
 			if(besch==NULL) {
 				besch = wayobj_t::table.get(translator::compatibility_name(bname));
 				if(besch==NULL) {
-					if(strstr(bname,"atenary")  ||  strstr(bname,"electri")) {
+					if(strstr(bname,"atenary")  ||  strstr(bname,"electri")  ||  strstr(bname,"power")  ) {
 						besch = default_oberleitung;
 					}
 				}
