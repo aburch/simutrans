@@ -19,6 +19,7 @@ class karte_t;
 class weg_besch_t;
 class cbuffer_t;
 class player_t;
+class signal_t;
 template <class T> class slist_tpl;
 
 
@@ -437,6 +438,8 @@ public:
 	 * Renew the way automatically when it is worn out.
 	 */
 	bool renew();
+
+	signal_t* get_signal(ribi_t::ribi direction_of_travel) const;
 
 } GCC_PACKED;
 

@@ -2606,3 +2606,4 @@ wayobj_t *grund_t::get_wayobj( waytype_t wt ) const
 	}
 	return NULL;
 }
+

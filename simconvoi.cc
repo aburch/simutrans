@@ -2113,6 +2113,12 @@ void convoi_t::enter_depot(depot_t *dep)
 	// first remove reservation, if train is still on track
 	unreserve_route();
 
+	if(front()->get_waytype() == track_wt || front()->get_waytype()  == tram_wt || front()->get_waytype() == maglev_wt || front()->get_waytype() == monorail_wt)
+	{
+		waggon_t* w = (waggon_t*)front(); 
+		w->set_working_method(waggon_t::drive_by_sight); 
+	}
+
 	if(reversed)
 	{
 		// Put the train back into "forward" position
@@ -3187,6 +3193,13 @@ convoi_t::reverse_order(bool rev)
     vehikel_t* reverse;
 	uint8 b  = anz_vehikel;
 
+	waggon_t::working_method_t dm = waggon_t::drive_by_sight;
+	if(front()->get_waytype() == track_wt || front()->get_waytype()  == tram_wt || front()->get_waytype() == maglev_wt || front()->get_waytype() == monorail_wt)
+	{
+		waggon_t* w = (waggon_t*)front(); 
+		dm = w->get_working_method();
+	}
+
 	if(rev)
 	{
 		front()->set_erstes(false);
@@ -3275,6 +3288,12 @@ convoi_t::reverse_order(bool rev)
 	for(const_iterator i = begin(); i != end(); ++i)
 	{
 		(*i)->set_reversed(reversed);
+	}
+
+	if(front()->get_waytype() == track_wt || front()->get_waytype()  == tram_wt || front()->get_waytype() == maglev_wt || front()->get_waytype() == monorail_wt)
+	{
+		waggon_t* w = (waggon_t*)front(); 
+		w->set_working_method(dm); 
 	}
 }
 

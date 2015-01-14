@@ -1351,7 +1351,15 @@ bool vehikel_t::hop_check()
 		// check for one-way sign etc.
 		const waytype_t wt = get_waytype();
 		if(  air_wt != wt  &&  route_index < cnv->get_route()->get_count()-1  ) {
-			uint8 dir = get_ribi(bd);
+			uint8 dir;
+			if(bd->get_weg(wt)->has_signal() && (wt == track_wt || wt == tram_wt || wt == narrowgauge_wt || wt == maglev_wt || wt == monorail_wt))
+			{
+				dir = bd->get_weg_ribi_unmasked(wt);
+			}
+			else
+			{
+				dir = get_ribi(bd);
+			}
 			koord3d nextnext_pos = cnv->get_route()->position_bei(route_index+1);
 			uint8 new_dir = ribi_typ(nextnext_pos.get_2d()-pos_next.get_2d());
 			if( (dir&new_dir) == 0 ) {
@@ -3280,9 +3288,9 @@ waggon_t::waggon_tloadsave_t *file, bool is_first, bool is_last) :
 //	if(file->get_experimental_version() >= 12)
 //#endif
 //	{
-//		file->rdwr_byte(drive_mode);
+//		file->rdwr_byte(working_method);
 //	}
-	drive_mode = drive_by_sight; // TODO: Remove this when the above code is enabled
+	working_method = drive_by_sight; // TODO: Remove this when the above code is enabled
 
 	if(  file->is_loading()  ) {
 		static const vehikel_besch_t *last_besch = NULL;
@@ -3327,7 +3335,7 @@ waggon_t::waggon_t(typ type, koord3d pos, const vehikel_besch_t* besch, player_t
     vehikel_t(type, pos, besch, player)
 {
     cnv = cn;
-	drive_mode = drive_by_sight;
+	working_method = drive_by_sight;
 }
 #endif
 
@@ -3339,7 +3347,7 @@ waggon_t::waggon_t(koord3d pos, const vehikel_besch_t* besch, player_t* player, 
 #endif
 {
     cnv = cn;
-	drive_mode = drive_by_sight;
+	working_method = drive_by_sight;
 }
 
 
@@ -3544,29 +3552,6 @@ int waggon_t::get_kosten(const grund_t *gr, const sint32 max_speed, koord from_p
 	return costs;
 }
 
-
-//signal_t *waggon_t::ist_blockwechsel(koord3d k2) const
-//{
-//	const grund_t* gr = welt->lookup(k2);
-//	if(gr == NULL)
-//	{
-//		// Possible fix for rotation bug
-//		// @author: jamespetts
-//		return NULL;
-//	}
-//
-//	const schiene_t * sch1 = (const schiene_t *) gr->get_weg(get_waytype());
-//	if(sch1  &&  sch1->has_signal())
-//	{
-//		// a signal for us
-//
-//		return gr->find<signal_t>();
-//	}
-//	return NULL;
-//}
-
-
-
 // this routine is called by find_route, to determined if we reached a destination
 bool waggon_t::ist_ziel(const grund_t *gr,const grund_t *prev_gr)
 {
@@ -3579,17 +3564,20 @@ bool waggon_t::ist_ziel(const grund_t *gr,const grund_t *prev_gr)
 			if(  prev_gr!=NULL  ) {
 				const koord dir=gr->get_pos().get_2d()-prev_gr->get_pos().get_2d();
 				const ribi_t::ribi ribi = ribi_typ(dir);
-				if(  gr->get_weg(get_waytype())->get_ribi_maske() & ribi  ) {
-					// signal/one way sign wrong direction
+				signal_t* sig = gr->find<signal_t>();
+				if(!sig && gr->get_weg(get_waytype())->get_ribi_maske() & ribi) 
+				{
+					// Unidirectional signals allow routing in both directions but only act in one direction. Check whether this is one of those.
+					// one way sign wrong direction
 					return false;
 				}
 				grund_t *to;
-				if(  !gr->get_neighbour(to,get_waytype(),ribi)  ||  !(to->get_halt()==target_halt)  ||  (to->get_weg(get_waytype())->get_ribi_maske() & ribi_typ(dir))!=0  ) {
+				if(  !gr->get_neighbour(to,get_waytype(),ribi)  ||  !(to->get_halt()==target_halt)  ||  (!sig && to->get_weg(get_waytype())->get_ribi_maske() & ribi_typ(dir))!=0  ) {
 					// end of stop: Is it long enough?
 					// end of stop could be also signal!
 					uint16 tiles = cnv->get_tile_length();
 					while(  tiles>1  ) {
-						if(  gr->get_weg(get_waytype())->get_ribi_maske() & ribi  ||  !gr->get_neighbour(to,get_waytype(),ribi_t::rueckwaerts(ribi))  ||  !(to->get_halt()==target_halt)  ) {
+						if(  (!sig && gr->get_weg(get_waytype())->get_ribi_maske() & ribi)  ||  !gr->get_neighbour(to,get_waytype(),ribi_t::rueckwaerts(ribi))  ||  !(to->get_halt()==target_halt)  ) {
 							return false;
 						}
 						gr = to;
@@ -3606,6 +3594,26 @@ bool waggon_t::ist_ziel(const grund_t *gr,const grund_t *prev_gr)
 
 bool waggon_t::is_weg_frei_longblock_signal( signal_t *sig, uint16 next_block, int &restart_speed )
 {
+	// "Long block" signal (old Simutrans nomenclature): start and end of token block working. 
+	working_method_t old_working_method = working_method; // If reserving a route fails, revert to the previous drive mode.
+	working_method = token_block;
+	uint16 next_signal; 
+	bool success = block_reserver(cnv->get_route(), next_block + 1, next_signal, 0, true, false);
+	if(!success)
+	{
+		working_method = old_working_method;
+		sig->set_state(roadsign_t::danger); 
+		restart_speed = 0;
+		return false;
+	}
+	
+	sig->set_state(roadsign_t::clear); 
+	cnv->set_next_stop_index(next_signal);
+
+	return true;
+
+	/* OLD STUFF BELOW HERE 
+	
 	// longblock signal: first check, whether there is a signal coming up on the route => just like normal signal
 	uint16 next_signal;
 	if(  !block_reserver( cnv->get_route(), next_block+1, next_signal, 0, true, false )  ) {
@@ -3617,12 +3625,12 @@ bool waggon_t::is_weg_frei_longblock_signal( signal_t *sig, uint16 next_block, i
 
 	if(  next_signal != INVALID_INDEX  ) {
 		// success, and there is a signal before end of route => finished
-		sig->set_state( roadsign_t::clear ); // "clear" = "green" (Google); "state" = "condition" (Google)
+		sig->set_state( roadsign_t::clear ); 
 		cnv->set_next_stop_index(next_signal);
 		return true;
 	}
-
-	// no signal before end_of_route => need to do route search in a step
+	
+	-	// no signal before end_of_route => need to do route search in a step
 	if(  !cnv->is_waiting()  ) {
 		restart_speed = -1;
 		return false;
@@ -3680,6 +3688,8 @@ bool waggon_t::is_weg_frei_longblock_signal( signal_t *sig, uint16 next_block, i
 		cnv->set_next_stop_index( cnv->get_route()->get_count()-1 );
 	}
 	return true;
+
+	*/
 }
 
 
@@ -3741,11 +3751,17 @@ bool waggon_t::is_weg_frei_choose_signal( signal_t *sig, const uint16 start_bloc
 				}
 			}
 		}
-		if(  way->has_signal()  ) {
+		if(  way->has_signal()  )
+		{
 			signal_t *sig = gr->find<signal_t>(1);
-			if(  sig  &&  sig->get_besch()->is_choose_sign()  ) {
-				// second choose signal on route => not choosing here
-				choose_ok = false;
+			ribi_t::ribi ribi = ribi_typ(cnv->get_route()->position_bei(max(1u,route_index)-1u));	
+			if(!gr->get_weg(get_waytype())->get_ribi_maske() & ribi) // Check that the signal is facing in the right direction.
+			{
+				if(  sig  &&  sig->get_besch()->is_choose_sign()  )
+				{
+					// second choose signal on route => not choosing here
+					choose_ok = false;
+				}
 			}
 		}
 	}
@@ -3877,7 +3893,7 @@ bool waggon_t::is_weg_frei_signal( uint16 next_block, int &restart_speed )
 bool waggon_t::ist_weg_frei(int & restart_speed,bool)
 {
 	assert(ist_erstes);
-	uint16 next_signal;
+	uint16 next_signal = INVALID_INDEX;
 	const linieneintrag_t destination = cnv->get_schedule()->get_current_eintrag();
 	bool destination_is_nonreversing_waypoint = !destination.reverse && !haltestelle_t::get_halt(destination.pos, get_owner()).is_bound() && (!welt->lookup(destination.pos) || !welt->lookup(destination.pos)->get_depot());
 	if(destination_is_nonreversing_waypoint)
@@ -3903,9 +3919,18 @@ bool waggon_t::ist_weg_frei(int & restart_speed,bool)
 	}
 	if(cnv->get_state() == convoi_t::CAN_START)
 	{
-		drive_mode = drive_by_sight;
+		if(working_method != token_block)
+		{
+			working_method = drive_by_sight;
+		}
 	}
-	const bool starting_from_stand = cnv->get_state() == convoi_t::WAITING_FOR_CLEARANCE_ONE_MONTH || cnv->get_state() == convoi_t::WAITING_FOR_CLEARANCE_TWO_MONTHS || cnv->get_state() == convoi_t::WAITING_FOR_CLEARANCE || cnv->get_state() == convoi_t::CAN_START || cnv->get_state() == convoi_t::CAN_START_ONE_MONTH || cnv->get_state() == convoi_t::CAN_START_TWO_MONTHS || cnv->get_state() == convoi_t::REVERSING;
+	const bool starting_from_stand = cnv->get_state() == convoi_t::WAITING_FOR_CLEARANCE_ONE_MONTH
+		|| cnv->get_state() == convoi_t::WAITING_FOR_CLEARANCE_TWO_MONTHS
+		|| cnv->get_state() == convoi_t::WAITING_FOR_CLEARANCE
+		|| cnv->get_state() == convoi_t::CAN_START
+		|| cnv->get_state() == convoi_t::CAN_START_ONE_MONTH 
+		|| cnv->get_state() == convoi_t::CAN_START_TWO_MONTHS
+		|| cnv->get_state() == convoi_t::REVERSING;
 
 	if(destination_is_nonreversing_waypoint || starting_from_stand)
 	{
@@ -3933,7 +3958,7 @@ bool waggon_t::ist_weg_frei(int & restart_speed,bool)
 				// not yet at tile border => can drive to signal safely
 				return true;
 			}
-			// we start with a signal/crossing => use stuff below ...
+			// we start with a signal => use stuff below ...
 		}
 	}
 
@@ -4021,12 +4046,12 @@ bool waggon_t::ist_weg_frei(int & restart_speed,bool)
 						fpl->advance();
 					}
 					cnv->update_route(last_index, target_rt);
-					if(drive_mode == absolute_block_with_cab_signalling)
+					if(working_method == cab_signalling)
 					{
 						// With cab signalling, the train can always detect the aspect of the next stop signal without a distant (pre-signal).
 						weg_frei = block_reserver( &route, last_index, next_signal, 0, true, false );
 					}
-					else if(drive_mode == absolute_block)
+					else if(working_method == absolute_block)
 					{
 						// With absolute block signalling, it is necessary to be within the sighting distance or use a distant (pre-signal).
 						if(next_signal - route_index <= sighting_distance_tiles)
@@ -4053,22 +4078,23 @@ bool waggon_t::ist_weg_frei(int & restart_speed,bool)
 		return ok;
 	}
 
-	if(drive_mode == absolute_block)
+	if(working_method == absolute_block)
 	{
 		// Check for distant signals at caution within the sighting distance to see whether they can now clear whereas they could not before.
-		const koord3d tile_to_check_ahead = cnv->get_route()->position_bei(min(route.get_count() - 1, route_index + sighting_distance_tiles));
+		const koord3d tile_to_check_ahead = cnv->get_route()->position_bei(min(route.get_count() - 1u, route_index + sighting_distance_tiles));
+		const koord3d previous_tile = cnv->get_route()->position_bei(min(route.get_count() - 1u, route_index + sighting_distance_tiles) -1u);
 		grund_t *gr_ahead = welt->lookup(tile_to_check_ahead);
-		signal_t* signal = gr_ahead->find<signal_t>();
+		weg_t *way = gr_ahead->get_weg(get_waytype());
+		const koord dir = tile_to_check_ahead.get_2d() - previous_tile.get_2d();
+		ribi_t::ribi ribi = ribi_typ(dir);	
+		signal_t* signal = way->get_signal(ribi); 
 
-		if(signal && (signal->get_state() == signal_t::caution) )
+		if(signal && (signal->get_state() == signal_t::caution))
 		{
 			// We come accross a signal at caution: try (again) to free the block ahead.
 			bool ok = block_reserver(cnv->get_route(), route_index + 1, next_signal, 0, true, false);
 			cnv->set_next_stop_index(next_signal);
-			if(ok)
-			{
-				signal->set_state(signal_t::clear);
-			}
+			// Setting the aspect of the signal is done inside the block reserver
 		}
 	}
 
@@ -4086,32 +4112,39 @@ bool waggon_t::ist_weg_frei(int & restart_speed,bool)
 		}
 
 		// next check for signal
-		if(sch1->has_signal())
+		if(sch1->has_signal()) 
 		{
-			signal_t* signal = welt->lookup(sch1->get_pos())->find<signal_t>();
-			if(drive_mode == drive_by_sight)
+			koord3d previous_tile = cnv->get_route()->position_bei(min(1u, next_block) - 1u);
+			const koord dir = block_pos.get_2d() - previous_tile.get_2d();
+			ribi_t::ribi ribi = ribi_typ(dir);	
+			signal_t* signal = sch1->get_signal(ribi); 
+	
+			if(signal) 
 			{
-				// TODO: Make this more sophisticated based on actual signal and vehicle type
-				drive_mode = absolute_block;
-			}
-
-			if(drive_mode == absolute_block_with_cab_signalling 
-				|| signal && signal->get_besch()->is_pre_signal()
-				|| (drive_mode == absolute_block && next_block - route_index <= max(sighting_distance_tiles - 1, 1)))
- 			{
-				// Brake for the signal unless we can see it somehow. -1 because this is checked on entering the tile.
-				if(!is_weg_frei_signal(next_block, restart_speed))
+				if(working_method == drive_by_sight)
 				{
-					// only return false, if we are directly in front of the signal -1 because this is checked on entering the tile.
-					cnv->set_is_choosing(false);
-					return cnv->get_next_stop_index() > route_index;
+					// TODO: Make this more sophisticated based on actual signal and vehicle type
+					working_method = absolute_block;
 				}
-				cnv->set_is_choosing(false);
+
+				if(working_method == cab_signalling 
+					|| signal && signal->get_besch()->is_pre_signal()
+					|| (working_method == absolute_block && next_block - route_index <= max(sighting_distance_tiles - 1, 1)))
+ 				{
+					// Brake for the signal unless we can see it somehow. -1 because this is checked on entering the tile.
+					if(!is_weg_frei_signal(next_block, restart_speed))
+					{
+						// only return false, if we are directly in front of the signal -1 because this is checked on entering the tile.
+						cnv->set_is_choosing(false);
+						return cnv->get_next_stop_index() > route_index;
+					}
+					cnv->set_is_choosing(false);
+				}
 			}
 		}
 	}
 
-	if(drive_mode == drive_by_sight)
+	if(working_method == drive_by_sight)
 	{
 		uint16 ri;
 		if(route_steps <= 0 && route_index + 1 < route.get_count())
@@ -4207,9 +4240,9 @@ bool waggon_t::block_reserver(route_t *route, uint16 start_index, uint16 &next_s
 	{
 		pos = route->position_bei(i);
 		grund_t *gr = welt->lookup(pos);
-		if((drive_mode == drive_by_sight && (i - (start_index - 1)) >= sighting_distance_tiles) && (!this_halt.is_bound() || (haltestelle_t::get_halt(pos, get_owner())) != this_halt))
+		if((working_method == drive_by_sight && (i - (start_index - 1)) >= sighting_distance_tiles) && (!this_halt.is_bound() || (haltestelle_t::get_halt(pos, get_owner())) != this_halt))
 		{
-			// In drive by sight mode, do not reserve further than can be seen. 
+			// In drive by sight mode, do not reserve further than can be seen; but treat signals at the end of the platform as a signal at which the train is now standing.
 			next_signal_index = i;
 			break;
 		}
@@ -4231,53 +4264,6 @@ bool waggon_t::block_reserver(route_t *route, uint16 start_index, uint16 &next_s
 #endif
 		if(reserve)
 		{
-			roadsign_t* rs = gr->find<roadsign_t>();
-			if(rs && (rs->get_besch()->get_flags() & roadsign_besch_t::END_OF_CHOOSE_AREA) != 0)
-			{
-				end_marker_index = i;
-			}
-			if(sch1->has_signal())
-			{
-				signal_t* signal = gr->find<signal_t>();
-				if(!signal->get_besch()->is_pre_signal())
-				{
-					if(count || pre_signals.get_count())
-					{
-						signs.append(gr);
-					}
-					if(pre_signals.get_count() != 1 || end_marker_index != INVALID_INDEX)
-					{
-						// Reserve through to the stop signal after the second pre-signal unless an end of choose signal is in the way.
-						// TODO: Make this work properly for MAS.
-						count --;
-					}
-					next_signal_index = i;
-					if(first_stop_signal_index == INVALID_INDEX)
-					{
-						first_stop_signal_index = i;
-					}
-				}
-				else
-				{
-					// Pre-signal. 
-					pre_signals.append(signal); 
-					last_pre_signal_index = i;
-				}
-				drive_mode = absolute_block; // TODO: Make this based on the signal and vehicle type
-			}
-			if(!sch1->reserve(cnv->self, ribi_typ(route->position_bei(max(1u,i)-1u), route->position_bei(min(route->get_count()-1u,i+1u))))) 
-			{
-				if(drive_mode == absolute_block && first_stop_signal_index < i)
-				{
-					// Cannot reserve through beyond the stop signal(s) beyond the distant, but can reserve to the first stop signal.
-					// TODO: Set aspects for MAS.
-					next_signal_index = first_stop_signal_index;
-					do_not_clear_distant = true;
-					break;
-				}
-				success = false;
-			}
-
 			if(sch1->is_crossing()) 
 			{
 				crossing_t* cr = gr->find<crossing_t>(2);
@@ -4286,6 +4272,65 @@ bool waggon_t::block_reserver(route_t *route, uint16 start_index, uint16 &next_s
 					// Only reserve if the crossing is clear.
 					success = cr->request_crossing(this);
 				}
+			}
+			
+			roadsign_t* rs = gr->find<roadsign_t>();
+			if(rs && (rs->get_besch()->get_flags() & roadsign_besch_t::END_OF_CHOOSE_AREA) != 0)
+			{
+				end_marker_index = i;
+			}
+			if(sch1->has_signal())
+			{
+				signal_t* signal = gr->get_weg(get_waytype())->get_signal(ribi_typ(route->position_bei(max(1u,i)-1u), route->position_bei(min(route->get_count()-1u,i+1u))));
+				if(signal)
+				{
+					if(working_method != token_block || signal->get_besch()->is_longblock_signal())
+					{
+						// Ignore non-token signals in a token block section
+						if(!signal->get_besch()->is_pre_signal())
+						{
+							if(count || pre_signals.get_count())
+							{
+								signs.append(gr);
+							}
+							if(pre_signals.get_count() != 1 || end_marker_index != INVALID_INDEX || signal->get_besch()->is_longblock_signal())
+							{
+								// Reserve through to the stop signal after the second pre-signal unless an end of choose signal is in the way.
+								// Do not reserve beyond a long-block signal, as the train will need to stop here for token exchange.
+								// TODO: Make this work properly for MAS.
+								count --;
+							}
+
+							next_signal_index = i;
+							if(first_stop_signal_index == INVALID_INDEX)
+							{
+								first_stop_signal_index = i;
+							}
+						}
+						else
+						{
+							// Pre-signal. 
+							pre_signals.append(signal); 
+							last_pre_signal_index = i;
+						}
+						if(working_method != token_block || (!signal->get_besch()->is_longblock_signal() && signal->get_besch()->is_pre_signal()))
+						{
+							working_method = absolute_block; // TODO: Make this based on the signal and vehicle type#
+						}
+					}
+				}
+			}
+			if(!sch1->reserve(cnv->self, ribi_typ(route->position_bei(max(1u,i)-1u), route->position_bei(min(route->get_count()-1u,i+1u))))) 
+			{
+				if(working_method == absolute_block && first_stop_signal_index < i)
+				{
+					// Cannot reserve through beyond the stop signal(s) beyond the distant, but can reserve to the first stop signal.
+					// TODO: Set aspects for MAS.
+					next_signal_index = first_stop_signal_index;
+					do_not_clear_distant = true;
+					break;
+				}
+				success = false;
 			}
 
 			// check if there is an early platform available to stop at
@@ -4374,10 +4419,19 @@ bool waggon_t::block_reserver(route_t *route, uint16 start_index, uint16 &next_s
 			}
 			if(sch1->has_signal()) 
 			{
-				signal_t* signal = gr->find<signal_t>();
-				if(signal) 
+				ribi_t::ribi direction_of_travel = ribi_typ(route->position_bei(max(1u,i)-1u), route->position_bei(min(route->get_count()-1u,i+1u)));
+				signal_t* signal = sch1->get_signal(direction_of_travel);
+				if(signal)
 				{
-					signal->set_state(roadsign_t::danger);
+					if(signal->get_besch()->is_pre_signal())
+					{
+						// TODO: Make this work for MAS.
+						signal->set_state(roadsign_t::caution);
+					}
+					else
+					{
+						signal->set_state(roadsign_t::danger);
+					}
 				}
 			}
 			if(sch1->is_crossing()) 
@@ -4397,15 +4451,15 @@ bool waggon_t::block_reserver(route_t *route, uint16 start_index, uint16 &next_s
 	if(!success) 
 	{
 		// free reservation
-		for (uint32 j=start_index; j<i; j++)
+		for (uint32 j = start_index; j < i; j++)
 		{
-			if(i!=skip_index)
+			if(i != skip_index)
 			{
-				schiene_t * sch1 = (schiene_t *)welt->lookup( route->position_bei(j))->get_weg(get_waytype());
+				schiene_t * sch1 = (schiene_t *)welt->lookup(route->position_bei(j))->get_weg(get_waytype());
 				sch1->unreserve(cnv->self);
 			}
 		}
-		cnv->set_next_reservation_index( start_index );
+		cnv->set_next_reservation_index(start_index);
 		return false;
 	}
 
@@ -4422,7 +4476,7 @@ bool waggon_t::block_reserver(route_t *route, uint16 start_index, uint16 &next_s
 		}
 	}
 
-	if(pre_signals.get_count() == 1 && drive_mode == absolute_block && end_marker_index == INVALID_INDEX)
+	if(pre_signals.get_count() == 1 && working_method == absolute_block && end_marker_index == INVALID_INDEX)
 	{
 		// We have encountered only one pre-signal on the reservable route. 
 		// Thus, the next stop signal could be at danger even if we can reserve a route further on.
@@ -4448,19 +4502,23 @@ bool waggon_t::block_reserver(route_t *route, uint16 start_index, uint16 &next_s
 		}
 	}
 
-	if(next_signal_index != INVALID_INDEX && (drive_mode == absolute_block || drive_mode == absolute_block_with_cab_signalling || drive_mode == token_block))
+	if(next_signal_index != INVALID_INDEX && (working_method == absolute_block || working_method == cab_signalling || working_method == token_block))
 	{
 		const koord3d signal_pos = route->position_bei(next_signal_index);
 	
 		if((this_halt.is_bound() && (haltestelle_t::get_halt(signal_pos, get_owner())) == this_halt))
 		{
 			// This is a platform starter signal for this station: do not move until it clears.
-			const grund_t* signal_gr = welt->lookup(signal_pos); 
-			signal_t* sig = signal_gr->find<signal_t>();
 			int restart_speed = -1;
-			if(sig->get_state() == signal_t::danger)
+			/*const koord3d signal_dir = signal_pos - (route->position_bei(min(next_signal_index + 1u, route->get_count() - 1u)));  
+			const ribi_t::ribi direction_of_travel = ribi_typ(signal_dir);
+			const signal_t* sig = welt->lookup(signal_pos)->get_weg(get_waytype())->get_signal(direction_of_travel); */
+			const signal_t* sig = welt->lookup(signal_pos)->find<signal_t>();
+			if(sig && sig->get_state() == signal_t::danger)
 			{
-				return is_weg_frei_signal(next_signal_index, restart_speed);
+				bool success_2 = is_weg_frei_signal(next_signal_index, restart_speed);
+				next_signal_index = cnv->get_next_stop_index() - 1;
+				return success_2;
 			}
 		}
 	}
@@ -4476,7 +4534,7 @@ bool waggon_t::block_reserver(route_t *route, uint16 start_index, uint16 &next_s
 	}
 	if(cnv)
 	{
-		cnv->set_next_reservation_index( i );
+		cnv->set_next_reservation_index(i);
 	}
 
 	return true;
@@ -4490,21 +4548,83 @@ void waggon_t::verlasse_feld()
 	schiene_t *sch0 = (schiene_t *) get_weg();
 	vehikel_t::verlasse_feld();
 	// fix counters
-	if(ist_letztes) {
-		//grund_t *gr = welt->lookup( get_pos() );
-		if(gr) {
-			//schiene_t *sch0 = (schiene_t *) gr->get_weg(get_waytype());
-			if(sch0) {
-				if(!cnv || cnv->get_state() != convoi_t::REVERSING)
+	if(ist_letztes) // Last vehicle
+	{
+		if(gr) 
+		{
+			if(sch0) 
+			{
+				waggon_t* w = cnv ? (waggon_t*)cnv->front() : NULL;
+				if((!cnv || cnv->get_state() != convoi_t::REVERSING) && (!w || w->get_working_method() != token_block))
 				{
 					sch0->unreserve(this);
 				}
-				// tell next signal?
-				// and switch to red
-				if(sch0->has_signal()) {
+				
+				// The end of the train is passing a signal. Check whether to re-set its aspect
+				// or, in the case of a distant signal in absolute block working, reset it only when
+				// the tail of the train has passed the next home signal.
+				if(sch0->has_signal())
+				{
 					signal_t* sig = gr->find<signal_t>();
-					if(sig) {
-						sig->set_state(roadsign_t::danger);
+					
+					if(sig) 
+					{
+						route_t* route = cnv ? cnv->get_route() : NULL;
+						if(!route)
+						{
+							if(sig->get_besch()->is_pre_signal())
+							{
+								sig->set_state(roadsign_t::caution);
+							}
+							else
+							{
+								sig->set_state(roadsign_t::danger);
+							}
+							return;
+						}
+
+						if(route && w && w->get_working_method() == token_block && !sig->get_besch()->is_pre_signal())
+						{
+							// On passing a signal, clear all the so far uncleared reservation when in token block mode.
+							// In other words, release the token.
+
+							for(int i = route_index - 1; i >= 0; i--)
+							{
+								grund_t* gr_route = welt->lookup(route->position_bei(i));
+								schiene_t* sch_route = gr_route ? (schiene_t *)gr_route->get_weg(get_waytype()) : NULL;
+								if(sch_route && (!cnv || cnv->get_state() != convoi_t::REVERSING))
+								{
+									sch_route->unreserve(this);
+								}
+							}
+						}
+						if(!sig->get_besch()->is_pre_signal() || (w && w->get_working_method() != absolute_block))
+						{
+							sig->set_state(roadsign_t::danger);
+						}
+						if(route && !sig->get_besch()->is_pre_signal() && (w && w->get_working_method() == absolute_block))
+						{
+							// Set distant signals in the rear to caution only after the train has passed the stop signal.
+							int count = 0;
+							for(int i = route_index; i > 0; i--)
+							{
+								grund_t* gr_route = welt->lookup(route->position_bei(i));
+								signal_t* sig_route = gr_route->find<signal_t>();
+								if(sig_route)
+								{
+									count++;
+								}
+								if(sig_route && sig_route->get_besch()->is_pre_signal())
+								{
+									sig_route->set_state(roadsign_t::caution);
+									break;
+								}
+								if(count > 1)
+								{
+									break;
+								}
+							}
+						}
 					}
 				}
 			}

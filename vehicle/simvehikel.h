@@ -695,7 +695,7 @@ public:
 class waggon_t : public vehikel_t
 {
 public:
-		enum drive_mode_t { drive_by_sight, one_train_in_steam, absolute_block, absolute_block_with_cab_signalling, moving_block, token_block };
+		enum working_method_t { drive_by_sight, absolute_block, track_circuit_block, cab_signalling, moving_block, token_block };
 protected:
 	bool ist_befahrbar(const grund_t *bd) const;
 
@@ -703,13 +703,14 @@ protected:
 
 	bool is_weg_frei_signal( uint16 start_index, int &restart_speed );
 
+	/// DEPRECATED
 	bool is_weg_frei_pre_signal( signal_t *sig, uint16 start_index, int &restart_speed );
 
 	bool is_weg_frei_longblock_signal( signal_t *sig, uint16 start_index, int &restart_speed );
 
 	bool is_weg_frei_choose_signal( signal_t *sig, uint16 start_index, int &restart_speed );
 	
-	uint8 drive_mode;
+	working_method_t working_method;
 
 public:
 	virtual waytype_t get_waytype() const { return track_wt; }
@@ -750,8 +751,8 @@ public:
 
 	virtual schedule_t * erzeuge_neuen_fahrplan() const;
 
-	uint8 get_drive_mode() const { return drive_mode; }
-	void set_drive_mode(uint8 value) { drive_mode = value; }
+	working_method_t get_working_method() const { return working_method; }
+	void set_working_method(working_method_t value) { working_method = value; }
 
 };
 

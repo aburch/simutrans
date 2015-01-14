@@ -349,7 +349,22 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 		}
 
 		// testing all four possible directions
-		const ribi_t::ribi ribi = fahr->get_ribi(gr);
+		ribi_t::ribi ribi;
+		if(fahr->get_waytype() == track_wt || fahr->get_waytype() == tram_wt || fahr->get_waytype() == monorail_wt || fahr->get_waytype() == narrowgauge_wt || fahr->get_waytype() == maglev_wt)
+		{
+			if(gr->get_weg(fahr->get_waytype())->has_signal())
+			{
+				ribi = (gr->get_weg(fahr->get_waytype())->get_ribi_unmasked());
+			}
+			else
+			{
+				ribi = fahr->get_ribi(gr);
+			}
+		}
+		else
+		{
+			ribi = fahr->get_ribi(gr);
+		}
 		for(int r = 0; r < 4; r++) 
 		{
 			// a way goes here, and it is not marked (i.e. in the closed list)
@@ -611,7 +626,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 
 		uint32 topnode_f = !queue.empty() ? queue.front()->f : max_cost;
 
-		const ribi_t::ribi way_ribi =  fahr->get_ribi(gr);
+		const ribi_t::ribi way_ribi = gr->get_weg(fahr->get_waytype())->has_signal() ? gr->get_weg_ribi_unmasked(fahr->get_waytype()) : fahr->get_ribi(gr);
 		// testing all four possible directions
 		// mask direction we came from
 		const ribi_t::ribi ribi =  way_ribi  &  ( ~ribi_t::rueckwaerts(tmp->ribi_from) )  &  tmp->jps_ribi;
@@ -645,7 +660,18 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 				ribi_t::ribi go_dir = (w==NULL) ? 0 : w->get_ribi_maske();
 				if((last_dir&go_dir)!=0) 
 				{
+					if(fahr->get_waytype() == track_wt || fahr->get_waytype() == narrowgauge_wt || fahr->get_waytype() == maglev_wt || fahr->get_waytype() == tram_wt || fahr->get_waytype() == monorail_wt)
+					{
+						// Unidirectional signals allow routing in both directions but only act in one direction. Check whether this is one of those.					
+						if(!w->has_signal())
+						{
+							continue;
+						}
+					}
+					else
+					{				
 						continue;
+					}
 				}
 
 				int is_overweight = not_overweight;
@@ -1023,10 +1049,21 @@ DBG_MESSAGE("route_t::calc_route()","No route from %d,%d to %d,%d found",start.x
 			{
 				// Do not go on a tile where a one way sign forbids going.
 				// This saves time and fixed the bug that a one way sign on the final tile was ignored.
-				ribi_t::ribi go_dir=gr->get_weg(wegtyp)->get_ribi_maske();
+				ribi_t::ribi go_dir = gr->get_weg(wegtyp)->get_ribi_maske();
 				if((ribi & go_dir) != 0)
 				{
-					break;
+					if(fahr->get_waytype() == track_wt || fahr->get_waytype() == narrowgauge_wt || fahr->get_waytype() == maglev_wt || fahr->get_waytype() == tram_wt || fahr->get_waytype() == monorail_wt)
+					{
+						// Unidirectional signals allow routing in both directions but only act in one direction. Check whether this is one of those.
+						if(!gr->get_weg(fahr->get_waytype()) || !gr->get_weg(fahr->get_waytype())->has_signal())
+						{
+							break;
+						}
+					}
+					else
+					{				
+						break;
+					}
 				}
 				route.append(gr->get_pos());
 				platform_size++;
