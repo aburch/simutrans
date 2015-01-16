@@ -171,7 +171,7 @@ bool fussgaenger_t::sync_step(uint32 delta_t)
 }
 
 
-grund_t* fussgaenger_t::hop()
+grund_t* fussgaenger_t::hop_check()
 {
 	grund_t *from = welt->lookup(pos_next);
 	if(!from) {
@@ -186,6 +186,19 @@ grund_t* fussgaenger_t::hop()
 		time_to_life = 0;
 		return NULL;
 	}
+	return from;
+}
+
+
+void fussgaenger_t::hop(grund_t *gr)
+{
+	verlasse_feld();
+	set_pos(gr->get_pos());
+	calc_bild();
+	// no need to call betrete_feld();
+	gr->obj_add(this);
+
+	const weg_t *weg = gr->get_weg(road_wt);
 	// new target
 	grund_t *to = NULL;
 	// ribi opposite to current direction
@@ -198,7 +211,7 @@ grund_t* fussgaenger_t::hop()
 	for(uint r = 0; r < 4; r++) {
 		ribi_t::ribi const test_ribi = ribi_t::nsow[ (r+offset) & 3];
 
-		if(  (ribi & test_ribi)!=0  &&  from->get_neighbour(to, road_wt, test_ribi) )	{
+		if(  (ribi & test_ribi)!=0  &&  gr->get_neighbour(to, road_wt, test_ribi) )	{
 			// this is our next target
 			break;
 		}
@@ -217,11 +230,4 @@ grund_t* fussgaenger_t::hop()
 		// .. but this looks ugly, so disappear
 		time_to_life = 0;
 	}
-
-	verlasse_feld();
-	set_pos(from->get_pos());
-	calc_bild();
-	// no need to call betrete_feld();
-	from->obj_add(this);
-	return from;
 }

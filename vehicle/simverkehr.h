@@ -41,8 +41,6 @@ protected:
 protected:
 	virtual waytype_t get_waytype() const { return road_wt; }
 
-	virtual bool hop_check() {return true;}
-
 	verkehrsteilnehmer_t();
 
 	/**
@@ -95,7 +93,7 @@ private:
 
 	uint32 ms_traffic_jam;
 
-	bool hop_check();
+	grund_t* hop_check();
 
 protected:
 	void rdwr(loadsave_t *file);
@@ -117,10 +115,10 @@ public:
 
 	bool sync_step(uint32 delta_t);
 
-	grund_t* hop();
+	void hop(grund_t *gr);
 	bool ist_weg_frei(grund_t *gr);
 
-	grund_t* betrete_feld();
+	void betrete_feld(grund_t* gr);
 
 	void calc_current_speed(grund_t*);
 	uint16 get_current_speed() const {return current_speed;}

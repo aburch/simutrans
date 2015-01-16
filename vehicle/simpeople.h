@@ -44,8 +44,8 @@ public:
 
 	// prissi: always free
 	virtual bool ist_weg_frei() { return true; }
-	virtual bool hop_check() { return true; }
-	virtual grund_t* hop();
+	virtual grund_t* hop_check();
+	virtual void hop(grund_t* gr);
 
 	// class register functions
 	static bool register_besch(const fussgaenger_besch_t *besch);

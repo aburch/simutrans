@@ -205,7 +205,14 @@ void movingobj_t::rdwr(loadsave_t *file)
 	file->rdwr_byte(steps_next);
 
 	pos_next.rdwr(file);
-	pos_next_next.rdwr(file);
+
+	koord p = pos_next_next.get_2d();
+	p.rdwr(file);
+	if(file->is_loading()) {
+		pos_next_next = koord3d(p, 0);
+		// z-coordinate will be restored in hop_check
+	}
+
 	file->rdwr_short(timetochange);
 
 	if(file->is_saving()) {
@@ -339,7 +346,7 @@ bool movingobj_t::ist_befahrbar( const grund_t *gr ) const
 
 
 
-bool movingobj_t::hop_check()
+grund_t* movingobj_t::hop_check()
 {
 	/* since we may be going diagonal without any road
 	 * determining the next koord is a little tricky:
@@ -347,15 +354,25 @@ bool movingobj_t::hop_check()
 	 * Else pos_next_next is a single step from pos_next.
 	 * otherwise objects would jump left/right on some diagonals
 	 */
-	koord k(fahrtrichtung);
-	if(k.x&k.y) {
-		pos_next_next = get_pos().get_2d()+k;
-	}
-	else {
-		pos_next_next = pos_next.get_2d()+k;
+	if (timetochange != 0) {
+		koord k(fahrtrichtung);
+		if(k.x&k.y) {
+			pos_next_next = get_pos() + k;
+		}
+		else {
+			pos_next_next = pos_next + k;
+		}
+
+		grund_t *gr = welt->lookup_kartenboden(pos_next_next.get_2d());
+		if (ist_befahrbar(gr)) {
+			pos_next_next = gr->get_pos();
+		}
+		else {
+			timetochange = 0;
+		}
 	}
 
-	if(timetochange==0  ||  !ist_befahrbar(welt->lookup_kartenboden(pos_next_next))) {
+	if (timetochange==0) {
 		// direction change needed
 		timetochange = simrand(speed_to_kmh(get_besch()->get_speed())/3);
 		const koord pos=pos_next.get_2d();
@@ -370,25 +387,25 @@ bool movingobj_t::hop_check()
 		}
 		// if nothing found, return
 		if(until==0) {
-			pos_next_next = get_pos().get_2d();
+			pos_next_next = get_pos();
 			// (better would be destruction?)
 		}
 		else {
 			// else prepare for direction change
 			const grund_t *next = to[simrand(until)];
-			pos_next_next = next->get_pos().get_2d();
+			pos_next_next = next->get_pos();
 		}
 	}
 	else {
 		timetochange--;
 	}
-	// should be always true
-	return true;
+
+	return welt->lookup(pos_next);
 }
 
 
 
-grund_t* movingobj_t::hop()
+void movingobj_t::hop(grund_t* gr)
 {
 	verlasse_feld();
 
@@ -400,18 +417,17 @@ grund_t* movingobj_t::hop()
 	}
 	else {
 		ribi_t::ribi old_dir = fahrtrichtung;
-		fahrtrichtung = calc_set_richtung( get_pos(), koord3d(pos_next_next,0) );
+		fahrtrichtung = calc_set_richtung( get_pos(), pos_next_next );
 		if(old_dir!=fahrtrichtung) {
 			calc_bild();
 		}
 	}
 
 	set_pos(pos_next);
-	grund_t *gr = betrete_feld();
+	betrete_feld(gr);
+
 	// next position
-	grund_t *gr_next = welt->lookup_kartenboden(pos_next_next);
-	pos_next = gr_next ? gr_next->get_pos() : get_pos();
-	return gr;
+	pos_next = pos_next_next;
 }
 
 

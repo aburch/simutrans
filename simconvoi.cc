@@ -284,6 +284,8 @@ void convoi_t::reserve_route()
 
 uint32 convoi_t::move_to(koord3d const& k, uint16 const start_index)
 {
+	grund_t* gr = welt->lookup(k);
+
 	uint32 train_length = 0;
 	for (unsigned i = 0; i != anz_vehikel; ++i) {
 		vehikel_t& v = *fahr[i];
@@ -303,9 +305,9 @@ uint32 convoi_t::move_to(koord3d const& k, uint16 const start_index)
 		 * elsewhere, especially on curves and with already broken convois. */
 		v.set_pos(k);
 		v.neue_fahrt(start_index, true);
-		if (welt->lookup(v.get_pos())) {
+		if (gr) {
 			v.set_pos(k);
-			v.betrete_feld();
+			v.betrete_feld(gr);
 		}
 
 		if (i != anz_vehikel - 1U) {
@@ -1982,6 +1984,7 @@ void convoi_t::vorfahren()
 		for(unsigned i=0; i<anz_vehikel; i++) {
 			vehikel_t* v = fahr[i];
 
+			// remove from old position
 			grund_t* gr = welt->lookup(v->get_pos());
 			if(gr) {
 				gr->obj_remove(v);
@@ -1995,7 +1998,10 @@ void convoi_t::vorfahren()
 				}
 			}
 			v->neue_fahrt(0, true);
-			v->betrete_feld();
+			// set at new position
+			gr = welt->lookup(v->get_pos());
+			assert(gr);
+			v->betrete_feld(gr);
 		}
 
 		// just advances the first vehicle

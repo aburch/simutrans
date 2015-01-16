@@ -93,14 +93,15 @@ protected:
 
 	/**
 	 * Vehicle movement: check whether this vehicle can enter the next tile (pos_next).
+	 * @returns NULL if check fails, otherwise pointer to the next tile
 	 */
-	virtual bool hop_check() = 0;
+	virtual grund_t* hop_check() = 0;
 
 	/**
 	 * Vehicle movement: change tiles, calls verlasse_feld and betrete_feld.
-	 * @return pointer to ground of new position (never NULL)
+	 * @param gr pointer to ground of new position (never NULL)
 	 */
-	virtual grund_t* hop() = 0;
+	virtual void hop(grund_t* gr) = 0;
 
 	virtual void calc_bild() = 0;
 
@@ -156,7 +157,7 @@ public:
 	 * @pre position (obj_t::pos) needs to be updated prior to calling this functions
 	 * @return pointer to ground (never NULL)
 	 */
-	virtual grund_t* betrete_feld();
+	virtual void betrete_feld(grund_t*);
 
 	/**
 	 * Vehicle movement: leave tile, release reserved crossing, remove vehicle from the ground.
@@ -199,7 +200,7 @@ private:
 	*/
 	uint32 sum_weight;
 
-	bool hop_check();
+	grund_t* hop_check();
 
 	/**
 	 * Calculate friction caused by slopes and curves.
@@ -207,7 +208,7 @@ private:
 	virtual void calc_friction(const grund_t *gr);
 
 protected:
-	virtual grund_t* hop();
+	virtual void hop(grund_t*);
 
 	// current limit (due to track etc.)
 	sint32 speed_limit;
@@ -266,7 +267,7 @@ public:
 	 */
 	virtual bool ist_weg_frei(const grund_t *gr_next, int &restart_speed, bool second_check) = 0;
 
-	virtual grund_t* betrete_feld();
+	virtual void betrete_feld(grund_t*);
 
 	virtual void verlasse_feld();
 
@@ -476,7 +477,7 @@ protected:
 	bool ist_befahrbar(const grund_t *bd) const;
 
 public:
-	virtual grund_t* betrete_feld();
+	virtual void betrete_feld(grund_t*);
 
 	virtual waytype_t get_waytype() const { return road_wt; }
 
@@ -518,7 +519,7 @@ class waggon_t : public vehikel_t
 protected:
 	bool ist_befahrbar(const grund_t *bd) const;
 
-	grund_t* betrete_feld();
+	void betrete_feld(grund_t*);
 
 	bool is_weg_frei_signal( uint16 start_index, int &restart_speed );
 
@@ -643,7 +644,7 @@ protected:
 
 	bool ist_befahrbar(const grund_t *bd) const;
 
-	grund_t* betrete_feld();
+	void betrete_feld(grund_t*);
 
 public:
 	waytype_t get_waytype() const { return water_wt; }
@@ -696,11 +697,11 @@ private:
 
 protected:
 	// jumps to next tile and correct the height ...
-	grund_t* hop();
+	virtual void hop(grund_t*);
 
 	bool ist_befahrbar(const grund_t *bd) const;
 
-	grund_t* betrete_feld();
+	void betrete_feld(grund_t*);
 
 	bool block_reserver( uint32 start, uint32 end, bool reserve ) const;
 
