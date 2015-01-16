@@ -333,7 +333,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 	tmp->g = 0;
 	tmp->dir = 0;
 	tmp->count = 0;
-	tmp->ribi_from = ribi_t::alle;
+	tmp->ribi_from = ribi_t::keine;
 	tmp->jps_ribi  = ribi_t::alle;
 
 	// nothing in lists
@@ -380,7 +380,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 		const ribi_t::ribi way_ribi =  fahr->get_ribi(gr);
 		// testing all four possible directions
 		// mask direction we came from
-		const ribi_t::ribi ribi =  way_ribi  &  ( ~ribi_t::rueckwaerts(tmp->ribi_from) )  &  tmp->jps_ribi;
+		const ribi_t::ribi ribi =  way_ribi  &  ( ~ribi_t::reverse_single(tmp->ribi_from) )  &  tmp->jps_ribi;
 
 		const ribi_t::ribi *next_ribi = get_next_dirs(gr->get_pos(), ziel);
 		for(int r=0; r<4; r++) {

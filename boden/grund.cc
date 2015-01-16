@@ -1856,7 +1856,7 @@ bool grund_t::get_neighbour(grund_t *&to, waytype_t type, ribi_t::ribi ribi) con
 	if(!plan) {
 		return false;
 	}
-	const ribi_t::ribi back = ribi_t::rueckwaerts(ribi);
+	const ribi_t::ribi back = ribi_t::reverse_single(ribi);
 
 	// most common on empty ground => check this first
 	if(  get_grund_hang() == hang_t::flach  &&  get_weg_hang() == hang_t::flach  ) {
