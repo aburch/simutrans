@@ -313,10 +313,11 @@ public:
 	void play_sound() const;
 
 	/**
-	* Prepare vehicle for new ride - called when the Convoi
-	* determines a new route
-	* @author Hj. Malthaner
-	*/
+	 * Prepare vehicle for new ride.
+	 * Sets route_index, pos_next, steps_next.
+	 * If @p recalc is true this sets position and recalculates/resets movement parameters.
+	 * @author Hj. Malthaner
+	 */
 	void neue_fahrt( uint16 start_route_index, bool recalc );
 
 	vehikel_t();

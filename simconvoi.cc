@@ -1951,6 +1951,7 @@ bool convoi_t::can_go_alte_richtung()
 		const koord3d vehicle_start_pos = v->get_pos();
 		for( int idx=0;  idx<=length;  idx++  ) {
 			if(route.position_bei(idx)==vehicle_start_pos) {
+				// set route index, no recalculations necessary
 				v->neue_fahrt(idx, false );
 				ok = true;
 

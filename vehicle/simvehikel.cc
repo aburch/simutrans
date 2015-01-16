@@ -878,39 +878,39 @@ void vehikel_t::play_sound() const
 
 
 /**
- * Prepare vehicle for new ride - called when the Convoi
- * determines a new route
+ * Prepare vehicle for new ride.
+ * Sets route_index, pos_next, steps_next.
+ * If @p recalc is true this sets position and recalculates/resets movement parameters.
  * @author Hj. Malthaner
  */
 void vehikel_t::neue_fahrt(uint16 start_route_index, bool recalc)
 {
 	route_index = start_route_index+1;
 	check_for_finish = false;
-	use_calc_height = recalc;
+	use_calc_height = true;
 
 	if(welt->is_within_limits(get_pos().get_2d())) {
-		// mark the region after the image as dirty
-		// better not try to twist your brain to follow the re-transformation ...
 		mark_image_dirty( get_bild(), 0 );
 	}
 
 	route_t const& r = *cnv->get_route();
 	if(!recalc) {
 		// always set pos_next
-		// otherwise a convoi with somehow a wrong pos_next will next continue
 		pos_next = r.position_bei(route_index);
 		assert(get_pos() == r.position_bei(start_route_index));
 	}
 	else {
-		// recalc directions
+		// set pos_next
 		if (route_index < r.get_count()) {
 			pos_next = r.position_bei(route_index);
 		}
 		else {
+			// already at end of route
 			check_for_finish = true;
 		}
 		set_pos(r.position_bei(start_route_index));
 
+		// recalc directions
 		alte_fahrtrichtung = fahrtrichtung;
 		fahrtrichtung = calc_set_richtung( get_pos(), pos_next );
 
