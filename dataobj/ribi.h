@@ -222,8 +222,10 @@ public:
 	}
 
 	static ribi get_forward(ribi x) { return fwrd[x]; }	// all ribis, that are in front of this thing
-	static ribi rotate90(ribi x) { return ((x&8) ? 1|((x<<1)&0x0E) : x<<1); } // 90 to the right
-	static ribi rotate90l(ribi x) { return ((x&1) ? 8|(x>>1) : x>>1); } // 90 to the left
+	/// Rotate 90 degrees to the right. Does bit rotation.
+	static ribi rotate90(ribi x) { return ((x  |  x<<4) >> 3) & 0xf; }
+	/// Rotate 90 degrees to the left. Does bit rotation.
+	static ribi rotate90l(ribi x) { return ((x  |  x<<4) >> 1) & 0xf; }
 	static ribi rotate45(ribi x) { return (ist_einfach(x) ? x|rotate90(x) : x&rotate90(x)); } // 45 to the right
 	static ribi rotate45l(ribi x) { return (ist_einfach(x) ? x|rotate90l(x) : x&rotate90l(x)); } // 45 to the left
 
