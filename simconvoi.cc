@@ -670,6 +670,9 @@ void convoi_t::add_running_cost( const weg_t *weg )
 	book( sum_running_costs, CONVOI_PROFIT );
 
 	total_distance_traveled ++;
+	distance_since_last_stop++;
+
+	sum_speed_limit += speed_to_kmh( min( min_top_speed, speed_limit ));
 	book( 1, CONVOI_DISTANCE );
 }
 
@@ -693,7 +696,7 @@ static inline sint32 res_power(sint64 speed, sint32 total_power, sint64 friction
  */
 void convoi_t::calc_acceleration(uint32 delta_t)
 {
-	if(  !recalc_data  &&  (
+	if(  !recalc_data  &&  !recalc_speed_limit  &&  (
 		(sum_friction_weight == sum_gesamtgewicht  &&  akt_speed_soll <= akt_speed  &&  akt_speed_soll+24 >= akt_speed)  ||
 		(sum_friction_weight > sum_gesamtgewicht  &&  akt_speed_soll == akt_speed)  )
 		) {
@@ -704,41 +707,44 @@ void convoi_t::calc_acceleration(uint32 delta_t)
 	}
 
 	// Dwachs: only compute this if a vehicle in the convoi hopped
-	if(  recalc_data  ) {
+	if(  recalc_data  ||  recalc_speed_limit  ) {
 		// calculate total friction and lowest speed limit
-		speed_limit = min( min_top_speed, front()->get_speed_limit() );
-		sum_gesamtgewicht = front()->get_gesamtgewicht();
-		sum_friction_weight = front()->get_frictionfactor() * sum_gesamtgewicht;
+		const vehikel_t* v = front();
+		speed_limit = min( min_top_speed, v->get_speed_limit() );
+		if (recalc_data) {
+			sum_gesamtgewicht   = v->get_gesamtgewicht();
+			sum_friction_weight = v->get_frictionfactor() * sum_gesamtgewicht;
+		}
+
 		for(  unsigned i=1; i<anz_vehikel; i++  ) {
 			const vehikel_t* v = fahr[i];
-			int total_vehicle_weight = v->get_gesamtgewicht();
-
-			sum_friction_weight += v->get_frictionfactor() * total_vehicle_weight;
-			sum_gesamtgewicht += total_vehicle_weight;
 			speed_limit = min( speed_limit, v->get_speed_limit() );
-		}
 
-		if(  recalc_data_front  ) {
-			// brake at the end of stations/in front of signals and crossings
-			const uint32 tiles_left = 1 + get_next_stop_index() - front()->get_route_index();
-			brake_speed_soll = SPEED_UNLIMITED;
-			if(  tiles_left < 4  ) {
-				static sint32 brake_speed_countdown[4] = {
-					kmh_to_speed(25),
-					kmh_to_speed(50),
-					kmh_to_speed(100),
-					kmh_to_speed(200)
-				};
-				brake_speed_soll = brake_speed_countdown[tiles_left];
+			if (recalc_data) {
+				int total_vehicle_weight = v->get_gesamtgewicht();
+				sum_friction_weight += v->get_frictionfactor() * total_vehicle_weight;
+				sum_gesamtgewicht += total_vehicle_weight;
 			}
-			distance_since_last_stop++;
-			sum_speed_limit += speed_to_kmh( min( min_top_speed, speed_limit ));
+		}
+		recalc_data = recalc_speed_limit = false;
+		akt_speed_soll = min( speed_limit, brake_speed_soll );
+	}
 
-			recalc_data_front = false;
+	if(  recalc_data_front  ) {
+		// brake at the end of stations/in front of signals and crossings
+		const uint32 tiles_left = 1 + get_next_stop_index() - front()->get_route_index();
+		brake_speed_soll = SPEED_UNLIMITED;
+		if(  tiles_left < 4  ) {
+			static sint32 brake_speed_countdown[4] = {
+				kmh_to_speed(25),
+				kmh_to_speed(50),
+				kmh_to_speed(100),
+				kmh_to_speed(200)
+			};
+			brake_speed_soll = brake_speed_countdown[tiles_left];
 		}
 		akt_speed_soll = min( speed_limit, brake_speed_soll );
-
-		recalc_data = false;
+		recalc_data_front = false;
 	}
 
 	// Prissi: more pleasant and a little more "physical" model *

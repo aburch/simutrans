@@ -1136,6 +1136,7 @@ void vehikel_t::hop(grund_t* gr)
 		}
 	}
 	calc_bild();
+	sint32 old_speed_limit = speed_limit;
 
 	betrete_feld(gr);
 	const weg_t *weg = gr->get_weg(get_waytype());
@@ -1150,17 +1151,36 @@ void vehikel_t::hop(grund_t* gr)
 	}
 
 	if(  ist_erstes  ) {
-		cnv->add_running_cost( weg );
 		if(  check_for_finish  &&  (fahrtrichtung==ribi_t::nord  ||  fahrtrichtung==ribi_t::west)  ) {
 			steps_next = (steps_next/2)+1;
 		}
+		cnv->add_running_cost( weg );
 		cnv->must_recalc_data_front();
 	}
 
-	// friction factors and speed limit may have changed
-	cnv->must_recalc_data();
-
+	// update friction and friction weight of convoy
+	sint16 old_friction = current_friction;
 	calc_friction(gr);
+
+	if (old_friction != current_friction) {
+		cnv->update_friction_weight( (current_friction-old_friction) * (sint64)sum_weight);
+	}
+
+	// if speed limit changed, then cnv must recalc
+	if (speed_limit != old_speed_limit) {
+		if (speed_limit < old_speed_limit) {
+			if (speed_limit < cnv->get_speed_limit()) {
+				// update
+				cnv->set_speed_limit(speed_limit);
+			}
+		}
+		else {
+			if (old_speed_limit == cnv->get_speed_limit()) {
+				// convoy's speed limit may be larger now
+				cnv->must_recalc_speed_limit();
+			}
+		}
+	}
 }
 
 
@@ -4148,6 +4168,10 @@ void aircraft_t::hop(grund_t* gr)
 
 	speed_limit = new_speed_limit;
 	current_friction = new_friction;
+
+	// friction factors and speed limit may have changed
+	// TODO use the same logic as in vehikel_t::hop
+	cnv->must_recalc_data();
 }
 
 

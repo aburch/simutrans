@@ -223,11 +223,9 @@ private:
 	sint64 sum_gewicht;
 	sint64 sum_gesamtgewicht;
 
-	// cached values
-	// will be recalculated if
-	// recalc_data is true
-	bool recalc_data_front; // true when front vehicle in convoi hops
-	bool recalc_data; // true when any vehicle in convoi hops
+	bool recalc_data_front;  ///< true, when front vehicle has to recalculate braking
+	bool recalc_data;        ///< true, when convoy has to recalculate weights and speed limits
+	bool recalc_speed_limit; ///< true, when convoy has to recalculate speed limits
 
 	sint64 sum_friction_weight;
 	sint32 speed_limit;
@@ -572,11 +570,16 @@ public:
 	const sint32 & get_min_top_speed() const {return min_top_speed;}
 	const sint32 & get_speed_limit() const {return speed_limit;}
 
+	void set_speed_limit(sint32 s) { speed_limit = s;}
+
 	/// @returns weight of the convoy's vehicles (excluding freight)
 	const sint64 & get_sum_gewicht() const {return sum_gewicht;}
 
 	/// @returns weight of convoy including freight
 	const sint64 & get_sum_gesamtgewicht() const {return sum_gesamtgewicht;}
+
+	/// changes sum_friction_weight, called when vehicle changed tile and friction changes as well.
+	void update_friction_weight(sint64 delta_friction_weight) { sum_friction_weight += delta_friction_weight; }
 
 	/// @returns theoretical max speed of a convoy with given @p total_power and @p total_weight
 	static sint32 calc_max_speed(uint64 total_power, uint64 total_weight, sint32 speed_limit);
@@ -863,6 +866,7 @@ public:
 
 	void must_recalc_data() { recalc_data = true; }
 	void must_recalc_data_front() { recalc_data_front = true; }
+	void must_recalc_speed_limit() { recalc_speed_limit = true; }
 
 	// calculates the speed used for the speedbonus base, and the max achievable speed at current power/weight for overtakers
 	void calc_speedbonus_kmh();
