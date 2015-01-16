@@ -103,7 +103,6 @@ verkehrsteilnehmer_t::verkehrsteilnehmer_t(grund_t* bd, uint16 random) :
 			dy = -1;
 			break;
 	}
-	hoff = 0;
 
 	if(to) {
 		pos_next = to->get_pos();
@@ -130,6 +129,8 @@ void verkehrsteilnehmer_t::zeige_info()
 void verkehrsteilnehmer_t::rdwr(loadsave_t *file)
 {
 	xml_tag_t t( file, "verkehrsteilnehmer_t" );
+
+	sint8 hoff = file->is_saving() ? get_hoff() : 0;
 
 	// correct old offsets ... REMOVE after savegame increase ...
 	if(file->get_version()<99018  &&  file->is_saving()) {
@@ -220,6 +221,11 @@ void verkehrsteilnehmer_t::rdwr(loadsave_t *file)
 	weg_next &= 65535;
 }
 
+void verkehrsteilnehmer_t::laden_abschliessen()
+{
+	calc_height(NULL);
+	calc_bild();
+}
 
 
 /**********************************************************************************************************************/

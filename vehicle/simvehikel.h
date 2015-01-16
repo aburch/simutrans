@@ -75,21 +75,14 @@ protected:
 	koord3d pos_next;
 
 	/**
-	 * Offsets for uphill/downhill
-	 * @author Hj. Malthaner
+	 * Offsets for uphill/downhill.
+	 * Have to be multiplied with -TILE_HEIGHT_STEP/2.
+	 * To obtain real z-offset, interpolate using steps, steps_next.
 	 */
-	sint8 hoff;
+	uint8 zoff_start:4, zoff_end:4;
 
 	// cached image
 	image_id bild;
-
-	/**
-	 * Vehicle movement: calculates z-offset of vehicles on slopes,
-	 * handles vehicles that are invisible in tunnels.
-	 * @param gr vehicle is on this ground (can be NULL)
-	 * @return new offset
-	 */
-	sint8 calc_height(grund_t *gr);
 
 	/**
 	 * Vehicle movement: check whether this vehicle can enter the next tile (pos_next).
@@ -127,11 +120,19 @@ public:
 	inline void set_bild( image_id b ) { bild = b; }
 	virtual image_id get_bild() const {return bild;}
 
-	sint8 get_hoff() const {return hoff;}
+	sint8 get_hoff() const;
 	uint8 get_steps() const {return steps;}
 
 	// to make smaller steps than the tile granularity, we have to calculate our offsets ourselves!
 	virtual void get_screen_offset( int &xoff, int &yoff, const sint16 raster_width ) const;
+
+	/**
+	 * Vehicle movement: calculates z-offset of vehicles on slopes,
+	 * handles vehicles that are invisible in tunnels.
+	 * @param gr vehicle is on this ground
+	 * @note has to be called after loading to initialize z-offsets
+	 */
+	void calc_height(grund_t *gr = NULL);
 
 	virtual void rotate90();
 
@@ -742,7 +743,7 @@ public:
 
 	void rdwr_from_convoi(loadsave_t *file);
 
-	int get_flyingheight() const {return flughoehe-hoff-2;}
+	int get_flyingheight() const {return flughoehe-get_hoff()-2;}
 
 	// image: when flying empty, on ground the plane
 	virtual image_id get_bild() const {return !is_on_ground() ? IMG_LEER : bild;}
@@ -764,7 +765,6 @@ public:
 	virtual void display_after(int xpos, int ypos, bool dirty) const;
 #endif
 
-	// friction calculation happens in calc_height
 	void calc_friction(const grund_t*) {}
 
 	bool is_on_ground() const { return flughoehe==0  &&  !(state==circling  ||  state==flying); }

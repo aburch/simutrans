@@ -367,6 +367,7 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","state=%s, next_stop_index=%d", sta
 				vehikel_t* v = fahr[i];
 				v->set_erstes( i==0 );
 				v->set_letztes( i+1==anz_vehikel );
+				v->calc_height();
 				// this sets the convoi and will renew the block reservation, if needed!
 				v->set_convoi(this);
 			}
@@ -380,6 +381,7 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","state=%s, next_stop_index=%d", sta
 				vehikel_t* v = fahr[i];
 				v->set_erstes( i==0 );
 				v->set_letztes( i+1==anz_vehikel );
+				v->calc_height();
 				// this sets the convoi and will renew the block reservation, if needed!
 				v->set_convoi(this);
 

@@ -140,6 +140,7 @@ void fussgaenger_t::erzeuge_fussgaenger_an(const koord3d k, int &anzahl)
 				fussgaenger_t* fg = new fussgaenger_t(bd);
 				bool ok = bd->obj_add(fg) != 0;	// 256 limit reached
 				if (ok) {
+					fg->calc_height(bd);
 					if (i > 0) {
 						// walk a little
 						fg->sync_step( (i & 3) * 64 * 24);

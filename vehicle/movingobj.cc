@@ -230,9 +230,8 @@ void movingobj_t::rdwr(loadsave_t *file)
 			movingobjtype = (uint8)besch->get_index();
 		}
 		// if not there, besch will be zero
+
 		use_calc_height = true;
-		// not saved, recalculate later
-		hoff = 0;
 	}
 	weg_next = 0;
 }
