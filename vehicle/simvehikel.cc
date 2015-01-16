@@ -1135,7 +1135,11 @@ void vehikel_t::hop(grund_t* gr)
 			fahrtrichtung = calc_set_richtung( pos_prev, pos_next );
 		}
 	}
-	calc_bild();
+
+	// change image if direction changes
+	if (alte_fahrtrichtung != fahrtrichtung) {
+		calc_bild();
+	}
 	sint32 old_speed_limit = speed_limit;
 
 	betrete_feld(gr);
