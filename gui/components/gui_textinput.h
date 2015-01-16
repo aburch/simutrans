@@ -34,6 +34,9 @@ protected:
 	 */
 	char *text;
 
+	// text, which has not yet inputted (i.e. by an IME)
+	char *composition;
+
 	/**
 	 * Maximum length of the string buffer
 	 * @author Hj. Malthaner
@@ -105,6 +108,9 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	void set_text(char *text, size_t max);
+
+	// text which is not yet inputed (i.e. for japanese text ime), assuming either native or utf8 encoding
+	void set_composition_text( char *composition );
 
 	/**
 	 * Return the Text buffer

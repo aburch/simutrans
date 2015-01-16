@@ -25,6 +25,7 @@
 gui_textinput_t::gui_textinput_t() :
 	gui_component_t(true),
 	text(NULL),
+	composition(NULL),
 	max(0),
 	head_cursor_pos(0),
 	tail_cursor_pos(0),
@@ -78,6 +79,17 @@ bool gui_textinput_t::remove_selection()
 		return true;
 	}
 	return false;
+}
+
+
+void gui_textinput_t::set_composition_text( char *c )
+{
+	if(  win_get_focus()==this  ) {
+		composition = c;
+	}
+	else {
+		composition = NULL;
+	}
 }
 
 
@@ -470,6 +482,7 @@ void gui_textinput_t::display_with_focus(scr_coord offset, bool has_focus)
 			dr_start_textinput();
 		}
 		else {
+			composition = NULL;
 			dr_stop_textinput();
 		}
 		focus_recieved = has_focus;
@@ -545,6 +558,13 @@ void gui_textinput_t::display_with_cursor(scr_coord offset, bool cursor_active, 
 				const scr_coord_val highlight_width = proportional_string_len_width(text+start_pos, end_pos-start_pos);
 				display_fillbox_wh_clip(pos.x+offset.x+2-scroll_offset+start_offset, pos.y+offset.y+D_GET_CENTER_ALIGN_OFFSET(LINESPACE,size.h), highlight_width, LINESPACE, SYSCOL_EDIT_BACKGROUND_SELECTED, true);
 				display_text_proportional_len_clip(pos.x+offset.x+2-scroll_offset+start_offset, pos.y+offset.y+D_GET_CENTER_ALIGN_OFFSET(LINESPACE,size.h), text+start_pos, ALIGN_LEFT|DT_CLIP, SYSCOL_EDIT_TEXT_SELECTED, false, end_pos-start_pos);
+			}
+
+			// IME text to display?
+			if(  composition  ) {
+				const scr_coord_val composition_width = display_calc_proportional_string_len_width( composition, 0xFFFF );
+				display_fillbox_wh_clip(pos.x+offset.x+1-scroll_offset+cursor_offset, pos.y+offset.y+D_GET_CENTER_ALIGN_OFFSET(LINESPACE,size.h), composition_width, LINESPACE, COL_WHITE, true);
+				display_text_proportional_len_clip(pos.x+offset.x+1-scroll_offset+cursor_offset, pos.y+offset.y+D_GET_CENTER_ALIGN_OFFSET(LINESPACE,size.h), composition, ALIGN_LEFT|DT_CLIP, COL_BLACK, false, 0xFFFF );
 			}
 
 			// display blinking cursor
