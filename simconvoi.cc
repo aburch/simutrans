@@ -281,16 +281,21 @@ void convoi_t::reserve_route()
 	}
 }
 
-
-uint32 convoi_t::move_to(koord3d const& k, uint16 const start_index)
+/**
+ * Sets route_index of all vehicles to startindex.
+ * Puts all vehicles on tile at this position in the route.
+ * Convoy stills needs to be pushed that the convoy is right on track.
+ * @returns length of convoy minus last vehicle
+ */
+uint32 convoi_t::move_to(uint16 const start_index)
 {
+	steps_driven = -1;
+	koord3d k = route.position_bei(start_index);
 	grund_t* gr = welt->lookup(k);
 
 	uint32 train_length = 0;
 	for (unsigned i = 0; i != anz_vehikel; ++i) {
 		vehikel_t& v = *fahr[i];
-
-		steps_driven = -1;
 
 		if(  grund_t const* gr = welt->lookup(v.get_pos())  ) {
 			v.mark_image_dirty(v.get_bild(), 0);
@@ -300,13 +305,10 @@ uint32 convoi_t::move_to(koord3d const& k, uint16 const start_index)
 				rails->unreserve(&v);
 			}
 		}
-
-		/* Set pos_prev to the starting point this way.  Otherwise it may be
-		 * elsewhere, especially on curves and with already broken convois. */
-		v.set_pos(k);
+		// propagate new index to vehicle, will set all movement related variables, in particular pos
 		v.neue_fahrt(start_index, true);
+		// now put vehicle on the tile
 		if (gr) {
-			v.set_pos(k);
 			v.betrete_feld(gr);
 		}
 
@@ -468,10 +470,9 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_ind
 		}
 		else {
 			// since start may have been changed
-			uint16 start_index = max(2,fahr[anz_vehikel-1]->get_route_index())-2;
-			koord3d k0 = fahr[anz_vehikel-1]->get_pos();
+			uint16 start_index = max(1,fahr[anz_vehikel-1]->get_route_index())-1;
 
-			uint32 train_length = move_to(k0, start_index) + 1;
+			uint32 train_length = move_to(start_index) + 1;
 			const koord3d last_start = fahr[0]->get_pos();
 
 			// now advance all convoi until it is completely on the track
@@ -2031,10 +2032,8 @@ void convoi_t::vorfahren()
 		// still leaving depot (steps_driven!=0) or going in other direction or misalignment?
 		if(  steps_driven>0  ||  !can_go_alte_richtung()  ) {
 
-			// since start may have been changed
-			k0 = route.front();
-
-			uint32 train_length = move_to(k0, 0);
+			// start route from the beginning at index 0, place everything on start
+			uint32 train_length = move_to(0);
 
 			// move one train length to the start position ...
 			// in north/west direction, we leave the vehicle away to start as much back as possible
