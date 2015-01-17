@@ -33,7 +33,7 @@ private:
 	/// type of object, index into movingobj_typen
 	uint8 movingobjtype;
 
-	koord pos_next_next;
+	koord3d pos_next_next;
 
 	/// static table to find besch by name
 	static stringhashtable_tpl<groundobj_besch_t *> besch_names;
@@ -61,15 +61,14 @@ public:
 	// prissi: always free
 	virtual bool ist_befahrbar(const grund_t *) const;
 	virtual bool ist_weg_frei() { return 1; }
-	virtual bool hop_check();
-	virtual grund_t* hop();
+	virtual grund_t* hop_check();
+	virtual void hop(grund_t* gr);
 	virtual void update_bookkeeping(uint32) {};
 
 	virtual waytype_t get_waytype() const { return get_besch()->get_waytype(); }
 
 	const char *get_name() const {return "Movingobj";}
-#ifdef INLINE_OBJ_TYPE
-#else
+#ifndef INLINE_OBJ_TYPE
 	typ get_typ() const { return movingobj; }
 #endif
 

@@ -309,9 +309,8 @@ vehikel_basis_t::verlasse_feld() //"leave field" (Google)
 }
 
 
-grund_t* vehikel_basis_t::betrete_feld()
+void vehikel_basis_t::betrete_feld(grund_t* gr)
 {
-	gr = welt->lookup(get_pos());
 	if(!gr) {
 		dbg->error("vehikel_basis_t::betrete_feld()","'%s' new position (%i,%i,%i)!",get_name(), get_pos().x, get_pos().y, get_pos().z );
 		gr = welt->lookup_kartenboden(get_pos().get_2d());
@@ -322,8 +321,6 @@ grund_t* vehikel_basis_t::betrete_feld()
 		dbg->error("vehikel_basis_t::betrete_feld()","'%s failed to be added to the object list", get_name());
 	}
 	weg = gr->get_weg(get_waytype());
-	
-	return gr;
 }
 
 
@@ -363,12 +360,12 @@ uint32 vehikel_basis_t::fahre_basis(uint32 distance)
 		koord3d pos_prev;
 
 		// Hop as many times as possible.
-		while(  steps_target > steps_next  &&  hop_check()  ) {
+		while( steps_target > steps_next && (gr = hop_check()) ) {
 			// now do the update for hopping
 			steps_target -= steps_next+1;
 			steps_done += steps_next+1;
 			pos_prev = get_pos(); 
-			gr = hop();
+			hop(gr);
 			use_calc_height = true;
 			has_hopped = true;
 		}
@@ -1326,7 +1323,7 @@ bool vehikel_t::reroute(const uint16 reroute_index, const koord3d &ziel, route_t
 	return done;
 }
 
-bool vehikel_t::hop_check()
+grund_t* vehikel_t::hop_check()
 {
 	// the leading vehicle will do all the checks
 	if(ist_erstes) {
@@ -1341,11 +1338,11 @@ bool vehikel_t::hop_check()
 		}
 
 		// now check, if we can go here
-		const grund_t *bd = welt->lookup(pos_next);
+		grund_t *bd = welt->lookup(pos_next);
 		if(bd==NULL  ||  !ist_befahrbar(bd)  ||  cnv->get_route()->empty()) {
 			// way (weg) not existent (likely destroyed) or no route ...
 			cnv->suche_neue_route();
-			return false;
+			return NULL;
 		}
 
 		// check for one-way sign etc.
@@ -1373,7 +1370,7 @@ bool vehikel_t::hop_check()
 				if(  !bd->get_neighbour( from, get_waytype(), ribi_typ( get_pos(), pos_next ) )  ) {
 					// way likely destroyed or altered => reroute
 					cnv->suche_neue_route();
-					return false;
+					return NULL;
 				}
 			}
 		}
@@ -1387,16 +1384,18 @@ bool vehikel_t::hop_check()
 			cnv->warten_bis_weg_frei(restart_speed);
 
 			// nicht weiterfahren
-			return false;
+			return NULL;
 		}
+		// we cache it here, hop() will use it to save calls to karte_t::lookup
+		return bd;
 	}
 	else {
 		// this is needed since in convoi_t::vorfahren the flag ist_erstes is set to null
 		if(check_for_finish) {
-			return false;
+			return NULL;
 		}
 	}
-	return true;
+	return welt->lookup(pos_next);
 }
 
 bool vehikel_t::ist_weg_frei(int &restart_speed, bool second_check)
@@ -1429,17 +1428,16 @@ void vehikel_t::verlasse_feld()
 /* this routine add a vehicle to a tile and will insert it in the correct sort order to prevent overlaps
  * @author prissi
  */
-grund_t* vehikel_t::betrete_feld()
+void vehikel_t::betrete_feld(grund_t* gr)
 {
-	grund_t* gr = vehikel_basis_t::betrete_feld();
+	vehikel_basis_t::betrete_feld(gr);
 	if(ist_erstes  &&  reliefkarte_t::is_visible  ) {
 		reliefkarte_t::get_karte()->calc_map_pixel( get_pos().get_2d() );  //"Set relief colour" (Babelfish)
 	}
-	return gr;
 }
 
 
-grund_t* vehikel_t::hop()
+void vehikel_t::hop(grund_t* gr)
 {
 	//const grund_t *gr_prev = get_grund();
 	const weg_t * weg_prev = get_weg();
@@ -1494,7 +1492,7 @@ grund_t* vehikel_t::hop()
 	}
 	calc_bild(); //Calculate image
 
-	grund_t *gr = betrete_feld(); //"Enter field" (Google)
+	betrete_feld(gr); //"Enter field" (Google)
 	weg_t *weg = get_weg();
 	if(  weg  )	{
 		//const grund_t *gr_prev = welt->lookup(pos_prev);
@@ -1536,7 +1534,6 @@ grund_t* vehikel_t::hop()
 		weg->wear_way(besch->get_way_wear_factor());
 	}
 	hop_count ++;
-	return gr;
 }
 
 /* Calculates the modified speed limit of the current way,
@@ -3199,15 +3196,15 @@ overtaker_t* automobil_t::get_overtaker()
 	return cnv;
 }
 
-grund_t* automobil_t::betrete_feld()
+void automobil_t::betrete_feld(grund_t* gr)
 {
-	grund_t *gr = vehikel_t::betrete_feld();
+	vehikel_t::betrete_feld(gr);
 
 	const int cargo = get_fracht_menge();
 	weg_t *str = gr->get_weg(road_wt);
 	if(str == NULL)
 	{
-		return gr;
+		return;
 	}
 	str->book(cargo, WAY_STAT_GOODS);
 	if (ist_erstes)  {
@@ -3215,7 +3212,6 @@ grund_t* automobil_t::betrete_feld()
 		cnv->update_tiles_overtaking();
 	}
 	drives_on_left = welt->get_settings().is_drive_left();	// reset driving settings
-	return gr;
 }
 
 
@@ -4674,9 +4670,9 @@ void waggon_t::verlasse_feld()
 }
 
 
-grund_t* waggon_t::betrete_feld()
+void waggon_t::betrete_feld(grund_t* gr)
 {
-	grund_t *gr = vehikel_t::betrete_feld();
+	vehikel_t::betrete_feld(gr);
 
 	if(  schiene_t *sch0 = (schiene_t *) get_weg()  ) {
 		// way statistics
@@ -4690,7 +4686,6 @@ grund_t* waggon_t::betrete_feld()
 			}
 		}
 	}
-	return gr;
 }
 
 
@@ -4759,9 +4754,9 @@ schiff_t::schiff_t(loadsave_t *file, bool is_first, bool is_last) :
 	}
 }
 
-grund_t* schiff_t::betrete_feld()
+void schiff_t::betrete_feld(grund_t* gr)
 {
-	grund_t *gr = vehikel_t::betrete_feld();
+	vehikel_t::betrete_feld(gr);
 
 	if(  weg_t *ch = gr->get_weg(water_wt)  ) {
 		// we are in a channel, so book statistics
@@ -4770,7 +4765,6 @@ grund_t* schiff_t::betrete_feld()
 			ch->book(1, WAY_STAT_CONVOIS);
 		}
 	}
-	return gr;
 }
 
 bool schiff_t::ist_befahrbar(const grund_t *bd) const
@@ -5769,9 +5763,9 @@ bool aircraft_t::ist_weg_frei(const grund_t *gr, int & restart_speed, bool )
 
 
 // this must also change the internal modes for the calculation
-grund_t* aircraft_t::betrete_feld()
+void aircraft_t::betrete_feld(grund_t* gr)
 {
-	grund_t *gr = vehikel_t::betrete_feld();
+	vehikel_t::betrete_feld(gr);
 
 	if(  this->is_on_ground()  ) {
 		runway_t *w=(runway_t *)gr->get_weg(air_wt);
@@ -5783,7 +5777,6 @@ grund_t* aircraft_t::betrete_feld()
 			}
 		}
 	}
-	return gr;
 }
 
 
@@ -5952,7 +5945,7 @@ uint8 aircraft_t::get_approach_ribi( koord3d start, koord3d ziel )
 #endif
 
 
-grund_t *aircraft_t::hop()
+void aircraft_t::hop(grund_t* gr)
 {
 	if(  !get_flag(obj_t::dirty)  ) {
 		mark_image_dirty( bild, get_yoff()-flughoehe-hoff-2 );
@@ -6075,11 +6068,10 @@ grund_t *aircraft_t::hop()
 	}
 
 	// hop to next tile
-	grund_t *gr = vehikel_t::hop();
+	vehikel_t::hop(gr);
 
 	speed_limit = new_speed_limit;
 	current_friction = new_friction;
-	return gr;
 }
 
 

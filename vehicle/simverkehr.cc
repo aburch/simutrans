@@ -204,7 +204,7 @@ grund_t* verkehrsteilnehmer_t::hop()
 	set_pos(from->get_pos());
 	calc_bild();
 
-	return betrete_feld();
+	return to;
 }
 
 
@@ -758,7 +758,7 @@ bool stadtauto_t::ist_weg_frei(grund_t *gr)
 }
 
 
-grund_t* stadtauto_t::betrete_feld()
+void stadtauto_t::betrete_feld(grund_t* gr)
 {
 #ifdef DESTINATION_CITYCARS
 	// Destination city car code revived from an older version of Simutrans.
@@ -772,20 +772,19 @@ grund_t* stadtauto_t::betrete_feld()
 		fussgaenger_t::erzeuge_fussgaenger_an(get_pos(), number);
 	}
 #endif /* DESTINATION_CITYCARS */
-	grund_t *gr = vehikel_basis_t::betrete_feld();
+	vehikel_basis_t::betrete_feld(gr);
 	get_weg()->book(1, WAY_STAT_CONVOIS);
-	return gr;
 }
 
 
-bool stadtauto_t::hop_check()
+grund_t* stadtauto_t::hop_check()
 {
 	// V.Meyer: weg_position_t changed to grund_t::get_neighbour()
-	grund_t *from = welt->lookup(pos_next);
+	grund_t *const from = welt->lookup(pos_next);
 	if(from==NULL) {
 		// nothing to go? => destroy ...
 		time_to_life = 0;
-		return false;
+		return NULL;
 	}
 
 	// find the allowed directions
@@ -793,7 +792,7 @@ bool stadtauto_t::hop_check()
 	if(weg==NULL) {
 		// nothing to go? => destroy ...
 		time_to_life = 0;
-		return false;
+		return NULL;
 	}
 
 	// traffic light phase check (since this is on next tile, it will always be necessary!)
@@ -808,7 +807,7 @@ bool stadtauto_t::hop_check()
 			// wait here
 			current_speed = 48;
 			weg_next = 0;
-			return false;
+			return NULL;
 		}
 	}
 
@@ -822,7 +821,7 @@ bool stadtauto_t::hop_check()
 		// cul de sac: return
 		if(ribi==0) {
 			pos_next_next = get_pos();
-			return ist_weg_frei(from);
+			return ist_weg_frei(from) ? from : NULL;
 		}
 
 #ifdef DESTINATION_CITYCARS
@@ -868,7 +867,7 @@ bool stadtauto_t::hop_check()
 						if(current_speed<48) {
 							current_speed = 48;
 						}
-						return true;
+						return from;
 					}
 					else {
 						pos_next_next = koord3d::invalid;
@@ -894,7 +893,7 @@ bool stadtauto_t::hop_check()
 			if(current_speed<48) {
 				current_speed = 48;
 			}
-			return true;
+			return from;
 		}
 #else
 		// only stumps at single way crossing, all other blocked => turn around
@@ -911,19 +910,19 @@ bool stadtauto_t::hop_check()
 			if(current_speed<48) {
 				current_speed = 48;
 			}
-			return true;
+			return from;
 		}
 	}
 	// no free tiles => assume traffic jam ...
 	pos_next_next = koord3d::invalid;
 	current_speed = 0;
 	set_tiles_overtaking( 0 );
-	return false;
+	return NULL;
 }
 
 
 
-grund_t* stadtauto_t::hop()
+void stadtauto_t::hop(grund_t* to)
 {
 	// Check whether this private car should pay a road toll.
 
@@ -941,10 +940,9 @@ grund_t* stadtauto_t::hop()
 	}
 	
 	// V.Meyer: weg_position_t changed to grund_t::get_neighbour()
-	grund_t *to = welt->lookup(pos_next);
 	if(to==NULL) {
 		time_to_life = 0;
-		return NULL;
+		return;
 	}
 
 	if(way)
@@ -965,7 +963,7 @@ grund_t* stadtauto_t::hop()
 
 	// and add to next tile
 	set_pos(pos_next);
-	to = betrete_feld();
+	betrete_feld(to);
 
 	calc_current_speed(to);
 
@@ -975,8 +973,6 @@ grund_t* stadtauto_t::hop()
 	}
 	pos_next = pos_next_next;
 	pos_next_next = koord3d::invalid;
-	
-	return to;
 }
 
 
