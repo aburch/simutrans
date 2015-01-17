@@ -352,9 +352,10 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 		ribi_t::ribi ribi;
 		if(fahr->get_waytype() == track_wt || fahr->get_waytype() == tram_wt || fahr->get_waytype() == monorail_wt || fahr->get_waytype() == narrowgauge_wt || fahr->get_waytype() == maglev_wt)
 		{
-			if(gr->get_weg(fahr->get_waytype())->has_signal())
+			const weg_t* way = gr->get_weg(fahr->get_waytype());
+			if(way && way->has_signal())
 			{
-				ribi = (gr->get_weg(fahr->get_waytype())->get_ribi_unmasked());
+				ribi = way->get_ribi_unmasked();
 			}
 			else
 			{
@@ -625,8 +626,9 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 		}
 
 		uint32 topnode_f = !queue.empty() ? queue.front()->f : max_cost;
+		const weg_t* way = gr->get_weg(fahr->get_waytype());
 
-		const ribi_t::ribi way_ribi = gr->get_weg(fahr->get_waytype())->has_signal() ? gr->get_weg_ribi_unmasked(fahr->get_waytype()) : fahr->get_ribi(gr);
+		const ribi_t::ribi way_ribi = way && way->has_signal() ? gr->get_weg_ribi_unmasked(fahr->get_waytype()) : fahr->get_ribi(gr);
 		// testing all four possible directions
 		// mask direction we came from
 		const ribi_t::ribi ribi =  way_ribi  &  ( ~ribi_t::rueckwaerts(tmp->ribi_from) )  &  tmp->jps_ribi;

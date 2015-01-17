@@ -1349,7 +1349,8 @@ grund_t* vehikel_t::hop_check()
 		const waytype_t wt = get_waytype();
 		if(  air_wt != wt  &&  route_index < cnv->get_route()->get_count()-1  ) {
 			uint8 dir;
-			if(bd->get_weg(wt)->has_signal() && (wt == track_wt || wt == tram_wt || wt == narrowgauge_wt || wt == maglev_wt || wt == monorail_wt))
+			const weg_t* way = bd->get_weg(wt);
+			if(way && way->has_signal() && (wt == track_wt || wt == tram_wt || wt == narrowgauge_wt || wt == maglev_wt || wt == monorail_wt))
 			{
 				dir = bd->get_weg_ribi_unmasked(wt);
 			}
