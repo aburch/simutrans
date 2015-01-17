@@ -678,10 +678,6 @@ public:
 	enum flight_state { taxiing=0, departing=1, flying=2, landing=3, looking_for_parking=4, circling=5, taxiing_to_halt=6  };
 
 private:
-	// just to mark dirty afterwards
-	sint16 old_x, old_y;
-	image_id old_bild;
-
 	// only used for ist_ziel() (do not need saving)
 	ribi_t::ribi approach_dir;
 #ifdef USE_DIFFERENT_WIND
