@@ -98,15 +98,15 @@ goods_frame_t::goods_frame_t() :
 
 	change_speed_label.set_text(speed_bonus);
 	change_speed_label.set_pos(scr_coord(BUTTON4_X+5, y));
-	add_komponente(&change_speed_label);
+	add_component(&change_speed_label);
 
 	//speed_down.init(button_t::repeatarrowleft, "", koord(BUTTON4_X-20, y), koord(10,D_BUTTON_HEIGHT));
 	//speed_down.add_listener(this);
-	//add_komponente(&speed_down);
+	//add_component(&speed_down);
 
 	//speed_up.init(button_t::repeatarrowright, "", koord(BUTTON4_X+10, y), koord(10,D_BUTTON_HEIGHT));
 	//speed_up.add_listener(this);
-	//add_komponente(&speed_up);
+	//add_component(&speed_up);
 
 	y=D_BUTTON_HEIGHT+4+5*LINESPACE;
 
@@ -122,7 +122,7 @@ goods_frame_t::goods_frame_t() :
 	distance_input.set_value( distance );
 	distance_input.wrap_mode( false );
 	distance_input.add_listener( this );
-	add_komponente(&distance_input);
+	add_component(&distance_input);
 
 	comfort_input.set_pos(scr_coord(BUTTON4_X-22, y + 12) );
 	comfort_input.set_size(scr_size(60, D_BUTTON_HEIGHT));
@@ -130,7 +130,7 @@ goods_frame_t::goods_frame_t() :
 	comfort_input.set_value( comfort );
 	comfort_input.wrap_mode( false );
 	comfort_input.add_listener( this );
-	add_komponente(&comfort_input);
+	add_component(&comfort_input);
 
 	catering_input.set_pos(scr_coord(BUTTON4_X-22, y + 24) );
 	catering_input.set_size(scr_size(60, D_BUTTON_HEIGHT));
@@ -138,7 +138,7 @@ goods_frame_t::goods_frame_t() :
 	catering_input.set_value( catering_level );
 	catering_input.wrap_mode( false );
 	catering_input.add_listener( this );
-	add_komponente(&catering_input);
+	add_component(&catering_input);
 
 	speed_input.set_pos(scr_coord(BUTTON4_X-22, y + 36) );
 	speed_input.set_size(scr_size(60, D_BUTTON_HEIGHT));
@@ -146,10 +146,10 @@ goods_frame_t::goods_frame_t() :
 	speed_input.set_value( relative_speed_percentage );
 	speed_input.wrap_mode( false );
 	speed_input.add_listener( this );
-	add_komponente(&speed_input);
+	add_component(&speed_input);
 
 	way_type.add_listener(this);
-	add_komponente(&way_type);
+	add_component(&way_type);
 	way_type.clear_elements();
 	static const char *txt_wtype[8] = { "Road", "Rail", "Ship", "Monorail", "Maglev", "Tram", "Narrow gauge", "Air" };
 	for(uint8 i = 0; i < 8; i++)
@@ -166,17 +166,17 @@ goods_frame_t::goods_frame_t() :
 
 //	speed_down.init(button_t::repeatarrowleft, "", scr_coord(BUTTON4_X-20, y), scr_size(10,D_BUTTON_HEIGHT));
 //	speed_down.add_listener(this);
-//	add_komponente(&speed_down);
+//	add_component(&speed_down);
 //
 //	change_speed_label.set_text(speed_bonus);
 //	change_speed_label.set_width(display_get_char_max_width("-0123456789")*4);
 //	change_speed_label.align_to(&speed_down, ALIGN_LEFT | ALIGN_EXTERIOR_H | ALIGN_CENTER_V,scr_coord(D_V_SPACE,0));
-//	add_komponente(&change_speed_label);
+//	add_component(&change_speed_label);
 //
 //	speed_up.init(button_t::repeatarrowright, "",speed_down.get_pos());
 //	speed_up.align_to(&change_speed_label, ALIGN_LEFT | ALIGN_EXTERIOR_H, scr_coord(D_V_SPACE,0));
 //	speed_up.add_listener(this);
-//	add_komponente(&speed_up);
+//	add_component(&speed_up);
 //	y=D_BUTTON_HEIGHT+4+5*LINESPACE;
 
 
@@ -184,27 +184,27 @@ goods_frame_t::goods_frame_t() :
 	filter_goods_toggle.set_tooltip(translator::translate("Only show goods which are currently handled by factories"));
 	filter_goods_toggle.add_listener(this);
 	filter_goods_toggle.pressed = filter_goods;
-	add_komponente(&filter_goods_toggle);
+	add_component(&filter_goods_toggle);
 	y += LINESPACE+2;
 
 	sort_label.set_pos(scr_coord(BUTTON1_X, y));
-	add_komponente(&sort_label);
+	add_component(&sort_label);
 
 	y += LINESPACE+1;
 
 	sortedby.init(button_t::roundbox, "", scr_coord(BUTTON1_X, y), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
 	sortedby.add_listener(this);
-	add_komponente(&sortedby);
+	add_component(&sortedby);
 
 	sorteddir.init(button_t::roundbox, "", scr_coord(BUTTON2_X, y), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
 	sorteddir.add_listener(this);
-	add_komponente(&sorteddir);
+	add_component(&sorteddir);
 
 	y += D_BUTTON_HEIGHT+2;
 
 	scrolly.set_pos(scr_coord(1, y));
 	scrolly.set_scroll_amount_y(LINESPACE+1);
-	add_komponente(&scrolly);
+	add_component(&scrolly);
 
 	sort_list();
 
@@ -325,47 +325,47 @@ void goods_frame_t::resize(const scr_coord delta)
  * This method is called if an action is triggered
  * @author Hj. Malthaner
  */
-bool goods_frame_t::action_triggered( gui_action_creator_t *komp,value_t v)
+bool goods_frame_t::action_triggered( gui_action_creator_t *comp,value_t v)
 {
-	if(komp == &sortedby) {
+	if(comp == &sortedby) {
 		// sort by what
 		sortby = (sort_mode_t)((int)(sortby+1)%(int)SORT_MODES);
 		sort_list();
 	}
-	else if(komp == &sorteddir) {
+	else if(comp == &sorteddir) {
 		// order
 		sortreverse ^= 1;
 		sort_list();
 	}
-	//else if(komp == &speed_down) {
+	//else if(comp == &speed_down) {
 	//	if(relative_speed_change>1) {
 	//		relative_speed_change --;
 	//		sort_list();
 	//	}
 	//}
-	//else if(komp == &speed_up) {
+	//else if(comp == &speed_up) {
 	//	relative_speed_change ++;
 	//	sort_list();
 	//}
 
-	else if (komp == &speed_input) {
+	else if (comp == &speed_input) {
 		relative_speed_percentage = v.i;
 		sort_list();
 	}
-	else if (komp == &distance_input) {
+	else if (comp == &distance_input) {
 		distance = v.i;
 		distance_meters = (sint32) 1000 * distance;
 		sort_list();
 	}
-	else if (komp == &comfort_input) {
+	else if (comp == &comfort_input) {
 		comfort = v.i;
 		sort_list();
 	}
-	else if (komp == &catering_input) {
+	else if (comp == &catering_input) {
 		catering_level = v.i;
 		sort_list();
 	}
-	else if (komp == &way_type)
+	else if (comp == &way_type)
 	{
 		switch(way_type.get_selection())
 		{
@@ -403,7 +403,7 @@ bool goods_frame_t::action_triggered( gui_action_creator_t *komp,value_t v)
 		};
 		sort_list();
 	}
-	else if(komp == &filter_goods_toggle) {
+	else if(comp == &filter_goods_toggle) {
 		filter_goods = !filter_goods;
 		filter_goods_toggle.pressed = filter_goods;
 		sort_list();

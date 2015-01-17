@@ -349,10 +349,10 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, player_t* player_, convoihandle
 		bt_promote_to_line.init( button_t::roundbox, "promote to line", scr_coord( BUTTON3_X, ypos ) );
 		bt_promote_to_line.set_tooltip("Create a new line based on this schedule");
 		bt_promote_to_line.add_listener(this);
-		add_komponente(&bt_promote_to_line);
+		add_component(&bt_promote_to_line);
 
 		lb_line.align_to( &bt_promote_to_line, ALIGN_CENTER_V, scr_coord( D_MARGIN_LEFT, 0 ) );
-		add_komponente( &lb_line );
+		add_component( &lb_line );
 
 		ypos += D_BUTTON_HEIGHT+1;
 
@@ -364,7 +364,7 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, player_t* player_, convoihandle
 
 		init_line_selector();
 		line_selector.add_listener(this);
-		add_komponente(&line_selector);
+		add_component(&line_selector);
 
 		ypos += D_BUTTON_HEIGHT + D_V_SPACE;
 	}
@@ -378,23 +378,23 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, player_t* player_, convoihandle
 	numimp_load.set_limits( 0, 100 );
 	numimp_load.set_increment_mode(10);
 	numimp_load.add_listener(this);
-	add_komponente(&numimp_load);
+	add_component(&numimp_load);
 
 	bt_bidirectional.init(button_t::square_automatic, "Alternate directions", scr_coord( BUTTON3_X, ypos ), scr_size(D_BUTTON_WIDTH*2,D_BUTTON_HEIGHT) );
 	bt_bidirectional.set_tooltip("When adding convoys to the line, every second convoy will follow it in the reverse direction.");
 	bt_bidirectional.pressed = fpl->is_bidirectional();
 	bt_bidirectional.add_listener(this);
-	add_komponente(&bt_bidirectional);
+	add_component(&bt_bidirectional);
 
 	lb_load.set_width( label_width );
 	lb_load.align_to( &numimp_load, ALIGN_CENTER_V, scr_coord( D_MARGIN_LEFT, 0 ) );
-	add_komponente( &lb_load );
+	add_component( &lb_load );
 
 	ypos += D_BUTTON_HEIGHT;
 
 	// Maximum waiting time
 	lb_wait.set_pos( scr_coord( D_MARGIN_LEFT, ypos+2 ) );
-	add_komponente(&lb_wait);
+	add_component(&lb_wait);
 
 	if(  fpl->get_current_eintrag().waiting_time_shift==0  ) {
 		strcpy( str_parts_month, translator::translate("off") );
@@ -411,22 +411,22 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, player_t* player_, convoihandle
 	lb_waitlevel_as_clock.set_size( numimp_load.get_size() - scr_size( D_ARROW_LEFT_WIDTH + D_ARROW_RIGHT_WIDTH, 0 ) );
 	lb_waitlevel_as_clock.set_pos( scr_coord(bt_wait_prev.get_pos().x, ypos + 2));
 	lb_waitlevel_as_clock.align_to( &numimp_load, ALIGN_EXTERIOR_V | ALIGN_TOP | ALIGN_LEFT, scr_coord( gui_theme_t::gui_arrow_left_size.w, 0 ) );
-	add_komponente(&lb_waitlevel_as_clock);
+	add_component(&lb_waitlevel_as_clock);
 
 	bt_wait_prev.set_typ( button_t::arrowleft );
 	bt_wait_prev.align_to( &lb_waitlevel_as_clock, ALIGN_EXTERIOR_H | ALIGN_RIGHT | ALIGN_CENTER_V );
 	bt_wait_prev.add_listener(this);
-	add_komponente( &bt_wait_prev );
+	add_component( &bt_wait_prev );
 
 	bt_wait_next.set_typ( button_t::arrowright );
 	bt_wait_next.align_to( &lb_waitlevel_as_clock, ALIGN_EXTERIOR_H | ALIGN_LEFT | ALIGN_CENTER_V );
 	bt_wait_next.add_listener(this);
 	lb_waitlevel_as_clock.set_width( bt_wait_next.get_pos().x-bt_wait_prev.get_pos().x-bt_wait_prev.get_size().w );
-	add_komponente( &bt_wait_next );
+	add_component( &bt_wait_next );
 
 	lb_wait.set_width( label_width );
 	lb_wait.align_to( &lb_waitlevel_as_clock, ALIGN_CENTER_V, scr_coord( D_MARGIN_LEFT, 0 ) );
-	add_komponente( &lb_wait );
+	add_component( &lb_wait );
 
 	if(!cnv.is_bound())
 	{
@@ -435,7 +435,7 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, player_t* player_, convoihandle
 		bt_wait_for_time.set_tooltip("If this is set, convoys will wait until one of the specified times before departing, the specified times being fractions of a month.");
 		bt_wait_for_time.pressed = fpl->get_current_eintrag().wait_for_time;
 		bt_wait_for_time.add_listener(this);
-		add_komponente(&bt_wait_for_time);
+		add_component(&bt_wait_for_time);
 	}
 
 	// Mirror schedule/alternate directions
@@ -443,7 +443,7 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, player_t* player_, convoihandle
 	bt_mirror.set_tooltip("Vehicles make a round trip between the schedule endpoints, visiting all stops in reverse after reaching the end.");
 	bt_mirror.pressed = fpl->is_mirrored();
 	bt_mirror.add_listener(this);
-	add_komponente(&bt_mirror);
+	add_component(&bt_mirror);
 
 	ypos += LINESPACE;
 
@@ -452,14 +452,14 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, player_t* player_, convoihandle
 	// Spacing
 	if ( !cnv.is_bound() ) {
 		lb_spacing.set_pos( scr_coord( 10, ypos+2 ) );
-		add_komponente(&lb_spacing);
+		add_component(&lb_spacing);
 		numimp_spacing.set_pos( scr_coord( BUTTON3_X, ypos+2 ) );
 		numimp_spacing.set_width( 60 );
 		numimp_spacing.set_value( fpl->get_spacing() );
 		numimp_spacing.set_limits( 0, 999 );
 		numimp_spacing.set_increment_mode( 1 );
 		numimp_spacing.add_listener(this);
-		add_komponente(&numimp_spacing);
+		add_component(&numimp_spacing);
 
 		// Spacing shift
 		int spacing_shift_mode = welt->get_settings().get_spacing_shift_mode();
@@ -470,7 +470,7 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, player_t* player_, convoihandle
 			numimp_spacing_shift.set_limits( 0,welt->get_settings().get_spacing_shift_divisor() );
 			numimp_spacing_shift.set_increment_mode( 1 );
 			numimp_spacing_shift.add_listener(this);
-			add_komponente(&numimp_spacing_shift);
+			add_component(&numimp_spacing_shift);
 		}
 
 		ypos += D_BUTTON_HEIGHT;
@@ -481,19 +481,19 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, player_t* player_, convoihandle
 			bt_same_spacing_shift.set_tooltip("Use one spacing shift value for all stops in schedule.");
 			bt_same_spacing_shift.pressed = fpl->is_same_spacing_shift();
 			bt_same_spacing_shift.add_listener(this);
-			add_komponente(&bt_same_spacing_shift);
+			add_component(&bt_same_spacing_shift);
 		}
 
 		lb_spacing_as_clock.set_pos(scr_coord( numimp_spacing.get_pos().x, ypos+2 ) );
 		lb_spacing_as_clock.set_width(50);
 		lb_spacing_as_clock.set_text_pointer(str_spacing_as_clock, false);
-		add_komponente(&lb_spacing_as_clock);
+		add_component(&lb_spacing_as_clock);
 
 		if (spacing_shift_mode > settings_t::SPACING_SHIFT_PER_LINE) {
 			lb_spacing_shift_as_clock.set_pos(scr_coord( numimp_spacing_shift.get_pos().x, ypos+2 ) );
 			lb_spacing_shift_as_clock.set_width(50);
 			lb_spacing_shift_as_clock.set_text_pointer(str_spacing_shift_as_clock, false);
-			add_komponente(&lb_spacing_shift_as_clock);
+			add_component(&lb_spacing_shift_as_clock);
 		}
 
 		ypos += D_BUTTON_HEIGHT;
@@ -505,26 +505,26 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, player_t* player_, convoihandle
 	bt_add.set_tooltip("Appends stops at the end of the schedule");
 	bt_add.add_listener(this);
 	bt_add.pressed = true;
-	add_komponente(&bt_add);
+	add_component(&bt_add);
 
 	bt_insert.init(button_t::roundbox_state, "Ins Stop", scr_coord(BUTTON2_X, ypos ), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT) );
 	bt_insert.set_tooltip("Insert stop before the current stop");
 	bt_insert.add_listener(this);
 	bt_insert.pressed = false;
-	add_komponente(&bt_insert);
+	add_component(&bt_insert);
 
 	bt_remove.init(button_t::roundbox_state, "Del Stop", scr_coord(BUTTON3_X, ypos ), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT) );
 	bt_remove.set_tooltip("Delete the current stop");
 	bt_remove.add_listener(this);
 	bt_remove.pressed = false;
-	add_komponente(&bt_remove);
+	add_component(&bt_remove);
 
 	ypos += D_BUTTON_HEIGHT;
 
 	scrolly.set_pos( scr_coord( 0, ypos ) );
 	scrolly.set_show_scroll_x(true);
 	scrolly.set_scroll_amount_y(LINESPACE+1);
-	add_komponente(&scrolly);
+	add_component(&scrolly);
 
 	mode = adding;
 	update_selection();
@@ -727,38 +727,38 @@ bool fahrplan_gui_t::infowin_event(const event_t *ev)
 }
 
 
-bool fahrplan_gui_t::action_triggered( gui_action_creator_t *komp, value_t p)
+bool fahrplan_gui_t::action_triggered( gui_action_creator_t *comp, value_t p)
 {
-DBG_MESSAGE("fahrplan_gui_t::action_triggered()","komp=%p combo=%p",komp,&line_selector);
+DBG_MESSAGE("fahrplan_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_selector);
 
-	if(komp == &bt_add) {
+	if(comp == &bt_add) {
 		mode = adding;
 		bt_add.pressed = true;
 		bt_insert.pressed = false;
 		bt_remove.pressed = false;
 		update_tool( true );
 	}
-	else if(komp == &bt_insert) {
+	else if(comp == &bt_insert) {
 		mode = inserting;
 		bt_add.pressed = false;
 		bt_insert.pressed = true;
 		bt_remove.pressed = false;
 		update_tool( true );
 	}
-	else if(komp == &bt_remove) {
+	else if(comp == &bt_remove) {
 		mode = removing;
 		bt_add.pressed = false;
 		bt_insert.pressed = false;
 		bt_remove.pressed = true;
 		update_tool( false );
 	}
-	else if(komp == &numimp_load) {
+	else if(comp == &numimp_load) {
 		if (!fpl->empty()) {
 			fpl->eintrag[fpl->get_aktuell()].ladegrad = (uint16)p.i;
 			update_selection();
 		}
 	}
-	else if(komp == &bt_wait_prev) {
+	else if(comp == &bt_wait_prev) {
 		if(!fpl->empty()) {
 			sint8& wait = fpl->eintrag[fpl->get_aktuell()].waiting_time_shift;
 			if(wait>7) {
@@ -773,7 +773,7 @@ DBG_MESSAGE("fahrplan_gui_t::action_triggered()","komp=%p combo=%p",komp,&line_s
 			update_selection();
 		}
 	}
-	else if(komp == &bt_wait_next) {
+	else if(comp == &bt_wait_next) {
 		if(!fpl->empty()) {
 			sint8& wait = fpl->eintrag[fpl->get_aktuell()].waiting_time_shift;
 			if(wait==0) {
@@ -788,11 +788,11 @@ DBG_MESSAGE("fahrplan_gui_t::action_triggered()","komp=%p combo=%p",komp,&line_s
 			update_selection();
 		}
 	}
-	else if (komp == &numimp_spacing) {
+	else if (comp == &numimp_spacing) {
 		fpl->set_spacing(p.i);
 		update_selection();
 	} 
-	else if(komp == &numimp_spacing_shift) {
+	else if(comp == &numimp_spacing_shift) {
 		if (!fpl->empty()) {
 			if ( fpl->is_same_spacing_shift() ) {
 			    for(  uint8 i=0;  i<fpl->eintrag.get_count();  i++  ) {
@@ -804,13 +804,13 @@ DBG_MESSAGE("fahrplan_gui_t::action_triggered()","komp=%p combo=%p",komp,&line_s
 			update_selection();
 		}
 	} 
-	else if (komp == &bt_mirror) {
+	else if (comp == &bt_mirror) {
 		fpl->set_mirrored(bt_mirror.pressed);
 	} 
-	else if (komp == &bt_bidirectional) {
+	else if (comp == &bt_bidirectional) {
 		fpl->set_bidirectional(bt_bidirectional.pressed);
 	} 
-	else if (komp == &bt_same_spacing_shift) {
+	else if (comp == &bt_same_spacing_shift) {
 		fpl->set_same_spacing_shift(bt_same_spacing_shift.pressed);
 		if ( fpl->is_same_spacing_shift() ) {
 		    for(  uint8 i=0;  i<fpl->eintrag.get_count();  i++  ) {
@@ -818,7 +818,7 @@ DBG_MESSAGE("fahrplan_gui_t::action_triggered()","komp=%p combo=%p",komp,&line_s
 			}
 		}
 	} 
-	else if(komp == &bt_wait_for_time)
+	else if(comp == &bt_wait_for_time)
 	{
 		if(!fpl->empty())
 		{
@@ -826,7 +826,7 @@ DBG_MESSAGE("fahrplan_gui_t::action_triggered()","komp=%p combo=%p",komp,&line_s
 			update_selection();
 		}
 	}
-	else if (komp == &line_selector) {
+	else if (comp == &line_selector) {
 		uint32 selection = p.i - !new_line.is_bound();
 //DBG_MESSAGE("fahrplan_gui_t::action_triggered()","line selection=%i",selection);
 		if(  line_scrollitem_t *li = dynamic_cast<line_scrollitem_t*>(line_selector.get_element(selection))  ) {
@@ -841,7 +841,7 @@ DBG_MESSAGE("fahrplan_gui_t::action_triggered()","komp=%p combo=%p",komp,&line_s
 			line_selector.set_selection( 0 );
 		}
 	}
-	else if(komp == &bt_promote_to_line) {
+	else if(comp == &bt_promote_to_line) {
 		// update line schedule via tool!
 		tool_t *tool = create_tool( TOOL_CHANGE_LINE | SIMPLE_TOOL );
 		cbuffer_t buf;

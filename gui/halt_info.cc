@@ -134,11 +134,11 @@ halt_info_t::halt_info_t(halthandle_t halt) :
 	tstrncpy(edit_name, halt->get_name(), lengthof(edit_name));
 	input.set_text(edit_name, lengthof(edit_name));
 	input.add_listener(this);
-	add_komponente(&input);
+	add_component(&input);
 	cursor.y += D_EDIT_HEIGHT + D_V_SPACE;
 
 	view.set_pos(cursor); // will be right aligned in set_windowsize()
-	add_komponente(&view);
+	add_component(&view);
 	cursor.y += view.get_size().h + D_V_SPACE;
 
 	scr_coord old_cursor = cursor;
@@ -150,7 +150,7 @@ halt_info_t::halt_info_t(halthandle_t halt) :
 	chart.set_visible(false);
 	chart.set_background(MN_GREY1);
 	chart.set_ltr(env_t::left_to_right_graphs);
-	add_komponente(&chart);
+	add_component(&chart);
 	cursor.y += 100 + 20 + D_V_SPACE;
 
 	floating_cursor_t auto_cursor(cursor, D_MARGIN_LEFT, total_width - D_MARGIN_RIGHT);
@@ -162,46 +162,46 @@ halt_info_t::halt_info_t(halthandle_t halt) :
 		filterButtons[cost].set_visible(false);
 		filterButtons[cost].pressed = false;
 		filterButtons[cost].set_tooltip(cost_tooltip[cost]);
-		add_komponente(filterButtons + cost);
+		add_component(filterButtons + cost);
 	}
 	cursor = old_cursor;
 
 	sort_label.set_pos(cursor);
 	sort_label.set_width(client_width);
-	add_komponente(&sort_label);
+	add_component(&sort_label);
 	cursor.y += D_LABEL_HEIGHT + D_V_SPACE;
 
 	// hsiegeln: added sort_button
 	sort_button.init(button_t::roundbox, sort_text[env_t::default_sortmode], cursor, scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
 	sort_button.set_tooltip("Sort waiting list by");
 	sort_button.add_listener(this);
-	add_komponente(&sort_button);
+	add_component(&sort_button);
 	cursor.x += button_size.w + D_H_SPACE;
 
 	toggler_departures.init( button_t::roundbox_state, "Departure board", cursor, button_size);
 	toggler_departures.set_tooltip("Show/hide estimated arrival times");
 	//toggler_departures.set_visible(false); // (This is for disabling the departures board)
 	toggler_departures.add_listener( this );
-	add_komponente( &toggler_departures );
+	add_component( &toggler_departures );
 	cursor.x += button_size.w + D_H_SPACE;
 
 	toggler.init(button_t::roundbox_state, "Chart", cursor, button_size);
 	toggler.set_tooltip("Show/hide statistics");
 	toggler.add_listener(this);
-	add_komponente(&toggler);
+	add_component(&toggler);
 	cursor.x += button_size.w + D_H_SPACE;
 
 	button.init(button_t::roundbox, "Details", cursor, button_size);
 	button.set_tooltip("Open station/stop details");
 	button.add_listener(this);
-	add_komponente(&button);
+	add_component(&button);
 	cursor.x = D_MARGIN_RIGHT;
 	cursor.y += button_size.h + D_V_SPACE;
 
 	scrolly.set_pos(scr_coord(D_MARGIN_LEFT, cursor.y));
 	scrolly.set_size(scr_size(client_width, 10 * D_LABEL_HEIGHT));
 	scrolly.set_show_scroll_x(true);
-	add_komponente(&scrolly);
+	add_component(&scrolly);
 	cursor.y += scrolly.get_size().h;
 
 	set_windowsize(scr_size(total_width, cursor.y + D_MARGIN_BOTTOM));

@@ -8,7 +8,7 @@
 #ifndef gui_fixedwidth_textarea_h
 #define gui_fixedwidth_textarea_h
 
-#include "gui_komponente.h"
+#include "gui_component.h"
 #include "../../display/simgraph.h"
 
 class cbuffer_t;
@@ -20,7 +20,7 @@ class cbuffer_t;
  *	It does *not* add 10px margins from the top and the left.
  *	Core code borrowed from ding_infowin_t::calc_draw_info() with adaptation.
  */
-class gui_fixedwidth_textarea_t : public gui_komponente_t
+class gui_fixedwidth_textarea_t : public gui_component_t
 {
 private:
 	// Pointer to the text to be displayed. The text is *not* copied.

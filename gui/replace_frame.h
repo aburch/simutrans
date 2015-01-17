@@ -135,7 +135,7 @@ public:
 	 * components should be triggered.
 	 * V.Meyer
 	 */
-	bool action_triggered( gui_action_creator_t *komp, value_t extra);
+	bool action_triggered( gui_action_creator_t *comp, value_t extra);
 
 	const convoihandle_t get_convoy() const { return cnv; }
 

@@ -35,17 +35,17 @@ farbengui_t::farbengui_t(player_t *player) :
 	// Info text
 	txt.set_pos( cursor );
 	txt.recalc_size();
-	add_komponente( &txt );
+	add_component( &txt );
 
 	// Picture
 	bild.set_pos(cursor);
 	bild.enable_offset_removal(true);
-	add_komponente( &bild );
+	add_component( &bild );
 	cursor.y += max( txt.get_size().h, bild.get_size().h );
 
 	// Player's primary color label
 	c1.set_pos( cursor );
-	add_komponente( &c1 );
+	add_component( &c1 );
 	cursor.y += LINESPACE+D_V_SPACE;
 
 	// Get all colors (except the current player's)
@@ -63,14 +63,14 @@ farbengui_t::farbengui_t(player_t *player) :
 		player_color_1[i].init( button_t::box_state, (used_colors1 & (1<<(i+1)) ? "X" : ""), scr_coord( cursor.x+(i%14)*(D_BUTTON_HEIGHT+D_H_SPACE), cursor.y+(i/14)*(D_BUTTON_HEIGHT+D_V_SPACE) ) , scr_size(D_BUTTON_HEIGHT,D_BUTTON_HEIGHT) );
 		player_color_1[i].background_color = i*8+4;
 		player_color_1[i].add_listener(this);
-		add_komponente( player_color_1+i );
+		add_component( player_color_1+i );
 	}
 	player_color_1[player->get_player_color1()/8].pressed = true;
 	cursor.y += 2*(D_BUTTON_HEIGHT+D_H_SPACE)+LINESPACE;
 
 	// Player's secondary color label
 	c2.set_pos( scr_coord(D_MARGIN_LEFT,cursor.y) );
-	add_komponente( &c2 );
+	add_component( &c2 );
 	cursor.y += LINESPACE+D_V_SPACE;
 
 	// Secondary color buttons
@@ -78,7 +78,7 @@ farbengui_t::farbengui_t(player_t *player) :
 		player_color_2[i].init( button_t::box_state, (used_colors2 & (1<<(i+1)) ? "X" : ""), scr_coord( cursor.x+(i%14)*(D_BUTTON_HEIGHT+D_H_SPACE), cursor.y+(i/14)*(D_BUTTON_HEIGHT+D_V_SPACE) ), scr_size(D_BUTTON_HEIGHT,D_BUTTON_HEIGHT) );
 		player_color_2[i].background_color = i*8+4;
 		player_color_2[i].add_listener(this);
-		add_komponente( player_color_2+i );
+		add_component( player_color_2+i );
 	}
 	player_color_2[player->get_player_color2()/8].pressed = true;
 	cursor.y += 2*D_BUTTON_HEIGHT+D_H_SPACE;
@@ -94,12 +94,12 @@ farbengui_t::farbengui_t(player_t *player) :
  * This method is called if an action is triggered
  * @author V. Meyer
  */
-bool farbengui_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
+bool farbengui_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 {
 	for(unsigned i=0;  i<28;  i++) {
 
 		// new player 1 color?
-		if(komp==player_color_1+i) {
+		if(comp==player_color_1+i) {
 			for(unsigned j=0;  j<28;  j++) {
 				player_color_1[j].pressed = false;
 			}
@@ -117,7 +117,7 @@ bool farbengui_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 		}
 
 		// new player color 2?
-		if(komp==player_color_2+i) {
+		if(comp==player_color_2+i) {
 			for(unsigned j=0;  j<28;  j++) {
 				player_color_2[j].pressed = false;
 			}

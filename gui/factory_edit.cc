@@ -58,39 +58,39 @@ factory_edit_frame_t::factory_edit_frame_t(player_t* player_) :
 
 	bt_city_chain.init( button_t::square_state, "Only city chains", scr_coord(get_tab_panel_width()+2*MARGIN, offset_of_comp-4 ) );
 	bt_city_chain.add_listener(this);
-	add_komponente(&bt_city_chain);
+	add_component(&bt_city_chain);
 	offset_of_comp += D_BUTTON_HEIGHT;
 
 	bt_land_chain.init( button_t::square_state, "Only land chains", scr_coord(get_tab_panel_width()+2*MARGIN, offset_of_comp-4 ) );
 	bt_land_chain.add_listener(this);
-	add_komponente(&bt_land_chain);
+	add_component(&bt_land_chain);
 	offset_of_comp += D_BUTTON_HEIGHT;
 
 	lb_rotation_info.set_pos( scr_coord( get_tab_panel_width()+2*MARGIN, offset_of_comp-4 ) );
-	add_komponente(&lb_rotation_info);
+	add_component(&lb_rotation_info);
 
 	bt_left_rotate.init( button_t::repeatarrowleft, NULL, scr_coord(get_tab_panel_width()+2*MARGIN+COLUMN_WIDTH/2-16,	offset_of_comp-4 ) );
 	bt_left_rotate.add_listener(this);
-	add_komponente(&bt_left_rotate);
+	add_component(&bt_left_rotate);
 
 	bt_right_rotate.init( button_t::repeatarrowright, NULL, scr_coord(get_tab_panel_width()+2*MARGIN+COLUMN_WIDTH/2+50-2, offset_of_comp-4 ) );
 	bt_right_rotate.add_listener(this);
-	add_komponente(&bt_right_rotate);
+	add_component(&bt_right_rotate);
 
 	//lb_rotation.set_pos( scr_coord( get_tab_panel_width()+2*MARGIN+COLUMN_WIDTH/2+44, offset_of_comp-4 ) );
 	lb_rotation.set_width( bt_right_rotate.get_pos().x - bt_left_rotate.get_pos().x - bt_left_rotate.get_size().w );
 	lb_rotation.align_to(&bt_left_rotate,ALIGN_EXTERIOR_H | ALIGN_LEFT | ALIGN_CENTER_V);
-	add_komponente(&lb_rotation);
+	add_component(&lb_rotation);
 	offset_of_comp += D_BUTTON_HEIGHT;
 
 	lb_production_info.set_pos( scr_coord( get_tab_panel_width()+2*MARGIN, offset_of_comp-4 ) );
-	add_komponente(&lb_production_info);
+	add_component(&lb_production_info);
 
 	inp_production.set_pos(scr_coord(get_tab_panel_width()+2*MARGIN+COLUMN_WIDTH/2-16,	offset_of_comp-4-2 ));
 	inp_production.set_size(scr_size( 76, 12 ));
 	inp_production.set_limits(0,9999);
 	inp_production.add_listener( this );
-	add_komponente(&inp_production);
+	add_component(&inp_production);
 
 	offset_of_comp += D_BUTTON_HEIGHT;
 
@@ -158,17 +158,17 @@ void factory_edit_frame_t::fill_list( bool translate )
 
 
 
-bool factory_edit_frame_t::action_triggered( gui_action_creator_t *komp,value_t e)
+bool factory_edit_frame_t::action_triggered( gui_action_creator_t *comp,value_t e)
 {
 	// only one chain can be shown
-	if(  komp==&bt_city_chain  ) {
+	if(  comp==&bt_city_chain  ) {
 		bt_city_chain.pressed ^= 1;
 		if(bt_city_chain.pressed) {
 			bt_land_chain.pressed = 0;
 		}
 		fill_list( is_show_trans_name );
 	}
-	else if(  komp==&bt_land_chain  ) {
+	else if(  comp==&bt_land_chain  ) {
 		bt_land_chain.pressed ^= 1;
 		if(bt_land_chain.pressed) {
 			bt_city_chain.pressed = 0;
@@ -176,10 +176,10 @@ bool factory_edit_frame_t::action_triggered( gui_action_creator_t *komp,value_t 
 		fill_list( is_show_trans_name );
 	}
 	else if(fab_besch) {
-		if (komp==&inp_production) {
+		if (comp==&inp_production) {
 			production = inp_production.get_value();
 		}
-		else if(  komp==&bt_left_rotate  &&  rotation!=255) {
+		else if(  comp==&bt_left_rotate  &&  rotation!=255) {
 			if(rotation==0) {
 				rotation = 255;
 			}
@@ -187,13 +187,13 @@ bool factory_edit_frame_t::action_triggered( gui_action_creator_t *komp,value_t 
 				rotation --;
 			}
 		}
-		else if(  komp==&bt_right_rotate  &&  rotation!=fab_besch->get_haus()->get_all_layouts()-1) {
+		else if(  comp==&bt_right_rotate  &&  rotation!=fab_besch->get_haus()->get_all_layouts()-1) {
 			rotation ++;
 		}
 		// update info ...
 		change_item_info( scl.get_selection() );
 	}
-	return extend_edit_gui_t::action_triggered(komp,e);
+	return extend_edit_gui_t::action_triggered(comp,e);
 }
 
 

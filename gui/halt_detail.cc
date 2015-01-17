@@ -33,7 +33,7 @@ halt_detail_t::halt_detail_t(halthandle_t halt_) :
 	scrolly(&cont),
 	txt_info(&buf)
 {
-	cont.add_komponente(&txt_info);
+	cont.add_component(&txt_info);
 
 	// fill buffer with halt detail
 	halt_detail_info();
@@ -41,7 +41,7 @@ halt_detail_t::halt_detail_t(halthandle_t halt_) :
 
 	scrolly.set_pos(scr_coord(0, 0));
 	scrolly.set_show_scroll_x(true);
-	add_komponente(&scrolly);
+	add_component(&scrolly);
 
 	set_windowsize(scr_size(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT+4+22*(LINESPACE)+D_SCROLLBAR_HEIGHT+2));
 	set_min_windowsize(scr_size(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT+4+3*(LINESPACE)+D_SCROLLBAR_HEIGHT+2));
@@ -58,27 +58,27 @@ halt_detail_t::~halt_detail_t()
 {
 	while(!posbuttons.empty()) {
 		button_t *b = posbuttons.remove_first();
-		cont.remove_komponente( b );
+		cont.remove_component( b );
 		delete b;
 	}
 	while(!linelabels.empty()) {
 		gui_label_t *l = linelabels.remove_first();
-		cont.remove_komponente( l );
+		cont.remove_component( l );
 		delete l;
 	}
 	while(!linebuttons.empty()) {
 		button_t *b = linebuttons.remove_first();
-		cont.remove_komponente( b );
+		cont.remove_component( b );
 		delete b;
 	}
 	while(!convoylabels.empty()) {
 		gui_label_t *l = convoylabels.remove_first();
-		cont.remove_komponente( l );
+		cont.remove_component( l );
 		delete l;
 	}
 	while(!convoybuttons.empty()) {
 		button_t *b = convoybuttons.remove_first();
-		cont.remove_komponente( b );
+		cont.remove_component( b );
 		delete b;
 	}
 	while(!label_names.empty()) {
@@ -96,27 +96,27 @@ void halt_detail_t::halt_detail_info()
 
 	while(!posbuttons.empty()) {
 		button_t *b = posbuttons.remove_first();
-		cont.remove_komponente( b );
+		cont.remove_component( b );
 		delete b;
 	}
 	while(!linelabels.empty()) {
 		gui_label_t *l = linelabels.remove_first();
-		cont.remove_komponente( l );
+		cont.remove_component( l );
 		delete l;
 	}
 	while(!linebuttons.empty()) {
 		button_t *b = linebuttons.remove_first();
-		cont.remove_komponente( b );
+		cont.remove_component( b );
 		delete b;
 	}
 	while(!convoylabels.empty()) {
 		gui_label_t *l = convoylabels.remove_first();
-		cont.remove_komponente( l );
+		cont.remove_component( l );
 		delete l;
 	}
 	while(!convoybuttons.empty()) {
 		button_t *b = convoybuttons.remove_first();
-		cont.remove_komponente( b );
+		cont.remove_component( b );
 		delete b;
 	}
 	while(!label_names.empty()) {
@@ -170,7 +170,7 @@ void halt_detail_t::halt_detail_info()
 			pb->set_targetpos( pos );
 			pb->add_listener( this );
 			posbuttons.append( pb );
-			cont.add_komponente( pb );
+			cont.add_component( pb );
 
 			buf.printf("   %s (%d, %d)\n", translator::translate(fab->get_name()), pos.x, pos.y);
 			offset_y += LINESPACE;
@@ -233,7 +233,7 @@ void halt_detail_t::halt_detail_info()
 				b->set_targetpos( koord(-1,i) );
 				b->add_listener( this );
 				linebuttons.append( b );
-				cont.add_komponente( b );
+				cont.add_component( b );
 			}
 
 			// Line labels with color of player
@@ -241,7 +241,7 @@ void halt_detail_t::halt_detail_info()
 			gui_label_t *l = new gui_label_t( label_names.back(), PLAYER_FLAG|(halt->registered_lines[i]->get_owner()->get_player_color1()+0) );
 			l->set_pos( scr_coord(D_MARGIN_LEFT+D_BUTTON_HEIGHT+D_H_SPACE, offset_y) );
 			linelabels.append( l );
-			cont.add_komponente( l );
+			cont.add_component( l );
 			buf.append("\n");
 			offset_y += LINESPACE;
 		}
@@ -269,14 +269,14 @@ void halt_detail_t::halt_detail_info()
 			b->set_targetpos( koord(-2, i) );
 			b->add_listener( this );
 			convoybuttons.append( b );
-			cont.add_komponente( b );
+			cont.add_component( b );
 
 			// Line labels with color of player
 			label_names.append( strdup(halt->registered_convoys[i]->get_name()) );
 			gui_label_t *l = new gui_label_t( label_names.back(), PLAYER_FLAG|(halt->registered_convoys[i]->get_owner()->get_player_color1()+0) );
 			l->set_pos( scr_coord(D_MARGIN_LEFT+D_BUTTON_HEIGHT+D_H_SPACE, offset_y) );
 			convoylabels.append( l );
-			cont.add_komponente( l );
+			cont.add_component( l );
 			buf.append("\n");
 			offset_y += LINESPACE;
 		}
@@ -346,7 +346,7 @@ void halt_detail_t::halt_detail_info()
 					pb->set_targetpos( a_halt->get_basis_pos() );
 					pb->add_listener( this );
 					posbuttons.append( pb );
-					cont.add_komponente( pb );
+					cont.add_component( pb );
 
 					buf.append("\n");
 					buf.append("(");

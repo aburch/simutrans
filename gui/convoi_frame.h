@@ -96,7 +96,7 @@ public:
 	virtual ~convoi_frame_t();
 
 	/**
-	 * Events werden hiermit an die GUI-Komponenten
+	 * Events werden hiermit an die GUI-components
 	 * gemeldet
 	 * @author V. Meyer
 	 */

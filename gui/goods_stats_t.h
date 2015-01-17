@@ -16,7 +16,7 @@
 #define good_stats_t_h
 
 #include "../simtypes.h"
-#include "components/gui_komponente.h"
+#include "components/gui_component.h"
 
 
 

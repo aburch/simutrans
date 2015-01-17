@@ -36,11 +36,11 @@ settings_frame_t::settings_frame_t(settings_t* const s) :
 	revert_to_default.init( button_t::roundbox, "Simuconf.tab", scr_coord( BUTTON1_X, 0), scr_size( D_BUTTON_WIDTH, D_BUTTON_HEIGHT ) );
 	revert_to_default.disable();
 	//revert_to_default.add_listener( this );
-	add_komponente( &revert_to_default );
+	add_component( &revert_to_default );
 	revert_to_last_save.init( button_t::roundbox, "Default.sve", scr_coord( BUTTON2_X, 0), scr_size( D_BUTTON_WIDTH, D_BUTTON_HEIGHT ) );
 	revert_to_last_save.disable();
 	//revert_to_last_save.add_listener( this );
-	add_komponente( &revert_to_last_save );
+	add_component( &revert_to_last_save );
 
 	sint16 height = 0;
 	general.init( sets );
@@ -73,7 +73,7 @@ settings_frame_t::settings_frame_t(settings_t* const s) :
 	tabs.add_tab(&tabs_experimental, translator::translate("Experimental"));
 	tabs.add_tab(&scrolly_costs, translator::translate("Costs"));
 	tabs.add_tab(&scrolly_climates, translator::translate("Climate Control"));
-	add_komponente(&tabs);
+	add_component(&tabs);
 
 	tabs_experimental.add_tab(&scrolly_exp_general, translator::translate("General Exp."));
 	tabs_experimental.add_tab(&scrolly_exp_revenue, translator::translate("Passengers"));
@@ -103,9 +103,9 @@ void settings_frame_t::resize(const scr_coord delta)
 
 
  /* triggered, when button clicked; only single button registered, so the action is clear ... */
-bool settings_frame_t::action_triggered( gui_action_creator_t *komp, value_t )
+bool settings_frame_t::action_triggered( gui_action_creator_t *comp, value_t )
 {
-	if(  komp==&revert_to_default  ) {
+	if(  comp==&revert_to_default  ) {
 		// reread from simucon.tab(s) the settings and apply them
 		tabfile_t simuconf;
 		env_t::init();
@@ -142,7 +142,7 @@ bool settings_frame_t::action_triggered( gui_action_creator_t *komp, value_t )
 		costs.init( sets );
 		climates.init( sets );
 	}
-	else if(  komp==&revert_to_last_save  ) {
+	else if(  comp==&revert_to_last_save  ) {
 		// load settings of last generated map
 		loadsave_t file;
 		chdir( env_t::user_dir  );

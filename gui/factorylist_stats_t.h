@@ -13,7 +13,7 @@
 #define factorylist_stats_t_h
 
 #include "../tpl/vector_tpl.h"
-#include "components/gui_komponente.h"
+#include "components/gui_component.h"
 
 class fabrik_t;
 

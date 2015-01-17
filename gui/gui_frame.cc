@@ -122,7 +122,7 @@ PLAYER_COLOR_VAL gui_frame_t::get_titlecolor() const
 
 
 /**
- * Events werden hiermit an die GUI-Komponenten
+ * Events werden hiermit an die GUI-components
  * gemeldet
  * @author Hj. Malthaner
  */

@@ -88,7 +88,7 @@ void gui_component_table_t::change_size(const coordinates_t &old_size, const coo
 
 
 // BG, 11.04.2010
-gui_komponente_t *gui_component_table_t::get_cell_component(coordinate_t x, coordinate_t y) 
+gui_component_t *gui_component_table_t::get_cell_component(coordinate_t x, coordinate_t y) 
 { 
 
 	if (x < (coordinate_t) gui_cells.get_count() &&	y < (coordinate_t) gui_cells[x].get_count())
@@ -100,7 +100,7 @@ gui_komponente_t *gui_component_table_t::get_cell_component(coordinate_t x, coor
 
 
 // BG, 11.04.2010
-void gui_component_table_t::set_cell_component(coordinate_t x, coordinate_t y, gui_komponente_t *component) 
+void gui_component_table_t::set_cell_component(coordinate_t x, coordinate_t y, gui_component_t *component) 
 { 
 	gui_cells[x].set(y, component); 
 }
@@ -111,7 +111,7 @@ bool gui_component_table_t::infowin_event(const event_t *ev)
 	gui_table_event_t table_event(this, ev);
 	table_event.is_cell_hit = get_cell_at(ev->mx, ev->my, table_event.cell, table_event.offset);
 	if (table_event.is_cell_hit) {
-		gui_komponente_t *c = get_cell_component(table_event.cell.get_x(), table_event.cell.get_y());
+		gui_component_t *c = get_cell_component(table_event.cell.get_x(), table_event.cell.get_y());
 		if (c) {
 			event_t ev2 = *ev;
 			scr_coord offset = c->get_pos() + table_event.offset;
@@ -131,7 +131,7 @@ void gui_component_table_t::init_cell(coordinate_t /*x*/, coordinate_t /*y*/) {
 
 // BG, 18.03.2010
 void gui_component_table_t::paint_cell(const scr_coord &offset, coordinate_t x, coordinate_t y) {
-	gui_komponente_t *component = get_cell_component(x, y);
+	gui_component_t *component = get_cell_component(x, y);
 	if (component)
 	{
 		component->draw(offset);
@@ -142,7 +142,7 @@ void gui_component_table_t::paint_cell(const scr_coord &offset, coordinate_t x, 
 void gui_component_table_t::remove_cell(coordinate_t x, coordinate_t y) {
 	if (owns_cell_components)
 	{
-		gui_komponente_t *cell = get_cell_component(x, y);
+		gui_component_t *cell = get_cell_component(x, y);
 		if (cell) {
 			set_cell_component(x, y, NULL);
 			delete cell;

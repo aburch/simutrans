@@ -46,25 +46,25 @@ ki_kontroll_t::ki_kontroll_t() :
 
 	player_label.set_text("Spieler");
 	player_label.set_pos(cursor);
-	add_komponente( &player_label );
+	add_component( &player_label );
 	cursor.x += D_CHECKBOX_WIDTH + D_H_SPACE;
 	cursor.x += D_ARROW_RIGHT_WIDTH + D_H_SPACE;
 
 	scr_coord_val width = L_FINANCE_WIDTH + D_H_SPACE + D_EDIT_HEIGHT;
 	password_label.init("Name/password", cursor, SYSCOL_STATIC_TEXT, gui_label_t::right);
 	password_label.set_size(scr_size(width, D_LABEL_HEIGHT));
-	add_komponente( &password_label );
+	add_component( &password_label );
 	cursor.x += width + 10;
 
 	access_label.init("Access", cursor);
-	add_komponente( &access_label );
+	add_component( &access_label );
 	cursor.x += D_CHECKBOX_WIDTH + 20 + D_H_SPACE;
 	cursor.x += D_CHECKBOX_WIDTH + D_H_SPACE;
 
 	width = 120;
 	cash_label.init("Cash", cursor, SYSCOL_STATIC_TEXT, gui_label_t::right);
 	cash_label.set_size(scr_size(width, D_LABEL_HEIGHT));
-	add_komponente( &cash_label );
+	add_component( &cash_label );
 	const scr_coord_val window_width = cursor.x + width + D_MARGIN_RIGHT;
 
 	const player_t* const current_player = welt->get_active_player();
@@ -94,7 +94,7 @@ ki_kontroll_t::ki_kontroll_t() :
 			player_active[i-2].align_to( &player_get_finances[i], ALIGN_CENTER_V );
 			player_active[i-2].add_listener(this);
 			if(player  &&  player->get_ai_id()!=player_t::HUMAN  &&  player_tools_allowed) {
-				add_komponente( player_active+i-2 );
+				add_component( player_active+i-2 );
 			}
 		}
 		cursor.x += D_CHECKBOX_WIDTH + D_H_SPACE;
@@ -105,7 +105,7 @@ ki_kontroll_t::ki_kontroll_t() :
 
 		// Allow player change to human and public only (no AI)
 		if (player  &&  player_change_allowed) {
-			add_komponente(player_change_to+i);
+			add_component(player_change_to+i);
 		}
 		cursor.x += D_ARROW_RIGHT_WIDTH + D_H_SPACE;
 
@@ -133,13 +133,13 @@ ki_kontroll_t::ki_kontroll_t() :
 		player_select[i].add_listener(this);
 		if(  player != NULL  ) {
 			player_get_finances[i].set_text( player->get_name() );
-			add_komponente( player_get_finances+i );
+			add_component( player_get_finances+i );
 			player_select[i].set_visible(false);
 		}
 		else {
 			// init player selection dialogue
 			if (player_tools_allowed) {
-				add_komponente( player_select+i );
+				add_component( player_select+i );
 			}
 			player_get_finances[i].set_visible(false);
 		}
@@ -151,7 +151,7 @@ ki_kontroll_t::ki_kontroll_t() :
 		player_lock[i].enable( welt->get_player(i) );
 		player_lock[i].add_listener(this);
 		if (player_tools_allowed) {
-			add_komponente( player_lock+i );
+			add_component( player_lock+i );
 		}
 		cursor.x += D_EDIT_HEIGHT + 10;
 
@@ -167,7 +167,7 @@ ki_kontroll_t::ki_kontroll_t() :
 			tooltip_out[i].printf("Allow %s to access your ways and stops", player->get_name());
 		}
 		access_out[i].set_tooltip(tooltip_out[i]);
-		add_komponente( access_out+i );
+		add_component( access_out+i );
 		access_out[i].add_listener(this);
 		cursor.x += D_CHECKBOX_WIDTH + 20 + D_H_SPACE;
 		
@@ -182,7 +182,7 @@ ki_kontroll_t::ki_kontroll_t() :
 			tooltip_in[i].printf("%s does not allow you to access its ways and stops", player->get_name());
 		}
 		access_in[i].set_tooltip(tooltip_in[i]);
-		add_komponente( access_in+i );
+		add_component( access_in+i );
 		cursor.x += D_CHECKBOX_WIDTH + D_H_SPACE;
 
 		if(i == welt->get_active_player_nr())
@@ -196,7 +196,7 @@ ki_kontroll_t::ki_kontroll_t() :
 		ai_income[i] = new gui_label_t(account_str[i], MONEY_PLUS, gui_label_t::money);
 		ai_income[i]->set_pos(cursor);
 		ai_income[i]->align_to(&player_select[i],ALIGN_CENTER_V);
-		add_komponente( ai_income[i] );
+		add_component( ai_income[i] );
 
 		player_change_to[i].align_to( &player_lock[i], ALIGN_CENTER_V );
 		if(  i >= 2  ) {
@@ -213,7 +213,7 @@ ki_kontroll_t::ki_kontroll_t() :
 		freeplay.disable();
 	}
 	freeplay.pressed = welt->get_settings().is_freeplay();
-	add_komponente( &freeplay );
+	add_component( &freeplay );
 	cursor.y += D_CHECKBOX_HEIGHT;
 
 	set_windowsize( scr_size( window_width, D_TITLEBAR_HEIGHT + cursor.y + D_MARGIN_BOTTOM ) );
@@ -233,19 +233,19 @@ ki_kontroll_t::~ki_kontroll_t()
  * This method is called if an action is triggered
  * @author Hj. Malthaner
  */
-bool ki_kontroll_t::action_triggered( gui_action_creator_t *komp,value_t p )
+bool ki_kontroll_t::action_triggered( gui_action_creator_t *comp,value_t p )
 {
 	static char param[16];
 
 	// Free play button?
-	if(  komp==&freeplay  ) {
+	if(  comp==&freeplay  ) {
 		welt->call_change_player_tool(karte_t::toggle_freeplay, 255, 0);
 		return true;
 	}
 
 	// Check the GUI list of buttons
 	for(int i=0; i<MAX_PLAYER_COUNT-1; i++) {
-		if(i>=2  &&  komp==(player_active+i-2)) {
+		if(i>=2  &&  comp==(player_active+i-2)) {
 			// switch AI on/off
 			if(  welt->get_player(i)==NULL  ) {
 				// create new AI
@@ -262,7 +262,7 @@ bool ki_kontroll_t::action_triggered( gui_action_creator_t *komp,value_t p )
 		}
 
 		// Finance button pressed
-		if(komp==(player_get_finances+i)) {
+		if(comp==(player_get_finances+i)) {
 			// get finances
 			player_get_finances[i].pressed = false;
 			create_win( new money_frame_t(welt->get_player(i)), w_info, magic_finances_t+welt->get_player(i)->get_player_nr() );
@@ -270,7 +270,7 @@ bool ki_kontroll_t::action_triggered( gui_action_creator_t *komp,value_t p )
 		}
 
 		// Changed active player
-		if(komp==(player_change_to+i)) {
+		if(comp==(player_change_to+i)) {
 			// make active player
 			welt->switch_active_player(i,false);
 			update_data();
@@ -278,7 +278,7 @@ bool ki_kontroll_t::action_triggered( gui_action_creator_t *komp,value_t p )
 		}
 
 		// Change player name and/or password
-		if(komp==(player_lock+i)  &&  welt->get_player(i)) {
+		if(comp==(player_lock+i)  &&  welt->get_player(i)) {
 			if (!welt->get_player(i)->is_unlock_pending()) {
 				// set password
 				create_win( -1, -1, new password_frame_t(welt->get_player(i)), w_info, magic_pwd_t + i );
@@ -287,13 +287,13 @@ bool ki_kontroll_t::action_triggered( gui_action_creator_t *komp,value_t p )
 		}
 
 		// New player assigned in an empty slot
-		if(komp==(player_select+i)) {
+		if(comp==(player_select+i)) {
 
 			// make active player
-			remove_komponente( player_active+i-2 );
+			remove_component( player_active+i-2 );
 			if(  p.i<player_t::MAX_AI  &&  p.i>0  )
 			{
-				add_komponente( player_active+i-2 );
+				add_component( player_active+i-2 );
 				welt->get_settings().set_player_type(i, (uint8)p.i);
 			}
 			else 
@@ -305,7 +305,7 @@ bool ki_kontroll_t::action_triggered( gui_action_creator_t *komp,value_t p )
 		}
 
 		// Allow access to the selected player
-		if(komp == access_out + i)
+		if(comp == access_out + i)
 		{
 			access_out[i].pressed =! access_out[i].pressed;
 			player_t* player = welt->get_player(i);
@@ -347,10 +347,10 @@ void ki_kontroll_t::update_data()
 			{
 				player_select[i].set_visible(false);
 				player_get_finances[i].set_visible(true);
-				add_komponente(player_get_finances+i);
+				add_component(player_get_finances+i);
 				if (welt->get_settings().get_allow_player_change() || !welt->get_player(1)->is_locked()) 
 				{
-					add_komponente(player_change_to+i);
+					add_component(player_change_to+i);
 				}
 				player_get_finances[i].set_text(player->get_name());
 			}
@@ -396,10 +396,10 @@ void ki_kontroll_t::update_data()
 			// human players cannot be deactivated
 			if (i>1) 
 			{
-				remove_komponente( player_active+i-2 );
+				remove_component( player_active+i-2 );
 				if(  player->get_ai_id()!=player_t::HUMAN  ) 
 				{
-					add_komponente( player_active+i-2 );
+					add_component( player_active+i-2 );
 				}
 			}
 
@@ -412,16 +412,16 @@ void ki_kontroll_t::update_data()
 			if (player_get_finances[i].is_visible()) 
 			{
 				player_get_finances[i].set_visible(false);
-				remove_komponente(player_get_finances+i);
-				remove_komponente(player_change_to+i);
+				remove_component(player_get_finances+i);
+				remove_component(player_change_to+i);
 				player_select[i].set_visible(true);
 			}
 
 			if (i>1) {
-				remove_komponente( player_active+i-2 );
+				remove_component( player_active+i-2 );
 				if(  0<player_select[i].get_selection()  &&  player_select[i].get_selection()<player_t::MAX_AI) 
 				{
-					add_komponente( player_active+i-2 );
+					add_component( player_active+i-2 );
 				}
 			}
 

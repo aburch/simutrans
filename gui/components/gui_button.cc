@@ -51,7 +51,7 @@
 karte_ptr_t button_t::welt;
 
 button_t::button_t() :
-	gui_komponente_t(true)
+	gui_component_t(true)
 {
 	b_no_translate = false;
 	pressed = false;
@@ -163,7 +163,7 @@ void button_t::set_tooltip(const char * t)
 
 bool button_t::is_hit(int x,int y)
 {
-	bool hit=gui_komponente_t::is_hit(x, y);
+	bool hit=gui_component_t::is_hit(x, y);
 	if(  pressed  &&  !hit  &&  type <= STATE_MASK  ) {
 		// moved away
 		pressed = 0;

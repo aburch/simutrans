@@ -1826,9 +1826,6 @@
     <ClInclude Include="gui\components\gui_fixedwidth_textarea.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="gui\components\gui_komponente.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="tpl\list_tpl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -2141,9 +2138,6 @@
     <ClInclude Include="ifc\gui_fenster.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ifc\gui_komponente.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="dings\lagerhaus.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -2166,6 +2160,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="gui\tool_selector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\components\gui_component.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

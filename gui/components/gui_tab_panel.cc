@@ -6,7 +6,7 @@
  */
 
 /*
- * A class for distribution of tabs through the gui_komponente_t component.
+ * A class for distribution of tabs through the gui_component_t component.
  * @author Hj. Malthaner
  */
 
@@ -37,7 +37,7 @@ gui_tab_panel_t::gui_tab_panel_t() :
 
 
 
-void gui_tab_panel_t::add_tab(gui_komponente_t *c, const char *name, const skin_besch_t *besch, const char *tooltip )
+void gui_tab_panel_t::add_tab(gui_component_t *c, const char *name, const skin_besch_t *besch, const char *tooltip )
 {
 	tabs.append( tab(c, besch?NULL:name, besch?besch->get_bild(0):NULL, tooltip) );
 	set_size( get_size() );
@@ -47,7 +47,7 @@ void gui_tab_panel_t::add_tab(gui_komponente_t *c, const char *name, const skin_
 
 void gui_tab_panel_t::set_size(scr_size size)
 {
-	gui_komponente_t::set_size(size);
+	gui_component_t::set_size(size);
 
 	required_size = scr_size( 8, TAB_HEADER_V_SIZE );
 	FOR(slist_tpl<tab>, & i, tabs) {
@@ -65,12 +65,12 @@ void gui_tab_panel_t::set_size(scr_size size)
 }
 
 
-bool gui_tab_panel_t::action_triggered(gui_action_creator_t *komp, value_t)
+bool gui_tab_panel_t::action_triggered(gui_action_creator_t *comp, value_t)
 {
-	if(  komp==&right  ) {
+	if(  comp==&right  ) {
 		offset_tab = min( offset_tab+1, tabs.get_count()-1 );
 	}
-	else if(  komp==&left  ) {
+	else if(  comp==&left  ) {
 		offset_tab = max( offset_tab-1, 0 );
 	}
 	return true;

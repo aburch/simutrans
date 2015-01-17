@@ -23,10 +23,10 @@ void pakselector_t::init(const char * /*suffix*/, const char * /*path*/)
 	set_resizemode(diagonal_resize);
 
 	// remove unnecessary buttons
-	remove_komponente( &input );
-	remove_komponente( &savebutton );
-	remove_komponente( &cancelbutton );
-	remove_komponente( &divider1 );
+	remove_component( &input );
+	remove_component( &savebutton );
+	remove_component( &cancelbutton );
+	remove_component( &divider1 );
 
 	fnlabel.set_text( "Choose one graphics set for playing:" );
 }
@@ -62,14 +62,14 @@ const char *pakselector_t::get_info(const char *)
  * This method is called if an action is triggered
  * @author Hj. Malthaner
  */
-bool pakselector_t::action_triggered(gui_action_creator_t *komp, value_t v)
+bool pakselector_t::action_triggered(gui_action_creator_t *comp, value_t v)
 {
-	if(komp == &savebutton) {
+	if(comp == &savebutton) {
 		savebutton.pressed ^= 1;
 		return true;
 	}
-	else if(komp != &input) {
-		return savegame_frame_t::action_triggered(komp, v );
+	else if(comp != &input) {
+		return savegame_frame_t::action_triggered(comp, v );
 	}
 	return false;
 }

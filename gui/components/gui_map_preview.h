@@ -10,7 +10,7 @@
 #ifndef gui_gui_map_preview_h
 #define gui_gui_map_preview_h
 
-#include "gui_komponente.h"
+#include "gui_component.h"
 #include "../../simcolor.h"
 #include "../../display/simgraph.h"
 #include "../../tpl/array2d_tpl.h"
@@ -25,7 +25,7 @@
  * @date 2013-06-02
  *
  */
-class gui_map_preview_t : public gui_komponente_t
+class gui_map_preview_t : public gui_component_t
 {
 
 	private:

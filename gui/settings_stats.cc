@@ -97,7 +97,7 @@ gui_component_table_t& settings_stats_t::new_table(const scr_coord& pos, coordin
 	tbl.set_grid_size(coordinates_t(columns, rows));
 	tbl.set_pos(pos);
 	table.append(&tbl);
-	add_komponente(&tbl);
+	add_component(&tbl);
 	return tbl;
 }
 
@@ -143,7 +143,7 @@ button_t& settings_stats_t::new_button(const scr_coord& pos, const char *text, b
 }
 
 
-void settings_stats_t::set_cell_component(gui_component_table_t &tbl, gui_komponente_t &c, coordinate_t x, coordinate_t y)
+void settings_stats_t::set_cell_component(gui_component_table_t &tbl, gui_component_t &c, coordinate_t x, coordinate_t y)
 {
 	tbl.set_cell_component(x, y, &c);
 	tbl.set_column_width(x, max(tbl.get_column_width(x), c.get_pos().x + c.get_size().w));
@@ -538,17 +538,17 @@ void settings_experimental_revenue_stats_t::read(settings_t *sets)
 	sets->cache_comfort_tables();
 }
 
-bool settings_general_stats_t::action_triggered(gui_action_creator_t *komp, value_t v)
+bool settings_general_stats_t::action_triggered(gui_action_creator_t *comp, value_t v)
 {
-	assert( komp==&savegame || komp==&savegame_ex );
+	assert( comp==&savegame || comp==&savegame_ex );
 
 	if(  v.i==-1  ) 
 	{
-		if(komp==&savegame)
+		if(comp==&savegame)
 		{
 			savegame.set_selection( 0 );
 		}
-		else if( komp==&savegame_ex )
+		else if( comp==&savegame_ex )
 		{
 			savegame_ex.set_selection( 0 );
 		}
@@ -573,7 +573,7 @@ void settings_general_stats_t::init(settings_t const* const sets)
 		}
 	}
 	savegame.set_focusable( false );
-	add_komponente( &savegame );
+	add_component( &savegame );
 	savegame.add_listener( this );
 	INIT_LB( "savegame version" );
 	label.back()->set_pos( scr_coord( 70 + 6, label.back()->get_pos().y + 2 ) );
@@ -625,7 +625,7 @@ void settings_general_stats_t::init(settings_t const* const sets)
 		}
 	}
 	savegame_ex.set_focusable( false );
-	add_komponente( &savegame_ex );
+	add_component( &savegame_ex );
 	savegame_ex.add_listener( this );
 	INIT_LB( "savegame Experimental version" );
 	label.back()->set_pos( scr_coord( 76, label.back()->get_pos().y ) );
@@ -1048,13 +1048,13 @@ void settings_climates_stats_t::read(settings_t* const sets)
 }
 
 
-bool settings_climates_stats_t::action_triggered(gui_action_creator_t *komp, value_t)
+bool settings_climates_stats_t::action_triggered(gui_action_creator_t *comp, value_t)
 {
 	welt_gui_t *welt_gui = dynamic_cast<welt_gui_t *>(win_get_magic( magic_welt_gui_t ));
 	read( local_sets );
 	uint i = 0;
 	FORX(slist_tpl<gui_numberinput_t*>, const n, numinp, ++i) {
-		if (n == komp && i < 3 && welt_gui) {
+		if (n == comp && i < 3 && welt_gui) {
 			// update world preview
 			welt_gui->update_preview();
 		}

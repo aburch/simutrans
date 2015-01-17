@@ -105,7 +105,7 @@ convoi_filter_frame_t::convoi_filter_frame_t(player_t *player, convoi_frame_t *m
 	for(  int i=0; i < FILTER_BUTTONS; i++  ) {
 		filter_buttons[i].init(button_t::square_state, filter_buttons_text[i], filter_buttons_pos[i]);
 		filter_buttons[i].add_listener(this);
-		add_komponente(filter_buttons + i);
+		add_component(filter_buttons + i);
 		if(filter_buttons_types[i] < sub_filter) {
 			filter_buttons[i].background_color = COL_WHITE;
 		}
@@ -118,21 +118,21 @@ convoi_filter_frame_t::convoi_filter_frame_t(player_t *player, convoi_frame_t *m
 	name_filter_input.set_size(scr_size(100, D_BUTTON_HEIGHT));
 	name_filter_input.set_text( name_filter_text, lengthof(name_filter_text) );
 	name_filter_input.add_listener(this);
-	add_komponente(&name_filter_input);
+	add_component(&name_filter_input);
 
 	ware_alle.init(button_t::roundbox, "clf_btn_alle", scr_coord(125, yp), scr_size(D_HALF_BUTTON_WIDTH, D_BUTTON_HEIGHT));
 	ware_alle.add_listener(this);
-	add_komponente(&ware_alle);
+	add_component(&ware_alle);
 	ware_keine.init(button_t::roundbox, "clf_btn_keine", scr_coord(125+D_HALF_BUTTON_WIDTH+D_H_SPACE, yp), scr_size(D_HALF_BUTTON_WIDTH, D_BUTTON_HEIGHT));
 	ware_keine.add_listener(this);
-	add_komponente(&ware_keine);
+	add_component(&ware_keine);
 	ware_invers.init(button_t::roundbox, "clf_btn_invers", scr_coord(125+2*(D_HALF_BUTTON_WIDTH+D_H_SPACE), yp), scr_size(D_HALF_BUTTON_WIDTH, D_BUTTON_HEIGHT));
 	ware_invers.add_listener(this);
-	add_komponente(&ware_invers);
+	add_component(&ware_invers);
 
 	ware_scrolly.set_pos(scr_coord(125, 2*D_BUTTON_HEIGHT+4));
 	ware_scrolly.set_scroll_amount_y(D_BUTTON_HEIGHT);
-	add_komponente(&ware_scrolly);
+	add_component(&ware_scrolly);
 
 	all_ware.clear();
 	int n=0;
@@ -146,7 +146,7 @@ convoi_filter_frame_t::convoi_filter_frame_t(player_t *player, convoi_frame_t *m
 			ware_item_t *item = new ware_item_t(this, ware);
 			item->init(button_t::square_state, translator::translate(ware->get_name()), scr_coord(5, D_BUTTON_HEIGHT*n++));
 			item->pressed = active_ware.is_contained(ware);
-			ware_cont.add_komponente(item);
+			ware_cont.add_component(item);
 			all_ware.append(item);
 		}
 	}
@@ -156,7 +156,7 @@ convoi_filter_frame_t::convoi_filter_frame_t(player_t *player, convoi_frame_t *m
 			ware_item_t *item = new ware_item_t(this, warenbauer_t::get_info_catg(i));
 			item->init(button_t::square_state, translator::translate(warenbauer_t::get_info_catg(i)->get_catg_name()), scr_coord(5, D_BUTTON_HEIGHT*n++));
 			item->pressed = active_ware.is_contained(warenbauer_t::get_info_catg(i));
-			ware_cont.add_komponente(item);
+			ware_cont.add_component(item);
 			all_ware.append(item);
 		}
 	}
@@ -177,38 +177,38 @@ convoi_filter_frame_t::convoi_filter_frame_t(player_t *player, convoi_frame_t *m
  * This method is called if an action is triggered
  * @author V. Meyer
  */
-bool convoi_filter_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
+bool convoi_filter_frame_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 {
 	for( int i = 0; i < FILTER_BUTTONS; i++) {
-		if(komp == filter_buttons + i) {
+		if(comp == filter_buttons + i) {
 			filter_buttons[i].pressed ^= 1;
 			set_filter( filter_buttons_types[i], !get_filter(filter_buttons_types[i]) );
 			sort_list();
 			return true;
 		}
 	}
-	if(komp == &ware_alle) {
+	if(comp == &ware_alle) {
 		FOR( slist_tpl<ware_item_t *>, wi, all_ware ) {
 			wi->pressed = true;
 		}
 		sort_list();
 		return true;
 	}
-	if(komp == &ware_keine) {
+	if(comp == &ware_keine) {
 		FOR( slist_tpl<ware_item_t *>, wi, all_ware ) {
 			wi->pressed = false;
 		}
 		sort_list();
 		return true;
 	}
-	if(  komp == &ware_invers  ) {
+	if(  comp == &ware_invers  ) {
 		FOR( slist_tpl<ware_item_t *>, wi, all_ware ) {
 			wi->pressed ^= true;
 		}
 		sort_list();
 		return true;
 	}
-	if(  komp == &name_filter_input  &&  filter_flags&name_filter  ) {
+	if(  comp == &name_filter_input  &&  filter_flags&name_filter  ) {
 		sort_list();
 		return true;
 	}

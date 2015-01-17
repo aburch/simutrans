@@ -29,7 +29,7 @@ void gui_image_t::set_size( scr_size size_par )
 		}
 	}
 
-	gui_komponente_t::set_size(size_par);
+	gui_component_t::set_size(size_par);
 }
 
 

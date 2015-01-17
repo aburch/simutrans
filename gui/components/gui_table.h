@@ -13,7 +13,7 @@
 #include "../../simtypes.h"
 #include "../../tpl/list_tpl.h"
 #include "gui_action_creator.h"
-#include "gui_komponente.h"
+#include "gui_component.h"
 #include "../../simcolor.h"
 #include "../gui_frame.h"
 
@@ -156,7 +156,7 @@ protected:
  * @since 14-MAR-2010
  * @author Bernd Gabriel
  */
-class gui_table_t : public gui_komponente_t, public gui_action_creator_t
+class gui_table_t : public gui_component_t, public gui_action_creator_t
 {
 	friend class gui_table_column_list_t;
 	friend class gui_table_row_list_t;

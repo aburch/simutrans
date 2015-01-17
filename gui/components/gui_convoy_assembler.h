@@ -248,7 +248,7 @@ public:
 	 * components should be triggered.
 	 * V.Meyer
 	 */
-	bool action_triggered( gui_action_creator_t *komp, value_t extra);
+	bool action_triggered( gui_action_creator_t *comp, value_t extra);
 
 	/**
 	 * Update texts, image lists and buttons according to the current state.
@@ -258,7 +258,7 @@ public:
 	void update_data();
 	void update_tabs();
 
-	/* The gui_komponente_t interface */
+	/* The gui_component_t interface */
 	virtual void draw(scr_coord offset);
 
 	bool infowin_event(const event_t *ev);

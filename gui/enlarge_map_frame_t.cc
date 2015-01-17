@@ -75,7 +75,7 @@ enlarge_map_frame_t::enlarge_map_frame_t() :
 	int intTopOfButton = 24;
 
 	memory.set_pos( scr_coord(10,intTopOfButton) );
-	add_komponente( &memory );
+	add_component( &memory );
 
 	inp_x_size.set_pos(scr_coord(LEFT_ARROW,intTopOfButton) );
 	inp_x_size.set_size(scr_size(RIGHT_ARROW-LEFT_ARROW+10, 12));
@@ -84,7 +84,7 @@ enlarge_map_frame_t::enlarge_map_frame_t() :
 	inp_x_size.set_limits( welt->get_size().x, min(32766,4194304/sets->get_groesse_y()) );
 	inp_x_size.set_increment_mode( sets->get_groesse_x()>=512 ? 128 : 64 );
 	inp_x_size.wrap_mode( false );
-	add_komponente( &inp_x_size );
+	add_component( &inp_x_size );
 	intTopOfButton += 12;
 
 	inp_y_size.set_pos(scr_coord(LEFT_ARROW,intTopOfButton) );
@@ -94,7 +94,7 @@ enlarge_map_frame_t::enlarge_map_frame_t() :
 	inp_y_size.set_value( sets->get_groesse_y() );
 	inp_y_size.set_increment_mode( sets->get_groesse_y()>=512 ? 128 : 64 );
 	inp_y_size.wrap_mode( false );
-	add_komponente( &inp_y_size );
+	add_component( &inp_y_size );
 
 	// city stuff
 	intTopOfButton = 64+10;
@@ -103,7 +103,7 @@ enlarge_map_frame_t::enlarge_map_frame_t() :
 	inp_number_of_towns.add_listener(this);
 	inp_number_of_towns.set_limits(0,999);
 	inp_number_of_towns.set_value(0);
-	add_komponente( &inp_number_of_towns );
+	add_component( &inp_number_of_towns );
 	intTopOfButton += 12;
 
 	inp_number_of_big_cities.set_pos(scr_coord(RIGHT_COLUMN,intTopOfButton) );
@@ -111,7 +111,7 @@ enlarge_map_frame_t::enlarge_map_frame_t() :
 	inp_number_of_big_cities.add_listener(this);
 	inp_number_of_big_cities.set_limits(0,0);
 	inp_number_of_big_cities.set_value(0);
-	add_komponente( &inp_number_of_big_cities );
+	add_component( &inp_number_of_big_cities );
 	intTopOfButton += 12;
 
 	inp_number_of_clusters.set_pos(scr_coord(RIGHT_COLUMN,intTopOfButton) );
@@ -119,7 +119,7 @@ enlarge_map_frame_t::enlarge_map_frame_t() :
 	inp_number_of_clusters.add_listener(this);
 	inp_number_of_clusters.set_limits(0,sets->get_anzahl_staedte()/3 );
 	inp_number_of_clusters.set_value(number_of_clusters);
-	add_komponente( &inp_number_of_clusters );
+	add_component( &inp_number_of_clusters );
 	intTopOfButton += 12;
 
 	inp_cluster_size.set_pos(scr_coord(RIGHT_COLUMN,intTopOfButton) );
@@ -127,7 +127,7 @@ enlarge_map_frame_t::enlarge_map_frame_t() :
 	inp_cluster_size.add_listener(this);
 	inp_cluster_size.set_limits(1,9999);
 	inp_cluster_size.set_value(cluster_size);
-	add_komponente( &inp_cluster_size );
+	add_component( &inp_cluster_size );
 	intTopOfButton += 12;
 
 	inp_town_size.set_pos(scr_coord(RIGHT_COLUMN,intTopOfButton) );
@@ -136,14 +136,14 @@ enlarge_map_frame_t::enlarge_map_frame_t() :
 	inp_town_size.set_limits(0,999999);
 	inp_town_size.set_increment_mode(50);
 	inp_town_size.set_value( sets->get_mittlere_einwohnerzahl() );
-	add_komponente( &inp_town_size );
+	add_component( &inp_town_size );
 	intTopOfButton += 12+5;
 
 	// start game
 	intTopOfButton += 5;
 	start_button.init( button_t::roundbox, "enlarge map", scr_coord(10, intTopOfButton), scr_size(240, 14) );
 	start_button.add_listener( this );
-	add_komponente( &start_button );
+	add_component( &start_button );
 
 	set_windowsize( scr_size(260, intTopOfButton+14+8+16) );
 
@@ -161,21 +161,21 @@ enlarge_map_frame_t::~enlarge_map_frame_t()
  * This method is called if an action is triggered
  * @author Hj. Malthaner
  */
-bool enlarge_map_frame_t::action_triggered( gui_action_creator_t *komp,value_t v)
+bool enlarge_map_frame_t::action_triggered( gui_action_creator_t *comp,value_t v)
 {
-	if(komp==&inp_x_size) {
+	if(comp==&inp_x_size) {
 		sets->set_groesse_x( v.i );
 		inp_x_size.set_increment_mode( v.i>=64 ? (v.i>=512 ? 128 : 64) : 8 );
 		inp_y_size.set_limits( welt->get_size().y, min(32766,16777216/sets->get_groesse_x()) );
 		update_preview();
 	}
-	else if(komp==&inp_y_size) {
+	else if(comp==&inp_y_size) {
 		sets->set_groesse_y( v.i );
 		inp_y_size.set_increment_mode( v.i>=64 ? (v.i>=512 ? 128 : 64) : 8 );
 		inp_x_size.set_limits( welt->get_size().x, min(32766,16777216/sets->get_groesse_y()) );
 		update_preview();
 	}
-	else if(komp==&inp_number_of_towns) {
+	else if(comp==&inp_number_of_towns) {
 		sets->set_anzahl_staedte( v.i );
 		if (v.i == 0) {
 			number_of_big_cities = 0;
@@ -191,13 +191,13 @@ bool enlarge_map_frame_t::action_triggered( gui_action_creator_t *komp,value_t v
 			inp_number_of_big_cities.set_value( number_of_big_cities );
 		}
 	}
-	else if(komp==&inp_number_of_big_cities) {
+	else if(comp==&inp_number_of_big_cities) {
 		number_of_big_cities = v.i;
 	}
-	else if(komp==&inp_town_size) {
+	else if(comp==&inp_town_size) {
 		sets->set_mittlere_einwohnerzahl( v.i );
 	}
-	else if(komp==&start_button) {
+	else if(comp==&start_button) {
 		// since soon those are invalid
 		intr_refresh_display( true );
 		//Quick and Ugly Hack: we don't want change main env_t

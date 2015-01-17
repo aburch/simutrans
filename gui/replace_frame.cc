@@ -52,13 +52,13 @@ replace_frame_t::replace_frame_t(convoihandle_t cnv, const char *name):
 	const uint32 margin = 6;
 	txt_money[0] = 0;
 	lb_money.set_text_pointer(txt_money);
-	add_komponente(&lb_money);
+	add_component(&lb_money);
 	
 	lb_convoy.set_text_pointer(name);
-	add_komponente(&lb_convoy);
+	add_component(&lb_convoy);
 
 	lb_to_be_replaced.set_text_pointer(translator::translate("To be replaced by:"));
-	add_komponente(&lb_to_be_replaced);
+	add_component(&lb_to_be_replaced);
 
 	lb_replace_cycle.set_text_pointer(translator::translate("Replace cycle:"));
 	lb_replace.set_text_pointer(translator::translate("rpl_cnv_replace"));
@@ -82,16 +82,16 @@ replace_frame_t::replace_frame_t(convoihandle_t cnv, const char *name):
 	lb_n_replace.set_text_pointer(txt_n_replace);
 	lb_n_sell.set_text_pointer(txt_n_sell);
 	lb_n_skip.set_text_pointer(txt_n_skip);
-	add_komponente(&lb_replace_cycle);
-	add_komponente(&lb_replace);
-	add_komponente(&numinp[state_replace]);
-	add_komponente(&lb_n_replace);
-	add_komponente(&lb_sell);
-	add_komponente(&numinp[state_sell]);
-	add_komponente(&lb_n_sell);
-	add_komponente(&lb_skip);
-	add_komponente(&numinp[state_skip]);
-	add_komponente(&lb_n_skip);
+	add_component(&lb_replace_cycle);
+	add_component(&lb_replace);
+	add_component(&numinp[state_replace]);
+	add_component(&lb_n_replace);
+	add_component(&lb_sell);
+	add_component(&numinp[state_sell]);
+	add_component(&lb_n_sell);
+	add_component(&lb_skip);
+	add_component(&numinp[state_skip]);
+	add_component(&lb_n_skip);
 
 	const vehikel_t *lead_vehicle = cnv->get_vehikel(0);
 	const waytype_t wt = lead_vehicle->get_waytype();
@@ -120,57 +120,57 @@ replace_frame_t::replace_frame_t(convoihandle_t cnv, const char *name):
 	bt_replace_line.set_text("replace all in line");
 	bt_replace_line.set_tooltip("Replace all convoys like this belonging to this line");
 	bt_replace_line.add_listener(this);
-	add_komponente(&bt_replace_line);
+	add_component(&bt_replace_line);
 
 	bt_replace_all.set_typ(button_t::square);
 	bt_replace_all.set_text("replace all");
 	bt_replace_all.set_tooltip("Replace all convoys like this");
 	bt_replace_all.add_listener(this);
-	add_komponente(&bt_replace_all);
+	add_component(&bt_replace_all);
 
 	bt_autostart.set_typ(button_t::roundbox);
 	bt_autostart.set_text("Full replace");
 	bt_autostart.set_tooltip("Send convoy to depot, replace and restart it automatically");
 	bt_autostart.add_listener(this);
-	add_komponente(&bt_autostart);
+	add_component(&bt_autostart);
 
 	bt_clear.set_typ(button_t::roundbox);
 	bt_clear.set_text("Clear");
 	bt_clear.set_tooltip("Reset this replacing operation");
 	bt_clear.add_listener(this);
-	add_komponente(&bt_clear);
+	add_component(&bt_clear);
 
 	bt_depot.set_typ(button_t::roundbox);
 	bt_depot.set_text("Replace but stay");
 	bt_depot.set_tooltip("Send convoy to depot, replace it and stay there");
 	bt_depot.add_listener(this);
-	add_komponente(&bt_depot);
+	add_component(&bt_depot);
 
 	bt_mark.set_typ(button_t::roundbox);
 	bt_mark.set_text("Mark for replacing");
 	bt_mark.set_tooltip("Mark for replacing. The convoy will replace when manually sent to depot");
 	bt_mark.add_listener(this);
-	add_komponente(&bt_mark);
+	add_component(&bt_mark);
 
 	bt_retain_in_depot.set_typ(button_t::square);
 	bt_retain_in_depot.set_text("Retain in depot");
 	bt_retain_in_depot.set_tooltip("Keep replaced vehicles in the depot for future use rather than selling or upgrading them.");
 	bt_retain_in_depot.add_listener(this);
-	add_komponente(&bt_retain_in_depot);
+	add_component(&bt_retain_in_depot);
 
 	bt_use_home_depot.set_typ(button_t::square);
 	bt_use_home_depot.set_text("Use home depot");
 	bt_use_home_depot.set_tooltip("Send the convoy to its home depot for replacing rather than the nearest depot.");
 	bt_use_home_depot.add_listener(this);
-	add_komponente(&bt_use_home_depot);
+	add_component(&bt_use_home_depot);
 
 	bt_allow_using_existing_vehicles.set_typ(button_t::square);
 	bt_allow_using_existing_vehicles.set_text("Use existing vehicles");
 	bt_allow_using_existing_vehicles.set_tooltip("Use any vehicles already present in the depot, if available, instead of buying new ones or upgrading.");
 	bt_allow_using_existing_vehicles.add_listener(this);
-	add_komponente(&bt_allow_using_existing_vehicles);
-	/* This must be *last* of add_komponente */
-	add_komponente(&convoy_assembler);
+	add_component(&bt_allow_using_existing_vehicles);
+	/* This must be *last* of add_component */
+	add_component(&convoy_assembler);
 
 	rpl = cnv->get_replace() ? new replace_data_t(cnv->get_replace()) : new replace_data_t();
 
@@ -466,52 +466,52 @@ bool replace_frame_t::replace_convoy(convoihandle_t cnv_rpl, bool mark)
 	return true;
 }
 
-bool replace_frame_t::action_triggered( gui_action_creator_t *komp,value_t /*p*/)
+bool replace_frame_t::action_triggered( gui_action_creator_t *comp,value_t /*p*/)
 {
-	if(komp != NULL) 
+	if(comp != NULL) 
 	{	// message from outside!
-		if(komp == &bt_replace_line) 
+		if(comp == &bt_replace_line) 
 		{
 			replace_line =! replace_line;
 			replace_all = false;
 		}
-		else if(komp == &bt_replace_all) 
+		else if(comp == &bt_replace_all) 
 		{
 			replace_all =! replace_all;
 			replace_line = false;
 		}
 		
-		else if(komp == &bt_retain_in_depot) 
+		else if(comp == &bt_retain_in_depot) 
 		{
 			rpl->set_retain_in_depot(!rpl->get_retain_in_depot());
 		}
 
-		else if(komp == &bt_use_home_depot) 
+		else if(comp == &bt_use_home_depot) 
 		{
 			rpl->set_use_home_depot(!rpl->get_use_home_depot());
 		}
 
-		else if(komp == &bt_allow_using_existing_vehicles) 
+		else if(comp == &bt_allow_using_existing_vehicles) 
 		{
 			rpl->set_allow_using_existing_vehicles(!rpl->get_allow_using_existing_vehicles());
 		}
 
-		else if(komp == &bt_clear) 
+		else if(comp == &bt_clear) 
 		{
 			cnv->call_convoi_tool('X', NULL);
 			rpl = new replace_data_t();
 			convoy_assembler.clear_convoy();
 		}
 
-		else if(komp==&bt_autostart || komp== &bt_depot || komp == &bt_mark) 
+		else if(comp==&bt_autostart || comp== &bt_depot || comp == &bt_mark) 
 		{
-			depot=(komp==&bt_depot);
-			rpl->set_autostart((komp==&bt_autostart));
+			depot=(comp==&bt_depot);
+			rpl->set_autostart((comp==&bt_autostart));
 
 			start_replacing();
 			if (!replace_line && !replace_all) 
 			{
-				replace_convoy(cnv, komp == &bt_mark);
+				replace_convoy(cnv, comp == &bt_mark);
 			} 
 			else if (replace_line) 
 			{
@@ -524,7 +524,7 @@ bool replace_frame_t::action_triggered( gui_action_creator_t *komp,value_t /*p*/
 						convoihandle_t cnv_aux = line->get_convoy(i);
 						if (cnv->has_same_vehicles(cnv_aux))
 						{
-							first_success = replace_convoy(cnv_aux, komp == &bt_mark);
+							first_success = replace_convoy(cnv_aux, comp == &bt_mark);
 							if(copy == false)
 							{
 								master_convoy = cnv_aux;
@@ -538,7 +538,7 @@ bool replace_frame_t::action_triggered( gui_action_creator_t *komp,value_t /*p*/
 				}
 				else
 				{
-					replace_convoy(cnv, komp == &bt_mark);
+					replace_convoy(cnv, comp == &bt_mark);
 				}
 			} 
 			else if (replace_all) 
@@ -549,7 +549,7 @@ bool replace_frame_t::action_triggered( gui_action_creator_t *komp,value_t /*p*/
 					convoihandle_t cnv_aux=welt->convoys()[i];
 					if (cnv_aux.is_bound() && cnv_aux->get_owner()==cnv->get_owner() && cnv->has_same_vehicles(cnv_aux)) 
 					{
-						first_success = replace_convoy(cnv_aux, komp == &bt_mark);
+						first_success = replace_convoy(cnv_aux, comp == &bt_mark);
 						if(copy == false)
 						{
 							master_convoy = cnv_aux;

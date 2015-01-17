@@ -52,7 +52,7 @@ baum_edit_frame_t::baum_edit_frame_t(player_t* player_) :
 
 	baum_tool.id = tool_t::general_tool[TOOL_PLANT_TREE]->id;
 
-	remove_komponente( &bt_obsolete );
+	remove_component( &bt_obsolete );
 	//offset_of_comp -= D_BUTTON_HEIGHT;
 
 	besch = NULL;

@@ -2,7 +2,7 @@
 #define gui_image_list_h
 
 #include "gui_action_creator.h"
-#include "gui_komponente.h"
+#include "gui_component.h"
 #include "../../tpl/vector_tpl.h"
 #include "../../display/simimg.h"
 #include "../../simcolor.h"
@@ -25,7 +25,7 @@
  */
 class gui_image_list_t :
 	public gui_action_creator_t,
-	public gui_komponente_t
+	public gui_component_t
 {
 public:
 	struct image_data_t {

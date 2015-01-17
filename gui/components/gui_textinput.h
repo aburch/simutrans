@@ -17,14 +17,14 @@
 #define gui_components_gui_textinput_h
 
 #include "gui_action_creator.h"
-#include "gui_komponente.h"
+#include "gui_component.h"
 #include "../../simcolor.h"
 #include "../../display/simgraph.h"
 
 
 class gui_textinput_t :
 	public gui_action_creator_t,
-	public gui_komponente_t
+	public gui_component_t
 {
 protected:
 

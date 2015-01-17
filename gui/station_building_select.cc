@@ -72,7 +72,7 @@ station_building_select_t::station_building_select_t(const haus_besch_t *besch) 
 			img[i*4+j].set_pos( pos );
 			img[i*4+j].set_image(IMG_LEER);
 			img[i*4+j].set_pos( pos );
-			add_komponente( &img[i*4+j] );
+			add_component( &img[i*4+j] );
 		}
 	}
 	// now the images (maximum is 2x2 size)
@@ -102,13 +102,13 @@ station_building_select_t::station_building_select_t(const haus_besch_t *besch) 
 	sprintf(buf, "X=%i, Y=%i", besch->get_b(0), besch->get_h(0) );
 	txt.set_text_pointer(buf);
 	txt.set_pos( scr_coord(D_MARGIN_LEFT, D_MARGIN_TOP) );
-	add_komponente( &txt );
+	add_component( &txt );
 
 	// button
 	for(int i=0; i<layout; i++) {
 		actionbutton[i].init( button_t::roundbox, translator::translate(label_text[i]), base_offsets[i+row*2]+scr_coord((width-D_BUTTON_WIDTH)/2, height), scr_size( D_BUTTON_WIDTH,D_BUTTON_HEIGHT ) );
 		actionbutton[i].add_listener(this);
-		add_komponente(&actionbutton[i]);
+		add_component(&actionbutton[i]);
 	}
 	set_windowsize(scr_size(width*2+10+D_MARGINS_X, (height+D_BUTTON_HEIGHT)*(row+1)+(10*row)+D_MARGINS_Y+D_TITLEBAR_HEIGHT+LINESPACE));
 }
@@ -119,10 +119,10 @@ station_building_select_t::station_building_select_t(const haus_besch_t *besch) 
  * This method is called if an action is triggered
  * @author V. Meyer
  */
-bool station_building_select_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
+bool station_building_select_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 {
 	for(int i=0; i<4; i++) {
-		if(komp == &actionbutton[i]) {
+		if(comp == &actionbutton[i]) {
 			static char default_str[1024];
 			sprintf( default_str, "%s,%i", besch->get_name(), i );
 			tool.set_default_param(default_str);

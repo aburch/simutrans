@@ -33,10 +33,10 @@ obj_infowin_t::obj_infowin_t(const obj_t* obj) :
 	scr_coord_val height = max( textarea.get_size().h, view.get_size().h ) + 36;
 
 	view.set_pos( scr_coord(width - view.get_size().w - 10, 10) );
-	add_komponente( &view );
+	add_component( &view );
 
 	textarea.set_pos( scr_coord(10, 10) );
-	add_komponente( &textarea );
+	add_component( &textarea );
 
 	set_windowsize(scr_size(width, height));
 }

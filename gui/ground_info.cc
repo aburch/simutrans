@@ -45,10 +45,10 @@ grund_info_t::grund_info_t(const grund_t* gr_) :
 	scr_coord_val height = D_TITLEBAR_HEIGHT + D_MARGIN_TOP + max( textarea.get_size().h, view.get_size().h ) + D_MARGIN_BOTTOM;
 
 	view.set_pos( scr_coord(width - view.get_size().w - D_MARGIN_RIGHT, D_MARGIN_TOP) );
-	add_komponente( &view );
+	add_component( &view );
 
 	textarea.set_pos( scr_coord(D_MARGIN_LEFT, D_MARGIN_TOP) );
-	add_komponente( &textarea );
+	add_component( &textarea );
 
 	set_windowsize( scr_size(width, height) );
 }

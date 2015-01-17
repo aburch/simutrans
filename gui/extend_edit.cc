@@ -50,35 +50,35 @@ extend_edit_gui_t::extend_edit_gui_t(const char *name, player_t* player_) :
 	tabs.add_tab(&scl, translator::translate("Translation"));//land
 	tabs.add_tab(&scl, translator::translate("Object"));//city
 	tabs.add_listener(this);
-	add_komponente(&tabs);
+	add_component(&tabs);
 
 	bt_climates.init( button_t::square_state, "ignore climates", scr_coord(tab_panel_width+2*MARGIN, MARGIN) );
 	bt_climates.add_listener(this);
-	add_komponente(&bt_climates);
+	add_component(&bt_climates);
 
 	bt_timeline.init( button_t::square_state, "Use timeline start year", scr_coord(tab_panel_width+2*MARGIN, D_BUTTON_HEIGHT+MARGIN) );
 	bt_timeline.pressed = welt->get_settings().get_use_timeline()&1;
 	bt_timeline.add_listener(this);
-	add_komponente(&bt_timeline);
+	add_component(&bt_timeline);
 
 	bt_obsolete.init( button_t::square_state, "Show obsolete", scr_coord(tab_panel_width+2*MARGIN, 2*D_BUTTON_HEIGHT+MARGIN) );
 	bt_obsolete.add_listener(this);
-	add_komponente(&bt_obsolete);
+	add_component(&bt_obsolete);
 
 	offset_of_comp = MARGIN+3*D_BUTTON_HEIGHT+4;
 
 	// item list
 	info_text.set_pos(scr_coord(0, 10));
-	cont.add_komponente(&info_text);
+	cont.add_component(&info_text);
 	cont.set_pos( scr_coord( 0, 0 ) );
 
 	scrolly.set_visible(true);
-	add_komponente(&scrolly);
+	add_component(&scrolly);
 
 	// image placeholder
 	for(  sint16 i=3;  i>=0;  i--  ) {
 		img[i].set_image(IMG_LEER);
-		add_komponente( &img[i] );
+		add_component( &img[i] );
 	}
 
 	// resize button
@@ -102,9 +102,9 @@ bool extend_edit_gui_t::infowin_event(const event_t *ev)
 
 
 
-bool extend_edit_gui_t::action_triggered( gui_action_creator_t *komp,value_t /* */)           // 28-Dec-01    Markus Weber    Added
+bool extend_edit_gui_t::action_triggered( gui_action_creator_t *comp,value_t /* */)           // 28-Dec-01    Markus Weber    Added
 {
-	if (komp == &tabs) {
+	if (comp == &tabs) {
 		// switch list translation or object name
 		if (tabs.get_active_tab_index() == 0 && !is_show_trans_name) {
 			// show translation list
@@ -116,19 +116,19 @@ bool extend_edit_gui_t::action_triggered( gui_action_creator_t *komp,value_t /* 
 			fill_list( is_show_trans_name );
 		}
 	}
-	else if (komp == &scl) {
+	else if (comp == &scl) {
 		// select an item of scroll list ?
 		change_item_info(scl.get_selection());
 	}
-	else if(  komp==&bt_obsolete  ) {
+	else if(  comp==&bt_obsolete  ) {
 		bt_obsolete.pressed ^= 1;
 		fill_list( is_show_trans_name );
 	}
-	else if(  komp==&bt_climates  ) {
+	else if(  comp==&bt_climates  ) {
 		bt_climates.pressed ^= 1;
 		fill_list( is_show_trans_name );
 	}
-	else if(  komp==&bt_timeline  ) {
+	else if(  comp==&bt_timeline  ) {
 		bt_timeline.pressed ^= 1;
 		fill_list( is_show_trans_name );
 	}

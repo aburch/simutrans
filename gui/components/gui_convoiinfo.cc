@@ -35,7 +35,7 @@ gui_convoiinfo_t::gui_convoiinfo_t(convoihandle_t cnv)
 }
 
 /**
- * Events werden hiermit an die GUI-Komponenten
+ * Events werden hiermit an die GUI-components
  * gemeldet
  * @author Hj. Malthaner
  */

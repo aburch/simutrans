@@ -105,20 +105,20 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(waytype_t wt, signed char player_
 	convoi.set_player_nr(player_nr);
 	convoi.add_listener(this);
 
-	add_komponente(&convoi);
-	add_komponente(&lb_convoi_count);
-	add_komponente(&lb_convoi_speed);
-	add_komponente(&lb_convoi_cost);
-	add_komponente(&lb_convoi_value);
-	add_komponente(&lb_convoi_power);
-	add_komponente(&lb_convoi_weight);
-	add_komponente(&lb_convoi_brake_force);
-	add_komponente(&lb_convoi_rolling_resistance);
-	add_komponente(&lb_convoi_way_wear_factor);
-	add_komponente(&cont_convoi_capacity);
+	add_component(&convoi);
+	add_component(&lb_convoi_count);
+	add_component(&lb_convoi_speed);
+	add_component(&lb_convoi_cost);
+	add_component(&lb_convoi_value);
+	add_component(&lb_convoi_power);
+	add_component(&lb_convoi_weight);
+	add_component(&lb_convoi_brake_force);
+	add_component(&lb_convoi_rolling_resistance);
+	add_component(&lb_convoi_way_wear_factor);
+	add_component(&cont_convoi_capacity);
 
-	add_komponente(&lb_traction_types);
-	add_komponente(&lb_vehicle_count);
+	add_component(&lb_traction_types);
+	add_component(&lb_vehicle_count);
 
 	/*
 	* [PANEL]
@@ -140,7 +140,7 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(waytype_t wt, signed char player_
 
 	bool one = false;
 
-	cont_pas.add_komponente(&pas);
+	cont_pas.add_component(&pas);
 	scrolly_pas.set_show_scroll_x(false);
 	scrolly_pas.set_size_corner(false);
 
@@ -150,7 +150,7 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(waytype_t wt, signed char player_
 		one = true;
 	}
 
-	cont_electrics.add_komponente(&electrics);
+	cont_electrics.add_component(&electrics);
 	scrolly_electrics.set_show_scroll_x(false);
 	scrolly_electrics.set_size_corner(false);
 	// add only if there are any trolleybuses
@@ -162,7 +162,7 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(waytype_t wt, signed char player_
 		one = true;
 	}
 
-	cont_loks.add_komponente(&loks);
+	cont_loks.add_component(&loks);
 	scrolly_loks.set_show_scroll_x(false);
 	scrolly_loks.set_size_corner(false);
 	// add, if waggons are there ...
@@ -171,7 +171,7 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(waytype_t wt, signed char player_
 		one = true;
 	}
 
-	cont_waggons.add_komponente(&waggons);
+	cont_waggons.add_component(&waggons);
 	scrolly_waggons.set_show_scroll_x(false);
 	scrolly_waggons.set_size_corner(false);
 	// only add, if there are waggons
@@ -199,16 +199,16 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(waytype_t wt, signed char player_
 
 	lb_too_heavy_notice.set_visible(false);
 
-	add_komponente(&tabs);
-	add_komponente(&div_tabbottom);
-	add_komponente(&lb_veh_action);
-	add_komponente(&lb_too_heavy_notice);
-	add_komponente(&lb_livery_selector);
-	add_komponente(&lb_vehicle_filter);
+	add_component(&tabs);
+	add_component(&div_tabbottom);
+	add_component(&lb_veh_action);
+	add_component(&lb_too_heavy_notice);
+	add_component(&lb_livery_selector);
+	add_component(&lb_vehicle_filter);
 
 	veh_action = va_append;
 	action_selector.add_listener(this);
-	add_komponente(&action_selector);
+	add_component(&action_selector);
 	action_selector.clear_elements();
 	static const char *txt_veh_action[3] = { "anhaengen", "voranstellen", "verkaufen" };
 	action_selector.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate(txt_veh_action[0]), COL_BLACK ) );
@@ -218,7 +218,7 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(waytype_t wt, signed char player_
 
 	upgrade = u_buy;
 	upgrade_selector.add_listener(this);
-	add_komponente(&upgrade_selector);
+	add_component(&upgrade_selector);
 	upgrade_selector.clear_elements();
 	static const char *txt_upgrade[2] = { "Buy/sell", "Upgrade" };
 	upgrade_selector.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(txt_upgrade[0]), COL_BLACK ) );
@@ -230,21 +230,21 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(waytype_t wt, signed char player_
 	if(  welt->get_settings().get_allow_buying_obsolete_vehicles()  ) {
 		bt_obsolete.add_listener(this);
 		bt_obsolete.set_tooltip("Show also vehicles no longer in production.");
-		add_komponente(&bt_obsolete);
+		add_component(&bt_obsolete);
 	}
 
 	bt_show_all.set_typ(button_t::square);
 	bt_show_all.set_text("Show all");
 	bt_show_all.add_listener(this);
 	bt_show_all.set_tooltip("Show also vehicles that do not match for current action.");
-	add_komponente(&bt_show_all);
+	add_component(&bt_show_all);
 
 	vehicle_filter.set_highlight_color(depot_frame ? depot_frame->get_depot()->get_owner()->get_player_color1() + 1 : replace_frame ? replace_frame->get_convoy()->get_owner()->get_player_color1() + 1 : COL_BLACK);
 	vehicle_filter.add_listener(this);
-	add_komponente(&vehicle_filter);
+	add_component(&vehicle_filter);
 
 	livery_selector.add_listener(this);
-	add_komponente(&livery_selector);
+	add_component(&livery_selector);
 	livery_selector.clear_elements();
 	vector_tpl<livery_scheme_t*>* schemes = welt->get_settings().get_livery_schemes();
 	livery_scheme_indices.clear();
@@ -561,30 +561,30 @@ void gui_convoy_assembler_t::layout()
 }
 
 
-bool gui_convoy_assembler_t::action_triggered( gui_action_creator_t *komp,value_t p)
+bool gui_convoy_assembler_t::action_triggered( gui_action_creator_t *comp,value_t p)
 {
-	if(komp != NULL) {	// message from outside!
+	if(comp != NULL) {	// message from outside!
 			// image lsit selction here ...
-		if(komp == &convoi) {
+		if(comp == &convoi) {
 			image_from_convoi_list( p.i );
 			update_data();
-		} else if(komp == &pas) {
+		} else if(comp == &pas) {
 			image_from_storage_list(pas_vec[p.i]);
-		} else if (komp == &electrics) {
+		} else if (comp == &electrics) {
 			image_from_storage_list(electrics_vec[p.i]);
-		} else if(komp == &loks) {
+		} else if(comp == &loks) {
 			image_from_storage_list(loks_vec[p.i]);
-		} else if(komp == &waggons) {
+		} else if(comp == &waggons) {
 			image_from_storage_list(waggons_vec[p.i]);
-		} else if(komp == &bt_obsolete) {
+		} else if(comp == &bt_obsolete) {
 			show_retired_vehicles = (show_retired_vehicles == false);
 			build_vehicle_lists();
 			update_data();
-		} else if(komp == &bt_show_all) {
+		} else if(comp == &bt_show_all) {
 			show_all = (show_all == false);
 			build_vehicle_lists();
 			update_data();
-		} else if(komp == &action_selector) {
+		} else if(comp == &action_selector) {
 			sint32 selection = p.i;
 			if ( selection < 0 ) {
 				action_selector.set_selection(0);
@@ -597,12 +597,12 @@ bool gui_convoy_assembler_t::action_triggered( gui_action_creator_t *komp,value_
 				}
 		} 
 		
-		else if(komp == &vehicle_filter) 
+		else if(comp == &vehicle_filter) 
 		{
 			selected_filter = vehicle_filter.get_selection();
 		} 
 		
-		else if(komp == &livery_selector)
+		else if(comp == &livery_selector)
 		{
 			sint32 livery_selection = p.i;
 			if(livery_selection < 0) 
@@ -613,7 +613,7 @@ bool gui_convoy_assembler_t::action_triggered( gui_action_creator_t *komp,value_
 			livery_scheme_index = livery_scheme_indices.empty() ? 0 : livery_scheme_indices[livery_selection];
 		} 
 
-		else if(komp == &upgrade_selector) 
+		else if(comp == &upgrade_selector) 
 		{
 			sint32 upgrade_selection = p.i;
 			if ( upgrade_selection < 0 ) 
@@ -1664,12 +1664,12 @@ void gui_convoy_assembler_t::update_tabs()
 		wt = road_wt;
 	}
 
-	gui_komponente_t *old_tab = tabs.get_aktives_tab();
+	gui_component_t *old_tab = tabs.get_aktives_tab();
 	tabs.clear();
 
 	bool one = false;
 
-	cont_pas.add_komponente(&pas);
+	cont_pas.add_component(&pas);
 	scrolly_pas.set_show_scroll_x(false);
 	scrolly_pas.set_size_corner(false);
 	// add only if there are any
@@ -1678,7 +1678,7 @@ void gui_convoy_assembler_t::update_tabs()
 		one = true;
 	}
 
-	cont_electrics.add_komponente(&electrics);
+	cont_electrics.add_component(&electrics);
 	scrolly_electrics.set_show_scroll_x(false);
 	scrolly_electrics.set_size_corner(false);
 	// add only if there are any trolleybuses
@@ -1690,7 +1690,7 @@ void gui_convoy_assembler_t::update_tabs()
 		one = true;
 	}
 
-	cont_loks.add_komponente(&loks);
+	cont_loks.add_component(&loks);
 	scrolly_loks.set_show_scroll_x(false);
 	scrolly_loks.set_size_corner(false);
 	// add, if waggons are there ...
@@ -1699,7 +1699,7 @@ void gui_convoy_assembler_t::update_tabs()
 		one = true;
 	}
 
-	cont_waggons.add_komponente(&waggons);
+	cont_waggons.add_component(&waggons);
 	scrolly_waggons.set_show_scroll_x(false);
 	scrolly_waggons.set_size_corner(false);
 	// only add, if there are waggons
@@ -1746,7 +1746,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 	const scr_size size = depot_frame ? depot_frame->get_windowsize() : replace_frame->get_windowsize();
 	PUSH_CLIP(pos.x, pos.y, size.w-1, size.h-1);
 
-	gui_komponente_t const* const tab = tabs.get_aktives_tab();
+	gui_component_t const* const tab = tabs.get_aktives_tab();
 	gui_image_list_t const* const lst =
 		tab == &scrolly_pas       ? &pas       :
 		tab == &scrolly_electrics ? &electrics :

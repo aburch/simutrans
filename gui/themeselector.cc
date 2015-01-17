@@ -23,7 +23,7 @@ themeselector_t::themeselector_t() :
 	savegame_frame_t( ".tab", false, NULL, false )
 {
 	// remove unnecessary buttons
-	remove_komponente( &input );
+	remove_component( &input );
 	delete_enabled = false;
 	label_enabled  = false;
 

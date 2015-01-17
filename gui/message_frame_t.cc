@@ -78,11 +78,11 @@ message_frame_t::message_frame_t() :
 		tab_categories.append( categories[i] );
 	}
 	tabs.add_listener(this);
-	add_komponente(&tabs);
+	add_component(&tabs);
 
 	option_bt.init(button_t::roundbox, translator::translate("Optionen"), scr_coord(BUTTON1_X,0), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
 	option_bt.add_listener(this);
-	add_komponente(&option_bt);
+	add_component(&option_bt);
 
 	ibuf[0] = 0;
 	input.set_text(ibuf, lengthof(ibuf) );
@@ -90,7 +90,7 @@ message_frame_t::message_frame_t() :
 	input.set_pos(scr_coord(BUTTON2_X,0));
 	if(  env_t::networkmode  ) {
 		set_transparent( env_t::chat_window_transparency, COL_WHITE );
-		add_komponente(&input);
+		add_component(&input);
 		set_focus( &input );
 	}
 
@@ -119,19 +119,19 @@ void message_frame_t::resize(const scr_coord delta)
 
 
 /* triggered, when button clicked; only single button registered, so the action is clear ... */
-bool message_frame_t::action_triggered( gui_action_creator_t *komp, value_t v )
+bool message_frame_t::action_triggered( gui_action_creator_t *comp, value_t v )
 {
-	if(  komp==&option_bt  ) {
+	if(  comp==&option_bt  ) {
 		create_win(320, 200, new message_option_t(), w_info, magic_message_options );
 	}
-	else if(  komp==&input  &&  ibuf[0]!=0  ) {
+	else if(  comp==&input  &&  ibuf[0]!=0  ) {
 		// Send chat message to server for distribution
 		nwc_chat_t* nwchat = new nwc_chat_t( ibuf, welt->get_active_player()->get_player_nr(), env_t::nickname.c_str() );
 		network_send_server( nwchat );
 
 		ibuf[0] = 0;
 	}
-	else if(  komp==&tabs  ) {
+	else if(  comp==&tabs  ) {
 		// Knightly : filter messages by type where necessary
 		if(  stats.filter_messages( tab_categories[v.i] )  ) {
 			scrolly.set_scroll_position(0, 0);

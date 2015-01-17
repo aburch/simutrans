@@ -4,7 +4,7 @@
 #include <string>
 
 #include "gui_action_creator.h"
-#include "gui_komponente.h"
+#include "gui_component.h"
 #include "../../tpl/slist_tpl.h"
 
 
@@ -14,7 +14,7 @@
  */
 class gui_flowtext_t :
 	public gui_action_creator_t,
-	public gui_komponente_t
+	public gui_component_t
 {
 public:
 	gui_flowtext_t();

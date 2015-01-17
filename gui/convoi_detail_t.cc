@@ -49,21 +49,21 @@ convoi_detail_t::convoi_detail_t(convoihandle_t cnv)
 	sale_button.init(button_t::roundbox, "Verkauf", scr_coord(BUTTON4_X, 0), D_BUTTON_SIZE);
 	sale_button.set_tooltip("Remove vehicle from map. Use with care!");
 	sale_button.add_listener(this);
-	add_komponente(&sale_button);
+	add_component(&sale_button);
 
 	withdraw_button.init(button_t::roundbox, "withdraw", scr_coord(BUTTON3_X, 0), D_BUTTON_SIZE);
 	withdraw_button.set_tooltip("Convoi is sold when all wagons are empty.");
 	withdraw_button.add_listener(this);
-	add_komponente(&withdraw_button);
+	add_component(&withdraw_button);
 
 	retire_button.init(button_t::roundbox, "Retire", scr_coord(BUTTON3_X, 16), D_BUTTON_SIZE);
 	retire_button.set_tooltip("Convoi is sent to depot when all wagons are empty.");
-	add_komponente(&retire_button);
+	add_component(&retire_button);
 	retire_button.add_listener(this);
 
 	scrolly.set_pos(scr_coord(0, 2+16+5*LINESPACE));
 	scrolly.set_show_scroll_x(true);
-	add_komponente(&scrolly);
+	add_component(&scrolly);
 
 	set_windowsize(scr_size(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT+50+17*(LINESPACE+1)+D_SCROLLBAR_HEIGHT-6));
 	set_min_windowsize(scr_size(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT+50+3*(LINESPACE+1)+D_SCROLLBAR_HEIGHT-3));
@@ -209,18 +209,18 @@ void convoi_detail_t::draw(scr_coord pos, scr_size size)
  * This method is called if an action is triggered
  * @author Markus Weber
  */
-bool convoi_detail_t::action_triggered(gui_action_creator_t *komp,value_t /* */)           // 28-Dec-01    Markus Weber    Added
+bool convoi_detail_t::action_triggered(gui_action_creator_t *comp,value_t /* */)           // 28-Dec-01    Markus Weber    Added
 {
 	if(cnv.is_bound()) {
-		if(komp==&sale_button) {
+		if(comp==&sale_button) {
 			cnv->call_convoi_tool( 'x', NULL );
 			return true;
 		}
-		else if(komp==&withdraw_button) {
+		else if(comp==&withdraw_button) {
 			cnv->call_convoi_tool( 'w', NULL );
 			return true;
 		}
-		else if(komp==&retire_button) {
+		else if(comp==&retire_button) {
 			cnv->call_convoi_tool( 'T', NULL );
 			return true;
 		}

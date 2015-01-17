@@ -24,13 +24,13 @@ news_window::news_window(const char* t, PLAYER_COLOR_VAL title_color) :
 	buf.clear();
 	buf.append(translator::translate(t));
 	textarea.set_pos( scr_coord(10, 10) );
-	add_komponente( &textarea );
+	add_component( &textarea );
 }
 
 
 // Knightly :	set component boundary and windows size, position component and add it to the component list
 //				if component is NULL, the message box will contain only text
-void news_window::extend_window_with_component(gui_komponente_t *const component, const scr_size size, const scr_coord offset)
+void news_window::extend_window_with_component(gui_component_t *const component, const scr_size size, const scr_coord offset)
 {
 	if(  component  ) {
 		textarea.set_reserved_area( size + scr_size(10, 10) );
@@ -40,7 +40,7 @@ void news_window::extend_window_with_component(gui_komponente_t *const component
 		const sint16 height = max( textarea.get_size().h, size.h ) + 36;
 		set_windowsize( scr_size(width, height) );
 		component->set_pos( scr_coord(width - size.w - 10 + offset.x, 10 + offset.y) );
-		add_komponente(component);
+		add_component(component);
 	}
 	else {
 		textarea.set_width(textarea.get_size().w + 10 + size.w);

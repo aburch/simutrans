@@ -1710,7 +1710,7 @@
     <ClInclude Include="gui\components\gui_container.h" />
     <ClInclude Include="gui\components\gui_convoiinfo.h" />
     <ClInclude Include="gui\components\gui_fixedwidth_textarea.h" />
-    <ClInclude Include="gui\components\gui_komponente.h" />
+    <ClInclude Include="gui\components\gui_component.h" />
     <ClInclude Include="gui\components\gui_map_preview.h" />
     <ClInclude Include="gui\components\gui_obj_view_t.h" />
     <ClInclude Include="gui\convoy_item.h" />
@@ -1890,7 +1890,6 @@
     <ClInclude Include="gui\gui_frame.h" />
     <ClInclude Include="gui\components\gui_image.h" />
     <ClInclude Include="gui\components\gui_image_list.h" />
-    <ClInclude Include="ifc\gui_komponente.h" />
     <ClInclude Include="gui\components\gui_label.h" />
     <ClInclude Include="gui\components\gui_numberinput.h" />
     <ClInclude Include="gui\components\gui_scrollbar.h" />

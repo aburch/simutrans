@@ -53,12 +53,12 @@ climate_gui_t::climate_gui_t(settings_t* const sets_par) :
 	water_level.set_pos( cursor );
 	water_level.set_size( edit_size );
 	water_level.add_listener( this );
-	add_komponente( &water_level );
+	add_component( &water_level );
 	const gui_label_t& water_level_lbl = numberinput_lbl[labelnr];
 	numberinput_lbl[labelnr].init( "Water level", scr_coord(D_MARGIN_LEFT, cursor.y) );
 	numberinput_lbl[labelnr].align_to(&water_level,ALIGN_CENTER_V);
 	numberinput_lbl[labelnr].set_width(label_width);
-	add_komponente( numberinput_lbl+labelnr );
+	add_component( numberinput_lbl+labelnr );
 	labelnr++;
 	cursor.y += D_EDIT_HEIGHT;
 
@@ -74,10 +74,10 @@ climate_gui_t::climate_gui_t(settings_t* const sets_par) :
 	mountain_height.set_pos( cursor );
 	mountain_height.set_size( edit_size );
 	mountain_height.add_listener( this );
-	add_komponente( &mountain_height );
+	add_component( &mountain_height );
 	numberinput_lbl[labelnr].init( "Mountain height", cursor + lbl_offs );
 	numberinput_lbl[labelnr].set_width(label_width);
-	add_komponente( numberinput_lbl+labelnr );
+	add_component( numberinput_lbl+labelnr );
 	labelnr++;
 	cursor.y += D_EDIT_HEIGHT;
 
@@ -86,10 +86,10 @@ climate_gui_t::climate_gui_t(settings_t* const sets_par) :
 	mountain_roughness.set_pos( cursor );
 	mountain_roughness.set_size( edit_size );
 	mountain_roughness.add_listener( this );
-	add_komponente( &mountain_roughness );
+	add_component( &mountain_roughness );
 	numberinput_lbl[labelnr].init( "Map roughness", cursor + lbl_offs );
 	numberinput_lbl[labelnr].set_width(label_width);
-	add_komponente( numberinput_lbl+labelnr );
+	add_component( numberinput_lbl+labelnr );
 	labelnr++;
 	cursor.y += D_BUTTON_HEIGHT+D_V_SPACE;
 
@@ -97,7 +97,7 @@ climate_gui_t::climate_gui_t(settings_t* const sets_par) :
 	hilly.set_width(L_CLIENT_WIDTH);
 	hilly.pressed=env_t::hilly;
 	hilly.add_listener( this );
-	add_komponente( &hilly );
+	add_component( &hilly );
 	cursor.y += D_BUTTON_HEIGHT;
 
 	cities_ignore_height.init( button_t::square_state, "Cities ignore height", cursor + btn_offs); 
@@ -105,7 +105,7 @@ climate_gui_t::climate_gui_t(settings_t* const sets_par) :
 	cities_ignore_height.set_tooltip("Cities will be built all over the terrain, rather than preferring lower ground");
 	cities_ignore_height.pressed=env_t::cities_ignore_height;
 	cities_ignore_height.add_listener( this );
-	add_komponente( &cities_ignore_height );
+	add_component( &cities_ignore_height );
 	cursor.y += D_BUTTON_HEIGHT;
 
 	// Cities like water
@@ -113,10 +113,10 @@ climate_gui_t::climate_gui_t(settings_t* const sets_par) :
 	cities_like_water.set_pos( cursor );
 	cities_like_water.set_size( edit_size );
 	cities_like_water.add_listener(this);
-	add_komponente( &cities_like_water );
+	add_component( &cities_like_water );
 	numberinput_lbl[labelnr].init("Cities like water", cursor + lbl_offs );
 	numberinput_lbl[labelnr].set_width(label_width);
-	add_komponente( numberinput_lbl+labelnr );
+	add_component( numberinput_lbl+labelnr );
 	labelnr++;
 	cursor.y += D_EDIT_HEIGHT;
 
@@ -125,10 +125,10 @@ climate_gui_t::climate_gui_t(settings_t* const sets_par) :
 	summer_snowline.init( NULL, cursor + scr_coord(D_ARROW_LEFT_WIDTH, lbl_offs.y), SYSCOL_TEXT_HIGHLIGHT, gui_label_t::right );
 	summer_snowline.set_width(edit_width - D_ARROW_LEFT_WIDTH - D_ARROW_RIGHT_WIDTH);
 	summer_snowline.set_text_pointer( snowline_txt, false );
-	add_komponente( &summer_snowline );
+	add_component( &summer_snowline );
 	numberinput_lbl[labelnr].init( "Summer snowline", cursor + lbl_offs );
 	numberinput_lbl[labelnr].set_width(label_width);
-	add_komponente( numberinput_lbl+labelnr );
+	add_component( numberinput_lbl+labelnr );
 	labelnr++;
 	cursor.y += D_BUTTON_HEIGHT;
 
@@ -137,10 +137,10 @@ climate_gui_t::climate_gui_t(settings_t* const sets_par) :
 	snowline_winter.set_pos( cursor );
 	snowline_winter.set_size( edit_size );
 	snowline_winter.add_listener( this );
-	add_komponente( &snowline_winter );
+	add_component( &snowline_winter );
 	numberinput_lbl[labelnr].init( "Winter snowline", cursor + lbl_offs);
 	numberinput_lbl[labelnr].set_width( label_width );
-	add_komponente( numberinput_lbl+labelnr );
+	add_component( numberinput_lbl+labelnr );
 	labelnr++;
 	cursor.y += D_EDIT_HEIGHT + D_V_SPACE;
 
@@ -152,14 +152,14 @@ climate_gui_t::climate_gui_t(settings_t* const sets_par) :
 		climate_borders_ui[i].set_pos( cursor );
 		climate_borders_ui[i].set_size( edit_size );
 		climate_borders_ui[i].add_listener( this );
-		add_komponente( climate_borders_ui+i );
+		add_component( climate_borders_ui+i );
 		if(sets->get_climate_borders()[i]>arctic) {
 			arctic = sets->get_climate_borders()[i];
 		}
 		numberinput_lbl[labelnr].init( grund_besch_t::get_climate_name_from_bit((climate)(i+1)), cursor + lbl_offs);
 		numberinput_lbl[labelnr].set_width(label_width);
 		//numberinput_lbl[labelnr].align_to(&climate_borders_ui[i],ALIGN_CENTER_V);
-		add_komponente( numberinput_lbl+labelnr );
+		add_component( numberinput_lbl+labelnr );
 		labelnr++;
 		cursor.y += D_EDIT_HEIGHT;
 	}
@@ -171,7 +171,7 @@ climate_gui_t::climate_gui_t(settings_t* const sets_par) :
 	no_tree.set_width(L_CLIENT_WIDTH);
 	no_tree.pressed = sets->get_no_trees();
 	no_tree.add_listener( this );
-	add_komponente( &no_tree );
+	add_component( &no_tree );
 	cursor.y += D_CHECKBOX_HEIGHT + D_V_SPACE;
 
 	cities_ignore_height.pressed = env_t::cities_ignore_height;
@@ -181,17 +181,17 @@ climate_gui_t::climate_gui_t(settings_t* const sets_par) :
 	lake.set_width(L_CLIENT_WIDTH);
 	lake.pressed = sets->get_lake();
 	lake.add_listener( this );
-	add_komponente( &lake );
+	add_component( &lake );
 	cursor.y += D_CHECKBOX_HEIGHT + D_V_SPACE;
 
 	river_n.init( sets->get_river_number(), 0, 1024, gui_numberinput_t::POWER2, false );
 	river_n.set_pos( cursor );
 	river_n.set_size( edit_size );
 	river_n.add_listener(this);
-	add_komponente( &river_n );
+	add_component( &river_n );
 	numberinput_lbl[labelnr].init( "Number of rivers", cursor + lbl_offs );
 	numberinput_lbl[labelnr].set_width(label_width);
-	add_komponente( numberinput_lbl+labelnr );
+	add_component( numberinput_lbl+labelnr );
 	labelnr++;
 	cursor.y += D_EDIT_HEIGHT;
 
@@ -199,10 +199,10 @@ climate_gui_t::climate_gui_t(settings_t* const sets_par) :
 	river_min.set_pos( cursor );
 	river_min.set_size( edit_size );
 	river_min.add_listener(this);
-	add_komponente( &river_min );
+	add_component( &river_min );
 	numberinput_lbl[labelnr].init( "minimum length of rivers", cursor + lbl_offs );
 	numberinput_lbl[labelnr].set_width(label_width);
-	add_komponente( numberinput_lbl+labelnr );
+	add_component( numberinput_lbl+labelnr );
 	labelnr++;
 	cursor.y += D_EDIT_HEIGHT;
 
@@ -210,10 +210,10 @@ climate_gui_t::climate_gui_t(settings_t* const sets_par) :
 	river_max.set_pos( cursor );
 	river_max.set_size( edit_size );
 	river_max.add_listener(this);
-	add_komponente( &river_max );
+	add_component( &river_max );
 	numberinput_lbl[labelnr].init( "maximum length of rivers", cursor + lbl_offs );
 	numberinput_lbl[labelnr].set_width(label_width);
-	add_komponente( numberinput_lbl+labelnr );
+	add_component( numberinput_lbl+labelnr );
 	labelnr++;
 	cursor.y += D_EDIT_HEIGHT;
 
@@ -225,18 +225,18 @@ climate_gui_t::climate_gui_t(settings_t* const sets_par) :
  * This method is called if an action is triggered
  * @author Hj. Malthaner
  */
-bool climate_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
+bool climate_gui_t::action_triggered( gui_action_creator_t *comp, value_t v)
 {
 	welt_gui_t *welt_gui = dynamic_cast<welt_gui_t *>(win_get_magic( magic_welt_gui_t ));
-	if(komp==&no_tree) {
+	if(comp==&no_tree) {
 		no_tree.pressed ^= 1;
 		sets->set_no_trees(no_tree.pressed);
 	}
-	else if(komp==&lake) {
+	else if(comp==&lake) {
 		lake.pressed ^= 1;
 		sets->set_lake(lake.pressed);
 	}
-	else if(komp==&water_level) {
+	else if(comp==&water_level) {
 		sets->grundwasser = (sint16)v.i;
 		if(  welt_gui  ) {
 			welt_gui->update_preview();
@@ -246,38 +246,38 @@ bool climate_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 			climate_borders_ui[i].set_value( climate_borders_ui[i].get_value() );
 		}
 	}
-	else if(komp==&mountain_height) {
+	else if(comp==&mountain_height) {
 		sets->max_mountain_height = v.i;
 		mountain_roughness.set_limits(0,min(10,11-((v.i+99)/100)));
 		if(  welt_gui  ) {
 			welt_gui->update_preview();
 		}
 	}
-	else if(komp==&mountain_roughness) {
+	else if(comp==&mountain_roughness) {
 		sets->map_roughness = (double)(v.i+8)/20.0;
 		mountain_height.set_limits(0,min(1000,100*(11-v.i)));
 		if(  welt_gui  ) {
 			welt_gui->update_preview();
 		}
 	}
-	else if(komp==&cities_like_water) {
+	else if(comp==&cities_like_water) {
 		env_t::cities_like_water = (uint8) v.i;
 	}
-	else if(komp==&river_n) {
+	else if(comp==&river_n) {
 		sets->river_number = (sint16)v.i;
 	}
-	else if(komp==&river_min) {
+	else if(comp==&river_min) {
 		sets->min_river_length = (sint16)v.i;
 		river_max.set_limits(v.i+16,32767);
 	}
-	else if(komp==&river_max) {
+	else if(comp==&river_max) {
 		sets->max_river_length = (sint16)v.i;
 		river_min.set_limits(0,max(2,v.i)-2);
 	}
-	else if(komp==&snowline_winter) {
+	else if(comp==&snowline_winter) {
 		sets->winter_snowline = (sint16)v.i;
 	}
-	else if(komp==&hilly)
+	else if(comp==&hilly)
 	{
 		env_t::hilly ^= 1;
 		hilly.pressed ^= 1;
@@ -286,7 +286,7 @@ bool climate_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 			welt_gui->update_preview();
 		}
 	}
-	else if(komp == & cities_ignore_height)
+	else if(comp == & cities_ignore_height)
 	{
 		env_t::cities_ignore_height ^= 1;
 		cities_ignore_height.pressed ^= 1;
@@ -297,7 +297,7 @@ bool climate_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 	// Arctic starts at maximum end of climate
 	sint16 arctic = 0;
 	for(  int i=desert_climate;  i<=rocky_climate;  i++  ) {
-		if(  komp==climate_borders_ui+i-1  ) {
+		if(  comp==climate_borders_ui+i-1  ) {
 			sets->climate_borders[i] = (sint16)v.i;
 		}
 		if(sets->climate_borders[i]>arctic) {

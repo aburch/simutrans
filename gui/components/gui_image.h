@@ -12,11 +12,11 @@
 
 #include "../../display/simimg.h"
 #include "../../display/simgraph.h"
-#include "gui_komponente.h"
+#include "gui_component.h"
 
 
 
-class gui_image_t : public gui_komponente_t
+class gui_image_t : public gui_component_t
 {
 	public:
 		enum size_modes {

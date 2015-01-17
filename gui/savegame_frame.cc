@@ -54,7 +54,7 @@ savegame_frame_t::savegame_frame_t(const char *suffix, bool only_directories, co
 	searchpath_defined(false),
 	fnlabel("Filename"),
 	use_table(use_table),
-	scrolly(use_table ? (gui_komponente_t*)&file_table : (gui_komponente_t*)&button_frame),
+	scrolly(use_table ? (gui_component_t*)&file_table : (gui_component_t*)&button_frame),
 	num_sections(0),
 	delete_enabled(delete_enabled)
 {
@@ -68,7 +68,7 @@ void savegame_frame_t::init(const char *suffix, const char *path)
 	label_enabled = true;
 
 	fnlabel.set_pos(cursor);
-	add_komponente(&fnlabel);
+	add_component(&fnlabel);
 
 	// Input box for game name
 	tstrncpy(ibuf, "", lengthof(ibuf));
@@ -76,7 +76,7 @@ void savegame_frame_t::init(const char *suffix, const char *path)
 	input.set_size( scr_size ( D_BUTTON_WIDTH, D_EDIT_HEIGHT ) );
 	input.set_text(ibuf, 128);
 	fnlabel.align_to(&input,ALIGN_CENTER_V);
-	add_komponente(&input);
+	add_component(&input);
 	cursor.y += D_EDIT_HEIGHT;
 	cursor.y += D_V_SPACE;
 
@@ -93,18 +93,18 @@ void savegame_frame_t::init(const char *suffix, const char *path)
 	file_table.add_listener(this);
 	button_frame.set_size( scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT) );
 
-	add_komponente(&scrolly);
+	add_component(&scrolly);
 
 	// Controls below will be sized and positioned in set_windowsize()
-	add_komponente(&divider1);
+	add_component(&divider1);
 
 	savebutton.init( button_t::roundbox, "Ok" );
 	savebutton.add_listener( this );
-	add_komponente( &savebutton );
+	add_component( &savebutton );
 
 	cancelbutton.init( button_t::roundbox, "Cancel" );
 	cancelbutton.add_listener( this );
-	add_komponente( &cancelbutton );
+	add_component( &cancelbutton );
 
 	set_focus( &input );
 
@@ -324,7 +324,7 @@ void savegame_frame_t::list_filled( void )
 
 			if(i.type == LI_HEADER) {
 				label->set_pos(scr_coord(10, y+4));
-				button_frame.add_komponente(label);
+				button_frame.add_component(label);
 				if(this->num_sections < 2) {
 					// If just 1 section added, we won't print the header, skipping the y increment
 					label->set_visible(false);
@@ -349,9 +349,9 @@ void savegame_frame_t::list_filled( void )
 				button1->add_listener(this);
 				button2->add_listener(this);
 
-				button_frame.add_komponente(button1);
-				button_frame.add_komponente(button2);
-				button_frame.add_komponente(label);
+				button_frame.add_component(button1);
+				button_frame.add_component(button2);
+				button_frame.add_component(label);
 			}
 
 			y += D_BUTTON_HEIGHT;

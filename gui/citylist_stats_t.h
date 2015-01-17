@@ -12,7 +12,7 @@
 #ifndef CITYLIST_STATS_T_H
 #define CITYLIST_STATS_T_H
 
-#include "components/gui_komponente.h"
+#include "components/gui_component.h"
 #include "../tpl/vector_tpl.h"
 
 class karte_ptr_t;

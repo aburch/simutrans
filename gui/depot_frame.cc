@@ -77,11 +77,11 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	/*
 	 * [SELECT]:
 	 */
-	add_komponente(&lb_convois);
+	add_component(&lb_convois);
 
 	convoy_selector.add_listener(this);
 	convoy_selector.set_highlight_color( depot->get_owner()->get_player_color1() + 1);
-	add_komponente(&convoy_selector);
+	add_component(&convoy_selector);
 
 	/*
 	* [SELECT ROUTE]:
@@ -90,18 +90,18 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	line_selector.set_highlight_color( depot->get_owner()->get_player_color1() + 1);
 	line_selector.set_wrapping(false);
 	line_selector.set_focusable(true);
-	add_komponente(&line_selector);
+	add_component(&line_selector);
 
 	// goto line button
 	line_button.set_typ(button_t::posbutton);
 	line_button.set_targetpos(koord(0,0));
 	line_button.add_listener(this);
-	add_komponente(&line_button);
+	add_component(&line_button);
 
 	/*
 	* [CONVOI]
 	*/
-	add_komponente(&lb_convoi_line);
+	add_component(&lb_convoi_line);
 
 	//sb_convoi_length.set_base( depot->get_max_convoi_length() * CARUNITS_PER_TILE / 2 - 1);
 	//sb_convoi_length.set_vertical(false);
@@ -116,7 +116,7 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	//	sb_convoi_length.add_color_value(&convoi_length_ok_sb, COL_GREEN);
 	//	sb_convoi_length.add_color_value(&convoi_length_slower_sb, COL_ORANGE);
 	//	sb_convoi_length.add_color_value(&convoi_length_too_slow_sb, COL_RED);
-	//	add_komponente(&sb_convoi_length);
+	//	add_component(&sb_convoi_length);
 	//}
 
 	/*
@@ -125,22 +125,22 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	bt_start.set_typ(button_t::roundbox);
 	bt_start.add_listener(this);
 	bt_start.set_tooltip("Start the selected vehicle(s)");
-	add_komponente(&bt_start);
+	add_component(&bt_start);
 
 	bt_schedule.set_typ(button_t::roundbox);
 	bt_schedule.add_listener(this);
 	bt_schedule.set_tooltip("Give the selected vehicle(s) an individual schedule"); // translated to "Edit the selected vehicle(s) individual schedule or assigned line"
-	add_komponente(&bt_schedule);
+	add_component(&bt_schedule);
 
 	bt_copy_convoi.set_typ(button_t::roundbox);
 	bt_copy_convoi.add_listener(this);
 	bt_copy_convoi.set_tooltip("Copy the selected convoi and its schedule or line");
-	add_komponente(&bt_copy_convoi);
+	add_component(&bt_copy_convoi);
 
 	bt_sell.set_typ(button_t::roundbox);
 	bt_sell.add_listener(this);
 	bt_sell.set_tooltip("Sell the selected vehicle(s)");
-	add_komponente(&bt_sell);
+	add_component(&bt_sell);
 
 	scr_size size(0,0);
 	layout(&size);
@@ -151,9 +151,9 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	lb_convois.set_text_pointer(txt_convois);
 
 	check_way_electrified();
-	add_komponente(&img_bolt);
+	add_component(&img_bolt);
 
-	add_komponente(&convoy_assembler);
+	add_component(&convoy_assembler);
 
 	cbuffer_t txt_traction_types;
 	if(depot->get_tile()->get_besch()->get_enabled() == 0)
@@ -505,7 +505,7 @@ sint64 depot_frame_t::calc_restwert(const vehikel_besch_t *veh_type)
 }
 
 
-bool depot_frame_t::action_triggered( gui_action_creator_t *komp, value_t p)
+bool depot_frame_t::action_triggered( gui_action_creator_t *comp, value_t p)
 {
 	convoihandle_t cnv = depot->get_convoi( icnv );
 
@@ -514,8 +514,8 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *komp, value_t p)
 		return true;
 	}
 
-	if(  komp != NULL  ) {	// message from outside!
-		if(  komp == &bt_start  ) {
+	if(  comp != NULL  ) {	// message from outside!
+		if(  comp == &bt_start  ) {
 			if(  cnv.is_bound()  ) {
 				//first: close schedule (will update schedule on clients)
 				destroy_win( (ptrdiff_t)cnv->get_schedule() );
@@ -524,7 +524,7 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *komp, value_t p)
 				depot->call_depot_tool( tool, cnv, NULL);
 				update_convoy();
 			}
-		} else if(komp == &bt_schedule) {
+		} else if(comp == &bt_schedule) {
 			if(  line_selector.get_selection() == 1  &&  !line_selector.is_dropped()  ) { // create new line
 				// promote existing individual schedule to line
 				cbuffer_t buf;
@@ -541,43 +541,43 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *komp, value_t p)
 				fahrplaneingabe();
 				return true;
 			}
-		} else if(komp == &bt_destroy) {
+		} else if(comp == &bt_destroy) {
 			depot->call_depot_tool( 'd', cnv, NULL );
 			update_convoy();
-		} else if(komp == &bt_sell) {
+		} else if(comp == &bt_sell) {
 			depot->call_depot_tool( 'v', cnv, NULL );
 			update_convoy();
-		//} else if(komp == &inp_name) {
+		//} else if(comp == &inp_name) {
 		//	return true;	// already call rename_convoy() above
-		//} else if(komp == &bt_next) {
+		//} else if(comp == &bt_next) {
 		//	if(++icnv == (int)depot->convoi_count()) {
 		//		icnv = -1;
 		//	}
 		//	update_convoy();
-		//} else if(komp == &bt_prev) {
+		//} else if(comp == &bt_prev) {
 		//	if(icnv-- == -1) {
 		//		icnv = depot->convoi_count() - 1;
 		//	}
 		//	update_convoy();
-		//} else if(komp == &bt_new_line) {
+		//} else if(comp == &bt_new_line) {
 		//	depot->call_depot_tool( 'l', convoihandle_t(), NULL );
 		//	return true;
-		//} else if(komp == &bt_change_line) {
+		//} else if(comp == &bt_change_line) {
 		//	if(selected_line.is_bound()) {
 		//		create_win(new line_management_gui_t(selected_line, depot->get_owner()), w_info, (ptrdiff_t)selected_line.get_rep() );
 		//	}
 		//	return true;
 		}
-		else if(  komp == &line_button  ) {
+		else if(  comp == &line_button  ) {
 			if(  cnv.is_bound()  ) {
 				cnv->get_owner()->simlinemgmt.show_lineinfo( cnv->get_owner(), cnv->get_line() );
 				welt->set_dirty();
 			}
 		}
-		else if(  komp == &bt_sell  ) {
+		else if(  comp == &bt_sell  ) {
 			depot->call_depot_tool('v', cnv, NULL);
 		}
-		else if(  komp == &bt_copy_convoi  ) {
+		else if(  comp == &bt_copy_convoi  ) {
 			if(  cnv.is_bound()  ) {
 				if(  !welt->use_timeline()  ||  welt->get_settings().get_allow_buying_obsolete_vehicles()  ||  depot->check_obsolete_inventory( cnv )  ) {
 					depot->call_depot_tool('c', cnv, NULL, gui_convoy_assembler_t::get_livery_scheme_index());
@@ -588,16 +588,16 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *komp, value_t p)
 			}
 			return true;
 		}
-		else if(  komp == &convoy_selector  ) {
+		else if(  comp == &convoy_selector  ) {
 			icnv = p.i - 1;
 			if(  !depot->get_convoi(icnv).is_bound()  ) {
 				set_focus( NULL );
 			}
 			else {
-				set_focus( (gui_komponente_t *)&convoy_selector );
+				set_focus( (gui_component_t *)&convoy_selector );
 			}
 		}
-		else if(  komp == &line_selector  ) {
+		else if(  comp == &line_selector  ) {
 			int selection = p.i;
 			if(  selection == 0  ) { // unique
 				if(  selected_line.is_bound()  ) {

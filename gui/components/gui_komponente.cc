@@ -1,11 +1,11 @@
-#include "gui_komponente.h"
+#include "gui_component.h"
 #include "../../display/scr_coord.h"
 
 #include "../../simworld.h"
 
 karte_ptr_t gui_world_component_t::welt;
 
-void gui_komponente_t::align_to( gui_komponente_t* component_par, control_alignment_t alignment_par, scr_coord offset_par )
+void gui_component_t::align_to( gui_component_t* component_par, control_alignment_t alignment_par, scr_coord offset_par )
 {
 	// Don't process NULL components and complete NONE alignment (both vert and horiz)
 	if(  component_par  &&  alignment_par != ALIGN_NONE  ) {
