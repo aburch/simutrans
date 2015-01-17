@@ -353,7 +353,17 @@ public:
 
 	virtual void rotate90();
 
-	virtual bool ist_weg_frei( int &/*restart_speed*/, bool /*second_check*/ ) { return true; }
+	/**
+	 * Method checks whether next tile is free to move on.
+	 * Looks up next tile, and calls @ref ist_weg_frei(const grund_t*, int&, bool).
+	 */
+	bool ist_weg_frei(int &restart_speed, bool second_check);
+
+	/**
+	 * Method checks whether next tile is free to move on.
+	 * @param gr_next next tile, must not be NULL
+	 */
+	virtual bool ist_weg_frei(const grund_t *gr_next, int &restart_speed, bool second_check) = 0;
 
 	virtual grund_t* betrete_feld();
 
@@ -666,7 +676,7 @@ public:
 
 	virtual route_t::route_result_t calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route);
 
-	virtual bool ist_weg_frei(int &restart_speed, bool second_check );
+	virtual bool ist_weg_frei(const grund_t *gr_next, int &restart_speed, bool second_check);
 
 	// returns true for the way search to an unknown target.
 	virtual bool ist_ziel(const grund_t *,const grund_t *);
@@ -725,7 +735,7 @@ public:
 	virtual bool ist_ziel(const grund_t *,const grund_t *);
 
 	// handles all block stuff and route choosing ...
-	virtual bool ist_weg_frei(int &restart_speed, bool );
+	virtual bool ist_weg_frei(const grund_t *gr_next, int &restart_speed, bool);
 
 	// reserves or un-reserves all blocks and returns the handle to the next block (if there)
 	// returns true on successful reservation
@@ -861,7 +871,7 @@ protected:
 public:
 	waytype_t get_waytype() const { return water_wt; }
 
-	virtual bool ist_weg_frei(int &restart_speed, bool);
+	virtual bool ist_weg_frei(const grund_t *gr_next, int &restart_speed, bool);
 
 	bool check_tile_occupancy(const grund_t* gr);
 
@@ -966,7 +976,7 @@ public:
 	// how expensive to go here (for way search)
 	virtual int get_kosten(const grund_t *, const sint32, koord);
 
-	virtual bool ist_weg_frei(int &restart_speed, bool);
+	virtual bool ist_weg_frei(const grund_t *gr_next, int &restart_speed, bool);
 
 	virtual void set_convoi(convoi_t *c);
 

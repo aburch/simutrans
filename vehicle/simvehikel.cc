@@ -1381,7 +1381,7 @@ bool vehikel_t::hop_check()
 		int restart_speed = -1;
 		// ist_weg_frei() berechnet auch die Geschwindigkeit
 		// mit der spaeter weitergefahren wird
-		if(!ist_weg_frei(restart_speed,false)) {
+		if(!ist_weg_frei(bd, restart_speed, false)) {
 
 			// convoi anhalten, wenn strecke nicht frei
 			cnv->warten_bis_weg_frei(restart_speed);
@@ -1399,10 +1399,21 @@ bool vehikel_t::hop_check()
 	return true;
 }
 
+bool vehikel_t::ist_weg_frei(int &restart_speed, bool second_check)
+{
+	grund_t *gr = welt->lookup(pos_next);
+	if (gr) {
+		return ist_weg_frei(gr, restart_speed, second_check);
+	}
+	else {
+		if(  !second_check  ) {
+			cnv->suche_neue_route();
+		}
+		return false;
+	}
+}
 
-
-void
-vehikel_t::verlasse_feld()
+void vehikel_t::verlasse_feld()
 {
 	vehikel_basis_t::verlasse_feld();
 #ifndef DEBUG_ROUTES
@@ -2879,23 +2890,16 @@ bool automobil_t::choose_route( int &restart_speed, ribi_t::ribi richtung, uint1
 }
 
 
-bool automobil_t::ist_weg_frei(int &restart_speed, bool second_check)
+bool automobil_t::ist_weg_frei(const grund_t *gr, int &restart_speed, bool second_check)
 {
 	// check for traffic lights (only relevant for the first car in a convoi)
 	if(  ist_erstes  ) {
 		// no further check, when already entered a crossing (to allow leaving it)
-		const grund_t *gr = welt->lookup(get_pos());
-		if(  gr  &&  gr->ist_uebergang()  &&  !second_check  ) {
-			return true;
-		}
-
-		gr = welt->lookup(pos_next);
-		if(  !gr  ) {
-			// way (weg) not existent (likely destroyed)
-			if(  !second_check  ) {
-				cnv->suche_neue_route();
+		if (!second_check) {
+			const grund_t *gr_current = welt->lookup(get_pos());
+			if(  gr_current  &&  gr_current->ist_uebergang()  ) {
+				return true;
 			}
-			return false;
 		}
 
 		const strasse_t *str = (strasse_t *)gr->get_weg(road_wt);
@@ -3868,7 +3872,7 @@ bool waggon_t::is_weg_frei_signal( uint16 next_block, int &restart_speed )
 	return false;
 }
 
-bool waggon_t::ist_weg_frei(int & restart_speed,bool)
+bool waggon_t::ist_weg_frei(const grund_t *gr, int & restart_speed, bool)
 {
 	assert(ist_erstes);
 	uint16 next_signal = INVALID_INDEX;
@@ -3913,8 +3917,8 @@ bool waggon_t::ist_weg_frei(int & restart_speed,bool)
 	if(destination_is_nonreversing_waypoint || starting_from_stand)
 	{
 		// reserve first block at the start until the next signal
-		grund_t *gr = welt->lookup( get_pos() );
-		weg_t *w = gr ? gr->get_weg(get_waytype()) : NULL;
+		grund_t *gr_current = welt->lookup( get_pos() );
+		weg_t *w = gr_current ? gr_current->get_weg(get_waytype()) : NULL;
 		if(w==NULL || !((w->has_signal() || w->is_crossing()) && starting_from_stand))
 		{
 			// free track => reserve up to next signal
@@ -3940,12 +3944,8 @@ bool waggon_t::ist_weg_frei(int & restart_speed,bool)
 		}
 	}
 
-	const grund_t *gr = welt->lookup(pos_next);
-	if(gr==NULL) {
-		// way (weg) not existent (probably destroyed)
-		cnv->suche_neue_route();
-		return false;
-	}
+	assert(gr);
+
 	if(gr->get_top()>250) {
 		// too many objects here
 		return false;
@@ -4834,19 +4834,13 @@ void schiff_t::calc_drag_coefficient(const grund_t *gr)
 }
 
 
-bool schiff_t::ist_weg_frei(int &restart_speed, bool)
+bool schiff_t::ist_weg_frei(const grund_t *gr, int &restart_speed, bool)
 {
 	restart_speed = -1;
 
 	if(ist_erstes)
 	{
-		const grund_t *gr = welt->lookup(pos_next);
-		if(gr == NULL)
-		{
-			// way (weg) not existent (probably destroyed)
-			cnv->suche_neue_route();
-			return false;
-		}
+		assert(gr);
 
 		if(!check_tile_occupancy(gr))
 		{
@@ -5580,16 +5574,11 @@ int aircraft_t::block_reserver( uint32 start, uint32 end, bool reserve ) const
 }
 
 // handles all the decisions on the ground and in the air
-bool aircraft_t::ist_weg_frei( int & restart_speed, bool )
+bool aircraft_t::ist_weg_frei(const grund_t *gr, int & restart_speed, bool )
 {
 	restart_speed = -1;
 
-	grund_t *gr = welt->lookup( pos_next );
-	if(gr==NULL) {
-		// way (weg) not existent (likely destroyed)
-		cnv->suche_neue_route();
-		return false;
-	}
+	assert(gr);
 
 	if(gr->get_top()>250) {
 		// too many objects here
