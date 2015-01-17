@@ -84,7 +84,7 @@ public:
 	uint32 index_of(const koord3d &k) const { return (uint32)(route.index_of(k)); }
 
 	/**
-	 * @return Koordinate an index n
+	 * @return Coordinate at index @p n.
 	 * @author Hj. Malthaner
 	 */
 	const koord3d& position_bei(const uint16 n) const { return route[n]; }
@@ -98,25 +98,19 @@ public:
 	bool empty() const { return route.get_count()<2; }
 
 	/**
-	 * kopiert positionen und hoehen von einer anderen route
-	 * @author Hj. Malthaner
-	 */
-	void kopiere(const route_t *route);
-
-	/**
-	 * kopiert positionen und hoehen von einer anderen route
+	 * Appends the other route to ours.
 	 * @author prissi
 	 */
 	void append(const route_t *route);
 
 	/**
-	 * fügt k vorne in die route ein
+	 * Inserts @p k at position 0.
 	 * @author Hj. Malthaner
 	 */
 	void insert(koord3d k);
 
 	/**
-	 * fügt k hinten in die route ein
+	 * Appends position @p k.
 	 * @author prissi
 	 */
 	inline void append(koord3d k) { route.append(k); }
@@ -128,32 +122,33 @@ public:
 	void clear() { route.clear(); }
 
 	/**
-	 * removes all tiles behind this position
+	 * Removes all tiles at indices >@p i.
 	 * @author prissi
 	 */
-	void remove_koord_from(uint32);
+	void remove_koord_from(uint32 i);
 
 	/**
-	 * Appends a straig line from the last koord3d in route to the desired target.
+	 * Appends a straight line to the @p target.
 	 * Will return fals if fails
 	 * @author prissi
 	 */
-	bool append_straight_route( karte_t *w, koord3d );
+	bool append_straight_route( karte_t *w, koord3d target);
 
-	/* find the route to an unknow location (where tile_found becomes true)
-	* the max_depth is the maximum length of a route
-	* @author prissi
-	*/
+	/**
+	 * Finds route to a location, where @p fahr->ist_ziel becomes true.
+	 * @param max_depth is the maximum length of a route
+	 * @author prissi
+	 */
 	bool find_route(karte_t *w, const koord3d start, fahrer_t *fahr, const uint32 max_khm, uint8 start_dir, uint32 max_depth );
 
 	/**
-	 * berechnet eine route von start nach ziel.
+	 * Calculates the route from @p start to @p target
 	 * @author Hj. Malthaner
 	 */
-	route_result_t calc_route(karte_t *welt, koord3d start, koord3d ziel, fahrer_t *fahr, const sint32 max_speed_kmh, sint32 max_tile_len );
+	route_result_t calc_route(karte_t *welt, koord3d start, koord3d target, fahrer_t *fahr, const sint32 max_speed_kmh, sint32 max_tile_len );
 
 	/**
-	 * Lädt/speichert eine Route
+	 * Load/Save of the route.
 	 * @author V. Meyer
 	 */
 	void rdwr(loadsave_t *file);

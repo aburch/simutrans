@@ -32,18 +32,6 @@
 #endif
 
 
-
-void route_t::kopiere(const route_t *r)
-{
-	assert(r != NULL);
-	const unsigned int hops = r->get_count()-1;
-	route.clear();
-	route.resize(hops + 1);
-	for( unsigned int i=0;  i<=hops;  i++ ) {
-		route.append(r->route[i]);
-	}
-}
-
 void route_t::append(const route_t *r)
 {
 	assert(r != NULL);
@@ -91,7 +79,7 @@ bool route_t::append_straight_route(karte_t *welt, koord3d dest )
 	// then try to calculate direct route
 	koord pos = back().get_2d();
 	route.resize( route.get_count()+koord_distance(pos,ziel)+2 );
-DBG_MESSAGE("route_t::append_straight_route()","start from (%i,%i) to (%i,%i)",pos.x,pos.y,dest.x,dest.y);
+	DBG_MESSAGE("route_t::append_straight_route()","start from (%i,%i) to (%i,%i)",pos.x,pos.y,dest.x,dest.y);
 	while(pos!=ziel) {
 		// shortest way
 		if(abs(pos.x-ziel.x)>=abs(pos.y-ziel.y)) {
@@ -166,11 +154,8 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 	// nothing in lists
 	marker_t& marker = marker_t::instance(welt->get_size().x, welt->get_size().y);
 
-
 	queue.clear();
 	queue.insert(tmp);
-
-//DBG_MESSAGE("route_t::find_route()","calc route from %d,%d,%d",start.x, start.y, start.z);
 
 	bool target_reached = false;
 	do {
@@ -190,7 +175,6 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 		// tile is marked as visited
 
 
-//DBG_DEBUG("add to close","(%i,%i,%i) f=%i",gr->get_pos().x,gr->get_pos().y,gr->get_pos().z,tmp->f);
 		// already there
 		if(  fahr->ist_ziel( gr, tmp->parent==NULL ? NULL : tmp->parent->gr )  ) {
 			// we added a target to the closed list: check for length
@@ -218,7 +202,6 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 				k->f = 0;
 				k->g = tmp->g + fahr->get_kosten(to, max_khm, gr->get_pos().get_2d());
 
-//DBG_DEBUG("insert to open","%i,%i,%i",to->get_pos().x,to->get_pos().y,to->get_pos().z);
 				// insert here
 				queue.insert(k);
 			}
@@ -231,7 +214,6 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 
 	INT_CHECK("route 194");
 
-//DBG_DEBUG("reached","");
 	// target reached?
 	if(!target_reached  ||  step >= MAX_STEP) {
 		if(  step >= MAX_STEP  ) {
@@ -344,7 +326,6 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 	queue.insert(tmp);
 	ANode* new_top = NULL;
 
-//DBG_MESSAGE("route_t::itern_calc_route()","calc route from %d,%d,%d to %d,%d,%d",ziel.x, ziel.y, ziel.z, start.x, start.y, start.z);
 	uint32 beat=1;
 	do {
 		// Hajo: this is too expensive to be called each step
@@ -621,10 +602,6 @@ route_t::route_result_t route_t::calc_route(karte_t *welt, const koord3d ziel, c
 
 	INT_CHECK("route 336");
 
-#ifdef DEBUG_ROUTES
-	// profiling for routes ...
-	long ms=dr_time();
-#endif
 	bool ok = intern_calc_route(welt, start, ziel, fahr, max_khm, 0xFFFFFFFFul );
 #ifdef DEBUG_ROUTES
 	if(fahr->get_waytype()==water_wt) {DBG_DEBUG("route_t::calc_route()","route from %d,%d to %d,%d with %i steps in %u ms found.",start.x, start.y, ziel.x, ziel.y, route.get_count()-1, dr_time()-ms );}
@@ -633,7 +610,7 @@ route_t::route_result_t route_t::calc_route(karte_t *welt, const koord3d ziel, c
 	INT_CHECK("route 343");
 
 	if( !ok ) {
-DBG_MESSAGE("route_t::calc_route()","No route from %d,%d to %d,%d found",start.x, start.y, ziel.x, ziel.y);
+		DBG_MESSAGE("route_t::calc_route()","No route from %d,%d to %d,%d found",start.x, start.y, ziel.x, ziel.y);
 		// no route found
 		route.resize(1);
 		route.append(start); // just to be safe

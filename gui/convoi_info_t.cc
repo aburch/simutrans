@@ -460,13 +460,14 @@ DBG_MESSAGE("convoi_info_t::action_triggered()","convoi state %i => cannot chang
 						continue;
 					}
 					koord3d pos = depot->get_pos();
-					if(!shortest_route->empty()    &&    koord_distance(pos.get_2d(),cnv->get_pos().get_2d())>=shortest_route->get_count()-1) {
+					if(!shortest_route->empty()  &&  koord_distance(pos, cnv->get_pos()) >= shortest_route->get_count()-1) {
 						// the current route is already shorter, no need to search further
 						continue;
 					}
 					if (v.calc_route(cnv->get_pos(), pos, 50, route)) { // do not care about speed
-						if(  route->get_count() < shortest_route->get_count()    ||    shortest_route->empty()  ) {
-							shortest_route->kopiere(route);
+						if(  route->get_count() < shortest_route->get_count()  ||  shortest_route->empty()  ) {
+							// just swap the pointers
+							sim::swap(shortest_route, route);
 							home = pos;
 						}
 					}
