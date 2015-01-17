@@ -4639,7 +4639,7 @@ void waggon_t::verlasse_feld()
 								}
 							}
 						}
-						if(!sig->get_besch()->is_pre_signal() || (w && w->get_working_method() != absolute_block))
+						if(!sig->get_besch()->is_pre_signal() || (w && w->get_working_method() != absolute_block && w->get_working_method() != token_block))
 						{
 							sig->set_state(roadsign_t::danger);
 						}
