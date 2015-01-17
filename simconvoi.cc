@@ -1279,7 +1279,7 @@ bool convoi_t::drive_to()
 		{
 			waggon_t* waggon = (waggon_t*)front();
 			// If this is token block working, the route must only be unreserved if the token is released.
-			if(waggon->get_working_method() != waggon_t::working_method_t::token_block)
+			if(waggon->get_working_method() != waggon_t::token_block)
 			{
 				unreserve_route();
 			}
