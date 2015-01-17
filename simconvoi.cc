@@ -857,7 +857,7 @@ bool convoi_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed)
 	case monorail_wt:
 	case maglev_wt:
 		rail_vehicle = (waggon_t*)front();
-		if(rail_vehicle->get_working_method() == waggon_t::working_method_t::token_block)
+		if(rail_vehicle->get_working_method() == waggon_t::token_block)
 		{
 			// If we calculate a new route while in token block, we must remember this
 			// so that, when it comes to clearing the route, a full flush can be performed
