@@ -409,8 +409,12 @@ private:
 	// true, if at least one vehicle of a convoi is obsolete
 	bool has_obsolete;
 
-	// ture, if there is at least one engine that requires catenary
+	// true, if there is at least one engine that requires catenary
 	bool is_electric;
+
+	// True if this is on token block working and the route has been
+	// renewed during the journey.
+	bool needs_full_route_flush;
 
 	/**
 	* the convoi caches its freight info; it is only recalculation after loading or resorting
@@ -1477,6 +1481,9 @@ public:
 
 	journey_times_map& get_average_journey_times();
 	inline const journey_times_map& get_average_journey_times_this_convoy_only() const { return average_journey_times; }
+
+	bool get_needs_full_route_flush() const { return needs_full_route_flush; }
+	void set_needs_full_route_flush(bool value) { needs_full_route_flush = value; }
 
 	/**
 	 * Clears the departure data.

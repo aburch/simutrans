@@ -42,7 +42,7 @@ protected:
 	const roadsign_besch_t *besch;
 
 public:
-	enum signal_aspects {danger = 0, clear = 1, caution = 2, double_caution = 3, call_on = 4 }; 
+	enum signal_aspects {danger = 0, clear = 1, caution = 2, preliminary_caution = 3, call_on = 4 }; 
 
 	/*
 	 * return direction or the state of the traffic light

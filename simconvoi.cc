@@ -189,6 +189,8 @@ void convoi_t::init(player_t *player)
 	//recalc_data = true;
 
 	livery_scheme_index = 0;
+
+	needs_full_route_flush = false;
 }
 
 convoi_t::convoi_t(loadsave_t* file) : fahr(max_vehicle, NULL)
@@ -845,7 +847,28 @@ bool convoi_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed)
 	{
 		return false;
 	}
-	return front()->calc_route(start, ziel, max_speed, &route);
+	bool success = front()->calc_route(start, ziel, max_speed, &route);
+	waggon_t* rail_vehicle = NULL;
+	switch(front()->get_waytype())
+	{
+	case track_wt:
+	case narrowgauge_wt:
+	case tram_wt:
+	case monorail_wt:
+	case maglev_wt:
+		rail_vehicle = (waggon_t*)front();
+		if(rail_vehicle->get_working_method() == waggon_t::working_method_t::token_block)
+		{
+			// If we calculate a new route while in token block, we must remember this
+			// so that, when it comes to clearing the route, a full flush can be performed
+			// rather than simply iterating back over the route, which will not be enough
+			// in this case.
+			needs_full_route_flush = true;
+		}
+	default:
+		return success;
+	};
+	return success;
 }
 
 void convoi_t::update_route(uint32 index, const route_t &replacement)
@@ -1251,8 +1274,20 @@ bool convoi_t::drive_to()
 				}
 			}
 		}
-
-		unreserve_route();
+		
+		if(front()->get_waytype() == track_wt || front()->get_waytype() == tram_wt || front()->get_waytype() == narrowgauge_wt || front()->get_waytype() == maglev_wt || front()->get_waytype() == monorail_wt)
+		{
+			waggon_t* waggon = (waggon_t*)front();
+			// If this is token block working, the route must only be unreserved if the token is released.
+			if(waggon->get_working_method() != waggon_t::working_method_t::token_block)
+			{
+				unreserve_route();
+			}
+		}
+		else
+		{
+			unreserve_route();
+		}
 
 		bool success = calc_route(start, ziel, speed_to_kmh(get_min_top_speed()));
 		grund_t* gr = welt->lookup(ziel);
@@ -4307,6 +4342,16 @@ void convoi_t::rdwr(loadsave_t *file)
 		file->rdwr_short( next_stop_index );
 		file->rdwr_short( next_reservation_index );
 	}
+
+	// TODO: Enable this
+//#ifdef SPECIAL_RESCUE_12_5
+//	if(file->get_experimental_version() >= 12 && file->is_saving()) 
+//#else
+//	if(file->get_experimental_version() >= 12)
+//	{
+//		file->rdwr_bool(needs_full_route_flush);
+//	}
+//#endif
 
 	// This must come *after* all the loading/saving.
 	if(  file->is_loading()  ) {
