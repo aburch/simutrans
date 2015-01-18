@@ -1047,7 +1047,7 @@ DBG_MESSAGE("route_t::calc_route()","No route from %d,%d to %d,%d found",start.x
 			const waytype_t wegtyp = fahr->get_waytype();
 
 			//bool is_signal_at_end_of_station = false;
-			while(gr->get_neighbour(gr, wegtyp, ribi) && gr->get_halt() == halt && fahr->ist_befahrbar(gr) && (fahr->get_ribi(gr) && ribi) != 0)
+			while(gr->get_neighbour(gr, wegtyp, ribi) && gr->get_halt() == halt && fahr->ist_befahrbar(gr) && (fahr->get_ribi(gr) & ribi) != 0)
 			{
 				// Do not go on a tile where a one way sign forbids going.
 				// This saves time and fixed the bug that a one way sign on the final tile was ignored.
