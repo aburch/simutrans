@@ -356,7 +356,10 @@ void convoi_t::reserve_own_tiles()
 			{
 				if(schiene_t *sch = (schiene_t *)gr->get_weg(front()->get_waytype())) 
 				{
-					sch->reserve(self, ribi_typ( route.position_bei(max(1u,1)-1u), route.position_bei(min(route.get_count()-1u,0+1u))));
+					if(!route.empty())
+					{
+						sch->reserve(self, ribi_typ( route.position_bei(max(1u,1)-1u), route.position_bei(min(route.get_count()-1u,0+1u))));
+					}
 				}
 			}
 		}
