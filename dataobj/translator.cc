@@ -130,10 +130,10 @@ static inline int is_cont_char(utf8 c) { return (c & 0xC0) == 0x80; }
 
 
 // recodes string to put them into the tables
-static char *recode(const char *src, bool translate_from_utf, bool translate_to_utf)
+static char *recode(const char *src, bool translate_from_utf, bool translate_to_utf, bool is_latin2 )
 {
 	char *base;
-	if (translate_to_utf!=translate_from_utf) {
+	if(  translate_to_utf != translate_from_utf  ) {
 		// worst case
 		base = MALLOCN(char, strlen(src) * 2 + 2);
 	}
@@ -151,19 +151,31 @@ static char *recode(const char *src, bool translate_from_utf, bool translate_to_
 		else {
 			c = *src;
 			if(c>127) {
-				if(translate_from_utf == translate_to_utf) {
+				if(  translate_from_utf == translate_to_utf  ) {
 					// but copy full letters! (or, if ASCII, copy more than one letter, does not matter
 					do {
 						*dst++ = *src++;
 					} while (is_cont_char(*src));
 					c = *src;
-				} else if (translate_to_utf) {
-					// make UTF8 from latin
-					dst += c = utf16_to_utf8((unsigned char)*src++, (utf8*)dst);
-				} else if (translate_from_utf) {
+				}
+				else if(  translate_to_utf  ) {
+					if(  !is_latin2  ) {
+						// make UTF8 from latin1
+						dst += c = utf16_to_utf8((unsigned char)*src++, (utf8*)dst);
+					}
+					else {
+						dst += c = utf16_to_utf8( latin2_to_unicode( (uint8)*src++ ), (utf8*)dst );
+					}
+				}
+				else if(  translate_from_utf  ) {
 					// make latin from UTF8 (ignore overflows!)
 					size_t len = 0;
-					*dst++ = c = (uint8)utf8_to_utf16((const utf8*)src, &len);
+					if(  !is_latin2  ) {
+						*dst++ = c = (uint8)utf8_to_utf16( (const utf8*)src, &len );
+					}
+					else {
+						*dst++ = c = unicode_to_latin2( utf8_to_utf16( (const utf8*)src, &len ) );
+					}
 					src += len;
 				}
 			}
@@ -240,7 +252,7 @@ void translator::load_custom_list( int lang, vector_tpl<char *>&name_list, const
 		while(  !feof(file)  ) {
 			if (fgets_line(buf, sizeof(buf), file)) {
 				rtrim(buf);
-				char *c = recode(buf, file_is_utf, langs[lang].utf_encoded);
+				char *c = recode(buf, file_is_utf, langs[lang].utf_encoded, langs[lang].is_latin2_based );
 				if(  *c!=0  &&  *c!='#'  ) {
 					name_list.append(c);
 				}
@@ -304,7 +316,7 @@ void translator::init_custom_names(int lang)
 /* now on to the translate stuff */
 
 
-static void load_language_file_body(FILE* file, stringhashtable_tpl<const char*>* table, bool language_is_utf, bool file_is_utf)
+static void load_language_file_body(FILE* file, stringhashtable_tpl<const char*>* table, bool language_is_utf, bool file_is_utf, bool language_is_latin2 )
 {
 	char buffer1 [4096];
 	char buffer2 [4096];
@@ -313,17 +325,17 @@ static void load_language_file_body(FILE* file, stringhashtable_tpl<const char*>
 
 	do {
 		fgets_line(buffer1, sizeof(buffer1), file);
-		if (buffer1[0] == '#') {
+		if(  buffer1[0] == '#'  ) {
 			// ignore comments
 			continue;
 		}
-		if (!feof(file)) {
+		if(  !feof(file)  ) {
 			fgets_line(buffer2, sizeof(buffer2), file);
 			if(  strcmp(buffer1,buffer2)  ) {
 				// only add line which are actually different
-				const char *raw = recode(buffer1, file_is_utf, false);
-				const char *translated = recode(buffer2, false, convert_to_unicode);
-				if (cbuffer_t::check_format_strings(raw, translated) ) {
+				const char *raw = recode(buffer1, file_is_utf, false, language_is_latin2 );
+				const char *translated = recode(buffer2, false, convert_to_unicode,language_is_latin2);
+				if(  cbuffer_t::check_format_strings(raw, translated)  ) {
 					table->set( raw, translated );
 				}
 			}
@@ -336,24 +348,53 @@ void translator::load_language_file(FILE* file)
 {
 	char buffer1 [256];
 	bool file_is_utf = is_unicode_file(file);
+
 	// Read language name
 	fgets_line(buffer1, sizeof(buffer1), file);
 
 	langs[single_instance.lang_count].name = strdup(buffer1);
+
+#if 0
 	// if the language file is utf, all language strings are assumed to be unicode
 	// @author prissi
 	langs[single_instance.lang_count].utf_encoded = file_is_utf;
+#else
+	// all internal languages are now utf8
+	langs[single_instance.lang_count].utf_encoded = true;
+#endif
+
+	if(  !file_is_utf  ) {
+		// find out the font if not unicode (and skip it)
+		while(  !feof(file)  ) {
+			fgets_line( buffer1, sizeof(buffer1), file );
+			if(  buffer1[0] == '#'  ) {
+				continue;
+			}
+			if(  strcmp(buffer1,"PROP_FONT_FILE") == 0  ) {
+				fgets_line( buffer1, sizeof(buffer1), file );
+				// HACK: so we guess about latin2 from the font name!
+				langs[single_instance.lang_count].is_latin2_based = strcmp( buffer1, "prop-latin2.fnt" ) == 0;
+				// we must register now a unicode font
+				langs[single_instance.lang_count].texts.set( "PROP_FONT_FILE", "cyr.bdf" );
+				break;
+			}
+		}
+	}
+	else {
+		// since it is anyway UTF8
+		langs[single_instance.lang_count].is_latin2_based = false;
+	}
 
 	//load up translations, putting them into
 	//language table of index 'lang'
-	load_language_file_body(file, &langs[single_instance.lang_count].texts, file_is_utf, file_is_utf);
+	load_language_file_body(file, &langs[single_instance.lang_count].texts, langs[single_instance.lang_count].utf_encoded, file_is_utf, langs[single_instance.lang_count].is_latin2_based );
 }
 
 
 static translator::lang_info* get_lang_by_iso(const char *iso)
 {
-	for (translator::lang_info* i = langs; i != langs + translator::get_language_count(); ++i) {
-		if (i->iso_base[0] == iso[0] && i->iso_base[1] == iso[1]) {
+	for(  translator::lang_info* i = langs;  i != langs + translator::get_language_count();  ++i  ) {
+		if(  i->iso_base[0] == iso[0]  &&  i->iso_base[1] == iso[1]  ) {
 			return i;
 		}
 	}
@@ -377,7 +418,7 @@ void translator::load_files_from_folder(const char *folder_name, const char *wha
 			DBG_MESSAGE("translator::load_files_from_folder()", "loading %s translations from %s for language %s", what, fileName.c_str(), lang->iso_base);
 			if (FILE* const file = fopen(fileName.c_str(), "rb")) {
 				bool file_is_utf = is_unicode_file(file);
-				load_language_file_body(file, &lang->texts, lang->utf_encoded, file_is_utf);
+				load_language_file_body(file, &lang->texts, lang->utf_encoded, file_is_utf, lang->is_latin2_based );
 				fclose(file);
 			}
 			else {
@@ -450,7 +491,7 @@ bool translator::load(const string &path_to_pakset)
 
 	// now we try to read the compatibility stuff
 	if (FILE* const file = fopen((path_to_pakset + "compat.tab").c_str(), "rb")) {
-		load_language_file_body(file, &compatibility, false, false);
+		load_language_file_body(file, &compatibility, false, false, false );
 		DBG_MESSAGE("translator::load()", "pakset compatibility texts loaded.");
 		fclose(file);
 	}
@@ -462,7 +503,7 @@ bool translator::load(const string &path_to_pakset)
 	if(  env_t::default_settings.get_with_private_paks()  ) {
 		chdir( env_t::user_dir );
 		if (FILE* const file = fopen(string("addons/"+path_to_pakset + "compat.tab").c_str(), "rb")) {
-			load_language_file_body(file, &compatibility, false, false);
+			load_language_file_body(file, &compatibility, false, false, false );
 			DBG_MESSAGE("translator::load()", "pakset addon compatibility texts loaded.");
 			fclose(file);
 		}

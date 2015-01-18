@@ -54,6 +54,7 @@ public:
 		const char *iso;
 		const char *iso_base;
 		bool utf_encoded;
+		bool is_latin2_based;
 		uint8 eclipse_width;
 	};
 

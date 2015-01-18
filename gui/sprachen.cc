@@ -40,13 +40,14 @@ int sprachengui_t::cmp_language_button(sprachengui_t::language_button_t a, sprac
  */
 void sprachengui_t::init_font_from_lang()
 {
+
 	static const char *default_name = "PROP_FONT_FILE";
 	const char *prop_font_file = translator::translate(default_name);
 
 	// Hajo: fallback if entry is missing
 	// -> use latin-1 font
 	if(  prop_font_file == default_name  ) {
-		prop_font_file = "prop.fnt";
+		prop_font_file = "cyr.bdf";
 	}
 
 	// load large font

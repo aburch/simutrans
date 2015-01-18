@@ -207,14 +207,41 @@ static const char *load_text(char const* const filename )
 	if(file) {
 		fseek(file,0,SEEK_END);
 		long len = ftell(file);
+		char *buf = NULL;
 		if(  len>0  ) {
-			char* const buf = MALLOCN(char, len + 1);
+			buf = MALLOCN(char, len + 1);
 			fseek( file, 0, SEEK_SET );
-			fread(  buf, 1, len, file);
+			len = fread(  buf, 1, len, file);
 			buf[len] = '\0';
 			fclose( file );
-			return buf;
 		}
+		// now we may need to translate the text ...
+		if(  len>0  && translator::get_lang()->utf_encoded  ) {
+			bool is_latin = strchr( buf, 0xF6 )!=NULL;	// "o-umlaut, is forbidden for unicode
+			if(  !is_latin  &&  translator::get_lang()->is_latin2_based  ) {
+				is_latin |= strchr( buf, 0xF8 )!=NULL;	// "o-umlaut, is forbidden for unicode
+			}
+			if(  is_latin  ) {
+				// we need to translate charwise ...
+				utf8 *buf2 = MALLOCN(utf8, len*2 + 1); //assume the worst
+				utf8 *src = (utf8 *)buf, *dest = buf2;
+				if(  translator::get_lang()->is_latin2_based  ) {
+					do {
+						dest += utf16_to_utf8( latin2_to_unicode(*src), dest );
+					} while(  *src++  );
+					*dest = 0;
+				}
+				else {
+					do {
+						dest += utf16_to_utf8( *src, dest );
+					} while(  *src++  );
+					*dest = 0;
+				}
+				guarded_free( buf );
+				buf = (char *)buf2;
+			}
+		}
+		return buf;
 	}
 
 	return NULL;
