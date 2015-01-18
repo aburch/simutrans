@@ -5803,8 +5803,6 @@ aircraft_t::aircraft_t(loadsave_t *file, bool is_first, bool is_last) :
 #endif
 {
 	rdwr_from_convoi(file);
-	old_x = old_y = -1;
-	old_bild = IMG_LEER;
 	runway_too_short = false;
 
 	if(  file->is_loading()  ) {
@@ -5838,8 +5836,6 @@ aircraft_t::aircraft_t(koord3d pos, const vehikel_besch_t* besch, player_t* play
 {
 	cnv = cn;
 	state = taxiing;
-	old_x = old_y = -1;
-	old_bild = IMG_LEER;
 	flughoehe = 0;
 	target_height = pos.z;
 	runway_too_short = false;
