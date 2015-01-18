@@ -181,9 +181,12 @@ bool fussgaenger_t::sync_step(long delta_t)
 {
 	time_to_life -= delta_t;
 
-	weg_next += 128*delta_t;
-	weg_next -= fahre_basis( weg_next );
-	return time_to_life>0;
+	if (time_to_life>0) {
+		weg_next += 128*delta_t;
+		weg_next -= fahre_basis( weg_next );
+		return true;
+	}
+	return false;
 }
 
 
