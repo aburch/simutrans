@@ -1495,7 +1495,11 @@ void vehikel_t::hop(grund_t* gr)
 				fahrtrichtung = calc_set_richtung( pos_prev, pos_next );
 		}
 	}
-	calc_bild(); //Calculate image
+
+	// change image if direction changes
+	if (alte_fahrtrichtung != fahrtrichtung) {
+		calc_bild();
+	}
 
 	betrete_feld(gr); //"Enter field" (Google)
 	weg_t *weg = get_weg();
