@@ -1191,7 +1191,12 @@ void vehikel_t::neue_fahrt(uint16 start_route_index, bool recalc)
 	}
 	else {
 		// recalc directions
-		pos_next = r.position_bei(route_index);
+		if (route_index < r.get_count()) {
+			pos_next = r.position_bei(route_index);
+		}
+		else {
+			check_for_finish = true;
+		}
 		pos_prev = get_pos();
 		set_pos(r.position_bei(start_route_index));
 

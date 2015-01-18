@@ -714,7 +714,7 @@ private:
 	 */
 	void register_stops();
 
-	uint32 move_to(koord3d const& k, uint16 start_index);
+	uint32 move_to(uint16 start_index);
 
 	/**
 	* Advance the schedule cursor.
