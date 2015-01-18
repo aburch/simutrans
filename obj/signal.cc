@@ -62,7 +62,7 @@ void signal_t::calc_bild()
 		weg_t *sch = gr->get_weg(besch->get_wtyp()!=tram_wt ? besch->get_wtyp() : track_wt);
 		if(sch) {
 			uint16 offset=0;
-			ribi_t::ribi dir = sch->get_ribi();
+			ribi_t::ribi dir = sch->get_ribi_unmasked() & (~calc_mask());
 			if(sch->is_electrified()  &&  (besch->get_bild_anzahl()/8)>1) {
 				offset = besch->is_pre_signal() ? 12 : 8;
 			}

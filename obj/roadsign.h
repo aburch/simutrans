@@ -33,6 +33,7 @@ protected:
 	uint8 dir:4;
 
 	uint8 automatic:1;
+	uint8 preview:1;
 	uint8 ticks_ns;
 	uint8 ticks_ow;
 	uint8 ticks_offset;
@@ -41,6 +42,7 @@ protected:
 
 	const roadsign_besch_t *besch;
 
+	ribi_t::ribi calc_mask() const { return ribi_t::ist_einfach(dir) ? dir : (ribi_t::ribi)ribi_t::keine; }
 public:
 	enum signalzustand {rot=0, gruen=1, naechste_rot=2 };
 
@@ -52,7 +54,7 @@ public:
 
 	/*
 	* sets ribi mask of the sign
-	* Caution: it will modify way ribis directly!
+	* Caution: it will modify way ribis directly unless in preview mode!
 	*/
 	void set_dir(ribi_t::ribi dir);
 
@@ -71,7 +73,7 @@ public:
 	waytype_t get_waytype() const { return besch ? besch->get_wtyp() : invalid_wt; }
 
 	roadsign_t(loadsave_t *file);
-	roadsign_t(player_t *player, koord3d pos, ribi_t::ribi dir, const roadsign_besch_t* besch);
+	roadsign_t(player_t *player, koord3d pos, ribi_t::ribi dir, const roadsign_besch_t* besch, bool preview = false);
 
 	const roadsign_besch_t *get_besch() const {return besch;}
 

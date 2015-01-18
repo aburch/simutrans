@@ -4422,10 +4422,10 @@ void tool_build_roadsign_t::mark_tiles( player_t *player, const koord3d &start, 
 	// dummy roadsign to get images for preview
 	roadsign_t *dummy_rs;
 	if (besch->is_signal_type()) {
-		dummy_rs = new signal_t(player, koord3d::invalid, ribi_t::keine, besch);
+		dummy_rs = new signal_t(player, koord3d::invalid, ribi_t::keine, besch, true);
 	}
 	else {
-		dummy_rs = new roadsign_t(player, koord3d::invalid, ribi_t::keine, besch);
+		dummy_rs = new roadsign_t(player, koord3d::invalid, ribi_t::keine, besch, true);
 	}
 	dummy_rs->set_flag(obj_t::not_on_map);
 
@@ -4473,8 +4473,6 @@ void tool_build_roadsign_t::mark_tiles( player_t *player, const koord3d &start, 
 				dummy_rs->set_dir(ribi); // calls calc_bild()
 				zeiger->set_after_bild(dummy_rs->get_after_bild());
 				zeiger->set_bild(dummy_rs->get_bild());
-				// as set_dir also modifies the ribi-mask of the way we have to reset it here...
-				dummy_rs->set_dir(rs ? rs->get_dir() : (ribi_t::ribi)ribi_t::keine);
 				cost += rs ? (rs->get_besch()==besch ? 0  : besch->get_preis()+rs->get_besch()->get_preis()) : besch->get_preis();
 			}
 		}
