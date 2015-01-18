@@ -4568,8 +4568,8 @@ void waggon_t::verlasse_feld()
 					signal_t* sig;
 					if(route)
 					{
-						const koord3d this_tile = cnv->get_route()->position_bei(max(route_index, route->get_count() - 1));
-						const koord3d previous_tile = cnv->get_route()->position_bei(min(1u, route_index) -1u);
+						const koord3d this_tile = cnv->get_route()->position_bei(min(route_index, route->get_count() - 1));
+						const koord3d previous_tile = cnv->get_route()->position_bei(max(1u, route_index) -1u);
 						grund_t *gr_ahead = welt->lookup(this_tile);
 						weg_t *way = gr_ahead->get_weg(get_waytype());
 						const koord dir = this_tile.get_2d() - previous_tile.get_2d();
