@@ -25,9 +25,9 @@ class signal_t : public roadsign_t
 public:
 	signal_t(loadsave_t *file);
 #ifdef INLINE_OBJ_TYPE
-	signal_t(player_t *player, koord3d pos, ribi_t::ribi dir,const roadsign_besch_t *besch) : roadsign_t(obj_t::signal, player, pos, dir, besch) { state = danger;}
+	signal_t(player_t *player, koord3d pos, ribi_t::ribi dir,const roadsign_besch_t *besch);
 #else
-	signal_t(player_t *player, koord3d pos, ribi_t::ribi dir,const roadsign_besch_t *besch) : roadsign_t(player,pos,dir,besch) { state = danger;}
+	signal_t(player_t *player, koord3d pos, ribi_t::ribi dir,const roadsign_besch_t *besch);
 #endif
 
 	/**

@@ -32,7 +32,28 @@ signal_t::signal_t( loadsave_t *file) :
 	if(besch==NULL) {
 		besch = roadsign_t::default_signal;
 	}
-	state = danger;
+	if(besch->is_pre_signal())
+	{
+		// Distant signals do not display a danger aspect.
+		state = caution;
+	}
+	else
+	{
+		state = danger;
+	}
+}
+
+signal_t::signal_t(player_t *player, koord3d pos, ribi_t::ribi dir,const roadsign_besch_t *besch) : roadsign_t(obj_t::signal, player, pos, dir, besch)
+{
+	if(besch->is_pre_signal())
+	{
+		// Distant signals do not display a danger aspect.
+		state = caution;
+	}
+	else
+	{
+		state = danger;
+	}
 }
 
 
