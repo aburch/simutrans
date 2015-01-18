@@ -89,7 +89,7 @@ public:
 	void rdwr(loadsave_t *file);
 
 	// finalizes direction
-	void laden_abschliessen() {calc_bild();}
+	void laden_abschliessen();
 
 	void set_time_to_life(uint32 value) { time_to_life = value; }
 

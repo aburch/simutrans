@@ -203,7 +203,7 @@ vehikel_basis_t::vehikel_basis_t():
 	drives_on_left = false;
 	dx = 0;
 	dy = 0;
-	hoff = 0;
+	zoff_start = zoff_end = 0;
 	gr = NULL;
 	weg = NULL;
 }
@@ -226,7 +226,7 @@ vehikel_basis_t::vehikel_basis_t(koord3d pos):
 	drives_on_left = false;
 	dx = 0;
 	dy = 0;
-	hoff = 0;
+	zoff_start = zoff_end = 0;
 	gr = NULL;
 	weg = NULL;
 }
@@ -339,7 +339,7 @@ uint32 vehikel_basis_t::fahre_basis(uint32 distance)
 	}
 	// ok, so moving ...
 	if(  !get_flag(obj_t::dirty)  ) {
-		mark_image_dirty( bild, hoff );
+		mark_image_dirty( bild, 0 );
 		set_flag( obj_t::dirty );
 	}
 
@@ -433,7 +433,7 @@ uint32 vehikel_basis_t::fahre_basis(uint32 distance)
 	}
 
 	if(use_calc_height) {
-		hoff = calc_height(gr);
+		calc_height(gr);
 	}
 	// remaining steps
 	update_bookkeeping(distance_travelled  >> YARDS_PER_VEHICLE_STEP_SHIFT );
@@ -454,7 +454,7 @@ void vehikel_basis_t::get_screen_offset( int &xoff, int &yoff, const sint16 rast
 		display_steps = (display_steps*diagonal_multiplier)>>10;
 	}
 	xoff += (display_steps*dx) >> 10;
-	yoff += ((display_steps*dy) >> 10) + ((hoff*raster_width) >> 6);
+	yoff += ((display_steps*dy) >> 10) + (get_hoff()*raster_width)/(4*16);
 
 	if(  drives_on_left  ) {
 		const int drive_left_dir = ribi_t::get_dir(get_fahrtrichtung());
@@ -577,17 +577,17 @@ vehikel_basis_t::calc_richtung(koord start, koord ende)
 
 // this routine calculates the new height
 // beware of bridges, tunnels, slopes, ...
-sint8 vehikel_basis_t::calc_height(grund_t *gr)
+void vehikel_basis_t::calc_height(grund_t *gr)
 {
-	sint8 hoff = 0;
 	use_calc_height = false;	// assume, we are only needed after next hop
+	zoff_start = zoff_end = 0; // assume flat way
 
 	if(gr==NULL) {
 		gr = welt->lookup(get_pos());
 	}
 	if(gr==NULL) {
 		// slope changed below a moving thing?!?
-		return 0;
+		return;
 	}
 	else if(  gr->ist_tunnel()  &&  gr->ist_karten_boden()  ) {
 		use_calc_height = true; // to avoid errors if underground mode is switched
@@ -614,25 +614,28 @@ sint8 vehikel_basis_t::calc_height(grund_t *gr)
 			const uint slope_height = (hang & 7) ? 1 : 2;
 			ribi_t::ribi hang_ribi = ribi_typ(hang);
 			if(  ribi_t::doppelt(hang_ribi)  ==  ribi_t::doppelt(fahrtrichtung)) {
-				sint16 h_end = hang_ribi & ribi_t::rueckwaerts(fahrtrichtung) ? -TILE_HEIGHT_STEP * slope_height : 0;
-				sint16 h_start = (hang_ribi & fahrtrichtung) ? -TILE_HEIGHT_STEP * slope_height : 0;
-				hoff = (h_start*(sint16)(uint16)steps + h_end*(256-steps)) >> 8;
+				zoff_start = hang_ribi & fahrtrichtung                      ? 2*slope_height : 0;  // 0 .. 4
+				zoff_end   = hang_ribi & ribi_t::rueckwaerts(fahrtrichtung) ? 2*slope_height : 0;  // 0 .. 4
 			}
 			else {
 				// only for shadows and movingobjs ...
-				sint16 h_end = hang_ribi & ribi_t::rueckwaerts(fahrtrichtung) ? -TILE_HEIGHT_STEP * slope_height : 0;
-				sint16 h_start = (hang_ribi & fahrtrichtung) ? -TILE_HEIGHT_STEP * slope_height : 0;
-				hoff = ((h_start*(sint16)(uint16)steps + h_end*(256-steps)) >> 9) - TILE_HEIGHT_STEP/2;
+				zoff_start = hang_ribi & fahrtrichtung                      ? slope_height+1 : 0;  // 0 .. 3
+				zoff_end   = hang_ribi & ribi_t::rueckwaerts(fahrtrichtung) ? slope_height+1 : 0;  // 0 .. 3
 			}
-			use_calc_height = true;	// we need to recalc again next time
 		}
 		else {
-			hoff = -gr->get_weg_yoff();
+			zoff_start = (gr->get_weg_yoff() * 2) / TILE_HEIGHT_STEP;
+			zoff_end = zoff_start;
 		}
 	}
-	return hoff;
 }
 
+sint8 vehikel_basis_t::get_hoff() const
+{
+	sint16 h_start = -(sint8)TILE_HEIGHT_STEP * (sint8)zoff_start;
+	sint16 h_end   = -(sint8)TILE_HEIGHT_STEP * (sint8)zoff_end;
+	return (h_start*steps + h_end*(256-steps)) >> 9;
+}
 
 
 /* true, if one could pass through this field
@@ -1171,12 +1174,12 @@ void vehikel_t::neue_fahrt(uint16 start_route_index, bool recalc)
 {
 	route_index = start_route_index + 1;
 	check_for_finish = false;
-	use_calc_height = true;
+	use_calc_height = recalc;
 
 	if(welt->is_within_limits(get_pos().get_2d())) {
 		// mark the region after the image as dirty
 		// better not try to twist your brain to follow the re-transformation ...
-		mark_image_dirty( get_bild(), hoff );
+		mark_image_dirty( get_bild(), 0 );
 	}
 
 	route_t const& r = *cnv->get_route();
@@ -1194,7 +1197,8 @@ void vehikel_t::neue_fahrt(uint16 start_route_index, bool recalc)
 
 		alte_fahrtrichtung = fahrtrichtung;
 		fahrtrichtung = calc_set_richtung( get_pos(), pos_next );
-		hoff = 0;
+		
+		zoff_start = zoff_end = 0;
 		steps = 0;
 
 		set_xoff( (dx<0) ? OBJECT_OFFSET_STEPS : -OBJECT_OFFSET_STEPS );
@@ -1825,7 +1829,7 @@ void vehikel_t::rauche() const
 		if(  cnv->get_akt_speed() < (sint32)((cnv->get_vehicle_summary().max_sim_speed * 7u) >> 3)  ||  besch->get_engine_type() == vehikel_besch_t::steam  ) {
 			grund_t* const gr = welt->lookup( get_pos() );
 			if(  gr  ) {
-				wolke_t* const abgas =  new wolke_t( get_pos(), get_xoff() + ((dx * (sint16)((uint16)steps * OBJECT_OFFSET_STEPS)) >> 8), get_yoff() + ((dy * (sint16)((uint16)steps * OBJECT_OFFSET_STEPS)) >> 8) + hoff, besch->get_rauch() );
+				wolke_t* const abgas = new wolke_t( get_pos(), get_xoff() + ((dx * (sint16)((uint16)steps * OBJECT_OFFSET_STEPS)) >> 8), get_yoff() + ((dy * (sint16)((uint16)steps * OBJECT_OFFSET_STEPS)) >> 8) + get_hoff(), besch->get_rauch() );
 				if(  !gr->obj_add( abgas )  ) {
 					abgas->set_flag( obj_t::not_on_map );
 					delete abgas;
@@ -2082,6 +2086,8 @@ void vehikel_t::rdwr_from_convoi(loadsave_t *file)
 		pos.rdwr(file);
 		set_pos(pos);
 	}
+
+	sint8 hoff = file->is_saving() ? get_hoff() : 0;
 
 	if(file->get_version()<86006) {
 		// parameter werden in der deklarierten reihenfolge gespeichert
@@ -5836,7 +5842,10 @@ aircraft_t::aircraft_t(koord3d pos, const vehikel_besch_t* besch, player_t* play
 aircraft_t::~aircraft_t()
 {
 	// mark aircraft (after_image) dirty, since we have no "real" image
-	mark_image_dirty( bild, -flughoehe-hoff-2 );
+	const int raster_width = get_current_tile_raster_width();
+	sint16 yoff = tile_raster_scale_y(-flughoehe-get_hoff()-2, raster_width);
+
+	mark_image_dirty( bild, yoff);
 	mark_image_dirty( bild, 0 );
 }
 
@@ -5949,7 +5958,8 @@ uint8 aircraft_t::get_approach_ribi( koord3d start, koord3d ziel )
 void aircraft_t::hop(grund_t* gr)
 {
 	if(  !get_flag(obj_t::dirty)  ) {
-		mark_image_dirty( bild, get_yoff()-flughoehe-hoff-2 );
+		mark_image_dirty( bild, 0 );
+		set_flag( obj_t::dirty );
 	}
 
 	sint32 new_speed_limit = speed_unlimited();
@@ -6100,6 +6110,7 @@ void aircraft_t::display_after(int xpos_org, int ypos_org, bool is_global) const
 			current_flughohe -= (steps*TILE_HEIGHT_STEP) >> 8;
 		}
 
+		sint8 hoff = get_hoff();
 		ypos += tile_raster_scale_y(get_yoff()-current_flughohe-hoff-2, raster_width);
 		xpos += tile_raster_scale_x(get_xoff(), raster_width);
 		get_screen_offset( xpos, ypos, raster_width );
@@ -6132,7 +6143,7 @@ void aircraft_t::display_overlay(int xpos_org, int ypos_org) const
 			current_flughohe -= (steps*TILE_HEIGHT_STEP) >> 8;
 		}
 
-		vehikel_t::display_overlay( xpos_org, ypos_org - tile_raster_scale_y( current_flughohe - hoff - 2, raster_width ) );
+		vehikel_t::display_overlay( xpos_org, ypos_org - tile_raster_scale_y( current_flughohe - get_hoff() - 2, raster_width ) );
 	}
 #endif
 	else if(  is_on_ground()  ) {
