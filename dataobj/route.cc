@@ -39,18 +39,6 @@
 #endif
 
 
-
-void route_t::kopiere(const route_t *r)
-{
-	assert(r != NULL);
-	const unsigned int hops = r->get_count()-1;
-	route.clear();
-	route.resize(hops + 1);
-	for( unsigned int i=0;  i<=hops;  i++ ) {
-		route.append(r->route[i]);
-	}
-}
-
 void route_t::append(const route_t *r)
 {
 	assert(r != NULL);
@@ -97,7 +85,7 @@ bool route_t::append_straight_route(karte_t *welt, koord3d dest )
 	// then try to calculate direct route
 	koord pos = back().get_2d();
 	route.resize( route.get_count()+koord_distance(pos,ziel)+2 );
-DBG_MESSAGE("route_t::append_straight_route()","start from (%i,%i) to (%i,%i)",pos.x,pos.y,dest.x,dest.y);
+	DBG_MESSAGE("route_t::append_straight_route()","start from (%i,%i) to (%i,%i)",pos.x,pos.y,dest.x,dest.y);
 	while(pos!=ziel) {
 		// shortest way
 		if(abs(pos.x-ziel.x)>=abs(pos.y-ziel.y)) {
@@ -254,7 +242,6 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 	// start in open
 	queue.insert(tmp);
 
-//DBG_MESSAGE("route_t::find_route()","calc route from %d,%d,%d",start.x, start.y, start.z);
 	const grund_t* gr = NULL;
 	do 
 	{
@@ -424,7 +411,6 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 
 //	INT_CHECK("route 194");
 
-//DBG_DEBUG("reached","");
 	// target reached?
 	if(!fahr->ist_ziel(gr, tmp->parent == NULL ? NULL : tmp->parent->gr) || step >= MAX_STEP)
 	{
@@ -444,7 +430,6 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 			while(tmp != NULL) 
 			{
 				route.store_at(tmp->count, tmp->gr->get_pos());
-	//DBG_DEBUG("add","%i,%i",tmp->pos.x,tmp->pos.y);
 				tmp = tmp->parent;
 			}
 			ok = !route.empty();
@@ -591,7 +576,6 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 	queue.insert(tmp);
 	ANode* new_top = NULL;
 
-//DBG_MESSAGE("route_t::itern_calc_route()","calc route from %d,%d,%d to %d,%d,%d",ziel.x, ziel.y, ziel.z, start.x, start.y, start.z);
 	const uint8 enforce_weight_limits = welt->get_settings().get_enforce_weight_limits();
 	uint32 beat=1;
 	int bridge_tile_count = 0;
@@ -1012,7 +996,7 @@ void route_t::postprocess_water_route(karte_t *welt)
 
 	if(!ok)
 	{
-DBG_MESSAGE("route_t::calc_route()","No route from %d,%d to %d,%d found",start.x, start.y, ziel.x, ziel.y);
+		DBG_MESSAGE("route_t::calc_route()","No route from %d,%d to %d,%d found",start.x, start.y, ziel.x, ziel.y);
 		// no route found
 		route.resize(1);
 		route.append(start); // just to be safe
