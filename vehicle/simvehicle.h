@@ -91,7 +91,7 @@ protected:
 	virtual grund_t* hop_check() = 0;
 
 	/**
-	 * Vehicle movement: change tiles, calls verlasse_feld and betrete_feld.
+	 * Vehicle movement: change tiles, calls leave_tile and enter_tile.
 	 * @param gr pointer to ground of new position (never NULL)
 	 */
 	virtual void hop(grund_t* gr) = 0;
@@ -99,7 +99,7 @@ protected:
 	virtual void calc_image() = 0;
 
 	// check for road vehicle, if next tile is free
-	vehicle_base_t *no_cars_blocking( const grund_t *gr, const convoi_t *cnv, const uint8 current_fahrtrichtung, const uint8 next_fahrtrichtung, const uint8 next_90fahrtrichtung );
+	vehicle_base_t *no_cars_blocking( const grund_t *gr, const convoi_t *cnv, const uint8 current_direction, const uint8 next_direction, const uint8 next_90direction );
 
 	// only needed for old way of moving vehicles to determine position at loading time
 	bool is_about_to_hop( const sint8 neu_xoff, const sint8 neu_yoff ) const;
@@ -466,7 +466,7 @@ template<> inline vehicle_t* obj_cast<vehicle_t>(obj_t* const d)
  * and the navigability of tiles.
  *
  * @author Hj. Malthaner
- * @see vehikel_t
+ * @see vehicle_t
  */
 class road_vehicle_t : public vehicle_t
 {
@@ -514,7 +514,7 @@ public:
  * and the navigability of tiles.
  *
  * @author Hj. Malthaner
- * @see vehikel_t
+ * @see vehicle_t
  */
 class rail_vehicle_t : public vehicle_t
 {
@@ -569,14 +569,14 @@ public:
 /**
  * very similar to normal railroad, so we can implement it here completely ...
  * @author prissi
- * @see vehikel_t
+ * @see vehicle_t
  */
 class monorail_vehicle_t : public rail_vehicle_t
 {
 public:
 	virtual waytype_t get_waytype() const { return monorail_wt; }
 
-	// all handled by waggon_t
+	// all handled by rail_vehicle_t
 	monorail_vehicle_t(loadsave_t *file, bool is_first, bool is_last) : rail_vehicle_t(file,is_first, is_last) {}
 	monorail_vehicle_t(koord3d pos, const vehikel_besch_t* besch, player_t* player_, convoi_t* cnv) : rail_vehicle_t(pos, besch, player_, cnv) {}
 
@@ -590,14 +590,14 @@ public:
 /**
  * very similar to normal railroad, so we can implement it here completely ...
  * @author prissi
- * @see vehikel_t
+ * @see vehicle_t
  */
 class maglev_vehicle_t : public rail_vehicle_t
 {
 public:
 	virtual waytype_t get_waytype() const { return maglev_wt; }
 
-	// all handled by waggon_t
+	// all handled by rail_vehicle_t
 	maglev_vehicle_t(loadsave_t *file, bool is_first, bool is_last) : rail_vehicle_t(file, is_first, is_last) {}
 	maglev_vehicle_t(koord3d pos, const vehikel_besch_t* besch, player_t* player_, convoi_t* cnv) : rail_vehicle_t(pos, besch, player_, cnv) {}
 
@@ -611,14 +611,14 @@ public:
 /**
  * very similar to normal railroad, so we can implement it here completely ...
  * @author prissi
- * @see vehikel_t
+ * @see vehicle_t
  */
 class narrowgauge_vehicle_t : public rail_vehicle_t
 {
 public:
 	virtual waytype_t get_waytype() const { return narrowgauge_wt; }
 
-	// all handled by waggon_t
+	// all handled by rail_vehicle_t
 	narrowgauge_vehicle_t(loadsave_t *file, bool is_first, bool is_last) : rail_vehicle_t(file, is_first, is_last) {}
 	narrowgauge_vehicle_t(koord3d pos, const vehikel_besch_t* besch, player_t* player_, convoi_t* cnv) : rail_vehicle_t(pos, besch, player_, cnv) {}
 
@@ -634,7 +634,7 @@ public:
  * and the navigability of tiles.
  *
  * @author Hj. Malthaner
- * @see vehikel_t
+ * @see vehicle_t
  */
 class water_vehicle_t : public vehicle_t
 {
@@ -659,7 +659,7 @@ public:
 	water_vehicle_t(loadsave_t *file, bool is_first, bool is_last);
 	water_vehicle_t(koord3d pos, const vehikel_besch_t* besch, player_t* player_, convoi_t* cnv);
 
-	obj_t::typ get_typ() const { return schiff; }
+	obj_t::typ get_typ() const { return water_vehicle; }
 
 	schedule_t * generate_new_schedule() const;
 };
@@ -670,7 +670,7 @@ public:
  * and the navigability of tiles.
  *
  * @author hsiegeln
- * @see vehikel_t
+ * @see vehicle_t
  */
 class air_vehicle_t : public vehicle_t
 {
@@ -678,7 +678,7 @@ public:
 	enum flight_state { taxiing=0, departing=1, flying=2, landing=3, looking_for_parking=4, circling=5, taxiing_to_halt=6  };
 
 private:
-	// only used for ist_ziel() (do not need saving)
+	// only used for is_target() (do not need saving)
 	ribi_t::ribi approach_dir;
 #ifdef USE_DIFFERENT_WIND
 	static uint8 get_approach_ribi( koord3d start, koord3d ziel );
@@ -734,7 +734,7 @@ public:
 
 	bool calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route);
 
-	typ get_typ() const { return aircraft; }
+	typ get_typ() const { return air_vehicle; }
 
 	schedule_t *generate_new_schedule() const;
 

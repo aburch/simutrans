@@ -315,7 +315,7 @@ private:
 	void build_city_building(koord pos);
 	void renovate_city_building(gebaeude_t *gb);
 
-	void erzeuge_verkehrsteilnehmer(koord pos, sint32 level,koord target);
+	void generate_private_cars(koord pos, sint32 level,koord target);
 
 	/**
 	 * baut ein Stueck Strasse

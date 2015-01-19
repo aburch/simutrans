@@ -97,7 +97,7 @@ static void show_sizes()
 	DBG_MESSAGE("sizes", "gebaeude_t: %d", sizeof(gebaeude_t));
 	DBG_MESSAGE("sizes", "baum_t: %d", sizeof(baum_t));
 	DBG_MESSAGE("sizes", "weg_t: %d", sizeof(weg_t));
-	DBG_MESSAGE("sizes", "stadtauto_t: %d\n", sizeof(private_car_t));
+	DBG_MESSAGE("sizes", "private_car_t: %d\n", sizeof(private_car_t));
 
 	DBG_MESSAGE("sizes", "grund_t: %d", sizeof(grund_t));
 	DBG_MESSAGE("sizes", "boden_t: %d", sizeof(boden_t));
@@ -105,7 +105,7 @@ static void show_sizes()
 	DBG_MESSAGE("sizes", "planquadrat_t: %d\n", sizeof(planquadrat_t));
 
 	DBG_MESSAGE("sizes", "ware_t: %d", sizeof(ware_t));
-	DBG_MESSAGE("sizes", "vehikel_t: %d", sizeof(vehicle_t));
+	DBG_MESSAGE("sizes", "vehicle_t: %d", sizeof(vehicle_t));
 	DBG_MESSAGE("sizes", "haltestelle_t: %d\n", sizeof(haltestelle_t));
 
 	DBG_MESSAGE("sizes", "karte_t: %d", sizeof(karte_t));

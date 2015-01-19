@@ -9,7 +9,7 @@ class fussgaenger_besch_t;
  * Pedestrians also are road users.
  *
  * @author Hj. Malthaner
- * @see verkehrsteilnehmer_t
+ * @see road_user_t
  */
 class pedestrian_t : public road_user_t
 {

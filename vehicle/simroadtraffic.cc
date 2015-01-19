@@ -42,7 +42,7 @@
 #include "../utils/cbuffer_t.h"
 
 /**********************************************************************************************************************/
-/* Road users (Verkehrsteilnehmer) basis class from here on */
+/* Road users (private cars and pedestrians) basis class from here on */
 
 
 road_user_t::road_user_t() :
@@ -120,7 +120,7 @@ road_user_t::road_user_t(grund_t* bd, uint16 random) :
  */
 void road_user_t::show_info()
 {
-	if(env_t::verkehrsteilnehmer_info) {
+	if(env_t::road_user_info) {
 		obj_t::show_info();
 	}
 }
@@ -249,7 +249,7 @@ bool private_car_t::register_besch(const stadtauto_besch_t *besch)
 bool private_car_t::alles_geladen()
 {
 	if(table.empty()) {
-		DBG_MESSAGE("stadtauto_t", "No citycars found - feature disabled");
+		DBG_MESSAGE("private_car_t", "No citycars found - feature disabled");
 	}
 	return true;
 }
@@ -277,7 +277,7 @@ void private_car_t::build_timeline_list(karte_t *welt)
 	vector_tpl<const stadtauto_besch_t*> temp_liste(0);
 	if(  !table.empty()  ) {
 		const int month_now = welt->get_current_month();
-//DBG_DEBUG("stadtauto_t::built_timeline_liste()","year=%i, month=%i", month_now/12, month_now%12+1);
+//DBG_DEBUG("private_car_t::built_timeline_liste()","year=%i, month=%i", month_now/12, month_now%12+1);
 
 		// check for every citycar, if still ok ...
 		FOR(stringhashtable_tpl<stadtauto_besch_t const*>, const& i, table) {
@@ -410,12 +410,12 @@ void private_car_t::rdwr(loadsave_t *file)
 		besch = table.get(s);
 
 		if(  besch == 0  &&  !liste_timeline.empty()  ) {
-			dbg->warning("stadtauto_t::rdwr()", "Object '%s' not found in table, trying random stadtauto object type",s);
+			dbg->warning("private_car_t::rdwr()", "Object '%s' not found in table, trying random stadtauto object type",s);
 			besch = pick_any_weighted(liste_timeline);
 		}
 
 		if(besch == 0) {
-			dbg->warning("stadtauto_t::rdwr()", "loading game with private cars, but no private car objects found in PAK files.");
+			dbg->warning("private_car_t::rdwr()", "loading game with private cars, but no private car objects found in PAK files.");
 		}
 		else {
 			set_bild(besch->get_bild_nr(ribi_t::get_dir(get_direction())));
@@ -479,22 +479,22 @@ bool private_car_t::ist_weg_frei(grund_t *gr)
 
 	// calculate new direction
 	// are we just turning around?
-	const uint8 this_fahrtrichtung = get_direction();
+	const uint8 this_direction = get_direction();
 	bool frei = false;
 	if(  get_pos()==pos_next_next  ) {
 		// turning around => single check
-		const uint8 next_fahrtrichtung = ribi_t::rueckwaerts(this_fahrtrichtung);
-		frei = (NULL == no_cars_blocking( gr, NULL, next_fahrtrichtung, next_fahrtrichtung, next_fahrtrichtung ));
+		const uint8 next_direction = ribi_t::rueckwaerts(this_direction);
+		frei = (NULL == no_cars_blocking( gr, NULL, next_direction, next_direction, next_direction ));
 
 		// do not block railroad crossing
 		if(frei  &&  str->is_crossing()) {
 			const grund_t *gr = welt->lookup(get_pos());
-			frei = (NULL == no_cars_blocking( gr, NULL, next_fahrtrichtung, next_fahrtrichtung, next_fahrtrichtung ));
+			frei = (NULL == no_cars_blocking( gr, NULL, next_direction, next_direction, next_direction ));
 		}
 	}
 	else {
 		// driving on: check for crossings etc. too
-		const uint8 next_fahrtrichtung = this->calc_direction(get_pos(), pos_next_next);
+		const uint8 next_direction = this->calc_direction(get_pos(), pos_next_next);
 
 		// do not block this crossing (if possible)
 		if(ribi_t::is_threeway(str->get_ribi_unmasked())) {
@@ -505,11 +505,11 @@ bool private_car_t::ist_weg_frei(grund_t *gr)
 			}
 			grund_t *test = welt->lookup(pos_next_next);
 			if(  test  ) {
-				uint8 next_90fahrtrichtung = this->calc_direction(pos_next, pos_next_next);
-				frei = (NULL == no_cars_blocking( gr, NULL, this_fahrtrichtung, next_fahrtrichtung, next_90fahrtrichtung ));
+				uint8 next_90direction = this->calc_direction(pos_next, pos_next_next);
+				frei = (NULL == no_cars_blocking( gr, NULL, this_direction, next_direction, next_90direction ));
 				if(  frei  ) {
 					// check, if it can leave this crossings
-					frei = (NULL == no_cars_blocking( test, NULL, next_fahrtrichtung, next_90fahrtrichtung, next_90fahrtrichtung ));
+					frei = (NULL == no_cars_blocking( test, NULL, next_direction, next_90direction, next_90direction ));
 				}
 			}
 			// this fails with two crossings together; however, I see no easy way out here ...
@@ -520,7 +520,7 @@ bool private_car_t::ist_weg_frei(grund_t *gr)
 			// Overtaking vehicles shouldn't have anything blocking them
 			if(  !is_overtaking()  ) {
 				// not a crossing => skip 90° check!
-				vehicle_base_t *dt = no_cars_blocking( gr, NULL, this_fahrtrichtung, next_fahrtrichtung, next_fahrtrichtung );
+				vehicle_base_t *dt = no_cars_blocking( gr, NULL, this_direction, next_direction, next_direction );
 				if(  dt  ) {
 					if(dt->is_stuck()) {
 						// previous vehicle is stuck => end of traffic jam ...
@@ -575,10 +575,10 @@ bool private_car_t::ist_weg_frei(grund_t *gr)
 					// should not reach here ! (z9999)
 					break;
 				}
-				const uint8 next_fahrtrichtung = ribi_typ(dir);
-				const uint8 nextnext_fahrtrichtung = ribi_typ(dir);
+				const uint8 next_direction = ribi_typ(dir);
+				const uint8 nextnext_direction = ribi_typ(dir);
 				// test next field after way crossing
-				if(no_cars_blocking( test, NULL, next_fahrtrichtung, nextnext_fahrtrichtung, nextnext_fahrtrichtung )) {
+				if(no_cars_blocking( test, NULL, next_direction, nextnext_direction, nextnext_direction )) {
 					return false;
 				}
 				// ok, left the crossing
@@ -589,7 +589,7 @@ bool private_car_t::ist_weg_frei(grund_t *gr)
 				}
 				else {
 					// seems to be a dead-end.
-					if(  (test->get_weg_ribi(road_wt)&next_fahrtrichtung) == 0  ) {
+					if(  (test->get_weg_ribi(road_wt)&next_direction) == 0  ) {
 						// will be going back
 						pos_next_next=get_pos();
 						// check also opposite direction are free
@@ -649,13 +649,13 @@ grund_t* private_car_t::hop_check()
 	}
 
 	// traffic light phase check (since this is on next tile, it will always be necessary!)
-	const ribi_t::ribi fahrtrichtung90 = ribi_typ(get_pos(), pos_next);
+	const ribi_t::ribi direction90 = ribi_typ(get_pos(), pos_next);
 
 	if(  weg->has_sign(  )) {
 		const roadsign_t* rs = from->find<roadsign_t>();
 		const roadsign_besch_t* rs_besch = rs->get_besch();
-		if(rs_besch->is_traffic_light()  &&  (rs->get_dir()&fahrtrichtung90)==0) {
-			direction = fahrtrichtung90;
+		if(rs_besch->is_traffic_light()  &&  (rs->get_dir()&direction90)==0) {
+			direction = direction90;
 			calc_image();
 			// wait here
 			current_speed = 48;
@@ -669,7 +669,7 @@ grund_t* private_car_t::hop_check()
 
 		// ok, nobody did delete the road in front of us
 		// so we can check for valid directions
-		ribi_t::ribi ribi = weg->get_ribi() & (~ribi_t::rueckwaerts(fahrtrichtung90));
+		ribi_t::ribi ribi = weg->get_ribi() & (~ribi_t::rueckwaerts(direction90));
 
 		// cul de sac: return
 		if(ribi==0) {

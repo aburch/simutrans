@@ -746,14 +746,14 @@ obj_t *objlist_t::get_convoi_vehicle() const
 		// it will crash on capacity==1 and top==0, but this should never happen!
 		// only ships and aircraft can go on tiles without ways => only test for those
 		uint8 t = obj.one->get_typ();
-		if(  t == obj_t::aircraft  ||  t == obj_t::schiff  ) {
+		if(  t == obj_t::air_vehicle  ||  t == obj_t::water_vehicle  ) {
 			return obj.one;
 		}
 	}
 	else {
 		for(  uint8 i=0;  i < top;  i++  ) {
 			uint8 typ = obj.some[i]->get_typ();
-			if(  typ >= obj_t::road_vehicle  &&  typ <= obj_t::aircraft  ) {
+			if(  typ >= obj_t::road_vehicle  &&  typ <= obj_t::air_vehicle  ) {
 				return obj.some[i];
 			}
 		}
@@ -1249,7 +1249,7 @@ inline bool local_display_obj_vh(const obj_t *draw_obj, const sint16 xpos, const
 	air_vehicle_t      const*       a;
 	if(  v  &&  (ontile  ||  !(a = obj_cast<air_vehicle_t>(v))  ||  a->is_on_ground())  ) {
 		const ribi_t::ribi veh_ribi = v->get_direction();
-		if(  ontile  ||  (veh_ribi & ribi) == ribi  ||  (ribi_t::rueckwaerts(veh_ribi) & ribi )== ribi  ||  draw_obj->get_typ() == obj_t::aircraft  ) {
+		if(  ontile  ||  (veh_ribi & ribi) == ribi  ||  (ribi_t::rueckwaerts(veh_ribi) & ribi )== ribi  ||  draw_obj->get_typ() == obj_t::air_vehicle  ) {
 			// activate clipping only for our direction masked by the ribi argument
 			// use non-convex clipping (16) only if we are on the currently drawn tile or its n/w neighbours
 #ifdef MULTI_THREAD

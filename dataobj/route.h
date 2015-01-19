@@ -135,7 +135,7 @@ public:
 	bool append_straight_route( karte_t *w, koord3d target);
 
 	/**
-	 * Finds route to a location, where @p fahr->ist_ziel becomes true.
+	 * Finds route to a location, where @p tdriver->is_target becomes true.
 	 * @param max_depth is the maximum length of a route
 	 * @author prissi
 	 */

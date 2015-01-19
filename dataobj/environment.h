@@ -133,7 +133,7 @@ public:
 	static sint16 scroll_multi;
 
 	/// open info windows for pedestrian and private cars
-	static bool verkehrsteilnehmer_info;
+	static bool road_user_info;
 
 	/// open info windows for trees
 	static bool tree_info;

@@ -2980,7 +2980,7 @@ bool tool_wayremover_t::calc_route( route_t &verbindung, player_t *player, const
 						continue;
 					}
 					// ignore flying aircraft
-					if (type == obj_t::aircraft  &&  !(static_cast<air_vehicle_t*>(obj)->is_on_ground())) {
+					if (type == obj_t::air_vehicle  &&  !(static_cast<air_vehicle_t*>(obj)->is_on_ground())) {
 						continue;
 					}
 					const waytype_t obj_wt = obj->get_waytype();

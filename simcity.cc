@@ -1737,7 +1737,7 @@ void stadt_t::step_passagiere()
 #ifdef DESTINATION_CITYCARS
 			//citycars with destination
 			if (pax_routed == 0) {
-				erzeuge_verkehrsteilnehmer(start_halt->get_basis_pos(), step_count, ziel);
+				generate_private_cars(start_halt->get_basis_pos(), step_count, ziel);
 			}
 #endif
 
@@ -1797,7 +1797,7 @@ void stadt_t::step_passagiere()
 				merke_passagier_ziel(dest_pos, COL_DARK_ORANGE);
 #ifdef DESTINATION_CITYCARS
 				//citycars with destination
-				erzeuge_verkehrsteilnehmer(start_halt->get_basis_pos(), step_count, ziel);
+				generate_private_cars(start_halt->get_basis_pos(), step_count, ziel);
 #endif
 			}
 
@@ -1856,7 +1856,7 @@ void stadt_t::step_passagiere()
 		}
 #ifdef DESTINATION_CITYCARS
 		//citycars with destination
-		erzeuge_verkehrsteilnehmer(k, step_count, ziel);
+		generate_private_cars(k, step_count, ziel);
 #endif
 		merke_passagier_ziel(ziel, COL_DARK_ORANGE);
 		// we do not show no route for destination stop!
@@ -2733,7 +2733,7 @@ void stadt_t::renovate_city_building(gebaeude_t *gb)
 }
 
 
-void stadt_t::erzeuge_verkehrsteilnehmer(koord pos, sint32 level, koord target)
+void stadt_t::generate_private_cars(koord pos, sint32 level, koord target)
 {
 	int const verkehr_level = welt->get_settings().get_verkehr_level();
 	if (verkehr_level > 0 && level % (17 - verkehr_level) == 0) {

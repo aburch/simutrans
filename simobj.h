@@ -151,8 +151,8 @@ public:
 		monorail_vehicle=68,
 		maglev_vehicle=69,
 		narrowgauge_vehicle=70,
-		schiff=80,
-		aircraft=81,
+		water_vehicle=80,
+		air_vehicle=81,
 		movingobj=82,
 
 		// other new objs (obsolete, only used during loading old games

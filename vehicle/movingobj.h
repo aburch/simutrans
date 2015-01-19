@@ -59,7 +59,7 @@ public:
 	bool sync_step(uint32 delta_t);
 
 	// prissi: always free
-	virtual bool ist_befahrbar(const grund_t *) const;
+	virtual bool check_next_tile(const grund_t *) const;
 	virtual bool ist_weg_frei() { return 1; }
 	virtual grund_t* hop_check();
 	virtual void hop(grund_t* gr);

@@ -297,7 +297,7 @@ bool movingobj_t::sync_step(uint32 delta_t)
  * returns true, if we can go here
  * (identical to fahrer)
  */
-bool movingobj_t::ist_befahrbar( const grund_t *gr ) const
+bool movingobj_t::check_next_tile( const grund_t *gr ) const
 {
 	if(gr==NULL) {
 		// no ground => we cannot check further
@@ -363,7 +363,7 @@ grund_t* movingobj_t::hop_check()
 		}
 
 		grund_t *gr = welt->lookup_kartenboden(pos_next_next.get_2d());
-		if (ist_befahrbar(gr)) {
+		if (check_next_tile(gr)) {
 			pos_next_next = gr->get_pos();
 		}
 		else {
@@ -380,7 +380,7 @@ grund_t* movingobj_t::hop_check()
 		// find all tiles we can go
 		for(  int i=0;  i<4;  i++  ) {
 			const grund_t *check = welt->lookup_kartenboden(pos+koord::nsow[i]);
-			if(ist_befahrbar(check)  &&  check->get_pos()!=get_pos()) {
+			if(check_next_tile(check)  &&  check->get_pos()!=get_pos()) {
 				to[until++] = check;
 			}
 		}

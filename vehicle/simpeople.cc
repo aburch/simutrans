@@ -34,7 +34,7 @@ static bool compare_fussgaenger_besch(const fussgaenger_besch_t* a, const fussga
 bool pedestrian_t::register_besch(const fussgaenger_besch_t *besch)
 {
 	if(  table.remove(besch->get_name())  ) {
-		dbg->warning( "fussgaenger_besch_t::register_besch()", "Object %s was overlaid by addon!", besch->get_name() );
+		dbg->warning( "pedestrian_t::register_besch()", "Object %s was overlaid by addon!", besch->get_name() );
 	}
 	table.put(besch->get_name(), besch);
 	return true;
@@ -45,7 +45,7 @@ bool pedestrian_t::alles_geladen()
 {
 	liste.resize(table.get_count());
 	if (table.empty()) {
-		DBG_MESSAGE("fussgaenger_t", "No pedestrians found - feature disabled");
+		DBG_MESSAGE("pedestrian_t", "No pedestrians found - feature disabled");
 	}
 	else {
 		vector_tpl<const fussgaenger_besch_t*> temp_liste(0);
@@ -199,7 +199,7 @@ void pedestrian_t::hop(grund_t *gr)
 	leave_tile();
 	set_pos(gr->get_pos());
 	calc_image();
-	// no need to call betrete_feld();
+	// no need to call enter_tile();
 	gr->obj_add(this);
 
 	const weg_t *weg = gr->get_weg(road_wt);

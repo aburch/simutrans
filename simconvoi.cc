@@ -1537,7 +1537,7 @@ void convoi_t::start()
 
 /* called, when at a destination
  * can be waypoint, depot or a stop
- * called from the first vehikel_t of a convoi */
+ * called from the first vehicle_t of a convoi */
 void convoi_t::ziel_erreicht()
 {
 	const vehicle_t* v = fahr[0];
@@ -2243,9 +2243,9 @@ void convoi_t::rdwr(loadsave_t *file)
 					case obj_t::old_waggon:
 					case obj_t::rail_vehicle:    v = new rail_vehicle_t(file, first, last);     break;
 					case obj_t::old_schiff:
-					case obj_t::schiff:    v = new water_vehicle_t(file, first, last);     break;
+					case obj_t::water_vehicle:    v = new water_vehicle_t(file, first, last);     break;
 					case obj_t::old_aircraft:
-					case obj_t::aircraft:    v = new air_vehicle_t(file, first, last);     break;
+					case obj_t::air_vehicle:    v = new air_vehicle_t(file, first, last);     break;
 					case obj_t::old_monorailwaggon:
 					case obj_t::monorail_vehicle:    v = new monorail_vehicle_t(file, first, last);     break;
 					case obj_t::maglev_vehicle:         v = new maglev_vehicle_t(file, first, last);     break;
@@ -3480,7 +3480,7 @@ uint16 convoi_t::get_tile_length() const
 	}
 	// the last vehicle counts differently in stations and for reserving track
 	// (1) add 8 = 127/256 tile to account for the driving in stations in north/west direction
-	//     see at the end of vehikel_t::hop()
+	//     see at the end of vehicle_t::hop()
 	// (2) for length of convoi for loading in stations the length of the last vehicle matters
 	//     see convoi_t::hat_gehalten
 	carunits += max(CARUNITS_PER_TILE/2, fahr[anz_vehikel-1]->get_besch()->get_length());

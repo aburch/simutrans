@@ -515,9 +515,9 @@ void depot_t::rdwr_vehikel(slist_tpl<vehicle_t *> &list, loadsave_t *file)
 				case old_waggon:
 				case rail_vehicle:    v = new rail_vehicle_t(file, first, last);       break;
 				case old_schiff:
-				case schiff:    v = new water_vehicle_t(file, first, last);       break;
+				case water_vehicle:    v = new water_vehicle_t(file, first, last);       break;
 				case old_aircraft:
-				case aircraft: v = new air_vehicle_t(file, first, last);  break;
+				case air_vehicle: v = new air_vehicle_t(file, first, last);  break;
 				case old_monorailwaggon:
 				case monorail_vehicle: v = new monorail_vehicle_t(file, first, last);  break;
 				case maglev_vehicle:   v = new maglev_vehicle_t(file, first, last);  break;

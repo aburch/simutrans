@@ -88,7 +88,7 @@ sint32 env_t::message_flags[4];
 uint32 env_t::water_animation;
 uint32 env_t::ground_object_probability;
 uint32 env_t::moving_object_probability;
-bool env_t::verkehrsteilnehmer_info;
+bool env_t::road_user_info;
 bool env_t::tree_info;
 bool env_t::ground_info;
 bool env_t::townhall_info;
@@ -162,7 +162,7 @@ void env_t::init()
 	ground_object_probability = 10; // every n-th tile
 	moving_object_probability = 1000; // every n-th tile
 
-	verkehrsteilnehmer_info = false;
+	road_user_info = false;
 	tree_info = true;
 	ground_info = false;
 	townhall_info = false;
@@ -299,7 +299,7 @@ void env_t::rdwr(loadsave_t *file)
 	file->rdwr_long( fps );
 	file->rdwr_short( max_acceleration );
 
-	file->rdwr_bool( verkehrsteilnehmer_info );
+	file->rdwr_bool( road_user_info );
 	file->rdwr_bool( tree_info );
 	file->rdwr_bool( ground_info );
 	file->rdwr_bool( townhall_info );

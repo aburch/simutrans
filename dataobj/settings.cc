@@ -812,7 +812,7 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 
 	env_t::straight_way_without_control = contents.get_int("straight_way_without_control", env_t::straight_way_without_control) != 0;
 
-	env_t::verkehrsteilnehmer_info = contents.get_int("pedes_and_car_info", env_t::verkehrsteilnehmer_info) != 0;
+	env_t::road_user_info = contents.get_int("pedes_and_car_info", env_t::road_user_info) != 0;
 	env_t::tree_info = contents.get_int("tree_info", env_t::tree_info) != 0;
 	env_t::ground_info = contents.get_int("ground_info", env_t::ground_info) != 0;
 	env_t::townhall_info = contents.get_int("townhall_info", env_t::townhall_info) != 0;
