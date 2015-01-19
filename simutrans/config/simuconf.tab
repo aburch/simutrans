@@ -663,4 +663,4 @@ fast_forward = 50
 chat_transparency = 75
 
 # Here you can add a message about your server (It will read this file on each joining anew)
-#server_motd_file =
+#server_motd_filename =
