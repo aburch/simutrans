@@ -76,8 +76,8 @@
 
 #include "bauer/vehikelbauer.h"
 
-#include "vehicle/simvehikel.h"
-#include "vehicle/simverkehr.h"
+#include "vehicle/simvehicle.h"
+#include "vehicle/simroadtraffic.h"
 
 using std::string;
 
@@ -97,7 +97,7 @@ static void show_sizes()
 	DBG_MESSAGE("sizes", "gebaeude_t: %d", sizeof(gebaeude_t));
 	DBG_MESSAGE("sizes", "baum_t: %d", sizeof(baum_t));
 	DBG_MESSAGE("sizes", "weg_t: %d", sizeof(weg_t));
-	DBG_MESSAGE("sizes", "stadtauto_t: %d\n", sizeof(stadtauto_t));
+	DBG_MESSAGE("sizes", "stadtauto_t: %d\n", sizeof(private_car_t));
 
 	DBG_MESSAGE("sizes", "grund_t: %d", sizeof(grund_t));
 	DBG_MESSAGE("sizes", "boden_t: %d", sizeof(boden_t));
@@ -105,7 +105,7 @@ static void show_sizes()
 	DBG_MESSAGE("sizes", "planquadrat_t: %d\n", sizeof(planquadrat_t));
 
 	DBG_MESSAGE("sizes", "ware_t: %d", sizeof(ware_t));
-	DBG_MESSAGE("sizes", "vehikel_t: %d", sizeof(vehikel_t));
+	DBG_MESSAGE("sizes", "vehikel_t: %d", sizeof(vehicle_t));
 	DBG_MESSAGE("sizes", "haltestelle_t: %d\n", sizeof(haltestelle_t));
 
 	DBG_MESSAGE("sizes", "karte_t: %d", sizeof(karte_t));
@@ -919,7 +919,7 @@ int simu_main(int argc, char** argv)
 
 	// now (re)set the correct length and other pak set only settings
 	env_t::default_settings.set_pak_diagonal_multiplier( pak_diagonal_multiplier );
-	vehikel_basis_t::set_diagonal_multiplier( pak_diagonal_multiplier, pak_diagonal_multiplier );
+	vehicle_base_t::set_diagonal_multiplier( pak_diagonal_multiplier, pak_diagonal_multiplier );
 	env_t::pak_height_conversion_factor = pak_height_conversion_factor;
 	TILE_HEIGHT_STEP = pak_tile_height;
 

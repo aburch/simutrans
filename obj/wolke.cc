@@ -48,7 +48,7 @@ wolke_t::wolke_t(koord3d pos, sint8 x_off, sint8 y_off, const skin_besch_t* besc
 
 wolke_t::~wolke_t()
 {
-	mark_image_dirty( get_bild(), 0 );
+	mark_image_dirty( get_image(), 0 );
 	if(  insta_zeit != 2499  ) {
 		if(  !welt->sync_way_eyecandy_remove( this )  ) {
 			dbg->error( "wolke_t::~wolke_t()", "wolke not in the correct sync list" );
@@ -64,7 +64,7 @@ wolke_t::wolke_t(loadsave_t* const file) : obj_no_info_t()
 }
 
 
-image_id wolke_t::get_bild() const
+image_id wolke_t::get_image() const
 {
 	const skin_besch_t *besch = all_clouds[cloud_nr];
 	return besch->get_bild_nr( (insta_zeit*besch->get_bild_anzahl())/2500 );
@@ -108,7 +108,7 @@ bool wolke_t::sync_step(uint32 delta_t)
 	if(  base_y_off-ymove!=get_yoff()  ) {
 		// move/change cloud ... (happens much more often than image change => image change will be always done when drawing)
 		if(!get_flag(obj_t::dirty)) {
-			mark_image_dirty(get_bild(),0);
+			mark_image_dirty(get_image(),0);
 		}
 		set_yoff(  base_y_off - ymove  );
 		set_flag(obj_t::dirty);

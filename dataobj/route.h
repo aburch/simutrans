@@ -15,7 +15,7 @@
 #include "../tpl/vector_tpl.h"
 
 class karte_t;
-class fahrer_t;
+class test_driver_t;
 class grund_t;
 
 /**
@@ -31,7 +31,7 @@ private:
 	 * The actual route search
 	 * @author Hj. Malthaner
 	 */
-	bool intern_calc_route(karte_t *w, koord3d start, koord3d ziel, fahrer_t *fahr, const sint32 max_kmh, const uint32 max_cost);
+	bool intern_calc_route(karte_t *w, koord3d start, koord3d ziel, test_driver_t *tdriver, const sint32 max_kmh, const uint32 max_cost);
 
 	koord3d_vector_t route;           // The coordinates for the vehicle route
 
@@ -139,13 +139,13 @@ public:
 	 * @param max_depth is the maximum length of a route
 	 * @author prissi
 	 */
-	bool find_route(karte_t *w, const koord3d start, fahrer_t *fahr, const uint32 max_khm, uint8 start_dir, uint32 max_depth );
+	bool find_route(karte_t *w, const koord3d start, test_driver_t *tdriver, const uint32 max_khm, uint8 start_dir, uint32 max_depth );
 
 	/**
 	 * Calculates the route from @p start to @p target
 	 * @author Hj. Malthaner
 	 */
-	route_result_t calc_route(karte_t *welt, koord3d start, koord3d target, fahrer_t *fahr, const sint32 max_speed_kmh, sint32 max_tile_len );
+	route_result_t calc_route(karte_t *welt, koord3d start, koord3d target, test_driver_t *tdriver, const sint32 max_speed_kmh, sint32 max_tile_len );
 
 	/**
 	 * Load/Save of the route.

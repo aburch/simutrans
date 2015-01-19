@@ -51,7 +51,7 @@
 #include "../utils/cbuffer_t.h"
 #include "../utils/simstring.h"
 
-#include "../vehicle/simvehikel.h"
+#include "../vehicle/simvehicle.h"
 
 #include "simplay.h"
 #include "finance.h"
@@ -403,8 +403,8 @@ void player_t::calc_assets()
 	// all vehikels stored in depot not part of a convoi
 	FOR(slist_tpl<depot_t*>, const depot, depot_t::get_depot_list()) {
 		if(  depot->get_player_nr() == player_nr  ) {
-			FOR(slist_tpl<vehikel_t*>, const veh, depot->get_vehicle_list()) {
-				sint64 restwert = veh->calc_restwert();
+			FOR(slist_tpl<vehicle_t*>, const veh, depot->get_vehicle_list()) {
+				sint64 restwert = veh->calc_sale_value();
 				assets[TT_ALL] += restwert;
 				assets[finance->translate_waytype_to_tt(veh->get_waytype())] += restwert;
 			}
@@ -546,7 +546,7 @@ void player_t::ai_bankrupt()
 							case obj_t::pumpe:
 							case obj_t::wayobj:
 							case obj_t::label:
-								obj->entferne(this);
+								obj->cleanup(this);
 								delete obj;
 								break;
 							case obj_t::leitung:
@@ -556,7 +556,7 @@ void player_t::ai_bankrupt()
 									obj->set_owner( welt->get_player(1) );
 								}
 								else {
-									obj->entferne(this);
+									obj->cleanup(this);
 									delete obj;
 								}
 								break;
@@ -759,7 +759,7 @@ DBG_MESSAGE("player_t::report_vehicle_problem","Vehicle %s can't find a route to
 			{
 				cbuffer_t buf;
 				buf.printf( translator::translate("Vehicle %s can't find a route!"), cnv->get_name());
-				welt->get_message()->add_message( (const char *)buf, cnv->get_pos().get_2d(), message_t::problems, PLAYER_FLAG | player_nr, cnv->front()->get_basis_bild());
+				welt->get_message()->add_message( (const char *)buf, cnv->get_pos().get_2d(), message_t::problems, PLAYER_FLAG | player_nr, cnv->front()->get_base_image());
 			}
 			break;
 
@@ -770,7 +770,7 @@ DBG_MESSAGE("player_t::report_vehicle_problem","Vehicle %s stuck!", cnv->get_nam
 			{
 				cbuffer_t buf;
 				buf.printf( translator::translate("Vehicle %s is stucked!"), cnv->get_name());
-				welt->get_message()->add_message( (const char *)buf, cnv->get_pos().get_2d(), message_t::warnings, PLAYER_FLAG | player_nr, cnv->front()->get_basis_bild());
+				welt->get_message()->add_message( (const char *)buf, cnv->get_pos().get_2d(), message_t::warnings, PLAYER_FLAG | player_nr, cnv->front()->get_base_image());
 			}
 			break;
 
@@ -830,8 +830,8 @@ sint64 player_t::undo()
 					case obj_t::way:
 					case obj_t::label:
 					case obj_t::crossing:
-					case obj_t::fussgaenger:
-					case obj_t::verkehr:
+					case obj_t::pedestrian:
+					case obj_t::road_user:
 					case obj_t::movingobj:
 						break;
 					// special case airplane
@@ -840,7 +840,7 @@ sint64 player_t::undo()
 						if(undo_type!=air_wt) {
 							break;
 						}
-						const aircraft_t* aircraft = obj_cast<aircraft_t>(gr->obj_bei(i));
+						const air_vehicle_t* aircraft = obj_cast<air_vehicle_t>(gr->obj_bei(i));
 						// flying aircrafts are ok
 						if(!aircraft->is_on_ground()) {
 							break;
@@ -866,7 +866,7 @@ sint64 player_t::undo()
 		else {
 			if (leitung_t* lt = gr->get_leitung()) {
 				cost += lt->get_besch()->get_preis();
-				lt->entferne(NULL);
+				lt->cleanup(NULL);
 				delete lt;
 			}
 		}

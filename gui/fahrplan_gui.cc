@@ -29,7 +29,7 @@
 #include "../dataobj/environment.h"
 
 #include "../player/simplay.h"
-#include "../vehicle/simvehikel.h"
+#include "../vehicle/simvehicle.h"
 
 #include "../tpl/vector_tpl.h"
 
@@ -74,7 +74,7 @@ void fahrplan_gui_stats_t::highlight_schedule( schedule_t *markfpl, bool marking
 	}
 	// always remove
 	if(  grund_t *old_gr = welt->lookup(aktuell_mark->get_pos())  ) {
-		aktuell_mark->mark_image_dirty( aktuell_mark->get_bild(), 0 );
+		aktuell_mark->mark_image_dirty( aktuell_mark->get_image(), 0 );
 		old_gr->obj_remove( aktuell_mark );
 		old_gr->set_flag( grund_t::dirty );
 		aktuell_mark->set_pos( koord3d::invalid );
@@ -214,7 +214,7 @@ fahrplan_gui_stats_t::fahrplan_gui_stats_t(player_t *player_)
 fahrplan_gui_stats_t::~fahrplan_gui_stats_t()
 {
 	if(  grund_t *gr = welt->lookup(aktuell_mark->get_pos())  ) {
-		aktuell_mark->mark_image_dirty( aktuell_mark->get_bild(), 0 );
+		aktuell_mark->mark_image_dirty( aktuell_mark->get_image(), 0 );
 		gr->obj_remove(aktuell_mark);
 	}
 	aktuell_mark->set_pos( koord3d::invalid );

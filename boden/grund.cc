@@ -1768,7 +1768,7 @@ sint64 grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, player_t *player)
 				}
 				crossing_t *cr = new crossing_t(obj_bei(0)->get_owner(), pos, cr_besch, ribi_t::ist_gerade_ns(get_weg(cr_besch->get_waytype(1))->get_ribi_unmasked()) );
 				objlist.add( cr );
-				cr->laden_abschliessen();
+				cr->finish_rd();
 			}
 		}
 
@@ -1779,7 +1779,7 @@ sint64 grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, player_t *player)
 		}
 
 		// may result in a crossing, but the wegebauer will recalc all images anyway
-		weg->calc_bild();
+		weg->calc_image();
 	}
 	return cost;
 }
@@ -1808,7 +1808,7 @@ sint32 grund_t::weg_entfernen(waytype_t wegtyp, bool ribi_rem)
 		}
 
 		sint32 costs=weg->get_besch()->get_preis();	// costs for removal are construction costs
-		weg->entferne( NULL );
+		weg->cleanup( NULL );
 		delete weg;
 
 		// delete the second way ...
@@ -1819,7 +1819,7 @@ sint32 grund_t::weg_entfernen(waytype_t wegtyp, bool ribi_rem)
 			// Not all ways (i.e. with styp==7) will imply crossings, so we have to check
 			crossing_t* cr = find<crossing_t>(1);
 			if(cr) {
-				cr->entferne(0);
+				cr->cleanup(0);
 				delete cr;
 				// restore speed limit
 				weg_t* w = (weg_t*)obj_bei(0);
@@ -1982,11 +1982,11 @@ bool grund_t::remove_everything_from_way(player_t* player_, waytype_t wt, ribi_t
 					}
 				}
 			}
-			else if (stadtauto_t* const citycar = obj_cast<stadtauto_t>(obj)) {
+			else if (private_car_t* const citycar = obj_cast<private_car_t>(obj)) {
 				// citycar: just delete
 				if (wt == road_wt) delete citycar;
 			}
-			else if (fussgaenger_t* const pedestrian = obj_cast<fussgaenger_t>(obj)) {
+			else if (pedestrian_t* const pedestrian = obj_cast<pedestrian_t>(obj)) {
 				// pedestrians: just delete
 				if (wt == road_wt) delete pedestrian;
 			}
@@ -1998,14 +1998,14 @@ bool grund_t::remove_everything_from_way(player_t* player_, waytype_t wt, ribi_t
 					if((flags&has_way2)==0) {
 						if (add==ribi_t::keine) {
 							// last way was belonging to this tunnel
-							tunnel->entferne(player_);
+							tunnel->cleanup(player_);
 							delete tunnel;
 						}
 					}
 					else {
 						// we must leave the way to prevent destroying the other one
 						add |= get_weg_nr(1)->get_ribi_unmasked();
-						weg->calc_bild();
+						weg->calc_image();
 					}
 				}
 			}

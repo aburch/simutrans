@@ -12,7 +12,7 @@
 #include "weg.h"
 #include "../../convoihandle_t.h"
 
-class vehikel_t;
+class vehicle_t;
 
 /**
  * Class for Rails in Simutrans.
@@ -79,12 +79,12 @@ public:
 	* releases previous reservation
 	* @author prissi
 	*/
-	bool unreserve( vehikel_t *);
+	bool unreserve( vehicle_t *);
 
 	/* called before deletion;
 	 * last chance to unreserve tiles ...
 	 */
-	virtual void entferne(player_t *player);
+	virtual void cleanup(player_t *player);
 
 	/**
 	* gets the related convoi
@@ -104,7 +104,7 @@ public:
 	/*
 	 * to show reservations if needed
 	 */
-	virtual image_id get_outline_bild() const { return weg_t::get_bild(); }
+	virtual image_id get_outline_image() const { return weg_t::get_image(); }
 };
 
 

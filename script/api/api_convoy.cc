@@ -9,7 +9,7 @@
 #include "../../simhalt.h"
 #include "../../simline.h"
 #include "../../simworld.h"
-#include "../../vehicle/simvehikel.h"
+#include "../../vehicle/simvehicle.h"
 
 using namespace script_api;
 

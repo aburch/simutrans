@@ -27,12 +27,12 @@ class cbuffer_t;
 /* A map from obj_t subtypes to their enum equivalent
  * Used by grund_t::find<T>()
  */
-class aircraft_t;
+class air_vehicle_t;
 class baum_t;
 class bruecke_t;
 class crossing_t;
 class field_t;
-class fussgaenger_t;
+class pedestrian_t;
 class gebaeude_t;
 class groundobj_t;
 class label_t;
@@ -42,19 +42,19 @@ class pumpe_t;
 class roadsign_t;
 class senke_t;
 class signal_t;
-class stadtauto_t;
-class automobil_t;
+class private_car_t;
+class road_vehicle_t;
 class tunnel_t;
 class wayobj_t;
 class zeiger_t;
 
 template<typename T> struct map_obj {};
-template<> struct map_obj<aircraft_t>    { static const obj_t::typ code = obj_t::aircraft;    };
+template<> struct map_obj<air_vehicle_t>    { static const obj_t::typ code = obj_t::aircraft;    };
 template<> struct map_obj<baum_t>        { static const obj_t::typ code = obj_t::baum;        };
 template<> struct map_obj<bruecke_t>     { static const obj_t::typ code = obj_t::bruecke;     };
 template<> struct map_obj<crossing_t>    { static const obj_t::typ code = obj_t::crossing;    };
 template<> struct map_obj<field_t>       { static const obj_t::typ code = obj_t::field;       };
-template<> struct map_obj<fussgaenger_t> { static const obj_t::typ code = obj_t::fussgaenger; };
+template<> struct map_obj<pedestrian_t>  { static const obj_t::typ code = obj_t::pedestrian;  };
 template<> struct map_obj<gebaeude_t>    { static const obj_t::typ code = obj_t::gebaeude;    };
 template<> struct map_obj<groundobj_t>   { static const obj_t::typ code = obj_t::groundobj;   };
 template<> struct map_obj<label_t>       { static const obj_t::typ code = obj_t::label;       };
@@ -64,8 +64,8 @@ template<> struct map_obj<pumpe_t>       { static const obj_t::typ code = obj_t:
 template<> struct map_obj<roadsign_t>    { static const obj_t::typ code = obj_t::roadsign;    };
 template<> struct map_obj<senke_t>       { static const obj_t::typ code = obj_t::senke;       };
 template<> struct map_obj<signal_t>      { static const obj_t::typ code = obj_t::signal;      };
-template<> struct map_obj<stadtauto_t>   { static const obj_t::typ code = obj_t::verkehr;     };
-template<> struct map_obj<automobil_t>   { static const obj_t::typ code = obj_t::automobil;   };
+template<> struct map_obj<private_car_t> { static const obj_t::typ code = obj_t::road_user;   };
+template<> struct map_obj<road_vehicle_t>  { static const obj_t::typ code = obj_t::road_vehicle;   };
 template<> struct map_obj<tunnel_t>      { static const obj_t::typ code = obj_t::tunnel;      };
 template<> struct map_obj<wayobj_t>      { static const obj_t::typ code = obj_t::wayobj;      };
 template<> struct map_obj<weg_t>         { static const obj_t::typ code = obj_t::way;         };

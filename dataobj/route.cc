@@ -14,7 +14,7 @@
 #include "../boden/wege/weg.h"
 #include "../boden/grund.h"
 #include "../dataobj/marker.h"
-#include "../ifc/fahrer.h"
+#include "../ifc/simtestdriver.h"
 #include "loadsave.h"
 #include "route.h"
 #include "environment.h"
@@ -110,7 +110,7 @@ bool route_t::node_in_use=false;
 /* find the route to an unknown location
  * @author prissi
  */
-bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, const uint32 max_khm, uint8 start_dir, uint32 max_depth )
+bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdriver, const uint32 max_khm, uint8 start_dir, uint32 max_depth )
 {
 	bool ok = false;
 
@@ -121,7 +121,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 	}
 
 	// some thing for the search
-	const waytype_t wegtyp = fahr->get_waytype();
+	const waytype_t wegtyp = tdriver->get_waytype();
 
 	// memory in static list ...
 	if(  nodes == NULL  ) {
@@ -135,7 +135,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 	route.clear();
 
 	// first tile is not valid?!?
-	if(  !fahr->ist_befahrbar(g)  ) {
+	if(  !tdriver->check_next_tile(g)  ) {
 		return false;
 	}
 
@@ -176,14 +176,14 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 
 
 		// already there
-		if(  fahr->ist_ziel( gr, tmp->parent==NULL ? NULL : tmp->parent->gr )  ) {
+		if(  tdriver->is_target( gr, tmp->parent==NULL ? NULL : tmp->parent->gr )  ) {
 			// we added a target to the closed list: check for length
 			target_reached = true;
 			break;
 		}
 
 		// testing all four possible directions
-		const ribi_t::ribi ribi =  fahr->get_ribi(gr);
+		const ribi_t::ribi ribi =  tdriver->get_ribi(gr);
 		for(  int r=0;  r<4;  r++  ) {
 			// a way goes here, and it is not marked (i.e. in the closed list)
 			grund_t* to;
@@ -191,7 +191,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 				&& koord_distance(start, gr->get_pos() + koord::nsow[r])<max_depth	// not too far away
 				&& gr->get_neighbour(to, wegtyp, ribi_t::nsow[r])  // is connected
 				&& !marker.is_marked(to) // not already tested
-				&& fahr->ist_befahrbar(to)	// can be driven on
+				&& tdriver->check_next_tile(to)	// can be driven on
 			) {
 				// not in there or taken out => add new
 				ANode* k = &nodes[step++];
@@ -200,7 +200,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 				k->gr = to;
 				k->count = tmp->count+1;
 				k->f = 0;
-				k->g = tmp->g + fahr->get_kosten(to, max_khm, gr->get_pos().get_2d());
+				k->g = tmp->g + tdriver->get_cost(to, max_khm, gr->get_pos().get_2d());
 
 				// insert here
 				queue.insert(k);
@@ -254,7 +254,7 @@ ribi_t::ribi *get_next_dirs(const koord3d& gr_pos, const koord3d& ziel)
 
 
 
-bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d start, fahrer_t *fahr, const sint32 max_speed, const uint32 max_cost)
+bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d start, test_driver_t *tdriver, const sint32 max_speed, const uint32 max_cost)
 {
 	bool ok = false;
 
@@ -268,13 +268,13 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 	route.clear();
 
 	// first tile is not valid?!?
-	if(  !fahr->ist_befahrbar(gr)  ) {
+	if(  !tdriver->check_next_tile(gr)  ) {
 		return false;
 	}
 
 	// some thing for the search
-	const waytype_t wegtyp = fahr->get_waytype();
-	const bool is_airplane = fahr->get_waytype()==air_wt;
+	const waytype_t wegtyp = tdriver->get_waytype();
+	const bool is_airplane = tdriver->get_waytype()==air_wt;
 
 	/* On water we will try jump point search (jps):
 	 * - If going straight do not turn, only if near an obstacle.
@@ -287,7 +287,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 	 *  In Proceedings of the 25th National Conference on Artificial Intelligence (AAAI), San Francisco, USA.
 	 *  http://users.cecs.anu.edu.au/~dharabor/data/papers/harabor-grastien-aaai11.pdf
 	 */
-	const bool use_jps     = fahr->get_waytype()==water_wt;
+	const bool use_jps     = tdriver->get_waytype()==water_wt;
 
 	grund_t *to;
 
@@ -358,7 +358,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 
 		uint32 topnode_f = !queue.empty() ? queue.front()->f : max_cost;
 
-		const ribi_t::ribi way_ribi =  fahr->get_ribi(gr);
+		const ribi_t::ribi way_ribi =  tdriver->get_ribi(gr);
 		// testing all four possible directions
 		// mask direction we came from
 		const ribi_t::ribi ribi =  way_ribi  &  ( ~ribi_t::reverse_single(tmp->ribi_from) )  &  tmp->jps_ribi;
@@ -377,7 +377,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 			}
 
 			// a way goes here, and it is not marked (i.e. in the closed list)
-			if((to  ||  gr->get_neighbour(to, wegtyp, next_ribi[r]))  &&  fahr->ist_befahrbar(to)  &&  !marker.is_marked(to)) {
+			if((to  ||  gr->get_neighbour(to, wegtyp, next_ribi[r]))  &&  tdriver->check_next_tile(to)  &&  !marker.is_marked(to)) {
 
 				// Do not go on a tile, where a oneway sign forbids going.
 				// This saves time and fixed the bug, that a oneway sign on the final tile was ignored.
@@ -389,7 +389,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 				}
 
 				// new values for cost g (without way it is either in the air or in water => no costs)
-				uint32 new_g = tmp->g + (w ? fahr->get_kosten(to, max_speed, gr->get_pos().get_2d()) : 1);
+				uint32 new_g = tmp->g + (w ? tdriver->get_cost(to, max_speed, gr->get_pos().get_2d()) : 1);
 
 				// check for curves (usually, one would need the lastlast and the last;
 				// if not there, then we could just take the last
@@ -473,7 +473,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 			route[ tmp->count ] = tmp->gr->get_pos();
 			tmp = tmp->parent;
 		}
-		if (use_jps  &&  fahr->get_waytype()==water_wt) {
+		if (use_jps  &&  tdriver->get_waytype()==water_wt) {
 			postprocess_water_route(welt);
 		}
 		ok = true;
@@ -596,15 +596,15 @@ void route_t::postprocess_water_route(karte_t *welt)
  * corrected 12/2005 for station search
  * @author Hansjörg Malthaner, prissi
  */
-route_t::route_result_t route_t::calc_route(karte_t *welt, const koord3d ziel, const koord3d start, fahrer_t *fahr, const sint32 max_khm, sint32 max_len )
+route_t::route_result_t route_t::calc_route(karte_t *welt, const koord3d ziel, const koord3d start, test_driver_t *tdriver, const sint32 max_khm, sint32 max_len )
 {
 	route.clear();
 
 	INT_CHECK("route 336");
 
-	bool ok = intern_calc_route(welt, start, ziel, fahr, max_khm, 0xFFFFFFFFul );
+	bool ok = intern_calc_route(welt, start, ziel, tdriver, max_khm, 0xFFFFFFFFul );
 #ifdef DEBUG_ROUTES
-	if(fahr->get_waytype()==water_wt) {DBG_DEBUG("route_t::calc_route()","route from %d,%d to %d,%d with %i steps in %u ms found.",start.x, start.y, ziel.x, ziel.y, route.get_count()-1, dr_time()-ms );}
+	if(tdriver->get_waytype()==water_wt) {DBG_DEBUG("route_t::calc_route()","route from %d,%d to %d,%d with %i steps in %u ms found.",start.x, start.y, ziel.x, ziel.y, route.get_count()-1, dr_time()-ms );}
 #endif
 
 	INT_CHECK("route 343");
@@ -635,9 +635,9 @@ route_t::route_result_t route_t::calc_route(karte_t *welt, const koord3d ziel, c
 				const int ribi = ribi_typ(zv);
 
 				grund_t *gr = welt->lookup(start);
-				const waytype_t wegtyp=fahr->get_waytype();
+				const waytype_t wegtyp=tdriver->get_waytype();
 
-				while(  max_len>0  &&  gr->get_neighbour(gr,wegtyp,ribi)  &&  gr->get_halt()==halt  &&   fahr->ist_befahrbar(gr)   &&  (fahr->get_ribi(gr)&ribi)!=0  ) {
+				while(  max_len>0  &&  gr->get_neighbour(gr,wegtyp,ribi)  &&  gr->get_halt()==halt  &&   tdriver->check_next_tile(gr)   &&  (tdriver->get_ribi(gr)&ribi)!=0  ) {
 					// Do not go on a tile, where a oneway sign forbids going.
 					// This saves time and fixed the bug, that a oneway sign on the final tile was ignored.
 					ribi_t::ribi go_dir=gr->get_weg(wegtyp)->get_ribi_maske();

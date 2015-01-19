@@ -56,7 +56,7 @@ protected:
 	* Dient zur Neuberechnung des Bildes
 	* @author Hj. Malthaner
 	*/
-	void calc_bild();
+	void calc_image();
 
 public:
 	powernet_t* get_net() const { return net; }
@@ -73,7 +73,7 @@ public:
 	virtual ~leitung_t();
 
 	// just book the costs for destruction
-	void entferne(player_t *);
+	void cleanup(player_t *);
 
 	// for map rotation
 	void rotate90();
@@ -97,8 +97,8 @@ public:
 	ribi_t::ribi get_ribi() const { return ribi; }
 
 	inline void set_bild( image_id b ) { bild = b; }
-	image_id get_bild() const {return is_crossing ? IMG_LEER : bild;}
-	image_id get_after_bild() const {return is_crossing ? bild : IMG_LEER;}
+	image_id get_image() const {return is_crossing ? IMG_LEER : bild;}
+	image_id get_front_image() const {return is_crossing ? bild : IMG_LEER;}
 
 	/**
 	* Recalculates the images of all neighbouring
@@ -114,7 +114,7 @@ public:
 	*
 	* @author Hj. Malthaner
 	*/
-	virtual void laden_abschliessen();
+	virtual void finish_rd();
 
 	/**
 	* Speichert den Zustand des Objekts.
@@ -129,7 +129,7 @@ public:
 	 * @return NULL if OK, otherwise an error message
 	 * @author Hj. Malthaner
 	 */
-	virtual const char *ist_entfernbar(const player_t *player);
+	virtual const char *is_deletable(const player_t *player);
 };
 
 
@@ -159,9 +159,9 @@ public:
 
 	void info(cbuffer_t & buf) const;
 
-	void laden_abschliessen();
+	void finish_rd();
 
-	void calc_bild() {}	// otherwise it will change to leitung
+	void calc_image() {}	// otherwise it will change to leitung
 
 	const fabrik_t* get_factory() const { return fab; }
 };
@@ -202,9 +202,9 @@ public:
 
 	void info(cbuffer_t & buf) const;
 
-	void laden_abschliessen();
+	void finish_rd();
 
-	void calc_bild() {}	// otherwise it will change to leitung
+	void calc_image() {}	// otherwise it will change to leitung
 
 	const fabrik_t* get_factory() const { return fab; }
 };

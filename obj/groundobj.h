@@ -42,10 +42,10 @@ public:
 
 	void rdwr(loadsave_t *file);
 
-	image_id get_bild() const { return bild; }
+	image_id get_image() const { return bild; }
 
 	/// recalculates image depending on season and slope of ground
-	void calc_bild();
+	void calc_image();
 
 	/**
 	 * Called whenever the season or snowline height changes
@@ -56,11 +56,11 @@ public:
 	const char *get_name() const {return "Groundobj";}
 	typ get_typ() const { return groundobj; }
 
-	void zeige_info();
+	void show_info();
 
 	void info(cbuffer_t & buf) const;
 
-	void entferne(player_t *player);
+	void cleanup(player_t *player);
 
 	const groundobj_besch_t* get_besch() const { return groundobj_typen[groundobjtype]; }
 

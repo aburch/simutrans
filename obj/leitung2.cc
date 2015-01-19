@@ -155,7 +155,7 @@ leitung_t::~leitung_t()
 }
 
 
-void leitung_t::entferne(player_t *player)
+void leitung_t::cleanup(player_t *player)
 {
 	player_t::book_construction_costs(player, -besch->get_preis()/2, get_pos().get_2d(), powerline_wt);
 	mark_image_dirty( bild, 0 );
@@ -243,7 +243,7 @@ void leitung_t::verbinde()
 
 
 /* extended by prissi */
-void leitung_t::calc_bild()
+void leitung_t::calc_image()
 {
 	is_crossing = false;
 	const koord pos = get_pos().get_2d();
@@ -260,7 +260,7 @@ void leitung_t::calc_bild()
 		return;
 	}
 
-	image_id old_image = get_bild();
+	image_id old_image = get_image();
 	hang_t::typ hang = gr->get_weg_hang();
 	if(hang != hang_t::flach) {
 		set_bild( besch->get_hang_bild_nr(hang, snow));
@@ -292,7 +292,7 @@ void leitung_t::calc_bild()
 			}
 		}
 	}
-	if (old_image != get_bild()) {
+	if (old_image != get_image()) {
 		mark_image_dirty(old_image,0);
 	}
 }
@@ -313,12 +313,12 @@ void leitung_t::calc_neighbourhood()
 			if(conn[i]  &&  conn[i]->get_net()==get_net()) {
 				ribi |= ribi_t::nsow[i];
 				conn[i]->add_ribi(ribi_t::rueckwaerts(ribi_t::nsow[i]));
-				conn[i]->calc_bild();
+				conn[i]->calc_image();
 			}
 		}
 	}
 	set_flag( obj_t::dirty );
-	calc_bild();
+	calc_image();
 }
 
 
@@ -350,7 +350,7 @@ void leitung_t::info(cbuffer_t & buf) const
  *
  * @author Hj. Malthaner
  */
-void leitung_t::laden_abschliessen()
+void leitung_t::finish_rd()
 {
 #ifdef MULTI_THREAD
 	pthread_mutex_lock( &verbinde_mutex );
@@ -432,12 +432,12 @@ void leitung_t::rdwr(loadsave_t *file)
 
 // returns NULL, if removal is allowed
 // players can remove public owned powerlines
-const char *leitung_t::ist_entfernbar(const player_t *player)
+const char *leitung_t::is_deletable(const player_t *player)
 {
 	if(  get_player_nr()==1  &&  player  ) {
 		return NULL;
 	}
-	return obj_t::ist_entfernbar(player);
+	return obj_t::is_deletable(player);
 }
 
 
@@ -518,9 +518,9 @@ void pumpe_t::step(uint32 delta_t)
 }
 
 
-void pumpe_t::laden_abschliessen()
+void pumpe_t::finish_rd()
 {
-	leitung_t::laden_abschliessen();
+	leitung_t::finish_rd();
 	player_t::add_maintenance(get_owner(), -(sint32)welt->get_settings().cst_maintain_transformer, powerline_wt);
 
 	assert(get_net());
@@ -733,9 +733,9 @@ bool senke_t::sync_step(uint32 delta_t)
 }
 
 
-void senke_t::laden_abschliessen()
+void senke_t::finish_rd()
 {
-	leitung_t::laden_abschliessen();
+	leitung_t::finish_rd();
 	player_t::add_maintenance(get_owner(), -(sint32)welt->get_settings().cst_maintain_transformer, powerline_wt);
 
 	assert(get_net());

@@ -23,7 +23,7 @@
 #include "player/simplay.h"
 #include "simplan.h"
 #include "display/simimg.h"
-#include "vehicle/simverkehr.h"
+#include "vehicle/simroadtraffic.h"
 #include "simhalt.h"
 #include "simfab.h"
 #include "simcity.h"
@@ -1515,7 +1515,7 @@ void stadt_t::neuer_monat( bool recalc_destinations )
 		recalc_target_attractions();
 	}
 
-	if (!stadtauto_t::list_empty()  &&  s.get_verkehr_level()>0) {
+	if (!private_car_t::list_empty()  &&  s.get_verkehr_level()>0) {
 		// spawn eventual citycars
 		// the more transported, the less are spawned
 		// the larger the city, the more spawned ...
@@ -1559,8 +1559,8 @@ void stadt_t::neuer_monat( bool recalc_destinations )
 				}
 
 				grund_t* gr = welt->lookup_kartenboden(k);
-				if (gr != NULL && gr->get_weg(road_wt) && ribi_t::is_twoway(gr->get_weg_ribi_unmasked(road_wt)) && gr->find<stadtauto_t>() == NULL) {
-					stadtauto_t* vt = new stadtauto_t(gr, koord::invalid);
+				if (gr != NULL && gr->get_weg(road_wt) && ribi_t::is_twoway(gr->get_weg_ribi_unmasked(road_wt)) && gr->find<private_car_t>() == NULL) {
+					private_car_t* vt = new private_car_t(gr, koord::invalid);
 					gr->obj_add(vt);
 					welt->sync_add(vt);
 					number_of_cars--;
@@ -1687,7 +1687,7 @@ void stadt_t::step_passagiere()
 
 	// create pedestrians in the near area?
 	if (welt->get_settings().get_random_pedestrians() && wtyp == warenbauer_t::passagiere) {
-		haltestelle_t::erzeuge_fussgaenger(gb->get_pos(), num_pax);
+		haltestelle_t::generate_pedestrians(gb->get_pos(), num_pax);
 	}
 
 	// suitable start search
@@ -2754,8 +2754,8 @@ void stadt_t::erzeuge_verkehrsteilnehmer(koord pos, sint32 level, koord target)
 							continue;
 						}
 #endif
-						if (!stadtauto_t::list_empty()) {
-							stadtauto_t* vt = new stadtauto_t(gr, target);
+						if (!private_car_t::list_empty()) {
+							private_car_t* vt = new private_car_t(gr, target);
 							gr->obj_add(vt);
 							welt->sync_add(vt);
 						}

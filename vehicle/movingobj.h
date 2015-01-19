@@ -14,14 +14,14 @@
 #include "../simcolor.h"
 #include "../ifc/sync_steppable.h"
 
-#include "simvehikel.h"
+#include "simvehicle.h"
 
 
 /**
  * moving stuff like sheeps or birds
  * @author prissi
  */
-class movingobj_t : public vehikel_basis_t, public sync_steppable
+class movingobj_t : public vehicle_base_t, public sync_steppable
 {
 private:
 	/// distance to move
@@ -44,7 +44,7 @@ private:
 protected:
 	void rdwr(loadsave_t *file);
 
-	void calc_bild();
+	void calc_image();
 
 public:
 	static bool register_besch(groundobj_besch_t *besch);
@@ -74,11 +74,11 @@ public:
 	 */
 	bool check_season(const bool);
 
-	void zeige_info();
+	void show_info();
 
 	void info(cbuffer_t & buf) const;
 
-	void entferne(player_t *player);
+	void cleanup(player_t *player);
 
 	const groundobj_besch_t* get_besch() const { return movingobj_typen[movingobjtype]; }
 

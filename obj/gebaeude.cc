@@ -298,7 +298,7 @@ bool gebaeude_t::sync_step(uint32 delta_t)
 		// still under construction?
 		if(welt->get_zeit_ms() - insta_zeit > 5000) {
 			set_flag(obj_t::dirty);
-			mark_image_dirty(get_bild(), 0);
+			mark_image_dirty(get_image(), 0);
 			zeige_baugrube = false;
 			if(tile->get_phasen()<=1) {
 				welt->sync_eyecandy_remove( this );
@@ -340,7 +340,7 @@ bool gebaeude_t::sync_step(uint32 delta_t)
 }
 
 
-void gebaeude_t::calc_bild()
+void gebaeude_t::calc_image()
 {
 	grund_t *gr = welt->lookup(get_pos());
 	// need no ground?
@@ -355,7 +355,7 @@ void gebaeude_t::calc_bild()
 }
 
 
-image_id gebaeude_t::get_bild() const
+image_id gebaeude_t::get_image() const
 {
 	if(env_t::hide_buildings!=0  &&  tile->has_image()) {
 		// opaque houses
@@ -387,7 +387,7 @@ image_id gebaeude_t::get_bild() const
 }
 
 
-image_id gebaeude_t::get_outline_bild() const
+image_id gebaeude_t::get_outline_image() const
 {
 	if(env_t::hide_buildings!=0  &&  env_t::hide_with_transparency  &&  !zeige_baugrube) {
 		// opaque houses
@@ -415,7 +415,7 @@ PLAYER_COLOR_VAL gebaeude_t::get_outline_colour() const
 }
 
 
-image_id gebaeude_t::get_bild(int nr) const
+image_id gebaeude_t::get_image(int nr) const
 {
 	if(zeige_baugrube || env_t::hide_buildings) {
 		return IMG_LEER;
@@ -427,7 +427,7 @@ image_id gebaeude_t::get_bild(int nr) const
 }
 
 
-image_id gebaeude_t::get_after_bild() const
+image_id gebaeude_t::get_front_image() const
 {
 	if(zeige_baugrube) {
 		return IMG_LEER;
@@ -539,7 +539,7 @@ gebaeude_t::typ gebaeude_t::get_haustyp() const
 }
 
 
-void gebaeude_t::zeige_info()
+void gebaeude_t::show_info()
 {
 	if(get_fabrik()) {
 		ptr.fab->zeige_info();
@@ -558,7 +558,7 @@ void gebaeude_t::zeige_info()
 	if(!tile->get_besch()->ist_ohne_info()) {
 		if(!special  ||  (env_t::townhall_info  &&  old_count==win_get_open_count()) ) {
 			// open info window for the first tile of our building (not relying on presence of (0,0) tile)
-			get_first_tile()->obj_t::zeige_info();
+			get_first_tile()->obj_t::show_info();
 		}
 	}
 }
@@ -867,7 +867,7 @@ void gebaeude_t::rdwr(loadsave_t *file)
  *
  * @author Hj. Malthaner
  */
-void gebaeude_t::laden_abschliessen()
+void gebaeude_t::finish_rd()
 {
 	player_t::add_maintenance(get_owner(), tile->get_besch()->get_maintenance(welt), tile->get_besch()->get_finance_waytype());
 
@@ -892,7 +892,7 @@ void gebaeude_t::laden_abschliessen()
 }
 
 
-void gebaeude_t::entferne(player_t *player)
+void gebaeude_t::cleanup(player_t *player)
 {
 //	DBG_MESSAGE("gebaeude_t::entferne()","gb %i");
 	// remove costs
@@ -973,7 +973,7 @@ void gebaeude_t::mark_images_dirty() const
 	else {
 		img = tile->get_hintergrund(count, 0, snow) ;
 	}
-	for(  int i=0;  img!=IMG_LEER;  img=get_bild(++i)  ) {
+	for(  int i=0;  img!=IMG_LEER;  img=get_image(++i)  ) {
 		mark_image_dirty( img, -(i*get_tile_raster_width()) );
 	}
 }

@@ -56,7 +56,7 @@ waytype_t tunnel_t::get_waytype() const
 }
 
 
-void tunnel_t::calc_bild()
+void tunnel_t::calc_image()
 {
 #ifdef MULTI_THREAD
 	pthread_mutex_lock( &tunnel_calc_bild_mutex );
@@ -77,7 +77,7 @@ void tunnel_t::calc_bild()
 				if(  tunnel_l  &&  tunnel_l->get_besch() == besch  &&  gr_l->get_grund_hang() == hang  ) {
 					broad_type += 1;
 					if(  !(tunnel_l->get_broad_type() & 2)  ) {
-						tunnel_l->calc_bild();
+						tunnel_l->calc_image();
 					}
 				}
 				const grund_t *gr_r = welt->lookup(get_pos() - dir);
@@ -85,7 +85,7 @@ void tunnel_t::calc_bild()
 				if(  tunnel_r  &&  tunnel_r->get_besch() == besch  &&  gr_r->get_grund_hang() == hang  ) {
 					broad_type += 2;
 					if(  !(tunnel_r->get_broad_type() & 1)  ) {
-						tunnel_r->calc_bild();
+						tunnel_r->calc_image();
 					}
 				}
 			}
@@ -129,7 +129,7 @@ void tunnel_t::rdwr(loadsave_t *file)
 }
 
 
-void tunnel_t::laden_abschliessen()
+void tunnel_t::finish_rd()
 {
 	const grund_t *gr = welt->lookup(get_pos());
 	player_t *player=get_owner();
@@ -172,7 +172,7 @@ void tunnel_t::laden_abschliessen()
 
 
 // correct speed and maintenance
-void tunnel_t::entferne( player_t *player2 )
+void tunnel_t::cleanup( player_t *player2 )
 {
 	player_t *player = get_owner();
 	if(player) {
@@ -209,12 +209,12 @@ void tunnel_t::set_after_bild( image_id b )
 
 // returns NULL, if removal is allowed
 // players can remove public owned ways
-const char *tunnel_t::ist_entfernbar(const player_t *player)
+const char *tunnel_t::is_deletable(const player_t *player)
 {
 	if (get_player_nr()==1) {
 		return NULL;
 	}
 	else {
-		return obj_t::ist_entfernbar(player);
+		return obj_t::is_deletable(player);
 	}
 }

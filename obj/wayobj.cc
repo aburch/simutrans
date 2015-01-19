@@ -104,8 +104,8 @@ wayobj_t::~wayobj_t()
 		}
 	}
 
-	mark_image_dirty( get_after_bild(), 0 );
-	mark_image_dirty( get_bild(), 0 );
+	mark_image_dirty( get_front_image(), 0 );
+	mark_image_dirty( get_image(), 0 );
 	grund_t *gr = welt->lookup( get_pos() );
 	if( gr ) {
 		for( uint8 i = 0; i < 4; i++ ) {
@@ -115,11 +115,11 @@ wayobj_t::~wayobj_t()
 				if( gr->get_neighbour( next_gr, besch->get_wtyp(), ribi_t::nsow[i] ) ) {
 					wayobj_t *wo2 = next_gr->get_wayobj( besch->get_wtyp() );
 					if( wo2 ) {
-						wo2->mark_image_dirty( wo2->get_after_bild(), 0 );
-						wo2->mark_image_dirty( wo2->get_bild(), 0 );
+						wo2->mark_image_dirty( wo2->get_front_image(), 0 );
+						wo2->mark_image_dirty( wo2->get_image(), 0 );
 						wo2->set_dir( wo2->get_dir() & ribi_t::get_forward(ribi_t::nsow[i]) );
-						wo2->mark_image_dirty( wo2->get_after_bild(), 0 );
-						wo2->mark_image_dirty( wo2->get_bild(), 0 );
+						wo2->mark_image_dirty( wo2->get_front_image(), 0 );
+						wo2->mark_image_dirty( wo2->get_image(), 0 );
 						wo2->set_flag(obj_t::dirty);
 					}
 				}
@@ -168,7 +168,7 @@ void wayobj_t::rdwr(loadsave_t *file)
 }
 
 
-void wayobj_t::entferne(player_t *player)
+void wayobj_t::cleanup(player_t *player)
 {
 	if(besch) {
 		player_t::book_construction_costs(player, -besch->get_preis(), get_pos().get_2d(), besch->get_wtyp());
@@ -178,16 +178,16 @@ void wayobj_t::entferne(player_t *player)
 
 // returns NULL, if removal is allowed
 // players can remove public owned wayobjs
-const char *wayobj_t::ist_entfernbar(const player_t *player)
+const char *wayobj_t::is_deletable(const player_t *player)
 {
 	if(  get_player_nr()==1  ) {
 		return NULL;
 	}
-	return obj_t::ist_entfernbar(player);
+	return obj_t::is_deletable(player);
 }
 
 
-void wayobj_t::laden_abschliessen()
+void wayobj_t::finish_rd()
 {
 	// (re)set dir
 	if(dir==255) {
@@ -246,7 +246,7 @@ ribi_t::ribi wayobj_t::find_next_ribi(const grund_t *start, ribi_t::ribi const d
 }
 
 
-void wayobj_t::calc_bild()
+void wayobj_t::calc_image()
 {
 #ifdef MULTI_THREAD
 	pthread_mutex_lock( &wayobj_calc_bild_mutex );
@@ -259,7 +259,7 @@ void wayobj_t::calc_bild()
 		if(!w) {
 			dbg->error("wayobj_t::calc_bild()","without way at (%s)", get_pos().get_str() );
 			// well, we are not on a way anymore? => delete us
-			entferne(get_owner());
+			cleanup(get_owner());
 			delete this;
 			gr->set_flag(grund_t::dirty);
 #ifdef MULTI_THREAD
@@ -304,7 +304,7 @@ void wayobj_t::calc_bild()
 						if(gr->get_neighbour(to, wt, ribi_t::nsow[r])) {
 							wayobj_t* wo = to->get_wayobj( wt );
 							if(wo) {
-								wo->calc_bild();
+								wo->calc_image();
 							}
 						}
 					}
@@ -347,8 +347,8 @@ void wayobj_t::extend_wayobj_t(koord3d pos, player_t *owner, ribi_t::ribi dir, c
 			else {
 				// extend this one instead
 				existing_wayobj->set_dir(dir|existing_wayobj->get_dir());
-				existing_wayobj->mark_image_dirty( existing_wayobj->get_after_bild(), 0 );
-				existing_wayobj->mark_image_dirty( existing_wayobj->get_bild(), 0 );
+				existing_wayobj->mark_image_dirty( existing_wayobj->get_front_image(), 0 );
+				existing_wayobj->mark_image_dirty( existing_wayobj->get_image(), 0 );
 				existing_wayobj->set_flag(obj_t::dirty);
 				return;
 			}
@@ -357,9 +357,9 @@ void wayobj_t::extend_wayobj_t(koord3d pos, player_t *owner, ribi_t::ribi dir, c
 		// nothing found => make a new one
 		wayobj_t *wo = new wayobj_t(pos,owner,dir,besch);
 		gr->obj_add(wo);
-		wo->laden_abschliessen();
-		wo->calc_bild();
-		wo->mark_image_dirty( wo->get_after_bild(), 0 );
+		wo->finish_rd();
+		wo->calc_image();
+		wo->mark_image_dirty( wo->get_front_image(), 0 );
 		wo->set_flag(obj_t::dirty);
 		player_t::book_construction_costs( owner,  -besch->get_preis(), pos.get_2d(), besch->get_wtyp());
 
@@ -371,9 +371,9 @@ void wayobj_t::extend_wayobj_t(koord3d pos, player_t *owner, ribi_t::ribi dir, c
 					wayobj_t *wo2 = next_gr->get_wayobj( besch->get_wtyp() );
 					if( wo2 ) {
 						wo2->set_dir( wo2->get_dir() | ribi_t::rueckwaerts(ribi_t::nsow[i]) );
-						wo2->mark_image_dirty( wo2->get_after_bild(), 0 );
+						wo2->mark_image_dirty( wo2->get_front_image(), 0 );
 						wo->set_dir( wo->get_dir() | ribi_t::nsow[i] );
-						wo->mark_image_dirty( wo->get_after_bild(), 0 );
+						wo->mark_image_dirty( wo->get_front_image(), 0 );
 					}
 				}
 			}

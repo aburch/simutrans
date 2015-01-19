@@ -36,28 +36,28 @@ public:
 	const bruecke_besch_t *get_besch() const { return besch; }
 
 	// we will always replace first way image
-	image_id get_bild() const { return IMG_LEER; }
+	image_id get_image() const { return IMG_LEER; }
 
-	image_id get_after_bild() const;
+	image_id get_front_image() const;
 
-	void calc_bild();
+	void calc_image();
 
 	/**
 	 * Called whenever the season or snowline height changes
 	 * return false and the obj_t will be deleted
 	 */
-	bool check_season(const bool calc_only_season_change) { if(  !calc_only_season_change  ) { calc_bild(); } return true; }  // depends on snowline only
+	bool check_season(const bool calc_only_season_change) { if(  !calc_only_season_change  ) { calc_image(); } return true; }  // depends on snowline only
 
-	void laden_abschliessen();
+	void finish_rd();
 
-	void entferne(player_t *player);
+	void cleanup(player_t *player);
 
 	void rotate90();
 	/**
 	 * @return NULL wenn OK, ansonsten eine Fehlermeldung
 	 * @author Hj. Malthaner
 	 */
-	virtual const char *ist_entfernbar(const player_t *player);
+	virtual const char *is_deletable(const player_t *player);
 };
 
 #endif

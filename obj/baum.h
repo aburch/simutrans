@@ -67,15 +67,15 @@ public:
 
 	void rdwr(loadsave_t *file);
 
-	void laden_abschliessen();
+	void finish_rd();
 
-	image_id get_bild() const;
+	image_id get_image() const;
 
 	/**
 	 * hide trees eventually with transparency
 	 */
 	PLAYER_COLOR_VAL get_outline_colour() const { return outline_color; }
-	image_id get_outline_bild() const;
+	image_id get_outline_image() const;
 
 	static void recalc_outline_color() { outline_color = (env_t::hide_trees  &&  env_t::hide_with_transparency) ? (TRANSPARENT25_FLAG | OUTLINE_FLAG | COL_BLACK) : 0; }
 
@@ -83,7 +83,7 @@ public:
 	 * Calculates tree image dependent on tree age
 	 * @author Hj. Malthaner
 	 */
-	void calc_bild();
+	void calc_image();
 
 	/**
 	 * Called whenever the season or snowline height changes
@@ -101,11 +101,11 @@ public:
 	const char *get_name() const {return "Baum";}
 	typ get_typ() const { return baum; }
 
-	void zeige_info();
+	void show_info();
 
 	void info(cbuffer_t & buf) const;
 
-	void entferne(player_t *player);
+	void cleanup(player_t *player);
 
 	void * operator new(size_t s);
 	void operator delete(void *p);

@@ -27,7 +27,7 @@ class weg_t;
 class depot_t;
 class karte_ptr_t;
 class player_t;
-class vehikel_t;
+class vehicle_t;
 class vehikel_besch_t;
 class schedule_t;
 class cbuffer_t;
@@ -135,7 +135,7 @@ private:
 	*
 	* @author Hj. Malthaner
 	*/
-	array_tpl<vehikel_t*> fahr;
+	array_tpl<vehicle_t*> fahr;
 
 	/*
 	 * a list of all catg_index, which can be transported by this convoy.
@@ -642,23 +642,23 @@ public:
 	/**
 	 * @return Vehicle at position i
 	 */
-	vehikel_t* get_vehikel(uint16 i) const { return fahr[i]; }
+	vehicle_t* get_vehikel(uint16 i) const { return fahr[i]; }
 
-	vehikel_t* front() const { return fahr[0]; }
+	vehicle_t* front() const { return fahr[0]; }
 
-	vehikel_t* back() const { return fahr[anz_vehikel - 1]; }
+	vehicle_t* back() const { return fahr[anz_vehikel - 1]; }
 
 	/**
 	* Adds a vehicle at the start or end of the convoi.
 	* @author Hj. Malthaner
 	*/
-	bool add_vehikel(vehikel_t *v, bool infront = false);
+	bool add_vehikel(vehicle_t *v, bool infront = false);
 
 	/**
 	* Removes vehicles at position i
 	* @author Hj. Malthaner
 	*/
-	vehikel_t * remove_vehikel_bei(unsigned short i);
+	vehicle_t * remove_vehikel_bei(unsigned short i);
 
 	const minivec_tpl<uint8> &get_goods_catg_index() const { return goods_catg_index; }
 

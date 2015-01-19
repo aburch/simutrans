@@ -418,7 +418,7 @@ void weg_t::unlock_mutex()
 #endif
 
 
-void weg_t::calc_bild()
+void weg_t::calc_image()
 {
 #ifdef MULTI_THREAD
 	pthread_mutex_lock( &weg_calc_bild_mutex );
@@ -479,7 +479,7 @@ void weg_t::calc_bild()
 						if(  weg_t *w=to->get_weg(get_waytype())  )  {
 							// and will only change the outcome, if it has a diagonal image ...
 							if(  w->get_besch()->has_diagonal_bild()  ) {
-								w->calc_bild();
+								w->calc_image();
 							}
 						}
 					}
@@ -564,7 +564,7 @@ void weg_t::neuer_monat()
 
 
 // correct speed and maintenance
-void weg_t::laden_abschliessen()
+void weg_t::finish_rd()
 {
 	player_t *player = get_owner();
 	if(  player  &&  besch  ) {
@@ -575,10 +575,10 @@ void weg_t::laden_abschliessen()
 
 // returns NULL, if removal is allowed
 // players can remove public owned ways
-const char *weg_t::ist_entfernbar(const player_t *player)
+const char *weg_t::is_deletable(const player_t *player)
 {
 	if(  get_player_nr()==1  ) {
 		return NULL;
 	}
-	return obj_t::ist_entfernbar(player);
+	return obj_t::is_deletable(player);
 }

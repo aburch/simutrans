@@ -12,7 +12,7 @@
 #include "../dataobj/environment.h"
 #include "../dataobj/translator.h"
 #include "../player/finance.h" // MAX_PLAYER_HISTORY_YEARS
-#include "../vehicle/simvehikel.h"
+#include "../vehicle/simvehicle.h"
 #include "settings_stats.h"
 
 
@@ -128,7 +128,7 @@ void settings_general_stats_t::read(settings_t* const sets)
 	}
 
 	READ_BOOL_VALUE( sets->drive_on_left );
-	vehikel_basis_t::set_overtaking_offsets( sets->drive_on_left );
+	vehicle_base_t::set_overtaking_offsets( sets->drive_on_left );
 	READ_BOOL_VALUE( sets->signals_on_left );
 
 	READ_NUM_VALUE( env_t::autosave );

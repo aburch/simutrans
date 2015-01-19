@@ -154,7 +154,7 @@ public:
 	/**
 	 * Actual image recalculation
 	 */
-	void calc_bild();
+	void calc_image();
 
 	/**
 	 * Called whenever the season or snowline height changes
@@ -200,7 +200,7 @@ public:
 	 * @return NULL if OK, otherwise an error message
 	 * @author Hj. Malthaner
 	 */
-	virtual const char *ist_entfernbar(const player_t *player);
+	virtual const char *is_deletable(const player_t *player);
 
 	/**
 	* Wegtyp zurückliefern
@@ -321,14 +321,14 @@ public:
 	void clear_sign_flag() { flags &= ~(HAS_SIGN | HAS_SIGNAL); }
 
 	inline void set_bild( image_id b ) { bild = b; }
-	image_id get_bild() const {return bild;}
+	image_id get_image() const {return bild;}
 
 	inline void set_after_bild( image_id b ) { after_bild = b; }
-	image_id get_after_bild() const {return after_bild;}
+	image_id get_front_image() const {return after_bild;}
 
 
 	// correct maintainace
-	void laden_abschliessen();
+	void finish_rd();
 } GCC_PACKED;
 
 #endif

@@ -32,7 +32,7 @@
 #include "../utils/simstring.h"
 #include "../utils/cbuffer_t.h"
 
-#include "../vehicle/simvehikel.h"
+#include "../vehicle/simvehicle.h"
 
 #include "ai_goods.h"
 
@@ -428,7 +428,7 @@ bool ai_goods_t::create_ship_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 			// too many convois => cannot do anything about this ...
 			return i>0;
 		}
-		vehikel_t* v = vehikelbauer_t::baue( qfab->get_pos(), this, NULL, ship_vehicle);
+		vehicle_t* v = vehikelbauer_t::baue( qfab->get_pos(), this, NULL, ship_vehicle);
 		convoi_t* cnv = new convoi_t(this);
 		// V.Meyer: give the new convoi name from first vehicle
 		cnv->set_name(v->get_besch()->get_name());
@@ -491,7 +491,7 @@ void ai_goods_t::create_road_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 				// too many convois => cannot do anything about this ...
 				return;
 			}
-			vehikel_t* v = vehikelbauer_t::baue(startpos, this, NULL, road_vehicle);
+			vehicle_t* v = vehikelbauer_t::baue(startpos, this, NULL, road_vehicle);
 			convoi_t* cnv = new convoi_t(this);
 			// V.Meyer: give the new convoi name from first vehicle
 			cnv->set_name(v->get_besch()->get_name());
@@ -532,7 +532,7 @@ void ai_goods_t::create_rail_transport_vehikel(const koord platz1, const koord p
 	}
 
 	koord3d start_pos = welt->lookup_kartenboden(pos1.get_2d() + (abs(size1.x)>abs(size1.y) ? koord(size1.x,0) : koord(0,size1.y)))->get_pos();
-	vehikel_t* v = vehikelbauer_t::baue( start_pos, this, NULL, rail_engine);
+	vehicle_t* v = vehikelbauer_t::baue( start_pos, this, NULL, rail_engine);
 
 	// V.Meyer: give the new convoi name from first vehicle
 	cnv->set_name(rail_engine->get_name());
@@ -545,11 +545,11 @@ void ai_goods_t::create_rail_transport_vehikel(const koord platz1, const koord p
 	 */
 	for(int i = 0; i < anz_vehikel; i++) {
 		// use the vehicle we searched before
-		vehikel_t* v = vehikelbauer_t::baue(start_pos, this, NULL, rail_vehicle);
+		vehicle_t* v = vehikelbauer_t::baue(start_pos, this, NULL, rail_vehicle);
 		cnv->add_vehikel( v );
 	}
 
-	fpl = cnv->front()->erzeuge_neuen_fahrplan();
+	fpl = cnv->front()->generate_new_schedule();
 
 	fpl->set_aktuell( 0 );
 	fpl->append(welt->lookup(pos1), ladegrad);
@@ -1234,7 +1234,7 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 
 				// check for empty vehicles (likely stucked) that are making no plus and remove them ...
 				// take care, that the vehicle is old enough ...
-				if (!delete_this && (welt->get_current_month() - cnv->front()->get_insta_zeit()) > 6 && gewinn <= 0) {
+				if (!delete_this && (welt->get_current_month() - cnv->front()->get_purchase_time()) > 6 && gewinn <= 0) {
 					sint64 goods=0;
 					// no goods for six months?
 					for( int i=0;  i<6;  i ++) {

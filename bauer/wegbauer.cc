@@ -61,7 +61,7 @@
 #include "../obj/groundobj.h"
 #include "../obj/wayobj.h"
 
-#include "../ifc/fahrer.h"
+#include "../ifc/simtestdriver.h"
 
 #include "../tpl/stringhashtable_tpl.h"
 
@@ -2086,7 +2086,7 @@ bool wegbauer_t::baue_tunnelboden()
 				leitung_t *lt = new leitung_t(tunnel->get_pos(), player_builder);
 				lt->set_besch( wb );
 				tunnel->obj_add( lt );
-				lt->laden_abschliessen();
+				lt->finish_rd();
 				player_t::add_maintenance( player_builder, -lt->get_besch()->get_wartung(), powerline_wt);
 			}
 			tunnel->calc_bild();
@@ -2127,7 +2127,7 @@ bool wegbauer_t::baue_tunnelboden()
 					gr->obj_add( lt );
 				}
 				else {
-					lt->leitung_t::laden_abschliessen();	// only change powerline aspect
+					lt->leitung_t::finish_rd();	// only change powerline aspect
 					player_t::add_maintenance( player_builder, -lt->get_besch()->get_wartung(), powerline_wt);
 				}
 			}
@@ -2195,7 +2195,7 @@ void wegbauer_t::baue_strasse()
 			weg_t * weg = gr->get_weg(road_wt);
 
 			// keep faster ways or if it is the same way ... (@author prissi)
-			if(weg->get_besch()==besch  ||  keep_existing_ways  ||  (keep_existing_city_roads  &&  weg->hat_gehweg())  ||  (keep_existing_faster_ways  &&  weg->get_besch()->get_topspeed()>besch->get_topspeed())  ||  (player_builder!=NULL  &&  weg->ist_entfernbar(player_builder)!=NULL) || (gr->get_typ()==grund_t::monorailboden && (bautyp&elevated_flag)==0)) {
+			if(weg->get_besch()==besch  ||  keep_existing_ways  ||  (keep_existing_city_roads  &&  weg->hat_gehweg())  ||  (keep_existing_faster_ways  &&  weg->get_besch()->get_topspeed()>besch->get_topspeed())  ||  (player_builder!=NULL  &&  weg->is_deletable(player_builder)!=NULL) || (gr->get_typ()==grund_t::monorailboden && (bautyp&elevated_flag)==0)) {
 				//nothing to be done
 //DBG_MESSAGE("wegbauer_t::baue_strasse()","nothing to do at (%i,%i)",k.x,k.y);
 			}
@@ -2280,8 +2280,8 @@ void wegbauer_t::baue_schiene()
 				if(  gr->has_two_ways()  &&  besch->get_styp()==7  &&  weg->get_besch()->get_styp() != 7  ) {
 					if(  crossing_t *cr = gr->find<crossing_t>(2)  ) {
 						// change to tram track
-						cr->mark_image_dirty( cr->get_bild(), 0);
-						cr->entferne(player_builder);
+						cr->mark_image_dirty( cr->get_image(), 0);
+						cr->cleanup(player_builder);
 						delete cr;
 						change_besch = true;
 						// tell way we have no crossing any more, restore speed limit
@@ -2380,7 +2380,7 @@ void wegbauer_t::baue_leitung()
 			lt->set_besch(besch);
 			player_t::book_construction_costs(player_builder, -besch->get_preis(), gr->get_pos().get_2d(), powerline_wt);
 			// this adds maintenance
-			lt->leitung_t::laden_abschliessen();
+			lt->leitung_t::finish_rd();
 			reliefkarte_t::get_karte()->calc_map_pixel( gr->get_pos().get_2d() );
 		}
 
@@ -2393,13 +2393,13 @@ void wegbauer_t::baue_leitung()
 
 
 // this can drive any river, even a river that has max_speed=0
-class fluss_fahrer_t : public fahrer_t
+class fluss_fahrer_t : public test_driver_t
 {
-	bool ist_befahrbar(const grund_t* gr) const { return gr->get_weg_ribi_unmasked(water_wt)!=0; }
+	bool check_next_tile(const grund_t* gr) const { return gr->get_weg_ribi_unmasked(water_wt)!=0; }
 	virtual ribi_t::ribi get_ribi(const grund_t* gr) const { return gr->get_weg_ribi_unmasked(water_wt); }
 	virtual waytype_t get_waytype() const { return invalid_wt; }
-	virtual int get_kosten(const grund_t *, const sint32, koord) const { return 1; }
-	virtual bool ist_ziel(const grund_t *cur,const grund_t *) const { return cur->ist_wasser()  &&  cur->get_grund_hang()==hang_t::flach; }
+	virtual int get_cost(const grund_t *, const sint32, koord) const { return 1; }
+	virtual bool is_target(const grund_t *cur,const grund_t *) const { return cur->ist_wasser()  &&  cur->get_grund_hang()==hang_t::flach; }
 };
 
 
@@ -2497,7 +2497,7 @@ void wegbauer_t::baue_fluss()
 					if(  type>0  ) {
 						// thus we enlarge
 						w->set_besch( alle_wegtypen.get(env_t::river_type[type-1]) );
-						w->calc_bild();
+						w->calc_image();
 					}
 				}
 			}

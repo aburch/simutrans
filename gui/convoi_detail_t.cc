@@ -15,7 +15,7 @@
 
 #include "../simunits.h"
 #include "../simconvoi.h"
-#include "../vehicle/simvehikel.h"
+#include "../vehicle/simvehicle.h"
 #include "../simcolor.h"
 #include "../display/simgraph.h"
 #include "../simworld.h"
@@ -240,13 +240,13 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 
 		static cbuffer_t freight_info;
 		for(unsigned veh=0;  veh<cnv->get_vehikel_anzahl(); veh++ ) {
-			vehikel_t *v=cnv->get_vehikel(veh);
+			vehicle_t *v=cnv->get_vehikel(veh);
 			int returns = 0;
 			freight_info.clear();
 
 			// first image
 			scr_coord_val x, y, w, h;
-			const image_id bild=v->get_basis_bild();
+			const image_id bild=v->get_base_image();
 			display_get_base_image_offset(bild, &x, &y, &w, &h );
 			display_base_img(bild,11-x+pos.x+offset.x,pos.y+offset.y+total_height-y+2,cnv->get_owner()->get_player_nr(),false,true);
 			w = max(40,w+4)+11;
@@ -261,14 +261,14 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 			// age
 			buf.clear();
 			{
-				const sint32 month = v->get_insta_zeit();
+				const sint32 month = v->get_purchase_time();
 				buf.printf( "%s %s %i", translator::translate("Manufactured:"), translator::get_month_name(month%12), month/12 );
 			}
 			display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true );
 			extra_y += LINESPACE;
 
 			// value
-			money_to_string( number, v->calc_restwert() / 100.0 );
+			money_to_string( number, v->calc_sale_value() / 100.0 );
 			buf.clear();
 			buf.printf( "%s %s", translator::translate("Restwert:"), number );
 			display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, buf, ALIGN_LEFT, MONEY_PLUS, true );
@@ -288,11 +288,11 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 			display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, buf, ALIGN_LEFT, MONEY_PLUS, true );
 			extra_y += LINESPACE;
 
-			if(v->get_fracht_max() > 0) {
+			if(v->get_cargo_max() > 0) {
 
 				// bonus stuff
 				int len = 5+display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, translator::translate("Max income:"), ALIGN_LEFT, SYSCOL_TEXT, true );
-				const sint32 price = (v->get_fracht_max()* ware_t::calc_revenue(v->get_fracht_typ(), cnv->front()->get_waytype(), cnv_kmh) )/3000 - v->get_betriebskosten();
+				const sint32 price = (v->get_cargo_max()* ware_t::calc_revenue(v->get_cargo_type(), cnv->front()->get_waytype(), cnv_kmh) )/3000 - v->get_operating_cost();
 				money_to_string( number, price/100.0 );
 				display_proportional_clip( pos.x+w+offset.x+len, pos.y+offset.y+total_height+extra_y, number, ALIGN_LEFT, price>0?MONEY_PLUS:MONEY_MINUS, true );
 				extra_y += LINESPACE;
@@ -305,10 +305,10 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 					extra_y += LINESPACE;
 				}
 
-				ware_besch_t const& g    = *v->get_fracht_typ();
+				ware_besch_t const& g    = *v->get_cargo_type();
 				char const*  const  name = translator::translate(g.get_catg() == 0 ? g.get_name() : g.get_catg_name());
-				freight_info.printf("%u/%u%s %s\n", v->get_fracht_menge(), v->get_fracht_max(), translator::translate(v->get_fracht_mass()), name);
-				v->get_fracht_info(freight_info);
+				freight_info.printf("%u/%u%s %s\n", v->get_total_cargo(), v->get_cargo_max(), translator::translate(v->get_cargo_mass()), name);
+				v->get_cargo_info(freight_info);
 				// show it
 				const int px_len = display_multiline_text( pos.x+offset.x+w, pos.y+offset.y+total_height+extra_y, freight_info, SYSCOL_TEXT );
 				if(px_len+w>x_size) {
@@ -326,7 +326,7 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 			}
 			else {
 				// Non-freight (engine)
-				int cost = -v->get_betriebskosten();
+				int cost = -v->get_operating_cost();
 				int len = display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, translator::translate("Max income:"), ALIGN_LEFT, SYSCOL_TEXT, true );
 				money_to_string( number, cost/(100.0) );
 				display_proportional_clip( pos.x+w+offset.x+len, pos.y+offset.y+total_height+extra_y, number, ALIGN_LEFT, cost>=0?MONEY_PLUS:MONEY_MINUS, true );

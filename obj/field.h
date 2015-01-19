@@ -20,22 +20,22 @@ public:
 	const char* get_name() const { return "Field"; }
 	typ get_typ() const { return obj_t::field; }
 
-	image_id get_bild() const;
+	image_id get_image() const;
 
 	/**
 	 * @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
 	 * Beobachtungsfenster angezeigt wird.
 	 * @author Hj. Malthaner
 	 */
-	void zeige_info();
+	void show_info();
 
 	/**
 	 * @return NULL wenn OK, ansonsten eine Fehlermeldung
 	 * @author Hj. Malthaner
 	 */
-	const char * ist_entfernbar(const player_t *);
+	const char * is_deletable(const player_t *);
 
-	void entferne(player_t *player);
+	void cleanup(player_t *player);
 };
 
 #endif

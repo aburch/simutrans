@@ -357,7 +357,7 @@ const char *tunnelbauer_t::baue( player_t *player, koord pos, const tunnel_besch
 	// check ownership
 	if (const grund_t *gr_end = welt->lookup(end)) {
 		if (weg_t *weg_end = gr_end->get_weg(wegtyp)) {
-			if (weg_end->ist_entfernbar(player)!=NULL) {
+			if (weg_end->is_deletable(player)!=NULL) {
 				return "Das Feld gehoert\neinem anderen Spieler\n";
 			}
 		}
@@ -446,7 +446,7 @@ DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d,%d) to (%d,%d,%d) ", pos.
 			lt = new leitung_t(tunnel->get_pos(), player);
 			lt->set_besch(weg_besch);
 			tunnel->obj_add( lt );
-			lt->laden_abschliessen();
+			lt->finish_rd();
 			player_t::add_maintenance( player, -weg_besch->get_wartung(), powerline_wt );
 		}
 		tunnel->obj_add(new tunnel_t(pos, player, besch));
@@ -495,7 +495,7 @@ DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d,%d) to (%d,%d,%d) ", pos.
 			lt = new leitung_t(tunnel->get_pos(), player);
 			lt->set_besch(weg_besch);
 			tunnel->obj_add( lt );
-			lt->laden_abschliessen();
+			lt->finish_rd();
 			player_t::add_maintenance( player, -weg_besch->get_wartung(), powerline_wt );
 		}
 		tunnel->obj_add(new tunnel_t(pos, player, besch));
@@ -558,7 +558,7 @@ void tunnelbauer_t::baue_einfahrt(player_t *player, koord3d end, koord zv, const
 			// once since leitung_t::laden_abschliessen will add it again
 			player_t::add_maintenance( player, -2*lt->get_besch()->get_wartung(), powerline_wt );
 		}
-		lt->laden_abschliessen();
+		lt->finish_rd();
 	}
 
 	// remove sidewalk
@@ -696,13 +696,13 @@ const char *tunnelbauer_t::remove(player_t *player, koord3d start, waytype_t weg
 			// remove tunnel portals
 			tunnel_t *t = gr->find<tunnel_t>();
 			if(t) {
-				t->entferne(player);
+				t->cleanup(player);
 				delete t;
 			}
 			if (leitung_t *lt = gr->get_leitung()) {
 				// remove single powerlines
 				if ( (lt->get_ribi()  & ~ribi_typ(gr->get_grund_hang())) == ribi_t::keine ) {
-					lt->entferne(player);
+					lt->cleanup(player);
 					delete lt;
 				}
 			}
@@ -724,7 +724,7 @@ const char *tunnelbauer_t::remove(player_t *player, koord3d start, waytype_t weg
 			// remove tunnel portals
 			t = gr->find<tunnel_t>();
 			if(t) {
-				t->entferne(player);
+				t->cleanup(player);
 				delete t;
 			}
 
@@ -735,14 +735,14 @@ const char *tunnelbauer_t::remove(player_t *player, koord3d start, waytype_t weg
 					const grund_t *gr_l = welt->lookup(pos + dir);
 					tunnel_t* tunnel_l = gr_l ? gr_l->find<tunnel_t>() : NULL;
 					if( tunnel_l ) {
-						tunnel_l->calc_bild();
+						tunnel_l->calc_image();
 					}
 				}
 				if( broad_type & 2 ) {
 					const grund_t *gr_r = welt->lookup(pos - dir);
 					tunnel_t* tunnel_r = gr_r ? gr_r->find<tunnel_t>() : NULL;
 					if( tunnel_r ) {
-						tunnel_r->calc_bild();
+						tunnel_r->calc_image();
 					}
 				}
 			}
@@ -765,7 +765,7 @@ const char *tunnelbauer_t::remove(player_t *player, koord3d start, waytype_t weg
 		welt->access(pos.get_2d())->kartenboden_setzen(gr_new );
 
 		if(gr_new->get_leitung()) {
-			gr_new->get_leitung()->laden_abschliessen();
+			gr_new->get_leitung()->finish_rd();
 		}
 
 		// recalc image of ground

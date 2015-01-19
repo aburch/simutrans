@@ -438,8 +438,8 @@ SOURCES += utils/simstring.cc
 SOURCES += utils/simthread.cc
 SOURCES += vehicle/movingobj.cc
 SOURCES += vehicle/simpeople.cc
-SOURCES += vehicle/simvehikel.cc
-SOURCES += vehicle/simverkehr.cc
+SOURCES += vehicle/simvehicle.cc
+SOURCES += vehicle/simroadtraffic.cc
 
 
 ifeq ($(BACKEND),allegro)

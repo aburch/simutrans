@@ -8,7 +8,7 @@
 #include <stdio.h>
 
 #include "../simdebug.h"
-#include "../vehicle/simvehikel.h"
+#include "../vehicle/simvehicle.h"
 #include "../simworld.h"
 #include "../simsound.h"
 
@@ -61,7 +61,7 @@ void crossing_logic_t::recalc_state()
 			// add vehicles already there
 			if (grund_t* const gr = welt->lookup(i->get_pos())) {
 				for( uint8 i=3;  i<gr->get_top();  i++  ) {
-					if(  vehikel_basis_t const* const v = obj_cast<vehikel_basis_t>(gr->obj_bei(i))  ) {
+					if(  vehicle_base_t const* const v = obj_cast<vehicle_base_t>(gr->obj_bei(i))  ) {
 						add_to_crossing( v );
 					}
 				}
@@ -82,7 +82,7 @@ void crossing_logic_t::recalc_state()
 
 
 // request permission to pass crossing
-bool crossing_logic_t::request_crossing( const vehikel_basis_t *v )
+bool crossing_logic_t::request_crossing( const vehicle_base_t *v )
 {
 	if(v->get_waytype()==besch->get_waytype(0)) {
 		if(on_way2.empty()  &&  zustand == CROSSING_OPEN) {
@@ -114,9 +114,9 @@ bool crossing_logic_t::request_crossing( const vehikel_basis_t *v )
 
 
 // request permission to pass crossing
-void crossing_logic_t::add_to_crossing( const vehikel_basis_t *v )
+void crossing_logic_t::add_to_crossing( const vehicle_base_t *v )
 {
-	if(  v->get_typ()!=obj_t::fussgaenger  ) {
+	if(  v->get_typ()!=obj_t::pedestrian  ) {
 		if(v->get_waytype()==besch->get_waytype(0)) {
 			on_way1.append_unique(v);
 		}
@@ -134,7 +134,7 @@ void crossing_logic_t::add_to_crossing( const vehikel_basis_t *v )
 
 // called after passing of the last vehicle (in a convoi)
 // or of a city car; releases the crossing which may switch state
-void crossing_logic_t::release_crossing( const vehikel_basis_t *v )
+void crossing_logic_t::release_crossing( const vehicle_base_t *v )
 {
 	if(  v->get_waytype() == besch->get_waytype(0)  ) {
 		on_way1.remove(v);

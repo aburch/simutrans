@@ -26,18 +26,18 @@ public:
 	 */
 	waytype_t get_waytype() const;
 
-	void calc_bild();
+	void calc_image();
 
 	/**
 	 * Called whenever the season or snowline height changes
 	 * return false and the obj_t will be deleted
 	 */
-	bool check_season(const bool calc_only_season_change) { if(  !calc_only_season_change  ) { calc_bild(); } return true; };  // depends on snowline only
+	bool check_season(const bool calc_only_season_change) { if(  !calc_only_season_change  ) { calc_image(); } return true; };  // depends on snowline only
 
 	void set_bild( image_id b );
 	void set_after_bild( image_id b );
-	image_id get_bild() const {return bild;}
-	image_id get_after_bild() const { return after_bild; }
+	image_id get_image() const {return bild;}
+	image_id get_front_image() const { return after_bild; }
 
 	const tunnel_besch_t *get_besch() const { return besch; }
 
@@ -45,9 +45,9 @@ public:
 
 	void rdwr(loadsave_t *file);
 
-	void laden_abschliessen();
+	void finish_rd();
 
-	void entferne(player_t *player);
+	void cleanup(player_t *player);
 
 
 	uint8 get_broad_type() const { return broad_type; };
@@ -55,7 +55,7 @@ public:
 	 * @return NULL wenn OK, ansonsten eine Fehlermeldung
 	 * @author Hj. Malthaner
 	 */
-	virtual const char *ist_entfernbar(const player_t *player);
+	virtual const char *is_deletable(const player_t *player);
 };
 
 #endif

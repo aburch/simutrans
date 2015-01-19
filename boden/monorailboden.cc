@@ -43,7 +43,7 @@ void monorailboden_t::calc_bild_internal(const bool calc_only_snowline_change)
 			weg->set_bild(IMG_LEER);
 		}
 		else if(  !calc_only_snowline_change  ) {
-			weg->calc_bild();
+			weg->calc_image();
 		}
 		else {
 			weg->check_season(false);

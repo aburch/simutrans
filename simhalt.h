@@ -158,7 +158,7 @@ public:
 	 *
 	 * @author Hj. Malthaner
 	 */
-	static int erzeuge_fussgaenger(const koord3d pos, int anzahl);
+	static int generate_pedestrians(const koord3d pos, int anzahl);
 
 	/**
 	 * Returns an index to a halt at koord k

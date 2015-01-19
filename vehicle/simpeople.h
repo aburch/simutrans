@@ -1,7 +1,7 @@
 #ifndef simpeople_h
 #define simpeople_h
 
-#include "simverkehr.h"
+#include "simroadtraffic.h"
 
 class fussgaenger_besch_t;
 
@@ -11,7 +11,7 @@ class fussgaenger_besch_t;
  * @author Hj. Malthaner
  * @see verkehrsteilnehmer_t
  */
-class fussgaenger_t : public verkehrsteilnehmer_t
+class pedestrian_t : public road_user_t
 {
 private:
 	static stringhashtable_tpl<const fussgaenger_besch_t *> table;
@@ -22,23 +22,23 @@ private:
 protected:
 	void rdwr(loadsave_t *file);
 
-	void calc_bild();
+	void calc_image();
 
 	/**
 	 * Creates pedestrian at position given by @p gr.
 	 * Does not add pedestrian to the tile!
 	 */
-	fussgaenger_t(grund_t *gr);
+	pedestrian_t(grund_t *gr);
 
 public:
-	fussgaenger_t(loadsave_t *file);
+	pedestrian_t(loadsave_t *file);
 
-	virtual ~fussgaenger_t();
+	virtual ~pedestrian_t();
 
 	const fussgaenger_besch_t *get_besch() const { return besch; }
 
 	const char *get_name() const {return "Fussgaenger";}
-	typ get_typ() const { return fussgaenger; }
+	typ get_typ() const { return pedestrian; }
 
 	bool sync_step(uint32 delta_t);
 
@@ -51,7 +51,7 @@ public:
 	static bool register_besch(const fussgaenger_besch_t *besch);
 	static bool alles_geladen();
 
-	static void erzeuge_fussgaenger_an(koord3d k, int &anzahl);
+	static void generate_pedestrians_at(koord3d k, int &anzahl);
 };
 
 #endif

@@ -39,11 +39,11 @@ pillar_t::pillar_t(koord3d pos, player_t *player, const bruecke_besch_t *besch, 
 	set_yoff(-hoehe);
 	set_owner( player );
 	asymmetric = besch->has_pillar_asymmetric();
-	calc_bild();
+	calc_image();
 }
 
 
-void pillar_t::calc_bild()
+void pillar_t::calc_image()
 {
 	bool hide = false;
 	int height = get_yoff();
@@ -71,7 +71,7 @@ void pillar_t::calc_bild()
  * Beobachtungsfenster angezeigt wird.
  * @author Hj. Malthaner
  */
-void pillar_t::zeige_info()
+void pillar_t::show_info()
 {
 	planquadrat_t *plan=welt->access(get_pos().get_2d());
 	for(unsigned i=0;  i<plan->get_boden_count();  i++  ) {
@@ -79,7 +79,7 @@ void pillar_t::zeige_info()
 		if(bd->ist_bruecke()) {
 			bruecke_t* br = bd->find<bruecke_t>();
 			if(br  &&  br->get_besch()==besch) {
-				br->zeige_info();
+				br->show_info();
 			}
 		}
 	}

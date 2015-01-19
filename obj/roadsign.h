@@ -58,7 +58,7 @@ public:
 	*/
 	void set_dir(ribi_t::ribi dir);
 
-	void set_zustand(signalzustand z) {zustand = z; calc_bild();}
+	void set_zustand(signalzustand z) {zustand = z; calc_image();}
 	signalzustand get_zustand() { return (signalzustand)zustand; }
 
 	typ get_typ() const { return roadsign; }
@@ -84,7 +84,7 @@ public:
 	~roadsign_t();
 
 	// since traffic lights need their own window
-	void zeige_info();
+	void show_info();
 
 	/**
 	 * @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
@@ -96,7 +96,7 @@ public:
 	/**
 	 * berechnet aktuelles bild
 	 */
-	virtual void calc_bild();
+	virtual void calc_image();
 
 	// true, if a free route choose point (these are always single way the avoid recalculation of long return routes)
 	bool is_free_route(uint8 check_dir) const { return besch->is_choose_sign() &&  check_dir == dir; }
@@ -113,13 +113,13 @@ public:
 	void set_ticks_offset(uint8 offset) { ticks_offset = offset; }
 
 	inline void set_bild( image_id b ) { bild = b; }
-	image_id get_bild() const { return bild; }
+	image_id get_image() const { return bild; }
 
 	/**
 	* For the front image hiding vehicles
 	* @author prissi
 	*/
-	image_id get_after_bild() const { return after_bild; }
+	image_id get_front_image() const { return after_bild; }
 
 	/**
 	* draw the part overlapping the vehicles
@@ -138,9 +138,9 @@ public:
 	void rotate90();
 
 	// substracts cost
-	void entferne(player_t *player);
+	void cleanup(player_t *player);
 
-	void laden_abschliessen();
+	void finish_rd();
 
 	// static routines from here
 private:

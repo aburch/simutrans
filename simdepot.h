@@ -18,7 +18,7 @@
 
 
 class karte_t;
-class vehikel_t;
+class vehicle_t;
 class depot_frame_t;
 class vehikel_besch_t;
 
@@ -43,10 +43,10 @@ protected:
 	 * @author Volker Meyer
 	 * @date  30.05.2003
 	 */
-	slist_tpl<vehikel_t *> vehicles;
+	slist_tpl<vehicle_t *> vehicles;
 	slist_tpl<convoihandle_t> convois;
 
-	void rdwr_vehikel(slist_tpl<vehikel_t*> &list, loadsave_t *file);
+	void rdwr_vehikel(slist_tpl<vehicle_t*> &list, loadsave_t *file);
 
 	static slist_tpl<depot_t *> all_depots;
 
@@ -75,7 +75,7 @@ public:
 	virtual const char * get_zieher_name() { return "Lokomotive_tab"; }
 	virtual const char * get_haenger_name() { return "Waggon_tab"; }
 
-	vehikel_t* find_oldest_newest(const vehikel_besch_t* besch, bool old);
+	vehicle_t* find_oldest_newest(const vehikel_besch_t* besch, bool old);
 
 	/**
 	 * Access to convoi list.
@@ -130,7 +130,7 @@ public:
 	 * @author Volker Meyer
 	 * @date  09.06.2003
 	 */
-	void append_vehicle(convoihandle_t cnv, vehikel_t* veh, bool infront, bool local_execution);
+	void append_vehicle(convoihandle_t cnv, vehicle_t* veh, bool infront, bool local_execution);
 
 	/**
 	 * Remove the vehicle at given position from the convoi and put it in the
@@ -147,7 +147,7 @@ public:
 	 * @author Volker Meyer
 	 * @date  30.05.2003
 	 */
-	slist_tpl<vehikel_t*> const& get_vehicle_list() { return vehicles; }
+	slist_tpl<vehicle_t*> const& get_vehicle_list() { return vehicles; }
 
 	/**
 	 * A new vehicle is bought and added to the vehicle list.
@@ -155,14 +155,14 @@ public:
 	 * @author Volker Meyer
 	 * @date  09.06.2003
 	 */
-	vehikel_t* buy_vehicle(const vehikel_besch_t* info);
+	vehicle_t* buy_vehicle(const vehikel_besch_t* info);
 
 	/**
 	 * Sell a vehicle from the vehicle list.
 	 * @author Volker Meyer
 	 * @date  09.06.2003
 	 */
-	void sell_vehicle(vehikel_t* veh);
+	void sell_vehicle(vehicle_t* veh);
 
 	/**
 	 * Access to vehicle types which can be bought in the depot.
@@ -194,21 +194,21 @@ public:
 	 *
 	 * @author Hj. Malthaner
 	 */
-	void zeige_info();
+	void show_info();
 
 	/**
 	 * Can object be removed?
 	 * @return NULL wenn OK, ansonsten eine Fehlermeldung
 	 * @author Hj. Malthaner
 	 */
-	virtual const char * ist_entfernbar(const player_t *player);
+	virtual const char * is_deletable(const player_t *player);
 
 	/**
 	 * identifies the oldest vehicle of a certain type
 	 * @return NULL if no vehicle is found
 	 * @author hsiegeln (stolen from Hajo)
 	 */
-	vehikel_t* get_oldest_vehicle(const vehikel_besch_t* besch);
+	vehicle_t* get_oldest_vehicle(const vehikel_besch_t* besch);
 
 	/**
 	 * Sets/gets the line that was selected the last time in the depot dialog

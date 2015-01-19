@@ -364,7 +364,7 @@ void baum_t::rotate90()
 
 
 // actually calculates only the season
-void baum_t::calc_bild()
+void baum_t::calc_image()
 {
 	// summer autumn winter spring
 	season = welt->get_season();
@@ -380,7 +380,7 @@ void baum_t::calc_bild()
 }
 
 
-image_id baum_t::get_bild() const
+image_id baum_t::get_image() const
 {
 	if(  env_t::hide_trees  ) {
 		if(  env_t::hide_with_transparency  ) {
@@ -398,7 +398,7 @@ image_id baum_t::get_bild() const
 
 
 // image which transparent outline is used
-image_id baum_t::get_outline_bild() const
+image_id baum_t::get_outline_image() const
 {
 	const uint8 baum_alter = baum_bild_alter[min(get_age()>>6, 11u)];
 	return baumtype_to_bild[ baumtype ][ season*5 + baum_alter ];
@@ -445,7 +445,7 @@ baum_t::baum_t(koord3d pos) : obj_t(pos)
 	baumtype = (uint8)random_tree_for_climate_intern( welt->get_climate( pos.get_2d() ) );
 	season = 0;
 	calc_off( welt->lookup( get_pos())->get_grund_hang() );
-	calc_bild();
+	calc_image();
 }
 
 
@@ -455,7 +455,7 @@ baum_t::baum_t(koord3d pos, uint8 type, sint32 age, uint8 slope ) : obj_t(pos)
 	baumtype = type;
 	season = 0;
 	calc_off( slope );
-	calc_bild();
+	calc_image();
 }
 
 
@@ -465,7 +465,7 @@ baum_t::baum_t(koord3d pos, const baum_besch_t *besch) : obj_t(pos)
 	baumtype = baum_typen.index_of(besch);
 	season = 0;
 	calc_off( welt->lookup( get_pos())->get_grund_hang() );
-	calc_bild();
+	calc_image();
 }
 
 
@@ -511,11 +511,11 @@ bool baum_t::check_season(const bool)
 
 	// tree will die after 704 month (i.e. 58 years 8 month)
 	if(  age >= 704  ) {
-		mark_image_dirty( get_bild(), 0 );
+		mark_image_dirty( get_image(), 0 );
 		return false;
 	}
 
-	calc_bild();
+	calc_image();
 	return true;
 }
 
@@ -566,7 +566,7 @@ void baum_t::rdwr(loadsave_t *file)
 }
 
 
-void baum_t::laden_abschliessen()
+void baum_t::finish_rd()
 {
 	if(get_xoff()==-128) {
 		calc_off(welt->lookup( get_pos())->get_grund_hang());
@@ -578,10 +578,10 @@ void baum_t::laden_abschliessen()
  * Öffnet ein neues Beobachtungsfenster für das Objekt.
  * @author Hj. Malthaner
  */
-void baum_t::zeige_info()
+void baum_t::show_info()
 {
 	if(env_t::tree_info) {
-		obj_t::zeige_info();
+		obj_t::show_info();
 	}
 }
 
@@ -602,10 +602,10 @@ void baum_t::info(cbuffer_t & buf) const
 }
 
 
-void baum_t::entferne(player_t *player)
+void baum_t::cleanup(player_t *player)
 {
 	player_t::book_construction_costs(player, welt->get_settings().cst_remove_tree, get_pos().get_2d(), ignore_wt);
-	mark_image_dirty( get_bild(), 0 );
+	mark_image_dirty( get_image(), 0 );
 }
 
 

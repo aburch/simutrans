@@ -38,7 +38,7 @@ field_t::~field_t()
 
 
 
-const char *field_t::ist_entfernbar(const player_t *)
+const char *field_t::is_deletable(const player_t *)
 {
 	// we allow removal, if there is less than
 	return (fab->get_field_count() > fab->get_besch()->get_field_group()->get_min_fields()) ? NULL : "Not enough fields would remain.";
@@ -47,16 +47,16 @@ const char *field_t::ist_entfernbar(const player_t *)
 
 
 // remove costs
-void field_t::entferne(player_t *player)
+void field_t::cleanup(player_t *player)
 {
 	player_t::book_construction_costs(player, welt->get_settings().cst_multiply_remove_field, get_pos().get_2d(), ignore_wt);
-	mark_image_dirty( get_bild(), 0 );
+	mark_image_dirty( get_image(), 0 );
 }
 
 
 
 // return the  right month graphic for factories
-image_id field_t::get_bild() const
+image_id field_t::get_image() const
 {
 	const skin_besch_t *s=besch->get_bilder();
 	uint16 anzahl=s->get_bild_anzahl() - besch->has_snow_image();
@@ -82,7 +82,7 @@ image_id field_t::get_bild() const
  * Beobachtungsfenster angezeigt wird.
  * @author Hj. Malthaner
  */
-void field_t::zeige_info()
+void field_t::show_info()
 {
 	// show the info of the corresponding factory
 	fab->zeige_info();

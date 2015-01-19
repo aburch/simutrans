@@ -4,8 +4,8 @@
  * 15.01.00, Hj. Malthaner
  */
 
-#ifndef fahrer_h
-#define fahrer_h
+#ifndef SIMTESTDRIVER_H
+#define SIMTESTDRIVER_H
 
 
 class grund_t;
@@ -15,12 +15,12 @@ class grund_t;
  *
  * @author Hj. Malthaner, 15.01.00
  */
-class fahrer_t
+class test_driver_t
 {
 public:
-	virtual ~fahrer_t() {}
+	virtual ~test_driver_t() {}
 
-	virtual bool ist_befahrbar(const grund_t* ) const = 0;
+	virtual bool check_next_tile(const grund_t* ) const = 0;
 
 	/**
 	 * Determine the direction bits (ribi) for the applicable vehicle,
@@ -33,11 +33,11 @@ public:
 	virtual waytype_t get_waytype() const = 0;
 
 	// how expensive to go here (for way search) with the maximum convoi speed as second parameter
-	virtual int get_kosten(const grund_t *, const sint32, koord from_pos) const = 0;
+	virtual int get_cost(const grund_t *, const sint32, koord from_pos) const = 0;
 
 	// returns true for the way search to an unknown target.
 	// first is current ground, second is starting ground
-	virtual bool ist_ziel(const grund_t *,const grund_t *) const = 0;
+	virtual bool is_target(const grund_t *,const grund_t *) const = 0;
 };
 
 #endif

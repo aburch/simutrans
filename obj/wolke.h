@@ -33,7 +33,7 @@ public:
 	const char* get_name() const { return "Wolke"; }
 	typ get_typ() const { return sync_wolke; }
 
-	image_id get_bild() const;
+	image_id get_image() const;
 
 	void rdwr(loadsave_t *file);
 
@@ -49,7 +49,7 @@ class async_wolke_t : public obj_t
 public:
 	async_wolke_t(loadsave_t *file);
 	typ get_typ() const { return async_wolke; }
-	image_id get_bild() const { return IMG_LEER; }
+	image_id get_image() const { return IMG_LEER; }
 };
 
 class raucher_t : public obj_t
@@ -57,7 +57,7 @@ class raucher_t : public obj_t
 public:
 	raucher_t(loadsave_t *file);
 	typ get_typ() const { return raucher; }
-	image_id get_bild() const { return IMG_LEER; }
+	image_id get_image() const { return IMG_LEER; }
 };
 
 #endif

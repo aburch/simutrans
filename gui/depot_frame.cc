@@ -13,7 +13,7 @@
 
 #include "../simunits.h"
 #include "../simworld.h"
-#include "../vehicle/simvehikel.h"
+#include "../vehicle/simvehicle.h"
 #include "../simconvoi.h"
 #include "../simdepot.h"
 #include "simwin.h"
@@ -583,7 +583,7 @@ void depot_frame_t::activate_convoi( convoihandle_t c )
 // true if already stored here
 bool depot_frame_t::is_hit(const vehikel_besch_t *info)
 {
-	FOR(slist_tpl<vehikel_t*>, const v, depot->get_vehicle_list()) {
+	FOR(slist_tpl<vehicle_t*>, const v, depot->get_vehicle_list()) {
 		if(  v->get_besch() == info  ) {
 			return true;
 		}
@@ -680,7 +680,7 @@ void depot_frame_t::build_vehicle_lists()
 	// use this to show only sellable vehicles
 	if(!show_all  &&  veh_action==va_sell) {
 		// just list the one to sell
-		FOR(slist_tpl<vehikel_t*>, const v, depot->get_vehicle_list()) {
+		FOR(slist_tpl<vehicle_t*>, const v, depot->get_vehicle_list()) {
 			vehikel_besch_t const* const d = v->get_besch();
 			if (vehicle_map.get(d)) continue;
 			add_to_vehicle_list(d);
@@ -861,7 +861,7 @@ void depot_frame_t::update_data()
 		}
 	}
 
-	FOR(slist_tpl<vehikel_t*>, const v, depot->get_vehicle_list()) {
+	FOR(slist_tpl<vehicle_t*>, const v, depot->get_vehicle_list()) {
 		// can fail, if currently not visible
 		if (gui_image_list_t::image_data_t* const imgdat = vehicle_map.get(v->get_besch())) {
 			imgdat->count++;
@@ -952,9 +952,9 @@ void depot_frame_t::update_data()
 sint64 depot_frame_t::calc_restwert(const vehikel_besch_t *veh_type)
 {
 	sint64 wert = 0;
-	FOR(slist_tpl<vehikel_t*>, const v, depot->get_vehicle_list()) {
+	FOR(slist_tpl<vehicle_t*>, const v, depot->get_vehicle_list()) {
 		if(  v->get_besch() == veh_type  ) {
-			wert += v->calc_restwert();
+			wert += v->calc_sale_value();
 		}
 	}
 	return wert;
@@ -1223,7 +1223,7 @@ bool depot_frame_t::infowin_event(const event_t *ev)
 			scr_coord const pos = win_get_pos(this);
 			destroy_win( this );
 
-			next_dep->zeige_info();
+			next_dep->show_info();
 			win_set_pos(win_get_magic((ptrdiff_t)next_dep), pos.x, pos.y);
 			welt->get_viewport()->change_world_position(next_dep->get_pos());
 		}
@@ -1539,7 +1539,7 @@ void depot_frame_t::draw_vehicle_info_text(scr_coord pos)
 		if(  sel_index != -1  ) {
 			convoihandle_t cnv = depot->get_convoi( icnv );
 			veh_type = cnv->get_vehikel( sel_index )->get_besch();
-			resale_value = cnv->get_vehikel( sel_index )->calc_restwert();
+			resale_value = cnv->get_vehikel( sel_index )->calc_sale_value();
 			new_vehicle_length_sb_force_zero = true;
 		}
 	}

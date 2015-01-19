@@ -9,7 +9,7 @@
 
 #include "../../simconvoi.h"
 #include "../../simworld.h"
-#include "../../vehicle/simvehikel.h"
+#include "../../vehicle/simvehicle.h"
 
 #include "../../dataobj/loadsave.h"
 #include "../../dataobj/translator.h"
@@ -39,7 +39,7 @@ schiene_t::schiene_t(loadsave_t *file) : weg_t()
 }
 
 
-void schiene_t::entferne(player_t *)
+void schiene_t::cleanup(player_t *)
 {
 	// removes reservation
 	if(reserved.is_bound()) {
@@ -82,8 +82,8 @@ bool schiene_t::reserve(convoihandle_t c, ribi_t::ribi dir  )
 		 * and there are switching graphics
 		 */
 		if(  ribi_t::is_threeway(get_ribi_unmasked())  &&  ribi_t::ist_kurve(dir)  &&  get_besch()->has_switch_bild()  ) {
-			mark_image_dirty( get_bild(), 0 );
-			mark_image_dirty( get_after_bild(), 0 );
+			mark_image_dirty( get_image(), 0 );
+			mark_image_dirty( get_front_image(), 0 );
 			set_images(image_switch, get_ribi_unmasked(), is_snow(), (dir==ribi_t::nordost  ||  dir==ribi_t::suedwest) );
 			set_flag( obj_t::dirty );
 		}
@@ -122,7 +122,7 @@ bool schiene_t::unreserve(convoihandle_t c)
 * releases previous reservation
 * @author prissi
 */
-bool schiene_t::unreserve(vehikel_t *)
+bool schiene_t::unreserve(vehicle_t *)
 {
 	// is this tile empty?
 	if(!reserved.is_bound()) {

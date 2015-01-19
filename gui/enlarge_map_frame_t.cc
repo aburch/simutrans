@@ -25,7 +25,7 @@
 #include "../boden/wege/schiene.h"
 #include "../obj/baum.h"
 #include "../simcity.h"
-#include "../vehicle/simvehikel.h"
+#include "../vehicle/simvehicle.h"
 #include "../player/simplay.h"
 #include "../simconvoi.h"
 
@@ -264,7 +264,7 @@ void enlarge_map_frame_t::update_preview()
 		sizeof(karte_t) +
 		sizeof(player_t) * 8 +
 		sizeof(convoi_t) * 1000 +
-		(sizeof(schiene_t) + sizeof(vehikel_t)) * 10 * (sx + sy) +
+		(sizeof(schiene_t) + sizeof(vehicle_t)) * 10 * (sx + sy) +
 		sizeof(stadt_t) * sets->get_anzahl_staedte() +
 		(
 			sizeof(grund_t) +

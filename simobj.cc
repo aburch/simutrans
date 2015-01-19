@@ -25,7 +25,7 @@
 #include "simobj.h"
 #include "simworld.h"
 #include "obj/baum.h"
-#include "vehicle/simvehikel.h"
+#include "vehicle/simvehicle.h"
 #include "dataobj/translator.h"
 #include "dataobj/loadsave.h"
 #include "boden/grund.h"
@@ -53,7 +53,7 @@ void obj_t::init()
 
 	owner_n = PLAYER_UNOWNED;
 
-	flags = keine_flags;
+	flags = no_flags;
 	set_flag(dirty);
 }
 
@@ -162,14 +162,14 @@ void obj_t::info(cbuffer_t & buf) const
 }
 
 
-void obj_t::zeige_info()
+void obj_t::show_info()
 {
 	create_win( new obj_infowin_t(this), w_info, (ptrdiff_t)this);
 }
 
 
 // returns NULL, if removal is allowed
-const char *obj_t::ist_entfernbar(const player_t *player)
+const char *obj_t::is_deletable(const player_t *player)
 {
 	if(owner_n==PLAYER_UNOWNED  ||  welt->get_player(owner_n) == player  ||  welt->get_player(1) == player) {
 		return NULL;
@@ -209,13 +209,13 @@ void obj_t::display(int xpos, int ypos, const sint8 clip_num) const
 void obj_t::display(int xpos, int ypos) const
 #endif
 {
-	image_id bild = get_bild();
-	image_id const outline_bild = get_outline_bild();
+	image_id bild = get_image();
+	image_id const outline_bild = get_outline_image();
 	if(  bild!=IMG_LEER  ||  outline_bild!=IMG_LEER  ) {
 		const int raster_width = get_current_tile_raster_width();
 		const bool is_dirty = get_flag(obj_t::dirty);
 
-		if (vehikel_basis_t const* const v = obj_cast<vehikel_basis_t>(this)) {
+		if (vehicle_base_t const* const v = obj_cast<vehicle_base_t>(this)) {
 			// vehicles need finer steps to appear smoother
 			v->get_screen_offset( xpos, ypos, raster_width );
 		}
@@ -250,7 +250,7 @@ void obj_t::display(int xpos, int ypos) const
 			}
 			// this obj has another image on top (e.g. skyscraper)
 			ypos -= raster_width;
-			bild = get_bild(++j);
+			bild = get_image(++j);
 		}
 
 		if(  outline_bild != IMG_LEER  ) {
@@ -259,26 +259,26 @@ void obj_t::display(int xpos, int ypos) const
 			if(  TRANSPARENT_FLAGS&transparent  ) {
 				// only transparent outline
 #ifdef MULTI_THREAD
-				display_blend( get_outline_bild(), xpos, start_ypos, owner_n, transparent, 0, is_dirty, clip_num );
+				display_blend( get_outline_image(), xpos, start_ypos, owner_n, transparent, 0, is_dirty, clip_num );
 #else
-				display_blend( get_outline_bild(), xpos, start_ypos, owner_n, transparent, 0, is_dirty );
+				display_blend( get_outline_image(), xpos, start_ypos, owner_n, transparent, 0, is_dirty );
 #endif
 			}
 			else if(  obj_t::get_flag( highlight )  ) {
 				// highlight this tile
 #ifdef MULTI_THREAD
-				display_blend( get_bild(), xpos, start_ypos, owner_n, COL_RED | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty, clip_num );
+				display_blend( get_image(), xpos, start_ypos, owner_n, COL_RED | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty, clip_num );
 #else
-				display_blend( get_bild(), xpos, start_ypos, owner_n, COL_RED | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty );
+				display_blend( get_image(), xpos, start_ypos, owner_n, COL_RED | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty );
 #endif
 			}
 		}
 		else if(  obj_t::get_flag( highlight )  ) {
 			// highlight this tile
 #ifdef MULTI_THREAD
-			display_blend( get_bild(), xpos, start_ypos, owner_n, COL_RED | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty, clip_num );
+			display_blend( get_image(), xpos, start_ypos, owner_n, COL_RED | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty, clip_num );
 #else
-			display_blend( get_bild(), xpos, start_ypos, owner_n, COL_RED | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty );
+			display_blend( get_image(), xpos, start_ypos, owner_n, COL_RED | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty );
 #endif
 		}
 	}
@@ -304,7 +304,7 @@ void obj_t::display_after(int xpos, int ypos, const sint8 clip_num) const
 void obj_t::display_after(int xpos, int ypos, bool) const
 #endif
 {
-	image_id bild = get_after_bild();
+	image_id bild = get_front_image();
 	if(  bild != IMG_LEER  ) {
 		const int raster_width = get_current_tile_raster_width();
 		const bool is_dirty = get_flag( obj_t::dirty );
@@ -366,7 +366,7 @@ void obj_t::mark_image_dirty(image_id bild, sint16 yoff) const
 		const sint16 rasterweite = get_tile_raster_width();
 		int xpos=0, ypos=0;
 		if(  is_moving()  ) {
-			vehikel_basis_t const* const v = obj_cast<vehikel_basis_t>(this);
+			vehicle_base_t const* const v = obj_cast<vehicle_base_t>(this);
 			// vehicles need finer steps to appear smoother
 			v->get_screen_offset( xpos, ypos, get_tile_raster_width() );
 		}

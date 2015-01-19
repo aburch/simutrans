@@ -1,8 +1,8 @@
 #include <stdio.h>
 
 #include "../../simunits.h"
-#include "../../vehicle/simvehikel.h"
-#include "../../vehicle/simverkehr.h"
+#include "../../vehicle/simvehicle.h"
+#include "../../vehicle/simroadtraffic.h"
 #include "../stadtauto_besch.h"
 #include "../intro_dates.h"
 
@@ -17,7 +17,7 @@ void citycar_reader_t::register_obj(obj_besch_t *&data)
 {
 	stadtauto_besch_t *besch = static_cast<stadtauto_besch_t *>(data);
 
-	stadtauto_t::register_besch(besch);
+	private_car_t::register_besch(besch);
 
 	checksum_t *chk = new checksum_t();
 	besch->calc_checksum(chk);
@@ -27,7 +27,7 @@ void citycar_reader_t::register_obj(obj_besch_t *&data)
 
 bool citycar_reader_t::successfully_loaded() const
 {
-	return stadtauto_t::alles_geladen();
+	return private_car_t::alles_geladen();
 }
 
 

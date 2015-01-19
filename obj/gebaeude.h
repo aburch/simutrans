@@ -125,22 +125,22 @@ public:
 	 */
 	waytype_t get_waytype() const;
 
-	image_id get_bild() const;
-	image_id get_bild(int nr) const;
-	image_id get_after_bild() const;
+	image_id get_image() const;
+	image_id get_image(int nr) const;
+	image_id get_front_image() const;
 	void mark_images_dirty() const;
 
-	image_id get_outline_bild() const;
+	image_id get_outline_image() const;
 	PLAYER_COLOR_VAL get_outline_colour() const;
 
 	// caches image at height 0
-	void calc_bild();
+	void calc_image();
 
 	/**
 	 * Called whenever the season or snowline height changes
 	 * return false and the obj_t will be deleted
 	 */
-	bool check_season(const bool calc_only_season_change) { if(  !calc_only_season_change  ) { calc_bild(); } return true; }  // depends on snowline only
+	bool check_season(const bool calc_only_season_change) { if(  !calc_only_season_change  ) { calc_image(); } return true; }  // depends on snowline only
 
 	/**
 	 * @return eigener Name oder Name der Fabrik falls Teil einer Fabrik
@@ -182,11 +182,11 @@ public:
 
 	const haus_tile_besch_t *get_tile() const { return tile; }
 
-	virtual void zeige_info();
+	virtual void show_info();
 
-	void entferne(player_t *player);
+	void cleanup(player_t *player);
 
-	void laden_abschliessen();
+	void finish_rd();
 
 	/**
 	 * @returns pointer to first tile of a multi-tile building.

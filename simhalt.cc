@@ -2114,7 +2114,7 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 					if (menge <= 0) {
 						break;
 					}
-					menge = erzeuge_fussgaenger(i.grund->get_pos(), menge);
+					menge = generate_pedestrians(i.grund->get_pos(), menge);
 				}
 				INT_CHECK("simhalt 938");
 			}
@@ -2515,11 +2515,11 @@ void haltestelle_t::recalc_station_type()
 
 
 
-int haltestelle_t::erzeuge_fussgaenger(koord3d pos, int anzahl)
+int haltestelle_t::generate_pedestrians(koord3d pos, int anzahl)
 {
-	fussgaenger_t::erzeuge_fussgaenger_an(pos, anzahl);
+	pedestrian_t::generate_pedestrians_at(pos, anzahl);
 	for(int i=0; i<4 && anzahl>0; i++) {
-		fussgaenger_t::erzeuge_fussgaenger_an(pos+koord::nsow[i], anzahl);
+		pedestrian_t::generate_pedestrians_at(pos+koord::nsow[i], anzahl);
 	}
 	return anzahl;
 }
@@ -3271,7 +3271,7 @@ bool haltestelle_t::reserve_position(grund_t *gr,convoihandle_t cnv)
 			grund_t* gr = i->grund;
 			if(gr) {
 				// found a stop for this waytype but without object d ...
-				vehikel_t const& v = *cnv->front();
+				vehicle_t const& v = *cnv->front();
 				if (gr->hat_weg(v.get_waytype()) && !gr->suche_obj(v.get_typ())) {
 					// not occupied
 //DBG_MESSAGE("haltestelle_t::reserve_position()","success for gr=%i,%i cnv=%d",gr->get_pos().x,gr->get_pos().y,cnv.get_id());
@@ -3317,7 +3317,7 @@ DBG_MESSAGE("haltestelle_t::is_reservable()","gr=%d,%d already reserved by cnv=%
 			// not reserved
 			if (!i.reservation.is_bound()) {
 				// found a stop for this waytype but without object d ...
-				vehikel_t const& v = *cnv->front();
+				vehicle_t const& v = *cnv->front();
 				if (gr->hat_weg(v.get_waytype()) && !gr->suche_obj(v.get_typ())) {
 					// not occupied
 					return true;

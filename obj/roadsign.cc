@@ -148,7 +148,7 @@ DBG_MESSAGE("roadsign_t::set_dir()","ribi %i",dir);
 	}
 
 	// force redraw
-	mark_image_dirty(get_bild(),0);
+	mark_image_dirty(get_image(),0);
 	// some more magic to get left side images right ...
 	sint8 old_x = get_xoff();
 	set_xoff( after_xoffset );
@@ -157,13 +157,13 @@ DBG_MESSAGE("roadsign_t::set_dir()","ribi %i",dir);
 
 	bild = IMG_LEER;
 	after_bild = IMG_LEER;
-	calc_bild();
+	calc_image();
 
 	if (preview)
 		this->dir = olddir;
 }
 
-void roadsign_t::zeige_info()
+void roadsign_t::show_info()
 {
 	if(  besch->is_private_way()  ) {
 		create_win(new privatesign_info_t(this), w_info, (ptrdiff_t)this );
@@ -172,7 +172,7 @@ void roadsign_t::zeige_info()
 		create_win(new trafficlight_info_t(this), w_info, (ptrdiff_t)this );
 	}
 	else {
-		obj_t::zeige_info();
+		obj_t::show_info();
 	}
 }
 
@@ -209,7 +209,7 @@ void roadsign_t::info(cbuffer_t & buf) const
 
 
 // could be still better aligned for drive_left settings ...
-void roadsign_t::calc_bild()
+void roadsign_t::calc_image()
 {
 	set_flag(obj_t::dirty);
 
@@ -458,7 +458,7 @@ bool roadsign_t::sync_step(uint32 /*delta_t*/)
 			// gate open
 			image += 2;
 			// force redraw
-			mark_image_dirty(get_bild(),0);
+			mark_image_dirty(get_image(),0);
 		}
 		set_bild( besch->get_bild_nr(image) );
 	}
@@ -470,7 +470,7 @@ bool roadsign_t::sync_step(uint32 /*delta_t*/)
 		if(zustand!=new_zustand) {
 			zustand = new_zustand;
 			dir = (new_zustand==0) ? ribi_t::nordsued : ribi_t::ostwest;
-			calc_bild();
+			calc_image();
 		}
 	}
 	return true;
@@ -594,7 +594,7 @@ void roadsign_t::rdwr(loadsave_t *file)
 }
 
 
-void roadsign_t::entferne(player_t *player)
+void roadsign_t::cleanup(player_t *player)
 {
 	player_t::book_construction_costs(player, -besch->get_preis(), get_pos().get_2d(), get_waytype());
 }
@@ -606,7 +606,7 @@ void roadsign_t::entferne(player_t *player)
  *
  * @author Hj. Malthaner
  */
-void roadsign_t::laden_abschliessen()
+void roadsign_t::finish_rd()
 {
 	grund_t *gr=welt->lookup(get_pos());
 	if(  gr==NULL  ||  !gr->hat_weg(besch->get_wtyp()!=tram_wt ? besch->get_wtyp() : track_wt)  ) {

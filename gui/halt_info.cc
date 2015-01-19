@@ -30,7 +30,7 @@
 #include "../dataobj/translator.h"
 #include "../dataobj/loadsave.h"
 
-#include "../vehicle/simvehikel.h"
+#include "../vehicle/simvehicle.h"
 
 #include "../utils/simstring.h"
 

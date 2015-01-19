@@ -358,18 +358,18 @@ void hausbauer_t::remove( player_t *player, gebaeude_t *gb )
 				if (gr) {
 					senke_t *sk = gr->find<senke_t>();
 					if (  sk  &&  sk->get_factory()==fab  ) {
-						sk->mark_image_dirty(sk->get_bild(), 0);
+						sk->mark_image_dirty(sk->get_image(), 0);
 						delete sk;
 					}
 					pumpe_t* pp = gr->find<pumpe_t>();
 					if (  pp  &&  pp->get_factory()==fab  ) {
-						pp->mark_image_dirty(pp->get_bild(), 0);
+						pp->mark_image_dirty(pp->get_image(), 0);
 						delete pp;
 					}
 					// remove tunnel
 					if(  (sk!=NULL ||  pp!=NULL)  &&  gr->ist_im_tunnel()  &&  gr->get_top()<=1  ) {
 						if (tunnel_t *t = gr->find<tunnel_t>()) {
-							t->entferne( t->get_owner() );
+							t->cleanup( t->get_owner() );
 							delete t;
 						}
 						const koord p = gr->get_pos().get_2d();
@@ -394,7 +394,7 @@ void hausbauer_t::remove( player_t *player, gebaeude_t *gb )
 				// there may be buildings with holes, so we only remove our building!
 				if(  gb_part  &&  gb_part->get_tile()==hb->get_tile(layout, k.x, k.y)  ) {
 					// ok, now we can go on with deletion
-					gb_part->entferne( player );
+					gb_part->cleanup( player );
 					delete gb_part;
 					// if this was a station building: delete ground
 					if(gr->get_halt().is_bound()) {
@@ -693,7 +693,7 @@ gebaeude_t *hausbauer_t::neues_gebaeude(player_t *player, koord3d pos, int built
 		gr->calc_bild();
 	}
 	else {
-		gb->calc_bild();
+		gb->calc_image();
 	}
 
 	if(besch->ist_ausflugsziel()) {

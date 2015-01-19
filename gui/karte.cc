@@ -1,7 +1,7 @@
 #include "../simevent.h"
 #include "../simcolor.h"
 #include "../simconvoi.h"
-#include "../vehicle/simvehikel.h"
+#include "../vehicle/simvehicle.h"
 #include "../simworld.h"
 #include "../simdepot.h"
 #include "../simhalt.h"
@@ -131,8 +131,8 @@ void reliefkarte_t::add_to_schedule_cache( convoihandle_t cnv, bool with_waypoin
 				// we do not want to count the capacity of depot convois
 				if(  !cnv_in_line->in_depot()  ) {
 					for(  unsigned j = 0;  j < cnv_in_line->get_vehikel_anzahl();  j++  ) {
-						capacity += cnv_in_line->get_vehikel(j)->get_fracht_max();
-						load += cnv_in_line->get_vehikel(j)->get_fracht_menge();
+						capacity += cnv_in_line->get_vehikel(j)->get_cargo_max();
+						load += cnv_in_line->get_vehikel(j)->get_total_cargo();
 					}
 				}
 			}
@@ -141,8 +141,8 @@ void reliefkarte_t::add_to_schedule_cache( convoihandle_t cnv, bool with_waypoin
 			// we do not want to count the capacity of depot convois
 			if(!cnv->in_depot()) {
 				for(unsigned j = 0; j < cnv->get_vehikel_anzahl(); j++) {
-					capacity += cnv->get_vehikel(j)->get_fracht_max();
-					load += cnv->get_vehikel(j)->get_fracht_menge();
+					capacity += cnv->get_vehikel(j)->get_cargo_max();
+					load += cnv->get_vehikel(j)->get_total_cargo();
 				}
 			}
 		}

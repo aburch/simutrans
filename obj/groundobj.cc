@@ -111,7 +111,7 @@ const groundobj_besch_t *groundobj_t::random_groundobj_for_climate(climate cl, h
 
 
 // recalculates only the seasonal image
-void groundobj_t::calc_bild()
+void groundobj_t::calc_image()
 {
 	const groundobj_besch_t *besch=get_besch();
 	const sint16 seasons = besch->get_seasons()-1;
@@ -157,17 +157,17 @@ groundobj_t::groundobj_t(loadsave_t *file) : obj_t()
 groundobj_t::groundobj_t(koord3d pos, const groundobj_besch_t *b ) : obj_t(pos)
 {
 	groundobjtype = groundobj_typen.index_of(b);
-	calc_bild();
+	calc_image();
 }
 
 
 bool groundobj_t::check_season(const bool)
 {
-	const image_id old_image = get_bild();
-	calc_bild();
+	const image_id old_image = get_image();
+	calc_image();
 
-	if(  get_bild() != old_image  ) {
-		mark_image_dirty( get_bild(), 0 );
+	if(  get_image() != old_image  ) {
+		mark_image_dirty( get_image(), 0 );
 	}
 	return true;
 }
@@ -202,10 +202,10 @@ void groundobj_t::rdwr(loadsave_t *file)
  * Öffnet ein neues Beobachtungsfenster für das Objekt.
  * @author Hj. Malthaner
  */
-void groundobj_t::zeige_info()
+void groundobj_t::show_info()
 {
 	if(env_t::tree_info) {
-		obj_t::zeige_info();
+		obj_t::show_info();
 	}
 }
 
@@ -232,10 +232,10 @@ void groundobj_t::info(cbuffer_t & buf) const
 }
 
 
-void groundobj_t::entferne(player_t *player)
+void groundobj_t::cleanup(player_t *player)
 {
 	player_t::book_construction_costs(player, -get_besch()->get_preis(), get_pos().get_2d(), ignore_wt);
-	mark_image_dirty( get_bild(), 0 );
+	mark_image_dirty( get_image(), 0 );
 }
 
 

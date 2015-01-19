@@ -115,7 +115,7 @@ const groundobj_besch_t *movingobj_t::random_movingobj_for_climate(climate cl)
 
 
 // recalculates only the seasonal image
-void movingobj_t::calc_bild()
+void movingobj_t::calc_image()
 {
 	const groundobj_besch_t *besch=get_besch();
 	const uint8 seasons = besch->get_seasons()-1;
@@ -146,11 +146,11 @@ void movingobj_t::calc_bild()
 			break;
 		}
 	}
-	set_bild( get_besch()->get_bild( season, ribi_t::get_dir(get_fahrtrichtung()) )->get_nummer() );
+	set_bild( get_besch()->get_bild( season, ribi_t::get_dir(get_direction()) )->get_nummer() );
 }
 
 
-movingobj_t::movingobj_t(loadsave_t *file) : vehikel_basis_t()
+movingobj_t::movingobj_t(loadsave_t *file) : vehicle_base_t()
 {
 	rdwr(file);
 	if(get_besch()) {
@@ -159,13 +159,13 @@ movingobj_t::movingobj_t(loadsave_t *file) : vehikel_basis_t()
 }
 
 
-movingobj_t::movingobj_t(koord3d pos, const groundobj_besch_t *b ) : vehikel_basis_t(pos)
+movingobj_t::movingobj_t(koord3d pos, const groundobj_besch_t *b ) : vehicle_base_t(pos)
 {
 	movingobjtype = movingobj_typen.index_of(b);
 	weg_next = 0;
 	timetochange = 0;	// will do random direct change anyway during next step
-	fahrtrichtung = calc_set_richtung( koord3d(0,0,0), koord3d(koord::west,0) );
-	calc_bild();
+	direction = calc_set_direction( koord3d(0,0,0), koord3d(koord::west,0) );
+	calc_image();
 	welt->sync_add( this );
 }
 
@@ -178,11 +178,11 @@ movingobj_t::~movingobj_t()
 
 bool movingobj_t::check_season(const bool)
 {
-	const image_id old_image = get_bild();
-	calc_bild();
+	const image_id old_image = get_image();
+	calc_image();
 
-	if(  get_bild() != old_image  ) {
-		mark_image_dirty( get_bild(), 0 );
+	if(  get_image() != old_image  ) {
+		mark_image_dirty( get_image(), 0 );
 	}
 	return true;
 }
@@ -192,13 +192,13 @@ void movingobj_t::rdwr(loadsave_t *file)
 {
 	xml_tag_t d( file, "movingobj_t" );
 
-	vehikel_basis_t::rdwr(file);
+	vehicle_base_t::rdwr(file);
 
-	file->rdwr_enum(fahrtrichtung);
+	file->rdwr_enum(direction);
 	if (file->is_loading()) {
 		// restore dxdy information
-		dx = dxdy[ ribi_t::get_dir(fahrtrichtung)*2];
-		dy = dxdy[ ribi_t::get_dir(fahrtrichtung)*2+1];
+		dx = dxdy[ ribi_t::get_dir(direction)*2];
+		dy = dxdy[ ribi_t::get_dir(direction)*2+1];
 	}
 
 	file->rdwr_byte(steps);
@@ -242,10 +242,10 @@ void movingobj_t::rdwr(loadsave_t *file)
  * Open a new observation window for the object.
  * @author Hj. Malthaner
  */
-void movingobj_t::zeige_info()
+void movingobj_t::show_info()
 {
 	if(env_t::tree_info) {
-		obj_t::zeige_info();
+		obj_t::show_info();
 	}
 }
 
@@ -274,10 +274,10 @@ void movingobj_t::info(cbuffer_t & buf) const
 
 
 
-void movingobj_t::entferne(player_t *player)
+void movingobj_t::cleanup(player_t *player)
 {
 	player_t::book_construction_costs(player, -get_besch()->get_preis(), get_pos().get_2d(), ignore_wt);
-	mark_image_dirty( get_bild(), 0 );
+	mark_image_dirty( get_image(), 0 );
 	welt->sync_remove( this );
 }
 
@@ -287,7 +287,7 @@ void movingobj_t::entferne(player_t *player)
 bool movingobj_t::sync_step(uint32 delta_t)
 {
 	weg_next += get_besch()->get_speed() * delta_t;
-	weg_next -= fahre_basis( weg_next );
+	weg_next -= do_drive( weg_next );
 	return true;
 }
 
@@ -354,7 +354,7 @@ grund_t* movingobj_t::hop_check()
 	 * otherwise objects would jump left/right on some diagonals
 	 */
 	if (timetochange != 0) {
-		koord k(fahrtrichtung);
+		koord k(direction);
 		if(k.x&k.y) {
 			pos_next_next = get_pos() + k;
 		}
@@ -406,24 +406,24 @@ grund_t* movingobj_t::hop_check()
 
 void movingobj_t::hop(grund_t* gr)
 {
-	verlasse_feld();
+	leave_tile();
 
 	if(pos_next.get_2d()==get_pos().get_2d()) {
-		fahrtrichtung = ribi_t::rueckwaerts(fahrtrichtung);
+		direction = ribi_t::rueckwaerts(direction);
 		dx = -dx;
 		dy = -dy;
-		calc_bild();
+		calc_image();
 	}
 	else {
-		ribi_t::ribi old_dir = fahrtrichtung;
-		fahrtrichtung = calc_set_richtung( get_pos(), pos_next_next );
-		if(old_dir!=fahrtrichtung) {
-			calc_bild();
+		ribi_t::ribi old_dir = direction;
+		direction = calc_set_direction( get_pos(), pos_next_next );
+		if(old_dir!=direction) {
+			calc_image();
 		}
 	}
 
 	set_pos(pos_next);
-	betrete_feld(gr);
+	enter_tile(gr);
 
 	// next position
 	pos_next = pos_next_next;

@@ -39,7 +39,7 @@ public:
 	/**
 	* berechnet aktuelles bild
 	*/
-	void calc_bild();
+	void calc_image();
 };
 
 #endif

@@ -16,7 +16,7 @@ class cbuffer_t;
 class crossing_t;
 class karte_ptr_t;
 class kreuzung_besch_t;
-class vehikel_basis_t;
+class vehicle_base_t;
 
 /**
  * road sign for traffic (one way minimum speed, traffic lights)
@@ -30,7 +30,7 @@ protected:
 	static karte_ptr_t welt;
 
 	// the last vehikel, that request a closing
-	const vehikel_basis_t *request_close;
+	const vehicle_base_t *request_close;
 
 	crossing_state_t zustand;
 	const kreuzung_besch_t *besch;
@@ -39,8 +39,8 @@ protected:
 	void set_state( crossing_state_t new_state );
 
 public:
-	minivec_tpl<const vehikel_basis_t *>on_way1;
-	minivec_tpl<const vehikel_basis_t *>on_way2;
+	minivec_tpl<const vehicle_base_t *>on_way1;
+	minivec_tpl<const vehicle_base_t *>on_way2;
 
 public:
 	// do not call th
@@ -56,13 +56,13 @@ public:
 	void recalc_state();
 
 	// returns true, if the crossing can be passed by this vehicle
-	bool request_crossing( const vehikel_basis_t * );
+	bool request_crossing( const vehicle_base_t * );
 
 	// adds to crossing
-	void add_to_crossing( const vehikel_basis_t *v );
+	void add_to_crossing( const vehicle_base_t *v );
 
 	// removes the vehicle from the crossing
-	void release_crossing( const vehikel_basis_t * );
+	void release_crossing( const vehicle_base_t * );
 
 	/* states of the crossing;
 	 * since way2 has priority over way1 there is a third state, during a closing request

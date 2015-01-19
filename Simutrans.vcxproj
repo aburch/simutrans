@@ -357,8 +357,8 @@
     <ClCompile Include="simsys_w32_png.cc" />
     <ClCompile Include="simticker.cc" />
     <ClCompile Include="simtool.cc" />
-    <ClCompile Include="vehicle\simvehikel.cc" />
-    <ClCompile Include="vehicle\simverkehr.cc" />
+    <ClCompile Include="vehicle\simvehicle.cc" />
+    <ClCompile Include="vehicle\simroadtraffic.cc" />
     <ClCompile Include="simware.cc" />
     <ClCompile Include="simworld.cc" />
     <ClCompile Include="besch\reader\skin_reader.cc" />
@@ -501,7 +501,7 @@
     <ClInclude Include="besch\reader\factory_reader.h" />
     <ClInclude Include="gui\factorylist_frame_t.h" />
     <ClInclude Include="gui\factorylist_stats_t.h" />
-    <ClInclude Include="ifc\fahrer.h" />
+    <ClInclude Include="ifc\simtestdriver.h" />
     <ClInclude Include="dataobj\fahrplan.h" />
     <ClInclude Include="gui\fahrplan_gui.h" />
     <ClInclude Include="obj\field.h" />
@@ -681,8 +681,8 @@
     <ClInclude Include="simtool-dialogs.h" />
     <ClInclude Include="simtool.h" />
     <ClInclude Include="simtypes.h" />
-    <ClInclude Include="vehicle\simvehikel.h" />
-    <ClInclude Include="vehicle\simverkehr.h" />
+    <ClInclude Include="vehicle\simvehicle.h" />
+    <ClInclude Include="vehicle\simroadtraffic.h" />
     <ClInclude Include="simversion.h" />
     <ClInclude Include="simware.h" />
     <ClInclude Include="simworld.h" />

@@ -48,7 +48,7 @@ static bruecke_besch_t::img_t single_img[24]= {
 	bruecke_besch_t::NS_Pillar, bruecke_besch_t::OW_Pillar
 };
 
-void bruecke_t::calc_bild()
+void bruecke_t::calc_image()
 {
 	grund_t *gr=welt->lookup(get_pos());
 	if(gr) {
@@ -91,7 +91,7 @@ void bruecke_t::calc_bild()
 }
 
 
-image_id bruecke_t::get_after_bild() const
+image_id bruecke_t::get_front_image() const
 {
 	grund_t *gr=welt->lookup(get_pos());
 	// if on a slope then start of bridge - take the upper value
@@ -153,7 +153,7 @@ void bruecke_t::rdwr(loadsave_t *file)
 
 
 // correct speed and maintenance
-void bruecke_t::laden_abschliessen()
+void bruecke_t::finish_rd()
 {
 	grund_t *gr = welt->lookup(get_pos());
 	if(besch==NULL) {
@@ -213,7 +213,7 @@ void bruecke_t::laden_abschliessen()
 
 
 // correct speed and maintenance
-void bruecke_t::entferne( player_t *player2 )
+void bruecke_t::cleanup( player_t *player2 )
 {
 	player_t *player = get_owner();
 	// change maintenance, reset max-speed and y-offset
@@ -259,12 +259,12 @@ void bruecke_t::rotate90()
 
 // returns NULL, if removal is allowed
 // players can remove public owned ways
-const char *bruecke_t::ist_entfernbar(const player_t *player)
+const char *bruecke_t::is_deletable(const player_t *player)
 {
 	if (get_player_nr()==1) {
 		return NULL;
 	}
 	else {
-		return obj_t::ist_entfernbar(player);
+		return obj_t::is_deletable(player);
 	}
 }

@@ -255,7 +255,7 @@ void export_map_objects(HSQUIRRELVM vm)
 	 * Checks whether player can remove this object.
 	 * @returns error message or null if object can be removed.
 	 */
-	register_method(vm, &obj_t::ist_entfernbar, "is_removable");
+	register_method(vm, &obj_t::is_deletable, "is_removable");
 	/**
 	 * @returns type of object.
 	 */

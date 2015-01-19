@@ -24,7 +24,7 @@
 #include "../display/simgraph.h"
 #include "../simskin.h"
 #include "../simconvoi.h"
-#include "../vehicle/simvehikel.h"
+#include "../vehicle/simvehicle.h"
 #include "../simlinemgmt.h"
 #include "../simmenu.h"
 #include "../utils/simstring.h"
@@ -477,8 +477,8 @@ void schedule_list_gui_t::display(scr_coord pos)
 		// we do not want to count the capacity of depot convois
 		if (!cnv->in_depot()) {
 			for (unsigned j = 0; j<cnv->get_vehikel_anzahl(); j++) {
-				capacity += cnv->get_vehikel(j)->get_fracht_max();
-				load += cnv->get_vehikel(j)->get_fracht_menge();
+				capacity += cnv->get_vehikel(j)->get_cargo_max();
+				load += cnv->get_vehikel(j)->get_total_cargo();
 			}
 		}
 	}

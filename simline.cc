@@ -11,7 +11,7 @@
 #include "gui/gui_theme.h"
 #include "player/simplay.h"
 #include "player/finance.h" // convert_money
-#include "vehicle/simvehikel.h"
+#include "vehicle/simvehicle.h"
 #include "simconvoi.h"
 #include "convoihandle_t.h"
 #include "simlinemgmt.h"
@@ -133,7 +133,7 @@ void simline_t::add_convoy(convoihandle_t cnv)
 	// first convoi may change line type
 	if (type == trainline  &&  line_managed_convoys.empty() &&  cnv.is_bound()) {
 		// check, if needed to convert to tram/monorail line
-		if (vehikel_t const* const v = cnv->front()) {
+		if (vehicle_t const* const v = cnv->front()) {
 			switch (v->get_besch()->get_waytype()) {
 				case tram_wt:     type = simline_t::tramline;     break;
 				// elevated monorail were saved with wrong coordinates for some versions.

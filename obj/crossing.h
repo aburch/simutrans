@@ -13,7 +13,7 @@
 #include "../besch/kreuzung_besch.h"
 #include "../dataobj/crossing_logic.h"
 
-class vehikel_basis_t;
+class vehicle_base_t;
 
 /**
  * road sign for traffic (one way minimum speed, traffic lights)
@@ -58,22 +58,22 @@ public:
 	 * @return NULL wenn OK, ansonsten eine Fehlermeldung
 	 * @author Hj. Malthaner
 	 */
-	virtual const char *ist_entfernbar(const player_t *player);
+	virtual const char *is_deletable(const player_t *player);
 
 	/**
 	 * crossing logic is removed here
 	 * @author prissi
 	 */
-	virtual void entferne(player_t *);
+	virtual void cleanup(player_t *);
 
 	// returns true, if the crossing can be passed by this vehicle
-	bool request_crossing( const vehikel_basis_t *v ) { return logic->request_crossing( v ); }
+	bool request_crossing( const vehicle_base_t *v ) { return logic->request_crossing( v ); }
 
 	// adds to crossing
-	void add_to_crossing( const vehikel_basis_t *v ) { return logic->add_to_crossing( v ); }
+	void add_to_crossing( const vehicle_base_t *v ) { return logic->add_to_crossing( v ); }
 
 	// removes the vehicle from the crossing
-	void release_crossing( const vehikel_basis_t *v ) { return logic->release_crossing( v ); }
+	void release_crossing( const vehicle_base_t *v ) { return logic->release_crossing( v ); }
 
 	crossing_logic_t::crossing_state_t get_state() { return logic->get_state(); }
 
@@ -89,26 +89,26 @@ public:
 	 * Dient zur Neuberechnung des Bildes
 	 * @author Hj. Malthaner
 	 */
-	void calc_bild();
+	void calc_image();
 
 	/**
 	* Called whenever the season or snowline height changes
 	* return false and the obj_t will be deleted
 	*/
-	bool check_season(const bool calc_only_season_change) { if(  !calc_only_season_change  ) { calc_bild(); } return true; }  // depends on snowline only
+	bool check_season(const bool calc_only_season_change) { if(  !calc_only_season_change  ) { calc_image(); } return true; }  // depends on snowline only
 
 	// changes the state of a traffic light
-	image_id get_bild() const { return bild; }
+	image_id get_image() const { return bild; }
 
 	/**
 	* For the front image hiding vehicles
 	* @author prissi
 	*/
-	image_id get_after_bild() const { return after_bild; }
+	image_id get_front_image() const { return after_bild; }
 
 	void rdwr(loadsave_t *file);
 
-	void laden_abschliessen();
+	void finish_rd();
 };
 
 #endif

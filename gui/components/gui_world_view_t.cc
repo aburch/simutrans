@@ -14,7 +14,7 @@
 #include "../../simobj.h"
 #include "../../display/simgraph.h"
 #include "../../simcolor.h"
-#include "../../vehicle/simvehikel.h"
+#include "../../vehicle/simvehicle.h"
 #include "../../boden/grund.h"
 
 #include "../../dataobj/environment.h"
@@ -63,7 +63,7 @@ void world_view_t::internal_draw(const scr_coord offset, obj_t const* const obj)
 	if(obj) { // offsets?
 		fine_here = scr_coord(tile_raster_scale_x(-obj->get_xoff(), raster), tile_raster_scale_y(-obj->get_yoff() % (OBJECT_OFFSET_STEPS * 2), raster));
 		y_offset  = obj->get_yoff() / (OBJECT_OFFSET_STEPS * 2);
-		if(vehikel_basis_t const* const v = obj_cast<vehikel_basis_t>(obj)) {
+		if(vehicle_base_t const* const v = obj_cast<vehicle_base_t>(obj)) {
 			int x = 0;
 			int y = 0;
 			v->get_screen_offset(x, y, raster);
@@ -78,7 +78,7 @@ void world_view_t::internal_draw(const scr_coord offset, obj_t const* const obj)
 
 	int hgt = tile_raster_scale_y(here3d.z * TILE_HEIGHT_STEP, raster);
 	if(obj) {
-		aircraft_t const* const plane = obj_cast<aircraft_t>(obj);
+		air_vehicle_t const* const plane = obj_cast<air_vehicle_t>(obj);
 		if(plane) {
 			hgt += tile_raster_scale_y(plane->get_flyingheight(), raster);
 		}

@@ -29,7 +29,7 @@ class obj_t
 public:
 	// flags
 	enum flag_values {
-		keine_flags=0,  /// no special properties
+		no_flags=0,  /// no special properties
 		dirty=1,        /// mark image dirty when drawing
 		not_on_map=2,   /// this object is not placed on any tile (e.g. vehicles in a depot)
 		is_vehicle=4,   /// this object is a vehicle obviously
@@ -144,13 +144,13 @@ public:
 
 		// after this only moving stuff
 		// reserved values for vehicles: 64 to 95
-		fussgaenger=64,
-		verkehr=65,
-		automobil=66,
-		waggon=67,
-		monorailwaggon=68,
-		maglevwaggon=69,
-		narrowgaugewaggon=70,
+		pedestrian=64,
+		road_user=65,
+		road_vehicle=66,
+		rail_vehicle=67,
+		monorail_vehicle=68,
+		maglev_vehicle=69,
+		narrowgauge_vehicle=70,
 		schiff=80,
 		aircraft=81,
 		movingobj=82,
@@ -206,7 +206,7 @@ public:
 	 * Routine for cleanup if object is removed (ie book maintenance, cost for removal)
 	 * @author Hj. Malthaner
 	 */
-	virtual void entferne(player_t *) {}
+	virtual void cleanup(player_t *) {}
 
 	/**
 	 * @returns untranslated name of object
@@ -244,20 +244,20 @@ public:
 	 * @return number of current image for that object
 	 * @author Hj. Malthaner
 	 */
-	virtual image_id get_bild() const = 0;
+	virtual image_id get_image() const = 0;
 
 	/**
 	 * give image for height > 0 (max. height currently 3)
 	 * IMG_LEER is no images
 	 * @author Hj. Malthaner
 	 */
-	virtual image_id get_bild(int /*height*/) const {return IMG_LEER;}
+	virtual image_id get_image(int /*height*/) const {return IMG_LEER;}
 
 	/**
 	 * this image is drawn after all get_bild() on this tile
 	 * Currently only single height is supported for this feature
 	 */
-	virtual image_id get_after_bild() const {return IMG_LEER;}
+	virtual image_id get_front_image() const {return IMG_LEER;}
 
 	/**
 	 * if a function returns a value here with TRANSPARENT_FLAGS set
@@ -270,7 +270,7 @@ public:
 	 * The image, that will be outlined
 	 * @author kierongreen
 	 */
-	virtual image_id get_outline_bild() const { return IMG_LEER; }
+	virtual image_id get_outline_image() const { return IMG_LEER; }
 
 	/**
 	 * Save and Load of object data in one routine
@@ -283,7 +283,7 @@ public:
 	 *
 	 * @author Hj. Malthaner
 	 */
-	virtual void laden_abschliessen() {}
+	virtual void finish_rd() {}
 
 	/**
 	 * @return position
@@ -307,13 +307,13 @@ public:
 	 * Opens a new info window for the object
 	 * @author Hj. Malthaner
 	 */
-	virtual void zeige_info();
+	virtual void show_info();
 
 	/**
 	 * @return NULL if OK, otherwise an error message
 	 * @author Hj. Malthaner
 	 */
-	virtual const char *ist_entfernbar(const player_t *player);
+	virtual const char *is_deletable(const player_t *player);
 
 	/**
 	 * Draw background image of object
@@ -355,7 +355,7 @@ public:
 	 * Function for recalculating the image.
 	 * @author Hj. Malthaner
 	 */
-	virtual void calc_bild() {}
+	virtual void calc_image() {}
 };
 
 
@@ -381,7 +381,7 @@ public:
 
 	obj_no_info_t(koord3d pos) : obj_t(pos) {}
 
-	void zeige_info() {}
+	void show_info() {}
 
 protected:
 	obj_no_info_t() : obj_t() {}

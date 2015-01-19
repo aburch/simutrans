@@ -67,7 +67,7 @@ label_t::~label_t()
 }
 
 
-void label_t::laden_abschliessen()
+void label_t::finish_rd()
 {
 #ifdef MULTI_THREAD
 	pthread_mutex_lock( &add_label_mutex );
@@ -86,14 +86,14 @@ void label_t::laden_abschliessen()
 }
 
 
-image_id label_t::get_bild() const
+image_id label_t::get_image() const
 {
 	grund_t *gr=welt->lookup(get_pos());
 	return gr && gr->obj_bei(0) == sim::up_cast<obj_t const*>(this) ? skinverwaltung_t::belegtzeiger->get_bild_nr(0) : IMG_LEER;
 }
 
 
-void label_t::zeige_info()
+void label_t::show_info()
 {
 	label_t* l = this;
 	create_win(new label_info_t(l), w_info, (ptrdiff_t)this );

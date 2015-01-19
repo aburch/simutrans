@@ -1,5 +1,5 @@
-#ifndef _simmover_h
-#define _simmover_h
+#ifndef SIMROADTRAFFIC_H
+#define SIMROADTRAFFIC_H
 
 /**
  * Moving objects for Simutrans.
@@ -12,7 +12,7 @@
  * April 2000
  */
 
-#include "simvehikel.h"
+#include "simvehicle.h"
 #include "overtaker.h"
 
 #include "../tpl/stringhashtable_tpl.h"
@@ -25,7 +25,7 @@ class karte_t;
  * Base class for traffic participants with random movement
  * @author Hj. Malthaner
  */
-class verkehrsteilnehmer_t : public vehikel_basis_t, public sync_steppable
+class road_user_t : public vehicle_base_t, public sync_steppable
 {
 protected:
 	/**
@@ -41,17 +41,17 @@ protected:
 protected:
 	virtual waytype_t get_waytype() const { return road_wt; }
 
-	verkehrsteilnehmer_t();
+	road_user_t();
 
 	/**
 	 * Creates thing at position given by @p gr.
 	 * Does not add it to the tile!
 	 * @param random number to compute initial direction.
 	 */
-	verkehrsteilnehmer_t(grund_t* gr, uint16 random);
+	road_user_t(grund_t* gr, uint16 random);
 
 public:
-	virtual ~verkehrsteilnehmer_t();
+	virtual ~road_user_t();
 
 	const char *get_name() const = 0;
 	typ get_typ() const  = 0;
@@ -60,19 +60,19 @@ public:
 	 * Open a new observation window for the object.
 	 * @author Hj. Malthaner
 	 */
-	virtual void zeige_info();
+	virtual void show_info();
 
 	void rdwr(loadsave_t *file);
 
 	// finalizes direction
-	void laden_abschliessen();
+	void finish_rd();
 
 	// we allow to remove all cars etc.
-	const char *ist_entfernbar(const player_t *) { return NULL; }
+	const char *is_deletable(const player_t *) { return NULL; }
 };
 
 
-class stadtauto_t : public verkehrsteilnehmer_t, public overtaker_t
+class private_car_t : public road_user_t, public overtaker_t
 {
 private:
 	static stringhashtable_tpl<const stadtauto_besch_t *> table;
@@ -98,18 +98,18 @@ private:
 protected:
 	void rdwr(loadsave_t *file);
 
-	void calc_bild();
+	void calc_image();
 
 public:
-	stadtauto_t(loadsave_t *file);
+	private_car_t(loadsave_t *file);
 
 	/**
 	 * Creates citycar at position given by @p gr.
 	 * Does not add car to the tile!
 	 */
-	stadtauto_t(grund_t* gr, koord target);
+	private_car_t(grund_t* gr, koord target);
 
-	virtual ~stadtauto_t();
+	virtual ~private_car_t();
 
 	const stadtauto_besch_t *get_besch() const { return besch; }
 
@@ -118,13 +118,13 @@ public:
 	void hop(grund_t *gr);
 	bool ist_weg_frei(grund_t *gr);
 
-	void betrete_feld(grund_t* gr);
+	void enter_tile(grund_t* gr);
 
 	void calc_current_speed(grund_t*);
 	uint16 get_current_speed() const {return current_speed;}
 
 	const char *get_name() const {return "Verkehrsteilnehmer";}
-	typ get_typ() const { return verkehr; }
+	typ get_typ() const { return road_user; }
 
 	/**
 	 * @return a description string for the object
@@ -141,7 +141,7 @@ public:
 	 * it should be called every month and in the beginning of a new game
 	 * @author prissi
 	 */
-	static void built_timeline_liste(karte_t *welt);
+	static void build_timeline_list(karte_t *welt);
 	static bool list_empty();
 
 	static bool register_besch(const stadtauto_besch_t *besch);

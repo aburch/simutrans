@@ -271,7 +271,7 @@ void karte_ansicht_t::display(bool force_dirty)
 				const PLAYER_COLOR_VAL transparent = TRANSPARENT25_FLAG|OUTLINE_FLAG| env_t::cursor_overlay_color;
 				if(  gr->get_bild()==IMG_LEER  ) {
 					if(  gr->hat_wege()  ) {
-						display_img_blend( gr->obj_bei(0)->get_bild(), background_pos.x, background_pos.y, transparent, 0, dirty );
+						display_img_blend( gr->obj_bei(0)->get_image(), background_pos.x, background_pos.y, transparent, 0, dirty );
 					}
 					else {
 						display_img_blend( grund_besch_t::get_ground_tile(gr), background_pos.x, background_pos.y, transparent, 0, dirty );
