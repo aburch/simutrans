@@ -367,8 +367,8 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","state=%s, next_stop_index=%d", sta
 		if(  steps_driven!=-1  ) {
 			for( uint8 i=0;  i<anz_vehikel;  i++ ) {
 				vehicle_t* v = fahr[i];
-				v->set_as_leading( i==0 );
-				v->set_as_trailing( i+1==anz_vehikel );
+				v->set_leading( i==0 );
+				v->set_last( i+1==anz_vehikel );
 				v->calc_height();
 				// this sets the convoi and will renew the block reservation, if needed!
 				v->set_convoi(this);
@@ -381,8 +381,8 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","state=%s, next_stop_index=%d", sta
 			uint8 const diagonal_vehicle_steps_per_tile = (uint8)(130560U / welt->get_settings().get_pak_diagonal_multiplier());
 			for( uint8 i=0;  i<anz_vehikel;  i++ ) {
 				vehicle_t* v = fahr[i];
-				v->set_as_leading( i==0 );
-				v->set_as_trailing( i+1==anz_vehikel );
+				v->set_leading( i==0 );
+				v->set_last( i+1==anz_vehikel );
 				v->calc_height();
 				// this sets the convoi and will renew the block reservation, if needed!
 				v->set_convoi(this);
@@ -476,7 +476,7 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_ind
 			const koord3d last_start = fahr[0]->get_pos();
 
 			// now advance all convoi until it is completely on the track
-			fahr[0]->set_as_leading(false); // switches off signal checks ...
+			fahr[0]->set_leading(false); // switches off signal checks ...
 			for(unsigned i=0; i<anz_vehikel; i++) {
 				vehicle_t* v = fahr[i];
 
@@ -492,7 +492,7 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_ind
 					sch0->reserve(self,ribi_t::keine);
 				}
 			}
-			fahr[0]->set_as_leading(true);
+			fahr[0]->set_leading(true);
 			if(  state != INITIAL  &&  state != FAHRPLANEINGABE  &&  fahr[0]->get_pos() != last_start  ) {
 				state = WAITING_FOR_CLEARANCE;
 			}
@@ -1447,7 +1447,7 @@ void convoi_t::betrete_depot(depot_t *dep)
 		grund_t* gr = welt->lookup(v->get_pos());
 		if(gr) {
 			// remove from blockstrecke
-			v->set_as_trailing(true);
+			v->set_last(true);
 			v->leave_tile();
 			v->set_flag( obj_t::not_on_map );
 		}
@@ -1497,16 +1497,16 @@ void convoi_t::start()
 		// also for any vehicle entered a depot, set_letztes is true! => reset it correctly
 		sint64 restwert_delta = 0;
 		for(unsigned i=0; i<anz_vehikel; i++) {
-			fahr[i]->set_as_leading( false );
-			fahr[i]->set_as_trailing( false );
+			fahr[i]->set_leading( false );
+			fahr[i]->set_last( false );
 			restwert_delta -= fahr[i]->calc_sale_value();
 			fahr[i]->set_driven();
 			restwert_delta += fahr[i]->calc_sale_value();
 			fahr[i]->clear_flag( obj_t::not_on_map );
 			fahr[i]->load_cargo( halthandle_t() );
 		}
-		fahr[0]->set_as_leading( true );
-		fahr[anz_vehikel-1]->set_as_trailing( true );
+		fahr[0]->set_leading( true );
+		fahr[anz_vehikel-1]->set_last( true );
 		// do not show the vehicle - it will be wrong positioned -vorfahren() will correct this
 		fahr[0]->set_bild(IMG_LEER);
 
@@ -1742,12 +1742,12 @@ void convoi_t::set_erstes_letztes()
 {
 	// anz_vehikel muss korrekt init sein
 	if(anz_vehikel>0) {
-		fahr[0]->set_as_leading(true);
+		fahr[0]->set_leading(true);
 		for(unsigned i=1; i<anz_vehikel; i++) {
-			fahr[i]->set_as_leading(false);
-			fahr[i - 1]->set_as_trailing(false);
+			fahr[i]->set_leading(false);
+			fahr[i - 1]->set_last(false);
 		}
-		fahr[anz_vehikel - 1]->set_as_trailing(true);
+		fahr[anz_vehikel - 1]->set_last(true);
 	}
 	else {
 		dbg->warning("convoi_t::set_erstes_letzes()", "called with anz_vehikel==0!");
@@ -2016,7 +2016,7 @@ void convoi_t::vorfahren()
 
 		// just advances the first vehicle
 		vehicle_t* v0 = fahr[0];
-		v0->set_as_leading(false); // switches off signal checks ...
+		v0->set_leading(false); // switches off signal checks ...
 		v0->get_smoke(false);
 		steps_driven = 0;
 		// drive half a tile:
@@ -2024,7 +2024,7 @@ void convoi_t::vorfahren()
 			fahr[i]->do_drive( (VEHICLE_STEPS_PER_TILE/2)<<YARDS_PER_VEHICLE_STEP_SHIFT );
 		}
 		v0->get_smoke(true);
-		v0->set_as_leading(true); // switches on signal checks to reserve the next route
+		v0->set_leading(true); // switches on signal checks to reserve the next route
 
 		// until all other are on the track
 		state = CAN_START;
@@ -2056,7 +2056,7 @@ void convoi_t::vorfahren()
 			train_length = max(1,train_length);
 
 			// now advance all convoi until it is completely on the track
-			fahr[0]->set_as_leading(false); // switches off signal checks ...
+			fahr[0]->set_leading(false); // switches off signal checks ...
 			uint32 dist = VEHICLE_STEPS_PER_CARUNIT*train_length<<YARDS_PER_VEHICLE_STEP_SHIFT;
 			for(unsigned i=0; i<anz_vehikel; i++) {
 				vehicle_t* v = fahr[i];
@@ -2076,7 +2076,7 @@ void convoi_t::vorfahren()
 				}
 				dist = driven - vlen;
 			}
-			fahr[0]->set_as_leading(true);
+			fahr[0]->set_leading(true);
 		}
 		if (!at_dest) {
 			state = CAN_START;
@@ -3091,7 +3091,7 @@ void convoi_t::destroy()
 		if(  !fahr[i]->get_flag( obj_t::not_on_map )  ) {
 			// remove from rails/roads/crossings
 			grund_t *gr = welt->lookup(fahr[i]->get_pos());
-			fahr[i]->set_as_trailing( true );
+			fahr[i]->set_last( true );
 			fahr[i]->leave_tile();
 			if(  gr  &&  gr->ist_uebergang()  ) {
 				gr->find<crossing_t>()->release_crossing(fahr[i]);

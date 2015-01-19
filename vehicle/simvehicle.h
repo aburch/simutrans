@@ -238,7 +238,7 @@ protected:
 	convoi_t *cnv;		// != NULL if the vehicle is part of a Convoi
 
 	bool leading:1;	// true, if vehicle is first vehicle of a convoi
-	bool trailing:1;	// true, if vehicle is last vehicle of a convoi
+	bool last:1;	// true, if vehicle is last vehicle of a convoi
 	bool smoke:1;
 	bool check_for_finish:1;		// true, if on the last tile
 	bool has_driven:1;
@@ -400,11 +400,11 @@ public:
 	sint64  calc_revenue(koord start, koord end) const;
 
 	// sets or query begin and end of convois
-	void set_as_leading(bool janein) {leading = janein;}
+	void set_leading(bool janein) {leading = janein;}
 	bool is_leading() {return leading;}
 
-	void set_as_trailing(bool janein) {trailing = janein;}
-	bool is_trailing() {return trailing;}
+	void set_last(bool janein) {last = janein;}
+	bool is_last() {return last;}
 
 	// marks the vehicle as really used
 	void set_driven() { has_driven = true; }

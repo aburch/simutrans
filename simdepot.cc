@@ -145,8 +145,8 @@ void depot_t::convoi_arrived(convoihandle_t acnv, bool fpl_adjust)
 			// Hajo: reset vehikel data
 			v->discard_cargo();
 			v->set_pos( koord3d::invalid );
-			v->set_as_leading( i==0 );
-			v->set_as_trailing( i+1==acnv->get_vehikel_anzahl() );
+			v->set_leading( i==0 );
+			v->set_last( i+1==acnv->get_vehikel_anzahl() );
 		}
 		// Volker: remove depot from schedule
 		schedule_t *fpl = acnv->get_schedule();
@@ -353,8 +353,8 @@ bool depot_t::disassemble_convoi(convoihandle_t cnv, bool sell)
 			// store vehicles in depot
 			while(  vehicle_t* const v = cnv->remove_vehikel_bei(0)  ) {
 				v->discard_cargo();
-				v->set_as_leading(false);
-				v->set_as_trailing(false);
+				v->set_leading(false);
+				v->set_last(false);
 				vehicles.append(v);
 			}
 		}

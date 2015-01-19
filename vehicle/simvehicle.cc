@@ -950,7 +950,7 @@ vehicle_t::vehicle_t(koord3d pos, const vehikel_besch_t* besch, player_t* player
 	total_freight = 0;
 	sum_weight = besch->get_gewicht();
 
-	leading = trailing = false;
+	leading = last = false;
 	check_for_finish = false;
 	use_calc_height = true;
 	has_driven = false;
@@ -973,7 +973,7 @@ vehicle_t::vehicle_t() :
 	sum_weight = 10;
 	total_freight = 0;
 
-	leading = trailing = false;
+	leading = last = false;
 	check_for_finish = false;
 	use_calc_height = true;
 
@@ -1074,7 +1074,7 @@ void vehicle_t::leave_tile()
 {
 	vehicle_base_t::leave_tile();
 #ifndef DEBUG_ROUTES
-	if(trailing  &&  reliefkarte_t::is_visible) {
+	if(last  &&  reliefkarte_t::is_visible) {
 			reliefkarte_t::get_karte()->calc_map_pixel(get_pos().get_2d());
 	}
 #endif
@@ -1630,7 +1630,7 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(purchase_time%12
 	}
 
 	if(file->is_loading()) {
-		leading = trailing = false;	// dummy, will be set by convoi afterwards
+		leading = last = false;	// dummy, will be set by convoi afterwards
 		if(besch) {
 			calc_image();
 
@@ -3059,7 +3059,7 @@ void rail_vehicle_t::leave_tile()
 {
 	vehicle_t::leave_tile();
 	// fix counters
-	if(trailing) {
+	if(last) {
 		grund_t *gr = welt->lookup( get_pos() );
 		if(gr) {
 			schiene_t *sch0 = (schiene_t *) gr->get_weg(get_waytype());
