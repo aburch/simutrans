@@ -376,7 +376,7 @@ private:
 	/**
 	 * Checks whether the heights of the corners of the tile at (@p x, @p y) can be raised.
 	 * If the desired height of a corner is lower than its current height, this corner is ignored.
-	 * @param sp player who wants to lower
+	 * @param player player who wants to lower
 	 * @param x coordinate
 	 * @param y coordinate
 	 * @param keep_water returns false if water tiles would be raised above water
@@ -401,7 +401,7 @@ private:
 	/**
 	 * Checks whether the heights of the corners of the tile at (@p x, @p y) can be lowered.
 	 * If the desired height of a corner is higher than its current height, this corner is ignored.
-	 * @param sp player who wants to lower
+	 * @param player player who wants to lower
 	 * @param x coordinate
 	 * @param y coordinate
 	 * @param hsw desired height of sw-corner

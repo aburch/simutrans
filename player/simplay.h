@@ -127,7 +127,7 @@ public:
 	/**
 	 * Adds construction costs to accounting statistics.
 	 * @param amount How much does it cost
-	 * @param tt type of transport
+	 * @param wt type of transport
 	 * @author jk271
 	 */
 	static void book_construction_costs(player_t * const player, const sint64 amount, const koord k, const waytype_t wt=ignore_wt);
@@ -137,7 +137,7 @@ public:
 	 * @param price money used for purchase of vehicle,
 	 *              negative value = vehicle bought,
 	 *              negative value = vehicle sold
-	 * @param tt type of transport for accounting purpose
+	 * @param wt type of transport for accounting purpose
 	 * @author jk271
 	 */
 	void book_new_vehicle(const sint64 price, const koord k, const waytype_t wt=ignore_wt);
@@ -145,7 +145,7 @@ public:
 	/**
 	 * Adds income to accounting statistics.
 	 * @param amount earned money
-	 * @param tt transport type used in accounting statistics
+	 * @param wt transport type used in accounting statistics
 	 * @param cathegory parameter
 	 * 	0 ... passenger
 	 *	1 ... mail
@@ -157,7 +157,7 @@ public:
 	/**
 	 * Adds running costs to accounting statistics.
 	 * @param amount How much does it cost
-	 * @param wt
+	 * @param wt type of transport used for accounting statistics
 	 * @author jk271
 	 */
 	void book_running_costs(const sint64 amount, const waytype_t wt=ignore_wt);
@@ -165,7 +165,7 @@ public:
 	/**
 	 * Books toll paid by our company to someone else.
 	 * @param amount money paid to our company
-	 * @param tt type of transport used for assounting statistisc
+	 * @param wt type of transport used for accounting statistics
 	 * @author jk271
 	 */
 	void book_toll_paid(const sint64 amount, const waytype_t wt=ignore_wt);
@@ -173,7 +173,7 @@ public:
 	/**
 	 * Books toll paid to our company by someone else.
 	 * @param amount money paid for usage of our roads,railway,channels, ... ; positive sign
-	 * @param tt type of transport used for assounting statistisc
+	 * @param wt type of transport used for accounting statistics
 	 * @author jk271
 	 */
 	void book_toll_received(const sint64 amount, waytype_t wt=ignore_wt);
@@ -315,7 +315,7 @@ public:
 
 	/**
      * Stores/loads the player state
-     * @param file, where the data will be saved/loaded
+     * @param file where the data will be saved/loaded
      * @author Hj. Malthaner
      */
 	virtual void rdwr(loadsave_t *file);

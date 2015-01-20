@@ -117,6 +117,13 @@ public:
 class tool_setslope_t : public tool_t {
 public:
 	tool_setslope_t() : tool_t(TOOL_SETSLOPE | GENERAL_TOOL) {}
+	/**
+	 * Create an artificial slope
+	 * @param player the player doing the task
+	 * @param pos position where the slope will be generated
+	 * @param slope the slope type
+	 * @author Hj. Malthaner
+	 */
 	static const char *tool_set_slope_work( player_t *player, koord3d pos, int slope );
 	char const* get_tooltip(player_t const*) const OVERRIDE { return tooltip_with_price("Built artifical slopes", welt->get_settings().cst_set_slope); }
 	bool is_init_network_save() const OVERRIDE { return true; }

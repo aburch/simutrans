@@ -418,7 +418,7 @@ public:
 	/**
 	 * Checks if player can use this schedule.
 	 *
-	 * @param sp player
+	 * @param player player
 	 * @param schedule the schedule
 	 *
 	 * @return null if allowed, an error message otherwise

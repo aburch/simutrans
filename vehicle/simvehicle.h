@@ -258,7 +258,7 @@ public:
 
 	/**
 	 * Method checks whether next tile is free to move on.
-	 * Looks up next tile, and calls @ref ist_weg_frei(const grund_t*, int&, bool).
+	 * Looks up next tile, and calls @ref can_enter_tile(const grund_t*, int&, bool).
 	 */
 	bool can_enter_tile(int &restart_speed, bool second_check);
 

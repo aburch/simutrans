@@ -102,11 +102,6 @@ void zeiger_t::set_after_bild( image_id b )
 }
 
 
-/**
- * Set area to be marked around cursor
- * @param area size of marked area
- * @param center true if cursor is centered within marked area
- */
 void zeiger_t::set_area(koord new_area, bool new_center)
 {
 	if(new_area==area  &&  new_center==center) {

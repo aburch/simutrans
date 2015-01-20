@@ -471,7 +471,7 @@ bool savegame_frame_t::infowin_event(const event_t *event)
  * every time a button is clicked and the corresponding handler
  * is called from here.
  * @author Hj. Malthaner
- * @Max Kielland
+ * @author Max Kielland
  *
  * @param component  The component that was clicked.
  *
@@ -762,7 +762,7 @@ void savegame_frame_t::shorten_path(char *dest,const char *source,const size_t m
  * GET BASE NAME
  * Returns the path portion of a qualified filename including path.
  *
- * @param path  A nul terminated string with a full qualified file name.
+ * @param fullpath  A null terminated string with a full qualified file name.
  */
 std::string savegame_frame_t::get_basename(const char *fullpath)
 {
@@ -781,7 +781,7 @@ std::string savegame_frame_t::get_basename(const char *fullpath)
  * Returns the file name without extension (optional) of a qualified filename
  * including path.
  *
- * @param path            A nul terminated string with a full qualified file name.
+ * @param fullpath            A nul terminated string with a full qualified file name.
  * @param with_extension  If true, the extension is removed from the filename.
  *
  * @retval std::string  The filename without extension.

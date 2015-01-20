@@ -28,6 +28,11 @@ public:
 	const char *get_name() const {return "Zeiger";}
 	typ get_typ() const { return zeiger; }
 
+	/**
+	 * Set area to be marked around cursor
+	 * @param area size of marked area
+	 * @param center true if cursor is centered within marked area
+	 */
 	void set_area( koord area, bool center );
 
 	/// set back image

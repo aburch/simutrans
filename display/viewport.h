@@ -60,7 +60,7 @@ private:
 
 	/**
 	 * This is the current offset for getting from tile to screen.
-	 * @notes: Extra offset, if added to ij_off it will give us the 2D coordinate of the tile on the *BOTTOM-RIGHT* of screen.
+	 * @note Extra offset, if added to ij_off it will give us the 2D coordinate of the tile on the *BOTTOM-RIGHT* of screen.
 	 */
 	koord view_ij_off;
 
@@ -208,6 +208,8 @@ public:
 	 * Searches for the ground_t that's under the requested screen position.
 	 * @param screen_pos Screen coordinates to check for.
 	 * @param intersect_grid Special case for the lower/raise tool, will return a limit border tile if we are on the south/east border of screen.
+	 * @param found_i out parameter, i-coordinate of the found tile. It's necessary because it might point to a grid position that doesn't map to a real in-map coordinate, on border tiles (south and east border).
+	 * @param found_j out parameter, j-coordinate of the found tile. It's necessary because it might point to a grid position that doesn't map to a real in-map coordinate, on border tiles (south and east border).
 	 * @return the grund_t that's under the desired screen coordinate. NULL if we are outside map or we can't find it.
 	 */
 	grund_t* get_ground_on_screen_coordinate(scr_coord screen_pos, sint32 &found_i, sint32 &found_j, const bool intersect_grid=false) const;
