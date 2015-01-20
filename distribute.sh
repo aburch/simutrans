@@ -32,6 +32,9 @@ elif [ "$OST" = "mingw" ]; then
   fi
   updatepath="/nsis/"
   updater="download-paksets.exe"
+  cd nsis
+  makensis onlineupgrade.nsi
+  cd ..
 elif [ "$OST" = "linux" ]; then
  simarchivbase=simulinux
 elif [ "$OST" = "freebsd" ]; then
