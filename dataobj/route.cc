@@ -635,9 +635,11 @@ route_t::route_result_t route_t::calc_route(karte_t *welt, const koord3d ziel, c
 				const int ribi = ribi_typ(zv);
 
 				grund_t *gr = welt->lookup(start);
-				const waytype_t wegtyp=tdriver->get_waytype();
+				const waytype_t wegtyp = tdriver->get_waytype();
+				ribi_t::ribi way_ribi  = tdriver->get_ribi(gr);
 
-				while(  max_len>0  &&  gr->get_neighbour(gr,wegtyp,ribi)  &&  gr->get_halt()==halt  &&   tdriver->check_next_tile(gr)   &&  (tdriver->get_ribi(gr)&ribi)!=0  ) {
+				while(  max_len>0  &&  ((way_ribi & ribi) != 0)  &&  gr->get_neighbour(gr,wegtyp,ribi)  &&  gr->get_halt()==halt
+					&&   tdriver->check_next_tile(gr)) {
 					// Do not go on a tile, where a oneway sign forbids going.
 					// This saves time and fixed the bug, that a oneway sign on the final tile was ignored.
 					ribi_t::ribi go_dir=gr->get_weg(wegtyp)->get_ribi_maske();
@@ -646,6 +648,7 @@ route_t::route_result_t route_t::calc_route(karte_t *welt, const koord3d ziel, c
 					}
 					route.append(gr->get_pos());
 					max_len--;
+					way_ribi = tdriver->get_ribi(gr);
 				}
 				// station too short => warning!
 				if(  max_len>0  ) {
