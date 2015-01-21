@@ -2587,7 +2587,8 @@ void haltestelle_t::rdwr(loadsave_t *file)
 			const gebaeude_t* gb = gr->find<gebaeude_t>();
 			const haus_besch_t *besch=gb?gb->get_tile()->get_besch():NULL;
 			if(besch) {
-				add_grund( gr );
+				add_grund( gr, false /*do not relink factories now*/ );
+				// verbinde_fabriken will be called in laden_abschliessen
 			}
 			else {
 				dbg->warning("haltestelle_t::rdwr()", "will no longer add ground without building at %s!", k.get_str() );
@@ -2701,6 +2702,8 @@ void haltestelle_t::rdwr(loadsave_t *file)
 
 void haltestelle_t::laden_abschliessen()
 {
+	verbinde_fabriken();
+
 	stale_convois.clear();
 	stale_lines.clear();
 	// fix good destination coordinates
@@ -2961,7 +2964,7 @@ void haltestelle_t::display_status(KOORD_VAL xpos, KOORD_VAL ypos)
 
 
 
-bool haltestelle_t::add_grund(grund_t *gr)
+bool haltestelle_t::add_grund(grund_t *gr, bool relink_factories)
 {
 	assert(gr!=NULL);
 
@@ -2996,7 +2999,9 @@ bool haltestelle_t::add_grund(grund_t *gr)
 	}
 
 	// since suddenly other factories may be connect to us too
-	verbinde_fabriken();
+	if (relink_factories) {
+		verbinde_fabriken();
+	}
 
 	// check if we have to register line(s) and/or lineless convoy(s) which serve this halt
 	vector_tpl<linehandle_t> check_line(0);
