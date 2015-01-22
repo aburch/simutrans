@@ -4298,6 +4298,7 @@ bool waggon_t::block_reserver(route_t *route, uint16 start_index, uint16 &next_s
 						{
 							// Reserve through to the stop signal after the second pre-signal unless an end of choose signal is in the way.
 							// TODO: Make this work properly for MAS.
+							// TODO: Make it so that distant signals clear when all stop signals connected to the same signal box have cleared.
 							count --;
 						}
 
