@@ -1347,7 +1347,7 @@
     <ClCompile Include="gui\components\gui_container.cc" />
     <ClCompile Include="gui\components\gui_convoiinfo.cc" />
     <ClCompile Include="gui\components\gui_image.cc" />
-    <ClCompile Include="gui\components\gui_komponente.cc" />
+    <ClCompile Include="gui\components\gui_component.cc" />
     <ClCompile Include="gui\components\gui_map_preview.cc" />
     <ClCompile Include="gui\components\gui_obj_view_t.cc" />
     <ClCompile Include="gui\convoy_item.cc" />

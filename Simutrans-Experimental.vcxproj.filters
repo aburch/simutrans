@@ -918,9 +918,6 @@
     <ClCompile Include="gui\components\gui_image.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="gui\components\gui_komponente.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="gui\components\gui_map_preview.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -955,6 +952,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="gui\tool_selector.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\components\gui_component.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
