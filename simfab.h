@@ -509,7 +509,7 @@ public:
 	 */
 	const fabrik_besch_t *get_besch() const {return besch; }
 
-	void laden_abschliessen();
+	void finish_rd();
 
 	/// gets position of a building belonging to factory
 	koord3d get_pos() const { return pos; }

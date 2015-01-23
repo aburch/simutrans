@@ -1588,7 +1588,7 @@ const char *tool_add_city_t::work( player_t *player, koord3d pos )
 				}
 
 				welt->add_stadt(stadt);
-				stadt->laden_abschliessen();
+				stadt->finish_rd();
 				stadt->verbinde_fabriken();
 
 				player_t::book_construction_costs(player, welt->get_settings().cst_found_city, k, ignore_wt);

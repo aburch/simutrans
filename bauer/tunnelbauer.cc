@@ -555,7 +555,7 @@ void tunnelbauer_t::baue_einfahrt(player_t *player, koord3d end, koord zv, const
 		}
 		else {
 			// subtract twice maintenance: once for the already existing powerline
-			// once since leitung_t::laden_abschliessen will add it again
+			// once since leitung_t::finish_rd will add it again
 			player_t::add_maintenance( player, -2*lt->get_besch()->get_wartung(), powerline_wt );
 		}
 		lt->finish_rd();

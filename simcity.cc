@@ -1244,12 +1244,7 @@ void stadt_t::rdwr(loadsave_t* file)
 }
 
 
-/**
- * Wird am Ende der Laderoutine aufgerufen, wenn die Welt geladen ist
- * und nur noch die Datenstrukturenneu verknuepft werden muessen.
- * @author Hj. Malthaner
- */
-void stadt_t::laden_abschliessen()
+void stadt_t::finish_rd()
 {
 	step_count = 0;
 	next_step = 0;

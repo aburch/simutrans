@@ -558,7 +558,7 @@ void baum_t::rdwr(loadsave_t *file)
 	else {
 		// correct z-offset
 		if(file->is_loading()) {
-			// this will trigger recalculation of offset in laden_abschliessen()
+			// this will trigger recalculation of offset in finish_rd()
 			// we cant call calc_off() since this->pos is still invalid
 			set_xoff(-128);
 		}

@@ -734,7 +734,7 @@ DBG_DEBUG("player_t::rdwr()","player %i: loading %i halts.",welt->sp2num( this )
 
 void player_t::load_finished()
 {
-	simlinemgmt.laden_abschliessen();
+	simlinemgmt.finish_rd();
 	display_set_player_color_scheme( player_nr, player_color_1, player_color_2 );
 	// recalculate vehicle value
 	calc_assets();

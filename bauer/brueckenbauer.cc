@@ -863,7 +863,7 @@ void brueckenbauer_t::baue_auffahrt(player_t* player, koord3d end, ribi_t::ribi 
 			bruecke->obj_add( lt );
 		}
 		else {
-			// remove maintenance - it will be added in leitung_t::laden_abschliessen
+			// remove maintenance - it will be added in leitung_t::finish_rd
 			player_t::add_maintenance( player, -lt->get_besch()->get_wartung(), powerline_wt);
 		}
 		// connect to neighbor tiles and networks, add maintenance

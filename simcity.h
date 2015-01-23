@@ -472,11 +472,9 @@ public:
 	void rdwr(loadsave_t *file);
 
 	/**
-	 * Wird am Ende der LAderoutine aufgerufen, wenn die Welt geladen ist
-	 * und nur noch die Datenstrukturenneu verknüpft werden müssen.
-	 * @author Hj. Malthaner
+	 * Called when loading of savegame is finished to correctly init data.
 	 */
-	void laden_abschliessen();
+	void finish_rd();
 
 	void rotate90( const sint16 y_size );
 

@@ -85,7 +85,7 @@ public:
 
 	void rdwr(loadsave_t *file);
 
-	void laden_abschliessen(karte_t *welt);
+	void finish_rd(karte_t *welt);
 
 	// find out the category ...
 	bool is_passenger() const {  return index==0; }

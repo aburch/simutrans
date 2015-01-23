@@ -128,7 +128,7 @@ DBG_MESSAGE("simlinemgmt_t::rdwr()","number of lines=%i",totalLines);
 		}
 
 		if(  unbound_line  ) {
-			// linehandle will be corrected in simline_t::laden_abschliessen
+			// linehandle will be corrected in simline_t::finish_rd
 			line_with_id_zero = linehandle_t(unbound_line,true);
 			add_line( line_with_id_zero );
 		}
@@ -160,10 +160,10 @@ void simlinemgmt_t::sort_lines()
 }
 
 
-void simlinemgmt_t::laden_abschliessen()
+void simlinemgmt_t::finish_rd()
 {
 	FOR(vector_tpl<linehandle_t>, const i, all_managed_lines) {
-		i->laden_abschliessen();
+		i->finish_rd();
 	}
 	sort_lines();
 }

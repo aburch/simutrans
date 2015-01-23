@@ -213,7 +213,7 @@ void wayobj_t::finish_rd()
 			}
 		}
 		else {
-			dbg->warning("wayobj_t::laden_abschliessen()","ground was not a way!");
+			dbg->warning("wayobj_t::finish_rd()","ground was not a way!");
 		}
 	}
 

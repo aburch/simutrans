@@ -511,7 +511,7 @@ public:
 	 */
 	static void rdwr_convoihandle_t(loadsave_t *file, convoihandle_t &cnv);
 
-	void laden_abschliessen();
+	void finish_rd();
 
 	void rotate90( const sint16 y_size );
 

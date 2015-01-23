@@ -137,9 +137,9 @@ old_blockmanager_t::rdwr(karte_t *welt, loadsave_t *file)
 
 
 void
-old_blockmanager_t::laden_abschliessen(karte_t *welt)
+old_blockmanager_t::finish_rd(karte_t *welt)
 {
-	DBG_MESSAGE("old_blockmanager::laden_abschliessen()","convert old to new signals" );
+	DBG_MESSAGE("old_blockmanager::finish_rd()","convert old to new signals" );
 	char buf[256];
 	const char *err_text=translator::translate("Error restoring old signal near (%i,%i)!");
 	int failure=0;
@@ -158,12 +158,12 @@ old_blockmanager_t::laden_abschliessen(karte_t *welt)
 				}
 			}
 			if(os2==NULL) {
-				dbg->error("old_blockmanager_t::laden_abschliessen()","old signal near (%i,%i) is unpaired!",gr->get_pos().x,gr->get_pos().y);
+				dbg->error("old_blockmanager_t::finish_rd()","old signal near (%i,%i) is unpaired!",gr->get_pos().x,gr->get_pos().y);
 				welt->get_message()->add_message(translator::translate("Orphan signal during loading!"),os1->get_pos().get_2d(),message_t::problems);
 			}
 		}
 		else {
-			dbg->error("old_blockmanager_t::laden_abschliessen()","old signal near (%i,%i) is unpaired!",gr->get_pos().x,gr->get_pos().y);
+			dbg->error("old_blockmanager_t::finish_rd()","old signal near (%i,%i) is unpaired!",gr->get_pos().x,gr->get_pos().y);
 			welt->get_message()->add_message(translator::translate("Orphan signal during loading!"),os1->get_pos().get_2d(),message_t::problems);
 		}
 
@@ -225,17 +225,17 @@ old_blockmanager_t::laden_abschliessen(karte_t *welt)
 			if(sb!=NULL) {
 				signal_t *sig = new signal_t(new_signal_gr->get_weg(wt)->get_owner(),new_signal_gr->get_pos(),dir,sb);
 				new_signal_gr->obj_add(sig);
-//DBG_MESSAGE("old_blockmanager::laden_abschliessen()","signal restored at %i,%i with dir %i",gr->get_pos().x,gr->get_pos().y,dir);
+//DBG_MESSAGE("old_blockmanager::finish_rd()","signal restored at %i,%i with dir %i",gr->get_pos().x,gr->get_pos().y,dir);
 			}
 			else {
-				dbg->error("old_blockmanager_t::laden_abschliessen()","no roadsign for way %x with type %d found!",type,wt);
+				dbg->error("old_blockmanager_t::finish_rd()","no roadsign for way %x with type %d found!",type,wt);
 				sprintf(buf,err_text,os1->get_pos().x,os1->get_pos().y);
 				welt->get_message()->add_message(buf,os1->get_pos().get_2d(),message_t::problems);
 				failure++;
 			}
 		}
 		else {
-			dbg->warning("old_blockmanager_t::laden_abschliessen()","could not restore old signal near (%i,%i), dir=%i",gr->get_pos().x,gr->get_pos().y,dir);
+			dbg->warning("old_blockmanager_t::finish_rd()","could not restore old signal near (%i,%i), dir=%i",gr->get_pos().x,gr->get_pos().y,dir);
 			sprintf(buf,err_text,os1->get_pos().x,os1->get_pos().y);
 			welt->get_message()->add_message(buf,os1->get_pos().get_2d(),message_t::problems);
 			failure ++;
@@ -249,6 +249,6 @@ old_blockmanager_t::laden_abschliessen(karte_t *welt)
 		}
 	}
 	if(failure) {
-		dbg->warning("old_blockmanager_t::laden_abschliessen()","failed on %d signal pairs.",failure);
+		dbg->warning("old_blockmanager_t::finish_rd()","failed on %d signal pairs.",failure);
 	}
 }

@@ -1125,7 +1125,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 
 			for(  uint32 i=old_anzahl_staedte;  i<stadt.get_count();  i++  ) {
 				// Hajo: do final init after world was loaded/created
-				stadt[i]->laden_abschliessen();
+				stadt[i]->finish_rd();
 
 	//			int citizens=(int)(new_mittlere_einwohnerzahl*0.9);
 	//			citizens = citizens/10+simrand(2*citizens+1);
@@ -1571,7 +1571,7 @@ DBG_DEBUG("karte_t::init()","built timeline");
 	}
 
 	// finishes the line preparation and sets id 0 to invalid ...
-	players[0]->simlinemgmt.laden_abschliessen();
+	players[0]->simlinemgmt.finish_rd();
 
 	set_tool( tool_t::general_tool[TOOL_QUERY], get_active_player() );
 
@@ -5467,7 +5467,7 @@ static pthread_mutex_t height_mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 #endif
 
 
-void karte_t::plans_laden_abschliessen( sint16 x_min, sint16 x_max, sint16 y_min, sint16 y_max )
+void karte_t::plans_finish_rd( sint16 x_min, sint16 x_max, sint16 y_min, sint16 y_max )
 {
 	sint8 min_h = min_height, max_h = max_height;
 	for(  int y = y_min;  y < y_max;  y++  ) {
@@ -5545,7 +5545,7 @@ void karte_t::load(loadsave_t *file)
 	settings.rdwr(file);
 	loaded_rotation = settings.get_rotation();
 
-	// some functions (laden_abschliessen) need to know what version was loaded
+	// some functions (finish_rd) need to know what version was loaded
 	load_version = file->get_version();
 
 	if(  env_t::networkmode  ) {
@@ -5856,7 +5856,7 @@ DBG_MESSAGE("karte_t::laden()", "messages loaded");
 
 	// nachdem die welt jetzt geladen ist koennen die Blockstrecken neu
 	// angelegt werden
-	old_blockmanager_t::laden_abschliessen(this);
+	old_blockmanager_t::finish_rd(this);
 	DBG_MESSAGE("karte_t::laden()", "blocks loaded");
 
 	sint32 mi,mj;
@@ -5872,10 +5872,10 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::get_alle_wege().get_coun
 
 	ls.set_progress( (get_size().y*3)/2+256 );
 
-	world_xy_loop(&karte_t::plans_laden_abschliessen, SYNCX_FLAG);
+	world_xy_loop(&karte_t::plans_finish_rd, SYNCX_FLAG);
 
 	if(  file->get_version() < 112007  ) {
-		// set transitions - has to be done after plans_laden_abschliessen
+		// set transitions - has to be done after plans_finish_rd
 		world_xy_loop(&karte_t::recalc_transitions_loop, 0);
 	}
 
@@ -5886,7 +5886,7 @@ DBG_MESSAGE("karte_t::laden()", "laden_abschliesen for tiles finished" );
 	// must finish loading cities first before cleaning up factories
 	weighted_vector_tpl<stadt_t*> new_weighted_stadt(stadt.get_count() + 1);
 	FOR(weighted_vector_tpl<stadt_t*>, const s, stadt) {
-		s->laden_abschliessen();
+		s->finish_rd();
 		s->recalc_target_cities();
 		new_weighted_stadt.append(s, s->get_einwohner());
 		INT_CHECK("simworld 1278");
@@ -5898,7 +5898,7 @@ DBG_MESSAGE("karte_t::laden()", "laden_abschliesen for tiles finished" );
 
 	DBG_MESSAGE("karte_t::laden()", "clean up factories");
 	FOR(slist_tpl<fabrik_t*>, const f, fab_list) {
-		f->laden_abschliessen();
+		f->finish_rd();
 	}
 
 DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.get_count());
@@ -5921,7 +5921,7 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.get_count());
 	// resolve dummy stops into real stops first ...
 	FOR(vector_tpl<halthandle_t>, const i, haltestelle_t::get_alle_haltestellen()) {
 		if (i->get_owner() && i->existiert_in_welt()) {
-			i->laden_abschliessen();
+			i->finish_rd();
 		}
 	}
 
@@ -5940,7 +5940,7 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.get_count());
 	// adding lines and other stuff for convois
 	for(unsigned i=0;  i<convoi_array.get_count();  i++ ) {
 		convoihandle_t cnv = convoi_array[i];
-		cnv->laden_abschliessen();
+		cnv->finish_rd();
 		// was deleted during loading => use same position again
 		if(!cnv.is_bound()) {
 			i--;

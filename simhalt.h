@@ -717,7 +717,7 @@ public:
 
 	void rdwr(loadsave_t *file);
 
-	void laden_abschliessen();
+	void finish_rd();
 
 	/**
 	 * Called before savegame will be loaded.
@@ -727,7 +727,7 @@ public:
 
 	/**
 	 * Called after loading of savegame almost finished,
-	 * i.e. after laden_abschliessen is finished.
+	 * i.e. after finish_rd is finished.
 	 * Deletes all_koords table.
 	 */
 	static void end_load_game();

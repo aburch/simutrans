@@ -149,7 +149,7 @@ void tunnel_t::finish_rd()
 		else {
 			besch = tunnelbauer_t::find_tunnel(gr->get_weg_nr(0)->get_besch()->get_wtyp(), 450, 0);
 			if(  besch == NULL  ) {
-				dbg->error( "tunnel_t::laden_abschliessen()", "Completely unknown tunnel for this waytype: Lets use a rail tunnel!" );
+				dbg->error( "tunnel_t::finish_rd()", "Completely unknown tunnel for this waytype: Lets use a rail tunnel!" );
 				besch = tunnelbauer_t::find_tunnel(track_wt, 1, 0);
 			}
 		}

@@ -1318,7 +1318,7 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 		file->rdwr_long( lieferziele_active_last_month );
 	}
 
-	// suppliers / consumers will be recalculated in laden_abschliessen
+	// suppliers / consumers will be recalculated in finish_rd
 	if (file->is_loading()  &&  welt->get_settings().is_crossconnect_factories()) {
 		lieferziele.clear();
 	}
@@ -2795,7 +2795,7 @@ void fabrik_t::info_conn(cbuffer_t& buf) const
 }
 
 
-void fabrik_t::laden_abschliessen()
+void fabrik_t::finish_rd()
 {
 	// adjust production base to be at least as large as fields productivity
 	uint32 prodbase_adjust = 1;
@@ -2828,7 +2828,7 @@ void fabrik_t::laden_abschliessen()
 			}
 			else {
 				// remove this ...
-				dbg->warning( "fabrik_t::laden_abschliessen()", "No factory at expected position %s!", lieferziele[i].get_str() );
+				dbg->warning( "fabrik_t::finish_rd()", "No factory at expected position %s!", lieferziele[i].get_str() );
 				lieferziele.remove_at(i);
 				i--;
 			}

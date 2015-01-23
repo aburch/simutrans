@@ -736,7 +736,7 @@ private:
 	/**
 	 * Loops over plans after load.
 	 */
-	void plans_laden_abschliessen(sint16, sint16, sint16, sint16);
+	void plans_finish_rd(sint16, sint16, sint16, sint16);
 
 	/**
 	 * Updates all images.
@@ -1411,7 +1411,7 @@ public:
 
 	/**
 	 * File version used when loading (or current if generated)
-	 * @note Useful for laden_abschliessen
+	 * @note Useful for finish_rd
 	 */
 	uint32 load_version;
 

@@ -143,7 +143,7 @@ void ware_t::rdwr(loadsave_t *file)
 
 
 
-void ware_t::laden_abschliessen(karte_t *welt)
+void ware_t::finish_rd(karte_t *welt)
 {
 	if(  welt->load_version<=111005  ) {
 		// since some halt was referred by with several koordinates

@@ -59,7 +59,7 @@ simline_t::simline_t(player_t* player, linetype type, loadsave_t *file)
 	rdwr(file);
 	// now self has the right id but the this-pointer is not assigned to the quickstone handle yet
 	// do this explicitly
-	// some savegames have line_id=0, resolve that in laden_abschliessen
+	// some savegames have line_id=0, resolve that in finish_rd
 	if (self.get_id()!=0) {
 		self = linehandle_t(this, self.get_id());
 	}
@@ -280,13 +280,13 @@ void simline_t::rdwr(loadsave_t *file)
 
 
 
-void simline_t::laden_abschliessen()
+void simline_t::finish_rd()
 {
 	if(  !self.is_bound()  ) {
 		// get correct handle
 		self = player->simlinemgmt.get_line_with_id_zero();
 		assert( self.get_rep() == this );
-		DBG_MESSAGE("simline_t::laden_abschliessen", "assigned id=%d to line %s", self.get_id(), get_name());
+		DBG_MESSAGE("simline_t::finish_rd", "assigned id=%d to line %s", self.get_id(), get_name());
 	}
 	if (!line_managed_convoys.empty()) {
 		register_stops(fpl);

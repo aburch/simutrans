@@ -320,20 +320,20 @@ uint32 convoi_t::move_to(uint16 const start_index)
 }
 
 
-void convoi_t::laden_abschliessen()
+void convoi_t::finish_rd()
 {
 	if(fpl==NULL) {
 		if(  state!=INITIAL  ) {
 			grund_t *gr = welt->lookup(home_depot);
 			if(gr  &&  gr->get_depot()) {
-				dbg->warning( "convoi_t::laden_abschliessen()","No schedule during loading convoi %i: State will be initial!", self.get_id() );
+				dbg->warning( "convoi_t::finish_rd()","No schedule during loading convoi %i: State will be initial!", self.get_id() );
 				for( uint8 i=0;  i<anz_vehikel;  i++ ) {
 					fahr[i]->set_pos(home_depot);
 				}
 				state = INITIAL;
 			}
 			else {
-				dbg->error( "convoi_t::laden_abschliessen()","No schedule during loading convoi %i: Convoi will be destroyed!", self.get_id() );
+				dbg->error( "convoi_t::finish_rd()","No schedule during loading convoi %i: Convoi will be destroyed!", self.get_id() );
 				for( uint8 i=0;  i<anz_vehikel;  i++ ) {
 					fahr[i]->set_pos(koord3d::invalid);
 				}
@@ -362,7 +362,7 @@ void convoi_t::laden_abschliessen()
 
 	bool realing_position = false;
 	if(  anz_vehikel>0  ) {
-DBG_MESSAGE("convoi_t::laden_abschliessen()","state=%s, next_stop_index=%d", state_names[state] );
+DBG_MESSAGE("convoi_t::finish_rd()","state=%s, next_stop_index=%d", state_names[state] );
 		// only realign convois not leaving depot to avoid jumps through signals
 		if(  steps_driven!=-1  ) {
 			for( uint8 i=0;  i<anz_vehikel;  i++ ) {
@@ -407,11 +407,11 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","state=%s, next_stop_index=%d", sta
 							}
 							step_pos += ribi_t::ist_kurve(v->get_direction()) ? diagonal_vehicle_steps_per_tile : VEHICLE_STEPS_PER_TILE;
 						}
-						dbg->message("convoi_t::laden_abschliessen()", "v: pos(%s) steps(%d) len=%d ribi=%d prev (%s) step(%d)", v->get_pos().get_str(), v->get_steps(), v->get_besch()->get_length()*16, v->get_direction(),  drive_pos.get_2d().get_str(), step_pos);
+						dbg->message("convoi_t::finish_rd()", "v: pos(%s) steps(%d) len=%d ribi=%d prev (%s) step(%d)", v->get_pos().get_str(), v->get_steps(), v->get_besch()->get_length()*16, v->get_direction(),  drive_pos.get_2d().get_str(), step_pos);
 						if(  abs( v->get_steps() - step_pos )>15  ) {
 							// not where it should be => realign
 							realing_position = true;
-							dbg->warning( "convoi_t::laden_abschliessen()", "convoi (%s) is broken => realign", get_name() );
+							dbg->warning( "convoi_t::finish_rd()", "convoi (%s) is broken => realign", get_name() );
 						}
 					}
 					step_pos -= v->get_besch()->get_length_in_steps();
@@ -419,7 +419,7 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","state=%s, next_stop_index=%d", sta
 				}
 			}
 		}
-DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_index );
+DBG_MESSAGE("convoi_t::finish_rd()","next_stop_index=%d", next_stop_index );
 
 		linehandle_t new_line  = line;
 		if(  !new_line.is_bound()  ) {
@@ -444,7 +444,7 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_ind
 			if(new_line.is_bound()) {
 				line = new_line;
 				line->add_convoy(self);
-				DBG_DEBUG("convoi_t::laden_abschliessen()","%s registers for %d", name_and_id, line.get_id());
+				DBG_DEBUG("convoi_t::finish_rd()","%s registers for %d", name_and_id, line.get_id());
 			}
 			else {
 				line = linehandle_t();
@@ -453,20 +453,20 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_ind
 	}
 	else {
 		// no vehicles in this convoi?!?
-		dbg->error( "convoi_t::laden_abschliessen()","No vehicles in Convoi %i: will be destroyed!", self.get_id() );
+		dbg->error( "convoi_t::finish_rd()","No vehicles in Convoi %i: will be destroyed!", self.get_id() );
 		destroy();
 		return;
 	}
 	// put convoi again right on track?
 	if(realing_position  &&  anz_vehikel>1) {
 		// display just a warning
-		dbg->warning("convoi_t::laden_abschliessen()","cnv %i is currently too long.",self.get_id());
+		dbg->warning("convoi_t::finish_rd()","cnv %i is currently too long.",self.get_id());
 
 		if (route.empty()) {
 			// realigning needs a route
 			state = NO_ROUTE;
 			owner_p->report_vehicle_problem( self, koord3d::invalid );
-			dbg->error( "convoi_t::laden_abschliessen()", "No valid route, but needs realignment at (%s)!", fahr[0]->get_pos().get_str() );
+			dbg->error( "convoi_t::finish_rd()", "No valid route, but needs realignment at (%s)!", fahr[0]->get_pos().get_str() );
 		}
 		else {
 			// since start may have been changed

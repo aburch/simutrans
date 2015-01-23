@@ -174,7 +174,7 @@ void crossing_t::finish_rd()
 {
 	grund_t *gr=welt->lookup(get_pos());
 	if(gr==NULL  ||  !gr->hat_weg(besch->get_waytype(0))  ||  !gr->hat_weg(besch->get_waytype(1))) {
-		dbg->error("crossing_t::laden_abschliessen","way/ground missing at %i,%i => ignore", get_pos().x, get_pos().y );
+		dbg->error("crossing_t::finish_rd","way/ground missing at %i,%i => ignore", get_pos().x, get_pos().y );
 	}
 	else {
 		// try to find crossing that matches way max speed

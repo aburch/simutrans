@@ -2588,7 +2588,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 			const haus_besch_t *besch=gb?gb->get_tile()->get_besch():NULL;
 			if(besch) {
 				add_grund( gr, false /*do not relink factories now*/ );
-				// verbinde_fabriken will be called in laden_abschliessen
+				// verbinde_fabriken will be called in finish_rd
 			}
 			else {
 				dbg->warning("haltestelle_t::rdwr()", "will no longer add ground without building at %s!", k.get_str() );
@@ -2700,7 +2700,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 
 
 
-void haltestelle_t::laden_abschliessen()
+void haltestelle_t::finish_rd()
 {
 	verbinde_fabriken();
 
@@ -2711,7 +2711,7 @@ void haltestelle_t::laden_abschliessen()
 		if(waren[i]) {
 			vector_tpl<ware_t> * warray = waren[i];
 			FOR(vector_tpl<ware_t>, & j, *warray) {
-				j.laden_abschliessen(welt);
+				j.finish_rd(welt);
 			}
 			// merge identical entries (should only happen with old games)
 			for(unsigned j=0; j<warray->get_count(); j++) {

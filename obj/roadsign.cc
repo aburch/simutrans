@@ -610,7 +610,7 @@ void roadsign_t::finish_rd()
 {
 	grund_t *gr=welt->lookup(get_pos());
 	if(  gr==NULL  ||  !gr->hat_weg(besch->get_wtyp()!=tram_wt ? besch->get_wtyp() : track_wt)  ) {
-		dbg->error("roadsign_t::laden_abschliessen","roadsing: way/ground missing at %i,%i => ignore", get_pos().x, get_pos().y );
+		dbg->error("roadsign_t::finish_rd","roadsing: way/ground missing at %i,%i => ignore", get_pos().x, get_pos().y );
 	}
 	else {
 		// after loading restore directions
