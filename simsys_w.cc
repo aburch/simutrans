@@ -274,7 +274,7 @@ unsigned int get_system_color(unsigned int r, unsigned int g, unsigned int b)
 
 #ifdef MULTI_THREAD
 // multhreaded screen copy ...
-DWORD WINAPI dr_flush_screen(LPVOID lpParam)
+DWORD WINAPI dr_flush_screen(LPVOID /*lpParam*/)
 {
 	while(1) {
 		// wait for finish of thread
@@ -631,7 +631,7 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 				// clear old composition
 				if(  gui_component_t *c = win_get_focus()  ) {
 					if(  gui_textinput_t *tinp = dynamic_cast<gui_textinput_t *>(c)  ) {
-						dynamic_cast<gui_textinput_t *>(c)->set_composition_text( NULL );
+						tinp->set_composition_text( NULL );
 					}
 				}
 				// add result
@@ -673,7 +673,6 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 			}
 			else if(  lParam & GCS_COMPSTR  ) {
 				if(  gui_component_t *c = win_get_focus()  ) {
-					scr_coord gui_xy = win_get_pos( win_get_top() );
 					if(  gui_textinput_t *tinp = dynamic_cast<gui_textinput_t *>(c)  ) {
 						HIMC immcx = ImmGetContext(this_hwnd);
 						size_t u16size = ImmGetCompositionStringW(immcx, GCS_COMPSTR, NULL, 0);
@@ -693,7 +692,7 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 								i += charlen;
 							}
 							comp_str[i] = 0;
-							dynamic_cast<gui_textinput_t *>(c)->set_composition_text( (char *)comp_str );
+							tinp->set_composition_text( (char *)comp_str );
 						}
 						free(u16buf);
 						return 0;
