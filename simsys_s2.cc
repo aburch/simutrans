@@ -3,7 +3,11 @@
  *
  * This file is part of the Simutrans project under the artistic license.
  */
+#ifndef _MSC_VER
+#define SDL2
+#endif
 
+#ifdef SDL2
 #include <SDL.h>
 
 #ifdef _WIN32
@@ -19,6 +23,7 @@
 #include "simevent.h"
 #include "display/simgraph.h"
 #include "simdebug.h"
+#include "dataobj/environment.h" 
 
 
 static Uint8 hourglass_cursor[] = {
@@ -625,7 +630,7 @@ void ex_ord_update_mx_my()
 }
 
 
-uint32 dr_time()
+unsigned long dr_time()
 {
 	return SDL_GetTicks();
 }
@@ -674,3 +679,4 @@ int main(int argc, char **argv)
 #endif
 	return sysmain(argc, argv);
 }
+#endif

@@ -1430,6 +1430,7 @@
     <ClCompile Include="simloadingscreen.cc" />
     <ClCompile Include="simobj.cc" />
     <ClCompile Include="simsys.cc" />
+    <ClCompile Include="simsys_s2.cc" />
     <ClCompile Include="simsys_w.cc" />
     <ClCompile Include="simsys_w32_png.cc" />
     <ClCompile Include="simunits.cc" />

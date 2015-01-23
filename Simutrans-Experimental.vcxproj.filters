@@ -957,6 +957,9 @@
     <ClCompile Include="gui\components\gui_component.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="simsys_s2.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="gui\components\action_listener.h">
