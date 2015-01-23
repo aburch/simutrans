@@ -90,7 +90,7 @@ public:
 
 	virtual void rdwr(loadsave_t *file);
 
-	virtual void load_finished();
+	virtual void finish_rd();
 
 	bool set_active( bool b );
 

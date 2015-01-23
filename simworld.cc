@@ -5951,7 +5951,7 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.get_count());
 	// register all line stops and change line types, if needed
 	for(int i=0; i<MAX_PLAYER_COUNT ; i++) {
 		if(  players[i]  ) {
-			players[i]->load_finished();
+			players[i]->finish_rd();
 		}
 	}
 

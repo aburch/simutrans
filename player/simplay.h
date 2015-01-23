@@ -323,7 +323,7 @@ public:
 	/*
 	 * Called after game is fully loaded;
 	 */
-	virtual void load_finished();
+	virtual void finish_rd();
 
 	virtual void rotate90( const sint16 y_size );
 

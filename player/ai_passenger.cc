@@ -1464,7 +1464,7 @@ void ai_passenger_t::report_vehicle_problem(convoihandle_t cnv,const koord3d zie
 }
 
 
-void ai_passenger_t::load_finished()
+void ai_passenger_t::finish_rd()
 {
 	road_vehicle = vehikel_search( road_wt, 50, 80, warenbauer_t::passagiere, false);
 	if (road_vehicle == NULL) {
