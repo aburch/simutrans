@@ -58,23 +58,23 @@ static pthread_mutex_t add_to_city_mutex = PTHREAD_MUTEX_INITIALIZER;
 void gebaeude_t::init()
 {
 	tile = NULL;
-	ptr.fab = 0;
-	is_factory = false;
 	anim_time = 0;
 	sync = false;
-	count = 0;
 	zeige_baugrube = false;
-	snow = false;
+	is_factory = false;
+	season = 0;
+	background_animated = false;
 	remove_ground = true;
+	anim_frame = 0;
+//	insta_zeit = 0; // init in set_tile()
+	ptr.fab = NULL;
 }
-
 
 
 gebaeude_t::gebaeude_t() : obj_t()
 {
 	init();
 }
-
 
 
 gebaeude_t::gebaeude_t(loadsave_t *file) : obj_t()
@@ -89,7 +89,6 @@ gebaeude_t::gebaeude_t(loadsave_t *file) : obj_t()
 		sync = true;
 	}
 }
-
 
 
 gebaeude_t::gebaeude_t(koord3d pos, player_t *player, const haus_tile_besch_t *t) :
@@ -109,7 +108,6 @@ gebaeude_t::gebaeude_t(koord3d pos, player_t *player, const haus_tile_besch_t *t
 		set_yoff( -gr->get_weg_yoff() );
 	}
 }
-
 
 
 /**
@@ -133,8 +131,6 @@ gebaeude_t::~gebaeude_t()
 		welt->remove_ausflugsziel(this);
 	}
 
-	count = 0;
-	anim_time = 0;
 	if(tile) {
 		player_t::add_maintenance(get_owner(), -tile->get_besch()->get_maintenance(welt), tile->get_besch()->get_finance_waytype());
 	}
@@ -197,7 +193,6 @@ void gebaeude_t::rotate90()
 }
 
 
-
 /* sets the corresponding pointer to a factory
  * @author prissi
  */
@@ -217,7 +212,6 @@ void gebaeude_t::set_fab(fabrik_t *fb)
 }
 
 
-
 /* sets the corresponding city
  * @author prissi
  */
@@ -232,15 +226,11 @@ void gebaeude_t::set_stadt(stadt_t *s)
 }
 
 
-
-
 /* make this building without construction */
 void gebaeude_t::add_alter(uint32 a)
 {
 	insta_zeit -= min(a,insta_zeit);
 }
-
-
 
 
 void gebaeude_t::set_tile( const haus_tile_besch_t *new_tile, bool start_with_construction )
@@ -261,7 +251,7 @@ void gebaeude_t::set_tile( const haus_tile_besch_t *new_tile, bool start_with_co
 #endif
 			welt->sync_eyecandy_remove(this);
 			sync = false;
-			count = 0;
+			anim_frame = 0;
 #ifdef MULTI_THREAD
 			pthread_mutex_unlock( &sync_mutex );
 #endif
@@ -272,7 +262,7 @@ void gebaeude_t::set_tile( const haus_tile_besch_t *new_tile, bool start_with_co
 #ifdef MULTI_THREAD
 		pthread_mutex_lock( &sync_mutex );
 #endif
-		count = sim_async_rand(new_tile->get_phasen());
+		anim_frame = sim_async_rand( new_tile->get_phasen() );
 		anim_time = 0;
 		welt->sync_eyecandy_add(this);
 		sync = true;
@@ -294,13 +284,13 @@ void gebaeude_t::set_tile( const haus_tile_besch_t *new_tile, bool start_with_co
  */
 bool gebaeude_t::sync_step(uint32 delta_t)
 {
-	if(zeige_baugrube) {
+	if(  zeige_baugrube  ) {
 		// still under construction?
-		if(welt->get_zeit_ms() - insta_zeit > 5000) {
-			set_flag(obj_t::dirty);
-			mark_image_dirty(get_image(), 0);
+		if(  welt->get_zeit_ms() - insta_zeit > 5000  ) {
+			set_flag( obj_t::dirty );
+			mark_image_dirty( get_image(), 0 );
 			zeige_baugrube = false;
-			if(tile->get_phasen()<=1) {
+			if(  tile->get_phasen() <= 1  ) {
 				welt->sync_eyecandy_remove( this );
 				sync = false;
 			}
@@ -309,49 +299,63 @@ bool gebaeude_t::sync_step(uint32 delta_t)
 	else {
 		// normal animated building
 		anim_time += delta_t;
-		if(anim_time>tile->get_besch()->get_animation_time()) {
-			if(!zeige_baugrube)  {
+		if(  anim_time > tile->get_besch()->get_animation_time()  ) {
+			anim_time -= tile->get_besch()->get_animation_time();
 
-				// old positions need redraw
-				if(  tile->is_hintergrund_phases( snow )  ) {
-					// the background is animated
-					set_flag(obj_t::dirty);
-					mark_images_dirty();
-				}
-				else {
-					// try foreground
-					image_id bild = tile->get_vordergrund(count, snow);
-					mark_image_dirty(bild, 0);
-					// next phase must be marked dirty too ...
-					bild = tile->get_vordergrund( count+1>=tile->get_phasen()?0:count+1, snow);
-					mark_image_dirty(bild, 0);
-				}
-
-				anim_time %= tile->get_besch()->get_animation_time();
-				count ++;
-				if(count >= tile->get_phasen()) {
-					count = 0;
-				}
-				// winter for buildings only above snowline
+			// old positions need redraw
+			if(  background_animated  ) {
+				set_flag( obj_t::dirty );
+				mark_images_dirty();
 			}
-		}
-	}
+			else {
+				// try foreground
+				image_id bild = tile->get_vordergrund( anim_frame, season );
+				mark_image_dirty( bild, 0 );
+			}
+
+			anim_frame++;
+			if(  anim_frame >= tile->get_phasen()  ) {
+				anim_frame = 0;
+			}
+
+			if(  !background_animated  ) {
+				// next phase must be marked dirty too ...
+				image_id bild = tile->get_vordergrund( anim_frame, season );
+				mark_image_dirty( bild, 0 );
+			}
+ 		}
+ 	}
 	return true;
 }
 
 
 void gebaeude_t::calc_image()
 {
-	grund_t *gr = welt->lookup(get_pos());
+	grund_t *gr = welt->lookup( get_pos() );
 	// need no ground?
-	if(  remove_ground  &&  gr->get_typ()==grund_t::fundament  ) {
+	if(  remove_ground  &&  gr->get_typ() == grund_t::fundament  ) {
 		gr->set_bild( IMG_LEER );
 	}
-	// snow image?
-	snow = 0;
-	if(  tile->get_seasons()>1  ) {
-		snow = (!gr->ist_tunnel()  ||  gr->ist_karten_boden())  &&  (get_pos().z - (get_yoff() / TILE_HEIGHT_STEP) >= welt->get_snowline()  ||  welt->get_climate( get_pos().get_2d() ) == arctic_climate);
+
+	static uint8 effective_season[][5] = { {0,0,0,0,0}, {0,0,0,0,1}, {0,0,0,0,1}, {0,1,2,3,2}, {0,1,2,3,4} };  // season image lookup from [number of images] and [actual season/snow]
+
+	if(  (gr->ist_tunnel()  &&  !gr->ist_karten_boden())  ||  tile->get_seasons() < 2  ) {
+		season = 0;
 	}
+	else if(  get_pos().z - (get_yoff() / TILE_HEIGHT_STEP) >= welt->get_snowline()  ||  welt->get_climate( get_pos().get_2d() ) == arctic_climate  ) {
+		// snowy winter graphics
+		season = effective_season[tile->get_seasons()][4];
+	}
+	else if(  get_pos().z - (get_yoff() / TILE_HEIGHT_STEP) >= welt->get_snowline() - 1  &&  welt->get_season() == 0  ) {
+		// snowline crossing in summer
+		// so at least some weeks spring/autumn
+		season = effective_season[tile->get_seasons()][welt->get_last_month() <= 5 ? 3 : 1];
+	}
+	else {
+		season = effective_season[tile->get_seasons()][welt->get_season()];
+	}
+
+	background_animated = tile->is_hintergrund_phases( season );
 }
 
 
@@ -377,12 +381,11 @@ image_id gebaeude_t::get_image() const
 		}
 	}
 
-	// winter for buildings only above snowline
-	if(zeige_baugrube)  {
+	if(  zeige_baugrube  )  {
 		return skinverwaltung_t::construction_site->get_bild_nr(0);
 	}
 	else {
-		return tile->get_hintergrund(count, 0, snow);
+		return tile->get_hintergrund( anim_frame, 0, season );
 	}
 }
 
@@ -391,7 +394,7 @@ image_id gebaeude_t::get_outline_image() const
 {
 	if(env_t::hide_buildings!=0  &&  env_t::hide_with_transparency  &&  !zeige_baugrube) {
 		// opaque houses
-		return tile->get_hintergrund(count, 0, snow);
+		return tile->get_hintergrund( anim_frame, 0, season );
 	}
 	return IMG_LEER;
 }
@@ -421,8 +424,7 @@ image_id gebaeude_t::get_image(int nr) const
 		return IMG_LEER;
 	}
 	else {
-		// winter for buildings only above snowline
-		return tile->get_hintergrund(count, nr, snow);
+		return tile->get_hintergrund( anim_frame, nr, season );
 	}
 }
 
@@ -437,12 +439,12 @@ image_id gebaeude_t::get_front_image() const
 	}
 	else {
 		// Show depots, station buildings etc.
-		return tile->get_vordergrund(count, snow);
+		return tile->get_vordergrund( anim_frame, season );
 	}
 }
 
 
-/*
+/**
  * calculate the passenger level as function of the city size (if there)
  */
 int gebaeude_t::get_passagier_level() const
@@ -849,7 +851,7 @@ void gebaeude_t::rdwr(loadsave_t *file)
 	}
 
 	if(file->is_loading()) {
-		count = 0;
+		anim_frame = 0;
 		anim_time = 0;
 		sync = false;
 
@@ -971,7 +973,7 @@ void gebaeude_t::mark_images_dirty() const
 		img = skinverwaltung_t::construction_site->get_bild_nr(0);
 	}
 	else {
-		img = tile->get_hintergrund(count, 0, snow) ;
+		img = tile->get_hintergrund( anim_frame, 0, season ) ;
 	}
 	for(  int i=0;  img!=IMG_LEER;  img=get_image(++i)  ) {
 		mark_image_dirty( img, -(i*get_tile_raster_width()) );

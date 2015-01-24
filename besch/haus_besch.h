@@ -61,7 +61,6 @@ public:
 
 	image_id get_hintergrund(int phase, int hoehe, int season) const
 	{
-		season &= (seasons-1);
 		bildliste2d_besch_t const* const bl = get_child<bildliste2d_besch_t>(0 + 2 * season);
 		if(phase>0 && phase<phasen) {
 			if (bild_besch_t const* const bild = bl->get_bild(hoehe, phase)) {
@@ -76,7 +75,6 @@ public:
 	// returns true, if the background is animated
 	bool is_hintergrund_phases(int season) const
 	{
-		season &= (seasons-1);
 		bildliste2d_besch_t const* const bl = get_child<bildliste2d_besch_t>(0 + 2 * season);
 		const uint16 max_h = bl->get_anzahl();
 		for(  uint16 phase=1;  phase<phasen;  phase++  ) {
@@ -91,7 +89,6 @@ public:
 
 	image_id get_vordergrund(int phase,int season) const
 	{
-		season &= (seasons-1);
 		bildliste2d_besch_t const* const bl = get_child<bildliste2d_besch_t>(1 + 2 * season);
 		if(phase>0 && phase<phasen) {
 			if (bild_besch_t const* const bild = bl->get_bild(0, phase)) {

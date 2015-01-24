@@ -40,10 +40,10 @@ static const uint8 baum_bild_alter[12] =
 
 PLAYER_COLOR_VAL baum_t::outline_color = 0;
 
-// quick lookup of an image, assuring always five seaons and five ages
-// missing images have just identical entires
-// seasons are: 0=autumn, 1=summer, 2=winter, 3=spring, 4=snow
-// snow image is used if tree is above snow line
+// quick lookup of an image, assuring always five seasons and five ages
+// missing images just have identical entries
+// seasons are: 0=summer, 1=autumn, 2=winter, 3=spring, 4=snow
+// snow image is used if tree is above snow line, or for arctic climate
 static image_id baumtype_to_bild[256][5*5];
 
 
@@ -277,26 +277,26 @@ bool baum_t::alles_geladen()
 			}
 		}
 		// create cache images
-		for(  uint8 season=0;  season<5;  season++  ) {
-			for(  uint8 age=0;  age<5;  age++  ) {
-				uint8 use_season = 0;
-				const sint16 seasons = baum_typen[typ]->get_seasons();
-				if(seasons>1) {
-					use_season = season;
-					// three possibilities
-					if(  seasons<4  ) {
-						// only summer and winter => season 4 with winter image
-						use_season = (season==4);
-					}
-					else if(  seasons==4  ) {
-						// all there, but the snowy special image missing
-						if(  season==4  ) {
-							// take spring image (gave best results with pak64, pak.german)
-							use_season = 2;
-						}
+		for(  uint8 season = 0;  season < 5;  season++  ) {
+			uint8 use_season = 0;
+			const sint16 seasons = baum_typen[typ]->get_seasons();
+			if(  seasons > 1  ) {
+				use_season = season;
+				// three possibilities
+				if(  seasons < 4  ) {
+					// only summer and winter => season 4 with winter image
+					use_season = (season == 4);
+				}
+				else if(  seasons == 4  ) {
+					// all there, but the snowy special image missing
+					if(  season == 4  ) {
+						// take spring image (gave best results with pak64, pak.german) ////// but season 2 is winter????
+						use_season = 2;
 					}
 				}
-				baumtype_to_bild[typ][season*5+age] = baum_typen[typ]->get_bild_nr( use_season, age );
+			}
+			for(  uint8 age = 0;  age < 5;  age++  ) {
+				baumtype_to_bild[typ][season * 5 + age] = baum_typen[typ]->get_bild_nr( use_season, age );
 			}
 		}
 	}
