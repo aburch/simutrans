@@ -2243,11 +2243,11 @@ bool grund_t::removing_road_would_disconnect_city_building()
 	return false;
 }
 
-class public_driver_t: public fahrer_t {
+class public_driver_t: public test_driver_t {
 public:
-	fahrer_t *other;
+	test_driver_t *other;
 
-	static fahrer_t* apply(fahrer_t *test_driver) {
+	static test_driver_t* apply(test_driver_t *test_driver) {
 		public_driver_t *td2 = new public_driver_t();
 		td2->other = test_driver;
 		return td2;
@@ -2326,10 +2326,10 @@ bool grund_t::removing_way_would_disrupt_public_right_of_way(waytype_t wt)
 			if(end != koord3d::invalid)
 			{
 				route_t diversionary_route;
-				vehikel_t *diversion_checker = vehikelbauer_t::baue(start, welt->get_player(1), NULL, &diversion_check_type);
+				vehicle_t *diversion_checker = vehikelbauer_t::baue(start, welt->get_player(1), NULL, &diversion_check_type);
 				diversion_checker->set_flag(obj_t::not_on_map);
 				diversion_checker->set_owner(welt->get_player(1));
-				fahrer_t *driver = diversion_checker;
+				test_driver_t *driver = diversion_checker;
 				driver = public_driver_t::apply(driver);
 				const uint32 default_road_axle_load = welt->get_city(w->get_pos().get_2d()) ? welt->get_settings().get_city_road_type(welt->get_timeline_year_month())->get_axle_load() : welt->get_settings().get_intercity_road_type(welt->get_timeline_year_month())->get_axle_load(); 
 				const sint32 default_road_speed = welt->get_city(w->get_pos().get_2d()) ?  welt->get_settings().get_city_road_type(welt->get_timeline_year_month())->get_topspeed() : welt->get_settings().get_intercity_road_type(welt->get_timeline_year_month())->get_topspeed();
@@ -2516,10 +2516,10 @@ bool grund_t::remove_everything_from_way(player_t* player, waytype_t wt, ribi_t:
 						delete wayobj;
 					}
 				}
-			} else if (stadtauto_t* const citycar = obj_cast<stadtauto_t>(obj)) {
+			} else if (private_car_t* const citycar = obj_cast<private_car_t>(obj)) {
 				// citycar: just delete
 				if (wt == road_wt) delete citycar;
-			} else if (fussgaenger_t* const pedestrian = obj_cast<fussgaenger_t>(obj)) {
+			} else if (pedestrian_t* const pedestrian = obj_cast<pedestrian_t>(obj)) {
 				// pedestrians: just delete
 				if (wt == road_wt) delete pedestrian;
 			} else if (tunnel_t* const tunnel = obj_cast<tunnel_t>(obj)) {

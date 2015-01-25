@@ -9,8 +9,8 @@
  * Vehicle base type.
  */
 
-#ifndef _simvehikel_h
-#define _simvehikel_h
+#ifndef _simvehicle_h
+#define _simvehicle_h
 
 #include <limits>
 #include <string>
@@ -19,7 +19,7 @@
 #include "../simobj.h"
 #include "../halthandle_t.h"
 #include "../convoihandle_t.h"
-#include "../ifc/fahrer.h"
+#include "../ifc/simtestdriver.h"
 #include "../boden/grund.h"
 #include "../besch/vehikel_besch.h"
 #include "../vehicle/overtaker.h"
@@ -47,7 +47,7 @@ class ware_t;
  *
  * @author Hj. Malthaner
  */
-class vehikel_basis_t : public obj_t
+class vehicle_base_t : public obj_t
 {
 	// BG, 15.02.2014: gr and weg are cached in betrete_feld() and reset to NULL in verlasse_feld().
 	grund_t* gr;
@@ -143,7 +143,7 @@ protected:
 	virtual void calc_bild() = 0;
 
 	// check for road vehicle, if next tile is free
-	vehikel_basis_t *no_cars_blocking( const grund_t *gr, const convoi_t *cnv, const uint8 current_fahrtrichtung, const uint8 next_fahrtrichtung, const uint8 next_90fahrtrichtung );
+	vehicle_base_t *no_cars_blocking( const grund_t *gr, const convoi_t *cnv, const uint8 current_fahrtrichtung, const uint8 next_fahrtrichtung, const uint8 next_90fahrtrichtung );
 
 	// only needed for old way of moving vehicles to determine position at loading time
 	bool is_about_to_hop( const sint8 neu_xoff, const sint8 neu_yoff ) const;
@@ -211,19 +211,19 @@ public:
 
 #ifdef INLINE_OBJ_TYPE
 protected:
-	vehikel_basis_t(typ type);
-	vehikel_basis_t(typ type, koord3d pos);
+	vehicle_base_t(typ type);
+	vehicle_base_t(typ type, koord3d pos);
 #else
-	vehikel_basis_t();
+	vehicle_base_t();
 
-	vehikel_basis_t(koord3d pos);
+	vehicle_base_t(koord3d pos);
 #endif
 };
 
 
-template<> inline vehikel_basis_t* obj_cast<vehikel_basis_t>(obj_t* const d)
+template<> inline vehicle_base_t* obj_cast<vehicle_base_t>(obj_t* const d)
 {
-	return d->is_moving() ? static_cast<vehikel_basis_t*>(d) : 0;
+	return d->is_moving() ? static_cast<vehicle_base_t*>(d) : 0;
 }
 
 
@@ -233,7 +233,7 @@ template<> inline vehikel_basis_t* obj_cast<vehikel_basis_t>(obj_t* const d)
  * @author Hj. Malthaner
  */
 
-class vehikel_t : public vehikel_basis_t, public fahrer_t
+class vehicle_t : public vehicle_base_t, public test_driver_t
 {
 private:
 	/**
@@ -437,15 +437,15 @@ public:
 
 #ifdef INLINE_OBJ_TYPE
 protected:
-	vehikel_t(typ type);
-	vehikel_t(typ type, koord3d pos, const vehikel_besch_t* besch, player_t* player);
+	vehicle_t(typ type);
+	vehicle_t(typ type, koord3d pos, const vehikel_besch_t* besch, player_t* player);
 public:
 #else
-	vehikel_t();
-	vehikel_t(koord3d pos, const vehikel_besch_t* besch, player_t* player);
+	vehicle_t();
+	vehicle_t(koord3d pos, const vehikel_besch_t* besch, player_t* player);
 #endif
 
-	~vehikel_t();
+	~vehicle_t();
 
 	void rauche() const;
 
@@ -638,9 +638,9 @@ public:
 };
 
 
-template<> inline vehikel_t* obj_cast<vehikel_t>(obj_t* const d)
+template<> inline vehicle_t* obj_cast<vehicle_t>(obj_t* const d)
 {
-	return dynamic_cast<vehikel_t*>(d);
+	return dynamic_cast<vehicle_t*>(d);
 }
 
 
@@ -649,9 +649,9 @@ template<> inline vehikel_t* obj_cast<vehikel_t>(obj_t* const d)
  * and the navigability of tiles.
  *
  * @author Hj. Malthaner
- * @see vehikel_t
+ * @see vehicle_t
  */
-class automobil_t : public vehikel_t
+class road_vehicle_t : public vehicle_t
 {
 private:
 	// called internally only from ist_weg_frei()
@@ -669,9 +669,9 @@ public:
 
 	virtual waytype_t get_waytype() const { return road_wt; }
 
-	automobil_t(loadsave_t *file, bool first, bool last);
-	automobil_t();
-	automobil_t(koord3d pos, const vehikel_besch_t* besch, player_t* player, convoi_t* cnv); // start und fahrplan
+	road_vehicle_t(loadsave_t *file, bool first, bool last);
+	road_vehicle_t();
+	road_vehicle_t(koord3d pos, const vehikel_besch_t* besch, player_t* player, convoi_t* cnv); // start und fahrplan
 
 	virtual void set_convoi(convoi_t *c);
 
@@ -704,9 +704,9 @@ public:
  * and the navigability of tiles.
  *
  * @author Hj. Malthaner
- * @see vehikel_t
+ * @see vehicle_t
  */
-class waggon_t : public vehikel_t
+class rail_vehicle_t : public vehicle_t
 {
 public:
 		enum working_method_t { drive_by_sight, absolute_block, track_circuit_block, cab_signalling, moving_block, token_block };
@@ -749,17 +749,17 @@ public:
 
 #ifdef INLINE_OBJ_TYPE
 protected:
-	waggon_t(typ type, loadsave_t *file, bool is_first, bool is_last);
-	waggon_t(typ type, koord3d pos, const vehikel_besch_t* besch, player_t* player, convoi_t *cnv); // start und fahrplan
+	rail_vehicle_t(typ type, loadsave_t *file, bool is_first, bool is_last);
+	rail_vehicle_t(typ type, koord3d pos, const vehikel_besch_t* besch, player_t* player, convoi_t *cnv); // start und fahrplan
 	void init(loadsave_t *file, bool is_first, bool is_last);
 public:
 #else
-	typ get_typ() const { return waggon; }
+	typ get_typ() const { return rail_vehicle; }
 #endif
 
-	waggon_t(loadsave_t *file, bool is_first, bool is_last);
-	waggon_t(koord3d pos, const vehikel_besch_t* besch, player_t* player, convoi_t *cnv); // start und fahrplan
-	virtual ~waggon_t();
+	rail_vehicle_t(loadsave_t *file, bool is_first, bool is_last);
+	rail_vehicle_t(koord3d pos, const vehikel_besch_t* besch, player_t* player, convoi_t *cnv); // start und fahrplan
+	virtual ~rail_vehicle_t();
 
 	virtual void set_convoi(convoi_t *c);
 
@@ -775,21 +775,21 @@ public:
 /**
  * very similar to normal railroad, so we can implement it here completely ...
  * @author prissi
- * @see vehikel_t
+ * @see vehicle_t
  */
-class monorail_waggon_t : public waggon_t
+class monorail_rail_vehicle_t : public rail_vehicle_t
 {
 public:
 	virtual waytype_t get_waytype() const { return monorail_wt; }
 
 #ifdef INLINE_OBJ_TYPE
-	// all handled by waggon_t
-	monorail_waggon_t(loadsave_t *file, bool is_first, bool is_last) : waggon_t(monorailwaggon, file,is_first, is_last) {}
-	monorail_waggon_t(koord3d pos, const vehikel_besch_t* besch, player_t* player, convoi_t* cnv) : waggon_t(monorailwaggon, pos, besch, player, cnv) {}
+	// all handled by rail_vehicle_t
+	monorail_rail_vehicle_t(loadsave_t *file, bool is_first, bool is_last) : rail_vehicle_t(monorailwaggon, file,is_first, is_last) {}
+	monorail_rail_vehicle_t(koord3d pos, const vehikel_besch_t* besch, player_t* player, convoi_t* cnv) : rail_vehicle_t(monorailwaggon, pos, besch, player, cnv) {}
 #else
-	// all handled by waggon_t
-	monorail_waggon_t(loadsave_t *file, bool is_first, bool is_last) : waggon_t(file,is_first, is_last) {}
-	monorail_waggon_t(koord3d pos, const vehikel_besch_t* besch, player_t* player, convoi_t* cnv) : waggon_t(pos, besch, player, cnv) {}
+	// all handled by rail_vehicle_t
+	monorail_rail_vehicle_t(loadsave_t *file, bool is_first, bool is_last) : rail_vehicle_t(file,is_first, is_last) {}
+	monorail_rail_vehicle_t(koord3d pos, const vehikel_besch_t* besch, player_t* player, convoi_t* cnv) : rail_vehicle_t(pos, besch, player, cnv) {}
 
 	typ get_typ() const { return monorailwaggon; }
 #endif
@@ -802,21 +802,21 @@ public:
 /**
  * very similar to normal railroad, so we can implement it here completely ...
  * @author prissi
- * @see vehikel_t
+ * @see vehicle_t
  */
-class maglev_waggon_t : public waggon_t
+class maglev_rail_vehicle_t : public rail_vehicle_t
 {
 public:
 	virtual waytype_t get_waytype() const { return maglev_wt; }
 
 #ifdef INLINE_OBJ_TYPE
-	// all handled by waggon_t
-	maglev_waggon_t(loadsave_t *file, bool is_first, bool is_last) : waggon_t(maglevwaggon, file, is_first, is_last) {}
-	maglev_waggon_t(koord3d pos, const vehikel_besch_t* besch, player_t* player, convoi_t* cnv) : waggon_t(maglevwaggon, pos, besch, player, cnv) {}
+	// all handled by rail_vehicle_t
+	maglev_rail_vehicle_t(loadsave_t *file, bool is_first, bool is_last) : rail_vehicle_t(maglevwaggon, file, is_first, is_last) {}
+	maglev_rail_vehicle_t(koord3d pos, const vehikel_besch_t* besch, player_t* player, convoi_t* cnv) : rail_vehicle_t(maglevwaggon, pos, besch, player, cnv) {}
 #else
-	// all handled by waggon_t
-	maglev_waggon_t(loadsave_t *file, bool is_first, bool is_last) : waggon_t(file, is_first, is_last) {}
-	maglev_waggon_t(koord3d pos, const vehikel_besch_t* besch, player_t* player, convoi_t* cnv) : waggon_t(pos, besch, player, cnv) {}
+	// all handled by rail_vehicle_t
+	maglev_rail_vehicle_t(loadsave_t *file, bool is_first, bool is_last) : rail_vehicle_t(file, is_first, is_last) {}
+	maglev_rail_vehicle_t(koord3d pos, const vehikel_besch_t* besch, player_t* player, convoi_t* cnv) : rail_vehicle_t(pos, besch, player, cnv) {}
 
 	typ get_typ() const { return maglevwaggon; }
 #endif
@@ -829,21 +829,21 @@ public:
 /**
  * very similar to normal railroad, so we can implement it here completely ...
  * @author prissi
- * @see vehikel_t
+ * @see vehicle_t
  */
-class narrowgauge_waggon_t : public waggon_t
+class narrowgauge_rail_vehicle_t : public rail_vehicle_t
 {
 public:
 	virtual waytype_t get_waytype() const { return narrowgauge_wt; }
 
 #ifdef INLINE_OBJ_TYPE
-	// all handled by waggon_t
-	narrowgauge_waggon_t(loadsave_t *file, bool is_first, bool is_last) : waggon_t(narrowgaugewaggon, file, is_first, is_last) {}
-	narrowgauge_waggon_t(koord3d pos, const vehikel_besch_t* besch, player_t* player, convoi_t* cnv) : waggon_t(narrowgaugewaggon, pos, besch, player, cnv) {}
+	// all handled by rail_vehicle_t
+	narrowgauge_rail_vehicle_t(loadsave_t *file, bool is_first, bool is_last) : rail_vehicle_t(narrowgaugewaggon, file, is_first, is_last) {}
+	narrowgauge_rail_vehicle_t(koord3d pos, const vehikel_besch_t* besch, player_t* player, convoi_t* cnv) : rail_vehicle_t(narrowgaugewaggon, pos, besch, player, cnv) {}
 #else
-	// all handled by waggon_t
-	narrowgauge_waggon_t(loadsave_t *file, bool is_first, bool is_last) : waggon_t(file, is_first, is_last) {}
-	narrowgauge_waggon_t(koord3d pos, const vehikel_besch_t* besch, player_t* player, convoi_t* cnv) : waggon_t(pos, besch, player, cnv) {}
+	// all handled by rail_vehicle_t
+	narrowgauge_rail_vehicle_t(loadsave_t *file, bool is_first, bool is_last) : rail_vehicle_t(file, is_first, is_last) {}
+	narrowgauge_rail_vehicle_t(koord3d pos, const vehikel_besch_t* besch, player_t* player, convoi_t* cnv) : rail_vehicle_t(pos, besch, player, cnv) {}
 
 	typ get_typ() const { return narrowgaugewaggon; }
 #endif
@@ -858,9 +858,9 @@ public:
  * and the navigability of tiles.
  *
  * @author Hj. Malthaner
- * @see vehikel_t
+ * @see vehicle_t
  */
-class schiff_t : public vehikel_t
+class water_vehicle_t : public vehicle_t
 {
 protected:
 	// how expensive to go here (for way search)
@@ -882,8 +882,8 @@ public:
 	// returns true for the way search to an unknown target.
 	virtual bool ist_ziel(const grund_t *,const grund_t *) {return 0;}
 
-	schiff_t(loadsave_t *file, bool is_first, bool is_last);
-	schiff_t(koord3d pos, const vehikel_besch_t* besch, player_t* player, convoi_t* cnv);
+	water_vehicle_t(loadsave_t *file, bool is_first, bool is_last);
+	water_vehicle_t(koord3d pos, const vehikel_besch_t* besch, player_t* player, convoi_t* cnv);
 
 #ifdef INLINE_OBJ_TYPE
 #else
@@ -900,9 +900,9 @@ public:
  * and the navigability of tiles.
  *
  * @author hsiegeln
- * @see vehikel_t
+ * @see vehicle_t
  */
-class aircraft_t : public vehikel_t
+class aircraft_t : public vehicle_t
 {
 public:
 	enum flight_state { taxiing=0, departing=1, flying=2, landing=3, looking_for_parking=4, circling=5, taxiing_to_halt=6  };

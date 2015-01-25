@@ -492,12 +492,6 @@
     <ClCompile Include="simticker.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="vehicle\simvehikel.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="vehicle\simverkehr.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="simware.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -960,6 +954,12 @@
     <ClCompile Include="simsys_s2.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="vehicle\simroadtraffic.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="vehicle\simvehicle.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="gui\components\action_listener.h">
@@ -1119,9 +1119,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="gui\factorylist_stats_t.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ifc\fahrer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="dataobj\fahrplan.h">
@@ -1614,12 +1611,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="simtypes.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="vehicle\simvehikel.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="vehicle\simverkehr.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="simversion.h">
@@ -2166,6 +2157,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="gui\components\gui_component.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vehicle\simroadtraffic.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vehicle\simvehicle.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ifc\simtestdriver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

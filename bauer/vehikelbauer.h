@@ -13,7 +13,7 @@
 #include "../simtypes.h"
 #include <string>
 
-class vehikel_t;
+class vehicle_t;
 class player_t;
 class convoi_t;
 class vehikel_besch_t;
@@ -40,12 +40,12 @@ public:
 	static bool register_besch(vehikel_besch_t *besch);
 	static bool alles_geladen();
 
-	static vehikel_t* baue(koord3d k, player_t* player, convoi_t* cnv, const vehikel_besch_t* vb )
+	static vehicle_t* baue(koord3d k, player_t* player, convoi_t* cnv, const vehikel_besch_t* vb )
 	{
 		return baue(k, player, cnv, vb, false);
 	}
 
-	static vehikel_t* baue(koord3d k, player_t* player, convoi_t* cnv, const vehikel_besch_t* vb, bool upgrade, uint16 livery_scheme_index = 0 );
+	static vehicle_t* baue(koord3d k, player_t* player, convoi_t* cnv, const vehikel_besch_t* vb, bool upgrade, uint16 livery_scheme_index = 0 );
 
 	static const vehikel_besch_t * get_info(const char *name);
 	static slist_tpl<vehikel_besch_t*>& get_info(waytype_t);

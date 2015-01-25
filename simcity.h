@@ -19,7 +19,7 @@
 #include "tpl/slist_tpl.h"
 #include "tpl/koordhashtable_tpl.h"
 
-#include "vehicle/simverkehr.h"
+#include "vehicle/simroadtraffic.h"
 #include "tpl/sparse_tpl.h"
 #include "utils/plainstring.h"
 
@@ -64,11 +64,11 @@ enum city_cost {
 
 #define LEGACY_HIST_CAR_OWNERSHIP (16)
 
-class private_car_destination_finder_t : public fahrer_t
+class private_car_destination_finder_t : public test_driver_t
 {
 private:
 	karte_t* welt;
-	automobil_t *master;
+	road_vehicle_t *master;
 	stadt_t* origin_city;
 	const stadt_t* last_city;
 	uint32 last_tile_speed;
@@ -77,7 +77,7 @@ private:
 	uint16 meters_per_tile_x100;
 
 public:
-	private_car_destination_finder_t(karte_t* w, automobil_t* m, stadt_t* o);	
+	private_car_destination_finder_t(karte_t* w, road_vehicle_t* m, stadt_t* o);	
 	
 	virtual waytype_t get_waytype() const { return road_wt; };
 	virtual bool ist_befahrbar( const grund_t* gr ) const;

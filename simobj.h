@@ -156,7 +156,7 @@ public:
 		fussgaenger=64,
 		verkehr=65,
 		automobil=66,
-		waggon=67,
+		rail_vehicle=67,
 		monorailwaggon=68,
 		maglevwaggon=69,
 		narrowgaugewaggon=70,

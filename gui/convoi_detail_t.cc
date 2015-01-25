@@ -15,7 +15,7 @@
 
 #include "../simunits.h"
 #include "../simconvoi.h"
-#include "../vehicle/simvehikel.h"
+#include "../vehicle/simvehicle.h"
 #include "../simcolor.h"
 #include "../display/simgraph.h"
 #include "../simworld.h"
@@ -326,7 +326,7 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 
 		static cbuffer_t freight_info;
 		for(unsigned veh=0;  veh<cnv->get_vehikel_anzahl(); veh++ ) {
-			vehikel_t *v=cnv->get_vehikel(veh);
+			vehicle_t *v=cnv->get_vehikel(veh);
 			int returns = 0;
 			freight_info.clear();
 

@@ -8,7 +8,7 @@
 #include "../simconvoi.h"
 #include "../tpl/vector_tpl.h"
 
-class vehikel_t;
+class vehicle_t;
 class vehikel_besch_t;
 class cbuffer_t;
 

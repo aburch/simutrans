@@ -26,7 +26,7 @@
 #include "../../dataobj/environment.h"
 #include "../../dataobj/livery_scheme.h"
 #include "../../utils/simstring.h"
-#include "../../vehicle/simvehikel.h"
+#include "../../vehicle/simvehicle.h"
 #include "../../besch/haus_besch.h"
 #include "../../besch/vehikel_besch.h"
 #include "../../player/simplay.h"
@@ -877,7 +877,7 @@ void gui_convoy_assembler_t::build_vehicle_lists()
 	// use this to show only sellable vehicles
 	if(!show_all  &&  veh_action==va_sell && depot_frame) {
 		// just list the one to sell
-		FOR(slist_tpl<vehikel_t*>, const v, depot_frame->get_depot()->get_vehicle_list()) {
+		FOR(slist_tpl<vehicle_t*>, const v, depot_frame->get_depot()->get_vehicle_list()) {
 			vehikel_besch_t const* const d = v->get_besch();
 			if (vehicle_map.get(d)) continue;
 			add_to_vehicle_list(d);
@@ -1288,7 +1288,7 @@ void gui_convoy_assembler_t::update_data()
 			image_id image;
 			if(depot_frame)
 			{
-				FOR(slist_tpl<vehikel_t *>, const& iter, depot_frame->get_depot()->get_vehicle_list())
+				FOR(slist_tpl<vehicle_t *>, const& iter, depot_frame->get_depot()->get_vehicle_list())
 				{
 					if(iter->get_besch() == info)
 					{
@@ -1626,7 +1626,7 @@ DBG_DEBUG("gui_convoy_assembler_t::update_data()","current %s with colors %i,%i"
 
 	if (depot_frame) 
 	{
-		FOR(slist_tpl<vehikel_t *>, const& iter2, depot_frame->get_depot()->get_vehicle_list())
+		FOR(slist_tpl<vehicle_t *>, const& iter2, depot_frame->get_depot()->get_vehicle_list())
 		{
 			gui_image_list_t::image_data_t *imgdat=vehicle_map.get(iter2->get_besch());
 			// can fail, if currently not visible

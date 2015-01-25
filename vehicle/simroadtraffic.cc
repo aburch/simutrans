@@ -21,7 +21,7 @@
 #include "../simconvoi.h"
 #include "../player/simplay.h"
 
-#include "simverkehr.h"
+#include "simroadtraffic.h"
 #ifdef DESTINATION_CITYCARS
 // for final citycar destinations
 #include "simpeople.h"
@@ -47,11 +47,11 @@
 /* Road users (Verkehrsteilnehmer) basis class from here on */
 
 #ifdef INLINE_OBJ_TYPE
-verkehrsteilnehmer_t::verkehrsteilnehmer_t(typ type) :
-	vehikel_basis_t(type)
+road_user_t::road_user_t(typ type) :
+	vehicle_base_t(type)
 #else
-verkehrsteilnehmer_t::verkehrsteilnehmer_t() :
-	vehikel_basis_t()
+road_user_t::road_user_t() :
+	vehicle_base_t()
 #endif
 {
 	set_owner( welt->get_player(1) );
@@ -66,18 +66,18 @@ verkehrsteilnehmer_t::verkehrsteilnehmer_t() :
  * of sync step-able things!
  * @author Hj. Malthaner
  */
-verkehrsteilnehmer_t::~verkehrsteilnehmer_t()
+road_user_t::~road_user_t()
 {
 	mark_image_dirty( get_bild(), 0 );
 }
 
 
 #ifdef INLINE_OBJ_TYPE
-verkehrsteilnehmer_t::verkehrsteilnehmer_t(typ type, grund_t* bd, uint16 random) :
-	vehikel_basis_t(type, bd ? bd->get_pos() : koord3d::invalid)
+road_user_t::road_user_t(typ type, grund_t* bd, uint16 random) :
+	vehicle_base_t(type, bd ? bd->get_pos() : koord3d::invalid)
 #else
-verkehrsteilnehmer_t::verkehrsteilnehmer_t(grund_t* bd, uint16 random) :
-	vehikel_basis_t(welt, bd ? bd->get_pos() : koord3d::invalid)
+road_user_t::road_user_t(grund_t* bd, uint16 random) :
+	vehicle_base_t(welt, bd ? bd->get_pos() : koord3d::invalid)
 #endif
 {
 	ribi_t::ribi road_ribi = bd->get_weg_ribi(road_wt);
@@ -130,7 +130,7 @@ verkehrsteilnehmer_t::verkehrsteilnehmer_t(grund_t* bd, uint16 random) :
  * Open a new observation window for the object.
  * @author Hj. Malthaner
  */
-void verkehrsteilnehmer_t::zeige_info()
+void road_user_t::zeige_info()
 {
 	if(env_t::verkehrsteilnehmer_info) {
 		obj_t::zeige_info();
@@ -138,7 +138,7 @@ void verkehrsteilnehmer_t::zeige_info()
 }
 
 
-grund_t* verkehrsteilnehmer_t::hop()
+grund_t* road_user_t::hop()
 {
 	// V.Meyer: weg_position_t changed to grund_t::get_neighbour()
 	grund_t *from = welt->lookup(pos_next);
@@ -183,10 +183,10 @@ grund_t* verkehrsteilnehmer_t::hop()
 	if(count > 1) {
 #ifdef DEBUG_SIMRAND_CALLS
 		char buf[256];
-		sprintf(buf, "verkehrsteilnehmer_t::hop() %s", typeid(*this).name());
+		sprintf(buf, "road_user_t::hop() %s", typeid(*this).name());
 		pos_next = liste[simrand(count, buf)]->get_pos();
 #else
-		pos_next = liste[simrand(count, "verkehrsteilnehmer_t::hop()")]->get_pos();
+		pos_next = liste[simrand(count, "road_user_t::hop()")]->get_pos();
 #endif
 		fahrtrichtung = calc_set_richtung(get_pos(), pos_next);
 	} else if(count==1) {
@@ -208,9 +208,9 @@ grund_t* verkehrsteilnehmer_t::hop()
 
 
 
-void verkehrsteilnehmer_t::rdwr(loadsave_t *file)
+void road_user_t::rdwr(loadsave_t *file)
 {
-	xml_tag_t t( file, "verkehrsteilnehmer_t" );
+	xml_tag_t t( file, "road_user_t" );
 
 	sint8 hoff = file->is_saving() ? get_hoff() : 0;
 
@@ -223,7 +223,7 @@ void verkehrsteilnehmer_t::rdwr(loadsave_t *file)
 		set_yoff( get_yoff() + i*dy + hoff );
 	}
 
-	vehikel_basis_t::rdwr(file);
+	vehicle_base_t::rdwr(file);
 
 	if(file->get_version() < 86006) {
 		sint32 l;
@@ -313,7 +313,7 @@ void verkehrsteilnehmer_t::rdwr(loadsave_t *file)
 	weg_next &= 65535;
 }
 
-void verkehrsteilnehmer_t::laden_abschliessen()
+void road_user_t::laden_abschliessen()
 {
 	calc_height(NULL);
 	calc_bild();
@@ -326,9 +326,9 @@ void verkehrsteilnehmer_t::laden_abschliessen()
 
 
 static weighted_vector_tpl<const stadtauto_besch_t*> liste_timeline;
-stringhashtable_tpl<const stadtauto_besch_t *> stadtauto_t::table;
+stringhashtable_tpl<const stadtauto_besch_t *> private_car_t::table;
 
-bool stadtauto_t::register_besch(const stadtauto_besch_t *besch)
+bool private_car_t::register_besch(const stadtauto_besch_t *besch)
 {
 	if(  table.remove(besch->get_name())  ) {
 		dbg->warning( "stadtauto_besch_t::register_besch()", "Object %s was overlaid by addon!", besch->get_name() );
@@ -339,10 +339,10 @@ bool stadtauto_t::register_besch(const stadtauto_besch_t *besch)
 
 
 
-bool stadtauto_t::alles_geladen()
+bool private_car_t::alles_geladen()
 {
 	if(table.empty()) {
-		DBG_MESSAGE("stadtauto_t", "No citycars found - feature disabled");
+		DBG_MESSAGE("private_car_t", "No citycars found - feature disabled");
 	}
 	return true;
 }
@@ -363,14 +363,14 @@ static bool compare_stadtauto_besch(const stadtauto_besch_t* a, const stadtauto_
 }
 
 
-void stadtauto_t::built_timeline_liste(karte_t *welt)
+void private_car_t::built_timeline_liste(karte_t *welt)
 {
 	// this list will contain all citycars
 	liste_timeline.clear();
 	vector_tpl<const stadtauto_besch_t*> temp_liste(0);
 	if(  !table.empty()  ) {
 		const int month_now = welt->get_current_month();
-//DBG_DEBUG("stadtauto_t::built_timeline_liste()","year=%i, month=%i", month_now/12, month_now%12+1);
+//DBG_DEBUG("private_car_t::built_timeline_liste()","year=%i, month=%i", month_now/12, month_now%12+1);
 
 		// check for every citycar, if still ok ...
 		FOR(stringhashtable_tpl<stadtauto_besch_t const*>, const& i, table) {
@@ -389,13 +389,13 @@ void stadtauto_t::built_timeline_liste(karte_t *welt)
 	}
 }
 
-bool stadtauto_t::list_empty()
+bool private_car_t::list_empty()
 {
 	return liste_timeline.empty();
 }
 
 
-stadtauto_t::~stadtauto_t()
+private_car_t::~private_car_t()
 {
 	// first: release crossing
 	grund_t *gr = welt->lookup(get_pos());
@@ -410,11 +410,11 @@ stadtauto_t::~stadtauto_t()
 }
 
 
-stadtauto_t::stadtauto_t(loadsave_t *file) :
+private_car_t::private_car_t(loadsave_t *file) :
 #ifdef INLINE_OBJ_TYPE
-	verkehrsteilnehmer_t(obj_t::verkehr)
+	road_user_t(obj_t::verkehr)
 #else
-	verkehrsteilnehmer_t()
+	road_user_t()
 #endif
 {
 	rdwr(file);
@@ -425,11 +425,11 @@ stadtauto_t::stadtauto_t(loadsave_t *file) :
 }
 
 
-stadtauto_t::stadtauto_t(grund_t* gr, koord const target) :
+private_car_t::private_car_t(grund_t* gr, koord const target) :
 #ifdef INLINE_OBJ_TYPE
-	verkehrsteilnehmer_t(obj_t::verkehr, gr, simrand(65535, "stadtauto_t::stadtauto_t (weg_next)")),
+	road_user_t(obj_t::verkehr, gr, simrand(65535, "private_car_t::private_car_t (weg_next)")),
 #else
-	verkehrsteilnehmer_t(gr, simrand(65535, "stadtauto_t::stadtauto_t (weg_next)")),
+	road_user_t(gr, simrand(65535, "private_car_t::private_car_t (weg_next)")),
 #endif
 	besch(liste_timeline.empty() ? 0 : pick_any_weighted(liste_timeline))
 {
@@ -447,7 +447,7 @@ stadtauto_t::stadtauto_t(grund_t* gr, koord const target) :
 }
 
 
-bool stadtauto_t::sync_step(long delta_t)
+bool private_car_t::sync_step(long delta_t)
 {
 	time_to_life -= delta_t;
 	if(  time_to_life<=0 ) {
@@ -502,11 +502,11 @@ bool stadtauto_t::sync_step(long delta_t)
 }
 
 
-void stadtauto_t::rdwr(loadsave_t *file)
+void private_car_t::rdwr(loadsave_t *file)
 {
-	xml_tag_t s( file, "stadtauto_t" );
+	xml_tag_t s( file, "private_car_t" );
 
-	verkehrsteilnehmer_t::rdwr(file);
+	road_user_t::rdwr(file);
 
 	if(file->is_saving()) {
 		const char *s = besch->get_name();
@@ -518,12 +518,12 @@ void stadtauto_t::rdwr(loadsave_t *file)
 		besch = table.get(s);
 
 		if(  besch == 0  &&  !liste_timeline.empty()  ) {
-			dbg->warning("stadtauto_t::rdwr()", "Object '%s' not found in table, trying random stadtauto object type",s);
+			dbg->warning("private_car_t::rdwr()", "Object '%s' not found in table, trying random stadtauto object type",s);
 			besch = pick_any_weighted(liste_timeline);
 		}
 
 		if(besch == 0) {
-			dbg->warning("stadtauto_t::rdwr()", "loading game with private cars, but no private car objects found in PAK files.");
+			dbg->warning("private_car_t::rdwr()", "loading game with private cars, but no private car objects found in PAK files.");
 		}
 		else {
 			set_bild(besch->get_bild_nr(ribi_t::get_dir(get_fahrtrichtung())));
@@ -531,7 +531,7 @@ void stadtauto_t::rdwr(loadsave_t *file)
 	}
 
 	if(file->get_version() <= 86001) {
-		time_to_life = simrand(1000000, "void stadtauto_t::rdwr")+10000;
+		time_to_life = simrand(1000000, "void private_car_t::rdwr")+10000;
 	}
 	else if(file->get_version() <= 89004) {
 		file->rdwr_long(time_to_life);
@@ -593,7 +593,7 @@ void stadtauto_t::rdwr(loadsave_t *file)
 }
 
 
-bool stadtauto_t::ist_weg_frei(grund_t *gr)
+bool private_car_t::ist_weg_frei(grund_t *gr)
 {
 	if(gr->get_top()>200) {
 		// already too many things here
@@ -669,7 +669,7 @@ bool stadtauto_t::ist_weg_frei(grund_t *gr)
 			// Overtaking vehicles shouldn't have anything blocking them
 			if(  !is_overtaking()  ) {
 				// not a crossing => skip 90° check!
-				vehikel_basis_t *dt = no_cars_blocking( gr, NULL, this_fahrtrichtung, next_fahrtrichtung, next_fahrtrichtung );
+				vehicle_base_t *dt = no_cars_blocking( gr, NULL, this_fahrtrichtung, next_fahrtrichtung, next_fahrtrichtung );
 				if(  dt  ) {
 					if(dt->is_stuck()) {
 						// previous vehicle is stuck => end of traffic jam ...
@@ -680,12 +680,12 @@ bool stadtauto_t::ist_weg_frei(grund_t *gr)
 						if(over) {
 							if(!over->is_overtaking()) {
 								// otherwise the overtaken car would stop for us ...
-								if(  automobil_t const* const car = obj_cast<automobil_t>(dt)  ) {
+								if(  road_vehicle_t const* const car = obj_cast<road_vehicle_t>(dt)  ) {
 									convoi_t* const ocnv = car->get_convoi();
 									if(  ocnv==NULL  ||  !can_overtake( ocnv, (ocnv->get_state()==convoi_t::LOADING ? 0 : over->get_max_power_speed()), ocnv->get_length_in_steps()+ocnv->get_vehikel(0)->get_steps())  ) {
 										frei = false;
 									}
-								} else if(  stadtauto_t* const caut = obj_cast<stadtauto_t>(dt)  ) {
+								} else if(  private_car_t* const caut = obj_cast<private_car_t>(dt)  ) {
 									if(  !can_overtake(caut, caut->get_besch()->get_geschw(), VEHICLE_STEPS_PER_TILE)  ) {
 										frei = false;
 									}
@@ -765,7 +765,7 @@ bool stadtauto_t::ist_weg_frei(grund_t *gr)
 }
 
 
-void stadtauto_t::betrete_feld(grund_t* gr)
+void private_car_t::betrete_feld(grund_t* gr)
 {
 #ifdef DESTINATION_CITYCARS
 	// Destination city car code revived from an older version of Simutrans.
@@ -776,15 +776,15 @@ void stadtauto_t::betrete_feld(grund_t* gr)
 
 		//"fussgaenger" = pedestrian (Babelfish)
 		int number = 2;
-		fussgaenger_t::erzeuge_fussgaenger_an(get_pos(), number);
+		pedestrian_t::erzeuge_fussgaenger_an(get_pos(), number);
 	}
 #endif /* DESTINATION_CITYCARS */
-	vehikel_basis_t::betrete_feld(gr);
+	vehicle_base_t::betrete_feld(gr);
 	get_weg()->book(1, WAY_STAT_CONVOIS);
 }
 
 
-grund_t* stadtauto_t::hop_check()
+grund_t* private_car_t::hop_check()
 {
 	// V.Meyer: weg_position_t changed to grund_t::get_neighbour()
 	grund_t *const from = welt->lookup(pos_next);
@@ -839,7 +839,7 @@ grund_t* stadtauto_t::hop_check()
 				continue;
 			}
 #else
-		const uint8 offset = ribi_t::ist_einfach(ribi) ? 0 : simrand(4, "bool stadtauto_t::hop_check");
+		const uint8 offset = ribi_t::ist_einfach(ribi) ? 0 : simrand(4, "bool private_car_t::hop_check");
 		for(uint8 i = 0; i < 4; i++) {
 			const uint8 r = (i+offset)&3;
 #endif
@@ -929,7 +929,7 @@ grund_t* stadtauto_t::hop_check()
 
 
 
-void stadtauto_t::hop(grund_t* to)
+void private_car_t::hop(grund_t* to)
 {
 	// Check whether this private car should pay a road toll.
 
@@ -984,7 +984,7 @@ void stadtauto_t::hop(grund_t* to)
 
 
 
-void stadtauto_t::calc_bild()
+void private_car_t::calc_bild()
 {
 	set_bild(besch->get_bild_nr(ribi_t::get_dir(get_fahrtrichtung())));
 	drives_on_left = welt->get_settings().is_drive_left();	// reset driving settings
@@ -992,7 +992,7 @@ void stadtauto_t::calc_bild()
 
 
 
-void stadtauto_t::calc_current_speed(grund_t* gr)
+void private_car_t::calc_current_speed(grund_t* gr)
 {
 	const weg_t * weg = get_weg();
 	sint32 max_speed = besch ? besch->get_geschw() : kmh_to_speed(90);
@@ -1007,7 +1007,7 @@ void stadtauto_t::calc_current_speed(grund_t* gr)
 }
 
 
-void stadtauto_t::info(cbuffer_t & buf, bool dummy) const
+void private_car_t::info(cbuffer_t & buf, bool dummy) const
 {
 	const stadt_t* const origin_city = welt->get_city(origin);
 #ifdef DESTINATION_CITYCARS
@@ -1024,9 +1024,9 @@ void stadtauto_t::info(cbuffer_t & buf, bool dummy) const
 
 
 // to make smaller steps than the tile granularity, we have to use this trick
-void stadtauto_t::get_screen_offset( int &xoff, int &yoff, const sint16 raster_width ) const
+void private_car_t::get_screen_offset( int &xoff, int &yoff, const sint16 raster_width ) const
 {
-	vehikel_basis_t::get_screen_offset( xoff, yoff, raster_width );
+	vehicle_base_t::get_screen_offset( xoff, yoff, raster_width );
 
 	// eventually shift position to take care of overtaking
 	if(  is_overtaking()  ) {
@@ -1046,7 +1046,7 @@ void stadtauto_t::get_screen_offset( int &xoff, int &yoff, const sint16 raster_w
  * The city car is not overtaking/being overtaken.
  * @author isidoro
  */
-bool stadtauto_t::can_overtake( overtaker_t *other_overtaker, sint32 other_speed, sint16 steps_other)
+bool private_car_t::can_overtake( overtaker_t *other_overtaker, sint32 other_speed, sint16 steps_other)
 {
 	if(  !other_overtaker->can_be_overtaken()  ) {
 		return false;
@@ -1088,7 +1088,7 @@ bool stadtauto_t::can_overtake( overtaker_t *other_overtaker, sint32 other_speed
 			// Check for other vehicles on the next tile
 			const uint8 top = gr->get_top();
 			for(  uint8 j=1;  j<top;  j++  ) {
-				if(  vehikel_basis_t* const v = obj_cast<vehikel_basis_t>(gr->obj_bei(j))  ) {
+				if(  vehicle_base_t* const v = obj_cast<vehicle_base_t>(gr->obj_bei(j))  ) {
 					// check for other traffic on the road
 					const overtaker_t *ov = v->get_overtaker();
 					if(ov) {
@@ -1214,7 +1214,7 @@ bool stadtauto_t::can_overtake( overtaker_t *other_overtaker, sint32 other_speed
 		// Check for other vehicles on the next tile
 		const uint8 top = gr->get_top();
 		for(  uint8 j=1;  j<top;  j++  ) {
-			if(  vehikel_basis_t* const v = obj_cast<vehikel_basis_t>(gr->obj_bei(j))  ) {
+			if(  vehicle_base_t* const v = obj_cast<vehicle_base_t>(gr->obj_bei(j))  ) {
 				// check for other traffic on the road
 				const overtaker_t *ov = v->get_overtaker();
 				if(ov) {
@@ -1289,7 +1289,7 @@ bool stadtauto_t::can_overtake( overtaker_t *other_overtaker, sint32 other_speed
 		ribi_t::ribi their_direction = ribi_t::rueckwaerts(calc_richtung( pos_prev_prev, to->get_pos().get_2d() ));
 		const uint8 top = gr->get_top();
 		for(  uint8 j=1;  j<top;  j++ ) {
-			vehikel_basis_t* const v = obj_cast<vehikel_basis_t>(gr->obj_bei(j));
+			vehicle_base_t* const v = obj_cast<vehicle_base_t>(gr->obj_bei(j));
 			if(  v  &&  v->get_fahrtrichtung() == their_direction  ) {
 				// check for car
 				if(v->get_overtaker()) {
@@ -1310,13 +1310,13 @@ bool stadtauto_t::can_overtake( overtaker_t *other_overtaker, sint32 other_speed
 	return true;
 }
 
-void *stadtauto_t::operator new(size_t /*s*/)
+void *private_car_t::operator new(size_t /*s*/)
 {
-	return freelist_t::gimme_node(sizeof(stadtauto_t));
+	return freelist_t::gimme_node(sizeof(private_car_t));
 }
 
 
-void stadtauto_t::operator delete(void *p)
+void private_car_t::operator delete(void *p)
 {
-	freelist_t::putback_node(sizeof(stadtauto_t),p);
+	freelist_t::putback_node(sizeof(private_car_t),p);
 }

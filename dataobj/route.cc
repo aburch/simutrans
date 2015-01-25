@@ -18,7 +18,7 @@
 #include "../boden/wege/weg.h"
 #include "../boden/grund.h"
 #include "../dataobj/marker.h"
-#include "../ifc/fahrer.h"
+#include "../ifc/simtestdriver.h"
 #include "loadsave.h"
 #include "route.h"
 #include "../besch/bruecke_besch.h"
@@ -167,7 +167,7 @@ void route_t::RELEASE_NODES(uint8 nodes_index)
 /* find the route to an unknown location
  * @author prissi
  */
-bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, const uint32 max_khm, uint8 start_dir, uint32 axle_load, uint32 total_weight, uint32 max_depth, find_route_flags flags)
+bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdriver, const uint32 max_khm, uint8 start_dir, uint32 axle_load, uint32 total_weight, uint32 max_depth, find_route_flags flags)
 {
 	bool ok = false;
 
@@ -180,7 +180,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 	const uint8 enforce_weight_limits = welt->get_settings().get_enforce_weight_limits();
 
 	// some thing for the search
-	const waytype_t wegtyp = fahr->get_waytype();
+	const waytype_t wegtyp = tdriver->get_waytype();
 
 	// memory in static list ...
 	if(!MAX_STEP)
@@ -219,7 +219,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 	route.clear();
 
 	// first tile is not valid?!?
-	if(!fahr->ist_befahrbar(g)) 
+	if(!tdriver->ist_befahrbar(g)) 
 	{
 		return false;
 	}
@@ -265,7 +265,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 		marker.mark(gr);
 
 		// already there
-		if(fahr->ist_ziel(gr, tmp->parent == NULL ? NULL : tmp->parent->gr))
+		if(tdriver->ist_ziel(gr, tmp->parent == NULL ? NULL : tmp->parent->gr))
 		{
 			if(flags != private_car_checker)
 			{
@@ -337,21 +337,21 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 
 		// testing all four possible directions
 		ribi_t::ribi ribi;
-		if(fahr->get_waytype() == track_wt || fahr->get_waytype() == tram_wt || fahr->get_waytype() == monorail_wt || fahr->get_waytype() == narrowgauge_wt || fahr->get_waytype() == maglev_wt)
+		if(tdriver->get_waytype() == track_wt || tdriver->get_waytype() == tram_wt || tdriver->get_waytype() == monorail_wt || tdriver->get_waytype() == narrowgauge_wt || tdriver->get_waytype() == maglev_wt)
 		{
-			const weg_t* way = gr->get_weg(fahr->get_waytype());
+			const weg_t* way = gr->get_weg(tdriver->get_waytype());
 			if(way && way->has_signal())
 			{
 				ribi = way->get_ribi_unmasked();
 			}
 			else
 			{
-				ribi = fahr->get_ribi(gr);
+				ribi = tdriver->get_ribi(gr);
 			}
 		}
 		else
 		{
-			ribi = fahr->get_ribi(gr);
+			ribi = tdriver->get_ribi(gr);
 		}
 		for(int r = 0; r < 4; r++) 
 		{
@@ -361,10 +361,10 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 				&& koord_distance(start, gr->get_pos() + koord::nsow[r]) < max_depth	// not too far away
 				&& gr->get_neighbour(to, wegtyp, ribi_t::nsow[r])  // is connected
 				&& !marker.is_marked(to) // not already tested
-				&& fahr->ist_befahrbar(to)	// can be driven on
+				&& tdriver->ist_befahrbar(to)	// can be driven on
 			) {
 
-				weg_t* w = to->get_weg(fahr->get_waytype());
+				weg_t* w = to->get_weg(tdriver->get_waytype());
 				
 				if (enforce_weight_limits > 1 && w != NULL)
 				{
@@ -397,7 +397,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 				k->parent = tmp;
 				k->gr = to;
 				k->count = tmp->count+1;
-				k->g = tmp->g + fahr->get_kosten(to, max_khm, gr->get_pos().get_2d());
+				k->g = tmp->g + tdriver->get_kosten(to, max_khm, gr->get_pos().get_2d());
 				k->f = 0;
 				// insert here
 				queue.insert(k);
@@ -412,7 +412,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 //	INT_CHECK("route 194");
 
 	// target reached?
-	if(!fahr->ist_ziel(gr, tmp->parent == NULL ? NULL : tmp->parent->gr) || step >= MAX_STEP)
+	if(!tdriver->ist_ziel(gr, tmp->parent == NULL ? NULL : tmp->parent->gr) || step >= MAX_STEP)
 	{
 		if(  step >= MAX_STEP  ) 
 		{
@@ -481,7 +481,7 @@ void route_t::concatenate_routes(route_t* tail_route)
 }
 
 
-bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d start, fahrer_t *fahr, const sint32 max_speed, const sint64 max_cost, const uint32 axle_load, const uint32 convoy_weight, const sint32 tile_length, koord3d avoid_tile)
+bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d start, test_driver_t *tdriver, const sint32 max_speed, const sint64 max_cost, const uint32 axle_load, const uint32 convoy_weight, const sint32 tile_length, koord3d avoid_tile)
 {
 	bool ok = false;
 
@@ -497,13 +497,13 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 	max_convoy_weight = MAXUINT32;
 
 	// first tile is not valid?!?
-	if(  !fahr->ist_befahrbar(gr)  ) {
+	if(  !tdriver->ist_befahrbar(gr)  ) {
 		return false;
 	}
 
 	// some thing for the search
-	const waytype_t wegtyp = fahr->get_waytype();
-	const bool is_airplane = fahr->get_waytype()==air_wt;
+	const waytype_t wegtyp = tdriver->get_waytype();
+	const bool is_airplane = tdriver->get_waytype()==air_wt;
 
 	grund_t *to;
 
@@ -519,7 +519,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 	 *  http://users.cecs.anu.edu.au/~dharabor/data/papers/harabor-grastien-aaai11.pdf
 	 */
 
-	const bool use_jps     = fahr->get_waytype()==water_wt;
+	const bool use_jps     = tdriver->get_waytype()==water_wt;
 
 	bool ziel_erreicht=false;
 
@@ -610,9 +610,9 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 		}
 
 		uint32 topnode_f = !queue.empty() ? queue.front()->f : max_cost;
-		const weg_t* way = gr->get_weg(fahr->get_waytype());
+		const weg_t* way = gr->get_weg(tdriver->get_waytype());
 
-		const ribi_t::ribi way_ribi = way && way->has_signal() ? gr->get_weg_ribi_unmasked(fahr->get_waytype()) : fahr->get_ribi(gr);
+		const ribi_t::ribi way_ribi = way && way->has_signal() ? gr->get_weg_ribi_unmasked(tdriver->get_waytype()) : tdriver->get_ribi(gr);
 		// testing all four possible directions
 		// mask direction we came from
 		const ribi_t::ribi ribi = way_ribi & ( ~ribi_t::reverse_single(tmp->ribi_from) ) & tmp->jps_ribi;
@@ -637,7 +637,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 			}
 
 			// a way goes here, and it is not marked (i.e. in the closed list)
-			if((to || gr->get_neighbour(to, wegtyp, next_ribi[r])) && fahr->ist_befahrbar(to) && !marker.is_marked(to)) 
+			if((to || gr->get_neighbour(to, wegtyp, next_ribi[r])) && tdriver->ist_befahrbar(to) && !marker.is_marked(to)) 
 			{
 				// Do not go on a tile, where a oneway sign forbids going.
 				// This saves time and fixed the bug, that a oneway sign on the final tile was ignored.
@@ -646,7 +646,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 				ribi_t::ribi go_dir = (w==NULL) ? 0 : w->get_ribi_maske();
 				if((last_dir&go_dir)!=0) 
 				{
-					if(fahr->get_waytype() == track_wt || fahr->get_waytype() == narrowgauge_wt || fahr->get_waytype() == maglev_wt || fahr->get_waytype() == tram_wt || fahr->get_waytype() == monorail_wt)
+					if(tdriver->get_waytype() == track_wt || tdriver->get_waytype() == narrowgauge_wt || tdriver->get_waytype() == maglev_wt || tdriver->get_waytype() == tram_wt || tdriver->get_waytype() == monorail_wt)
 					{
 						// Unidirectional signals allow routing in both directions but only act in one direction. Check whether this is one of those.					
 						if(!w->has_signal())
@@ -760,7 +760,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 				}
 
 				// new values for cost g (without way it is either in the air or in water => no costs)
-				const int way_cost = fahr->get_kosten(to, max_speed, tmp->gr->get_pos().get_2d()) + (is_overweight == slowly_only ? 400 : 0);
+				const int way_cost = tdriver->get_kosten(to, max_speed, tmp->gr->get_pos().get_2d()) + (is_overweight == slowly_only ? 400 : 0);
 				uint32 new_g = tmp->g + (w ? way_cost : 10);
 
 				// check for curves (usually, one would need the lastlast and the last;
@@ -849,7 +849,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 			route[ tmp->count ] = tmp->gr->get_pos();
 			tmp = tmp->parent;
 		}
-		if (use_jps  &&  fahr->get_waytype()==water_wt) {
+		if (use_jps  &&  tdriver->get_waytype()==water_wt) {
 			postprocess_water_route(welt);
 		}
 		ok = true;
@@ -969,11 +969,11 @@ void route_t::postprocess_water_route(karte_t *welt)
  * corrected 12/2005 for station search
  * @author Hansjörg Malthaner, prissi
  */
- route_t::route_result_t route_t::calc_route(karte_t *welt, const koord3d ziel, const koord3d start, fahrer_t *fahr, const sint32 max_khm, const uint32 axle_load, sint32 max_len, const sint64 max_cost, const uint32 convoy_weight, koord3d avoid_tile)
+ route_t::route_result_t route_t::calc_route(karte_t *welt, const koord3d ziel, const koord3d start, test_driver_t *tdriver, const sint32 max_khm, const uint32 axle_load, sint32 max_len, const sint64 max_cost, const uint32 convoy_weight, koord3d avoid_tile)
 {
 	route.clear();
 	const uint32 distance = shortest_distance(start.get_2d(), ziel.get_2d()) * 600;
-	if(fahr->get_waytype() == water_wt && distance > welt->get_settings().get_max_route_steps())
+	if(tdriver->get_waytype() == water_wt && distance > welt->get_settings().get_max_route_steps())
 	{
 		// Do not actually try to calculate the route if it is doomed to failure.
 		// This ensures that the game does not become overloaded if a line
@@ -987,9 +987,9 @@ void route_t::postprocess_water_route(karte_t *welt)
 	// profiling for routes ...
 	long ms=dr_time();
 #endif
-	bool ok = intern_calc_route(welt, start, ziel, fahr, max_khm, max_cost, axle_load, convoy_weight, max_len, avoid_tile);
+	bool ok = intern_calc_route(welt, start, ziel, tdriver, max_khm, max_cost, axle_load, convoy_weight, max_len, avoid_tile);
 #ifdef DEBUG_ROUTES
-	if(fahr->get_waytype()==water_wt) {DBG_DEBUG("route_t::calc_route()","route from %d,%d to %d,%d with %i steps in %u ms found.",start.x, start.y, ziel.x, ziel.y, route.get_count()-1, dr_time()-ms );}
+	if(tdriver->get_waytype()==water_wt) {DBG_DEBUG("route_t::calc_route()","route from %d,%d to %d,%d with %i steps in %u ms found.",start.x, start.y, ziel.x, ziel.y, route.get_count()-1, dr_time()-ms );}
 #endif
 
 //	INT_CHECK("route 343");
@@ -1026,22 +1026,22 @@ void route_t::postprocess_water_route(karte_t *welt)
 			// Find the end of the station, and append these tiles to the route.
 			const uint32 max_n = route.get_count() - 1;
 			const koord zv = route[max_n].get_2d() - route[max_n - 1].get_2d();
-			const int ribi = ribi_typ(zv);//fahr->get_ribi(welt->lookup(start));
+			const int ribi = ribi_typ(zv);//tdriver->get_ribi(welt->lookup(start));
 
-			const waytype_t wegtyp = fahr->get_waytype();
+			const waytype_t wegtyp = tdriver->get_waytype();
 
 			//bool is_signal_at_end_of_station = false;
-			while(gr->get_neighbour(gr, wegtyp, ribi) && gr->get_halt() == halt && fahr->ist_befahrbar(gr) && (fahr->get_ribi(gr) & ribi) != 0)
+			while(gr->get_neighbour(gr, wegtyp, ribi) && gr->get_halt() == halt && tdriver->ist_befahrbar(gr) && (tdriver->get_ribi(gr) & ribi) != 0)
 			{
 				// Do not go on a tile where a one way sign forbids going.
 				// This saves time and fixed the bug that a one way sign on the final tile was ignored.
 				ribi_t::ribi go_dir = gr->get_weg(wegtyp)->get_ribi_maske();
 				if((ribi & go_dir) != 0)
 				{
-					if(fahr->get_waytype() == track_wt || fahr->get_waytype() == narrowgauge_wt || fahr->get_waytype() == maglev_wt || fahr->get_waytype() == tram_wt || fahr->get_waytype() == monorail_wt)
+					if(tdriver->get_waytype() == track_wt || tdriver->get_waytype() == narrowgauge_wt || tdriver->get_waytype() == maglev_wt || tdriver->get_waytype() == tram_wt || tdriver->get_waytype() == monorail_wt)
 					{
 						// Unidirectional signals allow routing in both directions but only act in one direction. Check whether this is one of those.
-						if(!gr->get_weg(fahr->get_waytype()) || !gr->get_weg(fahr->get_waytype())->has_signal())
+						if(!gr->get_weg(tdriver->get_waytype()) || !gr->get_weg(tdriver->get_waytype())->has_signal())
 						{
 							break;
 						}

@@ -152,9 +152,9 @@ void movingobj_t::calc_bild()
 
 movingobj_t::movingobj_t(loadsave_t *file) : 
 #ifdef INLINE_OBJ_TYPE
-    vehikel_basis_t(movingobj)
+    vehicle_base_t(movingobj)
 #else
-    vehikel_basis_t()
+    vehicle_base_t()
 #endif
 {
 	rdwr(file);
@@ -166,9 +166,9 @@ movingobj_t::movingobj_t(loadsave_t *file) :
 
 movingobj_t::movingobj_t(koord3d pos, const groundobj_besch_t *b ) : 
 #ifdef INLINE_OBJ_TYPE
-    vehikel_basis_t(movingobj, pos)
+    vehicle_base_t(movingobj, pos)
 #else
-    vehikel_basis_t(pos)
+    vehicle_base_t(pos)
 #endif
 {
 	movingobjtype = movingobj_typen.index_of(b);
@@ -202,7 +202,7 @@ void movingobj_t::rdwr(loadsave_t *file)
 {
 	xml_tag_t d( file, "movingobj_t" );
 
-	vehikel_basis_t::rdwr(file);
+	vehicle_base_t::rdwr(file);
 
 	file->rdwr_enum(fahrtrichtung);
 	if (file->is_loading()) {

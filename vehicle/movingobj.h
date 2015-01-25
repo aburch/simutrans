@@ -14,14 +14,14 @@
 #include "../simcolor.h"
 #include "../ifc/sync_steppable.h"
 
-#include "simvehikel.h"
+#include "simvehicle.h"
 
 
 /**
  * moving stuff like sheeps or birds
  * @author prissi
  */
-class movingobj_t : public vehikel_basis_t, public sync_steppable
+class movingobj_t : public vehicle_base_t, public sync_steppable
 {
 private:
 	/// distance to move

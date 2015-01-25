@@ -1,5 +1,5 @@
 #include "gui_obj_view_t.h"
-#include "../../vehicle/simvehikel.h"
+#include "../../vehicle/simvehicle.h"
 
 
 obj_view_t::obj_view_t(obj_t const* d, scr_size const size) :

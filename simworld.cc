@@ -60,8 +60,8 @@
 #include "boden/wasser.h"
 
 #include "old_blockmanager.h"
-#include "vehicle/simvehikel.h"
-#include "vehicle/simverkehr.h"
+#include "vehicle/simvehicle.h"
+#include "vehicle/simroadtraffic.h"
 #include "vehicle/movingobj.h"
 #include "boden/wege/schiene.h"
 
@@ -1033,7 +1033,7 @@ void karte_t::init_felder()
 
 	halthandle_t::init( 1024 );
 
-	vehikel_basis_t::set_overtaking_offsets( get_settings().is_drive_left() );
+	vehicle_base_t::set_overtaking_offsets( get_settings().is_drive_left() );
 
 	scenario = new scenario_t(this);
 
@@ -1403,7 +1403,7 @@ void karte_t::distribute_cities( settings_t const * const sets, sint16 old_x, si
 
 			// get a default vehikel
 			route_t verbindung;
-			vehikel_t* test_driver;
+			vehicle_t* test_driver;
 			vehikel_besch_t test_drive_besch(road_wt, 500, vehikel_besch_t::diesel );
 			test_driver = vehikelbauer_t::baue(koord3d(), players[1], NULL, &test_drive_besch);
 			test_driver->set_flag( obj_t::not_on_map );
@@ -1702,7 +1702,7 @@ DBG_DEBUG("karte_t::init()","distributing trees");
 	}
 
 DBG_DEBUG("karte_t::init()","built timeline");
-	stadtauto_t::built_timeline_liste(this);
+	private_car_t::built_timeline_liste(this);
 
 	nosave_warning = nosave = false;
 
@@ -4295,7 +4295,7 @@ rands[1] = get_random_seed();
 		// change view due to following a convoi?
 		convoihandle_t follow_convoi = viewport->get_follow_convoi();
 		if(follow_convoi.is_bound()  &&  follow_convoi->get_vehikel_anzahl()>0) {
-			vehikel_t const& v       = *follow_convoi->front();
+			vehicle_t const& v       = *follow_convoi->front();
 			koord3d   const  new_pos = v.get_pos();
 			if(new_pos!=koord3d::invalid) {
 				const sint16 rw = get_tile_raster_width();
@@ -4727,7 +4727,7 @@ DBG_MESSAGE("karte_t::new_year()","speedbonus for %d %i, %i, %i, %i, %i, %i, %i,
 void karte_t::recalc_average_speed()
 {
 	// retire/allocate vehicles
-	stadtauto_t::built_timeline_liste(this);
+	private_car_t::built_timeline_liste(this);
 
 	const uint32 speed_bonus_percent = get_settings().get_speed_bonus_multiplier_percent();
 	for(int i=road_wt; i<=narrowgauge_wt; i++) {
@@ -9253,7 +9253,7 @@ void karte_t::network_disconnect()
 
 void karte_t::set_citycar_speed_average()
 {
-	if(stadtauto_t::table.empty())
+	if(private_car_t::table.empty())
 	{
 		// No city cars - use default speed.
 		citycar_speed_average = 50;
@@ -9261,7 +9261,7 @@ void karte_t::set_citycar_speed_average()
 	}
 	sint32 vehicle_speed_sum = 0;
 	sint32 count = 0;
-	FOR(stringhashtable_tpl<const stadtauto_besch_t *>, const& iter, stadtauto_t::table)
+	FOR(stringhashtable_tpl<const stadtauto_besch_t *>, const& iter, private_car_t::table)
 	{
 		// Take into account the *chance* of vehicles, too: fewer people have sports cars than Minis. 
 		vehicle_speed_sum += (speed_to_kmh(iter.value->get_geschw())) * iter.value->get_gewichtung();

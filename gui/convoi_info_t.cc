@@ -16,7 +16,7 @@
 
 #include "../simunits.h"
 #include "../simdepot.h"
-#include "../vehicle/simvehikel.h"
+#include "../vehicle/simvehicle.h"
 #include "../simcolor.h"
 #include "../display/simgraph.h"
 #include "../display/viewport.h"

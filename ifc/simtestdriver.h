@@ -4,8 +4,8 @@
  * 15.01.00, Hj. Malthaner
  */
 
-#ifndef fahrer_h
-#define fahrer_h
+#ifndef simtestdriver_h
+#define simtestdriver_h
 
 
 class grund_t;
@@ -15,10 +15,10 @@ class grund_t;
  *
  * @author Hj. Malthaner, 15.01.00
  */
-class fahrer_t
+class test_driver_t
 {
 public:
-	virtual ~fahrer_t() {}
+	virtual ~test_driver_t() {}
 
 	//Is passable (Babelfish)
 	virtual bool ist_befahrbar(const grund_t* ) const = 0;

@@ -21,7 +21,7 @@
 #include "../besch/weg_besch.h"
 #include "../utils/simstring.h"
 #include "../utils/float32e8_t.h"
-#include "../vehicle/simvehikel.h"
+#include "../vehicle/simvehicle.h"
 #include "../player/simplay.h"
 #include "loadsave.h"
 #include "tabfile.h"
@@ -684,12 +684,12 @@ void settings_t::rdwr(loadsave_t *file)
 
 		// since vehicle will need realignment afterwards!
 		if(file->get_version()<=99018) {
-			vehikel_basis_t::set_diagonal_multiplier( pak_diagonal_multiplier, 1024 );
+			vehicle_base_t::set_diagonal_multiplier( pak_diagonal_multiplier, 1024 );
 		}
 		else {
 			uint16 old_multiplier = pak_diagonal_multiplier;
 			file->rdwr_short(old_multiplier );
-			vehikel_basis_t::set_diagonal_multiplier( pak_diagonal_multiplier, old_multiplier );
+			vehicle_base_t::set_diagonal_multiplier( pak_diagonal_multiplier, old_multiplier );
 			// since vehicle will need realignment afterwards!
 		}
 

@@ -44,8 +44,8 @@
 #include "besch/roadsign_besch.h"
 #include "besch/tunnel_besch.h"
 
-#include "vehicle/simvehikel.h"
-#include "vehicle/simverkehr.h"
+#include "vehicle/simvehicle.h"
+#include "vehicle/simroadtraffic.h"
 #include "vehicle/simpeople.h"
 
 #include "gui/line_management_gui.h"
@@ -440,14 +440,14 @@ DBG_MESSAGE("tool_remover_intern()","at (%s)", pos.get_str());
 	}
 
 	// citycar? (we allow always)
-	stadtauto_t* citycar = gr->find<stadtauto_t>();
+	private_car_t* citycar = gr->find<private_car_t>();
 	if(citycar) {
 		delete citycar;
 		return true;
 	}
 
 	// pedestrians?
-	fussgaenger_t* fussgaenger = gr->find<fussgaenger_t>();
+	pedestrian_t* fussgaenger = gr->find<pedestrian_t>();
 	if(fussgaenger) {
 		delete fussgaenger;
 		return true;
@@ -1596,7 +1596,7 @@ const char *tool_clear_reservation_t::work( player_t *player, koord3d k )
 					if (w->get_waytype() == waytype) {
 						schiene_t* const sch = obj_cast<schiene_t>(w);
 						if (sch->get_reserved_convoi() == cnv) {
-							vehikel_t& v = *cnv->front();
+							vehicle_t& v = *cnv->front();
 							if (!gr->suche_obj(v.get_typ())) {
 								// force free
 								sch->unreserve(&v);
@@ -3160,7 +3160,7 @@ waytype_t tool_wayremover_t::get_waytype() const
 	return default_param ? (waytype_t)atoi(default_param) : invalid_wt;
 }
 
-class electron_t : public fahrer_t {
+class electron_t : public test_driver_t {
 	bool ist_befahrbar(const grund_t* gr) const { return gr->get_leitung()!=NULL; }
 	virtual ribi_t::ribi get_ribi(const grund_t* gr) const { return gr->get_leitung()->get_ribi(); }
 	virtual waytype_t get_waytype() const { return invalid_wt; }
@@ -3168,9 +3168,9 @@ class electron_t : public fahrer_t {
 	virtual bool ist_ziel(const grund_t *,const grund_t *) { return false; }
 };
 
-class scenario_checker_t : public fahrer_t {
+class scenario_checker_t : public test_driver_t {
 public:
-	fahrer_t *other;
+	test_driver_t *other;
 	scenario_t *scenario;
 	uint16 id;
 	player_t *player;
@@ -3180,7 +3180,7 @@ public:
 	 * checks for active scenario,
 	 * @returns scenario_checker_t if scenario active, the supplied test_driver otherwise
 	 */
-	static fahrer_t* apply(fahrer_t *test_driver, player_t *player, tool_t *tool) {
+	static test_driver_t* apply(test_driver_t *test_driver, player_t *player, tool_t *tool) {
 		karte_t *welt = world();
 		if (is_scenario()) {
 			scenario_checker_t *td2 = new scenario_checker_t();
@@ -3257,10 +3257,10 @@ bool tool_wayremover_t::calc_route( route_t &verbindung, player_t *player, const
 	}
 	else {
 		// get a default vehikel
-		fahrer_t* test_driver;
+		test_driver_t* test_driver;
 		if(  wt!=powerline_wt  ) {
 			vehikel_besch_t remover_besch(wt, 500, vehikel_besch_t::diesel );
-			vehikel_t *driver = vehikelbauer_t::baue(start, player, NULL, &remover_besch);
+			vehicle_t *driver = vehikelbauer_t::baue(start, player, NULL, &remover_besch);
 			driver->set_flag( obj_t::not_on_map );
 			test_driver = driver;
 		}
@@ -3595,9 +3595,9 @@ bool tool_wayobj_t::calc_route( route_t &verbindung, player_t *player, const koo
 {
 	// get a default vehikel
 	vehikel_besch_t remover_besch( wt, 500, vehikel_besch_t::diesel );
-	vehikel_t* test_vehicle = vehikelbauer_t::baue(start, player, NULL, &remover_besch);
+	vehicle_t* test_vehicle = vehikelbauer_t::baue(start, player, NULL, &remover_besch);
 	test_vehicle->set_flag( obj_t::not_on_map );
-	fahrer_t* test_driver = scenario_checker_t::apply(test_vehicle, player, this);
+	test_driver_t* test_driver = scenario_checker_t::apply(test_vehicle, player, this);
 
 	bool can_built;
 	if( start != to ) {
@@ -5054,9 +5054,9 @@ bool tool_build_roadsign_t::calc_route( route_t &verbindung, player_t *player, c
 {
 	// get a default vehikel
 	vehikel_besch_t rs_besch( besch->get_wtyp(), 500, vehikel_besch_t::diesel );
-	vehikel_t* test_vehicle = vehikelbauer_t::baue(start, player, NULL, &rs_besch);
+	vehicle_t* test_vehicle = vehikelbauer_t::baue(start, player, NULL, &rs_besch);
 	test_vehicle->set_flag(obj_t::not_on_map);
-	fahrer_t* test_driver = scenario_checker_t::apply(test_vehicle, player, this);
+	test_driver_t* test_driver = scenario_checker_t::apply(test_vehicle, player, this);
 
 	bool can_built;
 	if( start != to ) {
@@ -6140,15 +6140,15 @@ const char *tool_lock_game_t::work( player_t *, koord3d )
 
 const char *tool_add_citycar_t::work( player_t *player, koord3d pos )
 {
-	if( stadtauto_t::list_empty() ) {
+	if( private_car_t::list_empty() ) {
 		// No citycar
 		return "";
 	}
 	grund_t *gr = tool_intern_koord_to_weg_grund( player, welt, pos, road_wt );
 
-	if(  gr != NULL  &&  ribi_t::is_twoway(gr->get_weg_ribi_unmasked(road_wt))  &&  gr->find<stadtauto_t>() == NULL) {
+	if(  gr != NULL  &&  ribi_t::is_twoway(gr->get_weg_ribi_unmasked(road_wt))  &&  gr->find<private_car_t>() == NULL) {
 		// add citycar
-		stadtauto_t* vt = new stadtauto_t(gr, koord::invalid);
+		private_car_t* vt = new private_car_t(gr, koord::invalid);
 		gr->obj_add(vt);
 		welt->sync_add(vt);
 		return NULL;
@@ -7577,7 +7577,7 @@ bool tool_change_depot_t::init( player_t *player )
 					if(  tool=='s'  ) {
 						while(  new_vehicle_info.get_count()  ) {
 							// We sell the newest vehicle - gives most money back.
-							vehikel_t* veh = depot->find_oldest_newest(new_vehicle_info.remove_first(), false);
+							vehicle_t* veh = depot->find_oldest_newest(new_vehicle_info.remove_first(), false);
 							if(veh != NULL) {
 								depot->sell_vehicle(veh);
 							}
@@ -7617,7 +7617,7 @@ bool tool_change_depot_t::init( player_t *player )
 								unsigned nr = (tool=='i') ? new_vehicle_info.get_count()-i-1 : i;
 								// We add the oldest vehicle - newer stay for selling
 								const vehikel_besch_t* vb = new_vehicle_info.at(nr);
-								vehikel_t* veh = depot->find_oldest_newest(vb, true);
+								vehicle_t* veh = depot->find_oldest_newest(vb, true);
 								if (veh == NULL && tool != 'u')
 								{
 									// If there are no matching vehicles in the depot,

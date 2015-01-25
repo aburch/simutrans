@@ -3151,10 +3151,10 @@ int haltestelle_t::erzeuge_fussgaenger(koord3d pos, int anzahl)
 	if(pedestrian_limit < pedestrian_generate_max)
 	{
 		pedestrian_limit ++;
-		fussgaenger_t::erzeuge_fussgaenger_an(pos, anzahl);
+		pedestrian_t::erzeuge_fussgaenger_an(pos, anzahl);
 		for(int i=0; i<4 && anzahl>0; i++) 
 		{
-			fussgaenger_t::erzeuge_fussgaenger_an(pos+koord::nsow[i], anzahl);
+			pedestrian_t::erzeuge_fussgaenger_an(pos+koord::nsow[i], anzahl);
 		}
 	}
 	return anzahl;
@@ -4457,7 +4457,7 @@ bool haltestelle_t::reserve_position(grund_t *gr,convoihandle_t cnv)
 			grund_t* gr = i->grund;
 			if(gr) {
 				// found a stop for this waytype but without object d ...
-				vehikel_t const& v = *cnv->front();
+				vehicle_t const& v = *cnv->front();
 				if (gr->hat_weg(v.get_waytype()) && !gr->suche_obj(v.get_typ())) {
 					// not occipied
 //DBG_MESSAGE("haltestelle_t::reserve_position()","sucess for gr=%i,%i cnv=%d",gr->get_pos().x,gr->get_pos().y,cnv.get_id());
@@ -4503,7 +4503,7 @@ DBG_MESSAGE("haltestelle_t::is_reservable()","gr=%d,%d already reserved by cnv=%
 			// not reseved
 			if (!i.reservation.is_bound()) {
 				// found a stop for this waytype but without object d ...
-				vehikel_t const& v = *cnv->front();
+				vehicle_t const& v = *cnv->front();
 				if (gr->hat_weg(v.get_waytype()) && !gr->suche_obj(v.get_typ())) {
 					// not occipied
 					return true;

@@ -11,7 +11,7 @@
 #include <math.h>
 #include "convoy.h"
 #include "bauer/warenbauer.h"
-#include "vehicle/simvehikel.h"
+#include "vehicle/simvehicle.h"
 #include "simconvoi.h"
 
 static karte_ptr_t welt;
@@ -68,7 +68,7 @@ static void get_possible_freight_weight(uint8 catg_index, sint32 &min_weight, si
 
 /******************************************************************************/
 
-void adverse_summary_t::add_vehicle(const vehikel_t &v)
+void adverse_summary_t::add_vehicle(const vehicle_t &v)
 {
 	add_vehicle(*v.get_besch(), v.is_first());
 
@@ -85,8 +85,8 @@ void adverse_summary_t::add_vehicle(const vehikel_t &v)
 	// The vehicle may be limited by braking approaching a station
 	// Or airplane circling for landing, or airplane height,
 	// Or cornering, or other odd cases
-	// These are carried in vehikel_t unlike other speed limits 
-	if (v.get_speed_limit() != vehikel_t::speed_unlimited()) 
+	// These are carried in vehicle_t unlike other speed limits 
+	if (v.get_speed_limit() != vehicle_t::speed_unlimited()) 
 	{
 		max_speed = min(max_speed, speed_to_kmh(v.get_speed_limit()));
 	}
@@ -178,7 +178,7 @@ void weight_summary_t::add_weight(sint32 kgs, sint32 sin_alpha)
 	}
 }
 
-void weight_summary_t::add_vehicle(const vehikel_t &v)
+void weight_summary_t::add_vehicle(const vehicle_t &v)
 {
 	// v.get_frictionfactor() between about -14 (downhill) and 50 (uphill). 
 	// Including the factor 1000 for tons to kg conversion, 50 corresponds to an inclination of 28 per mille.
@@ -237,14 +237,14 @@ sint32 convoy_t::calc_max_speed(const weight_summary_t &weight)
 	const float32e8_t q2 = get_continuous_power() / (float32e8_t::two * adverse.cf);
 	const float32e8_t sd = signed_power(q2 * q2 + p3 * p3 * p3, float32e8_t::half);
 	const float32e8_t vmax = signed_power(q2 + sd, float32e8_t::third) + signed_power(q2 - sd, float32e8_t::third); 
-	return min(vehicle.max_speed, (sint32)(vmax * ms2kmh + float32e8_t::one)); // 1.0 to compensate inaccuracy of calculation and make sure this is at least what calc_move() evaluates.
+	return min(vehicle_summary.max_speed, (sint32)(vmax * ms2kmh + float32e8_t::one)); // 1.0 to compensate inaccuracy of calculation and make sure this is at least what calc_move() evaluates.
 }
 
 sint32 convoy_t::calc_max_weight(sint32 sin_alpha)
 {
-	if (vehicle.max_speed == 0)
+	if (vehicle_summary.max_speed == 0)
 		return 0;
-	const float32e8_t v = vehicle.max_speed * kmh2ms; // from km/h to m/s
+	const float32e8_t v = vehicle_summary.max_speed * kmh2ms; // from km/h to m/s
 	const float32e8_t f = get_continuous_power() / v - adverse.cf * v * v;
 	if (f <= 0)
 	{
@@ -351,7 +351,7 @@ void convoy_t::calc_move(const settings_t &settings, long delta_t, const weight_
 				{
 					if (speed_ratio == float32e8_t::zero) // speed_ratio is a constant within this function. So calculate it once only.
 					{
-						speed_ratio = ms2kmh * vsoll / vehicle.max_speed;
+						speed_ratio = ms2kmh * vsoll / vehicle_summary.max_speed;
 					}
 					if (speed_ratio < float32e8_t::tenth)
 					{
@@ -582,7 +582,7 @@ void existing_convoy_t::update_adverse_summary(adverse_summary_t &adverse)
 	uint16 count = convoy.get_vehikel_anzahl();
 	for (uint16 i = count; i-- > 0; )
 	{
-		vehikel_t &v = *convoy.get_vehikel(i);
+		vehicle_t &v = *convoy.get_vehikel(i);
 		adverse.add_vehicle(v);
 	}
 	if (count > 0)
@@ -608,7 +608,7 @@ void existing_convoy_t::update_weight_summary(weight_summary_t &weight)
 	weight.clear();
 	for (uint16 i = convoy.get_vehikel_anzahl(); i-- > 0; )
 	{
-		vehikel_t &v = *convoy.get_vehikel(i);
+		vehicle_t &v = *convoy.get_vehikel(i);
 		weight.add_vehicle(v);
 	}
 }
@@ -619,7 +619,7 @@ float32e8_t existing_convoy_t::get_brake_summary(/*const float32e8_t &speed*/ /*
 	float32e8_t force = 0;
 	for (uint16 i = convoy.get_vehikel_anzahl(); i-- > 0; )
 	{
-		vehikel_t &v = *convoy.get_vehikel(i);
+		vehicle_t &v = *convoy.get_vehikel(i);
 		const uint16 bf = v.get_besch()->get_brake_force();
 		if (bf != BRAKE_FORCE_UNKNOWN)
 		{

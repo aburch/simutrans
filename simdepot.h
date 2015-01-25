@@ -14,7 +14,7 @@
 #include "simline.h"
 
 class karte_t;
-class vehikel_t;
+class vehicle_t;
 class depot_frame_t;
 class vehikel_besch_t;
 class gui_convoy_assembler;
@@ -40,10 +40,10 @@ protected:
 	 * @author Volker Meyer
 	 * @date  30.05.2003
 	 */
-	slist_tpl<vehikel_t *> vehicles;
+	slist_tpl<vehicle_t *> vehicles;
 	slist_tpl<convoihandle_t> convois;
 
-	void rdwr_vehikel(slist_tpl<vehikel_t*> &list, loadsave_t *file);
+	void rdwr_vehikel(slist_tpl<vehicle_t*> &list, loadsave_t *file);
 
 	static slist_tpl<depot_t *> all_depots;
 
@@ -59,7 +59,7 @@ public:
 	 *   - 0 if we don't want to filter by traction type
 	 *   - a bitmask of possible traction types; we need only match one
 	 */
-	bool is_suitable_for( const vehikel_t * test_vehicle, const uint8 traction_types = 0) const;
+	bool is_suitable_for( const vehicle_t * test_vehicle, const uint8 traction_types = 0) const;
 
 	// finds the next/previous depot relative to the current position
 	static depot_t *find_depot( koord3d start, const obj_t::typ depot_type, const player_t *player, bool next);
@@ -142,7 +142,7 @@ public:
 	 * @author Volker Meyer
 	 * @date  09.06.2003
 	 */
-	void append_vehicle(convoihandle_t &cnv, vehikel_t* veh, bool infront, bool local_execution);
+	void append_vehicle(convoihandle_t &cnv, vehicle_t* veh, bool infront, bool local_execution);
 
 	/**
 	 * Remove the vehicle at given position from the convoi and put it in the
@@ -160,7 +160,7 @@ public:
 	 * @date  30.05.2003
 	 */
 	unsigned vehicle_count() const { return vehicles.get_count(); }
-	slist_tpl<vehikel_t*> & get_vehicle_list() { return vehicles; }
+	slist_tpl<vehicle_t*> & get_vehicle_list() { return vehicles; }
 
 	/**
 	 * A new vehicle is bought and added to the vehicle list.
@@ -168,7 +168,7 @@ public:
 	 * @author Volker Meyer
 	 * @date  09.06.2003
 	 */
-	vehikel_t* buy_vehicle(const vehikel_besch_t* info, uint16 livery_scheme_index);
+	vehicle_t* buy_vehicle(const vehikel_besch_t* info, uint16 livery_scheme_index);
 
 	// This upgrades a vehicle in the convoy to the type specified.
 	// @author: jamespetts, February 2010
@@ -179,7 +179,7 @@ public:
 	 * @author Volker Meyer
 	 * @date  09.06.2003
 	 */
-	void sell_vehicle(vehikel_t* veh);
+	void sell_vehicle(vehicle_t* veh);
 
 	/**
 	 * Access to vehicle types which can be bought in the depot.
@@ -219,7 +219,7 @@ public:
 	 * @return NULL if no vehicle is found
 	 * @author hsiegeln (stolen from Hajo)
 	 */
-	vehikel_t* get_oldest_vehicle(const vehikel_besch_t* besch);
+	vehicle_t* get_oldest_vehicle(const vehikel_besch_t* besch);
 
 	/**
 	 * Sets/gets the line that was selected the last time in the depot dialog
@@ -230,7 +230,7 @@ public:
 	/*
 	 * Find the oldest/newest vehicle in the depot
 	 */
-	vehikel_t* find_oldest_newest(const vehikel_besch_t* besch, bool old, vector_tpl<vehikel_t*> *avoid = NULL);
+	vehicle_t* find_oldest_newest(const vehikel_besch_t* besch, bool old, vector_tpl<vehicle_t*> *avoid = NULL);
 
 	// true if already stored here
 	bool is_contained(const vehikel_besch_t *info);

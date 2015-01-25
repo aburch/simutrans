@@ -15,7 +15,7 @@
 #include "../tpl/vector_tpl.h"
 
 class karte_t;
-class fahrer_t;
+class test_driver_t;
 class grund_t;
 
 /**
@@ -34,7 +34,7 @@ private:
 	 * The actual route search
 	 * @author Hj. Malthaner
 	 */
-	bool intern_calc_route(karte_t *w, koord3d start, koord3d ziel, fahrer_t *fahr, const sint32 max_kmh, const sint64 max_cost, const uint32 axle_load, const uint32 convoy_weight, const sint32 tile_length, const koord3d avoid_tile);
+	bool intern_calc_route(karte_t *w, koord3d start, koord3d ziel, test_driver_t *tdriver, const sint32 max_kmh, const sint64 max_cost, const uint32 axle_load, const uint32 convoy_weight, const sint32 tile_length, const koord3d avoid_tile);
 
 protected:
 	koord3d_vector_t route;           // The coordinates for the vehicle route
@@ -153,17 +153,17 @@ public:
 	enum find_route_flags { none, private_car_checker, choose_signal };
 
 	/**
-	* Finds route to a location, where @p fahr->ist_ziel becomes true.
+	* Finds route to a location, where @p tdriver->ist_ziel becomes true.
 	* @param max_depth is the maximum length of a route
 	* @author prissi
 	*/
-	bool find_route(karte_t *w, const koord3d start, fahrer_t *fahr, const uint32 max_khm, uint8 start_dir, uint32 axle_load, uint32 total_weight, uint32 max_depth, find_route_flags flags = none);
+	bool find_route(karte_t *w, const koord3d start, test_driver_t *tdriver, const uint32 max_khm, uint8 start_dir, uint32 axle_load, uint32 total_weight, uint32 max_depth, find_route_flags flags = none);
 
 	/**
 	 * Calculates the route from @p start to @p target
 	 * @author Hj. Malthaner
 	 */
-	route_result_t calc_route(karte_t *welt, koord3d start, koord3d ziel, fahrer_t *fahr, const sint32 max_speed_kmh, const uint32 axle_load, sint32 max_tile_len, const sint64 max_cost = SINT64_MAX_VALUE, const uint32 convoy_weight = 0, const koord3d avoid_tile = koord3d::invalid);
+	route_result_t calc_route(karte_t *welt, koord3d start, koord3d ziel, test_driver_t *tdriver, const sint32 max_speed_kmh, const uint32 axle_load, sint32 max_tile_len, const sint64 max_cost = SINT64_MAX_VALUE, const uint32 convoy_weight = 0, const koord3d avoid_tile = koord3d::invalid);
 
 	/**
 	 * Load/Save of the route.

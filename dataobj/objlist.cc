@@ -33,8 +33,8 @@
 
 #include "../player/simplay.h"
 
-#include "../vehicle/simvehikel.h"
-#include "../vehicle/simverkehr.h"
+#include "../vehicle/simvehicle.h"
+#include "../vehicle/simroadtraffic.h"
 #include "../vehicle/simpeople.h"
 #include "../vehicle/movingobj.h"
 
@@ -303,7 +303,7 @@ bool objlist_t::intern_add_moving(obj_t* new_obj)
 	// however ships and planes may be where not way is below ...
 	if(start!=0  &&  obj.some[0]->get_typ()==obj_t::way  &&  ((weg_t *)obj.some[0])->get_waytype()==road_wt) {
 
-		const uint8 fahrtrichtung = ((vehikel_basis_t*)new_obj)->get_fahrtrichtung();
+		const uint8 fahrtrichtung = ((vehicle_base_t*)new_obj)->get_fahrtrichtung();
 
 		// this is very complicated:
 		// we may have many objects in two lanes (actually five with tram and pedestrians)
@@ -320,7 +320,7 @@ bool objlist_t::intern_add_moving(obj_t* new_obj)
 				else {
 					// we must be drawn before south or west (thus insert after)
 					for(uint8 i=start;  i<end;  i++  ) {
-						if((((const vehikel_t*)obj.some[i])->get_fahrtrichtung()&ribi_t::suedwest)!=0) {
+						if((((const vehicle_t*)obj.some[i])->get_fahrtrichtung()&ribi_t::suedwest)!=0) {
 							intern_insert_at(new_obj, i);
 							return true;
 						}
@@ -337,7 +337,7 @@ bool objlist_t::intern_add_moving(obj_t* new_obj)
 					// if we are going south or southeast we must be drawn as the first in east direction (after north and northeast)
 					for(uint8 i=start;  i<end;  i++  ) {
 						if (obj_t const* const dt = obj.some[i]) {
-							if (vehikel_basis_t const* const v = obj_cast<vehikel_basis_t>(dt)) {
+							if (vehicle_base_t const* const v = obj_cast<vehicle_base_t>(dt)) {
 								if ((v->get_fahrtrichtung() & ribi_t::suedwest) != 0) {
 									intern_insert_at(new_obj, i);
 									return true;
@@ -359,7 +359,7 @@ bool objlist_t::intern_add_moving(obj_t* new_obj)
 
 					// if we are going east we must be drawn as the first in east direction (after north and northeast)
 					for(uint8 i=start;  i<end;  i++  ) {
-						if( (((const vehikel_t*)obj.some[i])->get_fahrtrichtung()&ribi_t::nordost)!=0) {
+						if( (((const vehicle_t*)obj.some[i])->get_fahrtrichtung()&ribi_t::nordost)!=0) {
 							intern_insert_at(new_obj, i);
 							return true;
 						}
@@ -382,7 +382,7 @@ bool objlist_t::intern_add_moving(obj_t* new_obj)
 				else {
 					for(uint8 i=start;  i<end;  i++  ) {
 						// west or northwest: append after all westwards
-						if((((const vehikel_t*)obj.some[i])->get_fahrtrichtung()&ribi_t::suedwest)==0) {
+						if((((const vehicle_t*)obj.some[i])->get_fahrtrichtung()&ribi_t::suedwest)==0) {
 							intern_insert_at(new_obj, i);
 							return true;
 						}
@@ -401,7 +401,7 @@ bool objlist_t::intern_add_moving(obj_t* new_obj)
 		// but all vehicles are of the same typ, since this is track/channel etc. ONLY!
 
 		// => much simpler to handle
-		if((((vehikel_t*)new_obj)->get_fahrtrichtung()&(~ribi_t::suedost))==0) {
+		if((((vehicle_t*)new_obj)->get_fahrtrichtung()&(~ribi_t::suedost))==0) {
 			// if we are going east or south, we must be drawn before (i.e. put first)
 			intern_insert_at(new_obj, start);
 			return true;
@@ -576,7 +576,7 @@ bool objlist_t::remove(const obj_t* remove_obj)
  */
 void local_delete_object(obj_t *remove_obj, player_t *player)
 {
-	vehikel_basis_t* const v = obj_cast<vehikel_basis_t>(remove_obj);
+	vehicle_base_t* const v = obj_cast<vehicle_base_t>(remove_obj);
 	if (v  &&  remove_obj->get_typ() != obj_t::fussgaenger  &&  remove_obj->get_typ() != obj_t::verkehr  &&  remove_obj->get_typ() != obj_t::movingobj) {
 		v->verlasse_feld();
 	}
@@ -822,7 +822,7 @@ void objlist_t::rdwr(loadsave_t *file, koord3d current_pos)
 					typ = obj_t::fussgaenger;
 				case obj_t::fussgaenger:
 				{
-					fussgaenger_t* const pedestrian = new fussgaenger_t(file);
+					pedestrian_t* const pedestrian = new pedestrian_t(file);
 					if (pedestrian->get_besch() == NULL) {
 						// no pedestrians ... delete this
 						pedestrian->set_flag(obj_t::not_on_map);
@@ -839,7 +839,7 @@ void objlist_t::rdwr(loadsave_t *file, koord3d current_pos)
 					typ = obj_t::verkehr;
 				case obj_t::verkehr:
 				{
-					stadtauto_t* const car = new stadtauto_t(file);
+					private_car_t* const car = new private_car_t(file);
 					if (car->get_besch() == NULL) {
 						// no citycars ... delete this
 						car->set_flag(obj_t::not_on_map);
@@ -1240,7 +1240,7 @@ inline bool local_display_obj_vh( obj_t *draw_obj, const sint16 xpos, const sint
 inline bool local_display_obj_vh(const obj_t *draw_obj, const sint16 xpos, const sint16 ypos, const ribi_t::ribi ribi, const bool ontile)
 #endif
 {
-	vehikel_basis_t const* const v = obj_cast<vehikel_basis_t>(draw_obj);
+	vehicle_base_t const* const v = obj_cast<vehicle_base_t>(draw_obj);
 	aircraft_t      const*       a;
 	if(  v  &&  (ontile  ||  !(a = obj_cast<aircraft_t>(v))  ||  a->is_on_ground())  ) {
 		const ribi_t::ribi veh_ribi = v->get_fahrtrichtung();

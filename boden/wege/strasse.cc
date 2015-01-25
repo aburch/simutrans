@@ -18,7 +18,7 @@
 #include "../../dataobj/translator.h"
 #include "../../dataobj/ribi.h"
 #include "../../utils/cbuffer_t.h"
-#include "../../vehicle/simvehikel.h" /* for calc_richtung */
+#include "../../vehicle/simvehicle.h" /* for calc_richtung */
 #include "../../obj/wayobj.h"
 
 const weg_besch_t *strasse_t::default_strasse=NULL;

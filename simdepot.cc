@@ -10,7 +10,7 @@
 #include <string.h>
 
 #include "simconvoi.h"
-#include "vehicle/simvehikel.h"
+#include "vehicle/simvehicle.h"
 #include "gui/simwin.h"
 #include "player/simplay.h"
 #include "player/finance.h"
@@ -198,7 +198,7 @@ void depot_t::convoi_arrived(convoihandle_t acnv, bool fpl_adjust)
 
 	// Clean up the vehicles -- get rid of freight, etc.  Do even when loading, just in case.
 	for(unsigned i=0; i<acnv->get_vehikel_anzahl(); i++) {
-		vehikel_t *v = acnv->get_vehikel(i);
+		vehicle_t *v = acnv->get_vehikel(i);
 		// Hajo: reset vehikel data
 		v->loesche_fracht();
 		v->set_pos( koord3d::invalid );
@@ -223,10 +223,10 @@ void depot_t::zeige_info()
 }
 
 
-vehikel_t* depot_t::buy_vehicle(const vehikel_besch_t* info, uint16 livery_scheme_index)
+vehicle_t* depot_t::buy_vehicle(const vehikel_besch_t* info, uint16 livery_scheme_index)
 {
 	DBG_DEBUG("depot_t::buy_vehicle()", info->get_name());
-	vehikel_t* veh = vehikelbauer_t::baue(get_pos(), get_owner(), NULL, info, false, livery_scheme_index); //"owner" = "owner" (Google)
+	vehicle_t* veh = vehikelbauer_t::baue(get_pos(), get_owner(), NULL, info, false, livery_scheme_index); //"owner" = "owner" (Google)
 	DBG_DEBUG("depot_t::buy_vehicle()", "vehiclebauer %p", veh);
 	vehicles.append(veh);
 	DBG_DEBUG("depot_t::buy_vehicle()", "appended %i vehicle", vehicles.get_count());
@@ -246,12 +246,12 @@ void depot_t::upgrade_vehicle(convoihandle_t cnv, const vehikel_besch_t* vb)
 		{
 			if(cnv->get_vehikel(i)->get_besch()->get_upgrades(c) == vb)
 			{
-				vehikel_t* new_veh = vehikelbauer_t::baue(get_pos(), get_owner(), NULL, vb, true, cnv->get_livery_scheme_index()); 
+				vehicle_t* new_veh = vehikelbauer_t::baue(get_pos(), get_owner(), NULL, vb, true, cnv->get_livery_scheme_index()); 
 				cnv->upgrade_vehicle(i, new_veh);
 				if(cnv->get_vehikel(i)->get_besch()->get_nachfolger_count() == 1 && cnv->get_vehikel(i)->get_besch()->get_leistung() != 0)
 				{
 					//We need to upgrade tenders, too.	
-					vehikel_t* new_veh_2 = vehikelbauer_t::baue(get_pos(), get_owner(), NULL, new_veh->get_besch()->get_nachfolger(0), true); 
+					vehicle_t* new_veh_2 = vehikelbauer_t::baue(get_pos(), get_owner(), NULL, new_veh->get_besch()->get_nachfolger(0), true); 
 					cnv->upgrade_vehicle(i + 1, new_veh_2);
 					// The above assumes that tenders are free, which they are in Pak128.Britain, the cost being built into the locomotive.
 					// The below ought work more accurately, but does not work properly, for some reason.
@@ -273,9 +273,9 @@ void depot_t::upgrade_vehicle(convoihandle_t cnv, const vehikel_besch_t* vb)
 					if(count > 0 && cnv->get_vehikel(1)->get_besch()->get_leistung() > 0 && cnv->get_vehikel(1)->get_besch()->get_nachfolger_count() > 0)
 					{
 						// Garrett detected - need to upgrade all three vehicles.
-						vehikel_t* new_veh_2 = vehikelbauer_t::baue(get_pos(), get_owner(), NULL, new_veh->get_besch()->get_nachfolger(0), true); 
+						vehicle_t* new_veh_2 = vehikelbauer_t::baue(get_pos(), get_owner(), NULL, new_veh->get_besch()->get_nachfolger(0), true); 
 						cnv->upgrade_vehicle(i + 1, new_veh_2);
-						vehikel_t* new_veh_3 = vehikelbauer_t::baue(get_pos(), get_owner(), NULL, new_veh->get_besch()->get_nachfolger(0), true); 
+						vehicle_t* new_veh_3 = vehikelbauer_t::baue(get_pos(), get_owner(), NULL, new_veh->get_besch()->get_nachfolger(0), true); 
 						cnv->upgrade_vehicle(i + 2, new_veh_3);
 					}
 				}
@@ -288,7 +288,7 @@ void depot_t::upgrade_vehicle(convoihandle_t cnv, const vehikel_besch_t* vb)
 }
 
 
-void depot_t::append_vehicle(convoihandle_t &cnv, vehikel_t* veh, bool infront, bool local_execution)
+void depot_t::append_vehicle(convoihandle_t &cnv, vehicle_t* veh, bool infront, bool local_execution)
 {
 	/* create  a new convoi, if necessary */
 	if (!cnv.is_bound()) {
@@ -302,7 +302,7 @@ void depot_t::append_vehicle(convoihandle_t &cnv, vehikel_t* veh, bool infront, 
 
 void depot_t::remove_vehicle(convoihandle_t cnv, int ipos)
 {
-	vehikel_t* veh = cnv->remove_vehikel_bei( ipos );
+	vehicle_t* veh = cnv->remove_vehikel_bei( ipos );
 	if(  veh  ) {
 		vehicles.append( veh );
 	}
@@ -311,13 +311,13 @@ void depot_t::remove_vehicle(convoihandle_t cnv, int ipos)
 
 void depot_t::remove_vehicles_to_end(convoihandle_t cnv, int ipos)
 {
-	while(  vehikel_t* veh = cnv->remove_vehikel_bei( ipos )  ) {
+	while(  vehicle_t* veh = cnv->remove_vehikel_bei( ipos )  ) {
 		vehicles.append( veh );
 	}
 }
 
 
-void depot_t::sell_vehicle(vehikel_t* veh)
+void depot_t::sell_vehicle(vehicle_t* veh)
 {
 	vehicles.remove(veh);
 	sint64 cost = veh->calc_restwert();
@@ -330,10 +330,10 @@ void depot_t::sell_vehicle(vehikel_t* veh)
 
 // returns the indest of the old/newest vehicle in a list
 //@author: isidoro
-vehikel_t* depot_t::find_oldest_newest(const vehikel_besch_t* besch, bool old, vector_tpl<vehikel_t*> *avoid)
+vehicle_t* depot_t::find_oldest_newest(const vehikel_besch_t* besch, bool old, vector_tpl<vehicle_t*> *avoid)
 {
-	vehikel_t* found_veh = NULL;
-	FOR(slist_tpl<vehikel_t*>, const veh, vehicles)
+	vehicle_t* found_veh = NULL;
+	FOR(slist_tpl<vehicle_t*>, const veh, vehicles)
 	{
 		if(veh != NULL && veh->get_besch() == besch) 
 		{
@@ -365,14 +365,14 @@ convoihandle_t depot_t::add_convoi(bool local_execution)
 bool depot_t::check_obsolete_inventory(convoihandle_t cnv)
 {
 	bool ok = true;
-	slist_tpl<vehikel_t*> veh_tmp_list;
+	slist_tpl<vehicle_t*> veh_tmp_list;
 
 	for(  int i = 0;  i < cnv->get_vehikel_anzahl();  i++  ) {
 		const vehikel_besch_t* const vb = cnv->get_vehikel(i)->get_besch();
 		if(  vb  ) {
 			// search storage for matching vehicle
-			vehikel_t* veh = NULL;
-			for(  slist_tpl<vehikel_t*>::iterator i = vehicles.begin();  i != vehicles.end();  ++i  ) {
+			vehicle_t* veh = NULL;
+			for(  slist_tpl<vehicle_t*>::iterator i = vehicles.begin();  i != vehicles.end();  ++i  ) {
 				if(  (*i)->get_besch() == vb  ) {
 					// found in storage, remove to temp list while searching for next vehicle
 					veh = *i;
@@ -422,7 +422,7 @@ convoihandle_t depot_t::copy_convoi(convoihandle_t old_cnv, bool local_execution
 			if (info != NULL) 
 			{
 				// search in depot for an existing vehicle of correct type
-				vehikel_t* new_vehicle = get_oldest_vehicle(info);
+				vehicle_t* new_vehicle = get_oldest_vehicle(info);
 				if(new_vehicle == NULL)
 				{
 					// no vehicle of correct type in depot, must buy it:
@@ -499,7 +499,7 @@ bool depot_t::disassemble_convoi(convoihandle_t cnv, bool sell)
 	if(  cnv.is_bound()  ) {
 		if(  !sell  ) {
 			// store vehicles in depot
-			while(  vehikel_t* const v = cnv->remove_vehikel_bei(0)  ) {
+			while(  vehicle_t* const v = cnv->remove_vehikel_bei(0)  ) {
 				v->loesche_fracht();
 				v->set_erstes(false);
 				v->set_letztes(false);
@@ -665,7 +665,7 @@ void depot_t::rdwr(loadsave_t *file)
 }
 
 
-void depot_t::rdwr_vehikel(slist_tpl<vehikel_t *> &list, loadsave_t *file)
+void depot_t::rdwr_vehikel(slist_tpl<vehicle_t *> &list, loadsave_t *file)
 {
 // read/write vehicles in the depot, which are not part of a convoi.
 
@@ -689,23 +689,23 @@ void depot_t::rdwr_vehikel(slist_tpl<vehikel_t *> &list, loadsave_t *file)
 		for(int i=0; i<count; i++) {
 			obj_t::typ typ = (obj_t::typ)file->rd_obj_id();
 
-			vehikel_t *v = NULL;
+			vehicle_t *v = NULL;
 			const bool first = false;
 			const bool last = false;
 
 			switch( typ ) {
 				case old_automobil:
-				case automobil: v = new automobil_t(file, first, last);    break;
+				case automobil: v = new road_vehicle_t(file, first, last);    break;
 				case old_waggon:
-				case waggon:    v = new waggon_t(file, first, last);       break;
+				case rail_vehicle:    v = new rail_vehicle_t(file, first, last);       break;
 				case old_schiff:
-				case schiff:    v = new schiff_t(file, first, last);       break;
+				case schiff:    v = new water_vehicle_t(file, first, last);       break;
 				case old_aircraft:
 				case aircraft: v = new aircraft_t(file, first, last);  break;
 				case old_monorailwaggon:
-				case monorailwaggon: v = new monorail_waggon_t(file, first, last);  break;
-				case maglevwaggon:   v = new maglev_waggon_t(file, first, last);  break;
-				case narrowgaugewaggon: v = new narrowgauge_waggon_t(file, first, last);  break;
+				case monorailwaggon: v = new monorail_rail_vehicle_t(file, first, last);  break;
+				case maglevwaggon:   v = new maglev_rail_vehicle_t(file, first, last);  break;
+				case narrowgaugewaggon: v = new narrowgauge_rail_vehicle_t(file, first, last);  break;
 				default:
 					dbg->fatal("depot_t::vehikel_laden()","invalid vehicle type $%X", typ);
 			}
@@ -720,7 +720,7 @@ void depot_t::rdwr_vehikel(slist_tpl<vehikel_t *> &list, loadsave_t *file)
 		}
 	}
 	else {
-		FOR(slist_tpl<vehikel_t*>, const v, list) {
+		FOR(slist_tpl<vehicle_t*>, const v, list) {
 			file->wr_obj_id(v->get_typ());
 			v->rdwr_from_convoi(file);
 		}
@@ -755,10 +755,10 @@ slist_tpl<vehikel_besch_t*> & depot_t::get_vehicle_type()
 }
 
 
-vehikel_t* depot_t::get_oldest_vehicle(const vehikel_besch_t* besch)
+vehicle_t* depot_t::get_oldest_vehicle(const vehikel_besch_t* besch)
 {
-	vehikel_t* oldest_veh = NULL;
-	FOR(slist_tpl<vehikel_t*>, const veh, get_vehicle_list()) {
+	vehicle_t* oldest_veh = NULL;
+	FOR(slist_tpl<vehicle_t*>, const veh, get_vehicle_list()) {
 		if (veh->get_besch() == besch) {
 			if (oldest_veh == NULL ||
 					oldest_veh->get_insta_zeit() > veh->get_insta_zeit()) {
@@ -773,7 +773,7 @@ vehikel_t* depot_t::get_oldest_vehicle(const vehikel_besch_t* besch)
 // true if already stored here
 bool depot_t::is_contained(const vehikel_besch_t *info)
 {
-	FOR(slist_tpl<vehikel_t*>, const v, get_vehicle_list()) {
+	FOR(slist_tpl<vehicle_t*>, const v, get_vehicle_list()) {
 		if (v->get_besch() == info) {
 			return true;
 		}
@@ -800,7 +800,7 @@ void depot_t::new_month()
 	sint64 fixed_cost_costs = 0;
 	if (vehicle_count() > 0)
 	{
-		FOR(slist_tpl<vehikel_t*>, const v, get_vehicle_list())
+		FOR(slist_tpl<vehicle_t*>, const v, get_vehicle_list())
 		{
 			fixed_cost_costs += v->get_besch()->get_fixed_cost(welt);
 		}
@@ -839,7 +839,7 @@ void depot_t::update_all_win()
  *   - 0 if we don't want to filter by traction type
  *   - a bitmask of possible traction types; we need only match one
  */
-bool depot_t::is_suitable_for( const vehikel_t * test_vehicle, const uint8 traction_types /* = 0 */ ) const {
+bool depot_t::is_suitable_for( const vehicle_t * test_vehicle, const uint8 traction_types /* = 0 */ ) const {
 	assert(test_vehicle != NULL);
 
 	// Owner must be the same

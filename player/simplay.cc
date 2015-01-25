@@ -53,7 +53,7 @@
 #include "../utils/cbuffer_t.h"
 #include "../utils/simstring.h"
 
-#include "../vehicle/simvehikel.h"
+#include "../vehicle/simvehicle.h"
 
 #include "simplay.h"
 #include "finance.h"
@@ -538,7 +538,7 @@ void player_t::calc_assets()
 	// all vehikels stored in depot not part of a convoi
 	FOR(slist_tpl<depot_t*>, const depot, depot_t::get_depot_list()) {
 		if(  depot->get_player_nr() == player_nr  ) {
-			FOR(slist_tpl<vehikel_t*>, const veh, depot->get_vehicle_list()) {
+			FOR(slist_tpl<vehicle_t*>, const veh, depot->get_vehicle_list()) {
 				sint64 restwert = veh->calc_restwert();
 				assets[TT_ALL] += restwert;
 				assets[finance->translate_waytype_to_tt(veh->get_waytype())] += restwert;

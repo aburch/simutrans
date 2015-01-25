@@ -12,13 +12,12 @@
  * April 2000
  */
 
-#include "simvehikel.h"
+#include "simvehicle.h"
 #include "overtaker.h"
 
 #include "../tpl/slist_tpl.h"
 #include "../tpl/stringhashtable_tpl.h"
 #include "../ifc/sync_steppable.h"
-//#include "../slisthandle_t.h"
 
 class stadtauto_besch_t;
 class karte_t;
@@ -28,7 +27,7 @@ class karte_t;
  * @author Hj. Malthaner
  * "verkehrsteilnehmer" = road user (Babelfish)
  */
-class verkehrsteilnehmer_t : public vehikel_basis_t, public sync_steppable
+class road_user_t : public vehicle_base_t, public sync_steppable
 {
 protected:
 	/**
@@ -55,27 +54,27 @@ protected:
 	virtual void update_bookkeeping(uint32) {};
 
 #ifdef INLINE_OBJ_TYPE
-	verkehrsteilnehmer_t(typ type);
+	road_user_t(typ type);
 
 	/**
 	 * Creates thing at position given by @p gr.
 	 * Does not add it to the tile!
 	 * @param random number to compute initial direction.
 	 */
-	verkehrsteilnehmer_t(typ type, grund_t* gr, uint16 random);
+	road_user_t(typ type, grund_t* gr, uint16 random);
 #else
-	verkehrsteilnehmer_t();
+	road_user_t();
 
 	/**
 	 * Creates thing at position given by @p gr.
 	 * Does not add it to the tile!
 	 * @param random number to compute initial direction.
 	 */
-	verkehrsteilnehmer_t(grund_t* gr, uint16 random);
+	road_user_t(grund_t* gr, uint16 random);
 #endif
 
 public:
-	virtual ~verkehrsteilnehmer_t();
+	virtual ~road_user_t();
 
 	const char *get_name() const = 0;
 	//typ get_typ() const  = 0;
@@ -98,7 +97,7 @@ public:
 };
 
 
-class stadtauto_t : public verkehrsteilnehmer_t, public overtaker_t
+class private_car_t : public road_user_t, public overtaker_t
 {
 private:
 	
@@ -131,15 +130,15 @@ protected:
 	void calc_bild();
 
 public:
-	stadtauto_t(loadsave_t *file);
+	private_car_t(loadsave_t *file);
 
 	/**
 	 * Creates citycar at position given by @p gr.
 	 * Does not add car to the tile!
 	 */
-	stadtauto_t(grund_t* gr, koord target);
+	private_car_t(grund_t* gr, koord target);
 
-	virtual ~stadtauto_t();
+	virtual ~private_car_t();
 
 	static stringhashtable_tpl<const stadtauto_besch_t *> table;
 

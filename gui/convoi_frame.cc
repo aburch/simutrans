@@ -30,7 +30,7 @@
 #include "../dataobj/translator.h"
 #include "../player/simplay.h"
 #include "../utils/simstring.h"
-#include "../vehicle/simvehikel.h"
+#include "../vehicle/simvehicle.h"
 
  /**
  * All filter and sort settings are static, so the old settings are
@@ -59,17 +59,17 @@ bool convoi_frame_t::passes_filter(convoihandle_t cnv)
 		return false;
 	}
 
-	vehikel_t const* const fahr = cnv->front();
+	vehicle_t const* const tdriver = cnv->front();
 	if(  get_filter(convoi_filter_frame_t::typ_filter)  ) {
-		switch(fahr->get_typ()) {
+		switch(tdriver->get_typ()) {
 			case obj_t::automobil:
 				if(!get_filter(convoi_filter_frame_t::lkws_filter)) {
 					return false;
 				}
 				break;
-			case obj_t::waggon:
+			case obj_t::rail_vehicle:
 				// filter trams: a convoi is considered tram if the first vehicle is a tram vehicle
-				if(fahr->get_besch()->get_waytype()==tram_wt) {
+				if(tdriver->get_besch()->get_waytype()==tram_wt) {
 					if (!get_filter(convoi_filter_frame_t::tram_filter)) {
 						return false;
 					}
@@ -154,14 +154,14 @@ bool convoi_frame_t::compare_convois(convoihandle_t const cnv1, convoihandle_t c
 			break;
 		case nach_typ:
 			if(cnv1->get_vehikel_anzahl()*cnv2->get_vehikel_anzahl()>0) {
-				vehikel_t const* const fahr1 = cnv1->front();
-				vehikel_t const* const fahr2 = cnv2->front();
+				vehicle_t const* const tdriver1 = cnv1->front();
+				vehicle_t const* const tdriver2 = cnv2->front();
 
-				result = fahr1->get_typ() - fahr2->get_typ();
+				result = tdriver1->get_typ() - tdriver2->get_typ();
 				if(result == 0) {
-					result = fahr1->get_fracht_typ()->get_catg_index() - fahr2->get_fracht_typ()->get_catg_index();
+					result = tdriver1->get_fracht_typ()->get_catg_index() - tdriver2->get_fracht_typ()->get_catg_index();
 					if(result == 0) {
-						result = fahr1->get_basis_bild() - fahr2->get_basis_bild();
+						result = tdriver1->get_basis_bild() - tdriver2->get_basis_bild();
 					}
 				}
 			}

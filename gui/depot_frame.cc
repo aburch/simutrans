@@ -13,7 +13,7 @@
 
 #include "../simunits.h"
 #include "../simworld.h"
-#include "../vehicle/simvehikel.h"
+#include "../vehicle/simvehicle.h"
 #include "../simconvoi.h"
 #include "../simdepot.h"
 #include "../gui/simwin.h"
@@ -496,7 +496,7 @@ void depot_frame_t::update_data()
 sint64 depot_frame_t::calc_restwert(const vehikel_besch_t *veh_type)
 {
 	sint64 wert = 0;
-	FOR(slist_tpl<vehikel_t*>, const v, depot->get_vehicle_list()) {
+	FOR(slist_tpl<vehicle_t*>, const v, depot->get_vehicle_list()) {
 		if(  v->get_besch() == veh_type  ) {
 			wert += v->calc_restwert();
 		}

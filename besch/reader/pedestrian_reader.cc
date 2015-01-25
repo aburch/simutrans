@@ -21,7 +21,7 @@ void pedestrian_reader_t::register_obj(obj_besch_t *&data)
 {
 	fussgaenger_besch_t *besch = static_cast<fussgaenger_besch_t  *>(data);
 
-	fussgaenger_t::register_besch(besch);
+	pedestrian_t::register_besch(besch);
 
 	checksum_t *chk = new checksum_t();
 	besch->calc_checksum(chk);
@@ -32,7 +32,7 @@ void pedestrian_reader_t::register_obj(obj_besch_t *&data)
 
 bool pedestrian_reader_t::successfully_loaded() const
 {
-	return fussgaenger_t::alles_geladen();
+	return pedestrian_t::alles_geladen();
 }
 
 

@@ -25,7 +25,7 @@
 #include "simobj.h"
 #include "simworld.h"
 #include "obj/baum.h"
-#include "vehicle/simvehikel.h"
+#include "vehicle/simvehicle.h"
 #include "dataobj/translator.h"
 #include "dataobj/loadsave.h"
 #include "boden/grund.h"
@@ -228,7 +228,7 @@ void obj_t::display(int xpos, int ypos) const
 		const int raster_width = get_current_tile_raster_width();
 		const bool is_dirty = get_flag(obj_t::dirty);
 
-		if (vehikel_basis_t const* const v = obj_cast<vehikel_basis_t>(this)) {
+		if (vehicle_base_t const* const v = obj_cast<vehicle_base_t>(this)) {
 			// vehicles need finer steps to appear smoother
 			v->get_screen_offset( xpos, ypos, raster_width );
 		}
@@ -379,7 +379,7 @@ void obj_t::mark_image_dirty(image_id bild, sint16 yoff) const
 		const sint16 rasterweite = get_tile_raster_width();
 		int xpos=0, ypos=0;
 		if(  is_moving()  ) {
-			vehikel_basis_t const* const v = obj_cast<vehikel_basis_t>(this);
+			vehicle_base_t const* const v = obj_cast<vehicle_base_t>(this);
 			// vehicles need finer steps to appear smoother
 			v->get_screen_offset( xpos, ypos, get_tile_raster_width() );
 		}

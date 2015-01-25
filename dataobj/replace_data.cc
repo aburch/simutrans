@@ -7,7 +7,7 @@
 
 #include "../bauer/vehikelbauer.h"
 
-#include "../vehicle/simvehikel.h"
+#include "../vehicle/simvehicle.h"
 #include "../besch/vehikel_besch.h"
 
 

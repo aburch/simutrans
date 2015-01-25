@@ -12,7 +12,7 @@
 #include "weg.h"
 #include "../../convoihandle_t.h"
 
-class vehikel_t;
+class vehicle_t;
 
 /**
  * Klasse für Schienen in Simutrans.
@@ -80,7 +80,7 @@ public:
 	* releases previous reservation
 	* @author prissi
 	*/
-	bool unreserve( vehikel_t *);
+	bool unreserve( vehicle_t *);
 
 	/* called befor deletion;
 	 * last chance to unreserve tiles ...

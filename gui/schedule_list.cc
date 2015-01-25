@@ -23,7 +23,7 @@
 #include "../display/simgraph.h"
 #include "../simskin.h"
 #include "../simconvoi.h"
-#include "../vehicle/simvehikel.h"
+#include "../vehicle/simvehicle.h"
 #include "../gui/simwin.h"
 #include "../simlinemgmt.h"
 #include "../simmenu.h"

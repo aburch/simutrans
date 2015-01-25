@@ -21,7 +21,7 @@
 static uint32 const strecke[] = { 6000, 11000, 15000, 20000, 25000, 30000, 35000, 40000 };
 
 static weighted_vector_tpl<const fussgaenger_besch_t*> liste;
-stringhashtable_tpl<const fussgaenger_besch_t *> fussgaenger_t::table;
+stringhashtable_tpl<const fussgaenger_besch_t *> pedestrian_t::table;
 
 
 static bool compare_fussgaenger_besch(const fussgaenger_besch_t* a, const fussgaenger_besch_t* b)
@@ -31,7 +31,7 @@ static bool compare_fussgaenger_besch(const fussgaenger_besch_t* a, const fussga
 }
 
 
-bool fussgaenger_t::register_besch(const fussgaenger_besch_t *besch)
+bool pedestrian_t::register_besch(const fussgaenger_besch_t *besch)
 {
 	if(  table.remove(besch->get_name())  ) {
 		dbg->warning( "fussgaenger_besch_t::register_besch()", "Object %s was overlaid by addon!", besch->get_name() );
@@ -41,11 +41,11 @@ bool fussgaenger_t::register_besch(const fussgaenger_besch_t *besch)
 }
 
 
-bool fussgaenger_t::alles_geladen()
+bool pedestrian_t::alles_geladen()
 {
 	liste.resize(table.get_count());
 	if (table.empty()) {
-		DBG_MESSAGE("fussgaenger_t", "No pedestrians found - feature disabled");
+		DBG_MESSAGE("pedestrian_t", "No pedestrians found - feature disabled");
 	}
 	else {
 		vector_tpl<const fussgaenger_besch_t*> temp_liste(0);
@@ -61,11 +61,11 @@ bool fussgaenger_t::alles_geladen()
 }
 
 
-fussgaenger_t::fussgaenger_t(loadsave_t *file)
+pedestrian_t::pedestrian_t(loadsave_t *file)
 #ifdef INLINE_OBJ_TYPE
- : verkehrsteilnehmer_t(fussgaenger)
+ : road_user_t(fussgaenger)
 #else
- : verkehrsteilnehmer_t()
+ : road_user_t()
 #endif
 {
 	rdwr(file);
@@ -75,11 +75,11 @@ fussgaenger_t::fussgaenger_t(loadsave_t *file)
 }
 
 
-fussgaenger_t::fussgaenger_t(grund_t *gr) :
+pedestrian_t::pedestrian_t(grund_t *gr) :
 #ifdef INLINE_OBJ_TYPE
-	verkehrsteilnehmer_t(fussgaenger, gr, simrand(65535, "fussgaenger_t::fussgaenger_t (weg_next)")),
+	road_user_t(fussgaenger, gr, simrand(65535, "pedestrian_t::pedestrian_t (weg_next)")),
 #else
-	verkehrsteilnehmer_t(gr, simrand(65535, "fussgaenger_t::fussgaenger_t (weg_next)")),
+	road_user_t(gr, simrand(65535, "pedestrian_t::pedestrian_t (weg_next)")),
 #endif
 	besch(pick_any_weighted(liste))
 {
@@ -88,7 +88,7 @@ fussgaenger_t::fussgaenger_t(grund_t *gr) :
 }
 
 
-fussgaenger_t::~fussgaenger_t()
+pedestrian_t::~pedestrian_t()
 {
 	if(  time_to_life>0  ) {
 		welt->sync_remove( this );
@@ -96,7 +96,7 @@ fussgaenger_t::~fussgaenger_t()
 }
 
 
-void fussgaenger_t::calc_bild()
+void pedestrian_t::calc_bild()
 {
 	if(!besch)
 	{
@@ -110,11 +110,11 @@ void fussgaenger_t::calc_bild()
 
 
 
-void fussgaenger_t::rdwr(loadsave_t *file)
+void pedestrian_t::rdwr(loadsave_t *file)
 {
-	xml_tag_t f( file, "fussgaenger_t" );
+	xml_tag_t f( file, "pedestrian_t" );
 
-	verkehrsteilnehmer_t::rdwr(file);
+	road_user_t::rdwr(file);
 
 	if(!file->is_loading()) {
 		const char *s = besch->get_name();
@@ -138,7 +138,7 @@ void fussgaenger_t::rdwr(loadsave_t *file)
 
 
 // create a number (anzahl) of pedestrians (if possible)
-void fussgaenger_t::erzeuge_fussgaenger_an(const koord3d k, int &anzahl)
+void pedestrian_t::erzeuge_fussgaenger_an(const koord3d k, int &anzahl)
 {
 	if (liste.empty()) {
 		return;
@@ -152,7 +152,7 @@ void fussgaenger_t::erzeuge_fussgaenger_an(const koord3d k, int &anzahl)
 		if (weg && ribi_t::is_twoway(weg->get_ribi_unmasked())) {
 			// we create maximal 4 pedestrians here for performance reasons
 			for (int i = 0; i < 4 && anzahl > 0; i++) {
-				fussgaenger_t* fg = new fussgaenger_t(bd);
+				pedestrian_t* fg = new pedestrian_t(bd);
 				bool ok = bd->obj_add(fg) != 0;	// 256 limit reached
 				if (ok) {
 					fg->calc_height(bd);
@@ -177,7 +177,7 @@ void fussgaenger_t::erzeuge_fussgaenger_an(const koord3d k, int &anzahl)
 }
 
 
-bool fussgaenger_t::sync_step(long delta_t)
+bool pedestrian_t::sync_step(long delta_t)
 {
 	time_to_life -= delta_t;
 
@@ -190,7 +190,7 @@ bool fussgaenger_t::sync_step(long delta_t)
 }
 
 
-grund_t* fussgaenger_t::hop_check()
+grund_t* pedestrian_t::hop_check()
 {
 	grund_t *from = welt->lookup(pos_next);
 	if(!from) {
@@ -209,7 +209,7 @@ grund_t* fussgaenger_t::hop_check()
 }
 
 
-void fussgaenger_t::hop(grund_t *gr)
+void pedestrian_t::hop(grund_t *gr)
 {
 	verlasse_feld();
 	set_pos(gr->get_pos());
@@ -225,7 +225,7 @@ void fussgaenger_t::hop(grund_t *gr)
 	// all possible directions
 	ribi_t::ribi ribi = weg->get_ribi_unmasked() & (~gegenrichtung);
 	// randomized offset
-	const uint8 offset = (ribi > 0  &&  ribi_t::ist_einfach(ribi)) ? 0 : simrand(4, "void fussgaenger_t::hop(grund_t *gr)");
+	const uint8 offset = (ribi > 0  &&  ribi_t::ist_einfach(ribi)) ? 0 : simrand(4, "void pedestrian_t::hop(grund_t *gr)");
 
 	for(uint r = 0; r < 4; r++) {
 		ribi_t::ribi const test_ribi = ribi_t::nsow[ (r+offset) & 3];

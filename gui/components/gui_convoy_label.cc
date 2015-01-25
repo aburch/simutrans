@@ -16,7 +16,7 @@
 #include "../../bauer/warenbauer.h"
 #include "../../dataobj/translator.h"
 #include "../../player/simplay.h"
-#include "../../vehicle/simvehikel.h"
+#include "../../vehicle/simvehicle.h"
 
 
 gui_convoy_label_t::gui_convoy_label_t(convoihandle_t cnv, bool show_number_of_convoys, bool show_max_speed):

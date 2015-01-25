@@ -70,7 +70,7 @@ a = (Fm - Frs - cf * v^2) / m
 #include "besch/vehikel_besch.h"
 #include "simtypes.h"
 
-class vehikel_t;
+class vehicle_t;
 
 //// CF_*: constants related to air resistance
 //
@@ -152,7 +152,7 @@ struct adverse_summary_t
 		max_speed = KMH_SPEED_UNLIMITED; 
 	}
 
-	void add_vehicle(const vehikel_t &v);
+	void add_vehicle(const vehicle_t &v);
 	void add_vehicle(const vehikel_besch_t &b, bool is_first);
 };
 
@@ -203,7 +203,7 @@ struct weight_summary_t
 	 */
 	void add_weight(sint32 kgs, sint32 sin_alpha);
 
-	void add_vehicle(const vehikel_t &v);
+	void add_vehicle(const vehicle_t &v);
 };
 
 /******************************************************************************/
@@ -230,7 +230,7 @@ private:
 		return min(get_force(v), adverse.cf * v * v + Frs); /* in N */
 	}
 protected:
-	vehicle_summary_t vehicle;
+	vehicle_summary_t vehicle_summary;
 	adverse_summary_t adverse;
 
 	/**
@@ -252,7 +252,7 @@ protected:
 	 * get vehicle summary
 	 */
 	virtual const vehicle_summary_t &get_vehicle_summary() {
-		return vehicle;
+		return vehicle_summary;
 	}
 
 	/**
@@ -395,7 +395,7 @@ public:
 		if (!(is_valid & cd_vehicle_summary)) 
 		{
 			is_valid |= cd_vehicle_summary;
-			update_vehicle_summary(vehicle);
+			update_vehicle_summary(vehicle_summary);
 		}
 	}
 

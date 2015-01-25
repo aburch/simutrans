@@ -361,7 +361,7 @@ public:
 	uint32 base_bits_per_month;
 	uint32 job_replenishment_per_hundredths_of_months;
 
-	// We need it often(every vehikel_basis_t::fahre_basis call), so we cache it.
+	// We need it often(every vehicle_base_t::fahre_basis call), so we cache it.
 	uint32 steps_per_km;
 
 private:

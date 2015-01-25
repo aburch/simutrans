@@ -40,7 +40,7 @@ class weg_t;
 class depot_t;
 class karte_ptr_t;
 class player_t;
-class vehikel_t;
+class vehicle_t;
 class vehikel_besch_t;
 class schedule_t;
 class cbuffer_t;
@@ -349,7 +349,7 @@ private:
 	*
 	* @author Hj. Malthaner
 	*/
-	array_tpl<vehikel_t*> fahr;
+	array_tpl<vehicle_t*> vehicle;
 
 	/*
 	 * a list of all catg_index, which can be transported by this convoy.
@@ -513,7 +513,7 @@ private:
 
 	/**
 	* Set, when there was a income calculation (avoids some cheats)
-	* Since 99.15 it will stored directly in the vehikel_t
+	* Since 99.15 it will stored directly in the vehicle_t
 	* @author prissi
 	*/
 	koord3d last_stop_pos;
@@ -1080,31 +1080,31 @@ public:
 	/**
 	 * @return Vehicle at position i
 	 */
-	inline vehikel_t* get_vehikel(uint16 i) const { return fahr[i]; }
+	inline vehicle_t* get_vehikel(uint16 i) const { return vehicle[i]; }
 
 	// Upgrades a vehicle in the convoy.
 	// @author: jamespetts, February 2010
-	void upgrade_vehicle(uint16 i, vehikel_t* v);
+	void upgrade_vehicle(uint16 i, vehicle_t* v);
 
-	vehikel_t* front() const { return *fahr.begin(); }
+	vehicle_t* front() const { return *vehicle.begin(); }
 
-	vehikel_t* back() const { return fahr.begin()[anz_vehikel - 1]; }
+	vehicle_t* back() const { return vehicle.begin()[anz_vehikel - 1]; }
 
-	typedef array_tpl<vehikel_t*>::const_iterator const_iterator;
-	inline array_tpl<vehikel_t*>::const_iterator begin() const { return fahr.begin(); }
-	inline array_tpl<vehikel_t*>::const_iterator end() const { return fahr.begin() + anz_vehikel; }
+	typedef array_tpl<vehicle_t*>::const_iterator const_iterator;
+	inline array_tpl<vehicle_t*>::const_iterator begin() const { return vehicle.begin(); }
+	inline array_tpl<vehicle_t*>::const_iterator end() const { return vehicle.begin() + anz_vehikel; }
 
 	/**
 	* Adds a vehicel at the start or end of the convoi.
 	* @author Hj. Malthaner
 	*/
-	bool add_vehikel(vehikel_t *v, bool infront = false);
+	bool add_vehikel(vehicle_t *v, bool infront = false);
 
 	/**
 	* Removes vehicles at position i
 	* @author Hj. Malthaner
 	*/
-	vehikel_t * remove_vehikel_bei(unsigned short i);
+	vehicle_t * remove_vehikel_bei(unsigned short i);
 
 	const minivec_tpl<uint8> &get_goods_catg_index() const { return goods_catg_index; }
 

@@ -18,11 +18,11 @@
 #include "../dataobj/replace_data.h"
 #include "../utils/simstring.h"
 #include "../utils/cbuffer_t.h"
-#include "../vehicle/simvehikel.h"
+#include "../vehicle/simvehicle.h"
 
 static bool _is_electrified(const karte_t* welt, const convoihandle_t& cnv)
 {
-	vehikel_t *veh = cnv->get_vehikel(0);
+	vehicle_t *veh = cnv->get_vehikel(0);
 	grund_t* gr = welt->lookup(veh->get_pos());
 	weg_t* way = gr->get_weg(veh->get_waytype());
 	return way ? way->is_electrified() : false;
@@ -93,7 +93,7 @@ replace_frame_t::replace_frame_t(convoihandle_t cnv, const char *name):
 	add_component(&numinp[state_skip]);
 	add_component(&lb_n_skip);
 
-	const vehikel_t *lead_vehicle = cnv->get_vehikel(0);
+	const vehicle_t *lead_vehicle = cnv->get_vehikel(0);
 	const waytype_t wt = lead_vehicle->get_waytype();
 	const weg_t *way = welt->lookup(lead_vehicle->get_pos())->get_weg(wt);
 	const bool weg_electrified = way == NULL ? false : way->is_electrified();
@@ -632,7 +632,7 @@ void replace_frame_t::draw(scr_coord pos, scr_size size)
 sint64 replace_frame_t::calc_total_cost()
 {
 	sint64 total_cost = 0;
-	vector_tpl<const vehikel_t*> current_vehicles;
+	vector_tpl<const vehicle_t*> current_vehicles;
 	vector_tpl<uint16> keep_vehicles;
 	for(uint8 i = 0; i < cnv->get_vehikel_anzahl(); i ++)
 	{

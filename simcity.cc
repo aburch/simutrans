@@ -24,7 +24,7 @@
 #include "player/simplay.h"
 #include "simplan.h"
 #include "display/simimg.h"
-#include "vehicle/simverkehr.h"
+#include "vehicle/simroadtraffic.h"
 #include "utils/simrandom.h"
 #include "simhalt.h"
 #include "simfab.h"
@@ -2394,7 +2394,7 @@ void stadt_t::check_all_private_car_routes()
 	
 	// This will find the fastest route from the townhall road to *all* other townhall roads.
 	route_t private_car_route;
-	automobil_t checker;
+	road_vehicle_t checker;
 	private_car_destination_finder_t finder(welt, &checker, this);
 	private_car_route.find_route(welt, origin, &finder, welt->get_citycar_speed_average(), ribi_t::alle, 1, 1, depth, route_t::private_car_checker);
 
@@ -4295,9 +4295,9 @@ welt->inc_rands(28);
 					    (gr->get_weg_ribi_unmasked(road_wt) == ribi_t::nordsued ||
 					     gr->get_weg_ribi_unmasked(road_wt) == ribi_t::ostwest))
 					{
-						if (!stadtauto_t::list_empty()) 
+						if (!private_car_t::list_empty()) 
 						{
-							stadtauto_t* vt = new stadtauto_t(gr, target);
+							private_car_t* vt = new private_car_t(gr, target);
 							const sint32 time_to_live = ((sint32)journey_tenths_of_minutes * 136584) / (sint32)welt->get_settings().get_meters_per_tile();
 							vt->set_time_to_life(time_to_live);
 							gr->obj_add(vt);
@@ -5095,7 +5095,7 @@ void stadt_t::remove_substation(senke_t* substation)
 	substations.remove(substation); 
 }
 
-private_car_destination_finder_t::private_car_destination_finder_t(karte_t* w, automobil_t* m, stadt_t* o)
+private_car_destination_finder_t::private_car_destination_finder_t(karte_t* w, road_vehicle_t* m, stadt_t* o)
 { 
 	welt = w;
 	master = m;

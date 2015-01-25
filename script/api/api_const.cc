@@ -225,7 +225,7 @@ void export_global_constants(HSQUIRRELVM vm)
 	/// road vehicle
 	enum_slot(vm, "mo_car", obj_t::automobil);
 	/// rail vehicle
-	enum_slot(vm, "mo_train", obj_t::waggon);
+	enum_slot(vm, "mo_train", obj_t::rail_vehicle);
 	/// monorail vehicle
 	enum_slot(vm, "mo_monorail", obj_t::monorailwaggon);
 	/// maglev vehicle

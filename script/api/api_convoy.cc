@@ -7,7 +7,7 @@
 #include "../api_function.h"
 #include "../../simconvoi.h"
 #include "../../simworld.h"
-#include "../../vehicle/simvehikel.h"
+#include "../../vehicle/simvehicle.h"
 
 using namespace script_api;
 

@@ -9,7 +9,7 @@
 
 #include "../../simconvoi.h"
 #include "../../simworld.h"
-#include "../../vehicle/simvehikel.h"
+#include "../../vehicle/simvehicle.h"
 
 #include "../../dataobj/loadsave.h"
 #include "../../dataobj/translator.h"
@@ -129,7 +129,7 @@ bool schiene_t::unreserve(convoihandle_t c)
 * releases previous reservation
 * @author prissi
 */
-bool schiene_t::unreserve(vehikel_t *)
+bool schiene_t::unreserve(vehicle_t *)
 {
 	// is this tile empty?
 	if(!reserved.is_bound()) {
