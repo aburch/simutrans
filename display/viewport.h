@@ -78,11 +78,6 @@ private:
 	sint16 cached_img_size;		//!< Cached base raster image size
 
 	/**
-	 * Gets current ij offsets of this viewport, depends of its proportions and the zoom level.
-	 */
-	koord get_viewport_ij_offset() const { return view_ij_off; }
-
-	/**
 	 * Sets current ij offsets of this viewport, depends of its proportions and the zoom level.
 	 */
 	void set_viewport_ij_offset( const koord &k );
@@ -154,6 +149,11 @@ public:
 	 * Viewpoint in tile coordinates. i,j coordinate of the tile in center of screen.
 	 */
 	koord get_world_position() const { return ij_off; }
+
+	/**
+	 * Offset from tile on center to tile in top-left corner of screen.
+	 */
+	koord get_viewport_ij_offset() const { return view_ij_off; }
 
 	/**
 	 * Set center viewport position.

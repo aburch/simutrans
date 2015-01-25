@@ -116,8 +116,8 @@ void karte_ansicht_t::display(bool force_dirty)
 	const int dpy_width = disp_width/IMG_SIZE + 2;
 	const int dpy_height = (disp_real_height*4)/IMG_SIZE;
 
-	const int i_off = viewport->get_world_position().x - disp_width/(2*IMG_SIZE) - disp_real_height/IMG_SIZE;
-	const int j_off = viewport->get_world_position().y + disp_width/(2*IMG_SIZE) - disp_real_height/IMG_SIZE;
+	const int i_off = viewport->get_world_position().x + viewport->get_viewport_ij_offset().x;
+	const int j_off = viewport->get_world_position().y + viewport->get_viewport_ij_offset().y;
 	const int const_x_off = viewport->get_x_off();
 	const int const_y_off = viewport->get_y_off();
 
@@ -318,8 +318,8 @@ void karte_ansicht_t::display_region( koord lt, koord wh, sint16 y_min, sint16 y
 {
 	const sint16 IMG_SIZE = get_tile_raster_width();
 
-	const int i_off = viewport->get_world_position().x - display_get_width() / (2 * IMG_SIZE) - display_get_height() / IMG_SIZE;
-	const int j_off = viewport->get_world_position().y + display_get_width() / (2 * IMG_SIZE) - display_get_height() / IMG_SIZE;
+	const int i_off = viewport->get_world_position().x + viewport->get_viewport_ij_offset().x;
+	const int j_off = viewport->get_world_position().y + viewport->get_viewport_ij_offset().y;
 	const int const_x_off = viewport->get_x_off();
 	const int const_y_off = viewport->get_y_off();
 
