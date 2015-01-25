@@ -5107,7 +5107,7 @@ private_car_destination_finder_t::private_car_destination_finder_t(karte_t* w, r
 	meters_per_tile_x100 = welt->get_settings().get_meters_per_tile() * 100; // For 100ths of a minute
 }
 
-bool private_car_destination_finder_t::ist_befahrbar(const grund_t* gr) const
+bool private_car_destination_finder_t::check_next_tile(const grund_t* gr) const
 { 
 	// Check to see whether the road prohibits private cars
 	if(gr)
@@ -5134,7 +5134,7 @@ bool private_car_destination_finder_t::ist_befahrbar(const grund_t* gr) const
 			}
 		}
 	}
-	return master->ist_befahrbar(gr);
+	return master->check_next_tile(gr);
 }
 
 ribi_t::ribi private_car_destination_finder_t::get_ribi(const grund_t* gr) const
@@ -5142,7 +5142,7 @@ ribi_t::ribi private_car_destination_finder_t::get_ribi(const grund_t* gr) const
 	return master->get_ribi(gr); 
 }
 
-bool private_car_destination_finder_t::ist_ziel(const grund_t* gr, const grund_t*)
+bool private_car_destination_finder_t:: is_target(const grund_t* gr, const grund_t*)
 {
 	if(!gr)
 	{
@@ -5168,7 +5168,7 @@ bool private_car_destination_finder_t::ist_ziel(const grund_t* gr, const grund_t
 	return false;
 }
 
-int private_car_destination_finder_t::get_kosten(const grund_t* gr, sint32 max_speed, koord from_pos)
+int private_car_destination_finder_t::get_cost(const grund_t* gr, sint32 max_speed, koord from_pos)
 {
 	const weg_t *w = gr->get_weg(road_wt);
 	if(!w) 

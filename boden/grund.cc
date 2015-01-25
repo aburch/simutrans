@@ -2257,8 +2257,8 @@ public:
 		delete(other);
 	}
 
-	bool ist_befahrbar(const grund_t *gr) const {
-		if (!other->ist_befahrbar(gr)) {
+	bool check_next_tile(const grund_t *gr) const {
+		if (!other->check_next_tile(gr)) {
 			return false;
 		}
 
@@ -2280,8 +2280,8 @@ public:
 
 	virtual ribi_t::ribi get_ribi(const grund_t* gr) const { return other->get_ribi(gr); }
 	virtual waytype_t get_waytype() const { return other->get_waytype(); }
-	virtual int get_kosten(const grund_t *gr, const sint32 c, koord p) { return other->get_kosten(gr,c,p); }
-	virtual bool ist_ziel(const grund_t *gr,const grund_t *gr2) { return other->ist_ziel(gr,gr2); }
+	virtual int get_cost(const grund_t *gr, const sint32 c, koord p) { return other->get_cost(gr,c,p); }
+	virtual bool  is_target(const grund_t *gr,const grund_t *gr2) { return other-> is_target(gr,gr2); }
 };
 
 bool grund_t::removing_way_would_disrupt_public_right_of_way(waytype_t wt)

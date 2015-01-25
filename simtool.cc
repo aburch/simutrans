@@ -3161,11 +3161,11 @@ waytype_t tool_wayremover_t::get_waytype() const
 }
 
 class electron_t : public test_driver_t {
-	bool ist_befahrbar(const grund_t* gr) const { return gr->get_leitung()!=NULL; }
+	bool check_next_tile(const grund_t* gr) const { return gr->get_leitung()!=NULL; }
 	virtual ribi_t::ribi get_ribi(const grund_t* gr) const { return gr->get_leitung()->get_ribi(); }
 	virtual waytype_t get_waytype() const { return invalid_wt; }
-	virtual int get_kosten(const grund_t *, const sint32, koord) { return 1; }
-	virtual bool ist_ziel(const grund_t *,const grund_t *) { return false; }
+	virtual int get_cost(const grund_t *, const sint32, koord) { return 1; }
+	virtual bool  is_target(const grund_t *,const grund_t *) { return false; }
 };
 
 class scenario_checker_t : public test_driver_t {
@@ -3193,11 +3193,11 @@ public:
 		return test_driver;
 	}
 private:
-	bool ist_befahrbar(const grund_t* gr) const { return other->ist_befahrbar(gr)  &&  scenario->is_work_allowed_here(player, id, other->get_waytype(), gr->get_pos())==NULL;}
+	bool check_next_tile(const grund_t* gr) const { return other->check_next_tile(gr)  &&  scenario->is_work_allowed_here(player, id, other->get_waytype(), gr->get_pos())==NULL;}
 	virtual ribi_t::ribi get_ribi(const grund_t* gr) const { return other->get_ribi(gr); }
 	virtual waytype_t get_waytype() const { return other->get_waytype(); }
-	virtual int get_kosten(const grund_t *gr, const sint32 c, koord p) { return other->get_kosten(gr,c,p); }
-	virtual bool ist_ziel(const grund_t *gr,const grund_t *gr2) { return other->ist_ziel(gr,gr2); }
+	virtual int get_cost(const grund_t *gr, const sint32 c, koord p) { return other->get_cost(gr,c,p); }
+	virtual bool  is_target(const grund_t *gr,const grund_t *gr2) { return other-> is_target(gr,gr2); }
 };
 
 void tool_wayremover_t::mark_tiles( player_t *player, const koord3d &start, const koord3d &end )

@@ -6027,11 +6027,11 @@ public:
 	{
 		return master->get_waytype();
 	};
-	virtual bool ist_befahrbar( const grund_t* gr) const
+	virtual bool check_next_tile( const grund_t* gr) const
 	{
-		return master->ist_befahrbar(gr);
+		return master->check_next_tile(gr);
 	};
-	virtual bool ist_ziel( const grund_t* gr, const grund_t* )
+	virtual bool  is_target( const grund_t* gr, const grund_t* )
 	{
 		return gr->get_depot() && gr->get_depot()->get_owner() == master->get_owner() && gr->get_depot()->get_tile()->get_besch()->get_enabled() & traction_type;
 	};
@@ -6039,9 +6039,9 @@ public:
 	{
 		return master->get_ribi(gr);
 	};
-	virtual int get_kosten( const grund_t* gr, const sint32, koord from_pos)
+	virtual int get_cost( const grund_t* gr, const sint32, koord from_pos)
 	{
-		return master->get_kosten(gr, 0, from_pos);
+		return master->get_cost(gr, 0, from_pos);
 	};
 };
 

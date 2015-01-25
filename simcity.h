@@ -80,13 +80,13 @@ public:
 	private_car_destination_finder_t(karte_t* w, road_vehicle_t* m, stadt_t* o);	
 	
 	virtual waytype_t get_waytype() const { return road_wt; };
-	virtual bool ist_befahrbar( const grund_t* gr ) const;
+	virtual bool check_next_tile( const grund_t* gr ) const;
 
-	virtual bool ist_ziel(const grund_t* gr, const grund_t*);
+	virtual bool  is_target(const grund_t* gr, const grund_t*);
 
 	virtual ribi_t::ribi get_ribi( const grund_t* gr) const;
 
-	virtual int get_kosten(const grund_t* gr, const sint32 max_speed, koord from_pos);
+	virtual int get_cost(const grund_t* gr, const sint32 max_speed, koord from_pos);
 };
 
 /**

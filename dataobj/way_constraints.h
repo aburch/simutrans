@@ -71,7 +71,7 @@ public:
 	/**
 	 * can vehicle use way? returns true, if vehicle can use the way according to its and the way's way constraints.
 	 */
-	bool ist_befahrbar() { return !get_permissive() && !get_prohibitive(); }
+	bool check_next_tile() { return !get_permissive() && !get_prohibitive(); }
 };
 
 

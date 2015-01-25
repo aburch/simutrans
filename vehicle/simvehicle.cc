@@ -1347,7 +1347,7 @@ grund_t* vehicle_t::hop_check()
 
 		// now check, if we can go here
 		grund_t *bd = welt->lookup(pos_next);
-		if(bd==NULL  ||  !ist_befahrbar(bd)  ||  cnv->get_route()->empty()) {
+		if(bd==NULL  ||  !check_next_tile(bd)  ||  cnv->get_route()->empty()) {
 			// way (weg) not existent (likely destroyed) or no route ...
 			cnv->suche_neue_route();
 			return NULL;
@@ -2419,7 +2419,7 @@ const char *vehicle_t::ist_entfernbar(const player_t *)
 
 bool vehicle_t::check_way_constraints(const weg_t &way) const
 {
-	return missing_way_constraints_t(besch->get_way_constraints(), way.get_way_constraints()).ist_befahrbar();
+	return missing_way_constraints_t(besch->get_way_constraints(), way.get_way_constraints()).check_next_tile();
 }
 
 bool vehicle_t::check_access(const weg_t* way) const
@@ -2694,7 +2694,7 @@ route_t::route_result_t road_vehicle_t::calc_route(koord3d start, koord3d ziel, 
 
 
 
-bool road_vehicle_t::ist_befahrbar(const grund_t *bd) const
+bool road_vehicle_t::check_next_tile(const grund_t *bd) const
 {
 	strasse_t *str=(strasse_t *)bd->get_weg(road_wt);
 	if(str==NULL  ||  str->get_max_speed()==0) {
@@ -2737,7 +2737,7 @@ bool road_vehicle_t::ist_befahrbar(const grund_t *bd) const
 
 // how expensive to go here (for way search)
 // author prissi
-int road_vehicle_t::get_kosten(const grund_t *gr, const sint32 max_speed, koord from_pos)
+int road_vehicle_t::get_cost(const grund_t *gr, const sint32 max_speed, koord from_pos)
 {
 	// first favor faster ways
 	const weg_t *w=gr->get_weg(road_wt);
@@ -2774,7 +2774,7 @@ int road_vehicle_t::get_kosten(const grund_t *gr, const sint32 max_speed, koord 
 
 
 // this routine is called by find_route, to determined if we reached a destination
-bool road_vehicle_t::ist_ziel(const grund_t *gr, const grund_t *prev_gr)
+bool road_vehicle_t:: is_target(const grund_t *gr, const grund_t *prev_gr)
 {
 	//  just check, if we reached a free stop position of this halt
 	if(gr->is_halt()  &&  gr->get_halt()==target_halt  &&  target_halt->is_reservable(gr,cnv->self)) {
@@ -3454,7 +3454,7 @@ route_t::route_result_t rail_vehicle_t::calc_route(koord3d start, koord3d ziel, 
 
 
 
-bool rail_vehicle_t::ist_befahrbar(const grund_t *bd) const
+bool rail_vehicle_t::check_next_tile(const grund_t *bd) const
 {
 	if(!bd) return false;
 	schiene_t const* const sch = obj_cast<schiene_t>(bd->get_weg(get_waytype()));
@@ -3529,7 +3529,7 @@ bool rail_vehicle_t::ist_befahrbar(const grund_t *bd) const
 
 // how expensive to go here (for way search)
 // author prissi
-int rail_vehicle_t::get_kosten(const grund_t *gr, const sint32 max_speed, koord from_pos)
+int rail_vehicle_t::get_cost(const grund_t *gr, const sint32 max_speed, koord from_pos)
 {
 	// first favor faster ways
 	const weg_t *w = gr->get_weg(get_waytype());
@@ -3568,7 +3568,7 @@ int rail_vehicle_t::get_kosten(const grund_t *gr, const sint32 max_speed, koord 
 }
 
 // this routine is called by find_route, to determined if we reached a destination
-bool rail_vehicle_t::ist_ziel(const grund_t *gr,const grund_t *prev_gr)
+bool rail_vehicle_t:: is_target(const grund_t *gr,const grund_t *prev_gr)
 {
 	const schiene_t * sch1 = (const schiene_t *) gr->get_weg(get_waytype());
 	// first check blocks, if we can go there
@@ -4783,7 +4783,7 @@ void water_vehicle_t::betrete_feld(grund_t* gr)
 	}
 }
 
-bool water_vehicle_t::ist_befahrbar(const grund_t *bd) const
+bool water_vehicle_t::check_next_tile(const grund_t *bd) const
 {
 	const weg_t *w = bd->get_weg(water_wt);	
 	if(bd->ist_wasser() || !w) 
@@ -4926,7 +4926,7 @@ schedule_t * water_vehicle_t::erzeuge_neuen_fahrplan() const
 /**** from here on planes ***/
 
 // this routine is called by find_route, to determined if we reached a destination
-bool aircraft_t::ist_ziel(const grund_t *gr,const grund_t *)
+bool aircraft_t:: is_target(const grund_t *gr,const grund_t *)
 {
 	if(state!=looking_for_parking)
 	{
@@ -5044,7 +5044,7 @@ aircraft_t::get_ribi(const grund_t *gr) const
 
 // how expensive to go here (for way search)
 // author prissi
-int aircraft_t::get_kosten(const grund_t *gr, const sint32, koord)
+int aircraft_t::get_cost(const grund_t *gr, const sint32, koord)
 {
 	// first favor faster ways
 	const weg_t *w=gr->get_weg(air_wt);
@@ -5079,13 +5079,13 @@ int aircraft_t::get_kosten(const grund_t *gr, const sint32, koord)
 
 // whether the ground is drivable or not depends on the current state of the airplane
 bool
-aircraft_t::ist_befahrbar(const grund_t *bd) const
+aircraft_t::check_next_tile(const grund_t *bd) const
 {
 	switch (state) {
 		case taxiing:
 		case taxiing_to_halt:
 		case looking_for_parking:
-//DBG_MESSAGE("ist_befahrbar()","at %i,%i",bd->get_pos().x,bd->get_pos().y);
+//DBG_MESSAGE("check_next_tile()","at %i,%i",bd->get_pos().x,bd->get_pos().y);
 			return (bd->hat_weg(air_wt)  &&  bd->get_weg(air_wt)->get_max_speed()>0);
 
 		case landing:
@@ -5093,7 +5093,7 @@ aircraft_t::ist_befahrbar(const grund_t *bd) const
 		case flying:
 		case circling:
 		{
-//DBG_MESSAGE("aircraft_t::ist_befahrbar()","(cnv %i) in idx %i",cnv->self.get_id(),route_index );
+//DBG_MESSAGE("aircraft_t::check_next_tile()","(cnv %i) in idx %i",cnv->self.get_id(),route_index );
 			// prissi: here a height check could avoid too high mountains
 			return true;
 		}

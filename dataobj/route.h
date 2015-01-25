@@ -153,7 +153,7 @@ public:
 	enum find_route_flags { none, private_car_checker, choose_signal };
 
 	/**
-	* Finds route to a location, where @p tdriver->ist_ziel becomes true.
+	* Finds route to a location, where @p tdriver-> is_target becomes true.
 	* @param max_depth is the maximum length of a route
 	* @author prissi
 	*/

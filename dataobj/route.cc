@@ -219,7 +219,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 	route.clear();
 
 	// first tile is not valid?!?
-	if(!tdriver->ist_befahrbar(g)) 
+	if(!tdriver->check_next_tile(g)) 
 	{
 		return false;
 	}
@@ -265,7 +265,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 		marker.mark(gr);
 
 		// already there
-		if(tdriver->ist_ziel(gr, tmp->parent == NULL ? NULL : tmp->parent->gr))
+		if(tdriver-> is_target(gr, tmp->parent == NULL ? NULL : tmp->parent->gr))
 		{
 			if(flags != private_car_checker)
 			{
@@ -361,7 +361,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 				&& koord_distance(start, gr->get_pos() + koord::nsow[r]) < max_depth	// not too far away
 				&& gr->get_neighbour(to, wegtyp, ribi_t::nsow[r])  // is connected
 				&& !marker.is_marked(to) // not already tested
-				&& tdriver->ist_befahrbar(to)	// can be driven on
+				&& tdriver->check_next_tile(to)	// can be driven on
 			) {
 
 				weg_t* w = to->get_weg(tdriver->get_waytype());
@@ -397,7 +397,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 				k->parent = tmp;
 				k->gr = to;
 				k->count = tmp->count+1;
-				k->g = tmp->g + tdriver->get_kosten(to, max_khm, gr->get_pos().get_2d());
+				k->g = tmp->g + tdriver->get_cost(to, max_khm, gr->get_pos().get_2d());
 				k->f = 0;
 				// insert here
 				queue.insert(k);
@@ -412,7 +412,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 //	INT_CHECK("route 194");
 
 	// target reached?
-	if(!tdriver->ist_ziel(gr, tmp->parent == NULL ? NULL : tmp->parent->gr) || step >= MAX_STEP)
+	if(!tdriver-> is_target(gr, tmp->parent == NULL ? NULL : tmp->parent->gr) || step >= MAX_STEP)
 	{
 		if(  step >= MAX_STEP  ) 
 		{
@@ -497,7 +497,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 	max_convoy_weight = MAXUINT32;
 
 	// first tile is not valid?!?
-	if(  !tdriver->ist_befahrbar(gr)  ) {
+	if(  !tdriver->check_next_tile(gr)  ) {
 		return false;
 	}
 
@@ -637,7 +637,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 			}
 
 			// a way goes here, and it is not marked (i.e. in the closed list)
-			if((to || gr->get_neighbour(to, wegtyp, next_ribi[r])) && tdriver->ist_befahrbar(to) && !marker.is_marked(to)) 
+			if((to || gr->get_neighbour(to, wegtyp, next_ribi[r])) && tdriver->check_next_tile(to) && !marker.is_marked(to)) 
 			{
 				// Do not go on a tile, where a oneway sign forbids going.
 				// This saves time and fixed the bug, that a oneway sign on the final tile was ignored.
@@ -760,7 +760,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 				}
 
 				// new values for cost g (without way it is either in the air or in water => no costs)
-				const int way_cost = tdriver->get_kosten(to, max_speed, tmp->gr->get_pos().get_2d()) + (is_overweight == slowly_only ? 400 : 0);
+				const int way_cost = tdriver->get_cost(to, max_speed, tmp->gr->get_pos().get_2d()) + (is_overweight == slowly_only ? 400 : 0);
 				uint32 new_g = tmp->g + (w ? way_cost : 10);
 
 				// check for curves (usually, one would need the lastlast and the last;
@@ -1031,7 +1031,7 @@ void route_t::postprocess_water_route(karte_t *welt)
 			const waytype_t wegtyp = tdriver->get_waytype();
 
 			//bool is_signal_at_end_of_station = false;
-			while(gr->get_neighbour(gr, wegtyp, ribi) && gr->get_halt() == halt && tdriver->ist_befahrbar(gr) && (tdriver->get_ribi(gr) & ribi) != 0)
+			while(gr->get_neighbour(gr, wegtyp, ribi) && gr->get_halt() == halt && tdriver->check_next_tile(gr) && (tdriver->get_ribi(gr) & ribi) != 0)
 			{
 				// Do not go on a tile where a one way sign forbids going.
 				// This saves time and fixed the bug that a one way sign on the final tile was ignored.

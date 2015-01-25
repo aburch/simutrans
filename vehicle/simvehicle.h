@@ -342,7 +342,7 @@ protected:
 public:
 	sint32 calc_speed_limit(const weg_t *weg, const weg_t *weg_previous, fixed_list_tpl<sint16, 192>* cornering_data, ribi_t::ribi current_direction, ribi_t::ribi previous_direction);
 
-	virtual bool ist_befahrbar(const grund_t* ) const {return false;}
+	virtual bool check_next_tile(const grund_t* ) const {return false;}
 
 	inline bool check_way_constraints(const weg_t &way) const;
 
@@ -659,7 +659,7 @@ private:
 	bool choose_route( int &restart_speed, ribi_t::ribi richtung, uint16 index );
 
 public:
-	bool ist_befahrbar(const grund_t *bd) const;
+	bool check_next_tile(const grund_t *bd) const;
 
 protected:
 	bool is_checker;
@@ -676,14 +676,14 @@ public:
 	virtual void set_convoi(convoi_t *c);
 
 	// how expensive to go here (for way search)
-	virtual int get_kosten(const grund_t *, const sint32, koord);
+	virtual int get_cost(const grund_t *, const sint32, koord);
 
 	virtual route_t::route_result_t calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route);
 
 	virtual bool ist_weg_frei(const grund_t *gr_next, int &restart_speed, bool second_check);
 
 	// returns true for the way search to an unknown target.
-	virtual bool ist_ziel(const grund_t *,const grund_t *);
+	virtual bool  is_target(const grund_t *,const grund_t *);
 
 	// since we must consider overtaking, we use this for offset calculation
 	virtual void get_screen_offset( int &xoff, int &yoff, const sint16 raster_width ) const;
@@ -711,7 +711,7 @@ class rail_vehicle_t : public vehicle_t
 public:
 		enum working_method_t { drive_by_sight, absolute_block, track_circuit_block, cab_signalling, moving_block, token_block };
 protected:
-	bool ist_befahrbar(const grund_t *bd) const;
+	bool check_next_tile(const grund_t *bd) const;
 
 	void betrete_feld(grund_t*);
 
@@ -733,10 +733,10 @@ public:
 	route_t::route_result_t calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route);
 
 	// how expensive to go here (for way search)
-	virtual int get_kosten(const grund_t *, const sint32, koord);
+	virtual int get_cost(const grund_t *, const sint32, koord);
 
 	// returns true for the way search to an unknown target.
-	virtual bool ist_ziel(const grund_t *,const grund_t *);
+	virtual bool  is_target(const grund_t *,const grund_t *);
 
 	// handles all block stuff and route choosing ...
 	virtual bool ist_weg_frei(const grund_t *gr_next, int &restart_speed, bool);
@@ -864,11 +864,11 @@ class water_vehicle_t : public vehicle_t
 {
 protected:
 	// how expensive to go here (for way search)
-	virtual int get_kosten(const grund_t *, const sint32, koord) { return 1; }
+	virtual int get_cost(const grund_t *, const sint32, koord) { return 1; }
 
 	void calc_drag_coefficient(const grund_t *gr);
 
-	bool ist_befahrbar(const grund_t *bd) const;
+	bool check_next_tile(const grund_t *bd) const;
 
 	void betrete_feld(grund_t*);
 
@@ -880,7 +880,7 @@ public:
 	bool check_tile_occupancy(const grund_t* gr);
 
 	// returns true for the way search to an unknown target.
-	virtual bool ist_ziel(const grund_t *,const grund_t *) {return 0;}
+	virtual bool  is_target(const grund_t *,const grund_t *) {return 0;}
 
 	water_vehicle_t(loadsave_t *file, bool is_first, bool is_last);
 	water_vehicle_t(koord3d pos, const vehikel_besch_t* besch, player_t* player, convoi_t* cnv);
@@ -909,7 +909,7 @@ public:
 
 private:
 
-	// only used for ist_ziel() (do not need saving)
+	// only used for  is_target() (do not need saving)
 	ribi_t::ribi approach_dir;
 #ifdef USE_DIFFERENT_WIND
 	static uint8 get_approach_ribi( koord3d start, koord3d ziel );
@@ -944,7 +944,7 @@ protected:
 	// jumps to next tile and correct the height ...
 	virtual void hop(grund_t*);
 
-	bool ist_befahrbar(const grund_t *bd) const;
+	bool check_next_tile(const grund_t *bd) const;
 
 	void betrete_feld(grund_t*);
 
@@ -967,7 +967,7 @@ public:
 	virtual waytype_t get_waytype() const { return air_wt; }
 
 	// returns true for the way search to an unknown target.
-	virtual bool ist_ziel(const grund_t *,const grund_t *);
+	virtual bool  is_target(const grund_t *,const grund_t *);
 
 	//bool can_takeoff_here(const grund_t *gr, ribi_t::ribi test_dir, uint8 len) const;
 
@@ -975,7 +975,7 @@ public:
 	virtual ribi_t::ribi get_ribi(const grund_t* ) const;
 
 	// how expensive to go here (for way search)
-	virtual int get_kosten(const grund_t *, const sint32, koord);
+	virtual int get_cost(const grund_t *, const sint32, koord);
 
 	virtual bool ist_weg_frei(const grund_t *gr_next, int &restart_speed, bool);
 

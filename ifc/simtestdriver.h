@@ -21,7 +21,7 @@ public:
 	virtual ~test_driver_t() {}
 
 	//Is passable (Babelfish)
-	virtual bool ist_befahrbar(const grund_t* ) const = 0;
+	virtual bool check_next_tile(const grund_t* ) const = 0;
 
 	/**
 	 * Determine the direction bits (ribi) for the applicable vehicle,
@@ -34,11 +34,11 @@ public:
 	virtual waytype_t get_waytype() const = 0;
 
 	// how expensive to go here (for way search) with the maximum convoi speed as second parameter
-	virtual int get_kosten(const grund_t *, const sint32, koord from_pos) = 0;
+	virtual int get_cost(const grund_t *, const sint32, koord from_pos) = 0;
 
 	// returns true for the way search to an unknown target.
 	// first is current ground, second is starting ground
-	virtual bool ist_ziel(const grund_t *,const grund_t *) = 0;
+	virtual bool  is_target(const grund_t *,const grund_t *) = 0;
 };
 
 #endif
