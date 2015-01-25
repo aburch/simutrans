@@ -548,11 +548,11 @@ bool gebaeude_t::sync_step(long delta_t)
 				}
 				else {
 					// try foreground
-					image_id bild = tile->get_vordergrund(count, snow);
-					mark_image_dirty(bild, 0);
+					image_id image = tile->get_vordergrund(count, snow);
+					mark_image_dirty(image, 0);
 					// next phase must be marked dirty too ...
-					bild = tile->get_vordergrund( count+1>=tile->get_phasen()?0:count+1, snow);
-					mark_image_dirty(bild, 0);
+					image = tile->get_vordergrund( count+1>=tile->get_phasen()?0:count+1, snow);
+					mark_image_dirty(image, 0);
 				}
 
 				anim_time %= tile->get_besch()->get_animation_time();

@@ -489,15 +489,15 @@ image_id alpha_water_bild[totalslopes * 15];
 bool grund_besch_t::register_besch(const grund_besch_t *besch)
 {
 	if(strcmp("Outside", besch->get_name())==0) {
-		bild_besch_t const* const bild = besch->get_child<bildliste2d_besch_t>(2)->get_bild(0,0);
-		dbg->message("grund_besch_t::register_besch()", "setting raster width to %i", bild->get_pic()->w);
-		display_set_base_raster_width(bild->get_pic()->w);
+		bild_besch_t const* const image = besch->get_child<bildliste2d_besch_t>(2)->get_bild(0,0);
+		dbg->message("grund_besch_t::register_besch()", "setting raster width to %i", image->get_pic()->w);
+		display_set_base_raster_width(image->get_pic()->w);
 	}
 	// find out water animation stages
 	if(strcmp("Water", besch->get_name())==0) {
 		water_animation_stages = 0;
 		while(  besch->get_bild(0, water_animation_stages)!=IMG_LEER  ) {
-			DBG_MESSAGE( "water", "bild(0,%i)=%u", water_animation_stages, besch->get_bild(0, water_animation_stages) );
+			DBG_MESSAGE( "water", "image(0,%i)=%u", water_animation_stages, besch->get_bild(0, water_animation_stages) );
 			water_animation_stages ++;
 		}
 		// then ignore all ms settings

@@ -17,7 +17,7 @@ private:
 	koord area;
 	bool center;
 	/// images
-	image_id bild, after_bild;
+	image_id image, after_bild;
 
 public:
 	zeiger_t(loadsave_t *file);
@@ -36,7 +36,7 @@ public:
 	/// set back image
 	void set_bild( image_id b );
 	/// get back image
-	image_id get_bild() const {return bild;}
+	image_id get_bild() const {return image;}
 
 	/// set front image
 	void set_after_bild( image_id b );

@@ -52,7 +52,7 @@ void news_window::extend_window_with_component(gui_component_t *const component,
 
 news_img::news_img(const char* text) :
 	news_window(text, WIN_TITLE),
-	bild()
+	image()
 {
 	init(skinverwaltung_t::meldungsymbol->get_bild_nr(0));
 }
@@ -60,7 +60,7 @@ news_img::news_img(const char* text) :
 
 news_img::news_img(const char* text, image_id id, PLAYER_COLOR_VAL color) :
 	news_window(text, color),
-	bild()
+	image()
 {
 	init(id);
 }
@@ -73,11 +73,11 @@ news_img::news_img(const char* text, image_id id, PLAYER_COLOR_VAL color) :
  */
 void news_img::init(image_id id)
 {
-	bild.set_image(id);
+	image.set_image(id);
 	if(  id!=IMG_LEER  ) {
 		scr_coord_val xoff, yoff, xw, yw;
 		display_get_base_image_offset(id, &xoff, &yoff, &xw, &yw);
-		extend_window_with_component(&bild, scr_size(xw, yw), scr_coord(-xoff, -yoff));
+		extend_window_with_component(&image, scr_size(xw, yw), scr_coord(-xoff, -yoff));
 	}
 	else {
 		extend_window_with_component(NULL, scr_size(0, 0));

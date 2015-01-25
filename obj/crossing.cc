@@ -37,7 +37,7 @@ crossing_t::crossing_t(loadsave_t* const file) :
 	obj_no_info_t()
 #endif
 {
-	bild = after_bild = IMG_LEER;
+	image = after_bild = IMG_LEER;
 	logic = NULL;
 	rdwr(file);
 }
@@ -54,7 +54,7 @@ crossing_t::crossing_t(player_t* const player, koord3d const pos, kreuzung_besch
 	this->besch = besch;
 	logic = NULL;
 	state = crossing_logic_t::CROSSING_INVALID;
-	bild = after_bild = IMG_LEER;
+	image = after_bild = IMG_LEER;
 	set_owner( player );
 }
 
@@ -85,7 +85,7 @@ void crossing_t::rotate90()
 // changed state: mark dirty
 void crossing_t::state_changed()
 {
-	mark_image_dirty( bild, 0 );
+	mark_image_dirty( image, 0 );
 	mark_image_dirty( after_bild, 0 );
 	calc_bild();
 }
@@ -107,7 +107,7 @@ void crossing_t::calc_bild()
 	pthread_mutex_unlock( &crossing_logic_mutex );
 #endif
 	const bool snow_image = get_pos().z >= welt->get_snowline()  ||  welt->get_climate( get_pos().get_2d() ) == arctic_climate;
-	// recalc bild each step ...
+	// recalc image each step ...
 	const bild_besch_t *a = besch->get_bild_after( ns, state!=crossing_logic_t::CROSSING_CLOSED, snow_image );
 	if(  a==NULL  &&  snow_image  ) {
 		// no snow image? take normal one
@@ -119,7 +119,7 @@ void crossing_t::calc_bild()
 		// no snow image? take normal one
 		b = besch->get_bild( ns, state!=crossing_logic_t::CROSSING_CLOSED, 0);
 	}
-	bild = b ? b->get_nummer() : IMG_LEER;
+	image = b ? b->get_nummer() : IMG_LEER;
 }
 
 

@@ -63,8 +63,8 @@ public:
 		bildliste2d_besch_t const* const bl2   = get_child<bildliste2d_besch_t>(2);
 		bildliste_besch_t   const* const liste = bl2->get_liste(typ);
 		if(liste && liste->get_anzahl() > 0) {
-			bild_besch_t const* const bild = bl2->get_bild(typ, stage);
-			return bild;
+			bild_besch_t const* const image = bl2->get_bild(typ, stage);
+			return image;
 		}
 		return NULL;
 	}
@@ -72,8 +72,8 @@ public:
 	// image for all non-climate stuff like foundations ...
 	image_id get_bild(int typ, int stage=0) const
 	{
-		bild_besch_t const* const bild = get_bild_ptr(typ, stage);
-		return bild ? bild->get_nummer() : IMG_LEER;
+		bild_besch_t const* const image = get_bild_ptr(typ, stage);
+		return image ? image->get_nummer() : IMG_LEER;
 	}
 
 	// image for all ground tiles

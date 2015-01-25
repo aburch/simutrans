@@ -18,7 +18,7 @@ private:
 	const bruecke_besch_t *besch;
 	bruecke_besch_t::img_t img;
 
-	image_id bild;
+	image_id image;
 
 protected:
 	void rdwr(loadsave_t *file);
@@ -45,8 +45,8 @@ public:
 
 	const bruecke_besch_t *get_besch() const { return besch; }
 
-	inline void set_bild( image_id b ) { bild = b; }
-	image_id get_bild() const { return bild; }
+	inline void set_bild( image_id b ) { image = b; }
+	image_id get_bild() const { return image; }
 
 	image_id get_after_bild() const;
 

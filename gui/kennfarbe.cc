@@ -24,7 +24,7 @@ farbengui_t::farbengui_t(player_t *player) :
 	txt(&buf),
 	c1( "Your primary color:" ),
 	c2( "Your secondary color:" ),
-	bild( skinverwaltung_t::color_options->get_bild_nr(0), player->get_player_nr() )
+	image( skinverwaltung_t::color_options->get_bild_nr(0), player->get_player_nr() )
 {
 	scr_coord cursor = scr_coord (D_MARGIN_TOP, D_MARGIN_LEFT);
 
@@ -38,10 +38,10 @@ farbengui_t::farbengui_t(player_t *player) :
 	add_component( &txt );
 
 	// Picture
-	bild.set_pos(cursor);
-	bild.enable_offset_removal(true);
-	add_component( &bild );
-	cursor.y += max( txt.get_size().h, bild.get_size().h );
+	image.set_pos(cursor);
+	image.enable_offset_removal(true);
+	add_component( &image );
+	cursor.y += max( txt.get_size().h, image.get_size().h );
 
 	// Player's primary color label
 	c1.set_pos( cursor );
@@ -84,7 +84,7 @@ farbengui_t::farbengui_t(player_t *player) :
 	cursor.y += 2*D_BUTTON_HEIGHT+D_H_SPACE;
 
 	// Put picture in place
-	bild.align_to(&player_color_1[13],ALIGN_RIGHT);
+	image.align_to(&player_color_1[13],ALIGN_RIGHT);
 
 	set_windowsize( scr_size( D_MARGIN_LEFT + 14*D_BUTTON_HEIGHT + 13*D_H_SPACE + D_MARGIN_RIGHT, D_TITLEBAR_HEIGHT + cursor.y + D_MARGIN_BOTTOM ) );
 }

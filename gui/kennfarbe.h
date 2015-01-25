@@ -34,7 +34,7 @@ class farbengui_t : public gui_frame_t, action_listener_t
 		cbuffer_t buf;
 		gui_textarea_t txt;
 		gui_label_t c1, c2;
-		gui_image_t bild;
+		gui_image_t image;
 
 		button_t player_color_1[28];
 		button_t player_color_2[28];

@@ -195,7 +195,7 @@ vehicle_base_t::vehicle_base_t():
 	obj_t()
 #endif
 {
-	bild = IMG_LEER;
+	image = IMG_LEER;
 	set_flag( obj_t::is_vehicle );
 	steps = 0;
 	steps_next = VEHICLE_STEPS_PER_TILE - 1;
@@ -217,7 +217,7 @@ vehicle_base_t::vehicle_base_t(koord3d pos):
 	obj_t(pos)
 #endif
 {
-	bild = IMG_LEER;
+	image = IMG_LEER;
 	set_flag( obj_t::is_vehicle );
 	pos_next = pos;
 	steps = 0;
@@ -339,7 +339,7 @@ uint32 vehicle_base_t::fahre_basis(uint32 distance)
 	}
 	// ok, so moving ...
 	if(  !get_flag(obj_t::dirty)  ) {
-		mark_image_dirty( bild, 0 );
+		mark_image_dirty( image, 0 );
 		set_flag( obj_t::dirty );
 	}
 
@@ -5850,8 +5850,8 @@ aircraft_t::~aircraft_t()
 	const int raster_width = get_current_tile_raster_width();
 	sint16 yoff = tile_raster_scale_y(-flughoehe-get_hoff()-2, raster_width);
 
-	mark_image_dirty( bild, yoff);
-	mark_image_dirty( bild, 0 );
+	mark_image_dirty( image, yoff);
+	mark_image_dirty( image, 0 );
 }
 
 
@@ -5963,7 +5963,7 @@ uint8 aircraft_t::get_approach_ribi( koord3d start, koord3d ziel )
 void aircraft_t::hop(grund_t* gr)
 {
 	if(  !get_flag(obj_t::dirty)  ) {
-		mark_image_dirty( bild, 0 );
+		mark_image_dirty( image, 0 );
 		set_flag( obj_t::dirty );
 	}
 
@@ -6098,7 +6098,7 @@ void aircraft_t::display_after(int xpos_org, int ypos_org, const sint8 clip_num)
 void aircraft_t::display_after(int xpos_org, int ypos_org, bool is_global) const
 #endif
 {
-	if(  bild != IMG_LEER  &&  !is_on_ground()  ) {
+	if(  image != IMG_LEER  &&  !is_on_ground()  ) {
 		int xpos = xpos_org, ypos = ypos_org;
 
 		const int raster_width = get_current_tile_raster_width();
@@ -6123,9 +6123,9 @@ void aircraft_t::display_after(int xpos_org, int ypos_org, bool is_global) const
 		// will be dirty
 		// the aircraft!!!
 #ifdef MULTI_THREAD
-		display_color( bild, xpos, ypos, get_player_nr(), true, true/*get_flag(obj_t::dirty)*/, clip_num );
+		display_color( image, xpos, ypos, get_player_nr(), true, true/*get_flag(obj_t::dirty)*/, clip_num );
 #else
-		display_color( bild, xpos, ypos, get_player_nr(), true, true/*get_flag(obj_t::dirty)*/ );
+		display_color( image, xpos, ypos, get_player_nr(), true, true/*get_flag(obj_t::dirty)*/ );
 		vehicle_t::display_after( xpos_org, ypos_org - tile_raster_scale_y( current_flughohe - hoff - 2, raster_width ), is_global );
 #endif
 	}
@@ -6133,7 +6133,7 @@ void aircraft_t::display_after(int xpos_org, int ypos_org, bool is_global) const
 }
 void aircraft_t::display_overlay(int xpos_org, int ypos_org) const
 {
-	if(  bild != IMG_LEER  &&  !is_on_ground()  ) {
+	if(  image != IMG_LEER  &&  !is_on_ground()  ) {
 		const int raster_width = get_current_tile_raster_width();
 		const sint16 z = get_pos().z;
 		if(  z + flughoehe/TILE_HEIGHT_STEP - 1 > grund_t::underground_level  ) {

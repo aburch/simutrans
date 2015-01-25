@@ -76,7 +76,7 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 void signal_t::calc_bild()
 {
 	after_bild = IMG_LEER;
-	image_id bild = IMG_LEER;
+	image_id image = IMG_LEER;
 	const bool TEST_pre_signal =  besch->is_pre_signal();
 	after_xoffset = 0;
 	after_yoffset = 0;
@@ -135,19 +135,19 @@ void signal_t::calc_bild()
 				const sint16 YOFF = 16;
 
 				if(temp_dir&ribi_t::ost) {
-					bild = besch->get_bild_nr(3+state*4+offset);
+					image = besch->get_bild_nr(3+state*4+offset);
 					xoff += XOFF;
 					yoff += -YOFF;
 				}
 
 				if(temp_dir&ribi_t::nord) {
-					if(bild!=IMG_LEER) {
+					if(image!=IMG_LEER) {
 						after_bild = besch->get_bild_nr(0+state*4+offset);
 						after_xoffset += -XOFF;
 						after_yoffset += -YOFF;
 					}
 					else {
-						bild = besch->get_bild_nr(0+state*4+offset);
+						image = besch->get_bild_nr(0+state*4+offset);
 						xoff += -XOFF;
 						yoff += -YOFF;
 					}
@@ -161,7 +161,7 @@ void signal_t::calc_bild()
 
 				if(temp_dir&ribi_t::sued) {
 					if(after_bild!=IMG_LEER) {
-						bild = besch->get_bild_nr(1+state*4+offset);
+						image = besch->get_bild_nr(1+state*4+offset);
 						xoff += XOFF;
 						yoff += YOFF;
 					}
@@ -182,17 +182,17 @@ void signal_t::calc_bild()
 						after_bild = besch->get_bild_nr(0+state*4+offset);
 					}
 					else {
-						bild = besch->get_bild_nr(0+state*4+offset);
+						image = besch->get_bild_nr(0+state*4+offset);
 					}
 				}
 
 				if(temp_dir&ribi_t::west) {
-					bild = besch->get_bild_nr(2+state*4+offset);
+					image = besch->get_bild_nr(2+state*4+offset);
 				}
 
 				if(temp_dir&ribi_t::sued) {
-					if(bild==IMG_LEER) {
-						bild = besch->get_bild_nr(1+state*4+offset);
+					if(image==IMG_LEER) {
+						image = besch->get_bild_nr(1+state*4+offset);
 					}
 					else {
 						after_bild = besch->get_bild_nr(1+state*4+offset);
@@ -203,5 +203,5 @@ void signal_t::calc_bild()
 	}
 	set_xoff( xoff );
 	set_yoff( yoff );
-	set_bild(bild);
+	set_bild(image);
 }

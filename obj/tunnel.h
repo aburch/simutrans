@@ -10,7 +10,7 @@ class tunnel_t : public obj_no_info_t
 {
 private:
 	const tunnel_besch_t *besch;
-	image_id bild;
+	image_id image;
 	image_id after_bild;
 	uint8 broad_type; // Is this a broad tunnel mouth?
 
@@ -39,7 +39,7 @@ public:
 
 	void set_bild( image_id b );
 	void set_after_bild( image_id b );
-	image_id get_bild() const {return bild;}
+	image_id get_bild() const {return image;}
 	image_id get_after_bild() const { return after_bild; }
 
 	const tunnel_besch_t *get_besch() const { return besch; }

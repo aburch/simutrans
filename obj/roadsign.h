@@ -24,7 +24,7 @@ class tool_selector_t;
 class roadsign_t : public obj_t, public sync_steppable
 {
 protected:
-	image_id bild;
+	image_id image;
 	image_id after_bild;
 
 	enum { SHOW_FONT=1, SHOW_BACK=2, SWITCH_AUTOMATIC=16 };
@@ -102,7 +102,7 @@ public:
 	virtual void info(cbuffer_t & buf, bool dummy = false) const;
 
 	/**
-	 * berechnet aktuelles bild
+	 * berechnet aktuelles image
 	 */
 	virtual void calc_bild();
 
@@ -120,8 +120,8 @@ public:
 	uint8 get_ticks_offset() const { return ticks_offset; }
 	void set_ticks_offset(uint8 offset) { ticks_offset = offset; }
 
-	inline void set_bild( image_id b ) { bild = b; }
-	image_id get_bild() const { return bild; }
+	inline void set_bild( image_id b ) { image = b; }
+	image_id get_bild() const { return image; }
 
 	/**
 	* For the front image hiding vehicles

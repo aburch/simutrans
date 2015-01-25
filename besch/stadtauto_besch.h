@@ -37,8 +37,8 @@ class stadtauto_besch_t : public obj_besch_timelined_t {
 public:
 	int get_bild_nr(ribi_t::dir dir) const
 	{
-		bild_besch_t const* const bild = get_child<bildliste_besch_t>(2)->get_bild(dir);
-		return bild != NULL ? bild->get_nummer() : IMG_LEER;
+		bild_besch_t const* const image = get_child<bildliste_besch_t>(2)->get_bild(dir);
+		return image != NULL ? image->get_nummer() : IMG_LEER;
 	}
 
 	int get_gewichtung() const { return gewichtung; }

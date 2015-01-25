@@ -63,7 +63,7 @@ void roadsign_t::init(loadsave_t *file)
 roadsign_t::roadsign_t(loadsave_t *file) : obj_t ()
 #endif
 {
-	bild = after_bild = IMG_LEER;
+	image = after_bild = IMG_LEER;
 	rdwr(file);
 	if(besch) {
 		/* if more than one state, we will switch direction and phase for traffic lights
@@ -103,7 +103,7 @@ roadsign_t::roadsign_t(player_t *player, koord3d pos, ribi_t::ribi dir, const ro
 {
 	this->besch = besch;
 	this->dir = dir;
-	bild = after_bild = IMG_LEER;
+	image = after_bild = IMG_LEER;
 	state = 0;
 	ticks_ns = ticks_ow = 16;
 	ticks_offset = 0;
@@ -182,7 +182,7 @@ DBG_MESSAGE("roadsign_t::set_dir()","ribi %i",dir);
 	mark_image_dirty(after_bild,after_yoffset-get_yoff());
 	set_xoff( old_x );
 
-	bild = IMG_LEER;
+	image = IMG_LEER;
 	after_bild = IMG_LEER;
 	calc_bild();
 }

@@ -34,8 +34,8 @@ public:
 	bild_besch_t const* get_bild(uint16 i) const { return i < anzahl ? get_child<bild_besch_t>(i) : 0; }
 
 	image_id get_bild_nr(uint16 i) const {
-		const bild_besch_t *bild = get_bild(i);
-		return bild != NULL ? bild->get_nummer() : IMG_LEER;
+		const bild_besch_t *image = get_bild(i);
+		return image != NULL ? image->get_nummer() : IMG_LEER;
 	}
 };
 

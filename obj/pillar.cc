@@ -71,7 +71,7 @@ void pillar_t::calc_bild()
 		}
 
 	}
-	bild = hide ? IMG_LEER : besch->get_hintergrund( (bruecke_besch_t::img_t)dir, get_pos().z-height/TILE_HEIGHT_STEP >= welt->get_snowline()  ||  welt->get_climate( get_pos().get_2d() ) == arctic_climate );
+	image = hide ? IMG_LEER : besch->get_hintergrund( (bruecke_besch_t::img_t)dir, get_pos().z-height/TILE_HEIGHT_STEP >= welt->get_snowline()  ||  welt->get_climate( get_pos().get_2d() ) == arctic_climate );
 }
 
 

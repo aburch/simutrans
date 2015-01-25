@@ -370,7 +370,7 @@ public:
 	* @param yoff extra y-offset, in most cases 0.
 	* @author prissi
 	*/
-	void mark_image_dirty(image_id bild, sint16 yoff) const;
+	void mark_image_dirty(image_id image, sint16 yoff) const;
 
 	/**
 	 * Function for recalculating the image.

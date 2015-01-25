@@ -272,7 +272,7 @@ void weg_t::init()
 	init_statistics();
 	alle_wege.insert(this);
 	flags = 0;
-	bild = IMG_LEER;
+	image = IMG_LEER;
 	after_bild = IMG_LEER;
 	public_right_of_way = false;
 	degraded = false;
@@ -623,7 +623,7 @@ bool weg_t::check_season(const bool calc_only_season_change)
 	}
 
 	// no way to calculate this or no image set (not visible, in tunnel mouth, etc)
-	if(  besch == NULL  ||  bild == IMG_LEER  ) {
+	if(  besch == NULL  ||  image == IMG_LEER  ) {
 		return true;
 	}
 
@@ -654,10 +654,10 @@ bool weg_t::check_season(const bool calc_only_season_change)
 	}
 	else if(  ribi_t::is_threeway( ribi )  &&  besch->has_switch_bild()  ) {
 		// there might be two states of the switch; remember it when changing seasons
-		if(  bild == besch->get_bild_nr_switch( ribi, old_snow, false )  ) {
+		if(  image == besch->get_bild_nr_switch( ribi, old_snow, false )  ) {
 			set_images( image_switch, ribi, snow, false );
 		}
-		else if(  bild == besch->get_bild_nr_switch( ribi, old_snow, true )  ) {
+		else if(  image == besch->get_bild_nr_switch( ribi, old_snow, true )  ) {
 			set_images( image_switch, ribi, snow, true );
 		}
 		else {
@@ -693,7 +693,7 @@ void weg_t::calc_bild()
 #endif
 	grund_t *from = welt->lookup(get_pos());
 	grund_t *to;
-	image_id old_bild = bild;
+	image_id old_bild = image;
 
 	if(  from==NULL  ||  besch==NULL  ||  !from->is_visible()  ) {
 		// no ground, in tunnel
@@ -763,9 +763,9 @@ void weg_t::calc_bild()
 			}
 		}
 	}
-	if (bild!=old_bild && from != NULL) {
+	if (image!=old_bild && from != NULL) {
 		mark_image_dirty(old_bild, from->get_weg_yoff());
-		mark_image_dirty(bild, from->get_weg_yoff());
+		mark_image_dirty(image, from->get_weg_yoff());
 	}
 #ifdef MULTI_THREAD
 	pthread_mutex_unlock( &weg_calc_bild_mutex );

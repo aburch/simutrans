@@ -26,7 +26,7 @@ class weg_besch_t;
 class leitung_t : public obj_t
 {
 protected:
-	image_id bild;
+	image_id image;
 
 	// powerline over ways
 	bool is_crossing:1;
@@ -113,9 +113,9 @@ public:
 
 	ribi_t::ribi get_ribi() const { return ribi; }
 
-	inline void set_bild( image_id b ) { bild = b; }
-	image_id get_bild() const {return is_crossing ? IMG_LEER : bild;}
-	image_id get_after_bild() const {return is_crossing ? bild : IMG_LEER;}
+	inline void set_bild( image_id b ) { image = b; }
+	image_id get_bild() const {return is_crossing ? IMG_LEER : image;}
+	image_id get_after_bild() const {return is_crossing ? image : IMG_LEER;}
 
 	/**
 	* Recalculates the images of all neighbouring

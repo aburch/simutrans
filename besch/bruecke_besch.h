@@ -70,25 +70,25 @@ public:
 	skin_besch_t const* get_cursor() const { return get_child<skin_besch_t>(2 + offset); }
 
 	image_id get_hintergrund(img_t img, uint8 season) const 	{
-		const bild_besch_t *bild = NULL;
+		const bild_besch_t *image = NULL;
 		if(season && number_seasons == 1) {
-			bild = get_child<bildliste_besch_t>(3 + offset)->get_bild(img);
+			image = get_child<bildliste_besch_t>(3 + offset)->get_bild(img);
 		}
-		if(bild == NULL) {
-			bild = get_child<bildliste_besch_t>(0 + offset)->get_bild(img);
+		if(image == NULL) {
+			image = get_child<bildliste_besch_t>(0 + offset)->get_bild(img);
 		}
-		return bild != NULL ? bild->get_nummer() : IMG_LEER;
+		return image != NULL ? image->get_nummer() : IMG_LEER;
 	}
 
 	image_id get_vordergrund(img_t img, uint8 season) const {
-		const bild_besch_t *bild = NULL;
+		const bild_besch_t *image = NULL;
 		if(season && number_seasons == 1) {
-			bild = get_child<bildliste_besch_t>(4 + offset)->get_bild(img);
+			image = get_child<bildliste_besch_t>(4 + offset)->get_bild(img);
 		}
-		if(bild == NULL) {
-			bild = get_child<bildliste_besch_t>(1 + offset)->get_bild(img);
+		if(image == NULL) {
+			image = get_child<bildliste_besch_t>(1 + offset)->get_bild(img);
 		}
-		return bild != NULL ? bild->get_nummer() : IMG_LEER;
+		return image != NULL ? image->get_nummer() : IMG_LEER;
 	}
 
 	img_t get_simple(ribi_t::ribi ribi, uint8 height) const;

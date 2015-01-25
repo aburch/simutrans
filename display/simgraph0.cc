@@ -115,18 +115,18 @@ COLOR_VAL display_get_index_from_rgb(uint8, uint8, uint8)
 	return 0;
 }
 
-void register_image(struct bild_t* bild)
+void register_image(struct bild_t* image)
 {
-	bild->bild_nr = 1;
+	image->bild_nr = 1;
 }
 
 void display_snapshot(int, int, int, int)
 {
 }
 
-void display_get_image_offset(image_id bild, KOORD_VAL *xoff, KOORD_VAL *yoff, KOORD_VAL *xw, KOORD_VAL *yw)
+void display_get_image_offset(image_id image, KOORD_VAL *xoff, KOORD_VAL *yoff, KOORD_VAL *xw, KOORD_VAL *yw)
 {
-	if (bild < 2) {
+	if (image < 2) {
 		// initialize offsets with dummy values
 		*xoff = 0;
 		*yoff = 0;
@@ -135,9 +135,9 @@ void display_get_image_offset(image_id bild, KOORD_VAL *xoff, KOORD_VAL *yoff, K
 	}
 }
 
-void display_get_base_image_offset(image_id bild, KOORD_VAL *xoff, KOORD_VAL *yoff, KOORD_VAL *xw, KOORD_VAL *yw)
+void display_get_base_image_offset(image_id image, KOORD_VAL *xoff, KOORD_VAL *yoff, KOORD_VAL *xw, KOORD_VAL *yw)
 {
-	if (bild < 2) {
+	if (image < 2) {
 		// initialize offsets with dummy values
 		*xoff = 0;
 		*yoff = 0;

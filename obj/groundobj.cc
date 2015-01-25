@@ -144,7 +144,7 @@ void groundobj_t::calc_bild()
 		phase = welt->lookup(get_pos())->get_grund_hang();
 	}
 	const bild_besch_t *bild_ptr = get_besch()->get_bild( season, phase );
-	bild = bild_ptr ? bild_ptr->get_nummer() : IMG_LEER;
+	image = bild_ptr ? bild_ptr->get_nummer() : IMG_LEER;
 }
 
 

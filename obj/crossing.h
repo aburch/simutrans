@@ -22,7 +22,7 @@ class vehicle_base_t;
 class crossing_t : public obj_no_info_t
 {
 protected:
-	image_id after_bild, bild;
+	image_id after_bild, image;
 	uint8 ns;				// direction
 	uint8 state;	// only needed for loading ...
 	crossing_logic_t *logic;
@@ -101,7 +101,7 @@ public:
 	bool check_season(const bool calc_only_season_change) { if(  !calc_only_season_change  ) { calc_bild(); } return true; }  // depends on snowline only
 
 	// changes the state of a traffic light
-	image_id get_bild() const { return bild; }
+	image_id get_bild() const { return image; }
 
 	/**
 	* For the front image hiding vehicles

@@ -120,7 +120,7 @@ protected:
 	uint8 zoff_start:4, zoff_end:4;
 
 	// cached image
-	image_id bild;
+	image_id image;
 
 	// The current livery of this vehicle.
 	// @author: jamespetts, April 2011
@@ -162,8 +162,8 @@ public:
 
 	uint32 fahre_basis(uint32 dist);	// basis movement code
 
-	inline void set_bild( image_id b ) { bild = b; }
-	virtual image_id get_bild() const {return bild;}
+	inline void set_bild( image_id b ) { image = b; }
+	virtual image_id get_bild() const {return image;}
 
 	sint8 get_hoff() const;
 	uint8 get_steps() const {return steps;} // number of steps pass on the current tile.
@@ -1000,10 +1000,10 @@ public:
 	void force_land() { flughoehe = 0; target_height = 0; state = taxiing_to_halt; }
 
 	// image: when flying empty, on ground the plane
-	virtual image_id get_bild() const {return !is_on_ground() ? IMG_LEER : bild;}
+	virtual image_id get_bild() const {return !is_on_ground() ? IMG_LEER : image;}
 
 	// image: when flying the shadow, on ground empty
-	virtual image_id get_outline_bild() const {return !is_on_ground() ? bild : IMG_LEER;}
+	virtual image_id get_outline_bild() const {return !is_on_ground() ? image : IMG_LEER;}
 
 	// shadow has black color (when flying)
 	virtual PLAYER_COLOR_VAL get_outline_colour() const {return !is_on_ground() ? TRANSPARENT75_FLAG | OUTLINE_FLAG | COL_BLACK : 0;}

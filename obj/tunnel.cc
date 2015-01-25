@@ -39,7 +39,7 @@ tunnel_t::tunnel_t(loadsave_t* const file) :
 {
 	besch = 0;
 	rdwr(file);
-	bild = after_bild = IMG_LEER;
+	image = after_bild = IMG_LEER;
 	broad_type = 0;
 }
 
@@ -55,7 +55,7 @@ tunnel_t::tunnel_t(koord3d pos, player_t *player, const tunnel_besch_t *besch) :
 	assert(besch);
 	this->besch = besch;
 	set_owner( player );
-	bild = after_bild = IMG_LEER;
+	image = after_bild = IMG_LEER;
 	broad_type = 0;
 }
 
@@ -235,9 +235,9 @@ void tunnel_t::entferne( player_t *player2 )
 
 void tunnel_t::set_bild( image_id b )
 {
-	mark_image_dirty( bild, 0 );
+	mark_image_dirty( image, 0 );
 	mark_image_dirty( b, 0 );
-	bild = b;
+	image = b;
 }
 
 

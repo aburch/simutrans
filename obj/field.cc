@@ -72,11 +72,11 @@ image_id field_t::get_bild() const
 	else {
 		// welt->get_yearsteps(): resolution 1/8th month (0..95)
 		int anzahl_yearsteps = anzahl * (welt->get_yearsteps() + 1) - 1;
-		const image_id bild = s->get_bild_nr( anzahl_yearsteps / 96 );
+		const image_id image = s->get_bild_nr( anzahl_yearsteps / 96 );
 		if(anzahl_yearsteps % 96 < anzahl) {
-			mark_image_dirty( bild, 0 );
+			mark_image_dirty( image, 0 );
 		}
-		return bild;
+		return image;
 	}
 }
 

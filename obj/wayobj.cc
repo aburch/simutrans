@@ -407,8 +407,8 @@ void wayobj_t::calc_bild()
 				}
 
 				image_id after = besch->get_front_diagonal_image_id(dir);
-				image_id bild = besch->get_back_diagonal_image_id(dir);
-				if(bild==IMG_LEER  &&  after==IMG_LEER) {
+				image_id image = besch->get_back_diagonal_image_id(dir);
+				if(image==IMG_LEER  &&  after==IMG_LEER) {
 					// no diagonals available
 					diagonal = false;
 				}

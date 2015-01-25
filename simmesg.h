@@ -22,7 +22,7 @@ public:
 		sint32 type;
 		koord pos;
 		PLAYER_COLOR_VAL color;
-		image_id bild;
+		image_id image;
 		sint32 time;
 
 		void rdwr(loadsave_t *file);
@@ -34,7 +34,7 @@ public:
 
 	enum msg_typ { general=0, ai=1, city=2, problems=3, industry=4, chat=5, new_vehicle=6, full=7, warnings=8, traffic_jams=9, scenario=10, MAX_MESSAGE_TYPE, local_flag = 0x8000u };
 
-	void add_message( const char *text, koord pos, uint16 what, PLAYER_COLOR_VAL color=COL_BLACK, image_id bild=IMG_LEER );
+	void add_message( const char *text, koord pos, uint16 what, PLAYER_COLOR_VAL color=COL_BLACK, image_id image=IMG_LEER );
 
 	static message_t * get_instance();
 

@@ -100,7 +100,7 @@ fabrik_t *leitung_t::suche_fab_4(const koord pos)
 leitung_t::leitung_t(typ type, loadsave_t *file) : obj_t(type)
 {
 	city = NULL;
-	bild = IMG_LEER;
+	image = IMG_LEER;
 	set_net(NULL);
 	ribi = ribi_t::keine;
 	rdwr(file);
@@ -113,7 +113,7 @@ leitung_t::leitung_t(loadsave_t *file) : obj_t()
 #endif
 {
 	city = NULL;
-	bild = IMG_LEER;
+	image = IMG_LEER;
 	set_net(NULL);
 	ribi = ribi_t::keine;
 	rdwr(file);
@@ -125,7 +125,7 @@ leitung_t::leitung_t(loadsave_t *file) : obj_t()
 leitung_t::leitung_t(typ type, koord3d pos, player_t *player) : obj_t(type, pos)
 {
 	city = NULL;
-	bild = IMG_LEER;
+	image = IMG_LEER;
 	set_net(NULL);
 	set_owner( player );
 	set_besch(wegbauer_t::leitung_besch);
@@ -138,7 +138,7 @@ leitung_t::leitung_t(koord3d pos, player_t *player) : obj_t(pos)
 #endif
 {
 	city = NULL;
-	bild = IMG_LEER;
+	image = IMG_LEER;
 	set_net(NULL);
 	set_owner( player );
 	set_besch(wegbauer_t::leitung_besch);
@@ -206,7 +206,7 @@ void leitung_t::entferne(player_t *player) //"remove".
 		player_t::book_construction_costs(player, -besch->get_preis() / 2, get_pos().get_2d(), powerline_wt);
 		player_t::book_construction_costs(get_owner(), -land_value, get_pos().get_2d(), powerline_wt);
 	}
-	mark_image_dirty( bild, 0 );
+	mark_image_dirty( image, 0 );
 }
 
 
@@ -635,7 +635,7 @@ void pumpe_t::step(long delta_t)
 	else {
 		new_bild = skinverwaltung_t::pumpe->get_bild_nr(0+winter_offset);
 	}
-	if(bild!=new_bild) {
+	if(image!=new_bild) {
 		set_flag(obj_t::dirty);
 		set_bild( new_bild );
 	}
@@ -1056,7 +1056,7 @@ bool senke_t::sync_step(long delta_t)
 		else {
 			new_bild = skinverwaltung_t::senke->get_bild_nr(0+winter_offset);
 		}
-		if(  bild != new_bild  ) {
+		if(  image != new_bild  ) {
 			set_flag( obj_t::dirty );
 			set_bild( new_bild );
 		}

@@ -84,7 +84,7 @@ bool message_stats_t::infowin_event(const event_t * ev)
 				// show message window again
 				news_window* news;
 				if(  n.pos==koord::invalid  ) {
-					news = new news_img( n.msg, n.bild, n.get_player_color(welt) );
+					news = new news_img( n.msg, n.image, n.get_player_color(welt) );
 				}
 				else {
 					news = new news_loc( n.msg, n.pos, n.get_player_color(welt) );

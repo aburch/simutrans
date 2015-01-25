@@ -222,9 +222,9 @@ void obj_t::display(int xpos, int ypos, const sint8 clip_num) const
 void obj_t::display(int xpos, int ypos) const
 #endif
 {
-	image_id bild = get_bild();
+	image_id image = get_bild();
 	image_id const outline_bild = get_outline_bild();
-	if(  bild!=IMG_LEER  ||  outline_bild!=IMG_LEER  ) {
+	if(  image!=IMG_LEER  ||  outline_bild!=IMG_LEER  ) {
 		const int raster_width = get_current_tile_raster_width();
 		const bool is_dirty = get_flag(obj_t::dirty);
 
@@ -236,34 +236,34 @@ void obj_t::display(int xpos, int ypos) const
 		ypos += tile_raster_scale_y(get_yoff(), raster_width);
 
 		const int start_ypos = ypos;
-		for(  int j=0;  bild!=IMG_LEER;  ) {
+		for(  int j=0;  image!=IMG_LEER;  ) {
 
 			if(  owner_n != PLAYER_UNOWNED  ) {
 				if(  obj_t::show_owner  ) {
 #ifdef MULTI_THREAD
-					display_blend( bild, xpos, ypos, owner_n, (welt->get_player(owner_n)->get_player_color1()+2) | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty, clip_num );
+					display_blend( image, xpos, ypos, owner_n, (welt->get_player(owner_n)->get_player_color1()+2) | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty, clip_num );
 #else
-					display_blend( bild, xpos, ypos, owner_n, (welt->get_player(owner_n)->get_player_color1()+2) | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty );
+					display_blend( image, xpos, ypos, owner_n, (welt->get_player(owner_n)->get_player_color1()+2) | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty );
 #endif
 				}
 				else {
 #ifdef MULTI_THREAD
-					display_color( bild, xpos, ypos, owner_n, true, is_dirty, clip_num );
+					display_color( image, xpos, ypos, owner_n, true, is_dirty, clip_num );
 #else
-					display_color( bild, xpos, ypos, owner_n, true, is_dirty );
+					display_color( image, xpos, ypos, owner_n, true, is_dirty );
 #endif
 				}
 			}
 			else {
 #ifdef MULTI_THREAD
-				display_normal( bild, xpos, ypos, 0, true, is_dirty, clip_num );
+				display_normal( image, xpos, ypos, 0, true, is_dirty, clip_num );
 #else
-				display_normal( bild, xpos, ypos, 0, true, is_dirty );
+				display_normal( image, xpos, ypos, 0, true, is_dirty );
 #endif
 			}
 			// this obj has another image on top (e.g. skyscraper)
 			ypos -= raster_width;
-			bild = get_bild(++j);
+			image = get_bild(++j);
 		}
 
 		if(  outline_bild != IMG_LEER  ) {
@@ -317,8 +317,8 @@ void obj_t::display_after(int xpos, int ypos, const sint8 clip_num) const
 void obj_t::display_after(int xpos, int ypos, bool) const
 #endif
 {
-	image_id bild = get_after_bild();
-	if(  bild != IMG_LEER  ) {
+	image_id image = get_after_bild();
+	if(  image != IMG_LEER  ) {
 		const int raster_width = get_current_tile_raster_width();
 		const bool is_dirty = get_flag( obj_t::dirty );
 
@@ -328,40 +328,40 @@ void obj_t::display_after(int xpos, int ypos, bool) const
 		if(  owner_n != PLAYER_UNOWNED  ) {
 			if(  obj_t::show_owner  ) {
 #ifdef MULTI_THREAD
-				display_blend( bild, xpos, ypos, owner_n, (welt->get_player(owner_n)->get_player_color1()+2) | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty, clip_num );
+				display_blend( image, xpos, ypos, owner_n, (welt->get_player(owner_n)->get_player_color1()+2) | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty, clip_num );
 #else
-				display_blend( bild, xpos, ypos, owner_n, (welt->get_player(owner_n)->get_player_color1()+2) | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty );
+				display_blend( image, xpos, ypos, owner_n, (welt->get_player(owner_n)->get_player_color1()+2) | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty );
 #endif
 			}
 			else if(  obj_t::get_flag( highlight )  ) {
 				// highlight this tile
 #ifdef MULTI_THREAD
-				display_blend( bild, xpos, ypos, owner_n, COL_RED | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty, clip_num );
+				display_blend( image, xpos, ypos, owner_n, COL_RED | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty, clip_num );
 #else
-				display_blend( bild, xpos, ypos, owner_n, COL_RED | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty );
+				display_blend( image, xpos, ypos, owner_n, COL_RED | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty );
 #endif
 			}
 			else {
 #ifdef MULTI_THREAD
-				display_color( bild, xpos, ypos, owner_n, true, is_dirty, clip_num );
+				display_color( image, xpos, ypos, owner_n, true, is_dirty, clip_num );
 #else
-				display_color( bild, xpos, ypos, owner_n, true, is_dirty );
+				display_color( image, xpos, ypos, owner_n, true, is_dirty );
 #endif
 			}
 		}
 		else if(  obj_t::get_flag( highlight )  ) {
 			// highlight this tile
 #ifdef MULTI_THREAD
-			display_blend( bild, xpos, ypos, owner_n, COL_RED | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty, clip_num );
+			display_blend( image, xpos, ypos, owner_n, COL_RED | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty, clip_num );
 #else
-			display_blend( bild, xpos, ypos, owner_n, COL_RED | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty );
+			display_blend( image, xpos, ypos, owner_n, COL_RED | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty );
 #endif
 		}
 		else {
 #ifdef MULTI_THREAD
-			display_normal( bild, xpos, ypos, 0, true, is_dirty, clip_num );
+			display_normal( image, xpos, ypos, 0, true, is_dirty, clip_num );
 #else
-			display_normal( bild, xpos, ypos, 0, true, is_dirty );
+			display_normal( image, xpos, ypos, 0, true, is_dirty );
 #endif
 		}
 	}
@@ -373,9 +373,9 @@ void obj_t::display_after(int xpos, int ypos, bool) const
  * sometimes they have an extra offset, this is the yoff parameter
 * @author prissi
  */
-void obj_t::mark_image_dirty(image_id bild, sint16 yoff) const
+void obj_t::mark_image_dirty(image_id image, sint16 yoff) const
 {
-	if(  bild != IMG_LEER  ) {
+	if(  image != IMG_LEER  ) {
 		const sint16 rasterweite = get_tile_raster_width();
 		int xpos=0, ypos=0;
 		if(  is_moving()  ) {
@@ -388,11 +388,11 @@ void obj_t::mark_image_dirty(image_id bild, sint16 yoff) const
 		scr_coord scr_pos = vp->get_screen_coord(get_pos(), koord(xpos + get_xoff(), ypos + get_yoff() + yoff));
 
 		// mark the region after the image as dirty
-		display_mark_img_dirty( bild, scr_pos.x, scr_pos.y );
+		display_mark_img_dirty( image, scr_pos.x, scr_pos.y );
 
 		// too close to border => set dirty to be sure (smoke, skyscrapes, birds, or the like)
 		KOORD_VAL xbild, ybild, wbild, hbild;
-		display_get_image_offset( bild, &xbild, &ybild, &wbild, &hbild );
+		display_get_image_offset( image, &xbild, &ybild, &wbild, &hbild );
 		const sint16 distance_to_border = 3 - (yoff+get_yoff()+ybild)/(rasterweite/4);
 		if(  pos.x <= distance_to_border  ||  pos.y <= distance_to_border  ) {
 			// but only if the image is actually visible ...

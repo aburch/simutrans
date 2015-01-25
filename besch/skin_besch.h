@@ -32,8 +32,8 @@ public:
 
 	image_id get_bild_nr(int i) const
 	{
-		const bild_besch_t *bild = get_bild(i);
-		return bild != NULL ? bild->get_nummer() : IMG_LEER;
+		const bild_besch_t *image = get_bild(i);
+		return image != NULL ? image->get_nummer() : IMG_LEER;
 	}
 };
 

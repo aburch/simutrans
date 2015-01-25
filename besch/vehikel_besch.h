@@ -263,7 +263,7 @@ public:
 	// they can have 4 or 8 directions ...
 	image_id get_bild_nr(ribi_t::dir dir, const ware_besch_t *ware, const char* livery_type = "default") const
 	{
-		const bild_besch_t *bild=0;
+		const bild_besch_t *image=0;
 		const bildliste_besch_t *liste=0;
 
 		if(zuladung == 0 && ware)
@@ -289,16 +289,16 @@ public:
 			}
 			// vehicle has multiple liveries - get the appropriate one (if no list then fallback to livery zero)
 			bildliste2d_besch_t const* const liste2d = get_child<bildliste2d_besch_t>(4);
-			bild=liste2d->get_bild(dir, livery_index);
+			image=liste2d->get_bild(dir, livery_index);
 			
-			if(!bild) 
+			if(!image) 
 			{
 				if(dir>3)
 				{
-					bild = liste2d->get_bild(dir - 4, livery_index);
+					image = liste2d->get_bild(dir - 4, livery_index);
 				}
 			}
-			if (bild != NULL) return bild->get_nummer();
+			if (image != NULL) return image->get_nummer();
 		}
 
 		if(livery_image_type > 0 && freight_image_type == 255 && ware != NULL)
@@ -320,16 +320,16 @@ public:
 			}
 			// vehicle has multiple liveries - get the appropriate one (if no list then fallback to livery zero)
 			bildliste2d_besch_t const* const liste2d = get_child<bildliste2d_besch_t>(5);
-			bild = liste2d->get_bild(dir, livery_index);
+			image = liste2d->get_bild(dir, livery_index);
 			
-			if(!bild) 
+			if(!image) 
 			{
 				if(dir>3)
 				{
-					bild = liste2d->get_bild(dir - 4, livery_index);
+					image = liste2d->get_bild(dir - 4, livery_index);
 				}
 			}
-			if (bild != NULL) return bild->get_nummer();
+			if (image != NULL) return image->get_nummer();
 		}
 
 		if(freight_image_type > 0 && freight_image_type < 255 && ware!=NULL && livery_image_type == 0)
@@ -351,15 +351,15 @@ public:
 
 			// vehicle has freight images and we want to use - get appropriate one (if no list then fallback to empty image)
 			bildliste2d_besch_t const* const liste2d = get_child<bildliste2d_besch_t>(5);
-			bild=liste2d->get_bild(dir, ware_index);
-			if(!bild) 
+			image=liste2d->get_bild(dir, ware_index);
+			if(!image) 
 			{
 				if(dir>3)
 				{
-					bild = liste2d->get_bild(dir - 4, ware_index);
+					image = liste2d->get_bild(dir - 4, ware_index);
 				}
 			}
-			if (bild != NULL) return bild->get_nummer();
+			if (image != NULL) return image->get_nummer();
 		}
 
 		if(freight_image_type > 0 && freight_image_type < 255 && ware != NULL && livery_image_type > 0)
@@ -392,15 +392,15 @@ public:
 
 			// vehicle has freight images and we want to use - get appropriate one (if no list then fallback to empty image)
 			bildliste3d_besch_t const* const liste3d = get_child<bildliste3d_besch_t>(5);
-			bild = liste3d->get_bild(dir, livery_index, ware_index);
-			if(!bild) 
+			image = liste3d->get_bild(dir, livery_index, ware_index);
+			if(!image) 
 			{
 				if(dir>3)
 				{
-					bild = liste3d->get_bild(dir - 4, livery_index, ware_index);
+					image = liste3d->get_bild(dir - 4, livery_index, ware_index);
 				}
 			}
-			if (bild != NULL) return bild->get_nummer();
+			if (image != NULL) return image->get_nummer();
 		}
 
 		// only try 1d freight image list for old style vehicles
@@ -419,19 +419,19 @@ public:
 			}
 		}
 
-		bild = liste->get_bild(dir);
-		if(!bild) 
+		image = liste->get_bild(dir);
+		if(!image) 
 		{
 			if(dir>3)
 			{
-				bild = liste->get_bild(dir - 4);
+				image = liste->get_bild(dir - 4);
 			}
-			if(!bild) 
+			if(!image) 
 			{
 				return IMG_LEER;
 			}
 		}
-		return bild->get_nummer();
+		return image->get_nummer();
 	}
 
 	bool check_livery(const char* name) const

@@ -22,7 +22,7 @@ zeiger_t::zeiger_t(loadsave_t *file) : obj_no_info_t(obj_t::zeiger)
 zeiger_t::zeiger_t(loadsave_t *file) : obj_no_info_t()
 #endif
 {
-	bild = IMG_LEER;
+	image = IMG_LEER;
 	after_bild = IMG_LEER;
 	area = koord(0,0);
 	center = false;
@@ -38,7 +38,7 @@ zeiger_t::zeiger_t(koord3d pos, player_t *player) :
 #endif
 {
 	set_owner( player );
-	bild = IMG_LEER;
+	image = IMG_LEER;
 	after_bild = IMG_LEER;
 	area = koord(0,0);
 	center = false;
@@ -95,9 +95,9 @@ void zeiger_t::change_pos(koord3d k )
 void zeiger_t::set_bild( image_id b )
 {
 	// mark dirty
-	mark_image_dirty( bild, 0 );
+	mark_image_dirty( image, 0 );
 	mark_image_dirty( b, 0 );
-	bild = b;
+	image = b;
 }
 
 void zeiger_t::set_after_bild( image_id b )
