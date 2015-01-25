@@ -4659,7 +4659,7 @@ void waggon_t::verlasse_feld()
 						{
 							// Set distant signals in the rear to caution only after the train has passed the stop signal.
 							int count = 0;
-							for(int i = route_index; i > 0; i--)
+							for(int i = min(route_index, route->get_count() - 1); i > 0; i--)
 							{
 								grund_t* gr_route = welt->lookup(route->position_bei(i));
 								signal_t* sig_route = gr_route->find<signal_t>();
