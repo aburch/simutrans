@@ -1241,6 +1241,7 @@ wegbauer_t::wegbauer_t(player_t* player_) : next_gr(32)
 	keep_existing_city_roads = false;
 	keep_existing_faster_ways = false;
 	build_sidewalk = false;
+	mark_way_for_upgrade_only = false;
 }
 
 
