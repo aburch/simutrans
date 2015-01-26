@@ -162,6 +162,9 @@ void dr_stop_textinput()
 {
 }
 
+void dr_notify_input_pos(int, int)
+{
+}
 
 static void posix_sigterm(int)
 {

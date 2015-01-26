@@ -174,6 +174,11 @@ void dr_start_textinput();
  */
 void dr_stop_textinput();
 
+/**
+ * Inform the IME of a ideal place to open its popup.
+ */
+void dr_notify_input_pos(int x, int y);
+
 int sysmain(int argc, char** argv);
 
 #endif

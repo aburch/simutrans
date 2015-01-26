@@ -25,7 +25,9 @@
 gui_textinput_t::gui_textinput_t() :
 	gui_component_t(true),
 	text(NULL),
-	composition(NULL),
+	composition(),
+	composition_target_start(0),
+	composition_target_length(0),
 	max(0),
 	head_cursor_pos(0),
 	tail_cursor_pos(0),
@@ -82,13 +84,25 @@ bool gui_textinput_t::remove_selection()
 }
 
 
-void gui_textinput_t::set_composition_text( char *c )
+void gui_textinput_t::set_composition_status( char *c, int start, int length )
 {
+	composition.clear();
 	if(  win_get_focus()==this  ) {
-		composition = c;
-	}
-	else {
-		composition = NULL;
+		if(  c && c[0]!='\0' ) {
+			if(  head_cursor_pos!=tail_cursor_pos  ) {
+				remove_selection();
+			}
+			composition.clear();
+			composition.append( (char *)c );
+			composition_target_start = start;
+			composition_target_length = length;
+
+			scr_coord gui_xy = win_get_pos( win_get_top() );
+			int offset_to_target = proportional_string_len_width( composition.get_str(), composition_target_start );
+			int x = pos.x + gui_xy.x + get_current_cursor_x() + offset_to_target;
+			int y = pos.x + gui_xy.y + D_TITLEBAR_HEIGHT;
+			dr_notify_input_pos( x, y );
+		}
 	}
 }
 
@@ -342,6 +356,8 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 		return true;
 	}
 	else if(  ev->ev_class==EVENT_STRING  ) {
+		composition.clear();
+
 		// UTF8 multi-byte sequence
 		if(  text  &&  ev->ev_ptr  ) {
 			size_t len = strlen(text);
@@ -478,11 +494,14 @@ void gui_textinput_t::display_with_focus(scr_coord offset, bool has_focus)
 			// update reference time for cursor blinking if focus has just been received
 			cursor_reference_time = dr_time();
 
-			// screen keyboard support
 			dr_start_textinput();
+
+			scr_coord gui_xy = win_get_pos( win_get_top() );
+			int x = pos.x + gui_xy.x + get_current_cursor_x();
+			int y = pos.x + gui_xy.y + D_TITLEBAR_HEIGHT;
+			dr_notify_input_pos( x, y );
 		}
 		else {
-			composition = NULL;
 			dr_stop_textinput();
 		}
 		focus_recieved = has_focus;
@@ -546,8 +565,34 @@ void gui_textinput_t::display_with_cursor(scr_coord offset, bool cursor_active, 
 		const int clip_y = old_clip.y>text_clip_y ? old_clip.y : text_clip_y;
 		display_set_clip_wh( clip_x, clip_y, min(old_clip.xx, text_clip_x+text_clip_w)-clip_x, min(old_clip.yy, text_clip_y+text_clip_h)-clip_y );
 
-		// display text
-		display_proportional_clip(pos.x+offset.x+2-scroll_offset, pos.y+offset.y+D_GET_CENTER_ALIGN_OFFSET(LINESPACE,size.h), text, ALIGN_LEFT, textcol, true);
+		const int x_base_offset = pos.x+offset.x+2-scroll_offset;
+		const int y_offset = pos.y+offset.y+D_GET_CENTER_ALIGN_OFFSET(LINESPACE,size.h);
+
+		// display text (before composition)
+		display_text_proportional_len_clip(x_base_offset, y_offset, text, ALIGN_LEFT, textcol, true, head_cursor_pos);
+		int x_offset = proportional_string_len_width(text, head_cursor_pos);
+
+		// IME text to display?
+		if(  composition.len()  ) {
+			assert(head_cursor_pos==tail_cursor_pos);
+
+			display_proportional_clip(x_base_offset+x_offset, y_offset, composition.get_str(), ALIGN_LEFT, textcol, true);
+
+			// draw underline
+			int composition_width = proportional_string_width(composition.get_str());
+			display_direct_line_rgb(x_base_offset+x_offset, y_offset+LINESPACE, x_base_offset+x_offset+composition_width, y_offset+LINESPACE-1, textcol);
+
+			// mark targeted part in a similar manner to selected text
+			int start_offset = proportional_string_len_width(composition.get_str(), composition_target_start);
+			int highlight_width = proportional_string_len_width(composition.get_str()+composition_target_start, composition_target_length);
+			display_fillbox_wh_clip(x_base_offset+x_offset+start_offset, y_offset, highlight_width, LINESPACE, SYSCOL_EDIT_BACKGROUND_SELECTED, true);
+			display_text_proportional_len_clip(x_base_offset+x_offset+start_offset, y_offset, composition.get_str()+composition_target_start, ALIGN_LEFT|DT_CLIP, SYSCOL_EDIT_TEXT_SELECTED, false, composition_target_length);
+
+			x_offset += composition_width;
+		}
+
+		// display text (after composition)
+		display_proportional_clip(x_base_offset+x_offset, y_offset, text+head_cursor_pos, ALIGN_LEFT, textcol, true);
 
 		if(  cursor_active  ) {
 			// Knightly : display selected text block with light grey text on charcoal bounding box
@@ -556,20 +601,13 @@ void gui_textinput_t::display_with_cursor(scr_coord offset, bool cursor_active, 
 				const size_t end_pos = ::max(head_cursor_pos, tail_cursor_pos);
 				const scr_coord_val start_offset = proportional_string_len_width(text, start_pos);
 				const scr_coord_val highlight_width = proportional_string_len_width(text+start_pos, end_pos-start_pos);
-				display_fillbox_wh_clip(pos.x+offset.x+2-scroll_offset+start_offset, pos.y+offset.y+D_GET_CENTER_ALIGN_OFFSET(LINESPACE,size.h), highlight_width, LINESPACE, SYSCOL_EDIT_BACKGROUND_SELECTED, true);
-				display_text_proportional_len_clip(pos.x+offset.x+2-scroll_offset+start_offset, pos.y+offset.y+D_GET_CENTER_ALIGN_OFFSET(LINESPACE,size.h), text+start_pos, ALIGN_LEFT|DT_CLIP, SYSCOL_EDIT_TEXT_SELECTED, false, end_pos-start_pos);
-			}
-
-			// IME text to display?
-			if(  composition  ) {
-				const scr_coord_val composition_width = display_calc_proportional_string_len_width( composition, 0xFFFF );
-				display_fillbox_wh_clip(pos.x+offset.x+1-scroll_offset+cursor_offset, pos.y+offset.y+D_GET_CENTER_ALIGN_OFFSET(LINESPACE,size.h), composition_width, LINESPACE, COL_WHITE, true);
-				display_text_proportional_len_clip(pos.x+offset.x+1-scroll_offset+cursor_offset, pos.y+offset.y+D_GET_CENTER_ALIGN_OFFSET(LINESPACE,size.h), composition, ALIGN_LEFT|DT_CLIP, COL_BLACK, false, 0xFFFF );
+				display_fillbox_wh_clip(x_base_offset+start_offset, y_offset, highlight_width, LINESPACE, SYSCOL_EDIT_BACKGROUND_SELECTED, true);
+				display_text_proportional_len_clip(x_base_offset+start_offset, y_offset, text+start_pos, ALIGN_LEFT|DT_CLIP, SYSCOL_EDIT_TEXT_SELECTED, false, end_pos-start_pos);
 			}
 
 			// display blinking cursor
 			if(  cursor_visible  ) {
-				display_fillbox_wh_clip(pos.x+offset.x+1-scroll_offset+cursor_offset, pos.y+offset.y+D_GET_CENTER_ALIGN_OFFSET(LINESPACE,size.h), 1, LINESPACE, SYSCOL_CURSOR_BEAM, true);
+				display_fillbox_wh_clip(x_base_offset+cursor_offset-1, y_offset, 1, LINESPACE, SYSCOL_CURSOR_BEAM, true);
 			}
 		}
 

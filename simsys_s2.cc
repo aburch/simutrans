@@ -25,7 +25,15 @@ extern char **__argv;
 #include "display/simgraph.h"
 #include "simdebug.h"
 #include "dataobj/environment.h"
+#include "gui/simwin.h"
+#include "gui/components/gui_komponente.h"
+#include "gui/components/gui_textinput.h"
 
+// Both backends have critical bugs...
+#if !defined(_WIN32) && !defined(__linux__)
+#define USE_SDL_TEXTEDITING
+#else
+#endif
 
 static Uint8 hourglass_cursor[] = {
 	0x3F, 0xFE, //   *************
@@ -111,7 +119,9 @@ bool dr_os_init(const int* parameter)
 	printf("SDL Driver: %s\n", SDL_GetCurrentVideoDriver() );
 
 	// disable event types not interested in
+#ifndef USE_SDL_TEXTEDITING
 	SDL_EventState( SDL_TEXTEDITING, SDL_DISABLE );
+#endif
 	SDL_EventState( SDL_FINGERDOWN, SDL_DISABLE );
 	SDL_EventState( SDL_FINGERUP, SDL_DISABLE );
 	SDL_EventState( SDL_FINGERMOTION, SDL_DISABLE );
@@ -428,6 +438,11 @@ static int conv_mouse_buttons(Uint8 const state)
 
 static void internal_GetEvents(bool const wait)
 {
+#ifdef __APPLE__
+	// Apparently Cocoa SDL posts key events that meant to be used by IM...
+	// Ignoring SDL_KEYDOWN during preedit seems to work fine.
+	static bool composition_is_underway = false;
+#endif
 	SDL_Event event;
 	event.type = 1;
 	if(  wait  ) {
@@ -505,6 +520,11 @@ static void internal_GetEvents(bool const wait)
 			break;
 		}
 		case SDL_KEYDOWN: {
+#ifdef __APPLE__
+			if(  composition_is_underway  ) {
+				break;
+			}
+#endif
 			unsigned long code;
 #ifdef _WIN32
 			// SDL doesn't set numlock state correctly on startup. Revert to win32 function as workaround.
@@ -586,8 +606,41 @@ static void internal_GetEvents(bool const wait)
 				sys_event.ptr     = (void*)textinput;
 			}
 			sys_event.key_mod = ModifierKeys();
+#ifdef __APPLE__
+			composition_is_underway = false;
+#endif
 			break;
 		}
+#ifdef USE_SDL_TEXTEDITING
+		case SDL_TEXTEDITING: {
+			//printf( "SDL_TEXTEDITING {timestamp=%d, \"%s\", start=%d, length=%d}\n", event.edit.timestamp, event.edit.text, event.edit.start, event.edit.length );
+			strcpy( textinput, event.edit.text );
+#ifdef __APPLE__
+			if(  !textinput[0]  ) {
+				composition_is_underway = false;
+			}
+#endif
+			int i = 0;
+			int start = 0;
+			for(  ; i<event.edit.start; ++i  ) {
+				start = utf8_get_next_char( (utf8 *)event.edit.text, start );
+			}
+			int end = start;
+			for(  ; i<event.edit.start+event.edit.length; ++i  ) {
+				end = utf8_get_next_char( (utf8*)event.edit.text, end );
+			}
+
+			if(  gui_component_t *c = win_get_focus()  ) {
+				if(  gui_textinput_t *tinp = dynamic_cast<gui_textinput_t *>(c)  ) {
+					tinp->set_composition_status( textinput, start, end-start );
+				}
+			}
+#ifdef __APPLE__
+			composition_is_underway = true;
+#endif
+			break;
+		}
+#endif
 		case SDL_MOUSEMOTION: {
 			sys_event.type    = SIM_MOUSE_MOVE;
 			sys_event.code    = SIM_MOUSE_MOVED;
@@ -668,6 +721,12 @@ void dr_stop_textinput()
 	if(  env_t::hide_keyboard  ) {
 	    SDL_StopTextInput();
 	}
+}
+
+void dr_notify_input_pos(int x, int y)
+{
+	SDL_Rect rect = {x, y + LINESPACE, 1, 1};
+	SDL_SetTextInputRect( &rect );
 }
 
 #ifdef _MSC_VER

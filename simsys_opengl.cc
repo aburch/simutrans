@@ -1155,6 +1155,10 @@ void dr_stop_textinput()
 {
 }
 
+void dr_notify_input_pos(int, int)
+{
+}
+
 #ifdef _WIN32
 int CALLBACK WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 #else

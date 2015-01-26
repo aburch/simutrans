@@ -473,6 +473,9 @@ void dr_stop_textinput()
 {
 }
 
+void dr_notify_input_pos(int, int)
+{
+}
 
 int main(int argc, char **argv)
 {

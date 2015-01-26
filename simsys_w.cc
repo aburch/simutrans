@@ -24,8 +24,8 @@ extern char **__argv;
 
 #include "display/simgraph.h"
 #include "simdebug.h"
-
 #include "gui/simwin.h"
+#include "gui/gui_frame.h"
 #include "gui/components/gui_komponente.h"
 #include "gui/components/gui_textinput.h"
 
@@ -46,7 +46,6 @@ extern char **__argv;
 #include "simversion.h"
 #include "simsys.h"
 #include "simevent.h"
-#include "simdebug.h"
 #include "macros.h"
 
 static volatile HWND hwnd;
@@ -411,12 +410,11 @@ static inline unsigned int ModifierKeys()
 LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	// Used for IME handling.
-	static utf8 *composition = NULL;
-	static size_t composition_size;
+	static utf8 *u8buf = NULL;
+	static size_t u8bufsize;
 
 	static int last_mb = 0;	// last mouse button state
 	switch (msg) {
-
 		case WM_TIMER:	// dummy timer even to keep windows thinking we are still active
 			return 0;
 
@@ -620,18 +618,62 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 			sys_event.key_mod = ModifierKeys();
 			break;
 
+		case WM_IME_SETCONTEXT:
+			return DefWindowProc( this_hwnd, msg, wParam, lParam&~ISC_SHOWUICOMPOSITIONWINDOW );
+
+		case WM_IME_STARTCOMPOSITION:
+			break;
+
+		case WM_IME_REQUEST:
+			if(  wParam == IMR_QUERYCHARPOSITION  ) {
+				if(  gui_component_t *c = win_get_focus()  ) {
+					if(  gui_textinput_t *tinp = dynamic_cast<gui_textinput_t *>(c)  ) {
+						IMECHARPOSITION *icp = (IMECHARPOSITION *)lParam;
+						icp->cLineHeight = LINESPACE;
+
+						scr_coord pos = tinp->get_pos();
+						scr_coord gui_xy = win_get_pos( win_get_top() );
+						LONG x = pos.x + gui_xy.x + tinp->get_current_cursor_x();
+						const char *composition = tinp->get_composition();
+						for(  DWORD i=0; i<icp->dwCharPos; ++i  ) {
+							if(  !*composition  ) {
+								break;
+							}
+							unsigned char pixel_width;
+							unsigned char unused;
+							get_next_char_with_metrics( composition, unused, pixel_width );
+							x += pixel_width;
+						}
+						icp->pt.x = x;
+						icp->pt.y = pos.y + gui_xy.y + D_TITLEBAR_HEIGHT;
+						ClientToScreen( this_hwnd, &icp->pt );
+						icp->rcDocument.left = 0;
+						icp->rcDocument.right = 0;
+						icp->rcDocument.top = 0;
+						icp->rcDocument.bottom = 0;
+						//printf("IMECHARPOSITION {dwCharPos=%d, pt {x=%d, y=%d} }\n", icp->dwCharPos, icp->pt.x, icp->pt.y);
+						return TRUE;
+					}
+				}
+				break;
+			}
+			return DefWindowProcW( this_hwnd, msg, wParam, lParam );
+
 		case WM_IME_COMPOSITION: {
+			HIMC immcx = NULL;
+			if(  lParam & (GCS_RESULTSTR|GCS_COMPSTR)  ) {
+				immcx = ImmGetContext( this_hwnd );
+			}
 			if(  lParam & GCS_RESULTSTR  ) {
 				// Retrieve the composition result.
-				HIMC immcx = ImmGetContext(this_hwnd);
 				size_t u16size = ImmGetCompositionStringW(immcx, GCS_RESULTSTR, NULL, 0);
 				utf16 *u16buf = (utf16*)malloc(u16size + 2);
 				size_t copied = ImmGetCompositionStringW(immcx, GCS_RESULTSTR, u16buf, u16size + 2);
-				ImmReleaseContext(this_hwnd, immcx);
+
 				// clear old composition
 				if(  gui_component_t *c = win_get_focus()  ) {
 					if(  gui_textinput_t *tinp = dynamic_cast<gui_textinput_t *>(c)  ) {
-						tinp->set_composition_text( NULL );
+						tinp->set_composition_status( NULL, 0, 0 );
 					}
 				}
 				// add result
@@ -640,29 +682,27 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 
 					// Grow the buffer as needed.
 					size_t u8size = u16size + u16size/2;
-					if (!composition) {
-						composition_size = u8size + 1;
-						composition = (utf8*)malloc(composition_size);
+					if(  !u8buf  ) {
+						u8bufsize = u8size + 1;
+						u8buf = (utf8 *)malloc( u8bufsize );
 					}
-					else if (u8size >= composition_size) {
-						composition_size = max(composition_size*2, u8size+1);
-						free(composition);
-						composition = (utf8*)malloc(composition_size);
+					else if(  u8size >= u8bufsize  ) {
+						u8bufsize = max( u8bufsize*2, u8size+1 );
+						free( u8buf );
+						u8buf = (utf8 *)malloc( u8bufsize );
 					}
 
 					// Convert UTF-16 to UTF-8.
 					utf16 *s = u16buf;
 					int i = 0;
-					while (*s) {
-						int charlen = utf16_to_utf8(*s, composition + i);
-						++s;
-						i += charlen;
+					while(  *s  ) {
+						i += utf16_to_utf8( *s++, u8buf+i );
 					}
-					composition[i] = 0;
-					free(u16buf);
+					u8buf[i] = 0;
+					free( u16buf );
 
 					sys_event.type = SIM_STRING;
-					sys_event.ptr = (void*)composition;
+					sys_event.ptr = (void*)u8buf;
 				}
 				else {
 					// single key
@@ -671,38 +711,84 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 				}
 				sys_event.key_mod = ModifierKeys();
 			}
-			else if(  lParam & GCS_COMPSTR  ) {
+			else if(  lParam & (GCS_COMPSTR|GCS_COMPATTR)  ) {
 				if(  gui_component_t *c = win_get_focus()  ) {
 					if(  gui_textinput_t *tinp = dynamic_cast<gui_textinput_t *>(c)  ) {
-						HIMC immcx = ImmGetContext(this_hwnd);
-						size_t u16size = ImmGetCompositionStringW(immcx, GCS_COMPSTR, NULL, 0);
-						utf16 *u16buf = (utf16*)malloc(u16size + 2);
-						size_t copied = ImmGetCompositionStringW(immcx, GCS_COMPSTR, u16buf, u16size + 2);
-						ImmReleaseContext(this_hwnd, immcx);
-						if(  u16size>0  ) {
-							static utf8 comp_str[1024];
-							u16buf[copied/2] = 0;
-
-							// Convert UTF-16 to UTF-8.
-							utf16 *s = u16buf;
-							int i = 0;
-							while(*s  &&  i<1020  ) {
-								int charlen = utf16_to_utf8(*s, comp_str + i);
-								++s;
-								i += charlen;
-							}
-							comp_str[i] = 0;
-							tinp->set_composition_text( (char *)comp_str );
+						// Query current conversion status
+						int num_attr = ImmGetCompositionStringW( immcx, GCS_COMPATTR, NULL, 0 );
+						if(  num_attr <= 0  ) {
+							// This shouldn't happen... just in case.
+							break;
 						}
-						free(u16buf);
-						return 0;
+						char *attrs = (char *)malloc( num_attr );
+						ImmGetCompositionStringW( immcx, GCS_COMPATTR, attrs, num_attr );
+						int start = 0;
+						for(  ; start < num_attr; ++start  ) {
+							if(  attrs[start] == ATTR_TARGET_CONVERTED || attrs[start] == ATTR_TARGET_NOTCONVERTED  ) {
+								break;
+							}
+						}
+						int end = start;
+						for(  ; end < num_attr; ++end  ) {
+							if(  attrs[end] != ATTR_TARGET_CONVERTED && attrs[end] != ATTR_TARGET_NOTCONVERTED  ) {
+								break;
+							}
+						}
+						free( attrs );
+
+						// Then retrieve the composition text
+						size_t u16size = ImmGetCompositionStringW( immcx, GCS_COMPSTR, NULL, 0 );
+						utf16 *u16buf = (utf16 *)malloc( u16size+2 );
+						size_t copied = ImmGetCompositionStringW( immcx, GCS_COMPSTR, u16buf, u16size+2 );
+						u16buf[copied/2] = 0;
+
+						// Grow the buffer as needed.
+						size_t u8size = u16size + u16size/2;
+						if(  !u8buf  ) {
+							u8bufsize = u8size + 1;
+							u8buf = (utf8 *)malloc( u8bufsize );
+						}
+						else if(  u8size >= u8bufsize  ) {
+							u8bufsize = max( u8bufsize*2, u8size+1 );
+							free( u8buf );
+							u8buf = (utf8 *)malloc( u8bufsize );
+						}
+
+						// Convert UTF-16 to UTF-8.
+						utf16 *s = u16buf;
+						int offset = 0;
+						int i = 0;
+						int u8start = 0, u8end = 0;
+						while(  true  ) {
+							if(  i == start  ) u8start = offset;
+							if(  i == end  ) u8end = offset;
+							if(  !*s  ) {
+								break;
+							}
+							offset += utf16_to_utf8( *s, u8buf + offset );
+							++s;
+							++i;
+						}
+						u8buf[offset] = 0;
+						free( u16buf );
+
+						tinp->set_composition_status( (char *)u8buf, u8start, u8end-u8start );
 					}
 				}
 			}
-			// IMM to take care of all others
-			return DefWindowProcW(this_hwnd, msg, wParam, lParam);
+			if(  immcx  ) {
+				ImmReleaseContext( this_hwnd, immcx );
+			}
 			break;
 		}
+
+		case WM_IME_ENDCOMPOSITION:
+			if(  gui_component_t *c = win_get_focus()  ) {
+				if(  gui_textinput_t *tinp = dynamic_cast<gui_textinput_t *>(c)  ) {
+					tinp->set_composition_status( NULL, 0, 0 );
+				}
+			}
+			break;
 
 		case WM_CLOSE:
 			if (AllDibData != NULL) {
@@ -712,8 +798,7 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 			break;
 
 		case WM_DESTROY:
-			free(composition);
-
+			free( u8buf );
 			if(  hwnd==this_hwnd  ||  AllDibData == NULL  ) {
 				sys_event.type = SIM_SYSTEM;
 				sys_event.code = SYSTEM_QUIT;
@@ -797,6 +882,28 @@ void dr_start_textinput()
 
 void dr_stop_textinput()
 {
+	HIMC immcx = ImmGetContext( hwnd );
+	ImmNotifyIME( immcx, NI_COMPOSITIONSTR, CPS_CANCEL, 0 );
+	ImmReleaseContext( hwnd, immcx );
+}
+
+void dr_notify_input_pos(int x, int y)
+{
+	COMPOSITIONFORM co;
+	co.dwStyle = CFS_POINT;
+	co.ptCurrentPos.x = (LONG)x;
+	co.ptCurrentPos.y = (LONG)y;
+
+	CANDIDATEFORM ca;
+	ca.dwIndex = 0;
+	ca.dwStyle = CFS_CANDIDATEPOS;
+	ca.ptCurrentPos.x = (LONG)x;
+	ca.ptCurrentPos.y = (LONG)y + D_TITLEBAR_HEIGHT;
+
+	HIMC immcx = ImmGetContext( hwnd );
+	ImmSetCompositionWindow( immcx, &co );
+	ImmSetCandidateWindow( immcx, &ca );
+	ImmReleaseContext( hwnd, immcx );
 }
 
 #ifdef _MSC_VER

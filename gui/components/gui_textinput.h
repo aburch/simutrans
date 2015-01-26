@@ -20,6 +20,7 @@
 #include "gui_komponente.h"
 #include "../../simcolor.h"
 #include "../../display/simgraph.h"
+#include "../../utils/cbuffer_t.h"
 
 
 class gui_textinput_t :
@@ -35,7 +36,9 @@ protected:
 	char *text;
 
 	// text, which has not yet inputted (i.e. by an IME)
-	char *composition;
+	cbuffer_t composition;
+	size_t composition_target_start;
+	size_t composition_target_length;
 
 	/**
 	 * Maximum length of the string buffer
@@ -109,8 +112,8 @@ public:
 	 */
 	void set_text(char *text, size_t max);
 
-	// text which is not yet inputed (i.e. for japanese text ime), assuming either native or utf8 encoding
-	void set_composition_text( char *composition );
+	// text which is not yet inputed (i.e. for east asian text), assuming either native or utf8 encoding
+	void set_composition_status( char *composition, int target_start, int target_length );
 
 	/**
 	 * Return the Text buffer
@@ -118,6 +121,7 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	char *get_text() const { return text; }
+	const char *get_composition() const { return composition.get_str(); }
 
 	bool infowin_event(event_t const*) OVERRIDE;
 
