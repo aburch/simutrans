@@ -1171,7 +1171,7 @@ vehicle_t::play_sound() const
  * If @p recalc is true this sets position and recalculates/resets movement parameters.
  * @author Hj. Malthaner
  */
-void vehicle_t::neue_fahrt(uint16 start_route_index, bool recalc)
+void vehicle_t::initialise_journey(uint16 start_route_index, bool recalc)
 {
 	route_index = start_route_index + 1;
 	check_for_finish = false;

@@ -431,7 +431,7 @@ public:
 	* If @p recalc is true this sets position and recalculates/resets movement parameters. a new route
 	* @author Hj. Malthaner
 	*/
-	void neue_fahrt( uint16 start_route_index, bool recalc );
+	void initialise_journey( uint16 start_route_index, bool recalc );
 
 		void set_direction_steps(sint16 value) { direction_steps = value; }
 

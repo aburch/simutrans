@@ -396,7 +396,7 @@ uint32 convoi_t::move_to(uint16 const start_index)
 		}
 
 		// propagate new index to vehicle, will set all movement related variables, in particular pos
-		v.neue_fahrt(start_index, true);
+		v.initialise_journey(start_index, true);
 		// now put vehicle on the tile
 		if (gr) {
 			v.enter_tile(gr);
@@ -2558,7 +2558,7 @@ vehicle_t *convoi_t::remove_vehikel_bei(uint16 i)
 			//sum_leistung -= info->get_leistung();
 			//sum_gear_und_leistung -= (info->get_leistung() * info->get_gear() *welt->get_settings().get_global_power_factor_percent() + 50) / 100;
 			//sum_gewicht -= info->get_gewicht();
-			//sum_running_costs += info->get_betriebskosten();
+			//sum_running_costs += info->get_operating_cost();
 			//player_t::add_maintenance( get_owner(), -info->get_maintenance(), info->get_waytype() );
 		}
 		//sum_gesamtgewicht = sum_gewicht;
@@ -2880,7 +2880,7 @@ bool convoi_t::can_go_alte_richtung()
 		for( int idx=0;  idx<=length;  idx++  ) {
 			if(route.position_bei(idx)==vehicle_start_pos) {
 				// set route index, no recalculations necessary
-				v->neue_fahrt(idx, false );
+				v->initialise_journey(idx, false );
 				ok = true;
 				break;
 			}
@@ -2938,7 +2938,7 @@ void convoi_t::vorfahren()
 					sch0->unreserve(v);
 				}
 			}
-			v->neue_fahrt(0, true);
+			v->initialise_journey(0, true);
 			// set at new position
 			gr = welt->lookup(v->get_pos());
 			assert(gr);
