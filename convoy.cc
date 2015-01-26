@@ -73,7 +73,7 @@ void adverse_summary_t::add_vehicle(const vehicle_t &v)
 	add_vehicle(*v.get_besch(), v.is_leading());
 
 	const waytype_t waytype = v.get_waytype();
-	if (waytype != air_wt || ((const aircraft_t &)v).get_flyingheight() <= 0)
+	if (waytype != air_wt || ((const air_vehicle_t &)v).get_flyingheight() <= 0)
 	{
 		weg_t *way = v.get_weg();
 		if (way)

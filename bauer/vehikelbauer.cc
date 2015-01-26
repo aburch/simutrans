@@ -176,7 +176,7 @@ vehicle_t* vehikelbauer_t::baue(koord3d k, player_t* player, convoi_t* cnv, cons
 		case track_wt:
 		case tram_wt:     v = new rail_vehicle_t(         k, vb, player, cnv); break;
 		case water_wt:    v = new water_vehicle_t(         k, vb, player, cnv); break;
-		case air_wt:      v = new aircraft_t(       k, vb, player, cnv); break;
+		case air_wt:      v = new air_vehicle_t(       k, vb, player, cnv); break;
 		case maglev_wt:   v = new maglev_rail_vehicle_t(  k, vb, player, cnv); break;
 		case narrowgauge_wt:v = new narrowgauge_rail_vehicle_t(k, vb, player, cnv); break;
 

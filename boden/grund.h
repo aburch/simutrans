@@ -28,7 +28,7 @@ class cbuffer_t;
 /* A map from obj_t subtypes to their enum equivalent
  * Used by grund_t::find<T>()
  */
-class aircraft_t;
+class air_vehicle_t;
 class baum_t;
 class bruecke_t;
 class crossing_t;
@@ -50,7 +50,7 @@ class wayobj_t;
 class zeiger_t;
 
 template<typename T> struct map_obj {};
-template<> struct map_obj<aircraft_t>    { static const obj_t::typ code = obj_t::air_vehicle;    };
+template<> struct map_obj<air_vehicle_t>    { static const obj_t::typ code = obj_t::air_vehicle;    };
 template<> struct map_obj<baum_t>        { static const obj_t::typ code = obj_t::baum;        };
 template<> struct map_obj<bruecke_t>     { static const obj_t::typ code = obj_t::bruecke;     };
 template<> struct map_obj<crossing_t>    { static const obj_t::typ code = obj_t::crossing;    };

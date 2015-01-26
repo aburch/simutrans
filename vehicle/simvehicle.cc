@@ -2573,7 +2573,7 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_gobal) const
 			color = COL_ORANGE;
 		}
 
-		const aircraft_t* air = (const aircraft_t*)this;
+		const air_vehicle_t* air = (const air_vehicle_t*)this;
 		if(get_waytype() == air_wt && air->runway_too_short)
 		{
 			sprintf(tooltip_text, translator::translate("Runway too short"), cnv->get_name());
@@ -4926,7 +4926,7 @@ schedule_t * water_vehicle_t::generate_new_schedule() const
 /**** from here on planes ***/
 
 // this routine is called by find_route, to determined if we reached a destination
-bool aircraft_t:: is_target(const grund_t *gr,const grund_t *)
+bool air_vehicle_t:: is_target(const grund_t *gr,const grund_t *)
 {
 	if(state!=looking_for_parking)
 	{
@@ -5002,7 +5002,7 @@ bad_runway:
 // for flying things, everywhere is good ...
 // another function only called during route searching
 ribi_t::ribi
-aircraft_t::get_ribi(const grund_t *gr) const
+air_vehicle_t::get_ribi(const grund_t *gr) const
 {
 	switch(state) {
 		case taxiing:
@@ -5044,7 +5044,7 @@ aircraft_t::get_ribi(const grund_t *gr) const
 
 // how expensive to go here (for way search)
 // author prissi
-int aircraft_t::get_cost(const grund_t *gr, const sint32, koord)
+int air_vehicle_t::get_cost(const grund_t *gr, const sint32, koord)
 {
 	// first favor faster ways
 	const weg_t *w=gr->get_weg(air_wt);
@@ -5079,7 +5079,7 @@ int aircraft_t::get_cost(const grund_t *gr, const sint32, koord)
 
 // whether the ground is drivable or not depends on the current state of the airplane
 bool
-aircraft_t::check_next_tile(const grund_t *bd) const
+air_vehicle_t::check_next_tile(const grund_t *bd) const
 {
 	switch (state) {
 		case taxiing:
@@ -5093,7 +5093,7 @@ aircraft_t::check_next_tile(const grund_t *bd) const
 		case flying:
 		case circling:
 		{
-//DBG_MESSAGE("aircraft_t::check_next_tile()","(cnv %i) in idx %i",cnv->self.get_id(),route_index );
+//DBG_MESSAGE("air_vehicle_t::check_next_tile()","(cnv %i) in idx %i",cnv->self.get_id(),route_index );
 			// prissi: here a height check could avoid too high mountains
 			return true;
 		}
@@ -5106,12 +5106,12 @@ aircraft_t::check_next_tile(const grund_t *bd) const
 /* finds a free stop, calculates a route and reserve the position
  * else return false
  */
-bool aircraft_t::find_route_to_stop_position()
+bool air_vehicle_t::find_route_to_stop_position()
 {
 	// check for skipping circle
 	route_t *rt=cnv->access_route();
 
-//DBG_MESSAGE("aircraft_t::find_route_to_stop_position()","can approach? (cnv %i)",cnv->self.get_id());
+//DBG_MESSAGE("air_vehicle_t::find_route_to_stop_position()","can approach? (cnv %i)",cnv->self.get_id());
 
 	grund_t const* const last = welt->lookup(rt->back());
 	target_halt = last ? last->get_halt() : halthandle_t();
@@ -5123,15 +5123,15 @@ bool aircraft_t::find_route_to_stop_position()
 	grund_t const* const target = welt->lookup(rt->position_bei(search_for_stop));
 	if(target==NULL  ||  !target->hat_weg(air_wt)) {
 		target_halt = halthandle_t();
-		DBG_MESSAGE("aircraft_t::find_route_to_stop_position()","no runway found at (%s)",rt->position_bei(search_for_stop).get_str());
+		DBG_MESSAGE("air_vehicle_t::find_route_to_stop_position()","no runway found at (%s)",rt->position_bei(search_for_stop).get_str());
 		return true;	// no runway any more ...
 	}
 
 	// is our target occupied?
-//	DBG_MESSAGE("aircraft_t::find_route_to_stop_position()","state %i",state);
+//	DBG_MESSAGE("air_vehicle_t::find_route_to_stop_position()","state %i",state);
 	if(!target_halt->find_free_position(air_wt,cnv->self,obj_t::air_vehicle)  ) {
 		target_halt = halthandle_t();
-		DBG_MESSAGE("aircraft_t::find_route_to_stop_position()","no free position found!");
+		DBG_MESSAGE("air_vehicle_t::find_route_to_stop_position()","no free position found!");
 		return false;
 	}
 	else {
@@ -5145,12 +5145,12 @@ bool aircraft_t::find_route_to_stop_position()
 		}
 
 		// now search a route
-//DBG_MESSAGE("aircraft_t::find_route_to_stop_position()","some free: find route from index %i",search_for_stop);
+//DBG_MESSAGE("air_vehicle_t::find_route_to_stop_position()","some free: find route from index %i",search_for_stop);
 		route_t target_rt;
 		flight_state prev_state = state;
 		state = looking_for_parking;
 		if(!target_rt.find_route( welt, rt->position_bei(search_for_stop), this, 500, ribi_t::alle, cnv->get_highest_axle_load(), cnv->get_weight_summary().weight / 1000, 100 )) {
-DBG_MESSAGE("aircraft_t::find_route_to_stop_position()","found no route to free one");
+DBG_MESSAGE("air_vehicle_t::find_route_to_stop_position()","found no route to free one");
 			// circle slowly another round ...
 			target_halt = halthandle_t();
 			state = prev_state;
@@ -5160,7 +5160,7 @@ DBG_MESSAGE("aircraft_t::find_route_to_stop_position()","found no route to free 
 
 		// now reserve our choice ...
 		target_halt->reserve_position(welt->lookup(target_rt.back()), cnv->self);
-		//DBG_MESSAGE("aircraft_t::find_route_to_stop_position()", "found free stop near %i,%i,%i", target_rt.back().x, target_rt.back().y, target_rt.back().z);
+		//DBG_MESSAGE("air_vehicle_t::find_route_to_stop_position()", "found free stop near %i,%i,%i", target_rt.back().x, target_rt.back().y, target_rt.back().z);
 		cnv->update_route(search_for_stop, target_rt);
 		cnv->set_next_stop_index(INVALID_INDEX);
 		return true;
@@ -5170,7 +5170,7 @@ DBG_MESSAGE("aircraft_t::find_route_to_stop_position()","found no route to free 
 
 // main routine: searches the new route in up to three steps
 // must also take care of stops under traveling and the like
-route_t::route_result_t aircraft_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route)
+route_t::route_result_t air_vehicle_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route)
 {
 	if(leading) {
 		// free target reservation
@@ -5220,13 +5220,13 @@ Try to handle the transition tiles like (virtual) waypoints and the partial (gro
 - touchdown,
 - end of required length of arrival runway
 */
-bool aircraft_t::calc_route_internal(
+bool air_vehicle_t::calc_route_internal(
 	karte_t *welt,
 	const koord3d &start,            // input: start of (partial) route to calculate
 	const koord3d &ziel,             // input: end of (partial) route to calculate
 	sint32 max_speed,                // input: in the air
 	uint32 weight,                   // input: gross weight of aircraft in kg (typical aircrafts don't have trailers)
-	aircraft_t::flight_state &state, // input/output: at start
+	air_vehicle_t::flight_state &state, // input/output: at start
 	sint16 &flying_height,               // input/output: at start
 	sint16 &target_height,           // output: at end of takeoff
 	bool &runway_too_short,          // output: either departure or arrival runway
@@ -5235,7 +5235,7 @@ bool aircraft_t::calc_route_internal(
 	uint32 &search_for_stop,                  // output: scheduled route index to end of (required length of) arrival runway.
 	route_t &route)                  // output: scheduled route from start to ziel
 {
-	//DBG_MESSAGE("aircraft_t::calc_route_internal()","search route from %i,%i,%i to %i,%i,%i",start.x,start.y,start.z,ziel.x,ziel.y,ziel.z);
+	//DBG_MESSAGE("air_vehicle_t::calc_route_internal()","search route from %i,%i,%i to %i,%i,%i",start.x,start.y,start.z,ziel.x,ziel.y,ziel.z);
 
 	const bool vtol = get_besch()->get_minimum_runway_length() == 0;
 	runway_too_short = false;
@@ -5254,7 +5254,7 @@ bool aircraft_t::calc_route_internal(
 	if(!start_in_air)
 	{
 		// see, if we find a direct route: We are finished
-		state = aircraft_t::taxiing;
+		state = air_vehicle_t::taxiing;
 		if(route.calc_route( welt, start, ziel, this, max_speed, weight, 0))
 		{
 			// ok, we can taxi to our location
@@ -5269,7 +5269,7 @@ bool aircraft_t::calc_route_internal(
 		search_start = start;
 		start_in_air = true;
 		route.clear();
-		//DBG_MESSAGE("aircraft_t::calc_route()","start in air at %i,%i,%i",search_start.x,search_start.y,search_start.z);
+		//DBG_MESSAGE("air_vehicle_t::calc_route()","start in air at %i,%i,%i",search_start.x,search_start.y,search_start.z);
 	}
 	else
 	{
@@ -5279,28 +5279,28 @@ bool aircraft_t::calc_route_internal(
 		state = taxiing;
 #ifdef USE_DIFFERENT_WIND
 		approach_dir = get_approach_ribi( ziel, start );	// reverse
-		//DBG_MESSAGE("aircraft_t::calc_route()","search runway start near %i,%i,%i with corner in %x",start.x,start.y,start.z, approach_dir);
+		//DBG_MESSAGE("air_vehicle_t::calc_route()","search runway start near %i,%i,%i with corner in %x",start.x,start.y,start.z, approach_dir);
 #else
 		approach_dir = ribi_t::nordost;	// reverse
-		DBG_MESSAGE("aircraft_t::calc_route()","search runway start near (%s)",start.get_str());
+		DBG_MESSAGE("air_vehicle_t::calc_route()","search runway start near (%s)",start.get_str());
 #endif
 		if(!route.find_route( welt, start, this, max_speed, ribi_t::alle, weight, cnv->get_weight_summary().weight / 1000, welt->get_settings().get_max_route_steps())) {
-			DBG_MESSAGE("aircraft_t::calc_route()","failed");
+			DBG_MESSAGE("air_vehicle_t::calc_route()","failed");
 			return false;
 		}
 		// save the route
 		search_start = route.back();
-		//DBG_MESSAGE("aircraft_t::calc_route()","start at ground (%s)",search_start.get_str());
+		//DBG_MESSAGE("air_vehicle_t::calc_route()","start at ground (%s)",search_start.get_str());
 	}
 
 	// second: find target runway end
 	state = taxiing_to_halt;	// only used for search
 #ifdef USE_DIFFERENT_WIND
 	approach_dir = get_approach_ribi( start, ziel );	// reverse
-	//DBG_MESSAGE("aircraft_t::calc_route()","search runway target near %i,%i,%i in corners %x",ziel.x,ziel.y,ziel.z,approach_dir);
+	//DBG_MESSAGE("air_vehicle_t::calc_route()","search runway target near %i,%i,%i in corners %x",ziel.x,ziel.y,ziel.z,approach_dir);
 #else
 	approach_dir = ribi_t::suedwest;	// reverse
-	//DBG_MESSAGE("aircraft_t::calc_route()","search runway target near %i,%i,%i in corners %x",ziel.x,ziel.y,ziel.z);
+	//DBG_MESSAGE("air_vehicle_t::calc_route()","search runway target near %i,%i,%i in corners %x",ziel.x,ziel.y,ziel.z);
 #endif
 	route_t end_route;
 
@@ -5313,7 +5313,7 @@ bool aircraft_t::calc_route_internal(
 		// save target route
 		search_end = end_route.back();
 	}
-	//DBG_MESSAGE("aircraft_t::calc_route()","end at ground (%s)",search_end.get_str());
+	//DBG_MESSAGE("air_vehicle_t::calc_route()","end at ground (%s)",search_end.get_str());
 
 	// create target route
 	if(!start_in_air)
@@ -5341,7 +5341,7 @@ bool aircraft_t::calc_route_internal(
 			} while(  over>0  );
 			// out of map
 			if(gr==NULL) {
-				dbg->error("aircraft_t::calc_route()","out of map!");
+				dbg->error("air_vehicle_t::calc_route()","out of map!");
 				return false;
 			}
 			// need some extra step to avoid 180 deg turns
@@ -5356,7 +5356,7 @@ bool aircraft_t::calc_route_internal(
 		}
 		else {
 			// init with startpos
-			dbg->error("aircraft_t::calc_route()","Invalid route calculation: start is on a single direction field ...");
+			dbg->error("air_vehicle_t::calc_route()","Invalid route calculation: start is on a single direction field ...");
 		}
 		state = taxiing;
 		flying_height = 0;
@@ -5374,7 +5374,7 @@ bool aircraft_t::calc_route_internal(
 		target_height = ((sint16)start.z+3)*TILE_HEIGHT_STEP;
 	}
 
-//DBG_MESSAGE("aircraft_t::calc_route()","take off ok");
+//DBG_MESSAGE("air_vehicle_t::calc_route()","take off ok");
 
 	koord3d landing_start=search_end;
 	if(!end_in_air) {
@@ -5408,7 +5408,7 @@ bool aircraft_t::calc_route_internal(
 	// just some straight routes ...
 	if(!route.append_straight_route(welt,landing_start)) {
 		// should never fail ...
-		dbg->error( "aircraft_t::calc_route()", "No straight route found!" );
+		dbg->error( "air_vehicle_t::calc_route()", "No straight route found!" );
 		return false;
 	}
 
@@ -5437,7 +5437,7 @@ bool aircraft_t::calc_route_internal(
 				// could only happen during loading old savegames;
 				// in new versions it should not possible to build a runway here
 				route.clear();
-				dbg->error("aircraft_t::calc_route()","airport too close to the edge! (Cannot go to %i,%i!)",circlepos.x,circlepos.y);
+				dbg->error("air_vehicle_t::calc_route()","airport too close to the edge! (Cannot go to %i,%i!)",circlepos.x,circlepos.y);
 				return false;
 			}
 		}
@@ -5454,16 +5454,16 @@ bool aircraft_t::calc_route_internal(
 		}
 	}
 
-	//DBG_MESSAGE("aircraft_t::calc_route_internal()","departing=%i  touchdown=%i   search_for_stop=%i   total=%i  state=%i",takeoff, touchdown, search_for_stop, route.get_count()-1, state );
+	//DBG_MESSAGE("air_vehicle_t::calc_route_internal()","departing=%i  touchdown=%i   search_for_stop=%i   total=%i  state=%i",takeoff, touchdown, search_for_stop, route.get_count()-1, state );
 	return true;
 }
 
 
 // BG, 08.08.2012: extracted from can_enter_tile()
-bool aircraft_t::reroute(const uint16 reroute_index, const koord3d &ziel)
+bool air_vehicle_t::reroute(const uint16 reroute_index, const koord3d &ziel)
 {
 	// new aircraft state after successful routing:
-	aircraft_t::flight_state xstate = state;
+	air_vehicle_t::flight_state xstate = state;
 	sint16 xflughoehe = flying_height;
 	sint16 xtarget_height;
 	bool xrunway_too_short;
@@ -5503,7 +5503,7 @@ bool aircraft_t::reroute(const uint16 reroute_index, const koord3d &ziel)
  * finishes when reaching end tile or leaving the ground (end of runway)
  * @return true if the reservation is successful
  */
-int aircraft_t::block_reserver( uint32 start, uint32 end, bool reserve ) const
+int air_vehicle_t::block_reserver( uint32 start, uint32 end, bool reserve ) const
 {
 	const route_t *route = cnv->get_route();
 	if (route->empty()) {
@@ -5584,7 +5584,7 @@ int aircraft_t::block_reserver( uint32 start, uint32 end, bool reserve ) const
 }
 
 // handles all the decisions on the ground and in the air
-bool aircraft_t::can_enter_tile(const grund_t *gr, int & restart_speed, bool )
+bool air_vehicle_t::can_enter_tile(const grund_t *gr, int & restart_speed, bool )
 {
 	restart_speed = -1;
 
@@ -5629,7 +5629,7 @@ bool aircraft_t::can_enter_tile(const grund_t *gr, int & restart_speed, bool )
 		// check, if tile occupied by a plane on ground
 		for(  uint8 i = 1;  i<gr->get_top();  i++  ) {
 			obj_t *obj = gr->obj_bei(i);
-			if(  obj->get_typ()==obj_t::air_vehicle  &&  ((aircraft_t *)obj)->is_on_ground()  ) {
+			if(  obj->get_typ()==obj_t::air_vehicle  &&  ((air_vehicle_t *)obj)->is_on_ground()  ) {
 				restart_speed = 0;
 				return false;
 			}
@@ -5685,7 +5685,7 @@ bool aircraft_t::can_enter_tile(const grund_t *gr, int & restart_speed, bool )
 		return false;
 	}
 
-//DBG_MESSAGE("aircraft_t::can_enter_tile()","index %i<>%i",route_index,touchdown);
+//DBG_MESSAGE("air_vehicle_t::can_enter_tile()","index %i<>%i",route_index,touchdown);
 
 	// check for another circle ...
 	if(  route_index == touchdown - HOLDING_PATTERN_OFFSET  )
@@ -5767,7 +5767,7 @@ bool aircraft_t::can_enter_tile(const grund_t *gr, int & restart_speed, bool )
 		state = taxiing;
 	}
 
-	if(state == taxiing  &&  gr->is_halt()  &&  gr->find<aircraft_t>()) {
+	if(state == taxiing  &&  gr->is_halt()  &&  gr->find<air_vehicle_t>()) {
 		// the next step is a parking position. We do not enter, if occupied!
 		restart_speed = 0;
 		return false;
@@ -5779,7 +5779,7 @@ bool aircraft_t::can_enter_tile(const grund_t *gr, int & restart_speed, bool )
 
 
 // this must also change the internal modes for the calculation
-void aircraft_t::enter_tile(grund_t* gr)
+void air_vehicle_t::enter_tile(grund_t* gr)
 {
 	vehicle_t::enter_tile(gr);
 
@@ -5796,7 +5796,7 @@ void aircraft_t::enter_tile(grund_t* gr)
 }
 
 
-aircraft_t::aircraft_t(loadsave_t *file, bool is_leading, bool is_last) :
+air_vehicle_t::air_vehicle_t(loadsave_t *file, bool is_leading, bool is_last) :
 #ifdef INLINE_OBJ_TYPE
 	vehicle_t(obj_t::air_vehicle)
 #else
@@ -5814,7 +5814,7 @@ aircraft_t::aircraft_t(loadsave_t *file, bool is_leading, bool is_last) :
 		}
 		// try to find a matching vehicle
 		if(besch==NULL) {
-			dbg->warning("aircraft_t::aircraft_t()", "try to find a fitting vehicle for %s.", !fracht.empty() ? fracht.front().get_name() : "passagiere");
+			dbg->warning("air_vehicle_t::air_vehicle_t()", "try to find a fitting vehicle for %s.", !fracht.empty() ? fracht.front().get_name() : "passagiere");
 			besch = vehikelbauer_t::get_best_matching(air_wt, 0, 101, 1000, 800, !fracht.empty() ? fracht.front().get_besch() : warenbauer_t::passagiere, true, last_besch, is_last );
 			if(besch) {
 				calc_image();
@@ -5828,7 +5828,7 @@ aircraft_t::aircraft_t(loadsave_t *file, bool is_leading, bool is_last) :
 }
 
 
-aircraft_t::aircraft_t(koord3d pos, const vehikel_besch_t* besch, player_t* player, convoi_t* cn) :
+air_vehicle_t::air_vehicle_t(koord3d pos, const vehikel_besch_t* besch, player_t* player, convoi_t* cn) :
 #ifdef INLINE_OBJ_TYPE
     vehicle_t(obj_t::air_vehicle, pos, besch, player)
 #else
@@ -5844,7 +5844,7 @@ aircraft_t::aircraft_t(koord3d pos, const vehikel_besch_t* besch, player_t* play
 
 
 
-aircraft_t::~aircraft_t()
+air_vehicle_t::~air_vehicle_t()
 {
 	// mark aircraft (after_image) dirty, since we have no "real" image
 	const int raster_width = get_current_tile_raster_width();
@@ -5857,9 +5857,9 @@ aircraft_t::~aircraft_t()
 
 
 void
-aircraft_t::set_convoi(convoi_t *c)
+air_vehicle_t::set_convoi(convoi_t *c)
 {
-	DBG_MESSAGE("aircraft_t::set_convoi()","%p",c);
+	DBG_MESSAGE("air_vehicle_t::set_convoi()","%p",c);
 	if(leading  &&  (unsigned long)cnv > 1) {
 		// free stop reservation
 		route_t const& r = *cnv->get_route();
@@ -5914,16 +5914,16 @@ aircraft_t::set_convoi(convoi_t *c)
 
 
 
-schedule_t * aircraft_t::generate_new_schedule() const
+schedule_t * air_vehicle_t::generate_new_schedule() const
 {
 	return new airfahrplan_t();
 }
 
 
 
-void aircraft_t::rdwr_from_convoi(loadsave_t *file)
+void air_vehicle_t::rdwr_from_convoi(loadsave_t *file)
 {
-	xml_tag_t t( file, "aircraft_t" );
+	xml_tag_t t( file, "air_vehicle_t" );
 
 	// initialize as vehicle_t::rdwr_from_convoi calls get_bild()
 	if (file->is_loading()) {
@@ -5945,7 +5945,7 @@ void aircraft_t::rdwr_from_convoi(loadsave_t *file)
 
 #ifdef USE_DIFFERENT_WIND
 // well lots of code to make sure, we have at least two different directions for the runway search
-uint8 aircraft_t::get_approach_ribi( koord3d start, koord3d ziel )
+uint8 air_vehicle_t::get_approach_ribi( koord3d start, koord3d ziel )
 {
 	uint8 dir = ribi_typ( (koord)((ziel-start).get_2d()) );	// reverse
 	// make sure, there are at last two directions to choose, or you might en up with not route
@@ -5960,7 +5960,7 @@ uint8 aircraft_t::get_approach_ribi( koord3d start, koord3d ziel )
 #endif
 
 
-void aircraft_t::hop(grund_t* gr)
+void air_vehicle_t::hop(grund_t* gr)
 {
 	if(  !get_flag(obj_t::dirty)  ) {
 		mark_image_dirty( image, 0 );
@@ -6093,9 +6093,9 @@ void aircraft_t::hop(grund_t* gr)
 
 // this routine will display the aircraft (if in flight)
 #ifdef MULTI_THREAD
-void aircraft_t::display_after(int xpos_org, int ypos_org, const sint8 clip_num) const
+void air_vehicle_t::display_after(int xpos_org, int ypos_org, const sint8 clip_num) const
 #else
-void aircraft_t::display_after(int xpos_org, int ypos_org, bool is_global) const
+void air_vehicle_t::display_after(int xpos_org, int ypos_org, bool is_global) const
 #endif
 {
 	if(  image != IMG_LEER  &&  !is_on_ground()  ) {
@@ -6131,7 +6131,7 @@ void aircraft_t::display_after(int xpos_org, int ypos_org, bool is_global) const
 	}
 #ifdef MULTI_THREAD
 }
-void aircraft_t::display_overlay(int xpos_org, int ypos_org) const
+void air_vehicle_t::display_overlay(int xpos_org, int ypos_org) const
 {
 	if(  image != IMG_LEER  &&  !is_on_ground()  ) {
 		const int raster_width = get_current_tile_raster_width();
@@ -6162,7 +6162,7 @@ void aircraft_t::display_overlay(int xpos_org, int ypos_org) const
 }
 
 
-const char *aircraft_t:: is_deletable(const player_t *player)
+const char *air_vehicle_t:: is_deletable(const player_t *player)
 {
 	if (is_on_ground()) {
 		return vehicle_t:: is_deletable(player);

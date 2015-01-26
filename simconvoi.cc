@@ -1345,9 +1345,9 @@ bool convoi_t::drive_to()
 			bool route_ok = true;
 			const uint8 aktuell = fpl->get_aktuell();
 			if(  front()->get_waytype() != water_wt  ) {
-				aircraft_t *plane = dynamic_cast<aircraft_t *>(front());
+				air_vehicle_t *plane = dynamic_cast<air_vehicle_t *>(front());
 				uint32 takeoff, search, landing;
-				aircraft_t::flight_state plane_state;
+				air_vehicle_t::flight_state plane_state;
 				if(  plane  ) {
 					// due to the complex state system of aircrafts, we have to save index and state
 					plane->get_event_index( plane_state, takeoff, search, landing );
@@ -1412,7 +1412,7 @@ bool convoi_t::drive_to()
 							if(  plane  ) {
 								// maybe we need to restore index
 								uint32 dummy2;
-								aircraft_t::flight_state dummy1;
+								air_vehicle_t::flight_state dummy1;
 								uint32 new_takeoff, new_search, new_landing;
 								plane->get_event_index( dummy1, new_takeoff, new_search, new_landing );
 								if(  takeoff == 0x7FFFFFFF  &&  new_takeoff != 0x7FFFFFFF  ) {
@@ -2323,7 +2323,7 @@ void convoi_t::ziel_erreicht()
 			go_on_ticks = WAIT_INFINITE;	// we will eventually wait from now on
 			if(front()->get_waytype() == air_wt)
 			{
-				aircraft_t* aircraft = (aircraft_t*)front();
+				air_vehicle_t* aircraft = (air_vehicle_t*)front();
 				if(aircraft->get_flyingheight() > 0)
 				{
 					// VTOL aircraft landing - set to landed state.
@@ -3474,7 +3474,7 @@ void convoi_t::rdwr(loadsave_t *file)
 					case obj_t::old_schiff:
 					case obj_t::water_vehicle:    v = new water_vehicle_t(file, first, last);     break;
 					case obj_t::old_aircraft:
-					case obj_t::air_vehicle:    v = new aircraft_t(file, first, last);     break;
+					case obj_t::air_vehicle:    v = new air_vehicle_t(file, first, last);     break;
 					case obj_t::old_monorailwaggon:
 					case obj_t::monorailwaggon:    v = new monorail_rail_vehicle_t(file, first, last);     break;
 					case obj_t::maglevwaggon:         v = new maglev_rail_vehicle_t(file, first, last);     break;
@@ -6107,12 +6107,12 @@ DBG_MESSAGE("convoi_t::go_to_depot()","convoi state %i => cannot change schedule
 		}
 	}
 
-	aircraft_t* aircraft = NULL;
+	air_vehicle_t* aircraft = NULL;
 
 	if(get_vehikel(0)->get_typ() == obj_t::air_vehicle)
 	{
 		// Flying aircraft cannot find a depot in the normal way, so go to the home depot.
-		aircraft = (aircraft_t*)get_vehikel(0);
+		aircraft = (air_vehicle_t*)get_vehikel(0);
 		if(!aircraft->is_on_ground())
 		{
 			use_home_depot = true;

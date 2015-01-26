@@ -1022,7 +1022,7 @@ sint64 player_t::undo()
 						if(undo_type!=air_wt) {
 							break;
 						}
-						const aircraft_t* aircraft = obj_cast<aircraft_t>(gr->obj_bei(i));
+						const air_vehicle_t* aircraft = obj_cast<air_vehicle_t>(gr->obj_bei(i));
 						// flying aircrafts are ok
 						if(!aircraft->is_on_ground()) {
 							break;

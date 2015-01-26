@@ -78,7 +78,7 @@ void world_view_t::internal_draw(const scr_coord offset, obj_t const* const obj)
 
 	int hgt = tile_raster_scale_y(here3d.z * TILE_HEIGHT_STEP, raster);
 	if(obj) {
-		aircraft_t const* const plane = obj_cast<aircraft_t>(obj);
+		air_vehicle_t const* const plane = obj_cast<air_vehicle_t>(obj);
 		if(plane) {
 			hgt += tile_raster_scale_y(plane->get_flyingheight(), raster);
 		}

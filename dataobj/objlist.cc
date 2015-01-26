@@ -1241,8 +1241,8 @@ inline bool local_display_obj_vh(const obj_t *draw_obj, const sint16 xpos, const
 #endif
 {
 	vehicle_base_t const* const v = obj_cast<vehicle_base_t>(draw_obj);
-	aircraft_t      const*       a;
-	if(  v  &&  (ontile  ||  !(a = obj_cast<aircraft_t>(v))  ||  a->is_on_ground())  ) {
+	air_vehicle_t      const*       a;
+	if(  v  &&  (ontile  ||  !(a = obj_cast<air_vehicle_t>(v))  ||  a->is_on_ground())  ) {
 		const ribi_t::ribi veh_ribi = v->get_direction();
 		if(  ontile  ||  (veh_ribi & ribi) == ribi  ||  (ribi_t::rueckwaerts(veh_ribi) & ribi )== ribi  ||  draw_obj->get_typ() == obj_t::air_vehicle  ) {
 			// activate clipping only for our direction masked by the ribi argument

@@ -902,7 +902,7 @@ public:
  * @author hsiegeln
  * @see vehicle_t
  */
-class aircraft_t : public vehicle_t
+class air_vehicle_t : public vehicle_t
 {
 public:
 	enum flight_state { taxiing=0, departing=1, flying=2, landing=3, looking_for_parking=4, circling=5, taxiing_to_halt=6  };
@@ -931,7 +931,7 @@ private:
 		const koord3d &ziel,
 		sint32 max_speed,
 		uint32 weight,
-		aircraft_t::flight_state &state,
+		air_vehicle_t::flight_state &state,
 		sint16 &flying_height,
 		sint16 &target_height,
 		bool &runway_too_short,
@@ -954,15 +954,15 @@ protected:
 	bool find_route_to_stop_position();
 
 public:
-	aircraft_t(loadsave_t *file, bool is_leading, bool is_last);
-	aircraft_t(koord3d pos, const vehikel_besch_t* besch, player_t* player, convoi_t* cnv); // start and schedule
+	air_vehicle_t(loadsave_t *file, bool is_leading, bool is_last);
+	air_vehicle_t(koord3d pos, const vehikel_besch_t* besch, player_t* player, convoi_t* cnv); // start and schedule
 
 	// to shift the events around properly
 	void get_event_index( flight_state &state_, uint32 &takeoff_, uint32 &stopsearch_, uint32 &landing_ ) { state_ = state; takeoff_ = takeoff; stopsearch_ = search_for_stop; landing_ = touchdown; }
 	void set_event_index( flight_state state_, uint32 takeoff_, uint32 stopsearch_, uint32 landing_ ) { state = state_; takeoff = takeoff_; search_for_stop = stopsearch_; touchdown = landing_; }
 
 	// since we are drawing ourselves, we must mark ourselves dirty during deletion
-	virtual ~aircraft_t();
+	virtual ~air_vehicle_t();
 
 	virtual waytype_t get_waytype() const { return air_wt; }
 
