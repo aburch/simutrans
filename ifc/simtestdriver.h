@@ -4,8 +4,8 @@
  * 15.01.00, Hj. Malthaner
  */
 
-#ifndef simtestdriver_h
-#define simtestdriver_h
+#ifndef SIMTESTDRIVER_H
+#define SIMTESTDRIVER_H
 
 
 class grund_t;
