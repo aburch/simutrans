@@ -161,7 +161,7 @@ bool convoi_frame_t::compare_convois(convoihandle_t const cnv1, convoihandle_t c
 				if(result == 0) {
 					result = tdriver1->get_fracht_typ()->get_catg_index() - tdriver2->get_fracht_typ()->get_catg_index();
 					if(result == 0) {
-						result = tdriver1->get_basis_bild() - tdriver2->get_basis_bild();
+						result = tdriver1->get_base_image() - tdriver2->get_base_image();
 					}
 				}
 			}

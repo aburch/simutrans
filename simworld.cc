@@ -4780,13 +4780,13 @@ void karte_t::recalc_average_speed()
 					{
 						cbuffer_t buf;
 						buf.printf(translator::translate("Upgrade to %s now available:\n%s\n"), vehicle_type, translator::translate(info->get_name()));
-						msg->add_message(buf,koord::invalid,message_t::new_vehicle,NEW_VEHICLE,info->get_basis_bild());
+						msg->add_message(buf,koord::invalid,message_t::new_vehicle,NEW_VEHICLE,info->get_base_image());
 					}
 					else
 					{
 						cbuffer_t buf;
 						buf.printf( translator::translate("New %s now available:\n%s\n"), vehicle_type, translator::translate(info->get_name()) );
-						msg->add_message(buf,koord::invalid,message_t::new_vehicle,NEW_VEHICLE,info->get_basis_bild());
+						msg->add_message(buf,koord::invalid,message_t::new_vehicle,NEW_VEHICLE,info->get_base_image());
 					}
 				}
 
@@ -4795,7 +4795,7 @@ void karte_t::recalc_average_speed()
 				{
 					cbuffer_t buf;
 					buf.printf( translator::translate("Production of %s has been stopped:\n%s\n"), vehicle_type, translator::translate(info->get_name()) );
-					msg->add_message(buf,koord::invalid,message_t::new_vehicle,NEW_VEHICLE,info->get_basis_bild());
+					msg->add_message(buf,koord::invalid,message_t::new_vehicle,NEW_VEHICLE,info->get_base_image());
 				}
 
 				const uint16 obsolete_month = info->get_obsolete_year_month(this);
@@ -4803,7 +4803,7 @@ void karte_t::recalc_average_speed()
 				{
 					cbuffer_t buf;
 					buf.printf(translator::translate("The following %s has become obsolete:\n%s\n"), vehicle_type, translator::translate(info->get_name()));
-					msg->add_message(buf,koord::invalid,message_t::new_vehicle,COL_DARK_BLUE,info->get_basis_bild());
+					msg->add_message(buf,koord::invalid,message_t::new_vehicle,COL_DARK_BLUE,info->get_base_image());
 				}
 			}
 		}

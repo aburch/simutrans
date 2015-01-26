@@ -251,8 +251,8 @@ public:
 
 	skin_besch_t const* get_rauch() const { return get_child<skin_besch_t>(3); }
 
-	image_id get_basis_bild() const { return get_bild_nr(ribi_t::dir_sued, get_ware() ); }
-	image_id get_basis_bild(const char* livery) const { return get_bild_nr(ribi_t::dir_sued, get_ware(), livery ); }
+	image_id get_base_image() const { return get_bild_nr(ribi_t::dir_sued, get_ware() ); }
+	image_id get_base_image(const char* livery) const { return get_bild_nr(ribi_t::dir_sued, get_ware(), livery ); }
 
 	// returns the number of different directions
 	uint8 get_dirs() const { return get_child<bildliste_besch_t>(4)->get_bild(4) ? 8 : 4; }

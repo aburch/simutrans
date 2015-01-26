@@ -1081,7 +1081,7 @@ void gui_convoy_assembler_t::add_to_vehicle_list(const vehikel_besch_t *info)
 		const char* livery = scheme->get_latest_available_livery(date, info);
 		if(livery)
 		{
-			image = info->get_basis_bild(livery);
+			image = info->get_base_image(livery);
 		}
 		else
 		{
@@ -1092,20 +1092,20 @@ void gui_convoy_assembler_t::add_to_vehicle_list(const vehikel_besch_t *info)
 				const char* new_livery = new_scheme->get_latest_available_livery(date, info);
 				if(new_livery)
 				{
-					image = info->get_basis_bild(new_livery);
+					image = info->get_base_image(new_livery);
 					found = true;
 					break;
 				}
 			}
 			if(!found)
 			{
-				image =info->get_basis_bild();
+				image =info->get_base_image();
 			}
 		}
 	}
 	else
 	{
-		image = info->get_basis_bild();
+		image = info->get_base_image();
 	}
 	gui_image_list_t::image_data_t* img_data = new gui_image_list_t::image_data_t(info->get_name(), image);
 
@@ -1293,7 +1293,7 @@ void gui_convoy_assembler_t::update_data()
 					if(iter->get_besch() == info)
 					{
 						vehicle_available = true;
-						image = info->get_basis_bild(iter->get_current_livery());
+						image = info->get_base_image(iter->get_current_livery());
 						break;
 					}
 				}
@@ -1306,7 +1306,7 @@ void gui_convoy_assembler_t::update_data()
 						if(cnv->get_vehikel(n)->get_besch() == info)
 						{
 							vehicle_available = true;
-							image = info->get_basis_bild(cnv->get_vehikel(n)->get_current_livery());
+							image = info->get_base_image(cnv->get_vehikel(n)->get_current_livery());
 							// Necessary to break out of double loop.
 							goto end;
 						}
@@ -1321,7 +1321,7 @@ void gui_convoy_assembler_t::update_data()
 					if(cnv->get_vehikel(n)->get_besch() == info)
 					{
 						vehicle_available = true;
-						image = info->get_basis_bild(cnv->get_vehikel(n)->get_current_livery());
+						image = info->get_base_image(cnv->get_vehikel(n)->get_current_livery());
 						break;
 					}
 				}
@@ -1338,7 +1338,7 @@ void gui_convoy_assembler_t::update_data()
 					const char* livery = scheme->get_latest_available_livery(date, vehicles[i]);
 					if(livery)
 					{
-						image = vehicles[i]->get_basis_bild(livery);
+						image = vehicles[i]->get_base_image(livery);
 					}
 					else
 					{
@@ -1349,20 +1349,20 @@ void gui_convoy_assembler_t::update_data()
 							const char* new_livery = new_scheme->get_latest_available_livery(date, vehicles[i]);
 							if(new_livery)
 							{
-								image = vehicles[i]->get_basis_bild(new_livery);
+								image = vehicles[i]->get_base_image(new_livery);
 								found = true;
 								break;
 							}
 						}
 						if(!found)
 						{
-							image = vehicles[i]->get_basis_bild();
+							image = vehicles[i]->get_base_image();
 						}
 					}
 				}
 				else
 				{
-					image = vehicles[i]->get_basis_bild();
+					image = vehicles[i]->get_base_image();
 				}
 			}
 			gui_image_list_t::image_data_t* img_data = new gui_image_list_t::image_data_t(vehicles[i]->get_name(), image);

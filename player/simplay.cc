@@ -922,7 +922,7 @@ DBG_MESSAGE("player_t::report_vehicle_problem","Vehicle %s can't find a route to
 					buf.printf(" ");
 					buf.printf(translator::translate("Vehicle weighs %it, but max weight is %it"), cnv_weight, max_axle_load); 
 				}
-				welt->get_message()->add_message( (const char *)buf, cnv->get_pos().get_2d(), message_t::problems, PLAYER_FLAG | player_nr, cnv->front()->get_basis_bild());
+				welt->get_message()->add_message( (const char *)buf, cnv->get_pos().get_2d(), message_t::problems, PLAYER_FLAG | player_nr, cnv->front()->get_base_image());
 			}
 			break;
 
@@ -933,7 +933,7 @@ DBG_MESSAGE("player_t::report_vehicle_problem","Vehicle %s stucked!", cnv->get_n
 			{
 				cbuffer_t buf;
 				buf.printf( translator::translate("Vehicle %s is stucked!"), cnv->get_name());
-				welt->get_message()->add_message( (const char *)buf, cnv->get_pos().get_2d(), message_t::warnings, PLAYER_FLAG | player_nr, cnv->front()->get_basis_bild());
+				welt->get_message()->add_message( (const char *)buf, cnv->get_pos().get_2d(), message_t::warnings, PLAYER_FLAG | player_nr, cnv->front()->get_base_image());
 			}
 			break;
 		
@@ -948,7 +948,7 @@ DBG_MESSAGE("player_t::report_vehicle_problem","Vehicle %s stucked!", cnv->get_n
 					const halthandle_t destination_halt = haltestelle_t::get_halt(ziel, welt->get_active_player());
 					const char* name = destination_halt.is_bound() ? destination_halt->get_name() : translator::translate("unknown");
 					buf.printf( translator::translate("Vehicle %s cannot travel %ikm to %s because that would exceed its range of %ikm by %ikm"), cnv->get_name(), distance, name, cnv->get_min_range(), excess);
-					welt->get_message()->add_message( (const char *)buf, cnv->get_pos().get_2d(), message_t::warnings, PLAYER_FLAG | player_nr, cnv->front()->get_basis_bild());
+					welt->get_message()->add_message( (const char *)buf, cnv->get_pos().get_2d(), message_t::warnings, PLAYER_FLAG | player_nr, cnv->front()->get_base_image());
 				}
 			}
 			break;
