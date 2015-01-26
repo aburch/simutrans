@@ -3232,7 +3232,7 @@ void road_vehicle_t::enter_tile(grund_t* gr)
 
 
 
-schedule_t * road_vehicle_t::erzeuge_neuen_fahrplan() const
+schedule_t * road_vehicle_t::generate_new_schedule() const
 {
   return new autofahrplan_t();
 }
@@ -4706,25 +4706,25 @@ void rail_vehicle_t::enter_tile(grund_t* gr)
 
 
 
-schedule_t * rail_vehicle_t::erzeuge_neuen_fahrplan() const
+schedule_t * rail_vehicle_t::generate_new_schedule() const
 {
 	return besch->get_waytype()==tram_wt ? new tramfahrplan_t() : new zugfahrplan_t();
 }
 
 
-schedule_t * monorail_rail_vehicle_t::erzeuge_neuen_fahrplan() const
+schedule_t * monorail_rail_vehicle_t::generate_new_schedule() const
 {
 	return new monorailfahrplan_t();
 }
 
 
-schedule_t * maglev_rail_vehicle_t::erzeuge_neuen_fahrplan() const
+schedule_t * maglev_rail_vehicle_t::generate_new_schedule() const
 {
 	return new maglevfahrplan_t();
 }
 
 
-schedule_t * narrowgauge_rail_vehicle_t::erzeuge_neuen_fahrplan() const
+schedule_t * narrowgauge_rail_vehicle_t::generate_new_schedule() const
 {
 	return new narrowgaugefahrplan_t();
 }
@@ -4916,7 +4916,7 @@ bool water_vehicle_t::check_tile_occupancy(const grund_t* gr)
 	return true;
 }
 
-schedule_t * water_vehicle_t::erzeuge_neuen_fahrplan() const
+schedule_t * water_vehicle_t::generate_new_schedule() const
 {
   return new schifffahrplan_t();
 }
@@ -5914,7 +5914,7 @@ aircraft_t::set_convoi(convoi_t *c)
 
 
 
-schedule_t * aircraft_t::erzeuge_neuen_fahrplan() const
+schedule_t * aircraft_t::generate_new_schedule() const
 {
 	return new airfahrplan_t();
 }

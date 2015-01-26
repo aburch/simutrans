@@ -2754,7 +2754,7 @@ schedule_t *convoi_t::create_schedule()
 		const vehicle_t* v = front();
 
 		if (v != NULL) {
-			fpl = v->erzeuge_neuen_fahrplan();
+			fpl = v->generate_new_schedule();
 			fpl->eingabe_abschliessen();
 		}
 	}
@@ -3574,7 +3574,7 @@ void convoi_t::rdwr(loadsave_t *file)
 		//DBG_MESSAGE("convoi_t::rdwr()","convoi has a schedule, state %s!",state_names[state]);
 		const vehicle_t* v = front();
 		if(file->is_loading() && v) {
-			fpl = v->erzeuge_neuen_fahrplan();
+			fpl = v->generate_new_schedule();
 		}
 		// Hajo: hack to load corrupted games -> there is a schedule
 		// but no vehicle so we can't determine the exact type of

@@ -550,7 +550,7 @@ void ai_goods_t::create_rail_transport_vehikel(const koord platz1, const koord p
 		cnv->add_vehikel( v );
 	}
 
-	fpl = cnv->front()->erzeuge_neuen_fahrplan();
+	fpl = cnv->front()->generate_new_schedule();
 
 	fpl->set_aktuell( 0 );
 	fpl->append(welt->lookup(pos1), ladegrad);

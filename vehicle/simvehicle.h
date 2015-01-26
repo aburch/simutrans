@@ -592,7 +592,7 @@ public:
 	* Generate a matching schedule for the vehicle type
 	* @author Hj. Malthaner
 	*/
-	virtual schedule_t *erzeuge_neuen_fahrplan() const = 0;
+	virtual schedule_t *generate_new_schedule() const = 0;
 
 	const char *ist_entfernbar(const player_t *player);
 
@@ -693,7 +693,7 @@ public:
 	obj_t::typ get_typ() const { return automobil; }
 #endif
 
-	schedule_t * erzeuge_neuen_fahrplan() const;
+	schedule_t * generate_new_schedule() const;
 
 	virtual overtaker_t* get_overtaker();
 };
@@ -763,7 +763,7 @@ public:
 
 	virtual void set_convoi(convoi_t *c);
 
-	virtual schedule_t * erzeuge_neuen_fahrplan() const;
+	virtual schedule_t * generate_new_schedule() const;
 
 	working_method_t get_working_method() const { return working_method; }
 	void set_working_method(working_method_t value) { working_method = value; }
@@ -794,7 +794,7 @@ public:
 	typ get_typ() const { return monorailwaggon; }
 #endif
 
-	schedule_t * erzeuge_neuen_fahrplan() const;
+	schedule_t * generate_new_schedule() const;
 };
 
 
@@ -821,7 +821,7 @@ public:
 	typ get_typ() const { return maglevwaggon; }
 #endif
 
-	schedule_t * erzeuge_neuen_fahrplan() const;
+	schedule_t * generate_new_schedule() const;
 };
 
 
@@ -848,7 +848,7 @@ public:
 	typ get_typ() const { return narrowgaugewaggon; }
 #endif
 
-	schedule_t * erzeuge_neuen_fahrplan() const;
+	schedule_t * generate_new_schedule() const;
 };
 
 
@@ -890,7 +890,7 @@ public:
 	obj_t::typ get_typ() const { return schiff; }
 #endif
 
-	schedule_t * erzeuge_neuen_fahrplan() const;
+	schedule_t * generate_new_schedule() const;
 
 };
 
@@ -991,7 +991,7 @@ public:
 	typ get_typ() const { return aircraft; }
 #endif
 
-	schedule_t *erzeuge_neuen_fahrplan() const;
+	schedule_t *generate_new_schedule() const;
 
 	void rdwr_from_convoi(loadsave_t *file);
 
