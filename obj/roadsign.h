@@ -146,7 +146,7 @@ public:
 	void rotate90();
 
 	// substracts cost
-	void entferne(player_t *player);
+	void cleanup(player_t *player);
 
 	void finish_rd();
 

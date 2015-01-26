@@ -38,7 +38,7 @@ public:
 	 */
 	const char *  is_deletable(const player_t *);
 
-	void entferne(player_t *player);
+	void cleanup(player_t *player);
 };
 
 #endif

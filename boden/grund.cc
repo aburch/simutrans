@@ -1905,7 +1905,7 @@ sint32 grund_t::weg_entfernen(waytype_t wegtyp, bool ribi_rem)
 			}
 		}
 		sint32 costs = (weg->get_besch()->get_preis() / 2); // Costs for removal are half construction costs.
-		weg->entferne( NULL );
+		weg->cleanup( NULL );
 		delete weg;
 
 		// delete the second way ...
@@ -1916,7 +1916,7 @@ sint32 grund_t::weg_entfernen(waytype_t wegtyp, bool ribi_rem)
 			// Not all ways (i.e. with styp==7) will imply crossings, so we have to check
 			crossing_t* cr = find<crossing_t>(1);
 			if(cr) {
-				cr->entferne(0);
+				cr->cleanup(0);
 				delete cr;
 				// restore speed limit
 				weg_t* w = (weg_t*)obj_bei(0);
@@ -2530,7 +2530,7 @@ bool grund_t::remove_everything_from_way(player_t* player, waytype_t wt, ribi_t:
 					if((flags&has_way2)==0) {
 						if (add==ribi_t::keine) {
 							// last way was belonging to this tunnel
-							tunnel->entferne(player);
+							tunnel->cleanup(player);
 							delete tunnel;
 						}
 					}

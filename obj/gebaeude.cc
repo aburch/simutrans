@@ -1362,9 +1362,9 @@ void gebaeude_t::finish_rd()
 }
 
 
-void gebaeude_t::entferne(player_t *player) // "Remove" (Google)
+void gebaeude_t::cleanup(player_t *player) // "Remove" (Google)
 {
-//	DBG_MESSAGE("gebaeude_t::entferne()","gb %i");
+//	DBG_MESSAGE("gebaeude_t::cleanup()","gb %i");
 	// remove costs
 
 	const haus_besch_t* besch = tile->get_besch();

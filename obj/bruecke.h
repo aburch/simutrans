@@ -60,7 +60,7 @@ public:
 
 	void finish_rd();
 
-	void entferne(player_t *player);
+	void cleanup(player_t *player);
 
 	void rotate90();
 	/**

@@ -198,7 +198,7 @@ void tunnel_t::finish_rd()
 
 
 // correct speed and maintenance
-void tunnel_t::entferne( player_t *player2 )
+void tunnel_t::cleanup( player_t *player2 )
 {
 	player_t *player = get_owner();
 	// inside tunnel => do nothing but change maintenance

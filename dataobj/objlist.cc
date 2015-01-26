@@ -581,7 +581,7 @@ void local_delete_object(obj_t *remove_obj, player_t *player)
 		v->leave_tile();
 	}
 	else {
-		remove_obj->entferne(player);
+		remove_obj->cleanup(player);
 		remove_obj->set_flag(obj_t::not_on_map);
 		// all objects except zeiger (pointer) are destroyed here
 		// zeiger's will be deleted if their associated tool_t (tool) terminates
@@ -948,7 +948,7 @@ void objlist_t::rdwr(loadsave_t *file, koord3d current_pos)
 					if(groundobj->get_besch() == NULL) {
 						// do not remove from this position, since there will be nothing
 						groundobj->set_flag(obj_t::not_on_map);
-						// not use entferne, since it would try to lookup besch
+						// not use cleanup, since it would try to lookup besch
 						delete groundobj;
 					}
 					else {

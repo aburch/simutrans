@@ -283,7 +283,7 @@ void movingobj_t::info(cbuffer_t & buf, bool dummy) const
 
 
 
-void movingobj_t::entferne(player_t *player)
+void movingobj_t::cleanup(player_t *player)
 {
 	player_t::book_construction_costs(player, -get_besch()->get_preis(), get_pos().get_2d(), ignore_wt);
 	mark_image_dirty( get_bild(), 0 );

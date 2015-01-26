@@ -2559,7 +2559,7 @@ void wegbauer_t::baue_schiene()
 						if(  crossing_t *cr = gr->find<crossing_t>(2)  ) {
 							// change to tram track
 							cr->mark_image_dirty( cr->get_bild(), 0);
-							cr->entferne(player);
+							cr->cleanup(player);
 							delete cr;
 							change_besch = true;
 							// tell way we have no crossing any more, restore speed limit

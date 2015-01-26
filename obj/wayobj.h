@@ -100,7 +100,7 @@ public:
 	void rdwr(loadsave_t *file);
 
 	// substracts cost
-	void entferne(player_t *player);
+	void cleanup(player_t *player);
 
 	const char*  is_deletable(const player_t *player) OVERRIDE;
 	bool clashes_with_halt() {

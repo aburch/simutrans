@@ -768,13 +768,13 @@ const char *tunnelbauer_t::remove(player_t *player, koord3d start, waytype_t weg
 			// remove tunnel portals
 			tunnel_t *t = gr->find<tunnel_t>();
 			if(t) {
-				t->entferne(player);
+				t->cleanup(player);
 				delete t;
 			}
 			if (leitung_t *lt = gr->get_leitung()) {
 				// remove single powerlines
 				if ( (lt->get_ribi()  & ~ribi_typ(gr->get_grund_hang())) == ribi_t::keine ) {
-					lt->entferne(player);
+					lt->cleanup(player);
 					delete lt;
 				}
 			}
@@ -796,7 +796,7 @@ const char *tunnelbauer_t::remove(player_t *player, koord3d start, waytype_t weg
 			// remove tunnel portals
 			t = gr->find<tunnel_t>();
 			if(t) {
-				t->entferne(player);
+				t->cleanup(player);
 				delete t;
 			}
 

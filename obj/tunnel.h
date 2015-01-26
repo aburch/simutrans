@@ -50,7 +50,7 @@ public:
 
 	void finish_rd();
 
-	void entferne(player_t *player);
+	void cleanup(player_t *player);
 
 	uint8 get_broad_type() const { return broad_type; };
 	/**

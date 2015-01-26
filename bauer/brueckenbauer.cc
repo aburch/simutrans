@@ -1195,7 +1195,7 @@ const char *brueckenbauer_t::remove(player_t *player, koord3d pos_start, waytype
 
 		// first: remove bridge
 		bruecke_t *br = gr->find<bruecke_t>();
-		br->entferne(player);
+		br->cleanup(player);
 		delete br;
 
 		gr->remove_everything_from_way(player,wegtyp,ribi_t::keine);	// removes stop and signals correctly
@@ -1214,7 +1214,7 @@ const char *brueckenbauer_t::remove(player_t *player, koord3d pos_start, waytype
 		// finally delete all pillars (if there)
 		gr = welt->lookup_kartenboden(pos.get_2d());
 		while (obj_t* const p = gr->find<pillar_t>()) {
-			p->entferne(p->get_owner());
+			p->cleanup(p->get_owner());
 			delete p;
 		}
 		// refresh map
@@ -1256,14 +1256,14 @@ const char *brueckenbauer_t::remove(player_t *player, koord3d pos_start, waytype
 
 		if(wegtyp==powerline_wt) {
 			while (obj_t* const br = gr->find<bruecke_t>()) {
-				br->entferne(player);
+				br->cleanup(player);
 				delete br;
 			}
 			leitung_t *lt = gr->get_leitung();
 			if (lt) {
 				player_t *old_owner = lt->get_owner();
 				// first delete powerline to decouple from the bridge powernet
-				lt->entferne(old_owner);
+				lt->cleanup(old_owner);
 				delete lt;
 				// .. now create powerline to create new powernet
 				lt = new leitung_t(gr->get_pos(), old_owner);
@@ -1287,7 +1287,7 @@ const char *brueckenbauer_t::remove(player_t *player, koord3d pos_start, waytype
 			bruecke_t *br = gr->find<bruecke_t>();
 			if(br)
 			{
-				br->entferne(player);
+				br->cleanup(player);
 			}
 			delete br;
 
@@ -1299,7 +1299,7 @@ const char *brueckenbauer_t::remove(player_t *player, koord3d pos_start, waytype
 
 			// depots at bridge ends needs to be deleted as well
 			if (depot_t *dep = gr->get_depot()) {
-				dep->entferne(player);
+				dep->cleanup(player);
 				delete dep;
 			}
 

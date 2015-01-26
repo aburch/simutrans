@@ -67,7 +67,7 @@ public:
 	 * crossing logic is removed here
 	 * @author prissi
 	 */
-	virtual void entferne(player_t *);
+	virtual void cleanup(player_t *);
 
 	// returns true, if the crossing can be passed by this vehicle
 	bool request_crossing( const vehicle_base_t *v ) { return logic->request_crossing( v ); }

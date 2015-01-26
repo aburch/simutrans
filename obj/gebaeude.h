@@ -272,7 +272,7 @@ public:
 
 	virtual void show_info();
 
-	void entferne(player_t *player);
+	void cleanup(player_t *player);
 
 	void finish_rd();
 

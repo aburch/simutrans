@@ -83,7 +83,7 @@ public:
 	virtual ~leitung_t();
 
 	// just book the costs for destruction
-	void entferne(player_t *);
+	void cleanup(player_t *);
 
 	// for map rotation
 	void rotate90();

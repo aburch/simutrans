@@ -663,7 +663,7 @@ void player_t::ai_bankrupt()
 							case obj_t::pumpe:
 							case obj_t::wayobj:
 							case obj_t::label:
-								obj->entferne(this);
+								obj->cleanup(this);
 								delete obj;
 								break;
 							case obj_t::leitung:
@@ -673,7 +673,7 @@ void player_t::ai_bankrupt()
 									obj->set_owner( welt->get_player(1) );
 								}
 								else {
-									obj->entferne(this);
+									obj->cleanup(this);
 									delete obj;
 								}
 								break;
@@ -1051,7 +1051,7 @@ sint64 player_t::undo()
 			if (lt)
 			{
 				cost += lt->get_besch()->get_preis();
-				lt->entferne(NULL);
+				lt->cleanup(NULL);
 				delete lt;
 			}
 		}

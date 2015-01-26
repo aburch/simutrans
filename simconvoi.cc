@@ -5496,7 +5496,7 @@ void convoi_t::destroy()
 
 		}
 		vehicle[i]->discard_cargo();
-		vehicle[i]->entferne(owner);
+		vehicle[i]->cleanup(owner);
 		delete vehicle[i];
 	}
 	anz_vehikel = 0;

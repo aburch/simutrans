@@ -188,7 +188,7 @@ leitung_t::~leitung_t()
 }
 
 
-void leitung_t::entferne(player_t *player) //"remove".
+void leitung_t::cleanup(player_t *player) //"remove".
 {
 	sint64 land_value = welt->get_land_value(get_pos());
 	const weg_t* way = welt->lookup(get_pos()) ? welt->lookup(get_pos())->get_weg_nr(0) : NULL;

@@ -45,7 +45,7 @@ schiene_t::schiene_t(loadsave_t *file) : weg_t(track_wt)
 }
 
 
-void schiene_t::entferne(player_t *)
+void schiene_t::cleanup(player_t *)
 {
 	// removes reservation
 	if(reserved.is_bound()) {

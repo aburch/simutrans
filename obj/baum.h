@@ -108,7 +108,7 @@ public:
 
 	void info(cbuffer_t & buf, bool dummy = false) const;
 
-	void entferne(player_t *player);
+	void cleanup(player_t *player);
 
 	void * operator new(size_t s);
 	void operator delete(void *p);

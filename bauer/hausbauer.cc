@@ -359,7 +359,7 @@ void hausbauer_t::remove( player_t *player, gebaeude_t *gb ) //gebaeude = "build
 					// remove tunnel
 					if(  (sk!=NULL ||  pp!=NULL)  &&  gr->ist_im_tunnel()  &&  gr->get_top()<=1  ) {
 						if (tunnel_t *t = gr->find<tunnel_t>()) {
-							t->entferne( t->get_owner() );
+							t->cleanup( t->get_owner() );
 							delete t;
 						}
 						const koord p = gr->get_pos().get_2d();
@@ -398,7 +398,7 @@ void hausbauer_t::remove( player_t *player, gebaeude_t *gb ) //gebaeude = "build
 				// there may be buildings with holes, so we only remove our!
 				if(  gb_part  &&  gb_part->get_tile()==hb->get_tile(layout, k.x, k.y)  ) {
 					// ok, now we can go on with deletion
-					gb_part->entferne( player );
+					gb_part->cleanup( player );
 					delete gb_part;
 					// if this was a station building: delete ground
 					if(gr->get_halt().is_bound()) {

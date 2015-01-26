@@ -479,13 +479,13 @@ DBG_MESSAGE("tool_remover_intern()","at (%s)", pos.get_str());
 			}
 		}
 		if(  gr->ist_im_tunnel()  ) {
-			lt->entferne(player);
+			lt->cleanup(player);
 			delete lt;
 			// now everything gone?
 			if(  gr->get_top() == 1  ) {
 				// delete tunnel too
 				tunnel_t *t = gr->find<tunnel_t>();
-				t->entferne(player);
+				t->cleanup(player);
 				delete t;
 			}
 			// unmark kartenboden (is marked during underground mode deletion)
@@ -495,7 +495,7 @@ DBG_MESSAGE("tool_remover_intern()","at (%s)", pos.get_str());
 			delete gr;
 		}
 		else {
-			lt->entferne(player);
+			lt->cleanup(player);
 			if(lt->get_typ() == obj_t::senke)
 			{
 				// This is an awful fudge, but there does not seem to be any other
@@ -526,7 +526,7 @@ DBG_MESSAGE("tool_remover()",  "removing roadsign at (%s)", pos.get_str());
 		if(  weg==NULL  &&  rs->get_besch()->get_wtyp()==tram_wt  ) {
 			weg = gr->get_weg(track_wt);
 		}
-		rs->entferne(player);
+		rs->cleanup(player);
 		delete rs;
 		assert( weg );
 		weg->count_sign();
@@ -557,7 +557,7 @@ DBG_MESSAGE("tool_remover()", "bound=%i",halt.is_bound());
 		if(msg) {
 			return false;
 		}
-		wo->entferne(player);
+		wo->cleanup(player);
 		delete wo;
 		depot_t *dep = gr->get_depot();
 		if( dep ) {
@@ -618,7 +618,7 @@ DBG_MESSAGE("tool_remover()",  "removing tunnel  from %d,%d,%d",gr->get_pos().x,
 	if (f) {
 		msg = f-> is_deletable(player);
 		if(msg==NULL) {
-			f->entferne(player);
+			f->cleanup(player);
 			delete f;
 			// fields have foundations ...
 			sint8 dummy;
@@ -636,7 +636,7 @@ DBG_MESSAGE("tool_remover()",  "removing tunnel  from %d,%d,%d",gr->get_pos().x,
 		if(msg) {
 			return false;
 		}
-		dep->entferne(player);
+		dep->cleanup(player);
 		delete dep;
 		return true;
 	}
@@ -1458,7 +1458,7 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 					// no lakes on slopes ...
 					groundobj_t *obj = gr1->find<groundobj_t>();
 					if(  obj  &&  obj->get_besch()->get_phases()!=16  ) {
-						obj->entferne(player);
+						obj->cleanup(player);
 						delete obj;
 					}
 					// connect canals to sea
@@ -3454,7 +3454,7 @@ const char *tool_wayremover_t::do_work( player_t *player, const koord3d &start, 
 					leitung_t *lt = gr->get_leitung();
 					if(  lt  &&  (rem&lt->get_ribi())==0  ) {
 						// remove only single connections
-						lt->entferne(player);
+						lt->cleanup(player);
 						delete lt;
 						// delete tunnel ground too, if empty
 						if (gr->get_typ()==grund_t::tunnelboden) {
@@ -3708,7 +3708,7 @@ const char *tool_wayobj_t::do_work( player_t * player, const koord3d &start, con
 			if (wayobj_t* const wo = welt->lookup(r[i])->find<wayobj_t>()) {
 				const char *err = wo-> is_deletable( player );
 				if( !err ) {
-					wo->entferne( player );
+					wo->cleanup( player );
 					delete wo;
 				}
 			}
@@ -4383,7 +4383,7 @@ DBG_MESSAGE("tool_halt_aux()", "building %s on square %d,%d for waytype %x", bes
 			{
 				return "Upgrade must have\na higher level";
 			}
-			gb->entferne( NULL );
+			gb->cleanup( NULL );
 			delete gb;
 			halt = old_halt;
 		}
@@ -5186,7 +5186,7 @@ const char *tool_build_roadsign_t::do_work( player_t *player, const koord3d &sta
 					roadsign_t* rs = gr->find<signal_t>();
 					if(rs == NULL) rs = gr->find<roadsign_t>();
 					if(  rs != NULL  &&  rs-> is_deletable(player) == NULL  ) {
-						rs->entferne(player);
+						rs->cleanup(player);
 						delete rs;
 						error_text =  place_sign_intern( player, gr );
 					}
@@ -5205,7 +5205,7 @@ const char *tool_build_roadsign_t::do_work( player_t *player, const koord3d &sta
 			roadsign_t* rs = gr->find<signal_t>();
 			if(rs == NULL) rs = gr->find<roadsign_t>();
 			if(  rs != NULL  &&  rs-> is_deletable(player) == NULL  ) {
-				rs->entferne(player);
+				rs->cleanup(player);
 				delete rs;
 			};
 		}

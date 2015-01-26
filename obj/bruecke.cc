@@ -257,7 +257,7 @@ void bruecke_t::finish_rd()
 
 
 // correct speed and maintenance
-void bruecke_t::entferne( player_t *player2 )
+void bruecke_t::cleanup( player_t *player2 )
 {
 	player_t *player = get_owner();
 	// change maintenance, reset max-speed and y-offset

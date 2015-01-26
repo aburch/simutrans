@@ -52,7 +52,7 @@ const char *field_t:: is_deletable(const player_t *)
 
 
 // remove costs
-void field_t::entferne(player_t *player)
+void field_t::cleanup(player_t *player)
 {
 	player_t::book_construction_costs(player, welt->get_settings().cst_multiply_remove_field, get_pos().get_2d(), ignore_wt);
 	mark_image_dirty( get_bild(), 0 );

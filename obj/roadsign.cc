@@ -625,7 +625,7 @@ void roadsign_t::rdwr(loadsave_t *file)
 }
 
 
-void roadsign_t::entferne(player_t *player)
+void roadsign_t::cleanup(player_t *player)
 {
 	player_t::book_construction_costs(player, -besch->get_preis(), get_pos().get_2d(), get_waytype());
 }

@@ -220,7 +220,7 @@ public:
 	 * Routine for cleanup if object is removed (ie book maintenance, cost for removal)
 	 * @author Hj. Malthaner
 	 */
-	virtual void entferne(player_t *) {}
+	virtual void cleanup(player_t *) {}
 
 	/**
 	 * @returns untranslated name of object

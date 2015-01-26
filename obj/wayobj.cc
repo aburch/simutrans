@@ -235,7 +235,7 @@ void wayobj_t::rdwr(loadsave_t *file)
 }
 
 
-void wayobj_t::entferne(player_t *player)
+void wayobj_t::cleanup(player_t *player)
 {
 	if(besch) {
 		player_t::book_construction_costs(player, -besch->get_preis(), get_pos().get_2d(), besch->get_wtyp());
@@ -350,7 +350,7 @@ void wayobj_t::calc_image()
 		if(!w) {
 			dbg->error("wayobj_t::calc_image()","without way at (%s)", get_pos().get_str() );
 			// well, we are not on a way anymore? => delete us
-			entferne(get_owner());
+			cleanup(get_owner());
 			delete this;
 			gr->set_flag(grund_t::dirty);
 #ifdef MULTI_THREAD
