@@ -160,7 +160,7 @@ public:
 		monorailwaggon=68,
 		maglevwaggon=69,
 		narrowgaugewaggon=70,
-		schiff=80,
+		water_vehicle=80,
 		air_vehicle=81,
 		movingobj=82,
 

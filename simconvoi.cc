@@ -3472,7 +3472,7 @@ void convoi_t::rdwr(loadsave_t *file)
 					case obj_t::old_waggon:
 					case obj_t::rail_vehicle:    v = new rail_vehicle_t(file, first, last);     break;
 					case obj_t::old_schiff:
-					case obj_t::schiff:    v = new water_vehicle_t(file, first, last);     break;
+					case obj_t::water_vehicle:    v = new water_vehicle_t(file, first, last);     break;
 					case obj_t::old_aircraft:
 					case obj_t::air_vehicle:    v = new aircraft_t(file, first, last);     break;
 					case obj_t::old_monorailwaggon:

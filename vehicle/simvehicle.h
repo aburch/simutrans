@@ -887,7 +887,7 @@ public:
 
 #ifdef INLINE_OBJ_TYPE
 #else
-	obj_t::typ get_typ() const { return schiff; }
+	obj_t::typ get_typ() const { return water_vehicle; }
 #endif
 
 	schedule_t * generate_new_schedule() const;

@@ -78,7 +78,7 @@ bool convoi_frame_t::passes_filter(convoihandle_t cnv)
 					return false;
 				}
 				break;
-			case obj_t::schiff:
+			case obj_t::water_vehicle:
 				if(!get_filter(convoi_filter_frame_t::schiffe_filter)) {
 					return false;
 				}

@@ -233,7 +233,7 @@ void export_global_constants(HSQUIRRELVM vm)
 	/// narrowgauge vehicle
 	enum_slot(vm, "mo_narrowgauge", obj_t::narrowgaugewaggon);
 	/// ship
-	enum_slot(vm, "mo_ship", obj_t::schiff);
+	enum_slot(vm, "mo_ship", obj_t::water_vehicle);
 	/// airplane
 	enum_slot(vm, "mo_airplane", obj_t::air_vehicle);
 	/// moving object (sheep ...)

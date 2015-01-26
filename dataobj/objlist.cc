@@ -746,7 +746,7 @@ obj_t *objlist_t::get_convoi_vehicle() const
 		// it will crash on capacity==1 and top==0, but this should never happen!
 		// only ships and aircraft can go on tiles without ways => only test for those
 		uint8 t = obj.one->get_typ();
-		if(  t == obj_t::air_vehicle  ||  t == obj_t::schiff  ) {
+		if(  t == obj_t::air_vehicle  ||  t == obj_t::water_vehicle  ) {
 			return obj.one;
 		}
 	}

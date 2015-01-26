@@ -4732,7 +4732,7 @@ schedule_t * narrowgauge_rail_vehicle_t::generate_new_schedule() const
 
 water_vehicle_t::water_vehicle_t(koord3d pos, const vehikel_besch_t* besch, player_t* player, convoi_t* cn) :
 #ifdef INLINE_OBJ_TYPE
-    vehicle_t(obj_t::schiff, pos, besch, player)
+    vehicle_t(obj_t::water_vehicle, pos, besch, player)
 #else
 	vehicle_t(pos, besch, player)
 #endif
@@ -4742,7 +4742,7 @@ water_vehicle_t::water_vehicle_t(koord3d pos, const vehikel_besch_t* besch, play
 
 water_vehicle_t::water_vehicle_t(loadsave_t *file, bool is_leading, bool is_last) :
 #ifdef INLINE_OBJ_TYPE
-    vehicle_t(obj_t::schiff)
+    vehicle_t(obj_t::water_vehicle)
 #else
     vehicle_t()
 #endif
@@ -4887,7 +4887,7 @@ bool water_vehicle_t::check_tile_occupancy(const grund_t* gr)
 			for(size_t n = gr->get_top(); n-- != 0;)
 			{
 				const obj_t *obj = gr->obj_bei(n);
-				if(obj && obj->get_typ() == obj_t::schiff)
+				if(obj && obj->get_typ() == obj_t::water_vehicle)
 				{
 					const vehicle_t* water_craft = (const vehicle_t*)obj;
 					if(water_craft->get_convoi()->get_state() == convoi_t::LOADING)
