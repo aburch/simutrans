@@ -29,12 +29,12 @@ SectionGroupEnd
 
 
 
-Section /o "pak64.german (Freeware) for 112-3 (beta)" pak64german
-  AddSize 18895
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak.german/pak64.german-112-3/pak64.german_0-112-3-beta3.zip"
-  StrCpy $archievename "pak64.german_0-112-3-beta3.zip"
+Section /o "pak64.german (Freeware) for 112-3 (beta6)" pak64german
+  AddSize 19451
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak.german/pak64.german-112-3/pak64.german_0-112-3beta6_full.zip"
+  StrCpy $archievename "pak64.german_0-112-3beta6_full.zip"
   StrCpy $downloadname "pak64.german"
-  StrCpy $VersionString "pak64.german 0.112.3 beta 3"
+  StrCpy $VersionString "pak64.german 0.112.3 beta 6"
   Call DownloadInstallZip
 SectionEnd
 
@@ -47,6 +47,17 @@ Section /o "pak.japan (64 size)" pak64japan
   StrCpy $downloadname "pak.japan"
   StrCpy $VersionString "pak64.japan 120.0.1 r1495"
   Call DownloadInstallZip
+SectionEnd
+
+
+
+Section /o "pak.Nippon (64 size) V0.1" pak64nippon
+  AddSize 40686
+  StrCpy $downloadlink "https://github.com/wa-st/pak-nippon/releases/download/v0.1.0/pak.nippon-v0.1.0.zip"
+  StrCpy $archievename "pak.nippon-v0.1.0.zip"
+  StrCpy $downloadname "pak.nippon"
+  StrCpy $VersionString "pak.nippon"
+  Call DownloadInstallZipWithoutSimutrans
 SectionEnd
 
 
@@ -139,34 +150,34 @@ Section /o "pak128 V2.5.2" pak128
 SectionEnd
 
 
-Section /o "pak128.Britain V1.15" pak128britain
-  AddSize 219157
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak128.britain/pak128.Britain%20for%20120-0/pak128.Britain.1.15-120-0.zip"
-  StrCpy $archievename "pak128.Britain.1.15-120-0.zip"
+Section /o "pak128.Britain V1.16" pak128britain
+  AddSize 229346
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak128.britain/pak128.Britain%20for%20120-0/pak128.Britain.1.16-120-0.zip"
+  StrCpy $archievename "pak128.Britain.1.16-120-0.zip"
   StrCpy $downloadname "pak128.Britain"
-  StrCpy $VersionString "pak128.Britain 1.15 Simutrans 120.0"
+  StrCpy $VersionString "pak128.Britain 1.16 Simutrans 120.0"
   Call DownloadInstallZipWithoutSimutrans
 SectionEnd
 
 
 
-Section /o "pak128.German V0.61 for 112.1" pak128german
-  AddSize 81797
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/PAK128.german/PAK128.german_0.6.1_112.x/PAK128.german_0.6.1_112.x.zip"
-  StrCpy $archievename "PAK128.german_0.6.1_112.x.zip"
+Section /o "pak128.German V0.71 for 120.x" pak128german
+  AddSize 127156
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/PAK128.german/PAK128.german_0.7_120.x/PAK128.german_0.7.0.1_120.x.zip"
+  StrCpy $archievename "PAK128.german_0.7.0.1_120.x.zip"
   StrCpy $downloadname "pak128.German"
-  StrCpy $VersionString "  PAK128.german V 0.6.1 (Rev. 1464)"
+  StrCpy $VersionString "  PAK128.german V 0.7 (Rev. 1676)"
   Call DownloadInstallZip
 SectionEnd
 
 
 ; name does not match folder name (pak128.japan) but otherwise always selected for update
-Section /o "pak128.Japan for Simutrans 112.0 (alpha)" pak128japan
-  AddSize 19338
-  StrCpy $downloadlink "http://pak128.jpn.org/souko/pak128.japan.112.0b.cab"
-  StrCpy $archievename "pak128.japan.112.0b.cab"
+Section /o "pak128.Japan for Simutrans 120.0" pak128japan
+  AddSize 26419
+  StrCpy $downloadlink "http://pak128.jpn.org/souko/pak128.japan.120.0.cab"
+  StrCpy $archievename "pak128.japan.120.0.cab"
   StrCpy $downloadname "pak128.Japan"
-  StrCpy $VersionString "Pak128.Japan 112.0"
+  StrCpy $VersionString "Pak128.Japan 120.0"
   Call DownloadInstallCabWithoutSimutrans
 SectionEnd
 
