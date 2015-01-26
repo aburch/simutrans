@@ -24,11 +24,7 @@ class signal_t : public roadsign_t
 {
 public:
 	signal_t(loadsave_t *file);
-#ifdef INLINE_OBJ_TYPE
-	signal_t(player_t *player, koord3d pos, ribi_t::ribi dir,const roadsign_besch_t *besch);
-#else
-	signal_t(player_t *player, koord3d pos, ribi_t::ribi dir,const roadsign_besch_t *besch);
-#endif
+	signal_t(player_t *player, koord3d pos, ribi_t::ribi dir,const roadsign_besch_t *besch, bool preview = false);
 
 	/**
 	* @return Einen Beschreibungsstring für das Objekt, der z.B. in einem

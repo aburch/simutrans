@@ -43,7 +43,7 @@ signal_t::signal_t( loadsave_t *file) :
 	}
 }
 
-signal_t::signal_t(player_t *player, koord3d pos, ribi_t::ribi dir,const roadsign_besch_t *besch) : roadsign_t(obj_t::signal, player, pos, dir, besch)
+signal_t::signal_t(player_t *player, koord3d pos, ribi_t::ribi dir,const roadsign_besch_t *besch, bool preview) : roadsign_t(obj_t::signal, player, pos, dir, besch, preview)
 {
 	if(besch->is_pre_signal())
 	{
@@ -89,7 +89,7 @@ void signal_t::calc_image()
 		weg_t *sch = gr->get_weg(besch->get_wtyp()!=tram_wt ? besch->get_wtyp() : track_wt);
 		if(sch) {
 			uint16 offset=0;
-			ribi_t::ribi dir = sch->get_ribi();
+			ribi_t::ribi dir = sch->get_ribi_unmasked() & (~calc_mask());
 			if(sch->is_electrified()  &&  (besch->get_bild_anzahl()/8)>1) {
 				offset = besch->is_pre_signal() ? 12 : 8;
 			}

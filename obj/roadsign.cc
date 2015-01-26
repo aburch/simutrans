@@ -64,6 +64,7 @@ roadsign_t::roadsign_t(loadsave_t *file) : obj_t ()
 #endif
 {
 	image = after_bild = IMG_LEER;
+	preview = false;
 	rdwr(file);
 	if(besch) {
 		/* if more than one state, we will switch direction and phase for traffic lights
@@ -86,23 +87,24 @@ roadsign_t::roadsign_t(loadsave_t *file) : obj_t ()
 
 #ifdef INLINE_OBJ_TYPE
 
-roadsign_t::roadsign_t(typ type, player_t *player, koord3d pos, ribi_t::ribi dir, const roadsign_besch_t* besch) : obj_t(type, pos)
+roadsign_t::roadsign_t(typ type, player_t *player, koord3d pos, ribi_t::ribi dir, const roadsign_besch_t* besch, bool preview) : obj_t(type, pos)
 {
-	init(player, dir, besch);
+	init(player, dir, besch, preview);
 }
 
-roadsign_t::roadsign_t(player_t *player, koord3d pos, ribi_t::ribi dir, const roadsign_besch_t *besch) : obj_t(obj_t::roadsign, pos)
+roadsign_t::roadsign_t(player_t *player, koord3d pos, ribi_t::ribi dir, const roadsign_besch_t *besch, bool preview) : obj_t(obj_t::roadsign, pos)
 {
-	init(player, dir, besch);
+	init(player, dir, besch, preview);
 }
 
-void roadsign_t::init(player_t *player, ribi_t::ribi dir, const roadsign_besch_t *besch)
+void roadsign_t::init(player_t *player, ribi_t::ribi dir, const roadsign_besch_t *besch, bool preview)
 #else
-roadsign_t::roadsign_t(player_t *player, koord3d pos, ribi_t::ribi dir, const roadsign_besch_t *besch) : obj_t(pos)
+roadsign_t::roadsign_t(player_t *player, koord3d pos, ribi_t::ribi dir, const roadsign_besch_t *besch, bool preview) : obj_t(pos)
 #endif
 {
 	this->besch = besch;
 	this->dir = dir;
+	this->preview = preview;
 	image = after_bild = IMG_LEER;
 	state = 0;
 	ticks_ns = ticks_ow = 16;
@@ -136,11 +138,13 @@ roadsign_t::~roadsign_t()
 		if(gr) {
 			weg_t *weg = gr->get_weg(besch->get_wtyp()!=tram_wt ? besch->get_wtyp() : track_wt);
 			if(weg) {
-				if (besch->is_single_way()  ||  besch->is_signal_type()) {
-					// signal removed, remove direction mask
-					weg->set_ribi_maske(ribi_t::keine);
-				}
+				if (!preview) {
+					if (besch->is_single_way() || besch->is_signal_type()) {
+						// signal removed, remove direction mask
+						weg->set_ribi_maske(ribi_t::keine);
+					}
 				weg->clear_sign_flag();
+				}
 			}
 			else {
 				dbg->error("roadsign_t::~roadsign_t()","roadsign_t %p was deleted but ground has no way of type %d!", besch->get_wtyp() );
@@ -155,23 +159,20 @@ roadsign_t::~roadsign_t()
 
 void roadsign_t::set_dir(ribi_t::ribi dir)
 {
+	ribi_t::ribi olddir = this->dir;
+
 	this->dir = dir;
-	weg_t *weg = welt->lookup(get_pos())->get_weg(besch->get_wtyp()!=tram_wt ? besch->get_wtyp() : track_wt);
-	if(  besch->get_wtyp()!=track_wt  &&  besch->get_wtyp()!=monorail_wt  &&  besch->get_wtyp()!=maglev_wt  &&  besch->get_wtyp()!=narrowgauge_wt  ) {
-		weg->count_sign();
-	}
-	if(  besch->is_single_way()  ||  besch->is_signal()  ||  besch->is_pre_signal()  ||  besch->is_longblock_signal()  ) {
-		// set mask, if it is a single way ...
-		// TODO: Separate the direction of the signal from the direction of the way
-		// to allow for signals that work in one direction but allow trains to pass in both.
-		weg->count_sign();
-		if(ribi_t::ist_einfach(dir)) {
-			weg->set_ribi_maske(dir);
+	if (!preview) {
+		weg_t *weg = welt->lookup(get_pos())->get_weg(besch->get_wtyp()!=tram_wt ? besch->get_wtyp() : track_wt);
+		if(  besch->get_wtyp()!=track_wt  &&  besch->get_wtyp()!=monorail_wt  &&  besch->get_wtyp()!=maglev_wt  &&  besch->get_wtyp()!=narrowgauge_wt  ) {
+			weg->count_sign();
 		}
-		else {
-			weg->set_ribi_maske(ribi_t::keine);
-		}
+		if(  besch->is_single_way()  ||  besch->is_signal()  ||  besch->is_pre_signal()  ||  besch->is_longblock_signal()  ) {
+			// set mask, if it is a single way ...
+			weg->count_sign();
+			weg->set_ribi_maske(calc_mask());
 DBG_MESSAGE("roadsign_t::set_dir()","ribi %i",dir);
+		}
 	}
 
 	// force redraw
@@ -185,6 +186,11 @@ DBG_MESSAGE("roadsign_t::set_dir()","ribi %i",dir);
 	image = IMG_LEER;
 	after_bild = IMG_LEER;
 	calc_image();
+
+	if (preview)
+	{
+		this->dir = olddir;
+	}
 }
 
 

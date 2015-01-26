@@ -33,6 +33,7 @@ protected:
 	uint8 dir:4;
 
 	uint8 automatic:1;
+	bool preview:1;
 	uint8 ticks_ns;
 	uint8 ticks_ow;
 	uint8 ticks_offset;
@@ -40,6 +41,8 @@ protected:
 	sint8 after_yoffset, after_xoffset;
 
 	const roadsign_besch_t *besch;
+
+	ribi_t::ribi calc_mask() const { return ribi_t::ist_einfach(dir) ? dir : (ribi_t::ribi)ribi_t::keine; }
 
 public:
 	enum signal_aspects {danger = 0, clear = 1, caution = 2, preliminary_caution = 3, call_on = 4 }; 
@@ -52,7 +55,7 @@ public:
 
 	/*
 	* sets ribi mask of the sign
-	* Caution: it will modify way ribis directly!
+	* Caution: it will modify way ribis directly unless in preview mode!
 	*/
 	void set_dir(ribi_t::ribi dir);
 
@@ -64,8 +67,8 @@ protected:
 	roadsign_t(typ type, loadsave_t *file);
 	void init(loadsave_t *file);
 
-	roadsign_t(typ type, player_t *player, koord3d pos, ribi_t::ribi dir, const roadsign_besch_t* besch);
-	void init(player_t *player, ribi_t::ribi dir, const roadsign_besch_t *besch);
+	roadsign_t(typ type, player_t *player, koord3d pos, ribi_t::ribi dir, const roadsign_besch_t* besch, bool preview = false);
+	void init(player_t *player, ribi_t::ribi dir, const roadsign_besch_t *besch, bool preview = false);
 public:
 #else
 	typ get_typ() const { return roadsign; }
@@ -81,7 +84,7 @@ public:
 	waytype_t get_waytype() const { return besch ? besch->get_wtyp() : invalid_wt; }
 
 	roadsign_t(loadsave_t *file);
-	roadsign_t(player_t *player, koord3d pos, ribi_t::ribi dir, const roadsign_besch_t* besch);
+	roadsign_t(player_t *player, koord3d pos, ribi_t::ribi dir, const roadsign_besch_t* besch, bool preview = false);
 
 	const roadsign_besch_t *get_besch() const {return besch;}
 
