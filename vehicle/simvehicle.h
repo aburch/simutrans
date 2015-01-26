@@ -331,7 +331,7 @@ protected:
 
 	bool leading:1;	// true, if vehicle is first vehicle of a convoi
 	bool last:1;	// true, if vehicle is last vehicle of a convoi
-	bool rauchen:1;
+	bool smoke:1;
 	bool check_for_finish:1;		// true, if on the last tile
 	bool has_driven:1;
 
@@ -383,7 +383,7 @@ public:
 
 	sint32 get_purchase_time() const {return purchase_time;}
 
-	void darf_rauchen(bool yesno ) { rauchen = yesno;}
+	void get_smoke(bool yesno ) { smoke = yesno;}
 
 	virtual route_t::route_result_t calc_route(koord3d start, koord3d ziel, sint32 max_speed_kmh, route_t* route);
 	uint16 get_route_index() const {return route_index;}

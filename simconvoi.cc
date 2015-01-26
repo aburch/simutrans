@@ -576,10 +576,10 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_ind
 			for(unsigned i=0; i<anz_vehikel; i++) {
 				vehicle_t* v = vehicle[i];
 
-				v->darf_rauchen(false); //"Allowed to smoke" (Google)
+				v->get_smoke(false); //"Allowed to smoke" (Google)
 				vehicle[i]->do_drive( (VEHICLE_STEPS_PER_CARUNIT*train_length)<<YARDS_PER_VEHICLE_STEP_SHIFT );
 				train_length -= v->get_besch()->get_length();
-				v->darf_rauchen(true);
+				v->get_smoke(true);
 
 				// eventually reserve this again
 				grund_t *gr=welt->lookup(v->get_pos());
@@ -2948,13 +2948,13 @@ void convoi_t::vorfahren()
 		// just advances the first vehicle
 		vehicle_t* v0 = front();
 		v0->set_erstes(false); // switches off signal checks ...
-		v0->darf_rauchen(false);
+		v0->get_smoke(false);
 		steps_driven = 0;
 		// drive half a tile:
 		for(int i=0; i<anz_vehikel; i++) {
 			vehicle[i]->do_drive( (VEHICLE_STEPS_PER_TILE/2)<<YARDS_PER_VEHICLE_STEP_SHIFT );
 		}
-		v0->darf_rauchen(true);
+		v0->get_smoke(true);
 		v0->set_erstes(true); // switches on signal checks to reserve the next route
 
 		// until all other are on the track
@@ -3033,10 +3033,10 @@ void convoi_t::vorfahren()
 				for(sint8 i = anz_vehikel - 1; i >= 0; i--)
 				{
 					vehicle_t* v = vehicle[i];
-					v->darf_rauchen(false);
+					v->get_smoke(false);
 					vehicle[i]->do_drive( ((OBJECT_OFFSET_STEPS)*train_length)<<12 ); //"fahre" = "go" (Google)
 					train_length += (v->get_besch()->get_length());	// this give the length in 1/OBJECT_OFFSET_STEPS of a full tile => all cars closely coupled!
-					v->darf_rauchen(true);
+					v->get_smoke(true);
 				}
 				train_length -= back()->get_besch()->get_length();
 			}
@@ -3053,11 +3053,11 @@ void convoi_t::vorfahren()
 				for(sint8 i = 0; i < anz_vehikel; i++)
 				{
 					vehicle_t* v = vehicle[i];
-					v->darf_rauchen(false);
+					v->get_smoke(false);
 					vehicle[i]->do_drive( (VEHICLE_STEPS_PER_CARUNIT*train_length)<<YARDS_PER_VEHICLE_STEP_SHIFT );
 					train_length -= v->get_besch()->get_length();
 					// this gives the length in carunits, 1/CARUNITS_PER_TILE of a full tile => all cars closely coupled!
-					v->darf_rauchen(true);
+					v->get_smoke(true);
 				}
 
 			}

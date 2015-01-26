@@ -1242,7 +1242,7 @@ vehicle_t::vehicle_t(koord3d pos, const vehikel_besch_t* besch, player_t* player
 
 	route_index = 1;
 
-	rauchen = true;
+	smoke = true;
 	direction = ribi_t::keine;
 	pos_prev = koord3d::invalid;
 
@@ -1280,7 +1280,7 @@ vehicle_t::vehicle_t() :
 	vehicle_base_t()
 #endif
 {
-	rauchen = true;
+	smoke = true;
 
 	besch = NULL;
 	cnv = NULL;
@@ -1832,7 +1832,7 @@ vehicle_t::direction_degrees vehicle_t::get_direction_degrees(ribi_t::dir direct
 void vehicle_t::rauche() const
 {
 	// does it smoke at all?
-	if(  rauchen  &&  besch->get_rauch()  ) {
+	if(  smoke  &&  besch->get_rauch()  ) {
 		// Hajo: only produce smoke when heavily accelerating or steam engine
 		if(  cnv->get_akt_speed() < (sint32)((cnv->get_vehicle_summary().max_sim_speed * 7u) >> 3)  ||  besch->get_engine_type() == vehikel_besch_t::steam  ) {
 			grund_t* const gr = welt->lookup( get_pos() );
