@@ -752,7 +752,7 @@ sint16 vehicle_t::compare_directions(sint16 first_direction, sint16 second_direc
 void vehicle_t::rotate90()
 {
 	vehicle_base_t::rotate90();
-	alte_direction = ribi_t::rotate90( alte_direction );
+	previous_direction = ribi_t::rotate90( previous_direction );
 	pos_prev.rotate90( welt->get_size().y-1 );
 	last_stop_pos.rotate90( welt->get_size().y-1 );
 }
@@ -1199,7 +1199,7 @@ void vehicle_t::neue_fahrt(uint16 start_route_index, bool recalc)
 		set_pos(r.position_bei(start_route_index));
 
 		// recalc directions
-		alte_direction = direction;
+		previous_direction = direction;
 		direction = calc_set_direction( get_pos(), pos_next );
 		
 		zoff_start = zoff_end = 0;
@@ -1210,7 +1210,7 @@ void vehicle_t::neue_fahrt(uint16 start_route_index, bool recalc)
 
 		calc_bild();
 
-		if(alte_direction != direction)
+		if(previous_direction != direction)
 		{
 			pre_corner_direction.clear();
 		}
@@ -1255,7 +1255,7 @@ vehicle_t::vehicle_t(koord3d pos, const vehikel_besch_t* besch, player_t* player
 	use_calc_height = true;
 	has_driven = false;
 
-	alte_direction = direction = ribi_t::keine;
+	previous_direction = direction = ribi_t::keine;
 	target_halt = halthandle_t();
 
 	//@author: jamespetts
@@ -1294,7 +1294,7 @@ vehicle_t::vehicle_t() :
 	check_for_finish = false;
 	use_calc_height = true;
 
-	alte_direction = direction = ribi_t::keine;
+	previous_direction = direction = ribi_t::keine;
 
 	//@author: jamespetts
 	direction_steps = 16;
@@ -1463,7 +1463,7 @@ void vehicle_t::hop(grund_t* gr)
 		route_index ++;
 		check_for_finish = true;
 	}
-	alte_direction = direction;
+	previous_direction = direction;
 
 	// check if arrived at waypoint, and update schedule to next destination
 	// route search through the waypoint is already complete
@@ -1501,7 +1501,7 @@ void vehicle_t::hop(grund_t* gr)
 	}
 
 	// change image if direction changes
-	if (alte_direction != direction) {
+	if (previous_direction != direction) {
 		calc_bild();
 	}
 
@@ -1510,7 +1510,7 @@ void vehicle_t::hop(grund_t* gr)
 	if(  weg  )	{
 		//const grund_t *gr_prev = welt->lookup(pos_prev);
 		//const weg_t * weg_prev = gr_prev != NULL ? gr_prev->get_weg(get_waytype()) : NULL;
-		speed_limit = calc_speed_limit(weg, weg_prev, &pre_corner_direction, direction, alte_direction);
+		speed_limit = calc_speed_limit(weg, weg_prev, &pre_corner_direction, direction, previous_direction);
 
 		// Weight limit needed for GUI flag
 		const uint32 max_axle_load = weg->get_max_axle_load() > 0 ? weg->get_max_axle_load() : 1;
@@ -1767,7 +1767,7 @@ void vehicle_t::calc_drag_coefficient(const grund_t *gr) //,const int h_alt, con
 
 	// Old method - not realistic. Now uses modified speed limit. Preserved optionally.
 	// curve: higher friction
-	if(alte_direction != direction) //"Old direction != direction"
+	if(previous_direction != direction) //"Old direction != direction"
 	{
 		//The level (if any) of additional friction to apply around corners.
 		const uint8 curve_friction_factor = welt->get_settings().get_curve_friction_factor(waytype);
@@ -2110,7 +2110,7 @@ void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 		hoff = (sint8)(l*TILE_HEIGHT_STEP/16);
 		file->rdwr_long(speed_limit);
 		file->rdwr_enum(direction);
-		file->rdwr_enum(alte_direction);
+		file->rdwr_enum(previous_direction);
 		file->rdwr_long(fracht_count);
 		file->rdwr_long(l);
 		route_index = (uint16)l;
@@ -2137,7 +2137,7 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(purchase_time%12
 		hoff = (sint8)((TILE_HEIGHT_STEP*(sint16)dummy16)/16);
 		file->rdwr_long(speed_limit);
 		file->rdwr_enum(direction);
-		file->rdwr_enum(alte_direction);
+		file->rdwr_enum(previous_direction);
 		file->rdwr_long(fracht_count);
 		file->rdwr_short(route_index);
 		// restore dxdy information
@@ -2675,7 +2675,7 @@ route_t::route_result_t road_vehicle_t::calc_route(koord3d start, koord3d ziel, 
 	assert(cnv);
 	// free target reservation
 	drives_on_left = welt->get_settings().is_drive_left();	// reset driving settings
-	if(ist_erstes   &&  alte_direction!=ribi_t::keine  &&  cnv  &&  target_halt.is_bound() ) {
+	if(ist_erstes   &&  previous_direction!=ribi_t::keine  &&  cnv  &&  target_halt.is_bound() ) {
 		// now reserve our choice (beware: might be longer than one tile!)
 		for(  uint32 length=0;  length<cnv->get_tile_length()  &&  length+1<cnv->get_route()->get_count();  length++  ) {
 			target_halt->unreserve_position(welt->lookup( cnv->get_route()->position_bei( cnv->get_route()->get_count()-length-1) ), cnv->self );
@@ -4837,7 +4837,7 @@ void water_vehicle_t::calc_drag_coefficient(const grund_t *gr)
 		current_friction += 15;
 	}
 
-	if(alte_direction != direction) {
+	if(previous_direction != direction) {
 		// curve: higher friction
 		current_friction *= 2;
 	}

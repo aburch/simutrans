@@ -296,7 +296,7 @@ protected:
 	// current limit (due to track etc.)
 	sint32 speed_limit;
 
-	ribi_t::ribi alte_direction;
+	ribi_t::ribi previous_direction;
 
 	//uint16 target_speed[16];
 
