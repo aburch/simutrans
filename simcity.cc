@@ -2937,7 +2937,7 @@ bool stadt_t::baue_strasse(const koord k, player_t* player_, bool forced)
 			grund_t *bd_next = welt->lookup_kartenboden( k + zv );
 			if(bd_next  &&  (bd_next->ist_wasser()  ||  (bd_next->hat_weg(water_wt)  &&  bd_next->get_weg(water_wt)->get_besch()->get_styp()==255))) {
 				// ok there is a river
-				const bruecke_besch_t *bridge = brueckenbauer_t::find_bridge(road_wt, 50, welt->get_timeline_year_month() );
+				const bruecke_besch_t *bridge = brueckenbauer_t::find_bridge(road_wt, welt->get_city_road()->get_topspeed(), welt->get_timeline_year_month() );
 				if(  bridge==NULL  ) {
 					// does not have a bridge available ...
 					return false;
