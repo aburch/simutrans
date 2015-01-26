@@ -560,7 +560,7 @@ public:
 	void set_leading(bool value) {leading = value;} 
 	bool is_leading() const {return leading;}
 
-	void set_letztes(bool value) {last = value;}
+	void set_last(bool value) {last = value;}
 	bool is_last() const {return last;}
 
 	// marks the vehicle as really used

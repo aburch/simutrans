@@ -203,7 +203,7 @@ void depot_t::convoi_arrived(convoihandle_t acnv, bool fpl_adjust)
 		v->discard_cargo();
 		v->set_pos( koord3d::invalid );
 		v->set_leading( i==0 );
-		v->set_letztes( i+1==acnv->get_vehikel_anzahl() );
+		v->set_last( i+1==acnv->get_vehikel_anzahl() );
 	}
 
 	// this part stores the convoi in the depot
@@ -502,7 +502,7 @@ bool depot_t::disassemble_convoi(convoihandle_t cnv, bool sell)
 			while(  vehicle_t* const v = cnv->remove_vehikel_bei(0)  ) {
 				v->discard_cargo();
 				v->set_leading(false);
-				v->set_letztes(false);
+				v->set_last(false);
 				vehicles.append(v);
 			}
 		}

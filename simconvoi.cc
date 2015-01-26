@@ -452,7 +452,7 @@ void convoi_t::laden_abschliessen()
 					v->set_route_index(front()->get_route_index());
 				}
 				v->set_leading( i==0 );
-				v->set_letztes( i+1==anz_vehikel );
+				v->set_last( i+1==anz_vehikel );
 				v->calc_height();
 				// this sets the convoi and will renew the block reservation, if needed!
 				v->set_convoi(this);
@@ -471,7 +471,7 @@ void convoi_t::laden_abschliessen()
 					v->set_route_index(front()->get_route_index());
 				}*/
 				v->set_leading( i==0 );
-				v->set_letztes( i+1==anz_vehikel );
+				v->set_last( i+1==anz_vehikel );
 				v->calc_height();
 				// this sets the convoi and will renew the block reservation, if needed!
 				v->set_convoi(this);
@@ -1588,7 +1588,7 @@ end_loop:
 							vehicle_t* old_veh = remove_vehikel_bei(a);
 							old_veh->discard_cargo();
 							old_veh->set_leading(false);
-							old_veh->set_letztes(false);
+							old_veh->set_last(false);
 							dep->get_vehicle_list().append(old_veh);
 						}
 					}
@@ -2191,7 +2191,7 @@ void convoi_t::enter_depot(depot_t *dep)
 		grund_t* gr = welt->lookup(v->get_pos());
 		if(gr) {
 			// remove from blockstrecke
-			v->set_letztes(true);
+			v->set_last(true);
 			v->leave_tile();
 			v->set_flag( obj_t::not_on_map );
 		}
@@ -2243,11 +2243,11 @@ void convoi_t::start()
 		state = ROUTING_1;
 
 		// recalc weight and image
-		// also for any vehicle entered a depot, set_letztes is true! => reset it correctly
+		// also for any vehicle entered a depot, set_last is true! => reset it correctly
 		sint64 restwert_delta = 0;
 		for(unsigned i=0; i<anz_vehikel; i++) {
 			vehicle[i]->set_leading( false );
-			vehicle[i]->set_letztes( false );
+			vehicle[i]->set_last( false );
 			restwert_delta -= vehicle[i]->calc_restwert();
 			vehicle[i]->set_driven();
 			restwert_delta += vehicle[i]->calc_restwert();
@@ -2255,7 +2255,7 @@ void convoi_t::start()
 			vehicle[i]->load_cargo( halthandle_t() );
 		}
 		front()->set_leading( true );
-		vehicle[anz_vehikel-1]->set_letztes( true );
+		vehicle[anz_vehikel-1]->set_last( true );
 		// do not show the vehicle - it will be wrong positioned -vorfahren() will correct this
 		front()->set_bild(IMG_LEER);
 
@@ -2633,9 +2633,9 @@ void convoi_t::set_erstes_letztes()
 		front()->set_leading(true);
 		for(unsigned i=1; i<anz_vehikel; i++) {
 			vehicle[i]->set_leading(false);
-			vehicle[i - 1]->set_letztes(false);
+			vehicle[i - 1]->set_last(false);
 		}
-		back()->set_letztes(true);
+		back()->set_last(true);
 	}
 	else {
 		dbg->warning("convoi_t::set_erstes_letzes()", "called with anz_vehikel==0!");
@@ -3311,7 +3311,7 @@ convoi_t::reverse_order(bool rev)
 		}
 	}
 
-	back()->set_letztes(false);
+	back()->set_last(false);
 
 	for( ; a<--b; a++) //increment a and decrement b until they meet each other
 	{
@@ -3325,7 +3325,7 @@ convoi_t::reverse_order(bool rev)
 		front()->set_leading(true);
 	}
 
-	back()->set_letztes(true);
+	back()->set_last(true);
 
 	reversed = !reversed;
 	for(const_iterator i = begin(); i != end(); ++i)
@@ -5487,7 +5487,7 @@ void convoi_t::destroy()
 		if(  !vehicle[i]->get_flag( obj_t::not_on_map )  ) {
 			// remove from rails/roads/crossings
 			grund_t *gr = welt->lookup(vehicle[i]->get_pos());
-			vehicle[i]->set_letztes( true );
+			vehicle[i]->set_last( true );
 			vehicle[i]->leave_tile();
 			if(  gr  &&  gr->ist_uebergang()  ) {
 				gr->find<crossing_t>()->release_crossing(vehicle[i]);
