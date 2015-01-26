@@ -188,10 +188,10 @@ grund_t* road_user_t::hop()
 #else
 		pos_next = liste[simrand(count, "road_user_t::hop()")]->get_pos();
 #endif
-		direction = calc_set_richtung(get_pos(), pos_next);
+		direction = calc_set_direction(get_pos(), pos_next);
 	} else if(count==1) {
 		pos_next = liste[0]->get_pos();
-		direction = calc_set_richtung(get_pos(), pos_next);
+		direction = calc_set_direction(get_pos(), pos_next);
 	}
 	else {
 		direction = gegenrichtung;
@@ -960,11 +960,11 @@ void private_car_t::hop(grund_t* to)
 	verlasse_feld();
 
 	if(pos_next_next==get_pos()) {
-		direction = calc_set_richtung( pos_next, pos_next_next );
+		direction = calc_set_direction( pos_next, pos_next_next );
 		steps_next = 0;	// mark for starting at end of tile!
 	}
 	else {
-		direction = calc_set_richtung( get_pos(), pos_next_next );
+		direction = calc_set_direction( get_pos(), pos_next_next );
 	}
 	calc_bild();
 

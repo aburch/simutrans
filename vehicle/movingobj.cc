@@ -174,7 +174,7 @@ movingobj_t::movingobj_t(koord3d pos, const groundobj_besch_t *b ) :
 	movingobjtype = movingobj_typen.index_of(b);
 	weg_next = 0;
 	timetochange = 0;	// will do random direct change anyway during next step
-	direction = calc_set_richtung( koord3d(0,0,0), koord3d(koord::west,0) );
+	direction = calc_set_direction( koord3d(0,0,0), koord3d(koord::west,0) );
 	calc_bild();
 	welt->sync_add( this );
 }
@@ -426,7 +426,7 @@ void movingobj_t::hop(grund_t* gr)
 	}
 	else {
 		ribi_t::ribi old_dir = direction;
-		direction = calc_set_richtung( get_pos(), pos_next_next );
+		direction = calc_set_direction( get_pos(), pos_next_next );
 		if(old_dir!=direction) {
 			calc_bild();
 		}

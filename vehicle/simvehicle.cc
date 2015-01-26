@@ -479,7 +479,7 @@ uint16 vehicle_base_t::get_tile_steps(const koord &start, const koord &ende, /*o
 
 
 // calcs new direction and applies it to the vehicles
-ribi_t::ribi vehicle_base_t::calc_set_richtung(const koord3d& start, const koord3d& ende)
+ribi_t::ribi vehicle_base_t::calc_set_direction(const koord3d& start, const koord3d& ende)
 {
 	ribi_t::ribi richtung = ribi_t::keine; //"richtung" = direction (Google); "keine" = none (Google)
 
@@ -1200,7 +1200,7 @@ void vehicle_t::neue_fahrt(uint16 start_route_index, bool recalc)
 
 		// recalc directions
 		alte_direction = direction;
-		direction = calc_set_richtung( get_pos(), pos_next );
+		direction = calc_set_direction( get_pos(), pos_next );
 		
 		zoff_start = zoff_end = 0;
 		steps = 0;
@@ -1483,12 +1483,12 @@ void vehicle_t::hop(grund_t* gr)
 	// this is a required hack for aircrafts! Aircrafts can turn on a single square, and this confuses the previous calculation!
 	// author: hsiegeln
 	if(!check_for_finish  &&  pos_prev==pos_next) {
-		direction = calc_set_richtung( get_pos(), pos_next);
+		direction = calc_set_direction( get_pos(), pos_next);
 		steps_next = 0;
 	}
 	else {
 		if(  pos_next!=get_pos()  ) {
-			direction = calc_set_richtung( pos_prev, pos_next );
+			direction = calc_set_direction( pos_prev, pos_next );
 		}
 //		else if(  (  check_for_finish  &&  welt->lookup(pos_next)  &&  ribi_t::ist_gerade(welt->lookup(pos_next)->get_weg_ribi_unmasked(get_waytype()))  )  ||  welt->lookup(pos_next)->is_halt()) 
 		else 
@@ -1496,7 +1496,7 @@ void vehicle_t::hop(grund_t* gr)
 			grund_t* gr_next = welt->lookup(pos_next);
 			if ( gr_next && ( ( check_for_finish && ribi_t::ist_gerade(gr_next->get_weg_ribi_unmasked(get_waytype())) ) || gr_next->is_halt()) )
 				// allow diagonal stops at waypoints on diagonal tracks but avoid them on halts and at straight tracks...
-				direction = calc_set_richtung( pos_prev, pos_next );
+				direction = calc_set_direction( pos_prev, pos_next );
 		}
 	}
 

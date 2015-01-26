@@ -238,7 +238,7 @@ void pedestrian_t::hop(grund_t *gr)
 
 	if (to) {
 		pos_next = to->get_pos();
-		direction = calc_set_richtung(get_pos(), pos_next);
+		direction = calc_set_direction(get_pos(), pos_next);
 	}
 	else {
 		// turn around
