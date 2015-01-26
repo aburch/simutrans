@@ -2551,9 +2551,9 @@ void stadt_t::build_city_building(const koord k)
 					}
 					weg->set_gehweg(true);
 					// if not current city road standard, then replace it
-					if(  weg->get_besch() != welt->get_city_road()  ) {
+					if(  weg->get_besch() != welt->get_city_road()  ||  weg->get_owner() != NULL  ) {
 						player_t *player = weg->get_owner();
-						if(  player == NULL  ||  !gr->get_depot()  ) {
+						if(  !gr->get_depot()  ) {
 							player_t::add_maintenance( player, -weg->get_besch()->get_wartung(), road_wt);
 							weg->set_owner(NULL); // make public
 							weg->set_besch(welt->get_city_road());
