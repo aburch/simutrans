@@ -920,7 +920,7 @@ private:
 
 	flight_state state;	// functions needed for the search without destination from find_route
 
-	sint16 flughoehe;
+	sint16 flying_height;
 	sint16 target_height;
 	uint32 suchen, touchdown, takeoff;
 
@@ -932,7 +932,7 @@ private:
 		sint32 max_speed,
 		uint32 weight,
 		aircraft_t::flight_state &state,
-		sint16 &flughoehe,
+		sint16 &flying_height,
 		sint16 &target_height,
 		bool &runway_too_short,
 		uint32 &takeoff,
@@ -995,9 +995,9 @@ public:
 
 	void rdwr_from_convoi(loadsave_t *file);
 
-	int get_flyingheight() const {return flughoehe-get_hoff()-2;}
+	int get_flyingheight() const {return flying_height-get_hoff()-2;}
 
-	void force_land() { flughoehe = 0; target_height = 0; state = taxiing_to_halt; }
+	void force_land() { flying_height = 0; target_height = 0; state = taxiing_to_halt; }
 
 	// image: when flying empty, on ground the plane
 	virtual image_id get_bild() const {return !is_on_ground() ? IMG_LEER : image;}
@@ -1022,7 +1022,7 @@ public:
 	// the drag calculation happens it calc_height
 	void calc_drag_coefficient(const grund_t*) {}
 
-	bool is_on_ground() const { return flughoehe==0  &&  !(state==circling  ||  state==flying); }
+	bool is_on_ground() const { return flying_height==0  &&  !(state==circling  ||  state==flying); }
 
 	const char * is_deletable(const player_t *player);
 

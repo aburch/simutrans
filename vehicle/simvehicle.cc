@@ -5190,7 +5190,7 @@ route_t::route_result_t aircraft_t::calc_route(koord3d start, koord3d ziel, sint
 	target_halt = halthandle_t();	// no block reserved
 
 	takeoff = touchdown = suchen = INVALID_INDEX;
-	const bool pre_result = calc_route_internal(welt, start, ziel, max_speed, cnv->get_highest_axle_load(), state, flughoehe, target_height, runway_too_short, takeoff, touchdown, suchen, *route);
+	const bool pre_result = calc_route_internal(welt, start, ziel, max_speed, cnv->get_highest_axle_load(), state, flying_height, target_height, runway_too_short, takeoff, touchdown, suchen, *route);
 	const route_t::route_result_t result = pre_result ? route_t::valid_route : route_t::no_route;
 	cnv->set_next_stop_index(INVALID_INDEX);
 	return result;
@@ -5227,7 +5227,7 @@ bool aircraft_t::calc_route_internal(
 	sint32 max_speed,                // input: in the air
 	uint32 weight,                   // input: gross weight of aircraft in kg (typical aircrafts don't have trailers)
 	aircraft_t::flight_state &state, // input/output: at start
-	sint16 &flughoehe,               // input/output: at start
+	sint16 &flying_height,               // input/output: at start
 	sint16 &target_height,           // output: at end of takeoff
 	bool &runway_too_short,          // output: either departure or arrival runway
 	uint32 &takeoff,                 // output: route index to takeoff tile at departure airport
@@ -5246,7 +5246,7 @@ bool aircraft_t::calc_route_internal(
 	}
 
 	const weg_t *w_start = welt->lookup(start)->get_weg(air_wt);
-	bool start_in_air = flughoehe || w_start == NULL;
+	bool start_in_air = flying_height || w_start == NULL;
 
 	const weg_t *w_ziel = welt->lookup(ziel)->get_weg(air_wt);
 	bool end_in_air = w_ziel == NULL;
@@ -5359,7 +5359,7 @@ bool aircraft_t::calc_route_internal(
 			dbg->error("aircraft_t::calc_route()","Invalid route calculation: start is on a single direction field ...");
 		}
 		state = taxiing;
-		flughoehe = 0;
+		flying_height = 0;
 		target_height = (sint16)start.z*TILE_HEIGHT_STEP;
 	}
 	else {
@@ -5367,8 +5367,8 @@ bool aircraft_t::calc_route_internal(
 		route.clear();
 		route.append( start );
 		state = flying;
-		if(flughoehe==0) {
-			flughoehe = 3*TILE_HEIGHT_STEP;
+		if(flying_height==0) {
+			flying_height = 3*TILE_HEIGHT_STEP;
 		}
 		takeoff = 0;
 		target_height = ((sint16)start.z+3)*TILE_HEIGHT_STEP;
@@ -5464,7 +5464,7 @@ bool aircraft_t::reroute(const uint16 reroute_index, const koord3d &ziel)
 {
 	// new aircraft state after successful routing:
 	aircraft_t::flight_state xstate = state;
-	sint16 xflughoehe = flughoehe;
+	sint16 xflughoehe = flying_height;
 	sint16 xtarget_height;
 	bool xrunway_too_short;
 	uint32 xtakeoff;   // new route index to takeoff tile at departure airport
@@ -5484,7 +5484,7 @@ bool aircraft_t::reroute(const uint16 reroute_index, const koord3d &ziel)
 		if (reroute_index == route_index)
 		{
 			state = xstate;
-			flughoehe = xflughoehe;
+			flying_height = xflughoehe;
 			target_height = xtarget_height;
 			runway_too_short = xrunway_too_short;
 		}
@@ -5669,7 +5669,7 @@ bool aircraft_t::can_enter_tile(const grund_t *gr, int & restart_speed, bool )
 
 	if(  state == taxiing  ) {
 		// enforce on ground for taxiing
-		flughoehe = 0;
+		flying_height = 0;
 	}
 
 	if(  route_index == takeoff  &&  state == taxiing  ) {
@@ -5837,7 +5837,7 @@ aircraft_t::aircraft_t(koord3d pos, const vehikel_besch_t* besch, player_t* play
 {
 	cnv = cn;
 	state = taxiing;
-	flughoehe = 0;
+	flying_height = 0;
 	target_height = pos.z;
 	runway_too_short = false;
 }
@@ -5848,7 +5848,7 @@ aircraft_t::~aircraft_t()
 {
 	// mark aircraft (after_image) dirty, since we have no "real" image
 	const int raster_width = get_current_tile_raster_width();
-	sint16 yoff = tile_raster_scale_y(-flughoehe-get_hoff()-2, raster_width);
+	sint16 yoff = tile_raster_scale_y(-flying_height-get_hoff()-2, raster_width);
 
 	mark_image_dirty( image, yoff);
 	mark_image_dirty( image, 0 );
@@ -5928,13 +5928,13 @@ void aircraft_t::rdwr_from_convoi(loadsave_t *file)
 	// initialize as vehicle_t::rdwr_from_convoi calls get_bild()
 	if (file->is_loading()) {
 		state = taxiing;
-		flughoehe = 0;
+		flying_height = 0;
 	}
 	vehicle_t::rdwr_from_convoi(file);
 
 	file->rdwr_enum(state);
-	file->rdwr_short(flughoehe);
-	flughoehe &= ~(TILE_HEIGHT_STEP-1);
+	file->rdwr_short(flying_height);
+	flying_height &= ~(TILE_HEIGHT_STEP-1);
 	file->rdwr_short(target_height);
 	file->rdwr_long(suchen);
 	file->rdwr_long(touchdown);
@@ -5976,7 +5976,7 @@ void aircraft_t::hop(grund_t* gr)
 
 	switch(state) {
 		case departing: {
-			flughoehe = 0;
+			flying_height = 0;
 			target_height = h_cur;
 			new_friction = max( 1, 28/(1+(route_index-takeoff)*2) ); // 9 5 4 3 2 2 1 1...
 
@@ -5994,7 +5994,7 @@ void aircraft_t::hop(grund_t* gr)
 				state = flying;
 				new_friction = 1;
 				block_reserver( takeoff, takeoff+100, false );
-				flughoehe = h_cur - h_next;
+				flying_height = h_cur - h_next;
 				target_height = h_cur+TILE_HEIGHT_STEP*3;
 			}
 			break;
@@ -6003,20 +6003,20 @@ void aircraft_t::hop(grund_t* gr)
 			new_speed_limit = kmh_to_speed(besch->get_geschw())/3;
 			new_friction = 4;
 			// do not change height any more while circling
-			flughoehe += h_cur;
-			flughoehe -= h_next;
+			flying_height += h_cur;
+			flying_height -= h_next;
 			break;
 		}
 		case flying: {
 			// since we are at a tile border, round up to the nearest value
-			flughoehe += h_cur;
-			if(  flughoehe < target_height  ) {
-				flughoehe = (flughoehe+TILE_HEIGHT_STEP) & ~(TILE_HEIGHT_STEP-1);
+			flying_height += h_cur;
+			if(  flying_height < target_height  ) {
+				flying_height = (flying_height+TILE_HEIGHT_STEP) & ~(TILE_HEIGHT_STEP-1);
 			}
-			else if(  flughoehe > target_height  ) {
-				flughoehe = (flughoehe-TILE_HEIGHT_STEP);
+			else if(  flying_height > target_height  ) {
+				flying_height = (flying_height-TILE_HEIGHT_STEP);
 			}
-			flughoehe -= h_next;
+			flying_height -= h_next;
 			// did we have to change our flight height?
 			if(  target_height-h_next > TILE_HEIGHT_STEP*5  ) {
 				// Move down
@@ -6031,12 +6031,12 @@ void aircraft_t::hop(grund_t* gr)
 		case landing: {
 			new_speed_limit = kmh_to_speed(besch->get_geschw())/3; // ==approach speed
 			new_friction = 8;
-			flughoehe += h_cur;
-			if(  flughoehe < target_height  ) {
-				flughoehe = (flughoehe+TILE_HEIGHT_STEP) & ~(TILE_HEIGHT_STEP-1);
+			flying_height += h_cur;
+			if(  flying_height < target_height  ) {
+				flying_height = (flying_height+TILE_HEIGHT_STEP) & ~(TILE_HEIGHT_STEP-1);
 			}
-			else if(  flughoehe > target_height  ) {
-				flughoehe = (flughoehe-TILE_HEIGHT_STEP);
+			else if(  flying_height > target_height  ) {
+				flying_height = (flying_height-TILE_HEIGHT_STEP);
 			}
 
 			if (route_index >= touchdown)  {
@@ -6044,7 +6044,7 @@ void aircraft_t::hop(grund_t* gr)
 				target_height = h_next;
 
 				// touchdown!
-				if (flughoehe==h_next) {
+				if (flying_height==h_next) {
 					const sint32 taxi_speed = kmh_to_speed( min( 60, besch->get_geschw()/4 ) );
 					if(  cnv->get_akt_speed() <= taxi_speed  ) {
 						new_speed_limit = taxi_speed;
@@ -6063,21 +6063,21 @@ void aircraft_t::hop(grund_t* gr)
 				const sint16 runway_height = cnv->get_route()->position_bei(touchdown).z*TILE_HEIGHT_STEP;
 
 				// we are too low, ascent asap
-				if (flughoehe < runway_height + TILE_HEIGHT_STEP) {
+				if (flying_height < runway_height + TILE_HEIGHT_STEP) {
 					target_height = runway_height + TILE_HEIGHT_STEP;
 				}
 				// too high, descent
-				else if (flughoehe + h_next - h_cur > runway_height + (sint16)(touchdown-route_index-1)*TILE_HEIGHT_STEP) {
+				else if (flying_height + h_next - h_cur > runway_height + (sint16)(touchdown-route_index-1)*TILE_HEIGHT_STEP) {
 					target_height = runway_height +  (touchdown-route_index-1)*TILE_HEIGHT_STEP;
 				}
 			}
-			flughoehe -= h_next;
+			flying_height -= h_next;
 			break;
 		}
 		default: {
 			new_speed_limit = kmh_to_speed( min( 60, besch->get_geschw()/4 ) );
 			new_friction = 16;
-			flughoehe = 0;
+			flying_height = 0;
 			target_height = h_next;
 			break;
 		}
@@ -6103,11 +6103,11 @@ void aircraft_t::display_after(int xpos_org, int ypos_org, bool is_global) const
 
 		const int raster_width = get_current_tile_raster_width();
 		const sint16 z = get_pos().z;
-		if(  z + flughoehe/TILE_HEIGHT_STEP - 1 > grund_t::underground_level  ) {
+		if(  z + flying_height/TILE_HEIGHT_STEP - 1 > grund_t::underground_level  ) {
 			return;
 		}
 		const sint16 target = target_height - ((sint16)z*TILE_HEIGHT_STEP);
-		sint16 current_flughohe = flughoehe;
+		sint16 current_flughohe = flying_height;
 		if(  current_flughohe < target  ) {
 			current_flughohe += (steps*TILE_HEIGHT_STEP) >> 8;
 		}
@@ -6136,11 +6136,11 @@ void aircraft_t::display_overlay(int xpos_org, int ypos_org) const
 	if(  image != IMG_LEER  &&  !is_on_ground()  ) {
 		const int raster_width = get_current_tile_raster_width();
 		const sint16 z = get_pos().z;
-		if(  z + flughoehe/TILE_HEIGHT_STEP - 1 > grund_t::underground_level  ) {
+		if(  z + flying_height/TILE_HEIGHT_STEP - 1 > grund_t::underground_level  ) {
 			return;
 		}
 		const sint16 target = target_height - ((sint16)z*TILE_HEIGHT_STEP);
-		sint16 current_flughohe = flughoehe;
+		sint16 current_flughohe = flying_height;
 		if(  current_flughohe < target  ) {
 			current_flughohe += (steps*TILE_HEIGHT_STEP) >> 8;
 		}
