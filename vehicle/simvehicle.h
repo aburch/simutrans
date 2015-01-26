@@ -182,7 +182,7 @@ public:
 
 	virtual void rotate90();
 
-	static ribi_t::ribi calc_richtung(koord start, koord ende);
+	static ribi_t::ribi calc_direction(koord start, koord ende);
 	ribi_t::ribi calc_set_richtung(const koord3d& start, const koord3d& ende);
 	uint16 get_tile_steps(const koord &start, const koord &ende, /*out*/ ribi_t::ribi &richtung) const;
 

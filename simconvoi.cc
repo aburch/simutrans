@@ -2776,7 +2776,7 @@ bool convoi_t::can_go_alte_richtung()
 	}
 
 	// going backwards? then recalculate all
-	ribi_t::ribi neue_richtung_rwr = ribi_t::rueckwaerts(front()->calc_richtung(route.front().get_2d(), route.position_bei(min(2, route.get_count() - 1)).get_2d()));
+	ribi_t::ribi neue_richtung_rwr = ribi_t::rueckwaerts(front()->calc_direction(route.front().get_2d(), route.position_bei(min(2, route.get_count() - 1)).get_2d()));
 //	DBG_MESSAGE("convoi_t::go_alte_richtung()","neu=%i,rwr_neu=%i,alt=%i",neue_richtung_rwr,ribi_t::rueckwaerts(neue_richtung_rwr),alte_richtung);
 	if(neue_richtung_rwr&alte_richtung) {
 		set_akt_speed(8);
@@ -3179,7 +3179,7 @@ void convoi_t::vorfahren()
 									last_pos = to->get_pos();
 								}
 								to->get_neighbour(to, wt, direction_of_travel);
-								direction_of_travel = vehicle_t::calc_richtung(last_pos.get_2d(), to->get_pos().get_2d());
+								direction_of_travel = vehicle_t::calc_direction(last_pos.get_2d(), to->get_pos().get_2d());
 								if(last_pos == to->get_pos())
 								{
 									// Prevent infinite loops.
@@ -6524,7 +6524,7 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 		}
 
 		// Check for other vehicles in facing direction
-		ribi_t::ribi their_direction = ribi_t::rueckwaerts( front()->calc_richtung(pos_prev, pos_next.get_2d()) );
+		ribi_t::ribi their_direction = ribi_t::rueckwaerts( front()->calc_direction(pos_prev, pos_next.get_2d()) );
 		const uint8 top = gr->get_top();
 		for(  uint8 j=1;  j<top;  j++ ) {
 			vehicle_base_t* const v = obj_cast<vehicle_base_t>(gr->obj_bei(j));

@@ -532,7 +532,7 @@ ribi_t::ribi vehicle_base_t::calc_set_richtung(const koord3d& start, const koord
 }
 
 ribi_t::ribi
-vehicle_base_t::calc_richtung(koord start, koord ende)
+vehicle_base_t::calc_direction(koord start, koord ende)
 {/*
 	static ribi_t::ribi didj_richtung[9] =
 	{
@@ -676,7 +676,7 @@ vehicle_base_t *vehicle_base_t::no_cars_blocking( const grund_t *gr, const convo
 					return v;
 				}
 
-				const ribi_t::ribi other_90direction = (gr->get_pos().get_2d() == v->get_pos_next().get_2d()) ? other_direction : calc_richtung(gr->get_pos().get_2d(),v->get_pos_next().get_2d());
+				const ribi_t::ribi other_90direction = (gr->get_pos().get_2d() == v->get_pos_next().get_2d()) ? other_direction : calc_direction(gr->get_pos().get_2d(),v->get_pos_next().get_2d());
 				if(  other_90direction == next_90direction  ) {
 					// Want to exit in same as other   ~50% of the time
 					return v;
@@ -1933,7 +1933,7 @@ uint16 vehicle_t::load_freight(halthandle_t halt, bool overcrowd, bool *skip_con
  */
 ribi_t::ribi vehicle_t::richtung() const
 {
-	ribi_t::ribi neu = calc_richtung(pos_prev.get_2d(), pos_next.get_2d());
+	ribi_t::ribi neu = calc_direction(pos_prev.get_2d(), pos_next.get_2d());
 	// nothing => use old direct further on
 	return (neu == ribi_t::keine) ? direction : neu;
 }
@@ -3002,9 +3002,9 @@ bool road_vehicle_t::ist_weg_frei(const grund_t *gr, int &restart_speed, bool se
 			route_t const& r = *cnv->get_route();
 			koord next = (route_index < r.get_count() - 1u ? r.position_bei(route_index + 1u) : pos_next).get_2d();
 			ribi_t::ribi curr_direction   = get_direction();
-			ribi_t::ribi curr_90direction = calc_richtung(get_pos().get_2d(), pos_next.get_2d());
-			ribi_t::ribi next_direction   = calc_richtung(get_pos().get_2d(), next);
-			ribi_t::ribi next_90direction = calc_richtung(pos_next.get_2d(), next);
+			ribi_t::ribi curr_90direction = calc_direction(get_pos().get_2d(), pos_next.get_2d());
+			ribi_t::ribi next_direction   = calc_direction(get_pos().get_2d(), next);
+			ribi_t::ribi next_90direction = calc_direction(pos_next.get_2d(), next);
 			obj = no_cars_blocking( gr, cnv, curr_direction, next_direction, next_90direction );
 
 			// do not block intersections
@@ -3041,13 +3041,13 @@ bool road_vehicle_t::ist_weg_frei(const grund_t *gr, int &restart_speed, bool se
 				curr_90direction = next_90direction;
 				if(  test_index + 1u < r.get_count()  ) {
 					next                 = r.position_bei(test_index + 1u).get_2d();
-					next_direction   = calc_richtung(r.position_bei(test_index - 1u).get_2d(), next);
-					next_90direction = calc_richtung(r.position_bei(test_index).get_2d(),     next);
+					next_direction   = calc_direction(r.position_bei(test_index - 1u).get_2d(), next);
+					next_90direction = calc_direction(r.position_bei(test_index).get_2d(),     next);
 					obj = no_cars_blocking( gr, cnv, curr_direction, next_direction, next_90direction );
 				}
 				else {
 					next                 = r.position_bei(test_index).get_2d();
-					next_90direction = calc_richtung(r.position_bei(test_index - 1u).get_2d(), next);
+					next_90direction = calc_direction(r.position_bei(test_index - 1u).get_2d(), next);
 					if(  curr_direction == next_90direction  ||  !gr->is_halt()  ) {
 						// check cars but allow to enter intersection if we are turning even when a car is blocking the halt on the last tile of our route
 						// preserves old bus terminal behaviour
@@ -4003,8 +4003,8 @@ bool rail_vehicle_t::ist_weg_frei(const grund_t *gr, int & restart_speed, bool)
 			weg_frei = !target_rt.calc_route(welt, start_pos, next_ziel, this, speed_to_kmh(cnv->get_min_top_speed()), cnv->get_highest_axle_load(), welt->get_settings().get_max_route_steps(), SINT64_MAX_VALUE, cnv->get_weight_summary().weight / 1000);
 			if(!weg_frei)
 			{
-				ribi_t::ribi old_dir = calc_richtung(route.position_bei(last_index - 1).get_2d(), route.position_bei(last_index).get_2d());
-				ribi_t::ribi new_dir = calc_richtung(target_rt.position_bei(0).get_2d(), target_rt.position_bei(1).get_2d());
+				ribi_t::ribi old_dir = calc_direction(route.position_bei(last_index - 1).get_2d(), route.position_bei(last_index).get_2d());
+				ribi_t::ribi new_dir = calc_direction(target_rt.position_bei(0).get_2d(), target_rt.position_bei(1).get_2d());
 				if(old_dir & ribi_t::rueckwaerts(new_dir))
 				{
 					// convoy must reverse and thus stop at the waypoint. No need to extend the route now.

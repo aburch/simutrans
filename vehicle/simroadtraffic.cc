@@ -643,7 +643,7 @@ bool private_car_t::ist_weg_frei(grund_t *gr)
 	}
 	else {
 		// driving on: check for crossings etc. too
-		const uint8 next_direction = this->calc_richtung(get_pos().get_2d(), pos_next_next.get_2d());
+		const uint8 next_direction = this->calc_direction(get_pos().get_2d(), pos_next_next.get_2d());
 
 		// do not block this crossing (if possible)
 		if(ribi_t::is_threeway(str->get_ribi_unmasked())) {
@@ -654,7 +654,7 @@ bool private_car_t::ist_weg_frei(grund_t *gr)
 			}
 			grund_t *test = welt->lookup(pos_next_next);
 			if(  test  ) {
-				uint8 next_90direction = this->calc_richtung(pos_next.get_2d(), pos_next_next.get_2d());
+				uint8 next_90direction = this->calc_direction(pos_next.get_2d(), pos_next_next.get_2d());
 				frei = (NULL == no_cars_blocking( gr, NULL, this_direction, next_direction, next_90direction ));
 				if(  frei  ) {
 					// check, if it can leave this crossings
@@ -1286,7 +1286,7 @@ bool private_car_t::can_overtake( overtaker_t *other_overtaker, sint32 other_spe
 
 		// Check for other vehicles in facing direction
 		// now only I know direction on this tile ...
-		ribi_t::ribi their_direction = ribi_t::rueckwaerts(calc_richtung( pos_prev_prev, to->get_pos().get_2d() ));
+		ribi_t::ribi their_direction = ribi_t::rueckwaerts(calc_direction( pos_prev_prev, to->get_pos().get_2d() ));
 		const uint8 top = gr->get_top();
 		for(  uint8 j=1;  j<top;  j++ ) {
 			vehicle_base_t* const v = obj_cast<vehicle_base_t>(gr->obj_bei(j));
