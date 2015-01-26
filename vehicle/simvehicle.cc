@@ -254,7 +254,7 @@ void vehicle_base_t::rotate90()
 
 
 void
-vehicle_base_t::verlasse_feld() //"leave field" (Google)
+vehicle_base_t::leave_tile() //"leave field" (Google)
 {
 	// first: release crossing
 	// This needs to be refreshed here even though this value is cached:
@@ -273,8 +273,8 @@ vehicle_base_t::verlasse_feld() //"leave field" (Google)
 	if(!get_flag(not_on_map)  &&  (gr==NULL  ||  !gr->obj_remove(this)) ) {
 
 		// was not removed (not found?)
-		dbg->error("vehicle_base_t::verlasse_feld()","'typ %i' %p could not be removed from %d %d", get_typ(), this, get_pos().x, get_pos().y);
-		DBG_MESSAGE("vehicle_base_t::verlasse_feld()","checking all plan squares");
+		dbg->error("vehicle_base_t::leave_tile()","'typ %i' %p could not be removed from %d %d", get_typ(), this, get_pos().x, get_pos().y);
+		DBG_MESSAGE("vehicle_base_t::leave_tile()","checking all plan squares");
 
 		// check, whether it is on another height ...
 		const planquadrat_t *pl = welt->access( get_pos().get_2d() );
@@ -282,7 +282,7 @@ vehicle_base_t::verlasse_feld() //"leave field" (Google)
 			gr = pl->get_boden_von_obj(this);
 			if(  gr  ) {
 				gr->obj_remove(this);
-				dbg->warning("vehicle_base_t::verlasse_feld()","removed vehicle typ %i (%p) from %d %d",get_typ(), this, get_pos().x, get_pos().y);
+				dbg->warning("vehicle_base_t::leave_tile()","removed vehicle typ %i (%p) from %d %d",get_typ(), this, get_pos().x, get_pos().y);
 			}
 			gr = NULL;
 			return;
@@ -295,14 +295,14 @@ vehicle_base_t::verlasse_feld() //"leave field" (Google)
 			for(k.x=0; k.x<welt->get_size().x; k.x++) {
 				grund_t *gr = welt->access( k )->get_boden_von_obj(this);
 				if(gr && gr->obj_remove(this)) {
-					dbg->warning("vehicle_base_t::verlasse_feld()","removed vehicle typ %i (%p) from %d %d",get_name(), this, k.x, k.y);
+					dbg->warning("vehicle_base_t::leave_tile()","removed vehicle typ %i (%p) from %d %d",get_name(), this, k.x, k.y);
 					ok = true;
 				}
 			}
 		}
 
 		if(!ok) {
-			dbg->error("vehicle_base_t::verlasse_feld()","'%s' %p was not found on any map square!",get_name(), this);
+			dbg->error("vehicle_base_t::leave_tile()","'%s' %p was not found on any map square!",get_name(), this);
 		}
 	}
 	gr = NULL;
@@ -1421,9 +1421,9 @@ bool vehicle_t::ist_weg_frei(int &restart_speed, bool second_check)
 	}
 }
 
-void vehicle_t::verlasse_feld()
+void vehicle_t::leave_tile()
 {
-	vehicle_base_t::verlasse_feld();
+	vehicle_base_t::leave_tile();
 #ifndef DEBUG_ROUTES
 	if(ist_letztes  &&  reliefkarte_t::is_visible) {
 			reliefkarte_t::get_karte()->calc_map_pixel(get_pos().get_2d());
@@ -1451,7 +1451,7 @@ void vehicle_t::hop(grund_t* gr)
 	//const grund_t *gr_prev = get_grund();
 	const weg_t * weg_prev = get_weg();
 
-	verlasse_feld(); //"Verlasse" = "leave" (Babelfish)
+	leave_tile(); //"Verlasse" = "leave" (Babelfish)
 
 	pos_prev = get_pos();
 	set_pos( pos_next );  // next field
@@ -4542,11 +4542,11 @@ bool rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16 &
 
 
 /* beware: we must un-reserve rail blocks... */
-void rail_vehicle_t::verlasse_feld()
+void rail_vehicle_t::leave_tile()
 {
 	grund_t *gr = get_grund();
 	schiene_t *sch0 = (schiene_t *) get_weg();
-	vehicle_t::verlasse_feld();
+	vehicle_t::leave_tile();
 	// fix counters
 	if(ist_letztes) // Last vehicle
 	{

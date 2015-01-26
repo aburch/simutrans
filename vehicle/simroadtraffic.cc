@@ -199,7 +199,7 @@ grund_t* road_user_t::hop()
 		dy = -dy;
 		pos_next = get_pos();
 	}
-	verlasse_feld();
+	leave_tile();
 	set_pos(from->get_pos());
 	calc_bild();
 
@@ -957,7 +957,7 @@ void private_car_t::hop(grund_t* to)
 		way->wear_way(welt->get_settings().get_citycar_way_wear_factor()); 
 	}
 
-	verlasse_feld();
+	leave_tile();
 
 	if(pos_next_next==get_pos()) {
 		direction = calc_set_direction( pos_next, pos_next_next );

@@ -416,7 +416,7 @@ grund_t* movingobj_t::hop_check()
 
 void movingobj_t::hop(grund_t* gr)
 {
-	verlasse_feld();
+	leave_tile();
 
 	if(pos_next.get_2d()==get_pos().get_2d()) {
 		direction = ribi_t::rueckwaerts(direction);

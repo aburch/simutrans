@@ -384,7 +384,7 @@ uint32 convoi_t::move_to(uint16 const start_index)
 		if (grund_t const* const gr = v.get_grund()) {
 			schiene_t* const rails = obj_cast<schiene_t>(v.get_weg());
 			v.mark_image_dirty(v.get_bild(), v.get_hoff());
-			v.verlasse_feld();
+			v.leave_tile();
 			// maybe unreserve this
 			if(rails) 
 			{
@@ -2192,7 +2192,7 @@ void convoi_t::enter_depot(depot_t *dep)
 		if(gr) {
 			// remove from blockstrecke
 			v->set_letztes(true);
-			v->verlasse_feld();
+			v->leave_tile();
 			v->set_flag( obj_t::not_on_map );
 		}
 	}
@@ -5488,7 +5488,7 @@ void convoi_t::destroy()
 			// remove from rails/roads/crossings
 			grund_t *gr = welt->lookup(vehicle[i]->get_pos());
 			vehicle[i]->set_letztes( true );
-			vehicle[i]->verlasse_feld();
+			vehicle[i]->leave_tile();
 			if(  gr  &&  gr->ist_uebergang()  ) {
 				gr->find<crossing_t>()->release_crossing(vehicle[i]);
 			}

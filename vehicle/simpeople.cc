@@ -211,7 +211,7 @@ grund_t* pedestrian_t::hop_check()
 
 void pedestrian_t::hop(grund_t *gr)
 {
-	verlasse_feld();
+	leave_tile();
 	set_pos(gr->get_pos());
 	calc_bild();
 	// no need to call enter_tile();

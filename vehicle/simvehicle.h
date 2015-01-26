@@ -49,7 +49,7 @@ class ware_t;
  */
 class vehicle_base_t : public obj_t
 {
-	// BG, 15.02.2014: gr and weg are cached in enter_tile() and reset to NULL in verlasse_feld().
+	// BG, 15.02.2014: gr and weg are cached in enter_tile() and reset to NULL in leave_tile().
 	grund_t* gr;
 	weg_t* weg;
 public:
@@ -133,7 +133,7 @@ protected:
 	virtual grund_t* hop_check() = 0;
 
 	/**
-	 * Vehicle movement: change tiles, calls verlasse_feld and enter_tile.
+	 * Vehicle movement: change tiles, calls leave_tile and enter_tile.
 	 * @param gr pointer to ground of new position (never NULL)
 	 */
 	virtual void hop(grund_t* gr) = 0;
@@ -205,7 +205,7 @@ public:
 	/**
 	 * Vehicle movement: leave tile, release reserved crossing, remove vehicle from the ground.
 	 */
-	virtual void verlasse_feld();
+	virtual void leave_tile();
 
 	virtual overtaker_t *get_overtaker() { return NULL; }
 
@@ -370,7 +370,7 @@ public:
 
 	virtual void enter_tile(grund_t*);
 
-	virtual void verlasse_feld();
+	virtual void leave_tile();
 
 	virtual waytype_t get_waytype() const = 0;
 
@@ -745,7 +745,7 @@ public:
 	// returns true on successful reservation
 	bool block_reserver(route_t *route, uint16 start_index, uint16 &next_signal, int signal_count, bool reserve, bool force_unreserve );
 
-	void verlasse_feld();
+	void leave_tile();
 
 #ifdef INLINE_OBJ_TYPE
 protected:

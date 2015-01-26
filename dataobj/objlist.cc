@@ -578,7 +578,7 @@ void local_delete_object(obj_t *remove_obj, player_t *player)
 {
 	vehicle_base_t* const v = obj_cast<vehicle_base_t>(remove_obj);
 	if (v  &&  remove_obj->get_typ() != obj_t::fussgaenger  &&  remove_obj->get_typ() != obj_t::verkehr  &&  remove_obj->get_typ() != obj_t::movingobj) {
-		v->verlasse_feld();
+		v->leave_tile();
 	}
 	else {
 		remove_obj->entferne(player);
