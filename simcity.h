@@ -579,7 +579,7 @@ public:
 	uint16 check_road_connexion_to(const fabrik_t* industry);
 	uint16 check_road_connexion_to(const gebaeude_t* attraction);
 
-	void erzeuge_verkehrsteilnehmer(koord pos, uint16 journey_tenths_of_minutes, koord target, uint8 number_of_passengers);
+	void generate_private_cars(koord pos, uint16 journey_tenths_of_minutes, koord target, uint8 number_of_passengers);
 
 private:
 	/**

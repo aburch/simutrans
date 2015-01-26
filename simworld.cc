@@ -5810,7 +5810,7 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 			if(city)
 			{
 #ifdef DESTINATION_CITYCARS
-				city->erzeuge_verkehrsteilnehmer(origin_pos.get_2d(), car_minutes, destination_pos, units_this_step);
+				city->generate_private_cars(origin_pos.get_2d(), car_minutes, destination_pos, units_this_step);
 #endif
 				if(wtyp == warenbauer_t::passagiere)
 				{
@@ -6135,7 +6135,7 @@ no_route:
 
 #ifdef DESTINATION_CITYCARS
 					//citycars with destination
-					city->erzeuge_verkehrsteilnehmer(current_destination.location, car_minutes, origin_pos.get_2d(), units_this_step);
+					city->generate_private_cars(current_destination.location, car_minutes, origin_pos.get_2d(), units_this_step);
 #endif
 
 					if(current_destination.type == factory && (trip == commuting_trip || trip == mail_trip))
