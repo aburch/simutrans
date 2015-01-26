@@ -433,7 +433,7 @@ void movingobj_t::hop(grund_t* gr)
 	}
 
 	set_pos(pos_next);
-	betrete_feld(gr);
+	enter_tile(gr);
 	// next position
 	pos_next = pos_next_next;
 }

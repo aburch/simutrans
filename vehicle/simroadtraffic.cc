@@ -765,7 +765,7 @@ bool private_car_t::ist_weg_frei(grund_t *gr)
 }
 
 
-void private_car_t::betrete_feld(grund_t* gr)
+void private_car_t::enter_tile(grund_t* gr)
 {
 #ifdef DESTINATION_CITYCARS
 	// Destination city car code revived from an older version of Simutrans.
@@ -779,7 +779,7 @@ void private_car_t::betrete_feld(grund_t* gr)
 		pedestrian_t::erzeuge_fussgaenger_an(get_pos(), number);
 	}
 #endif /* DESTINATION_CITYCARS */
-	vehicle_base_t::betrete_feld(gr);
+	vehicle_base_t::enter_tile(gr);
 	get_weg()->book(1, WAY_STAT_CONVOIS);
 }
 
@@ -970,7 +970,7 @@ void private_car_t::hop(grund_t* to)
 
 	// and add to next tile
 	set_pos(pos_next);
-	betrete_feld(to);
+	enter_tile(to);
 
 	calc_current_speed(to);
 

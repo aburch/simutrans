@@ -309,16 +309,16 @@ vehicle_base_t::verlasse_feld() //"leave field" (Google)
 }
 
 
-void vehicle_base_t::betrete_feld(grund_t* gr)
+void vehicle_base_t::enter_tile(grund_t* gr)
 {
 	if(!gr) {
-		dbg->error("vehicle_base_t::betrete_feld()","'%s' new position (%i,%i,%i)!",get_name(), get_pos().x, get_pos().y, get_pos().z );
+		dbg->error("vehicle_base_t::enter_tile()","'%s' new position (%i,%i,%i)!",get_name(), get_pos().x, get_pos().y, get_pos().z );
 		gr = welt->lookup_kartenboden(get_pos().get_2d());
 		set_pos( gr->get_pos() );
 	}
 	if(!gr->obj_add(this))
 	{
-		dbg->error("vehicle_base_t::betrete_feld()","'%s failed to be added to the object list", get_name());
+		dbg->error("vehicle_base_t::enter_tile()","'%s failed to be added to the object list", get_name());
 	}
 	weg = gr->get_weg(get_waytype());
 }
@@ -1437,9 +1437,9 @@ void vehicle_t::verlasse_feld()
 /* this routine add a vehicle to a tile and will insert it in the correct sort order to prevent overlaps
  * @author prissi
  */
-void vehicle_t::betrete_feld(grund_t* gr)
+void vehicle_t::enter_tile(grund_t* gr)
 {
-	vehicle_base_t::betrete_feld(gr);
+	vehicle_base_t::enter_tile(gr);
 	if(ist_erstes  &&  reliefkarte_t::is_visible  ) {
 		reliefkarte_t::get_karte()->calc_map_pixel( get_pos().get_2d() );  //"Set relief colour" (Babelfish)
 	}
@@ -1505,7 +1505,7 @@ void vehicle_t::hop(grund_t* gr)
 		calc_bild();
 	}
 
-	betrete_feld(gr); //"Enter field" (Google)
+	enter_tile(gr); //"Enter field" (Google)
 	weg_t *weg = get_weg();
 	if(  weg  )	{
 		//const grund_t *gr_prev = welt->lookup(pos_prev);
@@ -3211,9 +3211,9 @@ overtaker_t* road_vehicle_t::get_overtaker()
 	return cnv;
 }
 
-void road_vehicle_t::betrete_feld(grund_t* gr)
+void road_vehicle_t::enter_tile(grund_t* gr)
 {
-	vehicle_t::betrete_feld(gr);
+	vehicle_t::enter_tile(gr);
 
 	const int cargo = get_fracht_menge();
 	weg_t *str = gr->get_weg(road_wt);
@@ -4686,9 +4686,9 @@ void rail_vehicle_t::verlasse_feld()
 }
 
 
-void rail_vehicle_t::betrete_feld(grund_t* gr)
+void rail_vehicle_t::enter_tile(grund_t* gr)
 {
-	vehicle_t::betrete_feld(gr);
+	vehicle_t::enter_tile(gr);
 
 	if(  schiene_t *sch0 = (schiene_t *) get_weg()  ) {
 		// way statistics
@@ -4770,9 +4770,9 @@ water_vehicle_t::water_vehicle_t(loadsave_t *file, bool is_first, bool is_last) 
 	}
 }
 
-void water_vehicle_t::betrete_feld(grund_t* gr)
+void water_vehicle_t::enter_tile(grund_t* gr)
 {
-	vehicle_t::betrete_feld(gr);
+	vehicle_t::enter_tile(gr);
 
 	if(  weg_t *ch = gr->get_weg(water_wt)  ) {
 		// we are in a channel, so book statistics
@@ -5779,9 +5779,9 @@ bool aircraft_t::ist_weg_frei(const grund_t *gr, int & restart_speed, bool )
 
 
 // this must also change the internal modes for the calculation
-void aircraft_t::betrete_feld(grund_t* gr)
+void aircraft_t::enter_tile(grund_t* gr)
 {
-	vehicle_t::betrete_feld(gr);
+	vehicle_t::enter_tile(gr);
 
 	if(  this->is_on_ground()  ) {
 		runway_t *w=(runway_t *)gr->get_weg(air_wt);

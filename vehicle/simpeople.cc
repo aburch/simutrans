@@ -214,7 +214,7 @@ void pedestrian_t::hop(grund_t *gr)
 	verlasse_feld();
 	set_pos(gr->get_pos());
 	calc_bild();
-	// no need to call betrete_feld();
+	// no need to call enter_tile();
 	gr->obj_add(this);
 
 	const weg_t *weg = gr->get_weg(road_wt);

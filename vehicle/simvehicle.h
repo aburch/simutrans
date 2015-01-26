@@ -49,7 +49,7 @@ class ware_t;
  */
 class vehicle_base_t : public obj_t
 {
-	// BG, 15.02.2014: gr and weg are cached in betrete_feld() and reset to NULL in verlasse_feld().
+	// BG, 15.02.2014: gr and weg are cached in enter_tile() and reset to NULL in verlasse_feld().
 	grund_t* gr;
 	weg_t* weg;
 public:
@@ -63,10 +63,10 @@ public:
 	{ 
 		if (!weg)
 		{
-			// gr and weg are both initialized in betrete_feld(). If there is a gr but no weg, then e.g. for ships there IS no way.
+			// gr and weg are both initialized in enter_tile(). If there is a gr but no weg, then e.g. for ships there IS no way.
 			if (!gr)
 			{
-				// get a local pointer only. Do not assign to instances gr that has to be done by betrete_feld() only.
+				// get a local pointer only. Do not assign to instances gr that has to be done by enter_tile() only.
 				grund_t* gr2 = get_grund();
 				if (gr2)
 					return gr2->get_weg(get_waytype());
@@ -133,7 +133,7 @@ protected:
 	virtual grund_t* hop_check() = 0;
 
 	/**
-	 * Vehicle movement: change tiles, calls verlasse_feld and betrete_feld.
+	 * Vehicle movement: change tiles, calls verlasse_feld and enter_tile.
 	 * @param gr pointer to ground of new position (never NULL)
 	 */
 	virtual void hop(grund_t* gr) = 0;
@@ -200,7 +200,7 @@ public:
 	 * @pre position (obj_t::pos) needs to be updated prior to calling this functions
 	 * @return pointer to ground (never NULL)
 	 */
-	virtual void betrete_feld(grund_t*);
+	virtual void enter_tile(grund_t*);
 
 	/**
 	 * Vehicle movement: leave tile, release reserved crossing, remove vehicle from the ground.
@@ -368,7 +368,7 @@ public:
 	 */
 	virtual bool ist_weg_frei(const grund_t *gr_next, int &restart_speed, bool second_check) = 0;
 
-	virtual void betrete_feld(grund_t*);
+	virtual void enter_tile(grund_t*);
 
 	virtual void verlasse_feld();
 
@@ -665,7 +665,7 @@ protected:
 	bool is_checker;
 
 public:
-	virtual void betrete_feld(grund_t*);
+	virtual void enter_tile(grund_t*);
 
 	virtual waytype_t get_waytype() const { return road_wt; }
 
@@ -713,7 +713,7 @@ public:
 protected:
 	bool check_next_tile(const grund_t *bd) const;
 
-	void betrete_feld(grund_t*);
+	void enter_tile(grund_t*);
 
 	bool is_weg_frei_signal( uint16 start_index, int &restart_speed );
 
@@ -870,7 +870,7 @@ protected:
 
 	bool check_next_tile(const grund_t *bd) const;
 
-	void betrete_feld(grund_t*);
+	void enter_tile(grund_t*);
 
 public:
 	waytype_t get_waytype() const { return water_wt; }
@@ -946,7 +946,7 @@ protected:
 
 	bool check_next_tile(const grund_t *bd) const;
 
-	void betrete_feld(grund_t*);
+	void enter_tile(grund_t*);
 
 	int block_reserver( uint32 start, uint32 end, bool reserve ) const;
 

@@ -399,7 +399,7 @@ uint32 convoi_t::move_to(uint16 const start_index)
 		v.neue_fahrt(start_index, true);
 		// now put vehicle on the tile
 		if (gr) {
-			v.betrete_feld(gr);
+			v.enter_tile(gr);
 		}
 
 		if (i != anz_vehikel - 1U) {
@@ -2942,7 +2942,7 @@ void convoi_t::vorfahren()
 			// set at new position
 			gr = welt->lookup(v->get_pos());
 			assert(gr);
-			v->betrete_feld(gr);
+			v->enter_tile(gr);
 		}
 
 		// just advances the first vehicle

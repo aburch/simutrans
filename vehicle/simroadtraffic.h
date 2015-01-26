@@ -149,7 +149,7 @@ public:
 	void hop(grund_t *gr);
 	bool ist_weg_frei(grund_t *gr);
 
-	void betrete_feld(grund_t* gr);
+	void enter_tile(grund_t* gr);
 
 	void calc_current_speed(grund_t*);
 	uint16 get_current_speed() const {return current_speed;}
