@@ -1702,7 +1702,7 @@ DBG_DEBUG("karte_t::init()","distributing trees");
 	}
 
 DBG_DEBUG("karte_t::init()","built timeline");
-	private_car_t::built_timeline_liste(this);
+	private_car_t::build_timeline_list(this);
 
 	nosave_warning = nosave = false;
 
@@ -4727,7 +4727,7 @@ DBG_MESSAGE("karte_t::new_year()","speedbonus for %d %i, %i, %i, %i, %i, %i, %i,
 void karte_t::recalc_average_speed()
 {
 	// retire/allocate vehicles
-	private_car_t::built_timeline_liste(this);
+	private_car_t::build_timeline_list(this);
 
 	const uint32 speed_bonus_percent = get_settings().get_speed_bonus_multiplier_percent();
 	for(int i=road_wt; i<=narrowgauge_wt; i++) {

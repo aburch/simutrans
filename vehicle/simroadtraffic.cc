@@ -363,14 +363,14 @@ static bool compare_stadtauto_besch(const stadtauto_besch_t* a, const stadtauto_
 }
 
 
-void private_car_t::built_timeline_liste(karte_t *welt)
+void private_car_t::build_timeline_list(karte_t *welt)
 {
 	// this list will contain all citycars
 	liste_timeline.clear();
 	vector_tpl<const stadtauto_besch_t*> temp_liste(0);
 	if(  !table.empty()  ) {
 		const int month_now = welt->get_current_month();
-//DBG_DEBUG("private_car_t::built_timeline_liste()","year=%i, month=%i", month_now/12, month_now%12+1);
+//DBG_DEBUG("private_car_t::build_timeline_list()","year=%i, month=%i", month_now/12, month_now%12+1);
 
 		// check for every citycar, if still ok ...
 		FOR(stringhashtable_tpl<stadtauto_besch_t const*>, const& i, table) {

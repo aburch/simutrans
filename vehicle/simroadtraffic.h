@@ -172,7 +172,7 @@ public:
 	 * it should be called every month and in the beginning of a new game
 	 * @author prissi
 	 */
-	static void built_timeline_liste(karte_t *welt);
+	static void build_timeline_list(karte_t *welt);
 	static bool list_empty();
 
 	static bool register_besch(const stadtauto_besch_t *besch);
