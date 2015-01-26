@@ -5782,7 +5782,7 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 			// create pedestrians in the near area?
 			if(settings.get_random_pedestrians() && wtyp == warenbauer_t::passagiere) 
 			{
-				haltestelle_t::erzeuge_fussgaenger(origin_pos, units_this_step);
+				haltestelle_t::generate_pedestrians(origin_pos, units_this_step);
 			}
 			// We cannot do this on arrival, as the ware packets do not remember their origin building.
 			// However, as for the destination, this can be set when the passengers arrive.
@@ -5863,7 +5863,7 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 
 			if(settings.get_random_pedestrians() && wtyp == warenbauer_t::passagiere) 
 			{
-				haltestelle_t::erzeuge_fussgaenger(origin_pos, units_this_step);
+				haltestelle_t::generate_pedestrians(origin_pos, units_this_step);
 			}
 				
 			if(city)

@@ -773,10 +773,8 @@ void private_car_t::enter_tile(grund_t* gr)
 	if(target!=koord::invalid  &&  shortest_distance(pos_next.get_2d(),target)<10) {
 		// delete it ...
 		time_to_life = 0;
-
-		//"pedestrian" = pedestrian (Babelfish)
 		int number = 2;
-		pedestrian_t::erzeuge_fussgaenger_an(get_pos(), number);
+		pedestrian_t::generate_pedestrians_at(get_pos(), number);
 	}
 #endif /* DESTINATION_CITYCARS */
 	vehicle_base_t::enter_tile(gr);

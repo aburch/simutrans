@@ -1243,7 +1243,7 @@ void haltestelle_t::step()
 							if(shortest_distance(get_next_pos(tmp.get_zwischenziel()->get_basis_pos()), get_next_pos(tmp.get_zwischenziel()->get_basis_pos())) <= max_walking_distance)
 							{
 								// Passengers can walk to their next transfer.
-								erzeuge_fussgaenger(get_basis_pos3d(), tmp.menge);
+								generate_pedestrians(get_basis_pos3d(), tmp.menge);
 								tmp.set_last_transfer(self);
 								tmp.get_zwischenziel()->liefere_an(tmp, 1);
 								passengers_walked = true;
@@ -1449,7 +1449,7 @@ uint32 haltestelle_t::reroute_goods(const uint8 catg)
 			   && !get_preferred_line(ware.get_zwischenziel(), 0).is_bound())
 			{
 				// FIXME: The passengers need to actually be delayed by the walking time
-				erzeuge_fussgaenger(get_basis_pos3d(), ware.menge);
+				generate_pedestrians(get_basis_pos3d(), ware.menge);
 				ware.get_zwischenziel()->liefere_an(ware, 1); // start counting walking steps at 1 again
 				continue;
 			}
@@ -2443,7 +2443,7 @@ uint32 haltestelle_t::starte_mit_route(ware_t ware)
 		// This is a bug which should be fixed.  The passenger has already walked here,
 		// and presumably does not wish to walk further... --neroden
 		// If this is within walking distance of the next transfer, and there is not a faster way there, walk there.
-		erzeuge_fussgaenger(get_basis_pos3d(), ware.menge);
+		generate_pedestrians(get_basis_pos3d(), ware.menge);
 #ifdef DEBUG_SIMRAND_CALLS
 		if (talk)
 			dbg->message("\t", "walking to %s", ware.get_zwischenziel()->get_name());
@@ -2590,7 +2590,7 @@ uint32 haltestelle_t::liefere_an(ware_t ware, uint8 walked_between_stations)
 		{
 			// If this is within walking distance of the next transfer, and there is not a faster way there, walk there.
 	walking:
-			erzeuge_fussgaenger(get_basis_pos3d(), ware.menge);
+			generate_pedestrians(get_basis_pos3d(), ware.menge);
 			ware.set_last_transfer(self);
 	#ifdef DEBUG_SIMRAND_CALLS
 			if (talk)
@@ -2667,7 +2667,7 @@ uint32 haltestelle_t::deposit_ware_at_destination(ware_t ware)
 					{
 						break;
 					}
-					menge = erzeuge_fussgaenger(i.grund->get_pos(), menge);
+					menge = generate_pedestrians(i.grund->get_pos(), menge);
 				}
 			}
 		}
@@ -3146,15 +3146,15 @@ void haltestelle_t::recalc_station_type()
 
 
 
-int haltestelle_t::erzeuge_fussgaenger(koord3d pos, int anzahl)
+int haltestelle_t::generate_pedestrians(koord3d pos, int anzahl)
 {
 	if(pedestrian_limit < pedestrian_generate_max)
 	{
 		pedestrian_limit ++;
-		pedestrian_t::erzeuge_fussgaenger_an(pos, anzahl);
+		pedestrian_t::generate_pedestrians_at(pos, anzahl);
 		for(int i=0; i<4 && anzahl>0; i++) 
 		{
-			pedestrian_t::erzeuge_fussgaenger_an(pos+koord::nsow[i], anzahl);
+			pedestrian_t::generate_pedestrians_at(pos+koord::nsow[i], anzahl);
 		}
 	}
 	return anzahl;

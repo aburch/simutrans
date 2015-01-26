@@ -203,7 +203,7 @@ private:
 	*
 	* @author Hj. Malthaner
 	*/
-	bool pedestrian;
+	bool random_pedestrians;
 
 	sint32 stadtauto_duration;
 
@@ -764,8 +764,8 @@ public:
 
 	sint64 get_starting_money(sint16 year) const;
 
-	bool get_random_pedestrians() const { return pedestrian; }
-	void set_random_pedestrians( bool f ) { pedestrian = f; }
+	bool get_random_pedestrians() const { return random_pedestrians; }
+	void set_random_pedestrians( bool value ) { random_pedestrians = value; }
 
 	sint16 get_special_building_distance() const { return special_building_distance; }
 
