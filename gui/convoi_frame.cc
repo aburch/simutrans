@@ -124,7 +124,7 @@ bool convoi_frame_t::passes_filter(convoihandle_t cnv)
 	if(  get_filter(convoi_filter_frame_t::ware_filter)  ) {
 		unsigned i;
 		for(  i = 0; i < cnv->get_vehikel_anzahl(); i++) {
-			const ware_besch_t *wb = cnv->get_vehikel(i)->get_fracht_typ();
+			const ware_besch_t *wb = cnv->get_vehikel(i)->get_cargo_type();
 			if(  wb->get_catg()!=0  ) {
 				wb = warenbauer_t::get_info_catg(wb->get_catg());
 			}
@@ -159,7 +159,7 @@ bool convoi_frame_t::compare_convois(convoihandle_t const cnv1, convoihandle_t c
 
 				result = tdriver1->get_typ() - tdriver2->get_typ();
 				if(result == 0) {
-					result = tdriver1->get_fracht_typ()->get_catg_index() - tdriver2->get_fracht_typ()->get_catg_index();
+					result = tdriver1->get_cargo_type()->get_catg_index() - tdriver2->get_cargo_type()->get_catg_index();
 					if(result == 0) {
 						result = tdriver1->get_base_image() - tdriver2->get_base_image();
 					}

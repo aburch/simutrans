@@ -614,7 +614,7 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_ind
 
 	for(int i = 0; i < anz_vehikel; i++)
 	{
-		vehicle[i]->remove_stale_freight();
+		vehicle[i]->remove_stale_cargo();
 	}
 
 	loading_limit = fpl->get_current_eintrag().ladegrad;
@@ -1586,7 +1586,7 @@ end_loop:
 						else
 						{
 							vehicle_t* old_veh = remove_vehikel_bei(a);
-							old_veh->loesche_fracht();
+							old_veh->discard_cargo();
 							old_veh->set_erstes(false);
 							old_veh->set_letztes(false);
 							dep->get_vehicle_list().append(old_veh);
@@ -2012,7 +2012,7 @@ uint8 convoi_t::get_comfort() const
 
 	for(uint8 i = 0; i < anz_vehikel; i ++)
 	{
-		if(vehicle[i]->get_fracht_typ()->get_catg_index() == 0)
+		if(vehicle[i]->get_cargo_type()->get_catg_index() == 0)
 		{
 			passenger_vehicles ++;
 			capacity = vehicle[i]->get_besch()->get_zuladung();
@@ -2252,7 +2252,7 @@ void convoi_t::start()
 			vehicle[i]->set_driven();
 			restwert_delta += vehicle[i]->calc_restwert();
 			vehicle[i]->clear_flag( obj_t::not_on_map );
-			vehicle[i]->load_freight( halthandle_t() );
+			vehicle[i]->load_cargo( halthandle_t() );
 		}
 		front()->set_erstes( true );
 		vehicle[anz_vehikel-1]->set_letztes( true );
@@ -2390,9 +2390,9 @@ DBG_MESSAGE("convoi_t::add_vehikel()","extend array_tpl to %i totals.",max_rail_
 		// Added by		: Knightly
 		// Adapted from : simline_t
 		// Purpose		: Try to update supported goods category of this convoy
-		if (v->get_fracht_max() > 0)
+		if (v->get_cargo_max() > 0)
 		{
-			const ware_besch_t *ware_type = v->get_fracht_typ();
+			const ware_besch_t *ware_type = v->get_cargo_type();
 			if (ware_type != warenbauer_t::nichts)
 				goods_catg_index.append_unique(ware_type->get_catg_index(), 1);
 		}
@@ -2416,8 +2416,8 @@ DBG_MESSAGE("convoi_t::add_vehikel()","extend array_tpl to %i totals.",max_rail_
 		invalidate_vehicle_summary();
 		freight_info_resort = true;
 		// Add good_catg_index:
-		if(v->get_fracht_max() != 0) {
-			const ware_besch_t *ware=v->get_fracht_typ();
+		if(v->get_cargo_max() != 0) {
+			const ware_besch_t *ware=v->get_cargo_type();
 			if(ware!=warenbauer_t::nichts  ) {
 				goods_catg_index.append_unique( ware->get_catg_index() );
 			}
@@ -2474,9 +2474,9 @@ DBG_MESSAGE("convoi_t::upgrade_vehicle()","at pos %i of %i totals.",i,max_vehicl
 	// Added by		: Knightly
 	// Adapted from : simline_t
 	// Purpose		: Try to update supported goods category of this convoy
-	if (v->get_fracht_max() > 0)
+	if (v->get_cargo_max() > 0)
 	{
-		const ware_besch_t *ware_type = v->get_fracht_typ();
+		const ware_besch_t *ware_type = v->get_cargo_type();
 		if (ware_type != warenbauer_t::nichts)
 			goods_catg_index.append_unique(ware_type->get_catg_index(), 1);
 	}
@@ -2610,10 +2610,10 @@ void convoi_t::recalc_catg_index()
 		// Only consider vehicles that really transport something
 		// this helps against routing errors through passenger
 		// trains pulling only freight wagons
-		if(get_vehikel(i)->get_fracht_max() == 0) {
+		if(get_vehikel(i)->get_cargo_max() == 0) {
 			continue;
 		}
-		const ware_besch_t *ware=get_vehikel(i)->get_fracht_typ();
+		const ware_besch_t *ware=get_vehikel(i)->get_cargo_type();
 		if(ware!=warenbauer_t::nichts  ) {
 			goods_catg_index.append_unique( ware->get_catg_index() );
 		}
@@ -2647,7 +2647,7 @@ void convoi_t::set_erstes_letztes()
 void convoi_t::check_freight()
 {
 	for(unsigned i=0; i<anz_vehikel; i++) {
-		vehicle[i]->remove_stale_freight();
+		vehicle[i]->remove_stale_cargo();
 	}
 	calc_loading();
 	freight_info_resort = true;
@@ -3499,7 +3499,7 @@ void convoi_t::rdwr(loadsave_t *file)
 			if(i==0  &&  v->get_besch()->get_waytype()==monorail_wt  &&  v->get_typ()==obj_t::rail_vehicle) {
 				override_monorail = true;
 				vehicle_t *v_neu = new monorail_rail_vehicle_t( v->get_pos(), v->get_besch(), v->get_owner(), NULL );
-				v->loesche_fracht();
+				v->discard_cargo();
 				delete v;
 				v = v_neu;
 			}
@@ -4455,7 +4455,7 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 			}
 
 			// then add the actual load
-			FOR(slist_tpl<ware_t>, ware, v->get_fracht())
+			FOR(slist_tpl<ware_t>, ware, v->get_cargo())
 			{
 				// if != 0 we could not join it to existing => load it
 				if(ware.menge != 0) 
@@ -5109,7 +5109,7 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 		if(  old_last_stop_pos != front()->get_pos()  ) {
 			//Unload
 			sint64 revenue_from_unloading = 0;
-			uint16 amount_unloaded = v->unload_freight(halt, revenue_from_unloading, apportioned_revenues);
+			uint16 amount_unloaded = v->unload_cargo(halt, revenue_from_unloading, apportioned_revenues);
 			changed_loading_level += amount_unloaded;
 
 			// Convert from units of 1/4096 of a simcent to units of ONE simcent.  Should be FAST (powers of two).
@@ -5119,7 +5119,7 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 				revenue_cents_from_unloading = 1;
 			}
 			// This call needs to be here, per-vehicle, in order to record different freight types properly.
-			owner->book_revenue( revenue_cents_from_unloading, front()->get_pos().get_2d(), get_schedule()->get_waytype(), v->get_fracht_typ()->get_index() );
+			owner->book_revenue( revenue_cents_from_unloading, front()->get_pos().get_2d(), get_schedule()->get_waytype(), v->get_cargo_type()->get_index() );
 			// The finance code will add up the on-screen messages
 			// But add up the total for the port and station use charges
 			accumulated_revenue += revenue_cents_from_unloading;
@@ -5132,8 +5132,8 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 		for(int i = 0; i < number_loadable_vehicles ; i++)
 		{
 			vehicle_t* v = vehicle[i];
-			// do not load -- but call load_freight() to recalculate vehikel weight
-			v->load_freight(halthandle_t());
+			// do not load -- but call load_cargo() to recalculate vehikel weight
+			v->load_cargo(halthandle_t());
 		}
 	}
 	else // not "no_load"
@@ -5164,12 +5164,12 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 			for(int i = 0; i < number_loadable_vehicles ; i++)
 			{
 				vehicle_t* v = vehicle[i];
-				const uint8 catg_index = v->get_fracht_typ()->get_catg_index();
+				const uint8 catg_index = v->get_cargo_type()->get_catg_index();
 				if(!skip_catg[catg_index])
 				{
 					bool skip_convois = false;
 					bool skip_vehikels = false;
-					changed_loading_level += v->load_freight(halt, overcrowd, &skip_convois, &skip_vehikels);
+					changed_loading_level += v->load_cargo(halt, overcrowd, &skip_convois, &skip_vehikels);
 					if(skip_convois  ||  skip_vehikels)
 					{
 						// not enough freight was available to fill vehicle, or the stop can't supply this type of cargo ..> don't try to load this category again from this halt onto vehicles in convois on this line this step
@@ -5335,7 +5335,7 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 
 		// add available capacity after loading(!) to statistics
 		for (unsigned i = 0; i<anz_vehikel; i++) {
-			book(get_vehikel(i)->get_fracht_max()-get_vehikel(i)->get_fracht_menge(), CONVOI_CAPACITY);
+			book(get_vehikel(i)->get_cargo_max()-get_vehikel(i)->get_total_cargo(), CONVOI_CAPACITY);
 		}
 
 		// Advance schedule
@@ -5394,13 +5394,13 @@ void convoi_t::calc_loading()
 
 	for(unsigned i=0; i<anz_vehikel; i++) {
 		const vehicle_t* v = vehicle[i];
-		if ( v->get_fracht_typ() == warenbauer_t::passagiere ) {
-			seats_max += v->get_fracht_max();
-			seats_menge += v->get_fracht_menge();
+		if ( v->get_cargo_type() == warenbauer_t::passagiere ) {
+			seats_max += v->get_cargo_max();
+			seats_menge += v->get_total_cargo();
 		}
 		else {
-			fracht_max += v->get_fracht_max();
-			fracht_menge += v->get_fracht_menge();
+			fracht_max += v->get_cargo_max();
+			fracht_menge += v->get_total_cargo();
 		}
 	}
 	if (seats_max)
@@ -5495,7 +5495,7 @@ void convoi_t::destroy()
 			vehicle[i]->set_flag( obj_t::not_on_map );
 
 		}
-		vehicle[i]->loesche_fracht();
+		vehicle[i]->discard_cargo();
 		vehicle[i]->entferne(owner);
 		delete vehicle[i];
 	}
@@ -6272,7 +6272,7 @@ bool convoi_t::has_no_cargo() const
 	/* a convoy with max capacity of zero, has always loading_level==100 */
 	for(unsigned i=0; i<anz_vehikel; i++)
 	{
-		if (vehicle[i]->get_fracht_max()>0)
+		if (vehicle[i]->get_cargo_max()>0)
 		{
 			return false;
 		}
@@ -6781,7 +6781,7 @@ void convoi_t::clear_replace()
 	 const uint16 airport_wait = front()->get_typ() == obj_t::aircraft ? welt->get_settings().get_min_wait_airport() : 0;
 	 for(uint8 i = 0; i < anz_vehikel; i++) 
 	 {
-		FOR(slist_tpl< ware_t>, const& iter, vehicle[i]->get_fracht())
+		FOR(slist_tpl< ware_t>, const& iter, vehicle[i]->get_cargo())
 		{
 			if(iter.get_last_transfer().get_id() == halt.get_id())
 			{

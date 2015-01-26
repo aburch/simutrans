@@ -822,7 +822,7 @@ void vehicle_t::set_convoi(convoi_t *c)
  * @return sum of unloaded goods
  * @author Hj. Malthaner
  */
-uint16 vehicle_t::unload_freight(halthandle_t halt, sint64 & revenue_from_unloading, array_tpl<sint64> & apportioned_revenues)
+uint16 vehicle_t::unload_cargo(halthandle_t halt, sint64 & revenue_from_unloading, array_tpl<sint64> & apportioned_revenues)
 {
 	uint16 sum_menge = 0, sum_delivered = 0, index = 0;
 
@@ -832,7 +832,7 @@ uint16 vehicle_t::unload_freight(halthandle_t halt, sint64 & revenue_from_unload
 		return 0;
 	}
 
-	if(halt->is_enabled(get_fracht_typ())) 
+	if(halt->is_enabled(get_cargo_type())) 
 	{
 		if (!fracht.empty())
 		{
@@ -1079,9 +1079,9 @@ bool vehicle_t::load_freight_internal(halthandle_t halt, bool overcrowd, bool *s
  * i.e. because of a changed schedule
  * @author Hj. Malthaner
  */
-void vehicle_t::remove_stale_freight()
+void vehicle_t::remove_stale_cargo()
 {
-	DBG_DEBUG("vehicle_t::remove_stale_freight()", "called");
+	DBG_DEBUG("vehicle_t::remove_stale_cargo()", "called");
 
 	// and now check every piece of ware on board,
 	// if its target is somewhere on
@@ -1116,7 +1116,7 @@ void vehicle_t::remove_stale_freight()
 							// ok, lets change here, since goods are accepted here
 							tmp.access_zwischenziel() = halt;
 							if (!tmp.get_ziel().is_bound()) {
-								// set target, to prevent that unload_freight drops cargo
+								// set target, to prevent that unload_cargo drops cargo
 								tmp.set_ziel( halt );
 							}
 							found = true;
@@ -1146,7 +1146,7 @@ void vehicle_t::remove_stale_freight()
 			cnv->invalidate_weight_summary();
 		}
 	}
-	sum_weight =  get_fracht_gewicht() + besch->get_gewicht();
+	sum_weight =  get_cargo_weight() + besch->get_gewicht();
 }
 
 
@@ -1851,9 +1851,9 @@ void vehicle_t::make_smoke() const
 }
 
 
-const char *vehicle_t::get_fracht_mass() const
+const char *vehicle_t::get_cargo_mass() const
 {
-	return get_fracht_typ()->get_mass();
+	return get_cargo_type()->get_mass();
 }
 
 
@@ -1861,7 +1861,7 @@ const char *vehicle_t::get_fracht_mass() const
  * Calculate transported cargo total weight in KG
  * @author Hj. Malthaner
  */
-uint32 vehicle_t::get_fracht_gewicht() const
+uint32 vehicle_t::get_cargo_weight() const
 {
 	uint32 weight = 0;
 	FOR(slist_tpl<ware_t>, const& c, fracht) {
@@ -1871,13 +1871,13 @@ uint32 vehicle_t::get_fracht_gewicht() const
 }
 
 
-const char *vehicle_t::get_fracht_name() const
+const char *vehicle_t::get_cargo_name() const
 {
-	return get_fracht_typ()->get_name();
+	return get_cargo_type()->get_name();
 }
 
 
-void vehicle_t::get_fracht_info(cbuffer_t & buf) const
+void vehicle_t::get_cargo_info(cbuffer_t & buf) const
 {
 	if (fracht.empty()) {
 		buf.append("  ");
@@ -1902,7 +1902,7 @@ void vehicle_t::get_fracht_info(cbuffer_t & buf) const
  * Delete all vehicle load
  * @author Hj. Malthaner
  */
-void vehicle_t::loesche_fracht()
+void vehicle_t::discard_cargo()
 {
 	FOR(  slist_tpl<ware_t>, w, fracht ) {
 		fabrik_t::update_transit( w, false );
@@ -1911,7 +1911,7 @@ void vehicle_t::loesche_fracht()
 	sum_weight =  besch->get_gewicht();
 }
 
-uint16 vehicle_t::load_freight(halthandle_t halt, bool overcrowd, bool *skip_convois, bool *skip_vehikels)
+uint16 vehicle_t::load_cargo(halthandle_t halt, bool overcrowd, bool *skip_convois, bool *skip_vehikels)
 {
 	const uint16 start_freight = total_freight;
 	if(halt.is_bound()  &&  halt->gibt_ab(besch->get_ware()))
@@ -1922,7 +1922,7 @@ uint16 vehicle_t::load_freight(halthandle_t halt, bool overcrowd, bool *skip_con
 	{
 		*skip_convois = true; // don't try to load anymore from a stop that can't supply
 	}
-	sum_weight = get_fracht_gewicht() + besch->get_gewicht();
+	sum_weight = get_cargo_weight() + besch->get_gewicht();
 	calc_bild();
 	return total_freight - start_freight;
 }
@@ -2032,7 +2032,7 @@ uint8 vehicle_t::get_comfort(uint8 catering_level) const
 	{
 		return 0;
 	}
-	else if(total_freight <= get_fracht_max())
+	else if(total_freight <= get_cargo_max())
 	{
 		// Not overcrowded - return base level
 		return base_comfort;
@@ -2051,7 +2051,7 @@ uint8 vehicle_t::get_comfort(uint8 catering_level) const
 		}
 	}
 	assert(passenger_count <= total_freight);
-	const uint16 total_seated_passengers = passenger_count < get_fracht_max() ? passenger_count : get_fracht_max();
+	const uint16 total_seated_passengers = passenger_count < get_cargo_max() ? passenger_count : get_cargo_max();
 	const uint16 total_standing_passengers = passenger_count > total_seated_passengers ? passenger_count - total_seated_passengers : 0;
 	// Avoid division if we can
 	if(total_standing_passengers == 0)
@@ -2298,7 +2298,7 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(purchase_time%12
 			calc_bild();
 
 			// full weight after loading
-			sum_weight = get_fracht_gewicht() + besch->get_gewicht();
+			sum_weight = get_cargo_weight() + besch->get_gewicht();
 		}
 		// recalc total freight
 		total_freight = 0;
@@ -3215,7 +3215,7 @@ void road_vehicle_t::enter_tile(grund_t* gr)
 {
 	vehicle_t::enter_tile(gr);
 
-	const int cargo = get_fracht_menge();
+	const int cargo = get_total_cargo();
 	weg_t *str = gr->get_weg(road_wt);
 	if(str == NULL)
 	{
@@ -4692,7 +4692,7 @@ void rail_vehicle_t::enter_tile(grund_t* gr)
 
 	if(  schiene_t *sch0 = (schiene_t *) get_weg()  ) {
 		// way statistics
-		const int cargo = get_fracht_menge();
+		const int cargo = get_total_cargo();
 		sch0->book(cargo, WAY_STAT_GOODS);
 		if(leading) {
 			sch0->book(1, WAY_STAT_CONVOIS);
@@ -4776,7 +4776,7 @@ void water_vehicle_t::enter_tile(grund_t* gr)
 
 	if(  weg_t *ch = gr->get_weg(water_wt)  ) {
 		// we are in a channel, so book statistics
-		ch->book(get_fracht_menge(), WAY_STAT_GOODS);
+		ch->book(get_total_cargo(), WAY_STAT_GOODS);
 		if (leading)  {
 			ch->book(1, WAY_STAT_CONVOIS);
 		}
@@ -5786,7 +5786,7 @@ void aircraft_t::enter_tile(grund_t* gr)
 	if(  this->is_on_ground()  ) {
 		runway_t *w=(runway_t *)gr->get_weg(air_wt);
 		if(w) {
-			const int cargo = get_fracht_menge();
+			const int cargo = get_total_cargo();
 			w->book(cargo, WAY_STAT_GOODS);
 			if (leading) {
 				w->book(1, WAY_STAT_CONVOIS);

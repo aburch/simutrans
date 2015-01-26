@@ -483,7 +483,7 @@ public:
 	sint32 get_speed_limit() const { return speed_limit; }
 	static inline sint32 speed_unlimited() {return (std::numeric_limits<sint32>::max)(); }
 
-	const slist_tpl<ware_t> & get_fracht() const { return fracht;}   // list of goods being transported
+	const slist_tpl<ware_t> & get_cargo() const { return fracht;}   // list of goods being transported
 
 	/**
 	 * Rotate freight target coordinates, has to be called after rotating factories.
@@ -493,34 +493,34 @@ public:
 	/**
 	* Calculate the total quantity of goods moved
 	*/
-	uint16 get_fracht_menge() const { return total_freight; }
+	uint16 get_total_cargo() const { return total_freight; }
 
 	/**
 	* Calculate transported cargo total weight in KG
 	* @author Hj. Malthaner
 	*/
-	uint32 get_fracht_gewicht() const;
+	uint32 get_cargo_weight() const;
 
-	const char * get_fracht_name() const;
+	const char * get_cargo_name() const;
 
 	/**
 	* get the type of cargo this vehicle can transport
 	*/
-	const ware_besch_t* get_fracht_typ() const { return besch->get_ware(); }
+	const ware_besch_t* get_cargo_type() const { return besch->get_ware(); }
 
 	/**
 	* Get the maximum capacity
 	*/
-	uint16 get_fracht_max() const {return besch->get_zuladung(); }
+	uint16 get_cargo_max() const {return besch->get_zuladung(); }
 
-	const char * get_fracht_mass() const;
+	const char * get_cargo_mass() const;
 
 	/**
 	* create an info text for the freight
 	* e.g. to display in a info window
 	* @author Hj. Malthaner
 	*/
-	void get_fracht_info(cbuffer_t & buf) const;
+	void get_cargo_info(cbuffer_t & buf) const;
 
 	// Check for straightness of way.
 	//@author jamespetts
@@ -544,7 +544,7 @@ public:
 	* Delete all vehicle load
 	* @author Hj. Malthaner
 	*/
-	void loesche_fracht();
+	void discard_cargo();
 
 	/**
 	* Payment is done per hop. It iterates all goods and calculates
@@ -572,21 +572,21 @@ public:
 	 * Unload freight to halt
 	 * @return sum of unloaded goods
 	 */
-	uint16 unload_freight(halthandle_t halt, sint64 & revenue_from_unloading, array_tpl<sint64> & apportioned_revenues );
+	uint16 unload_cargo(halthandle_t halt, sint64 & revenue_from_unloading, array_tpl<sint64> & apportioned_revenues );
 
 	/**
 	 * Load freight from halt
 	 * @return amount loaded
 	 */
-	uint16 load_freight(halthandle_t halt)  { bool dummy; (void)dummy; return load_freight(halt, false, &dummy, &dummy); }
-	uint16 load_freight(halthandle_t halt, bool overcrowd, bool *skip_convois, bool *skip_vehikels);
+	uint16 load_cargo(halthandle_t halt)  { bool dummy; (void)dummy; return load_cargo(halt, false, &dummy, &dummy); }
+	uint16 load_cargo(halthandle_t halt, bool overcrowd, bool *skip_convois, bool *skip_vehikels);
 
 	/**
 	* Remove freight that no longer can reach it's destination
 	* i.e. because of a changed schedule
 	* @author Hj. Malthaner
 	*/
-	void remove_stale_freight();
+	void remove_stale_cargo();
 
 	/**
 	* Generate a matching schedule for the vehicle type

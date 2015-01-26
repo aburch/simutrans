@@ -436,7 +436,7 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 				extra_y += LINESPACE;
 			}
 			
-			if(v->get_fracht_typ()->get_catg_index() == 0)
+			if(v->get_cargo_type()->get_catg_index() == 0)
 			{
 				buf.clear();
 				buf.printf("%s %i", translator::translate("Comfort:"), v->get_comfort() );
@@ -444,15 +444,15 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 				extra_y += LINESPACE;
 			}
 			
-			if(v->get_fracht_max() > 0) {
+			if(v->get_cargo_max() > 0) {
 
 				// bonus stuff
 				int len = 5+display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, translator::translate("Base profit per km (when full):"), ALIGN_LEFT, COL_BLACK, true );
 				// Revenue for moving 1 unit 1000 meters -- comes in 1/4096 of simcent, convert to simcents
 				// Excludes TPO/catering revenue, and comfort effects.  FIXME --neroden
-				sint64 fare = v->get_fracht_typ()->get_fare_with_speedbonus(relative_speed_percentage, 1000);
+				sint64 fare = v->get_cargo_type()->get_fare_with_speedbonus(relative_speed_percentage, 1000);
 				// Multiply by capacity, convert to simcents, subtract running costs
-				sint64 profit = (v->get_fracht_max()*fare + 2048ll) / 4096ll - v->get_running_cost(welt);
+				sint64 profit = (v->get_cargo_max()*fare + 2048ll) / 4096ll - v->get_running_cost(welt);
 				money_to_string( number, profit/100.0 );
 				display_proportional_clip( pos.x+w+offset.x+len, pos.y+offset.y+total_height+extra_y, number, ALIGN_LEFT, profit>0?MONEY_PLUS:MONEY_MINUS, true );
 				extra_y += LINESPACE;
@@ -465,10 +465,10 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 					extra_y += LINESPACE;
 				}
 
-				ware_besch_t const& g    = *v->get_fracht_typ();
+				ware_besch_t const& g    = *v->get_cargo_type();
 				char const*  const  name = translator::translate(g.get_catg() == 0 ? g.get_name() : g.get_catg_name());
-				freight_info.printf("%u/%u%s %s\n", v->get_fracht_menge(), v->get_fracht_max(), translator::translate(v->get_fracht_mass()), name);
-				v->get_fracht_info(freight_info);
+				freight_info.printf("%u/%u%s %s\n", v->get_total_cargo(), v->get_cargo_max(), translator::translate(v->get_cargo_mass()), name);
+				v->get_cargo_info(freight_info);
 				// show it
 				const int px_len = display_multiline_text( pos.x+offset.x+w, pos.y+offset.y+total_height+extra_y, freight_info, COL_BLACK );
 				if(px_len+w>x_size) {
