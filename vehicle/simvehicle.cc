@@ -1385,9 +1385,9 @@ grund_t* vehicle_t::hop_check()
 		}
 
 		int restart_speed = -1;
-		// ist_weg_frei() berechnet auch die Geschwindigkeit
+		// can_enter_tile() berechnet auch die Geschwindigkeit
 		// mit der spaeter weitergefahren wird
-		if(!ist_weg_frei(bd, restart_speed, false)) {
+		if(!can_enter_tile(bd, restart_speed, false)) {
 
 			// convoi anhalten, wenn strecke nicht frei
 			cnv->warten_bis_weg_frei(restart_speed);
@@ -1407,11 +1407,11 @@ grund_t* vehicle_t::hop_check()
 	return welt->lookup(pos_next);
 }
 
-bool vehicle_t::ist_weg_frei(int &restart_speed, bool second_check)
+bool vehicle_t::can_enter_tile(int &restart_speed, bool second_check)
 {
 	grund_t *gr = welt->lookup(pos_next);
 	if (gr) {
-		return ist_weg_frei(gr, restart_speed, second_check);
+		return can_enter_tile(gr, restart_speed, second_check);
 	}
 	else {
 		if(  !second_check  ) {
@@ -2902,7 +2902,7 @@ bool road_vehicle_t::choose_route( int &restart_speed, ribi_t::ribi richtung, ui
 }
 
 
-bool road_vehicle_t::ist_weg_frei(const grund_t *gr, int &restart_speed, bool second_check)
+bool road_vehicle_t::can_enter_tile(const grund_t *gr, int &restart_speed, bool second_check)
 {
 	// check for traffic lights (only relevant for the first car in a convoi)
 	if(  leading  ) {
@@ -2969,7 +2969,7 @@ bool road_vehicle_t::ist_weg_frei(const grund_t *gr, int &restart_speed, bool se
 							if(!target_halt->find_free_position(road_wt,cnv->self,obj_t::automobil)) {
 								restart_speed = 0;
 								target_halt = halthandle_t();
-								//DBG_MESSAGE("road_vehicle_t::ist_weg_frei()","cnv=%d nothing free found!",cnv->self.get_id());
+								//DBG_MESSAGE("road_vehicle_t::can_enter_tile()","cnv=%d nothing free found!",cnv->self.get_id());
 								return false;
 							}
 
@@ -3116,7 +3116,7 @@ bool road_vehicle_t::ist_weg_frei(const grund_t *gr, int &restart_speed, bool se
 									if(!target_halt->find_free_position(road_wt,cnv->self,obj_t::automobil)) {
 										restart_speed = 0;
 										target_halt = halthandle_t();
-										//DBG_MESSAGE("road_vehicle_t::ist_weg_frei()","cnv=%d nothing free found!",cnv->self.get_id());
+										//DBG_MESSAGE("road_vehicle_t::can_enter_tile()","cnv=%d nothing free found!",cnv->self.get_id());
 										return false;
 									}
 
@@ -3156,7 +3156,7 @@ bool road_vehicle_t::ist_weg_frei(const grund_t *gr, int &restart_speed, bool se
 				if(  road_vehicle_t const* const car = obj_cast<road_vehicle_t>(obj)  ) {
 					convoi_t* const ocnv = car->get_convoi();
 					int dummy;
-					if(  ocnv->front()->get_route_index() < ocnv->get_route()->get_count()  &&  ocnv->front()->ist_weg_frei(dummy, true)  ) {
+					if(  ocnv->front()->get_route_index() < ocnv->get_route()->get_count()  &&  ocnv->front()->can_enter_tile(dummy, true)  ) {
 						return true;
 					}
 				}
@@ -3883,7 +3883,7 @@ bool rail_vehicle_t::is_weg_frei_signal( uint16 next_block, int &restart_speed )
 	return false;
 }
 
-bool rail_vehicle_t::ist_weg_frei(const grund_t *gr, int & restart_speed, bool)
+bool rail_vehicle_t::can_enter_tile(const grund_t *gr, int & restart_speed, bool)
 {
 	assert(leading);
 	uint16 next_signal = INVALID_INDEX;
@@ -4844,7 +4844,7 @@ void water_vehicle_t::calc_drag_coefficient(const grund_t *gr)
 }
 
 
-bool water_vehicle_t::ist_weg_frei(const grund_t *gr, int &restart_speed, bool)
+bool water_vehicle_t::can_enter_tile(const grund_t *gr, int &restart_speed, bool)
 {
 	restart_speed = -1;
 
@@ -5459,7 +5459,7 @@ bool aircraft_t::calc_route_internal(
 }
 
 
-// BG, 08.08.2012: extracted from ist_weg_frei()
+// BG, 08.08.2012: extracted from can_enter_tile()
 bool aircraft_t::reroute(const uint16 reroute_index, const koord3d &ziel)
 {
 	// new aircraft state after successful routing:
@@ -5584,7 +5584,7 @@ int aircraft_t::block_reserver( uint32 start, uint32 end, bool reserve ) const
 }
 
 // handles all the decisions on the ground and in the air
-bool aircraft_t::ist_weg_frei(const grund_t *gr, int & restart_speed, bool )
+bool aircraft_t::can_enter_tile(const grund_t *gr, int & restart_speed, bool )
 {
 	restart_speed = -1;
 
@@ -5685,7 +5685,7 @@ bool aircraft_t::ist_weg_frei(const grund_t *gr, int & restart_speed, bool )
 		return false;
 	}
 
-//DBG_MESSAGE("aircraft_t::ist_weg_frei()","index %i<>%i",route_index,touchdown);
+//DBG_MESSAGE("aircraft_t::can_enter_tile()","index %i<>%i",route_index,touchdown);
 
 	// check for another circle ...
 	if(  route_index == touchdown - HOLDING_PATTERN_OFFSET  )

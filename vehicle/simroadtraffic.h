@@ -147,7 +147,7 @@ public:
 	bool sync_step(long delta_t);
 
 	void hop(grund_t *gr);
-	bool ist_weg_frei(grund_t *gr);
+	bool can_enter_tile(grund_t *gr);
 
 	void enter_tile(grund_t* gr);
 

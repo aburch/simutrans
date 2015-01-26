@@ -46,7 +46,7 @@ public:
 	bool sync_step(long delta_t);
 
 	// prissi: always free
-	virtual bool ist_weg_frei() { return true; }
+	virtual bool can_enter_tile() { return true; }
 	virtual grund_t* hop_check();
 	virtual void hop(grund_t* gr);
 

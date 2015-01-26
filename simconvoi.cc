@@ -1299,7 +1299,7 @@ bool convoi_t::drive_to()
 		bool extend_route = gr;
 		switch (front()->get_waytype())
 		{
-			// convoys of these way types extend their routes in front()->ist_weg_frei() and thus don't need it here.
+			// convoys of these way types extend their routes in front()->can_enter_tile() and thus don't need it here.
 			case air_wt:
 			case track_wt:
 			case monorail_wt:
@@ -1837,7 +1837,7 @@ end_loop:
 				vehicle_t* v = front();
 
 				int restart_speed=-1;
-				if (v->ist_weg_frei(restart_speed,false)) {
+				if (v->can_enter_tile(restart_speed,false)) {
 					// can reserve new block => drive on
 					state = (steps_driven>=0) ? LEAVING_DEPOT : DRIVING;
 					if(haltestelle_t::get_halt(v->get_pos(),owner).is_bound()) {
@@ -1866,7 +1866,7 @@ end_loop:
 		case WAITING_FOR_CLEARANCE:
 			{
 				int restart_speed=-1;
-				if (front()->ist_weg_frei(restart_speed,false)) {
+				if (front()->can_enter_tile(restart_speed,false)) {
 					state = (steps_driven>=0) ? LEAVING_DEPOT : DRIVING;
 				}
 				if(restart_speed>=0) {
@@ -2105,7 +2105,7 @@ void convoi_t::new_month()
 		// check, if now free ...
 		// migh also reset the state!
 		int restart_speed=-1;
-		if (front()->ist_weg_frei(restart_speed,false)) {
+		if (front()->can_enter_tile(restart_speed,false)) {
 			state = DRIVING;
 		}
 		if(restart_speed>=0) {
@@ -3121,7 +3121,7 @@ void convoi_t::vorfahren()
 			int restart_speed=-1;
 			if(state != REVERSING)
 			{
-				if(front()->ist_weg_frei(restart_speed, false)) 
+				if(front()->can_enter_tile(restart_speed, false)) 
 				{
 					// can reserve new block => drive on
 					if(haltestelle_t::get_halt(k0, owner).is_bound())

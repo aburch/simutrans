@@ -60,7 +60,7 @@ public:
 
 	// prissi: always free
 	virtual bool check_next_tile(const grund_t *) const;
-	virtual bool ist_weg_frei() { return 1; }
+	virtual bool can_enter_tile() { return 1; }
 	virtual grund_t* hop_check();
 	virtual void hop(grund_t* gr);
 	virtual void update_bookkeeping(uint32) {};
