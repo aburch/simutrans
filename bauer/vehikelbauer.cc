@@ -21,7 +21,7 @@
 
 #include "../besch/vehikel_besch.h"
 
-#include "../bauer/vehikelbauer.h"
+#include "vehikelbauer.h"
 
 #include "../tpl/stringhashtable_tpl.h"
 
