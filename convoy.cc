@@ -182,7 +182,7 @@ void weight_summary_t::add_vehicle(const vehicle_t &v)
 {
 	// v.get_frictionfactor() between about -14 (downhill) and 50 (uphill). 
 	// Including the factor 1000 for tons to kg conversion, 50 corresponds to an inclination of 28 per mille.
-	add_weight(v.get_gesamtgewicht(), v.get_frictionfactor());
+	add_weight(v.get_total_weight(), v.get_frictionfactor());
 }
 
 /******************************************************************************/
@@ -629,7 +629,7 @@ float32e8_t existing_convoy_t::get_brake_summary(/*const float32e8_t &speed*/ /*
 		{
 			// Usual brake deceleration is about -0.5 .. -1.5 m/s² depending on vehicle and ground. 
 			// With F=ma, a = F/m follows that brake force in N is ~= 1/2 weight in kg
-			force += get_adverse_summary().br * v.get_gesamtgewicht();
+			force += get_adverse_summary().br * v.get_total_weight();
 		}
 	}
 	return force;

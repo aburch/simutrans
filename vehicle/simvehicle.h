@@ -474,7 +474,7 @@ public:
 	/* Return total weight including freight (in kg!)
 	* @author prissi
 	*/
-	inline uint32 get_gesamtgewicht() const { return sum_weight; }
+	inline uint32 get_total_weight() const { return sum_weight; }
 
 	// returns speedlimit of ways (and if convoi enters station etc)
 	// the convoi takes care of the max_speed of the vehicle

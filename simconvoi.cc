@@ -7118,7 +7118,7 @@ void convoi_t::update_weight_summary(weight_summary_t &weight)
 	for (const_iterator i = begin(); i != end(); ++i )
 	{
 		const vehicle_t &v = **i;
-		sint32 kgs = v.get_gesamtgewicht();
+		sint32 kgs = v.get_total_weight();
 		weight.weight += kgs;
 		sin += kgs * v.get_frictionfactor();
 	}
@@ -7142,7 +7142,7 @@ float32e8_t convoi_t::get_brake_summary(/*const float32e8_t &speed*/ /* in m/s *
 		{
 			// Usual brake deceleration is about -0.5 .. -1.5 m/s² depending on vehicle and ground.
 			// With F=ma, a = F/m follows that brake force in N is ~= 1/2 weight in kg
-			force += br * v.get_gesamtgewicht();
+			force += br * v.get_total_weight();
 		}
 	}
 	return force;
