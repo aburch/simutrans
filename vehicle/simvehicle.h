@@ -160,7 +160,7 @@ public:
 	// if true, this convoi needs to restart for correct alignment
 	bool need_realignment() const;
 
-	uint32 fahre_basis(uint32 dist);	// basis movement code
+	uint32 do_drive(uint32 dist);	// basis movement code
 
 	inline void set_bild( image_id b ) { image = b; }
 	virtual image_id get_bild() const {return image;}

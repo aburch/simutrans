@@ -296,7 +296,7 @@ void movingobj_t::entferne(player_t *player)
 bool movingobj_t::sync_step(long delta_t)
 {
 	weg_next += get_besch()->get_speed() * delta_t;
-	weg_next -= fahre_basis( weg_next );
+	weg_next -= do_drive( weg_next );
 	return true;
 }
 

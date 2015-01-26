@@ -329,7 +329,7 @@ void vehicle_base_t::betrete_feld(grund_t* gr)
  * it will drive on as long as it can
  * @return the distance actually travelled
  */
-uint32 vehicle_base_t::fahre_basis(uint32 distance)
+uint32 vehicle_base_t::do_drive(uint32 distance)
 {
 	uint32 steps_to_do = distance >> YARDS_PER_VEHICLE_STEP_SHIFT;
 

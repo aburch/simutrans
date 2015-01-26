@@ -577,7 +577,7 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_ind
 				vehicle_t* v = vehicle[i];
 
 				v->darf_rauchen(false); //"Allowed to smoke" (Google)
-				vehicle[i]->fahre_basis( (VEHICLE_STEPS_PER_CARUNIT*train_length)<<YARDS_PER_VEHICLE_STEP_SHIFT );
+				vehicle[i]->do_drive( (VEHICLE_STEPS_PER_CARUNIT*train_length)<<YARDS_PER_VEHICLE_STEP_SHIFT );
 				train_length -= v->get_besch()->get_length();
 				v->darf_rauchen(true);
 
@@ -1130,7 +1130,7 @@ bool convoi_t::sync_step(long delta_t)
 				// now actually move the units
 				while(sp_soll>>12) {
 					// Attempt to move one step.
-					uint32 sp_hat = front()->fahre_basis(1<<YARDS_PER_VEHICLE_STEP_SHIFT);
+					uint32 sp_hat = front()->do_drive(1<<YARDS_PER_VEHICLE_STEP_SHIFT);
 					int v_nr = get_vehicle_at_length((++steps_driven)>>4);
 					// stop when depot reached
 					if(state==INITIAL  ||  state==ROUTING_1) {
@@ -1151,7 +1151,7 @@ bool convoi_t::sync_step(long delta_t)
 					}
 					// now only the right numbers
 					for(int i=1; i<=v_nr; i++) {
-						vehicle[i]->fahre_basis(sp_hat);
+						vehicle[i]->do_drive(sp_hat);
 					}
 					sp_soll -= sp_hat;
 				}
@@ -1179,17 +1179,17 @@ bool convoi_t::sync_step(long delta_t)
 				//moved to inside calc_acceleration():
 				//sp_soll += (akt_speed*delta_t);
 
-				// While sp_soll is a signed integer fahre_basis() accepts an unsigned integer.
+				// While sp_soll is a signed integer do_drive() accepts an unsigned integer.
 				// Thus running backwards is impossible.  Instead sp_soll < 0 is converted to very large
 				// distances and results in "teleporting" the convoy to the end of its pre-caclulated route.
-				uint32 sp_hat = front()->fahre_basis(sp_soll < 0 ? 0 : sp_soll);
+				uint32 sp_hat = front()->do_drive(sp_soll < 0 ? 0 : sp_soll);
 				// stop when depot reached ...
 				if(state==INITIAL) {
 					break;
 				}
 				// now move the rest (so all vehikel are moving synchroniously)
 				for(unsigned i=1; i<anz_vehikel; i++) {
-					vehicle[i]->fahre_basis(sp_hat); //"move basis"
+					vehicle[i]->do_drive(sp_hat); //"move basis"
 				}
 				// maybe we have been stopped be something => avoid wide jumps
 				sp_soll = (sp_soll-sp_hat) & 0x0FFF;
@@ -2952,7 +2952,7 @@ void convoi_t::vorfahren()
 		steps_driven = 0;
 		// drive half a tile:
 		for(int i=0; i<anz_vehikel; i++) {
-			vehicle[i]->fahre_basis( (VEHICLE_STEPS_PER_TILE/2)<<YARDS_PER_VEHICLE_STEP_SHIFT );
+			vehicle[i]->do_drive( (VEHICLE_STEPS_PER_TILE/2)<<YARDS_PER_VEHICLE_STEP_SHIFT );
 		}
 		v0->darf_rauchen(true);
 		v0->set_erstes(true); // switches on signal checks to reserve the next route
@@ -3034,7 +3034,7 @@ void convoi_t::vorfahren()
 				{
 					vehicle_t* v = vehicle[i];
 					v->darf_rauchen(false);
-					vehicle[i]->fahre_basis( ((OBJECT_OFFSET_STEPS)*train_length)<<12 ); //"fahre" = "go" (Google)
+					vehicle[i]->do_drive( ((OBJECT_OFFSET_STEPS)*train_length)<<12 ); //"fahre" = "go" (Google)
 					train_length += (v->get_besch()->get_length());	// this give the length in 1/OBJECT_OFFSET_STEPS of a full tile => all cars closely coupled!
 					v->darf_rauchen(true);
 				}
@@ -3054,7 +3054,7 @@ void convoi_t::vorfahren()
 				{
 					vehicle_t* v = vehicle[i];
 					v->darf_rauchen(false);
-					vehicle[i]->fahre_basis( (VEHICLE_STEPS_PER_CARUNIT*train_length)<<YARDS_PER_VEHICLE_STEP_SHIFT );
+					vehicle[i]->do_drive( (VEHICLE_STEPS_PER_CARUNIT*train_length)<<YARDS_PER_VEHICLE_STEP_SHIFT );
 					train_length -= v->get_besch()->get_length();
 					// this gives the length in carunits, 1/CARUNITS_PER_TILE of a full tile => all cars closely coupled!
 					v->darf_rauchen(true);

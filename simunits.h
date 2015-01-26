@@ -55,7 +55,7 @@
  * SPEED units:
  * 1 -- "internal" speed -- yards per tick.
  *      -- this is multiplied by delta_t, which is in ticks (in convoi_t::sync_step)
- *      -- to get distance travelled in yards (passed to vehicle_t:fahre_basis)
+ *      -- to get distance travelled in yards (passed to vehicle_t:do_drive)
  * 2 -- km/h -- core setting here is VEHICLE_SPEED_FACTOR
  * 3 -- tiles per tick
  * 4 -- steps per tick
