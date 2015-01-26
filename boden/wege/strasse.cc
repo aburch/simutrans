@@ -42,7 +42,7 @@ void strasse_t::set_gehweg(bool janein)
 		set_max_speed(get_besch()->get_topspeed());
 	}
 	if(gr) {
-		gr->calc_bild();
+		gr->calc_image();
 	}
 }
 

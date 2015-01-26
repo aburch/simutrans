@@ -1118,7 +1118,7 @@ void wegbauer_t::do_terraforming()
 					for(uint8 y=0; y<2; y++) {
 						grund_t *gr = welt->lookup_kartenboden(route[i+j].get_2d()+koord(x,y));
 						if (gr) {
-							gr->calc_bild();
+							gr->calc_image();
 						}
 					}
 				}
@@ -2263,10 +2263,10 @@ bool wegbauer_t::baue_tunnelboden()
 				leitung_t *lt = new leitung_t(tunnel->get_pos(), player);
 				lt->set_besch( wb );
 				tunnel->obj_add( lt );
-				lt->laden_abschliessen();
+				lt->finish_rd();
 				player_t::add_maintenance( player, -lt->get_besch()->get_wartung(), powerline_wt);
 			}
-			tunnel->calc_bild();
+			tunnel->calc_image();
 			cost -= tunnel_besch->get_preis();
 			player_t::add_maintenance( player,  tunnel_besch->get_wartung(), tunnel_besch->get_finance_waytype() );
 		}
@@ -2291,7 +2291,7 @@ bool wegbauer_t::baue_tunnelboden()
 					if (wo  &&  wo->get_besch()->get_topspeed() < weg->get_max_speed()) {
 						weg->set_max_speed( wo->get_besch()->get_topspeed() );
 					}
-					gr->calc_bild();
+					gr->calc_image();
 
 					cost -= tunnel_besch->get_preis();
 				}
@@ -2302,7 +2302,7 @@ bool wegbauer_t::baue_tunnelboden()
 					lt->set_besch( wb );
 					gr->obj_add( lt );
 				} else {
-					lt->leitung_t::laden_abschliessen();	// only change powerline aspect
+					lt->leitung_t::finish_rd();	// only change powerline aspect
 					player_t::add_maintenance( player, -lt->get_besch()->get_wartung(), powerline_wt);
 				}
 			}
@@ -2340,7 +2340,7 @@ bool wegbauer_t::baue_tunnelboden()
 				if (wo  &&  wo->get_besch()->get_topspeed() < weg->get_max_speed()) {
 					weg->set_max_speed( wo->get_besch()->get_topspeed() );
 				}
-				gr->calc_bild();
+				gr->calc_image();
 
 				cost -= tunnel_besch->get_preis();
 			}
@@ -2366,7 +2366,7 @@ void wegbauer_t::baue_elevated()
 			// add new elevated ground
 			monorailboden_t* const monorail = new monorailboden_t(i, hang);
 			plan->boden_hinzufuegen(monorail);
-			monorail->calc_bild();
+			monorail->calc_image();
 		}
 	}
 }
@@ -2415,7 +2415,7 @@ void wegbauer_t::baue_strasse()
 				if(  weg->get_besch()==besch  ||  keep_existing_ways
 					||  (  keep_existing_city_roads  &&  weg->hat_gehweg()  )
 					||  (  ( keep_existing_faster_ways || (!player->is_public_service() && weg->is_public_right_of_way())) &&  ! ( besch->is_at_least_as_good_as(weg->get_besch()) )  )
-					||  (  player!=NULL  &&  weg->ist_entfernbar(player)!=NULL  )
+					||  (  player!=NULL  &&  weg-> is_deletable(player)!=NULL  )
 					||  (  gr->get_typ()==grund_t::monorailboden && (bautyp&elevated_flag)==0  )
 					) {
 					//nothing to be done
@@ -2467,7 +2467,7 @@ void wegbauer_t::baue_strasse()
 						weg->set_owner(player);
 						// Set maintenance costs here
 						// including corrections for diagonals.
-						weg->laden_abschliessen();
+						weg->finish_rd();
 					}
 				}
 			}
@@ -2498,7 +2498,7 @@ void wegbauer_t::baue_strasse()
 					str->set_public_right_of_way();
 				}
 			}
-			gr->calc_bild();	// because it may be a crossing ...
+			gr->calc_image();	// because it may be a crossing ...
 			reliefkarte_t::get_karte()->calc_map_pixel(k);
 			player_t::book_construction_costs(player, cost, k, road_wt);
 		} 
@@ -2546,7 +2546,7 @@ void wegbauer_t::baue_schiene()
 					if (weg->get_besch() == besch																	||
 							(besch->get_styp() == 0 && weg->get_besch()->get_styp() == 7 && gr->has_two_ways())     ||
 							keep_existing_ways                                                                      ||
-							(player != NULL && weg->ist_entfernbar(player) != NULL)											||
+							(player != NULL && weg-> is_deletable(player) != NULL)											||
 							(keep_existing_faster_ways && !(besch->is_at_least_as_good_as(weg->get_besch())) )		||
 							(gr->get_typ() == grund_t::monorailboden && !(bautyp & elevated_flag)  &&  gr->get_weg_nr(0)->get_waytype()==besch->get_wtyp()))
 					{
@@ -2614,7 +2614,7 @@ void wegbauer_t::baue_schiene()
 							grund_t *sea = welt->lookup_kartenboden( route[i].get_2d() + koord::nsow[j] );
 							if(  sea  &&  sea->ist_wasser()  ) {
 								gr->weg_erweitern( water_wt, ribi_t::nsow[j] );
-								sea->calc_bild();
+								sea->calc_image();
 							}
 						}
 					}
@@ -2625,7 +2625,7 @@ void wegbauer_t::baue_schiene()
 				player_t::book_construction_costs(player, cost, gr->get_pos().get_2d(), besch->get_finance_waytype());
 			}
 
-			gr->calc_bild();
+			gr->calc_image();
 			reliefkarte_t::get_karte()->calc_map_pixel( gr->get_pos().get_2d() );
 
 			if((i&3)==0) 
@@ -2677,7 +2677,7 @@ void wegbauer_t::baue_leitung()
 			lt->set_besch(besch);
 			player_t::book_construction_costs(player, -besch->get_preis(), gr->get_pos().get_2d(), powerline_wt);
 			// this adds maintenance
-			lt->leitung_t::laden_abschliessen();
+			lt->leitung_t::finish_rd();
 			reliefkarte_t::get_karte()->calc_map_pixel( gr->get_pos().get_2d() );
 		}
 
@@ -2771,7 +2771,7 @@ void wegbauer_t::baue_fluss()
 			}
 		}
 	}
-	gr_first->calc_bild(); // to calculate ribi of water tiles
+	gr_first->calc_image(); // to calculate ribi of water tiles
 
 	// we will make rivers gradually larger by stepping up their width
 	if(  env_t::river_types>1  &&  start_n<get_count()) {
@@ -2795,7 +2795,7 @@ void wegbauer_t::baue_fluss()
 					if(  type>0  ) {
 						// thus we enlarge
 						w->set_besch( alle_wegtypen.get(env_t::river_type[type-1]) );
-						w->calc_bild();
+						w->calc_image();
 					}
 				}
 			}

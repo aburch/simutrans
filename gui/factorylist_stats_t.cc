@@ -138,7 +138,7 @@ bool factorylist_stats_t::infowin_event(const event_t * ev)
 			welt->get_viewport()->change_world_position(pos);
 		}
 		else {
-			fab->zeige_info();
+			fab->show_info();
 		}
 	}
 	else if (IS_RIGHTRELEASE(ev)) {

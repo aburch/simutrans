@@ -43,7 +43,7 @@ field_t::~field_t()
 
 
 
-const char *field_t::ist_entfernbar(const player_t *)
+const char *field_t:: is_deletable(const player_t *)
 {
 	// Allow removal provided that the number of fields do not fall below half the minimum
 	return (fab->get_field_count() > fab->get_besch()->get_field_group()->get_min_fields() / 2) ? NULL : "Not enough fields would remain.";
@@ -87,8 +87,8 @@ image_id field_t::get_bild() const
  * Beobachtungsfenster angezeigt wird.
  * @author Hj. Malthaner
  */
-void field_t::zeige_info()
+void field_t::show_info()
 {
 	// show the info of the corresponding factory
-	fab->zeige_info();
+	fab->show_info();
 }

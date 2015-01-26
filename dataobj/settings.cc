@@ -157,7 +157,7 @@ settings_t::settings_t() :
 	/* prissi: do not distribute goods to overflowing factories */
 	just_in_time = true;
 
-	fussgaenger = true;
+	pedestrian = true;
 	stadtauto_duration = 36;	// three years
 
 	// to keep names consistent
@@ -732,7 +732,7 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_bool(crossconnect_factories);
 			file->rdwr_short(crossconnect_factor);
 
-			file->rdwr_bool(fussgaenger);
+			file->rdwr_bool(pedestrian);
 			file->rdwr_long(stadtauto_duration);
 
 			file->rdwr_bool(numbered_stations);
@@ -1959,7 +1959,7 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	growthfactor_medium = contents.get_int("growthfactor_cities", growthfactor_medium );
 	growthfactor_large = contents.get_int("growthfactor_capitals", growthfactor_large );
 
-	fussgaenger = contents.get_int("random_pedestrians", fussgaenger ) != 0;
+	pedestrian = contents.get_int("random_pedestrians", pedestrian ) != 0;
 	show_pax = contents.get_int("stop_pedestrians", show_pax ) != 0;
 	verkehr_level = contents.get_int("citycar_level", verkehr_level );
 	stadtauto_duration = contents.get_int("default_citycar_life", stadtauto_duration );	// ten normal years

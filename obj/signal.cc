@@ -73,7 +73,7 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 }
 
 
-void signal_t::calc_bild()
+void signal_t::calc_image()
 {
 	after_bild = IMG_LEER;
 	image_id image = IMG_LEER;

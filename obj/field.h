@@ -30,13 +30,13 @@ public:
 	 * Beobachtungsfenster angezeigt wird.
 	 * @author Hj. Malthaner
 	 */
-	void zeige_info();
+	void show_info();
 
 	/**
 	 * @return NULL wenn OK, ansonsten eine Fehlermeldung
 	 * @author Hj. Malthaner
 	 */
-	const char * ist_entfernbar(const player_t *);
+	const char *  is_deletable(const player_t *);
 
 	void entferne(player_t *player);
 };

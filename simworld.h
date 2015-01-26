@@ -1963,7 +1963,7 @@ public:
 
 	/**
 	 * File version used when loading (or current if generated)
-	 * @note Useful for laden_abschliessen
+	 * @note Useful for finish_rd
 	 */
 	loadsave_t::combined_version load_version;
 

@@ -886,7 +886,7 @@ DBG_DEBUG("player_t::rdwr()","player %i: loading %i halts.",welt->sp2num( this )
  */
 void player_t::load_finished()
 {
-	simlinemgmt.laden_abschliessen();
+	simlinemgmt.finish_rd();
 	display_set_player_color_scheme( player_nr, player_color_1, player_color_2 );
 	// recalculate vehicle value
 	calc_assets();
@@ -1012,8 +1012,8 @@ sint64 player_t::undo()
 					case obj_t::way:
 					case obj_t::label:
 					case obj_t::crossing:
-					case obj_t::fussgaenger:
-					case obj_t::verkehr:
+					case obj_t::pedestrian:
+					case obj_t::road_user:
 					case obj_t::movingobj:
 						break;
 					// special case airplane

@@ -116,7 +116,7 @@ bool crossing_logic_t::request_crossing( const vehicle_base_t *v )
 // request permission to pass crossing
 void crossing_logic_t::add_to_crossing( const vehicle_base_t *v )
 {
-	if(  v->get_typ()!=obj_t::fussgaenger  ) {
+	if(  v->get_typ()!=obj_t::pedestrian  ) {
 		if(v->get_waytype()==besch->get_waytype(0)) {
 			on_way1.append_unique(v);
 		}

@@ -369,7 +369,7 @@ void baum_t::rotate90()
 
 
 // actually calculates only the season
-void baum_t::calc_bild()
+void baum_t::calc_image()
 {
 	// summer autumn winter spring
 	season = welt->get_season();
@@ -403,7 +403,7 @@ image_id baum_t::get_bild() const
 
 
 // image which transparent outline is used
-image_id baum_t::get_outline_bild() const
+image_id baum_t::get_outline_image() const
 {
 	const uint8 baum_alter = baum_bild_alter[min(get_age()>>6, 11u)];
 	return baumtype_to_bild[ baumtype ][ season*5 + baum_alter ];
@@ -461,7 +461,7 @@ baum_t::baum_t(koord3d pos) :
 	baumtype = (uint8)random_tree_for_climate_intern( welt->get_climate(pos.get_2d()) );
 	season = 0;
 	calc_off( welt->lookup( get_pos())->get_grund_hang() );
-	calc_bild();
+	calc_image();
 }
 
 
@@ -476,7 +476,7 @@ baum_t::baum_t(koord3d pos, uint8 type, sint32 age, uint8 slope ) :
 	baumtype = type;
 	season = 0;
 	calc_off( slope );
-	calc_bild();
+	calc_image();
 }
 
 
@@ -491,7 +491,7 @@ baum_t::baum_t(koord3d pos, const baum_besch_t *besch) :
 	baumtype = baum_typen.index_of(besch);
 	season = 0;
 	calc_off( welt->lookup( get_pos())->get_grund_hang() );
-	calc_bild();
+	calc_image();
 }
 
 
@@ -541,7 +541,7 @@ bool baum_t::check_season(const bool)
 		return false;
 	}
 
-	calc_bild();
+	calc_image();
 	return true;
 }
 
@@ -584,7 +584,7 @@ void baum_t::rdwr(loadsave_t *file)
 	else {
 		// correct z-offset
 		if(file->is_loading()) {
-			// this will trigger recalculation of offset in laden_abschliessen()
+			// this will trigger recalculation of offset in finish_rd()
 			// we cant call calc_off() since this->pos is still invalid
 			set_xoff(-128);
 		}
@@ -592,7 +592,7 @@ void baum_t::rdwr(loadsave_t *file)
 }
 
 
-void baum_t::laden_abschliessen()
+void baum_t::finish_rd()
 {
 	if(get_xoff()==-128) {
 		calc_off(welt->lookup( get_pos())->get_grund_hang());
@@ -604,10 +604,10 @@ void baum_t::laden_abschliessen()
  * Öffnet ein neues Beobachtungsfenster für das Objekt.
  * @author Hj. Malthaner
  */
-void baum_t::zeige_info()
+void baum_t::show_info()
 {
 	if(env_t::tree_info) {
-		obj_t::zeige_info();
+		obj_t::show_info();
 	}
 }
 

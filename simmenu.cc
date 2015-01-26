@@ -1008,7 +1008,7 @@ void two_click_tool_t::cleanup( bool delete_start_marker )
 	while(!marked.empty()) {
 		zeiger_t *z = marked.remove_first();
 		z->mark_image_dirty( z->get_bild(), 0 );
-		z->mark_image_dirty( z->get_after_bild(), 0 );
+		z->mark_image_dirty( z->get_front_image(), 0 );
 		koord3d pos = z->get_pos();
 		grund_t *gr = welt->lookup( pos );
 		delete z;

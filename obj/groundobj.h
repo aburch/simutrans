@@ -45,7 +45,7 @@ public:
 	image_id get_bild() const { return image; }
 
 	/// recalculates image depending on season and slope of ground
-	void calc_bild();
+	void calc_image();
 
 	/**
 	 * Called whenever the season or snowline height changes
@@ -59,7 +59,7 @@ public:
 	typ get_typ() const { return groundobj; }
 #endif
 
-	void zeige_info();
+	void show_info();
 
 	void info(cbuffer_t & buf, bool dummy = false) const;
 

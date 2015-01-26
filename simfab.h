@@ -477,7 +477,7 @@ public:
 	 */
 	const fabrik_besch_t *get_besch() const {return besch; }
 
-	void laden_abschliessen();
+	void finish_rd();
 
 	/**
 	* gets position of a building belonging to factory
@@ -599,7 +599,7 @@ public:
 		return p ? p->first_obj()->get_owner() : 0;
 	}
 
-	void zeige_info();
+	void show_info();
 
 	/**
 	 * infostring on production

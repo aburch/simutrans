@@ -57,7 +57,7 @@ public:
 	/*
 	 * called after game is fully loaded;
 	 */
-	void laden_abschliessen();
+	void finish_rd();
 
 	void rotate90( sint16 y_size );
 

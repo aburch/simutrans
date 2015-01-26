@@ -180,7 +180,7 @@ public:
 	 */
 	void register_stops(schedule_t * fpl);
 
-	void laden_abschliessen();
+	void finish_rd();
 
 	/*
 	 * unregister line from stop

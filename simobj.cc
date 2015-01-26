@@ -53,7 +53,7 @@ void obj_t::init()
 
 	owner_n = PLAYER_UNOWNED;
 
-	flags = keine_flags;
+	flags = no_flags;
 	set_flag(dirty);
 }
 
@@ -175,14 +175,14 @@ void obj_t::info(cbuffer_t & buf, bool is_bridge) const
 }
 
 
-void obj_t::zeige_info()
+void obj_t::show_info()
 {
 	create_win( new obj_infowin_t(this), w_info, (ptrdiff_t)this);
 }
 
 
 // returns NULL, if removal is allowed
-const char *obj_t::ist_entfernbar(const player_t *player)
+const char *obj_t:: is_deletable(const player_t *player)
 {
 	if(owner_n==PLAYER_UNOWNED  ||  welt->get_player(owner_n) == player  ||  welt->get_player(1) == player) {
 		return NULL;
@@ -223,7 +223,7 @@ void obj_t::display(int xpos, int ypos) const
 #endif
 {
 	image_id image = get_bild();
-	image_id const outline_bild = get_outline_bild();
+	image_id const outline_bild = get_outline_image();
 	if(  image!=IMG_LEER  ||  outline_bild!=IMG_LEER  ) {
 		const int raster_width = get_current_tile_raster_width();
 		const bool is_dirty = get_flag(obj_t::dirty);
@@ -272,9 +272,9 @@ void obj_t::display(int xpos, int ypos) const
 			if(  TRANSPARENT_FLAGS&transparent  ) {
 				// only transparent outline
 #ifdef MULTI_THREAD
-				display_blend( get_outline_bild(), xpos, start_ypos, owner_n, transparent, 0, is_dirty, clip_num );
+				display_blend( get_outline_image(), xpos, start_ypos, owner_n, transparent, 0, is_dirty, clip_num );
 #else
-				display_blend( get_outline_bild(), xpos, start_ypos, owner_n, transparent, 0, is_dirty );
+				display_blend( get_outline_image(), xpos, start_ypos, owner_n, transparent, 0, is_dirty );
 #endif
 			}
 			else if(  obj_t::get_flag( highlight )  ) {
@@ -317,7 +317,7 @@ void obj_t::display_after(int xpos, int ypos, const sint8 clip_num) const
 void obj_t::display_after(int xpos, int ypos, bool) const
 #endif
 {
-	image_id image = get_after_bild();
+	image_id image = get_front_image();
 	if(  image != IMG_LEER  ) {
 		const int raster_width = get_current_tile_raster_width();
 		const bool is_dirty = get_flag( obj_t::dirty );

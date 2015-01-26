@@ -205,14 +205,14 @@ public:
 	 * Öffnet ein neues Beobachtungsfenster für das Objekt.
 	 * @author Hj. Malthaner
 	 */
-	void zeige_info();
+	void show_info();
 
 	/**
 	 * Can object be removed?
 	 * @return NULL wenn OK, ansonsten eine Fehlermeldung
 	 * @author Hj. Malthaner
 	 */
-	virtual const char * ist_entfernbar(const player_t *player);
+	virtual const char *  is_deletable(const player_t *player);
 
 	/**
 	 * identifies the oldest vehicle of a certain type

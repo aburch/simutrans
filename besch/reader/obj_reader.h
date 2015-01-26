@@ -106,7 +106,7 @@ public:
 	virtual obj_type get_type() const = 0;
 	virtual const char *get_type_name() const = 0;
 
-	static bool laden_abschliessen();
+	static bool finish_rd();
 	/**
 	 * Loads all pak files from a directory, displaying a progress bar if the display is initialized
 	 * @param path Directory to be scanned for PAK files

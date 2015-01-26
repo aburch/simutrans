@@ -61,7 +61,7 @@ public:
 	 * @return NULL wenn OK, ansonsten eine Fehlermeldung
 	 * @author Hj. Malthaner
 	 */
-	virtual const char *ist_entfernbar(const player_t *player, bool allow_public = false);
+	virtual const char * is_deletable(const player_t *player, bool allow_public = false);
 
 	/**
 	 * crossing logic is removed here
@@ -92,13 +92,13 @@ public:
 	 * Dient zur Neuberechnung des Bildes
 	 * @author Hj. Malthaner
 	 */
-	void calc_bild();
+	void calc_image();
 
 	/**
 	* Called whenever the season or snowline height changes
 	* return false and the obj_t will be deleted
 	*/
-	bool check_season(const bool calc_only_season_change) { if(  !calc_only_season_change  ) { calc_bild(); } return true; }  // depends on snowline only
+	bool check_season(const bool calc_only_season_change) { if(  !calc_only_season_change  ) { calc_image(); } return true; }  // depends on snowline only
 
 	// changes the state of a traffic light
 	image_id get_bild() const { return image; }
@@ -107,11 +107,11 @@ public:
 	* For the front image hiding vehicles
 	* @author prissi
 	*/
-	image_id get_after_bild() const { return after_bild; }
+	image_id get_front_image() const { return after_bild; }
 
 	void rdwr(loadsave_t *file);
 
-	void laden_abschliessen();
+	void finish_rd();
 };
 
 #endif

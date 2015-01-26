@@ -66,7 +66,7 @@ waytype_t tunnel_t::get_waytype() const
 }
 
 
-void tunnel_t::calc_bild()
+void tunnel_t::calc_image()
 {
 #ifdef MULTI_THREAD
 	pthread_mutex_lock( &tunnel_calc_bild_mutex );
@@ -79,7 +79,7 @@ void tunnel_t::calc_bild()
 		if(  besch->has_broad_portals()  ) {
 			ribi_t::ribi dir = ribi_t::rotate90( ribi_typ( hang ) );
 			if(  dir==0  ) {
-				dbg->error( "tunnel_t::calc_bild()", "pos=%s, dir=%i, hang=%i", get_pos().get_str(), dir, hang );
+				dbg->error( "tunnel_t::calc_image()", "pos=%s, dir=%i, hang=%i", get_pos().get_str(), dir, hang );
 			}
 			else {
 				const grund_t *gr_l = welt->lookup(get_pos() + dir);
@@ -87,7 +87,7 @@ void tunnel_t::calc_bild()
 				if(  tunnel_l  &&  tunnel_l->get_besch() == besch  &&  gr_l->get_grund_hang() == hang  ) {
 					broad_type += 1;
 					if(  !(tunnel_l->get_broad_type() & 2)  ) {
-						tunnel_l->calc_bild();
+						tunnel_l->calc_image();
 					}
 				}
 				const grund_t *gr_r = welt->lookup(get_pos() - dir);
@@ -95,7 +95,7 @@ void tunnel_t::calc_bild()
 				if(  tunnel_r  &&  tunnel_r->get_besch() == besch  &&  gr_r->get_grund_hang() == hang  ) {
 					broad_type += 2;
 					if(  !(tunnel_r->get_broad_type() & 1)  ) {
-						tunnel_r->calc_bild();
+						tunnel_r->calc_image();
 					}
 				}
 			}
@@ -139,7 +139,7 @@ void tunnel_t::rdwr(loadsave_t *file)
 }
 
 
-void tunnel_t::laden_abschliessen()
+void tunnel_t::finish_rd()
 {
 	const grund_t *gr = welt->lookup(get_pos());
 	player_t *player=get_owner();
@@ -159,7 +159,7 @@ void tunnel_t::laden_abschliessen()
 		else {
 			besch = tunnelbauer_t::find_tunnel(gr->get_weg_nr(0)->get_besch()->get_wtyp(), 450, 0);
 			if(  besch == NULL  ) {
-				dbg->error( "tunnel_t::laden_abschliessen()", "Completely unknown tunnel for this waytype: Lets use a rail tunnel!" );
+				dbg->error( "tunnel_t::finish_rd()", "Completely unknown tunnel for this waytype: Lets use a rail tunnel!" );
 				besch = tunnelbauer_t::find_tunnel(track_wt, 1, 0);
 			}
 		}
@@ -251,12 +251,12 @@ void tunnel_t::set_after_bild( image_id b )
 
 // returns NULL, if removal is allowed
 // players can remove public owned ways
-const char *tunnel_t::ist_entfernbar(const player_t *player)
+const char *tunnel_t:: is_deletable(const player_t *player)
 {
 	if (get_player_nr()==1) {
 		return NULL;
 	}
 	else {
-		return obj_t::ist_entfernbar(player);
+		return obj_t:: is_deletable(player);
 	}
 }

@@ -410,7 +410,7 @@ uint32 convoi_t::move_to(uint16 const start_index)
 }
 
 
-void convoi_t::laden_abschliessen()
+void convoi_t::finish_rd()
 {
 	if(fpl==NULL) {
 		if(  state!=INITIAL  ) {
@@ -424,7 +424,7 @@ void convoi_t::laden_abschliessen()
 			// the fact that these change each month due to depreciation, so this doesn't work.
 			// It would be good to restore it.
 			// --neroden
-			// vehicle[i]->laden_abschliessen();
+			// vehicle[i]->finish_rd();
 		}
 		return;
 	}
@@ -438,7 +438,7 @@ void convoi_t::laden_abschliessen()
 
 	bool realing_position = false;
 	if(  anz_vehikel>0  ) {
-		DBG_MESSAGE("convoi_t::laden_abschliessen()","state=%s, next_stop_index=%d", state_names[state], next_stop_index );
+		DBG_MESSAGE("convoi_t::finish_rd()","state=%s, next_stop_index=%d", state_names[state], next_stop_index );
 
 	const uint32 max_route_index = get_route() ? get_route()->get_count() - 1 : 0;
 
@@ -448,7 +448,7 @@ void convoi_t::laden_abschliessen()
 				vehicle_t* v = vehicle[i];
 				if(v->get_route_index() > max_route_index && max_route_index > 0 && i > 0)
 				{
-					dbg->error("convoi_t::laden_abschliessen()", "Route index is %i, whereas maximum route index is %i for convoy %i", v->get_route_index(), max_route_index, self.get_id());
+					dbg->error("convoi_t::finish_rd()", "Route index is %i, whereas maximum route index is %i for convoy %i", v->get_route_index(), max_route_index, self.get_id());
 					v->set_route_index(front()->get_route_index());
 				}
 				v->set_leading( i==0 );
@@ -467,7 +467,7 @@ void convoi_t::laden_abschliessen()
 				vehicle_t* v = vehicle[i];
 				/*if(v->get_route_index() > max_route_index && max_route_index > 0 && i > 0)
 				{
-					dbg->error("convoi_t::laden_abschliessen()", "Route index is %i, whereas maximum route index is %i for convoy %i", v->get_route_index(), max_route_index, self.get_id());
+					dbg->error("convoi_t::finish_rd()", "Route index is %i, whereas maximum route index is %i for convoy %i", v->get_route_index(), max_route_index, self.get_id());
 					v->set_route_index(front()->get_route_index());
 				}*/
 				v->set_leading( i==0 );
@@ -496,11 +496,11 @@ void convoi_t::laden_abschliessen()
 							}
 							step_pos += ribi_t::ist_kurve(v->get_direction()) ? diagonal_vehicle_steps_per_tile : VEHICLE_STEPS_PER_TILE;
 						}
-						DBG_MESSAGE("convoi_t::laden_abschliessen()", "v: pos(%s) steps(%d) len=%d ribi=%d prev (%s) step(%d)", v->get_pos().get_str(), v->get_steps(), v->get_besch()->get_length()*16, v->get_direction(),  drive_pos.get_2d().get_str(), step_pos);
+						DBG_MESSAGE("convoi_t::finish_rd()", "v: pos(%s) steps(%d) len=%d ribi=%d prev (%s) step(%d)", v->get_pos().get_str(), v->get_steps(), v->get_besch()->get_length()*16, v->get_direction(),  drive_pos.get_2d().get_str(), step_pos);
 						if(  abs( v->get_steps() - step_pos )>15  ) {
 							// not where it should be => realing
 							realing_position = true;
-							dbg->warning( "convoi_t::laden_abschliessen()", "convoi (%s) is broken => realign", get_name() );
+							dbg->warning( "convoi_t::finish_rd()", "convoi (%s) is broken => realign", get_name() );
 						}
 					}
 					step_pos -= v->get_besch()->get_length_in_steps();
@@ -508,7 +508,7 @@ void convoi_t::laden_abschliessen()
 				}
 			}
 		}
-DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_index );
+DBG_MESSAGE("convoi_t::finish_rd()","next_stop_index=%d", next_stop_index );
 
 		linehandle_t new_line = line;
 		if(  !new_line.is_bound()  ) {
@@ -533,7 +533,7 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_ind
 			if(new_line.is_bound()) {
 				line = new_line;
 				line->add_convoy(self, true);
-				DBG_DEBUG("convoi_t::laden_abschliessen()","%s registers for %d", name_and_id, line.get_id());
+				DBG_DEBUG("convoi_t::finish_rd()","%s registers for %d", name_and_id, line.get_id());
 			}
 			else {
 				line = linehandle_t();
@@ -542,20 +542,20 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_ind
 	}
 	else {
 		// no vehicles in this convoi?!?
-		dbg->error( "convoi_t::laden_abschliessen()","No vehicles in Convoi %i: will be destroyed!", self.get_id() );
+		dbg->error( "convoi_t::finish_rd()","No vehicles in Convoi %i: will be destroyed!", self.get_id() );
 		destroy();
 		return;
 	}
 	// put convoi agian right on track?
 	if(realing_position  &&  anz_vehikel>1) {
 		// display just a warning
-		DBG_MESSAGE("convoi_t::laden_abschliessen()","cnv %i is currently too long.",self.get_id());
+		DBG_MESSAGE("convoi_t::finish_rd()","cnv %i is currently too long.",self.get_id());
 
 		if (route.empty()) {
 			// realigning needs a route
 			state = NO_ROUTE;
 			owner->report_vehicle_problem( self, koord3d::invalid );
-			dbg->error( "convoi_t::laden_abschliessen()", "No valid route, but needs realignment at (%s)!", front()->get_pos().get_str() );
+			dbg->error( "convoi_t::finish_rd()", "No valid route, but needs realignment at (%s)!", front()->get_pos().get_str() );
 		}
 		else {
 			// since start may have been changed
@@ -564,7 +564,7 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_ind
 			if(last_route_index > route.get_count() - 1 && vehicle_count > 0)
 			{
 				last_route_index = 0;
-				dbg->warning("convoi_t::laden_abschliessen()", "Convoy %i's route index is out of range: resetting to zero", self.get_id());
+				dbg->warning("convoi_t::finish_rd()", "Convoy %i's route index is out of range: resetting to zero", self.get_id());
 			}
 			uint16 start_index = max(1,vehicle[anz_vehikel-1]->get_route_index())-1;
 
@@ -4374,7 +4374,7 @@ void convoi_t::rdwr(loadsave_t *file)
 }
 
 
-void convoi_t::zeige_info()
+void convoi_t::show_info()
 {
 	if(  in_depot()  ) {
 		// Knightly : if ownership matches, we can try to open the depot dialog
@@ -4383,7 +4383,7 @@ void convoi_t::zeige_info()
 			if(  ground  ) {
 				depot_t *const depot = ground->get_depot();
 				if(  depot  ) {
-					depot->zeige_info();
+					depot->show_info();
 					// try to activate this particular convoy in the depot
 					depot_frame_t *const frame = dynamic_cast<depot_frame_t *>( win_get_magic( (ptrdiff_t)depot ) );
 					if(  frame  ) {
@@ -6387,7 +6387,7 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 							return false;
 						}
 					}
-					else if(  v->get_waytype()==road_wt  &&  v->get_typ()!=obj_t::fussgaenger  ) {
+					else if(  v->get_waytype()==road_wt  &&  v->get_typ()!=obj_t::pedestrian  ) {
 						return false;
 					}
 				}
@@ -6472,7 +6472,7 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 						return false;
 					}
 				}
-				else if(  v->get_waytype()==road_wt  &&  v->get_typ()!=obj_t::fussgaenger  ) {
+				else if(  v->get_waytype()==road_wt  &&  v->get_typ()!=obj_t::pedestrian  ) {
 					// sheeps etc.
 					return false;
 				}

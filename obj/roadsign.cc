@@ -184,11 +184,11 @@ DBG_MESSAGE("roadsign_t::set_dir()","ribi %i",dir);
 
 	image = IMG_LEER;
 	after_bild = IMG_LEER;
-	calc_bild();
+	calc_image();
 }
 
 
-void roadsign_t::zeige_info()
+void roadsign_t::show_info()
 {
 	if(  besch->is_private_way()  ) {
 		create_win(new privatesign_info_t(this), w_info, (ptrdiff_t)this );
@@ -197,7 +197,7 @@ void roadsign_t::zeige_info()
 		create_win(new trafficlight_info_t(this), w_info, (ptrdiff_t)this );
 	}
 	else {
-		obj_t::zeige_info();
+		obj_t::show_info();
 	}
 }
 
@@ -238,7 +238,7 @@ void roadsign_t::info(cbuffer_t & buf, bool dummy) const
 
 
 // could be still better aligned for drive_left settings ...
-void roadsign_t::calc_bild()
+void roadsign_t::calc_image()
 {
 	set_flag(obj_t::dirty);
 
@@ -501,7 +501,7 @@ bool roadsign_t::sync_step(long /*delta_t*/)
 		if(state!=new_state) {
 			state = new_state;
 			dir = (new_state==0) ? ribi_t::nordsued : ribi_t::ostwest;
-			calc_bild();
+			calc_image();
 		}
 	}
 	return true;
@@ -637,11 +637,11 @@ void roadsign_t::entferne(player_t *player)
  *
  * @author Hj. Malthaner
  */
-void roadsign_t::laden_abschliessen()
+void roadsign_t::finish_rd()
 {
 	grund_t *gr=welt->lookup(get_pos());
 	if(  gr==NULL  ||  !gr->hat_weg(besch->get_wtyp()!=tram_wt ? besch->get_wtyp() : track_wt)  ) {
-		dbg->error("roadsign_t::laden_abschliessen","roadsing: way/ground missing at %i,%i => ignore", get_pos().x, get_pos().y );
+		dbg->error("roadsign_t::finish_rd","roadsing: way/ground missing at %i,%i => ignore", get_pos().x, get_pos().y );
 	}
 	else {
 		// after loading restore directions

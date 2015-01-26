@@ -210,7 +210,7 @@ public:
 	/**
 	 * Actual image recalculation
 	 */
-	void calc_bild();
+	void calc_image();
 
 	/**
 	 * Called whenever the season or snowline height changes
@@ -282,7 +282,7 @@ public:
 	 * @return NULL if OK, otherwise an error message
 	 * @author Hj. Malthaner
 	 */
-	virtual const char *ist_entfernbar(const player_t *player, bool allow_public = false);
+	virtual const char * is_deletable(const player_t *player, bool allow_public = false);
 
 	/**
 	* Wegtyp zurückliefern
@@ -306,7 +306,7 @@ public:
 	* Setzt neue Richtungsbits für einen Weg.
 	*
 	* Nachdem die ribis geändert werden, ist das weg_bild des
-	* zugehörigen Grundes falsch (Ein Aufruf von grund_t::calc_bild()
+	* zugehörigen Grundes falsch (Ein Aufruf von grund_t::calc_image()
 	* zur Reparatur muß folgen).
 	* @param ribi Richtungsbits
 	*/
@@ -316,7 +316,7 @@ public:
 	* Entfernt Richtungsbits von einem Weg.
 	*
 	* Nachdem die ribis geändert werden, ist das weg_bild des
-	* zugehörigen Grundes falsch (Ein Aufruf von grund_t::calc_bild()
+	* zugehörigen Grundes falsch (Ein Aufruf von grund_t::calc_image()
 	* zur Reparatur muß folgen).
 	* @param ribi Richtungsbits
 	*/
@@ -326,7 +326,7 @@ public:
 	* Setzt Richtungsbits für den Weg.
 	*
 	* Nachdem die ribis geändert werden, ist das weg_bild des
-	* zugehörigen Grundes falsch (Ein Aufruf von grund_t::calc_bild()
+	* zugehörigen Grundes falsch (Ein Aufruf von grund_t::calc_image()
 	* zur Reparatur muß folgen).
 	* @param ribi Richtungsbits
 	*/
@@ -406,10 +406,10 @@ public:
 	image_id get_bild() const {return image;}
 
 	inline void set_after_bild( image_id b ) { after_bild = b; }
-	image_id get_after_bild() const {return after_bild;}
+	image_id get_front_image() const {return after_bild;}
 
 	// correct maintainace
-	void laden_abschliessen();
+	void finish_rd();
 
 	// Should a city adopt this, if it is being built/upgrade by player player?
 	bool should_city_adopt_this(const player_t* player);

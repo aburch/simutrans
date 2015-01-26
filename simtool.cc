@@ -246,7 +246,7 @@ static grund_t *tool_intern_koord_to_weg_grund(player_t *player, karte_t *welt, 
 
 	if(  wt==powerline_wt  &&  gr->get_leitung()  ) {
 		// check for ownership
-		if(gr->get_leitung()->ist_entfernbar(player)!=NULL) {
+		if(gr->get_leitung()-> is_deletable(player)!=NULL) {
 			return NULL;
 		}
 		// ok
@@ -258,7 +258,7 @@ static grund_t *tool_intern_koord_to_weg_grund(player_t *player, karte_t *welt, 
 	// tram
 	if(wt==tram_wt) {
 		weg_t *way = gr->get_weg(track_wt);
-		if (way && way->get_besch()->get_styp() == weg_t::type_tram &&  way->ist_entfernbar(player)==NULL) {
+		if (way && way->get_besch()->get_styp() == weg_t::type_tram &&  way-> is_deletable(player)==NULL) {
 			return gr;
 		}
 		else {
@@ -272,7 +272,7 @@ static grund_t *tool_intern_koord_to_weg_grund(player_t *player, karte_t *welt, 
 		return NULL;
 	}
 	// check for ownership
-	if(gr->get_weg(wt)->ist_entfernbar(player, allow_public) != NULL)
+	if(gr->get_weg(wt)-> is_deletable(player, allow_public) != NULL)
 	{
 		return NULL;
 	}
@@ -317,7 +317,7 @@ const char *tool_query_t::work( player_t *player, koord3d pos )
 					obj_t *obj = gr->obj_bei(n);
 					if(  obj && obj->get_typ()!=obj_t::wayobj && obj->get_typ()!=obj_t::pillar && obj->get_typ()!=obj_t::label  ) {
 						DBG_MESSAGE("tool_abfrage()", "index %d", n);
-						obj->zeige_info();
+						obj->show_info();
 						// did some new window open?
 						if(old_count!=win_get_open_count()) {
 							return NULL;
@@ -328,7 +328,7 @@ const char *tool_query_t::work( player_t *player, koord3d pos )
 				if(  gr->get_flag(grund_t::marked)  ) {
 					label_t *lb = gr->find<label_t>();
 					if(  lb  ) {
-						lb->zeige_info();
+						lb->show_info();
 						if(  old_count!=win_get_open_count()  ) {
 							return NULL;
 						}
@@ -336,7 +336,7 @@ const char *tool_query_t::work( player_t *player, koord3d pos )
 				}
 
 				if(  gr->get_halt().is_bound()  ) {
-					gr->get_halt()->zeige_info();
+					gr->get_halt()->show_info();
 					if(  old_count!=win_get_open_count()  ) {
 						return NULL;
 					}
@@ -347,7 +347,7 @@ const char *tool_query_t::work( player_t *player, koord3d pos )
 
 				// show halt and labels first ...
 				if(  gr->get_halt().is_bound()  ) {
-					gr->get_halt()->zeige_info();
+					gr->get_halt()->show_info();
 					if(  old_count!=win_get_open_count()  ) {
 						return NULL;
 					}
@@ -355,7 +355,7 @@ const char *tool_query_t::work( player_t *player, koord3d pos )
 				if(  gr->get_flag(grund_t::marked)  ) {
 					label_t *lb = gr->find<label_t>();
 					if(  lb  ) {
-						lb->zeige_info();
+						lb->show_info();
 						if(  old_count!=win_get_open_count()  ) {
 							return NULL;
 						}
@@ -366,7 +366,7 @@ const char *tool_query_t::work( player_t *player, koord3d pos )
 					obj_t *obj = gr->obj_bei(n);
 					if(  obj && obj->get_typ()!=obj_t::wayobj && obj->get_typ()!=obj_t::pillar && obj->get_typ()!=obj_t::label  ) {
 						DBG_MESSAGE("tool_abfrage()", "index %u", (unsigned)n);
-						obj->zeige_info();
+						obj->show_info();
 						// did some new window open?
 						if(old_count!=win_get_open_count()) {
 							return NULL;
@@ -376,22 +376,22 @@ const char *tool_query_t::work( player_t *player, koord3d pos )
 			}
 
 			// no window yet opened -> try ground info
-			gr->zeige_info();
+			gr->show_info();
 		}
 		else {
 			// lowest (less interesting) first
-			gr->zeige_info();
+			gr->show_info();
 			for(int n=0; n<gr->get_top();  n++  ) {
 				obj_t *obj = gr->obj_bei(n);
 				if(  obj && obj->get_typ()!=obj_t::wayobj && obj->get_typ()!=obj_t::pillar  ) {
-					obj->zeige_info();
+					obj->show_info();
 				}
 			}
 		}
 
 		if(gr->get_depot()  &&  gr->get_depot()->get_owner()==player) {
 			int old_count = win_get_open_count();
-			gr->get_depot()->zeige_info();
+			gr->get_depot()->show_info();
 			// did some new window open?
 			if(env_t::single_info  &&  old_count!=win_get_open_count()) {
 				return NULL;
@@ -424,7 +424,7 @@ DBG_MESSAGE("tool_remover_intern()","at (%s)", pos.get_str());
 	// marker?
 	label_t* l = gr->find<label_t>();
 	if(l) {
-		msg = l->ist_entfernbar(player);
+		msg = l-> is_deletable(player);
 		if(msg==NULL) {
 			delete l;
 			// Refund the cost of land if the player is deleting the marker and therefore selling it.
@@ -447,9 +447,9 @@ DBG_MESSAGE("tool_remover_intern()","at (%s)", pos.get_str());
 	}
 
 	// pedestrians?
-	pedestrian_t* fussgaenger = gr->find<pedestrian_t>();
-	if(fussgaenger) {
-		delete fussgaenger;
+	pedestrian_t* pedestrian = gr->find<pedestrian_t>();
+	if(pedestrian) {
+		delete pedestrian;
 		return true;
 	}
 
@@ -457,7 +457,7 @@ DBG_MESSAGE("tool_remover_intern()","at (%s)", pos.get_str());
 
 	// prissi: check powerline (can cross ground of another player)
 	leitung_t* lt = gr->get_leitung();
-	if(lt!=NULL  &&  lt->ist_entfernbar(player)==NULL) {
+	if(lt!=NULL  &&  lt-> is_deletable(player)==NULL) {
 		if(  gr->ist_bruecke()  ) {
 			bruecke_t* br = gr->find<bruecke_t>();
 			if(  br == NULL  ) {
@@ -517,7 +517,7 @@ DBG_MESSAGE("tool_remover_intern()","at (%s)", pos.get_str());
 	roadsign_t* rs = gr->find<signal_t>();
 	if (rs == NULL) rs = gr->find<roadsign_t>();
 	if(rs!=NULL) {
-		msg = rs->ist_entfernbar(player);
+		msg = rs-> is_deletable(player);
 		if(msg) {
 			return false;
 		}
@@ -553,7 +553,7 @@ DBG_MESSAGE("tool_remover()", "bound=%i",halt.is_bound());
 	// catenary or something like this
 	wayobj_t* wo = gr->find<wayobj_t>();
 	if(wo) {
-		msg = wo->ist_entfernbar(player);
+		msg = wo-> is_deletable(player);
 		if(msg) {
 			return false;
 		}
@@ -616,14 +616,14 @@ DBG_MESSAGE("tool_remover()",  "removing tunnel  from %d,%d,%d",gr->get_pos().x,
 	// fields
 	field_t* f = gr->find<field_t>();
 	if (f) {
-		msg = f->ist_entfernbar(player);
+		msg = f-> is_deletable(player);
 		if(msg==NULL) {
 			f->entferne(player);
 			delete f;
 			// fields have foundations ...
 			sint8 dummy;
 			welt->access(k)->boden_ersetzen( gr, new boden_t(gr->get_pos(), welt->recalc_natural_slope(k,dummy) ) );
-			welt->lookup_kartenboden(k)->calc_bild();
+			welt->lookup_kartenboden(k)->calc_image();
 			welt->lookup_kartenboden(k)->set_flag( grund_t::dirty );
 		}
 		return msg == NULL;
@@ -632,7 +632,7 @@ DBG_MESSAGE("tool_remover()",  "removing tunnel  from %d,%d,%d",gr->get_pos().x,
 	// depots
 	depot_t* dep = gr->get_depot();
 	if (dep) {
-		msg = dep->ist_entfernbar(player);
+		msg = dep-> is_deletable(player);
 		if(msg) {
 			return false;
 		}
@@ -644,7 +644,7 @@ DBG_MESSAGE("tool_remover()",  "removing tunnel  from %d,%d,%d",gr->get_pos().x,
 	// since buildings can have more than one tile, we must handle them together
 	gebaeude_t* gb = gr->find<gebaeude_t>();
 	if(gb != NULL) {
-		msg = gb->ist_entfernbar(player);
+		msg = gb-> is_deletable(player);
 		if(msg) {
 			return false;
 		}
@@ -754,14 +754,14 @@ DBG_MESSAGE("tool_remover()", "removing way");
 			// remove the other way first
 			w = NULL;
 		}
-		if(w==NULL  ||  w->ist_entfernbar(player)!=NULL) {
+		if(w==NULL  ||  w-> is_deletable(player)!=NULL) {
 			w = gr->get_weg_nr(0);
 			if(w==NULL) {
 				// no way at all ...
 				return true;
 			}
-			if(w->ist_entfernbar(player)!=NULL){
-				msg = w->ist_entfernbar(player);
+			if(w-> is_deletable(player)!=NULL){
+				msg = w-> is_deletable(player);
 				return false;
 			}
 		}
@@ -852,17 +852,17 @@ const char *tool_remover_t::work( player_t *player, koord3d pos )
 
 	// must recalc neighbourhood for slopes etc.
 	if(pos.x>1) {
-		welt->lookup_kartenboden(pos.get_2d()+koord::west)->calc_bild();
+		welt->lookup_kartenboden(pos.get_2d()+koord::west)->calc_image();
 	}
 	if(pos.y>1) {
-		welt->lookup_kartenboden(pos.get_2d()+koord::nord)->calc_bild();
+		welt->lookup_kartenboden(pos.get_2d()+koord::nord)->calc_image();
 	}
 
 	if(pos.x<welt->get_size().x-1) {
-		welt->lookup_kartenboden(pos.get_2d()+koord::ost)->calc_bild();
+		welt->lookup_kartenboden(pos.get_2d()+koord::ost)->calc_image();
 	}
 	if(pos.y<welt->get_size().y-1) {
-		welt->lookup_kartenboden(pos.get_2d()+koord::sued)->calc_bild();
+		welt->lookup_kartenboden(pos.get_2d()+koord::sued)->calc_image();
 	}
 
 	return NULL;
@@ -1018,7 +1018,7 @@ const char *tool_raise_t::work(player_t* player, koord3d pos )
 						if (p)  
 						{
 							grund_t* g = p->get_kartenboden();
-							if (g) g->calc_bild();
+							if (g) g->calc_image();
 						}
 					}
 				}
@@ -1395,10 +1395,10 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 			}
 			// check way ownership
 			if(gr1->hat_wege()) {
-				if(gr1->get_weg_nr(0)->ist_entfernbar(player)!=NULL) {
+				if(gr1->get_weg_nr(0)-> is_deletable(player)!=NULL) {
 					return "Tile not empty.";
 				}
-				if(gr1->has_two_ways()  &&  gr1->get_weg_nr(1)->ist_entfernbar(player)!=NULL) {
+				if(gr1->has_two_ways()  &&  gr1->get_weg_nr(1)-> is_deletable(player)!=NULL) {
 					return "Tile not empty.";
 				}
 			}
@@ -1441,7 +1441,7 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 					}
 				}
 				if(  !gr1->ist_karten_boden()  ) {
-					gr1->calc_bild();
+					gr1->calc_image();
 				}
 			}
 
@@ -1450,7 +1450,7 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 			if(  lt  ) {
 				// remove maintenance for existing powerline
 				player_t::add_maintenance(lt->get_owner(), -lt->get_besch()->get_wartung(), powerline_wt);
-				lt->laden_abschliessen();
+				lt->finish_rd();
 			}
 
 			if(  gr1->ist_karten_boden()  ) {
@@ -1466,7 +1466,7 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 						grund_t *sea = welt->lookup_kartenboden(k - koord( ribi_typ(new_slope ) ));
 						if (sea  &&  sea->ist_wasser()) {
 							gr1->weg_erweitern(water_wt, ribi_t::rueckwaerts(ribi_typ(new_slope)));
-							sea->calc_bild();
+							sea->calc_image();
 						}
 					}
 				}
@@ -1474,7 +1474,7 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 				for(int y=-1; y<=1; y++) {
 					for(int x=-1; x<=1; x++) {
 						grund_t *gr = welt->lookup_kartenboden(k+koord(x,y));
-						gr->calc_bild();
+						gr->calc_image();
 					}
 				}
 				// correct the grid height
@@ -1526,7 +1526,7 @@ const char *tool_marker_t::work( player_t *player, koord3d pos )
 			}
 			gr->obj_add(new label_t(gr->get_pos(), player, "\0"));
 			if (is_local_execution()) {
-				gr->find<label_t>()->zeige_info();
+				gr->find<label_t>()->show_info();
 			}
 			return "";
 		}
@@ -1741,14 +1741,14 @@ const char *tool_transformer_t::work( player_t *player, koord3d pos )
 	{
 		pumpe_t *p = new pumpe_t(gr->get_pos(), player);
 		gr->obj_add( p );
-		p->laden_abschliessen();
+		p->finish_rd();
 		check = (leitung_t*)p;
 	}
 	else
 	{
 		senke_t *s = new senke_t(gr->get_pos(), player, city);
 		gr->obj_add(s);
-		s->laden_abschliessen();
+		s->finish_rd();
 		check = (leitung_t*)s;
 	}
 	if (fab != NULL && (city == NULL) || (fab && fab->get_besch()->is_electricity_producer()))
@@ -1805,7 +1805,7 @@ const char *tool_add_city_t::work( player_t *player, koord3d pos )
 				}
 
 				welt->add_stadt(stadt);
-				stadt->laden_abschliessen();
+				stadt->finish_rd();
 
 				player_t::book_construction_costs(player, welt->get_settings().cst_found_city, k, ignore_wt);
 				reliefkarte_t::get_karte()->calc_map();
@@ -2484,7 +2484,7 @@ uint8 tool_build_way_t::is_valid_pos(  player_t *player, const koord3d &pos, con
 			{
 				return 2;
 			}
-			error = way->ist_entfernbar(player);
+			error = way-> is_deletable(player);
 			return error==NULL ? 2 : 0;
 		}
 		leitung_t* lt = gr->get_leitung();
@@ -2499,8 +2499,8 @@ uint8 tool_build_way_t::is_valid_pos(  player_t *player, const koord3d &pos, con
 		if(player!=NULL) {
 			for(uint8 i=0; i<gr->obj_count(); i++) {
 				obj_t* dt = gr->obj_bei(i);
-				if (!dt->is_moving()  &&  dt->ist_entfernbar(player)!=NULL) {
-					error =  dt->ist_entfernbar(player); // "Das Feld gehoert\neinem anderen Spieler\n";
+				if (!dt->is_moving()  &&  dt-> is_deletable(player)!=NULL) {
+					error =  dt-> is_deletable(player); // "Das Feld gehoert\neinem anderen Spieler\n";
 					return 0;
 				}
 			}
@@ -3308,18 +3308,18 @@ bool tool_wayremover_t::calc_route( route_t &verbindung, player_t *player, const
 						// special case: stations - take care not to produce station without any way
 						const bool lonely_station = type==obj_t::gebaeude  &&  !gr->has_two_ways();
 						if (check_all ||  obj_wt == wt  ||  lonely_station) {
-							can_delete = (calc_route_error = obj->ist_entfernbar(player)) == NULL;
+							can_delete = (calc_route_error = obj-> is_deletable(player)) == NULL;
 						}
 					}
 					// all other stuff
 					else {
-						can_delete = (calc_route_error = obj->ist_entfernbar(player)) == NULL;
+						can_delete = (calc_route_error = obj-> is_deletable(player)) == NULL;
 					}
 				}
 			}
 			else {
 				// for powerline: only a ground and a powerline to remove
-				if(  gr==NULL  ||  gr->get_leitung()==NULL  ||  (calc_route_error = gr->get_leitung()->ist_entfernbar(player))!=NULL  ) {
+				if(  gr==NULL  ||  gr->get_leitung()==NULL  ||  (calc_route_error = gr->get_leitung()-> is_deletable(player))!=NULL  ) {
 					can_delete = false;
 					break;
 				}
@@ -3421,7 +3421,7 @@ const char *tool_wayremover_t::do_work( player_t *player, const koord3d &start, 
 							gr->mark_image_dirty();
 							if (gr->is_visible() && gr->get_typ()==grund_t::tunnelboden && i>0) { // visibility test does not influence execution
 								grund_t *bd = welt->access(verbindung.position_bei(i-1).get_2d())->get_kartenboden();
-								bd->calc_bild();
+								bd->calc_image();
 								bd->set_flag(grund_t::dirty);
 							}
 							// delete tunnel ground too, if empty
@@ -3467,7 +3467,7 @@ const char *tool_wayremover_t::do_work( player_t *player, const koord3d &start, 
 							else {
 								grund_t *gr_new = new boden_t(gr->get_pos(), gr->get_grund_hang());
 								welt->access(gr->get_pos().get_2d())->boden_ersetzen(gr, gr_new);
-								gr_new->calc_bild();
+								gr_new->calc_image();
 							}
 						}
 					}
@@ -3706,7 +3706,7 @@ const char *tool_wayobj_t::do_work( player_t * player, const koord3d &start, con
 		}
 		else {
 			if (wayobj_t* const wo = welt->lookup(r[i])->find<wayobj_t>()) {
-				const char *err = wo->ist_entfernbar( player );
+				const char *err = wo-> is_deletable( player );
 				if( !err ) {
 					wo->entferne( player );
 					delete wo;
@@ -5133,7 +5133,7 @@ void tool_build_roadsign_t::mark_tiles( player_t *player, const koord3d &start, 
 		if(  next_signal >= signal_density  ) {
 			// can we place signal here?
 			if (check_pos_intern(player, route.position_bei(i))==NULL  ||
-					(s.replace_other && rs && !rs->ist_entfernbar(player))) {
+					(s.replace_other && rs && !rs-> is_deletable(player))) {
 				zeiger_t* zeiger = new zeiger_t(gr->get_pos(), player );
 				marked.append(zeiger);
 				zeiger->set_bild( skinverwaltung_t::bauigelsymbol->get_bild_nr(0) );
@@ -5141,14 +5141,14 @@ void tool_build_roadsign_t::mark_tiles( player_t *player, const koord3d &start, 
 				directions.append(ribi /* !=0 -> place sign*/);
 				next_signal = 0;
 				dummy_rs->set_pos(gr->get_pos());
-				dummy_rs->set_dir(ribi); // calls calc_bild()
-				zeiger->set_after_bild(dummy_rs->get_after_bild());
+				dummy_rs->set_dir(ribi); // calls calc_image()
+				zeiger->set_after_bild(dummy_rs->get_front_image());
 				zeiger->set_bild(dummy_rs->get_bild());
 				// as set_dir also modifies the ribi-mask of the way we have to reset it here...
 				dummy_rs->set_dir(rs ? rs->get_dir() : (ribi_t::ribi)ribi_t::keine);
 				cost += rs ? (rs->get_besch()==besch ? 0  : besch->get_preis()+rs->get_besch()->get_preis()) : besch->get_preis();
 			}
-		} else if (s.remove_intermediate && rs && !rs->ist_entfernbar(player)) {
+		} else if (s.remove_intermediate && rs && !rs-> is_deletable(player)) {
 				zeiger_t* zeiger = new zeiger_t(gr->get_pos(), player );
 				marked.append(zeiger);
 				zeiger->set_bild( tool_t::general_tool[TOOL_REMOVER]->cursor );
@@ -5185,7 +5185,7 @@ const char *tool_build_roadsign_t::do_work( player_t *player, const koord3d &sta
 				if (signal[player->get_player_nr()].replace_other) {
 					roadsign_t* rs = gr->find<signal_t>();
 					if(rs == NULL) rs = gr->find<roadsign_t>();
-					if(  rs != NULL  &&  rs->ist_entfernbar(player) == NULL  ) {
+					if(  rs != NULL  &&  rs-> is_deletable(player) == NULL  ) {
 						rs->entferne(player);
 						delete rs;
 						error_text =  place_sign_intern( player, gr );
@@ -5204,13 +5204,13 @@ const char *tool_build_roadsign_t::do_work( player_t *player, const koord3d &sta
 			// Place no signal -> remove existing signal
 			roadsign_t* rs = gr->find<signal_t>();
 			if(rs == NULL) rs = gr->find<roadsign_t>();
-			if(  rs != NULL  &&  rs->ist_entfernbar(player) == NULL  ) {
+			if(  rs != NULL  &&  rs-> is_deletable(player) == NULL  ) {
 				rs->entferne(player);
 				delete rs;
 			};
 		}
 		weg->count_sign();
-		gr->calc_bild();
+		gr->calc_image();
 	}
 	cleanup(true);
 	directions.clear();
@@ -5321,7 +5321,7 @@ const char *tool_build_roadsign_t::place_sign_intern( player_t *player, grund_t*
 					rs = new roadsign_t(player, gr->get_pos(), dir, besch);
 built_sign:
 					gr->obj_add(rs);
-					rs->laden_abschliessen();	// to make them visible
+					rs->finish_rd();	// to make them visible
 					weg->count_sign();
 					player_t::book_construction_costs(player, -besch->get_preis(), gr->get_pos().get_2d(), weg->get_waytype());
 				}

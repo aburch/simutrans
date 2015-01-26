@@ -102,7 +102,7 @@ bool citylist_stats_t::infowin_event(const event_t * ev)
 			}
 		}
 		else {
-			stadt->zeige_info();
+			stadt->show_info();
 		}
 	}
 	else if(  IS_RIGHTRELEASE(ev)  &&  ev->cy > 0  ) {

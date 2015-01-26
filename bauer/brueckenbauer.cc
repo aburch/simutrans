@@ -262,7 +262,7 @@ const char *check_tile( const grund_t *gr, const player_t *player, waytype_t wt,
 	}
 	// somethign here which we cannot remove => fail too
 	if(  obj_t *obj=gr->obj_bei(0)  ) {
-		if(  const char *err_msg = obj->ist_entfernbar(player)  ) {
+		if(  const char *err_msg = obj-> is_deletable(player)  ) {
 			return err_msg;
 		}
 	}
@@ -703,10 +703,10 @@ DBG_MESSAGE("brueckenbauer_t::baue()", "end not ok");
 	}
 	// check way ownership
 	if(gr_end->hat_wege()) {
-		if(gr_end->get_weg_nr(0)->ist_entfernbar(player)!=NULL) {
+		if(gr_end->get_weg_nr(0)-> is_deletable(player)!=NULL) {
 			return "Tile not empty.";
 		}
-		if(gr_end->has_two_ways()  &&  gr_end->get_weg_nr(1)->ist_entfernbar(player)!=NULL) {
+		if(gr_end->has_two_ways()  &&  gr_end->get_weg_nr(1)-> is_deletable(player)!=NULL) {
 			return "Tile not empty.";
 		}
 	}
@@ -761,7 +761,7 @@ void brueckenbauer_t::baue_bruecke(player_t *player, const koord3d start, const 
 				lt = new leitung_t(start_gr->get_pos(), player);
 				lt->set_besch( weg_besch );
 				start_gr->obj_add( lt );
-				lt->laden_abschliessen();
+				lt->finish_rd();
 			}
 		}
 		else if(  !start_gr->weg_erweitern( besch->get_waytype(), ribi )  ) {
@@ -800,7 +800,7 @@ void brueckenbauer_t::baue_bruecke(player_t *player, const koord3d start, const 
 			}
 			player_t::book_construction_costs( player, -start_gr->neuen_weg_bauen( weg, ribi, player ) -weg->get_besch()->get_preis(), end.get_2d(), weg->get_waytype());
 		}
-		start_gr->calc_bild();
+		start_gr->calc_image();
 	}
 
 	koord3d pos = start+koord3d( zv.x, zv.y, add_height );
@@ -849,14 +849,14 @@ void brueckenbauer_t::baue_bruecke(player_t *player, const koord3d start, const 
 		else {
 			leitung_t *lt = new leitung_t(bruecke->get_pos(), player);
 			bruecke->obj_add( lt );
-			lt->laden_abschliessen();
+			lt->finish_rd();
 		}
 		grund_t *gr = welt->lookup_kartenboden(pos.get_2d());
 		sint16 height = pos.z - gr->get_pos().z;
 		bruecke_t *br = new bruecke_t(bruecke->get_pos(), player, besch, besch->get_simple(ribi,height-hang_t::max_diff(gr->get_grund_hang())));
 		bruecke->obj_add(br);
-		bruecke->calc_bild();
-		br->laden_abschliessen();
+		bruecke->calc_image();
+		br->finish_rd();
 //DBG_MESSAGE("bool brueckenbauer_t::baue_bruecke()","at (%i,%i)",pos.x,pos.y);
 		if(besch->get_pillar()>0) {
 			// make a new pillar here
@@ -930,7 +930,7 @@ void brueckenbauer_t::baue_bruecke(player_t *player, const koord3d start, const 
 				}
 				player_t::book_construction_costs( player, -gr->neuen_weg_bauen( weg, ribi, player ) -weg->get_besch()->get_preis(), end.get_2d(), weg->get_waytype());
 			}
-			gr->calc_bild();
+			gr->calc_image();
 		}
 		else {
 			leitung_t *lt = gr->get_leitung();
@@ -939,7 +939,7 @@ void brueckenbauer_t::baue_bruecke(player_t *player, const koord3d start, const 
 				player_t::book_construction_costs(player, -weg_besch->get_preis(), gr->get_pos().get_2d(), powerline_wt);
 				gr->obj_add(lt);
 				lt->set_besch(weg_besch);
-				lt->laden_abschliessen();
+				lt->finish_rd();
 			}
 			lt->calc_neighbourhood();
 		}
@@ -1050,16 +1050,16 @@ void brueckenbauer_t::baue_auffahrt(player_t* player, koord3d end, ribi_t::ribi 
 			bruecke->obj_add( lt );
 		}
 		else {
-			// remove maintenance - it will be added in leitung_t::laden_abschliessen
+			// remove maintenance - it will be added in leitung_t::finish_rd
 			player_t::add_maintenance( player, -lt->get_besch()->get_wartung(), powerline_wt);
 		}
 		// connect to neighbor tiles and networks, add maintenance
-		lt->laden_abschliessen();
+		lt->finish_rd();
 	}
 	bruecke_t *br = new bruecke_t(end, player, besch, img);
 	bruecke->obj_add( br );
-	br->laden_abschliessen();
-	bruecke->calc_bild();
+	br->finish_rd();
+	bruecke->calc_image();
 }
 
 
@@ -1184,7 +1184,7 @@ const char *brueckenbauer_t::remove(player_t *player, koord3d pos_start, waytype
 								}
 							}
 							else {
-								w->calc_bild();
+								w->calc_image();
 							}
 						}
 					}
@@ -1247,7 +1247,7 @@ const char *brueckenbauer_t::remove(player_t *player, koord3d pos_start, waytype
 							}
 						}
 						else {
-							w->calc_bild();
+							w->calc_image();
 						}
 					}
 				}
@@ -1267,7 +1267,7 @@ const char *brueckenbauer_t::remove(player_t *player, koord3d pos_start, waytype
 				delete lt;
 				// .. now create powerline to create new powernet
 				lt = new leitung_t(gr->get_pos(), old_owner);
-				lt->laden_abschliessen();
+				lt->finish_rd();
 				gr->obj_add(lt);
 			}
 		}
@@ -1329,7 +1329,7 @@ const char *brueckenbauer_t::remove(player_t *player, koord3d pos_start, waytype
 		welt->access(pos.get_2d())->kartenboden_setzen( gr_new );
 
 		if(  wegtyp == powerline_wt  ) {
-			gr_new->get_leitung()->calc_neighbourhood(); // Recalc the image. calc_bild() doesn't do the right job...
+			gr_new->get_leitung()->calc_neighbourhood(); // Recalc the image. calc_image() doesn't do the right job...
 		}
 	}
 

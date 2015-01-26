@@ -600,7 +600,7 @@ void vehicle_base_t::calc_height(grund_t *gr)
 				set_bild(IMG_LEER);
 			}
 			else {
-				calc_bild();
+				calc_image();
 			}
 		}
 	}
@@ -646,7 +646,7 @@ vehicle_base_t *vehicle_base_t::no_cars_blocking( const grund_t *gr, const convo
 	// Search vehicle
 	for(  uint8 pos=1;  pos<(/*volatile*/ uint8)gr->get_top();  pos++  ) {
 		if(  vehicle_base_t* const v = obj_cast<vehicle_base_t>(gr->obj_bei(pos))  ) {
-			if(  v->get_typ()==obj_t::fussgaenger  ) {
+			if(  v->get_typ()==obj_t::pedestrian  ) {
 				continue;
 			}
 
@@ -812,7 +812,7 @@ void vehicle_t::set_convoi(convoi_t *c)
 		}
 		// just correct freight destinations
 		FOR(slist_tpl<ware_t>, & c, fracht) {
-			c.laden_abschliessen(welt);
+			c.finish_rd(welt);
 		}
 	}
 }
@@ -1208,7 +1208,7 @@ void vehicle_t::initialise_journey(uint16 start_route_index, bool recalc)
 		set_xoff( (dx<0) ? OBJECT_OFFSET_STEPS : -OBJECT_OFFSET_STEPS );
 		set_yoff( (dy<0) ? OBJECT_OFFSET_STEPS/2 : -OBJECT_OFFSET_STEPS/2 );
 
-		calc_bild();
+		calc_image();
 
 		if(previous_direction != direction)
 		{
@@ -1502,7 +1502,7 @@ void vehicle_t::hop(grund_t* gr)
 
 	// change image if direction changes
 	if (previous_direction != direction) {
-		calc_bild();
+		calc_image();
 	}
 
 	enter_tile(gr); //"Enter field" (Google)
@@ -1923,7 +1923,7 @@ uint16 vehicle_t::load_cargo(halthandle_t halt, bool overcrowd, bool *skip_convo
 		*skip_convois = true; // don't try to load anymore from a stop that can't supply
 	}
 	sum_weight = get_cargo_weight() + besch->get_gewicht();
-	calc_bild();
+	calc_image();
 	return total_freight - start_freight;
 }
 
@@ -1939,7 +1939,7 @@ ribi_t::ribi vehicle_t::richtung() const
 }
 
 
-void vehicle_t::calc_bild() //"Bild" = "picture" (Google)
+void vehicle_t::calc_image() //"Bild" = "picture" (Google)
 {
 	image_id old_bild=get_bild();
 	if (fracht.empty())
@@ -2295,7 +2295,7 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(purchase_time%12
 	if(file->is_loading()) {
 		leading = last = false;	// dummy, will be set by convoi afterwards
 		if(besch) {
-			calc_bild();
+			calc_image();
 
 			// full weight after loading
 			sum_weight = get_cargo_weight() + besch->get_gewicht();
@@ -2394,12 +2394,12 @@ uint32 vehicle_t::calc_sale_value() const
 }
 
 void
-vehicle_t::zeige_info()
+vehicle_t::show_info()
 {
 	if(  cnv != NULL  ) {
-		cnv->zeige_info();
+		cnv->show_info();
 	} else {
-		dbg->warning("vehicle_t::zeige_info()","cnv is null, can't open convoi window!");
+		dbg->warning("vehicle_t::show_info()","cnv is null, can't open convoi window!");
 	}
 }
 
@@ -2412,7 +2412,7 @@ void vehicle_t::info(cbuffer_t & buf) const
 }
 #endif
 
-const char *vehicle_t::ist_entfernbar(const player_t *)
+const char *vehicle_t:: is_deletable(const player_t *)
 {
 	return "Vehicles cannot be removed";
 }
@@ -2595,7 +2595,7 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_gobal) const
 }
 
 // BG, 06.06.2009: added
-void vehicle_t::laden_abschliessen()
+void vehicle_t::finish_rd()
 {
 }
 
@@ -2652,7 +2652,7 @@ road_vehicle_t::road_vehicle_t(loadsave_t *file, bool is_leading, bool is_last) 
 			if(besch) {
 				DBG_MESSAGE("road_vehicle_t::road_vehicle_t()","replaced by %s",besch->get_name());
 				// still wrong load ...
-				calc_bild();
+				calc_image();
 			}
 			if(!fracht.empty()  &&  fracht.front().menge == 0) {
 				// this was only there to find a matching vehicle
@@ -3328,7 +3328,7 @@ rail_vehicle_t::rail_vehicle_tloadsave_t *file, bool is_leading, bool is_last) :
 			}
 			if(besch) {
 DBG_MESSAGE("rail_vehicle_t::rail_vehicle_t()","replaced by %s",besch->get_name());
-				calc_bild();
+				calc_image();
 			}
 			else {
 				dbg->error("rail_vehicle_t::rail_vehicle_t()","no matching besch found for %s!",w->get_name());
@@ -4760,7 +4760,7 @@ water_vehicle_t::water_vehicle_t(loadsave_t *file, bool is_leading, bool is_last
 			dbg->warning("water_vehicle_t::water_vehicle_t()", "try to find a fitting vehicle for %s.", !fracht.empty() ? fracht.front().get_name() : "passagiere");
 			besch = vehikelbauer_t::get_best_matching(water_wt, 0, fracht.empty() ? 0 : 30, 100, 40, !fracht.empty() ? fracht.front().get_besch() : warenbauer_t::passagiere, true, last_besch, is_last );
 			if(besch) {
-				calc_bild();
+				calc_image();
 			}
 		}
 		// update last besch
@@ -5817,7 +5817,7 @@ aircraft_t::aircraft_t(loadsave_t *file, bool is_leading, bool is_last) :
 			dbg->warning("aircraft_t::aircraft_t()", "try to find a fitting vehicle for %s.", !fracht.empty() ? fracht.front().get_name() : "passagiere");
 			besch = vehikelbauer_t::get_best_matching(air_wt, 0, 101, 1000, 800, !fracht.empty() ? fracht.front().get_besch() : warenbauer_t::passagiere, true, last_besch, is_last );
 			if(besch) {
-				calc_bild();
+				calc_image();
 			}
 		}
 		// update last besch
@@ -6162,10 +6162,10 @@ void aircraft_t::display_overlay(int xpos_org, int ypos_org) const
 }
 
 
-const char *aircraft_t::ist_entfernbar(const player_t *player)
+const char *aircraft_t:: is_deletable(const player_t *player)
 {
 	if (is_on_ground()) {
-		return vehicle_t::ist_entfernbar(player);
+		return vehicle_t:: is_deletable(player);
 	}
 	return NULL;
 }

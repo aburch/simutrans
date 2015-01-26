@@ -217,7 +217,7 @@ void depot_t::convoi_arrived(convoihandle_t acnv, bool fpl_adjust)
 }
 
 
-void depot_t::zeige_info()
+void depot_t::show_info()
 {
 	create_win( new depot_frame_t(this), w_info, (ptrdiff_t)this );
 }
@@ -731,7 +731,7 @@ void depot_t::rdwr_vehikel(slist_tpl<vehicle_t *> &list, loadsave_t *file)
  * @return NULL wenn OK, ansonsten eine Fehlermeldung
  * @author Hj. Malthaner
  */
-const char * depot_t::ist_entfernbar(const player_t *player)
+const char * depot_t:: is_deletable(const player_t *player)
 {
 	if(player!=get_owner()  &&  player!=welt->get_player(1)) {
 		return "Das Feld gehoert\neinem anderen Spieler\n";

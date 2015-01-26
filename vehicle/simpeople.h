@@ -22,7 +22,7 @@ private:
 protected:
 	void rdwr(loadsave_t *file);
 
-	void calc_bild();
+	void calc_image();
 
 	/**
 	 * Creates pedestrian at position given by @p gr.
@@ -40,7 +40,7 @@ public:
 	const char *get_name() const {return "Fussgaenger";}
 #ifdef INLINE_OBJ_TYPE
 #else
-	typ get_typ() const { return fussgaenger; }
+	typ get_typ() const { return pedestrian; }
 #endif
 
 	bool sync_step(long delta_t);

@@ -11,9 +11,9 @@ public:
 	label_t(koord3d pos, player_t *player, const char *text);
 	~label_t();
 
-	void laden_abschliessen();
+	void finish_rd();
 
-	void zeige_info();
+	void show_info();
 
 	typ get_typ() const { return obj_t::label; }
 

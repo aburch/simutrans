@@ -46,7 +46,7 @@ public:
 	/**
 	* berechnet aktuelles image
 	*/
-	void calc_bild();
+	void calc_image();
 };
 
 #endif

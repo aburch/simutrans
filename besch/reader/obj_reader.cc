@@ -45,15 +45,15 @@ void obj_reader_t::register_reader()
 }
 
 
-bool obj_reader_t::laden_abschliessen()
+bool obj_reader_t::finish_rd()
 {
 	resolve_xrefs();
 
 	FOR(obj_map, const& i, *obj_reader) {
-		DBG_MESSAGE("obj_reader_t::laden_abschliessen()","Checking %s objects...", i.value->get_type_name());
+		DBG_MESSAGE("obj_reader_t::finish_rd()","Checking %s objects...", i.value->get_type_name());
 
 		if (!i.value->successfully_loaded()) {
-			dbg->warning("obj_reader_t::laden_abschliessen()","... failed!");
+			dbg->warning("obj_reader_t::finish_rd()","... failed!");
 			return false;
 		}
 	}

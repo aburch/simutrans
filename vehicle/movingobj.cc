@@ -115,7 +115,7 @@ const groundobj_besch_t *movingobj_t::random_movingobj_for_climate(climate cl)
 
 
 // recalculates only the seasonal image
-void movingobj_t::calc_bild()
+void movingobj_t::calc_image()
 {
 	// alter/2048 is the age of the tree
 	const groundobj_besch_t *besch=get_besch();
@@ -175,7 +175,7 @@ movingobj_t::movingobj_t(koord3d pos, const groundobj_besch_t *b ) :
 	weg_next = 0;
 	timetochange = 0;	// will do random direct change anyway during next step
 	direction = calc_set_direction( koord3d(0,0,0), koord3d(koord::west,0) );
-	calc_bild();
+	calc_image();
 	welt->sync_add( this );
 }
 
@@ -189,7 +189,7 @@ movingobj_t::~movingobj_t()
 bool movingobj_t::check_season(const bool)
 {
 	const image_id old_image = get_bild();
-	calc_bild();
+	calc_image();
 
 	if(  get_bild() != old_image  ) {
 		mark_image_dirty( get_bild(), 0 );
@@ -251,10 +251,10 @@ void movingobj_t::rdwr(loadsave_t *file)
  * Open a new observation window for the object.
  * @author Hj. Malthaner
  */
-void movingobj_t::zeige_info()
+void movingobj_t::show_info()
 {
 	if(env_t::tree_info) {
-		obj_t::zeige_info();
+		obj_t::show_info();
 	}
 }
 
@@ -422,13 +422,13 @@ void movingobj_t::hop(grund_t* gr)
 		direction = ribi_t::rueckwaerts(direction);
 		dx = -dx;
 		dy = -dy;
-		calc_bild();
+		calc_image();
 	}
 	else {
 		ribi_t::ribi old_dir = direction;
 		direction = calc_set_direction( get_pos(), pos_next_next );
 		if(old_dir!=direction) {
-			calc_bild();
+			calc_image();
 		}
 	}
 

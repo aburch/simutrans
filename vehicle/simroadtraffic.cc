@@ -130,10 +130,10 @@ road_user_t::road_user_t(grund_t* bd, uint16 random) :
  * Open a new observation window for the object.
  * @author Hj. Malthaner
  */
-void road_user_t::zeige_info()
+void road_user_t::show_info()
 {
 	if(env_t::verkehrsteilnehmer_info) {
-		obj_t::zeige_info();
+		obj_t::show_info();
 	}
 }
 
@@ -201,7 +201,7 @@ grund_t* road_user_t::hop()
 	}
 	leave_tile();
 	set_pos(from->get_pos());
-	calc_bild();
+	calc_image();
 
 	return to;
 }
@@ -313,10 +313,10 @@ void road_user_t::rdwr(loadsave_t *file)
 	weg_next &= 65535;
 }
 
-void road_user_t::laden_abschliessen()
+void road_user_t::finish_rd()
 {
 	calc_height(NULL);
-	calc_bild();
+	calc_image();
 }
 
 
@@ -412,7 +412,7 @@ private_car_t::~private_car_t()
 
 private_car_t::private_car_t(loadsave_t *file) :
 #ifdef INLINE_OBJ_TYPE
-	road_user_t(obj_t::verkehr)
+	road_user_t(obj_t::road_user)
 #else
 	road_user_t()
 #endif
@@ -427,7 +427,7 @@ private_car_t::private_car_t(loadsave_t *file) :
 
 private_car_t::private_car_t(grund_t* gr, koord const target) :
 #ifdef INLINE_OBJ_TYPE
-	road_user_t(obj_t::verkehr, gr, simrand(65535, "private_car_t::private_car_t (weg_next)")),
+	road_user_t(obj_t::road_user, gr, simrand(65535, "private_car_t::private_car_t (weg_next)")),
 #else
 	road_user_t(gr, simrand(65535, "private_car_t::private_car_t (weg_next)")),
 #endif
@@ -442,7 +442,7 @@ private_car_t::private_car_t(grund_t* gr, koord const target) :
 #else
 	(void)target;
 #endif
-	calc_bild();
+	calc_image();
 	origin = gr ? gr->get_pos().get_2d() : koord::invalid;
 }
 
@@ -774,7 +774,7 @@ void private_car_t::enter_tile(grund_t* gr)
 		// delete it ...
 		time_to_life = 0;
 
-		//"fussgaenger" = pedestrian (Babelfish)
+		//"pedestrian" = pedestrian (Babelfish)
 		int number = 2;
 		pedestrian_t::erzeuge_fussgaenger_an(get_pos(), number);
 	}
@@ -810,7 +810,7 @@ grund_t* private_car_t::hop_check()
 		const roadsign_besch_t* rs_besch = rs->get_besch();
 		if(rs_besch->is_traffic_light()  &&  (rs->get_dir()&direction90)==0) {
 			direction = direction90;
-			calc_bild();
+			calc_image();
 			// wait here
 			current_speed = 48;
 			weg_next = 0;
@@ -966,7 +966,7 @@ void private_car_t::hop(grund_t* to)
 	else {
 		direction = calc_set_direction( get_pos(), pos_next_next );
 	}
-	calc_bild();
+	calc_image();
 
 	// and add to next tile
 	set_pos(pos_next);
@@ -984,7 +984,7 @@ void private_car_t::hop(grund_t* to)
 
 
 
-void private_car_t::calc_bild()
+void private_car_t::calc_image()
 {
 	set_bild(besch->get_bild_nr(ribi_t::get_dir(get_direction())));
 	drives_on_left = welt->get_settings().is_drive_left();	// reset driving settings
@@ -1096,7 +1096,7 @@ bool private_car_t::can_overtake( overtaker_t *other_overtaker, sint32 other_spe
 							return false;
 						}
 					}
-					else if(  v->get_waytype()==road_wt  &&  v->get_typ()!=obj_t::fussgaenger  ) {
+					else if(  v->get_waytype()==road_wt  &&  v->get_typ()!=obj_t::pedestrian  ) {
 						return false;
 					}
 				}
@@ -1222,7 +1222,7 @@ bool private_car_t::can_overtake( overtaker_t *other_overtaker, sint32 other_spe
 						return false;
 					}
 				}
-				else if(  v->get_waytype()==road_wt  &&  v->get_typ()!=obj_t::fussgaenger  ) {
+				else if(  v->get_waytype()==road_wt  &&  v->get_typ()!=obj_t::pedestrian  ) {
 					return false;
 				}
 			}

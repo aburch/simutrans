@@ -126,7 +126,7 @@ bool curiositylist_stats_t::infowin_event(const event_t * ev)
 			welt->get_viewport()->change_world_position(geb->get_pos());
 		}
 		else {
-			geb->zeige_info();
+			geb->show_info();
 		}
 	}
 	else if (IS_RIGHTRELEASE(ev)) {

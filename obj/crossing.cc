@@ -87,7 +87,7 @@ void crossing_t::state_changed()
 {
 	mark_image_dirty( image, 0 );
 	mark_image_dirty( after_bild, 0 );
-	calc_bild();
+	calc_image();
 }
 
 
@@ -95,7 +95,7 @@ void crossing_t::state_changed()
  * Dient zur Neuberechnung des Bildes
  * @author Hj. Malthaner
  */
-void crossing_t::calc_bild()
+void crossing_t::calc_image()
 {
 #ifdef MULTI_THREAD
 	pthread_mutex_lock( &crossing_logic_mutex );
@@ -180,11 +180,11 @@ void crossing_t::rdwr(loadsave_t *file)
  *
  * @author Hj. Malthaner
  */
-void crossing_t::laden_abschliessen()
+void crossing_t::finish_rd()
 {
 	grund_t *gr=welt->lookup(get_pos());
 	if(gr==NULL  ||  !gr->hat_weg(besch->get_waytype(0))  ||  !gr->hat_weg(besch->get_waytype(1))) {
-		dbg->error("crossing_t::laden_abschliessen","way/ground missing at %i,%i => ignore", get_pos().x, get_pos().y );
+		dbg->error("crossing_t::finish_rd","way/ground missing at %i,%i => ignore", get_pos().x, get_pos().y );
 	}
 	else {
 		// try to find crossing that matches way max speed
@@ -212,13 +212,13 @@ void crossing_t::laden_abschliessen()
 
 // returns NULL, if removal is allowed
 // players can remove public owned ways
-const char *crossing_t::ist_entfernbar(const player_t *player, bool allow_public)
+const char *crossing_t:: is_deletable(const player_t *player, bool allow_public)
 {
 	if(allow_public && get_player_nr() == 1) 
 	{
 		return NULL;
 	}
 	else {
-		return obj_t::ist_entfernbar(player);
+		return obj_t:: is_deletable(player);
 	}
 }

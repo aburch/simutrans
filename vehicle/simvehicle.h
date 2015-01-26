@@ -140,7 +140,7 @@ protected:
 
 	virtual void update_bookkeeping(uint32 steps) = 0;
 
-	virtual void calc_bild() = 0;
+	virtual void calc_image() = 0;
 
 	// check for road vehicle, if next tile is free
 	vehicle_base_t *no_cars_blocking( const grund_t *gr, const convoi_t *cnv, const uint8 current_direction, const uint8 next_direction, const uint8 next_90direction );
@@ -335,7 +335,7 @@ protected:
 	bool check_for_finish:1;		// true, if on the last tile
 	bool has_driven:1;
 
-	virtual void calc_bild();
+	virtual void calc_image();
 
 	bool check_access(const weg_t* way) const;
 
@@ -449,7 +449,7 @@ public:
 
 	void make_smoke() const;
 
-	void zeige_info();
+	void show_info();
 
 #if 0
 private:
@@ -594,7 +594,7 @@ public:
 	*/
 	virtual schedule_t *generate_new_schedule() const = 0;
 
-	const char *ist_entfernbar(const player_t *player);
+	const char * is_deletable(const player_t *player);
 
 	void rdwr(loadsave_t *file);
 	virtual void rdwr_from_convoi(loadsave_t *file);
@@ -627,7 +627,7 @@ public:
 	uint8 get_comfort(uint8 catering_level = 0) const;
 
 	// BG, 06.06.2009: update player's fixed maintenance
-	void laden_abschliessen();
+	void finish_rd();
 	void before_delete();
 
 	void set_current_livery(const char* liv) { current_livery = liv; }
@@ -1003,7 +1003,7 @@ public:
 	virtual image_id get_bild() const {return !is_on_ground() ? IMG_LEER : image;}
 
 	// image: when flying the shadow, on ground empty
-	virtual image_id get_outline_bild() const {return !is_on_ground() ? image : IMG_LEER;}
+	virtual image_id get_outline_image() const {return !is_on_ground() ? image : IMG_LEER;}
 
 	// shadow has black color (when flying)
 	virtual PLAYER_COLOR_VAL get_outline_colour() const {return !is_on_ground() ? TRANSPARENT75_FLAG | OUTLINE_FLAG | COL_BLACK : 0;}
@@ -1024,7 +1024,7 @@ public:
 
 	bool is_on_ground() const { return flughoehe==0  &&  !(state==circling  ||  state==flying); }
 
-	const char *ist_entfernbar(const player_t *player);
+	const char * is_deletable(const player_t *player);
 
 	bool runway_too_short;
 

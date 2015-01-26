@@ -947,7 +947,7 @@ public:
 	 */
 	static void rdwr_convoihandle_t(loadsave_t *file, convoihandle_t &cnv);
 
-	void laden_abschliessen();
+	void finish_rd();
 
 	void rotate90( const sint16 y_size );
 
@@ -1151,7 +1151,7 @@ public:
 	* @author Hj. Malthaner
 	* @see simwin
 	*/
-	void zeige_info();
+	void show_info();
 
 	/**
 	* Get whether the convoi is traversing its schedule in reverse.

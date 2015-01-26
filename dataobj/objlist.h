@@ -105,7 +105,7 @@ public:
 	/* recalcs all objects on this tile
 	* @author prissi
 	*/
-	void calc_bild();
+	void calc_image();
 
 	/**
 	 * Called whenever the season or snowline height changes

@@ -577,7 +577,7 @@ bool objlist_t::remove(const obj_t* remove_obj)
 void local_delete_object(obj_t *remove_obj, player_t *player)
 {
 	vehicle_base_t* const v = obj_cast<vehicle_base_t>(remove_obj);
-	if (v  &&  remove_obj->get_typ() != obj_t::fussgaenger  &&  remove_obj->get_typ() != obj_t::verkehr  &&  remove_obj->get_typ() != obj_t::movingobj) {
+	if (v  &&  remove_obj->get_typ() != obj_t::pedestrian  &&  remove_obj->get_typ() != obj_t::road_user  &&  remove_obj->get_typ() != obj_t::movingobj) {
 		v->leave_tile();
 	}
 	else {
@@ -632,13 +632,13 @@ const char *objlist_t::kann_alle_entfernen(const player_t *player, uint8 offset)
 	}
 
 	if(capacity==1) {
-		return obj.one->ist_entfernbar(player);
+		return obj.one-> is_deletable(player);
 	}
 	else {
 		const char * msg = NULL;
 
 		for(uint8 i=offset; i<top; i++) {
-			msg = obj.some[i]->ist_entfernbar(player);
+			msg = obj.some[i]-> is_deletable(player);
 			if(msg != NULL) {
 				return msg;
 			}
@@ -651,17 +651,17 @@ const char *objlist_t::kann_alle_entfernen(const player_t *player, uint8 offset)
 
 /* recalculates all images
  */
-void objlist_t::calc_bild()
+void objlist_t::calc_image()
 {
 	if(capacity==0) {
 		// nothing
 	}
 	else if(capacity==1) {
-		obj.one->calc_bild();
+		obj.one->calc_image();
 	}
 	else {
 		for(uint8 i=0; i<top; i++) {
-			obj.some[i]->calc_bild();
+			obj.some[i]->calc_image();
 		}
 	}
 }
@@ -819,8 +819,8 @@ void objlist_t::rdwr(loadsave_t *file, koord3d current_pos)
 
 				// some old offsets will be converted to new ones
 				case obj_t::old_fussgaenger:
-					typ = obj_t::fussgaenger;
-				case obj_t::fussgaenger:
+					typ = obj_t::pedestrian;
+				case obj_t::pedestrian:
 				{
 					pedestrian_t* const pedestrian = new pedestrian_t(file);
 					if (pedestrian->get_besch() == NULL) {
@@ -836,8 +836,8 @@ void objlist_t::rdwr(loadsave_t *file, koord3d current_pos)
 				}
 
 				case obj_t::old_verkehr:
-					typ = obj_t::verkehr;
-				case obj_t::verkehr:
+					typ = obj_t::road_user;
+				case obj_t::road_user:
 				{
 					private_car_t* const car = new private_car_t(file);
 					if (car->get_besch() == NULL) {

@@ -25,7 +25,7 @@ private:
 
 public:
 	static void rdwr(karte_t *welt, loadsave_t *file);
-	static void laden_abschliessen(karte_t *welt);
+	static void finish_rd(karte_t *welt);
 };
 
 #endif

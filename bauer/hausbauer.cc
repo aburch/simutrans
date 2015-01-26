@@ -436,10 +436,10 @@ void hausbauer_t::remove( player_t *player, gebaeude_t *gb ) //gebaeude = "build
 						// there might be walls from foundations left => thus some tiles may needs to be redraw
 						if(ground_recalc) {
 							if(grund_t *gr = welt->lookup_kartenboden(newk+koord::ost)) {
-								gr->calc_bild();
+								gr->calc_image();
 							}
 							if(grund_t *gr = welt->lookup_kartenboden(newk+koord::sued)) {
-								gr->calc_bild();
+								gr->calc_image();
 							}
 						}
 					}
@@ -600,9 +600,9 @@ gebaeude_t* hausbauer_t::baue(player_t* player, koord3d pos, int org_layout, con
 			}
 			if(needs_ground_recalc  &&  welt->is_within_limits(pos.get_2d()+k+koord(1,1))  &&  (k.y+1==dim.y  ||  k.x+1==dim.x))
 			{
-				welt->lookup_kartenboden(pos.get_2d()+k+koord(1,0))->calc_bild();
-				welt->lookup_kartenboden(pos.get_2d()+k+koord(0,1))->calc_bild();
-				welt->lookup_kartenboden(pos.get_2d()+k+koord(1,1))->calc_bild();
+				welt->lookup_kartenboden(pos.get_2d()+k+koord(1,0))->calc_image();
+				welt->lookup_kartenboden(pos.get_2d()+k+koord(0,1))->calc_image();
+				welt->lookup_kartenboden(pos.get_2d()+k+koord(1,1))->calc_image();
 			}
 			//gb->set_pos( gr->get_pos() );
 			if(besch->ist_ausflugsziel()) {
@@ -623,7 +623,7 @@ gebaeude_t* hausbauer_t::baue(player_t* player, koord3d pos, int org_layout, con
 					gb->set_yoff(0);
 				}
 			}
-			gr->calc_bild();
+			gr->calc_image();
 			reliefkarte_t::get_karte()->calc_map_pixel(gr->get_pos().get_2d());
 		}
 	}
@@ -764,10 +764,10 @@ gebaeude_t *hausbauer_t::neues_gebaeude(player_t *player, koord3d pos, int built
 	if(  station_building.is_contained(besch)  &&  besch->get_utyp()!=haus_besch_t::depot  ) {
 		// is a station/bus stop
 		(*static_cast<halthandle_t *>(param))->add_grund(gr);
-		gr->calc_bild();
+		gr->calc_image();
 	}
 	else {
-		gb->calc_bild();
+		gb->calc_image();
 	}
 
 	if(besch->ist_ausflugsziel()) {

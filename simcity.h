@@ -550,7 +550,7 @@ public:
 	 * und nur noch die Datenstrukturenneu verknüpft werden müssen.
 	 * @author Hj. Malthaner
 	 */
-	void laden_abschliessen();
+	void finish_rd();
 
 	void rotate90( const sint16 y_size );
 
@@ -639,7 +639,7 @@ public:
 	static vector_tpl<koord> *random_place(const karte_t *wl, const vector_tpl<sint32> *sizes_list, sint16 old_x, sint16 old_y);
 	// geeigneten platz zur Stadtgruendung durch Zufall ermitteln
 
-	void zeige_info();
+	void show_info();
 
 	void add_factory_arbeiterziel(fabrik_t *fab);
 

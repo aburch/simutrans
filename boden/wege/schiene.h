@@ -105,7 +105,7 @@ public:
 	/*
 	 * to show reservations if needed
 	 */
-	virtual image_id get_outline_bild() const { return weg_t::get_bild(); }
+	virtual image_id get_outline_image() const { return weg_t::get_bild(); }
 };
 
 

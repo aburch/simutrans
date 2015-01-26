@@ -69,7 +69,7 @@ void schiene_t::info(cbuffer_t & buf, bool is_bridge) const
 		buf.append(reserved->get_name());
 		buf.append("\n");
 #ifdef DEBUG_PBS
-		reserved->zeige_info();
+		reserved->show_info();
 #endif
 	}
 }
@@ -90,7 +90,7 @@ bool schiene_t::reserve(convoihandle_t c, ribi_t::ribi dir)
 		 */
 		if(  ribi_t::is_threeway(get_ribi_unmasked())  &&  ribi_t::ist_kurve(dir)  &&  get_besch()->has_switch_bild()  ) {
 			mark_image_dirty( get_bild(), 0 );
-			mark_image_dirty( get_after_bild(), 0 );
+			mark_image_dirty( get_front_image(), 0 );
 			set_images(image_switch, get_ribi_unmasked(), is_snow(), (dir==ribi_t::nordost  ||  dir==ribi_t::suedwest) );
 			set_flag( obj_t::dirty );
 		}

@@ -43,7 +43,7 @@ bool gui_convoiinfo_t::infowin_event(const event_t *ev)
 {
 	if(cnv.is_bound()) {
 		if(IS_LEFTRELEASE(ev)) {
-			cnv->zeige_info();
+			cnv->show_info();
 			return true;
 		}
 		else if(IS_RIGHTRELEASE(ev)) {

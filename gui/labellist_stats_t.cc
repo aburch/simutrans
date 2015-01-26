@@ -137,7 +137,7 @@ bool labellist_stats_t::infowin_event(const event_t * ev)
 		}
 		else if(welt->lookup_kartenboden(pos)->find<label_t>()) {
 			// avoid crash
-				welt->lookup_kartenboden(pos)->find<label_t>()->zeige_info();
+				welt->lookup_kartenboden(pos)->find<label_t>()->show_info();
 		}
 	}
 	else if (IS_RIGHTRELEASE(ev)) {

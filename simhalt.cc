@@ -412,7 +412,7 @@ DBG_DEBUG("haltestelle_t::remove()","not last");
 
 	// if building was removed this is false!
 	if(bd) {
-		bd->calc_bild();
+		bd->calc_image();
 		reliefkarte_t::get_karte()->calc_map_pixel(pos.get_2d());
 	}
 	return true;
@@ -2755,7 +2755,7 @@ void haltestelle_t::get_short_freight_info(cbuffer_t & buf) const
 
 
 
-void haltestelle_t::zeige_info()
+void haltestelle_t::show_info()
 {
 	create_win( new halt_info_t(self), w_info, magic_halt_info + self.get_id() );
 }
@@ -3742,7 +3742,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 
 
 //"Load lock" (Google)
-void haltestelle_t::laden_abschliessen(bool need_recheck_for_walking_distance)
+void haltestelle_t::finish_rd(bool need_recheck_for_walking_distance)
 {
 	stale_convois.clear();
 	stale_lines.clear();
@@ -3754,7 +3754,7 @@ void haltestelle_t::laden_abschliessen(bool need_recheck_for_walking_distance)
 			vector_tpl<ware_t> * warray = waren[i];
 			FOR(vector_tpl<ware_t>, & j, *warray)
 			{
-				j.laden_abschliessen(welt);
+				j.finish_rd(welt);
 			}
 			// merge identical entries (should only happen with old games)
 			const uint32 count = warray->get_count();

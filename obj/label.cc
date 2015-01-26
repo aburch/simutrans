@@ -75,7 +75,7 @@ label_t::~label_t()
 }
 
 
-void label_t::laden_abschliessen()
+void label_t::finish_rd()
 {
 #ifdef MULTI_THREAD
 	pthread_mutex_lock( &add_label_mutex );
@@ -101,7 +101,7 @@ image_id label_t::get_bild() const
 }
 
 
-void label_t::zeige_info()
+void label_t::show_info()
 {
 	label_t* l = this;
 	create_win(new label_info_t(l), w_info, (ptrdiff_t)this );

@@ -1259,7 +1259,7 @@ void karte_t::distribute_cities( settings_t const * const sets, sint16 old_x, si
 
 			for(  uint32 i=old_anzahl_staedte;  i<stadt.get_count();  i++  ) {
 				// Hajo: do final init after world was loaded/created
-				stadt[i]->laden_abschliessen();
+				stadt[i]->finish_rd();
 
 				const uint32 citizens = city_population.get_count() > i ? city_population[i] : city_population.get_element(simrand(city_population.get_count() - 1, "void karte_t::distribute_groundobjs_cities"));
 
@@ -1742,7 +1742,7 @@ DBG_DEBUG("karte_t::init()","built timeline");
 	}
 
 	// finishes the line preparation and sets id 0 to invalid ...
-	players[0]->simlinemgmt.laden_abschliessen();
+	players[0]->simlinemgmt.finish_rd();
 
 	set_tool( tool_t::general_tool[TOOL_QUERY], get_active_player() );
 
@@ -2315,12 +2315,12 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 	// now recalc the images of the old map near the seam ...
 	for(  sint16 y = 0;  y < old_y - 20;  y++  ) {
 		for(  sint16 x = max( old_x - 20, 0 );  x < old_x;  x++  ) {
-			lookup_kartenboden_nocheck(x,y)->calc_bild();
+			lookup_kartenboden_nocheck(x,y)->calc_image();
 		}
 	}
 	for(  sint16 y = max( old_y - 20, 0 );  y < old_y;  y++) {
 		for(  sint16 x = 0;  x < old_x;  x++  ) {
-			lookup_kartenboden_nocheck(x,y)->calc_bild();
+			lookup_kartenboden_nocheck(x,y)->calc_image();
 		}
 	}
 
@@ -2978,12 +2978,12 @@ int karte_t::raise_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8
 
 	n += hn_sw - h0_sw + hn_se - h0_se + hn_ne - h0_ne  + hn_nw - h0_nw;
 
-	lookup_kartenboden_nocheck(x,y)->calc_bild();
+	lookup_kartenboden_nocheck(x,y)->calc_image();
 	if ( (x+1) < cached_size.x ) {
-		lookup_kartenboden_nocheck(x+1,y)->calc_bild();
+		lookup_kartenboden_nocheck(x+1,y)->calc_image();
 	}
 	if ( (y+1) < cached_size.y ) {
-		lookup_kartenboden_nocheck(x,y+1)->calc_bild();
+		lookup_kartenboden_nocheck(x,y+1)->calc_image();
 	}
 
 	return n;
@@ -3289,12 +3289,12 @@ int karte_t::lower_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8
 
 	n += h0_sw-hn_sw + h0_se-hn_se + h0_ne-hn_ne + h0_nw-hn_nw;
 
-	lookup_kartenboden_nocheck(x,y)->calc_bild();
+	lookup_kartenboden_nocheck(x,y)->calc_image();
 	if( (x+1) < cached_size.x ) {
-		lookup_kartenboden_nocheck(x+1,y)->calc_bild();
+		lookup_kartenboden_nocheck(x+1,y)->calc_image();
 	}
 	if( (y+1) < cached_size.y ) {
-		lookup_kartenboden_nocheck(x,y+1)->calc_bild();
+		lookup_kartenboden_nocheck(x,y+1)->calc_image();
 	}
 	return n;
 }
@@ -7292,13 +7292,13 @@ void karte_t::plans_laden_abschliessen( sint16 x_min, sint16 x_max, sint16 y_min
 				for(  int n = 0;  n < gr->get_top();  n++  ) {
 					obj_t *obj = gr->obj_bei(n);
 					if(obj) {
-						obj->laden_abschliessen();
+						obj->finish_rd();
 					}
 				}
 				if(  load_version.version <= 111000  &&  gr->ist_natur()  ) {
 					gr->sort_trees();
 				}
-				gr->calc_bild();
+				gr->calc_image();
 			}
 		}
 	}
@@ -7392,7 +7392,7 @@ void karte_t::load(loadsave_t *file)
 	loaded_rotation = settings.get_rotation();
 
 
-	// some functions (laden_abschliessen) need to know what version was loaded
+	// some functions (finish_rd) need to know what version was loaded
 	load_version.version = file->get_version();
 	load_version.experimental_version = file->get_experimental_version();
 
@@ -7788,7 +7788,7 @@ DBG_MESSAGE("karte_t::load()", "messages loaded");
 
 	// nachdem die welt jetzt geladen ist koennen die Blockstrecken neu
 	// angelegt werden
-	old_blockmanager_t::laden_abschliessen(this);
+	old_blockmanager_t::finish_rd(this);
 	DBG_MESSAGE("karte_t::load()", "blocks loaded");
 
 	sint32 mi,mj;
@@ -7818,7 +7818,7 @@ DBG_MESSAGE("karte_t::load()", "laden_abschliesen for tiles finished" );
 	// must finish loading cities first before cleaning up factories
 	weighted_vector_tpl<stadt_t*> new_weighted_stadt(stadt.get_count() + 1);
 	FOR(weighted_vector_tpl<stadt_t*>, const s, stadt) {
-		s->laden_abschliessen();
+		s->finish_rd();
 		// Must add city buildings to the world list here in any network game
 		// to ensure that they are added in identical order.
 		if(env_t::networkmode)
@@ -7837,7 +7837,7 @@ DBG_MESSAGE("karte_t::load()", "laden_abschliesen for tiles finished" );
 
 	DBG_MESSAGE("karte_t::load()", "clean up factories");
 	FOR(vector_tpl<fabrik_t*>, const f, fab_list) {
-		f->laden_abschliessen();
+		f->finish_rd();
 	}
 
 DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
@@ -7847,7 +7847,7 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 	// resolve dummy stops into real stops first ...
 	FOR(vector_tpl<halthandle_t>, const i, haltestelle_t::get_alle_haltestellen()) {
 		if (i->get_owner() && i->existiert_in_welt()) {
-			i->laden_abschliessen(file->get_experimental_version() < 10);
+			i->finish_rd(file->get_experimental_version() < 10);
 		}
 	}
 
@@ -7866,7 +7866,7 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 	// adding lines and other stuff for convois
 	for(unsigned i=0;  i<convoi_array.get_count();  i++ ) {
 		convoihandle_t cnv = convoi_array[i];
-		cnv->laden_abschliessen();
+		cnv->finish_rd();
 		// was deleted during loading => use same position again
 		if(!cnv.is_bound()) {
 			i--;
@@ -8096,7 +8096,7 @@ void karte_t::update_map_intern(sint16 x_min, sint16 x_max, sint16 y_min, sint16
 					for(  int x = xx;  x < min(xx + LOOP_BLOCK, x_max);  x++  ) {
 						const int nr = y * cached_grid_size.x + x;
 						for(  uint i = 0;  i < plan[nr].get_boden_count();  i++  ) {
-							plan[nr].get_boden_bei(i)->calc_bild();
+							plan[nr].get_boden_bei(i)->calc_image();
 						}
 					}
 				}
@@ -8108,7 +8108,7 @@ void karte_t::update_map_intern(sint16 x_min, sint16 x_max, sint16 y_min, sint16
 			for(  int x = x_min;  x < x_max;  x++  ) {
 				const int nr = y * cached_grid_size.x + x;
 				for(  uint i = 0;  i < plan[nr].get_boden_count();  i++  ) {
-					plan[nr].get_boden_bei(i)->calc_bild();
+					plan[nr].get_boden_bei(i)->calc_image();
 				}
 			}
 		}
@@ -8345,7 +8345,7 @@ void karte_t::recalc_transitions(koord k)
 		pl->set_climate_transition_flag( climate_corners != 0 );
 		pl->set_climate_corners( climate_corners );
 	}
-	gr->calc_bild();
+	gr->calc_image();
 }
 
 

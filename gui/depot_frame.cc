@@ -705,7 +705,7 @@ bool depot_frame_t::infowin_event(const event_t *ev)
 			scr_coord const pos = win_get_pos(this);
 			destroy_win( this );
 
-			next_dep->zeige_info();
+			next_dep->show_info();
 			win_set_pos(win_get_magic((ptrdiff_t)next_dep), pos.x, pos.y);
 			welt->get_viewport()->change_world_position(next_dep->get_pos());
 		}

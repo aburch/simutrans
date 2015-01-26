@@ -782,7 +782,7 @@ public:
 	 * Opens an information window for this station.
 	 * @author Hj. Malthaner
 	 */
-	void zeige_info();
+	void show_info();
 
 	/**
 	 * @return the type of a station
@@ -807,7 +807,7 @@ public:
 
 	void rdwr(loadsave_t *file);
 
-	void laden_abschliessen(bool need_recheck_for_walking_distance);
+	void finish_rd(bool need_recheck_for_walking_distance);
 
 	/**
 	 * Called before savegame will be loaded.
@@ -817,7 +817,7 @@ public:
 
 	/**
 	 * Called after loading of savegame almost finished,
-	 * i.e. after laden_abschliessen is finished.
+	 * i.e. after finish_rd is finished.
 	 * Deletes all_koords table.
 	 */
 	static void end_load_game();

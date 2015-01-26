@@ -588,11 +588,11 @@ void grund_t::take_obj_from(grund_t* other_gr)
 }
 
 
-void grund_t::zeige_info()
+void grund_t::show_info()
 {
 	int old_count = win_get_open_count();
 	if(get_halt().is_bound()) {
-		get_halt()->zeige_info();
+		get_halt()->show_info();
 		if(env_t::single_info  &&  old_count!=win_get_open_count()  ) {
 			return;
 		}
@@ -698,10 +698,10 @@ halthandle_t grund_t::get_halt() const
 // ----------------------- image calculation stuff from here ------------------
 
 
-void grund_t::calc_bild()
+void grund_t::calc_image()
 {
 	// will automatically recalculate ways ...
-	objlist.calc_bild();
+	objlist.calc_image();
 	// since bridges may alter images of ways, this order is needed!
 	calc_bild_internal( false );
 }
@@ -1730,7 +1730,7 @@ bool grund_t::weg_erweitern(waytype_t wegtyp, ribi_t::ribi ribi)
 				}
 			}
 		}
-		calc_bild();
+		calc_image();
 		set_flag(dirty);
 		return true;
 	}
@@ -1846,7 +1846,7 @@ sint64 grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, player_t *player,
 				}
 				crossing_t *cr = new crossing_t(obj_bei(0)->get_owner(), pos, cr_besch, ribi_t::ist_gerade_ns(get_weg(cr_besch->get_waytype(1))->get_ribi_unmasked()) );
 				objlist.add( cr );
-				cr->laden_abschliessen();
+				cr->finish_rd();
 			}
 		}
 
@@ -1874,11 +1874,11 @@ sint64 grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, player_t *player,
 			// Must call this here to ensure that the diagonal cost is
 			// set as appropriate.
 			// @author: jamespetts, Februrary 2010
-			weg->laden_abschliessen();
+			weg->finish_rd();
 		}
 
 		// may result in a crossing, but the wegebauer will recalc all images anyway
-		weg->calc_bild();
+		weg->calc_image();
 	}
 	return cost;
 }
@@ -1899,7 +1899,7 @@ sint32 grund_t::weg_entfernen(waytype_t wegtyp, bool ribi_rem)
 					weg_t *weg2 = to->get_weg(wegtyp);
 					if(weg2) {
 						weg2->ribi_rem(ribi_t::rueckwaerts(ribi_t::nsow[r]));
-						to->calc_bild();
+						to->calc_image();
 					}
 				}
 			}
@@ -1928,7 +1928,7 @@ sint32 grund_t::weg_entfernen(waytype_t wegtyp, bool ribi_rem)
 			flags &= ~has_way1;
 		}
 
-		calc_bild();
+		calc_image();
 		reliefkarte_t::get_karte()->calc_map_pixel(get_pos().get_2d());
 
 		return costs;
@@ -2537,7 +2537,7 @@ bool grund_t::remove_everything_from_way(player_t* player, waytype_t wt, ribi_t:
 					else {
 						// we must leave the way to prevent destroying the other one
 						add |= get_weg_nr(1)->get_ribi_unmasked();
-						weg->calc_bild();
+						weg->calc_image();
 					}
 				}
 			}
@@ -2559,7 +2559,7 @@ bool grund_t::remove_everything_from_way(player_t* player, waytype_t wt, ribi_t:
 				if(  wt == water_wt  &&  pos.z == welt->get_water_hgt( here )  &&  slope != hang_t::flach  ) {
 					grund_t *gr = welt->lookup_kartenboden(here - ribi_typ(slope));
 					if (gr  &&  gr->ist_wasser()) {
-						gr->calc_bild(); // to recalculate ribis
+						gr->calc_image(); // to recalculate ribis
 					}
 				}
 				// make tunnel portals to normal ground
@@ -2576,7 +2576,7 @@ bool grund_t::remove_everything_from_way(player_t* player, waytype_t wt, ribi_t:
 DBG_MESSAGE("tool_wayremover()","change remaining way to ribi %d",add);
 			// something will remain, we just change ribis
 			weg->set_ribi(add);
-			calc_bild();
+			calc_image();
 		}
 		// we have to pay?
 		if(costs) {

@@ -55,7 +55,7 @@ template<> struct map_obj<baum_t>        { static const obj_t::typ code = obj_t:
 template<> struct map_obj<bruecke_t>     { static const obj_t::typ code = obj_t::bruecke;     };
 template<> struct map_obj<crossing_t>    { static const obj_t::typ code = obj_t::crossing;    };
 template<> struct map_obj<field_t>       { static const obj_t::typ code = obj_t::field;       };
-template<> struct map_obj<pedestrian_t> { static const obj_t::typ code = obj_t::fussgaenger; };
+template<> struct map_obj<pedestrian_t> { static const obj_t::typ code = obj_t::pedestrian; };
 template<> struct map_obj<gebaeude_t>    { static const obj_t::typ code = obj_t::gebaeude;    };
 template<> struct map_obj<groundobj_t>   { static const obj_t::typ code = obj_t::groundobj;   };
 template<> struct map_obj<label_t>       { static const obj_t::typ code = obj_t::label;       };
@@ -65,7 +65,7 @@ template<> struct map_obj<pumpe_t>       { static const obj_t::typ code = obj_t:
 template<> struct map_obj<roadsign_t>    { static const obj_t::typ code = obj_t::roadsign;    };
 template<> struct map_obj<senke_t>       { static const obj_t::typ code = obj_t::senke;       };
 template<> struct map_obj<signal_t>      { static const obj_t::typ code = obj_t::signal;      };
-template<> struct map_obj<private_car_t>   { static const obj_t::typ code = obj_t::verkehr;     };
+template<> struct map_obj<private_car_t>   { static const obj_t::typ code = obj_t::road_user;     };
 template<> struct map_obj<road_vehicle_t>   { static const obj_t::typ code = obj_t::automobil;   };
 template<> struct map_obj<tunnel_t>      { static const obj_t::typ code = obj_t::tunnel;      };
 template<> struct map_obj<wayobj_t>      { static const obj_t::typ code = obj_t::wayobj;      };
@@ -100,7 +100,7 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	enum flag_values {
-		keine_flags=0,
+		no_flags=0,
 		dirty=1, // was changed => redraw full
 		is_kartenboden=2,
 		has_text=4,
@@ -236,7 +236,7 @@ public:
 	 * oder die Lage (Hang) des grundes geaendert hat.
 	 * @author Hj. Malthaner
 	 */
-	void calc_bild();
+	void calc_image();
 
 	/**
 	* Gibt die Nummer des Bildes des Untergrundes zurueck.
@@ -289,7 +289,7 @@ public:
 	* Oeffnet standardmaessig kein Infofenster.
 	* @author Hj. Malthaner
 	*/
-	void zeige_info();
+	void show_info();
 
 	/**
 	* Gibt die Farbe des Beschreibungstexthintergrundes zuurck

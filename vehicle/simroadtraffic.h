@@ -83,17 +83,17 @@ public:
 	 * Open a new observation window for the object.
 	 * @author Hj. Malthaner
 	 */
-	virtual void zeige_info();
+	virtual void show_info();
 
 	void rdwr(loadsave_t *file);
 
 	// finalizes direction
-	void laden_abschliessen();
+	void finish_rd();
 
 	void set_time_to_life(uint32 value) { time_to_life = value; }
 
 	// we allow to remove all cars etc.
-	const char *ist_entfernbar(const player_t *) { return NULL; }
+	const char * is_deletable(const player_t *) { return NULL; }
 };
 
 
@@ -127,7 +127,7 @@ private:
 protected:
 	void rdwr(loadsave_t *file);
 
-	void calc_bild();
+	void calc_image();
 
 public:
 	private_car_t(loadsave_t *file);
@@ -155,7 +155,7 @@ public:
 	uint16 get_current_speed() const {return current_speed;}
 
 	const char *get_name() const {return "Verkehrsteilnehmer";}
-	//typ get_typ() const { return verkehr; }
+	//typ get_typ() const { return road_user; }
 
 	/**
 	 * @return a description string for the object

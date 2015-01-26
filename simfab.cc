@@ -900,7 +900,7 @@ void fabrik_t::delete_all_fields()
 			if (field_t* f = gr->find<field_t>()) {
 				delete f; // implicitly removes the field from fields
 				plan->boden_ersetzen( gr, new boden_t(gr->get_pos(), hang_t::flach ) );
-				plan->get_kartenboden()->calc_bild();
+				plan->get_kartenboden()->calc_image();
 				continue;
 			}
 		}
@@ -1094,7 +1094,7 @@ bool fabrik_t::add_random_field(uint16 probability)
 		if(lt) {
 			gr2->obj_add( lt );
 		}
-		gr2->calc_bild();
+		gr2->calc_image();
 		return true;
 	}
 	return false;
@@ -1316,7 +1316,7 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 		file->rdwr_long( lieferziele_active_last_month );
 	}
 
-	// suppliers / consumers will be recalculated in laden_abschliessen
+	// suppliers / consumers will be recalculated in finish_rd
 	if (file->is_loading()  &&  welt->get_settings().is_crossconnect_factories()) {
 		lieferziele.clear();
 	}
@@ -2211,7 +2211,7 @@ void fabrik_t::new_month()
 						const char* old_name = get_name();
 						besch = new_type;
 						const char* new_name = get_name();
-						get_building()->calc_bild();
+						get_building()->calc_image();
 						// Base production is randomised, so is an instance value. Must re-set from the type.
 						prodbase = besch->get_produktivitaet() + simrand(besch->get_bereich(), "void fabrik_t::new_month()");
 						// Re-add the fields
@@ -2452,7 +2452,7 @@ void fabrik_t::recalc_factory_status()
 }
 
 
-void fabrik_t::zeige_info()
+void fabrik_t::show_info()
 {
 	create_win(new fabrik_info_t(this, get_building()), w_info, (ptrdiff_t)this );
 }
@@ -2708,7 +2708,7 @@ void fabrik_t::info_conn(cbuffer_t& buf) const
 }
 
 
-void fabrik_t::laden_abschliessen()
+void fabrik_t::finish_rd()
 {
 	city = welt->get_city(pos.get_2d());
 	if(city != NULL)
@@ -2746,7 +2746,7 @@ void fabrik_t::laden_abschliessen()
 			}
 			else {
 				// remove this ...
-				dbg->warning( "fabrik_t::laden_abschliessen()", "No factory at expected position %s!", lieferziele[i].get_str() );
+				dbg->warning( "fabrik_t::finish_rd()", "No factory at expected position %s!", lieferziele[i].get_str() );
 				lieferziele.remove_at(i);
 				i--;
 			}

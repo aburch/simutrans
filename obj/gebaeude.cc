@@ -568,7 +568,7 @@ bool gebaeude_t::sync_step(long delta_t)
 }
 
 
-void gebaeude_t::calc_bild()
+void gebaeude_t::calc_image()
 {
 	grund_t *gr = welt->lookup(get_pos());
 	// need no ground?
@@ -615,7 +615,7 @@ image_id gebaeude_t::get_bild() const
 }
 
 
-image_id gebaeude_t::get_outline_bild() const
+image_id gebaeude_t::get_outline_image() const
 {
 	if(env_t::hide_buildings!=0  &&  env_t::hide_with_transparency  &&  !zeige_baugrube) {
 		// opaque houses
@@ -655,7 +655,7 @@ image_id gebaeude_t::get_bild(int nr) const
 }
 
 
-image_id gebaeude_t::get_after_bild() const
+image_id gebaeude_t::get_front_image() const
 {
 	if(zeige_baugrube) {
 		return IMG_LEER;
@@ -745,10 +745,10 @@ gebaeude_t::typ gebaeude_t::get_haustyp() const
 }
 
 
-void gebaeude_t::zeige_info()
+void gebaeude_t::show_info()
 {
 	if(get_fabrik()) {
-		ptr.fab->zeige_info();
+		ptr.fab->show_info();
 		return;
 	}
 	int old_count = win_get_open_count();
@@ -758,13 +758,13 @@ void gebaeude_t::zeige_info()
 		create_win( new money_frame_t(get_owner()), w_info, magic_finances_t+get_owner()->get_player_nr() );
 	}
 	else if (ist_rathaus()) {
-		welt->suche_naechste_stadt(get_pos().get_2d())->zeige_info();
+		welt->suche_naechste_stadt(get_pos().get_2d())->show_info();
 	}
 
 	if(!tile->get_besch()->ist_ohne_info()) {
 		if(!special  ||  (env_t::townhall_info  &&  old_count==win_get_open_count()) ) {
 			// open info window for the first tile of our building (not relying on presence of (0,0) tile)
-			get_first_tile()->obj_t::zeige_info();
+			get_first_tile()->obj_t::show_info();
 		}
 	}
 }
@@ -1331,9 +1331,9 @@ void gebaeude_t::rdwr(loadsave_t *file)
  *
  * @author Hj. Malthaner
  */
-void gebaeude_t::laden_abschliessen()
+void gebaeude_t::finish_rd()
 {
-	calc_bild();
+	calc_image();
 	sint64 maint = tile->get_besch()->get_maintenance();
 	if(maint == COST_MAGIC) 
 	{

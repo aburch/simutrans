@@ -63,7 +63,7 @@ bool pedestrian_t::alles_geladen()
 
 pedestrian_t::pedestrian_t(loadsave_t *file)
 #ifdef INLINE_OBJ_TYPE
- : road_user_t(fussgaenger)
+ : road_user_t(pedestrian)
 #else
  : road_user_t()
 #endif
@@ -77,14 +77,14 @@ pedestrian_t::pedestrian_t(loadsave_t *file)
 
 pedestrian_t::pedestrian_t(grund_t *gr) :
 #ifdef INLINE_OBJ_TYPE
-	road_user_t(fussgaenger, gr, simrand(65535, "pedestrian_t::pedestrian_t (weg_next)")),
+	road_user_t(pedestrian, gr, simrand(65535, "pedestrian_t::pedestrian_t (weg_next)")),
 #else
 	road_user_t(gr, simrand(65535, "pedestrian_t::pedestrian_t (weg_next)")),
 #endif
 	besch(pick_any_weighted(liste))
 {
 	time_to_life = pick_any(strecke);
-	calc_bild();
+	calc_image();
 }
 
 
@@ -96,7 +96,7 @@ pedestrian_t::~pedestrian_t()
 }
 
 
-void pedestrian_t::calc_bild()
+void pedestrian_t::calc_image()
 {
 	if(!besch)
 	{
@@ -213,7 +213,7 @@ void pedestrian_t::hop(grund_t *gr)
 {
 	leave_tile();
 	set_pos(gr->get_pos());
-	calc_bild();
+	calc_image();
 	// no need to call enter_tile();
 	gr->obj_add(this);
 

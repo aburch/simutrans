@@ -686,7 +686,7 @@ void weg_t::unlock_mutex()
 #endif
 
 
-void weg_t::calc_bild()
+void weg_t::calc_image()
 {
 #ifdef MULTI_THREAD
 	pthread_mutex_lock( &weg_calc_bild_mutex );
@@ -700,7 +700,7 @@ void weg_t::calc_bild()
 		set_bild(IMG_LEER);
 		set_after_bild(IMG_LEER);
 		if(  from==NULL  ) {
-			dbg->error( "weg_t::calc_bild()", "Own way at %s not found!", get_pos().get_str() );
+			dbg->error( "weg_t::calc_image()", "Own way at %s not found!", get_pos().get_str() );
 		}
 #ifdef MULTI_THREAD
 		pthread_mutex_unlock( &weg_calc_bild_mutex );
@@ -741,7 +741,7 @@ void weg_t::calc_bild()
 						if(  weg_t *w=to->get_weg(get_waytype())  )  {
 							// and will only change the outcome, if it has a diagonal image ...
 							if(  w->get_besch()->has_diagonal_bild()  ) {
-								w->calc_bild();
+								w->calc_image();
 							}
 						}
 					}
@@ -825,7 +825,7 @@ void weg_t::new_month()
 
 
 // correct speed and maintenance
-void weg_t::laden_abschliessen()
+void weg_t::finish_rd()
 {
 	player_t *player=get_owner();
 	if(player  &&  besch) 
@@ -844,13 +844,13 @@ void weg_t::laden_abschliessen()
 
 // returns NULL, if removal is allowed
 // players can remove public owned ways (Depracated)
-const char *weg_t::ist_entfernbar(const player_t *player, bool allow_public)
+const char *weg_t:: is_deletable(const player_t *player, bool allow_public)
 {
 	if(allow_public && get_player_nr() == 1) 
 	{
 		return NULL;
 	}
-	return obj_t::ist_entfernbar(player);
+	return obj_t:: is_deletable(player);
 }
 
 /**
@@ -1060,7 +1060,7 @@ void weg_t::degrade()
 			if(mothballed_type)
 			{
 				set_besch(mothballed_type);
-				calc_bild();
+				calc_image();
 			}
 		}
 	}

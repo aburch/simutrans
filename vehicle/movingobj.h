@@ -44,7 +44,7 @@ private:
 protected:
 	void rdwr(loadsave_t *file);
 
-	void calc_bild();
+	void calc_image();
 
 public:
 	static bool register_besch(groundobj_besch_t *besch);
@@ -78,7 +78,7 @@ public:
 	 */
 	bool check_season(const bool);
 
-	void zeige_info();
+	void show_info();
 
 	void info(cbuffer_t & buf, bool dummy = false) const;
 

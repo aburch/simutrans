@@ -191,7 +191,7 @@ void planquadrat_t::kartenboden_setzen(grund_t *bd)
 		ground_size = 1;
 		bd->set_kartenboden(true);
 	}
-	bd->calc_bild();
+	bd->calc_image();
 	reliefkarte_t::get_karte()->calc_map_pixel(bd->get_pos().get_2d());
 }
 
@@ -371,7 +371,7 @@ void planquadrat_t::abgesenkt()
 			for(int r=0; r<4; r++) {
 				grund_t *gr2 = welt->lookup_kartenboden(k + koord::nsow[r]);
 				if (gr2  &&  gr2->ist_wasser()) {
-					gr2->calc_bild();
+					gr2->calc_image();
 				}
 			}
 		}
@@ -400,7 +400,7 @@ void planquadrat_t::angehoben()
 			for(int r=0; r<4; r++) {
 				grund_t *gr2 = welt->lookup_kartenboden(k + koord::nsow[r]);
 				if(  gr2  &&  gr2->ist_wasser()  ) {
-					gr2->calc_bild();
+					gr2->calc_image();
 				}
 			}
 		}
@@ -412,7 +412,7 @@ void planquadrat_t::angehoben()
 			for(int r=0; r<4; r++) {
 				grund_t *gr2 = welt->lookup_kartenboden(k + koord::nsow[r]);
 				if(  gr2  &&  gr2->ist_wasser()  ) {
-					gr2->calc_bild();
+					gr2->calc_image();
 				}
 			}
 		}

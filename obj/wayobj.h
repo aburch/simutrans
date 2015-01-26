@@ -67,7 +67,7 @@ public:
 	* the front image, drawn after everything else
 	* @author V. Meyer
 	*/
-	image_id get_after_bild() const {
+	image_id get_front_image() const {
 		return hang ? besch->get_front_slope_image_id(hang) :
 			diagonal ? besch->get_front_diagonal_image_id(dir) : besch->get_front_image_id(dir);
 	}
@@ -88,7 +88,7 @@ public:
 	 */
 	waytype_t get_waytype() const { return besch ? besch->get_wtyp() : invalid_wt; }
 
-	void calc_bild();
+	void calc_image();
 
 	/**
 	* Speichert den Zustand des Objekts.
@@ -102,7 +102,7 @@ public:
 	// substracts cost
 	void entferne(player_t *player);
 
-	const char* ist_entfernbar(const player_t *player) OVERRIDE;
+	const char*  is_deletable(const player_t *player) OVERRIDE;
 	bool clashes_with_halt() {
 		return get_besch()->get_own_wtyp() == noise_barrier_wt;
 	}
@@ -111,10 +111,10 @@ public:
 	* calculate image after loading
 	* @author prissi
 	*/
-	void laden_abschliessen();
+	void finish_rd();
 
 	// specific for wayobj
-	void set_dir(ribi_t::ribi d) { dir = d; calc_bild(); }
+	void set_dir(ribi_t::ribi d) { dir = d; calc_image(); }
 	ribi_t::ribi get_dir() const { return dir; }
 
 	/* the static routines */

@@ -2070,7 +2070,7 @@ void stadt_t::rdwr(loadsave_t* file)
  * und nur noch die Datenstrukturenneu verknuepft werden muessen.
  * @author Hj. Malthaner
  */
-void stadt_t::laden_abschliessen()
+void stadt_t::finish_rd()
 {
 	//step_count = 0;
 	//next_step = 0;
@@ -2264,7 +2264,7 @@ void stadt_t::set_name(const char *new_name)
 /* show city info dialoge
  * @author prissi
  */
-void stadt_t::zeige_info()
+void stadt_t::show_info()
 {
 	create_win( new stadt_info_t(this), w_info, (ptrdiff_t)this );
 }
@@ -4011,7 +4011,7 @@ void stadt_t::build_city_building(const koord k, bool new_town)
 						}
 					}
 				}
-				gr->calc_bild();
+				gr->calc_image();
 				reliefkarte_t::get_karte()->calc_map_pixel(gr->get_pos().get_2d());
 			}
 		}
@@ -4201,7 +4201,7 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb)
 						}
 					}
 				}
-				gr->calc_bild();
+				gr->calc_image();
 				reliefkarte_t::get_karte()->calc_map_pixel(gr->get_pos().get_2d());
 			}
 		}
@@ -4616,7 +4616,7 @@ bool stadt_t::baue_strasse(const koord k, player_t* player, bool forced)
 				connection_roads &= ~ribi_t::nsow[r];
 			} else {
 				w2->ribi_add(ribi_t::rueckwaerts(ribi_t::nsow[r]));
-				bd2->calc_bild();
+				bd2->calc_image();
 				bd2->set_flag( grund_t::dirty );
 			}
 		}
@@ -4655,7 +4655,7 @@ bool stadt_t::baue_strasse(const koord k, player_t* player, bool forced)
 			str->set_gehweg(true);
 			weg->set_public_right_of_way();
 			bd->neuen_weg_bauen(weg, connection_roads, player);
-			bd->calc_bild();
+			bd->calc_image();
 		}
 		// check to bridge a river
 		if(ribi_t::ist_einfach(connection_roads)) {

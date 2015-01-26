@@ -59,7 +59,7 @@ protected:
 	* Dient zur Neuberechnung des Bildes
 	* @author Hj. Malthaner
 	*/
-	void calc_bild();
+	void calc_image();
 
 	/**
 	* Use this value for scaling electricity consumption/demand
@@ -115,7 +115,7 @@ public:
 
 	inline void set_bild( image_id b ) { image = b; }
 	image_id get_bild() const {return is_crossing ? IMG_LEER : image;}
-	image_id get_after_bild() const {return is_crossing ? image : IMG_LEER;}
+	image_id get_front_image() const {return is_crossing ? image : IMG_LEER;}
 
 	/**
 	* Recalculates the images of all neighbouring
@@ -131,7 +131,7 @@ public:
 	*
 	* @author Hj. Malthaner
 	*/
-	virtual void laden_abschliessen();
+	virtual void finish_rd();
 
 	/**
 	* Speichert den Zustand des Objekts.
@@ -176,9 +176,9 @@ public:
 
 	void info(cbuffer_t & buf, bool dummy = false) const;
 
-	void laden_abschliessen();
+	void finish_rd();
 
-	void calc_bild() {}	// otherwise it will change to leitung
+	void calc_image() {}	// otherwise it will change to leitung
 
 	const fabrik_t* get_factory() const { return fab; }
 };
@@ -221,9 +221,9 @@ public:
 
 	void info(cbuffer_t & buf, bool dummy = false) const;
 
-	void laden_abschliessen();
+	void finish_rd();
 
-	void calc_bild() {}	// otherwise it will change to leitung
+	void calc_image() {}	// otherwise it will change to leitung
 
 	uint32 get_power_load() const;
 
