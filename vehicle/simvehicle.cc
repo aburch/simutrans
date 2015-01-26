@@ -122,7 +122,7 @@ void vehicle_base_t::set_diagonal_multiplier( uint32 multiplier, uint32 old_diag
 // if true, convoi, must restart!
 bool vehicle_base_t::need_realignment() const
 {
-	return old_diagonal_vehicle_steps_per_tile!=diagonal_vehicle_steps_per_tile  &&  ribi_t::ist_kurve(fahrtrichtung);
+	return old_diagonal_vehicle_steps_per_tile!=diagonal_vehicle_steps_per_tile  &&  ribi_t::ist_kurve(direction);
 }
 
 // [0]=xoff [1]=yoff
@@ -239,7 +239,7 @@ void vehicle_base_t::rotate90()
 	pos_cur.rotate90( welt->get_size().y-1 );
 	set_pos( pos_cur );
 	// directions are counterclockwise to ribis!
-	fahrtrichtung = ribi_t::rotate90( fahrtrichtung );
+	direction = ribi_t::rotate90( direction );
 	pos_next.rotate90( welt->get_size().y-1 );
 	// new offsets: very tricky ...
 	sint8 new_dx = -dy*2;
@@ -457,7 +457,7 @@ void vehicle_base_t::get_screen_offset( int &xoff, int &yoff, const sint16 raste
 	yoff += ((display_steps*dy) >> 10) + (get_hoff()*raster_width)/(4*16);
 
 	if(  drives_on_left  ) {
-		const int drive_left_dir = ribi_t::get_dir(get_fahrtrichtung());
+		const int drive_left_dir = ribi_t::get_dir(get_direction());
 		xoff += tile_raster_scale_x( driveleft_base_offsets[drive_left_dir][0], raster_width );
 		yoff += tile_raster_scale_y( driveleft_base_offsets[drive_left_dir][1], raster_width );
 	}
@@ -596,7 +596,7 @@ void vehicle_base_t::calc_height(grund_t *gr)
 		) {
 			// need hiding? One of the few uses of XOR: not half driven XOR exiting => not hide!
 			ribi_t::ribi hang_ribi = ribi_typ( gr->get_grund_hang() );
-			if((steps<(steps_next/2))  ^  ((hang_ribi&fahrtrichtung)!=0)  ) {
+			if((steps<(steps_next/2))  ^  ((hang_ribi&direction)!=0)  ) {
 				set_bild(IMG_LEER);
 			}
 			else {
@@ -613,14 +613,14 @@ void vehicle_base_t::calc_height(grund_t *gr)
 		if(  hang  ) {
 			const uint slope_height = (hang & 7) ? 1 : 2;
 			ribi_t::ribi hang_ribi = ribi_typ(hang);
-			if(  ribi_t::doppelt(hang_ribi)  ==  ribi_t::doppelt(fahrtrichtung)) {
-				zoff_start = hang_ribi & fahrtrichtung                      ? 2*slope_height : 0;  // 0 .. 4
-				zoff_end   = hang_ribi & ribi_t::rueckwaerts(fahrtrichtung) ? 2*slope_height : 0;  // 0 .. 4
+			if(  ribi_t::doppelt(hang_ribi)  ==  ribi_t::doppelt(direction)) {
+				zoff_start = hang_ribi & direction                      ? 2*slope_height : 0;  // 0 .. 4
+				zoff_end   = hang_ribi & ribi_t::rueckwaerts(direction) ? 2*slope_height : 0;  // 0 .. 4
 			}
 			else {
 				// only for shadows and movingobjs ...
-				zoff_start = hang_ribi & fahrtrichtung                      ? slope_height+1 : 0;  // 0 .. 3
-				zoff_end   = hang_ribi & ribi_t::rueckwaerts(fahrtrichtung) ? slope_height+1 : 0;  // 0 .. 3
+				zoff_start = hang_ribi & direction                      ? slope_height+1 : 0;  // 0 .. 3
+				zoff_end   = hang_ribi & ribi_t::rueckwaerts(direction) ? slope_height+1 : 0;  // 0 .. 3
 			}
 		}
 		else {
@@ -641,7 +641,7 @@ sint8 vehicle_base_t::get_hoff() const
 /* true, if one could pass through this field
  * also used for citycars, thus defined here
  */
-vehicle_base_t *vehicle_base_t::no_cars_blocking( const grund_t *gr, const convoi_t *cnv, const uint8 current_fahrtrichtung, const uint8 next_fahrtrichtung, const uint8 next_90fahrtrichtung )
+vehicle_base_t *vehicle_base_t::no_cars_blocking( const grund_t *gr, const convoi_t *cnv, const uint8 current_direction, const uint8 next_direction, const uint8 next_90direction )
 {
 	// Search vehicle
 	for(  uint8 pos=1;  pos<(/*volatile*/ uint8)gr->get_top();  pos++  ) {
@@ -651,61 +651,61 @@ vehicle_base_t *vehicle_base_t::no_cars_blocking( const grund_t *gr, const convo
 			}
 
 			// check for car
-			uint8 other_fahrtrichtung=255;
+			uint8 other_direction=255;
 			bool other_moving = false;
 			if(  road_vehicle_t const* const at = obj_cast<road_vehicle_t>(v)  ) {
 				// ignore ourself
 				if(  cnv == at->get_convoi()  ) {
 					continue;
 				}
-				other_fahrtrichtung = at->get_fahrtrichtung();
+				other_direction = at->get_direction();
 				other_moving = at->get_convoi()->get_akt_speed() > kmh_to_speed(1);
 			}
 			// check for city car
 			else if(  v->get_waytype() == road_wt  ) {
-				other_fahrtrichtung = v->get_fahrtrichtung();
+				other_direction = v->get_direction();
 				if(  private_car_t const* const sa = obj_cast<private_car_t>(v)  ){
 					other_moving = sa->get_current_speed() > 1;
 				}
 			}
 
 			// ok, there is another car ...
-			if(  other_fahrtrichtung != 255  ) {
-				if(  next_fahrtrichtung == other_fahrtrichtung  &&  !ribi_t::is_threeway(gr->get_weg_ribi(road_wt))  ) {
+			if(  other_direction != 255  ) {
+				if(  next_direction == other_direction  &&  !ribi_t::is_threeway(gr->get_weg_ribi(road_wt))  ) {
 					// cars going in the same direction and no crossing => that mean blocking ...
 					return v;
 				}
 
-				const ribi_t::ribi other_90fahrtrichtung = (gr->get_pos().get_2d() == v->get_pos_next().get_2d()) ? other_fahrtrichtung : calc_richtung(gr->get_pos().get_2d(),v->get_pos_next().get_2d());
-				if(  other_90fahrtrichtung == next_90fahrtrichtung  ) {
+				const ribi_t::ribi other_90direction = (gr->get_pos().get_2d() == v->get_pos_next().get_2d()) ? other_direction : calc_richtung(gr->get_pos().get_2d(),v->get_pos_next().get_2d());
+				if(  other_90direction == next_90direction  ) {
 					// Want to exit in same as other   ~50% of the time
 					return v;
 				}
 
-				const bool across = next_fahrtrichtung == (drives_on_left ? ribi_t::rotate45l(next_90fahrtrichtung) : ribi_t::rotate45(next_90fahrtrichtung)); // turning across the opposite directions lane
-				const bool other_across = other_fahrtrichtung == (drives_on_left ? ribi_t::rotate45l(other_90fahrtrichtung) : ribi_t::rotate45(other_90fahrtrichtung)); // other is turning across the opposite directions lane
-				if(  other_fahrtrichtung == next_fahrtrichtung  &&  !(other_across || across)  ) {
+				const bool across = next_direction == (drives_on_left ? ribi_t::rotate45l(next_90direction) : ribi_t::rotate45(next_90direction)); // turning across the opposite directions lane
+				const bool other_across = other_direction == (drives_on_left ? ribi_t::rotate45l(other_90direction) : ribi_t::rotate45(other_90direction)); // other is turning across the opposite directions lane
+				if(  other_direction == next_direction  &&  !(other_across || across)  ) {
 					// entering same straight waypoint as other ~18%
 					return v;
 				}
 
-				const bool straight = next_fahrtrichtung == next_90fahrtrichtung; // driving straight
-				const ribi_t::ribi current_90fahrtrichtung = straight ? ribi_t::rueckwaerts(next_90fahrtrichtung) : (~(next_fahrtrichtung|ribi_t::rueckwaerts(next_90fahrtrichtung)))&0x0F;
-				const bool other_straight = other_fahrtrichtung == other_90fahrtrichtung; // other is driving straight
-				const bool other_exit_same_side = current_90fahrtrichtung == other_90fahrtrichtung; // other is exiting same side as we're entering
-				const bool other_exit_opposite_side = ribi_t::rueckwaerts(current_90fahrtrichtung) == other_90fahrtrichtung; // other is exiting side across from where we're entering
-				if(  across  &&  ((ribi_t::ist_orthogonal(current_90fahrtrichtung,other_fahrtrichtung)  &&  other_moving)  ||  (other_across  &&  other_exit_opposite_side)  ||  ((other_across  ||  other_straight)  &&  other_exit_same_side  &&  other_moving) ) )  {
+				const bool straight = next_direction == next_90direction; // driving straight
+				const ribi_t::ribi current_90direction = straight ? ribi_t::rueckwaerts(next_90direction) : (~(next_direction|ribi_t::rueckwaerts(next_90direction)))&0x0F;
+				const bool other_straight = other_direction == other_90direction; // other is driving straight
+				const bool other_exit_same_side = current_90direction == other_90direction; // other is exiting same side as we're entering
+				const bool other_exit_opposite_side = ribi_t::rueckwaerts(current_90direction) == other_90direction; // other is exiting side across from where we're entering
+				if(  across  &&  ((ribi_t::ist_orthogonal(current_90direction,other_direction)  &&  other_moving)  ||  (other_across  &&  other_exit_opposite_side)  ||  ((other_across  ||  other_straight)  &&  other_exit_same_side  &&  other_moving) ) )  {
 					// other turning across in front of us from orth entry dir'n   ~4%
 					return v;
 				}
 
-				const bool headon = ribi_t::rueckwaerts(current_fahrtrichtung) == other_fahrtrichtung; // we're meeting the other headon
-				const bool other_exit_across = (drives_on_left ? ribi_t::rotate90l(next_90fahrtrichtung) : ribi_t::rotate90(next_90fahrtrichtung)) == other_90fahrtrichtung; // other is exiting by turning across the opposite directions lane
-				if(  straight  &&  (ribi_t::ist_orthogonal(current_90fahrtrichtung,other_fahrtrichtung)  ||  (other_across  &&  other_moving  &&  (other_exit_across  ||  (other_exit_same_side  &&  !headon))) ) ) {
+				const bool headon = ribi_t::rueckwaerts(current_direction) == other_direction; // we're meeting the other headon
+				const bool other_exit_across = (drives_on_left ? ribi_t::rotate90l(next_90direction) : ribi_t::rotate90(next_90direction)) == other_90direction; // other is exiting by turning across the opposite directions lane
+				if(  straight  &&  (ribi_t::ist_orthogonal(current_90direction,other_direction)  ||  (other_across  &&  other_moving  &&  (other_exit_across  ||  (other_exit_same_side  &&  !headon))) ) ) {
 					// other turning across in front of us, but allow if other is stopped - duplicating historic behaviour   ~2%
 					return v;
 				}
-				else if(  other_fahrtrichtung == current_fahrtrichtung  &&  current_90fahrtrichtung == ribi_t::keine  ) {
+				else if(  other_direction == current_direction  &&  current_90direction == ribi_t::keine  ) {
 					// entering same diagonal waypoint as other   ~1%
 					return v;
 				}
@@ -752,7 +752,7 @@ sint16 vehicle_t::compare_directions(sint16 first_direction, sint16 second_direc
 void vehicle_t::rotate90()
 {
 	vehicle_base_t::rotate90();
-	alte_fahrtrichtung = ribi_t::rotate90( alte_fahrtrichtung );
+	alte_direction = ribi_t::rotate90( alte_direction );
 	pos_prev.rotate90( welt->get_size().y-1 );
 	last_stop_pos.rotate90( welt->get_size().y-1 );
 }
@@ -1199,8 +1199,8 @@ void vehicle_t::neue_fahrt(uint16 start_route_index, bool recalc)
 		set_pos(r.position_bei(start_route_index));
 
 		// recalc directions
-		alte_fahrtrichtung = fahrtrichtung;
-		fahrtrichtung = calc_set_richtung( get_pos(), pos_next );
+		alte_direction = direction;
+		direction = calc_set_richtung( get_pos(), pos_next );
 		
 		zoff_start = zoff_end = 0;
 		steps = 0;
@@ -1210,13 +1210,13 @@ void vehicle_t::neue_fahrt(uint16 start_route_index, bool recalc)
 
 		calc_bild();
 
-		if(alte_fahrtrichtung != fahrtrichtung)
+		if(alte_direction != direction)
 		{
 			pre_corner_direction.clear();
 		}
 	}
 
-	if ( ribi_t::ist_einfach(fahrtrichtung) ) {
+	if ( ribi_t::ist_einfach(direction) ) {
 		steps_next = VEHICLE_STEPS_PER_TILE - 1;
 	}
 	else {
@@ -1243,7 +1243,7 @@ vehicle_t::vehicle_t(koord3d pos, const vehikel_besch_t* besch, player_t* player
 	route_index = 1;
 
 	rauchen = true;
-	fahrtrichtung = ribi_t::keine;
+	direction = ribi_t::keine;
 	pos_prev = koord3d::invalid;
 
 	current_friction = 4;
@@ -1255,7 +1255,7 @@ vehicle_t::vehicle_t(koord3d pos, const vehikel_besch_t* besch, player_t* player
 	use_calc_height = true;
 	has_driven = false;
 
-	alte_fahrtrichtung = fahrtrichtung = ribi_t::keine;
+	alte_direction = direction = ribi_t::keine;
 	target_halt = halthandle_t();
 
 	//@author: jamespetts
@@ -1294,7 +1294,7 @@ vehicle_t::vehicle_t() :
 	check_for_finish = false;
 	use_calc_height = true;
 
-	alte_fahrtrichtung = fahrtrichtung = ribi_t::keine;
+	alte_direction = direction = ribi_t::keine;
 
 	//@author: jamespetts
 	direction_steps = 16;
@@ -1463,7 +1463,7 @@ void vehicle_t::hop(grund_t* gr)
 		route_index ++;
 		check_for_finish = true;
 	}
-	alte_fahrtrichtung = fahrtrichtung;
+	alte_direction = direction;
 
 	// check if arrived at waypoint, and update schedule to next destination
 	// route search through the waypoint is already complete
@@ -1483,12 +1483,12 @@ void vehicle_t::hop(grund_t* gr)
 	// this is a required hack for aircrafts! Aircrafts can turn on a single square, and this confuses the previous calculation!
 	// author: hsiegeln
 	if(!check_for_finish  &&  pos_prev==pos_next) {
-		fahrtrichtung = calc_set_richtung( get_pos(), pos_next);
+		direction = calc_set_richtung( get_pos(), pos_next);
 		steps_next = 0;
 	}
 	else {
 		if(  pos_next!=get_pos()  ) {
-			fahrtrichtung = calc_set_richtung( pos_prev, pos_next );
+			direction = calc_set_richtung( pos_prev, pos_next );
 		}
 //		else if(  (  check_for_finish  &&  welt->lookup(pos_next)  &&  ribi_t::ist_gerade(welt->lookup(pos_next)->get_weg_ribi_unmasked(get_waytype()))  )  ||  welt->lookup(pos_next)->is_halt()) 
 		else 
@@ -1496,12 +1496,12 @@ void vehicle_t::hop(grund_t* gr)
 			grund_t* gr_next = welt->lookup(pos_next);
 			if ( gr_next && ( ( check_for_finish && ribi_t::ist_gerade(gr_next->get_weg_ribi_unmasked(get_waytype())) ) || gr_next->is_halt()) )
 				// allow diagonal stops at waypoints on diagonal tracks but avoid them on halts and at straight tracks...
-				fahrtrichtung = calc_set_richtung( pos_prev, pos_next );
+				direction = calc_set_richtung( pos_prev, pos_next );
 		}
 	}
 
 	// change image if direction changes
-	if (alte_fahrtrichtung != fahrtrichtung) {
+	if (alte_direction != direction) {
 		calc_bild();
 	}
 
@@ -1510,7 +1510,7 @@ void vehicle_t::hop(grund_t* gr)
 	if(  weg  )	{
 		//const grund_t *gr_prev = welt->lookup(pos_prev);
 		//const weg_t * weg_prev = gr_prev != NULL ? gr_prev->get_weg(get_waytype()) : NULL;
-		speed_limit = calc_speed_limit(weg, weg_prev, &pre_corner_direction, fahrtrichtung, alte_fahrtrichtung);
+		speed_limit = calc_speed_limit(weg, weg_prev, &pre_corner_direction, direction, alte_direction);
 
 		// Weight limit needed for GUI flag
 		const uint32 max_axle_load = weg->get_max_axle_load() > 0 ? weg->get_max_axle_load() : 1;
@@ -1533,7 +1533,7 @@ void vehicle_t::hop(grund_t* gr)
 		speed_limit = speed_unlimited();
 	}
 
-	if(  check_for_finish  &  ist_erstes && (fahrtrichtung==ribi_t::nord  || fahrtrichtung==ribi_t::west))
+	if(  check_for_finish  &  ist_erstes && (direction==ribi_t::nord  || direction==ribi_t::west))
 	{
 		steps_next = (steps_next/2)+1;
 	}
@@ -1767,7 +1767,7 @@ void vehicle_t::calc_drag_coefficient(const grund_t *gr) //,const int h_alt, con
 
 	// Old method - not realistic. Now uses modified speed limit. Preserved optionally.
 	// curve: higher friction
-	if(alte_fahrtrichtung != fahrtrichtung) //"Old direction != direction"
+	if(alte_direction != direction) //"Old direction != direction"
 	{
 		//The level (if any) of additional friction to apply around corners.
 		const uint8 curve_friction_factor = welt->get_settings().get_curve_friction_factor(waytype);
@@ -1782,7 +1782,7 @@ void vehicle_t::calc_drag_coefficient(const grund_t *gr) //,const int h_alt, con
 		// Bernd Gabriel, Nov, 30 2009: at least 1 partial direction must match for uphill (op '&'), but not the
 		// complete direction. The hill might begin in a curve and then '==' accidently accelerates the vehicle.
 		const uint slope_height = (hang & 7) ? 1 : 2;
-		if(ribi_typ(hang) & fahrtrichtung)
+		if(ribi_typ(hang) & direction)
 		{
 			// Uphill
 			const sint16 additional_base_friction = slope_height == 1 ? 40 : 80;
@@ -1935,7 +1935,7 @@ ribi_t::ribi vehicle_t::richtung() const
 {
 	ribi_t::ribi neu = calc_richtung(pos_prev.get_2d(), pos_next.get_2d());
 	// nothing => use old direct further on
-	return (neu == ribi_t::keine) ? fahrtrichtung : neu;
+	return (neu == ribi_t::keine) ? direction : neu;
 }
 
 
@@ -1971,7 +1971,7 @@ void vehicle_t::update_bookkeeping(uint32 steps)
 
 ribi_t::ribi vehicle_t::get_direction_of_travel() const
 {
-	ribi_t::ribi dir = get_fahrtrichtung();
+	ribi_t::ribi dir = get_direction();
 	if(reversed)
 	{
 		switch(dir)
@@ -2109,8 +2109,8 @@ void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 		file->rdwr_long(l);
 		hoff = (sint8)(l*TILE_HEIGHT_STEP/16);
 		file->rdwr_long(speed_limit);
-		file->rdwr_enum(fahrtrichtung);
-		file->rdwr_enum(alte_fahrtrichtung);
+		file->rdwr_enum(direction);
+		file->rdwr_enum(alte_direction);
 		file->rdwr_long(fracht_count);
 		file->rdwr_long(l);
 		route_index = (uint16)l;
@@ -2136,21 +2136,21 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(insta_zeit%12)+1
 		file->rdwr_short(dummy16);
 		hoff = (sint8)((TILE_HEIGHT_STEP*(sint16)dummy16)/16);
 		file->rdwr_long(speed_limit);
-		file->rdwr_enum(fahrtrichtung);
-		file->rdwr_enum(alte_fahrtrichtung);
+		file->rdwr_enum(direction);
+		file->rdwr_enum(alte_direction);
 		file->rdwr_long(fracht_count);
 		file->rdwr_short(route_index);
 		// restore dxdy information
-		dx = dxdy[ ribi_t::get_dir(fahrtrichtung)*2];
-		dy = dxdy[ ribi_t::get_dir(fahrtrichtung)*2+1];
+		dx = dxdy[ ribi_t::get_dir(direction)*2];
+		dy = dxdy[ ribi_t::get_dir(direction)*2+1];
 	}
 
 	// convert steps to position
 	if(file->get_version()<99018) {
 		sint8 ddx=get_xoff(), ddy=get_yoff()-hoff;
 		sint8 i=1;
-		dx = dxdy[ ribi_t::get_dir(fahrtrichtung)*2];
-		dy = dxdy[ ribi_t::get_dir(fahrtrichtung)*2+1];
+		dx = dxdy[ ribi_t::get_dir(direction)*2];
+		dy = dxdy[ ribi_t::get_dir(direction)*2+1];
 
 		while(  !is_about_to_hop(ddx+dx*i,ddy+dy*i )  &&  i<16 ) {
 			i++;
@@ -2675,7 +2675,7 @@ route_t::route_result_t road_vehicle_t::calc_route(koord3d start, koord3d ziel, 
 	assert(cnv);
 	// free target reservation
 	drives_on_left = welt->get_settings().is_drive_left();	// reset driving settings
-	if(ist_erstes   &&  alte_fahrtrichtung!=ribi_t::keine  &&  cnv  &&  target_halt.is_bound() ) {
+	if(ist_erstes   &&  alte_direction!=ribi_t::keine  &&  cnv  &&  target_halt.is_bound() ) {
 		// now reserve our choice (beware: might be longer than one tile!)
 		for(  uint32 length=0;  length<cnv->get_tile_length()  &&  length+1<cnv->get_route()->get_count();  length++  ) {
 			target_halt->unreserve_position(welt->lookup( cnv->get_route()->position_bei( cnv->get_route()->get_count()-length-1) ), cnv->self );
@@ -2818,12 +2818,12 @@ void road_vehicle_t::get_screen_offset( int &xoff, int &yoff, const sint16 raste
 	// eventually shift position to take care of overtaking
 	if(cnv) {
 		if(  cnv->is_overtaking()  ) {
-			xoff += tile_raster_scale_x(overtaking_base_offsets[ribi_t::get_dir(get_fahrtrichtung())][0], raster_width);
-			yoff += tile_raster_scale_x(overtaking_base_offsets[ribi_t::get_dir(get_fahrtrichtung())][1], raster_width);
+			xoff += tile_raster_scale_x(overtaking_base_offsets[ribi_t::get_dir(get_direction())][0], raster_width);
+			yoff += tile_raster_scale_x(overtaking_base_offsets[ribi_t::get_dir(get_direction())][1], raster_width);
 		}
 		else if(  cnv->is_overtaken()  ) {
-			xoff -= tile_raster_scale_x(overtaking_base_offsets[ribi_t::get_dir(get_fahrtrichtung())][0], raster_width)/5;
-			yoff -= tile_raster_scale_x(overtaking_base_offsets[ribi_t::get_dir(get_fahrtrichtung())][1], raster_width)/5;
+			xoff -= tile_raster_scale_x(overtaking_base_offsets[ribi_t::get_dir(get_direction())][0], raster_width)/5;
+			yoff -= tile_raster_scale_x(overtaking_base_offsets[ribi_t::get_dir(get_direction())][1], raster_width)/5;
 		}
 	}
 }
@@ -3001,14 +3001,14 @@ bool road_vehicle_t::ist_weg_frei(const grund_t *gr, int &restart_speed, bool se
 			// calculate new direction
 			route_t const& r = *cnv->get_route();
 			koord next = (route_index < r.get_count() - 1u ? r.position_bei(route_index + 1u) : pos_next).get_2d();
-			ribi_t::ribi curr_fahrtrichtung   = get_fahrtrichtung();
-			ribi_t::ribi curr_90fahrtrichtung = calc_richtung(get_pos().get_2d(), pos_next.get_2d());
-			ribi_t::ribi next_fahrtrichtung   = calc_richtung(get_pos().get_2d(), next);
-			ribi_t::ribi next_90fahrtrichtung = calc_richtung(pos_next.get_2d(), next);
-			obj = no_cars_blocking( gr, cnv, curr_fahrtrichtung, next_fahrtrichtung, next_90fahrtrichtung );
+			ribi_t::ribi curr_direction   = get_direction();
+			ribi_t::ribi curr_90direction = calc_richtung(get_pos().get_2d(), pos_next.get_2d());
+			ribi_t::ribi next_direction   = calc_richtung(get_pos().get_2d(), next);
+			ribi_t::ribi next_90direction = calc_richtung(pos_next.get_2d(), next);
+			obj = no_cars_blocking( gr, cnv, curr_direction, next_direction, next_90direction );
 
 			// do not block intersections
-			bool int_block = ribi_t::is_threeway(str->get_ribi_unmasked())  &&  (((drives_on_left ? ribi_t::rotate90l(curr_90fahrtrichtung) : ribi_t::rotate90(curr_90fahrtrichtung)) & str->get_ribi_unmasked())  ||  curr_90fahrtrichtung != next_90fahrtrichtung  ||  (rs  &&  rs->get_besch()->is_traffic_light()));
+			bool int_block = ribi_t::is_threeway(str->get_ribi_unmasked())  &&  (((drives_on_left ? ribi_t::rotate90l(curr_90direction) : ribi_t::rotate90(curr_90direction)) & str->get_ribi_unmasked())  ||  curr_90direction != next_90direction  ||  (rs  &&  rs->get_besch()->is_traffic_light()));
 
 			// check exit from crossings and intersections, allow to proceed after 4 consecutive
 			while(  !obj   &&  (str->is_crossing()  ||  int_block)  &&  test_index < r.get_count()  &&  test_index < route_index + 4u  ) {
@@ -3037,21 +3037,21 @@ bool road_vehicle_t::ist_weg_frei(const grund_t *gr, int &restart_speed, bool se
 				}
 
 				// check cars
-				curr_fahrtrichtung   = next_fahrtrichtung;
-				curr_90fahrtrichtung = next_90fahrtrichtung;
+				curr_direction   = next_direction;
+				curr_90direction = next_90direction;
 				if(  test_index + 1u < r.get_count()  ) {
 					next                 = r.position_bei(test_index + 1u).get_2d();
-					next_fahrtrichtung   = calc_richtung(r.position_bei(test_index - 1u).get_2d(), next);
-					next_90fahrtrichtung = calc_richtung(r.position_bei(test_index).get_2d(),     next);
-					obj = no_cars_blocking( gr, cnv, curr_fahrtrichtung, next_fahrtrichtung, next_90fahrtrichtung );
+					next_direction   = calc_richtung(r.position_bei(test_index - 1u).get_2d(), next);
+					next_90direction = calc_richtung(r.position_bei(test_index).get_2d(),     next);
+					obj = no_cars_blocking( gr, cnv, curr_direction, next_direction, next_90direction );
 				}
 				else {
 					next                 = r.position_bei(test_index).get_2d();
-					next_90fahrtrichtung = calc_richtung(r.position_bei(test_index - 1u).get_2d(), next);
-					if(  curr_fahrtrichtung == next_90fahrtrichtung  ||  !gr->is_halt()  ) {
+					next_90direction = calc_richtung(r.position_bei(test_index - 1u).get_2d(), next);
+					if(  curr_direction == next_90direction  ||  !gr->is_halt()  ) {
 						// check cars but allow to enter intersection if we are turning even when a car is blocking the halt on the last tile of our route
 						// preserves old bus terminal behaviour
-						obj = no_cars_blocking( gr, cnv, curr_fahrtrichtung, next_90fahrtrichtung, ribi_t::keine );
+						obj = no_cars_blocking( gr, cnv, curr_direction, next_90direction, ribi_t::keine );
 					}
 				}
 
@@ -3123,7 +3123,7 @@ bool road_vehicle_t::ist_weg_frei(const grund_t *gr, int &restart_speed, bool se
 									// now it make sense to search a route
 									route_t target_rt;
 									koord3d next3d = r.position_bei(test_index);
-									if(  !target_rt.find_route( welt, next3d, this, speed_to_kmh(cnv->get_min_top_speed()), curr_90fahrtrichtung, cnv->get_highest_axle_load(), cnv->get_weight_summary().weight / 1000, 33 )  ) {
+									if(  !target_rt.find_route( welt, next3d, this, speed_to_kmh(cnv->get_min_top_speed()), curr_90direction, cnv->get_highest_axle_load(), cnv->get_weight_summary().weight / 1000, 33 )  ) {
 										// nothing empty or not route with less than 33 tiles
 										target_halt = halthandle_t();
 										restart_speed = 0;
@@ -3145,7 +3145,7 @@ bool road_vehicle_t::ist_weg_frei(const grund_t *gr, int &restart_speed, bool se
 				}
 
 				// check for blocking intersection
-				int_block = ribi_t::is_threeway(str->get_ribi_unmasked())  &&  (((drives_on_left ? ribi_t::rotate90l(curr_90fahrtrichtung) : ribi_t::rotate90(curr_90fahrtrichtung)) & str->get_ribi_unmasked())  ||  curr_90fahrtrichtung != next_90fahrtrichtung  ||  (rs  &&  rs->get_besch()->is_traffic_light()));
+				int_block = ribi_t::is_threeway(str->get_ribi_unmasked())  &&  (((drives_on_left ? ribi_t::rotate90l(curr_90direction) : ribi_t::rotate90(curr_90direction)) & str->get_ribi_unmasked())  ||  curr_90direction != next_90direction  ||  (rs  &&  rs->get_besch()->is_traffic_light()));
 
 				test_index++;
 			}
@@ -4698,7 +4698,7 @@ void rail_vehicle_t::betrete_feld(grund_t* gr)
 			sch0->book(1, WAY_STAT_CONVOIS);
 			if(cnv->get_state() != convoi_t::REVERSING)
 			{
-				sch0->reserve( cnv->self, get_fahrtrichtung() );
+				sch0->reserve( cnv->self, get_direction() );
 			}
 		}
 	}
@@ -4837,7 +4837,7 @@ void water_vehicle_t::calc_drag_coefficient(const grund_t *gr)
 		current_friction += 15;
 	}
 
-	if(alte_fahrtrichtung != fahrtrichtung) {
+	if(alte_direction != direction) {
 		// curve: higher friction
 		current_friction *= 2;
 	}

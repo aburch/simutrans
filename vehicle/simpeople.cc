@@ -104,7 +104,7 @@ void pedestrian_t::calc_bild()
 	}
 	else
 	{
-		set_bild(besch->get_bild_nr(ribi_t::get_dir(get_fahrtrichtung())));
+		set_bild(besch->get_bild_nr(ribi_t::get_dir(get_direction())));
 	}
 }
 
@@ -221,7 +221,7 @@ void pedestrian_t::hop(grund_t *gr)
 	// new target
 	grund_t *to = NULL;
 	// ribi opposite to current direction
-	ribi_t::ribi gegenrichtung = ribi_t::rueckwaerts( get_fahrtrichtung() );
+	ribi_t::ribi gegenrichtung = ribi_t::rueckwaerts( get_direction() );
 	// all possible directions
 	ribi_t::ribi ribi = weg->get_ribi_unmasked() & (~gegenrichtung);
 	// randomized offset
@@ -238,11 +238,11 @@ void pedestrian_t::hop(grund_t *gr)
 
 	if (to) {
 		pos_next = to->get_pos();
-		fahrtrichtung = calc_set_richtung(get_pos(), pos_next);
+		direction = calc_set_richtung(get_pos(), pos_next);
 	}
 	else {
 		// turn around
-		fahrtrichtung = gegenrichtung;
+		direction = gegenrichtung;
 		dx = -dx;
 		dy = -dy;
 		pos_next = get_pos();

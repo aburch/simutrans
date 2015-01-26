@@ -146,7 +146,7 @@ void movingobj_t::calc_bild()
 			break;
 		}
 	}
-	set_bild( get_besch()->get_bild( season, ribi_t::get_dir(get_fahrtrichtung()) )->get_nummer() );
+	set_bild( get_besch()->get_bild( season, ribi_t::get_dir(get_direction()) )->get_nummer() );
 }
 
 
@@ -174,7 +174,7 @@ movingobj_t::movingobj_t(koord3d pos, const groundobj_besch_t *b ) :
 	movingobjtype = movingobj_typen.index_of(b);
 	weg_next = 0;
 	timetochange = 0;	// will do random direct change anyway during next step
-	fahrtrichtung = calc_set_richtung( koord3d(0,0,0), koord3d(koord::west,0) );
+	direction = calc_set_richtung( koord3d(0,0,0), koord3d(koord::west,0) );
 	calc_bild();
 	welt->sync_add( this );
 }
@@ -204,11 +204,11 @@ void movingobj_t::rdwr(loadsave_t *file)
 
 	vehicle_base_t::rdwr(file);
 
-	file->rdwr_enum(fahrtrichtung);
+	file->rdwr_enum(direction);
 	if (file->is_loading()) {
 		// restore dxdy information
-		dx = dxdy[ ribi_t::get_dir(fahrtrichtung)*2];
-		dy = dxdy[ ribi_t::get_dir(fahrtrichtung)*2+1];
+		dx = dxdy[ ribi_t::get_dir(direction)*2];
+		dy = dxdy[ ribi_t::get_dir(direction)*2+1];
 	}
 
 	file->rdwr_byte(steps);
@@ -362,9 +362,9 @@ grund_t* movingobj_t::hop_check()
 	 * Else pos_next_next is a single step from pos_next.
 	 * otherwise objects would jump left/right on some diagonals
 	 */
-	koord k(fahrtrichtung);
+	koord k(direction);
 	if (timetochange != 0) {
-		koord k(fahrtrichtung);
+		koord k(direction);
 		if(k.x&k.y) {
 			pos_next_next = get_pos() + k;
 		}
@@ -419,15 +419,15 @@ void movingobj_t::hop(grund_t* gr)
 	verlasse_feld();
 
 	if(pos_next.get_2d()==get_pos().get_2d()) {
-		fahrtrichtung = ribi_t::rueckwaerts(fahrtrichtung);
+		direction = ribi_t::rueckwaerts(direction);
 		dx = -dx;
 		dy = -dy;
 		calc_bild();
 	}
 	else {
-		ribi_t::ribi old_dir = fahrtrichtung;
-		fahrtrichtung = calc_set_richtung( get_pos(), pos_next_next );
-		if(old_dir!=fahrtrichtung) {
+		ribi_t::ribi old_dir = direction;
+		direction = calc_set_richtung( get_pos(), pos_next_next );
+		if(old_dir!=direction) {
 			calc_bild();
 		}
 	}

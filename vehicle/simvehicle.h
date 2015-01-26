@@ -92,7 +92,7 @@ protected:
 	 * Actual travel direction in screen coordinates
 	 * @author Hj. Malthaner
 	 */
-	ribi_t::ribi fahrtrichtung;
+	ribi_t::ribi direction;
 
 	// true on slope (make calc_height much faster)
 	uint8 use_calc_height:1;
@@ -143,7 +143,7 @@ protected:
 	virtual void calc_bild() = 0;
 
 	// check for road vehicle, if next tile is free
-	vehicle_base_t *no_cars_blocking( const grund_t *gr, const convoi_t *cnv, const uint8 current_fahrtrichtung, const uint8 next_fahrtrichtung, const uint8 next_90fahrtrichtung );
+	vehicle_base_t *no_cars_blocking( const grund_t *gr, const convoi_t *cnv, const uint8 current_direction, const uint8 next_direction, const uint8 next_90direction );
 
 	// only needed for old way of moving vehicles to determine position at loading time
 	bool is_about_to_hop( const sint8 neu_xoff, const sint8 neu_yoff ) const;
@@ -186,7 +186,7 @@ public:
 	ribi_t::ribi calc_set_richtung(const koord3d& start, const koord3d& ende);
 	uint16 get_tile_steps(const koord &start, const koord &ende, /*out*/ ribi_t::ribi &richtung) const;
 
-	ribi_t::ribi get_fahrtrichtung() const {return fahrtrichtung;}
+	ribi_t::ribi get_direction() const {return direction;}
 
 	koord3d get_pos_next() const {return pos_next;}
 
@@ -296,7 +296,7 @@ protected:
 	// current limit (due to track etc.)
 	sint32 speed_limit;
 
-	ribi_t::ribi alte_fahrtrichtung;
+	ribi_t::ribi alte_direction;
 
 	//uint16 target_speed[16];
 

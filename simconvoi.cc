@@ -479,7 +479,7 @@ void convoi_t::laden_abschliessen()
 				// wrong alignment here => must relocate
 				if(v->need_realignment()) {
 					// diagonal => convoi must restart
-					realing_position |= ribi_t::ist_kurve(v->get_fahrtrichtung())  &&  (state==DRIVING  ||  is_waiting());
+					realing_position |= ribi_t::ist_kurve(v->get_direction())  &&  (state==DRIVING  ||  is_waiting());
 				}
 				// if version is 99.17 or lower, some convois are broken, i.e. had too large gaps between vehicles
 				if(  !realing_position  &&  state!=INITIAL  &&  state!=LEAVING_DEPOT  ) {
@@ -494,9 +494,9 @@ void convoi_t::laden_abschliessen()
 							if (dist>1) {
 								step_pos += (dist-1) * diagonal_vehicle_steps_per_tile;
 							}
-							step_pos += ribi_t::ist_kurve(v->get_fahrtrichtung()) ? diagonal_vehicle_steps_per_tile : VEHICLE_STEPS_PER_TILE;
+							step_pos += ribi_t::ist_kurve(v->get_direction()) ? diagonal_vehicle_steps_per_tile : VEHICLE_STEPS_PER_TILE;
 						}
-						DBG_MESSAGE("convoi_t::laden_abschliessen()", "v: pos(%s) steps(%d) len=%d ribi=%d prev (%s) step(%d)", v->get_pos().get_str(), v->get_steps(), v->get_besch()->get_length()*16, v->get_fahrtrichtung(),  drive_pos.get_2d().get_str(), step_pos);
+						DBG_MESSAGE("convoi_t::laden_abschliessen()", "v: pos(%s) steps(%d) len=%d ribi=%d prev (%s) step(%d)", v->get_pos().get_str(), v->get_steps(), v->get_besch()->get_length()*16, v->get_direction(),  drive_pos.get_2d().get_str(), step_pos);
 						if(  abs( v->get_steps() - step_pos )>15  ) {
 							// not where it should be => realing
 							realing_position = true;
@@ -605,7 +605,7 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_ind
 	check_freight();
 	// some convois had wrong old direction in them
 	if(  state<DRIVING  ||  state==LOADING  ) {
-		alte_richtung = front()->get_fahrtrichtung();
+		alte_richtung = front()->get_direction();
 	}
 	// Knightly : if lineless convoy -> register itself with stops
 	if(  !line.is_bound()  ) {
@@ -1035,7 +1035,7 @@ convoi_t::route_infos_t& convoi_t::get_route_infos()
 
 		koord3d current_tile = route.position_bei(i);
 		convoi_t::route_info_t &start_info = route_infos.get_element(i);
-		start_info.direction = front.get_fahrtrichtung();
+		start_info.direction = front.get_direction();
 		start_info.steps_from_start = 0;
 		const weg_t *current_weg = get_weg_on_grund(welt->lookup(current_tile), waytype);
 		start_info.speed_limit = front.calc_speed_limit(current_weg, NULL, &corner_data, start_info.direction, start_info.direction);
@@ -2292,7 +2292,7 @@ void convoi_t::start()
 void convoi_t::ziel_erreicht()
 {
 	const vehicle_t* v = front();
-	alte_richtung = v->get_fahrtrichtung();
+	alte_richtung = v->get_direction();
 
 	// check, what is at destination!
 	const grund_t *gr = welt->lookup(v->get_pos());
@@ -2742,7 +2742,7 @@ bool convoi_t::set_schedule(schedule_t * f)
 		state = FAHRPLANEINGABE;
 	}
 	// to avoid jumping trains
-	alte_richtung = front()->get_fahrtrichtung();
+	alte_richtung = front()->get_direction();
 	wait_lock = 0;
 	return true;
 }
@@ -2808,7 +2808,7 @@ bool convoi_t::can_go_alte_richtung()
 
 		// now check, if ribi is straight and train is not
 		ribi_t::ribi weg_ribi = gr->get_weg_ribi_unmasked(v->get_waytype());
-		if(ribi_t::ist_gerade(weg_ribi)  &&  (weg_ribi|v->get_fahrtrichtung())!=weg_ribi) {
+		if(ribi_t::ist_gerade(weg_ribi)  &&  (weg_ribi|v->get_direction())!=weg_ribi) {
 			dbg->warning("convoi_t::go_alte_richtung()","convoy with wrong vehicle directions (id %i) found => fixing!",self.get_id());
 			set_akt_speed(8);
 			return false;
@@ -2895,7 +2895,7 @@ bool convoi_t::can_go_alte_richtung()
 	for(i=0; i<anz_vehikel; i++) {
 		vehicle_t* v = vehicle[i];
 
-		uint8 richtung = v->get_fahrtrichtung();
+		uint8 richtung = v->get_direction();
 		uint8 neu_richtung = v->richtung();
 		// we need to move to this place ...
 		if(neu_richtung!=richtung  &&  (i!=0  ||  anz_vehikel==1  ||  ribi_t::ist_kurve(neu_richtung)) ) {
@@ -3155,14 +3155,14 @@ void convoi_t::vorfahren()
 							{
 								continue;
 							}
-							w->reserve(self, vehicle[i]->get_fahrtrichtung());
+							w->reserve(self, vehicle[i]->get_direction());
 						}
 
 						// Next, reserve the rest (if any) of the platform.
 						grund_t* to = gr;
 						if(to)
 						{
-							ribi_t::ribi direction_of_travel = front()->get_fahrtrichtung();
+							ribi_t::ribi direction_of_travel = front()->get_direction();
 							koord3d last_pos = gr->get_pos();
 							while(haltestelle_t::get_halt(to->get_pos(), owner).is_bound())
 							{		
@@ -4512,7 +4512,7 @@ void convoi_t::open_schedule_window( bool show )
 		state = FAHRPLANEINGABE;
 	}
 	wait_lock = 25000;
-	alte_richtung = front()->get_fahrtrichtung();
+	alte_richtung = front()->get_direction();
 
 	// Added by : Knightly
 	// Purpose  : To keep a copy of the original schedule before opening schedule window
@@ -5033,7 +5033,7 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 	else
 	{
 		// calculate real station length
-		koord zv = koord( ribi_t::rueckwaerts(front()->get_fahrtrichtung()) );
+		koord zv = koord( ribi_t::rueckwaerts(front()->get_direction()) );
 		koord3d pos = front()->get_pos();
 		const grund_t *grund = welt->lookup(pos);
 		if(  grund->get_weg_yoff()==TILE_HEIGHT_STEP  )
@@ -6528,7 +6528,7 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 		const uint8 top = gr->get_top();
 		for(  uint8 j=1;  j<top;  j++ ) {
 			vehicle_base_t* const v = obj_cast<vehicle_base_t>(gr->obj_bei(j));
-			if (v && v->get_fahrtrichtung() == their_direction && v->get_overtaker()) {
+			if (v && v->get_direction() == their_direction && v->get_overtaker()) {
 				return false;
 			}
 		}

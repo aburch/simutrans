@@ -86,18 +86,18 @@ road_user_t::road_user_t(grund_t* bd, uint16 random) :
 
 	// randomized offset
 	uint8 offset = random & 3;
-	fahrtrichtung = ribi_t::nsow[offset];
+	direction = ribi_t::nsow[offset];
 
 	grund_t *to = NULL;
 	for(uint8 r = 0; r < 4; r++) {
 		ribi_t::ribi ribi = ribi_t::nsow[ (r + offset) &3];
 		if( (ribi & road_ribi)!=0  &&  bd->get_neighbour(to, road_wt, ribi)) {
-			fahrtrichtung = ribi;
+			direction = ribi;
 			break;
 		}
 	}
 
-	switch(fahrtrichtung) {
+	switch(direction) {
 		case ribi_t::nord:
 			dx = 2;
 			dy = -1;
@@ -120,7 +120,7 @@ road_user_t::road_user_t(grund_t* bd, uint16 random) :
 		pos_next = to->get_pos();
 	}
 	else {
-		pos_next = welt->lookup_kartenboden(get_pos().get_2d() + koord(fahrtrichtung))->get_pos();
+		pos_next = welt->lookup_kartenboden(get_pos().get_2d() + koord(direction))->get_pos();
 	}
 	set_owner( welt->get_player(1) );
 }
@@ -166,7 +166,7 @@ grund_t* road_user_t::hop()
 	
 	grund_t *to;
 	// add all good ribis here
-	ribi_t::ribi gegenrichtung = ribi_t::rueckwaerts( get_fahrtrichtung() );
+	ribi_t::ribi gegenrichtung = ribi_t::rueckwaerts( get_direction() );
 	int ribi = weg->get_ribi_unmasked();
 	for(int r = 0; r < 4; r++) {
 		if(  (ribi & ribi_t::nsow[r])!=0  &&  (ribi_t::nsow[r]&gegenrichtung)==0 &&
@@ -188,13 +188,13 @@ grund_t* road_user_t::hop()
 #else
 		pos_next = liste[simrand(count, "road_user_t::hop()")]->get_pos();
 #endif
-		fahrtrichtung = calc_set_richtung(get_pos(), pos_next);
+		direction = calc_set_richtung(get_pos(), pos_next);
 	} else if(count==1) {
 		pos_next = liste[0]->get_pos();
-		fahrtrichtung = calc_set_richtung(get_pos(), pos_next);
+		direction = calc_set_richtung(get_pos(), pos_next);
 	}
 	else {
-		fahrtrichtung = gegenrichtung;
+		direction = gegenrichtung;
 		dx = -dx;
 		dy = -dy;
 		pos_next = get_pos();
@@ -216,8 +216,8 @@ void road_user_t::rdwr(loadsave_t *file)
 
 	// correct old offsets ... REMOVE after savegame increase ...
 	if(file->get_version()<99018  &&  file->is_saving()) {
-		dx = dxdy[ ribi_t::get_dir(fahrtrichtung)*2 ];
-		dy = dxdy[ ribi_t::get_dir(fahrtrichtung)*2+1 ];
+		dx = dxdy[ ribi_t::get_dir(direction)*2 ];
+		dy = dxdy[ ribi_t::get_dir(direction)*2+1 ];
 		sint8 i = steps/16;
 		set_xoff( get_xoff() + i*dx );
 		set_yoff( get_yoff() + i*dy + hoff );
@@ -234,7 +234,7 @@ void road_user_t::rdwr(loadsave_t *file)
 		dx = (sint8)l;
 		file->rdwr_long(l);
 		dy = (sint8)l;
-		file->rdwr_enum(fahrtrichtung);
+		file->rdwr_enum(direction);
 		file->rdwr_long(l);
 		hoff = (sint8)l;
 	}
@@ -252,9 +252,9 @@ void road_user_t::rdwr(loadsave_t *file)
 			file->rdwr_byte(steps);
 			file->rdwr_byte(steps_next);
 		}
-		file->rdwr_enum(fahrtrichtung);
-		dx = dxdy[ ribi_t::get_dir(fahrtrichtung)*2];
-		dy = dxdy[ ribi_t::get_dir(fahrtrichtung)*2+1];
+		file->rdwr_enum(direction);
+		dx = dxdy[ ribi_t::get_dir(direction)*2];
+		dy = dxdy[ ribi_t::get_dir(direction)*2+1];
 		if(file->get_version()<99005  ||  file->get_version()>99016) {
 			sint16 dummy16 = ((16*(sint16)hoff)/OBJECT_OFFSET_STEPS);
 			file->rdwr_short(dummy16);
@@ -526,7 +526,7 @@ void private_car_t::rdwr(loadsave_t *file)
 			dbg->warning("private_car_t::rdwr()", "loading game with private cars, but no private car objects found in PAK files.");
 		}
 		else {
-			set_bild(besch->get_bild_nr(ribi_t::get_dir(get_fahrtrichtung())));
+			set_bild(besch->get_bild_nr(ribi_t::get_dir(get_direction())));
 		}
 	}
 
@@ -628,22 +628,22 @@ bool private_car_t::ist_weg_frei(grund_t *gr)
 
 	// calculate new direction
 	// are we just turning around?
-	const uint8 this_fahrtrichtung = get_fahrtrichtung();
+	const uint8 this_direction = get_direction();
 	bool frei = false;
 	if(  get_pos()==pos_next_next  ) {
 		// turning around => single check
-		const uint8 next_fahrtrichtung = ribi_t::rueckwaerts(this_fahrtrichtung);
-		frei = (NULL == no_cars_blocking( gr, NULL, next_fahrtrichtung, next_fahrtrichtung, next_fahrtrichtung ));
+		const uint8 next_direction = ribi_t::rueckwaerts(this_direction);
+		frei = (NULL == no_cars_blocking( gr, NULL, next_direction, next_direction, next_direction ));
 
 		// do not block railroad crossing
 		if(frei  &&  str->is_crossing()) {
 			const grund_t *gr = welt->lookup(get_pos());
-			frei = (NULL == no_cars_blocking( gr, NULL, next_fahrtrichtung, next_fahrtrichtung, next_fahrtrichtung ));
+			frei = (NULL == no_cars_blocking( gr, NULL, next_direction, next_direction, next_direction ));
 		}
 	}
 	else {
 		// driving on: check for crossings etc. too
-		const uint8 next_fahrtrichtung = this->calc_richtung(get_pos().get_2d(), pos_next_next.get_2d());
+		const uint8 next_direction = this->calc_richtung(get_pos().get_2d(), pos_next_next.get_2d());
 
 		// do not block this crossing (if possible)
 		if(ribi_t::is_threeway(str->get_ribi_unmasked())) {
@@ -654,11 +654,11 @@ bool private_car_t::ist_weg_frei(grund_t *gr)
 			}
 			grund_t *test = welt->lookup(pos_next_next);
 			if(  test  ) {
-				uint8 next_90fahrtrichtung = this->calc_richtung(pos_next.get_2d(), pos_next_next.get_2d());
-				frei = (NULL == no_cars_blocking( gr, NULL, this_fahrtrichtung, next_fahrtrichtung, next_90fahrtrichtung ));
+				uint8 next_90direction = this->calc_richtung(pos_next.get_2d(), pos_next_next.get_2d());
+				frei = (NULL == no_cars_blocking( gr, NULL, this_direction, next_direction, next_90direction ));
 				if(  frei  ) {
 					// check, if it can leave this crossings
-					frei = (NULL == no_cars_blocking( test, NULL, next_fahrtrichtung, next_90fahrtrichtung, next_90fahrtrichtung ));
+					frei = (NULL == no_cars_blocking( test, NULL, next_direction, next_90direction, next_90direction ));
 				}
 			}
 			// this fails with two crossings together; however, I see no easy way out here ...
@@ -669,7 +669,7 @@ bool private_car_t::ist_weg_frei(grund_t *gr)
 			// Overtaking vehicles shouldn't have anything blocking them
 			if(  !is_overtaking()  ) {
 				// not a crossing => skip 90° check!
-				vehicle_base_t *dt = no_cars_blocking( gr, NULL, this_fahrtrichtung, next_fahrtrichtung, next_fahrtrichtung );
+				vehicle_base_t *dt = no_cars_blocking( gr, NULL, this_direction, next_direction, next_direction );
 				if(  dt  ) {
 					if(dt->is_stuck()) {
 						// previous vehicle is stuck => end of traffic jam ...
@@ -724,10 +724,10 @@ bool private_car_t::ist_weg_frei(grund_t *gr)
 					// should not reach here ! (z9999)
 					break;
 				}
-				const uint8 next_fahrtrichtung = ribi_typ(dir);
-				const uint8 nextnext_fahrtrichtung = ribi_typ(dir);
+				const uint8 next_direction = ribi_typ(dir);
+				const uint8 nextnext_direction = ribi_typ(dir);
 				// test next field after way crossing
-				if(no_cars_blocking( test, NULL, next_fahrtrichtung, nextnext_fahrtrichtung, nextnext_fahrtrichtung )) {
+				if(no_cars_blocking( test, NULL, next_direction, nextnext_direction, nextnext_direction )) {
 					return false;
 				}
 				// ok, left the crossing
@@ -738,7 +738,7 @@ bool private_car_t::ist_weg_frei(grund_t *gr)
 				}
 				else {
 					// seems to be a dead-end.
-					if(  (test->get_weg_ribi(road_wt)&next_fahrtrichtung) == 0  ) {
+					if(  (test->get_weg_ribi(road_wt)&next_direction) == 0  ) {
 						// will be going back
 						pos_next_next=get_pos();
 						// check also opposite direction are free
@@ -803,13 +803,13 @@ grund_t* private_car_t::hop_check()
 	}
 
 	// traffic light phase check (since this is on next tile, it will always be necessary!)
-	const ribi_t::ribi fahrtrichtung90 = ribi_typ(get_pos().get_2d(),pos_next.get_2d());
+	const ribi_t::ribi direction90 = ribi_typ(get_pos().get_2d(),pos_next.get_2d());
 
 	if(  weg->has_sign(  )) {
 		const roadsign_t* rs = from->find<roadsign_t>();
 		const roadsign_besch_t* rs_besch = rs->get_besch();
-		if(rs_besch->is_traffic_light()  &&  (rs->get_dir()&fahrtrichtung90)==0) {
-			fahrtrichtung = fahrtrichtung90;
+		if(rs_besch->is_traffic_light()  &&  (rs->get_dir()&direction90)==0) {
+			direction = direction90;
 			calc_bild();
 			// wait here
 			current_speed = 48;
@@ -823,7 +823,7 @@ grund_t* private_car_t::hop_check()
 
 		// ok, nobody did delete the road in front of us
 		// so we can check for valid directions
-		ribi_t::ribi ribi = weg->get_ribi() & (~ribi_t::rueckwaerts(fahrtrichtung90));
+		ribi_t::ribi ribi = weg->get_ribi() & (~ribi_t::rueckwaerts(direction90));
 
 		// cul de sac: return
 		if(ribi==0) {
@@ -960,11 +960,11 @@ void private_car_t::hop(grund_t* to)
 	verlasse_feld();
 
 	if(pos_next_next==get_pos()) {
-		fahrtrichtung = calc_set_richtung( pos_next, pos_next_next );
+		direction = calc_set_richtung( pos_next, pos_next_next );
 		steps_next = 0;	// mark for starting at end of tile!
 	}
 	else {
-		fahrtrichtung = calc_set_richtung( get_pos(), pos_next_next );
+		direction = calc_set_richtung( get_pos(), pos_next_next );
 	}
 	calc_bild();
 
@@ -986,7 +986,7 @@ void private_car_t::hop(grund_t* to)
 
 void private_car_t::calc_bild()
 {
-	set_bild(besch->get_bild_nr(ribi_t::get_dir(get_fahrtrichtung())));
+	set_bild(besch->get_bild_nr(ribi_t::get_dir(get_direction())));
 	drives_on_left = welt->get_settings().is_drive_left();	// reset driving settings
 }
 
@@ -1030,12 +1030,12 @@ void private_car_t::get_screen_offset( int &xoff, int &yoff, const sint16 raster
 
 	// eventually shift position to take care of overtaking
 	if(  is_overtaking()  ) {
-		xoff += tile_raster_scale_x(overtaking_base_offsets[ribi_t::get_dir(get_fahrtrichtung())][0], raster_width);
-		yoff += tile_raster_scale_x(overtaking_base_offsets[ribi_t::get_dir(get_fahrtrichtung())][1], raster_width);
+		xoff += tile_raster_scale_x(overtaking_base_offsets[ribi_t::get_dir(get_direction())][0], raster_width);
+		yoff += tile_raster_scale_x(overtaking_base_offsets[ribi_t::get_dir(get_direction())][1], raster_width);
 	}
 	else if(  is_overtaken()  ) {
-		xoff -= tile_raster_scale_x(overtaking_base_offsets[ribi_t::get_dir(get_fahrtrichtung())][0], raster_width)/5;
-		yoff -= tile_raster_scale_x(overtaking_base_offsets[ribi_t::get_dir(get_fahrtrichtung())][1], raster_width)/5;
+		xoff -= tile_raster_scale_x(overtaking_base_offsets[ribi_t::get_dir(get_direction())][0], raster_width)/5;
+		yoff -= tile_raster_scale_x(overtaking_base_offsets[ribi_t::get_dir(get_direction())][1], raster_width)/5;
 	}
 }
 
@@ -1067,7 +1067,7 @@ bool private_car_t::can_overtake( overtaker_t *other_overtaker, sint32 other_spe
 			return false;
 		}
 
-		const ribi_t::ribi direction = get_fahrtrichtung() & str->get_ribi();
+		const ribi_t::ribi direction = get_direction() & str->get_ribi();
 		koord3d check_pos = get_pos()+koord((ribi_t::ribi)(str->get_ribi()&direction));
 		for(  int tiles=1+(steps_other-1)/(CARUNITS_PER_TILE*VEHICLE_STEPS_PER_CARUNIT);  tiles>=0;  tiles--  ) {
 			grund_t *gr = welt->lookup(check_pos);
@@ -1140,7 +1140,7 @@ bool private_car_t::can_overtake( overtaker_t *other_overtaker, sint32 other_spe
 	}
 
 	// we need 90 degree ribi
-	ribi_t::ribi direction = get_fahrtrichtung();
+	ribi_t::ribi direction = get_direction();
 	direction = str->get_ribi() & direction;
 
 	while(  distance > 0  ) {
@@ -1290,7 +1290,7 @@ bool private_car_t::can_overtake( overtaker_t *other_overtaker, sint32 other_spe
 		const uint8 top = gr->get_top();
 		for(  uint8 j=1;  j<top;  j++ ) {
 			vehicle_base_t* const v = obj_cast<vehicle_base_t>(gr->obj_bei(j));
-			if(  v  &&  v->get_fahrtrichtung() == their_direction  ) {
+			if(  v  &&  v->get_direction() == their_direction  ) {
 				// check for car
 				if(v->get_overtaker()) {
 					return false;
