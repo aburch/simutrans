@@ -1160,7 +1160,7 @@ bool convoi_t::sync_step(long delta_t)
 				if(next_wolke>500) {
 					next_wolke = 0;
 					for(int i=0;  i<anz_vehikel;  i++  ) {
-						vehicle[i]->rauche();
+						vehicle[i]->make_smoke();
 						vehicle[i]->last_stop_pos = vehicle[i]->get_pos();
 					}
 				}
@@ -1199,7 +1199,7 @@ bool convoi_t::sync_step(long delta_t)
 				if(next_wolke>500) {
 					next_wolke = 0;
 					for(int i=0;  i<anz_vehikel;  i++  ) {
-						vehicle[i]->rauche();
+						vehicle[i]->make_smoke();
 					}
 				}
 			}

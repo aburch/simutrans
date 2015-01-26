@@ -447,7 +447,7 @@ public:
 
 	~vehicle_t();
 
-	void rauche() const;
+	void make_smoke() const;
 
 	void zeige_info();
 

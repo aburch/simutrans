@@ -1829,7 +1829,7 @@ vehicle_t::direction_degrees vehicle_t::get_direction_degrees(ribi_t::dir direct
 	return vehicle_t::North;
 }
 
-void vehicle_t::rauche() const
+void vehicle_t::make_smoke() const
 {
 	// does it smoke at all?
 	if(  smoke  &&  besch->get_rauch()  ) {
