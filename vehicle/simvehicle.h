@@ -922,7 +922,7 @@ private:
 
 	sint16 flying_height;
 	sint16 target_height;
-	uint32 suchen, touchdown, takeoff;
+	uint32 search_for_stop, touchdown, takeoff;
 
 	// BG, 07.08.2012: extracted from calc_route()
 	bool calc_route_internal(
@@ -937,7 +937,7 @@ private:
 		bool &runway_too_short,
 		uint32 &takeoff,
 		uint32 &touchdown,
-		uint32 &suchen,
+		uint32 &search_for_stop,
 		route_t &route);
 
 protected:
@@ -958,8 +958,8 @@ public:
 	aircraft_t(koord3d pos, const vehikel_besch_t* besch, player_t* player, convoi_t* cnv); // start and schedule
 
 	// to shift the events around properly
-	void get_event_index( flight_state &state_, uint32 &takeoff_, uint32 &stopsearch_, uint32 &landing_ ) { state_ = state; takeoff_ = takeoff; stopsearch_ = suchen; landing_ = touchdown; }
-	void set_event_index( flight_state state_, uint32 takeoff_, uint32 stopsearch_, uint32 landing_ ) { state = state_; takeoff = takeoff_; suchen = stopsearch_; touchdown = landing_; }
+	void get_event_index( flight_state &state_, uint32 &takeoff_, uint32 &stopsearch_, uint32 &landing_ ) { state_ = state; takeoff_ = takeoff; stopsearch_ = search_for_stop; landing_ = touchdown; }
+	void set_event_index( flight_state state_, uint32 takeoff_, uint32 stopsearch_, uint32 landing_ ) { state = state_; takeoff = takeoff_; search_for_stop = stopsearch_; touchdown = landing_; }
 
 	// since we are drawing ourselves, we must mark ourselves dirty during deletion
 	virtual ~aircraft_t();

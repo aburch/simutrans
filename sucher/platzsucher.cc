@@ -218,7 +218,7 @@ koord platzsucher_t::suche_platz(koord start, sint16 b, sint16 h, climate_bits c
 
 	if((r && *r) && b != h) {
 		//
-		// Hier suchen wir auch gedrehte Positionen.
+		// Hier suchen wir auch gedrehte Positionen..
 		//
 		pos_liste_wh_t psuch2(radius, h, b);
 
