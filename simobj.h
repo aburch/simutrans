@@ -161,7 +161,7 @@ public:
 		maglevwaggon=69,
 		narrowgaugewaggon=70,
 		schiff=80,
-		aircraft=81,
+		air_vehicle=81,
 		movingobj=82,
 
 		// other new objs (obsolete, only used during loading old games

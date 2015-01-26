@@ -1018,7 +1018,7 @@ sint64 player_t::undo()
 						break;
 					// special case airplane
 					// they can be everywhere, so we allow for everythign but runway undo
-					case obj_t::aircraft: {
+					case obj_t::air_vehicle: {
 						if(undo_type!=air_wt) {
 							break;
 						}

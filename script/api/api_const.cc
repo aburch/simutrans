@@ -235,7 +235,7 @@ void export_global_constants(HSQUIRRELVM vm)
 	/// ship
 	enum_slot(vm, "mo_ship", obj_t::schiff);
 	/// airplane
-	enum_slot(vm, "mo_airplane", obj_t::aircraft);
+	enum_slot(vm, "mo_airplane", obj_t::air_vehicle);
 	/// moving object (sheep ...)
 	enum_slot(vm, "mo_moving_object", obj_t::movingobj);
 

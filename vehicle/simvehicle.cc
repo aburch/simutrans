@@ -5129,7 +5129,7 @@ bool aircraft_t::find_route_to_stop_position()
 
 	// is our target occupied?
 //	DBG_MESSAGE("aircraft_t::find_route_to_stop_position()","state %i",state);
-	if(!target_halt->find_free_position(air_wt,cnv->self,obj_t::aircraft)  ) {
+	if(!target_halt->find_free_position(air_wt,cnv->self,obj_t::air_vehicle)  ) {
 		target_halt = halthandle_t();
 		DBG_MESSAGE("aircraft_t::find_route_to_stop_position()","no free position found!");
 		return false;
@@ -5629,7 +5629,7 @@ bool aircraft_t::can_enter_tile(const grund_t *gr, int & restart_speed, bool )
 		// check, if tile occupied by a plane on ground
 		for(  uint8 i = 1;  i<gr->get_top();  i++  ) {
 			obj_t *obj = gr->obj_bei(i);
-			if(  obj->get_typ()==obj_t::aircraft  &&  ((aircraft_t *)obj)->is_on_ground()  ) {
+			if(  obj->get_typ()==obj_t::air_vehicle  &&  ((aircraft_t *)obj)->is_on_ground()  ) {
 				restart_speed = 0;
 				return false;
 			}
@@ -5798,7 +5798,7 @@ void aircraft_t::enter_tile(grund_t* gr)
 
 aircraft_t::aircraft_t(loadsave_t *file, bool is_leading, bool is_last) :
 #ifdef INLINE_OBJ_TYPE
-	vehicle_t(obj_t::aircraft)
+	vehicle_t(obj_t::air_vehicle)
 #else
     vehicle_t()
 #endif
@@ -5830,7 +5830,7 @@ aircraft_t::aircraft_t(loadsave_t *file, bool is_leading, bool is_last) :
 
 aircraft_t::aircraft_t(koord3d pos, const vehikel_besch_t* besch, player_t* player, convoi_t* cn) :
 #ifdef INLINE_OBJ_TYPE
-    vehicle_t(obj_t::aircraft, pos, besch, player)
+    vehicle_t(obj_t::air_vehicle, pos, besch, player)
 #else
 	vehicle_t(pos, besch, player)
 #endif

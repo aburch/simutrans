@@ -83,7 +83,7 @@ bool convoi_frame_t::passes_filter(convoihandle_t cnv)
 					return false;
 				}
 				break;
-			case obj_t::aircraft:
+			case obj_t::air_vehicle:
 				if(!get_filter(convoi_filter_frame_t::aircraft_filter)) {
 					return false;
 				}

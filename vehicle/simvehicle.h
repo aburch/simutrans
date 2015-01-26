@@ -988,7 +988,7 @@ public:
 
 #ifdef INLINE_OBJ_TYPE
 #else
-	typ get_typ() const { return aircraft; }
+	typ get_typ() const { return air_vehicle; }
 #endif
 
 	schedule_t *generate_new_schedule() const;

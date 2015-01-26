@@ -3474,7 +3474,7 @@ void convoi_t::rdwr(loadsave_t *file)
 					case obj_t::old_schiff:
 					case obj_t::schiff:    v = new water_vehicle_t(file, first, last);     break;
 					case obj_t::old_aircraft:
-					case obj_t::aircraft:    v = new aircraft_t(file, first, last);     break;
+					case obj_t::air_vehicle:    v = new aircraft_t(file, first, last);     break;
 					case obj_t::old_monorailwaggon:
 					case obj_t::monorailwaggon:    v = new monorail_rail_vehicle_t(file, first, last);     break;
 					case obj_t::maglevwaggon:         v = new maglev_rail_vehicle_t(file, first, last);     break;
@@ -5866,7 +5866,7 @@ void convoi_t::set_next_stop_index(uint16 n)
 	   // find out if stop or waypoint, waypoint: do not brake at waypoints
 	   bool reverse_waypoint = false;
 	   const koord3d route_end = route.back();
-	   if(front()->get_typ() != obj_t::aircraft)
+	   if(front()->get_typ() != obj_t::air_vehicle)
 	   {
 		   const int count = fpl->get_count();
 		   for(int i = 0; i < count; i ++)
@@ -6109,7 +6109,7 @@ DBG_MESSAGE("convoi_t::go_to_depot()","convoi state %i => cannot change schedule
 
 	aircraft_t* aircraft = NULL;
 
-	if(get_vehikel(0)->get_typ() == obj_t::aircraft)
+	if(get_vehikel(0)->get_typ() == obj_t::air_vehicle)
 	{
 		// Flying aircraft cannot find a depot in the normal way, so go to the home depot.
 		aircraft = (aircraft_t*)get_vehikel(0);
@@ -6778,7 +6778,7 @@ void convoi_t::clear_replace()
 	 }
 	 const sint64 current_time = welt->get_zeit_ms();
 	 uint16 waiting_minutes;
-	 const uint16 airport_wait = front()->get_typ() == obj_t::aircraft ? welt->get_settings().get_min_wait_airport() : 0;
+	 const uint16 airport_wait = front()->get_typ() == obj_t::air_vehicle ? welt->get_settings().get_min_wait_airport() : 0;
 	 for(uint8 i = 0; i < anz_vehikel; i++) 
 	 {
 		FOR(slist_tpl< ware_t>, const& iter, vehicle[i]->get_cargo())

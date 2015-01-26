@@ -110,7 +110,7 @@ uint8 baum_t::plant_tree_on_coordinate(koord pos, const uint8 maximum_count, con
 			if(obj) {
 				switch(obj->get_typ()) {
 					case obj_t::wolke:
-					case obj_t::aircraft:
+					case obj_t::air_vehicle:
 					case obj_t::baum:
 					case obj_t::leitung:
 					case obj_t::label:
@@ -152,7 +152,7 @@ bool baum_t::plant_tree_on_coordinate(koord pos, const baum_besch_t *besch, cons
 			if(  gr->get_top() > 0  ) {
 				switch(gr->obj_bei(0)->get_typ()) {
 					case obj_t::wolke:
-					case obj_t::aircraft:
+					case obj_t::air_vehicle:
 					case obj_t::baum:
 					case obj_t::leitung:
 					case obj_t::label:
