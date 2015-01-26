@@ -2371,7 +2371,7 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(purchase_time%12
 }
 
 
-uint32 vehicle_t::calc_restwert() const
+uint32 vehicle_t::calc_sale_value() const
 {
 	// Use float32e8 for reliable and accurate computation
 	float32e8_t value ( besch->get_preis() );

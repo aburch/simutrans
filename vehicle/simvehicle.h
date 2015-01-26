@@ -599,7 +599,7 @@ public:
 	void rdwr(loadsave_t *file);
 	virtual void rdwr_from_convoi(loadsave_t *file);
 
-	uint32 calc_restwert() const;
+	uint32 calc_sale_value() const;
 
 	// true, if this vehicle did not moved for some time
 	virtual bool is_stuck();

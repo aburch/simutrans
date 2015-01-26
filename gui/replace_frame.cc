@@ -695,7 +695,7 @@ end_loop:
 		{
 			// This vehicle will not be kept after replacing - 
 			// deduct its resale value from the total cost.
-			total_cost -= current_vehicles[m]->calc_restwert();
+			total_cost -= current_vehicles[m]->calc_sale_value();
 		}
 	}
 	

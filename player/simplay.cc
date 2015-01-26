@@ -529,7 +529,7 @@ void player_t::calc_assets()
 	// all convois
 	FOR(vector_tpl<convoihandle_t>, const cnv, welt->convoys()) {
 		if(  cnv->get_owner() == this  ) {
-			sint64 restwert = cnv->calc_restwert();
+			sint64 restwert = cnv->calc_sale_value();
 			assets[TT_ALL] += restwert;
 			assets[finance->translate_waytype_to_tt(cnv->front()->get_waytype())] += restwert;
 		}
@@ -539,7 +539,7 @@ void player_t::calc_assets()
 	FOR(slist_tpl<depot_t*>, const depot, depot_t::get_depot_list()) {
 		if(  depot->get_player_nr() == player_nr  ) {
 			FOR(slist_tpl<vehicle_t*>, const veh, depot->get_vehicle_list()) {
-				sint64 restwert = veh->calc_restwert();
+				sint64 restwert = veh->calc_sale_value();
 				assets[TT_ALL] += restwert;
 				assets[finance->translate_waytype_to_tt(veh->get_waytype())] += restwert;
 			}

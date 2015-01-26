@@ -1577,7 +1577,7 @@ end_loop:
 						if(!replace->get_retain_in_depot())
 						{
 							//Sell any vehicles not upgraded or kept.
-							sint64 value = vehicle[a]->calc_restwert();
+							sint64 value = vehicle[a]->calc_sale_value();
 							waytype_t wt = vehicle[a]->get_besch()->get_waytype();
 							owner->book_new_vehicle( value, dep->get_pos().get_2d(),wt );
 							delete vehicle[a];
@@ -2248,9 +2248,9 @@ void convoi_t::start()
 		for(unsigned i=0; i<anz_vehikel; i++) {
 			vehicle[i]->set_leading( false );
 			vehicle[i]->set_last( false );
-			restwert_delta -= vehicle[i]->calc_restwert();
+			restwert_delta -= vehicle[i]->calc_sale_value();
 			vehicle[i]->set_driven();
-			restwert_delta += vehicle[i]->calc_restwert();
+			restwert_delta += vehicle[i]->calc_sale_value();
 			vehicle[i]->clear_flag( obj_t::not_on_map );
 			vehicle[i]->load_cargo( halthandle_t() );
 		}
@@ -5368,13 +5368,13 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 }
 
 
-sint64 convoi_t::calc_restwert() const
+sint64 convoi_t::calc_sale_value() const
 {
 
 	sint64 result = 0;
 
 	for(uint i=0; i<anz_vehikel; i++) {
-		result += vehicle[i]->calc_restwert();
+		result += vehicle[i]->calc_sale_value();
 	}
 	return result;
 }
@@ -5481,7 +5481,7 @@ void convoi_t::destroy()
 
 	// pay the current value, remove monthly maint
 	waytype_t wt = front() ? front()->get_besch()->get_waytype() : ignore_wt;
-	owner->book_new_vehicle( calc_restwert(), get_pos().get_2d(), wt);
+	owner->book_new_vehicle( calc_sale_value(), get_pos().get_2d(), wt);
 
 	for(  uint8 i = anz_vehikel;  i-- != 0;  ) {
 		if(  !vehicle[i]->get_flag( obj_t::not_on_map )  ) {

@@ -1225,7 +1225,7 @@ public:
 	* @author Volker Meyer
 	* @date  09.06.2003
 	*/
-	sint64 calc_restwert() const;
+	sint64 calc_sale_value() const;
 
 	/**
 	* Check if this convoi has entered a depot.

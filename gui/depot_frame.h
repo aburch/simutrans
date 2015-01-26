@@ -114,7 +114,7 @@ private:
 	 * @author Volker Meyer
 	 * @date  09.06.2003
 	 */
-	sint64 calc_restwert(const vehikel_besch_t *veh_type);
+	sint64 calc_sale_value(const vehikel_besch_t *veh_type);
 
 	/**
 	 * Does this window need a min size button in the title bar?

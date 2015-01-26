@@ -765,7 +765,7 @@ void gui_convoy_assembler_t::draw(scr_coord parent_pos)
 				convoihandle_t cnv = depot_frame->get_convoy();
 				if(cnv.is_bound())
 				{
-					money_to_string(buf, cnv->calc_restwert() / 100.0 );
+					money_to_string(buf, cnv->calc_sale_value() / 100.0 );
 					txt_convoi_value.printf("%s %s", translator::translate("Restwert:"), buf);
 
 				}
@@ -1769,7 +1769,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 			new_vehicle_length_sb_force_zero = true;
 		}
 		if (depot_frame && vec[sel_index]->count > 0) {
-			resale_value = depot_frame->calc_restwert(veh_type);
+			resale_value = depot_frame->calc_sale_value(veh_type);
 		}
 		if(vec[sel_index]->lcolor == COL_GREY3)
 		{
@@ -1790,7 +1790,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 				if(cnv.is_bound())
 				{
 					veh_type = cnv->get_vehikel(sel_index)->get_besch();
-					resale_value = cnv->get_vehikel(sel_index)->calc_restwert();
+					resale_value = cnv->get_vehikel(sel_index)->calc_sale_value();
 				}
 				else
 				{

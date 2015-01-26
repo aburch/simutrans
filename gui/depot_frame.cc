@@ -493,12 +493,12 @@ void depot_frame_t::update_data()
 }
 
 
-sint64 depot_frame_t::calc_restwert(const vehikel_besch_t *veh_type)
+sint64 depot_frame_t::calc_sale_value(const vehikel_besch_t *veh_type)
 {
 	sint64 wert = 0;
 	FOR(slist_tpl<vehicle_t*>, const v, depot->get_vehicle_list()) {
 		if(  v->get_besch() == veh_type  ) {
-			wert += v->calc_restwert();
+			wert += v->calc_sale_value();
 		}
 	}
 	return wert;

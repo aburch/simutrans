@@ -129,7 +129,7 @@ void convoi_detail_t::draw(scr_coord pos, scr_size size)
 		offset_y += LINESPACE;
 
 		// current resale value
-		money_to_string( number, cnv->calc_restwert() / 100.0 );
+		money_to_string( number, cnv->calc_sale_value() / 100.0 );
 		buf.clear();
 		buf.printf("%s %s", translator::translate("Restwert:"), number );
 		display_proportional_clip( pos.x+10, offset_y, buf, ALIGN_LEFT, MONEY_PLUS, true );
@@ -364,7 +364,7 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 			}
 
 			// value
-			money_to_string( number, v->calc_restwert() / 100.0 );
+			money_to_string( number, v->calc_sale_value() / 100.0 );
 			buf.clear();
 			buf.printf( "%s %s", translator::translate("Restwert:"), number );
 			display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, buf, ALIGN_LEFT, MONEY_PLUS, true );
