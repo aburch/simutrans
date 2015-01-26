@@ -202,7 +202,7 @@ void depot_t::convoi_arrived(convoihandle_t acnv, bool fpl_adjust)
 		// Hajo: reset vehikel data
 		v->discard_cargo();
 		v->set_pos( koord3d::invalid );
-		v->set_erstes( i==0 );
+		v->set_leading( i==0 );
 		v->set_letztes( i+1==acnv->get_vehikel_anzahl() );
 	}
 
@@ -501,7 +501,7 @@ bool depot_t::disassemble_convoi(convoihandle_t cnv, bool sell)
 			// store vehicles in depot
 			while(  vehicle_t* const v = cnv->remove_vehikel_bei(0)  ) {
 				v->discard_cargo();
-				v->set_erstes(false);
+				v->set_leading(false);
 				v->set_letztes(false);
 				vehicles.append(v);
 			}

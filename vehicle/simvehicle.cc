@@ -2629,7 +2629,7 @@ road_vehicle_t::road_vehicle_t() :
 	is_checker = true;
 }
 
-road_vehicle_t::road_vehicle_t(loadsave_t *file, bool is_first, bool is_last) : 
+road_vehicle_t::road_vehicle_t(loadsave_t *file, bool is_leading, bool is_last) : 
 #ifdef INLINE_OBJ_TYPE
     vehicle_t(obj_t::automobil)
 #else
@@ -2641,14 +2641,14 @@ road_vehicle_t::road_vehicle_t(loadsave_t *file, bool is_first, bool is_last) :
 	if(  file->is_loading()  ) {
 		static const vehikel_besch_t *last_besch = NULL;
 
-		if(is_first) {
+		if(is_leading) {
 			last_besch = NULL;
 		}
 		// try to find a matching vehicle
 		if(besch==NULL) {
 			const ware_besch_t* w = (!fracht.empty() ? fracht.front().get_besch() : warenbauer_t::passagiere);
 			dbg->warning("road_vehicle_t::road_vehicle_t()","try to find a fitting vehicle for %s.",  w->get_name() );
-			besch = vehikelbauer_t::get_best_matching(road_wt, 0, (fracht.empty() ? 0 : 50), is_first?50:0, speed_to_kmh(speed_limit), w, true, last_besch, is_last );
+			besch = vehikelbauer_t::get_best_matching(road_wt, 0, (fracht.empty() ? 0 : 50), is_leading?50:0, speed_to_kmh(speed_limit), w, true, last_besch, is_last );
 			if(besch) {
 				DBG_MESSAGE("road_vehicle_t::road_vehicle_t()","replaced by %s",besch->get_name());
 				// still wrong load ...
@@ -3275,21 +3275,21 @@ void road_vehicle_t::set_convoi(convoi_t *c)
 
 
 #ifdef INLINE_OBJ_TYPE
-rail_vehicle_t::rail_vehicle_t(typ type, loadsave_t *file, bool is_first, bool is_last) : 
+rail_vehicle_t::rail_vehicle_t(typ type, loadsave_t *file, bool is_leading, bool is_last) : 
     vehicle_t(type)
 {
-	init(file, is_first, is_last);
+	init(file, is_leading, is_last);
 }
 
-rail_vehicle_t::rail_vehicle_t(loadsave_t *file, bool is_first, bool is_last) : 
+rail_vehicle_t::rail_vehicle_t(loadsave_t *file, bool is_leading, bool is_last) : 
     vehicle_t(obj_t::rail_vehicle)
 {
-	init(file, is_first, is_last);
+	init(file, is_leading, is_last);
 }
 
-void rail_vehicle_t::init(loadsave_t *file, bool is_first, bool is_last)
+void rail_vehicle_t::init(loadsave_t *file, bool is_leading, bool is_last)
 #else
-rail_vehicle_t::rail_vehicle_tloadsave_t *file, bool is_first, bool is_last) : 
+rail_vehicle_t::rail_vehicle_tloadsave_t *file, bool is_leading, bool is_last) : 
     vehicle_t()
 #endif
 {
@@ -3310,12 +3310,12 @@ rail_vehicle_t::rail_vehicle_tloadsave_t *file, bool is_first, bool is_last) :
 	if(  file->is_loading()  ) {
 		static const vehikel_besch_t *last_besch = NULL;
 
-		if(is_first) {
+		if(is_leading) {
 			last_besch = NULL;
 		}
 		// try to find a matching vehicle
 		if(besch==NULL) {
-			int power = (is_first || fracht.empty() || fracht.front() == warenbauer_t::nichts) ? 500 : 0;
+			int power = (is_leading || fracht.empty() || fracht.front() == warenbauer_t::nichts) ? 500 : 0;
 			const ware_besch_t* w = fracht.empty() ? warenbauer_t::nichts : fracht.front().get_besch();
 			dbg->warning("rail_vehicle_t::rail_vehicle_t()","try to find a fitting vehicle for %s.", power>0 ? "engine": w->get_name() );
 			if(last_besch!=NULL  &&  last_besch->can_follow(last_besch)  &&  last_besch->get_ware()==w  &&  (!is_last  ||  last_besch->get_nachfolger(0)==NULL)) {
@@ -4740,7 +4740,7 @@ water_vehicle_t::water_vehicle_t(koord3d pos, const vehikel_besch_t* besch, play
 	cnv = cn;
 }
 
-water_vehicle_t::water_vehicle_t(loadsave_t *file, bool is_first, bool is_last) :
+water_vehicle_t::water_vehicle_t(loadsave_t *file, bool is_leading, bool is_last) :
 #ifdef INLINE_OBJ_TYPE
     vehicle_t(obj_t::schiff)
 #else
@@ -4752,7 +4752,7 @@ water_vehicle_t::water_vehicle_t(loadsave_t *file, bool is_first, bool is_last) 
 	if(  file->is_loading()  ) {
 		static const vehikel_besch_t *last_besch = NULL;
 
-		if(is_first) {
+		if(is_leading) {
 			last_besch = NULL;
 		}
 		// try to find a matching vehicle
@@ -5796,7 +5796,7 @@ void aircraft_t::enter_tile(grund_t* gr)
 }
 
 
-aircraft_t::aircraft_t(loadsave_t *file, bool is_first, bool is_last) :
+aircraft_t::aircraft_t(loadsave_t *file, bool is_leading, bool is_last) :
 #ifdef INLINE_OBJ_TYPE
 	vehicle_t(obj_t::aircraft)
 #else
@@ -5809,7 +5809,7 @@ aircraft_t::aircraft_t(loadsave_t *file, bool is_first, bool is_last) :
 	if(  file->is_loading()  ) {
 		static const vehikel_besch_t *last_besch = NULL;
 
-		if(is_first) {
+		if(is_leading) {
 			last_besch = NULL;
 		}
 		// try to find a matching vehicle

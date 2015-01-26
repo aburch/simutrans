@@ -70,7 +70,7 @@ static void get_possible_freight_weight(uint8 catg_index, sint32 &min_weight, si
 
 void adverse_summary_t::add_vehicle(const vehicle_t &v)
 {
-	add_vehicle(*v.get_besch(), v.is_first());
+	add_vehicle(*v.get_besch(), v.is_leading());
 
 	const waytype_t waytype = v.get_waytype();
 	if (waytype != air_wt || ((const aircraft_t &)v).get_flyingheight() <= 0)
@@ -93,7 +93,7 @@ void adverse_summary_t::add_vehicle(const vehicle_t &v)
 }
 
 
-void adverse_summary_t::add_vehicle(const vehikel_besch_t &b, bool is_first)
+void adverse_summary_t::add_vehicle(const vehikel_besch_t &b, bool is_leading)
 {
 	if (br.is_zero())
 	{
@@ -132,7 +132,7 @@ void adverse_summary_t::add_vehicle(const vehikel_besch_t &b, bool is_first)
 		}
 	}
 
-	if (is_first) 
+	if (is_leading) 
 	{
 		cf = b.get_air_resistance();
 	}

@@ -153,7 +153,7 @@ struct adverse_summary_t
 	}
 
 	void add_vehicle(const vehicle_t &v);
-	void add_vehicle(const vehikel_besch_t &b, bool is_first);
+	void add_vehicle(const vehikel_besch_t &b, bool is_leading);
 };
 
 /******************************************************************************/

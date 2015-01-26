@@ -451,7 +451,7 @@ void convoi_t::laden_abschliessen()
 					dbg->error("convoi_t::laden_abschliessen()", "Route index is %i, whereas maximum route index is %i for convoy %i", v->get_route_index(), max_route_index, self.get_id());
 					v->set_route_index(front()->get_route_index());
 				}
-				v->set_erstes( i==0 );
+				v->set_leading( i==0 );
 				v->set_letztes( i+1==anz_vehikel );
 				v->calc_height();
 				// this sets the convoi and will renew the block reservation, if needed!
@@ -470,7 +470,7 @@ void convoi_t::laden_abschliessen()
 					dbg->error("convoi_t::laden_abschliessen()", "Route index is %i, whereas maximum route index is %i for convoy %i", v->get_route_index(), max_route_index, self.get_id());
 					v->set_route_index(front()->get_route_index());
 				}*/
-				v->set_erstes( i==0 );
+				v->set_leading( i==0 );
 				v->set_letztes( i+1==anz_vehikel );
 				v->calc_height();
 				// this sets the convoi and will renew the block reservation, if needed!
@@ -572,7 +572,7 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_ind
 			const koord3d last_start = front()->get_pos();
 
 			// now advance all convoi until it is completely on the track
-			front()->set_erstes(false); // switches off signal checks ...
+			front()->set_leading(false); // switches off signal checks ...
 			for(unsigned i=0; i<anz_vehikel; i++) {
 				vehicle_t* v = vehicle[i];
 
@@ -588,7 +588,7 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_ind
 					sch0->reserve(self,ribi_t::keine);
 				}
 			}
-			front()->set_erstes(true);
+			front()->set_leading(true);
 			if(  state != INITIAL  &&  state != FAHRPLANEINGABE  &&  front()->get_pos() != last_start  ) {
 				state = WAITING_FOR_CLEARANCE;
 			}
@@ -1587,7 +1587,7 @@ end_loop:
 						{
 							vehicle_t* old_veh = remove_vehikel_bei(a);
 							old_veh->discard_cargo();
-							old_veh->set_erstes(false);
+							old_veh->set_leading(false);
 							old_veh->set_letztes(false);
 							dep->get_vehicle_list().append(old_veh);
 						}
@@ -2246,7 +2246,7 @@ void convoi_t::start()
 		// also for any vehicle entered a depot, set_letztes is true! => reset it correctly
 		sint64 restwert_delta = 0;
 		for(unsigned i=0; i<anz_vehikel; i++) {
-			vehicle[i]->set_erstes( false );
+			vehicle[i]->set_leading( false );
 			vehicle[i]->set_letztes( false );
 			restwert_delta -= vehicle[i]->calc_restwert();
 			vehicle[i]->set_driven();
@@ -2254,7 +2254,7 @@ void convoi_t::start()
 			vehicle[i]->clear_flag( obj_t::not_on_map );
 			vehicle[i]->load_cargo( halthandle_t() );
 		}
-		front()->set_erstes( true );
+		front()->set_leading( true );
 		vehicle[anz_vehikel-1]->set_letztes( true );
 		// do not show the vehicle - it will be wrong positioned -vorfahren() will correct this
 		front()->set_bild(IMG_LEER);
@@ -2630,9 +2630,9 @@ void convoi_t::set_erstes_letztes()
 	// anz_vehikel muss korrekt init sein
 	// "anz vehicle must be correctly INIT" (Babelfish)
 	if(anz_vehikel>0) {
-		front()->set_erstes(true);
+		front()->set_leading(true);
 		for(unsigned i=1; i<anz_vehikel; i++) {
-			vehicle[i]->set_erstes(false);
+			vehicle[i]->set_leading(false);
 			vehicle[i - 1]->set_letztes(false);
 		}
 		back()->set_letztes(true);
@@ -2947,7 +2947,7 @@ void convoi_t::vorfahren()
 
 		// just advances the first vehicle
 		vehicle_t* v0 = front();
-		v0->set_erstes(false); // switches off signal checks ...
+		v0->set_leading(false); // switches off signal checks ...
 		v0->get_smoke(false);
 		steps_driven = 0;
 		// drive half a tile:
@@ -2955,7 +2955,7 @@ void convoi_t::vorfahren()
 			vehicle[i]->do_drive( (VEHICLE_STEPS_PER_TILE/2)<<YARDS_PER_VEHICLE_STEP_SHIFT );
 		}
 		v0->get_smoke(true);
-		v0->set_erstes(true); // switches on signal checks to reserve the next route
+		v0->set_leading(true); // switches on signal checks to reserve the next route
 
 		// until all other are on the track
 		state = CAN_START;
@@ -3024,7 +3024,7 @@ void convoi_t::vorfahren()
 			train_length = max(1,train_length);
 
 			// now advance all convoi until it is completely on the track
-			front()->set_erstes(false); // switches off signal checks ...
+			front()->set_leading(false); // switches off signal checks ...
 
 			if(reversed && (reversable || front()->is_reversed()))
 			{
@@ -3061,7 +3061,7 @@ void convoi_t::vorfahren()
 				}
 
 			}
-			front()->set_erstes(true);
+			front()->set_leading(true);
 		}
 
 		else if(front()->last_stop_pos == front()->get_pos())
@@ -3245,7 +3245,7 @@ convoi_t::reverse_order(bool rev)
 
 	if(rev)
 	{
-		front()->set_erstes(false);
+		front()->set_leading(false);
 	}
 	else
 	{
@@ -3322,7 +3322,7 @@ convoi_t::reverse_order(bool rev)
 
 	if(!rev)
 	{
-		front()->set_erstes(true);
+		front()->set_leading(true);
 	}
 
 	back()->set_letztes(true);
