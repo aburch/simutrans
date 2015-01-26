@@ -715,14 +715,14 @@ protected:
 
 	void enter_tile(grund_t*);
 
-	bool is_weg_frei_signal( uint16 start_index, int &restart_speed );
+	bool is_signal_clear( uint16 start_index, int &restart_speed );
 
 	/// DEPRECATED
-	bool is_weg_frei_pre_signal( signal_t *sig, uint16 start_index, int &restart_speed );
+	bool is_pre_signal_clear( signal_t *sig, uint16 start_index, int &restart_speed );
 
-	bool is_weg_frei_longblock_signal( signal_t *sig, uint16 start_index, int &restart_speed );
+	bool is_longblock_signal_clear( signal_t *sig, uint16 start_index, int &restart_speed );
 
-	bool is_weg_frei_choose_signal( signal_t *sig, uint16 start_index, int &restart_speed );
+	bool is_choose_signal_clear( signal_t *sig, uint16 start_index, int &restart_speed );
 	
 	working_method_t working_method;
 

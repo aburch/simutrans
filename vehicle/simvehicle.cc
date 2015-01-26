@@ -3607,7 +3607,7 @@ bool rail_vehicle_t:: is_target(const grund_t *gr,const grund_t *prev_gr)
 }
 
 
-bool rail_vehicle_t::is_weg_frei_longblock_signal( signal_t *sig, uint16 next_block, int &restart_speed )
+bool rail_vehicle_t::is_longblock_signal_clear( signal_t *sig, uint16 next_block, int &restart_speed )
 {
 	// "Long block" signal (old Simutrans nomenclature): start and end of token block working. 
 	working_method_t old_working_method = working_method; // If reserving a route fails, revert to the previous drive mode.
@@ -3686,7 +3686,7 @@ bool rail_vehicle_t::is_weg_frei_longblock_signal( signal_t *sig, uint16 next_bl
 }
 
 
-bool rail_vehicle_t::is_weg_frei_choose_signal( signal_t *sig, const uint16 start_block, int &restart_speed )
+bool rail_vehicle_t::is_choose_signal_clear( signal_t *sig, const uint16 start_block, int &restart_speed )
 {
 	bool choose_ok = false;
 	target_halt = halthandle_t();
@@ -3799,7 +3799,7 @@ skip_choose:
 			// try to alloc the whole route
 			cnv->update_route(start_block, target_rt);
 			if(  !block_reserver( cnv->get_route(), start_block+1, next_signal, 100000, true, false )  ) {
-				dbg->error( "rail_vehicle_t::is_weg_frei_choose_signal()", "could not reserved route after find_route!" );
+				dbg->error( "rail_vehicle_t::is_choose_signal_clear()", "could not reserved route after find_route!" );
 				target_halt = halthandle_t();
 				sig->set_state(  roadsign_t::danger );
 				restart_speed = 0;
@@ -3815,12 +3815,12 @@ skip_choose:
 }
 
 
-bool rail_vehicle_t::is_weg_frei_pre_signal( signal_t *sig, uint16 next_block, int &restart_speed )
+bool rail_vehicle_t::is_pre_signal_clear( signal_t *sig, uint16 next_block, int &restart_speed )
 {
 	// parse to next signal; if needed recurse, since we allow cascading
 	uint16 next_signal;
 	if(  block_reserver( cnv->get_route(), next_block+1, next_signal, 0, true, false )  ) {
-		if(  next_signal == INVALID_INDEX  ||  cnv->get_route()->position_bei(next_signal) == cnv->get_route()->back()  ||  is_weg_frei_signal( next_signal, restart_speed )  ) {
+		if(  next_signal == INVALID_INDEX  ||  cnv->get_route()->position_bei(next_signal) == cnv->get_route()->back()  ||  is_signal_clear( next_signal, restart_speed )  ) {
 			// ok, end of route => we can go
 			sig->set_state( roadsign_t::clear );
 			cnv->set_next_stop_index(next_signal);
@@ -3839,14 +3839,14 @@ bool rail_vehicle_t::is_weg_frei_pre_signal( signal_t *sig, uint16 next_block, i
 }
 
 
-bool rail_vehicle_t::is_weg_frei_signal( uint16 next_block, int &restart_speed )
+bool rail_vehicle_t::is_signal_clear( uint16 next_block, int &restart_speed )
 {
 	// called, when there is a signal; will call other signal routines if needed
 	grund_t *gr_next_block = welt->lookup(cnv->get_route()->position_bei(next_block));
 
 	signal_t *sig = gr_next_block->find<signal_t>();
 	if(  sig==NULL  ) {
-		dbg->error( "rail_vehicle_t::is_weg_frei_signal()", "called at %s without a signal!", cnv->get_route()->position_bei(next_block).get_str() );
+		dbg->error( "rail_vehicle_t::is_signal_clear()", "called at %s without a signal!", cnv->get_route()->position_bei(next_block).get_str() );
 		return true;
 	}
 
@@ -3868,18 +3868,18 @@ bool rail_vehicle_t::is_weg_frei_signal( uint16 next_block, int &restart_speed )
 	}
 
 	if(  sig_besch->is_pre_signal()  ) {
-		return is_weg_frei_pre_signal( sig, next_block, restart_speed );
+		return is_pre_signal_clear( sig, next_block, restart_speed );
 	}
 
 	if(  sig_besch->is_longblock_signal()  ) {
-		return is_weg_frei_longblock_signal( sig, next_block, restart_speed );
+		return is_longblock_signal_clear( sig, next_block, restart_speed );
 	}
 
 	if(  sig_besch->is_choose_sign()  ) {
-		return is_weg_frei_choose_signal( sig, next_block, restart_speed );
+		return is_choose_signal_clear( sig, next_block, restart_speed );
 	}
 
-	dbg->error( "rail_vehicle_t::is_weg_frei_signal()", "falled through at signal at %s", cnv->get_route()->position_bei(next_block).get_str() );
+	dbg->error( "rail_vehicle_t::is_signal_clear()", "falled through at signal at %s", cnv->get_route()->position_bei(next_block).get_str() );
 	return false;
 }
 
@@ -4122,7 +4122,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, int & restart_speed, bool
 					|| ((working_method == token_block || working_method == absolute_block) && next_block - route_index <= max(sighting_distance_tiles - 1, 1)))
  				{
 					// Brake for the signal unless we can see it somehow. -1 because this is checked on entering the tile.
-					if(!is_weg_frei_signal(next_block, restart_speed))
+					if(!is_signal_clear(next_block, restart_speed))
 					{
 						// only return false, if we are directly in front of the signal -1 because this is checked on entering the tile.
 						cnv->set_is_choosing(false);
@@ -4516,7 +4516,7 @@ bool rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16 &
 			const signal_t* sig = welt->lookup(signal_pos)->find<signal_t>();
 			if(sig && sig->get_state() == signal_t::danger)
 			{
-				bool success_2 = is_weg_frei_signal(next_signal_index, restart_speed);
+				bool success_2 = is_signal_clear(next_signal_index, restart_speed);
 				next_signal_index = cnv->get_next_stop_index() - 1;
 				return success_2;
 			}
