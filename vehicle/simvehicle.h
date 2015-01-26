@@ -329,8 +329,8 @@ protected:
 	*/
 	koord3d pos_prev;
 
-	bool ist_erstes:1;	// true, if vehicle is first vehicle of a convoi
-	bool ist_letztes:1;	// true, if vehicle is last vehicle of a convoi
+	bool leading:1;	// true, if vehicle is first vehicle of a convoi
+	bool last:1;	// true, if vehicle is last vehicle of a convoi
 	bool rauchen:1;
 	bool check_for_finish:1;		// true, if on the last tile
 	bool has_driven:1;
@@ -557,11 +557,11 @@ public:
 
 
 	// sets or querey begin and end of convois
-	void set_erstes(bool janein) {ist_erstes = janein;} //janein = "yesno" (Google)
-	bool is_first() const {return ist_erstes;}
+	void set_erstes(bool janein) {leading = janein;} //janein = "yesno" (Google)
+	bool is_first() const {return leading;}
 
-	void set_letztes(bool janein) {ist_letztes = janein;}
-	bool is_last() const {return ist_letztes;}
+	void set_letztes(bool janein) {last = janein;}
+	bool is_last() const {return last;}
 
 	// marks the vehicle as really used
 	void set_driven() { has_driven = true; }

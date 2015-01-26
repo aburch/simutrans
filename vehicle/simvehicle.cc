@@ -783,7 +783,7 @@ void vehicle_t::set_convoi(convoi_t *c)
 	cnv = c;
 	if(cnv) {
 		// we need to reestablish the finish flag after loading
-		if(ist_erstes) {
+		if(leading) {
 			route_t const& r = *cnv->get_route();
 			check_for_finish = r.empty() || route_index >= r.get_count() || get_pos() == r.position_bei(route_index);
 		}
@@ -1250,7 +1250,7 @@ vehicle_t::vehicle_t(koord3d pos, const vehikel_besch_t* besch, player_t* player
 	total_freight = 0;
 	sum_weight = besch->get_gewicht();
 
-	ist_erstes = ist_letztes = false;
+	leading = last = false;
 	check_for_finish = false;
 	use_calc_height = true;
 	has_driven = false;
@@ -1290,7 +1290,7 @@ vehicle_t::vehicle_t() :
 	sum_weight = 10000UL;
 	total_freight = 0;
 
-	ist_erstes = ist_letztes = false;
+	leading = last = false;
 	check_for_finish = false;
 	use_calc_height = true;
 
@@ -1334,7 +1334,7 @@ bool vehicle_t::reroute(const uint16 reroute_index, const koord3d &ziel, route_t
 grund_t* vehicle_t::hop_check()
 {
 	// the leading vehicle will do all the checks
-	if(ist_erstes) {
+	if(leading) {
 		if(check_for_finish) {
 			// so we are there yet?
 			cnv->ziel_erreicht();
@@ -1399,7 +1399,7 @@ grund_t* vehicle_t::hop_check()
 		return bd;
 	}
 	else {
-		// this is needed since in convoi_t::vorfahren the flag ist_erstes is set to null
+		// this is needed since in convoi_t::vorfahren the flag leading is set to null
 		if(check_for_finish) {
 			return NULL;
 		}
@@ -1425,7 +1425,7 @@ void vehicle_t::leave_tile()
 {
 	vehicle_base_t::leave_tile();
 #ifndef DEBUG_ROUTES
-	if(ist_letztes  &&  reliefkarte_t::is_visible) {
+	if(last  &&  reliefkarte_t::is_visible) {
 			reliefkarte_t::get_karte()->calc_map_pixel(get_pos().get_2d());
 	}
 #endif
@@ -1440,7 +1440,7 @@ void vehicle_t::leave_tile()
 void vehicle_t::enter_tile(grund_t* gr)
 {
 	vehicle_base_t::enter_tile(gr);
-	if(ist_erstes  &&  reliefkarte_t::is_visible  ) {
+	if(leading  &&  reliefkarte_t::is_visible  ) {
 		reliefkarte_t::get_karte()->calc_map_pixel( get_pos().get_2d() );  //"Set relief colour" (Babelfish)
 	}
 }
@@ -1467,7 +1467,7 @@ void vehicle_t::hop(grund_t* gr)
 
 	// check if arrived at waypoint, and update schedule to next destination
 	// route search through the waypoint is already complete
-//	if(  ist_erstes  &&  get_pos()==cnv->get_fpl_target()  ) { // ist_erstes turned off in vorfahren when reversing
+//	if(  leading  &&  get_pos()==cnv->get_fpl_target()  ) { // leading turned off in vorfahren when reversing
 	if(  get_pos()==cnv->get_fpl_target()  ) {
 		if(  route_index+1 >= cnv->get_route()->get_count()  ) {
 			// we end up here after loading a game or when a waypoint is reached which crosses next itself
@@ -1533,7 +1533,7 @@ void vehicle_t::hop(grund_t* gr)
 		speed_limit = speed_unlimited();
 	}
 
-	if(  check_for_finish  &  ist_erstes && (direction==ribi_t::nord  || direction==ribi_t::west))
+	if(  check_for_finish  &  leading && (direction==ribi_t::nord  || direction==ribi_t::west))
 	{
 		steps_next = (steps_next/2)+1;
 	}
@@ -1966,7 +1966,7 @@ void vehicle_t::update_bookkeeping(uint32 steps)
 	   // Only the first vehicle in a convoy does this,
 	   // or else there is double counting.
 	   // NOTE: As of 9.0, increment_odometer() also adds running costs for *all* vehicles in the convoy.
-		if (ist_erstes) cnv->increment_odometer(steps);
+		if (leading) cnv->increment_odometer(steps);
 }
 
 ribi_t::ribi vehicle_t::get_direction_of_travel() const
@@ -2293,7 +2293,7 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(purchase_time%12
 	}
 
 	if(file->is_loading()) {
-		ist_erstes = ist_letztes = false;	// dummy, will be set by convoi afterwards
+		leading = last = false;	// dummy, will be set by convoi afterwards
 		if(besch) {
 			calc_bild();
 
@@ -2452,11 +2452,11 @@ vehicle_t::~vehicle_t()
 #ifdef MULTI_THREAD
 void vehicle_t::display_overlay(int xpos, int ypos) const
 {
-	if(  cnv  &&  ist_erstes  ) {
+	if(  cnv  &&  leading  ) {
 #else
 void vehicle_t::display_after(int xpos, int ypos, bool is_gobal) const
 {
-	if(  is_gobal  &&  cnv  &&  ist_erstes  ) {
+	if(  is_gobal  &&  cnv  &&  leading  ) {
 #endif
 		COLOR_VAL color = COL_GREEN; // not used, but stop compiler warning about uninitialized
 		char tooltip_text[1024];
@@ -2675,7 +2675,7 @@ route_t::route_result_t road_vehicle_t::calc_route(koord3d start, koord3d ziel, 
 	assert(cnv);
 	// free target reservation
 	drives_on_left = welt->get_settings().is_drive_left();	// reset driving settings
-	if(ist_erstes   &&  previous_direction!=ribi_t::keine  &&  cnv  &&  target_halt.is_bound() ) {
+	if(leading   &&  previous_direction!=ribi_t::keine  &&  cnv  &&  target_halt.is_bound() ) {
 		// now reserve our choice (beware: might be longer than one tile!)
 		for(  uint32 length=0;  length<cnv->get_tile_length()  &&  length+1<cnv->get_route()->get_count();  length++  ) {
 			target_halt->unreserve_position(welt->lookup( cnv->get_route()->position_bei( cnv->get_route()->get_count()-length-1) ), cnv->self );
@@ -2905,7 +2905,7 @@ bool road_vehicle_t::choose_route( int &restart_speed, ribi_t::ribi richtung, ui
 bool road_vehicle_t::ist_weg_frei(const grund_t *gr, int &restart_speed, bool second_check)
 {
 	// check for traffic lights (only relevant for the first car in a convoi)
-	if(  ist_erstes  ) {
+	if(  leading  ) {
 		// no further check, when already entered a crossing (to allow leaving it)
 		if (!second_check) {
 			const grund_t *gr_current = welt->lookup(get_pos());
@@ -3222,7 +3222,7 @@ void road_vehicle_t::enter_tile(grund_t* gr)
 		return;
 	}
 	str->book(cargo, WAY_STAT_GOODS);
-	if (ist_erstes)  {
+	if (leading)  {
 		str->book(1, WAY_STAT_CONVOIS);
 		cnv->update_tiles_overtaking();
 	}
@@ -3245,7 +3245,7 @@ void road_vehicle_t::set_convoi(convoi_t *c)
 	if(c!=NULL) {
 		bool target=(bool)cnv;	// only during loadtype: cnv==1 indicates, that the convoi did reserve a stop
 		vehicle_t::set_convoi(c);
-		if(target  &&  ist_erstes  &&  c->get_route()->empty()) {
+		if(target  &&  leading  &&  c->get_route()->empty()) {
 			// reinitialize the target halt
 			const route_t *rt = cnv->get_route();
 			target_halt = haltestelle_t::get_halt( rt->back(), get_owner() );
@@ -3257,7 +3257,7 @@ void road_vehicle_t::set_convoi(convoi_t *c)
 		}
 	}
 	else {
-		if(  cnv  &&  ist_erstes  &&  target_halt.is_bound()  ) {
+		if(  cnv  &&  leading  &&  target_halt.is_bound()  ) {
 			// now reserve our choice (beware: might be longer than one tile!)
 			for(  uint32 length=0;  length<cnv->get_tile_length()  &&  length+1<cnv->get_route()->get_count();  length++  ) {
 				target_halt->unreserve_position( welt->lookup( cnv->get_route()->position_bei( cnv->get_route()->get_count()-length-1) ), cnv->self );
@@ -3368,7 +3368,7 @@ rail_vehicle_t::rail_vehicle_t(koord3d pos, const vehikel_besch_t* besch, player
 
 rail_vehicle_t::~rail_vehicle_t()
 {
-	if (cnv && ist_erstes) {
+	if (cnv && leading) {
 		route_t & r = *cnv->get_route();
 		if (!r.empty() && route_index < r.get_count()) {
 			// free all reserved blocks
@@ -3391,7 +3391,7 @@ void rail_vehicle_t::set_convoi(convoi_t *c)
 {
 	if(c!=cnv) {
 		DBG_MESSAGE("rail_vehicle_t::set_convoi()","new=%p old=%p",c,cnv);
-		if(ist_erstes) {
+		if(leading) {
 			if(cnv!=NULL  &&  cnv!=(convoi_t *)1) {
 				// free route from old convoi
 
@@ -3431,7 +3431,7 @@ void rail_vehicle_t::set_convoi(convoi_t *c)
 // need to reset halt reservation (if there was one)
 route_t::route_result_t rail_vehicle_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route)
 {
-	if(ist_letztes && route_index < cnv->get_route()->get_count())
+	if(last && route_index < cnv->get_route()->get_count())
 	{
 		// free all reserved blocks
 		uint16 dummy;
@@ -3885,7 +3885,7 @@ bool rail_vehicle_t::is_weg_frei_signal( uint16 next_block, int &restart_speed )
 
 bool rail_vehicle_t::ist_weg_frei(const grund_t *gr, int & restart_speed, bool)
 {
-	assert(ist_erstes);
+	assert(leading);
 	uint16 next_signal = INVALID_INDEX;
 	const linieneintrag_t destination = cnv->get_schedule()->get_current_eintrag();
 	bool destination_is_nonreversing_waypoint = !destination.reverse && !haltestelle_t::get_halt(destination.pos, get_owner()).is_bound() && (!welt->lookup(destination.pos) || !welt->lookup(destination.pos)->get_depot());
@@ -4548,7 +4548,7 @@ void rail_vehicle_t::leave_tile()
 	schiene_t *sch0 = (schiene_t *) get_weg();
 	vehicle_t::leave_tile();
 	// fix counters
-	if(ist_letztes) // Last vehicle
+	if(last) // Last vehicle
 	{
 		if(gr) 
 		{
@@ -4694,7 +4694,7 @@ void rail_vehicle_t::enter_tile(grund_t* gr)
 		// way statistics
 		const int cargo = get_fracht_menge();
 		sch0->book(cargo, WAY_STAT_GOODS);
-		if(ist_erstes) {
+		if(leading) {
 			sch0->book(1, WAY_STAT_CONVOIS);
 			if(cnv->get_state() != convoi_t::REVERSING)
 			{
@@ -4777,7 +4777,7 @@ void water_vehicle_t::enter_tile(grund_t* gr)
 	if(  weg_t *ch = gr->get_weg(water_wt)  ) {
 		// we are in a channel, so book statistics
 		ch->book(get_fracht_menge(), WAY_STAT_GOODS);
-		if (ist_erstes)  {
+		if (leading)  {
 			ch->book(1, WAY_STAT_CONVOIS);
 		}
 	}
@@ -4848,7 +4848,7 @@ bool water_vehicle_t::ist_weg_frei(const grund_t *gr, int &restart_speed, bool)
 {
 	restart_speed = -1;
 
-	if(ist_erstes)
+	if(leading)
 	{
 		assert(gr);
 
@@ -5172,7 +5172,7 @@ DBG_MESSAGE("aircraft_t::find_route_to_stop_position()","found no route to free 
 // must also take care of stops under traveling and the like
 route_t::route_result_t aircraft_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route)
 {
-	if(ist_erstes) {
+	if(leading) {
 		// free target reservation
 		if(  target_halt.is_bound() ) {
 			if (grund_t* const target = welt->lookup(cnv->get_route()->back())) {
@@ -5788,7 +5788,7 @@ void aircraft_t::enter_tile(grund_t* gr)
 		if(w) {
 			const int cargo = get_fracht_menge();
 			w->book(cargo, WAY_STAT_GOODS);
-			if (ist_erstes) {
+			if (leading) {
 				w->book(1, WAY_STAT_CONVOIS);
 			}
 		}
@@ -5860,7 +5860,7 @@ void
 aircraft_t::set_convoi(convoi_t *c)
 {
 	DBG_MESSAGE("aircraft_t::set_convoi()","%p",c);
-	if(ist_erstes  &&  (unsigned long)cnv > 1) {
+	if(leading  &&  (unsigned long)cnv > 1) {
 		// free stop reservation
 		route_t const& r = *cnv->get_route();
 		if(target_halt.is_bound()) {
@@ -5881,7 +5881,7 @@ aircraft_t::set_convoi(convoi_t *c)
 	if(c!=NULL) {
 		bool target=(bool)cnv;
 		vehicle_t::set_convoi(c);
-		if(ist_erstes) {
+		if(leading) {
 			if(target) {
 				// reinitialize the target halt
 				grund_t* const target=welt->lookup(cnv->get_route()->back());
