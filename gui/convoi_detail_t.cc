@@ -347,7 +347,7 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 			// age
 			buf.clear();
 			{
-				const sint32 month = v->get_insta_zeit();
+				const sint32 month = v->get_purchase_time();
 				buf.printf( "%s %s %i", translator::translate("Manufactured:"), translator::get_month_name(month%12), month/12 );
 			}
 			display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, buf, ALIGN_LEFT, COL_BLACK, true );

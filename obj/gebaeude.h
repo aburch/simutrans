@@ -48,7 +48,7 @@ private:
 	 * "Time at that was built the building" (Babelfish)
 	 * @author Hj. Malthaner
 	 */
-	sint64 insta_zeit;
+	sint64 purchase_time;
 
 	/**
 	 * Time control for animation progress.

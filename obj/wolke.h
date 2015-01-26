@@ -17,7 +17,7 @@ class wolke_t : public obj_no_info_t, public sync_steppable
 private:
 	static vector_tpl<const skin_besch_t *>all_clouds;
 
-	uint16 insta_zeit;	// clouds vanish when insta_zeit>2500 => maximum 5 images ...
+	uint16 purchase_time;	// clouds vanish when purchase_time>2500 => maximum 5 images ...
 	sint8 base_y_off;
 	sint8 cloud_nr;
 

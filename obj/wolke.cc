@@ -45,7 +45,7 @@ wolke_t::wolke_t(koord3d pos, sint8 x_off, sint8 y_off, const skin_besch_t* besc
 	base_y_off = clamp( (sint16)y_off - 8, -128, 127 );
 	set_xoff( x_off );
 	set_yoff( base_y_off );
-	insta_zeit = 0;
+	purchase_time = 0;
 }
 
 
@@ -53,7 +53,7 @@ wolke_t::wolke_t(koord3d pos, sint8 x_off, sint8 y_off, const skin_besch_t* besc
 wolke_t::~wolke_t()
 {
 	mark_image_dirty( get_bild(), 0 );
-	if(  insta_zeit != 2499  ) {
+	if(  purchase_time != 2499  ) {
 		if(  !welt->sync_way_eyecandy_remove( this )  ) {
 			dbg->error( "wolke_t::~wolke_t()", "wolke not in the correct sync list" );
 		}
@@ -75,7 +75,7 @@ wolke_t::wolke_t(loadsave_t* const file) :
 image_id wolke_t::get_bild() const
 {
 	const skin_besch_t *besch = all_clouds[cloud_nr];
-	return besch->get_bild_nr( (insta_zeit*besch->get_bild_anzahl())/2500 );
+	return besch->get_bild_nr( (purchase_time*besch->get_bild_anzahl())/2500 );
 }
 
 
@@ -88,7 +88,7 @@ void wolke_t::rdwr(loadsave_t *file)
 	obj_t::rdwr( file );
 
 	cloud_nr = 0;
-	insta_zeit = 0;
+	purchase_time = 0;
 
 	uint32 ldummy = 0;
 	file->rdwr_long(ldummy);
@@ -105,14 +105,14 @@ void wolke_t::rdwr(loadsave_t *file)
 
 bool wolke_t::sync_step(long delta_t)
 {
-	insta_zeit += (uint16)delta_t;
-	if(insta_zeit>=2499) {
+	purchase_time += (uint16)delta_t;
+	if(purchase_time>=2499) {
 		// delete wolke ...
-		insta_zeit = 2499;
+		purchase_time = 2499;
 		return false;
 	}
 	// move cloud up
-	sint8 ymove = ((insta_zeit*OBJECT_OFFSET_STEPS) >> 12);
+	sint8 ymove = ((purchase_time*OBJECT_OFFSET_STEPS) >> 12);
 	if(  base_y_off-ymove!=get_yoff()  ) {
 		// move/change cloud ... (happens much more often than image change => image change will be always done when drawing)
 		if(!get_flag(obj_t::dirty)) {
@@ -133,7 +133,7 @@ void wolke_t::rotate90()
 	obj_t::rotate90();
 	// .. and recalc smoke offsets
 	base_y_off = clamp( (sint16)get_yoff()-8, -128, 127 );
-	set_yoff( base_y_off - ((insta_zeit*OBJECT_OFFSET_STEPS) >> 12) );
+	set_yoff( base_y_off - ((purchase_time*OBJECT_OFFSET_STEPS) >> 12) );
 }
 
 /***************************** just for compatibility, the old raucher and smoke clouds *********************************/

@@ -1279,7 +1279,7 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 
 				// check for empty vehicles (likely stucked) that are making no plus and remove them ...
 				// take care, that the vehicle is old enough ...
-				if (!delete_this && (welt->get_current_month() - cnv->front()->get_insta_zeit()) > 6 && gewinn <= 0) {
+				if (!delete_this && (welt->get_current_month() - cnv->front()->get_purchase_time()) > 6 && gewinn <= 0) {
 					sint64 goods=0;
 					// no goods for six months?
 					for( int i=0;  i<6;  i ++) {

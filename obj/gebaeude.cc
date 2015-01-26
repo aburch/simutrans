@@ -382,9 +382,9 @@ void gebaeude_t::rotate90()
 		if(  haus_besch->get_b(layout) > new_offset.x  &&  haus_besch->get_h(layout) > new_offset.y  ) {
 			const haus_tile_besch_t* const new_tile = haus_besch->get_tile(layout, new_offset.x, new_offset.y);
 			// add new tile: but make them old (no construction)
-			sint64 old_insta_zeit = insta_zeit;
+			sint64 old_purchase_time = purchase_time;
 			set_tile( new_tile, false  );
-			insta_zeit = old_insta_zeit;
+			purchase_time = old_purchase_time;
 			if(  haus_besch->get_utyp() != haus_besch_t::hafen  &&  !tile->has_image()  ) {
 				// may have a rotation, that is not recoverable
 				if(  !is_factory  &&  new_offset!=koord(0,0)  ) {
@@ -458,7 +458,7 @@ void gebaeude_t::set_stadt(stadt_t *s)
 /* make this building without construction */
 void gebaeude_t::add_alter(sint64 a)
 {
-	insta_zeit -= min(a,insta_zeit);
+	purchase_time -= min(a,purchase_time);
 }
 
 
@@ -466,7 +466,7 @@ void gebaeude_t::add_alter(sint64 a)
 
 void gebaeude_t::set_tile( const haus_tile_besch_t *new_tile, bool start_with_construction )
 {
-	insta_zeit = welt->get_zeit_ms();
+	purchase_time = welt->get_zeit_ms();
 
 	if(!zeige_baugrube  &&  tile!=NULL) {
 		// mark old tile dirty
@@ -515,16 +515,16 @@ void gebaeude_t::set_tile( const haus_tile_besch_t *new_tile, bool start_with_co
  */
 bool gebaeude_t::sync_step(long delta_t)
 {
-	if(insta_zeit > welt->get_zeit_ms())
+	if(purchase_time > welt->get_zeit_ms())
 	{
 		// There were some integer overflow issues with 
 		// this when some intermediate values were uint32.
-		insta_zeit = welt->get_zeit_ms() - 5000ll;
+		purchase_time = welt->get_zeit_ms() - 5000ll;
 	}
 
 	if(zeige_baugrube) {
 		// still under construction?
-		if(welt->get_zeit_ms() - insta_zeit > 5000ll) {
+		if(welt->get_zeit_ms() - purchase_time > 5000ll) {
 			set_flag(obj_t::dirty);
 			mark_image_dirty(get_bild(), 0);
 			zeige_baugrube = false;
@@ -1072,13 +1072,13 @@ void gebaeude_t::rdwr(loadsave_t *file)
 	file->rdwr_short(idx);
 	if(file->get_experimental_version() <= 1)
 	{
-		uint32 old_insta_zeit = (uint32)insta_zeit;
-		file->rdwr_long(old_insta_zeit);
-		insta_zeit = old_insta_zeit;
+		uint32 old_purchase_time = (uint32)purchase_time;
+		file->rdwr_long(old_purchase_time);
+		purchase_time = old_purchase_time;
 	}
 	else
 	{
-		file->rdwr_longlong(insta_zeit);
+		file->rdwr_longlong(purchase_time);
 	}
 
 	if(file->get_experimental_version() >= 12)

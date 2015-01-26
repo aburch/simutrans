@@ -1236,7 +1236,7 @@ vehicle_t::vehicle_t(koord3d pos, const vehikel_besch_t* besch, player_t* player
 	this->besch = besch;
 
 	set_owner( player );
-	insta_zeit = welt->get_current_month();
+	purchase_time = welt->get_current_month();
 	cnv = NULL;
 	speed_limit = speed_unlimited();
 
@@ -2101,7 +2101,7 @@ void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 		// parameter werden in der deklarierten reihenfolge gespeichert
 		// "Parameters are declared in the order saved" (Translated by Google)
 		sint32 l;
-		file->rdwr_long(insta_zeit);
+		file->rdwr_long(purchase_time);
 		file->rdwr_long(l);
 		dx = (sint8)l;
 		file->rdwr_long(l);
@@ -2114,12 +2114,12 @@ void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 		file->rdwr_long(fracht_count);
 		file->rdwr_long(l);
 		route_index = (uint16)l;
-		insta_zeit = (insta_zeit >> welt->ticks_per_world_month_shift) + welt->get_settings().get_starting_year();
-DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(insta_zeit%12)+1,insta_zeit/12);
+		purchase_time = (purchase_time >> welt->ticks_per_world_month_shift) + welt->get_settings().get_starting_year();
+DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(purchase_time%12)+1,purchase_time/12);
 	}
 	else {
 		// prissi: changed several data types to save runtime memory
-		file->rdwr_long(insta_zeit);
+		file->rdwr_long(purchase_time);
 		if(file->get_version()<99018) {
 			file->rdwr_byte(dx);
 			file->rdwr_byte(dy);
@@ -2385,7 +2385,7 @@ uint32 vehicle_t::calc_restwert() const
 	// after 20 years, it has only half value
 	// Multiply by .997**number of months
 	// Make sure to use OUR version of pow().
-	float32e8_t age_in_months = welt->get_current_month() - get_insta_zeit();
+	float32e8_t age_in_months = welt->get_current_month() - get_purchase_time();
 	static const float32e8_t base_of_exponent(997, 1000);
 	value *= pow(base_of_exponent, age_in_months);
 

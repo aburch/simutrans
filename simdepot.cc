@@ -339,7 +339,7 @@ vehicle_t* depot_t::find_oldest_newest(const vehikel_besch_t* besch, bool old, v
 		{
 			// joy of XOR, finally a line where I could use it!
 			if(avoid == NULL || (!avoid->is_contained(veh) && (found_veh == NULL ||
-					old ^ (found_veh->get_insta_zeit() > veh->get_insta_zeit())))) // Used when replacing to avoid specifying the same vehicle twice
+					old ^ (found_veh->get_purchase_time() > veh->get_purchase_time())))) // Used when replacing to avoid specifying the same vehicle twice
 			{
 				found_veh = veh;
 			}
@@ -761,7 +761,7 @@ vehicle_t* depot_t::get_oldest_vehicle(const vehikel_besch_t* besch)
 	FOR(slist_tpl<vehicle_t*>, const veh, get_vehicle_list()) {
 		if (veh->get_besch() == besch) {
 			if (oldest_veh == NULL ||
-					oldest_veh->get_insta_zeit() > veh->get_insta_zeit()) {
+					oldest_veh->get_purchase_time() > veh->get_purchase_time()) {
 				oldest_veh = veh;
 			}
 		}

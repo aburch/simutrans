@@ -240,7 +240,7 @@ private:
 	* Date of purchase in months
 	* @author Hj. Malthaner
 	*/
-	sint32 insta_zeit;
+	sint32 purchase_time;
 
 	/* For the more physical acceleration model friction is introduced
 	* frictionforce = gamma*speed*weight
@@ -381,7 +381,7 @@ public:
 	*/
 	virtual ribi_t::ribi get_ribi(const grund_t* gr) const { return gr->get_weg_ribi(get_waytype()); }
 
-	sint32 get_insta_zeit() const {return insta_zeit;}
+	sint32 get_purchase_time() const {return purchase_time;}
 
 	void darf_rauchen(bool yesno ) { rauchen = yesno;}
 
