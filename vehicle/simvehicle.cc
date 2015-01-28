@@ -3294,16 +3294,17 @@ rail_vehicle_t::rail_vehicle_tloadsave_t *file, bool is_leading, bool is_last) :
 #endif
 {
 	vehicle_t::rdwr_from_convoi(file);
-
-// TODO: Restore this when it is ready
 	
+	//TODO: Enable this
 //#ifdef SPECIAL_RESCUE_12_5
 //	if(file->get_experimental_version() >= 12 && file->is_saving())
 //#else
 //	if(file->get_experimental_version() >= 12)
 //#endif
 //	{
-//		file->rdwr_byte(working_method);
+//		uint8 wm = (uint8)working_method;
+//		file->rdwr_byte(wm);
+//		working_method = (working_method_t)wm; 
 //	}
 	working_method = drive_by_sight; // TODO: Remove this when the above code is enabled
 

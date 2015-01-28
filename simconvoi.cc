@@ -4351,7 +4351,7 @@ void convoi_t::rdwr(loadsave_t *file)
 		file->rdwr_short( next_reservation_index );
 	}
 
-	// TODO: Enable this
+//TODO: Enable this
 //#ifdef SPECIAL_RESCUE_12_5
 //	if(file->get_experimental_version() >= 12 && file->is_saving()) 
 //#else
