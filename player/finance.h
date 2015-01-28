@@ -435,7 +435,7 @@ public:
 
 	/**
 	 * Returns the finance history (distinguishable by type of transport) for player.
-	 * @param tt one of transport_type
+	 * @param wt one of transport_type
 	 * @param year 0 .. current year, 1 .. last year, etc
 	 * @param type one of accounting_type_vehicles
 	 * @author jk271
@@ -450,7 +450,7 @@ public:
 
 	/**
 	 * @returns maintenance
-	 * @param tt transport type (Truck, Ship Air, ...)
+	 * @param wt transport type (Truck, Ship Air, ...)
 	 */
 	sint32 get_maintenance(transport_type tt=TT_ALL) const { assert(tt<TT_MAX); return maintenance[tt]; }
 

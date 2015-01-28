@@ -1142,11 +1142,6 @@ const char *tool_restoreslope_t::check_pos( player_t *, koord3d pos)
 	return NULL;
 }
 
-/**
- * Create an articial slope
- * @param param the slope type
- * @author Hj. Malthaner
- */
 const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos, int new_slope )
 {
 	if(  !grund_besch_t::double_grounds  ) {
