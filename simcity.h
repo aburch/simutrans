@@ -43,6 +43,9 @@ enum city_cost {
 	MAX_CITY_HISTORY	// Total number of items in array
 };
 
+// The number of growth factors kept track of.
+static const uint32 GROWTH_FACTOR_NUMBER = 3;
+
 /**
  * Die Objecte der Klasse stadt_t bilden die Staedte in Simu. Sie
  * wachsen automatisch.
@@ -161,6 +164,7 @@ private:
 
 	/**
 	* City history
+	* Current month stats are not appropiate to determine satisfaction for growth.
 	* @author prissi
 	*/
 	sint64 city_history_year[MAX_CITY_HISTORY_YEARS][MAX_CITY_HISTORY];
@@ -170,6 +174,38 @@ private:
 	* @author prissi
 	*/
 	void roll_history();
+
+	/* Members used to determine satisfaction for growth rate.
+	 * Satisfaction of this month cannot be used as it is an averaging filter for the entire month up to the present.
+	 * Instead the average over a number of growth ticks is used, defaulting to last month average if nothing is available.
+	 * @author DrSuperGood
+	 */
+private:
+	 // The growth factor type in form of the amount demanded and what was received.
+	 struct city_growth_factor_t {
+		 // The wanted value.
+		 sint64 demand;
+		 // The received value.
+		 sint64 supplied;
+
+		 city_growth_factor_t() : demand(0), supplied(0){}
+	 };
+
+	 // The previous values of the growth factors. Used to get delta between ticks and must be saved for determinism.
+	 city_growth_factor_t city_growth_factor_previous[GROWTH_FACTOR_NUMBER];
+
+	 /* Method to compute base growth using growth factors.
+	  * Logs differences in growth factors as well.
+	  * rprec : The returned fractional precision (out of sint32).
+	  * cprec : The computation fractional precision (out of sint32).
+	  */
+	 sint32 city_growth_base(uint32 const rprec = 6, uint32 const cprec = 16);
+
+	 /* Method to roll previous growth factors at end of month, called before history rolls over.
+	  * Needed to prevent loss of data (not set to 0) and while keeping reasonable (no insane values).
+	  * month : The month index of what is now the "last month".
+	  */
+	 void city_growth_monthly(uint32 const month);
 
 public:
 	/**

@@ -58,8 +58,15 @@
 
 #define PACKET_SIZE (7)
 
-// since we use 32 bit per growth steps, we use this variable to take care of the remaining sub citizen growth
-#define CITYGROWTH_PER_CITICEN (0x0000000100000000ll)
+/**
+ * This variable is used to control the fractional precision of growth to prevent loss when quantities are small.
+ * Growth calculations use 64 bit signed integers.
+ * Although this is actually scale factor, a power of two is recommended for optimization purposes.
+ */
+static sint64 const CITYGROWTH_PER_CITICEN = 1ll << 32; // Q31.32 fractional form.
+
+#define GROWTHFACTOR_DEMAND(i) (HIST_PAS_GENERATED+(i)*2)
+#define GROWTHFACTOR_SUPPLIED(i) (HIST_PAS_TRANSPORTED+(i)*2)
 
 karte_ptr_t stadt_t::welt; // one is enough ...
 
@@ -506,7 +513,9 @@ class denkmal_platz_sucher_t : public platzsucher_t {
 			const planquadrat_t* plan = welt->access(pos + d);
 
 			// Hajo: can't build here
-			if (plan == NULL) return false;
+			if (plan == NULL) {
+				return false;
+			}
 
 			const grund_t* gr = plan->get_kartenboden();
 			if(  ((1 << welt->get_climate( gr->get_pos().get_2d() )) & cl) == 0  ) {
@@ -519,7 +528,8 @@ class denkmal_platz_sucher_t : public platzsucher_t {
 					gr->get_typ() == grund_t::boden &&           // Boden -> no building
 					(!gr->hat_wege() || gr->hat_weg(road_wt)) && // only roads
 					gr->kann_alle_obj_entfernen(NULL) == NULL;   // Irgendwas verbaut den Platz?
-			} else {
+			}
+			else {
 				return
 					gr->get_grund_hang() == hang_t::flach &&
 					gr->get_typ() == grund_t::boden &&
@@ -544,7 +554,9 @@ class rathausplatz_sucher_t : public platzsucher_t {
 		virtual bool ist_feld_ok(koord pos, koord d, climate_bits cl) const
 		{
 			const grund_t* gr = welt->lookup_kartenboden(pos + d);
-			if (gr == NULL  ||  gr->get_grund_hang() != hang_t::flach) return false;
+			if (gr == NULL  ||  gr->get_grund_hang() != hang_t::flach) {
+				return false;
+			}
 
 			if(  ((1 << welt->get_climate( gr->get_pos().get_2d() )) & cl) == 0  ) {
 				return false;
@@ -826,7 +838,8 @@ void stadt_t::factory_set_t::recalc_generation_ratio(const sint32 default_percen
 	if(  total_demand==0  ) {
 		// no demand -> zero ratio
 		generation_ratio = 0;
-	} else if (!welt->get_settings().get_factory_enforce_demand() || average_generated == 0) {
+	}
+	else if(  !welt->get_settings().get_factory_enforce_demand()  ||  average_generated == 0  ) {
 		// demand not enforced or no pax generation data from previous month(s) -> simply use default ratio
 		generation_ratio = (uint32)default_percent << RATIO_BITS;
 	}
@@ -838,9 +851,9 @@ void stadt_t::factory_set_t::recalc_generation_ratio(const sint32 default_percen
 	}
 
 	// adjust supply and remaining figures
-	if (welt->get_settings().get_factory_enforce_demand() && (generation_ratio >> RATIO_BITS) == (uint32)default_percent && average_generated > 0 && total_demand > 0) {
+	if(  welt->get_settings().get_factory_enforce_demand()  &&  (generation_ratio >> RATIO_BITS) == (uint32)default_percent && average_generated > 0 && total_demand > 0  ) {
 		const sint64 supply_promille = ( ( (average_generated << 10) * (sint64)default_percent ) / 100 ) / (sint64)target_supply;
-		if(  supply_promille<1024  ) {
+		if(  supply_promille < 1024  ) {
 			// expected supply is really smaller than target supply
 			FOR(vector_tpl<factory_entry_t>, & entry, entries) {
 				const sint32 new_supply = (sint32)( ( (sint64)entry.demand * SUPPLY_FACTOR * supply_promille + ((1<<(DEMAND_BITS+SUPPLY_BITS+10))-1) ) >> (DEMAND_BITS+SUPPLY_BITS+10) );
@@ -1206,6 +1219,24 @@ void stadt_t::rdwr(loadsave_t* file)
 		file->rdwr_long( stadtinfo_options);
 	}
 
+	if (file->get_version() > 120000) {
+		// load/save differential statistics.
+		for (uint32 i = 0; i < GROWTH_FACTOR_NUMBER; i++) {
+			file->rdwr_longlong( city_growth_factor_previous[i].demand );
+			file->rdwr_longlong( city_growth_factor_previous[i].supplied );
+		}
+	}
+	else if(file->is_loading()) {
+		// Initalize differential statistics assuming a differential of 0.
+		sint64 const (&h)[MAX_CITY_HISTORY] = city_history_month[0];
+		city_growth_factor_previous[0].demand = h[HIST_PAS_GENERATED];
+		city_growth_factor_previous[0].supplied = h[HIST_PAS_TRANSPORTED];
+		city_growth_factor_previous[1].demand = h[HIST_MAIL_GENERATED];
+		city_growth_factor_previous[1].supplied = h[HIST_MAIL_TRANSPORTED];
+		city_growth_factor_previous[2].demand = h[HIST_GOODS_NEEDED];
+		city_growth_factor_previous[2].supplied = h[HIST_GOODS_RECIEVED];
+	}
+
 	if(file->get_version()>99014  &&  file->get_version()<99016) {
 		sint32 dummy = 0;
 		file->rdwr_long(dummy);
@@ -1374,13 +1405,11 @@ void stadt_t::verbinde_fabriken()
 
 	FOR(slist_tpl<fabrik_t*>, const fab, welt->get_fab_list()) {
 		const uint32 count = fab->get_target_cities().get_count();
-		settings_t const& s = welt->get_settings();
-		if (count < s.get_factory_worker_maximum_towns() && koord_distance(fab->get_pos(), pos) < s.get_factory_worker_radius()) {
+		if(  count < welt->get_settings().get_factory_worker_maximum_towns()  &&  koord_distance(fab->get_pos(), pos) < welt->get_settings().get_factory_worker_radius()  ) {
 			fab->add_target_city(this);
 		}
 	}
-	DBG_MESSAGE("stadt_t::verbinde_fabriken()", "is connected with %i/%i factories (total demand=%i/%i) for pax/mail.",
-		target_factories_pax.get_entries().get_count(), target_factories_mail.get_entries().get_count(), target_factories_pax.total_demand, target_factories_mail.total_demand);
+	DBG_MESSAGE("stadt_t::verbinde_fabriken()", "is connected with %i/%i factories (total demand=%i/%i) for pax/mail.", target_factories_pax.get_entries().get_count(), target_factories_mail.get_entries().get_count(), target_factories_pax.total_demand, target_factories_mail.total_demand);
 }
 
 
@@ -1409,20 +1438,20 @@ void stadt_t::change_size( sint64 delta_citizen, bool new_town)
 
 void stadt_t::step(uint32 delta_t)
 {
-	settings_t const& s = welt->get_settings();
 	// recalculate factory going ratios where necessary
+	const sint16 factory_worker_percentage = welt->get_settings().get_factory_worker_percentage();
 	if(  target_factories_pax.ratio_stale  ) {
-		target_factories_pax.recalc_generation_ratio(s.get_factory_worker_percentage(), *city_history_month, MAX_CITY_HISTORY, HIST_PAS_GENERATED);
+		target_factories_pax.recalc_generation_ratio( factory_worker_percentage, *city_history_month, MAX_CITY_HISTORY, HIST_PAS_GENERATED);
 	}
 	if(  target_factories_mail.ratio_stale  ) {
-		target_factories_mail.recalc_generation_ratio(s.get_factory_worker_percentage(), *city_history_month, MAX_CITY_HISTORY, HIST_MAIL_GENERATED);
+		target_factories_mail.recalc_generation_ratio( factory_worker_percentage, *city_history_month, MAX_CITY_HISTORY, HIST_MAIL_GENERATED);
 	}
 
 	// is it time for the next step?
 	next_step += delta_t;
 	next_growth_step += delta_t;
 
-	step_interval = (1 << 21U) / (buildings.get_count() * s.get_passenger_factor() + 1);
+	step_interval = (1 << 21U) / (buildings.get_count() * welt->get_settings().get_passenger_factor() + 1);
 	if (step_interval < 1) {
 		step_interval = 1;
 	}
@@ -1489,6 +1518,84 @@ void stadt_t::roll_history()
 
 }
 
+sint32 stadt_t::city_growth_base(uint32 const rprec, uint32 const cprec)
+{
+	// Resolve constant references.
+	settings_t const & s = welt->get_settings();
+	sint32 const weight[3] = { s.get_passenger_multiplier(), s.get_mail_multiplier(), s.get_goods_multiplier() };
+
+	sint32 acc = 0; // The weighted satisfaction accululator.
+	sint32 div = 0; // The weight dividend.
+	sint32 total = 0; // The total weight.
+
+
+	// Loop through each growth factor and compute it.
+	sint64 const (&h)[MAX_CITY_HISTORY] = city_history_month[0];
+	for( uint32 i = 0; i < GROWTH_FACTOR_NUMBER; i += 1 ) {
+		// Resolve the weight.
+		total += weight[i];
+
+		// Compute the differentials.
+		sint64 const had = h[GROWTHFACTOR_DEMAND(i)] - city_growth_factor_previous[i].demand;
+		city_growth_factor_previous[i].demand = h[GROWTHFACTOR_DEMAND(i)];
+		sint64 const got = h[GROWTHFACTOR_SUPPLIED(i)] - city_growth_factor_previous[i].supplied;
+		city_growth_factor_previous[i].supplied = h[GROWTHFACTOR_SUPPLIED(i)];
+
+		// If we had anything to satisfy add it to weighting otherwise skip.
+		if( had == 0 ) {
+			continue;
+		}
+
+		// Compute fractional satisfaction. Limit to 1 for logical reasons.
+		sint32 const frac = had > got ? (sint32)((got << cprec) / had) : (sint32)1 << cprec;
+
+		// Add to weight and div.
+		acc += frac * weight[i];
+		div += weight[i];
+	}
+
+	// If there was not anything to satisfy then use last month averages.
+	if( div == 0 ) {
+		sint64 const (&prev_h)[MAX_CITY_HISTORY] = city_history_month[1];
+		for( uint32 i = 0; i < GROWTH_FACTOR_NUMBER; i += 1 ){
+
+			// Extract the values of growth.
+			sint64 const had = prev_h[GROWTHFACTOR_DEMAND(i)];
+			sint64 const got = prev_h[GROWTHFACTOR_SUPPLIED(i)];
+
+			// If we had anything to satisfy add it to weighting otherwise skip.
+			if( had == 0 ) {
+				continue;
+			}
+
+			// Compute fractional satisfaction. Limit to 1 for logical reasons.
+			sint32 const frac = had > got ? (sint32)((got << cprec) / had) : (sint32)1 << cprec;
+
+			// Add to weight and div.
+			acc += frac * weight[i];
+			div += weight[i];
+		}
+	}
+
+	// Return computed result. If still no demand then assume no growth to prevent self-growing new hamlets.
+	return div != 0 ? (total * (acc / div)) >> (cprec - rprec) : 0;
+}
+
+
+void stadt_t::city_growth_monthly(uint32 const month)
+{
+	// Resolve history as constant for convenience.
+	sint64 const (&h)[MAX_CITY_HISTORY] = city_history_month[month];
+	// Perform roll over.
+	for( uint32 i = 0; i < GROWTH_FACTOR_NUMBER; i += 1 ){
+		// Compute the differentials.
+		sint64 const had = h[GROWTHFACTOR_DEMAND(i)] - city_growth_factor_previous[i].demand;
+		city_growth_factor_previous[i].demand = -had;
+		sint64 const got = h[GROWTHFACTOR_SUPPLIED(i)] - city_growth_factor_previous[i].supplied;
+		city_growth_factor_previous[i].supplied = -got;
+	}
+}
+
 
 void stadt_t::neuer_monat( bool recalc_destinations )
 {
@@ -1496,12 +1603,15 @@ void stadt_t::neuer_monat( bool recalc_destinations )
 	pax_destinations_new.clear();
 	pax_destinations_new_change = 0;
 
+	city_growth_monthly(0);
 	roll_history();
 	target_factories_pax.new_month();
 	target_factories_mail.new_month();
-	settings_t const& s = welt->get_settings();
-	target_factories_pax.recalc_generation_ratio( s.get_factory_worker_percentage(), *city_history_month, MAX_CITY_HISTORY, HIST_PAS_GENERATED);
-	target_factories_mail.recalc_generation_ratio(s.get_factory_worker_percentage(), *city_history_month, MAX_CITY_HISTORY, HIST_MAIL_GENERATED);
+
+	const sint16 factory_worker_percentage = welt->get_settings().get_factory_worker_percentage();
+//	settings_t const& s = welt->get_settings();
+	target_factories_pax.recalc_generation_ratio( factory_worker_percentage, *city_history_month, MAX_CITY_HISTORY, HIST_PAS_GENERATED);
+	target_factories_mail.recalc_generation_ratio( factory_worker_percentage, *city_history_month, MAX_CITY_HISTORY, HIST_MAIL_GENERATED);
 	recalc_target_cities();
 
 	// center has moved => change attraction weights
@@ -1510,7 +1620,7 @@ void stadt_t::neuer_monat( bool recalc_destinations )
 		recalc_target_attractions();
 	}
 
-	if (!private_car_t::list_empty()  &&  s.get_verkehr_level()>0) {
+	if(  !private_car_t::list_empty()  &&  welt->get_settings().get_verkehr_level() > 0  ) {
 		// spawn eventual citycars
 		// the more transported, the less are spawned
 		// the larger the city, the more spawned ...
@@ -1527,6 +1637,7 @@ void stadt_t::neuer_monat( bool recalc_destinations )
 
 		// placeholder for fractions
 #		define decl_stat(name, i0, i1) sint64 name##_stat[2]; name##_stat[0] = city_history_month[1][i0];  name##_stat[1] = city_history_month[1][i1]+1;
+
 		// defines and initializes local sint64[2] arrays
 		decl_stat(pax, HIST_PAS_TRANSPORTED, HIST_PAS_GENERATED);
 		decl_stat(mail, HIST_MAIL_TRANSPORTED, HIST_MAIL_GENERATED);
@@ -1540,7 +1651,7 @@ void stadt_t::neuer_monat( bool recalc_destinations )
 		uint32 factor = (uint32)( comp_stats(pax_stat, mail_stat) ? (comp_stats(good_stat, pax_stat) ? comp_factor(good_stat) : comp_factor(pax_stat)) : comp_factor(mail_stat) );
 		factor = log10(factor);
 
-		uint16 number_of_cars = simrand( factor * s.get_verkehr_level() ) / 16;
+		uint16 number_of_cars = simrand( factor * welt->get_settings().get_verkehr_level() ) / 16;
 
 		city_history_month[0][HIST_CITYCARS] = number_of_cars;
 		city_history_year[0][HIST_CITYCARS] += number_of_cars;
@@ -1554,7 +1665,7 @@ void stadt_t::neuer_monat( bool recalc_destinations )
 				}
 
 				grund_t* gr = welt->lookup_kartenboden(k);
-				if (gr != NULL && gr->get_weg(road_wt) && ribi_t::is_twoway(gr->get_weg_ribi_unmasked(road_wt)) && gr->find<private_car_t>() == NULL) {
+				if(  gr != NULL  &&  gr->get_weg(road_wt)  &&  ribi_t::is_twoway(gr->get_weg_ribi_unmasked(road_wt))  &&  gr->find<private_car_t>() == NULL) {
 					private_car_t* vt = new private_car_t(gr, koord::invalid);
 					gr->obj_add(vt);
 					welt->sync_add(vt);
@@ -1562,6 +1673,11 @@ void stadt_t::neuer_monat( bool recalc_destinations )
 				}
 			}
 		}
+
+		// correct statistics for ungenerated cars
+		city_history_month[0][HIST_CITYCARS] -= number_of_cars;
+		city_history_year[0][HIST_CITYCARS] -= number_of_cars;
+
 	}
 }
 
@@ -1592,36 +1708,32 @@ void stadt_t::calc_growth()
 		return;
 	}
 
-	/* four parts contribute to town growth:
-	 * passenger transport 40%, mail 20%, goods (30%), and electricity (10%)
-	 */
-	sint64     const(& h)[MAX_CITY_HISTORY] = city_history_month[0];
-	settings_t const&  s           = welt->get_settings();
-	sint32     const   pas         = (sint32)( (h[HIST_PAS_TRANSPORTED]  * (s.get_passenger_multiplier() << 6)) / (h[HIST_PAS_GENERATED]  + 1) );
-	sint32     const   mail        = (sint32)( (h[HIST_MAIL_TRANSPORTED] * (s.get_mail_multiplier()      << 6)) / (h[HIST_MAIL_GENERATED] + 1) );
-	sint32     const   electricity = 0;
-	sint32     const   goods       = (sint32)( h[HIST_GOODS_NEEDED] == 0 ? 0 : (h[HIST_GOODS_RECIEVED] * (s.get_goods_multiplier() << 6)) / (h[HIST_GOODS_NEEDED]) );
-	sint32     const   total_supply_percentage = pas + mail + electricity + goods;
-	// By construction, this is a percentage times 2^6.
+	// Compute base growth.
+	sint32 const total_supply_percentage = city_growth_base();
+
+	// By construction, this is a percentage times 2^6 (Q25.6).
+	// Although intended to be out of 100, it can be more or less.
 	// We will divide it by 2^4=16 for traditional reasons, which means
 	// it generates 2^2 (=4) or fewer people at 100%.
 
-	// smaller towns should growth slower to have villages for a longer time
+	// smaller towns should grow slower to have villages for a longer time
 	sint32 const weight_factor =
-		bev <  1000 ? s.get_growthfactor_small()  :
-		bev < 10000 ? s.get_growthfactor_medium() :
-		s.get_growthfactor_large();
+		bev <  1000 ? welt->get_settings().get_growthfactor_small()  :
+		bev < 10000 ? welt->get_settings().get_growthfactor_medium() :
+		welt->get_settings().get_growthfactor_large();
 
-	// now give the growth for this step
+	// now compute the growth for this step
 	sint32 growth_factor = weight_factor > 0 ? total_supply_percentage / weight_factor : 0;
 
+	// Scale up growth to have a larger fractional component. This allows small growth units to accumulate in the case of long months.
 	sint64 new_unsupplied_city_growth = growth_factor * (CITYGROWTH_PER_CITICEN / 16);
 
-	// OK.  Now we must adjust for the steps per month.
-	// Cities were growing way too fast without this adjustment.
+	// Growth is scaled down by month length.
+	// The result is that ~ the same monthly growth will occur independent of month length.
 	new_unsupplied_city_growth = welt->inverse_scale_with_month_length( new_unsupplied_city_growth );
 
-	// on may add another multiplier here for further slowdown/speed up
+	// Add the computed growth to the growth accumulator.
+	// Future growth scale factors can be applied here.
 	unsupplied_city_growth += new_unsupplied_city_growth;
 }
 
@@ -1681,7 +1793,7 @@ void stadt_t::step_passagiere()
 			(gb->get_tile()->get_besch()->get_post_level() + 8) >> 3 ;
 
 	// create pedestrians in the near area?
-	if (welt->get_settings().get_random_pedestrians() && wtyp == warenbauer_t::passagiere) {
+	if (welt->get_settings().get_random_pedestrians()  &&  wtyp == warenbauer_t::passagiere) {
 		haltestelle_t::generate_pedestrians(gb->get_pos(), num_pax);
 	}
 
@@ -1934,7 +2046,7 @@ koord stadt_t::find_destination(factory_set_t &target_factories, const sint64 ge
 
 	const sint16 rand = simrand(100 - (target_factories.generation_ratio >> RATIO_BITS));
 
-	if(  rand<welt->get_settings().get_tourist_percentage()  &&  target_attractions.get_sum_weight()>0  ) {
+	if(  rand < welt->get_settings().get_tourist_percentage()  &&  target_attractions.get_sum_weight() > 0  ) {
 		*will_return = tourist_return;	// tourists will return
 		return pick_any_weighted( target_attractions )->get_pos().get_2d();
 	}
@@ -2364,10 +2476,10 @@ void stadt_t::check_bau_rathaus(bool new_town)
 void stadt_t::check_bau_factory(bool new_town)
 {
 	uint32 const inc = welt->get_settings().get_industry_increase_every();
-	if (!new_town && inc > 0 && bev % inc == 0) {
+	if(  !new_town && inc > 0  &&  bev % inc == 0  ) {
 		uint32 const div = bev / inc;
-		for (uint8 i = 0; i < 8; i++) {
-			if (div==(1u<<i)) {
+		for( uint8 i = 0; i < 8; i++  ) {
+			if(  div == (1u<<i)  ) {
 				DBG_MESSAGE("stadt_t::check_bau_factory", "adding new industry at %i inhabitants.", get_einwohner());
 				fabrikbauer_t::increase_industry_density( true );
 			}
@@ -2429,6 +2541,29 @@ static koord const neighbors[] = {
 
 // return layout
 static int const building_layout[] = { 0, 0, 1, 4, 2, 0, 5, 1, 3, 7, 1, 0, 6, 3, 2, 0 };
+
+
+
+bool process_city_street(grund_t& gr, const weg_besch_t* cr)
+{
+	weg_t* const weg = gr.get_weg(road_wt);
+	if(  weg == NULL  ) {
+		return false;
+	}
+	// Check if any changes are needed.
+	if(  !weg->hat_gehweg() || weg->get_besch() != cr ){
+		player_t *sp = weg->get_owner();
+		if( sp != NULL ){
+			player_t::add_maintenance(sp, -weg->get_besch()->get_wartung(), road_wt);
+			weg->set_owner(NULL); // make public
+		}
+		weg->set_gehweg(true);
+		weg->set_besch(cr);
+		gr.calc_bild();
+		reliefkarte_t::get_karte()->calc_map_pixel(gr.get_pos().get_2d());
+	}
+	return true;
+}
 
 
 void stadt_t::build_city_building(const koord k)
@@ -2542,26 +2677,8 @@ void stadt_t::build_city_building(const koord k)
 		for(  int i = 0;  i < 8;  i++  ) {
 			// Neighbors goes through these in 'preferred' order, orthogonal first
 			gr = welt->lookup_kartenboden(k + neighbors[i]);
-			if(  gr  &&  gr->get_weg_hang() == gr->get_grund_hang()  ) {
-				strasse_t* weg = (strasse_t*)gr->get_weg(road_wt);
-				if(  weg != NULL  ) {
-					if(  i < 4  ) {
-						// update directions (SENW)
-						streetdir += (1 << i);
-					}
-					weg->set_gehweg(true);
-					// if not current city road standard, then replace it
-					if(  weg->get_besch() != welt->get_city_road()  ||  weg->get_owner() != NULL  ) {
-						player_t *player = weg->get_owner();
-						if(  !gr->get_depot()  ) {
-							player_t::add_maintenance( player, -weg->get_besch()->get_wartung(), road_wt);
-							weg->set_owner(NULL); // make public
-							weg->set_besch(welt->get_city_road());
-						}
-					}
-					gr->calc_bild();
-					reliefkarte_t::get_karte()->calc_map_pixel(gr->get_pos().get_2d());
-				}
+			if( gr && gr->get_weg_hang() == gr->get_grund_hang() && process_city_street(*gr, welt->get_city_road()) && i < 4 ){
+				streetdir += (1 << i);
 			}
 		}
 		// TO DO: fix building orientation here, to improve terraced building appearance.
@@ -2675,24 +2792,8 @@ void stadt_t::renovate_city_building(gebaeude_t *gb)
 			// orthogonal first, then diagonal
 			grund_t* gr = welt->lookup_kartenboden(k + neighbors[i]);
 			if(  gr != NULL  &&  gr->get_weg_hang() == gr->get_grund_hang()  ) {
-				if(  weg_t* const weg = gr->get_weg(road_wt)  ) {
-					if(  i < 4  ) {
-						// update directions (SENW)
-						streetdir += (1 << i);
-					}
-					weg->set_gehweg(true);
-					// if not current city road standard, then replace it
-					if(  weg->get_besch() != welt->get_city_road()  ) {
-						player_t *player = weg->get_owner();
-						if(  player == NULL  ||  !gr->get_depot()  ) {
-							player_t::add_maintenance( player, -weg->get_besch()->get_wartung(), road_wt);
-
-							weg->set_owner(NULL); // make public
-							weg->set_besch(welt->get_city_road());
-						}
-					}
-					gr->calc_bild();
-					reliefkarte_t::get_karte()->calc_map_pixel(gr->get_pos().get_2d());
+				if( process_city_street(*gr, welt->get_city_road()) && i < 4 ){
+					streetdir += (1 << i);
 				}
 				else if(  gr->get_typ() == grund_t::fundament  ) {
 					// do not renovate, if the identical building is already in a neighbour tile
@@ -2711,7 +2812,6 @@ void stadt_t::renovate_city_building(gebaeude_t *gb)
 			case gebaeude_t::industrie: arb -= level * 20; break;
 			default: break;
 		}
-
 		// exchange building; try to face it to street in front
 		gb->mark_images_dirty();
 		gb->set_tile( h->get_tile(building_layout[streetdir], 0, 0), true );
