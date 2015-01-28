@@ -231,6 +231,20 @@ public:
 	}
 
 	/**
+	 * Adds way renewal into/from finance stats (booked as a one off payment of infrastructure maintenance)
+	 * @param renewal cost
+	 * @param wt - waytype for accounting purposes
+	 */
+	inline void book_way_renewal(const sint64 amount, const waytype_t wt)
+	{
+		transport_type tt = translate_waytype_to_tt(wt);
+		veh_year[tt][0][ATV_INFRASTRUCTURE_MAINTENANCE] += amount;
+		veh_month[tt][0][ATV_INFRASTRUCTURE_MAINTENANCE] += amount;
+
+		account_balance += amount;
+	}
+
+	/**
 	 * Account purchase of new vehicle: Subtracts money, increases assets.
 	 * @param amount money paid for vehicle
 	 * @param wt - waytype of vehicle

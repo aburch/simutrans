@@ -187,13 +187,13 @@ public:
 	void book_vehicle_maintenance(const sint64 amount, const waytype_t wt=ignore_wt);
 
 	/**
-	 * Adds way maintenance to accounting statistics. 
-	 * NOTE: This is used only for way renewals as general maintenance is handled differently.
+	 * Adds way renewals to accounting statistics. 
 	 * @param amount (should be negative, will be adjusted for bits_per_month)
 	 * @param wt type of transport for accounting
 	 * @author jamespetts
 	 */
-	void book_way_maintenance(const sint64 amount, const waytype_t wt=ignore_wt);
+
+	void book_way_renewal(const sint64 amount, const waytype_t wt = ignore_wt);
 
 	/**
 	 * Books toll paid by our company to someone else.

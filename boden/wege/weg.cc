@@ -1024,7 +1024,7 @@ bool weg_t::renew()
 		success = true;
 		if(player)
 		{
-			player->book_way_maintenance(price, replacement_way->get_waytype());
+			player->book_way_renewal(price, replacement_way->get_waytype());
 		}
 	}
 	else if(player && !player->get_has_been_warned_about_no_money_for_renewals())
