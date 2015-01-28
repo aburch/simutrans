@@ -402,7 +402,7 @@ public:
 		tool_selector = NULL;
 	}
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate(default_param); }
-	tool_selector_t *get_tool_waehler() const { return tool_selector; }
+	tool_selector_t *get_tool_selector() const { return tool_selector; }
 	image_id get_icon(player_t*) const OVERRIDE;
 	bool is_selected() const OVERRIDE;
 	bool is_init_network_save() const OVERRIDE { return true; }

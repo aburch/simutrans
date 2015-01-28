@@ -1,5 +1,5 @@
-/*
- * Copyright (c) 1997 - 2002 Hansjörg Malthaner
+ï»¿/*
+ * Copyright (c) 1997 - 2002 Hansjï¿½rg Malthaner
  *
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
@@ -89,21 +89,21 @@ help_frame_t::help_frame_t(char const* const filename) :
 	bool special = false;
 	add_helpfile( toolbars, NULL, "mainmenu.txt", false, 0 );
 	FOR( vector_tpl<toolbar_t *>, iter, tool_t::toolbar_tool ) {
-		if(  strstart(iter->get_tool_waehler()->get_help_filename(),"list.txt" )  ) {
+		if(  strstart(iter->get_tool_selector()->get_help_filename(),"list.txt" )  ) {
 			continue;
 		}
-		add_helpfile( toolbars, iter->get_tool_waehler()->get_name(), iter->get_tool_waehler()->get_help_filename(), false, 0 );
-		if(  strstart(iter->get_tool_waehler()->get_help_filename(),"railtools.txt" )  ) {
+		add_helpfile( toolbars, iter->get_tool_selector()->get_name(), iter->get_tool_selector()->get_help_filename(), false, 0 );
+		if(  strstart(iter->get_tool_selector()->get_help_filename(),"railtools.txt" )  ) {
 			add_helpfile( toolbars, NULL, "bridges.txt", true, 1 );
 			add_helpfile( toolbars, NULL, "signals.txt", true, 1 );
 			add_helpfile( toolbars, "set signal spacing", "signal_spacing.txt", false, 1 );
 		}
-		if(  strstart(iter->get_tool_waehler()->get_help_filename(),"roadtools.txt" )  ) {
+		if(  strstart(iter->get_tool_selector()->get_help_filename(),"roadtools.txt" )  ) {
 			add_helpfile( toolbars, NULL, "privatesign_info.txt", false, 1 );
 			add_helpfile( toolbars, NULL, "trafficlight_info.txt", false, 1 );
 		}
-		if(  !special  &&  (  strstart(iter->get_tool_waehler()->get_help_filename(),"special.txt" )
-							||  strstart(iter->get_tool_waehler()->get_help_filename(),"edittools.txt" )  )
+		if(  !special  &&  (  strstart(iter->get_tool_selector()->get_help_filename(),"special.txt" )
+							||  strstart(iter->get_tool_selector()->get_help_filename(),"edittools.txt" )  )
 			) {
 			special = true;
 			add_helpfile( toolbars, "baum builder", "baum_build.txt", false, 1 );
@@ -207,14 +207,41 @@ static const char *load_text(char const* const filename )
 	if(file) {
 		fseek(file,0,SEEK_END);
 		long len = ftell(file);
+		char *buf = NULL;
 		if(  len>0  ) {
-			char* const buf = MALLOCN(char, len + 1);
+			buf = MALLOCN(char, len + 1);
 			fseek( file, 0, SEEK_SET );
-			fread(  buf, 1, len, file);
+			len = fread(  buf, 1, len, file);
 			buf[len] = '\0';
 			fclose( file );
-			return buf;
 		}
+		// now we may need to translate the text ...
+		if(  len>0  && translator::get_lang()->utf_encoded  ) {
+			bool is_latin = strchr( buf, 0xF6 )!=NULL;	// "o-umlaut, is forbidden for unicode
+			if(  !is_latin  &&  translator::get_lang()->is_latin2_based  ) {
+				is_latin |= strchr( buf, 0xF8 )!=NULL;	// "o-umlaut, is forbidden for unicode
+			}
+			if(  is_latin  ) {
+				// we need to translate charwise ...
+				utf8 *buf2 = MALLOCN(utf8, len*2 + 1); //assume the worst
+				utf8 *src = (utf8 *)buf, *dest = buf2;
+				if(  translator::get_lang()->is_latin2_based  ) {
+					do {
+						dest += utf16_to_utf8( latin2_to_unicode(*src), dest );
+					} while(  *src++  );
+					*dest = 0;
+				}
+				else {
+					do {
+						dest += utf16_to_utf8( *src, dest );
+					} while(  *src++  );
+					*dest = 0;
+				}
+				guarded_free( buf );
+				buf = (char *)buf2;
+			}
+		}
+		return buf;
 	}
 
 	return NULL;

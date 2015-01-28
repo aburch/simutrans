@@ -46,7 +46,7 @@ void sprachengui_t::init_font_from_lang()
 	// Hajo: fallback if entry is missing
 	// -> use latin-1 font
 	if(prop_font_file == default_name) {
-		prop_font_file = "prop.fnt";
+		prop_font_file = "cyr.bdf";
 	}
 
 	// load large font
