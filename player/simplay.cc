@@ -178,7 +178,7 @@ void player_t::book_revenue(const sint64 amount, const koord k, const waytype_t 
 
 void player_t::book_way_renewal(const sint64 amount, const waytype_t wt)
 {
-	finance->book_way_renewal(amount, wt);
+	finance->book_way_renewal(-amount, wt);
 }
 
 
