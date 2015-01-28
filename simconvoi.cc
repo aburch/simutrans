@@ -697,7 +697,7 @@ static inline sint32 res_power(sint64 speed, sint32 total_power, sint64 friction
  */
 void convoi_t::calc_acceleration(uint32 delta_t)
 {
-	if(  !recalc_data  &&  !recalc_speed_limit  &&  (
+	if(  !recalc_data  &&  !recalc_speed_limit  &&  !recalc_data_front  &&  (
 		(sum_friction_weight == sum_gesamtgewicht  &&  akt_speed_soll <= akt_speed  &&  akt_speed_soll+24 >= akt_speed)  ||
 		(sum_friction_weight > sum_gesamtgewicht  &&  akt_speed_soll == akt_speed)  )
 		) {
