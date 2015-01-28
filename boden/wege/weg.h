@@ -258,7 +258,7 @@ public:
 	* mit wert aus Beschreibung.
 	*
 	* Sets a new description. Replaces old with maximum speed
-	* worth of description.
+	* worth of description and updates the maintenance cost.
 	* @author Hj. Malthaner
 	*/
 	void set_besch(const weg_besch_t *b, bool from_saved_game = false);

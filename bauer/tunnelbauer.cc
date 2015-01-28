@@ -473,8 +473,7 @@ DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d,%d) to (%d,%d,%d) ", pos.
 			}
 			weg->set_max_axle_load(besch->get_max_axle_load());
 
-			tunnel->neuen_weg_bauen(weg, ribi_t::doppelt(ribi), player);
-			player_t::add_maintenance( player, -weg->get_besch()->get_wartung(), weg->get_besch()->get_finance_waytype() );
+			tunnel->neuen_weg_bauen(weg, ribi_t::doppelt(ribi), player);;
 		}
 		else {
 			lt = new leitung_t(tunnel->get_pos(), player);
@@ -543,8 +542,6 @@ DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d,%d) to (%d,%d,%d) ", pos.
 			}
 			weg->set_max_axle_load(besch->get_max_axle_load());
 			tunnel->neuen_weg_bauen(weg, ribi, player);
-
-			player_t::add_maintenance( player,  -weg->get_besch()->get_wartung(), weg->get_besch()->get_finance_waytype() );
 		}
 		else {
 			lt = new leitung_t(tunnel->get_pos(), player);
@@ -595,12 +592,17 @@ void tunnelbauer_t::baue_einfahrt(player_t *player, koord3d end, koord zv, const
 		else {
 			// needs still one
 			weg = weg_t::alloc( besch->get_waytype() );
-			if(  weg_besch  ) {
+			if(  weg_besch  ) 
+			{
 				weg->set_besch( weg_besch );
+			}
+			else
+			{
+				// set_besch will set the maintenance cost of this way.
+				player_t::add_maintenance( player, -weg->get_besch()->get_wartung(), weg->get_besch()->get_finance_waytype() );
 			}
 			tunnel->neuen_weg_bauen( weg, ribi, player );
 		}
-		player_t::add_maintenance( player, -weg->get_besch()->get_wartung(), weg->get_besch()->get_finance_waytype() );
 		const grund_t* gr = welt->lookup(weg->get_pos());
 		const hang_t::typ hang = gr ? gr->get_weg_hang() : hang_t::flach;
 		if(hang != hang_t::flach) 

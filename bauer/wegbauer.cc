@@ -2257,7 +2257,6 @@ bool wegbauer_t::baue_tunnelboden()
 				}
 				weg->set_max_axle_load(tunnel_besch->get_max_axle_load());
 				weg->add_way_constraints(besch->get_way_constraints());
-				player_t::add_maintenance( player, -weg->get_besch()->get_wartung(), weg->get_besch()->get_finance_waytype());
 			} else {
 				tunnel->obj_add(new tunnel_t(route[i], player, tunnel_besch));
 				leitung_t *lt = new leitung_t(tunnel->get_pos(), player);
@@ -2279,8 +2278,6 @@ bool wegbauer_t::baue_tunnelboden()
 				assert( tunnel );
 				// take the faster way
 				if(  !keep_existing_faster_ways  ||  (tunnel->get_besch()->get_topspeed() < tunnel_besch->get_topspeed())  ) {
-					player_t::add_maintenance(player, -tunnel->get_besch()->get_wartung(), tunnel->get_besch()->get_finance_waytype());
-					player_t::add_maintenance(player,  tunnel_besch->get_wartung(), tunnel->get_besch()->get_finance_waytype() );
 
 					tunnel->set_besch(tunnel_besch);
 					weg_t *weg = gr->get_weg(tunnel_besch->get_waytype());
@@ -2311,9 +2308,6 @@ bool wegbauer_t::baue_tunnelboden()
 			assert( tunnel );
 			// take the faster way
 			if(  !keep_existing_faster_ways  ||  (tunnel->get_besch()->get_topspeed() < tunnel_besch->get_topspeed())  ) {
-				player_t::add_maintenance(player, -tunnel->get_besch()->get_wartung(), tunnel->get_besch()->get_finance_waytype());
-				player_t::add_maintenance(player,  tunnel_besch->get_wartung(), tunnel->get_besch()->get_finance_waytype() );
-
 				tunnel->set_besch(tunnel_besch);
 				weg_t *weg = gr->get_weg(tunnel_besch->get_waytype());
 				weg->set_besch(wb);
@@ -2423,17 +2417,6 @@ void wegbauer_t::baue_strasse()
 				}
 				else
 				{
-					// Remove *old* maintenance - must get besch from weg not the built in "besch",
-					// which is the way being built.
-					sint32 old_maint = weg->get_besch()->get_wartung();
-					weg->check_diagonal();
-					if(weg->is_diagonal())
-					{
-						old_maint *= 10;
-						old_maint /= 14;
-					}
-					player_t::add_maintenance(player, -old_maint, besch->get_finance_waytype());
-
 					if(besch->get_upgrade_group() == weg->get_besch()->get_upgrade_group())
 					{
 						cost = besch->get_way_only_cost();
@@ -2571,8 +2554,7 @@ void wegbauer_t::baue_schiene()
 
 					if(  change_besch  ) {
 						// we take ownership => we take care to maintain the roads completely ...
-						player_t *s = weg->get_owner();
-						player_t::add_maintenance( s, -weg->get_besch()->get_wartung(), weg->get_besch()->get_finance_waytype());
+						player_t *p = weg->get_owner();
 						cost -= weg->get_besch()->get_upgrade_group() == besch->get_upgrade_group() ? besch->get_way_only_cost() : besch->get_preis();
 						weg->set_besch(besch);
 						if(besch->is_mothballed())
@@ -2590,7 +2572,6 @@ void wegbauer_t::baue_schiene()
 						{
 							weg->add_way_constraints(wayobj->get_besch()->get_way_constraints());
 						}					
-						player_t::add_maintenance( player, weg->get_besch()->get_wartung(), weg->get_besch()->get_finance_waytype());
 						weg->set_owner(player);
 					}
 				}

@@ -251,7 +251,7 @@ void tunnel_t::set_after_bild( image_id b )
 
 // returns NULL, if removal is allowed
 // players can remove public owned ways
-const char *tunnel_t:: is_deletable(const player_t *player)
+const char *tunnel_t::is_deletable(const player_t *player)
 {
 	if (get_player_nr()==1) {
 		return NULL;
@@ -259,4 +259,30 @@ const char *tunnel_t:: is_deletable(const player_t *player)
 	else {
 		return obj_t:: is_deletable(player);
 	}
+}
+
+void tunnel_t::set_besch(const tunnel_besch_t *_besch)
+{ 
+	const weg_t* way = welt->lookup(get_pos())->get_weg(get_besch()->get_waytype());
+	if(besch)
+	{
+		// Remove the old maintenance cost
+		sint32 old_maint = get_besch()->get_wartung();
+		if(way->is_diagonal())
+		{
+			old_maint *= 10;
+			old_maint /= 14;
+		}
+		player_t::add_maintenance(get_owner(), -old_maint, get_besch()->get_finance_waytype());
+	}
+	
+	besch = _besch;
+	// Add the new maintenance cost
+	sint32 maint = get_besch()->get_wartung();
+	if(way->is_diagonal())
+	{
+		maint *= 10;
+		maint /= 14;
+	}
+	player_t::add_maintenance(get_owner(), maint, get_besch()->get_finance_waytype());
 }

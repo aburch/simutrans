@@ -131,16 +131,31 @@ const char *weg_t::waytype_to_string(waytype_t wt)
 }
 
 
-/**
- * Setzt neue Beschreibung. Ersetzt alte Höchstgeschwindigkeit
- * mit wert aus Beschreibung.
- *
- * "Sets new description. Replaced old with maximum speed value of description." (Google)
- * @author Hj. Malthaner
- */
 void weg_t::set_besch(const weg_besch_t *b, bool from_saved_game)
 {
+	if(besch)
+	{
+		// Remove the old maintenance cost
+		sint32 old_maint = get_besch()->get_wartung();
+		check_diagonal();
+		if(is_diagonal())
+		{
+			old_maint *= 10;
+			old_maint /= 14;
+		}
+		player_t::add_maintenance(get_owner(), -old_maint, get_besch()->get_finance_waytype());
+	}
+	
 	besch = b;
+	// Add the new maintenance cost
+	sint32 maint = get_besch()->get_wartung();
+	if(is_diagonal())
+	{
+		maint *= 10;
+		maint /= 14;
+	}
+	player_t::add_maintenance(get_owner(), maint, get_besch()->get_finance_waytype());
+
 	grund_t* gr = welt->lookup(get_pos());
 	if(!gr)
 	{
@@ -828,7 +843,7 @@ void weg_t::new_month()
 void weg_t::finish_rd()
 {
 	player_t *player=get_owner();
-	if(player  &&  besch) 
+	if(player && besch) 
 	{
 		sint32 maint = besch->get_wartung();
 		check_diagonal();
