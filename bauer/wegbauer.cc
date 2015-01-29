@@ -2677,7 +2677,7 @@ class fluss_test_driver_t : public test_driver_t
 	virtual ribi_t::ribi get_ribi(const grund_t* gr) const { return gr->get_weg_ribi_unmasked(water_wt); }
 	virtual waytype_t get_waytype() const { return invalid_wt; }
 	virtual int get_cost(const grund_t *, const sint32, koord) { return 1; }
-	virtual bool  is_target(const grund_t *cur,const grund_t *) { return cur->ist_wasser()  &&  cur->get_grund_hang()==hang_t::flach; }
+	virtual bool is_target(const grund_t *cur,const grund_t *) { return cur->ist_wasser()  &&  cur->get_grund_hang()==hang_t::flach; }
 };
 
 
@@ -2742,7 +2742,7 @@ void wegbauer_t::baue_fluss()
 		}
 		if(  gr->get_typ()!=grund_t::wasser  ) {
 			// get direction
-			ribi_t::ribi ribi = i<end_n-1 ? route.get_short_ribi(i) : ribi_typ(route[i-1].get_2d()-route[i].get_2d());
+			ribi_t::ribi ribi = i<end_n-1 ? route.get_short_ribi(i) : ribi_typ(route[i-1]-route[i]);
 			bool extend = gr->weg_erweitern(water_wt, ribi);
 			if(  !extend  ) {
 				weg_t *sch=weg_t::alloc(water_wt);
@@ -2762,7 +2762,7 @@ void wegbauer_t::baue_fluss()
 		 */
 		route_t to_the_sea;
 		fluss_test_driver_t river_tester;
-		if (to_the_sea.find_route(welt, welt->lookup_kartenboden(route[start_n].get_2d())->get_pos(), &river_tester, 0, 0, ribi_t::alle, 0, 0x7FFFFFFF)) {
+		if (to_the_sea.find_route(welt, welt->lookup_kartenboden(route[start_n].get_2d())->get_pos(), &river_tester, 0, ribi_t::alle, 0, 0, 0x7FFFFFFF)) {
 			FOR(koord3d_vector_t, const& i, to_the_sea.get_route()) {
 				if (weg_t* const w = welt->lookup(i)->get_weg(water_wt)) {
 					int type;
