@@ -372,7 +372,7 @@ bool stadt_info_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 	if(  comp==&allow_growth  ) {
 		sprintf(param,"g%hi,%hi,%hi", stadt->get_pos().x, stadt->get_pos().y, (short)(!stadt->get_citygrowth()) );
 		tool_t::simple_tool[TOOL_CHANGE_CITY]->set_default_param( param );
-		welt->set_tool( tool_t::simple_tool[TOOL_CHANGE_CITY], welt->get_player(1));
+		welt->set_tool( tool_t::simple_tool[TOOL_CHANGE_CITY], welt->get_active_player());
 		return true;
 	}
 	if(  comp==&name_input  ) {

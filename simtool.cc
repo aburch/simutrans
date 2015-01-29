@@ -7763,18 +7763,14 @@ bool tool_change_city_t::init( player_t *player )
 	if(  3!=sscanf( default_param, "g%hi,%hi,%hi", &k.x, &k.y, &allow_growth )  ) {
 		return false;
 	}
-	grund_t *gr = welt->lookup_kartenboden(k);
-	if (gr) {
-		gebaeude_t *gb = gr->find<gebaeude_t>();
-		if (gb) {
-			stadt_t *st = gb->get_stadt();
-			if (st) {
-				st->set_citygrowth_yesno(allow_growth);
-				stadt_info_t *stinfo = dynamic_cast<stadt_info_t*>(win_get_magic((ptrdiff_t)st));
-				if (stinfo) {
-					stinfo->update_data();
-				}
-			}
+	stadt_t* city = welt->get_city(k);
+	if (city)
+	{
+		city->set_citygrowth_yesno(allow_growth);
+		stadt_info_t *stinfo = dynamic_cast<stadt_info_t*>(win_get_magic((ptrdiff_t)city));
+		if (stinfo)
+		{
+			stinfo->update_data();
 		}
 	}
 	return false;
