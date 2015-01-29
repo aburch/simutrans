@@ -2596,7 +2596,10 @@ vehicle_t *convoi_t::remove_vehikel_bei(uint16 i)
 	highest_axle_load = calc_highest_axle_load();
 	longest_min_loading_time = calc_longest_min_loading_time();
 	longest_max_loading_time = calc_longest_max_loading_time();
-	calc_direction_steps();
+	if(!vehicle.empty() && vehicle[0])
+	{
+		calc_direction_steps();
+	}
 
 	return v;
 }
