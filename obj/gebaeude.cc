@@ -1340,10 +1340,10 @@ void gebaeude_t::finish_rd()
 		maint = welt->get_settings().maint_building*tile->get_besch()->get_level();
 	}
 	player_t::add_maintenance(get_owner(), maint, tile->get_besch()->get_finance_waytype());
-	stadt_t *our_city = (ptr.stadt==NULL) ? welt->suche_naechste_stadt( get_pos().get_2d() ) : ptr.stadt;
+	stadt_t *our_city = (ptr.stadt == NULL) ? welt->suche_naechste_stadt( get_pos().get_2d() ) : ptr.stadt;
 
 	// Add to the town list (all types of buildings now except industries, not just selected types)
-	if(our_city && (tile->get_besch()->ist_ausflugsziel() || (tile->get_offset() == koord(0,0) && tile->get_besch()->is_connected_with_town())))
+	if(our_city && ((tile->get_besch()->ist_ausflugsziel() && ptr.stadt) || (tile->get_offset() == koord(0,0) && tile->get_besch()->is_connected_with_town())))
 	{
 #ifdef MULTI_THREAD
 		pthread_mutex_lock( &add_to_city_mutex );
@@ -1358,7 +1358,7 @@ void gebaeude_t::finish_rd()
 		ptr.stadt = NULL;
 	}
 
-	if((!our_city && !is_factory))
+	if(tile->get_besch()->ist_ausflugsziel() && !ptr.stadt)
 	{
 		// Add the building to the general world list if it is not added 
 		// by the town (industries are added separately)
