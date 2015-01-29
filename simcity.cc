@@ -4322,7 +4322,7 @@ bool stadt_t::build_bridge(grund_t* bd, ribi_t::ribi direction) {
 	koord k = bd->get_pos().get_2d();
 	koord zv = koord(direction);
 
-	const bruecke_besch_t *bridge = brueckenbauer_t::find_bridge(road_wt, 50, welt->get_timeline_year_month() );
+	const bruecke_besch_t *bridge = brueckenbauer_t::find_bridge(road_wt, min(welt->get_city_road()->get_topspeed(), 50), welt->get_timeline_year_month() );
 	if(  bridge==NULL  ) {
 		// does not have a bridge available ...
 		return false;
