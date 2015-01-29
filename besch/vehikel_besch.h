@@ -761,8 +761,8 @@ public:
 				const float32e8_t standard_axle_load((uint32)standard_axle_load, (uint32)1); 
 				float32e8_t adjusted_standard_axle((sint32)axle_load, standard_axle_load.to_sint32());
 				const float32e8_t adjusted_standard_axle_original = adjusted_standard_axle;
-				float32e8_t adjusted_standard_axle_extra(gewicht % axles); 
-				adjusted_standard_axle_extra /= float32e8_t(1000, 1);
+				float32e8_t adjusted_standard_axle_extra((uint32)gewicht % (uint32)axles); 
+				adjusted_standard_axle_extra /= float32e8_t((uint32)1000, (uint32)1);
 				const float32e8_t adjusted_standard_axle_original_extra = adjusted_standard_axle_extra;
 				while(--power)
 				{
@@ -779,24 +779,24 @@ public:
 					{
 						if(topspeed < 90)
 						{
-							adjusted_standard_axle += (adjusted_standard_axle * float32e8_t(2, 3));
+							adjusted_standard_axle += (adjusted_standard_axle * float32e8_t((uint32)2, (uint32)3));
 						}
 						else
 						{
-							adjusted_standard_axle += (adjusted_standard_axle * float32e8_t(3, 4));
+							adjusted_standard_axle += (adjusted_standard_axle * float32e8_t((uint32)3, (uint32)4));
 						}
 					}
 					else
 					{
-						adjusted_standard_axle += (adjusted_standard_axle * float32e8_t(26, 100));
+						adjusted_standard_axle += (adjusted_standard_axle * float32e8_t((uint32)26, (uint32)100));
 					}
-					adjusted_standard_axle_extra += (adjusted_standard_axle * float32e8_t(26,100));
+					adjusted_standard_axle_extra += (adjusted_standard_axle * float32e8_t((uint32)26, (uint32)100));
 				}
 
 				adjusted_standard_axle *= axles;
 				adjusted_standard_axle += adjusted_standard_axle_extra;
 
-				adjusted_standard_axle *= 10000; 			
+				adjusted_standard_axle *= (uint32)10000; 			
 
 				way_wear_factor = (uint32)adjusted_standard_axle.to_sint32();
 			}
