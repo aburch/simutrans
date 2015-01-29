@@ -758,8 +758,8 @@ public:
 				uint32 axles = axle_load ? (gewicht / axle_load) / 1000 : 1; // Weight is in kg.
 				axles = max(axles, 1);
 			
-				const float32e8_t standard_axle_load(standard_axle_load, 1); 
-				float32e8_t adjusted_standard_axle(axle_load, standard_axle_load);
+				const float32e8_t standard_axle_load((uint32)standard_axle_load, (uint32)1); 
+				float32e8_t adjusted_standard_axle((sint32)axle_load, standard_axle_load.to_sint32());
 				const float32e8_t adjusted_standard_axle_original = adjusted_standard_axle;
 				float32e8_t adjusted_standard_axle_extra(gewicht % axles); 
 				adjusted_standard_axle_extra /= float32e8_t(1000, 1);
@@ -770,7 +770,7 @@ public:
 					adjusted_standard_axle_extra *= adjusted_standard_axle_original_extra;
 				}
 
-				// Add estimate of hamemr blow for steam locomotives
+				// Add estimate of hammer blow for steam locomotives
 				// See http://www.archive.org/stream/steelrailstheir02sellgoog/steelrailstheir02sellgoog_djvu.txt pp. 70-72 for details of this formula.
 				// This assumes a 2 cylinder locomotive.
 				if(get_waytype() == track_wt && leistung > 0 && engine_type == steam)
