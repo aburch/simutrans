@@ -675,7 +675,11 @@ public:
 	int get_pax_unhappy()  const { return (int)financial_history[0][HALT_UNHAPPY]; }
 	int get_pax_too_slow()  const { return (int)financial_history[0][HALT_TOO_SLOW]; }
 
-	bool add_grund(grund_t *gb);
+	/**
+	 * Add tile to list of station tiles.
+	 * @param relink_factories if true call verbinde_fabriken, if not true take care of factory connections yourself
+	 */
+	bool add_grund(grund_t *gb, bool relink_factories = true);
 	bool rem_grund(grund_t *gb);
 
 	uint32 get_capacity(uint8 typ) const { return capacity[typ]; }
