@@ -1273,7 +1273,7 @@ void gebaeude_t::rdwr(loadsave_t *file)
 		anim_time = 0;
 		sync = false;
 
-		const haus_besch_t* building_type =  tile->get_besch(); 
+		const haus_besch_t* building_type = tile->get_besch(); 
 
 		if(building_type->get_typ() == wohnung)
 		{
@@ -1340,24 +1340,29 @@ void gebaeude_t::finish_rd()
 		maint = welt->get_settings().maint_building*tile->get_besch()->get_level();
 	}
 	player_t::add_maintenance(get_owner(), maint, tile->get_besch()->get_finance_waytype());
+	stadt_t *our_city = (ptr.stadt==NULL) ? welt->suche_naechste_stadt( get_pos().get_2d() ) : ptr.stadt;
 
-	// citybuilding, but no town?
-	if(  tile->get_offset()==koord(0,0)  ) {
-		if(  tile->get_besch()->is_connected_with_town()  ) {
-			stadt_t *our_city = (ptr.stadt==NULL) ? welt->suche_naechste_stadt( get_pos().get_2d() ) : ptr.stadt;
-			if(our_city) {
+	// Add to the town list (all types of buildings now except industries, not just selected types)
+	if(our_city && (tile->get_besch()->ist_ausflugsziel() || (tile->get_offset() == koord(0,0) && tile->get_besch()->is_connected_with_town())))
+	{
 #ifdef MULTI_THREAD
-				pthread_mutex_lock( &add_to_city_mutex );
+		pthread_mutex_lock( &add_to_city_mutex );
 #endif
-				our_city->add_gebaeude_to_stadt(this, env_t::networkmode);
+		our_city->add_gebaeude_to_stadt(this, env_t::networkmode);
 #ifdef MULTI_THREAD
-				pthread_mutex_unlock( &add_to_city_mutex );
+		pthread_mutex_unlock( &add_to_city_mutex );
 #endif
-			}
-		}
-		else if(  !is_factory  ) {
-			ptr.stadt = NULL;
-		}
+	}
+	else if(!is_factory)
+	{
+		ptr.stadt = NULL;
+	}
+
+	if((!our_city && !is_factory))
+	{
+		// Add the building to the general world list if it is not added 
+		// by the town (industries are added separately)
+		welt->add_building_to_world_list(this); 
 	}
 }
 

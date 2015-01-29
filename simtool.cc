@@ -3969,7 +3969,7 @@ DBG_MESSAGE("tool_station_building_aux()", "building mail office/station buildin
 		gb->set_stadt(city);
 		city->update_city_stats_with_building(gb, false);
 	}
-	welt->add_building_to_world_list(gb);
+	welt->add_building_to_world_list(gb->get_first_tile());
 
 	// Difficult to distinguish correctly most suitable waytype
 	player_t::book_construction_costs(player, cost, k, besch->get_finance_waytype());
@@ -6047,7 +6047,7 @@ DBG_MESSAGE("tool_headquarter()", "building headquarter at (%d,%d)", pos.x, pos.
 							}
 						}
 						built = true;
-						welt->add_building_to_world_list(hq);
+						welt->add_building_to_world_list(hq->get_first_tile());
 					}
 
 				}
@@ -6080,7 +6080,7 @@ DBG_MESSAGE("tool_headquarter()", "building headquarter at (%d,%d)", pos.x, pos.
 				stadt_t *city = welt->get_city( pos.get_2d() );
 				if(city) {
 					city->add_gebaeude_to_stadt(hq);
-					welt->add_building_to_world_list(hq);
+					welt->add_building_to_world_list(hq->get_first_tile());
 					city->reset_city_borders();
 				}
 				built = true;

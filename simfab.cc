@@ -2968,7 +2968,7 @@ slist_tpl<const ware_besch_t*> *fabrik_t::get_produced_goods() const
 
 void fabrik_t::add_to_world_list()
 {
-	welt->add_building_to_world_list(get_building());
+	welt->add_building_to_world_list(get_building()->get_first_tile());
 }
 
 gebaeude_t* fabrik_t::get_building()
