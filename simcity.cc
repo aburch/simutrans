@@ -4663,9 +4663,9 @@ bool stadt_t::baue_strasse(const koord k, player_t* player, bool forced)
 			koord zv = koord(direction);
 			grund_t *bd_next = welt->lookup_kartenboden( k + zv );
 			if(  bd_next &&
-			     (bd_next->ist_wasser() || bd_next->hat_weg(water_wt) ||
-			      (bd_next->hat_weg(road_wt) && !bd_next->get_weg(road_wt)->is_public_right_of_way()))) {
-				// ok there is a river, a canal, a private road, or a lake (yes, cities bridge canals)
+			     (bd_next->ist_wasser() || bd_next->hat_weg(water_wt) || bd_next->hat_weg(track_wt) || bd_next->hat_weg(narrowgauge_wt) ||
+			       bd_next->hat_weg(monorail_wt) || bd_next->hat_weg(maglev_wt) || (bd_next->hat_weg(road_wt) && !bd_next->get_weg(road_wt)->is_public_right_of_way()))) {
+				// ok there is a river, a canal, railway, a private road, or a lake 
 				build_bridge(bd, direction);
 			}
 		}
