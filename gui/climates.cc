@@ -206,7 +206,7 @@ climate_gui_t::climate_gui_t(settings_t* const sets_par) :
 	labelnr++;
 	cursor.y += D_EDIT_HEIGHT;
 
-	river_max.init( sets->get_max_river_length(), sets->get_min_river_length()+16, 1024, gui_numberinput_t::AUTOLINEAR, false );
+	river_max.init( sets->get_max_river_length(), sets->get_min_river_length()+16, 8192, gui_numberinput_t::AUTOLINEAR, false );
 	river_max.set_pos( cursor );
 	river_max.set_size( edit_size );
 	river_max.add_listener(this);
