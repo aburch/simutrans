@@ -5317,7 +5317,7 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 			}
 			go_on_ticks = (std::min)(go_on_ticks_spacing, go_on_ticks_waiting);
 			go_on_ticks = (std::max)(departure_time, go_on_ticks);
-			running_late = wait_for_time && go_on_ticks_waiting < go_on_ticks_spacing;
+			running_late = wait_for_time && (go_on_ticks_waiting < go_on_ticks_spacing);
 		}
 	}
 
