@@ -168,6 +168,12 @@ clip_dimension display_get_clip_wh()
 #endif
 {
 	clip_dimension clip_rect;
+	clip_rect.x = 0;
+	clip_rect.xx = 0;
+	clip_rect.w = 0;
+	clip_rect.y = 0;
+	clip_rect.yy = 0;
+	clip_rect.h = 0;
 	return clip_rect;
 }
 
@@ -236,9 +242,9 @@ void display_rezoomed_img_blend(const image_id, KOORD_VAL, KOORD_VAL, const sign
 }
 
 #ifdef MULTI_THREAD
-void display_rezoomed_img_alpha(const image_id, const image_id, const uint8, KOORD_VAL, KOORD_VAL, const signed char, const PLAYER_COLOR_VAL, const int, const int, const sint8)
+void display_rezoomed_img_alpha(const image_id, const image_id, const unsigned, KOORD_VAL, KOORD_VAL, const signed char, const PLAYER_COLOR_VAL, const int, const int, const sint8)
 #else
-void display_rezoomed_img_alpha(const image_id, const image_id, const uint8, KOORD_VAL, KOORD_VAL, const signed char, const PLAYER_COLOR_VAL, const int, const int)
+void display_rezoomed_img_alpha(const image_id, const image_id, const unsigned, KOORD_VAL, KOORD_VAL, const signed char, const PLAYER_COLOR_VAL, const int, const int)
 #endif
 {
 }
