@@ -5281,6 +5281,7 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 	}
 	const uint32 reversing_time = fpl->get_current_eintrag().reverse ? calc_reverse_delay() : 0;
 	bool running_late = false;
+	sint64 go_on_ticks_waiting = WAIT_INFINITE;
 	if(go_on_ticks == WAIT_INFINITE)
 	{
 		const sint64 departure_time = (arrival_time + (sint64)current_loading_time) - (sint64)reversing_time;
@@ -5309,7 +5310,6 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 				const sint64 queue_pos = halt.is_bound() ? halt->get_queue_pos(self) : 1ll;
 				go_on_ticks_spacing = (wait_from_ticks + spacing * queue_pos) - reversing_time;
 			}
-			sint64 go_on_ticks_waiting = WAIT_INFINITE;
 			if(fpl->get_current_eintrag().waiting_time_shift > 0)
 			{
 				// Maximum wait time
@@ -5323,8 +5323,8 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 
 	// loading is finished => maybe drive on
 	bool can_go = false;
-	can_go = loading_level >= loading_limit && !wait_for_time;
-	can_go = can_go || welt->get_zeit_ms() >= go_on_ticks;
+	can_go = loading_level >= loading_limit && welt->get_zeit_ms() >= go_on_ticks;
+	can_go = can_go || welt->get_zeit_ms() >= go_on_ticks_waiting && !wait_for_time;
 	can_go = can_go || running_late; 
 	can_go = can_go && welt->get_zeit_ms() > arrival_time + ((sint64)current_loading_time - (sint64)reversing_time);
 	can_go = can_go || no_load;
