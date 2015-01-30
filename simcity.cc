@@ -4657,7 +4657,7 @@ bool stadt_t::baue_strasse(const koord k, player_t* player, bool forced)
 			bd->neuen_weg_bauen(weg, connection_roads, player);
 			bd->calc_image();
 		}
-		// check to bridge a river
+		// check to bridge a river, railway, etc.
 		if(ribi_t::ist_einfach(connection_roads)) {
 			ribi_t::ribi direction = ribi_t::rueckwaerts(connection_roads);
 			koord zv = koord(direction);

@@ -758,12 +758,13 @@ public:
 				uint32 axles = axle_load ? (gewicht / axle_load) / 1000 : 1; // Weight is in kg.
 				axles = max(axles, 1);
 			
-				const float32e8_t standard_axle_load((uint32)standard_axle_load, (uint32)1); 
+				const float32e8_t standard_axle_load((uint32)standard_axle_load); 
 				float32e8_t adjusted_standard_axle((sint32)axle_load, standard_axle_load.to_sint32());
 				const float32e8_t adjusted_standard_axle_original = adjusted_standard_axle;
 				float32e8_t adjusted_standard_axle_extra((uint32)gewicht % (uint32)axles); 
 				adjusted_standard_axle_extra /= float32e8_t((uint32)1000, (uint32)1);
 				const float32e8_t adjusted_standard_axle_original_extra = adjusted_standard_axle_extra;
+
 				while(--power)
 				{
 					adjusted_standard_axle *= adjusted_standard_axle_original;
