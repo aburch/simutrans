@@ -3997,14 +3997,14 @@ void stadt_t::build_city_building(const koord k, bool new_town)
 				{
 					// This is not a bridge, tunnel, etc.
 					// if not current city road standard OR BETTER, then replace it
-					if (weg->get_besch() != welt->get_city_road())
+					player_t *player = weg->get_owner();
+					if(weg->get_besch() != welt->get_city_road() || player == NULL)
 					{
-						player_t *player = weg->get_owner();
-						if (player == NULL || !gr->get_depot())
+						if(!gr->get_depot())
 						{
 							player_t::add_maintenance(player, -weg->get_besch()->get_wartung(), road_wt);
 							weg->set_owner(NULL); // make public
-							if (welt->get_city_road()->is_at_least_as_good_as(weg->get_besch())) 
+							if(welt->get_city_road()->is_at_least_as_good_as(weg->get_besch())) 
 							{
 								weg->set_besch(welt->get_city_road());
 							}
