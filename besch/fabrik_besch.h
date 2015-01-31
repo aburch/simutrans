@@ -310,8 +310,10 @@ public:
 	{
 		if(base_max_distance_to_consumer < 65535)
 		{
-			max_distance_to_consumer = set_scale_generic<uint16>(base_max_distance_to_consumer, scale_factor);
-			if (base_max_distance_to_consumer && !max_distance_to_consumer) max_distance_to_consumer = 1;
+			uint32 mdc = (uint32)max_distance_to_consumer;
+			mdc *= 1000;
+			mdc /= scale_factor;
+			max_distance_to_consumer = (uint16)mdc;
 		}
 	}
 
