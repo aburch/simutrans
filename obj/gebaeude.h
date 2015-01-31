@@ -34,21 +34,7 @@ public:
 private:
 	const haus_tile_besch_t *tile;
 
-	/**
-	* either point to a factory or a city
-	* @author Hj. Malthaner
-	*/
-	union {
-		fabrik_t  *fab;
-		stadt_t *stadt;
-	} ptr;
-
-	/**
-	 * Zeitpunkt an dem das Gebaeude Gebaut wurde
-	 * "Time at that was built the building" (Babelfish)
-	 * @author Hj. Malthaner
-	 */
-	sint64 purchase_time;
+	
 
 	/**
 	 * Time control for animation progress.
@@ -81,16 +67,32 @@ private:
 	 * @author Hj. Malthaner
 	 */
 	uint8 is_factory:1;
+
+	uint8 season:3;
+	uint8 background_animated:1;
+
+	uint8 remove_ground:1;  // true if ground image can go
+
+	uint8 anim_frame;
+
 	/**
-	 * if true show snow image
+	 * Zeitpunkt an dem das Gebaeude Gebaut wurde
+	 * "Time at that was built the building" (Babelfish)
+	 * @author Hj. Malthaner
 	 */
-	bool snow:1;
-
-	/* true if ground image can go */
-	bool remove_ground:1;
+	sint64 purchase_time;
+	
+	/**
+	* either point to a factory or a city
+	* @author Hj. Malthaner
+	*/
+	union {
+		fabrik_t  *fab;
+		stadt_t *stadt;
+	} ptr;
 
 	/**
-	 * Initializes all variables with save, usable values
+	 * Initializes all variables with safe, usable values
 	 * @author Hj. Malthaner
 	 */
 	void init();
@@ -226,7 +228,7 @@ public:
 	 * Called whenever the season or snowline height changes
 	 * return false and the obj_t will be deleted
 	 */
-	bool check_season(const bool calc_only_season_change) { if(  !calc_only_season_change  ) { calc_image(); } return true; }  // depends on snowline only
+	bool check_season(const bool) { calc_image(); return true; }
 
 	/**
 	 * @return eigener Name oder Name der Fabrik falls Teil einer Fabrik
