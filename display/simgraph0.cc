@@ -167,6 +167,12 @@ clip_dimension display_get_clip_wh()
 #endif
 {
 	clip_dimension clip_rect;
+	clip_rect.x = 0;
+	clip_rect.xx = 0;
+	clip_rect.w = 0;
+	clip_rect.y = 0;
+	clip_rect.yy = 0;
+	clip_rect.h = 0;
 	return clip_rect;
 }
 
@@ -182,7 +188,7 @@ void display_scroll_band(const KOORD_VAL, const KOORD_VAL, const KOORD_VAL)
 {
 }
 
-static inline void pixcopy(PIXVAL *, const PIXVAL *, const image_id int)
+static inline void pixcopy(PIXVAL *, const PIXVAL *, const unsigned int)
 {
 }
 
@@ -328,12 +334,12 @@ KOORD_VAL display_get_char_max_width(const char*, size_t)
 	return 0;
 }
 
-image_id short get_next_char_with_metrics(const char* &, image_id char &, image_id char &)
+unsigned short get_next_char_with_metrics(const char* &, unsigned char &, unsigned char &)
 {
 	return 0;
 }
 
-image_id short get_prev_char_with_metrics(const char* &, const char *const, image_id char &, image_id char &)
+unsigned short get_prev_char_with_metrics(const char* &, const char *const, unsigned char &, unsigned char &)
 {
 	return 0;
 }
@@ -487,7 +493,7 @@ KOORD_VAL display_proportional_ellipse_rgb( scr_rect, const char *, int, PIXVAL,
 	return 0;
 }
 
-uint16 get_image_count()
+image_id get_image_count()
 {
 	return 0;
 }

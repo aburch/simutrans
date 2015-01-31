@@ -511,7 +511,9 @@ bool translator::load(const string &path_to_pakset)
 	}
 
 #if DEBUG>=4
+#ifdef need_dump_hashtable
 	dump_hashtable(&compatibility);
+#endif
 #endif
 
 	// use english if available
