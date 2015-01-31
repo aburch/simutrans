@@ -3590,6 +3590,46 @@ static int layout_to_orientations[] = {
 	9   //SW
 };
 
+bool process_city_street(grund_t& gr, const weg_besch_t* cr)
+{
+	weg_t* const weg = gr.get_weg(road_wt);
+	if(  weg == NULL  ) {
+		return false;
+	}
+	
+	player_t *player = weg->get_owner();
+
+	bool make_public = true;
+	if(!weg->is_public_right_of_way())
+	{
+		const wayobj_t *wo = gr.get_wayobj(road_wt);
+		if(wo && wo->get_besch()->is_noise_barrier())
+		{
+			make_public = false;
+		}
+
+		const roadsign_t* rs = gr.find<roadsign_t>();
+		if(rs && rs->get_besch()->is_private_way()) 
+		{
+			make_public = false;
+		}
+	}
+
+	// Check whether any changes are needed.
+	if((!weg->hat_gehweg() || weg->get_besch() != cr) && make_public == true)
+	{
+		player_t::add_maintenance(player, -weg->get_besch()->get_wartung(), road_wt);
+		weg->set_gehweg(true);
+		weg->set_owner(NULL); // make public
+		if(cr->is_at_least_as_good_as(weg->get_besch())) 
+		{
+			weg->set_besch(cr);
+		}
+	}
+	gr.calc_image();
+	reliefkarte_t::get_karte()->calc_map_pixel(gr.get_pos().get_2d());
+}
+
 /**
  * Get gebaeude_t* for citybuilding at location k
  * Returns NULL if there is no citybuilding at that location
@@ -3962,57 +4002,9 @@ void stadt_t::build_city_building(const koord k, bool new_town)
 		for (int i = 0; i < 8; i++) {
 			// Neighbors goes through these in 'preferred' order, orthogonal first
 			gr = welt->lookup_kartenboden(k + neighbors[i]);
-			if (gr == NULL) {
-				// No ground, skip this neighbor
-				continue;
-			}
-			strasse_t* weg = (strasse_t*)gr->get_weg(road_wt);
-			if (weg != NULL)
+			if(gr && gr->get_weg_hang() == gr->get_grund_hang())
 			{
-				// We found a road... (yes, it is OK to face a road with a different hang)
-				// Extend the sidewalk (this has the effect of reducing the speed limit to the city speed limit,
-				// which is the speed limit of the current city road).
-				if (weg->is_public_right_of_way()) {
-					strasse_t *str = static_cast<strasse_t *>(weg);
-					str->set_gehweg(true);
-				} else {
-					bool make_public = true;
-
-					const wayobj_t *wo = gr->get_wayobj(road_wt);
-					if (wo && wo->get_besch()->is_noise_barrier()) {
-						make_public = false;
-					}
-
-					const roadsign_t* rs = gr->find<roadsign_t>();
-					if (rs && rs->get_besch()->is_private_way()) {
-						make_public = false;
-					}
-					if (make_public) {
-						strasse_t *str = static_cast<strasse_t *>(weg);
-						str->set_gehweg(true);
-						weg->set_public_right_of_way();
-					}
-				}
-				if (gr->get_weg_hang() == gr->get_grund_hang()) 
-				{
-					// This is not a bridge, tunnel, etc.
-					// if not current city road standard OR BETTER, then replace it
-					player_t *player = weg->get_owner();
-					if(weg->get_besch() != welt->get_city_road() || player == NULL)
-					{
-						if(!gr->get_depot())
-						{
-							player_t::add_maintenance(player, -weg->get_besch()->get_wartung(), road_wt);
-							weg->set_owner(NULL); // make public
-							if(welt->get_city_road()->is_at_least_as_good_as(weg->get_besch())) 
-							{
-								weg->set_besch(welt->get_city_road());
-							}
-						}
-					}
-				}
-				gr->calc_image();
-				reliefkarte_t::get_karte()->calc_map_pixel(gr->get_pos().get_2d());
+				process_city_street(*gr, welt->get_city_road());
 			}
 		}
 
@@ -4028,7 +4020,6 @@ void stadt_t::build_city_building(const koord k, bool new_town)
 			case gebaeude_t::industrie: arb +=  h->get_level() * 20; break;
 			default: break;
 		}
-
 	}
 }
 
@@ -4188,18 +4179,7 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb)
 					}
 				}
 				if (gr->get_weg_hang() == gr->get_grund_hang()) {
-					// This is not a bridge, tunnel, etc.
-					// if not current city road standard OR BETTER, then replace it
-					if (weg->get_besch() != welt->get_city_road()) {
-						if (  welt->get_city_road()->is_at_least_as_good_as(weg->get_besch()) ) {
-							player_t *player = weg->get_owner();
-							if (player == NULL  ||  !gr->get_depot()) {
-								player_t::add_maintenance( player, -weg->get_besch()->get_wartung(), road_wt);
-								weg->set_owner(NULL); // make unowned
-								weg->set_besch(welt->get_city_road());
-							}
-						}
-					}
+					process_city_street(*gr, welt->get_city_road());
 				}
 				gr->calc_image();
 				reliefkarte_t::get_karte()->calc_map_pixel(gr->get_pos().get_2d());
