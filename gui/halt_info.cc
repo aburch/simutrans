@@ -290,39 +290,39 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 		left -= 20;
 		top -= 44;
 		haltestelle_t::stationtyp const halttype = halt->get_station_type();
-		if (halttype & haltestelle_t::railstation) {
+		if (halttype & haltestelle_t::railstation && skinverwaltung_t::zughaltsymbol) {
 			display_color_img(skinverwaltung_t::zughaltsymbol->get_bild_nr(0), pos.x+left, top, 0, false, false);
 			left += 23;
 		}
-		if (halttype & haltestelle_t::loadingbay) {
+		if (halttype & haltestelle_t::loadingbay && skinverwaltung_t::autohaltsymbol) {
 			display_color_img(skinverwaltung_t::autohaltsymbol->get_bild_nr(0), pos.x+left, top, 0, false, false);
 			left += 23;
 		}
-		if (halttype & haltestelle_t::busstop) {
+		if (halttype & haltestelle_t::busstop && skinverwaltung_t::bushaltsymbol) {
 			display_color_img(skinverwaltung_t::bushaltsymbol->get_bild_nr(0), pos.x+left, top, 0, false, false);
 			left += 23;
 		}
-		if (halttype & haltestelle_t::dock) {
+		if (halttype & haltestelle_t::dock && skinverwaltung_t::schiffshaltsymbol) {
 			display_color_img(skinverwaltung_t::schiffshaltsymbol->get_bild_nr(0), pos.x+left, top, 0, false, false);
 			left += 23;
 		}
-		if (halttype & haltestelle_t::airstop) {
+		if (halttype & haltestelle_t::airstop && skinverwaltung_t::airhaltsymbol) {
 			display_color_img(skinverwaltung_t::airhaltsymbol->get_bild_nr(0), pos.x+left, top, 0, false, false);
 			left += 23;
 		}
-		if (halttype & haltestelle_t::monorailstop) {
+		if (halttype & haltestelle_t::monorailstop && skinverwaltung_t::monorailhaltsymbol) {
 			display_color_img(skinverwaltung_t::monorailhaltsymbol->get_bild_nr(0), pos.x+left, top, 0, false, false);
 			left += 23;
 		}
-		if (halttype & haltestelle_t::tramstop) {
+		if (halttype & haltestelle_t::tramstop && skinverwaltung_t::tramhaltsymbol) {
 			display_color_img(skinverwaltung_t::tramhaltsymbol->get_bild_nr(0), pos.x+left, top, 0, false, false);
 			left += 23;
 		}
-		if (halttype & haltestelle_t::maglevstop) {
+		if (halttype & haltestelle_t::maglevstop && skinverwaltung_t::maglevhaltsymbol) {
 			display_color_img(skinverwaltung_t::maglevhaltsymbol->get_bild_nr(0), pos.x+left, top, 0, false, false);
 			left += 23;
 		}
-		if (halttype & haltestelle_t::narrowgaugestop) {
+		if (halttype & haltestelle_t::narrowgaugestop && skinverwaltung_t::narrowgaugehaltsymbol) {
 			display_color_img(skinverwaltung_t::narrowgaugehaltsymbol->get_bild_nr(0), pos.x+left, top, 0, false, false);
 			left += 23;
 		}
