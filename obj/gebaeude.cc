@@ -221,6 +221,10 @@ stadt_t* gebaeude_t::get_stadt() const
 gebaeude_t::~gebaeude_t()
 {
 	stadt_t* our_city = get_stadt();
+	if(!our_city && tile->get_besch()->get_utyp() == haus_besch_t::rathaus)
+	{
+		our_city = welt->get_city(get_pos().get_2d());
+	}
 	if(our_city && !welt->get_is_shutting_down()) 
 	{
 		our_city->remove_gebaeude_from_stadt(this);
