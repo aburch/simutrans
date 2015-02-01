@@ -3934,7 +3934,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, int & restart_speed, bool
 		if(w==NULL || !((w->has_signal() || w->is_crossing()) && starting_from_stand))
 		{
 			// free track => reserve up to next signal
-			if(!block_reserver(cnv->get_route(), max(route_index,1)-1, next_signal, 0, true, false))
+			if(!block_reserver(cnv->get_route(), max(route_index, 1) - 1, next_signal, 0, true, false))
 			{
 				restart_speed = 0;
 				return false;
@@ -4193,7 +4193,7 @@ bool rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16 &
 		return false;
 	}
 
-	if(route->position_bei(start_index)==get_pos()  &&  reserve)
+	if(route->position_bei(start_index) == get_pos() && reserve && start_index < route->get_count() - 1)
 	{
 		start_index++;
 	}
