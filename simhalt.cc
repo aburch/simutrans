@@ -2084,13 +2084,16 @@ bool haltestelle_t::hole_ab( slist_tpl<ware_t> &fracht, const ware_besch_t *wtyp
 		}
 
 		halthandle_t cached_halts[256];
+		
+
 		while(!goods_to_check.empty())
 		{
 			ware_t* const next_to_load = goods_to_check.pop();
 			uint8 index = fpl->get_aktuell();
 			bool reverse = cnv->get_reverse_schedule();
-
 			fpl->increment_index(&index, &reverse);
+
+			int count = 0;
 			while(index != fpl->get_aktuell())
 			{
 				halthandle_t& plan_halt = cached_halts[index];
@@ -2102,8 +2105,19 @@ bool haltestelle_t::hole_ab( slist_tpl<ware_t> &fracht, const ware_besch_t *wtyp
 				if(plan_halt == self)
 				{
 					// The convoy returns here later, so do not load goods/passengers just to go on a detour.
-					break;
+					if(count == 0)
+					{
+						// However, this makes no sense if we start with where we are now.
+						fpl->increment_index(&index, &reverse);
+						continue;
+					}
+					else
+					{
+						break;
+					}
 				}
+
+				count ++;
 
 				const halthandle_t next_transfer = next_to_load->get_zwischenziel();
 				if(plan_halt.is_bound() && next_transfer == plan_halt && plan_halt->is_enabled(catg_index))
