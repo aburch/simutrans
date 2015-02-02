@@ -468,7 +468,7 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, player_t* player_, convoihandle
 			numimp_spacing_shift.set_width( 60 );
 			numimp_spacing_shift.set_value( fpl->get_current_eintrag().spacing_shift  );
 			numimp_spacing_shift.set_limits( 0,welt->get_settings().get_spacing_shift_divisor() );
-			numimp_spacing_shift.set_increment_mode( 1 );
+			numimp_spacing_shift.set_increment_mode(1); 
 			numimp_spacing_shift.add_listener(this);
 			add_component(&numimp_spacing_shift);
 		}

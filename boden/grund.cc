@@ -2331,12 +2331,17 @@ bool grund_t::removing_way_would_disrupt_public_right_of_way(waytype_t wt)
 				diversion_checker->set_owner(welt->get_player(1));
 				test_driver_t *driver = diversion_checker;
 				driver = public_driver_t::apply(driver);
-				const uint32 default_road_axle_load = welt->get_city(w->get_pos().get_2d()) ? welt->get_settings().get_city_road_type(welt->get_timeline_year_month())->get_axle_load() : welt->get_settings().get_intercity_road_type(welt->get_timeline_year_month())->get_axle_load(); 
-				const sint32 default_road_speed = welt->get_city(w->get_pos().get_2d()) ?  welt->get_settings().get_city_road_type(welt->get_timeline_year_month())->get_topspeed() : welt->get_settings().get_intercity_road_type(welt->get_timeline_year_month())->get_topspeed();
+				const weg_besch_t* default_road = welt->get_city(w->get_pos().get_2d()) ? welt->get_settings().get_city_road_type(welt->get_timeline_year_month()) : welt->get_settings().get_intercity_road_type(welt->get_timeline_year_month());
+				if(default_road == NULL) // If, for some reason, the default road is not defined
+				{
+					default_road = w->get_besch();
+				}
+				const uint32 default_road_axle_load = default_road->get_axle_load();
+				const sint32 default_road_speed = default_road->get_topspeed();
 				const uint32 max_axle_load = w->get_waytype() == road_wt ? min(default_road_axle_load, w->get_max_axle_load()) : w->get_max_axle_load(); 
 				const sint32 max_speed = w->get_waytype() == road_wt ?  min(default_road_speed, w->get_max_speed()): w->get_max_speed(); 
 				const uint32 bridge_weight_limit = gr->ist_bruecke() ? w->get_bridge_weight_limit() : 0;
-				const uint32 bridge_weight =  max_axle_load * (w->get_waytype() == road_wt ? 2 : 1);  // This is something of a fudge, but it is reasonable to assume that most road vehicles have 2 axles.
+				const uint32 bridge_weight = max_axle_load * (w->get_waytype() == road_wt ? 2 : 1);  // This is something of a fudge, but it is reasonable to assume that most road vehicles have 2 axles.
 				if(diversionary_route.calc_route(welt, start, end, diversion_checker, w->get_max_speed(), max_axle_load, 0, welt->get_settings().get_max_diversion_tiles() * 100, bridge_weight))
 				{
 					// Only increment this counter if the ways were already connected.
