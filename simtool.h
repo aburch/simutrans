@@ -378,6 +378,7 @@ private:
 	static char toolstring[256];
 	const char *tool_station_building_aux(player_t *, bool, koord3d, const haus_besch_t *, sint8 rotation );
 	const char *tool_station_dock_aux(player_t *, koord3d, const haus_besch_t * );
+	const char *tool_station_flat_dock_aux(player_t *, koord3d, const haus_besch_t * );
 	const char *tool_station_aux(player_t *, koord3d, const haus_besch_t *, waytype_t, const char *halt_suffix );
 	const haus_besch_t *get_besch( sint8 &rotation ) const;
 

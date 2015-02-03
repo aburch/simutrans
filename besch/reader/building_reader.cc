@@ -94,7 +94,7 @@ void building_reader_t::register_obj(obj_besch_t *&data)
 			besch->enables = 1|4;
 		}
 		else if(  strcmp("ShipStop",besch->get_name()+checkpos-8)==0  ) {
-			besch->utype = haus_besch_t::hafen;
+			besch->utype = haus_besch_t::dock;
 			besch->extra_data = water_wt;
 			besch->enables = 1|4;
 		}
@@ -147,7 +147,7 @@ void building_reader_t::register_obj(obj_besch_t *&data)
 		// compability stuff
 		static uint16 old_to_new_waytype[16] = { track_wt, road_wt, road_wt, water_wt, water_wt, air_wt, monorail_wt, 0, track_wt, road_wt, road_wt, 0 , water_wt, air_wt, monorail_wt, 0 };
 		besch->extra_data = besch->utype<=haus_besch_t::monorail_geb ? old_to_new_waytype[besch->utype-haus_besch_t::bahnhof] : 0;
-		if(  besch->utype!=haus_besch_t::hafen  ) {
+		if(  besch->utype!=haus_besch_t::dock  ) {
 			besch->utype = besch->utype<haus_besch_t::bahnhof_geb ? haus_besch_t::generic_stop : haus_besch_t::generic_extension;
 		}
 	}

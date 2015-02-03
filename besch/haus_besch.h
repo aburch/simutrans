@@ -139,7 +139,7 @@ class haus_besch_t : public obj_besch_timelined_t {
 			bahnhof           =  8,
 			bushalt           =  9,
 			ladebucht         = 10,
-			hafen             = 11,// this is still current, as it is can be larger than 1x1
+			dock              = 11,// this is still current, as it is can be larger than 1x1
 			binnenhafen       = 12,
 			airport           = 13,
 			monorailstop      = 14,
@@ -157,6 +157,8 @@ class haus_besch_t : public obj_besch_timelined_t {
 			depot             = 33,
 			generic_stop      = 34,
 			generic_extension = 35,
+			// there are more types of docks
+			flat_dock         = 36, // dock, but can start on a flat coast line
 			last_haus_typ,
 			unbekannt_flag    = 128,
 		};

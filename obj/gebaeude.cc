@@ -174,7 +174,7 @@ void gebaeude_t::rotate90()
 			uint32 old_insta_zeit = insta_zeit;
 			set_tile( new_tile, false );
 			insta_zeit = old_insta_zeit;
-			if(  haus_besch->get_utyp() != haus_besch_t::hafen  &&  !tile->has_image()  ) {
+			if(  haus_besch->get_utyp() != haus_besch_t::dock  &&  !tile->has_image()  ) {
 				// may have a rotation, that is not recoverable
 				if(  !is_factory  &&  new_offset!=koord(0,0)  ) {
 					welt->set_nosave_warning();

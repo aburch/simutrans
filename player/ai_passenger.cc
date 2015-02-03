@@ -333,7 +333,7 @@ bool ai_passenger_t::create_water_transport_vehikel(const stadt_t* start_stadt, 
 			free(name);
 		}
 		// finally built the dock
-		const haus_besch_t* dock_besch = hausbauer_t::get_random_station(haus_besch_t::hafen, water_wt, welt->get_timeline_year_month(), 0);
+		const haus_besch_t* dock_besch = hausbauer_t::get_random_station(haus_besch_t::dock, water_wt, welt->get_timeline_year_month(), 0);
 		welt->lookup_kartenboden(start_harbour)->obj_loesche_alle(this);
 		call_general_tool( TOOL_BUILD_STATION, start_harbour, dock_besch->get_name() );
 		grund_t *harbour_gr = welt->lookup_kartenboden(start_harbour);
@@ -366,7 +366,7 @@ bool ai_passenger_t::create_water_transport_vehikel(const stadt_t* start_stadt, 
 			free(name);
 		}
 		// finally built the dock
-		const haus_besch_t* dock_besch = hausbauer_t::get_random_station(haus_besch_t::hafen, water_wt, welt->get_timeline_year_month(), 0 );
+		const haus_besch_t* dock_besch = hausbauer_t::get_random_station(haus_besch_t::dock, water_wt, welt->get_timeline_year_month(), 0 );
 		welt->lookup_kartenboden(end_harbour)->obj_loesche_alle(this);
 		call_general_tool( TOOL_BUILD_STATION, end_harbour, dock_besch->get_name() );
 		grund_t *harbour_gr = welt->lookup_kartenboden(end_harbour);

@@ -170,7 +170,8 @@ bool hausbauer_t::alles_geladen()
 				case haus_besch_t::fabrik:
 					break;
 
-				case haus_besch_t::hafen:
+				case haus_besch_t::dock:
+				case haus_besch_t::flat_dock:
 				case haus_besch_t::hafen_geb:
 				case haus_besch_t::depot:
 				case haus_besch_t::generic_stop:
@@ -258,7 +259,8 @@ void hausbauer_t::fill_menu(tool_selector_t* tool_selector, haus_besch_t::utyp u
 		case haus_besch_t::depot:
 			toolnr = TOOL_BUILD_DEPOT | GENERAL_TOOL;
 			break;
-		case haus_besch_t::hafen:
+		case haus_besch_t::dock:
+		case haus_besch_t::flat_dock:
 		case haus_besch_t::generic_stop:
 		case haus_besch_t::generic_extension:
 			toolnr = TOOL_BUILD_STATION | GENERAL_TOOL;
@@ -463,7 +465,7 @@ gebaeude_t* hausbauer_t::baue(player_t* player_, koord3d pos, int org_layout, co
 
 			// skip empty tiles
 			if (tile == NULL || (
-						besch->get_utyp() != haus_besch_t::hafen &&
+						!(besch->get_utyp() == haus_besch_t::dock  ||  besch->get_utyp() == haus_besch_t::flat_dock)  &&
 						tile->get_hintergrund(0, 0, 0) == IMG_LEER &&
 						tile->get_vordergrund(0, 0)    == IMG_LEER
 					)) {
@@ -489,7 +491,7 @@ gebaeude_t* hausbauer_t::baue(player_t* player_, koord3d pos, int org_layout, co
 			if(gr->ist_wasser()) {
 				gr->obj_add(gb);
 			}
-			else if (besch->get_utyp() == haus_besch_t::hafen) {
+			else if(  besch->get_utyp() == haus_besch_t::dock  ||  besch->get_utyp() == haus_besch_t::flat_dock  ) {
 				// it's a dock!
 				gr->obj_add(gb);
 			}
@@ -528,7 +530,7 @@ gebaeude_t* hausbauer_t::baue(player_t* player_, koord3d pos, int org_layout, co
 				if(station_building.is_contained(besch)) {
 					(*static_cast<halthandle_t *>(param))->add_grund(gr);
 				}
-				if (besch->get_utyp() == haus_besch_t::hafen) {
+				if(  besch->get_utyp() == haus_besch_t::dock  ||  besch->get_utyp() == haus_besch_t::flat_dock  ) {
 					// its a dock!
 					gb->set_yoff(0);
 				}
@@ -921,7 +923,8 @@ const vector_tpl<const haus_besch_t*>* hausbauer_t::get_list(const haus_besch_t:
 		case haus_besch_t::firmensitz:      return &headquarter;
 		case haus_besch_t::rathaus:         return &rathaeuser;
 		case haus_besch_t::attraction_city: return &sehenswuerdigkeiten_city;
-		case haus_besch_t::hafen:
+		case haus_besch_t::dock:
+		case haus_besch_t::flat_dock:
 		case haus_besch_t::hafen_geb:
 		case haus_besch_t::depot:
 		case haus_besch_t::generic_stop:

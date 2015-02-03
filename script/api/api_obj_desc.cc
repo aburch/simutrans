@@ -250,7 +250,9 @@ void export_goods_desc(HSQUIRRELVM vm)
 	/// company headquarter
 	enum_slot(vm, "headquarter", (uint8)haus_besch_t::firmensitz, true);
 	/// harbour
-	enum_slot(vm, "harbour", (uint8)haus_besch_t::hafen, true);
+	enum_slot(vm, "harbour", (uint8)haus_besch_t::dock, true);
+	/// harbour without a slope (buildable on flat ground beaches)
+	enum_slot(vm, "flat_harbour", (uint8)haus_besch_t::flat_dock, true);
 	/// depot
 	enum_slot(vm, "depot", (uint8)haus_besch_t::depot, true);
 	/// station

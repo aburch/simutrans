@@ -2424,7 +2424,8 @@ void haltestelle_t::add_to_station_type( grund_t *gr )
 	// there is only one loading bay ...
 	switch (besch->get_utyp()) {
 		case haus_besch_t::ladebucht:    station_type |= loadingbay;   break;
-		case haus_besch_t::hafen:
+		case haus_besch_t::dock:
+		case haus_besch_t::flat_dock:
 		case haus_besch_t::binnenhafen:  station_type |= dock;         break;
 		case haus_besch_t::bushalt:      station_type |= busstop;      break;
 		case haus_besch_t::airport:      station_type |= airstop;      break;
