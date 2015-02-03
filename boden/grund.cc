@@ -637,6 +637,19 @@ void grund_t::info(cbuffer_t& buf) const
 		buf.printf("\nwater ribi: %i",get_weg_ribi_unmasked(water_wt));
 	}
 	buf.printf("\ndraw_as_obj= %i",(flags&draw_as_obj)!=0);
+	buf.append("\nclimates= ");
+
+	bool following = false;
+	climate cl = welt->get_climate( get_pos().get_2d() );
+	for(  uint16 i=0;  i < MAX_CLIMATES;  i++  ) {
+		if(  cl & (1<<i)  ) {
+			if(  following  ) {
+				buf.append( ", " );
+			}
+			following = true;
+			buf.append( translator::translate( grund_besch_t::get_climate_name_from_bit((climate)i) ) );
+		}
+	}
 #endif
 }
 
