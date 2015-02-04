@@ -45,7 +45,7 @@ protected:
 
 	void postprocess_water_route(karte_t *welt);
 public:
-	typedef enum { no_route=0, valid_route=1, valid_route_halt_too_short=3, already_there=4 } route_result_t;
+	typedef enum { no_route=0, valid_route=1, valid_route_halt_too_short=3 } route_result_t;
 
 	// Constructor: set axle load and convoy weight to maximum possible value
 	route_t() : max_axle_load(0xFFFFFFFFl), max_convoy_weight(0xFFFFFFFFl) {};
