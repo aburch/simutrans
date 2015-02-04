@@ -1239,6 +1239,7 @@ bool convoi_t::drive_to()
 	{
 		koord3d start = front()->get_pos();
 		koord3d ziel = fpl->get_current_eintrag().pos;
+		const koord3d original_ziel = ziel;
 
 		// Check whether the next stop is within range.
 		if(min_range > 0)
@@ -1250,12 +1251,13 @@ bool convoi_t::drive_to()
 			while(count < fpl->get_count() && !haltestelle_t::get_halt(ziel, owner).is_bound() && !depot)
 			{
 				// The next stop is a waypoint - advance 
-				is_reversed() ? fpl->advance_reverse() : fpl->advance();
+				reverse_schedule ? fpl->advance_reverse() : fpl->advance();
 				ziel = fpl->get_current_eintrag().pos;
 				count ++;
 			}
 			const uint16 distance = (shortest_distance(start.get_2d(), ziel.get_2d()) * welt->get_settings().get_meters_per_tile()) / 1000u;
 			fpl->set_aktuell(original_aktuell);
+			ziel = original_ziel;
 			if(distance > min_range)
 			{
 				state = OUT_OF_RANGE;
