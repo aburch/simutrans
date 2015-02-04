@@ -2559,10 +2559,16 @@ void fabrik_t::info_prod(cbuffer_t& buf) const
  * This is a subroutine in order to avoid code duplication.
  * @author neroden
  */
-void fabrik_t::recalc_nearby_halts() {
+void fabrik_t::recalc_nearby_halts() 
+{
 	// Temporary list for accumulation of halts;
-	// avoid duplicating work on freight and passenger
+	// avoid duplicating work on freight and passengers
 	vector_tpl<nearby_halt_t> nearby_halts;
+
+	// Clear out the old lists.
+	nearby_freight_halts.clear();
+	nearby_passenger_halts.clear();
+	nearby_mail_halts.clear();
 
 	// Go through all the base tiles of the factory.
 	vector_tpl<koord> tile_list;
@@ -2586,8 +2592,9 @@ void fabrik_t::recalc_nearby_halts() {
 					bool duplicate = false;
 					for(uint32 j=0; j < nearby_halts.get_count(); j++)
 					{
-						if (new_nearby_halt.halt == nearby_halts[j].halt) {
-							duplicate=true;
+						if(new_nearby_halt.halt == nearby_halts[j].halt)
+						{
+							duplicate = true;
 							// Same halt handle.
 							// We always want the shorter of the two distances...
 							// Since goods/passengers can ship from any part of a factory
@@ -2595,8 +2602,31 @@ void fabrik_t::recalc_nearby_halts() {
 							nearby_halts[j].distance = new_distance;
 						}
 					}
-					if (!duplicate) {
+					if(!duplicate)
+					{
 						nearby_halts.append(new_nearby_halt);
+						if(new_nearby_halt.halt->get_pax_enabled())
+						{
+							nearby_passenger_halts.append(new_nearby_halt);
+						}
+						if(new_nearby_halt.halt->get_post_enabled())
+						{
+							nearby_mail_halts.append(new_nearby_halt);
+						}
+						if(new_nearby_halt.halt->get_ware_enabled() && new_nearby_halt.distance <= welt->get_settings().get_station_coverage_factories())
+						{
+							// Halt is within freight coverage distance (shorter than regular) and handles freight...
+							if(get_besch()->get_platzierung() == fabrik_besch_t::Wasser && (new_nearby_halt.halt->get_station_type() & haltestelle_t::dock) == 0)
+							{
+								// But this is a water factory and it's not a dock.
+								// So do nothing.
+							}
+							else
+							{
+								// Add to the list of freight halts.
+								nearby_freight_halts.append(new_nearby_halt);
+							}
+						}
 					}
 				}
 			}
@@ -2608,48 +2638,6 @@ void fabrik_t::recalc_nearby_halts() {
 		dbg->fatal("fabrik_t::recalc_nearby_halts", "%s has no location on the map!", get_name() );
 	}
 #endif // DEBUG
-	// We now have a list of nearby halts, without duplicates,
-	// and each with the shortest distance to it.
-
-	// Clear out the old lists.
-	nearby_freight_halts.clear();
-	nearby_passenger_halts.clear();
-	nearby_mail_halts.clear();
-
-	// Now filter the new list by freight vs. passengers.
-	FOR(vector_tpl<nearby_halt_t>, const k, nearby_halts)
-	{
-		if (k.halt->get_pax_enabled())
-		{
-			nearby_passenger_halts.append(k);
-		}
-		if (k.halt->get_post_enabled())
-		{
-			nearby_mail_halts.append(k);
-		}
-		// Horribly, we must only recognize freight halts which are within a certain "square" distance
-		// of the target halt, thanks to James's computation-intensive "freight coverage" rule.
-		// We rely on the meat of halt:verbinde_fabriken having been run already, so that this list of
-		// factories is already present in the target halt.
-		// It's a list of factory pointers, so we're looking for "this" in it.
-		// Horrible horrible pointer comparison dependency...
-		if(  k.halt->get_ware_enabled()
-			 && k.halt->get_fab_list().is_contained(this) )
-		{
-			// Halt is within freight coverage distance (shorter than regular) and handles freight...
-			if (get_besch()->get_platzierung() == fabrik_besch_t::Wasser
-				&& (k.halt->get_station_type() & haltestelle_t::dock) == 0)
-			{
-				// But this is a water factory and it's not a dock.
-				// So do nothing.
-			}
-			else
-			{
-				// OK, add to list of freight halts.
-				nearby_freight_halts.append(k);
-			}
-		}
-	}
 }
 
 void fabrik_t::info_conn(cbuffer_t& buf) const
