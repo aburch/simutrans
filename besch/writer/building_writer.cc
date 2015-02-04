@@ -157,7 +157,7 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	}
 	else if (!STRICMP(type_name, "dock")) {
 		// buildable only on flat shores
-		utype      = haus_besch_t::flat_harbour;
+		utype      = haus_besch_t::flat_dock;
 		extra_data = water_wt;
 	}
 	else if (!STRICMP(type_name, "fac")) {
@@ -217,7 +217,7 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 		enables |= 4;
 	}
 
-	if(  utype==haus_besch_t::generic_extension  ||  utype==haus_besch_t::generic_stop  ||  utype==haus_besch_t::hafen  ||  utype==haus_besch_t::depot  ||  utype==haus_besch_t::fabrik  ) {
+	if(  utype==haus_besch_t::generic_extension  ||  utype==haus_besch_t::generic_stop  ||  utype==haus_besch_t::dock  ||  utype==haus_besch_t::depot  ||  utype==haus_besch_t::fabrik  ) {
 		// since elevel was reduced by one beforehand ...
 		++level;
 	}
