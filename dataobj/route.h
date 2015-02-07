@@ -157,7 +157,7 @@ public:
 	* @param max_depth is the maximum length of a route
 	* @author prissi
 	*/
-	bool find_route(karte_t *w, const koord3d start, test_driver_t *tdriver, const uint32 max_khm, uint8 start_dir, uint32 axle_load, uint32 total_weight, uint32 max_depth, find_route_flags flags = none);
+	bool find_route(karte_t *w, const koord3d start, test_driver_t *tdriver, const uint32 max_khm, uint8 start_dir, uint32 axle_load, sint32 max_tile_len, uint32 total_weight, uint32 max_depth, find_route_flags flags = none);
 
 	/**
 	 * Calculates the route from @p start to @p target

@@ -2883,7 +2883,7 @@ bool road_vehicle_t::choose_route( int &restart_speed, ribi_t::ribi richtung, ui
 			// now it make sense to search a route
 			route_t target_rt;
 			koord3d next3d = rt->position_bei(index);
-			if(  !target_rt.find_route( welt, next3d, this, speed_to_kmh(cnv->get_min_top_speed()), richtung, cnv->get_highest_axle_load(), cnv->get_weight_summary().weight / 1000, 33 )  ) {
+			if(  !target_rt.find_route(welt, next3d, this, speed_to_kmh(cnv->get_min_top_speed()), richtung, cnv->get_highest_axle_load(), cnv->get_tile_length(), cnv->get_weight_summary().weight / 1000, 33 )  ) {
 				// nothing empty or not route with less than 33 tiles
 				target_halt = halthandle_t();
 				restart_speed = 0;
@@ -2975,7 +2975,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, int &restart_speed, bool 
 
 							// now it make sense to search a route
 							route_t target_rt;
-							if(  !target_rt.find_route( welt, pos_next, this, speed_to_kmh(cnv->get_min_top_speed()), richtung, cnv->get_highest_axle_load(), cnv->get_weight_summary().weight / 1000, 33 )  ) {
+							if(  !target_rt.find_route( welt, pos_next, this, speed_to_kmh(cnv->get_min_top_speed()), richtung, cnv->get_highest_axle_load(), cnv->get_tile_length(), cnv->get_weight_summary().weight / 1000, 33 )  ) {
 								// nothing empty or not route with less than 33 tiles
 								target_halt = halthandle_t();
 								restart_speed = 0;
@@ -3123,7 +3123,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, int &restart_speed, bool 
 									// now it make sense to search a route
 									route_t target_rt;
 									koord3d next3d = r.position_bei(test_index);
-									if(  !target_rt.find_route( welt, next3d, this, speed_to_kmh(cnv->get_min_top_speed()), curr_90direction, cnv->get_highest_axle_load(), cnv->get_weight_summary().weight / 1000, 33 )  ) {
+									if(  !target_rt.find_route( welt, next3d, this, speed_to_kmh(cnv->get_min_top_speed()), curr_90direction, cnv->get_highest_axle_load(), cnv->get_tile_length(), cnv->get_weight_summary().weight / 1000, 33 )  ) {
 										// nothing empty or not route with less than 33 tiles
 										target_halt = halthandle_t();
 										restart_speed = 0;
@@ -3785,9 +3785,9 @@ skip_choose:
 		const int richtung = ribi_typ(get_pos().get_2d(),pos_next.get_2d());	// to avoid confusion at diagonals
 		cnv->set_is_choosing(true);
 #ifdef MAX_CHOOSE_BLOCK_TILES
-		if(  !target_rt.find_route( welt, cnv->get_route()->position_bei(start_block), this, speed_to_kmh(cnv->get_min_top_speed()), richtung, cnv->get_highest_axle_load(), cnv->get_weight_summary().weight / 1000, MAX_CHOOSE_BLOCK_TILES, route_t::choose_signal )  ) {
+		if(  !target_rt.find_route( welt, cnv->get_route()->position_bei(start_block), this, speed_to_kmh(cnv->get_min_top_speed()), richtung, cnv->get_highest_axle_load(), cnv->get_tile_length(), cnv->get_weight_summary().weight / 1000, MAX_CHOOSE_BLOCK_TILES, route_t::choose_signal )  ) {
 #else
-		if(  !target_rt.find_route( welt, cnv->get_route()->position_bei(start_block), this, speed_to_kmh(cnv->get_min_top_speed()), richtung, cnv->get_highest_axle_load(), cnv->get_weight_summary().weight / 1000, welt->get_size().x+welt->get_size().y, route_t::choose_signal )  ) {
+		if(  !target_rt.find_route( welt, cnv->get_route()->position_bei(start_block), this, speed_to_kmh(cnv->get_min_top_speed()), richtung, cnv->get_highest_axle_load(), cnv->get_tile_length(), cnv->get_weight_summary().weight / 1000, welt->get_size().x+welt->get_size().y, route_t::choose_signal )  ) {
 #endif
 			// nothing empty or not route with less than MAX_CHOOSE_BLOCK_TILES tiles
 			target_halt = halthandle_t();
@@ -5150,7 +5150,7 @@ bool air_vehicle_t::find_route_to_stop_position()
 		route_t target_rt;
 		flight_state prev_state = state;
 		state = looking_for_parking;
-		if(!target_rt.find_route( welt, rt->position_bei(search_for_stop), this, 500, ribi_t::alle, cnv->get_highest_axle_load(), cnv->get_weight_summary().weight / 1000, 100 )) {
+		if(!target_rt.find_route( welt, rt->position_bei(search_for_stop), this, 500, ribi_t::alle, cnv->get_highest_axle_load(), cnv->get_tile_length(), cnv->get_weight_summary().weight / 1000, 100 )) {
 DBG_MESSAGE("air_vehicle_t::find_route_to_stop_position()","found no route to free one");
 			// circle slowly another round ...
 			target_halt = halthandle_t();
@@ -5285,7 +5285,7 @@ bool air_vehicle_t::calc_route_internal(
 		approach_dir = ribi_t::nordost;	// reverse
 		DBG_MESSAGE("air_vehicle_t::calc_route()","search runway start near (%s)",start.get_str());
 #endif
-		if(!route.find_route( welt, start, this, max_speed, ribi_t::alle, weight, cnv->get_weight_summary().weight / 1000, welt->get_settings().get_max_route_steps())) {
+		if(!route.find_route( welt, start, this, max_speed, ribi_t::alle, weight, cnv->get_tile_length(), cnv->get_weight_summary().weight / 1000, welt->get_settings().get_max_route_steps())) {
 			DBG_MESSAGE("air_vehicle_t::calc_route()","failed");
 			return false;
 		}
@@ -5305,7 +5305,7 @@ bool air_vehicle_t::calc_route_internal(
 #endif
 	route_t end_route;
 
-	if(!end_route.find_route( welt, ziel, this, max_speed, ribi_t::alle, weight, cnv->get_weight_summary().weight / 1000, welt->get_settings().get_max_route_steps())) {
+	if(!end_route.find_route( welt, ziel, this, max_speed, ribi_t::alle, weight, cnv->get_tile_length(), cnv->get_weight_summary().weight / 1000, welt->get_settings().get_max_route_steps())) {
 		// well, probably this is a waypoint
 		end_in_air = true;
 		search_end = ziel;

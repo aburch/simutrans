@@ -2762,7 +2762,7 @@ void wegbauer_t::baue_fluss()
 		 */
 		route_t to_the_sea;
 		fluss_test_driver_t river_tester;
-		if (to_the_sea.find_route(welt, welt->lookup_kartenboden(route[start_n].get_2d())->get_pos(), &river_tester, 0, ribi_t::alle, 0, 0, 0x7FFFFFFF)) {
+		if(to_the_sea.find_route(welt, welt->lookup_kartenboden(route[start_n].get_2d())->get_pos(), &river_tester, 0, ribi_t::alle, 0, 1, 0, 0x7FFFFFFF)) {
 			FOR(koord3d_vector_t, const& i, to_the_sea.get_route()) {
 				if (weg_t* const w = welt->lookup(i)->get_weg(water_wt)) {
 					int type;

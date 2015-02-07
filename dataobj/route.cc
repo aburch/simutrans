@@ -167,7 +167,7 @@ void route_t::RELEASE_NODES(uint8 nodes_index)
 /* find the route to an unknown location
  * @author prissi
  */
-bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdriver, const uint32 max_khm, uint8 start_dir, uint32 axle_load, uint32 total_weight, uint32 max_depth, find_route_flags flags)
+bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdriver, const uint32 max_khm, uint8 start_dir, uint32 axle_load, sint32 max_tile_len, uint32 total_weight, uint32 max_depth, find_route_flags flags)
 {
 	bool ok = false;
 
@@ -243,6 +243,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 	queue.insert(tmp);
 
 	const grund_t* gr = NULL;
+	int bridge_tile_count = 0;
 	do 
 	{
 		// Hajo: this is too expensive to be called each step
@@ -353,6 +354,15 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 		{
 			ribi = tdriver->get_ribi(gr);
 		}
+
+		if(gr->ist_bruecke())
+		{
+			bridge_tile_count++;
+		}
+		else
+		{
+			bridge_tile_count = 0;
+		}
 		for(int r = 0; r < 4; r++) 
 		{
 			// a way goes here, and it is not marked (i.e. in the closed list)
@@ -372,14 +382,18 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 					const uint32 way_max_axle_load = w->get_max_axle_load();
 					const uint32 bridge_weight_limit = w->get_bridge_weight_limit();
 
-					if(axle_load > way_max_axle_load || total_weight > bridge_weight_limit)
+					// This ensures that only that part of the convoy that is actually on the bridge counts.
+					uint32 adjusted_convoy_weight = max_tile_len == 0 ? total_weight : (total_weight * max(bridge_tile_count - 2, 1)) / max_tile_len;
+					const uint32 min_weight = min(adjusted_convoy_weight, total_weight);
+
+					if(axle_load > way_max_axle_load || adjusted_convoy_weight > bridge_weight_limit)
 					{
 						if(enforce_weight_limits == 2)
 						{
 							// Avoid routing over ways for which the convoy is overweight.
 							continue;
 						}
-						else if(enforce_weight_limits == 3 && (way_max_axle_load > 0 && (axle_load * 100) / way_max_axle_load > 110) || (bridge_weight_limit > 0 && (total_weight * 100) / bridge_weight_limit > 110))
+						else if(enforce_weight_limits == 3 && (way_max_axle_load > 0 && (axle_load * 100) / way_max_axle_load > 110) || (bridge_weight_limit > 0 && (adjusted_convoy_weight * 100) / bridge_weight_limit > 110))
 						{
 							// Avoid routing over ways for which the convoy is more than 10% overweight.
 							continue;
