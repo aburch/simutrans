@@ -49,6 +49,7 @@ protected:
 	static uint16 diagonal_multiplier;
 
 	// [0]=xoff [1]=yoff
+	static sint8 driveleft_base_offsets[8][2];
 	static sint8 overtaking_base_offsets[8][2];
 
 	/**
@@ -59,9 +60,6 @@ protected:
 
 	// true on slope (make calc_height much faster)
 	uint8 use_calc_height:1;
-
-	// if true, use offsets to emulate driving on other side
-	uint8 drives_on_left:1;
 
 	sint8 dx, dy;
 

@@ -804,13 +804,10 @@ void private_car_t::hop(grund_t* to)
 }
 
 
-
 void private_car_t::calc_image()
 {
 	set_bild(besch->get_bild_nr(ribi_t::get_dir(get_direction())));
-	drives_on_left = welt->get_settings().is_drive_left();	// reset driving settings
 }
-
 
 
 void private_car_t::calc_current_speed(grund_t* gr)
@@ -834,11 +831,16 @@ void private_car_t::info(cbuffer_t & buf) const
 }
 
 
-
 // to make smaller steps than the tile granularity, we have to use this trick
 void private_car_t::get_screen_offset( int &xoff, int &yoff, const sint16 raster_width ) const
 {
 	vehicle_base_t::get_screen_offset( xoff, yoff, raster_width );
+
+	if(  welt->get_settings().is_drive_left()  ) {
+		const int drive_left_dir = ribi_t::get_dir(get_direction());
+		xoff += tile_raster_scale_x( driveleft_base_offsets[drive_left_dir][0], raster_width );
+		yoff += tile_raster_scale_y( driveleft_base_offsets[drive_left_dir][1], raster_width );
+	}
 
 	// eventually shift position to take care of overtaking
 	if(  is_overtaking()  ) {
