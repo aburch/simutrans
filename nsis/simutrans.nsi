@@ -1,5 +1,12 @@
 ; ************************************* Pakset downloader for simutrans *********************************************
 
+; needs the following plugins:
+; nsisunz
+; inetc
+; CabDll
+; untgz
+; ShellLink
+
 !include "preparation-functions.nsh"
 
 var group1
