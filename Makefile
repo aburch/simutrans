@@ -76,8 +76,8 @@ SDL_CONFIG     ?= sdl-config
 SDL2_CONFIG    ?= sdl2-config
 
 ifneq ($(OPTIMISE),)
-    CFLAGS += -O3
-  ifeq ($(findstring $(OSTYPE), amiga haiku mac),)
+  CFLAGS += -O3
+  ifeq ($(findstring $(OSTYPE), amiga),)
     CFLAGS += -minline-all-stringops
   endif
 else

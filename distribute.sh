@@ -6,6 +6,32 @@
 # "-rev=###" overide SDL revision with ## (number)
 
 
+# get pthreads DLL
+getDLL()
+{
+	# Use curl if available, else use wget
+	echo "Downloading pthreadGC2.dll"
+	curl -q -h > /dev/null
+	if [ $? -eq 0 ]; then
+		curl -q ftp://sourceware.org/pub/pthreads-win32/dll-latest/dll/x86/pthreadGC2.dll > pthreadGC2.dll || {
+		echo "Error: download of PthreadGC2.dll failed (curl returned $?)" >&2
+		exit 4
+	}
+	else
+		wget -q --help > /dev/null
+		if [ $? -eq 0 ]; then
+			wget -q -N ftp://sourceware.org/pub/pthreads-win32/dll-latest/dll/x86/pthreadGC2.dll || {
+			echo "Error: download of PthreadGC2.dll failed (wget returned $?)" >&2
+			exit 4
+		}
+		else
+			echo "Error: Neither curl or wget are available on your system, please install either and try again!" >&2
+			exit 6
+		fi
+	fi
+}
+
+
 # first assume unix name defaults ...
 simexe=
 updatepath="/"
@@ -30,6 +56,9 @@ elif [ "$OST" = "mingw" ]; then
     simarchivbase=simuwin
 # Missing: Copy matching SDL dll!
   fi
+  cd simutrans
+  getDLL
+  cd ..
   updatepath="/nsis/"
   updater="download-paksets.exe"
   cd nsis
@@ -62,7 +91,7 @@ fi
 distribute()
 {
 	# pack all files of the current release
-	FILELISTE=`find simutrans -type f "(" -name "*.tab" -o -name "*.mid" -o -name "*.bdf" -o -name "*.fnt" -o -name "*.txt"  -o -name "*.dll"  -o -name "*.pak" -o  -name "*.nut" ")"`
+	FILELISTE=`find simutrans -type f "(" -name "*.tab" -o -name "*.mid" -o -name "*.bdf" -o -name "*.fnt" -o -name "*.txt"  -o -name "*.dll" -o -name "*.pak" -o -name "*.nut" -o -name "*.dll" ")"`
 	zip -9 $simarchiv.zip $FILELISTE simutrans/simutrans$simexe simutrans/$updater
 }
 
@@ -97,4 +126,5 @@ distribute
 
 # .. finally delete executable and language files
 rm simutrans/simutrans$simexe
+rm simutrans/pthread*.dll
 #rm simutrans/text/*.tab

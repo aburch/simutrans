@@ -43,11 +43,11 @@ $(BUILDDIR)/%.o: %.m
 	$(Q)$(CXX) $(CXXFLAGS) $(OBJCFLAGS) -c -MMD -o $@ $<
 
 $(BUILDDIR)/%.o: %.c
-	@echo "===> CC  $<"
+	@echo "===> HOSTCC  $<"
 	$(Q)$(CC) $(CCFLAGS) -c -MMD -o $@ $<
 
 $(BUILDDIR)/%.o: %.cc
-	@echo "===> CXX $<"
+	@echo "===> HOSTCXX $<"
 	$(Q)$(CXX) $(CXXFLAGS) -c -MMD -o $@ $<
 
 $(BUILDDIR)/%.o: %.rc
