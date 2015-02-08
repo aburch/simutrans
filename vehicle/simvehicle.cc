@@ -3642,10 +3642,10 @@ bool rail_vehicle_t::is_longblock_signal_clear( signal_t *sig, uint16 next_block
 	route_t target_rt;
 	schedule_t *fpl = cnv->get_schedule();
 	uint8 fahrplan_index = fpl->get_aktuell();
-	bool reversed = cnv->get_reverse_schedule();
-	fpl->increment_index(&fahrplan_index, &reversed);
+	bool rev = cnv->get_reverse_schedule();
+	fpl->increment_index(&fahrplan_index, &rev);
 	koord3d cur_pos = cnv->get_route()->back();
-	uint16 dummy, next_next_signal;
+	uint16 next_next_signal;
 	success = true;
 	while(fahrplan_index != cnv->get_schedule()->get_aktuell()) 
 	{
@@ -3675,7 +3675,7 @@ bool rail_vehicle_t::is_longblock_signal_clear( signal_t *sig, uint16 next_block
 		}
 		// prepare for next leg of schedule
 		cur_pos = target_rt.back();
-		fpl->increment_index(&fahrplan_index, &reversed);
+		fpl->increment_index(&fahrplan_index, &rev);
 	}
 	if(  cnv->get_next_stop_index()-1 <= route_index  ) {
 		cnv->set_next_stop_index( cnv->get_route()->get_count()-1 );
@@ -4507,7 +4507,7 @@ bool rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16 &
 	{
 		const koord3d signal_pos = route->position_bei(next_signal_index);
 	
-		if((this_halt.is_bound() && (haltestelle_t::get_halt(signal_pos, get_owner())) == this_halt))
+		if((this_halt.is_bound() && (haltestelle_t::get_halt(signal_pos, get_owner())) == this_halt) && (haltestelle_t::get_halt(get_pos(), get_owner()) == this_halt))
 		{
 			// This is a platform starter signal for this station: do not move until it clears.
 			int restart_speed = -1;
