@@ -222,7 +222,7 @@ void modal_dialogue( gui_frame_t *gui, ptrdiff_t magic, karte_t *welt, bool (*qu
 		welt->reset_interaction();
 		welt->reset_timer();
 
-		long ms_pause = max( 25, 1000/env_t::fps );
+		uint32 ms_pause = max( 25, 1000/env_t::fps );
 		uint32 last_step = dr_time();
 		uint step_count = 5;
 		while(  win_is_open(gui)  &&  !env_t::quit_simutrans  &&  !quit()  ) {

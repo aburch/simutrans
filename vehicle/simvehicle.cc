@@ -1399,7 +1399,7 @@ bool vehicle_t::is_stuck()
 void vehicle_t::rdwr(loadsave_t *file)
 {
 	// this is only called from objlist => we save nothing ...
-	assert(  file->is_saving()  );
+	assert(  file->is_saving()  ); (void)file;
 }
 
 

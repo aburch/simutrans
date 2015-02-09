@@ -289,6 +289,8 @@ bool brueckenbauer_t::is_monorail_junction(koord3d pos, player_t *player, const 
 }
 
 #define height_okay(h) (((h) < min_bridge_height || (h) > max_height) ? false : height_okay_array[h-min_bridge_height])
+// 2 to suppress warnings when h=start_height+x  and min_bridge_height=start_height
+#define height_okay2(h) (((h) > max_height) ? false : height_okay_array[h-min_bridge_height])
 
 koord3d brueckenbauer_t::finde_ende(player_t *player, koord3d pos, const koord zv, const bruecke_besch_t *besch, const char *&error_msg, sint8 &bridge_height, bool ai_bridge, uint32 min_length, bool high_bridge )
 {
@@ -485,15 +487,15 @@ koord3d brueckenbauer_t::finde_ende(player_t *player, koord3d pos, const koord z
 				}
 			}
 
-			if (finish) {
-				if (high_bridge) {
-					if (height_okay(start_height+2)) {
+			if(  finish  ) {
+				if(  high_bridge  ) {
+					if(  height_okay2( start_height + 2 )  ) {
 						bridge_height = 2;
 					}
-					else if (height_okay(start_height+1)) {
+					else if(  height_okay2( start_height + 1 )  ) {
 						bridge_height = 1;
 					}
-					else if (height_okay(start_height+0)) {
+					else if(  height_okay2( start_height )  ) {
 						bridge_height = 0;
 					}
 					else {
@@ -501,13 +503,13 @@ koord3d brueckenbauer_t::finde_ende(player_t *player, koord3d pos, const koord z
 					}
 				}
 				else {
-					if (height_okay(start_height)) {
+					if(  height_okay2( start_height )  ) {
 						bridge_height = 0;
 					}
-					else if (height_okay(start_height+1)) {
+					else if(  height_okay2( start_height + 1 )  ) {
 						bridge_height = 1;
 					}
-					else if (height_okay(start_height+2)) {
+					else if(  height_okay2( start_height + 2 )  ) {
 						bridge_height = 2;
 					}
 					else {

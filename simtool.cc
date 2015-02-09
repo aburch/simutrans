@@ -2401,7 +2401,7 @@ const char *tool_build_bridge_t::do_work( player_t *player, const koord3d &start
 		sint8 bridge_height;
 		const char *error;
 		koord3d end2 = brueckenbauer_t::finde_ende(player, start, zv, besch, error, bridge_height, false, koord_distance(start, end), is_ctrl_pressed());
-		assert(end2 == end);
+		assert(end2 == end); (void)end2;
 		brueckenbauer_t::baue_bruecke( player, start, end, zv, bridge_height, besch, wegbauer_t::weg_search(besch->get_waytype(), besch->get_topspeed(), welt->get_timeline_year_month(), weg_t::type_flat));
 		return NULL; // all checks are performed before building.
 	}
@@ -2423,8 +2423,7 @@ void tool_build_bridge_t::mark_tiles(  player_t *player, const koord3d &start, c
 	const char *error;
 	sint8 bridge_height;
 	koord3d end2 = brueckenbauer_t::finde_ende(player, start, zv, besch, error, bridge_height, false, koord_distance(start, end), is_ctrl_pressed());
-
-	assert(end == end2);
+	assert(end2 == end); (void)end2;
 
 	sint64 costs = 0;
 	// start
@@ -3768,7 +3767,6 @@ const char *tool_build_station_t::tool_station_flat_dock_aux(player_t *player, k
 		return "No suitable ground!";
 	}
 
-	uint8 *last_error = NULL;
 	for(  uint8 ii=0;  ii<4;  ii++  ) {
 
 		if(  !(water_dir & (1<<ii))  ) {
@@ -3808,7 +3806,7 @@ const char *tool_build_station_t::tool_station_flat_dock_aux(player_t *player, k
 			}
 
 			// this is intended, it is an assignment!
-			if(  last_error = gr->kann_alle_obj_entfernen(player)  ) {
+			if(  (last_error = gr->kann_alle_obj_entfernen(player))  ) {
 				break;
 			}
 
@@ -3837,9 +3835,9 @@ const char *tool_build_station_t::tool_station_flat_dock_aux(player_t *player, k
 		}
 	}
 
-	// now we may have more than one dir left; maybe there is a nearbe halt to break the tie
+	// now we may have more than one dir left; maybe there is a nearby halt to break the tie
 	// this does not work without a halt, or when both N and S resp E and W are possible
-	if(  total_dir > 1  &&  !halt.is_bound()  ||  (water_dir & 3) == 3  ||  (water_dir & 12) == 12  ) {
+	if(  (total_dir > 1  &&  !halt.is_bound())  ||  (water_dir & 3) == 3  ||  (water_dir & 12) == 12  ) {
 		return "No suitable ground!";
 	}
 	else {
@@ -3871,7 +3869,7 @@ const char *tool_build_station_t::tool_station_flat_dock_aux(player_t *player, k
 	}
 
 	// nothing left or not unique => fail too (in the latter case one might use one random oreintation)
-	if(  water_dir == 0  ||  (water_dir &  3)  &&  (water_dir & 12)  ) {
+	if(  water_dir == 0  ||  ((water_dir &  3)  &&  (water_dir & 12))  ) {
 		return "No suitable ground!";
 	}
 
@@ -3891,7 +3889,7 @@ const char *tool_build_station_t::tool_station_flat_dock_aux(player_t *player, k
 			layout = nsow_to_layout[i];
 			if(  layout>=2  ) {
 				// reverse construction in these directions
-				koord3d bau_pos = welt->lookup_kartenboden(last_k)->get_pos();
+				bau_pos = welt->lookup_kartenboden(last_k)->get_pos();
 			}
 		}
 	}

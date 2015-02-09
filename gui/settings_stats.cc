@@ -59,7 +59,7 @@ void settings_stats_t::free_all()
 
 bool settings_general_stats_t::action_triggered(gui_action_creator_t *komp, value_t v)
 {
-	assert( komp==&savegame );
+	assert( komp==&savegame ); (void)komp;
 
 	if(  v.i==-1  ) {
 		savegame.set_selection( 0 );

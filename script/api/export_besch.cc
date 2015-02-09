@@ -32,7 +32,7 @@ SQInteger get_besch_pointer(HSQUIRRELVM vm)
 void begin_besch_class(HSQUIRRELVM vm, const char* name, const char* base, GETBESCHFUNC func)
 {
 	SQInteger res = create_class(vm, name, base);
-	assert( SQ_SUCCEEDED(res) );
+	assert( SQ_SUCCEEDED(res) ); (void)res;
 	// store method to retrieve besch in typetag pointer
 	sq_settypetag(vm, -1, (void*)func);
 	registered_besch_functions.append_unique( func );

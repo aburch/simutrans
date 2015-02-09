@@ -558,7 +558,7 @@ void grund_besch_t::init_ground_textures(karte_t *w)
 	bild_besch_t *all_rotations_beach[totalslopes]; // water->sand->texture
 	bild_besch_t *all_rotations_slope[totalslopes]; // texture1->texture2
 
-	bild_besch_t *final_tile;
+	bild_besch_t *final_tile = NULL;
 
 	bool full_climate = true;
 	// check if there are double slopes available

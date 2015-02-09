@@ -1028,8 +1028,8 @@ bool convoi_t::drive_to()
 			const uint8 aktuell = fpl->get_aktuell();
 			if(  fahr[0]->get_waytype() != water_wt  ) {
 				air_vehicle_t *const plane = dynamic_cast<air_vehicle_t *>(fahr[0]);
-				uint32 takeoff, search, landing;
-				air_vehicle_t::flight_state plane_state;
+				uint32 takeoff = 0, search = 0, landing = 0;
+				air_vehicle_t::flight_state plane_state = air_vehicle_t::taxiing;
 				if(  plane  ) {
 					// due to the complex state system of aircrafts, we have to save index and state
 					plane->get_event_index( plane_state, takeoff, search, landing );

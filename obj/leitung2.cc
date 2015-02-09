@@ -367,7 +367,7 @@ void leitung_t::finish_rd()
 	pthread_mutex_unlock( &calc_bild_mutex );
 #endif
 	grund_t *gr = welt->lookup(get_pos());
-	assert(gr);
+	assert(gr); (void)gr;
 
 	player_t::add_maintenance(get_owner(), besch->get_wartung(), powerline_wt);
 }

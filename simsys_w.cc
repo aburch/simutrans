@@ -660,7 +660,7 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 			return DefWindowProcW( this_hwnd, msg, wParam, lParam );
 
 		case WM_IME_COMPOSITION: {
-			HIMC immcx = NULL;
+			HIMC immcx = 0;
 			if(  lParam & (GCS_RESULTSTR|GCS_COMPSTR)  ) {
 				immcx = ImmGetContext( this_hwnd );
 			}

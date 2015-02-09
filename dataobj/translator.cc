@@ -406,7 +406,7 @@ void translator::load_files_from_folder(const char *folder_name, const char *wha
 {
 	searchfolder_t folder;
 	int num_pak_lang_dat = folder.search(folder_name, "tab");
-	DBG_MESSAGE("translator::load_files_from_folder()", "search folder \"%s\" and found %i files", folder_name, num_pak_lang_dat);
+	DBG_MESSAGE("translator::load_files_from_folder()", "search folder \"%s\" and found %i files", folder_name, num_pak_lang_dat); (void)num_pak_lang_dat;
 	//read now the basic language infos
 	FOR(searchfolder_t, const& i, folder) {
 		string const fileName(i);
