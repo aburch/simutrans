@@ -87,10 +87,10 @@ private:
 	struct next_gr_t
 	{
 		next_gr_t() {}
-		next_gr_t(grund_t* gr_, long cost_, uint8 flag_=0) : gr(gr_), cost(cost_), flag(flag_) {}
+		next_gr_t(grund_t* gr_, sint32 cost_, uint8 flag_=0) : gr(gr_), cost(cost_), flag(flag_) {}
 
 		grund_t* gr;
-		long     cost;
+		sint32   cost;
 		uint8    flag;
 	};
 	vector_tpl<next_gr_t> next_gr;
@@ -145,14 +145,14 @@ public:
 	* B) if allowed, calculate the cost for the step from from to to
 	* @author prissi
 	*/
-	bool is_allowed_step( const grund_t *from, const grund_t *to, long *costs );
-private:
+	bool is_allowed_step(const grund_t *from, const grund_t *to, sint32 *costs);
 
+private:
 	// checks, if we can built a bridge here ...
 	// may modify next_gr array!
 	void check_for_bridge(const grund_t* parent_from, const grund_t* from, const vector_tpl<koord3d> &ziel);
 
-	long intern_calc_route(const vector_tpl<koord3d> &start, const vector_tpl<koord3d> &ziel);
+	sint32 intern_calc_route(const vector_tpl<koord3d> &start, const vector_tpl<koord3d> &ziel);
 	void intern_calc_straight_route(const koord3d start, const koord3d ziel);
 
 	// runways need to meet some special conditions enforced here

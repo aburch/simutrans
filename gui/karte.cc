@@ -1170,7 +1170,7 @@ void reliefkarte_t::draw(scr_coord pos)
 	}
 
 	if(  mode & MAP_PAX_DEST  &&  city!=NULL  ) {
-		const unsigned long current_pax_destinations = city->get_pax_destinations_new_change();
+		const uint32 current_pax_destinations = city->get_pax_destinations_new_change();
 		if(  pax_destinations_last_change > current_pax_destinations  ) {
 			// new month started.
 			calc_map();

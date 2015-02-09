@@ -24,7 +24,7 @@
 stringhashtable_tpl<sve_info_t *> loadsave_frame_t::cached_info;
 
 
-sve_info_t::sve_info_t(const char *pak_, time_t mod_, long fs)
+sve_info_t::sve_info_t(const char *pak_, time_t mod_, sint32 fs)
 : pak(""), mod_time(mod_), file_size(fs)
 {
 	if(pak_) {

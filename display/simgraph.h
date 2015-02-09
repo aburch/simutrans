@@ -384,7 +384,7 @@ void display_ddd_box_clip_rgb(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL w, KOORD_VAL
 
 // unicode save moving in strings
 size_t get_next_char(const char* text, size_t pos);
-long get_prev_char(const char* text, long pos);
+sint32 get_prev_char(const char* text, sint32 pos);
 
 KOORD_VAL display_get_char_width(utf16 c);
 
@@ -437,7 +437,7 @@ int display_calc_proportional_string_len_width(const char* text, size_t len);
  */
 
 #ifdef MULTI_THREAD
-int display_text_proportional_len_clip_cl_rgb(KOORD_VAL x, KOORD_VAL y, const char* txt, control_alignment_t flags, const PIXVAL color, bool dirty, long len, const sint8 clip_num);
+int display_text_proportional_len_clip_cl_rgb(KOORD_VAL x, KOORD_VAL y, const char* txt, control_alignment_t flags, const PIXVAL color, bool dirty, sint32 len, const sint8 clip_num);
 /* macro are for compatibility */
 #define display_proportional(     x,  y, txt, align, c, dirty) display_text_proportional_len_clip_cl_rgb(x, y, txt, align,           specialcolormap_all_day[(c)&0xFF], dirty, -1, 0)
 #define display_proportional_clip(x,  y, txt, align, c, dirty) display_text_proportional_len_clip_cl_rgb(x, y, txt, align | DT_CLIP, specialcolormap_all_day[(c)&0xFF], dirty, -1, 0)
@@ -448,7 +448,7 @@ int display_text_proportional_len_clip_cl_rgb(KOORD_VAL x, KOORD_VAL y, const ch
 #define display_proportional_clip_rgb(x,  y, txt, align, color, dirty) display_text_proportional_len_clip_cl_rgb(x, y, txt, align | DT_CLIP, color, dirty, -1, 0)
 #define display_text_proportional_len_clip_rgb( x, y, txt, align, color, dirty, len ) display_text_proportional_len_clip_cl_rgb( (x), (y), (txt), (align), (color), (dirty), (len), 0 )
 #else
-int display_text_proportional_len_clip_rgb(KOORD_VAL x, KOORD_VAL y, const char* txt, control_alignment_t flags, const PIXVAL color_index, bool dirty, long len );
+int display_text_proportional_len_clip_rgb(KOORD_VAL x, KOORD_VAL y, const char* txt, control_alignment_t flags, const PIXVAL color_index, bool dirty, sint32 len );
 /* macro are for compatibility */
 #define display_proportional(     x,  y, txt, align, c, dirty) display_text_proportional_len_clip_rgb(x, y, txt, align,           specialcolormap_all_day[(c)&0xFF], dirty,  -1)
 #define display_proportional_clip(x,  y, txt, align, c, dirty) display_text_proportional_len_clip_rgb(x, y, txt, align | DT_CLIP, specialcolormap_all_day[(c)&0xFF], dirty,  -1)

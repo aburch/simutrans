@@ -81,7 +81,7 @@ protected:
 	 * reference time for regulating cursor blinking
 	 * @author Knightly
 	 */
-	unsigned long cursor_reference_time;
+	uint32 cursor_reference_time;
 
 	/**
 	 * whether focus has been received

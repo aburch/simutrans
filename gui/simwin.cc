@@ -140,7 +140,7 @@ static const char * static_tooltip_text = 0;
 //				Valid owners are required for timing. Invalid (NULL) owners disable timing.
 static const void * tooltip_owner = 0;	// owner of the registered tooltip
 static const void * tooltip_group = 0;	// group to which the owner belongs
-static unsigned long tooltip_register_time = 0;	// time at which a tooltip is initially registered
+static uint32 tooltip_register_time = 0;	// time at which a tooltip is initially registered
 
 static bool show_ticker=0;
 
@@ -1533,7 +1533,7 @@ void win_display_flush(double konto)
 			// Hajo: check if there is a tooltip to display
 			if(  tooltip_text  &&  *tooltip_text  ) {
 				// Knightly : display tooltip when current owner is invalid or when it is within visible duration
-				unsigned long elapsed_time;
+				uint32 elapsed_time;
 				if(  !tooltip_owner  ||  ((elapsed_time=dr_time()-tooltip_register_time)>env_t::tooltip_delay  &&  elapsed_time<=env_t::tooltip_delay+env_t::tooltip_duration)  ) {
 					const sint16 width = proportional_string_width(tooltip_text)+7;
 					display_ddd_proportional_clip(min(tooltip_xpos,disp_width-width), max(menu_height+7,tooltip_ypos), width, 0, env_t::tooltip_color, env_t::tooltip_textcolor, tooltip_text, true);
@@ -1724,11 +1724,11 @@ void win_set_tooltip(int xpos, int ypos, const char *text, const void *const own
 		tooltip_owner = owner;
 		// update register time only if owner is valid
 		if(  owner  ) {
-			const unsigned long current_time = dr_time();
+			const uint32 current_time = dr_time();
 			if(  group  &&  group==tooltip_group  ) {
 				// case : same group
-				const unsigned long elapsed_time = current_time - tooltip_register_time;
-				const unsigned long threshold = env_t::tooltip_delay - (env_t::tooltip_delay>>2);	// 3/4 of delay
+				const uint32 elapsed_time = current_time - tooltip_register_time;
+				const uint32 threshold = env_t::tooltip_delay - (env_t::tooltip_delay>>2);	// 3/4 of delay
 				if(  elapsed_time>threshold  &&  elapsed_time<=env_t::tooltip_delay+env_t::tooltip_duration  ) {
 					// case : threshold was reached and duration not expired -> delay time is reduced to 1/4
 					tooltip_register_time = current_time - threshold;

@@ -450,7 +450,7 @@ image_id gebaeude_t::get_front_image() const
 int gebaeude_t::get_passagier_level() const
 {
 	koord dim = tile->get_besch()->get_groesse();
-	long pax = tile->get_besch()->get_level();
+	sint32 pax = tile->get_besch()->get_level();
 	if(  !is_factory  &&  ptr.stadt != NULL  ) {
 		// belongs to a city ...
 		return ((pax + 6) >> 2) * welt->get_settings().get_passenger_factor() / 16;
@@ -462,7 +462,7 @@ int gebaeude_t::get_passagier_level() const
 int gebaeude_t::get_post_level() const
 {
 	koord dim = tile->get_besch()->get_groesse();
-	long post = tile->get_besch()->get_post_level();
+	sint32 post = tile->get_besch()->get_post_level();
 	if(  !is_factory  &&  ptr.stadt != NULL  ) {
 		return ((post + 5) >> 2) * welt->get_settings().get_passenger_factor() / 16;
 	}
@@ -679,7 +679,7 @@ void gebaeude_t::info(cbuffer_t & buf) const
 
 		buf.append("\n");
 		if(get_owner()==NULL) {
-			long const v = (long)( -welt->get_settings().cst_multiply_remove_haus * (tile->get_besch()->get_level() + 1) / 100 );
+			const sint32 v = (sint32)( -welt->get_settings().cst_multiply_remove_haus * (tile->get_besch()->get_level() + 1) / 100 );
 			buf.printf("\n%s: %ld$\n", translator::translate("Wert"), v);
 		}
 

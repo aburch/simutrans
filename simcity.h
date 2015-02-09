@@ -111,7 +111,7 @@ private:
 	sparse_tpl<uint8> pax_destinations_new;
 
 	// this counter will increment by one for every change => dialogs can question, if they need to update map
-	unsigned long pax_destinations_new_change;
+	uint32 pax_destinations_new_change;
 
 	koord pos;			// Gruendungsplanquadrat der Stadt
 	koord townhall_road; // road in front of townhall
@@ -471,7 +471,7 @@ public:
 	 * => dialogs can question, if they need to update map
 	 * @author prissi
 	 */
-	unsigned long get_pax_destinations_new_change() const { return pax_destinations_new_change; }
+	uint32 get_pax_destinations_new_change() const { return pax_destinations_new_change; }
 
 	/**
 	 * Erzeugt eine neue Stadt auf Planquadrat (x,y) die dem Spieler sp

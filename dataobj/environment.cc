@@ -44,9 +44,9 @@ std::string env_t::server_motd_filename;
 vector_tpl<std::string> env_t::listen;
 bool env_t::server_save_game_on_quit = false;
 
-long env_t::server_frames_ahead = 4;
-long env_t::additional_client_frames_behind = 0;
-long env_t::network_frames_per_step = 4;
+sint32 env_t::server_frames_ahead = 4;
+sint32 env_t::additional_client_frames_behind = 0;
+sint32 env_t::network_frames_per_step = 4;
 uint32 env_t::server_sync_steps_between_checks = 256;
 bool env_t::pause_server_no_clients = false;
 

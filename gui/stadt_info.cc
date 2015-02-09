@@ -295,7 +295,7 @@ void stadt_info_t::draw(scr_coord pos, scr_size size)
 
 	display_multiline_text(pos.x + 8, pos.y + D_TITLEBAR_HEIGHT + 4 + (D_BUTTON_HEIGHT+2), buf, SYSCOL_TEXT );
 
-	const unsigned long current_pax_destinations = c->get_pax_destinations_new_change();
+	const uint32 current_pax_destinations = c->get_pax_destinations_new_change();
 	if(  pax_destinations_last_change > current_pax_destinations  ) {
 		// new month started
 		pax_dest_old = pax_dest_new;

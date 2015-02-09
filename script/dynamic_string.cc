@@ -11,19 +11,19 @@
 #include "../utils/cbuffer_t.h"
 #include "../utils/simstring.h"
 
-unsigned long const CACHE_TIME = 10000; // 10s
+uint32 const CACHE_TIME = 10000; // 10s
 
 struct cached_string_t {
 	plainstring result;
-	unsigned long time;
+	uint32 time;
 	dynamic_string *listener;
-	cached_string_t(const char* str, long t, dynamic_string *l) : result(str), time(t), listener(l) {}
+	cached_string_t(const char* str, uint32 t, dynamic_string *l) : result(str), time(t), listener(l) {}
 };
 
 static plainstringhashtable_tpl<cached_string_t*> cached_results;
 
 
-cached_string_t* get_cashed_result(const char* function, unsigned long cache_time)
+cached_string_t* get_cashed_result(const char* function, uint32 cache_time)
 {
 	cached_string_t *entry = cached_results.get(function);
 

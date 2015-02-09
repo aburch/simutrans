@@ -145,7 +145,7 @@ koord3d tunnelbauer_t::finde_ende(player_t *player, koord3d pos, koord zv, const
 	// use the is_allowed_step routine of wegbauer_t, needs an instance
 	wegbauer_t bauigel(player);
 	bauigel.route_fuer( wegbauer_t::tunnel_flag | (wegbauer_t::bautyp_t)wegtyp, wegbauer_t::weg_search( wegtyp, 1, 0, weg_t::type_flat ), besch);
-	long dummy;
+	sint32 dummy;
 
 	while(true) {
 		pos = pos + zv;
@@ -585,7 +585,7 @@ void tunnelbauer_t::baue_einfahrt(player_t *player, koord3d end, koord zv, const
 			// use the check_owner routine of wegbauer_t (not spieler_t!), needs an instance
 			wegbauer_t bauigel(player);
 			bauigel.route_fuer( (wegbauer_t::bautyp_t)besch->get_waytype(), way_outside->get_besch());
-			long dummy;
+			sint32 dummy;
 			if(bauigel.is_allowed_step(tunnel, ground_outside, &dummy)) {
 				tunnel->weg_erweitern(besch->get_waytype(), ribi_typ(-zv));
 				ground_outside->weg_erweitern(besch->get_waytype(), ribi_typ(zv));

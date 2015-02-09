@@ -3638,13 +3638,13 @@ stadt_t *karte_t::suche_naechste_stadt(const koord k) const
 	if(  is_within_limits(k)  ) {
 		FOR(  weighted_vector_tpl<stadt_t*>,  const s,  stadt  ) {
 			if(  k.x >= s->get_linksoben().x  &&  k.y >= s->get_linksoben().y  &&  k.x < s->get_rechtsunten().x  &&  k.y < s->get_rechtsunten().y  ) {
-				const long dist = koord_distance( k, s->get_center() );
+				const uint32 dist = koord_distance( k, s->get_center() );
 				if(  !contains  ) {
 					// no city within limits => this is best
 					best = s;
 					min_dist = dist;
 				}
-				else if(  (unsigned) dist < min_dist  ) {
+				else if(  dist < min_dist  ) {
 					best = s;
 					min_dist = dist;
 				}

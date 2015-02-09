@@ -20,7 +20,7 @@ size_t utf8_get_next_char(const utf8* text, size_t pos)
 }
 
 
-long utf8_get_prev_char(const utf8* text, long pos)
+sint32 utf8_get_prev_char(const utf8* text, sint32 pos)
 {
 /* not needed, since the only position calling it, checks it too
 	if(pos==0) {

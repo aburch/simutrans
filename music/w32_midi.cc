@@ -122,7 +122,7 @@ void dr_stop_midi()
  * Returns the midi_pos variable
  * By Owen Rudge
  */
-long dr_midi_pos()
+sint32 dr_midi_pos()
 {
 	char retstr[200];
 	long length;

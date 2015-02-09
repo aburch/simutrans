@@ -281,7 +281,7 @@ public:
 	uint8 get_chance() const { return chance; }
 
 	const haus_tile_besch_t *get_tile(uint16 index) const {
-		assert(0<=index  &&  index < layouts * groesse.x * groesse.y);
+		assert(index < layouts * groesse.x * groesse.y);
 		return get_child<haus_tile_besch_t>(index + 2);
 	}
 

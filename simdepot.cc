@@ -73,8 +73,8 @@ depot_t *depot_t::find_depot( koord3d start, const obj_t::typ depot_type, const 
 {
 	depot_t *found = NULL;
 	koord3d found_pos = forward ? koord3d(welt->get_size().x+1,welt->get_size().y+1,welt->get_grundwasser()) : koord3d(-1,-1,-1);
-	long found_hash = forward ? 0x7FFFFFF : -1;
-	long start_hash = start.x + (8192*start.y);
+	sint32 found_hash = forward ? 0x7FFFFFF : -1;
+	sint32 start_hash = start.x + (8192 * start.y);
 	FOR(slist_tpl<depot_t*>, const d, all_depots) {
 		if(d->get_typ()==depot_type  &&  d->get_owner()==player) {
 			// ok, the right type of depot
@@ -83,7 +83,7 @@ depot_t *depot_t::find_depot( koord3d start, const obj_t::typ depot_type, const 
 				// ignore the start point
 				continue;
 			}
-			long hash = (pos.x+(8192*pos.y));
+			sint32 hash = (pos.x + (8192 * pos.y));
 			if(forward) {
 				if(hash>start_hash  ||  (hash==start_hash  &&  pos.z>start.z)) {
 				// found a suitable one

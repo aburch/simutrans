@@ -294,7 +294,7 @@ slist_tpl<vehikel_besch_t const*> const & vehikelbauer_t::get_info(waytype_t con
 const vehikel_besch_t *vehikelbauer_t::vehikel_search( waytype_t wt, const uint16 month_now, const uint32 target_weight, const sint32 target_speed, const ware_besch_t * target_freight, bool include_electric, bool not_obsolete )
 {
 	const vehikel_besch_t *besch = NULL;
-	long besch_index=-100000;
+	sint32 besch_index = -100000;
 
 	if(  target_freight==NULL  &&  target_weight==0  ) {
 		// no power, no freight => no vehicle to search
@@ -371,7 +371,7 @@ const vehikel_besch_t *vehikelbauer_t::vehikel_search( waytype_t wt, const uint1
 			uint32 max_weight = power/( (speed*speed)/2500 + 1 );
 
 			// we found a useful engine
-			long current_index = (power*100)/(1+test_besch->get_betriebskosten()) + test_besch->get_geschw() - test_besch->get_gewicht()/1000 - (sint32)(test_besch->get_preis()/25000);
+			sint32 current_index = (power * 100) / (1 + test_besch->get_betriebskosten()) + test_besch->get_geschw() - test_besch->get_gewicht() / 1000 - (sint32)(test_besch->get_preis() / 25000);
 			// too slow?
 			if(speed < target_speed) {
 				current_index -= 250;
@@ -406,7 +406,7 @@ const vehikel_besch_t *vehikelbauer_t::vehikel_search( waytype_t wt, const uint1
 const vehikel_besch_t *vehikelbauer_t::get_best_matching( waytype_t wt, const uint16 month_now, const uint32 target_weight, const uint32 target_power, const sint32 target_speed, const ware_besch_t * target_freight, bool not_obsolete, const vehikel_besch_t *prev_veh, bool is_last )
 {
 	const vehikel_besch_t *besch = NULL;
-	long besch_index=-100000;
+	sint32 besch_index = -100000;
 
 	FOR(slist_tpl<vehikel_besch_t const*>, const test_besch, typ_fahrzeuge[GET_WAYTYPE_INDEX(wt)]) {
 		if(target_power>0  &&  test_besch->get_leistung()==0) {
@@ -488,7 +488,7 @@ const vehikel_besch_t *vehikelbauer_t::get_best_matching( waytype_t wt, const ui
 			uint32 max_weight = power/( (speed*speed)/2500 + 1 );
 
 			// we found a useful engine
-			long current_index = (power*100)/(1+test_besch->get_betriebskosten()) + test_besch->get_geschw() - (sint16)test_besch->get_gewicht()/1000 - (sint32)(test_besch->get_preis()/25000);
+			sint32 current_index = (power * 100) / (1 + test_besch->get_betriebskosten()) + test_besch->get_geschw() - (sint16)test_besch->get_gewicht() / 1000 - (sint32)(test_besch->get_preis() / 25000);
 			// too slow?
 			if(speed < target_speed) {
 				current_index -= 250;

@@ -694,7 +694,7 @@ DBG_MESSAGE("tool_remover()", "removing way");
 			}
 		}
 		wt = w->get_besch()->get_finance_waytype();
-		long cost_sum = gr->weg_entfernen(w->get_waytype(), true);
+		sint32 cost_sum = gr->weg_entfernen(w->get_waytype(), true);
 		player_t::book_construction_costs(player, -cost_sum, k, wt);
 	}
 	else {

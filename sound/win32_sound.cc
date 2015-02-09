@@ -75,7 +75,7 @@ void dr_play_sample(int sample_number, int volume)
 		static int oldvol = -1;
 		volume = (volume<<8)-1;
 		if(oldvol!=volume) {
-			long vol = (volume<<16)|volume;
+			DWORD vol = (volume<<16)|volume;
 			waveOutSetVolume( 0, vol );
 			oldvol = volume;
 		}

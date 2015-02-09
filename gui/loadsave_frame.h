@@ -22,7 +22,7 @@ public:
 	sint32 file_size;
 	bool file_exists;
 	sve_info_t() : pak(""), mod_time(0), file_size(0), file_exists(false) {}
-	sve_info_t(const char *pak_, time_t mod_, long fs);
+	sve_info_t(const char *pak_, time_t mod_, sint32 fs);
 	bool operator== (const sve_info_t &) const;
 	void rdwr(loadsave_t *file);
 };

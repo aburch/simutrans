@@ -317,7 +317,7 @@ size_t get_next_char(const char*, size_t pos)
 	return pos + 1;
 }
 
-long get_prev_char(const char*, long pos)
+sint32 get_prev_char(const char*, sint32 pos)
 {
 	if (pos <= 0) {
 		return 0;
@@ -361,9 +361,9 @@ int display_calc_proportional_string_len_width(const char*, size_t)
 }
 
 #ifdef MULTI_THREAD
-int display_text_proportional_len_clip_cl_rgb(KOORD_VAL, KOORD_VAL, const char*, control_alignment_t , const PIXVAL, bool, long, const sint8)
+int display_text_proportional_len_clip_cl_rgb(KOORD_VAL, KOORD_VAL, const char*, control_alignment_t , const PIXVAL, bool, sint32, const sint8)
 #else
-int display_text_proportional_len_clip_rgb(KOORD_VAL, KOORD_VAL, const char*, control_alignment_t , const PIXVAL, bool, long )
+int display_text_proportional_len_clip_rgb(KOORD_VAL, KOORD_VAL, const char*, control_alignment_t , const PIXVAL, bool, sint32 )
 #endif
 {
 	return 0;

@@ -4233,7 +4233,7 @@ size_t get_next_char(const char* text, size_t pos)
 }
 
 
-long get_prev_char(const char* text, long pos)
+sint32 get_prev_char(const char* text, sint32 pos)
 {
 	if(  pos <= 0  ) {
 		return 0;
@@ -4482,9 +4482,9 @@ static unsigned char get_h_mask(const int xL, const int xR, const int cL, const 
  * @date  15.06.2003, 2.1.2005
  */
 #ifdef MULTI_THREAD
-int display_text_proportional_len_clip_cl_rgb(KOORD_VAL x, KOORD_VAL y, const char* txt, control_alignment_t flags, const PIXVAL color, bool dirty, long len, const sint8 clip_num)
+int display_text_proportional_len_clip_cl_rgb(KOORD_VAL x, KOORD_VAL y, const char* txt, control_alignment_t flags, const PIXVAL color, bool dirty, sint32 len, const sint8 clip_num)
 #else
-int display_text_proportional_len_clip_rgb(KOORD_VAL x, KOORD_VAL y, const char* txt, control_alignment_t flags, const PIXVAL color, bool dirty, long len)
+int display_text_proportional_len_clip_rgb(KOORD_VAL x, KOORD_VAL y, const char* txt, control_alignment_t flags, const PIXVAL color, bool dirty, sint32 len)
 #endif
 {
 	const font_type* const fnt = &large_font;

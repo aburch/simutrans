@@ -116,7 +116,7 @@ private:
 	static uint8 status_step;	// NONE or SCHEDULING or REROUTING
 
 	slist_tpl<convoihandle_t> loading_here;
-	long last_loading_step;
+	sint32 last_loading_step;
 
 	koord init_pos;	// for halt without grounds, created during game initialisation
 

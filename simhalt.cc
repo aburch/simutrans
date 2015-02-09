@@ -2811,9 +2811,9 @@ void haltestelle_t::recalc_status()
 
 	MEMZERO(overcrowded);
 
-	long total_sum = 0;
+	uint64 total_sum = 0;
 	if(get_pax_enabled()) {
-		sint32 max_ware = get_capacity(0);
+		const uint32 max_ware = get_capacity(0);
 		total_sum += get_ware_summe(warenbauer_t::passagiere);
 		if(total_sum>max_ware) {
 			overcrowded[0] |= 1;
@@ -2827,8 +2827,8 @@ void haltestelle_t::recalc_status()
 	}
 
 	if(get_post_enabled()) {
-		sint32 max_ware = get_capacity(1);
-		sint32 post = get_ware_summe(warenbauer_t::post);
+		const uint32 max_ware = get_capacity(1);
+		const uint32 post = get_ware_summe(warenbauer_t::post);
 		total_sum += post;
 		if(post>max_ware) {
 			status_bits |= post>max_ware+200 ? 2 : 1;
@@ -2838,11 +2838,11 @@ void haltestelle_t::recalc_status()
 
 	// now for all goods
 	if(status_color!=COL_RED  &&  get_ware_enabled()) {
-		const int count = warenbauer_t::get_waren_anzahl();
-		sint32 max_ware = get_capacity(2);
-		for (int i = 3; i < count; ++i) {
+		const uint32 count = warenbauer_t::get_waren_anzahl();
+		const uint32 max_ware = get_capacity(2);
+		for(  uint32 i = 3;  i < count;  i++  ) {
 			ware_besch_t const* const wtyp = warenbauer_t::get_info(i);
-			long ware_sum = get_ware_summe(wtyp);
+			const uint32 ware_sum = get_ware_summe(wtyp);
 			total_sum += ware_sum;
 			if(ware_sum>max_ware) {
 				status_bits |= ware_sum > max_ware + 32 /*|| enables & CROWDED*/ ? 2 : 1; // for now report only serious overcrowding on transfer stops

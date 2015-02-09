@@ -260,7 +260,7 @@ void enlarge_map_frame_t::update_preview()
 	// guess the new memory needed
 	const uint sx = sets->get_groesse_x();
 	const uint sy = sets->get_groesse_y();
-	const long memory = (
+	const sint32 memory = (
 		sizeof(karte_t) +
 		sizeof(player_t) * 8 +
 		sizeof(convoi_t) * 1000 +

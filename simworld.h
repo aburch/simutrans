@@ -620,7 +620,7 @@ private:
 	/**
 	 * Number of steps since creation.
 	 */
-	long steps;
+	sint32 steps;
 
 	/**
 	 * Flag, that now no sound will play.
@@ -1079,7 +1079,7 @@ public:
 	 * Number of steps elapsed since the map was generated.
 	 * @author Hj. Malthaner
 	 */
-	long get_steps() const { return steps; }
+	sint32 get_steps() const { return steps; }
 
 	/**
 	 * Idle time. Nur zur Anzeige verwenden!

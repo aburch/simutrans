@@ -46,14 +46,14 @@ public:
 	static bool networkmode;
 
 	/// number of simulation frames server runs ahead of clients
-	static long server_frames_ahead;
+	static sint32 server_frames_ahead;
 
 	/// additional number of frames client is behind server
-	static long additional_client_frames_behind;
+	static sint32 additional_client_frames_behind;
 
 	/// number of sync_steps before one step
 	/// @see karte_t::interactive()
-	static long network_frames_per_step;
+	static sint32 network_frames_per_step;
 
 	/// server sends information to clients for checking synchronization
 	/// after this number of sync_steps
