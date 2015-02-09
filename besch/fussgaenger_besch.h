@@ -28,16 +28,16 @@ class fussgaenger_besch_t : public obj_besch_std_name_t {
     friend class pedestrian_reader_t;
 
     uint16 gewichtung;
+
 public:
-    int get_bild_nr(ribi_t::dir dir) const
+    image_id get_bild_nr(ribi_t::dir dir) const
     {
 		bild_besch_t const* const bild = get_child<bildliste_besch_t>(2)->get_bild(dir);
 		return bild != NULL ? bild->get_nummer() : IMG_LEER;
     }
-    int get_gewichtung() const
-    {
-		return gewichtung;
-    }
+
+    uint16 get_gewichtung() const { return gewichtung; }
+
 	void calc_checksum(checksum_t *chk) const
 	{
 		chk->input(gewichtung);

@@ -51,15 +51,15 @@ public:
 
 	const haus_besch_t *get_besch() const { return haus; }
 
-	int get_index() const { return index; }
-	int get_seasons() const { return seasons; }
-	int get_phasen() const { return phasen; }
+	uint16 get_index() const { return index; }
+	uint8 get_seasons() const { return seasons; }
+	uint8 get_phasen() const { return phasen; }
 
 	bool has_image() const {
 		return get_hintergrund(0,0,0)!=IMG_LEER  ||  get_vordergrund(0,0)!=IMG_LEER;
 	}
 
-	image_id get_hintergrund(int phase, int hoehe, int season) const
+	image_id get_hintergrund(uint16 phase, uint16 hoehe, uint8 season) const
 	{
 		bildliste2d_besch_t const* const bl = get_child<bildliste2d_besch_t>(0 + 2 * season);
 		if(phase>0 && phase<phasen) {
@@ -73,7 +73,7 @@ public:
 	}
 
 	// returns true, if the background is animated
-	bool is_hintergrund_phases(int season) const
+	bool is_hintergrund_phases(uint8 season) const
 	{
 		bildliste2d_besch_t const* const bl = get_child<bildliste2d_besch_t>(0 + 2 * season);
 		const uint16 max_h = bl->get_anzahl();
@@ -87,7 +87,7 @@ public:
 		return false;
 	}
 
-	image_id get_vordergrund(int phase,int season) const
+	image_id get_vordergrund(uint16 phase, uint8 season) const
 	{
 		bildliste2d_besch_t const* const bl = get_child<bildliste2d_besch_t>(1 + 2 * season);
 		if(phase>0 && phase<phasen) {
@@ -222,16 +222,16 @@ class haus_besch_t : public obj_besch_timelined_t {
 
 public:
 
-	koord get_groesse(int layout = 0) const {
+	koord get_groesse(uint8 layout = 0) const {
 		return (layout & 1) ? koord(groesse.y, groesse.x) : groesse;
 	}
 
 	// size of the building
-	int get_h(int layout = 0) const {
+	sint16 get_h(uint8 layout = 0) const {
 		return (layout & 1) ? groesse.x: groesse.y;
 	}
 
-	int get_b(int layout = 0) const {
+	sint16 get_b(uint8 layout = 0) const {
 		return (layout & 1) ? groesse.y : groesse.x;
 	}
 
@@ -263,7 +263,7 @@ public:
 	bool is_connected_with_town() const;
 
 	/// @returns headquarter level (or -1 if building is not headquarter)
-	int get_headquarter_level() const  { return (ist_firmensitz() ? get_extra() : -1) ; }
+	sint32 get_headquarter_level() const  { return (ist_firmensitz() ? get_extra() : -1) ; }
 
 	/**
 	* the level is used in many places: for price, for capacity, ...
@@ -278,14 +278,14 @@ public:
 	uint16 get_post_level() const;
 
 	// how often will this appear
-	int get_chance() const { return chance; }
+	uint8 get_chance() const { return chance; }
 
-	const haus_tile_besch_t *get_tile(int index) const {
+	const haus_tile_besch_t *get_tile(uint16 index) const {
 		assert(0<=index  &&  index < layouts * groesse.x * groesse.y);
 		return get_child<haus_tile_besch_t>(index + 2);
 	}
 
-	const haus_tile_besch_t *get_tile(int layout, int x, int y) const;
+	const haus_tile_besch_t *get_tile(uint8 layout, sint16 x, sint16 y) const;
 
 	// returns true,if building can be rotated
 	bool can_rotate() const {
@@ -293,8 +293,8 @@ public:
 			return false;
 		}
 		// check for missing tiles after rotation
-		for( int x=0;  x<groesse.x;  x++  ) {
-			for( int y=0;  y<groesse.y;  y++  ) {
+		for( sint16 x=0;  x<groesse.x;  x++  ) {
+			for( sint16 y=0;  y<groesse.y;  y++  ) {
 				// only true, if one is missing
 				if(get_tile( 0, x, y )->has_image()  ^  get_tile( 1, get_b(1)-y-1, x )->has_image()) {
 					return false;
@@ -304,7 +304,7 @@ public:
 		return true;
 	}
 
-	int layout_anpassen(int layout) const;
+	uint8 layout_anpassen(uint8 layout) const;
 
 	/**
 	* Skin: cursor (index 0) and icon (index 1)
@@ -327,7 +327,7 @@ public:
 	* @return station flags (only used for station buildings and oil riggs)
 	* @author prissi
 	*/
-	int get_enabled() const { return enables; }
+	uint8 get_enabled() const { return enables; }
 
 	/**
 	* @return time for doing one step
@@ -341,7 +341,8 @@ public:
 	*/
 	sint32 get_maintenance(karte_t *welt) const;
 	sint32 get_price(karte_t *welt) const;
-	uint16 get_capacity() const;
+	uint16 get_capacity() const { return capacity; }
+
 
 	// default tool for building
 	tool_t *get_builder() const {

@@ -113,12 +113,12 @@ bool haus_besch_t::is_connected_with_town() const
  *  Beschreibung:
  *      Abhängig von Position und Layout ein tile zurückliefern
  */
-const haus_tile_besch_t *haus_besch_t::get_tile(int layout, int x, int y) const
+const haus_tile_besch_t *haus_besch_t::get_tile(uint8 layout, sint16 x, sint16 y) const
 {
 	layout = layout_anpassen(layout);
 	koord dims = get_groesse(layout);
 
-	if(layout < 0  ||  x < 0  ||  y < 0  ||  layout >= layouts  ||  x >= get_b(layout)  ||  y >= get_h(layout)) {
+	if(  x < 0  ||  y < 0  ||  layout >= layouts  ||  x >= get_b(layout)  ||  y >= get_h(layout)  ) {
 	dbg->fatal("haus_tile_besch_t::get_tile()",
 			   "invalid request for l=%d, x=%d, y=%d on building %s (l=%d, x=%d, y=%d)",
 		   layout, x, y, get_name(), layouts, groesse.x, groesse.y);
@@ -135,7 +135,7 @@ const haus_tile_besch_t *haus_besch_t::get_tile(int layout, int x, int y) const
  *  Beschreibung:
  *      Layout normalisieren.
  */
-int haus_besch_t::layout_anpassen(int layout) const
+uint8 haus_besch_t::layout_anpassen(uint8 layout) const
 {
 	if(layout >= 4 && layouts <= 4) {
 		layout -= 4;
@@ -251,10 +251,4 @@ sint32 haus_besch_t::get_price(karte_t *welt) const
 		return price;
 	}
 	return 0;
-}
-
-
-uint16 haus_besch_t::get_capacity() const
-{
-	return capacity;
 }

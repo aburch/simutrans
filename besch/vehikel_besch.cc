@@ -20,7 +20,7 @@ void vehikel_besch_t::calc_checksum(checksum_t *chk) const
 	const xref_besch_t *xref = get_child<xref_besch_t>(2);
 	chk->input(xref ? xref->get_name() : "NULL");
 	// vehicle constraints
-	for(uint8 i=0; i<vorgaenger+nachfolger; i++) {
+	for(uint16 i=0; i<vorgaenger+nachfolger; i++) {
 		const xref_besch_t *xref = get_child<xref_besch_t>(6+i);
 		chk->input(xref ? xref->get_name() : "NULL");
 	}

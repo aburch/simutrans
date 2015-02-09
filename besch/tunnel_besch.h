@@ -47,7 +47,7 @@ private:
 public:
 	const bild_besch_t *get_hintergrund(hang_t::typ hang, uint8 season, uint8 type ) const
 	{
-		int const n = season && number_seasons == 1 ? 5 : 2;
+		const uint8 n = season && number_seasons == 1 ? 5 : 2;
 		return get_child<bildliste_besch_t>(n)->get_bild(hang_indices[hang] + 4 * type);
 	}
 
@@ -59,7 +59,7 @@ public:
 
 	const bild_besch_t *get_vordergrund(hang_t::typ hang, uint8 season, uint8 type ) const
 	{
-		int const n = season && number_seasons == 1 ? 6 : 3;
+		const uint8 n = season && number_seasons == 1 ? 6 : 3;
 		return get_child<bildliste_besch_t>(n)->get_bild(hang_indices[hang] + 4 * type);
 	}
 

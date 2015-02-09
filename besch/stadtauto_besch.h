@@ -35,16 +35,16 @@ class stadtauto_besch_t : public obj_besch_timelined_t {
 	uint16 geschw;
 
 public:
-	int get_bild_nr(ribi_t::dir dir) const
+	image_id get_bild_nr(ribi_t::dir dir) const
 	{
 		bild_besch_t const* const bild = get_child<bildliste_besch_t>(2)->get_bild(dir);
 		return bild != NULL ? bild->get_nummer() : IMG_LEER;
 	}
 
-	int get_gewichtung() const { return gewichtung; }
+	uint16 get_gewichtung() const { return gewichtung; }
 
 	/// topspeed in internal speed units !!! not km/h!!!
-	sint32 get_geschw() const { return geschw; }
+	uint16 get_geschw() const { return geschw; }
 
 	void calc_checksum(checksum_t *chk) const
 	{

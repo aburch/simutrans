@@ -51,17 +51,17 @@ public:
 		END_OF_CHOOSE_AREA    = 1U << 7
 	};
 
-	int get_bild_nr(ribi_t::dir dir) const
+	image_id get_bild_nr(ribi_t::dir dir) const
 	{
 		bild_besch_t const* const bild = get_child<bildliste_besch_t>(2)->get_bild(dir);
 		return bild != NULL ? bild->get_nummer() : IMG_LEER;
 	}
 
-	int get_bild_anzahl() const { return get_child<bildliste_besch_t>(2)->get_anzahl(); }
+	uint16 get_bild_anzahl() const { return get_child<bildliste_besch_t>(2)->get_anzahl(); }
 
 	skin_besch_t const* get_cursor() const { return get_child<skin_besch_t>(3); }
 
-	sint32 get_min_speed() const { return min_speed; }
+	uint16 get_min_speed() const { return min_speed; }
 
 	bool is_single_way() const { return (flags&ONE_WAY)!=0; }
 

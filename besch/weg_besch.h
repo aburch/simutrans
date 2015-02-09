@@ -73,7 +73,7 @@ private:
 	 * for winter and/or front images
 	 * add +1 and +2 to get slope and straight diagonal images, respectively
 	 */
-	int image_list_base_index(bool snow, bool front) const
+	uint16 image_list_base_index(bool snow, bool front) const
 	{
 		if (number_seasons == 0  ||  !snow) {
 			if (front  &&  front_images) {
@@ -112,7 +112,7 @@ public:
 		if (front  &&  !front_images) {
 			return IMG_LEER;
 		}
-		int const n = image_list_base_index(season, front);
+		const uint16 n = image_list_base_index(season, front);
 		return get_child<bildliste_besch_t>(n)->get_bild_nr(ribi);
 	}
 
@@ -121,7 +121,7 @@ public:
 		if (front  &&  !front_images) {
 			return IMG_LEER;
 		}
-		int const n = image_list_base_index(season, front);
+		const uint16 n = image_list_base_index(season, front);
 		bildliste_besch_t const* const bl = get_child<bildliste_besch_t>(n);
 		// only do this if extended switches are there
 		if(  bl->get_anzahl()>16  ) {
@@ -140,8 +140,8 @@ public:
 		if (front  &&  !front_images) {
 			return IMG_LEER;
 		}
-		int const n = image_list_base_index(season, front) + 1;
-		int nr;
+		const uint16 n = image_list_base_index(season, front) + 1;
+		uint16 nr;
 		switch(hang) {
 			case 4:
 				nr = 0;
@@ -184,7 +184,7 @@ public:
 		if (front  &&  !front_images) {
 			return IMG_LEER;
 		}
-		int const n = image_list_base_index(season, front) + 2;
+		const uint16 n = image_list_base_index(season, front) + 2;
 		return get_child<bildliste_besch_t>(n)->get_bild_nr(ribi / 3 - 1);
 	}
 

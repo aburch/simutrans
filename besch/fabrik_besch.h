@@ -150,9 +150,9 @@ private:
 
 public:
 	ware_besch_t const* get_ware() const { return get_child<ware_besch_t>(0); }
-	int get_kapazitaet() const { return kapazitaet; }
-	int get_anzahl() const { return anzahl; }
-	int get_verbrauch() const { return verbrauch; }
+	uint16 get_kapazitaet() const { return kapazitaet; }
+	uint16 get_anzahl() const { return anzahl; }
+	uint16 get_verbrauch() const { return verbrauch; }
 	void calc_checksum(checksum_t *chk) const;
 };
 
@@ -182,8 +182,8 @@ private:
 
 public:
 	ware_besch_t const* get_ware() const { return get_child<ware_besch_t>(0); }
-	uint32 get_kapazitaet() const { return kapazitaet; }
-	uint32 get_faktor() const { return faktor; }
+	uint16 get_kapazitaet() const { return kapazitaet; }
+	uint16 get_faktor() const { return faktor; }
 	void calc_checksum(checksum_t *chk) const;
 };
 
@@ -244,13 +244,13 @@ public:
 	rauch_besch_t const* get_rauch() const { return get_child<rauch_besch_t>(1); }
 
 	// we must take care, for the case of no producer/consumer
-	const fabrik_lieferant_besch_t *get_lieferant(int i) const
+	const fabrik_lieferant_besch_t *get_lieferant(uint16 i) const
 	{
-		return 0 <= i && i < lieferanten ? get_child<fabrik_lieferant_besch_t>(2 + i) : 0;
+		return i < lieferanten ? get_child<fabrik_lieferant_besch_t>(2 + i) : 0;
 	}
-	const fabrik_produkt_besch_t *get_produkt(int i) const
+	const fabrik_produkt_besch_t *get_produkt(uint16 i) const
 	{
-		return 0 <= i && i < produkte ? get_child<fabrik_produkt_besch_t>(2 + lieferanten + i) : 0;
+		return i < produkte ? get_child<fabrik_produkt_besch_t>(2 + lieferanten + i) : 0;
 	}
 	const field_group_besch_t *get_field_group() const {
 		if(!fields) {
@@ -262,23 +262,23 @@ public:
 	bool is_consumer_only() const { return produkte    == 0; }
 	bool is_producer_only() const { return lieferanten == 0; }
 
-	int get_lieferanten() const { return lieferanten; }
-	uint get_produkte() const { return produkte; }
+	uint16 get_lieferanten() const { return lieferanten; }
+	uint16 get_produkte() const { return produkte; }
 
 	/* where to built */
 	site_t get_platzierung() const { return platzierung; }
-	int get_gewichtung() const { return gewichtung;     }
+	uint16 get_gewichtung() const { return gewichtung;     }
 
 	uint8 get_kennfarbe() const { return kennfarbe; }
 
-	void set_produktivitaet(int p) { produktivitaet=p; }
-	int get_produktivitaet() const { return produktivitaet; }
-	int get_bereich() const { return bereich; }
+	void set_produktivitaet(uint16 p) { produktivitaet=p; }
+	uint16 get_produktivitaet() const { return produktivitaet; }
+	uint16 get_bereich() const { return bereich; }
 
 	/* level for post and passenger generation */
-	int get_pax_level() const { return pax_level; }
+	uint16 get_pax_level() const { return pax_level; }
 
-	int is_electricity_producer() const { return electricity_producer; }
+	bool is_electricity_producer() const { return electricity_producer; }
 
 	uint16 get_expand_probability() const { return expand_probability; }
 	uint16 get_expand_minumum() const { return expand_minimum; }

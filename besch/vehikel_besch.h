@@ -172,29 +172,29 @@ public:
 	// liefert get_vorgaenger(0) == NULL, so bedeutet das entweder alle
 	// Vorgänger sind erlaubt oder keine. Um das zu unterscheiden, sollte man
 	// vorher hat_vorgaenger() befragen
-	const vehikel_besch_t *get_vorgaenger(int i) const
+	const vehikel_besch_t *get_vorgaenger(uint8 i) const
 	{
-		if(i < 0 || i >= vorgaenger) {
+		if(  i >= vorgaenger  ) {
 			return 0;
 		}
 		return get_child<vehikel_besch_t>(6 + i);
 	}
 
-	int get_vorgaenger_count() const { return vorgaenger; }
+	uint8 get_vorgaenger_count() const { return vorgaenger; }
 
 	// Liefert die erlaubten Nachfolger.
 	// liefert get_nachfolger(0) == NULL, so bedeutet das entweder alle
 	// Nachfolger sind erlaubt oder keine. Um das zu unterscheiden, sollte
 	// man vorher hat_nachfolger() befragen
-	const vehikel_besch_t *get_nachfolger(int i) const
+	const vehikel_besch_t *get_nachfolger(uint8 i) const
 	{
-		if(i < 0 || i >= nachfolger) {
+		if(  i >= nachfolger  ) {
 			return 0;
 		}
 		return get_child<vehikel_besch_t>(6 + vorgaenger + i);
 	}
 
-	int get_nachfolger_count() const { return nachfolger; }
+	uint8 get_nachfolger_count() const { return nachfolger; }
 
 	/* returns true, if this veh can be before the next_veh
 	 * uses NULL to indicate end of convoi
@@ -204,7 +204,7 @@ public:
 		if(  nachfolger==0  ) {
 			return true;
 		}
-		for( int i=0;  i<nachfolger;  i++  ) {
+		for( uint8 i=0;  i<nachfolger;  i++  ) {
 			vehikel_besch_t const* const veh = get_child<vehikel_besch_t>(6 + vorgaenger + i);
 			if(veh==next_veh) {
 				return true;
@@ -222,7 +222,7 @@ public:
 		if(  vorgaenger==0  ) {
 			return true;
 		}
-		for( int i=0;  i<vorgaenger;  i++  ) {
+		for( uint8 i=0;  i<vorgaenger;  i++  ) {
 			vehikel_besch_t const* const veh = get_child<vehikel_besch_t>(6 + i);
 			if(veh==prev_veh) {
 				return true;

@@ -50,7 +50,7 @@ public:
 	 * ....
 	 * =>ns=0 NorthSouth ns=1, East-West
 	 */
-	const bild_besch_t *get_bild(int ns, bool open, int phase) const
+	const bild_besch_t *get_bild(uint8 ns, bool open, uint16 phase) const
 	{
 		if(open) {
 			return get_child<bildliste_besch_t>(2 + ns)->get_bild(phase);
@@ -61,9 +61,9 @@ public:
 		}
 	}
 
-	const bild_besch_t *get_bild_after(int ns, bool open, int phase) const
+	const bild_besch_t *get_bild_after(uint8 ns, bool open, uint16 phase) const
 	{
-		int const n = ns + (open ? 4 : 8);
+		uint8 const n = ns + (open ? 4 : 8);
 		bildliste_besch_t const* const bl = get_child<bildliste_besch_t>(n);
 		return bl ? bl->get_bild(phase) : 0;
 	}

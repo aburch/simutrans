@@ -43,7 +43,7 @@ public:
 
 	climate_bits get_allowed_climate_bits() const { return allowed_climates; }
 
-	image_id get_bild_nr(int season, int i) const
+	image_id get_bild_nr(uint8 season, uint16 i) const
 	{
 		if(number_of_seasons==0) {
 			// comapility mode
@@ -54,7 +54,7 @@ public:
 	}
 
 	// old style trees and new style tree support ...
-	int get_seasons() const
+	uint8 get_seasons() const
 	{
 		if(number_of_seasons==0) {
 			return get_child<bildliste2d_besch_t>(2)->get_anzahl() / 5;
