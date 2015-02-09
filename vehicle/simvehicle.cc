@@ -1024,11 +1024,10 @@ grund_t* vehicle_t::hop_check()
 			}
 		}
 
-		int restart_speed = -1;
+		sint32 restart_speed = -1;
 		// ist_weg_frei() berechnet auch die Geschwindigkeit
 		// mit der spaeter weitergefahren wird
-		if(!can_enter_tile(bd, restart_speed, false)) {
-
+		if(  !can_enter_tile( bd, restart_speed, 0 )  ) {
 			// stop convoi, when the way is not free
 			cnv->warten_bis_weg_frei(restart_speed);
 
@@ -1048,14 +1047,14 @@ grund_t* vehicle_t::hop_check()
 }
 
 
-bool vehicle_t::can_enter_tile(int &restart_speed, bool second_check)
+bool vehicle_t::can_enter_tile(sint32 &restart_speed, uint8 second_check_count)
 {
-	grund_t *gr = welt->lookup(pos_next);
-	if (gr) {
-		return can_enter_tile(gr, restart_speed, second_check);
+	grund_t *gr = welt->lookup( pos_next );
+	if(  gr  ) {
+		return can_enter_tile( gr, restart_speed, second_check_count );
 	}
 	else {
-		if(  !second_check  ) {
+		if(  !second_check_count  ) {
 			cnv->suche_neue_route();
 		}
 		return false;
@@ -1975,7 +1974,7 @@ void road_vehicle_t::get_screen_offset( int &xoff, int &yoff, const sint16 raste
 
 
 // chooses a route at a choose sign; returns true on success
-bool road_vehicle_t::choose_route( int &restart_speed, ribi_t::ribi richtung, uint16 index )
+bool road_vehicle_t::choose_route(sint32 &restart_speed, ribi_t::ribi richtung, uint16 index)
 {
 	if(  cnv->get_fpl_target()!=koord3d::invalid  ) {
 		// destination is a waypoint!
@@ -2047,12 +2046,12 @@ bool road_vehicle_t::choose_route( int &restart_speed, ribi_t::ribi richtung, ui
 }
 
 
-bool road_vehicle_t::can_enter_tile(const grund_t *gr, int &restart_speed, bool second_check)
+bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uint8 second_check_count)
 {
 	// check for traffic lights (only relevant for the first car in a convoi)
 	if(  leading  ) {
 		// no further check, when already entered a crossing (to allow leaving it)
-		if (!second_check) {
+		if(  !second_check_count  ) {
 			const grund_t *gr_current = welt->lookup(get_pos());
 			if(  gr_current  &&  gr_current->ist_uebergang()  ) {
 				return true;
@@ -2090,7 +2089,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, int &restart_speed, bool 
 					richtung = ribi_typ( pos_next, pos_next_next );
 
 					if(  rs->is_free_route(richtung)  &&  !target_halt.is_bound()  ) {
-						if(  second_check  ) {
+						if(  second_check_count  ) {
 							return false;
 						}
 						if(  !choose_route( restart_speed, richtung, route_index )  ) {
@@ -2133,7 +2132,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, int &restart_speed, bool 
 				gr = welt->lookup(r.position_bei(test_index));
 				if(  !gr  ) {
 					// way (weg) not existent (likely destroyed)
-					if(  !second_check  ) {
+					if(  !second_check_count  ) {
 						cnv->suche_neue_route();
 					}
 					return false;
@@ -2177,7 +2176,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, int &restart_speed, bool 
 						// check, if we reached a choose point
 
 						else if(  rs->is_free_route(curr_90direction)  &&  !target_halt.is_bound()  ) {
-							if(  second_check  ) {
+							if(  second_check_count  ) {
 								return false;
 							}
 							if(  !choose_route( restart_speed, curr_90direction, test_index )  ) {
@@ -2199,10 +2198,14 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, int &restart_speed, bool 
 			if(  obj  &&  test_index > route_index + 1u  &&  !str->is_crossing()  &&  !int_block  ) {
 				// found a car blocking us after checking at least 1 intersection or crossing
 				// and the car is in a place we could stop. So if it can move, assume it will, so we will too.
+				// but check only upto 8 cars ahead to prevent infinite recursion on roundabouts.
+				if(  second_check_count >= 8  ) {
+					return false;
+				}
 				if(  road_vehicle_t const* const car = obj_cast<road_vehicle_t>(obj)  ) {
 					const convoi_t* const ocnv = car->get_convoi();
-					int dummy;
-					if(  ocnv->front()->get_route_index() < ocnv->get_route()->get_count()  &&  ocnv->front()->can_enter_tile(dummy, true)  ) {
+					sint32 dummy;
+					if(  ocnv->front()->get_route_index() < ocnv->get_route()->get_count()  &&  ocnv->front()->can_enter_tile( dummy, second_check_count + 1 )  ) {
 						return true;
 					}
 				}
@@ -2210,7 +2213,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, int &restart_speed, bool 
 		}
 
 		// stuck message ...
-		if(  obj  &&  !second_check  ) {
+		if(  obj  &&  !second_check_count  ) {
 			if(  obj->is_stuck()  ) {
 				// end of traffic jam, but no stuck message, because previous vehicle is stuck too
 				restart_speed = 0;
@@ -2556,7 +2559,7 @@ bool rail_vehicle_t::is_target(const grund_t *gr,const grund_t *prev_gr) const
 }
 
 
-bool rail_vehicle_t::is_longblock_signal_clear( signal_t *sig, uint16 next_block, int &restart_speed )
+bool rail_vehicle_t::is_longblock_signal_clear(signal_t *sig, uint16 next_block, sint32 &restart_speed)
 {
 	// longblock signal: first check, whether there is a signal coming up on the route => just like normal signal
 	uint16 next_signal, next_crossing;
@@ -2632,7 +2635,7 @@ bool rail_vehicle_t::is_longblock_signal_clear( signal_t *sig, uint16 next_block
 }
 
 
-bool rail_vehicle_t::is_choose_signal_clear( signal_t *sig, const uint16 start_block, int &restart_speed )
+bool rail_vehicle_t::is_choose_signal_clear(signal_t *sig, const uint16 start_block, sint32 &restart_speed)
 {
 	bool choose_ok = false;
 	target_halt = halthandle_t();
@@ -2753,7 +2756,7 @@ skip_choose:
 }
 
 
-bool rail_vehicle_t::is_pre_signal_clear( signal_t *sig, uint16 next_block, int &restart_speed )
+bool rail_vehicle_t::is_pre_signal_clear(signal_t *sig, uint16 next_block, sint32 &restart_speed)
 {
 	// parse to next signal; if needed recurse, since we allow cascading
 	uint16 next_signal, next_crossing;
@@ -2777,7 +2780,7 @@ bool rail_vehicle_t::is_pre_signal_clear( signal_t *sig, uint16 next_block, int 
 }
 
 
-bool rail_vehicle_t::is_signal_clear( uint16 next_block, int &restart_speed )
+bool rail_vehicle_t::is_signal_clear(uint16 next_block, sint32 &restart_speed)
 {
 	// called, when there is a signal; will call other signal routines if needed
 	grund_t *gr_next_block = welt->lookup(cnv->get_route()->position_bei(next_block));
@@ -2822,7 +2825,7 @@ bool rail_vehicle_t::is_signal_clear( uint16 next_block, int &restart_speed )
 }
 
 
-bool rail_vehicle_t::can_enter_tile(const grund_t *gr, int & restart_speed, bool)
+bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uint8)
 {
 	assert(leading);
 	uint16 next_signal, next_crossing;
@@ -3210,7 +3213,7 @@ void water_vehicle_t::calc_friction(const grund_t *gr)
 }
 
 
-bool water_vehicle_t::can_enter_tile(const grund_t *gr, int &restart_speed, bool)
+bool water_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uint8)
 {
 	restart_speed = -1;
 
@@ -3760,7 +3763,7 @@ bool air_vehicle_t::block_reserver( uint32 start, uint32 end, bool reserve ) con
 
 
 // handles all the decisions on the ground an in the air
-bool air_vehicle_t::can_enter_tile(const grund_t *gr, int & restart_speed, bool )
+bool air_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uint8)
 {
 	restart_speed = -1;
 

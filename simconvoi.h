@@ -631,7 +631,7 @@ public:
 	* will be called during a hop_check, if the road/track is blocked
 	* @author Hj. Malthaner
 	*/
-	void warten_bis_weg_frei(int restart_speed);
+	void warten_bis_weg_frei(sint32 restart_speed);
 
 	/**
 	* @return Vehicle count
