@@ -413,7 +413,28 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 					current_dir = next_ribi[r];
 				}
 
-				const uint32 new_f = new_g + calc_distance( to->get_pos(), ziel );
+				uint32 dist = calc_distance( to->get_pos(), ziel );
+
+				// count how many 45 degree turns are necessary to get to target
+				sint8 turns = 0;
+				if (dist>1) {
+					ribi_t::ribi to_target = ribi_typ(to->get_pos(), ziel );
+
+					if (to_target  &&  (to_target!=current_dir)) {
+						if (ribi_t::ist_einfach(current_dir) != ribi_t::ist_einfach(to_target)) {
+							to_target = ribi_t::rotate45(to_target);
+							turns ++;
+						}
+						while(to_target!=current_dir) {
+							to_target = ribi_t::rotate90(to_target);
+							turns +=2;
+						}
+						if (turns>4) turns = 8-turns;
+					}
+				}
+				// add 3*turns to the heuristic bound
+
+				const uint32 new_f = new_g + calc_distance( to->get_pos(), ziel ) + turns * 3;
 
 				// add new
 				ANode* k = &nodes[step];
