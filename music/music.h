@@ -1,6 +1,8 @@
 #ifndef MUSIC_H
 #define MUSIC_H
 
+#include "../simtypes.h"
+
 
 #define MAX_MIDI (128)
 
