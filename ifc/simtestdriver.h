@@ -38,6 +38,9 @@ public:
 	// returns true for the way search to an unknown target.
 	// first is current ground, second is starting ground
 	virtual bool is_target(const grund_t *,const grund_t *) const = 0;
+
+	// return the cost of a single step upwards
+	virtual uint32 get_cost_upslope() const { return 0; }
 };
 
 #endif

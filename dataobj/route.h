@@ -36,6 +36,12 @@ private:
 	koord3d_vector_t route;           // The coordinates for the vehicle route
 
 	void postprocess_water_route(karte_t *welt);
+
+	static inline uint32 calc_distance( const koord3d &p1, const koord3d &target )
+	{
+		return koord_distance(p1, target);
+	}
+
 public:
 	typedef enum { no_route=0, valid_route=1, valid_route_halt_too_short=3 } route_result_t;
 
@@ -68,11 +74,6 @@ public:
 	static void GET_NODE() {}
 	static void RELEASE_NODE() {}
 #endif
-
-	static inline uint32 calc_distance( const koord3d &p1, const koord3d &p2 )
-	{
-		return (abs(p1.x-p2.x)+abs(p1.y-p2.y)+abs(p1.z-p2.z)/16);
-	}
 
 	const koord3d_vector_t &get_route() const { return route; }
 

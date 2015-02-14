@@ -489,6 +489,8 @@ public:
 	// how expensive to go here (for way search)
 	virtual int get_cost(const grund_t *, const sint32, koord) const;
 
+	virtual uint32 get_cost_upslope() const { return 15; }
+
 	virtual bool calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route);
 
 	virtual bool can_enter_tile(const grund_t *gr_next, sint32 &restart_speed, uint8 second_check_count);
@@ -534,6 +536,8 @@ public:
 
 	// how expensive to go here (for way search)
 	virtual int get_cost(const grund_t *, const sint32, koord) const;
+
+	virtual uint32 get_cost_upslope() const { return 25; }
 
 	// returns true for the way search to an unknown target.
 	virtual bool is_target(const grund_t *,const grund_t *) const;
