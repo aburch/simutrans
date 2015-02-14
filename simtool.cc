@@ -6699,6 +6699,81 @@ bool tool_change_line_t::init( player_t *player )
 			}
 			break;
 
+		case 't':	// trims away convois on all lines of linetype with this default parameter
+			{
+				vector_tpl<linehandle_t> const& lines = player->simlinemgmt.get_line_list();
+				// what kind of lines to trim
+				const simline_t::linetype linetype = (simline_t::linetype)atoi(p);
+				while(  *p  &&  *p++!=','  ) {
+				}
+				// how much as target
+				sint32 percentage = *p ? atoi(p) : 10;
+				if(  percentage == 0  ) {
+					break;
+				}
+
+				FOR(vector_tpl<linehandle_t>,line,lines) {
+					if(  line->get_linetype() == linetype  &&  line->get_convoys().get_count() > 3  ) {
+						// correct waytpe and more than one,n now some up usage for the last six months
+						sint64 transported = 0, capacity = 0;
+						for(  int i=0;  i<6;  i++  ) {
+							capacity += line->get_finance_history( i , LINE_CAPACITY );
+							transported += line->get_finance_history( i , LINE_TRANSPORTED_GOODS );
+						}
+						// sanity check for non-moving lines
+						if(  capacity == 0  ) {
+							continue;
+						}
+
+						if(  (transported*100) / capacity < percentage  ) {
+							// less than 33 % usage => remove concois
+							vector_tpl<convoihandle_t> const& cnvs = line->get_convoys();
+							sint64 old_sum_capacity = 0;
+							FOR(vector_tpl<convoihandle_t>,cnv,cnvs) {
+								for(  int i=0;  i<cnv->get_vehikel_anzahl();  i++  ) {
+									old_sum_capacity += cnv->get_vehikel(i)->get_besch()->get_zuladung();
+								}
+							}
+							/* now we have the total capacity. We will now remove convois until this capacity
+							 * is reduced by the ration suggested from transported = 1/3 of total capacity
+							 * x is the percentage of used capacity
+							 * Then is the new target sum_capacity = x*old_sum_capacity
+							 */
+							sint64 new_sum_capacity = (transported * 1000 * old_sum_capacity) / (capacity * percentage * 10);
+
+							// first we remove the totally empty convois (nowbody will miss them)
+							int destroyed = 0, initial = line->get_convoys().get_count();
+							for(  int j=line->get_convoys().get_count()-1;  j >= 0  &&  initial-destroyed > 3  &&  new_sum_capacity < old_sum_capacity;  j--  ) {
+								convoihandle_t cnv = line->get_convoy(j);
+								if(  cnv->get_loading_level() == 0  ||  cnv->get_state() == convoi_t::INITIAL  ) {
+									for(  int i=0;  i<cnv->get_vehikel_anzahl();  i++  ) {
+										old_sum_capacity -= cnv->get_vehikel(i)->get_besch()->get_zuladung();
+									}
+									cnv->self_destruct();
+									destroyed ++;
+								}
+							}
+							// not enough? Then remove from the end ...
+							for(  int j=0;  j < line->get_convoys().get_count()  &&  initial-destroyed > 3  &&  new_sum_capacity < old_sum_capacity;  j++  ) {
+								convoihandle_t cnv = line->get_convoy(j);
+								if(  cnv->get_state() != convoi_t::SELF_DESTRUCT  ) {
+									for(  int i=0;  i<cnv->get_vehikel_anzahl();  i++  ) {
+										old_sum_capacity -= cnv->get_vehikel(i)->get_besch()->get_zuladung();
+									}
+									cnv->self_destruct();
+									destroyed ++;
+								}
+							}
+							// done
+							if(  destroyed  ) {
+								dbg->message( "tool_change_line_t::init", "trim line %s: Reduced from %d to %d convois", line->get_name(), initial, initial-destroyed );
+							}
+						}
+					}
+				}
+			}
+			break;
+
 		case 'u':	// unite all lineless convois with similar schedules
 			{
 				array_tpl<vector_tpl<convoihandle_t> > cnvs(welt->convoys().get_count());
