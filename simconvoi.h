@@ -639,7 +639,7 @@ private:
 	/**
 	 * Time in ticks since this convoy last departed from
 	 * any given stop, plus accumulated distance since the last
-	 * stop, indexed here by its handle ID.
+	 * stop, indexed here by timetable entry.
 	 * @author: jamespetts, August 2011. Replaces the original
 	 * "last_departure_time" member.
 	 * Modified October 2011 to include accumulated distance.

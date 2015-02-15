@@ -4604,12 +4604,19 @@ void convoi_t::laden() //"load" (Babelfish)
 	bool clear_departures = false;
 
 	if(journey_distance > 0 && last_stop_id != this_halt_id)
-	{
+	{		
 		arrival_time = welt->get_zeit_ms();
 		inthashtable_tpl<uint16, sint64> best_times_in_schedule; // Key: halt ID; value: departure time.
 		FOR(departure_map, const& iter, departures)
 		{			
 			const sint64 journey_time_ticks = arrival_time - iter.value.departure_time;
+			if(iter.key.entry > fpl->get_count() - 1)
+			{
+				// For some reason, the schedule has been changed but the departures have not been cleared.
+				// Abort this operation, or else it will crash on the next line, and clear departuers.
+				departures.clear();
+				break;
+			}
 			const koord3d halt_position = fpl->eintrag.get_element(iter.key.entry).pos; 
 			const halthandle_t departure_halt = haltestelle_t::get_halt(halt_position, front()->get_owner()); 
 			if(departure_halt.is_bound())
