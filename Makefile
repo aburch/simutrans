@@ -33,9 +33,6 @@ else
       else
         ifeq ($(OSTYPE),mingw)
           CFLAGS  += -DPNG_STATIC -DZLIB_STATIC
-          ifeq ($(BACKEND),gdi)
-            LIBS += -lunicows
-          endif
           LDFLAGS += -static-libgcc -static-libstdc++ -Wl,--large-address-aware
           LIBS    += -lmingw32
         endif
