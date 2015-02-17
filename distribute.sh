@@ -126,5 +126,8 @@ distribute
 
 # .. finally delete executable and language files
 rm simutrans/simutrans$simexe
-rm simutrans/pthread*.dll
-#rm simutrans/text/*.tab
+
+# cleanup dll's
+if [ "$OST" = "mingw" ]; then
+	rm simutrans/pthread*.dll
+fi
