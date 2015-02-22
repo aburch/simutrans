@@ -584,8 +584,11 @@ DBG_MESSAGE("convoi_t::finish_rd()","next_stop_index=%d", next_stop_index );
 				// eventually reserve this again
 				grund_t *gr=welt->lookup(v->get_pos());
 				// airplanes may have no ground ...
-				if (schiene_t* const sch0 = obj_cast<schiene_t>(gr->get_weg(vehicle[i]->get_waytype()))) {
-					sch0->reserve(self,ribi_t::keine);
+				if(gr)
+				{
+					if (schiene_t* const sch0 = obj_cast<schiene_t>(gr->get_weg(vehicle[i]->get_waytype()))) {
+						sch0->reserve(self,ribi_t::keine);
+					}
 				}
 			}
 			front()->set_leading(true);
