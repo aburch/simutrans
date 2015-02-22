@@ -56,9 +56,6 @@ ifeq ($(OSTYPE),mingw)
   CC ?= gcc
   SOURCES += simsys_w32_png.cc
   CFLAGS  += -DPNG_STATIC -DZLIB_STATIC -DNOMINMAX=1
-  ifeq ($(BACKEND),gdi)
-    LIBS += -lunicows
-  endif
   LDFLAGS += -static-libgcc -static-libstdc++ -Wl,--large-address-aware
   LIBS += -lmingw32 -lgdi32 -lwinmm -lwsock32 -lz -lbz2
 endif
