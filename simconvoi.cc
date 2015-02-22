@@ -1841,8 +1841,8 @@ end_loop:
 			{
 				vehicle_t* v = front();
 
-				int restart_speed=-1;
-				if (v->can_enter_tile(restart_speed,false)) {
+				sint32 restart_speed = -1;
+				if( v->can_enter_tile( restart_speed, 0 ) ) {
 					// can reserve new block => drive on
 					state = (steps_driven>=0) ? LEAVING_DEPOT : DRIVING;
 					if(haltestelle_t::get_halt(v->get_pos(),owner).is_bound()) {
@@ -1870,8 +1870,8 @@ end_loop:
 		case WAITING_FOR_CLEARANCE_TWO_MONTHS:
 		case WAITING_FOR_CLEARANCE:
 			{
-				int restart_speed=-1;
-				if (front()->can_enter_tile(restart_speed,false)) {
+				sint32 restart_speed = -1;
+				if (front()->can_enter_tile(restart_speed,0)) {
 					state = (steps_driven>=0) ? LEAVING_DEPOT : DRIVING;
 				}
 				if(restart_speed>=0) {
@@ -2109,8 +2109,8 @@ void convoi_t::new_month()
 		state = WAITING_FOR_CLEARANCE_ONE_MONTH;
 		// check, if now free ...
 		// migh also reset the state!
-		int restart_speed=-1;
-		if (front()->can_enter_tile(restart_speed,false)) {
+		sint32 restart_speed = -1;
+		if (front()->can_enter_tile(restart_speed, 0)) {
 			state = DRIVING;
 		}
 		if(restart_speed>=0) {
@@ -2355,7 +2355,7 @@ void convoi_t::ziel_erreicht()
  * Wait until vehicle 0 returns go-ahead
  * @author Hj. Malthaner
  */
-void convoi_t::warten_bis_weg_frei(int restart_speed)
+void convoi_t::warten_bis_weg_frei(sint32 restart_speed)
 {
 	if(!is_waiting()) {
 		state = WAITING_FOR_CLEARANCE;
@@ -3126,10 +3126,10 @@ void convoi_t::vorfahren()
 				state = CAN_START;
 			}
 			// to advance more smoothly
-			int restart_speed=-1;
+			sint32 restart_speed = -1;
 			if(state != REVERSING)
 			{
-				if(front()->can_enter_tile(restart_speed, false)) 
+				if(front()->can_enter_tile(restart_speed, 0)) 
 				{
 					// can reserve new block => drive on
 					if(haltestelle_t::get_halt(k0, owner).is_bound())

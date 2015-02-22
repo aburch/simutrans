@@ -358,15 +358,15 @@ public:
 
 	/**
 	 * Method checks whether next tile is free to move on.
-	 * Looks up next tile, and calls @ref can_enter_tile(const grund_t*, int&, bool).
+	 * Looks up next tile, and calls @ref can_enter_tile(const grund_t*, sint32&, uint8).
 	 */
-	bool can_enter_tile(int &restart_speed, bool second_check);
+	bool can_enter_tile(sint32 &restart_speed, uint8 second_check_count);
 
 	/**
 	 * Method checks whether next tile is free to move on.
 	 * @param gr_next next tile, must not be NULL
 	 */
-	virtual bool can_enter_tile(const grund_t *gr_next, int &restart_speed, bool second_check) = 0;
+	virtual bool can_enter_tile(const grund_t *gr_next, sint32 &restart_speed, uint8 second_check_count) = 0;
 
 	virtual void enter_tile(grund_t*);
 
@@ -656,7 +656,7 @@ class road_vehicle_t : public vehicle_t
 private:
 	// called internally only from can_enter_tile()
 	// returns true on success
-	bool choose_route( int &restart_speed, ribi_t::ribi richtung, uint16 index );
+	bool choose_route(sint32 &restart_speed, ribi_t::ribi richtung, uint16 index);
 
 public:
 	bool check_next_tile(const grund_t *bd) const;
@@ -680,7 +680,7 @@ public:
 
 	virtual route_t::route_result_t calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route);
 
-	virtual bool can_enter_tile(const grund_t *gr_next, int &restart_speed, bool second_check);
+	virtual bool can_enter_tile(const grund_t *gr_next, sint32 &restart_speed, uint8 second_check_count);
 
 	// returns true for the way search to an unknown target.
 	virtual bool  is_target(const grund_t *,const grund_t *);
@@ -715,14 +715,10 @@ protected:
 
 	void enter_tile(grund_t*);
 
-	bool is_signal_clear( uint16 start_index, int &restart_speed );
-
-	/// DEPRECATED
-	bool is_pre_signal_clear( signal_t *sig, uint16 start_index, int &restart_speed );
-
-	bool is_longblock_signal_clear( signal_t *sig, uint16 start_index, int &restart_speed );
-
-	bool is_choose_signal_clear( signal_t *sig, uint16 start_index, int &restart_speed );
+	bool is_signal_clear( uint16 start_index, sint32 &restart_speed );
+	bool is_pre_signal_clear( signal_t *sig, uint16 start_index, sint32 &restart_speed ); /// DEPRECATED
+	bool is_longblock_signal_clear( signal_t *sig, uint16 start_index, sint32 &restart_speed );
+	bool is_choose_signal_clear( signal_t *sig, uint16 start_index, sint32 &restart_speed );
 	
 	working_method_t working_method;
 
@@ -739,7 +735,7 @@ public:
 	virtual bool  is_target(const grund_t *,const grund_t *);
 
 	// handles all block stuff and route choosing ...
-	virtual bool can_enter_tile(const grund_t *gr_next, int &restart_speed, bool);
+	virtual bool can_enter_tile(const grund_t *gr_next, sint32 &restart_speed, uint8);
 
 	// reserves or un-reserves all blocks and returns the handle to the next block (if there)
 	// returns true on successful reservation
@@ -875,7 +871,7 @@ protected:
 public:
 	waytype_t get_waytype() const { return water_wt; }
 
-	virtual bool can_enter_tile(const grund_t *gr_next, int &restart_speed, bool);
+	virtual bool can_enter_tile(const grund_t *gr_next, sint32 &restart_speed, uint8);
 
 	bool check_tile_occupancy(const grund_t* gr);
 
@@ -977,7 +973,7 @@ public:
 	// how expensive to go here (for way search)
 	virtual int get_cost(const grund_t *, const sint32, koord);
 
-	virtual bool can_enter_tile(const grund_t *gr_next, int &restart_speed, bool);
+	virtual bool can_enter_tile(const grund_t *gr_next, sint32 &restart_speed, uint8);
 
 	virtual void set_convoi(convoi_t *c);
 
