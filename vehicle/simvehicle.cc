@@ -844,7 +844,7 @@ uint16 vehicle_t::unload_cargo(halthandle_t halt, sint64 & revenue_from_unloadin
 				
 				// check if destination or transfer is still valid
 				if(  !end_halt.is_bound() || !via_halt.is_bound()  ) {
-					DBG_MESSAGE("vehicle_t::unload_freight_internal()", "destination of %d %s is no longer reachable",tmp.menge,translator::translate(tmp.get_name()));
+					DBG_MESSAGE("vehicle_t::unload_cargo()", "destination of %d %s is no longer reachable",tmp.menge,translator::translate(tmp.get_name()));
 					total_freight -= tmp.menge;
 					sum_weight -= tmp.menge * tmp.get_besch()->get_weight_per_unit();
 					i = fracht.erase( i );
@@ -4570,8 +4570,9 @@ void rail_vehicle_t::leave_tile()
 					signal_t* sig;
 					if(route)
 					{
-						const koord3d this_tile = cnv->get_route()->position_bei(min(route_index, route->get_count() - 1));
-						const koord3d previous_tile = cnv->get_route()->position_bei(max(1u, route_index) -1u);
+						const uint16 ri = min(route_index, route->get_count() - 1u); 
+						const koord3d this_tile = cnv->get_route()->position_bei(ri);
+						const koord3d previous_tile = cnv->get_route()->position_bei(max(1u, ri) -1u);
 						grund_t *gr_ahead = welt->lookup(this_tile);
 						weg_t *way = gr_ahead->get_weg(get_waytype());
 						const koord dir = this_tile.get_2d() - previous_tile.get_2d();

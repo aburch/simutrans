@@ -2164,6 +2164,46 @@ bool haltestelle_t::hole_ab( slist_tpl<ware_t> &fracht, const ware_besch_t *wtyp
 							}
 						}
 
+						// Also, if this stop has a wait for load order without a maximum time and the faster convoy 
+						// also has that, do not wait for a "faster" convoy, as it may never come.
+
+						const linieneintrag_t schedule_entry = cnv->get_schedule()->get_current_eintrag();
+						if(schedule_entry.ladegrad > 0 && !schedule_entry.wait_for_time && schedule_entry.waiting_time_shift == 0)
+						{
+							// This convoy has an untimed wait for load order.
+							if(fast_convoy->get_line() == cnv->get_line())
+							{
+								wait_for_faster_convoy = false;
+							}
+							else
+							{
+								// Check to see whether this has the same untimed wait for load order even if it is not on the same line.
+								linieneintrag_t fast_convoy_schedule_entry = fast_convoy->get_schedule()->get_current_eintrag();
+								if(haltestelle_t::get_halt(fast_convoy_schedule_entry.pos, cnv->get_owner()) == self)
+								{
+									if(fast_convoy_schedule_entry.ladegrad > 0 && !fast_convoy_schedule_entry.wait_for_time && fast_convoy_schedule_entry.waiting_time_shift == 0)
+									{
+										wait_for_faster_convoy = false;
+									}
+								}
+								else
+								{
+									for(int i = 0; i < fast_convoy->get_schedule()->get_count(); i++)
+									{
+										fast_convoy_schedule_entry = fast_convoy->get_schedule()->eintrag[i];
+										if(haltestelle_t::get_halt(fast_convoy_schedule_entry.pos, cnv->get_owner()) == self)
+										{
+											if(fast_convoy_schedule_entry.ladegrad > 0 && !fast_convoy_schedule_entry.wait_for_time && fast_convoy_schedule_entry.waiting_time_shift == 0)
+											{
+												wait_for_faster_convoy = false;
+												break;
+											}
+										}
+									}
+								}
+							}
+						}
+
 						if(wait_for_faster_convoy)
 						{
 							fpl->increment_index(&index, &reverse);
