@@ -4297,7 +4297,7 @@ bool rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16 &
 						}
 						if(pre_signals.get_count() != 1 || end_marker_index != INVALID_INDEX)
 						{
-							// Reserve through to the stop signal after the second pre-signal unless an end of choose signal is in the way.
+							// Reserve through to the stop signal after the second distant signal unless an end of choose signal is in the way.
 							// TODO: Make this work properly for MAS.
 							// TODO: Make it so that distant signals clear when all stop signals connected to the same signal box have cleared.
 							count --;
@@ -4317,7 +4317,7 @@ bool rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16 &
 					}
 					if(working_method != token_block)
 					{
-						working_method = absolute_block; // TODO: Make this based on the signal and vehicle type#
+						working_method = absolute_block; // TODO: Make this based on the signal and vehicle type
 					}
 				}
 			}
@@ -4464,8 +4464,9 @@ bool rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16 &
 		return false;
 	}
 
-	// ok, switch everything green ...
-	int counter = signs.get_count() - 1;
+	// Clear signals on the route.
+	const int reducer = next_signal_index < end_marker_index && end_marker_index != INVALID_INDEX ? 0 : 1;
+	int counter = signs.get_count() - reducer;
 	FOR(slist_tpl<grund_t*>, const g, signs)
 	{
 		if(signal_t* const signal = g->find<signal_t>())
@@ -4537,6 +4538,15 @@ bool rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16 &
 	{
 		cnv->set_next_reservation_index(i);
 	}
+
+	 if(next_signal_index < end_marker_index && end_marker_index != INVALID_INDEX)
+	 {
+		 // Without this, the train will slow for the next or a subsequent stop signal even if at clear if 
+		 // there is an end of zone marker before the signal after that. 
+		 // TODO: Consider possible unfortunate implications of this. What should happen when a train 
+		 // reaches the marker?
+		 next_signal_index = end_marker_index;
+	 }
 
 	return true;
 }
