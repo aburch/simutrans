@@ -540,7 +540,7 @@ void settings_experimental_revenue_stats_t::read(settings_t *sets)
 
 bool settings_general_stats_t::action_triggered(gui_action_creator_t *comp, value_t v)
 {
-	assert( comp==&savegame || comp==&savegame_ex );
+	assert( comp==&savegame || comp==&savegame_ex ); (void)comp;
 
 	if(  v.i==-1  ) 
 	{

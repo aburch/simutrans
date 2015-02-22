@@ -303,7 +303,7 @@ void karte_ansicht_t::display(bool force_dirty)
 		}
 	}
 
-	assert( rs == get_random_seed() );
+	assert( rs == get_random_seed() ); (void)rs;
 
 #else
 	(void)force_dirty;

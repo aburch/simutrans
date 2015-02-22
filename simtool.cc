@@ -2706,7 +2706,7 @@ const char *tool_build_bridge_t::do_work( player_t *player, const koord3d &start
 		sint8 bridge_height;
 		const char *error;
 		koord3d end2 = brueckenbauer_t::finde_ende(player, start, zv, besch, error, bridge_height, false, koord_distance(start, end), is_ctrl_pressed());
-		assert(end2 == end);
+		assert(end2 == end); (void)end2;
 		const weg_besch_t* weg_besch = besch->get_weg_besch();
 		brueckenbauer_t::baue_bruecke( player, start, end, zv, bridge_height, besch, weg_besch ? weg_besch : wegbauer_t::weg_search(besch->get_waytype(), besch->get_topspeed(), welt->get_timeline_year_month(), weg_t::type_flat));
 		return NULL; // all checks are performed before building.
