@@ -2147,15 +2147,6 @@ bool haltestelle_t::hole_ab( slist_tpl<ware_t> &fracht, const ware_besch_t *wtyp
 						}
 						
 						bool wait_for_faster_convoy = true;
-
-						if(fast_convoy->get_line() == cnv->get_line() && !fast_is_here)
-						{
-							// Do not wait for a faster convoy if both convoys are on the same line.
-							// Although this is sub-optimal in some cases with widely divergent vehicles on the same line,
-							// this is correct in most cases (as it is unlikely that one convoy on the same line would 
-							// predictably overtake another) and helps to prevent otherwise difficult to fix anomales. 
-							wait_for_faster_convoy = false;
-						}
 						
 						const sint64 waiting_time_for_faster_convoy = fast_here_departure_time - welt->get_zeit_ms();
 						if(!fast_is_here)
