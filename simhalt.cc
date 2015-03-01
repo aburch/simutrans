@@ -2164,6 +2164,43 @@ bool haltestelle_t::hole_ab( slist_tpl<ware_t> &fracht, const ware_besch_t *wtyp
 							}
 						}
 
+						// Assume that a convoy on the same line, in the same part of its timetable will not overtake this convoy.
+
+						if(fast_convoy->get_line() == cnv->get_line())
+						{
+							// Check for the same part of the timetable, as the convoy may either be going in a circle in a reverse direction
+							// or otherwise call at this stop at different parts of its timetable.
+							uint8 check_index = fpl->get_aktuell();
+							bool check_reverse = cnv->get_reverse_schedule();
+							schedule_t* fast_schedule = fast_convoy->get_schedule();
+							uint8 fast_index = fast_schedule->get_aktuell();
+							bool fast_reverse = fast_convoy->get_reverse_schedule();
+							const player_t* player = cnv->get_owner();
+							halthandle_t fast_convoy_halt;
+
+							for(int i = 0; i < fast_schedule->get_count() * 2; i ++)
+							{
+								fast_convoy_halt = haltestelle_t::get_halt(fast_schedule->eintrag[fast_index].pos, player);
+								if(fast_convoy_halt == self)
+								{
+									if(fast_index == check_index && fast_reverse == check_reverse)
+									{
+										// The next convoy of the same line will arrive at the same position in its schedule, so
+										// do not wait for it as it is not likely actually to be faster, no matter what the estimated
+										// times may say.
+										wait_for_faster_convoy = false;
+										break;
+									}
+									else
+									{
+										// The next convoy is at a different point in its schedule, so respect the estimated times.
+										break;
+									}
+								}
+								fast_schedule->increment_index(&fast_index, &fast_reverse); 
+							}
+						}
+
 						// Also, if this stop has a wait for load order without a maximum time and the faster convoy 
 						// also has that, do not wait for a "faster" convoy, as it may never come.
 
@@ -4838,6 +4875,12 @@ sint64 haltestelle_t::calc_earliest_arrival_time_at(halthandle_t halt, convoihan
 		arrival_convoy.set_id(iter.key);
 		if(!arrival_convoy.is_bound())
 		{
+			continue;
+		}
+
+		if(arrival_convoy->get_no_load())
+		{
+			// Do not wait for a convoy that is set not to load.
 			continue;
 		}
 
