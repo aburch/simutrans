@@ -957,6 +957,11 @@ bool weg_t::should_city_adopt_this(const player_t* player)
 
 uint32 weg_t::get_condition_percent() const
 {
+	if(besch->get_wear_capacity() == 0)
+	{
+		// Necessary to avoid divisions by zero on mothballed ways
+		return 0;
+	}
 	// Necessary to avoid overflow. Speed not important as this is for the UI.
 	// Running calculations should use fractions (e.g., "if(remaining_wear_capacity < besch->get_wear_capacity() / 6)"). 
 	const sint64 remaining_wear_capacity_percent = (sint64)remaining_wear_capacity  * 100ll;
