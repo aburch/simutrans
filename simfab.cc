@@ -2590,15 +2590,20 @@ void fabrik_t::recalc_nearby_halts()
 					const nearby_halt_t new_nearby_halt = haltlist[i];
 					// However, it might be a duplicate.
 					bool duplicate = false;
+					bool duplicate_freight = false;
 					for(uint32 j=0; j < nearby_halts.get_count(); j++)
 					{
 						if(new_nearby_halt.halt == nearby_halts[j].halt)
 						{
 							duplicate = true;
 							// Same halt handle.
-							// We always want the shorter of the two distances...
-							// Since goods/passengers can ship from any part of a factory
+							// We always want the shorter of the two distances,
+							// since goods/passengers can ship from any part of a factory.
 							uint8 new_distance = min(nearby_halts[j].distance, new_nearby_halt.distance);
+							if(nearby_halts[j].distance <= welt->get_settings().get_station_coverage_factories())
+							{
+								duplicate_freight = true;
+							}
 							nearby_halts[j].distance = new_distance;
 						}
 					}
@@ -2613,6 +2618,9 @@ void fabrik_t::recalc_nearby_halts()
 						{
 							nearby_mail_halts.append(new_nearby_halt);
 						}
+					}
+					if(!duplicate_freight)
+					{
 						if(new_nearby_halt.halt->get_ware_enabled() && new_nearby_halt.distance <= welt->get_settings().get_station_coverage_factories())
 						{
 							// Halt is within freight coverage distance (shorter than regular) and handles freight...
