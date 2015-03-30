@@ -6713,7 +6713,7 @@ bool tool_change_line_t::init( player_t *player )
 				}
 
 				FOR(vector_tpl<linehandle_t>,line,lines) {
-					if(  line->get_linetype() == linetype  &&  line->get_convoys().get_count() > 3  ) {
+					if(  line->get_linetype() == linetype  &&  line->get_convoys().get_count() > 2  ) {
 						// correct waytpe and more than one,n now some up usage for the last six months
 						sint64 transported = 0, capacity = 0;
 						for(  int i=0;  i<6;  i++  ) {
@@ -6742,10 +6742,13 @@ bool tool_change_line_t::init( player_t *player )
 							sint64 new_sum_capacity = (transported * 1000 * old_sum_capacity) / (capacity * percentage * 10);
 
 							// first we remove the totally empty convois (nowbody will miss them)
-							int destroyed = 0, initial = line->get_convoys().get_count();
-							for(  int j=line->get_convoys().get_count()-1;  j >= 0  &&  initial-destroyed > 3  &&  new_sum_capacity < old_sum_capacity;  j--  ) {
+							int destroyed = 0;
+							const int initial = line->get_convoys().get_count();
+							const int max_left = (initial+2) / 2;
+
+							for(  int j=line->get_convoys().get_count()-1;  j >= 0  &&  initial-destroyed > max_left  &&  new_sum_capacity < old_sum_capacity;  j--  ) {
 								convoihandle_t cnv = line->get_convoy(j);
-								if(  cnv->get_loading_level() == 0  ||  cnv->get_state() == convoi_t::INITIAL  ) {
+								if(  cnv->get_state() == convoi_t::INITIAL  ||  cnv->get_state() >= convoi_t::WAITING_FOR_CLEARANCE_ONE_MONTH  ) {
 									for(  int i=0;  i<cnv->get_vehikel_anzahl();  i++  ) {
 										old_sum_capacity -= cnv->get_vehikel(i)->get_besch()->get_zuladung();
 									}
@@ -6753,8 +6756,9 @@ bool tool_change_line_t::init( player_t *player )
 									destroyed ++;
 								}
 							}
+
 							// not enough? Then remove from the end ...
-							for(  int j=0;  j < line->get_convoys().get_count()  &&  initial-destroyed > 3  &&  new_sum_capacity < old_sum_capacity;  j++  ) {
+							for(  int j=0;  j < line->get_convoys().get_count()  &&  initial-destroyed > max_left  &&  new_sum_capacity < old_sum_capacity;  j++  ) {
 								convoihandle_t cnv = line->get_convoy(j);
 								if(  cnv->get_state() != convoi_t::SELF_DESTRUCT  ) {
 									for(  int i=0;  i<cnv->get_vehikel_anzahl();  i++  ) {

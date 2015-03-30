@@ -177,7 +177,7 @@ settings_t::settings_t() :
 	 */
 	pak_diagonal_multiplier = 724;
 
-	// assume ´sinble level is enough
+	// assume single level is enough
 	way_height_clearance = 1;
 
 	strcpy( language_code_names, "en" );
