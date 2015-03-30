@@ -244,6 +244,7 @@ void roadsign_t::info(cbuffer_t & buf, bool dummy) const
 
 
 // could be still better aligned for drive_left settings ...
+// now only an offset in besch could improve it ...
 void roadsign_t::calc_image()
 {
 	set_flag(obj_t::dirty);
@@ -257,8 +258,9 @@ void roadsign_t::calc_image()
 	after_xoffset = 0;
 	after_yoffset = 0;
 	sint8 xoff = 0, yoff = 0;
-	const bool left_offsets = (  besch->get_wtyp()==road_wt  &&  !besch->is_choose_sign()  &&  welt->get_settings().is_drive_left()  );
-
+	const bool left_offsets = ((  besch->get_wtyp()==road_wt  &&  welt->get_settings().is_drive_left()   ) || \
+		(welt->get_settings().is_signals_left() && (besch->get_wtyp()!=road_wt && besch->get_wtyp()!=air_wt)));
+	const sint8 height_step = TILE_HEIGHT_STEP << hang_t::ist_doppel(gr->get_weg_hang());
 	// private way have also closed/open states
 	if(  besch->is_private_way()  ) {
 		uint8 image = 1-(dir&1);
@@ -271,8 +273,8 @@ void roadsign_t::calc_image()
 		set_bild( besch->get_bild_nr(image) );
 		set_yoff( 0 );
 		if(  hang_t::typ hang = gr->get_weg_hang()  ) {
-			if(hang==hang_t::west ||  hang==hang_t::nord) {
-				set_yoff( -TILE_HEIGHT_STEP );
+			if( hang!=hang_t::flach) {
+				set_yoff( -(height_step>>1) );
 			}
 		}
 		else {
@@ -290,10 +292,13 @@ void roadsign_t::calc_image()
 	else {
 		// since the places were switched
 		if(  left_offsets  ) {
-			hang = ribi_t::rueckwaerts(hang);
+			hang = hang_t::gegenueber(hang);
 		}
+		// hang_t::(ost, nord, ...) does not work for double slopes, convert to single
+		hang = hang >> hang_t::ist_doppel(hang);
+
 		if(hang==hang_t::ost ||  hang==hang_t::nord) {
-			yoff = -TILE_HEIGHT_STEP;
+			yoff = -height_step;
 			after_yoffset = 0;
 		}
 		else {
@@ -324,7 +329,7 @@ void roadsign_t::calc_image()
 		// signs for left side need other offsets and other front/back order
 		if(  left_offsets  ) {
 			const sint16 XOFF = 24;
-			const sint16 YOFF = 16;
+			const sint16 YOFF = 12;
 
 			if(temp_dir&ribi_t::ost) {
 				tmp_bild = besch->get_bild_nr(3);
@@ -410,8 +415,8 @@ void roadsign_t::calc_image()
 
 			// other front/back images for left side ...
 			if(  left_offsets  ) {
-				const int XOFF=30;
-				const int YOFF=14;
+				const int XOFF=24;
+				const int YOFF=12;
 
 				if(weg_dir&ribi_t::nord) {
 					if(weg_dir&ribi_t::ost) {

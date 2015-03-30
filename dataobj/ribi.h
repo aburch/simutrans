@@ -69,7 +69,7 @@ public:
 
 	// A little tricky implementation:
 	//static bool ist_gegenueber(typ x, typ y) { return ist_einfach(x) && ist_einfach(y) && x + y == 40; }	// unused at present need to extend to cope with double heights
-	static typ gegenueber(typ x) { return ist_einfach(x) ? (x & 7 ? (40 - x) : (80 - x * 2)) : flach; }
+	static typ gegenueber(typ x) { return ist_einfach(x) ? (ist_doppel(x) ? (80 - x) : (40 - x)) : flach; }
 	static typ rotate90(typ x) { return ( ( (x % 3) * 27 ) + ( ( x - (x % 3) ) / 3 ) ); }
 
 	static bool is_all_up(typ x) { return (flags[x] & all_up)>0; }
@@ -82,6 +82,7 @@ public:
 	//
 	// Ranges werden nicht geprüft!
 	//
+	static bool ist_doppel(typ x)  { return (flags[x] & doppel) != 0; }
 	static bool ist_einfach(typ x) { return (flags[x] & einfach) != 0; }
 	static bool ist_wegbar(typ x)  { return (flags[x] & (wegbar_ns | wegbar_ow)) != 0; }
 	static bool ist_wegbar_ns(typ x)  { return (flags[x] & wegbar_ns) != 0; }

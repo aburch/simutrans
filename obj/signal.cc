@@ -85,6 +85,7 @@ void signal_t::calc_image()
 	grund_t *gr = welt->lookup(get_pos());
 	if(gr) {
 		set_flag(obj_t::dirty);
+		const sint8 height_step = TILE_HEIGHT_STEP << hang_t::ist_doppel(gr->get_weg_hang());
 
 		weg_t *sch = gr->get_weg(besch->get_wtyp()!=tram_wt ? besch->get_wtyp() : track_wt);
 		if(sch) {
@@ -102,10 +103,10 @@ void signal_t::calc_image()
 			}
 			else {
 				if(  left_swap  ) {
-					hang = ribi_t::rueckwaerts(hang);
+					hang = hang_t::gegenueber(hang);
 				}
 				if(hang==hang_t::ost ||  hang==hang_t::nord) {
-					yoff = -TILE_HEIGHT_STEP;
+					after_yoffset = -height_step;
 					after_yoffset = 0;
 				}
 				else {
@@ -132,7 +133,7 @@ void signal_t::calc_image()
 			// signs for left side need other offsets and other front/back order
 			if(  left_swap  ) {
 				const sint16 XOFF = 24;
-				const sint16 YOFF = 16;
+				const sint16 YOFF = 12;
 
 				if(temp_dir&ribi_t::ost) {
 					image = besch->get_bild_nr(3+state*4+offset);

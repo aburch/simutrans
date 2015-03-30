@@ -49,6 +49,7 @@
 " Nathanael Nerode","developer",
 " Inkelyad", "developer",
 " Isidoro","developer (vehicle replacement)",
+" Vladki", "patch",
 " Hanczar","profiling, fixes",
 " Octavius","patch",
 " TurfIt","patches",
