@@ -224,6 +224,11 @@ void roadsign_t::calc_image()
 	sint8 xoff = 0, yoff = 0;
 	const bool left_offsets = (  besch->get_wtyp()==road_wt  &&  !besch->is_choose_sign()  &&  welt->get_settings().is_drive_left()  );
 
+	const hang_t::typ full_hang = gr->get_weg_hang();
+	const sint8 hang_diff = hang_t::max_diff(full_hang);
+	const ribi_t::ribi hang_dir = ribi_t::rueckwaerts( ribi_typ(full_hang) );
+
+
 	// private way have also closed/open states
 	if(  besch->is_private_way()  ) {
 		uint8 image = 1-(dir&1);
@@ -233,8 +238,8 @@ void roadsign_t::calc_image()
 		}
 		set_bild( besch->get_bild_nr(image) );
 		set_yoff( 0 );
-		if(  hang_t::typ hang = gr->get_weg_hang()  ) {
-			if(hang==hang_t::west ||  hang==hang_t::nord) {
+		if(  hang_diff  ) {
+			if(hang_dir==ribi_t::west ||  hang_dir==ribi_t::nord) {
 				set_yoff( -TILE_HEIGHT_STEP );
 			}
 		}
@@ -245,23 +250,23 @@ void roadsign_t::calc_image()
 		return;
 	}
 
-	hang_t::typ hang = gr->get_weg_hang();
-	if(  hang==hang_t::flach  ) {
+	if(  hang_diff == 0  ) {
 		yoff = -gr->get_weg_yoff();
 		after_yoffset = yoff;
 	}
 	else {
 		// since the places were switched
+		ribi_t::ribi test_hang = hang_dir;
 		if(  left_offsets  ) {
-			hang = ribi_t::rueckwaerts(hang);
+			test_hang = ribi_t::rueckwaerts(hang_dir);
 		}
-		if(hang==hang_t::ost ||  hang==hang_t::nord) {
-			yoff = -TILE_HEIGHT_STEP;
+		if(test_hang==ribi_t::ost ||  test_hang==ribi_t::nord) {
+			yoff = -TILE_HEIGHT_STEP*hang_diff;
 			after_yoffset = 0;
 		}
 		else {
 			yoff = 0;
-			after_yoffset = -TILE_HEIGHT_STEP;
+			after_yoffset = -TILE_HEIGHT_STEP*hang_diff;
 		}
 	}
 
@@ -275,8 +280,7 @@ void roadsign_t::calc_image()
 		if(  gr->get_typ()==grund_t::tunnelboden  &&  gr->ist_karten_boden()  &&
 			(grund_t::underground_mode==grund_t::ugm_none  ||  (grund_t::underground_mode==grund_t::ugm_level  &&  gr->get_hoehe()<grund_t::underground_level))   ) {
 			// entering tunnel here: hide the image further in if not undergroud/sliced
-			hang = gr->get_grund_hang();
-			if(  hang==hang_t::ost  ||  hang==hang_t::nord  ) {
+			if(  hang_dir==ribi_t::ost  ||  hang_dir==ribi_t::nord  ) {
 				temp_dir &= ~ribi_t::suedwest;
 			}
 			else {
