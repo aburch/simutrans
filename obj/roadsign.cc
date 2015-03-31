@@ -303,7 +303,7 @@ void roadsign_t::calc_image()
 		}
 		else {
 			yoff = 0;
-			after_yoffset = -TILE_HEIGHT_STEP;
+			after_yoffset = -height_step;
 		}
 	}
 

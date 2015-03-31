@@ -105,13 +105,17 @@ void signal_t::calc_image()
 				if(  left_swap  ) {
 					hang = hang_t::gegenueber(hang);
 				}
+
+				// hang_t::(ost, nord, ...) does not work for double slopes, convert to single
+                 hang = hang >> hang_t::ist_doppel(hang);
+
 				if(hang==hang_t::ost ||  hang==hang_t::nord) {
-					after_yoffset = -height_step;
+					yoff = -height_step;
 					after_yoffset = 0;
 				}
 				else {
 					yoff = 0;
-					after_yoffset = -TILE_HEIGHT_STEP;
+					 after_yoffset = -height_step;
 				}
 			}
 
