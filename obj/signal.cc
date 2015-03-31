@@ -55,8 +55,14 @@ void signal_t::calc_image()
 	after_yoffset = 0;
 	sint8 xoff = 0, yoff = 0;
 	const bool left_swap = welt->get_settings().is_signals_left();
+
 	grund_t *gr = welt->lookup(get_pos());
 	if(gr) {
+
+		const hang_t::typ full_hang = gr->get_weg_hang();
+		const sint8 hang_diff = hang_t::max_diff(full_hang);
+		const ribi_t::ribi hang_dir = ribi_t::rueckwaerts( ribi_typ(full_hang) );
+
 		set_flag(obj_t::dirty);
 
 		weg_t *sch = gr->get_weg(besch->get_wtyp()!=tram_wt ? besch->get_wtyp() : track_wt);
@@ -68,22 +74,19 @@ void signal_t::calc_image()
 			}
 
 			// vertical offset of the signal positions
-			hang_t::typ hang = gr->get_weg_hang();
-			if(hang==hang_t::flach) {
+			if(full_hang==hang_t::flach) {
 				yoff = -gr->get_weg_yoff();
 				after_yoffset = yoff;
 			}
 			else {
-				if(  left_swap  ) {
-					hang = ribi_t::rueckwaerts(hang);
-				}
-				if(hang==hang_t::ost ||  hang==hang_t::nord) {
-					yoff = -TILE_HEIGHT_STEP;
+				const ribi_t::ribi test_hang = left_swap ? ribi_t::rueckwaerts(hang_dir) : hang_dir;
+				if(test_hang==ribi_t::ost ||  test_hang==ribi_t::nord) {
+					yoff = -TILE_HEIGHT_STEP*hang_diff;
 					after_yoffset = 0;
 				}
 				else {
 					yoff = 0;
-					after_yoffset = -TILE_HEIGHT_STEP;
+					after_yoffset = -TILE_HEIGHT_STEP*hang_diff;
 				}
 			}
 
@@ -93,8 +96,7 @@ void signal_t::calc_image()
 			if(  gr->get_typ()==grund_t::tunnelboden  &&  gr->ist_karten_boden()  &&
 				(grund_t::underground_mode==grund_t::ugm_none  ||  (grund_t::underground_mode==grund_t::ugm_level  &&  gr->get_hoehe()<grund_t::underground_level))   ) {
 				// entering tunnel here: hide the image further in if not undergroud/sliced
-				hang = gr->get_grund_hang();
-				if(  hang==hang_t::ost  ||  hang==hang_t::nord  ) {
+				if(hang_dir==ribi_t::ost ||  hang_dir==ribi_t::nord) {
 					temp_dir &= ~ribi_t::suedwest;
 				}
 				else {

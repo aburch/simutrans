@@ -228,7 +228,6 @@ void roadsign_t::calc_image()
 	const sint8 hang_diff = hang_t::max_diff(full_hang);
 	const ribi_t::ribi hang_dir = ribi_t::rueckwaerts( ribi_typ(full_hang) );
 
-
 	// private way have also closed/open states
 	if(  besch->is_private_way()  ) {
 		uint8 image = 1-(dir&1);
@@ -256,10 +255,7 @@ void roadsign_t::calc_image()
 	}
 	else {
 		// since the places were switched
-		ribi_t::ribi test_hang = hang_dir;
-		if(  left_offsets  ) {
-			test_hang = ribi_t::rueckwaerts(hang_dir);
-		}
+		const ribi_t::ribi test_hang = left_offsets ? ribi_t::rueckwaerts(hang_dir) : hang_dir;
 		if(test_hang==ribi_t::ost ||  test_hang==ribi_t::nord) {
 			yoff = -TILE_HEIGHT_STEP*hang_diff;
 			after_yoffset = 0;
