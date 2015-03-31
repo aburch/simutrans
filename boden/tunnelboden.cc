@@ -27,7 +27,13 @@ tunnelboden_t::tunnelboden_t(loadsave_t *file, koord pos ) : boden_t(koord3d(pos
 	if (!find<tunnel_t>()) {
 		// then we must spawn it here (a way MUST be always present, or the savegame is completely broken!)
 		weg_t *weg=(weg_t *)obj_bei(0);
-		obj_add(new tunnel_t(get_pos(), weg->get_owner(), tunnelbauer_t::find_tunnel(weg->get_besch()->get_wtyp(), 450, 0)));
+		if(  !weg  ) {
+			dbg->error( "tunnelboden_t::tunnelboden_t()", "Loading without a way at (%s)! Assuming road tunnel!", pos.get_str() );
+			obj_add(new tunnel_t(get_pos(), NULL, tunnelbauer_t::find_tunnel(road_wt, 450, 0)));
+		}
+		else {
+			obj_add(new tunnel_t(get_pos(), weg->get_owner(), tunnelbauer_t::find_tunnel(weg->get_besch()->get_wtyp(), 450, 0)));
+		}
 		DBG_MESSAGE("tunnelboden_t::tunnelboden_t()","added tunnel to pos (%i,%i,%i)",get_pos().x, get_pos().y,get_pos().z);
 	}
 }
