@@ -2,6 +2,7 @@
 	FIX: several issues with bridge bilding and deletion at two vertical cliffs
 	ADD: new industrial deman dmodel just_in_time=2, which models factory ordering stuff
 	ADD: new tool for trimming lines (linetool, parameter trim, lin_id egal, linetype (integer), target percentage (integer): will delete lines until target met or less than four convois left on line
+	ADD: configurable offsets for signs/signals (use offset_left = 0, for not moving, default 14)
 
 
 Release of 120.0.1: (r7373 on 15-Nov-2014):
@@ -3072,8 +3073,7 @@ Released Simutrans 0.85.01.0
 	CHANGE: Every second powerline is now just line, powerline bridges
 	CHANGE: tool added "Plant tree" (key '/' now without function)
 	CHANGE: removed drivables (key 'n') since they crashed anyway
-	CHANGE: removed add pump (key 'P'), since now add transformer does the
-	   right type automatically
+	CHANGE: removed add pump (key 'P'), since now add transformer does the right type automatically
 	CHANGE: removed uneccessary bridge menu pak-file
 
 

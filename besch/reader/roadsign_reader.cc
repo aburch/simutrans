@@ -43,11 +43,22 @@ obj_besch_t * roadsign_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	const uint16 v = decode_uint16(p);
 	const int version = v & 0x8000 ? v & 0x7FFF : 0;
 
-	if(version==3) {
+	if(version==4) {
 		// Versioned node, version 3
 		besch->min_speed = kmh_to_speed(decode_uint16(p));
 		besch->cost = decode_uint32(p);
 		besch->flags = decode_uint8(p);
+		besch->offset_left = decode_sint8(p);
+		besch->wt = decode_uint8(p);
+		besch->intro_date = decode_uint16(p);
+		besch->obsolete_date = decode_uint16(p);
+	}
+	else if(version==3) {
+		// Versioned node, version 3
+		besch->min_speed = kmh_to_speed(decode_uint16(p));
+		besch->cost = decode_uint32(p);
+		besch->flags = decode_uint8(p);
+		besch->offset_left = 14;
 		besch->wt = decode_uint8(p);
 		besch->intro_date = decode_uint16(p);
 		besch->obsolete_date = decode_uint16(p);
@@ -57,6 +68,7 @@ obj_besch_t * roadsign_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->min_speed = kmh_to_speed(decode_uint16(p));
 		besch->cost = decode_uint32(p);
 		besch->flags = decode_uint8(p);
+		besch->offset_left = 14;
 		besch->intro_date = DEFAULT_INTRO_DATE*12;
 		besch->obsolete_date = DEFAULT_RETIRE_DATE*12;
 		besch->wt = road_wt;
@@ -66,6 +78,7 @@ obj_besch_t * roadsign_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->min_speed = kmh_to_speed(decode_uint16(p));
 		besch->cost = 50000;
 		besch->flags = decode_uint8(p);
+		besch->offset_left = 14;
 		besch->intro_date = DEFAULT_INTRO_DATE*12;
 		besch->obsolete_date = DEFAULT_RETIRE_DATE*12;
 		besch->wt = road_wt;
@@ -73,6 +86,12 @@ obj_besch_t * roadsign_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	else {
 		dbg->fatal("roadsign_reader_t::read_node()","version 0 not supported. File corrupt?");
 	}
+
+	if(  version<=3  &&  (besch->is_choose_sign()  ||  (besch->flags & ~roadsign_besch_t::PRIVATE_ROAD) == 0)  &&  besch->get_waytype() == road_wt  ) {
+		// do not shift these signs to the left for compatibility
+		besch->offset_left = 0;
+	}
+
 	DBG_DEBUG("roadsign_reader_t::read_node()","min_speed=%i, cost=%i, flags=%x, wt=%i, intro=%i%i, retire=%i,%i",besch->min_speed,besch->cost/100,besch->flags,besch->wt,besch->intro_date%12+1,besch->intro_date/12,besch->obsolete_date%12+1,besch->obsolete_date/12 );
 	return besch;
 }

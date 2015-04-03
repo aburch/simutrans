@@ -20,7 +20,7 @@
 #define SIM_SAVE_MINOR      0
 #define SIM_SERVER_MINOR    1
 
-#define MAKEOBJ_VERSION "55.3"
+#define MAKEOBJ_VERSION "55.4"
 
 #ifndef QUOTEME
 #	define QUOTEME_(x) #x

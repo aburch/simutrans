@@ -54,7 +54,7 @@ void signal_t::calc_image()
 	after_xoffset = 0;
 	after_yoffset = 0;
 	sint8 xoff = 0, yoff = 0;
-	const bool left_swap = welt->get_settings().is_signals_left();
+	const bool left_swap = welt->get_settings().is_signals_left()  &&  besch->get_offset_left();
 
 	grund_t *gr = welt->lookup(get_pos());
 	if(gr) {
@@ -107,8 +107,8 @@ void signal_t::calc_image()
 
 			// signs for left side need other offsets and other front/back order
 			if(  left_swap  ) {
-				const sint16 XOFF = 24;
-				const sint16 YOFF = 16;
+				const sint16 XOFF = 2*besch->get_offset_left();
+				const sint16 YOFF = besch->get_offset_left();
 
 				if(temp_dir&ribi_t::ost) {
 					bild = besch->get_bild_nr(3+zustand*4+offset);
