@@ -96,7 +96,8 @@ void signal_t::calc_image()
 			if(  gr->get_typ()==grund_t::tunnelboden  &&  gr->ist_karten_boden()  &&
 				(grund_t::underground_mode==grund_t::ugm_none  ||  (grund_t::underground_mode==grund_t::ugm_level  &&  gr->get_hoehe()<grund_t::underground_level))   ) {
 				// entering tunnel here: hide the image further in if not undergroud/sliced
-				if(hang_dir==ribi_t::ost ||  hang_dir==ribi_t::nord) {
+				const ribi_t::ribi tunnel_hang_dir = ribi_t::rueckwaerts( ribi_typ(gr->get_grund_hang()) );
+				if(  tunnel_hang_dir==ribi_t::ost ||  tunnel_hang_dir==ribi_t::nord  ) {
 					temp_dir &= ~ribi_t::suedwest;
 				}
 				else {
