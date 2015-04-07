@@ -87,7 +87,7 @@ obj_besch_t * roadsign_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		dbg->fatal("roadsign_reader_t::read_node()","version 0 not supported. File corrupt?");
 	}
 
-	if(  version<=3  &&  (besch->is_choose_sign()  ||  (besch->flags & ~roadsign_besch_t::PRIVATE_ROAD) == 0)  &&  besch->get_waytype() == road_wt  ) {
+	if(  version<=3  &&  (  besch->is_choose_sign() ||  besch->is_private_way()  )  &&  besch->get_waytype() == road_wt  ) {
 		// do not shift these signs to the left for compatibility
 		besch->offset_left = 0;
 	}
