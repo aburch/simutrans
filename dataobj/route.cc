@@ -202,6 +202,23 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 				k->f = 0;
 				k->g = tmp->g + tdriver->get_cost(to, max_khm, gr->get_pos().get_2d());
 
+				uint8 current_dir;
+				if(tmp->parent!=NULL) {
+					current_dir = ribi_t::nsow[r] | tmp->ribi_from;
+					if(tmp->dir!=current_dir) {
+						k->g += 3;
+						if(tmp->parent->dir!=tmp->dir  &&  tmp->parent->parent!=NULL) {
+							// discourage 90° turns
+							k->g += 10;
+						}
+						else if(ribi_t::ist_exakt_orthogonal(tmp->dir,current_dir)) {
+							// discourage v turns heavily
+							k->g += 25;
+						}
+					}
+
+				}
+
 				// insert here
 				queue.insert(k);
 			}

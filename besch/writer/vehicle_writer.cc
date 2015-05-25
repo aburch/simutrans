@@ -133,7 +133,10 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	pos += sizeof(uint16);
 
 	// monthly maintenance
-	uint16 fixcost = obj.get_int("fixed_cost", 0);
+	uint16 fixcost = obj.get_int("fixed_cost", 65535 );
+	if(  fixcost == 65535  ) {
+		fixcost = obj.get_int("maintenance", 0);
+	}
 	node.write_uint16(fp, fixcost, pos);
 	pos += sizeof(uint16);
 

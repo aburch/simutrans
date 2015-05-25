@@ -480,6 +480,7 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 			break;
 
 		case WM_LBUTTONDOWN: /* originally ButtonPress */
+			SetCapture(this_hwnd);
 			sys_event.type    = SIM_MOUSE_BUTTONS;
 			sys_event.code    = SIM_MOUSE_LEFTBUTTON;
 			sys_event.key_mod = ModifierKeys();
@@ -489,6 +490,7 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 			break;
 
 		case WM_LBUTTONUP: /* originally ButtonRelease */
+			ReleaseCapture();
 			sys_event.type    = SIM_MOUSE_BUTTONS;
 			sys_event.code    = SIM_MOUSE_LEFTUP;
 			sys_event.key_mod = ModifierKeys();
@@ -497,7 +499,18 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 			sys_event.my      = HIWORD(lParam);
 			break;
 
+		case WM_MBUTTONDOWN: /* because capture or release may not start with the expected button */
+		case WM_XBUTTONDOWN:
+			SetCapture(this_hwnd);
+			break;
+
+		case WM_MBUTTONUP: /* because capture or release may not start with the expected button */
+		case WM_XBUTTONUP:
+			ReleaseCapture();
+			break;
+
 		case WM_RBUTTONDOWN: /* originally ButtonPress */
+			SetCapture(this_hwnd);
 			sys_event.type    = SIM_MOUSE_BUTTONS;
 			sys_event.code    = SIM_MOUSE_RIGHTBUTTON;
 			sys_event.key_mod = ModifierKeys();
@@ -507,6 +520,7 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 			break;
 
 		case WM_RBUTTONUP: /* originally ButtonRelease */
+			ReleaseCapture();
 			sys_event.type    = SIM_MOUSE_BUTTONS;
 			sys_event.code    = SIM_MOUSE_RIGHTUP;
 			sys_event.key_mod = ModifierKeys();
