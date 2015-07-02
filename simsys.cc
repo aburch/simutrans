@@ -7,7 +7,9 @@
 #ifdef __HAIKU__
 #include <Message.h>
 #include <LocaleRoster.h>
+#include <SupportDefs.h>
 #define NO_UINT32_TYPES
+#define NO_UINT64_TYPES
 #endif
 
 #include "macros.h"

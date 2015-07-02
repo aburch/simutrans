@@ -131,7 +131,9 @@ typedef unsigned long       uint32;
 #endif
 #endif
 typedef   signed long long  sint64;
+#ifndef NO_UINT64_TYPES
 typedef unsigned long long  uint64;
+#endif
 #ifdef _MSC_VER
 #	define GCC_PACKED
 #	define GCC_ALIGN(a)

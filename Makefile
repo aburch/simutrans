@@ -53,8 +53,7 @@ else
     else
 # Haiku (needs to activate the GCC 4x)
       ifeq ($(OSTYPE),haiku)
-        setarch x86
-        LIBS += -lnetwork -lbe -llocale
+        LIBS += -lnetwork -lbe
       endif
     endif
   endif
@@ -114,7 +113,9 @@ ifneq ($(MULTI_THREAD),)
 #use lpthreadGC2d for debug alternatively
       LDFLAGS += -lpthreadGC2
     else
-      LDFLAGS += -lpthread
+      ifneq ($(OSTYPE),haiku)
+        LDFLAGS += -lpthread
+      endif
     endif
   endif
 endif
