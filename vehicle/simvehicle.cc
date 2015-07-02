@@ -1306,7 +1306,6 @@ sint64 vehicle_t::calc_revenue(koord start, koord end) const
 	}
 
 	// Hajo: Rounded value, in cents
-	// prissi: Why on earth 1/3???
 	return (value+1500ll)/3000ll;
 }
 
