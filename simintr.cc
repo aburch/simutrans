@@ -97,7 +97,7 @@ void interrupt_check(const char* caller_info)
 			if((now-last_time)*FRAME_TIME_MULTI < frame_time) {
 				return;
 			}
-			const long diff = ((now - last_time)*welt_modell->get_time_multiplier())/16;
+			const sint32 diff = ((now - last_time)*welt_modell->get_time_multiplier())/16;
 			if(  diff>0  ) {
 				enabled = false;
 				last_time = now;

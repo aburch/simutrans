@@ -24,7 +24,7 @@ struct node {
 	koord pos;
 	PLAYER_COLOR_VAL color;
 	sint16 xpos;
-	long w;
+	sint32 w;
 };
 
 

@@ -16,7 +16,7 @@
  * Functions required by both Simutrans and Nettool
  */
 
-char const* network_receive_file( SOCKET const s, char const* const save_as, long const length, long const timeout )
+char const* network_receive_file( SOCKET const s, char const* const save_as, sint32 const length, sint32 const timeout )
 {
 	// ok, we have a socket to connect
 	remove(save_as);
@@ -257,7 +257,7 @@ const char *network_send_file( uint32 client_id, const char *filename )
 	fseek(fp, 0, SEEK_END);
 	long length = (long)ftell(fp);
 	rewind(fp);
-	long bytes_sent = 0;
+	sint32 bytes_sent = 0;
 
 	// send size of file
 	nwc_game_t nwc(length);
@@ -330,7 +330,7 @@ const char *network_http_post( const char *address, const char *name, const char
 		// rbuf is a single char
 		char line[1024], rbuf;
 		unsigned int pos = 0;
-		long length = 0;
+		sint32 length = 0;
 
 		// TODO better handling of error message from listing server		// TODO
 

@@ -51,7 +51,7 @@ private:
 
 	array2d_tpl<uint8> pax_dest_old, pax_dest_new;
 
-	unsigned long pax_destinations_last_change;
+	uint32 pax_destinations_last_change;
 
 	void init_pax_dest( array2d_tpl<uint8> &pax_dest );
 	void add_pax_dest( array2d_tpl<uint8> &pax_dest, const sparse_tpl< uint8 >* city_pax_dest );

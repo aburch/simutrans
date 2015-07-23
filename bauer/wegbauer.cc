@@ -561,7 +561,7 @@ bool wegbauer_t::check_building( const grund_t *to, const koord dir ) const
  * B) if allowed, calculate the cost for the step from from to to
  * @author prissi
  */
-bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *costs )
+bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, sint32 *costs )
 {
 	const koord from_pos=from->get_pos().get_2d();
 	const koord to_pos=to->get_pos().get_2d();
@@ -1191,7 +1191,7 @@ void wegbauer_t::check_for_bridge(const grund_t* parent_from, const grund_t* fro
 	if(  bruecke_besch  && (  ribi_typ(from->get_grund_hang()) == ribi_t::rueckwaerts(ribi_typ(zv))  ||  from->get_grund_hang() == 0  )
 		&&  brueckenbauer_t::ist_ende_ok(player, from, besch->get_wtyp(),ribi_t::rueckwaerts(ribi_typ(zv)))  ) {
 		// Try a bridge.
-		const long cost_difference=besch->get_wartung()>0 ? (bruecke_besch->get_wartung()*4l+3l)/besch->get_wartung() : 16;
+		const sint32 cost_difference=besch->get_wartung()>0 ? (bruecke_besch->get_wartung()*4l+3l)/besch->get_wartung() : 16;
 		const char *error;
 		// try eight possible lengths ..
 		koord3d end;
@@ -1219,7 +1219,7 @@ void wegbauer_t::check_for_bridge(const grund_t* parent_from, const grund_t* fro
 
 	if(  tunnel_besch  &&  ribi_typ(from->get_grund_hang()) == ribi_typ(zv)  ) {
 		// uphill hang ... may be tunnel?
-		const long cost_difference=besch->get_wartung()>0 ? (tunnel_besch->get_wartung()*4l+3l)/besch->get_wartung() : 16;
+		const sint32 cost_difference = besch->get_wartung() > 0 ? (tunnel_besch->get_wartung() * 4l + 3l) / besch->get_wartung() : 16;
 		koord3d end = tunnelbauer_t::finde_ende( player, from->get_pos(), zv, tunnel_besch);
 		if(  end != koord3d::invalid  &&  !ziel.is_contained(end)  ) {
 			uint32 length = koord_distance(from->get_pos(), end);
@@ -1329,7 +1329,7 @@ void get_mini_maxi( const vector_tpl<koord3d> &ziel, koord3d &mini, koord3d &max
  * beware: change the cost and you will mess up the system!
  * (but you can try, look at simuconf.tab)
  */
-long wegbauer_t::intern_calc_route(const vector_tpl<koord3d> &start, const vector_tpl<koord3d> &ziel)
+sint32 wegbauer_t::intern_calc_route(const vector_tpl<koord3d> &start, const vector_tpl<koord3d> &ziel)
 {
 	// we clear it here probably twice: does not hurt ...
 	route.clear();
@@ -1377,7 +1377,7 @@ long wegbauer_t::intern_calc_route(const vector_tpl<koord3d> &start, const vecto
 		gr = welt->lookup(i);
 
 		// is valid ground?
-		long dummy;
+		sint32 dummy;
 		if( !gr || !is_allowed_step(gr,gr,&dummy) ) {
 			// DBG_MESSAGE("wegbauer_t::intern_calc_route()","cannot start on (%i,%i,%i)",start.x,start.y,start.z);
 			continue;
@@ -1481,7 +1481,7 @@ DBG_DEBUG("insert to close","(%i,%i,%i)  f=%i",gr->get_pos().x,gr->get_pos().y,g
 				continue;
 			}
 
-			long new_cost = 0;
+			sint32 new_cost = 0;
 			bool is_ok = is_allowed_step(gr,to,&new_cost);
 
 			if(is_ok) {
@@ -1629,7 +1629,7 @@ void wegbauer_t::intern_calc_straight_route(const koord3d start, const koord3d z
 		// not building
 		return;
 	}
-	long dummy_cost;
+	sint32 dummy_cost;
 	if(!is_allowed_step(test_bd,test_bd,&dummy_cost)) {
 		// no legal ground to start ...
 		return;
@@ -1818,7 +1818,7 @@ bool wegbauer_t::intern_calc_route_runways(koord3d start3d, const koord3d ziel3d
 	grund_t *from = welt->lookup_kartenboden(start);
 	for(  int i=0;  i<=dist;  i++  ) {
 		grund_t *to = welt->lookup_kartenboden(start+zv*i);
-		long dummy;
+		sint32 dummy;
 		if (!is_allowed_step(from, to, &dummy)) {
 			return false;
 		}
@@ -1879,7 +1879,7 @@ void wegbauer_t::calc_route(const koord3d &start, const koord3d &ziel)
 void wegbauer_t::calc_route(const vector_tpl<koord3d> &start, const vector_tpl<koord3d> &ziel)
 {
 #ifdef DEBUG_ROUTES
-long ms=dr_time();
+uint32 ms = dr_time();
 #endif
 	INT_CHECK("simbau 740");
 
@@ -1903,7 +1903,7 @@ long ms=dr_time();
 	}
 	else {
 		keep_existing_city_roads |= (bautyp&bot_flag)!=0;
-		long cost2 = intern_calc_route(start, ziel);
+		sint32 cost2 = intern_calc_route(start, ziel);
 		INT_CHECK("wegbauer 1165");
 
 		if(cost2<0) {
@@ -2217,7 +2217,7 @@ sint64 wegbauer_t::calc_costs()
 // adds the ground before underground construction
 bool wegbauer_t::baue_tunnelboden()
 {
-	long cost = 0;
+	sint64 cost = 0;
 	for(uint32 i=0; i<get_count(); i++) {
 
 		grund_t* gr = welt->lookup(route[i]);
@@ -2850,7 +2850,7 @@ INT_CHECK("simbau 1072");
 	INT_CHECK("simbau 1087");
 
 #ifdef DEBUG_ROUTES
-DBG_MESSAGE("wegbauer_t::baue", "took %i ms",dr_time()-ms);
+DBG_MESSAGE("wegbauer_t::baue", "took %u ms", dr_time() - ms );
 #endif
 }
 

@@ -3950,13 +3950,13 @@ stadt_t *karte_t::suche_naechste_stadt(const koord k) const
 	if(  is_within_limits(k)  ) {
 		FOR(  weighted_vector_tpl<stadt_t*>,  const s,  stadt  ) {
 			if(  k.x >= s->get_linksoben().x  &&  k.y >= s->get_linksoben().y  &&  k.x < s->get_rechtsunten().x  &&  k.y < s->get_rechtsunten().y  ) {
-				const long dist = koord_distance( k, s->get_center() );
+				const uint32 dist = koord_distance( k, s->get_center() );
 				if(  !contains  ) {
 					// no city within limits => this is best
 					best = s;
 					min_dist = dist;
 				}
-				else if(  (unsigned) dist < min_dist  ) {
+				else if(  dist < min_dist  ) {
 					best = s;
 					min_dist = dist;
 				}
@@ -4855,7 +4855,7 @@ void karte_t::step()
 {
 rands[8] = get_random_seed();
 	DBG_DEBUG4("karte_t::step", "start step");
-	unsigned long time = dr_time();
+	uint32 time = dr_time();
 
 	// calculate delta_t before handling overflow in ticks
 	const long delta_t = (long)(ticks-last_step_ticks);
@@ -5127,7 +5127,7 @@ rands[19] = get_random_seed();
 rands[20] = get_random_seed();
 }
 
-sint32 karte_t::calc_adjusted_step_interval(const unsigned long weight, uint32 trips_per_month_hundredths) const
+sint32 karte_t::calc_adjusted_step_interval(const uint32 weight, uint32 trips_per_month_hundredths) const
 {
 	const uint32 median_packet_size = (uint32)(get_settings().get_passenger_routing_packet_size() + 1) / 2;	
 	const uint64 trips_per_month = max((((uint64)weight * calc_adjusted_monthly_figure(trips_per_month_hundredths)) / 100u) / median_packet_size, 1);

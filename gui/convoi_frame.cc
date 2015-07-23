@@ -142,7 +142,7 @@ bool convoi_frame_t::passes_filter(convoihandle_t cnv)
 
 bool convoi_frame_t::compare_convois(convoihandle_t const cnv1, convoihandle_t const cnv2)
 {
-	long result=0;
+	sint32 result = 0;
 
 	switch (sortby) {
 		default:

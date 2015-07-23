@@ -19,7 +19,7 @@
 #define UPPER_MASK 0x80000000UL /* most significant w-r bits */
 #define LOWER_MASK 0x7fffffffUL /* least significant r bits */
 
-static unsigned long mersenne_twister[MERSENNE_TWISTER_N]; // the array for the state vector
+static uint32 mersenne_twister[MERSENNE_TWISTER_N]; // the array for the state vector
 static int mersenne_twister_index = MERSENNE_TWISTER_N + 1; // mersenne_twister_index==N+1 means mersenne_twister[N] is not initialized
 
 static uint8 random_origin = 0;
@@ -272,9 +272,9 @@ uint32 setsimrand(uint32 seed,uint32 ns)
 }
 
 
-static double int_noise(const long x, const long y)
+static double int_noise(const sint32 x, const sint32 y)
 {
-	long n = x + y*101 + noise_seed;
+	sint32 n = x + y*101 + noise_seed;
 
 	n = (n<<13) ^ n;
 	return ( 1.0 - (double)((n * (n * n * 15731 + 789221) + 1376312589) & 0x7fffffff) / 1073741824.0);

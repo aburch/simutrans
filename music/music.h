@@ -45,7 +45,7 @@ void dr_stop_midi();
  * @return -1 if current track has finished, 0 otherwise.
  * @author Owen Rudge
  */
-long dr_midi_pos();
+sint32 dr_midi_pos();
 
 
 /**

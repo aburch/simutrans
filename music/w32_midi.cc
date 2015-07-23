@@ -123,7 +123,7 @@ void dr_stop_midi()
  * Returns the midi_pos variable
  * By Owen Rudge
  */
-long dr_midi_pos()
+sint32 dr_midi_pos()
 {
 	char retstr[200];
 	long length;
@@ -309,7 +309,7 @@ void __win32_set_midi_volume(int type, int left, int right)
 void __win32_set_midi_volume(int , int left, int right)
 {
 	// prissis short version
-	long vol = (left<<24)|(right<<8);
+	DWORD vol = (left<<24)|(right<<8);
 
 	if( midiOutGetNumDevs()== 0 ) {
 		return;

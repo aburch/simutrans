@@ -42,7 +42,7 @@ public:
 stringhashtable_tpl<sve_info_t *> loadsave_frame_t::cached_info;
 
 
-sve_info_t::sve_info_t(const char *pak_, time_t mod_, long fs, uint32 version, uint32 experimental_version)
+sve_info_t::sve_info_t(const char *pak_, time_t mod_, sint32 fs, uint32 version, uint32 experimental_version)
 : pak(""), mod_time(mod_), file_size(fs), version(version), experimental_version(experimental_version)
 {
 	if(pak_) {

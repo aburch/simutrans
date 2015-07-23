@@ -723,7 +723,7 @@ private:
 	/**
 	 * Number of steps since creation.
 	 */
-	long steps;
+	sint32 steps;
 
 	/**
 	 * Flag, that now no sound will play.
@@ -941,7 +941,7 @@ private:
 	*/		 	
 	void step_passengers_and_mail(long delta_t);
 
-	sint32 calc_adjusted_step_interval(const unsigned long weight, uint32 trips_per_month_hundredths) const;
+	sint32 calc_adjusted_step_interval(const uint32 weight, uint32 trips_per_month_hundredths) const;
 
 	void generate_passengers_or_mail(const ware_besch_t * wtyp);
 
@@ -1609,7 +1609,7 @@ public:
 	 *
 	 * Number of steps since map production (Babelfish)
 	 */
-	long get_steps() const { return steps; }
+	sint32 get_steps() const { return steps; }
 
 	/**
 	 * Idle time. Nur zur Anzeige verwenden!

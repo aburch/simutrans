@@ -4023,7 +4023,7 @@ void haltestelle_t::recalc_status()
 
 	MEMZERO(overcrowded);
 
-	uint32 total_sum = 0;
+	uint64 total_sum = 0;
 	if(get_pax_enabled()) {
 		const uint32 max_ware = get_capacity(0);
 		total_sum += get_ware_summe(warenbauer_t::passagiere);
@@ -4050,9 +4050,9 @@ void haltestelle_t::recalc_status()
 
 	// now for all goods
 	if(status_color!=COL_RED  &&  get_ware_enabled()) {
-		const int count = warenbauer_t::get_waren_anzahl();
+		const uint32 count = warenbauer_t::get_waren_anzahl();
 		const uint32 max_ware = get_capacity(2);
-		for (int i = 3; i < count; ++i) {
+		for(  uint32 i = 3;  i < count;  i++  ) {
 			ware_besch_t const* const wtyp = warenbauer_t::get_info(i);
 			const uint32 ware_sum = get_ware_summe(wtyp);
 			total_sum += ware_sum;

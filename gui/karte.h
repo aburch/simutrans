@@ -138,7 +138,7 @@ private:
 
 	// for passenger destination display
 	const stadt_t *city;
-	unsigned long pax_destinations_last_change;
+	uint32 pax_destinations_last_change;
 
 	koord last_world_pos;
 

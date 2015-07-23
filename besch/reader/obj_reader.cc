@@ -105,12 +105,12 @@ bool obj_reader_t::load(const char *path, const char *message)
 		// It takes the biggest power of 2 less than the number of elements and
 		// divides it in 256 sub-steps at most (the -7 comes from here)
 
-		const int max = find.search(path, "pak");
-		int step = -7;
-		for(long bit=1;  bit<max;  bit+=bit) {
-			step ++;
+		const sint32 max = find.search(path, "pak");
+		sint32 step = -7;
+		for(  sint32 bit = 1;  bit < max;  bit += bit  ) {
+			step++;
 		}
-		if(step<0) {
+		if(  step < 0  ) {
 			step = 0;
 		}
 		step = (2<<step)-1;

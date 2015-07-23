@@ -134,7 +134,7 @@ private:
 	uint8 overcrowded[8];	// bit set, when overcrowded
 
 	slist_tpl<convoihandle_t> loading_here;
-	long last_loading_step;
+	sint32 last_loading_step;
 
 	// A list of halts within walking distance
 	// @author: jamespetts, July 2011
@@ -499,7 +499,7 @@ private:
 	// Purpose	: To store the time at which this halt is created
 	//			  This is *not* saved in save games.
 	//			  When loading halts from save game, this is set to 0
-	unsigned long inauguration_time;
+	uint32 inauguration_time;
 
 	/**
 	* Arrival times of convoys bound for this stop, estimated based on 
@@ -943,7 +943,7 @@ public:
 
 	// Addedy by : Knightly
 	// Purpose	 : Return the time at which the halt was first created
-	unsigned long get_inauguration_time() { return inauguration_time; }
+	uint32 get_inauguration_time() { return inauguration_time; }
 
 	/*
 	* deletes factory references so map rotation won't segfault
