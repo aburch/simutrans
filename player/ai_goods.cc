@@ -385,7 +385,7 @@ bool ai_goods_t::create_ship_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 		gr->obj_loesche_alle(this);
 	}
 	// try to built dock
-	const haus_besch_t* h = hausbauer_t::get_random_station(haus_besch_t::hafen, water_wt, welt->get_timeline_year_month(), haltestelle_t::WARE);
+	const haus_besch_t* h = hausbauer_t::get_random_station(haus_besch_t::dock, water_wt, welt->get_timeline_year_month(), haltestelle_t::WARE);
 	if(h==NULL  ||  !call_general_tool(TOOL_BUILD_STATION, platz1, h->get_name())) {
 		return false;
 	}

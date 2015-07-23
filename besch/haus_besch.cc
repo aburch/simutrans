@@ -51,7 +51,8 @@ waytype_t haus_besch_t::get_finance_waytype() const
 	{
 		case haus_besch_t::bahnhof:      return track_wt;
 		case haus_besch_t::bushalt:      return road_wt;
-		case haus_besch_t::hafen:        return water_wt;
+		case haus_besch_t::dock:         return water_wt;
+		case haus_besch_t::flat_dock:    return water_wt;
 		case haus_besch_t::binnenhafen:  return water_wt;
 		case haus_besch_t::airport:      return air_wt;
 		case haus_besch_t::monorailstop: return monorail_wt;

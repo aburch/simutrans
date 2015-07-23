@@ -4109,7 +4109,8 @@ DBG_MESSAGE("tool_dockbau()","building dock from square (%d,%d) to (%d,%d)", k.x
 	// find out if middle end or start tile
 	if(gr  &&  gr->is_halt()  &&  player_t::check_owner( player, gr->get_halt()->get_owner() )) {
 		gebaeude_t *gb = gr->find<gebaeude_t>();
-		if(gb  &&  gb->get_tile()->get_besch()->get_utyp()==haus_besch_t::hafen) {
+		if(gb  &&  (gb->get_tile()->get_besch()->get_utyp()==haus_besch_t::dock  ||  gb->get_tile()->get_besch()->get_utyp()==haus_besch_t::flat_dock)  ) {
+
 			if(change_layout) {
 				layout -= 4;
 			}
@@ -4125,7 +4126,7 @@ DBG_MESSAGE("tool_dockbau()","building dock from square (%d,%d) to (%d,%d)", k.x
 	gr = welt->lookup_kartenboden(k-dx2);
 	if(gr  &&  gr->is_halt()  &&  player_t::check_owner( player, gr->get_halt()->get_owner() )) {
 		gebaeude_t *gb = gr->find<gebaeude_t>();
-		if(gb  &&  gb->get_tile()->get_besch()->get_utyp()==haus_besch_t::hafen) {
+		if(gb  &&  (gb->get_tile()->get_besch()->get_utyp()==haus_besch_t::dock  ||  gb->get_tile()->get_besch()->get_utyp()==haus_besch_t::flat_dock)  ) {
 			if(change_layout) {
 				layout -= 2;
 			}
@@ -4179,6 +4180,290 @@ DBG_MESSAGE("tool_dockbau()","building dock from square (%d,%d) to (%d,%d)", k.x
 
 		costs -= (maint * 60);
 	}
+	for(  int i=0;  i<=len;  i++  ) {
+		koord p=k-dx*i;
+		player_t::book_construction_costs(player,  costs, p, water_wt);
+	}
+
+	halt->recalc_station_type();
+	if(  env_t::station_coverage_show  &&  welt->get_zeiger()->get_pos().get_2d()==k  ) {
+		// since we are larger now ...
+		halt->mark_unmark_coverage( true );
+	}
+
+	if(neu) {
+		char* const name = halt->create_name(k, "Dock");
+		halt->set_name( name );
+		free(name);
+	}
+	return NULL;
+}
+
+
+/* build a dock either small or large */
+const char *tool_build_station_t::tool_station_flat_dock_aux(player_t *player, koord3d pos, const haus_besch_t *besch)
+{
+	// the cursor cannot be outside the map from here on
+	koord k = pos.get_2d();
+	grund_t *gr = welt->lookup_kartenboden(k);
+	if (gr->get_hoehe()!= pos.z) {
+		return "";
+	}
+	// first get the size
+	int len = besch->get_groesse().y-1;
+	koord dx = koord::invalid;
+
+	halthandle_t halt;	// if there is an existing halt, this will get a valid mamber when testing for suitable directions
+
+	sint64 costs;
+	if(besch->get_base_price() == COST_MAGIC)
+	{
+		costs =welt->get_settings().cst_multiply_dock * besch->get_level();
+	}
+	else
+	{
+		costs = -besch->get_price();
+	}
+
+	if(!player_t::can_afford(player, -costs))
+	{
+		return CREDIT_MESSAGE;
+	}
+
+	// check, if we can build here ...
+	if(  !(welt->get_climate(k) & water_climate)  ) {
+		return "No suitable ground!";
+	}
+
+	// now find the direction
+	// first: find the next water
+	uint8 water_dir = 0, total_dir = 0;
+	for(  uint8 i=0;  i<4;  i++  ) {
+		if(  grund_t *gr = welt->lookup_kartenboden(k+koord::nsow[i])  ) {
+			if(  gr->ist_wasser()  ) {
+				water_dir |= 1<<i;
+				total_dir ++;
+			}
+		}
+	}
+
+	// not surrounded by water => fail
+	if(  total_dir == 0  ) {
+		return "No suitable ground!";
+	}
+
+	uint8 *last_error = NULL;
+	for(  uint8 ii=0;  ii<4;  ii++  ) {
+
+		if(  !(water_dir & (1<<ii))  ) {
+			continue;
+		}
+		const koord dx = koord::nsow[ii];
+		const char *last_error = NULL;
+		halthandle_t last_halt = halt;
+
+		for(int i=0;  i<=len;  i++  ) {
+
+			// check whether we can build something
+			const grund_t *gr = welt->lookup_kartenboden(k-dx*i);
+			if( !gr ) {
+				// need at least a single tile to navigate ...
+				last_error = "Zu nah am Kartenrand";
+				break;
+			}
+
+			// search for nearby stops
+			const planquadrat_t* pl = welt->access(k-dx*i);
+			for(  uint8 j=0;  j < pl->get_boden_count();  j++  ) {
+				halthandle_t test_halt = pl->get_boden_bei(j)->get_halt();
+				if(test_halt.is_bound()) {
+					if(!player_t::check_owner( player, test_halt->get_owner())) {
+						last_error = "Das Feld gehoert\neinem anderen Spieler\n";
+						break;
+					}
+					else if(!halt.is_bound()) {
+						halt = test_halt;
+					}
+					else if(halt != test_halt) {
+						last_error = "Several halts found.";
+						break;
+					}
+				}
+			}
+
+			// this is intended, it is an assignment!
+			if(  last_error = gr->kann_alle_obj_entfernen(player)  ) {
+				break;
+			}
+
+			if (i==0) {
+				// start tile on near water
+				if(  gr->hat_wege()  ||  gr->get_typ()!=grund_t::boden  ||  gr->is_halt()  ) {
+					last_error = "Tile not empty.";
+				}
+			}
+			else {
+				// all other tiles in water
+				if (!gr->ist_wasser()  ||  gr->find<gebaeude_t>()  ||  gr->get_depot()  ||  gr->is_halt()) {
+					last_error = "Tile not empty.";
+				}
+			}
+		}
+
+		// error: then remove this direction
+		if(  last_error  ) {
+			water_dir &= ~(1<<ii);
+			halt = last_halt;
+			if(  --total_dir == 0  ) {
+				// no duitable directions found
+				return last_error;
+			}
+		}
+	}
+
+	// now we may have more than one dir left; maybe there is a nearbe halt to break the tie
+	// this does not work without a halt, or when both N and S resp E and W are possible
+	if(  total_dir > 1  &&  !halt.is_bound()  ||  (water_dir & 3) == 3  ||  (water_dir & 12) == 12  ) {
+		return "No suitable ground!";
+	}
+	else {
+		if(  water_dir & 3  ) {
+			// check for stop in east or west direction
+			grund_t *west = welt->lookup_kartenboden(k+koord::west);
+			grund_t *east = welt->lookup_kartenboden(k+koord::ost);
+			if(
+			    (!west  ||  !west->get_halt().is_bound()  ||  !player_t::check_owner( west->get_halt()->get_owner(), player )  )  &&
+			    (!east  ||  !east->get_halt().is_bound()  ||  !player_t::check_owner( east->get_halt()->get_owner(), player )  )
+			  ) {
+				// definitively not in north or south direction
+				water_dir &= ~3;
+			}
+		}
+
+		if(  water_dir & 12  ) {
+			// check for stop in north or south direction
+			grund_t *north = welt->lookup_kartenboden(k+koord::nord);
+			grund_t *south = welt->lookup_kartenboden(k+koord::sued);
+			if(
+			    (!north  ||  !north->get_halt().is_bound()  ||  !player_t::check_owner( north->get_halt()->get_owner(), player )  )  &&
+			    (!south  ||  !south->get_halt().is_bound()  ||  !player_t::check_owner( south->get_halt()->get_owner(), player )  )
+			  ) {
+				// definitively not in north or south direction
+				water_dir &= ~12;
+			}
+		}
+	}
+
+	// nothing left or not unique => fail too (in the latter case one might use one random oreintation)
+	if(  water_dir == 0  ||  (water_dir &  3)  &&  (water_dir & 12)  ) {
+		return "No suitable ground!";
+	}
+
+	// remove everything from tile
+	gr->obj_loesche_alle(player);
+
+	koord3d bau_pos = welt->lookup_kartenboden(k)->get_pos();
+	koord last_k;
+	uint8 layout = 0; // building orientation
+
+	for(  uint8 i=0;  i<4;  i++  ) {
+		if(  water_dir & (1<<i)  ) {
+			dx = koord::nsow[i];
+			koord last_k = k - dx*len;
+			// layout: north 0, west 1, south 2, east 3
+			static const uint8 nsow_to_layout[4] = { 0, 2, 3, 1 };
+			layout = nsow_to_layout[i];
+			if(  layout>=2  ) {
+				// reverse construction in these directions
+				koord3d bau_pos = welt->lookup_kartenboden(last_k)->get_pos();
+			}
+		}
+	}
+
+	// handle 16 layouts
+	bool change_layout = false;
+	if(besch->get_all_layouts()==16) {
+		if(  layout<2  ) {
+			layout = 15-layout;
+		}
+		else {
+			layout = 9-layout;
+		}
+		change_layout = true;
+	}
+
+	// oriented buildings here - get neighbouring layouts
+	koord dx2 = dx;
+	dx2.rotate90(0);
+	gr = welt->lookup_kartenboden(k+dx2);
+
+	// find out if middle end or start tile
+	if(gr  &&  gr->is_halt()  &&  player_t::check_owner( player, gr->get_halt()->get_owner() )) {
+		gebaeude_t *gb = gr->find<gebaeude_t>();
+		if(gb  &&  (gb->get_tile()->get_besch()->get_utyp()==haus_besch_t::dock  ||  gb->get_tile()->get_besch()->get_utyp()==haus_besch_t::flat_dock)  ) {
+			if(change_layout) {
+				layout -= 4;
+			}
+			if(gb->get_tile()->get_besch()->get_all_layouts()==16) {
+				sint8 ly = gb->get_tile()->get_layout();
+				if(ly&0x02) {
+					gb->set_tile( gb->get_tile()->get_besch()->get_tile(ly&0xFD,0,0), false );
+				}
+			}
+		}
+	}
+
+	gr = welt->lookup_kartenboden(k-dx2);
+	if(gr  &&  gr->is_halt()  &&  player_t::check_owner( player, gr->get_halt()->get_owner() )) {
+		gebaeude_t *gb = gr->find<gebaeude_t>();
+		if(gb  &&  (gb->get_tile()->get_besch()->get_utyp()==haus_besch_t::dock  ||  gb->get_tile()->get_besch()->get_utyp()==haus_besch_t::flat_dock)  ) {
+			if(change_layout) {
+				layout -= 2;
+			}
+			if(gb->get_tile()->get_besch()->get_all_layouts()==16) {
+				sint8 ly = gb->get_tile()->get_layout();
+				if(ly&0x04) {
+					gb->set_tile( gb->get_tile()->get_besch()->get_tile(ly&0xFB,0,0), false );
+				}
+			}
+		}
+	}
+
+	DBG_MESSAGE("tool_station_dock_aux()","building dock from square (%d,%d) to (%d,%d) layout=%i", k.x, k.y, last_k.x, last_k.y, layout );
+
+	//DBG_MESSAGE("tool_station_dock_aux()","search for stop");
+	if(!halt.is_bound()) {
+		halt = suche_nahe_haltestelle(player, welt, welt->lookup_kartenboden(k)->get_pos() );
+	}
+	bool neu = !halt.is_bound();
+
+	if(neu) {
+		if(  gr  &&  gr->get_halt().is_bound()  ) {
+			return "Das Feld gehoert\neinem anderen Spieler\n";
+		}
+		// ok, really new stop on this tile then
+		halt = haltestelle_t::create(k, player);
+	}
+
+	hausbauer_t::baue(halt->get_owner(), bau_pos, layout, besch, &halt);
+
+	if(player != halt->get_owner() && player != welt->get_player(1)) 
+	{
+		// public stops are expensive!
+		// (Except for the public player itself)
+		sint64 maint;
+		if(besch->get_base_maintenance() == COST_MAGIC)
+		{
+			maint = welt->get_settings().maint_building * besch->get_level();
+		}
+		else
+		{
+			maint = besch->get_maintenance();
+		}
+
+		costs -= (maint * 60);
+	}
+
 	for(  int i=0;  i<=len;  i++  ) {
 		koord p=k-dx*i;
 		player_t::book_construction_costs(player,  costs, p, water_wt);
@@ -4317,7 +4602,7 @@ DBG_MESSAGE("tool_halt_aux()", "building %s on square %d,%d for waytype %x", bes
 			if(  gr && gr->get_halt().is_bound()  ) {
 				// check, if there is an oriented stop
 				const gebaeude_t* gb = gr->find<gebaeude_t>();
-				if(gb  &&  gb->get_tile()->get_besch()->get_all_layouts()>4  &&  gb->get_tile()->get_besch()->get_utyp()>haus_besch_t::hafen) {
+				if(gb  &&  gb->get_tile()->get_besch()->get_all_layouts()>4  &&  (gb->get_tile()->get_besch()->get_utyp()>haus_besch_t::dock  ||  gb->get_tile()->get_besch()->get_utyp()>haus_besch_t::flat_dock)  ) {
 					next_own |= ribi_t::nsow[i];
 					neighbour_layout[ribi_t::nsow[i]] = gb->get_tile()->get_layout();
 				}
@@ -4599,7 +4884,7 @@ char const* tool_build_station_t::get_tooltip(player_t const*player) const
 			}
 		}
 	}
-	else if(besch->get_utyp()==haus_besch_t::generic_extension || besch->get_utyp()==haus_besch_t::hafen) 
+	else if(besch->get_utyp()==haus_besch_t::generic_extension || besch->get_utyp()==haus_besch_t::dock || besch->get_utyp()==haus_besch_t::flat_dock) 
 	{
 		if(besch->get_base_maintenance() != COST_MAGIC)
 		{
@@ -4616,7 +4901,7 @@ char const* tool_build_station_t::get_tooltip(player_t const*player) const
 		}
 		else
 		{
-			if(besch->get_utyp() == haus_besch_t::hafen)
+			if(besch->get_utyp()==haus_besch_t::dock || besch->get_utyp()==haus_besch_t::flat_dock)
 			{
 				price = welt->get_settings().cst_multiply_dock * besch->get_level();
 			}
@@ -4646,8 +4931,9 @@ waytype_t tool_build_station_t::get_waytype() const
 	switch (besch ? besch->get_utyp() : haus_besch_t::generic_extension) {
 		case haus_besch_t::generic_stop:
 			return (waytype_t)besch->get_extra();
-		case haus_besch_t::hafen:
-			return water_wt;
+		case haus_besch_t::dock:
+		case haus_besch_t::flat_dock:
+			return water_wt;	
 		case haus_besch_t::generic_extension:
 		default:
 			return invalid_wt;
@@ -4743,7 +5029,8 @@ const char *tool_build_station_t::work( player_t *player, koord3d pos )
 	settings_t const& s = welt->get_settings();
 	switch (besch->get_utyp()) 
 	{
-		case haus_besch_t::hafen:
+		case haus_besch_t::dock:
+		case haus_besch_t::flat_dock:
 			if(besch->get_base_price() == COST_MAGIC)
 			{
 				cost = s.cst_multiply_dock * besch->get_level();
@@ -4756,7 +5043,14 @@ const char *tool_build_station_t::work( player_t *player, koord3d pos )
 			{
 				return CREDIT_MESSAGE;
 			}
-			msg = tool_build_station_t::tool_station_dock_aux(player, pos, besch );
+			if( besch->get_utyp() == haus_besch_t::dock)
+			{
+				msg = tool_build_station_t::tool_station_dock_aux(player, pos, besch );
+			}
+			else
+			{
+				tool_build_station_t::tool_station_flat_dock_aux(player, pos, besch );
+			}
 			break;
 		case haus_besch_t::hafen_geb:
 		case haus_besch_t::generic_extension:

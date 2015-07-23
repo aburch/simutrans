@@ -942,7 +942,8 @@ bool weg_t::should_city_adopt_this(const player_t* player)
 			case haus_besch_t::rathaus: // town hall
 			case haus_besch_t::generic_extension:
 			case haus_besch_t::firmensitz: // HQ
-			case haus_besch_t::hafen: // dock
+			case haus_besch_t::dock: // dock
+			case haus_besch_t::flat_dock: 
 				has_neighbouring_building = (bool)welt->get_city(pos);
 				break;
 			case haus_besch_t::depot:

@@ -390,7 +390,7 @@ void gebaeude_t::rotate90()
 			sint64 old_purchase_time = purchase_time;
 			set_tile( new_tile, false  );
 			purchase_time = old_purchase_time;
-			if(  haus_besch->get_utyp() != haus_besch_t::hafen  &&  !tile->has_image()  ) {
+			if(  haus_besch->get_utyp() != haus_besch_t::dock  &&  !tile->has_image()  ) {
 				// may have a rotation, that is not recoverable
 				if(  !is_factory  &&  new_offset!=koord(0,0)  ) {
 					welt->set_nosave_warning();

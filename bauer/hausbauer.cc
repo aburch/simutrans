@@ -155,7 +155,8 @@ bool hausbauer_t::alles_geladen()
 				case haus_besch_t::fabrik:
 					break;
 
-				case haus_besch_t::hafen:
+				case haus_besch_t::dock:
+				case haus_besch_t::flat_dock:
 				case haus_besch_t::hafen_geb:
 				case haus_besch_t::depot:
 				case haus_besch_t::generic_stop:
@@ -246,7 +247,8 @@ void hausbauer_t::fill_menu(tool_selector_t* tool_selector, haus_besch_t::utyp u
 		case haus_besch_t::depot:
 			toolnr = TOOL_BUILD_DEPOT | GENERAL_TOOL;
 			break;
-		case haus_besch_t::hafen:
+		case haus_besch_t::dock:
+		case haus_besch_t::flat_dock:
 		case haus_besch_t::generic_stop:
 		case haus_besch_t::generic_extension:
 			toolnr = TOOL_BUILD_STATION | GENERAL_TOOL;
@@ -466,7 +468,7 @@ gebaeude_t* hausbauer_t::baue(player_t* player, koord3d pos, int org_layout, con
 			const haus_tile_besch_t *tile = besch->get_tile(layout, k.x, k.y);
 			// here test for good tile
 			if (tile == NULL || (
-						besch->get_utyp() != haus_besch_t::hafen &&
+						!(besch->get_utyp() == haus_besch_t::dock  ||  besch->get_utyp() == haus_besch_t::flat_dock)  &&
 						tile->get_hintergrund(0, 0, 0) == IMG_LEER &&
 						tile->get_vordergrund(0, 0)    == IMG_LEER
 					)) {
@@ -489,7 +491,7 @@ gebaeude_t* hausbauer_t::baue(player_t* player, koord3d pos, int org_layout, con
 			
 			leitung_t *lt = NULL;
 
-			if(!gr->ist_wasser() && besch->get_utyp() != haus_besch_t::hafen)
+			if(!gr->ist_wasser() && besch->get_utyp() != haus_besch_t::dock && besch->get_utyp() != haus_besch_t::flat_dock)
 			{
 				// very likely remove all
 				if(!gr->hat_wege()) {
@@ -618,7 +620,7 @@ gebaeude_t* hausbauer_t::baue(player_t* player, koord3d pos, int org_layout, con
 					}
 					(*static_cast<halthandle_t *>(param))->add_grund(gr);
 				}
-				if (besch->get_utyp() == haus_besch_t::hafen) {
+				if(  besch->get_utyp() == haus_besch_t::dock  ||  besch->get_utyp() == haus_besch_t::flat_dock  ) {
 					// its a dock!
 					gb->set_yoff(0);
 				}
