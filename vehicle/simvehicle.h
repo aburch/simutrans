@@ -731,6 +731,8 @@ public:
 	// how expensive to go here (for way search)
 	virtual int get_cost(const grund_t *, const sint32, koord);
 
+	virtual uint32 get_cost_upslope() const { return 75; } // Standard is 15
+
 	// returns true for the way search to an unknown target.
 	virtual bool  is_target(const grund_t *,const grund_t *);
 

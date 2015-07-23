@@ -44,6 +44,12 @@ protected:
 	uint32 max_convoy_weight;
 
 	void postprocess_water_route(karte_t *welt);
+
+	static inline uint32 calc_distance( const koord3d &p1, const koord3d &target )
+	{
+		return shortest_distance(p1.get_2d(), target.get_2d());
+	}
+
 public:
 	typedef enum { no_route=0, valid_route=1, valid_route_halt_too_short=3 } route_result_t;
 
@@ -81,11 +87,6 @@ public:
 	static uint8 GET_NODES(ANode **nodes); 
 	static void RELEASE_NODES(uint8 nodes_index);
 	static void TERM_NODES();
-
-	static inline uint32 calc_distance( const koord3d &p1, const koord3d &p2 )
-	{
-		return (abs(p1.x-p2.x)+abs(p1.y-p2.y)+abs(p1.z-p2.z)/16);
-	}
 
 	const koord3d_vector_t &get_route() const { return route; }
 

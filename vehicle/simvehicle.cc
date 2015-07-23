@@ -2758,6 +2758,7 @@ int road_vehicle_t::get_cost(const grund_t *gr, const sint32 max_speed, koord fr
 	if(  gr->get_weg_hang()!=0  ) {
 		// Knightly : check if the slope is upwards, relative to the previous tile
 		from_pos -= gr->get_pos().get_2d();
+		// 75 hardcoded, see get_cost_upslope()
 		costs += 75 * hang_t::get_sloping_upwards( gr->get_weg_hang(), from_pos.x, from_pos.y );
 	}
 
@@ -3547,6 +3548,7 @@ int rail_vehicle_t::get_cost(const grund_t *gr, const sint32 max_speed, koord fr
 	if(  gr->get_weg_hang()!=0  ) {
 		// Knightly : check if the slope is upwards, relative to the previous tile
 		from_pos -= gr->get_pos().get_2d();
+		// 125 hardcoded, see get_cost_upslope()
 		costs += 125 * hang_t::get_sloping_upwards( gr->get_weg_hang(), from_pos.x, from_pos.y );
 	}
 

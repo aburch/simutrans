@@ -518,6 +518,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 	// some thing for the search
 	const waytype_t wegtyp = tdriver->get_waytype();
 	const bool is_airplane = tdriver->get_waytype()==air_wt;
+	const uint32 cost_upslope = tdriver->get_cost_upslope();
 
 	grund_t *to;
 
@@ -821,7 +822,13 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 				}
 				// add 3*turns to the heuristic bound
 
-				const uint32 new_f = (new_g + calc_distance( to->get_pos(), ziel ) + turns * 3) * 10;
+				// take height difference into account when calculating distance
+				uint32 costup = 0;
+				if (cost_upslope) {
+					costup = cost_upslope * max(ziel.z - to->get_vmove(next_ribi[r]), 0);
+				}
+
+				const uint32 new_f = (new_g + dist + turns * 3 + costup) * 10;
 
 				// add new
 				ANode* k = &nodes[step];
