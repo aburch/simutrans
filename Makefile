@@ -58,7 +58,6 @@ endif
       endif
     endif
   endif
-endif
 
 ifeq ($(OSTYPE),freebsd)
   LIBS += -lz -lbz2
