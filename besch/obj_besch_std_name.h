@@ -89,7 +89,8 @@ protected:
 public:
 	obj_besch_transport_related_t() : obj_besch_timelined_t(),
 		base_maintenance(0), base_cost(0), 
-		maintenance(0), cost(0), wt(255), topspeed(0), topspeed_gradient_1(0), topspeed_gradient_2(0) {}
+               maintenance(0), cost(0), wt(255), topspeed(0), topspeed_gradient_1(0), topspeed_gradient_2(0),
+               base_way_only_cost(0), way_only_cost(0) {}
 
 	inline sint32 get_base_maintenance() const { return base_maintenance; }
 	inline sint32 get_maintenance() const { return maintenance; }

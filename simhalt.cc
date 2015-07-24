@@ -496,6 +496,7 @@ haltestelle_t::haltestelle_t(loadsave_t* file)
 	sortierung = freight_list_sorter_t::by_name;
 	resort_freight_info = true;
 
+	init_financial_history();
 	rdwr(file);
 
 	alle_haltestellen.append(self);
