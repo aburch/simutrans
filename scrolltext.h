@@ -66,6 +66,7 @@
 " Omikron","patches",
 " Kieron Green","patches",
 " Darkbill","patches",
+" O01eg", "fixes",
 " Markus Pristovsek","coding advice",
 " Daniel Wachsmuth","coding advice",
 " deMangler","multiplayer testing and hosting",

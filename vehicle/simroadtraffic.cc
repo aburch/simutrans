@@ -79,6 +79,7 @@ road_user_t::road_user_t(typ type, grund_t* bd, uint16 random) :
 road_user_t::road_user_t(grund_t* bd, uint16 random) :
 	vehicle_base_t(welt, bd ? bd->get_pos() : koord3d::invalid)
 #endif
+	, tiles_since_last_increment(0)
 {
 	ribi_t::ribi road_ribi = bd->get_weg_ribi(road_wt);
 

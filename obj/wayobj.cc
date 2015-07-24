@@ -58,6 +58,7 @@ wayobj_t::wayobj_t(loadsave_t* const file) :
 #else
 	obj_no_info_t()
 #endif
+	, hang(hang_t::flach)
 {
 	rdwr(file);
 }
@@ -69,6 +70,7 @@ wayobj_t::wayobj_t(koord3d const pos, player_t* const owner, ribi_t::ribi const 
 #else
 	obj_no_info_t(pos)
 #endif
+	, hang(hang_t::flach)
 {
 	besch = b;
 	dir = d;
