@@ -144,6 +144,8 @@ public:
 	 */
 	uint32 count_convoys() const { return line_managed_convoys.get_count(); }
 
+	vector_tpl<convoihandle_t> const& get_convoys() const { return line_managed_convoys; }
+
 	/*
 	 * returns the state of the line
 	 * @author prissi
