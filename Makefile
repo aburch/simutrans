@@ -24,12 +24,40 @@ ifeq ($(OSTYPE),amiga)
   LDFLAGS += -Bstatic -non_shared
 endif
 
-ifeq ($(OSTYPE),beos)
-  LIBS += -lz -lnet -lbz2
-endif
-
-ifeq ($(OSTYPE),haiku)
-  LIBS += -lz -lnetwork -lbz2 -lbe -llocale
+# BeOS (obsolete)
+  ifeq ($(OSTYPE),beos)
+    LIBS += -lnet
+  else
+    ifneq ($(findstring $(OSTYPE), cygwin mingw),)
+      ifeq ($(OSTYPE),cygwin)
+        CFLAGS  += -I/usr/include/mingw -mwin32
+      else
+        ifeq ($(OSTYPE),mingw)
+          CFLAGS  += -DPNG_STATIC -DZLIB_STATIC
+          LDFLAGS += -static-libgcc -static-libstdc++ -Wl,--large-address-aware
+          LIBS    += -lmingw32
+        endif
+      endif
+      SOURCES += simsys_w32_png.cc
+      CFLAGS  += -DNOMINMAX -DWIN32_LEAN_AND_MEAN -DWINVER=0x0501 -D_WIN32_IE=0x0500
+      LIBS    += -lgdi32 -lwinmm -lws2_32 -limm32
+      # Disable the console on Windows unless WIN32_CONSOLE is set or graphics are disabled
+      ifneq ($(WIN32_CONSOLE),)
+        LDFLAGS += -mconsole
+      else
+        ifeq ($(BACKEND),posix)
+          LDFLAGS += -mconsole
+        else
+          LDFLAGS += -mwindows
+        endif
+      endif
+    else
+# Haiku (needs to activate the GCC 4x)
+      ifeq ($(OSTYPE),haiku)
+        LIBS += -lnetwork -lbe
+      endif
+    endif
+  endif
 endif
 
 ifeq ($(OSTYPE),freebsd)
@@ -127,7 +155,9 @@ ifneq ($(MULTI_THREAD),)
 #use lpthreadGC2d for debug alternatively
     LDFLAGS += -lpthreadGC2
   else
-    LDFLAGS += -lpthread
+    ifneq ($(OSTYPE),haiku)
+        LDFLAGS += -lpthread
+      endif
   endif
 endif
 
