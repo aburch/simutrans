@@ -89,7 +89,7 @@ void dr_stop_midi(void)
  * Returns -1 if current music has finished, else 0
  * @author Kieron Green
  */
-long dr_midi_pos(void)
+sint32 dr_midi_pos(void)
 {
 	if(Mix_PlayingMusic()== 0) {
 		return -1;

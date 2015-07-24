@@ -85,7 +85,7 @@ void dr_stop_midi(void)
  * Returns the midi_pos variable
  * By Owen Rudge
  */
-long dr_midi_pos(void)
+sint32 dr_midi_pos(void)
 {
 	return midi_pos;
 }
