@@ -44,7 +44,6 @@
 #define sprintf_s snprintf
 #endif 
 
-struct event_t;
 struct sound_info;
 class stadt_t;
 class fabrik_t;
