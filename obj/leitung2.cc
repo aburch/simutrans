@@ -397,7 +397,7 @@ void leitung_t::info(cbuffer_t & buf, bool dummy) const
 	const uint64 demand = get_net()->get_demand();
 	const uint64 load = demand>supply ? supply:demand;
 
-	buf.printf( translator::translate("Net ID: %u\n"), (uint32)get_net() );
+	buf.printf( translator::translate("Net ID: %u\n"), (unsigned long)get_net() );
 	print_power(buf, get_net()->get_max_capacity(), "Capacity: %u MW\n", "Capacity: %u KW\n");
 	print_power(buf, demand, "Demand: %u MW\n", "Demand: %u KW\n");
 	print_power(buf, supply, "Generation: %u MW\n", "Generation: %u KW\n");
@@ -451,7 +451,7 @@ void leitung_t::rdwr(loadsave_t *file)
 	obj_t::rdwr(file);
 	if(file->is_saving()) 
 	{
-		value = (uint32)get_net();
+		value = (unsigned long)get_net(); //  This seems to be functionless, but should be preserved for compatibility. It likewise appears functionless in Standard.
 		file->rdwr_long(value);
 		koord city_pos = koord::invalid;
 		if(city != NULL)
@@ -477,7 +477,7 @@ void leitung_t::rdwr(loadsave_t *file)
 	}
 	else 
 	{
-		file->rdwr_long(value);
+		file->rdwr_long(value); // "value" is not hereafter used.
 		set_net(NULL);
 		if(file->get_experimental_version() >= 3)
 		{
@@ -685,7 +685,7 @@ void pumpe_t::info(cbuffer_t & buf, bool dummy) const
 {
 	obj_t::info( buf );
 
-	buf.printf( translator::translate("Net ID: %lu\n"), (uint32)get_net() );
+	buf.printf( translator::translate("Net ID: %lu\n"), (unsigned long)get_net() );
 	buf.printf( translator::translate("Generation: %u MW\n"), supply>>POWER_TO_MW );
 	buf.printf("\n\n"); // pad for consistent dialog size
 }
@@ -1109,7 +1109,7 @@ void senke_t::info(cbuffer_t & buf, bool dummy) const
 {
 	obj_t::info( buf );
 
-	buf.printf( translator::translate("Net ID: %u\n"), (uint32)get_net() );
+	buf.printf( translator::translate("Net ID: %u\n"), (unsigned long)get_net() );
 	print_power(buf, last_power_demand, "Demand: %u MW\n", "Demand: %u KW\n");
 	print_power(buf, power_load, "Act. load: %u MW\n", "Act. load: %u KW\n");
 	buf.printf( translator::translate("Usage: %u %%"), (100*power_load)/(last_power_demand>0?last_power_demand:1) );
