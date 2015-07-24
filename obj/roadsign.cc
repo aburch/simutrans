@@ -258,8 +258,7 @@ void roadsign_t::calc_image()
 	after_xoffset = 0;
 	after_yoffset = 0;
 	sint8 xoff = 0, yoff = 0;
-	const bool left_offsets = ((  besch->get_wtyp()==road_wt  &&  welt->get_settings().is_drive_left()   ) || \
-		(welt->get_settings().is_signals_left() && (besch->get_wtyp()!=road_wt && besch->get_wtyp()!=air_wt)));
+	const bool left_offsets = (  besch->get_wtyp()==road_wt  &&  !besch->is_choose_sign()  &&  welt->get_settings().is_drive_left()  )  ||  (besch->get_wtyp()!=air_wt  &&  besch->get_wtyp()!=road_wt  &&  welt->get_settings().is_signals_left());
 	const sint8 height_step = TILE_HEIGHT_STEP << hang_t::ist_doppel(gr->get_weg_hang());
 
 	const hang_t::typ full_hang = gr->get_weg_hang();
@@ -316,7 +315,8 @@ void roadsign_t::calc_image()
 		if(  gr->get_typ()==grund_t::tunnelboden  &&  gr->ist_karten_boden()  &&
 			(grund_t::underground_mode==grund_t::ugm_none  ||  (grund_t::underground_mode==grund_t::ugm_level  &&  gr->get_hoehe()<grund_t::underground_level))   ) {
 			// entering tunnel here: hide the image further in if not undergroud/sliced
-			if(  hang_dir==ribi_t::ost  ||  hang_dir==ribi_t::nord  ) {
+			const ribi_t::ribi tunnel_hang_dir = ribi_t::rueckwaerts( ribi_typ(gr->get_grund_hang()) );
+			if(  tunnel_hang_dir==ribi_t::ost ||  tunnel_hang_dir==ribi_t::nord  ) {
 				temp_dir &= ~ribi_t::suedwest;
 			}
 			else {
