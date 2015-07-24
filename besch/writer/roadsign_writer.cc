@@ -12,10 +12,8 @@ using std::string;
 
 void roadsign_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 {
-	obj_node_t node(this, 15, &parent);
+	obj_node_t node(this, 16, &parent);
 
-	// Hajodoc: Preferred height of this tree type
-	// Hajoval: int (useful range: 0-14)
 	uint32                  const cost      = obj.get_int("cost",      500) * 100;
 	uint16                  const min_speed = obj.get_int("min_speed",   0);
 	roadsign_besch_t::types const flags     =
@@ -28,6 +26,7 @@ void roadsign_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 		(obj.get_int("is_longblocksignal", 0) > 0 ? roadsign_besch_t::SIGN_LONGBLOCK_SIGNAL : roadsign_besch_t::NONE) |
 		(obj.get_int("end_of_choose",      0) > 0 ? roadsign_besch_t::END_OF_CHOOSE_AREA    : roadsign_besch_t::NONE);
 	uint8                   const wtyp      = get_waytype(obj.get("waytype"));
+	sint8                   const offset_left = obj.get_int("offset_left", 14 );
 	
 	uint8 allow_underground = obj.get_int("allow_underground", 0);
 
@@ -37,7 +36,7 @@ void roadsign_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 		allow_underground = 2;
 	}
 
-	uint16 version = 0x8003;
+	uint16 version = 0x8004; // version 4
 	
 	// This is the overlay flag for Simutrans-Experimental
 	// This sets the *second* highest bit to 1. 
@@ -49,21 +48,22 @@ void roadsign_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	version += 0x100;
 	
 	// Hajo: write version data
-	node.write_uint16(fp, version,   0);
-	node.write_uint16(fp, min_speed, 2);
-	node.write_uint32(fp, cost,      4);
-	node.write_uint8 (fp, flags,     8);
-	node.write_uint8 (fp, wtyp,      9);
+	node.write_uint16(fp, version,     0);
+	node.write_uint16(fp, min_speed,   2);
+	node.write_uint32(fp, cost,        4);
+	node.write_uint8 (fp, flags,       8);
+	node.write_uint8 (fp, offset_left, 9);
+	node.write_uint8 (fp, wtyp,        10);
 
 	uint16 intro  = obj.get_int("intro_year", DEFAULT_INTRO_DATE) * 12;
 	intro += obj.get_int("intro_month", 1) - 1;
-	node.write_uint16(fp,          intro,           10);
+	node.write_uint16(fp,          intro,           11);
 
 	uint16 retire  = obj.get_int("retire_year", DEFAULT_RETIRE_DATE) * 12;
 	retire += obj.get_int("retire_month", 1) - 1;
-	node.write_uint16(fp,          retire,          12);
+	node.write_uint16(fp,          retire,          13);
 
-	node.write_uint8(fp, allow_underground, 14);
+	node.write_uint8(fp, allow_underground, 15);
 
 	write_head(fp, node, obj);
 

@@ -258,7 +258,7 @@ void roadsign_t::calc_image()
 	after_xoffset = 0;
 	after_yoffset = 0;
 	sint8 xoff = 0, yoff = 0;
-	const bool left_offsets = (  besch->get_wtyp()==road_wt  &&  !besch->is_choose_sign()  &&  welt->get_settings().is_drive_left()  )  ||  (besch->get_wtyp()!=air_wt  &&  besch->get_wtyp()!=road_wt  &&  welt->get_settings().is_signals_left());
+	const bool left_offsets = besch->get_offset_left()  &&  (  besch->get_wtyp()==road_wt  &&  welt->get_settings().is_drive_left()  )  ||  (besch->get_wtyp()!=air_wt  &&  besch->get_wtyp()!=road_wt  &&  welt->get_settings().is_signals_left());
 	const sint8 height_step = TILE_HEIGHT_STEP << hang_t::ist_doppel(gr->get_weg_hang());
 
 	const hang_t::typ full_hang = gr->get_weg_hang();
@@ -326,8 +326,8 @@ void roadsign_t::calc_image()
 
 		// signs for left side need other offsets and other front/back order
 		if(  left_offsets  ) {
-			const sint16 XOFF = 24;
-			const sint16 YOFF = 12;
+			const sint16 XOFF = 2*besch->get_offset_left();
+			const sint16 YOFF = besch->get_offset_left();
 
 			if(temp_dir&ribi_t::ost) {
 				tmp_bild = besch->get_bild_nr(3);
@@ -413,8 +413,8 @@ void roadsign_t::calc_image()
 
 			// other front/back images for left side ...
 			if(  left_offsets  ) {
-				const int XOFF=24;
-				const int YOFF=12;
+				const sint16 XOFF = 2*besch->get_offset_left();
+				const sint16 YOFF = besch->get_offset_left();
 
 				if(weg_dir&ribi_t::nord) {
 					if(weg_dir&ribi_t::ost) {

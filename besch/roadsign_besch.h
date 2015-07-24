@@ -36,6 +36,8 @@ class roadsign_besch_t : public obj_besch_transport_infrastructure_t {
 private:
 	uint8 flags;
 
+	sint8 offset_left; // default 14
+
 	uint16 min_speed;	// 0 = no min speed
 
 	/**
@@ -95,6 +97,8 @@ public:
 	}
 
 	types get_flags() const { return (types)flags; }
+
+	sint8 get_offset_left() const { return offset_left; }
 
 	uint8 get_allow_underground() const { return allow_underground; }
 

@@ -23,7 +23,7 @@
 #define EX_VERSION_MAJOR	12
 #define EX_VERSION_MINOR	9000
 
-#define MAKEOBJ_VERSION "55.3"
+#define MAKEOBJ_VERSION "55.4"
 
 #ifndef QUOTEME
 #	define QUOTEME_(x) #x
