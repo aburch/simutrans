@@ -447,7 +447,7 @@ int display_text_proportional_len_clip_cl_rgb(KOORD_VAL x, KOORD_VAL y, const ch
 #define display_proportional_clip_rgb(x,  y, txt, align, color, dirty) display_text_proportional_len_clip_cl_rgb(x, y, txt, align | DT_CLIP, color, dirty, -1, 0)
 #define display_text_proportional_len_clip_rgb( x, y, txt, align, color, dirty, len ) display_text_proportional_len_clip_cl_rgb( (x), (y), (txt), (align), (color), (dirty), (len), 0 )
 #else
-int display_text_proportional_len_clip_rgb(KOORD_VAL x, KOORD_VAL y, const char* txt, control_alignment_t flags, const PIXVAL color_index, bool dirty, long len );
+int display_text_proportional_len_clip_rgb(KOORD_VAL x, KOORD_VAL y, const char* txt, control_alignment_t flags, const PIXVAL color_index, bool dirty, sint32 len );
 /* macro are for compatibility */
 #define display_proportional(     x,  y, txt, align, c, dirty) display_text_proportional_len_clip_rgb(x, y, txt, align,           specialcolormap_all_day[(c)&0xFF], dirty,  -1)
 #define display_proportional_clip(x,  y, txt, align, c, dirty) display_text_proportional_len_clip_rgb(x, y, txt, align | DT_CLIP, specialcolormap_all_day[(c)&0xFF], dirty,  -1)
