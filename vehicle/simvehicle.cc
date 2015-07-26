@@ -1342,7 +1342,7 @@ grund_t* vehicle_t::hop_check()
 				// to avoid crashes with airplanes
 				use_calc_height = false;
 			}
-			return false;
+			return NULL;
 		}
 
 		// now check, if we can go here
@@ -1371,7 +1371,7 @@ grund_t* vehicle_t::hop_check()
 			if( (dir&new_dir) == 0 ) {
 				// new one way sign or unconnected branch here?
 				cnv->suche_neue_route();
-				return false;
+				return NULL;
 			}
 			// check for recently built bridges/tunnels or reverse branches (really slows down the game, so we do this only on slopes)
 			if(  bd->get_weg_hang()  ) {
