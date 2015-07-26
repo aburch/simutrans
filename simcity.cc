@@ -4247,7 +4247,7 @@ void stadt_t::add_all_buildings_to_world_list()
 	for(weighted_vector_tpl<gebaeude_t*>::const_iterator i = buildings.begin(); i != buildings.end(); ++i) 
 	{
 		gebaeude_t* gb = *i;
-		add_building_to_list(gb, false);
+		welt->add_building_to_world_list(gb);
 	}
 }
 
