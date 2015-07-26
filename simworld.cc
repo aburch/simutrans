@@ -7831,7 +7831,17 @@ DBG_MESSAGE("karte_t::load()", "laden_abschliesen for tiles finished" );
 	swap(stadt, new_weighted_stadt);
 	DBG_MESSAGE("karte_t::load()", "cities initialized");
 
-	
+	if(env_t::networkmode)
+	{
+		// Must add them to the world list here in network mode, as they
+		// will be added in an indeterminate order if added in multiple threads.
+		// When not in network mode, this is done as each building finishes loading,
+		// in multiple threads, as this is faster. 
+		FOR(weighted_vector_tpl<gebaeude_t*>, const a, ausflugsziele) 
+		{
+			add_building_to_world_list(a);
+		}
+	}
 
 	ls.set_progress( (get_size().y*3)/2+256+get_size().y/4 );
 

@@ -1376,7 +1376,7 @@ void gebaeude_t::finish_rd()
 		ptr.stadt = NULL;
 	}
 
-	if(tile->get_besch()->ist_ausflugsziel() && !ptr.stadt)
+	if(!env_t::networkmode && tile->get_besch()->ist_ausflugsziel() && !ptr.stadt)
 	{
 		// Add the building to the general world list if it is not added 
 		// by the town (industries are added separately)
