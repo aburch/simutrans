@@ -1438,7 +1438,7 @@ public:
 	* and mail generation purposes
 	* @author: jamespetts
 	*/
-	void add_building_to_world_list(gebaeude_t *gb);
+	void add_building_to_world_list(gebaeude_t *gb, bool ordered = false);
 	
 	/**
 	* Removes a single tile of a building to the relevant world list for passenger 

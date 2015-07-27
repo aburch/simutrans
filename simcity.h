@@ -431,6 +431,13 @@ public:
 	*/
 	void add_gebaeude_to_stadt(gebaeude_t *gb, bool ordered=false);
 
+	static bool compare_gebaeude_pos(const gebaeude_t* a, const gebaeude_t* b)
+	{
+		const uint32 pos_a = (a->get_pos().y<<16)+a->get_pos().x;
+		const uint32 pos_b = (b->get_pos().y<<16)+b->get_pos().x;
+		return pos_a<pos_b;
+	}
+
 	/**
 	* Returns the finance history for cities
 	* @author hsiegeln

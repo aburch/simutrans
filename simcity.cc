@@ -1061,14 +1061,6 @@ private:
 };
 
 
-static bool compare_gebaeude_pos(const gebaeude_t* a, const gebaeude_t* b)
-{
-	const uint32 pos_a = (a->get_pos().y<<16)+a->get_pos().x;
-	const uint32 pos_b = (b->get_pos().y<<16)+b->get_pos().x;
-	return pos_a<pos_b;
-}
-
-
 // this function adds houses to the city house list
 // Please note: this is called during loading, on *every tile*.
 // It's therefore not OK to recalc city borders in here.
@@ -4229,17 +4221,8 @@ void stadt_t::add_building_to_list(gebaeude_t* building, bool ordered)
 		buildings.append_unique(building, building->get_tile()->get_besch()->get_level());
 	}
 
-	if(!ordered)
-	{
-		// Also add to the world list for passenger generation purposes.
-
-		// Do not add them at this juncture if this is a network game, 
-		// as this will require them to be added to the world list in order (or risk network 
-		// desyncs), and adding them in order is very slow (much slower than running 
-		// single-threaded). This must be added elsewhere if this is a network game.
-
-		welt->add_building_to_world_list(building);
-	}
+	// Also add to the world list for passenger generation purposes.
+	welt->add_building_to_world_list(building, ordered);
 }
 
 void stadt_t::add_all_buildings_to_world_list()

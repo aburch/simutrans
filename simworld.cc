@@ -7819,29 +7819,11 @@ DBG_MESSAGE("karte_t::load()", "laden_abschliesen for tiles finished" );
 	weighted_vector_tpl<stadt_t*> new_weighted_stadt(stadt.get_count() + 1);
 	FOR(weighted_vector_tpl<stadt_t*>, const s, stadt) {
 		s->finish_rd();
-		// Must add city buildings to the world list here in any network game
-		// to ensure that they are added in identical order.
-		if(env_t::networkmode)
-		{
-			s->add_all_buildings_to_world_list();
-		}
 		new_weighted_stadt.append(s, s->get_einwohner());
 		INT_CHECK("simworld 1278");
 	}
 	swap(stadt, new_weighted_stadt);
 	DBG_MESSAGE("karte_t::load()", "cities initialized");
-
-	if(env_t::networkmode)
-	{
-		// Must add them to the world list here in network mode, as they
-		// will be added in an indeterminate order if added in multiple threads.
-		// When not in network mode, this is done as each building finishes loading,
-		// in multiple threads, as this is faster. 
-		FOR(weighted_vector_tpl<gebaeude_t*>, const a, ausflugsziele) 
-		{
-			add_building_to_world_list(a);
-		}
-	}
 
 	ls.set_progress( (get_size().y*3)/2+256+get_size().y/4 );
 
@@ -9393,7 +9375,7 @@ const vector_tpl<const ware_besch_t*> &karte_t::get_goods_list()
 	return goods_in_game;
 }
 
-void karte_t::add_building_to_world_list(gebaeude_t *gb)
+void karte_t::add_building_to_world_list(gebaeude_t *gb, bool ordered)
 {
 	assert(gb);
 	if(gb != gb->get_first_tile())
@@ -9403,14 +9385,38 @@ void karte_t::add_building_to_world_list(gebaeude_t *gb)
 
 	if(gb->get_adjusted_population() > 0)
 	{
-		passenger_origins.append(gb, gb->get_adjusted_population());
+		if(ordered)
+		{
+			passenger_origins.insert_ordered(gb, gb->get_adjusted_population(), stadt_t::compare_gebaeude_pos);
+		}
+		else
+		{
+			passenger_origins.append(gb, gb->get_adjusted_population());
+		}
 		passenger_step_interval = calc_adjusted_step_interval(passenger_origins.get_sum_weight(), get_settings().get_passenger_trips_per_month_hundredths());
 	}	
-	commuter_targets.append(gb, gb->get_adjusted_jobs());
-	visitor_targets.append(gb, gb->get_adjusted_visitor_demand());
+
+	if(ordered)
+	{
+		commuter_targets.insert_ordered(gb, gb->get_adjusted_jobs(), stadt_t::compare_gebaeude_pos);
+		visitor_targets.insert_ordered(gb, gb->get_adjusted_visitor_demand(), stadt_t::compare_gebaeude_pos);
+	}
+	else
+	{
+		commuter_targets.append(gb, gb->get_adjusted_jobs());
+		visitor_targets.append(gb, gb->get_adjusted_visitor_demand());
+	}
+
 	if(gb->get_adjusted_mail_demand() > 0)
 	{
-		mail_origins_and_targets.append(gb, gb->get_adjusted_mail_demand());
+		if(ordered)
+		{
+			mail_origins_and_targets.insert_ordered(gb, gb->get_adjusted_mail_demand(), stadt_t::compare_gebaeude_pos);
+		}
+		else
+		{		
+			mail_origins_and_targets.append(gb, gb->get_adjusted_mail_demand());
+		}
 		mail_step_interval = calc_adjusted_step_interval(mail_origins_and_targets.get_sum_weight(), get_settings().get_mail_packets_per_month_hundredths());
 	}
 }
