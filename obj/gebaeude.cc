@@ -1376,12 +1376,18 @@ void gebaeude_t::finish_rd()
 		ptr.stadt = NULL;
 	}
 
+#ifdef MULTI_THREAD
+	pthread_mutex_lock( &add_to_city_mutex );
+#endif
 	if(!env_t::networkmode && tile->get_besch()->ist_ausflugsziel() && !ptr.stadt)
 	{
 		// Add the building to the general world list if it is not added 
 		// by the town (industries are added separately)
 		welt->add_building_to_world_list(this); 
 	}
+#ifdef MULTI_THREAD
+	pthread_mutex_unlock( &add_to_city_mutex );
+#endif
 }
 
 

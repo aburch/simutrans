@@ -4253,7 +4253,7 @@ void stadt_t::add_all_buildings_to_world_list()
 
 void stadt_t::generate_private_cars(koord pos, uint16 journey_tenths_of_minutes, koord target, uint8 number_of_passengers)
 {
-welt->inc_rands(28);
+	welt->inc_rands(28);
 	// Account for (1) the number of passengers; and (2) the occupancy level.
 	const uint32 round_up = simrand(2, "void stadt_t::generate_private_cars") == 1 ? 900 : 0;
 	const sint32 number_of_trips = ((((sint32)number_of_passengers) * traffic_level) + round_up) / 1000;
