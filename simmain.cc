@@ -1056,6 +1056,20 @@ int simu_main(int argc, char** argv)
 		}
 	}
 
+	if(  new_world  &&  env_t::reload_and_save_on_quit  ) {
+		// construct from pak name an autosave if requested
+		loadsave_t file;
+		std::string pak_name( "autosave-" );
+		pak_name.append( env_t::objfilename );
+		pak_name.erase( pak_name.length()-1 );
+		pak_name.append( ".sve" );
+		chdir( env_t::user_dir );
+		unlink( "temp-load.sve" );
+		rename( pak_name.c_str(), "temp-load.sve" );
+		loadgame = "temp-load.sve";
+		new_world = false;
+	}
+
 	// still nothing to be loaded => search for demo games
 	if(  new_world  ) {
 		chdir( env_t::program_dir );

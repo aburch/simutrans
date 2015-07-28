@@ -78,6 +78,9 @@ public:
 	/// if true a kill event will save the  game under recovery#portnr#.sve
 	static bool server_save_game_on_quit;
 
+	/// if true save game under autosave-#paksetname#.sve and reload it upon startup
+	static bool reload_and_save_on_quit;
+
 	/// @} end of Network-related settings
 
 
