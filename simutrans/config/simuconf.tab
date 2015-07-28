@@ -113,6 +113,9 @@ base_bits_per_month = 18
 # therefore, set this to 375 if the length of a month is 6:24.
 job_replenishment_per_hundredths_of_months = 100
 
+# Save the current game when quitting and reload it upon reopening
+reload_and_save_on_quit = 1
+
 ############################### Passenger and mail settings ##############################
 # also pak dependent
 
