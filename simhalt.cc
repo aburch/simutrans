@@ -2611,12 +2611,36 @@ uint32 haltestelle_t::liefere_an(ware_t ware, uint8 walked_between_stations)
 	// Now we know, that "ware" has a vaild destination building "gb", which implies having a "plan".
 
 	// have we arrived?
-	// FIXME: This code needs to be fixed for multi-tile buildings
-	// such as attractions and city halls, to allow access from any side
-	if(ware.get_ziel() == self && plan->is_connected(self)) 
+	if(ware.get_ziel() == self)
 	{
-		// yes, we have arrived!
-		return deposit_ware_at_destination(ware);	
+		// Arrived at destination stop. Check whether we can still reach the destination building.
+		if(plan->is_connected(self)) 
+		{
+			// The destination tile is within the station coverage area
+			return deposit_ware_at_destination(ware);	
+		}
+		else
+		{
+			// If the destination tile is not within the station coverage area, check whether this
+			// is a multi-tile building at least one tile of which *is* within the station coverage area.
+			if(fab && fab_list.is_contained(fab))
+			{
+				// This is a connected factory: destination reached.
+				return deposit_ware_at_destination(ware);	
+			}
+
+			//  Not a factory: must check manually.
+			FOR(slist_tpl<tile_t>, const& t, tiles)
+			{
+				gebaeude_t* check_building = t.grund->get_building();
+				if(check_building->is_same_building(gb))
+				{
+					// This is a multi-tile building other than a factory,
+					// part of which is in the coverage area.
+					return deposit_ware_at_destination(ware);
+				}
+			}
+		}
 	}
 	uint16 straight_line_distance_destination;
 	bool destination_is_within_coverage;
