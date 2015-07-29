@@ -7011,7 +7011,7 @@ bool karte_t::interactive(uint32 quit_month)
 		pak_name.append( env_t::objfilename );
 		pak_name.erase( pak_name.length()-1 );
 		pak_name.append( ".sve" );
-		save( pak_name.c_str(), loadsave_t::save_mode, SERVER_SAVEGAME_VER_NR, false );
+		save( pak_name.c_str(), loadsave_t::autosave_mode, SERVER_SAVEGAME_VER_NR, false );
 	}
 
 	if(  get_current_month() >= quit_month  ) {
