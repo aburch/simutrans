@@ -2629,15 +2629,18 @@ uint32 haltestelle_t::liefere_an(ware_t ware, uint8 walked_between_stations)
 				return deposit_ware_at_destination(ware);	
 			}
 
-			//  Not a factory: must check manually.
-			FOR(slist_tpl<tile_t>, const& t, tiles)
+			if(!ware.is_freight())
 			{
-				gebaeude_t* check_building = t.grund->get_building();
-				if(check_building->is_same_building(gb))
+				//  Not a factory: must check manually.
+				FOR(slist_tpl<tile_t>, const& t, tiles)
 				{
-					// This is a multi-tile building other than a factory,
-					// part of which is in the coverage area.
-					return deposit_ware_at_destination(ware);
+					gebaeude_t* check_building = t.grund->get_building();
+					if(check_building->is_same_building(gb))
+					{
+						// This is a multi-tile building other than a factory,
+						// part of which is in the coverage area.
+						return deposit_ware_at_destination(ware);
+					}
 				}
 			}
 		}
