@@ -4097,7 +4097,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 	}
 
 	const sint32 route_steps = brake_steps > 0 && route_index <= route_infos.get_count() - 1 ? cnv->get_route_infos().get_element((next_block > 0 ? next_block - 1 : 0)).steps_from_start - cnv->get_route_infos().get_element(route_index).steps_from_start : -1;
-	if (route_steps <= brake_steps || brake_steps < 0)
+	if(route_steps <= brake_steps || brake_steps < 0)
 	{
 		koord3d block_pos=cnv->get_route()->position_bei(next_block);
 
@@ -4159,17 +4159,8 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 	}
 	if(working_method == drive_by_sight)
 	{
-		uint16 ri;
-		if(route_steps <= 0 && route_index + 1 < route.get_count())
-		{
-			ri = route_index + 1;
-		}
-		else
-		{
-			ri = route_index;
-		}
-		const bool ok = route_index == route.get_count() || block_reserver(cnv->get_route(), ri, next_signal, 0, true, false);
-		cnv->set_next_stop_index( next_signal);
+		const bool ok = route_index == route.get_count() || block_reserver(cnv->get_route(), route_index, next_signal, 0, true, false);
+		cnv->set_next_stop_index(next_signal);
 		return ok;
 	}
 
@@ -4241,7 +4232,7 @@ bool rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16 &
 	uint32 i = start_index - (count == 100001 ? 1 : 0);
 	uint16 skip_index=INVALID_INDEX;
 	next_signal_index=INVALID_INDEX;
-	const uint32 sighting_distance_tiles = 2; // TODO: Have this set from simuconf.tab in meters.
+	const uint32 sighting_distance_tiles = 2; // TODO: Have this set from simuconf.tab in meters. 
 	bool unreserve_now = false;
 
 	koord3d pos = route->position_bei(start_index);
@@ -4253,10 +4244,10 @@ bool rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16 &
 	{
 		pos = route->position_bei(i);
 		grund_t *gr = welt->lookup(pos);
-		if((working_method == drive_by_sight && (i - (start_index - 1)) >= sighting_distance_tiles) && (!this_halt.is_bound() || (haltestelle_t::get_halt(pos, get_owner())) != this_halt))
+		if((working_method == drive_by_sight && (i - (start_index - 1)) > sighting_distance_tiles) && (!this_halt.is_bound() || (haltestelle_t::get_halt(pos, get_owner())) != this_halt))
 		{
 			// In drive by sight mode, do not reserve further than can be seen; but treat signals at the end of the platform as a signal at which the train is now standing.
-			next_signal_index = i;
+			next_signal_index = i - 1;
 			break;
 		}
 		
@@ -4331,6 +4322,11 @@ bool rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16 &
 			}
 			if(!sch1->reserve(cnv->self, ribi_typ(route->position_bei(max(1u,i)-1u), route->position_bei(min(route->get_count()-1u,i+1u))))) 
 			{
+				if(working_method == drive_by_sight)
+				{
+					next_signal_index = i - 1;
+					break;
+				}
 				if((working_method == absolute_block || working_method == token_block) && first_stop_signal_index < i)
 				{
 					// Cannot reserve through beyond the stop signal(s) beyond the distant, but can reserve to the first stop signal.
