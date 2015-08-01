@@ -766,10 +766,9 @@ senke_t::~senke_t()
 		if(city && !welt->get_is_shutting_down())
 		{
 			city->remove_substation(this);
-			const vector_tpl<fabrik_t*>& city_factories = city->get_city_factories();
-			ITERATE(city_factories, i)
+			FOR(vector_tpl<fabrik_t*>, factory, city->get_city_factories())
 			{
-				city_factories[i]->set_transformer_connected( NULL );
+				factory->set_transformer_connected( NULL );
 			}
 		}
 	}
@@ -815,8 +814,7 @@ void senke_t::step(long delta_t)
 
 	if(city)
 	{
-		const vector_tpl<fabrik_t*>& city_factories = city->get_city_factories();
-		FOR(vector_tpl<fabrik_t*>, city_fab, city_factories)
+		FOR(vector_tpl<fabrik_t*>, city_fab, city->get_city_factories())
 		{
 			if(city_fab->get_besch()->is_electricity_producer())
 			{
@@ -943,23 +941,22 @@ void senke_t::step(long delta_t)
 	if(city)
 	{
 		// Everyone else splits power on a proportional basis -- brownouts!
-		const vector_tpl<fabrik_t*>& city_factories = city->get_city_factories();
-		ITERATE(city_factories, i)
+		FOR(vector_tpl<fabrik_t*>, factory, city->get_city_factories())
 		{
 			//city_factories[i]->set_transformer_connected(this);
-			const uint32 current_factory_demand = (city_factories[i]->step_power_demand() * load_proportion) / 100;
+			const uint32 current_factory_demand = (factory->step_power_demand() * load_proportion) / 100;
 			const uint32 current_factory_load = municipal_power_demand == 0 ? current_factory_demand : 
 				(
 					current_factory_demand
 					* ((municipal_power_load << 5)
 					/ municipal_power_demand
 				)) >> 5; // <<5 for same reasons as above, FIXME
-			city_factories[i]->add_power(current_factory_load);
+			factory->add_power(current_factory_load);
 			if (current_factory_demand > current_factory_load) 
 			{
 				// this allows subsequently stepped senke to supply demand
-				// which this senke couldn't
-				city_factories[i]->add_power_demand(current_factory_demand - current_factory_load);
+				// which this senke could not demand
+				factory->add_power_demand(current_factory_demand - current_factory_load);
 			}
 		}
 		// City gets growth credit for power for both citizens and city factories

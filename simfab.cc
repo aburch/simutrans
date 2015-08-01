@@ -2131,8 +2131,8 @@ void fabrik_t::new_month()
 
 	if(welt->use_timeline() && besch->get_haus()->get_retire_year_month() < welt->get_timeline_year_month())
 	{
-		const uint32 difference =  welt->get_timeline_year_month() - besch->get_haus()->get_retire_year_month();
-		const uint32 max_difference =welt->get_settings().get_factory_max_years_obsolete() * 12;
+		const uint32 difference = welt->get_timeline_year_month() - besch->get_haus()->get_retire_year_month();
+		const uint32 max_difference = welt->get_settings().get_factory_max_years_obsolete() * 12;
 		bool closedown = false;
 		if(difference > max_difference)
 		{
@@ -2192,9 +2192,9 @@ void fabrik_t::new_month()
 				if(list_count > 0)
 				{
 					uint32 total_density = 0;
-					ITERATE(upgrade_list, j)
+					FOR(minivec_tpl<const fabrik_besch_t*>, upgrade, upgrade_list)
 					{
-						total_density += (100 / upgrade_list[j]->get_gewichtung());
+						total_density += (100 / upgrade->get_gewichtung());
 					}
 					const uint32 average_density = total_density / list_count;
 					const uint32 probability = 1 / ((100 - ((adjusted_density + average_density) / max_density)) * upgrade_list.get_count()) / 100;
