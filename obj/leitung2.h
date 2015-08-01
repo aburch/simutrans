@@ -16,7 +16,9 @@
 #include "../simcity.h"
 #include "../tpl/slist_tpl.h"
 
-#define POWER_TO_MW (12)  // bitshift for converting internal power values to MW for display
+#define POWER_TO_MW (12)  // bitshift for converting internal power values to mW for display. This is equivalent to dividing by 5,000
+#define KW_DIVIDER (500) // Divider for converting internal power to kW for display. A bitshift will not suffice, so use a divider. 
+#define DIVIDER_10W (5) 
 
 class powernet_t;
 class player_t;
