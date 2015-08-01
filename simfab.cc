@@ -2095,11 +2095,11 @@ void fabrik_t::new_month()
 			c = welt->get_city(city_pos);
 			if(c)
 			{
-				break;
+				goto out_of_loop;
 			}
 		}
 	}
-	
+	out_of_loop:
 
 	if(c && !c->get_city_factories().is_contained(this))
 	{

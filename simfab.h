@@ -227,9 +227,6 @@ private:
 	 */
 	void verteile_waren(const uint32 produkt);
 
-	// List of target cities
-	/*vector_tpl<stadt_t *> target_cities;*/
-
 	player_t *owner;		// player_t* owner_p
 	static karte_ptr_t welt;
 
