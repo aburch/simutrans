@@ -816,10 +816,8 @@ void senke_t::step(long delta_t)
 	if(city)
 	{
 		const vector_tpl<fabrik_t*>& city_factories = city->get_city_factories();
-		const fabrik_t* city_fab;
-		ITERATE(city_factories, i)
+		FOR(vector_tpl<fabrik_t*>, city_fab, city_factories)
 		{
-			city_fab = city_factories[i];
 			if(city_fab->get_besch()->is_electricity_producer())
 			{
 				continue;
@@ -844,17 +842,17 @@ void senke_t::step(long delta_t)
 
 		uint64 supply;
 		vector_tpl<senke_t*> checked_substations;
-		ITERATE_PTR(city_substations, i)
+		FOR(vector_tpl<senke_t*>, substation, *city_substations)
 		{
 			// Must use two passes here: first, check all those that don't have enough to supply 
 			// an equal share, then check those that do.
 
-			const powernet_t* net = city_substations->get_element(i)->get_net();
+			const powernet_t* net = substation->get_net();
 			supply = net->get_supply() - (net->get_demand() - shared_power_demand);
 
 			if(supply < (shared_power_demand / (city_substations_number - checked_substations.get_count())))
 			{
-				if(city_substations->get_element(i) != this)
+				if(substation != this)
 				{
 					shared_power_demand -= supply;
 				}
@@ -862,23 +860,23 @@ void senke_t::step(long delta_t)
 				{
 					supply_max = true;
 				}
-				checked_substations.append(city_substations->get_element(i));
+				checked_substations.append(substation);
 			}
 		}
 		city_substations_number -= checked_substations.get_count();
 
 		uint32 demand_distribution;
 		uint8 count = 0;
-		ITERATE_PTR(city_substations, n)
+		FOR(vector_tpl<senke_t*>, sub, *city_substations)
 		{
 			// Now check those that have more than enough power.
 
-			if(city_substations->get_element(n) == this || checked_substations.is_contained(city_substations->get_element(n)))
+			if(sub == this || checked_substations.is_contained(sub))
 			{
 				continue;
 			}
 
-			supply = city_substations->get_element(n)->get_power_load();
+			supply = sub->get_power_load();
 			demand_distribution = shared_power_demand / (city_substations_number - count);
 			if(supply < demand_distribution)
 			{
