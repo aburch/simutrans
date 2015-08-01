@@ -752,7 +752,7 @@ fabrik_t::fabrik_t(koord3d pos_, player_t* player, const fabrik_besch_t* fabesch
 	total_input = total_transit = total_output = 0;
 	status = nothing;
 	lieferziele_active_last_month = 0;
-	city = welt->get_city(pos.get_2d());
+	city = check_local_city();
 	if(city != NULL)
 	{
 		city->add_city_factory(this);
@@ -2040,6 +2040,28 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 	}
 }
 
+stadt_t* fabrik_t::check_local_city()
+{
+	stadt_t* c = NULL;
+	vector_tpl<koord> tile_list;
+	get_tile_list(tile_list);
+	FOR(vector_tpl<koord>, const k, tile_list)
+	{
+		for(uint8 i = 0; i < 8; i ++)
+		{
+			// We need to check neighbouring tiles, since city borders can be very tightly drawn.
+			const koord city_pos(k + k.neighbours[i]);
+			c = welt->get_city(city_pos);
+			if(c)
+			{
+				goto out_of_loop;
+			}
+		}
+	}
+out_of_loop:
+
+	return c;
+}
 
 void fabrik_t::new_month()
 {
@@ -2083,23 +2105,7 @@ void fabrik_t::new_month()
 	set_stat( power, FAB_POWER );
 
 	// This needs to be re-checked regularly, as cities grow, occasionally shrink and can be deleted.
-	stadt_t* c = NULL;
-	vector_tpl<koord> tile_list;
-	get_tile_list(tile_list);
-	FOR(vector_tpl<koord>, const k, tile_list)
-	{
-		for(uint8 i = 0; i < 8; i ++)
-		{
-			// We need to check neighbouring tiles, since city borders can be very tightly drawn.
-			const koord city_pos(k + k.neighbours[i]);
-			c = welt->get_city(city_pos);
-			if(c)
-			{
-				goto out_of_loop;
-			}
-		}
-	}
-	out_of_loop:
+	stadt_t* c = check_local_city();
 
 	if(c && !c->get_city_factories().is_contained(this))
 	{
@@ -2706,7 +2712,7 @@ void fabrik_t::info_conn(cbuffer_t& buf) const
 
 void fabrik_t::finish_rd()
 {
-	city = welt->get_city(pos.get_2d());
+	city = check_local_city();
 	if(city != NULL)
 	{
 		city->add_city_factory(this);

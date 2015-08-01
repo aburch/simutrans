@@ -420,6 +420,9 @@ private:
 	// @author: jamespetts
 	stadt_t* city;
 
+	// Check whether this factory is in a city: return NULL if not, or the city that it is in if so.
+	stadt_t* check_local_city(); 
+
 	bool has_calculated_intransit_percentages;
 
 	void adjust_production_for_fields();
