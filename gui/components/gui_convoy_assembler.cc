@@ -924,9 +924,9 @@ void gui_convoy_assembler_t::build_vehicle_lists()
 
 						if(replace_frame == NULL)
 						{
-							ITERATE(vehicles,i)
+							FOR(vector_tpl<const vehikel_besch_t*>, vehicle, vehicles)
 							{
-								vehicle_list.append(vehicles[i]);
+								vehicle_list.append(vehicle);
 							}
 						}
 						else
@@ -944,11 +944,11 @@ void gui_convoy_assembler_t::build_vehicle_lists()
 							break;
 						}
 
-						ITERATE(vehicle_list, i)
+						FOR(vector_tpl<const vehikel_besch_t*>, vehicle, vehicle_list)
 						{
-							for(uint16 c = 0; c < vehicle_list[i]->get_upgrades_count(); c++)
+							for(uint16 c = 0; c < vehicle->get_upgrades_count(); c++)
 							{
-								if(vehicle_list[i]->get_upgrades(c) && (info == vehicle_list[i]->get_upgrades(c)))
+								if(vehicle->get_upgrades(c) && (info == vehicle->get_upgrades(c)))
 								{
 									upgradeable = true;
 								}

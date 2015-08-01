@@ -1389,9 +1389,9 @@ stadt_t::~stadt_t()
 	welt->remove_queued_city(this);
 
 	// Remove references to this city from factories.
-	ITERATE(city_factories, i)
+	FOR(vector_tpl<fabrik_t*>, factory, city_factories)
 	{
-		city_factories[i]->clear_city();
+		factory->clear_city();
 	}
 
 	if(  reliefkarte_t::get_karte()->get_city() == this  ) {
@@ -1435,9 +1435,9 @@ stadt_t::~stadt_t()
 			}
 		}
 		// Remove substations
-		ITERATE(substations, i)
+		FOR(vector_tpl<senke_t*>, sub, substations)
 		{
-			substations[i]->city = NULL;
+			sub->city = NULL;
 		}
 		
 		if(!welt->get_is_shutting_down())

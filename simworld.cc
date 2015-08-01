@@ -1779,9 +1779,9 @@ DBG_DEBUG("karte_t::init()","built timeline");
 	// Set the actual industry density and industry density proportion
 	actual_industry_density = 0;
 	uint32 weight;
-	ITERATE(fab_list, i)
+	FOR(vector_tpl<fabrik_t*>, factory, fab_list)
 	{
-		const fabrik_besch_t* factory_type = fab_list[i]->get_besch();
+		const fabrik_besch_t* factory_type = factory->get_besch();
 		if(!factory_type->is_electricity_producer())
 		{
 			// Power stations are excluded from the target weight:
@@ -7974,9 +7974,9 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 		// Loading a game - must set this to zero here and recalculate.
 		actual_industry_density = 0;
 		uint32 weight;
-		ITERATE(fab_list, i)
+		FOR(vector_tpl<fabrik_t*>, factory, fab_list)
 		{
-			const fabrik_besch_t* factory_type = fab_list[i]->get_besch();
+			const fabrik_besch_t* factory_type = factory->get_besch();
 			if(!factory_type->is_electricity_producer())
 			{
 				// Power stations are excluded from the target weight:

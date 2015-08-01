@@ -927,9 +927,8 @@ int fabrikbauer_t::increase_industry_density( bool tell_me, bool do_not_add_beyo
 		vector_tpl<fabrik_t*> unlinked_consumers;
 		vector_tpl<const ware_besch_t*> missing_goods;
 
-		ITERATE(welt->get_fab_list(), i)
+		FOR(vector_tpl<fabrik_t*>, fab, welt->get_fab_list())
 		{
-			fabrik_t *fab = welt->get_fab_list()[i];
 			for(int l = 0; l < fab->get_besch()->get_lieferanten(); l ++)
 			{
 				// Check the list of possible suppliers for this factory type.
@@ -941,10 +940,10 @@ int fabrikbauer_t::increase_industry_density( bool tell_me, bool do_not_add_beyo
 				// Check how much of this product that the current factory needs
 				const sint32 consumption_level = fab->get_base_production() * supplier_type->get_verbrauch();
 				
-				ITERATE(suppliers, s)
+				FOR(vector_tpl<koord>, supplier_koord, suppliers)
 				{
 					// Check whether the factory's actual suppliers supply any of this product.
-					const fabrik_t* supplier = fabrik_t::get_fab(suppliers[s]);
+					const fabrik_t* supplier = fabrik_t::get_fab(supplier_koord);
 					if(!supplier)
 					{
 						continue;
@@ -1001,7 +1000,7 @@ int fabrikbauer_t::increase_industry_density( bool tell_me, bool do_not_add_beyo
 		// ok, found consumer
 		if(!unlinked_consumers.empty()) 
 		{
-			ITERATE(unlinked_consumers, u)
+			FOR(vector_tpl<fabrik_t*>, unlinked_consumer, unlinked_consumers)
 			{
 				// For each iteration, check, if necessary, whether the target density is exceeded.
 				if(do_not_add_beyond_target_density && welt->get_actual_industry_density() >= welt->get_target_industry_density())
@@ -1010,12 +1009,12 @@ int fabrikbauer_t::increase_industry_density( bool tell_me, bool do_not_add_beyo
 					break;
 				}
 
-				for(int i=0;  i < unlinked_consumers[u]->get_besch()->get_lieferanten();  i++) 
+				for(int i=0;  i < unlinked_consumer->get_besch()->get_lieferanten();  i++) 
 				{
-					ware_besch_t const* const w = unlinked_consumers[u]->get_besch()->get_lieferant(i)->get_ware();
-					for(uint32 j = 0; j < unlinked_consumers[u]->get_suppliers().get_count();  j++) 
+					ware_besch_t const* const w = unlinked_consumer->get_besch()->get_lieferant(i)->get_ware();
+					for(uint32 j = 0; j < unlinked_consumer->get_suppliers().get_count(); j++) 
 					{
-						fabrik_t *sup = fabrik_t::get_fab( unlinked_consumers[u]->get_suppliers()[j] );
+						fabrik_t *sup = fabrik_t::get_fab(unlinked_consumer->get_suppliers()[j]);
 						const fabrik_besch_t* const fb = sup->get_besch();
 						for (uint32 k = 0; k < fb->get_produkte(); k++) 
 						{
@@ -1032,11 +1031,11 @@ next_ware_check:
 				}
 
 				// first: do we have to continue unfinished business?
-				if(missing_goods_index < unlinked_consumers[u]->get_besch()->get_lieferanten()) 
+				if(missing_goods_index < unlinked_consumer->get_besch()->get_lieferanten()) 
 				{
 					int org_rotation = -1;
 					// rotate until we can save it, if one of the factory is non-rotateable ...
-					if(welt->cannot_save()  &&  !can_factory_tree_rotate(unlinked_consumers[u]->get_besch()) ) 
+					if(welt->cannot_save()  &&  !can_factory_tree_rotate(unlinked_consumer->get_besch()) ) 
 					{
 						org_rotation = welt->get_settings().get_rotation();
 						for(  int i=0;  i<3  &&  welt->cannot_save();  i++  ) 
@@ -1046,12 +1045,12 @@ next_ware_check:
 						assert( !welt->cannot_save() );
 					}
 
-					const uint32 last_suppliers = unlinked_consumers[u]->get_suppliers().get_count();
+					const uint32 last_suppliers = unlinked_consumer->get_suppliers().get_count();
 					do 
 					{
-						nr += baue_link_hierarchie( unlinked_consumers[u], unlinked_consumers[u]->get_besch(), missing_goods_index, welt->get_player(1) );
+						nr += baue_link_hierarchie( unlinked_consumer, unlinked_consumer->get_besch(), missing_goods_index, welt->get_player(1) );
 						missing_goods_index ++;
-					} while(  missing_goods_index < unlinked_consumers[u]->get_besch()->get_lieferanten()  &&  unlinked_consumers[u]->get_suppliers().get_count()==last_suppliers  );
+					} while(  missing_goods_index < unlinked_consumer->get_besch()->get_lieferanten()  &&  unlinked_consumer->get_suppliers().get_count()==last_suppliers  );
 
 					// must rotate back?
 					if(org_rotation>=0) {
@@ -1062,16 +1061,16 @@ next_ware_check:
 					}
 
 					// only return, if successful
-					if(unlinked_consumers[u]->get_suppliers().get_count() > last_suppliers) 
+					if(unlinked_consumer->get_suppliers().get_count() > last_suppliers) 
 					{
-						DBG_MESSAGE( "fabrikbauer_t::increase_industry_density()", "added ware %i to factory %s", missing_goods_index, unlinked_consumers[u]->get_name() );
+						DBG_MESSAGE( "fabrikbauer_t::increase_industry_density()", "added ware %i to factory %s", missing_goods_index, unlinked_consumer->get_name() );
 						// tell the player
 						if(tell_me) {
-							stadt_t *s = welt->suche_naechste_stadt( unlinked_consumers[u]->get_pos().get_2d() );
+							stadt_t *s = welt->suche_naechste_stadt( unlinked_consumer->get_pos().get_2d() );
 							const char *stadt_name = s ? s->get_name() : "simcity";
 							cbuffer_t buf;
-							buf.printf( translator::translate("Factory chain extended\nfor %s near\n%s built with\n%i factories."), translator::translate(unlinked_consumers[u]->get_name()), stadt_name, nr );
-							welt->get_message()->add_message(buf, unlinked_consumers[u]->get_pos().get_2d(), message_t::industry, CITY_KI, unlinked_consumers[u]->get_besch()->get_haus()->get_tile(0)->get_hintergrund(0, 0, 0));
+							buf.printf( translator::translate("Factory chain extended\nfor %s near\n%s built with\n%i factories."), translator::translate(unlinked_consumer->get_name()), stadt_name, nr );
+							welt->get_message()->add_message(buf, unlinked_consumer->get_pos().get_2d(), message_t::industry, CITY_KI, unlinked_consumer->get_besch()->get_haus()->get_tile(0)->get_hintergrund(0, 0, 0));
 						}
 						reliefkarte_t::get_karte()->calc_map();
 						return nr;
@@ -1101,7 +1100,7 @@ next_ware_check:
 
 	const weighted_vector_tpl<stadt_t*>& staedte = welt->get_staedte();
 	
-	for (weighted_vector_tpl<stadt_t*>::const_iterator i = staedte.begin(), end = staedte.end(); i != end; ++i)
+	for(weighted_vector_tpl<stadt_t*>::const_iterator i = staedte.begin(), end = staedte.end(); i != end; ++i)
 	{
 		total_electric_demand += (*i)->get_power_demand();
 	}

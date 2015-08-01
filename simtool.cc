@@ -5999,11 +5999,11 @@ const char *tool_build_land_chain_t::work( player_t *player, koord3d pos )
 			player_t::book_construction_costs(player, anzahl * welt->get_settings().cst_multiply_found_industry, build_pos.get_2d(), ignore_wt);
 
 			// crossconnect all?
-			if(welt->get_settings().is_crossconnect_factories()) {
-				const vector_tpl<fabrik_t *> & list = welt->get_fab_list();
-				ITERATE(list,i)
+			if(welt->get_settings().is_crossconnect_factories()) 
+			{
+				FOR(vector_tpl<fabrik_t*>, factory, welt->get_fab_list())
 				{
-					list[i]->add_all_suppliers();
+					factory->add_all_suppliers();
 				}
 			}
 			return NULL;
@@ -6070,10 +6070,9 @@ const char *tool_city_chain_t::work( player_t *player, koord3d pos )
 		// crossconnect all?
 		if(welt->get_settings().is_crossconnect_factories()) 
 		{
-			const vector_tpl<fabrik_t *> & list = welt->get_fab_list();
-			ITERATE(list,i)
+			FOR(vector_tpl<fabrik_t*>, factory, welt->get_fab_list())
 			{
-				list[i]->add_all_suppliers();
+				factory->add_all_suppliers();
 			}
 		}
 		// ain't going to be cheap
@@ -6176,10 +6175,9 @@ const char *tool_build_factory_t::work( player_t *player, koord3d pos )
 			// crossconnect all?
 			if(welt->get_settings().is_crossconnect_factories()) 
 			{
-				const vector_tpl<fabrik_t *> & list = welt->get_fab_list();
-				ITERATE(list,i)
+				FOR(vector_tpl<fabrik_t*>, factory,  welt->get_fab_list())
 				{
-					list[i]->add_all_suppliers();
+					factory->add_all_suppliers();
 				}
 			}
 			return NULL;
@@ -8398,6 +8396,7 @@ bool tool_access_t::init(player_t *player)
 						entries_to_remove.append(n);
 					}
 				}
+				
 				ITERATE(entries_to_remove, j)
 				{
 					fpl->set_aktuell(j);

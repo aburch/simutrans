@@ -2340,7 +2340,7 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(purchase_time%12
 			uint8 count = pre_corner_direction.get_count();
 			file->rdwr_byte(count);
 			sint16 dir;
-			ITERATE(pre_corner_direction,n)
+			ITERATE(pre_corner_direction, n)
 			{
 				dir = pre_corner_direction[n];
 				file->rdwr_short(dir);

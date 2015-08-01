@@ -301,10 +301,8 @@ void gebaeude_t::check_road_tiles(bool del)
 		}
 	}
 
-	ITERATE(building_list, n)
+	FOR(vector_tpl<gebaeude_t*>, gb, building_list)
 	{
-		const gebaeude_t* gb = building_list[n];
-
 		for(uint8 i = 0; i < 8; i ++)
 		{
 			/* This is tricky: roads can change height, and we're currently
