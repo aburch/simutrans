@@ -4250,7 +4250,7 @@ bool rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16 &
 		if((working_method == drive_by_sight && (i - (start_index - 1)) > sighting_distance_tiles) && (!this_halt.is_bound() || (haltestelle_t::get_halt(pos, get_owner())) != this_halt))
 		{
 			// In drive by sight mode, do not reserve further than can be seen; but treat signals at the end of the platform as a signal at which the train is now standing.
-			next_signal_index = i - 1;
+			next_signal_index = i;
 			break;
 		}
 		
