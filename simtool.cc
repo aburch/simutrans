@@ -6355,7 +6355,7 @@ DBG_MESSAGE("tool_headquarter()", "building headquarter at (%d,%d)", pos.x, pos.
 
 
 		// build new one
-		if( built ) {
+		if (!built) {
 			int rotate = 0;
 
 			if(welt->square_is_free(k, size.x, size.y, NULL, besch->get_allowed_climate_bits())) {
