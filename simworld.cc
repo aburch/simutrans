@@ -2604,6 +2604,10 @@ void karte_t::set_scale()
 		info.value->set_scale(scale_factor);
 	}
 
+	// Signs and signals
+
+	roadsign_t::set_scale(scale_factor);
+
 	// Settings
 	settings.set_scale();
 

@@ -45,6 +45,7 @@
 const roadsign_besch_t *roadsign_t::default_signal=NULL;
 
 stringhashtable_tpl<const roadsign_besch_t *> roadsign_t::table;
+vector_tpl<roadsign_besch_t*> roadsign_t::liste;
 
 
 #ifdef INLINE_OBJ_TYPE
@@ -717,6 +718,7 @@ bool roadsign_t::register_besch(roadsign_besch_t *besch)
 	}
 
 	roadsign_t::table.put(besch->get_name(), besch);
+	roadsign_t::liste.append(besch);
 
 	if(  besch->get_wtyp()==track_wt  &&  besch->get_flags()==roadsign_besch_t::SIGN_SIGNAL  ) {
 		default_signal = besch;
@@ -767,4 +769,13 @@ const roadsign_besch_t *roadsign_t::roadsign_search(roadsign_besch_t::types cons
 		}
 	}
 	return NULL;
+}
+
+ void roadsign_t::set_scale(uint16 scale_factor)
+{
+	// Called from the world's set_scale method so as to avoid having to export the internal data structures of this class.
+	FOR(vector_tpl<roadsign_besch_t *>, sign, liste)
+	{
+		sign->set_scale(scale_factor); 
+	}
 }

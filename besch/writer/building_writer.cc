@@ -203,6 +203,10 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	} else if (!STRICMP(type_name, "depot")) {
 		utype      = haus_besch_t::depot;
 		extra_data = get_waytype(obj.get("waytype"));
+	} else if (!STRICMP(type_name, "signalbox")) {
+		utype      = haus_besch_t::signalbox;
+		enables	   = obj.get_int("signal_group", 0);
+		extra_data = obj.get_int("radius", 1000);
 	} else if (!STRICMP(type_name, "any") || *type_name == '\0') {
 		// for instance "MonorailGround"
 		utype = haus_besch_t::weitere;
@@ -227,14 +231,18 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 		dbg->fatal("building_writer_t::write_obj()","extension_building is obsolete keyword for %s; use stop/extension and waytype!", obj.get("name") );
 	}
 
-	if (obj.get_int("enables_pax", 0) > 0) {
-		enables |= 1;
-	}
-	if (obj.get_int("enables_post", 0) > 0) {
-		enables |= 2;
-	}
-	if(  utype == haus_besch_t::fabrik  ||  obj.get_int("enables_ware", 0) > 0  ) {
-		enables |= 4;
+	if(utype != haus_besch_t::signalbox)
+	{
+		// enables is used for signal groups for the signal box.
+		if (obj.get_int("enables_pax", 0) > 0) {
+			enables |= 1;
+		}
+		if (obj.get_int("enables_post", 0) > 0) {
+			enables |= 2;
+		}
+		if(  utype == haus_besch_t::fabrik  ||  obj.get_int("enables_ware", 0) > 0  ) {
+			enables |= 4;
+		}
 	}
 
 	if(  utype==haus_besch_t::generic_extension  ||  utype==haus_besch_t::generic_stop  ||  utype==haus_besch_t::dock  ||  utype==haus_besch_t::depot  ||  utype==haus_besch_t::fabrik  ) {

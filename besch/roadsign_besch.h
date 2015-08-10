@@ -46,6 +46,16 @@ private:
 	 */
 	uint8 allow_underground;
 
+	// What group to which this signal belongs. 
+	// This determines the signal boxes to which it can be linked.
+	uint8 signal_group;
+
+	// This determines how far that this can be placed from a signalbox. 
+	// Note that, of this figure and the radius of the signalbox, the 
+	// lowest value of the two determines whether the signal can be
+	// built. This value is in meters. 
+	uint32 max_distance_to_signalbox;
+
 public:
 	enum types {
 		NONE                  = 0,
@@ -102,12 +112,19 @@ public:
 
 	uint8 get_allow_underground() const { return allow_underground; }
 
+	uint8 get_signal_group() const { return signal_group; }
+
+	uint32 get_max_distance_to_signalbox() const { return max_distance_to_signalbox; }
+
 	void calc_checksum(checksum_t *chk) const
 	{
 		obj_besch_transport_infrastructure_t::calc_checksum(chk);
 		chk->input(flags);
 		chk->input(min_speed);
 		chk->input(allow_underground);
+		chk->input(signal_group);
+		chk->input(base_maintenance); 
+		chk->input(max_distance_to_signalbox);
 	}
 };
 

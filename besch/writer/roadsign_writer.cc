@@ -12,7 +12,7 @@ using std::string;
 
 void roadsign_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 {
-	obj_node_t node(this, 16, &parent);
+	obj_node_t node(this, 25, &parent);
 
 	uint32                  const cost      = obj.get_int("cost",      500) * 100;
 	uint16                  const min_speed = obj.get_int("min_speed",   0);
@@ -36,6 +36,10 @@ void roadsign_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 		allow_underground = 2;
 	}
 
+	uint8 signal_group = obj.get_int("signal_group", 0);
+	uint32 maintenance = obj.get_int("maintenance", 0); 
+	uint32 max_distance_to_signalbox = obj.get_int("max_distance_to_signalbox", 1000); 
+
 	uint16 version = 0x8004; // version 4
 	
 	// This is the overlay flag for Simutrans-Experimental
@@ -45,7 +49,9 @@ void roadsign_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	// Finally, this is the experimental version number. This is *added*
 	// to the standard version number, to be subtracted again when read.
 	// Start at 0x100 and increment in hundreds (hex).
-	version += 0x100;
+	// 0x100: Allow underground
+	// 0x200: New signalling system (major version 12)
+	version += 0x200;
 	
 	// Hajo: write version data
 	node.write_uint16(fp, version,     0);
@@ -64,6 +70,9 @@ void roadsign_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	node.write_uint16(fp,          retire,          13);
 
 	node.write_uint8(fp, allow_underground, 15);
+	node.write_uint8(fp, signal_group, 16);
+	node.write_uint32(fp, maintenance, 17);
+	node.write_uint32(fp, max_distance_to_signalbox, 21); 
 
 	write_head(fp, node, obj);
 

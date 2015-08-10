@@ -67,7 +67,7 @@ obj_besch_t * roadsign_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	if(version==4) {
 		// Versioned node, version 4
 		besch->min_speed = kmh_to_speed(decode_uint16(p));
-		besch->cost = decode_uint32(p);
+		besch->base_cost = decode_uint32(p);
 		besch->flags = decode_uint8(p);
 		besch->offset_left = decode_sint8(p);
 		besch->wt = decode_uint8(p);
@@ -75,17 +75,23 @@ obj_besch_t * roadsign_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->obsolete_date = decode_uint16(p);
 		if(experimental)
 		{
-			if(experimental_version > 1)
+			if(experimental_version > 2)
 			{
 				dbg->fatal( "roadsign_reader_t::read_node()","Incompatible pak file version for Simutrans-Ex, number %i", experimental_version );
 			}
 			besch->allow_underground = decode_uint8(p);
+			if(experimental_version > 1)
+			{
+				besch->signal_group = decode_uint8(p);
+				besch->base_maintenance = decode_uint32(p);
+				besch->max_distance_to_signalbox = decode_uint32(p); 
+			}
 		}
 	}
 	else if(version==3) {
 		// Versioned node, version 3
 		besch->min_speed = kmh_to_speed(decode_uint16(p));
-		besch->cost = decode_uint32(p);
+		besch->base_cost = decode_uint32(p);
 		besch->flags = decode_uint8(p);
 		besch->offset_left = 14;
 		besch->wt = decode_uint8(p);
@@ -103,7 +109,7 @@ obj_besch_t * roadsign_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	else if(version==2) {
 		// Versioned node, version 2
 		besch->min_speed = kmh_to_speed(decode_uint16(p));
-		besch->cost = decode_uint32(p);
+		besch->base_cost = decode_uint32(p);
 		besch->flags = decode_uint8(p);
 		besch->offset_left = 14;
 		besch->intro_date = DEFAULT_INTRO_DATE*12;
@@ -113,7 +119,7 @@ obj_besch_t * roadsign_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	else if(version==1) {
 		// Versioned node, version 1
 		besch->min_speed = kmh_to_speed(decode_uint16(p));
-		besch->cost = 50000;
+		besch->base_cost = 50000;
 		besch->flags = decode_uint8(p);
 		besch->offset_left = 14;
 		besch->intro_date = DEFAULT_INTRO_DATE*12;
@@ -133,6 +139,10 @@ obj_besch_t * roadsign_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	{
 		// Standard roadsigns can be placed both underground and above ground.
 		besch->allow_underground = 2;
+
+		besch->signal_group = 0;
+		besch->base_maintenance = 0;
+		besch->max_distance_to_signalbox = 1000; 
 	}
 
 	DBG_DEBUG("roadsign_reader_t::read_node()","min_speed=%i, cost=%i, flags=%x, waytype=%i, intro=%i%i, retire=%i,%i",

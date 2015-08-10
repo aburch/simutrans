@@ -128,6 +128,7 @@ class haus_besch_t : public obj_besch_timelined_t {
 
 	public:
 		/* Unbekannte Gebäude sind nochmal unterteilt */
+		// "Unknown buildings are again divided" (Babelfish)
 		enum utyp
 		{
 			unbekannt         =  0,
@@ -142,7 +143,7 @@ class haus_besch_t : public obj_besch_timelined_t {
 			bahnhof           =  8,
 			bushalt           =  9,
 			ladebucht         = 10,
-			dock             = 11,// this is still current, as it is can be larger than 1x1
+			dock              = 11,// this is still current, as it is can be larger than 1x1
 			binnenhafen       = 12,
 			airport           = 13,
 			monorailstop      = 14,
@@ -162,6 +163,7 @@ class haus_besch_t : public obj_besch_timelined_t {
 			generic_extension = 35,
 			// there are more types of docks
 			flat_dock         = 36, // dock, but can start on a flat coast line
+			signalbox		  = 70, // Signalbox. 70 to allow for plenty more Standard ones in between.
 			last_haus_typ,
 			unbekannt_flag    = 128,
 		};
@@ -175,8 +177,8 @@ class haus_besch_t : public obj_besch_timelined_t {
 		};
 
 	private:
-	gebaeude_t::typ     gtyp;      // Hajo: this is the type of the building
-	utyp            utype; // Hajo: if gtyp == gebaeude_t::unbekannt, then this is the real type
+	gebaeude_t::typ     gtyp;		// Hajo: this is the type of the building
+	utyp				utype;		// Hajo: if gtyp == gebaeude_t::unbekannt, then this is the real type
 
 	uint16 animation_time;	// in ms
 	uint32 extra_data;
@@ -185,12 +187,13 @@ class haus_besch_t : public obj_besch_timelined_t {
 		// waytype for depots
 		// player level for headquarters
 		// cluster number for city buildings (0 means no clustering)
+		// Radius for signal boxes
 	koord  groesse;
 	flag_t flags;
-	uint16 level;          // or passengers;
-	uint8  layouts;        // 1 2, 4, 8  or 16
-	uint8  enables;		// if it is a stop, what is enabled ...
-	uint8  chance;         // Hajo: chance to build, special buildings, only other is weight factor
+	uint16 level;			// or passengers;
+	uint8  layouts;			// 1 2, 4, 8  or 16
+	uint8  enables;			// if it is a stop, what is enabled; if it is a signal box, the signal group that can be linked to this box.
+	uint8  chance;			// Hajo: chance to build, special buildings, only other is weight factor
 
 	/** @author: jamespetts.
 	 * Additional fields for separate capacity/maintenance
@@ -336,7 +339,7 @@ public:
 	climate_bits get_allowed_climate_bits() const { return allowed_climates; }
 
 	/**
-	* @return station flags (only used for station buildings and oil rigs)
+	* @return station flags (only used for station buildings, oil rigs and traction types in depots)
 	* @author prissi
 	*/
 	int get_enabled() const { return enables; }

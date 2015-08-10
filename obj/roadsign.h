@@ -155,7 +155,7 @@ public:
 
 	// static routines from here
 private:
-	static vector_tpl<const roadsign_besch_t *> liste;
+	static vector_tpl<roadsign_besch_t *> liste;
 	static stringhashtable_tpl<const roadsign_besch_t *> table;
 
 protected:
@@ -174,6 +174,8 @@ public:
 	static const roadsign_besch_t *roadsign_search(roadsign_besch_t::types flag, const waytype_t wt, const uint16 time);
 
 	static const roadsign_besch_t *find_besch(const char *name) { return table.get(name); }
+
+	static void set_scale(uint16 scale_factor);
 };
 
 #endif
