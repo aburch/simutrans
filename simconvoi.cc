@@ -1444,11 +1444,11 @@ bool convoi_t::drive_to()
 			}
 
 			fpl->set_aktuell(aktuell);
+			fpl_target = ziel;
 			if(  route_ok  ) {
 				vorfahren();
 				return true;
 			}
-//>>>>>>> aburch/master
 		}
 	}
 	return false;
