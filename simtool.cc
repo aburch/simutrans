@@ -1849,9 +1849,9 @@ const char *tool_change_water_height_t::work( player_t *, koord3d pos )
 		bool ok = welt->is_plan_height_changeable( k.x, k.y )  &&  k.x > 0  &&  k.y > 0  &&  k.x < welt->get_size().x - 1  &&  k.y < welt->get_size().y - 1;
 		const planquadrat_t *plan = welt->access(k);
 
-		// next there cannot be any other grounds above this tile
+		// next there cannot be any grounds directly above this tile
 		sint8 h = plan->get_kartenboden()->get_hoehe() + 1;
-		while(  ok  &&  h < 32  ) {
+		while(  ok  &&  h < new_water_height + welt->get_settings().get_way_height_clearance()  ) {
 			if(  plan->get_boden_in_hoehe(h)  ) {
 				ok = false;
 			}
@@ -1863,6 +1863,11 @@ const char *tool_change_water_height_t::work( player_t *, koord3d pos )
 			delete [] stage;
 			return "Cannot alter water";
 		}
+
+		// get neighbour corner heights
+		sint8 neighbour_heights[8][4];
+		welt->get_neighbour_heights( k, neighbour_heights );
+
 		for(  int i = stage[array_koord(k.x,k.y)];  i < 8;  i++  ) {
 			koord k_neighbour = k + koord::neighbours[i];
 			grund_t *gr2 = welt->lookup_kartenboden(k_neighbour);
@@ -1872,21 +1877,41 @@ const char *tool_change_water_height_t::work( player_t *, koord3d pos )
 				// move onto this tile if it hasn't been processed yet
 				bool ok = stage[array_koord(k_neighbour.x, k_neighbour.y)] == -1;
 
-				if(  is_ctrl_pressed()  &&  raising  ) {
-					ok = ok  &&  neighbour_height < test_height;
-				}
-				else if(  is_ctrl_pressed()  ) {
-					ok = ok  &&  welt->min_hgt(k_neighbour) == test_height;
-				}
-				else {
-					ok = ok  &&  neighbour_height <= test_height;
-				}
-
 				if(  raising  ) {
+					// test whether points adjacent to current tile will be flooded
+					// if control key modifier pressed, level ground will be left alone, but then need to check for spills
+
+					// for neighbour i test corners adjacent to tile
+					// nw (i = 0), test se (corner 1)
+					// w (i = 1), test se (corner 1) and ne (corner 2)
+					// sw (i = 2), test ne (corner 2)
+					// s (i = 3), test ne (corner 2) and nw (corner 3)
+					// se (i = 4), test nw (corner 3)
+					// e (i = 5), test nw (corner 3) and sw (corner 0)
+					// ne (i = 6), test sw (corner 0)
+					// n (i = 7), test sw (corner 0) and se (corner 1)
+
+					if(  is_ctrl_pressed()  ) {
+						ok = ok  &&  ( (gr2->get_grund_hang()!=hang_t::flach  &&  welt->max_hgt(k_neighbour) <= test_height) ||
+							neighbour_heights[i][((i >> 1) + 1) & 3] < test_height ||
+							( (i & 1)  &&  neighbour_heights[i][((i >> 1) + 2) & 3] < test_height) );
+					}
+					else {
+						ok = ok  &&  (neighbour_heights[i][((i >> 1) + 1) & 3] <= test_height ||
+							( (i & 1)  &&  neighbour_heights[i][((i >> 1) + 2) & 3] <= test_height));
+					}
+
 					// move onto this tile unless it already has water at new level, or the land level is above new level
 					ok = ok  &&  welt->get_water_hgt(k_neighbour) < new_water_height;
 				}
 				else {
+					if(  is_ctrl_pressed()  ) {
+						ok = ok  &&  welt->min_hgt(k_neighbour) == test_height;
+					}
+					else {
+						ok = ok  &&  neighbour_height <= test_height;
+					}
+
 					// move onto this tile unless it already has water at new level, or the land level is above new level
 					ok = ok  &&  welt->get_water_hgt(k_neighbour) > new_water_height;
 				}
