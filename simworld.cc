@@ -2928,9 +2928,20 @@ int karte_t::lower_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8
 			}
 		}
 
+		for(  sint16 i = 0;  i < 8 ;  i++  ) {
+			const koord neighbour = koord( x, y ) + koord::neighbours[i];
+			if(  is_within_limits( neighbour )  ) {
+				grund_t *gr2 = lookup_kartenboden_nocheck( neighbour );
+				if(  gr2  &&  gr2->get_hoehe() < water_table  ) {
+					i = 8;
+					water_table = grundwasser - 4;
+				}
+			}
+		}
+
 		// only allow water table to be lowered (except for case of sea level)
 		// this prevents severe (errors!
-		if(  water_table < get_water_hgt_nocheck(x,y)/* || water_table==grundwasser*/) {
+		if(  water_table < get_water_hgt_nocheck(x,y)  ) {
 			water_hgt = water_table;
 			set_water_hgt(x, y, water_table );
 		}
