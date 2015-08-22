@@ -72,39 +72,68 @@ void tunnel_t::calc_image()
 	pthread_mutex_lock( &tunnel_calc_bild_mutex );
 #endif
 	const grund_t *gr = welt->lookup(get_pos());
-	if(  gr->ist_karten_boden()  &&  besch  ) {
-		hang_t::typ hang = gr->get_grund_hang();
 
-		broad_type = 0;
-		if(  besch->has_broad_portals()  ) {
-			ribi_t::ribi dir = ribi_t::rotate90( ribi_typ( hang ) );
-			if(  dir==0  ) {
-				dbg->error( "tunnel_t::calc_image()", "pos=%s, dir=%i, hang=%i", get_pos().get_str(), dir, hang );
+	if(besch)
+	{
+		grund_t *from = welt->lookup(get_pos());
+		image_id old_bild = image;
+		hang_t::typ hang = gr->get_grund_hang();
+		if(gr->ist_karten_boden()) 
+		{
+			// Tunnel portal
+			broad_type = 0;
+			if(  besch->has_broad_portals()  ) {
+				ribi_t::ribi dir = ribi_t::rotate90( ribi_typ( hang ) );
+				if(  dir==0  ) {
+					dbg->error( "tunnel_t::calc_image()", "pos=%s, dir=%i, hang=%i", get_pos().get_str(), dir, hang );
+				}
+				else {
+					const grund_t *gr_l = welt->lookup(get_pos() + dir);
+					tunnel_t* tunnel_l = gr_l ? gr_l->find<tunnel_t>() : NULL;
+					if(  tunnel_l  &&  tunnel_l->get_besch() == besch  &&  gr_l->get_grund_hang() == hang  ) {
+						broad_type += 1;
+						if(  !(tunnel_l->get_broad_type() & 2)  ) {
+							tunnel_l->calc_image();
+						}
+					}
+					const grund_t *gr_r = welt->lookup(get_pos() - dir);
+					tunnel_t* tunnel_r = gr_r ? gr_r->find<tunnel_t>() : NULL;
+					if(  tunnel_r  &&  tunnel_r->get_besch() == besch  &&  gr_r->get_grund_hang() == hang  ) {
+						broad_type += 2;
+						if(  !(tunnel_r->get_broad_type() & 1)  ) {
+							tunnel_r->calc_image();
+						}
+					}
+				}
 			}
-			else {
-				const grund_t *gr_l = welt->lookup(get_pos() + dir);
-				tunnel_t* tunnel_l = gr_l ? gr_l->find<tunnel_t>() : NULL;
-				if(  tunnel_l  &&  tunnel_l->get_besch() == besch  &&  gr_l->get_grund_hang() == hang  ) {
-					broad_type += 1;
-					if(  !(tunnel_l->get_broad_type() & 2)  ) {
-						tunnel_l->calc_image();
-					}
-				}
-				const grund_t *gr_r = welt->lookup(get_pos() - dir);
-				tunnel_t* tunnel_r = gr_r ? gr_r->find<tunnel_t>() : NULL;
-				if(  tunnel_r  &&  tunnel_r->get_besch() == besch  &&  gr_r->get_grund_hang() == hang  ) {
-					broad_type += 2;
-					if(  !(tunnel_r->get_broad_type() & 1)  ) {
-						tunnel_r->calc_image();
-					}
-				}
+			set_bild( besch->get_hintergrund_nr( hang, get_pos().z >= welt->get_snowline()  ||  welt->get_climate( get_pos().get_2d() ) == arctic_climate, broad_type ) );
+			set_after_bild( besch->get_vordergrund_nr( hang, get_pos().z >= welt->get_snowline()  ||  welt->get_climate( get_pos().get_2d() ) == arctic_climate, broad_type ) );
+		}
+		else 
+		{
+			// No portal. Determine whether to show the inside of the tunnel or nothing.
+			if(grund_t::underground_mode==grund_t::ugm_none || (grund_t::underground_mode==grund_t::ugm_level && from->get_hoehe()<grund_t::underground_level))
+			{
+				set_bild( IMG_LEER );
+				set_after_bild( IMG_LEER );
+			}
+			else
+			{
+#if 0
+				// TODO:  these need to show a tunnel interior. Currently, there is no code for doing that. This is code for portals, from above.
+				// Further, because these portals only have slope graphics, this will only display on a slope. Thus, this code is disabled until
+				// a way of reading/writing tunnel internal graphics is properly devised.
+				set_bild( besch->get_hintergrund_nr( hang, 0, broad_type ) );
+				set_after_bild( besch->get_vordergrund_nr( hang, 0, broad_type ) );
+#else
+				set_bild( IMG_LEER );
+				set_after_bild( IMG_LEER );
+#endif
 			}
 		}
-
-		set_bild( besch->get_hintergrund_nr( hang, get_pos().z >= welt->get_snowline()  ||  welt->get_climate( get_pos().get_2d() ) == arctic_climate, broad_type ) );
-		set_after_bild( besch->get_vordergrund_nr( hang, get_pos().z >= welt->get_snowline()  ||  welt->get_climate( get_pos().get_2d() ) == arctic_climate, broad_type ) );
 	}
-	else {
+	else
+	{
 		set_bild( IMG_LEER );
 		set_after_bild( IMG_LEER );
 	}
