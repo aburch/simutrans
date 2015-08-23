@@ -4532,8 +4532,8 @@ bool stadt_t::baue_strasse(const koord k, player_t* player, bool forced)
 							dbg->error("stadt_t::baue_strasse()", "building on road with not directions at %i,%i?!?", k.x, k.y );
 						}
 					}
-					else if(bd2->get_depot()) {
-						// do not enter depots
+					else if(bd2->get_depot() || bd2->get_signalbox()) {
+						// do not enter depots or signalboxes
 					}
 					else {
 						// check slopes

@@ -524,6 +524,11 @@ bool wegbauer_t::check_building( const grund_t *to, const koord dir ) const
 		return true;
 	}
 
+	if(to->get_signalbox())
+	{
+		return false;
+	}
+
 	// first find all kind of buildings
 	gebaeude_t *gb = to->find<gebaeude_t>();
 	if(gb==NULL) {

@@ -390,6 +390,8 @@ const char *tool_query_t::work( player_t *player, koord3d pos )
 			}
 		}
 
+		// TODO: Add query for signalboxes here
+
 		if(gr->get_depot()  &&  gr->get_depot()->get_owner()==player) {
 			int old_count = win_get_open_count();
 			gr->get_depot()->show_info();
@@ -1198,7 +1200,7 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 
 		// finally: empty enough
 		if(  gr1->get_grund_hang()!=gr1->get_weg_hang()  ||  gr1->get_halt().is_bound()  ||  gr1->kann_alle_obj_entfernen(player)  ||
-				   gr1->find<gebaeude_t>()  ||  gr1->get_depot()  ||  (gr1->get_leitung() && gr1->hat_wege())  ||  gr1->get_weg(air_wt)  ||  gr1->find<label_t>()  ||  gr1->get_typ()==grund_t::brueckenboden) {
+			gr1->find<gebaeude_t>()  ||  gr1->get_depot() || gr1->get_signalbox()  ||  (gr1->get_leitung() && gr1->hat_wege())  ||  gr1->get_weg(air_wt)  ||  gr1->find<label_t>()  ||  gr1->get_typ()==grund_t::brueckenboden) {
 			return "Tile not empty.";
 		}
 
@@ -3260,7 +3262,7 @@ uint8 tool_wayremover_t::is_valid_pos( player_t *player, const koord3d &pos, con
 		return 0;
 	}
 	// do not remove ground from depot
-	if(gr->get_depot()) {
+	if(gr->get_depot() || gr->get_signalbox()) {
 		error = "No suitable ground!";
 		return 0;
 	}
@@ -4550,8 +4552,8 @@ DBG_MESSAGE("tool_halt_aux()", "building %s on square %d,%d for waytype %x", bes
 		return CREDIT_MESSAGE;
 	}
 
-	if(  bd->get_depot()  ) {
-		// not on depots
+	if(  bd->get_depot() || bd->get_signalbox() ) {
+		// not on depots or signalboxes
 		return "No suitable ground!";
 	}
 

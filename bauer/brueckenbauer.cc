@@ -194,7 +194,7 @@ const char *check_tile( const grund_t *gr, const player_t *player, waytype_t wt,
 		return "Bruecke muss an\neinfachem\nHang beginnen!\n";
 	}
 
-	if(  gr->is_halt()  ||  gr->get_depot()  ) {
+	if(  gr->is_halt()  ||  gr->get_depot() || gr->get_signalbox() ) {
 		// something in the way
 		return "Tile not empty.";
 	}

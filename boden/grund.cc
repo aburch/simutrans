@@ -1719,6 +1719,11 @@ gebaeude_t *grund_t::get_building() const
 		return gb;
 	}
 
+	gb = get_signalbox();
+	if(gb)
+	{
+		return gb;
+	}
 	return get_depot();
 }
 
