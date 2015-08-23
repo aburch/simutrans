@@ -103,8 +103,7 @@
 
 #define is_scenario()  welt->get_scenario()->is_scripted()
 
-
-
+ 
 /****************************************** static helper functions **************************************/
 
 /**
@@ -118,7 +117,8 @@ char *tooltip_with_price(const char * tip, sint64 price)
 	return tool_t::toolstr;
 }
 
-
+// TODO: merge this into building_layout defined in simcity.cc
+static int const building_layout[] = { 0, 0, 1, 4, 2, 0, 5, 1, 3, 7, 1, 0, 6, 3, 2, 0 };
 
 /**
  * Creates a tooltip from tip text and money value
@@ -5691,6 +5691,24 @@ const char* tool_signalbox_t::tool_signalbox_aux(player_t* player, koord3d pos, 
 		if(gr->get_grund_hang() == 0)
 		{
 			int layout = 0;
+			koord k(pos.get_2d());
+			int trackdir = 0;
+			for(  int i = 1;  i < 8;  i+=2  )
+			{
+				grund_t *gr2 = welt->lookup_kartenboden(k + koord::neighbours[i]);
+				if(  gr2  &&  gr2->get_weg_hang() == gr2->get_grund_hang()  &&  (gr2->get_weg(track_wt) != NULL || gr2->get_weg(monorail_wt) != NULL || gr2->get_weg(maglev_wt) != NULL || gr2->get_weg(narrowgauge_wt) != NULL))
+				{
+					// update directions - note this is SENW, conversion from neighbours to SENW is
+					// neighbours SENW
+					// 3          0
+					// 5          1
+					// 7          2
+					// 1          3
+					trackdir += (1 << (((i-3)/2)&3));
+				}
+			}
+			layout = building_layout[trackdir];
+
 			hausbauer_t::neues_gebaeude(player, gr->get_pos(), layout, besch );
 			player_t::book_construction_costs(player, cost, pos.get_2d(), besch->get_finance_waytype());
 			if(is_local_execution()  &&  player == welt->get_active_player())
@@ -5940,9 +5958,6 @@ bool tool_build_house_t::init( player_t * )
 	}
 	return true;
 }
-
-// TODO: merge this into building_layout defined in simcity.cc
-static int const building_layout[] = { 0, 0, 1, 4, 2, 0, 5, 1, 3, 7, 1, 0, 6, 3, 2, 0 };
 
 const char *tool_build_house_t::work( player_t *player, koord3d pos )
 {
