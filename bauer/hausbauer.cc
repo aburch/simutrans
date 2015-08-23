@@ -626,7 +626,7 @@ gebaeude_t* hausbauer_t::baue(player_t* player, koord3d pos, int org_layout, con
 			if(besch->ist_ausflugsziel()) {
 				welt->add_ausflugsziel( gb );
 			}
-			if(besch->get_typ() == gebaeude_t::unbekannt) {
+			if(besch->get_typ() == gebaeude_t::unbekannt && besch->get_utyp() != haus_besch_t::signalbox) {
 				if(station_building.is_contained(besch)) 
 				{
 					if(besch->get_is_control_tower())

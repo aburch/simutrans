@@ -153,7 +153,7 @@ public:
 	 */
 	static void remove( player_t *player, gebaeude_t *gb );
 
-	/* Main function for all non-traffic buildings, including factories
+	/* Main function for all non-traffic buildings, including factories and signalboxes
 	 * building size can be larger than 1x1
 	 * Also the underlying ground will be changed to foundation.
 	 * @return The first built part of the building. Usually at pos, if this

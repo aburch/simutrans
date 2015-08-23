@@ -5709,7 +5709,8 @@ const char* tool_signalbox_t::tool_signalbox_aux(player_t* player, koord3d pos, 
 			}
 			layout = building_layout[trackdir];
 
-			hausbauer_t::neues_gebaeude(player, gr->get_pos(), layout, besch );
+			//hausbauer_t::neues_gebaeude(player, gr->get_pos(), layout, besch );
+			hausbauer_t::baue(player, gr->get_pos(), layout, besch);
 			player_t::book_construction_costs(player, cost, pos.get_2d(), besch->get_finance_waytype());
 			if(is_local_execution()  &&  player == welt->get_active_player())
 			{
