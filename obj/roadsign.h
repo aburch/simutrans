@@ -143,7 +143,6 @@ public:
 	void display_after(int xpos, int ypos, bool dirty) const;
 #endif
 
-
 	void rdwr(loadsave_t *file);
 
 	void rotate90();

@@ -4359,15 +4359,15 @@ void convoi_t::rdwr(loadsave_t *file)
 		file->rdwr_short( next_reservation_index );
 	}
 
-//TODO: Enable this
-//#ifdef SPECIAL_RESCUE_12_5
-//	if(file->get_experimental_version() >= 12 && file->is_saving()) 
-//#else
-//	if(file->get_experimental_version() >= 12)
-//	{
-//		file->rdwr_bool(needs_full_route_flush);
-//	}
-//#endif
+#ifdef SPECIAL_RESCUE_12_5
+	if(file->get_experimental_version() >= 12 && file->is_saving()) 
+#else
+	if(file->get_experimental_version() >= 12)
+#endif
+	{
+		file->rdwr_bool(needs_full_route_flush);
+	}
+
 
 	// This must come *after* all the loading/saving.
 	if(  file->is_loading()  ) {

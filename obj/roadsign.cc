@@ -40,6 +40,7 @@
 #include "../utils/simstring.h"
 
 #include "roadsign.h"
+#include "signal.h"
 
 
 const roadsign_besch_t *roadsign_t::default_signal=NULL;
@@ -631,6 +632,15 @@ void roadsign_t::rdwr(loadsave_t *file)
 			ticks_ns = 0xFD;
 			ticks_ow = 0xFF;
 		}
+	}
+#ifdef SPECIAL_RESCUE_12_5
+	if(besch->get_flags()==roadsign_besch_t::SIGN_SIGNAL && file->is_saving())
+#else
+	if(besch->get_flags()==roadsign_besch_t::SIGN_SIGNAL)
+#endif
+	{
+		signal_t* sig = (signal_t*)this;
+		sig->save_signalbox_location(file);
 	}
 }
 

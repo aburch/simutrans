@@ -54,7 +54,7 @@ vector_tpl<tool_t *>tool_t::general_tool(GENERAL_TOOL_COUNT);
 vector_tpl<tool_t *>tool_t::simple_tool(SIMPLE_TOOL_COUNT);
 vector_tpl<tool_t *>tool_t::dialog_tool(DIALOGE_TOOL_COUNT);
 
-// the number of toolbars is not know yet
+// the number of toolbars is not known yet
 vector_tpl<toolbar_t *>tool_t::toolbar_tool(0);
 
 char tool_t::toolstr[1088];

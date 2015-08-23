@@ -34,16 +34,18 @@ public:
 
 	void rdwr(loadsave_t *file);
 
+	void rotate90();
+
 	void add_to_world_list(bool lock = false);
 
 	// Adds a signal to this signalbox. Returns whether this succeeds.
-	bool add_signal(signal_t*);
+	inline bool add_signal(signal_t*);
 
 	// Transfers a signal to this box from another box.
 	// Returns true if the transfer succeeds, false if not.
-	bool transfer_signal(signal_t* s, signalbox_t* sb);
+	inline bool transfer_signal(signal_t* s, signalbox_t* sb);
 
-	void remove_signal(signal_t* s);
+	inline void remove_signal(signal_t* s);
 
 	// Transfer all signals *from* this box to the specified box.
 	// (Intended to be a preparation for closure).

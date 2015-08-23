@@ -134,6 +134,14 @@ void signalbox_t::rdwr(loadsave_t *file)
 	}
 }
 
+void signalbox_t::rotate90()
+{
+	FOR(slist_tpl<koord3d>, k, signals)
+	{
+		k.rotate90(welt->get_size().y-1);
+	}
+}
+
 void signalbox_t::remove_signal(signal_t* s)
 {
 	koord3d k = s->get_pos();

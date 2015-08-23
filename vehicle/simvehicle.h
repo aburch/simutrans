@@ -725,6 +725,8 @@ protected:
 public:
 	virtual waytype_t get_waytype() const { return track_wt; }
 
+	void rdwr_from_convoi(loadsave_t *file);
+
 	// since we might need to unreserve previously used blocks, we must do this before calculation a new route
 	route_t::route_result_t calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route);
 

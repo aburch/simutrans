@@ -207,3 +207,23 @@ void signal_t::calc_image()
 	set_yoff( yoff );
 	set_bild(image);
 }
+
+void signal_t::save_signalbox_location(loadsave_t *file)
+{
+#ifdef SPECIAL_RESCUE_12_5
+	if(file->get_experimental_version() >= 12 && file->is_saving())
+#else
+	if(file->get_experimental_version() >= 12)
+#endif
+	{
+		signalbox.rdwr(file);
+	}
+}
+
+void signal_t::rotate90()
+{
+	signalbox.rotate90(welt->get_size().y-1); 
+	roadsign_t* rs = (roadsign_t*) this;
+	dir = ribi_t::rotate90( dir );
+	obj_t::rotate90();
+}

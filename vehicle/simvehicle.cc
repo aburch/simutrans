@@ -3297,21 +3297,8 @@ rail_vehicle_t::rail_vehicle_tloadsave_t *file, bool is_leading, bool is_last) :
     vehicle_t()
 #endif
 {
-	vehicle_t::rdwr_from_convoi(file);
+	rail_vehicle_t::rdwr_from_convoi(file);
 	
-	//TODO: Enable this
-//#ifdef SPECIAL_RESCUE_12_5
-//	if(file->get_experimental_version() >= 12 && file->is_saving())
-//#else
-//	if(file->get_experimental_version() >= 12)
-//#endif
-//	{
-//		uint8 wm = (uint8)working_method;
-//		file->rdwr_byte(wm);
-//		working_method = (working_method_t)wm; 
-//	}
-	working_method = drive_by_sight; // TODO: Remove this when the above code is enabled
-
 	if(  file->is_loading()  ) {
 		static const vehikel_besch_t *last_besch = NULL;
 
@@ -5938,6 +5925,22 @@ schedule_t * air_vehicle_t::generate_new_schedule() const
 	return new airfahrplan_t();
 }
 
+void rail_vehicle_t::rdwr_from_convoi(loadsave_t* file)
+{
+	xml_tag_t t( file, "rail_vehicle_t" );
+	
+	vehicle_t::rdwr_from_convoi(file);
+#ifdef SPECIAL_RESCUE_12_5
+	if(file->get_experimental_version() >= 12 && file->is_saving())
+#else
+	if(file->get_experimental_version() >= 12)
+#endif
+	{
+		uint8 wm = (uint8)working_method;
+		file->rdwr_byte(wm);
+		working_method = (working_method_t)wm; 
+	}
+}
 
 
 void air_vehicle_t::rdwr_from_convoi(loadsave_t *file)

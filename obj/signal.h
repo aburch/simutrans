@@ -27,7 +27,11 @@ private:
 
 public:
 	signal_t(loadsave_t *file);
-	signal_t(player_t *player, koord3d pos, ribi_t::ribi dir,const roadsign_besch_t *besch, bool preview = false); // TODO: Add signalbox here so that a signalbox must be supplied on building a signal
+	signal_t(player_t *player, koord3d pos, ribi_t::ribi dir,const roadsign_besch_t *besch, bool preview = false);
+
+	void save_signalbox_location(loadsave_t *file);
+
+	void rotate90();
 
 	/**
 	* @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
