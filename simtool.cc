@@ -5648,9 +5648,92 @@ built_sign:
 	return error;
 }
 
+// Build signalboxes
+const char* tool_signalbox_t::tool_signalbox_aux(player_t* player, koord3d pos, const haus_besch_t* besch, sint64 cost)
+{
+	if ( !player_t::can_afford(player, -cost) ) {
+		return CREDIT_MESSAGE;
+	}
 
+	if(welt->is_within_limits(pos.get_2d())) {
+		grund_t *gr=welt->lookup(pos);
+		
+		if(!gr || gr->ist_wasser() || gr->get_weg_nr(0) || gr->get_building() || gr->is_halt()) 
+		{
+			// No ground, water, or the ground has a way or building on it.
+			// TODO: Consider allowing special gantry signalboxes
+			// that can be built upon ways.
+			return "A signalbox cannot be built here.";
+		}
 
-// built all types of depots
+		const char *error = gr->kann_alle_obj_entfernen(player);
+		if(error)
+		{
+			return error;
+		}
+
+		if(gr->get_grund_hang() == 0)
+		{
+			int layout = 0;
+			hausbauer_t::neues_gebaeude(player, gr->get_pos(), layout, besch );
+			player_t::book_construction_costs(player, cost, pos.get_2d(), besch->get_finance_waytype());
+			if(is_local_execution()  &&  player == welt->get_active_player())
+			{
+				welt->set_tool( general_tool[TOOL_QUERY], player );
+			}
+
+			return NULL;
+		}
+		return "A signalbox cannot be built here.";
+	}
+	return "";
+}
+
+image_id tool_signalbox_t::get_icon(player_t* player) const
+{
+	if(  player  &&  player->get_player_nr()!=1  ) {
+		const haus_besch_t *besch = hausbauer_t::find_tile(default_param,0)->get_besch();
+		const uint16 time = welt->get_timeline_year_month();
+		if( besch && besch->is_available(time) ) {
+			return besch->get_cursor()->get_bild_nr(1);
+		}
+	}
+	return IMG_LEER;
+}
+
+char const* tool_signalbox_t::get_tooltip(player_t const*) const
+{
+	haus_besch_t const* besch    = hausbauer_t::find_tile(default_param, 0)->get_besch();
+	if (besch == NULL) 
+	{
+		return NULL;
+	}
+	char tip[256];
+	sprintf(tip, "%s, %s: %i, %s: %i", translator::translate(besch->get_name()), translator::translate("Radius"), besch->get_radius(), translator::translate("Max. signals"), besch->get_capacity());
+
+	return tooltip_with_price_maintenance(welt, tip, besch->get_price(), besch->get_maintenance());
+}
+
+bool tool_signalbox_t::init(player_t *player)
+{
+	haus_besch_t const* besch = hausbauer_t::find_tile(default_param, 0)->get_besch();
+	if (besch == NULL) 
+	{
+		return false;
+	}
+
+	cursor = besch->get_cursor()->get_bild_nr(0);
+	return true;
+}
+
+const char *tool_signalbox_t::work( player_t *player, koord3d pos )
+{
+	haus_besch_t const* const besch = hausbauer_t::find_tile(default_param,0)->get_besch();
+
+	return tool_signalbox_t::tool_signalbox_aux(player, pos, besch, besch->get_price());
+}
+
+// build all types of depots
 const char *tool_depot_t::tool_depot_aux(player_t *player, koord3d pos, const haus_besch_t *besch, waytype_t wegtype, sint64 cost)
 {
 	if ( !player_t::can_afford(player, -cost) ) {

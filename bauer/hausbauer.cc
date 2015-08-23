@@ -26,6 +26,7 @@
 #include "../simcity.h"
 #include "../simdebug.h"
 #include "../simdepot.h"
+#include "../simsignalbox.h"
 #include "../simhalt.h"
 #include "../utils/simrandom.h"
 #include "../simtool.h"
@@ -155,12 +156,14 @@ bool hausbauer_t::alles_geladen()
 				case haus_besch_t::fabrik:
 					break;
 
+				case haus_besch_t::signalbox:
 				case haus_besch_t::dock:
 				case haus_besch_t::flat_dock:
 				case haus_besch_t::hafen_geb:
 				case haus_besch_t::depot:
 				case haus_besch_t::generic_stop:
 				case haus_besch_t::generic_extension:
+				
 					station_building.insert_ordered(besch,compare_station_besch);
 					break;
 
@@ -208,6 +211,11 @@ bool hausbauer_t::register_besch(haus_besch_t *besch)
 		else if(  besch->get_utyp()==haus_besch_t::firmensitz  ) {
 			tool = new tool_headquarter_t();
 		}
+		else if(besch->get_utyp() == haus_besch_t::signalbox)
+		{
+			tool = new tool_signalbox_t();
+			modifiable_station_buildings.append(besch);
+		}
 		else {
 			tool = new tool_build_station_t();
 			modifiable_station_buildings.append(besch);
@@ -253,6 +261,9 @@ void hausbauer_t::fill_menu(tool_selector_t* tool_selector, haus_besch_t::utyp u
 		case haus_besch_t::generic_extension:
 			toolnr = TOOL_BUILD_STATION | GENERAL_TOOL;
 			break;
+		case haus_besch_t::signalbox:
+			toolnr = TOOL_BUILD_SIGNALBOX | GENERAL_TOOL;
+			break;
 		default: ;
 	}
 	if(  toolnr > 0  &&  !welt->get_scenario()->is_tool_allowed(welt->get_active_player(), toolnr, wt)  ) {
@@ -263,7 +274,8 @@ void hausbauer_t::fill_menu(tool_selector_t* tool_selector, haus_besch_t::utyp u
 DBG_DEBUG("hausbauer_t::fill_menu()","maximum %i",station_building.get_count());
 	FOR(  vector_tpl<haus_besch_t const*>,  const besch,  station_building  ) {
 //		DBG_DEBUG("hausbauer_t::fill_menu()", "try to add %s (%p)", besch->get_name(), besch);
-		if(  besch->get_utyp()==utyp  &&  besch->get_builder()  &&  (utyp==haus_besch_t::firmensitz  ||  besch->get_extra()==(uint16)wt)  ) {
+		const char* TEST_name = besch->get_name();
+		if(  besch->get_utyp()==utyp  &&  besch->get_builder()  &&  ((utyp == haus_besch_t::firmensitz || utyp == haus_besch_t::signalbox) ||  besch->get_extra()==(uint16)wt)  ) {
 			if(  besch->is_available(time)  ) {
 				tool_selector->add_tool_selector( besch->get_builder() );
 			}
@@ -748,6 +760,11 @@ gebaeude_t *hausbauer_t::neues_gebaeude(player_t *player, koord3d pos, int built
 				break;
 		}
 	}
+	else if(besch->get_utyp() == haus_besch_t::signalbox)
+	{
+		gb = new signalbox_t(pos, player, tile); 
+	}
+
 	else {
 		gb = new gebaeude_t(pos, player, tile);
 	}
@@ -763,7 +780,7 @@ gebaeude_t *hausbauer_t::neues_gebaeude(player_t *player, koord3d pos, int built
 
 	gr->obj_add(gb);
 
-	if(  station_building.is_contained(besch)  &&  besch->get_utyp()!=haus_besch_t::depot  ) {
+	if(  station_building.is_contained(besch)  &&  besch->get_utyp()!=haus_besch_t::depot && besch->get_utyp() != haus_besch_t::signalbox ) {
 		// is a station/bus stop
 		(*static_cast<halthandle_t *>(param))->add_grund(gr);
 		gr->calc_image();

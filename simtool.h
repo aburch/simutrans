@@ -454,6 +454,20 @@ public:
 	waytype_t get_waytype() const OVERRIDE;
 };
 
+class tool_signalbox_t : public tool_t 
+{
+private:
+	static char toolstring[256];
+	const char* tool_signalbox_aux(player_t* player, koord3d pos, const haus_besch_t* besch, sint64 cost);
+public:
+	tool_signalbox_t() : tool_t(TOOL_BUILD_SIGNALBOX | GENERAL_TOOL) {}
+	image_id get_icon(player_t*) const OVERRIDE;
+	char const* get_tooltip(player_t const*) const OVERRIDE;
+	bool init(player_t*) OVERRIDE;
+	char const* work(player_t*, koord3d) OVERRIDE;
+	bool is_init_network_save() const OVERRIDE { return true; }
+};
+
 /* builds (random) tourist attraction (default_param==NULL) and maybe adds it to the next city
  * the parameter string is a follow (or NULL):
  * 1#theater

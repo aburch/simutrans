@@ -93,10 +93,10 @@ void tile_writer_t::write_obj(FILE* fp, obj_node_t& parent, int index, int seaso
 
 
 // Subroutine for write_obj, to avoid duplicated code
-static uint32 get_cluster_data(tabfileobj_t& obj)
+static uint32 get_cluster_data(tabfileobj_t& obj, const char* cluster_descriptions)
 {
 	uint32 clusters = 0;
-	int* ints = obj.get_ints("clusters");
+	int* ints = obj.get_ints(cluster_descriptions);
 
 	for(  int i = 1;  i <= ints[0];  i++  ) {
 		if(  ints[i] > 1  &&  ints[i] <= 32  ) { // Sanity check
@@ -112,7 +112,7 @@ static uint32 get_cluster_data(tabfileobj_t& obj)
 void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 {
 	// Hajo: take care, hardocded size of node on disc here!
-	obj_node_t node(this, 44, &parent);
+	obj_node_t node(this, 48, &parent);
 
 	write_head(fp, node, obj);
 
@@ -155,13 +155,13 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 
 	const char* type_name = obj.get("type");
 	if (!STRICMP(type_name, "res")) {
-		extra_data = get_cluster_data(obj);
+		extra_data = get_cluster_data(obj, "clusters");
 		gtyp = gebaeude_t::wohnung;
 	} else if (!STRICMP(type_name, "com")) {
-		extra_data = get_cluster_data(obj);
+		extra_data = get_cluster_data(obj, "clusters");
 		gtyp = gebaeude_t::gewerbe;
 	} else if (!STRICMP(type_name, "ind")) {
-		extra_data = get_cluster_data(obj);
+		extra_data = get_cluster_data(obj, "clusters");
 		gtyp = gebaeude_t::industrie;
 	} else if (!STRICMP(type_name, "cur")) {
 		extra_data = obj.get_int("build_time", 0);
@@ -205,8 +205,7 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 		extra_data = get_waytype(obj.get("waytype"));
 	} else if (!STRICMP(type_name, "signalbox")) {
 		utype      = haus_besch_t::signalbox;
-		enables	   = obj.get_int("signal_group", 0);
-		extra_data = obj.get_int("radius", 1000);
+		extra_data = get_cluster_data(obj, "signal_groups");
 	} else if (!STRICMP(type_name, "any") || *type_name == '\0') {
 		// for instance "MonorailGround"
 		utype = haus_besch_t::weitere;
@@ -231,18 +230,15 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 		dbg->fatal("building_writer_t::write_obj()","extension_building is obsolete keyword for %s; use stop/extension and waytype!", obj.get("name") );
 	}
 
-	if(utype != haus_besch_t::signalbox)
-	{
-		// enables is used for signal groups for the signal box.
-		if (obj.get_int("enables_pax", 0) > 0) {
-			enables |= 1;
-		}
-		if (obj.get_int("enables_post", 0) > 0) {
-			enables |= 2;
-		}
-		if(  utype == haus_besch_t::fabrik  ||  obj.get_int("enables_ware", 0) > 0  ) {
-			enables |= 4;
-		}
+
+	if (obj.get_int("enables_pax", 0) > 0) {
+		enables |= 1;
+	}
+	if (obj.get_int("enables_post", 0) > 0) {
+		enables |= 2;
+	}
+	if(  utype == haus_besch_t::fabrik  ||  obj.get_int("enables_ware", 0) > 0  ) {
+		enables |= 4;
 	}
 
 	if(  utype==haus_besch_t::generic_extension  ||  utype==haus_besch_t::generic_stop  ||  utype==haus_besch_t::dock  ||  utype==haus_besch_t::depot  ||  utype==haus_besch_t::fabrik  ) {
@@ -285,9 +281,9 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 		price = obj.get_int("station_price", COST_MAGIC);
 	}
 	 
+	uint32 radius = obj.get_int("radius", 1000); 
 
 	uint8 allow_underground = obj.get_int("allow_underground", 2);
-
 	if(allow_underground > 2)
 	{
 		// Prohibit illegal values here.
@@ -426,7 +422,8 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	// to the standard version number, to be subtracted again when read.
 	// Start at 0x100 and increment in hundreds (hex).
 	// Reset to 0x100 for Standard 0x8008
-	version += 0x100;
+	// 0x200: Experimental version 12: radii for buildings
+	version += 0x200;
 	
 	// Hajo: write version data
 	node.write_uint16(fp, version,									0);
@@ -454,6 +451,7 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	node.write_uint16(fp, population_and_visitor_demand_capacity,	38);
 	node.write_uint16(fp, employment_capacity,						40);
 	node.write_uint16(fp, mail_demand_and_production_capacity,		42);
+	node.write_uint32(fp, radius,									44);
 	
 	// probably add some icons, if defined
 	slist_tpl<string> cursorkeys;

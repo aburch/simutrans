@@ -706,6 +706,7 @@ const char *gebaeude_t::get_name() const
 				case haus_besch_t::attraction_land:   return "Sehenswuerdigkeit";
 				case haus_besch_t::denkmal:           return "Denkmal";
 				case haus_besch_t::rathaus:           return "Rathaus";
+				case haus_besch_t::signalbox:
 				case haus_besch_t::depot:			  return tile->get_besch()->get_name();
 				default: break;
 			}
@@ -763,6 +764,7 @@ gebaeude_t::typ gebaeude_t::get_haustyp() const
 
 void gebaeude_t::show_info()
 {
+	// TODO: Add code for signalbox dialogues here
 	if(get_fabrik()) {
 		ptr.fab->show_info();
 		return;

@@ -22,9 +22,12 @@
  */
 class signal_t : public roadsign_t
 {
+private:
+	koord3d signalbox;
+
 public:
 	signal_t(loadsave_t *file);
-	signal_t(player_t *player, koord3d pos, ribi_t::ribi dir,const roadsign_besch_t *besch, bool preview = false);
+	signal_t(player_t *player, koord3d pos, ribi_t::ribi dir,const roadsign_besch_t *besch, bool preview = false); // TODO: Add signalbox here so that a signalbox must be supplied on building a signal
 
 	/**
 	* @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
@@ -37,12 +40,15 @@ public:
 #else
 	typ get_typ() const { return obj_t::signal; }
 #endif
-	const char *get_name() const {return "Signal";}
+	const char *get_name() const { return besch->get_name(); }
 
 	/**
 	* berechnet aktuelles image
 	*/
 	void calc_image();
+
+	void set_signalbox(koord3d k) { signalbox = k; }
+	koord3d get_signalbox() const { return signalbox; }
 };
 
 #endif

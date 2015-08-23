@@ -240,6 +240,8 @@ void export_goods_desc(HSQUIRRELVM vm)
 	enum_slot(vm, "flat_harbour", (uint8)haus_besch_t::flat_dock, true);
 	/// depot
 	enum_slot(vm, "depot", (uint8)haus_besch_t::depot, true);
+	/// signalbox
+	enum_slot(vm, "signalbox", (uint8)haus_besch_t::signalbox, true);
 	/// station
 	enum_slot(vm, "station", (uint8)haus_besch_t::generic_stop, true);
 	/// station extension

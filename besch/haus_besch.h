@@ -187,7 +187,7 @@ class haus_besch_t : public obj_besch_timelined_t {
 		// waytype for depots
 		// player level for headquarters
 		// cluster number for city buildings (0 means no clustering)
-		// Radius for signal boxes
+		// Signal groups for signal boxes
 	koord  groesse;
 	flag_t flags;
 	uint16 level;			// or passengers;
@@ -205,11 +205,13 @@ class haus_besch_t : public obj_besch_timelined_t {
 	sint32 scaled_price;
 	sint32 maintenance;
 	sint32 scaled_maintenance;
-	uint16 capacity;
+	uint16 capacity; // For signalboxes, this is the number of signals that it can support.
 
 	uint16 population_and_visitor_demand_capacity; // Population capacity if residential, otherwise visitor demand.
 	uint16 employment_capacity; // Capacity for jobs (this figure is not used for industries)
 	uint16 mail_demand_and_production_capacity; // Both generation and demand for mail (assumed to be symmetric). 
+
+	uint32 radius; // The radius for which this building has effect. For signalboxes, the maximum distance (in meters) that signals operating from here can be placed.
 
 	#define COST_MAGIC (2147483647) 
 
@@ -371,6 +373,8 @@ public:
 
 	uint16 get_capacity() const { return capacity; }
 
+	uint32 get_radius() const { return radius; } 
+
 	uint8 get_allow_underground() const { return allow_underground; }
 
 	uint8 get_is_control_tower() const { return is_control_tower; }
@@ -399,7 +403,7 @@ public:
 	bool can_be_built_aboveground() const { return allow_underground != 1; }
 
 	uint32 get_clusters() const {
-		// Only meaningful for res, com, ind
+		// Only meaningful for res, com, ind and signalboxes
 		if(  gtyp != gebaeude_t::wohnung  &&  gtyp != gebaeude_t::gewerbe  &&  gtyp != gebaeude_t::industrie  ) {
 			return 0;
 		}

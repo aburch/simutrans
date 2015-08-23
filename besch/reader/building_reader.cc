@@ -258,10 +258,18 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->allow_underground = decode_uint8(p);
 		if(experimental)
 		{
+			if(experimental_version > 2)
+			{
+				dbg->fatal( "building_reader_t::read_node()","Incompatible pak file version for Simutrans-Ex, number %i", experimental_version );
+			}
 			besch->is_control_tower = decode_uint8(p);
 			besch->population_and_visitor_demand_capacity = decode_uint16(p);
 			besch->employment_capacity = decode_uint16(p);
 			besch->mail_demand_and_production_capacity = decode_uint16(p);
+			if(experimental_version >= 2)
+			{
+				besch->radius = decode_uint32(p);
+			}
 		}
 		else
 		{
@@ -506,6 +514,11 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		// Old versions when read should allow underground stations, but not underground extension buildings.
 		besch->allow_underground = besch->utype == haus_besch_t::generic_stop ? 2 : 0; 
 		besch->is_control_tower = 0;
+	}
+
+	if(!experimental || experimental_version < 2)
+	{
+		besch->radius = 1000;
 	}
 
 	besch->scaled_maintenance = besch->maintenance;

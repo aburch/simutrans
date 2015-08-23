@@ -1,5 +1,5 @@
- # Simutranslator settings for Simutrans-Experimental texts
-# Addendum for the reorganisation of the depot window
+# Simutranslator settings for Simutrans-Experimental texts
+# Addendum major release 12 of Simutrans-Experimental
 #
 # Author: jamespetts
 # Created: July 2013
@@ -159,3 +159,15 @@ note=Shown in the way information window for a way that is degraded.
 obj=program_text
 name=Max. bridge weight:
 note=Shown in the way information window for the weight limit of the bridge.
+-
+obj=program_text
+name=A signalbox cannot be built here.
+note=Error message when trying to build a signalbox in an inappropriate location
+-
+obj=program_text
+name=Radius
+note=A tooltip description of the radius of signalboxes (and possibly in the future other buildings)
+-
+obj=program_text
+name=Max. signals
+note=Tooltip text for the maximum number of signals supported by a signalbox

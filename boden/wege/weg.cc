@@ -947,6 +947,7 @@ bool weg_t::should_city_adopt_this(const player_t* player)
 				has_neighbouring_building = (bool)welt->get_city(pos);
 				break;
 			case haus_besch_t::depot:
+			case haus_besch_t::signalbox:
 			case haus_besch_t::generic_stop:
 			default:
 				; // continue checking

@@ -125,6 +125,7 @@ public:
 	inline bool get_flag(flag_values flag) const {return ((flags & flag) != 0);}
 
 	/// all the different types of objects
+	// NOTE: These numbers are loaded/saved as an sint8. 
 	enum typ {
 		undefined=-1, obj=0, baum=1, zeiger=2,
 		wolke=3, sync_wolke=4, async_wolke=5,
@@ -179,6 +180,11 @@ public:
 		old_airdepot = 99,
 		old_monoraildepot=100,
 		old_tramdepot=101,
+
+		// Experimental specific objects (e.g. signalboxes)
+		// Should be negative numbers <= -10
+
+		signalbox = -10
 	};
 
 	inline sint8 get_xoff() const {return xoff;}

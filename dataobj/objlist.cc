@@ -29,6 +29,7 @@
 
 #include "../simtypes.h"
 #include "../simdepot.h"
+#include "../simsignalbox.h"
 #include "../simmem.h"
 
 #include "../player/simplay.h"
@@ -902,6 +903,10 @@ void objlist_t::rdwr(loadsave_t *file, koord3d current_pos)
 					gb.set_flag(obj_t::not_on_map);
 				}
 				break;
+
+				case obj_t::signalbox:
+					new_obj = new signalbox_t(file);
+					break;
 
 				// check for pillars
 				case obj_t::old_pillar:

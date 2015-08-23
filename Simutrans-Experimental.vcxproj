@@ -1429,6 +1429,7 @@
     <ClCompile Include="siminteraction.cc" />
     <ClCompile Include="simloadingscreen.cc" />
     <ClCompile Include="simobj.cc" />
+    <ClCompile Include="simsignalbox.cc" />
     <ClCompile Include="simsys.cc" />
     <ClCompile Include="simsys_s2.cc" />
     <ClCompile Include="simsys_w.cc" />
@@ -1956,6 +1957,7 @@
     <ClInclude Include="boden\wege\monorail.h" />
     <ClInclude Include="boden\monorailboden.h" />
     <ClInclude Include="utils\simrandom.h" />
+    <ClInclude Include="utils\simthread.h" />
     <ClInclude Include="vehicle\movingobj.h" />
     <ClInclude Include="music\music.h" />
     <ClInclude Include="boden\wege\narrowgauge.h" />
