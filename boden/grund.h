@@ -21,6 +21,7 @@
 
 class player_t;
 class depot_t;
+class signalbox_t;
 class karte_ptr_t;
 class cbuffer_t;
 
@@ -608,6 +609,8 @@ public:
 	* @author Volker Meyer
 	*/
 	depot_t *get_depot() const;
+
+	signalbox_t* get_signalbox() const;
 
 	gebaeude_t *get_building() const;
 

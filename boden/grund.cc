@@ -9,6 +9,7 @@
 #include "../simconst.h"
 #include "../simdebug.h"
 #include "../simdepot.h"
+#include "../simsignalbox.h"
 #include "../display/simgraph.h"
 #include "../display/viewport.h"
 #include "../simhalt.h"
@@ -64,7 +65,6 @@
 #include "grund.h"
 #include "tunnelboden.h"
 #include "wasser.h"
-
 
 
 /**
@@ -1705,6 +1705,11 @@ ribi_t::ribi grund_t::get_weg_ribi_unmasked(waytype_t typ) const
 depot_t* grund_t::get_depot() const
 {
 	return dynamic_cast<depot_t *>(first_obj());
+}
+
+signalbox_t* grund_t::get_signalbox() const
+{
+	return dynamic_cast<signalbox_t *>(first_obj());
 }
 
 gebaeude_t *grund_t::get_building() const

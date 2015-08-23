@@ -402,13 +402,17 @@ void hausbauer_t::remove( player_t *player, gebaeude_t *gb ) //gebaeude = "build
 			}
 		}
 	}
-
 	// delete just our house
 	for(k.y = 0; k.y < size.y; k.y ++) {
 		for(k.x = 0; k.x < size.x; k.x ++) {
 			grund_t *gr = welt->lookup(koord3d(k,0)+pos);
 			if(gr) {
 				gebaeude_t *gb_part = gr->find<gebaeude_t>();
+				if(!gb_part)
+				{
+					// May be a signalbox
+					gb_part = (gebaeude_t*)gr->get_signalbox();
+				}
 				// there may be buildings with holes, so we only remove our!
 				if(  gb_part  &&  gb_part->get_tile()==hb->get_tile(layout, k.x, k.y)  ) {
 					// ok, now we can go on with deletion

@@ -33,6 +33,7 @@
 #include "boden/monorailboden.h"
 
 #include "simdepot.h"
+#include "simsignalbox.h"
 #include "simfab.h"
 #include "display/simimg.h"
 #include "simintr.h"
@@ -638,6 +639,19 @@ DBG_MESSAGE("tool_remover()",  "removing tunnel  from %d,%d,%d",gr->get_pos().x,
 		}
 		dep->cleanup(player);
 		delete dep;
+		return true;
+	}
+
+	// Signal boxes
+	signalbox_t* sb = gr->get_signalbox();
+	if (sb)
+	{
+		msg = sb-> is_deletable(player);
+		if(msg)
+		{
+			return false;
+		}
+		hausbauer_t::remove( player, sb );
 		return true;
 	}
 

@@ -1399,9 +1399,17 @@ void gebaeude_t::cleanup(player_t *player) // "Remove" (Google)
 	const haus_besch_t* besch = tile->get_besch();
 	sint64 cost = 0;
 
-	if(besch->get_utyp() < haus_besch_t::bahnhof) 
+	if(besch->get_utyp() < haus_besch_t::bahnhof || besch->get_utyp() == haus_besch_t::signalbox) 
 	{
-		const sint64 bulldoze_cost = welt->get_settings().cst_multiply_remove_haus * (besch->get_level());
+		sint64 bulldoze_cost;
+		if(besch->get_utyp() == haus_besch_t::signalbox)
+		{
+			bulldoze_cost = besch->get_price() / 2;
+		}
+		else
+		{
+			bulldoze_cost = welt->get_settings().cst_multiply_remove_haus * (besch->get_level());
+		}
 		// If the player does not own the building, the land is not bought by bulldozing, so do not add the purchase cost.
 		// (A player putting a marker on the tile will have to pay to buy the land again).
 		// If the player does already own the building, the player is refunded the empty tile cost, as bulldozing a tile with a building
