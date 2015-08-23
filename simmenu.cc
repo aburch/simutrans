@@ -100,6 +100,7 @@ tool_t *create_general_tool(int toolnr)
 		case TOOL_BUILD_STATION:          tool = new tool_build_station_t(); break;
 		case TOOL_BUILD_ROADSIGN:         tool = new tool_build_roadsign_t(); break;
 		case TOOL_BUILD_DEPOT:            tool = new tool_depot_t(); break;
+		case TOOL_BUILD_SIGNALBOX:		  tool = new tool_signalbox_t(); break;
 		case TOOL_BUILD_HOUSE:       tool = new tool_build_house_t(); break;
 		case TOOL_BUILD_LAND_CHAIN:       tool = new tool_build_land_chain_t(); break;
 		case TOOL_CITY_CHAIN:       tool = new tool_city_chain_t(); break;
