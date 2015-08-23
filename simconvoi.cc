@@ -4368,7 +4368,6 @@ void convoi_t::rdwr(loadsave_t *file)
 		file->rdwr_bool(needs_full_route_flush);
 	}
 
-
 	// This must come *after* all the loading/saving.
 	if(  file->is_loading()  ) {
 		reserve_route();

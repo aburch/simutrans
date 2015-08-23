@@ -43,7 +43,7 @@ signal_t::signal_t( loadsave_t *file) :
 	}
 }
 
-signal_t::signal_t(player_t *player, koord3d pos, ribi_t::ribi dir,const roadsign_besch_t *besch, bool preview) : roadsign_t(obj_t::signal, player, pos, dir, besch, preview)
+signal_t::signal_t(player_t *player, koord3d pos, ribi_t::ribi dir,const roadsign_besch_t *besch, /*koord3d sb,*/ bool preview) : roadsign_t(obj_t::signal, player, pos, dir, besch, preview)
 {
 	if(besch->is_pre_signal())
 	{
@@ -54,6 +54,8 @@ signal_t::signal_t(player_t *player, koord3d pos, ribi_t::ribi dir,const roadsig
 	{
 		state = danger;
 	}
+
+	//signalbox = sb;
 }
 
 
@@ -217,6 +219,14 @@ void signal_t::save_signalbox_location(loadsave_t *file)
 #endif
 	{
 		signalbox.rdwr(file);
+
+		uint8 state_full = state;
+		file->rdwr_byte(state_full); 
+		state = state_full;
+		
+		bool ignore_choose_full = ignore_choose;
+		file->rdwr_bool(ignore_choose_full);
+		ignore_choose = ignore_choose_full; 
 	}
 }
 
