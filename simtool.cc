@@ -5235,7 +5235,8 @@ const char* tool_build_roadsign_t::check_pos_intern(player_t *player, koord3d po
 
 	// search for starting ground
 	grund_t *gr = tool_intern_koord_to_weg_grund(player, welt, pos, besch->get_wtyp());
-	if(gr) {
+	if(gr) 
+	{
 
 		signal_t *s = gr->find<signal_t>();
 		if(s  &&  s->get_besch()!=besch) {
@@ -5367,6 +5368,11 @@ bool tool_build_roadsign_t::init( player_t * player)
 {
 	// read data from string
 	read_default_param(player);
+
+	if(is_local_execution())
+	{
+		signal[player->get_player_nr()].signalbox = player->get_selected_signalbox()->get_pos(); 
+	}
 
 	if (is_ctrl_pressed()  &&  is_local_execution()) {
 		create_win(new signal_spacing_frame_t(player, this), w_info, (ptrdiff_t)this);
@@ -5633,7 +5639,7 @@ const char *tool_build_roadsign_t::place_sign_intern( player_t *player, grund_t*
 					rs->set_dir(dir);
 				} else { 
 					// add a new signal at position zero!
-					rs = new signal_t(player, gr->get_pos(), dir, besch, player->get_selected_signalbox()->get_pos()); 
+					rs = new signal_t(player, gr->get_pos(), dir, besch, signal[player->get_player_nr()].signalbox);
 					DBG_MESSAGE("tool_roadsign()", "new signal, dir is %i", dir);
 					goto built_sign;
 				}

@@ -274,7 +274,6 @@ void hausbauer_t::fill_menu(tool_selector_t* tool_selector, haus_besch_t::utyp u
 DBG_DEBUG("hausbauer_t::fill_menu()","maximum %i",station_building.get_count());
 	FOR(  vector_tpl<haus_besch_t const*>,  const besch,  station_building  ) {
 //		DBG_DEBUG("hausbauer_t::fill_menu()", "try to add %s (%p)", besch->get_name(), besch);
-		const char* TEST_name = besch->get_name();
 		if(  besch->get_utyp()==utyp  &&  besch->get_builder()  &&  ((utyp == haus_besch_t::firmensitz || utyp == haus_besch_t::signalbox) ||  besch->get_extra()==(uint16)wt)  ) {
 			if(  besch->is_available(time)  ) {
 				tool_selector->add_tool_selector( besch->get_builder() );
