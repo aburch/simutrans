@@ -30,6 +30,7 @@ static pthread_mutex_t add_to_city_mutex = PTHREAD_MUTEX_INITIALIZER;
 #include "../simdebug.h"
 #include "../simintr.h"
 #include "../simskin.h"
+#include "../simsignalbox.h"
 
 #include "../boden/grund.h"
 #include "../boden/wege/strasse.h"
@@ -1435,7 +1436,6 @@ void gebaeude_t::cleanup(player_t *player) // "Remove" (Google)
 			cost = welt->get_settings().cst_multiply_station * besch->get_level();
 		}
 		// Should be cheaper to bulldoze than build.
-		// Currently you recover "scrap money".
 		cost /= 2;
 		
 		// However, the land value is restored to the player who, by bulldozing, is relinquishing ownership of the land if there are not already ways on the land.
@@ -1451,7 +1451,7 @@ void gebaeude_t::cleanup(player_t *player) // "Remove" (Google)
 				player_t::book_construction_costs(get_owner(), -land_value, get_pos().get_2d(), tile->get_besch()->get_finance_waytype());
 			}
 		}
-		player_t::book_construction_costs(player, cost, get_pos().get_2d(), tile->get_besch()->get_finance_waytype());
+		player_t::book_construction_costs(player, -cost, get_pos().get_2d(), tile->get_besch()->get_finance_waytype());
 	}
 
 	// may need to update next buildings, in the case of start, middle, end buildings
