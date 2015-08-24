@@ -151,8 +151,7 @@ void signalbox_t::remove_signal(signal_t* s)
 
 bool signalbox_t::add_signal(signal_t* s)
 {
-	//if(can_add_signal(s))
-	if(true) // For TESTing
+	if(can_add_signal(s))
 	{
 		signals.append(s->get_pos()); 
 		s->set_signalbox(get_pos()); 

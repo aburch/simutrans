@@ -404,7 +404,7 @@ public:
 
 	uint32 get_clusters() const {
 		// Only meaningful for res, com, ind and signalboxes
-		if(  gtyp != gebaeude_t::wohnung  &&  gtyp != gebaeude_t::gewerbe  &&  gtyp != gebaeude_t::industrie  ) {
+		if(  gtyp != gebaeude_t::wohnung  &&  gtyp != gebaeude_t::gewerbe  &&  gtyp != gebaeude_t::industrie && utype != signalbox) {
 			return 0;
 		}
 		else {

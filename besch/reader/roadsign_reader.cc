@@ -80,9 +80,9 @@ obj_besch_t * roadsign_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				dbg->fatal( "roadsign_reader_t::read_node()","Incompatible pak file version for Simutrans-Ex, number %i", experimental_version );
 			}
 			besch->allow_underground = decode_uint8(p);
-			if(experimental_version > 1)
+			if(experimental_version >= 1)
 			{
-				besch->signal_group = decode_uint8(p);
+				besch->signal_group = decode_uint32(p);
 				besch->base_maintenance = decode_uint32(p);
 				besch->max_distance_to_signalbox = decode_uint32(p); 
 			}
