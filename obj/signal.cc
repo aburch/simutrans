@@ -19,6 +19,8 @@
 #include "../dataobj/environment.h"
 #include "../utils/cbuffer_t.h"
 #include "../obj/gebaeude.h"
+#include "../simsignalbox.h"
+#include "../besch/haus_besch.h"
 
 #include "signal.h"
 
@@ -47,7 +49,31 @@ signal_t::signal_t(player_t *player, koord3d pos, ribi_t::ribi dir,const roadsig
 		state = danger;
 	}
 
-	signalbox = sb;
+	const grund_t* gr = welt->lookup(sb);
+	if(gr)
+	{
+		gebaeude_t* gb = gr->get_building();
+		if(gb && gb->get_tile()->get_besch()->get_utyp() == haus_besch_t::signalbox)
+		{
+			signalbox_t* sigb = (signalbox_t*)gb;
+			signalbox = sb;
+			sigb->add_signal(this); 
+		}
+	}
+}
+
+signal_t::~signal_t()
+{
+	const grund_t* gr = welt->lookup(signalbox);
+	if(gr)
+	{
+		gebaeude_t* gb = gr->get_building();
+		if(gb && gb->get_tile()->get_besch()->get_utyp() == haus_besch_t::signalbox)
+		{
+			signalbox_t* sigb = (signalbox_t*)gb;
+			sigb->remove_signal(this); 
+		}
+	}
 }
 
 

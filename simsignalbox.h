@@ -28,7 +28,7 @@ public:
 	signalbox_t(loadsave_t *file);
 	signalbox_t(koord3d pos, player_t *player, const haus_tile_besch_t *t);
 
-	virtual ~signalbox_t();
+	~signalbox_t();
 
 	obj_t::typ get_typ() const { return signalbox; }
 

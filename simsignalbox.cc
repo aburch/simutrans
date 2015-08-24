@@ -64,6 +64,7 @@ signalbox_t::~signalbox_t()
 			continue;
 		}
 		signal_t* s = way->get_signal(ribi_t::alle);
+		s->set_signalbox(koord3d::invalid);
 		s->cleanup(get_owner());
 		delete s;
 		way->count_sign();
