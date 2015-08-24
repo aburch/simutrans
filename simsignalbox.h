@@ -11,6 +11,7 @@
 
 class karte_t;
 class signal_t;
+class roadsign_besch_t;
 
 class signalbox_t : public gebaeude_t
 {
@@ -39,10 +40,11 @@ public:
 	void add_to_world_list(bool lock = false);
 
 	// Adds a signal to this signalbox. Returns whether this succeeds.
-	inline bool add_signal(signal_t*);
+	inline bool add_signal(signal_t* s);
 
 	// Checks whether a signal can be added without adding it. Returns true if it succeeds.
-	inline bool can_add_signal(signal_t*);
+	inline bool can_add_signal(signal_t* s) const;
+	inline bool can_add_signal(const roadsign_besch_t* b) const; 
 
 	// Transfers a signal to this box from another box.
 	// Returns true if the transfer succeeds, false if not.

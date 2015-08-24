@@ -48,7 +48,7 @@ private:
 
 	// What group to which this signal belongs. 
 	// This determines the signal boxes to which it can be linked.
-	uint8 signal_group;
+	uint32 signal_group;
 
 	// This determines how far that this can be placed from a signalbox. 
 	// Note that, of this figure and the radius of the signalbox, the 
@@ -112,7 +112,7 @@ public:
 
 	uint8 get_allow_underground() const { return allow_underground; }
 
-	uint8 get_signal_group() const { return signal_group; }
+	uint32 get_signal_group() const { return signal_group; }
 
 	uint32 get_max_distance_to_signalbox() const { return max_distance_to_signalbox; }
 

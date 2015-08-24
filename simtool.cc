@@ -375,7 +375,7 @@ const char *tool_query_t::work( player_t *player, koord3d pos )
 							{
 								if(is_local_execution()  &&  player == welt->get_active_player())
 								{
-									player->set_selected_signalbox(obj->get_pos());
+									player->set_selected_signalbox((signalbox_t*)obj);
 								}
 							}
 						}
@@ -5633,7 +5633,7 @@ const char *tool_build_roadsign_t::place_sign_intern( player_t *player, grund_t*
 					rs->set_dir(dir);
 				} else { 
 					// add a new signal at position zero!
-					rs = new signal_t(player, gr->get_pos(), dir, besch, player->get_selected_signalbox()); 
+					rs = new signal_t(player, gr->get_pos(), dir, besch, player->get_selected_signalbox()->get_pos()); 
 					DBG_MESSAGE("tool_roadsign()", "new signal, dir is %i", dir);
 					goto built_sign;
 				}
@@ -5726,11 +5726,11 @@ const char* tool_signalbox_t::tool_signalbox_aux(player_t* player, koord3d pos, 
 			}
 			layout = building_layout[trackdir];
 
-			hausbauer_t::baue(player, gr->get_pos(), layout, besch);
+			gebaeude_t* gb = hausbauer_t::baue(player, gr->get_pos(), layout, besch);
 			player_t::book_construction_costs(player, cost, pos.get_2d(), besch->get_finance_waytype());
 			if(is_local_execution()  &&  player == welt->get_active_player())
 			{
-				player->set_selected_signalbox(gr->get_pos());
+				player->set_selected_signalbox((signalbox_t*)gb);
 				welt->set_tool( general_tool[TOOL_QUERY], player );
 			}
 

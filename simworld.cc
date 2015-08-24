@@ -8665,7 +8665,7 @@ void karte_t::switch_active_player(uint8 new_player, bool silent)
 			msg->add_message(buf, koord::invalid, message_t::ai | message_t::local_flag, PLAYER_FLAG|get_active_player()->get_player_nr(), IMG_LEER);
 		}
 
-		// update menue entries
+		// update menu entries
 		tool_t::update_toolbars();
 		set_dirty();
 	}

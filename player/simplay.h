@@ -459,7 +459,7 @@ private:
 	// The signalbox last selected. Used for placing signals attached to this box.
 	// Local only: this datum is transmitted over the network when the tool is used.
 	// Do not load/save.
-	koord3d selected_signalbox;
+	signalbox_t* selected_signalbox;
 
 public:
 	void add_headquarter(short hq_level, koord hq_pos)
@@ -475,8 +475,8 @@ public:
 	bool allows_access_to(uint8 other_player_nr) const { return this == NULL || player_nr == other_player_nr || access[other_player_nr]; }
 	void set_allow_access_to(uint8 other_player_nr, bool allow) { access[other_player_nr] = allow; }
 
-	void set_selected_signalbox(koord3d sb) { selected_signalbox = sb; }
-	koord3d get_selected_signalbox() const { return selected_signalbox; }
+	void set_selected_signalbox(signalbox_t* sb);
+	signalbox_t* get_selected_signalbox() const { return selected_signalbox; }
 };
 
 #endif

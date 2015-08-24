@@ -14,6 +14,7 @@
 #include "boden/wege/weg.h"
 #include "besch/haus_besch.h"
 #include "simdebug.h"
+#include "simtool.h"
 
 slist_tpl<signalbox_t *> signalbox_t::all_signalboxes;
 
@@ -44,6 +45,12 @@ signalbox_t::signalbox_t(koord3d pos, player_t *player, const haus_tile_besch_t 
 
 signalbox_t::~signalbox_t()
 {
+	player_t* player = welt->get_active_player();
+	if(player->get_selected_signalbox() == this)
+	{
+		player->set_selected_signalbox(NULL);
+	}
+	
 	// Delete all signals linked to this box
 	FOR(slist_tpl<koord3d>, k, signals)
 	{
@@ -161,13 +168,9 @@ bool signalbox_t::add_signal(signal_t* s)
 	return false;
 }
 
-bool signalbox_t::can_add_signal(signal_t* s)
+bool signalbox_t::can_add_signal(const roadsign_besch_t* b) const
 {
-	if(!s || (s->get_owner() != get_owner()))
-	{
-		return false;
-	}
-	uint32 group = s->get_besch()->get_signal_group();
+	uint32 group = b->get_signal_group();
 
 	if(group) // A signal with a group of 0 needs no signalbox and does not work with signalboxes
 	{
@@ -179,6 +182,16 @@ bool signalbox_t::can_add_signal(signal_t* s)
 		}
 	}
 	return false;
+}
+
+bool signalbox_t::can_add_signal(signal_t* s) const
+{
+	if(!s || (s->get_owner() != get_owner()))
+	{
+		return false;
+	}
+	
+	return can_add_signal(s->get_besch());
 }
 
 bool signalbox_t::transfer_signal(signal_t* s, signalbox_t* sb)

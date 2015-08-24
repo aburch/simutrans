@@ -22,6 +22,7 @@
 
 #include "../besch/roadsign_besch.h"
 #include "../besch/skin_besch.h"
+#include "../besch/haus_besch.h"
 
 #include "../boden/grund.h"
 #include "../boden/wege/strasse.h"
@@ -773,7 +774,36 @@ void roadsign_t::fill_menu(tool_selector_t *tool_selector, waytype_t wtyp, sint1
 
 	FOR(stringhashtable_tpl<roadsign_besch_t const*>, const& i, table) {
 		roadsign_besch_t const* const besch = i.value;
-		if(  besch->is_available(time)  &&  besch->get_wtyp()==wtyp  &&  besch->get_builder()  ) {
+
+		bool allowed_given_current_signalbox; 
+		uint32 signal_group = besch->get_signal_group();
+		
+		if(signal_group)
+		{
+			player_t* player = welt->get_active_player();
+			if(player)
+			{
+				signalbox_t* sb = player->get_selected_signalbox();
+				if(!sb)
+				{
+					allowed_given_current_signalbox = false;
+				}
+				else
+				{
+					allowed_given_current_signalbox = sb->can_add_signal(besch); 
+				}
+			}
+			else
+			{
+				allowed_given_current_signalbox = false;
+			}
+		}
+		else
+		{
+			allowed_given_current_signalbox = true;
+		}
+
+		if(  besch->is_available(time)  &&  besch->get_wtyp()==wtyp  &&  besch->get_builder() && allowed_given_current_signalbox ) {
 			// only add items with a cursor
 			matching.insert_ordered( besch, compare_roadsign_besch );
 		}

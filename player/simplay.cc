@@ -76,7 +76,7 @@ player_t::player_t(karte_t *wl, uint8 nr) :
 	locked = false;	/* allowe to change anything */
 	unlock_pending = false;
 	has_been_warned_about_no_money_for_renewals = false;
-	selected_signalbox == koord3d::invalid;
+	selected_signalbox = NULL;
 
 	headquarter_pos = koord::invalid;
 	headquarter_level = 0;
@@ -1105,4 +1105,14 @@ int player_t::get_account_overdrawn() const
 bool player_t::has_money_or_assets() const
 {
 	return finance->has_money_or_assets();
+}
+
+void player_t::set_selected_signalbox(signalbox_t* sb)
+{
+	selected_signalbox = sb;
+	if(!welt->get_is_shutting_down())
+	{
+		tool_t::update_toolbars();
+		welt->set_dirty();
+	}
 }
