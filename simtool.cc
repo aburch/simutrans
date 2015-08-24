@@ -368,15 +368,11 @@ const char *tool_query_t::work( player_t *player, koord3d pos )
 					if(  obj && obj->get_typ()!=obj_t::wayobj && obj->get_typ()!=obj_t::pillar && obj->get_typ()!=obj_t::label  ) {
 						DBG_MESSAGE("tool_abfrage()", "index %u", (unsigned)n);
 						obj->show_info();
-						if(obj->get_typ() == obj_t::gebaeude && obj->get_owner() == player)
+						if(obj->get_typ() == obj_t::signalbox && obj->get_owner() == player)
 						{
-							gebaeude_t* gb = (gebaeude_t*)obj;
-							if(gb->get_tile()->get_besch()->get_utyp() == haus_besch_t::signalbox)
+							if(is_local_execution()  &&  player == welt->get_active_player())
 							{
-								if(is_local_execution()  &&  player == welt->get_active_player())
-								{
-									player->set_selected_signalbox((signalbox_t*)obj);
-								}
+								player->set_selected_signalbox((signalbox_t*)obj);
 							}
 						}
 						// did some new window open?
