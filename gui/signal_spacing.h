@@ -20,6 +20,7 @@ class signal_spacing_frame_t : public gui_frame_t, private action_listener_t
 private:
 	static uint8 signal_spacing;
 	static bool remove, replace;
+	static koord3d signalbox;
 	player_t *player;
 	tool_build_roadsign_t* tool;
 	gui_numberinput_t signal_spacing_inp;

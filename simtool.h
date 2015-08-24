@@ -404,11 +404,12 @@ private:
 	const char *place_sign_intern( player_t *, grund_t*, const roadsign_besch_t* b = NULL);
 
 	struct signal_info {
-		signal_info() : spacing(16), remove_intermediate(true), replace_other(true) {}
+		signal_info() : spacing(16), remove_intermediate(true), replace_other(true), signalbox(koord3d::invalid) {}
 
 		uint8 spacing; // place signals every n tiles
 		bool  remove_intermediate;
 		bool  replace_other;
+		koord3d signalbox;
 	} signal[MAX_PLAYER_COUNT];
 
 	static char toolstring[256];
@@ -432,8 +433,8 @@ public:
 	bool init(player_t*) OVERRIDE;
 	bool exit(player_t*) OVERRIDE;
 
-	void set_values(player_t *player, uint8 spacing, bool remove, bool replace );
-	void get_values(player_t *player, uint8 &spacing, bool &remove, bool &replace );
+	void set_values(player_t *player, uint8 spacing, bool remove, bool replace, koord3d signalbox );
+	void get_values(player_t *player, uint8 &spacing, bool &remove, bool &replace, koord3d &signalbox );
 	bool is_init_network_save() const OVERRIDE { return true; }
 	void draw_after(scr_coord, bool dirty) const OVERRIDE;
 	char const* get_default_param(player_t*) const OVERRIDE;

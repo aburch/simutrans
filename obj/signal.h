@@ -27,7 +27,7 @@ private:
 
 public:
 	signal_t(loadsave_t *file);
-	signal_t(player_t *player, koord3d pos, ribi_t::ribi dir,const roadsign_besch_t *besch, /*koord3d sb,*/ bool preview = false);
+	signal_t(player_t *player, koord3d pos, ribi_t::ribi dir,const roadsign_besch_t *besch, koord3d sb, bool preview = false);
 
 	void save_signalbox_location(loadsave_t *file);
 

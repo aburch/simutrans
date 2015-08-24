@@ -76,6 +76,7 @@ player_t::player_t(karte_t *wl, uint8 nr) :
 	locked = false;	/* allowe to change anything */
 	unlock_pending = false;
 	has_been_warned_about_no_money_for_renewals = false;
+	selected_signalbox == koord3d::invalid;
 
 	headquarter_pos = koord::invalid;
 	headquarter_level = 0;

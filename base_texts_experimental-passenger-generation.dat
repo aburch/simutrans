@@ -171,3 +171,7 @@ note=A tooltip description of the radius of signalboxes (and possibly in the fut
 obj=program_text
 name=Max. signals
 note=Tooltip text for the maximum number of signals supported by a signalbox
+-
+obj=program_text
+name=Controlled from
+note=Display on a signal's information window showing the signalbox from which this signal is controlled.

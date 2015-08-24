@@ -18,6 +18,7 @@
 #include "../player/simplay.h"
 #include "../simtool.h"
 #include "../simworld.h"
+#include "../simsignalbox.h"
 
 #include "../besch/roadsign_besch.h"
 #include "../besch/skin_besch.h"
@@ -218,7 +219,6 @@ void roadsign_t::show_info()
 void roadsign_t::info(cbuffer_t & buf, bool dummy) const
 {
 	obj_t::info( buf );
-
 	if(  besch->is_private_way()  ) {
 		buf.append( "\n\n\n\n\n\n\n\n\n\n\n\n\n\n" );
 	}
@@ -240,6 +240,24 @@ void roadsign_t::info(cbuffer_t & buf, bool dummy) const
 			buf.append(translator::translate("\nSet phases:"));
 			buf.append("\n");
 			buf.append("\n");
+		}
+	}
+
+	if(besch->is_signal_type())
+	{
+		buf.append(translator::translate("Controlled from"));
+		buf.append(": ");
+		signal_t* sig = (signal_t*)this;
+		koord3d sb = sig->get_signalbox();
+		if(sb == koord3d::invalid)
+		{
+			buf.append("none");
+		}
+		else
+		{
+			const grund_t* gr = welt->lookup(sb);
+			const gebaeude_t* gb = gr->get_building();
+			buf.append(translator::translate(gb->get_name()));
 		}
 	}
 }

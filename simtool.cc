@@ -368,6 +368,17 @@ const char *tool_query_t::work( player_t *player, koord3d pos )
 					if(  obj && obj->get_typ()!=obj_t::wayobj && obj->get_typ()!=obj_t::pillar && obj->get_typ()!=obj_t::label  ) {
 						DBG_MESSAGE("tool_abfrage()", "index %u", (unsigned)n);
 						obj->show_info();
+						if(obj->get_typ() == obj_t::gebaeude && obj->get_owner() == player)
+						{
+							gebaeude_t* gb = (gebaeude_t*)obj;
+							if(gb->get_tile()->get_besch()->get_utyp() == haus_besch_t::signalbox)
+							{
+								if(is_local_execution()  &&  player == welt->get_active_player())
+								{
+									player->set_selected_signalbox(obj->get_pos());
+								}
+							}
+						}
 						// did some new window open?
 						if(old_count!=win_get_open_count()) {
 							return NULL;
@@ -389,8 +400,6 @@ const char *tool_query_t::work( player_t *player, koord3d pos )
 				}
 			}
 		}
-
-		// TODO: Add query for signalboxes here
 
 		if(gr->get_depot()  &&  gr->get_depot()->get_owner()==player) {
 			int old_count = win_get_open_count();
@@ -5307,7 +5316,7 @@ const char* tool_build_roadsign_t::get_default_param(player_t *player) const
 {
 	if (besch  &&  player) {
 		signal_info const& s = signal[player->get_player_nr()];
-		sprintf(toolstring, "%s,%d,%d,%d", besch->get_name(), s.spacing, s.remove_intermediate, s.replace_other);
+		sprintf(toolstring, "%s,%d,%d,%d,%d,%d,%d", besch->get_name(), s.spacing, s.remove_intermediate, s.replace_other, s.signalbox.x, s.signalbox.y, s.signalbox.z);
 		return toolstring;
 	}
 	else {
@@ -5338,10 +5347,16 @@ void tool_build_roadsign_t::read_default_param(player_t * player)
 		int i_signal_spacing              = s.spacing;
 		int i_remove_intermediate_signals = s.remove_intermediate;
 		int i_replace_other_signals       = s.replace_other;
-		sscanf(default_param+i, ",%d,%d,%d", &i_signal_spacing, &i_remove_intermediate_signals, &i_replace_other_signals);
+		int i_x							  = s.signalbox.x;
+		int i_y							  = s.signalbox.y;
+		int i_z							  = s.signalbox.z;
+		sscanf(default_param+i, ",%d,%d,%d,%d,%d,%d", &i_signal_spacing, &i_remove_intermediate_signals, &i_replace_other_signals, &i_x, &i_y, &i_z);
 		s.spacing             = (uint8)i_signal_spacing;
 		s.remove_intermediate = i_remove_intermediate_signals != 0;
 		s.replace_other       = i_replace_other_signals       != 0;
+		s.signalbox.x = i_x;
+		s.signalbox.y = i_y;
+		s.signalbox.z = i_z;
 	}
 	if (default_param==toolstring) {
 		default_param = besch->get_name();
@@ -5423,7 +5438,7 @@ void tool_build_roadsign_t::mark_tiles( player_t *player, const koord3d &start, 
 	// dummy roadsign to get images for preview
 	roadsign_t *dummy_rs;
 	if (besch->is_signal_type()) {
-		dummy_rs = new signal_t(player, koord3d::invalid, ribi_t::keine, besch, true);
+		dummy_rs = new signal_t(player, koord3d::invalid, ribi_t::keine, besch, koord3d::invalid, true);
 	}
 	else {
 		dummy_rs = new roadsign_t(player, koord3d::invalid, ribi_t::keine, besch, true);
@@ -5548,21 +5563,23 @@ const char *tool_build_roadsign_t::do_work( player_t *player, const koord3d &sta
 /*
  * Called by the GUI (gui/signal_spacing.*)
  */
-void tool_build_roadsign_t::set_values( player_t *player, uint8 spacing, bool remove, bool replace )
+void tool_build_roadsign_t::set_values( player_t *player, uint8 spacing, bool remove, bool replace, koord3d signalbox )
 {
 	signal_info& s = signal[player->get_player_nr()];
 	s.spacing             = spacing;
 	s.remove_intermediate = remove;
 	s.replace_other       = replace;
+	s.signalbox			  = signalbox;
 }
 
 
-void tool_build_roadsign_t::get_values( player_t *player, uint8 &spacing, bool &remove, bool &replace )
+void tool_build_roadsign_t::get_values( player_t *player, uint8 &spacing, bool &remove, bool &replace, koord3d &signalbox )
 {
 	signal_info const& s = signal[player->get_player_nr()];
 	spacing = s.spacing;
 	remove  = s.remove_intermediate;
 	replace = s.replace_other;
+	signalbox = s.signalbox;
 }
 
 
@@ -5614,9 +5631,9 @@ const char *tool_build_roadsign_t::place_sign_intern( player_t *player, grund_t*
 					}
 					// if nothing found, we have two ways again ...
 					rs->set_dir(dir);
-				} else {
+				} else { 
 					// add a new signal at position zero!
-					rs = new signal_t(player, gr->get_pos(), dir, besch);
+					rs = new signal_t(player, gr->get_pos(), dir, besch, player->get_selected_signalbox()); 
 					DBG_MESSAGE("tool_roadsign()", "new signal, dir is %i", dir);
 					goto built_sign;
 				}
@@ -5709,11 +5726,11 @@ const char* tool_signalbox_t::tool_signalbox_aux(player_t* player, koord3d pos, 
 			}
 			layout = building_layout[trackdir];
 
-			//hausbauer_t::neues_gebaeude(player, gr->get_pos(), layout, besch );
 			hausbauer_t::baue(player, gr->get_pos(), layout, besch);
 			player_t::book_construction_costs(player, cost, pos.get_2d(), besch->get_finance_waytype());
 			if(is_local_execution()  &&  player == welt->get_active_player())
 			{
+				player->set_selected_signalbox(gr->get_pos());
 				welt->set_tool( general_tool[TOOL_QUERY], player );
 			}
 

@@ -149,8 +149,7 @@ old_blockmanager_t::rdwr(karte_t *welt, loadsave_t *file)
 
 
 
-void
-old_blockmanager_t::finish_rd(karte_t *welt)
+void old_blockmanager_t::finish_rd(karte_t *welt)
 {
 	DBG_MESSAGE("old_blockmanager::finish_rd()","convert old to new signals" );
 	char buf[256];
@@ -234,9 +233,9 @@ old_blockmanager_t::finish_rd(karte_t *welt)
 
 		// found a suitable location, ribi, signal type => construct
 		if(new_signal_gr  &&  dir!=0) {
-			const roadsign_besch_t *sb=roadsign_t::roadsign_search(type,wt,0);
-			if(sb!=NULL) {
-				signal_t *sig = new signal_t(new_signal_gr->get_weg(wt)->get_owner(),new_signal_gr->get_pos(),dir,sb);
+			const roadsign_besch_t* old_signal =roadsign_t::roadsign_search(type,wt,0);
+			if(old_signal!=NULL) {
+				signal_t *sig = new signal_t(new_signal_gr->get_weg(wt)->get_owner(),new_signal_gr->get_pos(),dir,old_signal, koord3d::invalid);
 				new_signal_gr->obj_add(sig);
 //DBG_MESSAGE("old_blockmanager::finish_rd()","signal restored at %i,%i with dir %i",gr->get_pos().x,gr->get_pos().y,dir);
 			}

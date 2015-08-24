@@ -18,6 +18,7 @@
 #include "../dataobj/translator.h"
 #include "../dataobj/environment.h"
 #include "../utils/cbuffer_t.h"
+#include "../obj/gebaeude.h"
 
 #include "signal.h"
 
@@ -34,7 +35,7 @@ signal_t::signal_t( loadsave_t *file) :
 	}
 }
 
-signal_t::signal_t(player_t *player, koord3d pos, ribi_t::ribi dir,const roadsign_besch_t *besch, /*koord3d sb,*/ bool preview) : roadsign_t(obj_t::signal, player, pos, dir, besch, preview)
+signal_t::signal_t(player_t *player, koord3d pos, ribi_t::ribi dir,const roadsign_besch_t *besch, koord3d sb, bool preview) : roadsign_t(obj_t::signal, player, pos, dir, besch, preview)
 {
 	if(besch->is_pre_signal())
 	{
@@ -46,7 +47,7 @@ signal_t::signal_t(player_t *player, koord3d pos, ribi_t::ribi dir,const roadsig
 		state = danger;
 	}
 
-	//signalbox = sb;
+	signalbox = sb;
 }
 
 
@@ -63,6 +64,44 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 	obj_t::info(buf);
 
 	buf.printf("%s\n%s%u", translator::translate(besch->get_name()), translator::translate("\ndirection:"), get_dir());
+
+	buf.append("\n\n");
+
+	buf.append(translator::translate("Controlled from"));
+	buf.append(":\n");
+	signal_t* sig = (signal_t*)this;
+	koord3d sb = sig->get_signalbox();
+	if(sb == koord3d::invalid)
+	{
+		buf.append(translator::translate("keine"));
+	}
+	else
+	{
+		const grund_t* gr = welt->lookup(sb);
+		if(gr)
+		{
+			const gebaeude_t* gb = gr->get_building();
+			if(gb)
+			{
+				buf.append(translator::translate(gb->get_name()));
+				buf.append(" <");
+				buf.append(sb.x);
+				buf.append(",");
+				buf.append(sb.y);
+				buf.append(",");
+				buf.append(sb.z);
+				buf.append(">"); 
+			}
+			else
+			{
+				buf.append(translator::translate("keine"));
+			}
+		}
+		else
+		{
+			buf.append(translator::translate("keine"));
+		}
+	}
 }
 
 
