@@ -7,12 +7,13 @@
 #include "roadsign_writer.h"
 #include "get_waytype.h"
 #include "skin_writer.h"
+#include "cluster_writer.h"
 
 using std::string;
 
 void roadsign_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 {
-	obj_node_t node(this, 25, &parent);
+	obj_node_t node(this, 28, &parent);
 
 	uint32                  const cost      = obj.get_int("cost",      500) * 100;
 	uint16                  const min_speed = obj.get_int("min_speed",   0);
@@ -36,7 +37,7 @@ void roadsign_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 		allow_underground = 2;
 	}
 
-	uint8 signal_group = obj.get_int("signal_group", 0);
+	uint32 signal_group = cluster_writer_t::get_cluster_data(obj, "signal_group");
 	uint32 maintenance = obj.get_int("maintenance", 0); 
 	uint32 max_distance_to_signalbox = obj.get_int("max_distance_to_signalbox", 1000); 
 
@@ -70,9 +71,9 @@ void roadsign_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	node.write_uint16(fp,          retire,          13);
 
 	node.write_uint8(fp, allow_underground, 15);
-	node.write_uint8(fp, signal_group, 16);
-	node.write_uint32(fp, maintenance, 17);
-	node.write_uint32(fp, max_distance_to_signalbox, 21); 
+	node.write_uint32(fp, signal_group, 16);
+	node.write_uint32(fp, maintenance, 20);
+	node.write_uint32(fp, max_distance_to_signalbox, 24); 
 
 	write_head(fp, node, obj);
 

@@ -86,6 +86,12 @@ obj_besch_t * roadsign_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				besch->base_maintenance = decode_uint32(p);
 				besch->max_distance_to_signalbox = decode_uint32(p); 
 			}
+			else
+			{
+				besch->signal_group = 0;
+				besch->base_maintenance = 0;
+				besch->max_distance_to_signalbox = 0;
+			}
 		}
 	}
 	else if(version==3) {
@@ -142,7 +148,7 @@ obj_besch_t * roadsign_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 		besch->signal_group = 0;
 		besch->base_maintenance = 0;
-		besch->max_distance_to_signalbox = 1000; 
+		besch->max_distance_to_signalbox = 0; 
 	}
 
 	DBG_DEBUG("roadsign_reader_t::read_node()","min_speed=%i, cost=%i, flags=%x, waytype=%i, intro=%i%i, retire=%i,%i",

@@ -91,6 +91,7 @@
     <ClCompile Include="besch\writer\bridge_writer.cc" />
     <ClCompile Include="besch\writer\building_writer.cc" />
     <ClCompile Include="besch\writer\citycar_writer.cc" />
+    <ClCompile Include="besch\writer\cluster_writer.cc" />
     <ClCompile Include="besch\writer\crossing_writer.cc" />
     <ClCompile Include="besch\writer\factory_writer.cc" />
     <ClCompile Include="besch\writer\imagelist3d_writer.cc" />
@@ -136,7 +137,9 @@
     <ClInclude Include="besch\bruecke_besch.h" />
     <ClInclude Include="besch\writer\building_writer.h" />
     <ClInclude Include="besch\writer\citycar_writer.h" />
+    <ClInclude Include="besch\writer\cluster_writer.h" />
     <ClInclude Include="besch\writer\crossing_writer.h" />
+    <ClInclude Include="Header.h" />
     <ClInclude Include="tpl\debug_helper.h" />
     <ClInclude Include="utils\dr_rdpng.h" />
     <ClInclude Include="besch\fabrik_besch.h" />

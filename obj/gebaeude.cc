@@ -30,7 +30,6 @@ static pthread_mutex_t add_to_city_mutex = PTHREAD_MUTEX_INITIALIZER;
 #include "../simdebug.h"
 #include "../simintr.h"
 #include "../simskin.h"
-#include "../simsignalbox.h"
 
 #include "../boden/grund.h"
 #include "../boden/wege/strasse.h"

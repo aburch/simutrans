@@ -41,6 +41,9 @@ public:
 	// Adds a signal to this signalbox. Returns whether this succeeds.
 	inline bool add_signal(signal_t*);
 
+	// Checks whether a signal can be added without adding it. Returns true if it succeeds.
+	inline bool can_add_signal(signal_t*);
+
 	// Transfers a signal to this box from another box.
 	// Returns true if the transfer succeeds, false if not.
 	inline bool transfer_signal(signal_t* s, signalbox_t* sb);

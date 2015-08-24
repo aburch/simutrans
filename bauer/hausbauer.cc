@@ -598,7 +598,16 @@ gebaeude_t* hausbauer_t::baue(player_t* player, koord3d pos, int org_layout, con
 				gr = gr2;
 			}
 //DBG_DEBUG("hausbauer_t::baue()","ground count now %i",gr->obj_count());
-			gebaeude_t *gb = new gebaeude_t(gr->get_pos(), player, tile);
+			gebaeude_t *gb;
+			if(tile->get_besch()->get_utyp() == haus_besch_t::signalbox)
+			{
+				gb = new signalbox_t(gr->get_pos(), player, tile);
+			}
+			else
+			{
+				gb = new gebaeude_t(gr->get_pos(), player, tile);
+			}
+			
 			if (first_building == NULL) {
 				first_building = gb;
 			}

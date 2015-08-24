@@ -151,25 +151,35 @@ void signalbox_t::remove_signal(signal_t* s)
 
 bool signalbox_t::add_signal(signal_t* s)
 {
-	if(!s || (s->get_owner() != get_owner()) || s->get_signalbox() == get_pos())
+	//if(can_add_signal(s))
+	if(true) // For TESTing
+	{
+		signals.append(s->get_pos()); 
+		s->set_signalbox(get_pos()); 
+		return true;
+	}
+
+	return false;
+}
+
+bool signalbox_t::can_add_signal(signal_t* s)
+{
+	if(!s || (s->get_owner() != get_owner()))
 	{
 		return false;
 	}
 	uint32 group = s->get_besch()->get_signal_group();
 
-	if(group) 
+	if(group) // A signal with a group of 0 needs no signalbox and does not work with signalboxes
 	{
 		uint32 my_groups = get_tile()->get_besch()->get_clusters();
 		if(my_groups & group)
 		{
 			// The signals form part of a matching group: allow addition
-			signals.append(s->get_pos()); 
-			s->set_signalbox(get_pos()); 
 			return true;
 		}
 	}
-
-	return false; // A signal with a group of 0 needs no signalbox and does not work with signalboxes
+	return false;
 }
 
 bool signalbox_t::transfer_signal(signal_t* s, signalbox_t* sb)
