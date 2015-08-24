@@ -37,7 +37,7 @@ void roadsign_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 		allow_underground = 2;
 	}
 
-	uint32 signal_group = cluster_writer_t::get_cluster_data(obj, "signal_group");
+	uint32 signal_group = cluster_writer_t::get_cluster_data(obj, "signal_groups");
 	uint32 maintenance = obj.get_int("maintenance", 0); 
 	uint32 max_distance_to_signalbox = obj.get_int("max_distance_to_signalbox", 1000); 
 
