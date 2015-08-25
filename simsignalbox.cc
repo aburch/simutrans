@@ -20,7 +20,7 @@ slist_tpl<signalbox_t *> signalbox_t::all_signalboxes;
 
 
 #ifdef INLINE_OBJ_TYPE
-signalbox_t::signalbox_t(loadsave_t *file) : gebaeude_t(obj_t::typ::signalbox)
+signalbox_t::signalbox_t(loadsave_t *file) : gebaeude_t(signalbox)
 #else
 signalbox_t::signalbox_t(loadsave_t *file) : gebaeude_t(file)
 #endif
