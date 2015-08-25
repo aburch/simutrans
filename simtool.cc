@@ -5768,7 +5768,7 @@ const char* tool_signalbox_t::tool_signalbox_aux(player_t* player, koord3d pos, 
 			layout = building_layout[trackdir];
 
 			gebaeude_t* gb = hausbauer_t::baue(player, gr->get_pos(), layout, besch);
-			player_t::book_construction_costs(player, cost, pos.get_2d(), besch->get_finance_waytype());
+			player_t::book_construction_costs(player, -cost, pos.get_2d(), besch->get_finance_waytype());
 			if(is_local_execution()  &&  player == welt->get_active_player())
 			{
 				player->set_selected_signalbox((signalbox_t*)gb);
@@ -5804,7 +5804,7 @@ char const* tool_signalbox_t::get_tooltip(player_t const*) const
 	char tip[256];
 	sprintf(tip, "%s, %s: %i, %s: %i", translator::translate(besch->get_name()), translator::translate("Radius"), besch->get_radius(), translator::translate("Max. signals"), besch->get_capacity());
 
-	return tooltip_with_price_maintenance(welt, tip, besch->get_price(), besch->get_maintenance());
+	return tooltip_with_price_maintenance(welt, tip, -besch->get_price(), besch->get_maintenance());
 }
 
 bool tool_signalbox_t::init(player_t *player)
