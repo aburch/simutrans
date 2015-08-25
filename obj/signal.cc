@@ -32,6 +32,7 @@ signal_t::signal_t( loadsave_t *file) :
 	roadsign_t(file)
 #endif
 {
+	rdwr_signal(file);
 	if(besch==NULL) {
 		besch = roadsign_t::default_signal;
 	}
@@ -266,7 +267,7 @@ void signal_t::calc_image()
 	set_bild(image);
 }
 
-void signal_t::save_signalbox_location(loadsave_t *file)
+void signal_t::rdwr_signal(loadsave_t *file)
 {
 #ifdef SPECIAL_RESCUE_12_5
 	if(file->get_experimental_version() >= 12 && file->is_saving())
