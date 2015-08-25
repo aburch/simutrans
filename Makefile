@@ -447,6 +447,7 @@ SOURCES += simmem.cc
 SOURCES += simmenu.cc
 SOURCES += simmesg.cc
 SOURCES += simplan.cc
+SOURCES += simsignalbox.cc
 SOURCES += simskin.cc
 SOURCES += simsound.cc
 SOURCES += simsys.cc
