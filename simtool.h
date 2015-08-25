@@ -599,6 +599,25 @@ private:
 	void read_start_position(player_t *player, const koord3d &pos);
 };
 
+/* Signal reassignment tool */
+class tool_reassign_signal_t : public two_click_tool_t 
+{
+private:
+	koord3d last_selected_location;
+public:
+	tool_reassign_signal_t() : two_click_tool_t(TOOL_REASSIGN_SIGNAL | GENERAL_TOOL) { last_selected_location = koord3d::invalid; }
+	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("Reassign signals"); }
+	bool is_init_network_save() const OVERRIDE { return true; }
+
+private:
+	char const* do_work(player_t*, koord3d const&, koord3d const&) OVERRIDE;
+	void mark_tiles(player_t*, koord3d const&, koord3d const&) OVERRIDE {}
+	uint8 is_valid_pos(player_t*, koord3d const&, char const*&, koord3d const&) OVERRIDE;
+	image_id get_marker_image() OVERRIDE;
+
+	void read_start_position(const koord3d &pos);
+};
+
 /* make all tiles of this player a public stop
  * if this player is public, make all connected tiles a public stop */
 class tool_make_stop_public_t : public tool_t {

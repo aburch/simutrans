@@ -43,7 +43,7 @@ public:
 	inline bool add_signal(signal_t* s);
 
 	// Checks whether a specific signal can be added without adding it. Returns true if it succeeds.
-	bool can_add_signal(signal_t* s) const;
+	bool can_add_signal(const signal_t* s) const;
 	bool can_add_signal(const roadsign_besch_t* b) const; 
 	
 	// Check whether any more signals can be added. Returns true if it succeeds.

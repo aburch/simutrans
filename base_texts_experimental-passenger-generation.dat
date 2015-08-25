@@ -191,3 +191,45 @@ note=Error message when trying to build a signal connecting to a signalbox beyon
 obj=program_text
 name=Cannot build any more signals connected to this signalbox: capacity exceeded.
 note=Error message when trying to build a signal connecting to a signalbox whose capacity would be exceeded by adding this signal.
+-
+obj=program_text
+name=Cannot transfer any signals to this signalbox: it does not have any spare capacity for more signals.
+note=Error message when trying to transfer a signal to a signalbox that is already full.
+-
+obj=program_text
+name=Cannot transfer signals to a signalbox belonging to another player.
+note=Error message when trying to transfer a signal to another player's signalbox.
+-
+obj=program_text
+name=Cannot transfer signals from a signalbox belonging to another player.
+note=Error message when trying to transfer a signal from another player's signalbox.
+-
+obj=program_text
+name=Cannot transfer any signals between these signalboxes because none of the signals will be compatible.
+note=Error message when trying to transfer signals between signalboxes which do not share any signal groups in common.
+-
+obj=program_text
+name=This signal is not compatible with this signalbox.
+note=Error message when trying to transfer a signal that is not compatible with the destination signalbox.
+-
+obj=program_text
+name=Reassign signals
+note=The name of the reassign signals tool for the tooltip.
+-
+obj=program_text
+name=Cannot transfer signals: unknown error.
+note=An unexpected error occurs in transferring signals. This should not occur.
+-
+obj=program_text
+name=Signals transferred successfully
+note=Part of the dialogue shown after transferring signals from one signalbox to another en messe, showing how many succeeded. (Not in use)
+-
+obj=program_text
+name=Signals not transferred
+note=Part of the dialogue shown after transferring signals from one signalbox to another en messe, showing how many failed. (Not in use)
+-
+obj=program_text
+name=Not all signals were transferred successfully.
+note=Shown when not all signals transfer successfully from one signalbox to another.
+
+

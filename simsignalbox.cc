@@ -184,7 +184,7 @@ bool signalbox_t::can_add_signal(const roadsign_besch_t* b) const
 	return false;
 }
 
-bool signalbox_t::can_add_signal(signal_t* s) const
+bool signalbox_t::can_add_signal(const signal_t* s) const
 {
 	if(!s || (s->get_owner() != get_owner()))
 	{
@@ -201,9 +201,14 @@ bool signalbox_t::can_add_more_signals() const
 
 bool signalbox_t::transfer_signal(signal_t* s, signalbox_t* sb)
 {
+	if(sb == this)
+	{
+		return false;
+	}
 	if(add_signal(s))
 	{
 		sb->remove_signal(s);  
+		return true;
 	}
 	else
 	{
@@ -213,9 +218,19 @@ bool signalbox_t::transfer_signal(signal_t* s, signalbox_t* sb)
 
 koord signalbox_t::transfer_all_signals(signalbox_t* sb)
 {
+	if(sb == this)
+	{
+		return(koord(0,0));
+	}
+
 	uint16 success = 0;
 	uint16 failure = 0;
-	FOR(slist_tpl<koord3d>, k, signals)
+	slist_tpl<koord3d> duplicate_signals_list;
+	FOR(slist_tpl<koord3d>, k1, signals)
+	{
+		duplicate_signals_list.append(k1);
+	}
+	FOR(slist_tpl<koord3d>, k, duplicate_signals_list)
 	{
 		signal_t* s = get_signal_from_location(k); 
 		if(!s)

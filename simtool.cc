@@ -6913,6 +6913,198 @@ const char *tool_stop_moving_t::do_work( player_t *player, const koord3d &last_p
 	return NULL;
 }
 
+image_id tool_reassign_signal_t::get_marker_image()
+{
+	return cursor;
+}
+
+void tool_reassign_signal_t::read_start_position(const koord3d &pos)
+{
+	last_selected_location = pos;
+}
+
+uint8 tool_reassign_signal_t::is_valid_pos(player_t *player, const koord3d &pos, const char *&error, const koord3d &start)
+{
+	if(start == koord3d::invalid)
+	{
+		// First click
+		return welt->lookup(pos) == NULL ? 0 : 2;
+	}
+	
+	grund_t *gr = welt->lookup(pos);
+	grund_t *gr_start = welt->lookup(start);
+	if(!gr || !gr_start)
+	{
+		error = "";
+		return 0;
+	}
+
+	// The end tile must be a signalbox. The start tile may either be a signal or a signalbox. 
+
+	// Check the end tile first.
+	const gebaeude_t* gb = gr->get_building();
+	const signalbox_t* sb_end;
+	if(gb && gb->get_tile()->get_besch()->get_utyp() == haus_besch_t::signalbox)
+	{
+		sb_end = (signalbox_t*)gb;
+		if(!(sb_end->get_owner() == player))
+		{
+			error = "Cannot transfer signals to a signalbox belonging to another player.";
+			return 0;
+		}
+			if(!sb_end->can_add_more_signals())
+		{
+			error = "Cannot transfer any signals to this signalbox: it does not have any spare capacity for more signals.";
+			return 0;
+		}
+	}
+	else
+	{
+		return 0;
+	}
+
+	bool is_valid_start = false;
+
+	gb = gr_start->get_building(); 
+	if(gb && gb->get_tile()->get_besch()->get_utyp() == haus_besch_t::signalbox)
+	{
+		const signalbox_t* sb_start = (signalbox_t*)gb;
+		if(sb_start->get_owner() != player)
+		{
+			error = "Cannot transfer signals from a signalbox belonging to another player.";
+			return 0;
+		}
+		else if(!(sb_start->get_tile()->get_besch()->get_clusters() & sb_end->get_tile()->get_besch()->get_clusters()))
+		{
+			error = "Cannot transfer any signals between these signalboxes because none of the signals will be compatible.";
+			return 0;
+		}
+		else
+		{
+			is_valid_start = true;
+		}
+	}
+
+	const weg_t* way = gr_start->get_weg(track_wt);
+	if(!way)
+	{
+		way = gr_start->get_weg(narrowgauge_wt);
+	}
+	if(!way)
+	{
+		way = gr_start->get_weg(monorail_wt);
+	}
+	if(!way)
+	{
+		way = gr_start->get_weg(maglev_wt);
+	}
+	if(way)
+	{
+		const signal_t* sig = way->get_signal(ribi_t::alle);
+		is_valid_start |= sig && sb_end->can_add_signal(sig);
+		if(!is_valid_start)
+		{
+			error = "This signal is not compatible with this signalbox.";
+		}
+	}
+
+	if(!way && !sb_end)
+	{
+		error = "";
+	}
+
+	if(is_valid_start)
+	{
+		return 2;
+	}
+	else
+	{
+		return 0;
+	}
+}
+
+const char *tool_reassign_signal_t::do_work( player_t *player, const koord3d &last_pos, const koord3d &pos)
+{
+	// read conditions at start point
+	read_start_position(last_pos);
+
+	if(pos == koord3d::invalid)
+	{
+		return "";
+	}
+	
+	// second click
+	grund_t* gr_end = welt->lookup(pos);
+	gebaeude_t* gb_end = gr_end->get_building();
+	signalbox_t* sb_end = NULL;
+	if(gb_end && gb_end->get_tile()->get_besch()->get_utyp() == haus_besch_t::signalbox)
+	{
+		sb_end = (signalbox_t*)gb_end;
+	}
+
+	if(!sb_end)
+	{
+		return "Cannot transfer signals: unknown error.";
+	}
+
+	grund_t* gr_start = welt->lookup(last_pos); 
+	gebaeude_t* gb_start = gr_start->get_building();
+	signalbox_t* sb_start = NULL;
+	if(gb_start && gb_start->get_tile()->get_besch()->get_utyp() == haus_besch_t::signalbox)
+	{
+		sb_start = (signalbox_t*)gb_start;
+		koord succeed_fail = sb_start->transfer_all_signals(sb_end);
+		if(succeed_fail.y)
+		{
+			return "Not all signals were transferred successfully.";
+		}
+		else
+		{
+			return "";
+		}
+		
+		// For some reason, this produces a mangled error message.
+		/*char buf[256];
+		sprintf(buf, "%s: %d\n%s: %d", "Signals transferred successfully", succeed_fail.x, "Signals not transferred", succeed_fail.y); 
+		return buf; */
+	}
+
+	weg_t* way = gr_start->get_weg(track_wt);
+	if(!way)
+	{
+		way = gr_start->get_weg(narrowgauge_wt);
+	}
+	if(!way)
+	{
+		way = gr_start->get_weg(monorail_wt);
+	}
+	if(!way)
+	{
+		way = gr_start->get_weg(maglev_wt);
+	}
+	if(way)
+	{	
+		signal_t* sig = way->get_signal(ribi_t::alle);
+		if(sig)
+		{
+			koord3d sb_location = sig->get_signalbox();
+			grund_t* gr_sb = welt->lookup(sb_location);
+			gebaeude_t* gb_sb = gr_sb->get_building();
+			signalbox_t* sb = NULL;
+			if(gb_sb && gb_sb->get_tile()->get_besch()->get_utyp() == haus_besch_t::signalbox)
+			{
+				sb = (signalbox_t*)gb_sb;
+				if(sb_end->transfer_signal(sig, sb))
+				{
+					return "";
+				}
+			}
+		}
+	}
+	
+	return "Cannot transfer signals: unknown error.";
+}
+
 
 char const* tool_daynight_level_t::get_tooltip(player_t const*) const
 {
