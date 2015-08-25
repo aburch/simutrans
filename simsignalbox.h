@@ -42,13 +42,17 @@ public:
 	// Adds a signal to this signalbox. Returns whether this succeeds.
 	inline bool add_signal(signal_t* s);
 
-	// Checks whether a signal can be added without adding it. Returns true if it succeeds.
-	inline bool can_add_signal(signal_t* s) const;
-	inline bool can_add_signal(const roadsign_besch_t* b) const; 
+	// Checks whether a specific signal can be added without adding it. Returns true if it succeeds.
+	bool can_add_signal(signal_t* s) const;
+	bool can_add_signal(const roadsign_besch_t* b) const; 
+	
+	// Check whether any more signals can be added. Returns true if it succeeds.
+	// Separate from the above in order to give better error messages.
+	inline bool can_add_more_signals() const;
 
 	// Transfers a signal to this box from another box.
 	// Returns true if the transfer succeeds, false if not.
-	inline bool transfer_signal(signal_t* s, signalbox_t* sb);
+	bool transfer_signal(signal_t* s, signalbox_t* sb);
 
 	inline void remove_signal(signal_t* s);
 

@@ -158,7 +158,7 @@ void signalbox_t::remove_signal(signal_t* s)
 
 bool signalbox_t::add_signal(signal_t* s)
 {
-	if(can_add_signal(s))
+	if(can_add_signal(s) && can_add_more_signals())
 	{
 		signals.append(s->get_pos()); 
 		s->set_signalbox(get_pos()); 
@@ -192,6 +192,11 @@ bool signalbox_t::can_add_signal(signal_t* s) const
 	}
 	
 	return can_add_signal(s->get_besch());
+}
+
+bool signalbox_t::can_add_more_signals() const
+{
+	return signals.get_count() < get_tile()->get_besch()->get_capacity();
 }
 
 bool signalbox_t::transfer_signal(signal_t* s, signalbox_t* sb)
@@ -230,3 +235,4 @@ koord signalbox_t::transfer_all_signals(signalbox_t* sb)
 
 	return koord(success, failure); 
 }
+

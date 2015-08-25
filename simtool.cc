@@ -5317,6 +5317,11 @@ const char* tool_build_roadsign_t::check_pos_intern(player_t *player, koord3d po
 					return "Cannot build this signal this far beyond any signalbox.";
 				}
 			}
+			if(!sb->can_add_more_signals())
+			{
+
+				return "Cannot build any more signals connected to this signalbox: capacity exceeded.";
+			}
 		}
 
 		const bool two_way = besch->is_single_way()  ||  besch->is_signal() ||  besch->is_pre_signal();

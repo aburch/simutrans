@@ -187,3 +187,7 @@ note=Error message when trying to build a signal too far beyond the radius of th
 obj=program_text
 name=Cannot build this signal this far beyond any signalbox.
 note=Error message when trying to build a signal connecting to a signalbox beyond the maximum distance to a signalbox for this particular type of signal, irrespective of the signalbox's radius.
+-
+obj=program_text
+name=Cannot build any more signals connected to this signalbox: capacity exceeded.
+note=Error message when trying to build a signal connecting to a signalbox whose capacity would be exceeded by adding this signal.
