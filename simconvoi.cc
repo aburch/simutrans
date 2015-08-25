@@ -3346,6 +3346,8 @@ convoi_t::reverse_order(bool rev)
 		rail_vehicle_t* w = (rail_vehicle_t*)front(); 
 		w->set_working_method(dm); 
 	}
+
+	welt->set_dirty();
 }
 
 

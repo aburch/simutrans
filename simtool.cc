@@ -659,6 +659,7 @@ DBG_MESSAGE("tool_remover()",  "removing tunnel  from %d,%d,%d",gr->get_pos().x,
 			return false;
 		}
 		hausbauer_t::remove( player, sb );
+		welt->set_dirty(); // May delete lots of signals
 		return true;
 	}
 
