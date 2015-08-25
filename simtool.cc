@@ -5279,6 +5279,45 @@ const char* tool_build_roadsign_t::check_pos_intern(player_t *player, koord3d po
 			return error;
 		}
 
+		// Check whether this is close enough to the selected signalbox (if applicable)
+		if(besch->is_signal_type() && besch->get_signal_group())
+		{
+			signalbox_t* sb = NULL;
+			const grund_t* gr = welt->lookup(signal[player->get_player_nr()].signalbox);
+			if(gr)
+			{
+				const gebaeude_t* gb = gr->get_building();
+				if(gb->get_tile()->get_besch()->get_utyp() == haus_besch_t::signalbox)
+				{
+					sb = (signalbox_t*)gb; 
+				}
+			}
+
+			if(!sb)
+			{
+				// The signalbox has been deleted: cannot build this signal here.
+				if(is_local_execution())
+				{
+					player->set_selected_signalbox(NULL); 
+				}
+				return "Cannot build this signal without a signalbox. Build a new signalbox or select an existing one to build this signal.";
+			}
+
+			if(besch->get_max_distance_to_signalbox() || sb->get_tile()->get_besch()->get_radius())
+			{
+				// Distance is relevant here.
+				const uint16 distance = shortest_distance(signal[player->get_player_nr()].signalbox.get_2d(), pos.get_2d()) * welt->get_settings().get_meters_per_tile();
+				if(distance > sb->get_tile()->get_besch()->get_radius())
+				{
+					return "Cannot build any signal beyond the maximum radius of the currently selected signalbox.";
+				}
+				if(distance > besch->get_max_distance_to_signalbox())
+				{
+					return "Cannot build this signal this far beyond any signalbox.";
+				}
+			}
+		}
+
 		const bool two_way = besch->is_single_way()  ||  besch->is_signal() ||  besch->is_pre_signal();
 
 		if(!(besch->is_traffic_light() || two_way)  ||  (two_way  &&  ribi_t::is_twoway(dir))  ||  (besch->is_traffic_light()  &&  ribi_t::is_threeway(dir))) {

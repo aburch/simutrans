@@ -175,3 +175,15 @@ note=Tooltip text for the maximum number of signals supported by a signalbox
 obj=program_text
 name=Controlled from
 note=Display on a signal's information window showing the signalbox from which this signal is controlled.
+-
+obj=program_text
+name=Cannot build this signal without a signalbox. Build a new signalbox or select an existing one to build this signal.
+note=Error message when trying to build a signal when the currently selected signalbox no longer exists. 
+-
+obj=program_text
+name=Cannot build any signal beyond the maximum radius of the currently selected signalbox.
+note=Error message when trying to build a signal too far beyond the radius of the signalbox, irrespective of the minimum distance for the signal itself.
+-
+obj=program_text
+name=Cannot build this signal this far beyond any signalbox.
+note=Error message when trying to build a signal connecting to a signalbox beyond the maximum distance to a signalbox for this particular type of signal, irrespective of the signalbox's radius.
