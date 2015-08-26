@@ -18,7 +18,7 @@ class signalbox_t : public gebaeude_t
 private:
 
 	slist_tpl<koord3d> signals; // The signals controlled by this signalbox.
-	inline signal_t* get_signal_from_location(koord3d k);
+	signal_t* get_signal_from_location(koord3d k);
 
 protected:
 
@@ -40,7 +40,7 @@ public:
 	void add_to_world_list(bool lock = false);
 
 	// Adds a signal to this signalbox. Returns whether this succeeds.
-	inline bool add_signal(signal_t* s);
+	bool add_signal(signal_t* s);
 
 	// Checks whether a specific signal can be added without adding it. Returns true if it succeeds.
 	bool can_add_signal(const signal_t* s) const;
@@ -48,7 +48,7 @@ public:
 	
 	// Check whether any more signals can be added. Returns true if it succeeds.
 	// Separate from the above in order to give better error messages.
-	inline bool can_add_more_signals() const;
+	bool can_add_more_signals() const;
 
 	// Transfers a signal to this box from another box.
 	// Returns true if the transfer succeeds, false if not.
