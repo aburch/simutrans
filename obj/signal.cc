@@ -50,15 +50,18 @@ signal_t::signal_t(player_t *player, koord3d pos, ribi_t::ribi dir,const roadsig
 		state = danger;
 	}
 
-	const grund_t* gr = welt->lookup(sb);
-	if(gr)
+	if(besch->get_signal_group())
 	{
-		gebaeude_t* gb = gr->get_building();
-		if(gb && gb->get_tile()->get_besch()->get_utyp() == haus_besch_t::signalbox)
+		const grund_t* gr = welt->lookup(sb);
+		if(gr)
 		{
-			signalbox_t* sigb = (signalbox_t*)gb;
-			signalbox = sb;
-			sigb->add_signal(this); 
+			gebaeude_t* gb = gr->get_building();
+			if(gb && gb->get_tile()->get_besch()->get_utyp() == haus_besch_t::signalbox)
+			{
+				signalbox_t* sigb = (signalbox_t*)gb;
+				signalbox = sb;
+				sigb->add_signal(this); 
+			}
 		}
 	}
 }
