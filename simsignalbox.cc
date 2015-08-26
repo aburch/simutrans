@@ -33,7 +33,7 @@ signalbox_t::signalbox_t(loadsave_t *file) : gebaeude_t(file)
 
 #ifdef INLINE_OBJ_TYPE
 signalbox_t::signalbox_t(koord3d pos, player_t *player, const haus_tile_besch_t *t) :
-    gebaeude_t(obj_t::typ::signalbox, pos, player, t)
+    gebaeude_t(signalbox, pos, player, t)
 #else
 signalbox_t::signalbox_t(koord3d pos, player_t *player, const haus_tile_besch_t *t) :
     gebaeude_t(pos, player, t)
