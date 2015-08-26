@@ -54,7 +54,7 @@ public:
 	// Returns true if the transfer succeeds, false if not.
 	bool transfer_signal(signal_t* s, signalbox_t* sb);
 
-	inline void remove_signal(signal_t* s);
+	void remove_signal(signal_t* s);
 
 	// Transfer all signals *from* this box to the specified box.
 	// (Intended to be a preparation for closure).
