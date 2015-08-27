@@ -5412,7 +5412,7 @@ bool tool_build_roadsign_t::init( player_t * player)
 
 	if(is_local_execution())
 	{
-		signal[player->get_player_nr()].signalbox = player->get_selected_signalbox()->get_pos(); 
+		signal[player->get_player_nr()].signalbox = player->get_selected_signalbox() ? player->get_selected_signalbox()->get_pos() : koord3d::invalid; 
 	}
 
 	if (is_ctrl_pressed()  &&  is_local_execution()) {
