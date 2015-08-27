@@ -139,7 +139,6 @@ void signal_t::calc_image()
 {
 	after_bild = IMG_LEER;
 	image_id image = IMG_LEER;
-	const bool TEST_pre_signal =  besch->is_pre_signal();
 	after_xoffset = 0;
 	after_yoffset = 0;
 	sint8 xoff = 0, yoff = 0;
@@ -205,7 +204,7 @@ void signal_t::calc_image()
 				}
 
 				if(temp_dir&ribi_t::nord) {
-					if(image!=IMG_LEER) {
+					if(image!=IMG_LEER) {		
 						after_bild = besch->get_bild_nr(0+state*4+offset);
 						after_xoffset += -XOFF;
 						after_yoffset += -YOFF;

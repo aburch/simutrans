@@ -145,7 +145,9 @@ obj_besch_t * roadsign_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	{
 		// Standard roadsigns can be placed both underground and above ground.
 		besch->allow_underground = 2;
-
+	}
+	if(!experimental || experimental_version < 1)
+	{
 		besch->signal_group = 0;
 		besch->base_maintenance = 0;
 		besch->max_distance_to_signalbox = 0; 
