@@ -574,13 +574,13 @@ void gebaeude_t::calc_image()
 {
 	grund_t *gr = welt->lookup( get_pos() );
 	// need no ground?
-	if(  remove_ground  &&  gr->get_typ() == grund_t::fundament  ) {
+	if(  remove_ground  && gr && gr->get_typ() == grund_t::fundament  ) {
 		gr->set_bild( IMG_LEER );
 	}
 
 	static uint8 effective_season[][5] = { {0,0,0,0,0}, {0,0,0,0,1}, {0,0,0,0,1}, {0,1,2,3,2}, {0,1,2,3,4} };  // season image lookup from [number of images] and [actual season/snow]
 
-	if(  (gr->ist_tunnel()  &&  !gr->ist_karten_boden())  ||  tile->get_seasons() < 2  ) {
+	if( gr && (gr->ist_tunnel()  &&  !gr->ist_karten_boden())  ||  tile->get_seasons() < 2  ) {
 		season = 0;
 	}
 	else if(  get_pos().z - (get_yoff() / TILE_HEIGHT_STEP) >= welt->get_snowline()  ||  welt->get_climate( get_pos().get_2d() ) == arctic_climate  ) {

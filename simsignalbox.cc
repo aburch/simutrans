@@ -144,6 +144,7 @@ void signalbox_t::rdwr(loadsave_t *file)
 
 void signalbox_t::rotate90()
 {
+	gebaeude_t::rotate90();
 	FOR(slist_tpl<koord3d>, k, signals)
 	{
 		k.rotate90(welt->get_size().y-1);
