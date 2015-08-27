@@ -286,8 +286,7 @@ static grund_t *tool_intern_koord_to_weg_grund(player_t *player, karte_t *welt, 
 /****************************************** now the actual tools **************************************/
 
 // werkzeuge
-//// "Tools" (Babelfish)
-//// returns grund at pos if visible else NULL
+//// returns ground at pos if visible else NULL
 //// if no grund at pos exists try kartenboden
 //grund_t* get_grund(karte_t *welt, koord3d pos )
 //{
@@ -393,6 +392,13 @@ const char *tool_query_t::work( player_t *player, koord3d pos )
 				obj_t *obj = gr->obj_bei(n);
 				if(  obj && obj->get_typ()!=obj_t::wayobj && obj->get_typ()!=obj_t::pillar  ) {
 					obj->show_info();
+					if(obj->get_typ() == obj_t::signalbox && obj->get_owner() == player)
+					{
+						if(is_local_execution()  &&  player == welt->get_active_player())
+						{
+							player->set_selected_signalbox((signalbox_t*)obj);
+						}
+					}
 				}
 			}
 		}
