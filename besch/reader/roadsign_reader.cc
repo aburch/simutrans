@@ -90,7 +90,7 @@ obj_besch_t * roadsign_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				besch->has_selective_choose = decode_sint8(p);
 				besch->working_method = (working_method_t)decode_uint8(p);
 				besch->permissive = decode_sint8(p); 
-				besch->max_speed = kmh_to_speed(decode_uint32(p)); 
+				besch->max_speed = kmh_to_speed(decode_uint32(p));
 			}
 			else
 			{

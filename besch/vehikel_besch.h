@@ -117,7 +117,7 @@ private:
 
 	uint8 vorgaenger;			// all defined leading vehicles
 	uint8 nachfolger;			// all defined trailer
-	uint8 upgrades;				// The vehicles types to which this type may be upgraded.
+	uint8 upgrades;				// The number of vehicles that are upgrades of this vehicle.
 
 	uint8 engine_type;			// diesel, steam, electric (requires electrified ways), fuel_cell, etc.
 
