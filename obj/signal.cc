@@ -153,11 +153,22 @@ void signal_t::calc_image()
 		const sint8 height_step = TILE_HEIGHT_STEP << hang_t::ist_doppel(gr->get_weg_hang());
 
 		weg_t *sch = gr->get_weg(besch->get_wtyp()!=tram_wt ? besch->get_wtyp() : track_wt);
-		if(sch) {
-			uint16 offset=0;
+		if(sch) 
+		{
+			uint16 number_of_signal_image_types = besch->get_aspects(); 
+			if(besch->get_has_call_on())
+			{
+				number_of_signal_image_types += 1;
+			}
+			if(besch->get_has_selective_choose())
+			{
+				number_of_signal_image_types += besch->get_aspects() - 1;
+			}
+			uint16 offset = 0;
 			ribi_t::ribi dir = sch->get_ribi_unmasked() & (~calc_mask());
-			if(sch->is_electrified()  &&  (besch->get_bild_anzahl()/8)>1) {
-				offset = besch->is_pre_signal() ? 12 : 8;
+			if(sch->is_electrified()  &&  besch->get_bild_anzahl() >= number_of_signal_image_types * 8) // 8: Four directions per aspect * 2 types (electrified and non-electrified) per aspect
+			{
+				offset = number_of_signal_image_types * 4;
 			}
 
 			// vertical offset of the signal positions
@@ -192,44 +203,97 @@ void signal_t::calc_image()
 				}
 			}
 
+			uint8 modified_state = state;
+			const sint8 diff = 5 - besch->get_aspects(); 
+			if(besch->get_has_call_on())
+			{
+				if(besch->get_has_selective_choose())
+				{
+					if(besch->get_aspects() < 5)
+					{
+						if(state > advance_caution)
+						{
+							modified_state = state - diff;
+						}
+					}
+				}
+				else
+				{
+					if(state > advance_caution)
+					{
+						modified_state -= (besch->get_aspects() - 1) + diff;
+					}
+				}
+			}
+
+			if(state == call_on && !besch->get_has_call_on())
+			{
+				modified_state = danger;
+			}
+
+			if(state == clear_no_choose && !besch->get_has_selective_choose())
+			{
+				modified_state = clear;
+			}
+
+			if(state == caution_no_choose && !besch->get_has_selective_choose())
+			{
+				modified_state = caution;
+			}
+
+			if(state == preliminary_caution_no_choose && !besch->get_has_selective_choose())
+			{
+				modified_state = preliminary_caution;
+			}
+
+			if(state == advance_caution_no_choose && !besch->get_has_selective_choose())
+			{
+				modified_state = advance_caution;
+			}
+
+			if(besch->is_pre_signal() && besch->get_aspects() == 2 && state == caution)
+			{
+				modified_state == danger;
+			}
+
 			// signs for left side need other offsets and other front/back order
 			if(  left_swap  ) {
 				const sint16 XOFF = 2*besch->get_offset_left();
 				const sint16 YOFF = besch->get_offset_left();
 
 				if(temp_dir&ribi_t::ost) {
-					image = besch->get_bild_nr(3+state*4+offset);
+					image = besch->get_bild_nr(3+modified_state*4+offset);
 					xoff += XOFF;
 					yoff += -YOFF;
 				}
 
 				if(temp_dir&ribi_t::nord) {
 					if(image!=IMG_LEER) {		
-						after_bild = besch->get_bild_nr(0+state*4+offset);
+						after_bild = besch->get_bild_nr(0+modified_state*4+offset);
 						after_xoffset += -XOFF;
 						after_yoffset += -YOFF;
 					}
 					else {
-						image = besch->get_bild_nr(0+state*4+offset);
+						image = besch->get_bild_nr(0+modified_state*4+offset);
 						xoff += -XOFF;
 						yoff += -YOFF;
 					}
 				}
 
 				if(temp_dir&ribi_t::west) {
-					after_bild = besch->get_bild_nr(2+state*4+offset);
+					after_bild = besch->get_bild_nr(2+modified_state*4+offset);
 					after_xoffset += -XOFF;
 					after_yoffset += YOFF;
 				}
 
 				if(temp_dir&ribi_t::sued) {
 					if(after_bild!=IMG_LEER) {
-						image = besch->get_bild_nr(1+state*4+offset);
+						image = besch->get_bild_nr(1+modified_state*4+offset);
 						xoff += XOFF;
 						yoff += YOFF;
 					}
 					else {
-						after_bild = besch->get_bild_nr(1+state*4+offset);
+						after_bild = besch->get_bild_nr(1+modified_state*4+offset);
 						after_xoffset += XOFF;
 						after_yoffset += YOFF;
 					}
@@ -237,28 +301,28 @@ void signal_t::calc_image()
 			}
 			else {
 				if(temp_dir&ribi_t::ost) {
-					after_bild = besch->get_bild_nr(3+state*4+offset);
+					after_bild = besch->get_bild_nr(3+modified_state*4+offset);
 				}
 
 				if(temp_dir&ribi_t::nord) {
 					if(after_bild==IMG_LEER) {
-						after_bild = besch->get_bild_nr(0+state*4+offset);
+						after_bild = besch->get_bild_nr(0+modified_state*4+offset);
 					}
 					else {
-						image = besch->get_bild_nr(0+state*4+offset);
+						image = besch->get_bild_nr(0+modified_state*4+offset);
 					}
 				}
 
 				if(temp_dir&ribi_t::west) {
-					image = besch->get_bild_nr(2+state*4+offset);
+					image = besch->get_bild_nr(2+modified_state*4+offset);
 				}
 
 				if(temp_dir&ribi_t::sued) {
 					if(image==IMG_LEER) {
-						image = besch->get_bild_nr(1+state*4+offset);
+						image = besch->get_bild_nr(1+modified_state*4+offset);
 					}
 					else {
-						after_bild = besch->get_bild_nr(1+state*4+offset);
+						after_bild = besch->get_bild_nr(1+modified_state*4+offset);
 					}
 				}
 			}

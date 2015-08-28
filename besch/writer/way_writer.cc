@@ -54,6 +54,7 @@ void way_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 	sint8 max_altitude			= obj.get_int("max_altitude",			0);
 	uint8 max_vehicles_on_tile	= obj.get_int("max_vehicles_on_tile",	251);
 	uint32 way_only_cost		= obj.get_int("way_only_cost", price);
+	way_only_cost				= obj.get_int("signal_upgrade_cost", way_only_cost); 
 	uint8 upgrade_group			= obj.get_int("upgrade_group", 0); 
 
 	uint16 intro  = obj.get_int("intro_year", DEFAULT_INTRO_DATE) * 12;

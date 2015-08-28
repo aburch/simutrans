@@ -144,6 +144,16 @@ public:
 
 	uint32 get_max_distance_to_signalbox() const { return max_distance_to_signalbox; }
 
+	uint8 get_aspects() const { return aspects; }
+
+	bool get_has_call_on() const { return has_call_on; }
+
+	bool get_has_selective_choose() const { return has_selective_choose; }
+
+	bool get_permissive() const { return permissive; }
+
+	uint32 get_max_speed() const { return max_speed; }
+
 	void calc_checksum(checksum_t *chk) const
 	{
 		obj_besch_transport_infrastructure_t::calc_checksum(chk);

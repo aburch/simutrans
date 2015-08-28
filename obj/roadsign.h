@@ -29,7 +29,7 @@ protected:
 
 	enum { SHOW_FONT=1, SHOW_BACK=2, SWITCH_AUTOMATIC=16 };
 
-	uint8 state:3;	// counter for steps ...
+	uint8 state:4;	// counter for steps ...
 	uint8 dir:4;
 	bool ignore_choose:1; 
 	uint8 automatic:1;
@@ -45,8 +45,8 @@ protected:
 	ribi_t::ribi calc_mask() const { return ribi_t::ist_einfach(dir) ? dir : (ribi_t::ribi)ribi_t::keine; }
 
 public:
-	// Max. 8 (9 incl. 0)
-	enum signal_aspects {danger = 0, clear = 1, caution = 2, preliminary_caution = 3, advance_caution = 4, call_on = 5 }; 
+	// Max. 16 (15 incl. 0)
+	enum signal_aspects {danger = 0, clear = 1, caution = 2, preliminary_caution = 3, advance_caution = 4, clear_no_choose = 5, caution_no_choose = 6, preliminary_caution_no_choose = 7, advance_caution_no_choose = 8, call_on = 9 }; 
 
 	/*
 	 * return direction or the state of the traffic light
