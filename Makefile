@@ -638,7 +638,7 @@ ifeq ($(OSTYPE),mac)
 endif
 
 
-.PHONY: makeobj
+.PHONY: makeobj-experimental
 
 makeobj:
 	$(Q)$(MAKE) -e -C makeobj FLAGS="$(FLAGS)"
