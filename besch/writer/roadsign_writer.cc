@@ -13,7 +13,7 @@ using std::string;
 
 void roadsign_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 {
-	obj_node_t node(this, 28, &parent);
+	obj_node_t node(this, 37, &parent);
 
 	uint32                  const cost      = obj.get_int("cost",      500) * 100;
 	uint16                  const min_speed = obj.get_int("min_speed",   0);
@@ -40,6 +40,12 @@ void roadsign_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	uint32 signal_group = cluster_writer_t::get_cluster_data(obj, "signal_groups");
 	uint32 maintenance = obj.get_int("maintenance", 0); 
 	uint32 max_distance_to_signalbox = obj.get_int("max_distance_to_signalbox", 1000); 
+	uint8 aspects = obj.get_int("aspects", 2); 
+	sint8 has_call_on = obj.get_int("has_call_on", 0); 
+	sint8 has_selective_choose = obj.get_int("has_selective_choose", 0); 
+	working_method_t working_method = (working_method_t)obj.get_int("working_method", track_circuit_block); 
+	sint8 permissive = obj.get_int("permissive", 0);
+	uint32 max_speed_kmh = obj.get_int("max_speed", 160); 
 
 	uint16 version = 0x8004; // version 4
 	
@@ -74,6 +80,12 @@ void roadsign_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	node.write_uint32(fp, signal_group, 16);
 	node.write_uint32(fp, maintenance, 20);
 	node.write_uint32(fp, max_distance_to_signalbox, 24); 
+	node.write_uint8(fp, aspects, 28);
+	node.write_sint8(fp, has_call_on, 29);
+	node.write_sint8(fp, has_selective_choose, 30);
+	node.write_uint8(fp, working_method, 31); 
+	node.write_sint8(fp, permissive, 32);
+	node.write_uint32(fp, max_speed_kmh, 33);
 
 	write_head(fp, node, obj);
 

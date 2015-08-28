@@ -708,8 +708,6 @@ public:
  */
 class rail_vehicle_t : public vehicle_t
 {
-public:
-		enum working_method_t { drive_by_sight, absolute_block, track_circuit_block, cab_signalling, moving_block, token_block };
 protected:
 	bool check_next_tile(const grund_t *bd) const;
 

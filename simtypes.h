@@ -109,6 +109,7 @@ enum waytype_t {
 	powerline_wt     = 128
 };
 
+enum working_method_t { drive_by_sight, time_interval, absolute_block, token_block, track_circuit_block, cab_signalling, moving_block };
 
 // makros are not very safe: thus use these macro like functions
 // otherwise things may fail or functions are called uneccessarily twice

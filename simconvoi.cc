@@ -865,7 +865,7 @@ bool convoi_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed)
 	case monorail_wt:
 	case maglev_wt:
 		rail_vehicle = (rail_vehicle_t*)front();
-		if(rail_vehicle->get_working_method() == rail_vehicle_t::token_block)
+		if(rail_vehicle->get_working_method() == token_block)
 		{
 			// If we calculate a new route while in token block, we must remember this
 			// so that, when it comes to clearing the route, a full flush can be performed
@@ -1289,7 +1289,7 @@ bool convoi_t::drive_to()
 		{
 			rail_vehicle_t* rail_vehicle = (rail_vehicle_t*)front();
 			// If this is token block working, the route must only be unreserved if the token is released.
-			if(rail_vehicle->get_working_method() != rail_vehicle_t::token_block)
+			if(rail_vehicle->get_working_method() != token_block)
 			{
 				unreserve_route();
 			}
@@ -2161,7 +2161,7 @@ void convoi_t::enter_depot(depot_t *dep)
 	if(front()->get_waytype() == track_wt || front()->get_waytype()  == tram_wt || front()->get_waytype() == maglev_wt || front()->get_waytype() == monorail_wt)
 	{
 		rail_vehicle_t* w = (rail_vehicle_t*)front(); 
-		w->set_working_method(rail_vehicle_t::drive_by_sight); 
+		w->set_working_method(drive_by_sight); 
 	}
 
 	if(reversed)
@@ -3244,7 +3244,7 @@ convoi_t::reverse_order(bool rev)
     vehicle_t* reverse;
 	uint8 b  = anz_vehikel;
 
-	rail_vehicle_t::working_method_t dm = rail_vehicle_t::drive_by_sight;
+	working_method_t dm = drive_by_sight;
 	if(front()->get_waytype() == track_wt || front()->get_waytype()  == tram_wt || front()->get_waytype() == maglev_wt || front()->get_waytype() == monorail_wt)
 	{
 		rail_vehicle_t* w = (rail_vehicle_t*)front(); 

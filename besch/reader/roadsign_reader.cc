@@ -85,12 +85,24 @@ obj_besch_t * roadsign_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				besch->signal_group = decode_uint32(p);
 				besch->base_maintenance = decode_uint32(p);
 				besch->max_distance_to_signalbox = decode_uint32(p); 
+				besch->aspects = decode_uint8(p);
+				besch->has_call_on = decode_sint8(p); 
+				besch->has_selective_choose = decode_sint8(p);
+				besch->working_method = (working_method_t)decode_uint8(p);
+				besch->permissive = decode_sint8(p); 
+				besch->max_speed = kmh_to_speed(decode_uint32(p)); 
 			}
 			else
 			{
 				besch->signal_group = 0;
 				besch->base_maintenance = 0;
 				besch->max_distance_to_signalbox = 0;
+				besch->aspects = besch->is_choose_sign() ? 3 : 2;
+				besch->has_call_on = 0; 
+				besch->has_selective_choose = 0;
+				besch->working_method = track_circuit_block;
+				besch->permissive = 0; 
+				besch->max_speed = kmh_to_speed(160); 
 			}
 		}
 	}
@@ -150,7 +162,13 @@ obj_besch_t * roadsign_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	{
 		besch->signal_group = 0;
 		besch->base_maintenance = 0;
-		besch->max_distance_to_signalbox = 0; 
+		besch->max_distance_to_signalbox = 0;
+		besch->aspects = besch->is_choose_sign() ? 3 : 2;
+		besch->has_call_on = 0; 
+		besch->has_selective_choose = 0;
+		besch->working_method = track_circuit_block;
+		besch->permissive = 0; 
+		besch->max_speed = kmh_to_speed(160); 
 	}
 
 	DBG_DEBUG("roadsign_reader_t::read_node()","min_speed=%i, cost=%i, flags=%x, waytype=%i, intro=%i%i, retire=%i,%i",

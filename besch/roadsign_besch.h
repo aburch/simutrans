@@ -56,6 +56,34 @@ private:
 	// built. This value is in meters. 
 	uint32 max_distance_to_signalbox;
 
+	// The number of aspects that this signal can display. 
+	// This should be a number between 1 (for a fixed sign
+	// board as in, e.g. ETRMS Level 2, and 5 for full 5
+	// aspect signalling. Default: 2). Relevant only for
+	// railway signals, not roadsigns (which are set to 0).
+	// Note that SIGN_PRE_SIGNAL should now be used *only*
+	// for signals that are purely pre-signals and have
+	// no stop/danger aspect. 
+	uint8 aspects;
+
+	// True if this is a signal with a call-on aspect.
+	bool has_call_on;
+
+	// True if this is a choose signal with choose and
+	// non-choose signal aspects (other than danger).
+	bool has_selective_choose;
+
+	// The working method that this signal engenders
+	// if passed. 
+	working_method_t working_method; 
+
+	// Whether this is a permissive signal.
+	bool permissive;
+
+	// The maximum speed at which this signal may be approached.
+	// Used for system speeds. 
+	uint32 max_speed;
+
 public:
 	enum types {
 		NONE                  = 0,

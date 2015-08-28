@@ -91,7 +91,6 @@
     <ClCompile Include="besch\writer\bridge_writer.cc" />
     <ClCompile Include="besch\writer\building_writer.cc" />
     <ClCompile Include="besch\writer\citycar_writer.cc" />
-    <ClCompile Include="besch\writer\cluster_writer.cc" />
     <ClCompile Include="besch\writer\crossing_writer.cc" />
     <ClCompile Include="besch\writer\factory_writer.cc" />
     <ClCompile Include="besch\writer\imagelist3d_writer.cc" />
