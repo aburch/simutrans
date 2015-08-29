@@ -8,6 +8,7 @@
 #include "get_waytype.h"
 #include "skin_writer.h"
 #include "cluster_writer.h"
+#include "../../utils/simstring.h"
 
 using std::string;
 
@@ -42,10 +43,47 @@ void roadsign_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	uint32 max_distance_to_signalbox = obj.get_int("max_distance_to_signalbox", 1000); 
 	uint8 aspects = obj.get_int("aspects", 2); 
 	sint8 has_call_on = obj.get_int("has_call_on", 0); 
-	sint8 has_selective_choose = obj.get_int("has_selective_choose", 0); 
-	working_method_t working_method = (working_method_t)obj.get_int("working_method", track_circuit_block); 
+	sint8 has_selective_choose = obj.get_int("has_selective_choose", 0); 	
 	sint8 permissive = obj.get_int("permissive", 0);
 	uint32 max_speed_kmh = obj.get_int("max_speed", 160); 
+	const char* working_method_string = obj.get_string("working_method", "track_circuit_block"); 
+
+	working_method_t working_method = track_circuit_block;
+
+	if(!STRICMP(working_method_string, "drive_by_sight"))
+	{
+		working_method = drive_by_sight;
+	}
+
+	if(!STRICMP(working_method_string, "time_interval"))
+	{
+		working_method = time_interval;
+	}
+
+	if(!STRICMP(working_method_string, "absolute_block"))
+	{
+		working_method = absolute_block;
+	}
+
+	if(!STRICMP(working_method_string, "token_block"))
+	{
+		working_method = token_block;
+	}
+
+	if(!STRICMP(working_method_string, "cab_signalling"))
+	{
+		working_method = cab_signalling;
+	}
+
+	if(!STRICMP(working_method_string, "moving_block"))
+	{
+		working_method = moving_block;
+	}
+
+	if(!STRICMP(working_method_string, "one_train_staff"))
+	{
+		working_method = one_train_staff;
+	}
 
 	uint16 version = 0x8004; // version 4
 	
