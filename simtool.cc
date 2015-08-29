@@ -5814,7 +5814,7 @@ char const* tool_signalbox_t::get_tooltip(player_t const*) const
 		return NULL;
 	}
 	char tip[256];
-	sprintf(tip, "%s, %s: %i, %s: %i", translator::translate(besch->get_name()), translator::translate("Radius"), besch->get_radius(), translator::translate("Max. signals"), besch->get_capacity());
+	sprintf(tip, "%s, %s: %i%s, %s: %i", translator::translate(besch->get_name()), translator::translate("Radius"), besch->get_radius(), translator::translate("m"), translator::translate("Max. signals"), besch->get_capacity());
 
 	return tooltip_with_price_maintenance(welt, tip, -besch->get_price(), besch->get_maintenance());
 }
