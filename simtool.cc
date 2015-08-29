@@ -5741,8 +5741,38 @@ const char* tool_signalbox_t::tool_signalbox_aux(player_t* player, koord3d pos, 
 		return CREDIT_MESSAGE;
 	}
 
-	if(welt->is_within_limits(pos.get_2d())) {
-		grund_t *gr=welt->lookup(pos);
+	grund_t *gr = welt->lookup_kartenboden(pos.get_2d());
+
+	if(welt->is_within_limits(pos.get_2d()))
+	{
+		// full underground mode: coordinate is on ground, adjust it to one level below ground
+		// not possible in network mode!
+		if (!env_t::networkmode  &&  grund_t::underground_mode == grund_t::ugm_all)
+		{
+			pos = gr->get_pos() - koord3d(0,0,1);
+		}
+
+		if(gr->get_hoehe() != pos.z) 
+		{
+			// Do not build above ground only signals underground
+			if(besch->get_allow_underground() == 0)
+			{
+				return "Cannot built this station/building\nin underground mode here.";
+			}
+		}
+		
+		if(besch->get_allow_underground() == 1 && gr->get_hoehe() <= pos.z)
+		{
+			// Do not build underground only signalboxes above ground.
+			if(env_t::networkmode)
+			{
+				return "Cannot built this station/building\nin underground mode here.";
+			}
+			else
+			{
+				return "This can only be built underground.";
+			}
+		}
 		
 		if(!gr || gr->ist_wasser() || gr->get_weg_nr(0) || gr->get_building() || gr->is_halt()) 
 		{
@@ -5750,6 +5780,34 @@ const char* tool_signalbox_t::tool_signalbox_aux(player_t* player, koord3d pos, 
 			// TODO: Consider allowing special gantry signalboxes
 			// that can be built upon ways.
 			return "A signalbox cannot be built here.";
+		}
+		
+		bool underground = gr->get_pos().z == pos.z+1;
+
+		// underground: first build tunnel tile	at coordinate pos
+		if(underground) 
+		{
+			if(gr->ist_wasser()) 
+			{
+				return "Cannot build signalbox underwater.";
+			}
+
+			if(welt->lookup(pos)) 
+			{
+				return "Tile not empty.";
+			}
+
+			const tunnel_besch_t *tunnel_besch = tunnelbauer_t::find_tunnel(track_wt, 0, 0);
+			if(tunnel_besch == NULL) 
+			{
+				return "Cannot built this station/building\nin underground mode here.";
+			}
+
+			tunnelboden_t* tunnel = new tunnelboden_t(pos, 0);
+			welt->access(pos.get_2d())->boden_hinzufuegen(tunnel);
+			tunnel->obj_add(new tunnel_t(pos, player, tunnel_besch));
+			player_t::add_maintenance( player, tunnel_besch->get_wartung(), tunnel_besch->get_finance_waytype() );
+			gr = tunnel;
 		}
 
 		const char *error = gr->kann_alle_obj_entfernen(player);
@@ -5817,6 +5875,23 @@ char const* tool_signalbox_t::get_tooltip(player_t const*) const
 	sprintf(tip, "%s, %s: %i%s, %s: %i", translator::translate(besch->get_name()), translator::translate("Radius"), besch->get_radius(), translator::translate("m"), translator::translate("Max. signals"), besch->get_capacity());
 
 	return tooltip_with_price_maintenance(welt, tip, -besch->get_price(), besch->get_maintenance());
+}
+
+const char* tool_signalbox_t::check_pos(player_t *, koord3d pos)
+{
+	if(grund_t::underground_mode == grund_t::ugm_all  &&  env_t::networkmode)
+	{
+		// clients cannot guess at which height this signalbox should be built
+		return "Cannot built this station/building\nin underground mode here.";
+	}
+	if(grund_t::underground_mode == grund_t::ugm_level)
+	{
+		// only above or directly under the surface
+		grund_t *gr = welt->lookup_kartenboden(pos.get_2d());
+		return (gr->get_pos() == pos  ||  gr->get_hoehe() == grund_t::underground_level+1) ? NULL : "";
+	}
+
+	return NULL; 
 }
 
 bool tool_signalbox_t::init(player_t *player)

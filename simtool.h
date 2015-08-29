@@ -462,6 +462,7 @@ private:
 	const char* tool_signalbox_aux(player_t* player, koord3d pos, const haus_besch_t* besch, sint64 cost);
 public:
 	tool_signalbox_t() : tool_t(TOOL_BUILD_SIGNALBOX | GENERAL_TOOL) {}
+	const char *check_pos(player_t *, koord3d pos);
 	image_id get_icon(player_t*) const OVERRIDE;
 	char const* get_tooltip(player_t const*) const OVERRIDE;
 	bool init(player_t*) OVERRIDE;

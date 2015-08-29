@@ -275,7 +275,11 @@ DBG_DEBUG("hausbauer_t::fill_menu()","maximum %i",station_building.get_count());
 	FOR(  vector_tpl<haus_besch_t const*>,  const besch,  station_building  ) {
 //		DBG_DEBUG("hausbauer_t::fill_menu()", "try to add %s (%p)", besch->get_name(), besch);
 		if(  besch->get_utyp()==utyp  &&  besch->get_builder()  &&  ((utyp == haus_besch_t::firmensitz || utyp == haus_besch_t::signalbox) ||  besch->get_extra()==(uint16)wt)  ) {
-			if(  besch->is_available(time)  ) {
+			if(besch->is_available(time) && 
+				((besch->get_allow_underground() >= 2) ||
+				(besch->get_allow_underground() == 1 && (grund_t::underground_mode == grund_t::ugm_all || grund_t::underground_mode == grund_t::ugm_level)) ||
+				(besch->get_allow_underground() == 0 && grund_t::underground_mode != grund_t::ugm_all)))
+			{
 				tool_selector->add_tool_selector( besch->get_builder() );
 			}
 		}
@@ -493,16 +497,18 @@ gebaeude_t* hausbauer_t::baue(player_t* player, koord3d pos, int org_layout, con
 			}
 			
 			grund_t *gr;
-			/*if(besch->get_allow_underground() == 1) 
+			if(besch->get_allow_underground() && besch->get_utyp() == haus_besch_t::signalbox) 
 			{
-				// TODO: Make this work properly. Currently, underground buildings do not work correctly.
-				// The below line of code is necessary but not sufficient for allowing underground buildings.
+				// Note that this works properly only for signalboxes, as the underground tile needs a grund_t object,
+				// which has to be added in the specific tool building this. 
+				// TODO: Consider making this work with station extension buildings
 				gr = welt->lookup(pos);
 			}
-			else
-			{*/
+			
+			if(!gr)
+			{
 				gr = welt->lookup_kartenboden(pos.get_2d() + k);
-			//}
+			}
 			
 			leitung_t *lt = NULL;
 

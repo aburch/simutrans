@@ -231,5 +231,7 @@ note=Part of the dialogue shown after transferring signals from one signalbox to
 obj=program_text
 name=Not all signals were transferred successfully.
 note=Shown when not all signals transfer successfully from one signalbox to another.
-
-
+-
+obj=program_text
+name=Cannot build signalbox underwater.
+note=Error message shown when attempting to build an underground signalbox underwater
