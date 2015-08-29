@@ -53,7 +53,7 @@ private:
 	// This determines how far that this can be placed from a signalbox. 
 	// Note that, of this figure and the radius of the signalbox, the 
 	// lowest value of the two determines whether the signal can be
-	// built. This value is in meters. 
+	// built. This value is in meters. 0 = unlimited.
 	uint32 max_distance_to_signalbox;
 
 	// The number of aspects that this signal can display. 
@@ -163,6 +163,11 @@ public:
 		chk->input(signal_group);
 		chk->input(base_maintenance); 
 		chk->input(max_distance_to_signalbox);
+		chk->input(aspects);
+		chk->input(has_call_on);
+		chk->input(has_selective_choose);
+		chk->input(permissive);
+		chk->input(max_speed);
 	}
 };
 

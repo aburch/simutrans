@@ -5310,19 +5310,16 @@ const char* tool_build_roadsign_t::check_pos_intern(player_t *player, koord3d po
 				return "Cannot build this signal without a signalbox. Build a new signalbox or select an existing one to build this signal.";
 			}
 
-			if(besch->get_max_distance_to_signalbox() || sb->get_tile()->get_besch()->get_radius())
+			const uint16 distance = shortest_distance(signal[player->get_player_nr()].signalbox.get_2d(), pos.get_2d()) * welt->get_settings().get_meters_per_tile();
+			if(distance > sb->get_tile()->get_besch()->get_radius() && sb->get_tile()->get_besch()->get_radius() > 0)
 			{
-				// Distance is relevant here.
-				const uint16 distance = shortest_distance(signal[player->get_player_nr()].signalbox.get_2d(), pos.get_2d()) * welt->get_settings().get_meters_per_tile();
-				if(distance > sb->get_tile()->get_besch()->get_radius())
-				{
-					return "Cannot build any signal beyond the maximum radius of the currently selected signalbox.";
-				}
-				if(distance > besch->get_max_distance_to_signalbox())
-				{
-					return "Cannot build this signal this far beyond any signalbox.";
-				}
+				return "Cannot build any signal beyond the maximum radius of the currently selected signalbox.";
 			}
+			if(distance > besch->get_max_distance_to_signalbox() && besch->get_max_distance_to_signalbox() > 0)
+			{
+				return "Cannot build this signal this far beyond any signalbox.";
+			}
+
 			if(!sb->can_add_more_signals())
 			{
 
