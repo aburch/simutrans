@@ -9930,6 +9930,25 @@ halthandle_t karte_t::get_halt_koord_index(koord k, player_t *, bool create_halt
 }
 
 
+void karte_t::update_underground()
+{
+	DBG_MESSAGE( "karte_t::update_underground_map()", "" );
+	world_xy_loop(&karte_t::update_underground_intern, SYNCX_FLAG);
+	set_dirty();
+}
+
+
+void karte_t::update_underground_intern( sint16 x_min, sint16 x_max, sint16 y_min, sint16 y_max )
+{
+	for(  int y = y_min;  y < y_max;  y++  ) {
+		for(  int x = x_min; x < x_max;  x++  ) {
+			const int nr = y * cached_grid_size.x + x;
+			plan[nr].get_kartenboden()->check_update_underground();
+		}
+	}
+}
+
+
 void karte_t::calc_climate(koord k, bool recalc)
 {
 	planquadrat_t *pl = access(k);
@@ -10513,7 +10532,7 @@ const char* karte_t::call_work(tool_t *tool, player_t *player, koord3d pos, bool
 		suspended = false;
 	}
 	else {
-		// queue tool for network 
+		// queue tool for network
 		nwc_tool_t *nwc = new nwc_tool_t(player, tool, pos, get_steps(), get_map_counter(), false);
 		network_send_server(nwc);
 		suspended = true;

@@ -237,6 +237,19 @@ public:
 	void set_all_obj_dirty() { objlist.set_all_dirty(); }
 
 	/**
+	 * Updates images after change of underground mode.
+	 */
+	void check_update_underground()
+	{
+		if (ist_karten_boden()  &&  ist_tunnel()) {
+			calc_bild();
+		}
+		else {
+			calc_back_bild( get_disp_height(), get_disp_slope() );
+		}
+	}
+
+	/**
 	 * Dient zur Neuberechnung des Bildes, wenn sich die Umgebung
 	 * oder die Lage (Hang) des grundes geaendert hat.
 	 * @author Hj. Malthaner

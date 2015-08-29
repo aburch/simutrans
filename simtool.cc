@@ -8246,7 +8246,7 @@ bool tool_show_underground_t::init( player_t * )
 		tool_t::update_toolbars();
 
 		// recalc all images on map
-		welt->update_map();
+		welt->update_underground();
 	}
 	return needs_click;
 }
@@ -8267,7 +8267,7 @@ const char *tool_show_underground_t::work( player_t *player, koord3d pos)
 	tool_t::update_toolbars();
 
 	// recalc all images on map
-	welt->update_map();
+	welt->update_underground();
 
 	if(player == welt->get_active_player()) {
 		welt->set_tool( general_tool[TOOL_QUERY], player );
