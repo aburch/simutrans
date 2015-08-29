@@ -232,6 +232,19 @@ public:
 	void check_season_snowline(const bool season_change, const bool snowline_change) { if(  snowline_change  ) { calc_bild_internal( snowline_change ); } objlist.check_season( season_change  &&  !snowline_change ); }
 
 	/**
+	 * Updates images after change of underground mode.
+	 */
+	void check_update_underground()
+	{
+		if (ist_karten_boden()  &&  ist_tunnel()) {
+			calc_bild();
+		}
+		else {
+			calc_back_bild( get_disp_height(), get_disp_slope() );
+		}
+	}
+
+	/**
 	 * Dient zur Neuberechnung des Bildes, wenn sich die Umgebung
 	 * oder die Lage (Hang) des grundes geaendert hat.
 	 * @author Hj. Malthaner

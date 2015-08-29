@@ -875,7 +875,7 @@ void grund_t::calc_back_bild(const sint8 hgt, const hang_t::typ slope_this)
 	for(int step = 0; step<5  &&  !get_flag(draw_as_obj); step ++) {
 		sint16 test[3] = {(sint16)(corners[0]+1), (sint16)(corners[1]+1), (sint16)(corners[2]+1)};
 		for(int i=0; i<=2; i++) {
-			if(  const grund_t *gr=welt->lookup_kartenboden(k + testdir[i] - koord(1,1)*step)  ) {
+			if(  const grund_t *gr=welt->lookup_kartenboden(k + testdir[i] - koord(step,step))  ) {
 				sint16 h = gr->get_disp_height()*scale_z_step;
 				sint8 s = gr->get_disp_slope();
 				// take backimage into account, take base-height of back image as corner heights
@@ -899,7 +899,7 @@ void grund_t::calc_back_bild(const sint8 hgt, const hang_t::typ slope_this)
 			}
 		}
 		if (test[0] < corners[0]  ||  test[1] < corners[1]  ||  test[2] < corners[2]) {
-			// hiden something behind
+			// we hide something behind
 			set_flag(draw_as_obj);
 		}
 		else if (test[0] > corners[0]  &&  test[1] > corners[1]  &&  test[2] > corners[2]) {

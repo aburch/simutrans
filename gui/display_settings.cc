@@ -500,7 +500,7 @@ bool color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 		buttons[16].pressed = grund_t::underground_mode == grund_t::ugm_all;
 
 		// calc new images
-		welt->update_map();
+		welt->update_underground();
 
 		// renew toolbar
 		tool_t::update_toolbars();
@@ -540,7 +540,7 @@ bool color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 		buttons[20].pressed = grund_t::underground_mode == grund_t::ugm_level;
 
 		// calc new images
-		welt->update_map();
+		welt->update_underground();
 
 		// renew toolbar
 		tool_t::update_toolbars();
@@ -569,7 +569,7 @@ bool color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 			grund_t::underground_level = inp_underground_level.get_value();
 
 			// calc new images
-			welt->update_map();
+			welt->update_underground();
 		}
 	} else
 

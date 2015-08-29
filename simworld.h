@@ -742,6 +742,11 @@ private:
 	 */
 	void update_map_intern(sint16, sint16, sint16, sint16);
 
+	/**
+	 * Updates images after change of underground mode.
+	 */
+	void update_underground_intern(sint16, sint16, sint16, sint16);
+
 public:
 	/**
 	 * Announce server and current state to listserver.
@@ -858,6 +863,11 @@ public:
 	 * Recalcs all map images.
 	 */
 	void update_map();
+
+	/**
+	 * Recalcs images after change of underground mode.
+	 */
+	void update_underground();
 
 	/**
 	 * Gets the world view.
