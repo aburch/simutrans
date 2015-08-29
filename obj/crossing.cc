@@ -51,12 +51,6 @@ crossing_t::crossing_t(player_t* const player_, koord3d const pos, kreuzung_besc
 
 crossing_t::~crossing_t()
 {
-	assert(logic==NULL);
-}
-
-
-void crossing_t::cleanup(player_t *)
-{
 	if(logic) {
 		crossing_logic_t *old_logic = logic;
 		logic = NULL;

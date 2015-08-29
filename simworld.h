@@ -186,6 +186,11 @@ private:
 	bool background_dirty;
 
 	/**
+	 * True during destroying of the map.
+	 */
+	bool destroying;
+
+	/**
 	 * The rotation of the map when first loaded.
 	 */
 	uint8 loaded_rotation;
@@ -868,6 +873,11 @@ public:
 	 * Recalcs images after change of underground mode.
 	 */
 	void update_underground();
+
+	/**
+	 * @returns true if world gets destroyed
+	 */
+	bool is_destroying() const { return destroying; }
 
 	/**
 	 * Gets the world view.

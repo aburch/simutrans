@@ -679,6 +679,7 @@ void karte_t::cleanup_karte( int xoff, int yoff )
 void karte_t::destroy()
 {
 	is_sound = false; // karte_t::play_sound_area_clipped needs valid zeiger
+	destroying = true;
 DBG_MESSAGE("karte_t::destroy()", "destroying world");
 
 	uint32 max_display_progress = 256+stadt.get_count()*10 + haltestelle_t::get_alle_haltestellen().get_count() + convoi_array.get_count() + (cached_size.x*cached_size.y)*2;
@@ -827,6 +828,7 @@ assert( depot_t::get_depot_list().empty() );
 
 DBG_MESSAGE("karte_t::destroy()", "world destroyed");
 	dbg->important("World destroyed.");
+	destroying = false;
 }
 
 

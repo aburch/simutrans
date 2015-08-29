@@ -963,23 +963,26 @@ stadt_t::~stadt_t()
 
 		welt->lookup_kartenboden(pos)->set_text(NULL);
 
-		// remove city info and houses
-		while (!buildings.empty()) {
-			// old buildings are not where they think they are, so we ask for map floor
-			gebaeude_t* const gb = buildings.front();
-			buildings.remove(gb);
-			assert(  gb!=NULL  &&  !buildings.is_contained(gb)  );
-			if(gb->get_tile()->get_besch()->get_utyp()==haus_besch_t::firmensitz) {
-				stadt_t *city = welt->suche_naechste_stadt(gb->get_pos().get_2d());
-				gb->set_stadt( city );
-				if(city) {
-					city->buildings.append(gb, gb->get_passagier_level());
+		if (!welt->is_destroying()) {
+			// remove city info and houses
+			while (!buildings.empty()) {
+
+				gebaeude_t* const gb = buildings.pop_back();
+				assert(  gb!=NULL  &&  !buildings.is_contained(gb)  );
+
+				if(gb->get_tile()->get_besch()->get_utyp()==haus_besch_t::firmensitz) {
+					stadt_t *city = welt->suche_naechste_stadt(gb->get_pos().get_2d());
+					gb->set_stadt( city );
+					if(city) {
+						city->buildings.append(gb, gb->get_passagier_level());
+					}
+				}
+				else {
+					gb->set_stadt( NULL );
+					hausbauer_t::remove(welt->get_player(1),gb);
 				}
 			}
-			else {
-				gb->set_stadt( NULL );
-				hausbauer_t::remove(welt->get_player(1),gb);
-			}
+			// avoid the bookkeeping if world gets destroyed
 		}
 	}
 }

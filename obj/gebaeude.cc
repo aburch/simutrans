@@ -117,6 +117,11 @@ gebaeude_t::gebaeude_t(koord3d pos, player_t *player, const haus_tile_besch_t *t
  */
 gebaeude_t::~gebaeude_t()
 {
+	if(welt->is_destroying()) {
+		return;
+		// avoid book-keeping
+	}
+
 	if(get_stadt()) {
 		ptr.stadt->remove_gebaeude_from_stadt(this);
 	}

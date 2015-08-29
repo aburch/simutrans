@@ -282,6 +282,14 @@ template<class T> class weighted_vector_tpl
 			return true;
 		}
 
+		T& pop_back()
+		{
+			assert(count>0);
+			--count;
+			total_weight = nodes[count].weight;
+			return nodes[count].data;
+		}
+
 		T& operator [](uint32 i)
 		{
 			if (i >= count) dbg->fatal("weighted_vector_tpl<T>::get()", "index out of bounds: %i not in 0..%d", i, count - 1);

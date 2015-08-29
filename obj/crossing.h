@@ -42,6 +42,10 @@ public:
 	crossing_t(loadsave_t *file);
 	crossing_t(player_t *player, koord3d pos, const kreuzung_besch_t *besch, uint8 ns = 0);
 
+	/**
+	 * crossing logic is removed here
+	 * @author prissi
+	 */
 	virtual ~crossing_t();
 
 	void rotate90();
@@ -59,12 +63,6 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	virtual const char *is_deletable(const player_t *player);
-
-	/**
-	 * crossing logic is removed here
-	 * @author prissi
-	 */
-	virtual void cleanup(player_t *);
 
 	// returns true, if the crossing can be passed by this vehicle
 	bool request_crossing( const vehicle_base_t *v ) { return logic->request_crossing( v ); }

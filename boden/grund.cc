@@ -476,7 +476,6 @@ grund_t::~grund_t()
 	// remove text from table
 	set_text(NULL);
 
-	objlist.loesche_alle(NULL,0);
 	if(flags&is_halt_flag) {
 		get_halt()->rem_grund(this);
 	}

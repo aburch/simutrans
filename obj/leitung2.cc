@@ -116,6 +116,10 @@ leitung_t::leitung_t(koord3d pos, player_t *player) : obj_t(pos)
 
 leitung_t::~leitung_t()
 {
+	if (welt->is_destroying()) {
+		return;
+	}
+
 	grund_t *gr = welt->lookup(get_pos());
 	if(gr) {
 		leitung_t *conn[4];
