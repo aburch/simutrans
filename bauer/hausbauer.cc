@@ -496,7 +496,7 @@ gebaeude_t* hausbauer_t::baue(player_t* player, koord3d pos, int org_layout, con
 				continue;
 			}
 			
-			grund_t *gr;
+			grund_t *gr = NULL;
 			if(besch->get_allow_underground() && besch->get_utyp() == haus_besch_t::signalbox) 
 			{
 				// Note that this works properly only for signalboxes, as the underground tile needs a grund_t object,
