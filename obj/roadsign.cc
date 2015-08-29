@@ -223,7 +223,11 @@ void roadsign_t::calc_image()
 	after_xoffset = 0;
 	after_yoffset = 0;
 	sint8 xoff = 0, yoff = 0;
-	const bool left_offsets = besch->get_offset_left()  &&  (  besch->get_wtyp()==road_wt  &&  welt->get_settings().is_drive_left()  )  ||  (besch->get_wtyp()!=air_wt  &&  besch->get_wtyp()!=road_wt  &&  welt->get_settings().is_signals_left());
+	// left offsets defined, and image-on-the-left activated
+	const bool left_offsets = besch->get_offset_left()  &&
+	    (     (besch->get_wtyp()==road_wt  &&  welt->get_settings().is_drive_left()  )
+	      ||  (besch->get_wtyp()!=air_wt  &&  besch->get_wtyp()!=road_wt  &&  welt->get_settings().is_signals_left())
+	    );
 
 	const hang_t::typ full_hang = gr->get_weg_hang();
 	const sint8 hang_diff = hang_t::max_diff(full_hang);
