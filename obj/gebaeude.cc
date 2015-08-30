@@ -349,15 +349,15 @@ void gebaeude_t::calc_image()
 	}
 	else if(  get_pos().z - (get_yoff() / TILE_HEIGHT_STEP) >= welt->get_snowline()  ||  welt->get_climate( get_pos().get_2d() ) == arctic_climate  ) {
 		// snowy winter graphics
-		season = effective_season[tile->get_seasons()][4];
+		season = effective_season[tile->get_seasons() - 1][4];
 	}
 	else if(  get_pos().z - (get_yoff() / TILE_HEIGHT_STEP) >= welt->get_snowline() - 1  &&  welt->get_season() == 0  ) {
 		// snowline crossing in summer
 		// so at least some weeks spring/autumn
-		season = effective_season[tile->get_seasons()][welt->get_last_month() <= 5 ? 3 : 1];
+		season = effective_season[tile->get_seasons() - 1][welt->get_last_month() <= 5 ? 3 : 1];
 	}
 	else {
-		season = effective_season[tile->get_seasons()][welt->get_season()];
+		season = effective_season[tile->get_seasons() - 1][welt->get_season()];
 	}
 
 	background_animated = tile->is_hintergrund_phases( season );
