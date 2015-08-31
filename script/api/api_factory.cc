@@ -24,6 +24,7 @@ SQInteger exp_factory_constructor(HSQUIRRELVM vm)
 	if (!fab) {
 		return sq_raise_error(vm, "No factory found at (%s)", pos.get_str());
 	}
+	const fabrik_besch_t *besch = fab->get_besch();
 	// create input/output tables
 	for (int io=0; io<2; io++) {
 		sq_pushstring(vm, io==0 ? "input" : "output", -1);
@@ -41,6 +42,8 @@ SQInteger exp_factory_constructor(HSQUIRRELVM vm)
 			}
 			// set max value
 			set_slot(vm, "max_storage", prodslot[p].max >> fabrik_t::precision_bits, -1);
+			// production/consumption scaling
+			set_slot(vm, "scaling", io == 0 ? (sint64)besch->get_lieferant(p)->get_verbrauch() : (sint64)besch->get_produkt(p)->get_faktor(), -1);
 			// put class into table
 			sq_newslot(vm, -3, false);
 		}
@@ -75,6 +78,20 @@ vector_tpl<sint64> const& get_factory_production_stat(const ware_production_t *p
 	return v;
 }
 
+
+SQInteger ware_production_get_production(HSQUIRRELVM vm)
+{
+	fabrik_t* fab = param<fabrik_t*>::get(vm, 1);
+	sint64 prod = 0;
+	if (fab) {
+		sint64 scaling = 0;
+		if (SQ_SUCCEEDED(get_slot(vm, "scaling", scaling, 1))) {
+			// see fabrik_t::step
+			prod = (scaling * welt->scale_with_month_length(fab->get_base_production()) * DEFAULT_PRODUCTION_FACTOR ) >> (8+8);
+		}
+	}
+	return param<sint64>::push(vm, prod);
+}
 
 SQInteger world_get_next_factory(HSQUIRRELVM vm)
 {
@@ -300,6 +317,17 @@ void export_factory(HSQUIRRELVM vm)
 	 */
 	register_method_fv(vm, &get_factory_production_stat, "get_produced",  freevariable<sint32>(FAB_GOODS_PRODUCED), true);
 
+	/**
+	 * Returns base maximum production of this good per month.
+	 * Does not take any productivity boost into account.
+	 */
+	register_function(vm, &ware_production_get_production, "get_base_production", 1, "x");
+
+	/**
+	 * Returns base maximum consumption of this good per month.
+	 * Does not take any productivity boost into account.
+	 */
+	register_function(vm, &ware_production_get_production, "get_base_consumption", 1, "x");
 	// pop class
 	end_class(vm);
 }
