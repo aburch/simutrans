@@ -1146,11 +1146,12 @@ void nwc_tool_t::do_command(karte_t *welt)
 
 	// before calling work initialize new tool
 	assert(tool);
+	bool init_successfull = true;
 	if (!init) {
 		// init command was not sent if tool->is_init_network_safe() returned true
 		tool->flags = 0;
 		// init tool
-		tool->init(player);
+		init_successfull = tool->init(player);
 	}
 
 	// read custom data (again, necessary for two_click_tool_t)
@@ -1173,7 +1174,7 @@ void nwc_tool_t::do_command(karte_t *welt)
 		tool->init(player);
 	}
 	// call WORK
-	else {
+	else if (init_successfull) {
 		// remove preview tiles of active tool
 		two_click_tool_t *active_tool = dynamic_cast<two_click_tool_t*>(welt->get_tool(welt->get_active_player_nr()));
 		if(active_tool  &&  active_tool->remove_preview_necessary()) {
