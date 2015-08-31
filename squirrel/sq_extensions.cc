@@ -15,7 +15,7 @@ void* get_instanceup(HSQUIRRELVM vm, SQInteger index, void* tag, const char* typ
 }
 
 
-void sq_raise_error(HSQUIRRELVM vm, const SQChar *s, ...)
+SQRESULT sq_raise_error(HSQUIRRELVM vm, const SQChar *s, ...)
 {
 	va_list vl;
 	va_start(vl, s);
@@ -24,6 +24,7 @@ void sq_raise_error(HSQUIRRELVM vm, const SQChar *s, ...)
 
 	vm->_error_handler_called = false;
 	vm->CallErrorHandler(vm->_lasterror);
+	return SQ_ERROR;
 }
 
 SQRESULT sq_call_restricted(HSQUIRRELVM v, SQInteger params, SQBool retval, SQBool raiseerror, SQInteger ops)

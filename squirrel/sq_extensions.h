@@ -20,8 +20,9 @@ void* get_instanceup(HSQUIRRELVM vm, SQInteger index, void* tag, const char* typ
 /**
  * Raises error.
  * @param s is format string analogue to printf-interface
+ * @returns SQ_ERROR (-1)
  */
-void sq_raise_error(HSQUIRRELVM vm, const SQChar *s, ...);
+SQRESULT sq_raise_error(HSQUIRRELVM vm, const SQChar *s, ...);
 
 /**
  * call a function with limited number of opcodes
