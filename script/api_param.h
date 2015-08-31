@@ -11,6 +11,7 @@
 
 class baum_t;
 class convoi_t;
+class depot_t;
 class fabrik_t;
 class gebaeude_t;
 class grund_t;
@@ -375,6 +376,7 @@ namespace script_api {
 	// export of obj_t derived classes in api/map_objects.cc
 	declare_specialized_param(obj_t*, "t|x|y", "map_object_x");
 	declare_specialized_param(baum_t*, "t|x|y", "tree_x");
+	declare_specialized_param(depot_t*, "t|x|y", "depot_x");
 	declare_specialized_param(gebaeude_t*, "t|x|y", "building_x");
 	declare_specialized_param(label_t*, "t|x|y", "label_x");
 	declare_specialized_param(weg_t*, "t|x|y", "way_x");
