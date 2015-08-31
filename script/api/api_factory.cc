@@ -334,12 +334,14 @@ void export_factory(HSQUIRRELVM vm)
 	/**
 	 * Returns base maximum production of this good per month.
 	 * Does not take any productivity boost into account.
+	 * @typemask integer()
 	 */
 	register_function(vm, &ware_production_get_production, "get_base_production", 1, "x");
 
 	/**
 	 * Returns base maximum consumption of this good per month.
 	 * Does not take any productivity boost into account.
+	 * @typemask integer()
 	 */
 	register_function(vm, &ware_production_get_production, "get_base_consumption", 1, "x");
 	// pop class
