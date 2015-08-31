@@ -807,7 +807,19 @@ void roadsign_t::fill_menu(tool_selector_t *tool_selector, waytype_t wtyp, sint1
 			allowed_given_current_signalbox = true;
 		}
 
-		if(  besch->is_available(time)  &&  besch->get_wtyp()==wtyp  &&  besch->get_builder() && allowed_given_current_signalbox ) {
+		bool allowed_given_underground_state = true;
+		if(grund_t::underground_mode == grund_t::ugm_none)
+		{
+			allowed_given_underground_state = besch->get_allow_underground() == 0 || besch->get_allow_underground() == 2;
+		}
+
+		if(grund_t::underground_mode == grund_t::ugm_all)
+		{
+			allowed_given_underground_state = besch->get_allow_underground() == 1 || besch->get_allow_underground() == 2;
+		}
+		
+		if(besch->is_available(time) && besch->get_wtyp() == wtyp && besch->get_builder() && allowed_given_current_signalbox && allowed_given_underground_state)
+		{
 			// only add items with a cursor
 			matching.insert_ordered( besch, compare_roadsign_besch );
 		}
