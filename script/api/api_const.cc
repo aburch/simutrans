@@ -152,6 +152,8 @@ void export_global_constants(HSQUIRRELVM vm)
 	enum_slot(vm, "st_flat", type_flat);
 	/// elevated ways
 	enum_slot(vm, "st_elevated", type_elevated);
+	/// runway (for wt_air), equal to st_elevated
+	enum_slot(vm, "st_runway", type_runway);
 	/// tram tracks (here way type has to be wt_tram)
 	enum_slot(vm, "st_tram", type_tram);
 	end_enum();
