@@ -140,8 +140,15 @@ roadsign_t::~roadsign_t()
 	if(  besch  ) {
 		const grund_t *gr = welt->lookup(get_pos());
 		if(gr) {
-			weg_t *weg = gr->get_weg(besch->get_wtyp()!=tram_wt ? besch->get_wtyp() : track_wt);
+			weg_t* weg = gr->get_weg(besch->get_wtyp()!=tram_wt ? besch->get_wtyp() : track_wt);
 			if(weg) {
+				player_t* owner = get_owner();
+				if(owner)
+				{
+					// Remove maintenance cost
+					sint32 maint = get_besch()->get_maintenance();
+					player_t::add_maintenance(owner, -maint, weg->get_waytype()); 
+				}
 				if (!preview) {
 					if (besch->is_single_way() || besch->is_signal_type()) {
 						// signal removed, remove direction mask

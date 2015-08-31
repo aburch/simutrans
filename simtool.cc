@@ -5723,6 +5723,7 @@ built_sign:
 					rs->finish_rd();	// to make them visible
 					weg->count_sign();
 					player_t::book_construction_costs(player, -besch->get_preis(), gr->get_pos().get_2d(), weg->get_waytype());
+					player_t::add_maintenance(player, besch->get_maintenance(), weg->get_waytype()); 
 				}
 			}
 			if(besch->get_wtyp() == road_wt)
