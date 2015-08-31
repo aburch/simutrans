@@ -22,8 +22,7 @@ SQInteger exp_factory_constructor(HSQUIRRELVM vm)
 	welt->get_scenario()->koord_sq2w(pos);
 	fabrik_t *fab =  fabrik_t::get_fab(pos);
 	if (!fab) {
-		sq_raise_error(vm, "No factory found at (%s)", pos.get_str());
-		return -1;
+		return sq_raise_error(vm, "No factory found at (%s)", pos.get_str());
 	}
 	// create input/output tables
 	for (int io=0; io<2; io++) {

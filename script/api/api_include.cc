@@ -13,8 +13,7 @@ SQInteger include_aux(HSQUIRRELVM vm)
 	const char* include_path = param<const char*>::get(vm, 3);
 
 	if (filename == NULL) {
-		sq_raise_error(vm, "Include got <NULL> filename");
-		return SQ_ERROR;
+		return sq_raise_error(vm, "Include got <NULL> filename");
 	}
 
 	// path to scenario files
@@ -23,19 +22,16 @@ SQInteger include_aux(HSQUIRRELVM vm)
 
 	// load script
 	if (!SQ_SUCCEEDED(sqstd_loadfile(vm, (const char*)buf, true))) {
-		sq_raise_error(vm, "Reading / compiling script %s failed", filename);
-		return SQ_ERROR;
+		return sq_raise_error(vm, "Reading / compiling script %s failed", filename);
 	}
 	// call it
 	sq_pushroottable(vm);
 	if (!SQ_SUCCEEDED(sq_call_restricted(vm, 1, SQFalse, SQTrue))) {
 		sq_pop(vm, 1); // pop script
-		sq_raise_error(vm, "Call script %s failed", filename);
-		return SQ_ERROR;
+		return sq_raise_error(vm, "Call script %s failed", filename);
 	}
 	if (sq_getvmstate(vm) == SQ_VMSTATE_SUSPENDED) {
-		sq_raise_error(vm, "Calling scriptfile %s took too long", filename);
-		return SQ_ERROR;
+		return sq_raise_error(vm, "Calling scriptfile %s took too long", filename);
 	}
 	sq_pop(vm, 1); // pop script
 	return SQ_OK;

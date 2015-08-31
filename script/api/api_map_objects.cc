@@ -96,8 +96,7 @@ SQInteger exp_obj_pos_constructor(HSQUIRRELVM vm) // parameters: sint16 x, sint1
 			return SQ_OK;
 		}
 	}
-	sq_raise_error(vm, "No object of requested type on tile (or no tile at this position)");
-	return SQ_ERROR;
+	return sq_raise_error(vm, "No object of requested type on tile (or no tile at this position)");
 }
 
 // we have to resolve instances of derived classes here...

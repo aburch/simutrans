@@ -11,8 +11,7 @@ SQInteger script_api::create_class(HSQUIRRELVM vm, const char* classname, const 
 		sq_pushstring(vm, baseclass, -1);
 		if(!SQ_SUCCEEDED(sq_get(vm, -2))) {
 			sq_pop(vm, 1);
-			sq_raise_error(vm, "base class %s to derive %s from it not found", baseclass, classname);
-			return SQ_ERROR;
+			return sq_raise_error(vm, "base class %s to derive %s from it not found", baseclass, classname);
 		}
 	}
 	sq_newclass(vm, baseclass!=NULL);
@@ -51,8 +50,7 @@ SQInteger script_api::push_class(HSQUIRRELVM vm, const char* classname)
 	sq_pushstring(vm, classname, -1);
 	if(!SQ_SUCCEEDED(sq_get(vm, -2))) {
 		sq_pop(vm, 1);
-		sq_raise_error(vm, "class %s not found", classname);
-		return SQ_ERROR;
+		return sq_raise_error(vm, "class %s not found", classname);
 	}
 	sq_remove(vm, -2); // remove root table
 	return SQ_OK;
