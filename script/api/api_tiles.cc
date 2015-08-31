@@ -155,6 +155,12 @@ void export_tiles(HSQUIRRELVM vm)
 	register_method(vm, &grund_t::ist_karten_boden, "is_ground");
 
 	/**
+	 * Returns encoded slope of tile, zero means flat tile.
+	 * @returns slope
+	 */
+	register_method(vm, &grund_t::get_grund_hang, "get_slope");
+
+	/**
 	 * Queries ways on the tile.
 	 * @param wt waytype
 	 * @returns true if there is a way with the given waytype on the tile.
