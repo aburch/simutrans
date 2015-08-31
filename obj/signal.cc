@@ -253,7 +253,7 @@ void signal_t::calc_image()
 
 			if(besch->is_pre_signal() && besch->get_aspects() == 2 && state == caution)
 			{
-				modified_state == danger;
+				modified_state = danger;
 			}
 
 			// signs for left side need other offsets and other front/back order
