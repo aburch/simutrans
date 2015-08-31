@@ -122,7 +122,9 @@ public:
 	bool is_signal() const { return flags&SIGN_SIGNAL; }
 
 	//  return true for presignal
-	bool is_pre_signal() const { return flags&SIGN_PRE_SIGNAL; }
+	bool is_pre_signal() const { return flags&SIGN_PRE_SIGNAL && !is_combined_signal(); }
+
+	bool is_combined_signal() const { return flags&SIGN_PRE_SIGNAL && aspects == 3; }
 
 	//  return true for single track section signal
 	bool is_longblock_signal() const { return flags&SIGN_LONGBLOCK_SIGNAL; }
