@@ -92,7 +92,7 @@ SQInteger exp_obj_pos_constructor(HSQUIRRELVM vm) // parameters: sint16 x, sint1
 	// find object and set instance up
 	if (grund_t *gr = welt->lookup(koord3d(pos, z))) {
 		if (obj_t *obj = gr->suche_obj( (obj_t::typ)param<uint8>::get(vm, 5) )) {
-			sq_setinstanceup(vm, -1, obj);
+			sq_setinstanceup(vm, 1, obj);
 			return SQ_OK;
 		}
 	}
@@ -177,7 +177,7 @@ void begin_obj_class(HSQUIRRELVM vm, const char* name, const char* base = NULL)
 	// store typetag to identify pointers
 	sq_settypetag(vm, -1, obj_t_tag + objtype);
 	// export constructor
-	register_function(vm, exp_obj_pos_constructor, "constructor", 5, "xiiii");
+	register_function_fv(vm, exp_obj_pos_constructor, "constructor", 4, "xiiii", freevariable<uint8>(objtype));
 	// now functions can be registered
 }
 
@@ -236,7 +236,7 @@ void export_map_objects(HSQUIRRELVM vm)
 	 * @param z
 	 * @typemask void(integer,integer,integer)
 	 */
-	register_function(vm, exp_obj_pos_constructor, "constructor", 5, "xiiii");
+	register_function_fv(vm, exp_obj_pos_constructor, "constructor", 4, "xiiii", freevariable<uint8>(objtype));
 	/**
 	 * @returns owner of the object.
 	 */
