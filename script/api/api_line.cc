@@ -27,6 +27,24 @@ vector_tpl<sint64> const& get_line_stat(linehandle_t line, sint32 INDEX)
 }
 
 
+waytype_t line_way_type(linehandle_t line)
+{
+	if (line.is_bound()) {
+		switch (line->get_linetype()) {
+			case simline_t::truckline: return road_wt;
+			case simline_t::trainline: return track_wt;
+			case simline_t::shipline: return water_wt;
+			case simline_t::monorailline: return monorail_wt;
+			case simline_t::maglevline: return maglev_wt;
+			case simline_t::narrowgaugeline: return narrowgauge_wt;
+			case simline_t::airline: return air_wt;
+			case simline_t::tramline: return tram_wt;
+			default: ;
+		}
+	}
+	return invalid_wt;
+}
+
 SQInteger line_export_convoy_list(HSQUIRRELVM vm)
 {
 	linehandle_t line = param<linehandle_t>::get(vm, 1);
@@ -172,6 +190,11 @@ void export_line(HSQUIRRELVM vm)
 	 * @typemask convoy_list_x()
 	 */
 	register_function(vm, &line_export_convoy_list, "get_convoy_list", 1, param<linehandle_t>::typemask());
+
+	/**
+	 * @return waytype of the line
+	 */
+	register_method(vm, &line_way_type, "get_waytype", true);
 
 	end_class(vm);
 }
