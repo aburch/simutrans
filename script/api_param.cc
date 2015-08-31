@@ -270,15 +270,12 @@ namespace script_api {
 	}
 
 // pointers to classes
+
 	convoi_t* param<convoi_t*>::get(HSQUIRRELVM vm, SQInteger index)
 	{
-		uint16 id = 0;
-		get_slot(vm, "id", id, index);
-		convoihandle_t cnv;
-		cnv.set_id(id);
+		convoihandle_t cnv = param<convoihandle_t>::get(vm, index);
 		if (!cnv.is_bound()) {
-			sq_raise_error(vm, "Invalid convoi id %d", id);
-			return NULL;
+			sq_raise_error(vm, "Invalid convoi id %d", cnv.get_id());
 		}
 		return cnv.get_rep();
 	}
@@ -349,34 +346,13 @@ namespace script_api {
 	}
 
 
-	halthandle_t param<halthandle_t>::get(HSQUIRRELVM vm, SQInteger index)
-	{
-		uint16 id = 0;
-		get_slot(vm, "id", id, index);
-		halthandle_t halt;
-		halt.set_id(id);
-		if (!halt.is_bound()) {
-			sq_raise_error(vm, "Invalid halt id %d", id);
-		}
-		return halt;
-	}
-
-
 	const haltestelle_t* param<const haltestelle_t*>::get(HSQUIRRELVM vm, SQInteger index)
 	{
 		halthandle_t halt = param<halthandle_t>::get(vm, index);
+		if (!halt.is_bound()) {
+			sq_raise_error(vm, "Invalid halt id %d", halt.get_id());
+		}
 		return halt.get_rep();
-	}
-
-
-	SQInteger param<halthandle_t>::push(HSQUIRRELVM vm, halthandle_t const& v)
-	{
-		if (v.is_bound()) {
-			return push_instance(vm, "halt_x", v.get_id());
-		}
-		else {
-			sq_pushnull(vm); return 1;
-		}
 	}
 
 
@@ -454,22 +430,12 @@ namespace script_api {
 	}
 
 
-	linehandle_t param<linehandle_t>::get(HSQUIRRELVM vm, SQInteger index)
-	{
-		uint16 id = 0;
-		get_slot(vm, "id", id, index);
-		linehandle_t line;
-		line.set_id(id);
-		if (!line.is_bound()) {
-			sq_raise_error(vm, "Invalid line id %d", id);
-		}
-		return line;
-	}
-
-
 	simline_t* param<simline_t*>::get(HSQUIRRELVM vm, SQInteger index)
 	{
 		linehandle_t line = param<linehandle_t>::get(vm, index);
+		if (!line.is_bound()) {
+			sq_raise_error(vm, "Invalid line id %d", line.get_id());
+		}
 		return line.get_rep();
 	}
 
