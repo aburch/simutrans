@@ -750,6 +750,9 @@ private:
 	 */
 	bool is_choosing:1; 
 
+	// The maximum speed allowed by the current signalling system
+	sint32 max_signal_speed; 
+
 public: 
 	/**
 	 * Some precalculated often used infos about a tile of the convoy's route.
@@ -1162,6 +1165,9 @@ public:
 
 	void set_is_choosing(bool value) { is_choosing = value; }
 	bool get_is_choosing() const { return is_choosing; }
+
+	void set_maximum_signal_speed(sint32 value) { max_signal_speed = value; }
+	sint32 get_max_signal_speed() const { return max_signal_speed; }
 
 private:
 	journey_times_map average_journey_times;

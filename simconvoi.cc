@@ -53,6 +53,7 @@
 #include "obj/crossing.h"
 #include "obj/roadsign.h"
 #include "obj/wayobj.h"
+#include "obj/signal.h"
 
 #include "vehicle/simvehicle.h"
 #include "vehicle/overtaker.h"
@@ -199,6 +200,7 @@ convoi_t::convoi_t(loadsave_t* file) : vehicle(max_vehicle, NULL)
 	init(0);
 	replace = NULL;
 	is_choosing = false;
+	max_signal_speed = SPEED_UNLIMITED;
 
 	no_route_retry_count = 0;
 	rdwr(file);
@@ -229,6 +231,7 @@ convoi_t::convoi_t(player_t* player) : vehicle(max_vehicle, NULL)
 	init_financial_history();
 	current_stop = 255;
 	is_choosing = false;
+	max_signal_speed = SPEED_UNLIMITED;
 
 	// Added by : Knightly
 	old_fpl = NULL;
@@ -914,7 +917,7 @@ void convoi_t::calc_acceleration(long delta_t)
 #endif
 	next_speed_limit = 0; // 'limit' for next stop is 0, of course.
 	uint32 next_stop_index = get_next_stop_index(); // actually this is next stop index + 1!!!
-	if (next_stop_index >= 65000u) // BG, 07.10.2011: currently only rail_vehicle_t sets next_stop_index.
+	if(next_stop_index >= 65000u) // BG, 07.10.2011: currently only rail_vehicle_t sets next_stop_index.
 	// BG, 09.08.2012: use ">= 65000u" as INVALID_INDEX (65530u) sometimes is incermented or decremented.
 	{
 		next_stop_index = route_count;
@@ -926,7 +929,7 @@ void convoi_t::calc_acceleration(long delta_t)
 	const sint32 brake_steps = calc_min_braking_distance(welt->get_settings(), get_weight_summary(), akt_speed);
 	// use get_route_infos() for the first time accessing route_infos to eventually initialize them.
 	const uint32 route_infos_count = get_route_infos().get_count();
-	if (route_infos_count > 0 && route_infos_count >= next_stop_index && next_stop_index > current_route_index)
+	if(route_infos_count > 0 && route_infos_count >= next_stop_index && next_stop_index > current_route_index)
 	{
 		sint32 i = current_route_index - 1;
 		if(i < 0)
@@ -934,14 +937,14 @@ void convoi_t::calc_acceleration(long delta_t)
 			i = 0;
 		}
 		const convoi_t::route_info_t &current_info = route_infos.get_element(i);
-		if (current_info.speed_limit != vehicle_t::speed_unlimited())
+		if(current_info.speed_limit != vehicle_t::speed_unlimited())
 		{
 			update_max_speed(speed_to_kmh(current_info.speed_limit));
 		}
 		const convoi_t::route_info_t &limit_info = route_infos.get_element(next_stop_index - 1);
 		steps_til_limit = route_infos.calc_steps(current_info.steps_from_start, limit_info.steps_from_start);
 		steps_til_brake = steps_til_limit - brake_steps;
-		switch (limit_info.direction)
+		switch(limit_info.direction)
 		{
 			case ribi_t::nord:
 			case ribi_t::west:
@@ -949,7 +952,7 @@ void convoi_t::calc_acceleration(long delta_t)
 				// Most probably for eye candy reasons vehicles do not exactly move on their tiles.
 				// We must do the same here to avoid abrupt stopping.
 				sint32 	delta_tile_len = current_info.steps_from_start;
-				if (i > 0) delta_tile_len -= route_infos.get_element(i - 1).steps_from_start;
+				if(i > 0) delta_tile_len -= route_infos.get_element(i - 1).steps_from_start;
 				delta_tile_len -= (delta_tile_len/2) + 1;
 				steps_til_limit -= delta_tile_len;
 				steps_til_brake -= delta_tile_len;
@@ -962,17 +965,17 @@ void convoi_t::calc_acceleration(long delta_t)
 		// Brake for upcoming speed limit?
 		sint32 min_limit = akt_speed; // no need to check limits above min_limit, as it won't lead to further restrictions
 		sint32 steps_from_start = current_info.steps_from_start; // speed has to be reduced before entering the tile. Thus distance from start has to be taken from previous tile.
-		for (i++; i < next_stop_index; i++)
+		for(i++; i < next_stop_index; i++)
 		{
 			const convoi_t::route_info_t &limit_info = route_infos.get_element(i);
-			if (limit_info.speed_limit < min_limit)
+			if(limit_info.speed_limit < min_limit)
 			{
 				min_limit = limit_info.speed_limit;
 				const sint32 limit_steps = brake_steps - calc_min_braking_distance(welt->get_settings(), get_weight_summary(), limit_info.speed_limit);
 				const sint32 route_steps = route_infos.calc_steps(current_info.steps_from_start, steps_from_start);
 				const sint32 st = route_steps - limit_steps;
 
-				if (steps_til_brake > st)
+				if(steps_til_brake > st)
 				{
 					next_speed_limit = limit_info.speed_limit;
 					steps_til_limit = route_steps;
@@ -997,7 +1000,7 @@ void convoi_t::calc_acceleration(long delta_t)
 	/*
 	 * calculate movement in the next delta_t ticks.
 	 */
-	akt_speed_soll = get_min_top_speed();
+	akt_speed_soll = min(get_min_top_speed(), max_signal_speed);
 	calc_move(welt->get_settings(), delta_t, akt_speed_soll, next_speed_limit, steps_til_limit, steps_til_brake, akt_speed, sp_soll, v);
 }
 
@@ -3244,7 +3247,7 @@ void convoi_t::reverse_order(bool rev)
 	uint8 b  = anz_vehikel;
 
 	working_method_t wm = drive_by_sight;
-	if(front()->get_waytype() == track_wt || front()->get_waytype()  == tram_wt || front()->get_waytype() == maglev_wt || front()->get_waytype() == monorail_wt)
+	if(front()->get_waytype() == track_wt || front()->get_waytype() == tram_wt || front()->get_waytype() == maglev_wt || front()->get_waytype() == monorail_wt)
 	{
 		rail_vehicle_t* w = (rail_vehicle_t*)front(); 
 		wm = w->get_working_method();
@@ -4368,6 +4371,20 @@ void convoi_t::rdwr(loadsave_t *file)
 	{
 		file->rdwr_bool(needs_full_route_flush);
 	}
+
+// TODO: Enable this when ready
+//#ifdef SPECIAL_RESCUE_12_6
+//	if(file->get_experimental_version() >= 12 && file->is_saving()) 
+//#else
+//	if(file->get_experimental_version() >= 12)
+//#endif
+//	{
+//		bool ic = is_choosing;
+//		file->rdwr_bool(ic);
+//		is_choosing = ic;
+//
+//		file->rdwr_long(max_signal_speed); 
+//	}
 
 	// This must come *after* all the loading/saving.
 	if(  file->is_loading()  ) {

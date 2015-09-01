@@ -3802,7 +3802,7 @@ skip_choose:
 		}
 		// reserved route to target
 	}
-	sig->set_state(  roadsign_t::clear );
+	sig->set_state(roadsign_t::clear);
 	cnv->set_next_stop_index(next_signal);
 	return true;
 }
@@ -4019,7 +4019,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 					{
 						simlinemgmt_t::update_line(line);
 					}
-					if (reversed)
+					if(reversed)
 					{
 						fpl->advance_reverse();
 					}
@@ -4216,8 +4216,8 @@ bool rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16 &
 
 	// find next block segment enroute
 	uint32 i = start_index - (count == 100001 ? 1 : 0);
-	uint16 skip_index=INVALID_INDEX;
-	next_signal_index=INVALID_INDEX;
+	uint16 skip_index = INVALID_INDEX;
+	next_signal_index = INVALID_INDEX;
 	const uint32 sighting_distance_tiles = 2; // TODO: Have this set from simuconf.tab in meters. 
 	bool unreserve_now = false;
 
@@ -4292,6 +4292,7 @@ bool rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16 &
 						if(first_stop_signal_index == INVALID_INDEX)
 						{
 							first_stop_signal_index = i;
+							cnv->set_maximum_signal_speed(signal->get_besch()->get_max_speed());
 						}
 					}
 					else
