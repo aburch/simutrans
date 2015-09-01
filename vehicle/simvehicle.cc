@@ -4110,11 +4110,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 	
 			if(signal) 
 			{
-				if(working_method == drive_by_sight)
-				{
-					// TODO: Make this more sophisticated based on actual signal and vehicle type
-					working_method = absolute_block;
-				}
+				working_method = signal->get_besch()->get_working_method(); 
 
 				if(working_method == cab_signalling 
 					|| signal && signal->get_besch()->is_pre_signal()

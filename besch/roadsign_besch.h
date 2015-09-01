@@ -156,6 +156,8 @@ public:
 
 	uint32 get_max_speed() const { return max_speed; }
 
+	working_method_t get_working_method() const { return working_method; }
+
 	void calc_checksum(checksum_t *chk) const
 	{
 		obj_besch_transport_infrastructure_t::calc_checksum(chk);
@@ -170,6 +172,7 @@ public:
 		chk->input(has_selective_choose);
 		chk->input(permissive);
 		chk->input(max_speed);
+		chk->input(working_method); 
 	}
 };
 

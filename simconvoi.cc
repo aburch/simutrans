@@ -2166,7 +2166,7 @@ void convoi_t::enter_depot(depot_t *dep)
 
 	if(reversed)
 	{
-		// Put the train back into "forward" position
+		// Put the convoy back into "forward" position
 		if(reversed)
 		{
 			reversable = front()->get_besch()->get_can_lead_from_rear() || (anz_vehikel == 1 && front()->get_besch()->is_bidirectional());
@@ -3233,8 +3233,7 @@ void convoi_t::vorfahren()
 	//INT_CHECK("simconvoi 711");
 }
 
-void
-convoi_t::reverse_order(bool rev)
+void convoi_t::reverse_order(bool rev)
 {
 	// Code snippet obtained and adapted from:
 	// http://www.cprogramming.com/snippets/show.php?tip=15&count=30&page=0
@@ -3244,11 +3243,11 @@ convoi_t::reverse_order(bool rev)
     vehicle_t* reverse;
 	uint8 b  = anz_vehikel;
 
-	working_method_t dm = drive_by_sight;
+	working_method_t wm = drive_by_sight;
 	if(front()->get_waytype() == track_wt || front()->get_waytype()  == tram_wt || front()->get_waytype() == maglev_wt || front()->get_waytype() == monorail_wt)
 	{
 		rail_vehicle_t* w = (rail_vehicle_t*)front(); 
-		dm = w->get_working_method();
+		wm = w->get_working_method();
 	}
 
 	if(rev)
@@ -3344,7 +3343,7 @@ convoi_t::reverse_order(bool rev)
 	if(front()->get_waytype() == track_wt || front()->get_waytype()  == tram_wt || front()->get_waytype() == maglev_wt || front()->get_waytype() == monorail_wt)
 	{
 		rail_vehicle_t* w = (rail_vehicle_t*)front(); 
-		w->set_working_method(dm); 
+		w->set_working_method(wm); 
 	}
 
 	welt->set_dirty();
