@@ -269,33 +269,10 @@ namespace script_api {
 	/**
 	 * partial specialization for *handle_t types
 	 */
-	template<> template<class T> struct param< quickstone_tpl<T> > {
-		/**
-		 * Assumes that constructor of corresponding squirrel class
-		 * accepts one parameter (the id).
-		 * @return positive value for success, negative for failure
-		 */
-		static SQInteger push(HSQUIRRELVM vm, quickstone_tpl<T> const& h)
-		{
-			return push_instance(vm, param<T*>::squirrel_type(), h.get_id());
-		}
-		static const quickstone_tpl<T> get(HSQUIRRELVM vm, SQInteger index)
-		{
-			uint16 id = 0;
-			get_slot(vm, "id", id, index);
-			quickstone_tpl<T> h;
-			h.set_id(id);
-			return h;
-		}
-		static const char* squirrel_type()
-		{
-			return param<T*>::squirrel_type();
-		}
-		static const char* typemask()
-		{
-			return param<T*>::typemask();
-		}
-	};
+	// declared here, implementation in api_class.h,
+	// which has to be included if necessary
+	template<class T> struct param< quickstone_tpl<T> >;
+
 
 #define declare_types(mask, sqtype) \
 	static const char* typemask() { return mask; } \
