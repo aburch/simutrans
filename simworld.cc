@@ -2233,6 +2233,8 @@ karte_t::karte_t() :
 	ausflugsziele(16),
 	stadt(0)
 {
+	destroying = false;
+
 	// length of day and other time stuff
 	ticks_per_world_month_shift = 20;
 	ticks_per_world_month = (1 << ticks_per_world_month_shift);
