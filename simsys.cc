@@ -83,14 +83,17 @@ bool dr_movetotrash(const char *path) {
 
 char const* dr_query_homedir()
 {
-	static char buffer[PATH_MAX];
+	static char buffer[PATH_MAX+24];
 
 #if defined _WIN32
-	DWORD len = PATH_MAX - 24;
-	HKEY hHomeDir;
-	if (RegOpenKeyExA(HKEY_CURRENT_USER, "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders", 0, KEY_READ, &hHomeDir) != ERROR_SUCCESS)
-		return 0;
-	RegQueryValueExA(hHomeDir, "Personal", 0, 0, (BYTE*)buffer, &len);
+	if(  SHGetFolderPathA(NULL, CSIDL_PERSONAL, NULL, SHGFP_TYPE_CURRENT, buffer)  ) {
+		DWORD len = PATH_MAX;
+		HKEY hHomeDir;
+		if(  RegOpenKeyExA(HKEY_CURRENT_USER, "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders", 0, KEY_READ, &hHomeDir) != ERROR_SUCCESS  ) {
+			return 0;
+		}
+		RegQueryValueExA(hHomeDir, "Personal", 0, 0, (BYTE*)buffer, &len);
+	}
 	strcat(buffer,"\\Simutrans");
 #elif defined __APPLE__
 	sprintf(buffer, "%s/Library/Simutrans", getenv("HOME"));
@@ -106,7 +109,7 @@ char const* dr_query_homedir()
 #else
 	strcat(buffer, "/");
 #endif
-	char b2[PATH_MAX];
+	char b2[PATH_MAX+24];
 	sprintf(b2, "%smaps", buffer);
 	dr_mkdir(b2);
 	sprintf(b2, "%ssave", buffer);
