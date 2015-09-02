@@ -2441,6 +2441,7 @@ karte_t::karte_t() :
 	sync_steps = 0;
 	next_step_passenger = 0;
 	next_step_mail = 0;
+	destroying = false;
 
 	for(  uint i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
 		selected_tool[i] = tool_t::general_tool[TOOL_QUERY];

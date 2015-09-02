@@ -1446,7 +1446,10 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release (single threaded)|Win32'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="simsys_s2.cc" />
-    <ClCompile Include="simsys_w.cc" />
+    <ClCompile Include="simsys_w.cc">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (command-line server)|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release (command-line server)|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="simsys_w32_png.cc" />
     <ClCompile Include="simunits.cc" />
     <ClCompile Include="squirrel\sqstdlib\sqstdaux.cc" />

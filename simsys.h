@@ -117,7 +117,7 @@ void ex_ord_update_mx_my();
 void GetEvents();
 void GetEventsNoWait();
 
-unsigned long dr_time();
+uint32 dr_time();
 void dr_sleep(uint32 millisec);
 
 // error message in case of fatal events
