@@ -97,6 +97,10 @@ char const* dr_query_homedir()
 	strcat(buffer,"\\Simutrans");
 #elif defined __APPLE__
 	sprintf(buffer, "%s/Library/Simutrans", getenv("HOME"));
+#elif defined __HAIKU__
+	BPath userDir;
+	find_directory(B_USER_DIRECTORY, &userDir);
+	sprintf(buffer, "%s/simutrans", userDir.Path());
 #else
 	sprintf(buffer, "%s/simutrans", getenv("HOME"));
 #endif
