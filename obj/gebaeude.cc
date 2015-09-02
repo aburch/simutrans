@@ -220,7 +220,10 @@ stadt_t* gebaeude_t::get_stadt() const
  */
 gebaeude_t::~gebaeude_t()
 {
-	if(welt->is_destroying()) {
+	welt->remove_building_from_world_list(this);
+
+	if(welt->is_destroying()) 
+	{
 		return;
 		// avoid book-keeping
 	}
@@ -270,8 +273,6 @@ gebaeude_t::~gebaeude_t()
 	{
 		(*j)->remove_connected_attraction(this);
 	}
-
-	welt->remove_building_from_world_list(this);
 }
 
 
