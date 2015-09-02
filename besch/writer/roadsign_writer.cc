@@ -14,7 +14,7 @@ using std::string;
 
 void roadsign_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 {
-	obj_node_t node(this, 37, &parent);
+	obj_node_t node(this, 42, &parent);
 
 	uint32                  const cost      = obj.get_int("cost",      500) * 100;
 	uint16                  const min_speed = obj.get_int("min_speed",   0);
@@ -85,6 +85,9 @@ void roadsign_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 		working_method = one_train_staff;
 	}
 
+	uint32 signal_upgrade_cost = obj.get_int("signal_upgrade_cost", cost); 
+	uint8 upgrade_group = obj.get_int("upgrade_group", 0); 
+
 	uint16 version = 0x8004; // version 4
 	
 	// This is the overlay flag for Simutrans-Experimental
@@ -124,6 +127,8 @@ void roadsign_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	node.write_uint8(fp, working_method, 31); 
 	node.write_sint8(fp, permissive, 32);
 	node.write_uint32(fp, max_speed_kmh, 33);
+	node.write_uint32(fp, signal_upgrade_cost, 37);
+	node.write_uint8(fp, upgrade_group, 41); 
 
 	write_head(fp, node, obj);
 

@@ -254,6 +254,20 @@ void weg_t::set_besch(const weg_besch_t *b, bool from_saved_game)
 		last_renewal_month_year = welt->get_timeline_year_month();
 		degraded = false;
 		replacement_way = besch;
+		const grund_t* gr = welt->lookup(get_pos());
+		if(gr)
+		{
+			roadsign_t* rs = gr->find<roadsign_t>();
+			if(!rs)
+			{
+				rs = get_signal(ribi_t::alle); 
+			} 
+			if(rs && rs->get_besch()->is_retired(welt->get_timeline_year_month()))
+			{
+				// Upgrade obsolete signals and signs when upgrading the underlying way if possible.
+				rs->upgrade(); 
+			}
+		}
 	}
 }
 

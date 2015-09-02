@@ -850,6 +850,34 @@ const roadsign_besch_t *roadsign_t::roadsign_search(roadsign_besch_t::types cons
 	return NULL;
 }
 
+const roadsign_besch_t* roadsign_t::find_best_upgrade()
+{
+	const uint16 time = welt->get_timeline_year_month();
+	const roadsign_besch_t* best_candidate = NULL;
+
+	FOR(stringhashtable_tpl<roadsign_besch_t const*>, const& i, table)
+	{
+		roadsign_besch_t const* const new_roadsign_type = i.value;
+		if(new_roadsign_type->is_available(time) && new_roadsign_type->get_upgrade_group() == besch->get_upgrade_group() && new_roadsign_type->get_wtyp() == besch->get_wtyp() && besch->get_flags() == besch->get_flags())
+		{
+			if(best_candidate)
+			{
+				// Find the most recent current replacement signal/sign
+				if(new_roadsign_type->get_intro_year_month() > best_candidate->get_intro_year_month())
+				{
+					best_candidate = new_roadsign_type;
+				}
+			}
+			else
+			{
+				best_candidate = new_roadsign_type;
+			}
+		}
+	}
+
+	return best_candidate; 
+}
+
  void roadsign_t::set_scale(uint16 scale_factor)
 {
 	// Called from the world's set_scale method so as to avoid having to export the internal data structures of this class.
@@ -858,3 +886,36 @@ const roadsign_besch_t *roadsign_t::roadsign_search(roadsign_besch_t::types cons
 		sign->set_scale(scale_factor); 
 	}
 }
+
+ bool roadsign_t::upgrade(const roadsign_besch_t* new_besch)
+ {
+	 if(!new_besch)
+	 {
+		 return false;
+	 }
+
+	 if(besch->get_upgrade_group() == 0)
+	 { 
+		 // Can only upgrade if an upgrade group is defined.
+		 return false;
+	 }
+
+	 const roadsign_besch_t* old_besch = besch;
+	 if(old_besch->get_upgrade_group() != new_besch->get_upgrade_group())
+	 {
+		 return false;
+	 }
+
+	 if(!get_owner()->can_afford(new_besch->get_way_only_cost()))
+	 {
+		 return false;
+	 }
+
+	 sint32 diff = new_besch->get_maintenance() - old_besch->get_maintenance();
+	 player_t::add_maintenance(get_owner(), diff, get_waytype()); 
+	 player_t::book_construction_costs(get_owner(), new_besch->get_way_only_cost(), get_pos().get_2d(), get_waytype()); 
+
+	 besch = new_besch;
+	 welt->set_dirty(); 
+	 return true;
+ }
