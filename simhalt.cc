@@ -576,7 +576,7 @@ haltestelle_t::~haltestelle_t()
 		dbg->error("haltestelle_t::~haltestelle_t()", "handle %i found %i times in haltlist!", self.get_id(), i );
 	}
 
-	if(!welt->get_is_shutting_down())
+	if(!welt->is_destroying())
 	{
 		ITERATE(halts_within_walking_distance, n)
 		{
@@ -612,7 +612,7 @@ haltestelle_t::~haltestelle_t()
 	// free name
 	set_name(NULL);
 
-	if(!welt->get_is_shutting_down())
+	if(!welt->is_destroying())
 	{
 		// remove from ground and planquadrat haltlists
 		koord ul(32767,32767);
@@ -689,9 +689,9 @@ haltestelle_t::~haltestelle_t()
 	}
 	free( waren );
 
-	for(uint8 i = 0; i < max_categories; i++)
+	if(!welt->is_destroying())
 	{
-		if(!welt->get_is_shutting_down())
+		for(uint8 i = 0; i < max_categories; i++)	
 		{
 			reset_connexions(i);
 		}
@@ -4864,15 +4864,12 @@ void haltestelle_t::remove_line(linehandle_t line)
 { 
 	registered_lines.remove(line); 
 	
-	if(registered_convoys.empty() && registered_lines.empty())
+	if(registered_convoys.empty() && registered_lines.empty() && !welt->is_destroying())
 	{
 		const uint8 max_categories = warenbauer_t::get_max_catg_index();
 		for(uint8 i = 0; i < max_categories; i++)
 		{
-			if(!welt->get_is_shutting_down())
-			{
-				connexions[i]->clear();
-			}
+			connexions[i]->clear();
 		}
 	}
 }
@@ -4880,15 +4877,12 @@ void haltestelle_t::remove_line(linehandle_t line)
 void haltestelle_t::remove_convoy(convoihandle_t convoy)
 { 
 	registered_convoys.remove(convoy); 
-	if(registered_convoys.empty() && registered_lines.empty())
+	if(registered_convoys.empty() && registered_lines.empty() && !welt->is_destroying())
 	{
 		const uint8 max_categories = warenbauer_t::get_max_catg_index();
 		for(uint8 i = 0; i < max_categories; i++)
 		{
-			if(!welt->get_is_shutting_down())
-			{
-				connexions[i]->clear();
-			}
+			connexions[i]->clear();
 		}
 	}
 }

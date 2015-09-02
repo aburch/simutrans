@@ -148,6 +148,9 @@ leitung_t::leitung_t(koord3d pos, player_t *player) : obj_t(pos)
 
 leitung_t::~leitung_t()
 {
+	if (welt->is_destroying()) {
+		return;
+	}
 	grund_t *gr = welt->lookup(get_pos());
 	if(gr) {
 		leitung_t *conn[4];
@@ -763,7 +766,7 @@ senke_t::~senke_t()
 		{
 			fab->set_transformer_connected( NULL );
 		}
-		if(city && !welt->get_is_shutting_down())
+		if(city && !welt->is_destroying())
 		{
 			city->remove_substation(this);
 			FOR(vector_tpl<fabrik_t*>, factory, city->get_city_factories())

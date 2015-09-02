@@ -1401,56 +1401,54 @@ stadt_t::~stadt_t()
 	// olny if there is still a world left to delete from
 	if(welt->get_size().x > 1) 
 	{
-
 		welt->lookup_kartenboden(pos)->set_text(NULL);
-
-		// remove city info and houses
-		while(!buildings.empty()) 
+		
+		if(!welt->is_destroying()) 
 		{
-			// old buildings are not where they think they are, so we ask for map floor
-			gebaeude_t* const gb = buildings.front();
-			buildings.remove(gb);
-			
-			assert(  gb!=NULL  &&  !buildings.is_contained(gb)  );
-			if(gb->get_tile()->get_besch()->get_utyp() == haus_besch_t::firmensitz)
+			// remove city info and houses
+			while(!buildings.empty()) 
 			{
-				stadt_t *city = welt->suche_naechste_stadt(gb->get_pos().get_2d());
-				gb->set_stadt( city );
-				if(city) 
+				gebaeude_t* const gb = buildings.pop_back();
+				assert(  gb!=NULL  &&  !buildings.is_contained(gb)  );
+			
+				if(gb->get_tile()->get_besch()->get_utyp() == haus_besch_t::firmensitz)
 				{
-					if(gb->get_tile()->get_besch()->get_typ() == gebaeude_t::wohnung)
+					stadt_t *city = welt->suche_naechste_stadt(gb->get_pos().get_2d());
+					gb->set_stadt( city );
+					if(city) 
 					{
-						city->buildings.append_unique(gb, gb->get_adjusted_population());
-					}
-					else
-					{
-						city->buildings.append_unique(gb, gb->get_adjusted_visitor_demand());
+						if(gb->get_tile()->get_besch()->get_typ() == gebaeude_t::wohnung)
+						{
+							city->buildings.append_unique(gb, gb->get_adjusted_population());
+						}
+						else
+						{
+							city->buildings.append_unique(gb, gb->get_adjusted_visitor_demand());
+						}
 					}
 				}
+				else
+				{
+					gb->set_stadt( NULL );
+					hausbauer_t::remove(welt->get_player(1), gb);
+				}
 			}
-			else if(!welt->get_is_shutting_down())
+			// Remove substations
+			FOR(vector_tpl<senke_t*>, sub, substations)
 			{
-				gb->set_stadt( NULL );
-				hausbauer_t::remove(welt->get_player(1), gb);
+				sub->city = NULL;
 			}
-		}
-		// Remove substations
-		FOR(vector_tpl<senke_t*>, sub, substations)
-		{
-			sub->city = NULL;
-		}
 		
-		if(!welt->get_is_shutting_down())
-		{
 			const weighted_vector_tpl<stadt_t*>& cities = welt->get_staedte();
 			FOR(weighted_vector_tpl<stadt_t*>, const i, cities)
 			{
 				i->remove_connected_city(this);
 			}
 		}
-	}
 
-	check_city_tiles(true);
+		check_city_tiles(true);
+	}
+	// avoid the bookkeeping if world gets destroyed
 }
 
 

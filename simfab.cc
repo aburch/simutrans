@@ -347,7 +347,7 @@ void fabrik_t::update_scaled_electric_amount()
 
 void fabrik_t::update_scaled_pax_demand()
 {
-	if(!welt->get_is_shutting_down())
+	if(!welt->is_destroying())
 	{
 		// first, scaling based on current production base
 		const sint64 prod = besch->get_produktivitaet() > 0 ? besch->get_produktivitaet() : 1;
@@ -394,7 +394,7 @@ void fabrik_t::update_scaled_pax_demand()
 
 void fabrik_t::update_scaled_mail_demand()
 {
-	if(!welt->get_is_shutting_down())
+	if(!welt->is_destroying())
 	{
 		// first, scaling based on current production base
 		const sint64 prod = besch->get_produktivitaet() > 0 ? besch->get_produktivitaet() : 1;
@@ -917,7 +917,7 @@ fabrik_t::~fabrik_t()
 
 	welt->remove_building_from_world_list(get_building());
 
-	if(!welt->get_is_shutting_down())
+	if(!welt->is_destroying())
 	{
 		if(city)
 		{

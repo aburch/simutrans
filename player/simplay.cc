@@ -1110,7 +1110,7 @@ bool player_t::has_money_or_assets() const
 void player_t::set_selected_signalbox(signalbox_t* sb)
 {
 	selected_signalbox = sb;
-	if(!welt->get_is_shutting_down())
+	if(!welt->is_destroying())
 	{
 		tool_t::update_toolbars();
 		welt->set_dirty();

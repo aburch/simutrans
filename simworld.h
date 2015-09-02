@@ -201,8 +201,6 @@ public:
 		on_foot
 	};
 
-	bool get_is_shutting_down() const { return is_shutting_down; }
-
 	enum { NORMAL=0, PAUSE_FLAG = 0x01, FAST_FORWARD=0x02, FIX_RATIO=0x04 };
 
 	/**
@@ -272,6 +270,11 @@ private:
 	 * Redraw background.
 	 */
 	bool background_dirty;
+
+ 	/**
+	 * True during destroying of the map.
+	 */
+	bool destroying;
 
 	/**
 	 * The rotation of the map when first loaded.
@@ -1084,6 +1087,11 @@ public:
 	 * Recalcs all map images.
 	 */
 	void update_map();
+
+	/**
+	 * @returns true if world gets destroyed
+	 */
+	bool is_destroying() const { return destroying; }
 
 	/**
 	 * Gets the world view.

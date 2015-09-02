@@ -220,12 +220,17 @@ stadt_t* gebaeude_t::get_stadt() const
  */
 gebaeude_t::~gebaeude_t()
 {
+	if(welt->is_destroying()) {
+		return;
+		// avoid book-keeping
+	}
+	
 	stadt_t* our_city = get_stadt();
 	if(!our_city && tile->get_besch()->get_utyp() == haus_besch_t::rathaus)
 	{
 		our_city = welt->get_city(get_pos().get_2d());
 	}
-	if(our_city && !welt->get_is_shutting_down()) 
+	if(our_city) 
 	{
 		our_city->remove_gebaeude_from_stadt(this);
 	}
@@ -259,13 +264,11 @@ gebaeude_t::~gebaeude_t()
 		}
 		player_t::add_maintenance(get_owner(), -maint);
 	}
-	if(!welt->get_is_shutting_down())
+
+	const weighted_vector_tpl<stadt_t*>& staedte = welt->get_staedte();
+	for(weighted_vector_tpl<stadt_t*>::const_iterator j = staedte.begin(), end = staedte.end(); j != end; ++j) 
 	{
-		const weighted_vector_tpl<stadt_t*>& staedte = welt->get_staedte();
-		for(weighted_vector_tpl<stadt_t*>::const_iterator j = staedte.begin(), end = staedte.end(); j != end; ++j) 
-		{
-			(*j)->remove_connected_attraction(this);
-		}
+		(*j)->remove_connected_attraction(this);
 	}
 
 	welt->remove_building_from_world_list(this);

@@ -163,6 +163,14 @@ objlist_t::objlist_t()
 
 objlist_t::~objlist_t()
 {
+	if(  capacity == 1  ) {
+		delete obj.one;
+	}
+	else {
+		for(  uint8 i=0;  i<top;  i++  ) {
+			delete obj.some[i];
+		}
+	}
 	if(capacity>1) {
 		dl_free(obj.some, capacity);
 	}

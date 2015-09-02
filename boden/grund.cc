@@ -483,8 +483,7 @@ grund_t::~grund_t()
 	// remove text from table
 	set_text(NULL);
 
-	objlist.loesche_alle(NULL,0);
-	if(flags&is_halt_flag && !welt->get_is_shutting_down()) {
+	if(flags&is_halt_flag && !welt->is_destroying()) {
 		get_halt()->rem_grund(this);
 	}
 }

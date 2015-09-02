@@ -753,9 +753,8 @@ void karte_t::cleanup_karte( int xoff, int yoff )
 void karte_t::destroy()
 {
 	is_sound = false; // karte_t::play_sound_area_clipped needs valid zeiger
+	destroying = true;
 DBG_MESSAGE("karte_t::destroy()", "destroying world");
-
-	is_shutting_down = true;
 
 	passenger_origins.clear();
 	commuter_targets.clear();
@@ -926,6 +925,7 @@ DBG_MESSAGE("karte_t::destroy()", "world destroyed");
 	path_explorer_t::finalise();
 
 	dbg->important("World destroyed.");
+	destroying = false;
 }
 
 
