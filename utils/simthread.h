@@ -15,6 +15,11 @@
 // Visual C++ does not supply unistd.h
 #endif
 
+#if defined _MSC_VER && _MSC_VER >= 1900
+// MSVC 2015 with Windows 10 SDK has struct timespec
+#define _TIMESPEC_DEFINED
+#endif
+
 #include <pthread.h>
 
 // Mac OS X defines this initializers without _NP.
