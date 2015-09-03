@@ -62,7 +62,6 @@ private:
 
 	void rdwr_xml_number(sint64 &s, const char *typ);
 
-
 	loadsave_t(const loadsave_t&);
 	loadsave_t& operator=(const loadsave_t&);
 
