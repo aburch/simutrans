@@ -3850,8 +3850,15 @@ bool rail_vehicle_t::is_signal_clear( uint16 next_block, sint32 &restart_speed )
 {
 	// called, when there is a signal; will call other signal routines if needed
 	grund_t *gr_next_block = welt->lookup(cnv->get_route()->position_bei(next_block));
+	const weg_t* way = gr_next_block->get_weg(get_waytype()); 
+	signal_t *sig = NULL;
+	const koord dir = get_pos().get_2d() - gr_next_block->get_pos().get_2d();
+	ribi_t::ribi ribi = ribi_typ(dir);	
+	if(way)
+	{
+		sig = way->get_signal(ribi); 
+	}
 
-	signal_t *sig = gr_next_block->find<signal_t>();
 	if(  sig==NULL  ) {
 		dbg->error( "rail_vehicle_t::is_signal_clear()", "called at %s without a signal!", cnv->get_route()->position_bei(next_block).get_str() );
 		return true;
@@ -4115,7 +4122,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		ribi_t::ribi ribi = ribi_typ(dir);	
 		signal_t* signal = way->get_signal(ribi); 
 
-		if(signal && (signal->get_state() == signal_t::caution || signal->get_state() == signal_t::preliminary_caution || signal->get_state() == signal_t::advance_caution))
+		if(signal && (signal->get_state() == signal_t::caution || signal->get_state() == signal_t::preliminary_caution || signal->get_state() == signal_t::advance_caution || signal->get_state() == signal_t::clear_no_choose || signal->get_state() == signal_t::caution_no_choose || signal->get_state() == signal_t::preliminary_caution_no_choose || signal->get_state() == signal_t::advance_caution_no_choose))
 		{
 			// We come accross a signal at caution: try (again) to free the block ahead.
 			bool ok = block_reserver(cnv->get_route(), route_index + 1, next_signal, 0, true, false);
@@ -4529,7 +4536,7 @@ bool rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16 &
 				gr->find<crossing_t>()->release_crossing(this);
 			}
 		}
-		if(i == route->get_count() - 1)
+		if(i >= route->get_count() - 1)
 		{ 
 			reached_end_of_loop = true;
 		}
@@ -4542,10 +4549,26 @@ bool rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16 &
 	// here we go only with reserve
 
 	// free, in case of un-reserve or no success in reservation
-	if(!success) 
+	// or alternatively ree that section reserved beyond the last signal to which reservation can take place
+	if(!success || ((next_signal_index < INVALID_INDEX) && !reached_end_of_loop && (next_signal_working_method == absolute_block || next_signal_working_method == track_circuit_block || next_signal_working_method == cab_signalling)))
 	{
 		// free reservation
-		for (uint32 j = start_index; j < i; j++)
+		uint16 relevant_index;
+		if(!success)
+		{
+			relevant_index = start_index;
+		}
+		else
+		{
+			relevant_index = next_signal_index + 1;
+		}
+
+		if(next_signal_index < INVALID_INDEX && (next_signal_index == start_index || welt->lookup(route->position_bei(next_signal_index))->get_halt().is_bound() && (welt->lookup(route->position_bei(next_signal_index))->get_halt() == welt->lookup(pos)->get_halt())))
+		{
+			// Cannot go anywhere either because this train is already on the tile of the last signal to which it can go, or is in the same station as it.
+			success = false;
+		}
+		for(uint32 j = relevant_index; j < i; j++)
 		{
 			if(i != skip_index)
 			{
@@ -4553,12 +4576,15 @@ bool rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16 &
 				sch1->unreserve(cnv->self);
 			}
 		}
-		cnv->set_next_reservation_index(start_index);
-		return false;
+		if(!success)
+		{
+			cnv->set_next_reservation_index(relevant_index);
+			return false;
+		}
 	}
 
 	// Clear signals on the route.
-	const int reducer = next_signal_index < end_marker_index && end_marker_index != INVALID_INDEX ? 0 : 1;
+	const int reducer = next_signal_index < end_marker_index && end_marker_index < INVALID_INDEX ? 0 : 1;
 	int counter = signs.get_count() - reducer;
 	FOR(slist_tpl<grund_t*>, const g, signs)
 	{
