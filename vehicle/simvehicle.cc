@@ -3968,7 +3968,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		{
 			// free track => reserve up to next signal
 			if(!block_reserver(cnv->get_route(), max(route_index, 1) - 1, next_signal, 0, true, false))
-			{
+			{		
 				restart_speed = 0;
 				return false;
 			}
@@ -4082,6 +4082,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 							weg_frei = block_reserver( &route, last_index, next_signal, 0, true, false );
 						}
 					}
+					
 					last_index = route.get_count() - 1;
 					cnv->set_next_stop_index(next_signal);
 					next_block = cnv->get_next_stop_index() - 1;
@@ -4160,9 +4161,23 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 					// Brake for the signal unless we can see it somehow. -1 because this is checked on entering the tile.
 					if(!is_signal_clear(next_block, restart_speed))
 					{
-						// only return false, if we are directly in front of the signal -1 because this is checked on entering the tile.
-						cnv->set_is_choosing(false);
-						return cnv->get_next_stop_index() > route_index;
+						if(starting_from_stand && (working_method == absolute_block || working_method == track_circuit_block || working_method == cab_signalling))
+						{
+							// Check for permissive working. Only check here, as the convoy must be brought to a stand before a call on.
+							if(signal->get_besch()->get_permissive() && signal->get_no_junctions_to_next_signal())
+							{
+								// Permissive working allowed: call on.
+								signal->set_state(roadsign_t::call_on);
+								working_method = drive_by_sight;
+							}
+						}
+
+						if(signal->get_state() != roadsign_t::call_on)
+						{
+							cnv->set_is_choosing(false);
+							// only return false, if we are directly in front of the signal -1 because this is checked on entering the tile.
+							return cnv->get_next_stop_index() > route_index;
+						}
 					}
 					cnv->set_is_choosing(false);
 				}
@@ -4280,6 +4295,7 @@ bool rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16 &
 		this_stop_signal_index = INVALID_INDEX;
 		pos = route->position_bei(i);
 		grund_t *gr = welt->lookup(pos);
+		schiene_t* sch1 = gr ? (schiene_t *)gr->get_weg(get_waytype()) : NULL;
 		if((working_method == drive_by_sight && (i - (start_index - 1)) > sighting_distance_tiles) && (!this_halt.is_bound() || (haltestelle_t::get_halt(pos, get_owner())) != this_halt))
 		{
 			// In drive by sight mode, do not reserve further than can be seen; but treat signals at the end of the platform as a signal at which the train is now standing.
@@ -4287,7 +4303,7 @@ bool rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16 &
 			break;
 		}
 		
-		schiene_t * sch1 = gr ? (schiene_t *)gr->get_weg(get_waytype()) : NULL;
+		
 		if(sch1 == NULL && reserve) 
 		{
 			// reserve until the end of track
@@ -4334,7 +4350,7 @@ bool rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16 &
 					}
 					previous_signal = signal;
 					next_signal_working_method = signal->get_besch()->get_working_method();
-					if(working_method == drive_by_sight)
+					if(working_method == drive_by_sight && sch1->can_reserve(cnv->self))
 					{
 						working_method = next_signal_working_method;
 					}
