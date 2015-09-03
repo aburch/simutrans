@@ -3687,11 +3687,6 @@ bool rail_vehicle_t::is_choose_signal_clear( signal_t *sig, const uint16 start_b
 	uint16 next_signal;
 	grund_t const* const target = welt->lookup(cnv->get_route()->back());
 
-	if(  cnv->get_fpl_target()!=koord3d::invalid  ) {
-		// destination is a waypoint!
-		goto skip_choose;
-	}
-
 	if(  target==NULL  ) {
 		cnv->suche_neue_route();
 		return false;
@@ -3728,7 +3723,7 @@ bool rail_vehicle_t::is_choose_signal_clear( signal_t *sig, const uint16 start_b
 		if(way->has_sign())
 		{
 			roadsign_t *rs = gr->find<roadsign_t>(1);
-			if(rs && rs->get_besch()->get_wtyp()==get_waytype())
+			if(rs && rs->get_besch()->get_wtyp() == get_waytype())
 			{
 				if((rs->get_besch()->get_flags() & roadsign_besch_t::END_OF_CHOOSE_AREA) != 0)
 				{
@@ -3737,18 +3732,16 @@ bool rail_vehicle_t::is_choose_signal_clear( signal_t *sig, const uint16 start_b
 				}
 			}
 		}
-		if(  way->has_signal()  )
+		if(way->has_signal())
 		{
 			signal_t *sig = gr->find<signal_t>(1);
-			ribi_t::ribi ribi = ribi_typ(cnv->get_route()->position_bei(max(1u,route_index)-1u));	
+ 			ribi_t::ribi ribi = ribi_typ(cnv->get_route()->position_bei(max(1u,route_index)-1u));	
 			if(!gr->get_weg(get_waytype())->get_ribi_maske() & ribi) // Check that the signal is facing in the right direction.
-			{
 				if(  sig  &&  sig->get_besch()->is_choose_sign()  )
 				{
 					// second choose signal on route => not choosing here
 					choose_ok = false;
 				}
-			}
 		}
 	}
 
@@ -3758,17 +3751,17 @@ skip_choose:
 		if(  block_reserver( cnv->get_route(), start_block+1, next_signal, 0, true, false )  ) {
 			if(working_method == track_circuit_block)
 			{
-				sig->set_state(roadsign_t::caution);
+				sig->set_state(roadsign_t::caution_no_choose);
 			}
 			else
 			{
-				sig->set_state(roadsign_t::clear);
+				sig->set_state(roadsign_t::clear_no_choose);
 			}
 			cnv->set_next_stop_index(next_signal);
 			return true;
 		}
 		// not free => wait here if directly in front
-		sig->set_state(  roadsign_t::danger );
+		sig->set_state(roadsign_t::danger);
 		restart_speed = 0;
 		return false;
 	}
@@ -3784,24 +3777,27 @@ skip_choose:
 		const int richtung = ribi_typ(get_pos().get_2d(),pos_next.get_2d());	// to avoid confusion at diagonals
 		cnv->set_is_choosing(true);
 #ifdef MAX_CHOOSE_BLOCK_TILES
-		if(  !target_rt.find_route( welt, cnv->get_route()->position_bei(start_block), this, speed_to_kmh(cnv->get_min_top_speed()), richtung, cnv->get_highest_axle_load(), cnv->get_tile_length(), cnv->get_weight_summary().weight / 1000, MAX_CHOOSE_BLOCK_TILES, route_t::choose_signal )  ) {
+		if(!target_rt.find_route(welt, cnv->get_route()->position_bei(start_block), this, speed_to_kmh(cnv->get_min_top_speed()), richtung, cnv->get_highest_axle_load(), cnv->get_tile_length(), cnv->get_weight_summary().weight / 1000, MAX_CHOOSE_BLOCK_TILES, route_t::choose_signal))
 #else
-		if(  !target_rt.find_route( welt, cnv->get_route()->position_bei(start_block), this, speed_to_kmh(cnv->get_min_top_speed()), richtung, cnv->get_highest_axle_load(), cnv->get_tile_length(), cnv->get_weight_summary().weight / 1000, welt->get_size().x+welt->get_size().y, route_t::choose_signal )  ) {
+		if(!target_rt.find_route(welt, cnv->get_route()->position_bei(start_block), this, speed_to_kmh(cnv->get_min_top_speed()), richtung, cnv->get_highest_axle_load(), cnv->get_tile_length(), cnv->get_weight_summary().weight / 1000, welt->get_size().x+welt->get_size().y, route_t::choose_signal)) 
 #endif
+		{
 			// nothing empty or not route with less than MAX_CHOOSE_BLOCK_TILES tiles
 			target_halt = halthandle_t();
-			sig->set_state(  roadsign_t::danger );
+			sig->set_state(roadsign_t::danger);
 			restart_speed = 0;
 			cnv->set_is_choosing(false);
 			return false;
 		}
-		else {
+		else
+		{
 			// try to alloc the whole route
 			cnv->update_route(start_block, target_rt);
-			if(  !block_reserver( cnv->get_route(), start_block+1, next_signal, 100000, true, false )  ) {
-				dbg->error( "rail_vehicle_t::is_choose_signal_clear()", "could not reserved route after find_route!" );
+			if(!block_reserver( cnv->get_route(), start_block + 1, next_signal, 100000, true, false)) 
+			{
+				dbg->error("rail_vehicle_t::is_choose_signal_clear()", "could not reserved route after find_route!" );
 				target_halt = halthandle_t();
-				sig->set_state(  roadsign_t::danger );
+				sig->set_state(roadsign_t::danger);
 				restart_speed = 0;
 				cnv->set_is_choosing(false);
 				return false;
@@ -4548,7 +4544,11 @@ bool rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16 &
 	}
 	// here we go only with reserve
 
-	// free, in case of un-reserve or no success in reservation
+	const koord3d signal_pos = next_signal_index < INVALID_INDEX ? route->position_bei(next_signal_index) : koord3d::invalid;
+	
+	const bool platform_starter = (this_halt.is_bound() && (haltestelle_t::get_halt(signal_pos, get_owner())) == this_halt) && (haltestelle_t::get_halt(get_pos(), get_owner()) == this_halt);
+
+	// free, in case of un-reservche or no success in reservation
 	// or alternatively ree that section reserved beyond the last signal to which reservation can take place
 	if(!success || ((next_signal_index < INVALID_INDEX) && !reached_end_of_loop && (next_signal_working_method == absolute_block || next_signal_working_method == track_circuit_block || next_signal_working_method == cab_signalling)))
 	{
@@ -4563,7 +4563,7 @@ bool rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16 &
 			relevant_index = next_signal_index + 1;
 		}
 
-		if(next_signal_index < INVALID_INDEX && (next_signal_index == start_index || welt->lookup(route->position_bei(next_signal_index))->get_halt().is_bound() && (welt->lookup(route->position_bei(next_signal_index))->get_halt() == welt->lookup(pos)->get_halt())))
+		if(next_signal_index < INVALID_INDEX && (next_signal_index == start_index || platform_starter))
 		{
 			// Cannot go anywhere either because this train is already on the tile of the last signal to which it can go, or is in the same station as it.
 			success = false;
@@ -4692,10 +4692,7 @@ bool rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16 &
 
 	if(next_signal_index != INVALID_INDEX && (next_signal_working_method == track_circuit_block || next_signal_working_method == absolute_block || next_signal_working_method == cab_signalling || next_signal_working_method == token_block))
 	{
-		// Platform starter signals
-		const koord3d signal_pos = route->position_bei(next_signal_index);
-	
-		if((this_halt.is_bound() && (haltestelle_t::get_halt(signal_pos, get_owner())) == this_halt) && (haltestelle_t::get_halt(get_pos(), get_owner()) == this_halt))
+		if(platform_starter)
 		{
 			// This is a platform starter signal for this station: do not move until it clears.
 			sint32 restart_speed = -1;
