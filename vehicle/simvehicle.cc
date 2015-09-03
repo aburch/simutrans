@@ -4118,7 +4118,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		ribi_t::ribi ribi = ribi_typ(dir);	
 		signal_t* signal = way->get_signal(ribi); 
 
-		if(signal && (signal->get_state() == signal_t::caution || signal->get_state() == signal_t::preliminary_caution || signal->get_state() == signal_t::advance_caution || signal->get_state() == signal_t::clear_no_choose || signal->get_state() == signal_t::caution_no_choose || signal->get_state() == signal_t::preliminary_caution_no_choose || signal->get_state() == signal_t::advance_caution_no_choose))
+		if(signal && (signal->get_state() == signal_t::caution || signal->get_state() == signal_t::preliminary_caution || signal->get_state() == signal_t::advance_caution || (working_method == track_circuit_block && signal->get_state() == signal_t::clear) || signal->get_state() == signal_t::clear_no_choose || signal->get_state() == signal_t::caution_no_choose || signal->get_state() == signal_t::preliminary_caution_no_choose || signal->get_state() == signal_t::advance_caution_no_choose))
 		{
 			// We come accross a signal at caution: try (again) to free the block ahead.
 			bool ok = block_reserver(cnv->get_route(), route_index + 1, next_signal, 0, true, false);
@@ -4273,6 +4273,8 @@ bool rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16 &
 	koord3d signalbox_last_distant_signal = koord3d::invalid;
 	sint32 remaining_aspects = -1;
 	bool reached_end_of_loop = false;
+	bool no_junctions_to_next_signal = true; 
+	signal_t* previous_signal = NULL;
 	for( ; success && count >= 0 && i < route->get_count(); i++)
 	{
 		this_stop_signal_index = INVALID_INDEX;
@@ -4302,6 +4304,10 @@ bool rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16 &
 #endif
 		if(reserve)
 		{
+			if(sch1->is_junction())
+			{
+				no_junctions_to_next_signal = false;
+			}
 			if(sch1->is_crossing()) 
 			{
 				crossing_t* cr = gr->find<crossing_t>(2);
@@ -4322,6 +4328,11 @@ bool rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16 &
 				signal_t* signal = gr->get_weg(get_waytype())->get_signal(ribi_typ(route->position_bei(max(1u,i)-1u), route->position_bei(min(route->get_count()-1u,i+1u))));
 				if(signal)
 				{
+					if(previous_signal && !previous_signal->get_besch()->is_choose_sign())
+					{
+						previous_signal->set_no_junctions_to_next_signal(no_junctions_to_next_signal);
+					}
+					previous_signal = signal;
 					next_signal_working_method = signal->get_besch()->get_working_method();
 					if(working_method == drive_by_sight)
 					{
@@ -4545,7 +4556,6 @@ bool rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16 &
 	// here we go only with reserve
 
 	const koord3d signal_pos = next_signal_index < INVALID_INDEX ? route->position_bei(next_signal_index) : koord3d::invalid;
-	
 	const bool platform_starter = (this_halt.is_bound() && (haltestelle_t::get_halt(signal_pos, get_owner())) == this_halt) && (haltestelle_t::get_halt(get_pos(), get_owner()) == this_halt);
 
 	// free, in case of un-reservche or no success in reservation
@@ -4608,6 +4618,7 @@ bool rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16 &
 							next_signal_index = route->get_count() - 1; 
 							add_value = 1;
 						}
+						
 						switch(signal->get_besch()->get_aspects())
 						{
 						default:
@@ -4623,7 +4634,10 @@ bool rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16 &
 							}
 							else if(signal->get_pos() != route->position_bei(next_signal_index))
 							{
-								signal->set_state(roadsign_t::caution);
+								if(signal->get_state() == roadsign_t::danger)
+								{
+									signal->set_state(roadsign_t::caution);
+								}
 							}
 							break;
 						case 4:
@@ -4633,11 +4647,17 @@ bool rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16 &
 							}
 							else if(counter + add_value >= 1)
 							{
-								signal->set_state(roadsign_t::preliminary_caution);
+								if(signal->get_state() == roadsign_t::danger || signal->get_state() == roadsign_t::caution)
+								{
+									signal->set_state(roadsign_t::preliminary_caution);
+								}	
 							}
 							else if(signal->get_pos() != route->position_bei(next_signal_index))
 							{
-								signal->set_state(roadsign_t::caution);
+								if(signal->get_state() == roadsign_t::danger)
+								{
+									signal->set_state(roadsign_t::caution);
+								}
 							}
 							break;
 						case 5:
@@ -4647,15 +4667,24 @@ bool rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16 &
 							}
 							else if(counter + add_value >= 2)
 							{
-								signal->set_state(roadsign_t::advance_caution);
+								if(signal->get_state() == roadsign_t::danger || signal->get_state() == roadsign_t::caution || signal->get_state() == roadsign_t::preliminary_caution)
+								{
+									signal->set_state(roadsign_t::advance_caution);
+								}
 							}
 							else if(counter + add_value >= 1)
 							{
-								signal->set_state(roadsign_t::preliminary_caution);
+								if(signal->get_state() == roadsign_t::danger || signal->get_state() == roadsign_t::caution)
+								{
+									signal->set_state(roadsign_t::preliminary_caution);
+								}
 							}
 							else if(signal->get_pos() != route->position_bei(next_signal_index))
 							{
-								signal->set_state(roadsign_t::caution);
+								if(signal->get_state() == roadsign_t::danger)
+								{
+									signal->set_state(roadsign_t::caution);
+								}
 							}
 							break;
 						}
@@ -4801,7 +4830,7 @@ void rail_vehicle_t::leave_tile()
 
 							if(!sig->get_besch()->is_longblock_signal())
 							{
-								w->set_working_method(absolute_block);
+								w->set_working_method(sig->get_besch()->get_working_method());
 							}
 							if(cnv->get_needs_full_route_flush())
 							{
@@ -4847,6 +4876,74 @@ void rail_vehicle_t::leave_tile()
 								}
 							}
 						}
+						else if(w && w->get_working_method() == track_circuit_block)
+						{
+							// Must reset all "automatic" signals behind this convoy to less restrictive states. 
+							koord3d last_pos = get_pos(); 
+							uint32 signals_count = 0;
+							for(int i = route_index - 1; i >= 0; i--)
+							{				
+								const koord3d this_pos = route->position_bei(i);
+								const koord dir = last_pos.get_2d() - this_pos.get_2d();
+								ribi_t::ribi ribi_route = ribi_typ(dir);	
+								grund_t* gr_route = welt->lookup(this_pos);
+								schiene_t* sch_route = gr_route ? (schiene_t *)gr_route->get_weg(get_waytype()) : NULL;
+								if(!sch_route || !sch_route->can_reserve(cnv->self))
+								{
+									// Cannot go further back than this in any event
+									break;
+								}
+								if(!cnv || cnv->get_state() != convoi_t::REVERSING)
+								{
+									signal_t* signal_route = sch_route->get_signal(ribi_route);
+									if(!signal_route || signal_route == sig)
+									{
+										continue;
+									}
+									if(!signal_route->get_no_junctions_to_next_signal())
+									{
+										break;
+									}
+									switch(signals_count)
+									{
+									case 0:
+										if(signal_route->get_besch()->get_aspects() > 2)
+										{
+											signal_route->set_state(roadsign_t::caution);
+										}
+										else
+										{
+											signal_route->set_state(roadsign_t::clear);
+										}
+										break;
+									case 1:
+										if(signal_route->get_besch()->get_aspects() > 3)
+										{
+											signal_route->set_state(roadsign_t::preliminary_caution);
+										}
+										else
+										{
+											signal_route->set_state(roadsign_t::clear);
+										}
+										break;
+									case 2:
+										if(signal_route->get_besch()->get_aspects() > 4)
+										{
+											signal_route->set_state(roadsign_t::advance_caution);
+										}
+										else
+										{
+											signal_route->set_state(roadsign_t::clear);
+										}
+										break;
+									default:
+										signal_route->set_state(roadsign_t::clear);
+									};
+									signals_count++;
+								}
+							}
+						}
+
 						if(!sig->get_besch()->is_pre_signal() || (w && w->get_working_method() != absolute_block && w->get_working_method() != token_block))
 						{
 							sig->set_state(roadsign_t::danger);

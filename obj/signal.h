@@ -25,6 +25,8 @@ class signal_t : public roadsign_t
 private:
 	koord3d signalbox;
 
+	bool no_junctions_to_next_signal;
+
 public:
 	signal_t(loadsave_t *file);
 	signal_t(player_t *player, koord3d pos, ribi_t::ribi dir,const roadsign_besch_t *besch, koord3d sb, bool preview = false);
@@ -54,6 +56,9 @@ public:
 
 	void set_signalbox(koord3d k) { signalbox = k; }
 	koord3d get_signalbox() const { return signalbox; }
+
+	bool get_no_junctions_to_next_signal() const { return no_junctions_to_next_signal; }
+	void set_no_junctions_to_next_signal(bool value) { no_junctions_to_next_signal = value; } 
 };
 
 #endif

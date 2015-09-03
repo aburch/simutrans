@@ -441,6 +441,8 @@ public:
 
 	signal_t* get_signal(ribi_t::ribi direction_of_travel) const;
 
+	bool is_junction() const { return ribi_t::is_threeway(get_ribi_unmasked()); }
+
 } GCC_PACKED;
 
 #endif

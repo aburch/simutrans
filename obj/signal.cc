@@ -355,6 +355,11 @@ void signal_t::rdwr_signal(loadsave_t *file)
 		bool ignore_choose_full = ignore_choose;
 		file->rdwr_bool(ignore_choose_full);
 		ignore_choose = ignore_choose_full; 
+#ifdef SPECIAL_RESCUE_12_6
+		if(file->is_saving())
+#endif
+		// TODO: Enable this
+		//file->rdwr_bool(no_junctions_to_next_signal);
 	}
 }
 
