@@ -186,7 +186,9 @@ int main(int argc, char **argv)
  	return sysmain(argc, argv);
  }
 
+#ifdef _WIN32
 int CALLBACK WinMain(HINSTANCE const hInstance, HINSTANCE, LPSTR, int)
 {
 	return 0;
 }
+#endif
