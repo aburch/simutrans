@@ -3959,7 +3959,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		|| cnv->get_state() == convoi_t::CAN_START_TWO_MONTHS
 		|| cnv->get_state() == convoi_t::REVERSING;
 
-	if(destination_is_nonreversing_waypoint || starting_from_stand || working_method == drive_by_sight)
+	if(destination_is_nonreversing_waypoint || starting_from_stand)
 	{
 		// reserve first block at the start until the next signal
 		grund_t *gr_current = welt->lookup( get_pos() );
