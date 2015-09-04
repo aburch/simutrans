@@ -5294,10 +5294,10 @@ const char* tool_build_roadsign_t::check_pos_intern(player_t *player, koord3d po
 		if(besch->is_signal_type() && besch->get_signal_group())
 		{
 			signalbox_t* sb = NULL;
-			const grund_t* gr = welt->lookup(signal[player->get_player_nr()].signalbox);
-			if(gr)
+			const grund_t* gr_signalbox = welt->lookup(signal[player->get_player_nr()].signalbox);
+			if(gr_signalbox)
 			{
-				const gebaeude_t* gb = gr->get_building();
+				const gebaeude_t* gb = gr_signalbox->get_building();
 				if(gb->get_tile()->get_besch()->get_utyp() == haus_besch_t::signalbox)
 				{
 					sb = (signalbox_t*)gb; 
@@ -5326,8 +5326,11 @@ const char* tool_build_roadsign_t::check_pos_intern(player_t *player, koord3d po
 
 			if(!sb->can_add_more_signals())
 			{
-
-				return "Cannot build any more signals connected to this signalbox: capacity exceeded.";
+				signal_t* signal = gr->find<signal_t>();
+				if(!signal)
+				{
+					return "Cannot build any more signals connected to this signalbox: capacity exceeded.";
+				}
 			}
 		}
 
