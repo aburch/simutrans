@@ -4119,7 +4119,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		ribi_t::ribi ribi = ribi_typ(dir);	
 		signal_t* signal = way->get_signal(ribi); 
 
-		if(signal && (signal->get_state() == signal_t::caution || signal->get_state() == signal_t::preliminary_caution || signal->get_state() == signal_t::advance_caution || (working_method == track_circuit_block && signal->get_state() == signal_t::clear) || signal->get_state() == signal_t::clear_no_choose || signal->get_state() == signal_t::caution_no_choose || signal->get_state() == signal_t::preliminary_caution_no_choose || signal->get_state() == signal_t::advance_caution_no_choose))
+		if(signal && (signal->get_state() == signal_t::caution || signal->get_state() == signal_t::preliminary_caution || signal->get_state() == signal_t::advance_caution || (working_method == track_circuit_block && signal->get_state() == signal_t::clear) || (working_method == track_circuit_block && signal->get_state() == signal_t::clear_no_choose) || signal->get_state() == signal_t::caution_no_choose || signal->get_state() == signal_t::preliminary_caution_no_choose || signal->get_state() == signal_t::advance_caution_no_choose))
 		{
 			// We come accross a signal at caution: try (again) to free the block ahead.
 			bool ok = block_reserver(cnv->get_route(), route_index + 1, next_signal, 0, true, false);
@@ -4267,7 +4267,7 @@ bool rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16 &
 	}
 	if(!reserve)
 	{
-		cnv->set_next_reservation_index( start_index );
+		cnv->set_next_reservation_index(start_index);
 	}
 
 	// find next block segment enroute
@@ -4290,6 +4290,7 @@ bool rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16 &
 	bool reached_end_of_loop = false;
 	bool no_junctions_to_next_signal = true; 
 	signal_t* previous_signal = NULL;
+	bool end_of_block = false;
 	for( ; success && count >= 0 && i < route->get_count(); i++)
 	{
 		this_stop_signal_index = INVALID_INDEX;
@@ -4302,7 +4303,6 @@ bool rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16 &
 			next_signal_index = i;
 			break;
 		}
-		
 		
 		if(sch1 == NULL && reserve) 
 		{
@@ -4348,6 +4348,7 @@ bool rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16 &
 					{
 						previous_signal->set_no_junctions_to_next_signal(no_junctions_to_next_signal);
 					}
+					
 					previous_signal = signal;
 					next_signal_working_method = signal->get_besch()->get_working_method();
 					if(working_method == drive_by_sight && sch1->can_reserve(cnv->self))
@@ -4356,7 +4357,7 @@ bool rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16 &
 					}
 					if(!signal->get_besch()->is_pre_signal())
 					{
-						if(count || pre_signals.get_count() || next_signal_working_method == track_circuit_block)
+						if(count || pre_signals.get_count() || next_signal_working_method == track_circuit_block || first_stop_signal_index == INVALID_INDEX)
 						{
 							signs.append(gr);
 						}
@@ -4369,6 +4370,7 @@ bool rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16 &
 								if(signalbox_last_distant_signal != signal->get_signalbox())
 								{
 									count--;
+									end_of_block = true;
 								}
 							}
 							else if(next_signal_working_method == track_circuit_block)
@@ -4401,6 +4403,11 @@ bool rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16 &
 						{
 							remaining_aspects = min(remaining_aspects - 1, signal->get_besch()->get_aspects()); 
 						}
+						else if(next_signal_working_method == absolute_block && pre_signals.empty())
+						{
+							// No distant signals: just reserve one block beyond the first stop signal and no more.
+							count --;
+						}
 						this_stop_signal_index = i;
 					}
 					else
@@ -4408,7 +4415,7 @@ bool rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16 &
 						// Distant signal
 						if(next_signal_working_method == absolute_block || next_signal_working_method == token_block)
 						{
-							if(signalbox_last_distant_signal == koord3d::invalid || signalbox_last_distant_signal == signal->get_signalbox())
+							if((signalbox_last_distant_signal == koord3d::invalid || signalbox_last_distant_signal == signal->get_signalbox()) && (!pre_signals.empty() || first_stop_signal_index == INVALID_INDEX))
 							{
 								pre_signals.append(signal); 
 								last_pre_signal_index = i;
@@ -4450,6 +4457,11 @@ bool rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16 &
 				if(this_stop_signal_index != INVALID_INDEX)
 				{
 					last_stop_signal_index = this_stop_signal_index;
+				}
+				if(end_of_block)
+				{
+					next_signal_index = last_stop_signal_index;
+					break;
 				}
 			}
 
@@ -4521,7 +4533,7 @@ bool rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16 &
 				}
 				ribi_last = ribi;
 			} // Early platform search
-		}
+		} //if(reserve)
 
 		else if(sch1) // Unreserve
 		{
@@ -4558,7 +4570,8 @@ bool rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16 &
 			{
 				gr->find<crossing_t>()->release_crossing(this);
 			}
-		}
+		} // Unreserve
+
 		if(i >= route->get_count() - 1)
 		{ 
 			reached_end_of_loop = true;
@@ -4709,31 +4722,14 @@ bool rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16 &
 			}
 		}
 	}
-	if(pre_signals.get_count() == 1 && next_signal_working_method == absolute_block && end_marker_index == INVALID_INDEX)
-	{
-		// We have encountered only one pre-signal on the reservable route. 
-		// Thus, the next stop signal could be at danger even if we can reserve a route further on.
-		next_signal_index = first_stop_signal_index;
-	}
 	
-	counter = pre_signals.get_count() - 1;
 	FOR(slist_tpl<signal_t*>, const signal, pre_signals)
-	{
-		// Only set the distant (pre-signal) to clear if there is another distant to which we can reserve, or
-		// if there is a distant signal, then a stop signal, then an end marker (end of choose), in which case
-		// we know that the stop signals up to but not necessarily beyond the end marker are clear.
-		if(counter-- || (end_marker_index != INVALID_INDEX && (last_pre_signal_index < end_marker_index && first_stop_signal_index < end_marker_index)))
-		{		
-			if(do_not_clear_distant)
-			{
-				signal->set_state(roadsign_t::caution); 
-			}
-			else
-			{
-				signal->set_state(roadsign_t::clear); 
-			}
+	{		
+		if(!do_not_clear_distant)
+		{
+			signal->set_state(roadsign_t::clear); 
 		}
-	}
+}
 
 	if(next_signal_index != INVALID_INDEX && (next_signal_working_method == track_circuit_block || next_signal_working_method == absolute_block || next_signal_working_method == cab_signalling || next_signal_working_method == token_block))
 	{
