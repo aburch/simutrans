@@ -176,7 +176,7 @@ const weg_besch_t* wegbauer_t::weg_search(const waytype_t wtyp, const sint32 spe
 			(test->get_styp()==system_type  ||  system_type==weg_t::type_all))  ||  (test->get_wtyp()==track_wt  &&  test->get_styp()==weg_t::type_tram  &&  wtyp==tram_wt))
 			&&  test->get_cursor()->get_bild_nr(1)!=IMG_LEER  ) 
 		{
-				bool test_allowed = test->get_intro_year_month()<=time  &&  time<test->get_retire_year_month();
+				bool test_allowed = test->get_intro_year_month()<=time  &&  time<test->get_retire_year_month() && !test->is_mothballed();
 				if(  !best_allowed  ||  time==0  ||  test_allowed  ) 
 				{
 					if(  best==NULL  ||

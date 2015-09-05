@@ -2372,7 +2372,7 @@ const weg_besch_t *tool_build_way_t::get_besch( uint16 timeline_year_month, bool
 		waytype_t wt = (waytype_t)atoi(default_param);
 		besch = defaults[wt&63];
 		if(besch==NULL) {
-			// search fastest way.
+			// Search for default way
 			besch = wegbauer_t::weg_search(wt, 0xffffffff, timeline_year_month, weg_t::type_flat);
 		}
 	}
