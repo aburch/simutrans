@@ -4102,7 +4102,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		return ok;
 	}
 
-	if(working_method == absolute_block || working_method == track_circuit_block)
+	if(working_method == absolute_block || working_method == track_circuit_block || working_method == drive_by_sight)
 	{
 		// Check for distant signals at caution within the sighting distance to see whether they can now clear whereas they could not before.
 		const koord3d tile_to_check_ahead = cnv->get_route()->position_bei(min(route.get_count() - 1u, route_index + sighting_distance_tiles));
@@ -4373,9 +4373,10 @@ bool rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16 &
 									end_of_block = true;
 								}
 							}
-							else if(next_signal_working_method == track_circuit_block)
+							else if(next_signal_working_method == track_circuit_block && remaining_aspects <= 2)
 							{
-								// TODO: Deal with repeaters in MAS.
+								count--;
+								end_of_block = true;
 							}
 							else if(next_signal_working_method == time_interval)
 							{
@@ -4425,6 +4426,10 @@ bool rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16 &
 						else if(next_signal_working_method == track_circuit_block)
 						{
 							// In this mode, distant signals are regarded as mere repeaters.
+							if(remaining_aspects < 2 && pre_signals.empty())
+							{
+								remaining_aspects = 3;
+							}
 							pre_signals.append(signal); 
 							last_pre_signal_index = i;
 						}
@@ -4440,7 +4445,8 @@ bool rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16 &
 				}
 				if((next_signal_working_method == absolute_block || next_signal_working_method == token_block) && first_stop_signal_index < i)
 				{
-					// Cannot reserve through beyond the stop signal(s) beyond the distant, but can reserve to the first stop signal.
+					// Because the distant signal applies to all signals controlled by the same signalbox, the driver cannot know that the route 
+					// will be clear beyond the *first* stop signal after the distant. 
 					next_signal_index = first_stop_signal_index;
 					do_not_clear_distant = true;
 					break;
@@ -4888,7 +4894,7 @@ void rail_vehicle_t::leave_tile()
 								}
 							}
 						}
-						else if(w && w->get_working_method() == track_circuit_block)
+						else if(w && w->get_working_method() == track_circuit_block && !sig->get_besch()->is_pre_signal())
 						{
 							// Must reset all "automatic" signals behind this convoy to less restrictive states. 
 							koord3d last_pos = get_pos(); 
@@ -4916,17 +4922,18 @@ void rail_vehicle_t::leave_tile()
 									{
 										break;
 									}
+
 									switch(signals_count)
 									{
 									case 0:
-										if(signal_route->get_besch()->get_aspects() > 2)
+										if(signal_route->get_besch()->get_aspects() > 2 || signal_route->get_besch()->is_pre_signal())
 										{
 											signal_route->set_state(roadsign_t::caution);
 										}
 										else
 										{
 											signal_route->set_state(roadsign_t::clear);
-										}
+										}			
 										break;
 									case 1:
 										if(signal_route->get_besch()->get_aspects() > 3)
@@ -4937,7 +4944,7 @@ void rail_vehicle_t::leave_tile()
 										{
 											signal_route->set_state(roadsign_t::clear);
 										}
-										break;
+									break;
 									case 2:
 										if(signal_route->get_besch()->get_aspects() > 4)
 										{
@@ -4956,10 +4963,11 @@ void rail_vehicle_t::leave_tile()
 							}
 						}
 
-						if(!sig->get_besch()->is_pre_signal() || (w && w->get_working_method() != absolute_block && w->get_working_method() != token_block))
+						if(!sig->get_besch()->is_pre_signal())
 						{
 							sig->set_state(roadsign_t::danger);
 						}
+
 						if(route && !sig->get_besch()->is_pre_signal() && (w && (w->get_working_method() == absolute_block || w->get_working_method() == token_block)))
 						{
 							// Set distant signals in the rear to caution only after the train has passed the stop signal.

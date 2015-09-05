@@ -261,6 +261,11 @@ void signal_t::calc_image()
 				modified_state = danger;
 			}
 
+			if(besch->get_aspects() == 2 && !besch->is_pre_signal() && !besch->is_choose_sign() && state > clear && !besch->get_has_call_on())
+			{
+				modified_state = clear;
+			}
+
 			// signs for left side need other offsets and other front/back order
 			if(  left_swap  ) {
 				const sint16 XOFF = 2*besch->get_offset_left();
