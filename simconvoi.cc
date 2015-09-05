@@ -1272,13 +1272,21 @@ bool convoi_t::drive_to()
 			}
 		}
 
+		halthandle_t destination_halt = haltestelle_t::get_halt(ziel,get_owner());
+		halthandle_t this_halt = haltestelle_t::get_halt(start,get_owner());
+		if(this_halt.is_bound() && this_halt == destination_halt)
+		{
+			// For some reason, the schedule has failed to advance. Advance it before calculating the route.
+			reverse_schedule ? fpl->advance_reverse() : fpl->advance();
+			ziel = fpl->get_current_eintrag().pos;
+		}
+
 		// avoid stopping midhalt
 		if(  start==ziel  ) {
-			halthandle_t halt = haltestelle_t::get_halt(ziel,get_owner());
-			if(  halt.is_bound()  &&  route.is_contained(start)  ) {
+			if(  destination_halt.is_bound()  &&  route.is_contained(start)  ) {
 				for(  uint32 i=route.index_of(start);  i<route.get_count();  i++  ) {
 					grund_t *gr = welt->lookup(route.position_bei(i));
-					if(  gr  && gr->get_halt()==halt  ) {
+					if(  gr  && gr->get_halt()==destination_halt  ) {
 						ziel = gr->get_pos();
 					}
 					else {

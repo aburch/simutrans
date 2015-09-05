@@ -3748,7 +3748,7 @@ sint32 rail_vehicle_t::is_choose_signal_clear( signal_t *sig, const uint16 start
 	}
 
 skip_choose:
-	if(  !choose_ok  )
+	if(!choose_ok)
 	{
 		// just act as normal signal
 		if( sint32 blocks = block_reserver( cnv->get_route(), start_block+1, next_signal, 0, true, false )  ) {
@@ -4453,7 +4453,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 					}
 					if(!signal->get_besch()->is_pre_signal())
 					{
-						if(count || pre_signals.get_count() || next_signal_working_method == track_circuit_block || first_stop_signal_index == INVALID_INDEX)
+						if(count || pre_signals.get_count() || next_signal_working_method == track_circuit_block || first_stop_signal_index >= INVALID_INDEX)
 						{
 							signs.append(gr);
 						}
@@ -4526,8 +4526,11 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 							{
 								remaining_aspects = 3;
 							}
-							pre_signals.append(signal); 
-							last_pre_signal_index = i;
+							if(first_stop_signal_index == INVALID_INDEX)
+							{
+								pre_signals.append(signal); 
+								last_pre_signal_index = i;
+							}
 						}
 					}
 				}
