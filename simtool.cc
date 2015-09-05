@@ -2120,10 +2120,11 @@ const weg_besch_t *tool_build_way_t::get_besch( uint16 timeline_year_month, bool
 		besch = defaults[wt&63];
 		if(besch==NULL) {
 			// search fastest way.
-			if(  wt == tram_wt  ) {
+			if(  wt == tram_wt  ||  wt == powerline_wt  ) {
 				besch = wegbauer_t::weg_search(wt, 0xffffffff, timeline_year_month, weg_t::type_flat);
 			}
 			else {
+				// this triggers an assertion if wt == powerline_wt
 				weg_t *w = weg_t::alloc(wt);
 				besch = w->get_besch();
 				delete w;
