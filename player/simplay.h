@@ -345,13 +345,11 @@ public:
 	virtual void report_vehicle_problem(convoihandle_t cnv,const koord3d position);
 
 	/**
-	 * Tells the player the result of tool-work commands
-	 * If player is active then play sound, popup error msg etc
-	 * AI players react upon this call and proceed
-	 * local is true if tool was called by player on our client
+	 * Tells the player the result of tool-work commands.
+	 * If player is active then play sound, popup error msg etc.
 	 * @author Dwachs
 	 */
-	virtual void tell_tool_result(tool_t *tool, koord3d pos, const char *err, bool local);
+	void tell_tool_result(tool_t *tool, koord3d pos, const char *err);
 
 	/**
 	 * Tells the player that the factory

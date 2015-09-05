@@ -262,7 +262,7 @@ void interaction_t::interactive_event( const event_t &ev )
 			}
 			if (result) {
 				// play sound / error message
-				world->get_active_player()->tell_tool_result(tool, world->get_zeiger()->get_pos(), err, true);
+				world->get_active_player()->tell_tool_result(tool, world->get_zeiger()->get_pos(), err);
 			}
 			tool->flags = 0;
 		}
