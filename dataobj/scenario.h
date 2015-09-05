@@ -35,17 +35,17 @@ private:
 	};
 
 	/// state of the current scenario @see scenario_state_t
-	uint16	what_scenario;
+	uint16 what_scenario;
 
 	/// the world we are scripting in
 	karte_t *welt;
 
 
-	/// name of scenario script file (without .nut extension)
+	/// name of scenario, files are searched in scenario_path/scenario_name/...
 	/// e.g. my_scenario
 	plainstring scenario_name;
 
-	/// path to scenario directory (relative to env_t::program_dir)
+	/// path to scenario directory (relative to env_t::user_dir)
 	/// e.g. pak/scenario/my_scenario/
 	plainstring scenario_path;
 
