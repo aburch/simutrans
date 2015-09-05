@@ -2118,7 +2118,7 @@ const weg_besch_t *tool_build_way_t::get_besch( uint16 timeline_year_month, bool
 	if(  besch==NULL  &&  default_param  ) {
 		waytype_t wt = (waytype_t)atoi(default_param);
 		besch = defaults[wt&63];
-		if(besch==NULL) {
+		if(besch==NULL  ||  !besch->is_available(timeline_year_month)) {
 			// search fastest way.
 			if(  wt == tram_wt  ||  wt == powerline_wt  ) {
 				besch = wegbauer_t::weg_search(wt, 0xffffffff, timeline_year_month, weg_t::type_flat);
