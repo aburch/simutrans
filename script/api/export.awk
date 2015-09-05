@@ -100,6 +100,9 @@ function split_params(string)
 	}
 	within_class = data[1]
 	indent = "\t"
+	param_count = 0
+	delete params
+	delete ptypes
 }
 
 /end_.*class/ {
