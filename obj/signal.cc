@@ -50,6 +50,8 @@ signal_t::signal_t(player_t *player, koord3d pos, ribi_t::ribi dir,const roadsig
 		state = danger;
 	}
 
+	no_junctions_to_next_signal = false;
+
 	if(besch->get_signal_group())
 	{
 		const grund_t* gr = welt->lookup(sb);
@@ -264,6 +266,11 @@ void signal_t::calc_image()
 			if(besch->get_aspects() == 2 && !besch->is_pre_signal() && !besch->is_choose_sign() && state > clear && !besch->get_has_call_on())
 			{
 				modified_state = clear;
+			}
+
+			if(besch->get_has_selective_choose() && besch->get_aspects() < 5 && state >= clear_no_choose)
+			{
+				modified_state -= diff; 
 			}
 
 			// signs for left side need other offsets and other front/back order
