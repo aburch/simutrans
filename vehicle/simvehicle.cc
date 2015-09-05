@@ -482,9 +482,6 @@ void vehicle_base_t::calc_height(grund_t *gr)
 			}
 		}
 	}
-	else if(  !gr->is_visible()  ) {
-		set_bild(IMG_LEER);
-	}
 	else {
 		// will not work great with ways, but is very short!
 		hang_t::typ hang = gr->get_weg_hang();

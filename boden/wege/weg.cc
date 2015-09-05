@@ -427,7 +427,7 @@ void weg_t::calc_image()
 	grund_t *to;
 	image_id old_bild = bild;
 
-	if(  from==NULL  ||  besch==NULL  ||  !from->is_visible()  ) {
+	if(  from==NULL  ||  besch==NULL  ) {
 		// no ground, in tunnel
 		set_bild(IMG_LEER);
 		set_after_bild(IMG_LEER);
