@@ -78,7 +78,7 @@ private:
 	void create_bus_transport_vehikel(koord startpos,int anz_vehikel,koord *stops,int anzahl,bool do_wait);
 
 public:
-	ai_passenger_t(karte_t *wl, uint8 nr);
+	ai_passenger_t(uint8 nr);
 
 	// this type of AIs identifier
 	virtual uint8 get_ai_id() const { return AI_PASSENGER; }

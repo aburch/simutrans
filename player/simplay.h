@@ -20,7 +20,7 @@
 #include "../tpl/vector_tpl.h"
 
 
-class karte_t;
+class karte_ptr_t;
 class fabrik_t;
 class koord3d;
 class tool_t;
@@ -45,7 +45,7 @@ protected:
 	 *
 	 * @author Hj. Malthaner
 	 */
-	static karte_t *welt;
+	static karte_ptr_t welt;
 
 	// when was the company founded
 	uint16 player_age;
@@ -249,11 +249,10 @@ public:
 	static bool check_owner( const player_t *owner, const player_t *test );
 
 	/**
-	 * @param welt World this players belong to.
 	 * @param player_nr Number assigned to this player, it's a ID.
 	 * @author Hj. Malthaner
 	 */
-	player_t(karte_t *welt, uint8 player_nr );
+	player_t(uint8 player_nr );
 
 	virtual ~player_t();
 
