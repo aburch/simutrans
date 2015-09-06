@@ -4680,6 +4680,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 		if(i >= route->get_count() - 1)
 		{ 
 			reached_end_of_loop = true;
+			next_signal_index = INVALID_INDEX; 
 		}
 	} // For loop
 
@@ -4694,7 +4695,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 
 	// free, in case of un-reservche or no success in reservation
 	// or alternatively ree that section reserved beyond the last signal to which reservation can take place
-	if(!success || ((next_signal_index < INVALID_INDEX) && !reached_end_of_loop && (next_signal_working_method == absolute_block || next_signal_working_method == track_circuit_block || next_signal_working_method == cab_signalling)))
+	if(!success || ((next_signal_index < INVALID_INDEX) && (next_signal_working_method == absolute_block || next_signal_working_method == track_circuit_block || next_signal_working_method == cab_signalling)))
 	{
 		// free reservation
 		uint16 relevant_index;
@@ -4734,7 +4735,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 	{
 		if(signal_t* const signal = g->find<signal_t>())
 		{
-			if(counter -- || pre_signals.empty())
+			if(counter -- || pre_signals.empty() || reached_end_of_loop)
 			{
 				if(signal->get_besch()->get_working_method() == absolute_block || signal->get_besch()->get_working_method() == token_block || signal->get_besch()->get_working_method() == cab_signalling)
 				{
@@ -4742,21 +4743,20 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 				}
 				if(signal->get_besch()->get_working_method() == track_circuit_block)
 				{
-					if(signal->get_pos() != route->position_bei(next_signal_index) || count >= 0)
+					if(count >= 0 || signal->get_pos() != route->position_bei(next_signal_index))
 					{
 						// Do not clear the last signal in the route, as nothing is reserved beyond it, unless there are no more signals beyond at all (count == 0)
-						// If this is the last signal on the route, and this is being cleared, set the next stop index to the end.
 						sint32 add_value = 0;
 						if(reached_end_of_loop)
 						{
-							next_signal_index = route->get_count() - 1; 
 							add_value = 1;
 						}
 						
 						switch(signal->get_besch()->get_aspects())
 						{
+						case 2:
 						default:
-							if(signal->get_pos() != route->position_bei(next_signal_index))
+							if(next_signal_index == INVALID_INDEX || signal->get_pos() != route->position_bei(next_signal_index))
 							{
 								signal->set_state(roadsign_t::clear);
 							}
@@ -4766,7 +4766,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 							{
 								signal->set_state(roadsign_t::clear);
 							}
-							else if(signal->get_pos() != route->position_bei(next_signal_index))
+							else if(next_signal_index == INVALID_INDEX || signal->get_pos() != route->position_bei(next_signal_index))
 							{
 								if(signal->get_state() == roadsign_t::danger)
 								{
@@ -4786,7 +4786,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 									signal->set_state(roadsign_t::preliminary_caution);
 								}	
 							}
-							else if(signal->get_pos() != route->position_bei(next_signal_index))
+							else if(next_signal_index == INVALID_INDEX || signal->get_pos() != route->position_bei(next_signal_index))
 							{
 								if(signal->get_state() == roadsign_t::danger)
 								{
@@ -4813,7 +4813,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 									signal->set_state(roadsign_t::preliminary_caution);
 								}
 							}
-							else if(signal->get_pos() != route->position_bei(next_signal_index))
+							else if(next_signal_index == INVALID_INDEX || signal->get_pos() != route->position_bei(next_signal_index))
 							{
 								if(signal->get_state() == roadsign_t::danger)
 								{
