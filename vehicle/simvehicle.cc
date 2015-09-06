@@ -4735,8 +4735,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 	}
 
 	// Clear signals on the route.
-	const int reducer = next_signal_index < end_marker_index && end_marker_index < INVALID_INDEX ? 0 : 1;
-	sint32 counter = signs.get_count() - reducer;
+	sint32 counter = signs.get_count() - 1;
 	FOR(slist_tpl<grund_t*>, const g, signs)
 	{
 		if(signal_t* const signal = g->find<signal_t>())
@@ -4866,15 +4865,6 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 	{
 		cnv->set_next_reservation_index(i);
 	}
-
-	 if(next_signal_index < end_marker_index && end_marker_index != INVALID_INDEX)
-	 {
-		 // Without this, the train will slow for the next or a subsequent stop signal even if at clear if 
-		 // there is an end of zone marker before the signal after that. 
-		 // TODO: Consider possible unfortunate implications of this. What should happen when a train 
-		 // reaches the marker?
-		 next_signal_index = end_marker_index;
-	 }
 
 	 return reached_end_of_loop || working_method != track_circuit_block ? 1 : (sint32)signs.get_count();
 }
