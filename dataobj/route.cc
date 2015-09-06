@@ -444,7 +444,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 //	INT_CHECK("route 194");
 
 	// target reached?
-	if(!tdriver-> is_target(gr, tmp->parent == NULL ? NULL : tmp->parent->gr) || step >= MAX_STEP)
+	if(!tdriver->is_target(gr, tmp->parent == NULL ? NULL : tmp->parent->gr) || step >= MAX_STEP)
 	{
 		if(  step >= MAX_STEP  ) 
 		{
