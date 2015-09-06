@@ -38,6 +38,7 @@
 #include "../simhalt.h"
 #include "../simsound.h"
 #include "../simcity.h"
+#include "../simsignalbox.h"
 
 #include "../display/simimg.h"
 #include "../simmesg.h"
@@ -3997,6 +3998,10 @@ sint32 rail_vehicle_t::is_signal_clear( uint16 next_block, sint32 &restart_speed
 					break;
 				};
 			}
+			else if(sig->get_besch()->is_combined_signal() && blocks < 2)
+			{
+				sig->set_state(roadsign_t::caution);
+			}
 			else
 			{
 				sig->set_state(roadsign_t::clear);
@@ -4361,6 +4366,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 #endif
 	slist_tpl<grund_t *> signs;	// switch all signals on the route
 	slist_tpl<signal_t*> pre_signals; 
+	slist_tpl<signal_t*> combined_signals;
 
 	if(start_index >= route->get_count())
 	{
@@ -4418,6 +4424,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 	uint16 this_stop_signal_index;
 	uint16 last_pre_signal_index = INVALID_INDEX;
 	uint16 last_stop_signal_index = INVALID_INDEX;
+	uint16 last_combined_signal_index = INVALID_INDEX;
 	bool do_not_clear_distant = false;
 	working_method_t next_signal_working_method = working_method;
 	koord3d signalbox_last_distant_signal = koord3d::invalid;
@@ -4492,17 +4499,50 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 					}
 					if(!signal->get_besch()->is_pre_signal())
 					{
+						
 						if(count || pre_signals.get_count() || next_signal_working_method == track_circuit_block || first_stop_signal_index >= INVALID_INDEX)
 						{
 							signs.append(gr);
 						}
-						if(pre_signals.get_count())
+						if(pre_signals.get_count() || combined_signals.get_count())
 						{
-							// Do not reserve after a stop signal not covered by a distant signal 
+							// Do not reserve after a stop signal not covered by a distant or combined signal 
 							// (or MAS with the requisite number of aspects).
 							if(next_signal_working_method == absolute_block || next_signal_working_method == token_block)
 							{
-								if(signalbox_last_distant_signal != signal->get_signalbox())
+								if(last_combined_signal_index < INVALID_INDEX && pre_signals.empty())
+								{
+									// Treat the last distant as a combined signal.
+									// Check whether it can be used from the current box. 
+									signal_t* last_combined_signal = combined_signals.back();
+									const signalbox_t* sb; 
+									const grund_t* gr_signalbox = welt->lookup(signal->get_signalbox());
+									if(gr_signalbox)
+									{
+										const gebaeude_t* gb = gr_signalbox->get_building();
+										if(gb->get_tile()->get_besch()->get_utyp() == haus_besch_t::signalbox)
+										{
+											sb = (signalbox_t*)gb; 
+										}
+									}
+									if(sb && sb->can_add_signal(signal))
+									{
+										// This is compatible: treat it as a distant signal.
+										pre_signals.append(last_combined_signal); 
+										last_pre_signal_index = i;
+										signalbox_last_distant_signal = signal->get_signalbox();
+										signs.append(gr);
+									}
+									else
+									{
+										// The last combined signal is not compatible with this signal's signalbox: 
+										// do not treat it as a distant signal.
+										count--;
+										end_of_block = true;
+										next_signal_index = last_stop_signal_index;
+									}
+								}
+								else if(signalbox_last_distant_signal != signal->get_signalbox())
 								{
 									count--;
 									end_of_block = true;
@@ -4519,7 +4559,15 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 							}
 						}
 
-						if(next_signal_working_method == track_circuit_block && remaining_aspects >= 0 && remaining_aspects <= 2)
+						if(signal->get_besch()->is_combined_signal())
+						{
+							// We cannot know yet whether it ought to be treated as a distant 
+							// without knowing whether it is close enough to the signalbox
+							// controlling the next stop signal on this route.
+							combined_signals.append(signal);
+							last_combined_signal_index = i;
+						}
+						else if(next_signal_working_method == track_circuit_block && remaining_aspects >= 0 && remaining_aspects <= 2)
 						{
 							// If there are no more caution aspects, do not reserve any further.
 							count--;
@@ -4781,9 +4829,10 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 			if(counter -- || pre_signals.empty() || (reached_end_of_loop && (early_platform_index == INVALID_INDEX || last_stop_signal_index < early_platform_index)))
 			{
 				const bool use_no_choose_aspect = signal->get_besch()->is_choose_sign(); // TODO: Allow this to set a choose aspect selectively 
+				const bool combined_signal_at_caution = signal->get_besch()->is_combined_signal(); //TODO: Proper logic for this.
 				if(signal->get_besch()->get_working_method() == absolute_block || signal->get_besch()->get_working_method() == token_block || signal->get_besch()->get_working_method() == cab_signalling)
 				{
-					signal->set_state(use_no_choose_aspect ? roadsign_t::clear_no_choose : roadsign_t::clear);
+					signal->set_state(use_no_choose_aspect ? roadsign_t::clear_no_choose : combined_signal_at_caution ? roadsign_t::caution : roadsign_t::clear);
 				}
 				if(signal->get_besch()->get_working_method() == track_circuit_block)
 				{
