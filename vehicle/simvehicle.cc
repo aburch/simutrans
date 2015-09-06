@@ -4740,7 +4740,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 	{
 		if(signal_t* const signal = g->find<signal_t>())
 		{
-			if(counter -- || pre_signals.empty() || reached_end_of_loop)
+			if(counter -- || pre_signals.empty() || (reached_end_of_loop && counter < signs.get_count() - 1))
 			{
 				if(signal->get_besch()->get_working_method() == absolute_block || signal->get_besch()->get_working_method() == token_block || signal->get_besch()->get_working_method() == cab_signalling)
 				{
