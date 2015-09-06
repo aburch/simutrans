@@ -72,16 +72,11 @@ void tunnelboden_t::calc_bild_internal(const bool calc_only_snowline_change)
 	// inside tunnel
 	else if(  !calc_only_snowline_change  ) {
 		clear_back_bild();
-		if(  is_visible()  ) {
-			// default tunnel ground images
-			// single or double slope? (single slopes are not divisible by 8)
-			const uint8 slope_this =  get_disp_slope();
-			const uint8 bild_nr = (!slope_this  ||  (slope_this & 7)) ? grund_besch_t::slopetable[slope_this] : grund_besch_t::slopetable[slope_this >> 1] + 12;
-			set_bild( skinverwaltung_t::tunnel_texture->get_bild_nr( bild_nr ) );
-		}
-		else {
-			set_bild(IMG_LEER);
-		}
+		// default tunnel ground images
+		// single or double slope? (single slopes are not divisible by 8)
+		const uint8 slope_this =  get_disp_slope();
+		const uint8 bild_nr = (!slope_this  ||  (slope_this & 7)) ? grund_besch_t::slopetable[slope_this] : grund_besch_t::slopetable[slope_this >> 1] + 12;
+		set_bild( skinverwaltung_t::tunnel_texture->get_bild_nr( bild_nr ) );
 	}
 }
 
