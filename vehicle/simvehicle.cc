@@ -4632,6 +4632,11 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 						}
 					}
 					sch1->unreserve(cnv->self);
+					route->remove_koord_from(early_platform_index); 
+					if(next_signal_index > early_platform_index)
+					{
+						next_signal_index = INVALID_INDEX;
+					}
 					success = true;
 					reached_end_of_loop = true;
 					break;
