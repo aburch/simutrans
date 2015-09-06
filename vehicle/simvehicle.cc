@@ -4862,15 +4862,6 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 		}
 	}
 
-	if(do_early_platform_search)
-	{
-		// if an early platform was found, stop there
-		if(early_platform_index!=INVALID_INDEX)
-		{
-			// directly modify the route
-			route->remove_koord_from(early_platform_index);
-		}
-	}
 	if(cnv)
 	{
 		cnv->set_next_reservation_index(i);
