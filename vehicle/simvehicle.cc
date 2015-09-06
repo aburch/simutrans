@@ -4736,12 +4736,12 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 
 	// Clear signals on the route.
 	const int reducer = next_signal_index < end_marker_index && end_marker_index < INVALID_INDEX ? 0 : 1;
-	int counter = signs.get_count() - reducer;
+	sint32 counter = signs.get_count() - reducer;
 	FOR(slist_tpl<grund_t*>, const g, signs)
 	{
 		if(signal_t* const signal = g->find<signal_t>())
 		{
-			if(counter -- || pre_signals.empty() || (reached_end_of_loop && (early_platform_index == INVALID_INDEX || counter < signs.get_count() - 1)))
+			if(counter -- || pre_signals.empty() || (reached_end_of_loop && (early_platform_index == INVALID_INDEX || last_stop_signal_index < early_platform_index)))
 			{
 				if(signal->get_besch()->get_working_method() == absolute_block || signal->get_besch()->get_working_method() == token_block || signal->get_besch()->get_working_method() == cab_signalling)
 				{
