@@ -1476,7 +1476,8 @@ void vehicle_t::hop(grund_t* gr)
 			// we end up here after loading a game or when a waypoint is reached which crosses next itself
 			cnv->set_fpl_target( koord3d::invalid );
 		}
-		else {
+		else if(welt->lookup(cnv->get_route()->position_bei(route_index))->get_halt() != welt->lookup(cnv->get_route()->position_bei(cnv->get_route()->get_count() - 1))->get_halt())
+		{
 			cnv->get_schedule()->advance();
 			const koord3d ziel = cnv->get_schedule()->get_current_eintrag().pos;
 			cnv->set_fpl_target( cnv->is_waypoint(ziel) ? ziel : koord3d::invalid );
@@ -4740,7 +4741,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 	{
 		if(signal_t* const signal = g->find<signal_t>())
 		{
-			if(counter -- || pre_signals.empty() || (reached_end_of_loop && counter < signs.get_count() - 1))
+			if(counter -- || pre_signals.empty() || (reached_end_of_loop && (early_platform_index == INVALID_INDEX || counter < signs.get_count() - 1)))
 			{
 				if(signal->get_besch()->get_working_method() == absolute_block || signal->get_besch()->get_working_method() == token_block || signal->get_besch()->get_working_method() == cab_signalling)
 				{
