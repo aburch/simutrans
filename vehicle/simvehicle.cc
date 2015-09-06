@@ -3931,7 +3931,9 @@ sint32 rail_vehicle_t::is_signal_clear( uint16 next_block, sint32 &restart_speed
 	grund_t *gr_next_block = welt->lookup(cnv->get_route()->position_bei(next_block));
 	const weg_t* way = gr_next_block->get_weg(get_waytype()); 
 	signal_t *sig = NULL;
-	const koord dir = get_pos().get_2d() - gr_next_block->get_pos().get_2d();
+	const uint16 check_route_index = next_block == 0 ? 0 : next_block - 1u;
+	koord3d previous_tile = cnv->get_route()->position_bei(check_route_index);
+	const koord dir = cnv->get_route()->position_bei(next_block).get_2d() - previous_tile.get_2d();
 	ribi_t::ribi ribi = ribi_typ(dir);	
 	if(way)
 	{
@@ -4201,7 +4203,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 
 	if(working_method == absolute_block || working_method == track_circuit_block || working_method == drive_by_sight)
 	{
-		// Check for distant signals at caution within the sighting distance to see whether they can now clear whereas they could not before.
+		// Check for signals at restrictive aspects within the sighting distance to see whether they can now clear whereas they could not before.
 		const koord3d tile_to_check_ahead = cnv->get_route()->position_bei(min(route.get_count() - 1u, route_index + sighting_distance_tiles));
 		const koord3d previous_tile = cnv->get_route()->position_bei(min(route.get_count() - 1u, route_index + sighting_distance_tiles) -1u);
 		grund_t *gr_ahead = welt->lookup(tile_to_check_ahead);
@@ -4216,7 +4218,14 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		ribi_t::ribi ribi = ribi_typ(dir);	
 		signal_t* signal = way->get_signal(ribi); 
 
-		if(signal && (signal->get_state() == signal_t::caution || signal->get_state() == signal_t::preliminary_caution || signal->get_state() == signal_t::advance_caution || (working_method == track_circuit_block && signal->get_state() == signal_t::clear) || (working_method == track_circuit_block && signal->get_state() == signal_t::clear_no_choose) || signal->get_state() == signal_t::caution_no_choose || signal->get_state() == signal_t::preliminary_caution_no_choose || signal->get_state() == signal_t::advance_caution_no_choose))
+		if(signal && (signal->get_state() == signal_t::caution
+			|| signal->get_state() == signal_t::preliminary_caution
+			|| signal->get_state() == signal_t::advance_caution 
+			|| (working_method == track_circuit_block && signal->get_state() == signal_t::clear)
+			|| (working_method == track_circuit_block && signal->get_state() == signal_t::clear_no_choose) 
+			|| signal->get_state() == signal_t::caution_no_choose 
+			|| signal->get_state() == signal_t::preliminary_caution_no_choose
+			|| signal->get_state() == signal_t::advance_caution_no_choose))
 		{
 			// We come accross a signal at caution: try (again) to free the block ahead.
 			bool ok = block_reserver(cnv->get_route(), route_index + 1, next_signal, 0, true, false);
@@ -4253,7 +4262,9 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 
 				if(working_method == cab_signalling 
 					|| signal && signal->get_besch()->is_pre_signal()
-					|| ((working_method == token_block || working_method == track_circuit_block || working_method == absolute_block) && next_block - route_index <= max(sighting_distance_tiles - 1, 1)))
+					|| ((working_method == token_block
+					|| working_method == track_circuit_block 
+					|| working_method == absolute_block) && next_block - route_index <= max(sighting_distance_tiles - 1, 1)))
  				{
 					// Brake for the signal unless we can see it somehow. -1 because this is checked on entering the tile.
 					if(!is_signal_clear(next_block, restart_speed))
@@ -4432,7 +4443,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 			}
 			
 			roadsign_t* rs = gr->find<roadsign_t>();
-			if(rs && (rs->get_besch()->get_flags() & roadsign_besch_t::END_OF_CHOOSE_AREA) != 0)
+			if(rs && rs->get_besch()->is_end_choose_signal())
 			{
 				end_marker_index = i;
 			}
