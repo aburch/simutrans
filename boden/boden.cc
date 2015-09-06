@@ -91,30 +91,25 @@ void boden_t::calc_bild_internal(const bool calc_only_snowline_change)
 {
 	const hang_t::typ slope_this = get_disp_slope();
 
-	if(  is_visible()  ) {
-		const weg_t *const weg = get_weg( road_wt );
-		if(  weg  &&  weg->hat_gehweg()  ) {
-			// single or double slope? (single slopes are not divisible by 8)
-			const uint8 bild_nr = (!slope_this  ||  (slope_this & 7)) ? grund_besch_t::slopetable[slope_this] : grund_besch_t::slopetable[slope_this >> 1] + 12;
+	const weg_t *const weg = get_weg( road_wt );
+	if(  weg  &&  weg->hat_gehweg()  ) {
+		// single or double slope? (single slopes are not divisible by 8)
+		const uint8 bild_nr = (!slope_this  ||  (slope_this & 7)) ? grund_besch_t::slopetable[slope_this] : grund_besch_t::slopetable[slope_this >> 1] + 12;
 
-			if(  (get_hoehe() >= welt->get_snowline()  ||  welt->get_climate(pos.get_2d()) == arctic_climate)  &&  skinverwaltung_t::fussweg->get_bild_nr(bild_nr + 1) != IMG_LEER  ) {
-				// snow images
-				set_bild( skinverwaltung_t::fussweg->get_bild_nr(bild_nr + 1) );
-			}
-			else if(  slope_this != 0  &&  get_hoehe() == welt->get_snowline() - 1  &&  skinverwaltung_t::fussweg->get_bild_nr(bild_nr + 2) != IMG_LEER  ) {
-				// transition images
-				set_bild( skinverwaltung_t::fussweg->get_bild_nr(bild_nr + 2) );
-			}
-			else {
-				set_bild( skinverwaltung_t::fussweg->get_bild_nr(bild_nr) );
-			}
+		if(  (get_hoehe() >= welt->get_snowline()  ||  welt->get_climate(pos.get_2d()) == arctic_climate)  &&  skinverwaltung_t::fussweg->get_bild_nr(bild_nr + 1) != IMG_LEER  ) {
+			// snow images
+			set_bild( skinverwaltung_t::fussweg->get_bild_nr(bild_nr + 1) );
+		}
+		else if(  slope_this != 0  &&  get_hoehe() == welt->get_snowline() - 1  &&  skinverwaltung_t::fussweg->get_bild_nr(bild_nr + 2) != IMG_LEER  ) {
+			// transition images
+			set_bild( skinverwaltung_t::fussweg->get_bild_nr(bild_nr + 2) );
 		}
 		else {
-			set_bild( grund_besch_t::get_ground_tile(this) );
+			set_bild( skinverwaltung_t::fussweg->get_bild_nr(bild_nr) );
 		}
 	}
 	else {
-		set_bild(IMG_LEER);
+		set_bild( grund_besch_t::get_ground_tile(this) );
 	}
 
 	if(  !calc_only_snowline_change  ) {

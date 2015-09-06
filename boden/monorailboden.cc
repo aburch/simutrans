@@ -39,10 +39,7 @@ void monorailboden_t::calc_bild_internal(const bool calc_only_snowline_change)
 
 	weg_t *const weg = get_weg_nr(0);
 	if(  weg  ) {
-		if(  !is_visible()  ){
-			weg->set_bild(IMG_LEER);
-		}
-		else if(  !calc_only_snowline_change  ) {
+		if(  !calc_only_snowline_change  ) {
 			weg->calc_image();
 		}
 		else {
