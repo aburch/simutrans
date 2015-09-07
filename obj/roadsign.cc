@@ -665,7 +665,7 @@ void roadsign_t::rdwr(loadsave_t *file)
 		}
 	}
 
-	if(besch->is_signal_type() && file->is_saving())
+	if(besch && besch->is_signal_type() && file->is_saving())
 	{
 		signal_t* sig = (signal_t*)this;
 		sig->rdwr_signal(file);

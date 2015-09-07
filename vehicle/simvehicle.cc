@@ -4074,7 +4074,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 				const koord dir = get_pos().get_2d() - gr->get_pos().get_2d();
 				ribi_t::ribi ribi = ribi_typ(dir);
 				const signal_t* signal = way->get_signal(ribi); 
-				if(signal)
+				if(signal && working_method != token_block)
 				{
 					working_method = signal->get_besch()->get_working_method();
 					signal_on_current_tile = true;
@@ -4233,7 +4233,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		return ok;
 	}
 
-	if(working_method == absolute_block || working_method == track_circuit_block || working_method == drive_by_sight)
+	if(working_method == absolute_block || working_method == track_circuit_block || working_method == drive_by_sight || working_method == token_block)
 	{
 		// Check for signals at restrictive aspects within the sighting distance to see whether they can now clear whereas they could not before.
 		const koord3d tile_to_check_ahead = cnv->get_route()->position_bei(min(route.get_count() - 1u, route_index + sighting_distance_tiles));
@@ -4290,7 +4290,10 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 	
 			if(signal) 
 			{
-				working_method = signal->get_besch()->get_working_method(); 
+				if(working_method != token_block)
+				{
+					working_method = signal->get_besch()->get_working_method(); 
+				}
 
 				if(working_method == cab_signalling 
 					|| signal && signal->get_besch()->is_pre_signal()
@@ -4953,7 +4956,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 		cnv->set_next_reservation_index(i);
 	}
 
-	 return reached_end_of_loop || working_method != track_circuit_block ? 1 : (sint32)signs.get_count();
+	return reached_end_of_loop || working_method != track_circuit_block ? (!combined_signals.empty() && !pre_signals.empty() ? 2 : 1) : (sint32)signs.get_count();
 }
 
 
