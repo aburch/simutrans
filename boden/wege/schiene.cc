@@ -79,16 +79,19 @@ void schiene_t::info(cbuffer_t & buf, bool is_bridge) const
  * true, if this rail can be reserved
  * @author prissi
  */
-bool schiene_t::reserve(convoihandle_t c, ribi_t::ribi dir)
+bool schiene_t::reserve(convoihandle_t c, ribi_t::ribi dir, reservation_type t)
 {
 	if(can_reserve(c)) 
 	{
 		reserved = c;
+		type = t;
+		direction = dir;
+
 		/* for threeway and forway switches we may need to alter graphic, if
 		 * direction is a diagonal (i.e. on the switching part)
 		 * and there are switching graphics
 		 */
-		if(  ribi_t::is_threeway(get_ribi_unmasked())  &&  ribi_t::ist_kurve(dir)  &&  get_besch()->has_switch_bild()  ) {
+		if(t == block && ribi_t::is_threeway(get_ribi_unmasked())  &&  ribi_t::ist_kurve(dir)  &&  get_besch()->has_switch_bild()  ) {
 			mark_image_dirty( get_bild(), 0 );
 			mark_image_dirty( get_front_image(), 0 );
 			set_images(image_switch, get_ribi_unmasked(), is_snow(), (dir==ribi_t::nordost  ||  dir==ribi_t::suedwest) );
@@ -99,7 +102,6 @@ bool schiene_t::reserve(convoihandle_t c, ribi_t::ribi dir)
 		}
 		return true;
 	}
-	// reserve anyway ...
 	return false;
 }
 
