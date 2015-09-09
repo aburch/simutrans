@@ -713,9 +713,6 @@ protected:
 
 	void enter_tile(grund_t*);
 
-	sint32 is_signal_clear( uint16 start_index, signal_t* signal, sint32 &restart_speed );
-	sint32 is_pre_signal_clear( signal_t *sig, uint16 start_index, sint32 &restart_speed ); /// DEPRECATED
-	sint32 is_longblock_signal_clear( signal_t *sig, uint16 start_index, sint32 &restart_speed );
 	sint32 activate_choose_signal(uint16 start_index);
 	
 	working_method_t working_method;
@@ -742,7 +739,7 @@ public:
 	// reserves or un-reserves all blocks and returns the handle to the next block (if there)
 	// returns true on successful reservation (the specific number being the number of blocks ahead clear,
 	// needed for setting signal aspects in some cases).
-	sint32 block_reserver(route_t *route, uint16 start_index, uint16 &next_signal, int signal_count, bool reserve, bool force_unreserve, bool is_choosing = false);
+	sint32 block_reserver(route_t *route, uint16 start_index, uint16 &next_signal, int signal_count, bool reserve, bool force_unreserve, bool is_choosing = false, bool is_from_token = false);
 
 	void leave_tile();
 
