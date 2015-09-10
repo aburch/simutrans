@@ -4080,7 +4080,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
  * if (!reserve && force_unreserve) then un-reserve everything till the end of the route
  * @author prissi
  */
-sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16 &next_signal_index, int count, bool reserve, bool force_unreserve, bool is_choosing, bool is_from_token)
+sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16 &next_signal_index, int count, bool reserve, bool force_unreserve, bool is_choosing, bool is_from_token, bool is_from_starter)
 {
 	bool success = true;
 #ifdef MAX_CHOOSE_BLOCK_TILES
@@ -4223,7 +4223,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 					{
 						working_method = next_signal_working_method;
 					}
-					if(!signal->get_besch()->is_pre_signal())
+					if(!signal->get_besch()->is_pre_signal()) // Stop signal or MAS
 					{
 						
 						if(count || pre_signals.get_count() || next_signal_working_method == track_circuit_block || first_stop_signal_index >= INVALID_INDEX)
@@ -4309,6 +4309,12 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 						if(signal->get_besch()->is_longblock_signal() || signal->get_besch()->get_working_method() == token_block)
 						{
 							last_longblock_signal_index = i; 
+							// Do not reserve through a token block signal: the train must stop to take the token.
+							if(last_longblock_signal_index > first_stop_signal_index || !starting_at_signal)
+							{
+								count--;
+								end_of_block = true;
+							}
 						}
 
 						if(!is_from_token || first_stop_signal_index == INVALID_INDEX)
@@ -4340,9 +4346,8 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 						}
 						this_stop_signal_index = i;
 					}
-					else
-					{
-						// Distant signal
+					else // Distant signal or repeater
+					{				
 						if(next_signal_working_method == absolute_block || next_signal_working_method == token_block)
 						{
 							if((signalbox_last_distant_signal == koord3d::invalid || signalbox_last_distant_signal == signal->get_signalbox()) && (!pre_signals.empty() || first_stop_signal_index == INVALID_INDEX))
@@ -4633,7 +4638,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 		{
 			if(signal_t* const signal = g->find<signal_t>())
 			{
-				if(counter -- || pre_signals.empty() || (reached_end_of_loop && (early_platform_index == INVALID_INDEX || last_stop_signal_index < early_platform_index)))
+				if((counter -- || pre_signals.empty() || (reached_end_of_loop && (early_platform_index == INVALID_INDEX || last_stop_signal_index < early_platform_index))) && ((!signal->get_besch()->is_longblock_signal() && signal->get_besch()->get_working_method() != token_block) || starting_at_signal))
 				{
 					const bool use_no_choose_aspect = signal->get_besch()->is_choose_sign() && !is_choosing; 
 					if(signal->get_besch()->get_working_method() == absolute_block || signal->get_besch()->get_working_method() == token_block || signal->get_besch()->get_working_method() == cab_signalling)
@@ -4739,7 +4744,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 
 	if(next_signal_index != INVALID_INDEX && (next_signal_working_method == track_circuit_block || next_signal_working_method == absolute_block || next_signal_working_method == cab_signalling || next_signal_working_method == token_block))
 	{
-		if(platform_starter && !is_from_token)
+		if(platform_starter && !is_from_token && !is_from_starter)
 		{
 			// This is a platform starter signal for this station: do not move until it clears.
 			/*const koord3d signal_dir = signal_pos - (route->position_bei(min(next_signal_index + 1u, route->get_count() - 1u)));  
@@ -4748,7 +4753,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 			signal_t* sig = welt->lookup(signal_pos)->find<signal_t>();
 			if(sig && sig->get_state() == signal_t::danger)
 			{
-				sint32 success_2 = block_reserver(cnv->get_route(), next_signal_index, next_signal_index, 0, true, false); 
+				sint32 success_2 = block_reserver(cnv->get_route(), next_signal_index, next_signal_index, 0, true, false, false, false, true); 
 				next_signal_index = cnv->get_next_stop_index() - 1;
 				return success_2;
 			}
