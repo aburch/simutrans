@@ -4306,17 +4306,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 						{
 							last_choose_signal_index = i;
 						}
-						if(signal->get_besch()->is_longblock_signal() || signal->get_besch()->get_working_method() == token_block)
-						{
-							last_longblock_signal_index = i; 
-							// Do not reserve through a token block signal: the train must stop to take the token.
-							if(last_longblock_signal_index > first_stop_signal_index || !starting_at_signal)
-							{
-								count--;
-								end_of_block = true;
-							}
-						}
-
+						
 						if(!is_from_token || first_stop_signal_index == INVALID_INDEX)
 						{
 							next_signal_index = i;
@@ -4344,6 +4334,19 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 							// No distant signals: just reserve one block beyond the first stop signal and no more.
 							count --;
 						}
+						if(signal->get_besch()->is_longblock_signal() || signal->get_besch()->get_working_method() == token_block)
+						{
+							last_longblock_signal_index = i; 
+							const bool platform_starter = (this_halt.is_bound() && (haltestelle_t::get_halt(signal->get_pos(), get_owner())) == this_halt) && (haltestelle_t::get_halt(get_pos(), get_owner()) == this_halt) && (cnv->get_akt_speed() == 0);
+							sint32 TEST_speed = cnv->get_akt_speed();
+							// Do not reserve through a token block signal: the train must stop to take the token.
+							if(last_longblock_signal_index > first_stop_signal_index || (!starting_at_signal && !platform_starter))
+							{
+								count--;
+								end_of_block = true;
+							}
+						}
+
 						this_stop_signal_index = i;
 					}
 					else // Distant signal or repeater

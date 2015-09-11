@@ -145,10 +145,15 @@ void signalbox_t::rdwr(loadsave_t *file)
 void signalbox_t::rotate90()
 {
 	gebaeude_t::rotate90();
+	slist_tpl<koord3d> temp_list;
 	FOR(slist_tpl<koord3d>, k, signals)
 	{
 		k.rotate90(welt->get_size().y-1);
+		temp_list.append(k); 
 	}
+
+	signals.clear();
+	signals.append_list(temp_list); 
 }
 
 void signalbox_t::remove_signal(signal_t* s)
