@@ -12,6 +12,7 @@
 
 #include "loadsave_frame.h"
 
+#include "../simsys.h"
 #include "../simworld.h"
 #include "../simversion.h"
 #include "../dataobj/loadsave.h"
@@ -99,8 +100,7 @@ loadsave_frame_t::loadsave_frame_t(bool do_load) : savegame_frame_t(".sve",false
 		/* We rename the old chace file and remove any incomplete read version.
 		 * Upon an error the cache will be rebuilt then next time.
 		 */
-		remove( SAVE_PATH_X "_load_cached.xml" );
-		rename( SAVE_PATH_X "_cached.xml", SAVE_PATH_X "_load_cached.xml" );
+		dr_rename( SAVE_PATH_X "_cached.xml", SAVE_PATH_X "_load_cached.xml" );
 		if(  file.rd_open(SAVE_PATH_X "_load_cached.xml")  ) {
 			// ignore comment
 			const char *text=NULL;
@@ -125,7 +125,7 @@ loadsave_frame_t::loadsave_frame_t(bool do_load) : savegame_frame_t(".sve",false
 				free(const_cast<char *>(text));
 			}
 			file.close();
-			rename( SAVE_PATH_X "_load_cached.xml", SAVE_PATH_X "_cached.xml" );
+			dr_rename( SAVE_PATH_X "_load_cached.xml", SAVE_PATH_X "_cached.xml" );
 		}
 	}
 }
@@ -149,7 +149,7 @@ const char *loadsave_frame_t::get_info(const char *fname)
 	const char *pak_extension = NULL;
 	// get file information
 	struct stat  sb;
-	if(stat(fname, &sb)!=0) {
+	if(stat( dr_utf8_to_system_filename(fname), &sb)!=0) {
 		// file not found?
 		return date;
 	}

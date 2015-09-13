@@ -88,6 +88,15 @@ const char *dr_get_locale_string();
 
 void dr_mkdir(char const* path);
 
+// accecpt whatever encoding your filename has (assuming ANSI for windows) and returns the Unicode name
+const char *dr_system_filename_to_uft8( const char *path_in );
+
+// accecpt utf8 and returns (on windows) an ANSI filename
+const char *dr_utf8_to_system_filename( const char *path_in_utf8, bool create=false );
+
+// rename a file and delete eventually existing file new_utf8
+void dr_rename( const char *existing_utf8, const char *new_utf8 );
+
 /* query home directory */
 char const* dr_query_homedir();
 

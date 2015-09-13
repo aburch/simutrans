@@ -19,6 +19,7 @@
 
 #ifdef _WIN32
 #	include <windows.h>
+#	include <winbase.h>
 #	include <shellapi.h>
 #	include <shlobj.h>
 #	if !defined(__CYGWIN__)
@@ -83,6 +84,62 @@ bool dr_movetotrash(const char *path) {
 }
 #endif
 
+
+// accecpt whatever encoding your filename has (assuming ANSI for windows) and returns the Unicode name
+const char *dr_system_filename_to_uft8( const char *path_in )
+{
+#if defined _WIN32
+	WCHAR bufferW[1024], bufferW2[1024];
+	static char buffer[1024*3];
+	MultiByteToWideChar( CP_UTF8, 0, path_in, -1, bufferW, lengthof(bufferW) );
+	GetLongPathNameW( bufferW, bufferW2, lengthof(bufferW2) );
+	WideCharToMultiByte( CP_UTF8, 0, bufferW2, -1, buffer, lengthof(buffer), NULL, NULL );
+	return buffer;
+#endif
+	return path_in;
+}
+
+
+
+// accecpt utf8 and returns (on windows) an ANSI filename
+const char *dr_utf8_to_system_filename( const char *path_in_utf8, bool create )
+{
+#if defined _WIN32
+	WCHAR bufferW[1024], bufferW2[1024];
+	static char buffer[1024*3];
+	MultiByteToWideChar( CP_UTF8, 0, path_in_utf8, -1, bufferW, lengthof(bufferW) );
+	if(  GetShortPathNameW( bufferW, bufferW2, lengthof(bufferW2) ) ==  0  ) {
+		if(  !create  ) {
+			// file does not exist, return input path
+			return path_in_utf8;
+		}
+		else {
+			CloseHandle( CreateFileW( bufferW, GENERIC_READ|GENERIC_WRITE, 0, NULL, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, NULL ) );
+			GetShortPathNameW( bufferW, bufferW2, lengthof(bufferW2) );
+		}
+	}
+	WideCharToMultiByte( CP_UTF8, 0, bufferW2, -1, buffer, lengthof(buffer), NULL, NULL );
+	return buffer;
+#endif
+	return path_in_utf8;
+}
+
+
+
+void dr_rename( const char *existing_utf8, const char *new_utf8 )
+{
+#if defined _WIN32
+	WCHAR oldf[1024], newf[1024];
+	MultiByteToWideChar( CP_UTF8, 0, existing_utf8, -1, oldf, lengthof(oldf) );
+	MultiByteToWideChar( CP_UTF8, 0, new_utf8, -1, newf, lengthof(newf) );
+	MoveFileExW( oldf, newf, MOVEFILE_REPLACE_EXISTING );
+#else
+	remove( new_utf8 );
+	rename( existing_utf8, new_utf8 );
+#endif
+}
+
+
 char const* dr_query_homedir()
 {
 	static char buffer[PATH_MAX+24];
@@ -100,7 +157,7 @@ char const* dr_query_homedir()
 	// this is needed to access multibyte user driectories with ASCII names ...
 	wcscat( bufferW, L"\\Simutrans" );
 	CreateDirectoryW( bufferW, NULL );	// must create it, because otherwise the short name does not exist
-	GetShortPathNameW( bufferW, bufferW2, sizeof(bufferW2) );
+	GetShortPathNameW( bufferW, bufferW2, lengthof(bufferW2) );
 	WideCharToMultiByte( CP_UTF8, 0, bufferW2, -1, buffer, MAX_PATH, NULL, NULL );
 #elif defined __APPLE__
 	sprintf(buffer, "%s/Library/Simutrans", getenv("HOME"));
@@ -719,7 +776,7 @@ int sysmain(int const argc, char** const argv)
 	// so simutran can has also a multibyte name ...
 	WCHAR pathnameW[MAX_PATH], pathnameW2[MAX_PATH];
 	GetModuleFileNameW(GetModuleHandle(0), pathnameW, sizeof(pathname) );
-	GetShortPathNameW( pathnameW, pathnameW2, sizeof(pathnameW2) );
+	GetShortPathNameW( pathnameW, pathnameW2, lengthof(pathnameW2) );
 	WideCharToMultiByte( CP_UTF8, 0, pathnameW2, -1, pathname, MAX_PATH, NULL, NULL );
 	argv[0] = pathname;
 #elif !defined __BEOS__
