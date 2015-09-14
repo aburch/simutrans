@@ -4891,6 +4891,10 @@ void rail_vehicle_t::leave_tile()
 					signal_t* sig;
 					if(route)
 					{
+						if(route_index > route->get_count() - 1)
+						{
+							route_index = route->get_count() - 1;
+						}
 						const uint16 ri = min(route_index, route->get_count() - 1u); 
 						const koord3d this_tile = cnv->get_route()->position_bei(ri);
 						const koord3d previous_tile = cnv->get_route()->position_bei(max(1u, ri) -1u);
