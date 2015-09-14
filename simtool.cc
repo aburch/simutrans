@@ -5702,7 +5702,7 @@ const char *tool_build_roadsign_t::place_sign_intern( player_t *player, grund_t*
 							player_t::add_maintenance(player, besch->get_maintenance(), weg->get_waytype()); 
 						}
 					}
-					if(old_direction_was_double)
+					else if(old_direction_was_double)
 					{
 						// Reduce the maintenance cost and refund the price (refunding is necessary, as cycling through a bidirectional type is unavoidable).
 						player_t::book_construction_costs(player, besch->get_preis(), gr->get_pos().get_2d(), weg->get_waytype());
