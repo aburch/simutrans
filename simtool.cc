@@ -5663,13 +5663,13 @@ const char *tool_build_roadsign_t::place_sign_intern( player_t *player, grund_t*
 			roadsign_t* rs;
 			if (besch->is_signal_type()) {
 				// if there is already a signal, we might need to inverse the direction
-				rs = gr->find<signal_t>();
-				if (rs) {
-					if(  !player_t::check_owner( rs->get_owner(), player )  ) {
+				signal_t* sig = gr->find<signal_t>();
+				if (sig) {
+					if(  !player_t::check_owner( sig->get_owner(), player )  ) {
 						return "Das Feld gehoert\neinem anderen Spieler\n";
 					}
 					// signals have three options
-					ribi_t::ribi sig_dir = rs->get_dir();
+					ribi_t::ribi sig_dir = sig->get_dir();
 					uint8 i = 0;
 					if (!ribi_t::is_twoway(sig_dir)) {
 						// inverse first dir
@@ -5687,7 +5687,12 @@ const char *tool_build_roadsign_t::place_sign_intern( player_t *player, grund_t*
 						}
 					}
 					// if nothing found, we have two ways again ...
-					rs->set_dir(dir);
+					if(ribi_t::is_twoway(dir) && (sig->get_besch()->get_working_method() != track_circuit_block && sig->get_besch()->get_working_method() != cab_signalling && sig->get_besch()->get_working_method() != moving_block))
+					{
+						// Only some types of signals can work properly as bidirectional.
+						dir = ~sig->get_dir() & weg->get_ribi_unmasked();
+					}
+					sig->set_dir(dir);
 				} else { 
 					// add a new signal at position zero!
 					
