@@ -11,6 +11,8 @@
 #include "../../simworld.h"
 #include "../../vehicle/simvehicle.h"
 
+#include "../../obj/signal.h"
+
 #include "../../dataobj/loadsave.h"
 #include "../../dataobj/translator.h"
 
@@ -81,8 +83,15 @@ void schiene_t::info(cbuffer_t & buf, bool is_bridge) const
  */
 bool schiene_t::reserve(convoihandle_t c, ribi_t::ribi dir, reservation_type t)
 {
-	if(can_reserve(c)) 
+	if(can_reserve(c, dir, t)) 
 	{
+		ribi_t::ribi old_direction = direction;
+		if(type == block && t == directional && c != reserved && reserved.is_bound())
+		{
+			// Do not actually reserve here, as the directional reservation 
+			// is already done, but show that this is reservable. 
+			return true;
+		}
 		reserved = c;
 		type = t;
 		direction = dir;
@@ -99,6 +108,13 @@ bool schiene_t::reserve(convoihandle_t c, ribi_t::ribi dir, reservation_type t)
 		}
 		if(schiene_t::show_reservations) {
 			set_flag( obj_t::dirty );
+		}
+		if(old_direction != dir)
+		{
+			if(signal_t* sig = get_signal(dir))
+			{
+				sig->calc_image();
+			}
 		}
 		return true;
 	}
@@ -131,7 +147,7 @@ bool schiene_t::unreserve(convoihandle_t c)
 * releases previous reservation
 * @author prissi
 */
-bool schiene_t::unreserve(vehicle_t *)
+bool schiene_t::unreserve(vehicle_t*)
 {
 	// is this tile empty?
 	if(!reserved.is_bound()) {
@@ -224,5 +240,24 @@ void schiene_t::rdwr(loadsave_t *file)
 			set_bridge_weight_limit(old_bridge_weight_limit);
 		}
 		//DBG_MESSAGE("schiene_t::rdwr","track %s at (%i,%i) max_speed %i",bname,get_pos().x,get_pos().y,old_max_speed);
+	}
+#ifdef SPECIAL_RESCUE_12_6
+	if(file->is_saving() && file->get_experimental_version() >= 12)
+#else
+	if(file->get_experimental_version() >= 12)
+#endif
+	{
+		// TODO: Enable this
+		/*uint16 reserved_index = reserved.get_id();
+		file->rdwr_short(reserved_index); 
+		reserved.set_id(reserved_index); 
+
+		uint8 t = (uint8)type;
+		file->rdwr_byte(t);
+		type = (reservation_type)t;
+
+		uint8 d = (uint8)direction;
+		file->rdwr_byte(d);
+		direction = (ribi_t::ribi)d; */
 	}
 }

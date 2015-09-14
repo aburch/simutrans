@@ -330,23 +330,6 @@ void convoi_t::unreserve_route()
 	}
 }
 
-
-/**
- * reserves the whole remaining route
- */
-void convoi_t::reserve_route()
-{
-	if(  !route.empty()  &&  anz_vehikel>0  &&  (is_waiting()  ||  state==DRIVING  ||  state==LEAVING_DEPOT)  ) {
-		for(  uint16 idx = back()->get_route_index();  idx < next_reservation_index  &&  idx < route.get_count();  idx++  ) {
-			if(  grund_t *gr = welt->lookup( route.position_bei(idx) )  ) {
-				if(  schiene_t *sch = (schiene_t *)gr->get_weg( front()->get_waytype() )  ) {
-					sch->reserve( self, ribi_typ( route.position_bei(max(1u,idx)-1u), route.position_bei(min(route.get_count()-1u,idx+1u)) ) );
-				}
-			}
-		}
-	}
-}
-
 void convoi_t::reserve_own_tiles()
 {
 	if(anz_vehikel > 0) 
@@ -590,7 +573,7 @@ DBG_MESSAGE("convoi_t::finish_rd()","next_stop_index=%d", next_stop_index );
 				if(gr)
 				{
 					if (schiene_t* const sch0 = obj_cast<schiene_t>(gr->get_weg(vehicle[i]->get_waytype()))) {
-						sch0->reserve(self,ribi_t::keine);
+						sch0->reserve(self, ribi_t::keine);
 					}
 				}
 			}
@@ -4396,7 +4379,6 @@ void convoi_t::rdwr(loadsave_t *file)
 
 	// This must come *after* all the loading/saving.
 	if(  file->is_loading()  ) {
-		reserve_route();
 		recalc_catg_index();
 	}
 

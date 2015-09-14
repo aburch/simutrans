@@ -570,9 +570,6 @@ private:
 	 */
 	void unreserve_route();
 
-	// reseverse route until next_reservation_index
-	void reserve_route();
-
 	// Reserve the tiles on which the convoy is standing to prevent collisions.
 	void reserve_own_tiles();
 

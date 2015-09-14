@@ -65,15 +65,15 @@ public:
 	* true, if this rail can be reserved
 	* @author prissi
 	*/
-	bool can_reserve(convoihandle_t c, reservation_type t = block, ribi_t::ribi dir = 0) const 
+	bool can_reserve(convoihandle_t c, ribi_t::ribi dir, reservation_type t = block) const 
 	{ 
 		if(t == block)
 		{
-			return !reserved.is_bound() || c == reserved; 
+			return !reserved.is_bound() || c == reserved || (type == directional && (dir == direction || dir == ribi_t::alle)) || (type == priority && true /*Insert real logic here*/); 
 		}
 		if(t == directional)
 		{
-			return !reserved.is_bound() || dir == direction;
+			return !reserved.is_bound() || type == priority || (dir == direction || dir == ribi_t::alle);
 		}
 		if(t == priority)
 		{

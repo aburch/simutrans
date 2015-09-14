@@ -59,6 +59,8 @@ public:
 
 	bool get_no_junctions_to_next_signal() const { return no_junctions_to_next_signal; }
 	void set_no_junctions_to_next_signal(bool value) { no_junctions_to_next_signal = value; } 
+
+	bool is_bidirectional() const { return ((dir & ribi_t::ost) && (dir & ribi_t::west)) || ((dir & ribi_t::sued) && (dir & ribi_t::nord)); }
 };
 
 #endif

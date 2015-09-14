@@ -5279,7 +5279,7 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 	sint32 size = get_tiles_of_gebaeude(first_origin, tile_list);
 
 	// Suitable start search (public transport)
-	vector_tpl<nearby_halt_t> start_halts(tile_list[0]->get_haltlist_count() * size);
+	vector_tpl<nearby_halt_t> start_halts(tile_list.empty() ? 0 : tile_list[0]->get_haltlist_count() * size);
 	get_nearby_halts_of_tiles(tile_list, wtyp, start_halts);
 
 	//INT_CHECK("simworld 4490");

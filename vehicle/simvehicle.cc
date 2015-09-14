@@ -3437,7 +3437,7 @@ route_t::route_result_t rail_vehicle_t::calc_route(koord3d start, koord3d ziel, 
 	// use length > 8888 tiles to advance to the end of terminus stations
 	const sint16 tile_length = (cnv->get_schedule()->get_current_eintrag().reverse ? 8888 : 0) + cnv->get_tile_length();
 	route_t::route_result_t r = route->calc_route(welt, start, ziel, this, max_speed, cnv != NULL ? cnv->get_highest_axle_load() : get_sum_weight(), tile_length, SINT64_MAX_VALUE, cnv ? cnv->get_weight_summary().weight / 1000 : get_total_weight());
-	if(r == route_t::valid_route_halt_too_short)
+ 	if(r == route_t::valid_route_halt_too_short)
 	{
 		cbuffer_t buf;
 		buf.printf( translator::translate("Vehicle %s cannot choose because stop too short!"), cnv ? cnv->get_name() : "Invalid convoy");
@@ -3486,6 +3486,9 @@ bool rail_vehicle_t::check_next_tile(const grund_t *bd) const
 	}
 
 	bool check_reservation = true;
+	
+	const koord dir = bd->get_pos().get_2d() - get_pos().get_2d();
+	const ribi_t::ribi ribi = ribi_typ(dir);
 
 	if(target_halt.is_bound() && cnv && cnv->is_waiting())
 	{
@@ -3497,7 +3500,7 @@ bool rail_vehicle_t::check_next_tile(const grund_t *bd) const
 		}
 		// but we can only use empty blocks ...
 		// now check, if we could enter here
-		check_reservation = sch->can_reserve(cnv->self);
+		check_reservation = sch->can_reserve(cnv->self, ribi);
 	}
 
 	if(cnv && cnv->get_is_choosing())
@@ -3514,7 +3517,7 @@ bool rail_vehicle_t::check_next_tile(const grund_t *bd) const
 				}
 			}
 		}
-		check_reservation = sch->can_reserve(cnv->self);
+		check_reservation = sch->can_reserve(cnv->self, ribi);
 	}
 
 	return check_reservation && check_access(sch);
@@ -3566,8 +3569,17 @@ int rail_vehicle_t::get_cost(const grund_t *gr, const sint32 max_speed, koord fr
 bool rail_vehicle_t::is_target(const grund_t *gr,const grund_t *prev_gr)
 {
 	const schiene_t * sch1 = (const schiene_t *) gr->get_weg(get_waytype());
+	ribi_t::ribi ribi_maybe;
+	if(prev_gr)
+	{
+		ribi_maybe = ribi_typ(gr->get_pos().get_2d(), prev_gr->get_pos().get_2d());
+	}
+	else
+	{
+		ribi_maybe = ribi_t::alle;
+	}
 	// first check blocks, if we can go there
-	if(  sch1->can_reserve(cnv->self)  ) {
+	if(  sch1->can_reserve(cnv->self, ribi_maybe)  ) {
 		//  just check, if we reached a free stop position of this halt
 		if(  gr->is_halt()  &&  gr->get_halt()==target_halt  ) {
 			// now we must check the predecessor ...
@@ -3695,7 +3707,7 @@ sint32 rail_vehicle_t::activate_choose_signal(const uint16 start_block)
 #ifdef MAX_CHOOSE_BLOCK_TILES
 		can_find_route = target_rt.find_route(welt, cnv->get_route()->position_bei(start_block), this, speed_to_kmh(cnv->get_min_top_speed()), richtung, cnv->get_highest_axle_load(), cnv->get_tile_length(), cnv->get_weight_summary().weight / 1000, MAX_CHOOSE_BLOCK_TILES, route_t::choose_signal);
 #else
-		can_find_route = target_rt.find_route(welt, cnv->get_route()->position_bei(start_block), this, speed_to_kmh(cnv->get_min_top_speed()), richtung, cnv->get_highest_axle_load(), cnv->get_tile_length(), cnv->get_weight_summary().weight / 1000, welt->get_size().x + welt->get_size().y, route_t::choose_signal);
+		can_find_route = target_rt.find_route(welt, cnv->get_route()->position_bei(start_block), this, speed_to_kmh(cnv->get_min_top_speed()), richtung, cnv->get_highest_axle_load(), cnv->get_tile_length(), cnv->get_weight_summary().weight / 1000, (welt->get_size().x + welt->get_size().y) * 1000, route_t::choose_signal);
 #endif
 	}
 	/* The below is for non-stop based choosing, which I cannot get to work.
@@ -3734,10 +3746,10 @@ sint32 rail_vehicle_t::activate_choose_signal(const uint16 start_block)
 		if(!blocks) 
 		{
 			dbg->error("rail_vehicle_t::is_choose_signal_clear()", "could not reserved route after find_route!");
-			target_halt = halthandle_t();
-			cnv->set_is_choosing(false);
+			target_halt = halthandle_t();		
 		}
 	}
+	cnv->set_is_choosing(false);
 	return blocks;
 }
 
@@ -3846,7 +3858,10 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 	/* this should happen only before signals ...
 	 * but if it is already reserved, we can save lots of other checks later
 	 */
-	if(  !w->can_reserve(cnv->self)  ) {
+	const schiene_t * sch1 = (const schiene_t *) gr->get_weg(get_waytype());
+	const koord dir = gr->get_pos().get_2d() - get_pos().get_2d();
+	const ribi_t::ribi ribi = ribi_typ(dir);
+	if(  !w->can_reserve(cnv->self, ribi)  ) {
 		restart_speed = 0;
 		return false;
 	}
@@ -4080,7 +4095,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
  * if (!reserve && force_unreserve) then un-reserve everything till the end of the route
  * @author prissi
  */
-sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16 &next_signal_index, int count, bool reserve, bool force_unreserve, bool is_choosing, bool is_from_token, bool is_from_starter)
+sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16 &next_signal_index, int count, bool reserve, bool force_unreserve, bool is_choosing, bool is_from_token, bool is_from_starter, bool is_from_directional)
 {
 	bool success = true;
 #ifdef MAX_CHOOSE_BLOCK_TILES
@@ -4143,13 +4158,16 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 
 	koord3d pos = route->position_bei(start_index);
 	const halthandle_t this_halt = haltestelle_t::get_halt(pos, get_owner());
-	uint16 end_marker_index = INVALID_INDEX;
 	uint16 this_stop_signal_index;
 	uint16 last_pre_signal_index = INVALID_INDEX;
 	uint16 last_stop_signal_index = INVALID_INDEX;
 	uint16 last_combined_signal_index = INVALID_INDEX;
 	uint16 last_choose_signal_index = INVALID_INDEX;
 	uint16 last_longblock_signal_index = INVALID_INDEX; 
+	uint16 last_bidirectional_signal_index = INVALID_INDEX; 
+	uint16 last_stop_signal_before_first_bidirectional_signal_index = INVALID_INDEX;
+	uint16 last_non_directional_index = start_index; 
+	uint16 first_oneway_sign_index = INVALID_INDEX;
 	bool do_not_clear_distant = false;
 	working_method_t next_signal_working_method = working_method;
 	koord3d signalbox_last_distant_signal = koord3d::invalid;
@@ -4159,10 +4177,16 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 	signal_t* previous_signal = NULL;
 	bool end_of_block = false;
 	bool not_entirely_free = false;
+	bool directional_only = is_from_directional;
+	bool directional_reservation_succeeded = true;
 	for( ; success && count >= 0 && i < route->get_count(); i++)
 	{
 		this_stop_signal_index = INVALID_INDEX;
 		pos = route->position_bei(i);
+		if(!directional_only)
+		{
+			last_non_directional_index = i;
+		}
 		grund_t *gr = welt->lookup(pos);
 		schiene_t* sch1 = gr ? (schiene_t *)gr->get_weg(get_waytype()) : NULL;
 		if((working_method == drive_by_sight && (i - (start_index - 1)) > sighting_distance_tiles) && (!this_halt.is_bound() || (haltestelle_t::get_halt(pos, get_owner())) != this_halt))
@@ -4203,15 +4227,31 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 			}
 			
 			roadsign_t* rs = gr->find<roadsign_t>();
-			if(rs && rs->get_besch()->is_end_choose_signal())
+			ribi_t::ribi ribi = ribi_typ(route->position_bei(max(1u,i)-1u), route->position_bei(min(route->get_count()-1u,i+1u)));
+			
+			if(rs && rs->get_besch()->is_single_way() && first_oneway_sign_index >= INVALID_INDEX)
 			{
-				end_marker_index = i;
+				if(directional_only)
+				{
+					// Stop a directional reservation when a one way sign is encountered
+					count--;
+				}
+				if(last_bidirectional_signal_index < INVALID_INDEX)
+				{
+					first_oneway_sign_index = i;
+				}
 			}
+
 			if(sch1->has_signal())
-			{
-				signal_t* signal = gr->get_weg(get_waytype())->get_signal(ribi_typ(route->position_bei(max(1u,i)-1u), route->position_bei(min(route->get_count()-1u,i+1u))));
+			{			 
+				signal_t* signal = gr->get_weg(get_waytype())->get_signal(ribi); 
 				if(signal)
 				{
+					if(!directional_only && signal->is_bidirectional())
+					{
+						last_bidirectional_signal_index = i;
+					}
+
 					if(previous_signal && !previous_signal->get_besch()->is_choose_sign())
 					{
 						previous_signal->set_no_junctions_to_next_signal(no_junctions_to_next_signal);
@@ -4219,14 +4259,17 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 					
 					previous_signal = signal;
 					next_signal_working_method = signal->get_besch()->get_working_method();
-					if(working_method == drive_by_sight && sch1->can_reserve(cnv->self))
+					if(working_method == drive_by_sight && sch1->can_reserve(cnv->self, ribi))
 					{
 						working_method = next_signal_working_method;
 					}
 					if(!signal->get_besch()->is_pre_signal()) // Stop signal or MAS
 					{
-						
-						if(count || pre_signals.get_count() || next_signal_working_method == track_circuit_block || first_stop_signal_index >= INVALID_INDEX)
+						if(last_bidirectional_signal_index >= INVALID_INDEX)
+						{
+							last_stop_signal_before_first_bidirectional_signal_index = i;
+						}
+						if((count || pre_signals.get_count() || next_signal_working_method == track_circuit_block || first_stop_signal_index >= INVALID_INDEX) && !directional_only)
 						{
 							signs.append(gr);
 						}
@@ -4251,7 +4294,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 											sb = (signalbox_t*)gb; 
 										}
 									}
-									if(sb && sb->can_add_signal(signal))
+									if(sb && sb->can_add_signal(signal) && !directional_only)
 									{
 										// This is compatible: treat it as a distant signal.
 										pre_signals.append(last_combined_signal); 
@@ -4277,15 +4320,28 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 									end_of_block = true;
 								}
 							}
-							else if(next_signal_working_method == track_circuit_block && remaining_aspects <= 2)
+							else if(!directional_only && next_signal_working_method == track_circuit_block && remaining_aspects <= 2)
 							{
-								count--;
+								if(last_bidirectional_signal_index < INVALID_INDEX && first_oneway_sign_index >= INVALID_INDEX)
+								{
+									directional_only = true;
+									last_stop_signal_index = this_stop_signal_index;
+								}
+								else
+								{
+									count--;
+								}
 								end_of_block = true;
 							}
 							else if(next_signal_working_method == time_interval)
 							{
 								// TODO: Deal with repeaters in time interval signalling
 							}
+						}
+
+						if((!is_from_token || first_stop_signal_index == INVALID_INDEX) && !directional_only)
+						{
+							next_signal_index = i;
 						}
 
 						if(signal->get_besch()->is_combined_signal())
@@ -4296,10 +4352,18 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 							combined_signals.append(signal);
 							last_combined_signal_index = i;
 						}
-						else if(next_signal_working_method == track_circuit_block && remaining_aspects >= 0 && remaining_aspects <= 2)
+						else if(!directional_only && next_signal_working_method == track_circuit_block && remaining_aspects >= 0 && remaining_aspects <= 2)
 						{
 							// If there are no more caution aspects, do not reserve any further.
-							count--;
+							if(last_bidirectional_signal_index < INVALID_INDEX && first_oneway_sign_index >= INVALID_INDEX)
+							{
+								directional_only = true;
+								last_stop_signal_index = this_stop_signal_index;
+							}
+							else
+							{
+								count--;
+							}
 						}
 
 						if(signal->get_besch()->is_choose_sign())
@@ -4307,10 +4371,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 							last_choose_signal_index = i;
 						}
 						
-						if(!is_from_token || first_stop_signal_index == INVALID_INDEX)
-						{
-							next_signal_index = i;
-						}
+						
 						if(first_stop_signal_index == INVALID_INDEX)
 						{
 							first_stop_signal_index = i;
@@ -4325,20 +4386,20 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 								count--;
 							}
 						}
-						else if(next_signal_working_method == track_circuit_block)
+						else if(next_signal_working_method == track_circuit_block && !directional_only)
 						{
 							remaining_aspects = min(remaining_aspects - 1, signal->get_besch()->get_aspects()); 
 						}
 						else if(next_signal_working_method == absolute_block && pre_signals.empty())
 						{
 							// No distant signals: just reserve one block beyond the first stop signal and no more.
-							count --;
+							count--;
 						}
 						if(signal->get_besch()->is_longblock_signal() || signal->get_besch()->get_working_method() == token_block)
 						{
 							last_longblock_signal_index = i; 
-							const bool platform_starter = (this_halt.is_bound() && (haltestelle_t::get_halt(signal->get_pos(), get_owner())) == this_halt) && (haltestelle_t::get_halt(get_pos(), get_owner()) == this_halt) && (cnv->get_akt_speed() == 0);
-							sint32 TEST_speed = cnv->get_akt_speed();
+							const bool platform_starter = (this_halt.is_bound() && (haltestelle_t::get_halt(signal->get_pos(), get_owner())) == this_halt)
+								&& (haltestelle_t::get_halt(get_pos(), get_owner()) == this_halt) && (cnv->get_akt_speed() == 0);
 							// Do not reserve through a token block signal: the train must stop to take the token.
 							if(last_longblock_signal_index > first_stop_signal_index || (!starting_at_signal && !platform_starter))
 							{
@@ -4347,9 +4408,12 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 							}
 						}
 
-						this_stop_signal_index = i;
+						if(!directional_only)
+						{
+							this_stop_signal_index = i;
+						}
 					}
-					else // Distant signal or repeater
+					else if(!directional_only) // Distant signal or repeater
 					{				
 						if(next_signal_working_method == absolute_block || next_signal_working_method == token_block)
 						{
@@ -4360,7 +4424,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 								signalbox_last_distant_signal = signal->get_signalbox();
 							}
 						}
-						else if(next_signal_working_method == track_circuit_block)
+						else if(next_signal_working_method == track_circuit_block && directional_only)
 						{
 							// In this mode, distant signals are regarded as mere repeaters.
 							if(remaining_aspects < 2 && pre_signals.empty())
@@ -4376,15 +4440,16 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 					}
 				}
 			}
-			if(!sch1->reserve(cnv->self, ribi_typ(route->position_bei(max(1u,i)-1u), route->position_bei(min(route->get_count()-1u,i+1u))))) 
+			const schiene_t::reservation_type rt = directional_only ? schiene_t::directional : schiene_t::block;
+			if(!sch1->reserve(cnv->self, ribi_typ(route->position_bei(max(1u,i)-1u), route->position_bei(min(route->get_count()-1u,i+1u))), rt))
 			{
 				not_entirely_free = true;
-				if(next_signal_working_method == drive_by_sight || next_signal_working_method == moving_block)
+				if((next_signal_working_method == drive_by_sight || next_signal_working_method == moving_block) && !directional_only)
 				{
 					next_signal_index = i - 1;
 					break;
 				}
-				if((next_signal_working_method == absolute_block || next_signal_working_method == token_block) && first_stop_signal_index < i)
+				if(((next_signal_working_method == absolute_block || next_signal_working_method == token_block) && first_stop_signal_index < i) && !directional_only)
 				{
 					// Because the distant signal applies to all signals controlled by the same signalbox, the driver cannot know that the route 
 					// will be clear beyond the *first* stop signal after the distant. 
@@ -4392,20 +4457,27 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 					do_not_clear_distant = true;
 					break;
 				}
-				if(next_signal_working_method == track_circuit_block && last_stop_signal_index != INVALID_INDEX)
+				if(next_signal_working_method == track_circuit_block && last_stop_signal_index != INVALID_INDEX && !directional_only)
 				{
 					next_signal_index = last_stop_signal_index;
 					break;
 				}
+				if(directional_only && i < first_oneway_sign_index)
+				{
+					// Do not allow the train to proceed along a section of bidirectionally signalled line unless 
+					// a directional reservation can be secured the whole way.
+					next_signal_index = last_stop_signal_before_first_bidirectional_signal_index;
+				}
 				success = false;
+				directional_reservation_succeeded = false;
 			}
 			else
 			{
-				if(this_stop_signal_index != INVALID_INDEX)
+				if(this_stop_signal_index != INVALID_INDEX && !directional_only)
 				{
 					last_stop_signal_index = this_stop_signal_index;
 				}
-				if(end_of_block && !is_from_token)
+				if(end_of_block && !is_from_token && !directional_only)
 				{
 					next_signal_index = last_stop_signal_index;
 					break;
@@ -4506,7 +4578,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 			{
 				ribi_t::ribi direction_of_travel = ribi_typ(route->position_bei(max(1u,i)-1u), route->position_bei(min(route->get_count()-1u,i+1u)));
 				signal_t* signal = sch1->get_signal(direction_of_travel);
-				if(signal)
+				if(signal && !signal->get_no_junctions_to_next_signal())
 				{
 					if(signal->get_besch()->is_pre_signal())
 					{
@@ -4545,13 +4617,17 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 
 	// free, in case of un-reserve or no success in reservation
 	// or alternatively free that section reserved beyond the last signal to which reservation can take place
-	if(!success || ((next_signal_index < INVALID_INDEX) && (next_signal_working_method == absolute_block || next_signal_working_method == track_circuit_block || next_signal_working_method == cab_signalling)))
+	if(!success || !directional_reservation_succeeded || ((next_signal_index < INVALID_INDEX) && (next_signal_working_method == absolute_block || next_signal_working_method == track_circuit_block || next_signal_working_method == cab_signalling)))
 	{
 		// free reservation
 		uint16 relevant_index;
 		if(!success)
 		{
 			relevant_index = start_index;
+		}
+		else if(!directional_reservation_succeeded)
+		{
+			relevant_index = last_non_directional_index;
 		}
 		else
 		{
@@ -4563,12 +4639,16 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 			// Cannot go anywhere either because this train is already on the tile of the last signal to which it can go, or is in the same station as it.
 			success = false;
 		}
-		for(uint32 j = relevant_index + 1; j < i; j++)
+		const uint8 unreserve_until = directional_reservation_succeeded ? last_non_directional_index : i;
+		for(uint32 j = relevant_index + 1; j < unreserve_until; j++)
 		{
 			if(i != skip_index)
 			{
 				schiene_t * sch1 = (schiene_t *)welt->lookup(route->position_bei(j))->get_weg(get_waytype());
-				sch1->unreserve(cnv->self);
+				if(sch1->is_reserved(schiene_t::block))
+				{
+					sch1->unreserve(cnv->self);
+				}
 			}
 		}
 
@@ -4585,10 +4665,12 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 		}
 	}
 
-	// If we are in token block mode, reserve to the end of the route if there is not a prior signal.
+	// If we are in token block mode or making directional reservations, reserve to the end of the route if there is not a prior signal.
 	// However, do not call this if we are in the block reserver already called from this method to prevent
 	// infinite recursion.
-	if(!is_from_token && working_method == token_block && last_longblock_signal_index < INVALID_INDEX && next_signal_index == INVALID_INDEX)
+	const bool bidirectional_reservation = (working_method == track_circuit_block || working_method == cab_signalling || working_method == moving_block) 
+		&& last_bidirectional_signal_index < INVALID_INDEX;
+	if(!is_from_token && ((working_method == token_block && last_longblock_signal_index < INVALID_INDEX) || bidirectional_reservation) && next_signal_index == INVALID_INDEX)
 	{
 		route_t target_rt;
 		schedule_t *fpl = cnv->get_schedule();
@@ -4607,14 +4689,28 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 
 			if(route_success) 
 			{
-				token_block_blocks = block_reserver(&target_rt, 1, next_next_signal, 0, true, false, false, true);
+				token_block_blocks = block_reserver(&target_rt, 1, next_next_signal, 0, true, false, false, true, bidirectional_reservation);
 			}
 
 			if(token_block_blocks && next_next_signal < INVALID_INDEX) 
 			{
 				// There is a signal in a later part of the route to which we can reserve now.
-				cnv->set_next_stop_index(cnv->get_route()->get_count() - 1u);
-				break;
+				if(bidirectional_reservation)
+				{
+					if(signal_t* sg = welt->lookup(route->position_bei(next_next_signal))->get_weg(get_waytype())->get_signal(ribi_typ((route->position_bei(next_next_signal - 1)), route->position_bei(next_next_signal))))
+					{
+						if(!sg->is_bidirectional())
+						{
+							break;
+						}
+					}
+						
+				}
+				else
+				{
+					cnv->set_next_stop_index(cnv->get_route()->get_count() - 1u);
+					break;
+				}
 			}
 
 			if(token_block_blocks)
@@ -4624,7 +4720,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 				fpl->increment_index(&fahrplan_index, &rev);
 			}
 		}
-		if(token_block_blocks)
+		if(token_block_blocks && !bidirectional_reservation)
 		{
 			if(cnv->get_next_stop_index() - 1 <= route_index) 
 			{
@@ -4651,7 +4747,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 					}
 					if(signal->get_besch()->get_working_method() == track_circuit_block)
 					{
-						if(count >= 0 || signal->get_pos() != route->position_bei(next_signal_index))
+						if(count >= 0 || next_signal_index == INVALID_INDEX || signal->get_pos() != route->position_bei(next_signal_index))
 						{
 							// Do not clear the last signal in the route, as nothing is reserved beyond it, unless there are no more signals beyond at all (count == 0)
 							sint32 add_value = 0;
@@ -4765,7 +4861,8 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 
 	if(cnv)
 	{
-		cnv->set_next_reservation_index(i);
+		cnv->set_next_reservation_index(last_non_directional_index);
+		//cnv->set_next_reservation_index(i);
 	}
 
 	return reached_end_of_loop || working_method != track_circuit_block ? (!combined_signals.empty() && !pre_signals.empty() ? 2 : 1) : (sint32)signs.get_count();
@@ -4895,7 +4992,7 @@ void rail_vehicle_t::leave_tile()
 								ribi_t::ribi ribi_route = ribi_typ(dir);	
 								grund_t* gr_route = welt->lookup(this_pos);
 								schiene_t* sch_route = gr_route ? (schiene_t *)gr_route->get_weg(get_waytype()) : NULL;
-								if(!sch_route || !sch_route->can_reserve(cnv->self))
+								if(!sch_route || !sch_route->can_reserve(cnv->self, ribi_route))
 								{
 									// Cannot go further back than this in any event
 									break;

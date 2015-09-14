@@ -513,7 +513,7 @@ void route_t::concatenate_routes(route_t* tail_route)
 }
 
 
-bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d start, test_driver_t *tdriver, const sint32 max_speed, const sint64 max_cost, const uint32 axle_load, const uint32 convoy_weight, const sint32 tile_length, koord3d avoid_tile)
+bool route_t::intern_calc_route(karte_t *welt, const koord3d start, const koord3d ziel, test_driver_t *tdriver, const sint32 max_speed, const sint64 max_cost, const uint32 axle_load, const uint32 convoy_weight, const sint32 tile_length, koord3d avoid_tile)
 {
 	bool ok = false;
 
@@ -612,6 +612,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 	const uint8 enforce_weight_limits = welt->get_settings().get_enforce_weight_limits();
 	uint32 beat=1;
 	int bridge_tile_count = 0;
+	int best_distance = 65535;
 	do {
 		// Hajo: this is too expensive to be called each step
 		if((beat++ & 1023) == 0)
@@ -672,8 +673,8 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 			// a way goes here, and it is not marked (i.e. in the closed list)
 			if((to || gr->get_neighbour(to, wegtyp, next_ribi[r])) && tdriver->check_next_tile(to) && !marker.is_marked(to)) 
 			{
-				// Do not go on a tile, where a oneway sign forbids going.
-				// This saves time and fixed the bug, that a oneway sign on the final tile was ignored.
+				// Do not go on a tile where a one way sign forbids going.
+				// This saves time and fixed the bug in which a oneway sign on the final tile was ignored.
 				ribi_t::ribi last_dir=next_ribi[r];
 				weg_t *w = to->get_weg(wegtyp);
 				ribi_t::ribi go_dir = (w==NULL) ? 0 : w->get_ribi_maske();
@@ -820,6 +821,8 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 				}
 
 				uint32 dist = calc_distance( to->get_pos(), ziel );
+
+				best_distance = (dist < best_distance) ? dist : best_distance;
 
 				// count how many 45 degree turns are necessary to get to target
 				sint8 turns = 0;
@@ -1038,7 +1041,7 @@ void route_t::postprocess_water_route(karte_t *welt)
  * corrected 12/2005 for station search
  * @author Hansjörg Malthaner, prissi
  */
- route_t::route_result_t route_t::calc_route(karte_t *welt, const koord3d ziel, const koord3d start, test_driver_t *tdriver, const sint32 max_khm, const uint32 axle_load, sint32 max_len, const sint64 max_cost, const uint32 convoy_weight, koord3d avoid_tile)
+ route_t::route_result_t route_t::calc_route(karte_t *welt, const koord3d start, const koord3d ziel, test_driver_t *tdriver, const sint32 max_khm, const uint32 axle_load, sint32 max_len, const sint64 max_cost, const uint32 convoy_weight, koord3d avoid_tile)
 {
 	route.clear();
 	const uint32 distance = shortest_distance(start.get_2d(), ziel.get_2d()) * 600;
@@ -1080,9 +1083,8 @@ void route_t::postprocess_water_route(karte_t *welt)
 	{
 
 		// we need a halt of course ...
-		grund_t *gr = welt->lookup(start);
+		grund_t *gr = welt->lookup(ziel);
 		halthandle_t halt = gr->get_halt();
-		// NOTE: halt is actually the *destination* halt.
 		if(halt.is_bound()) 
 		{
 			sint32 platform_size = 0;
