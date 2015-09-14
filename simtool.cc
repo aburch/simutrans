@@ -5671,7 +5671,8 @@ const char *tool_build_roadsign_t::place_sign_intern( player_t *player, grund_t*
 					// signals have three options
 					ribi_t::ribi sig_dir = sig->get_dir();
 					uint8 i = 0;
-					if (!ribi_t::is_twoway(sig_dir)) {
+					const bool old_direction_was_double = ribi_t::is_twoway(sig_dir);
+					if (!old_direction_was_double) {
 						// inverse first dir
 						for (; i < 4; i++) {
 							if ((dir & ribi_t::nsow[i]) == sig_dir) {
@@ -5687,10 +5688,25 @@ const char *tool_build_roadsign_t::place_sign_intern( player_t *player, grund_t*
 						}
 					}
 					// if nothing found, we have two ways again ...
-					if(ribi_t::is_twoway(dir) && (sig->get_besch()->get_working_method() != track_circuit_block && sig->get_besch()->get_working_method() != cab_signalling && sig->get_besch()->get_working_method() != moving_block))
+					if(ribi_t::is_twoway(dir))
 					{
-						// Only some types of signals can work properly as bidirectional.
-						dir = ~sig->get_dir() & weg->get_ribi_unmasked();
+						if(sig->get_besch()->get_working_method() != track_circuit_block && sig->get_besch()->get_working_method() != cab_signalling && sig->get_besch()->get_working_method() != moving_block)
+						{
+							// Only some types of signals can work properly as bidirectional: not this type.
+							dir = ~sig->get_dir() & weg->get_ribi_unmasked();
+						}
+						else
+						{
+							// This type can be built bidirectionally, but it costs twice as much to do so. 
+							player_t::book_construction_costs(player, -besch->get_preis(), gr->get_pos().get_2d(), weg->get_waytype());
+							player_t::add_maintenance(player, besch->get_maintenance(), weg->get_waytype()); 
+						}
+					}
+					if(old_direction_was_double)
+					{
+						// Reduce the maintenance cost and refund the price (refunding is necessary, as cycling through a bidirectional type is unavoidable).
+						player_t::book_construction_costs(player, besch->get_preis(), gr->get_pos().get_2d(), weg->get_waytype());
+						player_t::add_maintenance(player, -besch->get_maintenance(), weg->get_waytype()); 
 					}
 					sig->set_dir(dir);
 				} else { 
