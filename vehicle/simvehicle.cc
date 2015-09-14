@@ -4713,6 +4713,10 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 				cur_pos = target_rt.back();
 				fpl->increment_index(&fahrplan_index, &rev);
 			}
+			if(fpl->eintrag[fahrplan_index].reverse)
+			{
+				break;
+			}
 		}
 		if(token_block_blocks && !bidirectional_reservation)
 		{
@@ -4721,6 +4725,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 				cnv->set_next_stop_index(cnv->get_route()->get_count() - 1);
 			}
 		}
+
 	}
 
 	// Clear signals on the route.
