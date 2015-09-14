@@ -713,7 +713,7 @@ protected:
 
 	void enter_tile(grund_t*);
 
-	sint32 activate_choose_signal(uint16 start_index);
+	sint32 activate_choose_signal(uint16 start_index, uint16 &next_signal_index);
 	
 	working_method_t working_method;
 

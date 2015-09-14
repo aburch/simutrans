@@ -94,8 +94,6 @@ public:
 
 	void rotate90( sint16 y_size ) { route.rotate90( y_size ); };
 
-	void concatenate_routes(route_t* tail_route);
-
 	bool is_contained(const koord3d &k) const { return route.is_contained(k); }
 
 	uint32 index_of(const koord3d &k) const { return (uint32)(route.index_of(k)); }
@@ -143,6 +141,12 @@ public:
 	 * @author prissi
 	 */
 	void remove_koord_from(uint32 i);
+
+	/**
+	 * Removes all tiles before
+	 * this position.
+	 */
+	void remove_koord_to(uint32 i); 
 
 	/**
 	 * Appends a straight line to the @p target.

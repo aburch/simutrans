@@ -68,6 +68,13 @@ void route_t::remove_koord_from(uint32 i) {
 	}
 }
 
+void route_t::remove_koord_to(uint32 i)
+{
+	for(uint32 c = 0; c < i; c++)
+	{
+		route.remove_at(0); 
+	}
+}
 
 /**
  * Appends a straight line from the last koord3d in route to the desired target.
@@ -494,24 +501,6 @@ ribi_t::ribi *get_next_dirs(const koord3d& gr_pos, const koord3d& ziel)
 	next_ribi[3] = ribi_t::rueckwaerts( next_ribi[0] );
 	return next_ribi;
 }
-
-
-void route_t::concatenate_routes(route_t* tail_route)
-{
-	route.resize(route.get_count() + tail_route->route.get_count());
-	ITERATE_PTR(tail_route, i)
-	{
-		if(i == 0)
-		{ 
-			// This is necessary, as otherwise the first tile of the new route
-			// will be the same as the last tile of the old route, causing
-			// disrupted convoy movement. 
-			continue;
-		}
-		route.append(tail_route->route.get_element(i));
-	}
-}
-
 
 bool route_t::intern_calc_route(karte_t *welt, const koord3d start, const koord3d ziel, test_driver_t *tdriver, const sint32 max_speed, const sint64 max_cost, const uint32 axle_load, const uint32 convoy_weight, const sint32 tile_length, koord3d avoid_tile)
 {

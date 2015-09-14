@@ -873,6 +873,13 @@ void convoi_t::update_route(uint32 index, const route_t &replacement)
 	route.append(&replacement);
 }
 
+void convoi_t::replace_route(const route_t &replacement)
+{
+	route_infos.clear();
+	route.clear();
+	route.append(&replacement);
+}
+
 
 // BG, 06.11.2011
 inline weg_t *get_weg_on_grund(const grund_t *grund, const waytype_t waytype)

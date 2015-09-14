@@ -830,6 +830,7 @@ public:
 	route_t* access_route() { return &route; }
 	bool calc_route(koord3d start, koord3d ziel, sint32 max_speed);
 	void update_route(uint32 index, const route_t &replacement); // replace route with replacement starting at index.
+	void replace_route(const route_t &replacement); // Completely replace the route with that passed as a parameter.
 
 	const koord3d get_fpl_target() const { return fpl_target; }
 	void set_fpl_target( koord3d t ) { fpl_target = t; }

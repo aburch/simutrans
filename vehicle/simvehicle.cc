@@ -3506,7 +3506,7 @@ bool rail_vehicle_t::check_next_tile(const grund_t *bd) const
 	if(cnv && cnv->get_is_choosing())
 	{
 		// we cannot pass an end of choose area
-		if(sch->has_sign())
+		/*if(sch->has_sign())
 		{
 			const roadsign_t* rs = bd->find<roadsign_t>();
 			if(  rs->get_besch()->get_wtyp()==get_waytype()  )
@@ -3516,7 +3516,7 @@ bool rail_vehicle_t::check_next_tile(const grund_t *bd) const
 					return false;
 				}
 			}
-		}
+		}*/
 		check_reservation = sch->can_reserve(cnv->self, ribi);
 	}
 
@@ -3613,12 +3613,11 @@ bool rail_vehicle_t::is_target(const grund_t *gr,const grund_t *prev_gr)
 	return false;
 }
 
-sint32 rail_vehicle_t::activate_choose_signal(const uint16 start_block)
+sint32 rail_vehicle_t::activate_choose_signal(const uint16 start_block, uint16 &next_signal_index)
 {
 	bool choose_ok = false;
 	target_halt = halthandle_t();
 
-	uint16 next_signal;
 	grund_t const* target = welt->lookup(cnv->get_route()->back());
 
 	if(  target==NULL  ) 
@@ -3633,22 +3632,26 @@ sint32 rail_vehicle_t::activate_choose_signal(const uint16 start_block)
 	choose_ok = true;
 
 	// check whether there is another choose signal or end_of_choose on the route
+	uint32 break_index = start_block + 1;
 	for(uint32 idx = start_block + 1; choose_ok && idx < cnv->get_route()->get_count(); idx++)
 	{
 		grund_t *gr = welt->lookup(cnv->get_route()->position_bei(idx));
 		if(!gr)
 		{
 			choose_ok = false;
+			break_index = idx;
 			break;
 		}
 		if(gr->get_halt() == target->get_halt())
 		{
+			break_index = idx;
 			break;
 		}
 		weg_t *way = gr->get_weg(get_waytype());
 		if(!way)
 		{
 			choose_ok = false;
+			break_index = idx;
 			break;
 		}
 		if(way->has_sign())
@@ -3658,13 +3661,9 @@ sint32 rail_vehicle_t::activate_choose_signal(const uint16 start_block)
 			{
 				if(rs->get_besch()->is_end_choose_signal())
 				{
-					choose_ok = false;
-					break;
-					/* The below is for non-stop based choosing, which I cannot get to work.
-					   Retained in case anyone else can get it to work.
 					target = gr;
+					break_index = idx;
 					break;
-					*/
 				}
 			}
 		}
@@ -3710,26 +3709,21 @@ sint32 rail_vehicle_t::activate_choose_signal(const uint16 start_block)
 		can_find_route = target_rt.find_route(welt, cnv->get_route()->position_bei(start_block), this, speed_to_kmh(cnv->get_min_top_speed()), richtung, cnv->get_highest_axle_load(), cnv->get_tile_length(), cnv->get_weight_summary().weight / 1000, (welt->get_size().x + welt->get_size().y) * 1000, route_t::choose_signal);
 #endif
 	}
-	/* The below is for non-stop based choosing, which I cannot get to work.
-		Retained in case anyone else can get it to work.
-
 	else
 	{
 		// The target is an end of choose sign along the route.
 		const sint16 tile_length = (cnv->get_schedule()->get_current_eintrag().reverse ? 8888 : 0) + cnv->get_tile_length();
 		can_find_route = target_rt.calc_route(welt, cnv->get_route()->position_bei(start_block), target->get_pos(), this, speed_to_kmh(cnv->get_min_top_speed()), cnv->get_highest_axle_load(), cnv->get_tile_length(), SINT64_MAX_VALUE, cnv->get_weight_summary().weight / 1000); 
-		// ^^ This is the line that fails for reasons that I cannot fathom.
 		// This route only takes us to the end of choose sign, so we must calculate the route again beyond that point to the actual destination then concatenate them. 
 		if(can_find_route)
 		{
-			route_t second_part_route;
-			can_find_route = second_part_route.calc_route(welt, target_rt.position_bei(target_rt.get_count() - 1), cnv->get_route()->back(), this, speed_to_kmh(cnv->get_min_top_speed()), cnv->get_highest_axle_load(), SINT64_MAX_VALUE, cnv->get_weight_summary().weight / 1000); 
-			if(can_find_route)
-			{
-				target_rt.concatenate_routes(&second_part_route); 
-			}
+			// Merge this part route with the remaining route
+			route_t intermediate_route;
+			intermediate_route.append(cnv->get_route()); 
+			intermediate_route.remove_koord_to(break_index);
+			target_rt.append(&intermediate_route); 
 		}
-	}*/
+	}
 	sint32 blocks;
 	if(!can_find_route)
 	{
@@ -3742,7 +3736,7 @@ sint32 rail_vehicle_t::activate_choose_signal(const uint16 start_block)
 	{
 		// try to reserve the whole route
 		cnv->update_route(start_block, target_rt);
-		blocks = block_reserver(cnv->get_route(), start_block, next_signal, 100000, true, false, true);
+		blocks = block_reserver(cnv->get_route(), start_block, next_signal_index, 100000, true, false, true);
 		if(!blocks) 
 		{
 			dbg->error("rail_vehicle_t::is_choose_signal_clear()", "could not reserved route after find_route!");
@@ -4655,7 +4649,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 		if(last_choose_signal_index < INVALID_INDEX && !is_choosing && not_entirely_free)
 		{
 			// This will call the block reserver afresh from the last choose signal with choose logic enabled. 
-			return activate_choose_signal(last_choose_signal_index); 
+			return activate_choose_signal(last_choose_signal_index, next_signal_index); 
 		}
 
 		if(!success)
@@ -5004,7 +4998,7 @@ void rail_vehicle_t::leave_tile()
 									{
 										continue;
 									}
-									if(!signal_route->get_no_junctions_to_next_signal())
+									if(!signal_route->get_no_junctions_to_next_signal() || signal_route->get_besch()->is_choose_sign())
 									{
 										break;
 									}
