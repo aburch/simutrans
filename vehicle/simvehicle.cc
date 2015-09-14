@@ -4263,7 +4263,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 						{
 							last_stop_signal_before_first_bidirectional_signal_index = i;
 						}
-						if((count || pre_signals.get_count() || next_signal_working_method == track_circuit_block || first_stop_signal_index >= INVALID_INDEX) && !directional_only)
+						if((count || pre_signals.get_count() || next_signal_working_method == track_circuit_block  || next_signal_working_method == cab_signalling || first_stop_signal_index >= INVALID_INDEX) && !directional_only)
 						{
 							signs.append(gr);
 						}
@@ -4314,7 +4314,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 									end_of_block = true;
 								}
 							}
-							else if(!directional_only && next_signal_working_method == track_circuit_block && remaining_aspects <= 2)
+							else if(!directional_only && (next_signal_working_method == track_circuit_block || next_signal_working_method == cab_signalling) && remaining_aspects <= 2)
 							{
 								if(last_bidirectional_signal_index < INVALID_INDEX && first_oneway_sign_index >= INVALID_INDEX)
 								{
@@ -4346,7 +4346,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 							combined_signals.append(signal);
 							last_combined_signal_index = i;
 						}
-						else if(!directional_only && next_signal_working_method == track_circuit_block && remaining_aspects >= 0 && remaining_aspects <= 2)
+						else if(!directional_only && (next_signal_working_method == track_circuit_block || next_signal_working_method == cab_signalling) && remaining_aspects >= 0 && remaining_aspects <= 2)
 						{
 							// If there are no more caution aspects, do not reserve any further.
 							if(last_bidirectional_signal_index < INVALID_INDEX && first_oneway_sign_index >= INVALID_INDEX)
@@ -4370,7 +4370,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 						{
 							first_stop_signal_index = i;
 							cnv->set_maximum_signal_speed(signal->get_besch()->get_max_speed());
-							if(next_signal_working_method == track_circuit_block)
+							if(next_signal_working_method == track_circuit_block  || next_signal_working_method == cab_signalling)
 							{
 								remaining_aspects = signal->get_besch()->get_aspects(); 
 							}
@@ -4380,7 +4380,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 								count--;
 							}
 						}
-						else if(next_signal_working_method == track_circuit_block && !directional_only)
+						else if((next_signal_working_method == track_circuit_block || next_signal_working_method == cab_signalling) && !directional_only)
 						{
 							remaining_aspects = min(remaining_aspects - 1, signal->get_besch()->get_aspects()); 
 						}
@@ -4418,7 +4418,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 								signalbox_last_distant_signal = signal->get_signalbox();
 							}
 						}
-						else if(next_signal_working_method == track_circuit_block && directional_only)
+						else if((next_signal_working_method == track_circuit_block || next_signal_working_method == cab_signalling) && directional_only)
 						{
 							// In this mode, distant signals are regarded as mere repeaters.
 							if(remaining_aspects < 2 && pre_signals.empty())
@@ -4451,7 +4451,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 					do_not_clear_distant = true;
 					break;
 				}
-				if(next_signal_working_method == track_circuit_block && last_stop_signal_index != INVALID_INDEX && !directional_only)
+				if((next_signal_working_method == track_circuit_block || next_signal_working_method == cab_signalling) && last_stop_signal_index != INVALID_INDEX && !directional_only)
 				{
 					next_signal_index = last_stop_signal_index;
 					break;
