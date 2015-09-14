@@ -5690,6 +5690,39 @@ const char *tool_build_roadsign_t::place_sign_intern( player_t *player, grund_t*
 					rs->set_dir(dir);
 				} else { 
 					// add a new signal at position zero!
+					
+					if(weg->get_waytype() == track_wt || weg->get_waytype() == monorail_wt || weg->get_waytype() == narrowgauge_wt || weg->get_waytype() == maglev_wt)
+					{
+						const schiene_t* sch = (schiene_t*)weg;
+						dir = sch->get_reserved_direction();
+						switch(dir) // These are reversed for some odd reason.
+						{
+						case ribi_t::nordsued:
+						case ribi_t::nord:
+							dir = ribi_t::sued;
+							break;
+						case ribi_t::sued:
+							dir = ribi_t::nord;
+							break;
+						case ribi_t::ostwest:
+						case ribi_t::ost:
+							dir = ribi_t::west;
+							break;
+						case ribi_t::west:
+							dir = ribi_t::ost;
+							break;
+						default:
+							switch(weg->get_ribi_unmasked())
+							{
+							case ribi_t::nordsued:
+								dir = ribi_t::sued; 
+								break;
+							case ribi_t::ostwest:
+								dir = ribi_t::west;
+								break;
+							};
+						};
+					}
 					rs = new signal_t(player, gr->get_pos(), dir, besch, signal[player->get_player_nr()].signalbox);
 					DBG_MESSAGE("tool_roadsign()", "new signal, dir is %i", dir);
 					goto built_sign;
