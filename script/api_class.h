@@ -153,7 +153,12 @@ namespace script_api {
 			uint16 id = 0;
 			get_slot(vm, "id", id, index);
 			quickstone_tpl<T> h;
-			h.set_id(id);
+			if (id < quickstone_tpl<T>::get_size()) {
+				h.set_id(id);
+			}
+			else {
+				sq_raise_error(vm, "Invalid id %d, too large", id);
+			}
 			return h;
 		}
 		static const char* squirrel_type()
