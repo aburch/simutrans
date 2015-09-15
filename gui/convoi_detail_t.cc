@@ -246,7 +246,7 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 
 			// first image
 			scr_coord_val x, y, w, h;
-			const image_id bild=v->get_base_image();
+			const image_id bild=v->get_loaded_image();
 			display_get_base_image_offset(bild, &x, &y, &w, &h );
 			display_base_img(bild,11-x+pos.x+offset.x,pos.y+offset.y+total_height-y+2,cnv->get_owner()->get_player_nr(),false,true);
 			w = max(40,w+4)+11;

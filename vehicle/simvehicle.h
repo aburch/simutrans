@@ -293,6 +293,11 @@ public:
 	image_id get_base_image() const { return besch->get_basis_bild(); }
 
 	/**
+	 * @return image with base direction and freight image taken from loaded cargo
+	 */
+	image_id get_loaded_image() const;
+
+	/**
 	* @return vehicle description object
 	* @author Hj. Malthaner
 	*/

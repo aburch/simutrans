@@ -1384,6 +1384,11 @@ void vehicle_t::calc_image()
 }
 
 
+image_id vehicle_t::get_loaded_image() const
+{
+	return besch->get_bild_nr(ribi_t::dir_sued, fracht.empty() ?  warenbauer_t::nichts  : fracht.front().get_besch());
+}
+
 
 // true, if this vehicle did not moved for some time
 bool vehicle_t::is_stuck()
