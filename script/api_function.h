@@ -510,7 +510,7 @@ namespace script_api {
 	struct embed_call_t<R (C::*)(A1, A2) const> {
 		static SQInteger call_function(HSQUIRRELVM vm, R (C::*func)(A1, A2) const, bool)
 		{
-			if (const C* instance = param<C*>::get(vm, 1)) {
+			if (const C* instance = param<const C*>::get(vm, 1)) {
 				return param<R>::push(vm, (instance->*func)(
 					param<A1>::get(vm, 2),
 					param<A2>::get(vm, 3)
