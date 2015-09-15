@@ -33,6 +33,7 @@ class convoi_t;
 class schedule_t;
 class signal_t;
 class ware_t;
+class schiene_t;
 
 // for aircraft:
 // length of the holding pattern.
@@ -742,6 +743,8 @@ public:
 	sint32 block_reserver(route_t *route, uint16 start_index, uint16 &next_signal, int signal_count, bool reserve, bool force_unreserve, bool is_choosing = false, bool is_from_token = false, bool is_from_starter = false, bool is_from_directional = false);
 
 	void leave_tile();
+
+	void clear_token_reservation(signal_t* sig, rail_vehicle_t* w, schiene_t* sch); 
 
 #ifdef INLINE_OBJ_TYPE
 protected:

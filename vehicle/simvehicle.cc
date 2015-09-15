@@ -3852,7 +3852,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 	/* this should happen only before signals ...
 	 * but if it is already reserved, we can save lots of other checks later
 	 */
-	const schiene_t * sch1 = (const schiene_t *) gr->get_weg(get_waytype());
+	schiene_t * sch1 = (schiene_t *) gr->get_weg(get_waytype());
 	const koord dir = gr->get_pos().get_2d() - get_pos().get_2d();
 	const ribi_t::ribi ribi = ribi_typ(dir);
 	if(  !w->can_reserve(cnv->self, ribi)  ) {
@@ -3986,6 +3986,16 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		}
 	}
 
+	if(working_method == token_block && sch1->has_sign())
+	{
+		roadsign_t* rs = gr->find<roadsign_t>();
+		if(rs && rs->get_besch()->is_single_way())
+		{
+			// If we come upon a single way sign, clear the reservation so far, as we know that we are now on unidirectional track again.
+			clear_token_reservation(NULL, this, sch1); 
+		}
+	}
+
 	const sint32 route_steps = brake_steps > 0 && route_index <= route_infos.get_count() - 1 ? cnv->get_route_infos().get_element((next_block > 0 ? next_block - 1 : 0)).steps_from_start - cnv->get_route_infos().get_element(route_index).steps_from_start : -1;
 	if(route_steps <= brake_steps || brake_steps < 0)
 	{
@@ -4065,7 +4075,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		ribi_t::ribi ribi = ribi_typ(dir);	
 		signal_t* signal = get_weg()->get_signal(ribi); 
 	
-		if(signal && signal->get_besch()->is_longblock_signal()) 
+		if(signal && (signal->get_besch()->is_longblock_signal() || signal->get_besch()->get_working_method() == token_block))
 		{
 			working_method = token_block;
 		}
@@ -4867,6 +4877,58 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 	return reached_end_of_loop || working_method != track_circuit_block ? (!combined_signals.empty() && !pre_signals.empty() ? 2 : 1) : (sint32)signs.get_count();
 }
 
+void rail_vehicle_t::clear_token_reservation(signal_t* sig, rail_vehicle_t* w, schiene_t* sch)
+{
+	route_t* route = cnv ? cnv->get_route() : NULL;
+	if(sig && !sig->get_besch()->is_longblock_signal())
+	{
+		w->set_working_method(sig->get_besch()->get_working_method());
+	}
+	if(cnv->get_needs_full_route_flush())
+	{
+		slist_tpl<koord> route_tiles;
+		// The route has been recalculated since token block mode was entered, so delete all the reservations.
+		// Do not unreserve tiles ahead in the route, however.
+		for(int i = route_index; i < route->get_count(); i++)
+		{
+			route_tiles.append(route->position_bei(i).get_2d());
+		}
+		const waytype_t waytype = sch->get_waytype();
+		FOR(slist_tpl<weg_t*>, const way, weg_t::get_alle_wege())
+		{
+			if(route_tiles.is_contained(way->get_pos().get_2d()))
+			{
+				continue;
+			}
+			if(way->get_waytype() == waytype)
+			{
+				schiene_t* const sch = obj_cast<schiene_t>(way);
+				if(sch->get_reserved_convoi() == cnv->self)
+				{
+					if(!get_grund()->suche_obj(w->get_typ()))
+					{
+						// force free
+						sch->unreserve(w);
+					}
+				}
+			}
+		}
+		cnv->set_needs_full_route_flush(false);
+	}
+	else
+	{
+		for(int i = route_index - 1; i >= 0; i--)
+		{
+			grund_t* gr_route = welt->lookup(route->position_bei(i));
+			schiene_t* sch_route = gr_route ? (schiene_t *)gr_route->get_weg(get_waytype()) : NULL;
+			if(sch_route && (!cnv || cnv->get_state() != convoi_t::REVERSING))
+			{
+				sch_route->unreserve(this);
+			}
+		}
+	}
+}
+
 
 /* beware: we must un-reserve rail blocks... */
 void rail_vehicle_t::leave_tile()
@@ -4934,54 +4996,7 @@ void rail_vehicle_t::leave_tile()
 							// If the signal is not a long-block signal, clear token block mode. This assumes that long
 							// block signals will be placed at the entrance and stop signals at the exit of single line
 							// sections.
-
-							if(!sig->get_besch()->is_longblock_signal())
-							{
-								w->set_working_method(sig->get_besch()->get_working_method());
-							}
-							if(cnv->get_needs_full_route_flush())
-							{
-								slist_tpl<koord> route_tiles;
-								// The route has been recalculated since token block mode was entered, so delete all the reservations.
-								// Do not unreserve tiles ahead in the route, however.
-								for(int i = route_index; i < route->get_count(); i++)
-								{
-									route_tiles.append(route->position_bei(i).get_2d());
-								}
-								const waytype_t waytype = sch0->get_waytype();
-								FOR(slist_tpl<weg_t*>, const way, weg_t::get_alle_wege())
-								{
-									if(route_tiles.is_contained(way->get_pos().get_2d()))
-									{
-										continue;
-									}
-									if(way->get_waytype() == waytype)
-									{
-										schiene_t* const sch = obj_cast<schiene_t>(way);
-										if(sch->get_reserved_convoi() == cnv->self)
-										{
-											if(!gr->suche_obj(w->get_typ()))
-											{
-												// force free
-												sch->unreserve(w);
-											}
-										}
-									}
-								}
-								cnv->set_needs_full_route_flush(false);
-							}
-							else
-							{
-								for(int i = route_index - 1; i >= 0; i--)
-								{
-									grund_t* gr_route = welt->lookup(route->position_bei(i));
-									schiene_t* sch_route = gr_route ? (schiene_t *)gr_route->get_weg(get_waytype()) : NULL;
-									if(sch_route && (!cnv || cnv->get_state() != convoi_t::REVERSING))
-									{
-										sch_route->unreserve(this);
-									}
-								}
-							}
+							clear_token_reservation(sig, w, sch0);							
 						}
 						else if(w && w->get_working_method() == track_circuit_block && !sig->get_besch()->is_pre_signal())
 						{
