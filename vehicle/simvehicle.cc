@@ -4686,7 +4686,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 		bool route_success;
 		sint32 token_block_blocks = 0;
 		signal_t* sig;
-		while(fahrplan_index != cnv->get_schedule()->get_aktuell()) 
+		do
 		{
 			// Search for route until the next signal is found.
 			route_success = target_rt.calc_route(welt, cur_pos, cnv->get_schedule()->eintrag[fahrplan_index].pos, this, speed_to_kmh(cnv->get_min_top_speed()), cnv->get_highest_axle_load(), 8888 + cnv->get_tile_length(), SINT64_MAX_VALUE, cnv->get_weight_summary().weight / 1000);
@@ -4727,7 +4727,8 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 			{
 				break;
 			}
-		}
+		} while((fahrplan_index != cnv->get_schedule()->get_aktuell()) && token_block_blocks);
+
 		if(token_block_blocks && !bidirectional_reservation)
 		{
 			if(cnv->get_next_stop_index() - 1 <= route_index) 
@@ -4736,7 +4737,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 			}
 		}
 
-	}
+	} 
 
 	// Clear signals on the route.
 	if(!is_from_token)
