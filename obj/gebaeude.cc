@@ -1419,8 +1419,8 @@ void gebaeude_t::cleanup(player_t *player) // "Remove" (Google)
 		// If the player does already own the building, the player is refunded the empty tile cost, as bulldozing a tile with a building
 		// means that the player no longer owns the tile, and will have to pay again to purcahse it.
 		const sint64 land_value = welt->get_land_value(get_pos()) * besch->get_groesse().x * besch->get_groesse().y;
-		cost = player != get_owner() ? bulldoze_cost : bulldoze_cost - land_value; // Land value is a *negative* number.
-		player_t::book_construction_costs(player, -cost, get_pos().get_2d(), tile->get_besch()->get_finance_waytype());
+		cost = player == get_owner() ? bulldoze_cost : bulldoze_cost + land_value; // land_valueand bulldoze_cost are *both* negative numbers.
+		player_t::book_construction_costs(player, cost, get_pos().get_2d(), tile->get_besch()->get_finance_waytype());
 		if(player != get_owner())
 		{
 			player_t::book_construction_costs(get_owner(), land_value, get_pos().get_2d(), tile->get_besch()->get_finance_waytype());

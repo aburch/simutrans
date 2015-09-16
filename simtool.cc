@@ -700,7 +700,7 @@ DBG_MESSAGE("tool_remover()",  "removing tunnel  from %d,%d,%d",gr->get_pos().x,
 			{
 				cost += haus_besch->get_level() * 5;
 			}
-			if(  !player_t::can_afford(player, -cost)  )
+			if(!player_t::can_afford(player, -cost))
 			{
 				msg = CREDIT_MESSAGE;
 				return false;
