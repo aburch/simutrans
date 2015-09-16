@@ -4,6 +4,7 @@
 #ifndef _MSC_VER
 #include <dirent.h>
 #else
+#include <Windows.h>
 #include <io.h>
 #endif
 
@@ -95,23 +96,27 @@ int searchfolder_t::search_path(const std::string &filepath, const std::string &
 	}
 #ifdef _MSC_VER
 	lookfor = path + name + ext;
-	struct _finddata_t entry;
-	intptr_t hfind = _findfirst(lookfor.c_str(), &entry);
+	struct _wfinddata_t entry;
+	WCHAR path_inW[1024];
+	MultiByteToWideChar( CP_UTF8, 0, lookfor.c_str(), -1, path_inW, lengthof(path_inW) );
+	intptr_t hfind = _wfindfirst( path_inW, &entry);
 
 	if(hfind != -1) {
 		lookfor = ext;
 		do {
-			size_t entry_len = strlen(entry.name);
+			char entry_name[512];
+			WideCharToMultiByte( CP_UTF8, 0, entry.name, -1, entry_name, lengthof(entry_name), NULL, NULL );
+			size_t entry_len = strlen(entry_name);
 
-			if(  stricmp( entry.name + entry_len - lookfor.length(), lookfor.c_str() ) == 0  ) {
+			if(  stricmp( entry_name + entry_len - lookfor.length(), lookfor.c_str() ) == 0  ) {
 				if(only_directories) {
 					if ((entry.attrib & _A_SUBDIR)==0) {
 						continue;
 					}
 				}
-				add_entry(path,entry.name,prepend_path);
+				add_entry(path,entry_name,prepend_path);
 			}
-		} while(_findnext(hfind, &entry) == 0 );
+		} while(_wfindnext(hfind, &entry) == 0 );
 	}
 #else
 	lookfor = path + ".";

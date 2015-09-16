@@ -6,6 +6,7 @@
 #include <assert.h>
 #include <errno.h>
 
+#include "../simsys.h"
 #include "../simtypes.h"
 #include "../macros.h"
 #include "../simversion.h"
@@ -160,10 +161,11 @@ void loadsave_t::set_buffered(bool enable)
 }
 
 
-bool loadsave_t::rd_open(const char *filename)
+bool loadsave_t::rd_open(const char *filename_utf8 )
 {
 	close();
 
+	const char *filename = dr_utf8_to_system_filename( filename_utf8 );
 	version = 0;
 	mode = zipped;
 	experimental_version = 0;
@@ -286,11 +288,13 @@ void loadsave_t::rdwr_string(std::string &s) {
         } 
 }
 
-bool loadsave_t::wr_open(const char *filename, mode_t m, const char *pak_extension, const char *savegame_version, const char *savegame_version_ex)
+bool loadsave_t::wr_open(const char *filename_utf8, mode_t m, const char *pak_extension, const char *savegame_version, const char *savegame_version_ex)
+ 
 {
 	mode = m; 
 	close();
 
+	const char *filename = dr_utf8_to_system_filename( filename_utf8, true );
 	if(  is_zipped()  ) {
 		// using zlib
 		fd->gzfp = gzopen(filename, "wb");

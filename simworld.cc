@@ -4674,7 +4674,7 @@ void karte_t::new_month()
 	recalc_average_speed();
 	INT_CHECK("simworld 1921");
 
-	// update toolbars (i.e. new waytypes
+	// update toolbars (e.g. new waytypes)
 	tool_t::update_toolbars();
 
 
@@ -6728,8 +6728,7 @@ DBG_MESSAGE("karte_t::speichern()", "saving game to '%s'", filename);
 		}
 		else {
 			if(  save_temp  ) {
-				remove( filename );
-				rename( savename, filename );
+				dr_rename( savename, filename );
 			}
 			if(!silent) {
 				create_win( new news_img("Spielstand wurde\ngespeichert!\n"), w_time_delete, magic_none);

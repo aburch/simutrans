@@ -16,6 +16,7 @@
 
 #include "loadsave_frame.h"
 
+#include "../simsys.h"
 #include "../simworld.h"
 #include "../simversion.h"
 #include "../dataobj/loadsave.h"
@@ -342,7 +343,7 @@ const char *loadsave_frame_t::get_info(const char *fname)
 //	const char *pak_extension = NULL;
 //	// get file information
 //	struct stat  sb;
-//	if(stat(fname, &sb)!=0) {
+//	if(stat( dr_utf8_to_system_filename(fname), &sb)!=0) {
 //		// file not found?
 //		return date;
 //	}
