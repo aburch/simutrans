@@ -67,7 +67,7 @@
 #include "fahrplan_gui.h"
 #include "line_management_gui.h"
 #include "schedule_list.h"
-#include "stadt_info.h"
+#include "city_info.h"
 #include "message_frame_t.h"
 #include "message_option_t.h"
 #include "fabrik_info.h"
@@ -494,7 +494,7 @@ void rdwr_all_win(loadsave_t *file)
 					case magic_ki_kontroll_t:  w = new ki_kontroll_t(); break;
 					case magic_schedule_rdwr_dummy: w = new fahrplan_gui_t(); break;
 					case magic_line_schedule_rdwr_dummy: w = new line_management_gui_t(); break;
-					case magic_city_info_t:    w = new stadt_info_t(); break;
+					case magic_city_info_t:    w = new city_info_t(); break;
 					case magic_messageframe:   w = new message_frame_t(); break;
 					case magic_message_options: w = new message_option_t(); break;
 					case magic_factory_info:   w = new fabrik_info_t(); break;
