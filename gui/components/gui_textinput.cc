@@ -292,7 +292,7 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 					text_dirty = true;
 
 					// test, if we have top convert letter
-					char letter[8];
+					char letter[16];
 
 					if(ev->ev_code>=128) {
 						sprintf( letter, "CHR%X", ev->ev_code );
@@ -300,20 +300,8 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 						const char *more_letter=translator::translate(letter);
 						// could not convert ...
 						if(letter==more_letter) {
-							if(translator::get_lang()->utf_encoded) {
-								char *out=letter;
-								out[ utf16_to_utf8(ev->ev_code, (utf8 *)out) ] = 0;
-							}
-							else {
-								// guess some east european letter
-								uint8 new_char = ev->ev_code>255 ? unicode_to_latin2( ev->ev_code ) : ev->ev_code;
-								if(  new_char==0  ) {
-									// >255 but no translation => assume extended code page
-									new_char = (ev->ev_code & 0x7F) | 0x80;
-								}
-								letter[0] = new_char;
-								letter[1] = 0;
-							}
+							char *out=letter;
+							out[ utf16_to_utf8(ev->ev_code, (utf8 *)out) ] = 0;
 						}
 						else {
 							// successful converted letter
@@ -376,26 +364,22 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 
 				text_dirty = true;
 
-				// test, if we have top convert letter
 				size_t num_letter = in_pos;
-				char letter[5];
+				char letter[16];
 
-				tstrncpy( letter, (const char *)in, in_pos+1 );
-				in += in_pos;
-
-				if(  uc <= 128  ||  ! translator::get_lang()->utf_encoded  ) {
-
-					// guess some east european letter
-					uint8 new_char = uc>255 ? unicode_to_latin2( uc ) : uc;
-					if(  new_char==0  ) {
-						// >255 but no translation => assume extended code page
-						new_char = (uc & 0x7F) | 0x80;
-					}
-
-					letter[0] = new_char;
-					letter[1] = 0;
-					num_letter = 1;
+				// test, if we have top convert letter
+				sprintf( letter, "CHR%X", uc );
+				const char *more_letter = translator::translate(letter);
+				// could not convert ...
+				if(  letter == more_letter  ) {
+					tstrncpy( letter, (const char *)in, in_pos+1 );
 				}
+				else {
+					// successful converted letter
+					strcpy( letter, more_letter );
+					num_letter = strlen(more_letter);
+				}
+				in += in_pos;
 
 				if(  len+num_letter >= max  ) {
 					// too many chars ...

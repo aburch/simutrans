@@ -252,7 +252,7 @@ void translator::load_custom_list( int lang, vector_tpl<char *>&name_list, const
 		while(  !feof(file)  ) {
 			if (fgets_line(buf, sizeof(buf), file)) {
 				rtrim(buf);
-				char *c = recode(buf, file_is_utf, langs[lang].utf_encoded, langs[lang].is_latin2_based );
+				char *c = recode(buf, file_is_utf, true, langs[lang].is_latin2_based );
 				if(  *c!=0  &&  *c!='#'  ) {
 					name_list.append(c);
 				}
@@ -354,15 +354,6 @@ void translator::load_language_file(FILE* file)
 
 	langs[single_instance.lang_count].name = strdup(buffer1);
 
-#if 0
-	// if the language file is utf, all language strings are assumed to be unicode
-	// @author prissi
-	langs[single_instance.lang_count].utf_encoded = file_is_utf;
-#else
-	// all internal languages are now utf8
-	langs[single_instance.lang_count].utf_encoded = true;
-#endif
-
 	if(  !file_is_utf  ) {
 		// find out the font if not unicode (and skip it)
 		while(  !feof(file)  ) {
@@ -387,7 +378,7 @@ void translator::load_language_file(FILE* file)
 
 	//load up translations, putting them into
 	//language table of index 'lang'
-	load_language_file_body(file, &langs[single_instance.lang_count].texts, langs[single_instance.lang_count].utf_encoded, file_is_utf, langs[single_instance.lang_count].is_latin2_based );
+	load_language_file_body(file, &langs[single_instance.lang_count].texts, true, file_is_utf, langs[single_instance.lang_count].is_latin2_based );
 }
 
 
@@ -418,7 +409,7 @@ void translator::load_files_from_folder(const char *folder_name, const char *wha
 			DBG_MESSAGE("translator::load_files_from_folder()", "loading %s translations from %s for language %s", what, fileName.c_str(), lang->iso_base);
 			if (FILE* const file = fopen(fileName.c_str(), "rb")) {
 				bool file_is_utf = is_unicode_file(file);
-				load_language_file_body(file, &lang->texts, lang->utf_encoded, file_is_utf, lang->is_latin2_based );
+				load_language_file_body(file, &lang->texts, true, file_is_utf, lang->is_latin2_based );
 				fclose(file);
 			}
 			else {
@@ -541,10 +532,9 @@ void translator::set_language(int lang)
 		current_langinfo = langs+lang;
 		env_t::language_iso = langs[lang].iso;
 		env_t::default_settings.set_name_language_iso( langs[lang].iso );
-		display_set_unicode(langs[lang].utf_encoded);
 		init_custom_names(lang);
 		current_langinfo->eclipse_width = proportional_string_width( translate("...") );
-		DBG_MESSAGE("translator::set_language()", "%s, unicode %d", langs[lang].name, langs[lang].utf_encoded);
+		DBG_MESSAGE("translator::set_language()", "%s, unicode %d", langs[lang].name, true);
 	}
 	else {
 		dbg->warning("translator::set_language()", "Out of bounds : %d", lang);

@@ -142,7 +142,7 @@ sprachengui_t::sprachengui_t() :
 		if(num_loaded) {
 			// only listener for working languages ...
 			b->add_listener(this);
-			if(  lang->utf_encoded  &&  num_loaded <= 256  ) {
+			if(  num_loaded <= 256  ) {
 				dbg->warning( "sprachengui_t::sprachengui_t()", "Unicode language %s needs BDF fonts with most likely more than 256 characters!", lang->name );
 			}
 		}

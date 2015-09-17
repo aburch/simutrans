@@ -140,13 +140,6 @@ void simgraph_exit();
 void simgraph_resize(KOORD_VAL w, KOORD_VAL h);
 void reset_textur(void *new_textur);
 
-/*
- * uncomment to enable unicode
- */
-#define UNICODE_SUPPORT
-
-int display_set_unicode(int use_unicode);
-
 /* Loads the font, returns the number of characters in it
  * @author prissi
  */

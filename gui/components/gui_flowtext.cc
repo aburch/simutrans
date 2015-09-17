@@ -150,7 +150,7 @@ void gui_flowtext_t::set_text(const char *text)
 			// parse a word (and obey limits)
 			att = ATT_NONE;
 			for(  int i = 0;  *lead != '<'  &&  (*lead > 32  ||  (i==0  &&  *lead==32))  &&  i < 511  &&  *lead != '&'; i++) {
-				if(  *lead>128  &&  translator::get_lang()->utf_encoded  ) {
+				if(  *lead>128  ) {
 					size_t skip = 0;
 					utf16 symbol = utf8_to_utf16( lead, &skip );
 					if(  symbol == 0x3000  ) {
@@ -195,12 +195,10 @@ void gui_flowtext_t::set_text(const char *text)
 				lead++;
 			}
 			// skip wide spaces
-			if(  translator::get_lang()->utf_encoded  ) {
-				size_t skip = 0;
-				while(  utf8_to_utf16( lead, &skip )==0x3000  ) {
-					lead += skip;
-					skip = 0;
-				}
+			size_t skip = 0;
+			while(  utf8_to_utf16( lead, &skip )==0x3000  ) {
+				lead += skip;
+				skip = 0;
 			}
 		}
 		tail = lead;

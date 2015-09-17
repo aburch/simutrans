@@ -216,7 +216,7 @@ static const char *load_text(char const* const filename )
 			fclose( file );
 		}
 		// now we may need to translate the text ...
-		if(  len>0  && translator::get_lang()->utf_encoded  ) {
+		if(  len>0  ) {
 			bool is_latin = strchr( buf, 0xF6 )!=NULL;	// "o-umlaut, is forbidden for unicode
 			if(  !is_latin  &&  translator::get_lang()->is_latin2_based  ) {
 				is_latin |= strchr( buf, 0xF8 )!=NULL;	// "o-umlaut, is forbidden for unicode

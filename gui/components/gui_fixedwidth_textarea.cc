@@ -65,7 +65,6 @@ void gui_fixedwidth_textarea_t::set_size(scr_size size)
  */
 scr_size gui_fixedwidth_textarea_t::calc_display_text(const scr_coord offset, const bool draw)
 {
-	const bool unicode = translator::get_lang()->utf_encoded;
 	scr_coord_val x=0, word_x=0, y = 0;
 
 	const char* text(*buf);
@@ -85,7 +84,7 @@ scr_size gui_fixedwidth_textarea_t::calc_display_text(const scr_coord offset, co
 
 			// end of line?
 			size_t len = 0;
-			uint16 next_char = unicode ? utf8_to_utf16(p, &len) : *p++;
+			uint16 next_char = utf8_to_utf16(p, &len);
 			p += len;
 
 			if(next_char==0  ||  next_char=='\n') {
