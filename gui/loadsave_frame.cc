@@ -147,6 +147,7 @@ const char *loadsave_frame_t::get_info(const char *fname)
 	static char date[1024];
 	date[0] = 0;
 	const char *pak_extension = NULL;
+
 	// get file information
 	struct stat  sb;
 	if(stat( dr_utf8_to_system_filename(fname), &sb)!=0) {

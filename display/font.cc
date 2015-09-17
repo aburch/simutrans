@@ -174,7 +174,7 @@ static bool dsp_read_bdf_font(FILE* fin, font_type* font)
 			}
 
 			screen_widths = (uint8*)malloc(f_chars);
-			memset( screen_widths, f_chars, 0xFF );
+			memset( screen_widths, 0xFF, f_chars );
 			if (screen_widths == NULL) {
 				free(data);
 				fprintf(stderr, "No enough memory for font allocation!\n");
