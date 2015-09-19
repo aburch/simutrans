@@ -434,6 +434,7 @@ money_frame_t::money_frame_t(player_t *player)
 	add_component(&transport_type_c);
 	transport_type_c.add_listener( this );
 
+	set_focus( &transport_type_c );
 
 	set_windowsize(scr_size(582, 340));
 }
