@@ -425,7 +425,7 @@ money_frame_t::money_frame_t(player_t *player)
 	transport_type_c.set_max_size( scr_size( 116, 1*BUTTONSPACE ) );
 	for(int i=0, count=0; i<TT_MAX; ++i) {
 		if (!is_chart_table_zero(i)) {
-			transport_type_c.append_element( new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(transport_type_values[i]), COL_BLACK));
+			transport_type_c.append_element( new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(transport_type_values[i]), SYSCOL_TEXT));
 			transport_types[ count++ ] = i;
 		}
 	}
