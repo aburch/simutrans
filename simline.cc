@@ -409,7 +409,7 @@ void simline_t::recalc_status()
 			if (has_obsolete) break;
 		}
 		// now we have to set it
-		state_color = has_obsolete ? COL_DARK_BLUE : COL_BLACK;
+		state_color = has_obsolete ? COL_DARK_BLUE : SYSCOL_TEXT;
 	}
 	else {
 		// normal state

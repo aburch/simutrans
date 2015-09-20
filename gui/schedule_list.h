@@ -22,12 +22,16 @@
 #include "../simline.h"
 
 class player_t;
+
+/**
+ * Window displaying information about all schedules and lines.
+ */
 class schedule_list_gui_t : public gui_frame_t, public action_listener_t
 {
 private:
 	player_t *player;
 
-	button_t bt_new_line, bt_change_line, bt_delete_line, bt_withdraw_line;;
+	button_t bt_new_line, bt_edit_line, bt_delete_line, bt_withdraw_line;
 	gui_container_t cont, cont_haltestellen;
 	gui_scrollpane_t scrolly_convois, scrolly_haltestellen;
 	gui_scrolled_list_t scl;
@@ -75,39 +79,40 @@ public:
 
 	schedule_list_gui_t(player_t* player_);
 	~schedule_list_gui_t();
+
 	/**
-	* in top-level windows the name is displayed in titlebar
-	* @return the non-translated component name
-	* @author Hj. Malthaner
-	*/
+	 * in top-level windows the name is displayed in titlebar
+	 * @return the non-translated component name
+	 * @author Hj. Malthaner
+	 */
 	const char* get_name() const { return "Line Management"; }
 
 	/**
-	* Set the window associated helptext
-	* @return the filename for the helptext, or NULL
-	* @author Hj. Malthaner
-	*/
+	 * Set the window associated helptext
+	 * @return the filename for the helptext, or NULL
+	 * @author Hj. Malthaner
+	 */
 	const char* get_help_filename() const { return "linemanagement.txt"; }
 
 	/**
-	* Does this window need a min size button in the title bar?
-	* @return true if such a button is needed
-	* @author Hj. Malthaner
-	*/
+	 * Does this window need a min size button in the title bar?
+	 * @return true if such a button is needed
+	 * @author Hj. Malthaner
+	 */
 	bool has_min_sizer() const {return true;}
 
 	/**
-	* Draw new component. The values to be passed refer to the window
-	* i.e. It's the screen coordinates of the window where the
-	* component is displayed.
-	* @author Hj. Malthaner
-	*/
+	 * Draw new component. The values to be passed refer to the window
+	 * i.e. It's the screen coordinates of the window where the
+	 * component is displayed.
+	 * @author Hj. Malthaner
+	 */
 	void draw(scr_coord pos, scr_size size);
 
 	/**
-	* Set window size and adjust component sizes and/or positions accordingly
-	* @author Hj. Malthaner
-	*/
+	 * Set window size and adjust component sizes and/or positions accordingly
+	 * @author Hj. Malthaner
+	 */
 	virtual void set_windowsize(scr_size size);
 
 	bool infowin_event(event_t const*) OVERRIDE;
