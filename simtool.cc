@@ -5319,7 +5319,7 @@ const char* tool_build_roadsign_t::check_pos_intern(player_t *player, koord3d po
 			{
 				return "Cannot build any signal beyond the maximum radius of the currently selected signalbox.";
 			}
-			if(distance > besch->get_max_distance_to_signalbox() && besch->get_max_distance_to_signalbox() > 0)
+			if(distance > besch->get_max_distance_to_signalbox() && besch->get_max_distance_to_signalbox() > 0 && besch->get_working_method() != moving_block) // Moving block signalling uses this for other purposes
 			{
 				return "Cannot build this signal this far beyond any signalbox.";
 			}

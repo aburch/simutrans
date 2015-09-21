@@ -183,6 +183,7 @@ void convoi_t::init(player_t *player)
 	line_update_pending = linehandle_t();
 
 	home_depot = koord3d::invalid;
+	last_signal_pos = koord3d::invalid;
 	last_stop_id = 0;
 
 	reversable = false;
@@ -633,6 +634,7 @@ void convoi_t::call_convoi_tool( const char function, const char *extra)
 void convoi_t::rotate90( const sint16 y_size )
 {
 	home_depot.rotate90( y_size );
+	last_signal_pos.rotate90(y_size); 
 	route.rotate90( y_size );
 	if(fpl) {
 		fpl->rotate90( y_size );
@@ -4382,6 +4384,7 @@ void convoi_t::rdwr(loadsave_t *file)
 //		is_choosing = ic;
 //
 //		file->rdwr_long(max_signal_speed); 
+//		last_signal_pos.rdwr();
 //	}
 
 	// This must come *after* all the loading/saving.

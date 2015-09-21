@@ -719,7 +719,7 @@ protected:
 
 	void enter_tile(grund_t*);
 
-	sint32 activate_choose_signal(uint16 start_index, uint16 &next_signal_index);
+	sint32 activate_choose_signal(uint16 start_index, uint16 &next_signal_index, uint32 brake_steps);
 	
 	working_method_t working_method;
 
@@ -745,7 +745,7 @@ public:
 	// reserves or un-reserves all blocks and returns the handle to the next block (if there)
 	// returns true on successful reservation (the specific number being the number of blocks ahead clear,
 	// needed for setting signal aspects in some cases).
-	sint32 block_reserver(route_t *route, uint16 start_index, uint16 &next_signal, int signal_count, bool reserve, bool force_unreserve, bool is_choosing = false, bool is_from_token = false, bool is_from_starter = false, bool is_from_directional = false);
+	sint32 block_reserver(route_t *route, uint16 start_index, uint16 &next_signal, int signal_count, bool reserve, bool force_unreserve, bool is_choosing = false, bool is_from_token = false, bool is_from_starter = false, bool is_from_directional = false, uint32 brake_steps = 1);
 
 	void leave_tile();
 

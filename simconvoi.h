@@ -614,6 +614,11 @@ private:
 	*/
 	koord3d home_depot;
 
+	/*
+	 * The position of the last signal passed by this convoy
+	 */
+	koord3d last_signal_pos;
+
 	// Helper function: used in init and replacing
 	void reset();
 
@@ -1324,6 +1329,9 @@ public:
 	void set_home_depot(koord3d hd) { home_depot = hd; }
 
 	inline koord3d get_home_depot() { return home_depot; }
+
+	inline void set_last_signal_pos(koord3d p) { last_signal_pos = p; }
+	inline koord3d get_last_signal_pos() const { return last_signal_pos; }
 
 	/**
 	 * this give the index of the next signal or the end of the route
