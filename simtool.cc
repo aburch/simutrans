@@ -58,7 +58,7 @@
 #include "gui/player_frame_t.h"
 #include "gui/schedule_list.h"
 #include "gui/signal_spacing.h"
-#include "gui/stadt_info.h"
+#include "gui/city_info.h"
 #include "gui/trafficlight_info.h"
 #include "gui/privatesign_info.h"
 #include "gui/messagebox.h"
@@ -8670,7 +8670,7 @@ bool tool_change_city_t::init( player_t *player )
 	if (city)
 	{
 		city->set_citygrowth_yesno(allow_growth);
-		stadt_info_t *stinfo = dynamic_cast<stadt_info_t*>(win_get_magic((ptrdiff_t)city));
+		city_info_t *stinfo = dynamic_cast<city_info_t*>(win_get_magic((ptrdiff_t)city));
 		if (stinfo)
 		{
 			stinfo->update_data();

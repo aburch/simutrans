@@ -1682,7 +1682,7 @@
     <ClCompile Include="gui\sound_frame.cc" />
     <ClCompile Include="besch\reader\sound_reader.cc" />
     <ClCompile Include="gui\sprachen.cc" />
-    <ClCompile Include="gui\stadt_info.cc" />
+    <ClCompile Include="gui\city_info.cc" />
     <ClCompile Include="gui\station_building_select.cc" />
     <ClCompile Include="boden\wege\strasse.cc" />
     <ClCompile Include="dataobj\tabfile.cc" />
@@ -2070,7 +2070,7 @@
     <ClInclude Include="tpl\sparse_tpl.h" />
     <ClInclude Include="besch\spezial_obj_tpl.h" />
     <ClInclude Include="gui\sprachen.h" />
-    <ClInclude Include="gui\stadt_info.h" />
+    <ClInclude Include="gui\city_info.h" />
     <ClInclude Include="besch\stadtauto_besch.h" />
     <ClInclude Include="gui\station_building_select.h" />
     <ClInclude Include="boden\wege\strasse.h" />

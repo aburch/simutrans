@@ -33,7 +33,7 @@
 #include "simcolor.h"
 
 #include "gui/karte.h"
-#include "gui/stadt_info.h"
+#include "gui/city_info.h"
 
 #include "besch/haus_besch.h"
 #include "besch/stadtauto_besch.h"
@@ -2244,7 +2244,7 @@ void stadt_t::set_name(const char *new_name)
 	if(gr) {
 		gr->set_text( new_name );
 	}
-	stadt_info_t *win = dynamic_cast<stadt_info_t*>(win_get_magic((ptrdiff_t)this));
+	city_info_t *win = dynamic_cast<city_info_t*>(win_get_magic((ptrdiff_t)this));
 	if (win) {
 		win->update_data();
 	}
@@ -2256,7 +2256,7 @@ void stadt_t::set_name(const char *new_name)
  */
 void stadt_t::show_info()
 {
-	create_win( new stadt_info_t(this), w_info, (ptrdiff_t)this );
+	create_win( new city_info_t(this), w_info, (ptrdiff_t)this );
 }
 
 /* change size of city

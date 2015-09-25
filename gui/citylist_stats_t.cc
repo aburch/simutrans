@@ -10,7 +10,7 @@
  */
 
 #include "citylist_stats_t.h"
-#include "stadt_info.h"
+#include "city_info.h"
 
 #include "../simcity.h"
 #include "../simcolor.h"

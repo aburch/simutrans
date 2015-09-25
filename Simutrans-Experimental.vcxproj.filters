@@ -513,9 +513,6 @@
     <ClCompile Include="gui\sprachen.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="gui\stadt_info.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="gui\station_building_select.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -964,6 +961,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="simsys_posix.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\city_info.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -1667,9 +1667,6 @@
     <ClInclude Include="gui\sprachen.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="gui\stadt_info.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="besch\stadtauto_besch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -2175,6 +2172,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="utils\simthread.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\city_info.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

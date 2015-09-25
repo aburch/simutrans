@@ -4349,39 +4349,23 @@ int display_calc_proportional_string_len_width(const char* text, size_t len)
 	unsigned int width = 0;
 	int w;
 
-#ifdef UNICODE_SUPPORT
-	if (has_unicode) {
-		unsigned short iUnicode;
-		size_t	iLen = 0;
+	unsigned short iUnicode;
+	size_t	iLen = 0;
 
-		while(  iLen < len  ) {
-			iUnicode = utf8_to_utf16((utf8 const*)text + iLen, &iLen);
-			if(  iUnicode == 0  ) {
-				return width;
-			}
-			else if(  iUnicode >= fnt->num_chars  ||  (w = fnt->screen_width[iUnicode]) == 0xFF  ) {
-				// default width for missing characters
-				w = fnt->screen_width[0];
-			}
-			width += w;
-		}
-	} else {
-#endif
-		uint8 char_width;
-		unsigned int c;
-		while(  *text != 0  &&  len > 0  ) {
-			c = (unsigned char)*text;
-			if(  (c >= fnt->num_chars)  ||  ((char_width = fnt->screen_width[c]) >= 128)  ) {
-				// default width for missing characters
-				char_width = fnt->screen_width[0];
-			}
-			width += char_width;
-			text++;
-			len--;
-		}
-#ifdef UNICODE_SUPPORT
+	// decode char; Unicode is always 8 pixel (so far)
+	while (iLen < len) {
+		iUnicode = utf8_to_utf16((utf8 const*)text + iLen, &iLen);
+		if (iUnicode == 0) {
+			return width;
+ 		}
+
+		else if(iUnicode>=fnt->num_chars  ||  (w = fnt->screen_width[iUnicode])>=128  ) {
+			// default width for missing characters
+			w = fnt->screen_width[0];
+ 		}
+		
+		width += w;
 	}
-#endif
 	return width;
 }
 
@@ -4505,17 +4489,9 @@ int display_text_proportional_len_clip_rgb(KOORD_VAL x, KOORD_VAL y, const char*
 		int h;
 		uint8 char_yoffset;
 
-#ifdef UNICODE_SUPPORT
 		// decode char
-		if (has_unicode) {
-			c = utf8_to_utf16((utf8 const*)txt + iTextPos, &iTextPos);
-		}
-		else {
-#endif
-			c = (unsigned char)txt[iTextPos++];
-#ifdef UNICODE_SUPPORT
-		}
-#endif
+		c = utf8_to_utf16((utf8 const*)txt + iTextPos, &iTextPos);
+
 		// print unknown character?
 		if(  c >= fnt->num_chars  ||  fnt->screen_width[c] == 0xFF  ) {
 			c = 0;
