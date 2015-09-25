@@ -509,6 +509,8 @@ money_frame_t::money_frame_t(player_t *player)
 	add_component(&transport_type_c);
 	transport_type_c.add_listener( this );
 
+	set_focus( &transport_type_c );
+
 	const int WINDOW_HEIGHT = TOP_OF_CHART + HEIGHT_OF_CHART + 10 + BUTTONSPACE * 2 ; // formerly 340
 	// The extra room below the chart is for (a) labels, (b) year label (BUTTONSPACE), (c) empty space
 	set_windowsize(scr_size(WINDOW_WIDTH, WINDOW_HEIGHT));
