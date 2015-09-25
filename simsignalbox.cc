@@ -59,21 +59,12 @@ signalbox_t::~signalbox_t()
 		{
 			continue;
 		}
-		weg_t* way = gr->get_weg_nr(0);
 
-		if(!way || !way->get_signal(ribi_t::alle))
-		{
-			way = gr->get_weg_nr(1);
-		}
-
-		if(!way|| !way->get_signal(ribi_t::alle))
-		{
-			continue;
-		}
-		signal_t* s = way->get_signal(ribi_t::alle);
+		signal_t* s = gr->find<signal_t>();
 		s->set_signalbox(koord3d::invalid);
 		s->cleanup(get_owner());
 		delete s;
+		weg_t* way = gr->get_weg_nr(0);
 		way->count_sign();
 	}
 	all_signalboxes.remove(this);
