@@ -273,12 +273,6 @@ static clip_line_t poly_clips[MAX_POLY_CLIPS];
 static xrange      xranges[MAX_POLY_CLIPS];
 #endif
 
-/* Flag, if we have Unicode font => do unicode (UTF8) support! *
- * @author prissi
- * @date 29.11.04
- */
-static bool has_unicode = false;
-
 static font_type large_font = { 0, 0, 0, NULL, NULL };
 
 // needed for resizing gui
@@ -4175,13 +4169,6 @@ void display_array_wh(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, cons
 
 // --------------------------------- text rendering stuff ------------------------------
 
-
-int display_set_unicode(int use_unicode)
-{
-	return has_unicode = (use_unicode != 0);
-}
-
-
 bool display_load_font(const char* fname)
 {
 	font_type fnt;
@@ -4202,12 +4189,7 @@ bool display_load_font(const char* fname)
 // unicode save moving in strings
 size_t get_next_char(const char* text, size_t pos)
 {
-	if(  has_unicode  ) {
-		return utf8_get_next_char((const utf8*)text, pos);
-	}
-	else {
-		return pos + 1;
-	}
+	return utf8_get_next_char((const utf8*)text, pos);
 }
 
 
@@ -4216,12 +4198,7 @@ sint32 get_prev_char(const char* text, sint32 pos)
 	if(  pos <= 0  ) {
 		return 0;
 	}
-	if(  has_unicode  ) {
-		return utf8_get_prev_char((const utf8*)text, pos);
-	}
-	else {
-		return pos - 1;
-	}
+	return utf8_get_prev_char((const utf8*)text, pos);
 }
 
 
@@ -4255,16 +4232,8 @@ KOORD_VAL display_get_char_max_width(const char* text, size_t len) {
  */
 unsigned short get_next_char_with_metrics(const char* &text, unsigned char &byte_length, unsigned char &pixel_width)
 {
-	size_t len;
-	unsigned short char_code;
-	if(  has_unicode  ) {
-		len = 0;
-		char_code = utf8_to_utf16((const utf8 *)text, &len);
-	}
-	else {
-		len = 1;
-		char_code = (unsigned char)(*text);
-	}
+	size_t len = 0;
+	unsigned short char_code = utf8_to_utf16((const utf8 *)text, &len);
 	if(  char_code==0  ) {
 		// case : end of text reached -> do not advance text pointer
 		byte_length = 0;
@@ -4350,21 +4319,15 @@ unsigned short get_prev_char_with_metrics(const char* &text, const char *const t
 	}
 
 	unsigned short char_code;
-	if(  has_unicode  ) {
-		// determine the start of the previous logical character
-		do {
-			--text;
-		} while (  text>text_start  &&  (*text & 0xC0)==0x80  );
-
-		size_t len = 0;
-		char_code = utf8_to_utf16((const utf8 *)text, &len);
-		byte_length = len;
-	}
-	else {
+	// determine the start of the previous logical character
+	do {
 		--text;
-		char_code = (unsigned char)(*text);
-		byte_length = 1;
-	}
+	} while (  text>text_start  &&  (*text & 0xC0)==0x80  );
+
+	size_t len = 0;
+	char_code = utf8_to_utf16((const utf8 *)text, &len);
+	byte_length = len;
+	
 	if(  char_code>=large_font.num_chars  ||  (pixel_width=large_font.screen_width[char_code])==0  ) {
 		// default width for missing characters
 		pixel_width = large_font.screen_width[0];

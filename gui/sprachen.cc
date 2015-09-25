@@ -130,7 +130,7 @@ sprachengui_t::sprachengui_t() :
 			ok = false;
 		}
 		else {
-			if(  lang->utf_encoded  &&  fnt.num_chars <= 256  ) {
+			if( fnt.num_chars <= 256  ) {
 				dbg->warning( "sprachengui_t::sprachengui_t()", "Unicode language %s needs BDF fonts with most likely more than 256 characters!", lang->name );
 			}
 			free(fnt.screen_width);

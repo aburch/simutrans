@@ -30,23 +30,19 @@ static char buffer[MAX_SIZE] = "";
  */
 void dr_copy(const char *source, size_t length)
 {
-	const bool has_unicode = translator::get_lang()->utf_encoded;
-
-	// for utf-8 strings, convert into utf-16
-	if(  has_unicode  ) {
-		assert( (length<<1)<MAX_SIZE );
-		utf16 *utf16_buffer = (utf16 *)buffer;
-		size_t utf16_count = 0;
-		utf16 char_code;
-		size_t offset = 0;
-		while(  (char_code=utf8_to_utf16((const utf8*)(source+offset), &offset))  &&  offset<=length  ) {
-			*utf16_buffer++ = char_code;
-			++utf16_count;
-		}
-		*utf16_buffer = 0;
-		source = buffer;
-		length = (utf16_count << 1) + 1;
+	// convert utf-8 strings into utf-16
+	assert( (length<<1)<MAX_SIZE );
+	utf16 *utf16_buffer = (utf16 *)buffer;
+	size_t utf16_count = 0;
+	utf16 char_code;
+	size_t offset = 0;
+	while(  (char_code=utf8_to_utf16((const utf8*)(source+offset), &offset))  &&  offset<=length  ) {
+		*utf16_buffer++ = char_code;
+		++utf16_count;
 	}
+	*utf16_buffer = 0;
+	source = buffer;
+	length = (utf16_count << 1) + 1;
 
 	// create a memory block and copy the text
 	HGLOBAL hText;	// handle to the memory block for holding the text
@@ -68,7 +64,7 @@ void dr_copy(const char *source, size_t length)
 	// open the clipboard and set the clipboard data
 	if(  OpenClipboard(NULL)  ) {
 		if(  EmptyClipboard()  ) {
-			SetClipboardData(has_unicode ? CF_UNICODETEXT : CF_TEXT, hText);
+			SetClipboardData(CF_UNICODETEXT, hText);
 		}
 		CloseClipboard();
 	}
@@ -84,34 +80,25 @@ void dr_copy(const char *source, size_t length)
  */
 size_t dr_paste(char *target, size_t max_length)
 {
-	const bool has_unicode = translator::get_lang()->utf_encoded;
 	size_t inserted_length = 0;
 
 	HGLOBAL hText;	// handle to the memory block for holding the text
 	const char *pText;	// pointer to the start of the memory block
 	if(  OpenClipboard(NULL)  ) {
-		if(  (hText=GetClipboardData(has_unicode?CF_UNICODETEXT:CF_TEXT))  &&  (pText=(const char*)GlobalLock(hText))  ) {
-			// determine the number of bytes to be pasted
-			if(  has_unicode  ) {
-				// convert clipboard text from utf-16 to utf-8
-				const utf16 *utf16_text = (const utf16 *)pText;
-				utf8 *utf8_buffer = (utf8 *)buffer;
-				size_t tmp_length = 0;
-				size_t byte_count;
-				while(  *utf16_text  &&  tmp_length+(byte_count=utf16_to_utf8(*utf16_text, utf8_buffer))<=max_length  ) {
-					tmp_length += byte_count;
-					utf8_buffer += byte_count;
-					++utf16_text;
-				}
-				pText = buffer;
-				max_length = tmp_length;
+		if(  (hText=GetClipboardData(CF_UNICODETEXT))  &&  (pText=(const char*)GlobalLock(hText))  ) {
+			// convert clipboard text from utf-16 to utf-8
+			const utf16 *utf16_text = (const utf16 *)pText;
+			utf8 *utf8_buffer = (utf8 *)buffer;
+			size_t tmp_length = 0;
+			size_t byte_count;
+			while(  *utf16_text  &&  tmp_length+(byte_count=utf16_to_utf8(*utf16_text, utf8_buffer))<=max_length  ) {
+				tmp_length += byte_count;
+				utf8_buffer += byte_count;
+				++utf16_text;
 			}
-			else {
-				const size_t text_length = strlen(pText);
-				if(  text_length<max_length  ) {
-					max_length = text_length;
-				}
-			}
+			pText = buffer;
+			max_length = tmp_length;
+
 			inserted_length = max_length;
 
 			// move the text to free up space for inserting the clipboard content

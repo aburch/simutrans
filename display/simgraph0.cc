@@ -65,11 +65,6 @@ void display_mark_img_dirty(image_id, KOORD_VAL, KOORD_VAL)
 {
 }
 
-int display_set_unicode(int)
-{
-	return false;
-}
-
 bool display_load_font(const char*)
 {
 	return true;
