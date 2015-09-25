@@ -4228,7 +4228,7 @@ sint32 get_prev_char(const char* text, sint32 pos)
 KOORD_VAL display_get_char_width(utf16 c)
 {
 	KOORD_VAL pixel_width;
-	if( c >= large_font.num_chars || (pixel_width = large_font.screen_width[c]) == 0 ) {
+	if(  c >= large_font.num_chars  ||  (pixel_width = large_font.screen_width[c]) == 0xFF  ) {
 		 // default width for missing characters
 		 return large_font.screen_width[0];
 	}
@@ -4273,9 +4273,12 @@ unsigned short get_next_char_with_metrics(const char* &text, unsigned char &byte
 	else {
 		text += len;
 		byte_length = len;
-		if(  char_code>=large_font.num_chars  ||  (pixel_width=large_font.screen_width[char_code])==0  ) {
+		if(  char_code >= large_font.num_chars  ||  (pixel_width=large_font.screen_width[char_code]) == 0xFF  ) {	
 			// default width for missing characters
 			pixel_width = large_font.screen_width[0];
+		}
+		else {
+			pixel_width = large_font.screen_width[char_code];
 		}
 	}
 	return char_code;
@@ -4284,7 +4287,7 @@ unsigned short get_next_char_with_metrics(const char* &text, unsigned char &byte
 /* returns true, if this is a valid character */
 bool has_character( utf16 char_code )
 {
-	if( char_code >= large_font.num_chars || large_font.screen_width[char_code] == 0 ) {
+	if(  char_code >= large_font.num_chars  ||  large_font.screen_width[char_code] == 0xFF  ) {
 		// missing characters
 		return false;
 		}
@@ -4388,13 +4391,12 @@ int display_calc_proportional_string_len_width(const char* text, size_t len)
 		unsigned short iUnicode;
 		size_t	iLen = 0;
 
-		// decode char; Unicode is always 8 pixel (so far)
-		while (iLen < len) {
+		while(  iLen < len  ) {
 			iUnicode = utf8_to_utf16((utf8 const*)text + iLen, &iLen);
-			if (iUnicode == 0) {
+			if(  iUnicode == 0  ) {
 				return width;
 			}
-			else if(iUnicode>=fnt->num_chars  ||  (w = fnt->screen_width[iUnicode])>=128  ) {
+			else if(  iUnicode >= fnt->num_chars  ||  (w = fnt->screen_width[iUnicode]) == 0xFF  ) {
 				// default width for missing characters
 				w = fnt->screen_width[0];
 			}
@@ -4552,7 +4554,7 @@ int display_text_proportional_len_clip_rgb(KOORD_VAL x, KOORD_VAL y, const char*
 		}
 #endif
 		// print unknown character?
-		if (c >= fnt->num_chars || fnt->screen_width[c] >= 128) {
+		if(  c >= fnt->num_chars  ||  fnt->screen_width[c] == 0xFF  ) {
 			c = 0;
 		}
 
