@@ -4686,7 +4686,7 @@ void convoi_t::laden() //"load" (Babelfish)
 		{
 			// Necessary to prevent divisions by zero.
 			// This code should never be reached.
-			assert(false);
+			dbg->error("void convoi_t::laden()", "Journey time (%i) is zero or less"); 
 			latest_journey_time = 1;
 		}
 
