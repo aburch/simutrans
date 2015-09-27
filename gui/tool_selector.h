@@ -73,6 +73,9 @@ public:
 	// purges toolbar
 	void reset_tools();
 
+	// Rotates the tools
+	void rotate_tools(sint16 y_diff);
+
 	/**
 	 * Set the window associated helptext
 	 * @return the filename for the helptext, or NULL

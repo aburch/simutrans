@@ -93,6 +93,13 @@ void tool_selector_t::reset_tools()
 	tool_icon_disp_end = 0;
 }
 
+void tool_selector_t::rotate_tools(sint16 y_diff)
+{
+	FOR(vector_tpl<tool_selector_t::tool_data_t>, t, tools)
+	{
+		t.tool->rotate90(y_diff); 
+	}
+}
 
 bool tool_selector_t::is_hit(int x, int y)
 {

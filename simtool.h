@@ -403,6 +403,7 @@ private:
 	const roadsign_besch_t* besch;
 	const char *place_sign_intern( player_t *, grund_t*, const roadsign_besch_t* b = NULL);
 
+public:
 	struct signal_info {
 		signal_info() : spacing(16), remove_intermediate(true), replace_other(true), signalbox(koord3d::invalid) {}
 
@@ -412,6 +413,9 @@ private:
 		koord3d signalbox;
 	} signal[MAX_PLAYER_COUNT];
 
+	void rotate90(sint16 y_diff);
+
+private:
 	static char toolstring[256];
 	// read the variables from the default_param
 	void read_default_param(player_t *player);

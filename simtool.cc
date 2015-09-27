@@ -5298,7 +5298,7 @@ const char* tool_build_roadsign_t::check_pos_intern(player_t *player, koord3d po
 			if(gr_signalbox)
 			{
 				const gebaeude_t* gb = gr_signalbox->get_building();
-				if(gb->get_tile()->get_besch()->get_utyp() == haus_besch_t::signalbox)
+				if(gb && gb->get_tile()->get_besch()->get_utyp() == haus_besch_t::signalbox)
 				{
 					sb = (signalbox_t*)gb; 
 				}
@@ -5429,6 +5429,14 @@ bool tool_build_roadsign_t::init( player_t * player)
 		create_win(new signal_spacing_frame_t(player, this), w_info, (ptrdiff_t)this);
 	}
 	return two_click_tool_t::init(player) && (besch!=NULL);
+}
+
+void tool_build_roadsign_t::rotate90(sint16 y_diff)
+{
+	for(sint32 i = 0; i < MAX_PLAYER_COUNT; i++)
+	{
+		signal[i].signalbox.rotate90(y_diff);
+	}
 }
 
 bool tool_build_roadsign_t::exit( player_t *player )

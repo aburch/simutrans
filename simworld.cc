@@ -3825,6 +3825,7 @@ DBG_MESSAGE( "karte_t::rotate90()", "called" );
 	for(  int i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
 		if(  players[i]  ) {
 			players[i]->rotate90( cached_size.x );
+			selected_tool[i]->rotate90(cached_size.x);
 		}
 	}
 

@@ -312,6 +312,8 @@ public:
 	virtual bool update_pos_after_use() const { return false; }
 
 	virtual waytype_t get_waytype() const { return invalid_wt; }
+
+	virtual void rotate90(sint16 y_diff) { return; }
 };
 
 /*
