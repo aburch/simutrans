@@ -5841,7 +5841,7 @@ const char* tool_signalbox_t::tool_signalbox_aux(player_t* player, koord3d pos, 
 			}
 		}
 		
-		if(!gr || gr->ist_wasser() || gr->get_weg_nr(0) || gr->get_building() || gr->is_halt()) 
+		if(!gr || gr->ist_wasser() || (gr->get_weg_nr(0) && gr->get_weg_nr(0)->get_pos().z == pos.z) || (gr->get_building() && gr->get_building()->get_pos().z == pos.z) || gr->is_halt()) 
 		{
 			// No ground, water, or the ground has a way or building on it.
 			// TODO: Consider allowing special gantry signalboxes
