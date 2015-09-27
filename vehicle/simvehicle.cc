@@ -3782,8 +3782,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 			const weg_t* way = gr->get_weg(besch->get_waytype());
 			if(way)
 			{
-				const koord dir = get_pos().get_2d() - gr->get_pos().get_2d();
-				ribi_t::ribi ribi = ribi_typ(dir);
+				ribi_t::ribi ribi = ribi_typ(cnv->get_route()->position_bei(max(1u,route_index)-1u), cnv->get_route()->position_bei(min(cnv->get_route()->get_count()-1u,route_index+1u)));
 				const signal_t* signal = way->get_signal(ribi); 
 				if(signal && working_method != token_block)
 				{
@@ -3960,8 +3959,8 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 			cnv->suche_neue_route();
 			return false;
 		}
-		const koord dir = tile_to_check_ahead.get_2d() - previous_tile.get_2d();
-		ribi_t::ribi ribi = ribi_typ(dir);	
+		uint16 modified_route_index = min(route_index + sighting_distance_tiles, cnv->get_route()->get_count() - 1u);
+		ribi_t::ribi ribi = ribi_typ(cnv->get_route()->position_bei(max(1u,modified_route_index)-1u), cnv->get_route()->position_bei(min(cnv->get_route()->get_count()-1u,modified_route_index+1u)));
 		signal_t* signal = way->get_signal(ribi); 
 
 		if(signal && (signal->get_state() == signal_t::caution
@@ -4007,9 +4006,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		if(sch1->has_signal()) 
 		{
 			const uint16 check_route_index = next_block == 0 ? 0 : next_block - 1u;
-			koord3d previous_tile = cnv->get_route()->position_bei(check_route_index);
-			const koord dir = block_pos.get_2d() - previous_tile.get_2d();
-			ribi_t::ribi ribi = ribi_typ(dir);	
+			ribi_t::ribi ribi = ribi_typ(cnv->get_route()->position_bei(max(1u,check_route_index)-1u), cnv->get_route()->position_bei(min(cnv->get_route()->get_count()-1u,check_route_index+1u)));
 			signal_t* signal = sch1->get_signal(ribi); 
 	
 			if(signal)
@@ -4207,7 +4204,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 			// Do not reserve further than the braking distance in moving block mode.
 			if(i > (brake_tiles + start_index + 1))
 			{
-					break;
+				break;
 			}
 		}
 
