@@ -4385,20 +4385,19 @@ void convoi_t::rdwr(loadsave_t *file)
 		file->rdwr_bool(needs_full_route_flush);
 	}
 
-// TODO: Enable this when ready
-//#ifdef SPECIAL_RESCUE_12_6
-//	if(file->get_experimental_version() >= 12 && file->is_saving()) 
-//#else
-//	if(file->get_experimental_version() >= 12)
-//#endif
-//	{
-//		bool ic = is_choosing;
-//		file->rdwr_bool(ic);
-//		is_choosing = ic;
-//
-//		file->rdwr_long(max_signal_speed); 
-//		last_signal_pos.rdwr();
-//	}
+#ifdef SPECIAL_RESCUE_12_6
+	if(file->get_experimental_version() >= 12 && file->is_saving()) 
+#else
+	if(file->get_experimental_version() >= 12)
+#endif
+	{
+		bool ic = is_choosing;
+		file->rdwr_bool(ic);
+		is_choosing = ic;
+
+		file->rdwr_long(max_signal_speed); 
+		last_signal_pos.rdwr(file); 
+	}
 
 	// This must come *after* all the loading/saving.
 	if(  file->is_loading()  ) {

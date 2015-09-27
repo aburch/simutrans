@@ -35,6 +35,8 @@ public:
 	// version for which the savegames should be created
 	static const char *savegame_ex_version_str;
 
+	static const char *savegame_ex_revision_str;
+
 	/// name of the directory to the pak-set
 	static std::string objfilename;
 

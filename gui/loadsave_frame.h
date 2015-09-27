@@ -60,8 +60,9 @@ public:
 	sint32 file_size;
 	uint32 version;
 	uint32 experimental_version;
+	uint32 experimental_revision;
 	bool file_exists;
-	sve_info_t() : pak(""), mod_time(0), file_size(0), file_exists(false), version(0), experimental_version(0) {}
+	sve_info_t() : pak(""), mod_time(0), file_size(0), file_exists(false), version(0), experimental_version(0), experimental_revision(0) {}
 	sve_info_t(const char *pak_, time_t mod_, sint32 fs, uint32 version, uint32 experimental_version);
 	bool operator== (const sve_info_t &) const;
 	void rdwr(loadsave_t *file);

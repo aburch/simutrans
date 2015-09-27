@@ -247,8 +247,7 @@ void schiene_t::rdwr(loadsave_t *file)
 	if(file->get_experimental_version() >= 12)
 #endif
 	{
-		// TODO: Enable this
-		/*uint16 reserved_index = reserved.get_id();
+		uint16 reserved_index = reserved.get_id();
 		file->rdwr_short(reserved_index); 
 		reserved.set_id(reserved_index); 
 
@@ -258,6 +257,6 @@ void schiene_t::rdwr(loadsave_t *file)
 
 		uint8 d = (uint8)direction;
 		file->rdwr_byte(d);
-		direction = (ribi_t::ribi)d; */
+		direction = (ribi_t::ribi)d; 
 	}
 }

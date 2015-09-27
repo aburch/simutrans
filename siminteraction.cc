@@ -330,7 +330,7 @@ bool interaction_t::process_event( event_t &ev )
 			char fn[256];
 			sprintf( fn, "server%d-pwdhash.sve", env_t::server );
 			loadsave_t file;
-			if(file.wr_open(fn, loadsave_t::save_mode, "hashes", SAVEGAME_VER_NR, EXPERIMENTAL_VER_NR )) {
+			if(file.wr_open(fn, loadsave_t::save_mode, "hashes", SAVEGAME_VER_NR, EXPERIMENTAL_VER_NR, EXPERIMENTAL_REVISION_NR )) {
 				world->rdwr_player_password_hashes( &file );
 				file.close();
 			}
@@ -352,7 +352,7 @@ bool interaction_t::process_event( event_t &ev )
 			sprintf( fn, "server%d-restore.sve", env_t::server );
 			bool old_restore_UI = env_t::restore_UI;
 			env_t::restore_UI = true;
-			world->save( fn, loadsave_t::save_mode, SERVER_SAVEGAME_VER_NR, EXPERIMENTAL_VER_NR, false );
+			world->save( fn, loadsave_t::save_mode, SERVER_SAVEGAME_VER_NR, EXPERIMENTAL_VER_NR, EXPERIMENTAL_REVISION_NR, false );
 			env_t::restore_UI = old_restore_UI;
 		}
 		return true;

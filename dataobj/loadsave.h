@@ -49,6 +49,7 @@ private:
 	char* ls_buf[2];
 	uint32 version;
 	uint32 experimental_version;
+	uint32 experimental_revision; // Secondary saved game identifier for changing the save format without changing the major version.
 	int ident;		// only for XML formatting
 	char pak_extension[256];	// name of the pak folder during savetime
 
@@ -81,7 +82,7 @@ private:
 
 public:
 	
-	struct combined_version { uint32 version; uint32 experimental_version; };
+	struct combined_version { uint32 version; uint32 experimental_version; uint32 experimental_revision;};
 
 	static mode_t save_mode;	// default to use for saving
 	static mode_t autosave_mode; // default to use for autosaves and network mode client temp saves
@@ -91,7 +92,7 @@ public:
 	~loadsave_t();
 
 	bool rd_open(const char *filename);
-	bool wr_open(const char *filename, mode_t mode, const char *pak_extension, const char *savegame_version, const char *savegame_version_ex );
+	bool wr_open(const char *filename, mode_t mode, const char *pak_extension, const char *savegame_version, const char *savegame_version_ex, const char *savegame_revision_ex );
 	const char *close();
 
 	static void set_savemode(mode_t mode) { save_mode = mode; }
@@ -112,6 +113,7 @@ public:
 	bool is_xml() const { return mode&xml; }
 	uint32 get_version() const { return version; }
 	uint32 get_experimental_version() const { return experimental_version; }
+	uint32 get_experimental_revision() const { return experimental_revision; }
 	const char *get_pak_extension() const { return pak_extension; }
 
 	void rdwr_byte(sint8 &c);

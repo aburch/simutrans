@@ -21,6 +21,7 @@ plainstring env_t::default_theme;
 const char *env_t::user_dir = 0;
 const char *env_t::savegame_version_str = SAVEGAME_VER_NR;
 const char *env_t::savegame_ex_version_str = EXPERIMENTAL_VER_NR;
+const char *env_t::savegame_ex_revision_str = EXPERIMENTAL_REVISION_NR;
 bool env_t::straight_way_without_control = false;
 bool env_t::networkmode = false;
 bool env_t::restore_UI = false;
@@ -192,6 +193,7 @@ void env_t::init()
 
 	savegame_version_str = SAVEGAME_VER_NR;
 	savegame_ex_version_str = EXPERIMENTAL_VER_NR;
+	savegame_ex_revision_str = EXPERIMENTAL_REVISION_NR;
 
 	show_month = DATE_FMT_US;
 

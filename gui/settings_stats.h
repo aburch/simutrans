@@ -174,6 +174,7 @@ class settings_general_stats_t : public settings_stats_t, public action_listener
 {
 	gui_combobox_t savegame;
 	gui_combobox_t savegame_ex;
+	gui_combobox_t savegame_ex_rev;
 public:
 	// needed for savegame combobox
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;

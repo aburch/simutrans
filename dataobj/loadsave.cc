@@ -169,6 +169,7 @@ bool loadsave_t::rd_open(const char *filename_utf8 )
 	version = 0;
 	mode = zipped;
 	experimental_version = 0;
+	experimental_revision = 0;
 	fd->fp = fopen(filename, "rb");
 	if(  fd->fp==NULL  ) {
 		// most likely not existing
@@ -273,6 +274,19 @@ bool loadsave_t::rd_open(const char *filename_utf8 )
 		strcpy( pak_extension, "(unknown)" );
 	}
 	this->filename = filename;
+
+#ifndef SPECIAL_RESCUE_12_6
+	if(experimental_version >= 12)
+	{
+		rdwr_long(experimental_revision);
+	}
+	else
+	{
+		experimental_revision = 0;
+	}
+#else
+	experimental_revision = 0;
+#endif
 	return true;
 }
 
@@ -288,7 +302,7 @@ void loadsave_t::rdwr_string(std::string &s) {
         } 
 }
 
-bool loadsave_t::wr_open(const char *filename_utf8, mode_t m, const char *pak_extension, const char *savegame_version, const char *savegame_version_ex)
+bool loadsave_t::wr_open(const char *filename_utf8, mode_t m, const char *pak_extension, const char *savegame_version, const char *savegame_version_ex, const char* savegame_revision_ex)
  
 {
 	mode = m; 
@@ -378,9 +392,19 @@ bool loadsave_t::wr_open(const char *filename_utf8, mode_t m, const char *pak_ex
 	loadsave_t::combined_version versions = int_version(savegame_ver.c_str(), NULL, NULL );
 	version = versions.version;
 	experimental_version = versions.experimental_version;
+	experimental_revision = versions.experimental_revision;
 
 	this->mode = mode;
 	this->filename = filename;
+
+	if(experimental_version >= 12)
+	{
+		rdwr_long(experimental_revision);
+	}
+	else
+	{
+		experimental_revision = 0;
+	}
 
 	return true;
 }
@@ -1337,6 +1361,7 @@ loadsave_t::combined_version loadsave_t::int_version(const char *version_text, i
 	combined_version loadsave_version;
 	loadsave_version.version = version;
 	loadsave_version.experimental_version = experimental_version;
+	loadsave_version.experimental_revision = EX_SAVE_MINOR;
 
 	return loadsave_version;
 }

@@ -66,7 +66,11 @@ static const char *version_ex[] =
 	".12"
 };
 
-
+static const char *revision_ex[] =
+{
+	"0", /*Ex version 0 has no Ex string at all*/
+	"1"
+};
 
 // just free memory
 void settings_stats_t::free_all()
@@ -540,7 +544,7 @@ void settings_experimental_revenue_stats_t::read(settings_t *sets)
 
 bool settings_general_stats_t::action_triggered(gui_action_creator_t *comp, value_t v)
 {
-	assert( comp==&savegame || comp==&savegame_ex ); (void)comp;
+	assert( comp==&savegame || comp==&savegame_ex || comp ==&savegame_ex_rev); (void)comp;
 
 	if(  v.i==-1  ) 
 	{
@@ -551,6 +555,10 @@ bool settings_general_stats_t::action_triggered(gui_action_creator_t *comp, valu
 		else if( comp==&savegame_ex )
 		{
 			savegame_ex.set_selection( 0 );
+		}
+		else if( comp == &savegame_ex_rev )
+		{
+			savegame_ex_rev.set_selection( 0 );
 		}
 	}
 	return true;
@@ -606,7 +614,7 @@ void settings_general_stats_t::init(settings_t const* const sets)
 	clear_dirty();
 
 	SEPERATOR
-	// combobox for Experimental savegame version
+	// comboboxes for Experimental savegame version and revision
 	savegame_ex.set_pos( scr_coord(2,ypos-2) );
 	savegame_ex.set_size( scr_size(70,D_BUTTON_HEIGHT) );
 	for(  int i=0;  i<lengthof(version_ex);  i++  ) 
@@ -633,6 +641,34 @@ void settings_general_stats_t::init(settings_t const* const sets)
 
 	ypos+=105;
 	height = ypos;
+
+	savegame_ex_rev.set_pos( scr_coord(2,ypos-2) );
+	savegame_ex_rev.set_size( scr_size(70,D_BUTTON_HEIGHT) );
+	for(  int i=0;  i<lengthof(revision_ex);  i++  ) 
+	{
+		if(i == 0)
+		{
+			savegame_ex_rev.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( "0", COL_BLACK ) );
+		}
+		else
+		{
+			savegame_ex_rev.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( revision_ex[i]+1, COL_BLACK ) );
+		}
+		if(  strcmp(revision_ex[i],EXPERIMENTAL_VER_NR)==0  ) 
+		{
+			savegame_ex_rev.set_selection( i );
+		}
+	}
+	savegame_ex_rev.set_focusable( false );
+	add_component( &savegame_ex_rev );
+	savegame_ex_rev.add_listener( this );
+	INIT_LB( "savegame Experimental version" );
+	label.back()->set_pos( scr_coord( 76, label.back()->get_pos().y ) );
+	clear_dirty();
+
+	ypos+=105;
+	height = ypos;
+
 	set_size( settings_stats_t::get_size() );
 }
 
@@ -675,6 +711,11 @@ void settings_general_stats_t::read(settings_t* const sets)
 	const int selected_ex = savegame_ex.get_selection();
 	if (0 <= selected_ex  &&  selected_ex < lengthof(version_ex)) {
 		env_t::savegame_ex_version_str = version_ex[ selected_ex ];
+	}
+
+	const int selected_ex_rev = savegame_ex_rev.get_selection();
+	if (0 <= selected_ex  &&  selected_ex < lengthof(revision_ex)) {
+		env_t::savegame_ex_revision_str = revision_ex[ selected_ex_rev ];
 	}
 }
 

@@ -4683,7 +4683,7 @@ void karte_t::new_month()
 	if( !env_t::networkmode && env_t::autosave>0 && last_month%env_t::autosave==0 && !win_get_magic(magic_welt_gui_t) ) {
 		char buf[128];
 		sprintf( buf, "save/autosave%02i.sve", last_month+1 );
-		save( buf, loadsave_t::autosave_mode, env_t::savegame_version_str, env_t::savegame_ex_version_str, true );
+		save( buf, loadsave_t::autosave_mode, env_t::savegame_version_str, env_t::savegame_ex_version_str, env_t::savegame_ex_revision_str, true );
 	}
 
 	settings.update_max_alternative_destinations_commuting(commuter_targets.get_sum_weight());
@@ -6739,7 +6739,7 @@ bool karte_t::play_sound_area_clipped(koord const k, uint16 const idx) const
 }
 
 
-void karte_t::save(const char *filename, loadsave_t::mode_t savemode, const char *version_str, const char *ex_version_str, bool silent )
+void karte_t::save(const char *filename, loadsave_t::mode_t savemode, const char *version_str, const char *ex_version_str, const char* ex_revision_str, bool silent )
 {
 DBG_MESSAGE("karte_t::speichern()", "saving game to '%s'", filename);
 	loadsave_t  file;
@@ -6752,7 +6752,7 @@ DBG_MESSAGE("karte_t::speichern()", "saving game to '%s'", filename);
 		// Make local saving/loading faster in network mode.
 		savemode = loadsave_t::zipped;
 	}
-	if(!file.wr_open( savename, savemode, env_t::objfilename.c_str(), version_str, ex_version_str )) {
+	if(!file.wr_open( savename, savemode, env_t::objfilename.c_str(), version_str, ex_version_str, ex_revision_str )) {
 		create_win(new news_img("Kann Spielstand\nnicht speichern.\n"), w_info, magic_none);
 		dbg->error("karte_t::speichern()","cannot open file for writing! check permissions!");
 	}
@@ -6780,7 +6780,7 @@ DBG_MESSAGE("karte_t::speichern()", "saving game to '%s'", filename);
 }
 
 
-void karte_t::save(loadsave_t *file,bool silent)
+void karte_t::save(loadsave_t *file, bool silent)
 {
 	bool needs_redraw = false;
 
@@ -7449,6 +7449,7 @@ void karte_t::load(loadsave_t *file)
 	// some functions (finish_rd) need to know what version was loaded
 	load_version.version = file->get_version();
 	load_version.experimental_version = file->get_experimental_version();
+	load_version.experimental_revision = file->get_experimental_revision();
 
 	if(  env_t::networkmode  ) {
 		// clear the checklist history
@@ -9165,7 +9166,7 @@ bool karte_t::interactive(uint32 quit_month)
 		pak_name.append( env_t::objfilename );
 		pak_name.erase( pak_name.length()-1 );
 		pak_name.append( ".sve" );
-		save( pak_name.c_str(), loadsave_t::autosave_mode, SERVER_SAVEGAME_VER_NR, EXPERIMENTAL_VER_NR, false );
+		save( pak_name.c_str(), loadsave_t::autosave_mode, SERVER_SAVEGAME_VER_NR, EXPERIMENTAL_VER_NR, EXPERIMENTAL_REVISION_NR, false );
 	}
 
 	if(  get_current_month() >= quit_month  ) {

@@ -1443,7 +1443,7 @@ void win_poll_event(event_t* const ev)
 	if(  ev->ev_class==EVENT_SYSTEM  &&  ev->ev_code==SYSTEM_RELOAD_WINDOWS  ) {
 		chdir( env_t::user_dir );
 		loadsave_t dlg;
-		if(  dlg.wr_open( "dlgpos.xml", loadsave_t::xml_zipped, "temp", SERVER_SAVEGAME_VER_NR, EXPERIMENTAL_SAVEGAME_VERSION )  ) {
+		if(  dlg.wr_open( "dlgpos.xml", loadsave_t::xml_zipped, "temp", SERVER_SAVEGAME_VER_NR, EXPERIMENTAL_SAVEGAME_VERSION, EXPERIMENTAL_REVISION_NR )  ) {
 			// save all
 			rdwr_all_win( &dlg );
 			dlg.close();

@@ -669,7 +669,9 @@ int simu_main(int argc, char** argv)
 
 	if(xml_settings_found)  
 	{
-		if(  file.get_version() > loadsave_t::int_version(SAVEGAME_VER_NR, NULL, NULL).version || file.get_experimental_version() > loadsave_t::int_version(EXPERIMENTAL_SAVEGAME_VERSION, NULL, NULL).experimental_version) 
+		if(file.get_version() > loadsave_t::int_version(SAVEGAME_VER_NR, NULL, NULL).version 
+			|| file.get_experimental_version() > loadsave_t::int_version(EXPERIMENTAL_SAVEGAME_VERSION, NULL, NULL).experimental_version
+			|| file.get_experimental_revision() > EX_SAVE_MINOR)
 		{
 			// too new => remove it
 			file.close();
@@ -1371,7 +1373,7 @@ DBG_MESSAGE("simmain","demo file not found at %s",buf.get_str() );
 
 	// save setting ...
 	chdir( env_t::user_dir );
-	if(file.wr_open(xml_filename,loadsave_t::xml,"settings only/",SAVEGAME_VER_NR, EXPERIMENTAL_VER_NR)) 
+	if(file.wr_open(xml_filename,loadsave_t::xml,"settings only/",SAVEGAME_VER_NR, EXPERIMENTAL_VER_NR, EXPERIMENTAL_REVISION_NR)) 
 	{
 		env_t::rdwr(&file);
 		env_t::default_settings.rdwr(&file);

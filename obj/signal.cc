@@ -385,10 +385,13 @@ void signal_t::rdwr_signal(loadsave_t *file)
 		ignore_choose = ignore_choose_full; 
 #ifdef SPECIAL_RESCUE_12_6
 		if(file->is_saving())
+		{
 #endif
-		// TODO: Enable these
-		//file->rdwr_bool(no_junctions_to_next_signal);
-		//file->rdwr_longlong(train_last_passed); 
+		file->rdwr_bool(no_junctions_to_next_signal);
+		file->rdwr_longlong(train_last_passed); 
+#ifdef SPECIAL_RESCUE_12_6
+		}
+#endif
 	}
 
 	if(besch && besch->get_working_method() == time_interval && state == caution || state == caution_no_choose || state == danger)
