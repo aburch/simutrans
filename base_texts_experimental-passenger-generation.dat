@@ -235,3 +235,7 @@ note=Shown when not all signals transfer successfully from one signalbox to anot
 obj=program_text
 name=Cannot build signalbox underwater.
 note=Error message shown when attempting to build an underground signalbox underwater
+-
+obj=program_text
+name=Emergency stop
+note=Convoy tooltip when a train in time interval mode runs into another train

@@ -40,7 +40,11 @@ signal_t::signal_t( loadsave_t *file) :
 
 signal_t::signal_t(player_t *player, koord3d pos, ribi_t::ribi dir,const roadsign_besch_t *besch, koord3d sb, bool preview) : roadsign_t(obj_t::signal, player, pos, dir, besch, preview)
 {
-	if(besch->is_pre_signal())
+	if(besch->get_working_method() == time_interval)
+	{
+		state = clear;
+	}
+	else if(besch->is_pre_signal())
 	{
 		// Distant signals do not display a danger aspect.
 		state = caution;
@@ -50,6 +54,7 @@ signal_t::signal_t(player_t *player, koord3d pos, ribi_t::ribi dir,const roadsig
 		state = danger;
 	}
 
+	train_last_passed = 0;
 	no_junctions_to_next_signal = false;
 
 	if(besch->get_signal_group())
@@ -80,6 +85,7 @@ signal_t::~signal_t()
 			sigb->remove_signal(this); 
 		}
 	}
+	welt->remove_time_interval_signal_to_check(this); 
 }
 
 
@@ -380,8 +386,14 @@ void signal_t::rdwr_signal(loadsave_t *file)
 #ifdef SPECIAL_RESCUE_12_6
 		if(file->is_saving())
 #endif
-		// TODO: Enable this
+		// TODO: Enable these
 		//file->rdwr_bool(no_junctions_to_next_signal);
+		//file->rdwr_longlong(train_last_passed); 
+	}
+
+	if(besch && besch->get_working_method() == time_interval && state == caution || state == caution_no_choose || state == danger)
+	{
+		welt->add_time_interval_signal_to_check(this); 
 	}
 }
 

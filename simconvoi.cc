@@ -100,7 +100,10 @@ static const char * state_names[convoi_t::MAX_STATES] =
 	"WAITING_FOR_CLEARANCE_TWO_MONTHS",
 	"CAN_START_TWO_MONTHS",
 	"LEAVING_DEPOT",
-	"ENTERING_DEPOT"
+	"ENTERING_DEPOT",
+	"REVERSING",
+	"OUT_OF_RANGE",
+	"EMERGENCY_STOP"
 };
 
 // Reset some values.  Used in init and replacing.
@@ -1210,6 +1213,7 @@ bool convoi_t::sync_step(long delta_t)
 		case WAITING_FOR_CLEARANCE:
 		case WAITING_FOR_CLEARANCE_ONE_MONTH:
 		case WAITING_FOR_CLEARANCE_TWO_MONTHS:
+		case EMERGENCY_STOP:
 			// Hajo: waiting is asynchronous => fixed waiting order and route search
 			break;
 
@@ -1953,6 +1957,12 @@ end_loop:
 			wait_lock =  max( wait_lock, no_route_retry_count * no_route_retry_count * (20000 + simrand(10000,"convoi_t::step()")));
 			break;
 
+		case EMERGENCY_STOP:
+			if(wait_lock < 1)
+			{
+				state = WAITING_FOR_CLEARANCE;
+			}
+
 		// action soon needed
 		case ROUTING_1:
 		case CAN_START:
@@ -2361,8 +2371,11 @@ void convoi_t::ziel_erreicht()
 void convoi_t::warten_bis_weg_frei(sint32 restart_speed)
 {
 	if(!is_waiting()) {
-		state = WAITING_FOR_CLEARANCE;
-		wait_lock = 0;
+		if(state != EMERGENCY_STOP || wait_lock == 0)
+		{
+			state = WAITING_FOR_CLEARANCE;
+			wait_lock = 0;
+		}
 	}
 	if(restart_speed>=0) {
 		// langsam anfahren
@@ -5936,7 +5949,7 @@ COLOR_VAL convoi_t::get_status_color() const
 		// in depot/under assembly
 		return COL_WHITE;
 	}
-	else if (state == WAITING_FOR_CLEARANCE_ONE_MONTH || state == CAN_START_ONE_MONTH || get_state() == NO_ROUTE || get_state() == OUT_OF_RANGE) {
+	else if (state == WAITING_FOR_CLEARANCE_ONE_MONTH || state == CAN_START_ONE_MONTH || get_state() == NO_ROUTE || get_state() == OUT_OF_RANGE || get_state() == EMERGENCY_STOP) {
 		// stuck or no route
 		return COL_ORANGE;
 	}

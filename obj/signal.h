@@ -27,6 +27,9 @@ private:
 
 	bool no_junctions_to_next_signal;
 
+	// Used for time interval signalling
+	sint64 train_last_passed;
+
 public:
 	signal_t(loadsave_t *file);
 	signal_t(player_t *player, koord3d pos, ribi_t::ribi dir,const roadsign_besch_t *besch, koord3d sb, bool preview = false);
@@ -61,6 +64,9 @@ public:
 	void set_no_junctions_to_next_signal(bool value) { no_junctions_to_next_signal = value; } 
 
 	bool is_bidirectional() const { return ((dir & ribi_t::ost) && (dir & ribi_t::west)) || ((dir & ribi_t::sued) && (dir & ribi_t::nord)); }
+
+	void set_train_last_passed(sint64 value) { train_last_passed = value; }
+	sint64 get_train_last_passed() const { return train_last_passed; }
 };
 
 #endif

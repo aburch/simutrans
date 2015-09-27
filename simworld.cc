@@ -5096,6 +5096,43 @@ rands[19] = get_random_seed();
 
 	recalc_season_snowline(true);
 
+	// TODO: Set these values in simuconf.tab
+	if(!time_interval_signals_to_check.empty())
+	{
+		const uint32 caution_interval_seconds = 300;
+		const uint32 clear_interval_seconds = 600; 
+
+		const sint64 caution_interval_ticks = seconds_to_ticks(caution_interval_seconds);
+		const sint64 clear_interval_ticks = seconds_to_ticks(clear_interval_seconds); 
+		slist_tpl<signal_t*> signals_to_remove; 
+
+		FOR(slist_tpl<signal_t*>, sig, time_interval_signals_to_check)
+		{
+			if((sig->get_train_last_passed() + clear_interval_ticks) < ticks)
+			{
+				sig->set_state(roadsign_t::clear_no_choose);
+				signals_to_remove.append(sig);
+			}
+			else if((sig->get_train_last_passed() + caution_interval_ticks) < ticks)
+			{
+				if(sig->get_besch()->is_pre_signal())
+				{
+					sig->set_state(roadsign_t::clear_no_choose);
+					signals_to_remove.append(sig);
+				}
+				else
+				{
+					sig->set_state(roadsign_t::caution_no_choose);
+				}
+			}
+		}
+
+		FOR(slist_tpl<signal_t*>, sig, signals_to_remove)
+		{
+			time_interval_signals_to_check.remove(sig);
+		}
+	}
+
 	// number of playing clients changed
 	if(  env_t::server  &&  last_clients!=socket_list_t::get_playing_clients()  ) {
 		if(  env_t::server_announce  ) {
@@ -7087,6 +7124,7 @@ bool karte_t::load(const char *filename)
 	display_show_load_pointer(true);
 	loadsave_t file;
 	cities_awaiting_private_car_route_check.clear();
+	time_interval_signals_to_check.clear();
 
 	// clear hash table with missing paks (may cause some small memory loss though)
 	missing_pak_names.clear();

@@ -921,6 +921,11 @@ private:
 	sint32 passenger_step_interval;
 	sint32 mail_step_interval;
 
+	// Signals in the time interval working method that need
+	// to be checked periodically to see whether they need
+	// to change to a less restrictive aspect.
+	slist_tpl<signal_t*> time_interval_signals_to_check;
+
 public:
 
 	enum building_type { passenger_origin, commuter_target, visitor_target, mail_origin_or_target, none };
@@ -2466,6 +2471,9 @@ public:
 	void add_queued_city(stadt_t* stadt);
 
 	sint64 get_land_value(koord3d k);
+
+	inline void add_time_interval_signal_to_check(signal_t* sig) { time_interval_signals_to_check.append(sig); }
+	inline void remove_time_interval_signal_to_check(signal_t* sig) { time_interval_signals_to_check.remove(sig); }
 
 #ifdef DEBUG_SIMRAND_CALLS
 	static vector_tpl<const char*> random_callers;

@@ -140,6 +140,7 @@ public:
 		ENTERING_DEPOT,
 		REVERSING,
 		OUT_OF_RANGE,
+		EMERGENCY_STOP,
 		MAX_STATES
 	};
 
@@ -1171,6 +1172,8 @@ public:
 
 	void set_maximum_signal_speed(sint32 value) { max_signal_speed = value; }
 	sint32 get_max_signal_speed() const { return max_signal_speed; }
+
+	inline void set_wait_lock(sint32 value) { wait_lock = value; }
 
 private:
 	journey_times_map average_journey_times;
