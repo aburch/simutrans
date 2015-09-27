@@ -4975,7 +4975,8 @@ void rail_vehicle_t::clear_token_reservation(signal_t* sig, rail_vehicle_t* w, s
 		// Do not unreserve tiles ahead in the route, however.
 		for(int i = route_index; i < route->get_count(); i++)
 		{
-			route_tiles.append(route->position_bei(i).get_2d());
+			koord k = route->position_bei(i).get_2d();
+			route_tiles.append(k);
 		}
 		const waytype_t waytype = sch->get_waytype();
 		FOR(slist_tpl<weg_t*>, const way, weg_t::get_alle_wege())
@@ -4989,11 +4990,7 @@ void rail_vehicle_t::clear_token_reservation(signal_t* sig, rail_vehicle_t* w, s
 				schiene_t* const sch = obj_cast<schiene_t>(way);
 				if(sch->get_reserved_convoi() == cnv->self)
 				{
-					if(!get_grund()->suche_obj(w->get_typ()))
-					{
-						// force free
-						sch->unreserve(w);
-					}
+					sch->unreserve(w);
 				}
 			}
 		}
@@ -5079,7 +5076,7 @@ void rail_vehicle_t::leave_tile()
 							}
 							return;
 						}
-						else if(w && w->get_working_method() == token_block && !sig->get_besch()->is_pre_signal())
+						else if(w && w->get_working_method() == token_block && !sig->get_besch()->is_pre_signal() && cnv->get_state() != convoi_t::REVERSING)
 						{
 							// On passing a signal, clear all the so far uncleared reservation when in token block mode.
 							// If the signal is not a long-block signal, clear token block mode. This assumes that long
