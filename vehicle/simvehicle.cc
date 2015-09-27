@@ -4777,7 +4777,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 
 			if(route_success) 
 			{
-				token_block_blocks = block_reserver(&target_rt, 1, next_next_signal, 0, true, false, false, true, bidirectional_reservation, brake_steps);
+				token_block_blocks = block_reserver(&target_rt, 1, next_next_signal, 0, true, false, false, true, false, bidirectional_reservation, brake_steps);
 			}
 
 			if(token_block_blocks && next_next_signal < INVALID_INDEX) 
