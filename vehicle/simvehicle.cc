@@ -4546,7 +4546,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 					// will be clear beyond the *first* stop signal after the distant. 
 					next_signal_index = first_stop_signal_index;
 					do_not_clear_distant = true;
-					if((next_signal_index == start_index) || is_from_token)
+					if(next_signal_index == start_index)
 					{
 						success = false;
 						directional_reservation_succeeded = false;
