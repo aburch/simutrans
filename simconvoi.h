@@ -566,11 +566,6 @@ private:
 	*/
 	bool can_go_alte_richtung();
 
-	/**
-	 * remove all track reservations (trains only)
-	 */
-	void unreserve_route();
-
 	// Reserve the tiles on which the convoy is standing to prevent collisions.
 	void reserve_own_tiles();
 
@@ -831,6 +826,11 @@ public:
 	* @author Hj. Malthaner
 	*/
 	void hat_gehalten(halthandle_t halt);
+
+	/**
+	 * remove all track reservations (trains only)
+	 */
+	void unreserve_route();
 
 	route_t* get_route() { return &route; }
 	route_t* access_route() { return &route; }

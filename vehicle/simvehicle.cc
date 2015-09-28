@@ -4540,7 +4540,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 					// will be clear beyond the *first* stop signal after the distant. 
 					next_signal_index = first_stop_signal_index;
 					do_not_clear_distant = true;
-					if(next_signal_index == start_index)
+					if((next_signal_index == start_index) || is_from_token)
 					{
 						success = false;
 						directional_reservation_succeeded = false;
@@ -4705,56 +4705,6 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 	const koord3d signal_pos = next_signal_index < INVALID_INDEX ? route->position_bei(next_signal_index) : koord3d::invalid;
 	const bool platform_starter = (this_halt.is_bound() && (haltestelle_t::get_halt(signal_pos, get_owner())) == this_halt) && (haltestelle_t::get_halt(get_pos(), get_owner()) == this_halt);
 
-	// free, in case of un-reserve or no success in reservation
-	// or alternatively free that section reserved beyond the last signal to which reservation can take place
-	if(!success || !directional_reservation_succeeded || ((next_signal_index < INVALID_INDEX) && (next_signal_working_method == absolute_block || next_signal_working_method == track_circuit_block || next_signal_working_method == cab_signalling)))
-	{
-		// free reservation
-		uint16 relevant_index;
-		if(!success)
-		{
-			relevant_index = start_index;
-		}
-		else if(!directional_reservation_succeeded)
-		{
-			relevant_index = last_non_directional_index;
-		}
-		else
-		{
-			relevant_index = last_stop_signal_index;
-		}
-
-		if(next_signal_index < INVALID_INDEX && (next_signal_index == start_index || platform_starter))
-		{
-			// Cannot go anywhere either because this train is already on the tile of the last signal to which it can go, or is in the same station as it.
-			success = false;
-		}
-		const uint32 unreserve_until = directional_reservation_succeeded ? last_non_directional_index : i;
-		for(uint32 j = relevant_index + 1; j < unreserve_until; j++)
-		{
-			if(i != skip_index)
-			{
-				schiene_t * sch1 = (schiene_t *)welt->lookup(route->position_bei(j))->get_weg(get_waytype());
-				if(sch1->is_reserved(schiene_t::block) || (!directional_reservation_succeeded && sch1->is_reserved(schiene_t::directional)))
-				{
-					sch1->unreserve(cnv->self);
-				}
-			}
-		}
-
-		if(last_choose_signal_index < INVALID_INDEX && !is_choosing && not_entirely_free)
-		{
-			// This will call the block reserver afresh from the last choose signal with choose logic enabled. 
-			return activate_choose_signal(last_choose_signal_index, next_signal_index, brake_steps); 
-		}
-
-		if(!success)
-		{
-			cnv->set_next_reservation_index(relevant_index);
-			return 0;
-		}
-	}
-
 	if(not_entirely_free && next_signal_working_method == time_interval)
 	{
 		next_signal_index = last_choose_signal_index;
@@ -4818,6 +4768,10 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 				cur_pos = target_rt.back();
 				fpl->increment_index(&fahrplan_index, &rev);
 			}
+			else
+			{
+				success = false;
+			}
 			if(fpl->eintrag[fahrplan_index].reverse)
 			{
 				break;
@@ -4833,6 +4787,67 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 		}
 
 	} 
+
+	// free, in case of un-reserve or no success in reservation
+	// or alternatively free that section reserved beyond the last signal to which reservation can take place
+	if(!success || !directional_reservation_succeeded || ((next_signal_index < INVALID_INDEX) && (next_signal_working_method == absolute_block || next_signal_working_method == track_circuit_block || next_signal_working_method == cab_signalling)))
+	{
+		// free reservation
+		uint16 relevant_index;
+		if(!success)
+		{
+			relevant_index = start_index;
+		}
+		else if(!directional_reservation_succeeded)
+		{
+			relevant_index = last_non_directional_index;
+		}
+		else
+		{
+			relevant_index = last_stop_signal_index;
+		}
+
+		if(next_signal_index < INVALID_INDEX && (next_signal_index == start_index || platform_starter))
+		{
+			// Cannot go anywhere either because this train is already on the tile of the last signal to which it can go, or is in the same station as it.
+			success = false;
+		}
+		if(working_method == token_block && success == false)
+		{
+			cnv->unreserve_route();
+			schiene_t* front = (schiene_t*)welt->lookup(get_pos())->get_weg(get_waytype());
+			schiene_t* rear = (schiene_t*)welt->lookup(cnv->back()->get_pos())->get_weg(get_waytype());
+			front->reserve(cnv->self, ribi_typ(route->position_bei(max(1u,i)-1u), route->position_bei(min(route->get_count()-1u,i+1u)))); 
+			rear->reserve(cnv->self, ribi_typ(route->position_bei(max(1u,i)-1u), route->position_bei(min(route->get_count()-1u,i+1u)))); 
+		}
+		else
+		{
+			const uint32 unreserve_until = directional_reservation_succeeded ? last_non_directional_index : i;
+			for(uint32 j = relevant_index + 1; j < unreserve_until; j++)
+			{
+				if(i != skip_index)
+				{
+					schiene_t * sch1 = (schiene_t *)welt->lookup(route->position_bei(j))->get_weg(get_waytype());
+					if(sch1->is_reserved(schiene_t::block) || (!directional_reservation_succeeded && sch1->is_reserved(schiene_t::directional)))
+					{
+						sch1->unreserve(cnv->self);
+					}
+				}
+			}
+		}
+
+		if(last_choose_signal_index < INVALID_INDEX && !is_choosing && not_entirely_free)
+		{
+			// This will call the block reserver afresh from the last choose signal with choose logic enabled. 
+			return activate_choose_signal(last_choose_signal_index, next_signal_index, brake_steps); 
+		}
+
+		if(!success)
+		{
+			cnv->set_next_reservation_index(relevant_index);
+			return 0;
+		}
+	}
 
 	// Clear signals on the route.
 	if(!is_from_token)
