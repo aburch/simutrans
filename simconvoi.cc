@@ -4610,6 +4610,13 @@ void convoi_t::laden() //"load" (Babelfish)
 	halthandle_t halt = haltestelle_t::get_halt(fpl->get_current_eintrag().pos, owner);
 	departure_point_t departure(fpl->get_aktuell(), reverse_schedule);
 
+	if(haltestelle_t::get_halt(get_pos(), owner) != halt)
+	{
+		state = CAN_START;
+		dbg->error("void convoi_t::laden()", "Trying to load at halt %s when not at a halt", halt.is_bound() ? halt->get_name() : "none");
+		return;
+	}
+
 	// The calculation of the journey distance does not need to use normalised halt locations for comparison, so
 	// a more accurate distance can be used. Query whether the formula from halt_detail.cc should be used here instead
 	// (That formula has the effect of finding the distance between the nearest points of two halts).
