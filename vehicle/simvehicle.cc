@@ -4532,6 +4532,12 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 				if((next_signal_working_method == drive_by_sight || next_signal_working_method == moving_block) && !directional_only && last_choose_signal_index >= INVALID_INDEX && !is_choosing)
 				{
 					next_signal_index = i - 1;
+					// The below prevents jittering of stationery drive by sight convoys, but
+					// causes them to stop dead rather than decelerate properly.
+					/*if(working_method == drive_by_sight && i < start_index + 2)
+					{
+						success = false;
+					}*/
 					break;
 				}
 				if(((next_signal_working_method == absolute_block || next_signal_working_method == token_block) && first_stop_signal_index < i) && !directional_only)
