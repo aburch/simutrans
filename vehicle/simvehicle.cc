@@ -4540,6 +4540,11 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 					// will be clear beyond the *first* stop signal after the distant. 
 					next_signal_index = first_stop_signal_index;
 					do_not_clear_distant = true;
+					if(next_signal_index == start_index)
+					{
+						success = false;
+						directional_reservation_succeeded = false;
+					}
 					break;
 				}
 				if((next_signal_working_method == track_circuit_block || next_signal_working_method == cab_signalling) && last_stop_signal_index != INVALID_INDEX && !directional_only)
@@ -4724,7 +4729,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 			// Cannot go anywhere either because this train is already on the tile of the last signal to which it can go, or is in the same station as it.
 			success = false;
 		}
-		const uint8 unreserve_until = directional_reservation_succeeded ? last_non_directional_index : i;
+		const uint32 unreserve_until = directional_reservation_succeeded ? last_non_directional_index : i;
 		for(uint32 j = relevant_index + 1; j < unreserve_until; j++)
 		{
 			if(i != skip_index)
