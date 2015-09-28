@@ -60,6 +60,8 @@ public:
 	// (Intended to be a preparation for closure).
 	// Returns number of signals transferred successfully, number that failed (x,y).
 	koord transfer_all_signals(signalbox_t* sb); 
+
+	uint32 get_number_of_signals_controlled_from_this_box() const { return signals.get_count(); }
 };
 
 #endif

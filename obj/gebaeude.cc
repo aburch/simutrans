@@ -14,7 +14,6 @@ static pthread_mutex_t sync_mutex = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutex_t add_to_city_mutex = PTHREAD_MUTEX_INITIALIZER;
 #endif
 
-
 #include "../bauer/hausbauer.h"
 #include "../gui/money_frame.h"
 #include "../simworld.h"
@@ -30,6 +29,7 @@ static pthread_mutex_t add_to_city_mutex = PTHREAD_MUTEX_INITIALIZER;
 #include "../simdebug.h"
 #include "../simintr.h"
 #include "../simskin.h"
+#include "../simsignalbox.h"
 
 #include "../boden/grund.h"
 #include "../boden/wege/strasse.h"
@@ -919,6 +919,12 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 		if(get_stadt() != NULL)
 		{
 			buf.printf(translator::translate("Town: %s\n"), ptr.stadt->get_name());
+		}
+
+		if(tile->get_besch()->get_utyp() == haus_besch_t::signalbox)
+		{
+			signalbox_t* sb = (signalbox_t*)this;
+			buf.printf("%s: %d/%d\n", translator::translate("Signals"), sb->get_number_of_signals_controlled_from_this_box(), tile->get_besch()->get_capacity()); 
 		}
 
 		buf.printf("\n%s: %d\n", translator::translate("citicens"), get_adjusted_population());
