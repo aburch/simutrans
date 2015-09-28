@@ -4313,6 +4313,12 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 						working_method = next_signal_working_method;
 					}
 
+					if(next_signal_working_method == drive_by_sight)
+					{
+						next_signal_index = i;
+						break;
+					}
+
 					if(!signal->get_besch()->is_pre_signal()) // Stop signal or MAS
 					{
 						if(last_bidirectional_signal_index >= INVALID_INDEX)
