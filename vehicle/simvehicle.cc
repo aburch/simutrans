@@ -4492,7 +4492,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 					{				
 						if(next_signal_working_method == absolute_block || next_signal_working_method == token_block)
 						{
-							if((signalbox_last_distant_signal == koord3d::invalid || signalbox_last_distant_signal == signal->get_signalbox()) && (!pre_signals.empty() || first_stop_signal_index == INVALID_INDEX))
+							if((signalbox_last_distant_signal == koord3d::invalid || signalbox_last_distant_signal == signal->get_signalbox()) && (pre_signals.empty() || first_stop_signal_index == INVALID_INDEX))
 							{
 								pre_signals.append(signal); 
 								last_pre_signal_index = i;
