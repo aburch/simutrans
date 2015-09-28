@@ -322,16 +322,19 @@ bool convoi_t::is_waypoint( koord3d ziel ) const
  */
 void convoi_t::unreserve_route()
 {
-	// need a route, vehicles, and vehicles must belong to this convoi
-	// (otherwise crash during loading when front()->convoi is not initialized yet
-	if(  !route.empty()  &&  anz_vehikel>0  &&  front()->get_convoi() == this  ) {
-		rail_vehicle_t* rv = dynamic_cast<rail_vehicle_t*>(front());
-		if (rv) {
-			// free all reserved blocks
-			uint16 dummy;
-			rv->block_reserver(get_route(), back()->get_route_index(), dummy, 100001, false, true);
+	// Clears all reserved tiles on the whole map belonging to this convoy.
+	FOR(slist_tpl<weg_t*>, const way, weg_t::get_alle_wege())
+	{
+		if(way->get_waytype() == front()->get_waytype())
+		{
+			schiene_t* const sch = obj_cast<schiene_t>(way);
+			if(sch && sch->get_reserved_convoi() == self)
+			{
+				sch->unreserve(front());
+			}
 		}
 	}
+	set_needs_full_route_flush(false);
 }
 
 void convoi_t::reserve_own_tiles()
