@@ -394,7 +394,7 @@ void signal_t::rdwr_signal(loadsave_t *file)
 #endif
 	}
 
-	if(besch && besch->get_working_method() == time_interval && state == caution || state == caution_no_choose || state == danger)
+	if(besch && besch->get_working_method() == time_interval && (state == caution || state == caution_no_choose || state == danger))
 	{
 		welt->add_time_interval_signal_to_check(this); 
 	}
