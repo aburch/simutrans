@@ -4839,6 +4839,11 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 			relevant_index = last_stop_signal_index;
 		}
 
+		if(!directional_only)
+		{
+			relevant_index ++;
+		}
+
 		if(next_signal_index < INVALID_INDEX && (next_signal_index == start_index || platform_starter))
 		{
 			// Cannot go anywhere either because this train is already on the tile of the last signal to which it can go, or is in the same station as it.
