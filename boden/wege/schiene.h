@@ -65,7 +65,7 @@ public:
 	* true, if this rail can be reserved
 	* @author prissi
 	*/
-	bool can_reserve(convoihandle_t c, ribi_t::ribi dir, reservation_type t = block) const 
+	bool can_reserve(convoihandle_t c, ribi_t::ribi dir, reservation_type t = block, bool check_directions_at_junctions = false) const 
 	{ 
 		if(t == block)
 		{
@@ -73,7 +73,7 @@ public:
 		}
 		if(t == directional)
 		{
-			return !reserved.is_bound() || c == reserved || type == priority || (dir == direction || dir == ribi_t::alle);
+			return !reserved.is_bound() || c == reserved || type == priority || (dir == direction || dir == ribi_t::alle) || (!check_directions_at_junctions && is_junction());
 		}
 		if(t == priority)
 		{
@@ -95,7 +95,7 @@ public:
 	* true, then this rail was reserved
 	* @author prissi
 	*/
-	bool reserve(convoihandle_t c, ribi_t::ribi dir, reservation_type t = block);
+	bool reserve(convoihandle_t c, ribi_t::ribi dir, reservation_type t = block, bool check_directions_at_junctions = false);
 
 	/**
 	* releases previous reservation

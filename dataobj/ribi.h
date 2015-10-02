@@ -214,7 +214,7 @@ public:
 	static bool ist_gerade_ns(ribi x) { return (flags[x] & gerade_ns) != 0; }
 	static bool ist_gerade_ow(ribi x) { return (flags[x] & gerade_ow) != 0; }
 
-	static ribi doppelt(ribi x) { return doppelr[x]; }
+	static ribi doppelt(ribi x) { return doppelr[x]; } // "Twice" (Google)
 	static ribi rueckwaerts(ribi x) { return rwr[x]; } // "Backwards" (Google)
 
 	/**
