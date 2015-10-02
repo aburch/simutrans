@@ -3613,9 +3613,6 @@ bool rail_vehicle_t::is_target(const grund_t *gr,const grund_t *prev_gr)
 
 sint32 rail_vehicle_t::activate_choose_signal(const uint16 start_block, uint16 &next_signal_index, uint32 brake_steps)
 {
-	bool choose_ok = false;
-	target_halt = halthandle_t();
-
 	grund_t const* target = welt->lookup(cnv->get_route()->back());
 
 	if(  target==NULL  ) 
@@ -3624,10 +3621,9 @@ sint32 rail_vehicle_t::activate_choose_signal(const uint16 start_block, uint16 &
 		return 0;
 	}
 
-	// TODO: Add option in the convoy's schedule to skip choose signals, and implement this here.
+	bool choose_ok = true;
 
-	// now we might choose something at least
-	choose_ok = true;
+	// TODO: Add option in the convoy's schedule to skip choose signals, and implement this here.
 
 	// check whether there is another choose signal or end_of_choose on the route
 	uint32 break_index = start_block + 1;
@@ -3694,7 +3690,9 @@ sint32 rail_vehicle_t::activate_choose_signal(const uint16 start_block, uint16 &
 
 	// We are in a step and can use the route search
 	route_t target_rt;
-	const int richtung = ribi_typ(get_pos().get_2d(),pos_next.get_2d());	// to avoid confusion at diagonals
+	const uint16 first_block = start_block == 0 ? start_block : start_block - 1;
+	const uint16 second_block = start_block == 0 ? start_block + 1 : start_block; 
+	const uint8 direction = ribi_typ(cnv->get_route()->position_bei(first_block).get_2d(), cnv->get_route()->position_bei(second_block).get_2d());
 	cnv->set_is_choosing(true);
 	bool can_find_route;
 
@@ -3702,9 +3700,9 @@ sint32 rail_vehicle_t::activate_choose_signal(const uint16 start_block, uint16 &
 	{
 		// The target is a stop.
 #ifdef MAX_CHOOSE_BLOCK_TILES
-		can_find_route = target_rt.find_route(welt, cnv->get_route()->position_bei(start_block), this, speed_to_kmh(cnv->get_min_top_speed()), richtung, cnv->get_highest_axle_load(), cnv->get_tile_length(), cnv->get_weight_summary().weight / 1000, MAX_CHOOSE_BLOCK_TILES, route_t::choose_signal);
+		can_find_route = target_rt.find_route(welt, cnv->get_route()->position_bei(start_block), this, speed_to_kmh(cnv->get_min_top_speed()), direction, cnv->get_highest_axle_load(), cnv->get_tile_length(), cnv->get_weight_summary().weight / 1000, MAX_CHOOSE_BLOCK_TILES, route_t::choose_signal);
 #else
-		can_find_route = target_rt.find_route(welt, cnv->get_route()->position_bei(start_block), this, speed_to_kmh(cnv->get_min_top_speed()), richtung, cnv->get_highest_axle_load(), cnv->get_tile_length(), cnv->get_weight_summary().weight / 1000, (welt->get_size().x + welt->get_size().y) * 1000, route_t::choose_signal);
+		can_find_route = target_rt.find_route(welt, cnv->get_route()->position_bei(start_block), this, speed_to_kmh(cnv->get_min_top_speed()), direction, cnv->get_highest_axle_load(), cnv->get_tile_length(), cnv->get_weight_summary().weight / 1000, (welt->get_size().x + welt->get_size().y) * 1000, route_t::choose_signal);
 #endif
 	}
 	else
