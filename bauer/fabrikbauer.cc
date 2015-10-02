@@ -693,7 +693,7 @@ int fabrikbauer_t::baue_hierarchie(koord3d* parent, const fabrik_besch_t* info, 
 }
 
 
-int fabrikbauer_t::baue_link_hierarchie(const fabrik_t* our_fab, const fabrik_besch_t* info, int lieferant_nr, player_t* player)
+int fabrikbauer_t::baue_link_hierarchie(const fabrik_t* our_fab, const fabrik_besch_t* info, int lieferant_nr, player_t* player, bool no_new_industries)
 {
 	int n = 0;	// number of additional factories
 	/* first we try to connect to existing factories and will do some
@@ -794,74 +794,77 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","lieferanten %i, lcount %i (need %i
 
 	INT_CHECK( "fabrikbauer 670" );
 
-	/* try to add all types of factories until demand is satisfied
-	 */
-	weighted_vector_tpl<const fabrik_besch_t *>producer;
-	finde_hersteller( producer, ware, welt->get_timeline_year_month() );
-	if(  producer.empty()  ) {
-		// can happen with timeline
-		if(!info->is_consumer_only()) {
-			dbg->error( "fabrikbauer_t::baue_hierarchie()", "no producer for %s!", ware->get_name() );
-			return 0;
+	if(!no_new_industries)
+	{
+		/* try to add all types of factories until demand is satisfied
+		 */
+		weighted_vector_tpl<const fabrik_besch_t *>producer;
+		finde_hersteller( producer, ware, welt->get_timeline_year_month() );
+		if(  producer.empty()  ) {
+			// can happen with timeline
+			if(!info->is_consumer_only()) {
+				dbg->error( "fabrikbauer_t::baue_hierarchie()", "no producer for %s!", ware->get_name() );
+				return 0;
+			}
+			else {
+				// only consumer: Will do with partly covered chains
+				dbg->error( "fabrikbauer_t::baue_hierarchie()", "no producer for %s!", ware->get_name() );
+			}
 		}
-		else {
-			// only consumer: Will do with partly covered chains
-			dbg->error( "fabrikbauer_t::baue_hierarchie()", "no producer for %s!", ware->get_name() );
-		}
-	}
 
-	bool ignore_climates = false;	// ignore climates after some retrys
-	int retry=25;	// and not more than 25 (happens mostly in towns)
-	while(  (lcount>lfound  ||  lcount==0)  &&  verbrauch>0  &&  retry>0  ) {
+		bool ignore_climates = false;	// ignore climates after some retrys
+		int retry=25;	// and not more than 25 (happens mostly in towns)
+		while(  (lcount>lfound  ||  lcount==0)  &&  verbrauch>0  &&  retry>0  ) {
 
-		const fabrik_besch_t *hersteller = pick_any_weighted( producer );
+			const fabrik_besch_t *hersteller = pick_any_weighted( producer );
 
-		int rotate = simrand(hersteller->get_haus()->get_all_layouts()-1, "fabrikbauer_t::baue_hierarchie");
-		koord3d parent_pos = our_fab->get_pos();
+			int rotate = simrand(hersteller->get_haus()->get_all_layouts()-1, "fabrikbauer_t::baue_hierarchie");
+			koord3d parent_pos = our_fab->get_pos();
 
-		INT_CHECK("fabrikbauer 697");
+			INT_CHECK("fabrikbauer 697");
 
-		koord3d k = finde_zufallsbauplatz( our_fab->get_pos().get_2d(), min(max_factory_spacing_general, hersteller->get_max_distance_to_consumer()), hersteller->get_haus()->get_groesse(rotate),hersteller->get_platzierung()==fabrik_besch_t::Wasser, hersteller->get_haus(), ignore_climates, 20000 );
-		if(  k == koord3d::invalid  ) {
-			// this factory cannot build in the desired vincinity
-			producer.remove( hersteller );
-			if(  producer.empty()  ) {
-				if(  ignore_climates  ) {
-					// absolutely no place to construct something here
+			koord3d k = finde_zufallsbauplatz( our_fab->get_pos().get_2d(), min(max_factory_spacing_general, hersteller->get_max_distance_to_consumer()), hersteller->get_haus()->get_groesse(rotate),hersteller->get_platzierung()==fabrik_besch_t::Wasser, hersteller->get_haus(), ignore_climates, 20000 );
+			if(  k == koord3d::invalid  ) {
+				// this factory cannot build in the desired vincinity
+				producer.remove( hersteller );
+				if(  producer.empty()  ) {
+					if(  ignore_climates  ) {
+						// absolutely no place to construct something here
+						break;
+					}
+					finde_hersteller( producer, ware, welt->get_timeline_year_month() );
+					ignore_climates = true;
+				}
+				continue;
+			}
+
+			INT_CHECK("fabrikbauer 697");
+
+	DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","Try to built lieferant %s at (%i,%i) r=%i for %s.",hersteller->get_name(),k.x,k.y,rotate,info->get_name());
+			n += baue_hierarchie(&parent_pos, hersteller, -1 /*random prodbase */, rotate, &k, player, 10000 );
+			lfound ++;
+
+			INT_CHECK( "fabrikbauer 702" );
+
+			// now subtract current supplier
+			fabrik_t *fab = fabrik_t::get_fab(k.get_2d() );
+			if(fab==NULL) {
+	DBG_MESSAGE( "fabrikbauer_t::baue_hierarchie", "Failed to build at %s", k.get_str() );
+				retry --;
+				continue;
+			}
+			new_factories.append(fab);
+
+			// connect new supplier to us
+			const fabrik_besch_t* const fb = fab->get_besch();
+			for (uint gg = 0; gg < fab->get_besch()->get_produkte(); gg++) {
+				if (fb->get_produkt(gg)->get_ware() == ware) {
+					sint32 produktion = fab->get_base_production() * fb->get_produkt(gg)->get_faktor();
+					// the take care of how much this factory could supply
+					verbrauch -= produktion;
+					DBG_MESSAGE("fabrikbauer_t::baue_hierarchie", "new supplier %s can supply approx %i of %s to us", fb->get_name(), produktion, ware->get_name());
 					break;
 				}
-				finde_hersteller( producer, ware, welt->get_timeline_year_month() );
-				ignore_climates = true;
-			}
-			continue;
-		}
-
-		INT_CHECK("fabrikbauer 697");
-
-DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","Try to built lieferant %s at (%i,%i) r=%i for %s.",hersteller->get_name(),k.x,k.y,rotate,info->get_name());
-		n += baue_hierarchie(&parent_pos, hersteller, -1 /*random prodbase */, rotate, &k, player, 10000 );
-		lfound ++;
-
-		INT_CHECK( "fabrikbauer 702" );
-
-		// now subtract current supplier
-		fabrik_t *fab = fabrik_t::get_fab(k.get_2d() );
-		if(fab==NULL) {
-DBG_MESSAGE( "fabrikbauer_t::baue_hierarchie", "Failed to build at %s", k.get_str() );
-			retry --;
-			continue;
-		}
-		new_factories.append(fab);
-
-		// connect new supplier to us
-		const fabrik_besch_t* const fb = fab->get_besch();
-		for (uint gg = 0; gg < fab->get_besch()->get_produkte(); gg++) {
-			if (fb->get_produkt(gg)->get_ware() == ware) {
-				sint32 produktion = fab->get_base_production() * fb->get_produkt(gg)->get_faktor();
-				// the take care of how much this factory could supply
-				verbrauch -= produktion;
-				DBG_MESSAGE("fabrikbauer_t::baue_hierarchie", "new supplier %s can supply approx %i of %s to us", fb->get_name(), produktion, ware->get_name());
-				break;
 			}
 		}
 	}
@@ -871,35 +874,40 @@ DBG_MESSAGE( "fabrikbauer_t::baue_hierarchie", "Failed to build at %s", k.get_st
 		i->add_lieferziel(our_fab->get_pos().get_2d());
 	}
 
-	/* now the cross-connect part:
-	 * connect also the factories we stole from before ...
-	 */
-	FOR(slist_tpl<fabrik_t*>, const fab, new_factories) {
-		for (slist_tpl<fabs_to_crossconnect_t>::iterator i = factories_to_correct.begin(), end = factories_to_correct.end(); i != end;) {
-			i->demand -= 1;
-			const uint count = fab->get_besch()->get_produkte();
-			bool supplies_correct_goods = false;
-			for(uint x = 0; x < count; x ++)
+	if(!no_new_industries)
+	{
+		/* now the cross-connect part:
+		 * connect also the factories we stole from before ...
+		 */
+		FOR(slist_tpl<fabrik_t*>, const fab, new_factories)
+		{
+			for(slist_tpl<fabs_to_crossconnect_t>::iterator i = factories_to_correct.begin(), end = factories_to_correct.end(); i != end;)
 			{
-				const fabrik_produkt_besch_t* test_prod = fab->get_besch()->get_produkt(x);
-				if(i->fab->get_produced_goods()->is_contained(test_prod->get_ware()))
+				i->demand -= 1;
+				const uint count = fab->get_besch()->get_produkte();
+				bool supplies_correct_goods = false;
+				for(uint x = 0; x < count; x ++)
 				{
-					supplies_correct_goods = true;
-					break;
+					const fabrik_produkt_besch_t* test_prod = fab->get_besch()->get_produkt(x);
+					if(i->fab->get_produced_goods()->is_contained(test_prod->get_ware()))
+					{
+						supplies_correct_goods = true;
+						break;
+					}
 				}
-			}
-			if(supplies_correct_goods)
-			{
-				fab->add_lieferziel(i->fab->get_pos().get_2d());
-				i->fab->add_supplier(fab->get_pos().get_2d());
-			}
-			if (i->demand < 0)
-			{
-				i = factories_to_correct.erase(i);
-			}
-			else 
-			{
-				++i;
+				if(supplies_correct_goods)
+				{
+					fab->add_lieferziel(i->fab->get_pos().get_2d());
+					i->fab->add_supplier(fab->get_pos().get_2d());
+				}
+				if (i->demand < 0)
+				{
+					i = factories_to_correct.erase(i);
+				}
+				else 
+				{
+					++i;
+				}
 			}
 		}
 	}
@@ -924,12 +932,12 @@ int fabrikbauer_t::increase_industry_density( bool tell_me, bool do_not_add_beyo
 	if(!power_stations_only && !welt->get_fab_list().empty()) 
 	{
 		// A collection of all consumer industries that are not fully linked to suppliers.
-		vector_tpl<fabrik_t*> unlinked_consumers;
-		vector_tpl<const ware_besch_t*> missing_goods;
+		slist_tpl<fabrik_t*> unlinked_consumers;
+		slist_tpl<const ware_besch_t*> missing_goods;
 
 		FOR(vector_tpl<fabrik_t*>, fab, welt->get_fab_list())
 		{
-			for(int l = 0; l < fab->get_besch()->get_lieferanten(); l ++)
+			for(uint16 l = 0; l < fab->get_besch()->get_lieferanten(); l ++)
 			{
 				// Check the list of possible suppliers for this factory type.
 				const fabrik_lieferant_besch_t* supplier_type = fab->get_besch()->get_lieferant(l);
@@ -999,16 +1007,9 @@ int fabrikbauer_t::increase_industry_density( bool tell_me, bool do_not_add_beyo
 
 		// ok, found consumer
 		if(!unlinked_consumers.empty()) 
-		{
-			FOR(vector_tpl<fabrik_t*>, unlinked_consumer, unlinked_consumers)
+		{			
+			FOR(slist_tpl<fabrik_t*>, unlinked_consumer, unlinked_consumers)
 			{
-				// For each iteration, check, if necessary, whether the target density is exceeded.
-				if(do_not_add_beyond_target_density && welt->get_actual_industry_density() >= welt->get_target_industry_density())
-				{
-					// Do not "return" here, as power stations may yet be necessary.
-					break;
-				}
-
 				for(int i=0;  i < unlinked_consumer->get_besch()->get_lieferanten();  i++) 
 				{
 					ware_besch_t const* const w = unlinked_consumer->get_besch()->get_lieferant(i)->get_ware();
@@ -1030,7 +1031,7 @@ next_ware_check:
 					;
 				}
 
-				// first: do we have to continue unfinished business?
+				// first: do we have to continue unfinished factory chains?
 				if(missing_goods_index < unlinked_consumer->get_besch()->get_lieferanten()) 
 				{
 					int org_rotation = -1;
@@ -1048,9 +1049,9 @@ next_ware_check:
 					const uint32 last_suppliers = unlinked_consumer->get_suppliers().get_count();
 					do 
 					{
-						nr += baue_link_hierarchie( unlinked_consumer, unlinked_consumer->get_besch(), missing_goods_index, welt->get_player(1) );
+						nr += baue_link_hierarchie(unlinked_consumer, unlinked_consumer->get_besch(), missing_goods_index, welt->get_player(1), do_not_add_beyond_target_density && welt->get_actual_industry_density() >= welt->get_target_industry_density());
 						missing_goods_index ++;
-					} while(  missing_goods_index < unlinked_consumer->get_besch()->get_lieferanten()  &&  unlinked_consumer->get_suppliers().get_count()==last_suppliers  );
+					} while(missing_goods_index < unlinked_consumer->get_besch()->get_lieferanten() && unlinked_consumer->get_suppliers().get_count()==last_suppliers);
 
 					// must rotate back?
 					if(org_rotation>=0) {

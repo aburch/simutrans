@@ -2239,7 +2239,7 @@ void fabrik_t::new_month()
 							for (weighted_vector_tpl<stadt_t*>::const_iterator i = cities.begin(), end = cities.end(); i != end; ++i)
 							{
 								stadt_t* const c = *i;
-								const sint64 pop = c->get_finance_history_month(0,HIST_CITICENS);
+								const sint64 pop = c->get_finance_history_month(0, HIST_CITICENS);
 								if(pop > biggest_city_population)
 								{
 									biggest_city_population = pop;
@@ -2250,7 +2250,7 @@ void fabrik_t::new_month()
 								}
 							}
 
-							const sint64 this_city_population = city->get_finance_history_month(0,HIST_CITICENS);
+							const sint64 this_city_population = city->get_finance_history_month(0, HIST_CITICENS);
 							sint32 production;
 
 							if(this_city_population == biggest_city_population)
@@ -2278,13 +2278,38 @@ void fabrik_t::new_month()
 						}
 	
 						prodbase = prodbase > 0 ? prodbase : 1;
+						
+						slist_tpl<const ware_besch_t*> input_products; 
 
 						// create input information
 						eingang.resize(besch->get_lieferanten() );
 						for(  int g=0;  g<besch->get_lieferanten();  ++g  ) {
 							const fabrik_lieferant_besch_t *const input = besch->get_lieferant(g);
 							eingang[g].set_typ( input->get_ware() );
+							input_products.append(input->get_ware());
 						}
+
+						// The upgraded factory might not have the same inputs as its predecessor. 
+						// Remove redundant inputs
+						FOR(vector_tpl<koord>, k, suppliers)
+						{
+							fabrik_t* supplier = fabrik_t::get_fab(k);
+							bool match = false;
+							FOR(array_tpl<ware_production_t>, sw, supplier->get_ausgang())
+							{
+								if(input_products.is_contained(sw.get_typ()))
+								{
+									match = true;
+									break;
+								}
+							}
+							if(!match)
+							{
+								rem_supplier(k); 
+							}
+						}
+
+						// Missing inputs are checked in increase_industry_density
 
 						// create output information
 						ausgang.resize( besch->get_produkte() );

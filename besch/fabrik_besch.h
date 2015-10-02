@@ -264,8 +264,8 @@ public:
 		return get_child<field_group_besch_t>(2 + lieferanten + produkte);
 	}
 
-	int get_lieferanten() const { return lieferanten; } //"supplier" (Babelfish)
-	uint get_produkte() const { return produkte; } // "Products" (Google)
+	uint16 get_lieferanten() const { return lieferanten; } // Suppliers
+	uint16 get_produkte() const { return produkte; } // Consumers
 
 	bool is_consumer_only() const { return produkte    == 0; }
 	bool is_producer_only() const { return lieferanten == 0; }

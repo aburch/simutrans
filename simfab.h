@@ -486,7 +486,7 @@ public:
 
 	void rotate90( const sint16 y_size );
 
-	const vector_tpl<koord>& get_lieferziele() const { return lieferziele; }
+	const vector_tpl<koord>& get_lieferziele() const { return lieferziele; } // "Delivery destinations" (Google)
 	bool is_active_lieferziel( koord k ) const;
 
 	const vector_tpl<koord>& get_suppliers() const { return suppliers; }
