@@ -4891,7 +4891,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 	// Clear signals on the route.
 	if(!is_from_token && !is_from_directional)
 	{
-		sint32 counter = signs.get_count() - 1;
+		sint32 counter = (signs.get_count() - 1) + choose_return;
 		FOR(slist_tpl<grund_t*>, const g, signs)
 		{
 			if(signal_t* const signal = g->find<signal_t>())
