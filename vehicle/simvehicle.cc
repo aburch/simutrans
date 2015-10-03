@@ -3732,7 +3732,7 @@ sint32 rail_vehicle_t::activate_choose_signal(const uint16 start_block, uint16 &
 	{
 		// try to reserve the whole route
 		cnv->update_route(start_block, target_rt);
-		blocks = block_reserver(cnv->get_route(), start_block, next_signal_index, 100000, true, false, true, brake_steps);
+		blocks = block_reserver(cnv->get_route(), start_block, next_signal_index, 100000, true, false, true, false, false, false, brake_steps);
 		if(!blocks) 
 		{
 			dbg->error("rail_vehicle_t::is_choose_signal_clear()", "could not reserved route after find_route!");
@@ -4817,7 +4817,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 
 	if(last_bidirectional_signal_index < INVALID_INDEX && first_oneway_sign_index >= INVALID_INDEX && directional_reservation_succeeded && end_of_block)
 	{
-		next_signal_index = last_stop_signal_index;
+		 next_signal_index = last_stop_signal_index;
 		 platform_starter = (this_halt.is_bound() && (haltestelle_t::get_halt(route->position_bei(last_stop_signal_index), get_owner())) == this_halt) && (haltestelle_t::get_halt(get_pos(), get_owner()) == this_halt);
 	}
 
