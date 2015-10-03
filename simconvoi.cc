@@ -3233,7 +3233,7 @@ void convoi_t::vorfahren()
 			if(gr)
 			{
 				if (schiene_t* const sch0 = obj_cast<schiene_t>(gr->get_weg(v.get_waytype()))) {
-					sch0->reserve(self,ribi_t::keine);
+					sch0->reserve(self, front()->get_direction());
 				}
 			}
 			else {

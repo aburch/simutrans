@@ -4193,6 +4193,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 	working_method_t next_signal_working_method = working_method;
 	koord3d signalbox_last_distant_signal = koord3d::invalid;
 	sint32 remaining_aspects = -1;
+	sint32 choose_return = 0;
 	bool reached_end_of_loop = false;
 	bool no_junctions_to_next_signal = true; 
 	signal_t* previous_signal = NULL;
@@ -4877,7 +4878,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 		if(last_choose_signal_index < INVALID_INDEX && !is_choosing && not_entirely_free)
 		{
 			// This will call the block reserver afresh from the last choose signal with choose logic enabled. 
-			return activate_choose_signal(last_choose_signal_index, next_signal_index, brake_steps); 
+			choose_return = activate_choose_signal(last_choose_signal_index, next_signal_index, brake_steps); 
 		}
 
 		if(!success)
@@ -5022,7 +5023,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 		cnv->set_next_reservation_index(last_non_directional_index);
 	}
 
-	return reached_end_of_loop || working_method != track_circuit_block ? (!combined_signals.empty() && !pre_signals.empty() ? 2 : 1) : (sint32)signs.get_count();
+	return reached_end_of_loop || working_method != track_circuit_block ? (!combined_signals.empty() && !pre_signals.empty() ? 2 : 1) + choose_return : (sint32)signs.get_count() + choose_return;
 }
 
 void rail_vehicle_t::clear_token_reservation(signal_t* sig, rail_vehicle_t* w, schiene_t* sch)
