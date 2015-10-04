@@ -200,10 +200,18 @@ const char *network_connect(const char *cp, karte_t *world)
 		}
 		world->set_map_counter( ((nwc_sync_t*)nwc)->get_new_map_counter() );
 		// receive nwc_game_t
-		// wait for game command (tolerate some wrong commands)
-		for(uint8 i=0; i<2; i++) {
-			nwc = network_check_activity( NULL, 60000 );
-			if (nwc  &&  nwc->get_id() == NWC_GAME) break;
+		{
+#ifndef NETTOOL // no display, no translator available
+			loadingscreen_t ls(translator::translate("Server preparing game ..."),1,true,true);
+			ls.set_progress(0);
+#endif
+			// wait for game command for 5 min (tolerate some wrong commands) to leave it enough time for saving
+			for(uint8 i=0; i<2; i++) {
+				nwc = network_check_activity( NULL, 300000 );
+				if (nwc  &&  nwc->get_id() == NWC_GAME) {
+					break;
+				}
+			}
 		}
 		if (nwc == NULL  ||  nwc->get_id()!=NWC_GAME) {
 			err = "Protocol error (expected NWC_GAME)";
