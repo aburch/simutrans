@@ -3774,7 +3774,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 	bool signal_on_current_tile = false;
 	if(cnv->get_state() == convoi_t::CAN_START)
 	{
-		if(working_method != token_block)
+		if(working_method != token_block && working_method != one_train_staff)
 		{
 			working_method = drive_by_sight;
 		}
@@ -3788,7 +3788,10 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 				const signal_t* signal = way->get_signal(ribi); 
 				if(signal && working_method != token_block)
 				{
-					working_method = signal->get_besch()->get_working_method();
+					if(working_method != one_train_staff)
+					{
+						working_method = signal->get_besch()->get_working_method();
+					}
 					signal_on_current_tile = true;
 				}
 			}
@@ -3850,7 +3853,8 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 	schiene_t * sch1 = (schiene_t *) gr->get_weg(get_waytype());
 	const koord dir = gr->get_pos().get_2d() - get_pos().get_2d();
 	const ribi_t::ribi ribi = ribi_typ(dir);
-	if(  !w->can_reserve(cnv->self, ribi)  ) {
+	if(!w->can_reserve(cnv->self, ribi))
+	{
 		restart_speed = 0;
 		if(working_method == time_interval)
 		{
@@ -4189,6 +4193,8 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 	uint16 last_stop_signal_before_first_bidirectional_signal_index = INVALID_INDEX;
 	uint16 last_non_directional_index = start_index; 
 	uint16 first_oneway_sign_index = INVALID_INDEX;
+	uint16 first_one_train_staff_index = INVALID_INDEX;
+	uint16 last_station_tile = INVALID_INDEX;
 	bool do_not_clear_distant = false;
 	working_method_t next_signal_working_method = working_method;
 	koord3d signalbox_last_distant_signal = koord3d::invalid;
@@ -4201,6 +4207,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 	bool not_entirely_free = false;
 	bool directional_only = is_from_directional;
 	bool directional_reservation_succeeded = true;
+	bool one_train_staff_loop_complete = false;
 	uint16 brake_tiles = brake_steps / VEHICLE_STEPS_PER_TILE;
 	for( ; success && count >= 0 && i < route->get_count(); i++)
 	{
@@ -4275,6 +4282,11 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 					break;
 				}
 			}
+
+			if(haltestelle_t::get_halt(pos, get_owner()) == this_halt)
+			{
+				last_station_tile = i;
+			}
 			
 			if(rs && rs->get_besch()->is_single_way() && first_oneway_sign_index >= INVALID_INDEX)
 			{
@@ -4316,8 +4328,24 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 						working_method = next_signal_working_method;
 					}
 
-					if(next_signal_working_method == drive_by_sight)
+					if(next_signal_working_method == one_train_staff && first_one_train_staff_index == INVALID_INDEX)
 					{
+						first_one_train_staff_index = i;
+					}
+
+					if(next_signal_working_method == one_train_staff && first_one_train_staff_index != i)
+					{
+						// A second one train staff cabinet. Is this the same as or a neighbour of the first?
+						const koord3d first_pos = route->position_bei(first_one_train_staff_index);
+						if(shortest_distance(pos.get_2d(), first_pos.get_2d()) < 3)
+						{
+							one_train_staff_loop_complete = true;
+						}
+					}
+
+					if(next_signal_working_method == drive_by_sight || one_train_staff_loop_complete || (working_method != one_train_staff && first_one_train_staff_index < INVALID_INDEX))
+					{
+						// Do not reserve through end of signalling signs or one train staff cabinets
 						next_signal_index = i;
 						break;
 					}
@@ -4449,7 +4477,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 						}
 						
 						
-						if(first_stop_signal_index == INVALID_INDEX)
+						if(first_stop_signal_index == INVALID_INDEX || first_stop_signal_index == start_index || (first_stop_signal_index <= last_station_tile && last_station_tile < INVALID_INDEX))
 						{
 							first_stop_signal_index = i;
 							if(next_signal_working_method == time_interval && (signal->get_state() == roadsign_t::caution || signal->get_state() == roadsign_t::caution_no_choose))
@@ -4664,7 +4692,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 					}
 					sch1->unreserve(cnv->self);
 					route->remove_koord_from(early_platform_index); 
-					if(next_signal_index > early_platform_index && !is_from_token)
+					if(next_signal_index > early_platform_index && !is_from_token && next_signal_working_method != one_train_staff)
 					{
 						next_signal_index = INVALID_INDEX;
 					}
@@ -4741,12 +4769,12 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 		}
 	}
 
-	// If we are in token block mode or making directional reservations, reserve to the end of the route if there is not a prior signal.
+	// If we are in token block mode, one train staff mode or making directional reservations, reserve to the end of the route if there is not a prior signal.
 	// However, do not call this if we are in the block reserver already called from this method to prevent
 	// infinite recursion.
 	const bool bidirectional_reservation = (working_method == track_circuit_block || working_method == cab_signalling || working_method == moving_block) 
 		&& last_bidirectional_signal_index < INVALID_INDEX;
-	if(!is_from_token && !is_from_directional && ((working_method == token_block && last_longblock_signal_index < INVALID_INDEX) || bidirectional_reservation) && next_signal_index == INVALID_INDEX)
+	if(!is_from_token && !is_from_directional && ((working_method == token_block && last_longblock_signal_index < INVALID_INDEX) || bidirectional_reservation || working_method == one_train_staff) && next_signal_index == INVALID_INDEX)
 	{
 		route_t target_rt;
 		schedule_t *fpl = cnv->get_schedule();
@@ -5090,7 +5118,7 @@ void rail_vehicle_t::leave_tile()
 			if(sch0) 
 			{
 				rail_vehicle_t* w = cnv ? (rail_vehicle_t*)cnv->front() : NULL;
-				if((!cnv || cnv->get_state() != convoi_t::REVERSING) && (!w || w->get_working_method() != token_block))
+				if((!cnv || cnv->get_state() != convoi_t::REVERSING) && (!w || (w->get_working_method() != token_block && w->get_working_method() != one_train_staff)))
 				{
 					sch0->unreserve(this);
 				}
@@ -5141,7 +5169,7 @@ void rail_vehicle_t::leave_tile()
 							}
 							return;
 						}
-						else if(w && w->get_working_method() == token_block && !sig->get_besch()->is_pre_signal() && cnv->get_state() != convoi_t::REVERSING)
+						else if(w && (w->get_working_method() == token_block || (w->get_working_method() == one_train_staff && sig->get_besch()->get_working_method() == one_train_staff)) && !sig->get_besch()->is_pre_signal() && cnv->get_state() != convoi_t::REVERSING)
 						{
 							// On passing a signal, clear all the so far uncleared reservation when in token block mode.
 							// If the signal is not a long-block signal, clear token block mode. This assumes that long

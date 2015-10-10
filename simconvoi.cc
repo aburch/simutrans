@@ -859,7 +859,7 @@ bool convoi_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed)
 	case monorail_wt:
 	case maglev_wt:
 		rail_vehicle = (rail_vehicle_t*)front();
-		if(rail_vehicle->get_working_method() == token_block)
+		if(rail_vehicle->get_working_method() == token_block || rail_vehicle->get_working_method() == one_train_staff)
 		{
 			// If we calculate a new route while in token block, we must remember this
 			// so that, when it comes to clearing the route, a full flush can be performed
@@ -1299,7 +1299,7 @@ bool convoi_t::drive_to()
 		{
 			rail_vehicle_t* rail_vehicle = (rail_vehicle_t*)front();
 			// If this is token block working, the route must only be unreserved if the token is released.
-			if(rail_vehicle->get_working_method() != token_block)
+			if(rail_vehicle->get_working_method() != token_block && rail_vehicle->get_working_method() != one_train_staff)
 			{
 				unreserve_route();
 			}
