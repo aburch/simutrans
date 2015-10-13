@@ -205,7 +205,7 @@ const char *network_connect(const char *cp, karte_t *world)
 			loadingscreen_t ls(translator::translate("Server preparing game ..."),300,true,true);
 #endif
 			// wait for game command for 5 min (tolerate some wrong commands) to leave it enough time for saving
-			for(uint8 i=0; i<300; i++) {
+			for(int i=0; i<300; i++) {
 #ifndef NETTOOL // no display, no translator available
 				ls.set_progress(i);
 #endif
