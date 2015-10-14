@@ -146,7 +146,13 @@ namespace script_api {
 		 */
 		static SQInteger push(HSQUIRRELVM vm, quickstone_tpl<T> const& h)
 		{
-			return push_instance(vm, param<T*>::squirrel_type(), h.get_id());
+			if (h.is_bound()) {
+				return push_instance(vm, param<T*>::squirrel_type(), h.get_id());
+			}
+			else {
+				sq_pushnull(vm);
+				return 1;
+			}
 		}
 		static const quickstone_tpl<T> get(HSQUIRRELVM vm, SQInteger index)
 		{
