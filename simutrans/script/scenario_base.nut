@@ -656,7 +656,7 @@ class coord3d extends coord {
 	function _save()     { return "coord3d(" + x + ", " + y + ", " + z + ")" }
 	function href(text)  { return "<a href='(" + x + ", " + y + ", " + z + ")'>" + text + "</a>" }
 
-	function getz(other) { return (z in other) ? other.z : 0 }
+	function getz(other) { return ("z" in other) ? other.z : 0 }
 }
 
 /**
