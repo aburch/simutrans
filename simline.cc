@@ -42,7 +42,7 @@ simline_t::simline_t(player_t* player, linetype type)
 	this->fpl = NULL;
 	this->player = player;
 	withdraw = false;
-	state_color = COL_WHITE;
+	state_color = SYSCOL_TEXT;
 	create_schedule();
 }
 

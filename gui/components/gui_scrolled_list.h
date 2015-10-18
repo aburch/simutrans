@@ -91,7 +91,8 @@ private:
 	scrollbar_t sb;
 
 	vector_tpl<gui_scrolled_list_t::scrollitem_t *> item_list;
-	int total_vertical_size() const;
+
+	int total_vertical_size;	// since in principle all element could have different size
 
 public:
 	gui_scrolled_list_t(enum type);
@@ -132,6 +133,7 @@ public:
 
 	// resizes scrollbar
 	void adjust_scrollbar();
+
 	/**
 	 * request other pane-size. returns realized size.
 	 * use this for flexible sized lists

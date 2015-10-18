@@ -87,11 +87,12 @@ DBG_MESSAGE("event","HOWDY!");
 
 	// goto next/previous choice
 	if(  ev->ev_class == EVENT_KEYBOARD  &&  (ev->ev_code == SIM_KEY_UP  ||  ev->ev_code == SIM_KEY_DOWN)  ) {
+		int sel = droplist.get_selection();
 		if(  ev->ev_code == SIM_KEY_UP  ) {
-			set_selection( droplist.get_selection() > 0 ? droplist.get_selection() - 1 : wrapping ? droplist.get_count() - 1 : 0 );
+			set_selection(  sel > 0 ? sel-1 : (wrapping ? droplist.get_count()-1 : 0) );
 		}
 		else {
-			set_selection( droplist.get_selection() < droplist.get_count() - 1 ? droplist.get_selection() + 1 : wrapping ? 0 : droplist.get_count() - 1 );
+			set_selection( sel < droplist.get_count()-1 ? sel+1 : (wrapping ? 0 : droplist.get_count()-1) );
 		}
 		value_t p;
 		p.i = droplist.get_selection();
@@ -205,7 +206,6 @@ void gui_combobox_t::draw(scr_coord offset)
 	}
 }
 
-
 /**
  * sets the selection
  * @author hsiegeln
@@ -309,5 +309,6 @@ void gui_combobox_t::set_max_size(scr_size max)
 	droplist.request_size( scr_size( size.w, max_size.h - D_EDIT_HEIGHT - D_V_SPACE / 2 ) );
 	if(  droplist.is_visible()  ) {
 		set_size( droplist.get_size() + scr_size( 0, D_EDIT_HEIGHT + D_V_SPACE / 2 ) );
+		droplist.adjust_scrollbar();
 	}
 }

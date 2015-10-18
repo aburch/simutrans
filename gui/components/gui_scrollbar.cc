@@ -110,7 +110,7 @@ void scrollbar_t::reposition_buttons()
 		knobarea.set( D_ARROW_LEFT_WIDTH + offset, 0, length, D_SCROLLBAR_HEIGHT );
 	}
 
-	full = knobarea.contains( sliderarea );
+	full = (total_size<=knob_size);
 	set_visible( !full );
 }
 
