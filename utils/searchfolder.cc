@@ -1,6 +1,11 @@
 #include <string>
 #include <string.h>
 
+#include "../simdebug.h"
+#include "../simmem.h"
+#include "simstring.h"
+
+
 #ifndef _MSC_VER
 #include <dirent.h>
 #else
@@ -8,9 +13,6 @@
 #include <io.h>
 #endif
 
-#include "../simdebug.h"
-#include "../simmem.h"
-#include "simstring.h"
 #include "searchfolder.h"
 
 /*

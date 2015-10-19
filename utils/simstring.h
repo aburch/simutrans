@@ -40,7 +40,7 @@ char get_fraction_sep();
 const char *get_large_money_string();
 
 /**
- * Set thousand exponent (3=1000, 4=10000), used in money_to_string and
+ * Set thousand exponent (a3=1000, 4=10000), used in money_to_string and
  * number_to_string
  * @author prissi
  */

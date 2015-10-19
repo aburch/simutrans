@@ -22,11 +22,11 @@
 
 #ifdef MAKEOBJ
 //debuglevel is global variable
-#else
+#else // MAKEOBJ
 #ifdef NETTOOL
 #define debuglevel (0)
 
-#else
+#else // (not) NETTOOL
 #define debuglevel (env_t::verbose_debug)
 
 // for display ...
@@ -35,8 +35,8 @@
 #include "../gui/simwin.h"
 
 #include "../dataobj/environment.h"
-#endif
-#endif
+#endif // NETTOOL
+#endif // MAKEOBJ
 
 /**
  * writes important messages to stdout/logfile
@@ -298,7 +298,7 @@ void log_t::fatal(const char *who, const char *format, ...)
 #elif defined NETTOOL
 	// no display available
 	puts( buffer );
-#else
+#else // MAKEOJB/NETTOOL
 #  ifdef DEBUG
 	int old_level = env_t::verbose_debug;
 #  endif
