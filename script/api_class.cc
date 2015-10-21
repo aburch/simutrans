@@ -15,8 +15,11 @@ SQInteger script_api::create_class(HSQUIRRELVM vm, const char* classname, const 
 	if (baseclass) {
 		sq_pushstring(vm, baseclass, -1);
 		if(!SQ_SUCCEEDED(sq_get(vm, -2))) {
-			sq_pop(vm, 1);
-			return sq_raise_error(vm, "base class %s to derive %s from it not found", baseclass, classname);
+			sq_raise_error(vm, "base class %s to derive %s from it not found", baseclass, classname);
+			// sq error will not be reported most of the time, so report to dbg, too
+			dbg->error("script_api::create_class", "base class '%s' to derive %s from it not found", baseclass, classname);
+			// good luck with any script
+			baseclass = NULL;
 		}
 	}
 	sq_newclass(vm, baseclass!=NULL);
