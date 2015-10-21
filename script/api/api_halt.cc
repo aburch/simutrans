@@ -16,11 +16,11 @@
 
 using namespace script_api;
 
-vector_tpl<sint64> const& get_halt_stat(halthandle_t halt, sint32 INDEX)
+vector_tpl<sint64> const& get_halt_stat(const haltestelle_t *halt, sint32 INDEX)
 {
 	static vector_tpl<sint64> v;
 	v.clear();
-	if (halt.is_bound()  &&  0<=INDEX  &&  INDEX<MAX_HALT_COST) {
+	if (halt  &&  0<=INDEX  &&  INDEX<MAX_HALT_COST) {
 		for(uint16 i = 0; i < MAX_MONTHS; i++) {
 			v.append( halt->get_finance_history(i, INDEX) );
 		}
@@ -52,7 +52,10 @@ SQInteger halt_export_convoy_list(HSQUIRRELVM vm)
 		set_slot(vm, "halt_id", halt.get_id());
 		return 1;
 	}
-	return SQ_ERROR;
+	else {
+		sq_raise_error(vm, "Invalid halt id %d", halt.get_id());
+		return SQ_ERROR;
+	}
 }
 
 
@@ -65,16 +68,19 @@ SQInteger halt_export_line_list(HSQUIRRELVM vm)
 		set_slot(vm, "halt_id", halt.get_id());
 		return 1;
 	}
-	return SQ_ERROR;
+	else {
+		sq_raise_error(vm, "Invalid halt id %d", halt.get_id());
+		return SQ_ERROR;
+	}
 }
 
 
 // 0: not connected
 // 1: connected
 // -1: undecided
-sint8 is_halt_connected(halthandle_t a, halthandle_t b, const goods_desc_t *desc)
+sint8 is_halt_connected(const haltestelle_t *a, halthandle_t b, const ware_besch_t *besch)
 {
-	if (desc == 0  ||  !a.is_bound()  || !b.is_bound()) {
+	if (desc == 0  ||  a == NULL  ||  b.is_bound()) {
 		return 0;
 	}
 	return a->is_connected(b, desc->get_catg_index());

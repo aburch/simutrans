@@ -208,6 +208,17 @@ namespace script_api {
 	};
 
 	/**
+	 * Class to check first parameters to be not NULL.
+	 * Actually do the check only for pointer types.
+	 */
+	template<typename T> struct param_chk_t {
+		static bool is_null(T) { return false; }
+	};
+	template<typename T> struct param_chk_t<T*> {
+		static bool is_null(T* t) { return t == NULL; }
+	};
+
+	/**
 	 * Templates to call functions with automatically fetching the right parameters,
 	 * wrapped in a one-parameter template struct,
 	 * which is specialized per function-signature.
@@ -389,7 +400,13 @@ namespace script_api {
 	struct embed_call_t<R (*)(A1)> {
 		static SQInteger call_function(HSQUIRRELVM vm, R (*func)(A1), bool discard_first)
 		{
-			return param<R>::push(vm, (*func)( param<A1>::get(vm, 2-discard_first) ) );
+			A1 a1 = param<A1>::get(vm, 2-discard_first);
+			if (discard_first  &&  param_chk_t<A1>::is_null(a1)) {
+				return -1;
+			}
+			else {
+				return param<R>::push(vm, (*func)(a1) );
+			}
 		}
 
 		typedef R         sig_return;  // return type
@@ -460,8 +477,11 @@ namespace script_api {
 	struct embed_call_t<R (*)(A1, A2)> {
 		static SQInteger call_function(HSQUIRRELVM vm, R (*func)(A1, A2), bool discard_first)
 		{
-			return param<R>::push(vm, (*func)(
-				param<A1>::get(vm, 2-discard_first),
+			A1 a1 = param<A1>::get(vm, 2-discard_first);
+			if (discard_first  &&  param_chk_t<A1>::is_null(a1)) {
+				return -1;
+			}
+			return param<R>::push(vm, (*func)(a1,
 				param<A2>::get(vm, 3-discard_first)
 			) );
 		}
@@ -544,8 +564,11 @@ namespace script_api {
 	struct embed_call_t<R (*)(A1, A2, A3)> {
 		static SQInteger call_function(HSQUIRRELVM vm, R (*func)(A1, A2, A3), bool discard_first)
 		{
-			return param<R>::push(vm, (*func)(
-				param<A1>::get(vm, 2-discard_first),
+			A1 a1 = param<A1>::get(vm, 2-discard_first);
+			if (discard_first  &&  param_chk_t<A1>::is_null(a1)) {
+				return -1;
+			}
+			return param<R>::push(vm, (*func)(a1,
 				param<A2>::get(vm, 3-discard_first),
 				param<A3>::get(vm, 4-discard_first)
 			) );
@@ -591,11 +614,14 @@ namespace script_api {
 	struct embed_call_t<R (*)(A1, A2, A3, A4)> {
 		static SQInteger call_function(HSQUIRRELVM vm, R (*func)(A1, A2, A3, A4), bool discard_first)
 		{
-			return param<R>::push(vm, (*func)(
-				param<A1>::get(vm, 2-discard_first),
-							  param<A2>::get(vm, 3-discard_first),
-							  param<A3>::get(vm, 4-discard_first),
-							  param<A4>::get(vm, 5-discard_first)
+			A1 a1 = param<A1>::get(vm, 2-discard_first);
+			if (discard_first  &&  param_chk_t<A1>::is_null(a1)) {
+				return -1;
+			}
+			return param<R>::push(vm, (*func)(a1,
+				param<A2>::get(vm, 3-discard_first),
+				param<A3>::get(vm, 4-discard_first),
+				param<A4>::get(vm, 5-discard_first)
 			) );
 		}
 

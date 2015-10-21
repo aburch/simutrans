@@ -19,11 +19,11 @@
 
 using namespace script_api;
 
-vector_tpl<sint64> const& get_line_stat(linehandle_t line, sint32 INDEX)
+vector_tpl<sint64> const& get_line_stat(simline_t *line, sint32 INDEX)
 {
 	static vector_tpl<sint64> v;
 	v.clear();
-	if (line.is_bound()  &&  0<=INDEX  &&  INDEX<MAX_LINE_COST) {
+	if (line  &&  0<=INDEX  &&  INDEX<MAX_LINE_COST) {
 		for(uint16 i = 0; i < MAX_MONTHS; i++) {
 			v.append( line->get_finance_history(i, (line_cost_t)INDEX) );
 		}
@@ -32,9 +32,9 @@ vector_tpl<sint64> const& get_line_stat(linehandle_t line, sint32 INDEX)
 }
 
 
-waytype_t line_way_type(linehandle_t line)
+waytype_t line_way_type(simline_t *line)
 {
-	if (line.is_bound()) {
+	if (line) {
 		switch (line->get_linetype()) {
 			case simline_t::truckline: return road_wt;
 			case simline_t::trainline: return track_wt;
