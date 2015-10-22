@@ -8210,7 +8210,7 @@ bool tool_change_line_t::init( player_t *player )
 
 							// first we remove the totally empty convois (nowbody will miss them)
 							int destroyed = 0, initial = line->get_convoys().get_count();
-							for(  int j=line->get_convoys().get_count()-1;  j >= 0  &&  initial-destroyed > 3  &&  new_sum_capacity < old_sum_capacity;  j--  ) {
+							for(  int j = initial - 1;  j >= 0  &&  initial-destroyed > 3  &&  new_sum_capacity < old_sum_capacity;  j--  ) {
 								convoihandle_t cnv = line->get_convoy(j);
 								if(  cnv->get_loading_level() == 0  ||  cnv->get_state() == convoi_t::INITIAL  ) {
 									for(  int i=0;  i<cnv->get_vehikel_anzahl();  i++  ) {
@@ -8221,7 +8221,7 @@ bool tool_change_line_t::init( player_t *player )
 								}
 							}
 							// not enough? Then remove from the end ...
-							for(  int j=0;  j < line->get_convoys().get_count()  &&  initial-destroyed > 3  &&  new_sum_capacity < old_sum_capacity;  j++  ) {
+							for(  uint32 j=0;  j < line->get_convoys().get_count()  &&  initial-destroyed > 3  &&  new_sum_capacity < old_sum_capacity;  j++  ) {
 								convoihandle_t cnv = line->get_convoy(j);
 								if(  cnv->get_state() != convoi_t::SELF_DESTRUCT  ) {
 									for(  int i=0;  i<cnv->get_vehikel_anzahl();  i++  ) {
