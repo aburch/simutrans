@@ -1290,7 +1290,7 @@ DBG_MESSAGE("simmain","demo file not found at %s",buf.get_str() );
 #endif
 
 	welt->reset_timer();
-	if(  !env_t::networkmode  &&  !env_t::server  ) {
+	if(  !env_t::networkmode  &&  !env_t::server  &&  new_world  ) {
 #ifdef display_in_main
 		view->display(true);
 		intr_refresh_display(true);
