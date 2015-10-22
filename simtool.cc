@@ -6779,7 +6779,7 @@ bool tool_change_line_t::init( player_t *player )
 							const int initial = line->get_convoys().get_count();
 							const int max_left = (initial+2) / 2;
 
-							for(  int j=line->get_convoys().get_count()-1;  j >= 0  &&  initial-destroyed > max_left  &&  new_sum_capacity < old_sum_capacity;  j--  ) {
+							for(  int j=initial-1;  j >= 0  &&  initial-destroyed > max_left  &&  new_sum_capacity < old_sum_capacity;  j--  ) {
 								convoihandle_t cnv = line->get_convoy(j);
 								if(  cnv->get_state() == convoi_t::INITIAL  ||  cnv->get_state() >= convoi_t::WAITING_FOR_CLEARANCE_ONE_MONTH  ) {
 									for(  int i=0;  i<cnv->get_vehikel_anzahl();  i++  ) {
@@ -6791,7 +6791,7 @@ bool tool_change_line_t::init( player_t *player )
 							}
 
 							// not enough? Then remove from the end ...
-							for(  int j=0;  j < line->get_convoys().get_count()  &&  initial-destroyed > max_left  &&  new_sum_capacity < old_sum_capacity;  j++  ) {
+							for(  uint j=0;  j < line->get_convoys().get_count()  &&  initial-destroyed > max_left  &&  new_sum_capacity < old_sum_capacity;  j++  ) {
 								convoihandle_t cnv = line->get_convoy(j);
 								if(  cnv->get_state() != convoi_t::SELF_DESTRUCT  ) {
 									for(  int i=0;  i<cnv->get_vehikel_anzahl();  i++  ) {
