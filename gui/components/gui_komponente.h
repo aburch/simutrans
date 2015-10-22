@@ -67,7 +67,7 @@ public:
 	 * Initialises the component's position and size.
 	 * @author Max Kielland
 	 */
-	virtual void init(scr_coord pos_par, scr_size size_par=scr_size(0,0)) {
+	void init(scr_coord pos_par, scr_size size_par=scr_size(0,0)) {
 		set_pos(pos_par);
 		set_size(size_par);
 	}
