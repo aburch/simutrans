@@ -107,8 +107,7 @@ public:
 	int get_curve_count() { return curves.get_count(); }
 
 private:
-
-	void calc_gui_chart_values(sint64 *baseline, float *scale, char *, char *) const;
+	void calc_gui_chart_values(sint64 *baseline, float *scale, char *, char *, int precision ) const;
 
 	/*
 	 * curve struct

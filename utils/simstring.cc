@@ -214,6 +214,45 @@ int number_to_string(char * p, double f, int decimals  )
 
 
 
+/**
+ * tries to squeese a nubmer into a string with max_length
+ * Will still produce a too long string with too large nubmers!
+ */
+void number_to_string_fit(char *ret, double f, int decimals, int max_length )
+{
+	char   result[128];
+	int    len;
+
+	number_to_string( result, f, decimals );
+	len = strlen(result);
+
+	if(  len <= max_length  ) {
+		// ok fits ...
+		strcpy( ret, result );
+		return;
+	}
+
+	// not fitting: first strip decimals
+	if(  decimals > 0  &&  len <= max_length+decimals+1  ) {
+		tstrncpy( ret, result, len-(decimals) );
+		return;
+	}
+
+	// still not fitting: Then we have to really shorten the string
+	number_to_string( result, f/large_number_factor, 2 );
+	len = strlen( result );
+	const int llen = strlen(large_number_string);
+
+	// not fitting: then strip those remaining decimals
+	if(  len+llen > max_length  ) {
+		result[len-3] = 0;
+	}
+	strcat( result, large_number_string );
+	strcpy( ret, result );
+}
+
+
+
 // copies a n into a single line and maximum 128 characters
 // @author prissi
 char *make_single_line_string(const char *in,int number_of_lines)
