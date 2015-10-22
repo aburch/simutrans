@@ -3799,12 +3799,16 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 			if(way)
 			{
 				ribi_t::ribi ribi = ribi_typ(cnv->get_route()->position_bei(max(1u,route_index)-1u), cnv->get_route()->position_bei(min(cnv->get_route()->get_count()-1u,route_index+1u)));
-				const signal_t* signal = way->get_signal(ribi); 
+				signal_t* signal = way->get_signal(ribi); 
 				if(signal && working_method != token_block)
 				{
 					if(working_method != one_train_staff && (signal->get_besch()->get_working_method() != one_train_staff || signal->get_pos() != cnv->get_last_signal_pos()))
 					{
 						working_method = signal->get_besch()->get_working_method();
+					}
+					if(working_method == time_interval)
+					{
+						welt->add_time_interval_signal_to_check(signal); 
 					}
 					signal_on_current_tile = true;
 				}
