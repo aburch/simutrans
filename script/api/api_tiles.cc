@@ -35,7 +35,7 @@ static SQInteger get_way_ribi(HSQUIRRELVM vm)
 {
 	grund_t *gr = param<grund_t*>::get(vm, 1);
 	waytype_t wt = param<waytype_t>::get(vm, 2);
-	bool masked = param<waytype_t>::get(vm, 3);
+	bool masked = param<bool>::get(vm, 3);
 
 	ribi_t::ribi ribi = gr ? (masked ? gr->get_weg_ribi(wt) : gr->get_weg_ribi_unmasked(wt) ) : 0;
 
