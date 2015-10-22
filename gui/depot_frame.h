@@ -222,7 +222,7 @@ private:
 	bool has_min_sizer() const {return true;}
 
 	// true if already stored here
-	bool is_hit(const vehikel_besch_t *info);
+	bool is_in_vehicle_list(const vehikel_besch_t *info);
 
 	// add a single vehicle (helper function)
 	void add_to_vehicle_list(const vehikel_besch_t *info);
