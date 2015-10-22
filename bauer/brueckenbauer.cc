@@ -230,9 +230,18 @@ const char *check_tile( const grund_t *gr, const player_t *player, waytype_t wt,
 bool brueckenbauer_t::is_blocked(koord3d pos, player_t *player, const bruecke_besch_t *besch, const char *&error_msg)
 {
 	/* can't build directly above or below a way if height clearance == 2 */
-	for(int dz=-(welt->get_settings().get_way_height_clearance()-1); dz<=(welt->get_settings().get_way_height_clearance()-1); dz++) {
+	// take slopes on grounds below into accout
+	const sint8 clearance = welt->get_settings().get_way_height_clearance()-1;
+	for(int dz = -clearance -2; dz <= clearance; dz++) {
 		grund_t *gr2;
 		if (dz != 0 && (gr2 = welt->lookup(pos + koord3d(0,0,dz)))) {
+
+			if (dz < -clearance) {
+				if (dz + hang_t::max_diff(gr2->get_weg_hang()) < -clearance ) {
+					// too far below
+					continue;
+				}
+			}
 			weg_t *w = gr2->get_weg_nr(0);
 			if (w && w->get_max_speed() > 0) {
 				return true;
