@@ -14,7 +14,7 @@
 
 #include "factory_chart.h"
 
-#define CHART_WIDTH (D_DEFAULT_WIDTH-104)
+//#define CHART_WIDTH (D_DEFAULT_WIDTH-104)
 #define CHART_HEIGHT (70)
 
 #define MAX_GOODS_COLOR (24)
@@ -152,8 +152,8 @@ void factory_chart_t::set_factory(const fabrik_t *_factory)
 	tab_panel.set_pos( scr_coord(0, 0) );
 
 	// GUI components for goods input/output statistics
-	goods_chart.set_pos( scr_coord(10 + 80, D_TAB_HEADER_HEIGHT ) );
-	goods_chart.set_size( scr_size( CHART_WIDTH, CHART_HEIGHT ) );
+	goods_chart.set_pos( scr_coord( D_MARGIN_LEFT, D_TAB_HEADER_HEIGHT ) );
+	goods_chart.set_size( scr_size( D_DEFAULT_WIDTH-D_MARGIN_LEFT-D_MARGIN_RIGHT, CHART_HEIGHT ) );
 	goods_chart.set_dimension(12, 10000);
 	goods_chart.set_background(SYSCOL_CHART_BACKGROUND);
 	const uint32 input_count = factory->get_eingang().get_count();
@@ -219,8 +219,8 @@ void factory_chart_t::set_factory(const fabrik_t *_factory)
 	tab_panel.add_tab( &goods_cont, translator::translate("Goods") );
 
 	// GUI components for other production-related statistics
-	prod_chart.set_pos( scr_coord(10 + 80, 10) );
-	prod_chart.set_size( scr_size( CHART_WIDTH, CHART_HEIGHT ) );
+	goods_chart.set_pos( scr_coord( D_MARGIN_LEFT, 10 ) );
+	goods_chart.set_size( scr_size( D_DEFAULT_WIDTH-D_MARGIN_LEFT-D_MARGIN_RIGHT, CHART_HEIGHT ) );
 	prod_chart.set_dimension(12, 10000);
 	prod_chart.set_background(SYSCOL_CHART_BACKGROUND);
 	for(  int s=0;  s<MAX_FAB_STAT;  ++s  ) {
@@ -275,7 +275,8 @@ void factory_chart_t::set_factory(const fabrik_t *_factory)
 
 	add_component( &tab_panel );
 	const int max_rows = max( goods_label_row, button_pos[MAX_FAB_STAT-1].y+1 );
-	const scr_size size( 20+80+CHART_WIDTH+(input_count > 0 ? D_H_SPACE+D_BUTTON_WIDTH : 0 ), D_TAB_HEADER_HEIGHT+CHART_HEIGHT+20+max_rows*D_BUTTON_HEIGHT+(max_rows-1)*D_H_SPACE+16 );
+//	const scr_size size( 20+80+CHART_WIDTH+(input_count > 0 ? D_H_SPACE+D_BUTTON_WIDTH : 0 ), D_TAB_HEADER_HEIGHT+CHART_HEIGHT+20+max_rows*D_BUTTON_HEIGHT+(max_rows-1)*D_H_SPACE+16 );
+	const scr_size size( D_DEFAULT_WIDTH, D_TAB_HEADER_HEIGHT+CHART_HEIGHT+20+max_rows*D_BUTTON_HEIGHT+(max_rows-1)*D_H_SPACE+16 );
 	set_size( size );
 	tab_panel.set_size( size );
 

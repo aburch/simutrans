@@ -127,8 +127,8 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	follow_button.add_listener(this);
 	add_component(&follow_button);
 
-	chart.set_pos(scr_coord(88,offset_below_viewport+D_BUTTON_HEIGHT+11));
-	chart.set_size(scr_size(total_width-88-10, 88));
+	chart.set_pos(scr_coord(D_MARGIN_LEFT,offset_below_viewport+D_BUTTON_HEIGHT+11));
+	chart.set_size(scr_size(total_width-D_MARGIN_LEFT-D_MARGIN_RIGHT, 88));
 	chart.set_dimension(12, 10000);
 	chart.set_visible(false);
 	chart.set_background(SYSCOL_CHART_BACKGROUND);

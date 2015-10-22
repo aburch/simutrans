@@ -111,8 +111,8 @@ halt_info_t::halt_info_t(halthandle_t halt) :
 	add_component(&view);
 
 	// chart
-	chart.set_pos(scr_coord(66,offset_below_viewport+2));
-	chart.set_size(scr_size(total_width-66-10, 100));
+	chart.set_pos(scr_coord(D_MARGIN_LEFT,offset_below_viewport+2));
+	chart.set_size(scr_size(total_width-D_MARGIN_LEFT-D_MARGIN_RIGHT, 100));
 	chart.set_dimension(12, 10000);
 	chart.set_visible(false);
 	chart.set_background(SYSCOL_CHART_BACKGROUND);

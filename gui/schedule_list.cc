@@ -106,7 +106,7 @@ static int current_sort_mode = 0;
 
 #define SCL_HEIGHT (15*LINESPACE)
 #define RIGHT_COLUMN_OFFSET (D_MARGIN_LEFT+3*D_BUTTON_WIDTH+2*D_H_SPACE+2*D_H_SPACE)
-#define CHART_OFFSET (40) // Chart x offset to display y axis labels correctly
+#define CHART_OFFSET (50) // Chart x offset to display y axis labels correctly
 
 /// selected tab per player
 static uint8 selected_tab[MAX_PLAYER_COUNT] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };

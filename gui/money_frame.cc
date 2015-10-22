@@ -291,16 +291,16 @@ money_frame_t::money_frame_t(player_t *player)
 	}
 
 	//CHART YEAR
-	chart.set_pos(scr_coord(104,top+10*BUTTONSPACE+11));
-	chart.set_size(scr_size(457,120));
+	chart.set_pos(scr_coord(D_MARGIN_LEFT,top+10*BUTTONSPACE+11));
+	chart.set_size(scr_size(582-D_MARGIN_LEFT-D_MARGIN_RIGHT,120));
 	chart.set_dimension(MAX_PLAYER_HISTORY_YEARS, 10000);
 	chart.set_seed(welt->get_last_year());
 	chart.set_background(SYSCOL_CHART_BACKGROUND);
 	//CHART YEAR END
 
 	//CHART MONTH
-	mchart.set_pos(scr_coord(104,top+10*BUTTONSPACE+11));
-	mchart.set_size(scr_size(457,120));
+	mchart.set_pos(scr_coord(D_MARGIN_LEFT,top+10*BUTTONSPACE+11));
+	mchart.set_size(scr_size(582-D_MARGIN_LEFT-D_MARGIN_RIGHT,120));
 	mchart.set_dimension(MAX_PLAYER_HISTORY_MONTHS, 10000);
 	mchart.set_seed(0);
 	mchart.set_background(SYSCOL_CHART_BACKGROUND);

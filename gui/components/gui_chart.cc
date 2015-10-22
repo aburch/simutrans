@@ -109,7 +109,17 @@ void gui_chart_t::hide_line(uint32 id)
 
 void gui_chart_t::draw(scr_coord offset)
 {
+	scr_coord chart_offset(130,0);
+	int maximum_axis_len = 22;
+
 	offset += pos;
+	if(  size.w<480  ) {
+		chart_offset.x = size.w/6;
+		maximum_axis_len = max(7,chart_offset.x/6);
+	}
+
+	offset += chart_offset;
+	scr_size chart_size = size-chart_offset-scr_size(10,0);
 
 	sint64 last_year=0, tmp=0;
 	char cmin[128] = "0", cmax[128] = "0", digit[8];
@@ -121,15 +131,15 @@ void gui_chart_t::draw(scr_coord offset)
 	float* pscale = &scale;
 
 	// calc baseline and scale
-	calc_gui_chart_values(pbaseline, pscale, cmin, cmax);
+	calc_gui_chart_values(pbaseline, pscale, cmin, cmax, 18);
 
 	// Hajo: draw background if desired
 	if(background != -1) {
-		display_fillbox_wh_clip(offset.x, offset.y, size.w, size.h, background, false);
+		display_fillbox_wh_clip(offset.x, offset.y, chart_size.w, chart_size.h, background, false);
 	}
 	int tmpx, factor;
 	if(env_t::left_to_right_graphs) {
-		tmpx = offset.x + size.w - size.w % (x_elements - 1);
+		tmpx = offset.x + chart_size.w - chart_size.w % (x_elements - 1);
 		factor = -1;
 	}
 	else {
@@ -138,49 +148,50 @@ void gui_chart_t::draw(scr_coord offset)
 	}
 
 	// draw zero line
-	display_direct_line(offset.x+1, offset.y+(scr_coord_val)baseline, offset.x+size.w-2, offset.y+(scr_coord_val)baseline, SYSCOL_CHART_LINES_ZERO);
+	display_direct_line(offset.x+1, offset.y+(scr_coord_val)baseline, offset.x+chart_size.w-2, offset.y+(scr_coord_val)baseline, SYSCOL_CHART_LINES_ZERO);
 
 	if (show_y_axis) {
 
 		// draw zero number only, if it will not disturb any other printed values!
-		if ((baseline > 18) && (baseline < size.h -18)) {
+		if ((baseline > 18) && (baseline < chart_size.h -18)) {
 			display_proportional_clip(offset.x - 4, offset.y+(scr_coord_val)baseline-3, "0", ALIGN_RIGHT, SYSCOL_TEXT_HIGHLIGHT, true );
 		}
 
 		// display min/max money values
 		display_proportional_clip(offset.x - 4, offset.y-5, cmax, ALIGN_RIGHT, SYSCOL_TEXT_HIGHLIGHT, true );
-		display_proportional_clip(offset.x - 4, offset.y+size.h-5, cmin, ALIGN_RIGHT, SYSCOL_TEXT_HIGHLIGHT, true );
+		display_proportional_clip(offset.x - 4, offset.y+chart_size.h-5, cmin, ALIGN_RIGHT, SYSCOL_TEXT_HIGHLIGHT, true );
 	}
 
 	// draw chart frame
-	display_ddd_box_clip(offset.x, offset.y, size.w, size.h, SYSCOL_SHADOW, SYSCOL_HIGHLIGHT);
+	display_ddd_box_clip(offset.x, offset.y, chart_size.w, chart_size.h, SYSCOL_SHADOW, SYSCOL_HIGHLIGHT);
 
 	// draw chart lines
 	scr_coord_val x_last = 0;  // remember last digit position to avoid overwriting by next label
 	for(  int i = 0;  i < x_elements;  i++  ) {
 		const int j = env_t::left_to_right_graphs ? x_elements - 1 - i : i;
-		const scr_coord_val x0 = tmpx + factor * (size.w / (x_elements - 1) ) * j;
+		const scr_coord_val x0 = tmpx + factor * (chart_size.w / (x_elements - 1) ) * j;
 		const COLOR_VAL line_color = (i%2) ? SYSCOL_CHART_LINES_ODD : SYSCOL_CHART_LINES_EVEN;
 		if(  show_x_axis  ) {
 			// display x-axis
 			sprintf( digit, "%i", abs(seed - j) );
 			scr_coord_val x =  x0 - (seed != j ? (int)(2 * log( (double)abs(seed - j) )) : 0);
 			if(  x > x_last  ) {
-				x_last = x + display_proportional_clip( x, offset.y + size.h + 6, digit, ALIGN_LEFT, line_color, true );
+				x_last = x + display_proportional_clip( x, offset.y + chart_size.h + 6, digit, ALIGN_LEFT, line_color, true );
 			}
 		}
 		// year's vertical lines
-		display_vline_wh_clip( x0, offset.y + 1, size.h - 2, line_color, false );
+		display_vline_wh_clip( x0, offset.y + 1, chart_size.h - 2, line_color, false );
 	}
 
 	// display current value?
 	int tooltip_n=-1;
-	if(tooltipcoord!=scr_coord::invalid) {
+	int ttcx = tooltipcoord.x-chart_offset.x;
+	if(  ttcx>0  &&  ttcx<chart_size.w  ) {
 		if(env_t::left_to_right_graphs) {
-			tooltip_n = x_elements-1-(tooltipcoord.x*x_elements+4)/(size.w|1);
+			tooltip_n = x_elements-1-(ttcx*x_elements+4)/(chart_size.w|1);
 		}
 		else {
-			tooltip_n = (tooltipcoord.x*x_elements+4)/(size.w|1);
+			tooltip_n = (ttcx*x_elements+4)/(chart_size.w|1);
 		}
 	}
 
@@ -189,7 +200,7 @@ void gui_chart_t::draw(scr_coord offset)
 		if (c.show) {
 			// for each curve iterate through all elements and display curve
 			for (int i=0;i<c.elements;i++) {
-				//tmp=c.values[year*c.size+c.offset];
+				//tmp=c.values[year*c.chart_size+c.offset];
 				tmp = c.values[i*c.size+c.offset];
 				// Knightly : convert value where necessary
 				if(  c.convert  ) {
@@ -199,7 +210,7 @@ void gui_chart_t::draw(scr_coord offset)
 					tmp /= 100;
 				}
 				// display marker(box) for financial value
-				display_fillbox_wh_clip(tmpx+factor*(size.w / (x_elements - 1))*i-2, (scr_coord_val)(offset.y+baseline- (int)(tmp/scale)-2), 5, 5, c.color, true);
+				display_fillbox_wh_clip(tmpx+factor*(chart_size.w / (x_elements - 1))*i-2, (scr_coord_val)(offset.y+baseline- (int)(tmp/scale)-2), 5, 5, c.color, true);
 
 				// display tooltip?
 				if(i==tooltip_n  &&  abs((int)(baseline-(int)(tmp/scale)-tooltipcoord.y))<10) {
@@ -209,9 +220,9 @@ void gui_chart_t::draw(scr_coord offset)
 
 				// draw line between two financial markers; this is only possible from the second value on
 				if (i>0) {
-					display_direct_line(tmpx+factor*(size.w / (x_elements - 1))*(i-1),
+					display_direct_line(tmpx+factor*(chart_size.w / (x_elements - 1))*(i-1),
 						(scr_coord_val)( offset.y+baseline-(int)(last_year/scale) ),
-						tmpx+factor*(size.w / (x_elements - 1))*(i),
+						tmpx+factor*(chart_size.w / (x_elements - 1))*(i),
 						(scr_coord_val)( offset.y+baseline-(int)(tmp/scale) ),
 						c.color);
 				}
@@ -220,12 +231,12 @@ void gui_chart_t::draw(scr_coord offset)
 					// only print value if not too narrow to min/max/zero
 					if(  c.show_value  ) {
 						if(  env_t::left_to_right_graphs  ) {
-							number_to_string(cmin, (double)tmp, c.precision);
+							number_to_string_fit(cmin, (double)tmp, c.precision, maximum_axis_len-c.type );
 							const sint16 width = proportional_string_width(cmin)+7;
 							display_ddd_proportional( tmpx + 8, (scr_coord_val)(offset.y+baseline-(int)(tmp/scale)-4), width, 0, COL_GREY4, c.color, cmin, true);
 						}
-						else if(  (baseline-tmp/scale-8) > 0  &&  (baseline-tmp/scale+8) < size.h  &&  abs((int)(tmp/scale)) > 9  ) {
-							number_to_string(cmin, (double)tmp, c.precision);
+						else if(  (baseline-tmp/scale-8) > 0  &&  (baseline-tmp/scale+8) < chart_size.h  &&  abs((int)(tmp/scale)) > 9  ) {
+							number_to_string_fit(cmin, (double)tmp, c.precision, maximum_axis_len-c.type );
 							display_proportional_clip(tmpx - 4, (scr_coord_val)(offset.y+baseline-(int)(tmp/scale)-4), cmin, ALIGN_RIGHT, c.color, true );
 						}
 					}
@@ -242,7 +253,7 @@ void gui_chart_t::draw(scr_coord offset)
 			tmp = ( line.convert ? line.convert(*(line.value)) : *(line.value) );
 			for(  int t=0;  t<line.times;  ++t  ) {
 				// display marker(box) for financial value
-				display_fillbox_wh_clip(tmpx+factor*(size.w / (x_elements - 1))*t-2, (scr_coord_val)(offset.y+baseline- (int)(tmp/scale)-2), 5, 5, line.color, true);
+				display_fillbox_wh_clip(tmpx+factor*(chart_size.w / (x_elements - 1))*t-2, (scr_coord_val)(offset.y+baseline- (int)(tmp/scale)-2), 5, 5, line.color, true);
 
 				// display tooltip?
 				if(  t==tooltip_n  &&  abs((int)(baseline-(int)(tmp/scale)-tooltipcoord.y))<10  ) {
@@ -257,7 +268,7 @@ void gui_chart_t::draw(scr_coord offset)
 						const sint16 width = proportional_string_width(cmin)+7;
 						display_ddd_proportional( tmpx + 8, (scr_coord_val)(offset.y+baseline-(int)(tmp/scale)-4), width, 0, COL_GREY4, line.color, cmin, true);
 					}
-					else if(  (baseline-tmp/scale-8) > 0  &&  (baseline-tmp/scale+8) < size.h  &&  abs((int)(tmp/scale)) > 9  ) {
+					else if(  (baseline-tmp/scale-8) > 0  &&  (baseline-tmp/scale+8) < chart_size.h  &&  abs((int)(tmp/scale)) > 9  ) {
 						number_to_string(cmin, (double)tmp, line.precision);
 						display_proportional_clip(tmpx - 4, (scr_coord_val)(offset.y+baseline-(int)(tmp/scale)-4), cmin, ALIGN_RIGHT, line.color, true );
 					}
@@ -265,16 +276,17 @@ void gui_chart_t::draw(scr_coord offset)
 			}
 			// display horizontal line that passes through all markers
 			const int y_offset = (int)( offset.y + baseline - (sint64)(tmp/scale) );
-			display_fillbox_wh(tmpx, y_offset, factor*(size.w / (x_elements - 1))*(line.times-1), 1, line.color, true);
+			display_fillbox_wh(tmpx, y_offset, factor*(chart_size.w / (x_elements - 1))*(line.times-1), 1, line.color, true);
 		}
 	}
 }
 
 
-void gui_chart_t::calc_gui_chart_values(sint64 *baseline, float *scale, char *cmin, char *cmax) const
+void gui_chart_t::calc_gui_chart_values(sint64 *baseline, float *scale, char *cmin, char *cmax, int maximum_axis_len) const
 {
 	sint64 tmp=0;
 	sint64 min = 0, max = 0;
+	bool min_money = false, max_money = false;
 	int precision = 0;
 
 	// first, check curves
@@ -292,10 +304,12 @@ void gui_chart_t::calc_gui_chart_values(sint64 *baseline, float *scale, char *cm
 				if (min > tmp) {
 					min = tmp ;
 					precision = c.precision;
+					min_money = c.type;
 				}
 				if (max < tmp) {
 					max = tmp;
 					precision = c.precision;
+					max_money = c.type;
 				}
 			}
 		}
@@ -316,8 +330,14 @@ void gui_chart_t::calc_gui_chart_values(sint64 *baseline, float *scale, char *cm
 		}
 	}
 
-	number_to_string(cmin, (double)min, precision);
-	number_to_string(cmax, (double)max, precision);
+	number_to_string_fit(cmin, (double)min, precision, maximum_axis_len-min_money );
+	number_to_string_fit(cmax, (double)max, precision, maximum_axis_len-max_money );
+	if(  min_money  ) {
+		strcat( cmin, "$" );
+	}
+	if(  max_money  ) {
+		strcat( cmax, "$" );
+	}
 
 	// scale: factor to calculate money with, to get y-pos offset
 	*scale = (float)(max - min) / (size.h-2);

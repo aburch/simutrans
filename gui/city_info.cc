@@ -27,7 +27,7 @@
 #define PAX_DEST_MIN_SIZE (16)		///< minimum width/height of the minimap
 #define PAX_DEST_VERTICAL (4.0/3.0)	///< aspect factor where minimaps change to over/under instead of left/right
 #define MIN_CHART_HEIGHT (166)		///< minimum size of the city charts
-#define CHART_OFFSET (40)			///< Chart offset from left margin
+//#define CHART_OFFSET (40)			///< Chart offset from left margin
 
 // @author hsiegeln
 const char *hist_type[MAX_CITY_HISTORY] =
@@ -72,7 +72,7 @@ city_info_t::city_info_t(stadt_t* city) :
 
 	// add city charts
 	// year chart
-	chart.set_pos(scr_coord(21, 1));
+	chart.set_pos(scr_coord(D_MARGIN_LEFT, 1));
 	chart.set_size(scr_size(340,120));
 	chart.set_dimension(MAX_CITY_HISTORY_YEARS, 10000);
 	chart.set_seed(welt->get_last_year());
@@ -83,7 +83,7 @@ city_info_t::city_info_t(stadt_t* city) :
 	}
 
 	// month chart
-	mchart.set_pos(scr_coord(21,1));
+	mchart.set_pos(scr_coord(D_MARGIN_LEFT,1));
 	mchart.set_size(scr_size(340,120));
 	mchart.set_dimension(MAX_CITY_HISTORY_MONTHS, 10000);
 	mchart.set_seed(0);
@@ -166,11 +166,11 @@ void city_info_t::resize(const scr_coord delta)
 	add_pax_dest( pax_dest_new, city->get_pax_destinations_new() );
 
 	// move and resize charts
-	year_month_tabs.set_pos(scr_coord(D_MARGIN_LEFT+ CHART_OFFSET,
+	year_month_tabs.set_pos(scr_coord(D_MARGIN_LEFT,
 		D_MARGIN_TOP + max(D_BUTTON_HEIGHT+D_V_SPACE+8*LINESPACE+D_V_SPACE+D_CHECKBOX_HEIGHT+D_V_SPACE,
 		(world_aspect / space_aspect > PAX_DEST_VERTICAL ? 2*minimaps_size.h+D_V_SPACE : minimaps_size.h) + D_V_SPACE )) );
 
-	year_month_tabs.set_size(scr_size(get_windowsize().w - D_MARGIN_LEFT-D_MARGIN_RIGHT-CHART_OFFSET-2*D_V_SPACE,
+	year_month_tabs.set_size(scr_size(get_windowsize().w - D_MARGIN_RIGHT,
 		get_windowsize().h-D_TITLEBAR_HEIGHT-year_month_tabs.get_pos().y - D_MARGIN_BOTTOM - (D_BUTTON_HEIGHT+D_V_SPACE)*(rows+1) - 1 ));
 
 	// move and resize filter buttons
