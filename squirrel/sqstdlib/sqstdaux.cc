@@ -8,7 +8,7 @@ void sqstd_printcallstack(HSQUIRRELVM v)
 	SQPRINTFUNCTION pf = sq_geterrorfunc(v);
 	if(pf) {
 		SQStackInfos si;
-		SQInteger i;
+		SQInteger i = 0;
 		SQFloat f;
 		const SQChar *s;
 		SQInteger level=1; //1 is to skip this function that is level 0

@@ -29,7 +29,7 @@ namespace script_api {
 // integer arguments
 	uint8 param<uint8>::get(HSQUIRRELVM vm, SQInteger index)
 	{
-		SQInteger i;
+		SQInteger i = 0;
 		sq_getinteger(vm, index, &i);
 		return clamp<uint8>(i, 0, 255);
 	}
@@ -41,7 +41,7 @@ namespace script_api {
 
 	sint8 param<sint8>::get(HSQUIRRELVM vm, SQInteger index)
 	{
-		SQInteger i;
+		SQInteger i = 0;
 		sq_getinteger(vm, index, &i);
 		return clamp<sint8>(i, -128, 127);
 	}
@@ -53,7 +53,7 @@ namespace script_api {
 
 	uint16 param<uint16>::get(HSQUIRRELVM vm, SQInteger index)
 	{
-		SQInteger i;
+		SQInteger i = 0;
 		sq_getinteger(vm, index, &i);
 		return clamp<uint16>(i, 0, 0xffff);
 	}
@@ -65,7 +65,7 @@ namespace script_api {
 
 	sint16 param<sint16>::get(HSQUIRRELVM vm, SQInteger index)
 	{
-		SQInteger i;
+		SQInteger i = 0;
 		sq_getinteger(vm, index, &i);
 		return clamp<sint16>(i, -32768, 0x7fff);
 	}
@@ -77,7 +77,7 @@ namespace script_api {
 
 	uint32 param<uint32>::get(HSQUIRRELVM vm, SQInteger index)
 	{
-		SQInteger i;
+		SQInteger i = 0;
 		sq_getinteger(vm, index, &i);
 		return i>=0 ? i : 0;
 	}
@@ -89,7 +89,7 @@ namespace script_api {
 
 	sint32 param<sint32>::get(HSQUIRRELVM vm, SQInteger index)
 	{
-		SQInteger i;
+		SQInteger i = 0;
 		sq_getinteger(vm, index, &i);
 		return i;
 	}
@@ -101,7 +101,7 @@ namespace script_api {
 
 	uint64 param<uint64>::get(HSQUIRRELVM vm, SQInteger index)
 	{
-		SQInteger i;
+		SQInteger i = 0;
 		sq_getinteger(vm, index, &i);
 		return i>=0 ? i : 0;
 	}
@@ -113,7 +113,7 @@ namespace script_api {
 
 	sint64 param<sint64>::get(HSQUIRRELVM vm, SQInteger index)
 	{
-		SQInteger i;
+		SQInteger i = 0;
 		sq_getinteger(vm, index, &i);
 		return i;
 	}
@@ -145,7 +145,7 @@ namespace script_api {
 // floats
 	double param<double>::get(HSQUIRRELVM vm, SQInteger index)
 	{
-		SQFloat d;
+		SQFloat d = 0.0;
 		sq_getfloat(vm, index, &d);
 		return d;
 	}
@@ -205,7 +205,7 @@ namespace script_api {
 // bool
 	bool param<bool>::get(HSQUIRRELVM vm, SQInteger index)
 	{
-		SQBool b;
+		SQBool b = false;
 		sq_tobool(vm, index, &b);
 		return b;
 	}

@@ -718,7 +718,7 @@ bool _hsort_sift_down(HSQUIRRELVM v,SQArray *arr, SQInteger root, SQInteger bott
 bool _hsort(HSQUIRRELVM v,SQObjectPtr &arr, SQInteger, SQInteger, SQInteger func)
 {
 	SQArray *a = _array(arr);
-	SQInteger i;
+	SQInteger i = 0;
 	SQInteger array_size = a->Size();
 	for (i = (array_size / 2); i >= 0; i--) {
 		if(!_hsort_sift_down(v,a, i, array_size - 1,func)) return false;

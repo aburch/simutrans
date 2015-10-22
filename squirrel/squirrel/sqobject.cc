@@ -330,7 +330,7 @@ bool ReadObject(HSQUIRRELVM v,SQUserPointer up,SQREADFUNC read,SQObjectPtr &o)
 				   }
 		break;
 	case OT_INTEGER:{
-		SQInteger i;
+		SQInteger i = 0;
 		_CHECK_IO(SafeRead(v,read,up,&i,sizeof(SQInteger))); o = i; break;
 					}
 	case OT_FLOAT:{

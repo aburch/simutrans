@@ -21,7 +21,7 @@
 
 static SQInteger math_srand(HSQUIRRELVM v)
 {
-	SQInteger i;
+	SQInteger i = 0;
 	if(SQ_FAILED(sq_getinteger(v,2,&i)))
 		return sq_throwerror(v,_SC("invalid param"));
 	srand((unsigned int)i);

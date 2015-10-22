@@ -44,7 +44,7 @@ SQInteger _stream_readn(HSQUIRRELVM v)
 	sq_getinteger(v, 2, &format);
 	switch(format) {
 	case 'l': {
-		SQInteger i;
+		SQInteger i = 0;
 		SAFE_READN(&i, sizeof(i));
 		sq_pushinteger(v, i);
 			  }
@@ -119,7 +119,7 @@ SQInteger _stream_writen(HSQUIRRELVM v)
 	sq_getinteger(v, 3, &format);
 	switch(format) {
 	case 'l': {
-		SQInteger i;
+		SQInteger i = 0;
 		sq_getinteger(v, 2, &ti);
 		i = ti;
 		self->Write(&i, sizeof(SQInteger));
