@@ -177,6 +177,11 @@ koord3d tunnelbauer_t::finde_ende(player_t *player, koord3d pos, koord zv, const
 			return koord3d::invalid;
 		}
 
+		// check water level
+		if (gr->ist_wasser()  &&  welt->lookup_hgt(pos.get_2d()) <= pos.z) {
+			return koord3d::invalid;
+		}
+
 		if (const char* err = welt->get_scenario()->is_work_allowed_here(player, TOOL_BUILD_TUNNEL|GENERAL_TOOL, wegtyp, pos)) {
 			if (msg) {
 				*msg = err;
