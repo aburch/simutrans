@@ -614,7 +614,7 @@ const char *brueckenbauer_t::baue( player_t *player, const koord3d pos, const br
 		}
 	}
 
-	if(  (!lt  &&  !weg)  ||  !ist_ende_ok(player, gr,besch->get_waytype(),ribi)  ) {
+	if(  !ist_ende_ok(player, gr,besch->get_waytype(),ribi)  ) {
 		DBG_MESSAGE( "brueckenbauer_t::baue()", "no way %x found", besch->get_waytype() );
 		return "A bridge must start on a way!";
 	}
@@ -632,6 +632,10 @@ const char *brueckenbauer_t::baue( player_t *player, const koord3d pos, const br
 		ribi_t::ribi hang_ribi = ribi_typ(gr->get_weg_hang());
 		if(ribi & ~hang_ribi) {
 			ribi = 0;
+		}
+		else {
+			// take direction from slope of tile
+			ribi = hang_ribi;
 		}
 	}
 
@@ -666,14 +670,21 @@ DBG_MESSAGE("brueckenbauer_t::baue()", "end not ok");
 		}
 	}
 
-
-	// Start and end have been checked, we can start to build eventually
-	if(besch->get_waytype()==powerline_wt) {
-		baue_bruecke(player, gr->get_pos(), end, zv, bridge_height, besch, lt->get_besch() );
+	// associated way
+	const weg_besch_t* way_besch;
+	if (weg) {
+		way_besch = weg->get_besch();
+	}
+	else if (lt) {
+		way_besch = lt->get_besch();
 	}
 	else {
-		baue_bruecke(player, gr->get_pos(), end, zv, bridge_height, besch, weg->get_besch() );
+		way_besch = wegbauer_t::weg_search(besch->get_waytype(), besch->get_topspeed(), welt->get_timeline_year_month(), weg_t::type_flat);
 	}
+
+	// Start and end have been checked, we can start to build eventually
+	baue_bruecke(player, gr->get_pos(), end, zv, bridge_height, besch, way_besch );
+
 	return NULL;
 }
 
