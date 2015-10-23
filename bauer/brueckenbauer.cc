@@ -814,35 +814,23 @@ void brueckenbauer_t::baue_bruecke(player_t *player, const koord3d start, const 
 
 	// if start or end are single way, and next tile is not, try to connect
 	if(  besch->get_waytype() != powerline_wt  &&  player  ) {
-		if(  grund_t *start_gr = welt->lookup(start)  ) {
-			ribi_t::ribi ribi = start_gr->get_weg_ribi_unmasked(besch->get_waytype());
-			if(  ribi_t::ist_einfach(ribi)  ) {
-				// only single tile under start => try to connect to next tile
-				koord3d next_to_start = koord3d( start.get_2d()-koord(ribi), start_gr->get_vmove( ribi_t::rueckwaerts(ribi) ) );
-				wegbauer_t bauigel(player);
-				bauigel.set_keep_existing_ways(true);
-				bauigel.set_keep_city_roads(true);
-				bauigel.set_maximum(20);
-				bauigel.route_fuer( (wegbauer_t::bautyp_t)besch->get_waytype(), wegbauer_t::weg_search( besch->get_waytype(), besch->get_topspeed(), welt->get_timeline_year_month(), weg_t::type_flat ), NULL, NULL );
-				bauigel.calc_route( start, next_to_start );
-				if(  bauigel.get_count() == 2  ) {
-					bauigel.baue();
-				}
-			}
-		}
-		if(  grund_t *end_gr = welt->lookup(end)  ) {
-			ribi_t::ribi ribi = end_gr->get_weg_ribi_unmasked(besch->get_waytype());
-			if(  ribi_t::ist_einfach(ribi)  ) {
-				// only single tile under start => try to connect to next tile
-				koord3d next_to_end = koord3d( end.get_2d()-koord(ribi), end_gr->get_vmove( ribi_t::rueckwaerts(ribi) ) );
-				wegbauer_t bauigel(player);
-				bauigel.set_keep_existing_ways(true);
-				bauigel.set_keep_city_roads(true);
-				bauigel.set_maximum(20);
-				bauigel.route_fuer( (wegbauer_t::bautyp_t)besch->get_waytype(), wegbauer_t::weg_search( besch->get_waytype(), besch->get_topspeed(), welt->get_timeline_year_month(), weg_t::type_flat ), NULL, NULL );
-				bauigel.calc_route( end, next_to_end );
-				if(  bauigel.get_count() == 2  ) {
-					bauigel.baue();
+		koord3d endtiles[] = {start, end};
+		for(uint i=0; i<lengthof(endtiles); i++) {
+			koord3d pos = endtiles[i];
+			if(  grund_t *gr = welt->lookup(pos)  ) {
+				ribi_t::ribi ribi = gr->get_weg_ribi_unmasked(besch->get_waytype());
+				grund_t *to = NULL;
+				if(  ribi_t::ist_einfach(ribi)  &&  gr->get_neighbour(to, invalid_wt, ribi_t::rueckwaerts(ribi))) {
+					// only single tile under bridge => try to connect to next tile
+					wegbauer_t bauigel(player);
+					bauigel.set_keep_existing_ways(true);
+					bauigel.set_keep_city_roads(true);
+					bauigel.set_maximum(20);
+					bauigel.route_fuer( (wegbauer_t::bautyp_t)besch->get_waytype(), weg_besch, NULL, NULL );
+					bauigel.calc_route( pos, to->get_pos() );
+					if(  bauigel.get_count() == 2  ) {
+						bauigel.baue();
+					}
 				}
 			}
 		}
