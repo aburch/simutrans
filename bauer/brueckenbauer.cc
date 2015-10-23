@@ -303,7 +303,7 @@ bool brueckenbauer_t::is_monorail_junction(koord3d pos, player_t *player, const 
 
 koord3d brueckenbauer_t::finde_ende(player_t *player, koord3d pos, const koord zv, const bruecke_besch_t *besch, const char *&error_msg, sint8 &bridge_height, bool ai_bridge, uint32 min_length, bool high_bridge )
 {
-	const grund_t *gr2 = welt->lookup( pos );
+	const grund_t *const gr2 = welt->lookup( pos );
 	if(  !gr2  ) {
 		error_msg = "A bridge must start on a way!";
 		return koord3d::invalid;
@@ -313,11 +313,12 @@ koord3d brueckenbauer_t::finde_ende(player_t *player, koord3d pos, const koord z
 	// flat -> height is 1 if only shallow ramps, else height 2
 	// single height -> height is 1
 	// double height -> height is 2
+	// if start tile is tunnel mouth then min = max = pos.z = start_height
 	const hang_t::typ slope = gr2->get_weg_hang();
 	const sint8 start_height = gr2->get_hoehe() + hang_t::max_diff(slope);
 	sint8 min_bridge_height = start_height; /* was  + (slope==0) */
 	sint8 min_height = start_height - (1+besch->has_double_ramp()) + (slope==0);
-	sint8 max_height = start_height + (slope ? 0 : (1+besch->has_double_ramp()));
+	sint8 max_height = start_height + (slope || gr2->ist_tunnel() ? 0 : (1+besch->has_double_ramp()));
 
 	// when a bridge starts on an elevated way, only downwards ramps are allowed
 	if(  !gr2->ist_karten_boden()  ) {
@@ -476,7 +477,10 @@ koord3d brueckenbauer_t::finde_ende(player_t *player, koord3d pos, const koord z
 						// no crossing or curve here (since it will a slope ramp)
 						error_msg = "A bridge must start on a way!";
 					}
-
+					if (gr->ist_tunnel()) {
+						// non-flat bridges should not end in tunnels
+						error_msg = "Tile not empty.";
+					}
 					if(  !error_msg  ) {
 						for(sint8 z = hang_height + 3; z <= max_height; z++) {
 							height_okay_array[z-min_bridge_height] = false;
@@ -696,7 +700,7 @@ void brueckenbauer_t::baue_bruecke(player_t *player, const koord3d start, const 
 	DBG_MESSAGE("brueckenbauer_t::baue()", "build from %s", start.get_str() );
 
 	grund_t *start_gr = welt->lookup( start );
-	const hang_t::typ slope = start_gr->get_grund_hang();
+	const hang_t::typ slope = start_gr->get_weg_hang();
 
 	// get initial height of bridge from start tile
 	uint8 add_height = 0;
