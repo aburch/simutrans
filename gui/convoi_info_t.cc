@@ -196,7 +196,7 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 
 	cnv->set_sortby( env_t::default_sortmode );
 
-	set_windowsize(scr_size(total_width, view.get_size().h+208+D_SCROLLBAR_HEIGHT));
+	set_windowsize(scr_size(total_width, D_DEFAULT_HEIGHT));
 	set_min_windowsize(scr_size(total_width, view.get_size().h+131+D_SCROLLBAR_HEIGHT));
 
 	set_resizemode(diagonal_resize);

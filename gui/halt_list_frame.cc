@@ -275,7 +275,7 @@ halt_list_frame_t::halt_list_frame_t(player_t *player) :
 
 	display_list();
 
-	set_windowsize(scr_size(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT+7*(28)+31+1));
+	set_windowsize(scr_size(D_DEFAULT_WIDTH, D_DEFAULT_HEIGHT));
 	set_min_windowsize(scr_size(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT+3*(28)+31+1));
 
 	set_resizemode(diagonal_resize);

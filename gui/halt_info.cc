@@ -161,7 +161,7 @@ halt_info_t::halt_info_t(halthandle_t halt) :
 	scrolly.set_show_scroll_x(true);
 	add_component(&scrolly);
 
-	set_windowsize(scr_size(total_width, view.get_size().h+208+D_SCROLLBAR_HEIGHT));
+	set_windowsize(scr_size(total_width, D_DEFAULT_HEIGHT));
 	set_min_windowsize(scr_size(total_width, view.get_size().h+131+D_SCROLLBAR_HEIGHT));
 
 	set_resizemode(diagonal_resize);     // 31-May-02	markus weber	added

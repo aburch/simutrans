@@ -65,7 +65,7 @@ factorylist_frame_t::factorylist_frame_t() :
 	scrolly.set_scroll_amount_y(LINESPACE+1);
 	add_component(&scrolly);
 
-	set_windowsize(scr_size(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT+18*(LINESPACE+1)+14+D_BUTTON_HEIGHT+2+1));
+	set_windowsize(scr_size(D_DEFAULT_WIDTH, D_DEFAULT_HEIGHT));
 	set_min_windowsize(scr_size(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT+4*(LINESPACE+1)+14+D_BUTTON_HEIGHT+2+1));
 
 	set_resizemode(diagonal_resize);
