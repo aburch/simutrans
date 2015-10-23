@@ -208,7 +208,7 @@ citylist_frame_t::citylist_frame_t() :
 	scrolly.set_scroll_amount_y(LINESPACE+1);
 	add_component(&scrolly);
 
-	set_windowsize(scr_size(D_DEFAULT_WIDTH, TOTAL_HEIGHT+CHART_HEIGHT));
+	set_windowsize(scr_size(D_DEFAULT_WIDTH, D_DEFAULT_HEIGHT));
 	set_min_windowsize(scr_size(D_DEFAULT_WIDTH, TOTAL_HEIGHT));
 
 	set_resizemode(diagonal_resize);
