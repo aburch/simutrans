@@ -236,7 +236,7 @@ public:
 	 */
 	void check_update_underground()
 	{
-		if (ist_karten_boden()  &&  (ist_tunnel()  ||  ist_bruecke())) {
+		if (ist_karten_boden()  &&  (ist_tunnel()  ||  ist_bruecke()  ||  ist_wasser())) {
 			calc_bild();
 		}
 		else {
