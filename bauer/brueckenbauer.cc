@@ -529,6 +529,11 @@ koord3d brueckenbauer_t::finde_ende(player_t *player, koord3d pos, const koord z
 						assert(false);
 					}
 				}
+				// there is no point in building flat, one-tile bridges
+				if (bridge_height == 0  &&  length == 1) {
+					error_msg = "";
+					return koord3d::invalid;
+				}
 				return gr->get_pos();
 			}
 			// slope, which ends too low => we can continue
