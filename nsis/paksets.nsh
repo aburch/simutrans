@@ -140,14 +140,15 @@ SectionEnd
 
 
 
-Section /o "pak128 V2.5.2" pak128
-  AddSize 408977
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak128/pak128%20for%20RC%20120%20%282.5.2%2C%20bugfixes%29/pak128-2.5.2--RC_120.zip"
-  StrCpy $archievename "pak128-2.5.2--RC_120.zip"
+Section /o "pak128 V2.5.3" pak128
+  AddSize 408973
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak128/pak128%20for%20ST%20120%20%282.5.3%2C%20minor%20changes%29/pak128-2.5.3--ST120.zip"
+  StrCpy $archievename "pak128-2.5.3--ST120.zip"
   StrCpy $downloadname "pak128"
-  StrCpy $VersionString "Pak128 2.5.2 New Landscape"
-  Call DownloadInstallZip
+  StrCpy $VersionString "Pak128 2.5.3 New Landscape"
+  Call DownloadInstallZipWithoutSimutrans
 SectionEnd
+
 
 
 Section /o "pak128.Britain V1.16" pak128britain
@@ -182,12 +183,12 @@ Section /o "pak128.Japan for Simutrans 120.0" pak128japan
 SectionEnd
 
 
-Section /o "pak192.Comic 0.4 (Freeware)" pak192comic
-  AddSize 63430
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak192.comic/pak192comic%20for%20120-0/pak192comic-0.4-120-0up.zip"
-  StrCpy $archievename "pak192comic-0.4-120-0up.zip"
+Section /o "pak192.Comic 0.4.1 (CC-BY-SA)" pak192comic
+  AddSize 1073075
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak192.comic/pak192comic%20for%20120-0/pak192comic-0.4.1-120-0up.zip"
+  StrCpy $archievename "pak192comic-0.4.1-120-0up.zip"
   StrCpy $downloadname "pak192.comic"
-  StrCpy $VersionString "Pak192.comic 0.4.0 (rev 468)"
+  StrCpy $VersionString "pak192.comic 0.4.1 (rev560)"
   Call DownloadInstallZip
 SectionEnd
 
