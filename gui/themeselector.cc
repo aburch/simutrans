@@ -98,7 +98,7 @@ const char *themeselector_t::get_info(const char *fn )
 void themeselector_t::fill_list()
 {
 	add_path( ((std::string)env_t::program_dir+"themes/").c_str() );
-	if(  !strcmp( env_t::user_dir, env_t::program_dir )  ) {
+	if(  env_t::user_dir != env_t::program_dir  ) {
 		// not signle user
 		add_path( ((std::string)env_t::user_dir+"themes/").c_str() );
 	}
