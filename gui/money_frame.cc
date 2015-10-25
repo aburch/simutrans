@@ -223,7 +223,7 @@ money_frame_t::money_frame_t(player_t *player)
 		maintenance_label("This Month",SYSCOL_TEXT_HIGHLIGHT, gui_label_t::right),
 		maintenance_money(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money),
 		warn("", COL_YELLOW, gui_label_t::left),
-		scenario("", COL_BLACK, gui_label_t::left),
+		scenario("", SYSCOL_TEXT, gui_label_t::left),
 		transport_type_option(0),
 		headquarter_view(koord3d::invalid, scr_size(120, 64))
 {
@@ -487,7 +487,7 @@ void money_frame_t::draw(scr_coord pos, scr_size size)
 
 	// warning/success messages
 	if(player->get_player_nr()!=1  &&  welt->get_scenario()->active()) {
-		warn.set_color( COL_BLACK );
+		warn.set_color( SYSCOL_TEXT );
 		sint32 percent = welt->get_scenario()->get_completion(player->get_player_nr());
 		if (percent >= 0) {
 			sprintf( str_buf[15], translator::translate("Scenario complete: %i%%"), percent );
