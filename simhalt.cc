@@ -1307,6 +1307,7 @@ uint8 haltestelle_t::last_search_ware_catg_idx = 255;
 int haltestelle_t::search_route( const halthandle_t *const start_halts, const uint16 start_halt_count, const bool no_routing_over_overcrowding, ware_t &ware, ware_t *const return_ware )
 {
 	const uint8 ware_catg_idx = ware.get_besch()->get_catg_index();
+	const uint8 ware_idx = ware.get_besch()->get_index();
 
 	// since also the factory halt list is added to the ground, we can use just this ...
 	const planquadrat_t *const plan = welt->access( ware.get_zielpos() );
@@ -1487,8 +1488,6 @@ int haltestelle_t::search_route( const halthandle_t *const start_halts, const ui
 			// (if not, we were just under construction, and will be fine after 16 steps)
 			const uint16 reachable_halt_id = current_conn.halt.get_id();
 
-			const bool overcrowded_transfer = no_routing_over_overcrowding  &&  (current_halt_data.overcrowded  ||  current_conn.halt->is_overcrowded(ware_catg_idx) );
-
 			if(  markers[ reachable_halt_id ]!=current_marker  ) {
 				// Case : not processed before
 
@@ -1500,6 +1499,7 @@ int haltestelle_t::search_route( const halthandle_t *const start_halts, const ui
 					const uint16 total_weight = current_halt_data.best_weight + current_conn.weight;
 
 					if(  total_weight < best_destination_weight  ) {
+						const bool overcrowded_transfer = no_routing_over_overcrowding  &&  ( current_halt_data.overcrowded  ||  current_conn.halt->is_overcrowded( ware_idx ) );
 
 						halt_data[ reachable_halt_id ].best_weight = total_weight;
 						halt_data[ reachable_halt_id ].destination = 0;
@@ -1531,6 +1531,7 @@ int haltestelle_t::search_route( const halthandle_t *const start_halts, const ui
 
 				if(  total_weight<halt_data[ reachable_halt_id ].best_weight  &&  total_weight<best_destination_weight  &&  allocation_pointer<max_hops  ) {
 					// new weight is lower than lowest weight --> create new node and update halt data
+					const bool overcrowded_transfer = no_routing_over_overcrowding  &&  ( current_halt_data.overcrowded  ||  ( !halt_data[reachable_halt_id].destination  &&  current_conn.halt->is_overcrowded( ware_idx ) ) );
 
 					halt_data[ reachable_halt_id ].best_weight = total_weight;
 					// no need to update destination, as halt nature (as destination or transfer) will not change
@@ -1539,7 +1540,7 @@ int haltestelle_t::search_route( const halthandle_t *const start_halts, const ui
 					halt_data[ reachable_halt_id ].overcrowded = overcrowded_transfer;
 					overcrowded_nodes                         += overcrowded_transfer;
 
-					if (halt_data[ reachable_halt_id ].destination) {
+					if(  halt_data[reachable_halt_id].destination  ) {
 						best_destination_weight = total_weight;
 					}
 					else {
@@ -1929,8 +1930,7 @@ void haltestelle_t::fetch_goods( slist_tpl<ware_t> &load, const ware_besch_t *go
 
 					// compatible car and right target stop?
 					if(  tmp.get_zwischenziel()==plan_halt  ) {
-
-						if(  plan_halt->is_overcrowded(good_category->get_catg_index())  ) {
+						if(  plan_halt->is_overcrowded( tmp.get_index() )  ) {
 							if (welt->get_settings().is_avoid_overcrowding() && tmp.get_ziel() != plan_halt) {
 								// do not go for transfer to overcrowded transfer stop
 								continue;
@@ -2846,7 +2846,7 @@ void haltestelle_t::recalc_status()
 			total_sum += ware_sum;
 			if(ware_sum>max_ware) {
 				status_bits |= ware_sum > max_ware + 32 /*|| enables & CROWDED*/ ? 2 : 1; // for now report only serious overcrowding on transfer stops
-				overcrowded[wtyp->get_catg_index()/8] |= 1<<(wtyp->get_catg_index()%8);
+				overcrowded[wtyp->get_index()/8] |= 1<<(wtyp->get_index()%8);
 			}
 		}
 	}

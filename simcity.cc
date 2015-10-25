@@ -1810,7 +1810,7 @@ void stadt_t::step_passagiere()
 	start_halts.clear();
 	for (uint h = 0; h < plan->get_haltlist_count(); h++) {
 		halthandle_t halt = halt_list[h];
-		if(  halt.is_bound()  &&  halt->is_enabled(wtyp)  &&  !halt->is_overcrowded(wtyp->get_catg_index())  ) {
+		if(  halt.is_bound()  &&  halt->is_enabled(wtyp)  &&  !halt->is_overcrowded(wtyp->get_index())  ) {
 			start_halts.append(halt);
 		}
 	}
@@ -1914,7 +1914,7 @@ void stadt_t::step_passagiere()
 			// send them also back
 			if(  route_result==haltestelle_t::ROUTE_OK  &&  will_return!=no_return  ) {
 				halthandle_t return_halt = pax.get_ziel();
-				if(  !return_halt->is_overcrowded( wtyp->get_catg_index() )  ) {
+				if(  !return_halt->is_overcrowded( wtyp->get_index() )  ) {
 					// prissi: not overcrowded and can receive => add them
 					if(  will_return!=city_return  &&  wtyp==warenbauer_t::post  ) {
 						// attractions/factory generate more mail than they receive

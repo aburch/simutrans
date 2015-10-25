@@ -603,7 +603,7 @@ public:
 	 */
 	koord get_next_pos( koord start ) const;
 
-	// true, if this station is overcrowded for this category
+	// true, if this station is overcrowded for this ware
 	bool is_overcrowded( const uint8 idx ) const { return (overcrowded[idx/8] & (1<<(idx%8)))!=0; }
 
 	/**
