@@ -229,7 +229,7 @@ bool gui_scrolled_list_t::infowin_event(const event_t *ev)
 			int new_selection = -1;
 			if(  new_selection_h >= 0  ) {
 				int h=0;
-				while(  new_selection+1 < item_list.get_count()  &&  h<new_selection_h  ) {
+				while(  new_selection+1 < (int)item_list.get_count()  &&  h<new_selection_h  ) {
 					new_selection ++;
 					h += item_list[new_selection]->get_h();
 				}

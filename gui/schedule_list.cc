@@ -627,7 +627,7 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 		// display convoys of line
 		cont.remove_all();
 		scr_coord_val ypos = 0;
-		for(  int i=0;  i<icnv;  i++  ) {
+		for(  uint32 i=0;  i<icnv;  i++  ) {
 			gui_convoiinfo_t* const cinfo = new gui_convoiinfo_t(new_line->get_convoy(i));
 			cinfo->set_pos(scr_coord(0, ypos));
 			cinfo->set_size(scr_size(400, 40));
