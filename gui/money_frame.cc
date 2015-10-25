@@ -265,7 +265,7 @@ money_frame_t::money_frame_t(player_t *player) :
 	vehicle_maintenance_money(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money),
 	old_vehicle_maintenance_money(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money),
 	warn("", COL_YELLOW, gui_label_t::left),
-	scenario("", COL_BLACK, gui_label_t::left),
+	scenario("", SYSCOL_TEXT, gui_label_t::left),
 	transport_type_option(0),
 	headquarter_view(koord3d::invalid, scr_size(120, 64))
 {

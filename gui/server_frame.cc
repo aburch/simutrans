@@ -349,7 +349,7 @@ bool server_frame_t::update_serverlist ()
 
 		// Only show offline servers if the checkbox is set
 		if (  status == 1  ||  show_offline.pressed  ) {
-			serverlist.append_element( new server_scrollitem_t( servername, serverdns, status, status == 1 ? COL_BLUE : COL_RED ) );
+			serverlist.append_element( new server_scrollitem_t( servername, serverdns, status, status == 1 ? COL_BLUE : SYSCOL_TEXT_STRONG ) );
 			dbg->message( "server_frame_t::update_serverlist", "Appended %s (%s) to list", servername.get_str(), serverdns.get_str() );
 		}
 

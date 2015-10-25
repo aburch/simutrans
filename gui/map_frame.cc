@@ -251,7 +251,7 @@ map_frame_t::map_frame_t() :
 	viewed_player_c.set_size( scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT) );
 	viewed_player_c.set_max_size(scr_size(116, 10 * D_BUTTON_HEIGHT));
 
-	viewed_player_c.append_element( new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate("All"), COL_BLACK));
+	viewed_player_c.append_element( new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate("All"), SYSCOL_TEXT));
 	viewable_players[ 0 ] = -1;
 	for(  int np = 0, count = 1;  np < MAX_PLAYER_COUNT;  np++  ) {
 		if(  welt->get_player( np )  &&  welt->get_player( np )->get_finance()->has_convoi()  ) {
