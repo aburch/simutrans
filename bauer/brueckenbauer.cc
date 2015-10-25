@@ -227,7 +227,7 @@ const char *check_tile( const grund_t *gr, const player_t *player, waytype_t wt,
 	return "";	// could end here by must not end here
 }
 
-bool brueckenbauer_t::is_blocked(koord3d pos, player_t *player, const bruecke_besch_t *besch, const char *&error_msg)
+bool brueckenbauer_t::is_blocked(koord3d pos, player_t *, const bruecke_besch_t *, const char *&error_msg)
 {
 	/* can't build directly above or below a way if height clearance == 2 */
 	// take slopes on grounds below into accout
@@ -244,6 +244,7 @@ bool brueckenbauer_t::is_blocked(koord3d pos, player_t *player, const bruecke_be
 			}
 			weg_t *w = gr2->get_weg_nr(0);
 			if (w && w->get_max_speed() > 0) {
+				error_msg = "Bridge blocked by way below or above.";
 				return true;
 			}
 		}
@@ -251,22 +252,10 @@ bool brueckenbauer_t::is_blocked(koord3d pos, player_t *player, const bruecke_be
 
 	// first check for elevated ground exactly in our height
 	if(  grund_t *gr2 = welt->lookup( pos )  ) {
-		if(  gr2->get_typ() == grund_t::monorailboden  ) {
-			// now check if our way
-			if(  weg_t *w = gr2->get_weg_nr(0)  ) {
-				if(  !player_t::check_owner(w->get_owner(),player)  ) {
-					// not our way
-					error_msg = "Das Feld gehoert\neinem anderen Spieler\n";
-					return true;
-				}
-				if(  w->get_waytype() == besch->get_waytype()  ) {
-					// ok, all fine
-					return false;
-				}
-			}
-		}
-		else if(  gr2->get_typ() != grund_t::boden  && gr2->get_typ() != grund_t::tunnelboden  ) {
+		if(  gr2->get_typ() != grund_t::boden  && gr2->get_typ() != grund_t::tunnelboden  ) {
 			// not through bridges
+			// monorail tiles will be checked in is_monorail_junction
+			error_msg = "Tile not empty.";
 			return true;
 		}
 	}
@@ -274,6 +263,7 @@ bool brueckenbauer_t::is_blocked(koord3d pos, player_t *player, const bruecke_be
 	return false;
 }
 
+// return true if bridge can be connected to monorail tile
 bool brueckenbauer_t::is_monorail_junction(koord3d pos, player_t *player, const bruecke_besch_t *besch, const char *&error_msg)
 {
 	// first check for elevated ground exactly in our height
@@ -291,6 +281,7 @@ bool brueckenbauer_t::is_monorail_junction(koord3d pos, player_t *player, const 
 					return true;
 				}
 			}
+			error_msg = "Tile not empty.";
 		}
 	}
 
@@ -401,11 +392,13 @@ koord3d brueckenbauer_t::finde_ende(player_t *player, koord3d pos, const koord z
 			if(height_okay(z)) {
 				if(is_blocked(koord3d(pos.get_2d(), z), player, besch, error_msg)) {
 					height_okay_array[z-min_bridge_height] = false;
-				}
-				else if(is_monorail_junction(koord3d(pos.get_2d(), z), player, besch, error_msg)) {
-					gr = welt->lookup(koord3d(pos.get_2d(), z));
-					bridge_height = z - start_height;
-					return gr->get_pos();
+
+					// connect to suitable monorail tiles if possible
+					if(is_monorail_junction(koord3d(pos.get_2d(), z), player, besch, error_msg)) {
+						gr = welt->lookup(koord3d(pos.get_2d(), z));
+						bridge_height = z - start_height;
+						return gr->get_pos();
+					}
 				}
 				else {
 					abort = false;
