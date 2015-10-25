@@ -409,9 +409,9 @@ void fahrplan_gui_t::update_tool(bool set)
 void fahrplan_gui_t::update_selection()
 {
 	bt_wait_prev.disable();
-	lb_wait.set_color( COL_GREY3 );
+	lb_wait.set_color( SYSCOL_BUTTON_TEXT_DISABLED );
 	strcpy( str_parts_month, translator::translate("off") );
-	lb_waitlevel.set_color( COL_GREY3 );
+	lb_waitlevel.set_color( SYSCOL_BUTTON_TEXT_DISABLED );
 	bt_wait_next.disable();
 
 	if(  !fpl->empty()  ) {
@@ -432,7 +432,7 @@ void fahrplan_gui_t::update_selection()
 			}
 		}
 		else {
-			lb_load.set_color( COL_GREY3 );
+			lb_load.set_color( SYSCOL_BUTTON_TEXT_DISABLED );
 			numimp_load.disable();
 			numimp_load.set_value( 0 );
 		}
