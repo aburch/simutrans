@@ -33,7 +33,7 @@
 const char *hist_type[MAX_CITY_HISTORY] =
 {
 	"citicens", "Growth", "Buildings", "Verkehrsteilnehmer",
-	"Transported", "Passagiere", "sended", "Post",
+	"Transported", "walking", "Passagiere", "sended", "directmail", "Post",
 	"Arrived", "Goods", "Electricity"
 };
 
@@ -41,7 +41,7 @@ const char *hist_type[MAX_CITY_HISTORY] =
 const int hist_type_color[MAX_CITY_HISTORY] =
 {
 	COL_WHITE, COL_DARK_GREEN, COL_LIGHT_PURPLE, 110,
-	COL_LIGHT_BLUE, 100, COL_LIGHT_YELLOW, COL_YELLOW,
+	COL_LIGHT_BLUE, COL_DARK_BLUE, 100, COL_LIGHT_YELLOW, COL_DARK_YELLOW, COL_YELLOW,
 	COL_LIGHT_BROWN, COL_BROWN, 87
 };
 

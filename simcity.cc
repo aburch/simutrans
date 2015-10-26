@@ -1206,8 +1206,29 @@ void stadt_t::rdwr(loadsave_t* file)
 		file->rdwr_long(dummy);
 		file->rdwr_long(dummy);
 	}
-	else {
+	else if(  file->get_version() <= 120000  ) {
 		// 99.17.0 extended city history
+		for (uint year = 0; year < MAX_CITY_HISTORY_YEARS; year++) {
+			for (uint hist_type = 0; hist_type < MAX_CITY_HISTORY; hist_type++) {
+				if(  hist_type==HIST_PAS_WALKED  ||  hist_type==HIST_MAIL_WALKED  ) {
+					continue;
+				}
+				file->rdwr_longlong(city_history_year[year][hist_type]);
+			}
+		}
+		for (uint month = 0; month < MAX_CITY_HISTORY_MONTHS; month++) {
+			for (uint hist_type = 0; hist_type < MAX_CITY_HISTORY; hist_type++) {
+				if(  hist_type==HIST_PAS_WALKED  ||  hist_type==HIST_MAIL_WALKED  ) {
+					continue;
+				}
+				file->rdwr_longlong(city_history_month[month][hist_type]);
+			}
+		}
+		// save button settings for this town
+		file->rdwr_long( stadtinfo_options);
+	}
+	else {
+		// 120,001 with walking (direct connections) recored seperately
 		for (uint year = 0; year < MAX_CITY_HISTORY_YEARS; year++) {
 			for (uint hist_type = 0; hist_type < MAX_CITY_HISTORY; hist_type++) {
 				file->rdwr_longlong(city_history_year[year][hist_type]);
@@ -1790,7 +1811,7 @@ void stadt_t::step_passagiere()
 	const gebaeude_t* gb = buildings[step_count];
 
 	// prissi: since now backtravels occur, we damp the numbers a little
-	const int num_pax =
+	const uint32 num_pax =
 		(wtyp == warenbauer_t::passagiere) ?
 			(gb->get_tile()->get_besch()->get_level()      + 6) >> 2 :
 			(gb->get_tile()->get_besch()->get_post_level() + 8) >> 3 ;
@@ -1822,7 +1843,7 @@ void stadt_t::step_passagiere()
 	// only continue, if this is a good start halt
 	if (!start_halts.empty()) {
 		// Find passenger destination
-		for(  int pax_routed=0, pax_left_to_do=0;  pax_routed<num_pax;  pax_routed+=pax_left_to_do  ) {
+		for(  int pax_routed=0, pax_left_to_do=0;  pax_routed < num_pax;  pax_routed += pax_left_to_do  ) {
 			// number of passengers that want to travel
 			// Hajo: for efficiency we try to route not every
 			// single pax, but packets. If possible, we do 7 passengers at a time
@@ -1832,7 +1853,8 @@ void stadt_t::step_passagiere()
 			// search target for the passenger
 			pax_return_type will_return;
 			factory_entry_t *factory_entry = NULL;
-			const koord dest_pos = find_destination(target_factories, city_history_month[0][history_type+1], &will_return, factory_entry);
+			stadt_t *dest_city = NULL;
+			const koord dest_pos = find_destination(target_factories, city_history_month[0][history_type+1], &will_return, factory_entry, dest_city);
 			if(  factory_entry  ) {
 				if (welt->get_settings().get_factory_enforce_demand()) {
 					// ensure no more than remaining amount
@@ -1871,8 +1893,8 @@ void stadt_t::step_passagiere()
 				start_halt->add_pax_happy(pax.menge);
 				// and show it
 				merke_passagier_ziel(dest_pos, COL_YELLOW);
-				city_history_year[0][history_type] += pax.menge;
-				city_history_month[0][history_type] += pax.menge;
+				city_history_year[0][history_type] += pax_left_to_do;
+				city_history_month[0][history_type] += pax_left_to_do;
 			}
 			else if(  route_result==haltestelle_t::ROUTE_WALK  ) {
 				if(  factory_entry  ) {
@@ -1880,8 +1902,21 @@ void stadt_t::step_passagiere()
 					factory_entry->factory->book_stat( pax_left_to_do, ( wtyp==warenbauer_t::passagiere ? FAB_PAX_DEPARTED : FAB_MAIL_DEPARTED ) );
 					factory_entry->factory->liefere_an(wtyp, pax_left_to_do);
 				}
-				// people who walk or mail delivered by hand do not count as transported or happy
+
+				// log walked at stop
 				start_halt->add_pax_walked(num_pax);
+
+				// placeholder for a potential game setting to choose log behaviour of departed passengers
+
+				// people who walk or deliver by hand do not count as transported
+				merke_passagier_ziel(dest_pos, COL_YELLOW);
+				city_history_year[0][history_type+1] += pax_left_to_do;
+				city_history_month[0][history_type+1] += pax_left_to_do;
+#if 0
+				// if active, they even do not count as generated
+				city_history_year[0][history_type+2] -= pax_left_to_do;
+				city_history_month[0][history_type+2] -= pax_left_to_do;
+#endif
 			}
 			else if(  route_result==haltestelle_t::ROUTE_OVERCROWDED  ) {
 				merke_passagier_ziel(dest_pos, COL_ORANGE );
@@ -1911,27 +1946,66 @@ void stadt_t::step_passagiere()
 #endif
 			}
 
-			// send them also back
-			if(  route_result==haltestelle_t::ROUTE_OK  &&  will_return!=no_return  ) {
-				halthandle_t return_halt = pax.get_ziel();
-				if(  !return_halt->is_overcrowded( wtyp->get_index() )  ) {
-					// prissi: not overcrowded and can receive => add them
-					if(  will_return!=city_return  &&  wtyp==warenbauer_t::post  ) {
-						// attractions/factory generate more mail than they receive
-						return_pax.menge = pax_left_to_do*3;
+			// return passenger traffic
+			if(  will_return != no_return  ) {
+				// compute return amount
+				uint32 pax_return = pax_left_to_do;
+
+				// apply return modifiers
+				if (will_return != city_return  &&  wtyp == warenbauer_t::post) {
+					// attractions and factories return more mail than they receive
+					pax_return*= MAIL_RETURN_MULTIPLIER_PRODUCERS;
+				}
+
+				// log potential return passengers at destination city
+				dest_city->city_history_year[0][history_type+2] += pax_return;
+				dest_city->city_history_month[0][history_type+2] += pax_return;
+
+				// route type specific logic
+				if(  route_result == haltestelle_t::ROUTE_OK  ) {
+					// send return packet
+					halthandle_t return_halt = pax.get_ziel();
+					if(  !return_halt->is_overcrowded(wtyp->get_index())  ) {
+						// stop can receive passengers
+
+						// setup ware packet
+						return_pax.menge = pax_return;
+						return_pax.set_zielpos(origin_pos);
+						return_halt->starte_mit_route(return_pax);
+
+						// log departed at stop
+						return_halt->add_pax_happy(pax_return);
+
+						// log departed at destination city
+						dest_city->city_history_year[0][history_type] += pax_return;
+						dest_city->city_history_month[0][history_type] += pax_return;
 					}
 					else {
-						// use normal amount for return pas/mail
-						return_pax.menge = pax_left_to_do;
+						// stop is crowded
+						return_halt->add_pax_unhappy(pax_return);
 					}
-					return_pax.set_zielpos(origin_pos);
 
-					return_halt->starte_mit_route(return_pax);
-					return_halt->add_pax_happy(pax_left_to_do);
 				}
-				else {
-					// return halt crowded
-					return_halt->add_pax_unhappy(pax_left_to_do);
+				else if(  route_result == haltestelle_t::ROUTE_WALK  ) {
+					// only log results of return packet when walking
+
+					// log walked at stop (source and destination stops are the same)
+					start_halt->add_pax_walked(pax_return);
+
+					// log people who walk or deliver by hand
+					dest_city->city_history_year[0][history_type+1] += pax_return;
+					dest_city->city_history_month[0][history_type+1] += pax_return;
+#if 0
+					// if active people who walk or mail delivered by hand do not count as happy, transported or even needing to be transported
+					dest_city->city_history_year[0][history_type+2] -= pax_return;
+					dest_city->city_history_month[0][history_type+2] -= pax_return;
+#endif
+				}
+				else if(  route_result == haltestelle_t::ROUTE_OVERCROWDED  ) {
+					// overcrowded routes cause unhappiness to be logged
+
+					// log unhappiness at destination
+					pax.get_ziel()->add_pax_unhappy(pax_return);
 				}
 			}
 			INT_CHECK( "simcity 1579" );
@@ -1951,7 +2025,8 @@ void stadt_t::step_passagiere()
 		// fake one ride to get a proper display of destinations (although there may be more) ...
 		pax_return_type will_return;
 		factory_entry_t *factory_entry = NULL;
-		const koord ziel = find_destination(target_factories, city_history_month[0][history_type+1], &will_return, factory_entry);
+		stadt_t *dest_city = NULL;
+		const koord ziel = find_destination(target_factories, city_history_month[0][history_type+1], &will_return, factory_entry, dest_city);
 		if(  factory_entry  ) {
 			// consider at most 1 packet's amount as factory-going
 			sint32 amount = min(PACKET_SIZE, num_pax);
@@ -1964,6 +2039,23 @@ void stadt_t::step_passagiere()
 			target_factories.total_generated += amount;
 			factory_entry->factory->book_stat( amount, ( wtyp==warenbauer_t::passagiere ? FAB_PAX_GENERATED : FAB_MAIL_GENERATED ) );
 		}
+
+
+		// log reverse flow at destination city for accurate tally
+		if(  will_return != no_return  ) {
+			uint32 pax_return = num_pax;
+
+			// apply return modifiers
+			if(  will_return != city_return  &&  wtyp == warenbauer_t::post  ) {
+				// attractions and factories return more mail than they receive
+				pax_return*= MAIL_RETURN_MULTIPLIER_PRODUCERS;
+			}
+
+			// log potential return passengers at destination city
+			dest_city->city_history_year[0][history_type + 1] += pax_return;
+			dest_city->city_history_month[0][history_type + 1] += pax_return;
+		}
+
 #ifdef DESTINATION_CITYCARS
 		//citycars with destination
 		generate_private_cars(k, step_count, ziel);
@@ -2036,31 +2128,41 @@ void stadt_t::recalc_target_attractions()
 /* this function generates a random target for passenger/mail
  * changing this strongly affects selection of targets and thus game strategy
  */
-koord stadt_t::find_destination(factory_set_t &target_factories, const sint64 generated, pax_return_type* will_return, factory_entry_t* &factory_entry)
+koord stadt_t::find_destination(factory_set_t &target_factories, const sint64 generated, pax_return_type* will_return, factory_entry_t* &factory_entry, stadt_t* &dest_city)
 {
-	// Knightly : first, check to see if the pax/mail is factory-going
+	// generate factory traffic when required
 	if(  target_factories.total_remaining>0  &&  (sint64)target_factories.generation_ratio>((sint64)(target_factories.total_generated*100)<<RATIO_BITS)/(generated+1)  ) {
 		factory_entry_t *const entry = target_factories.get_random_entry();
 		assert( entry );
 		*will_return = factory_return;	// worker will return
 		factory_entry = entry;
+		dest_city = this; // factory is part of city
 		return entry->factory->get_pos().get_2d();
 	}
 
+	// chance to generate tourist traffic
 	const sint16 rand = simrand(100 - (target_factories.generation_ratio >> RATIO_BITS));
-
 	if(  rand < welt->get_settings().get_tourist_percentage()  &&  target_attractions.get_sum_weight() > 0  ) {
 		*will_return = tourist_return;	// tourists will return
-		return pick_any_weighted( target_attractions )->get_pos().get_2d();
+		gebaeude_t *const &attraction = pick_any_weighted(target_attractions);
+		dest_city = attraction->get_stadt(); // unsure if return value always valid
+		if (dest_city == NULL) {
+			// if destination city was invalid assume this city is the source
+			dest_city = this;
+		}
+		return attraction->get_pos().get_2d();
 	}
-	else {
-		// since the locality is already taken into account for us, we just use the random weight
-		const stadt_t *const selected_city = pick_any_weighted( target_cities );
-		// no return trip if the destination is inside the same city
-		*will_return = selected_city == this ? no_return : city_return;
-		// find a random spot inside the selected city
-		return selected_city->get_zufallspunkt();
-	}
+
+	// generate general traffic between buildings
+
+	// since the locality is already taken into account for us, we just use the random weight
+	stadt_t *const selected_city = pick_any_weighted( target_cities );
+	// no return trip if the destination is inside the same city
+	*will_return = selected_city == this ? no_return : city_return;
+	dest_city = selected_city;
+	// find a random spot inside the selected city
+	return selected_city->get_zufallspunkt();
+
 }
 
 

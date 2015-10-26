@@ -34,8 +34,10 @@ enum city_cost {
 	HIST_BUILDING,	// number of buildings
 	HIST_CITYCARS,	// number of citycars generated
 	HIST_PAS_TRANSPORTED, // number of passengers who could start their journey
+	HIST_PAS_WALKED,    // direct transfer
 	HIST_PAS_GENERATED,	// total number generated
 	HIST_MAIL_TRANSPORTED,	// letters that could be sent
+	HIST_MAIL_WALKED,       // direct handover
 	HIST_MAIL_GENERATED,	// all letters generated
 	HIST_GOODS_RECIEVED,	// times all storages were not empty
 	HIST_GOODS_NEEDED,	// times storages checked
@@ -45,6 +47,9 @@ enum city_cost {
 
 // The number of growth factors kept track of.
 static const uint32 GROWTH_FACTOR_NUMBER = 3;
+
+// Mail return multiplier used by mail producers (attractions and factories).
+static const uint32 MAIL_RETURN_MULTIPLIER_PRODUCERS = 3;
 
 /**
  * Die Objecte der Klasse stadt_t bilden die Staedte in Simu. Sie
@@ -557,10 +562,15 @@ public:
 	void recalc_target_attractions();
 
 	/**
-	 * such ein (zufälliges) ziel für einen Passagier
+	 * Search for a possible Passenger or Mail destination.
+	 * @param target_factories the factory set to use (eg passenger or mail).
+	 * @param generated number of passengers already generated, used to fairly distribute to factories.
+	 * @param will_return set to the jounrey return type on return.
+	 * @param factory_entry set to the destination factory, if any.
+	 * @param dest_city set to the destination city for return flow use.
 	 * @author Hj. Malthaner
 	 */
-	koord find_destination(factory_set_t &target_factories, const sint64 generated, pax_return_type* will_return, factory_entry_t* &factory_entry);
+	koord find_destination(factory_set_t &target_factories, const sint64 generated, pax_return_type* will_return, factory_entry_t* &factory_entry, stadt_t* &dest_city);
 
 	/**
 	 * Gibt die Gruendungsposition der Stadt zurueck.
