@@ -24,6 +24,7 @@
 #include "../besch/bruecke_besch.h"
 #include "../boden/wege/strasse.h"
 #include "../obj/gebaeude.h"
+#include "../obj/roadsign.h"
 #include "environment.h"
 
 
@@ -383,7 +384,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 
 				weg_t* w = to->get_weg(tdriver->get_waytype());
 				
-				if (enforce_weight_limits > 1 && w != NULL)
+				if(enforce_weight_limits > 1 && w != NULL)
 				{
 					// Bernd Gabriel, Mar 10, 2010: way limit info
 					const uint32 way_max_axle_load = w->get_max_axle_load();
@@ -406,6 +407,16 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 							continue;
 						}
 					}
+				}
+
+				if(flags == choose_signal && w->has_sign())
+				{
+					// Do not traverse routes with end of choose signs
+					 roadsign_t* rs = welt->lookup(w->get_pos())->find<roadsign_t>();
+					 if(rs->get_besch()->is_end_choose_signal())
+					 {
+						 continue;
+					 }
 				}
 
 				// not in there or taken out => add new
