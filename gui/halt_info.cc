@@ -116,8 +116,7 @@ halt_info_t::halt_info_t(halthandle_t halt) :
 	chart.set_dimension(12, 10000);
 	chart.set_visible(false);
 	chart.set_background(SYSCOL_CHART_BACKGROUND);
-	const sint16 offset_below_chart = chart.get_pos().y + 100 +
-	                                  +6+LINESPACE+D_V_SPACE; // chart x-axis labels plus space
+	const sint16 offset_below_chart = chart.get_pos().y + 100 + D_V_SPACE; // chart x-axis labels plus space
 	for (int cost = 0; cost<MAX_HALT_COST; cost++) {
 		chart.add_curve(cost_type_color[cost], halt->get_finance_history(), MAX_HALT_COST, index_of_haltinfo[cost], MAX_MONTHS, 0, false, true, 0);
 		filterButtons[cost].init(button_t::box_state, cost_type[cost],

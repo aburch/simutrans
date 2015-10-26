@@ -122,13 +122,12 @@ citylist_frame_t::citylist_frame_t() :
 	year_month_tabs.add_tab(&mchart, translator::translate("Months"));
 	year_month_tabs.set_pos(scr_coord(0,42));
 	year_month_tabs.set_size(scr_size(D_DEFAULT_WIDTH, CHART_HEIGHT-D_BUTTON_HEIGHT*3-D_TITLEBAR_HEIGHT));
-//	year_month_tabs.add_listener(this);
 	year_month_tabs.set_visible(false);
 	add_component(&year_month_tabs);
 
-	const sint16 yb = 42+CHART_HEIGHT-D_BUTTON_HEIGHT*3-8;
-	chart.set_pos(scr_coord(D_MARGIN_LEFT,8+D_TAB_HEADER_HEIGHT));
-	chart.set_size(scr_size(D_DEFAULT_WIDTH-D_MARGIN_LEFT-D_MARGIN_RIGHT,yb-16-42-10-D_TAB_HEADER_HEIGHT));
+	const sint16 yb = CHART_HEIGHT-D_V_SPACE-D_TAB_HEADER_HEIGHT-(karte_t::MAX_WORLD_COST/4)*(D_BUTTON_HEIGHT+D_V_SPACE);
+	chart.set_pos(scr_coord(D_MARGIN_LEFT,D_TAB_HEADER_HEIGHT));
+	chart.set_size(scr_size(D_DEFAULT_WIDTH-D_MARGIN_LEFT-D_MARGIN_RIGHT,yb));
 	chart.set_dimension(12, karte_t::MAX_WORLD_COST*MAX_WORLD_HISTORY_YEARS);
 	chart.set_visible(false);
 	chart.set_background(SYSCOL_CHART_BACKGROUND);
@@ -136,8 +135,8 @@ citylist_frame_t::citylist_frame_t() :
 		chart.add_curve(hist_type_color[cost], welt->get_finance_history_year(), karte_t::MAX_WORLD_COST, cost, MAX_WORLD_HISTORY_YEARS, hist_type_type[cost], false, true, (cost==1) ? 1 : 0 );
 	}
 
-	mchart.set_pos(scr_coord(D_MARGIN_LEFT,8+D_TAB_HEADER_HEIGHT));
-	mchart.set_size(scr_size(D_DEFAULT_WIDTH-D_MARGIN_LEFT-D_MARGIN_RIGHT,yb-16-42-10-D_TAB_HEADER_HEIGHT));
+	mchart.set_pos(scr_coord(D_MARGIN_LEFT,D_TAB_HEADER_HEIGHT));
+	mchart.set_size(scr_size(D_DEFAULT_WIDTH-D_MARGIN_LEFT-D_MARGIN_RIGHT,yb));
 	mchart.set_dimension(12, karte_t::MAX_WORLD_COST*MAX_WORLD_HISTORY_MONTHS);
 	mchart.set_visible(false);
 	mchart.set_background(SYSCOL_CHART_BACKGROUND);
@@ -146,7 +145,7 @@ citylist_frame_t::citylist_frame_t() :
 	}
 
 	for (int cost = 0; cost<karte_t::MAX_WORLD_COST; cost++) {
-		filterButtons[cost].init(button_t::box_state, hist_type[cost], scr_coord(BUTTON1_X+(D_BUTTON_WIDTH+D_H_SPACE)*(cost%4), yb+(D_BUTTON_HEIGHT+2)*(cost/4)), scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
+		filterButtons[cost].init(button_t::box_state, hist_type[cost], scr_coord(BUTTON1_X+(D_BUTTON_WIDTH+D_H_SPACE)*(cost%4), 42+D_TAB_HEADER_HEIGHT+yb+(D_BUTTON_HEIGHT+D_V_SPACE)*(cost/4)), scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
 		filterButtons[cost].add_listener(this);
 		filterButtons[cost].background_color = hist_type_color[cost];
 		filterButtons[cost].set_visible(false);
@@ -216,7 +215,7 @@ void citylist_frame_t::resize(const scr_coord delta)
 	scr_size size = get_windowsize()-scr_size(0,D_TITLEBAR_HEIGHT+42+1);	// window size - title - 42(header)
 	if(show_stats.pressed) {
 		// additional space for statistics
-		size += scr_size(0,-CHART_HEIGHT);
+		size.h -= CHART_HEIGHT;
 	}
 	scrolly.set_pos( scr_coord(0, 42+(show_stats.pressed*CHART_HEIGHT) ) );
 	scrolly.set_size(size);

@@ -170,8 +170,8 @@ void city_info_t::resize(const scr_coord delta)
 		D_MARGIN_TOP + max(D_BUTTON_HEIGHT+D_V_SPACE+8*LINESPACE+D_V_SPACE+D_CHECKBOX_HEIGHT+D_V_SPACE,
 		(world_aspect / space_aspect > PAX_DEST_VERTICAL ? 2*minimaps_size.h+D_V_SPACE : minimaps_size.h) + D_V_SPACE )) );
 
-	year_month_tabs.set_size(scr_size(get_windowsize().w - D_MARGIN_RIGHT,
-		get_windowsize().h-D_TITLEBAR_HEIGHT-year_month_tabs.get_pos().y - D_MARGIN_BOTTOM - (D_BUTTON_HEIGHT+D_V_SPACE)*(rows+1) - 1 ));
+	year_month_tabs.set_size(scr_size(get_windowsize().w - D_MARGIN_RIGHT-D_MARGIN_LEFT,
+		get_windowsize().h-year_month_tabs.get_pos().y - D_MARGIN_BOTTOM - (D_BUTTON_HEIGHT+D_V_SPACE)*(rows+1) - 1 ));
 
 	// move and resize filter buttons
 	for(  int i=0;  i<MAX_CITY_HISTORY-1;  i++  ) {

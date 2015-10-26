@@ -109,7 +109,7 @@ void gui_chart_t::hide_line(uint32 id)
 
 void gui_chart_t::draw(scr_coord offset)
 {
-	scr_coord chart_offset(130,0);
+	scr_coord chart_offset(130,(LINESPACE/2));
 	int maximum_axis_len = 22;
 
 	offset += pos;
@@ -119,7 +119,7 @@ void gui_chart_t::draw(scr_coord offset)
 	}
 
 	offset += chart_offset;
-	scr_size chart_size = size-chart_offset-scr_size(10,0);
+	scr_size chart_size = size-chart_offset-scr_size(10,4+LINESPACE);
 
 	sint64 last_year=0, tmp=0;
 	char cmin[128] = "0", cmax[128] = "0", digit[8];
@@ -176,7 +176,7 @@ void gui_chart_t::draw(scr_coord offset)
 			sprintf( digit, "%i", abs(seed - j) );
 			scr_coord_val x =  x0 - (seed != j ? (int)(2 * log( (double)abs(seed - j) )) : 0);
 			if(  x > x_last  ) {
-				x_last = x + display_proportional_clip( x, offset.y + chart_size.h + 6, digit, ALIGN_LEFT, line_color, true );
+				x_last = x + display_proportional_clip( x, offset.y + chart_size.h + 4, digit, ALIGN_LEFT, line_color, true );
 			}
 		}
 		// year's vertical lines
@@ -340,13 +340,13 @@ void gui_chart_t::calc_gui_chart_values(sint64 *baseline, float *scale, char *cm
 	}
 
 	// scale: factor to calculate money with, to get y-pos offset
-	*scale = (float)(max - min) / (size.h-2);
+	*scale = (float)(max - min) / (size.h-2-4-LINESPACE-(LINESPACE/2));
 	if(*scale==0.0) {
 		*scale = 1.0;
 	}
 
 	// baseline: y-pos for the "zero" line in the chart
-	*baseline = (sint64)(size.h - abs((int)(min / *scale )));
+	*baseline = (sint64)(size.h-2-4-LINESPACE-(LINESPACE/2) - abs((int)(min / *scale )));
 }
 
 

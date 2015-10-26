@@ -41,6 +41,8 @@
 
 #include "convoi_detail_t.h"
 
+#define CHART_HEIGHT (100)
+
 static const char cost_type[convoi_t::MAX_CONVOI_COST][64] =
 {
 	"Free Capacity", "Transported", "Revenue", "Operation", "Profit", "Distance", "Maxspeed", "Way toll"
@@ -128,13 +130,13 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	add_component(&follow_button);
 
 	chart.set_pos(scr_coord(D_MARGIN_LEFT,offset_below_viewport+D_BUTTON_HEIGHT+11));
-	chart.set_size(scr_size(total_width-D_MARGIN_LEFT-D_MARGIN_RIGHT, 88));
+	chart.set_size(scr_size(total_width-D_MARGIN_LEFT-D_MARGIN_RIGHT, CHART_HEIGHT));
 	chart.set_dimension(12, 10000);
 	chart.set_visible(false);
 	chart.set_background(SYSCOL_CHART_BACKGROUND);
 	const sint16 offset_below_chart = offset_below_viewport+D_BUTTON_HEIGHT+11 // chart position
-	                                  +88                                      // chart size
-	                                  +6+LINESPACE+D_V_SPACE;                  // chart x-axis labels plus space
+	                                  +CHART_HEIGHT                            // chart size
+	                                  +D_V_SPACE;                  // chart x-axis labels plus space
 
 	for (int cost = 0; cost<convoi_t::MAX_CONVOI_COST; cost++) {
 		chart.add_curve( cost_type_color[cost], cnv->get_finance_history(), convoi_t::MAX_CONVOI_COST, cost, MAX_MONTHS, cost_type_money[cost], false, true, cost_type_money[cost]*2 );

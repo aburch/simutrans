@@ -255,7 +255,7 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 
 	//CHART
 	chart.set_dimension(12, 1000);
-	chart.set_pos( scr_coord(RIGHT_COLUMN_OFFSET+CHART_OFFSET, D_MARGIN_TOP) );
+	chart.set_pos( scr_coord(RIGHT_COLUMN_OFFSET, D_MARGIN_TOP) );
 	chart.set_seed(0);
 	chart.set_background(SYSCOL_CHART_BACKGROUND);
 	add_component(&chart);
@@ -565,13 +565,13 @@ void schedule_list_gui_t::set_windowsize(scr_size size)
 	scrolly_convois.set_size( scr_size(rest_width, get_client_windowsize().h-scrolly_convois.get_pos().y) );
 	scrolly_haltestellen.set_size( scr_size(RIGHT_COLUMN_OFFSET-2*D_V_SPACE, get_client_windowsize().h-scrolly_haltestellen.get_pos().y) );
 
-	chart.set_size(scr_size(rest_width-CHART_OFFSET, SCL_HEIGHT-D_TITLEBAR_HEIGHT-D_MARGIN_TOP-(button_rows*(D_BUTTON_HEIGHT+D_H_SPACE))));
+	chart.set_size( scr_size( rest_width, SCL_HEIGHT-D_MARGIN_TOP-(button_rows*(D_BUTTON_HEIGHT+D_H_SPACE)) ) );
 	inp_name.set_size(scr_size(rest_width, D_BUTTON_HEIGHT));
 	filled_bar.set_size(scr_size(rest_width, 4));
 
 	int y = D_MARGIN_TOP + SCL_HEIGHT-D_V_SPACE-(button_rows*(D_BUTTON_HEIGHT+D_V_SPACE));
 	for(  int i=0;  i<MAX_LINE_COST;  i++  ) {
-		filterButtons[i].set_pos( scr_coord(RIGHT_COLUMN_OFFSET+(i%button_per_row)*(D_BUTTON_WIDTH+D_H_SPACE), y+(i/button_per_row)*(D_BUTTON_HEIGHT+D_H_SPACE))  );
+		filterButtons[i].set_pos( scr_coord(RIGHT_COLUMN_OFFSET+(i%button_per_row)*(D_BUTTON_WIDTH+D_H_SPACE), y+(i/button_per_row)*(D_BUTTON_HEIGHT+D_V_SPACE))  );
 	}
 }
 

@@ -15,7 +15,7 @@
 #include "factory_chart.h"
 
 //#define CHART_WIDTH (D_DEFAULT_WIDTH-104)
-#define CHART_HEIGHT (70)
+#define CHART_HEIGHT (90)
 
 #define MAX_GOODS_COLOR (24)
 
@@ -147,12 +147,12 @@ void factory_chart_t::set_factory(const fabrik_t *_factory)
 	}
 	factory = _factory;
 
-	const scr_coord_val offset_below_chart = 10 + CHART_HEIGHT + 20;
+	const scr_coord_val offset_below_chart = CHART_HEIGHT+D_V_SPACE;
 	const scr_coord_val label_offset = D_GET_CENTER_ALIGN_OFFSET(LINESPACE,D_BUTTON_HEIGHT);
 	tab_panel.set_pos( scr_coord(0, 0) );
 
 	// GUI components for goods input/output statistics
-	goods_chart.set_pos( scr_coord( D_MARGIN_LEFT, D_TAB_HEADER_HEIGHT ) );
+	goods_chart.set_pos( scr_coord( D_MARGIN_LEFT, 0 ) );
 	goods_chart.set_size( scr_size( D_DEFAULT_WIDTH-D_MARGIN_LEFT-D_MARGIN_RIGHT, CHART_HEIGHT ) );
 	goods_chart.set_dimension(12, 10000);
 	goods_chart.set_background(SYSCOL_CHART_BACKGROUND);
@@ -219,8 +219,8 @@ void factory_chart_t::set_factory(const fabrik_t *_factory)
 	tab_panel.add_tab( &goods_cont, translator::translate("Goods") );
 
 	// GUI components for other production-related statistics
-	goods_chart.set_pos( scr_coord( D_MARGIN_LEFT, 10 ) );
-	goods_chart.set_size( scr_size( D_DEFAULT_WIDTH-D_MARGIN_LEFT-D_MARGIN_RIGHT, CHART_HEIGHT ) );
+	prod_chart.set_pos( scr_coord( D_MARGIN_LEFT, 0 ) );
+	prod_chart.set_size( scr_size( D_DEFAULT_WIDTH-D_MARGIN_LEFT-D_MARGIN_RIGHT, CHART_HEIGHT ) );
 	prod_chart.set_dimension(12, 10000);
 	prod_chart.set_background(SYSCOL_CHART_BACKGROUND);
 	for(  int s=0;  s<MAX_FAB_STAT;  ++s  ) {
