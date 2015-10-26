@@ -4606,11 +4606,11 @@ void convoi_t::laden() //"load" (Babelfish)
 {
 	// Calculate average speed and journey time
 	// @author: jamespetts
-
+	
 	halthandle_t halt = haltestelle_t::get_halt(fpl->get_current_eintrag().pos, owner);
-	departure_point_t departure(fpl->get_aktuell(), reverse_schedule);
+	halthandle_t this_halt = haltestelle_t::get_halt(get_pos(), owner);
 
-	if(haltestelle_t::get_halt(get_pos(), owner) != halt)
+	if(!this_halt.is_bound())
 	{
 		state = CAN_START;
 		dbg->error("void convoi_t::laden()", "Trying to load at halt %s when not at a halt", halt.is_bound() ? halt->get_name() : "none");
@@ -4621,6 +4621,7 @@ void convoi_t::laden() //"load" (Babelfish)
 	// a more accurate distance can be used. Query whether the formula from halt_detail.cc should be used here instead
 	// (That formula has the effect of finding the distance between the nearest points of two halts).
 
+	departure_point_t departure(fpl->get_aktuell(), reverse_schedule);
 	const koord3d pos3d = front()->get_pos();
 	koord pos;
 	halthandle_t new_halt = haltestelle_t::get_halt(pos3d, front()->get_owner());
