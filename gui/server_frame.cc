@@ -290,9 +290,9 @@ bool server_frame_t::update_serverlist ()
 	// Based on current dialog settings, should we show mismatched servers or not
 	uint revision = 0;
 	const char* pakset = NULL;
+	gameinfo_t current( welt );
 
 	if (  !show_mismatched.pressed  ) {
-		gameinfo_t current( welt );
 		revision = current.get_game_engine_revision();
 		pakset   = current.get_pak_name();
 	}
