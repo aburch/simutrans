@@ -56,6 +56,12 @@ void schiene_t::cleanup(player_t *)
 	}
 }
 
+void schiene_t::rotate90()
+{
+	direction = ribi_t::rotate90(direction); 
+	weg_t::rotate90();
+}
+
 
 void schiene_t::info(cbuffer_t & buf, bool is_bridge) const
 {

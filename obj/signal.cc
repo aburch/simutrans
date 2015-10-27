@@ -408,7 +408,6 @@ void signal_t::rdwr_signal(loadsave_t *file)
 void signal_t::rotate90()
 {
 	signalbox.rotate90(welt->get_size().y-1); 
-	roadsign_t* rs = (roadsign_t*) this;
-	dir = ribi_t::rotate90( dir );
+	dir = ribi_t::rotate90(dir);
 	obj_t::rotate90();
 }

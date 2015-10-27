@@ -122,6 +122,8 @@ public:
 
 	void rdwr(loadsave_t *file);
 
+	void rotate90();
+
 	/**
 	 * if a function return here a value with TRANSPARENT_FLAGS set
 	 * then a transparent outline with the color form the lower 8 Bit is drawn
