@@ -86,11 +86,11 @@ signal_t::~signal_t()
 		}
 	}
 	bool has_removed_successfully = welt->remove_time_interval_signal_to_check(this); 
-	if(!has_removed_successfully)
+	/*if(!has_removed_successfully)
 	{
 		dbg->error("signal_t::~signal_t()", "Failed to remove signal from time interval list: clearing list to prevent crashes (this might cause signals to delay in being cleared)"); 
 		welt->clear_time_interval_signals_to_check();
-	}
+	}*/
 }
 
 
