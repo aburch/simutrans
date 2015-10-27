@@ -5281,8 +5281,19 @@ void rail_vehicle_t::leave_tile()
 							int count = 0;
 							for(int i = min(route_index, route->get_count() - 1); i > 0; i--)
 							{
-								grund_t* gr_route = welt->lookup(route->position_bei(i));
-								signal_t* sig_route = gr_route->find<signal_t>();
+								const koord3d current_pos = route->position_bei(i);
+								grund_t* gr_route = welt->lookup(current_pos);
+								ribi_t::ribi ribi;
+								if(i == 0)
+								{
+									ribi == ribi_t::alle;
+								}
+								else
+								{
+									ribi = ribi_typ(route->position_bei(i - 1), current_pos);
+								}
+								signal_t* sig_route = gr_route->get_weg(get_waytype())->get_signal(ribi);
+								//signal_t* sig_route = gr_route->find<signal_t>();
 								if(sig_route)
 								{
 									count++;
