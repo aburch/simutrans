@@ -1617,9 +1617,13 @@ uint16 haltestelle_t::get_average_waiting_time(halthandle_t halt, uint8 category
 			total_times /= count;
 			return total_times;
 		}
-		return get_service_frequency(halt, category);
+		// The service frequency is divided by two to get the waiting times
+		// because the time that passengers, goods, etc. wait is, on average,
+		// half the interval between services, because they do not all arrive
+		// just after the previous service has departed. 
+		return get_service_frequency(halt, category) / 2;
 	}
-	return get_service_frequency(halt, category);
+	return get_service_frequency(halt, category) / 2;
 }
 
 uint16 haltestelle_t::get_service_frequency(halthandle_t destination, uint8 category) const
