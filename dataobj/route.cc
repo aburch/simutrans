@@ -437,13 +437,25 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 					current_dir = ribi_t::nsow[r] | tmp->ribi_from;
 					if(tmp->dir!=current_dir) {
 						k->g += 3;
-						if(tmp->parent->dir!=tmp->dir  &&  tmp->parent->parent!=NULL) {
+						if(tmp->parent->dir!=tmp->dir  &&  tmp->parent->parent!=NULL)
+						{
 							// discourage 90° turns
 							k->g += 10;
 						}
-						else if(ribi_t::ist_exakt_orthogonal(tmp->dir,current_dir)) {
-							// discourage v turns heavily
-							k->g += 25;
+						else if(ribi_t::ist_exakt_orthogonal(tmp->dir,current_dir))
+						{
+							if(flags == choose_signal)
+							{
+								// In the case of a choose signal, this will in some situations allow trains to
+								// route in very suboptimal ways if a route is part blocked: see here for an explanation:
+								// http://forum.simutrans.com/index.php?topic=14839.msg146645#msg146645
+								continue;
+							}
+							else
+							{
+								// discourage v turns heavily
+								k->g += 25;
+							}
 						}
 					}
 
