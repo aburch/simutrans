@@ -4500,7 +4500,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 						}
 						
 						
-						if(first_stop_signal_index == INVALID_INDEX || first_stop_signal_index == start_index || (first_stop_signal_index <= last_station_tile && last_station_tile < INVALID_INDEX))
+						if(first_stop_signal_index == INVALID_INDEX || (working_method == absolute_block && (first_stop_signal_index == start_index || (first_stop_signal_index <= last_station_tile && last_station_tile < INVALID_INDEX))))
 						{
 							first_stop_signal_index = i;
 							if(next_signal_working_method == time_interval && (signal->get_state() == roadsign_t::caution || signal->get_state() == roadsign_t::caution_no_choose))
@@ -4512,7 +4512,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 							{
 								cnv->set_maximum_signal_speed(signal->get_besch()->get_max_speed());
 							}
-							if(next_signal_working_method == track_circuit_block  || next_signal_working_method == cab_signalling)
+							if(next_signal_working_method == track_circuit_block || next_signal_working_method == cab_signalling)
 							{
 								remaining_aspects = signal->get_besch()->get_aspects(); 
 							}
@@ -4573,7 +4573,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 								last_pre_signal_index = i;
 							}
 						}
-						else if(next_signal_working_method == time_interval &&  last_pre_signal_index >= INVALID_INDEX && (signal->get_state() == roadsign_t::clear || signal->get_state() == roadsign_t::clear_no_choose))
+						else if(next_signal_working_method == time_interval && last_pre_signal_index >= INVALID_INDEX && (signal->get_state() == roadsign_t::clear || signal->get_state() == roadsign_t::clear_no_choose))
 						{
 							last_pre_signal_index = i;
 						}
