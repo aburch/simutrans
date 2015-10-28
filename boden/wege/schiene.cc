@@ -119,6 +119,13 @@ bool schiene_t::reserve(convoihandle_t c, ribi_t::ribi dir, reservation_type t, 
 		{
 			if(signal_t* sig = get_signal(dir))
 			{
+				if(sig->is_bidirectional())
+				{
+					// A suitable state for facing in the opposite direction
+					// will not be a suitable state for facing in this new
+					// direction.
+					sig->set_state(roadsign_t::danger);
+				}
 				sig->calc_image();
 			}
 		}
