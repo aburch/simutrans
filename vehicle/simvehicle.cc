@@ -3692,7 +3692,10 @@ sint32 rail_vehicle_t::activate_choose_signal(const uint16 start_block, uint16 &
 	route_t target_rt;
 	const uint16 first_block = start_block == 0 ? start_block : start_block - 1;
 	const uint16 second_block = start_block == 0 ? start_block + 1 : start_block; 
-	const uint8 direction = ribi_typ(cnv->get_route()->position_bei(first_block).get_2d(), cnv->get_route()->position_bei(second_block).get_2d());
+	const koord3d first_tile = cnv->get_route()->position_bei(first_block);
+	const koord3d second_tile = cnv->get_route()->position_bei(second_block);
+	uint8 direction = ribi_typ(first_tile.get_2d(), second_tile.get_2d());
+	direction |= welt->lookup(second_tile)->get_weg(get_waytype())->get_ribi_unmasked();
 	cnv->set_is_choosing(true);
 	bool can_find_route;
 
