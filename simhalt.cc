@@ -1626,7 +1626,7 @@ uint16 haltestelle_t::get_average_waiting_time(halthandle_t halt, uint8 category
 	fixed_list_tpl<uint16, 32> tmp;
 	waiting_time_set set;
 	set.times = tmp;
-	set.month = 0;
+	set.month = 2; // Set this so as to be stale and flushed quickly to keep this up to date.
 	set.times.add_to_tail(estimated_waiting_time); 
 	waiting_times[category].put(halt.get_id(), set); // This is to avoid repeat calculation of the service interval, which is computationally intensive.
 	return estimated_waiting_time;
