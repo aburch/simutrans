@@ -5200,7 +5200,7 @@ void rail_vehicle_t::leave_tile()
 							// sections.
 							clear_token_reservation(sig, w, sch0);							
 						}
-						else if(w && w->get_working_method() == track_circuit_block && !sig->get_besch()->is_pre_signal())
+						else if(sig->get_besch()->get_working_method() == track_circuit_block && !sig->get_besch()->is_pre_signal())
 						{
 							// Must reset all "automatic" signals behind this convoy to less restrictive states. 
 							koord3d last_pos = get_pos(); 
