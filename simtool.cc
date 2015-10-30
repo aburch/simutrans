@@ -8153,7 +8153,7 @@ bool tool_change_line_t::init( player_t *player )
 			{
 				if (line.is_bound()) {
 					schedule_t *fpl = line->get_schedule()->copy();
-					if (fpl->sscanf_schedule( p )  &&  scenario_check_schedule(welt, player, fpl, is_local_execution()) ) {
+					if(fpl->sscanf_schedule( p )  && fpl->get_count() > 1 && scenario_check_schedule(welt, player, fpl, is_local_execution()) ) {
 						fpl->eingabe_abschliessen();
 						line->set_schedule( fpl );
 						simlinemgmt_t::update_line(line);
