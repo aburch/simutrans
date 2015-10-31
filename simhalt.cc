@@ -1715,20 +1715,25 @@ uint16 haltestelle_t::get_service_frequency(halthandle_t destination, uint8 cate
 		}
 		else
 		{
-			uint32 proportion = timing * 10 / service_frequency;
-			if(service_frequency < timing)
+			// There are multiple lines serving this stop, so compute for multiple line timing
+			if(service_frequency == timing)
 			{
-				service_frequency = ((service_frequency * 10 / proportion) + service_frequency) / 2;
+				// Two equally timed lines: halve the service frequency
+				service_frequency /= 2;
 			}
-			else if(proportion == 0)
+			else if(service_frequency > timing)
 			{
-				// Where the timing is so much lower than the existing frequency that the proportion is zero,
-				// the infrequent service is probably insignificant in the timing so far.
-				service_frequency =  max(1, timing);
+				// The new timing is more frequent than the service interval calculated so far
+				uint32 proportion_10 = (service_frequency * 10) / timing; // This is the number of new convoys per old convoy in any given time, * 10
+				proportion_10 += 10; // Adding 10 to add back the original convoy: this is now the total number of convoys per service_frequency, * 10
+				service_frequency = (service_frequency * 10) / proportion_10;
 			}
 			else
 			{
-				service_frequency = max(1, ((timing * 10 / proportion) + timing) / 2);
+				// The new timing is less frequent than the service interval calculated so far
+				uint32 proportion_10 = (timing * 10) / service_frequency; // This is the number of new convoys per old convoy in any given time, * 10
+				proportion_10 += 10; // Adding 10 to add back the original convoy: this is now the total number of convoys per service_frequency, * 10
+				service_frequency = (timing * 10) / proportion_10;
 			}
 		}
 	}
