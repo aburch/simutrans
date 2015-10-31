@@ -1113,10 +1113,10 @@ vector_tpl<lines_loaded_compare_t> lines_loaded; // used to skip loading multipl
 // Add convoy to loading
 void haltestelle_t::request_loading(convoihandle_t cnv)
 {
-	if(  !loading_here.is_contained( cnv )  ) 
+	if(!loading_here.is_contained(cnv)) 
 	{
 		estimated_convoy_arrival_times.remove(cnv.get_id());
-		loading_here.append( cnv );
+		loading_here.append(cnv);
 	}
 	if(last_loading_step != welt->get_steps())
 	{
@@ -2082,7 +2082,8 @@ bool haltestelle_t::hole_ab( slist_tpl<ware_t> &fracht, const ware_besch_t *wtyp
 	const uint8 catg_index = wtyp->get_catg_index();
 	vector_tpl<ware_t> *warray = waren[catg_index];
 	if(warray  &&  warray->get_count() > 0)
-	{		binary_heap_tpl<ware_t*> goods_to_check;
+	{		
+		binary_heap_tpl<ware_t*> goods_to_check;
 		for(uint32 i = 0;  i < warray->get_count();  )
 		{
 			// Load first the goods/passengers/mail that have been waiting the longest.
@@ -2107,7 +2108,10 @@ bool haltestelle_t::hole_ab( slist_tpl<ware_t> &fracht, const ware_besch_t *wtyp
 			ware_t* const next_to_load = goods_to_check.pop();
 			uint8 index = fpl->get_aktuell();
 			bool reverse = cnv->get_reverse_schedule();
-			fpl->increment_index(&index, &reverse);
+			if(cnv->get_state() != convoi_t::REVERSING)
+			{
+				fpl->increment_index(&index, &reverse);
+			}
 
 			int count = 0;
 			while(index != fpl->get_aktuell())
