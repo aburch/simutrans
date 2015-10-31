@@ -29,12 +29,12 @@ SectionGroupEnd
 
 
 
-Section /o "pak64.german (Freeware) for 112-3 (beta6)" pak64german
+Section /o "pak64.german (Freeware) for 112-3-1" pak64german
   AddSize 19451
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak.german/pak64.german-112-3/pak64.german_0-112-3beta6_full.zip"
+  StrCpy $downloadlink "http://simutrans-germany.com/pak.german/pak64.german_0-112-3-1_full.zip"
   StrCpy $archievename "pak64.german_0-112-3beta6_full.zip"
   StrCpy $downloadname "pak64.german"
-  StrCpy $VersionString "pak64.german 0.112.3 beta 6"
+  StrCpy $VersionString "pak64.german 0.112.3.1"
   Call DownloadInstallZip
 SectionEnd
 

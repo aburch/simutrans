@@ -152,54 +152,103 @@ SectionGroupEnd
 
 Section /o "pak64.german (Freeware)" pak64german
   SetOutPath $INSTDIR
-  File /r "${SP_PATH}\pak"
+  File /r "${SP_PATH}\pak64.german"
 SectionEnd
 
 
 
-Section /o "pak64 HAJO (Freeware) 102.2" pak64HAJO
+Section /o "pak64.japan" pak64japan
   SetOutPath $INSTDIR
-  File /r "${SP_PATH}\pak.german"
+  File /r "${SP_PATH}\pak.japan"
 SectionEnd
 
 
 
-Section /o "pak96 Comic (beta, Freeware) 102.2" pak96comic
+Section /o "pak64.Nippon" pak64nippon
+  SetOutPath $INSTDIR
+  File /r "${SP_PATH}\pak.nippon"
+SectionEnd
+
+
+
+Section /o "pak64.HO (GPL)" pak64HO
+  SetOutPath $INSTDIR
+  File /r "${SP_PATH}\pak64.HO"
+SectionEnd
+
+
+
+Section /o "pak64.SciFi" pak64SF
+  SetOutPath $INSTDIR
+  File /r "${SP_PATH}\pak64.ScfFi"
+SectionEnd
+
+
+
+Section /o "pak64 HAJO (Freeware)" pak64HAJO
+  SetOutPath $INSTDIR
+  File /r "${SP_PATH}\pak.HAJO"
+SectionEnd
+
+
+
+Section /o "pak64 contrast (GPL)" pak64contrast
+  SetOutPath $INSTDIR
+  File /r "${SP_PATH}\pak.HAJO"
+SectionEnd
+
+
+
+Section /o "pak96 Comic (beta, Freeware)" pak96comic
   SetOutPath $INSTDIR
   File /r "${SP_PATH}\pak96.comic"
 SectionEnd
 
 
 
-Section /o "pak128 (Freeware) 102.2.2" pak128
+Section /o "pak96 hand drawn" pak96HD
+  SetOutPath $INSTDIR
+  File /r "${SP_PATH}\pakHD"
+SectionEnd
+
+
+
+Section /o "pak128" pak128
   SetOutPath $INSTDIR
   File /r "${SP_PATH}\pak128"
 SectionEnd
 
 
 
-Section /o "pak128 Japan 101.0" pak128japan
+Section /o "pak128 German" pak128german
+  SetOutPath $INSTDIR
+  File /r "${SP_PATH}\pak128.german"
+SectionEnd
+
+
+
+Section /o "pak128 Japan" pak128japan
   SetOutPath $INSTDIR
   File /r "${SP_PATH}\pak128.japan"
 SectionEnd
 
 
 
-Section /o "pak128 Britain (0.7) 102.2.1" pak128britain
+Section /o "pak128 Britain" pak128britain
   SetOutPath $INSTDIR
   File /r "${SP_PATH}\pak128.britain"
 SectionEnd
 
 
 
-Section /o "pak192 Comic (Freeware) 102.2.1" pak192comic
+Section /o "pak192 Comic (Freeware)" pak192comic
   SetOutPath $INSTDIR
   File /r "${SP_PATH}\pak192.comic"
 SectionEnd
 
 
 
-Section /o "pak32 Comic (alpha) 102.2.1" pak32comic
+Section /o "pak32 Comic (alpha)" pak32comic
   SetOutPath $INSTDIR
   File /r "${SP_PATH}\pak32.comic"
 SectionEnd
