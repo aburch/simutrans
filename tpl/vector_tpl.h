@@ -295,6 +295,19 @@ template<class T> class vector_tpl
 		const_iterator begin() const { return data; }
 		const_iterator end() const { return data + count; }
 
+		iterator swap_erase(iterator pos)
+		{
+			if(  pos == end()  ) {
+				--count;
+				return pos;
+			}
+			else {
+				*pos = back();
+				--count;
+				return pos;
+			}
+		}
+
 		/** Get the number of elements in the vector */
 		uint32 get_count() const { return count; }
 

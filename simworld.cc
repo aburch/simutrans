@@ -5104,32 +5104,32 @@ rands[19] = get_random_seed();
 
 		const sint64 caution_interval_ticks = seconds_to_ticks(caution_interval_seconds);
 		const sint64 clear_interval_ticks = seconds_to_ticks(clear_interval_seconds); 
-		slist_tpl<signal_t*> signals_to_remove; 
 
-		FOR(slist_tpl<signal_t*>, sig, time_interval_signals_to_check)
+		for(vector_tpl<signal_t*>::iterator iter = time_interval_signals_to_check.begin(); iter != time_interval_signals_to_check.end();) 
 		{
+			signal_t* sig = *iter;
 			if((sig->get_train_last_passed() + clear_interval_ticks) < ticks)
 			{
+				iter = time_interval_signals_to_check.swap_erase(iter);
 				sig->set_state(roadsign_t::clear_no_choose);
-				signals_to_remove.append(sig);
 			}
 			else if((sig->get_train_last_passed() + caution_interval_ticks) < ticks)
 			{
 				if(sig->get_besch()->is_pre_signal())
 				{
 					sig->set_state(roadsign_t::clear_no_choose);
-					signals_to_remove.append(sig);
 				}
 				else
 				{
 					sig->set_state(roadsign_t::caution_no_choose);
 				}
+				
+				++iter;
 			}
-		}
-
-		FOR(slist_tpl<signal_t*>, sig, signals_to_remove)
-		{
-			time_interval_signals_to_check.remove(sig);
+			else 
+			{
+				++iter;
+			}
 		}
 	}
 

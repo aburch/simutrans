@@ -924,7 +924,7 @@ private:
 	// Signals in the time interval working method that need
 	// to be checked periodically to see whether they need
 	// to change to a less restrictive aspect.
-	slist_tpl<signal_t*> time_interval_signals_to_check;
+	vector_tpl<signal_t*> time_interval_signals_to_check;
 
 public:
 
