@@ -3986,7 +3986,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		const koord3d tile_to_check_ahead = cnv->get_route()->position_bei(min(route.get_count() - 1u, route_index + sighting_distance_tiles));
 		const koord3d previous_tile = cnv->get_route()->position_bei(min(route.get_count() - 1u, route_index + sighting_distance_tiles) -1u);
 		grund_t *gr_ahead = welt->lookup(tile_to_check_ahead);
-		weg_t *way = gr_ahead->get_weg(get_waytype());
+		weg_t *way = gr_ahead ? gr_ahead->get_weg(get_waytype()) : NULL;
 		if(!way)
 		{
 			// This may happen if a way has been removed since the route was calculated. Must recalculate the route.

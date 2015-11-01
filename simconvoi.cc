@@ -2376,7 +2376,10 @@ void convoi_t::warten_bis_weg_frei(sint32 restart_speed)
 	if(!is_waiting()) {
 		if(state != EMERGENCY_STOP || wait_lock == 0)
 		{
-			state = WAITING_FOR_CLEARANCE;
+			if(state != ROUTING_1)
+			{
+				state = WAITING_FOR_CLEARANCE;
+			}
 			wait_lock = 0;
 		}
 	}
