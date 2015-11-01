@@ -2114,7 +2114,7 @@ bool haltestelle_t::hole_ab( slist_tpl<ware_t> &fracht, const ware_besch_t *wtyp
 			}
 
 			int count = 0;
-			while(index != fpl->get_aktuell())
+			while(index != fpl->get_aktuell() || (cnv->get_state() == convoi_t::REVERSING && count == 0))
 			{
 				halthandle_t& plan_halt = cached_halts[index];
 				if(plan_halt.is_null())
