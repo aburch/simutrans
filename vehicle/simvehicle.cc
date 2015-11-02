@@ -4924,7 +4924,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 			for(uint32 j = relevant_index; j < route->get_count(); j++)
 			{
 				schiene_t * sch1 = (schiene_t *)welt->lookup(route->position_bei(j))->get_weg(get_waytype());
-				if((sch1->is_reserved(schiene_t::block)
+				if(sch1 && (sch1->is_reserved(schiene_t::block)
 					|| (!directional_reservation_succeeded
 					&& sch1->is_reserved(schiene_t::directional)))
 					&& sch1->get_reserved_convoi() == cnv->self
