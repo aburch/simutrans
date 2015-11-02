@@ -3039,7 +3039,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 				// test next position
 				gr = welt->lookup(r.position_bei(test_index));
 				if(  !gr  ) {
-					// way (weg) not existent (probably destroyed)
+					// ground not existent (probably destroyed)
 					if(  !second_check_count  ) {
 						cnv->suche_neue_route();
 					}
@@ -3047,7 +3047,16 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 				}
 
 				str = (strasse_t *)gr->get_weg(road_wt);
-				if(  !str  ||  gr->get_top() > 250  ) {
+
+				if(  !str  ) {
+					// road not existent (probably destroyed)
+					if(  !second_check_count  ) {
+						cnv->suche_neue_route();
+					}
+					return false;
+				}
+
+				if(  gr->get_top() > 250  ) {
 					// too many cars here or no street
 					return false;
 				}
