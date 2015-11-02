@@ -1,3 +1,5 @@
+	FIX: corrected bookeeping of stops and passengers, including walked ones
+
 Release of 120.1: (r7634 on 31-Oct-2014):
 	FIX: sliced undergraound mode now ranges from lowest existing to highest existing ground
 	FIX: several issues with bridge bilding and deletion at two vertical cliffs
