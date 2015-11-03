@@ -65,9 +65,6 @@
  */
 static sint64 const CITYGROWTH_PER_CITICEN = 1ll << 32; // Q31.32 fractional form.
 
-#define GROWTHFACTOR_DEMAND(i) (HIST_PAS_GENERATED+(i)*2)
-#define GROWTHFACTOR_SUPPLIED(i) (HIST_PAS_TRANSPORTED+(i)*2)
-
 karte_ptr_t stadt_t::welt; // one is enough ...
 
 
@@ -1243,22 +1240,19 @@ void stadt_t::rdwr(loadsave_t* file)
 		file->rdwr_long( stadtinfo_options);
 	}
 
-	if (file->get_version() > 120000) {
-		// load/save differential statistics.
-		for (uint32 i = 0; i < GROWTH_FACTOR_NUMBER; i++) {
-			file->rdwr_longlong( city_growth_factor_previous[i].demand );
-			file->rdwr_longlong( city_growth_factor_previous[i].supplied );
+	// differential history
+	if (  file->get_version() <= 120000  ) {
+		if (  file->is_loading()  ) {
+			// Initalize differential statistics assuming a differential of 0.
+			city_growth_get_factors(city_growth_factor_previous, 0);
 		}
 	}
-	else if(file->is_loading()) {
-		// Initalize differential statistics assuming a differential of 0.
-		sint64 const (&h)[MAX_CITY_HISTORY] = city_history_month[0];
-		city_growth_factor_previous[0].demand = h[HIST_PAS_GENERATED];
-		city_growth_factor_previous[0].supplied = h[HIST_PAS_TRANSPORTED];
-		city_growth_factor_previous[1].demand = h[HIST_MAIL_GENERATED];
-		city_growth_factor_previous[1].supplied = h[HIST_MAIL_TRANSPORTED];
-		city_growth_factor_previous[2].demand = h[HIST_GOODS_NEEDED];
-		city_growth_factor_previous[2].supplied = h[HIST_GOODS_RECIEVED];
+	else {
+		// load/save differential statistics.
+		for (uint32 i = 0; i < GROWTH_FACTOR_NUMBER; i++) {
+			file->rdwr_longlong(city_growth_factor_previous[i].demand);
+			file->rdwr_longlong(city_growth_factor_previous[i].supplied);
+		}
 	}
 
 	if(file->get_version()>99014  &&  file->get_version()<99016) {
@@ -1542,36 +1536,59 @@ void stadt_t::roll_history()
 
 }
 
+void stadt_t::city_growth_get_factors(city_growth_factor_t(&factors)[GROWTH_FACTOR_NUMBER], uint32 const month) const {
+	// optimize view of history for convenience
+	sint64 const (&h)[MAX_CITY_HISTORY] = city_history_month[month];
+
+	// go through each index one at a time
+	uint32 index = 0;
+
+	// passenger growth factors
+	factors[index].demand = h[HIST_PAS_GENERATED];
+	factors[index++].supplied = h[HIST_PAS_TRANSPORTED] + h[HIST_PAS_WALKED];
+
+	// mail growth factors
+	factors[index].demand = h[HIST_MAIL_GENERATED];
+	factors[index++].supplied = h[HIST_MAIL_TRANSPORTED] + h[HIST_MAIL_WALKED];
+
+	// goods growth factors
+	factors[index].demand = h[HIST_GOODS_NEEDED];
+	factors[index++].supplied = h[HIST_GOODS_RECIEVED];
+}
+
 sint32 stadt_t::city_growth_base(uint32 const rprec, uint32 const cprec)
 {
 	// Resolve constant references.
 	settings_t const & s = welt->get_settings();
-	sint32 const weight[3] = { s.get_passenger_multiplier(), s.get_mail_multiplier(), s.get_goods_multiplier() };
+	sint32 const weight[GROWTH_FACTOR_NUMBER] = { s.get_passenger_multiplier(), s.get_mail_multiplier(),
+	    s.get_goods_multiplier() };
 
 	sint32 acc = 0; // The weighted satisfaction accululator.
 	sint32 div = 0; // The weight dividend.
 	sint32 total = 0; // The total weight.
 
+	// initalize const growth array
+	city_growth_factor_t growthfactors[GROWTH_FACTOR_NUMBER];
+	city_growth_get_factors(growthfactors, 0);
 
 	// Loop through each growth factor and compute it.
-	sint64 const (&h)[MAX_CITY_HISTORY] = city_history_month[0];
 	for( uint32 i = 0; i < GROWTH_FACTOR_NUMBER; i += 1 ) {
 		// Resolve the weight.
 		total += weight[i];
 
 		// Compute the differentials.
-		sint64 const had = h[GROWTHFACTOR_DEMAND(i)] - city_growth_factor_previous[i].demand;
-		city_growth_factor_previous[i].demand = h[GROWTHFACTOR_DEMAND(i)];
-		sint64 const got = h[GROWTHFACTOR_SUPPLIED(i)] - city_growth_factor_previous[i].supplied;
-		city_growth_factor_previous[i].supplied = h[GROWTHFACTOR_SUPPLIED(i)];
+		sint64 const had = growthfactors[i].demand - city_growth_factor_previous[i].demand;
+		city_growth_factor_previous[i].demand = growthfactors[i].demand;
+		sint64 const got = growthfactors[i].supplied - city_growth_factor_previous[i].supplied;
+		city_growth_factor_previous[i].supplied = growthfactors[i].supplied;
 
 		// If we had anything to satisfy add it to weighting otherwise skip.
 		if( had == 0 ) {
 			continue;
 		}
 
-		// Compute fractional satisfaction. Limit to 1 for logical reasons.
-		sint32 const frac = had > got ? (sint32)((got << cprec) / had) : (sint32)1 << cprec;
+		// Compute fractional satisfaction.
+		sint32 const frac = (sint32)((got << cprec) / had);
 
 		// Add to weight and div.
 		acc += frac * weight[i];
@@ -1579,21 +1596,24 @@ sint32 stadt_t::city_growth_base(uint32 const rprec, uint32 const cprec)
 	}
 
 	// If there was not anything to satisfy then use last month averages.
-	if( div == 0 ) {
-		sint64 const (&prev_h)[MAX_CITY_HISTORY] = city_history_month[1];
+	if (  div == 0  ) {
+		// initalize growth factor array
+		city_growth_factor_t prev_growthfactors[GROWTH_FACTOR_NUMBER];
+		city_growth_get_factors(prev_growthfactors, 1);
+
 		for( uint32 i = 0; i < GROWTH_FACTOR_NUMBER; i += 1 ){
 
 			// Extract the values of growth.
-			sint64 const had = prev_h[GROWTHFACTOR_DEMAND(i)];
-			sint64 const got = prev_h[GROWTHFACTOR_SUPPLIED(i)];
+			sint64 const had = prev_growthfactors[i].demand;
+			sint64 const got = prev_growthfactors[i].supplied;
 
 			// If we had anything to satisfy add it to weighting otherwise skip.
 			if( had == 0 ) {
 				continue;
 			}
 
-			// Compute fractional satisfaction. Limit to 1 for logical reasons.
-			sint32 const frac = had > got ? (sint32)((got << cprec) / had) : (sint32)1 << cprec;
+			// Compute fractional satisfaction.
+			sint32 const frac = (sint32)((got << cprec) / had);
 
 			// Add to weight and div.
 			acc += frac * weight[i];
@@ -1608,14 +1628,16 @@ sint32 stadt_t::city_growth_base(uint32 const rprec, uint32 const cprec)
 
 void stadt_t::city_growth_monthly(uint32 const month)
 {
-	// Resolve history as constant for convenience.
-	sint64 const (&h)[MAX_CITY_HISTORY] = city_history_month[month];
+	// initalize growth factor array
+	city_growth_factor_t growthfactors[GROWTH_FACTOR_NUMBER];
+	city_growth_get_factors(growthfactors, month);
+
 	// Perform roll over.
 	for( uint32 i = 0; i < GROWTH_FACTOR_NUMBER; i += 1 ){
 		// Compute the differentials.
-		sint64 const had = h[GROWTHFACTOR_DEMAND(i)] - city_growth_factor_previous[i].demand;
+		sint64 const had = growthfactors[i].demand - city_growth_factor_previous[i].demand;
 		city_growth_factor_previous[i].demand = -had;
-		sint64 const got = h[GROWTHFACTOR_SUPPLIED(i)] - city_growth_factor_previous[i].supplied;
+		sint64 const got = growthfactors[i].supplied - city_growth_factor_previous[i].supplied;
 		city_growth_factor_previous[i].supplied = -got;
 	}
 }
@@ -1796,10 +1818,11 @@ void stadt_t::step_grow_city( bool new_town )
  */
 void stadt_t::step_passagiere()
 {
-	// post or pax erzeugen ?
-	const ware_besch_t *const wtyp = ( simrand(400)<300 ? warenbauer_t::passagiere : warenbauer_t::post );
-	const int history_type = (wtyp == warenbauer_t::passagiere) ? HIST_PAS_TRANSPORTED : HIST_MAIL_TRANSPORTED;
-	factory_set_t &target_factories = (  wtyp==warenbauer_t::passagiere ? target_factories_pax : target_factories_mail );
+	// decide whether to generate passengers or mail
+	const bool ispass = simrand(GENERATE_RATIO_PASS + GENERATE_RATIO_MAIL) < GENERATE_RATIO_PASS;
+	const ware_besch_t *const wtyp = ispass ? warenbauer_t::passagiere : warenbauer_t::post;
+	const uint32 history_type = ispass ? HIST_BASE_PASS : HIST_BASE_MAIL;
+	factory_set_t &target_factories = ispass ? target_factories_pax : target_factories_mail;
 
 	// restart at first building?
 	if (step_count >= buildings.get_count()) {
@@ -1812,12 +1835,12 @@ void stadt_t::step_passagiere()
 
 	// prissi: since now backtravels occur, we damp the numbers a little
 	const uint32 num_pax =
-		(wtyp == warenbauer_t::passagiere) ?
+		(ispass) ?
 			(gb->get_tile()->get_besch()->get_level()      + 6) >> 2 :
 			(gb->get_tile()->get_besch()->get_post_level() + 8) >> 3 ;
 
 	// create pedestrians in the near area?
-	if (welt->get_settings().get_random_pedestrians()  &&  wtyp == warenbauer_t::passagiere) {
+	if (welt->get_settings().get_random_pedestrians()  &&  ispass) {
 		haltestelle_t::generate_pedestrians(gb->get_pos(), num_pax);
 	}
 
@@ -1837,8 +1860,8 @@ void stadt_t::step_passagiere()
 	}
 
 	// Hajo: track number of generated passengers.
-	city_history_year[0][history_type+2] += num_pax;
-	city_history_month[0][history_type+2] += num_pax;
+	city_history_year[0][history_type + HIST_OFFSET_GENERATED] += num_pax;
+	city_history_month[0][history_type + HIST_OFFSET_GENERATED] += num_pax;
 
 	// only continue, if this is a good start halt
 	if(  !start_halts.empty()  ) {
@@ -1854,7 +1877,7 @@ void stadt_t::step_passagiere()
 			pax_return_type will_return;
 			factory_entry_t *factory_entry = NULL;
 			stadt_t *dest_city = NULL;
-			const koord dest_pos = find_destination(target_factories, city_history_month[0][history_type+1], &will_return, factory_entry, dest_city);
+			const koord dest_pos = find_destination(target_factories, city_history_month[0][history_type + HIST_OFFSET_GENERATED], &will_return, factory_entry, dest_city);
 			if(  factory_entry  ) {
 				if (welt->get_settings().get_factory_enforce_demand()) {
 					// ensure no more than remaining amount
@@ -1863,7 +1886,7 @@ void stadt_t::step_passagiere()
 					target_factories.total_remaining -= pax_left_to_do;
 				}
 				target_factories.total_generated += pax_left_to_do;
-				factory_entry->factory->book_stat( pax_left_to_do, ( wtyp==warenbauer_t::passagiere ? FAB_PAX_GENERATED : FAB_MAIL_GENERATED ) );
+				factory_entry->factory->book_stat(pax_left_to_do, ispass ? FAB_PAX_GENERATED : FAB_MAIL_GENERATED);
 			}
 
 #ifdef DESTINATION_CITYCARS
@@ -1884,61 +1907,38 @@ void stadt_t::step_passagiere()
 			int const route_result = haltestelle_t::search_route( &start_halts[0], start_halts.get_count(), welt->get_settings().is_no_routing_over_overcrowding(), pax, &return_pax);
 			halthandle_t start_halt = return_pax.get_ziel();
 			if(  route_result==haltestelle_t::ROUTE_OK  ) {
-				// register departed pax/mail at factory
-				if(  factory_entry  ) {
-					factory_entry->factory->book_stat( pax.menge, ( wtyp==warenbauer_t::passagiere ? FAB_PAX_DEPARTED : FAB_MAIL_DEPARTED ) );
-				}
 				// so we have happy traveling passengers
 				start_halt->starte_mit_route(pax);
 				start_halt->add_pax_happy(pax.menge);
-				// and show it
+
+				// people were transported so are logged
+				city_history_year[0][history_type + HIST_OFFSET_TRANSPORTED] += pax_left_to_do;
+				city_history_month[0][history_type + HIST_OFFSET_TRANSPORTED] += pax_left_to_do;
+
+				// destination logged
 				merke_passagier_ziel(dest_pos, COL_YELLOW);
-				city_history_year[0][history_type] += pax_left_to_do;
-				city_history_month[0][history_type] += pax_left_to_do;
 			}
 			else if(  route_result==haltestelle_t::ROUTE_WALK  ) {
 				if(  factory_entry  ) {
-					// workers who walk to the factory or customers who walk to the consumer store
-					factory_entry->factory->book_stat( pax_left_to_do, ( wtyp==warenbauer_t::passagiere ? FAB_PAX_DEPARTED : FAB_MAIL_DEPARTED ) );
+					// workers and mail delivered instantly to factory
 					factory_entry->factory->liefere_an(wtyp, pax_left_to_do);
 				}
 
 				// log walked at stop
-				start_halt->add_pax_walked(num_pax);
+				start_halt->add_pax_walked(pax_left_to_do);
 
-				// placeholder for a potential game setting to choose log behaviour of departed passengers
+				// people who walk or deliver by hand logged as walking
+				city_history_year[0][history_type + HIST_OFFSET_WALKED] += pax_left_to_do;
+				city_history_month[0][history_type + HIST_OFFSET_WALKED] += pax_left_to_do;
 
-				// people who walk or deliver by hand do not count as transported
-				merke_passagier_ziel(dest_pos, COL_YELLOW);
-				city_history_year[0][history_type+1] += pax_left_to_do;
-				city_history_month[0][history_type+1] += pax_left_to_do;
-#if 0
-				// if active, they even do not count as generated
-				city_history_year[0][history_type+2] -= pax_left_to_do;
-				city_history_month[0][history_type+2] -= pax_left_to_do;
-#endif
+				// probably not a good idea to mark them as player only cares about remote traffic
+				//merke_passagier_ziel(dest_pos, COL_YELLOW);
 			}
 			else if(  route_result==haltestelle_t::ROUTE_OVERCROWDED  ) {
-				merke_passagier_ziel(dest_pos, COL_ORANGE );
+				// overcrowded routes cause unhappiness to be logged
+
 				if(  start_halt.is_bound()  ) {
 					start_halt->add_pax_unhappy(pax_left_to_do);
-					if(  will_return  ) {
-						if(  pax.get_ziel().is_bound()  ) {
-							pax.get_ziel()->add_pax_unhappy(pax_left_to_do);
-						}
-						else {
-							// the unhappy passengers will be added to the first stops near destination (might be none)
-							const planquadrat_t *const dest_plan = welt->access(dest_pos);
-							const halthandle_t *const dest_halt_list = dest_plan->get_haltlist();
-							for (uint h = 0; h < dest_plan->get_haltlist_count(); h++) {
-								halthandle_t halt = dest_halt_list[h];
-								if (  halt->is_enabled(wtyp)  ) {
-									halt->add_pax_unhappy(pax_left_to_do);
-									break;
-								}
-							}
-						}
-					}
 				}
 				else {
 					// all routes to goal are overcrowded -> register at first stop (closest)
@@ -1948,8 +1948,11 @@ void stadt_t::step_passagiere()
 						break;
 					}
 				}
+
+				// destination logged
+				merke_passagier_ziel(dest_pos, COL_ORANGE);
 			}
-			else {
+			else if (  route_result == haltestelle_t::NO_ROUTE  ) {
 				// since there is no route from any start halt -> register no route at first halts (closest)
 				FOR(vector_tpl<halthandle_t>, const s, start_halts) {
 					s->add_pax_no_route(pax_left_to_do);
@@ -1974,8 +1977,13 @@ void stadt_t::step_passagiere()
 				}
 
 				// log potential return passengers at destination city
-				dest_city->city_history_year[0][history_type+2] += pax_return;
-				dest_city->city_history_month[0][history_type+2] += pax_return;
+				dest_city->city_history_year[0][history_type + HIST_OFFSET_GENERATED] += pax_return;
+				dest_city->city_history_month[0][history_type + HIST_OFFSET_GENERATED] += pax_return;
+
+				// factories generate return traffic
+				if (  factory_entry  ) {
+					factory_entry->factory->book_stat(pax_return, (ispass ? FAB_PAX_GENERATED : FAB_MAIL_GENERATED));
+				}
 
 				// route type specific logic
 				if(  route_result == haltestelle_t::ROUTE_OK  ) {
@@ -1983,6 +1991,11 @@ void stadt_t::step_passagiere()
 					halthandle_t return_halt = pax.get_ziel();
 					if(  !return_halt->is_overcrowded(wtyp->get_index())  ) {
 						// stop can receive passengers
+
+						// register departed pax/mail at factory
+						if (factory_entry) {
+							factory_entry->factory->book_stat(pax_return, ispass ? FAB_PAX_DEPARTED : FAB_MAIL_DEPARTED);
+						}
 
 						// setup ware packet
 						return_pax.menge = pax_return;
@@ -1993,8 +2006,8 @@ void stadt_t::step_passagiere()
 						return_halt->add_pax_happy(pax_return);
 
 						// log departed at destination city
-						dest_city->city_history_year[0][history_type] += pax_return;
-						dest_city->city_history_month[0][history_type] += pax_return;
+						dest_city->city_history_year[0][history_type + HIST_OFFSET_TRANSPORTED] += pax_return;
+						dest_city->city_history_month[0][history_type + HIST_OFFSET_TRANSPORTED] += pax_return;
 					}
 					else {
 						// stop is crowded
@@ -2002,18 +2015,48 @@ void stadt_t::step_passagiere()
 					}
 
 				}
-				/* already handled cases further above
-				 * route_result == haltestelle_t::ROUTE_WALK (since pax walk only in the same city)
-				 * route_result == haltestelle_t::ROUTE_OVERCROWDED
-				 */
-				else if(  route_result == haltestelle_t::NO_ROUTE  ) {
-					// the unhappy passengers will be added to the first stops near destination (might be none)
+				else if(  route_result == haltestelle_t::ROUTE_WALK  ) {
+					// walking can produce return flow as a result of commuters to industry, monuments or stupidly big stops
+
+					// register departed pax/mail at factory
+					if (  factory_entry  ) {
+						factory_entry->factory->book_stat(pax_return, ispass ? FAB_PAX_DEPARTED : FAB_MAIL_DEPARTED);
+					}
+
+					// log walked at stop (source and destination stops are the same)
+					start_halt->add_pax_walked(pax_return);
+
+					// log people who walk or deliver by hand
+					dest_city->city_history_year[0][history_type + HIST_OFFSET_WALKED] += pax_return;
+					dest_city->city_history_month[0][history_type + HIST_OFFSET_WALKED] += pax_return;
+				}
+				else if(  route_result == haltestelle_t::ROUTE_OVERCROWDED  ) {
+					// overcrowded routes cause unhappiness to be logged
+
+					if (pax.get_ziel().is_bound()) {
+						pax.get_ziel()->add_pax_unhappy(pax_return);
+					}
+					else {
+						// the unhappy passengers will be added to the first stops near destination (might be none)
+						const planquadrat_t *const dest_plan = welt->access(dest_pos);
+						const halthandle_t *const dest_halt_list = dest_plan->get_haltlist();
+						for (uint h = 0; h < dest_plan->get_haltlist_count(); h++) {
+							halthandle_t halt = dest_halt_list[h];
+							if (halt->is_enabled(wtyp)) {
+								halt->add_pax_unhappy(pax_return);
+								break;
+							}
+						}
+					}
+				}
+				else if (route_result == haltestelle_t::NO_ROUTE) {
+					// passengers who cannot find a route will be added to the first stops near destination (might be none)
 					const planquadrat_t *const dest_plan = welt->access(dest_pos);
 					const halthandle_t *const dest_halt_list = dest_plan->get_haltlist();
 					for (uint h = 0; h < dest_plan->get_haltlist_count(); h++) {
 						halthandle_t halt = dest_halt_list[h];
-						if (  halt->is_enabled(wtyp)  ) {
-							halt->add_pax_no_route(pax_left_to_do);
+						if (halt->is_enabled(wtyp)) {
+							halt->add_pax_no_route(pax_return);
 							break;
 						}
 					}
@@ -2026,8 +2069,7 @@ void stadt_t::step_passagiere()
 		// assume no free stop to start at all
 		bool is_there_any_stop = false;
 
-		// the unhappy passengers will be added to the first stops
-		// however, there might be no stop too
+		// the unhappy passengers will be added to the first stop if any
 		for(  uint h=0;  h<plan->get_haltlist_count(); h++  ) {
 			halthandle_t halt = plan->get_haltlist()[h];
 			if(  halt->is_enabled(wtyp)  ) {
@@ -2042,7 +2084,7 @@ void stadt_t::step_passagiere()
 		pax_return_type will_return;
 		factory_entry_t *factory_entry = NULL;
 		stadt_t *dest_city = NULL;
-		const koord ziel = find_destination(target_factories, city_history_month[0][history_type+1], &will_return, factory_entry, dest_city);
+		const koord ziel = find_destination(target_factories, city_history_month[0][history_type + HIST_OFFSET_GENERATED], &will_return, factory_entry, dest_city);
 		if(  factory_entry  ) {
 			// consider at most 1 packet's amount as factory-going
 			sint32 amount = min(PACKET_SIZE, num_pax);
@@ -2053,7 +2095,7 @@ void stadt_t::step_passagiere()
 				target_factories.total_remaining -= amount;
 			}
 			target_factories.total_generated += amount;
-			factory_entry->factory->book_stat( amount, ( wtyp==warenbauer_t::passagiere ? FAB_PAX_GENERATED : FAB_MAIL_GENERATED ) );
+			factory_entry->factory->book_stat( amount, ( ispass ? FAB_PAX_GENERATED : FAB_MAIL_GENERATED ) );
 		}
 
 
@@ -2068,10 +2110,15 @@ void stadt_t::step_passagiere()
 			}
 
 			// log potential return passengers at destination city
-			dest_city->city_history_year[0][history_type + 2] += pax_return;
-			dest_city->city_history_month[0][history_type + 2] += pax_return;
+			dest_city->city_history_year[0][history_type + HIST_OFFSET_GENERATED] += pax_return;
+			dest_city->city_history_month[0][history_type + HIST_OFFSET_GENERATED] += pax_return;
 
-			// the unhappy passengers will be added to the first stops near destination (might be none)
+			// factories generate return traffic
+			if (  factory_entry  ) {
+				factory_entry->factory->book_stat(pax_return, (ispass ? FAB_PAX_GENERATED : FAB_MAIL_GENERATED));
+			}
+
+			// passengers with no route will be added to the first stops near destination (might be none)
 			const planquadrat_t *const dest_plan = welt->access(ziel);
 			const halthandle_t *const dest_halt_list = dest_plan->get_haltlist();
 			for (uint h = 0; h < dest_plan->get_haltlist_count(); h++) {

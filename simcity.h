@@ -45,11 +45,32 @@ enum city_cost {
 	MAX_CITY_HISTORY	// Total number of items in array
 };
 
+// The base offset for passenger statistics.
+static const uint32 HIST_BASE_PASS = HIST_PAS_TRANSPORTED;
+
+// The base offset for mail statistics.
+static const uint32 HIST_BASE_MAIL = HIST_MAIL_TRANSPORTED;
+
+// The offset for transported statistic for passengers and mail.
+static const uint32 HIST_OFFSET_TRANSPORTED = 0;
+
+// The offset for walked statistic for passengers and mail.
+static const uint32 HIST_OFFSET_WALKED = 1;
+
+// The offset for generated statistic for passengers and mail.
+static const uint32 HIST_OFFSET_GENERATED = 2;
+
 // The number of growth factors kept track of.
 static const uint32 GROWTH_FACTOR_NUMBER = 3;
 
 // Mail return multiplier used by mail producers (attractions and factories).
 static const uint32 MAIL_RETURN_MULTIPLIER_PRODUCERS = 3;
+
+// Passenger generation ratio. This many parts to mail generation ratio parts.
+static const uint32 GENERATE_RATIO_PASS = 3;
+
+// Mail generation ratio. This many parts to passenger generation ratio parts.
+static const uint32 GENERATE_RATIO_MAIL = 1;
 
 /**
  * Die Objecte der Klasse stadt_t bilden die Staedte in Simu. Sie
@@ -198,6 +219,13 @@ private:
 
 	 // The previous values of the growth factors. Used to get delta between ticks and must be saved for determinism.
 	 city_growth_factor_t city_growth_factor_previous[GROWTH_FACTOR_NUMBER];
+
+	 /* Method to generate comparable growth factor data.
+	 * This allows one to alter the logic which computes growth.
+	 * @param factors factor array.
+	 * @param month the month which is to be used for the growth factors.
+	 */
+	 void city_growth_get_factors(city_growth_factor_t (&factors)[GROWTH_FACTOR_NUMBER], uint32 const month) const;
 
 	 /* Method to compute base growth using growth factors.
 	  * Logs differences in growth factors as well.
