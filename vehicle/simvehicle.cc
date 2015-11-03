@@ -4271,7 +4271,12 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 		
 		if(sch1 == NULL && reserve) 
 		{
-			// reserve until the end of track
+			
+			if(i < route->get_count() - 1)
+			{
+				// A way tile has been deleted; the route needs recalculating.
+				cnv->suche_neue_route();
+			}
 			break;
 		}
 		// we un-reserve also nonexistent tiles! (may happen during deletion)
