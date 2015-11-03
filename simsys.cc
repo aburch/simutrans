@@ -6,6 +6,8 @@
 
 #ifdef __HAIKU__
 #include <Message.h>
+#include <FindDirectory.h>
+#include <Path.h>
 #include <LocaleRoster.h>
 #include <SupportDefs.h>
 #define NO_UINT32_TYPES
