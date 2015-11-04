@@ -1,6 +1,8 @@
-	FIX: corrected bookeeping of stops and passengers, including walked ones
+Release of 120.1: (r7640 on 4-Nov-2015):
+	FIX: corrected bookeeping of stops and passengers, including walked ones which could lead to crashes
 
-Release of 120.1: (r7634 on 31-Oct-2014):
+
+Release of 120.1: (r7634 on 31-Oct-2015):
 	FIX: sliced undergraound mode now ranges from lowest existing to highest existing ground
 	FIX: several issues with bridge bilding and deletion at two vertical cliffs
 	ADD: new industrial demand model just_in_time=2, which models factory ordering stuff
