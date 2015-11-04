@@ -4271,7 +4271,6 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 		
 		if(sch1 == NULL && reserve) 
 		{
-			
 			if(i < route->get_count() - 1)
 			{
 				// A way tile has been deleted; the route needs recalculating.
@@ -4320,7 +4319,9 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 				}
 			}
 
-			if(haltestelle_t::get_halt(pos, get_owner()) == this_halt)
+			halthandle_t check_halt = haltestelle_t::get_halt(pos, get_owner());
+
+			if(check_halt.is_bound() && (check_halt == this_halt))
 			{
 				last_station_tile = i;
 			}
@@ -4514,7 +4515,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 						}
 						
 						
-						if(first_stop_signal_index == INVALID_INDEX || (working_method == absolute_block && (first_stop_signal_index == start_index || (first_stop_signal_index <= last_station_tile && last_station_tile < INVALID_INDEX))))
+						if(first_stop_signal_index == INVALID_INDEX /*|| (working_method == absolute_block && (first_stop_signal_index == start_index || (first_stop_signal_index <= last_station_tile && last_station_tile < INVALID_INDEX)))*/)
 						{
 							first_stop_signal_index = i;
 							if(next_signal_working_method == time_interval && (signal->get_state() == roadsign_t::caution || signal->get_state() == roadsign_t::caution_no_choose))
@@ -4567,7 +4568,13 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 					{				
 						if(next_signal_working_method == absolute_block || next_signal_working_method == token_block)
 						{
-							if((signalbox_last_distant_signal == koord3d::invalid || signalbox_last_distant_signal == signal->get_signalbox()) && (pre_signals.empty() || first_stop_signal_index == INVALID_INDEX))
+							const grund_t* gr_last_signal = welt->lookup(cnv->get_last_signal_pos()); 
+							signal_t* last_signal = gr_last_signal ? gr_last_signal->find<signal_t>() : NULL;
+							koord3d last_signalbox_pos = last_signal ? last_signal->get_signalbox() : koord3d::invalid;
+							if(signalbox_last_distant_signal == koord3d::invalid 
+								&& i - start_index <= sighting_distance_tiles
+								&& (last_signalbox_pos == koord3d::invalid || last_signalbox_pos != signal->get_signalbox()) 
+								&& (pre_signals.empty() || first_stop_signal_index == INVALID_INDEX))
 							{
 								pre_signals.append(signal); 
 								last_pre_signal_index = i;
