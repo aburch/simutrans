@@ -314,7 +314,6 @@ bool interaction_t::process_event( event_t &ev )
 {
 	if(ev.ev_class==EVENT_SYSTEM  &&  ev.ev_code==SYSTEM_QUIT) {
 		// quit the program if this window is closed
-		destroy_all_win(true);
 		env_t::quit_simutrans = true;
 
 		// we may be requested to save the game before exit
@@ -352,9 +351,23 @@ bool interaction_t::process_event( event_t &ev )
 			sprintf( fn, "server%d-restore.sve", env_t::server );
 			bool old_restore_UI = env_t::restore_UI;
 			env_t::restore_UI = true;
-			world->save( fn, loadsave_t::save_mode, SERVER_SAVEGAME_VER_NR, false );
+			world->save( fn, loadsave_t::save_mode, SAVEGAME_VER_NR, false );
 			env_t::restore_UI = old_restore_UI;
 		}
+		else if(  env_t::reload_and_save_on_quit  ) {
+			bool old_restore_UI = env_t::restore_UI;
+			env_t::restore_UI = true;
+
+			// construct from pak name an autosave if requested
+			std::string pak_name( "autosave-" );
+			pak_name.append( env_t::objfilename );
+			pak_name.erase( pak_name.length()-1 );
+			pak_name.append( ".sve" );
+
+			world->save( pak_name.c_str(), loadsave_t::autosave_mode, SAVEGAME_VER_NR, false );
+			env_t::restore_UI = old_restore_UI;
+		}
+		destroy_all_win(true);
 		return true;
 	}
 
