@@ -61,6 +61,10 @@ signalbox_t::~signalbox_t()
 		}
 
 		signal_t* s = gr->find<signal_t>();
+		if(!s)
+		{
+			continue;
+		}
 		s->set_signalbox(koord3d::invalid);
 		s->cleanup(get_owner());
 		delete s;
