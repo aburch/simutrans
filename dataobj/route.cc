@@ -307,8 +307,6 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 	 */
 	const bool use_jps     = tdriver->get_waytype()==water_wt;
 
-	grund_t *to;
-
 	bool ziel_erreicht=false;
 
 	// memory in static list ...
@@ -389,7 +387,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 				continue;
 			}
 
-			to = NULL;
+			grund_t* to = NULL;
 			if(is_airplane) {
 				to = welt->lookup_kartenboden(gr->get_pos().get_2d()+koord(next_ribi[r]));
 			}
