@@ -4626,7 +4626,10 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 				{
 					// Because the distant signal applies to all signals controlled by the same signalbox, the driver cannot know that the route 
 					// will be clear beyond the *first* stop signal after the distant. 
-					next_signal_index = first_stop_signal_index;
+					if(pre_signals.empty() && first_stop_signal_index > start_index + sighting_distance_tiles)
+					{
+						next_signal_index = first_stop_signal_index;
+					}
 					do_not_clear_distant = true;					
 					if(next_signal_index == start_index)
 					{
