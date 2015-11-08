@@ -687,11 +687,8 @@ bool weg_t::check_season(const bool calc_only_season_change)
 		}
 		else
 		{
-			//set_images(image_flat, ribi, snow);
-			calc_image();
+			set_images(image_flat, ribi, snow);
 		}
-		//set_images( image_diagonal, ribi, snow );
-		//calc_image();
 	}
 	else if(  ribi_t::is_threeway( ribi )  &&  besch->has_switch_bild()  ) {
 		// there might be two states of the switch; remember it when changing seasons
