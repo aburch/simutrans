@@ -4243,6 +4243,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 	bool do_not_clear_distant = false;
 	working_method_t next_signal_working_method = working_method;
 	koord3d signalbox_last_distant_signal = koord3d::invalid;
+	bool last_distant_signal_was_intermediate_block = false;
 	sint32 remaining_aspects = -1;
 	sint32 choose_return = 0;
 	bool reached_end_of_loop = false;
@@ -4280,8 +4281,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 				break;
 			}
 		}
-
-		
+				
 		if(sch1 == NULL && reserve) 
 		{
 			if(i < route->get_count() - 1)
@@ -4438,6 +4438,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 										pre_signals.append(last_combined_signal); 
 										last_pre_signal_index = i;
 										signalbox_last_distant_signal = signal->get_signalbox();
+										last_distant_signal_was_intermediate_block = signal->get_besch()->get_intermediate_block();
 										signs.append(gr);
 									}
 									else
@@ -4452,7 +4453,8 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 										}
 									}
 								}
-								else if(signalbox_last_distant_signal != signal->get_signalbox())
+								else if(signalbox_last_distant_signal != signal->get_signalbox() 
+									|| (signal->get_besch()->get_intermediate_block() ^ last_distant_signal_was_intermediate_block)) // XOR - allow intermediate block in advance or in rear, but do not allow them to be chained.
 								{
 									count--;
 									end_of_block = true;
@@ -4528,7 +4530,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 						}
 						
 						
-						if(first_stop_signal_index == INVALID_INDEX /*|| (working_method == absolute_block && (first_stop_signal_index == start_index || (first_stop_signal_index <= last_station_tile && last_station_tile < INVALID_INDEX)))*/)
+						if(first_stop_signal_index == INVALID_INDEX)
 						{
 							first_stop_signal_index = i;
 							if(next_signal_working_method == time_interval && (signal->get_state() == roadsign_t::caution || signal->get_state() == roadsign_t::caution_no_choose))
@@ -4586,12 +4588,15 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 							koord3d last_signalbox_pos = last_signal ? last_signal->get_signalbox() : koord3d::invalid;
 							if(signalbox_last_distant_signal == koord3d::invalid 
 								&& i - start_index <= sighting_distance_tiles
-								&& (last_signalbox_pos == koord3d::invalid || last_signalbox_pos != signal->get_signalbox()) 
+								&& (last_signalbox_pos == koord3d::invalid
+								 || last_signalbox_pos != signal->get_signalbox()) 
+								 || (signal->get_besch()->get_intermediate_block() ^ last_signal->get_besch()->get_intermediate_block()) // Cannot be two intermediate blocks in a row.
 								&& (pre_signals.empty() || first_stop_signal_index == INVALID_INDEX))
 							{
 								pre_signals.append(signal); 
 								last_pre_signal_index = i;
 								signalbox_last_distant_signal = signal->get_signalbox();
+								last_distant_signal_was_intermediate_block = signal->get_besch()->get_intermediate_block();
 							}
 						}
 						else if(next_signal_working_method == track_circuit_block || next_signal_working_method == cab_signalling)

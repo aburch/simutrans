@@ -93,6 +93,7 @@ obj_besch_t * roadsign_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				besch->max_speed = kmh_to_speed(decode_uint32(p));
 				besch->base_way_only_cost = decode_uint32(p);
 				besch->upgrade_group = decode_uint8(p); 
+				besch->intermediate_block = decode_uint8(p);
 			}
 			else
 			{
@@ -107,6 +108,7 @@ obj_besch_t * roadsign_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				besch->max_speed = kmh_to_speed(160); 
 				besch->base_way_only_cost = besch->base_cost;
 				besch->upgrade_group = 0;
+				besch->intermediate_block = false;
 			}
 		}
 	}
@@ -175,6 +177,7 @@ obj_besch_t * roadsign_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->max_speed = kmh_to_speed(160); 
 		besch->base_way_only_cost = besch->base_cost;
 		besch->upgrade_group = 0;
+		besch->intermediate_block = false;
 	}
 
 	if(besch->is_longblock_signal())

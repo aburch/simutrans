@@ -80,6 +80,10 @@ private:
 	// Whether this is a permissive signal.
 	bool permissive;
 
+	// Whether this signal is an intermediate block type signal
+	// in the absolute block working method.
+	bool intermediate_block;
+
 	// The maximum speed at which this signal may be approached.
 	// Used for system speeds. 
 	uint32 max_speed;
@@ -154,6 +158,8 @@ public:
 
 	bool get_permissive() const { return permissive; }
 
+	bool get_intermediate_block() const { return intermediate_block; }
+
 	uint32 get_max_speed() const { return max_speed; }
 
 	working_method_t get_working_method() const { return working_method; }
@@ -171,6 +177,7 @@ public:
 		chk->input(has_call_on);
 		chk->input(has_selective_choose);
 		chk->input(permissive);
+		chk->input(intermediate_block);
 		chk->input(max_speed);
 		chk->input(working_method); 
 	}
