@@ -2753,10 +2753,14 @@ bool convoi_t::set_schedule(schedule_t * f)
 			delete fpl;
 		}
 		fpl = f;
-		if(  changed  ) {
+		if(  changed  )
+		{
 			// Knightly : if line is unset or schedule is changed
 			//				-> register stops from new schedule
-			register_stops();
+			if(!line.is_bound())
+			{
+				register_stops();
+			}
 
 			// Also, clear the departures table, which may now be out of date.
 			clear_departures();
