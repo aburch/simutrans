@@ -164,7 +164,7 @@ const char *check_tile( const grund_t *gr, const player_t *player, waytype_t wt,
 	// we can build a ramp when there is one (or with tram two) way in our direction and no stations/depot etc.
 	if(  weg_t *w = gr->get_weg_nr(0)  ) {
 
-		if(  !player_t::check_owner(w->get_owner(),player)  ) {
+		if(  w->is_deletable(player) != NULL  ) {
 			// not our way
 			return "Das Feld gehoert\neinem anderen Spieler\n";
 		}
@@ -172,7 +172,7 @@ const char *check_tile( const grund_t *gr, const player_t *player, waytype_t wt,
 		// now check for direction
 		ribi_t::ribi ribi = w->get_ribi_unmasked();
 		if(  weg_t *w2 = gr->get_weg_nr(1)  ) {
-			if(  !player_t::check_owner(w2->get_owner(),player)  ) {
+			if(  w2->is_deletable(player) != NULL ) {
 				// not our way
 				return "Das Feld gehoert\neinem anderen Spieler\n";
 			}
@@ -211,7 +211,7 @@ const char *check_tile( const grund_t *gr, const player_t *player, waytype_t wt,
 	}
 	else if(  wt == powerline_wt  ) {
 		if(  leitung_t *lt = gr->get_leitung()  ) {
-			if(  player_t::check_owner(lt->get_owner(),player)  &&  ribi_check( lt->get_ribi(), check_ribi )  ) {
+			if(  lt->is_deletable(player) == NULL  &&  ribi_check( lt->get_ribi(), check_ribi )  ) {
 				// matching powerline
 				return NULL;
 			}
