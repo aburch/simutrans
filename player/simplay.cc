@@ -24,6 +24,8 @@
 #include "../simtool.h"
 #include "../gui/simwin.h"
 #include "../simworld.h"
+#include "../simsignalbox.h"
+
 #include "../display/viewport.h"
 
 #include "../bauer/brueckenbauer.h"
@@ -1109,7 +1111,7 @@ bool player_t::has_money_or_assets() const
 
 void player_t::set_selected_signalbox(signalbox_t* sb)
 {
-	selected_signalbox = sb;
+	selected_signalbox = sb ? (signalbox_t*)sb->get_first_tile() : NULL;
 	if(!welt->is_destroying())
 	{
 		tool_t::update_toolbars();

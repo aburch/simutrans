@@ -799,7 +799,7 @@ bool gebaeude_t::is_same_building(gebaeude_t* other)
 }
 
 
-gebaeude_t* gebaeude_t::get_first_tile()
+gebaeude_t* gebaeude_t::get_first_tile() const
 {
 	if(tile)
 	{
@@ -812,16 +812,28 @@ gebaeude_t* gebaeude_t::get_first_tile()
 				if (tile==NULL  ||  !tile->has_image()) {
 					continue;
 				}
-				if (grund_t *gr = welt->lookup( get_pos() - get_tile()->get_offset() + k)) {
-					gebaeude_t *gb = gr->find<gebaeude_t>();
-					if (gb  &&  gb->get_tile() == tile) {
+				if(grund_t *gr = welt->lookup( get_pos() - get_tile()->get_offset() + k))
+				{
+					gebaeude_t* gb;
+					if(tile->get_besch()->get_utyp() == haus_besch_t::signalbox)
+					{
+						gb = gr->get_signalbox();
+					}
+					else
+					{
+						gb = gr->find<gebaeude_t>();
+					}
+					if(gb && gb->get_tile() == tile)
+					{
 						return gb;
 					}
 				}
 			}
 		}
 	}
-	return this;
+	// FIXME: Find a way of doing this without having to cast away const,
+	// as this is naughty.
+	return (gebaeude_t*)this;
 }
 
 void gebaeude_t::get_description(cbuffer_t & buf) const
@@ -923,7 +935,7 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 
 		if(tile->get_besch()->get_utyp() == haus_besch_t::signalbox)
 		{
-			signalbox_t* sb = (signalbox_t*)this;
+			signalbox_t* sb = (signalbox_t*)get_first_tile();
 			buf.printf("%s: %d/%d\n", translator::translate("Signals"), sb->get_number_of_signals_controlled_from_this_box(), tile->get_besch()->get_capacity()); 
 		}
 

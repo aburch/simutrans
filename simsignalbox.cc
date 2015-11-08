@@ -175,7 +175,7 @@ bool signalbox_t::can_add_signal(const roadsign_besch_t* b) const
 
 	if(group) // A signal with a group of 0 needs no signalbox and does not work with signalboxes
 	{
-		uint32 my_groups = get_tile()->get_besch()->get_clusters();
+		uint32 my_groups = get_first_tile()->get_tile()->get_besch()->get_clusters();
 		if(my_groups & group)
 		{
 			// The signals form part of a matching group: allow addition
@@ -197,7 +197,7 @@ bool signalbox_t::can_add_signal(const signal_t* s) const
 
 bool signalbox_t::can_add_more_signals() const
 {
-	return signals.get_count() < get_tile()->get_besch()->get_capacity();
+	return signals.get_count() < get_first_tile()->get_tile()->get_besch()->get_capacity();
 }
 
 bool signalbox_t::transfer_signal(signal_t* s, signalbox_t* sb)
