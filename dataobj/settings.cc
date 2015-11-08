@@ -502,6 +502,8 @@ settings_t::settings_t() :
 	way_wear_power_factor_rail_type = 1;
 	standard_axle_load = 8;
 	citycar_way_wear_factor = 2;
+	sighting_distance_meters = 250;
+	assumed_curve_radius_45_degrees = 1000;
 }
 
 void settings_t::set_default_climates()
@@ -1585,6 +1587,12 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_long(way_wear_power_factor_rail_type);
 			file->rdwr_short(standard_axle_load); 
 			file->rdwr_long(citycar_way_wear_factor);
+			if(file->get_experimental_revision() > 1)
+			{
+				file->rdwr_long(sighting_distance_meters);
+				sighting_distance_tiles = sighting_distance_meters / meters_per_tile;
+				file->rdwr_long(assumed_curve_radius_45_degrees);
+			}
 #endif
 		}
 		else
@@ -2420,6 +2428,11 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	way_wear_power_factor_rail_type = contents.get_int("way_wear_power_factor_rail_type", way_wear_power_factor_rail_type);
 	standard_axle_load = contents.get_int("standard_axle_load", standard_axle_load);
 	citycar_way_wear_factor = contents.get_int("citycar_way_wear_factor", citycar_way_wear_factor);
+
+	sighting_distance_meters = contents.get_int("sighting_distance_meters", sighting_distance_meters); 
+	sighting_distance_tiles = sighting_distance_meters / meters_per_tile;
+
+	assumed_curve_radius_45_degrees = contents.get_int("assumed_curve_radius_45_degrees", assumed_curve_radius_45_degrees);
 
 	// OK, this is a bit complex.  We are at risk of loading the same livery schemes repeatedly, which
 	// gives duplicate livery schemes and utter confusion.

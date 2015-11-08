@@ -1693,11 +1693,24 @@ sint32 vehicle_t::calc_speed_limit(const weg_t *w, const weg_t *weg_previous, fi
 		
 		if(steps_to_second_45)
 		{
-			// A pair of self-correcting 45 degree corners can be made in a minimum of 4 tiles and will have a minimum radius of twice the meters per tile value
-			steps_to_second_45 = max(steps_to_second_45 - 3, 1);
-
-			radius = (steps_to_second_45 * meters_per_tile) * 2;
-			corner_limit_kmh = min(corner_limit_kmh, sqrt_i32((87 * radius) / corner_force_divider)); 
+			uint32 assumed_radius = welt->get_settings().get_assumed_curve_radius_45_degrees();
+			
+			// If assumed_radius == 0, then do not impose any speed limit for 45 degree turns alone.
+			if(assumed_radius > 0)
+			{
+				if(assumed_radius == 9999)
+				{
+					// A pair of self-correcting 45 degree corners can be made in a minimum of 4 tiles and will have a minimum radius of twice the meters per tile value
+					// However, this is too harsh for most uses; allow it only by a special value of assumed_radius.
+					steps_to_second_45 = max(steps_to_second_45 - 3, 1);
+					radius = (steps_to_second_45 * meters_per_tile) * 2;
+				}
+				else
+				{
+					radius = assumed_radius;
+				}
+				corner_limit_kmh = min(corner_limit_kmh, sqrt_i32((87 * radius) / corner_force_divider)); 
+			}
 		}
 
 		if(radius > 0)
@@ -3902,7 +3915,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 	route_t &route = *cnv->get_route();
 	convoi_t::route_infos_t &route_infos = cnv->get_route_infos();
 
-	const sint32 sighting_distance_tiles = 2; // TODO: Set this from simuconf.tab
+	const uint16 sighting_distance_tiles = welt->get_settings().get_sighting_distance_tiles();
 
 	// is there any signal/crossing to be reserved?
 	sint32 next_block = cnv->get_next_stop_index() - 1;
@@ -4210,7 +4223,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 	// find next block segment enroute
 	uint32 i = start_index - (count == 100001 ? 1 : 0);
 	next_signal_index = INVALID_INDEX;
-	const uint32 sighting_distance_tiles = 2; // TODO: Have this set from simuconf.tab in meters. 
+	const uint16 sighting_distance_tiles = welt->get_settings().get_sighting_distance_tiles();
 	bool unreserve_now = false;
 
 	koord3d pos = route->position_bei(start_index);

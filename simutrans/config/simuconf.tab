@@ -594,6 +594,25 @@ citycar_way_wear_factor = 2
 # max length
 #river_max_length = 320
 
+# This is the distance in meters at which train drivers can see signals ahead.
+# Trains have to brake in time for signals which might be at danger, so this
+# distance affects train speed. 
+sighting_distance_meters = 250
+
+# Corners of greater than 45 degrees have their radius calculated. However, because of 
+# the rigid tile system in Simutrans, this produces unrealistic results when applied
+# to corners of 45 degrees. A value is thus specified here. This affects the speed
+# at which vehicles can take 45 degree corners. 
+#
+# If this is set to 0, 45 degree corners are treated as straight.
+# 
+# If this is set to 9999, adjacent pairs of degree corners are treated as half the
+# radius of a 90 degree corner (and non-adjacent pairs scaled according to the distance
+# between them). This is techincally correct but does not work well in Simutrans because
+# of the inability to have gentler corners. 
+#
+assumed_curve_radius_45_degrees = 1000
+
 ################################# Tree settings #################################
 #  please be careful in changing them, I spent lot of time finding optimals.
 #  those values have impact on no. of spawned trees -> memory consumption

@@ -46,7 +46,10 @@ static char const* const version[] =
 	"0.112.3",
 	"0.112.5",
 	"0.112.6",
-	"0.112.7"
+	"0.112.7",
+	"0.120.0",
+	"0.120.1",
+	"0.120.7"
 };
 
 static const char *version_ex[] =
@@ -69,7 +72,8 @@ static const char *version_ex[] =
 static const char *revision_ex[] =
 {
 	"0", /*Ex version 0 has no Ex string at all*/
-	"1"
+	"1",
+	"2"
 };
 
 // just free memory
@@ -196,6 +200,8 @@ void settings_experimental_general_stats_t::init( settings_t *sets )
 	INIT_NUM("enforce_weight_limits", sets->get_enforce_weight_limits(), 0, 3, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM("max_diversion_tiles", sets->get_max_diversion_tiles(), 0, 65535, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM("way_degridation_fraction", sets->get_way_degridation_fraction(), 0, 40, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM("sighting_distance_meters", sets->get_sighting_distance_meters(), 0, 7500, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM("assumed_curve_radius_45_degrees", sets->get_assumed_curve_radius_45_degrees(), 0, 10000, gui_numberinput_t::AUTOLINEAR, false );
 
 	SEPERATOR;
 	INIT_NUM("population_per_level", sets->get_population_per_level(), 1, 1000, 1, false);
@@ -367,6 +373,9 @@ void settings_experimental_general_stats_t::read(settings_t *sets)
 	}
 	// And convert to the form used in-game...
 	sets->cache_speedbonuses();
+
+	READ_NUM_VALUE(sets->sighting_distance_meters);
+	READ_NUM_VALUE(sets->assumed_curve_radius_45_degrees);
 }
 
 
@@ -639,7 +648,7 @@ void settings_general_stats_t::init(settings_t const* const sets)
 	label.back()->set_pos( scr_coord( 76, label.back()->get_pos().y ) );
 	clear_dirty();
 
-	ypos+=105;
+	ypos+=5;
 	height = ypos;
 
 	savegame_ex_rev.set_pos( scr_coord(2,ypos-2) );
@@ -652,9 +661,9 @@ void settings_general_stats_t::init(settings_t const* const sets)
 		}
 		else
 		{
-			savegame_ex_rev.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( revision_ex[i]+1, COL_BLACK ) );
+			savegame_ex_rev.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( revision_ex[i], COL_BLACK ) );
 		}
-		if(  strcmp(revision_ex[i],EXPERIMENTAL_VER_NR)==0  ) 
+		if(  strcmp(revision_ex[i],QUOTEME(EX_SAVE_MINOR))==0  ) 
 		{
 			savegame_ex_rev.set_selection( i );
 		}
@@ -662,7 +671,7 @@ void settings_general_stats_t::init(settings_t const* const sets)
 	savegame_ex_rev.set_focusable( false );
 	add_component( &savegame_ex_rev );
 	savegame_ex_rev.add_listener( this );
-	INIT_LB( "savegame Experimental version" );
+	INIT_LB( "savegame Experimental revision" );
 	label.back()->set_pos( scr_coord( 76, label.back()->get_pos().y ) );
 	clear_dirty();
 

@@ -658,6 +658,10 @@ public:
 	uint32 way_wear_power_factor_rail_type;
 	uint16 standard_axle_load;
 	uint32 citycar_way_wear_factor;
+	
+	uint32 sighting_distance_meters;
+	uint16 sighting_distance_tiles;
+	uint32 assumed_curve_radius_45_degrees;
 
 	/**
 	 * If map is read from a heightfield, this is the name of the heightfield.
@@ -1109,7 +1113,10 @@ public:
 	uint16 get_standard_axle_load() const { return standard_axle_load; }
 	uint32 get_citycar_way_wear_factor() const { return citycar_way_wear_factor; }
 
-	
+	uint32 get_sighting_distance_meters() const { return sighting_distance_meters; }
+	uint16 get_sighting_distance_tiles() const { return sighting_distance_tiles; }
+
+	uint32 get_assumed_curve_radius_45_degrees() const { return assumed_curve_radius_45_degrees; }
 };
 
 #endif 
