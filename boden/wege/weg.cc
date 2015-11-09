@@ -260,7 +260,7 @@ void weg_t::set_besch(const weg_besch_t *b, bool from_saved_game)
 			roadsign_t* rs = gr->find<roadsign_t>();
 			if(!rs)
 			{
-				rs = get_signal(ribi_t::alle); 
+				rs =  gr->find<signal_t>();
 			} 
 			if(rs && rs->get_besch()->is_retired(welt->get_timeline_year_month()))
 			{
