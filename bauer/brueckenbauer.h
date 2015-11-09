@@ -30,7 +30,7 @@ private:
 
 	static karte_ptr_t welt;
 
-	static bool is_blocked(koord3d pos, player_t *player, const bruecke_besch_t *besch, const char *&error_msg);
+	static bool is_blocked(koord3d pos, ribi_t::ribi check_ribi, const char *&error_msg);
 	static bool is_monorail_junction(koord3d pos, player_t *player, const bruecke_besch_t *besch, const char *&error_msg);
 public:
 	/**

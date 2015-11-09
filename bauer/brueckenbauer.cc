@@ -227,7 +227,7 @@ const char *check_tile( const grund_t *gr, const player_t *player, waytype_t wt,
 	return "";	// could end here by must not end here
 }
 
-bool brueckenbauer_t::is_blocked(koord3d pos, player_t *, const bruecke_besch_t *, const char *&error_msg)
+bool brueckenbauer_t::is_blocked(koord3d pos, ribi_t::ribi check_ribi, const char *&error_msg)
 {
 	/* can't build directly above or below a way if height clearance == 2 */
 	// take slopes on grounds below into accout
@@ -236,12 +236,19 @@ bool brueckenbauer_t::is_blocked(koord3d pos, player_t *, const bruecke_besch_t 
 		grund_t *gr2;
 		if (dz != 0 && (gr2 = welt->lookup(pos + koord3d(0,0,dz)))) {
 
+			const hang_t::typ slope = gr2->get_weg_hang();
 			if (dz < -clearance) {
-				if (dz + hang_t::max_diff(gr2->get_weg_hang()) < -clearance ) {
+				if (dz + hang_t::max_diff(slope) < -clearance ) {
 					// too far below
 					continue;
 				}
 			}
+
+			if (dz + hang_t::max_diff(slope) == 0  &&  gr2->ist_karten_boden()  &&  ribi_typ(gr2->get_grund_hang())==check_ribi) {
+				// potentially connect to this slope
+				continue;
+			}
+
 			weg_t *w = gr2->get_weg_nr(0);
 			if (w && w->get_max_speed() > 0) {
 				error_msg = "Bridge blocked by way below or above.";
@@ -390,7 +397,7 @@ koord3d brueckenbauer_t::finde_ende(player_t *player, koord3d pos, const koord z
 		bool abort = true;
 		for(sint8 z = min_bridge_height; z <= max_height; z++) {
 			if(height_okay(z)) {
-				if(is_blocked(koord3d(pos.get_2d(), z), player, besch, error_msg)) {
+				if(is_blocked(koord3d(pos.get_2d(), z), ribi_typ(zv), error_msg)) {
 					height_okay_array[z-min_bridge_height] = false;
 
 					// connect to suitable monorail tiles if possible
