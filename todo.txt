@@ -1,7 +1,5 @@
 To be done:
-- fixed_maintenance_cost for vehicles (low for trailers/wagons, high for engines,trucksbus,planes): incorporated into besch
 - menu_position (left, top, right, bottom?)
-- loading times for convois (entry loading_time per unit and car; easy change and open more freedom for pak set design)
 - weight limit on ways by axle_load entry in vehicles (to avoid problem when going back and forth with diff. load)
 - busy platform images
 - Signals switching nearly like before (should be easy)
@@ -15,19 +13,13 @@ To be done:
 - unified list dialoges (with their filer as component)
 - depot list
 - vehicle list
+- Scaled fonts
 
 partially done:
-- tile 2x height: halfway-> need conversion for textures needed
-- climate per tiles
 - connection weighted by their intermediate stops => A* for goods routing [A* did not worked out, but intermediate stops may be considered]
-- merge identical images in makeobj: done, merged them on loadtime
-- scripting: on the way
 
 reconsider:
 - leave stop if other convoi has arrived there patch
 - viewports (even if they are perfomance killers ... )
 - routing penalty sign (but a proper one)
-- extended statistics patch
 
-CHECK:
-resize greater than 2400*1536 crashes simutrans

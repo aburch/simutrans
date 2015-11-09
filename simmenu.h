@@ -154,6 +154,7 @@ enum {
 enum {
 	// toolbars
 	TOOL_MAINMENU = 0,
+	TOOL_LAST_USED = 1022,
 	TOOLBAR_TOOL = 0x8000u
 };
 
@@ -389,7 +390,7 @@ protected:
 
 /* toolbar are a new overclass */
 class toolbar_t : public tool_t {
-private:
+protected:
 	const char *helpfile;
 	tool_selector_t *tool_selector;
 	slist_tpl<tool_t *>tools;
@@ -410,8 +411,21 @@ public:
 	bool init(player_t*) OVERRIDE;
 	// close this toolbar
 	bool exit(player_t*) OVERRIDE;
-	void update(player_t *);	// just refresh content
+	virtual void update(player_t *);	// just refresh content
 	void append(tool_t *t) { tools.append(t); }
+};
+
+#define MAX_LAST_TOOLS (10)
+
+class toolbar_last_used_t : public toolbar_t {
+private:
+	slist_tpl<tool_t *>all_tools[MAX_PLAYER_COUNT];
+public:
+	toolbar_last_used_t(uint16 const id, char const* const t, char const* const h) : toolbar_t(id,t,h) {}
+	static toolbar_last_used_t *last_used_tools;
+	void update(player_t *);	// just refresh content
+	void append(tool_t *, player_t *);
+	void clear();
 };
 
 // create new instance of tool

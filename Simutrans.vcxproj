@@ -432,7 +432,6 @@
     <ClInclude Include="display\simview.h" />
     <ClInclude Include="display\viewport.h" />
     <ClInclude Include="gui\base_info.h" />
-    <ClInclude Include="gui\base_info.h" />
     <ClInclude Include="gui\city_info.h" />
     <ClInclude Include="gui\components\action_listener.h" />
     <ClInclude Include="gui\components\gui_container.h" />
