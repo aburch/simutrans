@@ -1103,17 +1103,20 @@ void wegbauer_t::check_for_bridge(const grund_t* parent_from, const grund_t* fro
 		&&  brueckenbauer_t::ist_ende_ok(player_builder, from, besch->get_wtyp(),ribi_t::rueckwaerts(ribi_typ(zv)))  ) {
 		// Try a bridge.
 		const sint32 cost_difference = besch->get_wartung() > 0 ? (bruecke_besch->get_wartung() * 4l + 3l) / besch->get_wartung() : 16;
-		const char *error;
 		// try eight possible lengths ..
-		koord3d end;
-		const grund_t* gr_end;
 		uint32 min_length = 1;
 		for (uint8 i = 0; i < 8 && min_length <= welt->get_settings().way_max_bridge_len; ++i) {
 			sint8 bridge_height;
-			end = brueckenbauer_t::finde_ende( player_builder, from->get_pos(), zv, bruecke_besch, error, bridge_height, true, min_length );
-			gr_end = welt->lookup(end);
+			const char *error = NULL;
+			koord3d end = brueckenbauer_t::finde_ende( player_builder, from->get_pos(), zv, bruecke_besch, error, bridge_height, true, min_length );
+			const grund_t* gr_end = welt->lookup(end);
+			if(  gr_end == NULL) {
+				// no valid end point found
+				min_length++;
+				continue;
+			}
 			uint32 length = koord_distance(from->get_pos(), end);
-			if(  gr_end  &&  !error  &&  !ziel.is_contained(end)  &&  brueckenbauer_t::ist_ende_ok(player_builder, gr_end, besch->get_wtyp(), ribi_typ(zv))  &&  length <= welt->get_settings().way_max_bridge_len  ) {
+			if(!ziel.is_contained(end)  &&  brueckenbauer_t::ist_ende_ok(player_builder, gr_end, besch->get_wtyp(), ribi_typ(zv))) {
 				// If there is a slope on the starting tile, it's taken into account in is_allowed_step, but a bridge will be flat!
 				sint8 num_slopes = (from->get_grund_hang() == hang_t::flach) ? 1 : -1;
 				// On the end tile, we haven't to subtract way_count_slope, since is_allowed_step isn't called with this tile.
