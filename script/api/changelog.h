@@ -4,6 +4,8 @@
  *
  * @section api-trunk Current trunk
  *
+ * @section api-120-1 Release 120.1
+ *
  * - Added depot_x, depot_x::get_convoy_list
  * - Added line_x::get_waytype, tile_x::get_slope
  * - Added factory_production_x::get_base_production, factory_production_x::get_base_consumption, factory_x::get_tile_list
