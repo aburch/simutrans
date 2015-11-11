@@ -628,6 +628,8 @@ void tool_t::read_menu(const std::string &objfilename)
 			}
 		}
 	}
+	toolbar_tool.append( toolbar_last_used_t::last_used_tools );
+
 	// sort characters
 	std::sort(char_to_tool.begin(), char_to_tool.end(), compare_tool);
 }
@@ -649,7 +651,6 @@ void tool_t::update_toolbars()
 			break;
 		}
 	}
-	toolbar_last_used_t::last_used_tools->update( world()->get_active_player() );
 }
 
 
@@ -855,15 +856,13 @@ bool toolbar_t::exit(player_t *)
 // from here on last used toolbar tools (for each player!)
 void toolbar_last_used_t::update(player_t *sp)
 {
-	if(  tool_selector  ) {
-		tools.clear();
-		if(  sp  ) {
-			for(  slist_tpl<tool_t *>::iterator iter = all_tools[sp->get_player_nr()].begin();  iter != all_tools[sp->get_player_nr()].end();  ++iter  ) {
-				tools.append( *iter );
-			}
+	tools.clear();
+	if(  sp  ) {
+		for(  slist_tpl<tool_t *>::iterator iter = all_tools[sp->get_player_nr()].begin();  iter != all_tools[sp->get_player_nr()].end();  ++iter  ) {
+			tools.append( *iter );
 		}
-		toolbar_t::update( sp );
 	}
+	toolbar_t::update( sp );
 }
 
 
@@ -879,9 +878,28 @@ void toolbar_last_used_t::clear()
 // currently only needed for last used tools
 void toolbar_last_used_t::append( tool_t *t, player_t *sp )
 {
-	if(  !sp  ) {
+	static int exclude_from_adding[8]={
+		TOOL_SCHEDULE_ADD|GENERAL_TOOL,
+		TOOL_SCHEDULE_INS|GENERAL_TOOL,
+		TOOL_CHANGE_CONVOI|SIMPLE_TOOL,
+		TOOL_CHANGE_LINE|SIMPLE_TOOL,
+		TOOL_CHANGE_DEPOT|SIMPLE_TOOL,
+		UNUSED_WKZ_PWDHASH_TOOL|SIMPLE_TOOL,
+		TOOL_CHANGE_PLAYER|SIMPLE_TOOL,
+		TOOL_RENAME|SIMPLE_TOOL
+	};
+
+	if(  !sp  ||  t->get_icon(sp)==IMG_LEER  ) {
 		return;
 	}
+
+	// do not add certain tools
+	for(  int i=0;  i<lengthof(exclude_from_adding);  i++  ) {
+		if(  t->get_id() == exclude_from_adding[i]  ) {
+			return;
+		}
+	}
+
 	slist_tpl<tool_t *> &players_tools = all_tools[sp->get_player_nr()];
 
 	if(  players_tools.is_contained(t)  ) {
@@ -892,6 +910,7 @@ void toolbar_last_used_t::append( tool_t *t, player_t *sp )
 			players_tools.remove( players_tools.back() );
 		}
 	}
+
 	players_tools.insert( t );
 	// if current => update
 	if(  sp == world()->get_active_player()  ) {
