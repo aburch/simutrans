@@ -224,12 +224,13 @@ bool gui_scrolled_list_t::infowin_event(const event_t *ev)
 	const int w = size.w - D_SCROLLBAR_WIDTH+2;
 	const int h = size.h;
 	if(x <= w) { // inside list
-		if(  IS_LEFTCLICK(ev)  &&  x>=(border/2) && x<(w-border/2) &&  y>=(border/2) && y<(h-border/2)) {
+		bool notify = true;
+		if(  ev->ev_class == EVENT_RELEASE  &&  x>=(border/2) && x<(w-border/2) &&  y>=(border/2) && y<(h-border/2)) {
 			int new_selection_h = (y-(border/2)-2+offset);
 			int new_selection = -1;
 			if(  new_selection_h >= 0  ) {
 				int h=0;
-				while(  new_selection+1 < (int)item_list.get_count()  &&  h<new_selection_h  ) {
+				while(  new_selection+1 < (int)item_list.get_count()  &&  h < new_selection_h  ) {
 					new_selection ++;
 					h += item_list[new_selection]->get_h();
 				}
@@ -237,10 +238,16 @@ bool gui_scrolled_list_t::infowin_event(const event_t *ev)
 					// below end of list => no selection
 					new_selection = -1;
 				}
+				else {
+					notify = item_list[new_selection]->do_click( scr_coord( x, new_selection_h-h+item_list[new_selection]->get_h() ), ev->ev_code );
+				}
 				DBG_MESSAGE("gui_scrolled_list_t::infowin_event()","selected %i",new_selection);
 			}
 			selection = new_selection;
-			call_listeners((long)new_selection);
+			if(  notify  ) {
+				// not handled oneself
+				call_listeners((long)new_selection);
+			}
 		}
 	}
 
@@ -249,7 +256,9 @@ bool gui_scrolled_list_t::infowin_event(const event_t *ev)
 		int new_selection = (ev->ev_code==SIM_KEY_DOWN) ? min(item_list.get_count()-1, selection+1) : max(0, selection-1);
 		selection = new_selection;
 		show_selection(selection);
-		call_listeners((long)new_selection);
+		if(  new_selection >= 0  ||  !item_list[new_selection]->do_click( scr_coord::invalid, 0 )  ) {
+			call_listeners((long)new_selection);
+		}
 		return true;
 	}
 

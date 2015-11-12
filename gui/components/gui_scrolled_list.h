@@ -36,6 +36,11 @@ public:
 		virtual ~scrollitem_t() {}
 		virtual scr_coord_val get_h() const = 0;	// largest object in this list
 		virtual scr_coord_val draw( scr_coord pos, scr_coord_val width, bool is_selected, bool has_focus ) = 0;
+		/* can do some action
+		 * input: coordinates relative to this element, button or zero for keyboard
+		 * return true, then event is not passed to caller
+		 */
+		virtual bool do_click( scr_coord, unsigned ) { return false; }
 		virtual char const* get_text() const = 0;
 		virtual bool is_valid() { return true; }	//  can be used to indicate invalid entries
 		virtual bool is_editable() { return false; }
@@ -70,9 +75,7 @@ public:
 
 	public:
 		var_text_scrollitem_t(char const* const t, uint8 const col) : const_text_scrollitem_t(t,col), text(t) {}
-
 		virtual void set_text(char const *t) OVERRIDE { text = t; }
-
 		virtual bool is_editable() { return true; }
 	};
 
