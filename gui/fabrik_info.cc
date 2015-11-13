@@ -473,6 +473,7 @@ void fabrik_info_t::rdwr( loadsave_t *file )
 			chart_button.set_pos( chart_button.get_pos() + offset );
 			details_button.set_pos( details_button.get_pos() + offset );
 		}
+		win_set_magic( this, (ptrdiff_t)fab );
 		set_windowsize( size );
 		resize( scr_coord(0,0) );
 		scrolly.set_scroll_position( scroll_x, scroll_y );

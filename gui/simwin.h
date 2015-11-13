@@ -139,6 +139,9 @@ int win_get_open_count();
 // returns the window (if open) otherwise zero
 gui_frame_t *win_get_magic(ptrdiff_t magic);
 
+// sets the magic of a gui_frame_t (needed during reload of windows)
+bool win_set_magic( gui_frame_t *gui, ptrdiff_t magic );
+
 /**
  * Checks if a window is a top level window
  *

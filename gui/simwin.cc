@@ -388,6 +388,22 @@ gui_frame_t *win_get_magic(ptrdiff_t magic)
 }
 
 
+// sets the magic of a gui_frame_t (needed during reload of windows)
+bool win_set_magic( gui_frame_t *gui, ptrdiff_t magic )
+{
+	if(  magic!=-1  &&  magic!=0  ) {
+		// there is at most one window with a positive magic number
+		FOR( vector_tpl<simwin_t>, &i, wins ) {
+			if(  i.gui == gui  ) {
+				i.magic_number = magic;
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+
 // returns the window on this positions
 gui_frame_t *win_get_oncoord( const scr_coord pt )
 {

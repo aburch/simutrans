@@ -53,8 +53,9 @@ scr_coord_val citylist_stats_t::draw( scr_coord pos, scr_coord_val width, bool s
 	display_proportional_clip( pos.x+D_H_SPACE*2 + gui_theme_t::gui_pos_button_size.w, pos.y+(h-LINESPACE)/2, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 
 	// goto button
+	bool info_open = win_get_magic( (ptrdiff_t)city );
 	scr_rect pos_xywh( scr_coord(pos.x+D_H_SPACE, pos.y+(h-gui_theme_t::gui_pos_button_size.h)/2), gui_theme_t::gui_pos_button_size );
-	if(  selected  ||  mouse_over  ) {
+	if(  selected  ||  mouse_over  ||  info_open  ) {
 		// still on center?
 		if(  grund_t *gr = world()->lookup_kartenboden( city->get_center() )  ) {
 			selected = world()->get_viewport()->is_on_center( gr->get_pos() );
@@ -68,8 +69,8 @@ scr_coord_val citylist_stats_t::draw( scr_coord pos, scr_coord_val width, bool s
 	}
 	display_img_aligned( gui_theme_t::pos_button_img[ selected ], pos_xywh, ALIGN_CENTER_V | ALIGN_CENTER_H, true );
 
-	if(  win_get_magic( (ptrdiff_t)city )  ) {
-		display_blend_wh( pos.x, pos.x, width, h, COL_BLACK, 25 );
+	if(  info_open  ) {
+		display_blend_wh( pos.x, pos.y, width, h, COL_BLACK, 25 );
 	}
 	return true;
 }
