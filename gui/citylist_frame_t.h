@@ -25,7 +25,7 @@
 class citylist_frame_t : public gui_frame_t, private action_listener_t
 {
 private:
-	static const char *sort_text[citylist::SORT_MODES];
+	static const char *sort_text[citylist_stats_t::SORT_MODES];
 
 	static const char hist_type[karte_t::MAX_WORLD_COST][20];
 	static const uint8 hist_type_color[karte_t::MAX_WORLD_COST];
@@ -36,8 +36,7 @@ private:
 	button_t sortedby;
 	button_t sorteddir;
 
-	citylist_stats_t stats;
-	gui_scrollpane_t scrolly;
+	gui_scrolled_list_t scrolly;
 
 	button_t    show_stats;
 	gui_chart_t chart, mchart;
@@ -48,11 +47,9 @@ private:
  * All filter settings are static, so they are not reset each
  * time the window closes.
  */
-static citylist::sort_mode_t sortby;
 static bool sortreverse;
 
 public:
-
 	citylist_frame_t();
 
 	/**
@@ -75,12 +72,6 @@ public:
 	 * @author V. Meyer
 	*/
 	const char * get_help_filename() const {return "citylist_filter.txt"; }
-
-	static citylist::sort_mode_t get_sortierung() { return sortby; }
-	static void set_sortierung(const citylist::sort_mode_t& sm) { sortby = sm; }
-
-	static bool get_reverse() { return sortreverse; }
-	static void set_reverse(const bool& reverse) { sortreverse = reverse; }
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 };

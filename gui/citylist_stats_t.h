@@ -1,6 +1,4 @@
 /*
- * Copyright (c) 1997 - 2003 Hansjörg Malthaner
- *
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
  */
@@ -12,44 +10,38 @@
 #ifndef CITYLIST_STATS_T_H
 #define CITYLIST_STATS_T_H
 
-#include "components/gui_komponente.h"
-#include "../tpl/vector_tpl.h"
+#include "components/gui_scrolled_list.h"
+#include "../display/simgraph.h"
+#include "../simcity.h"
 
 class karte_ptr_t;
 class stadt_t;
 
 
-namespace citylist {
-	enum sort_mode_t { by_name=0, by_size, by_growth, SORT_MODES };
-};
-
-
 // City list stats display
-class citylist_stats_t : public gui_world_component_t
+class citylist_stats_t : public gui_scrolled_list_t::scrollitem_t
 {
 private:
-	vector_tpl<stadt_t*> city_list;
-	uint32 line_selected;
+	stadt_t* city;
+	bool mouse_over;  // flag to remember, whether last presse mopuse button on this
 
-	citylist::sort_mode_t sortby;
-	bool sortreverse;
+	static scr_coord_val h;
+
+	static bool compare( gui_scrolled_list_t::scrollitem_t *a, gui_scrolled_list_t::scrollitem_t *b );
 
 public:
-	static char total_bev_string[128];
+	enum sort_mode_t { SORT_BY_NAME=0, SORT_BY_SIZE, SORT_BY_GROWTH, SORT_MODES, SORT_REVERSE=0x80 };
+	static sort_mode_t sort_mode;
 
-	citylist_stats_t(citylist::sort_mode_t sortby, bool sortreverse);
+public:
+	citylist_stats_t(stadt_t *);
 
-	void sort(citylist::sort_mode_t sortby, bool sortreverse);
+	scr_coord_val get_h() const { return h; }
 
-	bool infowin_event(event_t const*) OVERRIDE;
-
-	/**
-	 * Recalc the size required to display everything and set size.
-	 */
-	void recalc_size();
-
-	// Draw the component
-	void draw(scr_coord offset);
+	scr_coord_val draw( scr_coord pos, scr_coord_val width, bool is_selected, bool has_focus );
+	char const* get_text() const { return city->get_name(); }
+	bool sort( vector_tpl<scrollitem_t *> &, int, void * );
+	bool infowin_event(const event_t *);
 };
 
 #endif

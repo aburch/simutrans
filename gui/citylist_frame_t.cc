@@ -16,6 +16,7 @@
 #include "../dataobj/translator.h"
 #include "../simcolor.h"
 #include "../dataobj/environment.h"
+#include "../utils/cbuffer_t.h"
 
 
 /**
@@ -25,17 +26,7 @@
  */
 bool citylist_frame_t::sortreverse = false;
 
-/**
- * This variable defines by which column the table is sorted
- * Values: 0 = Station number
- *         1 = Station name
- *         2 = Waiting goods
- *         3 = Station type
- * @author Markus Weber
- */
-citylist::sort_mode_t citylist_frame_t::sortby = citylist::by_name;
-
-const char *citylist_frame_t::sort_text[citylist::SORT_MODES] = {
+const char *citylist_frame_t::sort_text[citylist_stats_t::SORT_MODES] = {
 	"Name",
 	"citicens",
 	"Growth"
@@ -92,12 +83,16 @@ const uint8 citylist_frame_t::hist_type_type[karte_t::MAX_WORLD_COST] =
 #define CHART_HEIGHT (168)
 #define TOTAL_HEIGHT (D_TITLEBAR_HEIGHT+3*(LINESPACE+1)+42+1)
 
+static unsigned old_cities = 0;
+
+
 citylist_frame_t::citylist_frame_t() :
 	gui_frame_t(translator::translate("City list")),
 	sort_label(translator::translate("hl_txt_sort")),
-	stats(sortby,sortreverse),
-	scrolly(&stats)
+	scrolly(gui_scrolled_list_t::windowskin)
 {
+	old_cities = 0;
+
 	sort_label.set_pos(scr_coord(BUTTON1_X, 40-D_BUTTON_HEIGHT-(LINESPACE+1)));
 	add_component(&sort_label);
 
@@ -115,8 +110,8 @@ citylist_frame_t::citylist_frame_t() :
 	add_component(&show_stats);
 
 	// name buttons
-	sortedby.set_text(sort_text[get_sortierung()]);
-	sorteddir.set_text(get_reverse() ? "hl_btn_sort_desc" : "hl_btn_sort_asc");
+	sortedby.set_text(sort_text[citylist_stats_t::sort_mode & 0x1F]);
+	sorteddir.set_text(citylist_stats_t::sort_mode > citylist_stats_t::SORT_MODES ? "hl_btn_sort_desc" : "hl_btn_sort_asc");
 
 	year_month_tabs.add_tab(&chart, translator::translate("Years"));
 	year_month_tabs.add_tab(&mchart, translator::translate("Months"));
@@ -154,7 +149,7 @@ citylist_frame_t::citylist_frame_t() :
 	}
 
 	scrolly.set_pos(scr_coord(1,42));
-	scrolly.set_scroll_amount_y(LINESPACE+1);
+//	scrolly.set_scroll_amount_y(LINESPACE+1);
 	add_component(&scrolly);
 
 	set_windowsize(scr_size(D_DEFAULT_WIDTH, D_DEFAULT_HEIGHT));
@@ -168,16 +163,17 @@ citylist_frame_t::citylist_frame_t() :
 bool citylist_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 {
 	if(komp == &sortedby) {
-		set_sortierung((citylist::sort_mode_t)((get_sortierung() + 1) % citylist::SORT_MODES));
-		sortedby.set_text(sort_text[get_sortierung()]);
-		stats.sort(get_sortierung(),get_reverse());
-		stats.recalc_size();
+		int i = citylist_stats_t::sort_mode & ~citylist_stats_t::SORT_REVERSE;
+		i = (i + 1) % citylist_stats_t::SORT_MODES;
+		sortedby.set_text(sort_text[i]);
+		citylist_stats_t::sort_mode = (citylist_stats_t::sort_mode_t)(i | (citylist_stats_t::sort_mode & citylist_stats_t::SORT_REVERSE));
+		scrolly.sort(0,NULL);
 	}
 	else if(komp == &sorteddir) {
-		set_reverse(!get_reverse());
-		sorteddir.set_text(get_reverse() ? "hl_btn_sort_desc" : "hl_btn_sort_asc");
-		stats.sort(get_sortierung(),get_reverse());
-		stats.recalc_size();
+		bool reverse = citylist_stats_t::sort_mode <= 0x1F;
+		sorteddir.set_text(reverse ? "hl_btn_sort_desc" : "hl_btn_sort_asc");
+		citylist_stats_t::sort_mode = (citylist_stats_t::sort_mode_t)((citylist_stats_t::sort_mode & ~citylist_stats_t::SORT_REVERSE) + (reverse*citylist_stats_t::SORT_REVERSE) );
+		scrolly.sort(0,NULL);
 	}
 	else if(komp == &show_stats) {
 		show_stats.pressed = !show_stats.pressed;
@@ -212,7 +208,7 @@ void citylist_frame_t::resize(const scr_coord delta)
 {
 	gui_frame_t::resize(delta);
 
-	scr_size size = get_windowsize()-scr_size(0,D_TITLEBAR_HEIGHT+42+1);	// window size - title - 42(header)
+	scr_size size = get_windowsize()-scr_size(0,D_TITLEBAR_HEIGHT+42+1); // window size - title - 42(header)
 	if(show_stats.pressed) {
 		// additional space for statistics
 		size.h -= CHART_HEIGHT;
@@ -225,10 +221,20 @@ void citylist_frame_t::resize(const scr_coord delta)
 
 void citylist_frame_t::draw(scr_coord pos, scr_size size)
 {
-	if(show_stats.pressed) {
-		welt->update_history();
+	welt->update_history();
+
+	if(  world()->get_staedte().get_count() != old_cities  ) {
+		scrolly.clear_elements();
+		FOR(const weighted_vector_tpl<stadt_t *>,city,world()->get_staedte()) {
+			scrolly.append_element( new citylist_stats_t(city) );
+		}
+		old_cities = world()->get_staedte().get_count();
 	}
+
 	gui_frame_t::draw(pos,size);
 
-	display_proportional( pos.x+2, pos.y+18, citylist_stats_t::total_bev_string, ALIGN_LEFT, SYSCOL_TEXT, true );
+	cbuffer_t buf;
+	buf.append( translator::translate("Total inhabitants:") );
+	buf.append( welt->get_finance_history_month()[0], 0 );
+	display_proportional( pos.x+2, pos.y+18, buf, ALIGN_LEFT, SYSCOL_TEXT, true );
 }

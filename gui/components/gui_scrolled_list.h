@@ -40,7 +40,7 @@ public:
 		 * input: coordinates relative to this element, button or zero for keyboard
 		 * return true, then event is not passed to caller
 		 */
-		virtual bool do_click( scr_coord, unsigned ) { return false; }
+		virtual bool infowin_event(const event_t *) { return false; }
 		virtual char const* get_text() const = 0;
 		virtual bool is_valid() { return true; }	//  can be used to indicate invalid entries
 		virtual bool is_editable() { return false; }
