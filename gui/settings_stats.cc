@@ -327,6 +327,8 @@ void settings_experimental_general_stats_t::read(settings_t *sets)
 	READ_NUM( sets->set_enforce_weight_limits );
 	READ_NUM_VALUE( sets->max_diversion_tiles );
 	READ_NUM_VALUE( sets->way_degridation_fraction );
+	READ_NUM_VALUE( sets->sighting_distance_meters );
+	READ_NUM_VALUE( sets->assumed_curve_radius_45_degrees );
 
 	READ_NUM_VALUE(sets->population_per_level);
 	READ_NUM_VALUE(sets->visitor_demand_per_level);
@@ -373,9 +375,6 @@ void settings_experimental_general_stats_t::read(settings_t *sets)
 	}
 	// And convert to the form used in-game...
 	sets->cache_speedbonuses();
-
-	READ_NUM_VALUE(sets->sighting_distance_meters);
-	READ_NUM_VALUE(sets->assumed_curve_radius_45_degrees);
 }
 
 
