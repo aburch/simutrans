@@ -677,7 +677,7 @@ void tool_t::read_menu(const std::string &objfilename)
 		}
 	}
 	toolbar_tool.append( toolbar_last_used_t::last_used_tools );
-	
+
 	// sort characters
 	std::sort(char_to_tool.begin(), char_to_tool.end(), compare_tool);
 }
@@ -937,7 +937,7 @@ void toolbar_last_used_t::append( tool_t *t, player_t *sp )
 		UNUSED_WKZ_PWDHASH_TOOL|SIMPLE_TOOL,
 		TOOL_RENAME|SIMPLE_TOOL
 	};
-	
+
 	if(  !sp ||  t->get_icon(sp)==IMG_EMPTY  ) {
 		return;
 	}
@@ -948,7 +948,7 @@ void toolbar_last_used_t::append( tool_t *t, player_t *sp )
 			return;
 		}
 	}
-	
+
 	if(  all_tools[sp->get_player_nr()].is_contained(t)  ) {
 		all_tools[sp->get_player_nr()].remove( t );
 	}

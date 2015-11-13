@@ -475,7 +475,7 @@ public:
 	void append(tool_t *, player_t *);
 	void clear();
 };
-	
+
 // create new instance of tool
 tool_t *create_tool(int toolnr);
 
