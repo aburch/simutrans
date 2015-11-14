@@ -159,7 +159,7 @@ bool citylist_stats_t::compare( gui_scrolled_list_t::scrollitem_t *aa, gui_scrol
 }
 
 
-bool citylist_stats_t::sort( vector_tpl<scrollitem_t *>&v, int offset, void * )
+bool citylist_stats_t::sort( vector_tpl<scrollitem_t *>&v, int offset, void * ) const
 {
 	vector_tpl<scrollitem_t *>::iterator start = v.begin();
 	while(  offset-->0  ) {

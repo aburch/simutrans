@@ -40,7 +40,7 @@ public:
 
 	scr_coord_val draw( scr_coord pos, scr_coord_val width, bool is_selected, bool has_focus );
 	char const* get_text() const { return city->get_name(); }
-	bool sort( vector_tpl<scrollitem_t *> &, int, void * );
+	bool sort( vector_tpl<scrollitem_t *> &, int, void * ) const;
 	bool infowin_event(const event_t *);
 };
 
