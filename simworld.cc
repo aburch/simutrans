@@ -4652,6 +4652,9 @@ void karte_t::new_month()
 	wegbauer_t::new_month();
 	INT_CHECK("simworld 1299");
 
+	hausbauer_t::new_month();
+	INT_CHECK("simworld 1299");
+
 	// Check whether downstream substations have become engulfed by
 	// an expanding city.
 	FOR(slist_tpl<senke_t *>, & senke_iter, senke_t::senke_list)
@@ -4754,8 +4757,10 @@ void karte_t::recalc_average_speed()
 	}
 
 	//	DBG_MESSAGE("karte_t::recalc_average_speed()","");
-	if(use_timeline()) {
-		for(int i=road_wt; i<=air_wt; i++) {
+	if(use_timeline())
+	{
+		for(int i=road_wt; i<=air_wt; i++)
+		{
 			const char *vehicle_type=NULL;
 			switch(i) {
 				case road_wt:
@@ -4833,7 +4838,6 @@ void karte_t::recalc_average_speed()
 			DBG_MESSAGE("karte_t::new_month()","Month %d has started", last_month);
 			city_road = wegbauer_t::weg_search(road_wt,50,get_timeline_year_month(),weg_t::type_flat);
 		}
-
 	}
 	else {
 		// defaults

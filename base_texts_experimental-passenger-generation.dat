@@ -243,3 +243,7 @@ note=Convoy tooltip when a train in time interval mode runs into another train
 obj=program_text
 name=Signals
 note=Text in the information window of signalboxes showing the number of signals controlled from the box
+-
+obj=program_text
+name=building
+note=Part of the "A new building is now available: [name of building]" message appearing at the beginning of the month

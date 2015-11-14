@@ -21,6 +21,7 @@
 #include "../obj/zeiger.h"
 
 #include "../gui/karte.h"
+#include "../simworld.h"
 #include "../gui/tool_selector.h"
 
 #include "../simcity.h"
@@ -29,8 +30,10 @@
 #include "../simsignalbox.h"
 #include "../simhalt.h"
 #include "../utils/simrandom.h"
+#include "../utils/cbuffer_t.h"
 #include "../simtool.h"
 #include "../simworld.h"
+#include "../simmesg.h"
 #include "../tpl/stringhashtable_tpl.h"
 #include "../tpl/weighted_vector_tpl.h"
 #include "hausbauer.h"
@@ -1047,5 +1050,22 @@ const vector_tpl<const haus_besch_t*>* hausbauer_t::get_citybuilding_list(const 
 		case gebaeude_t::gewerbe:   return &gewerbehaeuser;
 		case gebaeude_t::industrie: return &industriehaeuser;
 		default:                    return NULL;
+	}
+}
+
+void hausbauer_t::new_month()
+{
+	FOR(vector_tpl<const haus_besch_t*>, building, station_building)
+	{
+		const uint16 current_month = welt->get_timeline_year_month();
+		const uint16 intro_month = building->get_intro_year_month();
+		{
+			if(intro_month == current_month) 
+			{
+				cbuffer_t buf;
+				buf.printf(translator::translate("New %s now available:\n%s\n"), "building", translator::translate(building->get_name()));
+				welt->get_message()->add_message(buf, koord::invalid, message_t::new_vehicle, NEW_VEHICLE, IMG_LEER);
+			}
+		}
 	}
 }

@@ -29,11 +29,11 @@ class hausbauer_t
 {
 
 private:
-	static vector_tpl<const haus_besch_t*> sehenswuerdigkeiten_land;
-	static vector_tpl<const haus_besch_t*> sehenswuerdigkeiten_city;
-	static vector_tpl<const haus_besch_t*> rathaeuser;
-	static vector_tpl<const haus_besch_t*> denkmaeler;
-	static vector_tpl<const haus_besch_t*> ungebaute_denkmaeler;
+	static vector_tpl<const haus_besch_t*> sehenswuerdigkeiten_land; // Land attractions
+	static vector_tpl<const haus_besch_t*> sehenswuerdigkeiten_city; // City attractions
+	static vector_tpl<const haus_besch_t*> rathaeuser; // Town halls
+	static vector_tpl<const haus_besch_t*> denkmaeler; // Monuments
+	static vector_tpl<const haus_besch_t*> ungebaute_denkmaeler; // Unbuilt monuments
 
 	static karte_ptr_t welt;
 public:
@@ -172,6 +172,7 @@ public:
 	static const vector_tpl<const haus_besch_t *> *get_list( haus_besch_t::utyp typ );
 	static const vector_tpl<const haus_besch_t *> *get_citybuilding_list( gebaeude_t::typ typ );
 
+	static void new_month();
 };
 
 #endif
