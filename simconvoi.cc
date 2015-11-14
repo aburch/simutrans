@@ -5562,6 +5562,7 @@ void convoi_t::destroy()
 			vehicle[i]->set_flag( obj_t::not_on_map );
 
 		}
+		player_t::add_maintenance(owner, -vehicle[i]->get_besch()->get_maintenance(), vehicle[i]->get_besch()->get_waytype());
 		vehicle[i]->discard_cargo();
 		vehicle[i]->cleanup(owner);
 		delete vehicle[i];
