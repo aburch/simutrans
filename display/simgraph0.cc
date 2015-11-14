@@ -48,11 +48,7 @@ void mark_rect_dirty_wc(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL)
 {
 }
 
-#ifdef MULTI_THREAD
-void mark_rect_dirty_clip(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, const sint8)
-#else
-void mark_rect_dirty_clip(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL)
-#endif
+void mark_rect_dirty_clip(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL  CLIP_NUM_DEF_NOUSE)
 {
 }
 
@@ -156,11 +152,7 @@ int get_maus_y()
 	return sys_event.my;
 }
 
-#ifdef MULTI_THREAD
-clip_dimension display_get_clip_wh_cl(const sint8)
-#else
-clip_dimension display_get_clip_wh()
-#endif
+clip_dimension display_get_clip_wh(CLIP_NUM_DEF_NOUSE0)
 {
 	clip_dimension clip_rect;
 	clip_rect.x = 0;
@@ -172,11 +164,7 @@ clip_dimension display_get_clip_wh()
 	return clip_rect;
 }
 
-#ifdef MULTI_THREAD
-void display_set_clip_wh_cl(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, const sint8)
-#else
-void display_set_clip_wh(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL)
-#endif
+void display_set_clip_wh(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL  CLIP_NUM_DEF_NOUSE)
 {
 }
 
@@ -192,27 +180,15 @@ static inline void colorpixcopy(PIXVAL *, const PIXVAL *, const PIXVAL * const)
 {
 }
 
-#ifdef MULTI_THREAD
-void display_img_aux(const image_id, KOORD_VAL, KOORD_VAL, const signed char, const int, const int, const sint8)
-#else
-void display_img_aux(const image_id, KOORD_VAL, KOORD_VAL, const signed char, const int, const int)
-#endif
+void display_img_aux(const image_id, KOORD_VAL, KOORD_VAL, const signed char, const int, const int  CLIP_NUM_DEF_NOUSE)
 {
 }
 
-#ifdef MULTI_THREAD
-void display_color_img_cl(const image_id, KOORD_VAL, KOORD_VAL, const signed char, const int, const int, const sint8)
-#else
-void display_color_img(const image_id, KOORD_VAL, KOORD_VAL, const signed char, const int, const int)
-#endif
+void display_color_img(const image_id, KOORD_VAL, KOORD_VAL, const signed char, const int, const int  CLIP_NUM_DEF_NOUSE)
 {
 }
 
-#ifdef MULTI_THREAD
-void display_base_img_cl(const image_id, KOORD_VAL, KOORD_VAL, const signed char, const int, const int, const sint8)
-#else
-void display_base_img(const image_id, KOORD_VAL, KOORD_VAL, const signed char, const int, const int)
-#endif
+void display_base_img(const image_id, KOORD_VAL, KOORD_VAL, const signed char, const int, const int  CLIP_NUM_DEF_NOUSE)
 {
 }
 
@@ -228,46 +204,25 @@ void display_img_stretch_blend( const stretch_map_t &, scr_rect, PLAYER_COLOR_VA
 {
 }
 
-#ifdef MULTI_THREAD
-void display_rezoomed_img_blend(const image_id, KOORD_VAL, KOORD_VAL, const signed char, const PLAYER_COLOR_VAL, const int, const int, const sint8)
-#else
-void display_rezoomed_img_blend(const image_id, KOORD_VAL, KOORD_VAL, const signed char, const PLAYER_COLOR_VAL, const int, const int)
-#endif
+void display_rezoomed_img_blend(const image_id, KOORD_VAL, KOORD_VAL, const signed char, const PLAYER_COLOR_VAL, const int, const int  CLIP_NUM_DEF_NOUSE)
 {
 }
 
-#ifdef MULTI_THREAD
-void display_rezoomed_img_alpha(const image_id, const image_id, const unsigned, KOORD_VAL, KOORD_VAL, const signed char, const PLAYER_COLOR_VAL, const int, const int, const sint8)
-#else
-void display_rezoomed_img_alpha(const image_id, const image_id, const unsigned, KOORD_VAL, KOORD_VAL, const signed char, const PLAYER_COLOR_VAL, const int, const int)
-#endif
+void display_rezoomed_img_alpha(const image_id, const image_id, const unsigned, KOORD_VAL, KOORD_VAL, const signed char, const PLAYER_COLOR_VAL, const int, const int  CLIP_NUM_DEF_NOUSE)
 {
 }
 
-#ifdef MULTI_THREAD
-void display_base_img_blend(const image_id, KOORD_VAL, KOORD_VAL, const signed char, const PLAYER_COLOR_VAL, const int, const int, const sint8)
-#else
-void display_base_img_blend(const image_id, KOORD_VAL, KOORD_VAL, const signed char, const PLAYER_COLOR_VAL, const int, const int)
-#endif
+void display_base_img_blend(const image_id, KOORD_VAL, KOORD_VAL, const signed char, const PLAYER_COLOR_VAL, const int, const int  CLIP_NUM_DEF_NOUSE)
 {
 }
 
-#ifdef MULTI_THREAD
-void display_base_img_alpha(const image_id, const image_id, const unsigned, KOORD_VAL, KOORD_VAL, const signed char, const PLAYER_COLOR_VAL, const int, const int, const sint8)
-#else
-void display_base_img_alpha(const image_id, const image_id, const unsigned, KOORD_VAL, KOORD_VAL, const signed char, const PLAYER_COLOR_VAL, const int, const int)
-#endif
+void display_base_img_alpha(const image_id, const image_id, const unsigned, KOORD_VAL, KOORD_VAL, const signed char, const PLAYER_COLOR_VAL, const int, int  CLIP_NUM_DEF_NOUSE)
 {
 }
 
 // Knightly : variables for storing currently used image procedure set and tile raster width
-#ifdef MULTI_THREAD
-display_image_proc display_normal = display_base_img_cl;
-display_image_proc display_color = display_base_img_cl;
-#else
 display_image_proc display_normal = display_base_img;
 display_image_proc display_color = display_base_img;
-#endif
 display_blend_proc display_blend = display_base_img_blend;
 display_alpha_proc display_alpha = display_base_img_alpha;
 
@@ -284,7 +239,7 @@ void display_fillbox_wh_rgb(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, PLAYER_C
 
 
 #ifdef MULTI_THREAD
-void display_fillbox_wh_clip_cl_rgb(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, PIXVAL, bool, const sint8 )
+void display_fillbox_wh_clip_cl_rgb(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, PIXVAL, bool CLIP_NUM_DEF_NOUSE)
 #else
 void display_fillbox_wh_clip_rgb(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, PLAYER_COLOR_VAL, bool )
 #endif
@@ -296,7 +251,7 @@ void display_vline_wh_rgb(KOORD_VAL, KOORD_VAL, KOORD_VAL, PLAYER_COLOR_VAL, boo
 }
 
 #ifdef MULTI_THREAD
-void display_vline_wh_clip_cl_rgb(KOORD_VAL, KOORD_VAL, KOORD_VAL, PLAYER_COLOR_VAL, bool, const sint8)
+void display_vline_wh_clip_cl_rgb(KOORD_VAL, KOORD_VAL, KOORD_VAL, PLAYER_COLOR_VAL, bool  CLIP_NUM_DEF_NOUSE)
 #else
 void display_vline_wh_clip_rgb(KOORD_VAL, KOORD_VAL, KOORD_VAL, PLAYER_COLOR_VAL, bool)
 #endif
@@ -355,11 +310,8 @@ int display_calc_proportional_string_len_width(const char*, size_t)
 	return 0;
 }
 
-#ifdef MULTI_THREAD
-int display_text_proportional_len_clip_cl_rgb(KOORD_VAL, KOORD_VAL, const char*, control_alignment_t , const PIXVAL, bool, sint32, const sint8)
-#else
-int display_text_proportional_len_clip_rgb(KOORD_VAL, KOORD_VAL, const char*, control_alignment_t , const PIXVAL, bool, sint32 )
-#endif
+
+int display_text_proportional_len_clip_rgb(KOORD_VAL, KOORD_VAL, const char*, control_alignment_t , const PIXVAL, bool, sint32  CLIP_NUM_DEF_NOUSE)
 {
 	return 0;
 }
@@ -385,7 +337,7 @@ void display_ddd_proportional(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, PLAYER
 }
 
 #ifdef MULTI_THREAD
-void display_ddd_proportional_clip_cl(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, PLAYER_COLOR_VAL, PLAYER_COLOR_VAL, const char *, int, const sint8)
+void display_ddd_proportional_clip_cl(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, PLAYER_COLOR_VAL, PLAYER_COLOR_VAL, const char *, int  CLIP_NUM_DEF_NOUSE)
 #else
 void display_ddd_proportional_clip(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, PLAYER_COLOR_VAL, PLAYER_COLOR_VAL, const char *, int)
 #endif
@@ -494,7 +446,7 @@ image_id get_image_count()
 }
 
 #ifdef MULTI_THREAD
-void add_poly_clip(int, int, int, int, int, const sint8)
+void add_poly_clip(int, int, int, int, int  CLIP_NUM_DEF_NOUSE)
 {
 }
 
@@ -502,7 +454,7 @@ void clear_all_poly_clip(const sint8)
 {
 }
 
-void activate_ribi_clip(int, const sint8)
+void activate_ribi_clip(int  CLIP_NUM_DEF_NOUSE)
 {
 }
 #else

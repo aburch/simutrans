@@ -919,17 +919,6 @@ void grund_t::calc_back_bild(const sint8 hgt, const hang_t::typ slope_this)
 
 
 #ifdef MULTI_THREAD
-#define CLIP_NUM_DEF , const sint8 clip_num
-#define CLIP_NUM_PAR , clip_num
-#define CLIP_NUM_VAR clip_num
-#else
-#define CLIP_NUM_DEF
-#define CLIP_NUM_PAR
-#define CLIP_NUM_VAR
-#endif
-
-
-#ifdef MULTI_THREAD
 void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 raster_tile_width, const sint8 clip_num, const bool force_show_grid ) const
 #else
 void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 raster_tile_width) const
@@ -1175,11 +1164,7 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 r
 }
 
 
-#ifdef MULTI_THREAD
-void grund_t::display_border( sint16 xpos, sint16 ypos, const sint16 raster_tile_width, const sint8 clip_num )
-#else
-void grund_t::display_border( sint16 xpos, sint16 ypos, const sint16 raster_tile_width )
-#endif
+void grund_t::display_border( sint16 xpos, sint16 ypos, const sint16 raster_tile_width CLIP_NUM_DEF)
 {
 	if(  pos.z < welt->get_grundwasser()  ) {
 		// we do not display below water (yet)

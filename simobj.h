@@ -9,6 +9,7 @@
 #define simobjs_h
 
 #include "simtypes.h"
+#include "display/clip_num.h"
 #include "display/simimg.h"
 #include "simcolor.h"
 #include "dataobj/koord3d.h"
@@ -319,11 +320,7 @@ public:
 	 * Draw background image of object
 	 * (everything that could be potentially behind vehicles)
 	 */
-#ifdef MULTI_THREAD
-	void display(int xpos, int ypos, const sint8 clip_num) const;
-#else
-	void display(int xpos, int ypos) const;
-#endif
+	void display(int xpos, int ypos  CLIP_NUM_DEF) const;
 
 	/**
 	 * Draw foreground image

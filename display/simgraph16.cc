@@ -807,17 +807,14 @@ static bool clip_lr(KOORD_VAL *x, KOORD_VAL *w, const KOORD_VAL left, const KOOR
  * Get the clipping rectangle dimensions
  * @author Hj. Malthaner
  */
+clip_dimension display_get_clip_wh(CLIP_NUM_DEF0)
+{
 #ifdef MULTI_THREAD
-clip_dimension display_get_clip_wh_cl(const sint8 clip_num)
-{
 	return clips[clip_num].clip_rect;
-}
 #else
-clip_dimension display_get_clip_wh()
-{
 	return clip_rect;
-}
 #endif
+}
 
 
 /**
@@ -830,12 +827,11 @@ clip_dimension display_get_clip_wh()
  *  clip.x < xp+w <= clip.xx
  * analogously for the y coordinate
  */
-#ifdef MULTI_THREAD
-void display_set_clip_wh_cl(KOORD_VAL x, KOORD_VAL y, KOORD_VAL w, KOORD_VAL h, const sint8 clip_num)
+void display_set_clip_wh(KOORD_VAL x, KOORD_VAL y, KOORD_VAL w, KOORD_VAL h  CLIP_NUM_DEF)
 {
 	clip_wh( &x, &w, 0, disp_width );
 	clip_wh( &y, &h, 0, disp_height );
-
+#ifdef MULTI_THREAD
 	clips[clip_num].clip_rect.x = x;
 	clips[clip_num].clip_rect.y = y;
 	clips[clip_num].clip_rect.w = w;
@@ -843,13 +839,7 @@ void display_set_clip_wh_cl(KOORD_VAL x, KOORD_VAL y, KOORD_VAL w, KOORD_VAL h, 
 
 	clips[clip_num].clip_rect.xx = x + w; // watch out, clips to KOORD_VAL max
 	clips[clip_num].clip_rect.yy = y + h; // watch out, clips to KOORD_VAL max
-}
 #else
-void display_set_clip_wh(KOORD_VAL x, KOORD_VAL y, KOORD_VAL w, KOORD_VAL h)
-{
-	clip_wh( &x, &w, 0, disp_width );
-	clip_wh( &y, &h, 0, disp_height );
-
 	clip_rect.x = x;
 	clip_rect.y = y;
 	clip_rect.w = w;
@@ -857,9 +847,8 @@ void display_set_clip_wh(KOORD_VAL x, KOORD_VAL y, KOORD_VAL w, KOORD_VAL h)
 
 	clip_rect.xx = x + w; // watch out, clips to KOORD_VAL max
 	clip_rect.yy = y + h; // watch out, clips to KOORD_VAL max
-}
 #endif
-
+}
 
 /*
  * Add clipping line through (x0,y0) and (x1,y1)
@@ -2405,7 +2394,7 @@ void display_img_aligned( const image_id n, scr_rect area, int align, const int 
 			y = area.get_bottom() - images[n].y - images[n].h;
 		}
 
-		display_color_img( n, x, y, 0, false, dirty );
+		display_color_img( n, x, y, 0, false, dirty  CLIP_NUM_DEFAULT);
 	}
 }
 
@@ -2557,14 +2546,14 @@ static void display_three_image_row( image_id i1, image_id i2, image_id i3, scr_
 {
 	if(  i1!=IMG_LEER  ) {
 		scr_coord_val w = images[i1].w;
-		display_color_img( i1, row.x, row.y, 0, false, true );
+		display_color_img( i1, row.x, row.y, 0, false, true  CLIP_NUM_DEFAULT);
 		row.x += w;
 		row.w -= w;
 	}
 	// right
 	if(  i3!=IMG_LEER  ) {
 		scr_coord_val w = images[i3].w;
-		display_color_img( i3, row.get_right()-w, row.y, 0, false, true );
+		display_color_img( i3, row.get_right()-w, row.y, 0, false, true  CLIP_NUM_DEFAULT);
 		row.w -= w;
 	}
 	// middle
@@ -2572,7 +2561,7 @@ static void display_three_image_row( image_id i1, image_id i2, image_id i3, scr_
 		scr_coord_val w = images[i2].w;
 		// tile it wide
 		while(  w <= row.w  ) {
-			display_color_img( i2, row.x, row.y, 0, false, true );
+			display_color_img( i2, row.x, row.y, 0, false, true  CLIP_NUM_DEFAULT);
 			row.x += w;
 			row.w -= w;
 		}
@@ -2580,7 +2569,7 @@ static void display_three_image_row( image_id i1, image_id i2, image_id i3, scr_
 		if(  row.w > 0  ) {
 			clip_dimension const cl = display_get_clip_wh();
 			display_set_clip_wh( cl.x, cl.y, max(0,min(row.get_right(),cl.xx)-cl.x), cl.h );
-			display_color_img( i2, row.x, row.y, 0, false, true );
+			display_color_img( i2, row.x, row.y, 0, false, true  CLIP_NUM_DEFAULT);
 			display_set_clip_wh(cl.x, cl.y, cl.w, cl.h );
 		}
 	}
@@ -2730,11 +2719,7 @@ void display_img_stretch_blend( const stretch_map_t &imag, scr_rect area, PLAYER
  * color replacement needs the original data => sp points to non-cached data
  * @author hajo/prissi
  */
-#ifdef MULTI_THREAD
-static void display_color_img_wc(const PIXVAL *sp, KOORD_VAL x, KOORD_VAL y, KOORD_VAL h, const sint8 clip_num )
-#else
-static void display_color_img_wc(const PIXVAL *sp, KOORD_VAL x, KOORD_VAL y, KOORD_VAL h )
-#endif
+static void display_color_img_wc(const PIXVAL *sp, KOORD_VAL x, KOORD_VAL y, KOORD_VAL h  CLIP_NUM_DEF)
 {
 	PIXVAL *tp = textur + y * disp_width;
 
@@ -2778,11 +2763,7 @@ static void display_color_img_wc(const PIXVAL *sp, KOORD_VAL x, KOORD_VAL y, KOO
  * Draw Image, replaced player color
  * @author Hj. Malthaner
  */
-#ifdef MULTI_THREAD
-void display_color_img_cl(const image_id n, KOORD_VAL xp, KOORD_VAL yp, sint8 player_nr_raw, const int daynight, const int dirty, const sint8 clip_num)
-#else
-void display_color_img(const image_id n, KOORD_VAL xp, KOORD_VAL yp, sint8 player_nr_raw, const int daynight, const int dirty)
-#endif
+void display_color_img(const image_id n, KOORD_VAL xp, KOORD_VAL yp, sint8 player_nr_raw, const int daynight, const int dirty  CLIP_NUM_DEF)
 {
 	if(  n < anz_images  ) {
 		// do we have to use a player nr?
@@ -2797,11 +2778,7 @@ void display_color_img(const image_id n, KOORD_VAL xp, KOORD_VAL yp, sint8 playe
 			if(  (images[n].player_flags & (1<<player_nr))  ) {
 				recode_img( n, player_nr );
 			}
-#ifdef MULTI_THREAD
-			display_img_aux( n, xp, yp, player_nr, true, dirty, clip_num );
-#else
-			display_img_aux( n, xp, yp, player_nr, true, dirty );
-#endif
+			display_img_aux( n, xp, yp, player_nr, true, dirty  CLIP_NUM_PAR);
 			return;
 		}
 		else {
@@ -2874,19 +2851,11 @@ void display_color_img(const image_id n, KOORD_VAL xp, KOORD_VAL yp, sint8 playe
  * draw unscaled images, replaces base color
  * @author prissi
  */
-#ifdef MULTI_THREAD
-void display_base_img_cl(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const sint8 player_nr, const int daynight, const int dirty, const sint8 clip_num)
-#else
-void display_base_img(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const sint8 player_nr, const int daynight, const int dirty)
-#endif
+void display_base_img(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const sint8 player_nr, const int daynight, const int dirty  CLIP_NUM_DEF)
 {
 	if(  base_tile_raster_width==tile_raster_width  ) {
 		// same size => use standard routine
-#ifdef MULTI_THREAD
-		display_color_img_cl( n, xp, yp, player_nr, daynight, dirty, clip_num );
-#else
-		display_color_img( n, xp, yp, player_nr, daynight, dirty );
-#endif
+		display_color_img( n, xp, yp, player_nr, daynight, dirty  CLIP_NUM_PAR);
 	}
 	else if(  n < anz_images  ) {
 		// prissi: now test if visible and clipping needed
@@ -2941,18 +2910,13 @@ void display_base_img(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const sint8 
 			// clipping at poly lines?
 #ifdef MULTI_THREAD
 			if(  clips[clip_num].number_of_clips > 0  ) {
-				display_img_pc<colored>( h, x, y, sp, clip_num );
 #else
 			if(  number_of_clips > 0  ) {
-				display_img_pc<colored>( h, x, y, sp );
 #endif
+				display_img_pc<colored>( h, x, y, sp  CLIP_NUM_PAR );
 			}
 			else {
-#ifdef MULTI_THREAD
-				display_color_img_wc( sp, x, y, h, clip_num );
-#else
-				display_color_img_wc( sp, x, y, h );
-#endif
+				display_color_img_wc( sp, x, y, h  CLIP_NUM_PAR);
 			}
 		}
 
@@ -4431,11 +4395,7 @@ static unsigned char get_h_mask(const int xL, const int xR, const int cL, const 
  * @author Volker Meyer, prissi
  * @date  15.06.2003, 2.1.2005
  */
-#ifdef MULTI_THREAD
-int display_text_proportional_len_clip_cl_rgb(KOORD_VAL x, KOORD_VAL y, const char* txt, control_alignment_t flags, const PIXVAL color, bool dirty, sint32 len, const sint8 clip_num)
-#else
-int display_text_proportional_len_clip_rgb(KOORD_VAL x, KOORD_VAL y, const char* txt, control_alignment_t flags, const PIXVAL color, bool dirty, sint32 len)
-#endif
+int display_text_proportional_len_clip_rgb(KOORD_VAL x, KOORD_VAL y, const char* txt, control_alignment_t flags, const PIXVAL color, bool dirty, sint32 len  CLIP_NUM_DEF)
 {
 	const font_type* const fnt = &large_font;
 	KOORD_VAL cL, cR, cT, cB;
@@ -4580,11 +4540,7 @@ int display_text_proportional_len_clip_rgb(KOORD_VAL x, KOORD_VAL y, const char*
 
 	if(  dirty  ) {
 		// here, because only now we know the length also for ALIGN_LEFT text
-#ifdef MULTI_THREAD
-		mark_rect_dirty_clip( x0, y, x - 1, y + 10 - 1, clip_num );
-#else
-		mark_rect_dirty_clip( x0, y, x - 1, y + 10 - 1 );
-#endif
+		mark_rect_dirty_clip( x0, y, x - 1, y + 10 - 1  CLIP_NUM_PAR);
 	}
 	// warning: actual len might be longer, due to clipping!
 	return x - x0;
@@ -4636,8 +4592,8 @@ KOORD_VAL display_proportional_ellipse_rgb( scr_rect r, const char *text, int al
 			if(  align & ALIGN_CENTER_H  ) {
 				w = (max_screen_width-max_offset_before_ellipse-eclipse_width)/2;
 			}
-			w += display_text_proportional_len_clip_rgb( r.x+w, r.y, text, ALIGN_LEFT | DT_CLIP, color, dirty, max_idx_before_ellipse );
-			w += display_text_proportional_len_clip_rgb( r.x+w, r.y, translator::translate("..."), ALIGN_LEFT | DT_CLIP, color, dirty, -1 );
+			w += display_text_proportional_len_clip_rgb( r.x+w, r.y, text, ALIGN_LEFT | DT_CLIP, color, dirty, max_idx_before_ellipse  CLIP_NUM_DEFAULT);
+			w += display_text_proportional_len_clip_rgb( r.x+w, r.y, translator::translate("..."), ALIGN_LEFT | DT_CLIP, color, dirty, -1  CLIP_NUM_DEFAULT);
 			return w;
 		}
 		else {
@@ -4650,7 +4606,7 @@ KOORD_VAL display_proportional_ellipse_rgb( scr_rect r, const char *text, int al
 		r.x += (max_screen_width - current_offset)/2;
 		align &= ~ALIGN_CENTER_H;
 	}
-	return display_text_proportional_len_clip_rgb( r.x, r.y, text, align, color, dirty, -1 );
+	return display_text_proportional_len_clip_rgb( r.x, r.y, text, align, color, dirty, -1  CLIP_NUM_DEFAULT);
 }
 
 
@@ -4672,17 +4628,17 @@ void display_ddd_box_rgb(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL w, KOORD_VAL h, P
 void display_outline_proportional_rgb(KOORD_VAL xpos, KOORD_VAL ypos, PIXVAL text_color, PIXVAL shadow_color, const char *text, int dirty)
 {
 	const int flags = ALIGN_LEFT | DT_CLIP;
-	display_text_proportional_len_clip_rgb(xpos - 1, ypos - 1 + (12 - large_font_total_height) / 2, text, flags, shadow_color, dirty, -1);
-	display_text_proportional_len_clip_rgb(xpos + 1, ypos + 1 + (12 - large_font_total_height) / 2, text, flags, shadow_color, dirty, -1);
-	display_text_proportional_len_clip_rgb(xpos, ypos + (12 - large_font_total_height) / 2, text, flags, text_color, dirty, -1);
+	display_text_proportional_len_clip_rgb(xpos - 1, ypos - 1 + (12 - large_font_total_height) / 2, text, flags, shadow_color, dirty, -1  CLIP_NUM_DEFAULT);
+	display_text_proportional_len_clip_rgb(xpos + 1, ypos + 1 + (12 - large_font_total_height) / 2, text, flags, shadow_color, dirty, -1  CLIP_NUM_DEFAULT);
+	display_text_proportional_len_clip_rgb(xpos, ypos + (12 - large_font_total_height) / 2, text, flags, text_color, dirty, -1  CLIP_NUM_DEFAULT);
 }
 
 
 void display_shadow_proportional_rgb(KOORD_VAL xpos, KOORD_VAL ypos, PIXVAL text_color, PIXVAL shadow_color, const char *text, int dirty)
 {
 	const int flags = ALIGN_LEFT | DT_CLIP;
-	display_text_proportional_len_clip_rgb(xpos + 1, ypos + 1 + (12 - large_font_total_height) / 2, text, flags, shadow_color, dirty, -1);
-	display_text_proportional_len_clip_rgb(xpos, ypos + (12 - large_font_total_height) / 2, text, flags, text_color, dirty, -1);
+	display_text_proportional_len_clip_rgb(xpos + 1, ypos + 1 + (12 - large_font_total_height) / 2, text, flags, shadow_color, dirty, -1  CLIP_NUM_DEFAULT);
+	display_text_proportional_len_clip_rgb(xpos, ypos + (12 - large_font_total_height) / 2, text, flags, text_color, dirty, -1  CLIP_NUM_DEFAULT);
 }
 
 
@@ -4733,8 +4689,8 @@ void display_ddd_proportional_clip_cl(KOORD_VAL xpos, KOORD_VAL ypos, KOORD_VAL 
 	display_vline_wh_clip_cl_rgb( xpos - 2,         ypos - halfheight - 1 - hgt, halfheight * 2 + 1, color_idx_to_rgb(ddd_farbe + 1), dirty, clip_num );
 	display_vline_wh_clip_cl_rgb( xpos + width - 3, ypos - halfheight - 1 - hgt, halfheight * 2 + 1, color_idx_to_rgb(ddd_farbe - 1), dirty, clip_num );
 
-	display_text_proportional_len_clip_cl( xpos + 2, ypos - 5 + (12 - large_font_total_height) / 2, text, ALIGN_LEFT | DT_CLIP, text_farbe, dirty, -1, clip_num );
-}
+	display_text_proportional_len_clip_cl( xpos + 2, ypos - 5 + (12 - large_font_total_height) / 2, text, ALIGN_LEFT | DT_CLIP, text_farbe, dirty, -1, clip_num);
+
 #else
 void display_ddd_proportional_clip(KOORD_VAL xpos, KOORD_VAL ypos, KOORD_VAL width, KOORD_VAL hgt, PLAYER_COLOR_VAL ddd_farbe, PLAYER_COLOR_VAL text_farbe, const char *text, int dirty)
 {
@@ -4747,9 +4703,9 @@ void display_ddd_proportional_clip(KOORD_VAL xpos, KOORD_VAL ypos, KOORD_VAL wid
 	display_vline_wh_clip_rgb( xpos - 2,         ypos - halfheight - 1 - hgt, halfheight * 2 + 1, color_idx_to_rgb(ddd_farbe + 1), dirty );
 	display_vline_wh_clip_rgb( xpos + width - 3, ypos - halfheight - 1 - hgt, halfheight * 2 + 1, color_idx_to_rgb(ddd_farbe - 1), dirty );
 
-	display_text_proportional_len_clip( xpos + 2, ypos - 5 + (12 - large_font_total_height) / 2, text, ALIGN_LEFT | DT_CLIP, text_farbe, dirty, -1 );
-}
+	display_text_proportional_len_clip( xpos + 2, ypos - 5 + (12 - large_font_total_height) / 2, text, ALIGN_LEFT | DT_CLIP, text_farbe, dirty, -1);
 #endif
+}
 
 
 /**
@@ -5039,7 +4995,7 @@ void display_flush_buffer()
 
 	// use mouse pointer image if available
 	if (softpointer != -1 && standard_pointer >= 0) {
-		display_color_img(standard_pointer, sys_event.mx, sys_event.my, 0, false, true);
+		display_color_img(standard_pointer, sys_event.mx, sys_event.my, 0, false, true  CLIP_NUM_DEFAULT);
 
 		// if software emulated mouse pointer is over the ticker, redraw it totally at next occurs
 		if (!ticker::empty() && sys_event.my+images[standard_pointer].h >= disp_height-TICKER_YPOS_BOTTOM &&

@@ -17,6 +17,7 @@
 #include "../simcolor.h"
 #include "../unicode.h"
 #include "../simtypes.h"
+#include "clip_num.h"
 #include "simimg.h"
 #include "scr_coord.h"
 
@@ -102,15 +103,9 @@ extern PIXVAL specialcolormap_all_day[256];
  * Helper functions for clipping along tile borders.
  * @author Dwachs
  */
-#ifdef MULTI_THREAD
-void add_poly_clip(int x0_,int y0_, int x1, int y1, int ribi, const sint8 clip_num);
-void clear_all_poly_clip(const sint8 clip_num);
-void activate_ribi_clip(int ribi, const sint8 clip_num);
-#else
-void add_poly_clip(int x0_,int y0_, int x1, int y1, int ribi=15);
-void clear_all_poly_clip();
-void activate_ribi_clip(int ribi=15);
-#endif
+void add_poly_clip(int x0_,int y0_, int x1, int y1, int ribi  CLIP_NUM_DEF);
+void clear_all_poly_clip(CLIP_NUM_DEF0);
+void activate_ribi_clip(int ribi  CLIP_NUM_DEF);
 
 /* Do no access directly, use the get_tile_raster_width()
  * macro instead.
@@ -164,11 +159,7 @@ int get_maus_y();
 
 
 void mark_rect_dirty_wc(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL x2, KOORD_VAL y2); // clips to screen only
-#ifdef MULTI_THREAD
-void mark_rect_dirty_clip(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL x2, KOORD_VAL y2, const sint8 clip_num); // clips to clip_rect
-#else
-void mark_rect_dirty_clip(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL x2, KOORD_VAL y2); // clips to clip_rect
-#endif
+void mark_rect_dirty_clip(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL x2, KOORD_VAL y2  CLIP_NUM_DEF); // clips to clip_rect
 void mark_screen_dirty();
 
 KOORD_VAL display_get_width();
@@ -198,11 +189,10 @@ void display_set_player_color_scheme(const int player, const COLOR_VAL col1, con
 void display_img_aligned( const image_id n, scr_rect area, int align, const int dirty);
 
 // display image with day and night change
+void display_img_aux(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const int daynight, const int dirty  CLIP_NUM_DEF);
 #ifdef MULTI_THREAD
-void display_img_aux(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const int daynight, const int dirty, const sint8 clip_num);
 #define display_img( n, x, y, d, c ) display_img_aux( (n), (x), (y), 0, true, (d), (c) )
 #else
-void display_img_aux(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const int daynight, const int dirty);
 #define display_img( n, x, y, d ) display_img_aux( (n), (x), (y), 0, true, (d) )
 #endif
 
@@ -210,41 +200,21 @@ void display_img_aux(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const signed 
  * draws the images with alpha, either blended or as outline
  * @author kierongreen
  */
-#ifdef MULTI_THREAD
-void display_rezoomed_img_blend(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty, const sint8 clip_num);
-#define display_img_blend( n, x, y, c, dn, d ) display_rezoomed_img_blend( (n), (x), (y), 0, (c), (dn), (d), 0 )
-#else
-void display_rezoomed_img_blend(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty);
-#define display_img_blend( n, x, y, c, dn, d ) display_rezoomed_img_blend( (n), (x), (y), 0, (c), (dn), (d) )
-#endif
+void display_rezoomed_img_blend(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty  CLIP_NUM_DEF);
+#define display_img_blend( n, x, y, c, dn, d ) display_rezoomed_img_blend( (n), (x), (y), 0, (c), (dn), (d)  CLIP_NUM_DEFAULT)
 
 #define ALPHA_RED 0x1
 #define ALPHA_GREEN 0x2
 #define ALPHA_BLUE 0x4
 
-#ifdef MULTI_THREAD
-void display_rezoomed_img_alpha(const image_id n, const image_id alpha_n, const unsigned alpha_flags, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty, const sint8 clip_num);
-#define display_img_alpha( n, a, f, x, y, c, dn, d ) display_rezoomed_img_alpha( (n), (a), (f), (x), (y), 0, (c), (dn), (d), 0 )
-#else
-void display_rezoomed_img_alpha(const image_id n, const image_id alpha_n, const unsigned alpha_flags, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty);
-#define display_img_alpha( n, a, f, x, y, c, dn, d ) display_rezoomed_img_alpha( (n), (a), (f), (x), (y), 0, (c), (dn), (d) )
-#endif
+void display_rezoomed_img_alpha(const image_id n, const image_id alpha_n, const unsigned alpha_flags, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty  CLIP_NUM_DEF);
+#define display_img_alpha( n, a, f, x, y, c, dn, d ) display_rezoomed_img_alpha( (n), (a), (f), (x), (y), 0, (c), (dn), (d)  CLIP_NUM_DEFAULT)
 
 // display image with color (if there) and optional day and night change
-#ifdef MULTI_THREAD
-void display_color_img_cl(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const int daynight, const int dirty, const sint8 clip_num);
-#define display_color_img( n, x, y, p, dn, d ) display_color_img_cl( (n), (x), (y), (p), (dn), (d), 0 )
-#else
-void display_color_img(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const int daynight, const int dirty);
-#endif
+void display_color_img(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const int daynight, const int dirty  CLIP_NUM_DEF CLIP_NUM_DEFAULT_ZERO);
 
 // display unzoomed image
-#ifdef MULTI_THREAD
-void display_base_img_cl(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const int daynight, const int dirty, const sint8 clip_num);
-#define display_base_img( n, x, y, p, dn, d ) display_base_img_cl( (n), (x), (y), (p), (dn), (d), 0 )
-#else
-void display_base_img(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const int daynight, const int dirty);
-#endif
+void display_base_img(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const int daynight, const int dirty  CLIP_NUM_DEF CLIP_NUM_DEFAULT_ZERO);
 
 typedef image_id stretch_map_t[3][3];
 
@@ -255,24 +225,13 @@ void display_img_stretch( const stretch_map_t &imag, scr_rect area );
 void display_img_stretch_blend( const stretch_map_t &imag, scr_rect area, PLAYER_COLOR_VAL color );
 
 // Knightly : display unzoomed image with alpha, either blended or as outline
-#ifdef MULTI_THREAD
-void display_base_img_blend(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty, const sint8 clip_num);
-void display_base_img_alpha(const image_id n, const image_id alpha_n, const unsigned alpha_flags, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty, const sint8 clip_num);
-#else
-void display_base_img_blend(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty);
-void display_base_img_alpha(const image_id n, const image_id alpha_n, const unsigned alpha_flags, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty);
-#endif
+void display_base_img_blend(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty  CLIP_NUM_DEF);
+void display_base_img_alpha(const image_id n, const image_id alpha_n, const unsigned alpha_flags, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty  CLIP_NUM_DEF);
 
 // Knightly : pointer to image display procedures
-#ifdef MULTI_THREAD
-typedef void (*display_image_proc)(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const int daynight, const int dirty, const sint8 clip_num);
-typedef void (*display_blend_proc)(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty, const sint8 clip_num);
-typedef void (*display_alpha_proc)(const image_id n, const image_id alpha_n, const unsigned alpha_flags, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty, const sint8 clip_num);
-#else
-typedef void (*display_image_proc)(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const int daynight, const int dirty);
-typedef void (*display_blend_proc)(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty);
-typedef void (*display_alpha_proc)(const image_id n, const image_id alpha_n, const unsigned alpha_flags, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty);
-#endif
+typedef void (*display_image_proc)(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const int daynight, const int dirty  CLIP_NUM_DEF);
+typedef void (*display_blend_proc)(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty  CLIP_NUM_DEF);
+typedef void (*display_alpha_proc)(const image_id n, const image_id alpha_n, const unsigned alpha_flags, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty  CLIP_NUM_DEF);
 
 // Knightly : variables for storing currently used image procedure set and tile raster width
 extern display_image_proc display_normal;
@@ -285,43 +244,23 @@ extern signed short current_tile_raster_width;
 #define get_current_tile_raster_width() (current_tile_raster_width)
 
 // Knightly : for switching between image procedure sets and setting current tile raster width
-#ifdef MULTI_THREAD
-#define display_set_image_proc( is_global ) \
-{ \
-	if(  is_global  ) { \
-		display_normal = display_img_aux; \
-		display_color = display_color_img_cl; \
-		display_blend = display_rezoomed_img_blend; \
-		display_alpha = display_rezoomed_img_alpha; \
-		current_tile_raster_width = get_tile_raster_width(); \
-	} \
-	else { \
-		display_normal = display_base_img_cl; \
-		display_color = display_base_img_cl; \
-		display_blend = display_base_img_blend; \
-		display_alpha = display_base_img_alpha; \
-		current_tile_raster_width = get_base_tile_raster_width(); \
-	} \
+inline void display_set_image_proc( bool is_global )
+{
+	if(  is_global  ) {
+		display_normal = display_img_aux;
+		display_color = display_color_img;
+		display_blend = display_rezoomed_img_blend;
+		display_alpha = display_rezoomed_img_alpha;
+		current_tile_raster_width = get_tile_raster_width();
+	}
+	else {
+		display_normal = display_base_img;
+		display_color = display_base_img;
+		display_blend = display_base_img_blend;
+		display_alpha = display_base_img_alpha;
+		current_tile_raster_width = get_base_tile_raster_width();
+	}
 }
-#else
-#define display_set_image_proc( is_global ) \
-{ \
-	if(  is_global  ) { \
-		display_normal = display_img_aux; \
-		display_color = display_color_img; \
-		display_blend = display_rezoomed_img_blend; \
-		display_alpha = display_rezoomed_img_alpha; \
-		current_tile_raster_width = get_tile_raster_width(); \
-	} \
-	else { \
-		display_normal = display_base_img; \
-		display_color = display_base_img; \
-		display_blend = display_base_img_blend; \
-		display_alpha = display_base_img_alpha; \
-		current_tile_raster_width = get_base_tile_raster_width(); \
-	} \
-}
-#endif
 
 // blends a rectangular region
 void display_blend_wh_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PIXVAL color, int percent_blend );
@@ -429,27 +368,15 @@ int display_calc_proportional_string_len_width(const char* text, size_t len);
  * @date  15.06.2003, 2.1.2005
  */
 
-#ifdef MULTI_THREAD
-int display_text_proportional_len_clip_cl_rgb(KOORD_VAL x, KOORD_VAL y, const char* txt, control_alignment_t flags, const PIXVAL color, bool dirty, sint32 len, const sint8 clip_num);
+// #ifdef MULTI_THREAD
+int display_text_proportional_len_clip_rgb(KOORD_VAL x, KOORD_VAL y, const char* txt, control_alignment_t flags, const PIXVAL color, bool dirty, sint32 len  CLIP_NUM_DEF  CLIP_NUM_DEFAULT_ZERO);
 /* macro are for compatibility */
-#define display_proportional(     x,  y, txt, align, c, dirty) display_text_proportional_len_clip_cl_rgb(x, y, txt, align,           specialcolormap_all_day[(c)&0xFF], dirty, -1, 0)
-#define display_proportional_clip(x,  y, txt, align, c, dirty) display_text_proportional_len_clip_cl_rgb(x, y, txt, align | DT_CLIP, specialcolormap_all_day[(c)&0xFF], dirty, -1, 0)
-#define display_text_proportional_len_clip( x, y, txt, align, c, dirty, len ) display_text_proportional_len_clip_cl_rgb( (x), (y), (txt), (align), specialcolormap_all_day[(c)&0xFF], (dirty), (len), 0 )
-#define display_text_proportional_len_clip_cl( x, y, txt, align, c, dirty, len, num ) display_text_proportional_len_clip_cl_rgb( (x), (y), (txt), (align), specialcolormap_all_day[(c)&0xFF], (dirty), (len), (num) )
-/* macro are for compatibility */
-#define display_proportional_rgb(     x,  y, txt, align, color, dirty) display_text_proportional_len_clip_cl_rgb(x, y, txt, align,           color, dirty, -1, 0)
-#define display_proportional_clip_rgb(x,  y, txt, align, color, dirty) display_text_proportional_len_clip_cl_rgb(x, y, txt, align | DT_CLIP, color, dirty, -1, 0)
-#define display_text_proportional_len_clip_rgb( x, y, txt, align, color, dirty, len ) display_text_proportional_len_clip_cl_rgb( (x), (y), (txt), (align), (color), (dirty), (len), 0 )
-#else
-int display_text_proportional_len_clip_rgb(KOORD_VAL x, KOORD_VAL y, const char* txt, control_alignment_t flags, const PIXVAL color_index, bool dirty, sint32 len );
-/* macro are for compatibility */
-#define display_proportional(     x,  y, txt, align, c, dirty) display_text_proportional_len_clip_rgb(x, y, txt, align,           specialcolormap_all_day[(c)&0xFF], dirty,  -1)
-#define display_proportional_clip(x,  y, txt, align, c, dirty) display_text_proportional_len_clip_rgb(x, y, txt, align | DT_CLIP, specialcolormap_all_day[(c)&0xFF], dirty,  -1)
-#define display_text_proportional_len_clip(x,  y, txt, align, c, dirty, len ) display_text_proportional_len_clip_rgb(x, y, txt, align | DT_CLIP, specialcolormap_all_day[(c)&0xFF], dirty, (len) )
-/* macro are for compatibility */
-#define display_proportional_rgb(     x,  y, txt, align, color, dirty) display_text_proportional_len_clip_rgb(x, y, txt, align,           color, dirty, -1)
-#define display_proportional_clip_rgb(x,  y, txt, align, color, dirty) display_text_proportional_len_clip_rgb(x, y, txt, align | DT_CLIP, color, dirty, -1)
-#endif
+#define display_proportional(                  x, y, txt, align, c, dirty)            display_text_proportional_len_clip_rgb(x, y, txt, align,           specialcolormap_all_day[(c)&0xFF], dirty, -1)
+#define display_proportional_clip(             x, y, txt, align, c, dirty)            display_text_proportional_len_clip_rgb(x, y, txt, align | DT_CLIP, specialcolormap_all_day[(c)&0xFF], dirty, -1)
+#define display_text_proportional_len_clip(    x, y, txt, align, c, dirty, len )      display_text_proportional_len_clip_rgb( (x), (y), (txt), (align),  specialcolormap_all_day[(c)&0xFF], (dirty), (len))
+#define display_text_proportional_len_clip_cl( x, y, txt, align, c, dirty, len, num ) display_text_proportional_len_clip_rgb( (x), (y), (txt), (align),  specialcolormap_all_day[(c)&0xFF], (dirty), (len), (num) )
+#define display_proportional_rgb(              x, y, txt, align, color, dirty)        display_text_proportional_len_clip_rgb(x, y, txt, align,           color, dirty, -1)
+
 
 /*
  * Display a string that if abbreviated by the (language specific) ellipse character if too wide
@@ -482,15 +409,8 @@ void display_filled_circle_rgb( KOORD_VAL x0, KOORD_VAL  y0, int radius, const P
 void draw_bezier_rgb(KOORD_VAL Ax, KOORD_VAL Ay, KOORD_VAL Bx, KOORD_VAL By, KOORD_VAL ADx, KOORD_VAL ADy, KOORD_VAL BDx, KOORD_VAL BDy, const PIXVAL colore, KOORD_VAL draw, KOORD_VAL dontDraw);
 #define draw_bezier(xp,yp,xd,yd,ADx,ADy,BDx,BDy,color,draw,dont_draw) draw_bezier_rgb( xp,yp,xd,yd,ADx,ADy,BDx,BDy,specialcolormap_all_day[(color)&0xFF],draw,dont_draw )
 
-#ifdef MULTI_THREAD
-void display_set_clip_wh_cl(KOORD_VAL x, KOORD_VAL y, KOORD_VAL w, KOORD_VAL h, const sint8 clip_num);
-#define display_set_clip_wh( x, y, w, h ) display_set_clip_wh_cl( (x), (y), (w), (h), 0 )
-clip_dimension display_get_clip_wh_cl(const sint8 clip_num);
-#define display_get_clip_wh() display_get_clip_wh_cl( 0 )
-#else
-void display_set_clip_wh(KOORD_VAL x, KOORD_VAL y, KOORD_VAL w, KOORD_VAL h);
-clip_dimension display_get_clip_wh();
-#endif
+void display_set_clip_wh(KOORD_VAL x, KOORD_VAL y, KOORD_VAL w, KOORD_VAL h  CLIP_NUM_DEF CLIP_NUM_DEFAULT_ZERO);
+clip_dimension display_get_clip_wh(CLIP_NUM_DEF0 CLIP_NUM_DEFAULT_ZERO);
 
 void display_snapshot( int x, int y, int w, int h );
 

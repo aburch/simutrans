@@ -1139,11 +1139,7 @@ void objlist_t::display_obj_quick_and_dirty( const sint16 xpos, const sint16 ypo
 	else if(capacity==1) {
 		if(start_offset==0) {
 			// only draw background on request
-#ifdef MULTI_THREAD
-			obj.one->display( xpos, ypos, clip_num );
-#else
-			obj.one->display( xpos, ypos );
-#endif
+			obj.one->display( xpos, ypos  CLIP_NUM_PAR);
 		}
 		// foreground need to be drawn in any case
 #ifdef MULTI_THREAD
@@ -1159,11 +1155,7 @@ void objlist_t::display_obj_quick_and_dirty( const sint16 xpos, const sint16 ypo
 
 	for(  uint8 n = start_offset;  n < top;  n++  ) {
 		// is there an object ?
-#ifdef MULTI_THREAD
-		obj.some[n]->display( xpos, ypos, clip_num );
-#else
-		obj.some[n]->display( xpos, ypos );
-#endif
+		obj.some[n]->display( xpos, ypos  CLIP_NUM_PAR);
 	}
 	// foreground (needs to be done backwards!
 	for(  size_t n = top;  n-- != 0;    ) {
@@ -1188,48 +1180,27 @@ void objlist_t::display_obj_quick_and_dirty( const sint16 xpos, const sint16 ypo
  * local_display_obj_bg()        .. local function to avoid code duplication, returns false if the first non-valid obj is reached
  * @author Dwachs
  */
-#ifdef MULTI_THREAD
-inline bool local_display_obj_bg(const obj_t *obj, const sint16 xpos, const sint16 ypos, const sint8 clip_num)
-#else
-inline bool local_display_obj_bg(const obj_t *obj, const sint16 xpos, const sint16 ypos)
-#endif
+inline bool local_display_obj_bg(const obj_t *obj, const sint16 xpos, const sint16 ypos  CLIP_NUM_DEF)
 {
 	const bool display_obj = !obj->is_moving();
 	if(  display_obj  ) {
-#ifdef MULTI_THREAD
-		obj->display( xpos, ypos, clip_num );
-#else
-		obj->display( xpos, ypos );
-#endif
+		obj->display( xpos, ypos  CLIP_NUM_PAR);
 	}
 	return display_obj;
 }
 
-
-#ifdef MULTI_THREAD
-uint8 objlist_t::display_obj_bg( const sint16 xpos, const sint16 ypos, const uint8 start_offset, const sint8 clip_num) const
-#else
-uint8 objlist_t::display_obj_bg( const sint16 xpos, const sint16 ypos, const uint8 start_offset) const
-#endif
+uint8 objlist_t::display_obj_bg( const sint16 xpos, const sint16 ypos, const uint8 start_offset  CLIP_NUM_DEF) const
 {
 	if(  start_offset >= top  ) {
 		return start_offset;
 	}
 
 	if(  capacity == 1  ) {
-#ifdef MULTI_THREAD
-		return local_display_obj_bg( obj.one, xpos, ypos, clip_num );
-#else
-		return local_display_obj_bg( obj.one, xpos, ypos );
-#endif
+		return local_display_obj_bg( obj.one, xpos, ypos  CLIP_NUM_PAR);
 	}
 
 	for(  uint8 n = start_offset;  n < top;  n++  ) {
-#ifdef MULTI_THREAD
-		if(  !local_display_obj_bg( obj.some[n], xpos, ypos, clip_num )  ) {
-#else
-		if(  !local_display_obj_bg( obj.some[n], xpos, ypos )  ) {
-#endif
+		if(  !local_display_obj_bg( obj.some[n], xpos, ypos  CLIP_NUM_PAR)  ) {
 			return n;
 		}
 	}
@@ -1248,11 +1219,7 @@ uint8 objlist_t::display_obj_bg( const sint16 xpos, const sint16 ypos, const uin
  * local_display_obj_vh()        .. local function to avoid code duplication, returns false if the first non-valid obj is reached
  * @author Dwachs
  */
-#ifdef MULTI_THREAD
-inline bool local_display_obj_vh( obj_t *draw_obj, const sint16 xpos, const sint16 ypos, const ribi_t::ribi ribi, const bool ontile, const sint8 clip_num)
-#else
-inline bool local_display_obj_vh(const obj_t *draw_obj, const sint16 xpos, const sint16 ypos, const ribi_t::ribi ribi, const bool ontile)
-#endif
+inline bool local_display_obj_vh(const obj_t *draw_obj, const sint16 xpos, const sint16 ypos, const ribi_t::ribi ribi, const bool ontile  CLIP_NUM_DEF)
 {
 	vehicle_base_t const* const v = obj_cast<vehicle_base_t>(draw_obj);
 	air_vehicle_t      const*       a;
@@ -1261,13 +1228,8 @@ inline bool local_display_obj_vh(const obj_t *draw_obj, const sint16 xpos, const
 		if(  ontile  ||  (veh_ribi & ribi) == ribi  ||  (ribi_t::rueckwaerts(veh_ribi) & ribi )== ribi  ||  draw_obj->get_typ() == obj_t::air_vehicle  ) {
 			// activate clipping only for our direction masked by the ribi argument
 			// use non-convex clipping (16) only if we are on the currently drawn tile or its n/w neighbours
-#ifdef MULTI_THREAD
-			activate_ribi_clip( ((veh_ribi|ribi_t::rueckwaerts(veh_ribi))&ribi) | (ontile  ||  ribi == ribi_t::nord  ||  ribi == ribi_t::west ? 16 : 0), clip_num );
-			draw_obj->display( xpos, ypos, clip_num );
-#else
-			activate_ribi_clip( ((veh_ribi|ribi_t::rueckwaerts(veh_ribi))&ribi) | (ontile  ||  ribi == ribi_t::nord  ||  ribi == ribi_t::west ? 16 : 0) );
-			draw_obj->display( xpos, ypos );
-#endif
+			activate_ribi_clip( ((veh_ribi|ribi_t::rueckwaerts(veh_ribi))&ribi) | (ontile  ||  ribi == ribi_t::nord  ||  ribi == ribi_t::west ? 16 : 0)  CLIP_NUM_PAR);
+			draw_obj->display( xpos, ypos  CLIP_NUM_PAR);
 		}
 		return true;
 	}
@@ -1278,45 +1240,28 @@ inline bool local_display_obj_vh(const obj_t *draw_obj, const sint16 xpos, const
 }
 
 
-#ifdef MULTI_THREAD
-uint8 objlist_t::display_obj_vh( const sint16 xpos, const sint16 ypos, const uint8 start_offset, const ribi_t::ribi ribi, const bool ontile, const sint8 clip_num ) const
-#else
-uint8 objlist_t::display_obj_vh( const sint16 xpos, const sint16 ypos, const uint8 start_offset, const ribi_t::ribi ribi, const bool ontile ) const
-#endif
+uint8 objlist_t::display_obj_vh( const sint16 xpos, const sint16 ypos, const uint8 start_offset, const ribi_t::ribi ribi, const bool ontile  CLIP_NUM_DEF) const
 {
 	if(  start_offset >= top  ) {
 		return start_offset;
 	}
 
 	if(  capacity <= 1  ) {
-#ifdef MULTI_THREAD
-		uint8 i = local_display_obj_vh( obj.one, xpos, ypos, ribi, ontile, clip_num );
-		activate_ribi_clip( ribi_t::alle, clip_num );
-#else
-		uint8 i = local_display_obj_vh( obj.one, xpos, ypos, ribi, ontile );
-		activate_ribi_clip();
-#endif
+		uint8 i = local_display_obj_vh( obj.one, xpos, ypos, ribi, ontile  CLIP_NUM_PAR);
+		activate_ribi_clip( ribi_t::alle  CLIP_NUM_PAR);
 		return i;
 	}
 
 	uint8 nr_v = start_offset;
 	for(  uint8 n = start_offset;  n < top;  n++  ) {
-#ifdef MULTI_THREAD
-		if(  local_display_obj_vh( obj.some[n], xpos, ypos, ribi, ontile, clip_num )  ) {
-#else
-		if(  local_display_obj_vh( obj.some[n], xpos, ypos, ribi, ontile )  ) {
-#endif
+		if(  local_display_obj_vh( obj.some[n], xpos, ypos, ribi, ontile  CLIP_NUM_PAR)  ) {
 			nr_v = n;
 		}
 		else {
 			break;
 		}
 	}
-#ifdef MULTI_THREAD
-	activate_ribi_clip( ribi_t::alle, clip_num );
-#else
-	activate_ribi_clip();
-#endif
+	activate_ribi_clip( ribi_t::alle  CLIP_NUM_PAR);
 	return nr_v+1;
 }
 
@@ -1340,11 +1285,7 @@ void objlist_t::display_obj_fg( const sint16 xpos, const sint16 ypos, const uint
 	// now draw start_offset background and all foreground!
 	if(  capacity == 1  ) {
 		if(  start_offset == 0  ) {
-#ifdef MULTI_THREAD
-			obj.one->display( xpos, ypos, clip_num );
-#else
-			obj.one->display( xpos, ypos );
-#endif
+			obj.one->display( xpos, ypos  CLIP_NUM_PAR);
 		}
 #ifdef MULTI_THREAD
 		obj.one->display_after( xpos, ypos, clip_num );
@@ -1358,11 +1299,7 @@ void objlist_t::display_obj_fg( const sint16 xpos, const sint16 ypos, const uint
 	}
 
 	for(  uint8 n = start_offset;  n < top;  n++  ) {
-#ifdef MULTI_THREAD
-		obj.some[n]->display( xpos, ypos, clip_num );
-#else
-		obj.some[n]->display( xpos, ypos );
-#endif
+		obj.some[n]->display( xpos, ypos  CLIP_NUM_PAR);
 	}
 	// foreground (needs to be done backwards!)
 	for(  size_t n = top;  n-- != 0;    ) {

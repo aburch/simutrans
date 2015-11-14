@@ -420,11 +420,7 @@ void planquadrat_t::angehoben()
 }
 
 
-#ifdef MULTI_THREAD
-void planquadrat_t::display_obj(const sint16 xpos, const sint16 ypos, const sint16 raster_tile_width, bool is_global, const sint8 hmin, const sint8 hmax, const sint8 clip_num) const
-#else
-void planquadrat_t::display_obj(const sint16 xpos, const sint16 ypos, const sint16 raster_tile_width, bool is_global, const sint8 hmin, const sint8 hmax) const
-#endif
+void planquadrat_t::display_obj(const sint16 xpos, const sint16 ypos, const sint16 raster_tile_width, bool is_global, const sint8 hmin, const sint8 hmax  CLIP_NUM_DEF) const
 {
 	grund_t *gr0 = get_kartenboden();
 	const sint8 h0 = gr0->get_disp_height();
@@ -443,42 +439,26 @@ void planquadrat_t::display_obj(const sint16 xpos, const sint16 ypos, const sint
 			// not too low?
 			if(  htop >= hmin  ) {
 				const sint16 yypos = ypos - tile_raster_scale_y( (h - h0) * TILE_HEIGHT_STEP, raster_tile_width );
-#ifdef MULTI_THREAD
-				gr->display_boden( xpos, yypos, raster_tile_width, clip_num );
-				gr->display_obj_all( xpos, yypos, raster_tile_width, is_global, clip_num );
-#else
-				gr->display_boden( xpos, yypos, raster_tile_width );
-				gr->display_obj_all( xpos, yypos, raster_tile_width, is_global );
-#endif
+
+				gr->display_boden( xpos, yypos, raster_tile_width  CLIP_NUM_PAR );
+				gr->display_obj_all( xpos, yypos, raster_tile_width, is_global  CLIP_NUM_PAR );
 			}
 		}
 	}
 	//const bool kartenboden_dirty = gr->get_flag(grund_t::dirty);
 	if(  gr0->get_flag( grund_t::draw_as_obj )  ||  !gr0->is_karten_boden_visible()  ) {
-#ifdef MULTI_THREAD
-		gr0->display_boden( xpos, ypos, raster_tile_width, clip_num );
-#else
-		gr0->display_boden( xpos, ypos, raster_tile_width );
-#endif
+		gr0->display_boden( xpos, ypos, raster_tile_width  CLIP_NUM_PAR );
 	}
 
 	if(  env_t::simple_drawing  ) {
 		// ignore trees going though bridges
-#ifdef MULTI_THREAD
-		gr0->display_obj_all_quick_and_dirty( xpos, ypos, raster_tile_width, is_global, clip_num );
-#else
-		gr0->display_obj_all_quick_and_dirty( xpos, ypos, raster_tile_width, is_global );
-#endif
+		gr0->display_obj_all_quick_and_dirty( xpos, ypos, raster_tile_width, is_global  CLIP_NUM_PAR );
 	}
 	else {
 		// clip everything at the next tile above
 		clip_dimension p_cr;
 		if(  i < ground_size  ) {
-#ifdef MULTI_THREAD
-			p_cr = display_get_clip_wh_cl( clip_num );
-#else
-			p_cr = display_get_clip_wh();
-#endif
+			p_cr = display_get_clip_wh( CLIP_NUM_VAR );
 			for(  uint8 j = i;  j < ground_size;  j++  ) {
 				const sint8 h = data.some[j]->get_hoehe();
 				const hang_t::typ slope = data.some[j]->get_grund_hang();
@@ -492,29 +472,16 @@ void planquadrat_t::display_obj(const sint16 xpos, const sint16 ypos, const sint
 					// something on top: clip horizontally to prevent trees etc shining trough bridges
 					const sint16 yh = ypos - tile_raster_scale_y( (h - h0) * TILE_HEIGHT_STEP, raster_tile_width ) + ((3 * raster_tile_width) >> 2);
 					if(  yh >= p_cr.y  ) {
-#ifdef MULTI_THREAD
-						display_set_clip_wh_cl(p_cr.x, yh, p_cr.w, p_cr.h + p_cr.y - yh, clip_num  );
-#else
-						display_set_clip_wh( p_cr.x, yh, p_cr.w, p_cr.h + p_cr.y - yh );
-#endif
+						display_set_clip_wh(p_cr.x, yh, p_cr.w, p_cr.h + p_cr.y - yh  CLIP_NUM_PAR  );
 					}
 					break;
 				}
 			}
-#ifdef MULTI_THREAD
-			gr0->display_obj_all( xpos, ypos, raster_tile_width, is_global, clip_num );
-			display_set_clip_wh_cl( p_cr.x, p_cr.y, p_cr.w, p_cr.h, clip_num ); // restore clipping
-#else
-			gr0->display_obj_all( xpos, ypos, raster_tile_width, is_global );
-			display_set_clip_wh( p_cr.x, p_cr.y, p_cr.w, p_cr.h ); // restore clipping
-#endif
+			gr0->display_obj_all( xpos, ypos, raster_tile_width, is_global  CLIP_NUM_PAR );
+			display_set_clip_wh( p_cr.x, p_cr.y, p_cr.w, p_cr.h  CLIP_NUM_PAR ); // restore clipping
 		}
 		else {
-#ifdef MULTI_THREAD
-			gr0->display_obj_all( xpos, ypos, raster_tile_width, is_global, clip_num );
-#else
-			gr0->display_obj_all( xpos, ypos, raster_tile_width, is_global );
-#endif
+			gr0->display_obj_all( xpos, ypos, raster_tile_width, is_global  CLIP_NUM_PAR );
 		}
 	}
 	// above ground
@@ -530,13 +497,8 @@ void planquadrat_t::display_obj(const sint16 xpos, const sint16 ypos, const sint
 		// not too low?
 		if(  htop >= hmin  ) {
 			const sint16 yypos = ypos - tile_raster_scale_y( (h - h0) * TILE_HEIGHT_STEP, raster_tile_width );
-#ifdef MULTI_THREAD
-			gr->display_boden( xpos, yypos, raster_tile_width, clip_num );
-			gr->display_obj_all( xpos, yypos, raster_tile_width, is_global, clip_num );
-#else
-			gr->display_boden( xpos, yypos, raster_tile_width );
-			gr->display_obj_all( xpos, yypos, raster_tile_width, is_global );
-#endif
+			gr->display_boden( xpos, yypos, raster_tile_width  CLIP_NUM_PAR );
+			gr->display_obj_all( xpos, yypos, raster_tile_width, is_global  CLIP_NUM_PAR );
 		}
 	}
 }
