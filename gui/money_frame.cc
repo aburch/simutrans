@@ -741,6 +741,14 @@ bool money_frame_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 }
 
 
+bool money_frame_t::infowin_event(const event_t *ev)
+{
+	bool swallowed = gui_frame_t::infowin_event(ev);
+	set_focus( &transport_type_c );
+	return swallowed;
+}
+
+
 uint32 money_frame_t::get_rdwr_id()
 {
 	return magic_finances_t+player->get_player_nr();

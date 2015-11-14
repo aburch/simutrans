@@ -146,6 +146,8 @@ public:
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
+	bool infowin_event(const event_t *ev);
+
 	// saving/restore stuff
 	uint32 get_rdwr_id() OVERRIDE;
 
