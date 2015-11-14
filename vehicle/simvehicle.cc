@@ -4935,7 +4935,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 		}
 		else
 		{
-			relevant_index = last_stop_signal_index;
+			relevant_index = next_signal_index;
 		}
 
 		if(!directional_only)
