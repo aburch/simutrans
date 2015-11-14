@@ -241,7 +241,7 @@ bool gui_scrolled_list_t::infowin_event(const event_t *ev)
 				else {
 					event_t new_ev = *ev;
 					translate_event( &new_ev, 0, -(h-item_list[new_selection]->get_h()) );
-					notify = item_list[new_selection]->infowin_event( &new_ev );
+					notify = !item_list[new_selection]->infowin_event( &new_ev );
 				}
 			}
 			if(  IS_LEFTRELEASE(ev)  ) {
