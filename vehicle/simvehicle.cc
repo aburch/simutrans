@@ -3161,7 +3161,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 									// now it make sense to search a route
 									route_t target_rt;
 									koord3d next3d = r.position_bei(test_index);
-									if(  !target_rt.find_route( welt, next3d, this, speed_to_kmh(cnv->get_min_top_speed()), curr_90direction, cnv->get_highest_axle_load(), cnv->get_tile_length(), cnv->get_weight_summary().weight / 1000, 33 )  ) {
+									if(  !target_rt.find_route( welt, next3d, this, speed_to_kmh(cnv->get_min_top_speed()), curr_90direction, cnv->get_highest_axle_load(), cnv->get_tile_length(), cnv->get_weight_summary().weight / 1000, 33, route_t::choose_signal )  ) {
 										// nothing empty or not route with less than 33 tiles
 										target_halt = halthandle_t();
 										restart_speed = 0;
@@ -4980,7 +4980,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 			choose_return = activate_choose_signal(last_choose_signal_index, next_signal_index, brake_steps); 
 		}
 
-		if(!success)
+		if(!success && !choose_return)
 		{
 			cnv->set_next_reservation_index(relevant_index);
 			return 0;

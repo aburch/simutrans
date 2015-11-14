@@ -454,7 +454,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 							else
 							{
 								// discourage v turns heavily
-								k->g += 25;
+								k->g += 25;  
 							}
 						}
 					}
