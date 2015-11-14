@@ -103,6 +103,7 @@ DBG_MESSAGE("event","HOWDY!");
 	if(  ev->ev_class == EVENT_KEYBOARD  &&  ev->ev_code == SIM_KEY_ENTER  &&  droplist.is_visible()  ) {
 		// close with enter
 		close_box();
+		return true;
 	}
 
 	if(  IS_LEFTCLICK(ev)  ||  IS_LEFTDRAG(ev)  ||  IS_LEFTRELEASE(ev)  ) {
@@ -144,6 +145,7 @@ DBG_MESSAGE("gui_combobox_t::infowin_event()","close");
 				}
 			}
 		}
+		return true;
 	}
 	else if(ev->ev_class==INFOWIN  &&  (ev->ev_code==WIN_CLOSE  ||  ev->ev_code==WIN_UNTOP)  ) {
 DBG_MESSAGE("gui_combobox_t::infowin_event()","close");
@@ -152,6 +154,7 @@ DBG_MESSAGE("gui_combobox_t::infowin_event()","close");
 		close_box();
 		// update "mouse-click-catch-area"
 		set_size(scr_size(size.w, droplist.is_visible() ? max_size.h : D_EDIT_HEIGHT));
+		return true;
 	}
 	else {
 		// finally handle textinput
@@ -162,7 +165,7 @@ DBG_MESSAGE("gui_combobox_t::infowin_event()","close");
 			return textinp.infowin_event(ev);
 		}
 	}
-	return true;
+	return false;
 }
 
 
