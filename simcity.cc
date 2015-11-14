@@ -1866,7 +1866,7 @@ void stadt_t::step_passagiere()
 	// only continue, if this is a good start halt
 	if(  !start_halts.empty()  ) {
 		// Find passenger destination
-		for(  int pax_routed=0, pax_left_to_do=0;  pax_routed < num_pax;  pax_routed += pax_left_to_do  ) {
+		for(  uint pax_routed=0, pax_left_to_do=0;  pax_routed < num_pax;  pax_routed += pax_left_to_do  ) {
 			// number of passengers that want to travel
 			// Hajo: for efficiency we try to route not every
 			// single pax, but packets. If possible, we do 7 passengers at a time

@@ -84,7 +84,7 @@ bool citylist_stats_t::infowin_event(const event_t *ev)
 		// find out, if in pos box
 		scr_rect pos_xywh( scr_coord(D_H_SPACE, (h-gui_theme_t::gui_pos_button_size.h)/2), gui_theme_t::gui_pos_button_size );
 		bool pos_box_hit = pos_xywh.contains( scr_coord(ev->mx,ev->my) );
-		if(  IS_LEFTRELEASE(ev)  &&  pos_box_hit  ||  IS_RIGHTRELEASE(ev)  ) {
+		if(  (IS_LEFTRELEASE(ev)  &&  pos_box_hit)  ||  IS_RIGHTRELEASE(ev)  ) {
 			if(  grund_t *gr = world()->lookup_kartenboden( city->get_center() )  ) {
 				world()->get_viewport()->change_world_position( gr->get_pos() );
 			}
