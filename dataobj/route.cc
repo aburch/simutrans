@@ -550,8 +550,6 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d start, const koord3
 	const bool is_airplane = tdriver->get_waytype()==air_wt;
 	const uint32 cost_upslope = tdriver->get_cost_upslope();
 
-	grund_t *to;
-
 	/* On water we will try jump point search (jps):
 	 * - If going straight do not turn, only if near an obstacle.
 	 * - If going diagonally only proceed in the two directions defining the diagonal.
@@ -672,7 +670,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d start, const koord3
 				continue;
 			}
 
-			to = NULL;
+			grund_t *to = NULL;
 			if(is_airplane) 
 			{
 				const planquadrat_t *pl=welt->access(gr->get_pos().get_2d()+koord(next_ribi[r]));
