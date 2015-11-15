@@ -10,6 +10,8 @@
 
 #include "../simworld.h"
 #include "load_relief_frame.h"
+#include "welt.h"
+#include "simwin.h"
 #include "../dataobj/translator.h"
 #include "../dataobj/settings.h"
 #include "../dataobj/environment.h"
@@ -21,6 +23,10 @@
 bool load_relief_frame_t::item_action(const char *fullpath)
 {
 	sets->heightfield = fullpath;
+
+	if (gui_frame_t *new_world_gui = win_get_magic( magic_welt_gui_t )) {
+		static_cast<welt_gui_t*>(new_world_gui)->update_preview(true);
+	}
 
 	return true;
 }

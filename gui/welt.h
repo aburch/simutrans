@@ -128,7 +128,7 @@ public:
 	* public, because also the climate dialog need it
 	* @author Hj. Malthaner
 	*/
-	void update_preview();
+	void update_preview(bool load_heightfield = false);
 	void clear_loaded_heightfield() { loaded_heightfield =0; }
 	bool get_loaded_heightfield() const { return loaded_heightfield; }
 
