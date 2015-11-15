@@ -437,12 +437,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 					current_dir = ribi_t::nsow[r] | tmp->ribi_from;
 					if(tmp->dir!=current_dir) {
 						k->g += 3;
-						if(tmp->parent->dir!=tmp->dir  &&  tmp->parent->parent!=NULL)
-						{
-							// discourage 90° turns
-							k->g += 10;
-						}
-						else if(ribi_t::ist_exakt_orthogonal(tmp->dir,current_dir))
+						if(ribi_t::ist_exakt_orthogonal(tmp->dir,current_dir))
 						{
 							if(flags == choose_signal)
 							{
@@ -457,8 +452,12 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 								k->g += 25;  
 							}
 						}
+						else if(tmp->parent->dir!=tmp->dir  &&  tmp->parent->parent!=NULL)
+						{
+							// discourage 90° turns
+							k->g += 10;
+						}
 					}
-
 				}
 
 				// insert here
