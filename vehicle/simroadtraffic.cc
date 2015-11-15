@@ -68,7 +68,7 @@ road_user_t::road_user_t() :
  */
 road_user_t::~road_user_t()
 {
-	mark_image_dirty( get_bild(), 0 );
+	mark_image_dirty( get_image(), 0 );
 }
 
 

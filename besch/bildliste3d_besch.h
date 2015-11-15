@@ -37,7 +37,7 @@ public:
 
 	bildliste2d_besch_t const* get_liste_2d(uint16 i)				  const { return i < anzahl ? get_child<bildliste2d_besch_t>(i)					: 0; }
 	bildliste_besch_t   const* get_liste(uint16 i, uint16 j)		  const { return i < anzahl ? get_child<bildliste2d_besch_t>(i)->get_liste(j)	: 0; }
-	bild_besch_t        const* get_bild(uint16 i, uint16 j, uint16 k) const { return i < anzahl ? get_child<bildliste2d_besch_t>(i)->get_bild(j, k)	: 0; }
+	bild_besch_t        const* get_image(uint16 i, uint16 j, uint16 k) const { return i < anzahl ? get_child<bildliste2d_besch_t>(i)->get_image(j, k)	: 0; }
 };
 
 #endif

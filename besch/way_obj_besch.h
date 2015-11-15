@@ -163,11 +163,11 @@ public:
 	}
 
 	bool has_diagonal_bild() const {
-		if (get_child<bildliste_besch_t>(4)->get_bild(0)) {
+		if (get_child<bildliste_besch_t>(4)->get_image(0)) {
 			// has diagonal fontimage
 			return true;
 		}
-		if (get_child<bildliste_besch_t>(5)->get_bild(0)) {
+		if (get_child<bildliste_besch_t>(5)->get_image(0)) {
 			// or diagonal back image
 			return true;
 		}

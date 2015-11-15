@@ -108,10 +108,10 @@ void crossing_t::calc_image()
 		a = besch->get_bild_after( ns, state!=crossing_logic_t::CROSSING_CLOSED, 0);
 	}
 	after_bild = a ? a->get_nummer() : IMG_LEER;
-	const bild_besch_t *b = besch->get_bild( ns, state!=crossing_logic_t::CROSSING_CLOSED, snow_image );
+	const bild_besch_t *b = besch->get_image( ns, state!=crossing_logic_t::CROSSING_CLOSED, snow_image );
 	if (b==NULL  &&  snow_image) {
 		// no snow image? take normal one
-		b = besch->get_bild( ns, state!=crossing_logic_t::CROSSING_CLOSED, 0);
+		b = besch->get_image( ns, state!=crossing_logic_t::CROSSING_CLOSED, 0);
 	}
 	image = b ? b->get_nummer() : IMG_LEER;
 }

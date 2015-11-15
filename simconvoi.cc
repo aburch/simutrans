@@ -376,7 +376,7 @@ uint32 convoi_t::move_to(uint16 const start_index)
 
 		if (grund_t const* const gr = v.get_grund()) {
 			schiene_t* const rails = obj_cast<schiene_t>(v.get_weg());
-			v.mark_image_dirty(v.get_bild(), v.get_hoff());
+			v.mark_image_dirty(v.get_image(), v.get_hoff());
 			v.leave_tile();
 			// maybe unreserve this
 			if(rails) 

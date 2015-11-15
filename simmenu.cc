@@ -1002,14 +1002,14 @@ void two_click_tool_t::cleanup( bool delete_start_marker )
 {
 	// delete marker.
 	if(  start_marker!=NULL  &&  delete_start_marker) {
-		start_marker->mark_image_dirty( start_marker->get_bild(), 0 );
+		start_marker->mark_image_dirty( start_marker->get_image(), 0 );
 		delete start_marker;
 		start_marker = NULL;
 	}
 	// delete old route.
 	while(!marked.empty()) {
 		zeiger_t *z = marked.remove_first();
-		z->mark_image_dirty( z->get_bild(), 0 );
+		z->mark_image_dirty( z->get_image(), 0 );
 		z->mark_image_dirty( z->get_front_image(), 0 );
 		koord3d pos = z->get_pos();
 		grund_t *gr = welt->lookup( pos );

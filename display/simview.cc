@@ -69,7 +69,7 @@ void *display_region_thread( void *ptr )
 	while(true) {
 		simthread_barrier_wait( &display_barrier_start ); // wait for all to start
 		clear_all_poly_clip( view->thread_num );
-		display_set_clip_wh_cl( view->lt_cl.x, view->lt_cl.y, view->wh_cl.x, view->wh_cl.y, view->thread_num );
+		display_set_clip_wh( view->lt_cl.x, view->lt_cl.y, view->wh_cl.x, view->wh_cl.y, view->thread_num );
 		view->show_routine->display_region( view->lt, view->wh, view->y_min, view->y_max, false, true, view->thread_num );
 		simthread_barrier_wait( &display_barrier_end ); // wait for all to finish
 	}
@@ -214,8 +214,8 @@ void karte_ansicht_t::display(bool force_dirty)
 
 		// the last we can run ourselves, setting clip_wh to the screen edge instead of wh_x (in case disp_width % num_threads != 0)
 		clear_all_poly_clip( env_t::num_threads - 1 );
-		display_set_clip_wh_cl( lt_x, menu_height, disp_width - lt_x, disp_height - menu_height, env_t::num_threads - 1 );
-		display_region( koord( lt_x - IMG_SIZE / 2, menu_height ), koord( disp_width - lt_x + IMG_SIZE, disp_height - menu_height ), y_min, dpy_height + 4 * 4, false, true, env_t::num_threads - 1 );
+		display_set_clip_wh( lt_x, menu_height, disp_width - lt_x, disp_height - menu_height, env_t::num_threads - 1 );
+ 		display_region( koord( lt_x - IMG_SIZE / 2, menu_height ), koord( disp_width - lt_x + IMG_SIZE, disp_height - menu_height ), y_min, dpy_height + 4 * 4, false, true, env_t::num_threads - 1 );
 
 		simthread_barrier_wait( &display_barrier_end );
 
@@ -270,27 +270,23 @@ void karte_ansicht_t::display(bool force_dirty)
 			grund_t *gr = welt->lookup( zeiger->get_pos() );
 			if(gr && gr->is_visible()) {
 				const PLAYER_COLOR_VAL transparent = TRANSPARENT25_FLAG|OUTLINE_FLAG| env_t::cursor_overlay_color;
-				if(  gr->get_bild()==IMG_LEER  ) {
+				if(  gr->get_image()==IMG_LEER  ) {
 					if(  gr->hat_wege()  ) {
-						display_img_blend( gr->obj_bei(0)->get_bild(), background_pos.x, background_pos.y, transparent, 0, dirty );
+						display_img_blend( gr->obj_bei(0)->get_image(), background_pos.x, background_pos.y, transparent, 0, dirty );
 					}
 					else {
 						display_img_blend( grund_besch_t::get_ground_tile(gr), background_pos.x, background_pos.y, transparent, 0, dirty );
 					}
 				}
 				else if(  gr->get_typ()==grund_t::wasser  ) {
-					display_img_blend( grund_besch_t::sea->get_bild(gr->get_bild(),wasser_t::stage), background_pos.x, background_pos.y, transparent, 0, dirty );
+					display_img_blend( grund_besch_t::sea->get_image(gr->get_image(),wasser_t::stage), background_pos.x, background_pos.y, transparent, 0, dirty );
 				}
 				else {
-					display_img_blend( gr->get_bild(), background_pos.x, background_pos.y, transparent, 0, dirty );
+					display_img_blend( gr->get_image(), background_pos.x, background_pos.y, transparent, 0, dirty );
 				}
 			}
 		}
-#ifdef MULTI_THREAD
-		zeiger->display( pointer_pos.x , pointer_pos.y, 0 );
-#else
-		zeiger->display( pointer_pos.x , pointer_pos.y );
-#endif
+		zeiger->display( pointer_pos.x , pointer_pos.y  CLIP_NUM_DEFAULT);
 		zeiger->clear_flag( obj_t::dirty );
 	}
 
@@ -375,11 +371,7 @@ void karte_ansicht_t::display_region( koord lt, koord wh, sint16 y_min, sint16 y
 					}
 					// not on screen? We still might need to plot the border ...
 					else if(  env_t::draw_earth_border  &&  (pos.x-welt->get_size().x+1 == 0  ||  pos.y-welt->get_size().y+1 == 0)  ) {
-#ifdef MULTI_THREAD
-						kb->display_border( xpos, yypos, IMG_SIZE, clip_num );
-#else
-						kb->display_border( xpos, yypos, IMG_SIZE );
-#endif
+						kb->display_border( xpos, yypos, IMG_SIZE  CLIP_NUM_PAR);
 					}
 				}
 				else {
@@ -387,12 +379,8 @@ void karte_ansicht_t::display_region( koord lt, koord wh, sint16 y_min, sint16 y
 					outside_visible = true;
 					if(  env_t::draw_outside_tile  ) {
 						const sint16 yypos = ypos - tile_raster_scale_y( welt->get_grundwasser() * TILE_HEIGHT_STEP, IMG_SIZE );
-#ifdef MULTI_THREAD
-						display_normal( grund_besch_t::ausserhalb->get_bild(0), xpos, yypos, 0, true, false, clip_num );
-#else
-						display_normal( grund_besch_t::ausserhalb->get_bild(0), xpos, yypos, 0, true, false );
-#endif
-					}
+						display_normal( grund_besch_t::ausserhalb->get_image(0), xpos, yypos, 0, true, false  CLIP_NUM_PAR);
+ 					}
 				}
 			}
 		}
@@ -505,21 +493,13 @@ void karte_ansicht_t::display_region( koord lt, koord wh, sint16 y_min, sint16 y
 									env_t::hide_trees = true;
 									env_t::hide_buildings = env_t::ALL_HIDDEN_BUILDING;
 
-#ifdef MULTI_THREAD
-									plan->display_obj( xpos, yypos, IMG_SIZE, true, hmin, hmax, clip_num );
-#else
-									plan->display_obj( xpos, yypos, IMG_SIZE, true, hmin, hmax );
-#endif
+									plan->display_obj( xpos, yypos, IMG_SIZE, true, hmin, hmax  CLIP_NUM_PAR);
 
 									env_t::hide_trees = saved_hide_trees;
 									env_t::hide_buildings = saved_hide_buildings;
 								}
 								else {
-#ifdef MULTI_THREAD
-									plan->display_obj( xpos, yypos, IMG_SIZE, true, hmin, hmax, clip_num );
-#else
-									plan->display_obj( xpos, yypos, IMG_SIZE, true, hmin, hmax );
-#endif
+									plan->display_obj( xpos, yypos, IMG_SIZE, true, hmin, hmax  CLIP_NUM_PAR);
 								}
 #ifdef MULTI_THREAD
 							}
@@ -527,11 +507,7 @@ void karte_ansicht_t::display_region( koord lt, koord wh, sint16 y_min, sint16 y
 						}
 						else {
 							// hiding turned off, draw multithreaded
-#ifdef MULTI_THREAD
-							plan->display_obj( xpos, yypos, IMG_SIZE, true, hmin, hmax, clip_num );
-#else
-							plan->display_obj( xpos, yypos, IMG_SIZE, true, hmin, hmax );
-#endif
+							plan->display_obj( xpos, yypos, IMG_SIZE, true, hmin, hmax  CLIP_NUM_PAR);
 						}
 					}
 				}

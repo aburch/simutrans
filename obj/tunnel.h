@@ -39,7 +39,7 @@ public:
 
 	void set_bild( image_id b );
 	void set_after_bild( image_id b );
-	image_id get_bild() const {return image;}
+	image_id get_image() const {return image;}
 	image_id get_front_image() const { return after_bild; }
 
 	const tunnel_besch_t *get_besch() const { return besch; }

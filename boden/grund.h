@@ -15,6 +15,7 @@
 #include "../simconst.h"
 #include "../dataobj/koord3d.h"
 #include "../dataobj/objlist.h"
+#include "../display/clip_num.h"
 #include "wege/weg.h"
 #include "../tpl/koordhashtable_tpl.h"
 
@@ -244,7 +245,7 @@ public:
 	* @return Die Nummer des Bildes des Untergrundes.
 	* @author Hj. Malthaner
 	*/
-	inline image_id get_bild() const {return bild_nr;}
+	inline image_id get_image() const {return bild_nr;}
 
 	/**
 	* Returns the number of an eventual foundation
@@ -492,11 +493,7 @@ public:
 	 * Displays the earth at the border
 	 * @author prissi
 	 */
-#ifdef MULTI_THREAD
-	void display_border( sint16 xpos, sint16 ypos, const sint16 raster_tile_width, const sint8 clip_num );
-#else
-	void display_border( sint16 xpos, sint16 ypos, const sint16 raster_tile_width );
-#endif
+void display_border( sint16 xpos, sint16 ypos, const sint16 raster_tile_width CLIP_NUM_DEF);
 
 	/**
 	 * Displays the tile if it's visible.
@@ -513,11 +510,7 @@ public:
 	 * @param is_global set to true, if this is called during the whole screen update
 	 * @author dwachs
 	 */
-#ifdef MULTI_THREAD
-	void display_obj_all(const sint16 xpos, const sint16 ypos, const sint16 raster_tile_width, const bool is_global, const sint8 clip_num) const;
-#else
-	void display_obj_all(const sint16 xpos, const sint16 ypos, const sint16 raster_tile_width, const bool is_global) const;
-#endif
+void display_obj_all(const sint16 xpos, const sint16 ypos, const sint16 raster_tile_width, const bool is_global CLIP_NUM_DEF) const;
 
 	/**
 	 * similar to above but yieleds clipping error
@@ -525,11 +518,7 @@ public:
 	 * @param is_global set to true, if this is called during the whole screen update
 	 * @author prissi
 	 */
-#ifdef MULTI_THREAD
-	void display_obj_all_quick_and_dirty(const sint16 xpos, sint16 ypos, const sint16 raster_tile_width, const bool is_global, const sint8 clip_num) const;
-#else
-	void display_obj_all_quick_and_dirty(const sint16 xpos, sint16 ypos, const sint16 raster_tile_width, const bool is_global) const;
-#endif
+void display_obj_all_quick_and_dirty(const sint16 xpos, sint16 ypos, const sint16 raster_tile_width, const bool is_global CLIP_NUM_DEF) const;
 
 	/**
 	 * displays background images of all non-moving objects on the tile
@@ -539,12 +528,8 @@ public:
 	 * @return index of first vehicle on the tile
 	 * @author dwachs
 	 */
-#ifdef MULTI_THREAD
-	uint8 display_obj_bg(const sint16 xpos, const sint16 ypos, const bool is_global, const bool draw_ways, const bool visible, const sint8 clip_num) const;
-#else
-	uint8 display_obj_bg(const sint16 xpos, const sint16 ypos, const bool is_global, const bool draw_ways, const bool visible) const;
-#endif
-
+uint8 display_obj_bg(const sint16 xpos, const sint16 ypos, const bool is_global, const bool draw_ways, const bool visible  CLIP_NUM_DEF) const;
+ 
 	/**
 	 * displays vehicle (background) images
 	 * @param start_offset start with object at this index
@@ -552,22 +537,14 @@ public:
 	 * @param ontile is true if we are on the tile that defines the clipping
 	 * @author dwachs
 	 */
-#ifdef MULTI_THREAD
-	uint8 display_obj_vh(const sint16 xpos, const sint16 ypos, const uint8 start_offset, const ribi_t::ribi ribi, const bool ontile, const sint8 clip_num) const;
-#else
-	uint8 display_obj_vh(const sint16 xpos, const sint16 ypos, const uint8 start_offset, const ribi_t::ribi ribi, const bool ontile) const;
-#endif
-
+uint8 display_obj_vh(const sint16 xpos, const sint16 ypos, const uint8 start_offset, const ribi_t::ribi ribi, const bool ontile  CLIP_NUM_DEF) const;
+ 
 	/**
 	 * displays all foreground images
 	 * @param is_global set to true, if this is called during the whole screen update
 	 * @author dwachs
 	 */
-#ifdef MULTI_THREAD
-	void display_obj_fg(const sint16 xpos, const sint16 ypos, const bool is_global, const uint8 start_offset, const sint8 clip_num) const;
-#else
-	void display_obj_fg(const sint16 xpos, const sint16 ypos, const bool is_global, const uint8 start_offset) const;
-#endif
+void display_obj_fg(const sint16 xpos, const sint16 ypos, const bool is_global, const uint8 start_offset  CLIP_NUM_DEF) const;
 
 	/**
 	 * overlayer with signs, good levels and station coverage

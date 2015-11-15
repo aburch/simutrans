@@ -42,7 +42,7 @@ public:
 
 	void rdwr(loadsave_t *file);
 
-	image_id get_bild() const { return image; }
+	image_id get_image() const { return image; }
 
 	/// recalculates image depending on season and slope of ground
 	void calc_image();

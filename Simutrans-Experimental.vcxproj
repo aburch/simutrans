@@ -1718,6 +1718,7 @@
     <ClInclude Include="dataobj\objlist.h" />
     <ClInclude Include="dataobj\records.h" />
     <ClInclude Include="dataobj\settings.h" />
+    <ClInclude Include="display\clip_num.h" />
     <ClInclude Include="display\font.h" />
     <ClInclude Include="display\scr_coord.h" />
     <ClInclude Include="display\simgraph.h" />

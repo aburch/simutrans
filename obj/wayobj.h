@@ -58,7 +58,7 @@ public:
 	* the front image, drawn before vehicles
 	* @author V. Meyer
 	*/
-	image_id get_bild() const {
+	image_id get_image() const {
 		return hang ? besch->get_back_slope_image_id(hang) :
 			(diagonal ? besch->get_back_diagonal_image_id(dir) : besch->get_back_image_id(dir));
 	}

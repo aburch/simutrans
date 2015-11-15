@@ -69,7 +69,7 @@ public:
 
 	void finish_rd();
 
-	image_id get_bild() const;
+	image_id get_image() const;
 
 	/**
 	 * hide trees eventually with transparency

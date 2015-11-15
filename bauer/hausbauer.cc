@@ -368,12 +368,12 @@ void hausbauer_t::remove( player_t *player, gebaeude_t *gb ) //gebaeude = "build
 				if (gr) {
 					senke_t *sk = gr->find<senke_t>();
 					if (  sk  &&  sk->get_factory()==fab  ) {
-						sk->mark_image_dirty(sk->get_bild(), 0);
+						sk->mark_image_dirty(sk->get_image(), 0);
 						delete sk;
 					}
 					pumpe_t* pp = gr->find<pumpe_t>();
 					if (  pp  &&  pp->get_factory()==fab  ) {
-						pp->mark_image_dirty(pp->get_bild(), 0);
+						pp->mark_image_dirty(pp->get_image(), 0);
 						delete pp;
 					}
 					// remove tunnel

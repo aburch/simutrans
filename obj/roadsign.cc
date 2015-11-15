@@ -187,7 +187,7 @@ DBG_MESSAGE("roadsign_t::set_dir()","ribi %i",dir);
 	}
 
 	// force redraw
-	mark_image_dirty(get_bild(),0);
+	mark_image_dirty(get_image(),0);
 	// some more magic to get left side images right ...
 	sint8 old_x = get_xoff();
 	set_xoff( after_xoffset );
@@ -305,7 +305,7 @@ void roadsign_t::calc_image()
 			// gate open
 			image += 2;
 			// force redraw
-		    mark_image_dirty(get_bild(),0);
+		    mark_image_dirty(get_image(),0);
 		}
 		set_bild( besch->get_bild_nr(image) );
 		set_yoff( 0 );
@@ -531,7 +531,7 @@ bool roadsign_t::sync_step(long /*delta_t*/)
 			// gate open
 			image += 2;
 			// force redraw
-			mark_image_dirty(get_bild(),0);
+			mark_image_dirty(get_image(),0);
 		}
 		set_bild( besch->get_bild_nr(image) );
 	}
@@ -578,26 +578,14 @@ void roadsign_t::display_after(int xpos, int ypos, bool ) const
 		// draw with owner
 		if(  get_player_nr() != PLAYER_UNOWNED  ) {
 			if(  obj_t::show_owner  ) {
-#ifdef MULTI_THREAD
-				display_blend( after_bild, xpos, ypos, 0, (get_owner()->get_player_color1()+2) | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, dirty, clip_num );
-#else
-				display_blend( after_bild, xpos, ypos, 0, (get_owner()->get_player_color1()+2) | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, dirty );
-#endif
+				display_blend( after_bild, xpos, ypos, 0, (get_owner()->get_player_color1()+2) | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, dirty  CLIP_NUM_PAR);
 			}
 			else {
-#ifdef MULTI_THREAD
-				display_color( after_bild, xpos, ypos, get_player_nr(), true, get_flag(obj_t::dirty), clip_num );
-#else
-				display_color( after_bild, xpos, ypos, get_player_nr(), true, get_flag(obj_t::dirty) );
-#endif
+				display_color( after_bild, xpos, ypos, get_player_nr(), true, get_flag(obj_t::dirty)  CLIP_NUM_PAR);
 			}
 		}
 		else {
-#ifdef MULTI_THREAD
-			display_normal( after_bild, xpos, ypos, 0, true, get_flag(obj_t::dirty), clip_num );
-#else
-			display_normal( after_bild, xpos, ypos, 0, true, get_flag(obj_t::dirty) );
-#endif
+			display_normal( after_bild, xpos, ypos, 0, true, get_flag(obj_t::dirty)  CLIP_NUM_PAR);
 		}
 	}
 }

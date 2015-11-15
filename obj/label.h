@@ -17,7 +17,7 @@ public:
 
 	typ get_typ() const { return obj_t::label; }
 
-	image_id get_bild() const;
+	image_id get_image() const;
 };
 
 #endif

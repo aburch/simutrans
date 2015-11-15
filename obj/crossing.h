@@ -99,7 +99,7 @@ public:
 	bool check_season(const bool calc_only_season_change) { if(  !calc_only_season_change  ) { calc_image(); } return true; }  // depends on snowline only
 
 	// changes the state of a traffic light
-	image_id get_bild() const { return image; }
+	image_id get_image() const { return image; }
 
 	/**
 	* For the front image hiding vehicles

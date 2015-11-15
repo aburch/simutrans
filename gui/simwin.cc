@@ -174,7 +174,7 @@ static int display_gadget_box(sint8 code,
 	const bild_t *img = NULL;
 	if(  skinverwaltung_t::gadget  ) {
 		// "x", "?", "=", "«", "»"
-		const bild_besch_t *pic = skinverwaltung_t::gadget->get_bild(code);
+		const bild_besch_t *pic = skinverwaltung_t::gadget->get_image(code);
 		if (  pic != NULL  ) {
 			img = pic->get_pic();
 		}
@@ -357,7 +357,7 @@ static void win_draw_window_dragger(scr_coord pos, scr_size size)
 {
 	pos += size;
 	if(  skinverwaltung_t::gadget  &&  skinverwaltung_t::gadget->get_bild_nr(SKIN_WINDOW_RESIZE)!=IMG_LEER  ) {
-		const bild_besch_t *dragger = skinverwaltung_t::gadget->get_bild(SKIN_WINDOW_RESIZE);
+		const bild_besch_t *dragger = skinverwaltung_t::gadget->get_image(SKIN_WINDOW_RESIZE);
 		display_color_img( dragger->get_nummer(), pos.x-dragger->get_pic()->w, pos.y-dragger->get_pic()->h, 0, false, false);
 	}
 	else {

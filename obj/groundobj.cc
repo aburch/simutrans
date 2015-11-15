@@ -143,7 +143,7 @@ void groundobj_t::calc_image()
 	if(besch->get_phases()==16) {
 		phase = welt->lookup(get_pos())->get_grund_hang();
 	}
-	const bild_besch_t *bild_ptr = get_besch()->get_bild( season, phase );
+	const bild_besch_t *bild_ptr = get_besch()->get_image( season, phase );
 	image = bild_ptr ? bild_ptr->get_nummer() : IMG_LEER;
 }
 
@@ -173,11 +173,11 @@ groundobj_t::groundobj_t(koord3d pos, const groundobj_besch_t *b ) :
 
 bool groundobj_t::check_season(const bool)
 {
-	const image_id old_image = get_bild();
+	const image_id old_image = get_image();
 	calc_image();
 
-	if( get_bild() != old_image ) {
-		mark_image_dirty( get_bild(), 0 );
+	if( get_image() != old_image ) {
+		mark_image_dirty( get_image(), 0 );
 	}
 	return true;
 }
@@ -245,7 +245,7 @@ void groundobj_t::info(cbuffer_t & buf, bool dummy) const
 void groundobj_t::cleanup(player_t *player)
 {
 	player_t::book_construction_costs(player, -get_besch()->get_preis(), get_pos().get_2d(), ignore_wt);
-	mark_image_dirty( get_bild(), 0 );
+	mark_image_dirty( get_image(), 0 );
 }
 
 

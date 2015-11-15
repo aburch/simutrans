@@ -146,7 +146,7 @@ void movingobj_t::calc_image()
 			break;
 		}
 	}
-	set_bild( get_besch()->get_bild( season, ribi_t::get_dir(get_direction()) )->get_nummer() );
+	set_bild( get_besch()->get_image( season, ribi_t::get_dir(get_direction()) )->get_nummer() );
 }
 
 
@@ -188,11 +188,11 @@ movingobj_t::~movingobj_t()
 
 bool movingobj_t::check_season(const bool)
 {
-	const image_id old_image = get_bild();
+	const image_id old_image = get_image();
 	calc_image();
 
-	if(  get_bild() != old_image  ) {
-		mark_image_dirty( get_bild(), 0 );
+	if(  get_image() != old_image  ) {
+		mark_image_dirty( get_image(), 0 );
 	}
 	return true;
 }
@@ -286,7 +286,7 @@ void movingobj_t::info(cbuffer_t & buf, bool dummy) const
 void movingobj_t::cleanup(player_t *player)
 {
 	player_t::book_construction_costs(player, -get_besch()->get_preis(), get_pos().get_2d(), ignore_wt);
-	mark_image_dirty( get_bild(), 0 );
+	mark_image_dirty( get_image(), 0 );
 	welt->sync_remove( this );
 }
 

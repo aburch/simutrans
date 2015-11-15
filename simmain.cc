@@ -125,7 +125,7 @@ static void show_times(karte_t *welt, karte_ansicht_t *view)
 	dbg->message( "show_times()", "simple profiling of drawing routines" );
  	int i;
 
-	image_id img = grund_besch_t::ausserhalb->get_bild(0,0);
+	image_id img = grund_besch_t::ausserhalb->get_image(0,0);
 
  	long ms = dr_time();
 	for (i = 0;  i < 6000000;  i++) {

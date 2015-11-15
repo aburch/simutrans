@@ -66,12 +66,12 @@ public:
 	{
 		bildliste2d_besch_t const* const bl = get_child<bildliste2d_besch_t>(0 + 2 * season);
 		if(phase>0 && phase<phasen) {
-			if (bild_besch_t const* const image = bl->get_bild(hoehe, phase)) {
+			if (bild_besch_t const* const image = bl->get_image(hoehe, phase)) {
 				return image->get_nummer();
 			}
 		}
 		// here if this phase does not exists ...
-		bild_besch_t const* const image = bl->get_bild(hoehe, 0);
+		bild_besch_t const* const image = bl->get_image(hoehe, 0);
 		return image != NULL ? image->get_nummer() : IMG_LEER;
 	}
 
@@ -82,7 +82,7 @@ public:
 		const uint16 max_h = bl->get_anzahl();
 		for(  uint16 phase=1;  phase<phasen;  phase++  ) {
 			for(  uint16 h=0;  h<max_h;  h++  ) {
-				if(  bl->get_bild( h, phase )  ) {
+				if(  bl->get_image( h, phase )  ) {
 					return true;
 				}
 			}
@@ -94,12 +94,12 @@ public:
 	{
 		bildliste2d_besch_t const* const bl = get_child<bildliste2d_besch_t>(1 + 2 * season);
 		if(phase>0 && phase<phasen) {
-			if (bild_besch_t const* const image = bl->get_bild(0, phase)) {
+			if (bild_besch_t const* const image = bl->get_image(0, phase)) {
 				return image->get_nummer();
 			}
 		}
 		// here if this phase does not exists ...
-		bild_besch_t const* const image = bl->get_bild(0, 0);
+		bild_besch_t const* const image = bl->get_image(0, 0);
 		return image != NULL ? image->get_nummer() : IMG_LEER;
 	}
 

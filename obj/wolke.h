@@ -36,7 +36,7 @@ public:
 	typ get_typ() const { return sync_wolke; }
 #endif
 
-	image_id get_bild() const;
+	image_id get_image() const;
 
 	void rdwr(loadsave_t *file);
 
@@ -55,7 +55,7 @@ public:
 #else
 	typ get_typ() const { return async_wolke; }
 #endif
-	image_id get_bild() const { return IMG_LEER; }
+	image_id get_image() const { return IMG_LEER; }
 };
 
 class raucher_t : public obj_t
@@ -66,7 +66,7 @@ public:
 #else
 	typ get_typ() const { return raucher; }
 #endif
-	image_id get_bild() const { return IMG_LEER; }
+	image_id get_image() const { return IMG_LEER; }
 };
 
 #endif

@@ -15,6 +15,7 @@
 #endif
 
 #include "simtypes.h"
+#include "display/clip_num.h"
 #include "display/simimg.h"
 #include "simcolor.h"
 #include "dataobj/koord3d.h"
@@ -271,17 +272,17 @@ public:
 	 * @return number of current image for that object
 	 * @author Hj. Malthaner
 	 */
-	virtual image_id get_bild() const = 0;
+	virtual image_id get_image() const = 0;
 
 	/**
 	 * give image for height > 0 (max. height currently 3)
 	 * IMG_LEER is no images
 	 * @author Hj. Malthaner
 	 */
-	virtual image_id get_bild(int /*height*/) const {return IMG_LEER;}
+	virtual image_id get_image(int /*height*/) const {return IMG_LEER;}
 
 	/**
-	 * this image is drawn after all get_bild() on this tile
+	 * this image is drawn after all get_image() on this tile
 	 * Currently only single height is supported for this feature
 	 */
 	virtual image_id get_front_image() const {return IMG_LEER;}
@@ -346,11 +347,7 @@ public:
 	 * Draw backgroung image of object
 	 * (everything that could be potentially behind vehicles)
 	 */
-#ifdef MULTI_THREAD
-	void display(int xpos, int ypos, const sint8 clip_num) const;
-#else
-	void display(int xpos, int ypos) const;
-#endif
+	void display(int xpos, int ypos  CLIP_NUM_DEF) const;
 
 	/**
 	 * Draw foreground image

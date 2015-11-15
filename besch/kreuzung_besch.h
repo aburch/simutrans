@@ -50,14 +50,14 @@ public:
 	 * ....
 	 * =>ns=0 NorthSouth ns=1, East-West
 	 */
-	const bild_besch_t *get_bild(int ns, bool open, int phase) const
+	const bild_besch_t *get_image(int ns, bool open, int phase) const
 	{
 		if(open) {
-			return get_child<bildliste_besch_t>(2 + ns)->get_bild(phase);
+			return get_child<bildliste_besch_t>(2 + ns)->get_image(phase);
 		}
 		else {
 			bildliste_besch_t const* const bl = get_child<bildliste_besch_t>(6 + ns);
-			return bl ? bl->get_bild(phase) : NULL;
+			return bl ? bl->get_image(phase) : NULL;
 		}
 	}
 
@@ -65,7 +65,7 @@ public:
 	{
 		int const n = ns + (open ? 4 : 8);
 		bildliste_besch_t const* const bl = get_child<bildliste_besch_t>(n);
-		return bl ? bl->get_bild(phase) : 0;
+		return bl ? bl->get_image(phase) : 0;
 	}
 
 	waytype_t get_waytype(int i) const { return (waytype_t)(i==0? wegtyp1 : wegtyp2); }

@@ -489,15 +489,15 @@ image_id alpha_water_bild[totalslopes * 15];
 bool grund_besch_t::register_besch(const grund_besch_t *besch)
 {
 	if(strcmp("Outside", besch->get_name())==0) {
-		bild_besch_t const* const image = besch->get_child<bildliste2d_besch_t>(2)->get_bild(0,0);
+		bild_besch_t const* const image = besch->get_child<bildliste2d_besch_t>(2)->get_image(0,0);
 		dbg->message("grund_besch_t::register_besch()", "setting raster width to %i", image->get_pic()->w);
 		display_set_base_raster_width(image->get_pic()->w);
 	}
 	// find out water animation stages
 	if(strcmp("Water", besch->get_name())==0) {
 		water_animation_stages = 0;
-		while(  besch->get_bild(0, water_animation_stages)!=IMG_LEER  ) {
-			DBG_MESSAGE( "water", "image(0,%i)=%u", water_animation_stages, besch->get_bild(0, water_animation_stages) );
+		while(  besch->get_image(0, water_animation_stages)!=IMG_LEER  ) {
+			DBG_MESSAGE( "water", "image(0,%i)=%u", water_animation_stages, besch->get_image(0, water_animation_stages) );
 			water_animation_stages ++;
 		}
 		// then ignore all ms settings
@@ -1027,7 +1027,7 @@ image_id grund_besch_t::get_ground_tile(grund_t *gr)
 		// deep water
 		bildliste2d_besch_t const* const liste = sea->get_child<bildliste2d_besch_t>(2);
 		int nr = min( -tile_h, liste->get_anzahl() - 2 );
-		return liste->get_bild( nr, 0 )->get_nummer();
+		return liste->get_image( nr, 0 )->get_nummer();
 	}
 	else {
 		const bool snow = height >= welt->get_snowline();

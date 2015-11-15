@@ -2177,6 +2177,9 @@
     <ClInclude Include="gui\city_info.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="display\clip_num.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="base_texts_experimental.dat">

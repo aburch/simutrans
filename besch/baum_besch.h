@@ -50,7 +50,7 @@ public:
 			i += season*5;
 			season = 0;
 		}
-		return get_child<bildliste2d_besch_t>(2)->get_bild(i, season)->get_nummer();
+		return get_child<bildliste2d_besch_t>(2)->get_image(i, season)->get_nummer();
 	}
 
 	// old style trees and new style tree support ...

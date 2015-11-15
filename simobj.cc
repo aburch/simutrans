@@ -216,13 +216,9 @@ void obj_t::rdwr(loadsave_t *file)
  * draw the object
  * the dirty-flag is reset from objlist_t::display_obj_fg, or objlist_t::display_overlay when multithreaded
  */
-#ifdef MULTI_THREAD
-void obj_t::display(int xpos, int ypos, const sint8 clip_num) const
-#else
-void obj_t::display(int xpos, int ypos) const
-#endif
+void obj_t::display(int xpos, int ypos  CLIP_NUM_DEF) const
 {
-	image_id image = get_bild();
+	image_id image = get_image();
 	image_id const outline_bild = get_outline_image();
 	if(  image!=IMG_LEER  ||  outline_bild!=IMG_LEER  ) {
 		const int raster_width = get_current_tile_raster_width();
@@ -240,30 +236,18 @@ void obj_t::display(int xpos, int ypos) const
 
 			if(  owner_n != PLAYER_UNOWNED  ) {
 				if(  obj_t::show_owner  ) {
-#ifdef MULTI_THREAD
-					display_blend( image, xpos, ypos, owner_n, (welt->get_player(owner_n)->get_player_color1()+2) | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty, clip_num );
-#else
-					display_blend( image, xpos, ypos, owner_n, (welt->get_player(owner_n)->get_player_color1()+2) | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty );
-#endif
+					display_blend( image, xpos, ypos, owner_n, (welt->get_player(owner_n)->get_player_color1()+2) | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty  CLIP_NUM_PAR); 			
 				}
 				else {
-#ifdef MULTI_THREAD
-					display_color( image, xpos, ypos, owner_n, true, is_dirty, clip_num );
-#else
-					display_color( image, xpos, ypos, owner_n, true, is_dirty );
-#endif
+					display_color( image, xpos, ypos, owner_n, true, is_dirty  CLIP_NUM_PAR);
 				}
 			}
 			else {
-#ifdef MULTI_THREAD
-				display_normal( image, xpos, ypos, 0, true, is_dirty, clip_num );
-#else
-				display_normal( image, xpos, ypos, 0, true, is_dirty );
-#endif
+				display_normal( image, xpos, ypos, 0, true, is_dirty  CLIP_NUM_PAR);
 			}
 			// this obj has another image on top (e.g. skyscraper)
 			ypos -= raster_width;
-			image = get_bild(++j);
+			image = get_image(++j);
 		}
 
 		if(  outline_bild != IMG_LEER  ) {
@@ -271,28 +255,16 @@ void obj_t::display(int xpos, int ypos) const
 			const PLAYER_COLOR_VAL transparent = get_outline_colour();
 			if(  TRANSPARENT_FLAGS&transparent  ) {
 				// only transparent outline
-#ifdef MULTI_THREAD
-				display_blend( get_outline_image(), xpos, start_ypos, owner_n, transparent, 0, is_dirty, clip_num );
-#else
-				display_blend( get_outline_image(), xpos, start_ypos, owner_n, transparent, 0, is_dirty );
-#endif
-			}
+				display_blend( get_outline_image(), xpos, start_ypos, owner_n, transparent, 0, is_dirty  CLIP_NUM_PAR);
+ 			}
 			else if(  obj_t::get_flag( highlight )  ) {
 				// highlight this tile
-#ifdef MULTI_THREAD
-				display_blend( get_bild(), xpos, start_ypos, owner_n, COL_RED | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty, clip_num );
-#else
-				display_blend( get_bild(), xpos, start_ypos, owner_n, COL_RED | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty );
-#endif
+				display_blend( get_outline_image(), xpos, start_ypos, owner_n, transparent, 0, is_dirty  CLIP_NUM_PAR);
 			}
 		}
 		else if(  obj_t::get_flag( highlight )  ) {
 			// highlight this tile
-#ifdef MULTI_THREAD
-			display_blend( get_bild(), xpos, start_ypos, owner_n, COL_RED | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty, clip_num );
-#else
-			display_blend( get_bild(), xpos, start_ypos, owner_n, COL_RED | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty );
-#endif
+			display_blend( get_image(), xpos, start_ypos, owner_n, COL_RED | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty  CLIP_NUM_PAR);
 		}
 	}
 }
@@ -327,42 +299,22 @@ void obj_t::display_after(int xpos, int ypos, bool) const
 
 		if(  owner_n != PLAYER_UNOWNED  ) {
 			if(  obj_t::show_owner  ) {
-#ifdef MULTI_THREAD
-				display_blend( image, xpos, ypos, owner_n, (welt->get_player(owner_n)->get_player_color1()+2) | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty, clip_num );
-#else
-				display_blend( image, xpos, ypos, owner_n, (welt->get_player(owner_n)->get_player_color1()+2) | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty );
-#endif
+				display_blend( image, xpos, ypos, owner_n, (welt->get_player(owner_n)->get_player_color1()+2) | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty  CLIP_NUM_PAR);
 			}
 			else if(  obj_t::get_flag( highlight )  ) {
 				// highlight this tile
-#ifdef MULTI_THREAD
-				display_blend( image, xpos, ypos, owner_n, COL_RED | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty, clip_num );
-#else
-				display_blend( image, xpos, ypos, owner_n, COL_RED | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty );
-#endif
+				display_blend( image, xpos, ypos, owner_n, COL_RED | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty  CLIP_NUM_PAR);
 			}
 			else {
-#ifdef MULTI_THREAD
-				display_color( image, xpos, ypos, owner_n, true, is_dirty, clip_num );
-#else
-				display_color( image, xpos, ypos, owner_n, true, is_dirty );
-#endif
+				display_color( image, xpos, ypos, owner_n, true, is_dirty  CLIP_NUM_PAR);
 			}
 		}
 		else if(  obj_t::get_flag( highlight )  ) {
 			// highlight this tile
-#ifdef MULTI_THREAD
-			display_blend( image, xpos, ypos, owner_n, COL_RED | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty, clip_num );
-#else
-			display_blend( image, xpos, ypos, owner_n, COL_RED | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty );
-#endif
+			display_blend( image, xpos, ypos, owner_n, COL_RED | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty  CLIP_NUM_PAR);
 		}
 		else {
-#ifdef MULTI_THREAD
-			display_normal( image, xpos, ypos, 0, true, is_dirty, clip_num );
-#else
-			display_normal( image, xpos, ypos, 0, true, is_dirty );
-#endif
+			display_normal( image, xpos, ypos, 0, true, is_dirty  CLIP_NUM_PAR);
 		}
 	}
 }

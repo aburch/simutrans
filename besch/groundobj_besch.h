@@ -46,8 +46,8 @@ public:
 
 	bool is_allowed_climate( climate cl ) const { return ((1<<cl)&allowed_climates)!=0; }
 
-	const bild_besch_t *get_bild(int season, int phase) const  	{
-		return get_child<bildliste2d_besch_t>(2)->get_bild(phase, season);
+	const bild_besch_t *get_image(int season, int phase) const  	{
+		return get_child<bildliste2d_besch_t>(2)->get_image(phase, season);
 	}
 
 	// moving stuff should have eight

@@ -403,7 +403,7 @@ public:
 	void clear_sign_flag() { flags &= ~(HAS_SIGN | HAS_SIGNAL); }
 
 	inline void set_bild( image_id b ) { image = b; }
-	image_id get_bild() const {return image;}
+	image_id get_image() const {return image;}
 
 	inline void set_after_bild( image_id b ) { after_bild = b; }
 	image_id get_front_image() const {return after_bild;}

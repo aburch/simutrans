@@ -45,7 +45,7 @@ loadingscreen_t::loadingscreen_t( const char *w, uint32 max_p, bool logo, bool c
 void loadingscreen_t::display_logo()
 {
 	if(  show_logo  &&  skinverwaltung_t::biglogosymbol  ) {
-		const bild_t *bild0 = skinverwaltung_t::biglogosymbol->get_bild(0)->get_pic();
+		const bild_t *bild0 = skinverwaltung_t::biglogosymbol->get_image(0)->get_pic();
 		const int w = bild0->w;
 		const int h = bild0->h + bild0->y;
 		int x = display_get_width()/2-w;

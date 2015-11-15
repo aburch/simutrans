@@ -1948,10 +1948,10 @@ void tool_set_climate_t::mark_tiles(player_t *, const koord3d &start, const koor
 			const uint8 weg_hang = gr->get_weg_hang();
 			const uint8 hang = max( corner1(grund_hang), corner1(weg_hang) ) + 3 * max( corner2(grund_hang), corner2(weg_hang) ) + 9 * max( corner3(grund_hang), corner3(weg_hang) ) + 27 * max( corner4(grund_hang), corner4(weg_hang) );
 			uint8 back_hang = (hang % 3) + 3 * ((uint8)(hang / 9)) + 27;
-			marker->set_after_bild( grund_besch_t::marker->get_bild( grund_hang % 27 ) );
-			marker->set_bild( grund_besch_t::marker->get_bild( back_hang ) );
+			marker->set_after_bild( grund_besch_t::marker->get_image( grund_hang % 27 ) );
+			marker->set_bild( grund_besch_t::marker->get_image( back_hang ) );
 
-			marker->mark_image_dirty( marker->get_bild(), 0 );
+			marker->mark_image_dirty( marker->get_image(), 0 );
 			gr->obj_add( marker );
 			marked.insert( marker );
 		}
@@ -2661,7 +2661,7 @@ void tool_build_way_t::mark_tiles(  player_t *player, const koord3d &start, cons
 			gr->obj_add( way );
 			way->set_yoff(-gr->get_weg_yoff() );
 			marked.insert( way );
-			way->mark_image_dirty( way->get_bild(), 0 );
+			way->mark_image_dirty( way->get_image(), 0 );
 		}
 	}
 }
@@ -2822,7 +2822,7 @@ void tool_build_bridge_t::mark_tiles(  player_t *player, const koord3d &start, c
 		}
 	}
 	marked.insert( way );
-	way->mark_image_dirty( way->get_bild(), 0 );
+	way->mark_image_dirty( way->get_image(), 0 );
 	// loop
 	koord3d pos( start + zv + koord3d( 0, 0, max_height ) );
 	while (pos.get_2d()!=end.get_2d()) {
@@ -2839,7 +2839,7 @@ void tool_build_bridge_t::mark_tiles(  player_t *player, const koord3d &start, c
 		way->set_bild(besch->get_hintergrund(besch->get_simple(ribi_mark,height-hang_t::max_diff(kb->get_grund_hang())),0));
 		way->set_after_bild(besch->get_vordergrund(besch->get_simple(ribi_mark,height-hang_t::max_diff(kb->get_grund_hang())), 0));
 		marked.insert( way );
-		way->mark_image_dirty( way->get_bild(), 0 );
+		way->mark_image_dirty( way->get_image(), 0 );
 		pos = pos + zv;
 	}
 	costs += besch->get_preis() * koord_distance(start, pos);
@@ -2863,7 +2863,7 @@ void tool_build_bridge_t::mark_tiles(  player_t *player, const koord3d &start, c
 			way->set_yoff( -TILE_HEIGHT_STEP * end_max_height );
 		}
 		marked.insert( way );
-		way->mark_image_dirty( way->get_bild(), 0 );
+		way->mark_image_dirty( way->get_image(), 0 );
 		costs += besch->get_preis();
 	}
 	else {
@@ -3171,7 +3171,7 @@ void tool_build_tunnel_t::mark_tiles(  player_t *player, const koord3d &start, c
 			}
 			gr->obj_add( way );
 			marked.insert( way );
-			way->mark_image_dirty( way->get_bild(), 0 );
+			way->mark_image_dirty( way->get_image(), 0 );
 		}
 		welt->lookup(end)->set_flag(grund_t::marked);
 	}
@@ -3256,7 +3256,7 @@ void tool_wayremover_t::mark_tiles( player_t *player, const koord3d &start, cons
 		FOR(vector_tpl<koord3d>, const& pos, verbindung.get_route()) {
 			zeiger_t *marker = new zeiger_t(pos, NULL );
 			marker->set_bild( cursor );
-			marker->mark_image_dirty( marker->get_bild(), 0 );
+			marker->mark_image_dirty( marker->get_image(), 0 );
 			marked.insert( marker );
 			welt->lookup(pos)->obj_add( marker );
 		}
@@ -3723,7 +3723,7 @@ void tool_wayobj_t::mark_tiles( player_t * player, const koord3d &start, const k
 				}
 			}
 			if( way_obj ) {
-				way_obj->mark_image_dirty( way_obj->get_bild(), 0 );
+				way_obj->mark_image_dirty( way_obj->get_image(), 0 );
 				gr->obj_add( way_obj );
 				marked.insert( way_obj );
 			}
@@ -5553,7 +5553,7 @@ void tool_build_roadsign_t::mark_tiles( player_t *player, const koord3d &start, 
 				dummy_rs->set_pos(gr->get_pos());
 				dummy_rs->set_dir(ribi); // calls calc_image()
 				zeiger->set_after_bild(dummy_rs->get_front_image());
-				zeiger->set_bild(dummy_rs->get_bild());
+				zeiger->set_bild(dummy_rs->get_image());
 				cost += rs ? (rs->get_besch()==besch ? 0  : besch->get_preis()+rs->get_besch()->get_preis()) : besch->get_preis();
 			}
 		} else if (s.remove_intermediate && rs && !rs-> is_deletable(player)) {
@@ -6822,10 +6822,10 @@ void tool_forest_t::mark_tiles(  player_t *, const koord3d &start, const koord3d
 					9 * max( corner3(grund_hang), corner3(weg_hang)) +
 					27 * max( corner4(grund_hang), corner4(weg_hang));
 			uint8 back_hang = (hang % 3) + 3 * ((uint8)(hang / 9)) + 27;
-			marker->set_after_bild( grund_besch_t::marker->get_bild( grund_hang % 27 ) );
-			marker->set_bild( grund_besch_t::marker->get_bild( back_hang ) );
+			marker->set_after_bild( grund_besch_t::marker->get_image( grund_hang % 27 ) );
+			marker->set_bild( grund_besch_t::marker->get_image( back_hang ) );
 
-			marker->mark_image_dirty( marker->get_bild(), 0 );
+			marker->mark_image_dirty( marker->get_image(), 0 );
 			gr->obj_add( marker );
 			marked.insert( marker );
 		}

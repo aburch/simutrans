@@ -175,22 +175,22 @@ void fabrik_info_t::draw(scr_coord pos, scr_size size)
 		// indicator for receiving
 		if(  fab->get_prodfactor_electric()>0  ) {
 			display_color_img(skinverwaltung_t::electricity->get_bild_nr(0), pos.x + view.get_pos().x + x_view_pos, pos.y + view.get_pos().y + D_TITLEBAR_HEIGHT+4, 0, false, false);
-			x_view_pos += skinverwaltung_t::electricity->get_bild(0)->get_pic()->w+4;
+			x_view_pos += skinverwaltung_t::electricity->get_image(0)->get_pic()->w+4;
 		}
 		// indicator for enabled
 		if(  fab->get_besch()->get_electric_boost()  ) {
 			display_color_img( skinverwaltung_t::electricity->get_bild_nr(0), pos.x + x_prod_pos, pos.y + view.get_pos().y + D_TITLEBAR_HEIGHT, 0, false, false);
-			x_prod_pos += skinverwaltung_t::electricity->get_bild(0)->get_pic()->w+4;
+			x_prod_pos += skinverwaltung_t::electricity->get_image(0)->get_pic()->w+4;
 		}
 	}
 	if(  skinverwaltung_t::passagiere->get_bild_nr(0)!=IMG_LEER  ) {
 		if(  fab->get_prodfactor_pax()>0  ) {
 			display_color_img(skinverwaltung_t::passagiere->get_bild_nr(0), pos.x + view.get_pos().x + x_view_pos, pos.y + view.get_pos().y + D_TITLEBAR_HEIGHT+4, 0, false, false);
-			x_view_pos += skinverwaltung_t::passagiere->get_bild(0)->get_pic()->w+4;
+			x_view_pos += skinverwaltung_t::passagiere->get_image(0)->get_pic()->w+4;
 		}
 		if(  fab->get_besch()->get_pax_boost()  ) {
 			display_color_img( skinverwaltung_t::passagiere->get_bild_nr(0), pos.x + x_prod_pos, pos.y + view.get_pos().y + D_TITLEBAR_HEIGHT, 0, false, false);
-			x_prod_pos += skinverwaltung_t::passagiere->get_bild(0)->get_pic()->w+4;
+			x_prod_pos += skinverwaltung_t::passagiere->get_image(0)->get_pic()->w+4;
 		}
 	}
 	if(  skinverwaltung_t::post->get_bild_nr(0)!=IMG_LEER  ) {

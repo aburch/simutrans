@@ -124,15 +124,15 @@ public:
 	/* display all things, called by the routines in grund_t
 	*  @author prissi,dwachs
 	*/
+
+	uint8 display_obj_bg(const sint16 xpos, const sint16 ypos, const uint8 start_offset  CLIP_NUM_DEF) const;
+	uint8 display_obj_vh(const sint16 xpos, const sint16 ypos, const uint8 start_offset, const ribi_t::ribi ribi, const bool ontile  CLIP_NUM_DEF) const;
+
 #ifdef MULTI_THREAD
-	uint8 display_obj_bg(const sint16 xpos, const sint16 ypos, const uint8 start_offset, const sint8 clip_num) const;
-	uint8 display_obj_vh(const sint16 xpos, const sint16 ypos, const uint8 start_offset, const ribi_t::ribi ribi, const bool ontile, const sint8 clip_num ) const;
 	void display_obj_fg(const sint16 xpos, const sint16 ypos, const uint8 start_offset, const sint8 clip_num ) const;
 
 	void display_obj_overlay(const sint16 xpos, const sint16 ypos) const;
 #else
-	uint8 display_obj_bg(const sint16 xpos, const sint16 ypos, const uint8 start_offset) const;
-	uint8 display_obj_vh(const sint16 xpos, const sint16 ypos, const uint8 start_offset, const ribi_t::ribi ribi, const bool ontile ) const;
 	void display_obj_fg(const sint16 xpos, const sint16 ypos, const uint8 start_offset, const bool is_global ) const;
 #endif
 

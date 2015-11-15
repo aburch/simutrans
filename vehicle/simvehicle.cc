@@ -1179,7 +1179,7 @@ void vehicle_t::initialise_journey(uint16 start_route_index, bool recalc)
 	use_calc_height = true;
 
 	if(welt->is_within_limits(get_pos().get_2d())) {
-		mark_image_dirty( get_bild(), 0 );
+		mark_image_dirty( get_image(), 0 );
 	}
 
 	route_t const& r = *cnv->get_route();
@@ -1959,7 +1959,7 @@ ribi_t::ribi vehicle_t::richtung() const
 
 void vehicle_t::calc_image() //"Bild" = "picture" (Google)
 {
-	image_id old_bild=get_bild();
+	image_id old_bild=get_image();
 	if (fracht.empty())
 	{
 		set_bild(besch->get_bild_nr(ribi_t::get_dir(get_direction_of_travel()), NULL, current_livery.c_str()));
@@ -1968,7 +1968,7 @@ void vehicle_t::calc_image() //"Bild" = "picture" (Google)
 	{
 		set_bild(besch->get_bild_nr(ribi_t::get_dir(get_direction_of_travel()), fracht.front().get_besch(), current_livery.c_str()));
 	}
-	if(old_bild!=get_bild()) {
+	if(old_bild!=get_image()) {
 		set_flag(obj_t::dirty);
 	}
 }
@@ -6628,7 +6628,7 @@ void air_vehicle_t::rdwr_from_convoi(loadsave_t *file)
 {
 	xml_tag_t t( file, "air_vehicle_t" );
 
-	// initialize as vehicle_t::rdwr_from_convoi calls get_bild()
+	// initialize as vehicle_t::rdwr_from_convoi calls get_image()
 	if (file->is_loading()) {
 		state = taxiing;
 		flying_height = 0;
@@ -6825,10 +6825,8 @@ void air_vehicle_t::display_after(int xpos_org, int ypos_org, bool is_global) co
 
 		// will be dirty
 		// the aircraft!!!
-#ifdef MULTI_THREAD
-		display_color( image, xpos, ypos, get_player_nr(), true, true/*get_flag(obj_t::dirty)*/, clip_num );
-#else
-		display_color( image, xpos, ypos, get_player_nr(), true, true/*get_flag(obj_t::dirty)*/ );
+		display_color( image, xpos, ypos, get_player_nr(), true, true/*get_flag(obj_t::dirty)*/  CLIP_NUM_PAR);
+#ifndef MULTI_THREAD
 		vehicle_t::display_after( xpos_org, ypos_org - tile_raster_scale_y( current_flughohe - hoff - 2, raster_width ), is_global );
 #endif
 	}

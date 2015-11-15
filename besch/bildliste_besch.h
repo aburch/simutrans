@@ -31,10 +31,10 @@ public:
 
 	uint16 get_anzahl() const { return anzahl; }
 
-	bild_besch_t const* get_bild(uint16 i) const { return i < anzahl ? get_child<bild_besch_t>(i) : 0; }
+	bild_besch_t const* get_image(uint16 i) const { return i < anzahl ? get_child<bild_besch_t>(i) : 0; }
 
 	image_id get_bild_nr(uint16 i) const {
-		const bild_besch_t *image = get_bild(i);
+		const bild_besch_t *image = get_image(i);
 		return image != NULL ? image->get_nummer() : IMG_LEER;
 	}
 };

@@ -164,7 +164,7 @@ public:
 	uint32 do_drive(uint32 dist);	// basis movement code
 
 	inline void set_bild( image_id b ) { image = b; }
-	virtual image_id get_bild() const {return image;}
+	virtual image_id get_image() const {return image;}
 
 	sint8 get_hoff() const;
 	uint8 get_steps() const {return steps;} // number of steps pass on the current tile.
@@ -1004,7 +1004,7 @@ public:
 	void force_land() { flying_height = 0; target_height = 0; state = taxiing_to_halt; }
 
 	// image: when flying empty, on ground the plane
-	virtual image_id get_bild() const {return !is_on_ground() ? IMG_LEER : image;}
+	virtual image_id get_image() const {return !is_on_ground() ? IMG_LEER : image;}
 
 	// image: when flying the shadow, on ground empty
 	virtual image_id get_outline_image() const {return !is_on_ground() ? image : IMG_LEER;}

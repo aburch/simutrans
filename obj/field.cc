@@ -55,13 +55,13 @@ const char *field_t:: is_deletable(const player_t *)
 void field_t::cleanup(player_t *player)
 {
 	player_t::book_construction_costs(player, welt->get_settings().cst_multiply_remove_field, get_pos().get_2d(), ignore_wt);
-	mark_image_dirty( get_bild(), 0 );
+	mark_image_dirty( get_image(), 0 );
 }
 
 
 
 // return the  right month graphic for factories
-image_id field_t::get_bild() const
+image_id field_t::get_image() const
 {
 	const skin_besch_t *s=besch->get_bilder();
 	uint16 anzahl=s->get_bild_anzahl() - besch->has_snow_image();

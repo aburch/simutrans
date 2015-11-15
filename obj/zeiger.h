@@ -41,7 +41,7 @@ public:
 	/// set back image
 	void set_bild( image_id b );
 	/// get back image
-	image_id get_bild() const {return image;}
+	image_id get_image() const {return image;}
 
 	/// set front image
 	void set_after_bild( image_id b );

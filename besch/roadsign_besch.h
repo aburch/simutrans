@@ -103,7 +103,7 @@ public:
 
 	int get_bild_nr(ribi_t::dir dir) const
 	{
-		bild_besch_t const* const image = get_child<bildliste_besch_t>(2)->get_bild(dir);
+		bild_besch_t const* const image = get_child<bildliste_besch_t>(2)->get_image(dir);
 		return image != NULL ? image->get_nummer() : IMG_LEER;
 	}
 

@@ -23,7 +23,7 @@ public:
 	typ get_typ() const { return obj_t::field; }
 #endif
 
-	image_id get_bild() const;
+	image_id get_image() const;
 
 	/**
 	 * @return Einen Beschreibungsstring für das Objekt, der z.B. in einem

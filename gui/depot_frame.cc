@@ -367,7 +367,7 @@ void depot_frame_t::layout(scr_size *size)
 	bt_sell.set_text("verkaufen");
 
 	const scr_coord_val margin = 4;
-	img_bolt.set_pos(scr_coord(get_windowsize().w - skinverwaltung_t::electricity->get_bild(0)->get_pic()->w - margin, margin));
+	img_bolt.set_pos(scr_coord(get_windowsize().w - skinverwaltung_t::electricity->get_image(0)->get_pic()->w - margin, margin));
 }
 
 

@@ -533,7 +533,7 @@ bool gebaeude_t::sync_step(long delta_t)
 		// still under construction?
 		if(welt->get_zeit_ms() - purchase_time > 5000ll) {
 			set_flag(obj_t::dirty);
-			mark_image_dirty(get_bild(), 0);
+			mark_image_dirty(get_image(), 0);
 			zeige_baugrube = false;
 			if(tile->get_phasen()<=1) {
 				welt->sync_eyecandy_remove( this );
@@ -604,7 +604,7 @@ void gebaeude_t::calc_image()
 }
 
 
-image_id gebaeude_t::get_bild() const
+image_id gebaeude_t::get_image() const
 {
 	if(env_t::hide_buildings!=0  &&  tile->has_image()) {
 		// opaque houses
@@ -664,7 +664,7 @@ PLAYER_COLOR_VAL gebaeude_t::get_outline_colour() const
 }
 
 
-image_id gebaeude_t::get_bild(int nr) const
+image_id gebaeude_t::get_image(int nr) const
 {
 	if(zeige_baugrube || env_t::hide_buildings) {
 		return IMG_LEER;
@@ -1543,7 +1543,7 @@ void gebaeude_t::mark_images_dirty() const
 	else {
 		img = tile->get_hintergrund( anim_frame, 0, season ) ;
 	}
-	for(  int i=0;  img!=IMG_LEER;  img=get_bild(++i)  ) {
+	for(  int i=0;  img!=IMG_LEER;  img=get_image(++i)  ) {
 		mark_image_dirty( img, -(i*get_tile_raster_width()) );
 	}
 }

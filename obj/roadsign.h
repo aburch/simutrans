@@ -125,7 +125,7 @@ public:
 	void set_ticks_offset(uint8 offset) { ticks_offset = offset; }
 
 	inline void set_bild( image_id b ) { image = b; }
-	image_id get_bild() const { return image; }
+	image_id get_image() const { return image; }
 
 	/**
 	* For the front image hiding vehicles

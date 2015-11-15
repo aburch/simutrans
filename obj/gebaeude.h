@@ -213,8 +213,8 @@ public:
 	 */
 	waytype_t get_waytype() const;
 
-	image_id get_bild() const;
-	image_id get_bild(int nr) const;
+	image_id get_image() const;
+	image_id get_image(int nr) const;
 	image_id get_front_image() const;
 	void mark_images_dirty() const;
 

@@ -27,7 +27,7 @@ class dummy_obj_t : public obj_t
 #else
 		typ      get_typ()  const { return obj_t::undefined; }
 #endif
-		image_id get_bild() const { return IMG_LEER; }
+		image_id get_image() const { return IMG_LEER; }
 };
 
 #endif

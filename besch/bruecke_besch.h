@@ -72,10 +72,10 @@ public:
 	image_id get_hintergrund(img_t img, uint8 season) const 	{
 		const bild_besch_t *image = NULL;
 		if(season && number_seasons == 1) {
-			image = get_child<bildliste_besch_t>(3 + offset)->get_bild(img);
+			image = get_child<bildliste_besch_t>(3 + offset)->get_image(img);
 		}
 		if(image == NULL) {
-			image = get_child<bildliste_besch_t>(0 + offset)->get_bild(img);
+			image = get_child<bildliste_besch_t>(0 + offset)->get_image(img);
 		}
 		return image != NULL ? image->get_nummer() : IMG_LEER;
 	}
@@ -83,10 +83,10 @@ public:
 	image_id get_vordergrund(img_t img, uint8 season) const {
 		const bild_besch_t *image = NULL;
 		if(season && number_seasons == 1) {
-			image = get_child<bildliste_besch_t>(4 + offset)->get_bild(img);
+			image = get_child<bildliste_besch_t>(4 + offset)->get_image(img);
 		}
 		if(image == NULL) {
-			image = get_child<bildliste_besch_t>(1 + offset)->get_bild(img);
+			image = get_child<bildliste_besch_t>(1 + offset)->get_image(img);
 		}
 		return image != NULL ? image->get_nummer() : IMG_LEER;
 	}

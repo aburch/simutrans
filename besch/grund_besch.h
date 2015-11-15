@@ -63,14 +63,14 @@ public:
 		bildliste2d_besch_t const* const bl2   = get_child<bildliste2d_besch_t>(2);
 		bildliste_besch_t   const* const liste = bl2->get_liste(typ);
 		if(liste && liste->get_anzahl() > 0) {
-			bild_besch_t const* const image = bl2->get_bild(typ, stage);
+			bild_besch_t const* const image = bl2->get_image(typ, stage);
 			return image;
 		}
 		return NULL;
 	}
 
 	// image for all non-climate stuff like foundations ...
-	image_id get_bild(int typ, int stage=0) const
+	image_id get_image(int typ, int stage=0) const
 	{
 		bild_besch_t const* const image = get_bild_ptr(typ, stage);
 		return image ? image->get_nummer() : IMG_LEER;
@@ -102,14 +102,14 @@ public:
 		                                           : ((slope & 1) + ((slope >> 1) & 6) + 8))
 		                         : (double_grounds ?  slope % 27
 		                                           : (slope & 7 ));
-		return marker->get_bild(index);
+		return marker->get_image(index);
 	}
 
 	static image_id get_border_image(hang_t::typ slope_in)
 	{
 		uint8 slope = double_grounds ? slope_in : slopetable[slope_in];
 		uint8 index = double_grounds ? (slope % 3) + 3 * ((uint8)(slope / 9)) : (slope & 1) + ((slope >> 1) & 6);
-		return borders->get_bild(index);
+		return borders->get_image(index);
 	}
 };
 
