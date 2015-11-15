@@ -1142,8 +1142,18 @@ void objlist_t::display_obj_quick_and_dirty( const sint16 xpos, const sint16 ypo
 	}
 	else if(capacity==1) {
 		if(start_offset==0) {
-		obj.one->display( xpos, ypos  CLIP_NUM_PAR);
+		// only draw background on request
+			obj.one->display( xpos, ypos  CLIP_NUM_PAR);
+ 		}
+		// foreground need to be drawn in any case
+#ifdef MULTI_THREAD
+		obj.one->display_after(xpos, ypos, clip_num );
+#else
+		obj.one->display_after( xpos, ypos, is_global );
+		if(  is_global  ) {
+			obj.one->clear_flag( obj_t::dirty );
 		}
+#endif
 		return;
 	}
 
@@ -1195,6 +1205,7 @@ uint8 objlist_t::display_obj_bg( const sint16 xpos, const sint16 ypos, const uin
 
 	for(  uint8 n = start_offset;  n < top;  n++  ) {
 	if(  !local_display_obj_bg( obj.some[n], xpos, ypos  CLIP_NUM_PAR)  ) {
+		return n;
 		}
 	}
 	return top;
