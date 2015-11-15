@@ -4,6 +4,7 @@
  */
 
 #include <stdlib.h>
+#include <algorithm>
 
 #include "simdebug.h"
 #include "simunits.h"

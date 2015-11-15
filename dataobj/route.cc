@@ -436,7 +436,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 				if(tmp->parent!=NULL) {
 					current_dir = ribi_t::nsow[r] | tmp->ribi_from;
 					if(tmp->dir!=current_dir) {
-						k->g += 3;
+						k->g += 3; 
 						if(ribi_t::ist_exakt_orthogonal(tmp->dir,current_dir))
 						{
 							if(flags == choose_signal)
