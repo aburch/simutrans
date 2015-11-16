@@ -597,6 +597,7 @@ senke_t::senke_t(loadsave_t *file) : leitung_t( koord3d::invalid, NULL )
 	max_einkommen = 1;
 	next_t = 0;
 	delta_sum = 0;
+	next_power_demand = 0;
 	last_power_demand = 0;
 	power_load = 0;
 	rdwr( file );
@@ -611,6 +612,7 @@ senke_t::senke_t(koord3d pos, player_t *player) : leitung_t(pos, player)
 	max_einkommen = 1;
 	next_t = 0;
 	delta_sum = 0;
+	next_power_demand = 0;
 	last_power_demand = 0;
 	power_load = 0;
 	player_t::book_construction_costs(player, welt->get_settings().cst_transformer, get_pos().get_2d(), powerline_wt);
@@ -632,53 +634,56 @@ senke_t::~senke_t()
 
 void senke_t::step(uint32 delta_t)
 {
-	if(fab==NULL) {
+	if(  fab == NULL  ) {
 		return;
 	}
-	if(delta_t==0) {
+	else if(  delta_t == 0  ) {
 		return;
 	}
 
-	const uint32 power_demand = fab->get_power_demand();
-	get_net()->add_demand( power_demand );
+	// get solved power demand
+	last_power_demand = next_power_demand;
 
+	// set current factory demand to be solved
+	next_power_demand = fab->get_power_demand();
+	get_net()->add_demand( next_power_demand );
+
+	// compute power demand satisfaction from results
 	const uint64 net_demand = get_net()->get_demand();
-	if(  net_demand > 0  ) {
-		power_load = (uint32)((((uint64)last_power_demand) * ((get_net()->get_supply() << 5) / net_demand)) >> 5);
-		if(  power_load > last_power_demand  ) {
-			power_load = last_power_demand;
-		}
-		fab->add_power( power_load );
+	const uint64 net_supply = get_net()->get_supply();
+	if(  net_supply >= net_demand  ) {
+		// demand fully satisfied
+		power_load = last_power_demand;
+	}
+	else if(  last_power_demand > 0  ) {
+		// compute demand satisfaction, this is safe because if last_power_demand > 0 then net_demand > 0
+		power_load = (uint32)((((uint64)last_power_demand) * ((net_supply << 5) / net_demand)) >> 5);
 	}
 	else {
+		// no demand so no supply
 		power_load = 0;
 	}
 
-	const sint32 demand_remaining = (sint32)power_demand - (sint32)power_load;
-	if( demand_remaining > 0 ) {
-		fab->add_power_demand( (uint32)demand_remaining ); // allows subsequently stepped senke to supply demand this senke couldn't
-	}
-	else {
-		fab->add_power_demand( 0 ); // All power fully satisfied.
-	}
+	// push back power and demand to factory
+	fab->add_power( power_load );
+	fab->add_power_demand( last_power_demand - power_load );
 
-	if(  fab->get_besch()->get_electric_amount() == 65535  ){
+	// power payment logic
+	if(  fab->get_besch()->get_electric_amount() == 65535  ) {
 		// demand not specified in pak, use old fixed demands
 		max_einkommen += last_power_demand * delta_t / PRODUCTION_DELTA_T;
-		einkommen += power_load  * delta_t / PRODUCTION_DELTA_T;
+		einkommen += power_load * delta_t / PRODUCTION_DELTA_T;
 	}
 	else {
-		max_einkommen += welt->inverse_scale_with_month_length( last_power_demand * delta_t / PRODUCTION_DELTA_T);
-		einkommen += welt->inverse_scale_with_month_length(power_load  * delta_t / PRODUCTION_DELTA_T);
+		max_einkommen += welt->inverse_scale_with_month_length( last_power_demand * delta_t / PRODUCTION_DELTA_T );
+		einkommen += welt->inverse_scale_with_month_length( power_load  * delta_t / PRODUCTION_DELTA_T );
 	}
 
-	if(max_einkommen>(2000<<11)) {
-		get_owner()->book_revenue(einkommen >> 11, get_pos().get_2d(), powerline_wt);
+	if(  max_einkommen > (2000 << 11)  ) {
+		get_owner()->book_revenue( einkommen >> 11, get_pos().get_2d(), powerline_wt );
 		einkommen = 0;
 		max_einkommen = 1;
 	}
-
-	last_power_demand = power_demand;
 }
 
 

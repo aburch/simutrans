@@ -167,7 +167,17 @@ public:
 };
 
 
-
+/*
+ * Distribution transformers act as an interface between power networks and
+ * and power consuming factories. They work in a pipelined way by taking the
+ * energy demand of a factory, solving it between ticks and feeding the results
+ * back the next tick.
+ *
+ * This buffering means that the factory will get the results for a demand
+ * after 2 ticks, with the first tick getting the previous result. Any unfulfilled
+ * demand from a result will be refunded to the factory so that the factory can
+ * calculate how well demand is being fulfilled in general.
+ */
 class senke_t : public leitung_t, public sync_steppable
 {
 public:
@@ -182,7 +192,14 @@ private:
 	fabrik_t *fab;
 	sint32 delta_sum;
 	sint32 next_t;
+
+	// the power demand to be solved next tick
+	uint32 next_power_demand;
+
+	// the last power demand solved
 	uint32 last_power_demand;
+
+	// the last power satisfaction computed
 	uint32 power_load;
 
 	void step(uint32 delta_t);
