@@ -1583,6 +1583,7 @@ sint32 fabrik_t::liefere_an(const ware_besch_t *typ, sint32 menge)
 	return -1;
 }
 
+
 sint8 fabrik_t::is_needed(const ware_besch_t *typ) const
 {
 	FOR(array_tpl<ware_production_t>, const& i, eingang) {
@@ -1594,11 +1595,13 @@ sint8 fabrik_t::is_needed(const ware_besch_t *typ) const
 	return -1;  // not needed here
 }
 
+
 bool fabrik_t::is_active_lieferziel( koord k ) const
 {
 	assert( lieferziele.is_contained(k) );
 	return 0 < ( ( 1 << lieferziele.index_of(k) ) & lieferziele_active_last_month );
 }
+
 
 void fabrik_t::step(uint32 delta_t)
 {
@@ -1615,66 +1618,58 @@ void fabrik_t::step(uint32 delta_t)
 	// Actual production effort done.
 	sint32 work = 0;
 
+	// The number of working units used.
+	sint32 wunits = 1;
+
 	// Desired production effort of factory.
 	sint32 want = 0;
 
-	/// Compute base production.
-	{
-		uint64 want_prod_long;
+	/// Boost logic.
 
-		switch( boost_type ){
-		// For compatibility purposes.
-		case BL_CLASSIC :
-			// not a producer => then consume electricity ...
-			if(  !besch->is_electricity_producer()  &&  scaled_electric_amount>0  ) {
+	// Solve boosts.
+	switch(  boost_type  ) {
+		case BL_CLASSIC: {
+			// JIT1 implementation for power bonus.
+			if(  !besch->is_electricity_producer()  &&  scaled_electric_amount > 0  ) {
 				// one may be thinking of linking this to actual production only
 				prodfactor_electric = (sint32)( ( (sint64)(besch->get_electric_boost()) * (sint64)power + (sint64)(scaled_electric_amount >> 1) ) / (sint64)scaled_electric_amount );
 			}
-
-			want_prod_long = (uint64)prodbase * (uint64)(get_prodfactor());
 			break;
-
-		// Only passengers and mail, ignore power.
-		case BL_PAXM :
-			want_prod_long = (uint64)prodbase * (uint64)(DEFAULT_PRODUCTION_FACTOR + prodfactor_pax + prodfactor_mail);
-			break;
-
-		// Factor in power boost.
-		case BL_POWER :
-			// Power bonus depends on how well the demand was quenched. Demand depends on how much production was done last tick.
-
-			// Check if factory has a transformer connected. No transformer means no bonus.
-			if( !transformer_connected ) {
+		}
+		case BL_POWER: {
+			// Compute power boost based on how well power demand is being solved.
+			if(  !transformer_connected  ) {
+				// No transformer means no power bonus.
 				prodfactor_electric = 0;
 			}
-			// Check if power demand was fulfilled. If so then we have maximum boost (nescescary to avoid division by 0 when not producing).
-			else if( power_demand == 0 ) {
+			else if(  power_demand == 0  ) {
+				// If all demand fulfilled then full bonus.
 				prodfactor_electric = (sint32)besch->get_electric_boost();
 			}
-			// Calculate the bonus as a fraction of the demand fulfilled, rounding down.
 			else {
+				// Calculate bonus from fraction of power satisfaction, rounding down.
 				prodfactor_electric = (sint32)( (sint64)besch->get_electric_boost() * (sint64)power / (sint64)(power + power_demand) );
 			}
-
-			want_prod_long = (uint64)prodbase * (uint64)(DEFAULT_PRODUCTION_FACTOR + prodfactor_electric + prodfactor_pax + prodfactor_mail);
 			break;
-
-		// No boosts so use base production amount. Also default.
-		case BL_NONE :
-		default :
-			// Have to assume multiplication by default production factor but this should be fast if power of two.
-			want_prod_long = (uint64)prodbase * (uint64)DEFAULT_PRODUCTION_FACTOR;
+		}
+		default: {
+			// No boost amounts to solve.
 			break;
-		};
+		}
+	};
 
+	// Compute boost amount.
+	const sint32 boost = get_prodfactor();
+
+	/// Compute base production.
+	{
 		// Calculate actual production. A remainder is used for extra precision.
-		want_prod_long = want_prod_long *  (uint64)delta_t + (uint64)menge_remainder;
+		const uint64 want_prod_long = (uint64)prodbase * (uint64)boost * (uint64)delta_t + (uint64)menge_remainder;
 		prod = (uint32)(want_prod_long >> (PRODUCTION_DELTA_T_BITS + DEFAULT_PRODUCTION_FACTOR_BITS + DEFAULT_PRODUCTION_FACTOR_BITS - fabrik_t::precision_bits));
 		menge_remainder = (uint32)(want_prod_long & ((1 << (PRODUCTION_DELTA_T_BITS + DEFAULT_PRODUCTION_FACTOR_BITS + DEFAULT_PRODUCTION_FACTOR_BITS - fabrik_t::precision_bits)) - 1 ));
 	}
 
 	/// Perform the control logic.
-
 	{
 		// Common logic locals go here.
 
@@ -1685,122 +1680,29 @@ void fabrik_t::step(uint32 delta_t)
 		// The amount of consumption available.
 		sint32 cons_comp = 0;
 
-		switch( control_type ){
-
-		// Classic producer logic. Originally factories were mixed with it but it has been separated for efficiency.
-		case CL_PROD_CLASSIC :
-			currently_producing = false;
-
-			// produces something
-			for(  uint32 product = 0;  product < ausgang.get_count();  product++  ) {
-				uint32 menge_out;
-
-				// source producer
-				menge_out = scale_output_production( product, prod );
-
-				if(  menge_out > 0  ) {
-					const sint32 p = (sint32)menge_out;
-
-					if( p > work ) {
-						work = p;
-					}
-
-					// produce
-					if(  ausgang[product].menge < ausgang[product].max  ) {
-						// to find out, if storage changed
-						delta_menge += p;
-						ausgang[product].menge += p;
-						ausgang[product].book_stat((sint64)p * (sint64)besch->get_produkt(0)->get_faktor(), FAB_GOODS_PRODUCED);
-						// if less than 3/4 filled we neary always consume power
-						currently_producing |= (ausgang[product].menge*4 < ausgang[product].max*3);
-					}
-					else {
-						ausgang[product].book_stat((sint64)(ausgang[product].max - 1 - ausgang[product].menge) * (sint64)besch->get_produkt(product)->get_faktor(), FAB_GOODS_PRODUCED);
-						ausgang[product].menge = ausgang[product].max - 1;
-					}
-				}
-			}
-
-			break;
-
-		// A producer with many outputs.
-		case CL_PROD_MANY :
-			if( inactive_outputs == ausgang.get_count() ) {
-				break;
-			}
-
-			currently_producing = true;
-
-			for(  uint32 product = 0;  product < ausgang.get_count();  product++  ) {
-				prod_comp = ausgang[product].max - ausgang[product].menge;
-
-				// Ignore inactive outputs.
-				if( prod_comp <= 0 ) {
-					continue;
-				}
-
-				// Apply scaling.
-				prod_delta = ausgang[product].scale_production(prod);
-
-				// Cannot produce more than can be stored.
-				if( prod_delta >= prod_comp ){
-					prod_delta = prod_comp;
-					inactive_outputs++;
-					if( inactive_outputs == ausgang.get_count() ) {
-						currently_producing = false;
-					}
-				}
-
-				delta_menge += prod_delta;
-				ausgang[product].menge += prod_delta;
-				ausgang[product].book_stat((sint64)prod_delta * (sint64)besch->get_produkt(product)->get_faktor(), FAB_GOODS_PRODUCED);
-
-				work += prod_delta;
-			}
-
-			work /= ausgang.get_count();
-			break;
-
-		// Classic factory logic, work and want determined by the maximum output production rate.
-		case CL_FACT_CLASSIC :
-			currently_producing = false;
-
-			// ok, calulate maximum allowed consumption.
-			{
-				sint32 min_menge = eingang[0].menge;
-				sint32 consumed_menge = 0;
-				for(  uint32 index = 1;  index < eingang.get_count();  index++  ) {
-					if(  eingang[index].menge < min_menge  ) {
-						min_menge = eingang[index].menge;
-					}
-				}
+		switch(  control_type  ) {
+			case CL_PROD_CLASSIC: {
+				// Classic producer logic.
+				currently_producing = false;
 
 				// produces something
 				for(  uint32 product = 0;  product < ausgang.get_count();  product++  ) {
-					sint32 menge_out;
-
-					// calculate production
-					const sint32 p_menge = (sint32)scale_output_production( product, prod );
-
-					// Want the maximum production rate, this is so correct amount is ordered.
-					if( p_menge > want ) {
-						want = p_menge;
-					}
-
-					menge_out = p_menge < min_menge ? p_menge : min_menge;  // production smaller than possible due to consumption
-					if(  menge_out > consumed_menge  ) {
-						consumed_menge = menge_out;
-					}
+					// source producer
+					const uint32 menge_out = scale_output_production( product, prod );
 
 					if(  menge_out > 0  ) {
-						const sint32 p = menge_out;
+						const sint32 p = (sint32)menge_out;
+
+						if(  p > work  ) {
+							work = p;
+						}
 
 						// produce
 						if(  ausgang[product].menge < ausgang[product].max  ) {
 							// to find out, if storage changed
 							delta_menge += p;
 							ausgang[product].menge += p;
-							ausgang[product].book_stat((sint64)p * (sint64)besch->get_produkt(product)->get_faktor(), FAB_GOODS_PRODUCED);
+							ausgang[product].book_stat((sint64)p * (sint64)besch->get_produkt(0)->get_faktor(), FAB_GOODS_PRODUCED);
 							// if less than 3/4 filled we neary always consume power
 							currently_producing |= (ausgang[product].menge*4 < ausgang[product].max*3);
 						}
@@ -1810,336 +1712,428 @@ void fabrik_t::step(uint32 delta_t)
 						}
 					}
 				}
-
-				// and finally consume stock
-				for(  uint32 index = 0;  index < eingang.get_count();  index++  ) {
-					const uint32 v = consumed_menge;
-
-					if(  (uint32)eingang[index].menge > v + 1  ) {
-						eingang[index].menge -= v;
-						eingang[index].book_stat((sint64)v * (sint64)besch->get_lieferant(index)->get_verbrauch(), FAB_GOODS_CONSUMED);
-					}
-					else {
-						eingang[index].book_stat((sint64)eingang[index].menge * (sint64)besch->get_lieferant(index)->get_verbrauch(), FAB_GOODS_CONSUMED);
-						eingang[index].menge = 0;
-					}
-				}
-
-				work = consumed_menge;
+				break;
 			}
-			break;
-
-		// Logic for a factory with many outputs. Work and want are based on weighted output rate so is more complicated. In case of insufficient supply earliest output gets priority.
-		case CL_FACT_MANY :
-			if( inactive_outputs == ausgang.get_count() ) break;
-			{
-				bool no_input = inactive_inputs > 0;
-
-				// Determine minimum input in form of production from all outputs. This limits production.
-				if( !no_input ){
-					currently_producing = true;
-
-					cons_comp = eingang[0].menge;
-					for(  uint32 index = 1;  index < eingang.get_count();  index++  ) {
-						if( eingang[index].menge < cons_comp ) {
-							cons_comp = eingang[index].menge;
-						}
-					}
-					cons_comp*= ausgang.get_count();
+			case CL_PROD_MANY: {
+				// A producer with many outputs.
+				if(  inactive_outputs == ausgang.get_count()  ) {
+					break;
 				}
+
+				currently_producing = true;
 
 				for(  uint32 product = 0;  product < ausgang.get_count();  product++  ) {
 					prod_comp = ausgang[product].max - ausgang[product].menge;
 
 					// Ignore inactive outputs.
-					if( prod_comp <= 0 ) {
+					if(  prod_comp <= 0  ) {
 						continue;
 					}
 
 					// Apply scaling.
-					prod_delta = ausgang[product].scale_production(prod);
+					prod_delta = ausgang[product].scale_production( prod );
 
 					// Cannot produce more than can be stored.
-					if( prod_delta > prod_comp ) {
+					if(  prod_delta >= prod_comp  ) {
 						prod_delta = prod_comp;
-					}
-
-					// Assume each output is equally weighted when determining want.
-					want+= prod_delta;
-
-					// Cannot produce anything without any input.
-					if( no_input ) {
-						continue;
-					}
-
-					// Apply input limiting.
-					if(  prod_delta > cons_comp  ) {
-						// Need to limit production.
-						prod_delta = cons_comp;
-						cons_comp = 0;
-					}
-					else {
-						cons_comp-= prod_delta;
-					}
-
-					// If filling to max, then register as inactive.
-					if(  prod_delta == prod_comp  ) {
-						inactive_outputs ++;
-						if( inactive_outputs == ausgang.get_count() ) {
+						inactive_outputs++;
+						if(  inactive_outputs == ausgang.get_count()  ) {
 							currently_producing = false;
 						}
 					}
 
-					// Assume each output is equally weighted when determining work.
-					work += prod_delta;
-
-					// Produce output
 					delta_menge += prod_delta;
 					ausgang[product].menge += prod_delta;
 					ausgang[product].book_stat((sint64)prod_delta * (sint64)besch->get_produkt(product)->get_faktor(), FAB_GOODS_PRODUCED);
+
+					work += prod_delta;
 				}
 
-				// Normalize want
-				want /= ausgang.get_count();
+				// Scale by number of units.
+				wunits = ausgang.get_count();
+				break;
+			}
+			case CL_FACT_CLASSIC: {
+				// Classic factory logic, work and want determined by the maximum output production rate.
+				currently_producing = false;
 
-				// If we had inputs then normalize work.
-				if( no_input ) {
+				// ok, calulate maximum allowed consumption.
+				{
+					sint32 min_menge = eingang[0].menge;
+					sint32 consumed_menge = 0;
+					for(  uint32 index = 1;  index < eingang.get_count();  index++  ) {
+						if(  eingang[index].menge < min_menge  ) {
+							min_menge = eingang[index].menge;
+						}
+					}
+
+					// produces something
+					for(  uint32 product = 0;  product < ausgang.get_count();  product++  ) {
+						// calculate production
+						const sint32 p_menge = (sint32)scale_output_production( product, prod );
+
+						// Want the maximum production rate, this is so correct amount is ordered.
+						if(  p_menge > want  ) {
+							want = p_menge;
+						}
+
+						const sint32 menge_out = p_menge < min_menge ? p_menge : min_menge;  // production smaller than possible due to consumption
+						if(  menge_out > consumed_menge  ) {
+							consumed_menge = menge_out;
+						}
+
+						if(  menge_out > 0  ) {
+							const sint32 p = menge_out;
+
+							// produce
+							if(  ausgang[product].menge < ausgang[product].max  ) {
+								// to find out, if storage changed
+								delta_menge += p;
+								ausgang[product].menge += p;
+								ausgang[product].book_stat((sint64)p * (sint64)besch->get_produkt(product)->get_faktor(), FAB_GOODS_PRODUCED);
+								// if less than 3/4 filled we neary always consume power
+								currently_producing |= (ausgang[product].menge*4 < ausgang[product].max*3);
+							}
+							else {
+								ausgang[product].book_stat((sint64)(ausgang[product].max - 1 - ausgang[product].menge) * (sint64)besch->get_produkt(product)->get_faktor(), FAB_GOODS_PRODUCED);
+								ausgang[product].menge = ausgang[product].max - 1;
+							}
+						}
+					}
+
+					// and finally consume stock
+					for(  uint32 index = 0;  index < eingang.get_count();  index++  ) {
+						const uint32 v = consumed_menge;
+
+						if(  (uint32)eingang[index].menge > v + 1  ) {
+							eingang[index].menge -= v;
+							eingang[index].book_stat((sint64)v * (sint64)besch->get_lieferant(index)->get_verbrauch(), FAB_GOODS_CONSUMED);
+						}
+						else {
+							eingang[index].book_stat((sint64)eingang[index].menge * (sint64)besch->get_lieferant(index)->get_verbrauch(), FAB_GOODS_CONSUMED);
+							eingang[index].menge = 0;
+						}
+					}
+
+					work = consumed_menge;
+				}
+				break;
+			}
+			case CL_FACT_MANY: {
+				// Logic for a factory with many outputs. Work and want are based on weighted output rate so is more complicated.
+				if(  inactive_outputs == ausgang.get_count()  ) {
 					break;
 				}
-				work /= ausgang.get_count();
+				{
+					const bool no_input = inactive_inputs > 0;
 
-				// Consume inputs.
+					// Determine minimum input in form of production from all outputs. This limits production.
+					if(  !no_input  ) {
+						currently_producing = true;
+
+						cons_comp = eingang[0].menge;
+						for(  uint32 index = 1;  index < eingang.get_count();  index++  ) {
+							if(  eingang[index].menge < cons_comp  ) {
+								cons_comp = eingang[index].menge;
+							}
+						}
+						cons_comp *= ausgang.get_count();
+					}
+
+					for(  uint32 product = 0;  product < ausgang.get_count();  product++  ) {
+						prod_comp = ausgang[product].max - ausgang[product].menge;
+
+						// Ignore inactive outputs.
+						if(  prod_comp <= 0  ) {
+							continue;
+						}
+
+						// Apply scaling.
+						prod_delta = ausgang[product].scale_production(prod);
+
+						// Cannot produce more than can be stored.
+						if(  prod_delta > prod_comp  ) {
+							prod_delta = prod_comp;
+						}
+
+						// Assume each output is equally weighted when determining want.
+						want += prod_delta;
+
+						// Cannot produce anything without any input.
+						if(  no_input  ) {
+							continue;
+						}
+
+						// Apply input limiting. In case of insufficient supply earliest output gets priority.
+						if(  prod_delta > cons_comp  ) {
+							// Need to limit production.
+							prod_delta = cons_comp;
+							cons_comp = 0;
+						}
+						else {
+							cons_comp -= prod_delta;
+						}
+
+						// If filling to max, then register as inactive.
+						if(  prod_delta == prod_comp  ) {
+							inactive_outputs++;
+							if(  inactive_outputs == ausgang.get_count()  ) {
+								currently_producing = false;
+							}
+						}
+
+						// Assume each output is equally weighted when determining work.
+						work += prod_delta;
+
+						// Produce output
+						delta_menge += prod_delta;
+						ausgang[product].menge += prod_delta;
+						ausgang[product].book_stat((sint64)prod_delta * (sint64)besch->get_produkt(product)->get_faktor(), FAB_GOODS_PRODUCED);
+					}
+
+					// Scale by number of units in factory.
+					want /= ausgang.get_count();
+					wunits = ausgang.get_count();
+
+					// Consume inputs.
+					for(  uint32 index = 0;  index < eingang.get_count();  index++  ) {
+						eingang[index].menge -= work;
+						eingang[index].book_stat((sint64)work * (sint64)besch->get_lieferant(index)->get_verbrauch(), FAB_GOODS_CONSUMED);
+
+						if(  eingang[index].menge == 0  ) {
+							inactive_inputs++;
+							currently_producing = false;
+						}
+					}
+				}
+				break;
+			}
+			case CL_CONS_CLASSIC: {
+				// Classic consumer logic.
+				currently_producing = false;
+
+				if(  besch->is_electricity_producer()  ) {
+					// power station => start with no production
+					power = 0;
+				}
+
+				// Always want to consume at rate of prod.
+				want = prod;
+
+				// finally consume stock
 				for(  uint32 index = 0;  index < eingang.get_count();  index++  ) {
-					eingang[index].menge -= work;
-					eingang[index].book_stat((sint64)work * (sint64)besch->get_lieferant(index)->get_verbrauch(), FAB_GOODS_CONSUMED);
+					const uint32 v = prod;
 
-					if( eingang[index].menge == 0 ){
-						inactive_inputs ++;
-						currently_producing = false;
+					if(  (uint32)eingang[index].menge > v + 1  ) {
+						eingang[index].menge -= v;
+						eingang[index].book_stat((sint64)v * (sint64)besch->get_lieferant(index)->get_verbrauch(), FAB_GOODS_CONSUMED);
+						currently_producing = true;
+						if(  besch->is_electricity_producer()  ) {
+							// power station => produce power
+							power += (uint32)( ((sint64)scaled_electric_amount * (sint64)(DEFAULT_PRODUCTION_FACTOR + prodfactor_pax + prodfactor_mail)) >> DEFAULT_PRODUCTION_FACTOR_BITS );
+						}
+						work += v;
+						// to find out, if storage changed
+						delta_menge += v;
+					}
+					else {
+						if(  besch->is_electricity_producer()  ) {
+							// power station => produce power
+							power += (uint32)( (((sint64)scaled_electric_amount * (sint64)(DEFAULT_PRODUCTION_FACTOR + prodfactor_pax + prodfactor_mail)) >> DEFAULT_PRODUCTION_FACTOR_BITS) * eingang[index].menge / (v + 1) );
+						}
+						delta_menge += eingang[index].menge;
+						work += eingang[index].menge;
+						eingang[index].book_stat((sint64)eingang[index].menge * (sint64)besch->get_lieferant(index)->get_verbrauch(), FAB_GOODS_CONSUMED);
+						eingang[index].menge = 0;
 					}
 				}
-			}
-			break;
-
-		// Classic consumer logic.
-		case CL_CONS_CLASSIC :
-			currently_producing = false;
-
-			if(  besch->is_electricity_producer()  ) {
-				// power station => start with no production
-				power = 0;
-			}
-
-			// Always want to consume at rate of prod.
-			want = prod;
-
-			// finally consume stock
-			for(  uint32 index = 0;  index < eingang.get_count();  index++  ) {
-				const uint32 v = prod;
-
-				if(  (uint32)eingang[index].menge > v + 1  ) {
-					eingang[index].menge -= v;
-					eingang[index].book_stat((sint64)v * (sint64)besch->get_lieferant(index)->get_verbrauch(), FAB_GOODS_CONSUMED);
-					currently_producing = true;
-					if(  besch->is_electricity_producer()  ) {
-						// power station => produce power
-						power += (uint32)( ((sint64)scaled_electric_amount * (sint64)(DEFAULT_PRODUCTION_FACTOR + prodfactor_pax + prodfactor_mail)) >> DEFAULT_PRODUCTION_FACTOR_BITS );
-					}
-					// to find out, if storage changed
-					delta_menge += v;
-				}
-				else {
-					if(  besch->is_electricity_producer()  ) {
-						// power station => produce power
-						power += (uint32)( (((sint64)scaled_electric_amount * (sint64)(DEFAULT_PRODUCTION_FACTOR + prodfactor_pax + prodfactor_mail)) >> DEFAULT_PRODUCTION_FACTOR_BITS) * eingang[index].menge / (v + 1) );
-					}
-					delta_menge += eingang[index].menge;
-					eingang[index].book_stat((sint64)eingang[index].menge * (sint64)besch->get_lieferant(index)->get_verbrauch(), FAB_GOODS_CONSUMED);
-					eingang[index].menge = 0;
-				}
-			}
-			break;
-
-		// Consumer logic for many inputs. Work done is based on the average consumption of all inputs.
-		case CL_CONS_MANY :
-			// Always want to consume prod.
-			want = prod;
-
-			// Do nothing if we cannot consume anything.
-			if( inactive_inputs == eingang.get_count() ) {
 				break;
 			}
+			case CL_CONS_MANY: {
+				// Consumer logic for many inputs. Work done is based on the average consumption of all inputs.
+				// Always want to consume prod.
+				want = prod;
 
-			currently_producing = true;
-
-			for(  uint32 index = 0;  index < eingang.get_count();  index++  ) {
-				// Only process active inputs;
-				if( eingang[index].menge <= 0 ) {
-					continue;
-				}
-
-				// Determine amount to consume.
-				if(  eingang[index].menge > prod  ) {
-					prod_delta = prod;
-				}
-				else {
-					prod_delta = eingang[index].menge;
-				}
-
-				// Add to work done.
-				work += prod_delta;
-
-				// Consume input.
-				delta_menge += prod_delta;
-				eingang[index].menge -= prod_delta;
-				eingang[index].book_stat((sint64)prod_delta * (sint64)besch->get_lieferant(index)->get_verbrauch(), FAB_GOODS_CONSUMED);
-
-				if(  eingang[index].menge <= 0 ){
-					inactive_inputs++;
-					if(  inactive_inputs == eingang.get_count()  ) {
-						currently_producing = false;
-					}
-				}
-			}
-
-			// Normalize work done.
-			work /= eingang.get_count();
-			break;
-
-		// A simple no input electricity producer, like a solar array.
-		case CL_ELEC_PROD :
-			// We always produce power.
-			currently_producing = true;
-
-			// Power is produced realitive to scaled electric amount proportional to current production over base.
-			delta_menge = 1;
-			power = (uint32)((((sint64)scaled_electric_amount * (sint64)prod) << PRODUCTION_DELTA_T_BITS) / ((sint64)(prodbase << (precision_bits - DEFAULT_PRODUCTION_FACTOR_BITS)) * (sint64)delta_t));
-
-			work = prod;
-			break;
-
-		// Classic power producing consumer. Each input produces power in parallel of the scaled electric amount.
-		case CL_ELEC_CLASSIC :
-			currently_producing = false;
-
-			// power station? => produce power
-			if(  besch->is_electricity_producer()  ) {
-				currently_producing = true;
-				power = (uint32)( ((sint64)scaled_electric_amount * (sint64)(DEFAULT_PRODUCTION_FACTOR + prodfactor_pax + prodfactor_mail)) >> DEFAULT_PRODUCTION_FACTOR_BITS );
-			}
-			break;
-
-		// A slightly more advanced power consumer. The scaled electric amount determines maximum output with each input providing an equal fraction.
-		case CL_ELEC_CONS :
-			// Always want to consume prod.
-			want = prod;
-
-			// Do nothing if we cannot consume anything.
-			if( inactive_inputs == eingang.get_count() ) {
-				break;
-			}
-
-			currently_producing = true;
-
-			for(  uint32 index = 0;  index < eingang.get_count();  index++  ) {
-				// Only process active inputs;
-				if( eingang[index].menge <= 0 ) {
+				// Do nothing if we cannot consume anything.
+				if(  inactive_inputs == eingang.get_count()  ) {
 					break;
 				}
 
-				// Determine amount to consume.
-				if(  eingang[index].menge > prod  ) {
-					prod_delta = prod;
-				}
-				else {
-					prod_delta = eingang[index].menge;
-				}
+				currently_producing = true;
 
-				// Add to work done.
-				work += prod_delta;
+				for(  uint32 index = 0;  index < eingang.get_count();  index++  ) {
+					// Only process active inputs;
+					if(  eingang[index].menge <= 0  ) {
+						continue;
+					}
 
-				// Consume input.
-				delta_menge += prod_delta;
-				eingang[index].menge -= prod_delta;
-				eingang[index].book_stat((sint64)prod_delta * (sint64)besch->get_lieferant(index)->get_verbrauch(), FAB_GOODS_CONSUMED);
+					// Determine amount to consume.
+					if(  eingang[index].menge > prod  ) {
+						prod_delta = prod;
+					}
+					else {
+						prod_delta = eingang[index].menge;
+					}
 
-				if(  eingang[index].menge == 0  ){
-					inactive_inputs ++;
-					if( inactive_inputs == eingang.get_count() ) {
-						currently_producing = false;
+					// Add to work done.
+					work += prod_delta;
+
+					// Consume input.
+					delta_menge += prod_delta;
+					eingang[index].menge -= prod_delta;
+					eingang[index].book_stat((sint64)prod_delta * (sint64)besch->get_lieferant(index)->get_verbrauch(), FAB_GOODS_CONSUMED);
+
+					if(  eingang[index].menge <= 0  ) {
+						inactive_inputs++;
+						if(  inactive_inputs == eingang.get_count()  ) {
+							currently_producing = false;
+						}
 					}
 				}
+
+				// Scale by number of units.
+				wunits = eingang.get_count();
+				break;
 			}
+			case CL_ELEC_PROD: {
+				// A simple no input electricity producer, like a solar array.
 
-			// Normalize work done.
-			work /= eingang.get_count();
+				// Always maximum work done.
+				currently_producing = true;
+				work = prod;
+				delta_menge += prod;
 
-			// Produce power.
-			power = (uint32)((((sint64)scaled_electric_amount * (sint64)work) << PRODUCTION_DELTA_T_BITS) / ((sint64)(prodbase << (precision_bits - DEFAULT_PRODUCTION_FACTOR_BITS)) * (sint64)delta_t));
-			break;
+				// Produce maximum power scaled by boost.
+				power = (uint32)(((sint64)scaled_electric_amount * (sint64)boost) >> DEFAULT_PRODUCTION_FACTOR_BITS);
+				break;
+			}
+			case CL_ELEC_CLASSIC: {
+				// Classic no input power producer.
+				currently_producing = false;
+				work = prod;
 
-		// None always produces maximum for whatever reason. Also default.
-		case CL_NONE :
-		default :
-			work = prod;
-			break;
+				// power station? => produce power
+				if(  besch->is_electricity_producer()  ) {
+					currently_producing = true;
+					power = (uint32)( ((sint64)scaled_electric_amount * (sint64)(DEFAULT_PRODUCTION_FACTOR + prodfactor_pax + prodfactor_mail)) >> DEFAULT_PRODUCTION_FACTOR_BITS );
+				}
+				break;
+			}
+			case CL_ELEC_CONS: {
+				// A slightly more advanced power consumer. The scaled electric amount determines maximum output with each input providing an equal fraction.
+
+				// Always want to consume prod.
+				want = prod;
+
+				// Do nothing if we cannot consume anything.
+				if(  inactive_inputs == eingang.get_count()  ) {
+					break;
+				}
+
+				currently_producing = true;
+
+				for(  uint32 index = 0;  index < eingang.get_count();  index++  ) {
+					// Only process active inputs;
+					if(  eingang[index].menge <= 0  ) {
+						break;
+					}
+
+					// Determine amount to consume.
+					if(  eingang[index].menge > prod  ) {
+						prod_delta = prod;
+					}
+					else {
+						prod_delta = eingang[index].menge;
+					}
+
+					// Add to work done.
+					work += prod_delta;
+
+					// Consume input.
+					delta_menge += prod_delta;
+					eingang[index].menge -= prod_delta;
+					eingang[index].book_stat((sint64)prod_delta * (sint64)besch->get_lieferant(index)->get_verbrauch(), FAB_GOODS_CONSUMED);
+
+					if(  eingang[index].menge == 0  ) {
+						inactive_inputs++;
+						if(  inactive_inputs == eingang.get_count()  ) {
+							currently_producing = false;
+						}
+					}
+				}
+
+				// Scale by number of units.
+				wunits = eingang.get_count();
+
+				// Produce power scaled by boost.
+				power = (uint32)(((sint64)scaled_electric_amount * (sint64)boost * (sint64)work / ((sint64)prod * (sint64)wunits)) >> DEFAULT_PRODUCTION_FACTOR_BITS);
+				break;
+			}
+			case CL_NONE:
+			default: {
+				// None always produces maximum for whatever reason. Also default.
+				work = prod;
+				break;
+			}
 		}
 	}
 
 	/// Ordering logic.
-	switch( demand_type ){
-		case DL_SYNC :
-			// No ordering if any are overfull or there is no want.
-			if( want == 0 || inactive_demands > 0 ) {
+	switch(  demand_type  ) {
+		case DL_SYNC: {
+			// Synchronous ordering. All buffers are filled the same amount in parallel.
+
+			if(  want == 0  ||  inactive_demands > 0  ) {
+				// No ordering if any are overfull or there is no want.
 				break;
 			}
 
-			for(  uint32 index = 0;  index < eingang.get_count();  index++  ){
-				eingang[index].demand_buffer+= want;
+			for(  uint32 index = 0;  index < eingang.get_count();  index++  ) {
+				eingang[index].demand_buffer += want;
 
-				if( eingang[index].demand_buffer >= eingang[index].max ) {
+				if(  eingang[index].demand_buffer >= eingang[index].max  ) {
 					inactive_demands++;
 				}
 			}
 			break;
+		}
+		case DL_ASYNC: {
+			// Asynchronous ordering. Each buffer tries to order with full ones discarding orders.
 
-		// Asynchronous ordering. Each buffer tries to order with full ones discarding orders.
-		case DL_ASYNC :
-			// No ordering if all are overfull or no want.
-			if( want == 0 || inactive_demands == eingang.get_count() ) {
+			if(  want == 0  ||  inactive_demands == eingang.get_count()  ) {
+				// No ordering if all are overfull or no want.
 				break;
 			}
 
-			for(  uint32 index = 0;  index < eingang.get_count();  index++  ){
-
+			for(  uint32 index = 0;  index < eingang.get_count();  index++  ) {
 				// Skip inactive demand buffers.
-				if( eingang[index].demand_buffer >= eingang[index].max ) {
+				if(  eingang[index].demand_buffer >= eingang[index].max  ) {
 					continue;
 				}
 
 				eingang[index].demand_buffer += want;
 
-				if( eingang[index].demand_buffer >= eingang[index].max ) {
-					inactive_demands ++;
+				if(  eingang[index].demand_buffer >= eingang[index].max  ) {
+					inactive_demands++;
 				}
 			}
 			break;
-
-		// Nothing to order.
-		default :
+		}
+		default: {
+			// Nothing to order.
 			break;
+		}
 	}
 
 	/// Book the weighted sums for statistics.
 
-	book_weighted_sums(delta_t);
+	book_weighted_sums( delta_t );
 
 	/// Power ordering logic.
 
-	switch( boost_type ){
-
-		// For compatibility purposes. Draw a fixed amount of power when "producing".
-		case BL_CLASSIC :
+	switch(  boost_type  ) {
+		case BL_CLASSIC: {
+			// For compatibility purposes. Draw a fixed amount of power when "producing".
 			if(  !besch->is_electricity_producer()  ) {
 				power = 0;
 				if(  currently_producing  ) {
@@ -2148,16 +2142,17 @@ void fabrik_t::step(uint32 delta_t)
 				}
 			}
 			break;
-
-		// Power ordering logic is based on work done. It is also scaled by bonuses so that power per unit work remains constant.
-		case BL_POWER :
+		}
+		case BL_POWER: {
+			// Order power for work done scaled by boost amount.
 			power = 0;
-			power_demand = (uint32)((((sint64)scaled_electric_amount * (sint64)work) << PRODUCTION_DELTA_T_BITS) / ((sint64)(prodbase << (precision_bits - DEFAULT_PRODUCTION_FACTOR_BITS)) * (sint64)delta_t));
+			power_demand = (uint32)(((sint64)scaled_electric_amount * (sint64)boost * (sint64)work / ((sint64)prod * (sint64)wunits)) >> DEFAULT_PRODUCTION_FACTOR_BITS);
 			break;
-
-		// No power is ordered.
-		default :
+		}
+		default: {
+			// No power is ordered.
 			break;
+		}
 	};
 
 	/// Periodic tasks.
@@ -2169,30 +2164,30 @@ void fabrik_t::step(uint32 delta_t)
 		// distribute, if  min shipment waiting.
 		for(  uint32 produkt = 0;  produkt < ausgang.get_count();  produkt++  ) {
 			// either more than ten or nearly full (if there are less than ten output)
-			if( ausgang[produkt].menge >= ausgang[produkt].min_shipment ) {
-				verteile_waren(produkt);
+			if(  ausgang[produkt].menge >= ausgang[produkt].min_shipment  ) {
+				verteile_waren( produkt );
 				INT_CHECK("simfab 636");
 			}
 		}
 
 		// Order required inputs.
-		for(  uint32 index = 0;  index < eingang.get_count();  index++  ){
-			switch( demand_type ){
-
-				// Orders based on demand buffer.
-				case DL_SYNC :
-				case DL_ASYNC :
+		for(  uint32 index = 0;  index < eingang.get_count();  index++  ) {
+			switch(  demand_type  ) {
+				case DL_SYNC:
+				case DL_ASYNC: {
+					// Orders based on demand buffer.
 					eingang[index].placing_orders = (eingang[index].demand_buffer > 0);
 					break;
-
-				// Orders based on storage and maximum transit.
-				case DL_OLD :
-					eingang[index].placing_orders = (eingang[index].menge < eingang[index].max  &&  (eingang[index].max_transit == 0  ||  eingang[index].get_in_transit() < eingang[index].max_transit)  );
+				}
+				case DL_OLD: {
+					// Orders based on storage and maximum transit.
+					eingang[index].placing_orders = (eingang[index].menge < eingang[index].max  &&  (eingang[index].max_transit == 0  ||  eingang[index].get_in_transit() < eingang[index].max_transit) );
 					break;
-
-				// Unknown order logic?
-				default :
+				}
+				default: {
+					// Unknown order logic?
 					break;
+				}
 			}
 		}
 
@@ -2202,8 +2197,7 @@ void fabrik_t::step(uint32 delta_t)
 		// (if consumer only: all supplements should be consumed once)
 		const uint32 min_change = ausgang.empty() ? eingang.get_count() : ausgang.get_count();
 
-		if(  (delta_menge>>fabrik_t::precision_bits)>min_change  ) {
-
+		if(  (delta_menge >> fabrik_t::precision_bits) > min_change  ) {
 			// we produced some real quantity => smoke
 			smoke();
 
@@ -2229,11 +2223,9 @@ void fabrik_t::step(uint32 delta_t)
 			// reset for next cycle
 			delta_menge = 0;
 		}
-
 	}
 
 	/// Knightly : advance arrival slot at calculated interval and recalculate boost where necessary
-
 	delta_slot += delta_t;
 	const sint32 periods = welt->get_settings().get_factory_arrival_periods();
 	const sint32 slot_interval = (1 << (PERIOD_BITS - SLOT_BITS)) * periods;
@@ -2249,6 +2241,7 @@ void fabrik_t::step(uint32 delta_t)
 		}
 	}
 }
+
 
 class distribute_ware_t
 {
@@ -2416,6 +2409,33 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 				else {
 					// overcrowded with other stuff (not from us)
 					return;
+				}
+
+				// refund JIT2 demand buffers for rerouted goods
+				if(  welt->get_settings().get_just_in_time() >= 2  ) {
+					// locate destination factory
+					fabrik_t *fab = get_fab( most_waiting.get_zielpos() );
+
+					if(  fab  ) {
+						for(  uint32 input = 0;  input < fab->eingang.get_count();  input++  ) {
+							ware_production_t& w = fab->eingang[input];
+							if (  w.get_typ()->get_index() == most_waiting.get_index()  ) {
+								// correct ware to refund found
+
+								// refund demand buffers, deactivating if required
+								const uint32 prod_factor = fab->besch->get_lieferant(input)->get_verbrauch();
+								const sint32 prod_delta = (sint32)((((sint64)(most_waiting.menge) << (DEFAULT_PRODUCTION_FACTOR_BITS + precision_bits)) + (sint64)(prod_factor - 1)) / (sint64)prod_factor);
+								const sint32 demand = w.demand_buffer;
+								w.demand_buffer += prod_delta;
+								if(  demand < w.max  &&  w.demand_buffer >= w.max  ) {
+									fab->inactive_demands++;
+								}
+							}
+
+							// refund successful
+							break;
+						}
+					}
 				}
 			}
 			else {
