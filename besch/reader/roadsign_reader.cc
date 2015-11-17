@@ -94,6 +94,7 @@ obj_besch_t * roadsign_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				besch->base_way_only_cost = decode_uint32(p);
 				besch->upgrade_group = decode_uint8(p); 
 				besch->intermediate_block = decode_uint8(p);
+				besch->normal_danger = decode_uint8(p);
 			}
 			else
 			{
@@ -109,6 +110,7 @@ obj_besch_t * roadsign_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				besch->base_way_only_cost = besch->base_cost;
 				besch->upgrade_group = 0;
 				besch->intermediate_block = false;
+				besch->normal_danger = false;
 			}
 		}
 	}
@@ -178,6 +180,7 @@ obj_besch_t * roadsign_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->base_way_only_cost = besch->base_cost;
 		besch->upgrade_group = 0;
 		besch->intermediate_block = false;
+		besch->normal_danger = false;
 	}
 
 	if(besch->is_longblock_signal())

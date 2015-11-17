@@ -5241,7 +5241,12 @@ void rail_vehicle_t::leave_tile()
 							}
 							return;
 						}
-						else if(w && (w->get_working_method() == token_block || (w->get_working_method() == one_train_staff && sig->get_besch()->get_working_method() == one_train_staff)) && !sig->get_besch()->is_pre_signal() && cnv->get_state() != convoi_t::REVERSING)
+						else if(w &&
+							(w->get_working_method() == token_block
+							|| (w->get_working_method() == one_train_staff
+							&& sig->get_besch()->get_working_method() == one_train_staff))
+							&& !sig->get_besch()->is_pre_signal()
+							&& cnv->get_state() != convoi_t::REVERSING)
 						{
 							// On passing a signal, clear all the so far uncleared reservation when in token block mode.
 							// If the signal is not a long-block signal, clear token block mode. This assumes that long
@@ -5255,7 +5260,7 @@ void rail_vehicle_t::leave_tile()
 							|| w->get_working_method() == cab_signalling)))
 							&& !sig->get_besch()->is_pre_signal())
 						{
-							// Must reset all "automatic" signals behind this convoy to less restrictive states. 
+							// Must reset all "automatic" signals behind this convoy to less restrictive states unless they are of the normal danger type.
 							koord3d last_pos = get_pos(); 
 							uint32 signals_count = 0;
 							for(int i = route_index - 1; i >= 0; i--)
@@ -5277,7 +5282,7 @@ void rail_vehicle_t::leave_tile()
 									{
 										continue;
 									}
-									if(!signal_route->get_no_junctions_to_next_signal() || signal_route->get_besch()->is_choose_sign())
+									if(!signal_route->get_no_junctions_to_next_signal() || signal_route->get_besch()->is_choose_sign() || signal_route->get_besch()->get_normal_danger())
 									{
 										break;
 									}
