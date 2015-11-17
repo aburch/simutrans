@@ -4238,7 +4238,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 	uint16 last_stop_signal_index = INVALID_INDEX;
 	uint16 last_combined_signal_index = INVALID_INDEX;
 	uint16 last_choose_signal_index = INVALID_INDEX;
-	uint16 last_longblock_signal_index = INVALID_INDEX; 
+	uint16 last_token_block_signal_index = INVALID_INDEX; 
 	uint16 last_bidirectional_signal_index = INVALID_INDEX; 
 	uint16 last_stop_signal_before_first_bidirectional_signal_index = INVALID_INDEX;
 	uint16 last_non_directional_index = start_index; 
@@ -4568,11 +4568,11 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 						}
 						if(signal->get_besch()->is_longblock_signal() || signal->get_besch()->get_working_method() == token_block)
 						{
-							last_longblock_signal_index = i; 
+							last_token_block_signal_index = i; 
 							const bool platform_starter = (this_halt.is_bound() && (haltestelle_t::get_halt(signal->get_pos(), get_owner())) == this_halt)
 								&& (haltestelle_t::get_halt(get_pos(), get_owner()) == this_halt) && (cnv->get_akt_speed() == 0);
 							// Do not reserve through a token block signal: the train must stop to take the token.
-							if(last_longblock_signal_index > first_stop_signal_index || (!starting_at_signal && !platform_starter))
+							if(last_token_block_signal_index > first_stop_signal_index || (!starting_at_signal && !platform_starter))
 							{
 								count--;
 								end_of_block = true;
@@ -4845,7 +4845,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 	// infinite recursion.
 	const bool bidirectional_reservation = (working_method == track_circuit_block || working_method == cab_signalling || working_method == moving_block) 
 		&& last_bidirectional_signal_index < INVALID_INDEX;
-	if(!is_from_token && !is_from_directional && ((working_method == token_block && last_longblock_signal_index < INVALID_INDEX) || bidirectional_reservation || working_method == one_train_staff) && next_signal_index == INVALID_INDEX)
+	if(!is_from_token && !is_from_directional && ((working_method == token_block && last_token_block_signal_index < INVALID_INDEX) || bidirectional_reservation || working_method == one_train_staff) && next_signal_index == INVALID_INDEX)
 	{
 		route_t target_rt;
 		schedule_t *fpl = cnv->get_schedule();
@@ -4853,7 +4853,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 		bool rev = cnv->get_reverse_schedule();
 		bool no_reverse = !fpl->eintrag[fahrplan_index].reverse;
 		fpl->increment_index(&fahrplan_index, &rev);
-		koord3d cur_pos = cnv->get_route()->back();
+		koord3d cur_pos = route->back();
 		uint16 next_next_signal;
 		bool route_success;
 		sint32 token_block_blocks = 0;
@@ -4944,7 +4944,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 			relevant_index ++;
 		}
 
-		if(next_signal_index < INVALID_INDEX && (next_signal_index == start_index || platform_starter))
+		if(next_signal_index < INVALID_INDEX && (next_signal_index == start_index || platform_starter) && !is_from_token)
 		{
 			// Cannot go anywhere either because this train is already on the tile of the last signal to which it can go, or is in the same station as it.
 			success = false;
