@@ -343,13 +343,23 @@ void savegame_frame_t::add_file(const char *fullpath, const char *filename, cons
 	add_file(fullpath, filename, get_info(fullpath), not_cutting_suffix);
 }
 
-void savegame_frame_t::add_file(const char *fullpath, const char *filename, const char *pak, const bool no_cutting_suffix )
+/**
+ * ADD FILE
+ * Create and add a list item from the given parameters. The button is set
+ * to the filename, the label to the string returned by get_info().
+ *
+ * @param fullpath           The full path to associate with this item.
+ * @param filename           The file name to assign the action button (i.button).
+ * @param info               Information to set in the label.
+ * @param no_cutting_suffix  Keep the suffix (true) in the file name.
+ */
+void savegame_frame_t::add_file(const char *fullpath, const char *filename, const char *info, const bool no_cutting_suffix)
 {
 	button_t *button = new button_t();
 	char *name = new char[strlen(filename)+10];
-	char *date = new char[strlen(pak)+1];
+	char *text = new char[strlen(info)+1];
 
-	strcpy(date, pak);
+	strcpy(text, info);
 	strcpy(name, filename);
 
 	if(!no_cutting_suffix) {
@@ -360,7 +370,7 @@ void savegame_frame_t::add_file(const char *fullpath, const char *filename, cons
 	button->set_text(name); // to avoid translation
 
 	std::string const compare_to = !env_t::objfilename.empty() ? env_t::objfilename.substr(0, env_t::objfilename.size() - 1) + " -" : std::string();
-	// sort by date descending:
+	// sort descending with respect to compare_items
 	slist_tpl<dir_entry_t>::iterator i = entries.begin();
 	slist_tpl<dir_entry_t>::iterator end = entries.end();
 
@@ -377,7 +387,7 @@ void savegame_frame_t::add_file(const char *fullpath, const char *filename, cons
 
 	// END of optimizing
 
-	if(!strstart(pak, compare_to.c_str())) {
+	if(!strstart(info, compare_to.c_str())) {
 		// skip current ones
 		while(i != end) {
 			// extract pakname in same format than in savegames ...
@@ -386,9 +396,9 @@ void savegame_frame_t::add_file(const char *fullpath, const char *filename, cons
 			}
 			++i;
 		}
-		// now just sort according time
+		// now sort with respect to label on button or info text (ie date)
 		while(i != end) {
-			if(strcmp(i->label->get_text_pointer(), date) < 0) {
+			if( compare_items(*i, text, name ) ) {
 				break;
 			}
 			++i;
@@ -402,7 +412,7 @@ void savegame_frame_t::add_file(const char *fullpath, const char *filename, cons
 				continue;
 			}
 
-			if(strcmp(i->label->get_text_pointer(), date) < 0) {
+			if(compare_items( *i, text, name ) ) {
 				break;
 			}
 			// not our savegame any more => insert
@@ -414,7 +424,9 @@ void savegame_frame_t::add_file(const char *fullpath, const char *filename, cons
 	}
 
 	gui_label_t* l = new gui_label_t(NULL);
-	l->set_text_pointer(date);
+	l->set_text_pointer(text);
+	//button_t *del = new button_t();
+	//del->set_typ( button_t::roundbox );
 	entries.insert(i, dir_entry_t(button, new del_button_t(), l, LI_ENTRY, fullpath));
 }
 
@@ -872,4 +884,11 @@ std::string savegame_frame_t::get_filename(const char *fullpath,const bool with_
 		}
 	}
 	return path;
+}
+
+
+
+bool savegame_frame_t::compare_items ( const dir_entry_t & entry, const char *, const char *name )
+{
+	return (strcmp(name, entry.button->get_text()) < 0);
 }

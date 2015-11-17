@@ -396,3 +396,8 @@ loadsave_frame_t::~loadsave_frame_t()
 		file.close();
 	}
 }
+
+bool loadsave_frame_t::compare_items ( const dir_entry_t & entry, const char *info, const char *)
+{
+	return (strcmp(entry.label->get_text_pointer(), info) < 0);
+}
