@@ -4595,7 +4595,8 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 								&& i - start_index <= sighting_distance_tiles
 								&& (last_signalbox_pos == koord3d::invalid
 								 || last_signalbox_pos != signal->get_signalbox()) 
-								 || (signal->get_besch()->get_intermediate_block() ^ last_signal->get_besch()->get_intermediate_block()) // Cannot be two intermediate blocks in a row.
+								 || ((!last_signal || !signal->get_besch()->get_intermediate_block())
+								 || signal->get_besch()->get_intermediate_block() ^ last_signal->get_besch()->get_intermediate_block()) // Cannot be two intermediate blocks in a row.
 								&& (pre_signals.empty() || first_stop_signal_index == INVALID_INDEX))
 							{
 								pre_signals.append(signal); 
