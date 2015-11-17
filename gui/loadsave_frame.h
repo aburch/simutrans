@@ -44,6 +44,9 @@ protected:
 	// returns extra file info
 	virtual const char *get_info(const char *fname);
 
+	// sort with respect to info, which is date
+	virtual bool compare_items ( const dir_entry_t & entry, const char *info, const char *);
+
 public:
 	/**
 	* Set the window associated helptext

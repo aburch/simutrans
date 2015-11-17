@@ -118,6 +118,9 @@ protected:
 	std::string get_basename ( const char *fullpath );
 	void        list_filled  ( void );
 
+	// compare item to another with info and filename
+	virtual bool compare_items ( const dir_entry_t & entry, const char *info, const char *filename );
+
 	 // Virtual callback function that will be executed when the user clicks ok,
 	virtual bool cancel_action ( const char * /*fullpath*/ ) { return true; } // Callback for cancel button click
 	virtual bool del_action    ( const char *   fullpath   );                 // Callback for delete button click
