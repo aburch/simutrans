@@ -846,7 +846,11 @@ const roadsign_besch_t* roadsign_t::find_best_upgrade()
 	FOR(stringhashtable_tpl<roadsign_besch_t const*>, const& i, table)
 	{
 		roadsign_besch_t const* const new_roadsign_type = i.value;
-		if(new_roadsign_type->is_available(time) && new_roadsign_type->get_upgrade_group() == besch->get_upgrade_group() && new_roadsign_type->get_wtyp() == besch->get_wtyp() && besch->get_flags() == besch->get_flags())
+		if(new_roadsign_type->is_available(time)
+			&& new_roadsign_type->get_upgrade_group() == besch->get_upgrade_group()
+			&& new_roadsign_type->get_wtyp() == besch->get_wtyp()
+			&& new_roadsign_type->get_flags() == besch->get_flags() 
+			&& new_roadsign_type->get_working_method() == besch->get_working_method())
 		{
 			if(best_candidate)
 			{
