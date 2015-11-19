@@ -593,7 +593,7 @@ DBG_MESSAGE("fahrplan_gui_t::action_triggered()","komp=%p combo=%p",komp,&line_s
 		fpl->add_return_way();
 	}
 	else if(komp == &line_selector) {
-		uint32 selection = p.i - !new_line.is_bound();
+		uint32 selection = p.i;
 //DBG_MESSAGE("fahrplan_gui_t::action_triggered()","line selection=%i",selection);
 		if(  line_scrollitem_t *li = dynamic_cast<line_scrollitem_t*>(line_selector.get_element(selection))  ) {
 			new_line = li->get_line();
@@ -652,8 +652,10 @@ void fahrplan_gui_t::init_line_selector()
 			new_line = linehandle_t();
 		}
 	}
+	int offset = 0;
 	if(  !new_line.is_bound()  ) {
 		selection = 0;
+		offset = 1;
 		line_selector.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("<no line>"), SYSCOL_TEXT ) );
 	}
 
@@ -672,7 +674,7 @@ void fahrplan_gui_t::init_line_selector()
 
 	line_selector.set_selection( selection );
 	line_scrollitem_t::sort_mode = line_scrollitem_t::SORT_BY_NAME;
-	line_selector.sort( 1, NULL );
+	line_selector.sort( offset, NULL );
 	old_line_count = player->simlinemgmt.get_line_count();
 	last_schedule_count = fpl->get_count();
 }
