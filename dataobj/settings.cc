@@ -502,8 +502,12 @@ settings_t::settings_t() :
 	way_wear_power_factor_rail_type = 1;
 	standard_axle_load = 8;
 	citycar_way_wear_factor = 2;
+
 	sighting_distance_meters = 250;
 	assumed_curve_radius_45_degrees = 1000;
+
+	max_speed_drive_by_sight_kmh = 0;
+	max_speed_drive_by_sight = 0;
 }
 
 void settings_t::set_default_climates()
@@ -1587,11 +1591,16 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_long(way_wear_power_factor_rail_type);
 			file->rdwr_short(standard_axle_load); 
 			file->rdwr_long(citycar_way_wear_factor);
-			if(file->get_experimental_revision() > 1)
+			if(file->get_experimental_revision() >= 2)
 			{
 				file->rdwr_long(sighting_distance_meters);
 				sighting_distance_tiles = sighting_distance_meters / meters_per_tile;
 				file->rdwr_long(assumed_curve_radius_45_degrees);
+			}
+			if(file->get_experimental_revision() >= 3)
+			{
+				file->rdwr_long(max_speed_drive_by_sight_kmh); 
+				max_speed_drive_by_sight = (max_speed_drive_by_sight_kmh);
 			}
 #endif
 		}
@@ -2433,6 +2442,9 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	sighting_distance_tiles = sighting_distance_meters / meters_per_tile;
 
 	assumed_curve_radius_45_degrees = contents.get_int("assumed_curve_radius_45_degrees", assumed_curve_radius_45_degrees);
+
+	max_speed_drive_by_sight_kmh = contents.get_int("max_speed_drive_by_sight_kmh", max_speed_drive_by_sight_kmh);
+	max_speed_drive_by_sight = kmh_to_speed(max_speed_drive_by_sight_kmh);
 
 	// OK, this is a bit complex.  We are at risk of loading the same livery schemes repeatedly, which
 	// gives duplicate livery schemes and utter confusion.

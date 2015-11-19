@@ -661,7 +661,11 @@ public:
 	
 	uint32 sighting_distance_meters;
 	uint16 sighting_distance_tiles;
+
 	uint32 assumed_curve_radius_45_degrees;
+
+	sint32 max_speed_drive_by_sight_kmh;
+	sint32 max_speed_drive_by_sight;
 
 	/**
 	 * If map is read from a heightfield, this is the name of the heightfield.
@@ -1117,6 +1121,9 @@ public:
 	uint16 get_sighting_distance_tiles() const { return sighting_distance_tiles; }
 
 	uint32 get_assumed_curve_radius_45_degrees() const { return assumed_curve_radius_45_degrees; }
+
+	sint32 get_max_speed_drive_by_sight_kmh() const { return max_speed_drive_by_sight_kmh; }
+	sint32 get_max_speed_drive_by_sight() const { return max_speed_drive_by_sight; }
 };
 
 #endif 

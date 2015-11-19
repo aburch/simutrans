@@ -4260,6 +4260,14 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 	bool directional_reservation_succeeded = true;
 	bool one_train_staff_loop_complete = false;
 	uint16 brake_tiles = brake_steps / VEHICLE_STEPS_PER_TILE;
+	if(working_method == drive_by_sight)
+	{
+		const sint32 max_speed_drive_by_sight = welt->get_settings().get_max_speed_drive_by_sight();
+		if(max_speed_drive_by_sight)
+		{
+			cnv->set_maximum_signal_speed(max_speed_drive_by_sight);
+		}
+	}
 	for( ; success && count >= 0 && i < route->get_count(); i++)
 	{
 		this_stop_signal_index = INVALID_INDEX;

@@ -599,6 +599,12 @@ citycar_way_wear_factor = 2
 # distance affects train speed. 
 sighting_distance_meters = 250
 
+# This is the maximum speed at which rail (including narrow gauge, monorail and maglev)
+# vehicles may travel in the drive by sight working method. 0 = as fast as they can
+# stop in time with no other limit.
+
+max_speed_drive_by_sight_kmh = 35
+
 # Corners of greater than 45 degrees have their radius calculated. However, because of 
 # the rigid tile system in Simutrans, this produces unrealistic results when applied
 # to corners of 45 degrees. A value is thus specified here. This affects the speed
