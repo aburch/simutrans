@@ -111,9 +111,11 @@ bool citylist_stats_t::compare( gui_scrolled_list_t::scrollitem_t *aa, gui_scrol
 	bool reverse = citylist_stats_t::sort_mode > citylist_stats_t::SORT_MODES;
 	int sort_mode = citylist_stats_t::sort_mode & 0x1F;
 
-	// if there is a mixed list, then this will lead to crashes!
-	citylist_stats_t *a = (citylist_stats_t *)aa;
-	citylist_stats_t *b = (citylist_stats_t *)bb;
+	citylist_stats_t* a = dynamic_cast<citylist_stats_t*>(aa);
+	citylist_stats_t* b = dynamic_cast<citylist_stats_t*>(bb);
+	// good luck with mixed lists
+	assert(a != NULL  &&  b != NULL);
+
 	if(  reverse  ) {
 		citylist_stats_t *temp =a;
 		a = b;
