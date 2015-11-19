@@ -117,9 +117,9 @@ bool citylist_stats_t::compare( gui_scrolled_list_t::scrollitem_t *aa, gui_scrol
 	assert(a != NULL  &&  b != NULL);
 
 	if(  reverse  ) {
-		citylist_stats_t *temp =a;
+		citylist_stats_t *temp = a;
 		a = b;
-		b =temp;
+		b = temp;
 	}
 
 	if(  sort_mode != SORT_BY_NAME  ) {
@@ -127,9 +127,9 @@ bool citylist_stats_t::compare( gui_scrolled_list_t::scrollitem_t *aa, gui_scrol
 			case SORT_BY_NAME:	// default
 				break;
 			case SORT_BY_SIZE:
-				return (a->city->get_einwohner(),b->city->get_einwohner())<0;
+				return a->city->get_einwohner() < b->city->get_einwohner();
 			case SORT_BY_GROWTH:
-				return (a->city->get_wachstum(),b->city->get_wachstum())<0;
+				return a->city->get_wachstum() < b->city->get_wachstum();
 			default: break;
 		}
 		// default sorting ...
