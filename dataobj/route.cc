@@ -202,7 +202,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 				k->f = 0;
 				k->g = tmp->g + tdriver->get_cost(to, max_khm, gr->get_pos().get_2d());
 
-				uint8 current_dir;
+				uint8 current_dir = 0;
 				if(tmp->parent!=NULL) {
 					current_dir = ribi_t::nsow[r] | tmp->ribi_from;
 					if(tmp->dir!=current_dir) {
@@ -216,8 +216,8 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 							k->g += 25;
 						}
 					}
-
 				}
+				k->dir = current_dir;
 
 				// insert here
 				queue.insert(k);
