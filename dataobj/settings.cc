@@ -1600,7 +1600,7 @@ void settings_t::rdwr(loadsave_t *file)
 			if(file->get_experimental_revision() >= 3)
 			{
 				file->rdwr_long(max_speed_drive_by_sight_kmh); 
-				max_speed_drive_by_sight = (max_speed_drive_by_sight_kmh);
+				max_speed_drive_by_sight = kmh_to_speed(max_speed_drive_by_sight_kmh);
 			}
 #endif
 		}

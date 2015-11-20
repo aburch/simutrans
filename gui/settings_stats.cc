@@ -330,6 +330,7 @@ void settings_experimental_general_stats_t::read(settings_t *sets)
 	READ_NUM_VALUE( sets->max_diversion_tiles );
 	READ_NUM_VALUE( sets->way_degridation_fraction );
 	READ_NUM_VALUE( sets->sighting_distance_meters );
+	sets->sighting_distance_tiles = sets->sighting_distance_meters / sets->meters_per_tile;
 	READ_NUM_VALUE( sets->assumed_curve_radius_45_degrees );
 	READ_NUM_VALUE( sets->max_speed_drive_by_sight_kmh );
 	sets->max_speed_drive_by_sight = kmh_to_speed(sets->max_speed_drive_by_sight_kmh);
