@@ -159,6 +159,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 	tmp->count = 0;
 	tmp->f = 0;
 	tmp->g = 0;
+	tmp->dir = 0;
 
 	// nothing in lists
 	marker_t& marker = marker_t::instance(welt->get_size().x, welt->get_size().y);
@@ -210,10 +211,11 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 				k->count = tmp->count+1;
 				k->f = 0;
 				k->g = tmp->g + tdriver->get_cost(to, max_khm, gr->get_pos().get_2d());
+				k->ribi_from = ribi_t::nsow[r];
 
-				uint8 current_dir = 0;
+				uint8 current_dir = ribi_t::nsow[r];
 				if(tmp->parent!=NULL) {
-					current_dir = ribi_t::nsow[r] | tmp->ribi_from;
+					current_dir |= tmp->ribi_from;
 					if(tmp->dir!=current_dir) {
 						k->g += 3;
 						if(tmp->parent->dir!=tmp->dir  &&  tmp->parent->parent!=NULL) {
