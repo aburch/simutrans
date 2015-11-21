@@ -19,6 +19,11 @@
 #include "route.h"
 #include "environment.h"
 
+// define USE_VALGRIND_MEMCHECK to make
+// valgrind aware of the memory pool for A* nodes
+#ifdef USE_VALGRIND_MEMCHECK
+#include <valgrind/memcheck.h>
+#endif
 
 // if defined, print some profiling informations into the file
 //#define DEBUG_ROUTES
@@ -142,6 +147,10 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 	static binary_heap_tpl <ANode *> queue;
 
 	GET_NODE();
+#ifdef USE_VALGRIND_MEMCHECK
+	VALGRIND_MAKE_MEM_UNDEFINED(nodes, sizeof(ANode)*MAX_STEP);
+#endif
+
 
 	uint32 step = 0;
 	ANode* tmp = &nodes[step++];
@@ -320,6 +329,9 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 	static binary_heap_tpl <ANode *> queue;
 
 	GET_NODE();
+#ifdef USE_VALGRIND_MEMCHECK
+	VALGRIND_MAKE_MEM_UNDEFINED(nodes, sizeof(ANode)*MAX_STEP);
+#endif
 
 	uint32 step = 0;
 	ANode* tmp = &nodes[step];
