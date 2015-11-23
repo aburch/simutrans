@@ -27,6 +27,12 @@
 #include "../obj/roadsign.h"
 #include "environment.h"
 
+// define USE_VALGRIND_MEMCHECK to make
+// valgrind aware of the memory pool for A* nodes
+#ifdef USE_VALGRIND_MEMCHECK
+#include <valgrind/memcheck.h>
+#endif
+
 
 // if defined, print some profiling informations into the file
 //#define DEBUG_ROUTES
@@ -235,6 +241,10 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 	ANode *nodes;
 	uint8 ni = GET_NODES(&nodes);
 
+#ifdef USE_VALGRIND_MEMCHECK
+	VALGRIND_MAKE_MEM_UNDEFINED(nodes, sizeof(ANode)*MAX_STEP);
+#endif
+
 	uint32 step = 0;
 	ANode* tmp = &nodes[step++];
 	if (route_t::max_used_steps < step)
@@ -244,8 +254,9 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 	tmp->parent = NULL;
 	tmp->gr = g;
 	tmp->count = 0;
-	tmp->g = 0;
 	tmp->f = 0;
+	tmp->g = 0;
+	tmp->dir = 0;
 
 	// start in open
 	queue.insert(tmp);
@@ -431,10 +442,11 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 				k->count = tmp->count+1;
 				k->f = 0;
 				k->g = tmp->g + tdriver->get_cost(to, max_khm, gr->get_pos().get_2d());
+				k->ribi_from = ribi_t::nsow[r];
 
-				uint8 current_dir;
+				uint8 current_dir = ribi_t::nsow[r];
 				if(tmp->parent!=NULL) {
-					current_dir = ribi_t::nsow[r] | tmp->ribi_from;
+					current_dir |= tmp->ribi_from;
 					if(tmp->dir!=current_dir) {
 						k->g += 3; 
 						if(ribi_t::ist_exakt_orthogonal(tmp->dir,current_dir))
@@ -459,6 +471,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 						}
 					}
 				}
+				k->dir = current_dir;
 
 				// insert here
 				queue.insert(k);
@@ -591,6 +604,10 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d start, const koord3
 
 	ANode *nodes;
 	uint8 ni = GET_NODES(&nodes);
+
+#ifdef USE_VALGRIND_MEMCHECK
+	VALGRIND_MAKE_MEM_UNDEFINED(nodes, sizeof(ANode)*MAX_STEP);
+#endif
 
 	uint32 step = 0;
 	ANode* tmp = &nodes[step];
