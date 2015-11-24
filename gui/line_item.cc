@@ -41,8 +41,12 @@ line_scrollitem_t::sort_modes_t line_scrollitem_t::sort_mode = line_scrollitem_t
 
 bool line_scrollitem_t::compare( gui_scrolled_list_t::scrollitem_t *aa, gui_scrolled_list_t::scrollitem_t *bb )
 {
+	line_scrollitem_t *a = dynamic_cast<line_scrollitem_t*>(aa);
+	line_scrollitem_t *b = dynamic_cast<line_scrollitem_t*>(bb);
+	// good luck with mixed lists
+	assert(a != NULL  &&  b != NULL);
+	
 	if(  sort_mode != SORT_BY_NAME  ) {
-		// if there is a mixed list, then this will lead to crashes!
 		line_scrollitem_t *a = (line_scrollitem_t *)aa;
 		line_scrollitem_t *b = (line_scrollitem_t *)bb;
 		switch(  sort_mode  ) {
