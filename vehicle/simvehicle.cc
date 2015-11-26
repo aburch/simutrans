@@ -4359,7 +4359,19 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 				if(cr)
 				{
 					// Only reserve if the crossing is clear.
-					success = cr->request_crossing(this);
+					if(i < first_stop_signal_index)
+					{
+						success = cr->request_crossing(this);
+					}
+					else
+					{
+						not_entirely_free = !cr->request_crossing(this);
+						if(not_entirely_free)
+						{
+							count--;
+							next_signal_index = last_stop_signal_index;
+						}
+					}
 				}
 			}
 			
