@@ -68,7 +68,7 @@ template<class D> struct access_objs {
 		sint16 y = pos.y;
 		sint8  z = obj->get_pos().z;
 		assert(bind_code<D>::objtype == obj->get_typ()  ||  bind_code<D>::objtype == obj_t::obj);
-		if (!SQ_SUCCEEDED(push_instance(vm, script_api::param<D*>::squirrel_type(), x, y, z, obj->get_typ()))) {
+		if (!SQ_SUCCEEDED(push_instance(vm, script_api::param<D*>::squirrel_type(), x, y, z))) {
 			return SQ_ERROR;
 		}
 		sq_setinstanceup(vm, -1, obj);
