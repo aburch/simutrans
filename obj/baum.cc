@@ -515,7 +515,13 @@ bool baum_t::check_season(const bool)
 		return false;
 	}
 
+	// update seasonal image
+	const uint8 old_season = season;
 	calc_image();
+	if(  season != old_season  ) {
+		mark_image_dirty( get_image(), 0 );
+	}
+
 	return true;
 }
 
