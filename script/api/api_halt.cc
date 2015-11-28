@@ -14,6 +14,18 @@
 #include "../api_function.h"
 #include "../../simhalt.h"
 
+namespace script_api {
+
+	declare_specialized_param(haltestelle_t::tile_t, "t|x|y", "tile_x");
+
+
+	SQInteger param<haltestelle_t::tile_t>::push(HSQUIRRELVM vm, haltestelle_t::tile_t const& v)
+	{
+		return param<grund_t*>::push(vm, v.grund);
+	}
+
+};
+
 using namespace script_api;
 
 vector_tpl<sint64> const& get_halt_stat(const haltestelle_t *halt, sint32 INDEX)
@@ -120,7 +132,7 @@ void export_halt(HSQUIRRELVM vm)
 	end_class(vm);
 
 	/**
-	 * Class to access halts.
+	 * Class to access halts / stations / bus stops.
 	 */
 	begin_class(vm, "halt_x", "extend_get");
 
@@ -217,6 +229,14 @@ void export_halt(HSQUIRRELVM vm)
 	 * @typemask line_list_x()
 	 */
 	register_function(vm, &halt_export_line_list, "get_line_list", 1, param<halthandle_t>::typemask());
+	/**
+	 * Get list of tiles belonging to this station.
+	 */
+	register_method(vm, &haltestelle_t::get_tiles, "get_tile_list");
+	/**
+	 * Get list of factories connected to this station.
+	 */
+	register_method(vm, &haltestelle_t::get_fab_list, "get_factory_list");
 
 	end_class(vm);
 }

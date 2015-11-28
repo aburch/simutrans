@@ -82,6 +82,20 @@ halthandle_t get_first_halt_on_square(planquadrat_t* plan)
 	return plan->get_halt(NULL);
 }
 
+vector_tpl<halthandle_t> const& square_get_halt_list(planquadrat_t *plan)
+{
+	static vector_tpl<halthandle_t> list;
+	list.clear();
+	if (plan) {
+		const halthandle_t* haltlist = plan->get_haltlist();
+		for(uint8 i=0, end = plan->get_haltlist_count(); i < end; i++) {
+			list.append(haltlist[i]);
+		}
+	}
+	return list;
+}
+
+
 void export_tiles(HSQUIRRELVM vm)
 {
 	/**
@@ -281,5 +295,12 @@ void export_tiles(HSQUIRRELVM vm)
 	 * @returns tile_x instance
 	 */
 	register_method(vm, &planquadrat_t::get_kartenboden, "get_ground_tile");
+
+	/**
+	 * Returns list of stations that cover this tile.
+	 * @typemask array<halt_x>
+	 */
+	register_method(vm, &square_get_halt_list, "get_halt_list", true);
+
 	end_class(vm);
 }
