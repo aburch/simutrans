@@ -240,7 +240,7 @@ namespace script_api {
 	};
 
 	/**
-	 * partial specialization for vector_tpl types
+	 * partial specialization for container types
 	 */
 	template< template<class> class vector, class T> struct param< vector<T> > {
 		/**
@@ -250,8 +250,9 @@ namespace script_api {
 		static SQInteger push(HSQUIRRELVM vm, vector<T> const& v)
 		{
 			sq_newarray(vm, 0);
-			for(uint32 i=0; i<v.get_count(); i++) {
-				param<T>::push(vm, v[i]);
+
+			FORT(const vector<T>, const&i, v) {
+				param<T>::push(vm, i);
 				sq_arrayappend(vm, -2);
 			}
 			return 1;

@@ -4,6 +4,8 @@
  *
  * @section api-trunk Current trunk
  *
+ * - Added factory_x::get_halt_list, halt_x::get_tile_list, halt_x::get_factory_list, square_x::get_halt_list
+ *
  * @section api-120-1 Release 120.1
  *
  * - Added depot_x, depot_x::get_convoy_list
@@ -69,7 +71,6 @@
  * - Added player_x::is_active, world::remove_player
  * - Added schedule_x, schedule_entry_x, ::is_schedule_allowed
  * - Added halt_x::is_connected
- *
  *
  * @section api-112-1 Releases 112.0 and 112.1
  *

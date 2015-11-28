@@ -86,6 +86,14 @@ vector_tpl<koord> const& factory_get_tile_list(fabrik_t *fab)
 	return list;
 }
 
+vector_tpl<halthandle_t> const& square_get_halt_list(planquadrat_t *plan); // api_tiles.cc
+
+vector_tpl<halthandle_t> const& factory_get_halt_list(fabrik_t *fab)
+{
+	planquadrat_t *plan = welt->access(fab->get_pos().get_2d());
+	return square_get_halt_list(plan);
+}
+
 
 SQInteger ware_production_get_production(HSQUIRRELVM vm)
 {
@@ -279,6 +287,12 @@ void export_factory(HSQUIRRELVM vm)
 	 * @returns array of tile_x objects
 	 */
 	register_method(vm, &factory_get_tile_list, "get_tile_list", true);
+
+	/**
+	 * Get list of all halts that serve this this factory.
+	 * @returns array of tile_x objects
+	 */
+	register_method(vm, &factory_get_halt_list, "get_halt_list", true);
 
 	// pop class
 	end_class(vm);
