@@ -1548,7 +1548,9 @@ sint32 fabrik_t::liefere_an(const ware_besch_t *typ, sint32 menge)
 				const sint32 prod_delta = (sint32)((((sint64)menge << (DEFAULT_PRODUCTION_FACTOR_BITS + precision_bits)) + (sint64)(prod_factor - 1)) / (sint64)prod_factor);
 
 				// Activate inactive inputs.
-				if( ware.menge <= 0 ) inactive_inputs-= 1;
+				if( ware.menge <= 0 ) {
+					inactive_inputs --;
+				}
 				ware.menge+= prod_delta;
 
 				if( welt->get_settings().get_just_in_time() >= 2 ){
@@ -1896,13 +1898,14 @@ void fabrik_t::step(uint32 delta_t)
 					wunits = ausgang.get_count();
 
 					// Consume inputs.
+					inactive_inputs = 0;
 					for(  uint32 index = 0;  index < eingang.get_count();  index++  ) {
 						eingang[index].menge -= work;
 						eingang[index].book_stat((sint64)work * (sint64)besch->get_lieferant(index)->get_verbrauch(), FAB_GOODS_CONSUMED);
 
-						if(  eingang[index].menge == 0  ) {
-							inactive_inputs++;
+						if(  eingang[index].menge <= 0  ) {
 							currently_producing = false;
+							inactive_inputs ++;
 						}
 					}
 				}
