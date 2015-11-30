@@ -5053,7 +5053,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 					}
 					if(signal->get_besch()->get_working_method() == track_circuit_block)
 					{
-						if(count >= 0 || next_signal_index == INVALID_INDEX || signal->get_pos() != route->position_bei(next_signal_index))
+						if(count >= 0 || next_signal_index > route->get_count() - 1 || signal->get_pos() != route->position_bei(next_signal_index))
 						{
 							// Do not clear the last signal in the route, as nothing is reserved beyond it, unless there are no more signals beyond at all (count == 0)
 							sint32 add_value = 0;
@@ -5066,7 +5066,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 							{
 							case 2:
 							default:
-								if(next_signal_index == INVALID_INDEX || signal->get_pos() != route->position_bei(next_signal_index))
+								if(next_signal_index > route->get_count() - 1 || signal->get_pos() != route->position_bei(next_signal_index))
 								{
 									signal->set_state(use_no_choose_aspect ? roadsign_t::clear_no_choose : roadsign_t::clear);
 								}
@@ -5076,7 +5076,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 								{
 									signal->set_state(use_no_choose_aspect && signal->get_state() != roadsign_t::clear || signal->get_state() == roadsign_t::caution ? roadsign_t::clear_no_choose : roadsign_t::clear);
 								}
-								else if(next_signal_index == INVALID_INDEX || signal->get_pos() != route->position_bei(next_signal_index))
+								else if(next_signal_index > route->get_count() - 1 || signal->get_pos() != route->position_bei(next_signal_index))
 								{
 									if(signal->get_state() == roadsign_t::danger)
 									{
@@ -5096,7 +5096,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 										signal->set_state(use_no_choose_aspect && signal->get_state() != roadsign_t::caution && signal->get_state() != roadsign_t::preliminary_caution ? roadsign_t::preliminary_caution_no_choose : roadsign_t::preliminary_caution);
 									}	
 								}
-								else if(next_signal_index == INVALID_INDEX || signal->get_pos() != route->position_bei(next_signal_index))
+								else if(next_signal_index > route->get_count() - 1 || signal->get_pos() != route->position_bei(next_signal_index))
 								{
 									if(signal->get_state() == roadsign_t::danger)
 									{
@@ -5123,7 +5123,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 										signal->set_state(use_no_choose_aspect && signal->get_state() != roadsign_t::caution && signal->get_state() != roadsign_t::clear && signal->get_state() != roadsign_t::preliminary_caution && signal->get_state() != roadsign_t::advance_caution  || signal->get_state() == roadsign_t::caution ? roadsign_t::preliminary_caution_no_choose : roadsign_t::preliminary_caution);
 									}
 								}
-								else if(next_signal_index == INVALID_INDEX || signal->get_pos() != route->position_bei(next_signal_index))
+								else if(next_signal_index > route->get_count() - 1 || signal->get_pos() != route->position_bei(next_signal_index))
 								{
 									if(signal->get_state() == roadsign_t::danger)
 									{
