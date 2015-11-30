@@ -48,16 +48,14 @@ public:
 	sint16 spacing_shift;
 
 	/**
-	 * Whether a convoy
-	 * needs to reverse
-	 * after this entry.
+	 * Whether a convoy needs to reverse after this entry.
+	 * 0 = no; 1 = yes; -1 = undefined
 	 * @author: jamespetts
 	 */
-	bool reverse;
+	sint8 reverse;
 	
 	/**
-	 * Whether a convoy
-	 * must wait for a 
+	 * Whether a convoy* must wait for a 
 	 * time slot at this entry.
 	 * @author: jamespetts
 	 */

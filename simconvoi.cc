@@ -1311,8 +1311,10 @@ bool convoi_t::drive_to()
 		}
 
 		bool success = calc_route(start, ziel, speed_to_kmh(get_min_top_speed()));
+		
 		grund_t* gr = welt->lookup(ziel);
 		bool extend_route = gr;
+
 		switch (front()->get_waytype())
 		{
 			// convoys of these way types extend their routes in front()->can_enter_tile() and thus don't need it here.
@@ -1331,16 +1333,26 @@ bool convoi_t::drive_to()
 			// to avoid ignoring signals.
 			int counter = fpl->get_count();
 
-			linieneintrag_t const * schedule_entry = &fpl->get_current_eintrag();
+			linieneintrag_t* schedule_entry = &fpl->eintrag[fpl->get_aktuell()];
 			while(success && counter--)
 			{
+				if(schedule_entry->reverse == -1)
+				{
+					schedule_entry->reverse = check_destination_reverse() ? 1 : 0;
+					fpl->set_reverse(schedule_entry->reverse, fpl->get_aktuell()); 
+					if(line.is_bound())
+					{
+						simlinemgmt_t::update_line(line);
+					}
+				}
+
 				if(schedule_entry->reverse || haltestelle_t::get_halt(schedule_entry->pos, get_owner()).is_bound())
 				{
-					// convoy must stop at current route end.
+					// The convoy must stop at the current route's end.
 					break;
 				}
 				advance_schedule();
-				schedule_entry = &fpl->get_current_eintrag();
+				schedule_entry = &fpl->eintrag[fpl->get_aktuell()];
 				success = front()->reroute(route.get_count() - 1, schedule_entry->pos);
 			}
 		}
@@ -5339,7 +5351,7 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 		go_on_ticks = WAIT_INFINITE;
 		arrival_time = welt->get_zeit_ms();
 	}
-	const uint32 reversing_time = fpl->get_current_eintrag().reverse ? calc_reverse_delay() : 0;
+	const uint32 reversing_time = fpl->get_current_eintrag().reverse > 0 ? calc_reverse_delay() : 0;
 	bool running_late = false;
 	sint64 go_on_ticks_waiting = WAIT_INFINITE;
 	const sint64 earliest_departure_time = arrival_time + ((sint64)current_loading_time - (sint64)reversing_time);
@@ -5914,6 +5926,36 @@ void convoi_t::unregister_stops()
 	}
 }
 
+bool convoi_t::check_destination_reverse(route_t* current_route, route_t* target_rt)
+{
+	route_t next_route;
+	if(!current_route)
+	{
+		current_route = &route;
+	}
+	bool success = target_rt; 
+	if(!target_rt)
+	{
+		uint8 index = fpl->get_aktuell();
+		koord3d start_pos = fpl->eintrag[index].pos;
+		bool rev = get_reverse_schedule();
+		fpl->increment_index(&index, &rev);
+		const koord3d next_ziel = fpl->eintrag[index].pos;
+		success = next_route.calc_route(welt, start_pos, next_ziel, front(), speed_to_kmh(get_min_top_speed()), get_highest_axle_load(), welt->get_settings().get_max_route_steps(), SINT64_MAX_VALUE, get_weight_summary().weight / 1000);
+		target_rt = &next_route;
+	}
+
+	if(success)
+	{
+		ribi_t::ribi old_dir = front()->calc_direction(current_route->position_bei(current_route->get_count() - 2).get_2d(), current_route->back().get_2d());
+		ribi_t::ribi new_dir = front()->calc_direction(target_rt->position_bei(0).get_2d(), target_rt->position_bei(1).get_2d());
+		return old_dir & ribi_t::rueckwaerts(new_dir);
+	}
+	else
+	{
+		return false;
+	}
+}
 
 // set next stop before breaking will occur (or route search etc.)
 // currently only used for tracks
@@ -5922,18 +5964,26 @@ void convoi_t::set_next_stop_index(uint16 n)
 	// stop at station or signals, not at waypoints
    if(n == INVALID_INDEX && !route.empty())
    {
-	   // find out if stop or waypoint, waypoint: do not brake at waypoints
+	   // Find out if this schedule entry is a stop or a waypoint, waypoint:
+	   // do not brake at non-reversing waypoints
 	   bool reverse_waypoint = false;
-	   const koord3d route_end = route.back();
+	   koord3d route_end = route.back();
+
 	   if(front()->get_typ() != obj_t::air_vehicle)
 	   {
 		   const int count = fpl->get_count();
 		   for(int i = 0; i < count; i ++)
 		   {
-			   const linieneintrag_t &eintrag = fpl->eintrag[i];
+			   linieneintrag_t &eintrag = fpl->eintrag[i];
 			   if(eintrag.pos == route_end)
 			   {
+				   if(eintrag.reverse == -1)
+				   {
+					   eintrag.reverse = check_destination_reverse() ? 1 : 0;
+					   fpl->set_reverse(eintrag.reverse, i); 
+				   }
 					reverse_waypoint = eintrag.reverse;
+
 					break;
 			   }
 		   }

@@ -1175,6 +1175,8 @@ public:
 
 	inline void set_wait_lock(sint32 value) { wait_lock = value; }
 
+	bool check_destination_reverse(route_t* current_route = NULL, route_t* target_rt = NULL); 
+
 private:
 	journey_times_map average_journey_times;
 public:
@@ -1339,7 +1341,7 @@ public:
 	/**
 	 * this give the index of the next signal or the end of the route
 	 * convois will slow down before it, if this is not a waypoint or the cannot pass
-	 * The slowdown ist done by the vehicle routines
+	 * The slowdown is done by the vehicle routines
 	 * @author prissi
 	 */
 	uint16 get_next_stop_index() const {return next_stop_index;}

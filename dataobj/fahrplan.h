@@ -104,11 +104,12 @@ public:
 	/**
 	 * Sets the current entry to a reversing type
 	 */
-	void set_reverse()
+	void set_reverse(bool reverse = true, sint16 index = -1)
 	{
+		uint8 inx = index == -1 ? aktuell : (uint8)index;
 		if(!eintrag.empty())
 		{
-			eintrag[aktuell].reverse = true;
+			eintrag[inx].reverse = reverse;
 		}
 	}
 

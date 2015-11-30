@@ -3429,7 +3429,8 @@ void rail_vehicle_t::set_convoi(convoi_t *c)
 					target_halt = halthandle_t();
 				}
 			}
-			else if(  c->get_next_reservation_index()==0  ) {
+			else if(c->get_next_reservation_index() == 0 && c->get_state() != convoi_t::REVERSING)
+			{
 				assert(c!=NULL);
 				// eventually search new route
 				route_t& r = *c->get_route();
@@ -3772,29 +3773,10 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 {
 	assert(leading);
 	uint16 next_signal = INVALID_INDEX;
-	const linieneintrag_t destination = cnv->get_schedule()->get_current_eintrag();
-	bool destination_is_nonreversing_waypoint = !destination.reverse && !haltestelle_t::get_halt(destination.pos, get_owner()).is_bound() && (!welt->lookup(destination.pos) || !welt->lookup(destination.pos)->get_depot());
-	if(destination_is_nonreversing_waypoint)
-	{
-		// Move on the schedule to find the next real stop.
+	linieneintrag_t destination = cnv->get_schedule()->get_current_eintrag();
 
-		// TODO: Consider moving this functionality to the convoy or line when giving this vehicle its next schedule entry
-		// if and when schedules are made more sophisticated (branching, etc.). 
-		schedule_t *fpl = cnv->get_schedule();
-		const uint8 index = fpl->get_aktuell();
-		uint8 modified_index = index;
-		bool reversed = cnv->get_reverse_schedule();
-		fpl->increment_index(&modified_index, &reversed);
-		reroute(cnv->get_route()->get_count() - 1, fpl->eintrag[modified_index].pos);
-		if(reversed)
-		{
-			fpl->advance_reverse();
-		}
-		else
-		{
-			fpl->advance();
-		}
-	}
+	bool destination_is_nonreversing_waypoint = !destination.reverse && !haltestelle_t::get_halt(destination.pos, get_owner()).is_bound() && (!welt->lookup(destination.pos) || !welt->lookup(destination.pos)->get_depot());
+	
 	bool signal_on_current_tile = false;
 
 	if(working_method == one_train_staff)
@@ -3856,7 +3838,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 				restart_speed = 0;
 				return false;
 			}
-			if(!destination_is_nonreversing_waypoint || cnv->get_state() != convoi_t::CAN_START || cnv->get_state() != convoi_t::CAN_START_ONE_MONTH || cnv->get_state() != convoi_t::CAN_START_TWO_MONTHS)
+			if(!destination_is_nonreversing_waypoint || (cnv->get_state() != convoi_t::CAN_START && cnv->get_state() != convoi_t::CAN_START_ONE_MONTH && cnv->get_state() != convoi_t::CAN_START_TWO_MONTHS))
 			{
 				cnv->set_next_stop_index(next_signal);
 			}
@@ -3951,6 +3933,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 	// is there any signal/crossing to be reserved?
 	sint32 next_block = cnv->get_next_stop_index() - 1;
 	last_index = route.get_count() - 1;
+	
 	if(next_block > last_index) // last_index is a waypoint and we need to keep routing.
 	{
 		const sint32 route_steps = route_infos.get_element(last_index).steps_from_start - (route_index < route_infos.get_count() ? route_infos.get_element(route_index).steps_from_start : 0);
@@ -3969,29 +3952,20 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 			weg_frei = !target_rt.calc_route(welt, start_pos, next_ziel, this, speed_to_kmh(cnv->get_min_top_speed()), cnv->get_highest_axle_load(), welt->get_settings().get_max_route_steps(), SINT64_MAX_VALUE, cnv->get_weight_summary().weight / 1000);
 			if(!weg_frei)
 			{
-				ribi_t::ribi old_dir = calc_direction(route.position_bei(last_index - 1).get_2d(), route.position_bei(last_index).get_2d());
-				ribi_t::ribi new_dir = calc_direction(target_rt.position_bei(0).get_2d(), target_rt.position_bei(1).get_2d());
-				if(old_dir & ribi_t::rueckwaerts(new_dir))
+				if(fpl->eintrag[fpl->get_aktuell()].reverse == -1)
 				{
-					// convoy must reverse and thus stop at the waypoint. No need to extend the route now.
-					// Extending the route now would confuse tile reservation.
-					fpl->eintrag[fpl->get_aktuell()].reverse = true;
+					fpl->eintrag[fpl->get_aktuell()].reverse = cnv->check_destination_reverse(NULL, &target_rt);
 					linehandle_t line = cnv->get_line();
 					if(line.is_bound())
 					{
 						simlinemgmt_t::update_line(line);
 					}
 				}
-				else
+				/* Obsolete as of 29 Nov. 2015: keep this for now in case the new system does not work.
+				if(fpl->eintrag[fpl->get_aktuell()].reverse == 0)
 				{
-					// convoy can pass waypoint without reversing/stopping. Append route to next stop/waypoint
-
-					linehandle_t line = cnv->get_line();
-					fpl->eintrag[fpl->get_aktuell()].reverse = false;
-					if(line.is_bound())
-					{
-						simlinemgmt_t::update_line(line);
-					}
+					// Extending the route if the convoy needs to reverse would interfere with tile reservations.
+					// This convoy can pass waypoint without reversing/stopping. Append route to next stop/waypoint
 					if(reversed)
 					{
 						fpl->advance_reverse();
@@ -4018,12 +3992,12 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 					last_index = route.get_count() - 1;
 					cnv->set_next_stop_index(next_signal);
 					next_block = cnv->get_next_stop_index() - 1;
-				}
+				}*/
 			}
 		}
 		// no obstacle in the way => drive on ...
-		if (weg_frei || next_block > last_index)
-			return true;
+		/*if (weg_frei || next_block > last_index)
+			return true;*/
 	}
 
 	bool do_not_set_one_train_staff = false;
@@ -4370,7 +4344,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 						{
 							count--;
 							next_signal_index = last_stop_signal_index;
-						}
+							}
 					}
 				}
 			}
@@ -4688,6 +4662,11 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 				if(time_interval_reservation)
 				{
 					directional_only = true;
+				}
+				if(next_signal_index == i && (next_signal_working_method == absolute_block || next_signal_working_method == token_block || next_signal_working_method == track_circuit_block || next_signal_working_method == cab_signalling))
+				{
+					// If the very last tile of a block is not free, do not enter the block.
+					next_signal_index = last_stop_signal_index;
 				}
 				if((next_signal_working_method == drive_by_sight || next_signal_working_method == moving_block) && !directional_only && last_choose_signal_index >= INVALID_INDEX && !is_choosing)
 				{
@@ -5175,6 +5154,12 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 	if(cnv)
 	{
 		cnv->set_next_reservation_index(last_non_directional_index);
+	}
+
+	// Trim route to the early platform index.
+	if(early_platform_index < INVALID_INDEX)
+	{
+		cnv->get_route()->remove_koord_from(early_platform_index);
 	}
 
 	return reached_end_of_loop || working_method != track_circuit_block ? (!combined_signals.empty() && !pre_signals.empty() ? 2 : 1) + choose_return : (sint32)signs.get_count() + choose_return;

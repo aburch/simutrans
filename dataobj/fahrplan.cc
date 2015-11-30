@@ -274,7 +274,7 @@ void schedule_t::rdwr(loadsave_t *file)
 				eintrag.append( linieneintrag_t() );
 				eintrag[i].waiting_time_shift = 0;
 				eintrag[i].spacing_shift = 0;
-				eintrag[i].reverse = false;
+				eintrag[i].reverse = -1;
 			}
 			eintrag[i].pos.rdwr(file);
 			if(file->get_experimental_version() >= 10 && file->get_version() >= 111002)
@@ -304,11 +304,16 @@ void schedule_t::rdwr(loadsave_t *file)
 
 				if(file->get_experimental_version() >= 10)
 				{
-					file->rdwr_bool(eintrag[i].reverse);
+					file->rdwr_byte(eintrag[i].reverse);
+					if(file->get_experimental_revision() < 4 && eintrag[i].reverse)
+					{
+						// Older versions had true as a default: set to indeterminate. 
+						eintrag[i].reverse = -1;
+					}
 				}
 				else
 				{
-					eintrag[i].reverse = false;
+					eintrag[i].reverse = -1;
 				}
 #ifdef SPECIAL_RESCUE_12 // For testers who want to load games saved with earlier unreleased versions.
 				if(file->get_experimental_version() >= 12 && file->is_saving())
