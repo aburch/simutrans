@@ -3902,20 +3902,27 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 	uint32 last_index = max (0, route_index - 1);
 	for(uint32 i = route_index; i <= min(route_index + sighting_distance_tiles, route.get_count() - 1); i++)
 	{
+		koord3d i_pos = route.position_bei(i);
 		ribi_t::ribi old_dir = calc_direction(route.position_bei(route_index).get_2d(), route.position_bei(min(route.get_count() - 1, route_index + 1)).get_2d());
-		ribi_t::ribi new_dir = calc_direction(route.position_bei(last_index).get_2d(), route.position_bei(i).get_2d());
+		ribi_t::ribi new_dir = calc_direction(route.position_bei(last_index).get_2d(), i_pos.get_2d());
 
-		const grund_t* gr_new = welt->lookup(route.position_bei(i));
+		const grund_t* gr_new = welt->lookup(i_pos);
+		grund_t* gr_bridge = welt->lookup(koord3d(i_pos.x, i_pos.y, i_pos.z + 1));
+		if(!gr_bridge)
+		{
+			gr_bridge = welt->lookup(koord3d(i_pos.x, i_pos.y, i_pos.z + 2));
+		}
 
 		hang_t::typ old_hang = gr->get_weg_hang();
 		hang_t::typ new_hang = gr_new ? gr_new->get_weg_hang() : old_hang;
 
-		bool corner = !(old_dir & new_dir);
+		bool corner			= !(old_dir & new_dir);
 		bool different_hill = old_hang != new_hang;
+		bool overbridge		= gr_bridge && gr_bridge->ist_bruecke();
 		
 		if(sch1->is_diagonal())
 		{
-			const grund_t* gr_diagonal = welt->lookup(route.position_bei(i)); 
+			const grund_t* gr_diagonal = welt->lookup(i_pos); 
 			const schiene_t* sch2 = gr_diagonal ? (schiene_t*)gr_diagonal->get_weg(get_waytype()) : NULL;
 			if(sch2 && sch2->is_diagonal())
 			{
@@ -3929,7 +3936,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 			}
 		}
 			
-		if(corner || different_hill) // TODO: Add overbridges
+		if(corner || different_hill || overbridge) 
 		{
 			modified_sighting_distance_tiles = max(i - route_index, 1);
 			break;
