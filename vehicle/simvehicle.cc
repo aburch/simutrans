@@ -3904,7 +3904,14 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 	{
 		ribi_t::ribi old_dir = calc_direction(route.position_bei(route_index).get_2d(), route.position_bei(min(route.get_count() - 1, route_index + 1)).get_2d());
 		ribi_t::ribi new_dir = calc_direction(route.position_bei(last_index).get_2d(), route.position_bei(i).get_2d());
+
+		const grund_t* gr_new = welt->lookup(route.position_bei(i));
+
+		hang_t::typ old_hang = gr->get_weg_hang();
+		hang_t::typ new_hang = gr_new ? gr_new->get_weg_hang() : old_hang;
+
 		bool corner = !(old_dir & new_dir);
+		bool different_hill = old_hang != new_hang;
 		
 		if(sch1->is_diagonal())
 		{
@@ -3922,7 +3929,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 			}
 		}
 			
-		if(corner) // TODO: Add overbridges and hills
+		if(corner || different_hill) // TODO: Add overbridges
 		{
 			modified_sighting_distance_tiles = max(i - route_index, 1);
 			break;
