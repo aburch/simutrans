@@ -74,7 +74,8 @@ static const char *revision_ex[] =
 	"0", /*Ex version 0 has no Ex string at all*/
 	"1",
 	"2",
-	"3"
+	"3",
+	"4"
 };
 
 // just free memory
