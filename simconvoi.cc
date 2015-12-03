@@ -1315,18 +1315,6 @@ bool convoi_t::drive_to()
 		grund_t* gr = welt->lookup(ziel);
 		bool extend_route = gr;
 
-		switch (front()->get_waytype())
-		{
-			// convoys of these way types extend their routes in front()->can_enter_tile() and thus don't need it here.
-			case air_wt:
-			case track_wt:
-			case monorail_wt:
-			case maglev_wt:
-			case tram_wt:
-			case narrowgauge_wt:
-				extend_route = false;
-		}
-
 		if(extend_route && !gr->get_depot())
 		{
 			// We need to calculate the full route through to the next signal or reversing point
