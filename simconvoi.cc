@@ -5981,6 +5981,10 @@ void convoi_t::set_next_stop_index(uint16 n)
 				   {
 					   eintrag.reverse = check_destination_reverse() ? 1 : 0;
 					   fpl->set_reverse(eintrag.reverse, i); 
+					   if(line.is_bound())
+					   {
+						   simlinemgmt_t::update_line(line);
+					   }
 				   }
 					reverse_waypoint = eintrag.reverse;
 
