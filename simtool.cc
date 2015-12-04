@@ -7133,30 +7133,14 @@ uint8 tool_reassign_signal_t::is_valid_pos(player_t *player, const koord3d &pos,
 		}
 	}
 
-	const weg_t* way = gr_start->get_weg(track_wt);
-	if(!way)
+	const signal_t* sig = welt->lookup(start)->find<signal_t>();
+	is_valid_start |= sig && sb_end->can_add_signal(sig);
+	if(sig && !is_valid_start)
 	{
-		way = gr_start->get_weg(narrowgauge_wt);
-	}
-	if(!way)
-	{
-		way = gr_start->get_weg(monorail_wt);
-	}
-	if(!way)
-	{
-		way = gr_start->get_weg(maglev_wt);
-	}
-	if(way)
-	{
-		const signal_t* sig = way->get_signal(ribi_t::alle);
-		is_valid_start |= sig && sb_end->can_add_signal(sig);
-		if(!is_valid_start)
-		{
-			error = "This signal is not compatible with this signalbox.";
-		}
+		error = "This signal is not compatible with this signalbox.";
 	}
 
-	if(!way && !sb_end)
+	if(!sig && !sb_end)
 	{
 		error = "";
 	}
@@ -7217,35 +7201,20 @@ const char *tool_reassign_signal_t::do_work( player_t *player, const koord3d &la
 		return buf; */
 	}
 
-	weg_t* way = gr_start->get_weg(track_wt);
-	if(!way)
+	
+	signal_t* sig = welt->lookup(last_pos)->find<signal_t>();
+	if(sig)
 	{
-		way = gr_start->get_weg(narrowgauge_wt);
-	}
-	if(!way)
-	{
-		way = gr_start->get_weg(monorail_wt);
-	}
-	if(!way)
-	{
-		way = gr_start->get_weg(maglev_wt);
-	}
-	if(way)
-	{	
-		signal_t* sig = way->get_signal(ribi_t::alle);
-		if(sig)
+		koord3d sb_location = sig->get_signalbox();
+		grund_t* gr_sb = welt->lookup(sb_location);
+		gebaeude_t* gb_sb = gr_sb->get_building();
+		signalbox_t* sb = NULL;
+		if(gb_sb && gb_sb->get_tile()->get_besch()->get_utyp() == haus_besch_t::signalbox)
 		{
-			koord3d sb_location = sig->get_signalbox();
-			grund_t* gr_sb = welt->lookup(sb_location);
-			gebaeude_t* gb_sb = gr_sb->get_building();
-			signalbox_t* sb = NULL;
-			if(gb_sb && gb_sb->get_tile()->get_besch()->get_utyp() == haus_besch_t::signalbox)
+			sb = (signalbox_t*)gb_sb;
+			if(sb_end->transfer_signal(sig, sb))
 			{
-				sb = (signalbox_t*)gb_sb;
-				if(sb_end->transfer_signal(sig, sb))
-				{
-					return "";
-				}
+				return "";
 			}
 		}
 	}

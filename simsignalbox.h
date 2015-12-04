@@ -18,7 +18,6 @@ class signalbox_t : public gebaeude_t
 private:
 
 	slist_tpl<koord3d> signals; // The signals controlled by this signalbox.
-	signal_t* get_signal_from_location(koord3d k);
 
 protected:
 

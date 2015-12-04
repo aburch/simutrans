@@ -80,28 +80,6 @@ signalbox_t::~signalbox_t()
 	}
 }
 
-signal_t* signalbox_t::get_signal_from_location(koord3d k)
-{
-	grund_t* gr = welt->lookup(k);
-	if(!gr)
-	{
-		return NULL;
-	}
-	weg_t* way = gr->get_weg_nr(0);
-
-	if(!way || !way->get_signal(ribi_t::alle))
-	{
-		way = gr->get_weg_nr(1);
-	}
-
-	if(!way|| !way->get_signal(ribi_t::alle))
-	{
-		return  NULL;
-	}
-	signal_t* s = way->get_signal(ribi_t::alle);
-	return s;
-}
-
 void signalbox_t::add_to_world_list(bool lock)
 {
 	welt->add_building_to_world_list(this);
@@ -233,7 +211,7 @@ koord signalbox_t::transfer_all_signals(signalbox_t* sb)
 	}
 	FOR(slist_tpl<koord3d>, k, duplicate_signals_list)
 	{
-		signal_t* s = get_signal_from_location(k); 
+		signal_t* s = welt->lookup(k)->find<signal_t>();
 		if(!s)
 		{
 			dbg->error("signalbox_t::transfer_all_signals(signalbox_t* sb)", "Signal cannot be retrieved"); 
