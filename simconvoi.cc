@@ -5982,12 +5982,12 @@ void convoi_t::set_next_stop_index(uint16 n)
 	   }
 
 	   grund_t const* const gr = welt->lookup(route_end);
-	   if(  gr  &&  (gr->is_halt() || reverse_waypoint)  )
+	   if(gr && (gr->is_halt() || reverse_waypoint))
 	   {
-		   n = route.get_count()-1;
+		   n = route.get_count() - 1;
 	   }
    }
-	next_stop_index = n+1;
+	next_stop_index = n + 1;
 }
 
 

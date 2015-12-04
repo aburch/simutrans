@@ -3975,11 +3975,14 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 						simlinemgmt_t::update_line(line);
 					}
 				}
-				/* Obsolete as of 29 Nov. 2015: keep this for now in case the new system does not work.
 				if(fpl->eintrag[fpl->get_aktuell()].reverse == 0)
 				{
 					// Extending the route if the convoy needs to reverse would interfere with tile reservations.
-					// This convoy can pass waypoint without reversing/stopping. Append route to next stop/waypoint
+					// This convoy can pass waypoint without reversing/stopping. Append route to next stop/waypoint.
+					
+					// This is still needed after the new (November 2015) system as there are some (possibly 
+					// transitional)cases in which next_block is still ahead of the calculated route. 
+
 					if(reversed)
 					{
 						fpl->advance_reverse();
@@ -4006,12 +4009,12 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 					last_index = route.get_count() - 1;
 					cnv->set_next_stop_index(next_signal);
 					next_block = cnv->get_next_stop_index() - 1;
-				}*/
+				}
 			}
 		}
 		// no obstacle in the way => drive on ...
-		/*if (weg_frei || next_block > last_index)
-			return true;*/
+		if (weg_frei || next_block > last_index)
+			return true;
 	}
 
 	bool do_not_set_one_train_staff = false;
