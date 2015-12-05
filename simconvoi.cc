@@ -7263,7 +7263,7 @@ float32e8_t convoi_t::get_force_summary(const float32e8_t &speed /* in m/s */)
 	//for (array_tpl<vehicle_t*>::iterator i = vehicle.begin(), n = i + get_vehikel_anzahl(); i != n; ++i)
 	//	force += (*i)->get_besch()->get_effective_force_index(v);
 
-	return power_index_to_power(force, welt->get_settings().get_global_power_factor_percent());
+	return power_index_to_power(force, welt->get_settings().get_global_force_factor_percent());
 }
 
 

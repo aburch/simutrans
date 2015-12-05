@@ -386,6 +386,7 @@ settings_t::settings_t() :
 	// Global power factor
 	// @author: jamespetts
 	global_power_factor_percent = 100;
+	global_force_factor_percent = 100;
 
 	avoid_overcrowding = false;
 
@@ -1603,6 +1604,10 @@ void settings_t::rdwr(loadsave_t *file)
 				max_speed_drive_by_sight = kmh_to_speed(max_speed_drive_by_sight_kmh);
 			}
 #endif
+			if(file->get_experimental_revision() >= 5)
+			{
+				file->rdwr_short(global_force_factor_percent);
+			}
 		}
 		else
 		{
@@ -2312,6 +2317,7 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	// Global power factor
 	// @author: jamespetts
 	global_power_factor_percent = contents.get_int("global_power_factor_percent", global_power_factor_percent);
+	global_force_factor_percent = contents.get_int("global_force_factor_percent", global_force_factor_percent); 
 
 	// How and whether weight limits are enforced.
 	// @author: jamespetts
