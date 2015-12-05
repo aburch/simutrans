@@ -7090,7 +7090,7 @@ uint8 tool_reassign_signal_t::is_valid_pos(player_t *player, const koord3d &pos,
 	// The end tile must be a signalbox. The start tile may either be a signal or a signalbox. 
 
 	// Check the end tile first.
-	const gebaeude_t* gb = gr->get_building();
+	const gebaeude_t* gb = gr->get_building()->get_first_tile();
 	const signalbox_t* sb_end;
 	if(gb && gb->get_tile()->get_besch()->get_utyp() == haus_besch_t::signalbox)
 	{
@@ -7113,7 +7113,7 @@ uint8 tool_reassign_signal_t::is_valid_pos(player_t *player, const koord3d &pos,
 
 	bool is_valid_start = false;
 
-	gb = gr_start->get_building(); 
+	gb = gr_start->get_building()->get_first_tile(); 
 	if(gb && gb->get_tile()->get_besch()->get_utyp() == haus_besch_t::signalbox)
 	{
 		const signalbox_t* sb_start = (signalbox_t*)gb;
@@ -7167,7 +7167,7 @@ const char *tool_reassign_signal_t::do_work( player_t *player, const koord3d &la
 	
 	// second click
 	grund_t* gr_end = welt->lookup(pos);
-	gebaeude_t* gb_end = gr_end->get_building();
+	gebaeude_t* gb_end = gr_end->get_building()->get_first_tile();
 	signalbox_t* sb_end = NULL;
 	if(gb_end && gb_end->get_tile()->get_besch()->get_utyp() == haus_besch_t::signalbox)
 	{
@@ -7180,7 +7180,7 @@ const char *tool_reassign_signal_t::do_work( player_t *player, const koord3d &la
 	}
 
 	grund_t* gr_start = welt->lookup(last_pos); 
-	gebaeude_t* gb_start = gr_start->get_building();
+	gebaeude_t* gb_start = gr_start->get_building()->get_first_tile();
 	signalbox_t* sb_start = NULL;
 	if(gb_start && gb_start->get_tile()->get_besch()->get_utyp() == haus_besch_t::signalbox)
 	{
@@ -7207,7 +7207,7 @@ const char *tool_reassign_signal_t::do_work( player_t *player, const koord3d &la
 	{
 		koord3d sb_location = sig->get_signalbox();
 		grund_t* gr_sb = welt->lookup(sb_location);
-		gebaeude_t* gb_sb = gr_sb->get_building();
+		gebaeude_t* gb_sb = gr_sb->get_building()->get_first_tile();
 		signalbox_t* sb = NULL;
 		if(gb_sb && gb_sb->get_tile()->get_besch()->get_utyp() == haus_besch_t::signalbox)
 		{
