@@ -1893,18 +1893,26 @@ void fabrik_t::step(uint32 delta_t)
 						ausgang[product].book_stat((sint64)prod_delta * (sint64)besch->get_produkt(product)->get_faktor(), FAB_GOODS_PRODUCED);
 					}
 
-					// Scale by number of units in factory.
+					// Want scaled by number of production units in factory.
 					want /= ausgang.get_count();
+
+					// Skip consumption if not enough input.
+					if(  no_input  ) {
+						break;
+					}
+
+					// Work scaled by number of production units in factory.
 					wunits = ausgang.get_count();
 
 					// Consume inputs.
-					inactive_inputs = 0;
 					for(  uint32 index = 0;  index < eingang.get_count();  index++  ) {
-						eingang[index].menge -= work;
-						eingang[index].book_stat((sint64)work * (sint64)besch->get_lieferant(index)->get_verbrauch(), FAB_GOODS_CONSUMED);
+						const sint32 consumed = work / wunits;
+						eingang[index].menge -= consumed;
+						eingang[index].book_stat((sint64)consumed * (sint64)besch->get_lieferant(index)->get_verbrauch(), FAB_GOODS_CONSUMED);
 
 						if(  eingang[index].menge <= 0  ) {
 							currently_producing = false;
+							eingang[index].menge = 0;
 							inactive_inputs ++;
 						}
 					}
