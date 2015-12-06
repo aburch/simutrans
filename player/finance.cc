@@ -235,7 +235,8 @@ void finance_t::book_interest_monthly() {
 			// Credit interest rate is 1/4 of debt interest rate.
 			interest /= (float32e8_t)4;
 		}
-		// Apply to the current account balance, positive or negative
+		// Apply to the current account balance, only if in debt. 
+		// Credit interest, which applied in earlier versions, unbalanced the game.
 		interest *= (float32e8_t)get_account_balance();
 		// Due to the limitations of float32e8, interest can only go up to +-2^31 per month.
 		// Hopefully this won't be an issue.  It will report errors if it is.
@@ -249,7 +250,7 @@ void finance_t::book_interest_monthly() {
 		}
 		else
 		{
-			interest = (interest_rate * get_account_balance()) / 4800ll;
+			interest = 0;
 		}
 
 		com_year[0][ATC_INTEREST] += interest;
