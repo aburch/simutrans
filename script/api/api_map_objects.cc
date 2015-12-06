@@ -94,7 +94,7 @@ SQInteger exp_obj_pos_constructor(HSQUIRRELVM vm) // parameters: sint16 x, sint1
 	if (grund_t *gr = welt->lookup(koord3d(pos, z))) {
 		obj_t::typ type = (obj_t::typ)param<uint8>::get(vm, 5);
 		obj_t *obj = NULL;
-		if (type != obj_t::bahndepot) { // special treatment of depots
+		if (type != obj_t::old_airdepot) { // special treatment of depots
 			obj = gr->suche_obj(type);
 		}
 		else {
@@ -106,51 +106,6 @@ SQInteger exp_obj_pos_constructor(HSQUIRRELVM vm) // parameters: sint16 x, sint1
 		}
 	}
 	return sq_raise_error(vm, "No object of requested type on tile (or no tile at this position)");
-}
-
-// we have to resolve instances of derived classes here...
-SQInteger script_api::param<obj_t*>::push(HSQUIRRELVM vm, obj_t* const& obj)
-{
-	if (obj == NULL) {
-		sq_pushnull(vm);
-		return 1;
-	}
-	obj_t::typ type = obj->get_typ();
-	switch(type) {
-		case obj_t::baum:
-			return script_api::param<baum_t*>::push(vm, (baum_t*)obj);
-
-		case obj_t::gebaeude:
-			return script_api::param<gebaeude_t*>::push(vm, (gebaeude_t*)obj);
-
-		case obj_t::way:
-		{
-			waytype_t wt = obj->get_waytype();
-			switch(wt) {
-				default:
-					return script_api::param<weg_t*>::push(vm, (weg_t*)obj);
-			}
-		}
-
-		case obj_t::bahndepot:
-		case obj_t::strassendepot:
-		case obj_t::schiffdepot:
-		case obj_t::airdepot:
-		case obj_t::monoraildepot:
-		case obj_t::tramdepot:
-		case obj_t::maglevdepot:
-		{
-			return script_api::param<depot_t*>::push(vm, (depot_t*)obj);
-		}
-
-		default:
-			return access_objs<obj_t>::push_with_pos(vm, obj);
-	}
-}
-
-obj_t* script_api::param<obj_t*>::get(HSQUIRRELVM vm, SQInteger index)
-{
-	return access_objs<obj_t>::get_by_pos(vm, index);
 }
 
 template<> struct bind_code<obj_t> { static const uint8 objtype = obj_t::obj; };
@@ -169,11 +124,69 @@ template<> struct bind_code<obj_t> { static const uint8 objtype = obj_t::obj; };
 
 // implementation of get and push by macros
 getpush_obj_pos(baum_t, obj_t::baum);
-getpush_obj_pos(depot_t, obj_t::bahndepot); // use bahndepot as type-identifier
 getpush_obj_pos(gebaeude_t, obj_t::gebaeude);
 getpush_obj_pos(label_t, obj_t::label);
 getpush_obj_pos(weg_t, obj_t::way);
 
+// each depot has its own class
+namespace script_api {
+	declare_specialized_param(depot_t*, "t|x|y", "depot_x");
+	declare_specialized_param(airdepot_t*, "t|x|y", "depot_x");
+	declare_specialized_param(narrowgaugedepot_t*, "t|x|y", "depot_x");
+	declare_specialized_param(bahndepot_t*, "t|x|y", "depot_x");
+	declare_specialized_param(strassendepot_t*, "t|x|y", "depot_x");
+	declare_specialized_param(schiffdepot_t*, "t|x|y", "depot_x");
+	declare_specialized_param(monoraildepot_t*, "t|x|y", "depot_x");
+	declare_specialized_param(tramdepot_t*, "t|x|y", "depot_x");
+	declare_specialized_param(maglevdepot_t*, "t|x|y", "depot_x");
+};
+// base depot class, use old_airdepot as identifier here
+getpush_obj_pos(depot_t, obj_t::old_airdepot);
+// now all the derived classes
+getpush_obj_pos(airdepot_t, obj_t::airdepot);
+getpush_obj_pos(narrowgaugedepot_t, obj_t::narrowgaugedepot);
+getpush_obj_pos(bahndepot_t, obj_t::bahndepot);
+getpush_obj_pos(strassendepot_t, obj_t::strassendepot);
+getpush_obj_pos(schiffdepot_t, obj_t::schiffdepot);
+getpush_obj_pos(monoraildepot_t, obj_t::monoraildepot);
+getpush_obj_pos(tramdepot_t, obj_t::tramdepot);
+getpush_obj_pos(maglevdepot_t, obj_t::maglevdepot);
+
+#define case_resolve_obj(D) \
+	case bind_code<D>::objtype: \
+		return script_api::param<D*>::push(vm, (D*)obj);
+
+// we have to resolve instances of derived classes here...
+SQInteger script_api::param<obj_t*>::push(HSQUIRRELVM vm, obj_t* const& obj)
+{
+	if (obj == NULL) {
+		sq_pushnull(vm);
+		return 1;
+	}
+	obj_t::typ type = obj->get_typ();
+	switch(type) {
+		case_resolve_obj(baum_t);
+		case_resolve_obj(gebaeude_t);
+		case_resolve_obj(weg_t);
+
+		case_resolve_obj(airdepot_t);
+		case_resolve_obj(narrowgaugedepot_t);
+		case_resolve_obj(bahndepot_t);
+		case_resolve_obj(strassendepot_t);
+		case_resolve_obj(schiffdepot_t);
+		case_resolve_obj(monoraildepot_t);
+		case_resolve_obj(tramdepot_t);
+		case_resolve_obj(maglevdepot_t);
+
+		default:
+			return access_objs<obj_t>::push_with_pos(vm, obj);
+	}
+}
+
+obj_t* script_api::param<obj_t*>::get(HSQUIRRELVM vm, SQInteger index)
+{
+	return access_objs<obj_t>::get_by_pos(vm, index);
+}
 
 // return way ribis, have to implement a wrapper, to correctly rotate ribi
 static SQInteger get_way_ribi(HSQUIRRELVM vm)
