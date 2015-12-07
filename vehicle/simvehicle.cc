@@ -3633,11 +3633,11 @@ bool rail_vehicle_t::is_target(const grund_t *gr,const grund_t *prev_gr)
 	return false;
 }
 
-sint32 rail_vehicle_t::activate_choose_signal(const uint16 start_block, uint16 &next_signal_index, uint32 brake_steps, uint16 modified_sighting_distance_tiles)
+sint32 rail_vehicle_t::activate_choose_signal(const uint16 start_block, uint16 &next_signal_index, uint32 brake_steps, uint16 modified_sighting_distance_tiles, route_t* route)
 {
-	grund_t const* target = welt->lookup(cnv->get_route()->back());
+	grund_t const* target = welt->lookup(route->back());
 
-	if(  target==NULL  ) 
+	if(target == NULL) 
 	{
 		cnv->suche_neue_route();
 		return 0;
@@ -3649,9 +3649,9 @@ sint32 rail_vehicle_t::activate_choose_signal(const uint16 start_block, uint16 &
 
 	// check whether there is another choose signal or end_of_choose on the route
 	uint32 break_index = start_block + 1;
-	for(uint32 idx = start_block + 1; choose_ok && idx < cnv->get_route()->get_count(); idx++)
+	for(uint32 idx = start_block + 1; choose_ok && idx <route->get_count(); idx++)
 	{
-		grund_t *gr = welt->lookup(cnv->get_route()->position_bei(idx));
+		grund_t *gr = welt->lookup(route->position_bei(idx));
 		if(!gr)
 		{
 			choose_ok = false;
@@ -3686,7 +3686,7 @@ sint32 rail_vehicle_t::activate_choose_signal(const uint16 start_block, uint16 &
 		if(way->has_signal())
 		{
 			signal_t *sig = gr->find<signal_t>(1);
- 			ribi_t::ribi ribi = ribi_typ(cnv->get_route()->position_bei(max(1u,route_index)-1u));	
+ 			ribi_t::ribi ribi = ribi_typ(route->position_bei(max(1u,route_index)-1u));	
 			if(!gr->get_weg(get_waytype())->get_ribi_maske() & ribi) // Check that the signal is facing in the right direction.
 			{
 				if(sig && sig->get_besch()->is_choose_sign())
@@ -3714,8 +3714,8 @@ sint32 rail_vehicle_t::activate_choose_signal(const uint16 start_block, uint16 &
 	route_t target_rt;
 	const uint16 first_block = start_block == 0 ? start_block : start_block - 1;
 	const uint16 second_block = start_block == 0 ? start_block + 1 : start_block; 
-	const koord3d first_tile = cnv->get_route()->position_bei(first_block);
-	const koord3d second_tile = cnv->get_route()->position_bei(second_block);
+	const koord3d first_tile = route->position_bei(first_block);
+	const koord3d second_tile = route->position_bei(second_block);
 	uint8 direction = ribi_typ(first_tile.get_2d(), second_tile.get_2d());
 	direction |= welt->lookup(second_tile)->get_weg(get_waytype())->get_ribi_unmasked();
 	cnv->set_is_choosing(true);
@@ -3725,22 +3725,22 @@ sint32 rail_vehicle_t::activate_choose_signal(const uint16 start_block, uint16 &
 	{
 		// The target is a stop.
 #ifdef MAX_CHOOSE_BLOCK_TILES
-		can_find_route = target_rt.find_route(welt, cnv->get_route()->position_bei(start_block), this, speed_to_kmh(cnv->get_min_top_speed()), direction, cnv->get_highest_axle_load(), cnv->get_tile_length(), cnv->get_weight_summary().weight / 1000, MAX_CHOOSE_BLOCK_TILES, route_t::choose_signal);
+		can_find_route = target_rt.find_route(welt, route->position_bei(start_block), this, speed_to_kmh(cnv->get_min_top_speed()), direction, cnv->get_highest_axle_load(), cnv->get_tile_length(), cnv->get_weight_summary().weight / 1000, MAX_CHOOSE_BLOCK_TILES, route_t::choose_signal);
 #else
-		can_find_route = target_rt.find_route(welt, cnv->get_route()->position_bei(start_block), this, speed_to_kmh(cnv->get_min_top_speed()), direction, cnv->get_highest_axle_load(), cnv->get_tile_length(), cnv->get_weight_summary().weight / 1000, (welt->get_size().x + welt->get_size().y) * 1000, route_t::choose_signal);
+		can_find_route = target_rt.find_route(welt, route->position_bei(start_block), this, speed_to_kmh(cnv->get_min_top_speed()), direction, cnv->get_highest_axle_load(), cnv->get_tile_length(), cnv->get_weight_summary().weight / 1000, (welt->get_size().x + welt->get_size().y) * 1000, route_t::choose_signal);
 #endif
 	}
 	else
 	{
 		// The target is an end of choose sign along the route.
 		const sint16 tile_length = (cnv->get_schedule()->get_current_eintrag().reverse ? 8888 : 0) + cnv->get_tile_length();
-		can_find_route = target_rt.calc_route(welt, cnv->get_route()->position_bei(start_block), target->get_pos(), this, speed_to_kmh(cnv->get_min_top_speed()), cnv->get_highest_axle_load(), cnv->get_tile_length(), SINT64_MAX_VALUE, cnv->get_weight_summary().weight / 1000); 
+		can_find_route = target_rt.calc_route(welt, route->position_bei(start_block), target->get_pos(), this, speed_to_kmh(cnv->get_min_top_speed()), cnv->get_highest_axle_load(), cnv->get_tile_length(), SINT64_MAX_VALUE, cnv->get_weight_summary().weight / 1000); 
 		// This route only takes us to the end of choose sign, so we must calculate the route again beyond that point to the actual destination then concatenate them. 
 		if(can_find_route)
 		{
 			// Merge this part route with the remaining route
 			route_t intermediate_route;
-			intermediate_route.append(cnv->get_route()); 
+			intermediate_route.append(route); 
 			intermediate_route.remove_koord_to(break_index);
 			target_rt.append(&intermediate_route); 
 		}
@@ -3757,7 +3757,7 @@ sint32 rail_vehicle_t::activate_choose_signal(const uint16 start_block, uint16 &
 	{
 		// try to reserve the whole route
 		cnv->update_route(start_block, target_rt);
-		blocks = block_reserver(cnv->get_route(), start_block, modified_sighting_distance_tiles, next_signal_index, 100000, true, false, true, false, false, false, brake_steps);
+		blocks = block_reserver(route, start_block, modified_sighting_distance_tiles, next_signal_index, 100000, true, false, true, false, false, false, brake_steps);
 		if(!blocks) 
 		{
 			dbg->error("rail_vehicle_t::is_choose_signal_clear()", "could not reserved route after find_route!");
@@ -4907,7 +4907,6 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 		uint16 next_next_signal;
 		bool route_success;
 		sint32 token_block_blocks = 0;
-		signal_t* sig;
 		if(no_reverse)
 		{
 			do
@@ -5028,7 +5027,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 		if(last_choose_signal_index < INVALID_INDEX && !is_choosing && not_entirely_free)
 		{
 			// This will call the block reserver afresh from the last choose signal with choose logic enabled. 
-			choose_return = activate_choose_signal(last_choose_signal_index, next_signal_index, brake_steps, modified_sighting_distance_tiles); 
+			choose_return = activate_choose_signal(last_choose_signal_index, next_signal_index, brake_steps, modified_sighting_distance_tiles, route); 
 		}
 
 		if(!success && !choose_return)
@@ -5399,7 +5398,7 @@ void rail_vehicle_t::leave_tile()
 								ribi_t::ribi ribi;
 								if(i == 0)
 								{
-									ribi == ribi_t::alle;
+									ribi = ribi_t::alle;
 								}
 								else
 								{

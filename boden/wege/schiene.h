@@ -79,6 +79,9 @@ public:
 		{
 			return !reserved.is_bound() || c == reserved; // TODO: Obtain the priority data from the convoy here and comapre it.
 		}
+
+		// Fail with non-standard reservation type
+		return false;
 	}
 
 	/**
