@@ -2376,21 +2376,21 @@ void display_img_aligned( const image_id n, scr_rect area, int align, const int 
 
 		// align the image horizontally
 		x = area.x;
-		if(  align & ALIGN_CENTER_H  ) {
+		if(  (align & ALIGN_RIGHT) == ALIGN_CENTER_H  ) {
 			x -= images[n].x;
 			x += (area.w-images[n].w)/2;
 		}
-		else if(  align & ALIGN_RIGHT  ) {
+		else if(  (align & ALIGN_RIGHT) == ALIGN_RIGHT  ) {
 			x = area.get_right() - images[n].x - images[n].w;
 		}
 
 		// align the image vertically
 		y = area.y;
-		if(  align & ALIGN_CENTER_V  ) {
+		if(  (align & ALIGN_BOTTOM) == ALIGN_CENTER_V  ) {
 			y -= images[n].y;
 			y += (area.h-images[n].h)/2;
 		}
-		else if(  align & ALIGN_BOTTOM  ) {
+		else if(  (align & ALIGN_BOTTOM) == ALIGN_BOTTOM  ) {
 			y = area.get_bottom() - images[n].y - images[n].h;
 		}
 

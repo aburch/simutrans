@@ -1004,6 +1004,7 @@ grund_t* vehicle_t::hop_check()
 		if(  air_wt != wt  &&  route_index < cnv->get_route()->get_count()-1  ) {
 			uint8 dir = get_ribi(bd);
 			koord3d nextnext_pos = cnv->get_route()->position_bei(route_index+1);
+			assert( nextnext_pos != get_pos() );
 			uint8 new_dir = ribi_typ(nextnext_pos - pos_next);
 			if((dir&new_dir)==0) {
 				// new one way sign here?

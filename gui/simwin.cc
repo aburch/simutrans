@@ -1521,7 +1521,7 @@ void win_display_flush(double konto)
 	display_set_clip_wh( 0, menu_height, disp_width, disp_height-menu_height+1 );
 
 	show_ticker = false;
-	if (!ticker::empty()) {
+	if( !ticker::empty() ) {
 		ticker::draw();
 		if (ticker::empty()) {
 			// set dirty background for removing ticker
@@ -1536,11 +1536,15 @@ void win_display_flush(double konto)
 		}
 	}
 
+	if(  skinverwaltung_t::compass_iso  ) {
+		display_img_aligned( skinverwaltung_t::compass_iso->get_bild_nr( wl->get_settings().get_rotation() ), scr_rect(4,menu_height+4,disp_width-2*4,disp_height-menu_height-15-2*4-(TICKER_HEIGHT)*show_ticker), ALIGN_RIGHT|ALIGN_BOTTOM, false );
+	}
+
 	// ok, we want to clip the height for everything!
 	// unfortunately, the easiest way is by manipulating the global high
 	{
 		sint16 oldh = display_get_height();
-		display_set_height( oldh-(wl?16:0)-16*show_ticker );
+		display_set_height( oldh-(wl?16:0)-(TICKER_HEIGHT)*show_ticker );
 
 		display_all_win();
 		remove_old_win();
@@ -1592,7 +1596,7 @@ void win_display_flush(double konto)
 	bool tooltip_check = get_maus_y()>disp_height-15;
 	if(  tooltip_check  ) {
 		tooltip_xpos = get_maus_x();
-		tooltip_ypos = disp_height-15-10-16*show_ticker;
+		tooltip_ypos = disp_height-15-10-TICKER_HEIGHT*show_ticker;
 	}
 
 	// season color
@@ -1677,6 +1681,11 @@ void win_display_flush(double konto)
 		}
 		else if(  haltestelle_t::get_rerouting_status()==REROUTING  ) {
 			info.append( " *" );
+		}
+		if(  skinverwaltung_t::compass_iso == NULL  &&  wl->get_settings().get_rotation()  ) {
+			static char *compass_dir[4] = { "North", "East", "South", "West" };
+			info.append( " " );
+			info.append( translator::translate( compass_dir[ 4-wl->get_settings().get_rotation() ] ) );
 		}
 	}
 #endif

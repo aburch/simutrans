@@ -101,7 +101,7 @@ void karte_ansicht_t::display(bool force_dirty)
 	const sint16 menu_height = env_t::iconsize.h;
 	const sint16 IMG_SIZE = get_tile_raster_width();
 
-	const sint16 disp_height = display_get_height() - 16 - (!ticker::empty() ? 16 : 0);
+	const sint16 disp_height = display_get_height() - 15 - (!ticker::empty() ? TICKER_HEIGHT : 0);
 	display_set_clip_wh( 0, menu_height, disp_width, disp_height-menu_height );
 
 	// redraw everything?
