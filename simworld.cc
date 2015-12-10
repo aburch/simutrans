@@ -6659,17 +6659,11 @@ void karte_t::network_game_set_pause(bool pause_, uint32 syncsteps_)
 		}
 		else {
 			step_mode = FIX_RATIO;
-			if (!env_t::server) {
-				/* make sure, the server is really that far ahead
-				 * Sleep() on windows often returns before!
-				 */
-				uint32 now = dr_time();
-				uint32 ms = (settings.get_server_frames_ahead() + (uint32)env_t::additional_client_frames_behind) * fix_ratio_frame_time;
-				while(  dr_time() - now < ms  ) {
-					dr_sleep ( 10 );
-				}
-			}
 			reset_timer();
+			if(  !env_t::server  ) {
+				// allow server to run ahead the specified number of frames, plus an extra 50%. Better to catch up than be ahead.
+				next_step_time = dr_time() + (settings.get_server_frames_ahead() + (uint32)env_t::additional_client_frames_behind) * fix_ratio_frame_time * 3 / 2;
+			}
 		}
 	}
 	else {
@@ -6729,24 +6723,49 @@ void karte_t::process_network_commands(sint32 *ms_difference)
 	}
 
 	// process the received command
-	while (nwc) {
+	while(  nwc  ) {
 		// check timing
-		if (nwc->get_id()==NWC_CHECK) {
+		if(  nwc->get_id() == NWC_CHECK  ) {
 			// checking for synchronisation
 			nwc_check_t* nwcheck = (nwc_check_t*)nwc;
+
 			// are we on time?
 			*ms_difference = 0;
-			sint64 const difftime = ( (sint32)next_step_time - (sint32)dr_time() ) + ((sint64)nwcheck->server_sync_step - sync_steps - settings.get_server_frames_ahead() - env_t::additional_client_frames_behind) * fix_ratio_frame_time;
-			if(  difftime<0  ) {
+			const uint32 timems = dr_time();
+			const sint32 time_to_next = (sint32)next_step_time - (sint32)timems; // +'ve - still waiting for next,  -'ve - lagging
+			const sint64 frame_timediff = ((sint64)nwcheck->server_sync_step - sync_steps - settings.get_server_frames_ahead() - env_t::additional_client_frames_behind) * fix_ratio_frame_time; // +'ve - server is ahead,  -'ve - client is ahead
+			const sint64 timediff = time_to_next + frame_timediff;
+			dbg->warning("NWC_CHECK", "time difference to server %lli", frame_timediff );
+
+			if(  frame_timediff < (0 - (sint64)settings.get_server_frames_ahead() - (sint64)env_t::additional_client_frames_behind) * (sint64)fix_ratio_frame_time / 2  ) {
+				// running way ahead - more than half margin, simply set next_step_time ahead to where it should be
+				next_step_time = (sint64)timems - frame_timediff;
+			}
+			else if(  frame_timediff < 0  ) {
 				// running ahead
-				next_step_time += (uint32)(-difftime);
+				if(  time_to_next > -frame_timediff  ) {
+					// already waiting longer than how far we're ahead, so set wait time shorter to the time ahead.
+					next_step_time = (sint64)timems - frame_timediff;
 			}
 			else {
-				// more gentle catching up
-				*ms_difference = (sint32)difftime;
+					// gentle slowing down
+					*ms_difference = timediff;
+				}
 			}
-			dbg->message("NWC_CHECK","time difference to server %lli",difftime);
+			else if(  frame_timediff > 0  ) {
+				// running behind
+				if(  time_to_next > (sint32)fix_ratio_frame_time / 4  ) {
+					// behind but we're still waiting for the next step time - get going.
+					next_step_time = timems;
+					*ms_difference = frame_timediff;
+				}
+				else {
+					// gentle catching up
+					*ms_difference = timediff;
+				}
+			}
 		}
+
 		// check random number generator states
 		if(  env_t::server  &&  nwc->get_id()==NWC_TOOL  ) {
 			nwc_tool_t *nwt = dynamic_cast<nwc_tool_t *>(nwc);
@@ -6981,15 +7000,21 @@ bool karte_t::interactive(uint32 quit_month)
 					clear_random_mode( STEP_RANDOM );
 				}
 				else if(  step_mode==FIX_RATIO  ) {
-					next_step_time += fix_ratio_frame_time;
-					if(  ms_difference>5  ) {
-						next_step_time -= 5;
-						ms_difference -= 5;
+					if(  env_t::server  ) {
+						next_step_time += fix_ratio_frame_time;
 					}
-					else if(  ms_difference<-5  ) {
-						next_step_time += 5;
-						ms_difference += 5;
+					else {
+						const sint32 lag_time = (sint32)time - (sint32)next_step_time;
+						if(  lag_time > 0  ) {
+							ms_difference += lag_time;
+							next_step_time = time;
+						}
+
+						const sint32 nst_diff = clamp( ms_difference, -fix_ratio_frame_time * 2, fix_ratio_frame_time * 8 ) / 10; // allows timerate between 83% and 500% of normal
+						next_step_time += fix_ratio_frame_time - nst_diff;
+						ms_difference -= nst_diff;
 					}
+
 					sync_step( (fix_ratio_frame_time*time_multiplier)/16, true, true );
 					if (++network_frame_count == settings.get_frames_per_step()) {
 						// ever fourth frame
@@ -7002,9 +7027,14 @@ bool karte_t::interactive(uint32 quit_month)
 					LCHKLST(sync_steps) = checklist_t(get_random_seed(), halthandle_t::get_next_check(), linehandle_t::get_next_check(), convoihandle_t::get_next_check());
 					// some serverside tasks
 					if(  env_t::networkmode  &&  env_t::server  ) {
-						// broadcast sync info
-						if (  (network_frame_count==0  &&  (sint64)dr_time()-(sint64)next_step_time>fix_ratio_frame_time*2)
-								||  (sync_steps % env_t::server_sync_steps_between_checks)==0  ) {
+						// broadcast sync info regularly and when lagged
+						const sint64 timelag = (sint32)dr_time() - (sint32)next_step_time;
+						if(  (network_frame_count == 0  &&  timelag > fix_ratio_frame_time * settings.get_server_frames_ahead() / 2)  ||  (sync_steps % env_t::server_sync_steps_between_checks) == 0  ) {
+							if(  timelag > fix_ratio_frame_time * settings.get_frames_per_step()  ) {
+								// log when server is lagged more than one step
+								dbg->warning("karte_t::interactive", "server lagging by %lli", timelag );
+							}
+
 							nwc_check_t* nwc = new nwc_check_t(sync_steps + 1, map_counter, LCHKLST(sync_steps), sync_steps);
 							network_send_all(nwc, true);
 						}
