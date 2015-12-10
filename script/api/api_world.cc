@@ -137,6 +137,11 @@ void export_world(HSQUIRRELVM vm)
 	 * @returns whether operation was successfull
 	 */
 	STATIC register_method(vm, &world_remove_player, "remove_player", true);
+	/**
+	 * Returns player number @p pl. If player does not exist, returns null.
+	 * @param pl player number
+	 */
+	STATIC register_method(vm, &karte_t::get_player, "get_player", true);
 
 	/**
 	 * @returns current in-game time.
