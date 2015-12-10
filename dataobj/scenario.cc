@@ -181,7 +181,7 @@ void scenario_t::load_compatibility_script()
 	plainstring api_version;
 	if (const char* err = script->call_function("get_api_version", api_version)) {
 		dbg->warning("scenario_t::init", "error [%s] calling get_api_version", err);
-		api_version = "112.3";
+		api_version = "120.1";
 	}
 	if (api_version != "*") {
 		// load scenario compatibility script

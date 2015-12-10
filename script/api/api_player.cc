@@ -209,8 +209,11 @@ void export_player(HSQUIRRELVM vm)
 
 	/**
 	 * Returns whether the player (still) exists in the game.
+	 *
+	 * @deprecated Only available for api versions less than 120.1, see @ref get_api_version.
+	 * @typemask bool()
 	 */
-	register_method(vm, &player_active, "is_active", true);
+	// register_method(vm,, "is_active", true); implemented in scenario_compat.nut
 	/**
 	 * Exports list of lines of this player.
 	 * @typemask line_list_x()
