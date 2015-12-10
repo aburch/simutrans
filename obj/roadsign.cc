@@ -492,6 +492,11 @@ void roadsign_t::rotate90()
 		uint8 temp = ticks_ns;
 		ticks_ns = ticks_ow;
 		ticks_ow = temp;
+
+		trafficlight_info_t *const trafficlight_win = dynamic_cast<trafficlight_info_t *>( win_get_magic( (ptrdiff_t)this ) );
+		if(  trafficlight_win  ) {
+			trafficlight_win->update_data();
+		}
 	}
 	dir = ribi_t::rotate90( dir );
 }
