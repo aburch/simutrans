@@ -119,6 +119,17 @@ register_function("get_result_text");
 register_function("get_debug_text");
 
 /**
+ * Returns string containing the version of the api
+ * that the scenario supports.
+ *
+ * If it returns "*" then the current version is supported.
+ * Currently only "112.3" is supported.
+ *
+ * @typemask string()
+ */
+register_function("get_api_version");
+
+/**
  * Core function of a scenario: It returns the completion percentage for the
  * specified player.
  *
