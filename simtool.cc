@@ -7175,7 +7175,11 @@ const char *tool_reassign_signal_t::do_work( player_t *player, const koord3d &la
 	
 	// second click
 	grund_t* gr_end = welt->lookup(pos);
-	gebaeude_t* gb_end = gr_end->get_building()->get_first_tile();
+	gebaeude_t* gb_end = gr_end->get_building();
+	if(gb_end)
+	{
+		gb_end = gb_end->get_first_tile();
+	}
 	signalbox_t* sb_end = NULL;
 	if(gb_end && gb_end->get_tile()->get_besch()->get_utyp() == haus_besch_t::signalbox)
 	{
@@ -7188,7 +7192,11 @@ const char *tool_reassign_signal_t::do_work( player_t *player, const koord3d &la
 	}
 
 	grund_t* gr_start = welt->lookup(last_pos); 
-	gebaeude_t* gb_start = gr_start->get_building()->get_first_tile();
+	gebaeude_t* gb_start = gr_start->get_building();
+	if(gb_start)
+	{
+		gb_start = gb_start->get_first_tile();
+	}
 	signalbox_t* sb_start = NULL;
 	if(gb_start && gb_start->get_tile()->get_besch()->get_utyp() == haus_besch_t::signalbox)
 	{
