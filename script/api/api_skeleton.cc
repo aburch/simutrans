@@ -122,8 +122,8 @@ register_function("get_debug_text");
  * Returns string containing the version of the api
  * that the scenario supports.
  *
- * If it returns "*" then the current version is supported.
- * Currently only "112.3" is supported.
+ * If it returns "*" then this indicates that the scenario works in the most current api version.
+ * Currently "112.3" and "120.1" are supported.
  *
  * @typemask string()
  */
