@@ -7090,7 +7090,11 @@ uint8 tool_reassign_signal_t::is_valid_pos(player_t *player, const koord3d &pos,
 	// The end tile must be a signalbox. The start tile may either be a signal or a signalbox. 
 
 	// Check the end tile first.
-	const gebaeude_t* gb = gr->get_building()->get_first_tile();
+	gebaeude_t* gb = gr->get_building();
+	if(gb)
+	{
+		gb = gb->get_first_tile();
+	}
 	const signalbox_t* sb_end;
 	if(gb && gb->get_tile()->get_besch()->get_utyp() == haus_besch_t::signalbox)
 	{
@@ -7113,7 +7117,11 @@ uint8 tool_reassign_signal_t::is_valid_pos(player_t *player, const koord3d &pos,
 
 	bool is_valid_start = false;
 
-	gb = gr_start->get_building()->get_first_tile(); 
+	gb = gr_start->get_building();
+	if(gb)
+	{
+		gb = gb->get_first_tile();
+	}
 	if(gb && gb->get_tile()->get_besch()->get_utyp() == haus_besch_t::signalbox)
 	{
 		const signalbox_t* sb_start = (signalbox_t*)gb;
