@@ -420,9 +420,6 @@ toll_waycost_percentage = 0
 # also pak dependent
 #
 
-# save the curretn game when quitting and reload it upon reopening
-#reload_and_save_on_quit = 1
-
 # minimum distance between two townhalls
 #minimum_city_distance = 16
 
@@ -559,6 +556,9 @@ autosaveformat = zipped
 
 # autosave every x months (0=off)
 autosave = 0
+
+# save the current game when quitting and reload it upon reopening
+#reload_and_save_on_quit = 1
 
 # display (screen/window) width
 # also see readme.txt, -screensize option
