@@ -2690,22 +2690,19 @@ void fabrik_t::info_prod(cbuffer_t& buf) const
 		for (uint32 index = 0; index < ausgang.get_count(); index++) {
 			const ware_besch_t * type = ausgang[index].get_typ();
 			const sint64 pfactor = (sint64)besch->get_produkt(index)->get_faktor();
-			// negative values can happen, map them to zero
-			uint32 scaled_menge = ( max(FAB_DISPLAY_UNIT_HALF + (sint64)ausgang[index].menge * pfactor, 0) ) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS);
-
 
 			if(  welt->get_settings().get_just_in_time() >= 2  ) {
 				buf.printf( "\n - %s %u%% : %u/%u",
 					translator::translate(type->get_name()),
 					(uint32)((FAB_PRODFACT_UNIT_HALF + (sint32)pfactor * 100) >> DEFAULT_PRODUCTION_FACTOR_BITS),
-					scaled_menge,
+					(uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)ausgang[index].menge * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS)),
 					(uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)ausgang[index].max * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS))
 				);
 			}
 			else {
 				buf.printf( "\n - %s %u/%u%s",
 					translator::translate(type->get_name()),
-					scaled_menge,
+					(uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)ausgang[index].menge * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS)),
 					(uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)ausgang[index].max * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS)),
 					translator::translate(type->get_mass())
 				);
@@ -2727,14 +2724,11 @@ void fabrik_t::info_prod(cbuffer_t& buf) const
 		for (uint32 index = 0; index < eingang.get_count(); index++) {
 			const sint64 pfactor = (sint64)besch->get_lieferant(index)->get_verbrauch();
 
-			// negative values can happen, map them to zero
-			uint32 scaled_menge = ( max(FAB_DISPLAY_UNIT_HALF + (sint64)eingang[index].menge * pfactor, 0) ) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS);
-
 			if(  welt->get_settings().get_just_in_time() >= 2  ) {
 				buf.printf("\n - %s %u%% : %u/%u + %u (%+i)",
 					translator::translate(eingang[index].get_typ()->get_name()),
 					(uint32)((FAB_PRODFACT_UNIT_HALF + (sint32)pfactor * 100) >> DEFAULT_PRODUCTION_FACTOR_BITS),
-					scaled_menge,
+					(uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)eingang[index].menge * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS)),
 					(uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)eingang[index].max * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS)),
 					(uint32)eingang[index].get_in_transit(),
 					(sint32)((FAB_DISPLAY_UNIT_HALF + (sint64)eingang[index].demand_buffer * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS))
@@ -2743,7 +2737,7 @@ void fabrik_t::info_prod(cbuffer_t& buf) const
 			else if(  welt->get_settings().get_factory_maximum_intransit_percentage()  ) {
 				buf.printf("\n - %s %u/%i(%i)/%u%s, %u%%",
 					translator::translate(eingang[index].get_typ()->get_name()),
-					scaled_menge,
+					(uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)eingang[index].menge * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS)),
 					eingang[index].get_in_transit(),
 					eingang[index].max_transit,
 					(uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)eingang[index].max * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS)),
@@ -2754,7 +2748,7 @@ void fabrik_t::info_prod(cbuffer_t& buf) const
 			else {
 				buf.printf("\n - %s %u/%i/%u%s, %u%%",
 					translator::translate(eingang[index].get_typ()->get_name()),
-					scaled_menge,
+					(uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)eingang[index].menge * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS)),
 					eingang[index].get_in_transit(),
 					(uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)eingang[index].max * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS)),
 					translator::translate(eingang[index].get_typ()->get_mass()),
