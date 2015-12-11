@@ -184,6 +184,15 @@ bool signalbox_t::transfer_signal(signal_t* s, signalbox_t* sb)
 	{
 		return false;
 	}
+
+	if(!s->get_besch()->get_working_method() != moving_block)
+	{
+		if((s->get_besch()->get_max_distance_to_signalbox() / welt->get_settings().get_meters_per_tile()) < shortest_distance(s->get_pos().get_2d(), sb->get_pos().get_2d()))
+		{
+			return false;
+		}
+	}
+
 	if(add_signal(s))
 	{
 		sb->remove_signal(s);  
@@ -217,6 +226,16 @@ koord signalbox_t::transfer_all_signals(signalbox_t* sb)
 			dbg->error("signalbox_t::transfer_all_signals(signalbox_t* sb)", "Signal cannot be retrieved"); 
 			continue;
 		}
+
+		if(!s->get_besch()->get_working_method() != moving_block)
+		{
+			if((s->get_besch()->get_max_distance_to_signalbox() / welt->get_settings().get_meters_per_tile()) < shortest_distance(s->get_pos().get_2d(), sb->get_pos().get_2d()))
+			{
+				failure++;
+				continue;
+			}
+		}
+
 		if(sb->transfer_signal(s, this))
 		{
 			success++;
