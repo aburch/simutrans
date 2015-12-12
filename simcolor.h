@@ -135,4 +135,9 @@ typedef unsigned char COLOR_VAL;
 #define SYSCOL_FOCUS                gui_theme_t::button_color_focus
 #define SYSCOL_WORKAREA             gui_theme_t::gui_color_workarea
 #define SYSCOL_CURSOR               gui_theme_t::gui_color_cursor
+
+//#define SYSCOL_TICKER_BACKGROUND gui_theme_t::gui_color_ticker_background
+#define SYSCOL_TICKER_BACKGROUND MN_GREY2
+#define SYSCOL_TICKER_DIVIDER COL_BLACK
+
 #endif

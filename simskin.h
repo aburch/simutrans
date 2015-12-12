@@ -70,6 +70,10 @@ public:
 	static const skin_besch_t *message_options;
 	/// image shown in color selection window
 	static const skin_besch_t *color_options;
+	// isometric compass for main map (evt. minimap)
+	static const skin_besch_t *compass_iso;
+	// normal staight compass for minimap
+	static const skin_besch_t *compass_rect;
 	/// @}
 
 	/// @name icons used for the tabs in the line management window

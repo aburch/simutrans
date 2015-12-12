@@ -214,7 +214,7 @@ void interaction_t::interactive_event( const event_t &ev )
 		}
 	}
 
-	if(  IS_LEFTRELEASE(&ev)  &&  ev.my < display_get_height() - 32 + (16*ticker::empty())  ) {
+	if(  IS_LEFTRELEASE(&ev)  &&  ev.my < display_get_height() -16 -(TICKER_HEIGHT*ticker::empty())  ) {
 
 		DBG_MESSAGE("interaction_t::interactive_event(event_t &ev)", "calling a tool");
 

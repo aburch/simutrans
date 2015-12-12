@@ -37,6 +37,7 @@ COLOR_VAL gui_theme_t::gui_color_cursor;
 COLOR_VAL gui_theme_t::button_color_text;
 COLOR_VAL gui_theme_t::button_color_disabled_text;
 COLOR_VAL gui_theme_t::button_color_focus;
+COLOR_VAL gui_theme_t::gui_color_ticker_background;
 
 /**
  * Max Kielland
@@ -121,6 +122,7 @@ void gui_theme_t::init_gui_defaults()
 	button_color_text             = COL_BLACK;
 	button_color_disabled_text    = MN_GREY0;
 	button_color_focus            = COL_WHITE;
+	gui_color_ticker_background   = MN_GREY2;
 
 	gui_button_size        = scr_size(92,14);
 	gui_color_button_size  = scr_size(92,16);

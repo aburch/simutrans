@@ -120,15 +120,15 @@ void ticker::draw()
 		}
 		// redraw ticker partially
 		else {
-			display_scroll_band( start_y+4, X_DIST, TICKER_HEIGHT-3 );
-			display_fillbox_wh(width-X_DIST, start_y+1, X_DIST, TICKER_HEIGHT, MN_GREY2, true);
+			display_scroll_band( start_y+1, X_DIST, TICKER_HEIGHT-1 );
+			display_fillbox_wh(width-X_DIST, start_y+1, X_DIST, TICKER_HEIGHT-1, SYSCOL_TICKER_BACKGROUND, true);
 			// ok, ready for the text
-			PUSH_CLIP( 0, start_y + 1, width - 1, TICKER_HEIGHT );
+			PUSH_CLIP( 0, start_y + 1, width - 1, TICKER_HEIGHT-1 );
 			FOR(slist_tpl<node>, & n, list) {
 				n.xpos -= X_DIST;
 				if (n.xpos < width) {
-					display_proportional_clip(n.xpos, start_y + 4, n.msg, ALIGN_LEFT, n.color, true);
-					default_pos = n.pos;
+					display_proportional_clip(n.xpos, start_y + 2, n.msg, ALIGN_LEFT, n.color, true);
+ 					default_pos = n.pos;
 				}
 			}
 			POP_CLIP();
@@ -139,7 +139,9 @@ void ticker::draw()
 			list.remove_first();
 		}
 		if (list.empty()) {
-			mark_rect_dirty_wc(0, start_y, width, start_y + TICKER_HEIGHT);
+			// old: mark_rect_dirty_wc(0, start_y, width, start_y + TICKER_HEIGHT);
+			// now everything at the bottom to clear also tooltips and compass
+			mark_rect_dirty_wc(0, start_y-128, width, start_y + 128 +TICKER_HEIGHT);
 		}
 		if(next_pos>width) {
 			next_pos -= X_DIST;
@@ -159,12 +161,12 @@ void ticker::redraw_ticker()
 		const int width = display_get_width();
 
 		// just draw the ticker grey ... (to be sure ... )
-		display_fillbox_wh(0, start_y, width, 1, COL_BLACK, true);
-		display_fillbox_wh(0, start_y+1, width, TICKER_HEIGHT, MN_GREY2, true);
+		display_fillbox_wh(0, start_y, width, 1, SYSCOL_TICKER_DIVIDER, true);
+		display_fillbox_wh(0, start_y+1, width, TICKER_HEIGHT-1, SYSCOL_TICKER_BACKGROUND, true);
 		FOR(slist_tpl<node>, & n, list) {
 			n.xpos -= X_DIST;
 			if (n.xpos < width) {
-				display_proportional_clip(n.xpos, start_y + 4, n.msg, ALIGN_LEFT, n.color, true);
+				display_proportional_clip(n.xpos, start_y + 2, n.msg, ALIGN_LEFT, n.color, true);
 				default_pos = n.pos;
 			}
 		}

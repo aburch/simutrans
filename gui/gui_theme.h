@@ -216,6 +216,7 @@ public:
 	static COLOR_VAL gui_color_selected_background; //@< Colour to draw selected text background in edit box etc...
 	static COLOR_VAL gui_color_workarea;            //@< Colour to draw as background in edit box, lists, charts etc...
 	static COLOR_VAL gui_color_cursor;              //@< Colour to draw text cursor with.
+	static COLOR_VAL gui_color_ticker_background;	//@< Color to draw ticker
 	/// @}
 
 	/// @name GUI element sizes used by gui components

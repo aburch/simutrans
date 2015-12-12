@@ -57,6 +57,9 @@ const skin_besch_t* skinverwaltung_t::seasons_icons      = NULL;
 const skin_besch_t* skinverwaltung_t::message_options    = NULL;
 const skin_besch_t* skinverwaltung_t::color_options      = NULL;
 
+const skin_besch_t* skinverwaltung_t::compass_iso        = NULL;
+const skin_besch_t* skinverwaltung_t::compass_rect       = NULL;	// compass rectangular (for minimap)
+
 // cursors
 const skin_besch_t* skinverwaltung_t::cursor_general     = NULL;	// new cursors
 const skin_besch_t* skinverwaltung_t::bauigelsymbol      = NULL;
@@ -137,6 +140,8 @@ static spezial_obj_tpl<skin_besch_t> const fakultative_objekte[] = {
 	{ &skinverwaltung_t::pausesymbol,        "pausesym"       },
 	{ &skinverwaltung_t::station_type,       "station_type"   },
 	{ &skinverwaltung_t::toolbar_background,"ToolsBackground"},
+	{ &skinverwaltung_t::compass_iso,        "CompassIso"     },
+	{ &skinverwaltung_t::compass_rect,       "CompassRect"    },
 	{ NULL, NULL }
 };
 
