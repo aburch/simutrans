@@ -3554,6 +3554,7 @@ void convoi_t::rdwr(loadsave_t *file)
 				//sum_leistung += info->get_leistung();
 				//sum_gear_und_leistung += (info->get_leistung() * info->get_gear() *welt->get_settings().get_global_power_factor_percent() + 50) / 100;
 				//sum_gewicht += info->get_gewicht();
+				has_obsolete |= welt->use_timeline()  &&  info->is_retired( welt->get_timeline_year_month() );
 				is_electric |= info->get_engine_type()==vehikel_besch_t::electric;
 				player_t::add_maintenance( get_owner(), info->get_maintenance(), info->get_waytype() );
 			}
