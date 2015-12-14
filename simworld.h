@@ -554,7 +554,7 @@ private:
 	 * @note Variable used in interactive().
 	 * @note Set in reset_timer().
 	 */
-	uint32 fix_ratio_frame_time;
+	sint32 fix_ratio_frame_time;
 
 	/**
 	 * For performance comparison.
