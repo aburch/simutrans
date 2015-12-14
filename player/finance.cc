@@ -222,7 +222,8 @@ void finance_t::new_month()
 /**
  * Books interest expense or profit.
  */
-void finance_t::book_interest_monthly() {
+void finance_t::book_interest_monthly() 
+{
 	// This handles both interest on cash balance and interest on loans.
 	// Rate is yearly rate for debt; rate for credit is 1/4 of that.  (Fix this.)
 	const sint64 interest_rate = (sint64)world->get_settings().get_interest_rate_percent();
@@ -259,7 +260,8 @@ void finance_t::book_interest_monthly() {
 	}
 }
 
-void finance_t::calc_credit_limits() {
+void finance_t::calc_credit_limits()
+{
 	sint64 hard_limit_by_profits = credit_limit_by_profits();
 	sint64 hard_limit_by_assets = credit_limit_by_assets();
 
@@ -290,7 +292,8 @@ void finance_t::calc_credit_limits() {
  * Calculates a credit limit based on past year's profitability
  * (ability to cover interest costs).
  */
-sint64 finance_t::credit_limit_by_profits() const {
+sint64 finance_t::credit_limit_by_profits() const 
+{
 	// The idea is that yearly profits should cover yearly interest
 	// Look back 12 months (full year's profit)
 	sint64 profit_total=0;
@@ -327,7 +330,8 @@ sint64 finance_t::credit_limit_by_profits() const {
  * Calculates an asset-based credit limit.
  * Secured borrowing against assets.
  */
-sint64 finance_t::credit_limit_by_assets() const {
+sint64 finance_t::credit_limit_by_assets() const 
+{
 	// Can borrow against potentially all assets.
 	sint64 hard_limit_by_assets = - get_history_veh_month(TT_ALL, 0, ATV_NON_FINANCIAL_ASSETS);
 	// The following deals with potential bugs.
