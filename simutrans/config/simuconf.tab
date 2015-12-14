@@ -346,6 +346,13 @@ draw_outside_tile = 0
 # Color of background outside the map, default: COL_GREY2 (210)
 #background_color = 210
 
+# If and where to display a compass
+# 0=off (default for main screen)
+# 1=top, 2=vertical centre, 3=bottom, 4=left, 8=horizontal centre, 12=right
+# default for minimap is 1+12=13
+compass_screen_position = 0
+compass_map_position = 13
+
 ###################################money stuff##################################
 #
 # These values are usually set in the pak files

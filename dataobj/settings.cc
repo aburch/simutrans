@@ -818,6 +818,9 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	env_t::townhall_info = contents.get_int("townhall_info", env_t::townhall_info) != 0;
 	env_t::single_info = contents.get_int("only_single_info", env_t::single_info );
 
+	env_t::compass_map_position = contents.get_int("compass_map_position", env_t::compass_map_position );
+	env_t::compass_screen_position = contents.get_int("compass_screen_position", env_t::compass_screen_position );
+
 	env_t::window_snap_distance = contents.get_int("window_snap_distance", env_t::window_snap_distance );
 	env_t::window_buttons_right = contents.get_int("window_buttons_right", env_t::window_buttons_right );
 	env_t::left_to_right_graphs = contents.get_int("left_to_right_graphs", env_t::left_to_right_graphs );

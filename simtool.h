@@ -845,6 +845,7 @@ class tool_rotate90_t : public tool_t {
 public:
 	tool_rotate90_t() : tool_t(TOOL_ROTATE90 | SIMPLE_TOOL) {}
 	image_id get_icon(player_t*) const OVERRIDE { return env_t::networkmode ? IMG_LEER : icon; }
+	virtual void draw_after(scr_coord pos, bool dirty) const; /* may draw a compass on top */
 	char const* get_tooltip(player_t const*) const OVERRIDE { return env_t::networkmode ? translator::translate("deactivated in online mode") : translator::translate("Rotate map"); }
 	bool init( player_t * ) OVERRIDE;
 	bool is_init_network_save() const OVERRIDE { return !env_t::networkmode; }

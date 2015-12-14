@@ -206,6 +206,11 @@ public:
 	static uint8 bottom_window_bar_color;
 	static uint8 bottom_window_text_color;
 
+	// display compass
+	static uint16 compass_map_position;
+	static uint16 compass_screen_position;
+
+
 	/// @} end of GUI settings
 
 	/**

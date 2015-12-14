@@ -58,7 +58,7 @@ const skin_besch_t* skinverwaltung_t::message_options    = NULL;
 const skin_besch_t* skinverwaltung_t::color_options      = NULL;
 
 const skin_besch_t* skinverwaltung_t::compass_iso        = NULL;
-const skin_besch_t* skinverwaltung_t::compass_rect       = NULL;	// compass rectangular (for minimap)
+const skin_besch_t* skinverwaltung_t::compass_map        = NULL;	// compass for minimap
 
 // cursors
 const skin_besch_t* skinverwaltung_t::cursor_general     = NULL;	// new cursors
@@ -141,7 +141,7 @@ static spezial_obj_tpl<skin_besch_t> const fakultative_objekte[] = {
 	{ &skinverwaltung_t::station_type,       "station_type"   },
 	{ &skinverwaltung_t::toolbar_background, "ToolsBackground"},
 	{ &skinverwaltung_t::compass_iso,        "CompassIso"     },
-	{ &skinverwaltung_t::compass_rect,       "CompassRect"    },
+	{ &skinverwaltung_t::compass_map,        "CompassMap"     },
 	{ NULL, NULL }
 };
 

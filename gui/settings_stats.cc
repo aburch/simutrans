@@ -112,6 +112,9 @@ void settings_general_stats_t::init(settings_t const* const sets)
 	INIT_BOOL( "ground_info", env_t::ground_info );
 	INIT_BOOL( "townhall_info", env_t::townhall_info );
 	INIT_BOOL( "only_single_info", env_t::single_info );
+	SEPERATOR
+	INIT_NUM( "compass_map_position", env_t::compass_map_position, 0, 16, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM( "compass_screen_position", env_t::compass_screen_position, 0, 16, gui_numberinput_t::AUTOLINEAR, false );
 
 	clear_dirty();
 	height = ypos;
@@ -151,6 +154,9 @@ void settings_general_stats_t::read(settings_t* const sets)
 	READ_BOOL_VALUE( env_t::ground_info );
 	READ_BOOL_VALUE( env_t::townhall_info );
 	READ_BOOL_VALUE( env_t::single_info );
+
+	READ_NUM_VALUE( env_t::compass_map_position );
+	READ_NUM_VALUE( env_t::compass_screen_position );
 }
 
 void settings_display_stats_t::init(settings_t const* const)
