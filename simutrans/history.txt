@@ -1,15 +1,15 @@
 	ADD: tool for last used tools
 	ADD: configurable compass for minimap, rotation tool, and main screen
 
-Release of 120.1: (r7640 on 4-Nov-2015):
-	FIX: corrected bookeeping of stops and passengers, including walked ones which could lead to crashes
+Release of 120.1.1: (r7640 on 4-Nov-2015):
+	FIX: corrected bookkeeping of stops and passengers, including walked ones which could lead to crashes
 
 
 Release of 120.1: (r7634 on 31-Oct-2015):
-	FIX: sliced undergraound mode now ranges from lowest existing to highest existing ground
-	FIX: several issues with bridge bilding and deletion at two vertical cliffs
+	FIX: sliced underground mode now ranges from lowest existing to highest existing ground
+	FIX: several issues with bridge building and deletion at two vertical cliffs
 	ADD: new industrial demand model just_in_time=2, which models factory ordering stuff
-	ADD: new tool for trimming lines (linetool, parameter trim, lin_id egal, linetype (integer), target percentage (integer): will delete lines until target met or less than four convois left on line
+	ADD: new tool for trimming lines (linetool, parameter trim, line_id_id egal, linetype (integer), target percentage (integer): will delete lines until target met or less than four convois left on line
 	ADD: configurable offsets for signs/signals (use offset_left = 0, for not moving, default 14)
 
 
@@ -23,12 +23,12 @@ Release of 120.0.1: (r7373 on 15-Nov-2014):
 Release of 120.0: (r7175 on 28-Apr-2014):
 	CHG: zoom with mouse wheel zooms to the cursor position, not to the center of screen as it used to
 	CHG: system events management rearranged, simutrans should more responsive to user events, specially on low framerates
-	ADD: second_open_closes_win =1 in simuconf.tab will close open window instead top them on secod call/click
-	ADD: remember_window_positions=1 (default) will remeber last window positions
+	ADD: second_open_closes_win =1 in simuconf.tab will close open window instead top them on second call/click
+	ADD: remember_window_positions=1 (default) will remember last window positions
 	FIX: (S_N_C) net wealth was not consistent after buying vehicles
 	ADD: (kierongreen) double heights (slopes), different water levels per tile, and per tile climates
 	FIX: long block signals direct in front of stations gave deadlocks
-	ADD: fixed maintenance for vehciles is now booked
+	ADD: fixed maintenance for vehicles is now booked
 	ADD: (jk271) way toll statistics now
 	ADD: (neroden/kierongreen) stacked stations eith different owners are now possible
 	ADD: loading gui themes (designs) on runtime
