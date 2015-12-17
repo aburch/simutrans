@@ -6122,6 +6122,13 @@ void karte_t::update_underground_intern( sint16 x_min, sint16 x_max, sint16 y_mi
 		for(  int x = x_min; x < x_max;  x++  ) {
 			const int nr = y * cached_grid_size.x + x;
 			plan[nr].get_kartenboden()->check_update_underground();
+			// update tunnel tiles
+			for(uint8 i=1; i<plan[nr].get_boden_count(); i++) {
+				grund_t *gr = plan[nr].get_boden_bei(i);
+				if (gr->ist_tunnel()) {
+					gr->check_update_underground();
+				}
+			}
 		}
 	}
 }
