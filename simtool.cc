@@ -2145,8 +2145,21 @@ const weg_besch_t *tool_build_way_t::get_besch( uint16 timeline_year_month, bool
 image_id tool_build_way_t::get_icon(player_t *) const
 {
 	const weg_besch_t *besch = wegbauer_t::get_besch(default_param,0);
-	const bool is_tram = besch ? (besch->get_wtyp()==tram_wt) || (besch->get_styp() == weg_t::type_tram) : false;
-	return (grund_t::underground_mode==grund_t::ugm_all && !is_tram ) ? IMG_LEER : icon;
+	image_id bild = icon;
+	bool is_tram = false;
+	if(  besch  ) {
+		is_tram = (besch->get_wtyp()==tram_wt) || (besch->get_styp() == weg_t::type_tram);
+		if(  bild ==  IMG_LEER  ) {
+			bild = besch->get_cursor()->get_bild_nr(1);
+		}
+		if(  !besch->is_available( world()->get_timeline_year_month() )  ) {
+			return IMG_LEER;
+		}
+	}
+	if(  grund_t::underground_mode==grund_t::ugm_all && !is_tram ) {
+		return IMG_LEER;
+	}
+	return bild;
 }
 
 const char* tool_build_way_t::get_tooltip(const player_t *) const
