@@ -1683,7 +1683,7 @@ void win_display_flush(double konto)
 			info.append( " *" );
 		}
 		if(  skinverwaltung_t::compass_iso == NULL  &&  wl->get_settings().get_rotation()  ) {
-			static char *compass_dir[4] = { "North", "East", "South", "West" };
+			static const char *compass_dir[4] = { "North", "East", "South", "West" };
 			info.append( " " );
 			info.append( translator::translate( compass_dir[ 4-wl->get_settings().get_rotation() ] ) );
 		}
