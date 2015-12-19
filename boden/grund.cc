@@ -822,14 +822,17 @@ void grund_t::calc_back_bild(const sint8 hgt, const hang_t::typ slope_this)
 				}
 				// avoid walls that cover the tunnel mounds
 				if ( gr->is_visible() && (gr->get_typ()==grund_t::tunnelboden) && ist_karten_boden() && gr->get_pos().z==underground_level
-				     && gr->get_vmove(i==0 ? ribi_t::ost : ribi_t::sued) ) {
+				     && corner2( gr->get_grund_hang() ) > 0 /* se corner */) {
 					diff_from_ground_1 = 0;
 					diff_from_ground_2 = 0;
 				}
 				if ( is_visible() && (get_typ()==grund_t::tunnelboden) && ist_karten_boden() && pos.z==underground_level
-					&& gr->get_vmove(i==0 ? ribi_t::west : ribi_t::nord) ) {
-					diff_from_ground_1 = 0;
-					diff_from_ground_2 = 0;
+					&& corner4( get_grund_hang() ) > 0 /* nw corner */) {
+
+					if ( (i==0)  ^  (corner1( get_grund_hang() )==0) ) {
+						diff_from_ground_1 = 0;
+						diff_from_ground_2 = 0;
+					}
 				}
 			}
 
@@ -946,9 +949,10 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 r
 			// choose foundation or natural slopes
 			const grund_besch_t *sl_draw = artificial ? grund_besch_t::fundament : grund_besch_t::slopes;
 
+			const sint8 disp_slope = get_disp_slope();
 			// first draw left, then back slopes
 			for(  int i=0;  i<2;  i++  ) {
-				const uint8 back_height = min(i==0?corner1(slope):corner3(slope),corner4(slope));
+				const uint8 back_height = min(i==0?corner1(disp_slope):corner3(disp_slope),corner4(disp_slope));
 
 				if (back_height + get_disp_height() > underground_level) {
 					continue;
