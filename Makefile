@@ -74,7 +74,9 @@ SDL2_CONFIG    ?= sdl2-config
 ifneq ($(OPTIMISE),)
   CFLAGS += -O3
   ifeq ($(findstring $(OSTYPE), amiga),)
-    CFLAGS += -minline-all-stringops
+	ifneq ($(findstring $(CXX), clang),)
+		CFLAGS += -minline-all-stringops
+	endif
   endif
 else
   CFLAGS += -O
