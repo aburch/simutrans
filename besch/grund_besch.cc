@@ -1019,8 +1019,8 @@ void grund_besch_t::init_ground_textures(karte_t *w)
  */
 image_id grund_besch_t::get_ground_tile(grund_t *gr)
 {
-	hang_t::typ slope = gr->get_disp_slope();
-	sint16 height = gr->get_disp_height();
+	hang_t::typ slope = gr->get_grund_hang();
+	sint16 height = gr->get_hoehe();
 	koord k = gr->get_pos().get_2d();
 	const sint16 tile_h = height - welt->get_water_hgt(k);
 	if(  tile_h < 0  ||  (tile_h == 0  &&  slope == hang_t::flach)  ) {
