@@ -388,7 +388,7 @@ void tool_t::read_menu(const std::string &objfilename)
 				if(*str==',') {
 					// next comes cursor
 					str++;
-					if(*str!=',') {
+					if(*str  &&  *str!=',') {
 						uint16 cursor = (uint16)atoi(str);
 						if(  cursor>=info[t].cursor->get_bild_anzahl()  ) {
 							dbg->warning( "tool_t::init_menu()", "wrong cursor (%i) given for %s[%i]", cursor, info[t].type, i );
@@ -404,7 +404,7 @@ void tool_t::read_menu(const std::string &objfilename)
 				if(*str==',') {
 					// ok_sound
 					str++;
-					if(*str!=',') {
+					if(*str  &&  *str!=',') {
 						int sound = atoi(str);
 						if(  sound>0  ) {
 							tool->ok_sound = sound_besch_t::get_compatible_sound_id(sound);
