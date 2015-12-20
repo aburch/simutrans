@@ -5100,9 +5100,9 @@ rands[19] = get_random_seed();
 
 	recalc_season_snowline(true);
 
-	// TODO: Set these values in simuconf.tab
 	if(!time_interval_signals_to_check.empty())
 	{
+		// TODO: Set these values in simuconf.tab
 		const uint32 caution_interval_seconds = 300;
 		const uint32 clear_interval_seconds = 600; 
 
