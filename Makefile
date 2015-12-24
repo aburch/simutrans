@@ -19,11 +19,10 @@ ifeq ($(findstring $(OSTYPE), $(OSTYPES)),)
 endif
 
 ifeq ($(OSTYPE),amiga)
-  STD_LIBS ?= -lz -lbz2 -lunix -lSDL_mixer -lsmpeg -lvorbisfile -lvorbis -logg
-  CFLAGS += -mcrt=newlib -DUSE_C -DBIG_ENDIAN -gstabs+
+  STD_LIBS ?= -lunix -lSDL_mixer -lsmpeg -lvorbisfile -lvorbis -logg
+  CFLAGS += -mcrt=newlib -DUSE_C -DSIM_BIG_ENDIAN -gstabs+
   LDFLAGS += -Bstatic -non_shared
-endif
-
+else
 # BeOS (obsolete)
   ifeq ($(OSTYPE),beos)
     LIBS += -lnet
@@ -58,44 +57,6 @@ endif
       endif
     endif
   endif
-
-ifeq ($(OSTYPE),freebsd)
-  LIBS += -lz -lbz2
-endif
-
-ifeq ($(OSTYPE),mac)
-  CCFLAGS += -Os -fast
-  LIBS    += -lz -lbz2
-endif
-
-ifeq ($(OSTYPE),linux)
-  LIBS += -lz -lbz2
-endif
-
-ifeq ($(OSTYPE),cygwin)
-  SOURCES += simsys_w32_png.cc
-  CFLAGS += -I/usr/include/mingw -mwin32 -DNOMINMAX=1
-  CCFLAGS += -I/usr/include/mingw -mwin32 -DNOMINMAX=1
-  LIBS   += -lgdi32 -lwinmm -lwsock32 -lz -lbz2
-endif
-
-ifeq ($(OSTYPE),mingw)
-  CC ?= gcc
-  SOURCES += simsys_w32_png.cc
-  CFLAGS  += -DPNG_STATIC -DZLIB_STATIC -DNOMINMAX=1
-  LDFLAGS += -static-libgcc -static-libstdc++ -Wl,--large-address-aware
-  LIBS += -lmingw32 -lgdi32 -lwinmm -lwsock32 -lz -lbz2
-endif
-
-ifneq ($(findstring $(OSTYPE), cygwin mingw),)
-  # Disable the console on Windows unless WIN32_CONSOLE is set or graphics are disabled
-  ifneq ($(WIN32_CONSOLE),)
-    LDFLAGS += -mconsole
-  else ifeq ($(BACKEND),posix)
-    LDFLAGS += -mconsole
-  else
-    LDFLAGS += -mwindows
-  endif
 endif
 
 ifeq ($(OSTYPE),mingw)
@@ -104,18 +65,18 @@ else
   SOURCES += clipboard_internal.cc
 endif
 
+LIBS += -lbz2 -lz
+
 ALLEGRO_CONFIG ?= allegro-config
 SDL_CONFIG     ?= sdl-config
 SDL2_CONFIG    ?= sdl2-config
 
 ifneq ($(OPTIMISE),)
-    CFLAGS += -O3
-  ifneq ($(OSTYPE),mac)
-    ifneq ($(OSTYPE),haiku)
-      ifneq ($(OSTYPE),amiga)
-        CFLAGS += -minline-all-stringops
-      endif
-    endif
+  CFLAGS += -O3
+  ifeq ($(findstring $(OSTYPE), amiga),)
+	ifneq ($(findstring $(CXX), clang),)
+		CFLAGS += -minline-all-stringops
+	endif
   endif
 else
   CFLAGS += -O
@@ -136,7 +97,6 @@ ifdef DEBUG
     endif
   endif
 else
-# Disable assertions
   CFLAGS += -DNDEBUG
 endif
 
@@ -149,14 +109,16 @@ ifneq ($(PROFILE),)
 endif
 
 ifneq ($(MULTI_THREAD),)
-  CFLAGS += -DMULTI_THREAD
-  ifeq ($(OSTYPE),mingw)
+  ifeq ($(shell expr $(MULTI_THREAD) \>= 1), 1)
+    CFLAGS += -DMULTI_THREAD
+    ifeq ($(OSTYPE),mingw)
 #use lpthreadGC2d for debug alternatively
-    LDFLAGS += -lpthreadGC2
-  else
-    ifneq ($(OSTYPE),haiku)
+      LDFLAGS += -lpthreadGC2
+    else
+      ifneq ($(OSTYPE),haiku)
         LDFLAGS += -lpthread
       endif
+    endif
   endif
 endif
 
