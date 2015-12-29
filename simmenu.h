@@ -12,10 +12,11 @@
 #include <string>
 #include "besch/sound_besch.h"
 
+#include "dataobj/koord3d.h"
 #include "dataobj/translator.h"
 
 #include "simtypes.h"
-#include "simworld.h"
+#include "display/simimg.h"
 
 
 template<class T> class vector_tpl;
@@ -26,6 +27,8 @@ class tool_selector_t;
 class player_t;
 class toolbar_t;
 class memory_rw_t;
+class karte_ptr_t;
+class zeiger_t;
 
 enum {
 	// general tools

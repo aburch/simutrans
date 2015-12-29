@@ -11,7 +11,6 @@
 #include "display/simgraph.h"
 #include "simmenu.h"
 #include "simplan.h"
-#include "simtool.h"
 #include "simworld.h"
 #include "simhalt.h"
 #include "player/simplay.h"

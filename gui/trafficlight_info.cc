@@ -13,6 +13,7 @@
 #include "../obj/roadsign.h" // The rest of the dialog
 
 #include "../simmenu.h"
+#include "../simworld.h"
 
 trafficlight_info_t::trafficlight_info_t(roadsign_t* s) :
 	obj_infowin_t(s),

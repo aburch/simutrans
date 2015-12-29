@@ -5,6 +5,7 @@
 #include "convoy_item.h"
 #include "../simconvoi.h"
 #include "../simmenu.h"
+#include "../simworld.h"
 #include "../utils/cbuffer_t.h"
 
 
