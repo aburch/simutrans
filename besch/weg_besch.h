@@ -11,9 +11,8 @@
 #include "obj_besch_std_name.h"
 #include "skin_besch.h"
 #include "../dataobj/ribi.h"
-#include "../network/checksum.h"
 
-
+class checksum_t;
 class tool_t;
 
 /**
@@ -215,13 +214,7 @@ public:
 		return get_child<skin_besch_t>(5);
 	}
 
-	void calc_checksum(checksum_t *chk) const
-	{
-		obj_besch_transport_infrastructure_t::calc_checksum(chk);
-		chk->input(max_weight);
-		chk->input(styp);
-		chk->input(has_double_slopes());
-	}
+	void calc_checksum(checksum_t *chk) const;
 };
 
 #endif

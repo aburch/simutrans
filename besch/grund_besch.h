@@ -11,7 +11,6 @@
 #include "bildliste2d_besch.h"
 #include "../simtypes.h"
 #include "../dataobj/ribi.h"
-#include "../boden/grund.h"
 
 /*
  *  Autor:
@@ -26,6 +25,7 @@
  *	2   Bildliste2D
  */
 
+class grund_t;
 class karte_t;
 
 class grund_besch_t : public obj_besch_std_name_t {
