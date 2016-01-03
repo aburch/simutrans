@@ -9,13 +9,15 @@ To be done:
 - fog view to the top?
 - instant text updates
 - bahnhofsdetaildialog (more text on the station buildings)
-- unified list dialoges (with their filer as component)
 - depot list
 - vehicle list
 - Scaled fonts
+- seperate volume control for different sounds
 
 partially done:
 - connection weighted by their intermediate stops => A* for goods routing [A* did not worked out, but intermediate stops may be considered]
+- more environmental sounds, factory sounds
+- unified list dialoges (with their filer as component)
 
 reconsider:
 - leave stop if other convoi has arrived there patch
