@@ -47,6 +47,7 @@
 #include "../obj/tunnel.h"
 
 #include "../gui/messagebox.h"
+#include "../gui/player_frame_t.h"
 
 #include "../utils/cbuffer_t.h"
 #include "../utils/simstring.h"
@@ -188,6 +189,11 @@ const char* player_t::get_name() const
 void player_t::set_name(const char *new_name)
 {
 	tstrncpy( player_name_buf, new_name, lengthof(player_name_buf) );
+
+	// update player window
+	if (ki_kontroll_t *frame = dynamic_cast<ki_kontroll_t *>( win_get_magic(magic_ki_kontroll_t) ) ) {
+		frame->update_data();
+	}
 }
 
 

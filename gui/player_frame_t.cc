@@ -258,8 +258,8 @@ void ki_kontroll_t::update_data()
 				if (welt->get_settings().get_allow_player_change() || !welt->get_player(1)->is_locked()) {
 					add_component(player_change_to+i);
 				}
-				player_get_finances[i].set_text(player->get_name());
 			}
+			player_get_finances[i].set_text(player->get_name());
 
 			// always update locking status
 			player_get_finances[i].background_color = PLAYER_FLAG | (player->get_player_color1()+4);
