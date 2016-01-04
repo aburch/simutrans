@@ -409,13 +409,13 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 			// a way goes here, and it is not marked (i.e. in the closed list)
 			if((to  ||  gr->get_neighbour(to, wegtyp, next_ribi[r]))  &&  tdriver->check_next_tile(to)  &&  !marker.is_marked(to)) {
 
+				weg_t *w = to->get_weg(wegtyp);
 				// Do not go on a tile, where a oneway sign forbids going.
 				// This saves time and fixed the bug, that a oneway sign on the final tile was ignored.
-				ribi_t::ribi last_dir=next_ribi[r];
-				weg_t *w=to->get_weg(wegtyp);
-				ribi_t::ribi go_dir = (w==NULL) ? 0 : w->get_ribi_maske();
-				if((last_dir&go_dir)!=0) {
-						continue;
+				if (w  &&  w->get_ribi_maske()  &&  ribi_t::rueckwaerts(next_ribi[r]) == w->get_ribi()) {
+					// there is a signal, and the only direction leaving the next tile
+					// is back to our position
+					continue;
 				}
 
 				// new values for cost g (without way it is either in the air or in water => no costs)
