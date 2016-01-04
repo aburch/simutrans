@@ -421,8 +421,8 @@ bool wegbauer_t::check_slope( const grund_t *from, const grund_t *to )
 	const koord zv=to_pos-from_pos;
 
 	if(  !besch->has_double_slopes()
-	  &&  ((from->get_typ() == grund_t::boden  &&  from->get_weg_hang()  &&  !(from->get_weg_hang() & 7))
-	  ||  (to->get_typ() == grund_t::boden  &&  to->get_weg_hang()  &&  !(to->get_weg_hang() & 7)) )  ) {
+		&&  (    (from->get_weg_hang()  &&  !(from->get_weg_hang() & 7))
+		      ||   (to->get_weg_hang()  &&    !(to->get_weg_hang() & 7))  )  ) {
 		return false;
 	}
 
