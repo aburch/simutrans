@@ -72,9 +72,18 @@ template<class D> struct access_objs {
 		sint16 x = pos.x;
 		sint16 y = pos.y;
 		sint8  z = obj->get_pos().z;
-		assert(bind_code<D>::objtype == obj->get_typ()  ||  bind_code<D>::objtype == obj_t::obj);
-		if (!SQ_SUCCEEDED(push_instance(vm, script_api::param<D*>::squirrel_type(), x, y, z))) {
-			return SQ_ERROR;
+		if (bind_code<D>::objtype == obj_t::obj) {
+			// generic object, object type as fourth parameter
+			if (!SQ_SUCCEEDED(push_instance(vm, script_api::param<D*>::squirrel_type(), x, y, z, obj->get_typ()))) {
+				return SQ_ERROR;
+			}
+		}
+		else{
+			assert(bind_code<D>::objtype == obj->get_typ());
+			// specific object with its own constructor, type already preset as default parameter
+			if (!SQ_SUCCEEDED(push_instance(vm, script_api::param<D*>::squirrel_type(), x, y, z))) {
+				return SQ_ERROR;
+			}
 		}
 		sq_setinstanceup(vm, -1, obj);
 		return 1;
@@ -289,13 +298,13 @@ void export_map_objects(HSQUIRRELVM vm)
 	/**
 	 * Constructor. Implemented by derived classes.
 	 * Fails if no object of precisely the requested type is on the tile.
-	 * Fails for map_object_x itself.
 	 * @param x
 	 * @param y
 	 * @param z
-	 * @typemask void(integer,integer,integer)
+	 * @param type of the map object
+	 * @typemask void(integer,integer,integer,map_objects)
 	 */
-	register_function_fv(vm, exp_obj_pos_constructor, "constructor", 4, "xiiii", freevariable<uint8>(objtype));
+	register_function(vm, exp_obj_pos_constructor, "constructor", 5, "xiiii");
 	/**
 	 * @returns owner of the object.
 	 */
