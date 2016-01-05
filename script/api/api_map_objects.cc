@@ -16,6 +16,7 @@
 #include "../../simdepot.h"
 #include "../../simtool.h"
 #include "../../simworld.h"
+#include "../../boden/grund.h"
 #include "../../dataobj/scenario.h"
 #include "../../obj/baum.h"
 #include "../../obj/gebaeude.h"
@@ -268,6 +269,16 @@ void_ label_set_text(label_t* l, const char* text)
 	return void_t();
 } */
 
+const char* label_get_text(label_t* l)
+{
+	if (l) {
+		if (grund_t *gr = welt->lookup(l->get_pos())) {
+			return gr->get_text();
+		}
+	}
+	return NULL;
+}
+
 
 vector_tpl<convoihandle_t> const& depot_get_convoy_list(depot_t *depot)
 {
@@ -473,9 +484,15 @@ void export_map_objects(HSQUIRRELVM vm)
 	 * @param text text
 	 * @warning cannot be used in network games.
 	 */
+
 	// Must comment this out as this fails to compile in Visual Studio
 	// FIXME
-	 //register_method(vm, &label_set_text, "set_text", true);
+	//register_method(vm, &label_set_text, "set_text", true);
+	/**
+	 * Get text of marker.
+	 * @see tile_x::get_text
+	 */
+	register_method(vm, &label_get_text, "get_text", true);
 
 	end_class(vm);
 }
