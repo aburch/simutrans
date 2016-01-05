@@ -167,6 +167,7 @@ SQInteger script_api::param<obj_t*>::push(HSQUIRRELVM vm, obj_t* const& obj)
 	switch(type) {
 		case_resolve_obj(baum_t);
 		case_resolve_obj(gebaeude_t);
+		case_resolve_obj(label_t);
 		case_resolve_obj(weg_t);
 
 		case_resolve_obj(airdepot_t);
