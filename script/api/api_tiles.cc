@@ -175,6 +175,12 @@ void export_tiles(HSQUIRRELVM vm)
 	register_method(vm, &grund_t::get_grund_hang, "get_slope");
 
 	/**
+	 * Returns text of a sign on this tile (station sign, city name, label).
+	 * @returns text
+	 */
+	register_method(vm, &grund_t::get_text, "get_text");
+
+	/**
 	 * Queries ways on the tile.
 	 * @param wt waytype
 	 * @returns true if there is a way with the given waytype on the tile.
