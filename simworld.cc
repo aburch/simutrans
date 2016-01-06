@@ -2027,6 +2027,10 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 	 * the same height the adjacent old grid point was and lowering to the
 	 * same height again. This doesn't preserve the old area 100%, but it respects it
 	 * somehow.
+	 *
+	 * This does not work for water tiles as for them get_hoehe will return the
+	 * z-coordinate of the water surface, not the height of the underwater
+	 * landscape.
 	 */
 
 	sint32 i;
@@ -2036,28 +2040,26 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 	if ( old_x > 0  &&  old_y > 0){
 		for(i=0; i<old_x; i++) {
 			gr = lookup_kartenboden_nocheck(i, old_y-1);
-			h = gr->get_hoehe(hang_t::corner_SW);
-			raise_grid_to(i, old_y+1, h);
+			if (!gr->ist_wasser()) {
+				h = gr->get_hoehe(hang_t::corner_SW);
+				raise_grid_to(i, old_y+1, h);
+				lower_grid_to(i, old_y+1, h );
+			}
 		}
 		for(i=0; i<old_y; i++) {
 			gr = lookup_kartenboden_nocheck(old_x-1, i);
-			h = gr->get_hoehe(hang_t::corner_NE);
-			raise_grid_to(old_x+1, i, h);
-		}
-		for(i=0; i<old_x; i++) {
-			gr = lookup_kartenboden_nocheck(i, old_y-1);
-			h = gr->get_hoehe(hang_t::corner_SW);
-			lower_grid_to(i, old_y+1, h );
-		}
-		for(i=0; i<old_y; i++) {
-			gr = lookup_kartenboden_nocheck(old_x-1, i);
-			h = gr->get_hoehe(hang_t::corner_NE);
-			lower_grid_to(old_x+1, i, h);
+			if (!gr->ist_wasser()) {
+				h = gr->get_hoehe(hang_t::corner_NE);
+				raise_grid_to(old_x+1, i, h);
+				lower_grid_to(old_x+1, i, h);
+			}
 		}
 		gr = lookup_kartenboden_nocheck(old_x-1, old_y -1);
-		h = gr ->get_hoehe(hang_t::corner_SE);
-		raise_grid_to(old_x+1, old_y+1, h);
-		lower_grid_to(old_x+1, old_y+1, h);
+		if (!gr->ist_wasser()) {
+			h = gr->get_hoehe(hang_t::corner_SE);
+			raise_grid_to(old_x+1, old_y+1, h);
+			lower_grid_to(old_x+1, old_y+1, h);
+		}
 	}
 
 	if (  old_x > 0  &&  old_y > 0  ) {
