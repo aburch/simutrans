@@ -542,7 +542,7 @@ starting_month = 1
 #show_month = 1
 
 # Global time multiplier (will be save with new games)
-# 2^bits_per_month = duration of a game month in microseconds real time
+# 2^bits_per_month = duration of a game month in milliseconds real time
 # default before 99.x was 18. For example, 21 will make the month 2^3=8 times longer in real time
 # production and maintenance cost will be adjusted accordingly.
 #
