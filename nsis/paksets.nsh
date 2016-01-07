@@ -3,17 +3,17 @@
 SectionGroup "Pak64: main and addons" pak64group
 
 Section "!pak (64 size) (standard)" pak
-  AddSize 11898
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak64/120-0/simupak64-120-0-1.zip"
-  StrCpy $archievename "simupak64-120-0-1.zip"
+  AddSize 11905
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak64/120-1/simupak64-120-1-2.zip"
+  StrCpy $archievename "simupak64-120-1-2.zip"
   StrCpy $downloadname "pak"
-  StrCpy $VersionString "pak64 120.0.1 r1494"
+  StrCpy $VersionString "pak64 120.1.2 r1787"
   Call DownloadInstallZip
 SectionEnd
 
 
 Section /o "pak64 Food addon"
-  AddSize 280
+  AddSize 292
   StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak64/112-2/simupak64-addon-food-112-2.zip"
   StrCpy $archievename "simupak64-addon-food-112-2.zip"
   StrCpy $downloadname "pak"
@@ -30,9 +30,9 @@ SectionGroupEnd
 
 
 Section /o "pak64.german (Freeware) for 112-3-1" pak64german
-  AddSize 19451
+  AddSize 19633
   StrCpy $downloadlink "http://simutrans-germany.com/pak.german/pak64.german_0-112-3-1_full.zip"
-  StrCpy $archievename "pak64.german_0-112-3beta6_full.zip"
+  StrCpy $archievename "pak64.german_0-112-3-1_full.zip"
   StrCpy $downloadname "pak64.german"
   StrCpy $VersionString "pak64.german 0.112.3.1"
   Call DownloadInstallZip
@@ -52,7 +52,7 @@ SectionEnd
 
 
 Section /o "pak.Nippon (64 size) V0.2" pak64nippon
-  AddSize 41653
+  AddSize 41652
   StrCpy $downloadlink "https://github.com/wa-st/pak-nippon/releases/download/v0.2.0/pak.nippon-v0.2.0.zip"
   StrCpy $archievename "pak.nippon-v0.2.0.zip"
   StrCpy $downloadname "pak.nippon"
@@ -64,7 +64,7 @@ SectionEnd
 
 ; name does not match folder name (pak64.ho-scale) but otherwise always updated
 Section /o "pak64 HO-scale (GPL)" pak64HO
-  AddSize 8527
+  AddSize 8532
   StrCpy $downloadlink "http://simutrans.bilkinfo.de/pak64.ho-scale-latest.tar.gz"
   StrCpy $archievename "pak64.ho-scale-latest.tar.gz"
   StrCpy $downloadname "pak64.HO"
@@ -101,7 +101,7 @@ Section /o "pak96 Comic (Freeware) V0.4.10 expansion" pak96comic
   AddSize 32304
   StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak96.comic/pak96.comic%20for%20111-3/pak96.comic-0.4.10-plus.zip"
   StrCpy $archievename "pak96.comic-0.4.10-plus.zip"
-  StrCpy $downloadname "pak96.Comic"
+  StrCpy $downloadname "pak96.comic"
   StrCpy $VersionString "pak96.comic V4.1 plus"
   Call DownloadInstallZip
 SectionEnd
@@ -110,7 +110,7 @@ SectionEnd
 
 ; name does not match folder name (pakHD) but not update expected anyway ...
 Section /o "pak96.HD (96 size) V0.4 for 102.2.2" pak96HD
-  AddSize 26189
+  AddSize 12307
   StrCpy $downloadlink "http://hd.simutrans.com/release/PakHD_v04B_100-0.zip"
   StrCpy $archievename "PakHD_v04B_100-0.zip"
   StrCpy $downloadname "pak96.HD"
@@ -141,7 +141,7 @@ SectionEnd
 
 
 Section /o "pak128 V2.5.3" pak128
-  AddSize 408973
+  AddSize 408972
   StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak128/pak128%20for%20ST%20120%20%282.5.3%2C%20minor%20changes%29/pak128-2.5.3--ST120.zip"
   StrCpy $archievename "pak128-2.5.3--ST120.zip"
   StrCpy $downloadname "pak128"
@@ -152,7 +152,7 @@ SectionEnd
 
 
 Section /o "pak128.Britain V1.17" pak128britain
-  AddSize 229346
+  AddSize 234393
   StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak128.britain/pak128.Britain%20for%20120-1/pak128.Britain.1.17-120-1.zip"
   StrCpy $archievename "pak128.Britain.1.17-120-1.zip"
   StrCpy $downloadname "pak128.Britain"
@@ -184,7 +184,7 @@ SectionEnd
 
 
 Section /o "pak192.Comic 0.4.1 (CC-BY-SA)" pak192comic
-  AddSize 1073075
+  AddSize 107311
   StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak192.comic/pak192comic%20for%20120-0/pak192comic-0.4.1-120-0up.zip"
   StrCpy $archievename "pak192comic-0.4.1-120-0up.zip"
   StrCpy $downloadname "pak192.comic"

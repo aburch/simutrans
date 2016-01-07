@@ -38,25 +38,25 @@ finishGDIexe:
 FunctionEnd
 
 Section "Executable (GDI, Unicode)" GDIexe
-  AddSize 10583
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/simutrans/120-1-1/simuwin-120-1-1.zip"
-  StrCpy $archievename "simuwin-120-1-1.zip"
+  AddSize 10905
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/simutrans/120-1-2/simuwin-120-1-2.zip"
+  StrCpy $archievename "simuwin-120-1-2.zip"
   StrCpy $downloadname "Simutrans Executable (GDI)"
   Call DownloadInstallZip
   Call PostExeInstall
 SectionEnd
 
 Section /o "Executable (SDL, better sound)" SDLexe
-  AddSize 10898
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/simutrans/120-1-1/simuwin-sdl-120-1-1.zip"
-  StrCpy $archievename "simuwin-sdl-120-1-1.zip"
+  AddSize 12172
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/simutrans/120-1-2/simuwin-sdl-120-1-2.zip"
+  StrCpy $archievename "simuwin-sdl-120-1-2.zip"
   StrCpy $downloadname "Simutrans Executable (SDL)"
   Call DownloadInstallZip
   Call PostExeInstall
 SectionEnd
 
 Section /o "Chinese Font" wenquanyi_font
-  AddSize 3245
+  AddSize 3169
   StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/simutrans/wenquanyi_9pt-font-bdf.zip"
   StrCpy $archievename "wenquanyi_9pt-font-bdf.zip"
   StrCpy $downloadname "wenquanyi_9pt"
