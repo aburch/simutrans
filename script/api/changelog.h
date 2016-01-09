@@ -9,6 +9,8 @@
  *
  * @section api-trunk Current trunk
  *
+ * @section api-120-1-2 Release 120.1.2
+ *
  * - Added label_x::get_text, tile_x::get_text
  * - Added factory_x::get_halt_list, halt_x::get_tile_list, halt_x::get_factory_list, square_x::get_halt_list
  * - Added world.get_player
