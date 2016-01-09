@@ -475,6 +475,7 @@ DBG_MESSAGE("convoi_info_t::action_triggered()","convoi state %i => cannot chang
 				cbuffer_t buf;
 				fpl->sprintf_schedule( buf );
 				cnv->call_convoi_tool( 'g', buf );
+				delete fpl;
 			}
 		} // end go home button
 	}
