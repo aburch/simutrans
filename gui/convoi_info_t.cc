@@ -448,52 +448,10 @@ DBG_MESSAGE("convoi_info_t::action_triggered()","convoi state %i => cannot chang
 			grund_t* gr = welt->lookup(cnv->get_schedule()->get_current_eintrag().pos);
 			const bool enable_gohome = gr && gr->get_depot() == NULL;
 
-			if(  enable_gohome  ) { // go to depot
+			if(  enable_gohome  ) {
+				// go to depot
 				route_search_in_progress = true;
-
-				// iterate over all depots and try to find shortest route
-				route_t * shortest_route = new route_t();
-				route_t * route = new route_t();
-				koord3d home = koord3d(0,0,0);
-				FOR(slist_tpl<depot_t*>, const depot, depot_t::get_depot_list()) {
-					vehicle_t& v = *cnv->front();
-					if (depot->get_waytype() != v.get_besch()->get_waytype() ||
-							depot->get_owner() != cnv->get_owner()) {
-						continue;
-					}
-					koord3d pos = depot->get_pos();
-					if(!shortest_route->empty()  &&  koord_distance(pos, cnv->get_pos()) >= shortest_route->get_count()-1) {
-						// the current route is already shorter, no need to search further
-						continue;
-					}
-					if (v.calc_route(cnv->get_pos(), pos, 50, route)) { // do not care about speed
-						if(  route->get_count() < shortest_route->get_count()  ||  shortest_route->empty()  ) {
-							// just swap the pointers
-							sim::swap(shortest_route, route);
-							home = pos;
-						}
-					}
-				}
-				delete route;
-				DBG_MESSAGE("shortest route has ", "%i hops", shortest_route->get_count()-1);
-
-				// if route to a depot has been found, update the convoi's schedule
-				const char *txt;
-				if(  !shortest_route->empty()  ) {
-					schedule_t *fpl = cnv->get_schedule()->copy();
-					fpl->insert(welt->lookup(home));
-					fpl->set_aktuell( (fpl->get_aktuell()+fpl->get_count()-1)%fpl->get_count() );
-					cbuffer_t buf;
-					fpl->sprintf_schedule( buf );
-					cnv->call_convoi_tool( 'g', buf );
-					txt = "Convoi has been sent\nto the nearest depot\nof appropriate type.\n";
-				}
-				else {
-					txt = "Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.";
-				}
-				delete shortest_route;
-				route_search_in_progress = false;
-				create_win( new news_img(txt), w_time_delete, magic_none);
+				cnv->call_convoi_tool( 'd', NULL );
 			}
 			else { // back to normal schedule
 				// if we are on a line, just restore the line

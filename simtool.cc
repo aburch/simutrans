@@ -6511,6 +6511,7 @@ static bool scenario_check_schedule(karte_t *welt, player_t *player, schedule_t 
  * 'w' : toggle withdraw
  * 's' : change state to [number] (and maybe set open schedule flag)
  * 'l' : apply new line [number]
+ * 'd' : go to nearest depot
  */
 bool tool_change_convoi_t::init( player_t *player )
 {
@@ -6637,6 +6638,15 @@ bool tool_change_convoi_t::init( player_t *player )
 			cnv->set_withdraw( !cnv->get_withdraw() );
 			cnv->set_no_load( cnv->get_withdraw() );
 			break;
+
+		case 'd': // goto depot
+		{
+			const char* msg = cnv->send_to_depot(is_local_execution());
+
+			if (is_local_execution()) {
+				create_win( new news_img(msg), w_time_delete, magic_none);
+			}
+		}
 	}
 
 	if(  cnv->in_depot()  &&  (tool=='g'  ||  tool=='l')  ) {

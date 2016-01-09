@@ -3747,3 +3747,57 @@ sint64 convoi_t::get_stat_converted(int month, int cost_type) const
 	}
 	return value;
 }
+
+
+const char* convoi_t::send_to_depot(bool local)
+{
+	// iterate over all depots and try to find shortest route
+	route_t *shortest_route = new route_t();
+	route_t *route = new route_t();
+	koord3d home = koord3d::invalid;
+	vehicle_t *v = front();
+	FOR(slist_tpl<depot_t*>, const depot, depot_t::get_depot_list()) {
+		if (depot->get_waytype() != v->get_besch()->get_waytype()  ||  depot->get_owner() != get_owner()) {
+			continue;
+		}
+		koord3d pos = depot->get_pos();
+
+		if(!shortest_route->empty()  &&  koord_distance(pos, get_pos()) >= shortest_route->get_count()-1) {
+			// the current route is already shorter, no need to search further
+			continue;
+		}
+		if (v->calc_route(get_pos(), pos, 50, route)) { // do not care about speed
+			if(  route->get_count() < shortest_route->get_count()  ||  shortest_route->empty()  ) {
+				// just swap the pointers
+				sim::swap(shortest_route, route);
+				home = pos;
+			}
+		}
+	}
+	delete route;
+	DBG_MESSAGE("shortest route has ", "%i hops", shortest_route->get_count()-1);
+
+	if (local) {
+		if (convoi_info_t *info = dynamic_cast<convoi_info_t*>(win_get_magic( magic_convoi_info+self.get_id()))) {
+			info->route_search_finished();
+		}
+	}
+	// if route to a depot has been found, update the convoi's schedule
+	const char *txt;
+	if(  !shortest_route->empty()  ) {
+		schedule_t *fpl = get_schedule()->copy();
+		fpl->insert(welt->lookup(home));
+		fpl->set_aktuell( (fpl->get_aktuell()+fpl->get_count()-1)%fpl->get_count() );
+		cbuffer_t buf;
+		fpl->sprintf_schedule( buf );
+		call_convoi_tool( 'g', buf );
+		delete fpl;
+		txt = "Convoi has been sent\nto the nearest depot\nof appropriate type.\n";
+	}
+	else {
+		txt = "Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.";
+	}
+	delete shortest_route;
+
+	return txt;
+}

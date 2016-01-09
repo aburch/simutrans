@@ -834,6 +834,13 @@ public:
 	koord3d get_home_depot() { return home_depot; }
 
 	/**
+	 * Sends convoi to nearest depot.
+	 * Has to be called synchronously on all clients in networkmode!
+	 * @returns success message
+	 */
+	const char* send_to_depot(bool local);
+
+	/**
 	 * this give the index of the next signal or the end of the route
 	 * convois will slow down before it, if this is not a waypoint or the cannot pass
 	 * The slowdown is done by the vehicle routines
