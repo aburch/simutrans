@@ -441,7 +441,6 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 			// limit update to certain states that are considered to be safe for fahrplan updates
 			int state = cnv->get_state();
 			if(state==convoi_t::FAHRPLANEINGABE) {
-DBG_MESSAGE("convoi_info_t::action_triggered()","convoi state %i => cannot change schedule ... ", state );
 				return true;
 			}
 
@@ -453,25 +452,11 @@ DBG_MESSAGE("convoi_info_t::action_triggered()","convoi state %i => cannot chang
 				route_search_in_progress = true;
 				cnv->call_convoi_tool( 'd', NULL );
 			}
-			else { // back to normal schedule
-				// if we are on a line, just restore the line
-				schedule_t* fpl;
-				if(  cnv->get_line().is_bound()  ) {
-					cnv->get_schedule()->advance();
-					koord3d target = cnv->get_schedule()->get_current_eintrag().pos;
-					fpl = cnv->get_line()->get_schedule()->copy();
-					for(  uint8 i=0;  i < fpl->get_count();  i++  ) {
-						if(  fpl->get_current_eintrag().pos == target  ) {
-							break;
-						}
-						fpl->advance();
-					}
-					// now we are on the line schedule on the next stop
-				}
-				else {
-					fpl = cnv->get_schedule()->copy();
-					fpl->remove(); // remove depot entry
-				}
+			else {
+				// back to normal schedule
+				schedule_t* fpl = cnv->get_schedule()->copy();
+				fpl->remove(); // remove depot entry
+
 				cbuffer_t buf;
 				fpl->sprintf_schedule( buf );
 				cnv->call_convoi_tool( 'g', buf );
