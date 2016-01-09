@@ -415,6 +415,29 @@ FunctionEnd
 
 
 ; $downloadlink is then name of the link, $downloadname the name of the pak for error messages
+Function DownloadInstallAddonZipPortable
+#  DetailPrint "Download of $downloadname from\n$downloadlink to $archievename"
+  Call ConnectInternet
+  RMdir /r "$TEMP\simutrans"
+  NSISdl::download $downloadlink "$TEMP\$archievename"
+  Pop $R0 ;Get the return value
+  StrCmp $R0 "success" +3
+     MessageBox MB_OK "Download of $archievename failed: $R0"
+     Quit
+
+  nsisunz::Unzip "$TEMP\$archievename" "$INSTDIR\.."
+  Pop $R0 ;Get the return value
+  StrCmp $R0 "success" +4
+    DetailPrint "$0" ;print error message to log
+    Delete "$TEMP\$archievename"
+    Quit
+
+  Delete "$Temp\$archievename"
+FunctionEnd
+
+
+
+; $downloadlink is then name of the link, $downloadname the name of the pak for error messages
 Function DownloadInstallZipWithoutSimutrans
   Call IsPakInstalledAndCurrent
   IntCmp $R0 2 DownloadInstallZipWithoutSimutransSkip

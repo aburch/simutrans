@@ -20,7 +20,7 @@ Section /o "pak64 Food addon"
   StrCpy $VersionString ""
   StrCmp $multiuserinstall "1" +3
   ; no multiuser => install in normal directory
-  Call DownloadInstallZip
+  Call DownloadInstallAddonZipPortable
   goto +2
   Call DownloadInstallAddonZip
 SectionEnd
