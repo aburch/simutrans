@@ -243,9 +243,7 @@ void roadsign_t::calc_image()
 		set_bild( besch->get_bild_nr(image) );
 		set_yoff( 0 );
 		if(  hang_diff  ) {
-			if(hang_dir==ribi_t::west ||  hang_dir==ribi_t::nord) {
-				set_yoff( -TILE_HEIGHT_STEP );
-			}
+				set_yoff( -(TILE_HEIGHT_STEP*hang_diff)/2 );
 		}
 		else {
 			set_yoff( -gr->get_weg_yoff() );
