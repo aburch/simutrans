@@ -2880,12 +2880,15 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		return true;
 	}
 
-	// it happened in the past that a convoi has a next signal stored way after the current position!
-	// this only happens in vorfahren, but we can cure this easily
-	if(  next_block+1<route_index  ) {
+	// signal disappeared, train passes the tile of former signal
+	if(  next_block < route_index  ) {
+		// we need to reserve the next block even if there is no signal present anymore
 		bool ok = block_reserver( cnv->get_route(), route_index, next_signal, next_crossing, 0, true, false );
-		cnv->set_next_stop_index( min( next_crossing, next_signal ) );
+		if (ok) {
+			cnv->set_next_stop_index( min( next_crossing, next_signal ) );
+		}
 		return ok;
+		// if reservation was not possible the train will wait on the track until block is free
 	}
 
 	if(  next_block <= route_index+3  ) {
