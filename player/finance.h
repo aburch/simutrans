@@ -335,7 +335,8 @@ public:
 	}
 
 	/**
-	 * Calculates the finance history for player
+	 * Calculates the finance history for player.
+	 * This method has to be called before reading any variables besides account_balance!
 	 * @author hsiegeln
 	 */
 	void calc_finance_history();
@@ -360,6 +361,7 @@ public:
 
 	/**
 	 * Returns the finance history (indistinguishable part) for player.
+	 * Call calc_finance_history before use!
 	 * @param year 0 .. current year, 1 .. last year, etc
 	 * @param type one of accounting_type_common
 	 * @author jk271
@@ -369,6 +371,7 @@ public:
 
 	/**
 	 * Returns the finance history (distinguishable by type of transport) for player.
+	 * Call calc_finance_history before use!
 	 * @param tt one of transport_type
 	 * @param year 0 .. current year, 1 .. last year, etc
 	 * @param type one of accounting_type_vehicles
@@ -394,7 +397,12 @@ public:
 	 */
 	sint64 get_maintenance_with_bits(transport_type tt=TT_ALL) const;
 
-	sint64 get_netwealth() const { return com_year[0][ATC_NETWEALTH]; }
+	sint64 get_netwealth() const
+	{
+		// return com_year[0][ATC_NETWEALTH]; wont work as ATC_NETWEALTH is *only* updated in calc_finance_history
+		// see calc_finance_history
+		return veh_month[TT_ALL][0][ATV_NON_FINANCIAL_ASSETS] + account_balance;
+	}
 
 	sint64 get_scenario_completed() const { return com_month[0][ATC_SCENARIO_COMPLETED]; }
 
@@ -416,7 +424,7 @@ public:
 	/**
 	 * returns TRUE if net wealth > 0 (but this of course requires that we keep netwealth up to date!)
 	 */
-	bool has_money_or_assets() const { return ((get_history_com_year(0, ATC_NETWEALTH) ) > 0 ); }
+	bool has_money_or_assets() const { return ( get_netwealth() > 0 ); }
 
 	/**
 	 * increases number of month for which the company is in red numbers

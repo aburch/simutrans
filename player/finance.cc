@@ -182,7 +182,7 @@ sint64 finance_t::get_vehicle_maintenance_with_bits(transport_type tt) const
 bool finance_t::is_bancrupted() const
 {
 	return (
-		com_year[0][ATC_NETWEALTH] <=0  &&
+		get_netwealth() <=0  &&
 		veh_year[TT_ALL][0][ATV_INFRASTRUCTURE_MAINTENANCE] == 0  &&
 		maintenance[TT_ALL] == 0  &&
 		com_year[0][ATC_ALL_CONVOIS] == 0
