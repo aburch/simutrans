@@ -703,6 +703,8 @@ DBG_MESSAGE("karte_t::destroy()", "destroying world");
 		dbg->fatal( "karte_t::destroy()","Map cannot be cleanly destroyed in any rotation!" );
 	}
 
+	goods_in_game.clear();
+
 DBG_MESSAGE("karte_t::destroy()", "label clear");
 	labels.clear();
 

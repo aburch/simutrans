@@ -1292,30 +1292,61 @@ void depot_frame_t::draw(scr_coord pos, scr_size size)
 
 	uint64 total_power = 0;
 	uint32 total_empty_weight = 0;
+	uint32 total_selected_weight = 0;
 	uint32 total_max_weight = 0;
 	uint32 total_min_weight = 0;
+	bool use_sel_weight = true;
 
 	if(  cnv.is_bound()  ) {
-		if(  cnv->get_vehikel_anzahl()>0  ) {
+		if(  cnv->get_vehikel_anzahl() > 0  ) {
+			uint8 selected_good_index = 0;
+			if(  depot->selected_filter > VEHICLE_FILTER_RELEVANT  ) {
+				// Filter is set to specific good
+				const uint32 goods_index = depot->selected_filter - VEHICLE_FILTER_GOODS_OFFSET;
+				if(  goods_index < welt->get_goods_list().get_count()  ) {
+					selected_good_index = welt->get_goods_list()[goods_index]->get_index();
+				}
+			}
 
 			for(  unsigned i = 0;  i < cnv->get_vehikel_anzahl();  i++  ) {
 				const vehikel_besch_t *besch = cnv->get_vehikel(i)->get_besch();
 
 				total_power += besch->get_leistung()*besch->get_gear();
 
+				uint32 sel_weight = 0; // actual weight using vehicle filter selected good to fill
 				uint32 max_weight = 0;
 				uint32 min_weight = 100000;
+				bool sel_found = false;
 				for(  uint32 j=0;  j<warenbauer_t::get_waren_anzahl();  j++  ) {
 					const ware_besch_t *ware = warenbauer_t::get_info(j);
 
 					if(  besch->get_ware()->get_catg_index() == ware->get_catg_index()  ) {
 						max_weight = max(max_weight, (uint32)ware->get_weight_per_unit());
 						min_weight = min(min_weight, (uint32)ware->get_weight_per_unit());
+
+						// find number of goods in in this category. TODO: gotta be a better way...
+						uint8 catg_count = 0;
+						FOR(vector_tpl<ware_besch_t const*>, const i, welt->get_goods_list()) {
+							if(  ware->get_catg_index() == i->get_catg_index()  ) {
+								catg_count++;
+							}
+						}
+
+						if(  ware->get_index() == selected_good_index  ||  catg_count < 2  ) {
+							sel_found = true;
+							sel_weight = ware->get_weight_per_unit();
+						}
 					}
 				}
+				if(  !sel_found  ) {
+					// vehicle carries more than one good, but not the selected one
+					use_sel_weight = false;
+				}
+
 				total_empty_weight += besch->get_gewicht();
-				total_max_weight += besch->get_gewicht() + max_weight*besch->get_zuladung();
-				total_min_weight += besch->get_gewicht() + min_weight*besch->get_zuladung();
+				total_selected_weight += besch->get_gewicht() + sel_weight * besch->get_zuladung();
+				total_max_weight += besch->get_gewicht() + max_weight * besch->get_zuladung();
+				total_min_weight += besch->get_gewicht() + min_weight * besch->get_zuladung();
 
 				const ware_besch_t* const ware = besch->get_ware();
 				switch(  ware->get_catg_index()  ) {
@@ -1334,13 +1365,14 @@ void depot_frame_t::draw(scr_coord pos, scr_size size)
 				}
 			}
 
-			sint32 empty_kmh, max_kmh, min_kmh;
+			sint32 empty_kmh, sel_kmh, max_kmh, min_kmh;
 			if(  cnv->front()->get_waytype() == air_wt  ) {
 				// flying aircraft have 0 friction --> speed not limited by power, so just use top_speed
-				empty_kmh = max_kmh = min_kmh = speed_to_kmh( cnv->get_min_top_speed() );
+				empty_kmh = sel_kmh = max_kmh = min_kmh = speed_to_kmh( cnv->get_min_top_speed() );
 			}
 			else {
 				empty_kmh = speed_to_kmh(convoi_t::calc_max_speed(total_power, total_empty_weight, cnv->get_min_top_speed()));
+				sel_kmh =   speed_to_kmh(convoi_t::calc_max_speed(total_power, total_selected_weight, cnv->get_min_top_speed()));
 				max_kmh =   speed_to_kmh(convoi_t::calc_max_speed(total_power, total_min_weight,   cnv->get_min_top_speed()));
 				min_kmh =   speed_to_kmh(convoi_t::calc_max_speed(total_power, total_max_weight,   cnv->get_min_top_speed()));
 			}
@@ -1352,9 +1384,9 @@ void depot_frame_t::draw(scr_coord pos, scr_size size)
 			txt_convoi_count.printf("%s %i",translator::translate("Station tiles:"), cnv->get_tile_length() );
 
 			txt_convoi_speed.clear();
-			if(  empty_kmh != min_kmh  ) {
+			if(  empty_kmh != (use_sel_weight ? sel_kmh : min_kmh)  ) {
 				convoi_length_ok_sb = 0;
-				if(  max_kmh != min_kmh  ) {
+				if(  max_kmh != min_kmh  &&  !use_sel_weight  ) {
 					txt_convoi_speed.printf("%s %d km/h, %d-%d km/h %s", translator::translate("Max. speed:"), empty_kmh, min_kmh, max_kmh, translator::translate("loaded") );
 					if(  max_kmh != empty_kmh  ) {
 						convoi_length_slower_sb = 0;
@@ -1366,7 +1398,7 @@ void depot_frame_t::draw(scr_coord pos, scr_size size)
 					}
 				}
 				else {
-					txt_convoi_speed.printf("%s %d km/h, %d km/h %s", translator::translate("Max. speed:"), empty_kmh, min_kmh, translator::translate("loaded") );
+					txt_convoi_speed.printf("%s %d km/h, %d km/h %s", translator::translate("Max. speed:"), empty_kmh, use_sel_weight ? sel_kmh : min_kmh, translator::translate("loaded") );
 					convoi_length_slower_sb = 0;
 					convoi_length_too_slow_sb = convoi_length;
 				}
@@ -1399,12 +1431,12 @@ void depot_frame_t::draw(scr_coord pos, scr_size size)
 			txt_convoi_power.printf( translator::translate("Power: %4d kW\n"), cnv->get_sum_leistung() );
 
 			txt_convoi_weight.clear();
-			if(  total_empty_weight != total_max_weight  ) {
-				if(  total_min_weight != total_max_weight  ) {
+			if(  total_empty_weight != (use_sel_weight ? total_selected_weight : total_max_weight)  ) {
+				if(  total_min_weight != total_max_weight  &&  !use_sel_weight  ) {
 					txt_convoi_weight.printf("%s %.1ft, %.1f-%.1ft", translator::translate("Weight:"), total_empty_weight / 1000.0, total_min_weight / 1000.0, total_max_weight / 1000.0 );
 				}
 				else {
-					txt_convoi_weight.printf("%s %.1ft, %.1ft", translator::translate("Weight:"), total_empty_weight / 1000.0, total_max_weight / 1000.0 );
+					txt_convoi_weight.printf("%s %.1ft, %.1ft", translator::translate("Weight:"), total_empty_weight / 1000.0, (use_sel_weight ? total_selected_weight : total_max_weight) / 1000.0 );
 				}
 			}
 			else {
