@@ -33,6 +33,8 @@ vector_tpl<sint64> const& get_player_stat(player_t *player, sint32 INDEX, sint32
 	}
 	if (player) {
 		finance_t *finance = player->get_finance();
+		// calculate current month
+		finance->calc_finance_history();
 		uint16 maxi = monthly ? MAX_PLAYER_HISTORY_MONTHS : MAX_PLAYER_HISTORY_YEARS;
 		for(uint16 i = 0; i < maxi; i++) {
 			sint64 m = atv ? ( monthly ? finance->get_history_veh_month((transport_type)TTYPE, i, INDEX) : finance->get_history_veh_year((transport_type)TTYPE, i, INDEX) )
