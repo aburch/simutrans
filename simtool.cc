@@ -2356,9 +2356,12 @@ void tool_build_way_t::mark_tiles(  player_t *player, const koord3d &start, cons
 				gr->set_grund_hang( welt->lookup( pos - koord3d( 0, 0, offset ) )->get_grund_hang() );
 				welt->access(pos.get_2d())->boden_hinzufuegen(gr);
 			}
+			if (gr->ist_wasser()) {
+				continue;
+			}
 			ribi_t::ribi zeige = gr->get_weg_ribi_unmasked(besch->get_wtyp()) | bauigel.get_route().get_ribi( j );
 
-			zeiger_t *way = new zeiger_t(pos, NULL );
+			zeiger_t *way = new zeiger_t(pos, player);
 			if(gr->get_weg_hang()) {
 				way->set_bild( besch->get_hang_bild_nr(gr->get_weg_hang(),0) );
 			}
@@ -3299,7 +3302,7 @@ void tool_build_wayobj_t::mark_tiles( player_t* player, const koord3d &start, co
 
 			zeiger_t *way_obj = NULL;
 			if( build ) {
-				way_obj = new zeiger_t(pos, NULL );
+				way_obj = new zeiger_t(pos, player );
 				if(  gr->get_weg_hang()  ) {
 					way_obj->set_after_bild( besch->get_front_slope_image_id(gr->get_weg_hang()) );
 					way_obj->set_bild( besch->get_back_slope_image_id(gr->get_weg_hang()) );
@@ -3315,7 +3318,7 @@ void tool_build_wayobj_t::mark_tiles( player_t* player, const koord3d &start, co
 			}
 			else {
 				if( gr->get_wayobj( wt ) ) {
-					way_obj = new zeiger_t(pos, NULL );
+					way_obj = new zeiger_t(pos, player );
 					way_obj->set_bild( cursor ); //skinverwaltung_t::bauigelsymbol->get_bild_nr(0));
 				}
 			}
