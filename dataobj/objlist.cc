@@ -238,7 +238,6 @@ void objlist_t::set_capacity(uint16 new_cap)
 }
 
 
-
 bool objlist_t::grow_capacity()
 {
 	if(capacity==0) {
@@ -261,7 +260,6 @@ bool objlist_t::grow_capacity()
 }
 
 
-
 void objlist_t::shrink_capacity(uint8 o_top)
 {
 	// strategy: avoid freeing mem if not needed. Only if we hold lots of memory then free it.
@@ -270,7 +268,6 @@ void objlist_t::shrink_capacity(uint8 o_top)
 		set_capacity(o_top);
 	}
 }
-
 
 
 inline void objlist_t::intern_insert_at(obj_t* new_obj, uint8 pri)
@@ -282,7 +279,6 @@ inline void objlist_t::intern_insert_at(obj_t* new_obj, uint8 pri)
 	obj.some[pri] = new_obj;
 	top++;
 }
-
 
 
 // this will automatically give the right order for citycars and the like ...
@@ -424,6 +420,7 @@ bool objlist_t::intern_add_moving(obj_t* new_obj)
 	return false;
 }
 
+
 /**
  * @returns true if tree1 must be sorted before tree2 (tree1 stands behind tree2)
  */
@@ -518,7 +515,6 @@ bool objlist_t::add(obj_t* new_obj)
 	// then correct the upper border
 	return true;
 }
-
 
 
 // take the thing out from the list
@@ -632,7 +628,6 @@ bool objlist_t::loesche_alle(player_t *player, uint8 offset)
 }
 
 
-
 /* returns the text of an error message, if obj could not be removed */
 const char *objlist_t::kann_alle_entfernen(const player_t *player, uint8 offset) const
 {
@@ -657,7 +652,6 @@ const char *objlist_t::kann_alle_entfernen(const player_t *player, uint8 offset)
 }
 
 
-
 /* recalculates all images
  */
 void objlist_t::calc_bild()
@@ -676,6 +670,21 @@ void objlist_t::calc_bild()
 }
 
 
+void objlist_t::set_all_dirty()
+{
+	if(  capacity == 0  ) {
+		// nothing
+	}
+	else if(  capacity == 1  ) {
+		obj.one->set_flag( obj_t::dirty );
+	}
+	else {
+		for(  uint8 i = 0;  i < top;  i++  ) {
+			obj.some[i]->set_flag( obj_t::dirty );
+		}
+	}
+}
+
 
 /* check for obj */
 bool objlist_t::ist_da(const obj_t* test_obj) const
@@ -692,7 +701,6 @@ bool objlist_t::ist_da(const obj_t* test_obj) const
 	}
 	return false;
 }
-
 
 
 obj_t *objlist_t::suche(obj_t::typ typ,uint8 start) const
@@ -769,7 +777,6 @@ obj_t *objlist_t::get_convoi_vehicle() const
 	}
 	return NULL;
 }
-
 
 
 void objlist_t::rdwr(loadsave_t *file, koord3d current_pos)
@@ -1100,7 +1107,6 @@ void objlist_t::rdwr(loadsave_t *file, koord3d current_pos)
 		}
 	}
 }
-
 
 
 /* Dumps a short info about the things on this tile

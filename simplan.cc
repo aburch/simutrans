@@ -422,6 +422,10 @@ void planquadrat_t::angehoben()
 void planquadrat_t::display_obj(const sint16 xpos, const sint16 ypos, const sint16 raster_tile_width, bool is_global, const sint8 hmin, const sint8 hmax  CLIP_NUM_DEF) const
 {
 	grund_t *gr0 = get_kartenboden();
+	if(  gr0->get_flag( grund_t::dirty )  ) {
+		gr0->set_all_obj_dirty(); // prevent artifacts with smart hide cursor
+	}
+
 	const sint8 h0 = gr0->get_disp_height();
 	uint8 i = 1;
 	// underground

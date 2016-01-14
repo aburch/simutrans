@@ -344,22 +344,29 @@ void karte_ansicht_t::display_region( koord lt, koord wh, sint16 y_min, sint16 y
 					const sint16 yypos = ypos - tile_raster_scale_y( min( kb->get_hoehe(), hmax_ground ) * TILE_HEIGHT_STEP, IMG_SIZE );
 					if(  yypos - IMG_SIZE < lt.y + wh.y  &&  yypos + IMG_SIZE > lt.y  ) {
 #ifdef MULTI_THREAD
-						bool force_show_grid;
-						if(  env_t::hide_under_cursor  &&  koord_distance( pos, cursor_pos ) < env_t::cursor_hide_range  ) {
-								force_show_grid = true;
+						bool force_show_grid = false;
+						if(  env_t::hide_under_cursor  ) {
+							const uint32 cursor_dist = shortest_distance( pos, cursor_pos );
+							if(  cursor_dist <= env_t::cursor_hide_range + 2u  ) {  // +2 to allow for rapid diagonal movement
 								kb->set_flag( grund_t::dirty );
-						}
-						else {
-							force_show_grid = false;
+								if(  cursor_dist <= env_t::cursor_hide_range  ) {
+									force_show_grid = true;
+								}
+							}
 						}
 						kb->display_if_visible( xpos, yypos, IMG_SIZE, clip_num, force_show_grid );
 #else
-						if(  env_t::hide_under_cursor  &&  koord_distance( pos, cursor_pos ) < env_t::cursor_hide_range  ) {
-								const bool saved_grid = grund_t::show_grid;
-								grund_t::show_grid = true;
+						if(  env_t::hide_under_cursor  )
+							const uint32 cursor_dist = shortest_distance( pos, cursor_pos );
+							if(  cursor_dist <= env_t::cursor_hide_range + 2u  ) {
 								kb->set_flag( grund_t::dirty );
-								kb->display_if_visible( xpos, yypos, IMG_SIZE );
-								grund_t::show_grid = saved_grid;
+								if(  cursor_dist <= env_t::cursor_hide_range  ) {
+									const bool saved_grid = grund_t::show_grid;
+									grund_t::show_grid = true;
+									kb->display_if_visible( xpos, yypos, IMG_SIZE );
+									grund_t::show_grid = saved_grid;
+								}
+							}
 						}
 						else {
 							kb->display_if_visible( xpos, yypos, IMG_SIZE );
@@ -455,7 +462,7 @@ void karte_ansicht_t::display_region( koord lt, koord wh, sint16 y_min, sint16 y
 
 									num_threads_paused--;
 								}
-								if(  koord_distance( pos, cursor_pos ) < env_t::cursor_hide_range  ) {
+								if(  shortest_distance( pos, cursor_pos ) <= env_t::cursor_hide_range  ) {
 									// wait until all threads are paused
 									threads_req_pause = true;
 									while(  num_threads_paused < env_t::num_threads - 1  ) {
@@ -486,7 +493,7 @@ void karte_ansicht_t::display_region( koord lt, koord wh, sint16 y_min, sint16 y
 							}
 							else {
 #endif
-								if(  koord_distance( pos, cursor_pos ) < env_t::cursor_hide_range  ) {
+								if(  shortest_distance( pos, cursor_pos ) <= env_t::cursor_hide_range  ) {
 									const bool saved_hide_trees = env_t::hide_trees;
 									const uint8 saved_hide_buildings = env_t::hide_buildings;
 									env_t::hide_trees = true;
