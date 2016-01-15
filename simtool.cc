@@ -3790,22 +3790,20 @@ const char *tool_build_station_t::tool_station_flat_dock_aux(player_t *player, k
 	}
 	// first get the size
 	int len = besch->get_groesse().y-1;
-	koord dx = koord::invalid;
-
-	halthandle_t halt;	// if there is an existing halt, this will get a valid mamber when testing for suitable directions
 
 	// check, if we can build here ...
-	if(  !(welt->get_climate(k) & water_climate)  ) {
+	if(  !gr->ist_natur()  ||  gr->get_grund_hang() != hang_t::flach  ) {
 		return "No suitable ground!";
 	}
 
 	// now find the direction
 	// first: find the next water
-	uint8 water_dir = 0, total_dir = 0;
+	ribi_t::ribi water_dir = 0;
+	uint8        total_dir = 0;
 	for(  uint8 i=0;  i<4;  i++  ) {
 		if(  grund_t *gr = welt->lookup_kartenboden(k+koord::nsow[i])  ) {
 			if(  gr->ist_wasser()  ) {
-				water_dir |= 1<<i;
+				water_dir |= ribi_t::nsow[i];
 				total_dir ++;
 			}
 		}
@@ -3816,19 +3814,22 @@ const char *tool_build_station_t::tool_station_flat_dock_aux(player_t *player, k
 		return "No suitable ground!";
 	}
 
+	// prefer layouts that reach an existing halt
+	ribi_t::ribi halt_dir = 0;
+	halthandle_t test_halt[4];
+
 	for(  uint8 ii=0;  ii<4;  ii++  ) {
 
-		if(  !(water_dir & (1<<ii))  ) {
+		if(  (water_dir & ribi_t::nsow[ii]) == 0  ) {
 			continue;
 		}
 		const koord dx = koord::nsow[ii];
 		const char *last_error = NULL;
-		halthandle_t last_halt = halt;
 
 		for(int i=0;  i<=len;  i++  ) {
 
 			// check whether we can build something
-			const grund_t *gr = welt->lookup_kartenboden(k-dx*i);
+			const grund_t *gr = welt->lookup_kartenboden(k+dx*i);
 			if( !gr ) {
 				// need at least a single tile to navigate ...
 				last_error = "Zu nah am Kartenrand";
@@ -3836,36 +3837,20 @@ const char *tool_build_station_t::tool_station_flat_dock_aux(player_t *player, k
 			}
 
 			// search for nearby stops
-			const planquadrat_t* pl = welt->access(k-dx*i);
-			for(  uint8 j=0;  j < pl->get_boden_count();  j++  ) {
-				halthandle_t test_halt = pl->get_boden_bei(j)->get_halt();
-				if(test_halt.is_bound()) {
-					if(!player_t::check_owner( player, test_halt->get_owner())) {
-						last_error = "Das Feld gehoert\neinem anderen Spieler\n";
-						break;
-					}
-					else if(!halt.is_bound()) {
-						halt = test_halt;
-					}
-					else if(halt != test_halt) {
-						last_error = "Several halts found.";
-						break;
-					}
+			const planquadrat_t* pl = welt->access(k+dx*i);
+			for(  uint8 j=0;  j < pl->get_boden_count()  &&  !test_halt[ii].is_bound();  j++  ) {
+				halthandle_t halt = pl->get_boden_bei(j)->get_halt();
+				if (halt.is_bound()  &&  player_t::check_owner( player, halt->get_owner()) ) {
+					test_halt[ii] = halt;
+					halt_dir |= ribi_t::nsow[ii];
 				}
 			}
 
-			// this is intended, it is an assignment!
 			if(  (last_error = gr->kann_alle_obj_entfernen(player))  ) {
 				break;
 			}
 
-			if (i==0) {
-				// start tile on near water
-				if(  gr->hat_wege()  ||  gr->get_typ()!=grund_t::boden  ||  gr->is_halt()  ) {
-					last_error = "Tile not empty.";
-				}
-			}
-			else {
+			if (i>0) {
 				// all other tiles in water
 				if (!gr->ist_wasser()  ||  gr->find<gebaeude_t>()  ||  gr->get_depot()  ||  gr->is_halt()) {
 					last_error = "Tile not empty.";
@@ -3875,8 +3860,7 @@ const char *tool_build_station_t::tool_station_flat_dock_aux(player_t *player, k
 
 		// error: then remove this direction
 		if(  last_error  ) {
-			water_dir &= ~(1<<ii);
-			halt = last_halt;
+			water_dir &= ~ribi_t::nsow[ii];
 			if(  --total_dir == 0  ) {
 				// no duitable directions found
 				return last_error;
@@ -3884,57 +3868,27 @@ const char *tool_build_station_t::tool_station_flat_dock_aux(player_t *player, k
 		}
 	}
 
-	// now we may have more than one dir left; maybe there is a nearby halt to break the tie
-	// this does not work without a halt, or when both N and S resp E and W are possible
-	if(  (total_dir > 1  &&  !halt.is_bound())  ||  (water_dir & 3) == 3  ||  (water_dir & 12) == 12  ) {
-		return "No suitable ground!";
-	}
-	else {
-		if(  water_dir & 3  ) {
-			// check for stop in east or west direction
-			grund_t *west = welt->lookup_kartenboden(k+koord::west);
-			grund_t *east = welt->lookup_kartenboden(k+koord::ost);
-			if(
-			    (!west  ||  !west->get_halt().is_bound()  ||  !player_t::check_owner( west->get_halt()->get_owner(), player )  )  &&
-			    (!east  ||  !east->get_halt().is_bound()  ||  !player_t::check_owner( east->get_halt()->get_owner(), player )  )
-			  ) {
-				// definitively not in north or south direction
-				water_dir &= ~3;
-			}
-		}
-
-		if(  water_dir & 12  ) {
-			// check for stop in north or south direction
-			grund_t *north = welt->lookup_kartenboden(k+koord::nord);
-			grund_t *south = welt->lookup_kartenboden(k+koord::sued);
-			if(
-			    (!north  ||  !north->get_halt().is_bound()  ||  !player_t::check_owner( north->get_halt()->get_owner(), player )  )  &&
-			    (!south  ||  !south->get_halt().is_bound()  ||  !player_t::check_owner( south->get_halt()->get_owner(), player )  )
-			  ) {
-				// definitively not in north or south direction
-				water_dir &= ~12;
-			}
-		}
-	}
-
-	// nothing left or not unique => fail too (in the latter case one might use one random oreintation)
-	if(  water_dir == 0  ||  ((water_dir &  3)  &&  (water_dir & 12))  ) {
-		return "No suitable ground!";
+	// now we may have more than one dir left
+	if (total_dir > 1  &&  !ribi_t::ist_einfach(water_dir & halt_dir) ) {
+		return "More than one possibility to build this dock found.";
 	}
 
 	// remove everything from tile
 	gr->obj_loesche_alle(player);
 
 	koord3d bau_pos = welt->lookup_kartenboden(k)->get_pos();
+	koord dx = koord::invalid;
 	koord last_k;
 	uint8 layout = 0; // building orientation
+	halthandle_t halt;
 
 	for(  uint8 i=0;  i<4;  i++  ) {
-		if(  water_dir & (1<<i)  ) {
+		if(  water_dir & ribi_t::nsow[i]  ) {
 			dx = koord::nsow[i];
-			koord last_k = k - dx*len;
-			// layout: north 0, west 1, south 2, east 3
-			static const uint8 nsow_to_layout[4] = { 0, 2, 3, 1 };
+			halt = test_halt[i];
+			koord last_k = k + dx*len;
+			// layout: north 2, west 3, south 0, east 1
+			static const uint8 nsow_to_layout[4] = { 2, 0, 1, 3 };
 			layout = nsow_to_layout[i];
 			if(  layout>=2  ) {
 				// reverse construction in these directions
@@ -3992,9 +3946,8 @@ const char *tool_build_station_t::tool_station_flat_dock_aux(player_t *player, k
 		}
 	}
 
-	DBG_MESSAGE("tool_station_dock_aux()","building dock from square (%d,%d) to (%d,%d) layout=%i", k.x, k.y, last_k.x, last_k.y, layout );
+	DBG_MESSAGE("tool_station_flat_dock_aux()","building dock from square (%d,%d) to (%d,%d) layout=%i", k.x, k.y, last_k.x, last_k.y, layout );
 
-	//DBG_MESSAGE("tool_station_dock_aux()","search for stop");
 	if(!halt.is_bound()) {
 		halt = suche_nahe_haltestelle(player, welt, welt->lookup_kartenboden(k)->get_pos() );
 	}
