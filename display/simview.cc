@@ -356,7 +356,7 @@ void karte_ansicht_t::display_region( koord lt, koord wh, sint16 y_min, sint16 y
 						}
 						kb->display_if_visible( xpos, yypos, IMG_SIZE, clip_num, force_show_grid );
 #else
-						if(  env_t::hide_under_cursor  )
+						if(  env_t::hide_under_cursor  ) {
 							const uint32 cursor_dist = shortest_distance( pos, cursor_pos );
 							if(  cursor_dist <= env_t::cursor_hide_range + 2u  ) {
 								kb->set_flag( grund_t::dirty );
