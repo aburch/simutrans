@@ -21,7 +21,7 @@ zeiger_t::zeiger_t(loadsave_t *file) : obj_no_info_t()
 	bild = IMG_LEER;
 	after_bild = IMG_LEER;
 	area = koord(0,0);
-	center = false;
+	offset = koord(0,0);
 	rdwr(file);
 }
 
@@ -33,7 +33,7 @@ zeiger_t::zeiger_t(koord3d pos, player_t *player) :
 	bild = IMG_LEER;
 	after_bild = IMG_LEER;
 	area = koord(0,0);
-	center = false;
+	offset = koord(0,0);
 }
 
 
@@ -56,7 +56,7 @@ void zeiger_t::change_pos(koord3d k )
 			if(  gr->get_halt().is_bound()  ) {
 				gr->get_halt()->mark_unmark_coverage( false );
 			}
-			welt->mark_area( get_pos()-(area*center)/2, area, false );
+			welt->mark_area( get_pos()- offset, area, false );
 		}
 		if(  get_pos().x >= welt->get_size().x-1  ||  get_pos().y >= welt->get_size().y-1  ) {
 			// the raise and lower tool actually can go to size!
@@ -77,7 +77,7 @@ void zeiger_t::change_pos(koord3d k )
 				if(  gr->get_halt().is_bound()  &&  env_t::station_coverage_show  ) {
 					gr->get_halt()->mark_unmark_coverage( true );
 				}
-				welt->mark_area( k-(area*center)/2, area, true );
+				welt->mark_area( k-offset, area, true );
 			}
 		}
 	}
@@ -102,13 +102,17 @@ void zeiger_t::set_after_bild( image_id b )
 }
 
 
-void zeiger_t::set_area(koord new_area, bool new_center)
+void zeiger_t::set_area(koord new_area, bool center, koord new_offset)
 {
-	if(new_area==area  &&  new_center==center) {
+	if (center) {
+		new_offset = new_area/2;
+	}
+
+	if(new_area==area  &&  new_offset==offset) {
 		return;
 	}
-	welt->mark_area( get_pos()-(area*center)/2, area, false );
+	welt->mark_area( get_pos()-offset, area, false );
 	area = new_area;
-	center = new_center;
-	welt->mark_area( get_pos()-(area*center)/2, area, true );
+	offset = new_offset;
+	welt->mark_area( get_pos()-offset, area, true );
 }

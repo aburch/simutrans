@@ -691,7 +691,7 @@ void tool_t::init_cursor( zeiger_t *zeiger) const
 {
 	zeiger->set_bild( cursor );
 	zeiger->set_yoff( offset );
-	zeiger->set_area( cursor_area, cursor_centered);
+	zeiger->set_area( cursor_area, cursor_centered, cursor_offset);
 }
 
 const char *kartenboden_tool_t::check_pos(player_t *, koord3d pos )

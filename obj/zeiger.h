@@ -14,8 +14,7 @@
 class zeiger_t : public obj_no_info_t
 {
 private:
-	koord area;
-	bool center;
+	koord area, offset;
 	/// images
 	image_id bild, after_bild;
 
@@ -32,8 +31,9 @@ public:
 	 * Set area to be marked around cursor
 	 * @param area size of marked area
 	 * @param center true if cursor is centered within marked area
+	 * @param offset if center==false then cursor is at position @p offset
 	 */
-	void set_area( koord area, bool center );
+	void set_area( koord area, bool center, koord offset = koord(0,0) );
 
 	/// set back image
 	void set_bild( image_id b );

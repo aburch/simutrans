@@ -189,6 +189,9 @@ public:
 	/// cursor centered at marked area? default: false
 	bool cursor_centered;
 
+	/// cursor offset within marked area (only effective if cursor_centered != false)
+	koord cursor_offset;
+
 	/// z-offset of cursor, possible values: Z_PLAN and Z_GRID
 	sint8 offset;
 
