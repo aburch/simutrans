@@ -1,3 +1,5 @@
+	ADD: ctrl-click on flat-dock icon to choose orientation
+
 Release of 120.1.2: (r7720 on 7-Jan-2016):
 	ADD: configurable compass for minimap, rotation tool, and main screen
 	ADD: tool for last used tools

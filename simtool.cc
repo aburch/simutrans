@@ -3780,7 +3780,7 @@ DBG_MESSAGE("tool_station_dock_aux()","building dock from square (%d,%d) to (%d,
 }
 
 /* build a dock either small or large */
-const char *tool_build_station_t::tool_station_flat_dock_aux(player_t *player, koord3d pos, const haus_besch_t *besch)
+const char *tool_build_station_t::tool_station_flat_dock_aux(player_t *player, koord3d pos, const haus_besch_t *besch, sint8 rotation)
 {
 	// the cursor cannot be outside the map from here on
 	koord k = pos.get_2d();
@@ -3869,7 +3869,7 @@ const char *tool_build_station_t::tool_station_flat_dock_aux(player_t *player, k
 	}
 
 	// now we may have more than one dir left
-	if (total_dir > 1  &&  !ribi_t::ist_einfach(water_dir & halt_dir) ) {
+	if (rotation == -1  &&  total_dir > 1  &&  !ribi_t::ist_einfach(water_dir & halt_dir) ) {
 		return "More than one possibility to build this dock found.";
 	}
 
@@ -3893,6 +3893,16 @@ const char *tool_build_station_t::tool_station_flat_dock_aux(player_t *player, k
 			if(  layout>=2  ) {
 				// reverse construction in these directions
 				bau_pos = welt->lookup_kartenboden(last_k)->get_pos();
+			}
+			if (rotation == layout) {
+				// desired rotation works
+				break;
+			}
+			if (rotation != -1) {
+				// desired rotation not possible, try others
+				if(  --total_dir == 0  ) {
+					return "No suitable ground!";
+				}
 			}
 		}
 	}
@@ -4241,7 +4251,7 @@ bool tool_build_station_t::init( player_t * )
 		// do not change cursor
 		return true;
 	}
-	if(  hb->get_utyp()==haus_besch_t::generic_extension  &&  hb->get_all_layouts()>1  ) {
+	if(  (hb->get_utyp()==haus_besch_t::generic_extension  ||  hb->get_utyp()==haus_besch_t::flat_dock)  &&  hb->get_all_layouts()>1  ) {
 		if(  is_ctrl_pressed()  &&  rotation==-1  ) {
 			// call station dialog instead
 			destroy_win( magic_station_building_select );
@@ -4253,6 +4263,10 @@ bool tool_build_station_t::init( player_t * )
 			// rotation is already fixed
 			cursor_area = koord( hb->get_b(rotation), hb->get_h(rotation) );
 			cursor_centered = false;
+			cursor_offset = koord(0,0);
+			if (hb->get_utyp()==haus_besch_t::flat_dock  &&  rotation >= 2 ) {
+				cursor_offset = cursor_area - koord(1,1);
+			}
 		}
 		else {
 			goto set_area_cov;
@@ -4263,6 +4277,7 @@ set_area_cov:
 		uint16 const cov = welt->get_settings().get_station_coverage() * 2 + 1;
 		cursor_area = koord(cov, cov);
 		cursor_centered = true;
+		cursor_offset = koord(0,0);
 	}
 	return true;
 }
@@ -4424,7 +4439,7 @@ const char *tool_build_station_t::work( player_t *player, koord3d pos )
 			msg = tool_build_station_t::tool_station_dock_aux(player, pos, besch );
 			break;
 		case haus_besch_t::flat_dock:
-			msg = tool_build_station_t::tool_station_flat_dock_aux(player, pos, besch );
+			msg = tool_build_station_t::tool_station_flat_dock_aux(player, pos, besch, rotation );
 			break;
 		case haus_besch_t::hafen_geb:
 		case haus_besch_t::generic_extension:
