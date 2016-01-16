@@ -2881,7 +2881,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 	}
 
 	// signal disappeared, train passes the tile of former signal
-	if(  next_block < route_index  ) {
+	if(  next_block+1 < route_index  ) {
 		// we need to reserve the next block even if there is no signal present anymore
 		bool ok = block_reserver( cnv->get_route(), route_index, next_signal, next_crossing, 0, true, false );
 		if (ok) {
