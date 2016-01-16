@@ -2157,7 +2157,7 @@ void fabrik_t::step(uint32 delta_t)
 		case BL_POWER: {
 			// Order power for work done scaled by boost amount.
 			power = 0;
-			power_demand = (uint32)(((sint64)scaled_electric_amount * (sint64)boost * (sint64)work / ((sint64)prod * (sint64)wunits)) >> DEFAULT_PRODUCTION_FACTOR_BITS);
+			power_demand = prod ? (uint32)(((sint64)scaled_electric_amount * (sint64)boost * (sint64)work / ((sint64)prod * (sint64)wunits)) >> DEFAULT_PRODUCTION_FACTOR_BITS) : 0;
 			break;
 		}
 		default: {
