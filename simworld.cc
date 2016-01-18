@@ -5379,7 +5379,7 @@ DBG_MESSAGE("karte_t::laden()","Savegame version is %d", file.get_version());
 				char fn[256];
 				sprintf( fn, "server%d-pwdhash.sve", env_t::server );
 				loadsave_t pwdfile;
-				if (pwdfile.rd_open(fn)) {
+				if(  pwdfile.rd_open(fn)  ) {
 					rdwr_player_password_hashes( &pwdfile );
 					// correct locking info
 					nwc_auth_player_t::init_player_lock_server(this);

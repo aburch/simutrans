@@ -215,7 +215,8 @@ bool loadsave_t::rd_open(const char *filename_utf8 )
 
 	if (strstart(buf, SAVEGAME_PREFIX)) {
 		version = int_version(buf + sizeof(SAVEGAME_PREFIX) - 1, &mode, pak_extension);
-	} else if (strstart(buf, XML_SAVEGAME_PREFIX)) {
+	}
+	else if (strstart(buf, XML_SAVEGAME_PREFIX)) {
 		mode |= xml;
 		while (lsgetc() != '<') { /* nothing */ }
 		read(buf, sizeof(SAVEGAME_PREFIX) - 1);

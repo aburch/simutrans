@@ -329,7 +329,7 @@ bool interaction_t::process_event( event_t &ev )
 			char fn[256];
 			sprintf( fn, "server%d-pwdhash.sve", env_t::server );
 			loadsave_t file;
-			if(file.wr_open(fn, loadsave_t::save_mode, "hashes", SAVEGAME_VER_NR )) {
+			if(file.wr_open(fn, loadsave_t::zipped, "hashes", SAVEGAME_VER_NR )) {
 				world->rdwr_player_password_hashes( &file );
 				file.close();
 			}
