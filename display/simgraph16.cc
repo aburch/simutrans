@@ -5035,7 +5035,7 @@ void display_flush_buffer()
 			const int word_x1 = (x1 + y1 * tile_buffer_per_line) >> 5;
 			if(  (tile_dirty_old[word_x1] & x_search_mask) == x_search_mask  ) {
 				// found dirty tile at x1, now find contiguous block of dirties - x2
-				const uint32 testval = ~((~(0xFFFFFFFF << x1)) | tile_dirty_old[word_x1]);
+				const uint32 testval = ~((~(0xFFFFFFFF << (x1 & 31))) | tile_dirty_old[word_x1]);
 				int word_x2 = word_x1;
 				int x2;
 				if(  testval == 0  ) { // dirty block spans words
