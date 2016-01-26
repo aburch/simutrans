@@ -111,7 +111,7 @@ private:
 	sint16 last_bar_count;
 	vector_tpl<KOORD_VAL> last_bar_height; // caches the last height of the station bar for each good type drawn in display_status(). used for dirty tile management
 	uint32 capacity[3]; // passenger, post, goods
-	uint8 overcrowded[8];	// bit set, when overcrowded
+	uint8 overcrowded[256/8]; ///< bit field for each goods type (max 256)
 
 	static uint8 status_step;	// NONE or SCHEDULING or REROUTING
 

@@ -2838,7 +2838,7 @@ void haltestelle_t::recalc_status()
 
 	// now for all goods
 	if(status_color!=COL_RED  &&  get_ware_enabled()) {
-		const uint32 count = warenbauer_t::get_waren_anzahl();
+		const uint8  count = warenbauer_t::get_waren_anzahl();
 		const uint32 max_ware = get_capacity(2);
 		for(  uint32 i = 3;  i < count;  i++  ) {
 			ware_besch_t const* const wtyp = warenbauer_t::get_info(i);
