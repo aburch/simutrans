@@ -3760,7 +3760,7 @@ sint32 rail_vehicle_t::activate_choose_signal(const uint16 start_block, uint16 &
 		blocks = block_reserver(route, start_block, modified_sighting_distance_tiles, next_signal_index, 100000, true, false, true, false, false, false, brake_steps);
 		if(!blocks) 
 		{
-			dbg->error("rail_vehicle_t::is_choose_signal_clear()", "could not reserved route after find_route!");
+			dbg->error("rail_vehicle_t::activate_choose_signal()", "could not reserved route after find_route!");
 			target_halt = halthandle_t();		
 		}
 	}
@@ -4111,7 +4111,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 					|| working_method == one_train_staff && shortest_distance(get_pos().get_2d(), signal->get_pos().get_2d()) < 2)
  				{
 					// Brake for the signal unless we can see it somehow. -1 because this is checked on entering the tile.
-					const bool allow_block_reserver = working_method != time_interval || signal->get_state() != roadsign_t::danger; 
+					const bool allow_block_reserver = working_method != time_interval || !signal->get_no_junctions_to_next_signal() || signal->get_state() != roadsign_t::danger; 
 					if(allow_block_reserver && !block_reserver(cnv->get_route(), next_block, modified_sighting_distance_tiles, next_signal, 0, true, false, cnv->get_is_choosing()))
 					{					
 						restart_speed = 0;
@@ -4583,10 +4583,18 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 						if(first_stop_signal_index == INVALID_INDEX)
 						{
 							first_stop_signal_index = i;
-							if(next_signal_working_method == time_interval && (signal->get_state() == roadsign_t::caution || signal->get_state() == roadsign_t::caution_no_choose))
+							if(next_signal_working_method == time_interval)
 							{
-								// Half line speed allowed for caution indications on time interval stop signals
-								cnv->set_maximum_signal_speed(min(kmh_to_speed(sch1->get_max_speed()) / 2, signal->get_besch()->get_max_speed() / 2));
+								if((signal->get_state() == roadsign_t::caution || signal->get_state() == roadsign_t::caution_no_choose))
+								{
+									// Half line speed allowed for caution indications on time interval stop signals
+									cnv->set_maximum_signal_speed(min(kmh_to_speed(sch1->get_max_speed()) / 2, signal->get_besch()->get_max_speed() / 2));
+								}
+								else if(signal->get_no_junctions_to_next_signal() == false)
+								{
+									// Junction signal - must proceed with great caution in time interval.
+									cnv->set_maximum_signal_speed(welt->get_settings().get_max_speed_drive_by_sight());
+								}
 							}
 							else
 							{
@@ -4670,9 +4678,11 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 					}
 				}
 			}
-			const bool time_interval_reservation = next_signal_working_method == time_interval && last_choose_signal_index < INVALID_INDEX;
+			const bool time_interval_reservation = next_signal_working_method == time_interval 
+				&& last_choose_signal_index < INVALID_INDEX
+				&& i - start_index > modified_sighting_distance_tiles;
 			const schiene_t::reservation_type rt = directional_only || time_interval_reservation ? schiene_t::directional : schiene_t::block;
-			bool attempt_reservation = time_interval_reservation || next_signal_working_method != time_interval || ((i - (start_index - 1)) <= modified_sighting_distance_tiles);
+			bool attempt_reservation = time_interval_reservation || next_signal_working_method != time_interval;
 			if(attempt_reservation && !sch1->reserve(cnv->self, ribi_typ(route->position_bei(max(1u,i)-1u), route->position_bei(min(route->get_count()-1u,i+1u))), rt, working_method == time_interval))
 			{
 				not_entirely_free = true;
@@ -5053,6 +5063,31 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 						// There is no need to set a combined signal to clear here, as this is set below in the pre-signals clearing loop.
 						signal->set_state(use_no_choose_aspect ? roadsign_t::clear_no_choose : signal->get_besch()->is_combined_signal() ? roadsign_t::caution : roadsign_t::clear);
 					}
+
+					if(signal->get_besch()->get_working_method() == time_interval)
+					{
+						//  Do not clear time interval signals unless the requisite time has elapsed, as this reserves only up to the sighting distance ahead.
+
+						// TODO: Set these values in simuconf.tab
+						const uint32 caution_interval_seconds = 300;
+						const uint32 clear_interval_seconds = 600; 
+
+						const sint64 caution_interval_ticks = seconds_to_ticks(caution_interval_seconds, welt->get_settings().get_meters_per_tile());
+						const sint64 clear_interval_ticks = seconds_to_ticks(clear_interval_seconds, welt->get_settings().get_meters_per_tile()); 
+						const sint64 ticks = welt->get_zeit_ms();
+
+						if((signal->get_train_last_passed() + clear_interval_ticks) < ticks)
+						{
+							signal->set_state(roadsign_t::clear_no_choose);
+						}
+						else if((signal->get_train_last_passed() + caution_interval_ticks) < ticks)
+						{
+							// We assume that these are not distant signals here, as they should not be added to this list.
+							signal->set_state(roadsign_t::caution_no_choose);
+						}
+						// Otherwise, leave at danger.
+					}
+
 					if(signal->get_besch()->get_working_method() == track_circuit_block)
 					{
 						if(count >= 0 || next_signal_index > route->get_count() - 1 || signal->get_pos() != route->position_bei(next_signal_index))
@@ -5280,7 +5315,7 @@ void rail_vehicle_t::leave_tile()
 					if(sig) 
 					{
 						sig->set_train_last_passed(welt->get_zeit_ms());
-						if(sig->get_besch()->get_working_method() == time_interval)
+						if(sig->get_besch()->get_working_method() == time_interval && sig->get_no_junctions_to_next_signal())
 						{
 							welt->add_time_interval_signal_to_check(sig); 
 						}
@@ -5416,7 +5451,11 @@ void rail_vehicle_t::leave_tile()
 									if(sig_route->get_besch()->get_working_method() == time_interval)
 									{
 										sig_route->set_train_last_passed(welt->get_zeit_ms());
-										welt->add_time_interval_signal_to_check(sig_route);
+										if(sig_route->get_no_junctions_to_next_signal())
+										{
+											// Junction signals reserve within sighting distance.
+											welt->add_time_interval_signal_to_check(sig_route);
+										}
 									}
 									break;
 								}
