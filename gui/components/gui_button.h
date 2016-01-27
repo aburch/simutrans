@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
+ * Copyright (c) 1997 - 2001 Hansjorg Malthaner
  *
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
@@ -15,6 +15,7 @@
 #include "gui_action_creator.h"
 #include "gui_component.h"
 #include "../../simcolor.h"
+#include "../../dataobj/koord.h"
 #include "../../display/simimg.h"
 
 class karte_ptr_t;
@@ -35,9 +36,9 @@ public:
 	 * the _state buttons must be changed by the caller!
 	 * _automatic buttons do everything themselves, i.e. depress/release alternately
 	 *
-	 * square:        button with text on the right side next to it
-	 * box:           button with is used for many selection purposes; can have colored background
-	 * roundbox:      button for "load" cancel and such options
+	 * square:        a checkbox with text on the right side next to it
+	 * box:           button which is used for many selection purposes, can have colored background
+	 * roundbox:      button for "load", "cancel" and such options
 	 * arrow-buttons: buttons with arrows, cannot have text
 	 * repeat arrows: calls the caller until the mouse is released
 	 * scrollbar:     well you guess it. Not used by gui_frame_t things ...
@@ -77,9 +78,11 @@ private:
 	 * direct access provided to avoid translations
 	 * @author Hj. Malthaner
 	 */
-	struct { sint16 x,y; } targetpos;
-	const char * text;
- 	const char *translated_text;
+	union {
+		const char * text;
+		struct { sint16 x,y; } targetpos;
+	};
+	const char *translated_text;
 
 	// any click will go to this world
 	static karte_ptr_t welt;
@@ -135,7 +138,7 @@ public:
 	 * @return false when x, y is outside button area
 	 * @author Hj. Malthaner
 	 */
-	bool is_hit(int x, int y) OVERRIDE;
+	bool getroffen(int x, int y) OVERRIDE;
 
 	bool infowin_event(event_t const*) OVERRIDE;
 

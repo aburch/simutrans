@@ -34,15 +34,15 @@ replace_frame_t::replace_frame_t(convoihandle_t cnv, const char *name):
 	replace_line(false), replace_all(false), depot(false),
 	state(state_replace), replaced_so_far(0),
 	lb_convoy(cnv, true, true),
-	lb_to_be_replaced(NULL, COL_BLACK, gui_label_t::centered),
-	lb_money(NULL, COL_BLACK, gui_label_t::money),
-	lb_replace_cycle(NULL, COL_BLACK, gui_label_t::right),
-	lb_replace(NULL, COL_BLACK, gui_label_t::left),
-	lb_sell(NULL, COL_BLACK, gui_label_t::left),
-	lb_skip(NULL, COL_BLACK, gui_label_t::left),
-	lb_n_replace(NULL, COL_BLACK, gui_label_t::left),
-	lb_n_sell(NULL, COL_BLACK, gui_label_t::left),
-	lb_n_skip(NULL, COL_BLACK, gui_label_t::left),
+	lb_to_be_replaced(NULL, SYSCOL_TEXT, gui_label_t::centered),
+	lb_money(NULL, SYSCOL_TEXT, gui_label_t::money),
+	lb_replace_cycle(NULL, SYSCOL_TEXT, gui_label_t::right),
+	lb_replace(NULL, SYSCOL_TEXT, gui_label_t::left),
+	lb_sell(NULL, SYSCOL_TEXT, gui_label_t::left),
+	lb_skip(NULL, SYSCOL_TEXT, gui_label_t::left),
+	lb_n_replace(NULL, SYSCOL_TEXT, gui_label_t::left),
+	lb_n_sell(NULL, SYSCOL_TEXT, gui_label_t::left),
+	lb_n_skip(NULL, SYSCOL_TEXT, gui_label_t::left),
 	convoy_assembler(
 		cnv->get_vehikel(0)->get_besch()->get_waytype(),  
 		cnv->get_owner()->get_player_nr(), 
@@ -620,7 +620,7 @@ void replace_frame_t::draw(scr_coord pos, scr_size size)
 	bt_allow_using_existing_vehicles.pressed = rpl->get_allow_using_existing_vehicles();
 	
 	// Make replace cycle grey if not in use
-	uint32 color=(replace_line||replace_all?COL_BLACK:COL_GREY4);
+	uint32 color=(replace_line||replace_all?SYSCOL_BUTTON_TEXT:SYSCOL_BUTTON_TEXT_DISABLED);
 	lb_replace_cycle.set_color(color);
 	lb_replace.set_color(color);
 	lb_sell.set_color(color);

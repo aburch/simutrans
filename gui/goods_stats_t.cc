@@ -74,7 +74,7 @@ void goods_stats_t::draw(scr_coord offset)
 
 		buf.clear();
 		buf.printf("%s", translator::translate(wtyp->get_name()));
-		display_proportional_clip(offset.x + 14, yoff,	buf, ALIGN_LEFT, COL_BLACK, true);
+		display_proportional_clip(offset.x + 14, yoff,	buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 
 		// Massively cleaned up by neroden, June 2013
 		sint64 relevant_speed = ( welt->get_average_speed(way_type) * (relative_speed_percentage + 100) ) / 100;
@@ -93,19 +93,19 @@ void goods_stats_t::draw(scr_coord offset)
 		money_to_string( money_buf, (double)price/100.0 );
 		buf.clear();
 		buf.printf(money_buf);
-		display_proportional_clip(offset.x + 170, yoff, buf, 	ALIGN_RIGHT, 	COL_BLACK, true);
+		display_proportional_clip(offset.x + 170, yoff, buf, 	ALIGN_RIGHT, 	SYSCOL_TEXT, true);
 
 		buf.clear();
 		buf.printf("%d%%", wtyp->get_adjusted_speed_bonus(distance_meters));
-		display_proportional_clip(offset.x + 205, yoff, buf, ALIGN_RIGHT, COL_BLACK, true);
+		display_proportional_clip(offset.x + 205, yoff, buf, ALIGN_RIGHT, SYSCOL_TEXT, true);
 
 		buf.clear();
 		buf.printf( "%s",	translator::translate(wtyp->get_catg_name()));
-		display_proportional_clip(offset.x + 220, yoff, buf, 	ALIGN_LEFT, COL_BLACK, 	true);
+		display_proportional_clip(offset.x + 220, yoff, buf, 	ALIGN_LEFT, SYSCOL_TEXT, 	true);
 
 		buf.clear();
 		buf.printf("%dKg", wtyp->get_weight_per_unit());
-		display_proportional_clip(offset.x + 360, yoff, buf, ALIGN_RIGHT, COL_BLACK, true);
+		display_proportional_clip(offset.x + 360, yoff, buf, ALIGN_RIGHT, SYSCOL_TEXT, true);
 
 		yoff += LINESPACE+1;
 	}

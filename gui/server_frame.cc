@@ -250,16 +250,16 @@ void server_frame_t::update_info ()
 	revision_buf.clear();
 	revision_buf.printf( "%s %u", translator::translate( "Revision:" ), gi.get_game_engine_revision() );
 	revision.set_text( revision_buf );
-	revision.set_color( engine_match ? COL_BLACK : COL_RED );
+	revision.set_color( engine_match ? SYSCOL_TEXT : SYSCOL_TEXT_STRONG );
 
 	pak_version.set_text( gi.get_pak_name() );
-	pak_version.set_color( pakset_match ? COL_BLACK : COL_RED );
+	pak_version.set_color( pakset_match ? SYSCOL_TEXT : SYSCOL_TEXT_STRONG );
 
 #if DEBUG>=4
 	pakset_checksum_buf.clear();
 	pakset_checksum_buf.printf("%s %s",translator::translate( "Pakset checksum:" ), gi.get_pakset_checksum().get_str(8));
 	pakset_checksum.set_text( pakset_checksum_buf );
-	pakset_checksum.set_color( pakset_match ? COL_BLACK : COL_RED );
+	pakset_checksum.set_color( pakset_match ? SYSCOL_TEXT : SYSCOL_TEXT_STRONG );
 #endif
 
 	time.clear();
@@ -405,16 +405,16 @@ bool server_frame_t::action_triggered (gui_action_creator_t *comp, value_t p)
 			if(  item->online()  ) {
 				const char *err = network_gameinfo( ((server_scrollitem_t*)serverlist.get_element( p.i ))->get_dns(), &gi );
 				if (  err == NULL  ) {
-					item->set_color( COL_BLACK );
+					item->set_color( SYSCOL_TEXT );
 					update_info();
 				}
 				else {
-					item->set_color( COL_RED );
+					item->set_color( SYSCOL_TEXT_STRONG );
 					update_error( "Server did not respond!" );
 				}
 			}
 			else {
-				item->set_color( COL_RED );
+				item->set_color( SYSCOL_TEXT_STRONG );
 				update_error( "Cannot connect to offline server!" );
 			}
 		}
@@ -564,7 +564,7 @@ void server_frame_t::draw (scr_coord pos, scr_size size)
 	}
 
 	// Descriptive server text
-	display_multiline_text( pos.x + D_MARGIN_LEFT + 1 + mapsize.w + 2 + D_H_SPACE, pos_y, buf, COL_BLACK );
+	display_multiline_text( pos.x + D_MARGIN_LEFT + 1 + mapsize.w + 2 + D_H_SPACE, pos_y, buf, SYSCOL_TEXT );
 
 	pos_y += LINESPACE * 8;   // Spacing for the multiline_text above
 

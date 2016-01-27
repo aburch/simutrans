@@ -78,8 +78,8 @@ void scrollbar_t::set_knob(sint32 new_visible_size, sint32 new_total_size)
 void scrollbar_t::reposition_buttons()
 {
 	const sint32 area = (type == vertical ?
-		size.h-gui_theme_t::gui_arrow_up_size.h-gui_theme_t::gui_arrow_down_size.h :
-		size.w-gui_theme_t::gui_arrow_left_size.w-gui_theme_t::gui_arrow_right_size.w);
+		size.h - D_ARROW_UP_HEIGHT - D_ARROW_DOWN_HEIGHT :
+		size.w - D_ARROW_LEFT_WIDTH - D_ARROW_RIGHT_WIDTH);
 		// area will be actual area knob can move in
 
 	knob_offset = clamp( knob_offset, 0, total_size-knob_size );
@@ -98,19 +98,19 @@ void scrollbar_t::reposition_buttons()
 	offset = clamp( offset, 0, area-length );
 
 	if(type == vertical) {
-		button_def[left_top_arrow_index].set_pos( scr_coord( (D_SCROLLBAR_WIDTH-gui_theme_t::gui_arrow_up_size.w)/2, 0) );
-		button_def[right_bottom_arrow_index].set_pos( scr_coord( (D_SCROLLBAR_WIDTH-gui_theme_t::gui_arrow_down_size.w)/2, size.h-gui_theme_t::gui_arrow_down_size.h) );
-		sliderarea.set( 0, gui_theme_t::gui_arrow_up_size.h, D_SCROLLBAR_WIDTH, area );
-		knobarea.set( 0, gui_theme_t::gui_arrow_up_size.h+offset, D_SCROLLBAR_WIDTH, length );
+		button_def[left_top_arrow_index].set_pos( scr_coord( (D_SCROLLBAR_WIDTH - D_ARROW_UP_WIDTH)/2, 0) );
+		button_def[right_bottom_arrow_index].set_pos( scr_coord( (D_SCROLLBAR_WIDTH - D_ARROW_DOWN_WIDTH)/2, size.h - D_ARROW_DOWN_HEIGHT) );
+		sliderarea.set( 0, D_ARROW_UP_HEIGHT, D_SCROLLBAR_WIDTH, area );
+		knobarea.set( 0, D_ARROW_UP_HEIGHT + offset, D_SCROLLBAR_WIDTH, length );
 	}
 	else { // horizontal
-		button_def[left_top_arrow_index].set_pos( scr_coord(0,(D_SCROLLBAR_HEIGHT-gui_theme_t::gui_arrow_left_size.h)/2) );
-		button_def[right_bottom_arrow_index].set_pos( scr_coord(size.w-gui_theme_t::gui_arrow_right_size.w,(D_SCROLLBAR_HEIGHT-gui_theme_t::gui_arrow_right_size.h)/2) );
-		sliderarea.set( gui_theme_t::gui_arrow_up_size.w, 0, area, D_SCROLLBAR_HEIGHT );
-		knobarea.set( gui_theme_t::gui_arrow_up_size.w+offset, 0, length, D_SCROLLBAR_HEIGHT );
+		button_def[left_top_arrow_index].set_pos( scr_coord(0,(D_SCROLLBAR_HEIGHT - D_ARROW_LEFT_HEIGHT)/2) );
+		button_def[right_bottom_arrow_index].set_pos( scr_coord(size.w - D_ARROW_RIGHT_WIDTH, (D_SCROLLBAR_HEIGHT - D_ARROW_RIGHT_HEIGHT)/2) );
+		sliderarea.set( D_ARROW_LEFT_WIDTH, 0, area, D_SCROLLBAR_HEIGHT );
+		knobarea.set( D_ARROW_LEFT_WIDTH + offset, 0, length, D_SCROLLBAR_HEIGHT );
 	}
 
-	full = knobarea.contains( sliderarea );
+	full = (total_size<=knob_size);
 	set_visible( !full );
 }
 
@@ -144,11 +144,11 @@ bool scrollbar_t::infowin_event(const event_t *ev)
 	else if(  is_visible()  &&  !full ) {
 		// don't respond to these messages if not visible
 		if(  IS_LEFTCLICK(ev)  ||  IS_LEFTREPEAT(ev)  ) {
-			if(  button_def[0].is_hit(x, y)  ) {
+			if(  button_def[0].getroffen(x, y)  ) {
 				button_def[0].pressed = true;
 				scroll( -knob_scroll_amount );
 			}
-			else if(  button_def[1].is_hit(x, y)  ) {
+			else if(  button_def[1].getroffen(x, y)  ) {
 				button_def[1].pressed = true;
 				scroll( +knob_scroll_amount );
 			}
@@ -204,7 +204,7 @@ bool scrollbar_t::infowin_event(const event_t *ev)
 		else if (IS_LEFTRELEASE(ev)) {
 			dragging = false;
 			for (i=0;i<2;i++) {
-				if (button_def[i].is_hit(x, y)) {
+				if (button_def[i].getroffen(x, y)) {
 					button_def[i].pressed = false;
 				}
 			}
@@ -225,9 +225,8 @@ void scrollbar_t::draw(scr_coord pos_par)
 
 	// Draw place holder if scrollbar is full in auto mode
 	if ( visible_mode == show_auto  &&  full  ) {
-		// Draw place holder, might be themed...
-		display_fillbox_wh(pos_par.x+2, pos_par.y+2, size.w-4, size.h-4, SYSCOL_FACE,false);
-		display_ddd_box(pos_par.x+1, pos_par.y+1, size.w-2, size.h-2, SYSCOL_DISABLED_TEXT,SYSCOL_DISABLED_TEXT,false);
+		// Draw place holder themed with scrollbar background
+		display_img_stretch( gui_theme_t::v_scroll_back_tiles, scr_rect( pos_par, size ) );
 		return;
 	}
 
@@ -235,7 +234,7 @@ void scrollbar_t::draw(scr_coord pos_par)
 	button_def[left_top_arrow_index].draw(pos_par);
 	button_def[right_bottom_arrow_index].draw(pos_par);
 
-	// now backgroudn and slider
+	// now background and slider
 	if(  type == vertical  ) {
 		display_img_stretch( gui_theme_t::v_scroll_back_tiles, scr_rect( pos_par + sliderarea.get_pos(), sliderarea.get_size() ) );
 		display_img_stretch( gui_theme_t::v_scroll_knob_tiles, scr_rect( pos_par + knobarea.get_pos(), knobarea.get_size() ) );

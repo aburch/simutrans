@@ -1,29 +1,33 @@
 ﻿/*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
+ * Copyright (c) 1997 - 2001 Hansj�rg Malthaner
  *
  * This file is part of the Simutrans project under the artistic license.
  */
 
-#ifndef SDL
 #ifndef _WIN32
 #error "Only Windows has GDI!"
 #endif
 
-// windows Bibliotheken DirectDraw 5.x (must be defined before any includes!)
-#define UNICODE 1
-
 #include <stdio.h>
 #include <stdlib.h>
 
-// windows.h defines min and max macros which we don't want
-#define NOMINMAX 1
 #include <windows.h>
 #include <winreg.h>
 #include <wingdi.h>
 #include <mmsystem.h>
+#include <imm.h>
+
+#ifdef __CYGWIN__
+extern int __argc;
+extern char **__argv;
+#endif
 
 #include "display/simgraph.h"
 #include "simdebug.h"
+#include "gui/simwin.h"
+#include "gui/gui_frame.h"
+#include "gui/components/gui_component.h"
+#include "gui/components/gui_textinput.h"
 
 
 // needed for wheel
@@ -42,8 +46,6 @@
 #include "simversion.h"
 #include "simsys.h"
 #include "simevent.h"
-#include "simdebug.h"
-#include "./dataobj/environment.h"
 #include "macros.h"
 
 static volatile HWND hwnd;
@@ -81,8 +83,6 @@ bool dr_os_init(int const* /*parameter*/)
 	sys_event.type = SIM_NOEVENT;
 	sys_event.code = 0;
 
-	timeBeginPeriod(1);
-
 	return true;
 }
 
@@ -100,8 +100,19 @@ static void create_window(DWORD const ex_style, DWORD const style, int const x, 
 {
 	RECT r = { 0, 0, w, h };
 	AdjustWindowRectEx(&r, style, false, ex_style);
+
+#if 0
+	// Try with a wide character window; need the title with full width
+	WCHAR *wSIM_TITLE = new wchar_t[lengthof(SIM_TITLE)];
+	size_t convertedChars = 0;
+	mbstowcs( wSIM_TITLE, SIM_TITLE, lengthof(SIM_TITLE) );
+	hwnd = CreateWindowExW(ex_style, L"Simu", wSIM_TITLE, style, x, y, r.right - r.left, r.bottom - r.top, 0, 0, hInstance, 0);
+#else
 	hwnd = CreateWindowExA(ex_style, "Simu", SIM_TITLE, style, x, y, r.right - r.left, r.bottom - r.top, 0, 0, hInstance, 0);
+#endif
+
 	ShowWindow(hwnd, SW_SHOW);
+	SetTimer( hwnd, 0, 1111, NULL );	// HACK: so windows thinks we are not dead when processing a timer every 1111 ms ...
 }
 
 
@@ -130,8 +141,14 @@ int dr_os_open(int const w, int const h, int fullscreen)
 		settings.dmDisplayFrequency = 0;
 
 		if(  ChangeDisplaySettings(&settings, CDS_TEST)!=DISP_CHANGE_SUCCESSFUL  ) {
-			ChangeDisplaySettings( NULL, 0 );
+			// evt. try again in 32 bit
+			if(  COLOUR_DEPTH<32  ) {
+				settings.dmBitsPerPel = 32;
+			}
 			printf( "dr_os_open()::Could not reduce color depth to 16 Bit in fullscreen." );
+		}
+		if(  ChangeDisplaySettings(&settings, CDS_TEST)!=DISP_CHANGE_SUCCESSFUL  ) {
+			ChangeDisplaySettings( NULL, 0 );
 			fullscreen = false;
 		}
 		else {
@@ -194,10 +211,9 @@ void dr_os_close()
 	AllDibData = NULL;
 	free(AllDib);
 	AllDib = NULL;
-if(  is_fullscreen  ) {
+	if(  is_fullscreen  ) {
 		ChangeDisplaySettings(NULL, 0);
 	}
-	timeEndPeriod(1);
 }
 
 
@@ -263,7 +279,7 @@ unsigned int get_system_color(unsigned int r, unsigned int g, unsigned int b)
 
 #ifdef MULTI_THREAD
 // multhreaded screen copy ...
-DWORD WINAPI dr_flush_screen(LPVOID lpParam)
+DWORD WINAPI dr_flush_screen(LPVOID /*lpParam*/)
 {
 	while(1) {
 		// wait for finish of thread
@@ -282,17 +298,14 @@ DWORD WINAPI dr_flush_screen(LPVOID lpParam)
 
 void dr_prepare_flush()
 {
-#if COLOUR_DEPTH != 0
 #ifdef MULTI_THREAD
 	// now the thread is finished ...
 	EnterCriticalSection( &redraw_underway );
-#endif
 #endif
 }
 
 void dr_flush()
 {
-#if COLOUR_DEPTH != 0
 #ifdef MULTI_THREAD
 	// just let the thread do its work
 	LeaveCriticalSection( &redraw_underway );
@@ -303,7 +316,6 @@ void dr_flush()
 	display_flush_buffer();
 	ReleaseDC(hwnd, hdc);
 	hdc = NULL;
-#endif
 #endif
 }
 
@@ -403,9 +415,12 @@ static inline unsigned int ModifierKeys()
 /* Windows eventhandler: does most of the work */
 LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
+	// Used for IME handling.
+	static utf8 *u8buf = NULL;
+	static size_t u8bufsize;
+
 	static int last_mb = 0;	// last mouse button state
 	switch (msg) {
-
 		case WM_TIMER:	// dummy timer even to keep windows thinking we are still active
 			return 0;
 
@@ -623,6 +638,178 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 			sys_event.key_mod = ModifierKeys();
 			break;
 
+		case WM_IME_SETCONTEXT:
+			return DefWindowProc( this_hwnd, msg, wParam, lParam&~ISC_SHOWUICOMPOSITIONWINDOW );
+
+		case WM_IME_STARTCOMPOSITION:
+			break;
+
+		case WM_IME_REQUEST:
+			if(  wParam == IMR_QUERYCHARPOSITION  ) {
+				if(  gui_component_t *c = win_get_focus()  ) {
+					if(  gui_textinput_t *tinp = dynamic_cast<gui_textinput_t *>(c)  ) {
+						IMECHARPOSITION *icp = (IMECHARPOSITION *)lParam;
+						icp->cLineHeight = LINESPACE;
+
+						scr_coord pos = tinp->get_pos();
+						scr_coord gui_xy = win_get_pos( win_get_top() );
+						LONG x = pos.x + gui_xy.x + tinp->get_current_cursor_x();
+						const char *composition = tinp->get_composition();
+						for(  DWORD i=0; i<icp->dwCharPos; ++i  ) {
+							if(  !*composition  ) {
+								break;
+							}
+							unsigned char pixel_width;
+							unsigned char unused;
+							get_next_char_with_metrics( composition, unused, pixel_width );
+							x += pixel_width;
+						}
+						icp->pt.x = x;
+						icp->pt.y = pos.y + gui_xy.y + D_TITLEBAR_HEIGHT;
+						ClientToScreen( this_hwnd, &icp->pt );
+						icp->rcDocument.left = 0;
+						icp->rcDocument.right = 0;
+						icp->rcDocument.top = 0;
+						icp->rcDocument.bottom = 0;
+						//printf("IMECHARPOSITION {dwCharPos=%d, pt {x=%d, y=%d} }\n", icp->dwCharPos, icp->pt.x, icp->pt.y);
+						return TRUE;
+					}
+				}
+				break;
+			}
+			return DefWindowProcW( this_hwnd, msg, wParam, lParam );
+
+		case WM_IME_COMPOSITION: {
+			HIMC immcx = 0;
+			if(  lParam & (GCS_RESULTSTR|GCS_COMPSTR)  ) {
+				immcx = ImmGetContext( this_hwnd );
+			}
+			if(  lParam & GCS_RESULTSTR  ) {
+				// Retrieve the composition result.
+				size_t u16size = ImmGetCompositionStringW(immcx, GCS_RESULTSTR, NULL, 0);
+				utf16 *u16buf = (utf16*)malloc(u16size + 2);
+				size_t copied = ImmGetCompositionStringW(immcx, GCS_RESULTSTR, u16buf, u16size + 2);
+
+				// clear old composition
+				if(  gui_component_t *c = win_get_focus()  ) {
+					if(  gui_textinput_t *tinp = dynamic_cast<gui_textinput_t *>(c)  ) {
+						tinp->set_composition_status( NULL, 0, 0 );
+					}
+				}
+				// add result
+				if(  u16size>2  ) {
+					u16buf[copied/2] = 0;
+
+					// Grow the buffer as needed.
+					size_t u8size = u16size + u16size/2;
+					if(  !u8buf  ) {
+						u8bufsize = u8size + 1;
+						u8buf = (utf8 *)malloc( u8bufsize );
+					}
+					else if(  u8size >= u8bufsize  ) {
+						u8bufsize = max( u8bufsize*2, u8size+1 );
+						free( u8buf );
+						u8buf = (utf8 *)malloc( u8bufsize );
+					}
+
+					// Convert UTF-16 to UTF-8.
+					utf16 *s = u16buf;
+					int i = 0;
+					while(  *s  ) {
+						i += utf16_to_utf8( *s++, u8buf+i );
+					}
+					u8buf[i] = 0;
+					free( u16buf );
+
+					sys_event.type = SIM_STRING;
+					sys_event.ptr = (void*)u8buf;
+				}
+				else {
+					// single key
+					sys_event.type = SIM_KEYBOARD;
+					sys_event.code = u16buf[0];
+				}
+				sys_event.key_mod = ModifierKeys();
+			}
+			else if(  lParam & (GCS_COMPSTR|GCS_COMPATTR)  ) {
+				if(  gui_component_t *c = win_get_focus()  ) {
+					if(  gui_textinput_t *tinp = dynamic_cast<gui_textinput_t *>(c)  ) {
+						// Query current conversion status
+						int num_attr = ImmGetCompositionStringW( immcx, GCS_COMPATTR, NULL, 0 );
+						if(  num_attr <= 0  ) {
+							// This shouldn't happen... just in case.
+							break;
+						}
+						char *attrs = (char *)malloc( num_attr );
+						ImmGetCompositionStringW( immcx, GCS_COMPATTR, attrs, num_attr );
+						int start = 0;
+						for(  ; start < num_attr; ++start  ) {
+							if(  attrs[start] == ATTR_TARGET_CONVERTED || attrs[start] == ATTR_TARGET_NOTCONVERTED  ) {
+								break;
+							}
+						}
+						int end = start;
+						for(  ; end < num_attr; ++end  ) {
+							if(  attrs[end] != ATTR_TARGET_CONVERTED && attrs[end] != ATTR_TARGET_NOTCONVERTED  ) {
+								break;
+							}
+						}
+						free( attrs );
+
+						// Then retrieve the composition text
+						size_t u16size = ImmGetCompositionStringW( immcx, GCS_COMPSTR, NULL, 0 );
+						utf16 *u16buf = (utf16 *)malloc( u16size+2 );
+						size_t copied = ImmGetCompositionStringW( immcx, GCS_COMPSTR, u16buf, u16size+2 );
+						u16buf[copied/2] = 0;
+
+						// Grow the buffer as needed.
+						size_t u8size = u16size + u16size/2;
+						if(  !u8buf  ) {
+							u8bufsize = u8size + 1;
+							u8buf = (utf8 *)malloc( u8bufsize );
+						}
+						else if(  u8size >= u8bufsize  ) {
+							u8bufsize = max( u8bufsize*2, u8size+1 );
+							free( u8buf );
+							u8buf = (utf8 *)malloc( u8bufsize );
+						}
+
+						// Convert UTF-16 to UTF-8.
+						utf16 *s = u16buf;
+						int offset = 0;
+						int i = 0;
+						int u8start = 0, u8end = 0;
+						while(  true  ) {
+							if(  i == start  ) u8start = offset;
+							if(  i == end  ) u8end = offset;
+							if(  !*s  ) {
+								break;
+							}
+							offset += utf16_to_utf8( *s, u8buf + offset );
+							++s;
+							++i;
+						}
+						u8buf[offset] = 0;
+						free( u16buf );
+
+						tinp->set_composition_status( (char *)u8buf, u8start, u8end-u8start );
+					}
+				}
+			}
+			if(  immcx  ) {
+				ImmReleaseContext( this_hwnd, immcx );
+			}
+			break;
+		}
+
+		case WM_IME_ENDCOMPOSITION:
+			if(  gui_component_t *c = win_get_focus()  ) {
+				if(  gui_textinput_t *tinp = dynamic_cast<gui_textinput_t *>(c)  ) {
+					tinp->set_composition_status( NULL, 0, 0 );
+				}
+			}
+			break;
+
 		case WM_CLOSE:
 			if (AllDibData != NULL) {
 				sys_event.type = SIM_SYSTEM;
@@ -631,6 +818,7 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 			break;
 
 		case WM_DESTROY:
+			free( u8buf );
 			if(  hwnd==this_hwnd  ||  AllDibData == NULL  ) {
 				sys_event.type = SIM_SYSTEM;
 				sys_event.code = SYSTEM_QUIT;
@@ -642,7 +830,7 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 			break;
 
 		default:
-			return DefWindowProc(this_hwnd, msg, wParam, lParam);
+			return DefWindowProcW(this_hwnd, msg, wParam, lParam);
 	}
 	return 0;
 }
@@ -655,7 +843,8 @@ static void internal_GetEvents(bool const wait)
 		GetMessage(&msg, NULL, 0, 0);
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
-	} while (wait && sys_event.type == SIM_NOEVENT);
+	} while(wait && sys_event.type == SIM_NOEVENT);
+
 }
 
 
@@ -684,7 +873,7 @@ void show_pointer(int yesno)
 		state = yesno;
 	}
 }
- 
+
 
 
 void ex_ord_update_mx_my()
@@ -705,6 +894,36 @@ uint32 dr_time()
 void dr_sleep(uint32 millisec)
 {
 	Sleep(millisec);
+}
+
+void dr_start_textinput()
+{
+}
+
+void dr_stop_textinput()
+{
+	HIMC immcx = ImmGetContext( hwnd );
+	ImmNotifyIME( immcx, NI_COMPOSITIONSTR, CPS_CANCEL, 0 );
+	ImmReleaseContext( hwnd, immcx );
+}
+
+void dr_notify_input_pos(int x, int y)
+{
+	COMPOSITIONFORM co;
+	co.dwStyle = CFS_POINT;
+	co.ptCurrentPos.x = (LONG)x;
+	co.ptCurrentPos.y = (LONG)y;
+
+	CANDIDATEFORM ca;
+	ca.dwIndex = 0;
+	ca.dwStyle = CFS_CANDIDATEPOS;
+	ca.ptCurrentPos.x = (LONG)x;
+	ca.ptCurrentPos.y = (LONG)y + D_TITLEBAR_HEIGHT;
+
+	HIMC immcx = ImmGetContext( hwnd );
+	ImmSetCompositionWindow( immcx, &co );
+	ImmSetCandidateWindow( immcx, &ca );
+	ImmReleaseContext( hwnd, immcx );
 }
 
 #ifdef _MSC_VER
@@ -732,7 +951,6 @@ int CALLBACK WinMain(HINSTANCE const hInstance, HINSTANCE, LPSTR, int)
 	wc.hCursor = LoadCursor(NULL, IDC_ARROW);
 	wc.hbrBackground = (HBRUSH) (COLOR_BACKGROUND + 1);
 	wc.lpszMenuName = NULL;
-
 	RegisterClassW(&wc);
 
 	GetWindowRect(GetDesktopWindow(), &MaxSize);
@@ -759,4 +977,3 @@ int CALLBACK WinMain(HINSTANCE const hInstance, HINSTANCE, LPSTR, int)
 #endif
 	return res;
 }
-#endif

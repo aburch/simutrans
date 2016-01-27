@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
+ * Copyright (c) 1997 - 2001 Hansjorg Malthaner
  *
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
@@ -25,7 +25,7 @@ scr_coord_val gui_tab_panel_t::header_vsize = 18;
 
 
 gui_tab_panel_t::gui_tab_panel_t() :
-	required_size( 8, TAB_HEADER_V_SIZE )
+	required_size( 8, D_TAB_HEADER_HEIGHT )
 {
 	active_tab = 0;
 	offset_tab = 0;
@@ -45,20 +45,21 @@ void gui_tab_panel_t::add_tab(gui_component_t *c, const char *name, const skin_b
 
 
 
+
 void gui_tab_panel_t::set_size(scr_size size)
 {
 	gui_component_t::set_size(size);
 
-	required_size = scr_size( 8, TAB_HEADER_V_SIZE );
+	required_size = scr_size( 8, D_TAB_HEADER_HEIGHT );
 	FOR(slist_tpl<tab>, & i, tabs) {
 		i.x_offset          = required_size.w - 4;
 		i.width             = 8 + (i.title ? proportional_string_width(i.title) : IMG_WIDTH);
 		required_size.w += i.width;
-		i.component->set_pos(scr_coord(0, TAB_HEADER_V_SIZE));
-		i.component->set_size(get_size() - scr_size(0, TAB_HEADER_V_SIZE));
+		i.component->set_pos(scr_coord(0, D_TAB_HEADER_HEIGHT));
+		i.component->set_size(get_size() - scr_size(0, D_TAB_HEADER_HEIGHT));
 	}
 
-	if(  required_size.w>size.w  ||  offset_tab > 0) {
+	if(  required_size.w > size.w  ||  offset_tab > 0  ) {
 		left.set_pos( scr_coord( 2, 5 ) );
 		right.set_pos( scr_coord( size.w-10, 5 ) );
 	}
@@ -67,10 +68,10 @@ void gui_tab_panel_t::set_size(scr_size size)
 
 bool gui_tab_panel_t::action_triggered(gui_action_creator_t *comp, value_t)
 {
-	if(  comp==&right  ) {
+	if(  comp == &right  ) {
 		offset_tab = min( offset_tab+1, tabs.get_count()-1 );
 	}
-	else if(  comp==&left  ) {
+	else if(  comp == &left  ) {
 		offset_tab = max( offset_tab-1, 0 );
 	}
 	return true;
@@ -81,24 +82,24 @@ bool gui_tab_panel_t::infowin_event(const event_t *ev)
 {
 	if(  (required_size.w>size.w  ||  offset_tab > 0)  &&  ev->ev_class!=EVENT_KEYBOARD  &&  ev->ev_code==MOUSE_LEFTBUTTON  ) {
 		// buttons pressed
-		if(  left.is_hit(ev->cx, ev->cy)  ) {
+		if(  left.getroffen(ev->cx, ev->cy)  ) {
 			event_t ev2 = *ev;
 			translate_event(&ev2, -left.get_pos().x, -left.get_pos().y);
 			return left.infowin_event(&ev2);
 		}
-		else if(  right.is_hit(ev->cx, ev->cy)  ) {
+		else if(  right.getroffen(ev->cx, ev->cy)  ) {
 			event_t ev2 = *ev;
 			translate_event(&ev2, -right.get_pos().x, -right.get_pos().y);
 			return right.infowin_event(&ev2);
 		}
 	}
 
-	if(  IS_LEFTRELEASE(ev)  &&  (ev->my > 0  &&  ev->my < TAB_HEADER_V_SIZE-1)  )  {
+	if(  IS_LEFTRELEASE(ev)  &&  (ev->my > 0  &&  ev->my < D_TAB_HEADER_HEIGHT-1)  )  {
 		// tab selector was hit
 		int text_x = required_size.w>size.w ? 14 : 4;
 		int k=0;
 		FORX(slist_tpl<tab>, const& i, tabs, ++k) {
-			if(  k>=offset_tab  ) {
+			if(  k >= offset_tab  ) {
 				if (text_x < ev->mx && text_x + i.width > ev->mx) {
 					// either tooltip or change
 					active_tab = k;
@@ -127,7 +128,7 @@ bool gui_tab_panel_t::infowin_event(const event_t *ev)
 		}
 	}
 
-	if(  ev->ev_class == EVENT_KEYBOARD  ||  DOES_WINDOW_CHILDREN_NEED(ev)  ||  get_aktives_tab()->is_hit(ev->mx, ev->my)  ||  get_aktives_tab()->is_hit(ev->cx, ev->cy)) {
+	if(  ev->ev_class == EVENT_KEYBOARD  ||  DOES_WINDOW_CHILDREN_NEED(ev)  ||  get_aktives_tab()->getroffen(ev->mx, ev->my)  ||  get_aktives_tab()->getroffen(ev->cx, ev->cy)) {
 		// active tab was hit
 		event_t ev2 = *ev;
 		translate_event(&ev2, -get_aktives_tab()->get_pos().x, -get_aktives_tab()->get_pos().y );
@@ -147,15 +148,16 @@ void gui_tab_panel_t::draw(scr_coord parent_pos)
 	if(  required_size.w>size.w  ||  offset_tab > 0) {
 		left.draw( parent_pos+pos );
 		right.draw( parent_pos+pos );
-		//display_fillbox_wh_clip(xpos, ypos+TAB_HEADER_V_SIZE-1, 10, 1, SYSCOL_TEXT_HIGHLIGHT, true);
-		display_fillbox_wh_clip(xpos, ypos+TAB_HEADER_V_SIZE-1, 10, 1, SYSCOL_HIGHLIGHT, true);
+		//display_fillbox_wh_clip(xpos, ypos+D_TAB_HEADER_HEIGHT-1, 10, 1, SYSCOL_TEXT_HIGHLIGHT, true);
+		display_fillbox_wh_clip(xpos, ypos+D_TAB_HEADER_HEIGHT-1, 10, 1, SYSCOL_HIGHLIGHT, true);
 		xpos += 10;
 	}
 
 	int text_x = xpos+8;
+	int text_y = ypos + (D_TAB_HEADER_HEIGHT - LINESPACE)/2;
 
-	//display_fillbox_wh_clip(xpos, ypos+TAB_HEADER_V_SIZE-1, 4, 1, COL_WHITE, true);
-	display_fillbox_wh_clip(xpos, ypos+TAB_HEADER_V_SIZE-1, 4, 1, SYSCOL_HIGHLIGHT, true);
+	//display_fillbox_wh_clip(xpos, ypos+D_TAB_HEADER_HEIGHT-1, 4, 1, COL_WHITE, true);
+	display_fillbox_wh_clip(xpos, ypos+D_TAB_HEADER_HEIGHT-1, 4, 1, SYSCOL_HIGHLIGHT, true);
 
 	// do not draw under right button
 	int xx = required_size.w>get_size().w ? get_size().w-22 : get_size().w;
@@ -168,21 +170,21 @@ void gui_tab_panel_t::draw(scr_coord parent_pos)
 		}
 		if(i>=offset_tab) {
 			// set clipping
-			PUSH_CLIP(xpos, ypos, xx, TAB_HEADER_V_SIZE);
+			PUSH_CLIP(xpos, ypos, xx, D_TAB_HEADER_HEIGHT);
 			// only start drawing here ...
 			char const* const text = iter.title;
 			const int width = text ? proportional_string_width( text ) : IMG_WIDTH;
 
 			if (i != active_tab) {
-				// None active tabs
-				display_fillbox_wh_clip(text_x-4, ypos+TAB_HEADER_V_SIZE-1, width+8, 1, SYSCOL_HIGHLIGHT, true);
-				display_fillbox_wh_clip(text_x-3, ypos+4, width+6, 1, SYSCOL_HIGHLIGHT, true);
+				// Non active tabs
+				display_fillbox_wh_clip(text_x-3, ypos+2, width+6, 1, SYSCOL_HIGHLIGHT, true);
+				display_fillbox_wh_clip(text_x-4, ypos+D_TAB_HEADER_HEIGHT-1, width+8, 1, SYSCOL_HIGHLIGHT, true);
 
-				display_vline_wh_clip(text_x-4, ypos+5, TAB_HEADER_V_SIZE-6, SYSCOL_HIGHLIGHT, true);
-				display_vline_wh_clip(text_x+width+3, ypos+5, TAB_HEADER_V_SIZE-6, SYSCOL_SHADOW, true);
+				display_vline_wh_clip(text_x-4, ypos+3, D_TAB_HEADER_HEIGHT-4, SYSCOL_HIGHLIGHT, true);
+				display_vline_wh_clip(text_x+width+3, ypos+3, D_TAB_HEADER_HEIGHT-4, SYSCOL_SHADOW, true);
 
 				if(text) {
-					display_proportional_clip(text_x, ypos+7, text, ALIGN_LEFT, SYSCOL_TEXT, true);
+					display_proportional_clip(text_x, text_y, text, ALIGN_LEFT, SYSCOL_TEXT, true);
 				}
 				else {
 					scr_coord_val const y = ypos   - iter.img->get_pic()->y + 10            - iter.img->get_pic()->h / 2;
@@ -192,13 +194,13 @@ void gui_tab_panel_t::draw(scr_coord parent_pos)
 			}
 			else {
 				// Active tab
-				display_fillbox_wh_clip(text_x-3, ypos+3, width+6, 1, SYSCOL_HIGHLIGHT, true);
+				display_fillbox_wh_clip(text_x-3, ypos, width+6, 1, SYSCOL_HIGHLIGHT, true);
 
-				display_vline_wh_clip(text_x-4, ypos+4, 13, SYSCOL_HIGHLIGHT, true);
-				display_vline_wh_clip(text_x+width+3, ypos+4, 13, SYSCOL_SHADOW, true);
+				display_vline_wh_clip(text_x-4, ypos+1, D_TAB_HEADER_HEIGHT-2, SYSCOL_HIGHLIGHT, true);
+				display_vline_wh_clip(text_x+width+3, ypos+1, D_TAB_HEADER_HEIGHT-2, SYSCOL_SHADOW, true);
 
 				if(text) {
-					display_proportional_clip(text_x, ypos+7, text, ALIGN_LEFT, SYSCOL_TEXT_HIGHLIGHT, true);
+					display_proportional_clip(text_x, text_y, text, ALIGN_LEFT, SYSCOL_TEXT_HIGHLIGHT, true);
 				}
 				else {
 					scr_coord_val const y = ypos   - iter.img->get_pic()->y + 10            - iter.img->get_pic()->h / 2;
@@ -211,12 +213,12 @@ void gui_tab_panel_t::draw(scr_coord parent_pos)
 			POP_CLIP();
 		}
 	}
-	display_fillbox_wh_clip(text_x-4, ypos+TAB_HEADER_V_SIZE-1, xpos+size.w-(text_x-4), 1, SYSCOL_HIGHLIGHT, true);
+	display_fillbox_wh_clip(text_x-4, ypos+D_TAB_HEADER_HEIGHT-1, xpos+size.w-(text_x-4), 1, SYSCOL_HIGHLIGHT, true);
 
 	// now for tooltips ...
 	int my = get_maus_y()-parent_pos.y-pos.y-6;
-	if(my>=0  &&  my < TAB_HEADER_V_SIZE-1) {
-		// Reiter is_hit?
+	if(my>=0  &&  my < D_TAB_HEADER_HEIGHT-1) {
+		// Reiter getroffen?
 		int mx = get_maus_x()-parent_pos.x-pos.x-11;
 		int text_x = 4;
 		int i=0;
@@ -227,7 +229,7 @@ void gui_tab_panel_t::draw(scr_coord parent_pos)
 
 				if(text_x < mx && text_x+width+8 > mx  && (required_size.w<=get_size().w || mx < right.get_pos().x-12)) {
 					// tooltip or change
-					win_set_tooltip(get_maus_x() + 16, ypos + TAB_HEADER_V_SIZE + 12, iter.tooltip, &iter, this);
+					win_set_tooltip(get_maus_x() + 16, ypos + D_TAB_HEADER_HEIGHT + 12, iter.tooltip, &iter, this);
 					break;
 				}
 

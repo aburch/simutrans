@@ -148,7 +148,7 @@ halt_info_t::halt_info_t(halthandle_t halt) :
 	chart.set_size(scr_size(client_width - L_CHART_INDENT, 100));
 	chart.set_dimension(12, 10000);
 	chart.set_visible(false);
-	chart.set_background(MN_GREY1);
+	chart.set_background(SYSCOL_CHART_BACKGROUND);
 	chart.set_ltr(env_t::left_to_right_graphs);
 	add_component(&chart);
 	cursor.y += 100 + 20 + D_V_SPACE;
@@ -333,7 +333,7 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 		info_buf.printf("%s: %u", translator::translate("Storage capacity"), halt->get_capacity(0));
 		left = pos.x + D_MARGIN_LEFT;
 		// passengers
-		left += display_proportional(left, top, info_buf, ALIGN_LEFT, COL_BLACK, true);
+		left += display_proportional(left, top, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 		if (welt->get_settings().is_separate_halt_capacities()) {
 			// here only for separate capacities
 			display_color_img(skinverwaltung_t::passagiere->get_bild_nr(0), left, top, 0, false, false);
@@ -341,13 +341,13 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 			// post
 			info_buf.clear();
 			info_buf.printf(",  %u", halt->get_capacity(1));
-			left += display_proportional(left, top, info_buf, ALIGN_LEFT, COL_BLACK, true);
+			left += display_proportional(left, top, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 			display_color_img(skinverwaltung_t::post->get_bild_nr(0), left, top, 0, false, false);
 			left += 10;
 			// goods
 			info_buf.clear();
 			info_buf.printf(",  %u", halt->get_capacity(2));
-			left += display_proportional(left, top, info_buf, ALIGN_LEFT, COL_BLACK, true);
+			left += display_proportional(left, top, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 			display_color_img(skinverwaltung_t::waren->get_bild_nr(0), left, top, 0, false, false);
 			left = 53+LINESPACE;
 		}
@@ -357,7 +357,7 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 		// information about the passengers happiness
 		info_buf.clear();
 		halt->info(info_buf);
-		display_multiline_text(pos.x + D_MARGIN_LEFT, top, info_buf, COL_BLACK);
+		display_multiline_text(pos.x + D_MARGIN_LEFT, top, info_buf, SYSCOL_TEXT);
 	}
 }
 

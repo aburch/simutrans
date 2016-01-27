@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
+ * Copyright (c) 1997 - 2001 Hansjorg Malthaner
  *
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
@@ -20,6 +20,7 @@
 #include "gui_component.h"
 #include "../../simcolor.h"
 #include "../../display/simgraph.h"
+#include "../../utils/cbuffer_t.h"
 
 
 class gui_textinput_t :
@@ -33,6 +34,11 @@ protected:
 	 * @author Hj. Malthaner
 	 */
 	char *text;
+
+	// text, which has not yet inputted (i.e. by an IME)
+	cbuffer_t composition;
+	size_t composition_target_start;
+	size_t composition_target_length;
 
 	/**
 	 * Maximum length of the string buffer
@@ -106,12 +112,16 @@ public:
 	 */
 	void set_text(char *text, size_t max);
 
+	// text which is not yet inputed (i.e. for east asian text), assuming either native or utf8 encoding
+	void set_composition_status( char *composition, int target_start, int target_length );
+
 	/**
 	 * Return the Text buffer
 	 *
 	 * @author Hj. Malthaner
 	 */
 	char *get_text() const { return text; }
+	const char *get_composition() const { return composition.get_str(); }
 
 	bool infowin_event(event_t const*) OVERRIDE;
 
@@ -120,6 +130,9 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	virtual void draw(scr_coord offset);
+
+	// x position of the current cursor (for IME purposes)
+	scr_coord_val get_current_cursor_x() { return calc_cursor_pos(head_cursor_pos); };
 
 	/**
 	 * Detect change of focus state and determine whether cursor should be displayed,

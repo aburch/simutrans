@@ -55,7 +55,7 @@ enum control_alignments_t {
 
 	// These flags does not belong in here but
 	// are defined here until we sorted this out.
-	// They are inly used in display_text_proportional_len_clip()
+	// They are only used in display_text_proportional_len_clip()
 //	DT_DIRTY         = 0x8000,
 	DT_CLIP          = 0x4000
 };
@@ -135,10 +135,10 @@ void simgraph_exit();
 void simgraph_resize(KOORD_VAL w, KOORD_VAL h);
 void reset_textur(void *new_textur);
 
-/* Loads the font
+/* Loads the font, returns the number of characters in it
  * @author prissi
  */
-bool display_load_font(const char* fname);
+uint16 display_load_font(const char* fname);
 
 image_id get_image_count();
 void register_image(struct bild_t*);
@@ -147,12 +147,12 @@ void register_image(struct bild_t*);
 void display_free_all_images_above( image_id above );
 
 // unzoomed offsets
-//void display_set_base_image_offset( image_id image, KOORD_VAL xoff, KOORD_VAL yoff );
-void display_get_base_image_offset( image_id image, KOORD_VAL *xoff, KOORD_VAL *yoff, KOORD_VAL *xw, KOORD_VAL *yw );
+//void display_set_base_image_offset( unsigned bild, KOORD_VAL xoff, KOORD_VAL yoff );
+void display_get_base_image_offset( image_id bild, KOORD_VAL *xoff, KOORD_VAL *yoff, KOORD_VAL *xw, KOORD_VAL *yw );
 // zoomed offsets
-void display_get_image_offset( image_id image, KOORD_VAL *xoff, KOORD_VAL *yoff, KOORD_VAL *xw, KOORD_VAL *yw );
-void display_get_base_image_offset( image_id image, KOORD_VAL *xoff, KOORD_VAL *yoff, KOORD_VAL *xw, KOORD_VAL *yw );
-void display_mark_img_dirty( image_id image, KOORD_VAL x, KOORD_VAL y );
+void display_get_image_offset( image_id bild, KOORD_VAL *xoff, KOORD_VAL *yoff, KOORD_VAL *xw, KOORD_VAL *yw );
+void display_get_base_image_offset( image_id bild, KOORD_VAL *xoff, KOORD_VAL *yoff, KOORD_VAL *xw, KOORD_VAL *yw );
+void display_mark_img_dirty( image_id bild, KOORD_VAL x, KOORD_VAL y );
 
 int get_maus_x();
 int get_maus_y();
@@ -320,11 +320,14 @@ sint32 get_prev_char(const char* text, sint32 pos);
 
 KOORD_VAL display_get_char_width(utf16 c);
 
+/* returns true, if this is a valid character */
+bool has_character( utf16 char_code );
+
 /**
  * Returns the width of the widest character in a string.
  * @param text  pointer to a string of characters to evaluate.
  * @param len   length of text buffer to evaluate. If set to 0,
- *              evaluate until nul termination.
+ *              evaluate until null termination.
  * @author      Max Kielland
  */
 KOORD_VAL display_get_char_max_width(const char* text, size_t len=0);
@@ -336,8 +339,6 @@ KOORD_VAL display_get_char_max_width(const char* text, size_t len=0);
  * @author Knightly
  */
 unsigned short get_next_char_with_metrics(const char* &text, unsigned char &byte_length, unsigned char &pixel_width);
-
-bool has_character( utf16 char_code );
 
 /**
  * For the previous logical character in the text, returns the character code
@@ -367,6 +368,7 @@ int display_calc_proportional_string_len_width(const char* text, size_t len);
  * @date  15.06.2003, 2.1.2005
  */
 
+// #ifdef MULTI_THREAD
 int display_text_proportional_len_clip_rgb(KOORD_VAL x, KOORD_VAL y, const char* txt, control_alignment_t flags, const PIXVAL color, bool dirty, sint32 len  CLIP_NUM_DEF  CLIP_NUM_DEFAULT_ZERO);
 /* macro are for compatibility */
 #define display_proportional(                  x, y, txt, align, c, dirty)            display_text_proportional_len_clip_rgb(x, y, txt, align,           specialcolormap_all_day[(c)&0xFF], dirty, -1)
@@ -375,8 +377,9 @@ int display_text_proportional_len_clip_rgb(KOORD_VAL x, KOORD_VAL y, const char*
 #define display_text_proportional_len_clip_cl( x, y, txt, align, c, dirty, len, num ) display_text_proportional_len_clip_rgb( (x), (y), (txt), (align) | DT_CLIP,  specialcolormap_all_day[(c)&0xFF], (dirty), (len), (num) )
 #define display_proportional_rgb(              x, y, txt, align, color, dirty)        display_text_proportional_len_clip_rgb(x, y, txt, align,           color, dirty, -1)
 
+
 /*
- * Display a string that if abreviated by the (language specific) ellipse character if too wide
+ * Display a string that if abbreviated by the (language specific) ellipse character if too wide
  * If enough space is given, it just display the full string
  * @returns screen_width
  */

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
+ * Copyright (c) 1997 - 2001 Hansjorg Malthaner
  *
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
@@ -55,7 +55,7 @@ bool gui_combobox_t::infowin_event(const event_t *ev)
 {
 	if(  !droplist.is_visible()  ) {
 DBG_MESSAGE("event","%d,%d",ev->cx, ev->cy);
-		if(  bt_prev.is_hit(ev->cx, ev->cy)  ) {
+		if(  bt_prev.getroffen(ev->cx, ev->cy)  ) {
 DBG_MESSAGE("event","HOWDY!");
 			bt_prev.pressed = IS_LEFT_BUTTON_PRESSED(ev);
 			if(IS_LEFTRELEASE(ev)) {
@@ -67,7 +67,7 @@ DBG_MESSAGE("event","HOWDY!");
 			}
 			return true;
 		}
-		else if(  bt_next.is_hit(ev->cx, ev->cy)  ) {
+		else if(  bt_next.getroffen(ev->cx, ev->cy)  ) {
 			bt_next.pressed = IS_LEFT_BUTTON_PRESSED(ev);
 			if(IS_LEFTRELEASE(ev)) {
 				bt_next.pressed = false;
@@ -87,11 +87,12 @@ DBG_MESSAGE("event","HOWDY!");
 
 	// goto next/previous choice
 	if(  ev->ev_class == EVENT_KEYBOARD  &&  (ev->ev_code == SIM_KEY_UP  ||  ev->ev_code == SIM_KEY_DOWN)  ) {
+		int sel = droplist.get_selection();
 		if(  ev->ev_code == SIM_KEY_UP  ) {
-			set_selection( droplist.get_selection() > 0 ? droplist.get_selection() - 1 : wrapping ? droplist.get_count() - 1 : 0 );
+			set_selection(  sel > 0 ? sel-1 : (wrapping ? droplist.get_count()-1 : 0) );
 		}
 		else {
-			set_selection( droplist.get_selection() < droplist.get_count() - 1 ? droplist.get_selection() + 1 : wrapping ? 0 : droplist.get_count() - 1 );
+			set_selection( sel < droplist.get_count()-1 ? sel+1 : (wrapping ? 0 : droplist.get_count()-1) );
 		}
 		value_t p;
 		p.i = droplist.get_selection();
@@ -102,6 +103,7 @@ DBG_MESSAGE("event","HOWDY!");
 	if(  ev->ev_class == EVENT_KEYBOARD  &&  ev->ev_code == SIM_KEY_ENTER  &&  droplist.is_visible()  ) {
 		// close with enter
 		close_box();
+		return true;
 	}
 
 	if(  IS_LEFTCLICK(ev)  ||  IS_LEFTDRAG(ev)  ||  IS_LEFTRELEASE(ev)  ) {
@@ -128,7 +130,7 @@ DBG_MESSAGE("event","HOWDY!");
 			event_t ev2 = *ev;
 			translate_event(&ev2, 0, -D_EDIT_HEIGHT - D_V_SPACE / 2);
 
-			if(droplist.is_hit(ev->cx + pos.x, ev->cy + pos.y)  ||  IS_WHEELUP(ev)  ||  IS_WHEELDOWN(ev)) {
+			if(droplist.getroffen(ev->cx + pos.x, ev->cy + pos.y)  ||  IS_WHEELUP(ev)  ||  IS_WHEELDOWN(ev)) {
 				droplist.infowin_event(&ev2);
 				// we selected something?
 				if(finish  &&  IS_LEFTRELEASE(ev)) {
@@ -143,6 +145,7 @@ DBG_MESSAGE("gui_combobox_t::infowin_event()","close");
 				}
 			}
 		}
+		return true;
 	}
 	else if(ev->ev_class==INFOWIN  &&  (ev->ev_code==WIN_CLOSE  ||  ev->ev_code==WIN_UNTOP)  ) {
 DBG_MESSAGE("gui_combobox_t::infowin_event()","close");
@@ -151,6 +154,7 @@ DBG_MESSAGE("gui_combobox_t::infowin_event()","close");
 		close_box();
 		// update "mouse-click-catch-area"
 		set_size(scr_size(size.w, droplist.is_visible() ? max_size.h : D_EDIT_HEIGHT));
+		return true;
 	}
 	else {
 		// finally handle textinput
@@ -161,19 +165,19 @@ DBG_MESSAGE("gui_combobox_t::infowin_event()","close");
 			return textinp.infowin_event(ev);
 		}
 	}
-	return true;
+	return false;
 }
 
 
 /* selection now handled via callback */
 bool gui_combobox_t::action_triggered( gui_action_creator_t *comp,value_t p)
 {
-	if (comp == &droplist) {
+	if (  comp == &droplist  ) {
 DBG_MESSAGE("gui_combobox_t::infowin_event()","scroll selected %i",p.i);
 		finish = true;
 		set_selection(p.i);
 	}
-	else if (comp == &textinp) {
+	else if (  comp == &textinp  ) {
 		rename_selected_item();
 	}
 	return false;
@@ -205,7 +209,6 @@ void gui_combobox_t::draw(scr_coord offset)
 	}
 }
 
-
 /**
  * sets the selection
  * @author hsiegeln
@@ -215,8 +218,9 @@ void gui_combobox_t::set_selection(int s)
 	// try to finish renaming first
 	rename_selected_item();
 
-	if (droplist.is_visible()) {
-		// visible? change also offset of scrollbar
+	if (droplist.is_visible()  &&  !finish) {
+		// visible and not closing
+		// change also offset of scrollbar
 		droplist.show_selection( s );
 	}
 	else {
@@ -269,7 +273,6 @@ void gui_combobox_t::reset_selected_item_name()
 void gui_combobox_t::close_box()
 {
 	if(finish) {
-//DBG_MESSAGE("gui_combobox_t::infowin_event()","prepare selected %i for %d listerners",get_selection(),listeners.get_count());
 		value_t p;
 		p.i = droplist.get_selection();
 		call_listeners(p);
@@ -309,5 +312,6 @@ void gui_combobox_t::set_max_size(scr_size max)
 	droplist.request_size( scr_size( size.w, max_size.h - D_EDIT_HEIGHT - D_V_SPACE / 2 ) );
 	if(  droplist.is_visible()  ) {
 		set_size( droplist.get_size() + scr_size( 0, D_EDIT_HEIGHT + D_V_SPACE / 2 ) );
+		droplist.adjust_scrollbar();
 	}
 }

@@ -215,7 +215,7 @@ map_frame_t::map_frame_t() :
 		filter_buttons[index].set_tooltip( button_init[index].tooltip_text );
 		filter_buttons[index].pressed = button_init[index].mode&env_t::default_mapmode;
 		filter_buttons[index].background_color = filter_buttons[index].pressed ? button_init[index].select_color : button_init[index].color;
-		filter_buttons[index].text_color = filter_buttons[index].pressed ? COL_WHITE : COL_BLACK;
+		filter_buttons[index].text_color = filter_buttons[index].pressed ? SYSCOL_TEXT_HIGHLIGHT : SYSCOL_TEXT;
 		filter_buttons[index].add_listener(this);
 		filter_container.add_component(filter_buttons + index);
 	}
@@ -394,7 +394,7 @@ bool map_frame_t::action_triggered( gui_action_creator_t *comp, value_t)
 		for(  int i=0;  i<MAP_MAX_BUTTONS;  i++  ) {
 			filter_buttons[i].pressed = (button_init[i].mode&env_t::default_mapmode)!=0;
 			filter_buttons[i].background_color = filter_buttons[i].pressed ? button_init[i].select_color : button_init[i].color;
-			filter_buttons[i].text_color = filter_buttons[i].pressed ? COL_WHITE : COL_BLACK;
+			filter_buttons[i].text_color = filter_buttons[i].pressed ? SYSCOL_TEXT_HIGHLIGHT : SYSCOL_TEXT;
 		}
 	}
 	filter_buttons[18].set_tooltip("Passenger destinations");
@@ -453,7 +453,7 @@ bool map_frame_t::infowin_event(const event_t *ev)
 		is_cursor_hidden = false;
 		return true;
 	}
-	else if(  IS_RIGHTDRAG(ev)  &&  (reliefkarte_t::get_karte()->is_hit(ev2.mx,ev2.my)  ||  reliefkarte_t::get_karte()->is_hit(ev2.cx,ev2.cy))  ) {
+	else if(  IS_RIGHTDRAG(ev)  &&  (reliefkarte_t::get_karte()->getroffen(ev2.mx,ev2.my)  ||  reliefkarte_t::get_karte()->getroffen(ev2.cx,ev2.cy))  ) {
 		int x = scrolly.get_scroll_x();
 		int y = scrolly.get_scroll_y();
 		const int scroll_direction = ( env_t::scroll_multi>0 ? 1 : -1 );
@@ -473,7 +473,7 @@ bool map_frame_t::infowin_event(const event_t *ev)
 
 		return true;
 	}
-	else if(  IS_LEFTDBLCLK(ev)  &&  reliefkarte_t::get_karte()->is_hit(ev2.mx,ev2.my)  ) {
+	else if(  IS_LEFTDBLCLK(ev)  &&  reliefkarte_t::get_karte()->getroffen(ev2.mx,ev2.my)  ) {
 		// re-center cursor by scrolling
 		koord ij = welt->get_viewport()->get_world_position();
 		scr_coord center = reliefkarte_t::get_karte()->karte_to_screen(ij);
@@ -674,7 +674,7 @@ void map_frame_t::draw(scr_coord pos, scr_size size)
 			const int ypos = pos.y+D_TITLEBAR_HEIGHT + offset_y + (u / columns) * line_height;
 			display_fillbox_wh(xpos, ypos + D_GET_CENTER_ALIGN_OFFSET(D_INDICATOR_BOX_HEIGHT,LINESPACE), D_INDICATOR_BOX_WIDTH, D_INDICATOR_BOX_HEIGHT, i.colour, false);
 			display_ddd_box(xpos, ypos + D_GET_CENTER_ALIGN_OFFSET(D_INDICATOR_BOX_HEIGHT,LINESPACE), D_INDICATOR_BOX_WIDTH, D_INDICATOR_BOX_HEIGHT,SYSCOL_SHADOW,SYSCOL_SHADOW,false);
-			display_proportional(xpos + D_INDICATOR_BOX_WIDTH + 2, ypos, i.text.c_str(), ALIGN_LEFT, SYSCOL_STATIC_TEXT, false);
+			display_proportional(xpos + D_INDICATOR_BOX_WIDTH + 2, ypos, i.text.c_str(), ALIGN_LEFT, SYSCOL_TEXT, false);
 		}
 	}
 

@@ -359,7 +359,7 @@ money_frame_t::money_frame_t(player_t *player)
 	chart.set_size(scr_size(457,HEIGHT_OF_CHART));
 	chart.set_dimension(MAX_PLAYER_HISTORY_YEARS, 10000);
 	chart.set_seed(welt->get_last_year());
-	chart.set_background(MN_GREY1);
+	chart.set_background(SYSCOL_CHART_BACKGROUND);
 	chart.set_ltr(env_t::left_to_right_graphs);
 	//CHART YEAR END
 
@@ -368,7 +368,7 @@ money_frame_t::money_frame_t(player_t *player)
 	mchart.set_size(scr_size(457,HEIGHT_OF_CHART));
 	mchart.set_dimension(MAX_PLAYER_HISTORY_MONTHS, 10000);
 	mchart.set_seed(0);
-	mchart.set_background(MN_GREY1);
+	mchart.set_background(SYSCOL_CHART_BACKGROUND);
 	mchart.set_ltr(env_t::left_to_right_graphs);
 	//CHART MONTH END
 
@@ -384,7 +384,7 @@ money_frame_t::money_frame_t(player_t *player)
 	year_month_tabs.add_tab( &year_dummy, translator::translate("Years"));
 	year_month_tabs.add_tab( &month_dummy, translator::translate("Months"));
 	year_month_tabs.set_pos(scr_coord(0, LINESPACE-2));
-	year_month_tabs.set_size(scr_size(lyl_x+25, TAB_HEADER_V_SIZE));
+	year_month_tabs.set_size(scr_size(lyl_x+25, D_TAB_HEADER_HEIGHT));
 	add_component(&year_month_tabs);
 
 	add_component(&conmoney);
@@ -584,7 +584,7 @@ void money_frame_t::draw(scr_coord pos, scr_size size)
 
 	// warning/success messages
 	if(player->get_player_nr()!=1  &&  welt->get_scenario()->active()) {
-		warn.set_color( COL_BLACK );
+		warn.set_color( SYSCOL_TEXT );
 		sint32 percent = welt->get_scenario()->get_completion(player->get_player_nr());
 		if (percent >= 0) {
 			sprintf( str_buf[15], translator::translate("Scenario complete: %i%%"), percent );

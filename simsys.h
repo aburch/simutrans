@@ -11,7 +11,7 @@
 #include "simtypes.h"
 
 // Provide chdir().
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(__CYGWIN__)
 #	include <direct.h>
 #else
 #	include <unistd.h>
@@ -29,6 +29,7 @@
 #define SIM_MOUSE_BUTTONS   1
 #define SIM_KEYBOARD        2
 #define SIM_MOUSE_MOVE      3
+#define SIM_STRING          4
 #define SIM_SYSTEM          254
 #define SIM_IGNORE_EVENT    255
 
@@ -48,7 +49,10 @@
 struct sys_event
 {
 	unsigned long type;
-	unsigned long code;
+	union {
+		unsigned long code;
+		void *ptr;
+	};
 	int mx;                  /* es sind negative Koodinaten mgl */
 	int my;
 	int mb;
@@ -98,6 +102,8 @@ char const* dr_query_homedir();
 
 unsigned short* dr_textur_init();
 
+// returns the file path to a font file
+const char *dr_query_fontpath( const char * fontname );
 
 void dr_textur(int xp, int yp, int w, int h);
 
@@ -164,6 +170,23 @@ size_t dr_paste(char *target, size_t max_length);
  * @return false, if nothing was downloaded
  */
 bool dr_download_pakset( const char *path_to_program, bool portable );
+
+/**
+ * Shows the touch keyboard when using systems without a hardware keyboard.
+ * Will be ignored if there is an hardware keyboard available.
+ */
+void dr_start_textinput();
+
+/**
+ * Hides the touch keyboard when using systems without a hardware keyboard.
+ * Will be ignored it there is no on-display keyboard shown.
+ */
+void dr_stop_textinput();
+
+/**
+ * Inform the IME of a ideal place to open its popup.
+ */
+void dr_notify_input_pos(int x, int y);
 
 int sysmain(int argc, char** argv);
 

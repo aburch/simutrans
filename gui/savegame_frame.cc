@@ -711,7 +711,8 @@ void savegame_frame_t::set_windowsize(scr_size size)
 		sint32 c = file_table.get_grid_size().get_x();
 		if (c > 0) {
 			c = c > 0 ? 1 : 0;
-			sint16 x = scrolly.get_client_size().x - (file_table.get_table_width() - file_table.get_column_width(c));
+			// "w" was formerly "x". This may need to be "h" instead, as the conversion is not clear. 
+			sint16 x = scrolly.get_client().get_size().w - (file_table.get_table_width() - file_table.get_column_width(c));
 			file_table.get_column(c)->set_width(x);
 		}
 	}

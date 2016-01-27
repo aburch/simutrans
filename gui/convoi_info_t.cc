@@ -176,7 +176,7 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	//chart.set_size(scr_size(total_width-88-4, 100));
 	chart.set_dimension(12, 10000);
 	chart.set_visible(false);
-	chart.set_background(MN_GREY1);
+	chart.set_background(SYSCOL_CHART_BACKGROUND);
 	chart.set_ltr(env_t::left_to_right_graphs);
 	int btn;
 	for (btn = 0; btn < convoi_t::MAX_CONVOI_COST; btn++) {
@@ -323,7 +323,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 #endif
 
 		// Bernd Gabriel, 01.07.2009: show some colored texts and indicator
-		input.set_color(cnv->has_obsolete_vehicles() ? COL_DARK_BLUE : COL_BLACK);
+		input.set_color(cnv->has_obsolete_vehicles() ? COL_DARK_BLUE : SYSCOL_TEXT);
 
 		// make titlebar dirty to display the correct coordinates
 		if(cnv->get_owner()==welt->get_active_player()) {
@@ -441,7 +441,7 @@ enable_home:
 			const sint32 max_speed = convoy.calc_max_speed(weight_summary_t(empty_weight, convoy.get_current_friction()));
 			sprintf(tmp, translator::translate(min_speed == max_speed ? "%i km/h (max. %ikm/h)" : "%i km/h (max. %i %s %ikm/h)"), 
 				(mean_convoi_speed+3)/4, min_speed, translator::translate("..."), max_speed );
-			display_proportional(pos_x, pos_y, tmp, ALIGN_LEFT, COL_BLACK, true );
+			display_proportional(pos_x, pos_y, tmp, ALIGN_LEFT, SYSCOL_TEXT, true );
 		}
 
 		//next important: income stuff
@@ -450,7 +450,7 @@ enable_home:
 			char tmp[256];
 			// Bernd Gabriel, 01.07.2009: inconsistent adding of ':'. Sometimes in code, sometimes in translation. Consistently moved to code.
 			sprintf(tmp, caption, translator::translate("Gewinn"));
-			int len = display_proportional(pos_x, pos_y, tmp, ALIGN_LEFT, COL_BLACK, true ) + 5;
+			int len = display_proportional(pos_x, pos_y, tmp, ALIGN_LEFT, SYSCOL_TEXT, true ) + 5;
 			money_to_string(tmp, cnv->get_jahresgewinn()/100.0 );
 			len += display_proportional(pos_x + len, pos_y, tmp, ALIGN_LEFT, cnv->get_jahresgewinn() > 0 ? MONEY_PLUS : MONEY_MINUS, true ) + 5;
 			// Bernd Gabriel, 17.06.2009: add fixed maintenance info
@@ -470,7 +470,7 @@ enable_home:
 				money_to_string( tmp+1, cnv->get_per_kilometre_running_cost()/100.0 );
 				strcat( tmp, "/km)" );
 			}
-			display_proportional(pos_x + len, pos_y, tmp, ALIGN_LEFT, cnv->has_obsolete_vehicles() ? COL_DARK_BLUE : COL_BLACK, true );
+			display_proportional(pos_x + len, pos_y, tmp, ALIGN_LEFT, cnv->has_obsolete_vehicles() ? COL_DARK_BLUE : SYSCOL_TEXT, true );
 		}
 
 		//Average round trip time
@@ -484,7 +484,7 @@ enable_home:
 				welt->sprintf_ticks(as_clock, sizeof(as_clock), average_round_trip_time);
 				info_buf.printf(" %s",  as_clock);
 			}
-			display_proportional(pos_x, pos_y, info_buf, ALIGN_LEFT, COL_BLACK, true );
+			display_proportional(pos_x, pos_y, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true );
 		}
 
 		// the weight entry
@@ -493,13 +493,13 @@ enable_home:
 			char tmp[256];
 			// Bernd Gabriel, 01.07.2009: inconsistent adding of ':'. Sometimes in code, sometimes in translation. Consistently moved to code.
 			sprintf(tmp, caption, translator::translate("Gewicht"));
-			const int len = display_proportional(pos_x, pos_y, tmp, ALIGN_LEFT, COL_BLACK, true ) + 5;
+			const int len = display_proportional(pos_x, pos_y, tmp, ALIGN_LEFT, SYSCOL_TEXT, true ) + 5;
 			const int freight_weight = gross_weight - empty_weight; // cnv->get_sum_gesamtgewicht() - cnv->get_sum_gewicht();
 			sprintf(tmp, translator::translate(freight_weight ? "%g (%g) t" : "%g t"), gross_weight * 0.001f, freight_weight * 0.001f);
 			display_proportional(pos_x + len, pos_y, tmp, ALIGN_LEFT, 
 				cnv->get_overcrowded() > 0 ? COL_DARK_PURPLE : // overcrowded
 				!cnv->get_finance_history(0, convoi_t::CONVOI_TRANSPORTED_GOODS) && !cnv->get_finance_history(1, convoi_t::CONVOI_TRANSPORTED_GOODS) ? COL_YELLOW : // nothing moved in this and past month
-				COL_BLACK, true );
+				SYSCOL_TEXT, true );
 		}
 
 		{
@@ -508,11 +508,11 @@ enable_home:
 			char tmp[256];
 			// Bernd Gabriel, 01.07.2009: inconsistent adding of ':'. Sometimes in code, sometimes in translation. Consistently moved to code.
 			sprintf(tmp, caption, translator::translate("Fahrtziel")); // "Destination"
-			int len = display_proportional(pos_x, pos_y, tmp, ALIGN_LEFT, COL_BLACK, true ) + 5;
+			int len = display_proportional(pos_x, pos_y, tmp, ALIGN_LEFT, SYSCOL_TEXT, true ) + 5;
 			info_buf.clear();
 			const schedule_t *fpl = cnv->get_schedule();
 			fahrplan_gui_t::gimme_short_stop_name(info_buf, cnv->get_owner(), fpl, fpl->get_aktuell(), 34);
-			len += display_proportional_clip(pos_x + len, pos_y, info_buf, ALIGN_LEFT, COL_BLACK, true ) + 5;
+			len += display_proportional_clip(pos_x + len, pos_y, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true ) + 5;
 		}
 
 		/*
@@ -525,7 +525,7 @@ enable_home:
 			char tmp[256];
 			// Bernd Gabriel, 01.07.2009: inconsistent adding of ':'. Sometimes in code, sometimes in translation. Consistently moved to code.
 			sprintf(tmp, caption, translator::translate("Serves Line"));
-			int len = display_proportional(line_x, pos_y, tmp, ALIGN_LEFT, COL_BLACK, true ) + 5;
+			int len = display_proportional(line_x, pos_y, tmp, ALIGN_LEFT, SYSCOL_TEXT, true ) + 5;
 			display_proportional_clip(line_x + len, pos_y, cnv->get_line()->get_name(), ALIGN_LEFT, cnv->get_line()->get_state_color(), true );
 		}
 
@@ -538,9 +538,9 @@ enable_home:
 			const sint32 brk_meters = convoy.calc_min_braking_distance(convoy.get_weight_summary(), speed_to_v(cnv->get_akt_speed()));
 			char tmp[256];
 			sprintf(tmp, translator::translate("minimum brake distance"));
-			const int len = display_proportional(pos_x, pos_y, tmp, ALIGN_LEFT, COL_BLACK, true );
+			const int len = display_proportional(pos_x, pos_y, tmp, ALIGN_LEFT, SYSCOL_TEXT, true );
 			sprintf(tmp, translator::translate(": %im"), brk_meters);
-			display_proportional(pos_x + len, pos_y, tmp, ALIGN_LEFT, cnv->get_akt_speed() <= cnv->get_akt_speed_soll() ? COL_BLACK : COL_RED, true );
+			display_proportional(pos_x + len, pos_y, tmp, ALIGN_LEFT, cnv->get_akt_speed() <= cnv->get_akt_speed_soll() ? SYSCOL_TEXT : SYSCOL_TEXT_STRONG, true );
 		}
 		{
 			const int pos_y = pos_y0 + 7 * LINESPACE; // line 8
@@ -553,16 +553,16 @@ enable_home:
 				sprintf(tmp, translator::translate("max %ikm/h in %im, brake in %im "), kmh, m_til_limit, m_til_brake);
 			else
 				sprintf(tmp, translator::translate("stop in %im, brake in %im "), m_til_limit, m_til_brake);
-			const int len = display_proportional(pos_x, pos_y, tmp, ALIGN_LEFT, COL_BLACK, true );
+			const int len = display_proportional(pos_x, pos_y, tmp, ALIGN_LEFT, SYSCOL_TEXT, true );
 		}
 		{
 			const int pos_y = pos_y0 + 8 * LINESPACE; // line 9
 			const sint32 current_friction = cnv->front()->get_frictionfactor();
 			char tmp[256];
 			sprintf(tmp, translator::translate("current friction factor"));
-			const int len = display_proportional(pos_x, pos_y, tmp, ALIGN_LEFT, COL_BLACK, true );
+			const int len = display_proportional(pos_x, pos_y, tmp, ALIGN_LEFT, SYSCOL_TEXT, true );
 			sprintf(tmp, translator::translate(": %i"), current_friction);
-			display_proportional(pos_x + len, pos_y, tmp, ALIGN_LEFT, current_friction <= 20 ? COL_BLACK : COL_RED, true );
+			display_proportional(pos_x + len, pos_y, tmp, ALIGN_LEFT, current_friction <= 20 ? SYSCOL_TEXT : SYSCOL_TEXT_STRONG, true );
 		}
 #endif
 		POP_CLIP();

@@ -247,13 +247,13 @@ void curiositylist_stats_t::draw(scr_coord offset)
 		// now we have a short name ...
 		buf.printf("%s (%d)", short_name, geb->get_adjusted_visitor_demand());
 
-		display_proportional_clip(xoff+D_INDICATOR_WIDTH+10+9,yoff,buf,ALIGN_LEFT,COL_BLACK,true);
+		display_proportional_clip(xoff+D_INDICATOR_WIDTH+10+9,yoff,buf,ALIGN_LEFT,SYSCOL_TEXT,true);
 
 		if (geb->get_tile()->get_besch()->get_extra() != 0) {
 		    display_color_img(skinverwaltung_t::intown->get_bild_nr(0), xoff+D_INDICATOR_WIDTH+9, yoff, 0, false, false);
 		}
 		if(  win_get_magic( (ptrdiff_t)geb )  ) {
-			display_blend_wh( offset.x+D_POS_BUTTON_WIDTH+D_H_SPACE, yoff, size.w, LINESPACE, COL_BLACK, 25 );
+			display_blend_wh( offset.x+D_POS_BUTTON_WIDTH+D_H_SPACE, yoff, size.w, LINESPACE, SYSCOL_TEXT, 25 );
 		}
 	}
 }

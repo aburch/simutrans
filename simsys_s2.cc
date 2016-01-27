@@ -657,6 +657,12 @@ void dr_stop_textinput()
 	}
 }
 
+void dr_notify_input_pos(int x, int y)
+{
+	SDL_Rect rect = {x, y + LINESPACE, 1, 1};
+	SDL_SetTextInputRect( &rect );
+}
+
 #ifdef _MSC_VER
 // Needed for MS Visual C++ with /SUBSYSTEM:CONSOLE to work , if /SUBSYSTEM:WINDOWS this function is compiled but unreachable
 #undef main

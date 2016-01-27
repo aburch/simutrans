@@ -62,7 +62,7 @@ void halt_list_stats_t::draw(scr_coord offset)
 		display_fillbox_wh_clip(pos.x+offset.x+4, pos.y+offset.y+6, 26, D_INDICATOR_HEIGHT, halt->get_status_farbe(), true);
 
 		// name
-		int left = pos.x + offset.x + 32+2 + display_proportional_clip(pos.x + offset.x + 32+2, pos.y + offset.y + 2, translator::translate(halt->get_name()), ALIGN_LEFT, COL_BLACK, true);
+		int left = pos.x + offset.x + 32+2 + display_proportional_clip(pos.x + offset.x + 32+2, pos.y + offset.y + 2, translator::translate(halt->get_name()), ALIGN_LEFT, SYSCOL_TEXT, true);
 
 		// what kind of stop
 		haltestelle_t::stationtyp const halttype = halt->get_station_type();
@@ -123,6 +123,6 @@ void halt_list_stats_t::draw(scr_coord offset)
 		static cbuffer_t buf;
 		buf.clear();
 		halt->get_short_freight_info(buf);
-		display_proportional_clip(pos.x+offset.x+32+2, pos_y, buf, ALIGN_LEFT, COL_BLACK, true);
+		display_proportional_clip(pos.x+offset.x+32+2, pos_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 	}
 }

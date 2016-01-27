@@ -17,10 +17,11 @@
 #include "../../dataobj/translator.h"
 #include "../../player/simplay.h"
 #include "../../vehicle/simvehicle.h"
+#include "gui_label.h"
 
 
 gui_convoy_label_t::gui_convoy_label_t(convoihandle_t cnv, bool show_number_of_convoys, bool show_max_speed):
-	gui_label_t(NULL,COL_BLACK,centered),
+	gui_label_t(NULL,SYSCOL_TEXT,centered),
 	show_number(show_number_of_convoys), show_max_speed(show_max_speed), cnv(cnv)
 {
 }
@@ -87,7 +88,7 @@ void gui_convoy_label_t::draw(scr_coord offset)
 			sprintf(tmp, "%s %d (%s %i)",
 				translator::translate("Fahrzeuge:"), cnv->get_vehikel_anzahl(),
 				translator::translate("Station tiles:"), convoy.get_vehicle_summary().tiles);
-			display_proportional( offset.x + 4, offset.y , tmp, ALIGN_LEFT, COL_BLACK, true );
+			display_proportional( offset.x + 4, offset.y , tmp, ALIGN_LEFT, SYSCOL_TEXT, true );
 			offset.y+=LINESPACE;
 		}
 		if (show_max_speed) {
@@ -97,7 +98,7 @@ void gui_convoy_label_t::draw(scr_coord offset)
 				translator::translate("Max. speed:"), min_speed, 
 				translator::translate("..."), max_speed );
 
-			display_proportional( offset.x + 4, offset.y , tmp, ALIGN_LEFT, COL_BLACK, true );
+			display_proportional( offset.x + 4, offset.y , tmp, ALIGN_LEFT, SYSCOL_TEXT, true );
 			offset.y+=LINESPACE;
 		}
 	}

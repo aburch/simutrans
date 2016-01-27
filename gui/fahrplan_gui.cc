@@ -228,7 +228,7 @@ void fahrplan_gui_stats_t::draw(scr_coord offset)
 				distance = (double)(shortest_distance(last_stop_pos, e.pos.get_2d()) * welt->get_settings().get_meters_per_tile()) / 1000.0;
 				buf.printf(" %.1f%s", distance, "km");
 				
-				PLAYER_COLOR_VAL const c = sel == 0 ? COL_WHITE : COL_BLACK;
+				PLAYER_COLOR_VAL const c = sel == 0 ? SYSCOL_TEXT_HIGHLIGHT : SYSCOL_TEXT;
 				sint16           const w = display_proportional_clip(offset.x + 4 + 10, offset.y, buf, ALIGN_LEFT, c, true);
 				if (width < w) 
 				{
@@ -321,8 +321,8 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, player_t* player_, convoihandle
 	lb_waitlevel_as_clock(NULL, COL_WHITE, gui_label_t::right),
 	lb_load("Full load"),
 	lb_spacing("Spacing cnv/month, shift"),
-	lb_spacing_as_clock(NULL, COL_BLACK, gui_label_t::right),
-	lb_spacing_shift_as_clock(NULL, COL_BLACK, gui_label_t::right),
+	lb_spacing_as_clock(NULL, SYSCOL_TEXT, gui_label_t::right),
+	lb_spacing_shift_as_clock(NULL, SYSCOL_TEXT, gui_label_t::right),
 	stats(player_),
 	scrolly(&stats),
 	old_fpl(fpl_),
@@ -595,7 +595,7 @@ void fahrplan_gui_t::update_selection()
 		if(  haltestelle_t::get_halt(fpl->eintrag[aktuell].pos, player).is_bound()  ) {
 			if(!fpl->get_current_eintrag().wait_for_time)
 			{
-				lb_load.set_color( COL_BLACK );
+				lb_load.set_color( SYSCOL_TEXT );
 				numimp_load.enable();
 				numimp_load.set_value( fpl->eintrag[aktuell].ladegrad );
 			}
@@ -608,22 +608,22 @@ void fahrplan_gui_t::update_selection()
 			
 			if(  fpl->eintrag[aktuell].ladegrad>0 || fpl->eintrag[aktuell].wait_for_time ) {
 				bt_wait_prev.enable();
-				lb_wait.set_color( COL_BLACK );
-				lb_spacing.set_color( COL_BLACK );
+				lb_wait.set_color( SYSCOL_TEXT );
+				lb_spacing.set_color( SYSCOL_TEXT );
 				numimp_spacing.enable();
 				numimp_spacing_shift.enable();
 				numimp_spacing.set_value(fpl->get_spacing());
 				numimp_spacing_shift.set_value(fpl->eintrag[aktuell].spacing_shift);
 				if (fpl->get_spacing() ) {
-					lb_spacing_shift.set_color( COL_BLACK );
-					lb_spacing_as_clock.set_color( COL_BLACK );
-					lb_spacing_shift_as_clock.set_color( COL_BLACK );
+					lb_spacing_shift.set_color( SYSCOL_TEXT );
+					lb_spacing_as_clock.set_color( SYSCOL_TEXT );
+					lb_spacing_shift_as_clock.set_color( SYSCOL_TEXT );
 					welt->sprintf_ticks(str_spacing_as_clock, sizeof(str_spacing_as_clock), welt->ticks_per_world_month/fpl->get_spacing());
 					welt->sprintf_ticks(str_spacing_shift_as_clock, sizeof(str_spacing_as_clock),
 							fpl->eintrag[aktuell].spacing_shift * welt->ticks_per_world_month/welt->get_settings().get_spacing_shift_divisor()+1
 							);
 				}
-				lb_waitlevel_as_clock.set_color( COL_WHITE );
+				lb_waitlevel_as_clock.set_color( SYSCOL_TEXT_HIGHLIGHT );
 				bt_wait_next.enable();
 			}
 			if(  (fpl->eintrag[aktuell].ladegrad>0 || fpl->eintrag[aktuell].wait_for_time) &&  fpl->eintrag[aktuell].waiting_time_shift>0  ) {
@@ -644,7 +644,7 @@ void fahrplan_gui_t::update_selection()
  */
 bool fahrplan_gui_t::infowin_event(const event_t *ev)
 {
-	if( (ev)->ev_class == EVENT_CLICK  &&  !((ev)->ev_code==MOUSE_WHEELUP  ||  (ev)->ev_code==MOUSE_WHEELDOWN)  &&  !line_selector.is_hit(ev->cx, ev->cy-16)  )  {
+	if( (ev)->ev_class == EVENT_CLICK  &&  !((ev)->ev_code==MOUSE_WHEELUP  ||  (ev)->ev_code==MOUSE_WHEELDOWN)  &&  !line_selector.getroffen(ev->cx, ev->cy-D_TITLEBAR_HEIGHT)  )  {
 
 		// close combo box; we must do it ourselves, since the box does not receive outside events ...
 		line_selector.close_box();
@@ -890,7 +890,7 @@ void fahrplan_gui_t::init_line_selector()
 	if(  !new_line.is_bound()  ) {
 		selection = 0;
 		offset = 1;
-		line_selector.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("<no line>"), COL_BLACK ) );
+		line_selector.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("<no line>"), SYSCOL_TEXT ) );
 	}
 
 	FOR(  vector_tpl<linehandle_t>,  line,  lines  ) {

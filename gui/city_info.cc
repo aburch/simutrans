@@ -102,7 +102,7 @@ city_info_t::city_info_t(stadt_t* stadt_) :
 	chart.set_size(scr_size(340,120));
 	chart.set_dimension(MAX_CITY_HISTORY_YEARS, 10000);
 	chart.set_seed(welt->get_last_year());
-	chart.set_background(MN_GREY1);
+	chart.set_background(SYSCOL_CHART_BACKGROUND);
 	chart.set_ltr(env_t::left_to_right_graphs);
 	for(  uint32 i = 0;  i<MAX_CITY_HISTORY;  i++  ) {
 		chart.add_curve( hist_type_color[i], stadt->get_city_history_year(), MAX_CITY_HISTORY, i, 12, STANDARD, (stadt->stadtinfo_options & (1<<i))!=0, true, 0 );
@@ -113,7 +113,7 @@ city_info_t::city_info_t(stadt_t* stadt_) :
 	mchart.set_size(scr_size(340,120));
 	mchart.set_dimension(MAX_CITY_HISTORY_MONTHS, 10000);
 	mchart.set_seed(0);
-	mchart.set_background(MN_GREY1);
+	mchart.set_background(SYSCOL_CHART_BACKGROUND);
 	mchart.set_ltr(env_t::left_to_right_graphs);
 	for(  uint32 i = 0;  i<MAX_CITY_HISTORY;  i++  ) {
 		mchart.add_curve( hist_type_color[i], stadt->get_city_history_month(), MAX_CITY_HISTORY, i, 12, STANDARD, (stadt->stadtinfo_options & (1<<i))!=0, true, 0 );
@@ -346,7 +346,7 @@ void city_info_t::draw(scr_coord pos, scr_size size)
 	
 	buf.append(" \n ");
 
-	display_multiline_text(pos.x + 8, pos.y + D_TITLEBAR_HEIGHT + 4 + (D_BUTTON_HEIGHT+2), buf, COL_BLACK);
+	display_multiline_text(pos.x + 8, pos.y + D_TITLEBAR_HEIGHT + 4 + (D_BUTTON_HEIGHT+2), buf, SYSCOL_TEXT);
 
 	const uint32 current_pax_destinations = c->get_pax_destinations_new_change();
 	if(  pax_destinations_last_change > current_pax_destinations  ) {
@@ -475,14 +475,14 @@ city_info_t::city_info_t() :
 	chart.set_size(scr_size(340,120));
 	chart.set_dimension(MAX_CITY_HISTORY_YEARS, 10000);
 	chart.set_seed(welt->get_last_year());
-	chart.set_background(MN_GREY1);
+	chart.set_background(SYSCOL_CHART_BACKGROUND);
 
 	//CHART MONTH
 	mchart.set_pos(scr_coord(21,1));
 	mchart.set_size(scr_size(340,120));
 	mchart.set_dimension(MAX_CITY_HISTORY_MONTHS, 10000);
 	mchart.set_seed(0);
-	mchart.set_background(MN_GREY1);
+	mchart.set_background(SYSCOL_CHART_BACKGROUND);
 
 	// tab (month/year)
 	year_month_tabs.add_tab(&chart, translator::translate("Years"));

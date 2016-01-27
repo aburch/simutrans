@@ -51,7 +51,7 @@ ki_kontroll_t::ki_kontroll_t() :
 	cursor.x += D_ARROW_RIGHT_WIDTH + D_H_SPACE;
 
 	scr_coord_val width = L_FINANCE_WIDTH + D_H_SPACE + D_EDIT_HEIGHT;
-	password_label.init("Name/password", cursor, SYSCOL_STATIC_TEXT, gui_label_t::right);
+	password_label.init("Name/password", cursor, SYSCOL_TEXT, gui_label_t::right);
 	password_label.set_size(scr_size(width, D_LABEL_HEIGHT));
 	add_component( &password_label );
 	cursor.x += width + 10;
@@ -62,7 +62,7 @@ ki_kontroll_t::ki_kontroll_t() :
 	cursor.x += D_CHECKBOX_WIDTH + D_H_SPACE;
 
 	width = 120;
-	cash_label.init("Cash", cursor, SYSCOL_STATIC_TEXT, gui_label_t::right);
+	cash_label.init("Cash", cursor, SYSCOL_TEXT, gui_label_t::right);
 	cash_label.set_size(scr_size(width, D_LABEL_HEIGHT));
 	add_component( &cash_label );
 	const scr_coord_val window_width = cursor.x + width + D_MARGIN_RIGHT;
@@ -120,11 +120,11 @@ ki_kontroll_t::ki_kontroll_t() :
 		player_select[i].set_focusable( false );
 
 		// Create combobox list data
-		player_select[i].append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("slot empty"), COL_BLACK ) );
-		player_select[i].append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("Manual (Human)"), COL_BLACK ) );
+		player_select[i].append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("slot empty"), SYSCOL_TEXT ) );
+		player_select[i].append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("Manual (Human)"), SYSCOL_TEXT ) );
 		if(  !welt->get_player(1)->is_locked()  ||  !env_t::networkmode  ) {
-			player_select[i].append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("Goods AI"), COL_BLACK ) );
-			player_select[i].append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("Passenger AI"), COL_BLACK ) );
+			player_select[i].append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("Goods AI"), SYSCOL_TEXT ) );
+			player_select[i].append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("Passenger AI"), SYSCOL_TEXT ) );
 		}
 		assert(  player_t::MAX_AI==4  );
 
@@ -432,8 +432,8 @@ void ki_kontroll_t::update_data()
 				{
 					if(  player_select[i].count_elements()==2  ) 
 					{
-						player_select[i].append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("Goods AI"), COL_BLACK ) );
-						player_select[i].append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("Passenger AI"), COL_BLACK ) );
+						player_select[i].append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("Goods AI"), SYSCOL_TEXT ) );
+						player_select[i].append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("Passenger AI"), SYSCOL_TEXT ) );
 					}
 				}
 				else 
@@ -441,8 +441,8 @@ void ki_kontroll_t::update_data()
 					if(  player_select[i].count_elements()==4  )
 					{
 						player_select[i].clear_elements();
-						player_select[i].append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("slot empty"), COL_BLACK ) );
-						player_select[i].append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("Manual (Human)"), COL_BLACK ) );
+						player_select[i].append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("slot empty"), SYSCOL_TEXT ) );
+						player_select[i].append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("Manual (Human)"), SYSCOL_TEXT ) );
 					}
 				}
 

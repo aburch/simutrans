@@ -1,7 +1,7 @@
 /*
  * just displays a text, will be auto-translated
  *
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
+ * Copyright (c) 1997 - 2001 Hansjorg Malthaner
  *
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
@@ -41,7 +41,7 @@ private:
 
 	/**
 	 * Color of the Labels
-	 * @author Hansjörg Malthaner
+	 * @author Hansjorg Malthaner
 	 */
 	COLOR_VAL color;
 
@@ -52,9 +52,9 @@ protected:
 	using gui_component_t::init;
 
 public:
-	gui_label_t(const char* text=NULL, COLOR_VAL color=SYSCOL_STATIC_TEXT, align_t align=left);
+	gui_label_t(const char* text=NULL, COLOR_VAL color=SYSCOL_TEXT, align_t align=left);
 
-	void init( const char* text_par, scr_coord pos_par, COLOR_VAL color_par=SYSCOL_STATIC_TEXT, align_t align_par=left) {
+	void init( const char* text_par, scr_coord pos_par, COLOR_VAL color_par=SYSCOL_TEXT, align_t align_par=left) {
 		set_pos  ( pos_par   );
 		set_text ( text_par  );
 		set_color( color_par );
@@ -63,19 +63,19 @@ public:
 
 	/**
 	 * Sets the text to display, after translating it.
-	 * @author Hansjörg Malthaner
+	 * @author Hansjorg Malthaner
 	 */
 	void set_text(const char *text, bool autosize=true);
 
 	/**
 	 * Sets the text without translation.
-	 * @author Hansjörg Malthaner
+	 * @author Hansjorg Malthaner
 	 */
 	void set_text_pointer(const char *text, bool autosize=true);
 
 	/**
 	 * returns the pointer (i.e. for freeing untranslated contents)
-	 * @author Hansjörg Malthaner
+	 * @author Hansjorg Malthaner
 	 */
 	const char * get_text_pointer() const { return text; }
 
@@ -102,13 +102,14 @@ public:
 	 * @author Volker Meyer
 	 */
 	void set_align(align_t align) { this->align = align; }
-	align_t get_align() const {return align;}
 
 	/**
 	 * Sets the tooltip of this component.
 	 * @author Hj. Malthaner
 	 */
 	void set_tooltip(const char * t);
+
+	align_t get_align() const { return align; } 
 };
 
 #endif

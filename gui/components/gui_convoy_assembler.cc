@@ -56,19 +56,19 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(waytype_t wt, signed char player_
 	grid(get_grid(wt)),
 	grid_dx(get_grid(wt).x * get_base_tile_raster_width() / 64 / 2),
 	max_convoy_length(depot_t::get_max_convoy_length(wt)), panel_rows(3), convoy_tabs_skip(0),
-	lb_convoi_count(NULL, COL_BLACK, gui_label_t::left),
-	lb_convoi_speed(NULL, COL_BLACK, gui_label_t::left),
-	lb_convoi_cost(NULL, COL_BLACK, gui_label_t::left),
-	lb_convoi_value(NULL, COL_BLACK, gui_label_t::left),
-	lb_convoi_power(NULL, COL_BLACK, gui_label_t::left),
-	lb_convoi_weight(NULL, COL_BLACK, gui_label_t::left),
-	lb_convoi_brake_force(NULL, COL_BLACK, gui_label_t::left),
-	lb_convoi_rolling_resistance(NULL, COL_BLACK, gui_label_t::left),
-	lb_convoi_way_wear_factor(NULL, COL_BLACK, gui_label_t::left),
-	lb_traction_types(NULL, COL_BLACK, gui_label_t::left),
-	lb_vehicle_count(NULL, COL_BLACK, gui_label_t::right),
-	lb_veh_action("Fahrzeuge:", COL_BLACK, gui_label_t::left),
-	lb_livery_selector("Livery scheme:", COL_BLACK, gui_label_t::left),
+	lb_convoi_count(NULL, SYSCOL_TEXT, gui_label_t::left),
+	lb_convoi_speed(NULL, SYSCOL_TEXT, gui_label_t::left),
+	lb_convoi_cost(NULL, SYSCOL_TEXT, gui_label_t::left),
+	lb_convoi_value(NULL, SYSCOL_TEXT, gui_label_t::left),
+	lb_convoi_power(NULL, SYSCOL_TEXT, gui_label_t::left),
+	lb_convoi_weight(NULL, SYSCOL_TEXT, gui_label_t::left),
+	lb_convoi_brake_force(NULL, SYSCOL_TEXT, gui_label_t::left),
+	lb_convoi_rolling_resistance(NULL, SYSCOL_TEXT, gui_label_t::left),
+	lb_convoi_way_wear_factor(NULL, SYSCOL_TEXT, gui_label_t::left),
+	lb_traction_types(NULL, SYSCOL_TEXT, gui_label_t::left),
+	lb_vehicle_count(NULL, SYSCOL_TEXT, gui_label_t::right),
+	lb_veh_action("Fahrzeuge:", SYSCOL_TEXT, gui_label_t::left),
+	lb_livery_selector("Livery scheme:", SYSCOL_TEXT, gui_label_t::left),
 	lb_too_heavy_notice("too heavy", COL_RED, gui_label_t::left),
 	convoi_pics(depot_t::get_max_convoy_length(wt)),
 	convoi(&convoi_pics),
@@ -80,7 +80,7 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(waytype_t wt, signed char player_
 	scrolly_electrics(&cont_electrics),
 	scrolly_loks(&cont_loks),
 	scrolly_waggons(&cont_waggons),
-	lb_vehicle_filter("Filter:", COL_BLACK, gui_label_t::left)
+	lb_vehicle_filter("Filter:", SYSCOL_TEXT, gui_label_t::left)
 {
 
 	/*
@@ -211,9 +211,9 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(waytype_t wt, signed char player_
 	add_component(&action_selector);
 	action_selector.clear_elements();
 	static const char *txt_veh_action[3] = { "anhaengen", "voranstellen", "verkaufen" };
-	action_selector.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate(txt_veh_action[0]), COL_BLACK ) );
-	action_selector.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate(txt_veh_action[1]), COL_BLACK ) );
-	action_selector.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate(txt_veh_action[2]), COL_BLACK ) );
+	action_selector.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate(txt_veh_action[0]), SYSCOL_TEXT ) );
+	action_selector.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate(txt_veh_action[1]), SYSCOL_TEXT ) );
+	action_selector.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate(txt_veh_action[2]), SYSCOL_TEXT ) );
 	action_selector.set_selection( 0 );
 
 	upgrade = u_buy;
@@ -221,8 +221,8 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(waytype_t wt, signed char player_
 	add_component(&upgrade_selector);
 	upgrade_selector.clear_elements();
 	static const char *txt_upgrade[2] = { "Buy/sell", "Upgrade" };
-	upgrade_selector.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(txt_upgrade[0]), COL_BLACK ) );
-	upgrade_selector.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(txt_upgrade[1]), COL_BLACK ) );
+	upgrade_selector.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(txt_upgrade[0]), SYSCOL_TEXT ) );
+	upgrade_selector.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(txt_upgrade[1]), SYSCOL_TEXT ) );
 	upgrade_selector.set_selection(0);
 
 	bt_obsolete.set_typ(button_t::square);
@@ -253,7 +253,7 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(waytype_t wt, signed char player_
 		livery_scheme_t* scheme = schemes->get_element(i);
 		if(scheme->is_available(welt->get_timeline_year_month()))
 		{
-			livery_selector.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(scheme->get_name()), COL_BLACK));
+			livery_selector.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(scheme->get_name()), SYSCOL_TEXT));
 			livery_scheme_indices.append(i);
 			livery_selector.set_selection(i);
 			livery_scheme_index = i;
@@ -721,10 +721,10 @@ void gui_convoy_assembler_t::draw(scr_coord parent_pos)
 			translator::translate("Station tiles:"), vsum.tiles);
 
 		txt_convoi_speed.append(translator::translate("Max. speed:"));
-		int col_convoi_speed = COL_BLACK;
+		int col_convoi_speed = SYSCOL_TEXT;
 		if (min_speed == 0)
 		{
-			col_convoi_speed = COL_RED;
+			col_convoi_speed = SYSCOL_TEXT_STRONG;
 			if (convoy.get_starting_force() > 0)
 			{
 				txt_convoi_speed.printf(" %d km/h @ %g t: ", min_speed, max_weight * 0.001f);
@@ -1724,11 +1724,11 @@ void gui_convoy_assembler_t::update_tabs()
 
 	// Update vehicle filter
 	vehicle_filter.clear_elements();
-	vehicle_filter.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate("All"), COL_BLACK));
-	vehicle_filter.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate("Relevant"), COL_BLACK));
+	vehicle_filter.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate("All"), SYSCOL_TEXT));
+	vehicle_filter.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate("Relevant"), SYSCOL_TEXT));
 
 	FOR(vector_tpl<ware_besch_t const*>, const i, welt->get_goods_list()) {
-		vehicle_filter.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(i->get_name()), COL_BLACK));
+		vehicle_filter.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(i->get_name()), SYSCOL_TEXT));
 	}
 
 	if (selected_filter > vehicle_filter.count_elements()) {
@@ -1758,9 +1758,9 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 	const vehikel_besch_t *veh_type = NULL;
 	bool new_vehicle_length_sb_force_zero = false;
 	scr_coord relpos = scr_coord( 0, ((gui_scrollpane_t *)tabs.get_aktives_tab())->get_scroll_y() );
-	int sel_index = lst->index_at(pos + tabs.get_pos() - relpos, x, y - TAB_HEADER_V_SIZE);
+	int sel_index = lst->index_at(pos + tabs.get_pos() - relpos, x, y - D_TAB_HEADER_HEIGHT);
 
-	if ((sel_index != -1) && (tabs.is_hit(x-pos.x,y-pos.y))) {
+	if ((sel_index != -1) && (tabs.getroffen(x-pos.x,y-pos.y))) {
 		// cursor over a vehicle in the selection list
 		const vector_tpl<gui_image_list_t::image_data_t*>& vec = (lst == &electrics ? electrics_vec : (lst == &pas ? pas_vec : (lst == &loks ? loks_vec : waggons_vec)));
 		veh_type = vehikelbauer_t::get_info(vec[sel_index]->text);
@@ -1920,7 +1920,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 			}
 		}
 
-		display_multiline_text( pos.x + 4, pos.y + tabs.get_pos().y + tabs.get_size().h + 31 + LINESPACE*1 + 4 + 16, buf,  COL_BLACK);
+		display_multiline_text( pos.x + 4, pos.y + tabs.get_pos().y + tabs.get_size().h + 31 + LINESPACE*1 + 4 + 16, buf, SYSCOL_TEXT);
 
 		// column 2
 		n = sprintf( buf, "%s %s %04d\n",
@@ -2048,7 +2048,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 			}
 		}
 
-		display_multiline_text(pos.x + 370, pos.y + tabs.get_pos().y + tabs.get_size().h + 31 + LINESPACE * 2 + 4 + 16, buf, COL_BLACK);
+		display_multiline_text(pos.x + 370, pos.y + tabs.get_pos().y + tabs.get_size().h + 31 + LINESPACE * 2 + 4 + 16, buf, SYSCOL_TEXT);
 
 		// update speedbar
 		new_vehicle_length_sb = new_vehicle_length_sb_force_zero ? 0 : convoi_length_ok_sb + convoi_length_slower_sb + convoi_length_too_slow_sb + veh_type->get_length();
@@ -2087,13 +2087,13 @@ bool gui_convoy_assembler_t::infowin_event(const event_t *ev)
 {
 	gui_container_t::infowin_event(ev);
 
-	if(IS_LEFTCLICK(ev) &&  !action_selector.is_hit(ev->cx, ev->cy-16)) {
+	if(IS_LEFTCLICK(ev) &&  !action_selector.getroffen(ev->cx, ev->cy-16)) {
 		// close combo box; we must do it ourselves, since the box does not recieve outside events ...
 		action_selector.close_box();
 		return true;
 	}
 
-	if(IS_LEFTCLICK(ev) &&  !upgrade_selector.is_hit(ev->cx, ev->cy-16)) {
+	if(IS_LEFTCLICK(ev) &&  !upgrade_selector.getroffen(ev->cx, ev->cy-16)) {
 		// close combo box; we must do it ourselves, since the box does not recieve outside events ...
 		upgrade_selector.close_box();
 		return true;
@@ -2109,7 +2109,7 @@ void gui_convoy_assembler_t::set_panel_rows(int dy)
 		panel_rows = clamp( panel_rows, 2, 3 ); // Not more then 3 rows and at least 2.
 		return;
 	}
-	dy -= get_convoy_height() + convoy_tabs_skip + 8 + get_vinfo_height() + 17 + TAB_HEADER_V_SIZE + 2 * gui_image_list_t::BORDER;
+	dy -= get_convoy_height() + convoy_tabs_skip + 8 + get_vinfo_height() + 17 + D_TAB_HEADER_HEIGHT + 2 * gui_image_list_t::BORDER;
 	panel_rows = max(1, (dy/grid.y) );
 }
 
@@ -2148,18 +2148,18 @@ void depot_convoi_capacity_t::draw(scr_coord offset)
 	int w = 0;
 	cbuf.clear();
 	cbuf.printf("%s %d (%d)", translator::translate("Capacity:"), total_pax, total_standing_pax );
-	w += display_proportional_clip( pos.x+offset.x + w, pos.y+offset.y , cbuf, ALIGN_LEFT, COL_BLACK, true);
+	w += display_proportional_clip( pos.x+offset.x + w, pos.y+offset.y , cbuf, ALIGN_LEFT, SYSCOL_TEXT, true);
 	display_color_img( skinverwaltung_t::passagiere->get_bild_nr(0), pos.x + offset.x + w, pos.y + offset.y, 0, false, false);
 
 	w += 16;
 	cbuf.clear();
 	cbuf.printf("%d", total_mail );
-	w += display_proportional_clip( pos.x+offset.x + w, pos.y+offset.y, cbuf, ALIGN_LEFT, COL_BLACK, true);
+	w += display_proportional_clip( pos.x+offset.x + w, pos.y+offset.y, cbuf, ALIGN_LEFT, SYSCOL_TEXT, true);
 	display_color_img( skinverwaltung_t::post->get_bild_nr(0), pos.x + offset.x + w, pos.y + offset.y, 0, false, false);
 
 	w += 16;
 	cbuf.clear();
 	cbuf.printf("%d", total_goods );
-	w += display_proportional_clip( pos.x+offset.x + w, pos.y+offset.y, cbuf, ALIGN_LEFT, COL_BLACK, true);
+	w += display_proportional_clip( pos.x+offset.x + w, pos.y+offset.y, cbuf, ALIGN_LEFT, SYSCOL_TEXT, true);
 	display_color_img( skinverwaltung_t::waren->get_bild_nr(0), pos.x + offset.x + w, pos.y + offset.y, 0, false, false);
 }

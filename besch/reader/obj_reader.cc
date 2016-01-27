@@ -27,6 +27,8 @@
 #include "../obj_besch.h"
 #include "../obj_node_info.h"
 
+#include "../../gui/gui_theme.h"
+
 #include "obj_reader.h"
 
 
@@ -116,7 +118,7 @@ bool obj_reader_t::load(const char *path, const char *message)
 		step = (2<<step)-1;
 
 		if(drawing  &&  skinverwaltung_t::biglogosymbol==NULL) {
-			display_fillbox_wh( 0, 0, display_get_width(), display_get_height(), COL_BLACK, true );
+			display_fillbox_wh( 0, 0, display_get_width(), display_get_height(), SYSCOL_TEXT, true );
 			read_file((name+"symbol.BigLogo.pak").c_str());
 DBG_MESSAGE("obj_reader_t::load()","big logo %p", skinverwaltung_t::biglogosymbol);
 		}

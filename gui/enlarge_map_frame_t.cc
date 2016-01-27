@@ -232,15 +232,15 @@ void enlarge_map_frame_t::draw(scr_coord pos, scr_size size)
 	display_array_wh(x+174, y+1, preview_size, preview_size, karte);
 
 	y = pos.y+64+10+16;
-	display_proportional_clip(x, y, translator::translate("5WORLD_CHOOSE"), ALIGN_LEFT, COL_BLACK, true);
+	display_proportional_clip(x, y, translator::translate("5WORLD_CHOOSE"), ALIGN_LEFT, SYSCOL_TEXT, true);
 	y += 12;
-	display_proportional_clip(x, y, translator::translate("Number of big cities"), ALIGN_LEFT, COL_BLACK, true);
+	display_proportional_clip(x, y, translator::translate("Number of big cities"), ALIGN_LEFT, SYSCOL_TEXT, true);
 	y += 12;
-	display_proportional_clip(x, y, translator::translate("Number of clusters"), ALIGN_LEFT, COL_BLACK, true);
+	display_proportional_clip(x, y, translator::translate("Number of clusters"), ALIGN_LEFT, SYSCOL_TEXT, true);
 	y += 12;
-	display_proportional_clip(x, y, translator::translate("Cluster size"), ALIGN_LEFT, COL_BLACK, true);
+	display_proportional_clip(x, y, translator::translate("Cluster size"), ALIGN_LEFT, SYSCOL_TEXT, true);
 	y += 12;
-	display_proportional_clip(x, y, translator::translate("Median Citizen per town"), ALIGN_LEFT, COL_BLACK, true);
+	display_proportional_clip(x, y, translator::translate("Median Citizen per town"), ALIGN_LEFT, SYSCOL_TEXT, true);
 	y += 12+5;
 
 	display_ddd_box_clip(x, y, 240, 0, MN_GREY0, MN_GREY4);

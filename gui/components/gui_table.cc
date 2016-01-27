@@ -23,7 +23,7 @@ gui_table_t::gui_table_t() : default_cell_size(99,14)
 	set_owns_columns(true);
 	set_owns_rows(true);
 	grid_width = koord(1,1);
-	grid_color = COL_BLACK;
+	grid_color = SYSCOL_CHART_LINES_ZERO;
 	tooltip[0] = 0;
 	set_grid_visible(false);
 }

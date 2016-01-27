@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
+ * Copyright (c) 1997 - 2001 Hansjorg Malthaner
  *
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
@@ -14,7 +14,7 @@
 #include "../../simcolor.h"
 #include "../../display/simgraph.h"
 #include "../../simevent.h"
-#include "../../gui/simwin.h"
+#include "../simwin.h"
 
 #include "../../dataobj/translator.h"
 
@@ -50,13 +50,14 @@
 
 karte_ptr_t button_t::welt;
 
+
 button_t::button_t() :
 	gui_component_t(true)
 {
 	b_no_translate = false;
 	pressed = false;
 	translated_tooltip = tooltip = NULL;
-	background_color = SYSCOL_FACE;
+	background_color = COL_WHITE;
 	b_enabled = true;
 
 	// By default a box button
@@ -87,7 +88,7 @@ void button_t::set_typ(enum type t)
 	switch (type&STATE_MASK) {
 
 		case square:
-			text_color = SYSCOL_BUTTON_TEXT;
+			text_color = SYSCOL_CHECKBOX_TEXT;
 			if(  !strempty(translated_text)  ) {
 				set_text(translated_text);
 				set_size( scr_size( gui_theme_t::gui_checkbox_size.w + D_H_SPACE + proportional_string_width( translated_text ), max(gui_theme_t::gui_checkbox_size.h,LINESPACE)) );
@@ -104,7 +105,9 @@ void button_t::set_typ(enum type t)
 
 		case posbutton:
 			set_no_translate( true );
-			// fallthrough
+			set_size( gui_theme_t::gui_pos_button_size );
+		break;
+
 		case arrowright:
 		case repeatarrowright:
 			set_size( gui_theme_t::gui_arrow_right_size );
@@ -118,8 +121,9 @@ void button_t::set_typ(enum type t)
 			set_size( gui_theme_t::gui_arrow_down_size );
 			break;
 
-		case roundbox:
 		case box:
+			text_color = SYSCOL_COLORED_BUTTON_TEXT;
+		case roundbox:
 			set_size( scr_size(gui_theme_t::gui_button_size.w, max(D_BUTTON_HEIGHT,LINESPACE)) );
 			break;
 
@@ -161,9 +165,9 @@ void button_t::set_tooltip(const char * t)
 }
 
 
-bool button_t::is_hit(int x,int y)
+bool button_t::getroffen(int x,int y)
 {
-	bool hit=gui_component_t::is_hit(x, y);
+	bool hit=gui_component_t::getroffen(x, y);
 	if(  pressed  &&  !hit  &&  type <= STATE_MASK  ) {
 		// moved away
 		pressed = 0;
@@ -259,7 +263,8 @@ void button_t::draw(scr_coord offset)
 	}
 
 	const scr_rect area( offset+pos, size );
-	const COLOR_VAL text_color = b_enabled ? this->text_color : SYSCOL_DISABLED_BUTTON_TEXT;
+	COLOR_VAL text_color = pressed ? SYSCOL_BUTTON_TEXT_SELECTED : this->text_color;
+	text_color = b_enabled ? text_color : SYSCOL_BUTTON_TEXT_DISABLED;
 
 	switch (type&STATE_MASK) {
 
@@ -268,9 +273,10 @@ void button_t::draw(scr_coord offset)
 				display_img_stretch( gui_theme_t::button_tiles[get_state_offset()], area );
 				display_img_stretch_blend( gui_theme_t::button_color_tiles[b_enabled && pressed], area, background_color | TRANSPARENT75_FLAG | OUTLINE_FLAG );
 				if(  text  ) {
-					// move the text to leave evt. space for a colored box top or left of it
-					scr_rect area_text = area;
-					area_text.set_pos( (scr_coord)gui_theme_t::gui_button_text_offset + area.get_pos() );
+					text_color = pressed ? SYSCOL_COLORED_BUTTON_TEXT_SELECTED : text_color;
+					// move the text to leave evt. space for a colored box top left or bottom right of it
+					scr_rect area_text = area - gui_theme_t::gui_color_button_text_offset_right;
+					area_text.set_pos( gui_theme_t::gui_color_button_text_offset + area.get_pos() );
 					display_proportional_ellipse( area_text, translated_text, ALIGN_CENTER_H | ALIGN_CENTER_V | DT_CLIP, text_color, true );
 				}
 				if(  win_get_focus()==this  ) {
@@ -283,7 +289,10 @@ void button_t::draw(scr_coord offset)
 			{
 				display_img_stretch( gui_theme_t::round_button_tiles[get_state_offset()], area );
 				if(  text  ) {
-					display_proportional_ellipse( area, translated_text, ALIGN_CENTER_H | ALIGN_CENTER_V | DT_CLIP, text_color, true );
+					// move the text to leave evt. space for a colored box top left or bottom right of it
+					scr_rect area_text = area - gui_theme_t::gui_button_text_offset_right;
+					area_text.set_pos( gui_theme_t::gui_button_text_offset + area.get_pos() );
+					display_proportional_ellipse( area_text, translated_text, ALIGN_CENTER_H | ALIGN_CENTER_V | DT_CLIP, text_color, true );
 				}
 				if(  win_get_focus()==this  ) {
 					draw_focus_rect( area );
@@ -295,6 +304,7 @@ void button_t::draw(scr_coord offset)
 			{
 				display_img_aligned( gui_theme_t::check_button_img[ get_state_offset() ], area, ALIGN_CENTER_V, true );
 				if(  text  ) {
+					text_color = b_enabled ? this->text_color : SYSCOL_CHECKBOX_TEXT_DISABLED;
 					scr_rect area_text = area;
 					area_text.x += gui_theme_t::gui_checkbox_size.w + D_H_SPACE;
 					display_proportional_ellipse( area_text, translated_text, ALIGN_LEFT | ALIGN_CENTER_V | DT_CLIP, text_color, true );
@@ -313,30 +323,30 @@ void button_t::draw(scr_coord offset)
 						offset = welt->get_viewport()->is_on_center( gr->get_pos() );
 					}
 				}
-				display_img_aligned( gui_theme_t::pos_button_img[ offset ], area, ALIGN_CENTER_V, true );
+				display_img_aligned( gui_theme_t::pos_button_img[ offset ], area, ALIGN_CENTER_H|ALIGN_CENTER_V, true );
 			}
 			break;
 
 		case arrowleft:
 		case repeatarrowleft:
-			display_img_aligned( gui_theme_t::arrow_button_left_img[ get_state_offset() ], area, ALIGN_CENTER_V, true );
+			display_img_aligned( gui_theme_t::arrow_button_left_img[ get_state_offset() ], area, ALIGN_CENTER_H|ALIGN_CENTER_V, true );
 			break;
 
 		case arrowright:
 		case repeatarrowright:
-			display_img_aligned( gui_theme_t::arrow_button_right_img[ get_state_offset() ], area, ALIGN_CENTER_V, true );
+			display_img_aligned( gui_theme_t::arrow_button_right_img[ get_state_offset() ], area, ALIGN_CENTER_H|ALIGN_CENTER_V, true );
 			break;
 
 		case arrowup:
-			display_img_aligned( gui_theme_t::arrow_button_up_img[ get_state_offset() ], area, ALIGN_CENTER_H, true );
+			display_img_aligned( gui_theme_t::arrow_button_up_img[ get_state_offset() ], area, ALIGN_CENTER_H|ALIGN_CENTER_V, true );
 			break;
 
 		case arrowdown:
-			display_img_aligned( gui_theme_t::arrow_button_down_img[ get_state_offset() ], area, ALIGN_CENTER_H, true );
+			display_img_aligned( gui_theme_t::arrow_button_down_img[ get_state_offset() ], area, ALIGN_CENTER_H|ALIGN_CENTER_V, true );
 			break;
 	}
 
-	if(  translated_tooltip  &&  is_hit( get_maus_x()-offset.x, get_maus_y()-offset.y )  ) {
+	if(  translated_tooltip  &&  getroffen( get_maus_x()-offset.x, get_maus_y()-offset.y )  ) {
 		win_set_tooltip( get_maus_x() + TOOLTIP_MOUSE_OFFSET_X, area.get_bottom() + TOOLTIP_MOUSE_OFFSET_Y, translated_tooltip, this);
 	}
 }

@@ -263,7 +263,7 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 		livery_scheme_t* scheme = schemes->get_element(i);
 		if(scheme->is_available(welt->get_timeline_year_month()))
 		{
-			livery_selector.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(scheme->get_name()), COL_BLACK));
+			livery_selector.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(scheme->get_name()), SYSCOL_TEXT));
 			livery_scheme_indices.append(i);
 		}
 	}
@@ -275,7 +275,7 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	chart.set_dimension(12, 1000);
 	chart.set_pos( scr_coord(LINE_NAME_COLUMN_WIDTH+50,11) );
 	chart.set_seed(0);
-	chart.set_background(MN_GREY1);
+	chart.set_background(SYSCOL_CHART_BACKGROUND);
 	chart.set_ltr(env_t::left_to_right_graphs);
 	add_component(&chart);
 
@@ -605,9 +605,9 @@ void schedule_list_gui_t::display(scr_coord pos)
 		buf.printf(" %s",  as_clock);
 	}
 
-	int len=display_proportional_clip(pos.x+LINE_NAME_COLUMN_WIDTH, pos.y+16+14+SCL_HEIGHT+D_BUTTON_HEIGHT*2+4, buf, ALIGN_LEFT, COL_BLACK, true );
+	int len=display_proportional_clip(pos.x+LINE_NAME_COLUMN_WIDTH, pos.y+16+14+SCL_HEIGHT+D_BUTTON_HEIGHT*2+4, buf, ALIGN_LEFT, SYSCOL_TEXT, true );
 
-	int len2 = display_proportional_clip(pos.x+LINE_NAME_COLUMN_WIDTH, pos.y+16+14+SCL_HEIGHT+D_BUTTON_HEIGHT*2+4+LINESPACE, translator::translate("Gewinn"), ALIGN_LEFT, COL_BLACK, true );
+	int len2 = display_proportional_clip(pos.x+LINE_NAME_COLUMN_WIDTH, pos.y+16+14+SCL_HEIGHT+D_BUTTON_HEIGHT*2+4+LINESPACE, translator::translate("Gewinn"), ALIGN_LEFT, SYSCOL_TEXT, true );
 	money_to_string(ctmp, profit/100.0);
 	len2 += display_proportional_clip(pos.x+LINE_NAME_COLUMN_WIDTH+len2, pos.y+16+14+SCL_HEIGHT+D_BUTTON_HEIGHT*2+4+LINESPACE, ctmp, ALIGN_LEFT, profit>=0?MONEY_PLUS:MONEY_MINUS, true );
 
@@ -616,7 +616,7 @@ void schedule_list_gui_t::display(scr_coord pos)
 		number_to_string(ctmp, capacity, 2);
 		buf.clear();
 		buf.printf( translator::translate("Capacity: %s\nLoad: %d (%d%%)"), ctmp, load, loadfactor );
-		display_multiline_text(pos.x + LINE_NAME_COLUMN_WIDTH + rest_width + 24, pos.y+16 + 14 + SCL_HEIGHT + D_BUTTON_HEIGHT*2 +4 , buf, COL_BLACK);
+		display_multiline_text(pos.x + LINE_NAME_COLUMN_WIDTH + rest_width + 24, pos.y+16 + 14 + SCL_HEIGHT + D_BUTTON_HEIGHT*2 +4 , buf, SYSCOL_TEXT);
 	}
 }
 

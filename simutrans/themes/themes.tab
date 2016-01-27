@@ -33,6 +33,12 @@ gui_text_highlight= #FFFFFF
 # Use the default height
 #gui_button_height = 22
 
+# Having a colourful ticker is problematic because lots of different coloured text needs
+# to be able to be displayed there. The default grey is probably preferable. 
+#gui_color_ticker_background = 7
+
+gui_color_text_title = 4
+
 # larger icons too
 icon_width = 32
 
@@ -69,6 +75,8 @@ bottom_window_bar_color = 3
 front_window_text_color = 215
 bottom_window_text_color = 209
 
+
+
 ##################################size stuff##################################
 
 # maximum size of tool bars in tools (0 = no limit)
@@ -80,4 +88,4 @@ toolbar_max_height = 0
 ##################################pakstuff##################################
 
 # pak with the images for this theme
-themeimages=menu.standard.pak
+themeimages=menu.newstandard.pak

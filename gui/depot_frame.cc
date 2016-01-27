@@ -53,8 +53,8 @@ depot_frame_t::depot_frame_t(depot_t* depot) :
 	gui_frame_t( translator::translate(depot->get_name()), depot->get_owner()),
 	depot(depot),
 	icnv(depot->convoi_count()-1),
-	lb_convois(NULL, COL_BLACK, gui_label_t::left),
-	lb_convoi_line("Serves Line:", COL_BLACK, gui_label_t::left),
+	lb_convois(NULL, SYSCOL_TEXT, gui_label_t::left),
+	lb_convoi_line("Serves Line:", SYSCOL_TEXT, gui_label_t::left),
 	convoy_assembler(depot->get_wegtyp(), depot->get_player_nr(), check_way_electrified(true) )
 {
 DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->get_max_convoi_length());
@@ -438,7 +438,7 @@ void depot_frame_t::update_data()
 
 	// update convoy selector
 	convoy_selector.clear_elements();
-	convoy_selector.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( new_convoy_text, COL_BLACK ) );
+	convoy_selector.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( new_convoy_text, SYSCOL_TEXT ) );
 	convoy_selector.set_selection(0);
 
 	// check all matching convoys
@@ -457,23 +457,23 @@ void depot_frame_t::update_data()
 	}
 	if(  cnv.is_bound()  &&  cnv->get_schedule()  &&  !cnv->get_schedule()->empty()  ) {
 		if(  cnv->get_line().is_bound()  ) {
-			line_selector.insert_element( new gui_scrolled_list_t::const_text_scrollitem_t( new_line_text, COL_BLACK ) );
-			line_selector.insert_element( new gui_scrolled_list_t::const_text_scrollitem_t( clear_schedule_text, COL_BLACK ) );
+			line_selector.insert_element( new gui_scrolled_list_t::const_text_scrollitem_t( new_line_text, SYSCOL_TEXT ) );
+			line_selector.insert_element( new gui_scrolled_list_t::const_text_scrollitem_t( clear_schedule_text, SYSCOL_TEXT ) );
 		}
 		else {
-			line_selector.insert_element( new gui_scrolled_list_t::const_text_scrollitem_t( promote_to_line_text, COL_BLACK ) );
-			line_selector.insert_element( new gui_scrolled_list_t::const_text_scrollitem_t( unique_schedule_text, COL_BLACK ) );
+			line_selector.insert_element( new gui_scrolled_list_t::const_text_scrollitem_t( promote_to_line_text, SYSCOL_TEXT ) );
+			line_selector.insert_element( new gui_scrolled_list_t::const_text_scrollitem_t( unique_schedule_text, SYSCOL_TEXT ) );
 		}
 	}
 	else {
-		line_selector.insert_element( new gui_scrolled_list_t::const_text_scrollitem_t( new_line_text, COL_BLACK ) );
-		line_selector.insert_element( new gui_scrolled_list_t::const_text_scrollitem_t( no_schedule_text, COL_BLACK ) );
+		line_selector.insert_element( new gui_scrolled_list_t::const_text_scrollitem_t( new_line_text, SYSCOL_TEXT ) );
+		line_selector.insert_element( new gui_scrolled_list_t::const_text_scrollitem_t( no_schedule_text, SYSCOL_TEXT ) );
 	}
 	if(  !selected_line.is_bound()  ) {
 		// select "create new schedule"
 		line_selector.set_selection( 0 );
 	}
-	line_selector.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( line_seperator, COL_BLACK ) );
+	line_selector.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( line_seperator, SYSCOL_TEXT ) );
 
 	// check all matching lines
 	selected_line = linehandle_t();
@@ -722,11 +722,11 @@ bool depot_frame_t::infowin_event(const event_t *ev)
 	}
 	else {
 		if(IS_LEFTCLICK(ev)  ) {
-			if(  !convoy_selector.is_hit(ev->cx, ev->cy-16)  &&  convoy_selector.is_dropped()  ) {
+			if(  !convoy_selector.getroffen(ev->cx, ev->cy-16)  &&  convoy_selector.is_dropped()  ) {
 				// close combo box; we must do it ourselves, since the box does not receive outside events ...
 				convoy_selector.close_box();
 			}
-			if(  line_selector.is_dropped()  &&  !line_selector.is_hit(ev->cx, ev->cy-16)  ) {
+			if(  line_selector.is_dropped()  &&  !line_selector.getroffen(ev->cx, ev->cy-16)  ) {
 				// close combo box; we must do it ourselves, since the box does not receive outside events ...
 				line_selector.close_box();
 				if(  line_selector.get_selection() < last_selected_line.is_bound()+3  &&  get_focus() == &line_selector  ) {

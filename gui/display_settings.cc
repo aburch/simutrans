@@ -465,13 +465,13 @@ void color_gui_t::draw(scr_coord pos, scr_size size)
 		const char *text = translator::translate("show station names");
 		switch( env_t::show_names >> 2 ) {
 			case 0:
-				display_ddd_proportional_clip( 16+x+buttons[18].get_pos().x, y+buttons[18].get_pos().y+(LINESPACE/2), proportional_string_width(text)+7, 0, pc, COL_BLACK, text, 1 );
+				display_ddd_proportional_clip( 16+x+buttons[18].get_pos().x, y+buttons[18].get_pos().y+(LINESPACE/2), proportional_string_width(text)+7, 0, pc, SYSCOL_TEXT, text, 1 );
 				break;
 			case 1:
-				display_outline_proportional( 16+x+buttons[18].get_pos().x, y+buttons[18].get_pos().y, pc+1, COL_BLACK, text, 1 );
+				display_outline_proportional( 16+x+buttons[18].get_pos().x, y+buttons[18].get_pos().y, pc+1, SYSCOL_TEXT, text, 1 );
 				break;
 			case 2:
-				display_outline_proportional( 16+x+buttons[18].get_pos().x+16, y+buttons[18].get_pos().y, COL_YELLOW, COL_BLACK, text, 1 );
+				display_outline_proportional( 16+x+buttons[18].get_pos().x+16, y+buttons[18].get_pos().y, COL_YELLOW, SYSCOL_TEXT, text, 1 );
 				display_ddd_box_clip( 16+x+buttons[18].get_pos().x, y+buttons[18].get_pos().y, LINESPACE, LINESPACE, pc-2, pc+2 );
 				display_fillbox_wh(16 + x + buttons[18].get_pos().x + 1, y + buttons[18].get_pos().y + 1, LINESPACE - 2, LINESPACE - 2, pc, true);
 				break;
@@ -485,24 +485,24 @@ void color_gui_t::draw(scr_coord pos, scr_size size)
 	display_ddd_box_clip(x+10, y+SEPERATE3+1, w-20, 0, MN_GREY0, MN_GREY4);
 	display_ddd_box_clip(x+10, y+SEPERATE4+1, w-20, 0, MN_GREY0, MN_GREY4);
 
-	display_proportional_clip(x+10, y+BRIGHTNESS+1, translator::translate("1LIGHT_CHOOSE"), ALIGN_LEFT, COL_BLACK, true);
+	display_proportional_clip(x+10, y+BRIGHTNESS+1, translator::translate("1LIGHT_CHOOSE"), ALIGN_LEFT, SYSCOL_TEXT, true);
 
-	display_proportional_clip(x+10, y+SCROLL_SPEED+1, translator::translate("3LIGHT_CHOOSE"), ALIGN_LEFT, COL_BLACK, true);
+	display_proportional_clip(x+10, y+SCROLL_SPEED+1, translator::translate("3LIGHT_CHOOSE"), ALIGN_LEFT, SYSCOL_TEXT, true);
 
-	display_proportional_clip(x+10, y+DENS_TRAFFIC+1, translator::translate("6WORLD_CHOOSE"), ALIGN_LEFT, COL_BLACK, true);
+	display_proportional_clip(x+10, y+DENS_TRAFFIC+1, translator::translate("6WORLD_CHOOSE"), ALIGN_LEFT, SYSCOL_TEXT, true);
 
 	const char *hhc = translator::translate( env_t::hide_buildings==0 ? "no buildings hidden" : (env_t::hide_buildings==1 ? "hide city building" : "hide all building") );
-	display_proportional_clip(x+10+16, y+HIDE_CITY_HOUSES+1, hhc, ALIGN_LEFT, COL_BLACK, true);
+	display_proportional_clip(x+10+16, y+HIDE_CITY_HOUSES+1, hhc, ALIGN_LEFT, SYSCOL_TEXT, true);
 
 	const char *ctc = translator::translate( env_t::show_vehicle_states==0 ? "convoi error tooltips" : (env_t::show_vehicle_states==1 ? "convoi mouseover tooltips" : "all convoi tooltips") );
-	display_proportional_clip(x+10+16, y+CONVOI_TOOLTIPS+1, ctc, ALIGN_LEFT, COL_BLACK, true);
+	display_proportional_clip(x+10+16, y+CONVOI_TOOLTIPS+1, ctc, ALIGN_LEFT, SYSCOL_TEXT, true);
 
-	int len=15+display_proportional_clip(x+10, y+FPS_DATA, translator::translate("Frame time:"), ALIGN_LEFT, COL_BLACK, true);
+	int len=15+display_proportional_clip(x+10, y+FPS_DATA, translator::translate("Frame time:"), ALIGN_LEFT, SYSCOL_TEXT, true);
 	sprintf(buf,"%ld ms", get_frame_time() );
-	display_proportional_clip(x+len, y+FPS_DATA, buf, ALIGN_LEFT, COL_WHITE, true);
+	display_proportional_clip(x+len, y+FPS_DATA, buf, ALIGN_LEFT, SYSCOL_TEXT_HIGHLIGHT, true);
 
-	len = 15+display_proportional_clip(x+10, y+IDLE_DATA, translator::translate("Idle:"), ALIGN_LEFT, COL_BLACK, true);
-	display_proportional_clip(x+len, y+IDLE_DATA, ntos(welt->get_schlaf_zeit(), "%d ms"), ALIGN_LEFT, COL_WHITE, true);
+	len = 15+display_proportional_clip(x+10, y+IDLE_DATA, translator::translate("Idle:"), ALIGN_LEFT, SYSCOL_TEXT, true);
+	display_proportional_clip(x+len, y+IDLE_DATA, ntos(welt->get_schlaf_zeit(), "%d ms"), ALIGN_LEFT, SYSCOL_TEXT_HIGHLIGHT, true);
 
 	uint8 farbe;
 	uint32 loops;
@@ -512,7 +512,7 @@ void color_gui_t::draw(scr_coord pos, scr_size size)
 	if(loops<(target_fps*3)/4) {
 		farbe = (loops<=target_fps/2) ? COL_RED : COL_YELLOW;
 	}
-	len = 15+display_proportional_clip(x+10, y+FRAME_DATA, translator::translate("FPS:"), ALIGN_LEFT, COL_BLACK, true);
+	len = 15+display_proportional_clip(x+10, y+FRAME_DATA, translator::translate("FPS:"), ALIGN_LEFT, SYSCOL_TEXT, true);
 	sprintf(buf,"%d fps", loops );
 #ifdef DEBUG
 	if(  env_t::simple_drawing  ) {
@@ -526,15 +526,15 @@ void color_gui_t::draw(scr_coord pos, scr_size size)
 	if(loops<=30) {
 		farbe = (loops<=20) ? COL_RED : COL_YELLOW;
 	}
-	len = 15+display_proportional_clip(x+10, y+LOOP_DATA, translator::translate("Sim:"), ALIGN_LEFT, COL_BLACK, true);
+	len = 15+display_proportional_clip(x+10, y+LOOP_DATA, translator::translate("Sim:"), ALIGN_LEFT, SYSCOL_TEXT, true);
 	sprintf( buf, "%d%c%d", loops/10, get_fraction_sep(), loops%10 );
 	display_proportional_clip(x+len, y+LOOP_DATA, buf, ALIGN_LEFT, farbe, true);
 
 	// Added by : Knightly
 	PLAYER_COLOR_VAL text_colour, figure_colour;
 
-	text_colour = COL_BLACK;
-	figure_colour = COL_BLUE;
+	text_colour = SYSCOL_TEXT;
+	figure_colour = SYSCOL_TEXT_TITLE;
 
 	char status_string[32];
 	if ( path_explorer_t::is_processing() )

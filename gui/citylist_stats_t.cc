@@ -162,7 +162,7 @@ void citylist_stats_t::draw(scr_coord offset)
 			sel --;
 
 			if(  win_get_magic( (ptrdiff_t)stadt )  ) {
-				display_blend_wh( offset.x, offset.y, size.w, LINESPACE, COL_BLACK, 25 );
+				display_blend_wh( offset.x, offset.y, size.w, LINESPACE, SYSCOL_TEXT, 25 );
 			}
 		}
 		total_bev    += population;

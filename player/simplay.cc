@@ -288,7 +288,7 @@ void player_t::display_messages()
 
 		const scr_coord scr_pos = vp->get_screen_coord(koord3d(m->pos,welt->lookup_hgt(m->pos)),koord(0,m->alter >> 4));
 
-		display_shadow_proportional( scr_pos.x, scr_pos.y, PLAYER_FLAG|(player_color_1+3), COL_BLACK, m->str, true);
+		display_shadow_proportional( scr_pos.x, scr_pos.y, PLAYER_FLAG|(player_color_1+3), SYSCOL_TEXT_SHADOW, m->str, true);
 		if(  m->pos.x < 3  ||  m->pos.y < 3  ) {
 			// very close to border => renew background
 			welt->set_background_dirty();

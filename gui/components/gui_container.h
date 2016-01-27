@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
+ * Copyright (c) 1997 - 2001 Hansjorg Malthaner
  *
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
@@ -7,7 +7,7 @@
 
 /**
  * A container for other gui_components. Is itself
- * a gui_component, and can therefor be nested.
+ * a gui_component, and can therefore be nested.
  *
  * @author Hj. Malthaner
  * @date 03-Mar-01
@@ -27,7 +27,7 @@ class gui_container_t : public gui_component_t
 private:
 	slist_tpl <gui_component_t *> components;
 
-	// holds the GUI Komponent that has the focus in this window
+	// holds the GUI component that has the focus in this window
 	gui_component_t *comp_focus;
 
 	bool list_dirty:1;

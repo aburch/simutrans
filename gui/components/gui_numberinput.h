@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
+ * Copyright (c) 1997 - 2001 Hansjorg Malthaner
  *
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
@@ -24,8 +24,6 @@
 #include "../gui_theme.h"
 
 
-#define NUM_PERCENT (8)
-
 class gui_numberinput_t :
 	public gui_action_creator_t,
 	public gui_component_t,
@@ -35,7 +33,7 @@ private:
 	bool check_value(sint32 _value);
 
 	// more sophisticated increase routines
-	static sint8 percent[NUM_PERCENT];
+	static sint8 percent[7];
 	sint32 get_prev_value();
 	sint32 get_next_value();
 

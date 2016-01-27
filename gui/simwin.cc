@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997 - 2003 Hansjörg Malthaner
+ * Copyright (c) 1997 - 2003 Hansjorg Malthaner
  *
  * This file is part of the Simutrans project under the artistic license.
  * (see license.txt)
@@ -153,7 +153,7 @@ static void *inside_event_handling = NULL;
 // only this gui element can set a tooltip
 static void *tooltip_element = NULL;
 
-static void destroy_framed_win(simwin_t *win);
+static bool destroy_framed_win(simwin_t *win);
 
 //=========================================================================
 // Helper Functions
@@ -173,7 +173,7 @@ static int display_gadget_box(sint8 code,
 	// If we have a skin, get gadget image data
 	const bild_t *img = NULL;
 	if(  skinverwaltung_t::gadget  ) {
-		// "x", "?", "=", "«", "»"
+		// "x", "?", "=", "?", "?"
 		const bild_besch_t *pic = skinverwaltung_t::gadget->get_image(code);
 		if (  pic != NULL  ) {
 			img = pic->get_pic();
@@ -321,7 +321,7 @@ static sint8 decode_gadget_boxes(
 //-------------------------------------------------------------------------
 // (Mathew Hounsell) Re-factored
 static void win_draw_window_title(const scr_coord pos, const scr_size size,
-		const PLAYER_COLOR_VAL title_farbe,
+		const PLAYER_COLOR_VAL titel_farbe,
 		const char * const text,
 		const PLAYER_COLOR_VAL text_farbe,
 		const koord3d welt_pos,
@@ -331,14 +331,14 @@ static void win_draw_window_title(const scr_coord pos, const scr_size size,
 		simwin_gadget_flags_t &flags )
 {
 	PUSH_CLIP(pos.x, pos.y, size.w, size.h);
-	display_fillbox_wh_clip(pos.x, pos.y, size.w, 1, title_farbe+1, false);
-	display_fillbox_wh_clip(pos.x, pos.y+1, size.w, D_TITLEBAR_HEIGHT-2, title_farbe, false);
+	display_fillbox_wh_clip(pos.x, pos.y, size.w, 1, titel_farbe+1, false);
+	display_fillbox_wh_clip(pos.x, pos.y+1, size.w, D_TITLEBAR_HEIGHT-2, titel_farbe, false);
 	display_fillbox_wh_clip(pos.x, pos.y+D_TITLEBAR_HEIGHT-1, size.w, 1, COL_BLACK, false);
 	display_vline_wh_clip(pos.x+size.w-1, pos.y,   D_TITLEBAR_HEIGHT-1, COL_BLACK, false);
 
 	// Draw the gadgets and then move left and draw text.
 	flags.gotopos = (welt_pos != koord3d::invalid);
-	int width = display_gadget_boxes( &flags, pos.x+(REVERSE_GADGETS?0:size.w-D_GADGET_WIDTH-4), pos.y, title_farbe, gadget_state, sticky, goto_pushed );
+	int width = display_gadget_boxes( &flags, pos.x+(REVERSE_GADGETS?0:size.w-D_GADGET_WIDTH-4), pos.y, titel_farbe, gadget_state, sticky, goto_pushed );
 	int titlewidth = display_proportional_clip( pos.x + (REVERSE_GADGETS?width+4:4), pos.y+(D_TITLEBAR_HEIGHT-LINEASCENT)/2, text, ALIGN_LEFT, text_farbe, false );
 	if(  flags.gotopos  ) {
 		display_proportional_clip( pos.x + (REVERSE_GADGETS?width+4:4)+titlewidth+8, pos.y+(D_TITLEBAR_HEIGHT-LINEASCENT)/2, welt_pos.get_2d().get_fullstr(), ALIGN_LEFT, text_farbe, false );
@@ -385,6 +385,22 @@ gui_frame_t *win_get_magic(ptrdiff_t magic)
 		}
 	}
 	return NULL;
+}
+
+
+// sets the magic of a gui_frame_t (needed during reload of windows)
+bool win_set_magic( gui_frame_t *gui, ptrdiff_t magic )
+{
+	if(  magic!=-1  &&  magic!=0  ) {
+		// there is at most one window with a positive magic number
+		FOR( vector_tpl<simwin_t>, &i, wins ) {
+			if(  i.gui == gui  ) {
+				i.magic_number = magic;
+				return true;
+			}
+		}
+	}
+	return false;
 }
 
 
@@ -439,6 +455,7 @@ bool top_win( const gui_frame_t *gui, bool keep_rollup )
 	return false;
 }
 
+
 /**
  * Checks if a window is a top level window
  * @author Hj. Malthaner
@@ -455,9 +472,6 @@ bool win_is_top(const gui_frame_t *ig)
 // save/restore all dialogues
 void rdwr_all_win(loadsave_t *file)
 {
-	//FIXME: This does not work in Experimental, so disable this code for now.
-	//return;
-
 	if(  file->get_version()>102003  ) {
 		if(  file->is_saving()  ) {
 			FOR(vector_tpl<simwin_t>, & i, wins) {
@@ -545,7 +559,6 @@ void rdwr_all_win(loadsave_t *file)
 		}
 	}
 }
-
 
 
 int create_win(gui_frame_t* const gui, wintype const wt, ptrdiff_t const magic)
@@ -704,13 +717,16 @@ static void process_kill_list()
  * Destroy a framed window
  * @author Hj. Malthaner
  */
-static void destroy_framed_win(simwin_t *wins)
+static bool destroy_framed_win(simwin_t *wins)
 {
+	bool r = true;
+
 	// mark dirty
 	const scr_size size = wins->gui->get_windowsize();
 	mark_rect_dirty_wc( wins->pos.x - 1, wins->pos.y - 1, wins->pos.x + size.w + 2, wins->pos.y + size.h + 2 ); // -1, +2 for env_t::window_frame_active
 
-	if(wins->gui) {
+	gui_frame_t* gui = wins->gui; // save pointer to gui window: might be modified in event handling, or could be modified if wins points to value in kill_list and kill_list is modified! nasty surprise
+	if(  gui  ) {
 		event_t ev;
 
 		ev.ev_class = INFOWIN;
@@ -722,32 +738,34 @@ static void destroy_framed_win(simwin_t *wins)
 		ev.button_state = 0;
 
 		void *old = inside_event_handling;
-		inside_event_handling = wins->gui;
+		inside_event_handling = gui;
 		wins->gui->infowin_event(&ev);
 		inside_event_handling = old;
 	}
 
-	if(  (wins->wt&w_do_not_delete)==0  ) {
-
-		// save pointer to gui window:
-		// could be modified if wins points to value in kill_list and kill_list is modified! nasty surprise
-		gui_frame_t* gui = wins->gui;
-		// remove from kill list first
-		// otherwise delete will be called again on that window
-		for(  uint j = 0;  j < kill_list.get_count();  j++  ) {
-			if(  kill_list[j].gui == gui  ) {
-				kill_list.remove_at(j);
-				break;
+	if(  (wins->wt&w_do_not_delete) == 0  ) {
+		if(  wins->gui == gui  ) {
+			// remove from kill list first, otherwise delete will be called again on that window
+			for(  uint32 j = 0;  j < kill_list.get_count();  j++  ) {
+				if(  kill_list[j].gui == gui  ) {
+					kill_list.remove_at(j);
+					break;
+				}
 			}
+			delete gui;
 		}
-		delete gui;
+		else {
+			// wins likely modified during event handling. Assume this was just a schedule window destroying itself, and top_win() therefore modifying wins.
+			// return false to signal destroy_all_win() that wins was already modified.
+			r = false;
+		}
 	}
 	// set dirty flag to refill background
-	if(wl) {
+	if(  wl  ) {
 		wl->set_background_dirty();
 	}
+	return r;
 }
-
 
 
 bool destroy_win(const ptrdiff_t magic)
@@ -758,7 +776,6 @@ bool destroy_win(const ptrdiff_t magic)
 	}
 	return false;
 }
-
 
 
 bool destroy_win(const gui_frame_t *gui)
@@ -796,21 +813,25 @@ bool destroy_win(const gui_frame_t *gui)
 }
 
 
-
 void destroy_all_win(bool destroy_sticky)
 {
-	for ( int curWin=0 ; curWin < (int)wins.get_count() ; curWin++ ) {
-		if(  destroy_sticky  || !wins[curWin].sticky  ) {
-			if(  inside_event_handling==wins[curWin].gui  ) {
+	for(  sint32 curWin = 0;  curWin < (sint32)wins.get_count();  curWin++  ) {
+		if(  destroy_sticky  ||  !wins[curWin].sticky  ) {
+			if(  inside_event_handling == wins[curWin].gui  ) {
 				// only add this, if not already added
 				kill_list.append_unique(wins[curWin]);
+				// compact the window list
+				wins.remove_at(curWin);
+				curWin--;
 			}
 			else {
-				destroy_framed_win(&wins[curWin]);
+				if(  destroy_framed_win(&wins[curWin])  ) {
+					// compact the window list
+					wins.remove_at(curWin);
+					curWin--;
+				}
+				// else wins was already modified - assume by the schedule window closing itself during event handling
 			}
-			// compact the window list
-			wins.remove_at(curWin);
-			curWin--;
 		}
 	}
 }
@@ -1443,7 +1464,7 @@ void win_poll_event(event_t* const ev)
 	if(  ev->ev_class==EVENT_SYSTEM  &&  ev->ev_code==SYSTEM_RELOAD_WINDOWS  ) {
 		chdir( env_t::user_dir );
 		loadsave_t dlg;
-		if(  dlg.wr_open( "dlgpos.xml", loadsave_t::xml_zipped, "temp", SERVER_SAVEGAME_VER_NR, EXPERIMENTAL_SAVEGAME_VERSION, EXPERIMENTAL_REVISION_NR )  ) {
+		if(  dlg.wr_open( "dlgpos.xml", loadsave_t::xml_zipped, "temp", SERVER_SAVEGAME_VER_NR, EXPERIMENTAL_VER_NR, EXPERIMENTAL_REVISION_NR )  ) {
 			// save all
 			rdwr_all_win( &dlg );
 			dlg.close();
@@ -1468,8 +1489,8 @@ void win_display_flush(double konto)
 	// display main menu
 	tool_selector_t *main_menu = tool_t::toolbar_tool[0]->get_tool_selector();
 	display_set_clip_wh( 0, 0, disp_width, menu_height+1 );
-	if(  skinverwaltung_t::toolbar_background  ) {
-		image_id back_img = skinverwaltung_t::toolbar_background->get_bild_nr(0);
+	if(  skinverwaltung_t::toolbar_background  &&  skinverwaltung_t::toolbar_background->get_bild_nr(0) != IMG_LEER  ) {
+		const image_id back_img = skinverwaltung_t::toolbar_background->get_bild_nr(0);
 		scr_coord_val w = env_t::iconsize.w;
 		scr_rect row = scr_rect( 0, 0, disp_width, menu_height );
 		display_fit_img_to_width( back_img, w );
@@ -1486,7 +1507,8 @@ void win_display_flush(double konto)
 			display_color_img( back_img, row.x, row.y, 0, false, true );
 			display_set_clip_wh( cl.x, cl.y, cl.w, cl.h );
 		}
-	} else {
+	}
+	else {
 		display_fillbox_wh( 0, 0, disp_width, menu_height, MN_GREY2, false );
 	}
 	// .. extra logic to enable tooltips
@@ -1514,8 +1536,8 @@ void win_display_flush(double konto)
 		}
 	}
 
-	if(  skinverwaltung_t::compass_iso  ) {
-		display_img_aligned( skinverwaltung_t::compass_iso->get_bild_nr( wl->get_settings().get_rotation() ), scr_rect(4,menu_height+4,disp_width-2*4,disp_height-menu_height-15-2*4-(TICKER_HEIGHT)*show_ticker), ALIGN_RIGHT|ALIGN_BOTTOM, false );
+	if(  skinverwaltung_t::compass_iso  &&  env_t::compass_screen_position  ) {
+		display_img_aligned( skinverwaltung_t::compass_iso->get_bild_nr( wl->get_settings().get_rotation() ), scr_rect(4,menu_height+4,disp_width-2*4,disp_height-menu_height-15-2*4-(TICKER_HEIGHT)*show_ticker), env_t::compass_screen_position, false );
 	}
 
 	// ok, we want to clip the height for everything!
@@ -1564,93 +1586,12 @@ void win_display_flush(double konto)
 		}
 	}
 
-	//koord3d pos;
-	//sint64 ticks=1, month=0, year=0;
+	char const *time = tick_to_string( wl->get_zeit_ms(), true );
 
-	const obj_t *obj = wl->get_zeiger();
-	const koord3d pos = obj->get_pos();
-	const uint32 month = wl->get_last_month();
-	const sint32 year = wl->get_last_year();
-	const sint64 ticks = wl->get_zeit_ms();
-
-	// calculate also days if desired
-	const sint64 ticks_this_month = ticks % wl->ticks_per_world_month;
-	uint32 tage, stunden, minuten;
-	char ticks_as_clock[32], month_as_clock[32];
-	if (env_t::show_month > env_t::DATE_FMT_MONTH && env_t::show_month < env_t::DATE_FMT_INTERNAL_MINUTE) {
-		static sint32 tage_per_month[12]={31,28,31,30,31,30,31,31,30,31,30,31};
-		tage = ((ticks_this_month*tage_per_month[month]) >> wl->ticks_per_world_month_shift) + 1;
-		stunden = ((ticks_this_month*tage_per_month[month]) >> (wl->ticks_per_world_month_shift-16));
-		minuten = (((stunden*3) % 8192)*60)/8192;
-		stunden = ((stunden*3) / 8192)%24;
-	} else if (env_t::show_month == env_t::DATE_FMT_INTERNAL_MINUTE) {
-		wl->sprintf_ticks(ticks_as_clock, sizeof(ticks_as_clock), ticks_this_month);
-		wl->sprintf_ticks(month_as_clock, sizeof(month_as_clock), wl->ticks_per_world_month);
-
-	} else {
-		tage = 0;
-		stunden = (ticks_this_month * 24) >> wl->ticks_per_world_month_shift;
-		minuten = ((ticks_this_month * 24 * 60) >> wl->ticks_per_world_month_shift)%60;
-	}
-
-	char time [128];
-
-//DBG_MESSAGE("env_t::show_month","%d",env_t::show_month);
-	// @author hsiegeln - updated to show month
-	// @author prissi - also show date if desired
-	// since seaons 0 is always summer for backward compatibility
-	static char const* const seasons[] = { "q2", "q3", "q4", "q1" };
-	char const* const season = translator::translate(seasons[wl->get_season()]);
-	char const* const month_ = translator::get_month_name(month % 12);
-	switch (env_t::show_month) {
-		case env_t::DATE_FMT_GERMAN_NO_SEASON:
-			sprintf(time, "%d. %s %d %d:%02dh", tage, month_, year, stunden, minuten);
-			break;
-
-		case env_t::DATE_FMT_US_NO_SEASON: {
-			uint32 hours_ = stunden % 12;
-			if (hours_ == 0) hours_ = 12;
-			sprintf(time, "%s %d %d %2d:%02d%s", month_, tage, year, hours_, minuten, stunden < 12 ? "am" : "pm");
-			break;
-		}
-
-		case env_t::DATE_FMT_JAPANESE_NO_SEASON:
-			sprintf(time, "%d/%s/%d %2d:%02dh", year, month_, tage, stunden, minuten);
-			break;
-
-		case env_t::DATE_FMT_GERMAN:
-			sprintf(time, "%s, %d. %s %d %d:%02dh", season, tage, month_, year, stunden, minuten);
-			break;
-
-		case env_t::DATE_FMT_US: {
-			uint32 hours_ = stunden % 12;
-			if (hours_ == 0) hours_ = 12;
-			sprintf(time, "%s, %s %d %d %2d:%02d%s", season, month_, tage, year, hours_, minuten, stunden < 12 ? "am" : "pm");
-			break;
-		}
-
-		case env_t::DATE_FMT_JAPANESE:
-			sprintf(time, "%s, %d/%s/%d %2d:%02dh", season, year, month_, tage, stunden, minuten);
-			break;
-
-		case env_t::DATE_FMT_MONTH:
-			sprintf(time, "%s, %s %d %2d:%02dh", month_, season, year, stunden, minuten);
-			break;
-
-		case env_t::DATE_FMT_SEASON:
-			sprintf(time, "%s %d", season, year);
-			break;
-
-		case env_t::DATE_FMT_INTERNAL_MINUTE:
-			sprintf(time, "%s %d %s %s/%s", season, year, month_, ticks_as_clock, month_as_clock);
-			break;
-	}
-	//char const *time = tick_to_string( wl->get_zeit_ms(), true );
-
-	// bottom text background
+	// statusbar background
 	display_set_clip_wh( 0, 0, disp_width, disp_height );
-	display_fillbox_wh(0, disp_height-16, disp_width, 1, MN_GREY4, false);
-	display_fillbox_wh(0, disp_height-15, disp_width, 15, MN_GREY1, false);
+	display_fillbox_wh(0, disp_height-16, disp_width, 1, SYSCOL_STATUSBAR_DIVIDER, false);
+	display_fillbox_wh(0, disp_height-15, disp_width, 15, SYSCOL_STATUSBAR_BACKGROUND, false);
 
 	bool tooltip_check = get_maus_y()>disp_height-15;
 	if(  tooltip_check  ) {
@@ -1708,6 +1649,8 @@ void win_display_flush(double konto)
 		}
 	}
 
+	koord3d pos = wl->get_zeiger()->get_pos();
+
 	static cbuffer_t info;
 	info.clear();
 	if(  pos!=koord3d::invalid  ) {
@@ -1732,24 +1675,23 @@ void win_display_flush(double konto)
 		}
 	}
 #ifdef DEBUG
-//	if(  env_t::verbose_debug>3  ) {
-//		if(  haltestelle_t::get_rerouting_status()==RECONNECTING  ) {
-//			info.append( " +" );
-//		}
-//		else if(  haltestelle_t::get_rerouting_status()==REROUTING  ) {
-//			info.append( " *" );
-//		}
-//	}
-
-	if(  skinverwaltung_t::compass_iso == NULL  &&  wl->get_settings().get_rotation()  ) {
-			static char *compass_dir[4] = { "North", "East", "South", "West" };
+	if(  env_t::verbose_debug>3  ) {
+		/*if(  haltestelle_t::get_rerouting_status()==RECONNECTING  ) {
+			info.append( " +" );
+		}
+		else if(  haltestelle_t::get_rerouting_status()==REROUTING  ) {
+			info.append( " *" );
+		}*/
+		if(  skinverwaltung_t::compass_iso == NULL  &&  wl->get_settings().get_rotation()  ) {
+			static const char *compass_dir[4] = { "North", "East", "South", "West" };
 			info.append( " " );
 			info.append( translator::translate( compass_dir[ 4-wl->get_settings().get_rotation() ] ) );
 		}
+	}
 #endif
 
-	scr_coord_val w_left = 20+display_proportional(20, disp_height-12, time, ALIGN_LEFT, COL_BLACK, true);
-	scr_coord_val w_right  = display_proportional(right_border-4, disp_height-12, info, ALIGN_RIGHT, COL_BLACK, true);
+	scr_coord_val w_left = 20+display_proportional(20, disp_height-12, time, ALIGN_LEFT, SYSCOL_STATUSBAR_TEXT, true);
+	scr_coord_val w_right  = display_proportional(right_border-4, disp_height-12, info, ALIGN_RIGHT, SYSCOL_STATUSBAR_TEXT, true);
 	scr_coord_val middle = (disp_width+((w_left+8)&0xFFF0)-((w_right+8)&0xFFF0))/2;
 
 	if(wl->get_active_player()) {
@@ -1838,7 +1780,6 @@ void win_set_tooltip(int xpos, int ypos, const char *text, const void *const own
 }
 
 
-
 /**
  * Sets the tooltip to display.
  * @author Hj. Malthaner
@@ -1847,4 +1788,3 @@ void win_set_static_tooltip(const char *text)
 {
 	static_tooltip_text = text;
 }
-

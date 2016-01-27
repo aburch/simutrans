@@ -15,17 +15,21 @@
 #include "gui_scrollbar.h"
 #include "gui_scrolled_list.h"
 
+#include "../simwin.h"
+
 #include "../../display/simgraph.h"
 #include "../../simcolor.h"
 #include "../../besch/skin_besch.h"
 #include "../../simskin.h"
-#include "../../gui/simwin.h"
 
 
 // help for sorting
-bool  gui_scrolled_list_t::const_text_scrollitem_t::compare( scrollitem_t *a, scrollitem_t *b )
+bool  gui_scrolled_list_t::const_text_scrollitem_t::compare( scrollitem_t *aa, scrollitem_t *bb )
 {
-	return strcmp( ((const_text_scrollitem_t *)a)->get_text(), ((const_text_scrollitem_t *)b)->get_text() );
+	const_text_scrollitem_t* a = dynamic_cast<const_text_scrollitem_t*>(aa);
+	const_text_scrollitem_t* b = dynamic_cast<const_text_scrollitem_t*>(bb);
+	assert(a != NULL  &&  b != NULL);
+	return strcmp(a->get_text(), b->get_text() );
 }
 
 
@@ -44,20 +48,14 @@ bool  gui_scrolled_list_t::const_text_scrollitem_t::sort( vector_tpl<scrollitem_
 scr_coord_val gui_scrolled_list_t::const_text_scrollitem_t::draw( scr_coord pos, scr_coord_val w, bool selected, bool focus )
 {
 	if(selected) {
-		// the selection is grey on color
-		display_fillbox_wh_clip( pos.x+3, pos.y-1, w-5, LINESPACE, COL_BLUE, true);
-		return display_proportional_clip( pos.x+7, pos.y, get_text(), ALIGN_LEFT, (focus ? COL_WHITE : MN_GREY3), true);
+		// selected element
+		display_fillbox_wh_clip( pos.x+3, pos.y-1, w-5, get_h()+1, (focus ? SYSCOL_LIST_BACKGROUND_SELECTED_F : SYSCOL_LIST_BACKGROUND_SELECTED_NF), true);
+		return display_proportional_clip( pos.x+7, pos.y, get_text(), ALIGN_LEFT, (focus ? SYSCOL_LIST_TEXT_SELECTED_FOCUS : SYSCOL_LIST_TEXT_SELECTED_NOFOCUS), true);
 	}
 	else {
 		// normal text
 		return display_proportional_clip( pos.x+7, pos.y, get_text(), ALIGN_LEFT, get_color(), true);
 	}
-}
-
-
-int gui_scrolled_list_t::total_vertical_size() const
-{
-	return item_list.get_count() * LINESPACE + 2;
 }
 
 
@@ -80,6 +78,7 @@ gui_scrolled_list_t::gui_scrolled_list_t(enum type type) :
 	}
 	sb.add_listener(this);
 	sb.set_knob_offset(0);
+	sb.set_visible_mode( scrollbar_t::show_auto );
 
 	clear_elements();
 }
@@ -94,17 +93,19 @@ bool gui_scrolled_list_t::action_triggered( gui_action_creator_t * /* comp */, v
 
 
 // set the scrollbar offset, so that the selected item is visible
-void gui_scrolled_list_t::show_selection(int s)
+void gui_scrolled_list_t::show_selection(int sel)
 {
-	if(  (unsigned)s<item_list.get_count()  ) {
-		selection = s;
+	if(  (unsigned)sel<item_list.get_count()  ) {
+		int s = 0;
+		for(  int i=0;  i<sel;  s += item_list[i]->get_h(), i++  ) {
+		}
 DBG_MESSAGE("gui_scrolled_list_t::show_selection()","sel=%d, offset=%d, size.h=%d",s,offset,size.h);
-		s *= LINESPACE;
-		if(  s<offset  ||  (s+LINESPACE)>offset+size.h  ) {
+		if(  s < offset  ||  (s+item_list[sel]->get_h()) > offset+size.h  ) {
 			// outside range => reposition
 			sb.set_knob_offset( max(0,s-(size.h/2) ) );
 			offset = sb.get_knob_offset();
 		}
+		selection = sel;
 	}
 }
 
@@ -117,6 +118,7 @@ void gui_scrolled_list_t::clear_elements()
 	item_list.clear();
 	selection = -1;
 	offset = 0;
+	total_vertical_size = 0;
 	adjust_scrollbar();
 }
 
@@ -124,6 +126,7 @@ void gui_scrolled_list_t::clear_elements()
 void gui_scrolled_list_t::append_element( scrollitem_t *item )
 {
 	item_list.append( item );
+	total_vertical_size += item->get_h();
 	adjust_scrollbar();
 }
 
@@ -134,6 +137,7 @@ void gui_scrolled_list_t::insert_element( scrollitem_t *item )
 	if(  selection >=0 ) {
 		selection ++;
 	}
+	total_vertical_size += item->get_h();
 	adjust_scrollbar();
 }
 
@@ -181,13 +185,12 @@ scr_size gui_scrolled_list_t::request_size(scr_size request)
 
 	size.w = request.w;
 	int y = request.h;
-	int vz = total_vertical_size();
 
-	if (y > vz) {
-		y = vz;
+	if(  y > total_vertical_size  ) {
+		y = total_vertical_size;
 	}
 
-	if (y < YMIN) {
+	if(  y < YMIN  ) {
 		y = YMIN;
 	}
 
@@ -209,32 +212,48 @@ void gui_scrolled_list_t::set_size(scr_size size)
 /* resizes scrollbar */
 void gui_scrolled_list_t::adjust_scrollbar()
 {
-	sb.set_pos(scr_coord(size.w-D_SCROLLBAR_WIDTH,0));
+	sb.set_pos( scr_coord(size.w-D_SCROLLBAR_WIDTH,0) );
 	sb.set_size( scr_size( D_SCROLLBAR_WIDTH, (int)size.h + border - 1) );
-	sb.set_knob( size.h - border, total_vertical_size() );
+	sb.set_knob( size.h - border, total_vertical_size );
 }
 
 
 bool gui_scrolled_list_t::infowin_event(const event_t *ev)
 {
-	const int x = ev->cx;
-	const int y = ev->cy;
+	const int x = ev->mx;
+	const int y = ev->my;
 
 	// size without scrollbar
 	const int w = size.w - D_SCROLLBAR_WIDTH+2;
 	const int h = size.h;
 	if(x <= w) { // inside list
-		if(  IS_LEFTCLICK(ev)  &&  x>=(border/2) && x<(w-border/2) &&  y>=(border/2) && y<(h-border/2)) {
-			int new_selection = (y-(border/2)-2+offset);
-			if(new_selection>=0) {
-				new_selection/=LINESPACE;
-				if((unsigned)new_selection>=item_list.get_count()) {
+		bool notify = true;
+		if(  x>=(border/2) && x<(w-border/2) &&  y>=(border/2) && y<(h-border/2)) {
+			int new_selection_h = (y-(border/2)-2+offset);
+			int new_selection = -1;
+			if(  new_selection_h >= 0  ) {
+				int h = 0;
+				while(  new_selection+1 < (int)item_list.get_count()  &&  h < new_selection_h  ) {
+					new_selection ++;
+					h += item_list[new_selection]->get_h();
+				}
+				if(  h < new_selection  ||  new_selection < 0  ) {
+					// below end of list => no selection
 					new_selection = -1;
 				}
-				DBG_MESSAGE("gui_scrolled_list_t::infowin_event()","selected %i",selection);
+				else {
+					event_t new_ev = *ev;
+					translate_event( &new_ev, 0, -(h-item_list[new_selection]->get_h()) );
+					notify = !item_list[new_selection]->infowin_event( &new_ev );
+				}
 			}
-			selection = new_selection;
-			call_listeners((long)new_selection);
+			if(  IS_LEFTRELEASE(ev)  ) {
+				selection = new_selection;
+				if(  notify  ) {
+					// not handled oneself
+					call_listeners((long)new_selection);
+				}
+			}
 		}
 	}
 
@@ -243,11 +262,18 @@ bool gui_scrolled_list_t::infowin_event(const event_t *ev)
 		int new_selection = (ev->ev_code==SIM_KEY_DOWN) ? min(item_list.get_count()-1, selection+1) : max(0, selection-1);
 		selection = new_selection;
 		show_selection(selection);
-		call_listeners((long)new_selection);
+
+		event_t new_ev;
+		new_ev.ev_class = EVENT_KEYBOARD;
+		new_ev.ev_code = 0;
+		new_ev.button_state = 0;
+		if(  new_selection >= 0  ||  !item_list[new_selection]->infowin_event( &new_ev )  ) {
+			call_listeners((long)new_selection);
+		}
 		return true;
 	}
 
-	if(  sb.is_visible()  &&  (sb.is_hit(x, y)  ||  IS_WHEELUP(ev)  ||  IS_WHEELDOWN(ev))  ) {
+	if(  sb.is_visible()  &&  (sb.getroffen(x, y)  ||  IS_WHEELUP(ev)  ||  IS_WHEELDOWN(ev))  ) {
 		event_t ev2 = *ev;
 		translate_event(&ev2, -sb.get_pos().x, -sb.get_pos().y);
 		return sb.infowin_event(&ev2);
@@ -263,9 +289,10 @@ void gui_scrolled_list_t::draw(scr_coord pos)
 
 	const scr_size size = get_size();
 
+	const int show_scrollbar = offset>0  ||  (size.h<=total_vertical_size-border);
 	const int x = pos.x;
 	const int y = pos.y;
-	const int w = size.w-D_SCROLLBAR_WIDTH;
+	const int w = size.w-D_SCROLLBAR_WIDTH*show_scrollbar;
 	const int h = size.h;
 
 	switch(type) {
@@ -307,5 +334,7 @@ void gui_scrolled_list_t::draw(scr_coord pos)
 	}
 	POP_CLIP();
 
-	sb.draw(pos);
+	if(  show_scrollbar  ) {
+		sb.draw(pos);
+	}
 }

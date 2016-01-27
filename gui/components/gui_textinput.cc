@@ -17,19 +17,23 @@
 
 #include "../gui_frame.h"
 #include "gui_textinput.h"
-#include "../../gui/simwin.h"
+#include "../simwin.h"
 #include "../../simsys.h"
 #include "../../dataobj/translator.h"
+#include "../../utils/simstring.h"
 
 gui_textinput_t::gui_textinput_t() :
 	gui_component_t(true),
 	text(NULL),
+	composition(),
+	composition_target_start(0),
+	composition_target_length(0),
 	max(0),
 	head_cursor_pos(0),
 	tail_cursor_pos(0),
 	scroll_offset(0),
 	align(ALIGN_LEFT),
-	textcol(COL_BLACK),
+	textcol(SYSCOL_EDIT_TEXT),
 	text_dirty(false),
 	cursor_reference_time(0),
 	focus_recieved(false)
@@ -74,15 +78,37 @@ bool gui_textinput_t::remove_selection()
 			text_dirty = true;
 			text[start_pos++] = text[end_pos];
 		} while(  text[end_pos++]!=0  );
-		text_dirty = true;
 		return true;
 	}
 	return false;
 }
 
 
+void gui_textinput_t::set_composition_status( char *c, int start, int length )
+{
+	composition.clear();
+	if(  win_get_focus()==this  ) {
+		if(  c && c[0]!='\0' ) {
+			if(  head_cursor_pos!=tail_cursor_pos  ) {
+				remove_selection();
+			}
+			composition.clear();
+			composition.append( (char *)c );
+			composition_target_start = start;
+			composition_target_length = length;
+
+			scr_coord gui_xy = win_get_pos( win_get_top() );
+			int offset_to_target = proportional_string_len_width( composition.get_str(), composition_target_start );
+			int x = pos.x + gui_xy.x + get_current_cursor_x() + offset_to_target;
+			int y = pos.x + gui_xy.y + D_TITLEBAR_HEIGHT;
+			dr_notify_input_pos( x, y );
+		}
+	}
+}
+
+
 /**
- * Events werden hiermit an die GUI-Komponenten
+ * Events werden hiermit an die GUI-components
  * gemeldet
  * @author Hj. Malthaner
  */
@@ -99,7 +125,6 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 						text_dirty = false;
 						call_listeners((long)1);
 					}
-
 				case SIM_KEY_TAB:
 					// Knightly : focus is going to be lost -> reset cursor positions to select the whole text by default
 					head_cursor_pos = len;
@@ -318,6 +343,67 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 		cursor_reference_time = dr_time();	// update reference time for cursor blinking
 		return true;
 	}
+	else if(  ev->ev_class==EVENT_STRING  ) {
+		composition.clear();
+
+		// UTF8 multi-byte sequence
+		if(  text  &&  ev->ev_ptr  ) {
+			size_t len = strlen(text);
+			utf8 *in = (utf8 *)ev->ev_ptr;
+			size_t in_pos = 0;
+
+			// Knightly : first check if it is necessary to remove selected text portion
+			if(  remove_selection()  ) {
+				// recalculate text length after deleting selection
+				len = strlen(text);
+			}
+
+			while(  *in  ) {
+				in_pos = 0;
+				utf16 uc = utf8_to_utf16( in, &in_pos );
+
+				text_dirty = true;
+
+				size_t num_letter = in_pos;
+				char letter[16];
+
+				// test, if we have top convert letter
+				sprintf( letter, "CHR%X", uc );
+				const char *more_letter = translator::translate(letter);
+				// could not convert ...
+				if(  letter == more_letter  ) {
+					tstrncpy( letter, (const char *)in, in_pos+1 );
+				}
+				else {
+					// successful converted letter
+					strcpy( letter, more_letter );
+					num_letter = strlen(more_letter);
+				}
+				in += in_pos;
+
+				if(  len+num_letter >= max  ) {
+					// too many chars ...
+					break;
+				}
+
+				// insert into text?
+				if (head_cursor_pos < len) {
+					for(  sint64 pos=len+num_letter;  pos>=(sint64)head_cursor_pos;  pos--  ) {
+						text[pos] = text[pos-num_letter];
+					}
+					memcpy( text+head_cursor_pos, letter, num_letter );
+				}
+				else {
+					// append to text
+					memcpy( text+len, letter, num_letter );
+					text[len+num_letter] = 0;
+				}
+				text_dirty = true;
+				tail_cursor_pos = ( head_cursor_pos += num_letter );
+				len += num_letter;
+			} /* while still characters in string */
+		}
+	}
 	else if(  IS_LEFTCLICK(ev)  ) {
 		// acting on release causes unwanted recalculations of cursor position for long strings and (scroll_offset>0)
 		// moreover, only (click) or (release) event happened inside textinput, the other one could lie outside
@@ -341,10 +427,6 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 	else if(  IS_LEFTDBLCLK(ev)  ) {
 		// Knightly : select a word as delimited by spaces
 		// for tail cursor pos -> skip over all contiguous non-space characters to the left
-		if(!text)
-		{
-			return false;
-		}
 		const char* tmp_text = text + tail_cursor_pos;
 		uint8 byte_length;
 		uint8 pixel_width;
@@ -395,6 +477,16 @@ void gui_textinput_t::display_with_focus(scr_coord offset, bool has_focus)
 		if(  has_focus  ) {
 			// update reference time for cursor blinking if focus has just been received
 			cursor_reference_time = dr_time();
+
+			dr_start_textinput();
+
+			scr_coord gui_xy = win_get_pos( win_get_top() );
+			int x = pos.x + gui_xy.x + get_current_cursor_x();
+			int y = pos.x + gui_xy.y + D_TITLEBAR_HEIGHT;
+			dr_notify_input_pos( x, y );
+		}
+		else {
+			dr_stop_textinput();
 		}
 		focus_recieved = has_focus;
 	}
@@ -406,8 +498,6 @@ void gui_textinput_t::display_with_focus(scr_coord offset, bool has_focus)
 void gui_textinput_t::display_with_cursor(scr_coord offset, bool cursor_active, bool cursor_visible)
 {
 	display_img_stretch( gui_theme_t::editfield, scr_rect( pos+offset, size ) );
-//	display_fillbox_wh_clip(pos.x+offset.x+1, pos.y+offset.y+1,size.w-2, size.h-2, SYSCOL_WORKAREA, true);
-//	display_ddd_box_clip( pos.x + offset.x, pos.y + offset.y, size.w, size.h, SYSCOL_SHADOW, SYSCOL_HIGHLIGHT );
 
 	if(  text  ) {
 		// Knightly : recalculate scroll offset
@@ -459,8 +549,34 @@ void gui_textinput_t::display_with_cursor(scr_coord offset, bool cursor_active, 
 		const int clip_y = old_clip.y>text_clip_y ? old_clip.y : text_clip_y;
 		display_set_clip_wh( clip_x, clip_y, min(old_clip.xx, text_clip_x+text_clip_w)-clip_x, min(old_clip.yy, text_clip_y+text_clip_h)-clip_y );
 
-		// display text
-		display_proportional_clip(pos.x+offset.x+2-scroll_offset, pos.y+offset.y+D_GET_CENTER_ALIGN_OFFSET(LINESPACE,size.h), text, ALIGN_LEFT, textcol, true);
+		const int x_base_offset = pos.x+offset.x+2-scroll_offset;
+		const int y_offset = pos.y+offset.y+D_GET_CENTER_ALIGN_OFFSET(LINESPACE,size.h);
+
+		// display text (before composition)
+		display_text_proportional_len_clip(x_base_offset, y_offset, text, ALIGN_LEFT, textcol, true, head_cursor_pos);
+		int x_offset = proportional_string_len_width(text, head_cursor_pos);
+
+		// IME text to display?
+		if(  composition.len()  ) {
+			assert(head_cursor_pos==tail_cursor_pos);
+
+			display_proportional_clip(x_base_offset+x_offset, y_offset, composition.get_str(), ALIGN_LEFT, textcol, true);
+
+			// draw underline
+			int composition_width = proportional_string_width(composition.get_str());
+			display_direct_line_rgb(x_base_offset+x_offset, y_offset+LINESPACE, x_base_offset+x_offset+composition_width, y_offset+LINESPACE-1, textcol);
+
+			// mark targeted part in a similar manner to selected text
+			int start_offset = proportional_string_len_width(composition.get_str(), composition_target_start);
+			int highlight_width = proportional_string_len_width(composition.get_str()+composition_target_start, composition_target_length);
+			display_fillbox_wh_clip(x_base_offset+x_offset+start_offset, y_offset, highlight_width, LINESPACE, SYSCOL_EDIT_BACKGROUND_SELECTED, true);
+			display_text_proportional_len_clip(x_base_offset+x_offset+start_offset, y_offset, composition.get_str()+composition_target_start, ALIGN_LEFT|DT_CLIP, SYSCOL_EDIT_TEXT_SELECTED, false, composition_target_length);
+
+			x_offset += composition_width;
+		}
+
+		// display text (after composition)
+		display_proportional_clip(x_base_offset+x_offset, y_offset, text+head_cursor_pos, ALIGN_LEFT, textcol, true);
 
 		if(  cursor_active  ) {
 			// Knightly : display selected text block with light grey text on charcoal bounding box
@@ -469,13 +585,13 @@ void gui_textinput_t::display_with_cursor(scr_coord offset, bool cursor_active, 
 				const size_t end_pos = ::max(head_cursor_pos, tail_cursor_pos);
 				const scr_coord_val start_offset = proportional_string_len_width(text, start_pos);
 				const scr_coord_val highlight_width = proportional_string_len_width(text+start_pos, end_pos-start_pos);
-				display_fillbox_wh_clip(pos.x+offset.x+2-scroll_offset+start_offset, pos.y+offset.y+D_GET_CENTER_ALIGN_OFFSET(LINESPACE,size.h), highlight_width, 11, COL_GREY2, true);
-				display_text_proportional_len_clip(pos.x+offset.x+2-scroll_offset+start_offset, pos.y+offset.y+D_GET_CENTER_ALIGN_OFFSET(LINESPACE,size.h), text+start_pos, ALIGN_LEFT|DT_CLIP, COL_GREY5, false, end_pos-start_pos);
+				display_fillbox_wh_clip(x_base_offset+start_offset, y_offset, highlight_width, LINESPACE, SYSCOL_EDIT_BACKGROUND_SELECTED, true);
+				display_text_proportional_len_clip(x_base_offset+start_offset, y_offset, text+start_pos, ALIGN_LEFT|DT_CLIP, SYSCOL_EDIT_TEXT_SELECTED, false, end_pos-start_pos);
 			}
 
 			// display blinking cursor
 			if(  cursor_visible  ) {
-				display_fillbox_wh_clip(pos.x+offset.x+1-scroll_offset+cursor_offset, pos.y+offset.y+D_GET_CENTER_ALIGN_OFFSET(LINESPACE,size.h), 1, 11, COL_WHITE, true);
+				display_fillbox_wh_clip(x_base_offset+cursor_offset-1, y_offset, 1, LINESPACE, SYSCOL_CURSOR_BEAM, true);
 			}
 		}
 
@@ -522,8 +638,7 @@ bool gui_hidden_textinput_t::infowin_event(const event_t *ev)
 
 void gui_hidden_textinput_t::display_with_cursor(scr_coord const offset, bool, bool const cursor_visible)
 {
-	display_fillbox_wh_clip(pos.x+offset.x+1, pos.y+offset.y+1,size.w-2, size.h-2, MN_GREY1, true);
-	display_ddd_box_clip(pos.x+offset.x, pos.y+offset.y,size.w, size.h,MN_GREY0, MN_GREY4);
+	display_img_stretch( gui_theme_t::editfield, scr_rect( pos+offset, size ) );
 
 	if(  text  ) {
 		// the text will be all asterisk, thus we draw them letter by letter
@@ -545,7 +660,7 @@ void gui_hidden_textinput_t::display_with_cursor(scr_coord const offset, bool, b
 		do {
 			// cursor?
 			if(  cursor_visible  &&  text_pos==head_cursor_pos  ) {
-				display_fillbox_wh_clip( xpos, pos.y+offset.y+1, 1, 11, COL_WHITE, true);
+				display_fillbox_wh_clip( xpos, pos.y+offset.y+1+(size.h-LINESPACE)/2, 1, LINESPACE, SYSCOL_CURSOR_BEAM, true);
 			}
 			c = utf8_to_utf16((utf8 const*)text + text_pos, &text_pos);
 			if(c) {

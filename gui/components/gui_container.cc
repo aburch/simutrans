@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
+ * Copyright (c) 1997 - 2001 Hansjorg Malthaner
  *
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
@@ -174,7 +174,7 @@ bool gui_container_t::infowin_event(const event_t *ev)
 					comp->infowin_event(ev);
 				}
 				else if(  comp->is_visible()  ) {
-					if(  comp->is_hit(x, y)  ) {
+					if(  comp->getroffen(x, y)  ) {
 						handle_mouseover.insert( comp );
 					}
 				}
@@ -201,7 +201,7 @@ bool gui_container_t::infowin_event(const event_t *ev)
 			gui_component_t *focus = comp->get_focus() ? comp : NULL;
 
 			// set focus for component, if component allows focus
-			if(  focus  &&  IS_LEFTCLICK(ev)  &&  comp->is_hit(ev->cx, ev->cy)  ) {
+			if(  focus  &&  IS_LEFTCLICK(ev)  &&  comp->getroffen(ev->cx, ev->cy)  ) {
 				/* the focus swallow all following events;
 				 * due to the activation action
 				 */
@@ -266,13 +266,13 @@ bool gui_container_t::is_focusable()
 }
 
 
-void gui_container_t::set_focus( gui_component_t *k )
+void gui_container_t::set_focus( gui_component_t *c )
 {
 	if(  inside_infowin_event  ) {
 		dbg->error("gui_container_t::set_focus", "called from inside infowin_event, will have no effect");
 	}
-	if(  components.is_contained(k)  ||  k==NULL  ) {
-		comp_focus = k;
+	if(  components.is_contained(c)  ||  c==NULL  ) {
+		comp_focus = c;
 	}
 }
 

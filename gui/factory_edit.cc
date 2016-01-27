@@ -45,8 +45,8 @@ factory_edit_frame_t::factory_edit_frame_t(player_t* player_) :
 	extend_edit_gui_t(translator::translate("factorybuilder"), player_),
 	fablist(16),
 	lb_rotation( rot_str, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::right ),
-	lb_rotation_info( translator::translate("Rotation"), COL_BLACK, gui_label_t::left ),
-	lb_production_info( translator::translate("Produktion"), COL_BLACK, gui_label_t::left )
+	lb_rotation_info( translator::translate("Rotation"), SYSCOL_TEXT, gui_label_t::left ),
+	lb_production_info( translator::translate("Produktion"), SYSCOL_TEXT, gui_label_t::left )
 {
 	rot_str[0] = 0;
 	prod_str[0] = 0;

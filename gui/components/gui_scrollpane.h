@@ -1,7 +1,7 @@
 /*
  * this is a scrolling area in which subcomponents are drawn
  *
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
+ * Copyright (c) 1997 - 2001 Hansjorg Malthaner
  *
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
@@ -22,7 +22,7 @@ private:
 	 * @author Hj. Malthaner
 	 */
 	gui_component_t *comp;
-	scr_size old_komp_size;
+	scr_size old_comp_size;
 
 	/**
 	 * Scrollbar X/Y
@@ -33,7 +33,6 @@ private:
 	bool b_show_scroll_x:1;
 	bool b_show_scroll_y:1;
 	bool b_has_size_corner:1;
-	bool b_has_bottom_margin:1; // set true when D_MARGIN_BOTTOM is below scrolly and scroll_x is hidden and has_size_corner to enlarge scroll_y
 
 	void recalc_sliders(scr_size size);
 
@@ -80,10 +79,6 @@ public:
 	void set_show_scroll_y(bool yesno) { b_show_scroll_y = yesno; }
 
 	void set_scrollbar_mode(scrollbar_t::visible_mode_t mode) { scroll_x.set_visible_mode(mode); scroll_y.set_visible_mode(mode); }
-
-	koord get_client_size();
-
-	void set_bottom_margin(bool yesno) { b_has_bottom_margin = yesno; }
 
 	void set_size_corner(bool yesno) { b_has_size_corner = yesno; }
 

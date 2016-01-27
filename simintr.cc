@@ -169,11 +169,17 @@ char const *tick_to_string( sint32 ticks, bool show_full )
 	}
 
 	uint32 tage, stunden, minuten;
-	if (env_t::show_month > env_t::DATE_FMT_MONTH) {
+	char ticks_as_clock[32], month_as_clock[32];
+	if (env_t::show_month > env_t::DATE_FMT_MONTH && env_t::show_month < env_t::DATE_FMT_INTERNAL_MINUTE) {
 		tage = (((sint64)ticks_this_month*tage_per_month[month]) >> welt_modell->ticks_per_world_month_shift) + 1;
 		stunden = (((sint64)ticks_this_month*tage_per_month[month]) >> (welt_modell->ticks_per_world_month_shift-16));
 		minuten = (((stunden*3) % 8192)*60)/8192;
 		stunden = ((stunden*3) / 8192)%24;
+		} 
+	else if (env_t::show_month == env_t::DATE_FMT_INTERNAL_MINUTE) {
+		world()->sprintf_ticks(ticks_as_clock, sizeof(ticks_as_clock), ticks_this_month);
+		world()->sprintf_ticks(month_as_clock, sizeof(month_as_clock), world()->ticks_per_world_month);
+
 	}
 	else {
 		tage = 0;
@@ -226,6 +232,10 @@ char const *tick_to_string( sint32 ticks, bool show_full )
 
 			case env_t::DATE_FMT_SEASON:
 				sprintf(time, "%s %d", season, year);
+				break;
+
+			case env_t::DATE_FMT_INTERNAL_MINUTE:
+				sprintf(time, "%s %d %s %s/%s", season, year, month_, ticks_as_clock, month_as_clock);
 				break;
 		}
 	}

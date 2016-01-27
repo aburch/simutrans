@@ -1,7 +1,7 @@
 /*
  * just displays a text, will be auto-translated
  *
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
+ * Copyright (c) 1997 - 2001 Hansjorg Malthaner
  *
  * This file is part of the Simutrans project under the artistic licence.
  */
@@ -101,7 +101,7 @@ void gui_label_t::draw(scr_coord offset)
 
 	}
 
-	if ( tooltip  &&  is_hit(get_maus_x()-offset.x, get_maus_y()-offset.y) ) {
+	if ( tooltip  &&  getroffen(get_maus_x()-offset.x, get_maus_y()-offset.y) ) {
 		const scr_coord_val by = offset.y + pos.y;
 		const scr_coord_val bh = size.h;
 

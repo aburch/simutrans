@@ -294,9 +294,9 @@ public:
 
 	void set_panel_rows(sint32 dy); 
 
-	inline sint16 get_panel_height() const {return (panel_rows * grid.y + TAB_HEADER_V_SIZE + 2 * gui_image_list_t::BORDER) - 4;}
+	inline sint16 get_panel_height() const {return (panel_rows * grid.y + D_TAB_HEADER_HEIGHT + 2 * gui_image_list_t::BORDER) - 4;}
 
-	inline sint16 get_min_panel_height() const {return grid.y + TAB_HEADER_V_SIZE + 2 * gui_image_list_t::BORDER;}
+	inline sint16 get_min_panel_height() const {return grid.y + D_TAB_HEADER_HEIGHT + 2 * gui_image_list_t::BORDER;}
 
 	inline int get_height() const {return get_convoy_height() + convoy_tabs_skip + 8 + get_vinfo_height() + 23 + get_panel_height();}
 

@@ -224,7 +224,7 @@ void factorylist_stats_t::draw(scr_coord offset)
 			}
 
 			// show text
-			display_proportional_clip(xoff+D_INDICATOR_WIDTH+6+28,yoff,buf,ALIGN_LEFT,COL_BLACK,true);
+			display_proportional_clip(xoff+D_INDICATOR_WIDTH+6+28,yoff,buf,ALIGN_LEFT,SYSCOL_TEXT,true);
 
 			// goto button
 			bool selected = sel==0  ||  welt->get_viewport()->is_on_center( fab->get_pos() );
@@ -232,7 +232,7 @@ void factorylist_stats_t::draw(scr_coord offset)
 			sel --;
 
 			if(  win_get_magic( (ptrdiff_t)fab )  ) {
-				display_blend_wh( xoff, yoff, size.w+D_INDICATOR_WIDTH, LINESPACE, COL_BLACK, 25 );
+				display_blend_wh( xoff, yoff, size.w+D_INDICATOR_WIDTH, LINESPACE, SYSCOL_TEXT, 25 );
 			}
 		}
 	}

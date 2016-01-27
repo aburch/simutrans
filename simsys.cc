@@ -6,10 +6,12 @@
 
 #ifdef __HAIKU__
 #include <Message.h>
-#include <LocaleRoster.h>
 #include <FindDirectory.h>
 #include <Path.h>
+#include <LocaleRoster.h>
+#include <SupportDefs.h>
 #define NO_UINT32_TYPES
+#define NO_UINT64_TYPES
 #endif
 
 #include "macros.h"
@@ -18,12 +20,15 @@
 
 
 #ifdef _WIN32
-#	define WIN32_LEAN_AND_MEAN
-#	include <direct.h>
 #	include <windows.h>
 #	include <winbase.h>
 #	include <shellapi.h>
-#	include <shlobj.h>		// needed for SHGetFolderPath()
+#	include <shlobj.h>
+#	if !defined(__CYGWIN__)
+#		include <direct.h>
+#	else
+#		include <sys\unistd.h>
+#	endif
 #	define PATH_MAX MAX_PATH
 #else
 #	include <limits.h>
@@ -38,7 +43,7 @@ struct sys_event sys_event;
 
 void dr_mkdir(char const* const path)
 {
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(__CYGWIN__)
 	WCHAR pathW[MAX_PATH];
 	MultiByteToWideChar( CP_UTF8, 0, path, -1, pathW, sizeof(pathW) );
 	CreateDirectoryW( pathW, NULL );
@@ -61,7 +66,6 @@ bool dr_movetotrash(const char *path) {
 	strcpy(wfilename, path);
 
 	// Double \0 terminated string as required by the function.
-
 	wfilename[len+1]='\0';
 
 	ZeroMemory(&FileOp, sizeof(SHFILEOPSTRUCTA));
@@ -81,6 +85,7 @@ bool dr_movetotrash(const char *path) {
 
 }
 #endif
+
 
 // accecpt whatever encoding your filename has (assuming ANSI for windows) and returns the Unicode name
 const char *dr_system_filename_to_uft8( const char *path_in )
@@ -136,6 +141,7 @@ void dr_rename( const char *existing_utf8, const char *new_utf8 )
 #endif
 }
 
+
 char const* dr_query_homedir()
 {
 	static char buffer[PATH_MAX+24];
@@ -153,7 +159,7 @@ char const* dr_query_homedir()
 	// this is needed to access multibyte user driectories with ASCII names ...
 	wcscat( bufferW, L"\\Simutrans" );
 	CreateDirectoryW( bufferW, NULL );	// must create it, because otherwise the short name does not exist
-	GetShortPathNameW( bufferW, bufferW2, sizeof(bufferW2) );
+	GetShortPathNameW( bufferW, bufferW2, lengthof(bufferW2) );
 	WideCharToMultiByte( CP_UTF8, 0, bufferW2, -1, buffer, MAX_PATH, NULL, NULL );
 #elif defined __APPLE__
 	sprintf(buffer, "%s/Library/Simutrans", getenv("HOME"));
@@ -162,7 +168,7 @@ char const* dr_query_homedir()
 	find_directory(B_USER_DIRECTORY, &userDir);
 	sprintf(buffer, "%s/simutrans", userDir.Path());
 #else
-	sprintf(buffer, "%s/.simutrans-ex", getenv("HOME"));
+	sprintf(buffer, "%s/simutrans", getenv("HOME"));
 #endif
 
 	dr_mkdir(buffer);
@@ -182,6 +188,27 @@ char const* dr_query_homedir()
 	dr_mkdir(b2);
 
 	return buffer;
+}
+
+
+const char *dr_query_fontpath( const char *fontname )
+{
+#if defined _WIN32
+	static char buffer[PATH_MAX];
+
+	if(  SHGetFolderPathA(NULL, CSIDL_FONTS, NULL, SHGFP_TYPE_CURRENT, buffer)  ) {
+		strcpy( buffer, "C:\\Windows\\Fonts" );
+	}
+	strcat( buffer, "\\" );
+	strcat( buffer, fontname );
+	return buffer;
+#elif defined __APPLE__
+	// not implemented yet
+	return fontname;
+#else
+	// seems non-trivial to work on any system ...
+	return fontname;
+#endif
 }
 
 
@@ -657,10 +684,9 @@ const char *dr_get_locale_string()
 {
 	static char code[4];
 	BMessage result;
-	BLocaleRoster bl;
 	const char *str;
 	code[0] = 0;
-	if(  B_OK == bl.GetPreferredLanguages( &result )  ) {
+	if(  B_OK == BLocaleRoster::Default()->GetPreferredLanguages( &result )  ) {
 		result.FindString( (const char *)"language", &str );
 		for(  int i=0;  i<lengthof(code)-1  &&  isalpha(str[i]);  i++  ) {
 			code[i] = tolower(str[i]);
@@ -752,7 +778,7 @@ int sysmain(int const argc, char** const argv)
 	// so simutran can has also a multibyte name ...
 	WCHAR pathnameW[MAX_PATH], pathnameW2[MAX_PATH];
 	GetModuleFileNameW(GetModuleHandle(0), pathnameW, sizeof(pathname) );
-	GetShortPathNameW( pathnameW, pathnameW2, sizeof(pathnameW2) );
+	GetShortPathNameW( pathnameW, pathnameW2, lengthof(pathnameW2) );
 	WideCharToMultiByte( CP_UTF8, 0, pathnameW2, -1, pathname, MAX_PATH, NULL, NULL );
 	argv[0] = pathname;
 #elif !defined __BEOS__
