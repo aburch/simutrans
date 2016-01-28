@@ -3580,11 +3580,11 @@ static int layout_to_orientations[] = {
 	9   //SW
 };
 
-bool process_city_street(grund_t& gr, const weg_besch_t* cr)
+void process_city_street(grund_t& gr, const weg_besch_t* cr)
 {
 	weg_t* const weg = gr.get_weg(road_wt);
 	if(  weg == NULL  ) {
-		return false;
+		return;
 	}
 	
 	player_t *player = weg->get_owner();
