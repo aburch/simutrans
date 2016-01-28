@@ -59,4 +59,4 @@ void interrupt_check(const char* caller_info);
 
 
 // returns a time string in the desired format
-char const *tick_to_string( sint32 ticks, bool show_full );
+char const *tick_to_string( sint64 ticks, bool show_full );

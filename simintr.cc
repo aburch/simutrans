@@ -145,7 +145,7 @@ void intr_enable()
 }
 
 // returns a time string in the desired format
-char const *tick_to_string( sint32 ticks, bool show_full )
+char const *tick_to_string( sint64 ticks, bool show_full )
 {
 	static sint32 tage_per_month[12]={31,28,31,30,31,30,31,31,30,31,30,31};
 	static char const* const seasons[] = { "q2", "q3", "q4", "q1" };
