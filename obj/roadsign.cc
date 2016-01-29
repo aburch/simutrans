@@ -843,7 +843,7 @@ const roadsign_besch_t *roadsign_t::roadsign_search(roadsign_besch_t::types cons
 	return NULL;
 }
 
-const roadsign_besch_t* roadsign_t::find_best_upgrade()
+const roadsign_besch_t* roadsign_t::find_best_upgrade(bool underground)
 {
 	const uint16 time = welt->get_timeline_year_month();
 	const roadsign_besch_t* best_candidate = NULL;
@@ -855,7 +855,10 @@ const roadsign_besch_t* roadsign_t::find_best_upgrade()
 			&& new_roadsign_type->get_upgrade_group() == besch->get_upgrade_group()
 			&& new_roadsign_type->get_wtyp() == besch->get_wtyp()
 			&& new_roadsign_type->get_flags() == besch->get_flags() 
-			&& new_roadsign_type->get_working_method() == besch->get_working_method())
+			&& new_roadsign_type->get_working_method() == besch->get_working_method()
+			&& (new_roadsign_type->get_allow_underground() == 2
+			|| (underground && new_roadsign_type->get_allow_underground() == 1)
+			|| (!underground && new_roadsign_type->get_allow_underground() == 0)))
 		{
 			if(best_candidate)
 			{

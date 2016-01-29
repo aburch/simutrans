@@ -265,7 +265,7 @@ void weg_t::set_besch(const weg_besch_t *b, bool from_saved_game)
 			if(rs && rs->get_besch()->is_retired(welt->get_timeline_year_month()))
 			{
 				// Upgrade obsolete signals and signs when upgrading the underlying way if possible.
-				rs->upgrade(); 
+				rs->upgrade(welt->lookup_kartenboden(get_pos().get_2d())->get_hoehe() != get_pos().z); 
 			}
 		}
 	}

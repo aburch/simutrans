@@ -173,7 +173,7 @@ public:
 
 	static const roadsign_besch_t *roadsign_search(roadsign_besch_t::types flag, const waytype_t wt, const uint16 time);
 
-	const roadsign_besch_t* find_best_upgrade(); 
+	const roadsign_besch_t* find_best_upgrade(bool underground); 
 
 	static const roadsign_besch_t *find_besch(const char *name) { return table.get(name); }
 
@@ -182,7 +182,7 @@ public:
 	// Upgrades this sign or signal to another type.
 	// Returns true if succeeds.
 	bool upgrade(const roadsign_besch_t* new_besch); 
-	bool upgrade() { return upgrade(find_best_upgrade()); } 
+	bool upgrade(bool underground) { return upgrade(find_best_upgrade(underground)); } 
 };
 
 #endif
