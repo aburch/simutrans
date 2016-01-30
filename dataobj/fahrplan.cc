@@ -134,6 +134,12 @@ bool schedule_t::insert(const grund_t* gr, uint16 ladegrad, uint8 waiting_time_s
 		return false;
 	}
 
+	if(wait_for_time)
+	{
+		// "ladegrad" (wait for load) and wait_for_time are not compatible.
+		ladegrad = 0;
+	}
+
 	if(!gr)
 	{
 		// This can occur in some cases if a depot is not found.
@@ -169,6 +175,12 @@ bool schedule_t::append(const grund_t* gr, uint16 ladegrad, uint8 waiting_time_s
 	{
 		// This can occur in some cases if a depot is not found.
 		return false;
+	}
+
+	if(wait_for_time)
+	{
+		// "ladegrad" (wait for load) and wait_for_time are not compatible.
+		ladegrad = 0;
 	}
 
 	if(ist_halt_erlaubt(gr)) {
@@ -210,6 +222,12 @@ void schedule_t::cleanup()
 		else {
 			// next pos for check
 			lastpos = eintrag[i].pos;
+		}
+
+		if(eintrag[i].wait_for_time)
+		{
+			// "ladegrad" (wait for load) and wait_for_time are not compatible.
+			eintrag[i].ladegrad = 0;
 		}
 	}
 	make_aktuell_valid();
@@ -293,6 +311,7 @@ void schedule_t::rdwr(loadsave_t *file)
 				uint8 old_ladegrad = (uint8)eintrag[i].ladegrad;
 				file->rdwr_byte(old_ladegrad);
 				eintrag[i].ladegrad = (uint16)old_ladegrad;
+
 			}
 			if(file->get_version()>=99018) {
 				file->rdwr_byte(eintrag[i].waiting_time_shift);
@@ -328,6 +347,12 @@ void schedule_t::rdwr(loadsave_t *file)
 					eintrag[i].wait_for_time = eintrag[i].ladegrad > 100 && spacing;
 				}
 			}
+			if(eintrag[i].wait_for_time)
+			{
+				// "ladegrad" (wait for load) and wait_for_time are not compatible.
+				// Resolve this in games saved before this fix was implemented
+				eintrag[i].ladegrad = 0;
+			}
 		}
 	}
 	if(file->is_loading()) {
@@ -349,6 +374,8 @@ void schedule_t::rdwr(loadsave_t *file)
 	{
 		file->rdwr_bool(same_spacing_shift);
 	}
+
+
 }
 
 
