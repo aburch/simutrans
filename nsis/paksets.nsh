@@ -140,12 +140,12 @@ SectionEnd
 
 
 
-Section /o "pak128 V2.5.3" pak128
-  AddSize 408972
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak128/pak128%20for%20ST%20120%20%282.5.3%2C%20minor%20changes%29/pak128-2.5.3--ST120.zip"
-  StrCpy $archievename "pak128-2.5.3--ST120.zip"
+Section /o "pak128 V2.6" pak128
+  AddSize 412583
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak128/pak128%20for%20ST%20120%20%282.6%2C%20completed%20elevated%20tracks%29/pak128-2.6--ST120.zip"
+  StrCpy $archievename "pak128-2.6--ST120.zip"
   StrCpy $downloadname "pak128"
-  StrCpy $VersionString "Pak128 2.5.3 New Landscape"
+  StrCpy $VersionString "Pak128 2.6"
   Call DownloadInstallZipWithoutSimutrans
 SectionEnd
 
@@ -162,12 +162,12 @@ SectionEnd
 
 
 
-Section /o "pak128.German V0.71 for 120.x" pak128german
-  AddSize 127156
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/PAK128.german/PAK128.german_0.7_120.x/PAK128.german_0.7.0.1_120.x.zip"
-  StrCpy $archievename "PAK128.german_0.7.0.1_120.x.zip"
+Section /o "pak128.German V0.8 for 120.x" pak128german
+  AddSize 165625
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/PAK128.german/PAK128.german_0.8_120.x/PAK128.german_0.8.0_120.x.zip"
+  StrCpy $archievename "PAK128.german_0.8.0_120.x.zip"
   StrCpy $downloadname "pak128.German"
-  StrCpy $VersionString "  PAK128.german V 0.7 (Rev. 1676)"
+  StrCpy $VersionString "  PAK128.german V 0.8 (Rev. 1853)"
   Call DownloadInstallZip
 SectionEnd
 
