@@ -23,7 +23,6 @@ class banner_t : public gui_frame_t, action_listener_t
 private:
 	sint32 last_ms;
 	int line;
-	sint16 xoff, yoff;
 
 	button_t
 		new_map,
@@ -33,7 +32,6 @@ private:
 		quit;
 
 	gui_image_t logo;
-
 
 public:
 	banner_t();

@@ -28,7 +28,6 @@ private:
 	unsigned char karte[preview_size*preview_size];
 
 	bool changed_number_of_towns;
-	int old_lang;
 
 	gui_numberinput_t
 		inp_x_size,

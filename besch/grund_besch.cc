@@ -19,7 +19,7 @@
 #include "grund_besch.h"
 #include "../dataobj/environment.h"
 
-const int totalslopes_single = 16;
+//const int totalslopes_single = 16;
 const int totalslopes = 81;
 
 

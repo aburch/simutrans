@@ -6,7 +6,7 @@
  */
 
 #ifndef gui_password_frame_h
-#define gui_password_frame_t_h
+#define gui_password_frame_h
 
 
 #include "components/action_listener.h"

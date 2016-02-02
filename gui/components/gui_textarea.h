@@ -27,9 +27,6 @@ private:
 	*/
 	cbuffer_t* buf;
 
-	// we cache the number of lines, to dynamically recalculate the size, if needed
-	uint16	lines;
-
 public:
 	gui_textarea_t(cbuffer_t* buf_);
 

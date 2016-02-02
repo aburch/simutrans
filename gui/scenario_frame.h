@@ -13,11 +13,9 @@
 #include "../utils/cbuffer_t.h"
 
 
-
 class scenario_frame_t : public savegame_frame_t
 {
 private:
-	bool do_load;
 	cbuffer_t path;
 
 protected:

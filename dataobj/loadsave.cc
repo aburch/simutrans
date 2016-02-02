@@ -346,7 +346,6 @@ bool loadsave_t::wr_open(const char *filename_utf8, mode_t m, const char *pak_ex
 		ident = 1;
 	}
 
-	this->mode = mode;
 	this->filename = filename;
 
 	return true;

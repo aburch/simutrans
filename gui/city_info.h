@@ -44,7 +44,6 @@ private:
 	gui_chart_t chart, mchart;                ///< Year and month history charts
 
 	button_t filterButtons[MAX_CITY_HISTORY]; ///< Buttons to enable/disable chart curves
-	bool bFilterIsActive[MAX_CITY_HISTORY];   ///< true if filter button is pressed
 
 	array2d_tpl<uint8> pax_dest_old, pax_dest_new;
 

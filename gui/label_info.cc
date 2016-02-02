@@ -18,17 +18,11 @@
 #include "../utils/cbuffer_t.h"
 
 
-
-
-
-
 label_info_t::label_info_t(label_t* l) :
 	gui_frame_t( translator::translate("Marker"), l->get_owner()),
 	player_name(""),
 	view(l->get_pos(), scr_size( max(64, get_base_tile_raster_width()), max(56, (get_base_tile_raster_width()*7)/8) ))
 {
-
-	this->player = player;
 	label = l;
 
 	const char *const p_name = label->get_owner()->get_name();
@@ -61,7 +55,6 @@ label_info_t::label_info_t(label_t* l) :
 }
 
 
-
 /**
  * This method is called if an action is triggered
  * @author Hj. Malthaner
@@ -86,7 +79,6 @@ bool label_info_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 
 	return true;
 }
-
 
 
 void label_info_t::map_rotate90( sint16 new_ysize )

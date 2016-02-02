@@ -403,6 +403,7 @@ int dr_screenshot(const char *filename, int x, int y, int w, int h)
 		return 1;
 	}
 #endif
+	(void)x; (void)y; (void)w; (void)h;
 	return SDL_SaveBMP( screen, filename ) == 0 ? 1 : -1;
 }
 
