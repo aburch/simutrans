@@ -427,7 +427,7 @@ DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d,%d) to (%d,%d,%d) ", pos.
 	weg_besch = besch->get_weg_besch();
 	if(weg_besch==NULL) {
 		// ignore timeline to get consistent results
-		weg_besch = wegbauer_t::weg_search( wegtyp, besch->get_topspeed(), besch->get_max_axle_load(), 0, weg_t::type_flat );
+		weg_besch = wegbauer_t::weg_search(wegtyp, besch->get_topspeed(), besch->get_max_axle_load(), 0, weg_t::type_flat, besch->get_wear_capacity());
 	}
 
 	baue_einfahrt(player, pos, zv, besch, weg_besch, cost);

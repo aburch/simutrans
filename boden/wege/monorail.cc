@@ -22,7 +22,7 @@ void monorail_t::rdwr(loadsave_t *file)
 	if(get_besch()->get_wtyp()!=monorail_wt) {
 		int old_max_speed = get_max_speed();
 		int old_max_axle_load = get_max_axle_load();
-		const weg_besch_t *besch = wegbauer_t::weg_search( monorail_wt, (old_max_speed>0 ? old_max_speed : 120), (old_max_axle_load > 0 ? old_max_axle_load : 10), 0, (weg_t::system_type)((get_besch()->get_styp()==weg_t::type_elevated)*weg_t::type_elevated) );
+		const weg_besch_t *besch = wegbauer_t::weg_search( monorail_wt, (old_max_speed>0 ? old_max_speed : 120), (old_max_axle_load > 0 ? old_max_axle_load : 10), 0, (weg_t::system_type)((get_besch()->get_styp()==weg_t::type_elevated)*weg_t::type_elevated), 1);
 		if (besch==NULL) {
 			dbg->fatal("monorail_t::rwdr()", "No monorail way available");
 		}

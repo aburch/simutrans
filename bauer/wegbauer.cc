@@ -197,28 +197,47 @@ const weg_besch_t* wegbauer_t::weg_search(const waytype_t wtyp, const sint32 spe
 // Finds a way with a given speed *and* weight limit
 // for a given way type.
 // @author: jamespetts (slightly adapted from the standard version with just speed limit)
-const weg_besch_t* wegbauer_t::weg_search(const waytype_t wtyp, const sint32 speed_limit, const uint32 weight_limit, const uint16 time, const weg_t::system_type system_type)
+const weg_besch_t* wegbauer_t::weg_search(const waytype_t wtyp, const sint32 speed_limit, const uint32 weight_limit, const uint16 time, const weg_t::system_type system_type, const uint32 wear_capacity_limit)
 {
 	const weg_besch_t* best = NULL;
 	FOR(stringhashtable_tpl<weg_besch_t*>, const& iter, alle_wegtypen)
 	{
 		const weg_besch_t* const test = iter.value;
 		bool best_allowed = false; // Does the best way fulfill the timeline?
-		if(  ((test->get_wtyp()==wtyp  &&
-			     (test->get_styp()==system_type  ||  system_type==weg_t::type_all))  ||  (test->get_wtyp()==track_wt  &&  test->get_styp()==weg_t::type_tram  &&  wtyp==tram_wt))
-			     &&  test->get_cursor()->get_bild_nr(1)!=IMG_LEER  ) 
+		if(((test->get_wtyp() == wtyp
+			&& (test->get_styp() == system_type ||
+				 system_type == weg_t::type_all)) || 
+				 (test->get_wtyp() == track_wt &&  
+				 test->get_styp() == weg_t::type_tram &&  
+				 wtyp == tram_wt))
+			     && test->get_cursor()->get_bild_nr(1) != IMG_LEER) 
 		{
 			bool test_allowed = test->get_intro_year_month() <= time && time < test->get_retire_year_month();
-			if(  best == NULL  ||  time == 0  ||  test_allowed) 
+
+			const sint32 best_topspeed = best->get_topspeed();
+			const sint32 test_topspeed = test->get_topspeed();
+			
+			const uint32 best_max_axle_load = best->get_max_axle_load();
+			const uint32 test_max_axle_load = test->get_max_axle_load();
+
+			const uint32 best_wear_capacity = best->get_wear_capacity();
+			const uint32 test_wear_capacity = test->get_wear_capacity();
+
+			if(best == NULL || time == 0 || test_allowed) 
 			{
-				if(  best == NULL ||
-						((best->get_topspeed() < speed_limit && test->get_topspeed() >= speed_limit) ||
-						(best->get_max_axle_load() < weight_limit && test->get_max_axle_load() >= weight_limit))	||		
-						((test->get_topspeed() <=  speed_limit && best->get_topspeed() < test->get_topspeed()) ||	
-						(((test->get_max_axle_load() <=  weight_limit && best->get_max_axle_load() < test->get_max_axle_load())))) ||
-						((best->get_topspeed() > speed_limit && test->get_topspeed() < best->get_topspeed()) ||		
-						(((best->get_max_axle_load() > weight_limit) && (test->get_max_axle_load()) < best->get_max_axle_load()))) ||
-						(time!=0  &&  !best_allowed  &&  test_allowed)
+				if(best == NULL ||
+						((best_topspeed < speed_limit && test_topspeed >= speed_limit) ||
+						(best_max_axle_load < weight_limit && test_max_axle_load >= weight_limit) ||
+						(best_wear_capacity < wear_capacity_limit && test_wear_capacity >= wear_capacity_limit)) ||
+
+						((test_topspeed <= speed_limit && best->get_topspeed() < test_topspeed) ||	
+						(test_max_axle_load <= weight_limit && best->get_max_axle_load() < test_max_axle_load) ||
+						(test->get_wear_capacity() <= wear_capacity_limit && best->get_wear_capacity() < test->get_wear_capacity())) ||
+
+						((best->get_preis() > test->get_preis() && test_topspeed >= speed_limit && test_max_axle_load >= weight_limit && test->get_wear_capacity() >= wear_capacity_limit) ||		
+						((best->get_maintenance() > test->get_maintenance() && test_topspeed >= speed_limit && test_max_axle_load >= weight_limit && test_wear_capacity >= wear_capacity_limit))) ||	
+
+						(time !=0 && !best_allowed && test_allowed)
 					) 
 				{
 					best = test;

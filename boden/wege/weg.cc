@@ -486,7 +486,7 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 		bool is_current = !time || replacement_way->get_intro_year_month() <= time && time < replacement_way->get_retire_year_month();
 		if(!is_current)
 		{
-			buf.append(translator::translate(wegbauer_t::weg_search(replacement_way->get_waytype(), replacement_way->get_topspeed(), (const sint32)replacement_way->get_axle_load(), time, (weg_t::system_type)replacement_way->get_styp())->get_name()));
+			buf.append(translator::translate(wegbauer_t::weg_search(replacement_way->get_waytype(), replacement_way->get_topspeed(), (const sint32)replacement_way->get_axle_load(), time, (weg_t::system_type)replacement_way->get_styp(), replacement_way->get_wear_capacity())->get_name()));
 		}
 		else
 		{
@@ -1042,7 +1042,7 @@ bool weg_t::renew()
 		bool is_current = !time || (replacement_way->get_intro_year_month() <= time && time < replacement_way->get_retire_year_month());
 		if(!is_current)
 		{
-			replacement_way = wegbauer_t::weg_search(replacement_way->get_waytype(), replacement_way->get_topspeed(), (const sint32)replacement_way->get_axle_load(), time, (weg_t::system_type)replacement_way->get_styp());
+			replacement_way = wegbauer_t::weg_search(replacement_way->get_waytype(), replacement_way->get_topspeed(), (const sint32)replacement_way->get_axle_load(), time, (weg_t::system_type)replacement_way->get_styp(), replacement_way->get_wear_capacity());
 		}
 		
 		if(!replacement_way)

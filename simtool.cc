@@ -2868,7 +2868,7 @@ void tool_build_bridge_t::mark_tiles(  player_t *player, const koord3d &start, c
 	}
 	else {
 		if (besch->get_waytype() == powerline_wt  ? !gr->find<leitung_t>() : !gr->hat_weg(besch->get_waytype())) {
-			const weg_besch_t *weg_besch = wegbauer_t::weg_search(besch->get_waytype(), besch->get_topspeed(), besch->get_max_weight(), welt->get_timeline_year_month(), weg_t::type_flat);
+			const weg_besch_t *weg_besch = wegbauer_t::weg_search(besch->get_waytype(), besch->get_topspeed(), besch->get_max_weight(), welt->get_timeline_year_month(), weg_t::type_flat, besch->get_wear_capacity());
 			costs += weg_besch->get_preis();
 		}
 	}
@@ -3055,7 +3055,7 @@ void tool_build_tunnel_t::calc_route( wegbauer_t &bauigel, const koord3d &start,
 	const weg_besch_t *wb = besch->get_weg_besch();
 	if(wb==NULL) {
 		// ignore timeline to get consistent results
-		wb = wegbauer_t::weg_search( besch->get_waytype(), besch->get_topspeed(), besch->get_max_axle_load(), 0, weg_t::type_flat );
+		wb = wegbauer_t::weg_search(besch->get_waytype(), besch->get_topspeed(), besch->get_max_axle_load(), 0, weg_t::type_flat, besch->get_wear_capacity());
 	}
 
 	bauigel.route_fuer(bt | wegbauer_t::tunnel_flag, wb, besch);
@@ -3139,7 +3139,7 @@ void tool_build_tunnel_t::mark_tiles(  player_t *player, const koord3d &start, c
 	const weg_besch_t *wb = besch->get_weg_besch();
 	if(wb==NULL) {
 		// ignore timeline to get consistent results
-		wb = wegbauer_t::weg_search( besch->get_waytype(), besch->get_max_axle_load(), besch->get_topspeed(), 0, weg_t::type_flat );
+		wb = wegbauer_t::weg_search(besch->get_waytype(), besch->get_max_axle_load(), besch->get_topspeed(), 0, weg_t::type_flat, besch->get_wear_capacity());
 	}
 
 	welt->lookup_kartenboden(end.get_2d())->clear_flag(grund_t::marked);
