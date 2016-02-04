@@ -176,8 +176,8 @@ const weg_besch_t* wegbauer_t::weg_search(const waytype_t wtyp, const sint32 spe
 			(test->get_styp()==system_type  ||  system_type==weg_t::type_all))  ||  (test->get_wtyp()==track_wt  &&  test->get_styp()==weg_t::type_tram  &&  wtyp==tram_wt))
 			&&  test->get_cursor()->get_bild_nr(1)!=IMG_LEER  ) 
 		{
-				bool test_allowed = test->get_intro_year_month()<=time  &&  time<test->get_retire_year_month() && !test->is_mothballed();
-				if(  !best_allowed  ||  time==0  ||  test_allowed  ) 
+				bool test_allowed = (time == 0 || (test->get_intro_year_month() <= time && time < test->get_retire_year_month())) && !test->is_mothballed();
+				if(!best_allowed || test_allowed) 
 				{
 					if(  best==NULL  ||
 						( best->get_topspeed() <  test->get_topspeed()  &&  test->get_topspeed() <=     speed_limit  )    || // closer to desired speed (from the low end)
@@ -214,21 +214,16 @@ const weg_besch_t* wegbauer_t::weg_search(const waytype_t wtyp, const sint32 spe
 		{
 			bool test_allowed = test->get_intro_year_month() <= time && time < test->get_retire_year_month();
 
-			const sint32 best_topspeed = best->get_topspeed();
 			const sint32 test_topspeed = test->get_topspeed();
-			
-			const uint32 best_max_axle_load = best->get_max_axle_load();
 			const uint32 test_max_axle_load = test->get_max_axle_load();
-
-			const uint32 best_wear_capacity = best->get_wear_capacity();
 			const uint32 test_wear_capacity = test->get_wear_capacity();
 
 			if(best == NULL || time == 0 || test_allowed) 
 			{
 				if(best == NULL ||
-						((best_topspeed < speed_limit && test_topspeed >= speed_limit) ||
-						(best_max_axle_load < weight_limit && test_max_axle_load >= weight_limit) ||
-						(best_wear_capacity < wear_capacity_limit && test_wear_capacity >= wear_capacity_limit)) ||
+						((best->get_topspeed() < speed_limit && test_topspeed >= speed_limit) ||
+						(best->get_max_axle_load() < weight_limit && test_max_axle_load >= weight_limit) ||
+						(best->get_wear_capacity() < wear_capacity_limit && test_wear_capacity >= wear_capacity_limit)) ||
 
 						((test_topspeed <= speed_limit && best->get_topspeed() < test_topspeed) ||	
 						(test_max_axle_load <= weight_limit && best->get_max_axle_load() < test_max_axle_load) ||
