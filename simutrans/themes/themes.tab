@@ -46,10 +46,12 @@ icon_width = 32
 window_snap_distance = 8
 
 # show the windows close etc. buttons on the right (like windows 98)
-window_buttons_right = 0
+# Should be rather a user setting, if the theme does not absolutely require it
+#window_buttons_right = 0
 
 # closes windows/toolbar when button clicked a second time (default off=0)
-second_open_closes_win = 0
+# Should be rather a user setting, if the theme does not absolutely require it
+#second_open_closes_win = 0
 
 # restores window position when window is reopening
 # This will be saved, but will be discarded when screen is resized
