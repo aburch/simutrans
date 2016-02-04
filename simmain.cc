@@ -1067,9 +1067,10 @@ int simu_main(int argc, char** argv)
 		pak_name.append( ".sve" );
 		chdir( env_t::user_dir );
 		unlink( "temp-load.sve" );
-		rename( pak_name.c_str(), "temp-load.sve" );
-		loadgame = "temp-load.sve";
-		new_world = false;
+		if(  rename( pak_name.c_str(), "temp-load.sve" )==0  ) {
+			loadgame = "temp-load.sve";
+			new_world = false;
+		}
 		env_t::restore_UI = true;
 	}
 
