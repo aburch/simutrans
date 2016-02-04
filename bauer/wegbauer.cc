@@ -200,10 +200,10 @@ const weg_besch_t* wegbauer_t::weg_search(const waytype_t wtyp, const sint32 spe
 const weg_besch_t* wegbauer_t::weg_search(const waytype_t wtyp, const sint32 speed_limit, const uint32 weight_limit, const uint16 time, const weg_t::system_type system_type, const uint32 wear_capacity_limit)
 {
 	const weg_besch_t* best = NULL;
+	bool best_allowed = false; // Does the best way fulfill the timeline?
 	FOR(stringhashtable_tpl<weg_besch_t*>, const& iter, alle_wegtypen)
 	{
 		const weg_besch_t* const test = iter.value;
-		bool best_allowed = false; // Does the best way fulfill the timeline?
 		if(((test->get_wtyp() == wtyp
 			&& (test->get_styp() == system_type ||
 				 system_type == weg_t::type_all)) || 
@@ -212,13 +212,13 @@ const weg_besch_t* wegbauer_t::weg_search(const waytype_t wtyp, const sint32 spe
 				 wtyp == tram_wt))
 			     && test->get_cursor()->get_bild_nr(1) != IMG_LEER) 
 		{
-			bool test_allowed = test->get_intro_year_month() <= time && time < test->get_retire_year_month();
+			bool test_allowed = time == 0 || (test->get_intro_year_month() <= time && time < test->get_retire_year_month());
 
 			const sint32 test_topspeed = test->get_topspeed();
 			const uint32 test_max_axle_load = test->get_max_axle_load();
 			const uint32 test_wear_capacity = test->get_wear_capacity();
 
-			if(best == NULL || time == 0 || test_allowed) 
+			if(best == NULL || test_allowed) 
 			{
 				if(best == NULL ||
 						((best->get_topspeed() < speed_limit && test_topspeed >= speed_limit) ||
