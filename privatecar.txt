@@ -1,0 +1,28 @@
+<title>Private Cars Help</title>
+
+<h1><strong>Private Cars</strong></h1>
+
+<p>
+As time progresses, <strong>private cars</strong> become more of an important feature in Simutrans, and can provide stiff competition for your passenger transportation networks. The proportion of people who currently own private cars can be seen in the <a href="citywindow.txt">city information</a> window. If the pak set is compatible with this feature, the proportion of people with access to a private car will steadily increase over time. If the number remains fixed at 25%, then the pak set is not fully compatible with this feature.
+</p>
+<p>
+As in the real world, Simucitizens tend to prefer to take their car rather than use public transport. Anyone with access to a car will probably use it to get to their destination instead of using your network. This will generate extra traffic in cities, which can also hold up your 'busses and lorries that use city (and some inter-city) roads. The more private car trips that there are, the more traffic will appear on the city streets. The amount of traffic in each city is shown in the <a href="citywindow.txt">city information</a> window. Remember that that traffic includes trips into as well as out of the city, so could well be higher than the total number of passengers. 
+</p>
+<p>
+People travelling by private car affect a city's growth just as much as passengers that you or a rival transport. Do not be surprised, therefore, if, later in the game, as car ownership increases, towns and cities unconnected by any public transport infrastructure start to grow entirely of their own accord. 
+</p>
+<p>
+However, traffic causes <strong>congestion</strong>. The congestion for each city is shown in the <a href="citywindow.txt">city information</a> window. The greater that a city's population is, the denser that it is, and the more traffic that it generates, the more congestion that there will be in a city. Simucitizens do not like driving their cars around, from or to congested cities, and, the more congested the city, the more likely that they are to take your (or a rival's) transport links than their own private cars.
+</p>
+<p>
+Another factor that influences whether people will use your transport or their own private cars is the <em>speed</em> of your transport. The faster that your transport's average speed is compared to the default average speed for road transport at the time, the more likely that they are to use your transport over thier own cars. Conversely, if your transport is particularly slow (for example, you have 'buses that get stuck in traffic jams), passengers will head for their cars.
+</p>
+<p>
+Also, <a href="comfort.txt">comfort</a> is important. For longer distance journies in particular, passengers demand comfort. If your means of transport is comfortable, passengers are more likely to leave their cars behind. Conversely, if it is uncomfortable, they are more likely to take their cars.
+</p>
+<p>
+<em>Tip</em>: As the game progresses, and increasing numbers of people own cars, it might be necessary to re-think your transport network. Smaller towns in particular will need far less passenger capacity. Railways might have to be scaled back (double track replaced with single, long trains replaced with short ones), or closed entirely, and replaced by 'buses, or trams/light rail. Be careful not to prune your rail network too much, however, since, as towns grow, the demand for passengers might well come back as congestion increases, and you may not have much room to put rail connexions back after a town has grown into a large city. Remember also that passengers travelling from a small town to a large city with much congestion will still prefer to take your transport.
+</p>
+<p>
+<em>Tip</em>: The amount of traffic or congestion is not affected by the <strong>vehicle density</strong> setting in the <a href="display.txt">display settings</a> window. This just affects the number of cars visible on the city streets. 
+</p>

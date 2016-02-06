@@ -1,0 +1,22 @@
+<title>Language Help</title>
+
+<h1><strong>Language</strong></h1>
+
+<p>
+<strong>Language</strong> changes the language used in the game.
+</p>
+<p>
+The <strong>Language</strong> window opens from <a href="options.txt">game options</a> and the <a href="new_world.txt">new game</a> window.
+</p>
+<p>
+Click on the button next to your preferred language to use that language. If the game is already running, the previous language will continue to be used for any windows already open until they are closed and re-opened.
+</p>
+<p>
+To get place names in your chosen language, change the language before starting a new game. Note that not all paksets support all place names.
+</p>
+<p>
+Not all languages are supported fully. If there are any texts for which no translations are available, they might appear in English whatever language is selected.
+</p>
+<p>
+Visit http://translator.simutrans.com to help with translating.
+</p>

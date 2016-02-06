@@ -1,0 +1,71 @@
+<title>Inspection Tool Help</title>
+
+<h1><strong>Inspection Tool</strong></h1>
+
+<p>
+The <strong>Inspection Tool</strong> allows you to get more information about things in the main game window by clicking on them. 
+</p>
+<p>
+Click the magnifying glass icon in the toolstrip at the top of the main game window, or press <a href="keys.txt">[a]</a> to switch to the <strong>inspection tool</strong>. The cursor will change to a picture of a magnifying glass.
+</p>
+<p>
+To use tnspection tool: move the cursor over the item (building, transport network, vehicle, etc.) about which you want more information, and left click. If there is more than one thing under the cursor, you will need to click the requisite number of times to see information on all of those things.
+<em>Tip:</em> Option to open one dialogue or all dialogues for a given cursor position available in simuconf.tab
+</p>
+<p>
+Almost everything in the main game window will give more information when clicked on with the <strong>inspection tool</strong>. Some particularly important things are accessed with the tool, however. Click on the following types of items for:
+</p>
+<p>
+<em>Depots</em> - click on a <a href="depot.txt">depot</a> to open a window that allows you to buy new vehicles and manage your existing vehicle fleets.
+</p>
+<p>
+<em>Stops</em> - click on a <a href="station.txt">stop</a> to see what is waiting at that stop, where it is going and where it has come from.
+</p>
+<p>
+<em>Vehicles</em> - click on a <a href="convoiinfo.txt">vehicle</a> to see what is on board that vehicle, to get further information about it, and for further options regarding that vehicle (including replacing it with another vehicle, changing its schedule, or sending it to a depot). 
+</p>
+<p>
+<em>Town halls</em> - click on a town hall to see more information about the <a href="citywindow.txt">city</a> that it serves.
+</p>
+<p>
+<em>Industries</em> - click on an <a href="industry_info.txt">industry</a> to get more information about that industry.
+</p>
+<p>
+<em>City Buildings</em> click on an ordinary building in a city to get information about that building:<br>
+- <em>Description</em> some information about the building;<br>
+- <em>City of</em>: indicates the urban area in which the building is located;<br>
+- <em>Passenger level:</em> indicates the relative popularity of the building as a destination for passengers;<br>
+- <em>Mail level:</em> indicates the relative popularity of the building as a destination for mail;<br>
+- <em>Appears from</em>: indicates the year in which the building first appears if playing with the <a href="new_world.txt">timeline</a> enabled;<br>
+- <em>Value:</em>: indicates the cost of <a href="window.txt">demolishing</a> the building; and<br>
+- <em>Painted by</em>: indicates the name of the person who made the building for Simutrans.
+</p>
+<p>
+<em>Attractions</em> click on an <a href="curiositylist_filter.txt">attraction</a> or monument to get information about that attraction:<br>
+- <em>Description</em> some information about the attraction;<br>
+- <em>Passenger level:</em> indicates the relative popularity of the building as a destination for passengers;<br>
+- <em>Mail level:</em> indicates the relative popularity of the building as a destination for mail;<br>
+- <em>Appears from</em>: indicates the year in which the building first appears if playing with the <a href="new_world.txt">timeline</a> enabled; and<br>
+- <em>Painted by</em>: indicates the name of the person who made the building for Simutrans.
+</p>
+<p>
+<em>Ways</em> click on a <em>way</em> (ways include roads, railways, canals, runways and the like) to see information about that way:<br>
+- <em>Max. speed</em>: the maximum speed at which vehicles may travel on the way;<br>
+- <em>Max. weight</em>: the heaviest vehicle (including load, if any) that may travel on the way;<br>
+- <em>Has a sign or signal</em> if there is a road sign or railway signal on the particular tile;<br>
+- <em>Electrified</em>/<em>Not electrified</em> indicates whether the way is electrified;<br>
+- <em>Convoys passing in the last month</em> indicates the number of <a href="convoiinfo.txt">convoys</a> that have used the way in the most recent month;<br>
+- <em>Reserved by</em> indicates that a convoy (named) has reserved the current block section. This applies to rail type ways only; and<br>
+In the case of tram tracks constructed on a road, the information is shown twice, first for the road and then for the tram track.
+</p>
+<p>
+<em>Electricity infrastructure</em> click on a power line or electricity substation to see information about <a href="electricity.txt">electricity</a> supply and demand in that network:<br>
+- <em>Power:</em> the capacity of the current network in megawatts;<br>
+- <em>Available:</em>: the proportion of the network's capacity still available (this is only shown at substations);<br>
+- <em>Network ID:</em> a unique identification number for a single connected power grid. Everything connected to infrastructure with one network number will be connected to everything else on that same network. Note that this number is likely to change whenever a game is saved and reloaded.
+</p>
+<p>
+<em>Trees</em> click on trees to see more information about them:<br>
+- <em>Name</em> the species of the tree; and<br>
+- <em>Age</em> the age of tree in months. Note that a tree's size will depend on its maturity, and trees will eventually die.
+</p>

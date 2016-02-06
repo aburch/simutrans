@@ -1,0 +1,41 @@
+<title>Game Options Help</title>
+
+<h1><strong>Game Options</strong></h1>
+
+<p>
+The <strong>Game Options</strong> window allows a number of general options to be set, and allows for loading and saving games, and quitting Simutrans. 
+</p>
+<p>
+Click on the diskette icon at top of the main game window to open the <strong>Game Options</strong> window.
+</p>
+<p>
+The options available are:
+</p>
+<p>
+<em>Language:</em> sets the <a href="language.txt">language</a> used in the game.
+</p>
+<p>
+<em>Player Colour:</em> sets the <a href="color.txt">colour</a> of the player's transport company.
+</p>
+<p>
+<em>Display:</em> sets a number of <a href="display.txt">display</a> options (opens a new window). 
+</p>
+<p>
+<em>Sound:</em> settings for <a href="sound.txt">sound</a> and music in the game (opens a new window).
+</p>
+<p>
+<em>Players:</em> sets a number of options relating to <a href="players.txt">Player</a> companies (opens a new window).
+</p>
+<p>
+<em>Load:</em> <a href="load.txt">loads</a> a saved game (opens a new window).
+</p>
+<p>
+<em>Save:</em> <a href="save.txt">saves</a> the current game (opens a new window).
+</p>
+<p>
+<em>New Map:</em> opens a new window with settings to start a <a href="new_world.txt">new game</a>. All other windows, other than the main game window, will close.
+</p>
+<p>
+<em>Quit:</em> exits Simutrans.<br>
+<em>Note:</em> You will not be prompted to save your game. Any changes since the last save will be lost. 
+</p>

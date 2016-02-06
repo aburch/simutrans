@@ -1,0 +1,56 @@
+<title>Way wears and upgrades</title>
+
+<h1>Way wears and upgrades</h1><br>
+<p>
+
+</p>
+<h1>Concept:</h1>
+<p>
+The condition of a waytile wil decrease for each vehicle driving over it. If the player has sufficient funds, the way will eventually automatically upgrade, but if the player lacks money, the way will be downgraded and the maxspeed of the way is halfed. If the way degrades even more, it will eventually turn into a mothballed way, wich will be impassable for vehicles. This is however also configurable by the player to choose which way to upgrade to, alternatively if the way should not upgrade at all.<br>
+The conditions of the ways can be checked either in the info window of the waytile, or in the "wear" overlay for the <a href="map.txt">minimap</a>.<br>
+The player is warned up to once a month if renewals are not possible due to insufficient funds<br><br>
+The current treasholds for way downgrading (pak.britain-Ex):<br>
+Degrade to half maxspeed: 14%<br>
+Degrade to impassable: 0%<br>
+<p>
+</p>
+<h1>How to control it:</h1>
+<p>
+The <em>Durability</em> value of a way repressents the tolerance of the way, and will be shown when hovering with the mouse over the way icon.
+<p>
+</p>
+The <em>Way wear factor</em> that a vehicle will pass on a waytile is specified in the depot window. This number will be subtracted from the "durability" value on the waytile, each time the vehicle passes.<br>
+<p>
+</p>
+When watching the info window of a waytile, you get this information about the way wear:
+<p>
+</p>
+<em>Condition:</em> The current condition of the waytile, shown in percent.
+<p>
+</p>
+<em>Built:</em> The month and year this waytile originally was built.
+<p>
+</p>
+<em>Last renewed:</em> The month and year this waytile was last renewed.
+<p>
+</p>
+<em>to be renewed with:</em> This is the waytype with which this way currently are scheduled to be renewed with.<br>
+<p>
+</p>
+<h1>Actions:</h1>
+<p>
+You can <em>override autorenewal</em> and choose which waytype with wich this waytile is about to upgrade to, by select the desired waytype and SHIFT-dragging this way over the old way. <p>
+</p>
+You can <em>disable autorenewal</em> by SHIFT-dragging the way remover tool or the mothballed waytype over the way, and the way will behave in the same manners as when you have insufficient funds (degrade to halfspeed, then to impassable)<br>
+<p>
+</p>
+<h1>Details:</h1>
+<p>
+By default, road and air vehicles (air vehicles acting like road vehicles on the ground) calculate their wear using the fourth power law based on the maximum axle load and an attempt to deduce the weight. Rail and allied vehicles default to a power of 2 (but query whether this should be a power of 1, i.e. linear). Water craft will default to zero, as water craft do not normally wear ways.<br>
+</p>
+<h1>Tips:</h1>
+<p>
+-- Take the <em>condition</em> value of a way in consideration when building ways intended for lots of traffic.<br><br>
+-- Modern vehicles tend to wear the ways more than older vehicles. <em>Override the automatic renewal</em> to force it to build better ways, in order to futureproof your network!<br>
+<p>
+</p>

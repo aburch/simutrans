@@ -1,0 +1,122 @@
+<title>Display Settings Help</title>
+
+<h1><strong>Display Settings</strong></h1>
+
+<p>
+<strong>Display Settings</strong>lets you control how the game appears, and provides information on computer performance.
+</p>
+<p>
+Click on the display button in the <a href="options.txt">Game Options</a> menu to open the <strong>Display Settings</strong> window.
+</p>
+<p>
+Click on the square buttons to select options (the button is indented when the option is selected), or use the <a href="mouse.txt">arrow buttons</a> to adjust settings:
+</p>
+<p>
+- <em>Show grid:</em> shows the lines between the individual tiles. This can be useful when terraforming.
+</p>
+<p>
+- <em>Underground view:</em> reveals beneath the ground to show tunnels and underground transport networks.
+</p>
+<p>
+- <em>Day and night change:</em> if this is enabled, the game window will slowly cycle through dawn, day, dusk and night, giving graphical variety. If unselected, the game will be permantently set to a particular time of day, depending on the <strong>brightness</strong> setting.
+</p>
+<p>
+- <em>Brightness:</em> affects the ambient light used in the main game window. The higher the number, the darker.
+</p>
+<p>
+- <em>Brightness:</em>sets how light/dark view of game appears; lower number to darken; too low or high values produce problems; use <a href="keys.txt">[+]</a> to increase value over 0.
+</p>
+<p>
+- <em>Scroll Inverse:</em> reverses direction of scroll in the main game window in <a href="window.txt">Game Window</a>.
+</p>
+<p>
+- <em>Scroll Speed:</em> sets speed of scrolling in the main game window.
+</p>
+<p>
+- <em>Transparent instead of hidden:</em> objects that are selected as hidden will instead appear see-through.
+</p>
+<p>
+- <em>Hide trees:</em> all trees will either be made very small, or made transparent, depending on how the last option is set. 
+</p>
+<p>
+- <em>Building settings:</em> determines which, if any, buildings are hidden from view. If <strong>no buildings hidden</strong> is selected, then all buildings are visible. If <strong>hide city buildings</strong> is selected, then only player-built buildings, town halls, industries and tourist attractions will be visible. If <strong>hide all buildings</strong> is selected, then all buildings apart from station/stop buildings will be hidden, but town halls will be highlighted in green, monuments will be highlighted in pink, tourist attractions in yellow, and industries in red.
+</p>
+<p>
+- <em>Transparent station coverage:</em> shows the catchment area of stops/stations as transparent, rather than as a grid.
+</p>
+<p>
+- <em>Show station coverage:</em> displays the catchment area for each station in the main game window. Use the <a href="keys.txt">[V]</a> key to toggle this display.
+</p>
+<p>
+- <em>Show station names:</em> toggle whether the name of each station is displayed in the main game window.
+</p>
+<p>
+- <em>Show waiting bars:</em> toggle whether the miniature bar graphs showing the proportion of waiting goods/passengers as against the station's total capacity is displayed in the main map window.
+</p>
+<p>
+- <em>Pedestrians in towns:</em> toggles whether pedestrians that appear in <a href="citywindow.txt">urban areas</a> are displayed.
+</p>
+<p>
+- <em>Pedestrians at stops:</em> toggles whether pedestrians that appear when a vehicle arrives at a <a href="station.txt">stop</a> are displayed.
+</p>
+<p>
+- <em>Traffic density:</em> sets volume of private car traffic displayed in the main game window in <a href="citywindow.txt">urban areas</a>. Note that this setting only alters the number of cars actually visible in the main game window: it does not alter the number of <a href="privatecar.txt">private car</a> trips generated, nor the level of congestion in urban areas, or any other aspect of the simulation itself. 
+</p>
+<p>
+- <em>Convoy tool tips:</em> customises the amount of information displayed about convoys in the main game window.
+</p>
+<p>
+<em>Tip</em>: More options and default values for when Simutrans starts can be changed in the simuconf.tab file, located in /simutrans/config/.
+</p>
+<br>
+<p>
+<strong>Display Information:</strong>
+</p>
+<p>
+Below these settings, information is shown on computer performance when running Simutrans.<br>
+If numbers (usually white) are red or yellow you may need to change your settings.<br>
+Changes in rate that time passes in game, <a href="window.txt">T</a>, (using Fast Forward  >> icon at top of the main game window, or [,]/ [.]) may change number colour.
+</p>
+<p>
+<em>Frame Time:</em> The first number is intended time between frames; second number is actual time between frames.
+</p>
+<p>
+<em>Idle:</em> When above 0, the computer has capacity to run other software without adversely impacting the performance of Simutrans.
+</p>
+<p>
+<em>
+FPS:</em> Higher values mean vehicles appear to move more smoothly. If number remains red, the computer is too slow for current settings (try reducing the size of the main game window).
+</p>
+<p>
+<em>Simloops:</em> If this number remains red, the computer is too slow for current settings - try a smaller map with fewer urban areas.
+</p>
+<p>
+<strong>Pathfinding information</strong>
+</p>
+<p>
+This section gives information on the status and settings of the pathfinding system in Simutrans. These settings are displayed here to give information about the performance of the system, as the pathfinding is one of the most challenging tasks for the computer.
+</p>
+<p>
+<em>Centralised path searching:</em> toggles between the distributed path searching system and the centralised path searching system (default).
+</p>
+<p>
+<em>Use performance counter:</em> indicates whether the performance counter is used, which is only customisable in simuconf.tab. This is an advanced system setting.
+</p>
+<p>
+<em>Rebuild connexions:</em> (centralised path searching only) the number of lines or convoys without lines that can be processed per step in the currently active phase.
+</p>
+<p>
+<em>Find eligible halts:</em> (centralised path searching only) the number of stops that can be processed per step in the currently active phase.
+</p>
+<p>
+<em>Fill path matrix:</em> (centralised path searching only) the number of stops that can be processed per step in the currently active phase.
+</p>
+<p>
+<em>Explore paths:</em> (centralised path searching only) the number of search iterations that can be processed per millisecond in the currently active phase.
+</p>
+<p>
+<em>Re-route goods:</em> (centralised path searching only) the number of halts that can have their goods re-routed per step in the currently active phase.
+</p>
+<p>
+<em>Status:</em> (centralised path searching only) indicates whether a search is currently in progress.
+</p>

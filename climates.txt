@@ -1,0 +1,80 @@
+<title>Climate Settings Help</title>
+
+<h1><strong>Climate Settings</strong></h1>
+
+<p>
+<strong>Climate settings</strong> sets options for topograhical and meterological aspects of the game world.<br>
+<p>
+<strong>Climate settings</strong> opens with the <a href="new_world.txt">Create a New Game</a> window.
+</p>
+<p>
+Arrow buttons adjust settings:
+</p>
+<p>
+<it>General options:</it>
+</p>
+<p>
+
+<em>Water level:</em> sets the sea level relative to the height of the terrain.
+</p>
+<p>
+
+<em>Mountain height:</em> sets the maximum height (in tiles) of any point in the landscape. Mountains will not be higher than this. The higher the setting, the more mountainous the terrain.
+</p>
+<p>
+
+<em>Map roughness:</em> sets the roughness of the terrain: the larger the number, the rougher and more undulating the landscape.<br>
+</p>
+
+<p>
+<em>Hilly landscape:</em> if selected, this option will make the landscape extra hilly. This gives a slightly different effect to increasing "mountain height".
+</p>
+
+<p>
+<it>Snowline options:</it>
+</p>
+<p>
+
+<em>Summer snowline:</em> shows the height of snowline in summer. This cannot be adjusted, as it is a product of other settings.
+</p>
+<p>
+
+<em>Winter snowline:</em> sets the height of snowline in winter (in tiles).<br>
+</p>
+<p>
+<it>Climate options:</it>
+</p>
+<p>
+There are six different <em>climates</em> in Simutrans. Each climate appears at a different map height (adjusted by the settings described below). The climate affects the appearance of the terrain, the types of trees that can grow on the terrain, and the types of industries and other buildings that appear on the terrain. The six climate types are:
+</p>
+<p>
+<em>- Desert</em><br>
+<em>- Tropical</em><br>
+<em>- Mediterranean</em><br>
+<em>- Temperate</em><br>
+<em>- Tundra</em><br>
+<em>- Mountain</em>
+</p>
+<p>
+Next to each of the climates is a number. This represents the height in tiles below which that climate will appear. If the number specified is the same as a climate further up the list, the climate type will not appear at all.
+<p>
+
+</p>
+<it>Tree and river options:</it>
+</p>
+<p>
+
+<em>No trees:</em> if this option is selected, the landscape will be generated devoid of trees.
+</p>
+
+<p>
+<em>Number of rivers:</em> sets the number of rivers that will be generated.
+</p>
+<p>
+<em>Min. river length:</em> sets the shortest length of river that will be created.
+</p>
+<p>
+<em>Max. river length:</em> sets the longest length of river that will be created.
+</p>
+<p>
+<em>Tip:</em> Setting too many rivers to generate at the beginning of a game can make creating a new map very slow. 

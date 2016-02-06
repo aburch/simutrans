@@ -1,0 +1,49 @@
+<title>Message Centre and Message Centre Options Help</title>
+
+<h1><strong>Message Centre</strong></h1>
+
+<p>
+The <strong>message centre</strong> is a listing of all dialogues and messages (including messages on the ticker, at the bottom of the screen) from the game.
+</p>
+<p>
+Click on the mailbox icon in the toolstrip at top of the main game window, or press <a href="keys.txt">[B]</a> to open the <strong>message centre</strong> window. Clicking on individual messages will, in appropriate cases, move the main game window to the location associated with that message.
+</p>
+<p>
+Click on the <em>Options</em> button to open the <strong>message centre options</strong> window. The message centre options window has settings about which messages are displayed, and how they are displayed.
+</p>
+<p>
+The <strong>message centre options</strong> window has three columns of check boxes which select how messages are displayed.
+</p>
+<p>
+The different columns give options as to how the messages are displayed. The leftmost column indicates that the messages are displayed on the ticker (scrolling at the bottom of the main window). The middle cloumn indicates that the messages are displayed in a transient dialogue box that disappears after a few seconds. The rightmost column indicates that the messages are displayed in a dialogue box that will remain on the screen until it is closed manually.
+</p>
+<p>
+The rows give options as to the type of messages are displayed. From top to bottom, the options are:
+</p>
+<p>
+<em>New Year:</em> indicates that new year has started.
+</p>
+<p>
+<em>AI News:</em> indicates when an <a href="players.txt">AI player</a> has opened a new line.
+</p>
+<p>
+<em>City News:</em> indicates when an <a href="citywindow.txt">urban area</a> builds a larger town hall (commensurate with population growth). 
+</p>
+<p>
+<em>No Route:</em> indicates when one of your convoys can not find a route to the next destination in its <a href="schedule.txt">schedule</a>.
+</p>
+<p>
+<em>New Industries:</em> indicates when new <a href="industryinfo.txt">industry</a> chains are built. New industries appear consequent on the growth of towns and cities.
+</p>
+<p>
+<em>Tourist:</em> indicates when <a href="curiositylist_filter.txt">attractions</a> or monuments are built.
+</p>
+<p>
+<em>New Vehicles:</em> indicates when new vehicles become available, or existing vehicles become obsolete. This applies only if the <a href="new_world.txt">timeline</a> is enabled.
+</p>
+<p>
+<em>Station full:</em> indicates when any <a href="station.txt">stop</a> is overcrowded.
+</p>
+<p>
+<em>Problems:</em> shows messages about miscellaneous problems, including problems related to debt and finance.
+</p>

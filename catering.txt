@@ -1,0 +1,20 @@
+<title>Catering Help</title>
+
+<h1><strong>Catering</strong></h1>
+
+<p>
+Passenger vehicles can have a <em>catering</em> level of between 0 and 5. All passenger vehicles with a catering level other than 0 are deemed to have catering facilities. The catering level of a convoy is the catering level of the vehicle in the convoy with the highest catering level.
+</p>
+<p>
+Catering affects revenue in two ways. Firstly, it brings in its own revenue by virtue of the profit made on the food and drink sold. This revenue is strongly dependant on the distance: passengers will buy more food and drink on a longer journey than a shorter one. For journies of less than an hour or so, catering of any sort will raise little or no revenue. For journies of less than two hours, only the lowest levels of catering will make any difference: higher levels of catering will not produce higher profits than the lower levels. Only for very long journies will the higher levels of catering make any difference.
+</p>
+<p>
+The second way in which catering affects revenue is that it gives a small boost to the <a href="comfort.txt>comfort</a> of the convoy to which it is attached: passengers prefer to travel where they can obtain food and drink if they want. The importance of comfort is also dependant on the journey time.
+</p>
+<p>
+<strong>Travelling post offices</strong><br>
+Mail vehicles can be travelling post offices: vehicles in which mail is sorted on the move. This works for mail in the same way as catering works for passengers, except that there is no comfort rating for mail, and there are not different levels of travelling post offices. Mail journeys should be at least two hours to benefit from a travelling post office.
+</p>
+<p>
+<em>Tip</em>: If you <a href="replace.txt">replace</a> older convoys with newer, faster ones, before you fit the newer ones with catering facilities, make sure that the journey time has not dropped so much that the passengers only need a lower level of catering, or no catering at all.
+</p>

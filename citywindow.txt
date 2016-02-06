@@ -1,0 +1,72 @@
+<title>City Information Help</title>
+
+<h1><strong>City Information</strong></h1>
+
+<p>
+<strong>City Information</strong> shows statistics about a selected urban area (village, town or city), and can be used to change the name of that urban area.
+</p>
+<p>
+Each urban area has its own <em>Town Hall</em> around which it grows. Transportation of passengers and mail helps growth, which involves: roads built or commandeered over by the <a href="players.txt">public service player</a>; new city buildings and <a href="industry_info.txt">industries</a> appear; and city limits extend.
+</p>
+<p>
+Click on a Town Hall in the main game window with the <a href="inspection_tool.txt">Inspection Tool</a>, or on an urban area listed in the <a href="citylist_filter.txt">City List</a> to open the <strong>City Information</strong> window, which contains: (1) a name box; (2) statistics; (3) two mini-maps; and (4) statistics graphs for the urban area.
+</p>
+<p>
+<em>Name:</em> the name of urban area appears in a name box at top of the <strong>City Information</strong> window. <br>
+Names of urban areas are used in the default names of stops, but these can be changed later.<br>
+To change the urban area's name name: click on the name box and type in a new name.<br>
+<em>Tip</em>: Use <a href="keys.txt">[!]</a> to toggle view of name of urban area, above a Town Hall, in the main game window. See readme_citylist.txt (in ...simutrans/text/) for help on name generation of urban areas.
+</p>
+<p>
+Under the name box, statistics are provided for the urban area:<br>
+<em>City size:</em> the number of citizens (i.e., the population of the urban area). Any recent increase in population is shown in brackets.<br>
+<em>Buildings:</em> the number of buildings in the urban area.<br>
+<em>Map co-ordinates:</em> shows the city limits, which change as the urban area grows.
+<p>
+</p>
+The following statistics show whether a city is fulfilling demand:<br>
+<em>Unemployed:</em> the more unemployed people that there are, the more demand for new commercial buildings (providing jobs) that there is.<br>
+<em>Homeless:</em> the more homeless people that there are (not necessarily living on the streets - living, perhaps, with friends, or in multiple occupation), the more demand that there is for housing.
+</p>
+<p>
+<em>Power demand:</em> Shows the amount of <a href="electricity.txt">electricity</a> currently demanded by this city.
+</p>
+<p>
+<em>Mini-maps</em> of the game world in the <strong>City Information</strong> window show the destinations of passengers and mail produced in the present urban area.<br>
+Destinations are shown by coloured dots for the current game calendar month (right mini-map) and the previous game calendar month (left mini-map). The colour of destination dots shows information about passengers and mail:<br>
+- <em>Dark yellow</em>: passengers were able to walk the whole way to their destination.<br>
+- <em>Yellow</em>: a suitable route was found, and the starting stop was not too crowded (equivalent to the happy face in the <a href="station.txt">stop</a> window).<br>
+- <em>Terquoise</em>: passengers reached the destination by means of their private cars.<br>
+- <em>Orange</em>: there is no available route to the desired destination.<br>
+- <em>Purple</em>: there is a route to the desired destination, but it takes too long for passengers to tolerate.<br>
+- <em>Red</em>: a suitable route was found, but the starting stop was too crowded to be used (equivalent to the unhappy face in the <a href="station.txt">stop</a> window).
+</p>
+<p>
+<em>Graph</em> shows statistics for the urban area. <br>
+The y-axis is quantity, the x-axis time.<br>
+Click on a graph index tab to change scale of x-axis:<br>
+<em>Years:</em> shows annual values for last twelve game calendar years.<br>
+<em>Months:</em> shows monthly values for last twelve game months.
+</p>
+
+<p>
+Click on a graph option button to see choose which information to display on graph (the button is indented when an option selected). Multiple graphs can be overlaid over each other.<br>
+Colours of lines on graph correspond to colours of graph-Option buttons:<br>
+<em>Citizens:</em> the population.<br>
+<em>City growth:</em> the change in population (dependent on city size, transport service provided for passengers and mail and goods delivered).<br>
+<em>Travelled:</em> passengers and mail from this urban area transported by public transport (shown as a <a href="station.txt">happy face</a> in the stop information window).<br>
+<em>Passengers:</em> the total number of passengers and mail generated in this urban area.<br>
+<em>Buildings:</em> the total number of buildings in the urban area.<br>
+<em>Traffic:</em> the total number of journies made by passengers both <strong>into</strong> and <strong>out of</strong> this urban area, using <a href="privatecar.txt">private cars</a> instead of public transport.<br>
+<em>Sent:</em> the total amount of mail transported by public transport in this urban area.<br>
+<em>Mail:</em> the total amount of mail generated in this urban area.<br>
+<em>Goods supplied:</em> the total quantity of passengers and mail (measured in bags) arriving in this urban area by public transport.<br>
+<em>Goods needed:</em> the quantity of goods arriving in this urban area by public transport. Transporting goods to a city increases that city's growth.<br>
+<em>Power supply:</em> the amount of <a href="electricity.txt">electricity</a> supplied to the city. This will not be higher than the demand.<br>
+<em>Power demand:</em> the amount of <a href="electricity.txt">electricity</a> drawn by substations in the city. Note that this will be zero unless the city has at least one substation within the city limits, but the demand can be seen from the "power demand" number above the graph area.<br>
+<em>Congestion:</em> how congested that the roads of this urban area are with <a href="privatecar.txt">private cars</a>. The more congested the roads, the more that passengers will want to take public transport, and the less that the city will grow. Values of over 100 will stop the city growing entirely. 
+<em>Car ownership:</em> the percentage of people who have access to <a href="privatecar.txt">private cars</a>. This value changes over time, but is the same for every city. 
+</p>
+<p>
+<em>Tip</em>: Settings related to urban areas can be changed in <strong>simuconf.tab</strong> and <strong>cityrules.tab</strong> files, located in the /simutrans/config directory.
+</p>
