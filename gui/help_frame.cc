@@ -151,6 +151,7 @@ help_frame_t::help_frame_t(char const* const filename) :
 	add_helpfile( how_to_play, "Farbe", "color.txt", false, 1 );
 //		add_helpfile( how_to_play, "Scenario", "scenario.txt", false, 1 );
 	add_helpfile( how_to_play, "Enter Password", "password.txt", false, 1 );
+	add_helpfile( how_to_play, NULL, "way_wear.txt", false, 1);
 
 	add_helpfile( others, "Einstellungen aendern", "options.txt", false, 0 );
 	add_helpfile( others, "Helligk. u. Farben", "display.txt", false, 0 );
