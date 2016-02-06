@@ -1,0 +1,94 @@
+<title>Stop Information Help</title>
+
+<h1><strong>Stop Information</strong></h1>
+
+<p>
+<strong>Stop Information</strong> provides information about <strong>stops</strong>. Stops are where goods and passengers board, alight from, and wait for transport.
+</p>
+<p>
+Each stop has a <em>catchment area</em>. To display the stop's catchment area, press the <a href="keys.txt">[v]</a> key on the keyboard, or select, "show station coverage" in the <a href="display.txt">display menu</a>. Industries inside the catchment area will send their goods to the stop, and passengers and mail inside the catchment area will come to the stop, if there is a transport service from that stop to take them where they want to go. Goods and passengers from outside the catchment area will not come to a stop, except by arriving there on your (or a rival's) transport.
+</p>
+<p>
+Different sorts of stops are suitable for different uses. Each different type of transport (road, rail, air, etc.) has its own type of stop. To build stops suitable for each different sort of transport, use the menus for that transport type, which are: <a href="railtools.txt">railways</a>; <a href="narrowgaugetools.txt">narrow gauge railways</a>; <a href="monorailtools.txt">monorail</a>; <a href="maglevtools.txt">maglev</a>; <a href="tramtools.txt">tram</a>; <a href="roadtools.txt">road</a>; <a href="shiptools.txt">waterways</a>; and <a href="airtools.txt">air</a>.<br>
+<em>Note:</em> Water craft may use any square of water in the catchment area of a dock to pick up and drop off goods or pasengers.<br>
+<em>Note:</em> Trams are a special case, in that they are partly rail vehicles and partly road vehicles. Accordingly, trams do not have their own type of stops, but instead can use either road or rail stops.
+</p>
+<p>
+Unless the feature is turned off in the configuration file called <strong>simuconf.tab</strong>, different types of stops can cope with different sorts of items to transport: mail, passengers and goods respectively. A passenger 'bus stop cannot deal with coal, for example, and a container port cannot deal with mail. The sorts of things that a stop can deal with are signified by three different types of graphics in the menus used for building stops, and in the stop's information window: some people for passengers, a yellow envelope for mail, and a heap of brown minerals for goods. 
+</p>
+<p>
+Each stop has a capacity. Unless the feature is turned off in the configuration file called <strong>simuconf.tab</strong>, a stop will have a separate capacity for each of passengers, mail and goods. If the number of each type of item significantly exceeds the capacity, then any furhter items to be delivered to that stop will be turned away, so it is important to make sure that your stops do not get too crowded. Also, passengers do not like travelling from crowded stops, and will not be prepared to pay such a high fare if they have to use a stop that is frequently overcrowded. A warning <a href="mailbox.txt">message</a> will pop up (unless you disable it) to let you know if any of your stops are overcrowded.
+</p>
+<p>
+Different stops can be combined. To combine two stops, just place the second stop immediately (but not diagonally) next to the first. The second stop will then automatically become part of the first stop. Different types of stops can be combined in this way. For example, a 'bus stop can be combined with a railway station, and a mail stop combined with a passenger stop. This is useful when you want passengers, mail or goods to be able to transfer from one form of transport to another to continue their journey. In Simutrans, people will not walk between different intermeidate stops, so the stops have to be connected to be used as interchanges.
+</p>
+<p>
+As well as being combined with other stops, each stop can be combined with one or more <em>extension buildings</em>. Extension buildings (such as a passenger terminal) increase the capacity of a stop, and can also let a stop handle a type of traffic that it would not otherwise be able to handle. For example, add a post office extention building to a railway station to enable it to handle mail.
+</p>
+<p>
+To see information about a particular stop, use the <a href="inspection_tool.txt">Inspection Tool</a> to click on the stop in the main game window, or click on a stop listed in the <a href="haltlist.txt">list of stops</a> or the <a href="linemanagement.txt">line management window</a>.
+The <strong>Stop Information</strong> dialogue box shows the stop's name; a mini view of the stop; general information about the stop; option buttons; and a list of all items waiting at the stop to be transported. If not all of the items are visible, just <a href="mouse.txt">re-size</a> the <strong>Stop Information</strong> dialogue box or use the slider bars to scroll. 
+</p>
+<p>
+The following information is displayed:<br>
+<em>Name</em>: the stop's name, shown in name box at top of the <strong>Stop Information</strong> window.<br>
+By default name is assigned automatically when the stop is first built, and depends on the <a href="citywindow.txt">urban area</a> to which the stop is nearest, and any <a href="industry_info.txt">industry</a> within its catchment area.<br>
+To change name, just click on name box and type the new name.<br>
+<em>Tip:</em> Use the <a href="keys.txt">[!]</a> key to cycle the visibility of the stop's name and status colour bar in the main game window.
+</p>
+<p>
+<em>Status colour bar:</em> different colours show how well that a stop is coping with the level of traffic. The status colour bar is also used in the stop list and line management windows, and is the same colour displayed in the colour bar above a stop in the main game window. The colours are:<br>
+- <em>Yellow:</em> there is currently no service to this stop<br>
+- <em>Green:</em> the stop has good service<br>
+- <em>Orange:</em> the stop has poor service<br>
+- <em>Red:</em> the stop has critically poor service<br>
+<em>Tip</em>: A stop is poorly served when (1) the capacity is not enough for the amount/number of mail/passengers/goods waiting there; (2) the service is not high enough in capacity to meet the transport demand of the stop; or (3) the service is too infrequent, and passengers give up waiting, perishable goods perish, or mail becomes outdated while waiting. If passengers, mail or goods have to wait too long at a stop in comparison to the length of their journey, they will leave without being transported further. If the colour status bar has become red, something urgently needs to be done about the stop, or else it is likely to cause problems for your network and your profitability.
+</p>
+<p>
+Graphic Icons are also used in station list and line management windows:<br>
+- <em>Freight icon(s)</em> indicate which items (passengers, goods and mail) a Stop can handle.<br>
+- <em>Vehicle icon(s)</em> indicate which types of vehicle can use Stop. Icons include: a 'bus (for passengers), a truck (for goods), a train (for railways), a boat and an aircraft.
+</p>
+<p>
+<em>Storage capacity:</em> the amount of each item (goods, passengers and mail) tthat the stop can accommodate.
+</p>
+<p>
+<em>Stop picture</em>: is a mini-view of the stop and any visible convoys in the area.<br>
+Click on the picture to centre the main game window on the stop.
+</p>
+<p>
+<em>Passengers</em>: the numbers indicate number of the following types of passengers who start, or attempt to start, their journey at the current stop:<br>
+- <em>Happy face</em> indicates the number of passengers, who have arrived at the stop as a result of its catchment area (rather than using it as a transfer), are able to get from the stop to their destination and waited for transport.<br>
+- <em>Unhappy face</em> indicates the number of passengers who have arrived at the stop by any means, but were turned away because it was overcrowded, or left of their own accord because the waiting time was too long.<br>
+- <em>No route</em> indicates the number of passengers who would use the stop from its local catchment area if transport from that stop took them to their desired destination.<br>
+- <em>Too slow</em> indicates the number of passengers who would travel from the stop from its local catchment area if they could get to their destinations more quickly.<br>
+<em>Tip:</em> Keeping passengers happy helps with the growth of <a href="citywindow.txt">urban areas</a>. The more passengers transported in proportion to those who need to be transported, the faster that towns and cities will grow.
+</p>
+<p>
+<em>Goods and passengers waiting:</em> lists items that are waiting for transport at the stop in groups of: passengers; mail; and type of goods.<br>
+The option button (changes name with selection) sorts of items within groups:<br>
+ - <em>Destination:</em> sorts items, in alphabetical order by the name of the destination stop.<br>
+ - <em>Via (detail):</em> sorts items in alphabetical order by the name of the next interchange stop.<br>
+ - <em>Via (amount):</em> sorts items by quantity headed by the name of the next interchange stop.<br>
+ - <em>Origin (detail):</em> sorts items in alphabetical order by the name of the stop from which they came.<br>
+ - <em>Origin (amount):</em> sorts items by quantity headed by the name of the origin stop.<br>
+ - <em>Amount:</em> sorts items by quantity in descending order.<br>
+<em>Tip:</em> the coloured bar chart above a stop in the main game view (use [!] to toggle) indicates the quantity of items that are waiting for transport.  The colours are the same as the <a href="goods_filter.txt">colour-squares</a> in the goods list window.
+</p>
+<p>
+<em>Chart:</em> click option button to toggle graph (button is indentented when graph is visible) in the <strong>Stop Information</strong> window.<br>
+The graph shows statistics for the last 12 months (x-axis) when a graph option is selected.<br>
+Click on the graph option button to see information on the graph (the button is indented when an option is selected).<br>
+Colours of lines on graph correspond to colours of graph-Option buttons:<br>
+- <em>Happy:</em> who have arrived at the stop as a result of its catchment area (rather than using it as a transfer), are able to get from the stop to their destination and waited for transport.<br>
+- <em>Unhappy:</em> indicates the number of passengers who have arrived at stop by any means, but were turned away because it was overcrowded, or left of their own accord because the waiting time was too long.<br>
+- <em>No Route:</em> indicates the number of passengers who would use that stop from its local catchment area if transport from that stop took them to their desired destination<br>
+- <em>Too slow:</em> indicates the number of passengers who would travel from the stop from its local catchment area if they could get to their destinations more quickly.<br>
+- <em>Waiting:</em> indicates the amount of goods and number of passengers at the stop waiting for transport.<br>
+- <em>Arrived:</em> indicates the amount of goods and number of passengers dropped off at the stop by player's transport, either as their final destination, or as an interchange.<br>
+- <em>Departed:</em> indicates the amount of goods and  number of passengers boarding transport at the stop.<br>
+- <em>Convoys:</em> indicates the number of convoys servicing the stop<br>
+</p>
+<p>
+<em>Details:</em> option button opens <a href="station_details.txt">Stop Details</a> that provides further information about the stop.
+</p>

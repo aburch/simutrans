@@ -1,0 +1,73 @@
+<title>Create a New Game Help</title>
+
+<h1><strong>Create a New Game</strong></h1>
+
+<p>
+The <strong>Create a New Game</strong> window contains options for starting a new game. Settings for starting the new game can be adjusted, and a preview of the terrain for the game world is shown in the top right hand corner.
+</p>
+<p>
+The <strong>Create a New Game</strong> window opens automatically when Simutrans is first started. To open the window again later, select <em>new map</em> from the <a href="options.txt">options</a> menu, or press <a href="keys.txt">[Q]</a> or [X].
+</p>
+<p>
+To return to the current game without starting a new game, close <strong>Create a New Game</strong>: click x in top-left-corner; or use keyboard.<br>
+<em>Note</em>: You will not be prompted to save your existing game when you start a new game. Any changes made in the existing game since the last save will be lost.
+</p>
+<p>
+There are numerous settings for starting a new game:
+</p>
+<p>
+<em>Map Number:</em> selects a basic terrain shape to use for the game. There are a large number of possible terrains, but selecting the same number will always produce the same basic shape. Click on the number box and type the required number or use the arrow buttons to cycle through the various terrains. The preview shows the terrain selected (water is blue, lower land is darker than higher land).
+</p>
+<p>
+<em>Size:</em> sets the size of teh map (the top number is width,  the bottom is height).<br>
+The number in brackets is amount memory required by the size of the map currently selected.<br>
+<em>Note</em>: Large maps need more memory and take more time to generate. Do not forget that the game engine itself and the graphics take more memory still. Those using older or otherwise low performance computers should use smaller maps.
+</p>
+<p>
+<em>Random map:</em> selects a random basic terrain.
+</p>
+<p>
+<em>Load Height Map:</em> allows a terrain to be <a href="load_relief.txt">loaded from a file</a>. (Opens a new window). 
+</p>
+<p>
+<em>Number of cities:</em> sets the number of <a href="citywindow.txt">urban areas</a> in the game. Further new cities can be added manually, but will not appear automatically.
+</p>
+<p>
+<em>Median citizens per city:</em> sets the average initial population of urban areas. The program will try to generate more small villages than large cities.
+</p>
+<p>
+<em>Intercity Road Length:</em> sets the maximum length (in tiles) of the public roads joining cities to each other at the start of the game.
+</p>
+<p>
+<em>Traffic density:</em> sets the volume of private car traffic generated in the game map. The higher the number, the more private cars will be visible.<br>
+<em>Note:</em> This does not affect the traffic or congestion levels shown in the graphs: just the number of private cars displayed in the world.
+</p>
+<p>
+<em>Industry chains</em> sets the initial number of <a href="industry_info.txt">sndustry supply chains</a> that appear when the game starts. If the terrain is very hilly suitable space may not be found and less industry will appear. More industry chains will appear automatically as the game world's population increases.
+</p>
+<p>
+<em>Electricity output (% demand)</em> sets the proportion of the game world's demand for <a href="electricity.txt">electricity</a> that will be met. Power stations will slowly built as and when necessary to meet the proportion of the world's demand for electricity stipulated in this setting.
+</p>
+<p>
+<em>Tourist attractions:</em> sets the number of <a href="curiositylist_filter.txt">tourist attractions</a> outside cities when the game starts. Tourist attractions are a destination for passengers and mail.
+</p>
+<p>
+<em>Use timeline from year:</em> if this option is selected, the game world will change to match changing times: new vehicles, ways, bridges, stops and more will become available; the speed at whcih passengers and goods expect to be transported will steadily increase; the consumption of <a href="electricity.txt">electricity</a> by towns will go up; and an ever greater proportion of the population will have access to <a href="privatecar.txt">private cars</a>. The starting year is set in the box on the right.
+</p>
+<p>
+<em>Allow player change:</em> if this option is selected, it will be possible to change <a href="players.txt">players</a> during the game, either to another individual player (or an existing AI player), or to the public service player.
+</p>
+<p>
+<em>Load game:</em> <a href="load.txt">Load</a> a previously <a href="save.txt">saved</a> game.<br>
+<em>NOTE</em>: You will not be prompted to save your existing game when you load a game. Any changes made in the existing game since the last save will be lost.
+</p>
+<p>
+<em>Start Game:</em> creates a new world using the current settings. Note that generating a new map may take a few minutes, depending on the size of the map generated, the settings, and the speed of your computer.
+</p>
+<p>
+<em>Load scenario:</em> Starts a new scenario. A scenario is a pre-configured game, with a set map (and sometimes a transport network already in place), with fixed goals that must be accomplished in a set time. This is an alternative to the usual, open-ended Simutrans playing style.<br>
+<em>Note</em>: Some paksets may not have any scenarios.
+</p>
+<p>
+<em>Tip:</em> The default values when Simutrans starts  can be changed in the <strong>simuconf.tab</strong> file.
+</p>

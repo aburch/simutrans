@@ -1,0 +1,22 @@
+<title>Insolvency Help</title>
+
+<h1><strong>Debt and Insolvency</strong></h1>
+
+<p>
+What happens when you go into the red depends on how a number of settings in the <strong>simuconf.tab</strong> file located in the /simutrans/config/ directory were set. This text explains the default settings: the comments in <strong>simuconf.tab</strong> explain all the permutations.
+</p>
+<p>
+Every player has a <em>credit limit</em>. That credit limit starts out at 10% of the starting cash balance. So, for example, if you had a starting cash balance of 300,000c, your credit limit would be 30,000c. As your net wealth and profit increases, so does your credit limit.
+</p>
+<p>
+You can spend money on transport infrastructure, buildings, earthworks, vehicles, etc., even if you have no cash to spare, provided that you are still wihtin your credit limit. You cannot spend money on anything that would mean going into debt beyond your credit limit (the one exception is the <a href="removal_tool.txt">remove tool</a>, which can be used all the time to take away costly infrastructure, even if using it would exceed your credit limit). 
+</p>
+<p>
+Whilst you are in debt, you have to pay interest. The default amount is 10% per month, but this can be adjusted in <strong>simuconf.tab</strong>. Interest in Simutrans is compound interest: that means that you pay interest on the total amount that you owe, and any new interest payments are added to the sum of the debt.
+</p>
+<p>
+If you are in debt for more than three consecutive months, your credit limit is slowly adversely affected: banks only want to lend money to people who will pay it back on time. Once you have cleared your debt, your credit limit will slowly recover - if you stay in the black.
+</p>
+<p>
+With the default settings, you cannot go into liquidiation as such, although there might become a time when there is no way that you can service your debt without spending on transport infrastructure that you cannot afford. However, with certain settings in <strong>simuconf.tab</strong>, if your debt exceeds your net wealth at the end of any month, you will be given a message telling you that you have gone bankrupt.
+</p>

@@ -1,0 +1,27 @@
+<title>Load Height Map Help</title>
+
+<h1><strong>Load Height Map</strong></h1>
+
+<p>
+The <strong>load height map</strong> window is used to import custom terrain maps for use when creating a new game. The terrain maps can also be deleted using this window.
+</p>
+<p>
+The <strong>load height map</strong> window opens from the <a href="new_world.txt">create a new game</a> window. It lists the names and the modification dates and times of available terrain maps. <br>
+If not all the files are visible, use <a href="mouse.txt">the slider bar</a> on the right-side of list to scroll the names.
+</p>
+<p>
+Click the name in the list to import a terrain map. Alternatively, type the name into the text box at the top of the window and press <a href="keys.txt">[Enter]</a> or [Return] or click on<em>OK</em>.
+</p>
+<p>
+The <em>[X]</em> buttons on the left of the list delete the terrain map next to them. <strong>WARNING</strong> there is no confirmation dialogue. Pressing [X] will delete the map immediately and permanently. The load height map window will close when a map is deleted.
+</p>
+<p>
+To get new terrain maps, visit http://maps.simutrans.com.<br>
+The terrain files are stored in \My Documents\Simutrans\maps on Windows, or /home/[user]/simutrans/maps on Linux, and must be in .ppm format.
+</p>
+<p>
+Information on how to create custom terrains is available online at http://wiki.simutrans.com.
+</p>
+<p>
+Click on <em>Cancel</em> to close the window.
+</p>

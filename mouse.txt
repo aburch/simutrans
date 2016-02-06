@@ -1,0 +1,30 @@
+<title>Mouse Help</title>
+
+<h1><strong>Mouse Help</strong></h1>
+<p>
+<strong>Mouse help</strong> provides information about mouse commands in the game.
+</p>
+<p>
+To scroll the main game window, right-click the mouse and drag it. An option can be set in the <a href="display.txt">display</a> settings to change the orientation of this behaviour. Scrolling with the mouse also works in the mini-map.
+</p>
+<p>
+In the main game window, the mouse cursor has two parts: (1) a <em>shaded box</em>; and (2) a <em>tool icon</em>. The shaded box shows the currently selected <em>tile</em>. The game world is divided into square tiles, and every building, road, railway, etc., occupies at least one of these tiles. Any action performed by the currently selected <em>tool</em> will occur (or start) in the currently selected tile. The shaded box moves in three dimensions. This feature is used, for example, when building a stop on top of a bridge that crosses another way of the same type: the shaded box can be moved between the upper and lower way when placing the stop. It is also useful in <em>underground mode</em> when there are different levels of tunnels that could be selected at once.
+</p>
+<p>
+The <em>tool icon</em> shows the currently selected tool. For example, if you are building a road, the tool icon will show a picutre of a road; if you are demolishing things using the <em>remove tool</em>, a big red cross will be shown.
+</p>
+<p>
+Certain tools are used by clicking and dragging. Ways (roads, railways, canals, etc.) and way objects (overhead electrification and the like) are built by clicking and dragging: just click the left mouse button where you want the way (etc.) to start, drag it to where you want it to finish, and release the mouse button. While dragging, you will be shown a preview of where the way will go, and also an estimate of the cost of building it. Press [<em>ESC</em>] to cancel building before it is committed.
+</p>
+<p> 
+Using the [<em>CTRL</em>] key while using a click and drag tool will force the way (etc.) built with the tool to be as straight as possible. 
+</p>
+<p>
+Use the mouse's scroll wheel (if your mouse has one) to <em>zoom</em> the map in and out. Scroll up to zoom in, and scroll down to zoom out.
+</p>
+<p>
+When using tools and dialogue boxes, many of the buttons and options have <em>tooltips</em> providing more information on what they do. To see the tooltips, hover the mouse cursor over the option for a few seconds. Note that not all controls have tooltips.
+</p>
+<p>
+To <em>re-size</em> a window, click the hatched triangle in the lower right hand corner of that window, and drag it until the window is the desired size. Windows without the hatched triangle cannot be resized.
+</p>

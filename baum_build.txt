@@ -1,0 +1,16 @@
+<title>Tree editor Help</title>
+
+<h1><strong>Tree editor</strong></h1>
+
+<p>
+The <strong>Tree editor</strong> window allows planting of individual trees. It is a map customisation option, rather than an element of the gameplay itself: players do not plant trees during the course of the game.
+</p>
+<p>
+At the left, there is a list of all of the trees that are available to be built. The two tabs, <strong>Translation</strong> and <strong>Object</strong> allow switching between the base name as defined in the pakset (object) and the user-friendly name displayed in the game (translation). Click on an item in the list to see more information about that particular tree. To place the tree, click in the main game window on the desired location after selecting it from the list.
+</p>
+<p>
+On the right, there are a number of options:<br>
+<em>Ignore climate:</em> allow the building of trees in climatic regions where they would not normally be permitted.<br>
+<em>Random age:</em> normally, when trees are planted, they are saplings. They will grow to maturity and then die over the course of many years. If this option is selected, however, the trees will appear at a random age, some young and some mature.>br>
+<em>Rotation:</em> if multiple rotations of the tree graphic are available, select the orientation in which the tree is built. This can be made random by selecting "random" (select by pressing the left arrow when the number is already at zero).<br>
+</p>

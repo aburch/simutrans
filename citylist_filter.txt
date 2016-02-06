@@ -1,0 +1,37 @@
+<title>City List Help</title>
+
+<h1><strong>City List</strong></h1>
+
+<p>
+<strong>City List</strong> shows details about <a href="citywindow.txt">urban areas</a> (villages, towns and cities) and populations.
+</p>
+<p>
+To open: click the city list icon in the <a href="list.txt">list management</a> toolstrip, or press <a href="keys.txt">[T]</a>.<br>
+<strong>City List</strong> has two option buttons which determine the order in which urban areas (and their populations) are shown.<br>
+<em>Tip:</em> If items in list are only partially visible, then <a href="mouse.txt">re-size</a> the <strong>City List</strong> window or scroll the list using the slider bar.
+</p>
+<p>
+<em>Total inhabitants:</em> is the total number of citizens in the game world (the total population of all urban areas). Any recent increase in population is shown in brackets.
+</p>
+<p>
+<em>Sorted by:</em> has options to determine the order of urban areas shown in list.<br>
+Click the option buttons to cycle through options (changes name of the option button):
+</p>
+<p>
+- <em>Name</em> lists the cities in alphabetical order of name.<br>
+- <em>Citizens</em> lists the cities in numerical order by size of their populations.<br>
+- <em>Town growth</em> olists the cities by their growth rate.
+</p>
+<p>
+- <em>Ascending</em> / <em>Descending</em> reverses the order of the list.
+</p>
+<p>
+Click on an item listed in the <strong>City List</strong> window to see more <a href="citywindow.txt">information</a> about that urban area.<br>
+Items listed for each urban area include:
+</p>
+<p>
+<em>Name</em> assigned to the urban area (can be changed in the city information window).
+</p>
+<p>
+<em>Number of inhabitants</em> of the urban area (with any recent increses in population shown in brackets). 
+</p>

@@ -1,0 +1,38 @@
+<title>Stop List Filter Help</title>
+
+<h1><strong>Stop List Filter</strong></h1>
+
+<p>
+The <strong>Stop list filter</strong> window has options to determine which <a href="station.txt">stops</a> are shown in the <a href="haltlist.txt">stop list</a> .
+</p>
+<p>
+Click on <a href="haltlist.txt">settings</a> in the stop list window to open the <strong>stop list filter</strong> window.
+</p>
+<p>
+Stops can be filtered by a number of different criteria: click the buttons to select the criteria for which to filter. Categories of criteria can be enabled and disabled by checking or unchecking the button next to the <em>white</em> text. 
+</p>
+<p>
+Click on a button to select/deselect criteria for filter (button is indented when selected):
+</p>
+<p>
+<em>Filter names:</em> allows stops to be filtered by name. To use: click the button to enable the filter, enter the name or part of the name to find all stops with that name. Note that this is case sensitive.
+</p>
+<p>
+<em>Filter types:</em> allows stops to be filtered by type. To use: enable the filter, then choose one or more types from the list of buttons below). 
+</p>
+<p><em>Special filter:</em><br>
+- <em>Over capacity</em> allows stops to be filtered by which ones have insufficient capacity to meet demand. This filter can be useful for finding problems in your network.<br>
+- <em>no connection</em> allows stops to be filtered by which ones have no lines or convoys serving them. This filter is useful for finding redundant stops.
+</p>
+<p>
+<em>Goods needed:</em> allows stops to be filtered by the type of items that there is a demand to be transported <em>to</em> those stops. Individual options include:<br>
+- <em>all</em> selects all items.<br>
+- <em>none</em> deselects all items.<br>
+- <em>inverse</em> inverses the current selection of items.
+</p>
+<p>
+<em>Production:</em> allows stops to be filtered by the type of items that there is a demand to be transported <em>from</em> those stops. Individual options include:<br>
+- <em>all</em> selects all items.<br>
+- <em>none</em> deselects all items.<br>
+- <em>inverse</em> inverses the current selection of items.
+</p>
