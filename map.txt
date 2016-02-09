@@ -90,7 +90,7 @@ Click <em>show legend</em> to see additional options about what is displayed on 
 <em>Forest:</em> highlights each area of dense woodland in bright green;
 </p>
 <p>
-<em>Way wear:</em> shows the condition of the ways. (use the scale to understand the colours);
+<em>Way wear:</em> shows the condition of the ways. (use the scale to understand the colours). Read more about <a href="way_wear.txt">way wear</a>;
 </p>
 <p>
 <em>City limits:</em> shows the extent of urban areas; and
