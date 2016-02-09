@@ -160,6 +160,9 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 	tmp->f = 0;
 	tmp->g = 0;
 	tmp->dir = 0;
+	assert(start_dir == ribi_t::alle  ||  ribi_t::ist_einfach(start_dir) );
+	// start_dir is direction to start with, ribi_from is direction we came from and wont go back
+	tmp->ribi_from = start_dir == ribi_t::alle ? (ribi_t::ribi)ribi_t::keine : ribi_t::reverse_single(start_dir);
 
 	// nothing in lists
 	marker_t& marker = marker_t::instance(welt->get_size().x, welt->get_size().y);
@@ -193,11 +196,11 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 		}
 
 		// testing all four possible directions
-		const ribi_t::ribi ribi =  tdriver->get_ribi(gr);
+		const ribi_t::ribi ribi =  tdriver->get_ribi(gr)  &  ( ~ribi_t::reverse_single(tmp->ribi_from) );
 		for(  int r=0;  r<4;  r++  ) {
 			// a way goes here, and it is not marked (i.e. in the closed list)
 			grund_t* to;
-			if(  (ribi & ribi_t::nsow[r] & start_dir)!=0  // allowed dir (we can restrict the first step by start_dir)
+			if(  (ribi & ribi_t::nsow[r] )!=0 // do not go backwards
 				&& koord_distance(start, gr->get_pos() + koord::nsow[r])<max_depth	// not too far away
 				&& gr->get_neighbour(to, wegtyp, ribi_t::nsow[r])  // is connected
 				&& !marker.is_marked(to) // not already tested
@@ -234,9 +237,6 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 				queue.insert(k);
 			}
 		}
-
-		// ok, now no more restrains
-		start_dir = ribi_t::alle;
 
 	} while(  !queue.empty()  &&  step < MAX_STEP  &&  queue.get_count() < max_depth  );
 
