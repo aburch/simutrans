@@ -207,6 +207,12 @@ bool hausbauer_t::register_besch(haus_besch_t *besch)
 	// avoid duplicates with same name
 	const haus_besch_t *old_besch = besch_names.get(besch->get_name());
 	if(old_besch) {
+		// do not overlay existing factories if the new one is not a factory
+		if (old_besch->ist_fabrik()  &&  !besch->ist_fabrik()) {
+			dbg->warning( "hausbauer_t::register_besch()", "Object %s could not be registered since it would overlay an existing factory building!", besch->get_name() );
+			delete besch;
+			return false;
+		}
 		dbg->warning( "hausbauer_t::register_besch()", "Object %s was overlaid by addon!", besch->get_name() );
 		besch_names.remove(besch->get_name());
 		tool_t::general_tool.remove( old_besch->get_builder() );
