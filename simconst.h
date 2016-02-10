@@ -45,13 +45,6 @@
 // define this for automaticcally joining stations next to a public stop with it
 //#define AUTOJOIN_PUBLIC
 
-// vector_tpl can be faster for sync_lists
-#define SYNC_VECTOR
-
-// stuff often deleted may be even faster with a hastable, but order is lost and iteration is slower
-// #define SYNC_WAY_HASHTABLE
-// #define SYNC_WAY_LIST
-
 // allow minspeed and private way signs on waterways (imho pointless)
 //#define ENABLE_WATERWAY_SIGNS
 

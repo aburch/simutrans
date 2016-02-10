@@ -758,12 +758,7 @@ DBG_MESSAGE("karte_t::destroy()", "towns destroyed");
 
 	// removes all moving stuff from the sync_step
 	while(!sync_list.empty()) {
-#ifndef SYNC_VECTOR
-		sync_steppable *ss = sync_list.remove_first();
-		delete ss;
-#else
 		delete sync_list.back();
-#endif
 	}
 	sync_list.clear();
 
@@ -774,12 +769,7 @@ DBG_MESSAGE("karte_t::destroy()", "towns destroyed");
 	}
 
 	while(!sync_way_eyecandy_list.empty()) {
-#if !defined(SYNC_WAY_LIST)  &&  !defined(SYNC_WAY_HASHTABLE)
 		delete sync_way_eyecandy_list.back();
-#else
-		sync_steppable *ss = sync_way_eyecandy_list.remove_first();
-		delete ss;
-#endif
 	}
 
 	ls.set_progress( old_progress );
@@ -3760,11 +3750,7 @@ bool karte_t::sync_way_eyecandy_add(sync_steppable *obj)
 		sync_way_eyecandy_add_list.insert( obj );
 	}
 	else {
-#ifdef SYNC_WAY_HASHTABLE
-		sync_way_eyecandy_list.put( obj, obj );
-#else
 		sync_way_eyecandy_list.append( obj );
-#endif
 	}
 	return true;
 }
@@ -3791,11 +3777,7 @@ void karte_t::sync_way_eyecandy_step(uint32 delta_t)
 	// first add everything
 	while(  !sync_way_eyecandy_add_list.empty()  ) {
 		sync_steppable *obj = sync_way_eyecandy_add_list.remove_first();
-#ifdef SYNC_WAY_HASHTABLE
-		sync_way_eyecandy_list.put( obj, obj );
-#else
 		sync_way_eyecandy_list.append( obj );
-#endif
 	}
 	// now remove everything from last time
 	sync_way_eyecandy_running = false;
@@ -3804,31 +3786,6 @@ void karte_t::sync_way_eyecandy_step(uint32 delta_t)
 	}
 	// now the actualy stepping
 	sync_way_eyecandy_running = true;
-#ifdef SYNC_WAY_HASHTABLE
-	for(  ptrhashtable_tpl<sync_steppable*,sync_steppable*>::iterator iter = sync_way_eyecandy_list.begin();  iter != sync_way_eyecandy_list.end();  ) {
-		// if false, then remove
-		sync_steppable *ss = iter->key;
-		if(!ss->sync_step(delta_t)) {
-			iter = sync_way_eyecandy_list.erase(iter);
-			delete ss;
-		}
-		else {
-			++iter;
-		}
-	}
-#elif SYNC_WAY_LIST
-	for(  slist_tpl<sync_steppable*>::iterator i=sync_way_eyecandy_list.begin();  !i.end();  ) {
-		// if false, then remove
-		sync_steppable *ss = *i;
-		if(!ss->sync_step(delta_t)) {
-			i = sync_way_eyecandy_list.erase(i);
-			delete ss;
-		}
-		else {
-			++i;
-		}
-	}
-#else
 	static vector_tpl<sync_steppable *> sync_way_eyecandy_list_copy;
 	sync_way_eyecandy_list_copy.resize( (uint32) (sync_way_eyecandy_list.get_count()*1.1) );
 	FOR(vector_tpl<sync_steppable*>, const ss, sync_way_eyecandy_list) {
@@ -3842,7 +3799,7 @@ void karte_t::sync_way_eyecandy_step(uint32 delta_t)
 	}
 	swap( sync_way_eyecandy_list_copy, sync_way_eyecandy_list );
 	sync_way_eyecandy_list_copy.clear();
-#endif
+
 	// now remove everything from last time
 	sync_way_eyecandy_running = false;
 	while(  !sync_way_eyecandy_remove_list.empty()  ) {
@@ -3916,16 +3873,9 @@ void karte_t::sync_step(uint32 delta_t, bool sync, bool display )
 
 		/* and now the rest for the other moving stuff */
 		sync_step_running = true;
-#ifndef SYNC_VECTOR
-		// insert new objects created during last sync_step (eg vehicle smoke)
-		if(!sync_add_list.empty()) {
-			sync_list.append_list(sync_add_list);
-		}
-#else
 		while(  !sync_add_list.empty()  ) {
 			sync_list.append( sync_add_list.remove_first() );
 		}
-#endif
 
 		// now remove everything from last time
 		sync_step_running = false;
@@ -3934,19 +3884,6 @@ void karte_t::sync_step(uint32 delta_t, bool sync, bool display )
 		}
 
 		sync_step_running = true;
-#ifndef SYNC_VECTOR
-		for(  slist_tpl<sync_steppable*>::iterator i=sync_list.begin();  !i.end();  ) {
-			// if false, then remove
-			sync_steppable *ss = *i;
-			if(!ss->sync_step(delta_t)) {
-				i = sync_list.erase(i);
-				delete ss;
-			}
-			else {
-				++i;
-			}
-		}
-#else
 		static vector_tpl<sync_steppable *> sync_list_copy;
 		sync_list_copy.resize( sync_list.get_count() );
 		FOR(vector_tpl<sync_steppable*>, const ss, sync_list) {
@@ -3960,7 +3897,6 @@ void karte_t::sync_step(uint32 delta_t, bool sync, bool display )
 		}
 		swap( sync_list_copy, sync_list );
 		sync_list_copy.clear();
-#endif
 
 		// now remove everything from this time
 		sync_step_running = false;

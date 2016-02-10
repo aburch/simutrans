@@ -283,11 +283,7 @@ private:
 	/**
 	 * Sync list.
 	 */
-#ifndef SYNC_VECTOR
-	slist_tpl<sync_steppable *> sync_list;
-#else
 	vector_tpl<sync_steppable *> sync_list;
-#endif
 
 	/**
 	 * These objects will be added to the eyecandy sync_list (but before next sync step, so they do not interfere!)
@@ -317,13 +313,7 @@ private:
 	/**
 	 * Sync list for eyecandy way objects (smoke).
 	 */
-#ifdef SYNC_WAY_HASHTABLE
-	ptrhashtable_tpl<sync_steppable *,sync_steppable *> sync_way_eyecandy_list;
-#elif SYNC_WAY_LIST
-	slist_tpl<sync_steppable *> sync_way_eyecandy_list;
-#else
 	vector_tpl<sync_steppable *> sync_way_eyecandy_list;
-#endif
 
 	/**
 	 * Array containing the convois.
