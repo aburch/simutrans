@@ -2330,10 +2330,213 @@
     <None Include="simutrans\themes\themes.tab">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include=".gitattributes">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="simres.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="airtools.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="baum_build.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="catering.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="citybuilding_build.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="citylist_filter.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="citywindow.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="climates.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="color.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="comfort.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="convoi.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="convoi_filter.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="convoidetail.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="convoiinfo.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="curiosity_build.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="curiositylist_filter.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="depot.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="display.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="edittools.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="electricity.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="factory_build.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="factorylist_filter.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="finances.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="general.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="goods_filter.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="haltlist.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="haltlist_filter.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="industry_info.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="insolvency.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="inspection_tool.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="keys.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="labellist_filter.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="language.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="linemanagement.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="list.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="load.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="load_relief.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="mailbox.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="map.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="monorailtools.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="mouse.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="new_world.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="options.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="password.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="players.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="privatecar.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="railtools.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="README.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="removal_tool.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="replace.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="roadtools.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="save.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="schedule.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="server.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="settings.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="shiptools.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="simctrl-simple.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="simutrans.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="slopetools.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="sound.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="special.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="station.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="station_details.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="tramtools.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="way_wear.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="window.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="wishlist.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
   </ItemGroup>
 </Project>

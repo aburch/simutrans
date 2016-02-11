@@ -4812,19 +4812,36 @@ void haltestelle_t::calc_transfer_time()
 
 	// Adjust for overcrowding - transfer time increases with a more crowded stop.
 	// TODO: Better separate waiting times for different types of goods.
-	const sint64 waiting = (financial_history[0][HALT_WAITING] + financial_history[0][HALT_WAITING]) / 2ll;
 
-	if(capacity[0] > 0 && waiting > capacity[0])
+	const uint8 max_categories = warenbauer_t::get_max_catg_index();
+	const sint64 waiting_passengers = waren[0] ? waren[0]->get_count() : 0;
+	sint64 waiting_goods = 0;
+
+	for(uint8 i = 0; i < max_categories; i++)
 	{
-		const sint64 overcrowded_proporion_passengers = waiting * 10ll / capacity[0];
+		if (waren[i])
+		{
+			FOR(vector_tpl<ware_t>, const &w, *waren[i])
+			{
+				if(i >= 2)
+				{
+					waiting_goods += waren[i]->get_count();
+				}
+			}
+		}
+	}
+
+	if(capacity[0] > 0 && waiting_passengers > capacity[0])
+	{
+		const sint64 overcrowded_proporion_passengers = waiting_passengers * 10ll / capacity[0];
 		transfer_time = max(transfer_time, (uint16)overcrowded_proporion_passengers);
 		transfer_time *= (2 * (uint16)overcrowded_proporion_passengers);
 		transfer_time /= 10;
 	}
 
-	if(capacity[2] > 0 && waiting > capacity[2])
+	if(capacity[2] > 0 && waiting_goods > capacity[2])
 	{
-		const sint64 overcrowded_proportion_goods = waiting * 10ll / capacity[2];
+		const sint64 overcrowded_proportion_goods = waiting_goods * 10ll / capacity[2];
 		transshipment_time = max(transfer_time, (uint16)overcrowded_proportion_goods);
 		transshipment_time *= (2 * (uint16)overcrowded_proportion_goods);
 		transshipment_time /= 10;

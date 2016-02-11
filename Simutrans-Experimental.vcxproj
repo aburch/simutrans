@@ -2119,6 +2119,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\Simutrans\simu-server.log" />
+    <None Include=".gitattributes" />
     <None Include=".gitignore" />
     <None Include="base-texts-depot-window-refurbish.dat" />
     <None Include="base_textes_experimental_10.17.dat" />
@@ -2171,6 +2172,74 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="simres.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="airtools.txt" />
+    <Text Include="baum_build.txt" />
+    <Text Include="catering.txt" />
+    <Text Include="citybuilding_build.txt" />
+    <Text Include="citylist_filter.txt" />
+    <Text Include="citywindow.txt" />
+    <Text Include="climates.txt" />
+    <Text Include="color.txt" />
+    <Text Include="comfort.txt" />
+    <Text Include="convoi.txt" />
+    <Text Include="convoidetail.txt" />
+    <Text Include="convoiinfo.txt" />
+    <Text Include="convoi_filter.txt" />
+    <Text Include="curiositylist_filter.txt" />
+    <Text Include="curiosity_build.txt" />
+    <Text Include="depot.txt" />
+    <Text Include="display.txt" />
+    <Text Include="edittools.txt" />
+    <Text Include="electricity.txt" />
+    <Text Include="factorylist_filter.txt" />
+    <Text Include="factory_build.txt" />
+    <Text Include="finances.txt" />
+    <Text Include="general.txt" />
+    <Text Include="goods_filter.txt" />
+    <Text Include="haltlist.txt" />
+    <Text Include="haltlist_filter.txt" />
+    <Text Include="industry_info.txt" />
+    <Text Include="insolvency.txt" />
+    <Text Include="inspection_tool.txt" />
+    <Text Include="keys.txt" />
+    <Text Include="labellist_filter.txt" />
+    <Text Include="language.txt" />
+    <Text Include="linemanagement.txt" />
+    <Text Include="list.txt" />
+    <Text Include="load.txt" />
+    <Text Include="load_relief.txt" />
+    <Text Include="mailbox.txt" />
+    <Text Include="map.txt" />
+    <Text Include="monorailtools.txt" />
+    <Text Include="mouse.txt" />
+    <Text Include="new_world.txt" />
+    <Text Include="options.txt" />
+    <Text Include="password.txt" />
+    <Text Include="players.txt" />
+    <Text Include="privatecar.txt" />
+    <Text Include="railtools.txt" />
+    <Text Include="README.txt" />
+    <Text Include="removal_tool.txt" />
+    <Text Include="replace.txt" />
+    <Text Include="roadtools.txt" />
+    <Text Include="save.txt" />
+    <Text Include="schedule.txt" />
+    <Text Include="server.txt" />
+    <Text Include="settings.txt" />
+    <Text Include="shiptools.txt" />
+    <Text Include="simctrl-simple.txt" />
+    <Text Include="simutrans.txt" />
+    <Text Include="slopetools.txt" />
+    <Text Include="sound.txt" />
+    <Text Include="special.txt" />
+    <Text Include="station.txt" />
+    <Text Include="station_details.txt" />
+    <Text Include="tramtools.txt" />
+    <Text Include="way_wear.txt" />
+    <Text Include="window.txt" />
+    <Text Include="wishlist.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
