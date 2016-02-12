@@ -881,9 +881,8 @@ sync_result convoi_t::sync_step(uint32 delta_t)
 
 	switch(state) {
 		case INITIAL:
-			// someone must start calling, so the convoi goes from
-			// INITIAL to ROUTING_1, it can't go automatically
-			break;
+			// in depot, should not be in sync list, remove
+			return SYNC_REMOVE;
 
 		case FAHRPLANEINGABE:
 		case ROUTING_1:
@@ -1459,10 +1458,6 @@ void convoi_t::betrete_depot(depot_t *dep)
 	destroy_win( magic_convoi_info+self.get_id() );
 	destroy_win( magic_convoi_detail+self.get_id() );
 
-	// Hajo: since 0.81.5exp it's safe to
-	// remove the current sync object from
-	// the sync list from inside sync_step()
-	welt->sync.remove(this);
 	maxspeed_average_count = 0;
 	state = INITIAL;
 }
