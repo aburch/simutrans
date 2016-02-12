@@ -160,9 +160,12 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 	tmp->f = 0;
 	tmp->g = 0;
 	tmp->dir = 0;
+
 	assert(start_dir == ribi_t::alle  ||  ribi_t::ist_einfach(start_dir) );
-	// start_dir is direction to start with, ribi_from is direction we came from and wont go back
-	tmp->ribi_from = start_dir == ribi_t::alle ? (ribi_t::ribi)ribi_t::keine : ribi_t::reverse_single(start_dir);
+	// start_dir is direction to start with, adjust ribi_from such that bit mask boiles down to start_dir
+	tmp->ribi_from = ribi_t::reverse_single(start_dir) ^ 0x0f;
+	// assert that mask in first step is equal to start_dir
+	assert( (uint8)(~ribi_t::reverse_single(tmp->ribi_from)& 0xf)  == start_dir);
 
 	// nothing in lists
 	marker_t& marker = marker_t::instance(welt->get_size().x, welt->get_size().y);
