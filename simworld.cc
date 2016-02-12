@@ -717,6 +717,14 @@ DBG_MESSAGE("karte_t::destroy()", "label clear");
 	old_progress += 256;
 	ls.set_progress( old_progress );
 
+	// removes all moving stuff from the sync_step
+	sync.clear();
+	sync_eyecandy.clear();
+	sync_way_eyecandy.clear();
+	old_progress += cached_size.x*cached_size.y;
+	ls.set_progress( old_progress );
+DBG_MESSAGE("karte_t::destroy()", "sync list cleared");
+
 	// alle convois aufraeumen
 	while (!convoi_array.empty()) {
 		convoihandle_t cnv = convoi_array.back();
@@ -754,27 +762,6 @@ DBG_MESSAGE("karte_t::destroy()", "stops destroyed");
 DBG_MESSAGE("karte_t::destroy()", "towns destroyed");
 
 	ls.set_progress( old_progress );
-	old_progress += cached_size.x*cached_size.y;
-
-	// removes all moving stuff from the sync_step
-	while(!sync_list.empty()) {
-		delete sync_list.back();
-	}
-	sync_list.clear();
-
-	// now remove all pedestrians too ...
-	while(!sync_eyecandy_list.empty()) {
-		sync_steppable *ss = sync_eyecandy_list.remove_first();
-		delete ss;
-	}
-
-	while(!sync_way_eyecandy_list.empty()) {
-		delete sync_way_eyecandy_list.back();
-	}
-
-	ls.set_progress( old_progress );
-DBG_MESSAGE("karte_t::destroy()", "sync list cleared");
-
 	// dinge aufraeumen
 	cached_grid_size.x = cached_grid_size.y = 1;
 	cached_size.x = cached_size.y = 0;
@@ -3676,164 +3663,55 @@ stadt_t *karte_t::suche_naechste_stadt(const koord k) const
 
 // -------- Verwaltung von synchronen Objekten ------------------
 
-static volatile bool sync_step_running = false;
-static volatile bool sync_step_eyecandy_running = false;
-static volatile bool sync_way_eyecandy_running = false;
-
-// handling animations and the like
-bool karte_t::sync_eyecandy_add(sync_steppable *obj)
+void karte_t::sync_list_t::add(sync_steppable *obj)
 {
-	if(  sync_step_eyecandy_running  ) {
-		sync_eyecandy_add_list.insert( obj );
+	assert(!sync_step_running);
+	list.append(obj);
+}
+
+void karte_t::sync_list_t::remove(sync_steppable *obj)
+{
+	if(sync_step_running) {
+		if (obj == currently_deleting) {
+			return;
+		}
+		assert(false);
 	}
 	else {
-		sync_eyecandy_list.put( obj, obj );
-	}
-	return true;
-}
-
-
-bool karte_t::sync_eyecandy_remove(sync_steppable *obj)	// entfernt alle dinge == obj aus der Liste
-{
-	if(  sync_step_eyecandy_running  ) {
-		sync_eyecandy_remove_list.append(obj);
-	}
-	else {
-		if(  sync_eyecandy_add_list.remove(obj)  ) {
-			return true;
-		}
-		return sync_eyecandy_list.remove(obj)!=NULL;
-	}
-	return false;
-}
-
-
-void karte_t::sync_eyecandy_step(uint32 delta_t)
-{
-	sync_step_eyecandy_running = true;
-	// first add everything
-	while(  !sync_eyecandy_add_list.empty()  ) {
-		sync_steppable *obj = sync_eyecandy_add_list.remove_first();
-		sync_eyecandy_list.put( obj, obj );
-	}
-	// now remove everything from last time
-	sync_step_eyecandy_running = false;
-	while(  !sync_eyecandy_remove_list.empty()  ) {
-		sync_eyecandy_list.remove( sync_eyecandy_remove_list.remove_first() );
-	}
-	// now step ...
-	sync_step_eyecandy_running = true;
-	for(  ptrhashtable_tpl<sync_steppable*,sync_steppable*>::iterator iter = sync_eyecandy_list.begin();  iter != sync_eyecandy_list.end();  ) {
-		// if false, then remove
-		sync_steppable *ss = iter->key;
-		if(!ss->sync_step(delta_t)) {
-			iter = sync_eyecandy_list.erase(iter);
-			delete ss;
-		}
-		else {
-			++iter;
-		}
-	}
-	// now remove everything from last time
-	sync_step_eyecandy_running = false;
-	while(  !sync_eyecandy_remove_list.empty()  ) {
-		sync_eyecandy_list.remove( sync_eyecandy_remove_list.remove_first() );
-	}
-	sync_step_eyecandy_running = false;
-}
-
-
-// and now the same for pedestrians
-bool karte_t::sync_way_eyecandy_add(sync_steppable *obj)
-{
-	if(  sync_way_eyecandy_running  ) {
-		sync_way_eyecandy_add_list.insert( obj );
-	}
-	else {
-		sync_way_eyecandy_list.append( obj );
-	}
-	return true;
-}
-
-
-bool karte_t::sync_way_eyecandy_remove(sync_steppable *obj)	// entfernt alle dinge == obj aus der Liste
-{
-	if(  sync_way_eyecandy_running  ) {
-		sync_way_eyecandy_remove_list.append(obj);
-	}
-	else {
-		if(  sync_way_eyecandy_add_list.remove(obj)  ) {
-			return true;
-		}
-		return sync_way_eyecandy_list.remove(obj);
-	}
-	return false;
-}
-
-
-void karte_t::sync_way_eyecandy_step(uint32 delta_t)
-{
-	sync_way_eyecandy_running = true;
-	// first add everything
-	while(  !sync_way_eyecandy_add_list.empty()  ) {
-		sync_steppable *obj = sync_way_eyecandy_add_list.remove_first();
-		sync_way_eyecandy_list.append( obj );
-	}
-	// now remove everything from last time
-	sync_way_eyecandy_running = false;
-	while(  !sync_way_eyecandy_remove_list.empty()  ) {
-		sync_way_eyecandy_list.remove( sync_way_eyecandy_remove_list.remove_first() );
-	}
-	// now the actualy stepping
-	sync_way_eyecandy_running = true;
-	static vector_tpl<sync_steppable *> sync_way_eyecandy_list_copy;
-	sync_way_eyecandy_list_copy.resize( (uint32) (sync_way_eyecandy_list.get_count()*1.1) );
-	FOR(vector_tpl<sync_steppable*>, const ss, sync_way_eyecandy_list) {
-		// if false, then remove
-		if(!ss->sync_step(delta_t)) {
-			delete ss;
-		}
-		else {
-			sync_way_eyecandy_list_copy.append( ss );
-		}
-	}
-	swap( sync_way_eyecandy_list_copy, sync_way_eyecandy_list );
-	sync_way_eyecandy_list_copy.clear();
-
-	// now remove everything from last time
-	sync_way_eyecandy_running = false;
-	while(  !sync_way_eyecandy_remove_list.empty()  ) {
-		sync_way_eyecandy_list.remove( sync_way_eyecandy_remove_list.remove_first() );
+		list.remove(obj);
 	}
 }
 
-
-// ... and now all regular stuff, which needs to are in the same order on any plattform
-// Thus we are using (slower) lists/vectors and no pointerhashtables
-bool karte_t::sync_add(sync_steppable *obj)
+void karte_t::sync_list_t::clear()
 {
-	if(  sync_step_running  ) {
-		sync_add_list.insert( obj );
-	}
-	else {
-		sync_list.append( obj );
-	}
-	return true;
+	list.clear();
+	currently_deleting = NULL;
+	sync_step_running = false;
 }
 
-
-bool karte_t::sync_remove(sync_steppable *obj)	// entfernt alle dinge == obj aus der Liste
+void karte_t::sync_list_t::sync_step(uint32 delta_t)
 {
-	if(  sync_step_running  ) {
-		sync_remove_list.append(obj);
-	}
-	else {
-		if(sync_add_list.remove(obj)) {
-			return true;
+	sync_step_running = true;
+	currently_deleting = NULL;
+
+	for(uint32 i=0; i<list.get_count();i++) {
+		sync_steppable *ss = list[i];
+		switch(ss->sync_step(delta_t)) {
+			case SYNC_OK:
+				break;
+			case SYNC_DELETE:
+				currently_deleting = ss;
+				delete ss;
+				currently_deleting = NULL;
+				/* fall-through */
+			case SYNC_REMOVE:
+				ss = list.pop_back();
+				if (i < list.get_count()) {
+					list[i] = ss;
+				}
 		}
-		return sync_list.remove(obj);
 	}
-	return false;
+	sync_step_running = false;
 }
 
 
@@ -3843,10 +3721,10 @@ bool karte_t::sync_remove(sync_steppable *obj)	// entfernt alle dinge == obj aus
  * only time consuming thing are done in step()
  * everything else is done here
  */
-void karte_t::sync_step(uint32 delta_t, bool sync, bool display )
+void karte_t::sync_step(uint32 delta_t, bool do_sync_step, bool display )
 {
 	set_random_mode( SYNC_STEP_RANDOM );
-	if(sync) {
+	if(do_sync_step) {
 		// only omitted, when called to display a new frame during fast forward
 
 		// just for progress
@@ -3862,49 +3740,16 @@ void karte_t::sync_step(uint32 delta_t, bool sync, bool display )
 		 * foundations etc are added removed freuently during city growth
 		 * => they are now in a hastable!
 		 */
-		sync_eyecandy_step( delta_t );
+		sync_eyecandy.sync_step( delta_t );
 
 		/* pedestrians do not require exact sync and are added/removed frequently
 		 * => they are now in a hastable!
 		 */
-		sync_way_eyecandy_step( delta_t );
+		sync_way_eyecandy.sync_step( delta_t );
 
 		clear_random_mode( INTERACTIVE_RANDOM );
 
-		/* and now the rest for the other moving stuff */
-		sync_step_running = true;
-		while(  !sync_add_list.empty()  ) {
-			sync_list.append( sync_add_list.remove_first() );
-		}
-
-		// now remove everything from last time
-		sync_step_running = false;
-		while(  !sync_remove_list.empty()  ) {
-			sync_list.remove( sync_remove_list.remove_first() );
-		}
-
-		sync_step_running = true;
-		static vector_tpl<sync_steppable *> sync_list_copy;
-		sync_list_copy.resize( sync_list.get_count() );
-		FOR(vector_tpl<sync_steppable*>, const ss, sync_list) {
-			// if false, then remove
-			if(!ss->sync_step(delta_t)) {
-				delete ss;
-			}
-			else {
-				sync_list_copy.append( ss );
-			}
-		}
-		swap( sync_list_copy, sync_list );
-		sync_list_copy.clear();
-
-		// now remove everything from this time
-		sync_step_running = false;
-		while(!sync_remove_list.empty()) {
-			sync_list.remove( sync_remove_list.remove_first() );
-		}
-
-		sync_step_running = false;
+		sync.sync_step( delta_t );
 	}
 
 	if(display) {
@@ -4094,7 +3939,6 @@ void karte_t::new_month()
 		need_locality_update = (old_locality_factor != koord::locality_factor);
 	}
 	DBG_MESSAGE("karte_t::neuer_monat()","Month (%d/%d) has started", (last_month%12)+1, last_month/12 );
-	DBG_MESSAGE("karte_t::neuer_monat()","sync_step %u objects", sync_list.get_count() );
 
 	// this should be done before a map update, since the map may want an update of the way usage
 //	DBG_MESSAGE("karte_t::neuer_monat()","ways");
@@ -5780,7 +5624,7 @@ DBG_MESSAGE("karte_t::laden()", "init player");
 			}
 		}
 		else {
-			sync_add( cnv );
+			sync.add( cnv );
 		}
 		if(  (convoi_array.get_count()&7) == 0  ) {
 			ls.set_progress( get_size().y+(get_size().y*convoi_array.get_count())/(2*max_convoi)+128 );

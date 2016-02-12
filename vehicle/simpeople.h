@@ -40,7 +40,7 @@ public:
 	const char *get_name() const {return "Fussgaenger";}
 	typ get_typ() const { return pedestrian; }
 
-	bool sync_step(uint32 delta_t);
+	sync_result sync_step(uint32 delta_t);
 
 	// prissi: always free
 	virtual bool ist_weg_frei() { return true; }

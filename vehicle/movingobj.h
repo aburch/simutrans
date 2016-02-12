@@ -56,7 +56,7 @@ public:
 	movingobj_t(koord3d pos, const groundobj_besch_t *);
 	~movingobj_t();
 
-	bool sync_step(uint32 delta_t);
+	sync_result sync_step(uint32 delta_t);
 
 	// prissi: always free
 	virtual bool check_next_tile(const grund_t *) const;

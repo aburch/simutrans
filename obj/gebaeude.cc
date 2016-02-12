@@ -85,7 +85,7 @@ gebaeude_t::gebaeude_t(loadsave_t *file) : obj_t()
 		set_yoff(0);
 	}
 	if(tile  &&  tile->get_phasen()>1) {
-		welt->sync_eyecandy_add( this );
+		welt->sync_eyecandy.add( this );
 		sync = true;
 	}
 }
@@ -128,7 +128,7 @@ gebaeude_t::~gebaeude_t()
 
 	if(sync) {
 		sync = false;
-		welt->sync_eyecandy_remove(this);
+		welt->sync_eyecandy.remove(this);
 	}
 
 	// tiles might be invalid, if no description is found during loading
@@ -254,7 +254,7 @@ void gebaeude_t::set_tile( const haus_tile_besch_t *new_tile, bool start_with_co
 #ifdef MULTI_THREAD
 			pthread_mutex_lock( &sync_mutex );
 #endif
-			welt->sync_eyecandy_remove(this);
+			welt->sync_eyecandy.remove(this);
 			sync = false;
 			anim_frame = 0;
 #ifdef MULTI_THREAD
@@ -269,7 +269,7 @@ void gebaeude_t::set_tile( const haus_tile_besch_t *new_tile, bool start_with_co
 #endif
 		anim_frame = sim_async_rand( new_tile->get_phasen() );
 		anim_time = 0;
-		welt->sync_eyecandy_add(this);
+		welt->sync_eyecandy.add(this);
 		sync = true;
 #ifdef MULTI_THREAD
 		pthread_mutex_unlock( &sync_mutex );
@@ -281,13 +281,7 @@ void gebaeude_t::set_tile( const haus_tile_besch_t *new_tile, bool start_with_co
 }
 
 
-/**
- * Methode für Echtzeitfunktionen eines Objekts.
- * @return false wenn Objekt aus der Liste der synchronen
- * Objekte entfernt werden sol
- * @author Hj. Malthaner
- */
-bool gebaeude_t::sync_step(uint32 delta_t)
+sync_result gebaeude_t::sync_step(uint32 delta_t)
 {
 	if(  zeige_baugrube  ) {
 		// still under construction?
@@ -296,8 +290,8 @@ bool gebaeude_t::sync_step(uint32 delta_t)
 			mark_image_dirty( get_image(), 0 );
 			zeige_baugrube = false;
 			if(  tile->get_phasen() <= 1  ) {
-				welt->sync_eyecandy_remove( this );
 				sync = false;
+				return SYNC_REMOVE;
 			}
 		}
 	}
@@ -330,7 +324,7 @@ bool gebaeude_t::sync_step(uint32 delta_t)
 			}
  		}
  	}
-	return true;
+	return SYNC_OK;
 }
 
 

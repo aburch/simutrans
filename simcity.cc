@@ -1714,7 +1714,7 @@ void stadt_t::neuer_monat( bool recalc_destinations )
 				if(  gr != NULL  &&  gr->get_weg(road_wt)  &&  ribi_t::is_twoway(gr->get_weg_ribi_unmasked(road_wt))  &&  gr->find<private_car_t>() == NULL) {
 					private_car_t* vt = new private_car_t(gr, koord::invalid);
 					gr->obj_add(vt);
-					welt->sync_add(vt);
+					welt->sync.add(vt);
 					number_of_cars--;
 				}
 			}
@@ -3038,7 +3038,7 @@ void stadt_t::generate_private_cars(koord pos, sint32 level, koord target)
 						if (!private_car_t::list_empty()) {
 							private_car_t* vt = new private_car_t(gr, target);
 							gr->obj_add(vt);
-							welt->sync_add(vt);
+							welt->sync.add(vt);
 						}
 						return;
 					}

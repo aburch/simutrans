@@ -213,7 +213,7 @@ public:
 
 	// used to alternate between displaying power on and power off images at a frequency determined by the percentage of power supplied
 	// gives players a visual indication of a power network with insufficient generation
-	bool sync_step(uint32 delta_t);
+	sync_result sync_step(uint32 delta_t);
 
 	const char *get_name() const {return "Abspanntransformator";}
 

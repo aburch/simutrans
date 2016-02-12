@@ -202,7 +202,7 @@ DBG_MESSAGE("convoi_t::~convoi_t()", "destroying %d, %p", self.get_id(), this);
 		welt->get_viewport()->set_follow_convoi( convoihandle_t() );
 	}
 
-	welt->sync_remove( this );
+	welt->sync.remove( this );
 	welt->rem_convoi( self );
 
 	// Knightly : if lineless convoy -> unregister from stops
@@ -870,12 +870,12 @@ int convoi_t::get_vehicle_at_length(uint16 length)
 
 
 // moves all vehicles of a convoi
-bool convoi_t::sync_step(uint32 delta_t)
+sync_result convoi_t::sync_step(uint32 delta_t)
 {
 	// still have to wait before next action?
 	wait_lock -= delta_t;
 	if(wait_lock > 0) {
-		return true;
+		return SYNC_OK;
 	}
 	wait_lock = 0;
 
@@ -919,7 +919,7 @@ bool convoi_t::sync_step(uint32 delta_t)
 					if(sp_hat==0  ||  v_nr==anz_vehikel) {
 						steps_driven = -1;
 						state = DRIVING;
-						return true;
+						return SYNC_OK;
 					}
 					// now only the right numbers
 					for(int i=1; i<=v_nr; i++) {
@@ -947,7 +947,7 @@ bool convoi_t::sync_step(uint32 delta_t)
 				uint32 sp_hat = fahr[0]->do_drive(sp_soll);
 				// stop when depot reached ...
 				if(state==INITIAL) {
-					break;
+					return SYNC_REMOVE;
 				}
 				// now move the rest (so all vehikel are moving synchronously)
 				for(unsigned i=1; i<anz_vehikel; i++) {
@@ -986,7 +986,7 @@ bool convoi_t::sync_step(uint32 delta_t)
 			break;
 	}
 
-	return true;
+	return SYNC_OK;
 }
 
 
@@ -1462,7 +1462,7 @@ void convoi_t::betrete_depot(depot_t *dep)
 	// Hajo: since 0.81.5exp it's safe to
 	// remove the current sync object from
 	// the sync list from inside sync_step()
-	welt->sync_remove(this);
+	welt->sync.remove(this);
 	maxspeed_average_count = 0;
 	state = INITIAL;
 }
@@ -1487,7 +1487,7 @@ void convoi_t::start()
 		gr->obj_add( fahr[0] );
 
 		// put into sync list
-		welt->sync_add(this);
+		welt->sync.add(this);
 
 		alte_richtung = ribi_t::keine;
 		no_load = false;

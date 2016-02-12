@@ -113,7 +113,7 @@ public:
 
 	const stadtauto_besch_t *get_besch() const { return besch; }
 
-	bool sync_step(uint32 delta_t);
+	sync_result sync_step(uint32 delta_t);
 
 	void hop(grund_t *gr);
 	bool ist_weg_frei(grund_t *gr);

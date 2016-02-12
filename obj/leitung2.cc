@@ -601,7 +601,7 @@ senke_t::senke_t(loadsave_t *file) : leitung_t( koord3d::invalid, NULL )
 	last_power_demand = 0;
 	power_load = 0;
 	rdwr( file );
-	welt->sync_add(this);
+	welt->sync.add(this);
 }
 
 
@@ -616,13 +616,13 @@ senke_t::senke_t(koord3d pos, player_t *player) : leitung_t(pos, player)
 	last_power_demand = 0;
 	power_load = 0;
 	player_t::book_construction_costs(player, welt->get_settings().cst_transformer, get_pos().get_2d(), powerline_wt);
-	welt->sync_add(this);
+	welt->sync.add(this);
 }
 
 
 senke_t::~senke_t()
 {
-	welt->sync_remove( this );
+	welt->sync.remove( this );
 	if(fab!=NULL) {
 		fab->set_transformer_connected( false );
 		fab = NULL;
@@ -687,10 +687,10 @@ void senke_t::step(uint32 delta_t)
 }
 
 
-bool senke_t::sync_step(uint32 delta_t)
+sync_result senke_t::sync_step(uint32 delta_t)
 {
 	if(fab==NULL) {
-		return false;
+		return SYNC_DELETE;
 	}
 
 	delta_sum += delta_t;
@@ -738,7 +738,7 @@ bool senke_t::sync_step(uint32 delta_t)
 			set_bild( new_bild );
 		}
 	}
-	return true;
+	return SYNC_OK;
 }
 
 

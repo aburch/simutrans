@@ -21,7 +21,6 @@
 #include "halthandle_t.h"
 
 #include "tpl/weighted_vector_tpl.h"
-#include "tpl/ptrhashtable_tpl.h"
 #include "tpl/vector_tpl.h"
 #include "tpl/slist_tpl.h"
 
@@ -269,51 +268,6 @@ private:
 	 * @author prissi
 	 */
 	uint8 height_to_climate[32];
-
-	/**
-	 * These objects will be added to the sync_list (but before next sync step, so they do not interfere!)
-	 */
-	slist_tpl<sync_steppable *> sync_add_list;
-
-	/**
-	 * These objects will be removed from the sync_list (but before next sync step, so they do not interfere!)
-	 */
-	slist_tpl<sync_steppable *> sync_remove_list;
-
-	/**
-	 * Sync list.
-	 */
-	vector_tpl<sync_steppable *> sync_list;
-
-	/**
-	 * These objects will be added to the eyecandy sync_list (but before next sync step, so they do not interfere!)
-	 */
-	slist_tpl<sync_steppable *> sync_eyecandy_add_list;
-
-	/**
-	 * These objects will be removed to the eyecandy sync_list (but before next sync step, so they do not interfere!)
-	 */
-	slist_tpl<sync_steppable *> sync_eyecandy_remove_list;
-
-	/**
-	 * Sync list for eyecandy objects.
-	 */
-	ptrhashtable_tpl<sync_steppable *,sync_steppable *> sync_eyecandy_list;
-
-	/**
-	 * These objects will be added to the eyecandy way objects (smoke) sync_list (but before next sync step, so they do not interfere!)
-	 */
-	slist_tpl<sync_steppable *> sync_way_eyecandy_add_list;
-
-	/**
-	 * These objects will be removed to the eyecandy way objects (smoke) sync_list (but before next sync step, so they do not interfere!)
-	 */
-	slist_tpl<sync_steppable *> sync_way_eyecandy_remove_list;
-
-	/**
-	 * Sync list for eyecandy way objects (smoke).
-	 */
-	vector_tpl<sync_steppable *> sync_way_eyecandy_list;
 
 	/**
 	 * Array containing the convois.
@@ -1584,21 +1538,32 @@ public:
 	/// rotate map view by 90 degrees
 	void rotate90();
 
-	bool sync_add(sync_steppable *obj);
-	bool sync_remove(sync_steppable *obj);
-	void sync_step(uint32 delta_t, bool sync, bool display );	// advance also the timer
+	class sync_list_t {
+			friend class karte_t;
+		public:
+			sync_list_t() : currently_deleting(NULL), sync_step_running(false) {}
+			void add(sync_steppable *obj);
+			void remove(sync_steppable *obj);
+		private:
+			void sync_step(uint32 delta_t);
+			/// clears list, does not delete the objects
+			void clear();
 
-	bool sync_eyecandy_add(sync_steppable *obj);
-	bool sync_eyecandy_remove(sync_steppable *obj);
-	void sync_eyecandy_step(uint32 delta_t);	// all stuff, which does not need explicit order (factory smoke, buildings)
+			vector_tpl<sync_steppable *> list;  ///< list of sync-steppable objects
+			sync_steppable* currently_deleting; ///< deleted durign sync_step, safeguard calls to remove
+			bool sync_step_running;
+	};
 
-	bool sync_way_eyecandy_add(sync_steppable *obj);
-	bool sync_way_eyecandy_remove(sync_steppable *obj);
-	void sync_way_eyecandy_step(uint32 delta_t);	// currently one smoke from vehicles on ways
-
+	sync_list_t sync;              ///< vehicles, transformers, traffic lights
+	sync_list_t sync_eyecandy;     ///< animated buildings
+	sync_list_t sync_way_eyecandy; ///< smoke
 
 	/**
-	 * For all stuff, that needs long and can be done less frequently.
+	 * Synchronous stepping of objects like vehicles.
+	 */
+	void sync_step(uint32 delta_t, bool sync, bool display );	// advance also the timer
+	/**
+	 * Tasks that are more time-consuming, like route search of vehicles and production of factories.
 	 */
 	void step();
 

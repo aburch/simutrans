@@ -50,9 +50,7 @@ wolke_t::~wolke_t()
 {
 	mark_image_dirty( get_image(), 0 );
 	if(  insta_zeit != 2499  ) {
-		if(  !welt->sync_way_eyecandy_remove( this )  ) {
-			dbg->error( "wolke_t::~wolke_t()", "wolke not in the correct sync list" );
-		}
+		welt->sync_way_eyecandy.remove( this );
 	}
 }
 
@@ -95,13 +93,13 @@ void wolke_t::rdwr(loadsave_t *file)
 
 
 
-bool wolke_t::sync_step(uint32 delta_t)
+sync_result wolke_t::sync_step(uint32 delta_t)
 {
 	insta_zeit += delta_t;
 	if(insta_zeit>=2499) {
 		// delete wolke ...
 		insta_zeit = 2499;
-		return false;
+		return SYNC_DELETE;
 	}
 	// move cloud up
 	sint8 ymove = ((insta_zeit*OBJECT_OFFSET_STEPS) >> 12);
@@ -113,7 +111,7 @@ bool wolke_t::sync_step(uint32 delta_t)
 		set_yoff(  base_y_off - ymove  );
 		set_flag(obj_t::dirty);
 	}
-	return true;
+	return SYNC_OK;
 }
 
 

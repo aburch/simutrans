@@ -603,7 +603,7 @@ public:
 	 * all other stuff => convoi_t::step()
 	 * @author Hj. Malthaner
 	 */
-	bool sync_step(uint32 delta_t);
+	sync_result sync_step(uint32 delta_t);
 
 	/**
 	 * All things like route search or loading, that may take a little

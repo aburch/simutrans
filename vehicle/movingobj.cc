@@ -154,7 +154,7 @@ movingobj_t::movingobj_t(loadsave_t *file) : vehicle_base_t()
 {
 	rdwr(file);
 	if(get_besch()) {
-		welt->sync_add( this );
+		welt->sync.add( this );
 	}
 }
 
@@ -166,13 +166,13 @@ movingobj_t::movingobj_t(koord3d pos, const groundobj_besch_t *b ) : vehicle_bas
 	timetochange = 0;	// will do random direct change anyway during next step
 	direction = calc_set_direction( koord3d(0,0,0), koord3d(koord::west,0) );
 	calc_image();
-	welt->sync_add( this );
+	welt->sync.add( this );
 }
 
 
 movingobj_t::~movingobj_t()
 {
-	welt->sync_remove( this );
+	welt->sync.remove( this );
 }
 
 
@@ -278,17 +278,16 @@ void movingobj_t::cleanup(player_t *player)
 {
 	player_t::book_construction_costs(player, -get_besch()->get_preis(), get_pos().get_2d(), ignore_wt);
 	mark_image_dirty( get_image(), 0 );
-	welt->sync_remove( this );
 }
 
 
 
 
-bool movingobj_t::sync_step(uint32 delta_t)
+sync_result movingobj_t::sync_step(uint32 delta_t)
 {
 	weg_next += get_besch()->get_speed() * delta_t;
 	weg_next -= do_drive( weg_next );
-	return true;
+	return SYNC_OK;
 }
 
 
