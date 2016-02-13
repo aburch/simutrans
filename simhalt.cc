@@ -4804,11 +4804,11 @@ void haltestelle_t::calc_transfer_time()
 	const uint32 walking_around = welt->walking_time_tenths_from_distance(length_around);
 	// Guess that someone has to walk roughly from the middle to one end, so divide by *4*.
 	// Finally, round down to a uint16 (just in case).
-	transfer_time = min( walking_around / 4, 65535 );
+	transfer_time = min(walking_around / 4, 65535);
 
 	// Repeat the process for the transshipment time.  (This is all inlined.)
 	const uint32 hauling_around = welt->walk_haulage_time_tenths_from_distance(length_around);
-	transshipment_time = min( hauling_around / 4, 65535 );
+	transshipment_time = min(hauling_around / 4, 65535);
 
 	// Adjust for overcrowding - transfer time increases with a more crowded stop.
 	// TODO: Better separate waiting times for different types of goods.
@@ -4842,7 +4842,7 @@ void haltestelle_t::calc_transfer_time()
 	if(capacity[2] > 0 && waiting_goods > capacity[2])
 	{
 		const sint64 overcrowded_proportion_goods = waiting_goods * 10ll / capacity[2];
-		transshipment_time = max(transfer_time, (uint16)overcrowded_proportion_goods);
+		transshipment_time = max(transshipment_time, (uint16)overcrowded_proportion_goods);
 		transshipment_time *= (2 * (uint16)overcrowded_proportion_goods);
 		transshipment_time /= 10;
 	}
