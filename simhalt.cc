@@ -4846,17 +4846,13 @@ void haltestelle_t::calc_transfer_time()
 	if(capacity[0] > 0 && waiting_passengers > capacity[0])
 	{
 		const sint64 overcrowded_proporion_passengers = waiting_passengers * 10ll / capacity[0];
-		transfer_time = max(transfer_time, (uint16)overcrowded_proporion_passengers);
-		transfer_time *= (2 * (uint16)overcrowded_proporion_passengers);
-		transfer_time /= 10;
+		transfer_time = min(max(transfer_time, ((uint16)overcrowded_proporion_passengers * (2 * (uint16)overcrowded_proporion_passengers)) / 10), transfer_time * 10);
 	}
 
 	if(capacity[2] > 0 && waiting_goods > capacity[2])
 	{
 		const sint64 overcrowded_proportion_goods = waiting_goods * 10ll / capacity[2];
-		transshipment_time = max(transshipment_time, (uint16)overcrowded_proportion_goods);
-		transshipment_time *= (2 * (uint16)overcrowded_proportion_goods);
-		transshipment_time /= 10;
+		transshipment_time = min(max(transshipment_time, ((uint16)overcrowded_proportion_goods * (2 * (uint16)overcrowded_proportion_goods)) / 10), transshipment_time * 10);
 	}
 
 	// For reference, with a transshipment speed of 1 km/h and a walking speed of 5 km/h,
