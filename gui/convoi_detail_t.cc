@@ -76,7 +76,7 @@ void convoi_detail_t::draw(scr_coord pos, scr_size size)
 		destroy_win(this);
 	}
 	else {
-		if(cnv->get_owner()==welt->get_active_player()) {
+		if(cnv->get_owner()==welt->get_active_player()  &&  !welt->get_active_player()->is_locked()) {
 			withdraw_button.enable();
 			sale_button.enable();
 		}
