@@ -3783,10 +3783,7 @@ const char* convoi_t::send_to_depot(bool local)
 		schedule_t *fpl = get_schedule()->copy();
 		fpl->insert(welt->lookup(home));
 		fpl->set_aktuell( (fpl->get_aktuell()+fpl->get_count()-1)%fpl->get_count() );
-		cbuffer_t buf;
-		fpl->sprintf_schedule( buf );
-		call_convoi_tool( 'g', buf );
-		delete fpl;
+		set_schedule(fpl);
 		txt = "Convoi has been sent\nto the nearest depot\nof appropriate type.\n";
 	}
 	else {
