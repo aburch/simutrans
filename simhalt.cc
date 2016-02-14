@@ -1160,7 +1160,15 @@ void haltestelle_t::step()
 	//   refresh_routing() instead of
 	//   karte_t::set_schedule_counter()
 
+	COLOR_VAL old_status_color = status_color;
+
 	recalc_status();
+
+	if(status_color == COL_RED || old_status_color != status_color)
+	{
+		// The transfer time needs recalculating if the stop is overcrowded.
+		calc_transfer_time();
+	}
 
 	// Every 256 steps - check whether passengers/goods have been waiting too long.
 	// Will overflow at 255.
@@ -4817,15 +4825,19 @@ void haltestelle_t::calc_transfer_time()
 	const sint64 waiting_passengers = waren[0] ? waren[0]->get_count() : 0;
 	sint64 waiting_goods = 0;
 
-	for(uint8 i = 0; i < max_categories; i++)
+	for(uint8 i = 2; i < max_categories; i++)
 	{
-		if (waren[i])
+		if(waren[i])
 		{
 			FOR(vector_tpl<ware_t>, const &w, *waren[i])
 			{
-				if(i >= 2)
+				if(waren[i])
 				{
-					waiting_goods += waren[i]->get_count();
+					vector_tpl<ware_t> * warray = waren[i];
+					FOR(vector_tpl<ware_t>, & j, *warray)
+					{
+						waiting_goods += j.menge;
+					}
 				}
 			}
 		}
