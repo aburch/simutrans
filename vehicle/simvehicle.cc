@@ -3492,9 +3492,9 @@ bool rail_vehicle_t::check_next_tile(const grund_t *bd) const
 	// also allow driving on foreign tracks ...
 	const bool needs_no_electric = !(cnv!=NULL ? cnv->needs_electrification() : besch->get_engine_type() == vehikel_besch_t::electric);
 
-	if((!needs_no_electric  &&  !sch->is_electrified())  ||  sch->get_max_speed() == 0 || !check_way_constraints(*sch))
+	if((!needs_no_electric  &&  !sch->is_electrified())  || (sch->get_max_speed() == 0 && speed_limit < INT_MAX) || !check_way_constraints(*sch))
 	{
-		return false;
+		return false; 
 	}
 
 	if (depot_t *depot = bd->get_depot()) {
