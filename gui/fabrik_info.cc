@@ -45,8 +45,6 @@ fabrik_info_t::fabrik_info_t(fabrik_t* fab_, const gebaeude_t* gb) :
 	tstrncpy( fabname, fab->get_name(), lengthof(fabname) );
 	gui_frame_t::set_name( fabname );
 
-	const sint16 total_width = D_MARGIN_LEFT + 3*(D_BUTTON_WIDTH + D_H_SPACE) + max( D_BUTTON_WIDTH, view.get_size().w ) + D_MARGIN_RIGHT;
-
 	input.set_pos(scr_coord(D_MARGIN_LEFT,D_MARGIN_TOP));
 	input.set_text( fabname, lengthof(fabname) );
 	input.add_listener(this);
@@ -89,9 +87,9 @@ fabrik_info_t::fabrik_info_t(fabrik_t* fab_, const gebaeude_t* gb) :
 	scrolly.set_pos(scr_coord(0, offset_below_viewport+D_BUTTON_HEIGHT+D_V_SPACE+6));
 	add_component(&scrolly);
 
-	set_min_windowsize(scr_size(total_width, D_TITLEBAR_HEIGHT+scrolly.get_pos().y+LINESPACE*5+D_MARGINS_Y));
+	set_min_windowsize(scr_size( D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT+scrolly.get_pos().y+LINESPACE*5+D_MARGINS_Y));
 	scr_coord_val y = min( D_TITLEBAR_HEIGHT+scrolly.get_pos().y+fab_info.get_size().h+D_MARGINS_Y,  display_get_height() - env_t::iconsize.h - 16);
-	set_windowsize(scr_size(D_DEFAULT_WIDTH, y ));
+	set_windowsize( scr_size(D_DEFAULT_WIDTH, y ) );
 
 	set_resizemode(diagonal_resize);
 	resize(scr_coord(0,0));
