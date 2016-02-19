@@ -200,6 +200,13 @@ bool schedule_t::append(const grund_t* gr, uint16 ladegrad, uint8 waiting_time_s
 // cleanup a schedule
 void schedule_t::cleanup()
 {
+
+	if(eintrag.get_count() == 1)
+	{
+		// Schedules of just one entry are not allowed.
+		eintrag.clear();
+	}
+	
 	if(  eintrag.empty()  ) {
 		return; // nothing to check
 	}
