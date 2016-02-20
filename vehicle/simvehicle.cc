@@ -2725,7 +2725,8 @@ route_t::route_result_t road_vehicle_t::calc_route(koord3d start, koord3d ziel, 
 bool road_vehicle_t::check_next_tile(const grund_t *bd) const
 {
 	strasse_t *str=(strasse_t *)bd->get_weg(road_wt);
-	if(str==NULL  ||  str->get_max_speed()==0) {
+	if(str==NULL || ((str->get_max_speed()==0 && speed_limit < INT_MAX)))
+	{
 		return false;
 	}
 	if(!is_checker)
