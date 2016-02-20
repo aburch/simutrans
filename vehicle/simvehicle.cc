@@ -4028,33 +4028,37 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 	if(working_method == absolute_block || working_method == track_circuit_block || working_method == drive_by_sight || working_method == token_block || working_method == time_interval)
 	{
 		// Check for signals at restrictive aspects within the sighting distance to see whether they can now clear whereas they could not before.
-		const koord3d tile_to_check_ahead = cnv->get_route()->position_bei(min(route.get_count() - 1u, route_index + modified_sighting_distance_tiles));
-		const koord3d previous_tile = cnv->get_route()->position_bei(min(route.get_count() - 1u, route_index + modified_sighting_distance_tiles) -1u);
-		grund_t *gr_ahead = welt->lookup(tile_to_check_ahead);
-		weg_t *way = gr_ahead ? gr_ahead->get_weg(get_waytype()) : NULL;
-		if(!way)
+		for(uint16 tiles_to_check = 1; tiles_to_check <= modified_sighting_distance_tiles; tiles_to_check++)
 		{
-			// This may happen if a way has been removed since the route was calculated. Must recalculate the route.
-			cnv->suche_neue_route();
-			return false;
-		}
-		uint16 modified_route_index = min(route_index + modified_sighting_distance_tiles, cnv->get_route()->get_count() - 1u);
-		ribi_t::ribi ribi = ribi_typ(cnv->get_route()->position_bei(max(1u,modified_route_index)-1u), cnv->get_route()->position_bei(min(cnv->get_route()->get_count()-1u,modified_route_index+1u)));
-		signal_t* signal = way->get_signal(ribi); 
+			const koord3d tile_to_check_ahead = cnv->get_route()->position_bei(min(route.get_count() - 1u, route_index + tiles_to_check));
+			const koord3d previous_tile = cnv->get_route()->position_bei(min(route.get_count() - 1u, route_index + tiles_to_check) -1u);
+			grund_t *gr_ahead = welt->lookup(tile_to_check_ahead);
+			weg_t *way = gr_ahead ? gr_ahead->get_weg(get_waytype()) : NULL;
+			if(!way)
+			{
+				// This may happen if a way has been removed since the route was calculated. Must recalculate the route.
+				cnv->suche_neue_route();
+				return false;
+			}
+			uint16 modified_route_index = min(route_index + tiles_to_check, cnv->get_route()->get_count() - 1u);
+			ribi_t::ribi ribi = ribi_typ(cnv->get_route()->position_bei(max(1u,modified_route_index)-1u), cnv->get_route()->position_bei(min(cnv->get_route()->get_count()-1u,modified_route_index+1u)));
+			signal_t* signal = way->get_signal(ribi); 
 
-		if(signal && (signal->get_state() == signal_t::caution
-			|| signal->get_state() == signal_t::preliminary_caution
-			|| signal->get_state() == signal_t::advance_caution 
-			|| ((working_method == time_interval || working_method == track_circuit_block) && signal->get_state() == signal_t::clear)
-			|| ((working_method == time_interval || working_method == track_circuit_block) && signal->get_state() == signal_t::clear_no_choose) 
-			|| signal->get_state() == signal_t::caution_no_choose 
-			|| signal->get_state() == signal_t::preliminary_caution_no_choose
-			|| signal->get_state() == signal_t::advance_caution_no_choose))
-		{
-			// We come accross a signal at caution: try (again) to free the block ahead.
-			bool ok = block_reserver(cnv->get_route(), route_index, modified_sighting_distance_tiles, next_signal, 0, true, false);
-			cnv->set_next_stop_index(next_signal);
-			// Setting the aspect of the signal is done inside the block reserver
+			if(signal && (signal->get_state() == signal_t::caution
+				|| signal->get_state() == signal_t::preliminary_caution
+				|| signal->get_state() == signal_t::advance_caution 
+				|| ((working_method == time_interval || working_method == track_circuit_block) && signal->get_state() == signal_t::clear)
+				|| ((working_method == time_interval || working_method == track_circuit_block) && signal->get_state() == signal_t::clear_no_choose) 
+				|| signal->get_state() == signal_t::caution_no_choose 
+				|| signal->get_state() == signal_t::preliminary_caution_no_choose
+				|| signal->get_state() == signal_t::advance_caution_no_choose))
+			{
+				// We come accross a signal at caution: try (again) to free the block ahead.
+				bool ok = block_reserver(cnv->get_route(), route_index, tiles_to_check, next_signal, 0, true, false);
+				cnv->set_next_stop_index(next_signal);
+				break;
+				// Setting the aspect of the signal is done inside the block reserver
+			}
 		}
 	}
 
