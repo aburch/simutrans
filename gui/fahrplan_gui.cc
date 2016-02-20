@@ -137,7 +137,7 @@ void fahrplan_gui_t::gimme_stop_name(cbuffer_t & buf, const player_t *player, co
 		}
 	}
 
-	if(entry.reverse)
+	if(entry.reverse == 1)
 	{
 		buf.printf(" [<<]");
 	}

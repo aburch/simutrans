@@ -1334,7 +1334,7 @@ bool convoi_t::drive_to()
 					}
 				}
 
-				if(schedule_entry->reverse || haltestelle_t::get_halt(schedule_entry->pos, get_owner()).is_bound())
+				if(schedule_entry->reverse == 1 || haltestelle_t::get_halt(schedule_entry->pos, get_owner()).is_bound())
 				{
 					// The convoy must stop at the current route's end.
 					break;
@@ -5334,11 +5334,12 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 		return;
 	}
 
-	if(arrival_time > welt->get_zeit_ms())
+	const sint64 now = welt->get_zeit_ms();
+	if(arrival_time > now)
 	{
 		// This is a workaround for an odd bug the origin of which is as yet unclear.
 		go_on_ticks = WAIT_INFINITE;
-		arrival_time = welt->get_zeit_ms();
+		arrival_time = now;
 	}
 	const uint32 reversing_time = fpl->get_current_eintrag().reverse > 0 ? calc_reverse_delay() : 0;
 	bool running_late = false;
@@ -5368,14 +5369,14 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 				// Departures/month
 				const sint64 spacing = welt->ticks_per_world_month / (sint64)fpl->get_spacing();
 				const sint64 spacing_shift = (sint64)fpl->get_current_eintrag().spacing_shift * welt->ticks_per_world_month / (sint64)welt->get_settings().get_spacing_shift_divisor();
-				const sint64 wait_from_ticks = ((welt->get_zeit_ms() - spacing_shift) / spacing) * spacing + spacing_shift; // remember, it is integer division
+				const sint64 wait_from_ticks = ((now - spacing_shift) / spacing) * spacing + spacing_shift; // remember, it is integer division
 				const sint64 queue_pos = halt.is_bound() ? halt->get_queue_pos(self) : 1ll;
 				go_on_ticks_spacing = (wait_from_ticks + spacing * queue_pos) - reversing_time;
 			}
 			if(fpl->get_current_eintrag().waiting_time_shift > 0)
 			{
 				// Maximum wait time
-				go_on_ticks_waiting = welt->get_zeit_ms() + (welt->ticks_per_world_month >> (16ll - (sint64)fpl->get_current_eintrag().waiting_time_shift)) - (sint64)reversing_time;
+				go_on_ticks_waiting = now + (welt->ticks_per_world_month >> (16ll - (sint64)fpl->get_current_eintrag().waiting_time_shift)) - (sint64)reversing_time;
 			}
 			go_on_ticks = (std::min)(go_on_ticks_spacing, go_on_ticks_waiting);
 			go_on_ticks = (std::max)(departure_time, go_on_ticks);
@@ -5389,11 +5390,12 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 
 	// loading is finished => maybe drive on
 	bool can_go = false;
-	can_go = loading_level >= loading_limit && welt->get_zeit_ms() >= go_on_ticks;
-	can_go = can_go || (welt->get_zeit_ms() >= go_on_ticks_waiting && !wait_for_time);
+	
+	can_go = loading_level >= loading_limit && now >= go_on_ticks;
+	can_go = can_go || (now >= go_on_ticks_waiting && !wait_for_time);
 	can_go = can_go || running_late; 
 	can_go = can_go || no_load;
-	can_go = can_go && welt->get_zeit_ms() > earliest_departure_time;
+	can_go = can_go && now > earliest_departure_time;
 	if(can_go) {
 
 		if(withdraw  &&  (loading_level==0  ||  goods_catg_index.empty())) {
@@ -5420,7 +5422,7 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 	else
 	{
 		// The random extra wait here is designed to avoid processing every convoy at once
-		wait_lock = (go_on_ticks - welt->get_zeit_ms()) / 2 + (self.get_id()) % 1024;
+		wait_lock = (go_on_ticks - now) / 2 + (self.get_id()) % 1024;
 		if (wait_lock < 0 )
 		{
 			wait_lock = 0;

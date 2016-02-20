@@ -23,7 +23,7 @@
 
 #include "../tpl/slist_tpl.h"
 
-linieneintrag_t schedule_t::dummy_eintrag(koord3d::invalid, 0, 0, 0, true, false);
+linieneintrag_t schedule_t::dummy_eintrag(koord3d::invalid, 0, 0, 0, -1, false);
 
 schedule_t::schedule_t(loadsave_t* const file)
 {
@@ -147,7 +147,7 @@ bool schedule_t::insert(const grund_t* gr, uint16 ladegrad, uint8 waiting_time_s
 	}
 
 	if(  ist_halt_erlaubt(gr)  ) {
-		eintrag.insert_at(aktuell, linieneintrag_t(gr->get_pos(), ladegrad, waiting_time_shift, spacing_shift, !gr->get_halt().is_bound(), wait_for_time));
+		eintrag.insert_at(aktuell, linieneintrag_t(gr->get_pos(), ladegrad, waiting_time_shift, spacing_shift, -1, wait_for_time));
 		aktuell ++;
 		return true;
 	}
@@ -184,7 +184,7 @@ bool schedule_t::append(const grund_t* gr, uint16 ladegrad, uint8 waiting_time_s
 	}
 
 	if(ist_halt_erlaubt(gr)) {
-		eintrag.append(linieneintrag_t(gr->get_pos(), ladegrad, waiting_time_shift, spacing_shift, !gr->get_halt().is_bound(), wait_for_time), 4);
+		eintrag.append(linieneintrag_t(gr->get_pos(), ladegrad, waiting_time_shift, spacing_shift, -1, wait_for_time), 4);
 		return true;
 	}
 	else {

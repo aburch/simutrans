@@ -12,7 +12,7 @@ struct linieneintrag_t
 public:
 	linieneintrag_t() {}
 
-	linieneintrag_t(koord3d const& pos, uint16 const ladegrad, sint8 const waiting_time_shift, sint16 spacing_shift, bool reverse, bool wait_for_time) :
+	linieneintrag_t(koord3d const& pos, uint16 const ladegrad, sint8 const waiting_time_shift, sint16 spacing_shift, sint8 reverse, bool wait_for_time) :
 		pos(pos),
 		ladegrad(ladegrad),
 		waiting_time_shift(waiting_time_shift),
@@ -55,7 +55,7 @@ public:
 	sint8 reverse;
 	
 	/**
-	 * Whether a convoy* must wait for a 
+	 * Whether a convoy must wait for a 
 	 * time slot at this entry.
 	 * @author: jamespetts
 	 */
