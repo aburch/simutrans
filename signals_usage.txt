@@ -1,6 +1,6 @@
-<title>Signals</title>
+<title>Signals usage</title>
 
-<h1>Signals</h1><br>
+<h1>Signals usage</h1><br>
 <p>
 
 </p>
