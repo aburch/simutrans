@@ -5361,7 +5361,7 @@ void rail_vehicle_t::leave_tile()
 								ribi_t::ribi ribi_route = ribi_typ(dir);	
 								grund_t* gr_route = welt->lookup(this_pos);
 								schiene_t* sch_route = gr_route ? (schiene_t *)gr_route->get_weg(get_waytype()) : NULL;
-								if(!sch_route || !sch_route->can_reserve(cnv->self, ribi_route))
+								if(!sch_route || (!sch_route->can_reserve(cnv->self, ribi_route) && gr_route->get_convoi_vehicle()))
 								{
 									// Cannot go further back than this in any event
 									break;
