@@ -44,8 +44,19 @@ void base_infowin_t::recalc_size()
 {
 	textarea.recalc_size();
 	scr_size size = textarea.get_size();
+	size.w = max( D_DEFAULT_WIDTH, size.w );
 	if (embedded) {
 		size.clip_lefttop( embedded->get_size() );
+		// move it to right algined
+		embedded->set_pos( scr_coord( size.w+D_MARGIN_LEFT+D_H_SPACE-embedded->get_size().w, embedded->get_pos().y ) );
+		textarea.set_size( size-scr_size(embedded->get_size().w+D_H_SPACE-embedded->get_size().w,0) );
+		textarea.recalc_size();
+		size.h = max( embedded->get_size().h, textarea.get_size().h );
+	}
+	else {
+		textarea.set_size( size-scr_size(D_MARGIN_LEFT+D_MARGIN_RIGHT,0) );
+		textarea.recalc_size();
+		size = textarea.get_size();
 	}
 	size += scr_size(D_MARGIN_LEFT + D_MARGIN_RIGHT, D_TITLEBAR_HEIGHT + D_MARGIN_TOP + D_MARGIN_BOTTOM);
 	set_windowsize( size );
