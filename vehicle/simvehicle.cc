@@ -4642,6 +4642,8 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 						{
 							this_stop_signal_index = i;
 						}
+						// Any junctions previously found no longer apply to the next signal, unless this is a pre-signal
+						no_junctions_to_next_signal = true;
 					}
 					else if(!directional_only) // Distant signal or repeater
 					{				
