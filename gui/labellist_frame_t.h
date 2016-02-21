@@ -57,7 +57,7 @@ class labellist_frame_t : public gui_frame_t, private action_listener_t
     static void set_sortierung(const labellist::sort_mode_t sm) { sortby = sm; }
 
     static bool get_reverse() { return sortreverse; }
-    static void set_reverse(const bool& reverse) { sortreverse = reverse;    }
+    static void set_reverse(const bool& reverse) { sortreverse = reverse; }
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 

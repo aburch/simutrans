@@ -1723,7 +1723,7 @@ end_loop:
 					// The schedule window might be closed whilst this vehicle is still loading.
 					// Do not allow the player to cheat by sending the vehicle on its way before it has finished.
  					bool can_go = true;
-					const uint32 reversing_time = fpl->get_current_eintrag().reverse ? calc_reverse_delay() : 0;
+					const uint32 reversing_time = fpl->get_current_eintrag().reverse == 1 ? calc_reverse_delay() : 0;
  					can_go = can_go || welt->get_zeit_ms() > go_on_ticks;
  					can_go = can_go && welt->get_zeit_ms() > arrival_time + ((sint64)current_loading_time - (sint64)reversing_time);
  					can_go = can_go || no_load;
@@ -3117,15 +3117,20 @@ void convoi_t::vorfahren()
 			uint8 stop = fpl->get_aktuell();
 			bool rev = !reverse_schedule;
 			schedule->increment_index(&stop, &rev);
-			//const uint8 last_stop = stop;
 			if(stop < schedule->get_count())
 			{
 				// It might be possible for "stop" to be > the number of
 				// items in the schedule if the schedule has changed recently.
-				if(schedule->eintrag[stop].reverse != (state == REVERSING))
+				if(haltestelle_t::get_halt(schedule->eintrag[stop].pos, owner) != (haltestelle_t::get_halt(get_pos(), owner)))
+				{
+					// It is possible that the last entry was a skipped waypoint.
+					schedule->increment_index(&stop, &rev);
+				}
+				if(schedule->eintrag[stop].reverse == 1 != (state == REVERSING))
 				{
 					need_to_update_line = true;
-					schedule->eintrag[stop].reverse = (state == REVERSING);
+					const sint8 reverse_state = state == REVERSING ? 1 : 0;
+					schedule->set_reverse(reverse_state, stop);					
 				}
 			}
 
@@ -5977,7 +5982,7 @@ void convoi_t::set_next_stop_index(uint16 n)
 						   simlinemgmt_t::update_line(line);
 					   }
 				   }
-					reverse_waypoint = eintrag.reverse;
+					reverse_waypoint = eintrag.reverse == 1;
 
 					break;
 			   }
@@ -6983,7 +6988,7 @@ void convoi_t::clear_replace()
 				}
 				etd += current_loading_time;
 			}
-			if(fpl->eintrag[schedule_entry].reverse)
+			if(fpl->eintrag[schedule_entry].reverse == 1)
 			{
 				// Add reversing time if this must reverse.
 				etd += reverse_delay;

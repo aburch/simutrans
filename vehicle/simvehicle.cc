@@ -4917,7 +4917,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 		schedule_t *fpl = cnv->get_schedule();
 		uint8 fahrplan_index = fpl->get_aktuell();
 		bool rev = cnv->get_reverse_schedule();
-		bool no_reverse = !fpl->eintrag[fahrplan_index].reverse;
+		bool no_reverse = fpl->eintrag[fahrplan_index].reverse != 1;
 		fpl->increment_index(&fahrplan_index, &rev);
 		koord3d cur_pos = route->back();
 		uint16 next_next_signal;
@@ -4955,7 +4955,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 					}
 				}
 
-				no_reverse = !fpl->eintrag[fahrplan_index].reverse;
+				no_reverse = fpl->eintrag[fahrplan_index].reverse != 1;
 
 				if(token_block_blocks)
 				{

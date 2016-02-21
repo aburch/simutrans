@@ -184,7 +184,7 @@ void fahrplan_gui_t::gimme_short_stop_name(cbuffer_t& buf, player_t const* const
 		buf.append(p);
 	}
 
-	if(entry.reverse)
+	if(entry.reverse == 1)
 	{
 		buf.append(" [<<]");
 	}

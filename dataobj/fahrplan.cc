@@ -659,7 +659,7 @@ bool schedule_t::sscanf_schedule( const char *ptr )
 			p++;
 		}
 		// ok, now we have a complete entry
-		eintrag.append(linieneintrag_t(koord3d(values[0], values[1], values[2]), values[3], values[4], values[5], (bool)values[6], (bool)values[7]));
+		eintrag.append(linieneintrag_t(koord3d(values[0], values[1], values[2]), values[3], values[4], values[5], values[6], (bool)values[7]));
 	}
 	return true;
 }

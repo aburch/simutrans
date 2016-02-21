@@ -104,7 +104,7 @@ public:
 	/**
 	 * Sets the current entry to a reversing type
 	 */
-	void set_reverse(bool reverse = true, sint16 index = -1)
+	void set_reverse(sint8 reverse = 1, sint16 index = -1)
 	{
 		uint8 inx = index == -1 ? aktuell : (uint8)index;
 		if(!eintrag.empty())
