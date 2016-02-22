@@ -29,12 +29,7 @@ Read more about presignals here: <a href="signals_usage.txt">Signals usage</a><b
 
 <em>Multiple aspect signals</em><br>
 A signal may have up to 5 aspects, in addition to aspects for permissive signals and choose signals showing alternative routes. Not all paksets make use of all of the aspects and the graphics of the signals might be very different between paksets.<br>
-The ordinary five aspects with their meaning are:<br>
-- <it>DANGER</it>: Stop in front of signal<br>
-- <it>CLEAR</it>: Proceed<br>
-- <it>CAUTION</it>: Proceed, but next signal will be at danger<br>
-- <it>PRELIMINARY CAUTION</it>: Proceed, but second next signal will be on danger<br>
-- <it>ADVANCED CAUTION</it>: Proceed, buth third next signal will be on danger<br>
+The core function of such signals is to rize the density of the tracks. The more aspects, the smaller blocks of tracks one can create without compromizing with lower top speeds, thus creating room for more trains on the tracks. Therefore, the most effective way of using multi aspect signals are at lines with a big traffic demand.
 Read more about how to use them here: <a href="signals_usage.txt">Signals usage</a><br><br>
 
 <em>Sighting speeds</em><br>
