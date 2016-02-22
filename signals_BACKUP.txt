@@ -1,0 +1,136 @@
+<title>Signals usage</title>
+
+<h1>Signals usage</h1><br>
+<p>
+
+</p>
+<h1>Concepts:</h1>
+<p>
+<em>Signalboxes</em><br>
+A signal can't just be built as a standalone signal: They need signalboxes in order to be built. A signalbox is in the real world the shelf or the building from which the signals are controlled, and newer techniques allows for more efficient signal systems with greater numbers and more remote controlled signals. In Simutrans, different signalboxes allows for different signals, simulating the different eras and techniques.<br><br>
+
+<em>Signals</em><br>
+A signal may have up to 5 aspects, in addition to aspects for permissive signals and choose signals showing alternative routes. Not all paksets make use of all of the aspects and the graphics of the signals might be very different between paksets.<br>
+The ordinary five aspects with their meaning are:<br>
+<em>DANGER</em>: Stop in front of signal<br>
+<em>CLEAR</em>: Proceed<br>
+<em>CAUTION</em>: Proceed, but next signal will be at danger<br>
+<em>PRELIMINARY CAUTION</em>: Proceed, but two signals ahead will be on danger<br>
+<em>ADVANCED CAUTION</em>: Proceed, buth three signals ahead will be on danger<br><br>
+
+<em>Unidirectional</em><br>
+Signals are unidirectional signals that do not prevent trains passing in the opposite direction. Trains passing in the opposite direction, ignore the signals completely.<br>
+Some signals, however, can also be built as bidirectional signals, controling traffic from both directions, and that are signals using these working methods:<br>
+<em>Cab signals</em>,<br>
+<em>moving block signals</em> as well as <br>
+<em>track circuit block signals</em>.<br><br>
+
+<em>Choose signals</em><br>
+Choose signals serves two functions: They will guide the train to, either the target platform if its free, otherwise to an alternate platform which matches the length of the train. The other function is that they will guide a train through a station if the mainline route is occupied. To make use of this second function, you need to place an <em>end of choose</em> sign outside all the exits of the station. When a train aproach the choose signal, it will be given a route all the way till its destination or the "end of choose" sign, whichever is encountered first.
+The choose signal can also have up to 5 aspects and might even have alternative graphics for when it sends a train using the ordinary or an alternative route:<br>
+<em>CLEAR (subsidiary route)</em>: Proceed, using an alternative route, or to an alternative platform<br>
+<em>CLEAR (main route)</em>: Proceed, using the precalculated route or the scheduled platform<br>
+<em>CAUTION (subsidiary route)</em>: Proceed, using an alternative route, but next signal will be on danger<br>
+<em>CAUTION (main route)</em>: Proceed, using the precalculated route, but next signal will be on danger<br>
+<em>PRELIMINARY CAUTION (subsidiary route)</em>: Proceed, using an alternative route, but two signals ahead will be on danger<br>
+<em>PRELIMINARY CAUTION (main route)</em>:  Proceed, using the precalculated route, but two signals ahead will be on danger<br>
+<em>ADVANCED CAUTION (subsidiary route)</em>: Proceed, using an alternative route, but three signals ahead will be on danger<br>
+<em>ADVANCED CAUTION (main route)</em>:  Proceed, using the precalculated route, but three signals ahead will be on danger<br><br>
+
+<em>Permissive signals</em><br>
+Permissive signals is used to increase line capacity. In a permissive block system, a train that is brought to a stand at a signal at danger may proceed beyond the signal at drive by sight. This is only possible where the signal controls a section of straight, unidirectional track. If there are junctions, the permissive functionality is disabled and the signal works as an ordinary signal.<br>
+When a train has come to a stand at a signal at danger with permissive possibilities, it will be given a call on aspect after which it will proceed in drive by sight mode. This allows multiple trains to enter a section, which might be useful in busy goods loops, for instance, or low speed high density urban passenger lines.<br>
+Some signals do not show a visible call on aspect: in this case, they will continue to show a danger aspect when the train passes.<br>
+In Pak128.Britain-Ex, the sighting speed for the permissive signals is lower than other signals, so there is a real disadvantage in placing them where they do not work as such.<br><br>
+Choose signals cannot be permissive signals, as it is assumed that there will be junctions ahead. Note, however, that it is planned in future for signals that are not defined as permissive to have call on aspects to deal with light engine movements and splitting and combining trains; this is a significant new set of features, however, and has not been implemented yet.<br><br>The permissive signals may show this state in addition to the 5 other states:<br>
+<em>CALL ON</em>: Proceed at drive by sight behind this signal<br><br>
+
+
+
+Short about signals working methods:
+
+drive by sight
+When the train leaves the depot, this will automatically be its initial working method. The train driver uses his eyes to look ahead and secure that the track is free. This working method is ideal for eg trams inside cities, so they can drive closer to each other.
+- Trains will never go faster than to stop inside its sighting distance. 
+- No signals at all are needed for trains to operate in this working method.
+- Creates very easy deadlocks
+- Trains automatically go into drive by sight when they leave the depot, or leave a platform with no signal on it, or passes a sign with working_method=drive_by_sight
+Video of drive by sight signalling
+
+Time interval signalling
+- Signals are at clear by default
+- Signals will turn to danger on the passage of a train
+- Signals will revert to caution 5 (in-game) minutes after a train passes
+- Signals will revert to clear 10 (in-game) minutes after a train passes
+- Trains must pass signals at caution at no more than half line speed or half the signal's sighting speed, whichever is the lower
+- Pre-signals are effective as repeaters and serve to enhance the sighting distance of a stop signal
+- If trains collide in this method, both trains will come to a stand for a long time before continuing in the drive by sight working method
+- Choose signals have some choose functionality, but be careful to avoid deadlocks at terminus stations with this working method
+
+One train staff
+One train staff (and "staff" as in stick rather than employee) is a system in which only one train is permitted on a whole stretch of line. It is very simple in operation: only a train whose driver is in physical possession of the staff may enter the section. This system must therefore have only one entry and exit point for all trains, or else the staff will be left in the wrong place. It is only really useful for either entire lines where only one train is running (very basic railways, where this would be placed on the exit from the depot and not on the train's normal route), or single track dead-end sections that have no internal signalling. In Simutrans-Experimental, the staff cabinets (there can be more than one for a section, but they must be placed in an immediately adjacent tile to one another to work as one) work by reserving the train's entire route until it comes back and reaches that cabinet again (or until it reaches the same point in its schedule as it is now, whichever is sooner).
+
+Token block
+Token block is a much more sophisticated system than "One train staff" -system and can be used to control singletracked lines. In real railways, it requires a train's driver to hold a physical token before entering the section. However, there is more than one such token, meaning that many trains can go through the section in one direction one after another. Only one token can be released at any one time. This is ensured by telegraph equipment at either end of the section. The rest of the tokens are locked in the token machine. This allows signalling of a single track line with multiple sections and multiple entry and exit points. In Simutrans-Experimental, trains will reserve the route only as far as the next signal, but will not unreserve the route until they pass the next signal. 
+
+Absolute block
+The absolute block system prevents that no more than one train is inside the same block at the same time. This is especially used on lines with two or more tracks.
+Usually, everything is checked by the humans in the signalboxes, which use telephone or telegraph to communicate between signalboxes. In some cases there where some level of protection like electromechanic or electric relay systems to prevent a signal or a point to be shifted at wrong times.
+It has the particular feature of generally having only two aspect signals, but three aspect signals did exist, and the distant aspect where then controlled from the next signalbox on the line, why its called a "combined signal" (code: is_presignal=1 and aspects=3).This means that the next signalbox must be in range of the three aspect signal, otherwise no presignal aspects are shown.
+Normal distant signals indicate the aspects of all the signals controlled by the same signalbox. This means that the distant signal should be placed BEFORE the "first" signal that the signalbox control. If any signal that the signalbox control show danger, the distant signal will also show caution. Only if all signals are clear, the distant signal will show clear.
+The intermediate blocksignal makes it possible to split a section between two signal boxes in two without having to build an additional signalbox.
+
+Track circuit block
+The main feature of track circuit block in reality is that its an automatic signal and works for single tracked lines. The tracks can now automatically detect wether there is a train on the track, and this is used to work the signals. On a straight piece of track with no junctions between signals, the signal will automatically revert to danger on sensing a train in the block behind the signal. When no train is in the next block, the signal will show "clear". However, in some paksets (countries), the signal will show "danger" instead of "clear" until approached by a train (used with normal_danger=1). Signals at junctions in track circuit block are semi-automatic and will remain at danger until a route is booked to another signal.
+The distant signals now always represent the state of the very next signal, not all the stop signals controlled by the same signalbox as had hitherto been the case with absolute block signalling. This means that multiple aspect signal are available: a single signal which contains indications not just as to whether the block ahead is free, but also as to whether the block after that (or the third or fourth block) is clear.
+- Trains will make a directional reservation (shown in blue in the block reservation display) when they reserve through a section containing bidirectional signals
+- The directional reservation ends at the next one way sign
+- A tile with a directional reservation can be reserved (as a normal (red) block reservation) by any train proposing to go in the same direction
+- Bidirectional lines in track circuit block mode should be signalled using bidirectional signals.
+If is_presignal=1 is defined, then it can only have aspects=2.
+
+Cab signalling
+Cab signals are treated in exactly the same way as track circuit block multiple aspect signals, save that there is an unlimited sighting distance. For ETRMS style signals with no visible aspects, it is recommended to leave the number of aspects at 2 to prevent reserving further ahead than necessary.
+
+Moving block signalling
+- The "max_distance_to_signalbox" parameter in the .dat files is used as the maximum distance between  the signals themself (the signalbox range works as normal)
+- If there is more than this maximum space between signals, trains will revert to drive by sight mode after the point at the end of that space.
+- Choose signals will not let a train past them unless the whole block is free, in a similar fashion to absolute/track circuit block signals.
+- The above behaviour of choose signals is necessary to prevent deadlocks at terminus stations. Always use a choose signal before terminus stations when using moving block signals.
+
+
+
+- <em>Normal signal</em> -<br>
+<it>Clear</it>: Entire section to next signal in the trains schedule is clear<br>
+<it>Danger</it>: Track is occupied by other train<br>
+
+- <em>Distant signal</em> - A distant signal is used to inform the train that either ALL signals ahead are clear or not. If the signal is used, it must therefore be placed before the "first" real signal that the signalbox controls.<br>
+<it>Clear</it>: ALL signals controlled by the same signalbox as this signal shows CLEAR.<br>
+<it>Caution</it>: One or more signals controlled by the same signalbox as this signal shows DANGER. It will always show CAUTION if it is not placed as the first signal of the signalbox.<br>
+
+- <em>Combined signal</em> - This is a three aspect signal, and the third aspect (distant aspect) is controlled from the next signalbox on the line (why such a signal is called a "combined signal"). For this functionality to work, the next signalbox must also be in range of the combined signal, otherwise no presignal aspects are shown.<br>
+<it>Clear</it>: Entire section to next signal in the trains schedule is clear as well as ALL signals controlled by the forthcoming signalbox shows CLEAR.<br>
+<it>Caution</it>: Entire section to next signal in the trains schedule is clear, but one or more signals controlled by the next signalbox shows DANGER. It will always show CAUTION if it is not in range of the next signalbox.<br>
+<it>Danger</it>: Track is occupied by other train<br><br>
+
+<p>
+</p>
+<h1>How to control it:</h1>
+<p>
+
+<p>
+</p>
+<h1>Actions:</h1>
+<p>
+
+<p>
+</p>
+<h1>Details:</h1>
+<p>
+
+</p>
+<h1>Tips:</h1>
+<p>
+
+<p>
+</p>

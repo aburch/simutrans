@@ -15,10 +15,17 @@ Read more about working methods here: <a href="signals_working_methods.txt">Sign
 <em>Signalboxes</em><br>
 A signal can't just be built as a standalone signal: They need signalboxes in order to be built. A signalbox is in the real world the shelf or the building from which the signals are controlled. Newer techniques allows for more efficient signal systems with greater numbers and more remote controlled signals. In Simutrans, different signalboxes allows for different signals, simulating the different eras and techniques.<br><br>
 
-<em>Unidirectional</em><br>
+<em>Unidirectional signals</em><br>
 Signals are unidirectional signals that do not prevent trains passing in the opposite direction. Trains passing in the opposite direction will ignore the signals completely.<br>
-Some signals using certain working methods can also be built as bidirectional signals, controling traffic from both directions.<br><br>
+Some signals using certain working methods can also be built as bidirectional signals, controling traffic from both directions and thus creating directional reservations.<br><br>
 
+<em>Directional reservations</em><br>
+It is possible to create a directional reservation. That is a reservation of the tracks in a certain direction, and represented with the color BLUE with the block reservation tool.<br>
+A directional reservation can only be created by placing bidirectional signals that uses sertain working methods. Read more about that here: <a href="signals_usage.txt">Signals usage</a><br><br>
+
+<em>Sighting distance</em><br>
+The traindriver can only see a certain distance in front of the train. The sighting distance is heavily used when driving by sight (check <a href="signals_working_methods.txt">Signals working methods</a>) but is also used to determine the speed that a train is approaching an upcoming signal. Since the train does not know the state of an upcoming signal, it must drive slow enough in order to be able to stop in front of the signal. However, this can be improved by using presignals, which will tell the driver at a much earlier point, at what state the signal is, so the driver doesnt nessecarily have to brake at all.<br>
+Read more about presignals here: <a href="signals_usage.txt">Signals usage</a><br><br>
 
 <em>Multiple aspect signals</em><br>
 A signal may have up to 5 aspects, in addition to aspects for permissive signals and choose signals showing alternative routes. Not all paksets make use of all of the aspects and the graphics of the signals might be very different between paksets.<br>
@@ -29,6 +36,9 @@ The ordinary five aspects with their meaning are:<br>
 - <it>PRELIMINARY CAUTION</it>: Proceed, but second next signal will be on danger<br>
 - <it>ADVANCED CAUTION</it>: Proceed, buth third next signal will be on danger<br>
 Read more about how to use them here: <a href="signals_usage.txt">Signals usage</a><br><br>
+
+<em>Sighting speeds</em><br>
+Related to the sighting distance is the sighting speed. At higher speeds, signs and signals get more difficult to read. Each signal has a maximum sighting speed (defined as "Max speed") which is the maximum speed that the traindrivers human eye can read the messages given from the signal. In effect, this means that a train will not pass a signal at higher speed than the signals maxspeed. Although modern technology allows for the signal states to be shown inside the cab of the trains, thus allowing for a higher sighting speed, as it is the technology that "sees" the signal.<br><br>
 
 <em>Choose signals</em><br>
 Choose signals serves two functions: They will guide the train to an empty platform at the station, and it will guide a train through a station if the mainline route is occupied.<br>

@@ -1,0 +1,21 @@
+<title>Signals placements</title>
+
+<h1>Signals placements</h1><br>
+<p>
+
+<it>Placement:</it><br>
+The placement of stop signals are very dependent on what kind of working method this signal uses:<br>
+- <it>"Time intevall":</it><br>
+
+- <it>"Token block":</it><br>
+Token block signals are best positioned at ends of passing loops to single tracked lines if the lines contains stations with no passing loops. When placing one token block signal at every entry to the line, reservation is always made to next signal. Remember that it is very important to place another signal at the EXIT of the single tracked line, in order to resolve the reservation so other trains can use the line.<br>
+
+- <it>"Absolute block":</it><br>
+Absolute block signals are good to use at double tracked lines to create blocks between two signalboxes.
+
+ends of passingloops for single tracked lines that DO NOT contain stations without passing loops. However, it works very well to resolve token block reservations, so this signal can also be placed before a passing loop. Trains will book a rute until that signal and will wait there if the passing loop is occupied.
+- <it>"Track circuit block":</it><br>
+
+- <it>"cab signals":</it><br>
+Cab signals are working the exact same way as track circuit block signals.
+<br><br><br>
