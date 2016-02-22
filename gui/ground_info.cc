@@ -24,12 +24,7 @@ grund_info_t::grund_info_t(const grund_t* gr_) :
 	}
 	buf.clear();
 	gr->info(buf);
-
-	textarea.set_size( textarea.get_size() + view.get_size() );
-
 	set_embedded(&view);
-	// adjust positions, sizes, and window-size
-	recalc_size();
 }
 
 
@@ -47,13 +42,14 @@ void grund_info_t::draw(scr_coord pos, scr_size size)
 	}
 	gui_frame_t::set_name( translator::translate(gr->get_name()) );
 
+	const cbuffer_t old_buf(buf);
 	buf.clear();
 	gr->info(buf);
-	textarea.recalc_size();
+	if(  strcmp( buf, old_buf )  ) {
+		recalc_size();
+	}
 
 	gui_frame_t::draw(pos, size);
-
-	recalc_size();
 }
 
 
