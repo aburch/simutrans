@@ -24,12 +24,7 @@ obj_infowin_t::obj_infowin_t(const obj_t* obj) :
 {
 	buf.clear();
 	info(buf);
-
-	textarea.set_size( textarea.get_size() + view.get_size() );
-
 	set_embedded(&view);
-	// adjust positions, sizes, and window-size
-	recalc_size();
 }
 
 
@@ -40,13 +35,14 @@ obj_infowin_t::obj_infowin_t(const obj_t* obj) :
  */
 void obj_infowin_t::draw(scr_coord pos, scr_size size)
 {
+	const cbuffer_t old_buf(buf);
 	buf.clear();
 	info(buf);
-	textarea.recalc_size();
+	if(  strcmp( buf, old_buf )  ) {
+		recalc_size();
+	}
 
 	gui_frame_t::draw( pos, size );
-
-	recalc_size();
 }
 
 
