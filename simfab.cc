@@ -1453,7 +1453,7 @@ void fabrik_t::smoke() const
 		const koord size = besch->get_haus()->get_groesse(0)-koord(1,1);
 		const uint8 rot = rotate%besch->get_haus()->get_all_layouts();
 		koord ro = rada->get_pos_off(size,rot);
-		grund_t *gr = welt->lookup_kartenboden(pos.get_2d()+ro);
+		grund_t *gr = welt->lookup_kartenboden(pos_origin.get_2d()+ro);
 		// to get same random order on different compilers
 		const sint8 offsetx =  ((rada->get_xy_off(rot).x+sim_async_rand(7)-3)*OBJECT_OFFSET_STEPS)/16;
 		const sint8 offsety =  ((rada->get_xy_off(rot).y+sim_async_rand(7)-3)*OBJECT_OFFSET_STEPS)/16;
