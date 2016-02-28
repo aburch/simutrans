@@ -775,6 +775,10 @@ void settings_t::rdwr(loadsave_t *file)
 		else if(  file->is_loading()  ) {
 			default_ai_construction_speed = env_t::default_ai_construction_speed;
 		}
+		if(  file->get_version() >=120002 ) {
+			file->rdwr_bool(lake);
+			file->rdwr_bool(no_trees);
+		}
 		// otherwise the default values of the last one will be used
 	}
 }
