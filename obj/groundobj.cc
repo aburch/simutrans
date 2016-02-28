@@ -140,7 +140,7 @@ void groundobj_t::calc_image()
 	}
 	// check for slopes?
 	uint16 phase = 0;
-	if(besch->get_phases()==16) {
+	if(besch->get_phases()==hang_t::erhoben) {
 		phase = welt->lookup(get_pos())->get_grund_hang();
 	}
 	const bild_besch_t *bild_ptr = get_besch()->get_bild( season, phase );
