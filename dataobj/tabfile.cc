@@ -346,10 +346,10 @@ bool tabfile_t::read(tabfileobj_t &objinfo)
 								}
 								combination[j]%=parameter_values[j];
 							}
-							sprintf(line_expand, "%.*s%d", (int)(param[0] - line), line, parameter_value[0][combination[0]]);
+							sprintf(line_expand, "%.*s%d", param[0]-line, line, parameter_value[0][combination[0]]);
 							for(int i=1; i<parameters; i++) {
 								char *prev_end = param[i-1]+parameter_length[i-1];
-								sprintf(buffer, "%.*s%d", (int)(param[i] - prev_end), prev_end, parameter_value[i][combination[i]]);
+								sprintf(buffer, "%.*s%d", param[i]-prev_end, prev_end, parameter_value[i][combination[i]]);
 								strcat(line_expand, buffer);
 							}
 							strcat(line_expand, param[parameters-1]+parameter_length[parameters-1]);
@@ -369,10 +369,10 @@ bool tabfile_t::read(tabfileobj_t &objinfo)
 								expansion_value[i] = calculate(buffer, parameter_value, parameters, combination);
 							}
 
-							sprintf(delim_expand, "%.*s%d", (int)(expansion[0] - delim), delim, expansion_value[0]);
+							sprintf(delim_expand, "%.*s%d", expansion[0]-delim, delim, expansion_value[0]);
 							for(int i=1; i<expansions; i++) {
 								char *prev_end = expansion[i-1]+expansion_length[i-1]+2;
-								sprintf(buffer, "%.*s%d", (int)(expansion[i]-prev_end), prev_end, expansion_value[i]);
+								sprintf(buffer, "%.*s%d", expansion[i]-prev_end, prev_end, expansion_value[i]);
 								strcat(delim_expand, buffer);
 							}
 							strcat(delim_expand, expansion[expansions-1]+expansion_length[expansions-1]+2);
@@ -449,15 +449,8 @@ int tabfile_t::find_parameter_expansion(char *key, char *data, int *parameters, 
 	// find expansions in data
 	for(s = data; *s; s++) {
 		if(*s == '<') {
-			char *t = s;
-			while(*s) {
-				if(*s == '>') {
-					expansion_ptr[*expansions] = t;
-					(*expansions)++;
-					break;
-				}
-				s++;
-			}
+			expansion_ptr[*expansions] = s;
+			(*expansions)++;
 		}
 	}
 
@@ -482,17 +475,10 @@ void tabfile_t::add_operator_brackets(char *expression, char *processed)
 
 	// first remove any spaces
 	int j = 0;
-	bool buffer_initialised = false;
 	for(uint16 i = 0; i<=strlen(expression); i++) {
 		if(expression[i]!=' ') {
 			buffer[j++]=expression[i];
-			buffer_initialised = true;
 		}
-	}
-
-	if (!buffer_initialised)
-	{
-		buffer[0] = '\n';
 	}
 	strcpy(processed, buffer);
 
@@ -577,10 +563,10 @@ void tabfile_t::add_operator_brackets(char *expression, char *processed)
 			if(expression_end==NULL) expression_end = expression_pos;
 
 			// construct expression with brackets around 'a operator b'
-			sprintf(buffer,"%.*s(%.*s%.*s)%s", (int)(expression_start - processed + 1), processed,
-				(int)(expression_ptr - expression_start - 1), expression_start + 1,
-				(int)(expression_end - expression_ptr), expression_ptr,
-				expression_end);
+			sprintf(buffer,"%.*s(%.*s%.*s)%s",	expression_start-processed+1, processed,
+								expression_ptr-expression_start-1, expression_start+1,
+								expression_end-expression_ptr, expression_ptr,
+								expression_end);
 
 			strcpy(processed, buffer);
 			operator_count++;
