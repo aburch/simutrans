@@ -531,6 +531,13 @@ bool tabfile_t::read(tabfileobj_t &objinfo)
 {
 	bool lines = false;
 	char line[4096];
+
+	char line_expand[4096];
+	char delim_expand[4096];
+	char buffer[4096];
+	char *param[10];
+	char *expansion[10];
+
 	objinfo.clear();
 
 	do {
@@ -540,7 +547,92 @@ bool tabfile_t::read(tabfileobj_t &objinfo)
 			if(delim) {
 				*delim++ = '\0';
 				format_key(line);
-				objinfo.put(line, delim);
+
+				int parameters = 0;
+				int expansions = 0;
+				if(find_parameter_expansion(line, delim, &parameters, &expansions, param, expansion) > 0) {
+					int parameter_value[10][256];
+					int parameter_length[10];
+					int parameter_values[10];
+					int combinations=1;
+
+					for(int i=0; i<parameters; i++) {
+						char *token_ptr;
+						parameter_length[i] = strcspn(param[i],"]");
+						parameter_values[i] = 0;
+						sprintf(buffer, "%.*s", parameter_length[i], param[i]);
+
+						parameter_value[i][parameter_values[i]++] = atoi(buffer);
+
+						token_ptr = strtok(buffer,"-,");
+						while (token_ptr != NULL && parameter_values[i]<256) {
+							switch(param[i][token_ptr-buffer-1]) {
+								case ',':
+									parameter_value[i][parameter_values[i]++] = atoi(token_ptr);
+								break;
+								case '-':
+									int start_range = parameter_value[i][parameter_values[i]-1];
+									int end_range = atoi(token_ptr);
+									for(int range=start_range; range<end_range; range++) {
+										parameter_value[i][parameter_values[i]++] = range+1;
+									}
+							}
+							token_ptr = strtok(NULL, "-,");
+						}
+						combinations*=parameter_values[i];
+					}
+
+					for(int i=0; i<combinations; i++) {
+						int combination[10];
+						if(parameters>0) {
+							for(int j=0; j<parameters; j++) {
+								combination[j] = i;
+								for(int k=0; k<j; k++) {
+									combination[j]/=parameter_values[k];
+								}
+								combination[j]%=parameter_values[j];
+							}
+							sprintf(line_expand, "%.*s%d", param[0]-line, line, parameter_value[0][combination[0]]);
+							for(int i=1; i<parameters; i++) {
+								char *prev_end = param[i-1]+parameter_length[i-1];
+								sprintf(buffer, "%.*s%d", param[i]-prev_end, prev_end, parameter_value[i][combination[i]]);
+								strcat(line_expand, buffer);
+							}
+							strcat(line_expand, param[parameters-1]+parameter_length[parameters-1]);
+						}
+						else {
+							strcpy(line_expand, line);
+						}
+
+						if(expansions>0) {
+							int expansion_length[10];
+							int expansion_value[10];
+
+							for(int i=0; i<expansions; i++) {
+								expansion_length[i] = strcspn(expansion[i],">")-1;
+								sprintf(buffer, "%.*s", expansion_length[i]+1, expansion[i]);
+
+								expansion_value[i] = calculate(buffer, parameter_value, parameters, combination);
+							}
+
+							sprintf(delim_expand, "%.*s%d", expansion[0]-delim, delim, expansion_value[0]);
+							for(int i=1; i<expansions; i++) {
+								char *prev_end = expansion[i-1]+expansion_length[i-1]+2;
+								sprintf(buffer, "%.*s%d", expansion[i]-prev_end, prev_end, expansion_value[i]);
+								strcat(delim_expand, buffer);
+							}
+							strcat(delim_expand, expansion[expansions-1]+expansion_length[expansions-1]+2);
+						}
+						else {
+							strcpy(delim_expand, delim);
+						}
+
+						objinfo.put(line_expand, delim_expand);
+					}
+				}
+				else {
+					objinfo.put(line, delim);
+				}
 				lines = true;
 			}
 			else if(  *line  ) {
@@ -570,6 +662,241 @@ bool tabfile_t::read_line(char *s, int size)
 		}
 	}
 	return r != NULL;
+}
+
+
+
+int tabfile_t::find_parameter_expansion(char *key, char *data, int *parameters, int *expansions, char *param_ptr[10], char *expansion_ptr[10])
+{
+	char *s;
+
+	// find params in key
+	for(s = key; *s; s++) {
+		if(*s == '[') {
+			bool parameter = false;
+			s++;
+
+			char *t = s;
+
+			while(*s && *s != ']') {
+				if( (*s == ',' || *s == '-') && *(s-1) != '[' ) {
+					parameter = true;
+				}
+				s++;
+			}
+			if(parameter) {
+				param_ptr[*parameters] = t;
+				(*parameters)++;
+			}
+		}
+	}
+
+
+	// find expansions in data
+	for(s = data; *s; s++) {
+		if(*s == '<') {
+			expansion_ptr[*expansions] = s;
+			(*expansions)++;
+		}
+	}
+
+	return (*parameters)+(*expansions);
+}
+
+
+
+int tabfile_t::calculate(char *expression, int parameter_value[10][256], int parameters, int combination[10])
+{
+	char processed[4096];
+	add_operator_brackets(expression, processed);
+	return calculate_internal(processed, parameter_value, parameters, combination);
+}
+
+
+
+void tabfile_t::add_operator_brackets(char *expression, char *processed)
+{
+	char buffer[4096];
+	char operators[5] = { '%','/','*','-','+' };
+
+	// first remove any spaces
+	int j = 0;
+	for(uint16 i = 0; i<=strlen(expression); i++) {
+		if(expression[i]!=' ') {
+			buffer[j++]=expression[i];
+		}
+	}
+	strcpy(processed, buffer);
+
+	// add brackets around each operator to ensure processed in correct order
+	// e.g. v+w*x+y/z becomes (((v+(w*x))+(y/z)) and x/y/z = ((x/y)/z)
+
+	// for each operator take 'a operator b' and turn into '(a operator b)'
+
+	for(int operator_loop = 0 ; operator_loop<5; operator_loop++) {
+		int operator_count = 0;
+
+		char *expression_ptr = strchr(processed, operators[operator_loop]);
+		while(expression_ptr!=NULL) {
+			// find a
+			char *expression_pos = expression_ptr-1;
+			char *expression_start = NULL;
+			while(expression_pos>=processed && !expression_start) {
+				switch(expression_pos[0]) {
+					case ')': {
+						int bracket_level = 1;
+						expression_start = expression_pos-1;
+						while(expression_start>processed && bracket_level>0) {
+							switch(expression_start[0]) {
+								case ')':
+									bracket_level++;
+								break;
+								case '(':
+									bracket_level--;
+								break;
+							}
+							expression_start--;
+						}
+						if(bracket_level>0) dbg->fatal( "tabfile_t::read", "mismatched brackets" );
+					}
+					break;
+					case '%':
+					case '/':
+					case '*':
+					case '+':
+					case '-':
+					case '(':
+					case '<':
+						expression_start = expression_pos;
+					break;
+				}
+				expression_pos--;
+			}
+			if(expression_start==NULL) expression_start=expression_pos;
+
+			// find b
+			expression_pos = expression_ptr+1;
+			char *expression_end = NULL;
+			while(expression_pos[0]!='\0' && !expression_end) {
+				switch(expression_pos[0]) {
+					case '(': {
+						int bracket_level = 1;
+						expression_end = expression_pos+1;
+						while(expression_end[0]!='\0' && bracket_level>0) {
+							switch(expression_end[0]) {
+								case '(':
+									bracket_level++;
+								break;
+								case ')':
+									bracket_level--;
+								break;
+							}
+							expression_end++;
+						}
+						if(bracket_level>0) dbg->fatal( "tabfile_t::read", "mismatched brackets" );
+					}
+					break;
+					case '%':
+					case '/':
+					case '*':
+					case '+':
+					case '-':
+						expression_end = expression_pos;
+					break;
+				}
+				expression_pos++;
+			}
+			if(expression_end==NULL) expression_end = expression_pos;
+
+			// construct expression with brackets around 'a operator b'
+			sprintf(buffer,"%.*s(%.*s%.*s)%s",	expression_start-processed+1, processed,
+								expression_ptr-expression_start-1, expression_start+1,
+								expression_end-expression_ptr, expression_ptr,
+								expression_end);
+
+			strcpy(processed, buffer);
+			operator_count++;
+
+			expression_ptr = strchr(processed, operators[operator_loop]);
+			for(int i=0; i<operator_count; i++) {
+				expression_ptr = strchr(expression_ptr+1, operators[operator_loop]);
+			}
+		}
+	}
+}
+
+
+
+int tabfile_t::calculate_internal(char *expression, int parameter_value[10][256], int parameters, int combination[10])
+{
+	int answer = 0;
+
+	char original[4096];
+	strcpy(original, expression);
+
+	char *token_ptr = strtok(expression,"<-+*/%");
+
+	if(token_ptr[0]=='(') {
+		token_ptr++;
+	}
+
+	while (token_ptr<expression+strlen(original)) {
+		int value = 0;
+		char operator_char = original[token_ptr-expression-1];
+
+		if(token_ptr[0]=='$') {
+			int parameter = atoi((char *)(token_ptr+1));
+			if(parameter<=parameters) {
+				value = parameter_value[parameter][combination[parameter]];
+			}
+		}
+		else {
+			if(token_ptr[0]=='(') {
+				uint16 bracket_length;
+				int bracket_level=1;
+				for(bracket_length=1; bracket_length<strlen(original)-(token_ptr-expression) && bracket_level>0; bracket_length++) {
+					switch(original[token_ptr-expression+bracket_length]) {
+						case '(':
+							bracket_level++;
+						break;
+						case ')':
+							bracket_level--;
+						break;
+					}
+				}
+				char buffer[4096];
+				sprintf(buffer, "%.*s", bracket_length, original+(token_ptr-expression)-1);
+				value = calculate_internal(buffer+1, parameter_value, parameters, combination);
+				token_ptr+=bracket_length;
+			}
+			else {
+				value = atoi(token_ptr);
+			}
+		}
+		switch(operator_char) {
+			case '+':
+				answer+= value;
+			break;
+			case '-':
+				answer-= value;
+			break;
+			case '*':
+				answer*= value;
+			break;
+			case '/':
+				answer/= value;
+			break;
+			case '%':
+				answer%= value;
+			break;
+			case '<':
+			case '(':
+				answer = value;
+			break;
+		}
+		token_ptr += strcspn(token_ptr, "<-+*/%")+1;
+	}
+	return answer;
 }
 
 
