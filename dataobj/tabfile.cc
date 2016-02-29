@@ -449,8 +449,15 @@ int tabfile_t::find_parameter_expansion(char *key, char *data, int *parameters, 
 	// find expansions in data
 	for(s = data; *s; s++) {
 		if(*s == '<') {
-			expansion_ptr[*expansions] = s;
-			(*expansions)++;
+			char *t = s;
+			while(*s) {
+				if(*s == '>') {
+					expansion_ptr[*expansions] = t;
+					(*expansions)++;
+					break;
+				}
+				s++;
+			}
 		}
 	}
 
