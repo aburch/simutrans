@@ -107,7 +107,7 @@ public:
 	void set_reverse(sint8 reverse = 1, sint16 index = -1)
 	{
 		uint8 inx = index == -1 ? aktuell : (uint8)index;
-		if(!eintrag.empty())
+ 		if(!eintrag.empty())
 		{
 			eintrag[inx].reverse = reverse;
 		}
