@@ -1,3 +1,7 @@
+# Language files to be added eventually:
+
+
+
 # Folders:
 config/
 font/
@@ -6,9 +10,11 @@ script/
 skin/
 themes/
 pak*/
+text/citylist/
 
 # Files:
 /*.*
 simctrl
 envvars
+text/*.*
 text/en/Simutrans-Experimental.vcxproj.lnk
