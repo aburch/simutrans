@@ -1,0 +1,23 @@
+<title>Pomoc o jezicima</title>
+
+<h1><strong>Jezici</strong></h1>
+
+<p>
+Prozor <strong>Jezici</strong> mijenja jezik koji se koristi u igri.
+</p>
+<p>
+Otvara se iz <a href="options.txt">Opcije Igre</a> prozora i sa <a href="new_world.txt">Stvoriti Novu Igru</a> prozorima.
+</p>
+<p>
+Uobicajeni jezik za Simutransa je Engleski. Za igranje igre u drugom jeziku, odabrati gumb pokraj jezika u kojemu zelite igrati.</p>
+<p>
+Jezik se moze promjeniti bilo kada tijekom igre. Za promjenu jezika, odabrati Opcije Igre -> Jezik.</p>
+<p>Promjena jezika se dogadja odmah nakon stvaranja nove igre i nakon zatvaranja <strong>Jezici</strong> prozora ako se mijenja usred igre.
+</p>
+<p>
+Ako prijevod nije dostupan u odabranom jeziku, moze se pojaviti na engleskom.
+</p>
+
+<p>
+Za pomoc oko prijevoda Simutransa u Vas jezik,  
+posjetite http://simutranslator.simutrans-germany.com</p>

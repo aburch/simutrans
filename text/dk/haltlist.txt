@@ -1,0 +1,70 @@
+<title>Rutemålsliste dialog hjælp</title>
+
+<h1>Rutemålsliste dialog</h1>
+
+<p>
+<em>Beskrivelse:</em><br>
+Rutemålsliste dialogen giver et overblik over samtlige rutemål (lastepladser,
+jernbanestationer og busstoppesteder) med mulighed for at sortere og/eller
+filtrere disse efter parametre såsom type, varer og varelager.
+</p>
+
+<p>
+<em>Udseende:</em><br>
+Øverst i dialogen er overskrifterne: 'Sorteret efter:' og 'Filter:'.<br>
+Til 'Sorteret efter:' er knyttet to "tilstands-knapper", der som default
+indstilling henholdsvis har tilstandende 'navn' samt 'stigende'.<br>
+Til 'Filter:' er der knyttet en "tilstands-knap" med default tilstanden
+'inaktiv' samt en knap med titlen 'indstil filter'. <br>
+Resten af dialogen består af en liste indeholdende samtlige dine rutemål. For
+alle rutemål er angivet dets nummer, navn, type (markeret ved et lastbil-,
+bus-, tog- eller skibssymbol) samt hvilket varelager, der afventer afhentning.
+</p>
+
+<p>
+Ved at venstreklikke på et rutemål i listen kan man få dets
+<a href="station.txt">rutemåls dialog</a> frem.
+</p>
+
+<p>
+Rutemålene i listen kan sorteres ved hjælp af "tilstandsknapperne"
+under 'Sorteret efter:' overskriften.<br>
+Knappen til venstre giver sorteringstypen og knappen til højre angiver, om
+denne sortering skal foretages 'stigende' eller 'faldende'.
+</p>
+
+<p>
+De fire sorteringstyper er:
+</p>
+
+<p>
+<em>Navn</em><br>
+Sorterer rutemålene efter navn. Enten alfabetisk eller
+omvendt alfabetisk alt efter indstillingen af knappen til venstre.
+</p>
+
+<p>
+<em>Varelager</em><br>
+Sorterer rutemålene efter størrelsen af rutemålets
+varelager. Stigende eller faldende alt efter højre-knappens tilstand.
+</p>
+
+<p>
+<em>Type</em><br>
+Sorterer rutemålene efter deres type, hvor rækkefølgen: Biler, busser, toge,
+skibe anses for stigende.
+</p>
+
+<p>
+<em>Nummer</em><br>
+Sorterer rutemålene efter deres nummer.
+</p>
+
+<p>
+For at lette overblikket af listen kan rutemålene filtreres efter
+forskellige kriterier. Dette sker ved hjælp af knapperne under 'Filter'
+overskriften.<br>
+Knappen til venstre er en "tilstands-knap". Denne knap kontrollerer
+filteranvendeksen med tilstandene 'inaktivt' og 'aktivt'. Knappen til højre
+med teksten 'indstil filter'<br>
+åbner for<a href="haltlist_filter.txt">filter dialogen</a>

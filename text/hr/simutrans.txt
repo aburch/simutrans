@@ -1,0 +1,32 @@
+<title> Uvod </title>
+
+<h1> <strong>Dobrodosli u Simutrans ...</strong> </h1>
+
+<p>
+Odaberite jednu, od vise tisuca Simutrans karata ili stvorite novu pomocu mape visina. Zatim, stavite sebe u cipele od mladog poduzetnika s nesto novca od vasih djeda i bake: nestrpljiv da bi ih ucinio ponosnima, s ambicijama osnivanja uspjesnog transportnog poduzeca, vas izazov je sada izgradnja uspjesnog pothvata.
+</p>
+<p> Kako vrijeme prolazi, razvijajajte svoju tvrtku u prijevozno carstvo, vodjenjem doboroustaljene ekonomije isporukom tereta i zadovoljavanjem zahtjeva putovanja milijuna putnika svaki mjesec.<br>
+Prevozite putnike, postu i robu zeljeznicom, cestom, brodom i cak jos i zrakom.
+</p>
+<p>
+Svaka mapa ima nesto drugo za ponuditi. Pogledajte dobro na svoju okolinu ... njezina buducnost lezi u rukama vas i vasih konkurenata.
+</p>
+<p>
+U pocetku, moglo bi biti lakse jednostavno dobavljati elektranu sa potrebnim sirovinama. Tada slijedi povezivanje drugih tvornica, mozda cak i upotrebe centralnih cvorista gdje se roba stalno prekracava.<br>
+Nedostatak prijevoza samo robe je kako gradovi nece rasti, a nove industrije se nece pojaviti.
+</p>
+<p>
+Umjesto toga, vi odmah mozete krenuti na prijevoz putnika (i poste). To je veci izazov, jer stanovnici ovog svijeta zele putovati u odredjena mjesta.<br>
+Neki trebaju ici u tvornice na rad, neki zele ici u kupovinu u veliki trgovacki centar u glavnom gradu, a drugi zele otici u razgledavanje.
+</p>
+<p>
+Ako ne nudite veze na njihovo odrediste, oni uopce nece putovati sa vama. Trebati ce izgraditi prometnu mrezu gdje je moguce otici na sto je vise moguce odredista - barem na sve one popularne. Kada se vase mreze uspostave, morati cete ih nadograditi kako bi ih zadrzali na istom nivou potra¾nje. Dakle planirajte unaprijed.<br>
+Ukoliko se putnicima svidja vasa usluga, gradovi æe rasti i nove industrije æe biti uspostavljene i samo tada æe gospodarstvo pokrenuti glatko.
+</p>
+<p>
+Mozete igrati koliko god zelite. Pocetak u 1880 i kraj u 2050. Postojati ce nova vozila i zgrade tijekom vremena.<br>
+Igrajte protiv AI ili sami. Samo ako je vase neto bogatstvo negativano tri mjeseca za redom, bankotirati cete i igra je gotova. Provjerite svoje neto bogatstvo u prozoru financija.
+</p>
+<p> 
+<strong>Simutrans-Team</strong> i zajednica Vam zele odlican provod ovdje u Simutrans-u!
+</p>

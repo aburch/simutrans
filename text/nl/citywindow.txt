@@ -1,0 +1,56 @@
+<title>Stadsinformatie Help (Nederlands)</title>
+
+<h1><strong>Stadsinformatie</strong></h1>
+
+<p>
+<strong>Stadsinformatie</strong> toont statistieken over het geselecteerde dorp of stad en biedt de mogelijkheid de naam van de betreffende plaats te wijzigen.
+</p>
+<p>
+Elk dorp of stad heeft een eigen stadhuis en zal groeien in de buurt van dat stadhuis. Transport van passagiers en post helpt om het dorp of de stad te laten groeien en dat heeft de volgende kenmerken: door de speler aangelegde wegen worden overgenomen door de  <a href="players.txt">overheidr</a>; nieuwe gebouwen en  <a href="industry_info.txt">industrie</a> verschijnen op de kaart; en de grenzen van de stad worden uitgebreid.
+</p>
+<p>
+Klik op het stadhuis met de <a href="inspection_tool.txt">info tool</a> of op de naam van het dorp of de stad in  <a href="citylist_filter.txt">lijst met steden</a> om  het scherm met <strong>stadsinformatie</strong>te bekijken, waarop het volgende is te zien: een vak met een naam; statistieken; twee kleine kaarten; en een grafiek voor de geselecteerde plaats.
+</p>
+<p>
+<em>naam:</em> toegekende naam van de plaats verschijnt in het naam vak bovenin het scherm met <strong>stadsinformatie</strong>. <br>
+Namen van dorpen en steden worden gebruikt in de standaard namen voor haltes en stations.<br>
+Hoe een naam te wijzigen: klik op het naam vak en voer een nieuwe naam in.<br>
+{TIP: Gebruik <a href="keys.txt">[!]</a> om de naam van een plaats boven het stadhuis zichtbaar en onzichtbaar te maken in het spel. Zie ook readme_citylist.txt (in ...simutrans/text/) voor hulp bij het genereren van namen van dorpen en steden}.
+</p>
+<p>
+Onder het naam vak zijn statistieken te zien voor de geselecteerde plaats:<br>
+<em>inwoners:</em> het aantal inwoners van de plaats. Tussen haakjes is de recente groei in inwoneraantal te lezen.<br>
+<em>gebouwen:</em> het aantal gebouwen dat zich in de plaats bevindt.<br>
+<em>co-ordinaten:</em> geeft de grenzen aan van de plaats (verandert wanneer het dorp of de stad groeit).
+<p>
+</p>
+Kengetallen zullen toenemen wanneer de plaats groeit en afnemen wanneer er nieuwe gebouwen worden gebouwd in het dorp of de stad:<br>
+<em>werkloosheid:</em> geeft aan hoeveel inwoners zonder werk zitten en welk type gebouw zou kunnen worden gebouwd (huizen, winkels, industrie).<br>
+<em>dakloos:</em> geeft aan hoeveel inwoners geen huis hebben en welk type gebouw zou kunnen worden gebouwd (huizen, winkels, industrie)..
+</p>
+<p>
+<em>kleine kaarten</em> van de virtuele wereld in het <strong>stadsinformatie</strong> scherm toont bestemmingen voor passagiers en post.<br>
+Bestemmingen worden getoond door gekleurde punten en zijn geldig voor de maand waarin het spel zich bevindt (rechter kaart) en voor de afgelopen maand (linker kaart). De kleur van de punten geeft de details van de passagiers- en postbestemmingen aan:<br>
+- geel: er is een route gevonden met een rustige <a href="station.txt">halte of station</a> om de reis te beginnen (lachende smiley wordt getoond in de stationsinformatie).<br>
+- oranje: er is geen route gevonden naar de bestemming.<br>
+- rood: er is een route gevonden naar de bestemming maar de halte of station aan het begin van de route is overbezet (triest kijkende smiley in de stationsinformatie).
+</p>
+<p>
+<em>Grafiek</em> toont statistieken voor de plaats. <br>
+De y-as (verticaal) is hoeveelheid, de x-as (horizontaal) is tijd.<br>
+Klik op de tabbladen om de schaal van de x-as te wijzigen:<br>
+<em>Jaren:</em> laat de jaarlijkse waardes zien voor de afgelopen tien jaren.<br>
+<em>Maanden:</em> toont de maandelijkse waardes voor de afgelopen twaalf maanden.
+</p>
+
+<p>
+Klik op de knoppen onderin de grafiek om informatie in de grafiek aan of uit te zetten.<br>
+De kleuren van de lijn in de grafiek corresponderen met de kleuren van de knoppen:<br>
+<em>Inwoners:</em> bevolking.<br>
+<em>Groei:</em> wijziging in het aantal inwoners (afhankelijk van de grootte van de plaats en van het transport van passagiers en post).<br>
+<em>Vervoerd:</em> passagiers en post die zijn begonnen met een reis naar een bestemming (getoond als een <a href="station.txt">lachende smiley</a> in stations- en halte-informatie) <br>
+<em>Passagiers:</em> Totaal aantal passagiers en post dat beschikbaar is voor tansport in de geselecteerde plaats.
+</p>
+<p>
+{TIP: Instellingen van dorpen en steden zijn te veranderen in de configuratiebestanden simuconf.tab en cityrules.tab}.
+</p>

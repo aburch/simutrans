@@ -1,0 +1,42 @@
+<title>gradnja u podzemlju</title>
+
+<p>
+Postoje 2 moguca pogleda podzemlja.<br/> 
+<em>potpuni pogled podzemlja</em><br/>
+Sa <em>U</em> se ulazi u potpuni pogled podzemlja. U ovome pogledu se iskljucuje prikaz svih objekata na povrsini.<br/>
+<em>Podzemni pogled kao nivo</em><br/>
+Sa <em>Ctrl + U</em> se ukjlucuje podzemni pogled sa nivoima. U ovom pogledu se iskljucuje prikaz svih objekata, koji se nalaze iznad odabranog nivoa. To su svi objekti povrsine i takodjer svi objekti u podzemlju, koji se nalaze iznad odabrane razine.<br/><br/>
+Promjena nivoa se dogadaja sa <em>+</em> (vise) i <em>-</em> (nize) ili preko <a href="display.txt">Postavki prikaza</a>.
+</p>
+
+<p>
+<strong>Pokazivac misa (Cursor)</strong><br/>
+<em>puni pogled podzemlja</em><br/>
+Kod punog pogleda podzemlja se prikazuje resetka povrsine. Na nesagradjenim poljima se pokazivac namjesta prema toj resetci. Na sagradjenim poljima se pokazivac namjesta na izgradjena polja.<br/>
+Jer je namjestanje pokazivaca misa preko resetke povrsine poprilicno mukotrpno, trebalo bi se pri gradnji u podzemlju koristiti pogled nivoa.<br/><br/>
+<em>Pogled podzemlja kao nivo</em><br/>
+Kod pogleda nivoa se resetka prikazuje na aktivnom nivou. Pokazivac nisa se namjesta na tu resetku. Jer se pokazivac misa nalazi uvijek na aktivnom nivou, gradnja je puno laksa.
+</p>
+
+<p>
+<strong>Gradnja rute</strong><br/>
+<h1><em>opcenito</em></h1><br/>
+Opcenito se rute u podzemlju grade alatima za tunele. Kako bi se u pozemlju moglo graditi, mora se sagraditi tunel ili ulaz u tunel  (<em>tipka Ctrl + klik sa alatom za tunele na polju nagiba</em>).<br/><br/>
+
+<em>Promjena nivoa</em><br/>
+Kako bi se promijenio nivo u podzemlju, koriste se alati iz <em>Smanjiti/povecati nivo</em> iz menija <a href="slopes.txt">Alati okolisa</a>. Za promjenu nivoa, potrebno je jednostavno sa odgovarajucim alatom kliknuti na kraj rute.<br/><br/>
+
+<h1><em>Posebni slucaj tramvaj</em></h1><br/>
+Tracnice za tramvaj se takodjer u podzemlju grade sa normalnim alatima za tracnice na cestu.
+</p>
+
+<p>
+<strong>Stanice i pratece zgrade</strong><br/>
+Samo vlastite <em>Stanice</em> se mogu graditi jedna preko druge.<br/><br/>
+<em>Pratece zgradee</em> se ne mogu izgraditi u podzemlju.
+</p>
+
+<p>
+<strong>Signali</strong><br/>
+Mogu se koristiti kao na povrsini.
+</p>

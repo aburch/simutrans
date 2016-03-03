@@ -1,0 +1,18 @@
+<title>Ajuda - Estradas</title>
+
+<h1>Estradas (continuação)</h1>
+
+<p>
+Esta barra contém ferramentas de construção de estradas, pontos de ônibus, túneis, terminais de carga, garagens e cruzamentos de ferrovia e estrada.
+</p>
+<p>
+No canto superior esquerdo fica a ferramenta de construir estradas (teclado: s). Clique no botão, o que fará o cursor se transformar num trator, e em seguida clique no mapa onde você deseja que a estrada comece. Então o cursor terá a aparência de um pedaço de estrada. Por fim, clique onde quiser que a estrada termine. Para cruzar uma estrada, você deverá construir uma ponte ou um cruzamento especial. Para cruzar uma propriedade outro jogador, ou o jogo tentará dar a volta, ou não vai fazer nada.
+</p>
+<p>
+À direita vem o botão de construção de pontos de ônibus. Ao clicar nele, o cursor se transformará em um par de pontos de ônibus. Clique na posição de estrada desejada para estabelecer o ponto de ônibus. Este trecho deverá estar livre de qualquer interferência e ser reto.
+</p>
+<p><a href="roadtools2.txt">Continua</a></p>
+<p>
+Atualizado para Simutrans 0.81.32<br>
+18/05/2003
+</p>

@@ -1,0 +1,64 @@
+<title>Pomoc Statistike Grada</title>
+
+<h1><strong>Statistika Grada</strong></h1>
+
+<p>
+<strong>Statistika Grada</strong> prikazuje statistike o oznacenom urbanom podrucju i moze se koristiti za promjenu imena. Urbano podrucje je grad, gradic ili selo; ispod se pojam grad koristi za bilo koje urbano podrucje.
+</p>
+<p>
+Svaki grad ima vlastitu gradsku vijecnicu oko koje raste. Prijevoz putnika i poste poboljsava rast, ¹to ukljucuje ulice koje se grade ili koje se preuzimaju od <a href="players.txt">igraca javnog servisa</a>; nove gradsje zgrade i <a href="industry_info.txt">industrije</a> koje se pojavljuju; i granice grada se prosiruju.
+</p>
+<p>
+Klik na vijecnicu u pogledu igre sa <a href="inspection_tool.txt">Alatom Inspekcije</a> ili na grad koji je prikazan u<a href="citylist_filter.txt">Listi Gradova</a> za otvaranje <strong>Statistike Grada</strong>. Ovdje se moze vidjeti i promijeniti ime grada, neke statistike, dvije mini-map, i graf gdje je vidljiv razvoj tijekom vremena za razne faktore koji se odnose na grad.
+</p>
+<p>
+<em>Ime:</em> pridruzeno ime grada, gradica ili sela se prikazuje u kucici na vrhu <strong>Statistike Grada</strong>. <br>
+Imena takvih urvanih podrucja se koriste za stvaranje imena za <a href="station.txt">stajalista</a> unutar granica grada. 
+Za promjenu imena samo kliknuti na kucicu i upisati novo ime.<br>
+{Savjet: Koristiti <a href="keys.txt">[!]</a> za promjenu prikaza imena grada iznad Vijecnice u pogledu igre. Pogledati readme_citylist.txt (u ...simutrans/text/) za vise informacija o tome kako se stvaraju imena grada}.
+</p>
+<p>
+Pod kucicom imena su prikazane neke osnovne gradsje statistike:<br>
+<em>Velicina Grada:</em> je trenutan broj gradjana. Nedavni porast populacije je prikazan u zagradama.<br>
+<em>Zgrade:</em> boj gradskih zgrada (rezidencijalne/komercijalne/industrijske) u gradu.<br>
+<em>Koordinate mape:</em> prikazuje granicu grada (mijenjati ce se kako grad raste). Prvi par vrijednostiprikazuje gornji lijevi kut, a drugi donji desni kut. Kako gradovi rastu, granice gradova se mogu preklapati.
+</p>
+<p>
+Trenutni broj <em>nezaposlenih</em> i <em>beskucnih</em> gradjana grada. Ovo ce rasti kako se grad siri u granicama, i smanjivati se kada niknu nove zgrade. 
+Ravnoteza ovih brojaca odredjuje koji tip gradskih gradjevina (rezidencijalne/komercijalne/industrijske) ce se konstruirati.
+</p>
+<p>
+Gumb <em>Dozvoli rast grada</em> omogucava promjenu rasta grada na ukljuceno i iskljuceno.
+</p>
+<p>
+<em>Mini-mape</em> svijeta igre u <strong>Statistike Grada</strong>  prikazuje odredista putnika i poste koji su stvoreni unutar grada kao obojene tocke.<br>
+Desna mini-mapa prikazuje vrijednosti trenutnog kalendarskjog mjeseca igre, a lijeva za zadnji kalendarski mjesec. Boja svake tocke oznacava moze li se odrediste dostici ili ne:<br>
+- zuta tocka: postoji ruta i nenatrpano <a href="station.txt">stajaliste</a> za pocetak putovanja (sretno lice prikazano u Informacijama Stajalista).<br>
+- narancasta tocka: nema rute na to odrediste.<br>
+- crvena tocka: postoji ruta na odrediste, ali stajaliste na pocetku putovanja je pretrpano (nesretno lice u Informacijama Stajalista).
+</p>
+<p>
+Ispod mini-mapa postoji <em>graf</em> koji prikazuje statistike za grad. <br>
+Na y-osi se prikazuje kolicina a na x-osi vrijeme. 
+Kilik na jahace indeksa grafa za promjenu skale x-osi:<br>
+<em>Godine:</em> prikazuje godisnje vrijednosti za zadnjih 12 kalendarskih godina igre.<br>
+<em>Mjeseci:</em> prikazuje mjesecne vrijednosti za zadnjih 12 mjeseci igre
+</p>
+
+<p>
+Klikom na gumbe opcije grafa, aktivirate i deaktivirate funkciju za svaki zadani gumb. Kada je neki gumb odabran prikazan je utisnuto.<br>
+Funkcije odgovaraju boji odgovarajucih gumbi postavki:<br>
+<em>Gradjani:</em> Broj ljudi koji zive u gradu<br>
+<em>Rast grada:</em> Promjene u populaciji (ovise o velicini grada i prijevoznoj usluzi koja je pruzena za putnike i postu).<br>
+<em>Br. zgrada:</em> Koliko gradskih zgrada ima u gradu.<br>
+<em>Gradskih automobila:</em> Koliko gradskih automobila je stvoreno<br>
+<em>Putovanja:</em> Koliko putnika je uslo u prijevoznu mrezu (prikazano kao <a href="station.txt">sretno lice</a> u Informaciji Stajalista)<br>
+<em>Putnici:</em> Ukupni broj korisnika stvorenih u gradu.<br>
+<em>Poslana posta:</em> Posta koja je usla u mrezu<br>
+<em>Posta:</em> Potpuni broj poste stvorene od grada.<br>
+<em>Dostava:</em>Broj trenutaka kada je bilo robe u skladistima u gradskim tvornicama<br>
+<em>Roba:</em>Broj trenutaka kada je skladistenje gradskih tvrtki biko provjeravano.<br>
+</p>
+<p>
+{Savjet: Postavke koje se odnose na gradove mogu se promijeniti u simuconf.tab i cityrules.tab}.
+</p>

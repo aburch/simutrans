@@ -1,0 +1,26 @@
+<title>Ayuda de Cargar Topografia</title>
+
+<h1><strong>Cargar Topografia</strong></h1>
+
+<p>
+<strong>Cargar Topografia</strong> se usa para abrir un fichero de un mapa de altura del terreno (para usar en un juego nuevo) y puede ser usado para borrar este tipo de ficheros.<br>
+<p>
+<strong>Cargar Topografia</strong> se abre desde <a href="new_world.txt">Crear un Nuevo Mundo</a>; y lista el nombre, fecha y hora (del juego salvado) del los distintos terrenos disponibles.<br>
+Si no puedes ver todos los elementos: usa la <a href="mouse.txt">barra de desplazamiento</a> en la parte derecha de la lista, para desplazar los nombres.
+</p>
+<p>
+Pulsa en un nombre de la lista para usar una terreno; o introduce en nombre en la caja de texto en lo alto de la ventana: pulsa en la caja de texto, escribe el nombre, y pulsa <a href="keys.txt">[Enter]</a>, [Return] o pulsa en <em>OK</em> (un nombre incorrecto no tendra efecto, intentalo de nuevo).
+</p>
+<p>
+CUIDADO: Pulsando en el boton X de la parte izquierda de un nombre de terreno, SE BORRARA EL FICHERO PERMANENTE E INMEDIATAMENTE, el nombre del fichero es eliminado de la lista y la ventana <strong>Cargar Topografia</strong> se cerrara. Usa esta funcion con cuidado.
+</p>
+<p>
+Algunos terrenos estan disponibles en http://addons.simutrans.com.<br>
+El fichero nuevo debe tener formato ppm y estar en el directorio (o carpeta) llamada...simutrans/save/
+</p>
+<p>
+La informacion acerca de como crear terrenos esta dsiponible en http://wiki.simutrans.com
+</p>
+<p>
+Pulsa en <em>Cancelar</em> para cerrar la ventana de <strong>Cargar Topografia</strong>; o X en la parte superior izquierda de la ventana; o usa el teclado.
+</p>

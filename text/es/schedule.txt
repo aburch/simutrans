@@ -1,0 +1,49 @@
+<title>Ayuda de Controles de Enrutar</title>
+
+<h1><strong>Controles de Enrutar</strong></h1>
+
+<p>
+<strong>Controles de Enrutar</strong> establece el programa de ruta (la ruta y la cantidad minima de mercancias y pasajeros requerida por un <a href="convoiinfo.txt">Convoy</a> para continuar ) de un Convoy o una <a href="linemanagement.txt">Linea</a>.<br>
+Lista las <a href="station.txt">Paradas</a> (donde los Convoys cargan y descargan mercancias y pasajeros) y puntos de paso (que pueden ser usados para dirigir Convoys por un camino si hay mas de uno disponible o dar puntos intermedios hasta el destino) con sus coordenadas del mapa.
+</p>
+<p>
+<strong>Controles de Enrutar</strong> para un Convoy se abre desde el boton Enrutar en la ventana <a href="convoiinfo.txt">Informacion del Convoy</a> y en los <a href="depot.txt">Controles del Deposito</a>.<br>
+Los controles para un programa de ruta de una Linea se abren desde los botones Nueva linea o Actualizar linea en <a href="linemanagement.txt">Administracion de Lineas</a> y en los <a href="depot.txt">Controles del Deposito</a>.
+</p>
+<p>
+Cuando los <strong>Controles de Enrutar</strong> se han abierto desde la ventana Informacion de Convoy la linea asignada (si tiene alguna) se muestra en lo alto de los controles.<br>
+<a href="linemanagement.txt"><em>Nombre de la linea</em></a> : Pulsa en los botones de flechas para pasar de una linea a otra o pulsa en la caja de texto para desplegar un lista de Lineas (pulsa en una Linea de la lista para seleccionar). <br>
+Pulsa en la caja de texto y escribe un nuevo nombre para cambiar el nombre de la Linea.
+</p>
+<p>
+<em>Cargar (Min):</em> establece la cantidad minima de mercancias y pasajeros que requiere el <a href="convoiinfo.txt">Convoy</a> para continuar.
+El porcentaje se refiere a la capacidad total del Convoy y no de un tipo de mercancia individual.<br>
+Un Convoy esperara en la Parada hasta que se carge el porcentaje requerido.<br>
+Para usarlo: pulsa en la Parada en la lista para seleccionar (> por nombre muestra que esa Parada ha sido seleccionada), entonces usa las flechas para cambiar el porcentaje.<br>
+{Consejos: para establecer o cambiar la Carga (Min) para todos los Convoys de una Linea, usa el boton Actualizar la linea en <a href="linemanagement.txt">Administracion de Listas</a> o en <a href="depot.txt">Controles del Deposito</a>. Para cambiar ls Carga de un Convoy y no el resto de los de la Linea, usa la opcion Enrutar en <a href="convoiinfo.txt">Informacion del Convoy</a> o en Controles de Deposito.}
+</p>
+<p>
+Los botones de opcion (pulsa para usar, el boton se oscurece cuando se selecciona) incluyen:
+</p>
+<p>
+<em>Añadir </em> <a href="station.txt"><em>Parada:</em></a> esta opcion pone una Parada usada por vehiculos para cargar y descargar mercancias y pasajeros (los vehiculos de transporte maritimo pueden usar cualquier cuadricula de agua en el area de influencia del puerto) o un punto de paso en la ruta.<br>
+Para añadir una Parada o Punto de paso: pulsa en la opcion a seleccionar (cambia el cursor a un cartelito), entonces pulsa en el punto requerido para la Parada o Punto de paso (un punto en la carretera, via de tren o agua segun el tipo de vehiculo). La Parada o Punto de paso , es listada en <strong>Enrutar</strong>.<br>
+{Consejos: Los vehiculos no cargan ni descargan pasajeros ni mercancias en los Puntos de paso.}
+</p>
+<p>
+<em>Insertar:</em> esta opcion pone una <a href="station.txt">Parada</a> o punto de paso en la ruta, antes que una Parada/Punto de paso ya existente.<br>
+Para insertar una Parada/Punto de paso: pulsa en una parada/punto de paso existente de la lista para seleccionar (se muestra > en el nombre de la parada/punto de paso seleccionado), despues pulsa en el boton Insertar (cambia el cursor a un cartelito), y finalmente pulsa en el punto requerido de un Parada/punto de paso (un punto de una carretera,via de tren o agua segun el tipo de vehiculo).<br>
+La nueva Parada/Punto de paso aparecera en la lista de <strong>Enrutar</strong> antes de la Parada/Punto de paso previamente seleccionado.<br>
+{Consejos: Los vehiculos no cargan ni descargan pasajeros ni mercancias en los Puntos de paso.}
+</p>
+<p>
+<em>Eliminar:</em> esta opcion borra una <a href="station.txt">Parada</a> o Punto de paso de la ruta.<br>
+Pulsa en el boton Eliminar, y despues pulsa en un elemento de la lista para eliminarlo.
+</p>
+<p>
+<em>Viaje de vuelta:</em> esta opcion añade las <a href="station.txt">Paradas</a> y Punto de paso existentes en orden inverso a la ruta. Los niveles de <em>Carga (Min) </em>tambien se copian. Pulsa en el boton de opcion para usar: <strong>Enrutar</strong> lista la nueva ruta.
+</p>
+<p>
+<em>Convertir en</em> <a href="linemanagement.txt"><em>Linea:</em></a> (solo disponible cuando se abre <strong>Enrutar</strong> desde la ventana <a href="convoiinfo.txt">Informacion de Convoy</a>) creando una nueva Linea
+ usando el programa actual de ruta. La nueva linea se le asigna un numero y se lista en Administracion de Lista.
+</p>

@@ -1,0 +1,66 @@
+<title>Új Térkép Sugó</title>
+<h1>Új térkép</h1>
+
+<p>
+Itt tudod az új létrehozandó térkép paramétereit beállítani.
+Mindegyik mellet egy rövid leírás található.
+</p>
+
+<p>
+<em>Térképszám</em> - Itt határozod meg a térkép típusát. Egy kis elõnézeti térképet
+is láthatsz melyen a paraméterek változtatásának hatását lehet ellenõrizni.
+<br>
+<em>Méret</em> - A térkép MB vett méretét lehet meghatározni. Az alap a 20 MB.
+<strong> Fontos! </strong> Minnél nagyobb a MB vett térkép méret annál lassabban készül el az
+új térkép és több memoria szükségeltetik.
+<br>
+<br>
+<em>Városok száma</em> - A városok számát tudod beállítani (min. 2 max. 64)
+Alapérték 16.
+</p>
+<p>
+<em>Forg. sûrûsége</em> - A városban közlekedõ kocsik sûrûségét lehet meghatározni. Alapérték 9.
+<em>Vízmennyiség</em> - Az új térképen megjelenõ vízmennyiséget szabályozód. Minél kisebb
+az érték annál több föld lesz ill. annál kevesebb víz és fordítva. Alpérték 4.
+<br>
+<em>Hegymagasság</em> - A hegyek magasságát lehet beállítani. Minél kissebb annál lágyabb
+az átmenet a terepen. Alapérték 160.
+<br>
+<em>Terepdurvaság</em> - Mennyire legyen változatos a terep, mennyire legyen dimbes-dombos. Alapérték 2.
+</p>
+
+<p>
+<em>Ipari egys. (terepen)</em> - Az ipari egységek sûrûségét szabályozod városon kívül. Nagyobb érték több ipari egységet jelent.
+<br>
+<em>Ipari egys. (városban)</em> - Az ipari egységek sûrûségét szabályozod a városokban vagy a városok közelében. Nagyobb érték több ipari egységet jelent.
+<br>
+<em>Turista forgalom</em> - Mennyi turista legyen a kis világodban. A nagyobb érték több turistaforgalmat jelent.
+</p>
+
+<p>
+<em>Átlag lakos per város</em> - Itt lehet meghatározni az átlag lakósszámot városonként.
+</p>
+
+
+<p>
+<em>Véletlen térkép</em> - Véletlen térkép generálása (nem befolyásol más beállítást).
+</p>
+
+<p>
+<em>Gyalogosokat mutat</em> - Itt lehet beállítani, hogy mutassa-e vagy sem a városokban a
+gyalogosokat. A játék elindítása után a <a href="display.txt">Képernyõ opciók</a> dialogus ablakban módosítható.
+<br>
+<em>Éjszaka/nappal mód</em> - Itt állítható be, hogy legyen-e éjszaka és nappal mód. Ha ki van kapcsolva
+akkor "állandóan nappal van" :). A játék elindítása után a <a href="display.txt">Képernyõ opciók</a> dialogus ablakban módosítható.
+</p>
+
+<p>
+<em>Játék betöltés</em> - Egy már lementett játék indítását teszi lehetõvé.
+(lásd az Opcióknál a  <a href="load.txt">Mentés</a>menüpontot.)<br>
+<em>Játék indítása</em> Az új a fenti paramétereket alkalmazó játék indítása.
+<br>
+<em>Domborzat betölt.</em> Itt lehet az álltalad készített térképfájlt, domborzatfájlt betölteni. Mikor nincs kedved a véletlenszerû térképekhez akkor készíts magadnak egy térképet.
+Azt, hogy hogyan kell ezt csinálni azt a neten lehet megtudni :)
+<br>
+<em>Kilépés</em> - Végleges kilépés a játékból.<br>
+</p>

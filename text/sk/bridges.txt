@@ -1,0 +1,36 @@
+<title>Nástroj na stavbu mosta - pomoc</title>
+
+<h1>Stavba mosta</h1>
+
+<p>
+Most sa stavia podobne ako tunel.<br>
+<em>Cestný most</em><br>
+Musí¹ mat' u¾ vytvorené cesty, ktoré spojí¹ mostom.
+Obe musia presne lícovat' (pasovat' proti sebe).
+My¹ou zvoµ nástroj cestného mosta. Prepojenie
+vytvorí¹ kliknutím na jeden z koncov prepájaných ciest.
+Most môze¹ stavat' aj tak, ¾e jeden jeho koniec bude na
+kopci (do vý¹ky 1-nej pozície). Pokiaµ by sa Ti stalo,
+¾e cesta nie je prepojená, skús potiahnut' cestu e¹te
+o jednu pozíciu pod most.
+</p>
+<p>
+<em>®eleznièný most</em><br>
+Musí¹ mat' vytvorené ¾eleznièné trate, ktoré spojí¹ mostom.
+Obe musia presne lícovat' (pasovat' proti sebe).
+My¹ou zvoµ nástroj niektorého zo ¾eleznièných mostov.
+Prepojenie ¾eleznièných tratí vytvorí¹ kliknutím na jeden
+z koncov. Most s plným dnom (bez boènej kon¹trukcie) má tú
+výhodu, ze mô¾e¹ naò umiestnit' signalizáciu. Most môze¹
+postavit' aj tak, ze jeden koniec bude na kopci (do vý¹ky
+1-nej pozície). Pokiaµ by sa Ti stalo, ze ¾eleznièná trat'
+nie je prepojená, skús potiahnut' koµajnice e¹te o jednu
+pozíciu pod most.
+</p>
+<p>
+V oboch prípadoch platí, ze stavat' mosty s jedným koncom
+na kopci (príp. obidvomi) je mo¾né, len ak sú steny kopca
+zarovnané do vý¹ky 1-nej pozície. Mosty môze¹ stavat' aj tak,
+¾e preklenie¹ jamu (roklinu). Obe steny jamy (rokliny) v¹ak
+musia mat' opät zarovnané steny do håbky 1-nej pozície.
+</p>

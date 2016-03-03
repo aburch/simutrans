@@ -1,0 +1,66 @@
+<title>Klimaatinstellingen Help (Nederlands)</title>
+
+<h1><strong>Klimaatinstellingen</strong></h1>
+
+<p>
+<strong>Klimaatinstellingen</strong> biedt opties om topografische en meteorologische variabelen te veranderen in de virtuele spel wereld<br>
+<p>
+<strong>Klimaatinstellingen</strong> wordt geactiveerd wanneer je Simutrans start of door te kiezen voor Hoofdmenu en vervolgens voor de optie  <a href="new_world.txt">Nieuwe kaart</a>.
+</p>
+<p>
+Pijltjes knoppen veranderen de instellingen:
+</p>
+<p>
+<it> opties:</it>
+</p>
+<p>
+
+<em>Waterpeil:</em> bepaalt op welk niveau het water zich bevindt in het nieuwe spel.
+</p>
+<p>
+
+<em>Berghoogte:</em> bepaalt de maximum hoogte van het terrein.
+</p>
+<p>
+
+
+<em>Ruigheid:</em> bepaalt de ruigheid van het terrein; een hoger getal zorgt voor extra glooingen.<br>
+</p>
+<p>
+<it>Sneeuwgrens opties:</it>
+</p>
+<p>
+
+<em>Sneeuwgrens(z):</em> bepaalt de hoogte van de sneeuwgrens in de zomer
+</p>
+<p>
+
+<em>Sneeuwgrens(w):</em> bepaalt de hoogte van de sneeuwgrens in de winter.<br>
+</p>
+<p>
+?<it>Klimaat opties:</it>
+</p>
+<p>
+
+<em>Woestijn:</em>  weinig begroeing, extreme temperaturen
+</p>
+<p>
+
+<em>Tropisch:</em> tropisch, erg hoge en constante temperatuur, regenwouden.
+</p>
+<p>
+
+<em>Subtropisch:</em> gematigd wisselvallig vochtig weer.
+</p>
+<p>
+
+<em>Gematigd:</em> wisselvallig weer, komt voor tussen de polen en de subtropische gebieden.
+</p>
+<p>
+
+<em>Toendra:</em> lage temperatuur, grenst aan de polen
+</p>
+<p>
+
+<em>rotsachtig:</em> maakt de kaart meer of minder rotsachtig.
+</p>

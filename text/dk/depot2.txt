@@ -1,0 +1,60 @@
+<title>Depot dialog hjælp (fortsat)</title>
+
+<h1>Depot Dialog (fortsat)</h1>
+
+<p>
+<em>Tildel ruteplan:</em><br>
+
+For at tildele det aktuelle køretøj en "individuel "ruteplan trykkes på
+'Ruteplan' knappen, hvorefter ruteplanen defineres vha. den fremkomne
+<a href='schedule.txt'>ruteplansdialog.</a> Dette er kun fordelagtigt, hvis du
+ved, at køretøjet er det eneste, der vil benytte denne rute. Ifald du vil
+indsætte flere køretøjer på den samme rute, er det bedre først at definere
+ruten ved et trykke på 'Ny rute' og udfylde den fremkomne
+<a href='schedule.txt'>ruteplansdialog</a>. Derefter figurerer ruten, som den
+aktuelle rute i rutelisten og kan tilknyttes det aktuelle køretøj ved at
+trykke på 'Tilknyt rute' knappen.
+</p>
+
+<p>
+<em>Adskil køretøj:</em><br>
+Det er muligt at adskille det aktuelle køretøj ved at trykke på 'Adskil'
+knappen. Køretøjet vil blive opdelt (f.eks i en lastbil og en anhænger) og
+derefter optræde som til rådighed stående enkeltkøretøjer på
+fanebladene. Disse enkeltkøretøjer kan benyttes til nye
+køretøjssammensætninger eller sælges ved at vælge "sælge-tilstanden" på
+tilstandsknappen nederst til højre og venstreklikke på enkeltkøretøjet i
+fanebladet.
+</p>
+
+<p>
+<em>Sælg køretøj:</em><br>
+For at sælge (hele) det aktuelle køretøj trykkes på 'Sælg' knappen.
+</p>
+
+<p>
+<em>Opret ny rute:</em><br>
+For at oprette en ny rute trykkes på 'Ny rute' knappen og derefter benyttes
+<a href='schedule.txt'>ruteplansdialogen</a>.
+</p>
+
+<p>
+<em>Tilknyt rute til køretøj:</em><br>
+For at tilknytte en rute til et køretøj vælges køretøjet som det aktuelle
+køretøj i køretøjslisten. Dernæst vælges den ønskede rute i rutelisten (eventuelt oprettes den
+først som nævnt ovenfor) og herefter trykkes på 'Tilknyt rute' knappen.
+</p>
+
+<p>
+<em>Opdater eller slet rute:</em><br>
+For at opdatere eller slette en rute vælges den ønskede rute i rutelisten og
+herefter trykkes enten på Opdater rute' knappen, hvorefter
+<a href='schedule.txt'>ruteplansdialogen</a> fremkommer eller på 'Slet rute'
+knappen, hvorefter ruten slettes fra rutelisten.
+</p>
+
+<p>
+For senere at sende et køretøj tilbage i depotet, skal du indføje depotet i
+køretøjets ruteplan - f.eks som næste rutemål. Efter køretøjet er kommet
+tilbage i depotet figurerer det i køretøjslisten og kan efter behag udbygges,
+adskilles, tildeles rute eller sælges.

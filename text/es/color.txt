@@ -1,0 +1,21 @@
+<title>Ayuda sobre Color</title>
+
+<h1><strong>Color del Jugador</strong></h1>
+
+<p>
+<strong>Color</strong> establece el color del jugador.<br>
+Los vehiculos, edificios y otros elementos reflejan el color del jugador.
+</p>
+<p>
+<strong>Color</strong> se abre desde<a href="options.txt">Opciones de juego</a>.
+</p>
+<p>Pulsa en uno de los colores para cambiar el color del jugador.<br>
+La ventana de <strong>Color</strong> cambia (no al nuevo color elegido) para indicar que un nuevo color ha sido seleccionado.
+</p>
+<p>
+El color por defecto es azul claro para el jugador humano.<br>
+Algunos elementos no tienen la opcion de color del jugador, y puede que no muestren el color elegido.
+</p>
+<p>
+{Consejo: Para cambiar el color de los jugadores controlados por la maquina usa la<a href="players.txt">Lista de Jugadores</a> o <a href="special.txt">P+ Cambiar de Jugador</a> para seleccionar primero un jugador controlado por la maquina}.
+</p>

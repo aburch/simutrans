@@ -1,0 +1,43 @@
+<title>POMOC: Klawiszologia</title>
+
+<h1>Klawiszologia:</h1>
+
+<p>
+, - Powieksz obraz<br>
+. - Pomniejsz obraz<br>
+! - Wl/Wyl wyswietlanie nazw<br>
+" - Wl/Wyl wyswietlanie budynków<br>
+# - Wl/Wyl wyswietlanie siatki<br>
+a - Narzedzie 'Zobacz'<br>
+b - Narzedzie 'Naprawa torów'<br>
+c - Zrzut ekranu<br>
+d - Obniz poziom<br>
+f - Finanse<br>
+g - ???<br>
+k - Lista graczy<br>
+l - Linia energetyczna (próba)<br>
+m - Mapa<br>
+p - Pauza<br>
+r - Zniszcz/Usun<br>
+s - Zbuduj droge<br>
+t - Zbuduj tory<br>
+u - Wznies nasyp<br>
+w - ???<br>
++ - Rozjasnij ekran<br>
+- - Przyciemnij ekran<br>
+Shift-C - Zbuduj nowe miasto<br>
+Shift-V - Pokaz liste pojazdów<br>
+Shift-Q, X - Zakoncz gre<br>
+P - ??? (moze zawiesic gre!)<br>
+L - Wczytaj gre<br>
+S - Zapisz gre<br>
+9 - Przewijanie: pln-wsch<br>
+1 - Przewijanie: pld-zach<br>
+7 - Przewijanie: pln-zach<br>
+3 - Przewijanie: pld-wsch<br>
+6 - Przewijanie: wschód<br>
+2 - Przewijanie: poludnie<br>
+8 - Przewijanie: polnoc<br>
+4 - Przewijanie: zachód<br>
+Delete, Backspace - zamknij wszystkie okna
+</p>

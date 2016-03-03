@@ -1,0 +1,133 @@
+Akaroa 
+Albert Town 
+Alexandra 
+Amberley 
+Arrowtown 
+Ashburton 
+Auckland 
+Balclutha 
+Balfour 
+Blackball 
+Blenheim 
+Brighton 
+Brightwater 
+Cambridge 
+Carterton 
+Cheviot 
+Christchurch 
+Dargaville 
+Drury 
+Dunedin 
+Edgecumbe 
+Eltham 
+Eketahuna 
+Fairlie 
+Featherston 
+Feilding 
+Geraldine 
+Gisborne 
+Glenorchy 
+Greymouth 
+Hamilton 
+Hanmer Springs 
+Hastings 
+Havelock 
+Hawea 
+Helensville 
+Henley 
+Huntly 
+Inangahua Junction 
+Inglewood 
+Invercargill 
+Kaiapoi 
+Kaikohe 
+Kaikoura 
+Kaitaia 
+Kaitangata 
+Katikati 
+Kawakawa 
+Kumeu 
+Kurow 
+Lawrence 
+Leeston 
+Lincoln 
+Lower Hutt 
+Lyttelton 
+Mangakino 
+Martinborough 
+Masterton 
+Middlemarch 
+Milton 
+Morrinsville 
+Mount Somers 
+Murchison 
+Murupara 
+Napier 
+Nelson 
+New Plymouth 
+Ngaruawahia 
+North Shore 
+Oamaru 
+Oban 
+Ohope Beach 
+Ohura 
+Otorohanga 
+Paekakariki 
+Paihia 
+Palmerston 
+Papakura 
+Paraparaumu 
+Pauatahanui 
+Picton 
+Pleasant Point 
+Port Chalmers 
+Portobello 
+Putaruru 
+Queenstown 
+Raetihi 
+Raglan 
+Ramarama 
+Rangiora 
+Reefton 
+Renwick 
+Richmond 
+Riverton 
+Rolleston 
+Ross 
+Rotorua 
+Roxburgh 
+Russell 
+Sanson 
+Seddon 
+Shannon
+Sheffield 
+Snells Beach 
+Springfield 
+Stratford 
+Taihape 
+Tairua 
+Takaka 
+Taradale 
+Taumarunui 
+Taupo 
+Te Aroha 
+Temuka 
+Thames 
+Turangi 
+Upper Hutt 
+Waharoa 
+Waihi 
+Wairoa 
+Wakefield 
+Walton 
+Waverley 
+Wanganui 
+Wardville 
+Warkworth 
+Wellington 
+Westport 
+Whangamata 
+Whitby 
+Woodend 
+Woodville 
+Wyndham

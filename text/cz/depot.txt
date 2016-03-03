@@ -1,0 +1,45 @@
+<title>Nápovìda - depo</title>
+<h1>Dialog depa</h1>
+
+<p>
+V depu mù¾ete nakupovat, prodávat, spojovat èi pøepojovat do souprav v¹echna vozidla zaparkovaná v depu (¹ipkami v horní èásti lze mezi zaparkovanými konvoji pøepínat).<br>
+</p>
+
+<p>
+Dialog depa vám zobrazuje, jaká vozidla mù¾ete nakoupit a jaká jste ji¾ nakoupil.
+V tabulce dole jsou zobrazena koupitelná vozidla.
+V oblasti nahoøe je zobrazeno právì aktivní vozidlo. Seznam koupitelných vozidel má 2 karty: pohonná vozidla (vozidlaivy apod.), a pøipojitelná vozidla (vagóny a pøívìsy).
+</p>
+
+<p>
+Úplnì dole jsou zobrazeny informace o právì aktivním vozidle.
+Dopravní prostøedek je mo¾né ovládat tlaèítky pod ním.
+</p>
+
+<p>
+Úplnì nalevo je tlaèítko <strong>start</strong>, kterým vozidlo "pustíte" z depa - pokud ji¾ má nastaveno <a href="schedule.txt">jízdní plán</a>. Dal¹ím tlaèítkem <strong>rozpojit</em> mù¾ete rozpojit napøíklad vlak, èi tahaè s pøívìsem. Tlaèítkem <strong>prodat</strong>prodáte aktuální vozidlo.
+</p>
+
+<p>
+Pro informace o konkrétním dopravním prostøedku musíte najet kurzorem nad jeho obrázek. Detaily se zobrazí úplnì dole. Pro koupi vozidla je urèena støední èást dialogu. Pokud je dole na stránce nastaven mód nákupu, vozidlo koupit kliknutím. Módy se mìní pøepínacím tlaèítkem s hodnotami <strong>pøidat</strong>, co¾ je vlastnì nákup. Potom <strong>na zaèátek</strong>, co¾ je také nákup, ale vozidlo se pøidá místo na konec soupravy na zaèátek. Poslední mo¾nost je <strong>prodat</strong>, umo¾òuje prodávat vozidla umístìná ve va¹em depu.
+</p>
+
+<p>
+K vytvoøení soupravy vozidel musíte nejprve koupit lokomotivy a poté pøikupovat vagóny, èi pøívìsy. Najednou je mo¾né pracovat pouze s jedním konvojem.
+</p>
+
+<p>
+Nastavení jízdního plánu je mo¾né nìkolika zpùsoby. Ty jsou popsané v<a href="schedule.txt">tomto</a>dialogu. Nìkolik tlaèítek pod tlaèítky <strong>start a jízdní plán</strong> jsou pro nastavení <a href="schedule.txt">linek</a>. Doporuèujeme je pou¾ívat spí¹e ne¾ jízdní plány.
+</p>
+
+<p>
+Pokud chcete v budoucnu vrátit vozidlo zpìt do depa, editujte <a href="schedule.txt">jízdní plán</a> tím, ¾e na konec zastávek pøidáte depo. Potom je mo¾né vozidlo prodat, v pøípadì souprav tøeba pøeskupit.
+</p>
+
+<p>
+-><a href="schedule.txt">Nápovìda k jízdnímu plánu</a>
+</p>
+
+<p>
+-><a href="about.txt">Informace o pøekladu</a>
+</p>

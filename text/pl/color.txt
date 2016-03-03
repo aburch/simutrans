@@ -1,0 +1,7 @@
+<title>POMOC: wybór koloru</title>
+
+<h1>Wybór koloru</h1>
+
+<p>
+Mozesz wybrac dla siebie odpowiedni kolor.
+Tym kolorem beda zaznaczone Twoje posiadlosci (budynki, tory itp.) Zwróc uwage, ze nie wszystkie nalezace do Ciebie budynki/pojazdy beda w tym kolorze (tak zadecydowali autorzy rysunków). </p>

@@ -1,0 +1,52 @@
+<title>Aide clavier</title>
+
+<h1>Configuration:</h1>
+
+<p>
+, - Avancée le temps plus lentement<br>
+. - Avancée le temps plus rapide<br>
+! - Afficher/Effacer les noms<br>
+# - Indiquer le carroyage<br>
+" - Diminuer les maisons/arbes<br>
+§ - Planter des forêts<br>
+a - Mode inspection<br>
+b - Outil pour réparer les rails<br>
+c - Faire une copie d'écran(appareil photo)<br>
+d - Abaisser terrain <br>
+f - Ouvrir l'écran des finances<br>
+g - Construire d'un transformateur<br>
+k - Liste des joueurs<br>
+l - Construire des ligne de transmission à haute tension<br>
+m - Accès à la carte<br>
+p - Mettre le jeu en pause<br>
+r - Détruire<br>
+s - Construire des routes<br>
+t - Construire des chemins de fer<br>
+u - Réhausser le terrain<br>
+v - Indiquer l'allonge d'arrêts<br>
+w - Ouvrir l'écran des groupes d'itinéraires<br>
+z - Mainlevée la construiction de la route antérieure<br>
++ - Augmenter la luminosité<br>
+- - Diminuer la luminosité<br>
+C - Construire une ville<br>
+G - Ouvrir la liste des marchandises<br>
+H - Construire vôtre siège social<br>
+L - Charger un jeu<br>
+P - Changée de joueurs (peut être blockée)<br>
+S - Sauvegarder un jeu<br>
+T- Ourvrir la liste des villes<br>
+U - Construction sousterrain<br>
+V - Ouvrir la liste des véhicules<br>
+W - Avancée le temps le plus rapide possible<br>
+Q, X - Quitter Simutrans<br>
+9 - Déplacer la carte vers le Nord-Est<br>
+1 - Déplacer la carte vers le Sud-Ouest<br>
+7 - Déplacer la carte vers le Nord-Ouest<br>
+3 - Déplacer la carte vers le Sud-Est<br>
+6 - Déplacer la carte vers l'Est<br>
+2 - Déplacer la carte vers le Sud<br>
+8 - Déplacer la carte vers le Nord<br>
+4 - Déplacer la carte vers l'Ouest<br>
+Delete - Fermer l'écrans actuèl<br>
+Backspace - Fermer tous les écrans<br>
+</p>

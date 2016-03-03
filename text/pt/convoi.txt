@@ -1,0 +1,59 @@
+<title>Ajuda - Lista de Veículos</title>
+
+<h1><strong>Lista de Veículos</strong></h1>
+
+<p>
+A <strong>Lista de Veículos</strong> mostra informações e tem controles para filtrar e listar diferentes <a href="convoiinfo.txt">Comboios</a> (um Comboio é formado por um veículo operacional ou uma combinação de veículos).
+</p>
+<p>
+Para abrir: clique na ferramenta de Lista de Veículos em <a href="list.txt">Listas</a> ou aperte a tecla <a href="keys.txt">[V]</a>. A <strong>Lista de Veículos</strong> tem quatro botões de opções, dois são utilizados para ordenar itens em uma lista e dois são usados para aplicar as opções para selecionar os itens a serem mostrados na lista.<br>
+Abaixo dos botões existe uma lista de <a href="convoiinfo.txt">Comboios</a> que se ajustam aos critérios de opções de filtros.<br>
+{Dica: Se nenhum Comboio está listado altere as opções de <em>Filtro</em>. Se os itens na lista estão apenas parcialmente visíveis, então <a href="mouse.txt">reajuste</a> a <strong>Lista de Veículos</strong> ou desça a lista usando a barra lateral.}
+</p>
+<p>
+Clique nos botões de opções para mudá-los de acordo com as opções (o nome do botão de opções muda) ou abra os controles de Configuração de Filtros :
+</p>
+<p>
+<em>Classificado por:</em> Dois botões de opções determinam a ordem dos <a href="convoiinfo.txt">Comboios</a> mostrados na lista. O primeiro botão altera a ordem da lista em:
+</p>
+<p>
+- <em>Tipo</em> organiza por tipo de veículo (na ordem crescente de veículo rodoviário, veículo ferroviário, navio e avião) <br>
+- <em>Nome</em> organiza por nome designado, alfanumericamente de acordo com a ordem do código ASCII: letras maiúsculas antes das letras minúsculas (por padrão isso é feito no primeiro veículo <a href="depot.txt">comprado</a> ou montado ao Comboio).<br>
+- <em>Lucro</em> organiza por lucro (renda gerada menos os custos operacionais).<br>
+- <em>ID Interno</em> organiza pelo código de identificação único (ID) do comboio (designado por padrão quando o Comboio é comprado ou construído pela primeira vez em um <a href=depot.txt">Depósito</a> e mostrado na barra de título da <a href="convoiinfo.txt">Informação do Comboio</a>).
+</p>
+<p>
+E o segundo botão, altera a ordem da lista em:<br>
+- <em>crescente</em> / <em>decrescente</em> inverte a ordem da lista.
+</p>
+<p>
+<em>Filtro:</em> Dois botões de opções, ligam/desligam os critérios de seleção da lista e acessa os controles para alterar os critérios.
+</p>
+<p>
+- <em>Ligado</em> / <em>Desligado</em> clique para alterar os critérios para os <a href="convoiinfo.txt">Comboios</a> na lista.
+</p>
+<p>
+- <a href="convoi_filter.txt"><em>Parâmetros</em></a> abre os controles para alterar os critérios de filtragem.
+</p>
+<p>
+Clique no item listado para ver mais informações sobre o <a href="convoiinfo.txt">Comboio</a>.
+</p>
+<p>
+Itens listados para cada Comboio incluem:
+</p>
+<em>ID Interno</em>: um número de identificação único (designado por padrão quando um Comboio é comprado ou montado pela primeira vez em um <a href=depot.txt">depósito</a> e mostrado na barra de título da <a href="convoiinfo.txt">Informação do Comboio</a>).
+</p>
+<p>
+<em>Nome</em> que foi designado (por padrão isso já é feito no primeiro veículo quando o Comboio é comprado ou montado).
+</p>
+<p>
+<em>Lucro:</em> mostra o lucro (renda gerada menos os custos operacionais enquanto trafega).
+</p>
+<p>
+<em>Linha:</em> mostra a <a href="linemanagement.txt">Linha</a> designada e indica se o Comboio está em um <a href="depot.txt">depósito</a>.
+</p>
+<p>
+<em>Gráficos:</em> mostra a composição e o nível atual de carregamento.
+</p>
+<p>Traduzido para versão Simutrans 0.99.14.
+</p>

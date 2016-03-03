@@ -1,0 +1,10 @@
+<title>Aiuto - Caricamento</title>
+
+<h1>Caricare un gioco salvato</h1>
+
+<p>
+Quando si seleziona l'opzione di caricamento, appare una nuova finestra
+che mostra i nomi dei giochi salvati precedentemente.
+Facendo clic sul nome del file del gioco che si vuole caricare questo
+verrà caricato e fatto partire.
+</p>

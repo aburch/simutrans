@@ -1,0 +1,58 @@
+<title>Ajuda - Mensagens & Opções das Mensagens</title>
+
+<h1><strong>Mensagens</strong></h1>
+
+<p>
+A janela <strong>Mensagens</strong> lista mensagens do jogo e abre controles para selecionar como são mostradas.
+</p>
+<p>
+Clique no ícone da caixa de correio na barra superior do jogo ou pressione <a href="keys.txt">[B]</a> para abrir a janela <strong>Mensagens</strong>, que lista as mensagens do jogo.<br>
+Clique na mensagem para mover a tela do jogo para a posição relacionada à mensagem.
+</p>
+<p>
+O botão <em>Opções</em> abre <strong>Opções das menssagens</strong> que tem controles para determinar como são exibidas as mensagens.
+</p>
+<br>
+<p>
+<strong>Opções das mensagens</strong>
+</p>
+<p>
+A janela <strong>Opções das mensagens</strong> tem três colunas com botões quadrados que selecionam como são exibidas as mensagens.
+</p>
+<p>
+Da esquerda para a direita, as colunas selecionam se as mensagens são mostradas como: texto rolando na barra inferior do jogo; uma mensagen temporária; ou uma mensagem permanente.<br>
+{Dica: clique no X no canto superior esquedo da mensagem ou use o teclado para fechar mensagens permanentes.}
+</p>
+<p>
+Clique no botões quadrados para selecionar as opções de mensagem (os botões ficam em baixo-relevo quando selecionados) para mensagens seguintes:
+</p>
+<p>
+<em>Ano novo:</em> um novo ano começou.
+</p>
+<p>
+<em>Noticias IA:</em> um <a href="players.txt">jogador IA</a>
+ abriu uma nova linha.
+</p>
+<p>
+<em>Not. das cidades:</em> uma <a href="citywindow.txt">área urbana</a> construiu uma prefeitura maior.
+</p>
+<p>
+<em>Sem rota:</em> um veiculo não pode achar uma rota para seu próximo <a href="schedule.txt">destino</a> (uma <a href="station.txt">parada</a> ou ponto de passagem).
+</p>
+<p>
+<em>Indústrias:</em> uma nova cadeia de <a href="industryinfo.txt">indústrias</a> (um consumidor final e os fornecedores nescessários) foi construída devido ao crecimentos de uma <a href="citywindow.txt">cidade</a>.
+</p>
+<p>
+<em>Turistas:</em> uma <a href="curiositylist_filter.txt">atração</a> turística ou menorial foi contruído.
+</p>
+<p>
+<em>Novos veículos:</em> novo veículo disponível, ou fim da produção de um (se a <a href="new_world.txt">linha do tempo</a> for usada).
+</p>
+<p>
+<em>Est. lotada:</em> uma <a href="station.txt">parada</a> está cheia.
+</p>
+<p>
+<em>Problemas</em> conpanhia do jogador está com dívidas, ou outras mensagens críticas.
+</p>
+<p> Traduzido pela Equipe de tradução do Simutrans PT-SubFórum (<em>http://pt.simutrans.com</em>), 17/01/2008.
+</p>

@@ -1,0 +1,103 @@
+<title>Ajuda - Depósitos</title>
+
+<h1><strong>Depósitos</strong></h1>
+
+<p>
+Depósitos são usados para comprar e gerenciar veículos. Tipos diferentes de transporte possuem seus próprios depósitos. Somente aparecerão veículos elétricos no depósito se eles estiverem em vias eletrificadas.<br>
+Se estiver jogando com <a href="new_world.txt">linha do tempo</a>, então conforme o tempo passa no Simutrans mais veículos podem aparecer.
+</p>
+<p>
+Ferramentas para a construção de depósitos estão disponíveis na barra de ferramentas de cada tipo de transporte: <a href="railtools.txt">depósitos ferroviários</a>; <a href="monorailtools.txt">depósitos de monotrilhos</a>; <a href="tramtools.txt">depósitos de bondes</a>; <a href="roadtools.txt">garagens</a>; <a href="shiptools.txt">estaleiros</a> e <a href="airtools.txt">hangares</a>.
+</p>
+<p>
+Clique em um depósito construído na área de jogo com a ferramenta <a href="inspection_tool.txt">Verificar</a> para abrir a <strong>janela de controles do depósito</strong>, que fornecem informações e permitem a compra e o gerenciamento dos <a href="convoiinfo.txt">comboios</a> (um veículo operacional ou a combinação de mais de uma unidade veicular).<br>
+A barra de título da <strong>janela do depósito</strong> indica para que tipo de veículo o depósito serve.
+</p>
+<p>
+A <strong>janela do depósito</strong> pode ser <a href="mouse.txt">redimensionada</a> (clique na seta para baixo da barra de título para retornar ao tamanho original).<br>
+Clique nas setas para a direita/esquerda na barra de título para percorrer os depósitos do mesmo tipo de transporte (a área de jogo ficará centralizada no depósito).
+</p>
+<p>
+No topo da janela, são mostrados o número de <a href="convoiinfo.txt">comboios</a> no depósito, o nome e a <a href="linemanagement.txt">linha</a>.
+</p>
+<p>
+<em>Nome do </em><a href="convoiinfo.txt"><em>comboio:</em></a> clique nas setas existentes nos lados da caixa de nome do comboio para percorrer os comboios armazenados no depósito.<br>
+Para mudar o nome do comboio: clique na caixa de nome do comboio e digite o novo nome (por padrão isso é feito na primeira unidade veicular comprada ou montada para um novo comboio).
+</p>
+<p>
+<em>Nome da </em><a href="linemanagement.txt"><em>linha:</em></a> clique nas setas existentes nos lados do nome da linha para selecionar as linhas daquele tipo de transporte, ou clique na caixa de nome para abrir uma lista das linhas existentes (clique em uma delas para selecioná-la).<br>
+Para mudar o nome da linha: clique na caixa de nome da linha e digite o novo nome (por padrão quando uma nova linha é criada ela é identificada por um número).
+</p>
+<p>
+<em>Gráfico:</em> abaixo das caixas de nome, é mostrado o gráfico do comboio selecionado.<br>
+Passe o cursor do mouse por cima do gráfico das unidades veiculares do comboio selecionado para ver detalhes sobre a unidade veicular (mostrados na parte inferior da <strong>janela do depósito</strong>).<br>
+Clique em uma unidade veicular para removê-la do comboio selecionado e armazená-la no depósito.
+</p>
+<p>
+Abaixo do gráfico são mostrados o número de unidades veiculares do comboio selecionado, bem como a quantidade de quadros de estação precisos (todas as unidades veiculares devem caber em uma <a href="station.txt"><em>parada</em> para poder recolher e entregar mercadorias e passageiros), e a linha a que serve.
+</p>
+<p>
+Os botões de opção (logo abaixo, clique para usar) da <strong>janela do depósito</strong> incluem:
+</p>
+<p>
+</p>
+<p>
+<a href="schedule.txt"><em>Programar:</em></a> abre controles para mudar a rota e quantidade de itens que um <a href="convoiinfo.txt">comboio</a> esperará em uma <a href="station.txt">parada</a>.
+</p>
+<p>
+<em>Desmontar:</em> armazena no depósito a(s) unidade(s) veicular(es) do <a href="convoiinfo.txt">comboio</a> selecionado.
+</p>
+<p>
+<em>Vender:</em> vende o <a href="convoiinfo.txt">comboio</a> selecionado. O <em>Valor de venda</em> será creditado no balanço.
+</p>
+<p>
+<a href="linemanagement.txt"><em>Nova linha:</em></a> abre controles para definir uma <a href="schedule.txt">programação</a> (uma rota e quantidade mínima de itens que um comboio esperará em uma parada), que pode ser usada por múltiplos <a href="convoiinfo.txt">comboios</a>.
+</p>
+<p>
+<em>Associar:</em> associa a <a href="linemanagement.txt">linha</a> mostrada na caixa de nome da linha no topo da <strong>janela do depósito</strong> ao <a href="convoiinfo.txt">comboio</a> selecionado.
+</p>
+<p>
+<a href="linemanagement.txt"><em>Atualizar:</em></a> abre controles para mudar a <a href="schedule.txt">programação</a> da linha selecionada.
+</p>
+<p>
+<em>Copiar </em><a href="convoiinfo.txt"><em>comboio:</em></a> compra e monta outro comboio com a mesma composição, <a href="schedule.txt">programação</a> e <a href="linemanagement.txt">linha</a> do comboio selecionado.
+</p>
+<p>
+Abaixo dos botões são mostrados gráficos de todas as unidades veiculares disponíveis para compra.<br>
+<em>Gráficos das unidades veiculares:</em> unidades veiculares são divididas em categorias (unidades para passageiros e correio, unidades motorizadas, e aquelas que servem como reboque), que podem ser exibidas clicando nas respectivas abas.<br>
+Um número branco em cima do gráfico da unidade veicular indica a quantidade armazenada se um ou mais comboios foram desmontados. Unidades armazenadas podem ser vendidas ou usadas na montagem de um novo comboio.
+</p>
+<p>
+Passe o cursor do mouse sobre o gráfico de uma unidade veicular para ver as seguintes informações:<br>
+<em>Nome:</em> e entre parênteses o tipo de energia utilizado pelas unidades motorizadas.<br>
+<em>Preço:</em> valor para compra e entre parênteses o custo de operação por quilômetro.<br>
+<em>Potência:</em> potência do motor e velocidade máxima para unidades motorizadas.<br>
+<em>Capacidade:</em> quantidade e <a href="goods_filter.txt">nome da mercadoria</a> suportados pela unidade veicular.<br>
+<em>Peso:</em> em toneladas.<br>
+<em>Velocidade máxima:</em> para unidades veiculares não motorizadas.<br>
+<em>Introdução:</em> data em que a unidade veicular se torna disponível quando se joga com <a href="new_world.txt">linha do tempo</a>.<br>
+<em>Fim da produção:</em> data em que a unidade veicular se torna obsoleta.<br>
+<em>Construído por:</em> pessoa que criou o veículo para o Simutrans.<br>
+<em>Câmbio:</em> relação de força.<br>
+<em>Valor de venda:</em> quantidade de dinheiro recebida se a unidade veicular anteriormente comprada for vendida.
+</p>
+<p>
+Clique em um dos veículos abaixo das categorias para comprá-los ou vendê-los dependendo do estado do botão encontrado no canto inferior direito dos <strong>controles do depósito</strong>. O botão alterna entre as três seguintes opções:<br>
+<em>A reboque:</em> compra uma nova unidade veicular e a adiciona ao comboio selecionado, ou cria um novo comboio.<br>
+<em>À frente:</em> compra uma nova unidade veicular e a adiciona à frente do comboio selecionado, ou cria um novo comboio.<br>
+<em>Armazenar:</em> vende os veículos contidos no depósito.<br>
+</p>
+<p>
+<em>Barras de cores</em> abaixo dos gráficos das unidades veiculares indicam quais e em qual ordem as unidades veiculares podem ser montadas, para formar um <a href="convoiinfo.txt">comboio</a> operacional (as cores podem mudar dependendo dos diferentes estados do botão do canto inferior direito e do comboio seleceionado).<br>
+Significado das cores:<br>
+- <em>verde:</em> a unidade veicular pode ser usada.<br>
+- <em>vermelho:</em> a unidade veicular não pode ser usada.<br>
+- <em>amarelo:</em> outra unidade veicular precisa ser conectada para montar um veículo operacional.<br>
+- <em>azul:</em> a unidade veicular pode ser usada, mas está obsoleta.<br>
+{Dicas: um comboio é operacional se ele mostra barras verdes em todas as unidades veiculares; se houver alguma barra amarela então é necessária outra unidade veicular.}
+</p>
+<p>
+<em>Mostrar obsoletos:</em> jogando com <a href="new_world.txt">linha do tempo</a>, quando o botão é pressionado (clique para usar) mostra as unidade veiculares que tiveram sua produção terminada.
+</p>
+<p>Traduzido para versão Simutrans 0.99.14.
+</p>

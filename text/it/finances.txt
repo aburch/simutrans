@@ -1,0 +1,38 @@
+<title>Aiuto - Finanze</title>
+
+<h1>Finanze</h1>
+
+<p>
+Attraverso questa finestra si può vedere lo stato delle proprie finanze, accessibile
+premendo "f" o cliccando sull'immagine sulla destra della toolbar.<br>
+Qui si trovano le informazioni relative alle finanze degli ultimi due anni, con entrate e uscite.
+</p>
+
+<p>Le voci sono le seguenti:</p>
+
+<p>
+<em>Costruzioni</em>   - Qui c'è tutto ciò che è stato costruito durante l'anno, inclusi segnali,
+                       binari e uffici postali.
+</p>
+<p>
+<em>Nuovi veicoli</em> - Qualunque veicolo comprato, di qualunque tipo.
+</p>
+<p>
+<em>Costi percorrenza veicoli</em>   - I costi di tutti i veicoli in movimento. I costi di ogni
+                         veicolo possono essere visti dalle finestre di dialogo dei depositi
+                         (fra parentesi, vicino al prezzo di acquisto).
+</p>
+<p>
+<em>Entrate</em>       - Entrate totali derivanti dai trasporti di merci e passeggeri.
+</p>
+<p>
+<em>Totale</em>        - Il totale delle entrate e delle uscite dell'anno. E' la somma di tutte
+                         le voci precedenti.
+
+</p>
+<p>
+<em>Saldo</em>         - Il bilancio totale della compagnia. E' il denaro disponibile
+                         per nuovi investimenti. Questa informazione si può trovare anche
+                         nella barra di stato sul bordo inferiore dello schermo.
+</p>
+</p>

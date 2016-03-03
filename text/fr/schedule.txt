@@ -1,0 +1,24 @@
+<title>Aide sur la programmation des itinéraires</title>
+
+<h1>Programation</h1>
+
+<p>
+Il a deux manières de programmer ses véhicules : <br>
+1 - Dans les dépôts, à la création un nouveau véhicule ou convoi.<br>
+2 - Dans la fenêtre d'un véhicule en fonctionnement, par l'option "trajet".<br>
+Les procédures sont semblables : On peut Ajouter, Insérer ou Supprimer des arrêts, ainsi que modifier la limite de charge minimum ou la liste des arrêts vers lesquels le véhicule doit être dirigé.
+</p>
+<p>A la fin, vous trouverez un exemple de l'utilisation des commandes qui sont décrites à suivre.<br>
+<br>
+<em>Aj. Arrêt :</em> il sert à ajouter des arrêts à la fin d'une liste.<br>
+<em>Ins. Arrêt :</em> il insère un arrêt avant celui identifié par <strong>>></strong>.<br>
+<em>Sup. Arrêt :</em> il sert à effacer un arrêt.<br>
+<em>Fin :</em> Quand vous avez terminé la définition de l'itinéraire de votre véhicule, l'appui sur ce bouton valide les modifications et ferme l'écran.<br>
+<em>Charge mini </em>(dans le haut de l'écran) : minimum de chargement que le véhicule doit atteindre pour continuer son chemin.<br>
+Il peut être 0, 20. 40. 60. 80 ou 100%. Zéro signifie que le véhicule va charger ce qu'il y aura dans la gare, et va partir immédiatement. Cent, le véhicule partira seulement quand il sera complet.<br>
+<br>
+<em>Attention donc,</em> vous pouvez bloquer d'autres trains, tandis que celui-ci attendra pour atteindre sa capacité minimum.
+</p>
+<p>
+<a href="schedule2.txt">Exemple...</a>
+</p>

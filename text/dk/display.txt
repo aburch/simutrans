@@ -1,0 +1,65 @@
+<title>Udseende dialog hjælp</title>
+
+<h1>Udseende dialog</h1>
+
+<p>
+<em>Beskrivelse:</em><br>
+Udseende dialogen giver mulighed for at ændre diverser indstillinger
+vedrørende Simutrans' udseende.<br>
+</p>
+
+<p>
+<em>Udseende:</em><br>
+Øverst i dialogen er tre lister med teksterne 'Lysstyrke:', 'Farver:' og
+'Scrolltempo:'. Hver liste har "scroll-knapper" tilknyttet. Herunder er tre
+"checkbokse" med tilhørende tekster 'Omvendt scrollning', 'Vis fodgængere' og
+Dag og nat indstilling. Nederst er en række aktuelle belastningsoplysninger
+vist.
+</p>
+
+<p>
+Følgende indstillinger er mulige:
+</p>
+
+<p>
+<em>Lysstyrke:</em><br>
+Gør kortet lysere eller mørkere.
+</p>
+
+<p>
+<em>Farver:</em><br>
+Ingen effekt
+</p>
+
+<p>
+<em>Scrolltempo:</em><br>
+Jo højere indstilling, desto hurtigere vil skærmenbilledet scrolle.
+</p>
+
+<p>
+<em>Omvendt scrollning</em><br>
+Her kan indstilles om kortet skal bevæge sig op eller ned, når der scrolles
+opad og analogt med hensyn til venstre og højre. (fly-lignende
+kontroller). Det er nemmere at afprøve, end at skulle forklare :-)
+</p>
+
+<p>
+<em>Vis fodgængere</em><br>
+Her kan indstilles om computeren skal skabe og vise fodgængere i byerne og
+omkring rutemål. Hvis din makine døjer med at opdatere skærmbilledet, så slå
+denne indstilling fra.
+</p>
+
+<p>
+<em>Dag og nat indstilling</em><br>
+Her indstilles om der alt efter tidspunktet skal skiftes imellem dag (lyst) og
+nat (mørkt) indstilling. Prøv det af !
+</p>
+
+<p>
+Den nederste halvdel af dialogen indeholder information omkring hvorledes din
+computer klarer den aktuelle belastning. Disse værdier er ikke interessante
+med mindre du ved, hvad de står for.<br>
+<strong>Vigtigt</strong>Du kan blive bedt om at nævne disse værdier, når du
+diskuterer performance problemer og andre bugs.
+</p>

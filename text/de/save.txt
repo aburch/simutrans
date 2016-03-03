@@ -1,0 +1,13 @@
+<title>Speichern Menü Hilfe</title>
+
+<h1><strong>Speichern Menü</strong></h1>
+
+<p>
+Gib zum Speichern des Spielstandes einen Namen in das Textfeld ein und bestätige mit <em>ENTER</em>.
+<br/>
+Wählst Du einen bereits bestehenden Eintrag an, wird der vorhandene Spielstand ohne weitere Meldung überschrieben.
+<br/> Autosave-Spielstände werden bei aktivierten Autosave automatisch überschrieben.
+</p>
+<p>
+<strong>Warnung!</strong> Ein Klick auf das mit X bezeichnete Feld vor dem Dateinamen führt zur umgehenden Löschung des Spielstands!
+</p>

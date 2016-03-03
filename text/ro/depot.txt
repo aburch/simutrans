@@ -1,0 +1,31 @@
+<title>Help depou</title>
+
+<h1>Depou</h1>
+<p>
+Aici poþi procura vechiculele dorite ºi defineºti trasee.
+</p>
+<p>
+Poþi gãsi toate vechicolele ce pot fi cumpãrate la un anumit moment.
+Într-u tab sunt puse angrenajele (locomotivele respectiv camioanele ),
+iar în altul sunt puse vagoanele sau remorcile. Nu toate combinaþiile sunt permise,
+acesta este semnalat printr-o linie verde (permis) sau roºie (nepermis).
+</p>
+<p>
+În partea de jos se gãsesc parametrii vehicolului dorit (preþ, putere, capacitate etc.)
+</p>
+<p>
+Cu butonul "Start" porneºti noul convoi, însã numai atunci îl poþi porni dupã ce
+la punctul <a href="schedule.txt">"Traseu/rutã"</a> defineºti un traseu.
+Cu butonul "Dezleagã" dezlegi convoiul actual fãrã sã-þi primeºti înapoi banii.
+Preþul vehicolului este returnat când alegi butonul "Vinde". Preþul scade odatã cu
+trecerea timpului.
+</p>
+<p>
+Achiziþionarea se face cu un click stâng pe vehicolul dorit. În partea dreaptã mai în
+jos poþi gãsi butonul cu care alegi dacã noul vehicol este pus în faþã sau în spate.
+<strong>Poþi lucra deodatã numai la un singur convoi!</strong>
+</p>
+<p>
+În timpul jocului dacã vrei ca convoiul sã meargã înpoi în depou inserteazã depoul,
+în traseul convoiului, sau apasã pe butonul "înapoi depou".
+</p>

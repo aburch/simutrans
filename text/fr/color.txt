@@ -1,0 +1,17 @@
+<title>Aide pour choix de couleur</title>
+
+<h1>Palette de couleur</h1>
+
+<p>
+Par ce menu, vous pouvez choisir la couleur de
+tous vos véhicules, gares etc...
+Pour sélectionner une couleur, cliquez simplement
+sur la couleur désirée.
+La couleur par défaut est le bleu clair.
+Tous les objets n'ont pas forcément votre couleur,
+ce sont les créateurs d'objets qui en décident.
+</p>
+<p>
+Actualisé pour Simutrans 0.83.1.2<br>
+02/01/2003
+</p>

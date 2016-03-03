@@ -1,0 +1,24 @@
+<title>Aide sur la boîte aux messages et leurs options</title>
+
+<h1>Boîte aux messages et options de la boîte</h1>
+<p>
+Dans la boìte aux messages se ramassent tous les messages qui ont apparus depuis que le jeu a été parti ou chargé.
+</p>
+<p>
+Avec le bouton <em>Optionen,</em> l' écran "Options de la boîte aux messages" va s'ouvrir. On y peut ajuster pour chaque message s'il apparaît dans une ligne en bas de l'écran principale du Simutrans (bouton à gauche), dans un écran permanent (bouton au milieu) ou dans un écran temporaire (bouton à droit).
+</p>
+<p>
+Du haut jusqu'en bas, les messages suivants sont ajustables:<br>
+-<em>New Year:</em> Un nouvel an a commencé.<br>
+-<em>AI:</em> Un joueur AI a ouvert une nouvelle ligne.<br>
+-<em>City:</em> La ville construit une mairie plus grande.<br>
+-<em>No Route:</em> Le véhicule nommé en ce message ne trouve pas une route au prochain arrêt.<br>
+-<em>Industry:</em> Par la croissance de la ville, une nouvelle chaîne industrielle avec un magasin a été construit.<br>
+-<em>Tourist:</em> Une nouvelle attraction touristique ou un nouveau monument a été construit.<br>
+-<em>New Vehicle:</em> Un nouveau véhicule est disponible.<br>
+-<em>Station full:</em> Cet arrêt est surchargé.<br>
+-<em>Problems:</em>???(L'auteur n'est pas encore rencontré des tels messages.)
+</p>
+<p>
+Au quelques messages, on peut mettre l'écran sur l'objet qui a provoqué ce message en cliquant le bouton gauche de la souris.
+</p>

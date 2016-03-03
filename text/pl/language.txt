@@ -1,0 +1,13 @@
+<title>POMOC: wybór jezyka</title>
+
+<h1>Wybor jezyka</h1>
+
+<p>
+Gra Simutrans obsluguje do kilkudziesieciu jezykow<br>
+Jesli przelaczysz gre na inny jezyk komunikaty i wszystkie teksty w grze beda wyswietlane w tym jezyku. Nowy jezyk w otwartych oknach pojawi sie po ich ponownym otwarciu<br>
+Nie przetlumaczone beda tylko nazwy miast wygenerowane na poczatku gry. Jesli wybierzesz odpowiedni jezyk przed utworzeniem mapy otrzymasz nazwy miast zgodne z danym jezykiem (Opcja ta dziala nie we wszystkich jezykach)
+</p>
+
+<p>
+Jesli brakuje twojego jezyka wejdz na strony http://www.simustation.de.vu lub http://www.simutrans.de - byc moze znajdziesz tam odpowiedni plik jezykowy.
+</p>

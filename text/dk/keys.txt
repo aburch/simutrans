@@ -1,0 +1,44 @@
+<title>Tastatur hjælp</title>
+
+<h1>Tastatur konfiguration:</h1>
+
+<p>
+<em>,.</em> - Udokumenteret feature<br>
+<em>!</em> - Toggle visning af navneskilte<br>
+<em>"</em> - Toggle visning af bygninger og træer<br>
+<em>#</em> - Toggle visning af kort grid<br>
+<em>a</em> - Inspektions værktøj<br>
+<em>b</em> - Byg jernbanesignal<br>
+<em>c</em> - Tag screenshot (camera)<br>
+<em>d</em> - Sænk landniveau (down)<br>
+<em>e</em> - Byg el-master<br>
+<em>f</em> - Åbn finanser dialog<br>
+<em>g</em> - Udokumenteret feature<br>
+<em>k</em> - Åbn AI-spillerliste dialog<br>
+<em>l</em> - Undokumenteret feature<br>
+<em>m</em> - Åbn reliefkort (map)<br>
+<em>p</em> - Pause<br>
+<em>r</em> - Fjern/riv ned<br>
+<em>s</em> - Byg veje<br>
+<em>t</em> - Byg jernbanespor<br>
+<em>u</em> - Hæv landniveau (up)<br>
+<em>w</em> - Rute administration<br>
+<em>+</em>/- - Lysstyrke<br>
+<em>C</em> - Byg ny by (City)<br>
+<em>G</em> - Varer statistik<br>
+<em>L/S</em> - Indlæs/gem spil (Load/Save)<br>
+<em>P</em> - Undokumenteret feature<br>
+<em>Q, X</em> - Afslut spil (Quit/eXit)<br>
+<em>V</em> - Åbn køretøjsliste (Vehicles)<br>
+<em>7</em> - Scroll kort mod nordvest<br>
+<em>8</em> - Scroll kort mod nord<br>
+<em>9</em> - Scroll kort mod nordøst<br>
+<em>4</em> - Scroll kort mod vest<br>
+<em>6</em> - Scroll kort mod øst<br>
+<em>1</em> - Scroll kort mod sydvest<br>
+<em>2</em> - Scroll kort mod syd<br>
+<em>3</em> - Scroll kort mod sydøst<br>
+<em>Space</em> - åbn denne dialog<br>
+<em>Delete, Backspace, Escape</em> - Luk alle dialoger<br>
+<em>Page-Up, Page-Down</em> - Zoom ind/ud<br>
+</p>

@@ -1,0 +1,19 @@
+<title>Nápovìda - zvuk a hudba</title>
+<h1>Zvuk a hudba</h1>
+
+<p>
+Zde mù¾ete podle svého pøizpùsobit zvuky, které usly¹íte, a také hudbu, která bude hrát na pozadí hry.
+</p>
+
+<p>
+Nastavení hlasitosti zvukù a hudby se provádí pomocí li¹ty, pøi pohybu doprava se zvy¹uje hlasitost, pøi posunu doleva se hlasitost sni¾uje. Hlasitost zvuku ovlivòuje hlasitost zvukù pøi stavìní a hlasitost zvukù vozidel. Hlasitost hudby ovlivòuje hlasitost právì pøehrávané písnièky.<br>
+Poslední tlaèítka slou¾í k pøevíjení hudby. Levé tlaèítko pøevine písnièku na zaèátek, pravé na konec. Pokud nejsou nakonfigurovány ¾ádné písnicky, jsou tyto tlaèítka neaktivní.<br>
+</p>
+
+<p>
+<em>Pozor:</em> Hudba není dodávána spoleènì se Simutrans, musíte si ji sami do adresáøe Music nakopírovat. Tam také najdete dal¹í nápovìdu (anglicky).
+</p>
+
+<p>
+-><a href="about.txt">Informace o pøekladu</a>
+</p>

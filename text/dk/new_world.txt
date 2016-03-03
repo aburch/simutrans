@@ -1,0 +1,69 @@
+<title>Skab verden dialog hjælp</title>
+
+<h1>Skab verden dialog <em>(X/Q)</em></h1>
+
+<p>
+<em>Beskrivelse:</em><br>
+Skab verden dialogen giver mulighed for at skabe et nyt kort (spil) med
+indstillinger, der vil influere på, hvorledes den nye verden vil se ud.
+Disse indstillinger kan være alt fra kortstørrelse til industritæthed.
+</p>
+
+<p>
+<em>Udseende:</em><br>
+Øverst til venstre findes otte indstillingsmuligheder for det nye kort.<br>
+Til højre herfor er et "preview" areal, der viser, hvorledes det nye kort
+vil se ud.<br>
+Under disse indstillinger er en knap til valg af tilfældigt kortnummer.<br>
+Nederst i dialogen findes fire knapper til indlæsning af gemte spil eller
+reliefkort, til at starte et nyt spil og til at afslutte Simutrans.
+</p>
+
+<p>
+Indstillingsmulighederne for et nye kort er følgende:
+</p>
+
+<p>
+<em>Kortnummer:</em><br>
+Bestemmer hvordan verden vil se ud inklusiv beliggenheden af byer, vand og
+land. I "preview" arealet kan hvert enkelt kort ses (opdateret med de andre
+valgte indstillinger).
+</p>
+
+<p>
+<em>Størrelse:</em><br>
+Bestemmer hvor mange kvadrater kortet vil bestå af. Størrelsen varierer fra
+128*128 til 640*640 kvadrater. Default størrelsen er 256*256.<br>
+<strong>Vigtigt</strong> - Jo større et kort desto mere memory bliver
+benyttet. Vær opmærksom på om du har tilstrækkelig memory til at spille et
+spil med den valgte kortstørrelse.
+</p>
+
+<p>
+<em>Industritæthed:</em><br>
+Tætheden af industrier. Jo lavere tæthedesværdi desto sværere vil spillet
+blive, da der bliver færre industrier at transportere imellem. Default værdien
+er 125.
+</p>
+
+<p>
+<em>Antal byer:</em><br>
+Bestemmer hvor mange byer, der placeres på kortet. Værdierne går fra 2 til 64
+med 32 som default værdi.
+</p>
+
+<p>
+<em>Trafiktæthed:</em><br>
+Tætheden af private biler i byerne. Default værdien er 8.
+</p>
+
+<p>
+<em>Vand niveau:</em><br>
+Afspejler hvor højt grundvandsspejlet er (hvor mange vandfelter, der vil
+være). Jo lavere værdi desto flere landfelter vil kortet indeholde. Default
+værdien er 4
+</p>
+
+<p>
+<a href="new_world2.txt">Skab verden dialog (fortsat)</a>
+</p>

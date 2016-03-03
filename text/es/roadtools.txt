@@ -1,0 +1,67 @@
+<title>Ayuda de Herramientas de Carreteras</title>
+
+<h1><strong>Herramientas de Carreteras</strong></h1>
+
+<p>
+<strong>Herramientas de Carreteras</strong> sirven para construir una red transporte por carretera para mercancias y pasajeros. Puedes construir o eliminar: carreteras, puentes, tuneles, señalesm cocheras, extensiones y <a href="station.txt">Paradas</a>.Si estas jugando con <a href="new_world.txt">cronologia</a>, a medida que pase el tiempo apareceran mas opciones.
+</p>
+<p>
+Pulsa en el icono del camion en la barra de la parte superior de la pantalla para abrir la barra de herramientas. Situa el cursor sobre los iconos de la barra (tras abrirla) para ver el nombre, los <a href="finances.txt">costes</a> de construccion, los costes de mantenimiento entre parentesis, limite de velocidad maxima y longitud maxima.
+</p>
+<p>
+<strong>Herramientas de Carreteras</strong> incluye, de izquierda a derecha:
+</p>
+<p>
+<em>Carreteras:</em> herramientas para construir carreteras para vehiculos entre dos puntos. Las carreteras solo se pueden construir en cuestas, en la direccion de la cuesta y pueden no encontrar camino a traves de terreno escarpado, agua u obstaculos. Los nuevos tramos pueden usar algunos ya existentes en su camino.<br>
+Para construir carreteras: pulsa en la herramienta para seleccionarla (el cursor cambia a una carretera), despues pulsa en el terreno para establecer el punto de inicio (mostrara una excavadora y las coordenadas a la derecha, en la barra de la parte inferior de la pantalla), y pulsa de nuevo para establecer el punto de finalizacion.<br>
+{Consejos: Los diferentes tipos de carreteras se pueden conectar (siempre que no hayan sido construidas por algun otro <a href="players.txt">jugador</a>). Usa los puentes y tuneles para conectar carreteras a traves de terreno escarpado, o para evitar obstaculos. Usa las <a href="slopetools.txt"> Herramientas del Terreno</a> para cambiar el terreno, y habilitar caminos para las carreteras. Usa la herramienta Eliminar para eliminar partes individuales de la carretera o algunos obstaculos. Usa <a href="keys.txt">[Ctrl]</a> al mismo tiempo para acceder a funciones extra. Pulsa la tecla [s] para seleccionar la ultima de las Herramientas de Carreteras usada.}
+</p>
+<p>
+<em>Remove roads:</em> herramienta que elimina carreteras, cuando no hay vehiculos presentes, entre dos puntos (ATENCION: paradas, señales, puentes y tuneles entre ambos puntos tambien se eliminan). El uso de esta herramienta implica <a href="finances.txt">costes de construccion</a>.<br>
+Para eliminar carreteras: pulsa en la herramienta (cambia el cursor a una cruz roja); despues pulsa en la carretera (situa una cruz roja en el punto seleccionado); por ultimo pulsa en un segundo punto de la carretera, para eliminar el tramo entre ambos puntos.<br>
+{Consejos: Cambia de <a href="players.txt">jugador</a> para poder borrar sus carreteras.}
+</p>
+<p>
+<em>Puente de carretera:</em> herramientas para construir puentes rectos, para vehiculos de carretera, entre dos puntos de una carretera. Los puentes tiene una distancia maxima entre pilares.<br>
+Las herramientas construyen puentes desde un final de carretera hasta un lugar adecuado (otro Para construir un puente: pulsa en la herramienta para seleccionarla (cambia el cursor a un puente), despues pulsa en un final de carretera (sera el inicio del puente) para construirlo.<br>
+Algunos obstaculos o la falta de un terreno adecuado pueden dar lugar a que el puente no se construya: construye carretera a ambos lados del emplazamiento del puente, y prueba de nuevo.<br>
+{Consejos: Usa la herramienta Eliminar para eliminar los puentes (pulsa en el inicio o final del puente) o alguno obstaculos que impiden la construccion del puente. Usa las distintas herramientas de <em>Carreteras</em> para conectar los lados del puente a tramos de carretera.}
+</p>
+<p>
+<em>Tunel(carretera):</em>
+Herramientas para construir tuneles rectos, para vehiculos de carretera, entre dos puntos. Los tuneles no pueden estar en cuesta: los vehiculos entran y salen de ellos por accesos que estan a la misma altura.<br>
+La herramienta construye un tunel, en un final de carretera situado sobre una cuesta. Para construir un tunel: pulsa en la herramienta (el cursor cambia a un tunel),pulsa en un final de carretera situado sobre una cuesta para construir la entrada del tunel.<br>
+Si el tunel no puede encontrar una salida adecuada (una cuesta libre de obstaculos), el puente no se construira: construye carretera en ambos lados y prueba de nuevo.<br>
+{Consejos: Usa las Herramientas de Modelado del Terreno y la herramienta Eliminar para crear terreno adecuado para las entradas y salidas de tuneles. Usa las Herramientas de Carretera para conectar las salidas del tunel mediante carreteras.}
+</p>
+<p>
+<em>Señales y barreras:</em> herramientas para construir señales y barreras, para vehiculos de carretera. Las señales y barreras diriguen y regulan el flujo de vehiculos en carreteras y puentes , y en cruces y paradas (donde se cargan y descargan mercancias y pasajeros. Se pueden construir versiones de sentido unico o doble de algunas señales.<br>
+IMPORTANTE: Ten cuidado con no situar señales de sentido unico que impidan a los vehiculos llegar a su destino, por defecto los vehiculos conducen por la derecha (se puede cambiar en el archivo simuconf.tab).<br>
+- <em>Traffic lights (semaforos):</em> herramientas para construir semaforos para regular el rafico en los cruces, permitiendo el paso o haciendo esperar un rato. Para construir un semaforo: Pulsa en la herramienta para seleccionarla (el cursor cambia a una señal); y despues pulsa en la carretera. Pulsa de nuevo en el cruce para cambiar la orientacion de los semaforos.<br>
+- <em>Barrera de sentido unico:</em> herramienta que construye una barrera para forzar el uso de dicho tramo en un solo sentido. Para construir una barrera: Pulsa en la herramienta para seleccionarla (el cursor cambia a una barrera); y despues pulsa en la carretera. Pulsa de nuevo en el tramo para cambiar la orientacion de la barrera.<br>
+- <em>road closed:</em> herramienta que construye un señal que evita que continuen los vehiculos por ese tramo. Para construir una barrera: Pulsa en la herramienta para seleccionarla (el cursor cambia a una barrera), despues sobre un punto del tramo deseado.<br>
+- <em>no entry:</em> herramienta que construye una señal que permite la circulacion por un unico sentido de la carretera(similar a una <em>barrera de sentido unico</em>. Para construir una señal: Pulsa en la herramienta para seleccionarla (el cursor cambia a una señal); y despues pulsa en la carretera. Pulsa de nuevo en el tramo para cambiar la orientacion de la señal.<br>
+- <em>minimum 80km/h</em> herramienta que construye una señal que evita que continuen los vehiculos cuyo limite de velocidad maximo este por debajo de 80km/h. Para construir una señal: Pulsa en la herramienta para seleccionarla (el cursor cambia a una señal); y despues pulsa en la carretera. Pulsa de nuevo en el tramo para cambiar la orientacion de la señal.<br>
+- <em>Choose Point:</em> dirigen los vehiculos a una Parada vacia, dentro de una <a href="station.txt">Parada</a> multiplataforma: un vehiculo que pasa por esta señal puede usar una parada vacia como proximo destino, y no justamente el que se le ha asignado en su <a href="schedule.txt">Ruta</a>. Si no hay Paradas vacias o una ruta clara hasta el proximo destino, el vehiculo esperara en la señal. Para construir una señal: Pulsa en la herramienta para seleccionarla (el cursor cambia a una señal); y despues pulsa en la carretera. Pulsa de nuevo en el tramo para cambiar la orientacion de la señal.<br>
+- <em>Autopistas:</em> (solo disponible en el pak128) herramientas para construir una señal que solo permita el paso de vehiculos en una sola direccion, si su limite de maxima velocidad es mayor de 80km/h.<br>
+Para construir una señal: Pulsa en la herramienta para seleccionarla (el cursor cambia a una señal); y despues pulsa en la carretera. Pulsa de nuevo en el tramo para cambiar la orientacion de la señal.<br>
+{Consejos: Elimina las cocheras mediante la herramienta Eliminar. Usa <a href="keys.txt">[Ctrl]</a> al mismo tiempo para situar señales en los puentes sobre carreteras.}
+</p>
+<p>
+<a href="depot.txt"><em>Deposito de carretera:</em></a> herramienta para construir una cochera para comprar y gestionar vehiculos de carretera.<br>
+Las cocheras tiene un coste de mantenimiento y deben construirse sobre el final de una carretera.<br>
+Para construir un deposito de carretera: pulsa en la herramienta (el cursor cambia a una cochera), y pulsa sobre el final de una carretera.<br>
+{Consejos: Elimina las cocheras mediante la herramienta Eliminar.}
+</p>
+<p>
+<em>Car Parking:</em> (solo disponible en el pak 128) herramientas para construir extensiones para <a href="station.txt">Paradas</a> las cuales incrementan su capacidad y area de influencia para pasajeros y mercancias, asi como el coste de mantenimiento.<br>
+Para construir una extension: pulsa en la herramienta para seleccionarla (el cursor cambia a extension), despues pulsa en el lugar deseado de la carretera, junto a una Parada existente. La nueva extension es considerada ahora parte de la Parada.<br>
+{Consejos: Elimina las extensiones con la herramienta Eliminar.}
+</p>
+<p>
+<em>Paradas de carretera:</em> herramientas para construir lugares donde los tranvias y los vehiculos de carretera cargan y descargan pasajeros, mercancias y correo.<br>
+Una parada de carretera, cuando no se construye adyacente a una <a href="station.txt">Parada</a> existente creara una nueva Parada
+Las paradas de carretera se construyen sobre <a href="roadtools.txt">carreteras</a> y tienen un coste de mantenimiento y una area de influencia para mercancias, correo y pasajeros. En la esquina de algunos iconos de herramientas hay un pequeño icono (usado en <a href="haltlist.txt">Lista de Estaciones</a> e Informacion de la Parada) que muestra que elementos puede manejar la Parada. Las diferentes Paradas de carretera pueden tener distintas capacidades para pasajeros, mercancia y correo.<br>
+Para construir una Parada de carretera: pulsa en la herramienta para seleccionarla (el cursor cambia a una Parada de carretera), despues pulsa en el lugar deseado de la carretera,<br>
+{Consejos: Elimina las paradas de carretera mediante la herramienta Eliminar.Manten pulsado [Ctrl] para construir puentes sobre carreteras. Las paradas de carretera no se pueden construir sobre carreteras que pertenezcan a otros jugadores. Puedes crear Paradas multiples para incrementar el area de influencia y la capacidad de las mismas.}
+</p>

@@ -1,0 +1,8 @@
+<title>Help Detalii staþii</title>
+
+<h1>Detalii staþii</h1>
+
+<p>
+Poþi analiza toate legãturile staþiei, precum ºi legãturile
+directe cu unitãþile de producþie.
+</p>

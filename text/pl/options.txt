@@ -1,0 +1,22 @@
+<title>POMOC: opcje gry</title>
+<h1>Opcje gry</h1>
+
+<p>
+W tym oknie mozesz dokonac szczególowych ustawien gry.
+Ponizej znajduje sie lista ustawien z krótkim opisem.
+</p>
+
+<p>
+<em><a href="language.txt">Jezyk</a> - Umozliwia wybór wersji jezykowych gry.<br>
+<em>Kolory graczy</em> - Pozwala wyrac/zmienic kolor twojej firmy.<br>
+<em><a href="display.txt">Wyswietlanie</a> - Opcje wyswietlania, np. tryb dzien/noc<br>
+<em><a href="sound.txt">Dzwiek</a> - Ustawienia dzwieku i muzyki.<br>
+<em><a href="players.txt">Gracze</a> - Ustawienia dla graczy CPU.<br>
+<em><a href="load.txt">Wczytaj</a> - Wczytanie zapisanej gry<br>
+<em><a href="save.txt">Zapisz</a> - Zapisuje gre na dysk.<br>
+<em><a href="new_world.txt">Nowa mapa</a> - Rozpoczecie gry na nowej mapie<br>
+<em>Koniec gry</em> - Zakonczenie gry bez jej zapisania.<br>
+</p>
+
+
+</p>

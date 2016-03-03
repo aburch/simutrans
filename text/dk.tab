@@ -1,0 +1,645 @@
+Dansk
+PROP_FONT_FILE
+Prop-Latin1.bdf
+################################################################################
+#                                                                              #
+#                Simutrans Scenario Specific Translation File                  #
+#                          Scenario: Sim-Experimental                          #
+#                              Language: dk Dansk                              #
+#                             Encoding: ISO-8859-1                             #
+#                            Font : Prop-Latin1.bdf                            #
+#                           Date Created: 10.04 2010                           #
+#                                                                              #
+#                                   authors:                                   #
+#                              Frank Penz - FrankP                             #
+#                                    note:                                     #
+#                          Markus Pristovsek - prissi                          #
+#                                    note:                                     #
+#                                                                              #
+################################################################################
+#_____________________________Simutrans Base Texts______________________________
+#_____________________________Simutrans Base Texts______________________________
+#__________________________________button_text__________________________________
+#__________________________________button_text__________________________________
+Apply Line
+Tilknyt rute
+cl_btn_filter_disable
+inaktivt
+cl_btn_filter_enable
+aktivt
+cl_btn_filter_settings
+indstil filter
+cl_btn_sort_asc
+stigende
+cl_btn_sort_desc
+faldende
+cl_btn_sort_income
+indtægt
+cl_btn_sort_name
+navn
+cl_btn_sort_type
+type
+clf_btn_alle
+alle
+clf_btn_invers
+inv.
+clf_btn_keine
+ingen
+Construction_Btn
+Byggeudgifter
+hl_btn_filter_disable
+inaktivt
+hl_btn_filter_enable
+aktivt
+hl_btn_filter_settings
+indstil filter
+hl_btn_sort_asc
+stigende
+hl_btn_sort_desc
+faldende
+hl_btn_sort_name
+navn
+hl_btn_sort_type
+type
+hl_btn_sort_waiting
+varelager
+hlf_btn_alle
+alle
+hlf_btn_invers
+inv.
+hlf_btn_keine
+ingen
+Lade Relief
+Indlæs reliefkort
+Sprache
+Sprog
+Starte Spiel
+Start
+#_________________________________climates_text_________________________________
+#_________________________________climates_text_________________________________
+#__________________________________error_text___________________________________
+#__________________________________error_text___________________________________
+Bruecke muss an\neinfachem\nHang beginnen!\n
+Broer skal\nbegynde på\nskråninger!\n
+Das Feld gehoert\neinem anderen Spieler\n
+Dette område\nejes allerede af\nen anden spiller!\n
+Der Besitzer erlaubt das Entfernen nicht
+Ejeren tillader\nikke at\nfjerne dette.\n
+Diese Zusammenstellung kann nicht fahren!\n
+Denne sammensætning\nkan ikke køre!\n
+Fahrzeuge koennen so nicht entfernt werden
+Køretøjer kan ikke\nfjernes på denne måde.\n
+Hier kann kein\nSignal aufge-\nstellt werden!\n
+Her kan ikke\nbygges et jernbanesignal!\n
+Kann Spielstand\nnicht laden.\n
+Kan ikke finde\ndet angivne spil!\n
+Kann Spielstand\nnicht speichern.\n
+Kan ikke gemme\nspillet!\n
+Noch kein Fahrzeug\nmit Fahrplan\nvorhanden\n
+Giv køretøjerne\nen ruteplan, før\ndu vælger "Start"\n
+Post muss neben\nHaltestelle\nliegen!\n
+Et postkontor skal\nplaceres nær ved\nrutemål/station!\n
+Schiffhalt muss im\nWasser liegen!\n
+Skibsrutemål\nskal placeres\ni vandet\nnær en havn!\n
+Zughalt muss auf\nSchiene liegen!\n
+Togrutemål\nskal placeres\npå jernbanespor!\n
+#___________________________________help_text___________________________________
+#___________________________________help_text___________________________________
+#____________________________________ki_text____________________________________
+#____________________________________ki_text____________________________________
+#___________________________________menu_text___________________________________
+#___________________________________menu_text___________________________________
+RAILTOOLS
+Jernbaneanlæg
+ROADTOOLS
+Vejanlæg
+SHIPTOOLS
+Havneanlæg
+SLOPETOOLS
+Rampeanlæg
+#_________________________________message_text__________________________________
+#_________________________________message_text__________________________________
+Bankrott:\n\nDu bist bankrott.\n
+Bankerot:\n\nDu er bankerot.\n
+Remove vehicle from map. Use with care!
+Fjern køretøjet fra kortet. Forsigtig brug tilrådes!
+Screenshot\ngespeichert.\n
+Skærmbilledet\ner gemt.\n
+Spielstand wurde\ngeladen!\n
+\nSpillet er indlæst!\n
+Spielstand wurde\ngespeichert!\n
+\nSpillet er gemt!\n
+Verschuldet:\n\nDu hast %d Monate Zeit,\ndie Schulden zurueckzuzahlen.\n
+Du har gæld!\n\nDu har %d måneder til\nat betale din gæld!
+#_________________________________program_text__________________________________
+#_________________________________program_text__________________________________
+!0_STATION_CROWDED
+%s er overfyldt.
+!1_DEPOT_REACHED
+%s er tilbage i depot.
+\nCan't open heightfield file.\n
+\nKan ikke åbne relieffilen.\n
+\nHeightfield has wrong image type.\n
+\nRelieffelt har\nforkert format.\n
+&1_CITY_SYLL
+by
+&2_CITY_SYLL
+borg
+&3_CITY_SYLL
+huse
+&4_CITY_SYLL
+bro
+&5_CITY_SYLL
+købing
+&6_CITY_SYLL
+skov
+&7_CITY_SYLL
+strup
+&8_CITY_SYLL
+dal
+&9_CITY_SYLL
+mose
+&A_CITY_SYLL
+kær
+%1_CITY_SYLL
+Frederiks
+%2_CITY_SYLL
+Christians
+%3_CITY_SYLL
+Mølle
+%4_CITY_SYLL
+Kirke
+%5_CITY_SYLL
+Bonde
+%6_CITY_SYLL
+Ravn
+%7_CITY_SYLL
+Ege
+%8_CITY_SYLL
+Gammel
+%9_CITY_SYLL
+Ny
+%A_CITY_SYLL
+Lille
+%B_CITY_SYLL
+Store
+%d convois
+%d køretøjer i listen
+%d Einzelfahrzeuge im Depot
+%d enkeltkøretøjer i depotet
+<no line>
+<ingen rute>
+1 convoi
+1 køretøj i listen
+1 Einzelfahrzeug im Depot
+1 enkeltkøretøj i depotet
+1center
+%s %s
+1extern
+%s lokal %s
+1LIGHT_CHOOSE
+Lysstyrke:
+1WORLD_CHOOSE
+Indstillinger for ny verden:
+2center
+%s Central %s
+2extern
+%s rand %s
+2LIGHT_CHOOSE
+Farver:
+2WORLD_CHOOSE
+Kortnummer:
+3center
+%s Hoved %s
+3extern
+%s provins %s
+3LIGHT_CHOOSE
+Scrolltempo:
+3WORLD_CHOOSE
+Størrelse (%d MB):
+4center
+%s Midt %s
+4extern
+%s omegns %s
+4LIGHT_CHOOSE
+Omvendt scrollning
+5center
+%s Centrums%s
+5LIGHT_CHOOSE
+Vis fodgængere
+5WORLD_CHOOSE
+Antal byer:
+6WORLD_CHOOSE
+Trafiktæthed:
+8WORLD_CHOOSE
+Dag og nat indstilling
+Abfrage
+Inspektionsværktøj
+Abnehmer
+Aftagere
+Abriss
+Fjern/riv ned
+Absenken
+Sænk landniveau
+Add Stop
+Tilføj
+Angenommene Waren
+Modtager følgende varer
+Anhaenger_tab
+Anhængere
+Anheben
+Hæv landniveau
+Arbeiter aus:
+Ansatte bosat i:
+Arrived
+Ankommet
+Assets
+Aktiver
+Bahndepot
+Togdepot
+Baum
+Træ
+Baustelle
+Byggeplads
+Beenden
+Afslut
+BF
+station
+Blockstrecke ist\nbelegt\n
+Sporstrækningen er\noptaget af\net andet tog\n
+Boden
+Mark/land
+Bruecke
+Bro
+Build ship depot
+Byg skibsdepot
+Build signals
+Byg jernbanesignal
+Build train depot
+Byg togdepot
+Build truck depot
+Byg vejdepot
+Cancel
+Fortryd
+Capacity: %s\nLoad: %d (%d%%)
+Kapacitet: %s\n» %d (%d%%)
+Cash
+Kassebeholdning
+Chart
+Statistik
+City size
+Størrelse
+cl_title
+Køretøjsliste
+cl_txt_filter
+Filter:
+cl_txt_sort
+Sorteret efter:
+clf_chk_cars
+busser/lastbiler
+clf_chk_name_filter
+Filtrer på navn:
+clf_chk_noincome
+ingen indtægt
+clf_chk_noroute
+ingen rute
+clf_chk_noschedule
+ingen ruteplan
+clf_chk_ships
+skibe
+clf_chk_spezial_filter
+Specialfilter:
+clf_chk_trains
+tog
+clf_chk_type_filter
+Filtrer på type:
+clf_chk_waren
+Filtrer på varer:
+clf_title
+Køretøjsliste filter
+COLOR_CHOOSE\n
+Vælg venligst en\nfarve fra paletten:\n
+convoi %d of %d
+Køretøj %d af %d
+Convois: %d\nProfit: %s
+Køretøjer: %d\nProfit: %s
+Convoys
+Konvojer
+Currently playing:
+Afspiller aktuelt:
+Del Stop
+Fjern
+Delete Line
+Slet rute
+Delete this file.
+Slet denne fil
+Denkmal
+Mindesmærke
+Departed
+Afgået
+Details
+Detaljer
+Direkt erreichbare Haltestellen
+Direkte ruter herfra
+Dock
+havn
+Durchsatz
+Max. 
+Eigenbesitz\n
+Offentlig ejendom\n
+Ein %s\npasst hier nicht.\n
+En '%s'\npasser ikke her.\n
+Einstellungen
+Indstillinger:
+Einstellungen aendern
+Ændr indstillinger:\n
+Einstellungsfenster
+Indstillinger
+Electrify track
+Byg el-master
+Erzeuge neue Karte.\n
+Vent et øjeblik.\nSkaber ny verden...\n\nDet kan tage lidt tid\nfor store kort.\n\n
+Es wird bereits\nein Fahrplan\neingegeben\n
+Der bliver allerede\nplanlagt en ruteplan.\nGør denne færdig først!
+Fabrikanschluss
+Forbundne industrier
+Fahrplan
+Ruteplan
+Fahrzeuge:
+Køretøj:
+Farbe
+Spillerfarve
+February
+Februar
+Fertig
+Færdig
+Filename
+Filnavn:
+Finanzen
+Finanser
+Found new city
+Byg en ny by
+Fracht
+fragt
+Free Capacity
+Fri kapacitet
+Full load
+Min. last:
+GAME PAUSED
+PAUSE
+Gebaeude
+Bygning
+Gewicht
+Vægt
+Gewinn
+Indtægt
+Goods list
+Vareoversigt
+Gross Profit
+Overskud
+H
+stoppested
+Happy
+Tilfredse
+Helligk.
+Udseende
+Helligk. u. Farben
+Udseende
+Hier warten/lagern:
+Ventende varer og passagerer:
+hl_title
+Rutemålsliste
+hl_txt_filter
+Filter:
+hl_txt_sort
+Sorteret efter:
+hlf_chk_anleger
+havn
+hlf_chk_bahnhof
+jernbanestation
+hlf_chk_bushalt
+busstoppested
+hlf_chk_frachthof
+lastplads
+hlf_chk_keine_verb
+ingen forbindelse
+hlf_chk_name_filter
+Filtrer på navn:
+hlf_chk_spezial_filter
+Specialfilter:
+hlf_chk_type_filter
+Filtrer på type:
+hlf_chk_waren_abgabe
+Producerer:
+hlf_chk_waren_annahme
+Forbruger:
+hlf_title
+Rutemålsliste filter
+Homeless
+Hjemløse
+Ins Stop
+Indføj
+Intro. date:
+Indførsel:
+January
+Januar
+July
+Juli
+June
+Juni
+keine
+ingen
+Keine Einzelfahrzeuge im Depot
+Ingen enkeltkøretøjer i depotet
+Laden
+Indlæs
+LANG_CHOOSE\n
+Vælg venligst dit\nforetrukne sprog:\n
+Last Year
+Sidste år
+leer
+tom
+Leistung
+Ydelse
+letzen Monat: diesen Monat:
+sidste måned:  denne måned:
+Line
+rute
+Line Management
+Rute administration
+Lines serving this stop
+Rutemål for rute
+LKW_tab
+Køretøjer
+LOCO_CAP
+Kapacitet: %d%s %s\n
+LOCO_INFO
+%s\nPris: %d$ (%1.2f$/km)\nYdelse: %dkW, %dkm/h\nVægt: %dt\n
+Lokomotive_tab
+Lokomotiver
+m3
+ m³
+Maintenance
+Vedligeholdelse
+Map roughness
+Bjergstejlhed:
+March
+Marts
+Max. speed:
+Tophastighed:
+May
+Maj
+Meldung
+Meddelelse
+Menge
+Mængde
+Mountain height
+Kuperet terræn:
+Music playing disabled/not available
+Musik slået fra/ikke tilgængelig
+Music volume:
+Musik lydstyrke:
+Net Wealth
+Samlet formue
+Neue Karte
+Ny verden
+Neue Welt
+Skab ny verden
+new convoi
+<vælg nyt køretøj>
+New Line
+Ny rute
+New Vehicles
+Nye køretøjer
+no convois
+Ingen køretøjer i listen
+no goods waiting
+ingen ventende varer
+No Route
+Ingen rute
+Ok
+OK
+Operation
+Driftsomk.
+paletten
+ paletter
+Passagiere
+passagerer
+Passagierrate
+passagerer
+Passagierziele
+Passager/post destinationer
+player 2
+Trikky Transport
+player 3
+Meyer Moving Co.
+Please choose vehicles first\n
+Vælg venligst et køretøj først\n
+Post
+post
+Power
+Strømstyrke
+q1
+forår
+q2
+sommer
+q3
+efterår
+q4
+vinter
+Random map
+Tilfældigt kort
+Reliefkarte
+Reliefkort
+Restwert:
+Salgsværdi:
+Revenue
+Indkomst
+sack
+ sække
+Schienentunnel
+Byg jernbanetunnel
+Schiff_tab
+Skibe
+Schiffdepot
+Skibsdepot
+SEP_FRACTION
+,
+SEP_THOUSAND
+.
+Serves Line:
+Følger rute:
+Show/hide statistics
+Vis/skjul statistik
+Sort waiting list by
+Sorter ventelisten efter
+Sound
+Lyd
+Sound settings
+Lydindstillinger
+Sound volume:
+Lydstyrke:
+special freight
+Specialgods
+Speichern
+Gem
+Spieler
+Spiller
+Spieler(mz)
+AI-spillerliste
+Spielerliste
+\n   Blå . . . .  %.2f$\n\n   Gul . .  %.2f$\n\n   Rød . . . . . %.2f$\n\n   Grøn . . .  %.2f$\n\n   Turkis %.2f$\n\n   Rosa . . . .  %.2f$\n
+Stadtinformation
+Byinformation
+Strassendepot
+Vejdepot
+Strassentunnel
+Byg vejtunnel
+Tage alt
+dage gammelt
+There are still vehicles\nstored in this depot!\n
+Der er stadig køretøjer\nparkeret i depotet!\n
+This Year
+Dette år
+tonnen
+ t.
+Tunnel muss an\neinfachem\nHang beginnen!\n
+Tunneler skal\nbegynde på\nskråninger!\n
+Unemployed
+Arbejdsløse
+Unhappy
+Utilfredse
+units/day
+ enheder/dag
+Update Line
+Opdater rute
+Verbrauch
+Forbrug
+Verkauf
+Sælg
+verkaufen
+sælge
+voranstellen
+sætte foran
+WAGGON_INFO
+%s\nPris    : %d$ (%1.2f$/km)\nKapacitet: %d%s %s\nVægt: %dt\n
+Waggon_tab
+Togvogne
+waiting
+Venter
+Water level
+Vand niveau:
+Wegpunkt
+rutemål
+Wert
+Værdi
+WRONGSAVE
+Inkompatibel spil-\nversion. Kan ikke indlæse\nfilen.\n
+Zielort
+Destination
+Zu nah am Kartenrand
+En havn skal\nbygges på\net lige kyststykke\n
+#__________________________________record_text__________________________________
+#__________________________________record_text__________________________________
+#_________________________Simutrans Experimental Texts__________________________
+#_________________________Simutrans Experimental Texts__________________________

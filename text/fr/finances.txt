@@ -1,0 +1,42 @@
+<title>Aide sur les finances</title>
+
+<h1>Finances (<em>f</em>)</h1>
+
+<p>
+Vous pouvez gérer vos finances par cet écran, accessible soit en pressant la touche 'f' ou en cliquant
+sur l'icône 'billet' dans la partie droite de la barre d'outils.
+<br>
+Vous y trouverez les informations financières de votre entreprise pour l'année passée et l'année en cours.
+Ainsi qu'un graphique permettant de voir rapidement l'état de vos finances.
+</p>
+
+<p>
+<em>Construction</em> - C'est la somme des dépences concernant les constructions dans l'année en comprenant les signaux
+			ferroviaires, les rails, les routes, les arrêts, les gares, les dépots et les postes.
+</p>
+<p>
+<em>Nouveaux véhicules</em> - Somme de tous les véhicules achetés dans n'importe quel type de dépôt.
+</p>
+<p>
+<em>Frais/véhicules</em> - Les frais de fonctionnement des véhicules en circulation. Les frais de chaque véhicule
+			sont indiqués dans l'écran des <a href="depot.txt">dépôts</a>.
+</p>
+<p>
+<em>Revenu</em> - Somme de tous les revenus dus au transport de marchandises et personnes.
+</p>
+<p>
+<em>Total</em> - La somme totale de tous les revenus et de toutes les dépences.
+</p>
+<p>
+<em>Balance</em>      - La balance totale de votre entreprise. C'est l'argent qui vous est disponible.
+                        Cette information est aussi affichée dans la barre d'état du jeu en bas de l'écran.
+</p>
+<p>
+<em>Maintenance</em>  - La somme des frais de maintenance des équippements qui vous appartiennent.
+			Cette somme est déduite tous les mois.
+(<em>NB:</em> Situé au bas de l'écran)
+</p>
+<p>
+Actualisé pour Simutrans 0.83.1.2<br>
+02/01/2003
+</p>

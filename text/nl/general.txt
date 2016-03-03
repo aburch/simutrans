@@ -1,0 +1,86 @@
+<title>Simutrans Help (Nederlands)</title>
+
+<h1><strong>Simutrans Help</strong></h1><br>
+<strong>Algemeen</strong>
+<p>
+- <a href="simutrans.txt">Welkom</a><br>
+- <a href="window.txt">Speel scherm/interface</a><br>
+- <a href="keys.txt">Toetsenbord configuratie</a><br>
+- <a href="mouse.txt">Muis bediening</a>
+</p>
+
+<p>
+<strong>Spel instellingen</strong>
+<br>
+- <a href="language.txt">Taal</a><br>
+- <a href="color.txt">Kleur</a><br>
+- <a href="display.txt">Scherm</a><br>
+- <a href="sound.txt">Geluid</a><br>
+- <a href="players.txt">Spelers</a><br>
+- <a href="load.txt">Laden</a><br>
+- <a href="save.txt">Opslaan</a><br>
+- <a href="new_world.txt">Nieuwe wereld</a><br>
+         -- <a href="climates.txt">Klimaat instellingen</a><br>
+         -- <a href="load_relief.txt">Laad hoogtekaart</a>
+</p>
+
+<p>
+<strong>Menu - algemeen</strong><br>
+- <a href="options.txt">Spel instellingen</a><br>
+- <a href="map.txt">Mini kaart</a><br>
+- <a href="inspection_tool.txt">Info Tool</a><br>
+- <a href="slopetools.txt">Landschap</a><br>
+- <a href="railtools.txt">Spoorwegen</a><br>
+- <a href="monorailtools.txt">Monorail/Maglev</a><br>
+- <a href="tramtools.txt">Trams</a><br>
+- <a href="roadtools.txt">Autowegen</a><br>
+- <a href="shiptools.txt">Scheepvaart</a><br>
+- <a href="airtools.txt">Luchtvaart</a><br>
+- <a href="special.txt">Bijzondere werktuigen</a><br>
+         -- <a href="edittools.txt">Kaarteditor</a><br>
+- <a href="removal_tool.txt">Verwijder</a>
+</p>
+
+<p>
+<strong>Menu - management</strong><br>
+- <a href="linemanagement.txt">Lijnen administratie</a><br>
+- <a href="list.txt">Lijsten administratie</a><br>
+         -- <a href="haltlist.txt">Stations lijst</a><br>
+                     --- <a href="haltlist_filter.txt">Station filter</a><br>
+         -- <a href="convoi.txt">Voertuigen lijst</a><br>
+                     --- <a href="convoi_filter.txt">Voertuigen filter</a><br>
+         -- <a href="citylist_filter.txt">Lijst met steden</a><br>
+         -- <a href="goods_filter.txt">Goederen lijst</a><br>
+         -- <a href="factorylist_filter.txt">Industrie lijst</a><br>
+         -- <a href="curiositylist_filter.txt">Bezienswaardigheden</a><br>
+- <a href="mailbox.txt">Berichtencentrum</a><br>
+- <a href="finances.txt">Financiën</a>
+</p>
+
+<p>
+<strong>Menu - overig</strong><br>
+- <a href="window.txt">Schermafdruk</a><br>
+- <a href="window.txt">Pause</a><br>
+- <a href="window.txt">Snel vooruit in tijd</a><br>
+- <a href="window.txt">Hulp</a>
+</p>
+
+<p>
+<strong>Overige dialogen</strong><br>
+-<a href="depot.txt">Depot/Garage/Werf informatie</a><br>
+-<a href="schedule.txt">Dienstregeling informatie</a><br>
+- <a href="station.txt">Station/Halte informatie</a><br>
+         -- <a href="station_details.txt">Station/Halte details</a><br>
+- <a href="convoiinfo.txt">Voertuigen informatie</a><br>
+         -- <a href="convoidetail.txt">Voertuigen details</a><br>
+- <a href="citywindow.txt">Stad informatie</a><br>
+- <a href="industry_info.txt">Industrie informatie</a>
+</p>
+
+<p>
+Aanvullende hulp is te vinden op de diverse Simutrans websites (in het Engels):<br>
+<em>http://guide.simutrans.com</em>
+<em>http://wiki.simutrans.com</em>
+<em>http://simutrans-tips.com</em>
+<em>http://forum.simutrans.com</em>
+</p>

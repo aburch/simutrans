@@ -1,0 +1,22 @@
+<title>Aiuto - Scelta lingua</title>
+
+<h1>Finestra di dialogo scelta lingua</h1>
+
+<p>
+Questa finestra di dialogo permette di scegliere la lingua di
+Simutrans. Se si seleziona la lingua prima di creare una nuova mappa,
+i nomi delle città saranno creati in base a quella lingua.
+Si può cambiare la lingua in ogni momento: i contenuti delle finestre aperte
+non verranno sempre aggiornati immediatamente, ma solo dopo la loro chiusura
+e riapertura. Molti testi sono invece aggiornati immediatamente.
+</p>
+<p>
+Se si preferisce avere i nomi delle città nella propria lingua, è necessario
+selezionarla PRIMA di iniziare un nuovo gioco.
+</p>
+<p>
+Se la propria lingua non è supportata, alcune ulteriori traduzioni sono
+disponibili al seguente indirizzo:
+   http://www.simutrans.de/english/download/simu/download.html
+ma purtroppo potrebbero essere incomplete o non aggiornate.
+</p>

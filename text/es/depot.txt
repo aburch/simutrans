@@ -1,0 +1,109 @@
+<title>Ayuda de Controles de Cochera</title>
+
+<h1><strong>Controles de Cochera</strong></h1>
+
+<p>
+Las cochera se usan para comprar y gestionar vehiculos. Los diferentes tipos de transporte tienen su propia cochera. Las cocheras solo muestran los vehiculos electricos si estan sobre una via electrificada.<br>
+Si estan jugando con <a href="new_world.txt">cronologia</a>, a medida que el tiempo pase en Simutrans apareceran mas vehiculos.
+</p>
+<p>
+Las herramientas para construir los distintos tipos de cochera estan disponibles en la barra de herramientas de construccion de cada tipo de transporte: <a href="railtools.txt">Cochera ferroviaria</a>; <a href="monorailtools.txt">Cochera de Monorrail</a>; <a href="tramtools.txt">Cochera de Tranvia</a>; <a href="roadtools.txt">Deposito de carretera</a>; <a href="shiptools.txt">Astillero</a>
+; y <a href="airtools.txt">Hangar</a>.
+</p>
+<p>
+Pulsa en un deposito con la <a href="inspection_tool.txt">Herramienta de Exploracion</a> para abrir <strong>Los controles de la Cochera</strong> que te dara informacion acerca de la compra y gestion de <a href="convoiinfo.txt">Convoys</a> (un vehiculo operativo o una combinacion de varias unidades).<br>
+La barra de Titulo de la ventana <strong>Controles de Cochera</strong> indica el tipo de transportes que gestiona dicha cochera.
+</p>
+<p>
+<strong>Controles de Cochera</strong> puede cambiar de <a href="mouse.txt">tamaño</a> (pulsa en la flecha hacia abajo en la barra de titulo de la ventana para volver al tamaño original).<br>
+Pulsa en las flechas hacia izquierda/derecha en la barra de titulo para pasar a la siguiente cochera que gestione el mismo tipo de vehiculo (centra la vista del juego en esa cochera).
+</p>
+<p>
+En la parte superior de la ventana <strong>Controles de Cochera</strong> se muestra el numero de  <a href="convoiinfo.txt">Convoys</a> en la cochera, el nombre del Convoy y la <a href="linemanagement.txt">Linea</a>.
+</p>
+<p>
+<em>Nombre del </em><a href="convoiinfo.txt"><em>Convoy</em></a>: pulsa en los botones de flechas izquierda/derecha para pasar de un Convoy a otro en la cochera.<br>
+Para cambiar el nombre del Convoy: pulsa en la caja de texto e introduce un nuevo nombre (por defecto esto se hace para el primera unidad comprada o añadida para un nuevo Convoy).
+</p>
+<p>
+<em>Nombre de </em><a href="linemanagement.txt"><em>Linea:</em></a>  pulsa en los botones de flechas izquierda/derecha para seleccionar las lineas por tipo de transporte o pulsa en la caja de texto para abrir una lista de Lineas.<br>
+Para cambiar el nombre de la Linea: pulsa en la caja de texto e introduce un nuevo nombre. (por defecto se le asigna uno cuando se crea una Linea).
+</p>
+<p>
+<em>Grafico del convoy</em> debajo de las cajas de texto de los nombres del Convoy y la Linea, se muestra el grafico del Convoy seleccionado.<br>
+Situa el raton sobre el grafico para ver los detalles acerca del vehiculo (se muestran en la parte inferior de la ventana <strong>Controles de Cochera</strong>).<br>
+Pulsa en el grafico del convoy o en alguna de las unidades para eliminarlo del mismo y almacenarlo en la cochera.
+</p>
+<p>
+Debajo del grafico se muestra el numero de unidades de Convoy seleccionado, longitud de cuadriculas del Convoy (debe caber en una <a href="station.txt"><em>Parada</em> del tamaño adecuado para carga y descargar pasajeros y mercancia), y la linea asignada.
+</p>
+<p>
+Los botones de opcion (pulsa para usar) de <strong>Controles de Cochera</strong> incluyen:
+</p>
+<p>
+<em>Arrancar:</em> envia el <a href="convoiinfo.txt">Convoy</a> seleccionado fuera del deposito si este ultimo puede encontrar una ruta.
+</p>
+<p>
+<a href="schedule.txt"><em>Enrutar:</em></a> abre los controles para cambiar la ruta y la cantidad de elementos que un <a href="convoiinfo.txt">Convoy</a> puede cargar en una <a href="station.txt">Parada</a>.
+</p>
+<p>
+<em>Desenganchar:</em> almacena las unidades de <a href="convoiinfo.txt">Convoy</a> seleccionado.
+</p>
+<p>
+<em>Vender:</em> vende el <a href="convoiinfo.txt">Convoy</a> actual, el balance aumente con la cantidad de <em>Valor de Reventa</em>.
+</p>
+<p>
+<a href="linemanagement.txt"><em>Nueva Linea:</em></a> abre los controles para definir una <a href="schedule.txt">Ruta</a> (una ruta y una minima cantidad de elementos que el Convoy puede cargar en una Parada), que pueda ser usado por varios <a href="convoiinfo.txt">Convoys</a>.
+</p>
+<p>
+<em>Aplicar Linea:</em> asigna la <a href="linemanagement.txt">Linea</a> mostrada en la caja de texto de linea en la parte superior de la ventana <strong>Controles de Cochera</strong> al <a href="convoiinfo.txt">Convoy</a> seleccionado.
+</p>
+<p>
+<a href="linemanagement.txt"><em>Actualizar Linea:</em></a> abre los controles para cambiar la <a href="schedule.txt">Ruta</a> (una ruta y una minima cantidad de elementos que el Convoy puede cargar en una Parada) de la linea seleccionada.
+</p>
+<p>
+<em>Copiar </em> <a href="convoiinfo.txt"><em>Vehiculo:</em></a> compra y añade otro convoy con la misma composicion, <a href="schedule.txt">Ruta</a> y <a href="linemanagement.txt">Linea</a> que el convoy seleccionado.
+</p>
+<p>
+Debajo de los botones de opcion se muestran graficos de los vehiculos disponibles para comprar.<br>
+<em>graficos de los vehiculos:</em> los vehiculos se dividen en categorias, los cuales se pueden ver pulsando en las distintas pestañas. Las pestañas dividen los vehiculos en los siguientes grupos: vehiculos para pasajeros y correo, otros vehiculos (motorizados), y otros trailers y carruajes.<br>
+Un numero blanco sobre el grafico del vehiculo indica la cantidad de unidades almacenadas si algun Convoy ha sido desensamblado. Las unidades almacenadas se pueden vender o usarse en un nuevo Convoy.
+</p>
+<p>
+Situa el cursor sobre el grafico del vehiculo para ver informacion acerca del vehiculo:<br>
+<em>Nombre:</em> y entre parentesis el tipo de motor usado.<br>
+<em>Coste:</em> precio de venta y entre parentesis el coste de operacion por kilometro<br>
+<em>Potencia:</em> potencia del motor y velocidad maxima para vehiculos motorizados.<br>
+<em>Capacidad:</em> cantidad y <a href="goods_filter.txt">categoria de mercancia</a> que puede llevar el vehiculo.<br>
+<em>Peso:</em> en toneladas.<br>
+<em>Velocidad maxima:</em> para vehiculos no motorizados.<br>
+<em>Fecha intro:</em> fecha en que estara disponible el vehiculo si esta activada la <a href="new_world.txt">cronologia</a>.<br>
+<em>Fecha de retirada:</em> fecha en que el vehiculo se vuelve obsoleto.<br>
+<em>Construido por:</em> creador del vehiculo para Simutrans.<br>
+<em>Marcha:</em> ratio de potencia.<br>
+<em>Valor de Venta:</em> cantidad de dinero recibida por la venta de un vehiculo previamente comprado.
+</p>
+<p>
+Pulsa en los graficos de vehiculos debajo de las pestañas para comprar o vender un vehiculo dependiendo de la opcion del boton de opciones situado en la parte inferior derecha de la ventana de <strong>Controles de cochera</strong>. El boton de opcion tiene tres modos:
+</p>
+<p>
+<em>Añadir:</em> compra un vehiculo y lo añade al Convoy seleccionado, o crea un nuevo Convoy.
+</p>
+<p>
+<em>Poner al frente:</em> compra un vehiculo y lo añade el la parte frontal del convoy actual, o crea un nuevo Convoy.
+</p>
+<p>
+<em>Modo Venta:</em> vende todos los vehiculos almacenados.
+</p>
+<p>
+<em>Barras de colores</em> bajo los vehiculos indica que vehiculos y en que orden pueden ser añadidos a otros, para formar un <a href="convoiinfo.txt">Convoy</a> operativo (las barras de color pueden cambiar con diferentes opciones de los vehiculos).<br>
+Los coloures indican:<br>
+- <em>verde:</em> el vehiculo puede ser usado.<br>
+- <em>rojo:</em> el vehiculo no puede ser usado<br>
+- <em>amarillo:</em> otro vehiculo debe ser puesto al frente o al final para crear un Convoy operativo.<br>
+- <em>azul:</em> el vehiculo se puede usar pero esta obsoleto.<br>
+{Consejos: un Convoy es operativo, si muestra barras verdes en todas las unidades de convoy; si existe alguna unidad con una barra amarilla necesitaras algun vehiculo que has olvidado.}
+</p>
+<p>
+<em>Mostrar obsoletos:</em> si estas jugando con <a href="new_world.txt">cronologia</a>, el boton cuadrado mostrara (pulsa para usar) los vehiculos retirados.
+</p>

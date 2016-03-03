@@ -1,0 +1,26 @@
+<title>Vasúti eszközök Sugó</title>
+
+<h1>Vasúti eszközök</h1>
+
+<p>
+Itt tudsz vasútat, mozdonyokat, jelzõlámpákat, alagútakat
+megállókat, depókat, felüljárókat építeni.
+</p>
+<p>
+Többfajta vasúti sín létezik, válaszd ki a sebesség
+függvényében a neked megfelelõt.
+</p>
+<p>
+A vasúti jelzõ építésekor mikor felépíted, akkor az
+mindkét irányba fog jelezni. Sorozatos klikkeléssel éred el azt,
+hogy a megfelelõ irányba mutasson.
+</p>
+<p>
+Az alagút építésnél figyelembe kell vedd, hogy egyszer a hegyoldalra
+a síneket kell felépítsd és csak erre majd az alagútat. De erre a játék
+idejében figyelmeztet.
+</p>
+<p>
+A Depóban tudod összeállítani a megfelelõ vasúti szerelvényt
+(mozdonyokat, vagonokat).
+</p>

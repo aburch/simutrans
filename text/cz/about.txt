@@ -1,0 +1,29 @@
+<title>Nápovìda - o pøekladu</title>
+
+<h1>O pøekladu</h1>
+
+<p>
+O èeský pøeklad Simutrans se stará <strong>Ondøej Machulda</strong> - translation@simutrans.wz.cz.<br>
+Velkou èást nápovìdy pøelo¾il <strong>Jiøí Voseèek</strong> - Vosecek.Jirka@seznam.cz
+</p>
+
+<p>
+Oficiální stránky Simutrans naleznete na adrese <strong>http://simutrans.de</strong>.<br>
+Èeské stránky o Simutrans jsou na adrese <strong>http://simutrans.wz.cz</strong> - zde naleznete aktuální
+verzi pøekladu, informace o Simutrans, o posledních verzích, dále addons - "pøídavky" do Simutrans,
+odkazy, a dal¹í informace...
+</p>
+
+<p>
+Pokud máte k pøekladu nìjaké pøipomínky - na¹li jste chybu, ¹patnì pøelo¾ená slova, nìco nepøelo¾eného apod.,
+neváhejte nás kontaktovat na e-mailu <strong>translation@simutrans.wz.cz</strong>. Dìkujeme.
+</p>
+
+<p>
+Poslední zmìny v pøekladu: 23.7.2004<br>
+Aktualizováno pro Simutrans: 0.84.11.0<br>
+</p>
+
+<p>
+<strong>Simutrans (c) Hj. Malthaner</strong>
+</p>

@@ -1,0 +1,14 @@
+<title>Help Scule pt. automobile</title>
+
+<h1>Scule pt. automobile</h1>
+
+<p>
+Aici poþi gãsii toate uneltele necesare pt. managementul
+automobilelor procurate în depou.
+</p>
+<p>
+Fiecare tip de ºosea permite o anumitã vitezã maximã.
+</p>
+<p>
+Traversã se poate construi numai pe cale feratã.
+</p>

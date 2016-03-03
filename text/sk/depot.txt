@@ -1,0 +1,60 @@
+<title>Depo - pomoc</title>
+
+<h1>Depo</h1>
+<p>
+V depe mô¾e¹ kupovat' a predávat' vozidlá, vytvárat' cestovné
+poriadky pre kúpené dopravné prostriedky príslu¹ného typu,
+t.j. dopravné prostriedky v cestnom, ¾ele¾niènom alebo lodnom depe.
+</p>
+<p>
+Depo obsahuje informáciu o dopravnom prostriedku, ktorý mô¾e¹ kúpit'
+(aj ktorý u¾ vlastní¹). Cenu a parametre vozidiel zobrazí¹ nabehnutím my¹i
+na príslu¹né vozidlo. Kliknutím na vedµaj¹iu zálo¾ku ,,Prívesy'' alebo ,,Vagóny''
+zobrazí¹ zoznam prívesov alebo vagónov. Nad informaènou zónou (s cenou a parametrami
+vozidla) nájde¹ skupinu tlaèidiel. Prvú skupinu tvoria :<br>
+,,©tart'',<a href="schedule.txt">,,Cestovný poriadok''</a>, ,,Rozdelit' '' a ,,Predat' ''.
+</p>
+<p>
+Tlaèidlom ,,©tart'' vypustí¹ vozidlo so zadaným cestovným poriadkom do premávky.
+Tlaèidlom ,,Cestovný poriadok'' zadefinuje¹, odkiaµ a kam bude vozidlo premávat'
+a ako bude chodit vyt'a¾ené. Tlaèidlom ,,Rozpojit' '' dosiahne¹ rozpojenie
+zostavy vozidla s prívesom alebo vlaku. Pod nápisom ,,Vozidlá'' je umiestnené
+tlaèidlo módu. Klikaním nadobúda tri stavy ,,Pridávanie'' ,,Zostavovanie''
+a ,,Predávanie''. V móde predávania si zvolí¹, ktorý vlastnený dopravný
+prostriedok predat' (za zostatkovú cenu). Predávanie ukonèí¹ prepnutím tohto tlaèidla.
+Informácie o hodnote a parametroch budú zobrazené v informaènej zóne (tesne pod tlaèidlami).<br>
+Predat' okam¾ite nejaký Tvoj privolaný dopravný prostriedok mô¾e¹ aj tlaèidlom ,,Predat' ''.
+<br>
+Pri kúpe : Ak Ti vyhovuje cena a parametre, kúpu vozidla vykoná¹ kliknutím na vozidlo.
+Kúpu prívesu alebo vagónov dosiahne¹ obdobným spôsobom. Kúpené vozidlá sa objavia
+v prvom a ïal¹ích poliach. Z nich si klikaním v logickom slede poskladaj dopravný
+prostriedok. Poskladaný dopravný prostriedok sa objaví v prvých (vrchných) poliach.
+</p>
+<p>
+Teraz mô¾e¹ pristúpit' k zadaniu cestovného poriadku. Musí¹ mat' u¾ vytvorené stanice,
+zastávky alebo nákladné rampy. Zobrazeným ¾ltým znaèkovaèom pooznaèuj stanice,
+zastávky alebo nákladné rampy po ktorých bude premávat' dopravný prostriedok.
+</p>
+<p>
+<strong>Klasicky zadáva¹ cestovný poriadok ka¾dému vozidlu zvlá¹t'.</strong>
+Táto verzia hry v¹ak umo¾òuje vytvorit' cestovný poriadok pre celú skupinu
+vozidiel - konvoj tlaèidlami <strong>,,Nová linka'', ,,Pou¾it' linku'', ,,Upravit' linku'' a
+,,Zru¹it' linku''</strong>. Staèí kúpit' dopravný prostriedok, priradit' k
+niektorej zo zadefinovaných liniek a vypustit' do premávky.<br>
+Pre lep¹í prehµad o linkách má hra zabudovaný tzv. <strong>Mana¾ment liniek - kláves
+,,W''</strong>.
+</p>
+<p>
+Ak chce¹ poslat' dopravný prostriedok spät' do depa neskôr, do cestovného poriadku
+ho vlo¾ úplne na koniec. V depe mô¾e¹ dopravný prostriedok porozkladat' (napr. oddelit'
+príves alebo vagóny), preusporiadat' a prípadne znova po skontrolovaní (príp. zmene)
+cestovného poriadku vypustit' do premávky.
+</p>
+<p>
+<strong>Pozn. prekladateµa :</strong>
+Cestovný poriadok vozidla môze¹ menit' aj poèas jazdy. My¹ou klikni na idúci dopravný
+prostriedok a vykonaj v jeho cestovnom poriadku úpravy. Po ukonèení úprav potvrï tlaèidlo
+,,Hotovo''. Poèas týchto úprav bude dopravný prostriedok stát'. Zaujímavost'ou je, ¾e do
+cestovného poriadku mô¾e¹ zadat' aj ,,Voµný bod trasy''. Vozidlo takto nebude zarábat'.<em>
+Pri úpravách staníc, zastávok alebo nákladných rámp si treba na toto dat' pozor !</em>
+</p>

@@ -1,0 +1,23 @@
+<title>Ajuda - Cor</title>
+
+<h1><strong>Cor</strong></h1>
+
+<p>
+Neste menu você pode alterar a <strong>cor</strong> de sua companhia de transporte.<br>
+Veículos, prédios e outros itens mostram a cor da sua companhia.
+</p>
+<p>
+A janela <strong>Cor</strong> é aberta através das <a href="options.txt">Preferências</a>.
+</p>
+<p>Clique nas cores mostradas para mudar a cor da companhia.<br>
+A barra de título da janela <strong>Cor</strong> muda para indicar que a nova cor está selecionada.
+</p>
+<p>
+A cor-padrão do jogador humano é o azul claro.<br>
+Alguns itens não estão programados para mudar de cor e portanto permanecerão inalterados.
+</p>
+<p>
+{Dica: para mudar a cor dos outros jogadores use a <a href="players.txt">Lista de jogadores</a> ou <a href="special.txt">Mudar Jogador (P+)</a> para selecioná-lo}.
+</p>
+<p>Traduzido para versão Simutrans 0.99.14.
+</p>

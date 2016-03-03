@@ -1,0 +1,17 @@
+<title>Nápovìda - výbìr jazyka</title>
+<h1>Jazyk</h1>
+
+<p>
+Simutrans je vícejazyèná hra, a tak pokud existuje pøeklad do Va¹eho jazyka, mù¾ete si jej zvolit.<br>
+Po zmìnì jazyka zaène hra vypisovat v¹echny (pøelo¾ené) texty, ve Vámi zvoleném jazyce. Stávající
+otevøená okna je tøeba znovu otevøít, aby v nich do¹lo k vypsání textù ve zvoleném jazyce.
+</p>
+
+<p>
+U stávajících mìst zùstanou jejich jména, která byla vytvoøena podle jazyka pøi generování nové mapy.
+Proto je výhodné vybrat si jazyk je¹tì pøed generováním nové mapy, abyste v nìm mìli jména mìst.<br>
+</p>
+
+<p>
+-><a href="about.txt">Informace o pøekladu</a>
+</p>

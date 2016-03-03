@@ -1,0 +1,31 @@
+<title>Nápovìda - nastavení zobrazení</title>
+<h1>Nastavení zobrazení</h1>
+
+<p>
+Dialog "Nastavení zobrazení" nabízí mo¾nost zmìny zobrazování rùzných vizuálních prvkù v Simutrans.<br>
+</p>
+
+<p>
+<em>Jas</em> - Pøidá nebo ubere jas<br>
+<em>Barvy</em> - Testovací prvek, bez efektu<br>
+<em>Rychlost posuvu</em> - Velikost tohoto èísla udává rychlost posuvu obrazovky (pomocí my¹i nebo pomocí ¹ipek)
+</p>
+
+<p>
+<em>Inverze posuvu</em> - Zpùsobí, ¾e posuv nahoru posune obrazovku dolu, posuv doleva ji posune doprava atd.<br>
+<em>Zobrazovat chodce</em> - Zpùsobí, ¾e se ve mìstech nebudou na ulicích zobrazovat chodci (ti kteøí chodí do nebo ze zastávek autobusu).<br>
+Výhodné, napø. pokud máte pomalej¹í poèítaè. Náhodné chodce lze vypnout v konfiguraèním souboru simuconf.tab.<br>
+<em>Støídat den a noc</em> - Aktivuje støídání simulace dne a noci v prùbìhu hry. Pøi simulaci noci nìkteré objekty ve høe (vozidla, domy...) svítí.
+</p>
+
+<p>
+Dolní èást dialogu obsahuje rùzné informace o souèasném stavu hry, které jsou zde hlavnì z testovacích a vývojáøských dùvodù.
+</p>
+
+<p>
+-><a href="options.txt">Nápovìda pro nastavení hry</a>
+</p>
+
+<p>
+-><a href="about.txt">Informace o pøekladu</a>
+</p>

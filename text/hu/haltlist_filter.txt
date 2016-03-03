@@ -1,0 +1,48 @@
+<title>Állomás/megálló filter Sugó</title>
+
+<h1>Állomás/megálló filter</h1>
+
+<p>
+Az <strong>Állomás/megálló filter</strong> teszi lehetõvé az állomások/megállok további szortírozását.
+</p>
+<p>
+<em>Beállítási lehetõségek:</em>
+</p>
+
+<p>
+<em>1.) Filter neve:</em><br>
+A filtereket (szûrõket) el lehet nevezni.
+</p>
+
+<p>
+<em>2.) Filter tipusa:</em><br>
+Megálló típuskont lehet választani. A kívánt filtert a kis kockák "benyomásával" lehet aktiválni.
+</p>
+
+<p>
+<em>3.) Speciális filter:</em><br>
+Itt lehet azokat a megállókat/állomásokat kilistázni melyek túlzsúfoltal vagy amit egyetlen jármû sem érint.
+AZt, hogy az állomást milyen vonalak szolgálják ki, vagy van-e direkt útvonal valamilyen más megállóhoz azt az állomás  <a href='station_detail.txt'>"Részletek"</a> gombjára kattintva tudod megnézni.
+</p>
+
+<p>
+<em>4.) Igényelt nyersany.:</em><br>
+Itt lehet az árú vagy utas függvényében jobban szûkíteni a keresett megállók listáját.
+A <strong>"mind"</strong> gombbal minden kijelõlõdik,
+a <strong>"semmi"</strong> mindent töröl, a <strong>"ford."</strong> az aktuális kiválasztást megfordítja.
+</p>
+
+<p>
+<em>5.) Termelés:</em><br>
+Itt lehet azokat a megállókat/dokkokat kiszûrni melyek az álltalad kiválasztott árúkat termelik.
+A <strong>"mind"</strong> gombbal minden kijelõlõdik,
+a <strong>"semmi"</strong> mindent töröl, a <strong>"ford."</strong> az aktuális kiválasztást megfordítja.
+</p>
+
+<p>
+-><a href="station.txt">Megálló részletek</a>
+</p>
+
+<p>
+-><a href="general.txt">Általános információk</a>
+</p>

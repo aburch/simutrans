@@ -1,0 +1,13 @@
+<title>Szortírozás Sugó</title>
+
+<h1>Szortírozás</h1>
+<p>
+Különbözõ dolgok, infók filterek segítségével nagyon egyszerûen megtekinthetõek. Lásd a lenti link-eket.
+</p>
+<p>
+<a href="haltlist.txt">Állomás/megálló lista</a><br>
+<a href="convoi.txt">Jármûlista</a><br>
+<a href="citylist_filter.txt">Összes város listázása</a><br>
+<a href="goods_filter.txt">Javak listázása</a><br>
+<a href="fabric_filter.txt">Termelõegységek listázása</a><br>
+</p>

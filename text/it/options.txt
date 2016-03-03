@@ -1,0 +1,26 @@
+<title>Aiuto - Opzioni di gioco</title>
+
+<h1>Opzioni di gioco</h1>
+
+<p>
+Questa finestra di dialogo è usata per modificare gran parte delle opzioni
+del gioco. Molte di queste sono raggruppate in sotto-finestre che possono
+essere aperte agendo sui pultanti relativi.
+Questa finestra è anche utilizzata per caricare, salvare e uscire dal gioco.
+</p>
+
+<p>
+Lingue - Si sceglie la lingua di Simutrans<br>
+Colore giocatore - Si sceglie il colore della propria compagnia<br>
+Schermo - Si impostano le proprietà di visualizzazione<br>
+Audio - Si impostano le proprietà audio<br>
+Giocatori - Si imposta il numero di intelligenze artificiali (AI) nel gioco<br>
+Carica - Si carica un gioco salvato<br>
+Salva - Si salva il gioco in corso<br>
+Nuova mappa - Si crea una nuova mappa<br>
+Esci - Si esce dal gioco<br>
+</p>
+<p>
+Per ulteriori informazioni, si vedano le finestre di aiuto per ogni
+singola sotto-finestra.
+</p>

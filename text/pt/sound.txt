@@ -1,0 +1,28 @@
+<title>Ajuda - Ajustes de Som</title>
+
+<h1><strong>Ajustes de Som</strong></h1>
+
+<p>
+<strong>Ajustes de Som</strong> tem controles para efeitos de som e música.
+</p>
+<p>
+<strong>Ajustes de Som</strong> abrem de <a href="options.txt">Opções de Jogo.</a>
+</p>
+<p>
+Use as setas ou a <a href="mouse.txt">barra de rolagem</a> para aumentar ou diminuir o volume:
+</p>
+<p><em>Volume dos efeitos:</em> ajusta o volume de efeitos sonoros do jogo.
+</p>
+<p>
+<em>Volume da música:</em> ajusta o volume da música. Se nenhuma música estiver disponível então os controles não funcionarão.
+</p>
+<p>
+<em>Tocando:</em>
+ muda a música; as setas alternam a execução das músicas disponiveis.
+</p>
+<p>
+Nota: As músicas não são fornecidas com o Simutrans.<br>
+Ajuda para adicionar músicas está disponivel on line em http://wiki.simutrans.com
+</p>
+<p> Traduzido pela Equipe de tradução do Simutrans PT-SubFórum (<em>http://pt.simutrans.com</em>), 17/01/2008.
+</p>

@@ -1,0 +1,20 @@
+<title>Ajuda - Estradas</title>
+
+<h1>Estradas</h1>
+<p>
+O último símbolo na linha de cima é o de construção de túneis. Para construir um túnel é necessário que haja um talude reto, ou seja, uma caída que não seja canto de morro, dos dois lados do túnel. </p>
+<p>Tendo isso, leve a estrada até o talude. Em seguida clique na ferramenta túnel (o cursor vai se tornar uma entrada, ou emboque, de túnel), e clique então na ponta de estrada inclinada e o túnel será feito. Para continuar a estrada a partir do túnel, clique na outra ponta do túnel com a ferramenta de construir estradas e continue normalmente.
+</p>
+<p>
+Na linha de baixo à esquerda, temos a ferramenta de construir terminais de carga. Clicando nela, o cursor vai ter a aparência de um terminal de carga. Para construir um, clique no trecho de estrada onde desejar colocá-lo. Este trecho deverá estar livre de qualquer interferência e ser reto. </p>
+<p>Obviamente, um terminal de carga deve estar próximo a uma fábrica que produza alguma coisa, ou que consuma alguma coisa. As indústrias somente entregam sua produção se o terminal de carga estiver com menos de 1000 toneladas esperando. Caso a espera passe desse valor, a indústria continua produzindo, mas não realiza entregas até que o terminal de carga tenha menos de 1000 toneladas de espera. Além disso, passa a ser emitido o aviso de que o terminal de carga está lotado.
+</p>
+<p>
+À direita está a garagem, que deve ser colocada em um final de estrada, de preferência em um trecho auxiliar. Aí você pode comprar, vender e programar seus ônibus e caminhões. Mais informações em <a href="depot.txt">Pátios</a>.
+</p>
+<p>
+Por fim, existe a ferramenta de construir cruzamentos de ferrovia e estrada. Sua utilização se faz como a das outras ferramentas. Basta clicar no botão e depois no lugar da ferrovia ou da rua que vai ser o cruzamento.  A ferrovia ou a estrada já deve estar construída, e deve ser um trecho reto.</p>
+<p>
+Atualizado para Simutrans 0.81.32<br>
+18/05/2003
+</p>

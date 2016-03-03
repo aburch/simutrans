@@ -1,0 +1,64 @@
+<title>Eisenbahnbau Hilfe</title>
+
+<h1><strong>Eisenbahnbauwerkzeuge</strong></h1>
+
+<p>
+Diese Werkzeugleiste dient dem Bau von Eisenbahngleisen, Fahrleitungen, Brücken, Tunneln, Signalen, Depots und Bahnhöfen. Wird Simutrans in einem kleineren Fenster gespielt, können die letzten Symbole auf die nächste Zeile umgebrochen sein. Bei der Auswahl eines Werkzeuges verwandelt sich der Cursor in das jeweilige Symbol.
+</p>
+<p>
+<em>Gleise</em> können mit unterschiedlichen Höchstgeschwindigkeiten befahren werden. Ist die Timeline aktiviert, werden Gleise mit schnellerer Höchstgeschwindigkeit erst nach und nach verfügbar. Höchstgeschwindigkeit und Baukosten werden in den Tooltips angezeigt. Der Abriss kostet genausoviel wie das Bauen; einzige Ausname ist, wenn direkt nach einer Bauaktion, die Taste z für Rückgängigmachen betätigt wurde (siehe weiter unten).<br/>
+Simutrans benutzt nur leere Felder oder bereits vorhandene Gleise. Brücken, Tunnel, Straßen usw. werden nicht benutzt. Allerdings werden automatisch Bahnübergänge gebaut. Am Hang kann nur in Neigungsrichtung gebaut werden.<br/>
+Beim ersten Platzieren des Gleisbauwerkzeuges in der Weltkarte wird der Anfang der Strecke festgelegt, beim zweiten der Endpunkt. Das Spiel baut zwischen beiden Punkten die kürzestmögliche Strecke.
+Wenn keine Verbindung gefunden wird, passiert nach dem Anklicken des Endpunktes nichts.
+Eine Bauaktion lässt sich mittels <em>z</em> gratis rückgängig machen (ohne Baukostenerstattung), solange nichts anderes gebaut wurde.<br/>
+<em>Hinweis:</em> Um eine diagonale Strecke oder parallel zu einem bestehenden Gleis zu bauen, beim zweiten Klick die <em>Ctrl</em>(<em>Strg</em>)-Taste gedrückt halten.
+</p>
+<p>
+<em>Fahrleitungen</em> sind zum Betrieb von E-Loks und Trams notwendig. Im <a href="depot.txt">Depotfenster</a> werden verfügbare E-Loks bzw. Trams nur angezeigt, wenn der Block des Depots elektrifiziert ist.
+Die Linienstrecken, welche von E-Loks bzw. Trams befahren werden sollen, musst Du komplett elektrifizieren, da die E-Konvois ansonsten keinen Weg finden. Sie verlassen dann das Depot nicht oder bleiben am letzten Linienpunkt vor der Fehlersituation stehen. </br>
+Das Fahrleitungswerkzeug funktioniert ähnlich wie das Gleisbauwerkzeug. Der erste Klick definierte den Startpunkt und der zweite Klick den Endpunkt. (Dabei beachtet das Werkzeug allerdings alle Einrichtungssignale!)
+</p>
+<p>
+<em>Eisenbahnbrücken</em> beginnen immer an Gleisenden. Für das Brückenende sucht Simutrans in der geraden Weiterführung des Gleisendes ein vorhandenes Gleisende, welches in die Richtung des Anfangspunktes weist.
+Wird eine passende Hanglage vorgefunden, so wird die Brücke an sie angelehnt.
+Das weiter führende Gleis kann in dem Fall auch nachträglich gebaut werden, muss aber bis auf das Brückenende gebaut werden.
+Um eine Brücke an einem Hang beginnen zu lassen, das Gleis bis auf den Hang bauen und dann das Brückenbauwerkzeug benutzen. (In neueren Versionen kann eine Brücke auch an einer senkrechten Wand enden. Dazu sollte vorher dort schon eine Schiene gelegt worden sein.)
+</p>
+<p>
+<em>Eisenbahntunnel</em> können nur gerade und nur in einer Höhenebene gebaut werden.
+Als Startpunkt des Tunnels muss das Gleisende in einer Hanglage enden. Setze das Tunnelbauwerkzeug auf das Gleisstück in der Hanglage. Der Tunnel wird komplett gebaut, wenn Simutrans in der gegenüberliegneden Bergflanke eine gerade Hanglage vorfindet. Der Gleisbau ist dann auf dem Tunnelausgang fortzusetzen.
+Erhältst Du eine Hinweismeldung, war das gegenüberliegende Hangstück nicht gerade oder ist bebaut.
+Eine wichtige Bauhilfe stellt die Nutzung des Gitternetzes dar (in der größten Kartenansicht schaltet die Taste <em>#</em> es ein und aus); mit ihm lässt sich der Durchstoßpunkt besser finden.<br>
+Willst du nur ein Tunnelportal bauen, dann kannst du einen Ctrl (Strg)+Mausklick machen. Danach kann du dann in den Untergrundmodus wechseln (mit <em>U</em> oder unter <a href="display.txt">Anzeigeeinstellungen</a>) und mit dem Tunnelwerkzeug weitere Strecken bauen.
+</p>
+<p>
+<em>Signale</em> werden genutzt, um die Bewegungen der Züge zu kontrollieren. Erreicht ein Zug ein Signal, dann bekommt er nur grün, wenn die Strecke bis zum nächsten Signal auf seiner Route frei ist und auch kein Zug dort hinfahren wird. Ein anderer Zug kann aber durchaus parallel dazu fahren. <strong>ACHTUNG:</strong> Wegpunkte und Bahnhöfe sind damit sozusagen unsichtbare Signale, denn ein Zug reserviert die Strecke nur bis zu diesen. Soll tatsächlich wirklich die Strecke bis zum nächsten Signal reserviert werden, müssen Langstreckensignale (s.u.) verwendet werden!
+<br> <br/>
+<em>Signalbau</em> Signale können nur auf Gleisen gebaut werden, aber nicht auf Kreuzungen. Beim Bau eines Signals wird auf jeder Gleisseite ein Signal aufgestellt. Die Strecke kann in beiden Richtungen befahren werden. Klickst Du die Platzierungsstelle erneut mit dem Signalwerkzeug an, wird ein Signal entfernt, die Strecke kann nur in Signalrichtung befahren werden.
+In der Regel befinden sich die Signale in Simutrans rechts vom Gleis. Beim nächsten Klick auf die Positionierungsstelle wird ein Signal auf der Gegenseite plaziert. Die Strecke kann nun nur in der Gegenrichtung befahren werden. Beim nächsten Klick erscheinen wieder beide Signale, die Strecke ist wieder in beide Richtungen befahrbar.
+<br/> <br/>
+<em>Wegfindung</em> Wurden auf einer Strecke Richtungssignale in der verkehrten Richtung aufgestellt, können die Züge der Linie keinen Weg finden und verlassen das Depot oder den Bahnhof nicht bzw. bleiben am letzten Linienpunkt vor dem nicht passierbaren Signal stehen. Es ist somit empfehlenswert, dem Verhalten der Züge auf neu eingerichteten Strecken anfänglich etwas erhöhte Aufmerksamkeit zu widmen.
+<br/> <br/>
+<em>Blocksicherung</em> Die Grundstellung von Signalen bei Simutrans ist "Halt" (rotes Signal).
+Fährt ein Zug in einen Blockabschnitt ein, schalten die Signale auf "Fahrt" (Grünes Licht) wenn die Strecke frei ist. Ein nachfolgender Zug bleibt vor dem Halt zeigenden Signal stehen. Hat der letzte Wagen das Signal passiert, gibt der Achszähler den Block wieder frei, das rückliegende Signal schaltet wieder auf "Halt". Der nächste Zug kann den Block befahren.
+<br/> <br/>
+<em>Zweiblocksicherung</em> Zwei-Block-Signale (Streckenabschnittssignale) geben die Fahrt erst frei, wenn für einen Zug die nächsten 2 Signale frei sind. Sie sind prädestiniert für verschiedene Deckungsaufgaben.
+Als Einfahrsignale regeln sie, dass ankommende Züge den Weichenbereich nicht befahren, solange sich noch ein Zug im Bahnhofsblock befindet. Bei mehrgleisigen Kreuzungen kannst Du durch Zwei-Block-Signalen erreichen, dass Züge erst dann den Kreuzungsbereich befahren, wenn danach noch 1 Block frei ist. So vermeidest Du Situationen, in denen Züge auf Kreuzungen stehen bleiben.
+<br/> <br/>
+<em>Auswahlsignale</em> Auswahlsignale (Einfahrtsignale) geben die Fahrt erst frei, wenn sie für einen Zug einen freien Weg bis zum nächsten Bahnhof reservieren konnte. Dabei wählt er aus allen erreichbaren Bahnsteigen den nächsten aus, wenn der ausgewählte besetzt ist. ACHTUNG: Ein Zug bleibt solange vor einem Auswahlsignal stehen, bis seine ganze Strecke bis zum nächsten Ziel frei ist! Man kann das umgehen, indem man für Züge, wo dies nicht erwünscht ist, einen Wegpunkt hinter das Auswahlsignal setzt.
+<br/> <br/>
+<em>Langstreckensignale</em> geben die Fahrt erst frei, wenn sie für einen Zug einen freien Weg bis zum nächsten Signal (auch durch mehrere Bahnhöfe hinweg) reservieren konnten. Dies ist z.B. für lange eingleisige Abschnitte nötig.
+</p>
+<p>
+Im <em>Depot</em> kannst Du Züge zusammenstellen sowie Linien einrichten und die Züge nach der Zuordnung zu Linien starten. Das Depot kann nur auf einem ebenen Gleisende platziert werden.
+Für E-Loks muss das Gleis zudem elektrifiziert sein. (siehe <a href="depot.txt">Depotfenster</a>)
+</p>
+<p>
+<em>Bahnhöfe</em> sind detailiert in der Hilfe zum <a href="station.txt">Haltestellenfenster</a> beschrieben. Die verschiedenen Haltestellengrafiken können die Haltestelle veranlassen, Passagiere, Post oder Güter umzuschlagen; es macht später jedoch keinen Unterschied mehr, auf welcher Grafik welcher Zug hält, er wird immer be- und entladen, wenn die Station für den Umschlag eingerichtet ist.
+</p>
+<p>
+<em>Bahnhofseingang und -vorpatz</em> können verwendet werden, wenn der Bahnhof auf erhöhtem Gelände mit Mauer gebaut ist. Sie werden vor die Mauer gebaut. Sie gehören zu den Nebengebäuden.
+</p>
+<p>
+<em>Nebengebäude</em> siehe <a href="special.txt">Spezialbauwerkzeuge</a>
+</p>

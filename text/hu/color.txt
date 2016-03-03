@@ -1,0 +1,10 @@
+<title>Saját színed</title>
+
+<h1>Színválasztó</h1>
+
+<p>
+Itt tudod a saját színedet kiválasztani. Evvel lesznek az összes
+általad birtokolt javak, vonatok, kocsik, épületek stb. megjelenítve. De
+ne feledd nem minden épületnek és/vagy jármûnek változik meg a színe, ezt többnyire a tervezõ
+határozza meg (tudniillik ez egy több emberke álltal fejlesztett játék :-)).
+</p>

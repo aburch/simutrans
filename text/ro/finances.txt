@@ -1,0 +1,44 @@
+<title>Help Finanþe</title>
+
+<h1>Finanþe (<em>f</em>)</h1>
+
+<p>
+Aici poþi afla amãnunte despre starea economiei tale.Sunt afiºate cele mai
+importante parametre care pot fi analizate anual s-au lunar.
+</p>
+
+<p>Sunt afiºate:</p>
+
+<p>
+<em>Construcþii</em> - Suma cheltuitã pe construcþii noi.
+</p>
+
+<p>
+<em>Vehicole noi</em> - Suma cheltuitã pt. achiziþionarea de noi vehicole.
+</p>
+
+<p>
+<em>Cost transport</em> - Suma ce este cheltuitã în timpul transporturilor.
+</p>
+
+<p>
+<em>Întreþinere</em> - Suma necesarã întreþinerii vehicolelor ºi traseelor.
+</p>
+
+<p>
+<em>Venit</em> - Venitul realizat (este semnalat ºi în partea de jos a jocului)
+</p>
+
+<p>
+<em>Total</em> - Suma consturilor ºi veniturilor sus menþionate.
+</p>
+
+<p>
+<em>Balanþa</em> - Balanþa actualã.
+</p>
+<p>
+<em>Întraþinere lunarã</em> - Costul înterþinerii lunare.
+</p>
+<p>
+În partea dreaptã, sus poþi afiºa grafic alte parametrii.
+</p>

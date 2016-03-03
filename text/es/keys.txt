@@ -1,0 +1,108 @@
+<title>Ayuda de Teclado</title>
+
+<h1><strong>Ayuda de teclado</strong></h1>
+
+<p>
+<strong>Ayuda de teclado</strong> muestra las funciones accedidas desde el teclado.
+</p>
+<p>
+<strong>Ayuda de teclado</strong> se abre cuando pulsas una tecla sin funcion asignada o desde <a href="general.txt">Ayuda General</a>.
+</p>
+<p>
+Al pulsar, se distingue entre mayusculas y minusculas(usa [<em>Shift</em>] para mayusculas).
+</p>
+<p>
+Las teclas con funcion asignada son:
+</p>
+<p>
+
+[<em>.</em>] / [<em>,</em>]: acelera/decelera el tiempo en el juego, <a href="window.txt">T</a>, (<a href="display.txt"><strong>Pantalla</strong></a> indica si el ordenador puede soportar esa aceleracion).<br>
+
+[<em>!</em>]: muestra/oculta los nombres de <a href="station.txt">Paradas</a> y <a href="citywindow.txt">areas urbanas</a> asi como <a href="special.txt">el texto de las señales</a>, barras de estado de pasajeros (que indican como de concurrida esta la parada) y barras de estado de mercancias (que indican la cantidad de <a href="goods_filter.txt">elementos</a> en la parada preparados par ser transportados).<br>
+
+[<em>"</em>]: activa la vista minimizada de arboles y edificios en 5 modos (primero, solo edificios de ciudades y arboles; despues todos los edificios incluyendo fabricas y atracciones; despues solo arboles; solo edificios de cuidades; por ultimo,arboles y todos los edificios).<br>
+
+[<em>#</em>]: muestra la cuadricula en el terreno (solo visible en modo zoom durante el juego).<br>
+
+[<em>§</em>], o [<em>Shift</em>] + [<em>3</em>]: selecciona la rutina global del bosque (no disponible en todos los teclados).<br>
+
+[<em>+</em>] / [<em>-</em>]: ajusta <a href="display.txt">Brillo</a>
+</p>
+<p>
+[<em>Teclas de las flechas</em>]: desplaza la pantalla en la direccion de la flecha pulsada.<br>
+[<em>espacio</em>]: cierra todas las ventanas, barras de herramientas y textos de ayuda.<br>
+[<em>Delete</em>], or [<em>Escape</em>]: cierra la ventana, bara de herramientas o texto de ayuda activa.<br>
+[<em>Enter</em>], or [<em>Return</em>]: usado para confirmar acciones.<br>
+[<em>Page-Up</em>], or [<em>></em>]: zoom-acercar.<br>
+[<em>Page-Down</em>], or  [<em> simbolo de menor que</em>]: zoom-alejar.
+</p>
+<p>
+[<em>a</em>]: selecciona <a href="inspection_tool.txt">herramienta de exploracion</a>.<br>
+
+[<em>B</em>]: abre <a href="mailbox.txt">Buzon</a>.<br>
+[<em>c</em>]: toma una captura de pantalla del juego (icono de la camara).<br>
+
+[<em>C</em>]: selecciona la herramienta <a href="special.txt">Fundar una nueva ciudad</a>.<br>
+[<em>e</em>]: selecciona la herramienta de Electrificar con el ultimo tipo de tendido usado.<br>
+[<em>d</em>]: selecciona la herramienta <a href="slopetools.txt">Bajar Terreno</a>.<br>
+[<em>f</em>]: abre <a href="finances.txt">Finanzas</a>.<br>
+
+[<em>g</em>]: selecciona la herramienta <a href="special.txt">Subestacion transformadora</a>.<br>
+
+[<em>G</em>]: abre la <a href="goods_filter.txt">Lista de Mercancias</a>.
+<br>
+[<em>H</em>]: selecciona la herramienta de Oficinas Centrales (no usada en todos los paks).<br>
+[<em>I</em>]: selecciona la herramienta <a href="edittools.txt">Construir una nueva Central Energetica</a>.<br>
+
+[<em>k</em>]: abre la <a href="players.txt">Lista de Jugadores</a>.<br>
+
+[<em>l</em>]: selecciona la herramienta <a href="special.txt">Construir una Linea Electrica</a>.<br>
+[<em>L</em>]: abre <a href="load.txt">Cargar</a>.<br>
+
+[<em>m</em>]: abre <a href="map.txt">Mapa</a>.<br>
+
+[<em>M</em>]: selecciona la herramienta <a href="special.txt">Marcador</a>.<br>
+[<em>p</em>]: pone/quita el juego del estado en pausa.<br>
+
+[<em>P</em>]: cambio de <a href="players.txt">jugador</a>.<br>
+[<em>Q</em>]: abre <a href="new_world.txt">Crear un Nuevo Mundo</a>.<br>
+
+[<em>r</em>]: selecciona la herramienta Eliminar.<br>
+
+[<em>s</em>]: selecciona la herramienta <a href="roadtools.txt">Carretera</a> con el ultimo tipo de carretera usado.<br>
+[<em>S</em>]: abre  <a href="save.txt">Guardar</a>.<br>
+
+[<em>t</em>]: selecciona la herramienta <a href="railtools.txt">Via de ferrocarril</a> con el ultimo tipo de via usado.<br>
+[<em>T</em>]: abre la <a href="citylist_filter.txt">Lista de Ciudades</a>.
+<br>
+[<em>u</em>]: selecciona la herramienta <a href="slopetools.txt">Elevar Terreno</a>.<br>
+[<em>U</em>]: Modo Subterraneo<br>
+
+[<em>v</em>]: Muestra el area de influencia de las <a href="station.txt">Paradas</a> en el juego (los cuadrados son del<a href="color.txt">color del jugador</a>).<br>
+[<em>V</em>]: abre la <a href="convoi.txt">Lista de Vehiculos</a><br>
+[<em>w</em>]: abre la <a href="linemanagement.txt">Gestion de Lineas</a>.<br>
+[<em>W</em>]: activa/desactiva el avance rapido.<br>
+[<em>X</em>]: abre <a href="new_world.txt">Crear un Nuevo Mundo</a>.<br>
+
+[<em>z</em>]: deshace la ultima carretera/via de tren creada (los costes de construccion no son reembolsados).
+</p>
+<p>
+[<em>1</em>]: mueve la pantalla al sur.<br>
+[<em>2</em>]: mueve la pantalla al sureste.<br>
+[<em>3</em>]: mueve la pantalla al este.<br>
+[<em>4</em>]: mueve la pantalla al suroeste.<br>
+[<em>6</em>]: mueve la pantalla al noreste.<br>
+[<em>7</em>]: mueve la pantalla al oeste.<br>
+[<em>8</em>]: mueve la pantalla al noroeste.<br>
+[<em>9</em>]: mueve la pantalla al norte.
+</p>
+<p>
+[<em>Shift</em>] + <a href="mouse.txt">raton</a>: usado en el<a href="map.txt">Mapa</a> para ver enlaces entre elementos de las <a href="industry_info.txt">Cadenas Industriales</a>.<br>
+[<em>CTRL</em>] + herramienta: construye (marcadores y <a href="station.txt">Paradas</a>) en un nivel superior; o construye carreteras o vias mas lentas sobre las mas rapidas; incluso construye vias y carreteras mas rectas (mas directas).<br>
+[<em>CTRL</em>] + desde ([<em>F2</em>] hasta [<em>F12</em>]): asocia la herramienta actual con la tecla pulsada de entre [<em>F2</em>] hasta [<em>F12</em>].
+</p>
+<p>
+[<em>F1</em>]: abre la <a href="general.txt">Ayuda de Simutrans</a>.<br>
+[<em>F10</em>]: pone/quita el juego en pausa.<br>
+[<em>F2</em>] hasta [<em>F12</em>]: selecciona una herramienta asociada
+</p>
