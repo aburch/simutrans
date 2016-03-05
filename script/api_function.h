@@ -219,7 +219,7 @@ namespace script_api {
 	};
 
 	/**
-	 * Templates to call functions with automatically fetching the right parameters,
+	 * Templates to generate squirrel typemasks,
 	 * wrapped in a one-parameter template struct,
 	 * which is specialized per function-signature.
 	 */
@@ -338,9 +338,9 @@ namespace script_api {
 		}
 
 		typedef R         sig_return;  // return type
-		typedef script_api::void_t    sig_class;   // type of class
-		typedef script_api::void_t    sig_first;   // type of first parameter
-		typedef void(*sig_reduced)() ; // signature of function with without return type, class, and last parameter
+		typedef void_t    sig_class;   // type of class
+		typedef void_t    sig_first;   // type of first parameter
+		typedef void(*sig_reduced)();  // signature of function with without return type, class, and last parameter
 	};
 
 	template<class C, typename R>
@@ -357,8 +357,8 @@ namespace script_api {
 
 		typedef R         sig_return;  // return type
 		typedef C*        sig_class;   // type of class
-		typedef script_api::void_t    sig_first;   // type of first parameter
-		typedef void(*sig_reduced)() ; // signature of function with without return type, class, and last parameter
+		typedef void_t    sig_first;   // type of first parameter
+		typedef void(*sig_reduced)();  // signature of function with without return type, class, and last parameter
 	};
 	template<class C, typename R>
 	struct embed_call_t<R (C::*)() const> {
@@ -374,8 +374,8 @@ namespace script_api {
 
 		typedef R         sig_return;  // return type
 		typedef C*        sig_class;   // type of class
-		typedef script_api::void_t    sig_first;   // type of first parameter
-		typedef void(*sig_reduced)() ; // signature of function with without return type, class, and last parameter
+		typedef void_t    sig_first;   // type of first parameter
+		typedef void(*sig_reduced)();  // signature of function with without return type, class, and last parameter
 	};
 	template<class C>
 	struct embed_call_t<void (C::*)()> {
@@ -392,8 +392,8 @@ namespace script_api {
 
 		typedef script_api::void_t    sig_return;  // return type
 		typedef C*        sig_class;   // type of class
-		typedef script_api::void_t    sig_first;   // type of first parameter
-		typedef void(*sig_reduced)() ; // signature of function with without return type, class, and last parameter
+		typedef void_t    sig_first;   // type of first parameter
+		typedef void(*sig_reduced)();  // signature of function with without return type, class, and last parameter
 	};
 	// 1 parameter
 	template<typename R, typename A1>
@@ -412,7 +412,7 @@ namespace script_api {
 		typedef R         sig_return;  // return type
 		typedef script_api::void_t    sig_class;   // type of class
 		typedef A1        sig_first;   // type of first parameter
-		typedef void(*sig_reduced)() ; // signature of function with without return type, class, and last parameter
+		typedef void(*sig_reduced)();  // signature of function with without return type, class, and last parameter
 	};
 	template<class C, typename A1>
 	struct embed_call_t<void (C::*)(A1)> {
@@ -430,7 +430,7 @@ namespace script_api {
 		typedef script_api::void_t    sig_return;  // return type
 		typedef C*        sig_class;   // type of class
 		typedef A1        sig_first;   // type of first parameter
-		typedef void(*sig_reduced)() ; // signature of function with without return type, class, and last parameter
+		typedef void(*sig_reduced)();  // signature of function with without return type, class, and last parameter
 	};
 	template<class C, typename R, typename A1>
 	struct embed_call_t<R (C::*)(A1)> {
@@ -447,7 +447,7 @@ namespace script_api {
 		typedef R         sig_return;  // return type
 		typedef C*        sig_class;   // type of class
 		typedef A1        sig_first;   // type of first parameter
-		typedef void(*sig_reduced)() ; // signature of function with without return type, class, and last parameter
+		typedef void(*sig_reduced)();  // signature of function with without return type, class, and last parameter
 	};
 	template<class C, typename R, typename A1>
 	struct embed_call_t<R (C::*)(A1) const> {
@@ -464,13 +464,13 @@ namespace script_api {
 		typedef R         sig_return;  // return type
 		typedef C*        sig_class;   // type of class
 		typedef A1        sig_first;   // type of first parameter
-		typedef void(*sig_reduced)() ; // signature of function with without return type, class, and last parameter
+		typedef void(*sig_reduced)();  // signature of function with without return type, class, and last parameter
 	};
 	// 2 parameters
 	template<typename A1, typename A2>
 	struct embed_call_t<void (*)(A1, A2)> {
 		typedef A1          sig_first;   // type of first parameter
-		typedef void(*sig_reduced)(A2) ; // signature of function with without return type, class, and last parameter
+		typedef void(*sig_reduced)(A2);  // signature of function with without return type, class, and last parameter
 	};
 
 	template<typename R, typename A1, typename A2>
@@ -489,7 +489,7 @@ namespace script_api {
 		typedef R           sig_return;  // return type
 		typedef script_api::void_t      sig_class;   // type of class
 		typedef A1          sig_first;   // type of first parameter
-		typedef void(*sig_reduced)(A2) ; // signature of function with without return type, class, and last parameter
+		typedef void(*sig_reduced)(A2);  // signature of function with without return type, class, and last parameter
 	};
 	template<class C, typename A1, typename A2>
 	struct embed_call_t<void (C::*)(A1, A2)> {
@@ -510,7 +510,7 @@ namespace script_api {
 		typedef script_api::void_t      sig_return;  // return type
 		typedef C*          sig_class;   // type of class
 		typedef A1          sig_first;   // type of first parameter
-		typedef void(*sig_reduced)(A2) ; // signature of function with without return type, class, and last parameter
+		typedef void(*sig_reduced)(A2);  // signature of function with without return type, class, and last parameter
 	};
 	template<class C, typename R, typename A1, typename A2>
 	struct embed_call_t<R (C::*)(A1, A2)> {
@@ -530,7 +530,7 @@ namespace script_api {
 		typedef R           sig_return;  // return type
 		typedef C*          sig_class;   // type of class
 		typedef A1          sig_first;   // type of first parameter
-		typedef void(*sig_reduced)(A2) ; // signature of function with without return type, class, and last parameter
+		typedef void(*sig_reduced)(A2);  // signature of function with without return type, class, and last parameter
 	};
 	template<class C, typename R, typename A1, typename A2>
 	struct embed_call_t<R (C::*)(A1, A2) const> {
@@ -550,14 +550,14 @@ namespace script_api {
 		typedef R           sig_return;  // return type
 		typedef C*          sig_class;   // type of class
 		typedef A1          sig_first;   // type of first parameter
-		typedef void(*sig_reduced)(A2) ; // signature of function with without return type, class, and last parameter
+		typedef void(*sig_reduced)(A2);  // signature of function with without return type, class, and last parameter
 	};
 
 	// 3 parameters
 	template<typename A1, typename A2, typename A3>
 	struct embed_call_t<void (*)(A1, A2, A3)> {
 		typedef A1             sig_first;   // type of first parameter
-		typedef void(*sig_reduced)(A2,A3) ; // signature of function with without return type, class, and last parameter
+		typedef void(*sig_reduced)(A2,A3);  // signature of function with without return type, class, and last parameter
 	};
 
 	template<typename R, typename A1, typename A2, typename A3>
@@ -577,7 +577,7 @@ namespace script_api {
 		typedef R              sig_return;  // return type
 		typedef script_api::void_t         sig_class;   // type of class
 		typedef A1             sig_first;   // type of first parameter
-		typedef void(*sig_reduced)(A2,A3) ; // signature of function with without return type, class, and last parameter
+		typedef void(*sig_reduced)(A2,A3);  // signature of function with without return type, class, and last parameter
 	};
 	template<class C, typename A1, typename A2, typename A3>
 	struct embed_call_t<void (C::*)(A1, A2, A3)> {
@@ -599,14 +599,14 @@ namespace script_api {
 		typedef script_api::void_t         sig_return;  // return type
 		typedef C*             sig_class;   // type of class
 		typedef A1             sig_first;   // type of first parameter
-		typedef void(*sig_reduced)(A2,A3) ; // signature of function with without return type, class, and last parameter
+		typedef void(*sig_reduced)(A2,A3);  // signature of function with without return type, class, and last parameter
 	};
 
 	// 4 parameters
 	template<typename A1, typename A2, typename A3, typename A4>
 	struct embed_call_t<void (*)(A1, A2, A3, A4)> {
 		typedef A1                sig_first;   // type of first parameter
-		typedef void(*sig_reduced)(A2,A3,A4) ; // signature of function with without return type, class, and last parameter
+		typedef void(*sig_reduced)(A2,A3,A4);  // signature of function with without return type, class, and last parameter
 	};
 
 
@@ -628,7 +628,7 @@ namespace script_api {
 		typedef R              sig_return;  // return type
 		typedef script_api::void_t         sig_class;   // type of class
 		typedef A1             sig_first;   // type of first parameter
-		typedef void(*sig_reduced)(A2,A3,A4) ; // signature of function with without return type, class, and last parameter
+		typedef void(*sig_reduced)(A2,A3,A4);  // signature of function with without return type, class, and last parameter
 	};
 
 	template<class C, typename A1, typename A2, typename A3, typename A4>
@@ -652,14 +652,14 @@ namespace script_api {
 		typedef script_api::void_t            sig_return;  // return type
 		typedef C*                sig_class;   // type of class
 		typedef A1                sig_first;   // type of first parameter
-		typedef void(*sig_reduced)(A2,A3,A4) ; // signature of function with without return type, class, and last parameter
+		typedef void(*sig_reduced)(A2,A3,A4);  // signature of function with without return type, class, and last parameter
 	};
 
 	// 5 parameters
 	template<typename A1, typename A2, typename A3, typename A4, typename A5>
 	struct embed_call_t<void (*)(A1, A2, A3, A4, A5)> {
 		typedef A1                   sig_first;   // type of first parameter
-		typedef void(*sig_reduced)(A2,A3,A4,A5) ; // signature of function with without return type, class, and last parameter
+		typedef void(*sig_reduced)(A2,A3,A4,A5);  // signature of function with without return type, class, and last parameter
 	};
 
 	template<class C, typename A1, typename A2, typename A3, typename A4, typename A5>
@@ -684,7 +684,7 @@ namespace script_api {
 		typedef script_api::void_t               sig_return;  // return type
 		typedef C*                   sig_class;   // type of class
 		typedef A1                   sig_first;   // type of first parameter
-		typedef void(*sig_reduced)(A2,A3,A4,A5) ; // signature of function with without return type, class, and last parameter
+		typedef void(*sig_reduced)(A2,A3,A4,A5);  // signature of function with without return type, class, and last parameter
 	};
 
 	// 6 parameters
@@ -711,7 +711,7 @@ namespace script_api {
 		typedef script_api::void_t                  sig_return;  // return type
 		typedef C*                      sig_class;   // type of class
 		typedef A1                      sig_first;   // type of first parameter
-		typedef void(*sig_reduced)(A2,A3,A4,A5,A6) ; // signature of function with without return type, class, and last parameter
+		typedef void(*sig_reduced)(A2,A3,A4,A5,A6);  // signature of function with without return type, class, and last parameter
 	};
 
 
