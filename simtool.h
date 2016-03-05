@@ -440,7 +440,7 @@ public:
 class tool_build_depot_t : public tool_t {
 private:
 	static char toolstring[256];
-	const char *tool_depot_aux(player_t *player, koord3d pos, const haus_besch_t *besch, waytype_t wegtype, sint64 cost);
+	const char *tool_depot_aux(player_t *player, koord3d pos, const haus_besch_t *besch, waytype_t wegtype);
 public:
 	tool_build_depot_t() : tool_t(TOOL_BUILD_DEPOT | GENERAL_TOOL) {}
 	image_id get_icon(player_t*) const OVERRIDE;

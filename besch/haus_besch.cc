@@ -210,41 +210,40 @@ sint32 haus_besch_t::get_price(karte_t *welt) const
 		settings_t const& s = welt->get_settings();
 		switch (get_utyp()) {
 			case haus_besch_t::dock:
-				return -s.cst_multiply_dock * get_level();
-			break;
 			case haus_besch_t::flat_dock:
 				return -s.cst_multiply_dock * get_level();
-			break;
+
 			case haus_besch_t::generic_extension:
 				return -s.cst_multiply_post * get_level();
-			break;
-			case haus_besch_t::generic_stop: {
+
+			case haus_besch_t::generic_stop:
 				switch(get_extra()) {
-					case road_wt:
-						return -s.cst_multiply_roadstop * get_level();
-					break;
+					case road_wt:        return -s.cst_multiply_roadstop * get_level();
 					case track_wt:
 					case monorail_wt:
 					case maglev_wt:
 					case narrowgauge_wt:
-					case tram_wt:
-						return -s.cst_multiply_station * get_level();
-					break;
-					case water_wt:
-						return -s.cst_multiply_dock * get_level();
-					break;
-					case air_wt:
-						return -s.cst_multiply_airterminal * get_level();
-					break;
-					case 0:
-						return -s.cst_multiply_post * get_level();
-					break;
+					case tram_wt:        return -s.cst_multiply_station * get_level();
+					case water_wt:       return -s.cst_multiply_dock * get_level();
+					case air_wt:         return -s.cst_multiply_airterminal * get_level();
+					case 0:              return -s.cst_multiply_post * get_level();
 				}
-			}
-			break;
+			case haus_besch_t::depot:
+				switch(get_extra()) {
+					case road_wt:        return -s.cst_depot_road;
+					case track_wt:
+					case monorail_wt:
+					case tram_wt:
+					case maglev_wt:
+					case narrowgauge_wt: return -s.cst_depot_rail;
+					case water_wt:       return -s.cst_depot_ship;
+					case air_wt:         return -s.cst_depot_air;
+					default:             return 0;
+				}
+			case haus_besch_t::firmensitz:
+				return -s.cst_multiply_headquarter * get_level();
 			default:
-				return 0;
-			break;
+				return -s.cst_multiply_remove_haus * get_level();
 		}
 	}
 	else {

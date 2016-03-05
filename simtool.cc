@@ -4942,7 +4942,7 @@ built_sign:
 
 
 // built all types of depots
-const char *tool_build_depot_t::tool_depot_aux(player_t *player, koord3d pos, const haus_besch_t *besch, waytype_t wegtype, sint64 cost)
+const char *tool_build_depot_t::tool_depot_aux(player_t *player, koord3d pos, const haus_besch_t *besch, waytype_t wegtype)
 {
 	if(welt->is_within_limits(pos.get_2d())) {
 		grund_t *bd=NULL;
@@ -4994,7 +4994,7 @@ const char *tool_build_depot_t::tool_depot_aux(player_t *player, koord3d pos, co
 				case ribi_t::west:  layout = 3;    break;
 			}
 			hausbauer_t::neues_gebaeude(player, bd->get_pos(), layout, besch );
-			player_t::book_construction_costs(player, cost, pos.get_2d(), besch->get_finance_waytype());
+			player_t::book_construction_costs(player, -besch->get_price(welt), pos.get_2d(), besch->get_finance_waytype());
 			if(is_local_execution()  &&  player == welt->get_active_player()) {
 				welt->set_tool( general_tool[TOOL_QUERY], player );
 			}
@@ -5041,19 +5041,18 @@ const char* tool_build_depot_t::get_tooltip(const player_t *) const
 	}
 
 	char         const* tip;
-	sint64              price;
 	switch (besch->get_extra()) {
-		case road_wt:        tip = "Build road depot";        price = settings.cst_depot_road; break;
-		case track_wt:       tip = "Build train depot";       price = settings.cst_depot_rail; break;
-		case monorail_wt:    tip = "Build monorail depot";    price = settings.cst_depot_rail; break;
-		case maglev_wt:      tip = "Build maglev depot";      price = settings.cst_depot_rail; break;
-		case narrowgauge_wt: tip = "Build narrowgauge depot"; price = settings.cst_depot_rail; break;
-		case tram_wt:        tip = "Build tram depot";        price = settings.cst_depot_rail; break;
-		case water_wt:       tip = "Build ship depot";        price = settings.cst_depot_ship; break;
-		case air_wt:         tip = "Build air depot";         price = settings.cst_depot_air;  break;
+		case road_wt:        tip = "Build road depot";        break;
+		case track_wt:       tip = "Build train depot";       break;
+		case monorail_wt:    tip = "Build monorail depot";    break;
+		case maglev_wt:      tip = "Build maglev depot";      break;
+		case narrowgauge_wt: tip = "Build narrowgauge depot"; break;
+		case tram_wt:        tip = "Build tram depot";        break;
+		case water_wt:       tip = "Build ship depot";        break;
+		case air_wt:         tip = "Build air depot";         break;
 		default:             return 0;
 	}
-	return tooltip_with_price_maintenance(welt, tip, price, settings.maint_building * besch->get_level());
+	return tooltip_with_price_maintenance(welt, tip, -besch->get_price(welt), settings.maint_building * besch->get_level());
 }
 
 waytype_t tool_build_depot_t::get_waytype() const
@@ -5070,16 +5069,19 @@ const char *tool_build_depot_t::work( player_t *player, koord3d pos )
 	}
 
 	haus_besch_t const* const besch = hausbauer_t::find_tile(default_param,0)->get_besch();
-	settings_t   const&       s     = welt->get_settings();
 	switch(besch->get_extra()) {
 		case road_wt:
-			return tool_build_depot_t::tool_depot_aux(player, pos, besch, road_wt, s.cst_depot_road);
 		case track_wt:
-			return tool_build_depot_t::tool_depot_aux(player, pos, besch, track_wt, s.cst_depot_rail);
+		case water_wt:
+		case air_wt:
+		case maglev_wt:
+		case narrowgauge_wt:
+			return tool_build_depot_t::tool_depot_aux(player, pos, besch, (waytype_t)besch->get_extra());
+
 		case monorail_wt:
 			{
 				// since it needs also a foundation, this is slightly more complex ...
-				char const* const err = tool_build_depot_t::tool_depot_aux(player, pos, besch, monorail_wt, s.cst_depot_rail);
+				char const* const err = tool_build_depot_t::tool_depot_aux(player, pos, besch, monorail_wt);
 				if(err==NULL) {
 					grund_t *bd = welt->lookup_kartenboden(pos.get_2d());
 					if(hausbauer_t::elevated_foundation_besch  &&  pos.z-bd->get_pos().z==1  &&  bd->ist_natur()) {
@@ -5089,15 +5091,7 @@ const char *tool_build_depot_t::work( player_t *player, koord3d pos )
 				return err;
 			}
 		case tram_wt:
-			return tool_build_depot_t::tool_depot_aux(player, pos, besch, track_wt, s.cst_depot_rail);
-		case water_wt:
-			return tool_build_depot_t::tool_depot_aux(player, pos, besch, water_wt, s.cst_depot_ship);
-		case air_wt:
-			return tool_build_depot_t::tool_depot_aux(player, pos, besch, air_wt, s.cst_depot_air);
-		case maglev_wt:
-			return tool_build_depot_t::tool_depot_aux(player, pos, besch, maglev_wt, s.cst_depot_rail);
-		case narrowgauge_wt:
-			return tool_build_depot_t::tool_depot_aux(player, pos, besch, narrowgauge_wt, s.cst_depot_rail);
+			return tool_build_depot_t::tool_depot_aux(player, pos, besch, track_wt);
 		default:
 			dbg->warning("tool_depot()","called with unknown besch %s",besch->get_name() );
 			return "Unknown depot object";
@@ -5210,7 +5204,7 @@ const char *tool_build_house_t::work( player_t *player, koord3d pos )
 					city->add_gebaeude_to_stadt(gb);
 				}
 			}
-			player_t::book_construction_costs(player, welt->get_settings().cst_multiply_remove_haus * besch->get_level() * size.x * size.y, k, gb->get_waytype());
+			player_t::book_construction_costs(player, -besch->get_price(welt) * size.x * size.y, k, gb->get_waytype());
 			return NULL;
 		}
 	}
@@ -5540,8 +5534,8 @@ const char* tool_headquarter_t::get_tooltip(const player_t *player) const
 	if (haus_besch_t const* const besch = next_level(player)) {
 		settings_t  const& s      = welt->get_settings();
 		char const* const  tip    = player->get_headquarter_level() == 0 ? "build HQ" : "upgrade HQ";
-		sint64      const  factor = (sint64)besch->get_level() * besch->get_b() * besch->get_h();
-		return tooltip_with_price_maintenance(welt, tip, factor * s.cst_multiply_headquarter, factor * s.maint_building);
+		sint64      const  factor = besch->get_b() * besch->get_h();
+		return tooltip_with_price_maintenance(welt, tip, -factor * besch->get_price(welt), factor * besch->get_level() * s.maint_building);
 	}
 	return NULL;
 }
@@ -5575,7 +5569,7 @@ DBG_MESSAGE("tool_headquarter()", "building headquarters at (%d,%d)", pos.x, pos
 	}
 
 	koord size = besch->get_groesse();
-	sint64 const cost = welt->get_settings().cst_multiply_headquarter * besch->get_level() * size.x * size.y;
+	sint64 const cost = besch->get_price(welt) * size.x * size.y;
 	if(  -cost > player->get_finance()->get_account_balance()  ) {
 		return "Not enough money!";
 	}
