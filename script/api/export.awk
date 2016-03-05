@@ -195,7 +195,7 @@ function split_params(string)
 		}
 	}
 	for (param = 1; param <= 100; param++) {
-		if (!(param in params)) {
+		if (!(param in params)  && !(param in ptypes) ) {
 			break
 		}
 		if (mode != "sq") {
