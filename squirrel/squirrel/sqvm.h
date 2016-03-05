@@ -179,7 +179,6 @@ public:
 
 	SQInteger _ops_remaining;
 	bool _throw_if_no_ops;
-	bool _error_handler_called;
 };
 
 struct AutoDec{

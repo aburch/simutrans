@@ -1113,12 +1113,11 @@ bool SQVM::CreateClassInstance(SQClass *theclass, SQObjectPtr &inst, SQObjectPtr
 
 void SQVM::CallErrorHandler(SQObjectPtr &error)
 {
-	if(type(_errorhandler) != OT_NULL  &&  !_error_handler_called) {
+	if(type(_errorhandler) != OT_NULL) {
 		SQObjectPtr out;
 		Push(_roottable); Push(error);
 		Call(_errorhandler, 2, _top-2, out,SQFalse);
 		Pop(2);
-		_error_handler_called = true;
 	}
 }
 
