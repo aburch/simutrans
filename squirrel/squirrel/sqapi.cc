@@ -1084,7 +1084,6 @@ SQRESULT sq_resume(HSQUIRRELVM v,SQBool retval,SQBool raiseerror)
 SQRESULT sq_call(HSQUIRRELVM v,SQInteger params,SQBool retval,SQBool raiseerror)
 {
 	SQObjectPtr res;
-	v->_error_handler_called = false;
 
 	if(v->_suspended) {
 		v->Pop(params);//pop closure and args
