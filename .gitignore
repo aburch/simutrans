@@ -1,5 +1,22 @@
 # Language files to be added eventually:
-
+text/cz
+text/de
+text/dk
+#text/en
+text/es
+text/fr
+text/hr
+text/hu
+text/it
+text/ja
+text/nl
+text/pl
+text/pt
+text/ro
+text/ru
+text/sk
+text/sv
+text/zh
 
 
 # Folders:
@@ -10,8 +27,8 @@ script/
 skin/
 themes/
 pak*/
-text/citylist/
-text/AAA
+text/citylists/
+
 
 # Files:
 /*.*
@@ -19,3 +36,4 @@ simctrl
 envvars
 text/*.*
 text/en/Simutrans-Experimental.vcxproj.lnk
+text/all-help-file-names
