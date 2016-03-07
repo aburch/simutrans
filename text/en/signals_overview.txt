@@ -34,14 +34,14 @@ The core function of such signals is to rize the density of the tracks. The more
 Read more about how to use them here: <a href="signals_usage.txt">Signals usage</a><br><br>
 
 <em>Sighting speeds</em><br>
-Related to the sighting distance is the sighting speed. At higher speeds, signs and signals get more difficult to read. Each signal has a maximum sighting speed (defined as "Max speed") which is the maximum speed that the traindrivers human eye can read the messages given from the signal. In effect, this means that a train will not pass a signal at higher speed than the signals maxspeed. Although modern technology allows for the signal states to be shown inside the cab of the trains, thus allowing for a higher sighting speed, as it is the technology that "sees" the signal.<br><br>
+At higher speeds, signs and signals get more difficult to read. Each signal has a maximum sighting speed (defined as "Max speed") which is the maximum speed that the traindrivers human eye can read the messages given from the signal. In effect, this means that a train will not pass a signal at higher speed than the signals maxspeed. Although with modern technology cab signalling allows the signal states to be shown inside the cab of the trains, thus allowing for a higher sighting speed, as it is the technology that "sees" the signal.<br><br>
 
 <em>Choose signals</em><br>
-Choose signals serves two functions: They will guide the train to an empty platform at the station, and it will guide a train through a station if the mainline route is occupied.<br>
+Choose signals serves two functions: They will guide the train to an empty platform at the station, and they will guide a train through a station, also if the mainline route is occupied.<br>
 To make use of this second function, you need to place an <it>end of choose </it>sign outside all the exits of the station. When a train aproach the choose signal, it will be given a route all the way till its destination or the "end of choose" sign, whichever is encountered first.<br>
 Read more about how to use them here: <a href="signals_usage.txt">Signals usage</a><br><br>
 
 <em>Permissive signals</em><br>
-Permissive signals is used to increase line capacity. When a train that is brought to a stand at a permissive signal at danger, it may proceed beyond the signal at drive by sight. This is only possible where the signal controls a section of straight, unidirectional track. If there are junctions, the permissive functionality is disabled and the signal works as an ordinary signal.<br>
+Permissive signals are used to increase line capacity. When a train is brought to a stand at a permissive signal at danger, it may proceed beyond the signal at "drive by sight". This is only possible where the signal controls a section of straight, unidirectional track. If there are junctions, the permissive functionality is disabled and the signal works as an ordinary signal.<br>
 Read more about how to use them here: <a href="signals_usage.txt">Signals usage</a><br><br>
 
