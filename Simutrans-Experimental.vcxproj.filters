@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
     </Filter>
+    <Filter Include="Resource Files\Help texts">
+      <UniqueIdentifier>{ce8dbdde-4523-40a1-b672-32b3253519cf}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="player\ai.cc">
@@ -2270,9 +2273,6 @@
     <None Include="base_texts_experimental_braking_branch.dat">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="simutrans\copyright.txt">
-      <Filter>Resource Files</Filter>
-    </None>
     <None Include="base_texts_experimental_10.12.dat">
       <Filter>Resource Files</Filter>
     </None>
@@ -2340,203 +2340,230 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="airtools.txt">
-      <Filter>Resource Files</Filter>
+    <Text Include="simutrans\text\en\airtools.txt">
+      <Filter>Resource Files\Help texts</Filter>
     </Text>
-    <Text Include="baum_build.txt">
-      <Filter>Resource Files</Filter>
+    <Text Include="simutrans\text\en\baum_build.txt">
+      <Filter>Resource Files\Help texts</Filter>
     </Text>
-    <Text Include="catering.txt">
-      <Filter>Resource Files</Filter>
+    <Text Include="simutrans\text\en\catering.txt">
+      <Filter>Resource Files\Help texts</Filter>
     </Text>
-    <Text Include="citybuilding_build.txt">
-      <Filter>Resource Files</Filter>
+    <Text Include="simutrans\text\en\citybuilding_build.txt">
+      <Filter>Resource Files\Help texts</Filter>
     </Text>
-    <Text Include="citylist_filter.txt">
-      <Filter>Resource Files</Filter>
+    <Text Include="simutrans\text\en\citylist_filter.txt">
+      <Filter>Resource Files\Help texts</Filter>
     </Text>
-    <Text Include="citywindow.txt">
-      <Filter>Resource Files</Filter>
+    <Text Include="simutrans\text\en\citywindow.txt">
+      <Filter>Resource Files\Help texts</Filter>
     </Text>
-    <Text Include="climates.txt">
-      <Filter>Resource Files</Filter>
+    <Text Include="simutrans\text\en\climates.txt">
+      <Filter>Resource Files\Help texts</Filter>
     </Text>
-    <Text Include="color.txt">
-      <Filter>Resource Files</Filter>
+    <Text Include="simutrans\text\en\CodeParameters.txt">
+      <Filter>Resource Files\Help texts</Filter>
     </Text>
-    <Text Include="comfort.txt">
-      <Filter>Resource Files</Filter>
+    <Text Include="simutrans\text\en\color.txt">
+      <Filter>Resource Files\Help texts</Filter>
     </Text>
-    <Text Include="convoi.txt">
-      <Filter>Resource Files</Filter>
+    <Text Include="simutrans\text\en\comfort.txt">
+      <Filter>Resource Files\Help texts</Filter>
     </Text>
-    <Text Include="convoi_filter.txt">
-      <Filter>Resource Files</Filter>
+    <Text Include="simutrans\text\en\convoi.txt">
+      <Filter>Resource Files\Help texts</Filter>
     </Text>
-    <Text Include="convoidetail.txt">
-      <Filter>Resource Files</Filter>
+    <Text Include="simutrans\text\en\convoi_filter.txt">
+      <Filter>Resource Files\Help texts</Filter>
     </Text>
-    <Text Include="convoiinfo.txt">
-      <Filter>Resource Files</Filter>
+    <Text Include="simutrans\text\en\convoidetail.txt">
+      <Filter>Resource Files\Help texts</Filter>
     </Text>
-    <Text Include="curiosity_build.txt">
-      <Filter>Resource Files</Filter>
+    <Text Include="simutrans\text\en\convoiinfo.txt">
+      <Filter>Resource Files\Help texts</Filter>
     </Text>
-    <Text Include="curiositylist_filter.txt">
-      <Filter>Resource Files</Filter>
+    <Text Include="simutrans\text\en\curiosity_build.txt">
+      <Filter>Resource Files\Help texts</Filter>
     </Text>
-    <Text Include="depot.txt">
-      <Filter>Resource Files</Filter>
+    <Text Include="simutrans\text\en\curiositylist_filter.txt">
+      <Filter>Resource Files\Help texts</Filter>
     </Text>
-    <Text Include="display.txt">
-      <Filter>Resource Files</Filter>
+    <Text Include="simutrans\text\en\depot.txt">
+      <Filter>Resource Files\Help texts</Filter>
     </Text>
-    <Text Include="edittools.txt">
-      <Filter>Resource Files</Filter>
+    <Text Include="simutrans\text\en\display.txt">
+      <Filter>Resource Files\Help texts</Filter>
     </Text>
-    <Text Include="electricity.txt">
-      <Filter>Resource Files</Filter>
+    <Text Include="simutrans\text\en\edittools.txt">
+      <Filter>Resource Files\Help texts</Filter>
     </Text>
-    <Text Include="factory_build.txt">
-      <Filter>Resource Files</Filter>
+    <Text Include="simutrans\text\en\electricity.txt">
+      <Filter>Resource Files\Help texts</Filter>
     </Text>
-    <Text Include="factorylist_filter.txt">
-      <Filter>Resource Files</Filter>
+    <Text Include="simutrans\text\en\enlarge_map.txt">
+      <Filter>Resource Files\Help texts</Filter>
     </Text>
-    <Text Include="finances.txt">
-      <Filter>Resource Files</Filter>
+    <Text Include="simutrans\text\en\factory_build.txt">
+      <Filter>Resource Files\Help texts</Filter>
     </Text>
-    <Text Include="general.txt">
-      <Filter>Resource Files</Filter>
+    <Text Include="simutrans\text\en\factorylist_filter.txt">
+      <Filter>Resource Files\Help texts</Filter>
     </Text>
-    <Text Include="goods_filter.txt">
-      <Filter>Resource Files</Filter>
+    <Text Include="simutrans\text\en\finances.txt">
+      <Filter>Resource Files\Help texts</Filter>
     </Text>
-    <Text Include="haltlist.txt">
-      <Filter>Resource Files</Filter>
+    <Text Include="simutrans\text\en\general.txt">
+      <Filter>Resource Files\Help texts</Filter>
     </Text>
-    <Text Include="haltlist_filter.txt">
-      <Filter>Resource Files</Filter>
+    <Text Include="simutrans\text\en\goods_filter.txt">
+      <Filter>Resource Files\Help texts</Filter>
     </Text>
-    <Text Include="industry_info.txt">
-      <Filter>Resource Files</Filter>
+    <Text Include="simutrans\text\en\haltlist.txt">
+      <Filter>Resource Files\Help texts</Filter>
     </Text>
-    <Text Include="insolvency.txt">
-      <Filter>Resource Files</Filter>
+    <Text Include="simutrans\text\en\haltlist_filter.txt">
+      <Filter>Resource Files\Help texts</Filter>
     </Text>
-    <Text Include="inspection_tool.txt">
-      <Filter>Resource Files</Filter>
+    <Text Include="simutrans\text\en\industry_info.txt">
+      <Filter>Resource Files\Help texts</Filter>
     </Text>
-    <Text Include="keys.txt">
-      <Filter>Resource Files</Filter>
+    <Text Include="simutrans\text\en\insolvency.txt">
+      <Filter>Resource Files\Help texts</Filter>
     </Text>
-    <Text Include="labellist_filter.txt">
-      <Filter>Resource Files</Filter>
+    <Text Include="simutrans\text\en\inspection_tool.txt">
+      <Filter>Resource Files\Help texts</Filter>
     </Text>
-    <Text Include="language.txt">
-      <Filter>Resource Files</Filter>
+    <Text Include="simutrans\text\en\keys.txt">
+      <Filter>Resource Files\Help texts</Filter>
     </Text>
-    <Text Include="linemanagement.txt">
-      <Filter>Resource Files</Filter>
+    <Text Include="simutrans\text\en\labellist_filter.txt">
+      <Filter>Resource Files\Help texts</Filter>
     </Text>
-    <Text Include="list.txt">
-      <Filter>Resource Files</Filter>
+    <Text Include="simutrans\text\en\language.txt">
+      <Filter>Resource Files\Help texts</Filter>
     </Text>
-    <Text Include="load.txt">
-      <Filter>Resource Files</Filter>
+    <Text Include="simutrans\text\en\linemanagement.txt">
+      <Filter>Resource Files\Help texts</Filter>
     </Text>
-    <Text Include="load_relief.txt">
-      <Filter>Resource Files</Filter>
+    <Text Include="simutrans\text\en\list.txt">
+      <Filter>Resource Files\Help texts</Filter>
     </Text>
-    <Text Include="mailbox.txt">
-      <Filter>Resource Files</Filter>
+    <Text Include="simutrans\text\en\load.txt">
+      <Filter>Resource Files\Help texts</Filter>
     </Text>
-    <Text Include="map.txt">
-      <Filter>Resource Files</Filter>
+    <Text Include="simutrans\text\en\load_relief.txt">
+      <Filter>Resource Files\Help texts</Filter>
     </Text>
-    <Text Include="monorailtools.txt">
-      <Filter>Resource Files</Filter>
+    <Text Include="simutrans\text\en\mailbox.txt">
+      <Filter>Resource Files\Help texts</Filter>
     </Text>
-    <Text Include="mouse.txt">
-      <Filter>Resource Files</Filter>
+    <Text Include="simutrans\text\en\map.txt">
+      <Filter>Resource Files\Help texts</Filter>
     </Text>
-    <Text Include="new_world.txt">
-      <Filter>Resource Files</Filter>
+    <Text Include="simutrans\text\en\monorailtools.txt">
+      <Filter>Resource Files\Help texts</Filter>
     </Text>
-    <Text Include="options.txt">
-      <Filter>Resource Files</Filter>
+    <Text Include="simutrans\text\en\mouse.txt">
+      <Filter>Resource Files\Help texts</Filter>
     </Text>
-    <Text Include="password.txt">
-      <Filter>Resource Files</Filter>
+    <Text Include="simutrans\text\en\new_world.txt">
+      <Filter>Resource Files\Help texts</Filter>
     </Text>
-    <Text Include="players.txt">
-      <Filter>Resource Files</Filter>
+    <Text Include="simutrans\text\en\options.txt">
+      <Filter>Resource Files\Help texts</Filter>
     </Text>
-    <Text Include="privatecar.txt">
-      <Filter>Resource Files</Filter>
+    <Text Include="simutrans\text\en\password.txt">
+      <Filter>Resource Files\Help texts</Filter>
     </Text>
-    <Text Include="railtools.txt">
-      <Filter>Resource Files</Filter>
+    <Text Include="simutrans\text\en\players.txt">
+      <Filter>Resource Files\Help texts</Filter>
     </Text>
-    <Text Include="README.txt">
-      <Filter>Resource Files</Filter>
+    <Text Include="simutrans\text\en\privatecar.txt">
+      <Filter>Resource Files\Help texts</Filter>
     </Text>
-    <Text Include="removal_tool.txt">
-      <Filter>Resource Files</Filter>
+    <Text Include="simutrans\text\en\privatesign_info.txt">
+      <Filter>Resource Files\Help texts</Filter>
     </Text>
-    <Text Include="replace.txt">
-      <Filter>Resource Files</Filter>
+    <Text Include="simutrans\text\en\railtools.txt">
+      <Filter>Resource Files\Help texts</Filter>
     </Text>
-    <Text Include="roadtools.txt">
-      <Filter>Resource Files</Filter>
+    <Text Include="simutrans\text\en\removal_tool.txt">
+      <Filter>Resource Files\Help texts</Filter>
     </Text>
-    <Text Include="save.txt">
-      <Filter>Resource Files</Filter>
+    <Text Include="simutrans\text\en\replace.txt">
+      <Filter>Resource Files\Help texts</Filter>
     </Text>
-    <Text Include="schedule.txt">
-      <Filter>Resource Files</Filter>
+    <Text Include="simutrans\text\en\roadtools.txt">
+      <Filter>Resource Files\Help texts</Filter>
     </Text>
-    <Text Include="server.txt">
-      <Filter>Resource Files</Filter>
+    <Text Include="simutrans\text\en\save.txt">
+      <Filter>Resource Files\Help texts</Filter>
     </Text>
-    <Text Include="settings.txt">
-      <Filter>Resource Files</Filter>
+    <Text Include="simutrans\text\en\scenario.txt">
+      <Filter>Resource Files\Help texts</Filter>
     </Text>
-    <Text Include="shiptools.txt">
-      <Filter>Resource Files</Filter>
+    <Text Include="simutrans\text\en\schedule.txt">
+      <Filter>Resource Files\Help texts</Filter>
     </Text>
-    <Text Include="simctrl-simple.txt">
-      <Filter>Resource Files</Filter>
+    <Text Include="simutrans\text\en\server.txt">
+      <Filter>Resource Files\Help texts</Filter>
     </Text>
-    <Text Include="simutrans.txt">
-      <Filter>Resource Files</Filter>
+    <Text Include="simutrans\text\en\settings.txt">
+      <Filter>Resource Files\Help texts</Filter>
     </Text>
-    <Text Include="slopetools.txt">
-      <Filter>Resource Files</Filter>
+    <Text Include="simutrans\text\en\shiptools.txt">
+      <Filter>Resource Files\Help texts</Filter>
     </Text>
-    <Text Include="sound.txt">
-      <Filter>Resource Files</Filter>
+    <Text Include="simutrans\text\en\signal_spacing.txt">
+      <Filter>Resource Files\Help texts</Filter>
     </Text>
-    <Text Include="special.txt">
-      <Filter>Resource Files</Filter>
+    <Text Include="simutrans\text\en\signals_BACKUP.txt">
+      <Filter>Resource Files\Help texts</Filter>
     </Text>
-    <Text Include="station.txt">
-      <Filter>Resource Files</Filter>
+    <Text Include="simutrans\text\en\signals_overview.txt">
+      <Filter>Resource Files\Help texts</Filter>
     </Text>
-    <Text Include="station_details.txt">
-      <Filter>Resource Files</Filter>
+    <Text Include="simutrans\text\en\Signals_placements.txt">
+      <Filter>Resource Files\Help texts</Filter>
     </Text>
-    <Text Include="tramtools.txt">
-      <Filter>Resource Files</Filter>
+    <Text Include="simutrans\text\en\signals_signs.txt">
+      <Filter>Resource Files\Help texts</Filter>
     </Text>
-    <Text Include="way_wear.txt">
-      <Filter>Resource Files</Filter>
+    <Text Include="simutrans\text\en\signals_usage.txt">
+      <Filter>Resource Files\Help texts</Filter>
     </Text>
-    <Text Include="window.txt">
-      <Filter>Resource Files</Filter>
+    <Text Include="simutrans\text\en\signals_working_methods.txt">
+      <Filter>Resource Files\Help texts</Filter>
     </Text>
-    <Text Include="wishlist.txt">
-      <Filter>Resource Files</Filter>
+    <Text Include="simutrans\text\en\simutrans.txt">
+      <Filter>Resource Files\Help texts</Filter>
+    </Text>
+    <Text Include="simutrans\text\en\slopetools.txt">
+      <Filter>Resource Files\Help texts</Filter>
+    </Text>
+    <Text Include="simutrans\text\en\sound.txt">
+      <Filter>Resource Files\Help texts</Filter>
+    </Text>
+    <Text Include="simutrans\text\en\special.txt">
+      <Filter>Resource Files\Help texts</Filter>
+    </Text>
+    <Text Include="simutrans\text\en\station.txt">
+      <Filter>Resource Files\Help texts</Filter>
+    </Text>
+    <Text Include="simutrans\text\en\station_details.txt">
+      <Filter>Resource Files\Help texts</Filter>
+    </Text>
+    <Text Include="simutrans\text\en\trafficlight_info.txt">
+      <Filter>Resource Files\Help texts</Filter>
+    </Text>
+    <Text Include="simutrans\text\en\tramtools.txt">
+      <Filter>Resource Files\Help texts</Filter>
+    </Text>
+    <Text Include="simutrans\text\en\way_wear.txt">
+      <Filter>Resource Files\Help texts</Filter>
+    </Text>
+    <Text Include="simutrans\text\en\window.txt">
+      <Filter>Resource Files\Help texts</Filter>
     </Text>
   </ItemGroup>
 </Project>

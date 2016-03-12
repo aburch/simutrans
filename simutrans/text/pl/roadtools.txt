@@ -1,0 +1,25 @@
+<title>POMOC: Budowa dróg</title>
+
+<h1>Budowa dróg</h1>
+
+<p>
+W tym oknie znajduja sie narzedzia do budowy dróg, przystanków, tuneli, punktów za?adunku, zajezdni itp. Po kliknieciu na dane narzedzie kursor zmieni sie w ikonke obrazujaca to narzedzie.
+</p>
+<p>
+W lewym górnym rogu znajduje sie ikona budowy dróg. Klikamy w miejscu gdzie droga ma sie rozpoczac (ikona zmieni sie w buldozer) a nastepnie zaznaczmy punkt, gdzie droga ma sie zakonczyc - droga zostanie zbudowana automatycznie.
+</p>
+<p>
+Nastepna ikona to 'Przystanek'. Na przystankach gromadza sie ludzie z najblizszej strefy i mozemy ich przewozic do innych przystanków. Na przystanku moga sie zmiescic dwa autobusy. Przystanki mozna budowac na drogach z wylaczeniem skrzyzowan i zakretów.
+</p>
+<p>
+Kolejne narzedzie sluzy do budowy tuneli. Dzieki nim mozemy skrócic czas podrózy poprzez duze góry. Przed wybudowaniem tunelu najpierw z obu stron góry musisz zbudowac drogi. Zakonczenie tych dróg musi znajdowac sie na tej samej wysokosci. Nastepnie wybieramy ikonke 'Tunel' i przeciagamy linie poprzez góry laczac konce dróg.
+</p>
+<p>
+Ponizej znajduje sie narzedzie 'Skrzyzowanie'. Jest ono uzywane w celu przeprowadzenia przez droge linii kolejowych. Skrzyzowanie tworzymy klikajac w miejscu gdzie ma ono powstac.
+</p>
+<p>
+Na lewo widnieje symbol 'Zajezdnia'. W zajezdni kupujemy i sprzedajemy wszystkie dostepne pojazdy i przyczepy. Zajezdnie budujemy na segmentach konczacych droge.
+</p>
+<p>
+Ostatnie narzedzie to sluzy do budowy punktów przeladunku towarów. Punkty takie budujemy w poblizu kopaln i fabryk aby móc transportowac towary. W jednym punkcie moze stacjonowac równoczensnie do dwóch pojazdów. Punkty przeladunków budujemy na segmentach konczacych drogi.
+</p>

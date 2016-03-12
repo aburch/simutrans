@@ -1,0 +1,24 @@
+<title>POMOC: Opcje wyswietlania</title>
+
+<h1>Opcje wyswietlanie</h1>
+
+<p>
+Opcje te pozwalaja zmieniac wyglad i dzialanie gry Simutrans.<br>
+Opis opcji:</p>
+
+<p>
+<em>Jasnosc</em> - rozjasnienie/przyciemnienie ekranu gry.<br>
+<em>Kolory</em> - bez efektu<br>
+<em>Predkosc przewijania</em> - im wyzsza liczba tym szybciej bedzie przewijany ekran.
+</p>
+
+<p>
+<em>Odwróc przewijanie</em> - Zmiana kieruku przewijania na przeciwny (Ekran przewija sie trzymajac wcisniety prawy przycisk myszki)<br>
+<em>Pokaz pasazerów</em> - Mozna wlaczyc lub wylaczyc przedstawianie przechodniów w grze (Jesli masz slaby komputer wylacz pokazywanie pasazerów<br>
+<em>Tryb dzien/noc</em> - Kiedy usawisz ten tryb cyklicznie bedzie nastepowala noc (Ciemny ekran z bardzo ciekawymi efektami!).
+</p>
+
+<p>
+Dolna czesc okna zawiera niektóre informacje zwiazane z praca komputera. Opcje te sa wazne jedynie dla prawdziwych 'komputerowców'.<br>
+<em>Wazne:</em> - Jesli bedziesz zglaszal problemy lub bledy mozesz byc poproszony o podanie tych informacji.
+</p>

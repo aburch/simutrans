@@ -20,6 +20,7 @@
 *.gz*
 *.ilk
 *.bz2
+*.obj
 ipch
 /Debug
 /Debug (SDL)
@@ -49,7 +50,6 @@ _UpgradeReport_Files*
 *.rej
 /simutrans/*pak*
 /simutrans/pak*
-/simutrans/text
 *.bdf
 /ipch/*
 *.*sdf

@@ -1,0 +1,30 @@
+<title>Haltestellenliste - Einstellungen Hilfe</title>
+
+<h1><strong>Filtereinstellungen zur Haltestellenliste</strong></h1>
+
+<p>
+Im Fenster für die Einstellungen zur Haltestellenliste können die Filteroptionen für die Anzeige der Haltestellen gesetzt werden. Ein eingedrückter Knopf bedeutet, das Kriterium muss erfüllt sein, um durch den Filter zur Anzeige zu gelangen. Dabei werden die Eigenschaften innerhalb eines Hauptmenüs mit logisch "OR" (eines der angewählten Kriterien muss erfüllt sein) und zwischen den Hauptmenüs mit logisch "AND" (alle angewählten Kriterien müssen erfüllt sein) verknüpft.
+</p>
+<p>
+<em>Namen filtern:</em> Du kannst im Textfeld einen Name angeben. Es werden nur diejenigen Stationen in die gefilterte Liste aufgenommen, deren Namen dem Eintrag genau entsprechen. <strong>Achtung</strong> Platzhalterfunktionen wie * oder ? werden nicht unterstützt.
+</p>
+<p>
+<em>Typen filtern:</em> Es gelangen nur Haltestellen in die gefilterten Liste, welche mindestens ein Element des selektierten Typs enthalten. Haltestellen von Industrien im Wasser sind keinem Typ zugeordnet. Sie werden durch den Filter nicht erfasst, werden also auch nicht unter Anlegestelle angezeigt.
+</p>
+<p>
+<em>Spezialfilter:</em>
+<br>· <em>überfüllt:</em> Die Funktion ist derzeit außer Betrieb.
+<br>· <em>keine Verbindung:</em> Unter die Kategorie fallen Haltestellen, die an keine Linie angeschlossen sind.
+</p>
+<p>
+<em>Güterarten:</em><br>
+· <em>Nimmt an:</em> Alle Haltestellen werden gelistet, welche die selektierten Güterarten annehmen können.<br>
+· <em>Gibt ab:</em> Alle Haltestellen werden gelistet, von welchen aus die selektierten Güterarten abfahren können.<br>
+Umladehaltestellen werden in beiden Spalten nicht berücksichtigt!
+</p>
+<p>
+<em>Auswahlschalter:</em><br>
+· <em>alle:</em> Alle Güterarten werden ausgewählt.<br>
+· <em>keine:</em> Alle Güterarten werden abgewählt.<br>
+· <em>inv.:</em> Bei Betätigung wird die Güterauswahl umgekehrt.
+</p>

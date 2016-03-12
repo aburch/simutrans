@@ -1,0 +1,43 @@
+<title>Ajuda - Opções</title>
+
+<h1><strong>Opções</strong></h1>
+
+<p>
+<strong>Opções</strong> abre controles para a operação e apresentação do jogo; e sair do Simutrans a partir da janela <strong>Opções</strong>.
+</p>
+<p>
+Clique sobre o ícone do disquete no topo da tela do jogo para abrir as <strong>Opções</strong>.
+</p>
+<p>
+Clique sobre um botão para abrir novos controles:
+</p>
+<p>
+<a href="language.txt"><em>Idioma:</em></a> define um idioma a ser usado no jogo.
+</p>
+<p>
+<a href="color.txt"><em>Cores:</em></a> define a cor da companhia do Jogador.
+</p>
+<p>
+<a href="display.txt"><em>Vídeo:</em></a> cofigurações de como o jogo se aparentará visualmente no Simutrans.
+</p>
+<p>
+<a href="sound.txt"><em>
+Som:</em></a> configurações para som e música no jogo.
+</p>
+<p>
+<a href="players.txt"><em>Jogadores:</em></a> abre controles para diferentes companhias dos jogadores.
+</p>
+<p>
+<a href="load.txt"><em>Carregar:</em></a> abre controles para continuar um jogo salvo.
+</p>
+<p>
+<a href="save.txt"><em>Salvar:</em></a> abre controles para gravar o atual jogo, para continuar jogar depois.
+</p>
+<p>
+<a href="new_world.txt"><em>Novo jogo:</em></a> abre controles para començar um novo jogo (isto fecha as barras de ferramentas, textos e opções do jogo atual).
+</p>
+<p>
+<em>Sair:</em> fecha o Simutrans, e o jogo atual não é salvo.
+</p>
+<p> Traduzido pela Equipe de tradução do Simutrans PT-SubFórum (<em>http://pt.simutrans.com</em>), 17/01/2008. Atualizado em 20/12/2010.
+</p>

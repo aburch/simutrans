@@ -1,0 +1,22 @@
+<title>Finanser dialog hjælp (fortsat)</title>
+
+<h1>Finanser (fortsat)</h1>
+
+<p>
+<em>Kassebeholdning:</em><br>
+Din kontante kassebeholdning.<br>
+<strong>Hvis dette beløb ved udgangen af en måned er negativt tre (3) gange i
+træk, er du bankerot og har "tabt" spillet.<br>
+Bemærk at vedligeholdelsesudgifter betales pr. måned ved udgangen af
+måneden</strong>
+</p>
+
+<p>
+<em>Aktiver:</em><br>
+Dette udregnes som den samlede salgsværdi af alle dine køretøjer.
+</p>
+
+<p>
+<em>Samlet formue:</em><br>
+Dette udregnes som summen af aktiver og kassebeholdning.
+</p>

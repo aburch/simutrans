@@ -1,0 +1,53 @@
+<title>Ajutor unele aeroport</title>
+
+<h1><strong>Unelte aeroport</strong></h1>
+
+<p>
+<strong>Unelte aeroport</strong> contine unelte care te ajuta sa construiesti o retea de trafic aerian. Acestea pot construi sau elimina : piste de rulare si piste de decolare/aterizare, terminale (pentru pasageri sau marfa) si alte cladiri specifice unui aeroport. Daca joci cu <a href="new_world.txt">timeline</a>, noi unelte apar cu trecerea timpului.
+</p>
+<p>
+Apasa pe iconita avionului in partea de sus a meniului pentru a deschide bara de unelte.<br>
+Tine cursorul deasupra uneltelor (dupa deschiderea barei) pentru a vedea numele si <a href="finances.txt">costul constructiei</a>, pretul mentenantei in paranteze si limita de viteza.
+</p>
+<p>
+{Sfat: Un mod usor de a construi un aeroport:<br>
+i) construieste si conecteaza pistele de rulare si decolare;<br>
+ii) plaseaza terminale la capatul pistelor de rulare;<br>
+iii) adauga cladiri necesare.}
+</p>
+<p>
+Uneltele pot include, de la stanga la dreapta:
+</p>
+<p>
+<em>Pista rulare:</em> este o pista folosita de avioane pentru a traversa de la terminal la pista de decolare. Pistele de taxi sunt construite la nivelul zero (nu pot fi construite sub pamant sau suspendate).<br>
+IMPORTANT: Daca pistele de rulare sunt conectate la capatul pistelor de aterizare/decolare, avioanle nu vor putea ateriza sau decola.<br>
+Pentru a construi o pista de rulare: click pe iconita (cursorul se va schimba), click pe teren pentru un punct de pornire (arata un buldozer iar in partea din dreapta jos coordonate) iar la final click in locul in care vrei sa se termine aceasta pista.<br>
+{Sfat: Foloseste Distruge/Elimina pentru a sterge bucati din pista de rulare. Functia undo, <a href="keys.txt">[z]</a> nu va returna banii.)
+</p>
+<p>
+<em>Pista principala:</em> construieste o pista pentru aterizarea si decolarea avioanelor. Aceste piste sunt construite la nivelul zero (deci nu pot fi construite sub pamant sau suspendate) dar se pot suprapune.<br>
+Pentru a construi o pista principala: click pe iconita (care se va schimba), click pe teren pentru a seta inceputul pistei (se va schimba in iconita unui buldozer) iar la final click in locul in care vrei ca pista sa se termine.<br>
+{Sfat: Capetele pistei principale trebuie sa fie goale, altfel avioanele nu vor putea decola sau ateriza. Foloseste Distruge/Elimina pentru a sterge bucati din pista de rulare. Functia undo, <a href="keys.txt">[z]</a> nu va returna banii.}
+</p>
+<p>
+<em>Eliminarea pistelor:</em> aceasta unealta va sterge un segment din pista de rulare sau aterizare, doar atunci cand nu este folosita de un avion. Aceasta unealta necesita anumite <a href="finances.txt">costuri</a>.<br>
+Pentru a sterge pista: click pe iconita (se va schimba intr-o crucie rosie), click pe inceputul pistei de care nu mai ai nevoie (iconita se va schimba din nou) iar la final click pe capatul zonei ce urmeaza a fi distrusa.
+{Sfat: Capetele pistei principale trebuie sa fie goale, altfel avioanele nu vor putea decola sau ateriza. Foloseste Distruge/Elimina pentru a sterge bucati din pista de rulare.}
+</p>
+<p>
+<em><a href="depot.txt"><em>Hangarul:</em></a></em> este folosit pentru a cumpara si a inventaria avioane. Hangarele au costuri de mentenanta si sunt construite la capatul unei piste de rulare.<br>
+Pentru a construi un Hangar: click pe unealta (se va schimba in iconita unui hangar) si apoi click pe capatul unei piste de rulare.<br>
+{Sfat: Elimina hangare cu unealta de Distruge/Sterge.}
+</p>
+<p>
+<em></em>&<em>Terminal:</em> aceata unealta construieste statii pentru avioane, folosite pentru imbarcarea si debarcarea pasagerilor, incarcareea si descarcarea de marfa.<br>
+Un Terminal, cand nu este construit langa un alt <a href="station.txt">Terminal</a> va actiona de sine statator (nu va imparti marfa sau pasageri cu celalalt terminal).<br>
+Terminalele sunt construite la capatul pistelor de rulare si au costuri de mentenanta. Mai mult, acestea au zone (arie de efect) care determina numarul de pasageri, posta si marfuri ce vor tranzita aeroportul. Un avion va ateriza numai la un aeroport care are un Terminal liber.<br>
+Pentru a construi un Terminal : click pe unealta si apoi click pe capatul unei piste de rulare.<br>
+{Sfat: Elimina Terminale cu unealta de Distruge/Sterge. Apasa [v] pentru a arata/ascunde aria de efect penru marfuri si pasageri.}
+</p>
+<p>
+<em>Cladiri aeroport:</em> aceasta unealta permite constructia de extensii pentru <a href="station.txt">Terminale</em></a> care pot creste costul de mententanta, capacitatea si aria de efect a acestuia, atat pentru pasageri cat si pentru marfa. In coltul unor unelte, o unealta (folosita in <a href="haltlist.txt">Lista statii</a> si Terminale) arata care elemente din extensie pot functiona cu terminalul.<br>
+Pentru a construi o extensie: click pe unealta pentru a selecta extensia dorita (cursorul se va schimba in forma unei extensii) iar apoi click pe zona potrivita, langa un Terminal. Noua extensie construita este acum parte din Terminal.<br>
+{Sfat: Sterge extenstiile cu unealta de Distruge/Sterge. Apasa [v] pentru a arata/ascunde aria de efect pentru marfa si pasageri.}
+</p>

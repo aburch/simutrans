@@ -1,0 +1,371 @@
+Eesti
+PROP_FONT_FILE
+Prop-Latin1.bdf
+################################################################################
+#                                                                              #
+#                Simutrans Scenario Specific Translation File                  #
+#                          Scenario: Sim-Experimental                          #
+#                              Language: et Eesti                              #
+#                             Encoding: ISO-8859-1                             #
+#                            Font : Prop-Latin1.bdf                            #
+#                           Date Created: 20.07 2013                           #
+#                                                                              #
+#                                   authors:                                   #
+#                                    - An_dz                                   #
+#                   note: Verified where all texts are shown                   #
+#                                    - Dwachs                                  #
+#                                    note:                                     #
+#                              Frank Penz - FrankP                             #
+#                                    note:                                     #
+#                          Markus Pristovsek - prissi                          #
+#                                    note:                                     #
+#                                                                              #
+################################################################################
+#_____________________________Simutrans Base Texts______________________________
+#_____________________________Simutrans Base Texts______________________________
+#__________________________________button_text__________________________________
+#__________________________________button_text__________________________________
+Apply Line
+Rakenda liin
+cl_btn_filter_disable
+blokeeritud
+cl_btn_filter_enable
+võimaldatud
+cl_btn_filter_settings
+Seaded
+cl_btn_sort_asc
+suurenev
+cl_btn_sort_desc
+vähenev
+cl_btn_sort_id
+Sisemine ID
+cl_btn_sort_income
+Sissetulek
+cl_btn_sort_name
+Nimi
+cl_btn_sort_type
+Tüüp
+clf_btn_alle
+kõik
+clf_btn_invers
+inv.
+clf_btn_keine
+ei ole
+Construction_Btn
+Ehitus maksab
+#_________________________________climates_text_________________________________
+#_________________________________climates_text_________________________________
+arctic
+arktiline kliima
+#__________________________________error_text___________________________________
+#__________________________________error_text___________________________________
+A bridge must start on a way!
+Sild peab\nhakkama \nteel.
+Autohalt muss auf\nStrasse liegen!\n
+Auto- või bussipeatus \npeab olema \nasetatud teele.
+Bridge is too long for this type!\n
+Sild on liiga\npikk valitud\nsillatüübi jaoks.
+Bruecke muss an\neinfachem\nHang beginnen!\n
+Sillad peavad\nalgama sirgelt\nteelõigult!
+Cannot built depot here!
+Siia ei saa depood ehitada.
+Cannot create generic line!\nSelect line type by\nusing filter tabs.
+Ei saa luua üldist liini!\nVali liini tüüp\nkasutades sakke.
+#___________________________________help_text___________________________________
+#___________________________________help_text___________________________________
+#____________________________________ki_text____________________________________
+#____________________________________ki_text____________________________________
+%s now\noffers bus services\nbetween %s\nand attraction\n%s\nat (%i,%i).\n
+%s nüüd\npakub bussiühendust\n %s\nja\n%svahel\(%i,%i).\n
+%s now\noffers bus services\nbetween %s\nand factory\n%s\nat (%i,%i).\n
+%s nüüd\npakub bussiühendust\n %s\nja\n%svahel\(%i,%i).\n
+#___________________________________menu_text___________________________________
+#___________________________________menu_text___________________________________
+AIRTOOLS
+Lennujaama vahendid
+#_________________________________message_text__________________________________
+#_________________________________message_text__________________________________
+%s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
+%s\nehitas\nuue raekoja\nkui jõudis\n%i elanikuni.
+Bankrott:\n\nDu bist bankrott.\n
+Pankrot: \n\nSa oled pankrotis!\n
+#_________________________________program_text__________________________________
+#_________________________________program_text__________________________________
+(in depot)
+(depoos)
+%d convois
+%d konvoid
+%d Einzelfahrzeuge im Depot
+%d sõidukit siin
+%i km/h (max. %ikm/h)
+%i km/h(maks. %ikm/h)
+%s building %s %s
+%s %s %s
+%s city %d %s
+%s linn %d %s
+%s has entered a depot.
+%s sisenes depoosse.
+%s land %d %s
+%s maa %d %s
+%s\nis crowded.
+%s\n on ülerahvastatud
+<no line>
+<liine pole>
+1 convoi
+1 konvoi
+1 Einzelfahrzeug im Depot
+1 sõiduk siin.
+1LIGHT_CHOOSE
+Heledus:
+1WORLD_CHOOSE
+Uue mängu seaded:
+2LIGHT_CHOOSE
+Värvid:
+2WORLD_CHOOSE
+Kaart number:
+3LIGHT_CHOOSE
+Kerimiskiirus:
+4LIGHT_CHOOSE
+Pöördkerimine
+5LIGHT_CHOOSE
+Jalakäijad peatustes
+5WORLD_CHOOSE
+Linnade arv
+6LIGHT_CHOOSE
+Jalakäijad linnas
+6WORLD_CHOOSE
+Liiklustihedus:
+8WORLD_CHOOSE
+päeva ja öö vaheldumine
+Abfrage
+Ülevaatamise vahend
+Abnehmer
+Tarbija
+About
+Teave
+Abriss
+Hävita/Eemalda
+Absenken
+Madalda maad
+Add Stop
+Lisa peatus
+Add stops for backward travel
+Lisa peatused tagasiretkele.
+aircraft_tab
+Veolennukid
+Airport
+Lennujaam
+All
+Kõik
+Allow player change
+Luba mängija vahetamist
+Alters a schedule.
+Lisa/eemalda peatus sõiduplaani/sõiduplaanist
+Angenommene Waren
+Kaubad mida läheduses olevad tööstused vajavad
+anhaengen
+Lisama
+Anhaenger_tab
+Järelkärud
+Anheben
+Tõsta maad
+April
+aprill
+Arbeiter aus:
+Töötajad elavad:
+Arrived
+Kohale jõudnud
+Assets
+Väärtused
+Aufloesen
+Võta koost lahti
+August
+august
+Available
+Kasutatav
+Bahndepot
+Rongidepoo
+battery
+Aku
+Baum
+Puu
+Baustelle
+Ehitusala
+Beenden
+Välju
+Beginner mode
+Algaja re?iim
+Besonderes Gebaeude
+Vaatamisväärsus
+BF
+jaam
+bio
+bioloogiline
+Blockstrecke ist\nbelegt\n
+\nRaudtee on kasutuses\nteise rongi poolt!\n
+Boden
+Maa
+Bruecke
+Sild
+Brueckenboden
+sild
+build choosesignals
+Ehita signaale
+Build city market
+Ehita uus market lähimasse linna.
+Build drain
+Trafo
+build HQ
+Ehita peakorter
+Build land consumer
+Ehita uus elektrijaam.
+Build monorail depot
+Ehita monoraudtee depoo
+Build powerline
+Ehita elektriliin
+Build presignals
+Ehita topeltbloki signaalid
+Build road depot
+Ehita garaa?
+Build ship depot
+Ehita laevatehas
+Build signals
+Ehita signaale
+Build train depot
+Ehita rongidepoo
+Build tram depot
+Ehita trammidepoo
+Build truck depot
+Ehita garaa?
+Buildings
+Ei eksisteeri!
+Built artifical slopes
+Ehita kunstlikke kaldeid
+Built random attraction
+Ehita suvaline atraktsioon.
+Bus_tab
+Bussid
+Cancel
+Tühista
+Capacity: %s\nLoad: %d (%d%%)
+Mahutavus: %s\nÂ» %d (%d%%)
+Cars are not available yet!
+Autod ei ole veel saadaval.
+Cash
+Kontobilanss
+Change player
+Vaheta mängijat
+Chart
+Diagramm
+Choose operation executed on clicking stored/new vehicles
+Vali tegevus vajutades uutele/olemasolevatele sõidukitele
+chooses a random map
+Valib juhusliku kaardi.
+citicens
+Linnaelanikud
+City industries
+Marketid linnas
+City list
+Linnade nimekiri
+City size
+Linna suurus
+city_road
+Linnatänav
+CityLimit
+Linna piirid
+cl_title
+Sõidukite nimekiri
+cl_txt_sort
+Sordi:
+clf_chk_aircrafts
+lennukid
+clf_chk_cars
+Bussid/veoautod
+clf_chk_indepot
+depoos
+clf_chk_name_filter
+Filtreeri nimed:
+clf_chk_noincome
+sissetulekut pole
+clf_chk_noline
+liini pole
+clf_chk_noroute
+marsruuti pole
+clf_chk_noschedule
+sõiduplaani pole
+clf_chk_ships
+Laevad
+clf_chk_spezial_filter
+Erifilter:
+clf_chk_stucked
+kinni
+clf_chk_trains
+Rongid
+clf_chk_type_filter
+Filtri tüübid:
+clf_chk_waren
+Filtreeri kaupu:
+clf_title
+Sõidukinimekirja filter
+Climate Control
+Sea kliimaolud
+COLOR_CHOOSE\n
+Palun vali \ncolour tabelist:\n
+Constructed by
+Värvis
+Constructed by %s
+Värvis %s
+convoi %d of %d
+Konvoi number %d %d-st
+Convoi has been sent\nto the nearest depot\nof appropriate type.\n
+Sõiduk on saadetud lähimasse sobivasse depoosse.
+Convoi is sold when all wagons are empty.
+Sõiduk müüakse niipea kui see on täiesti tühi.
+player 2
+Trikky Transport
+player 3
+Meyer Moving Co.
+Size (%d MB):
+Suurus (%d MB):
+#__________________________________record_text__________________________________
+#__________________________________record_text__________________________________
+#_______________________________unnecessary_text________________________________
+#_______________________________unnecessary_text________________________________
+%1_CITY_SYLL
+Harju
+%2_CITY_SYLL
+Järve
+%3_CITY_SYLL
+Põhja
+%4_CITY_SYLL
+Põlva
+%5_CITY_SYLL
+Kevade
+%6_CITY_SYLL
+Lehe
+%7_CITY_SYLL
+Puju
+1center
+%s %s
+1extern
+%s haru %s
+2center
+%s kesk %s
+2extern
+%s välis %s
+3center
+%s põhi %s
+3extern
+%s maa %s
+4center
+%s sise %s
+4extern
+%s välis %s
+5center
+%s vahetus %s
+6center
+%s kesk %s
+7center
+%s linna %s
+#_________________________Simutrans Experimental Texts__________________________
+#_________________________Simutrans Experimental Texts__________________________

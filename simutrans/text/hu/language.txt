@@ -1,0 +1,29 @@
+<title>Nyelv választás Sugó</title>
+
+<h1>Nyelv ablak</h1>
+
+<p>
+A Simutrans sok nyelvre lett lefordítva. Többek között magyarra is. Az egyes nyelvek
+kiválasztásakor a játék összes szövege azonnal átvált.<br>
+A már létezõ városok neve nem fog megváltozni, hanem az új térkép generálása közben kapott néven marad.
+Ha azt akarod, hogy a városok egyértelmûen a kiválsztott
+nyelven jelenjenek meg, akkor az új térkép beindítása elõtt válaszd ki a nyelvet. A Simutrans alapvetõen
+két módszert használ a városneveknél, az elsõ egy szótagókból álló véletlenszerû névgenerálás a másik módszer
+pedig \text vagy \pak128\text vagy \pak könyvtárakban található városlistákból szedi ki véletlenszerûen a
+városok nevét.
+</p>
+
+<p>
+Ha netán mégis hiányzik a kívánt fordítás akkor a
+<br>
+<strong>
+http://128.simutrans.com
+<br>
+http://forum.simutrans.com
+<br>
+http://www.simutrans.de
+</strong>
+<br>
+honlapokon kutakodhaszt tovább. Figyelem egyes fordítások nem biztos,
+hogy tartalmazzák a legutobbi fejlesztések leírását.
+</p>

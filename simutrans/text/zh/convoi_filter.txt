@@ -1,0 +1,36 @@
+<title>Vehicle List Filter Help</title>
+
+<h1><strong>Vehicle List Filter</strong></h1>
+
+<p>
+<strong>Vehicle List Filter</strong> has options to determine which <a href="convoiinfo.txt">Convoys</a>, are shown in <a href="convoi.txt">Vehicle List</a>.
+</p>
+<p>
+Click on Settings in Vehicle List to open <strong>Vehicle List Filter</strong>.
+</p>
+<p>
+Option-buttons select Convoys to be listed in Vehicle List when filter option is <a href="convoi.txt">enabled</a>. Only Convoys that fit all criteria set, are listed.
+</p>
+<p>
+Click on a square-button to set criteria for filter (button is indented when selected):
+</p>
+<p>
+<em>Filter names:</em> selects <a href="convoiinfo.txt">Convoy</a> by name. To use: click on button to select, then click on name-box and type required name exactly (option is case sensitive).
+</p>
+<p>
+<em>Filter types:</em> will list Convoys by type of transport if selected. To use: click on button to select, then click on transport type(s): road, rail, water and air.
+</p>
+<p>
+<em>Special filter:</em> selects <a href="convoiinfo.txt">Convoys</a> to list by following criteria (click on button to select, then click on):<br>
+- <em>no route</em> - cannot find a path to next destination.<br>
+- <em>no schedule</em> - not assigned a <a href="schedule.txt">route</a>.<br>
+- <em>no income</em> - not generating profit.<br>
+- <em>in a depot</em> - those in a <a href="depot.txt">depot</a>.<br>
+- <em>no line</em> - not assigned a <a href="linemanagement.txt">Line</a>.
+</p>
+<p>
+<em>Filter goods:</em> selects Convoys by ability to transport different goods & passengers. Click on button next to name to select item(s). Use <a href="mouse.txt">slider-bar</a> to scroll item(s) in list. Options include:<br>
+- <em>all</em> selects all items.<br>
+- <em>none</em> no items are selected.<br>
+- <em>inv.</em> inverses current selection of items.
+</p>

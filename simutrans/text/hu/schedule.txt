@@ -1,0 +1,18 @@
+<title>Menetrend Sugó</title>
+
+<h1>Menetrend ablak</h1>
+
+<p>
+Itt határozod meg. hogy konvojod milyen pontok között közlekedjen.
+Hat gombot találhatsz az ablak alsó részén:"Hozzáadás", "Beszúrás"
+"Törlés", "Kész","Új vonal", "Visszaút". A "Hozzáad" gombbal megállokat adsz hozzá a menetrendhez.
+A "Beszúrás" gombbal az aktuális megálló elé szúrsz be egy újabb megállót.
+Az aktuális megálló egy dupla ">>" jelezve van. A "Töröl" gombbal tudsz
+megállókat törölni, mégpedig úgy, hogy ha benyomod a "Töröl" gombot és
+utána a megfelelõ megállóra kattintasz a bal egérgombbal akkor az törlödik.
+Minden egyes megállóban meg tudod határozni, hogy a jármû kapacitásának,
+hány százaléka teljen fel mielõtt az elindulna. Tudni kell, hogy ha magasabb
+százalékra rakod és a termelõegység nem tudja egybõl megtölteni a jármûvet,
+akkor az addig marad a megállóban míg a megfelelõ százalékban fel nem telik.
+Az "Új vonal" új vonal tervezését teszi lehetõvé. A "Visszaút" pedig értelemszerû.
+</p>

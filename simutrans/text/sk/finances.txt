@@ -1,0 +1,34 @@
+<title>Financie - pomoc</title>
+
+<h1>Financie</h1>
+
+<p>Stav Tvojich pena¾ných prostriedkov mô¾es sprístupnit'
+stlaèením klávesu ,,f'' alebo voµbou ikony ,,Financie'' na hornej li¹te.<br>
+Zobrazená bude informácia o Tvojich financiách za posledné dva roky :
+príjmov a výdavkov.</p>
+<p> Polo¾ky sú nasledujúce:</p>
+
+<p>
+<em>Výdaje na stavbu</em> - to je èokoµvek, èo si postavil v priebehu roka
+vrátane signalizácie, ¾eleznicných tratí, pô¹t a pod.
+</p>
+<p>
+<em>Nové vozidlá</em> - výdaje na akýkoµvek dopravný prostriedok, ktorý pribudol
+do Tvojho vozového parku v ktoromkoµvek depe.
+</p>
+<p>
+<em>Údr¾ba vozidiel</em> - náklady na údr¾bu v¹etkých Tvojich dopravných prostriedkov.
+</p>
+<p>
+<em>Príjem</em> - súhrn Tvojich príjmov za v¹etok prepravený tovar a pasa¾ierov.
+</p>
+<p>
+<em>Celkom</em> - súhrn Tvojich príjmov/výdajov za rok. Toto je súhrn za v¹etky polo¾ky.
+</p>
+<p>
+<em>Zostatok</em> - celkové obchodné saldo Tvojej spoloènosti. To znamená celkový stav
+Tvojich peòazí. Ak je kladný, môze¹ ho pouzit' na ïalsie investovanie. Táto informácia je
+tie¾ zobrazená v stavovej (dolnej) li¹te obrazovky.
+</p>
+<em>Podpora (mesacne)</em> - bonifikácia, dotácie a pod. Tvojich financií (mesaène).
+<p>

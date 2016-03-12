@@ -1,0 +1,39 @@
+<title>Ayuda de Detalles del Convoy</title>
+
+<h1><strong>Detalles del Convoy</strong></h1>
+
+<p>
+<strong>Detalles del Convoy</strong> da mas informacion acerca de un Convoy (un vehiculo solo o una combinacion de unidades) y puede usar para vender rapidamente el Convoy.
+</p>
+<p>
+
+<strong>Detalles del Convoy</strong> se abre desde el boton
+<a href="convoiinfo.txt">
+Detalles</a> en la ventana Informacion del Convoy</strong>.
+<br>
+Si todos los elementos no son visibles <a href="mouse.txt">ajusta</a> la <strong>ventana de Detalles</strong> o usa la barra de desplazamiento para desplazar los elementos.
+</p>
+<p>
+En lo alto de la ventana
+<strong>Detalles del Convoy</strong> se muestra la siguiente informacion:
+</p>
+<p>
+<em>Potencia:</em> de Convoy (potencia combinada en el caso de un convoy de varias unidades).
+</p>
+<p>
+<em>Valor de Venta:</em> el dinero recibido si se vende el Convoy (precio de compra menos un ligera depreciacion).
+</p>
+<p>
+CUIDADO: Pulsa en el boton <em>Modo Venta</em> para vender el Convoy inmediatamente. No requiere confirmacion de la opracion de venta. El Convoy es eliminado del juego y se añade la cantidad de la venta al balance de jugador .
+</p>
+<p>
+<strong>Detalles del Convoy</strong> lista todas la unidades del Convoy.<br>
+La informacion listada para todas las unidades de convoy incluyen:<br>
+- <em>grafico del vehiculo:</em> un dibujo de la unidad (tambien usado en <a href="depot.txt">depositos</a>).<br>
+- <em>Fabricado:</em> mes y año de fabricacion, asi como fecha de introduccion si estas jugando con <a href="new_world.txt">cronologia</a>.<br>
+- <em>Valor de Venta:</em> cantidad recibida en caso de venta.<br>
+- <em>Potencia:</em> potencia generada (por vehiculos motorizados).<br>
+- <em>Friccion:</em> nivel actual de friccion.<br>
+- <em>Ingresos maximos:</em> ingresos del vehiculo por tipo de elemento transportado por el Convoy.<br>
+- <em>Elementos cargados:</em> cantidad y destino de los elementos actualmente cargados por el vehiculo.
+</p>

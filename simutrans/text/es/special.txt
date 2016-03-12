@@ -1,0 +1,60 @@
+<title>Ayuda de Herramientas Especiales de Construccion</title>
+
+<h1><strong>Herramientas Especiales de Construccion</strong></h1>
+
+<p>
+<strong>Herramientas Especiales de Construccion</strong> construye elementos que no tienen relacion con el trafico y tambien permite jugar como otro jugador en el juego.
+</p>
+<p>
+Pulsa en el icono de punto rojo dentro del circulo amarillo (el icono de la grua en el pak128) en la barra de la parte superior de la pantalla para abrir la barra de herramientas. <br>
+Situa el cursor sobre cada icono (despues de abrir o pulsar en la barra de herramientas) para ver el nombre y los <a href="finances.txt">costes</a> de construccion.
+</p>
+<p>
+<strong>Herramientas Especiales de Construccion</strong>incluye, de derecha a izquierda:
+</p>
+<p>
+<em>Post Office:</em> herramientas para construir una oficina postal que permite a una <a href="station.txt">Parada</a> manejar correo. Las oficinas postales incrementan la capacidad y el area de influencia de una Parada y acarrean un coste de mantenimiento.<br>
+Para construir una oficina postal: pulsa en la herramienta seleccionada, despues pulsa en una para existente. La nueva oficina postal se considerara parte de la Parada.<br>
+{Consejos: Elimina las oficinas postales y los obstaculos mediante la herramienta Eliminar.}
+</p>
+<p>
+<em>Extensiones de Estacion:</em> herramientas para construir edificios y extensiones para <a href="station.txt">Paradas</a>. Las extensiones pueden incrementar la capacidad y el area de influencia para pasajeros y mercancias, asi como el coste de mantenimiento. En la parte superior de algunos botones de herramienta aparece un mini icono (usado en la <a href="haltlist.txt">Lista de Estaciones</a> y en la ventan de Informacion de la Parada) que muestra que elemento puede gestionar la parada, gracias a la extension.<br>
+Para construir una extension: pulsa en la herramienta seleccionada (el cursor cambia de forma, un extension), despues pulsa en la posicion deseada, junto a una parada existente. La nueva extension sera considerada parte de la Parada.<br>
+{Consejos: Elimina las extensiones con la herramienta Eliminar.}
+</p>
+<p>
+<em>P+ Cambiar de Jugador:</em> permite jugar como otro <a href="players.txt">jugador</a> si la opcion <a href="new_world.txt">Permitir cambio de jugador</a> fue seleccionada en el comienzo de la partida. Las <a href="edittools.txt">opciones</a> extra estan disponibles jugando como jugador servicio publico.<br>
+Pulsa en la herramienta (o pulsa la tecla <a href="keys.txt">[P]</a>) para cambiar de jugador. Aparecera un mensaje de confirmacion, notificando que el cambio de jugador: pulsa en la x de la parte superior de la ventana del mensaje o pulsa Esc para cerrar el mensaje.
+</p>
+<p>
+<em>Fundar nueva ciudad:</em> herramienta que establece una nueva <a href="citywindow.txt">ciudad</a>.<br>
+Para fundar una nueva ciudad: pulsa en la herramienta o pulsa la tecla [C] (el cursor cambia de forma, un ayuntamiento), y despues pulse en la posicion deseada. La nueva ciudad cuesta 5 milliones de credits y sera construida sin requerir confirmacion.<br>
+{Consejos: Pulsa en el ayuntamiento con la herramienta Eliminar para eliminar los edificios de la ciudad.}
+</p>
+<p>
+<em>Plantar un arbol:</em> herramienta que planta un arbol.<br>
+Para plantar un arbol: pulsa en la herramienta seleccionada (el cursor cambia de forma, un arbol), y despues pulsa en la posicion deseada.<br>
+{Consejos: Elimina arboles con la herramienta Eliminar.}
+</p>
+<p>
+<em>Construir tendido electrico:</em> herramienta que construye tendido electrico entre subestaciones transformadoras, centrales electricas e <a href="industry_info.txt">industrias</a> (para aumentar la productividad). El suministro de energia electrica genera ingresos. Las lineas de tendido electrico no se pueden cruzar en diagonal con vias ni carreteras.<br>
+Para construir una linea de tendido electrico: pulsa en la herramienta o pulsa la tecla [l] (el cursor cambia de forma, un torre de tendido electrico), y despues pulsa en una subestacion transformadora situada junto a una central electrica. Por ultimo pulsa en la subestacion transformadora de una industria para suministrar energia electrica, para aumentar la produccion.<br>
+{Consejos: El tendido electrico se puede construir por etapas, pulsando en los lugares deseados del terreno. Elimina el tendido electrico mediante la herramienta Eliminar.}
+</p>
+<p>
+<em>Subestacion transformadora</em> herramienta que construye una subestacion transformadora en centrales electricas o en <a href="industry_info.txt">industrias</a> para conectar las lineas de tendido electrico.<br>
+Para construir una subestacion: pulsa el icono o la tecla [g] (el cursor cambia de forma, un circulo amarillo con un punto rojo), despues pulsa en el lugar deseado cerca de una central electrica o una industria.<br>
+Las subestaciones construidas junta a Centrales deben estar conectadas con otras subestaciones de industrias mediante tendido electrico para poder suministrar energia.<br>
+Si no se suminustra electricidad, la subestacion mostrara un rayo amarillo, cuando haya suministro aparecera un rayo rojo.<br>
+{Consejos: Las industrias y las Centrales electricas pueden tener varias subestaciones para incrementar la capacidad de suministro. Elimina las subestaciones mediante la herramienta Eliminar.}
+</p>
+<p>
+<em>Marcador:
+</em> herramienta que abre los controles para situar un marcador con texto personalizado que puede usarse para mover la vista del juego a diferentes puntos.<br>
+Pulsa el icono o la tecla [M], el cursor cambiara a un marcador de texto, despues pulsa en el lugar deseado para abrir los controles del Marcador. En la parte superior de los controles estan las coordenadas de la posicion seleccionada en el mapa, ademas de una caja de texto vacia, introduce el texto deseado en la caja de texto (pulsa en la caja, escribe el texto y pulsa en <em>OK</em> ,[Enter] o [Return]) para situar el marcador. El nuevo marcador se mostrara en el juego y se listara en los controles de Marcador (junto con las coordenadas) cuando reabras los controles.<br>
+Para mover la vista del juego a un marcador: Abre los controles de Marcador y pulsa en la posicion deseada dentro de la lista.<br>
+Para eliminar un Marcador: pulsa en la herramienta <em>Marcador
+</em> o la tecla [M],  el cursor cambiara a un marcador de texto; despues pulsa en las coordenadas del marcador a borrar; finalmente pulsa en <em>Remove</em> dentro de los controles de Marcador.<br>
+Para cerrar los controles de marcador: pulsa en la X de la parte superior izquierda de la ventana de los controles; o pulsa <em>Cancel</em>; o usa el teclado.<br>
+{Consejos: Las coordenadas del cursor se muestran en la parte izquierda de la barra inferior. Usa [!] para mostrar los textos de los marcadores en la vista del juego}
+</p>

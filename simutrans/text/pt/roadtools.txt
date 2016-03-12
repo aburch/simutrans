@@ -1,0 +1,66 @@
+<title>Ajuda - Estradas</title>
+
+<h1><strong>Estradas</strong></h1>
+
+<p>
+A <strong>Barra Estradas</strong> possibilita a construção de uma rede de transportes rodoviária para mercadorias e passageiros. As ferramentas nesta barra podem construir ou remover: estradas, pontes, túneis, sinais, depósitos, extensões e <a href="station.txt">Paradas</a>. Caso esteja jogando com a <a href="new_world.txt">linha do tempo</a> ativada, então com o passar do tempo mais opções poderão aparecer.
+</p>
+<p>
+Clique no ícone do caminhão na barra de ferramentas. Mova o cursor do mouse sobre a barra de opções (após abrir ou clicar na barra de ferramentas) para ver o nome e, onde for o caso, o <a href="finances.txt">custo</a> da construção, custo de manutenção (em parênteses), velocidade máxima permitida e o comprimento máximo.
+</p>
+<p>
+A <strong>Barra Estradas</strong> inclui, da esquerda para a direita:
+</p>
+<p>
+<em>Estradas:</em> ferramenta a qual constrói uma estrada entre dois pontos para veículos rodoviários. As estradas não podem ser construídas em áreas ocupadas por outras construções, e podem apenas ser construídas em barrancos na direção dos mesmos e não podem encontrar um caminho através de terrenos acidentados ou água. As novas estradas construídas podem se conectar com outras já existentes. Existem atualmente diversos tipos de estradas, com diferentes velocidades máximas permitidas e custos de construção e manutenção.<br>
+Para construir uma estrada: clique em um dos botões com a imagem de uma estrada para escolher um tipo (o cursor torna-se uma estrada), então clique na visão do jogo em um local para ser o ponto inicial da estrada (mostra um trator na visão do jogo e as coordenadas do local na barra inferior da tela no canto direito), e então clique em um outro ponto na visão do jogo para ser o ponto final da estrada.<br>
+{Dica: Diferentes tipos de estradas podem se conectar mesmo se forem construídas por <a href="players.txt">companhias</a> diferentes. Use pontes e túneis para conectar as estradas passando por terreno acidentado, ou para evitar obstáculos. Use o <a href="slopetools.txt">Editor de terrenos</a> para alterar o terreno, abrindo caminhos para as estradas. Use o botão Remover para remover seções individuais de estradas e alguns obstáculos. Aperte <a href="keys.txt">[Ctrl]</a> ao mesmo tempo para funções extras. Desfazendo alterações apertando [z] não o reembolsa dos custos da construção. Aperte [s] para selecionar a última ferramenta para construção de estradas usada.}
+</p>
+<p>
+<em>Remover trecho de estrada:</em> essa ferramenta remove estradas, quando não há nenhum veículo passando, entre dois pontos na visão do jogo (qualquer Parada rodoviária, sinal, túnel ou ponte no caminho é removido junto). O uso dessa ferramenta implica em <a href="finances.txt">custos de construção</a>.<br>
+Para remover um trecho de estrada: clique nessa ferramenta (muda o cursor para um X vermelho); então clique no trecho a ser destruído (nesse mesmo ponto é fixado um X vermelho); e finalmente clique em um outro ponto na estrada, para remover o trecho entre os dois pontos.<br>
+{Dica: Jogue como uma outra <a href="players.txt">companhia</a> para remover suas respectivas estradas.}
+</p>
+<p>
+<em>Ponte rodoviária:</em> possibilita a construção de pontes retas, para que os veículos possam passar entre dois trechos de estrada na visão do jogo. As pontes têm uma extensão máxima. Essa ferramenta constrói as pontes a partir do fim de uma estrada até um local adequado (outro fim de estrada ou um local com uma altitude levemente superior, dentro dos limites do comprimento máximo permitido).<br>
+Para construir uma ponte: clique em uma ferramenta de construção de ponte rodoviária para selecionar um tipo (muda o cursor para uma ponte), e então clique no fim de uma estrada (ponto inicial da ponte). Certos obstáculos ou a falta de um local adequado para o fim da ponte pode cancelar a construção da ponte: construa estradas em ambos os lados a serem conectados pela ponte, e tente novamente.<br>
+{Dica: Use o botão Remover para remover pontes (clique no fim da ponte) e também certos obstáculos à construção de pontes. Use os botões de construção de <em>Estradas</em> para conectar as extremidades das pontes às estradas.}
+</p>
+<p>
+<em>Túnel rodoviário:</em> possibilita a construção de um túnel reto, para que os veículos possam passar através da terra, entre dois trechos de estrada na visão do jogo.
+Os túneis não podem ser inclinados: os veículos entram e saem dos túneis a uma mesma altitude.<br>
+Essa ferramenta constrói um túnel, a partir do fim de uma estrada colocada em uma inclinação.
+Para construir um túnel: clique nessa ferramenta (muda o cursor para um túnel), e então clique em um fim de estrada em um uma inclinação para construir a entrada do túnel. Se o túnel não puder encontrar uma saída adequada (uma inclinação livre de obstáculos), ele não será construído: então coloque um fim de estrada em ambos os lados que serão conectados, e tente novamente.<br>
+{Dica: Use o Editor de terrenos e o botão Remover para criar locais adequados para as entradas e saídas de túneis. Use os botões de construção de estradas para conectar as saídas dos túneis às estradas.}
+</p>
+<p>
+<em>Sinais e bloqueadores rodoviários:</em> constróem sinais e barreiras rodoviárias para os veículos que ali transitam, na visão do jogo. Esses sinais direcionam e regulam o fluxo de veículos em estradas e pontes, e em cruzamentos e Paradas (onde passageiros e mercadorias são carregados e descarregados). Versões de mão-única e mão-dupla de alguns sinais podem ser construídos.<br>
+IMPORTANTE: Tome cuidado para não colocar sinais que evitam os veículos a chegarem aos seus destinos, por padrão os veículos dirigem pelo lado direito (isso pode ser alterado no simuconf.tab).<br>
+- <em>Semáforo:</em> essa ferramenta constrói semáforos que controlam o fluxo de veículos rodoviários em cruzamentos, tanto deixando-os passarem ou fazendo-os aguardarem por um tempo. Clique nessa ferramenta para selecioná-la (muda o cursor para um semáforo), e então clique na estrada para colocar um semáforo ali. Clique novamente nos cruzamentos para alterar a orientação dos semáforos.<br>
+- <em>Bloqueio:</em> (disponível só em pak128) essa ferramenta constrói uma barreira para impedir veículos rodoviários de prosseguirem. Clique na ferramenta para selecionar (o cursor torna-se num bloqueio), então clique na estrada para construir.<br>
+- <em>Sentido único:</em> essa ferramenta constrói um sinal que evita os veículos passarem daquele ponto, usando um lado da estrada. Clique nesse botão para selecioná-lo (o cursor muda para essa placa), e então clique em um trecho na estrada para colocar a placa ali; clique novamente no mesmo lugar para mudar o lado da estrada o qual a placa está.<br>
+- <em>Velocidade mínima de 80km/h</em> essa ferramenta constrói uma placa que evita os veículos com velocidade máxima inferior a 80 km/h de continuar naquela estrada. Clique nesse botão para selecioná-lo (o cursor muda para essa placa), e então clique em um trecho na estrada para colocar a placa ali; clique novamente no mesmo lugar para mudar o lado da estrada o qual a placa está, alterando o lado da estrada o qual o efeito da placa será aplicado.<br>
+- <em>Direcionador rodoviário para vaga livre:</em> essa ferramenta constrói uma placa a qual direciona um veículo rodoviário a uma seção livre de uma <a href="station.txt">Parada</a> com várias seções para carregar/descarregar mercadorias e passageiros: um veículo que passa por este sinal pode usar qualquer seção de uma Parada livre que esteja em seu próximo destino, e não apenas a um determinado pela sua <a href="schedule.txt">Programação</a>. Se não houver nenhuma vaga livre ou caminho livre ao seu próximo destino, o veículo aguardará na placa. Clique nessa ferramenta para selecioná-la (o cursor muda para essa placa), e então clique em um trecho na estrada para colocar ali a placa, e clique novamente no mesmo trecho para alterar o lado da estrada o qual a placa está, alterando o lado o qual os efeitos da placa serão aplicados.<br>
+- <em>Vias expressas:</em> (disponível só em pak128) ferramentas que constroem um sinal que só permite veículos proceder numa direção em uma estrada se a velocidade máxima deles for mais de 80km/h.<br>
+Clique em um dos botões acima para selecionar um deles (o cursor muda para o respectivo sinal), e então clique em um trecho na estrada para colocar ali o sinal, e clique novamente no mesmo local para alterar o lado da estrada o qual o sinal está, alterando também o lado o qual os efeitos do mesmo serão aplicados.<br>
+{Dica: Remova sinais com o botão Remover. Pressione [Ctrl] para colocar sinais em pontes sobre estradas construídas em um nível inferior.}
+</p>
+<p>
+<a href="depot.txt"><em>Garagem:</em></a> essa ferramenta constrói uma garagem para a compra e gerenciar veículos rodoviários e seus reboques. As garagens possuem custos de manutenção e são construídos no fim de uma estrada.<br>
+Para construir uma garagem: clique neste botão (muda o cursor para uma garagem), e então clique no fim de uma estrada.<br>
+{Dica: Use o botão Remover para destruir Garagens.}
+</p>
+<p>
+<em>Estacionamento:</em> (disponível só em pak 128) ferramentas que constroem extensões para <a href="station.txt">Paradas</a>, as quais aumentam capacidade e área de captura para bens e passageiros, e o custo de manutenção.<br>
+Para construir uma extensão: clique numa ferramenta para selecionar uma extensão (cursor torna-se numa extensão), então clique na posição desejada numa estrada, ao lado de uma Parada existente na visão do jogo. A nova extensão agora passa a ser considerada parte da Parada.<br>
+{Dicas: Remova extensões com a ferramenta Remover.}
+</p>
+<p>
+<em>Paradas rodoviárias:</em> essas ferramentas possibilitam a construção de locais para que os veículos rodoviários possam carregar/descarregar mercadorias e passageiros.<br>
+Quando uma seção de uma Parada rodoviária não é construída ao lado de uma <a href="station.txt">Parada</a> já existente, uma nova Parada será criada.<br>
+Paradas rodoviárias são construídas sobre <a href="roadtools.txt">estradas</a> já existentes e possuem um custo de manutenção e uma área de captura de mercadorias, passageiros e correio. No canto de certos botões um ícone (utilizado na Lista de Paradas e na Informação da Parada) mostra quais itens a Parada aceita. Diferentes Paradas podem possuir capacidades diferentes para mercadorias, passageiros e correio.<br>
+Para construir uma Parada: clique em um dos botões de construção de um tipo de Parada (muda o cursor para a Parada correspondente), e então clique na posição desejada em uma estrada.<br>
+{Dica: Remova as Paradas com o botão Remover. Pressione [v] para mostrar/ocultar a área de captura de mercadorias e passageiros na tela do jogo. As Paradas rodoviárias não podem ser colocadas em uma estrada construída por outras companhias. Pressione [Ctrl] para construir em pontes sobre rodovias em um nível inferior. Crie Paradas com múltiplas vagas para veículos para aumentar a capacidade e a área de captura.}
+</p>
+<p> Traduzido pela Equipe de tradução do Simutrans PT-SubFórum (<em>http://pt.simutrans.com</em>), 07/02/2008.
+</p>

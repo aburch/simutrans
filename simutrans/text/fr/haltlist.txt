@@ -1,0 +1,25 @@
+<title>Aide sur la liste des arrêts</title>
+
+<h1>Liste des arrêts et gares</h1>
+
+<p>
+Cet écran vous montre tous les arrêts de bus, les gares et les quais de chargement du jeu.
+</p>
+<p>
+Quand vous cliquez sur un arrêt, une fenêtre de détail de cet arrêt s'ouvre.
+</p>
+<p>
+Il est possible de modifier l'ordre d'affichage des arrêt en appuyant sur le bouton à gauche.
+Les critères sont Nom, Attente, Type et numéro. Le bouton juste à coté permet de
+choisir l'ordre d'affichage croissant ou décroissant.
+</p>
+<p>
+Vous pouvez aussi filtrer la liste grâce aux boutons de droite. En cliquant sur
+le bouton de 'réglage' de filtrage, une fenêtre de sélection des critères de
+filtrage s'ouvrira. Puis vous pourrez activer le filtrage en appuyant sur le
+bouton 'activer'.
+</p>
+<p>
+Actualisé pour Simutrans 0.83.1.2<br>
+02/01/2003
+</p>

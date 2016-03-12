@@ -1,0 +1,53 @@
+<title>Luchtvaart Tools Help (Nederlands)</title>
+
+<h1><strong>Luchtvaart Tools</strong></h1>
+
+<p>
+<strong>Luchtvaart Tools</strong> bevatten tools om een luchtvaart infrastructuur te bouwen . Deze tools kunnen de volgende onderdelen bouwen of slopen: taxibanen en start- en landingsbanen voor vliegtuigen, pieren (gebruikt om passagiers en vracht te laden en te lossen), hangars (voor het beheren en kopen van vliegtuigen) en nog andere luchtvaart gebouwen. Indien de <a href="new_world.txt">tijdlijn</a> is geactiveerd in het spel, zal naar mate de tijd vordert in Simutrans het aantal beschikbare keuzes aan verandering onderhevig zijn.
+</p>
+<p>
+Klik op het vliegtuig icoon bovenin het scherm om het menu te openen<br>
+Beweeg de muis aanwijzer over de beschikbare keuzes in het menu (het menu dient wel geactiveerd te zijn, anders even ergens in het menu klikken) om de naam en waar van toepassing:  <a href="finances.txt">constructiekosten</a>, onderhoudskosten tussen haken, en de snelheidslimiet.
+</p>
+<p>
+{TIP: Een manier om een eenvoudige luchthaven te bouwen is:<br>
+i) leg taxiba(a)n(en) en start/landingsbanen aan en verbindt deze met elkaar;<br>
+ii) plaats een of meer pieren aan het einde van de taxiba(a)n(en);<br>
+iii) voeg overige luchthaven gebouwen toe indien nodig.}
+</p>
+<p>
+In het menu kunnen de volgende tools voorkomen, van links naar rechts:
+</p>
+<p>
+<em>Taxibaan:</em> cre-eert een taxibaan voor het verbinden van de pier met de start- en/of landingsbaan. Taxibanen dienen op een horizontale ondergrond te worden geplaatst.<br>
+LET OP: Als taxibanen aangesloten zijn op het begin of het einde van een start- en landingsbaan kan het voorkomen dat vliegtuigen niet kunnen stijgen of landen.<br><br>
+Hoe een taxibaan te bouwen: klik op de toolbar (het menu met iconen voor Luchtvaart)  op het taxibaan icoon (verandert de cursor in een afbeelding van een taxibaan), klik op het terrein voor de beginpositie (cursor verandert in een bulldozer en laat de co-ordinaten zien rechtsonder op het scherm), en klik tot slot op het terrein voor het eindpunt van de taxibaan.<br><br>
+{TIP: Gebruik de verwijder functie om individuele stukken taxibaan te verwijderen. De undo functie <a href="keys.txt">[z]</a> geeft het ge-investeerde bedrag niet terug.}
+</p>
+<p>
+<em>Start- en landingsbaan:</em> cre-eert een start- (en landingsbaan) welke door vliegtuigen worden gebruikt om te stijgen en te landen. Startbanen worden gebouwd op horizontaal terrein en mogen elkaar kruisen.<br>
+Hoe een startbaan te bouwen: klik op de toolbar (het menu met iconen voor Luchtvaart)  op het start- en landingsbaan icoon (verandert de cursor in een afbeelding van een start- en landingsbaan), klik op het terrein voor de beginpositie (cursor verandert in een bulldozer en laat de co-ordinaten zien rechtsonder op het scherm), en klik tot slot op het terrein voor het eindpunt van de start- en landingsbaan.<br><br>
+{TIP: Houdt het begin en einde van start- en landingsbanen vrij van connecties omdat het anders kan voorkomen dat vliegtuigen niet willen stijgen of landen. Gebruik de verwijder functie om individuele stukken start- en landingsbaan te verwijderen. De undo functie <a href="keys.txt">[z]</a> geeft het ge-investeerde bedrag niet terug.}
+</p>
+<p>
+<em>Verwijder (start/landings/taxi)banen:</em> verwijdert aaneengesloten delen van een taxibaan of start- en landingsbaan, als er zich geen vliegtuigen bevinden tussen het begin en het einde van de te verwijderen baan. Het gebruik van deze tool brengt <a href="finances.txt">constructiekosten</a>met zich mee.<br><br>
+Hoe een baan te verwijderen: klik op de toolbar (het menu met iconen voor Luchtvaart)  op het rode kruis icoon (verandert de cursor in een afbeelding van een rood kruis), klik op het terrein voor de beginpositie (laat de co-ordinaten zien rechtsonder op het scherm), en klik tot slot op het terrein voor het eindpunt van de start- en landingsbaan.<br><br>
+{TIP: Houdt het begin en einde van start- en landingsbanen vrij van connecties omdat het anders kan voorkomen dat vliegtuigen niet willen stijgen of landen. Gebruik de verwijder functie om individuele stukken start- en landingsbaan te verwijderen.}
+</p>
+<p>
+<em>Hangar <a href="depot.txt"><em>(Depot):</em></a></em> bouwt een hangar om vliegtuigen te kopen en te beheren. Hangars hebben  onderhoudskosten en worden gebouwd op een uiteinde van een taxibaan.<br>
+Om een hangar te bouwen (verandert de cursor in een hangar) en klik op een uiteinde van een taxibaan.<br><br>
+{TIP: Verwijder hangars met de verwijder tool.}
+</p>
+<p>
+<em>Pier:</em> noodzakelijk om het in- en uitladen van passagiers en vracht mogelijk te maken.<br>
+Wanneer een pier niet in de buurt van een bestaand <a href="station.txt">station of halte</a> wordt gebouwd zal er een nieuw station worden gebouwd.<br>
+Een pier wordt op het einde van een stuk taxibaan geplaatst; een pier heeft onderhoudskosten en kan passagiers, post en vracht herbergen. Een vliegtuig zal alleen landen wanneer er een pier beschikbaar is voor laden en lossen.<br>
+Hoe een pier te plaatsen: klik op de toolbar (het menu met iconen voor Luchtvaart) op het pier icoon en klik vervolgens op een uiteinde van de taxibaan op het terrein.<br><br>
+{TIP: Verwijder pieren met de verwijder tool. Druk op [v] om het dekkingsgebied van een pier te tonen of te verbergen.}
+</p>
+<p>
+<em>Luchthaven gebouwen:</em> bouwt uitbreidingen voor de luchthaven <a href="station.txt">(station of halte)</em></a> die de capaciteit voor passagiers, post en vracht kunnen vergroten, het dekkingsgebied van het vliegveld kunnen vergroten maar ook onderhoudskosten kunnen verhogen. Indien er in de bovenhoek van de te kiezen uitbreiding een icoontje staat (ook gebruikt in <a href="haltlist.txt">stationslijst</a> en stations en halte details) geeft dat aan welke capaciteit wordt uitgebreid.<br>
+Hoe een uitbreiding te plaatsen: klik op de toolbar (het menu met iconen voor Luchtvaart)  op het rode kruis icoon (verandert de cursor in een afbeelding van de gekozen uitbreiding), en plaats deze naast een pier/station/halte.  De nieuwe uitbreiding wordt nu geacht bij de pier/station/halte te horen.<br><br>
+{TIP: Verwijder uitbreidingen met de verwijder tool. Druk op [v] om het dekkingsgebied van een pier/station/halte te tonen of te verbergen.}
+</p>

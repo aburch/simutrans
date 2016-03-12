@@ -1,0 +1,55 @@
+<title>Ayuda de Herramientas de Barcos/Puertos</title>
+
+<h1><strong>Herramientas de Barcos/Puertos</strong></h1>
+
+<p>
+<strong>Herramientas de Barcos/Puertos</strong> construye una red de transporte maritima y fluvial. La herramientas pueden construir o eliminar: canales, esclusas, puertos varios, y astilleros . Si estas jugando con <a href="new_world.txt">cronologia</a>, a medida que pase el tiempo apareceran mas herramientas y opciones.
+</p>
+<p>
+Pulsa en el boton de Barco en la parte superior de la pantalla para abrir la barra de herramientas.<br>
+Situa el cursor sobre los botones (despues de abrir o pulsar en la barra de herramientas) para ver el nombre y el coste: <a href="finances.txt">coste</a> de construccion, entre parentesis el coste de mantenimiento maintenance cost in brackets, y el limite de velocidad.
+</p>
+<p>
+<strong>Herramientas de Barcos/Puertos</strong> incluye, de izquierda a derecha:
+</p>
+<p>
+<em>Canal:</em> construye canales, para barcos y barcazas, entre dos puntos.<br>
+Los canales solo se pueden construir en cuestas, en la direccion de la cuesta y puede no ser posible crear el camino si el terreno es escarpado. Los canales construidos entre puntos, pueden usar otros canales en su camino.<br>
+Para construir un canal: pulsa en la herramienta para seleccionar (el cursor cambia de forma, a un canal), despues pulsa en el terreno para el punto de inicio (muestra una bulldozer y las coordenadas del punto en la parte derecha de la barra inferior de la pantalla), y pulsa de nuevo para establecer el punto final.<br>
+{Consejos: Los canales construidos por diferentes <a href="players.txt">jugadores</a> no se conectan. Usa las <a href="slopetools.txt">Herramientas del Terreno</a> para cambiar el terreno, para habilitar los caminos para canales. Usa la herramienta Eliminar para eliminar partes individuales del canal y algunos obstaculos. Deshacer la ultima ruta mediante la tecla <a href="keys.txt">[z]</a> no reembolsa los costes de construccion.}
+</p>
+<p>
+<em>Remove channels:</em> herramienta que elimina una parte del canal, cuando no hay vehiculos, entre dos puntos (ATENCION: Las paradas en el canal se eliminan tambien). La herramienta tiene asociados costes de construccion.<br>
+Para eliminar un canal: pulsa en la herramienta (el cursor cambia de forma, una cruz); despues pulsa en el canal a eliminar (en el punto seleccionado se muestra una cruz roja); y por ultimo pulsa en otro punto del canal, removiendo dicha parte del canal hasta el punto inicial.
+</p>
+<p>
+<em>Puente levadizo:</em> herramienta que construy una esclusa y un puente levadizo para elevar/descender un barco o barcaza a otro nivel en un canal. El puente tiene un tamaño maximo y se construye al final del canal, en un lugar adecuado (otro canal en terreno elevado, sin limite).<br>
+Para construir un puente: pulsa en la herramienta para seleccionar puente levadizo (el cursor cambia de forma, un puente), pulsa en el final del canal. Algunos obstaculos o la falta de espacio adecuado para el final de puente puede hacer que no se construya: construye un canal a ambos lados para crear el puente levadizo, y prueba de nuevo.<br>
+{Tips: Use Destroy/Remove to remove bridges (click on hoist-end) & some obstructions to bridge building.<br>
+Use <em>Canal</em> tools to connect bridge-ends to water ways.}.
+</p>
+<p>
+<em>ChannelStop</em> (<em>Canal Quay</em> en pak128) herramienta que construye un puerto en un canal para transporte fluvial, cargando y descargando mercancias y pasajeros.<br>
+La Parada del Canal, cuando no es contruida adyacente a una <a href="station.txt">Parada</a> existente, creara una nueva parada.<br>
+La Parada del Canal tiene un area de influencia para mercancias, pasajeros y correo. La esquina del icono de la herramienta es un mini icono que (usado en la <a href="haltlist.txt">Lista de Estaciones</a> y en la ventana de <a href="station.txt">Informacion de la Parada</a>) muestra que elementos permite manejar la Parada del Canal, a una parada.<br>
+Para construir un Parada de Canal: pulsa en la herramienta (el cursor cambia de forma, una Parada del Canal); despues pulsa en un canal para cosntruir.<br>
+{Consejos: Elimina las Paradas de Canal con la herramienta Eliminar. Pulsa la tecla [v] para mostrar/ocultar el area de influencia para mercancias y pasajeros.<br>
+La paradas para vehiculos maritimos y fluviales no se listan en la <a href="haltlist.txt">Lista de Paradas/Estaciones</a>}.
+</p>
+<p>
+<em>Ship-stops/Puertos:</em> herramientas que construyen varios elementos de puertos para vehiculos maritimos y fluviales, para descargar y cargar mercancia y pasajeros.<br>
+Los puertos se construyen en los bordes de la costa.<br>
+Un puerto, cuando no es construido adyacente a una <a href="station.txt">Parada</a> existente, creara una nueva parada.<br>
+La Parada del Canal tiene un area de influencia para mercancias, pasajeros y correo. La esquina del icono de la herramienta es un mini icono que (usado en la <a href="haltlist.txt">Lista de Estaciones</a> y en la ventana de <a href="station.txt">Informacion de la Parada</a>) muestra que elementos permite manejar el puerto, a una parada. Los diferentes puertos pueden tener diferente capacidad para mercancias, pasajeros y correo. <br>
+Para construir un puerto: pulsa en la herramienta seleccionada (el cursor cambia de forma, un puerto) y despues pulsa en una zona de la costa, cerca del agua<br>
+{Consejos: Elimina los puertos mediante la herramienta Eliminar.<br>
+El tamaño de los puertos se puede aumentar, construyendo en cuadriculas adyacentes. Los transportes maritimos pueden usar cualquier cuadricula del agua dentro del area influencia de un puerto.<br>
+Las Paradas maritimas no aparecen en la <a href="haltlist.txt">Lista de Estaciones/Paradas</a>.<br>
+La <a href="industry_info.txt">Industria</a> maritima tal como Plataformas Petroliferas no requieren un puerto, los vehiculos maritimos pueden usar cualquier cuadricula dentro del area de influencia de una Industria maritima.<br>
+Pulsa la tecla [v] para mostrar/ocultar el area de influencia para mercancias y pasajeros.}
+</p>
+<p>
+<em><a href="depot.txt"><em>Astillero:</em></a></em> herramienta que construye un astillero para comprar y administrar barcos, barcas y barcazas. Los Astilleros tiene costes de mantenimiento y se construyen en el agua, cerca de la costa.<br>
+Para construir un Astillero: pulsa en la herramienta (el cursor cambia de forma, un astillero), y despues pulsa en el agua, en un lugar cercano a la costa.<br>
+{Consejos: Elimina los Astilleros mediante la herramienta Eliminar.}
+</p>

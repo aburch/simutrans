@@ -1,0 +1,12 @@
+<title>POMOC: transport morski</title>
+
+<h1>Transport morski</h1>
+<p>
+W tym oknie dostepne sa narzedzia do budowy stoczni, statków i portów.
+</p>
+<p>
+W górnym lewym rogu znajduje sie ikona budowy portów. Po kliknieciu kursor zamieni sie w rysunek portu. Dzieki portom mozliwy jest transport ludzi i towarów pomiedzy obszarami przedzielonymi woda lub na wyspy. Po kliknieciu na brzegu morza zostanie zbudowany port. Mozna zbudowac port nawet duzych rozmiarów. Aby przydzielic statek do portu podczas ustalania rozkladu musisz wybrac pole sasiadujace z portem.<strong>Uwaga! Podczas usuwania portu moga wystapic bledy!</strong>
+</p>
+<p>
+W menu znajduja sie dwie ikony budowy stoczni. Jedyna róznica jest kierunek wyplywania gotowych statków. Stocznie uzywane sa do produkcji statków. Stocznie budujemy klikajac w wybranym miejscu na wodzie w poblizu brzegu.
+</p>

@@ -1,0 +1,21 @@
+<title>Hjälp om signalintervall</title>
+
+<h1>Allmänt bruk:</h1><br>
+<p>
+-- Ctrl-klicka på signalikonen för att ta fram denna dialog.<br>
+
+-- Klicka-och-dra längs spår ger en förhandsvisning av de signaler som kommer att byggas; släpp knappen för att genomföra byggnationen. Signalerna kommer att byggas så att tåg kan färdas längs spåret endast i den riktning som du drog musen.<br>
+
+-- I nätverksspel: Ctrl-klicka först på spåret och släpp musknappen. När du håller ner musknappen och flyttar musen får du en förhandsvisning. Återigen släpper du knappen för att genomföra byggnationen.<br>
+</p>
+<h1>Parametrar i denna dialog:</h1>
+<p>
+-- <em>Avstånd:</em> hur många rutor som skall skilja intilliggande signaler åt (diagonal räknas som 1/2 ruta).
+Detta värde visas på knappen om signalverktyget är valt.<br>
+
+-- <em>Ta bort mellanliggande signaler:</em> om aktiverad så kommer redan existerande signaler tas bort från sträckan.<br>
+
+-- <em>Ersätt andra signaler:</em> om aktiverad, så kommer existerande signaler på de rutor där nya signaler skall byggas att tas bort.<br>
+<br>
+Dessa parametrar ställs in för varje signaltyp separat.
+</p>

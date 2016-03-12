@@ -1,0 +1,18 @@
+<title>Help Hartã</title>
+
+<h1>Hartã</h1>
+
+<p>
+Este afiºat o hartã în miniaturã a întegului joc. Sunt afiºate ºi unele
+informaþii adiacente jocului.
+</p>
+
+<p>
+Fiecare tip de unitate de producþie are propria culoare. Legenda culorilor
+este afiºat sub hartã.
+</p>
+
+<p>
+Harta poate fi mãritã. Asta se face cu un click drept pe orice parte
+a hãrþii.
+</p>

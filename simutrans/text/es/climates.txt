@@ -1,0 +1,66 @@
+<title>Ayuda de los Controles del Clima</title>
+
+<h1><strong>Controles del Clima</strong></h1>
+
+<p>
+<strong>Controles del Clima</strong> establece las opciones para los aspectos topograficos y meteorologicos del juego<br>
+<p>
+<strong>Controles del Clima</strong> se abre con el boton<a href="new_world.txt">Crear un Nuevo Mundo</a>.
+</p>
+<p>
+Ajusta los parametros con los botones:
+</p>
+<p>
+<it>Opciones:</it>
+</p>
+<p>
+
+<em>Nivel del agua:</em> establece la altura del nivel del mar en el mapa.
+</p>
+<p>
+
+<em>Altura:</em> establece la altura maxima del terreno.
+</p>
+<p>
+
+
+<em>Terreno abrupto:</em> establece la irregularidad del terreno; un valor alto crea un terreno mas escarpado.<br>
+</p>
+<p>
+<it>Opciones de la cota de nieve:</it>
+</p>
+<p>
+
+<em>Cota de nieve veraniega:</em> establece la cota de nieve en verano
+</p>
+<p>
+
+<em>Cota de nieve invernal:</em> establece la cota de nieve en invierno.<br>
+</p>
+<p>
+<it>Opciones del clima:</it>
+</p>
+<p>
+
+<em>clima desertico:</em>  muy poca lluvia y temperaturas extremas
+</p>
+<p>
+
+<em>clima tropical:</em> tipico de lugares cercanos al ecuador, altas temperaturas constantes a nivel del mar y suaves mesetas).
+</p>
+<p>
+
+<em>clima mediterraneo:</em> clima ligeramente humedo y cambiante
+</p>
+<p>
+
+<em>clima templado:</em> se da en areas entre los tropicos y los polos, clima cambiante.
+</p>
+<p>
+
+<em>clima artico (tundra):</em> bajas temperaturas, muy cerca de los polos
+</p>
+<p>
+
+<em>clima rocoso:</em> cercano al desertico.
+</p>

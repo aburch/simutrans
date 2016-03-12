@@ -1,0 +1,77 @@
+<title>Ayuda del Mapa</title>
+
+<h1><strong>Mapa</strong></h1>
+
+<p>
+<strong>Mapa</strong> muestra un mapa del mundo actual dando informacion del terreno, localizaciones importantes y redes de transporte. Tambien es una forma de mover la ventana del juego por el mundo creado.
+</p>
+<p>
+Pulsa en el icono del mapa en la parte superior de la pantalla o pulsa <a href="keys.txt">[m]</a> para abrir la ventana del <strong>Mapa</strong>, se puede <a href="mouse.txt">ajustar</a> o minimizar la ventana. Las flechas, en la parte superior del mapa, abren/cierran etapas : opciones del mapa, una escala de color min-max que muestra el nivel de actividad de algunas de las opciones, y una clave de colores de las <a href="industry_info.txt">industrias</a> que se ven en el mapa.
+</p>
+<p>
+El mapa tiene tres escalas diferentes: pulsa el boton derecho en el Mapa (o pon el cursor y usa la rueda del raton) para pasar de una escala a otra. Si no es visible el mapa entero entonces cambia la escala del mapa, o ajusta la ventana del <strong>Mapa</strong>, o mueve el mapa para ver la porcion deseada: pulsa el boton derecho para arrastrar (o usa las barras de desplazamiento en los laterales de la ventana).
+<p>
+</p>
+En el mapa, el agua es azul y el terreno elevado es mas claro que el terreno bajo. La parte de mundo,que es mostrada, se representa con un cuadrado blanco en el <strong>Mapa</strong>: la parte superior de la pantalla corresponde con la parte superior izquierda del cuadrado blanco (El norte es la parte superior del mapa, el Noroeste es la parte superior de la pantalla). Si el cuadrado blanco cae fuera del mapa, esa parte se muestra como agua.
+</p>
+<p>
+Para mover la vista del juego a grandes distancias, pulsa el boton izquierdo en el punto requerido o para arrastrar el cuadrado blanco.
+</p>
+<p>
+Apunta con el cursor a una <a href="industry_info.txt">fabrica</a> en el mapa, para ver el nombre y una linea blanca que enlaza con los consumidores que parpadean; manten pulsado [Shift] primero para mostrar una linea roja hasta los suministradores.
+</p>
+<p>
+En el mapa (cuando no se estan usando las opciones): <a href="citywindow.txt">ciudades</a>, atracciones, tuneles, canales aparecen en gris oscuro; carreteras en negro; vias de tren y tranvia en gris; puentes en gris claro; <a href="station.txt">Paradas</a> en rojo/amarillo; vias de monorail/maglev en naranja; areas de aeropuertos en blanco; y vehiculos en amarillo.
+</p>
+<p>
+Pulsa en los botones de opcion para mostrar/ocultar detalles en el mapa acerca de:
+</p>
+<p>
+<em>Ciudades:</em> nombres de las <a href="citywindow.txt">areas urbanas</a>.
+</p>
+<p>
+<em>Pasajeros:</em> areas de influencia para pasajeros de las <a href="station.txt">Paradas</a>.
+</p>
+<p>
+<em>Correo:</em> areas de influencia para correo de las <a href="station.txt">Paradas</a>.
+</p>
+<p>
+<em>Mercancia:</em> nivel de mercancias y pasajeros por las carreteras y vias (usa la escala min-max ).
+</p>
+<p>
+<em>Estado de la</em> <a href="station.txt"><em>Parada</em></a>: los colores indican la operatibilidad de la Parada en relacion con como de abarrotafa esta. El mismo color se muestra en las barras de color de estado en la <a href="haltlist.txt">Lista de Estaciones</a>, en la ventana de <a href="station.txt">Informacion de la Parada</a> y en <a href="linemanagement.txt">Administracion de Listas</a> , y es el mismo color mostrado en la barra de color que hay sobre el nombre de la Parada).
+</p>
+<p>
+<em>Servicio:</em> nivel de mercancias y pasajeros usando la <a href="station.txt">Parada</a> (usa la escala min-max).
+</p>
+<p>
+<em>Trafico:</em> nivel de los <a href="convoiinfo.txt">vehiculos</a> en carreteras y vias (usa la escala min-max).
+</p>
+<p>
+<em>Origen:</em> nivel de las mercancias y pasajeros que comienzan el viaje en una <a href="station.txt">Parada</a> (usa la escala min-max).
+</p>
+<p>
+<em>Destino:</em> nivel de las mercancias y pasajeros que terminan el viaje en una  <a href="station.txt">Parada</a> (usa la escala min-max).
+</p>
+<p>
+<em>En espera:</em> nivel de las mercancias y pasajeros esperando por transporte en una  <a href="station.txt">Parada</a> (usa la escala min-max).
+</p>
+<p>
+<em>Vias:</em> vias de tren, tranvia y señales; las vias, puentes y tuneles se muestran en blanco (en rojo si estan electrificadas) y las señales se muestran en amarillo.
+</p>
+<p>
+<em>Limite de velocidad:</em> las carreteras y vias se muestran en relacion a la maxima velocidad permitida (usa la escala min-max).
+
+</p>
+<p>
+<em>Lineas electricas:</em> el <a href="special.txt">tendido electrico</a> (usa la escala min-max para mostrar el nivel de suministro en el momento en que abriste el Mapa).
+</p>
+<p>
+<em>Atracciones turisticas:</em> nivel de pasajeros que generan las atracciones turisticas (usa la escala min-max), la opcion tambien resalta las atracciones en el mapa.
+</p>
+<p>
+<em>Fabricas:</em> resalta las <a href="industry_info.txt">industrias</a>; ilumina los consumidores y suministradores en el mapa.
+</p>
+<p>
+<em>Depositos:</em> resalta los <a href="depot.txt">depositos</a>. Los colores indican el tipo de transporte: barco en amarillo; vehiculo de carretera en naranja; tren en rojo; avion en verde; tranvia en azul; y monorail en gris.
+</p>

@@ -1,0 +1,16 @@
+<title>Muisbediening Help (Nederlands)</title>
+<h1><strong>Muisbediening Help</strong></h1>
+<p>
+<strong>Muisbediening</strong> geeft informatie hoe met de muis om te gaan met schermen en het wijzigen van de grootte om lijsten beter in beeld te krijgen.
+</p>
+<p>
+Hoe een <strong>schermgrootte</strong> te wijzigen in Simutrans: klik op rechteronderhoek van een scherm (gemarkeerd met horizontale strepen) waarvan je de grootte wilt wijzen en klik met de linkermuisknop en houdt deze ingedrukt. Sleep de muis over het scherm om de grootte aan te passen.</p>
+<p>Richtingen: <br>
+<em>Naar links</em>: het scherm wordt smaller<br>
+<em>Naar rechts</em>: het scherm wordt breder<br>
+<em>Naar boven</em>: het scherm wordt kleiner, er worden minder regels getoond<br>
+<em>Naar beneden</em>: het scherm wordt groter, er worden meer regels getoond<br>
+<em>Diagonaal</em>: combineert de bovenstaande mogelijkheden, bijvoorbeeld diagonaal rechts naar beneden zal het scherm groter en breder maken.
+</p>
+<p>Een aantal schermen heeft links en rechts van een bepaalde optie een horizontale pijl staan. Hiermee is het mogelijk om te bladeren in een lijst met waardes. <br>De linkerpijl zal naar de vorige of lagere waarde gaan<br>
+De rechterpijl zal naar de volgende of hogere waarde gaan</p>

@@ -1,0 +1,10 @@
+<title>Városok listája Sugó</title>
+
+<h1>Városok listája</h1>
+
+<p>
+Itt egy helyen jelennek meg a városok. Jelezve van a város mérete (lakosszámban) illetve, hogy épp mennyivel fejlõdõtt.
+</p>
+<p>
+-> <a href="citywindow.txt">Város statisztikák</a>
+</p>
