@@ -6,7 +6,7 @@
 </p>
 <h1>Concept:</h1>
 <p>
-The condition of a waytile wil decrease for each vehicle driving over it. If the player has sufficient funds, the way will eventually automatically upgrade, but if the player lacks money, the way will be downgraded and the maxspeed of the way is halfed. If the way degrades even more, it will eventually turn into a mothballed way, wich will be impassable for vehicles. This is however also configurable by the player to choose which way to upgrade to, alternatively if the way should not upgrade at all.<br>
+The condition of a waytile wil decrease for each vehicle driving over it. If the player has sufficient funds, the way will eventually automatically upgrade, but if the player lacks money, the way will be downgraded and the maxspeed of the way is halfed. If the way degrades even more, it will eventually turn into a <em>mothballed way</em>, wich will be impassable for vehicles. This is however also configurable by the player to choose which way to upgrade to, alternatively if the way should not upgrade at all.<br>
 The conditions of the ways can be checked either in the info window of the waytile, or in the "wear" overlay for the <a href="map.txt">minimap</a>.<br>
 The player is warned up to once a month if renewals are not possible due to insufficient funds<br><br>
 The current treasholds for way downgrading (pak.britain-Ex):<br>
@@ -50,7 +50,7 @@ By default, road and air vehicles (air vehicles acting like road vehicles on the
 </p>
 <h1>Tips:</h1>
 <p>
--- Take the <em>condition</em> value of a way in consideration when building ways intended for lots of traffic.<br><br>
+-- Take the <em>durability</em> value of a way in consideration when building ways intended for lots of traffic.<br><br>
 -- Modern vehicles tend to wear the ways more than older vehicles. <em>Override the automatic renewal</em> to force it to build better ways, in order to futureproof your network!<br>
 <p>
 </p>

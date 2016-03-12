@@ -1,4 +1,3 @@
-
 *.ncb
 *.suo
 *.old
@@ -112,3 +111,44 @@ $RECYCLE.BIN/
 Network Trash Folder
 Temporary Items
 .apdisk
+
+# Language files to be added eventually:
+text/cz
+text/de
+text/dk
+#text/en
+text/es
+text/fr
+text/hr
+text/hu
+text/it
+text/ja
+text/nl
+text/pl
+text/pt
+text/ro
+text/ru
+text/sk
+text/sv
+text/zh
+
+
+# Folders:
+config/
+font/
+music/
+script/
+skin/
+themes/
+pak*/
+text/citylists/
+
+
+# Files:
+/*.*
+simctrl
+envvars
+text/*.*
+text/en/Simutrans-Experimental.vcxproj.lnk
+text/all-help-file-names
+
