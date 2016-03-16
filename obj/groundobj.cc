@@ -74,7 +74,7 @@ bool groundobj_t::register_besch(groundobj_besch_t *besch)
 /* also checks for distribution values
  * @author prissi
  */
-const groundobj_besch_t *groundobj_t::random_groundobj_for_climate(climate cl, hang_t::typ slope  )
+const groundobj_besch_t *groundobj_t::random_groundobj_for_climate(climate_bits cl, hang_t::typ slope  )
 {
 	// none there
 	if(  besch_names.empty()  ) {
@@ -83,7 +83,7 @@ const groundobj_besch_t *groundobj_t::random_groundobj_for_climate(climate cl, h
 
 	int weight = 0;
 	FOR(  vector_tpl<groundobj_besch_t const*>,  const i,  groundobj_typen  ) {
-		if(  i->is_allowed_climate(cl)  &&  (slope == hang_t::flach  ||  i->get_phases() == 16)  ) {
+		if(  i->is_allowed_climate_bits(cl)  &&  (slope == hang_t::flach  ||  (i->get_phases() >= slope  &&  i->get_bild_nr(0,slope)!=IMG_LEER  )  )  ) {
 			weight += i->get_distribution_weight();
 		}
 	}
@@ -93,7 +93,7 @@ const groundobj_besch_t *groundobj_t::random_groundobj_for_climate(climate cl, h
 		const int w=simrand(weight);
 		weight = 0;
 		FOR(vector_tpl<groundobj_besch_t const*>, const i, groundobj_typen) {
-			if (i->is_allowed_climate(cl) && (slope == hang_t::flach || i->get_phases() == 16)) {
+			if(  i->is_allowed_climate_bits(cl)  &&  (slope == hang_t::flach  ||  (i->get_phases() >= slope  &&  i->get_bild_nr(0,slope)!=IMG_LEER  )  )  ) {
 				weight += i->get_distribution_weight();
 				if(weight>=w) {
 					return i;
@@ -140,11 +140,10 @@ void groundobj_t::calc_image()
 	}
 	// check for slopes?
 	uint16 phase = 0;
-	if(besch->get_phases()==hang_t::erhoben) {
+	if(besch->get_phases()>1) {
 		phase = welt->lookup(get_pos())->get_grund_hang();
 	}
-	const bild_besch_t *bild_ptr = get_besch()->get_bild( season, phase );
-	bild = bild_ptr ? bild_ptr->get_nummer() : IMG_LEER;
+	bild = get_besch()->get_bild_nr( season, phase );
 }
 
 

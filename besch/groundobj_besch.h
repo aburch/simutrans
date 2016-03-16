@@ -46,8 +46,19 @@ public:
 
 	bool is_allowed_climate( climate cl ) const { return ((1<<cl)&allowed_climates)!=0; }
 
-	const bild_besch_t *get_bild(uint8 season, uint16 phase) const  	{
+	// the right house for this area?
+	bool is_allowed_climate_bits( climate_bits cl ) const { return (cl&allowed_climates)!=0; }
+
+	// for the paltzsucher needed
+	climate_bits get_allowed_climate_bits() const { return allowed_climates; }
+
+	const bild_besch_t *get_bild(uint8 season, uint16 phase) const {
 		return get_child<bildliste2d_besch_t>(2)->get_bild(phase, season);
+	}
+
+	image_id get_bild_nr(uint8 season, uint16 phase) const {
+		const bild_besch_t *bild = get_child<bildliste2d_besch_t>(2)->get_bild(phase, season);
+		return bild != NULL ? bild->get_nummer() : IMG_LEER;
 	}
 
 	// moving stuff should have eight
