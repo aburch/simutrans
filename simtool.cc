@@ -2344,7 +2344,7 @@ void tool_build_way_t::mark_tiles(  player_t *player, const koord3d &start, cons
 
 	if(  bauigel.get_count()>1  ) {
 		// Set tooltip first (no dummygrounds, if bauigel.calc_casts() is called).
-		win_set_static_tooltip( tooltip_with_price("Building costs estimates", -bauigel.calc_costs() ) );
+		win_set_static_tooltip( tooltip_with_price("Building costs estimates", bauigel.calc_costs() ) );
 
 		// make dummy route from bauigel
 		for(  uint32 j=0;  j<bauigel.get_count();  j++   ) {
