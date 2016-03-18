@@ -39,6 +39,7 @@ public:
 	static sint16 water_depth_levels;
 
 	// only these textures need external access
+	static const grund_besch_t *shore;	// nicer shore graphics, optional
 	static const grund_besch_t *fundament;
 	static const grund_besch_t *slopes;
 	static const grund_besch_t *fences;

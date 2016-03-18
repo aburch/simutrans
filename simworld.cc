@@ -1389,30 +1389,21 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","distributing groundobjs");
 			for(  k.x=(k.y<old_y)?old_x:0;  k.x<get_size().x;  k.x++  ) {
 				grund_t *gr = lookup_kartenboden_nocheck(k);
 				if(  gr->get_typ()==grund_t::boden  &&  !gr->hat_wege()  ) {
-					// test for beach
-					climate_bits cl = (climate_bits)(1<<get_climate(k));
-					bool neighbour_water = false;
-					for(int i=0; i<8; i++) {
-						if(  is_within_limits(k + koord::neighbours[i])  &&  get_climate( k + koord::neighbours[i] ) == water_climate  ) {
-							neighbour_water = true;
-							break;
-						}
-					}
-					if(  neighbour_water  ) {
-						// add shore
-						const groundobj_besch_t *besch = groundobj_t::random_groundobj_for_climate( water_climate_bit, gr->get_grund_hang() );
-						if(besch) {
-							gr->obj_add( new groundobj_t( gr->get_pos(), besch ) );
-						}
-					}
-					else {
-						queried --;
-						if(  queried<0  ) {
-							const groundobj_besch_t *besch = groundobj_t::random_groundobj_for_climate( cl, gr->get_grund_hang() );
-							if(besch) {
-								queried = simrand(env_t::ground_object_probability*2-1);
-								gr->obj_add( new groundobj_t( gr->get_pos(), besch ) );
+					queried --;
+					if(  queried<0  ) {
+						// test for beach
+						bool neighbour_water = false;
+						for(int i=0; i<8; i++) {
+							if(  is_within_limits(k + koord::neighbours[i])  &&  get_climate( k + koord::neighbours[i] ) == water_climate  ) {
+								neighbour_water = true;
+								break;
 							}
+						}
+						const climate_bits cl = neighbour_water ? water_climate_bit : (climate_bits)(1<<get_climate(k));
+						const groundobj_besch_t *besch = groundobj_t::random_groundobj_for_climate( cl, gr->get_grund_hang() );
+						if(besch) {
+							queried = simrand(env_t::ground_object_probability*2-1);
+							gr->obj_add( new groundobj_t( gr->get_pos(), besch ) );
 						}
 					}
 				}

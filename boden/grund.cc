@@ -1089,6 +1089,14 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 r
 					if(  water_corners  ) {
 						if(  slope  ) {
 							display_alpha( grund_besch_t::get_water_tile(slope), grund_besch_t::get_beach_tile( slope, water_corners ), ALPHA_BLUE, xpos, ypos, 0, 0, true, dirty CLIP_NUM_PAR );
+							if(  grund_besch_t::shore  ) {
+								// additional shore image
+								image_id shore = grund_besch_t::shore->get_bild(slope,snow_transition<=0);
+								if(  shore==IMG_LEER  &&  snow_transition<=0  ) {
+									shore = grund_besch_t::shore->get_bild(slope,0);
+								}
+								display_normal( shore, xpos, ypos, 0, true, dirty CLIP_NUM_PAR );
+							}
 						}
 						else {
 							// animate
