@@ -1451,7 +1451,7 @@ void fabrik_t::smoke() const
 	const rauch_besch_t *rada = besch->get_rauch();
 	if(rada) {
 		const koord size = besch->get_haus()->get_groesse(0)-koord(1,1);
-		const uint8 rot = rotate%besch->get_haus()->get_all_layouts();
+		const uint8 rot = (4-rotate)%besch->get_haus()->get_all_layouts();
 		koord ro = rada->get_pos_off(size,rot);
 		grund_t *gr = welt->lookup_kartenboden(pos_origin.get_2d()+ro);
 		// to get same random order on different compilers
