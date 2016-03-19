@@ -238,7 +238,7 @@ bool brueckenbauer_t::is_blocked(koord3d pos, ribi_t::ribi check_ribi, const cha
 
 			const hang_t::typ slope = gr2->get_weg_hang();
 			if (dz < -clearance) {
-				if (dz + hang_t::max_diff(slope) < -clearance ) {
+				if (dz + hang_t::max_diff(slope) + gr2->get_weg_yoff() / TILE_HEIGHT_STEP < -clearance ) {
 					// too far below
 					continue;
 				}
@@ -417,7 +417,7 @@ koord3d brueckenbauer_t::finde_ende(player_t *player, koord3d pos, const koord z
 		}
 
 		const hang_t::typ end_slope = gr->get_weg_hang();
-		const sint16 hang_height = gr->get_hoehe()+hang_t::max_diff(end_slope);
+		const sint16 hang_height = gr->get_hoehe() + hang_t::max_diff(end_slope) + gr->get_weg_yoff()/TILE_HEIGHT_STEP;
 
 		if(hang_height > max_height) {
 			error_msg = "Cannot connect to the\ncenter of a double slope!";
