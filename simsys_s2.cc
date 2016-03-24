@@ -4,7 +4,7 @@
  * This file is part of the Simutrans project under the artistic license.
  */
 
-#include <SDL.h>
+#include <SDL2/SDL.h>
 
 #ifdef _WIN32
 #include <windows.h>
