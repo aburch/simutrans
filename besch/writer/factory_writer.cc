@@ -215,7 +215,7 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 		sprintf(buf, "outputcapacity[%d]", produkte);
 		int cap = obj.get_int(buf, 0);
 
-		if(  cap==0  ) {
+		if(  cap<11  ) {
 			dbg->error( "factory_writer_t::write_obj()", "Factory outputcapacity must be larger than 10! (currently %i)", cap );
 		}
 
