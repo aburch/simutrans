@@ -695,7 +695,8 @@ void planquadrat_t::add_to_haltlist(halthandle_t halt)
 		// Quick and dirty way to our 2d co-ordinates 
 		const koord pos = get_kartenboden()->get_pos().get_2d();
 		const koord halt_next_pos = halt->get_next_pos(pos);
-		const uint8 distance = (uint8)shortest_distance(halt_next_pos, pos);
+		// Must be koord_distance not shortest_distance as the coverage radii are square, not circular
+		const uint8 distance = (uint8)koord_distance(halt_next_pos, pos);
 		if(halt_list_count > 0)
 		{
 			// Since only the first one gets all, we want the closest halt one to be first
@@ -703,7 +704,7 @@ void planquadrat_t::add_to_haltlist(halthandle_t halt)
 			
 			for(unsigned insert_pos = 0; insert_pos < halt_list_count; insert_pos++)
 			{			
-				if(shortest_distance(halt_list[insert_pos].halt->get_next_pos(pos), pos) > distance) 
+				if(koord_distance(halt_list[insert_pos].halt->get_next_pos(pos), pos) > distance) 
 				{
 					halt_list_insert_at(halt, insert_pos, distance);
 					return;

@@ -400,7 +400,7 @@ bool ai_goods_t::create_ship_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 			koord p(x,y);
 			grund_t *gr = welt->lookup_kartenboden(p);
 			if(  gr->ist_wasser()  &&  halt == haltestelle_t::get_halt( gr->get_pos(), this )  &&  gr->get_depot()==NULL  ) {
-				if(  shortest_distance(best_pos,platz2)<shortest_distance(p,platz2)  ) {
+				if(  koord_distance(best_pos,platz2)<koord_distance(p,platz2)  ) {
 					best_pos = p;
 				}
 			}
