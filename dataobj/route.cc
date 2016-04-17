@@ -1132,7 +1132,8 @@ void route_t::postprocess_water_route(karte_t *welt)
 			{
 				// Do not go on a tile where a one way sign forbids going.
 				// This saves time and fixed the bug that a one way sign on the final tile was ignored.
-				ribi_t::ribi go_dir = gr->get_weg(wegtyp)->get_ribi_maske();
+				weg_t* wg = gr->get_weg(wegtyp);
+				ribi_t::ribi go_dir = wg ? wg->get_ribi_maske(): ribi_t::alle;
 				if((ribi & go_dir) != 0)
 				{
 					if(tdriver->get_waytype() == track_wt || tdriver->get_waytype() == narrowgauge_wt || tdriver->get_waytype() == maglev_wt || tdriver->get_waytype() == tram_wt || tdriver->get_waytype() == monorail_wt)
