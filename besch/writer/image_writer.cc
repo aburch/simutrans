@@ -190,10 +190,25 @@ uint16 *image_writer_t::encode_image(int x, int y, dimension* dim, int* len)
 			while(  !is_transparent(pix)  ) {
 				// write the colored pixel
 				PIXVAL pixval = pixrgb_to_pixval(pix);
-				*dest++ = pixval;
-				if(  pixval >= 0x8020  ) {
+				if(  pixval >= 0x8020  &&  !has_transparent  ) {
+					if(  count  ) {
+						*colored_run_counter = endian(count);
+						*dest++ = endian(0x8000);
+						colored_run_counter = dest++;
+						count = 0;
+					}
 					has_transparent = 0x8000;
 				}
+				else if(  pixval < 0x8020  &&  has_transparent  ) {
+					if(  count  ) {
+						*colored_run_counter = endian(count+has_transparent);
+						*dest++ = endian(0x8000);
+						colored_run_counter = dest++;
+						count = 0;
+					}
+					has_transparent = 0;
+				}
+				*dest++ = pixval;
 				count++;
 				if (row_px_count >= img_width) { // end of line ?
 					break;
