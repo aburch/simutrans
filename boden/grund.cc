@@ -1080,7 +1080,7 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 r
 									}
 								}
 								// overlay transition climates
-								display_alpha( grund_besch_t::get_climate_tile( transition_climate, slope ), grund_besch_t::get_alpha_tile( slope, overlay_corners ), ALPHA_GREEN | ALPHA_RED, xpos, ypos, 0, 0, true, dirty CLIP_NUM_PAR );
+								display_alpha( grund_besch_t::get_climate_tile( transition_climate, slope ), grund_besch_t::get_alpha_tile( slope, overlay_corners ), ALPHA_GREEN | ALPHA_BLUE, xpos, ypos, 0, 0, true, dirty CLIP_NUM_PAR );
 							}
 						}
 						slope_corner /= 3;
@@ -1088,7 +1088,7 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 r
 					// finally overlay any water transition
 					if(  water_corners  ) {
 						if(  slope  ) {
-							display_alpha( grund_besch_t::get_water_tile(slope), grund_besch_t::get_beach_tile( slope, water_corners ), ALPHA_BLUE, xpos, ypos, 0, 0, true, dirty CLIP_NUM_PAR );
+							display_alpha( grund_besch_t::get_water_tile(slope), grund_besch_t::get_beach_tile( slope, water_corners ), ALPHA_RED, xpos, ypos, 0, 0, true, dirty CLIP_NUM_PAR );
 							if(  grund_besch_t::shore  ) {
 								// additional shore image
 								image_id shore = grund_besch_t::shore->get_bild(slope,snow_transition<=0);
@@ -1100,7 +1100,7 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 r
 						}
 						else {
 							// animate
-							display_alpha( grund_besch_t::sea->get_bild(0,wasser_t::stage), grund_besch_t::get_beach_tile( slope, water_corners ), ALPHA_BLUE, xpos, ypos, 0, 0, true, dirty|wasser_t::change_stage CLIP_NUM_PAR );
+							display_alpha( grund_besch_t::sea->get_bild(0,wasser_t::stage), grund_besch_t::get_beach_tile( slope, water_corners ), ALPHA_RED, xpos, ypos, 0, 0, true, dirty|wasser_t::change_stage CLIP_NUM_PAR );
 						}
 					}
 				}
@@ -1109,12 +1109,12 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 r
 				if(  slope != 0  &&  (!weg  ||  !weg->hat_gehweg())  ) {
 					switch(  snow_transition  ) {
 						case 1: {
-							display_alpha( grund_besch_t::get_snow_tile(slope), grund_besch_t::get_alpha_tile(slope), ALPHA_GREEN | ALPHA_RED, xpos, ypos, 0, 0, true, dirty CLIP_NUM_PAR );
+							display_alpha( grund_besch_t::get_snow_tile(slope), grund_besch_t::get_alpha_tile(slope), ALPHA_GREEN | ALPHA_BLUE, xpos, ypos, 0, 0, true, dirty CLIP_NUM_PAR );
 							break;
 						}
 						case 2: {
 							if(  hang_t::max_diff(slope) > 1  ) {
-								display_alpha( grund_besch_t::get_snow_tile(slope), grund_besch_t::get_alpha_tile(slope), ALPHA_RED, xpos, ypos, 0, 0, true, dirty CLIP_NUM_PAR );
+								display_alpha( grund_besch_t::get_snow_tile(slope), grund_besch_t::get_alpha_tile(slope), ALPHA_BLUE, xpos, ypos, 0, 0, true, dirty CLIP_NUM_PAR );
 							}
 							break;
 						}
