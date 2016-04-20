@@ -23,6 +23,8 @@ class image_writer_t : public obj_writer_t {
 
 		image_writer_t() { register_writer(false); }
 
+		static uint32 block_getpix(int x, int y);
+
 	public:
 		static void dump_special_histogramm();
 
@@ -37,14 +39,6 @@ class image_writer_t : public obj_writer_t {
 
 	private:
 		bool block_laden(const char* fname);
-
-		static uint32 block_getpix(int x, int y)
-		{
-			return
-				(block[y * width * 3 + x * 3 + 0] << 16) +
-				(block[y * width * 3 + x * 3 + 1] <<  8) +
-				(block[y * width * 3 + x * 3 + 2] <<  0);
-		}
 
 		/**
 		 * Encodes an image into a sprite data structure, considers

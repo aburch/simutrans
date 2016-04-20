@@ -281,7 +281,7 @@ int large_font_total_height = 11;
 
 #define MAX_PLAYER_COUNT (16)
 
-#define RGBMAPSIZE (0x8000+LIGHT_COUNT+16)
+#define RGBMAPSIZE (0x8000+LIGHT_COUNT+MAX_PLAYER_COUNT)
 
 /*
  * Hajo: mapping tables for RGB 555 to actual output format
@@ -289,7 +289,9 @@ int large_font_total_height = 11;
  *
  * 0x0000 - 0x7FFF: RGB colors
  * 0x8000 - 0x800F: Player colors
- * 0x8010 -       : Day&Night special colors
+ * 0x8010 - 0x001F: Day&Night special colors
+ * The following transparent colors are not in the colortable
+ * 0x8020 - 0xFFE1: 3 4 3 RGB transparent colors in 31 transparency levels
  */
 static PIXVAL rgbmap_day_night[RGBMAPSIZE];
 
@@ -323,6 +325,16 @@ static PIXVAL specialcolormap_day_night[256];
 PIXVAL specialcolormap_all_day[256];
 
 
+/*
+ * contains all color conversions for transparency
+ * 16 player colors, 15 special colors and 1024 3 4 3 encoded colors for transparent base
+ */
+static PIXVAL transparent_map_day_night[MAX_PLAYER_COUNT+LIGHT_COUNT+1024];
+#ifdef ALL_DAY_TRANSPARENT
+static PIXVAL transparent_map_all_day[MAX_PLAYER_COUNT+LIGHT_COUNT+1024];
+static PIXVAL *transparent_map_current;
+#endif
+
 // offsets of first and second company color
 static uint8 player_offsets[MAX_PLAYER_COUNT][2];
 
@@ -354,9 +366,18 @@ struct imd {
 
 // Flags for recoding
 #define FLAG_HAS_PLAYER_COLOR (1)
-#define FLAG_ZOOMABLE (2)
-#define FLAG_REZOOM (4)
+#define FLAG_HAS_TRANSPARENT_COLOR (2)
+#define FLAG_ZOOMABLE (4)
+#define FLAG_REZOOM (8)
 //#define FLAG_POSITION_CHANGED (16)
+
+#define TRANSPARENT_RUN (0x8000u)
+
+// different masks needed for RGB 555 and RGB 565 for blending
+#define ONE_OUT_16 (0x7bef)
+#define TWO_OUT_16 (0x39E7)
+#define ONE_OUT_15 (0x3DEF)
+#define TWO_OUT_15 (0x1CE7)
 
 
 static KOORD_VAL disp_width  = 640;
@@ -1176,9 +1197,16 @@ static void activate_player_color(sint8 player_nr, bool daynight)
 			for(i=0;  i<8;  i++  ) {
 				rgbmap_all_day[0x8000+i] = specialcolormap_all_day[player_offsets[player_day][0]+i];
 				rgbmap_all_day[0x8008+i] = specialcolormap_all_day[player_offsets[player_day][1]+i];
+#ifdef ALL_DAY_TRANSPARENT
+				transparent_map_all_day[i] = specialcolormap_all_day[player_offsets[player_day][0]+i];
+				transparent_map_all_day[i+8] = specialcolormap_all_day[player_offsets[player_day][1]+i];
+#endif
 			}
 		}
 		rgbmap_current = rgbmap_all_day;
+#ifdef ALL_DAY_TRANSPARENT
+		transparent_map_current = transparent_map_all_day;
+#endif
 	}
 	else {
 		// changing color table
@@ -1188,9 +1216,14 @@ static void activate_player_color(sint8 player_nr, bool daynight)
 			for(i=0;  i<8;  i++  ) {
 				rgbmap_day_night[0x8000+i] = specialcolormap_day_night[player_offsets[player_night][0]+i];
 				rgbmap_day_night[0x8008+i] = specialcolormap_day_night[player_offsets[player_night][1]+i];
+				transparent_map_day_night[i] = specialcolormap_day_night[player_offsets[player_day][0]+i];
+				transparent_map_day_night[i+8] = specialcolormap_day_night[player_offsets[player_day][1]+i];
 			}
 		}
 		rgbmap_current = rgbmap_day_night;
+#ifdef ALL_DAY_TRANSPARENT
+		transparent_map_current = transparent_map_day_night;
+#endif
 	}
 }
 
@@ -1220,12 +1253,18 @@ static void recode_img_src_target(KOORD_VAL h, PIXVAL *src, PIXVAL *target)
 			do {
 				// clear run is always ok
 				runlen = *target++ = *src++;
-
-				// now just convert the color pixels
-				while(  runlen--  ) {
-					*target++ = rgbmap_day_night[*src++];
+				if(  runlen & TRANSPARENT_RUN  ) {
+					runlen &= ~TRANSPARENT_RUN;
+					while(  runlen--  ) {
+						*target++ = *src++;
+					}
 				}
-
+				else {
+					// now just convert the color pixels
+					while(  runlen--  ) {
+						*target++ = rgbmap_day_night[*src++];
+					}
+				}
 				// next clear run or zero = end
 			} while(  (runlen = *target++ = *src++)  );
 		} while(  --h  );
@@ -1372,7 +1411,8 @@ static void rezoom_img(const image_id n)
 				do {
 					// clear run + colored run + next clear run
 					sp++;
-					sp += *sp + 1;
+					sp += (*sp)&(~TRANSPARENT_RUN); // MSVC crashes on (*sp)&(~TRANSPARENT_RUN) + 1 !!!
+					sp ++;
 				} while(  *sp  );
 				sp++;
 			}
@@ -1452,7 +1492,7 @@ static void rezoom_img(const image_id n)
 					// clear run
 					p += runlen * 4;
 					// color pixel
-					runlen = *src++;
+					runlen = (*src++) & ~TRANSPARENT_RUN;
 					while(  runlen--  ) {
 						// get rgb components
 						PIXVAL s = *src++;
@@ -1738,9 +1778,13 @@ static void rezoom_img(const image_id n)
 						{}
 					// first runlength: transparent pixels
 					*dest++ = i;
+					uint16 has_alpha = 0;
 					// copy for non-transparent
 					for(  i = 0;  x < newzoomwidth  &&  line[x] != 0x73FE;  i++, x++  ) {
 						dest[i + 1] = line[x];
+						if(  line[x] >= 0x8020  ) {
+							has_alpha = TRANSPARENT_RUN;
+						}
 					}
 
 					/* Knightly:
@@ -1752,7 +1796,7 @@ static void rezoom_img(const image_id n)
 						// this only happens at the end of a line, so no need to increment clear_colored_run_pair_count
 					}
 					else {
-						*dest++ = i;	// number of colored pixel
+						*dest++ = i+has_alpha;	// number of colored pixel
 						dest += i;	// skip them
 						clear_colored_run_pair_count++;
 					}
@@ -1850,6 +1894,22 @@ static void calc_base_pal_from_night_shift(const int night)
 		rgbmap_day_night[i] = get_system_color(R, G, B);
 	}
 
+	// again the same but for transparent colors
+	for (i = 0; i < 0x0400; i++) {
+		// RGB 343 input
+		int R = (i & 0x0380) >> 2;
+		int G = (i & 0x0078) << 1;
+		int B = (i & 0x0007) << 5;
+
+		// lines generate all possible colors in 343RGB code - input
+		// however the result is in 888RGB - 8bit per channel
+		R = (int)(R * RG_night_multiplier);
+		G = (int)(G * RG_night_multiplier);
+		B = (int)(B * B_night_multiplier);
+
+		transparent_map_day_night[MAX_PLAYER_COUNT+LIGHT_COUNT+i] = get_system_color(R, G, B);
+	}
+
 	// player color map (and used for map display etc.)
 	for (i = 0; i < 224; i++) {
 		const int R = (int)(special_pal[i*3 + 0] * RG_night_multiplier);
@@ -1870,6 +1930,8 @@ static void calc_base_pal_from_night_shift(const int night)
 	for(i=0;  i<8;  i++  ) {
 		rgbmap_day_night[0x8000+i] = specialcolormap_day_night[player_offsets[0][0]+i];
 		rgbmap_day_night[0x8008+i] = specialcolormap_day_night[player_offsets[0][1]+i];
+		transparent_map_day_night[i] = specialcolormap_day_night[player_offsets[player_day][0]+i];
+		transparent_map_day_night[i+8] = specialcolormap_day_night[player_offsets[player_day][1]+i];
 	}
 	player_night = 0;
 
@@ -1887,8 +1949,7 @@ static void calc_base_pal_from_night_shift(const int night)
 		const int G = (day_G * day + night_G * night2) >> 2;
 		const int B = (day_B * day + night_B * night2) >> 2;
 
-		rgbmap_day_night[0x8010 + i] =
-			get_system_color(R > 0 ? R : 0, G > 0 ? G : 0, B > 0 ? B : 0);
+		transparent_map_day_night[i+MAX_PLAYER_COUNT] = rgbmap_day_night[0x8000 + MAX_PLAYER_COUNT + i] = get_system_color(R > 0 ? R : 0, G > 0 ? G : 0, B > 0 ? B : 0);
 	}
 
 	// convert to RGB xxx
@@ -1929,6 +1990,9 @@ void display_set_player_color_scheme(const int player, const COLOR_VAL col1, con
 			// and recalculate map (and save it)
 			calc_base_pal_from_night_shift(0);
 			memcpy(rgbmap_all_day, rgbmap_day_night, RGBMAPSIZE * sizeof(PIXVAL));
+#ifdef ALL_DAY_TRANSPARENT
+			memcpy(transparent_map_all_day, transparent_map_day_night, lengthof(transparent_map_day_night) * sizeof(PIXVAL));
+#endif
 			if(night_shift!=0) {
 				calc_base_pal_from_night_shift(night_shift);
 			}
@@ -1940,21 +2004,6 @@ void display_set_player_color_scheme(const int player, const COLOR_VAL col1, con
 	}
 }
 
-
-// returns next matching color to an rgb
-COLOR_VAL display_get_index_from_rgb( uint8 r, uint8 g, uint8 b )
-{
-	COLOR_VAL result = 0;
-	unsigned diff = 256*3;
-	for(  unsigned i=0;  i<lengthof(special_pal);  i+=3  ) {
-		unsigned cur_diff = abs(r-special_pal[i+0]) + abs(g-special_pal[i+1]) + abs(b-special_pal[i+2]);
-		if(  cur_diff < diff  ) {
-			result = i/3;
-			diff = cur_diff;
-		}
-	}
-	return result;
-}
 
 
 void register_image(struct bild_t* bild)
@@ -2006,19 +2055,21 @@ void register_image(struct bild_t* bild)
 		do {
 			// clear run .. nothing to do
 			runlen = *src++;
+			if(  runlen & TRANSPARENT_RUN  ) {
+				image->recode_flags |= FLAG_HAS_TRANSPARENT_COLOR;
+				runlen &= ~TRANSPARENT_RUN;
+			}
 			// no this many color pixel
 			while(  runlen--  ) {
 				// get rgb components
 				PIXVAL s = *src++;
 				if(  s>=0x8000  &&  s<0x8010  ) {
 					image->recode_flags |= FLAG_HAS_PLAYER_COLOR;
-					goto has_it;
 				}
 			}
 			runlen = *src++;
 		} while(  runlen!=0  );	// end of row: runlen == 0
 	}
-	has_it:
 
 	for(  uint8 i = 0;  i < MAX_PLAYER_COUNT;  i++  ) {
 		image->data[i] = NULL;
@@ -2130,7 +2181,36 @@ static inline void pixcopy(PIXVAL *dest, const PIXVAL *src, const PIXVAL * const
 static inline void colorpixcopy(PIXVAL *dest, const PIXVAL *src, const PIXVAL * const end)
 {
 	while (src < end) {
-		*dest++ = rgbmap_current[*src++];
+		if(  *src < 0x8020  ) {
+			*dest++ = rgbmap_current[*src++];
+		}
+		else {
+			// a semi-transparent pixel
+			uint16 alpha = ((*src-0x8020) % 31)+1;
+#ifdef ALL_DAY_TRANSPARENT
+			PIXVAL colval = transparent_map_current[(*src++-0x8020)/31];
+#else
+			PIXVAL colval = transparent_map_day_night[(*src++-0x8020)/31];
+#endif
+			if(  (alpha & 0x07)==0 ) {
+				alpha /= 8;
+				*dest = alpha*((colval>>2) & TWO_OUT_16) + (4-alpha)*(((*dest)>>2) & TWO_OUT_16);
+				dest++;
+			}
+			else {
+				// all other alphas
+				const PIXVAL r_src = (colval >> 11);
+				const PIXVAL g_src = (colval >> 5) & 0x3F;
+				const PIXVAL b_src = colval & 0x1F;
+				const PIXVAL r_dest = (*dest >> 11);
+				const PIXVAL g_dest = (*dest >> 5) & 0x3F;
+				const PIXVAL b_dest = (*dest & 0x1F);
+				const PIXVAL r = r_dest + ( ( (r_src - r_dest) * alpha ) >> 5 );
+				const PIXVAL g = g_dest + ( ( (g_src - g_dest) * alpha ) >> 5 );
+				const PIXVAL b = b_dest + ( ( (b_src - b_dest) * alpha ) >> 5 );
+				*dest++ = (r << 11) | (g << 5) | b;
+			}
+		}
 	}
 }
 
@@ -2200,13 +2280,19 @@ static void display_img_pc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, 
 
 				// now get colored pixels
 				runlen = *sp++;
+				uint16 has_alpha = runlen & TRANSPARENT_RUN;
+				runlen &= ~TRANSPARENT_RUN;
 
 				// Hajo: something to display?
 				if (xmin < xmax  &&  xpos + runlen > xmin && xpos < xmax) {
 					const int left = (xpos >= xmin ? 0 : xmin - xpos);
 					const int len  = (xmax - xpos >= runlen ? runlen : xmax - xpos);
-
-					templated_pixcopy<copyroutine>(tp + xpos + left, sp + left, sp + len);
+					if(  !has_alpha  ) {
+						templated_pixcopy<copyroutine>(tp + xpos + left, sp + left, sp + len);
+					}
+					else 					{
+						colorpixcopy(tp + xpos + left, sp + left, sp + len);
+					}
 				}
 
 				sp += runlen;
@@ -2244,6 +2330,8 @@ static void display_img_wc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, 
 
 				// now get colored pixels
 				runlen = *sp++;
+				uint16 has_alpha = runlen & TRANSPARENT_RUN;
+				runlen &= ~TRANSPARENT_RUN;
 
 				// Hajo: something to display?
 #ifdef MULTI_THREAD
@@ -2255,7 +2343,12 @@ static void display_img_wc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, 
 					const int left = (xpos >= clip_rect.x ? 0 : clip_rect.x - xpos);
 					const int len  = (clip_rect.xx - xpos >= runlen ? runlen : clip_rect.xx - xpos);
 #endif
-					pixcopy(tp + xpos + left, sp + left, sp + len);
+					if(  !has_alpha  ) {
+						pixcopy(tp + xpos + left, sp + left, sp + len);
+					}
+					else 					{
+						colorpixcopy(tp + xpos + left, sp + left, sp + len);
+					}
 				}
 
 				sp += runlen;
@@ -2292,6 +2385,13 @@ static void display_img_nc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, 
 
 				// now get colored pixels
 				runlen = *sp++;
+				if(  runlen & TRANSPARENT_RUN  ) {
+					runlen &= ~TRANSPARENT_RUN;
+					colorpixcopy( p, sp, sp+runlen );
+					p += runlen;
+					sp += runlen;
+				}
+				else {
 #ifdef USE_C
 #ifndef ALIGN_COPY
 				{
@@ -2359,6 +2459,7 @@ static void display_img_nc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, 
 					: "cc", "memory"
 				);
 #endif
+				}
 				runlen = *sp++;
 			} while (runlen != 0);
 
@@ -2414,6 +2515,13 @@ void display_img_aux(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const sint8 p
 		const sint8 use_player = (images[n].recode_flags & FLAG_HAS_PLAYER_COLOR) * player_nr_raw;
 		// need to go to nightmode and or re-zoomed?
 		PIXVAL *sp;
+		if(  images[n].recode_flags & FLAG_HAS_TRANSPARENT_COLOR  ) {
+			// activate the right rgbmap
+			rgbmap_current = rgbmap_day_night;
+#ifdef ALL_DAY_TRANSPARENT
+			transparent_map_current = transparent_map_day_night;
+#endif
+		}
 		if(  use_player > 0  ) {
 			// player colour images are rezoomed/recoloured in display_color_img
 			sp = images[n].data[use_player];
@@ -2476,7 +2584,8 @@ void display_img_aux(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const sint8 p
 				do {
 					// clear run + colored run + next clear run
 					sp++;
-					sp += *sp + 1;
+					sp += (*sp) & (~TRANSPARENT_RUN);
+					sp ++;
 				} while (*sp);
 				sp++;
 			}
@@ -2735,7 +2844,7 @@ static void display_color_img_wc(const PIXVAL *sp, KOORD_VAL x, KOORD_VAL y, KOO
 			xpos += runlen;
 
 			// now get colored pixels
-			runlen = *sp++;
+			runlen = (*sp++) & ~TRANSPARENT_RUN;	// we recode anyway, so no need to do it explicitely
 
 			// Hajo: something to display?
 #ifdef MULTI_THREAD
@@ -2820,7 +2929,8 @@ void display_color_img(const image_id n, KOORD_VAL xp, KOORD_VAL yp, sint8 playe
 					do {
 						// clear run + colored run + next clear run
 						++sp;
-						sp += *sp + 1;
+						sp += (*sp) & (~TRANSPARENT_RUN);
+						sp++;
 					} while (*sp);
 					sp++;
 				}
@@ -2902,8 +3012,9 @@ void display_base_img(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const sint8 
 				yoff--;
 				do {
 					// clear run + colored run + next clear run
-					++sp;
-					sp += *sp + 1;
+					sp++;
+					sp += (*sp) & (~TRANSPARENT_RUN);
+					sp++;
 				} while (*sp);
 				sp++;
 			}
@@ -2926,13 +3037,6 @@ void display_base_img(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const sint8 
 
 /* from here code for transparent images */
 typedef void (*blend_proc)(PIXVAL *dest, const PIXVAL *src, const PIXVAL colour, const PIXVAL len);
-
-// different masks needed for RGB 555 and RGB 565
-#define ONE_OUT_16 (0x7bef)
-#define TWO_OUT_16 (0x39E7)
-#define ONE_OUT_15 (0x3DEF)
-#define TWO_OUT_15 (0x1CE7)
-
 
 static void pix_blend75_15(PIXVAL *dest, const PIXVAL *src, const PIXVAL , const PIXVAL len)
 {
@@ -3234,7 +3338,7 @@ static void display_img_blend_wc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VA
 				xpos += runlen;
 
 				// now get colored pixels
-				runlen = *sp++;
+				runlen = (*sp++) & (~TRANSPARENT_RUN);
 
 				// Hajo: something to display?
 #ifdef MULTI_THREAD
@@ -3536,7 +3640,8 @@ void display_rezoomed_img_blend(const image_id n, KOORD_VAL xp, KOORD_VAL yp, co
 				do {
 					// clear run + colored run + next clear run
 					sp++;
-					sp += *sp + 1;
+					sp += (*sp) & (~TRANSPARENT_RUN);
+					sp++;
 				} while (*sp);
 				sp++;
 			}
@@ -3645,9 +3750,11 @@ void display_rezoomed_img_alpha(const image_id n, const image_id alpha_n, const 
 				do {
 					// clear run + colored run + next clear run
 					sp++;
-					sp += *sp + 1;
+					sp += (*sp) & (~TRANSPARENT_RUN);
+					sp++;
 					alphamap++;
-					alphamap += *alphamap + 1;
+					alphamap += (*alphamap) & (~TRANSPARENT_RUN);
+					alphamap++;
 				} while(  *sp  );
 				sp++;
 				alphamap++;
@@ -3752,7 +3859,8 @@ void display_base_img_blend(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const 
 				do {
 					// clear run + colored run + next clear run
 					sp++;
-					sp += *sp + 1;
+					sp += (*sp) & (~TRANSPARENT_RUN);
+					sp++;
 				} while (*sp);
 				sp++;
 			}
@@ -3863,12 +3971,14 @@ void display_base_img_alpha(const image_id n, const image_id alpha_n, const unsi
 				do {
 					// clear run + colored run + next clear run
 					sp++;
-					sp += *sp + 1;
+					sp += (*sp) & (~TRANSPARENT_RUN);
+					sp++;
 				} while(  *sp  );
 				do {
 					// clear run + colored run + next clear run
 					alphamap++;
-					alphamap += *alphamap + 1;
+					alphamap += (*alphamap) & (~TRANSPARENT_RUN);
+					alphamap++;
 				} while(  *alphamap  );
 				sp++;
 				alphamap++;
@@ -5216,13 +5326,13 @@ void simgraph_init(KOORD_VAL width, KOORD_VAL height, int full_screen)
 		large_font.screen_width = NULL;
 		large_font.char_data = NULL;
 		if(  !display_load_font(FONT_PATH_X "prop.fnt")  ) {
-			puts( "Error: No fonts found!\n" );
+			dr_fatal_notify( "No fonts found!" );
 			fprintf(stderr, "Error: No fonts found!");
 			exit(-1);
 		}
 	}
 	else {
-		puts("Error: can't open window!\n");
+		dr_fatal_notify( "Error: can't open window!" );
 		fprintf(stderr, "Error: can't open window!");
 		exit(-1);
 	}
@@ -5251,7 +5361,9 @@ void simgraph_init(KOORD_VAL width, KOORD_VAL height, int full_screen)
 	display_day_night_shift(0);
 	memcpy(specialcolormap_all_day, specialcolormap_day_night, 256 * sizeof(PIXVAL));
 	memcpy(rgbmap_all_day, rgbmap_day_night, RGBMAPSIZE * sizeof(PIXVAL));
-
+#ifdef ALL_DAY_TRANSPARENT
+	memcpy(transparent_map_all_day, transparent_map_day_night, lengthof(transparent_map_day_night) * sizeof(PIXVAL));
+#endif
 	// find out bit depth
 	{
 		uint32 c = get_system_color( 0, 255, 0 );

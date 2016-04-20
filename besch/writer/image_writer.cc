@@ -40,6 +40,19 @@ void image_writer_t::dump_special_histogramm()
 }
 
 
+uint32 image_writer_t::block_getpix(int x, int y)
+{
+	return (image_writer_t::block[y * width * 4 + x * 4 + 0]<<24) +
+		(image_writer_t::block[y * width * 4 + x * 4 + 1] << 16) +
+		(image_writer_t::block[y * width * 4 + x * 4 + 2] <<  8) +
+		(image_writer_t::block[y * width * 4 + x * 4 + 3] <<  0);
+}
+
+
+// colors with higher alpha are considered transparent
+#define ALPHA_THRESHOLD (0xF8000000u)
+
+
 /**
  * Encodes image data into the internal representation,
  * considers special colors.
@@ -50,6 +63,29 @@ static uint16 pixrgb_to_pixval(uint32 rgb)
 {
 	uint16 pix;
 
+	// first: find about alpha
+	assert(  rgb < ALPHA_THRESHOLD  );
+
+	int alpha = 30 - (rgb >> 24)/8;	// transparency in 32 steps, but simutrans uses internall the reverse format
+	if(  rgb > 0x00FFFFFF  ) {
+		// apha is now between 0 ... 30
+
+		// first see if this is a transparent special color (like player color)
+		for (int i = 0; i < SPECIAL; i++) {
+			if (bild_besch_t::rgbtab[i] == (uint32)(rgb & 0x00FFFFFFu)) {
+				// player or light color
+				pix = 0x8020 +  i*31 + alpha;
+				return endian(pix);
+			}
+		}
+		// else store color as 3 red, 4, green, 3 red
+		pix = ((rgb >> 14) & 0x0380) | ((rgb >>  9) & 0x0078) | ((rgb >> 5) & 0x07);
+		pix = 0x8020 + 31*31 + pix*31 + alpha;
+		return endian(pix);
+	}
+
+
+	// non-transparent pixel
 	for (int i = 0; i < SPECIAL; i++) {
 		if (bild_besch_t::rgbtab[i] == (uint32)rgb) {
 			pix = 0x8000 + i;
@@ -68,6 +104,14 @@ static uint16 pixrgb_to_pixval(uint32 rgb)
 
 
 
+// true if transparent
+inline bool is_transparent( const uint32 pix )
+{
+	return (pix & 0x00FFFFFF) == SPECIAL_TRANSPARENT  ||  (pix >= ALPHA_THRESHOLD);
+}
+
+
+
 static void init_dim(uint32 *image, dimension *dim, int img_size)
 {
 	int x,y;
@@ -78,7 +122,7 @@ static void init_dim(uint32 *image, dimension *dim, int img_size)
 
 	for (y = 0; y < img_size; y++) {
 		for (x = 0; x < img_size; x++) {
-			if (image[x + y * img_size] != SPECIAL_TRANSPARENT) {
+			if(  !is_transparent(image[x + y * img_size])  ) {
 				if (x < dim->xmin) dim->xmin = x;
 				if (y < dim->ymin) dim->ymin = y;
 				if (x > dim->xmax) dim->xmax = x;
@@ -127,7 +171,7 @@ uint16 *image_writer_t::encode_image(int x, int y, dimension* dim, int* len)
 			uint16 count = 0;
 
 			// read transparent pixels
-			while(  pix == SPECIAL_TRANSPARENT  ) {
+			while(  is_transparent(pix)  ) {
 				count ++;
 				if (row_px_count >= img_width) { // end of line ?
 					break;
@@ -142,9 +186,14 @@ uint16 *image_writer_t::encode_image(int x, int y, dimension* dim, int* len)
 			colored_run_counter = dest++;
 			count = 0;
 
-			while(  pix != SPECIAL_TRANSPARENT  ) {
+			PIXVAL has_transparent = 0;
+			while(  !is_transparent(pix)  ) {
 				// write the colored pixel
-				*dest++ = pixrgb_to_pixval(pix);
+				PIXVAL pixval = pixrgb_to_pixval(pix);
+				*dest++ = pixval;
+				if(  pixval >= 0x8020  ) {
+					has_transparent = 0x8000;
+				}
 				count++;
 				if (row_px_count >= img_width) { // end of line ?
 					break;
@@ -162,7 +211,7 @@ uint16 *image_writer_t::encode_image(int x, int y, dimension* dim, int* len)
 				// this only happens at the end of a line, so no need to increment clear_colored_run_pair_count
 			}
 			else {
-				*colored_run_counter = endian(count);
+				*colored_run_counter = endian(count + has_transparent);
 				clear_colored_run_pair_count++;
 			}
 		} while(  row_px_count < img_width  );
