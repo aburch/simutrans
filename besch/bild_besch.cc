@@ -287,14 +287,14 @@ COLOR_VAL bild_besch_t::get_index_from_rgb( uint8 r, uint8 g, uint8 b )
 	COLOR_VAL result = 0;
 	// special night/player color found?
 	uint32 rgb = (r<<16) + (g<<8) + b;
-	for(  int i=0;  i<lengthof(rgbtab);  i++  ) {
+	for(  uint i=0;  i<lengthof(rgbtab);  i++  ) {
 		if(  rgb == rgbtab[i]  ) {
 			return 224+i;
 		}
 	}
 	// best matching
 	unsigned diff = 256*3;
-	for(  int i=0;  i<lengthof(special_pal);  i+=3  ) {
+	for(  uint i=0;  i<lengthof(special_pal);  i+=3  ) {
 		unsigned cur_diff = abs(r-special_pal[i+0]) + abs(g-special_pal[i+1]) + abs(b-special_pal[i+2]);
 		if(  cur_diff < diff  ) {
 			result = i/3;
