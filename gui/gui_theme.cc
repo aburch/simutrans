@@ -516,7 +516,7 @@ bool gui_theme_t::themes_init(const char *file_name)
 		// only re-init if already inited
 		tool_t::update_toolbars();
 	}
-	env_t::default_theme = theme_name.c_str();
+	env_t::default_theme = file_name;
 
 	return true;
 }

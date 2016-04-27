@@ -137,6 +137,8 @@ uint32 env_t::default_ai_construction_speed;
 
 bool env_t::hide_keyboard = false;
 
+
+
 // Hajo: Define default settings.
 void env_t::init()
 {
