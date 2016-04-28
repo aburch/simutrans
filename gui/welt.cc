@@ -29,6 +29,7 @@
 
 #include "../besch/haus_besch.h"
 
+#include "../dataobj/height_map_loader.h"
 #include "../dataobj/settings.h"
 #include "../dataobj/loadsave.h"
 #include "../dataobj/environment.h"
@@ -348,7 +349,8 @@ bool welt_gui_t::update_from_heightfield(const char *filename)
 
 	sint16 w, h;
 	sint8 *h_field=NULL;
-	if(karte_t::get_height_data_from_file(filename, (sint8)sets->get_grundwasser(), h_field, w, h, false )) {
+	height_map_loader_t hml(sets);
+	if(hml.get_height_data_from_file(filename, (sint8)sets->get_grundwasser(), h_field, w, h, false )) {
 		sets->set_groesse_x(w);
 		sets->set_groesse_y(h);
 		update_densities();

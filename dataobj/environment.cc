@@ -11,6 +11,7 @@
 
 sint8 env_t::pak_tile_height_step = 16;
 sint8 env_t::pak_height_conversion_factor = 1;
+bool env_t::new_height_map_conversion = false;
 
 bool env_t::simple_drawing = false;
 bool env_t::simple_drawing_fast_forward = true;
@@ -408,6 +409,9 @@ void env_t::rdwr(loadsave_t *file)
 	}
 	if(  file->get_version()>=120001  ) {
 		file->rdwr_str( default_theme );
+	}
+	if(  file->get_version()>=120002  ) {
+		file->rdwr_bool( new_height_map_conversion );
 	}
 	// server settings are not saved, since the are server specific and could be different on different servers on the save computers
 }

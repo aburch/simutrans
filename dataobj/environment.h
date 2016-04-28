@@ -297,6 +297,9 @@ public:
 	/// Only use during loading of old games!
 	static sint8 pak_height_conversion_factor;
 
+	// load old height maps (false) or use as many available height levels as possible
+	static bool new_height_map_conversion;
+
 	/// use the faster drawing routine (and allow for clipping errors)
 	static bool simple_drawing;
 

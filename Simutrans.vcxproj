@@ -123,6 +123,7 @@
   <ItemGroup>
     <ClCompile Include="besch\obj_besch_std_name.cc" />
     <ClCompile Include="besch\weg_besch.cc" />
+    <ClCompile Include="dataobj\height_map_loader.cc" />
     <ClCompile Include="dataobj\records.cc" />
     <ClCompile Include="display\font.cc" />
     <ClCompile Include="display\simgraph16.cc" />
@@ -429,6 +430,7 @@
     <ClCompile Include="obj\zeiger.cc" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="dataobj\height_map_loader.h" />
     <ClInclude Include="dataobj\records.h" />
     <ClInclude Include="display\font.h" />
     <ClInclude Include="display\scr_coord.h" />

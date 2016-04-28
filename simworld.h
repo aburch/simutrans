@@ -704,12 +704,6 @@ public:
 	 */
 	void announce_server(int status);
 
-	/**
-	 * Reads height data from 8 or 25 bit bmp or ppm files.
-	 * @return Either pointer to heightfield (use delete [] for it) or NULL.
-	 */
-	static bool get_height_data_from_file( const char *filename, sint8 grundwasser, sint8 *&hfield, sint16 &ww, sint16 &hh, bool update_only_values );
-
 	/// cache the current maximum and minimum height on the map
 	sint8 max_height, min_height;
 

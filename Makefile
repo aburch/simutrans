@@ -203,6 +203,7 @@ SOURCES += dataobj/settings.cc
 SOURCES += dataobj/fahrplan.cc
 SOURCES += dataobj/freelist.cc
 SOURCES += dataobj/gameinfo.cc
+SOURCES += dataobj/height_map_loader.cc
 SOURCES += dataobj/koord.cc
 SOURCES += dataobj/koord3d.cc
 SOURCES += dataobj/loadsave.cc

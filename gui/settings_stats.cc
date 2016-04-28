@@ -483,6 +483,8 @@ void settings_climates_stats_t::init(settings_t* const sets)
 
 	local_sets = sets;
 	INIT_INIT
+	INIT_NUM_NEW( "height_map_conversion_version", env_t::pak_height_conversion_factor, 1, 2, 0, false );
+	SEPERATOR
 	INIT_NUM_NEW( "Water level", sets->get_grundwasser(), -10, 0, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM_NEW( "Mountain height", mountain_height_start, 0, min(1000,100*(11-mountain_roughness_start)), 10, false );
 	INIT_NUM_NEW( "Map roughness", mountain_roughness_start, 0, min(10, 11-((mountain_height_start+99)/100)), gui_numberinput_t::AUTOLINEAR, false );
@@ -531,6 +533,7 @@ void settings_climates_stats_t::init(settings_t* const sets)
 void settings_climates_stats_t::read(settings_t* const sets)
 {
 	READ_INIT
+	READ_NUM_VALUE_NEW( env_t::pak_height_conversion_factor );
 	READ_NUM_VALUE_NEW( sets->grundwasser );
 	READ_NUM_VALUE_NEW( sets->max_mountain_height );
 	double n;

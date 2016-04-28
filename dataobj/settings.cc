@@ -1235,6 +1235,7 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	starting_year = contents.get_int("starting_year", starting_year );
 	starting_month = contents.get_int("starting_month", starting_month+1)-1;
 
+	env_t::new_height_map_conversion = contents.get_int("new_height_map_conversion", env_t::new_height_map_conversion );
 	river_number = contents.get_int("river_number", river_number );
 	min_river_length = contents.get_int("river_min_length", min_river_length );
 	max_river_length = contents.get_int("river_max_length", max_river_length );
