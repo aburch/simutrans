@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Simutrans
+Encoding=UTF-
+Comment=The best viewer for Foo objects available!
+TryExec=simutrans
+Exec=sinumtrans
+Icon=simutrans.svg
+Terminal=true
