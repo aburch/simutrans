@@ -2,7 +2,7 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <math.h>
+#include <stdlib.h>
 
 #include "environment.h"
 #include "height_map_loader.h"
