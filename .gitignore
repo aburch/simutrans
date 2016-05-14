@@ -59,7 +59,7 @@ _UpgradeReport_Files*
 /doxygen
 /libs
 *.lnk
-*.pak
+#*.pak
 /Default
 /x64
 /zlib*
