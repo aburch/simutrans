@@ -717,6 +717,8 @@ Pit
 Mil
 %136_CITY_SYLL
 Mast
+%137_CITY_SYLL
+Stok
 %d buildings\n
 %d buildings
 %d convois
@@ -917,6 +919,10 @@ inglock
 stable
 &51_CITY_SYLL
 sea
+&52_CITY_SYLL
+church
+&53_CITY_SYLL
+enchurch
 (%i)-
 (%i) 
 (in depot)
