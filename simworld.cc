@@ -8040,7 +8040,7 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 			{
 				// Power stations are excluded from the target weight:
 				// a different system is used for them.
-				weight = factory_type->get_gewichtung();
+				weight = max(factory_type->get_gewichtung(), 1); // To prevent divisions by zero
 				actual_industry_density += (100 / weight);
 			}
 		}
