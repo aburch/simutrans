@@ -33,3 +33,9 @@ bool skin_reader_t::successfully_loaded() const
 	DBG_MESSAGE("skin_reader_t::successfully_loaded()","");
 	return skinverwaltung_t::alles_geladen(get_skintype());
 }
+
+
+obj_besch_t* skin_reader_t::read_node(FILE*, obj_node_info_t& info)
+{
+	return obj_reader_t::read_node<skin_besch_t>(info);
+}

@@ -70,9 +70,6 @@ public:
 	// decodes this image into a 32 bit bitmap with width target_width
 	void decode_img( sint16 xoff, sint16 yoff, uint32 *target, uint32 target_width, uint32 target_height ) const;
 
-	~bild_besch_t();
-	bild_besch_t() { node_info = NULL; }
-
 private:
 	bild_t pic;
 

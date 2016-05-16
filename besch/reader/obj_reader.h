@@ -3,13 +3,12 @@
 
 #include <stdio.h>
 
-
+#include "../obj_node_info.h"
 #include "../objversion.h"
-
+#include "../../simdebug.h"
 #include "../../simtypes.h"
 
 
-struct obj_node_info_t;
 class obj_besch_t;
 template<class key_t, class value_t> class inthashtable_tpl;
 template<class value_t> class stringhashtable_tpl;
@@ -81,8 +80,6 @@ class obj_reader_t
 	static void skip_nodes(FILE *fp,uint32 version);
 
 protected:
-	static void delete_node(obj_besch_t *node);
-
 	obj_reader_t() { /* Beware: Cannot register here! */}
 	virtual ~obj_reader_t() {}
 
@@ -90,17 +87,20 @@ protected:
 	static void xref_to_resolve(obj_type type, const char *name, obj_besch_t **dest, bool fatal);
 	static void resolve_xrefs();
 
-	/**
-	 * Hajo 11-Oct-03:
-	 * this method reads a node. I made this virtual to
-	 * allow subclasses to define their own strategies how to
-	 * read nodes.
-	 */
-	virtual obj_besch_t *read_node(FILE *fp, obj_node_info_t &node);
+	virtual obj_besch_t* read_node(FILE* fp, obj_node_info_t& node) = 0;
 	virtual void register_obj(obj_besch_t *&/*data*/) {}
 	virtual bool successfully_loaded() const { return true; }
 
 	void register_reader();
+
+	template<typename T> static T* read_node(obj_node_info_t const& node)
+	{
+		if (node.size != 0) {
+			dbg->fatal("obj_reader_t::read_node()", "node of type %.4s must have size 0, but has size %u", reinterpret_cast<char const*>(&node.type), node.size);
+		}
+
+		return new T();
+	}
 
 public:
 	virtual obj_type get_type() const = 0;

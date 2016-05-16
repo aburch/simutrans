@@ -20,17 +20,11 @@
  *	Keine virtuellen Methoden erlaubt !
  */
 class obj_besch_t {
-
-protected:
-	template<typename T> T const* get_child(int i) const { return static_cast<T const*>(node_info[i]); }
-
-	/*
-	 * Internal Node information - the derived class knows,
-	 * how many node child nodes really exist.
-	 */
-	obj_besch_t** node_info;
-
 public:
+	obj_besch_t() : children() {}
+
+	~obj_besch_t() { delete [] children; }
+
 	void* operator new(size_t size)
 	{
 		return ::operator new(size);
@@ -41,6 +35,17 @@ public:
 		return ::operator new(size + extra);
 	}
 
+protected:
+	template<typename T> T const* get_child(int const i) const { return static_cast<T const*>(children[i]); }
+
+private:
+	/*
+	 * Internal Node information - the derived class knows,
+	 * how many node child nodes really exist.
+	 */
+	obj_besch_t** children;
+
+	friend class factory_field_group_reader_t;
 	friend class obj_reader_t;
 };
 

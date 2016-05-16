@@ -34,7 +34,6 @@ obj_besch_t * good_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	ALLOCA(char, besch_buf, node.size);
 
 	ware_besch_t *besch = new ware_besch_t();
-	besch->node_info = new obj_besch_t*[node.children];
 
 	// some defaults
 	besch->speed_bonus = 0;

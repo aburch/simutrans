@@ -40,7 +40,6 @@ obj_besch_t * groundobj_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	ALLOCA(char, besch_buf, node.size);
 
 	groundobj_besch_t *besch = new groundobj_besch_t();
-	besch->node_info = new obj_besch_t*[node.children];
 
 	// Hajo: Read data
 	fread(besch_buf, node.size, 1, fp);

@@ -27,8 +27,6 @@
 #include "../obj_besch.h"
 #include "../obj_node_info.h"
 
-#include "../../gui/gui_theme.h"
-
 #include "obj_reader.h"
 
 
@@ -118,7 +116,7 @@ bool obj_reader_t::load(const char *path, const char *message)
 		step = (2<<step)-1;
 
 		if(drawing  &&  skinverwaltung_t::biglogosymbol==NULL) {
-			display_fillbox_wh( 0, 0, display_get_width(), display_get_height(), SYSCOL_TEXT, true );
+			display_fillbox_wh( 0, 0, display_get_width(), display_get_height(), COL_BLACK, true );
 			read_file((name+"symbol.BigLogo.pak").c_str());
 DBG_MESSAGE("obj_reader_t::load()","big logo %p", skinverwaltung_t::biglogosymbol);
 		}
@@ -204,37 +202,38 @@ void obj_reader_t::read_file(const char *name)
 }
 
 
+static void read_node_info(obj_node_info_t& node, FILE* const f, uint32 const version)
+{
+	char data[EXT_OBJ_NODE_INFO_SIZE];
+
+	char* p = data;
+	fread(p, OBJ_NODE_INFO_SIZE, 1, f);
+	node.type     = decode_uint32(p);
+	node.children = decode_uint16(p);
+	node.size     = decode_uint16(p);
+	// can have larger records
+	if (version != COMPILER_VERSION_CODE_11 && node.size == LARGE_RECORD_SIZE) {
+		fread(p, sizeof(data) - OBJ_NODE_INFO_SIZE, 1, f);
+		node.size = decode_uint32(p);
+	}
+}
+
+
 void obj_reader_t::read_nodes(FILE* fp, obj_besch_t*& data, int register_nodes, uint32 version )
 {
 	obj_node_info_t node;
-	char load_dummy[EXT_OBJ_NODE_INFO_SIZE], *p;
-
-	p = load_dummy;
-	if(  version==COMPILER_VERSION_CODE_11  ) {
-		fread(p, OBJ_NODE_INFO_SIZE, 1, fp);
-		node.type = decode_uint32(p);
-		node.children = decode_uint16(p);
-		node.size = decode_uint16(p);
-	}
-	else {
-		// can have larger records
-		fread(p, OBJ_NODE_INFO_SIZE, 1, fp);
-		node.type = decode_uint32(p);
-		node.children = decode_uint16(p);
-		node.size = decode_uint16(p);
-		if(  node.size==LARGE_RECORD_SIZE  ) {
-			fread(p, 4, 1, fp);
-			node.size = decode_uint32(p);
-		}
-	}
+	read_node_info(node, fp, version);
 
 	obj_reader_t *reader = obj_reader->get(static_cast<obj_type>(node.type));
 	if(reader) {
 
 //DBG_DEBUG("obj_reader_t::read_nodes()","Reading %.4s-node of length %d with '%s'",	reinterpret_cast<const char *>(&node.type),	node.size,	reader->get_type_name());
 		data = reader->read_node(fp, node);
-		for(int i = 0; i < node.children; i++) {
-			read_nodes(fp, data->node_info[i], register_nodes+1, version);
+		if (node.children != 0) {
+			data->children = new obj_besch_t*[node.children];
+			for (int i = 0; i < node.children; i++) {
+				read_nodes(fp, data->children[i], register_nodes + 1, version);
+			}
 		}
 
 //DBG_DEBUG("obj_reader_t","registering with '%s'", reader->get_type_name());
@@ -255,57 +254,15 @@ void obj_reader_t::read_nodes(FILE* fp, obj_besch_t*& data, int register_nodes, 
 }
 
 
-obj_besch_t *obj_reader_t::read_node(FILE *fp, obj_node_info_t &node)
-{
-	obj_besch_t* besch = new(node.size) obj_besch_t();
-	besch->node_info = new obj_besch_t*[node.children];
-
-	if(node.size>0) {
-		// not 32/64 Bit compatible for everything but char!
-		dbg->warning("obj_reader_t::read_node()","native called on type %.4s (size %i), will break on 64Bit if type!=ASCII",reinterpret_cast<const char *>(&node.type),node.size);
-		fread(besch + 1, node.size, 1, fp);
-	}
-
-	return besch;
-}
-
-
 void obj_reader_t::skip_nodes(FILE *fp,uint32 version)
 {
 	obj_node_info_t node;
-	char load_dummy[OBJ_NODE_INFO_SIZE], *p;
-
-	p = load_dummy;
-	if(  version==COMPILER_VERSION_CODE_11  ) {
-		fread(p, OBJ_NODE_INFO_SIZE, 1, fp);
-		node.type = decode_uint32(p);
-		node.children = decode_uint16(p);
-		node.size = decode_uint16(p);
-	}
-	else {
-		// can have larger records
-		fread(p, OBJ_NODE_INFO_SIZE, 1, fp);
-		node.type = decode_uint32(p);
-		node.children = decode_uint16(p);
-		node.size = decode_uint16(p);
-		if(  node.size==LARGE_RECORD_SIZE  ) {
-			fread(p, 4, 1, fp);
-			node.size = decode_uint32(p);
-		}
-	}
-//DBG_DEBUG("obj_reader_t::skip_nodes", "type %.4s (size %d)",reinterpret_cast<const char *>(&node.type),node.size);
+	read_node_info(node, fp, version);
 
 	fseek(fp, node.size, SEEK_CUR);
 	for(int i = 0; i < node.children; i++) {
 		skip_nodes(fp,version);
 	}
-}
-
-
-void obj_reader_t::delete_node(obj_besch_t *data)
-{
-	delete [] data->node_info;
-	delete data;
 }
 
 
@@ -334,7 +291,7 @@ void obj_reader_t::resolve_xrefs()
 	}
 
 	while (!xref_nodes.empty()) {
-		delete_node(xref_nodes.remove_first());
+		delete xref_nodes.remove_first();
 	}
 
 	loaded.clear();
