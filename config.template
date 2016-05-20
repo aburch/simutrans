@@ -85,4 +85,4 @@
 # NETTOOL_PROGDIR = $(shell pwd)
 # PROGDIR  = $(shell pwd)
 
-FLAGS = -fpermissive -fno-delete-null-pointer-checks
+FLAGS = -fpermissive -fno-delete-null-pointer-checks -fno-strict-aliasing
