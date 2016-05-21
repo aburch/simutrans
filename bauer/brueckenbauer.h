@@ -141,7 +141,7 @@ public:
 	 * @param time current in-game time
 	 * @return bridge descriptor or NULL
 	 */
-	static const bruecke_besch_t *find_bridge(const waytype_t wtyp, const sint32 min_speed,const uint16 time);
+	static const bruecke_besch_t *find_bridge(const waytype_t wtyp, const sint32 min_speed,const uint16 time, const uint16 max_weight = 2);
 
 	/**
 	 * Fill menu with icons for all ways of the given waytype
