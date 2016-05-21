@@ -5321,7 +5321,7 @@ void rail_vehicle_t::leave_tile()
 					if(sig) 
 					{
 						sig->set_train_last_passed(welt->get_zeit_ms());
-						if((sig->get_besch()->get_working_method() == time_interval || sig->get_besch()->get_working_method() ==  time_interval_with_telegraph) && sig->get_no_junctions_to_next_signal())
+						if((sig->get_besch()->get_working_method() == time_interval || (sig->get_besch()->get_working_method() == time_interval_with_telegraph && sig->get_no_junctions_to_next_signal())))
 						{
 							welt->add_time_interval_signal_to_check(sig); 
 						}
