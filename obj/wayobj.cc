@@ -102,16 +102,16 @@ wayobj_t::~wayobj_t()
 					const uint slope_height = (hang & 7) ? 1 : 2;
 					if(slope_height == 1)
 					{
-						max_speed = besch->get_topspeed_gradient_1();
+						max_speed = weg->get_besch()->get_topspeed_gradient_1();
 					}
 					else
 					{
-						max_speed = besch->get_topspeed_gradient_2();
+						max_speed = weg->get_besch()->get_topspeed_gradient_2();
 					}
 				}
 				else
 				{
-					max_speed = besch->get_topspeed();
+					max_speed = weg->get_besch()->get_topspeed();
 				}
 				if(weg->hat_gehweg())
 				{
