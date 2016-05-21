@@ -6,7 +6,7 @@
 <strong>Keyboard Help</strong> shows functions for various keyboard shortcuts.
 </p>
 <p>
-<strong>Keyboard Help</strong> opens when an unassigned key is pressed or from <a href="general.txt">General Help</a>. TEST
+<strong>Keyboard Help</strong> opens when an unassigned key is pressed or from <a href="general.txt">General Help</a>. 
 </p>
 <p>
 Key presses are case sensitive (use [<em>Shift</em>] for upper-case letters).

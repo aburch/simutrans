@@ -4276,6 +4276,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 	uint16 last_station_tile = INVALID_INDEX;
 	bool do_not_clear_distant = false;
 	working_method_t next_signal_working_method = working_method;
+	bool next_signal_protects_no_junctions = false;
 	koord3d signalbox_last_distant_signal = koord3d::invalid;
 	bool last_distant_signal_was_intermediate_block = false;
 	sint32 remaining_aspects = -1;
@@ -4431,6 +4432,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 					
 					previous_signal = signal;
 					next_signal_working_method = signal->get_besch()->get_working_method();
+					next_signal_protects_no_junctions = signal->get_no_junctions_to_next_signal();
 					if(working_method == drive_by_sight && sch1->can_reserve(cnv->self, ribi) && (signal->get_pos() != cnv->get_last_signal_pos() || signal->get_besch()->get_working_method() != one_train_staff))
 					{
 						working_method = next_signal_working_method;
@@ -4458,20 +4460,20 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 						count --;
 					}
 
-					if(!signal->get_besch()->is_pre_signal()) // Stop signal or MAS
+					if(!signal->get_besch()->is_pre_signal()) // Stop signal or multiple aspect signal
 					{
 						if(last_bidirectional_signal_index >= INVALID_INDEX)
 						{
 							last_stop_signal_before_first_bidirectional_signal_index = i;
 						}
-						if((count || pre_signals.get_count() || next_signal_working_method == track_circuit_block || next_signal_working_method == cab_signalling || (first_stop_signal_index >= INVALID_INDEX && next_signal_working_method != time_interval && next_signal_working_method != time_interval_with_telegraph)) && !directional_only)
+						if((count || pre_signals.get_count() || next_signal_working_method == track_circuit_block || next_signal_working_method == cab_signalling || (first_stop_signal_index >= INVALID_INDEX && (next_signal_working_method != time_interval && next_signal_working_method != time_interval_with_telegraph) || !next_signal_protects_no_junctions)) && !directional_only)
 						{
 							signs.append(gr);
 						}
 						if(pre_signals.get_count() || combined_signals.get_count())
 						{
 							// Do not reserve after a stop signal not covered by a distant or combined signal 
-							// (or MAS with the requisite number of aspects).
+							// (or multiple aspect signals with the requisite number of aspects).
 							if(next_signal_working_method == absolute_block || next_signal_working_method == token_block)
 							{
 								if(last_combined_signal_index < INVALID_INDEX && pre_signals.empty())
@@ -4584,8 +4586,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 								count --;
 								directional_reservation_succeeded = true;
 							}
-						}
-						
+						}			
 						
 						if(first_stop_signal_index == INVALID_INDEX)
 						{
@@ -4597,10 +4598,14 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 									// Half line speed allowed for caution indications on time interval stop signals
 									cnv->set_maximum_signal_speed(min(kmh_to_speed(sch1->get_max_speed()) / 2, signal->get_besch()->get_max_speed() / 2));
 								}
-								else if(signal->get_no_junctions_to_next_signal() == false)
+								else if(!next_signal_protects_no_junctions && next_signal_working_method == time_interval)
 								{
-									// Junction signal - must proceed with great caution in time interval.
+									// Junction signal - must proceed with great caution in basic time interval.
 									cnv->set_maximum_signal_speed(welt->get_settings().get_max_speed_drive_by_sight());
+								}
+								else
+								{
+									cnv->set_maximum_signal_speed(signal->get_besch()->get_max_speed());
 								}
 							}
 							else
@@ -4687,10 +4692,13 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 					}
 				}
 			}
+
 			const bool time_interval_reservation = 
-				(next_signal_working_method == time_interval || next_signal_working_method == time_interval_with_telegraph)
-				&& last_choose_signal_index < INVALID_INDEX
-				&& i - start_index > modified_sighting_distance_tiles;
+				(next_signal_working_method == time_interval
+				&& !next_signal_protects_no_junctions
+				&& i - start_index < modified_sighting_distance_tiles)
+				|| (next_signal_working_method == time_interval_with_telegraph
+				&& !next_signal_protects_no_junctions); // Time interval with telegraph signals have no distance limit for reserving.
 			const schiene_t::reservation_type rt = directional_only || time_interval_reservation ? schiene_t::directional : schiene_t::block;
 			bool attempt_reservation = time_interval_reservation || (next_signal_working_method != time_interval && next_signal_working_method != time_interval_with_telegraph);
 			if(attempt_reservation && !sch1->reserve(cnv->self, ribi_typ(route->position_bei(max(1u,i)-1u), route->position_bei(min(route->get_count()-1u,i+1u))), rt, (working_method == time_interval || working_method == time_interval_with_telegraph)))
@@ -5074,7 +5082,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 						signal->set_state(use_no_choose_aspect ? roadsign_t::clear_no_choose : signal->get_besch()->is_combined_signal() ? roadsign_t::caution : roadsign_t::clear);
 					}
 
-					if(signal->get_besch()->get_working_method() == time_interval || signal->get_besch()->get_working_method() == time_interval_with_telegraph)
+					if(signal->get_besch()->get_working_method() == time_interval || (signal->get_besch()->get_working_method() == time_interval_with_telegraph && signal->get_no_junctions_to_next_signal()))
 					{
 						//  Do not clear time interval signals unless the requisite time has elapsed, as this reserves only up to the sighting distance ahead.
 

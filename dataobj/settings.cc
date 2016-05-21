@@ -1620,7 +1620,7 @@ void settings_t::rdwr(loadsave_t *file)
 			else
 			{
 				time_interval_seconds_to_clear = 600;
-				time_interval_seconds_to_clear = 300;
+				time_interval_seconds_to_caution = 300;
 			}
 		}
 		else

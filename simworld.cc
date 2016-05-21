@@ -5102,12 +5102,8 @@ rands[19] = get_random_seed();
 
 	if(!time_interval_signals_to_check.empty())
 	{
-		// TODO: Set these values in simuconf.tab
-		const uint32 caution_interval_seconds = 300;
-		const uint32 clear_interval_seconds = 600; 
-
-		const sint64 caution_interval_ticks = seconds_to_ticks(caution_interval_seconds);
-		const sint64 clear_interval_ticks = seconds_to_ticks(clear_interval_seconds); 
+		const sint64 caution_interval_ticks = seconds_to_ticks(settings.get_time_interval_seconds_to_caution());
+		const sint64 clear_interval_ticks = seconds_to_ticks(settings.get_time_interval_seconds_to_clear()); 
 
 		for(vector_tpl<signal_t*>::iterator iter = time_interval_signals_to_check.begin(); iter != time_interval_signals_to_check.end();) 
 		{
