@@ -40,7 +40,7 @@ signal_t::signal_t( loadsave_t *file) :
 
 signal_t::signal_t(player_t *player, koord3d pos, ribi_t::ribi dir,const roadsign_besch_t *besch, koord3d sb, bool preview) : roadsign_t(obj_t::signal, player, pos, dir, besch, preview)
 {
-	if(besch->get_working_method() == time_interval)
+	if(besch->get_working_method() == time_interval || besch->get_working_method() ==  time_interval_with_telegraph)
 	{
 		state = clear;
 	}
@@ -394,7 +394,7 @@ void signal_t::rdwr_signal(loadsave_t *file)
 #endif
 	}
 
-	if(besch && besch->get_working_method() == time_interval && (state == caution || state == caution_no_choose || state == danger))
+	if(besch && (besch->get_working_method() == time_interval || besch->get_working_method() == time_interval_with_telegraph) && (state == caution || state == caution_no_choose || state == danger))
 	{
 		welt->add_time_interval_signal_to_check(this); 
 	}

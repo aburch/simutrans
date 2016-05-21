@@ -60,6 +60,11 @@ void roadsign_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 		working_method = time_interval;
 	}
 
+	if(!STRICMP(working_method_string, "time_interval_with_telegraph"))
+	{
+		working_method = time_interval_with_telegraph;
+	}
+
 	if(!STRICMP(working_method_string, "absolute_block"))
 	{
 		working_method = absolute_block;
