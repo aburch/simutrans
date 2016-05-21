@@ -247,8 +247,9 @@ void export_city(HSQUIRRELVM vm)
 	/**
 	 * Enable or disable city growth.
 	 */
+#ifndef DISABLE_SCRIPT_SET_CITYGROWTH
 	register_method(vm, &set_citygrowth, "set_citygrowth_enabled", true);
-
+#endif
 	/**
 	 * Change city name.
 	 * @warning cannot be used in network games.
