@@ -5112,12 +5112,12 @@ rands[19] = get_random_seed();
 		for(vector_tpl<signal_t*>::iterator iter = time_interval_signals_to_check.begin(); iter != time_interval_signals_to_check.end();) 
 		{
 			signal_t* sig = *iter;
-			if((sig->get_train_last_passed() + clear_interval_ticks) < ticks)
+			if((sig->get_train_last_passed() + clear_interval_ticks) < ticks && sig->get_no_junctions_to_next_signal())
 			{
 				iter = time_interval_signals_to_check.swap_erase(iter);
 				sig->set_state(roadsign_t::clear_no_choose);
 			}
-			else if((sig->get_train_last_passed() + caution_interval_ticks) < ticks)
+			else if((sig->get_train_last_passed() + caution_interval_ticks) < ticks && sig->get_no_junctions_to_next_signal())
 			{
 				if(sig->get_besch()->is_pre_signal())
 				{

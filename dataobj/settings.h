@@ -668,6 +668,9 @@ public:
 	sint32 max_speed_drive_by_sight_kmh;
 	sint32 max_speed_drive_by_sight;
 
+	uint32 time_interval_seconds_to_clear;
+	uint32 time_interval_seconds_to_caution;
+
 	/**
 	 * If map is read from a heightfield, this is the name of the heightfield.
 	 * Set to empty string in order to avoid loading.
@@ -1127,6 +1130,9 @@ public:
 
 	sint32 get_max_speed_drive_by_sight_kmh() const { return max_speed_drive_by_sight_kmh; }
 	sint32 get_max_speed_drive_by_sight() const { return max_speed_drive_by_sight; }
+
+	uint32 get_time_interval_seconds_to_clear() const { return time_interval_seconds_to_clear; }
+	uint32 get_time_interval_seconds_to_caution() const { return time_interval_seconds_to_caution; }
 };
 
 #endif 

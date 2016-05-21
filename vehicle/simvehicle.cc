@@ -5078,12 +5078,8 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 					{
 						//  Do not clear time interval signals unless the requisite time has elapsed, as this reserves only up to the sighting distance ahead.
 
-						// TODO: Set these values in simuconf.tab
-						const uint32 caution_interval_seconds = 300;
-						const uint32 clear_interval_seconds = 600; 
-
-						const sint64 caution_interval_ticks = seconds_to_ticks(caution_interval_seconds, welt->get_settings().get_meters_per_tile());
-						const sint64 clear_interval_ticks = seconds_to_ticks(clear_interval_seconds, welt->get_settings().get_meters_per_tile()); 
+						const sint64 caution_interval_ticks = seconds_to_ticks(welt->get_settings().get_time_interval_seconds_to_caution(), welt->get_settings().get_meters_per_tile());
+						const sint64 clear_interval_ticks = seconds_to_ticks(welt->get_settings().get_time_interval_seconds_to_clear(), welt->get_settings().get_meters_per_tile()); 
 						const sint64 ticks = welt->get_zeit_ms();
 
 						if((signal->get_train_last_passed() + clear_interval_ticks) < ticks)

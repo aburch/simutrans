@@ -609,6 +609,19 @@ sighting_distance_meters = 250
 
 max_speed_drive_by_sight_kmh = 35
 
+# The following settings apply to time interval signalling only.
+#
+# time_interval_seconds_to_clear is the time, in seconds, after a train has completely passed a time interval
+# signal that it will reset its aspect to clear.
+#
+# time_interval_seconds_to_caution is the time, in seconds, after a train has completely passed a time interval
+# signal that it will reset its aspect to caution.
+# 
+# Default: clear - 600 (10 minutes); caution - 300 (5 minutes)
+
+time_interval_seconds_to_clear = 600
+time_interval_seconds_to_caution = 300
+
 # Corners of greater than 45 degrees have their radius calculated. However, because of 
 # the rigid tile system in Simutrans, this produces unrealistic results when applied
 # to corners of 45 degrees. A value is thus specified here. This affects the speed
