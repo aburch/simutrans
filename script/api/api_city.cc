@@ -47,7 +47,7 @@ SQInteger world_get_city_by_index(HSQUIRRELVM vm)
 	return push_instance(vm, "city_x",  pos.x, pos.y);
 }
 
-
+#ifndef DISABLE_SCRIPT_SET_CITYGROWTH
 static void_t set_citygrowth(stadt_t *city, bool allow)
 {
 	static char param[16];
@@ -59,7 +59,7 @@ static void_t set_citygrowth(stadt_t *city, bool allow)
 	tool->flags &= ~tool_t::WFL_SCRIPT;
 	return void_t();
 }
-
+#endif
 
 void export_city(HSQUIRRELVM vm)
 {
