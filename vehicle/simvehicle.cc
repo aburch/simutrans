@@ -5083,7 +5083,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 						signal->set_state(use_no_choose_aspect ? roadsign_t::clear_no_choose : signal->get_besch()->is_combined_signal() ? roadsign_t::caution : roadsign_t::clear);
 					}
 
-					if(signal->get_besch()->get_working_method() == time_interval || (signal->get_besch()->get_working_method() == time_interval_with_telegraph && signal->get_no_junctions_to_next_signal()))
+					if(signal->get_besch()->get_working_method() == time_interval || signal->get_besch()->get_working_method() == time_interval_with_telegraph)
 					{
 						//  Do not clear time interval signals unless the requisite time has elapsed, as this reserves only up to the sighting distance ahead.
 
@@ -5099,6 +5099,11 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 						{
 							// We assume that these are not distant signals here, as they should not be added to this list.
 							signal->set_state(roadsign_t::caution_no_choose);
+						}
+						else if(signal->get_besch()->get_working_method() == time_interval_with_telegraph && !signal->get_no_junctions_to_next_signal())
+						{
+							// Because this is a telegraph fitted signal, we know that the junction must be clear whenever the last train passed.
+							signal->set_state(roadsign_t::clear_no_choose);
 						}
 						// Otherwise, leave at danger.
 					}
