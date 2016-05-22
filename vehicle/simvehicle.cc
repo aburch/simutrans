@@ -3874,19 +3874,20 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 	schiene_t * sch1 = (schiene_t *)gr->get_weg(get_waytype());
 	const koord dir = gr->get_pos().get_2d() - get_pos().get_2d();
 	const ribi_t::ribi ribi = ribi_typ(dir);
+	const sint32 emergency_stop_duration = 20000; // TODO: Set this figure from simuconf.tab
 	if(!w->can_reserve(cnv->self, ribi))
 	{
 		restart_speed = 0;
-		if(working_method == time_interval || working_method == time_interval_with_telegraph)
+		if((working_method == time_interval || working_method == time_interval_with_telegraph) && cnv->get_state() == convoi_t::DRIVING)
 		{
 			cnv->set_state(convoi_t::EMERGENCY_STOP);
-			cnv->set_wait_lock(20000); // TODO: Set this figure from simuconf.tab
+			cnv->set_wait_lock(emergency_stop_duration + 500); // We add 500 to what we assume is the rear train to ensure that the front train starts first.
 			working_method = drive_by_sight;
 			convoihandle_t c = w->get_reserved_convoi();
 			if(c.is_bound())
 			{
 				c->set_state(convoi_t::EMERGENCY_STOP);
-				c->set_wait_lock(20000);
+				c->set_wait_lock(emergency_stop_duration);
 			}
 		}
 		return false;
@@ -4538,7 +4539,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 						if(next_signal_working_method == time_interval || next_signal_working_method == time_interval_with_telegraph)
 						{
 							// Note that the pre-signal will only have its index set here if its state is clear.
-							if((last_pre_signal_index > i  && ((i - (start_index - 1)) > modified_sighting_distance_tiles)) || signal->get_state() == roadsign_t::danger || first_stop_signal_index < INVALID_INDEX)
+							if((last_pre_signal_index > i  && ((i - (start_index - 1)) > modified_sighting_distance_tiles)) || (signal->get_state() == roadsign_t::danger && next_signal_protects_no_junctions) || first_stop_signal_index < INVALID_INDEX)
 							{
 								next_signal_index = i;
 								count --;
@@ -4694,13 +4695,13 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 			}
 
 			const bool time_interval_reservation = 
-				(next_signal_working_method == time_interval
+				(next_signal_working_method == time_interval || next_signal_working_method == time_interval_with_telegraph)
 				&& !next_signal_protects_no_junctions
-				&& i - start_index < modified_sighting_distance_tiles)
-				|| (next_signal_working_method == time_interval_with_telegraph
-				&& !next_signal_protects_no_junctions); // Time interval with telegraph signals have no distance limit for reserving.
-			const schiene_t::reservation_type rt = directional_only || time_interval_reservation ? schiene_t::directional : schiene_t::block;
-			bool attempt_reservation = time_interval_reservation || (next_signal_working_method != time_interval && next_signal_working_method != time_interval_with_telegraph);
+				&& (this_stop_signal_index < INVALID_INDEX || last_stop_signal_index < INVALID_INDEX || last_choose_signal_index < INVALID_INDEX)
+				&& (i - start_index <  welt->get_settings().get_sighting_distance_tiles() || next_signal_working_method == time_interval_with_telegraph); // Time interval with telegraph signals have no distance limit for reserving.
+			const bool telegraph_directional = next_signal_working_method == time_interval_with_telegraph && next_signal_protects_no_junctions && (this_stop_signal_index < INVALID_INDEX || last_stop_signal_index < INVALID_INDEX);
+			const schiene_t::reservation_type rt = directional_only || telegraph_directional ? schiene_t::directional : schiene_t::block;
+			bool attempt_reservation = time_interval_reservation || telegraph_directional || (next_signal_working_method != time_interval && next_signal_working_method != time_interval_with_telegraph);
 			if(attempt_reservation && !sch1->reserve(cnv->self, ribi_typ(route->position_bei(max(1u,i)-1u), route->position_bei(min(route->get_count()-1u,i+1u))), rt, (working_method == time_interval || working_method == time_interval_with_telegraph)))
 			{
 				not_entirely_free = true;
@@ -4999,7 +5000,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 
 	// free, in case of un-reserve or no success in reservation
 	// or alternatively free that section reserved beyond the last signal to which reservation can take place
-	if(!success || !directional_reservation_succeeded || ((next_signal_index < INVALID_INDEX) && (next_signal_working_method == absolute_block || next_signal_working_method == track_circuit_block || next_signal_working_method == cab_signalling)))
+	if(!success || !directional_reservation_succeeded || ((next_signal_index < INVALID_INDEX) && (next_signal_working_method == absolute_block || next_signal_working_method == track_circuit_block || next_signal_working_method == cab_signalling || ((next_signal_working_method == time_interval || next_signal_working_method == time_interval_with_telegraph) && !next_signal_protects_no_junctions))))
 	{
 		// free reservation
 		uint16 relevant_index;
