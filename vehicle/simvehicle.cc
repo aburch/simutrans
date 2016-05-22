@@ -4783,7 +4783,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 			last_step_halt = gr->get_halt();
 			
 			// Do not attempt to reserve beyond a train ahead.
-			if(sch1->get_reserved_convoi().is_bound() && sch1->get_reserved_convoi() != cnv->self && sch1->get_reserved_convoi()->get_pos() == pos)
+			if(!directional_only && sch1->get_reserved_convoi().is_bound() && sch1->get_reserved_convoi() != cnv->self && sch1->get_reserved_convoi()->get_pos() == pos)
 			{
 				break;
 			}
