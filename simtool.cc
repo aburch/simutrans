@@ -5728,18 +5728,23 @@ const char *tool_build_roadsign_t::place_sign_intern( player_t *player, grund_t*
 						{
 						case ribi_t::nordsued:
 						case ribi_t::nord:
+						case ribi_t::nordwest:
 							dir = ribi_t::sued;
 							break;
 						case ribi_t::sued:
+						case ribi_t::suedwest:
 							dir = ribi_t::nord;
 							break;
 						case ribi_t::ostwest:
 						case ribi_t::ost:
+						case ribi_t::suedost:
+						case ribi_t::nordost:
 							dir = ribi_t::west;
 							break;
 						case ribi_t::west:
 							dir = ribi_t::ost;
 							break;
+						
 						default:
 							switch(weg->get_ribi_unmasked())
 							{

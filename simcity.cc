@@ -4275,7 +4275,7 @@ void stadt_t::generate_private_cars(koord pos, uint16 journey_tenths_of_minutes,
 
 
 /**
- * Build a river-spanning bridge for the city
+ * Build a bridge for the city
  * bd == startirng ground
  * zv == direction of construction (must be N, S, E, or W)
  */
@@ -4283,7 +4283,7 @@ bool stadt_t::build_bridge(grund_t* bd, ribi_t::ribi direction) {
 	koord k = bd->get_pos().get_2d();
 	koord zv = koord(direction);
 
-	const bruecke_besch_t *bridge = brueckenbauer_t::find_bridge(road_wt, min(welt->get_city_road()->get_topspeed(), 50), welt->get_timeline_year_month() );
+	const bruecke_besch_t *bridge = brueckenbauer_t::find_bridge(road_wt, welt->get_city_road()->get_topspeed(), welt->get_timeline_year_month(), welt->get_city_road()->get_max_axle_load() * 2 );
 	if(  bridge==NULL  ) {
 		// does not have a bridge available ...
 		return false;
@@ -4411,7 +4411,7 @@ bool stadt_t::build_bridge(grund_t* bd, ribi_t::ribi direction) {
  *
  * @author Hj. Malthaner, V. Meyer
  */
-bool stadt_t::baue_strasse(const koord k, player_t* player, bool forced)
+bool stadt_t::baue_strasse(const koord k, player_t* player_, bool forced)
 {
 	grund_t* bd = welt->lookup_kartenboden(k);
 
@@ -4433,13 +4433,12 @@ bool stadt_t::baue_strasse(const koord k, player_t* player, bool forced)
 	// dwachs: If not able to built here, try to make artificial slope
 	hang_t::typ slope = bd->get_grund_hang();
 	if (!hang_t::ist_wegbar(slope)) {
+		climate c = welt->get_climate(k);
 		if (welt->can_ebne_planquadrat(NULL, k, bd->get_hoehe()+1, true)) {
 			welt->ebne_planquadrat(NULL, k, bd->get_hoehe()+1, true);
-			bd = welt->lookup_kartenboden(k);
 		}
 		else if(  bd->get_hoehe() > welt->get_water_hgt(k)  &&  welt->can_ebne_planquadrat(NULL, k, bd->get_hoehe() )  ) {
 			welt->ebne_planquadrat(NULL, k, bd->get_hoehe());
-			bd = welt->lookup_kartenboden(k);
 		}
 		else {
 			return false;
@@ -4449,6 +4448,7 @@ bool stadt_t::baue_strasse(const koord k, player_t* player, bool forced)
 		if (bd->get_typ() == grund_t::wasser) {
 			welt->set_water_hgt(k, bd->get_hoehe()-1);
 			welt->access(k)->correct_water();
+			welt->set_climate(k, c, true);
 			bd = welt->lookup_kartenboden(k);
 		}
 	}
@@ -4475,7 +4475,7 @@ bool stadt_t::baue_strasse(const koord k, player_t* player, bool forced)
 
 	// we must not built on water or runways etc.
 	// only crossing or tramways allowed
-	if (bd->hat_weg(track_wt)) {
+	if(  bd->hat_weg(track_wt)  ) {
 		weg_t* sch = bd->get_weg(track_wt);
 		if (sch->get_besch()->get_styp() != 7) {
 			// not a tramway
@@ -4499,15 +4499,19 @@ bool stadt_t::baue_strasse(const koord k, player_t* player, bool forced)
 			if(bd->get_neighbour(bd2, invalid_wt, ribi_t::nsow[r])) {
 				if(bd2->get_typ()==grund_t::fundament  ||  bd2->get_typ()==grund_t::wasser) {
 					// not connecting to a building of course ...
-				} else if (!bd2->ist_karten_boden()) {
+				}
+				else if (!bd2->ist_karten_boden()) {
 					// do not connect to elevated ways / bridges
-				} else if (bd2->get_typ()==grund_t::tunnelboden  &&  ribi_t::nsow[r]!=ribi_typ(bd2->get_grund_hang())) {
+				}
+				else if (bd2->get_typ()==grund_t::tunnelboden  &&  ribi_t::nsow[r]!=ribi_typ(bd2->get_grund_hang())) {
 					// not the correct slope
-				} else if (bd2->get_typ()==grund_t::brueckenboden
+				}
+				else if (bd2->get_typ()==grund_t::brueckenboden
 					&&  (bd2->get_grund_hang()==hang_t::flach  ?  ribi_t::nsow[r]!=ribi_typ(bd2->get_weg_hang())
 					                                           :  ribi_t::rueckwaerts(ribi_t::nsow[r])!=ribi_typ(bd2->get_grund_hang()))) {
 					// not the correct slope
-				} else if(bd2->hat_weg(road_wt)) {
+				}
+				else if(bd2->hat_weg(road_wt)) {
 					const gebaeude_t* gb = bd2->find<gebaeude_t>();
 					if(gb) {
 						uint8 layouts = gb->get_tile()->get_besch()->get_all_layouts();
@@ -4569,6 +4573,8 @@ bool stadt_t::baue_strasse(const koord k, player_t* player, bool forced)
 		if (ribi_t::nsow[r] & connection_roads) {
 			grund_t* bd2 = welt->lookup_kartenboden(k + koord::nsow[r]);
 			weg_t* w2 = bd2->get_weg(road_wt);
+			// The following code was added by Philip on the 30th of August 2014, but this causes roads to become disconnected when the city grows.
+			/*
 			const roadsign_t* rs = bd2->find<roadsign_t>();
 			wayobj_t *wo = bd2->get_wayobj(road_wt);
 			if ((rs && rs->get_besch()->is_private_way()) ||
@@ -4580,6 +4586,11 @@ bool stadt_t::baue_strasse(const koord k, player_t* player, bool forced)
 				bd2->calc_image();
 				bd2->set_flag( grund_t::dirty );
 			}
+			*/
+			// In Philip's code, the following three lines were deleted.
+			w2->ribi_add(ribi_t::rueckwaerts(ribi_t::nsow[r]));
+			bd2->calc_image();
+			bd2->set_flag( grund_t::dirty );
 		}
 	}
 
@@ -4615,7 +4626,7 @@ bool stadt_t::baue_strasse(const koord k, player_t* player, bool forced)
 			strasse_t *str = static_cast<strasse_t *>(weg);
 			str->set_gehweg(true);
 			weg->set_public_right_of_way();
-			bd->neuen_weg_bauen(weg, connection_roads, player);
+			bd->neuen_weg_bauen(weg, connection_roads, player_);
 			bd->calc_image();
 		}
 		// check to bridge a river, railway, etc.
@@ -4626,13 +4637,14 @@ bool stadt_t::baue_strasse(const koord k, player_t* player, bool forced)
 			if(  bd_next &&
 			     (bd_next->ist_wasser() || bd_next->hat_weg(water_wt) || bd_next->hat_weg(track_wt) || bd_next->hat_weg(narrowgauge_wt) ||
 			       bd_next->hat_weg(monorail_wt) || bd_next->hat_weg(maglev_wt) || (bd_next->hat_weg(road_wt) && !bd_next->get_weg(road_wt)->is_public_right_of_way()))) {
-				// ok there is a river, a canal, railway, a private road, or a lake 
+				// There is a river, a canal, railway, a private road, or a lake in the way. Build a bridge.
 				build_bridge(bd, direction);
 			}
 		}
+		return true;
 	}
 
-	return true;
+	return false;
 }
 
 

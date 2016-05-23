@@ -509,6 +509,9 @@ settings_t::settings_t() :
 
 	max_speed_drive_by_sight_kmh = 0;
 	max_speed_drive_by_sight = 0;
+
+	time_interval_seconds_to_clear = 600;
+	time_interval_seconds_to_caution = 300;
 }
 
 void settings_t::set_default_climates()
@@ -1608,6 +1611,17 @@ void settings_t::rdwr(loadsave_t *file)
 			{
 				file->rdwr_short(global_force_factor_percent);
 			}
+
+			if(file->get_experimental_revision() >= 6)
+			{
+				file->rdwr_long(time_interval_seconds_to_clear);
+				file->rdwr_long(time_interval_seconds_to_caution);
+			}
+			else
+			{
+				time_interval_seconds_to_clear = 600;
+				time_interval_seconds_to_caution = 300;
+			}
 		}
 		else
 		{
@@ -2454,6 +2468,10 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 
 	max_speed_drive_by_sight_kmh = contents.get_int("max_speed_drive_by_sight_kmh", max_speed_drive_by_sight_kmh);
 	max_speed_drive_by_sight = kmh_to_speed(max_speed_drive_by_sight_kmh);
+
+	time_interval_seconds_to_clear = contents.get_int("time_interval_seconds_to_clear", time_interval_seconds_to_clear);
+	time_interval_seconds_to_caution = contents.get_int("time_interval_seconds_to_caution", time_interval_seconds_to_caution);
+	
 
 	// OK, this is a bit complex.  We are at risk of loading the same livery schemes repeatedly, which
 	// gives duplicate livery schemes and utter confusion.

@@ -113,7 +113,7 @@ stringhashtable_tpl<bruecke_besch_t *> * brueckenbauer_t::get_all_bridges()
  * Find a matching bridge
  * @author Hj. Malthaner
  */
-const bruecke_besch_t *brueckenbauer_t::find_bridge(const waytype_t wtyp, const sint32 min_speed, const uint16 time)
+const bruecke_besch_t *brueckenbauer_t::find_bridge(const waytype_t wtyp, const sint32 min_speed, const uint16 time, const uint16 max_weight)
 {
 	const bruecke_besch_t *find_besch=NULL;
 
@@ -121,8 +121,9 @@ const bruecke_besch_t *brueckenbauer_t::find_bridge(const waytype_t wtyp, const 
 		bruecke_besch_t const* const besch = i.value;
 		if(  besch->get_waytype()==wtyp  &&  besch->is_available(time)  ) {
 			if(find_besch==NULL  ||
-				(find_besch->get_topspeed()<min_speed  &&  find_besch->get_topspeed()<besch->get_topspeed())  ||
-				(besch->get_topspeed()>=min_speed  &&  (besch->get_wartung()<find_besch->get_wartung() ||
+				((find_besch->get_topspeed()<min_speed  &&  find_besch->get_topspeed()<besch->get_topspeed())  &&
+				(find_besch->get_max_weight()<max_weight  &&  find_besch->get_topspeed()<besch->get_max_weight()))  ||
+				(besch->get_topspeed()>=min_speed && besch->get_max_weight()>=max_weight  &&  (besch->get_wartung()<find_besch->get_wartung() ||
 				(besch->get_wartung()==find_besch->get_wartung() &&  besch->get_preis()<find_besch->get_preis())))
 			) {
 				find_besch = besch;

@@ -5102,22 +5102,18 @@ rands[19] = get_random_seed();
 
 	if(!time_interval_signals_to_check.empty())
 	{
-		// TODO: Set these values in simuconf.tab
-		const uint32 caution_interval_seconds = 300;
-		const uint32 clear_interval_seconds = 600; 
-
-		const sint64 caution_interval_ticks = seconds_to_ticks(caution_interval_seconds);
-		const sint64 clear_interval_ticks = seconds_to_ticks(clear_interval_seconds); 
+		const sint64 caution_interval_ticks = seconds_to_ticks(settings.get_time_interval_seconds_to_caution());
+		const sint64 clear_interval_ticks = seconds_to_ticks(settings.get_time_interval_seconds_to_clear()); 
 
 		for(vector_tpl<signal_t*>::iterator iter = time_interval_signals_to_check.begin(); iter != time_interval_signals_to_check.end();) 
 		{
 			signal_t* sig = *iter;
-			if((sig->get_train_last_passed() + clear_interval_ticks) < ticks)
+			if(((sig->get_train_last_passed() + clear_interval_ticks) < ticks) && sig->get_no_junctions_to_next_signal())
 			{
 				iter = time_interval_signals_to_check.swap_erase(iter);
 				sig->set_state(roadsign_t::clear_no_choose);
 			}
-			else if((sig->get_train_last_passed() + caution_interval_ticks) < ticks)
+			else if(sig->get_state() == roadsign_t::danger && ((sig->get_train_last_passed() + caution_interval_ticks) < ticks) && sig->get_no_junctions_to_next_signal())
 			{
 				if(sig->get_besch()->is_pre_signal())
 				{
