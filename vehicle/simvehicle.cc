@@ -4055,7 +4055,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 				|| signal->get_state() == signal_t::advance_caution_no_choose))
 			{
 				// We come accross a signal at caution: try (again) to free the block ahead.
-				bool ok = block_reserver(cnv->get_route(), route_index, tiles_to_check, next_signal, 0, true, false);
+				bool ok = block_reserver(cnv->get_route(), route_index, modified_sighting_distance_tiles - (tiles_to_check - 1), next_signal, 0, true, false);
 				cnv->set_next_stop_index(next_signal);
 				break;
 				// Setting the aspect of the signal is done inside the block reserver
