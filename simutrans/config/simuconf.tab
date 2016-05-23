@@ -713,7 +713,7 @@ autosave = 0
 #display_height = 560
 
 # show full screen
-#fullscreen = 0
+fullscreen = 0
 
 # For versions of Simutrans compiled to work in a multithreaded system (which will improve
 # certain aspects of performance on multiple core/processor machines), this is the number
