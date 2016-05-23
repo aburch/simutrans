@@ -4600,10 +4600,18 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 									// Half line speed allowed for caution indications on time interval stop signals
 									cnv->set_maximum_signal_speed(min(kmh_to_speed(sch1->get_max_speed()) / 2, signal->get_besch()->get_max_speed() / 2));
 								}
-								else if(!next_signal_protects_no_junctions && next_signal_working_method == time_interval)
+								else if(!next_signal_protects_no_junctions)
 								{
-									// Junction signal - must proceed with great caution in basic time interval.
-									cnv->set_maximum_signal_speed(welt->get_settings().get_max_speed_drive_by_sight());
+									// Junction signal - must proceed with great caution in basic time interval and some caution even with a telegraph (see LT&S Signalling, p. 5)
+									if(next_signal_working_method == time_interval)
+										{
+											cnv->set_maximum_signal_speed(welt->get_settings().get_max_speed_drive_by_sight());
+									}
+									else // With telegraph
+									{
+										// The same as for caution
+										cnv->set_maximum_signal_speed(min(kmh_to_speed(sch1->get_max_speed()) / 2, signal->get_besch()->get_max_speed() / 2));
+									}
 								}
 								else
 								{
@@ -5091,11 +5099,8 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 						const sint64 clear_interval_ticks = seconds_to_ticks(welt->get_settings().get_time_interval_seconds_to_clear(), welt->get_settings().get_meters_per_tile()); 
 						const sint64 ticks = welt->get_zeit_ms();
 
-						if((signal->get_train_last_passed() + clear_interval_ticks) < ticks)
-						{
-							signal->set_state(roadsign_t::clear_no_choose);
-						}
-						else if((signal->get_train_last_passed() + caution_interval_ticks) < ticks)
+						// A clear indication is not shown at junctions: see LT&S Signalling, p. 5
+						if((signal->get_train_last_passed() + caution_interval_ticks) < ticks)
 						{
 							// We assume that these are not distant signals here, as they should not be added to this list.
 							signal->set_state(roadsign_t::caution_no_choose);
@@ -5103,7 +5108,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 						else if(signal->get_besch()->get_working_method() == time_interval_with_telegraph && !signal->get_no_junctions_to_next_signal())
 						{
 							// Because this is a telegraph fitted signal, we know that the junction must be clear whenever the last train passed.
-							signal->set_state(roadsign_t::clear_no_choose);
+							signal->set_state(roadsign_t::caution_no_choose);
 						}
 						// Otherwise, leave at danger.
 					}
