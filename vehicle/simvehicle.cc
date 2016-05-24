@@ -4537,11 +4537,6 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 							end_of_block = true;
 						}
 
-						if(next_signal_working_method == time_interval || next_signal_working_method == time_interval_with_telegraph)
-						{
-							
-						}
-
 						if((!is_from_token || first_stop_signal_index == INVALID_INDEX) && !directional_only)
 						{
 							next_signal_index = i;
@@ -4572,6 +4567,17 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 						if(working_method == moving_block && (last_bidirectional_signal_index < INVALID_INDEX && first_oneway_sign_index >= INVALID_INDEX))
 						{
 							directional_only = true;
+						}
+
+						if((working_method == time_interval || working_method == time_interval_with_telegraph) && last_pre_signal_index < INVALID_INDEX && !next_signal_protects_no_junctions)
+						{
+							const koord3d last_pre_signal_pos = route->position_bei(last_pre_signal_index);
+							grund_t *gr_last_pre_signal = welt->lookup(last_pre_signal_pos);
+							signal_t* last_pre_signal = gr_last_pre_signal->find<signal_t>();
+							if(last_pre_signal)
+							{
+								pre_signals.append(last_pre_signal);
+							}
 						}
 
 						if(signal->get_besch()->is_choose_sign())
@@ -4638,8 +4644,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 						}
 						else if((next_signal_working_method == time_interval || next_signal_working_method == time_interval_with_telegraph))
 						{
-							// Note that the pre-signal will only have its index set here if its state is clear.
-							if((last_pre_signal_index > i  && ((i - (start_index - 1)) > modified_sighting_distance_tiles)) || (signal->get_state() == roadsign_t::danger && next_signal_protects_no_junctions && pre_signals.empty()))
+							if((last_pre_signal_index > i && ((i - (start_index - 1)) > modified_sighting_distance_tiles)) || (signal->get_state() == roadsign_t::danger && next_signal_protects_no_junctions && pre_signals.empty()))
 							{
 								next_signal_index = i;
 								count --;
@@ -4699,7 +4704,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 								last_pre_signal_index = i;
 							}
 						}
-						else if((next_signal_working_method == time_interval || next_signal_working_method == time_interval_with_telegraph) && last_pre_signal_index >= INVALID_INDEX && (signal->get_state() == roadsign_t::clear || signal->get_state() == roadsign_t::clear_no_choose))
+						else if((next_signal_working_method == time_interval || next_signal_working_method == time_interval_with_telegraph) && last_pre_signal_index >= INVALID_INDEX)
 						{
 							last_pre_signal_index = i;
 						}
@@ -5344,7 +5349,7 @@ void rail_vehicle_t::leave_tile()
 					if(sig) 
 					{
 						sig->set_train_last_passed(welt->get_zeit_ms());
-						if((sig->get_besch()->get_working_method() == time_interval || (sig->get_besch()->get_working_method() == time_interval_with_telegraph && sig->get_no_junctions_to_next_signal())))
+						if(!sig->get_besch()->is_pre_signal() && (sig->get_besch()->get_working_method() == time_interval || sig->get_besch()->get_working_method() == time_interval_with_telegraph))
 						{
 							welt->add_time_interval_signal_to_check(sig); 
 						}
@@ -5477,10 +5482,10 @@ void rail_vehicle_t::leave_tile()
 								if(sig_route && sig_route->get_besch()->is_pre_signal())
 								{
 									sig_route->set_state(roadsign_t::caution);
-									if(sig_route->get_besch()->get_working_method() == time_interval || sig_route->get_besch()->get_working_method() ==  time_interval_with_telegraph)
+									if(sig_route->get_besch()->get_working_method() == time_interval || sig_route->get_besch()->get_working_method() == time_interval_with_telegraph)
 									{
 										sig_route->set_train_last_passed(welt->get_zeit_ms());
-										if(sig_route->get_no_junctions_to_next_signal())
+										if(sig->get_no_junctions_to_next_signal())
 										{
 											// Junction signals reserve within sighting distance in ordinary time interval mode, or to the next signal in time interval with telegraph mode.
 											welt->add_time_interval_signal_to_check(sig_route);
