@@ -48,12 +48,12 @@ vector_tpl<sint64> const& get_player_stat(player_t *player, sint32 INDEX, sint32
 	return v;
 }
 
-void_t change_player_account(player_t *player, sint64 delta)
+script_api::void_t change_player_account(player_t *player, sint64 delta)
 {
 	if (player) {
 		player->get_finance()->book_account(delta);
 	}
-	return void_t();
+	return script_api::void_t();
 }
 
 

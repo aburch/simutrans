@@ -19,7 +19,7 @@ mytime_t get_start_time(settings_t* settings)
 }
 
 
-void_t set_traffic_level(settings_t*, sint16 rate)
+script_api::void_t set_traffic_level(settings_t*, sint16 rate)
 {
 	static char level[16];
 	sprintf(level, "%i", rate);
@@ -28,7 +28,7 @@ void_t set_traffic_level(settings_t*, sint16 rate)
 	tool->flags |=  tool_t::WFL_SCRIPT;
 	welt->set_tool( tool, welt->get_player(1) );
 	tool->flags &= ~tool_t::WFL_SCRIPT;
-	return void_t();
+	return script_api::void_t();
 }
 
 

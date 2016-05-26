@@ -14,13 +14,13 @@ using namespace script_api;
 
 #define STATIC
 
-void_t add_scenario_message_at(const char* text, koord pos)
+script_api::void_t add_scenario_message_at(const char* text, koord pos)
 {
 	if (text) {
 		message_t *msg = welt->get_message();
 		msg->add_message(text, pos, message_t::scenario, PLAYER_FLAG|welt->get_active_player()->get_player_nr());
 	}
-	return void_t();
+	return script_api::void_t();
 }
 
 

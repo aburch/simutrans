@@ -43,7 +43,7 @@ void script_api::log_squirrel_type(std::string classname, const char* name, std:
 {
 	if (file) {
 		fprintf(file, "\texport_types[\"%s::%s\"] = \"%s\"\n",
-			classname.compare(param<void_t>::squirrel_type()) == 0 ? "" : classname.c_str(),
+			classname.compare(param<script_api::void_t>::squirrel_type()) == 0 ? "" : classname.c_str(),
 			name,
 			squirrel_type.c_str()
 		);

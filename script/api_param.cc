@@ -16,14 +16,14 @@ namespace script_api {
 
 	karte_ptr_t welt;
 
-	SQInteger param<void_t>::push(HSQUIRRELVM, void_t const&)
+	SQInteger param<script_api::void_t>::push(HSQUIRRELVM, script_api::void_t const&)
 	{
 		return 0;
 	}
 
-	void_t param<void_t>::get(HSQUIRRELVM, SQInteger)
+	script_api::void_t param<script_api::void_t>::get(HSQUIRRELVM, SQInteger)
 	{
-		return void_t();
+		return script_api::void_t();
 	}
 
 // integer arguments
