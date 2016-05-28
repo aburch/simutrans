@@ -4055,7 +4055,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 				|| signal->get_state() == signal_t::advance_caution_no_choose))
 			{
 				// We come accross a signal at caution: try (again) to free the block ahead.
-				bool ok = block_reserver(cnv->get_route(), route_index, tiles_to_check, next_signal, 0, true, false);
+				bool ok = block_reserver(cnv->get_route(), route_index, modified_sighting_distance_tiles - (tiles_to_check - 1), next_signal, 0, true, false);
 				cnv->set_next_stop_index(next_signal);
 				break;
 				// Setting the aspect of the signal is done inside the block reserver
@@ -4369,7 +4369,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 						not_entirely_free = !cr->request_crossing(this);
 						if(not_entirely_free)
 						{
-							count--;
+							count --;
 							next_signal_index = last_stop_signal_index;
 							}
 					}
@@ -4506,7 +4506,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 									{
 										// The last combined signal is not compatible with this signal's signalbox: 
 										// do not treat it as a distant signal.
-										count--;
+										count --;
 										end_of_block = true;
 										if(!is_from_token)
 										{
@@ -4517,7 +4517,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 								else if(signalbox_last_distant_signal != signal->get_signalbox() 
 									|| (signal->get_besch()->get_intermediate_block() ^ last_distant_signal_was_intermediate_block)) // XOR - allow intermediate block in advance or in rear, but do not allow them to be chained.
 								{
-									count--;
+									count --;
 									end_of_block = true;
 								}
 							}
@@ -4532,19 +4532,9 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 							}
 							else
 							{
-								count--;
-							}
-							end_of_block = true;
-						}
-
-						if(next_signal_working_method == time_interval || next_signal_working_method == time_interval_with_telegraph)
-						{
-							// Note that the pre-signal will only have its index set here if its state is clear.
-							if((last_pre_signal_index > i  && ((i - (start_index - 1)) > modified_sighting_distance_tiles)) || (signal->get_state() == roadsign_t::danger && next_signal_protects_no_junctions) || first_stop_signal_index < INVALID_INDEX)
-							{
-								next_signal_index = i;
 								count --;
 							}
+							end_of_block = true;
 						}
 
 						if((!is_from_token || first_stop_signal_index == INVALID_INDEX) && !directional_only)
@@ -4570,13 +4560,24 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 							}
 							else
 							{
-								count--;
+								count --;
 							}
 						}
 
 						if(working_method == moving_block && (last_bidirectional_signal_index < INVALID_INDEX && first_oneway_sign_index >= INVALID_INDEX))
 						{
 							directional_only = true;
+						}
+
+						if((working_method == time_interval || working_method == time_interval_with_telegraph) && last_pre_signal_index < INVALID_INDEX && !next_signal_protects_no_junctions)
+						{
+							const koord3d last_pre_signal_pos = route->position_bei(last_pre_signal_index);
+							grund_t *gr_last_pre_signal = welt->lookup(last_pre_signal_pos);
+							signal_t* last_pre_signal = gr_last_pre_signal->find<signal_t>();
+							if(last_pre_signal)
+							{
+								pre_signals.append(last_pre_signal);
+							}
 						}
 
 						if(signal->get_besch()->is_choose_sign())
@@ -4595,17 +4596,17 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 							first_stop_signal_index = i;
 							if(next_signal_working_method == time_interval || next_signal_working_method == time_interval_with_telegraph)
 							{
-								if((signal->get_state() == roadsign_t::caution || signal->get_state() == roadsign_t::caution_no_choose))
+								if(next_signal_protects_no_junctions && (signal->get_state() == roadsign_t::caution || signal->get_state() == roadsign_t::caution_no_choose))
 								{
-									// Half line speed allowed for caution indications on time interval stop signals
+									// Half line speed allowed for caution indications on time interval stop signals on straight track
 									cnv->set_maximum_signal_speed(min(kmh_to_speed(sch1->get_max_speed()) / 2, signal->get_besch()->get_max_speed() / 2));
 								}
 								else if(!next_signal_protects_no_junctions)
 								{
 									// Junction signal - must proceed with great caution in basic time interval and some caution even with a telegraph (see LT&S Signalling, p. 5)
 									if(next_signal_working_method == time_interval)
-										{
-											cnv->set_maximum_signal_speed(welt->get_settings().get_max_speed_drive_by_sight());
+									{
+										cnv->set_maximum_signal_speed(welt->get_settings().get_max_speed_drive_by_sight());
 									}
 									else // With telegraph
 									{
@@ -4629,7 +4630,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 							if(is_from_token && (working_method == token_block || working_method == absolute_block || next_signal_working_method == token_block || next_signal_working_method == absolute_block))
 							{
 								// Do not try to reserve beyond the first signal if this is called recursively from a token block signal.
-								count--;
+								count --;
 							}
 						}
 						else if((next_signal_working_method == track_circuit_block || next_signal_working_method == cab_signalling) && !directional_only)
@@ -4639,7 +4640,15 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 						else if(next_signal_working_method == absolute_block && pre_signals.empty())
 						{
 							// No distant signals: just reserve one block beyond the first stop signal and no more.
-							count--;
+							count --;
+						}
+						else if((next_signal_working_method == time_interval || next_signal_working_method == time_interval_with_telegraph))
+						{
+							if((last_pre_signal_index > i && ((i - (start_index - 1)) > modified_sighting_distance_tiles)) || (signal->get_state() == roadsign_t::danger && next_signal_protects_no_junctions && pre_signals.empty()))
+							{
+								next_signal_index = i;
+								count --;
+							}
 						}
 						if(signal->get_besch()->is_longblock_signal() || signal->get_besch()->get_working_method() == token_block)
 						{
@@ -4649,7 +4658,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 							// Do not reserve through a token block signal: the train must stop to take the token.
 							if(last_token_block_signal_index > first_stop_signal_index || (!starting_at_signal && !platform_starter))
 							{
-								count--;
+								count --;
 								end_of_block = true;
 							}
 						}
@@ -4695,7 +4704,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 								last_pre_signal_index = i;
 							}
 						}
-						else if((next_signal_working_method == time_interval || next_signal_working_method == time_interval_with_telegraph) && last_pre_signal_index >= INVALID_INDEX && (signal->get_state() == roadsign_t::clear || signal->get_state() == roadsign_t::clear_no_choose))
+						else if((next_signal_working_method == time_interval || next_signal_working_method == time_interval_with_telegraph) && last_pre_signal_index >= INVALID_INDEX)
 						{
 							last_pre_signal_index = i;
 						}
@@ -5340,7 +5349,7 @@ void rail_vehicle_t::leave_tile()
 					if(sig) 
 					{
 						sig->set_train_last_passed(welt->get_zeit_ms());
-						if((sig->get_besch()->get_working_method() == time_interval || (sig->get_besch()->get_working_method() == time_interval_with_telegraph && sig->get_no_junctions_to_next_signal())))
+						if(!sig->get_besch()->is_pre_signal() && (sig->get_besch()->get_working_method() == time_interval || sig->get_besch()->get_working_method() == time_interval_with_telegraph))
 						{
 							welt->add_time_interval_signal_to_check(sig); 
 						}
@@ -5473,10 +5482,10 @@ void rail_vehicle_t::leave_tile()
 								if(sig_route && sig_route->get_besch()->is_pre_signal())
 								{
 									sig_route->set_state(roadsign_t::caution);
-									if(sig_route->get_besch()->get_working_method() == time_interval || sig_route->get_besch()->get_working_method() ==  time_interval_with_telegraph)
+									if(sig_route->get_besch()->get_working_method() == time_interval || sig_route->get_besch()->get_working_method() == time_interval_with_telegraph)
 									{
 										sig_route->set_train_last_passed(welt->get_zeit_ms());
-										if(sig_route->get_no_junctions_to_next_signal())
+										if(sig->get_no_junctions_to_next_signal())
 										{
 											// Junction signals reserve within sighting distance in ordinary time interval mode, or to the next signal in time interval with telegraph mode.
 											welt->add_time_interval_signal_to_check(sig_route);
