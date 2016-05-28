@@ -5473,7 +5473,8 @@ void rail_vehicle_t::leave_tile()
 								{
 									ribi = ribi_typ(route->position_bei(i - 1), current_pos);
 								}
-								signal_t* sig_route = gr_route->get_weg(get_waytype())->get_signal(ribi);
+								const weg_t* wg = gr_route ? gr_route->get_weg(get_waytype()) : NULL;
+								signal_t* sig_route = wg ? wg->get_signal(ribi) : NULL;
 								//signal_t* sig_route = gr_route->find<signal_t>();
 								if(sig_route)
 								{
