@@ -21,11 +21,14 @@
 
 #define INVALID_RDWR_ID (-1)
 
+//#undef MULTI_THREAD
+
 // buffer size for read/write - bzip2 gains up to 8M for non-threaded, 1M for threaded. binary, zipped ok with 256K or smaller.
 #define LS_BUF_SIZE (1024*1024)
 
 #ifdef MULTI_THREAD
 #include "../utils/simthread.h"
+#include <signal.h>
 
 static pthread_t ls_thread;
 static simthread_barrier_t loadsave_barrier;
@@ -38,11 +41,14 @@ typedef struct{
 static loadsave_param_t ls;
 
 
+volatile bool alive;
+
 void *loadsave_thread( void *ptr )
 {
 	loadsave_param_t *lsp = reinterpret_cast<loadsave_param_t *>(ptr);
 	int buf = 1;
 
+	alive = true;
 	while(true) {
 		if(  lsp->loadsave_routine->is_saving()  ) {
 			// wait to sync with main thread before flushing the buffer
@@ -71,6 +77,7 @@ void *loadsave_thread( void *ptr )
 			buf = (buf+1)&1;
 		}
 	}
+	alive = false;
 	return ptr;
 }
 #endif
@@ -125,6 +132,7 @@ void loadsave_t::set_buffered(bool enable)
 
 			ls.loadsave_routine = this;
 
+			alive = true;
 			pthread_create(&ls_thread, &attr, loadsave_thread, (void *)&ls);
 
 			pthread_attr_destroy(&attr);
@@ -144,6 +152,12 @@ void loadsave_t::set_buffered(bool enable)
 #endif
 			}
 #ifdef MULTI_THREAD
+
+			if(  alive  ) {
+				// still alive (if there is junk at the end of the file)
+				int err = pthread_kill(ls_thread,SIGTERM);
+				simthread_barrier_wait(&loadsave_barrier);
+			}
 			pthread_join(ls_thread,NULL);
 
 			pthread_mutex_destroy(&loadsave_mutex);
