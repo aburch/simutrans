@@ -74,6 +74,8 @@ bool env_t::quit_simutrans = false;
 // default settings for new games
 settings_t env_t::default_settings;
 
+// what finances are shown? (default bank balance)
+bool env_t::player_finance_display_account = true;
 
 // the following initialisation is not important; set values in init()!
 std::string env_t::objfilename;
@@ -164,6 +166,7 @@ void env_t::init()
 	station_coverage_show = 0;
 
 	show_names = 3;
+	player_finance_display_account = true;
 
 	water_animation = 250; // 250ms per wave stage
 	ground_object_probability = 10; // every n-th tile

@@ -235,6 +235,9 @@ random_player_colors = 0
 # and there are 0...15 player in the game
 player_color[1] = 1,4
 
+# Should either account (default) or net wealth be shown blow the screen?
+player_finance_display_account = 1
+
 # remove companies without convoys after x month (0=off, 6=default)
 remove_dummy_player_months = 6
 

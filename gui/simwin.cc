@@ -1697,7 +1697,7 @@ void win_display_flush(double konto)
 	if(wl->get_active_player()) {
 		char buffer[256];
 		display_proportional( middle-5, disp_height-12, wl->get_active_player()->get_name(), ALIGN_RIGHT, PLAYER_FLAG|(wl->get_active_player()->get_player_color1()+0), true);
-		money_to_string(buffer, konto);
+		money_to_string(buffer, konto );
 		display_proportional( middle+5, disp_height-12, buffer, ALIGN_LEFT, konto >= 0.0?MONEY_PLUS:MONEY_MINUS, true);
 	}
 }

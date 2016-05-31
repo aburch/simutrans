@@ -210,6 +210,8 @@ public:
 	static uint16 compass_map_position;
 	static uint16 compass_screen_position;
 
+	// what finances are shown? (default bank balance)
+	static bool player_finance_display_account;
 
 	/// @} end of GUI settings
 

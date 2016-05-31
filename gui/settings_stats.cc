@@ -183,6 +183,8 @@ void settings_display_stats_t::init(settings_t const* const)
 	SEPERATOR
 	INIT_NUM( "cursor_overlay_color", env_t::cursor_overlay_color, 0, 255, gui_numberinput_t::AUTOLINEAR, 0 );
 	INIT_BOOL( "left_to_right_graphs", env_t::left_to_right_graphs );
+	SEPERATOR
+	INIT_BOOL( "player_finance_display_account", env_t::player_finance_display_account );
 
 	clear_dirty();
 	height = ypos;
@@ -213,6 +215,8 @@ void settings_display_stats_t::read(settings_t* const)
 
 	READ_NUM_VALUE( env_t::cursor_overlay_color );
 	READ_BOOL_VALUE( env_t::left_to_right_graphs );
+
+	READ_BOOL_VALUE( env_t::player_finance_display_account );
 }
 
 void settings_routing_stats_t::init(settings_t const* const sets)
