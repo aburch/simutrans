@@ -93,6 +93,10 @@ void export_global_constants(HSQUIRRELVM vm)
 	enum_slot(vm, "tool_buy_house", TOOL_BUY_HOUSE | GENERAL_TOOL);
 	/// build city road with pavement
 	enum_slot(vm, "tool_build_cityroad", TOOL_BUILD_CITYROAD | GENERAL_TOOL);
+	/// alter water height
+	enum_slot(vm, "tool_change_water_height", TOOL_CHANGE_WATER_HEIGHT | GENERAL_TOOL);
+	/// change climate of tiles
+	enum_slot(vm, "tool_set_climate", TOOL_SET_CLIMATE | GENERAL_TOOL);
 
 	// simple tools
 	/// increase industry density
