@@ -88,7 +88,7 @@ public:
 		for(SQUnsignedInteger i = _size - 1; i > idx; i--) {
 			_vals[i] = _vals[i - 1];
 		}
-    	_vals[idx] = val;
+		_vals[idx] = val;
 	}
 	void remove(SQUnsignedInteger idx)
 	{

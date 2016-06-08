@@ -122,7 +122,7 @@ public:
 #endif
 	SQObjectPtr _sourcename;
 	SQObjectPtr _name;
-    SQInteger _stacksize;
+	SQInteger _stacksize;
 	bool _bgenerator;
 	SQInteger _varparams;
 

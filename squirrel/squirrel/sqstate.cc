@@ -25,14 +25,16 @@ SQSharedState::SQSharedState()
 	_errorfunc = NULL;
 	_debuginfo = false;
 	_notifyallexceptions = false;
+	_foreignptr = NULL;
+	_releasehook = NULL;
 }
 
-#define newsysstring(s) {	\
+#define newsysstring(s) {   \
 	_systemstrings->push_back(SQString::Create(this,s));	\
 	}
 
-#define newmetamethod(s) {	\
-	_metamethods->push_back(SQString::Create(this,s));	\
+#define newmetamethod(s) {  \
+	_metamethods->push_back(SQString::Create(this,s));  \
 	_table(_metamethodsmap)->NewSlot(_metamethods->back(),(SQInteger)(_metamethods->size()-1)); \
 	}
 
@@ -79,7 +81,7 @@ bool CompileTypemask(SQIntVec &res,const SQChar *typemask)
 	return true;
 }
 
-SQTable *CreateDefaultDelegate(SQSharedState *ss,SQRegFunction *funcz)
+SQTable *CreateDefaultDelegate(SQSharedState *ss,const SQRegFunction *funcz)
 {
 	SQInteger i=0;
 	SQTable *t=SQTable::Create(ss,0);
@@ -163,6 +165,7 @@ void SQSharedState::Init()
 
 SQSharedState::~SQSharedState()
 {
+	if(_releasehook) { _releasehook(_foreignptr,0); _releasehook = NULL; }
 	_constructoridx.Null();
 	_table(_registry)->Finalize();
 	_table(_consts)->Finalize();
@@ -193,11 +196,11 @@ SQSharedState::~SQSharedState()
 	if(t) {
 		t->_uiRef++;
 		while(t) {
-		t->Finalize();
-		nx = t->_next;
+			t->Finalize();
+			nx = t->_next;
 			if(nx) nx->_uiRef++;
-		if(--t->_uiRef == 0)
-			t->Release();
+			if(--t->_uiRef == 0)
+				t->Release();
 			t = nx;
 		}
 	}
@@ -247,8 +250,7 @@ void SQSharedState::MarkObject(SQObjectPtr &o,SQCollectable **chain)
 	}
 }
 
-
-void SQSharedState::RunMark(SQVM *,SQCollectable **tchain)
+void SQSharedState::RunMark(SQVM* SQ_UNUSED_ARG(vm),SQCollectable **tchain)
 {
 	SQVM *vms = _thread(_root_vm);
 
@@ -338,14 +340,14 @@ SQInteger SQSharedState::CollectGarbage(SQVM *vm)
 	if(t) {
 		t->_uiRef++;
 		while(t) {
-		t->Finalize();
-		nx = t->_next;
+			t->Finalize();
+			nx = t->_next;
 			if(nx) nx->_uiRef++;
-		if(--t->_uiRef == 0)
-			t->Release();
-		t = nx;
-		n++;
-	}
+			if(--t->_uiRef == 0)
+				t->Release();
+			t = nx;
+			n++;
+		}
 	}
 
 	t = tchain;
@@ -362,7 +364,7 @@ SQInteger SQSharedState::CollectGarbage(SQVM *vm)
 #ifndef NO_GARBAGE_COLLECTOR
 void SQCollectable::AddToChain(SQCollectable **chain,SQCollectable *c)
 {
-    c->_prev = NULL;
+	c->_prev = NULL;
 	c->_next = *chain;
 	if(*chain) (*chain)->_prev = c;
 	*chain = c;
@@ -439,10 +441,10 @@ void RefTable::AddRef(SQObject &obj)
 
 SQUnsignedInteger RefTable::GetRefCount(SQObject &obj)
 {
-     SQHash mainpos;
-     RefNode *prev;
-     RefNode *ref = Get(obj,mainpos,&prev,true);
-     return ref->refs;
+	 SQHash mainpos;
+	 RefNode *prev;
+	 RefNode *ref = Get(obj,mainpos,&prev,true);
+	 return ref->refs;
 }
 
 
@@ -593,14 +595,14 @@ SQString *SQStringTable::Add(const SQChar *news,SQInteger len)
 	SQHash h = newhash&(_numofslots-1);
 	SQString *s;
 	for (s = _strings[h]; s; s = s->_next){
-		if(s->_len == len && (!memcmp(news,s->_val,rsl(len))))
+		if(s->_len == len && (!memcmp(news,s->_val,sq_rsl(len))))
 			return s; //found
 	}
 
-	SQString *t=(SQString *)SQ_MALLOC(rsl(len)+sizeof(SQString));
+	SQString *t = (SQString *)SQ_MALLOC(sq_rsl(len)+sizeof(SQString));
 	new (t) SQString;
 	t->_sharedstate = _sharedstate;
-	memcpy(t->_val,news,rsl(len));
+	memcpy(t->_val,news,sq_rsl(len));
 	t->_val[len] = _SC('\0');
 	t->_len = len;
 	t->_hash = newhash;
@@ -645,7 +647,7 @@ void SQStringTable::Remove(SQString *bs)
 			_slotused--;
 			SQInteger slen = s->_len;
 			s->~SQString();
-			SQ_FREE(s,sizeof(SQString) + rsl(slen));
+			SQ_FREE(s,sizeof(SQString) + sq_rsl(slen));
 			return;
 		}
 		prev = s;

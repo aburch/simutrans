@@ -114,7 +114,7 @@ static SQInteger _blob__typeof(HSQUIRRELVM v)
 	return 1;
 }
 
-static SQInteger _blob_releasehook(SQUserPointer p, SQInteger)
+static SQInteger _blob_releasehook(SQUserPointer p, SQInteger SQ_UNUSED_ARG(size))
 {
 	SQBlob *self = (SQBlob*)p;
 	self->~SQBlob();
@@ -162,7 +162,7 @@ static SQInteger _blob__cloned(HSQUIRRELVM v)
 }
 
 #define _DECL_BLOB_FUNC(name,nparams,typecheck) {_SC(#name),_blob_##name,nparams,typecheck}
-static SQRegFunction _blob_methods[] = {
+static const SQRegFunction _blob_methods[] = {
 	_DECL_BLOB_FUNC(constructor,-1,_SC("xn")),
 	_DECL_BLOB_FUNC(resize,2,_SC("xn")),
 	_DECL_BLOB_FUNC(swap2,1,_SC("x")),
@@ -172,7 +172,7 @@ static SQRegFunction _blob_methods[] = {
 	_DECL_BLOB_FUNC(_typeof,1,_SC("x")),
 	_DECL_BLOB_FUNC(_nexti,2,_SC("x")),
 	_DECL_BLOB_FUNC(_cloned,2,_SC("xx")),
-	{0,0,0,0}
+	{NULL,(SQFUNCTION)0,0,NULL}
 };
 
 
@@ -208,11 +208,11 @@ static SQInteger _g_blob_swapfloat(HSQUIRRELVM v)
 }
 
 #define _DECL_GLOBALBLOB_FUNC(name,nparams,typecheck) {_SC(#name),_g_blob_##name,nparams,typecheck}
-static SQRegFunction bloblib_funcs[]={
+static const SQRegFunction bloblib_funcs[]={
 	_DECL_GLOBALBLOB_FUNC(swap2,2,_SC(".n")),
 	_DECL_GLOBALBLOB_FUNC(swap4,2,_SC(".n")),
 	_DECL_GLOBALBLOB_FUNC(swapfloat,2,_SC(".n")),
- {0,0,0,0}
+	{NULL,(SQFUNCTION)0,0,NULL}
 };
 
 SQRESULT sqstd_getblob(HSQUIRRELVM v,SQInteger idx,SQUserPointer *ptr)

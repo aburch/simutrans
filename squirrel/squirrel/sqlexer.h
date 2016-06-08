@@ -5,7 +5,7 @@
 #ifdef SQUNICODE
 typedef SQChar LexChar;
 #else
-typedef	unsigned char LexChar;
+typedef unsigned char LexChar;
 #endif
 
 struct SQLexer
@@ -17,13 +17,21 @@ struct SQLexer
 	SQInteger Lex();
 	const SQChar *Tok2Str(SQInteger tok);
 private:
-	SQInteger GetIDType(SQChar *s);
+	SQInteger GetIDType(const SQChar *s,SQInteger len);
 	SQInteger ReadString(SQInteger ndelim,bool verbatim);
 	SQInteger ReadNumber();
 	void LexBlockComment();
 	void LexLineComment();
 	SQInteger ReadID();
 	void Next();
+#ifdef SQUNICODE
+#if WCHAR_SIZE == 2
+	SQInteger AddUTF16(SQUnsignedInteger ch);
+#endif
+#else
+	SQInteger AddUTF8(SQUnsignedInteger ch);
+#endif
+	SQInteger ProcessStringHexEscape(SQChar *dest, SQInteger maxdigits);
 	SQInteger _curtoken;
 	SQTable *_keywords;
 	SQBool _reached_eof;

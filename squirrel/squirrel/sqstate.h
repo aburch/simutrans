@@ -84,31 +84,33 @@ public:
 #endif
 	SQObjectPtr _root_vm;
 	SQObjectPtr _table_default_delegate;
-	static SQRegFunction _table_default_delegate_funcz[];
+	static const SQRegFunction _table_default_delegate_funcz[];
 	SQObjectPtr _array_default_delegate;
-	static SQRegFunction _array_default_delegate_funcz[];
+	static const SQRegFunction _array_default_delegate_funcz[];
 	SQObjectPtr _string_default_delegate;
-	static SQRegFunction _string_default_delegate_funcz[];
+	static const SQRegFunction _string_default_delegate_funcz[];
 	SQObjectPtr _number_default_delegate;
-	static SQRegFunction _number_default_delegate_funcz[];
+	static const SQRegFunction _number_default_delegate_funcz[];
 	SQObjectPtr _generator_default_delegate;
-	static SQRegFunction _generator_default_delegate_funcz[];
+	static const SQRegFunction _generator_default_delegate_funcz[];
 	SQObjectPtr _closure_default_delegate;
-	static SQRegFunction _closure_default_delegate_funcz[];
+	static const SQRegFunction _closure_default_delegate_funcz[];
 	SQObjectPtr _thread_default_delegate;
-	static SQRegFunction _thread_default_delegate_funcz[];
+	static const SQRegFunction _thread_default_delegate_funcz[];
 	SQObjectPtr _class_default_delegate;
-	static SQRegFunction _class_default_delegate_funcz[];
+	static const SQRegFunction _class_default_delegate_funcz[];
 	SQObjectPtr _instance_default_delegate;
-	static SQRegFunction _instance_default_delegate_funcz[];
+	static const SQRegFunction _instance_default_delegate_funcz[];
 	SQObjectPtr _weakref_default_delegate;
-	static SQRegFunction _weakref_default_delegate_funcz[];
+	static const SQRegFunction _weakref_default_delegate_funcz[];
 
 	SQCOMPILERERROR _compilererrorhandler;
 	SQPRINTFUNCTION _printfunc;
 	SQPRINTFUNCTION _errorfunc;
 	bool _debuginfo;
 	bool _notifyallexceptions;
+	SQUserPointer _foreignptr;
+	SQRELEASEHOOK _releasehook;
 private:
 	SQChar *_scratchpad;
 	SQInteger _scratchpadsize;
@@ -117,24 +119,16 @@ private:
 #define _sp(s) (_sharedstate->GetScratchPad(s))
 #define _spval (_sharedstate->GetScratchPad(-1))
 
-#define _table_ddel		_table(_sharedstate->_table_default_delegate)
-#define _array_ddel		_table(_sharedstate->_array_default_delegate)
+#define _table_ddel	 _table(_sharedstate->_table_default_delegate)
+#define _array_ddel	 _table(_sharedstate->_array_default_delegate)
 #define _string_ddel	_table(_sharedstate->_string_default_delegate)
 #define _number_ddel	_table(_sharedstate->_number_default_delegate)
-#define _generator_ddel	_table(_sharedstate->_generator_default_delegate)
-#define _closure_ddel	_table(_sharedstate->_closure_default_delegate)
+#define _generator_ddel _table(_sharedstate->_generator_default_delegate)
+#define _closure_ddel   _table(_sharedstate->_closure_default_delegate)
 #define _thread_ddel	_table(_sharedstate->_thread_default_delegate)
-#define _class_ddel		_table(_sharedstate->_class_default_delegate)
-#define _instance_ddel	_table(_sharedstate->_instance_default_delegate)
-#define _weakref_ddel	_table(_sharedstate->_weakref_default_delegate)
-
-#ifdef SQUNICODE //rsl REAL STRING LEN
-#define rsl(l) ((l)<<1)
-#else
-#define rsl(l) (l)
-#endif
-
-//extern SQObjectPtr _null_;
+#define _class_ddel	 _table(_sharedstate->_class_default_delegate)
+#define _instance_ddel  _table(_sharedstate->_instance_default_delegate)
+#define _weakref_ddel   _table(_sharedstate->_weakref_default_delegate)
 
 bool CompileTypemask(SQIntVec &res,const SQChar *typemask);
 

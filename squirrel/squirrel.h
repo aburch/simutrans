@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2003-2015 Alberto Demichelis
+Copyright (c) 2003-2016 Alberto Demichelis
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -36,60 +36,9 @@ extern "C" {
 #endif
 #endif
 
-#ifdef _SQ64
 
-#ifdef _MSC_VER
-typedef __int64 SQInteger;
-typedef unsigned __int64 SQUnsignedInteger;
-typedef unsigned __int64 SQHash; /*should be the same size of a pointer*/
-#else
-typedef long long SQInteger;
-typedef unsigned long long SQUnsignedInteger;
-typedef unsigned long long SQHash; /*should be the same size of a pointer*/
-#endif
-typedef int SQInt32;
-typedef unsigned int SQUnsignedInteger32;
-#else
-typedef int SQInteger;
-typedef int SQInt32; /*must be 32 bits(also on 64bits processors)*/
-typedef unsigned int SQUnsignedInteger32; /*must be 32 bits(also on 64bits processors)*/
-typedef unsigned int SQUnsignedInteger;
-typedef unsigned int SQHash; /*should be the same size of a pointer*/
-#endif
-
-
-#ifdef SQUSEDOUBLE
-typedef double SQFloat;
-#else
-typedef float SQFloat;
-#endif
-
-#if defined(SQUSEDOUBLE) && !defined(_SQ64) || !defined(SQUSEDOUBLE) && defined(_SQ64)
-#ifdef _MSC_VER
-typedef __int64 SQRawObjectVal; //must be 64bits
-#else
-typedef long long SQRawObjectVal; //must be 64bits
-#endif
-#define SQ_OBJECT_RAWINIT() { _unVal.raw = 0; }
-#else
-typedef SQUnsignedInteger SQRawObjectVal; //is 32 bits on 32 bits builds and 64 bits otherwise
-#define SQ_OBJECT_RAWINIT()
-#endif
-
-#ifndef SQ_ALIGNMENT // SQ_ALIGNMENT shall be less than or equal to SQ_MALLOC alignments, and its value shall be power of 2.
-#if defined(SQUSEDOUBLE) || defined(_SQ64)
-#define SQ_ALIGNMENT 8
-#else
-#define SQ_ALIGNMENT 4
-#endif
-#endif
-
-typedef void* SQUserPointer;
-typedef SQUnsignedInteger SQBool;
-typedef SQInteger SQRESULT;
-
-#define SQTrue	(1)
-#define SQFalse	(0)
+#define SQTrue  (1)
+#define SQFalse (0)
 
 struct SQVM;
 struct SQTable;
@@ -107,140 +56,72 @@ struct SQDelegable;
 struct SQOuter;
 
 #ifdef _UNICODE
-//#define SQUNICODE
+#define SQUNICODE
 #endif
 
-#ifdef SQUNICODE
-#if (defined(_MSC_VER) && _MSC_VER >= 1400) // 1400 = VS8
+#include "sqconfig.h"
 
-#if !defined(_NATIVE_WCHAR_T_DEFINED) //this is if the compiler considers wchar_t as native type
-#define wchar_t unsigned short
-#endif
+#define SQUIRREL_VERSION   _SC("Squirrel 3.1 stable")
+#define SQUIRREL_COPYRIGHT _SC("Copyright (C) 2003-2016 Alberto Demichelis")
+#define SQUIRREL_AUTHOR    _SC("Alberto Demichelis")
+#define SQUIRREL_VERSION_NUMBER 310
 
-#else
-typedef unsigned short wchar_t;
-#endif
-
-typedef wchar_t SQChar;
-#define _SC(a) L##a
-#define	scstrcmp	wcscmp
-#define scsprintf	swprintf
-#define scstrlen	wcslen
-#define scstrtod	wcstod
-#ifdef _SQ64
-#define scstrtol	_wcstoi64
-#else
-#define scstrtol	wcstol
-#endif
-#define scatoi		_wtoi
-#define scstrtoul	wcstoul
-#define scvsprintf	vswprintf
-#define scstrstr	wcsstr
-#define scisspace	iswspace
-#define scisdigit	iswdigit
-#define scisxdigit	iswxdigit
-#define scisalpha	iswalpha
-#define sciscntrl	iswcntrl
-#define scisalnum	iswalnum
-#define scprintf	wprintf
-#define MAX_CHAR 0xFFFF
-#else
-typedef char SQChar;
-#define _SC(a) a
-#define	scstrcmp	strcmp
-#define scsprintf	sprintf
-#define scstrlen	strlen
-#define scstrtod	strtod
-#ifdef _SQ64
-#ifdef _MSC_VER
-#define scstrtol	_strtoi64
-#else
-#define scstrtol	strtoll
-#endif
-#else
-#define scstrtol	strtol
-#endif
-#define scatoi		atoi
-#define scstrtoul	strtoul
-#define scvsprintf	vsnprintf
-#define scstrstr	strstr
-#define scisspace	isspace
-#define scisdigit	isdigit
-#define scisxdigit	isxdigit
-#define sciscntrl	iscntrl
-#define scisalpha	isalpha
-#define scisalnum	isalnum
-#define scprintf	printf
-#define MAX_CHAR 0xFF
-#endif
-
-#ifdef _SQ64
-#define _PRINT_INT_PREC _SC("ll")
-#define _PRINT_INT_FMT _SC("%lld")
-#else
-#define _PRINT_INT_FMT _SC("%d")
-#endif
-
-#define SQUIRREL_VERSION	_SC("Squirrel 3.0.7 stable")
-#define SQUIRREL_COPYRIGHT	_SC("Copyright (C) 2003-2015 Alberto Demichelis")
-#define SQUIRREL_AUTHOR		_SC("Alberto Demichelis")
-#define SQUIRREL_VERSION_NUMBER	307
-
-#define SQ_VMSTATE_IDLE			0
-#define SQ_VMSTATE_RUNNING		1
+#define SQ_VMSTATE_IDLE  	0
+#define SQ_VMSTATE_RUNNING	1
 #define SQ_VMSTATE_SUSPENDED	2
 
 #define SQUIRREL_EOB 0
-#define SQ_BYTECODE_STREAM_TAG	0xFAFA
+#define SQ_BYTECODE_STREAM_TAG  0xFAFA
 
 #define SQOBJECT_REF_COUNTED	0x08000000
-#define SQOBJECT_NUMERIC		0x04000000
-#define SQOBJECT_DELEGABLE		0x02000000
-#define SQOBJECT_CANBEFALSE		0x01000000
+#define SQOBJECT_NUMERIC	0x04000000
+#define SQOBJECT_DELEGABLE	0x02000000
+#define SQOBJECT_CANBEFALSE	0x01000000
 
 #define SQ_MATCHTYPEMASKSTRING (-99999)
 
 #define _RT_MASK 0x00FFFFFF
 #define _RAW_TYPE(type) (type&_RT_MASK)
 
-#define _RT_NULL			0x00000001
-#define _RT_INTEGER			0x00000002
-#define _RT_FLOAT			0x00000004
-#define _RT_BOOL			0x00000008
-#define _RT_STRING			0x00000010
-#define _RT_TABLE			0x00000020
-#define _RT_ARRAY			0x00000040
-#define _RT_USERDATA		0x00000080
-#define _RT_CLOSURE			0x00000100
-#define _RT_NATIVECLOSURE	0x00000200
-#define _RT_GENERATOR		0x00000400
-#define _RT_USERPOINTER		0x00000800
-#define _RT_THREAD			0x00001000
-#define _RT_FUNCPROTO		0x00002000
-#define _RT_CLASS			0x00004000
-#define _RT_INSTANCE		0x00008000
-#define _RT_WEAKREF			0x00010000
-#define _RT_OUTER			0x00020000
+
+#define _RT_NULL            0x00000001
+#define _RT_INTEGER         0x00000002
+#define _RT_FLOAT           0x00000004
+#define _RT_BOOL            0x00000008
+#define _RT_STRING          0x00000010
+#define _RT_TABLE           0x00000020
+#define _RT_ARRAY           0x00000040
+#define _RT_USERDATA        0x00000080
+#define _RT_CLOSURE         0x00000100
+#define _RT_NATIVECLOSURE   0x00000200
+#define _RT_GENERATOR       0x00000400
+#define _RT_USERPOINTER     0x00000800
+#define _RT_THREAD          0x00001000
+#define _RT_FUNCPROTO       0x00002000
+#define _RT_CLASS           0x00004000
+#define _RT_INSTANCE        0x00008000
+#define _RT_WEAKREF         0x00010000
+#define _RT_OUTER           0x00020000
 
 typedef enum tagSQObjectType{
-	OT_NULL =			(_RT_NULL|SQOBJECT_CANBEFALSE),
-	OT_INTEGER =		(_RT_INTEGER|SQOBJECT_NUMERIC|SQOBJECT_CANBEFALSE),
-	OT_FLOAT =			(_RT_FLOAT|SQOBJECT_NUMERIC|SQOBJECT_CANBEFALSE),
-	OT_BOOL =			(_RT_BOOL|SQOBJECT_CANBEFALSE),
-	OT_STRING =			(_RT_STRING|SQOBJECT_REF_COUNTED),
-	OT_TABLE =			(_RT_TABLE|SQOBJECT_REF_COUNTED|SQOBJECT_DELEGABLE),
-	OT_ARRAY =			(_RT_ARRAY|SQOBJECT_REF_COUNTED),
-	OT_USERDATA =		(_RT_USERDATA|SQOBJECT_REF_COUNTED|SQOBJECT_DELEGABLE),
-	OT_CLOSURE =		(_RT_CLOSURE|SQOBJECT_REF_COUNTED),
-	OT_NATIVECLOSURE =	(_RT_NATIVECLOSURE|SQOBJECT_REF_COUNTED),
-	OT_GENERATOR =		(_RT_GENERATOR|SQOBJECT_REF_COUNTED),
-	OT_USERPOINTER =	_RT_USERPOINTER,
-	OT_THREAD =			(_RT_THREAD|SQOBJECT_REF_COUNTED) ,
-	OT_FUNCPROTO =		(_RT_FUNCPROTO|SQOBJECT_REF_COUNTED), //internal usage only
-	OT_CLASS =			(_RT_CLASS|SQOBJECT_REF_COUNTED),
-	OT_INSTANCE =		(_RT_INSTANCE|SQOBJECT_REF_COUNTED|SQOBJECT_DELEGABLE),
-	OT_WEAKREF =		(_RT_WEAKREF|SQOBJECT_REF_COUNTED),
-	OT_OUTER =			(_RT_OUTER|SQOBJECT_REF_COUNTED) //internal usage only
+	OT_NULL =           (_RT_NULL|SQOBJECT_CANBEFALSE),
+	OT_INTEGER =        (_RT_INTEGER|SQOBJECT_NUMERIC|SQOBJECT_CANBEFALSE),
+	OT_FLOAT =          (_RT_FLOAT|SQOBJECT_NUMERIC|SQOBJECT_CANBEFALSE),
+	OT_BOOL =           (_RT_BOOL|SQOBJECT_CANBEFALSE),
+	OT_STRING =         (_RT_STRING|SQOBJECT_REF_COUNTED),
+	OT_TABLE =          (_RT_TABLE|SQOBJECT_REF_COUNTED|SQOBJECT_DELEGABLE),
+	OT_ARRAY =          (_RT_ARRAY|SQOBJECT_REF_COUNTED),
+	OT_USERDATA =       (_RT_USERDATA|SQOBJECT_REF_COUNTED|SQOBJECT_DELEGABLE),
+	OT_CLOSURE =        (_RT_CLOSURE|SQOBJECT_REF_COUNTED),
+	OT_NATIVECLOSURE =  (_RT_NATIVECLOSURE|SQOBJECT_REF_COUNTED),
+	OT_GENERATOR =      (_RT_GENERATOR|SQOBJECT_REF_COUNTED),
+	OT_USERPOINTER =     _RT_USERPOINTER,
+	OT_THREAD =         (_RT_THREAD|SQOBJECT_REF_COUNTED) ,
+	OT_FUNCPROTO =      (_RT_FUNCPROTO|SQOBJECT_REF_COUNTED), //internal usage only
+	OT_CLASS =          (_RT_CLASS|SQOBJECT_REF_COUNTED),
+	OT_INSTANCE =       (_RT_INSTANCE|SQOBJECT_REF_COUNTED|SQOBJECT_DELEGABLE),
+	OT_WEAKREF =        (_RT_WEAKREF|SQOBJECT_REF_COUNTED),
+	OT_OUTER =          (_RT_OUTER|SQOBJECT_REF_COUNTED) //internal usage only
 }SQObjectType;
 
 #define ISREFCOUNTED(t) (t&SQOBJECT_REF_COUNTED)
@@ -311,6 +192,7 @@ typedef struct tagSQFunctionInfo {
 	SQUserPointer funcid;
 	const SQChar *name;
 	const SQChar *source;
+	SQInteger line;
 }SQFunctionInfo;
 
 /*vm*/
@@ -320,6 +202,12 @@ SQUIRREL_API void sq_seterrorhandler(HSQUIRRELVM v);
 SQUIRREL_API void sq_close(HSQUIRRELVM v);
 SQUIRREL_API void sq_setforeignptr(HSQUIRRELVM v,SQUserPointer p);
 SQUIRREL_API SQUserPointer sq_getforeignptr(HSQUIRRELVM v);
+SQUIRREL_API void sq_setsharedforeignptr(HSQUIRRELVM v,SQUserPointer p);
+SQUIRREL_API SQUserPointer sq_getsharedforeignptr(HSQUIRRELVM v);
+SQUIRREL_API void sq_setvmreleasehook(HSQUIRRELVM v,SQRELEASEHOOK hook);
+SQUIRREL_API SQRELEASEHOOK sq_getvmreleasehook(HSQUIRRELVM v);
+SQUIRREL_API void sq_setsharedreleasehook(HSQUIRRELVM v,SQRELEASEHOOK hook);
+SQUIRREL_API SQRELEASEHOOK sq_getsharedreleasehook(HSQUIRRELVM v);
 SQUIRREL_API void sq_setprintfunc(HSQUIRRELVM v, SQPRINTFUNCTION printfunc,SQPRINTFUNCTION errfunc);
 SQUIRREL_API SQPRINTFUNCTION sq_getprintfunc(HSQUIRRELVM v);
 SQUIRREL_API SQPRINTFUNCTION sq_geterrorfunc(HSQUIRRELVM v);
@@ -354,12 +242,15 @@ SQUIRREL_API void sq_newarray(HSQUIRRELVM v,SQInteger size);
 SQUIRREL_API void sq_newclosure(HSQUIRRELVM v,SQFUNCTION func,SQUnsignedInteger nfreevars);
 SQUIRREL_API SQRESULT sq_setparamscheck(HSQUIRRELVM v,SQInteger nparamscheck,const SQChar *typemask);
 SQUIRREL_API SQRESULT sq_bindenv(HSQUIRRELVM v,SQInteger idx);
+SQUIRREL_API SQRESULT sq_setclosureroot(HSQUIRRELVM v,SQInteger idx);
+SQUIRREL_API SQRESULT sq_getclosureroot(HSQUIRRELVM v,SQInteger idx);
 SQUIRREL_API void sq_pushstring(HSQUIRRELVM v,const SQChar *s,SQInteger len);
 SQUIRREL_API void sq_pushfloat(HSQUIRRELVM v,SQFloat f);
 SQUIRREL_API void sq_pushinteger(HSQUIRRELVM v,SQInteger n);
 SQUIRREL_API void sq_pushbool(HSQUIRRELVM v,SQBool b);
 SQUIRREL_API void sq_pushuserpointer(HSQUIRRELVM v,SQUserPointer p);
 SQUIRREL_API void sq_pushnull(HSQUIRRELVM v);
+SQUIRREL_API void sq_pushthread(HSQUIRRELVM v, HSQUIRRELVM thread);
 SQUIRREL_API SQObjectType sq_gettype(HSQUIRRELVM v,SQInteger idx);
 SQUIRREL_API SQRESULT sq_typeof(HSQUIRRELVM v,SQInteger idx);
 SQUIRREL_API SQInteger sq_getsize(HSQUIRRELVM v,SQInteger idx);
@@ -378,6 +269,7 @@ SQUIRREL_API SQRESULT sq_getuserdata(HSQUIRRELVM v,SQInteger idx,SQUserPointer *
 SQUIRREL_API SQRESULT sq_settypetag(HSQUIRRELVM v,SQInteger idx,SQUserPointer typetag);
 SQUIRREL_API SQRESULT sq_gettypetag(HSQUIRRELVM v,SQInteger idx,SQUserPointer *typetag);
 SQUIRREL_API void sq_setreleasehook(HSQUIRRELVM v,SQInteger idx,SQRELEASEHOOK hook);
+SQUIRREL_API SQRELEASEHOOK sq_getreleasehook(HSQUIRRELVM v,SQInteger idx);
 SQUIRREL_API SQChar *sq_getscratchpad(HSQUIRRELVM v,SQInteger minsize);
 SQUIRREL_API SQRESULT sq_getfunctioninfo(HSQUIRRELVM v,SQInteger level,SQFunctionInfo *fi);
 SQUIRREL_API SQRESULT sq_getclosureinfo(HSQUIRRELVM v,SQInteger idx,SQUnsignedInteger *nparams,SQUnsignedInteger *nfreevars);
@@ -450,6 +342,8 @@ SQUIRREL_API SQInteger sq_objtointeger(const HSQOBJECT *o);
 SQUIRREL_API SQFloat sq_objtofloat(const HSQOBJECT *o);
 SQUIRREL_API SQUserPointer sq_objtouserpointer(const HSQOBJECT *o);
 SQUIRREL_API SQRESULT sq_getobjtypetag(const HSQOBJECT *o,SQUserPointer * typetag);
+SQUIRREL_API SQUnsignedInteger sq_getvmrefcount(HSQUIRRELVM v, const HSQOBJECT *po);
+
 
 /*GC*/
 SQUIRREL_API SQInteger sq_collectgarbage(HSQUIRRELVM v);
@@ -498,6 +392,12 @@ SQUIRREL_API void sq_setnativedebughook(HSQUIRRELVM v,SQDEBUGHOOK hook);
 
 #define SQ_FAILED(res) (res<0)
 #define SQ_SUCCEEDED(res) (res>=0)
+
+#ifdef XX__GNUC__
+# define SQ_UNUSED_ARG(x) __attribute__((unused)) x
+#else
+# define SQ_UNUSED_ARG(x)
+#endif
 
 #ifdef __cplusplus
 } /*extern "C"*/

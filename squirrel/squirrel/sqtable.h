@@ -73,6 +73,24 @@ public:
 		}while((n = n->next));
 		return NULL;
 	}
+	//for compiler use
+	inline bool GetStr(const SQChar* key,SQInteger keylen,SQObjectPtr &val)
+	{
+		SQHash hash = _hashstr(key,keylen);
+		_HashNode *n = &_nodes[hash & (_numofnodes - 1)];
+		_HashNode *res = NULL;
+		do{
+			if(type(n->key) == OT_STRING && (scstrcmp(_stringval(n->key),key) == 0)){
+				res = n;
+				break;
+			}
+		}while((n = n->next));
+		if (res) {
+			val = _realval(res->val);
+			return true;
+		}
+		return false;
+	}
 	bool Get(const SQObjectPtr &key,SQObjectPtr &val);
 	void Remove(const SQObjectPtr &key);
 	bool Set(const SQObjectPtr &key, const SQObjectPtr &val);

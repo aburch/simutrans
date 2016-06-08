@@ -24,7 +24,7 @@ static SQInteger _system_getenv(HSQUIRRELVM v)
 {
 	const SQChar *s;
 	if(SQ_SUCCEEDED(sq_getstring(v,2,&s))){
-        sq_pushstring(v,scgetenv(s),-1);
+		sq_pushstring(v,scgetenv(s),-1);
 		return 1;
 	}
 	return 0;
@@ -50,10 +50,8 @@ static SQInteger _system_clock(HSQUIRRELVM v)
 
 static SQInteger _system_time(HSQUIRRELVM v)
 {
-	time_t t;
-	time(&t);
-	SQInteger i = t;
-	sq_pushinteger(v, i);
+	SQInteger t = (SQInteger)time(NULL);
+	sq_pushinteger(v,t);
 	return 1;
 }
 
@@ -99,7 +97,7 @@ static SQInteger _system_date(HSQUIRRELVM v)
 		time(&t);
 	}
 	tm *date;
-    if(format == 'u')
+	if(format == 'u')
 		date = gmtime(&t);
 	else
 		date = localtime(&t);
@@ -107,20 +105,20 @@ static SQInteger _system_date(HSQUIRRELVM v)
 		return sq_throwerror(v,_SC("crt api failure"));
 	sq_newtable(v);
 	_set_integer_slot(v, _SC("sec"), date->tm_sec);
-    _set_integer_slot(v, _SC("min"), date->tm_min);
-    _set_integer_slot(v, _SC("hour"), date->tm_hour);
-    _set_integer_slot(v, _SC("day"), date->tm_mday);
-    _set_integer_slot(v, _SC("month"), date->tm_mon);
-    _set_integer_slot(v, _SC("year"), date->tm_year+1900);
-    _set_integer_slot(v, _SC("wday"), date->tm_wday);
-    _set_integer_slot(v, _SC("yday"), date->tm_yday);
+	_set_integer_slot(v, _SC("min"), date->tm_min);
+	_set_integer_slot(v, _SC("hour"), date->tm_hour);
+	_set_integer_slot(v, _SC("day"), date->tm_mday);
+	_set_integer_slot(v, _SC("month"), date->tm_mon);
+	_set_integer_slot(v, _SC("year"), date->tm_year+1900);
+	_set_integer_slot(v, _SC("wday"), date->tm_wday);
+	_set_integer_slot(v, _SC("yday"), date->tm_yday);
 	return 1;
 }
 
 
 
 #define _DECL_FUNC(name,nparams,pmask) {_SC(#name),_system_##name,nparams,pmask}
-static SQRegFunction systemlib_funcs[]={
+static const SQRegFunction systemlib_funcs[]={
 	_DECL_FUNC(getenv,2,_SC(".s")),
 	_DECL_FUNC(system,2,_SC(".s")),
 	_DECL_FUNC(clock,0,NULL),
@@ -128,7 +126,7 @@ static SQRegFunction systemlib_funcs[]={
 	_DECL_FUNC(date,-1,_SC(".nn")),
 	_DECL_FUNC(remove,2,_SC(".s")),
 	_DECL_FUNC(rename,3,_SC(".ss")),
- {0,0,0,0}
+	{NULL,(SQFUNCTION)0,0,NULL}
 };
 #undef _DECL_FUNC
 
