@@ -73,13 +73,12 @@ SQInstructionDesc g_InstrDesc[]={
 	{_SC("_OP_NEWSLOTA")},
 	{_SC("_OP_GETBASE")},
 	{_SC("_OP_CLOSE")},
-	{_SC("_OP_JCMP")}
 };
 #endif
 void DumpLiteral(SQObjectPtr &o)
 {
 	switch(type(o)){
-		case OT_STRING:	scprintf(_SC("\"%s\""),_stringval(o));break;
+		case OT_STRING: scprintf(_SC("\"%s\""),_stringval(o));break;
 		case OT_FLOAT: scprintf(_SC("{%f}"),_float(o));break;
 		case OT_INTEGER: scprintf(_SC("{") _PRINT_INT_FMT _SC("}"),_integer(o));break;
 		case OT_BOOL: scprintf(_SC("%s"),_integer(o)?_SC("true"):_SC("false"));break;
@@ -199,7 +198,7 @@ void SQFuncState::Dump(SQFunctionProto *func)
 		else if(inst.op==_OP_LOADFLOAT) {
 			scprintf(_SC("[%03d] %15s %d %f %d %d\n"),n,g_InstrDesc[inst.op].name,inst._arg0,*((SQFloat*)&inst._arg1),inst._arg2,inst._arg3);
 		}
-	/*	else if(inst.op==_OP_ARITH){
+	/*  else if(inst.op==_OP_ARITH){
 			scprintf(_SC("[%03d] %15s %d %d %d %c\n"),n,g_InstrDesc[inst.op].name,inst._arg0,inst._arg1,inst._arg2,inst._arg3);
 		}*/
 		else {
@@ -460,6 +459,7 @@ void SQFuncState::AddInstruction(SQInstruction &i)
 				pi._arg1 = i._arg1;
 				return;
 			}
+			break;
 		case _OP_SET:
 		case _OP_NEWSLOT:
 			if(i._arg0 == i._arg3) {
@@ -566,7 +566,7 @@ void SQFuncState::AddInstruction(SQInstruction &i)
 				pi.op = _OP_LOADNULLS;
 				return;
 			}
-            break;
+			break;
 		case _OP_LINE:
 			if(pi.op == _OP_LINE) {
 				_instructions.pop_back();
