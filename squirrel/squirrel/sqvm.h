@@ -2,6 +2,7 @@
 #ifndef _SQVM_H_
 #define _SQVM_H_
 
+#include <stdarg.h>
 #include "sqopcodes.h"
 #include "sqobject.h"
 #define MAX_NATIVE_CALLS 100
