@@ -512,7 +512,7 @@ private:
 	 * Calculates the earliest time in ticks that passengers/mail/goods can arrive
 	 * at the given halt in light of the current estimated departure times.
 	 */
-	sint64 calc_earliest_arrival_time_at(halthandle_t halt, convoihandle_t &convoi);
+	sint64 calc_earliest_arrival_time_at(halthandle_t halt, convoihandle_t &convoi, uint8 catg_index);
 
 	uint32 deposit_ware_at_destination(ware_t ware);
 

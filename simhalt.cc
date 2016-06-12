@@ -1113,7 +1113,7 @@ vector_tpl<lines_loaded_compare_t> lines_loaded; // used to skip loading multipl
 // Add convoy to loading
 void haltestelle_t::request_loading(convoihandle_t cnv)
 {
-	if(!loading_here.is_contained(cnv)) 
+	if(!loading_here.is_contained(cnv))
 	{
 		estimated_convoy_arrival_times.remove(cnv.get_id());
 		loading_here.append(cnv);
@@ -2153,7 +2153,7 @@ bool haltestelle_t::hole_ab( slist_tpl<ware_t> &fracht, const ware_besch_t *wtyp
 					// Check to see whether this is the convoy departing from this stop that will arrive at the destination the soonest.
 		
 					convoihandle_t fast_convoy;
-					const sint64 best_arrival_time = calc_earliest_arrival_time_at(next_transfer, fast_convoy);
+					const sint64 best_arrival_time = calc_earliest_arrival_time_at(next_transfer, fast_convoy, catg_index);
 					const arrival_times_map& next_transfer_arrivals = next_transfer->get_estimated_convoy_arrival_times();
 					const sint64 this_arrival_time = next_transfer_arrivals.get(cnv->self.get_id());
 
@@ -2699,8 +2699,8 @@ uint32 haltestelle_t::liefere_an(ware_t ware, uint8 walked_between_stations)
 		if(is_within_walking_distance_of(ware.get_ziel()) || is_within_walking_distance_of(ware.get_zwischenziel()) || destination_is_within_coverage)
 		{
 			convoihandle_t dummy; 
-			const sint64 best_arrival_time_destination_stop = calc_earliest_arrival_time_at(ware.get_ziel(), dummy);
-			sint64 best_arrival_time_transfer = ware.get_zwischenziel() != ware.get_ziel() ? calc_earliest_arrival_time_at(ware.get_zwischenziel(), dummy) : SINT64_MAX_VALUE;
+			const sint64 best_arrival_time_destination_stop = calc_earliest_arrival_time_at(ware.get_ziel(), dummy, ware.get_besch()->get_catg_index());
+			sint64 best_arrival_time_transfer = ware.get_zwischenziel() != ware.get_ziel() ? calc_earliest_arrival_time_at(ware.get_zwischenziel(), dummy, ware.get_besch()->get_catg_index()) : SINT64_MAX_VALUE;
 
 			const sint64 arrival_after_walking_to_destination = welt->seconds_to_ticks(welt->walking_time_tenths_from_distance((uint32)straight_line_distance_destination) * 6) + welt->get_zeit_ms();
 
@@ -4931,7 +4931,7 @@ void haltestelle_t::remove_convoy(convoihandle_t convoy)
 	}
 }
 
-sint64 haltestelle_t::calc_earliest_arrival_time_at(halthandle_t halt, convoihandle_t &convoy)
+sint64 haltestelle_t::calc_earliest_arrival_time_at(halthandle_t halt, convoihandle_t &convoy, uint8 catg_index)
 {
 	const arrival_times_map& next_transfer_arrivals = halt->get_estimated_convoy_arrival_times();
 	sint64 best_arrival_time = SINT64_MAX_VALUE;
@@ -4948,6 +4948,12 @@ sint64 haltestelle_t::calc_earliest_arrival_time_at(halthandle_t halt, convoihan
 		if(arrival_convoy->get_no_load())
 		{
 			// Do not wait for a convoy that is set not to load.
+			continue;
+		}
+
+		if(!arrival_convoy->get_goods_catg_index().is_contained(catg_index))
+		{
+			// Do not wait for a convoy that cannot convey this type of load.
 			continue;
 		}
 
