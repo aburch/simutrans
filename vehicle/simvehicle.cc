@@ -4021,7 +4021,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 
 	bool do_not_set_one_train_staff = false;
 	bool modify_check_tile = false;
-	if((next_block < route_index && (working_method == one_train_staff || next_block < route_index + 1)))
+	if((next_block < route_index && (working_method == one_train_staff || next_block < route_index - 1)))
 	{
 		modify_check_tile = true;
 		do_not_set_one_train_staff = working_method == one_train_staff;
