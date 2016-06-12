@@ -3901,7 +3901,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 	const uint16 sighting_distance_tiles = welt->get_settings().get_sighting_distance_tiles();
 	uint16 modified_sighting_distance_tiles = sighting_distance_tiles;
 	
-	uint32 last_index = max (0, route_index - 1);
+	sint32 last_index = max (0, route_index - 1);
 	for(uint32 i = route_index; i <= min(route_index + sighting_distance_tiles, route.get_count() - 1); i++)
 	{
 		koord3d i_pos = route.position_bei(i);
@@ -4020,8 +4020,10 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 	}
 
 	bool do_not_set_one_train_staff = false;
+	bool modify_check_tile = false;
 	if((next_block < route_index && (working_method == one_train_staff || next_block < route_index + 1)))
 	{
+		modify_check_tile = true;
 		do_not_set_one_train_staff = working_method == one_train_staff;
 		working_method = working_method != one_train_staff ? drive_by_sight : one_train_staff;
 	}
@@ -4077,8 +4079,8 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 	const sint32 route_steps = brake_steps > 0 && route_index <= route_infos.get_count() - 1 ? cnv->get_route_infos().get_element((next_block > 0 ? min(next_block - 1, max_element) : 0)).steps_from_start - cnv->get_route_infos().get_element(route_index).steps_from_start : -1;
 	if(route_steps <= brake_steps || brake_steps < 0)
 	{
-		sint32 check_tile = next_block;
-		if(check_tile >= cnv->get_route()->get_count())
+		sint32 check_tile = modify_check_tile ? route_index + 1 : next_block; // This might otherwise end up as -1 without the ? block, which would be an attempt to check the *previous* tile, which would be silly. 
+		if((check_tile > 0) && check_tile >= cnv->get_route()->get_count()) // Checking if check_tile > 0 is necessary because get_count() is a uint32
 		{
 			check_tile = cnv->get_route()->get_count() - 1;
 		}
