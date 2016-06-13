@@ -729,7 +729,6 @@ uint32 convoi_t::get_length() const
 
 /**
  * convoi add their running cost for travelling one tile
- * Also, increment the odometer.
  * @author Hj. Malthaner
  */
 void convoi_t::add_running_cost(sint64 cost, const weg_t *weg)
