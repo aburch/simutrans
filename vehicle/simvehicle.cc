@@ -2030,7 +2030,7 @@ bool road_vehicle_t::choose_route(sint32 &restart_speed, ribi_t::ribi richtung, 
 			// now it make sense to search a route
 			route_t target_rt;
 			koord3d next3d = rt->position_bei(index);
-			if(  !target_rt.find_route( welt, next3d, this, speed_to_kmh(cnv->get_min_top_speed()), richtung, 33 )  ) {
+			if(  !target_rt.find_route( welt, next3d, this, speed_to_kmh(cnv->get_min_top_speed()), richtung, welt->get_settings().get_max_choose_route_steps() )  ) {
 				// nothing empty or not route with less than 33 tiles
 				target_halt = halthandle_t();
 				restart_speed = 0;
@@ -2732,12 +2732,8 @@ skip_choose:
 		// now it we are in a step and can use the route search
 		route_t target_rt;
 		const int richtung = ribi_typ(get_pos(), pos_next);	// to avoid confusion at diagonals
-#ifdef MAX_CHOOSE_BLOCK_TILES
-		if(  !target_rt.find_route( welt, cnv->get_route()->position_bei(start_block), this, speed_to_kmh(cnv->get_min_top_speed()), richtung, MAX_CHOOSE_BLOCK_TILES )  ) {
-#else
-		if(  !target_rt.find_route( welt, cnv->get_route()->position_bei(start_block), this, speed_to_kmh(cnv->get_min_top_speed()), richtung, welt->get_size().x+welt->get_size().y )  ) {
-#endif
-			// nothing empty or not route with less than MAX_CHOOSE_BLOCK_TILES tiles
+		if(  !target_rt.find_route( welt, cnv->get_route()->position_bei(start_block), this, speed_to_kmh(cnv->get_min_top_speed()), richtung, welt->get_settings().get_max_choose_route_steps() )  ) {
+			// nothing empty or not route with less than get_max_choose_route_steps() tiles
 			target_halt = halthandle_t();
 			sig->set_zustand(  roadsign_t::rot );
 			restart_speed = 0;
@@ -3433,7 +3429,7 @@ bool air_vehicle_t::find_route_to_stop_position()
 		route_t target_rt;
 		flight_state prev_state = state;
 		state = looking_for_parking;
-		if(!target_rt.find_route( welt, rt->position_bei(searchforstop), this, 500, ribi_t::alle, 100 )) {
+		if(!target_rt.find_route( welt, rt->position_bei(searchforstop), this, 500, ribi_t::alle, welt->get_settings().get_max_choose_route_steps() )) {
 DBG_MESSAGE("aircraft_t::find_route_to_stop_position()","found no route to free one");
 			// circle slowly another round ...
 			target_halt = halthandle_t();
@@ -3531,7 +3527,7 @@ bool air_vehicle_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, ro
 #endif
 	route_t end_route;
 
-	if(!end_route.find_route( welt, ziel, this, max_speed, ribi_t::alle, 100 )) {
+	if(!end_route.find_route( welt, ziel, this, max_speed, ribi_t::alle, welt->get_settings().get_max_choose_route_steps() )) {
 		// well, probably this is a waypoint
 		if(  grund_t *target = welt->lookup(ziel)  ) {
 			if(  !target->get_weg(air_wt)  ) {

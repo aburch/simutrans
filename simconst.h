@@ -36,9 +36,6 @@
  * needed i.e. for MSVC and PowerPC */
 //#define USE_C
 
-// maximum distance to look ahead for tiles (if undefined, it is unlimited)
-#define MAX_CHOOSE_BLOCK_TILES (64)
-
 // The wind (i.e. approach direction) is random all over the map (not recommended, since it confuses players)
 //#define USE_DIFFERENT_WIND
 

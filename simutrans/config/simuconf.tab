@@ -48,6 +48,10 @@
 # 10000 is ok for everything else (consumes 16*x Bytes main memory, no further harm)
 max_route_steps = 1000000
 
+#
+# How many tiles to check before giving up on finding a free bay at a stop? (200 default)
+max_choose_route_steps = 250
+
 # size of catchment area of a station (default 2)
 # older game size was 3
 # savegames with another catch area will give strange results

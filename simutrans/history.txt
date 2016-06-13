@@ -4,6 +4,7 @@
 	ADD/FIX: slopes for groundobj now working again. If there are groundobjs with climate water, then these will be used ocassionally at the coastline
 	ADD: ground name=shore with Image[slope][0,1=snow, if there] for display at shoreline
 	FIX: smoke tile when rotated factory views
+	ADD: length of max tiles checker after choose sign/signal configurable (max_choose_route_steps)
 
 
 Release of 120.1.3: (r7753 on 2-Feb-2016):
