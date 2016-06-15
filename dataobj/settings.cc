@@ -779,7 +779,7 @@ void settings_t::rdwr(loadsave_t *file)
 		if(  file->get_version() >=120002 ) {
 			file->rdwr_bool(lake);
 			file->rdwr_bool(no_trees);
-			file->rdwr_long(max_choose_route_steps );
+			file->rdwr_long( max_choose_route_steps );
 		}
 		// otherwise the default values of the last one will be used
 	}
