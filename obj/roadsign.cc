@@ -246,8 +246,7 @@ void roadsign_t::info(cbuffer_t & buf, bool dummy) const
 #endif
 		if(  automatic  ) {
 			buf.append(translator::translate("\nSet phases:"));
-			buf.append("\n");
-			buf.append("\n");
+			buf.append("\n\n");;
 		}
 	}
 
@@ -259,7 +258,7 @@ void roadsign_t::info(cbuffer_t & buf, bool dummy) const
 		koord3d sb = sig->get_signalbox();
 		if(sb == koord3d::invalid)
 		{
-			buf.append("none");
+			buf.append("keine");
 		}
 		else
 		{
@@ -267,6 +266,7 @@ void roadsign_t::info(cbuffer_t & buf, bool dummy) const
 			const gebaeude_t* gb = gr->get_building();
 			buf.append(translator::translate(gb->get_name()));
 		}
+		
 	}
 }
 

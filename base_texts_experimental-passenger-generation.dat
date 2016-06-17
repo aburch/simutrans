@@ -247,3 +247,40 @@ note=Text in the information window of signalboxes showing the number of signals
 obj=program_text
 name=building
 note=Part of the "A new building is now available: [name of building]" message appearing at the beginning of the month
+-
+obj=program_text
+name=drive_by_sight
+note=The name of the working method for signalling purposes
+-
+obj=program_text
+name=time_interval
+note=
+-
+obj=program_text
+name=absolute_block
+note=The name of the working method for signalling purposes
+-
+obj=program_text
+name=token_block
+note=The name of the working method for signalling purposes
+-
+obj=program_text
+name=track_circuit_block
+note=The name of the working method for signalling purposes
+-
+obj=program_text
+name=cab_signalling
+note=The name of the working method for signalling purposes
+-
+obj=program_text
+name=moving_block
+note=The name of the working method for signalling purposes
+-
+obj=program_text
+name=one_train_staff
+note=The name of the working method for signalling purposes
+-
+obj=program_text
+name=time_interval_with_telegraph
+note=The name of the working method for signalling purposes
+

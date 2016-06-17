@@ -2601,4 +2601,19 @@ The percentage of passengers transported in the region overall
 The percentage of intending passengers making successful journeys in the region overall
 Spacing cnv/month, shift
 Departures/month; shift
-
+drive_by_sight
+Drive by sight
+Time interval
+absolute_block
+Absolute block
+Token block
+track_circuit_block
+Track circuit block
+cab_signalling
+Cab signalling
+moving_block
+Moving block
+one_train_staff
+One train staff
+time_interval_with_telegraph
+Time interval with telegraph

@@ -183,6 +183,33 @@ public:
 	// Returns true if succeeds.
 	bool upgrade(const roadsign_besch_t* new_besch); 
 	bool upgrade(bool underground) { return upgrade(find_best_upgrade(underground)); } 
+
+	const char* get_working_method_name(working_method_t wm) const
+	{
+		switch(wm)
+		{
+		case drive_by_sight:
+			return "drive_by_sight";
+		case time_interval:
+			return "time_interval";
+		case absolute_block:
+			return "absolute_block";
+		case token_block:
+			return "token_block";
+		case track_circuit_block:
+			return "track_circuit_block";
+		case cab_signalling:
+			return "cab_signalling";
+		case moving_block:
+			return "moving_block";
+		case one_train_staff:
+			return "one_train_staff";
+		case time_interval_with_telegraph:
+			return "time_interval_with_telegraph";
+		default:
+			return "unknown";
+		};
+	}
 };
 
 #endif

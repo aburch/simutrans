@@ -102,7 +102,9 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 	obj_t::info(buf);
 
 	buf.printf("%s\n%s%u", translator::translate(besch->get_name()), translator::translate("\ndirection:"), get_dir());
+	buf.append("\n\n");
 
+	buf.append(translator::translate(get_working_method_name(besch->get_working_method())));
 	buf.append("\n\n");
 
 	buf.append(translator::translate("Controlled from"));
