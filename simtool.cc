@@ -5198,7 +5198,14 @@ char const* tool_build_roadsign_t::get_tooltip(player_t const*) const
 	if(besch) 
 	{
 		char tip[256];
-		sprintf(tip, "%s, %s %i%s", translator::translate(besch->get_name()), translator::translate("Max. speed:"), speed_to_kmh(besch->get_max_speed()), translator::translate("km/h"));
+		if(besch->is_signal())
+		{
+			sprintf(tip, "%s, %s %i%s, %s", translator::translate(besch->get_name()), translator::translate("Max. speed:"), speed_to_kmh(besch->get_max_speed()), translator::translate("km/h"), translator::translate(roadsign_t::get_working_method_name(besch->get_working_method())));
+		}
+		else
+		{
+			sprintf(tip, "%s, %s %i%s", translator::translate(besch->get_name()), translator::translate("Max. speed:"), speed_to_kmh(besch->get_max_speed()), translator::translate("km/h"));
+		}
 
 		return tooltip_with_price_maintenance(welt, tip, -besch->get_preis(), besch->get_maintenance());
 	}

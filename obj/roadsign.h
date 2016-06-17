@@ -184,7 +184,7 @@ public:
 	bool upgrade(const roadsign_besch_t* new_besch); 
 	bool upgrade(bool underground) { return upgrade(find_best_upgrade(underground)); } 
 
-	const char* get_working_method_name(working_method_t wm) const
+	static const char* get_working_method_name(working_method_t wm)
 	{
 		switch(wm)
 		{

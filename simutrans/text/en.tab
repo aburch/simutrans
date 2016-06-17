@@ -2603,9 +2603,11 @@ Spacing cnv/month, shift
 Departures/month; shift
 drive_by_sight
 Drive by sight
+time_interval
 Time interval
 absolute_block
 Absolute block
+token_block
 Token block
 track_circuit_block
 Track circuit block
