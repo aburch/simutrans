@@ -35,7 +35,7 @@
 
 #include "components/gui_chart.h"
 
-
+#include "../obj/roadsign.h"
 
 
 
@@ -134,6 +134,19 @@ void convoi_detail_t::draw(scr_coord pos, scr_size size)
 		buf.printf("%s %s", translator::translate("Restwert:"), number );
 		display_proportional_clip( pos.x+10, offset_y, buf, ALIGN_LEFT, MONEY_PLUS, true );
 		offset_y += LINESPACE;
+
+		vehicle_t* v1 = cnv->get_vehikel(0); 
+
+		if(v1->get_waytype() == track_wt || v1->get_waytype() == maglev_wt || v1->get_waytype() == tram_wt || v1->get_waytype() == narrowgauge_wt || v1->get_waytype() == monorail_wt)
+		{
+			// Current working method
+			rail_vehicle_t* rv1 = (rail_vehicle_t*)v1;
+			rail_vehicle_t* rv2 = (rail_vehicle_t*)cnv->get_vehikel(cnv->get_vehikel_anzahl());
+			buf.clear();
+			buf.printf("%s: %s", translator::translate("Current working method"), translator::translate(rv1->is_leading() ? roadsign_t::get_working_method_name(rv1->get_working_method()) : roadsign_t::get_working_method_name(rv2->get_working_method()))); 
+			display_proportional_clip( pos.x+10, offset_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true );
+			offset_y += LINESPACE;
+		}
 		
 		// Bernd Gabriel, 16.06.2009: current average obsolescence increase percentage
 		uint16 count = cnv->get_vehikel_anzahl();
@@ -313,6 +326,7 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 	// keep previous maximum width
 	int x_size = get_size().w-51-pos.x;
 	karte_t *welt = world();
+	offset.y += LINESPACE;
 
 	int total_height = 0;
 	if(cnv.is_bound()) {

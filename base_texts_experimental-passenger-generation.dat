@@ -283,4 +283,7 @@ note=The name of the working method for signalling purposes
 obj=program_text
 name=time_interval_with_telegraph
 note=The name of the working method for signalling purposes
-
+-
+obj=program_text
+name=Current working method
+note=Text in the convoy detail window showing the current working method
