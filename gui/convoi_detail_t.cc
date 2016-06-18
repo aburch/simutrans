@@ -111,7 +111,7 @@ void convoi_detail_t::draw(scr_coord pos, scr_size size)
 		display_proportional_clip( pos.x+10, offset_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true );
 		offset_y += LINESPACE;
 
-		// current tractive effort
+		// current brake force
 		buf.clear();
 		buf.printf("%s %.2f kN", translator::translate("Max. brake force:"), cnv->get_braking_force().to_double() / 1000.0);
 		display_proportional_clip( pos.x+10, offset_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true );
@@ -391,16 +391,22 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 					translator::translate("Power:"), v->get_besch()->get_leistung(),
 					translator::translate("Tractive Force:"), v->get_besch()->get_tractive_effort(),
 					translator::translate("Gear:"), v->get_besch()->get_gear()/64.0 );
-				display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, buf, ALIGN_LEFT, MONEY_PLUS, true );
+				display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true );
 				extra_y += LINESPACE;
 			}
 
 			// weight
 			buf.clear();
 			buf.printf( "%s %dt", translator::translate("Weight:"), v->get_sum_weight());
-			display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, buf, ALIGN_LEFT, MONEY_PLUS, true );
+			display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true );
 			extra_y += LINESPACE;
 
+			// Brake force
+			buf.clear();
+			buf.printf("%s %i kN", translator::translate("Max. brake force:"), v->get_besch()->get_brake_force());
+			display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true );
+			extra_y += LINESPACE;
+			
 			//Catering
 			if(v->get_besch()->get_catering_level() > 0)
 			{
