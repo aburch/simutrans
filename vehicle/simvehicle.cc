@@ -5295,7 +5295,7 @@ void rail_vehicle_t::clear_token_reservation(signal_t* sig, rail_vehicle_t* w, s
 			schiene_t* sch_route = gr_route ? (schiene_t *)gr_route->get_weg(get_waytype()) : NULL;
 			if(sch_route && (!cnv || cnv->get_state() != convoi_t::REVERSING))
 			{
-				sch_route->unreserve(this);
+				sch_route->unreserve(cnv->self);
 			}
 		}
 	}
