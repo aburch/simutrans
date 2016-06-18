@@ -141,7 +141,7 @@ void convoi_detail_t::draw(scr_coord pos, scr_size size)
 		{
 			// Current working method
 			rail_vehicle_t* rv1 = (rail_vehicle_t*)v1;
-			rail_vehicle_t* rv2 = (rail_vehicle_t*)cnv->get_vehikel(cnv->get_vehikel_anzahl());
+			rail_vehicle_t* rv2 = (rail_vehicle_t*)cnv->get_vehikel(cnv->get_vehikel_anzahl() - 1);
 			buf.clear();
 			buf.printf("%s: %s", translator::translate("Current working method"), translator::translate(rv1->is_leading() ? roadsign_t::get_working_method_name(rv1->get_working_method()) : roadsign_t::get_working_method_name(rv2->get_working_method()))); 
 			display_proportional_clip( pos.x+10, offset_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true );
