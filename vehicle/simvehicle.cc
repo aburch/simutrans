@@ -5316,7 +5316,10 @@ void rail_vehicle_t::leave_tile()
 			if(sch0) 
 			{
 				rail_vehicle_t* w = cnv ? (rail_vehicle_t*)cnv->front() : NULL;
-				if((!cnv || cnv->get_state() != convoi_t::REVERSING) && (!w || (w->get_working_method() != token_block && w->get_working_method() != one_train_staff)))
+				const halthandle_t this_halt = gr->get_halt();
+				const halthandle_t dest_halt = haltestelle_t::get_halt(cnv->get_schedule()->get_current_eintrag().pos, get_owner()); 
+				const bool at_reversing_destination = this_halt == dest_halt && cnv->get_schedule()->get_current_eintrag().reverse; 
+				if((!cnv || cnv->get_state() != convoi_t::REVERSING) && (!w || (w->get_working_method() != token_block && w->get_working_method() != one_train_staff)) && !at_reversing_destination)
 				{
 					sch0->unreserve(this);
 				}
