@@ -403,7 +403,7 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 
 			// Brake force
 			buf.clear();
-			buf.printf("%s %i kN", translator::translate("Max. brake force:"), v->get_besch()->get_brake_force());
+			buf.printf("%s %u kN", translator::translate("Max. brake force:"), v->get_besch()->get_brake_force());
 			display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true );
 			extra_y += LINESPACE;
 			
