@@ -287,3 +287,9 @@ note=The name of the working method for signalling purposes
 obj=program_text
 name=Current working method
 note=Text in the convoy detail window showing the current working method
+-
+obj=program_text
+name=Time since a train last passed
+note=Text in the signal information window showing the time since a train last passed. Particularly useful for time interval signals, but shown on all signals for information.
+
+

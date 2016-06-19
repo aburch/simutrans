@@ -249,25 +249,7 @@ void roadsign_t::info(cbuffer_t & buf, bool dummy) const
 			buf.append("\n\n");;
 		}
 	}
-
-	if(besch->is_signal_type())
-	{
-		buf.append(translator::translate("Controlled from"));
-		buf.append(": ");
-		signal_t* sig = (signal_t*)this;
-		koord3d sb = sig->get_signalbox();
-		if(sb == koord3d::invalid)
-		{
-			buf.append("keine");
-		}
-		else
-		{
-			const grund_t* gr = welt->lookup(sb);
-			const gebaeude_t* gb = gr->get_building();
-			buf.append(translator::translate(gb->get_name()));
-		}
-		
-	}
+	// Signal specific information is dealt with in void signal_t::info(cbuffer_t & buf, bool dummy) const (in signal.cc)
 }
 
 

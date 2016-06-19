@@ -100,6 +100,7 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 {
 	// well, needs to be done
 	obj_t::info(buf);
+	signal_t* sig = (signal_t*)this;
 
 	buf.printf("%s\n%s%u", translator::translate(besch->get_name()), translator::translate("\ndirection:"), get_dir());
 	buf.append("\n\n");
@@ -107,9 +108,15 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 	buf.append(translator::translate(get_working_method_name(besch->get_working_method())));
 	buf.append("\n\n");
 
+	buf.append(translator::translate("Time since a train last passed")); 
+	buf.append(": "); 
+	char time_since_train_last_passed[32];
+	welt->sprintf_ticks(time_since_train_last_passed,sizeof(time_since_train_last_passed), welt->get_zeit_ms() - sig->get_train_last_passed());
+	buf.append(time_since_train_last_passed);
+	buf.append("\n\n");
+
 	buf.append(translator::translate("Controlled from"));
 	buf.append(":\n");
-	signal_t* sig = (signal_t*)this;
 	koord3d sb = sig->get_signalbox();
 	if(sb == koord3d::invalid)
 	{
