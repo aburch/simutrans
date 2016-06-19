@@ -4294,7 +4294,6 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 	bool directional_reservation_succeeded = true;
 	bool one_train_staff_loop_complete = false;
 	bool time_interval_reservation = false;
-	bool telegraph_directional = false;
 	uint16 brake_tiles = brake_steps / VEHICLE_STEPS_PER_TILE;
 	if(working_method == drive_by_sight)
 	{
@@ -4614,7 +4613,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 									}
 									else // With telegraph
 									{
-										// The same as for caution
+										// The same as for cautiont
 										cnv->set_maximum_signal_speed(min(kmh_to_speed(sch1->get_max_speed()) / 2, signal->get_besch()->get_max_speed() / 2));
 									}
 								}
@@ -4730,16 +4729,11 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 				&& !next_signal_protects_no_junctions
 				&& (this_stop_signal_index < INVALID_INDEX || last_stop_signal_index < INVALID_INDEX || last_choose_signal_index < INVALID_INDEX)
 				&& ((i - start_index <  welt->get_settings().get_sighting_distance_tiles()) || next_signal_working_method == time_interval_with_telegraph || (gr->get_halt().is_bound() && gr->get_halt() == last_step_halt)); // Time interval with telegraph signals have no distance limit for reserving.
-			telegraph_directional = next_signal_working_method == time_interval_with_telegraph && next_signal_protects_no_junctions && (this_stop_signal_index < INVALID_INDEX || last_stop_signal_index < INVALID_INDEX);
-			const schiene_t::reservation_type rt = directional_only || telegraph_directional ? schiene_t::directional : schiene_t::block;
-			bool attempt_reservation = time_interval_reservation || telegraph_directional || (next_signal_working_method != time_interval && next_signal_working_method != time_interval_with_telegraph);
+			const schiene_t::reservation_type rt = directional_only ? schiene_t::directional : schiene_t::block;
+			bool attempt_reservation = time_interval_reservation || (next_signal_working_method != time_interval && next_signal_working_method != time_interval_with_telegraph);
 			if(attempt_reservation && !sch1->reserve(cnv->self, ribi_typ(route->position_bei(max(1u,i)-1u), route->position_bei(min(route->get_count()-1u,i+1u))), rt, (working_method == time_interval || working_method == time_interval_with_telegraph)))
 			{
 				not_entirely_free = true;
-				if(telegraph_directional)
-				{
-					directional_only = true;
-				}
 				if(next_signal_index == i && (next_signal_working_method == absolute_block || next_signal_working_method == token_block || next_signal_working_method == track_circuit_block || next_signal_working_method == cab_signalling))
 				{
 					// If the very last tile of a block is not free, do not enter the block.
@@ -4756,22 +4750,27 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 					}*/
 					break;
 				}
-				if(((next_signal_working_method == absolute_block || next_signal_working_method == token_block) && first_stop_signal_index < i) && !directional_only)
+
+				if(((next_signal_working_method == absolute_block || next_signal_working_method == token_block || next_signal_working_method == time_interval || next_signal_working_method == time_interval_with_telegraph) && first_stop_signal_index < i) && !directional_only)
 				{
 					// Because the distant signal applies to all signals controlled by the same signalbox, the driver cannot know that the route 
 					// will be clear beyond the *first* stop signal after the distant. 
-					if(pre_signals.empty() && first_stop_signal_index > start_index + modified_sighting_distance_tiles)
+					do_not_clear_distant = true;
+					if(next_signal_working_method == absolute_block || next_signal_working_method == token_block)
 					{
-						next_signal_index = first_stop_signal_index;
+						if((pre_signals.empty() && first_stop_signal_index > start_index + modified_sighting_distance_tiles))
+						{
+							next_signal_index = first_stop_signal_index;
+						}
+						if(next_signal_index == start_index)
+						{
+							success = false;
+							directional_reservation_succeeded = false;
+						}
+						break;
 					}
-					do_not_clear_distant = true;					
-					if(next_signal_index == start_index)
-					{
-						success = false;
-						directional_reservation_succeeded = false;
-					}
-					break;
 				}
+
 				if((next_signal_working_method == track_circuit_block
 					|| next_signal_working_method == cab_signalling)
 					&& last_stop_signal_index < INVALID_INDEX
