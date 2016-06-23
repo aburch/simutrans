@@ -4172,13 +4172,13 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 	}
 
 	// This is necessary if a convoy is passing through a passing loop without stopping so as to set token block working
-	// properly on the longblock signal at the exit of the loop.
+	// properly on the token block signal at the exit of the loop.
 	if(welt->lookup(get_pos())->get_weg(get_waytype())->has_signal()) 
 	{
 		ribi_t::ribi ribi = ribi_typ(cnv->get_route()->position_bei(max(1u,route_index)-1u), cnv->get_route()->position_bei(min(cnv->get_route()->get_count()-1u,route_index+1u)));
 		signal_t* signal = get_weg()->get_signal(ribi); 
 	
-		if(signal && (signal->get_besch()->is_longblock_signal() || signal->get_besch()->get_working_method() == token_block))
+		if(signal && signal->get_besch()->get_working_method() == token_block)
 		{
 			working_method = token_block;
 		}
@@ -4425,7 +4425,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 				signal_t* signal = gr->get_weg(get_waytype())->get_signal(ribi); 
 				if(signal)
 				{
-					if(!directional_only && signal->is_bidirectional())
+					if(!directional_only && (signal->get_besch()->is_longblock_signal() || signal->is_bidirectional()))
 					{
 						last_bidirectional_signal_index = i;
 					}
@@ -4662,7 +4662,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 							}
 						}
 
-						if(signal->get_besch()->is_longblock_signal() || signal->get_besch()->get_working_method() == token_block)
+						if(signal->get_besch()->get_working_method() == token_block)
 						{
 							last_token_block_signal_index = i; 
 							const bool platform_starter = (this_halt.is_bound() && (haltestelle_t::get_halt(signal->get_pos(), get_owner())) == this_halt)
@@ -4984,7 +4984,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 					{
 						if(signal_t* sg = welt->lookup(route->position_bei(next_next_signal))->get_weg(get_waytype())->get_signal(ribi_typ((route->position_bei(next_next_signal - 1)), route->position_bei(next_next_signal))))
 						{
-							if(!sg->is_bidirectional())
+							if(!sg->is_bidirectional() || sg->get_besch()->is_longblock_signal())
 							{
 								break;
 							}
@@ -5103,7 +5103,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 		{
 			if(signal_t* const signal = g->find<signal_t>())
 			{
-				if(((counter -- || pre_signals.empty() || (reached_end_of_loop && (early_platform_index == INVALID_INDEX || last_stop_signal_index < early_platform_index))) && ((!signal->get_besch()->is_longblock_signal() && signal->get_besch()->get_working_method() != token_block) || starting_at_signal)) && route->position_bei(route->get_count() - 1) != signal->get_pos())
+				if(((counter -- || pre_signals.empty() || (reached_end_of_loop && (early_platform_index == INVALID_INDEX || last_stop_signal_index < early_platform_index))) && ( signal->get_besch()->get_working_method() != token_block || starting_at_signal)) && route->position_bei(route->get_count() - 1) != signal->get_pos())
 				{
 					const bool use_no_choose_aspect = signal->get_besch()->is_choose_sign() && !is_choosing && choose_return == 0;
 					if(signal->get_besch()->get_working_method() == absolute_block || signal->get_besch()->get_working_method() == token_block || signal->get_besch()->get_working_method() == cab_signalling)
@@ -5265,7 +5265,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 void rail_vehicle_t::clear_token_reservation(signal_t* sig, rail_vehicle_t* w, schiene_t* sch)
 {
 	route_t* route = cnv ? cnv->get_route() : NULL;
-	if(sig && !sig->get_besch()->is_longblock_signal() && cnv->get_state() != convoi_t::REVERSING)
+	if(sig && !sig->get_besch()->get_working_method() == token_block && cnv->get_state() != convoi_t::REVERSING)
 	{
 		w->set_working_method(sig->get_besch()->get_working_method());
 	}
