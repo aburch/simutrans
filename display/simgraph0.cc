@@ -2,6 +2,7 @@
  * Copyright 2010 Simutrans contributors
  * Available under the Artistic License (see license.txt)
  */
+
 #if COLOUR_DEPTH == 0
 
 #include "../simconst.h"
@@ -61,9 +62,9 @@ void display_mark_img_dirty(image_id, KOORD_VAL, KOORD_VAL)
 {
 }
 
-bool display_load_font(const char*)
+uint16 display_load_font(const char*)
 {
-	return true;
+	return 1;
 }
 
 sint16 display_get_width()
@@ -117,7 +118,7 @@ void display_snapshot(int, int, int, int)
 
 void display_get_image_offset(image_id image, KOORD_VAL *xoff, KOORD_VAL *yoff, KOORD_VAL *xw, KOORD_VAL *yw)
 {
-	if (image < 2) {
+	if(  image < 2  ) {
 		// initialize offsets with dummy values
 		*xoff = 0;
 		*yoff = 0;
@@ -128,7 +129,7 @@ void display_get_image_offset(image_id image, KOORD_VAL *xoff, KOORD_VAL *yoff, 
 
 void display_get_base_image_offset(image_id image, KOORD_VAL *xoff, KOORD_VAL *yoff, KOORD_VAL *xw, KOORD_VAL *yw)
 {
-	if (image < 2) {
+	if(  image < 2  ) {
 		// initialize offsets with dummy values
 		*xoff = 0;
 		*yoff = 0;
@@ -137,9 +138,11 @@ void display_get_base_image_offset(image_id image, KOORD_VAL *xoff, KOORD_VAL *y
 	}
 }
 
-void display_set_base_image_offset(image_id, KOORD_VAL, KOORD_VAL)
+/*
+void display_set_base_image_offset(unsigned, KOORD_VAL, KOORD_VAL)
 {
 }
+*/
 
 int get_maus_x()
 {
@@ -191,7 +194,7 @@ void display_base_img(const image_id, KOORD_VAL, KOORD_VAL, const signed char, c
 {
 }
 
-void display_fit_img_to_width( const image_id n, sint16 new_w )
+void display_fit_img_to_width( const image_id, sint16)
 {
 }
 
@@ -294,11 +297,10 @@ unsigned short get_prev_char_with_metrics(const char* &, const char *const, unsi
 	return 0;
 }
 
-bool has_character( utf16 char_code )
+bool has_character( utf16 )
 {
 	return false;
 }
-
 
 size_t display_fit_proportional(const char *, scr_coord_val, scr_coord_val)
 {
@@ -309,6 +311,7 @@ int display_calc_proportional_string_len_width(const char*, size_t)
 {
 	return 0;
 }
+
 
 int display_text_proportional_len_clip_rgb(KOORD_VAL, KOORD_VAL, const char*, control_alignment_t , const PIXVAL, bool, sint32  CLIP_NUM_DEF_NOUSE)
 {
@@ -377,7 +380,7 @@ int is_display_init()
 	return false;
 }
 
-void display_free_all_images_above( image_id)
+void display_free_all_images_above(image_id)
 {
 }
 
@@ -469,5 +472,4 @@ void activate_ribi_clip(int)
 {
 }
 #endif
-
 #endif

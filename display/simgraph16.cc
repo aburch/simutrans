@@ -3,6 +3,8 @@
  * Available under the Artistic License (see license.txt)
  */
 
+#if COLOUR_DEPTH == 16
+
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -5396,3 +5398,4 @@ void display_snapshot( int x, int y, int w, int h )
 
 	dr_screenshot(buf, x, y, w, h);
 }
+#endif
