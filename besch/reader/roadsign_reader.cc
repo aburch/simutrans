@@ -182,11 +182,6 @@ obj_besch_t * roadsign_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->normal_danger = false;
 	}
 
-	if(besch->is_longblock_signal())
-	{
-		besch->working_method = token_block;
-	}
-
 	DBG_DEBUG("roadsign_reader_t::read_node()","min_speed=%i, cost=%i, flags=%x, waytype=%i, intro=%i%i, retire=%i,%i",
 		besch->min_speed, besch->cost/100, besch->flags, besch->wt, besch->intro_date % 12 + 1, besch->intro_date / 12, besch->obsolete_date % 12 + 1, besch->obsolete_date / 12 );
 	return besch;
