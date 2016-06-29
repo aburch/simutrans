@@ -69,7 +69,7 @@ public:
 	{ 
 		if(t == block)
 		{
-			return !reserved.is_bound() || c == reserved || (type == directional && (dir == direction || dir == ribi_t::alle || (is_junction() && (dir & direction)))) || (type == priority && true /*Insert real logic here*/); 
+			return !reserved.is_bound() || c == reserved || (type == directional && (dir == direction || dir == ribi_t::alle || (is_diagonal() && (dir & direction)) || (is_junction() && (dir & direction)))) || (type == priority && true /*Insert real logic here*/); 
 		}
 		if(t == directional)
 		{
