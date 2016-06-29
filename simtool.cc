@@ -5705,7 +5705,7 @@ const char *tool_build_roadsign_t::place_sign_intern( player_t *player, grund_t*
 					// if nothing found, we have two ways again ...
 					if(ribi_t::is_twoway(dir))
 					{
-						if(sig->get_besch()->get_working_method() != track_circuit_block && sig->get_besch()->get_working_method() != cab_signalling && sig->get_besch()->get_working_method() != moving_block)
+						if(sig->get_besch()->get_working_method() != track_circuit_block && sig->get_besch()->get_working_method() != cab_signalling && sig->get_besch()->get_working_method() != moving_block && !(sig->get_besch()->get_working_method() == time_interval_with_telegraph && sig->get_besch()->is_longblock_signal()))
 						{
 							// Only some types of signals can work properly as bidirectional: not this type.
 							dir = ~sig->get_dir() & weg->get_ribi_unmasked();
