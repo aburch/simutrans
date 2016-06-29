@@ -8797,8 +8797,9 @@ static void encode_URI(cbuffer_t& buf, char const* const text)
 void karte_t::process_network_commands(sint32 *ms_difference)
 {
 	// did we receive a new command?
-	unsigned long ms = dr_time();
-	network_command_t *nwc = network_check_activity( this, next_step_time>ms ? min( next_step_time-ms, 5) : 0 );
+	uint32 ms = dr_time();
+	sint32 time_to_next_step = (sint32)next_step_time - (sint32)ms;
+	network_command_t *nwc = network_check_activity( this, time_to_next_step > 0 ? min( time_to_next_step, 5) : 0 );
 	if(  nwc==NULL  &&  !network_check_server_connection()  ) {
 		dbg->warning("karte_t::process_network_commands", "lost connection to server");
 		network_disconnect();
@@ -8813,6 +8814,7 @@ void karte_t::process_network_commands(sint32 *ms_difference)
 			nwc_check_t* nwcheck = (nwc_check_t*)nwc;
 
 			// are we on time?
+			*ms_difference = 0;
 			const uint32 timems = dr_time();
 			const sint32 time_to_next = (sint32)next_step_time - (sint32)timems; // +'ve - still waiting for next,  -'ve - lagging
 			const sint64 frame_timediff = ((sint64)nwcheck->server_sync_step - sync_steps - settings.get_server_frames_ahead() - env_t::additional_client_frames_behind) * fix_ratio_frame_time; // +'ve - server is ahead,  -'ve - client is ahead
@@ -8830,7 +8832,7 @@ void karte_t::process_network_commands(sint32 *ms_difference)
 					next_step_time = (sint64)timems - frame_timediff;
 			}
 			else {
-				// gentle slowing down
+					// gentle slowing down
 					*ms_difference = timediff;
 				}
 			}
