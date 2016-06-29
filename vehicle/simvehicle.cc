@@ -3880,14 +3880,22 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		restart_speed = 0;
 		if((working_method == time_interval || working_method == time_interval_with_telegraph) && cnv->get_state() == convoi_t::DRIVING)
 		{
-			cnv->set_state(convoi_t::EMERGENCY_STOP);
-			cnv->set_wait_lock(emergency_stop_duration + 500); // We add 500 to what we assume is the rear train to ensure that the front train starts first.
-			working_method = drive_by_sight;
 			convoihandle_t c = w->get_reserved_convoi();
-			if(c.is_bound())
+			const koord3d ground_pos = gr->get_pos();
+			for(sint32 i = 0; i < c->get_vehikel_anzahl(); i ++)
 			{
-				c->set_state(convoi_t::EMERGENCY_STOP);
-				c->set_wait_lock(emergency_stop_duration);
+				if(c->get_vehikel(i)->get_pos() == ground_pos)
+				{
+					cnv->set_state(convoi_t::EMERGENCY_STOP);
+					cnv->set_wait_lock(emergency_stop_duration + 500); // We add 500 to what we assume is the rear train to ensure that the front train starts first.
+					working_method = drive_by_sight;
+					if(c.is_bound())
+					{
+						c->set_state(convoi_t::EMERGENCY_STOP);
+						c->set_wait_lock(emergency_stop_duration);
+					}
+					break;
+				}
 			}
 		}
 		return false;
@@ -4759,7 +4767,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 			
 			time_interval_reservation = 
 				(next_signal_working_method == time_interval || next_signal_working_method == time_interval_with_telegraph)
-				&& !next_signal_protects_no_junctions
+				&& (!next_signal_protects_no_junctions && this_stop_signal_index != i)
 				&& (this_stop_signal_index < INVALID_INDEX || last_stop_signal_index < INVALID_INDEX || last_choose_signal_index < INVALID_INDEX)
 				&& ((i - start_index <  welt->get_settings().get_sighting_distance_tiles()) || next_signal_working_method == time_interval_with_telegraph || (gr->get_halt().is_bound() && gr->get_halt() == last_step_halt)); // Time interval with telegraph signals have no distance limit for reserving.
 			const bool telegraph_directional = time_interval_reservation && (last_longblock_signal_index == last_stop_signal_index) && last_longblock_signal_index < INVALID_INDEX;
@@ -4830,7 +4838,9 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 					break;
 				}
 			}
-			else if(attempt_reservation)
+			else if(attempt_reservation ||
+				(next_signal_working_method == time_interval || next_signal_working_method == time_interval_with_telegraph
+				&& !next_signal_protects_no_junctions && this_stop_signal_index == i && !directional_only))
 			{
 				if(this_stop_signal_index != INVALID_INDEX && !directional_only)
 				{
@@ -4846,7 +4856,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 			last_step_halt = gr->get_halt();
 			
 			// Do not attempt to reserve beyond a train ahead.
-			if(!directional_only && sch1->get_reserved_convoi().is_bound() && sch1->get_reserved_convoi() != cnv->self && sch1->get_reserved_convoi()->get_pos() == pos)
+			if(attempt_reservation && !directional_only && sch1->get_reserved_convoi().is_bound() && sch1->get_reserved_convoi() != cnv->self && sch1->get_reserved_convoi()->get_pos() == pos)
 			{
 				break;
 			}
