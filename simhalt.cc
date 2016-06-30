@@ -1716,6 +1716,8 @@ uint16 haltestelle_t::get_service_frequency(halthandle_t destination, uint8 cate
 			timing = max(spacing_time, timing);
 		}
 
+		timing = max(1, timing); 
+
 		if(service_frequency == 0)
 		{
 			// This is the only time that this has been set so far, so compute for single line timing.
