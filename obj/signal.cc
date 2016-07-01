@@ -373,6 +373,7 @@ void signal_t::calc_image()
 	set_xoff( xoff );
 	set_yoff( yoff );
 	set_bild(image);
+	mark_image_dirty( get_image(), 0 );
 }
 
 void signal_t::rdwr_signal(loadsave_t *file)
