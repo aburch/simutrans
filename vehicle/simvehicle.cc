@@ -3762,7 +3762,7 @@ sint32 rail_vehicle_t::activate_choose_signal(const uint16 start_block, uint16 &
 		if(!blocks) 
 		{
 			dbg->error("rail_vehicle_t::activate_choose_signal()", "could not reserved route after find_route!");
-			target_halt = halthandle_t();		
+			target_halt = halthandle_t();	
 		}
 	}
 	cnv->set_is_choosing(false);
@@ -5100,6 +5100,14 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 			// Cannot go anywhere either because this train is already on the tile of the last signal to which it can go, or is in the same station as it.
 			success = false;
 		}
+
+		if(route->get_count() <= start_index)
+		{
+			// Occasionally, the route may be recalculated here when there is a combination of a choose signal and misplaced bidirectional or longblock signal without
+			// the start index changing. This can cause errors in the next line. 
+			start_index = 0;
+		}
+
 		ribi_t::ribi direction = ribi_typ(route->position_bei(max(1u,start_index)-1u), route->position_bei(min(route->get_count()-1u,start_index+1u)));
 		if(working_method == token_block && success == false)
 		{
