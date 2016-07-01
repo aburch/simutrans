@@ -5176,12 +5176,12 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 						if((signal->get_train_last_passed() + caution_interval_ticks) < ticks)
 						{
 							// We assume that these are not distant signals here, as they should not be added to this list.
-							signal->set_state(roadsign_t::caution_no_choose);
+							signal->set_state(use_no_choose_aspect && signal->get_state() !=  roadsign_t::caution ? roadsign_t::caution_no_choose : roadsign_t::caution);
 						}
 						else if(signal->get_besch()->get_working_method() == time_interval_with_telegraph && !signal->get_no_junctions_to_next_signal())
 						{
 							// Because this is a telegraph fitted signal, we know that the junction must be clear whenever the last train passed.
-							signal->set_state(roadsign_t::caution_no_choose);
+							signal->set_state(use_no_choose_aspect && signal->get_state() !=  roadsign_t::caution ? roadsign_t::caution_no_choose : roadsign_t::caution);
 						}
 						// Otherwise, leave at danger.
 					}
