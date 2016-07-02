@@ -402,6 +402,7 @@ SOURCES += script/api_function.cc
 SOURCES += script/api_param.cc
 SOURCES += script/api/api_city.cc
 SOURCES += script/api/api_const.cc
+SOURCES += script/api/api_control.cc
 SOURCES += script/api/api_convoy.cc
 SOURCES += script/api/api_gui.cc
 SOURCES += script/api/api_factory.cc
