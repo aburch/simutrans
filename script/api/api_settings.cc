@@ -2,6 +2,7 @@
 
 /** @file api_settings.cc exports game settings functions. */
 
+#include "api_command.h"
 #include "api_simple.h"
 #include "../api_class.h"
 #include "../api_function.h"
@@ -19,16 +20,11 @@ mytime_t get_start_time(settings_t* settings)
 }
 
 
-void_t set_traffic_level(settings_t*, sint16 rate)
+call_tool_init set_traffic_level(settings_t*, sint16 rate)
 {
-	static char level[16];
-	sprintf(level, "%i", rate);
-	tool_t *tool = tool_t::simple_tool[TOOL_TRAFFIC_LEVEL];
-	tool->set_default_param( level );
-	tool->flags |=  tool_t::WFL_SCRIPT;
-	welt->set_tool( tool, welt->get_player(1) );
-	tool->flags &= ~tool_t::WFL_SCRIPT;
-	return void_t();
+	cbuffer_t buf;
+	buf.printf("%i", rate);
+	return call_tool_init(TOOL_TRAFFIC_LEVEL | SIMPLE_TOOL, buf, 0, welt->get_player(1));
 }
 
 
