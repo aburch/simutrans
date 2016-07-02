@@ -54,19 +54,32 @@ vector_tpl<sint64> const& get_player_stat(player_t *player, sint32 INDEX, sint32
 	return v;
 }
 
-void_t change_player_account(player_t *player, sint64 delta)
-{
-	if (player) {
-		player->get_finance()->book_account(delta);
-	}
-	return void_t();
-}
-
 
 bool player_active(player_t *player)
 {
 	return player != NULL;
 }
+
+
+// export of finance_t only here
+namespace script_api {
+	declare_specialized_param(finance_t*, param<player_t*>::typemask(), param<player_t*>::squirrel_type());
+
+	finance_t* param<finance_t*>::get(HSQUIRRELVM vm, SQInteger index)
+	{
+		player_t *player = param<player_t*>::get(vm, index);
+		return player ? player->get_finance() : NULL;
+	}
+};
+// also export transport_type - to get correct parameters
+namespace script_api {
+	declare_specialized_param(transport_type, "i", "integer");
+
+	transport_type param<transport_type>::get(HSQUIRRELVM vm, SQInteger index)
+	{
+		return (transport_type) max(param<uint16>::get(vm, index), TT_MAX-1);
+	}
+};
 
 
 SQInteger player_export_line_list(HSQUIRRELVM vm)
@@ -223,11 +236,19 @@ void export_player(HSQUIRRELVM vm)
 	 * @param delta
 	 * @warning cannot be used in network games.
 	 */
-	register_method(vm, &change_player_account, "book_cash", true);
+	register_method(vm, &finance_t::book_account, "book_cash");
 	/**
 	 * Returns the current account balance.
 	 */
-	register_method(vm, &player_t::get_account_balance_as_double, "get_account_balance");
+	register_method(vm, &player_t::get_account_balance_as_double, "get_current_cash");
+	/**
+	 * Returns the current net worth [in 1/100 cr].
+	 */
+	register_method(vm, &finance_t::get_netwealth, "get_current_net_wealth");
+	/**
+	 * Returns the current maintenance [in 1/100 cr].
+	 */
+	register_method_fv(vm, &finance_t::get_maintenance_with_bits, "get_current_maintenance", freevariable<uint8>(TT_ALL));
 	/**
 	 * Returns whether the player (still) exists in the game.
 	 *
