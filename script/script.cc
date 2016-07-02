@@ -147,7 +147,7 @@ const char* script_vm_t::call_script(const char* filename)
 	}
 	// call it
 	sq_pushroottable(vm);
-	if (!SQ_SUCCEEDED(sq_call_restricted(vm, 1, SQFalse, SQTrue))) {
+	if (!SQ_SUCCEEDED(sq_call_restricted(vm, 1, SQFalse, SQTrue, 100000))) {
 		sq_pop(vm, 1); // pop script
 		return "Call script failed";
 	}

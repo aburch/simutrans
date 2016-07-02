@@ -26,7 +26,7 @@ SQInteger include_aux(HSQUIRRELVM vm)
 	}
 	// call it
 	sq_pushroottable(vm);
-	if (!SQ_SUCCEEDED(sq_call_restricted(vm, 1, SQFalse, SQTrue))) {
+	if (!SQ_SUCCEEDED(sq_call_restricted(vm, 1, SQFalse, SQTrue, 100000))) {
 		sq_pop(vm, 1); // pop script
 		return sq_raise_error(vm, "Call script %s failed", filename);
 	}
