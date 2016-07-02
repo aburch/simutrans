@@ -138,6 +138,9 @@ namespace script_api {
 		return ok ? 1 : -1;
 	}
 
+	/**
+	 * Implementation of quickstone_tpl specialization
+	 */
 	template<class T> struct param< quickstone_tpl<T> > {
 		/**
 		 * Assumes that constructor of corresponding squirrel class
@@ -176,5 +179,45 @@ namespace script_api {
 			return param<T*>::typemask();
 		}
 	};
+
+	// forward declaration
+	template<class C> SQInteger command_release_hook(SQUserPointer up, SQInteger);
+	/**
+	 * Stores pointer to C++ object as userpointer of squirrel class instance.
+	 * C++ object will be deleted when squirrel class instance gets released.
+	 */
+	template<class C>
+	void attach_instance(HSQUIRRELVM vm, SQInteger index, C* o)
+	{
+		// set userpointer of class instance
+		sq_setinstanceup(vm, index, o );
+		sq_setreleasehook(vm, index, command_release_hook<C>);
+	}
+
+	/**
+	 * Retrieves pointer to stored C++ object.
+	 */
+	template<class C>
+	C* get_attached_instance(HSQUIRRELVM vm, SQInteger index, SQUserPointer tag)
+	{
+		SQUserPointer up;
+		if (SQ_SUCCEEDED(sq_getinstanceup(vm, index, &up, tag))) {
+			return (C*)up;
+		}
+		return NULL;
+	}
+
+	/**
+	 * Releases memory allocated by attach_instance.
+	 * Do not call directly!
+	 */
+	template<class C>
+	SQInteger command_release_hook(SQUserPointer up, SQInteger)
+	{
+		C* p = (C *)up;
+		delete p;
+		return 1;
+	}
+
 }; // end of namespace
 #endif

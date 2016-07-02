@@ -3021,11 +3021,6 @@ void karte_t::set_tool( tool_t *tool_in, player_t *player )
 void karte_t::local_set_tool( tool_t *tool_in, player_t * player )
 {
 	tool_in->flags |= tool_t::WFL_LOCAL;
-
-	if (get_scenario()->is_scripted()  &&  !get_scenario()->is_tool_allowed(player, tool_in->get_id()) ) {
-		tool_in->flags = 0;
-		return;
-	}
 	// now call init
 	bool init_result = tool_in->init(player);
 	// for unsafe tools init() must return false
@@ -6229,6 +6224,38 @@ void karte_t::network_game_set_pause(bool pause_, uint32 syncsteps_)
 	else {
 		set_pause(pause_);
 	}
+}
+
+
+const char* karte_t::call_work(tool_t *tool, player_t *player, koord3d pos, bool &suspended)
+{
+	const char *err = NULL;
+	if (!env_t::networkmode  ||  tool->is_work_network_save()  ||  tool->is_work_here_network_save( player, pos) ) {
+		// do the work
+		tool->flags |= tool_t::WFL_LOCAL;
+		// check allowance by scenario
+		if (get_scenario()->is_scripted()) {
+			if (!get_scenario()->is_tool_allowed(player, tool->get_id(), tool->get_waytype()) ) {
+				err = "";
+			}
+			else {
+				err = get_scenario()->is_work_allowed_here(player, tool->get_id(), tool->get_waytype(), pos);
+			}
+		}
+		if (err == NULL) {
+			err = tool->work(player, pos);
+		}
+		suspended = false;
+	}
+	else {
+		// queue tool for network
+		nwc_tool_t *nwc = new nwc_tool_t(player, tool, pos, get_steps(), get_map_counter(), false);
+		network_send_server(nwc);
+		suspended = true;
+		// reset tool
+		tool->init(player);
+	}
+	return err;
 }
 
 

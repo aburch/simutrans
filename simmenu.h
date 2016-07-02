@@ -197,6 +197,9 @@ public:
 
 	sint16 ok_sound;
 
+	/// a script is waiting for a call-back
+	uint32 callback_id;
+
 	enum {
 		WFL_SHIFT  = 1, ///< shift-key was pressed when mouse-click happened
 		WFL_CTRL   = 2, ///< ctrl-key was pressed when mouse-click happened
@@ -238,6 +241,7 @@ public:
 		command_key = 0;
 		cursor_centered = false;
 		flags = 0;
+		callback_id = 0;
 	}
 
 	virtual ~tool_t() {}

@@ -31,6 +31,8 @@ void register_export_function(HSQUIRRELVM vm)
 	export_tiles(vm);
 	export_world(vm);
 
+	export_commands(vm);
+
 	sq_pop(vm, 1); // root table
 
 	script_api::end_squirrel_type_logging();

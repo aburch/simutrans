@@ -4,6 +4,7 @@
 /** @file api.h declarations of export functions. */
 
 #include "../../squirrel/squirrel.h"
+#include "api_command.h"
 
 void export_city(HSQUIRRELVM vm);
 void export_control(HSQUIRRELVM vm);

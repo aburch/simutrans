@@ -36,4 +36,14 @@ SQRESULT sq_call_restricted(HSQUIRRELVM v, SQInteger params, SQBool retval, SQBo
  */
 SQRESULT sq_resumevm(HSQUIRRELVM v, SQBool retval, SQInteger ops = 1000);
 
+/**
+ * pops return value from stack and sets it for the suspended script.
+ */
+void sq_setwakeupretvalue(HSQUIRRELVM v);
+
+/**
+ * checks whether vm can be resumed. in particular if script waits for return value on wakeup.
+ */
+bool sq_canresumevm(HSQUIRRELVM v);
+
 #endif

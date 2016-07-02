@@ -218,51 +218,28 @@ void interaction_t::interactive_event( const event_t &ev )
 
 		DBG_MESSAGE("interaction_t::interactive_event(event_t &ev)", "calling a tool");
 
-		if(world->is_within_grid_limits(world->get_zeiger()->get_pos().get_2d())) {
-			const char *err = NULL;
-			bool result = true;
+		koord3d pos = world->get_zeiger()->get_pos();
+		if(world->is_within_grid_limits(pos.get_2d())) {
+
+			bool suspended = false; // true if execution was suspended, i.e. sent to server
 			tool_t *tool = world->get_tool(world->get_active_player_nr());
+			player_t *player = world->get_active_player();
 			// first check for visibility etc
-			err = tool->check_pos( world->get_active_player(), world->get_zeiger()->get_pos() );
+			const char *err = tool->check_pos( player, pos );
 			if (err==NULL) {
 				tool->flags = event_get_last_control_shift();
-				if (!env_t::networkmode  ||  tool->is_work_network_save()  ||  tool->is_work_here_network_save( world->get_active_player(), world->get_zeiger()->get_pos() ) ) {
-					// do the work
-					tool->flags |= tool_t::WFL_LOCAL;
-					// check allowance by scenario
-					koord3d const& pos = world->get_zeiger()->get_pos();
-					if (world->get_scenario()->is_scripted()) {
-						if (!world->get_scenario()->is_tool_allowed(world->get_active_player(), tool->get_id(), tool->get_waytype()) ) {
-							err = "";
-						}
-						else {
-							err = world->get_scenario()->is_work_allowed_here(world->get_active_player(), tool->get_id(), tool->get_waytype(), pos);
-						}
-					}
-					if (err == NULL) {
-						err = tool->work(world->get_active_player(), world->get_zeiger()->get_pos());
-						if( err == NULL ) {
-							// Check if we need to update pointer(zeiger) position.
-							if ( tool->update_pos_after_use() ) {
-								// Cursor might need movement (screen has changed, we get a new one under the mouse pointer)
-								const koord3d pos_new = viewport->get_new_cursor_position(scr_coord(ev.mx,ev.my),tool->is_grid_tool());
-								world->get_zeiger()->set_pos(pos_new);
-							}
-						}
-					}
-				}
-				else {
-					// queue tool for network
-					nwc_tool_t *nwc = new nwc_tool_t(world->get_active_player(), tool, world->get_zeiger()->get_pos(), world->get_steps(), world->get_map_counter(), false);
-					network_send_server(nwc);
-					result = false;
-					// reset tool
-					tool->init(world->get_active_player());
-				}
+				err = world->call_work(tool, player, pos, suspended);
 			}
-			if (result) {
+			if (!suspended) {
 				// play sound / error message
-				world->get_active_player()->tell_tool_result(tool, world->get_zeiger()->get_pos(), err);
+				world->get_active_player()->tell_tool_result(tool, pos, err);
+
+				// Check if we need to update pointer(zeiger) position.
+				if( err == NULL  &&  tool->update_pos_after_use() ) {
+					// Cursor might need movement (screen has changed, we get a new one under the mouse pointer)
+					const koord3d pos_new = viewport->get_new_cursor_position(scr_coord(ev.mx,ev.my), tool->is_grid_tool());
+					world->get_zeiger()->set_pos(pos_new);
+				}
 			}
 			tool->flags = 0;
 		}

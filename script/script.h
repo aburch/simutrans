@@ -10,6 +10,9 @@
 #include "../utils/plainstring.h"
 #include <string>
 
+template<class key_t, class value_t> class inthashtable_tpl;
+void sq_setwakeupretvalue(HSQUIRRELVM v); //sq_extensions
+
 /**
  * Class providing interface to squirrel's virtual machine.
  *
@@ -168,6 +171,7 @@ public:
 	 */
 	void clear_pending_callback();
 
+
 private:
 	/// virtual machine running everything
 	HSQUIRRELVM vm;
@@ -225,6 +229,41 @@ private:
 
 	/// path to files to #include
 	plainstring include_path;
+};
+
+/**
+ * Class to manage all vm's that are suspended and waiting for the return of
+ * a call to a tool.
+ */
+class suspended_scripts_t {
+private:
+	static inthashtable_tpl<uint32,HSQUIRRELVM> suspended_scripts;
+
+	static HSQUIRRELVM remove_suspended_script(uint32 key);
+
+public:
+	// generates key from a pointer
+	static uint32 get_unique_key(void* key);
+
+	static void register_suspended_script(uint32 key, HSQUIRRELVM vm);
+
+	// remove any reference to given vm
+	static void remove_vm(HSQUIRRELVM vm);
+
+	template<class R>
+	static void tell_return_value(uint32 key, R& ret)
+	{
+		HSQUIRRELVM vm = remove_suspended_script(key);
+		if (vm) {
+			script_api::param<R>::push(vm, ret);
+			sq_setwakeupretvalue(vm);
+			// this vm can be woken up now
+			sq_pushregistrytable(vm);
+			bool wait = false;
+			script_api::create_slot(vm, "wait_external", wait);
+			sq_poptop(vm);
+		}
+	}
 };
 
 #endif

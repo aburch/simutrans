@@ -8,6 +8,7 @@
 #include "../dataobj/scenario.h"
 #include "../player/simplay.h"
 #include "../utils/plainstring.h"
+#include "api/api_command.h" // script_api::my_tool_t
 
 
 template<typename T> T clamp(T v, T l, T u) { return v < l ? l : (v > u ? u :v); }
@@ -469,4 +470,12 @@ namespace script_api {
 		sq_pushnull(vm); return 1;
 	}
 
+	tool_t* param<tool_t*>::get(HSQUIRRELVM vm, SQInteger index)
+	{
+		my_tool_t *mtool = get_attached_instance<my_tool_t>(vm, index, (void*)param<tool_t*>::get);
+		if (mtool) {
+			return mtool->tool;
+		}
+		return NULL;
+	}
 };

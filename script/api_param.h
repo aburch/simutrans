@@ -29,6 +29,7 @@ class settings_t;
 class simline_t;
 class spieler_t;
 class stadt_t;
+class tool_t;
 class ware_production_t;
 class weg_t;
 
@@ -349,6 +350,7 @@ namespace script_api {
 	declare_specialized_param(stadt_t*, "t|x|y", "city_x");
 	declare_specialized_param(const ware_production_t*, "t|x|y", "factory_production_x");
 	declare_param_mask(ware_production_t*, "t|x|y", "factory_production_x");
+	declare_specialized_param(tool_t*, "x", "command_x");
 
 	// export of obj_t derived classes in api/map_objects.cc
 	declare_specialized_param(obj_t*, "t|x|y", "map_object_x");

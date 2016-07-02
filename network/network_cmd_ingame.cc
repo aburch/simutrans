@@ -21,6 +21,7 @@
 #include "../utils/cbuffer_t.h"
 #include "../utils/csv.h"
 #include "../display/viewport.h"
+#include "../script/script.h" // callback for calls to tools
 
 
 network_command_t* network_command_t::read_from_packet(packet_t *p)
@@ -943,6 +944,8 @@ nwc_tool_t::nwc_tool_t(player_t *player, tool_t *tool_, koord3d pos_, uint32 syn
 	karte_ptr_t welt;
 	last_sync_step = welt->get_last_checklist_sync_step();
 	last_checklist = welt->get_last_checklist();
+
+	callback_id = tool_->callback_id;
 	// write custom data of tool_ to our internal buffer
 	if (player) {
 		tool_->rdwr_custom_data(&custom_data);
@@ -963,6 +966,7 @@ nwc_tool_t::nwc_tool_t(const nwc_tool_t &nwt)
 	init = nwt.init;
 	tool_client_id = nwt.our_client_id;
 	flags = nwt.flags;
+	callback_id = nwt.callback_id;
 	// copy custom data of tool to our internal buffer
 	custom_data.append(nwt.custom_data);
 	tool = NULL;
@@ -990,6 +994,7 @@ void nwc_tool_t::rdwr()
 	packet->rdwr_bool(init);
 	packet->rdwr_long(tool_client_id);
 	packet->rdwr_byte(flags);
+	packet->rdwr_long(callback_id);
 	// copy custom data of tool to/from packet
 	if (packet->is_saving()) {
 		// write to packet
@@ -1167,6 +1172,8 @@ void nwc_tool_t::do_command(karte_t *welt)
 		tool->flags = flags & ~tool_t::WFL_LOCAL;
 	}
 	DBG_MESSAGE("nwc_tool_t::do_command","id=%d init=%d defpar=%s flag=%d",tool_id&0xFFF,init,(const char*)default_param,tool->flags);
+
+	const char* err = NULL;
 	// call INIT
 	if(  init  ) {
 		// we should be here only if tool->init() returns false
@@ -1180,15 +1187,23 @@ void nwc_tool_t::do_command(karte_t *welt)
 		if(active_tool  &&  active_tool->remove_preview_necessary()) {
 			active_tool->cleanup(true);
 		}
-		const char *err = tool->work( player, pos );
+		err = tool->work( player, pos );
 		// only local players get the callback
-		if (local) {
+		if (local  &&  callback_id == 0) {
 			player->tell_tool_result(tool, pos, err);
 		}
 		if (err) {
 			dbg->warning("nwc_tool_t::do_command","failed with '%s'",err);
 		}
 		tool->exit(player);
+	}
+	else {
+		err = "Init was not succesfull, returned false.";
+	}
+
+	// callback to script here
+	if (local  &&  callback_id != 0) {
+		suspended_scripts_t::tell_return_value(callback_id, err);
 	}
 }
 

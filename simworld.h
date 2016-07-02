@@ -1158,6 +1158,12 @@ public:
 	tool_t *get_tool(uint8 nr) const { return selected_tool[nr]; }
 
 	/**
+	 * Calls the work method of the tool.
+	 * Takes network and scenarios into account.
+	 */
+	const char* call_work(tool_t *t, player_t *pl, koord3d pos, bool &suspended);
+
+	/**
 	 * Returns the (x,y) map size.
 	 * @brief Map size.
 	 * @note Valid coords are (0..x-1,0..y-1)

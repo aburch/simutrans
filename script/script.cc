@@ -9,6 +9,7 @@
 
 #include "../utils/log.h"
 
+#include "../tpl/inthashtable_tpl.h"
 #include "../tpl/vector_tpl.h"
 // for error popups
 #include "../gui/help_frame.h"
@@ -120,7 +121,12 @@ script_vm_t::script_vm_t(const char* include_path_)
 
 script_vm_t::~script_vm_t()
 {
-	sq_close(vm); // also closes thread
+	// remove from suspended calls list
+	suspended_scripts_t::remove_vm(thread);
+	suspended_scripts_t::remove_vm(vm);
+	// close vm, also closes thread
+	sq_close(vm);
+
 	all_scripts.remove(this);
 	if (all_scripts.empty()) {
 		delete script_log;
@@ -294,9 +300,20 @@ void script_vm_t::intern_resume_call(HSQUIRRELVM job)
 	script_api::get_slot(job, "retvalue", retvalue, -1);
 	int nparams = 0;
 	script_api::get_slot(job, "nparams", nparams, -1);
+	bool wait = false;
+	script_api::get_slot(job, "wait_external", wait, -1);
 	sq_pop(job, 1);
 	END_STACK_WATCH(job, 0);
 
+	if (wait) {
+		dbg->message("script_vm_t::intern_resume_call", "waits for external call to be able to proceed");
+		return;
+	}
+	if (!sq_canresumevm(job)) {
+		// vm waits for return value to suspended call
+		dbg->message("script_vm_t::intern_resume_call", "waiting for return value");
+		return;
+	}
 	// vm suspended, but not from call to our methods
 	if (nparams < 0) {
 		retvalue = false;
@@ -653,4 +670,51 @@ void script_vm_t::intern_call_callbacks(HSQUIRRELVM job)
 	}
 	sq_poptop(job);
 	END_STACK_WATCH(job,0);
+}
+
+
+/* -------- management of suspended scripts that wait for return value ----------- */
+
+inthashtable_tpl<uint32,HSQUIRRELVM> suspended_scripts_t::suspended_scripts;
+
+
+uint32 suspended_scripts_t::get_unique_key(void* ptr)
+{
+	uint32 key = (uint32)(size_t)ptr;
+	while (key == 0  ||  suspended_scripts.get(key)) {
+		key ++;
+	}
+	return key;
+}
+
+
+void suspended_scripts_t::register_suspended_script(uint32 key, HSQUIRRELVM vm)
+{
+	suspended_scripts.set(key, vm);
+
+	// mark vm to wait for external call to allow for wake-up
+	sq_pushregistrytable(vm);
+	bool wait = true;
+	script_api::create_slot(vm, "wait_external", wait);
+	sq_poptop(vm);
+}
+
+
+HSQUIRRELVM suspended_scripts_t::remove_suspended_script(uint32 key)
+{
+	return suspended_scripts.remove(key);
+}
+
+
+void suspended_scripts_t::remove_vm(HSQUIRRELVM vm)
+{
+	inthashtable_tpl<uint32,HSQUIRRELVM>::iterator iter=suspended_scripts.begin(), end=suspended_scripts.end();
+	for(; iter != end; ) {
+		if ( (*iter).value == vm) {
+			iter = suspended_scripts.erase(iter);
+		}
+		else {
+			++iter;
+		}
+	}
 }

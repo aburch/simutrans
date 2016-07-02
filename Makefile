@@ -358,6 +358,7 @@ SOURCES += script/api_class.cc
 SOURCES += script/api_function.cc
 SOURCES += script/api_param.cc
 SOURCES += script/api/api_city.cc
+SOURCES += script/api/api_command.cc
 SOURCES += script/api/api_const.cc
 SOURCES += script/api/api_control.cc
 SOURCES += script/api/api_convoy.cc

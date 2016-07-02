@@ -53,3 +53,24 @@ SQRESULT sq_resumevm(HSQUIRRELVM v, SQBool retval, SQInteger ops)
 
 	return ret;
 }
+
+// see sq_wakeupvm
+void sq_setwakeupretvalue(HSQUIRRELVM v)
+{
+	if(!v->_suspended) {
+		return;
+	}
+	SQInteger target = v->_suspended_target;
+	if(target != -1) {
+		v->GetAt(v->_stackbase+v->_suspended_target) = v->GetUp(-1); //retval
+	}
+	v->Pop();
+	// make target invalid
+	v->_suspended_target = -1;
+}
+
+bool sq_canresumevm(HSQUIRRELVM v)
+{
+	// true if not suspended or not waiting for any return value
+	return (!v->_suspended  ||  v->_suspended_target==-1);
+}

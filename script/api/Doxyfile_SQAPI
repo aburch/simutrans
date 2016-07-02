@@ -11,6 +11,7 @@ INPUT                  = api_factory.cc \
 			 api_skeleton.h \
 			 api_skeleton.cc \
 			 api_city.cc \
+			 api_command.cc \
 			 api_const.cc \
 			 api_control.cc \
 			 api_convoy.cc \
