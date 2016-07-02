@@ -365,7 +365,6 @@ namespace script_api {
 		return push_instance(vm, "factory_x", pos.x, pos.y);
 	}
 
-
 	const ware_production_t* param<const ware_production_t*>::get(HSQUIRRELVM vm, SQInteger index)
 	{
 		fabrik_t* fab = param<fabrik_t*>::get(vm, index);
@@ -388,6 +387,51 @@ namespace script_api {
 			}
 		}
 		sq_raise_error(vm, "No production slot [%d] in factory at (%s)", i, fab->get_pos().get_str());
+		return NULL;
+	}
+
+	const fabrik_lieferant_besch_t* param<const fabrik_lieferant_besch_t*>::get(HSQUIRRELVM vm, SQInteger index)
+	{
+		fabrik_t* fab = param<fabrik_t*>::get(vm, index);
+		if (fab == NULL) {
+			return NULL;
+		}
+		// obtain index into wareproduction_t arrays
+		SQInteger i = -1;
+		if (SQ_SUCCEEDED(get_slot(vm, "index", i, index))) {
+			if (i>=0  &&  i<fab->get_eingang().get_count()) {
+				const ware_production_t& in = fab->get_eingang()[i];
+				const fabrik_lieferant_besch_t* besch = fab->get_besch()->get_lieferant(i);
+				// sanity check
+				if (besch  &&  besch->get_ware() == in.get_typ()) {
+					return besch;
+				}
+			}
+		}
+		sq_raise_error(vm, "No input slot [%d] in factory at (%s)", i, fab->get_pos().get_str());
+		return NULL;
+	}
+
+	const fabrik_produkt_besch_t* param<const fabrik_produkt_besch_t*>::get(HSQUIRRELVM vm, SQInteger index)
+	{
+		fabrik_t* fab = param<fabrik_t*>::get(vm, index);
+		if (fab == NULL) {
+			return NULL;
+		}
+		// obtain index into wareproduction_t arrays
+		SQInteger i = -1;
+		if (SQ_SUCCEEDED(get_slot(vm, "index", i, index))) {
+			i -= fab->get_eingang().get_count();
+			if (i>=0  &&  i<fab->get_ausgang().get_count()) {
+				const ware_production_t& out = fab->get_ausgang()[i];
+				const fabrik_produkt_besch_t* besch = fab->get_besch()->get_produkt(i);
+				// sanity check
+				if (besch  &&  besch->get_ware() == out.get_typ()) {
+					return besch;
+				}
+			}
+		}
+		sq_raise_error(vm, "No output slot [%d] in factory at (%s)", i, fab->get_pos().get_str());
 		return NULL;
 	}
 

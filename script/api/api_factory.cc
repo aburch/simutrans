@@ -7,6 +7,7 @@
 #include "../api_function.h"
 #include "../../dataobj/scenario.h"
 #include "../../simfab.h"
+#include "../../besch/fabrik_besch.h"
 
 using namespace script_api;
 
@@ -76,6 +77,18 @@ vector_tpl<sint64> const& get_factory_production_stat(const ware_production_t *p
 		}
 	}
 	return v;
+}
+
+
+uint32 get_production_factor(const fabrik_produkt_besch_t *besch)
+{
+	return besch ? ( (1<< (DEFAULT_PRODUCTION_FACTOR_BITS-1)) + (uint32)besch->get_faktor() * 100) >> DEFAULT_PRODUCTION_FACTOR_BITS : 0;
+}
+
+
+uint32 get_consumption_factor(const fabrik_lieferant_besch_t *besch)
+{
+	return besch ? ( (1<< (DEFAULT_PRODUCTION_FACTOR_BITS-1)) + (uint32)besch->get_verbrauch() * 100) >> DEFAULT_PRODUCTION_FACTOR_BITS : 0;
 }
 
 
@@ -358,6 +371,22 @@ void export_factory(HSQUIRRELVM vm)
 	 * @typemask integer()
 	 */
 	register_function(vm, &ware_production_get_production, "get_base_consumption", 1, "x");
+
+	/**
+	 * Returns number of consumed units of this good for the production of 100 units of generic outputs unit.
+	 * Does not take any productivity boost into account.
+	 * @typemask integer()
+	 */
+	register_method(vm, &get_consumption_factor, "get_consumption_factor", 1, "x");
+
+	/**
+	 * Returns number of produced units of this good due to the production of 100 units of generic outputs unit.
+	 * Does not take any productivity boost into account.
+	 * @typemask integer()
+	 */
+	register_method(vm, &get_production_factor, "get_production_factor", 1, "x");
+
+
 	// pop class
 	end_class(vm);
 }

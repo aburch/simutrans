@@ -13,6 +13,8 @@
 class baum_t;
 class convoi_t;
 class fabrik_t;
+class fabrik_lieferant_besch_t;
+class fabrik_produkt_besch_t;
 class gebaeude_t;
 class grund_t;
 class haltestelle_t;
@@ -352,6 +354,8 @@ namespace script_api {
 	declare_specialized_param(player_t*, "t|x|y", "player_x");
 	declare_specialized_param(stadt_t*, "t|x|y", "city_x");
 	declare_specialized_param(const ware_production_t*, "t|x|y", "factory_production_x");
+	declare_specialized_param(const fabrik_lieferant_besch_t*, "t|x|y", "factory_production_x");
+	declare_specialized_param(const fabrik_produkt_besch_t*, "t|x|y", "factory_production_x");
 	declare_param_mask(ware_production_t*, "t|x|y", "factory_production_x");
 	declare_specialized_param(tool_t*, "x", "command_x");
 
