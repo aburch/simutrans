@@ -15,6 +15,7 @@
 #include "../../bauer/vehikelbauer.h"
 #include "../../bauer/warenbauer.h"
 #include "../../bauer/wegbauer.h"
+#include "../../simhalt.h"
 #include "../../simware.h"
 #include "../../simworld.h"
 
@@ -99,6 +100,38 @@ const vector_tpl<const haus_besch_t*>& get_building_list(haus_besch_t::utyp type
 	static const vector_tpl<const haus_besch_t*> dummy;
 
 	return p ? *p : dummy;
+}
+
+
+const vector_tpl<const haus_besch_t*>& get_available_stations(haus_besch_t::utyp type, waytype_t wt, const ware_besch_t *freight)
+{
+	static vector_tpl<const haus_besch_t*> dummy;
+	dummy.clear();
+
+	if (freight == NULL  ||  (type != haus_besch_t::depot  &&  type != haus_besch_t::generic_stop  &&  type != haus_besch_t::generic_extension) ) {
+		return dummy;
+	}
+
+	const vector_tpl<const haus_besch_t*>* p = hausbauer_t::get_list(type);
+
+	// translate freight to enables-flags
+	uint8 enables = haltestelle_t::WARE;
+	switch(freight->get_catg_index()) {
+		case warenbauer_t::INDEX_PAS:  enables = haltestelle_t::PAX;  break;
+		case warenbauer_t::INDEX_MAIL: enables = haltestelle_t::POST; break;
+		default: ;
+	}
+	if (type == haus_besch_t::depot) {
+		enables = 0;
+	}
+
+	uint16 time = welt->get_timeline_year_month();
+	FOR(vector_tpl<haus_besch_t const*>, const besch, *p) {
+		if(  besch->get_utyp()==type  &&  besch->get_extra()==(uint32)wt  &&  (enables==0  ||  (besch->get_enabled()&enables)!=0)  &&  besch->is_available(time)) {
+			dummy.append(besch);
+		}
+	}
+	return dummy;
 }
 
 
@@ -419,6 +452,15 @@ void export_goods_desc(HSQUIRRELVM vm)
 	 *          You have to filter out e.g. station buildings yourself.
 	 */
 	STATIC register_method(vm, &get_building_list, "get_building_list", false, true);
+	/**
+	 * Returns an array of available station/extension/depot buildings.
+	 * Entries are of type @ref building_desc_x.
+	 * @param type building type from @ref building_desc_x::building_type
+	 * @param wt waytype
+	 * @param freight station should accept this freight
+	 * @returns the list
+	 */
+	STATIC register_method(vm, &get_available_stations, "get_available_stations", false, true);
 
 	end_class(vm);
 
