@@ -104,7 +104,12 @@ call_tool_init player_create_line(player_t *player, waytype_t wt)
 	return call_tool_init(TOOL_CHANGE_LINE | SIMPLE_TOOL, buf, 0, player);
 }
 
-void export_player(HSQUIRRELVM vm)
+SQInteger player_get_my_player(HSQUIRRELVM vm)
+{
+	return script_api::param<player_t*>::push(vm, get_my_player(vm) );
+}
+
+void export_player(HSQUIRRELVM vm, bool scenario)
 {
 	/**
 	 * Class to access player statistics.
@@ -120,6 +125,12 @@ void export_player(HSQUIRRELVM vm)
 	// actually defined simutrans/script/scenario_base.nut
 	// register_function(..., "constructor", ...);
 
+	if (!scenario) {
+		/**
+		 * @returns player associated with the AI.
+		 */
+		STATIC register_function(vm, &player_get_my_player, "self", 0, "", true);
+	}
 	/**
 	 * Return headquarter level.
 	 * @returns level, level is zero if no headquarter was built

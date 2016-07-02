@@ -23,7 +23,7 @@ void register_export_function(HSQUIRRELVM vm, bool scenario)
 	export_halt(vm);
 	export_line(vm);
 	export_map_objects(vm);
-	export_player(vm);
+	export_player(vm, scenario);
 	if (scenario) {
 		export_scenario(vm);
 	}

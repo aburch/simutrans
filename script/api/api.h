@@ -15,7 +15,7 @@ void export_gui(HSQUIRRELVM vm, bool scenario);
 void export_halt(HSQUIRRELVM vm);
 void export_line(HSQUIRRELVM vm);
 void export_map_objects(HSQUIRRELVM vm);
-void export_player(HSQUIRRELVM vm);
+void export_player(HSQUIRRELVM vm, bool scenario);
 void export_scenario(HSQUIRRELVM vm);
 void export_settings(HSQUIRRELVM vm);
 void export_schedule(HSQUIRRELVM vm);
