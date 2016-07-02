@@ -8,6 +8,7 @@
 #include "../simtypes.h"
 #include "../tpl/quickstone_tpl.h"
 #include "../utils/cbuffer_t.h"
+#include "../boden/wege/weg.h" // weg_t::system_type
 
 class baum_t;
 class convoi_t;
@@ -320,6 +321,7 @@ namespace script_api {
 	declare_specialized_param(uint64, "i", "integer");
 	declare_specialized_param(sint64, "i", "integer");
 	declare_specialized_param(waytype_t, "i", "way_types");
+	declare_specialized_param(weg_t::system_type, "i", "way_system_types");
 	declare_specialized_param(obj_t::typ, "i", "map_objects");
 
 	declare_specialized_param(double, "i|f", "float");

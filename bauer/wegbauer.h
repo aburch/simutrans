@@ -52,6 +52,9 @@ public:
 
 	static bool waytype_available( const waytype_t wtyp, uint16 time );
 
+	static const vector_tpl<const weg_besch_t *>&  get_way_list(waytype_t, weg_t::system_type system_type);
+
+
 	/**
 	 * Fill menu with icons of given waytype
 	 * @author Hj. Malthaner

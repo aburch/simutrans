@@ -154,6 +154,22 @@ bool wegbauer_t::register_besch(weg_besch_t *besch)
 	return true;
 }
 
+
+const vector_tpl<const weg_besch_t *>&  wegbauer_t::get_way_list(const waytype_t wtyp, const weg_t::system_type styp)
+{
+	static vector_tpl<const weg_besch_t *> dummy;
+	dummy.clear();
+	const uint16 time = welt->get_timeline_year_month();
+	FOR(stringhashtable_tpl<weg_besch_t const*>, const& i, alle_wegtypen) {
+		weg_besch_t const* const test = i.value;
+		if( test->get_wtyp()==wtyp  &&  test->get_styp()== styp  &&  test->is_available(time)  &&  test->get_builder() ) {
+			dummy.append(test);
+		}
+	}
+	return dummy;
+}
+
+
 /**
  * Finds a way with a given speed limit for a given waytype
  * It finds:

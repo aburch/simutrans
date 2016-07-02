@@ -86,6 +86,8 @@ void export_settings(HSQUIRRELVM vm)
 	register_method(vm, &settings_t::is_no_routing_over_overcrowding, "no_routing_over_overcrowding");
 	/// @returns true if halt capacity is separated between passengers, mail, freight
 	register_method(vm, &settings_t::is_separate_halt_capacities, "separate_halt_capacities");
+	/// @returns true if it is allowed to buy obsolete vehicles
+	register_method(vm, &settings_t::get_allow_buying_obsolete_vehicles, "obsolete_vehicles_allowed");
 
 	end_class(vm);
 }

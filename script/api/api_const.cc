@@ -5,6 +5,7 @@
 #include "../api_param.h"
 #include "../../simobj.h"
 #include "../../simmenu.h"
+#include "../../simunits.h"
 #include "../../boden/wege/weg.h"
 
 using namespace script_api;
@@ -248,4 +249,12 @@ void export_global_constants(HSQUIRRELVM vm)
 
 	end_enum();
 
+	/**
+	 * Internal units.
+	 */
+	begin_enum("units");
+	/// The length of one side of a tile in car units. @see vehicle_desc_x::get_length
+	enum_slot(vm, "CARUNITS_PER_TILE", (uint32)CARUNITS_PER_TILE);
+
+	end_enum();
 }

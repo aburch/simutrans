@@ -278,6 +278,11 @@ void export_world(HSQUIRRELVM vm)
 	STATIC register_method_fv(vm, &get_world_stat, "get_year_transported_goods", freevariable2<bool,sint32>(false, karte_t::WORLD_TRANSPORTED_GOODS), true );
 
 	/**
+	 * @returns true if timeline play is active
+	 */
+	STATIC register_method(vm, &karte_t::use_timeline, "use_timeline");
+
+	/**
 	 * Returns iterator through the list of attractions on the map.
 	 * @returns iterator class.
 	 * @typemask attraction_list_x()

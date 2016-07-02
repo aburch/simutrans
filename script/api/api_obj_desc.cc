@@ -9,9 +9,13 @@
 #include "../api_class.h"
 #include "../api_function.h"
 #include "../../besch/haus_besch.h"
+#include "../../besch/vehikel_besch.h"
 #include "../../besch/ware_besch.h"
 #include "../../bauer/hausbauer.h"
+#include "../../bauer/vehikelbauer.h"
 #include "../../bauer/warenbauer.h"
+#include "../../bauer/wegbauer.h"
+#include "../../simware.h"
 #include "../../simworld.h"
 
 #define begin_enum(name)
@@ -51,6 +55,10 @@ sint64 get_scaled_maintenance(const obj_besch_transport_related_t* besch)
 	return besch ? welt->scale_with_month_length(besch->get_maintenance()) : 0;
 }
 
+sint64 get_scaled_maintenance_vehicle(const vehikel_besch_t* besch)
+{
+	return besch ? welt->scale_with_month_length(besch->vehikel_besch_t::get_maintenance()) : 0;
+}
 
 sint64 get_scaled_maintenance_building(const haus_besch_t* besch)
 {
@@ -93,6 +101,75 @@ const vector_tpl<const haus_besch_t*>& get_building_list(haus_besch_t::utyp type
 	return p ? *p : dummy;
 }
 
+
+bool can_be_first(const vehikel_besch_t *besch)
+{
+	return besch->can_follow(NULL);
+}
+
+bool can_be_last(const vehikel_besch_t *besch)
+{
+	return besch->can_lead(NULL);
+}
+
+bool is_coupling_allowed(const vehikel_besch_t *besch1, const vehikel_besch_t *besch2)
+{
+	return besch1->can_lead(besch2)  &&  besch2->can_follow(besch1);
+}
+
+const vector_tpl<const vehikel_besch_t*>& get_predecessors(const vehikel_besch_t *besch)
+{
+	static vector_tpl<const vehikel_besch_t*> dummy;
+	dummy.clear();
+	for(int i=0; i<besch->get_vorgaenger_count(); i++) {
+		if (besch->get_vorgaenger(i)) {
+			dummy.append(besch->get_vorgaenger(i));
+		}
+	}
+	return dummy;
+}
+
+const vector_tpl<const vehikel_besch_t*>& get_successors(const vehikel_besch_t *besch)
+{
+	static vector_tpl<const vehikel_besch_t*> dummy;
+	dummy.clear();
+	for(int i=0; i<besch->get_nachfolger_count(); i++) {
+		if (besch->get_nachfolger(i)) {
+			dummy.append(besch->get_nachfolger(i));
+		}
+	}
+	return dummy;
+}
+
+const vector_tpl<const vehikel_besch_t*>& get_available_vehicles(waytype_t wt)
+{
+	static vector_tpl<const vehikel_besch_t*> dummy;
+
+	bool use_obsolete = welt->get_settings().get_allow_buying_obsolete_vehicles();
+	uint16 time = welt->get_timeline_year_month();
+
+	dummy.clear();
+	slist_tpl<vehikel_besch_t const*> const& list = vehikelbauer_t::get_info(wt);
+
+	FOR(slist_tpl<vehikel_besch_t const*> const, i, list) {
+		if (!i->is_retired(time)  ||  use_obsolete) {
+			if (!i->is_future(time)) {
+				dummy.append(i);
+			}
+		}
+	}
+	return dummy;
+}
+
+const vector_tpl<const weg_besch_t*>& get_available_ways(waytype_t wt, weg_t::system_type st)
+{
+	return wegbauer_t::get_way_list(wt, st);
+}
+
+uint32 get_power(const vehikel_besch_t *besch)
+{
+	return besch->get_leistung() * besch->get_gear();
+}
 
 // export of haus_besch_t::utyp only here
 namespace script_api {
@@ -165,11 +242,11 @@ void export_goods_desc(HSQUIRRELVM vm)
 	 */
 	create_class<const obj_besch_transport_related_t*>(vm, "obj_desc_transport_x", "obj_desc_time_x");
 	/**
-	 * @returns monthly maintenance cost of one object of this type.
+	 * @returns monthly maintenance cost [in 1/100 credits] of one object of this type.
 	 */
 	register_local_method(vm, &get_scaled_maintenance, "get_maintenance");
 	/**
-	 * @returns cost to buy or build on piece or tile of this thing.
+	 * @returns cost [in 1/100 credits] to buy or build on piece or tile of this thing.
 	 */
 	register_method(vm, &obj_besch_transport_related_t::get_preis, "get_cost");
 	/**
@@ -181,6 +258,67 @@ void export_goods_desc(HSQUIRRELVM vm)
 	 */
 	register_method(vm, &obj_besch_transport_related_t::get_topspeed, "get_topspeed");
 
+	end_class(vm);
+
+	/**
+	 * Vehicle descriptors
+	 */
+	begin_besch_class(vm, "vehicle_desc_x", "obj_desc_transport_x", (GETBESCHFUNC)param<const vehikel_besch_t*>::getfunc());
+	/**
+	 * @returns true if this vehicle can lead a convoy
+	 */
+	register_method(vm, &can_be_first, "can_be_first", true);
+	/**
+	 * @returns true if this vehicle can be the last of a convoy
+	 */
+	register_method(vm, &can_be_last, "can_be_last", true);
+	/**
+	 * @returns list of possible successors, if all are allowed then list is empty
+	 */
+	register_method(vm, &get_successors, "get_successors", true);
+	/**
+	 * @returns list of possible predecessors, if all are allowed then list is empty
+	 */
+	register_method(vm, &get_predecessors, "get_predecessors", true);
+	/**
+	 * @returns a list of all available vehicles at the current in-game-time
+	 */
+	STATIC register_method(vm, &get_available_vehicles, "get_available_vehicles", false, true);
+	/**
+	 * @returns the power of the vehicle (takes power and gear from pak-files into account)
+	 */
+	register_method(vm, &get_power, "get_power", true);
+	/**
+	 * @returns freight that can be transported (or null)
+	 */
+	register_method(vm, &vehikel_besch_t::get_ware, "get_freight");
+	/**
+	 * @returns capacity
+	 */
+	register_method(vm, &vehikel_besch_t::get_zuladung, "get_capacity");
+	/**
+	 * @returns running cost in 1/100 credits per tile
+	 */
+	register_method(vm, &vehikel_besch_t::get_betriebskosten, "get_running_cost");
+	/**
+	 * @returns fixed cost in 1/100 credits per month
+	 */
+	register_method(vm, &get_scaled_maintenance_vehicle, "get_maintenance", true);
+	/**
+	 * @returns weight of the empty vehicle
+	 */
+	register_method(vm, &vehikel_besch_t::get_gewicht, "get_weight"); // in kg
+	/**
+	 * @returns lengths in @ref CAR_UNITS_PER_TILE
+	 */
+	register_method(vm, &vehikel_besch_t::get_length, "get_length"); // in CAR_UNITS_PER_TILE
+	/**
+	 * Checks if the coupling of @p first and @p second is possible in this order.
+	 * @param first
+	 * @param second
+	 * @returns true if coupling is possible
+	 */
+	STATIC register_method(vm, is_coupling_allowed, "is_coupling_allowed", false, true);
 	end_class(vm);
 
 	/**
@@ -280,7 +418,7 @@ void export_goods_desc(HSQUIRRELVM vm)
 	 * @warning If @p type is one of building_desc_x::harbour, building_desc_x::depot, building_desc_x::station, building_desc_x::station_extension then always the same list is generated.
 	 *          You have to filter out e.g. station buildings yourself.
 	 */
-	STATIC register_method(vm, &get_building_list, "get_building_list");
+	STATIC register_method(vm, &get_building_list, "get_building_list", false, true);
 
 	end_class(vm);
 
@@ -296,6 +434,14 @@ void export_goods_desc(HSQUIRRELVM vm)
 	 * @returns system type of the way, see @ref way_system_types.
 	 */
 	register_method(vm, &weg_besch_t::get_styp, "get_system_type");
+
+	/**
+	 * Generates a list of all ways available for building.
+	 * @param wt waytype
+	 * @param st system type of way
+	 * @returns the list
+	 */
+	STATIC register_method(vm, &get_available_ways, "get_available_ways", false, true);
 
 	end_class(vm);
 
@@ -340,6 +486,23 @@ void export_goods_desc(HSQUIRRELVM vm)
 	 */
 	register_method(vm, &ware_besch_t::get_catg_index, "get_catg_index");
 
+	/**
+	 * Checks if this good can be interchanged with the other, in terms of
+	 * transportability.
+	 */
+	register_method(vm, &ware_besch_t::is_interchangeable, "is_interchangeable");
+	/**
+	 * @returns weight of one unit of this freight
+	 */
+	register_method(vm, &ware_besch_t::get_weight_per_unit, "get_weight_per_unit"); // in kg
 
+	/**
+	 * Calculates transport revenue per tile and freight unit.
+	 * Takes speedbonus into account.
+	 * @param wt waytype of vehicle
+	 * @param speedkmh actual achieved speed in km/h
+	 * @returns revenue
+	 */
+	register_method(vm, &ware_t::calc_revenue, "calc_revenue", true);
 	end_class(vm);
 }

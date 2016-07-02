@@ -85,6 +85,15 @@ SQInteger generic_get_convoy_by_index(HSQUIRRELVM vm)
 	return SQ_ERROR;
 }
 
+uint32 calc_max_kmh(uint32 power, uint32 weight, sint32 speed_limit)
+{
+	return speed_to_kmh(convoi_t::calc_max_speed(power, weight, kmh_to_speed(speed_limit)) );
+}
+
+uint32 kmh_to_tiles_per_month(uint32 kmh)
+{
+	return welt->speed_to_tiles_per_month( kmh_to_speed(kmh));
+}
 
 void export_convoy(HSQUIRRELVM vm)
 {
@@ -199,6 +208,23 @@ void export_convoy(HSQUIRRELVM vm)
 	 * @returns lifetime traveled distance of this convoy
 	 */
 	register_method(vm, &convoi_t::get_total_distance_traveled, "get_distance_traveled_total");
+
+#define STATIC
+	/**
+	 * Static method to compute the potential max speed of a convoy
+	 * with the given parameters.
+	 * @param power       total power of convoy
+	 * @param weight      weight of convoy
+	 * @param speed_limit speed limit induced by convoy's vehicles
+	 * @returns max speed
+	 */
+	STATIC register_method(vm, &calc_max_kmh, "calc_max_speed");
+	/**
+	 * Static method to convert speed (from km per hour) to tiles per month.
+	 * @param speed
+	 * @returns tile per month
+	 */
+	STATIC register_method(vm, &kmh_to_tiles_per_month, "speed_to_tiles_per_month");
 
 	end_class(vm);
 }
