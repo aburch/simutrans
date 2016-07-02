@@ -10,7 +10,7 @@
 
 void register_export_function(HSQUIRRELVM vm, bool scenario)
 {
-	script_api::start_squirrel_type_logging();
+	script_api::start_squirrel_type_logging(scenario ? "scenario" : "ai");
 
 	sq_pushroottable(vm);
 

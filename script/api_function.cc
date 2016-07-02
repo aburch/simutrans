@@ -17,12 +17,14 @@ void script_api::register_function(HSQUIRRELVM vm, SQFUNCTION funcptr, const cha
 
 static FILE* file = NULL;
 
-void script_api::start_squirrel_type_logging()
+void script_api::start_squirrel_type_logging(const char* suffix)
 {
 	if (env_t::verbose_debug < 2) {
 		return;
 	}
-	file = fopen("squirrel_types.awk", "w");
+	cbuffer_t buf;
+	buf.printf("squirrel_types_%s.awk", suffix);
+	file = fopen(buf, "w");
 	if (file) {
 		fprintf(file, "# file used to generate doxygen documentation of squirrel API\n");
 		fprintf(file, "# needs to be copied to trunk/script/api\n");

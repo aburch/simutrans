@@ -40,7 +40,6 @@ SQInteger include_aux(HSQUIRRELVM vm)
 
 void export_include(HSQUIRRELVM vm, const char* include_path)
 {
-	script_api::start_squirrel_type_logging();
 	sq_pushroottable(vm);
 
 	/**
@@ -54,5 +53,4 @@ void export_include(HSQUIRRELVM vm, const char* include_path)
 	register_function_fv(vm, &include_aux, "include", 2, ".s", freevariable<const char*>(include_path));
 
 	sq_pop(vm, 1); // root table
-	script_api::end_squirrel_type_logging();
 }

@@ -65,7 +65,7 @@ namespace script_api {
 		function_info_t(F f, bool d) : funcptr(f), discard_first(d) {}
 	};
 
-	void start_squirrel_type_logging();
+	void start_squirrel_type_logging(const char* suffix);
 
 	void end_squirrel_type_logging();
 
