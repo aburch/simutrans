@@ -64,11 +64,12 @@ dynamic_string::~dynamic_string()
 }
 
 
-void dynamic_string::init()
+void dynamic_string::init(script_vm_t *script)
 {
 	while(!cached_results.empty()) {
 		delete cached_results.remove_first();
 	}
+	script->register_callback(&dynamic_string::record_result, "dynamicstring_record_result");
 }
 
 void dynamic_string::rdwr_cache(loadsave_t *file)
@@ -113,8 +114,29 @@ void dynamic_string::update(script_vm_t *script, player_t *player, bool force_up
 			s = entry->result.c_str();
 		}
 		else {
+			script->prepare_callback("dynamicstring_record_result", 2, (const char*)buf, "");
+
 			// call script
-			script->call_function(method, s, (uint8)(player ? player->get_player_nr() : PLAYER_UNOWNED));
+			const char* err = script->call_function(script_vm_t::QUEUE, method, s, (uint8)(player ? player->get_player_nr() : PLAYER_UNOWNED));
+			if (!script_vm_t::is_call_suspended(err)) {
+				if ( s != (const char*)str) {
+					changed = true;
+					str = s;
+				}
+			}
+			else {
+				// activate listener
+				cached_string_t *entry = cached_results.get((const char*)buf);
+				if (entry == NULL) {
+					cached_results.set((const char*)buf, new cached_string_t(NULL, dr_time(), this));
+				}
+				else {
+					entry->listener = this;
+					// return cached value for now; will be changed after callback returns
+					s = entry->result.c_str();
+				}
+			}
+			script->clear_pending_callback();
 			// .. and store result
 			record_result(function, s);
 		}
@@ -145,8 +167,11 @@ const char* dynamic_string::fetch_result(const char* function, script_vm_t *scri
 		if (script != NULL  ||  env_t::server) {
 			// directly call script if at server
 			if (script) {
-				plainstring str = call_script(function, script);
-				record_result(function, str);
+				// suspended calls have to be caught by script callbacks
+				plainstring str;
+				if(call_script(function, script, str)) {
+					record_result(function, str);
+				}
 			}
 		}
 		else {
@@ -167,12 +192,12 @@ const char* dynamic_string::fetch_result(const char* function, script_vm_t *scri
 }
 
 
-void dynamic_string::record_result(const char* function, plainstring& result)
+bool dynamic_string::record_result(const char* function, plainstring result)
 {
 	cached_string_t *new_entry = new cached_string_t(result, dr_time(), NULL);
 	cached_string_t *entry = cached_results.set(function, new_entry);
 	if (entry == NULL) {
-		return;
+		return false;
 	}
 	if (dynamic_string *dyn = entry->listener) {
 		new_entry->listener = dyn;
@@ -182,6 +207,7 @@ void dynamic_string::record_result(const char* function, plainstring& result)
 		}
 	}
 	delete entry;
+	return true;
 }
 
 
@@ -212,7 +238,7 @@ void get_scenario_completion(plainstring &res, int player_nr)
 }
 
 
-plainstring dynamic_string::call_script(const char* function, script_vm_t* script)
+bool dynamic_string::call_script(const char* function, script_vm_t* script, plainstring& str)
 {
 	int nparams = -1;
 
@@ -230,7 +256,7 @@ plainstring dynamic_string::call_script(const char* function, script_vm_t* scrip
 	if (nparams == -1) {
 		// unknown method
 		delete [] method;
-		return "Error: unknown method";
+		return false;
 	}
 	// scan for params
 	int params[] = {0, 0, 0, 0};
@@ -249,11 +275,12 @@ plainstring dynamic_string::call_script(const char* function, script_vm_t* scrip
 			ok = false;
 		}
 	}
-	plainstring str;
+
 	if (ok) {
+		const char *err = NULL;
 		switch(nparams) {
 			case 0:
-				script->call_function(method, str);
+				err = script->call_function(script_vm_t::QUEUE, method, str);
 				break;
 
 			case 1:
@@ -261,17 +288,20 @@ plainstring dynamic_string::call_script(const char* function, script_vm_t* scrip
 					get_scenario_completion(str, params[0]);
 				}
 				else {
-					script->call_function(method, str, params[0]);
+					err = script->call_function(script_vm_t::QUEUE, method, str, params[0]);
 				}
 				break;
 
 			default:
 				assert(0);
 		}
+		if (script_vm_t::is_call_suspended(err)) {
+			ok = false;
+		}
 	}
 
 	// cleanup
 	delete [] method;
 
-	return str;
+	return ok;
 }

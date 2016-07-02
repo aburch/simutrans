@@ -36,6 +36,18 @@ public:
 
 	plainstring function;
 	plainstring result;
+
+	/// register the callback to the script engine
+	static void init(script_vm_t *script);
+
+	/**
+	 * Callback method: sends answer back to client.
+	 * @param function result of this function is returned
+	 * @param client to send result to
+	 * @returns dummy boolean value
+	 */
+	static bool record_result(const char* function, plainstring result, uint32 client_id);
+
 private:
 	nwc_scenario_t(const nwc_scenario_t&);
 	nwc_scenario_t& operator=(const nwc_scenario_t&);

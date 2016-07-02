@@ -1158,7 +1158,8 @@ SQRESULT sq_call(HSQUIRRELVM v,SQInteger params,SQBool retval,SQBool raiseerror)
 		v->Pop(params);//pop closure and args
 		return sq_throwerror(v,_SC("script took to long"));
 	}
-	if(v->Call(v->GetUp(-(params+1)),params,v->_top-params,res,raiseerror?true:false)){
+	// we can suspend call only when vm is not already running (thus when we are not called from squirrel)
+	if(v->Call(v->GetUp(-(params+1)),params,v->_top-params,res,raiseerror?true:false, sq_getvmstate(v)==SQ_VMSTATE_IDLE)){
 
 		if(!v->_suspended) {
 			v->Pop(params);//pop closure and args
@@ -1192,7 +1193,7 @@ SQRESULT sq_wakeupvm(HSQUIRRELVM v,SQBool wakeupret,SQBool retval,SQBool raiseer
 		v->Pop();
 	} else if(target != -1) { v->GetAt(v->_stackbase+v->_suspended_target).Null(); }
 	SQObjectPtr dummy;
-	if(!v->Execute(dummy,-1,-1,ret,raiseerror,throwerror?SQVM::ET_RESUME_THROW_VM : SQVM::ET_RESUME_VM)) {
+	if(!v->Execute(dummy,-1,-1,ret,raiseerror,throwerror?SQVM::ET_RESUME_THROW_VM : SQVM::ET_RESUME_VM, true /*can_suspend*/)) {
 		return SQ_ERROR;
 	}
 	if(retval)

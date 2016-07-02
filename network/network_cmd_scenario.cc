@@ -6,10 +6,32 @@
 #include "network_cmd_scenario.h"
 
 #include "network_packet.h"
+#include "network_socket_list.h"
 #include "../simworld.h"
 #include "../dataobj/scenario.h"
 #include "../dataobj/environment.h"
+#include "../script/script.h"
 
+
+void nwc_scenario_t::init(script_vm_t *script)
+{
+	script->register_callback(&nwc_scenario_t::record_result, "nwc_scenario_t_record_result");
+}
+
+
+bool nwc_scenario_t::record_result(const char* function, plainstring result, uint32 client_id)
+{
+	SOCKET sock = socket_list_t::get_socket(client_id);
+	if (sock == INVALID_SOCKET) {
+		return false;
+	}
+	nwc_scenario_t nwc;
+	nwc.what = CALL_SCRIPT_ANSWER;
+	nwc.function = function;
+	nwc.result = result;
+	nwc.send( sock );
+	return true;
+}
 
 void nwc_scenario_t::rdwr()
 {
@@ -34,7 +56,11 @@ bool nwc_scenario_t::execute(karte_t *welt)
 		switch (what) {
 			case CALL_SCRIPT:
 			case CALL_SCRIPT_ANSWER: {
+				// register callback to send result back to client if script is delayed.
+				script->prepare_callback("nwc_scenario_t_record_result", 2, function, "", socket_list_t::get_client_id( packet->get_sender() ) );
 				plainstring res = dynamic_string::fetch_result(function, script, NULL, what==CALL_SCRIPT_ANSWER);
+				// clear callback, in case function call was successfull
+				script->clear_pending_callback();
 
 				nwc_scenario_t nwc;
 				nwc.what = CALL_SCRIPT_ANSWER;
