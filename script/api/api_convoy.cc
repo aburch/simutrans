@@ -288,6 +288,10 @@ void export_convoy(HSQUIRRELVM vm)
 	 */
 	register_method(vm, &convoi_t::get_home_depot, "get_home_depot");
 	/**
+	 * @returns whether convoi has obsolete vehicles
+	 */
+	register_method(vm, &convoi_t::has_obsolete_vehicles, "has_obsolete_vehicles");
+	/**
 	 * Toggle the flag 'withdraw convoy'
 	 */
 	register_method_fv(vm, convoy_generic_tool, "toggle_withdraw", freevariable<uint8>('w'), true );

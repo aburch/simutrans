@@ -472,6 +472,11 @@ void export_goods_desc(HSQUIRRELVM vm)
 	 */
 	STATIC register_method(vm, &get_available_stations, "get_available_stations", false, true);
 
+	/**
+	 * @returns true if this is a station building that can be used as terminus
+	 */
+	register_method(vm, &building_is_terminus, "is_terminus", true);
+
 	end_class(vm);
 
 	/**
