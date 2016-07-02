@@ -447,6 +447,10 @@ void export_map_objects(HSQUIRRELVM vm)
 	 */
 	register_method(vm, depot_start_convoy, "start_convoy", true);
 	/**
+	 * Start all convoys in this depot.
+	 */
+	register_method_fv(vm, depot_start_convoy, "start_all_convoys", freevariable<convoihandle_t>(convoihandle_t()), true);
+	/**
 	 * @returns list of convoys sitting in this depot
 	 */
 	register_method(vm, &depot_get_convoy_list, "get_convoy_list", true);
