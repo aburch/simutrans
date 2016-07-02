@@ -21,11 +21,13 @@
 #include "../dataobj/scenario.h"
 #include "../dataobj/translator.h"
 
-#include "../gui/simwin.h"
+#include "simwin.h"
 #include "../utils/simstring.h"
+#include "../player/ai_scripted.h"
 
 #include "money_frame.h" // for the finances
 #include "password_frame.h" // for the password
+#include "ai_selector.h"
 #include "player_frame_t.h"
 
 /* Max Kielland
@@ -99,8 +101,9 @@ ki_kontroll_t::ki_kontroll_t() :
 		if(  !welt->get_player(1)->is_locked()  ||  !env_t::networkmode  ) {
 			player_select[i].append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("Goods AI"), SYSCOL_TEXT ) );
 			player_select[i].append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("Passenger AI"), SYSCOL_TEXT ) );
+			player_select[i].append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("Scripted AI's"), SYSCOL_TEXT ) );
 		}
-		assert(  player_t::MAX_AI==4  );
+		assert(  player_t::MAX_AI==5  );
 
 		// When adding new players, activate the interface
 		player_select[i].set_selection(welt->get_settings().get_player_type(i));
@@ -203,7 +206,14 @@ bool ki_kontroll_t::action_triggered( gui_action_creator_t *comp,value_t p )
 		if(  comp == (player_get_finances+i)  ) {
 			// get finances
 			player_get_finances[i].pressed = false;
-			create_win( new money_frame_t(welt->get_player(i)), w_info, magic_finances_t+welt->get_player(i)->get_player_nr() );
+			// if scripted ai without script -> open script selector window
+			ai_scripted_t *ai = dynamic_cast<ai_scripted_t*>(welt->get_player(i));
+			if (ai  &&  !ai->has_script()) {
+				create_win( new ai_selector_t(i), w_info, magic_finances_t + i );
+			}
+			else {
+				create_win( new money_frame_t(welt->get_player(i)), w_info, magic_finances_t + i );
+			}
 			break;
 		}
 
@@ -259,7 +269,20 @@ void ki_kontroll_t::update_data()
 					add_component(player_change_to+i);
 				}
 			}
-			player_get_finances[i].set_text(player->get_name());
+
+			// scripted ai without script get different button without color
+			ai_scripted_t *ai = dynamic_cast<ai_scripted_t*>(player);
+
+			scr_size saved_size = player_get_finances[i].get_size();
+			if (ai  &&  !ai->has_script()) {
+				player_get_finances[i].set_typ(button_t::roundbox);
+				player_get_finances[i].set_text("Load scripted AI");
+			}
+			else {
+				player_get_finances[i].set_typ(button_t::box);
+				player_get_finances[i].set_text(player->get_name());
+			}
+			player_get_finances[i].set_size(saved_size);
 
 			// always update locking status
 			player_get_finances[i].background_color = PLAYER_FLAG | (player->get_player_color1()+4);

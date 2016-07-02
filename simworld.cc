@@ -107,6 +107,7 @@
 #include "player/finance.h"
 #include "player/ai_passenger.h"
 #include "player/ai_goods.h"
+#include "player/ai_scripted.h"
 
 // forward declaration - management of rotation for scripting
 namespace script_api
@@ -6123,6 +6124,7 @@ const char *karte_t::init_new_player(uint8 new_player_in, uint8 type)
 		case player_t::HUMAN:        players[new_player_in] = new player_t(new_player_in); break;
 		case player_t::AI_GOODS:     players[new_player_in] = new ai_goods_t(new_player_in); break;
 		case player_t::AI_PASSENGER: players[new_player_in] = new ai_passenger_t(new_player_in); break;
+		case player_t::AI_SCRIPTED:  players[new_player_in] = new ai_scripted_t(new_player_in); break;
 		default: return "Unknown AI type!";
 	}
 	settings.set_player_type(new_player_in, type);
