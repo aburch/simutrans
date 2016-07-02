@@ -196,6 +196,9 @@ function recursive_save(table, indent, table_stack)
 					str += val._save()
 					break
 				}
+			case "generator":
+				str += "null"
+				break
 			default:
 				str += "\"unknown\""
 		}
