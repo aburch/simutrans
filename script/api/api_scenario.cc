@@ -43,8 +43,7 @@ static plainstring koord3d_to_string_intern(koord3d k)
 	return k.get_str();
 }
 
-
-void export_scenario(HSQUIRRELVM vm)
+void export_string_methods(HSQUIRRELVM vm)
 {
 	/**
 	 * Helper method to translate strings.
@@ -53,21 +52,6 @@ void export_scenario(HSQUIRRELVM vm)
 	 */
 	// need to identify the correct overloaded function
 	register_method<const char* (*)(const char*)>(vm, &translator::translate, "translate");
-
-	/**
-	 * Helper method to load scenario-related translation files.
-	 * Tries to load files in the following order relative to pakxx/scenario:
-	 * -# scenario-name/iso/filename
-	 * -# scenario-name/en/filename
-	 * -# scenario-name/filename
-	 *
-	 * Here, iso refers to iso-abbreviation of currently active language.
-	 *
-	 * The content of the files is cached. The cache is cleared upon reloading of savegame.
-	 * @param file name of txt-file
-	 * @return content of loaded file
-	 */
-	register_method(vm, &scenario_t::load_language_file, "load_language_file");
 
 	/**
 	 * Pretty-print floating point numbers, use language specific separator for powers of thousands.
@@ -111,13 +95,34 @@ void export_scenario(HSQUIRRELVM vm)
 	 * @returns month name in language of server
 	 */
 	register_method(vm, &translator::get_month_name, "get_month_name");
+}
 
+
+void export_scenario(HSQUIRRELVM vm)
+{
+	/**
+	 * Helper method to load scenario-related translation files.
+	 * Tries to load files in the following order relative to pakxx/scenario:
+	 * -# scenario-name/iso/filename
+	 * -# scenario-name/en/filename
+	 * -# scenario-name/filename
+	 *
+	 * Here, iso refers to iso-abbreviation of currently active language.
+	 *
+	 * The content of the files is cached. The cache is cleared upon reloading of savegame.
+	 * @param file name of txt-file
+	 * @return content of loaded file
+	 * @note Only available in scenario mode.
+	 */
+	register_method(vm, &scenario_t::load_language_file, "load_language_file");
 
 	/**
 	 * Table with methods to forbid and allow tools.
 	 *
 	 * Tools that are set to forbidden using the forbid_* methods can be allowed
 	 * again by calls to the respective allow_* method with exact the same parameters.
+	 *
+	 * @note Only available in scenario mode.
 	 */
 	begin_class(vm, "rules", 0);
 
@@ -230,11 +235,13 @@ void export_scenario(HSQUIRRELVM vm)
 
 	/**
 	 * Table with methods help debugging.
+	 * @note Only available in scenario mode.
 	 */
 	begin_class(vm, "debug", 0);
 
 	/**
 	 * @returns text containing all active rules, can be used in @ref get_debug_text
+	 * @note Only available in scenario mode.
 	 */
 	STATIC register_method(vm, &scenario_t::get_forbidden_text,  "get_forbidden_text");
 

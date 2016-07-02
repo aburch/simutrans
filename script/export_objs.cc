@@ -8,7 +8,7 @@
 #include "api/api.h"
 
 
-void register_export_function(HSQUIRRELVM vm)
+void register_export_function(HSQUIRRELVM vm, bool scenario)
 {
 	script_api::start_squirrel_type_logging();
 
@@ -19,15 +19,18 @@ void register_export_function(HSQUIRRELVM vm)
 	export_convoy(vm);
 	export_factory(vm);
 	export_goods_desc(vm);
-	export_gui(vm);
+	export_gui(vm, scenario);
 	export_halt(vm);
 	export_line(vm);
 	export_map_objects(vm);
 	export_player(vm);
-	export_scenario(vm);
+	if (scenario) {
+		export_scenario(vm);
+	}
 	export_schedule(vm);
 	export_settings(vm);
 	export_simple(vm);
+	export_string_methods(vm);
 	export_tiles(vm);
 	export_world(vm);
 

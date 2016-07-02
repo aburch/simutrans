@@ -10,7 +10,6 @@
 #include "../script/export_objs.h"
 #include "../script/api/api.h"
 
-// TODO load/save support
 // TODO ai debug window
 // TODO restructure script/*.nut files
 
@@ -88,7 +87,7 @@ bool ai_scripted_t::load_script(const char* filename)
 	}
 
 	// register api functions
-	register_export_function(script->get_vm());
+	register_export_function(script->get_vm(), false);
 	err = script->get_error();
 	if (err) {
 		dbg->error("ai_scripted_t::load_script", "error [%s] calling register_export_function", err);

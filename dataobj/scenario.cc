@@ -158,7 +158,7 @@ bool scenario_t::load_script(const char* filename)
 	}
 
 	// register api functions
-	register_export_function(script->get_vm());
+	register_export_function(script->get_vm(), true);
 	err = script->get_error();
 	if (err) {
 		dbg->error("scenario_t::load_script", "error [%s] calling register_export_function", err);
