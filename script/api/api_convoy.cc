@@ -3,6 +3,7 @@
 /** @file api_convoy.cc exports convoy related functions. */
 
 #include "get_next.h"
+#include "api_obj_desc_base.h"
 #include "../api_class.h"
 #include "../api_function.h"
 #include "../../simconvoi.h"
@@ -30,6 +31,19 @@ vector_tpl<sint64> const& get_convoy_stat(convoi_t* cnv, sint32 INDEX)
 	if (cnv  &&  0<=INDEX  &&  INDEX<convoi_t::MAX_CONVOI_COST) {
 		for(uint16 i = 0; i < MAX_MONTHS; i++) {
 			v.append(cnv->get_stat_converted(i, INDEX));
+		}
+	}
+	return v;
+}
+
+
+vector_tpl<vehikel_besch_t const*> const& convoi_get_vehicles(convoi_t* cnv)
+{
+	static vector_tpl<vehikel_besch_t const*> v;
+	v.clear();
+	if (cnv) {
+		for(uint16 i=0; i<cnv->get_vehikel_anzahl(); i++) {
+			v.append(cnv->get_vehikel(i)->get_besch());
 		}
 	}
 	return v;
@@ -208,6 +222,14 @@ void export_convoy(HSQUIRRELVM vm)
 	 * @returns lifetime traveled distance of this convoy
 	 */
 	register_method(vm, &convoi_t::get_total_distance_traveled, "get_distance_traveled_total");
+	/**
+	 * @returns the line the convoy belongs to, null if there is no line
+	 */
+	register_method(vm, &convoi_t::get_line, "get_line");
+	/**
+	 * @returns returns an array containing the vehicle_desc_x 's of the vehicles of this convoy	 *
+	 */
+	register_method(vm, convoi_get_vehicles, "get_vehicles", true);
 
 #define STATIC
 	/**
