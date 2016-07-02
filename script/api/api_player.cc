@@ -123,6 +123,11 @@ void export_player(HSQUIRRELVM vm)
 	 */
 	register_method(vm, &player_t::get_name,              "get_name");
 	/**
+	 * Sets name of company.
+	 * @param name the new name
+	 */
+	register_method(vm, &player_t::set_name,              "set_name");
+	/**
 	 * Get monthly statistics of construction costs.
 	 * @returns array, index [0] corresponds to current month
 	 */
