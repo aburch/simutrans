@@ -850,9 +850,14 @@ static SQInteger string_find(HSQUIRRELVM v)
 	return 1; \
 }
 
+static char toalnum(char c)
+{
+	return isalnum(c) ? c : '_';
+}
 
 STRING_TOFUNCZ(tolower)
 STRING_TOFUNCZ(toupper)
+STRING_TOFUNCZ(toalnum)
 
 const SQRegFunction SQSharedState::_string_default_delegate_funcz[]={
 	{_SC("len"),default_delegate_len,1, _SC("s")},
@@ -863,6 +868,7 @@ const SQRegFunction SQSharedState::_string_default_delegate_funcz[]={
 	{_SC("find"),string_find,-2, _SC("s s n")},
 	{_SC("tolower"),string_tolower,-1, _SC("s n n")},
 	{_SC("toupper"),string_toupper,-1, _SC("s n n")},
+	{_SC("toalnum"),string_toalnum,1, _SC("s")},
 	{_SC("weakref"),obj_delegate_weakref,1, NULL },
 	{NULL,(SQFUNCTION)0,0,NULL}
 };

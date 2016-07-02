@@ -4,6 +4,8 @@
  *
  * @section api-trunk Current trunk
  *
+ * - Added string::toalnum (converts strings to strings that can be used as table keys)
+ *
  * @section api-120-1-2 Release 120.1.2
  *
  * - Added label_x::get_text, tile_x::get_text
