@@ -51,9 +51,10 @@ public:
 
 	/// priority of function call
 	enum call_type_t {
-		FORCE = 1, ///< function has to return, raise error if not
-		QUEUE = 2, ///< function call can be queued, return value can be propagated by call back
-		TRY   = 3  ///< function call will not be queued, if virtual machine is suspended just return
+		FORCE,   ///< function has to return, raise error if not
+		FORCEX,  ///< function has to return, raise error if not, give more opcodes
+		QUEUE,   ///< function call can be queued, return value can be propagated by call back
+		TRY,     ///< function call will not be queued, if virtual machine is suspended just return
 	};
 
 	/**

@@ -57,12 +57,12 @@ public:
 	 * Stores/loads the player state
 	 * @param file where the data will be saved/loaded
 	 */
-// 	void rdwr(loadsave_t *file) OVERRIDE;
+	void rdwr(loadsave_t *file) OVERRIDE;
 
 	/**
 	 * Called after game is fully loaded;
 	 */
-// 	void finish_rd() OVERRIDE;
+	void finish_rd() OVERRIDE;
 
 
 // 	void report_vehicle_problem(convoihandle_t cnv,const koord3d position) OVERRIDE;

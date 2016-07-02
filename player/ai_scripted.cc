@@ -55,7 +55,9 @@ const char* ai_scripted_t::init( const char *ai_base, const char *ai_name_)
 	// now call startup function
 	uint8 dummy = 0;
 	if (const char* err = script->call_function(script_vm_t::QUEUE, "start", dummy, get_player_nr())) {
-		dbg->warning("ai_scripted_t::init", "error [%s] calling start", err);
+		if (strcmp(err, "suspended")) {
+			dbg->warning("ai_scripted_t::init", "error [%s] calling start", err);
+		}
 	}
 
 	// update player window
@@ -131,5 +133,82 @@ void ai_scripted_t::new_year()
 	ai_t::new_year();
 	if (script) {
 		script->call_function(script_vm_t::QUEUE, "new_year");
+	}
+}
+
+
+void ai_scripted_t::rdwr(loadsave_t *file)
+{
+	ai_t::rdwr(file);
+
+	script_api::coordinate_transform_t::rdwr(file);
+
+	file->rdwr_str(ai_name);
+
+	if (file->is_loading()) {
+		// load persistent data
+		plainstring str;
+		file->rdwr_str(str);
+		dbg->warning("ai_scripted_t::rdwr", "loaded persistent ai data: %s", str.c_str());
+
+		if (env_t::networkmode  &&  !env_t::server) {
+			// scripted players run on server only, for now at least
+			delete script;
+			script = NULL;
+			return;
+		}
+		// DO NOT READ ANYTHING FROM file AFTER THIS POINT
+
+		// load script
+		cbuffer_t script_filename;
+
+		// try addon directory first
+		ai_path = ( std::string("addons/ai/") + ai_name.c_str() + "/").c_str();
+		script_filename.printf("%sai.nut", ai_path.c_str());
+		bool rdwr_error = !load_script(script_filename);
+
+		// failed, try ai from program directory
+		if (rdwr_error) {
+			ai_path = ( std::string(env_t::program_dir) + "/ai/" + ai_name.c_str() + "/").c_str();
+			script_filename.clear();
+			script_filename.printf("%sai.nut", ai_path.c_str());
+			rdwr_error = !load_script(script_filename);
+		}
+
+		if (!rdwr_error) {
+			// restore persistent data
+			const char* err = script->eval_string(str);
+			if (err) {
+				dbg->warning("ai_scripted_t::rdwr", "error [%s] evaluating persistent ai data", err);
+				rdwr_error = true;
+			}
+		}
+		else {
+			dbg->warning("ai_scripted_t::rdwr", "could not load script file %s", (const char*)script_filename);
+		}
+
+		if (rdwr_error) {
+			delete script;
+			script = NULL;
+		}
+	}
+	else {
+		plainstring str;
+		script->call_function(script_vm_t::FORCEX, "save", str);
+		dbg->warning("ai_scripted_t::rdwr", "write persistent ai data: %s", str.c_str());
+		file->rdwr_str(str);
+	}
+}
+
+
+void ai_scripted_t::finish_rd()
+{
+	if (script) {
+		uint8 dummy = 0;
+		if (const char* err = script->call_function(script_vm_t::QUEUE, "resume_game", dummy, get_player_nr())) {
+			if (strcmp(err, "suspended")) {
+				dbg->warning("ai_scripted_t::finish_rd", "error [%s] calling resume_game", err);
+			}
+		}
 	}
 }

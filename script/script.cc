@@ -169,7 +169,7 @@ const char* script_vm_t::eval_string(const char* squirrel_string)
 	}
 	// execute
 	sq_pushroottable(vm);
-	sq_call_restricted(vm, 1, false, true);
+	sq_call_restricted(vm, 1, SQFalse, SQTrue);
 	sq_pop(vm, 1);
 	return get_error();
 }
@@ -187,6 +187,7 @@ const char* script_vm_t::intern_prepare_call(HSQUIRRELVM &job, call_type_t ct, c
 
 	switch (ct) {
 		case FORCE:
+		case FORCEX:
 			job = vm;
 			break;
 		case TRY:
@@ -231,7 +232,7 @@ const char* script_vm_t::intern_finish_call(HSQUIRRELVM job, call_type_t ct, int
 	if (suspended) {
 		intern_resume_call(job);
 	}
-	if (!suspended  ||  ct == FORCE) {
+	if (!suspended  ||  ct == FORCE  ||  ct == FORCEX) {
 		// set active callback if call could be suspended
 		if (ct == QUEUE) {
 			intern_make_pending_callback_active();
@@ -257,8 +258,9 @@ const char* script_vm_t::intern_call_function(HSQUIRRELVM job, call_type_t ct, i
 	BEGIN_STACK_WATCH(job);
 	dbg->message("script_vm_t::intern_call_function", "start: stack=%d nparams=%d ret=%d", sq_gettop(job), nparams, retvalue);
 	const char* err = NULL;
+	uint32 opcodes = ct == FORCEX ? 100000 : 1000;
 	// call the script
-	if (!SQ_SUCCEEDED(sq_call_restricted(job, nparams, retvalue, ct == FORCE))) {
+	if (!SQ_SUCCEEDED(sq_call_restricted(job, nparams, retvalue, ct == FORCE  ||  ct == FORCEX, opcodes))) {
 		err = "Call function failed";
 		retvalue = false;
 	}
