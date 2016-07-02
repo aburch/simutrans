@@ -81,6 +81,13 @@ SQInteger line_export_convoy_list(HSQUIRRELVM vm)
 	return SQ_ERROR;
 }
 
+call_tool_init line_set_name(linehandle_t line, const char* name)
+{
+	if (!line.is_bound()) {
+		return call_tool_init(""); // error
+	}
+	return command_rename(line->get_owner(), 'l', line.get_id(), name);
+}
 
 vector_tpl<linehandle_t> const* generic_get_line_list(HSQUIRRELVM vm, SQInteger index)
 {
@@ -161,6 +168,12 @@ void export_line(HSQUIRRELVM vm)
 	 * @returns name
 	 */
 	register_method(vm, &simline_t::get_name, "get_name");
+	/**
+	 * Sets line name.
+	 * @ingroup rename_func
+	 * @typemask void(string)
+	 */
+	register_method(vm, &line_set_name, "set_name", true);
 	/**
 	 * Line owner.
 	 * @returns owner

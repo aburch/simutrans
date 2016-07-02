@@ -300,3 +300,11 @@
  * player is permitted to execute the command. Calls from scenario always pass this check.
  *
  */
+
+
+/**
+ * @defgroup rename_func Functions to rename something in the game
+ * @ingroup game_cmd
+ *
+ * In AI mode, renaming works only if the object is owned by the script's player.
+ */

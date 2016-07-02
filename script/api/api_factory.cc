@@ -108,6 +108,12 @@ vector_tpl<halthandle_t> const& factory_get_halt_list(fabrik_t *fab)
 }
 
 
+call_tool_init factory_set_name(fabrik_t *fab, const char* name)
+{
+	return command_rename(welt->get_player(1), 'f', fab->get_pos(), name);
+}
+
+
 SQInteger ware_production_get_production(HSQUIRRELVM vm)
 {
 	fabrik_t* fab = param<fabrik_t*>::get(vm, 1);
@@ -226,8 +232,9 @@ void export_factory(HSQUIRRELVM vm)
 
 	/**
 	 * Change name.
+	 * @ingroup rename_func
 	 */
-	register_method(vm, &fabrik_t::set_name, "set_name");
+	register_method(vm, &factory_set_name, "set_name", true);
 
 	/**
 	 * Get monthly statistics of production.

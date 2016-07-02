@@ -251,20 +251,9 @@ label_t* create_marker(koord pos, player_t* player, const char* text)
 	return gr->find<label_t>();
 }
 
-
-void_t label_set_text(label_t* l, const char* text)
+call_tool_init label_set_text(label_t *l, const char* text)
 {
-	if (l == NULL  ||  text == NULL) {
-		return void_t();
-	}
-	koord3d pos = l->get_pos();
-	tool_rename_t w;
-	cbuffer_t buf;
-	buf.printf("m%hi,%hi,%hi,%s", pos.x, pos.y, pos.z, text);
-	w.set_default_param(buf);
-	w.init(l->get_owner());
-
-	return void_t();
+	return command_rename(l->get_owner(), 'm', l->get_pos(), text);
 }
 
 const char* label_get_text(label_t* l)
@@ -522,7 +511,7 @@ void export_map_objects(HSQUIRRELVM vm)
 	/**
 	 * Set text of marker.
 	 * @param text text
-	 * @warning cannot be used in network games.
+	 * @ingroup rename_func
 	 */
 	register_method(vm, &label_set_text, "set_text", true);
 	/**

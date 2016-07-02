@@ -109,6 +109,11 @@ SQInteger player_get_my_player(HSQUIRRELVM vm)
 	return script_api::param<player_t*>::push(vm, get_my_player(vm) );
 }
 
+call_tool_init player_set_name(player_t *player, const char* name)
+{
+	return script_api::command_rename(player, 'p', player->get_player_nr(), name);
+}
+
 void export_player(HSQUIRRELVM vm, bool scenario)
 {
 	/**
@@ -152,8 +157,9 @@ void export_player(HSQUIRRELVM vm, bool scenario)
 	/**
 	 * Sets name of company.
 	 * @param name the new name
+	 * @ingroup rename_func
 	 */
-	register_method(vm, &player_t::set_name,              "set_name");
+	register_method(vm, &player_set_name, "set_name", true);
 	/**
 	 * Get monthly statistics of construction costs.
 	 * @returns array, index [0] corresponds to current month

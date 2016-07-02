@@ -7,6 +7,7 @@
 
 void export_commands(HSQUIRRELVM vm);
 
+class koord3d;
 class player_t;
 class tool_t;
 
@@ -138,6 +139,12 @@ namespace script_api {
 		static const char* squirrel_type() { return param<const char*>::squirrel_type(); }
 	};
 
+	/**
+	 * Helper functions to rename objects.
+	 * @param what indicates type (see tool_rename_t::init)
+	 */
+	call_tool_init command_rename(player_t *owner, char what, koord3d pos, const char* name);
+	call_tool_init command_rename(player_t *owner, char what, uint32 id, const char* name);
 };
 
 #endif

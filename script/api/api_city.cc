@@ -60,6 +60,10 @@ static void_t set_citygrowth(stadt_t *city, bool allow)
 	return void_t();
 }
 
+call_tool_init city_set_name(stadt_t* city, const char* name)
+{
+	return command_rename(welt->get_player(1), 't', welt->get_staedte().index_of(city), name);
+}
 
 void export_city(HSQUIRRELVM vm)
 {
@@ -104,6 +108,11 @@ void export_city(HSQUIRRELVM vm)
 	 * @returns name
 	 */
 	register_method(vm, &stadt_t::get_name,          "get_name");
+	/**
+	 * Change city name.
+	 * @ingroup rename_func
+	 */
+	register_method(vm, &city_set_name, "set_name", true);
 	/**
 	 * Get monthly statistics of number of citizens.
 	 * @returns array, index [0] corresponds to current month
@@ -228,12 +237,6 @@ void export_city(HSQUIRRELVM vm)
 	 * Enable or disable city growth.
 	 */
 	register_method(vm, &set_citygrowth, "set_citygrowth_enabled", true);
-
-	/**
-	 * Change city name.
-	 * @warning cannot be used in network games.
-	 */
-	register_method(vm, &stadt_t::set_name, "set_name");
 
 	end_class(vm);
 }

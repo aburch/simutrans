@@ -66,6 +66,15 @@ SQInteger halt_export_convoy_list(HSQUIRRELVM vm)
 }
 
 
+call_tool_init halt_set_name(halthandle_t halt, const char* name)
+{
+	if (!halt.is_bound()) {
+		return call_tool_init(""); // error
+	}
+	return command_rename(halt->get_owner(), 'h', halt.get_id(), name);
+}
+
+
 SQInteger halt_export_line_list(HSQUIRRELVM vm)
 {
 	halthandle_t halt = param<halthandle_t>::get(vm, 1);
@@ -141,6 +150,11 @@ void export_halt(HSQUIRRELVM vm)
 	 * @returns name
 	 */
 	register_method(vm, &haltestelle_t::get_name, "get_name");
+	/**
+	 * Sets station name.
+	 * @ingroup rename_func
+	 */
+	register_method(vm, &halt_set_name, "set_name", true);
 
 	/**
 	 * Station owner.

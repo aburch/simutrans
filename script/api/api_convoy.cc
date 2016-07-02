@@ -118,6 +118,11 @@ uint32 kmh_to_tiles_per_month(uint32 kmh)
 	return welt->speed_to_tiles_per_month( kmh_to_speed(kmh));
 }
 
+call_tool_init convoy_set_name(convoi_t *cnv, const char* name)
+{
+	return command_rename(cnv->get_owner(), 'c', cnv->self.get_id(), name);
+}
+
 call_tool_init convoy_set_line(convoi_t *cnv, player_t *player, linehandle_t line)
 {
 	if (!line.is_bound()) {
@@ -193,6 +198,11 @@ void export_convoy(HSQUIRRELVM vm)
 	 * @returns name
 	 */
 	register_method(vm, &convoi_t::get_name,     "get_name");
+	/**
+	 * Sets convoy name.
+	 * @ingroup rename_func
+	 */
+	register_method(vm, &convoy_set_name, "set_name", true);
 	/**
 	 * Position of convoy.
 	 * @returns pos

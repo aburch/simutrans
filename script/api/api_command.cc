@@ -81,6 +81,30 @@ SQInteger param<call_tool_init>::push(HSQUIRRELVM vm, call_tool_init v)
 }
 
 
+call_tool_init script_api::command_rename(player_t *owner, char what, koord3d pos, const char* name)
+{
+	// build param string (see tool_rename_t::init)
+	cbuffer_t buf;
+	buf.printf( "%c%s,%s", what, pos.get_str(), name);
+
+	// empty name? trigger error by setting id to zero
+	uint16 tool_id = name ? TOOL_RENAME | SIMPLE_TOOL : 0;
+
+	return call_tool_init(tool_id, (const char*)buf, 0, owner);
+}
+
+call_tool_init script_api::command_rename(player_t *owner, char what, uint32 id, const char* name)
+{
+	// build param string (see tool_rename_t::init)
+	cbuffer_t buf;
+	buf.printf( "%c%u,%s", what, id, name);
+
+	// empty name? trigger error by setting id to zero
+	uint16 tool_id = name ? TOOL_RENAME | SIMPLE_TOOL : 0;
+
+	return call_tool_init(tool_id, (const char*)buf, 0, owner);
+}
+
 
 SQInteger command_work(HSQUIRRELVM vm)
 {
