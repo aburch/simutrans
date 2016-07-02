@@ -134,6 +134,15 @@ const vector_tpl<const haus_besch_t*>& get_available_stations(haus_besch_t::utyp
 	return dummy;
 }
 
+sint64 building_get_cost(const haus_besch_t* besch)
+{
+	return besch->get_price(welt) * besch->get_b() * besch->get_h();
+}
+
+bool building_is_terminus(const haus_besch_t *besch)
+{
+	return besch  &&  besch->get_utyp() == haus_besch_t::generic_stop  &&  besch->get_all_layouts() == 4;
+}
 
 bool can_be_first(const vehikel_besch_t *besch)
 {
@@ -379,9 +388,10 @@ void export_goods_desc(HSQUIRRELVM vm)
 	 */
 	register_method(vm, &get_scaled_maintenance_building, "get_maintenance", true);
 	/**
-	 * @return price to build this building
+	 * Price to build this building, takes size, level, and type into account.
+	 * @return price [in 1/100 credits] to build this building
 	 */
-	register_method_fv(vm, &haus_besch_t::get_price, "get_cost", freevariable<karte_t*>(welt));
+	register_method(vm, &building_get_cost, "get_cost", true);
 	/**
 	 * @return capacity
 	 */
