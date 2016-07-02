@@ -227,6 +227,9 @@ void export_commands(HSQUIRRELVM vm)
 {
 	/**
 	 * Proof-of-concept to make tools available to scripts.
+	 *
+	 * The default_param is not checked. Use at own risk.
+	 * @ingroup game_cmd
 	 */
 	create_class(vm, "command_x");
 

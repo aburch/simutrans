@@ -440,14 +440,17 @@ void export_map_objects(HSQUIRRELVM vm)
 	 * @param pl player owns the convoy
 	 * @param cnv the convoy
 	 * @param desc decriptor of the vehicle
+	 * @ingroup game_cmd
 	 */
 	register_method(vm, depot_append_vehicle, "append_vehicle", true);
 	/**
 	 * Start the convoy in this depot.
+	 * @ingroup game_cmd
 	 */
 	register_method(vm, depot_start_convoy, "start_convoy", true);
 	/**
 	 * Start all convoys in this depot.
+	 * @ingroup game_cmd
 	 */
 	register_method_fv(vm, depot_start_convoy, "start_all_convoys", freevariable<convoihandle_t>(convoihandle_t()), true);
 	/**

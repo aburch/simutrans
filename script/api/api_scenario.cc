@@ -113,6 +113,7 @@ void export_scenario(HSQUIRRELVM vm)
 	 * @param file name of txt-file
 	 * @return content of loaded file
 	 * @note Only available in scenario mode.
+	 * @ingroup scen_only
 	 */
 	register_method(vm, &scenario_t::load_language_file, "load_language_file");
 
@@ -123,6 +124,7 @@ void export_scenario(HSQUIRRELVM vm)
 	 * again by calls to the respective allow_* method with exact the same parameters.
 	 *
 	 * @note Only available in scenario mode.
+	 * @ingroup scen_only
 	 */
 	begin_class(vm, "rules", 0);
 

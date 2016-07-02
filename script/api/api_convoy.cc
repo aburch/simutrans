@@ -265,6 +265,7 @@ void export_convoy(HSQUIRRELVM vm)
 	 * Assigns the convoy to the given line.
 	 * @param player
 	 * @param line
+	 * @ingroup game_cmd
 	 */
 	register_method(vm, convoy_set_line, "set_line", true);
 	/**
@@ -293,6 +294,7 @@ void export_convoy(HSQUIRRELVM vm)
 	register_method(vm, &convoi_t::has_obsolete_vehicles, "has_obsolete_vehicles");
 	/**
 	 * Toggle the flag 'withdraw convoy'
+	 * @ingroup game_cmd
 	 */
 	register_method_fv(vm, convoy_generic_tool, "toggle_withdraw", freevariable<uint8>('w'), true );
 	/**
@@ -301,6 +303,7 @@ void export_convoy(HSQUIRRELVM vm)
 	register_method(vm, &convoi_t::get_withdraw, "is_withdrawn");
 	/**
 	 * Destroy the convoy.
+	 * @ingroup game_cmd
 	 */
 	register_method_fv(vm, convoy_generic_tool, "destroy", freevariable<uint8>('x'), true);
 

@@ -351,7 +351,7 @@ void export_goods_desc(HSQUIRRELVM vm)
 	 */
 	register_method(vm, &vehikel_besch_t::get_gewicht, "get_weight"); // in kg
 	/**
-	 * @returns lengths in @ref CAR_UNITS_PER_TILE
+	 * @returns lengths in @ref units::CARUNITS_PER_TILE
 	 */
 	register_method(vm, &vehikel_besch_t::get_length, "get_length"); // in CAR_UNITS_PER_TILE
 	/**

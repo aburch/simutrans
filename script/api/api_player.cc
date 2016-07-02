@@ -128,6 +128,9 @@ void export_player(HSQUIRRELVM vm, bool scenario)
 	if (!scenario) {
 		/**
 		 * @returns player associated with the AI.
+		 * @ingroup ai_only
+		 * @typemask player_x()
+		 * @note Only available in AI mode.
 		 */
 		STATIC register_function(vm, &player_get_my_player, "self", 0, "", true);
 	}
@@ -276,6 +279,7 @@ void export_player(HSQUIRRELVM vm, bool scenario)
 	/**
 	 * Creates a new line for the player of the given way type.
 	 * @param wt way type
+	 * @ingroup game_cmd
 	 */
 	register_method(vm, &player_create_line, "create_line", true);
 

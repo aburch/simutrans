@@ -228,6 +228,7 @@ void export_line(HSQUIRRELVM vm)
 
 	/**
 	 * Change schedule of line
+	 * @ingroup game_cmd
 	 */
 	register_method(vm, line_change_schedule, "change_schedule", true);
 

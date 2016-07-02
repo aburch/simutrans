@@ -130,6 +130,7 @@ void export_tiles(HSQUIRRELVM vm)
 	 * @param type object type
 	 * @returns null upon success, an error message otherwise
 	 * @warning Cannot be used in network games. Does not work with all object types.
+	 * @ingroup game_cmd
 	 */
 	register_method(vm, &tile_remove_object, "remove_object", true);
 	/**
