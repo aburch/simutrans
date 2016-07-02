@@ -69,6 +69,9 @@ namespace script_api {
 
 	void end_squirrel_type_logging();
 
+	// sets current class name, does not work with nested classes
+	void set_squirrel_type_class(const char* classname);
+
 	void log_squirrel_type(std::string classname, const char* name, std::string squirrel_type);
 
 	/**

@@ -41,11 +41,18 @@ void script_api::end_squirrel_type_logging()
 	}
 }
 
+static plainstring current_class;
+
+void script_api::set_squirrel_type_class(const char* classname)
+{
+	current_class = classname;
+}
+
 void script_api::log_squirrel_type(std::string classname, const char* name, std::string squirrel_type)
 {
 	if (file) {
 		fprintf(file, "\texport_types[\"%s::%s\"] = \"%s\"\n",
-			classname.compare(param<void_t>::squirrel_type()) == 0 ? "" : classname.c_str(),
+			classname.compare(param<void_t>::squirrel_type()) == 0 ? current_class.c_str() : classname.c_str(),
 			name,
 			squirrel_type.c_str()
 		);
