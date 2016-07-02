@@ -2311,7 +2311,7 @@ void tool_build_way_t::calc_route( wegbauer_t &bauigel, const koord3d &start, co
 	else {
 		bauigel.set_keep_existing_faster_ways( true );
 	}
-	if(  is_ctrl_pressed()  ||  (env_t::straight_way_without_control  &&  !env_t::networkmode)  ) {
+	if(  is_ctrl_pressed()  ||  (env_t::straight_way_without_control  &&  !env_t::networkmode  &&  !is_scripted())  ) {
 		DBG_MESSAGE("tool_build_way_t()", "try straight route");
 		bauigel.calc_straight_route(start,end);
 	}
