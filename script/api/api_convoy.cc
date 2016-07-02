@@ -53,6 +53,12 @@ vector_tpl<vehikel_besch_t const*> const& convoi_get_vehicles(convoi_t* cnv)
 }
 
 
+sint32 convoy_get_kmh(convoi_t const* cnv)
+{
+	return cnv ? speed_to_kmh(cnv->get_akt_speed()) : -1;
+}
+
+
 vector_tpl<convoihandle_t> const* generic_get_convoy_list(HSQUIRRELVM vm, SQInteger index)
 {
 	uint16 id;
@@ -121,6 +127,19 @@ call_tool_init convoy_set_line(convoi_t *cnv, player_t *player, linehandle_t lin
 	// see depot_frame_t::apply_line() and convoi_t::call_convoi_tool()
 	cbuffer_t buf;
 	buf.printf("%c,%u,%i", 'l', cnv->self.get_id(), line->get_handle().get_id());
+
+	return call_tool_init(TOOL_CHANGE_CONVOI | SIMPLE_TOOL, buf, 0, player);
+}
+
+call_tool_init convoy_generic_tool(convoi_t *cnv, player_t *player, uint8 cnvtool)
+{
+	char c = (char)cnvtool;
+	if (strchr("wx", c) == NULL) {
+		return call_tool_init(""); // error
+	}
+	// see convoi_t::call_convoi_tool()
+	cbuffer_t buf;
+	buf.printf("%c,%u", c, cnv->self.get_id());
 
 	return call_tool_init(TOOL_CHANGE_CONVOI | SIMPLE_TOOL, buf, 0, player);
 }
@@ -243,15 +262,43 @@ void export_convoy(HSQUIRRELVM vm)
 	 */
 	register_method(vm, &convoi_t::get_line, "get_line");
 	/**
-	 * @returns returns an array containing the vehicle_desc_x 's of the vehicles of this convoy
-	 */
-	register_method(vm, convoi_get_vehicles, "get_vehicles", true);
-	/**
 	 * Assigns the convoy to the given line.
 	 * @param player
 	 * @param line
 	 */
 	register_method(vm, convoy_set_line, "set_line", true);
+	/**
+	 * @returns returns an array containing the vehicle_desc_x 's of the vehicles of this convoy
+	 */
+	register_method(vm, convoi_get_vehicles, "get_vehicles", true);
+	/**
+	 * @returns current speed of convoy
+	 */
+	register_method(vm, convoy_get_kmh, "get_speed", true);
+	/**
+	 * @returns get current loading limit: waiting for full load gives 100
+	 */
+	register_method(vm, &convoi_t::get_loading_limit, "get_loading_limit");
+	/**
+	 * @returns get current loading level
+	 */
+	register_method(vm, &convoi_t::get_loading_level, "get_loading_level");
+	/**
+	 * @returns gets location of home depot
+	 */
+	register_method(vm, &convoi_t::get_home_depot, "get_home_depot");
+	/**
+	 * Toggle the flag 'withdraw convoy'
+	 */
+	register_method_fv(vm, convoy_generic_tool, "toggle_withdraw", freevariable<uint8>('w'), true );
+	/**
+	 * @returns the flag 'withdraw convoy'
+	 */
+	register_method(vm, &convoi_t::get_withdraw, "is_withdrawn");
+	/**
+	 * Destroy the convoy.
+	 */
+	register_method_fv(vm, convoy_generic_tool, "destroy", freevariable<uint8>('x'), true);
 
 #define STATIC
 	/**

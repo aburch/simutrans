@@ -2925,6 +2925,7 @@ station_tile_search_ready: ;
 		// Advance schedule
 		fpl->advance();
 		state = ROUTING_1;
+		loading_limit = 0;
 	}
 
 	INT_CHECK( "convoi_t::hat_gehalten" );

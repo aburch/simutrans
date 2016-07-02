@@ -66,7 +66,6 @@ SQInteger halt_export_convoy_list(HSQUIRRELVM vm)
 }
 
 
-
 SQInteger halt_export_line_list(HSQUIRRELVM vm)
 {
 	halthandle_t halt = param<halthandle_t>::get(vm, 1);
@@ -81,6 +80,12 @@ SQInteger halt_export_line_list(HSQUIRRELVM vm)
 	}
 }
 
+
+uint32 halt_get_capacity(const haltestelle_t *halt, const ware_besch_t *besch)
+{
+	// passenger has index 0, mail 1, everything else >=2
+	return halt  &&  besch  ?  halt->get_capacity(min( besch->get_catg_index(), 2 )) : 0;
+}
 
 // 0: not connected
 // 1: connected
@@ -227,6 +232,23 @@ void export_halt(HSQUIRRELVM vm)
 	 * Get list of factories connected to this station.
 	 */
 	register_method(vm, &haltestelle_t::get_fab_list, "get_factory_list");
+	/**
+	 * Returns amount of @p freight at this halt that is going to @p target
+	 * @param freight freight type
+	 * @param target coordinate of target
+	 */
+	register_method(vm, &haltestelle_t::get_ware_fuer_zielpos, "get_freight_to_dest");
+	/**
+	 * Returns amount of @p freight at this halt that scheduled to @p stop
+	 * @param freight freight type
+	 * @param stop next transfer stop
+	 */
+	register_method(vm, &haltestelle_t::get_ware_fuer_zwischenziel, "get_freight_to_halt");
+	/**
+	 * Returns capacity of this halt for the given @p freight
+	 * @param freight freight type
+	 */
+	register_method(vm, &halt_get_capacity, "get_capacity", true);
 
 	end_class(vm);
 }

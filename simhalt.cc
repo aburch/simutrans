@@ -1984,7 +1984,6 @@ uint32 haltestelle_t::get_ware_summe(const ware_besch_t *wtyp) const
 }
 
 
-
 uint32 haltestelle_t::get_ware_fuer_zielpos(const ware_besch_t *wtyp, const koord zielpos) const
 {
 	const vector_tpl<ware_t> * warray = waren[wtyp->get_catg_index()];
@@ -1996,6 +1995,22 @@ uint32 haltestelle_t::get_ware_fuer_zielpos(const ware_besch_t *wtyp, const koor
 		}
 	}
 	return 0;
+}
+
+
+uint32 haltestelle_t::get_ware_fuer_zwischenziel(const ware_besch_t *wtyp, const halthandle_t zwischenziel) const
+{
+	uint32 sum = 0;
+	const vector_tpl<ware_t> * warray = waren[wtyp->get_catg_index()];
+	if(warray!=NULL) {
+		for(unsigned i=0;  i<warray->get_count();  i++ ) {
+			const ware_t &ware = (*warray)[i];
+			if(wtyp->get_index()==ware.get_index()  &&  ware.get_zwischenziel()==zwischenziel) {
+				sum += ware.menge;
+			}
+		}
+	}
+	return sum;
 }
 
 
