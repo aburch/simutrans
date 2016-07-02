@@ -74,3 +74,15 @@ bool sq_canresumevm(HSQUIRRELVM v)
 	// true if not suspended or not waiting for any return value
 	return (!v->_suspended  ||  v->_suspended_target==-1);
 }
+
+SQRESULT sq_get_ops_total(HSQUIRRELVM v)
+{
+	sq_pushinteger(v, v->_ops_total);
+	return 1;
+}
+
+SQRESULT sq_get_ops_remaing(HSQUIRRELVM v)
+{
+	sq_pushinteger(v, v->_ops_remaining);
+	return 1;
+}

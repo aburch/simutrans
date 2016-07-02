@@ -46,4 +46,10 @@ void sq_setwakeupretvalue(HSQUIRRELVM v);
  */
 bool sq_canresumevm(HSQUIRRELVM v);
 
+/// @returns total amount of opcodes executed by vm
+SQRESULT sq_get_ops_total(HSQUIRRELVM v);
+
+/// @returns amount of remaining opcodes until vm will be suspended
+SQRESULT sq_get_ops_remaing(HSQUIRRELVM v);
+
 #endif

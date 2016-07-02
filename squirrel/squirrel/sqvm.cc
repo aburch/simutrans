@@ -126,6 +126,7 @@ SQVM::SQVM(SQSharedState *ss)
 	_releasehook = NULL;
 	INIT_CHAIN();ADD_TO_CHAIN(&_ss(this)->_gc_chain,this);
 	_ops_remaining = 0;
+	_ops_total = 0;
 	_ops_grace_amount = 500;
 	_throw_if_no_ops = true;
 }
@@ -712,6 +713,7 @@ exception_restore:
 	{
 		for(;;)
 		{
+			_ops_total++;
 			_ops_remaining --;
 			if (_ops_remaining < 0) {
 				// suspend vm
