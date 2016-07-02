@@ -12,7 +12,7 @@
 #include "../../simworld.h"
 #include "../../player/simplay.h"
 
-// for manipulatino of lines
+// for manipulation of lines
 #include "../../simmenu.h"
 #include "../../dataobj/fahrplan.h"
 
@@ -66,7 +66,6 @@ call_tool_init line_change_schedule(linehandle_t line, player_t *player, schedul
 		sched->sprintf_schedule( buf );
 
 		return call_tool_init(TOOL_CHANGE_LINE | SIMPLE_TOOL, buf, 0, player);
-
 	}
 	return call_tool_init(""); // error
 }

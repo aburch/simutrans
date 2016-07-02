@@ -49,8 +49,11 @@ SQInteger param<call_tool_init>::push(HSQUIRRELVM vm, call_tool_init v)
 	tool->flags &= (tool_t::WFL_SHIFT | tool_t:: WFL_CTRL);
 	tool->flags |= tool_t::WFL_SCRIPT;
 	// get player parameter
-	player_t *player = v.player;
-	// sanity checks
+	player_t *player = get_my_player(vm);
+	if (player == NULL) {
+		player = v.player;
+	}
+	// sanity check
 	if (player == NULL) {
 		return SQ_ERROR;
 	}
@@ -88,7 +91,6 @@ SQInteger command_work(HSQUIRRELVM vm)
 	koord3d pos1 = param<koord3d>::get(vm, 3);
 
 	SQInteger top = sq_gettop(vm); // top >=3
-
 	/* three possible calling conventions:
 	 * (1) tool.work(pl, pos)
 	 * (2) tool.work(pl, pos, param)
@@ -146,7 +148,11 @@ SQInteger param<call_tool_work>::push(HSQUIRRELVM vm, call_tool_work v)
 	tool->flags &= (tool_t::WFL_SHIFT | tool_t:: WFL_CTRL);
 	tool->flags |= tool_t::WFL_SCRIPT;
 	// get player parameter
-	player_t *player = v.player;
+	player_t *player = get_my_player(vm);
+	if (player == NULL) {
+		player = v.player;
+	}
+	// sanity check
 	if (player == NULL) {
 		return SQ_ERROR;
 	}

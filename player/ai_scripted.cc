@@ -11,8 +11,8 @@
 #include "../script/api/api.h"
 
 // TODO load/save support
-// TODO check that ai-script only manipulates its player
 // TODO ai debug window
+// TODO restructure script/*.nut files
 
 ai_scripted_t::ai_scripted_t(uint8 nr) : ai_t(nr)
 {
@@ -89,7 +89,8 @@ bool ai_scripted_t::load_script(const char* filename)
 		dbg->error("ai_scripted_t::load_script", "error [%s] calling register_export_function", err);
 		return false;
 	}
-
+	// set my player number
+	script->set_my_player(get_player_nr());
 	// load ai definition
 	err = script->call_script(filename);
 	if (err) {

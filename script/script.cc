@@ -675,6 +675,14 @@ void script_vm_t::intern_call_callbacks(HSQUIRRELVM job)
 }
 
 
+void script_vm_t::set_my_player(uint8 player_nr)
+{
+	sq_pushregistrytable(vm);
+	script_api::create_slot(vm, "my_player_nr", player_nr);
+	sq_poptop(vm);
+}
+
+
 /* -------- management of suspended scripts that wait for return value ----------- */
 
 inthashtable_tpl<uint32,HSQUIRRELVM> suspended_scripts_t::suspended_scripts;

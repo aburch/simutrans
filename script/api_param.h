@@ -363,6 +363,12 @@ namespace script_api {
 	declare_specialized_param(weg_t*, "t|x|y", "way_x");
 
 	/**
+	 * Returns the player associated to the script
+	 * (or NULL for scenarios)
+	 */
+	player_t* get_my_player(HSQUIRRELVM vm);
+
+	/**
 	 * Templated interface to declare free variables for
 	 * c++ function calls
 	 */

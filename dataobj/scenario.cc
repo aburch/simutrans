@@ -130,6 +130,9 @@ const char* scenario_t::init( const char *scenario_base, const char *scenario_na
 	welt->get_settings().set_starting_year( time / 12);
 	welt->get_settings().set_starting_month( time % 12);
 
+	// set my player number to PLAYER_UNOWNED
+	script->set_my_player(PLAYER_UNOWNED);
+
 	// now call startup function
 	if ((err = script->call_function(script_vm_t::QUEUE, "start"))) {
 		dbg->warning("scenario_t::init", "error [%s] calling start", err);

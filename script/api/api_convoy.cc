@@ -243,7 +243,7 @@ void export_convoy(HSQUIRRELVM vm)
 	 */
 	register_method(vm, &convoi_t::get_line, "get_line");
 	/**
-	 * @returns returns an array containing the vehicle_desc_x 's of the vehicles of this convoy	 *
+	 * @returns returns an array containing the vehicle_desc_x 's of the vehicles of this convoy
 	 */
 	register_method(vm, convoi_get_vehicles, "get_vehicles", true);
 	/**

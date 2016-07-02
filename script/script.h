@@ -42,6 +42,12 @@ public:
 
 	const char* get_error() const { return error_msg.c_str(); }
 
+	/**
+	 * The script can only act as a certain player.
+	 * @param player_nr the number of the player (PLAYER_UNOWNED for scenarios)
+	 */
+	void set_my_player(uint8 player_nr);
+
 	/// priority of function call
 	enum call_type_t {
 		FORCE = 1, ///< function has to return, raise error if not

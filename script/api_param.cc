@@ -411,6 +411,19 @@ namespace script_api {
 	}
 
 
+	player_t* get_my_player(HSQUIRRELVM vm)
+	{
+		sq_pushregistrytable(vm);
+		uint8 player_nr = PLAYER_UNOWNED;
+		player_t *pl = NULL;
+		if (SQ_SUCCEEDED(get_slot<uint8>(vm, "my_player_nr", player_nr))  &&  player_nr < 15) {
+			pl =  welt->get_player(player_nr);
+		}
+		sq_poptop(vm);
+		return pl;
+	}
+
+
 	const haltestelle_t* param<const haltestelle_t*>::get(HSQUIRRELVM vm, SQInteger index)
 	{
 		halthandle_t halt = param<halthandle_t>::get(vm, index);
