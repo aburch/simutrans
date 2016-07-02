@@ -11,7 +11,6 @@
 #include "../script/api/api.h"
 
 // TODO ai debug window
-// TODO restructure script/*.nut files
 
 ai_scripted_t::ai_scripted_t(uint8 nr) : ai_t(nr)
 {
@@ -67,6 +66,8 @@ const char* ai_scripted_t::init( const char *ai_base, const char *ai_name_)
 	return NULL;
 }
 
+bool load_base_script(script_vm_t *script, const char* base); // scenario.cc
+
 bool ai_scripted_t::load_script(const char* filename)
 {
 	cbuffer_t buf;
@@ -77,27 +78,25 @@ bool ai_scripted_t::load_script(const char* filename)
 	// constants must be known compile time
 	export_global_constants(script->get_vm());
 
+	// load scripting base definitions
+	if (!load_base_script(script, "script_base.nut")) {
+		return false;
+	}
 	// load ai base definitions
-	buf.clear();
-	buf.printf("%sscript/scenario_base.nut", env_t::program_dir );
-	const char* err = script->call_script(buf);
-	if (err) { // should not happen ...
-		dbg->error("ai_scripted_t::load_script", "error [%s] calling %s", err, (const char*)buf);
+	if (!load_base_script(script, "ai_base.nut")) {
 		return false;
 	}
 
 	// register api functions
 	register_export_function(script->get_vm(), false);
-	err = script->get_error();
-	if (err) {
-		dbg->error("ai_scripted_t::load_script", "error [%s] calling register_export_function", err);
+	if (script->get_error()) {
+		dbg->error("ai_scripted_t::load_script", "error [%s] calling register_export_function", script->get_error());
 		return false;
 	}
 	// set my player number
 	script->set_my_player(get_player_nr());
 	// load ai definition
-	err = script->call_script(filename);
-	if (err) {
+	if (const char* err = script->call_script(filename)) {
 		if (strcmp(err, "suspended")) {
 			dbg->error("ai_scripted_t::load_script", "error [%s] calling %s", err, filename);
 		}

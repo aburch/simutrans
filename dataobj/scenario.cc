@@ -142,26 +142,38 @@ const char* scenario_t::init( const char *scenario_base, const char *scenario_na
 }
 
 
+bool load_base_script(script_vm_t *script, const char* base)
+{
+	cbuffer_t buf;
+	buf.printf("%sscript/%s", env_t::program_dir, base);
+	if (const char* err = script->call_script(buf)) {
+		// should not happen
+		dbg->error("load_base_script", "error [%s] calling %s", err, (const char*)buf);
+		return false;
+	}
+	return true;
+}
+
+
 bool scenario_t::load_script(const char* filename)
 {
 	script = new script_vm_t(scenario_path.c_str(), "script-scenario.log");
 	// load global stuff
 	// constants must be known compile time
 	export_global_constants(script->get_vm());
+	// load scripting base definitions
+	if (!load_base_script(script, "script_base.nut")) {
+		return false;
+	}
 	// load scenario base definitions
-	cbuffer_t buf;
-	buf.printf("%sscript/scenario_base.nut", env_t::program_dir );
-	const char* err = script->call_script(buf);
-	if (err) { // should not happen ...
-		dbg->error("scenario_t::load_script", "error [%s] calling %s", err, (const char*)buf);
+	if (!load_base_script(script, "scenario_base.nut")) {
 		return false;
 	}
 
 	// register api functions
 	register_export_function(script->get_vm(), true);
-	err = script->get_error();
-	if (err) {
-		dbg->error("scenario_t::load_script", "error [%s] calling register_export_function", err);
+	if (script->get_error()) {
+		dbg->error("scenario_t::load_script", "error [%s] calling register_export_function", script->get_error());
 		return false;
 	}
 
@@ -173,8 +185,7 @@ bool scenario_t::load_script(const char* filename)
 	}
 
 	// load scenario definition
-	err = script->call_script(filename);
-	if (err) {
+	if (const char* err = script->call_script(filename)) {
 		dbg->error("scenario_t::load_script", "error [%s] calling %s", err, filename);
 		return false;
 	}
@@ -192,15 +203,10 @@ void scenario_t::load_compatibility_script()
 	}
 	if (api_version != "*") {
 		// load scenario compatibility script
-		cbuffer_t buf;
-		buf.printf("%sscript/scenario_compat.nut", env_t::program_dir );
-		if (const char* err = script->call_script((const char*)buf) ) {
-			dbg->warning("scenario_t::init", "error [%s] calling scenario_compat.nut", err);
-		}
-		else {
+		if (load_base_script(script, "script_compat.nut")) {
 			plainstring dummy;
 			// call compatibility function
-			if ((err = script->call_function(script_vm_t::FORCE, "compat", dummy, api_version) )) {
+			if (const char* err = script->call_function(script_vm_t::FORCE, "compat", dummy, api_version) ) {
 				dbg->warning("scenario_t::init", "error [%s] calling compat", err);
 			}
 		}
