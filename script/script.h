@@ -10,6 +10,7 @@
 #include "../utils/plainstring.h"
 #include <string>
 
+class log_t;
 template<class key_t, class value_t> class inthashtable_tpl;
 void sq_setwakeupretvalue(HSQUIRRELVM v); //sq_extensions
 
@@ -21,7 +22,7 @@ void sq_setwakeupretvalue(HSQUIRRELVM v); //sq_extensions
  */
 class script_vm_t {
 public:
-	script_vm_t(const char* include_path_);
+	script_vm_t(const char* include_path, const char* log_name);
 	~script_vm_t();
 
 	/**
@@ -177,7 +178,6 @@ public:
 	 */
 	void clear_pending_callback();
 
-
 private:
 	/// virtual machine running everything
 	HSQUIRRELVM vm;
@@ -185,6 +185,8 @@ private:
 	/// thread in the virtual machine, used to run functions that can be suspended
 	HSQUIRRELVM thread;
 
+	/// our log file
+	log_t* log;
 
 	plainstring error_msg;
 
@@ -232,6 +234,9 @@ private:
 
 	/// set error message, used in errorhandlers
 	void set_error(const char* error) { error_msg = error; }
+
+	/// custom print handler
+	static void printfunc(HSQUIRRELVM, const SQChar *s, ...);
 
 	/// path to files to #include
 	plainstring include_path;

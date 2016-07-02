@@ -24,16 +24,13 @@
 #define END_STACK_WATCH(v, delta) if ( (stack_top+(delta)) != sq_gettop(v)) { dbg->warning( __FUNCTION__, "(%d) stack in %d expected %d out %d", __LINE__,stack_top,stack_top+(delta),sq_gettop(v)); }
 
 
-// log file
-static log_t* script_log = NULL;
-// list of active scripts (they share the same log-file, error and print-functions)
-static vector_tpl<script_vm_t*> all_scripts;
-
-static void printfunc(HSQUIRRELVM, const SQChar *s, ...)
+void script_vm_t::printfunc(HSQUIRRELVM vm, const SQChar *s, ...)
 {
 	va_list vl;
 	va_start(vl, s);
-	script_log->vmessage("Script", "Print", s, vl);
+	if (script_vm_t *script = (script_vm_t*)sq_getforeignptr(vm)) {
+		script->log->vmessage("Script", "Print", s, vl);
+	}
 	va_end(vl);
 }
 
@@ -47,50 +44,57 @@ void script_vm_t::errorfunc(HSQUIRRELVM vm, const SQChar *s_, ...)
 	while (s  &&  *s=='\n') s++;
 	while (s  &&  s[strlen(s)-1]=='\n') s[strlen(s)-1]=0;
 
-	va_list vl;
-	va_start(vl, s_);
-	script_log->vmessage("[Script]", "ERROR", s, vl);
-	va_end(vl);
+	// get failed script
+	script_vm_t *script = (script_vm_t*)sq_getforeignptr(vm);
 
+	if (script) {
+		va_list vl;
+		va_start(vl, s_);
+		script->log->vmessage("Script", "Error", s, vl);
+		va_end(vl);
+	}
+
+	// only one error message at a time - hopefully
+	// collect into static buffer
 	static cbuffer_t buf;
 	if (strcmp(s, "<error>")==0) {
+		// start of error message
 		buf.clear();
 		buf.printf("<st>Your script made an error!</st><br>\n");
 	}
-	if (strcmp(s, "</error>")==0) {
+	else if (strcmp(s, "</error>")==0) {
+		// end of error message
 		help_frame_t *win = new help_frame_t();
 		win->set_text(buf);
 		win->set_name("Script error occured");
 		create_win( win, w_info, magic_none);
-		// find failed script
-		for(uint32 i=0; i<all_scripts.get_count(); i++) {
-			if (all_scripts[i]->uses_vm(vm)) {
-				all_scripts[i]->set_error(buf);
-				break;
-			}
+
+		if (script) {
+			script->set_error(buf);
 		}
 	}
-
-	va_start(vl, s_);
-	buf.vprintf(s, vl);
-	va_end(vl);
-	buf.append("<br>");
-
+	else {
+		va_list vl;
+		va_start(vl, s_);
+		buf.vprintf(s, vl);
+		va_end(vl);
+		buf.append("<br>");
+	}
 	free(s_dup);
 }
 
 void export_include(HSQUIRRELVM vm, const char* include_path); // api_include.cc
 
 // virtual machine
-script_vm_t::script_vm_t(const char* include_path_)
+script_vm_t::script_vm_t(const char* include_path_, const char* log_name)
 {
 	vm = sq_open(1024);
 	sqstd_seterrorhandlers(vm);
 	sq_setprintfunc(vm, printfunc, errorfunc);
-	if (script_log == NULL) {
-		script_log = new log_t("script.log", true, true, true, "script engine started.\n");
-	}
-	all_scripts.append(this);
+	log = new log_t(log_name, true, true, true, "script engine started.\n");
+
+	// store ptr to us in vm
+	sq_setforeignptr(vm, this);
 
 	// create thread, and put it into registry-table
 	sq_pushregistrytable(vm);
@@ -107,6 +111,9 @@ script_vm_t::script_vm_t(const char* include_path_)
 	sq_newslot(vm, -3, false);
 	// pop registry
 	sq_pop(vm, 1);
+	// store ptr to us in vm
+	sq_setforeignptr(vm, this);
+	sq_setforeignptr(thread, this);
 
 	error_msg = NULL;
 	include_path = include_path_;
@@ -129,11 +136,7 @@ script_vm_t::~script_vm_t()
 	// close vm, also closes thread
 	sq_close(vm);
 
-	all_scripts.remove(this);
-	if (all_scripts.empty()) {
-		delete script_log;
-		script_log = NULL;
-	}
+	delete log;
 }
 
 const char* script_vm_t::call_script(const char* filename)

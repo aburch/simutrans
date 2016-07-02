@@ -68,17 +68,20 @@ const char* ai_scripted_t::init( const char *ai_base, const char *ai_name_)
 
 bool ai_scripted_t::load_script(const char* filename)
 {
-	script = new script_vm_t(ai_path.c_str());
+	cbuffer_t buf;
+	buf.printf("script-ai-%d.log", player_nr);
+
+	script = new script_vm_t(ai_path.c_str(), buf);
 	// load global stuff
 	// constants must be known compile time
 	export_global_constants(script->get_vm());
 
 	// load ai base definitions
-	char basefile[1024];
-	sprintf( basefile, "%sscript/scenario_base.nut", env_t::program_dir );
-	const char* err = script->call_script(basefile);
+	buf.clear();
+	buf.printf("%sscript/scenario_base.nut", env_t::program_dir );
+	const char* err = script->call_script(buf);
 	if (err) { // should not happen ...
-		dbg->error("ai_scripted_t::load_script", "error [%s] calling %s", err, basefile);
+		dbg->error("ai_scripted_t::load_script", "error [%s] calling %s", err, (const char*)buf);
 		return false;
 	}
 
