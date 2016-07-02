@@ -17,6 +17,12 @@
 #include "../../obj/gebaeude.h"
 #include "../../obj/label.h"
 
+// for depot tools
+#include "../../simconvoi.h"
+#include "../../simmenu.h"
+#include "../../besch/vehikel_besch.h"
+
+
 using namespace script_api;
 
 // use pointers to obj_t_tag[ <type> ] to tag the obj_t classes
@@ -272,6 +278,34 @@ const char* label_get_text(label_t* l)
 }
 
 
+call_tool_init depot_append_vehicle(depot_t *depot, player_t *player, convoihandle_t cnv, const vehikel_besch_t *besch)
+{
+	if (besch == NULL) {
+		return call_tool_init(""); // error
+	}
+	// see depot_frame_t::image_from_storage_list: tool = 'a'
+	// see depot_t::call_depot_tool for command string composition
+	cbuffer_t buf;
+	buf.printf( "%c,%s,%hu,%s", 'a', depot->get_pos().get_str(), cnv.get_id(), besch->get_name());
+
+	return call_tool_init(TOOL_CHANGE_DEPOT | SIMPLE_TOOL, buf, 0, player);
+}
+
+call_tool_init depot_start_convoy(depot_t *depot, player_t *player, convoihandle_t cnv)
+{
+	// see depot_frame_t::action_triggered: tool = 'b'
+	// see depot_t::call_depot_tool for command string composition
+	cbuffer_t buf;
+	if (cnv.is_bound()) {
+		buf.printf( "%c,%s,%hu", 'b', depot->get_pos().get_str(), cnv->self.get_id());
+	}
+	else {
+		buf.printf( "%c,%s,%hu", 'B', depot->get_pos().get_str(), 0);
+	}
+
+	return call_tool_init(TOOL_CHANGE_DEPOT | SIMPLE_TOOL, buf, 0, player);
+}
+
 vector_tpl<convoihandle_t> const& depot_get_convoy_list(depot_t *depot)
 {
 	static vector_tpl<convoihandle_t> list;
@@ -398,8 +432,20 @@ void export_map_objects(HSQUIRRELVM vm)
 
 	/**
 	 * Class to access depots.
+	 * Main purpose is the manipulation of convoys in depots.
 	 */
 	begin_obj_class<depot_t>(vm, "depot_x", "building_x");
+	/**
+	 * Append a car to the convoy in this depot. If the convoy does not exist, a new one is created first.
+	 * @param pl player owns the convoy
+	 * @param cnv the convoy
+	 * @param desc decriptor of the vehicle
+	 */
+	register_method(vm, depot_append_vehicle, "append_vehicle", true);
+	/**
+	 * Start the convoy in this depot.
+	 */
+	register_method(vm, depot_start_convoy, "start_convoy", true);
 	/**
 	 * @returns list of convoys sitting in this depot
 	 */

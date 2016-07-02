@@ -8,6 +8,7 @@
 #include "../api_function.h"
 #include "../../simmenu.h"
 #include "../../simworld.h"
+#include "../../dataobj/environment.h"
 #include "../../script/script.h"
 
 #include <memory> // auto_ptr
@@ -28,12 +29,59 @@ SQInteger command_constructor(HSQUIRRELVM vm)
 	return -1;
 }
 
-SQInteger command_work(HSQUIRRELVM vm)
+
+SQInteger param<call_tool_init>::push(HSQUIRRELVM vm, call_tool_init v)
 {
-	tool_t *tool = param<tool_t*>::get(vm, 1);
+	if (v.error) {
+		return *v.error ? sq_raise_error(vm, v.error) : SQ_ERROR;
+	}
+	// create tool, if necessary, delete on exit
+	std::auto_ptr<tool_t> our_tool;
+	tool_t *tool = v.tool;
+	if (tool == NULL) {
+		our_tool.reset(v.create_tool());
+		tool = our_tool.get();
+	}
+	if (tool == NULL) {
+		return sq_raise_error(vm, "Called null tool");
+	}
 	// set correct flags
 	tool->flags &= (tool_t::WFL_SHIFT | tool_t:: WFL_CTRL);
 	tool->flags |= tool_t::WFL_SCRIPT;
+	// get player parameter
+	player_t *player = v.player;
+	// sanity checks
+	if (player == NULL) {
+		return SQ_ERROR;
+	}
+	// set scripted flag
+	tool->flags |= tool_t::WFL_SCRIPT;
+
+	// register this tool call for callback with this id
+	uint32 callback_id = suspended_scripts_t::get_unique_key(tool);
+	tool->callback_id = callback_id;
+
+	// HACK call karte_t::set_tool
+	welt->set_tool(tool, player);
+	// in networkmode, call is suspended
+
+	if (env_t::networkmode) {
+		// register for wakeup
+		suspended_scripts_t::register_suspended_script(callback_id, vm);
+		// suspend vm for now, after wakeup it returns to the script
+		return sq_suspendvm(vm);
+	}
+	else {
+		bool res = true;
+		return param<bool>::push(vm, res);
+	}
+}
+
+
+
+SQInteger command_work(HSQUIRRELVM vm)
+{
+	tool_t *tool = param<tool_t*>::get(vm, 1);
 
 	player_t* player = param<player_t*>::get(vm, 2);
 
@@ -68,7 +116,7 @@ SQInteger command_work(HSQUIRRELVM vm)
 	}
 }
 
-tool_t * call_tool_work::create_tool()
+tool_t * call_tool_base_t::create_tool()
 {
 	tool_t *tool = ::create_tool(tool_id);
 	if (tool) {
@@ -81,6 +129,9 @@ tool_t * call_tool_work::create_tool()
 
 SQInteger param<call_tool_work>::push(HSQUIRRELVM vm, call_tool_work v)
 {
+	if (v.error) {
+		return *v.error ? sq_raise_error(vm, v.error) : SQ_ERROR;
+	}
 	// create tool, if necessary, delete on exit
 	std::auto_ptr<tool_t> our_tool;
 	tool_t *tool = v.tool;
@@ -91,6 +142,9 @@ SQInteger param<call_tool_work>::push(HSQUIRRELVM vm, call_tool_work v)
 	if (tool == NULL) {
 		return sq_raise_error(vm, "Called null tool");
 	}
+	// set correct flags
+	tool->flags &= (tool_t::WFL_SHIFT | tool_t:: WFL_CTRL);
+	tool->flags |= tool_t::WFL_SCRIPT;
 	// get player parameter
 	player_t *player = v.player;
 	if (player == NULL) {

@@ -3026,7 +3026,7 @@ void karte_t::local_set_tool( tool_t *tool_in, player_t * player )
 	// for unsafe tools init() must return false
 	assert(tool_in->is_init_network_save()  ||  !init_result);
 
-	if (player && init_result) {
+	if (player  && init_result  &&  !tool_in->is_scripted()) {
 
 		set_dirty();
 		tool_t *sp_tool = selected_tool[player->get_player_nr()];

@@ -12,6 +12,9 @@
 #include "../../simworld.h"
 #include "../../vehicle/simvehicle.h"
 
+// for convoy tools
+#include "../../simmenu.h"
+
 using namespace script_api;
 
 
@@ -107,6 +110,19 @@ uint32 calc_max_kmh(uint32 power, uint32 weight, sint32 speed_limit)
 uint32 kmh_to_tiles_per_month(uint32 kmh)
 {
 	return welt->speed_to_tiles_per_month( kmh_to_speed(kmh));
+}
+
+call_tool_init convoy_set_line(convoi_t *cnv, player_t *player, linehandle_t line)
+{
+	if (!line.is_bound()) {
+		return call_tool_init(""); // error
+	}
+
+	// see depot_frame_t::apply_line() and convoi_t::call_convoi_tool()
+	cbuffer_t buf;
+	buf.printf("%c,%u,%i", 'l', cnv->self.get_id(), line->get_handle().get_id());
+
+	return call_tool_init(TOOL_CHANGE_CONVOI | SIMPLE_TOOL, buf, 0, player);
 }
 
 void export_convoy(HSQUIRRELVM vm)
@@ -230,6 +246,12 @@ void export_convoy(HSQUIRRELVM vm)
 	 * @returns returns an array containing the vehicle_desc_x 's of the vehicles of this convoy	 *
 	 */
 	register_method(vm, convoi_get_vehicles, "get_vehicles", true);
+	/**
+	 * Assigns the convoy to the given line.
+	 * @param player
+	 * @param line
+	 */
+	register_method(vm, convoy_set_line, "set_line", true);
 
 #define STATIC
 	/**

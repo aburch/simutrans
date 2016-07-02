@@ -1174,11 +1174,12 @@ void nwc_tool_t::do_command(karte_t *welt)
 	DBG_MESSAGE("nwc_tool_t::do_command","id=%d init=%d defpar=%s flag=%d",tool_id&0xFFF,init,(const char*)default_param,tool->flags);
 
 	const char* err = NULL;
+	bool res = false;
 	// call INIT
 	if(  init  ) {
 		// we should be here only if tool->init() returns false
 		// no need to change active tool of world
-		tool->init(player);
+		res = tool->init(player);
 	}
 	// call WORK
 	else if (init_successfull) {
@@ -1203,7 +1204,12 @@ void nwc_tool_t::do_command(karte_t *welt)
 
 	// callback to script here
 	if (local  &&  callback_id != 0) {
-		suspended_scripts_t::tell_return_value(callback_id, err);
+		if (init) {
+			suspended_scripts_t::tell_return_value(callback_id, res);
+		}
+		else {
+			suspended_scripts_t::tell_return_value(callback_id, err);
+		}
 	}
 }
 

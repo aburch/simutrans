@@ -6690,7 +6690,7 @@ bool tool_change_line_t::init( player_t *player )
 				// no need to check schedule for scenario conditions, as schedule is only copied
 				line->get_schedule()->sscanf_schedule( p );
 				line->get_schedule()->eingabe_abschliessen();	// just in case ...
-				if(  is_local_execution()  ) {
+				if(  is_local_execution()  &&  !is_scripted()  ) {
 					fahrplan_gui_t *fg = dynamic_cast<fahrplan_gui_t *>(win_get_magic((ptrdiff_t)t));
 					if(  fg  ) {
 						fg->init_line_selector();

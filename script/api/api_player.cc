@@ -7,6 +7,10 @@
 #include "../../player/simplay.h"
 #include "../../player/finance.h"
 
+// for creation of lines
+#include "../../simline.h"
+#include "../../simmenu.h"
+
 
 using namespace script_api;
 
@@ -73,6 +77,18 @@ SQInteger player_export_line_list(HSQUIRRELVM vm)
 		return 1;
 	}
 	return SQ_ERROR;
+}
+
+call_tool_init player_create_line(player_t *player, waytype_t wt)
+{
+	simline_t::linetype lt = simline_t::get_linetype(wt);
+	if (lt == simline_t::MAX_LINE_TYPE) {
+		return call_tool_init("Invalid waytype provided");
+	}
+	// build param string (see schedule_list_gui_t::action_triggered)
+	cbuffer_t buf;
+	buf.printf( "c,0,%i,0,0|%i|", lt, lt);
+	return call_tool_init(TOOL_CHANGE_LINE | SIMPLE_TOOL, buf, 0, player);
 }
 
 void export_player(HSQUIRRELVM vm)
@@ -216,6 +232,12 @@ void export_player(HSQUIRRELVM vm)
 	 * @typemask line_list_x()
 	 */
 	register_function(vm, &player_export_line_list, "get_line_list", 1, param<player_t*>::typemask());
+
+	/**
+	 * Creates a new line for the player of the given way type.
+	 * @param wt way type
+	 */
+	register_method(vm, &player_create_line, "create_line", true);
 
 	end_class(vm);
 }

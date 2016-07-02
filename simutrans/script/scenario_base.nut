@@ -560,19 +560,6 @@ class map_object_x extends extend_get {
 	z = -1
 }
 
-class schedule_x {
-	/// waytype
-	waytype = 0
-	/// the entries
-	entries = null
-
-	constructor(w, e)
-	{
-		waytype = w
-		entries = e
-	}
-}
-
 class schedule_entry_x {
 	/// coordinate
 	x = -1

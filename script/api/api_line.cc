@@ -12,6 +12,12 @@
 #include "../../simworld.h"
 #include "../../player/simplay.h"
 
+// for manipulatino of lines
+#include "../../simmenu.h"
+#include "../../dataobj/fahrplan.h"
+
+// template<> schedule_t* script_api::param<schedule_t*>::get(HSQUIRRELVM, SQInteger);
+
 using namespace script_api;
 
 vector_tpl<sint64> const& get_line_stat(simline_t *line, sint32 INDEX)
@@ -43,6 +49,26 @@ waytype_t line_way_type(simline_t *line)
 		}
 	}
 	return invalid_wt;
+}
+
+
+bool line_is_valid(linehandle_t line)
+{
+	return line.is_bound();
+}
+
+call_tool_init line_change_schedule(linehandle_t line, player_t *player, schedule_t *sched)
+{
+	if (line.is_bound()  &&  sched) {
+		// build param string (see line_management_gui_t::infowin_event)
+		cbuffer_t buf;
+		buf.printf( "g,%i,", line.get_id() );
+		sched->sprintf_schedule( buf );
+
+		return call_tool_init(TOOL_CHANGE_LINE | SIMPLE_TOOL, buf, 0, player);
+
+	}
+	return call_tool_init(""); // error
 }
 
 SQInteger line_export_convoy_list(HSQUIRRELVM vm)
@@ -127,6 +153,11 @@ void export_line(HSQUIRRELVM vm)
 	begin_class(vm, "line_x", "extend_get");
 
 	/**
+	 * Is line a valid object:
+	 */
+	register_method(vm, line_is_valid, "is_valid", true);
+
+	/**
 	 * Line name.
 	 * @returns name
 	 */
@@ -195,6 +226,11 @@ void export_line(HSQUIRRELVM vm)
 	 * @return waytype of the line
 	 */
 	register_method(vm, &line_way_type, "get_waytype", true);
+
+	/**
+	 * Change schedule of line
+	 */
+	register_method(vm, line_change_schedule, "change_schedule", true);
 
 	end_class(vm);
 }
