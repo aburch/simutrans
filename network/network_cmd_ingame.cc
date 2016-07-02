@@ -1045,16 +1045,16 @@ network_broadcast_world_command_t* nwc_tool_t::clone(karte_t *welt)
 		return NULL;
 	}
 
-	// scripts only run on server
+	// scenario scripts only run on server
 	if (socket_list_t::get_client_id(packet->get_sender()) != 0) {
 		// not sent by server, clear flag
-		flags &= ~tool_t::WFL_SCRIPT;
+		flags &= ~tool_t::WFL_NO_CHK;
 	}
 	// scripted calls do not need authentication check
-	bool const scripted_call = flags & tool_t::WFL_SCRIPT;
+	bool const needs_check = (flags & tool_t::WFL_NO_CHK) == 0;
 
 	// check authentication and scenario rules
-	if (!scripted_call) {
+	if (needs_check) {
 
 		scenario_t *scen = welt->get_scenario();
 		// check for map editor tools - they need unlocked public player

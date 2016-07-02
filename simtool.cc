@@ -1355,7 +1355,7 @@ const char *tool_marker_t::work( player_t *player, koord3d pos )
 			const obj_t* thing = gr->obj_bei(0);
 			if(thing == NULL  ||  thing->get_owner() == player  ||  (player_t::check_owner(thing->get_owner(), player)  &&  (thing->get_typ() != obj_t::gebaeude))) {
 				gr->obj_add(new label_t(gr->get_pos(), player, "\0"));
-				if (is_local_execution()) {
+				if (can_use_gui()) {
 					gr->find<label_t>()->show_info();
 				}
 				return NULL;
@@ -1370,7 +1370,7 @@ const char *tool_marker_t::work( player_t *player, koord3d pos )
 // show/repair blocks
 bool tool_clear_reservation_t::init( player_t * )
 {
-	if (is_local_execution()) {
+	if (can_use_gui()) {
 		schiene_t::show_reservations = true;
 		welt->set_dirty();
 	}
@@ -1379,7 +1379,7 @@ bool tool_clear_reservation_t::init( player_t * )
 
 bool tool_clear_reservation_t::exit( player_t * )
 {
-	if (is_local_execution()) {
+	if (can_use_gui()) {
 		schiene_t::show_reservations = false;
 		welt->set_dirty();
 	}
@@ -2217,7 +2217,7 @@ bool tool_build_way_t::init( player_t *player )
 	}
 
 	// now get current besch
-	besch = get_besch( welt->get_timeline_year_month(), is_local_execution() );
+	besch = get_besch( welt->get_timeline_year_month(), can_use_gui() );
 	if(  besch  &&  besch->get_cursor()->get_bild_nr(0) != IMG_LEER  ) {
 		cursor = besch->get_cursor()->get_bild_nr(0);
 	}
@@ -4254,7 +4254,7 @@ bool tool_build_station_t::init( player_t * )
 		return false;
 	}
 	cursor = hb->get_cursor()->get_bild_nr(0);
-	if(  !is_local_execution()  ) {
+	if(  !can_use_gui()  ) {
 		// do not change cursor
 		return true;
 	}
@@ -4629,7 +4629,7 @@ bool tool_build_roadsign_t::init( player_t * player)
 	// read data from string
 	read_default_param(player);
 
-	if (is_ctrl_pressed()  &&  is_local_execution()) {
+	if (is_ctrl_pressed()  &&  can_use_gui()) {
 		create_win(new signal_spacing_frame_t(player, this), w_info, (ptrdiff_t)this);
 	}
 	return two_click_tool_t::init(player)  &&  (besch!=NULL);
@@ -4995,7 +4995,7 @@ const char *tool_build_depot_t::tool_depot_aux(player_t *player, koord3d pos, co
 			}
 			hausbauer_t::neues_gebaeude(player, bd->get_pos(), layout, besch );
 			player_t::book_construction_costs(player, -besch->get_price(welt), pos.get_2d(), besch->get_finance_waytype());
-			if(is_local_execution()  &&  player == welt->get_active_player()) {
+			if(can_use_gui()  &&  player == welt->get_active_player()) {
 				welt->set_tool( general_tool[TOOL_QUERY], player );
 			}
 
@@ -5111,7 +5111,7 @@ const char *tool_build_depot_t::work( player_t *player, koord3d pos )
  */
 bool tool_build_house_t::init( player_t * )
 {
-	if (is_local_execution() && !strempty(default_param)) {
+	if (can_use_gui() && !strempty(default_param)) {
 		const char *c = default_param+2;
 		const haus_tile_besch_t *tile = hausbauer_t::find_tile(c,0);
 		if(tile!=NULL) {
@@ -5216,7 +5216,7 @@ const char *tool_build_house_t::work( player_t *player, koord3d pos )
 // show industry size in cursor (in known)
 bool tool_build_land_chain_t::init( player_t * )
 {
-	if (is_local_execution() && !strempty(default_param)) {
+	if (can_use_gui() && !strempty(default_param)) {
 		const char *c = default_param+2;
 		while(*c  &&  *c++!=',') { /* do nothing */ }
 		const fabrik_besch_t *fab = fabrikbauer_t::get_fabesch(c);
@@ -5317,7 +5317,7 @@ const char *tool_build_land_chain_t::work( player_t *player, koord3d pos )
 // show industry size in cursor (in known)
 bool tool_city_chain_t::init( player_t * )
 {
-	if (is_local_execution() && !strempty(default_param)) {
+	if (can_use_gui() && !strempty(default_param)) {
 		const char *c = default_param+2;
 		while(*c  &&  *c++!=',') { /* do nothing */ }
 		const fabrik_besch_t *fab = fabrikbauer_t::get_fabesch(c);
@@ -5385,7 +5385,7 @@ const char *tool_city_chain_t::work( player_t *player, koord3d pos )
 // show industry size in cursor (must be known!)
 bool tool_build_factory_t::init( player_t * )
 {
-	if (is_local_execution() && !strempty(default_param)) {
+	if (can_use_gui() && !strempty(default_param)) {
 		const char *c = default_param+2;
 		while(*c  &&  *c++!=',') { /* do nothing */ }
 		const fabrik_besch_t *fab = fabrikbauer_t::get_fabesch(c);
@@ -5545,7 +5545,7 @@ bool tool_headquarter_t::init( player_t *player )
 	// do no use this, if there is no next level to build ...
 	const haus_besch_t *besch = next_level(player);
 	if (besch) {
-		if (is_local_execution()) {
+		if (can_use_gui()) {
 			const int rotation = 0;
 			cursor_area = besch->get_groesse(rotation);
 		}
@@ -5671,7 +5671,7 @@ DBG_MESSAGE("tool_headquarter()", "building headquarters at (%d,%d)", pos.x, pos
 			buf.printf( translator::translate("%s s\nheadquarter now\nat (%i,%i)."), player->get_name(), pos.x, pos.y );
 			welt->get_message()->add_message( buf, k, message_t::ai, PLAYER_FLAG|player->get_player_nr(), hq->get_tile()->get_hintergrund(0,0,0) );
 			// reset to query tool, since costly relocations should be avoided
-			if(is_local_execution()  &&  player == welt->get_active_player()) {
+			if(can_use_gui()  &&  player == welt->get_active_player()) {
 				welt->set_tool( tool_t::general_tool[TOOL_QUERY], player );
 			}
 			return NULL;
@@ -6426,7 +6426,7 @@ bool tool_screenshot_t::init( player_t * )
 
 bool tool_undo_t::init( player_t *player )
 {
-	if(!player->undo()  &&  is_local_execution()) {
+	if(!player->undo()  &&  can_use_gui()) {
 		create_win( new news_img("UNDO failed!"), w_time_delete, magic_none);
 	}
 	return false;
@@ -6511,7 +6511,7 @@ bool tool_change_convoi_t::init( player_t *player )
 	// catch such commands here
 	if( !cnv.is_bound()) {
 #if DEBUG>=4
-		if (is_local_execution()) {
+		if (can_use_gui()) {
 			create_win( new news_img("Convoy already deleted!"), w_time_delete, magic_none);
 		}
 #endif
@@ -6544,7 +6544,7 @@ bool tool_change_convoi_t::init( player_t *player )
 			{
 				// we open the window only when executed on the same client that triggered the tool
 				// but the all clients must call the function anyway
-				cnv->open_schedule_window( is_local_execution() );
+				cnv->open_schedule_window( can_use_gui() );
 			}
 			break;
 
@@ -6552,7 +6552,7 @@ bool tool_change_convoi_t::init( player_t *player )
 			{
 				schedule_t *fpl = cnv->create_schedule()->copy();
 				fpl->eingabe_abschliessen();
-				if (fpl->sscanf_schedule( p )  &&  scenario_check_schedule(welt, player, fpl, is_local_execution())) {
+				if (fpl->sscanf_schedule( p )  &&  scenario_check_schedule(welt, player, fpl, can_use_gui())) {
 					cnv->set_schedule( fpl );
 				}
 				else {
@@ -6690,7 +6690,7 @@ bool tool_change_line_t::init( player_t *player )
 				// no need to check schedule for scenario conditions, as schedule is only copied
 				line->get_schedule()->sscanf_schedule( p );
 				line->get_schedule()->eingabe_abschliessen();	// just in case ...
-				if(  is_local_execution()  &&  !is_scripted()  ) {
+				if(  can_use_gui()  ) {
 					fahrplan_gui_t *fg = dynamic_cast<fahrplan_gui_t *>(win_get_magic((ptrdiff_t)t));
 					if(  fg  ) {
 						fg->init_line_selector();
@@ -6724,7 +6724,7 @@ bool tool_change_line_t::init( player_t *player )
 			{
 				if (line.is_bound()) {
 					schedule_t *fpl = line->get_schedule()->copy();
-					if (fpl->sscanf_schedule( p )  &&  scenario_check_schedule(welt, player, fpl, is_local_execution()) ) {
+					if (fpl->sscanf_schedule( p )  &&  scenario_check_schedule(welt, player, fpl, can_use_gui()) ) {
 						fpl->eingabe_abschliessen();
 						line->set_schedule( fpl );
 						line->get_owner()->simlinemgmt.update_line(line);
@@ -6928,14 +6928,14 @@ bool tool_change_depot_t::init( player_t *player )
 			selected_line->get_schedule()->sscanf_schedule( p );
 
 			depot_frame_t *depot_frame = dynamic_cast<depot_frame_t *>(win_get_magic( (ptrdiff_t)depot ));
-			if(  is_local_execution()  ) {
+			if(  can_use_gui()  ) {
 				if(  welt->get_active_player()==player  &&  depot_frame  ) {
 					create_win( new line_management_gui_t( selected_line, depot->get_owner() ), w_info, (ptrdiff_t)selected_line.get_rep() );
 				}
 			}
 
 			if(  depot_frame  ) {
-				if(  is_local_execution()  ) {
+				if(  can_use_gui()  ) {
 					depot_frame->set_selected_line( selected_line );
 					depot_frame->apply_line();
 				}
@@ -6951,7 +6951,7 @@ bool tool_change_depot_t::init( player_t *player )
 		}
 		case 'b': { // start a convoi from the depot
 			if(  cnv.is_bound()  ) {
-				depot->start_convoi(cnv, is_local_execution());
+				depot->start_convoi(cnv, can_use_gui());
 			}
 			break;
 		}
@@ -6967,12 +6967,12 @@ bool tool_change_depot_t::init( player_t *player )
 		case 'c': { // copy this convoi
 			if(  cnv.is_bound()  ) {
 				if(  convoihandle_t::is_exhausted()  ) {
-					if(  is_local_execution()  ) {
+					if(  can_use_gui()  ) {
 						create_win( new news_img("Convoi handles exhausted!"), w_time_delete, magic_none );
 					}
 					return false;
 				}
-				depot->copy_convoi( cnv, is_local_execution() );
+				depot->copy_convoi( cnv, can_use_gui() );
 			}
 			break;
 		}
@@ -7059,13 +7059,13 @@ bool tool_change_depot_t::init( player_t *player )
 						depot->clear_command_pending();
 						if(  !cnv.is_bound()  ) {
 							if(  convoihandle_t::is_exhausted()  ) {
-								if(  is_local_execution()  ) {
+								if(  can_use_gui()  ) {
 									create_win( new news_img("Convoi handles exhausted!"), w_time_delete, magic_none);
 								}
 								return false;
 							}
 							// create a new convoi
-							cnv = depot->add_convoi( is_local_execution() );
+							cnv = depot->add_convoi( can_use_gui() );
 							cnv->set_name( new_vehicle_info.front()->get_name() );
 						}
 
@@ -7082,7 +7082,7 @@ bool tool_change_depot_t::init( player_t *player )
 									// nothing there => we buy it
 									veh = depot->buy_vehicle(vb);
 								}
-								depot->append_vehicle( cnv, veh, tool=='i', is_local_execution() );
+								depot->append_vehicle( cnv, veh, tool=='i', can_use_gui() );
 							}
 						}
 					}

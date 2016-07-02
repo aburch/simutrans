@@ -52,13 +52,13 @@ SQInteger param<call_tool_init>::push(HSQUIRRELVM vm, call_tool_init v)
 	player_t *player = get_my_player(vm);
 	if (player == NULL) {
 		player = v.player;
+		// must be scenario - set flag
+		tool->flags |= tool_t::WFL_NO_CHK;
 	}
 	// sanity check
 	if (player == NULL) {
 		return SQ_ERROR;
 	}
-	// set scripted flag
-	tool->flags |= tool_t::WFL_SCRIPT;
 
 	// register this tool call for callback with this id
 	uint32 callback_id = suspended_scripts_t::get_unique_key(tool);
@@ -86,7 +86,7 @@ SQInteger command_work(HSQUIRRELVM vm)
 {
 	tool_t *tool = param<tool_t*>::get(vm, 1);
 
-	player_t* player = param<player_t*>::get(vm, 2);
+	player_t *player = param<player_t*>::get(vm, 2);
 
 	koord3d pos1 = param<koord3d>::get(vm, 3);
 
@@ -151,6 +151,8 @@ SQInteger param<call_tool_work>::push(HSQUIRRELVM vm, call_tool_work v)
 	player_t *player = get_my_player(vm);
 	if (player == NULL) {
 		player = v.player;
+		// must be scenario - set flag
+		tool->flags |= tool_t::WFL_NO_CHK;
 	}
 	// sanity check
 	if (player == NULL) {
