@@ -224,7 +224,10 @@ void export_player(HSQUIRRELVM vm)
 	 * @warning cannot be used in network games.
 	 */
 	register_method(vm, &change_player_account, "book_cash", true);
-
+	/**
+	 * Returns the current account balance.
+	 */
+	register_method(vm, &player_t::get_account_balance_as_double, "get_account_balance");
 	/**
 	 * Returns whether the player (still) exists in the game.
 	 *
