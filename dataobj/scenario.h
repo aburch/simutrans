@@ -182,11 +182,6 @@ private:
 	void call_forbid_tool(forbidden_t *test, bool forbid);
 	/// @}
 
-	/// Stores how many times initial map was rotated.
-	/// Scripts do not take care of rotated maps.
-	/// Coordinates will be translated between in-game coordinates and script coordinates.
-	uint8 rotation;
-
 	/// bit set if player has won / lost
 	uint16 won;
 	uint16 lost;
@@ -253,31 +248,11 @@ public:
 
 	void rotate90(const sint16 y_size);
 
-	/// @{
-	/// @name Coordinate and direction transform between script and world
-	/**
-	 * rotate actual world coordinates back
-	 * coordinates after transform are like in the
-	 * scenario's original savegame
-	 */
-	void koord_w2sq(koord &) const;
-
 	/**
 	 * rotate original coordinates to actual world coordinates
+	 * uses the methods in script_api
 	 */
-	void koord_sq2w(koord &);
-
-	/**
-	 * rotate original direction to actual world coordinates direction
-	 */
-	void ribi_w2sq(ribi_t::ribi &r) const;
-
-	/**
-	 * rotate actual world coordinates direction to original direction
-	 */
-	void ribi_sq2w(ribi_t::ribi &r) const;
-
-	/// @}
+	void koord_sq2w(koord &) const;
 
 	/**
 	 * Text to be displayed in the finance info window

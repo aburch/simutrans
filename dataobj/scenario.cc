@@ -25,6 +25,7 @@
 #include "../script/script.h"
 #include "../script/export_objs.h"
 #include "../script/api/api.h"
+#include "../script/api_param.h"
 
 #include "../tpl/plainstringhashtable_tpl.h"
 
@@ -49,7 +50,6 @@ scenario_t::scenario_t(karte_t *w) :
 	what_scenario = 0;
 
 	script = NULL;
-	rotation = 0;
 	won = false;
 	lost = false;
 	rdwr_error = false;
@@ -106,6 +106,8 @@ const char* scenario_t::init( const char *scenario_base, const char *scenario_na
 		buf.clear();
 		buf.printf("%s.sve", scenario_name.c_str());
 		welt->get_settings().set_filename( strdup(buf) );
+		// re-initialize coordinate and rotation handling
+		script_api::coordinate_transform_t::initialize();
 	}
 
 	load_compatibility_script();
@@ -115,7 +117,6 @@ const char* scenario_t::init( const char *scenario_base, const char *scenario_na
 	cached_text_files.clear();
 
 	what_scenario = SCRIPTED;
-	rotation = 0;
 
 	// callback
 	script->register_callback(&scenario_t::set_completion, "scenario_t_set_completed");
@@ -204,41 +205,9 @@ void scenario_t::load_compatibility_script()
 }
 
 
-void scenario_t::koord_w2sq(koord &k) const
+void scenario_t::koord_sq2w(koord &k) const
 {
-	switch( rotation ) {
-		// 0: do nothing
-		case 1: k = koord(k.y, welt->get_size().y-1 - k.x); break;
-		case 2: k = koord(welt->get_size().x-1 - k.x, welt->get_size().y-1 - k.y); break;
-		case 3: k = koord(welt->get_size().x-1 - k.y, k.x); break;
-		default: break;
-	}
-}
-
-
-void scenario_t::koord_sq2w(koord &k)
-{
-	// just rotate back
-	rotation = 4 - rotation;
-	koord_w2sq(k);
-	// restore original rotation
-	rotation = 4 - rotation;
-}
-
-
-void scenario_t::ribi_w2sq(ribi_t::ribi &r) const
-{
-	if (rotation) {
-		r = ( ( (r << 4) | r) >> rotation) & 15;
-	}
-}
-
-
-void scenario_t::ribi_sq2w(ribi_t::ribi &r) const
-{
-	if (rotation) {
-		r = ( ( (r << 4) | r) << rotation) >> 4 & 15;
-	}
+	script_api::coordinate_transform_t::koord_sq2w(k);
 }
 
 
@@ -790,7 +759,7 @@ void scenario_t::rdwr(loadsave_t *file)
 		return;
 	}
 
-	file->rdwr_byte(rotation);
+	script_api::coordinate_transform_t::rdwr(file);
 	file->rdwr_short(won);
 	file->rdwr_short(lost);
 	file->rdwr_str(scenario_name);
@@ -879,9 +848,6 @@ void scenario_t::rdwr(loadsave_t *file)
 
 void scenario_t::rotate90(const sint16 y_size)
 {
-	rotation ++;
-	rotation %= 4;
-
 	for(uint32 i=0; i<forbidden_tools.get_count(); i++) {
 		forbidden_tools[i]->rotate90(y_size);
 	}

@@ -5,6 +5,7 @@
 #include "../simfab.h"
 #include "../bauer/warenbauer.h"
 #include "../dataobj/fahrplan.h"
+#include "../dataobj/loadsave.h"
 #include "../dataobj/scenario.h"
 #include "../player/simplay.h"
 #include "../utils/plainstring.h"
@@ -17,6 +18,59 @@ namespace script_api {
 
 	karte_ptr_t welt;
 
+// rotation handling
+	void rotate90() { coordinate_transform_t::rotate90(); }
+	void new_world() { coordinate_transform_t::new_world(); }
+
+	uint8 coordinate_transform_t::rotation = 4;
+
+	void coordinate_transform_t::initialize()
+	{
+		if (rotation == 4) {
+			rotation = welt->get_settings().get_rotation();
+		}
+	}
+
+	void coordinate_transform_t::rdwr(loadsave_t *file)
+	{
+		file->rdwr_byte(rotation);
+	}
+
+	void coordinate_transform_t::koord_w2sq(koord &k)
+	{
+		switch( rotation ) {
+			// 0: do nothing
+			case 1: k = koord(k.y, welt->get_size().y-1 - k.x); break;
+			case 2: k = koord(welt->get_size().x-1 - k.x, welt->get_size().y-1 - k.y); break;
+			case 3: k = koord(welt->get_size().x-1 - k.y, k.x); break;
+			default: break;
+		}
+	}
+
+	void coordinate_transform_t::koord_sq2w(koord &k)
+	{
+		// just rotate back
+		rotation = 4 - rotation;
+		koord_w2sq(k);
+		// restore original rotation
+		rotation = 4 - rotation;
+	}
+
+	void coordinate_transform_t::ribi_w2sq(ribi_t::ribi &r)
+	{
+		if (rotation) {
+			r = ( ( (r << 4) | r) >> rotation) & 15;
+		}
+	}
+
+	void coordinate_transform_t::ribi_sq2w(ribi_t::ribi &r)
+	{
+		if (rotation) {
+			r = ( ( (r << 4) | r) << rotation) >> 4 & 15;
+		}
+	}
+
+// void parameter
 	SQInteger param<void_t>::push(HSQUIRRELVM, void_t const&)
 	{
 		return 0;
@@ -235,7 +289,7 @@ namespace script_api {
 		koord k(x,y);
 		if (k.x != -1  &&  k.y != -1) {
 			// transform coordinates
-			welt->get_scenario()->koord_sq2w(k);
+			coordinate_transform_t::koord_sq2w(k);
 		}
 		else {
 			k = koord::invalid;
@@ -250,7 +304,7 @@ namespace script_api {
 		koord k(v);
 		if (k.x != -1  &&  k.y != -1) {
 			// transform coordinates
-			welt->get_scenario()->koord_w2sq(k);
+			coordinate_transform_t::koord_w2sq(k);
 		}
 		else {
 			k = koord::invalid;
@@ -307,7 +361,7 @@ namespace script_api {
 			sq_pushnull(vm); return 1;
 		}
 		koord pos(fab->get_pos().get_2d());
-		welt->get_scenario()->koord_w2sq(pos);
+		coordinate_transform_t::koord_w2sq(pos);
 		return push_instance(vm, "factory_x", pos.x, pos.y);
 	}
 
@@ -397,7 +451,7 @@ namespace script_api {
 		if (v) {
 			koord k = v->get_pos().get_2d();
 			// transform coordinates
-			welt->get_scenario()->koord_w2sq(k);
+			coordinate_transform_t::koord_w2sq(k);
 			return push_instance(vm, "tile_x", k.x, k.y, v->get_pos().z);
 		}
 		else {
@@ -462,7 +516,7 @@ namespace script_api {
 		if (v) {
 			koord k = v->get_pos();
 			// transform coordinates
-			welt->get_scenario()->koord_w2sq(k);
+			coordinate_transform_t::koord_w2sq(k);
 			return push_instance(vm, "city_x", k.x, k.y);
 		}
 		else {

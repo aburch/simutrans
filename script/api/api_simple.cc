@@ -76,7 +76,7 @@ mytime_t param<mytime_t>::get(HSQUIRRELVM vm, SQInteger index)
 
 SQInteger script_api::push_ribi(HSQUIRRELVM vm, ribi_t::ribi ribi)
 {
-	welt->get_scenario()->ribi_w2sq(ribi);
+	coordinate_transform_t::ribi_w2sq(ribi);
 	return param<uint8>::push(vm, ribi);
 }
 
@@ -84,7 +84,7 @@ SQInteger script_api::push_ribi(HSQUIRRELVM vm, ribi_t::ribi ribi)
 ribi_t::ribi script_api::get_ribi(HSQUIRRELVM vm, SQInteger index)
 {
 	ribi_t::ribi ribi = param<uint8>::get(vm, index) & ribi_t::alle;
-	welt->get_scenario()->ribi_sq2w(ribi);
+	coordinate_transform_t::ribi_sq2w(ribi);
 	return ribi;
 }
 

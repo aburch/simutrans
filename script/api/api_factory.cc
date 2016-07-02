@@ -19,7 +19,7 @@ SQInteger exp_factory_constructor(HSQUIRRELVM vm)
 	set_slot(vm, "y", y, 1);
 	// transform coordinates
 	koord pos(x,y);
-	welt->get_scenario()->koord_sq2w(pos);
+	coordinate_transform_t::koord_sq2w(pos);
 	fabrik_t *fab =  fabrik_t::get_fab(pos);
 	if (!fab) {
 		return sq_raise_error(vm, "No factory found at (%s)", pos.get_str());

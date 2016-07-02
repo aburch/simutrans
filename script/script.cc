@@ -116,6 +116,8 @@ script_vm_t::script_vm_t(const char* include_path_)
 	sq_pop(vm, 1);
 	// export include command
 	export_include(vm, include_path);
+	// initialize coordinate and rotation handling
+	script_api::coordinate_transform_t::initialize();
 }
 
 

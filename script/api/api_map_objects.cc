@@ -70,7 +70,7 @@ template<class D> struct access_objs {
 			return 1;
 		}
 		koord pos = obj->get_pos().get_2d();
-		welt->get_scenario()->koord_w2sq(pos);
+		coordinate_transform_t::koord_w2sq(pos);
 		sint16 x = pos.x;
 		sint16 y = pos.y;
 		sint8  z = obj->get_pos().z;
@@ -105,7 +105,7 @@ SQInteger exp_obj_pos_constructor(HSQUIRRELVM vm) // parameters: sint16 x, sint1
 	set_slot(vm, "y", y, 1);
 	set_slot(vm, "z", z, 1);
 	koord pos(x,y);
-	welt->get_scenario()->koord_sq2w(pos);
+	coordinate_transform_t::koord_sq2w(pos);
 	// find object and set instance up
 	if (grund_t *gr = welt->lookup(koord3d(pos, z))) {
 		obj_t::typ type = (obj_t::typ)param<uint8>::get(vm, 5);

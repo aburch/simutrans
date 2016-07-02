@@ -108,6 +108,12 @@
 #include "player/ai_passenger.h"
 #include "player/ai_goods.h"
 
+// forward declaration - management of rotation for scripting
+namespace script_api
+{
+	void rotate90();
+	void new_world();
+};
 
 // advance 201 ms per sync_step in fast forward mode
 #define MAGIC_STEP (201)
@@ -1277,6 +1283,8 @@ DBG_DEBUG("karte_t::init()","init_felder");
 	init_felder();
 
 	enlarge_map(&settings, h_field);
+
+	script_api::new_world();
 
 DBG_DEBUG("karte_t::init()","distributing trees");
 	if (!settings.get_no_trees()) {
@@ -3295,6 +3303,8 @@ DBG_MESSAGE( "karte_t::rotate90()", "called" );
 
 	get_scenario()->rotate90( cached_size.x );
 
+	script_api::rotate90();
+
 	// finally recalculate schedules for goods in transit ...
 	set_schedule_counter();
 
@@ -5099,6 +5109,7 @@ void karte_t::load(loadsave_t *file)
 	powernet_t::neue_karte();
 	pumpe_t::neue_karte();
 	senke_t::neue_karte();
+	script_api::new_world();
 
 	file->set_buffered(true);
 

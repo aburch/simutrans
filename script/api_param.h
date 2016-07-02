@@ -21,6 +21,7 @@ class karte_ptr_t;
 class koord;
 class koord3d;
 class label_t;
+class loadsave_t;
 struct linieneintrag_t;
 class planquadrat_t;
 class plainstring;
@@ -417,6 +418,57 @@ namespace script_api {
 	};
 
 
+	/**
+	 * Static class to handle the translation of world coordinates (which are sensible to rotation)
+	 * to script coordinates (that are independent of rotation).
+	 */
+	class coordinate_transform_t {
+	private:
+		/// Stores how many times initial map was rotated.
+		/// Scripts do not take care of rotated maps.
+		/// Coordinates will be translated between in-game coordinates and script coordinates.
+		/// First v.m. to be started sets this value
+		static uint8 rotation;
+	public:
+		/// called if a new world is initialized
+		static void new_world() { rotation=4; /*invalid*/ }
+
+		/// inits rotation from karte_t::settings
+		static void initialize();
+
+		/// keep track of rotation
+		static void rotate90()  { if (rotation<4) rotation = (rotation+1)&3; }
+
+		/// read/save rotation to stay consistent after saving & loading
+		static void rdwr(loadsave_t*);
+
+		/**
+		 * rotate actual world coordinates back
+		 * coordinates after transform are like in the
+		 * scenario's original savegame
+		 */
+		static void koord_w2sq(koord &);
+
+		/**
+		 * rotate original coordinates to actual world coordinates
+		 */
+		static void koord_sq2w(koord &);
+
+		/**
+		 * rotate original direction to actual world coordinates direction
+		 */
+		static void ribi_w2sq(ribi_t::ribi &r);
+
+		/**
+		 * rotate actual world coordinates direction to original direction
+		 */
+		static void ribi_sq2w(ribi_t::ribi &r);
+	};
+
+	/// called by karte_t directly
+	void rotate90();
+	/// called by karte_t directly
+	void new_world();
 
 }; // end of namespace
 #endif
