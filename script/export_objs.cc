@@ -15,6 +15,7 @@ void register_export_function(HSQUIRRELVM vm)
 	sq_pushroottable(vm);
 
 	export_city(vm);
+	export_control(vm);
 	export_convoy(vm);
 	export_factory(vm);
 	export_goods_desc(vm);
