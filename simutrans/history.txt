@@ -1,3 +1,4 @@
+	ADD: scriptable AI players
 	ADD: (jk271) switch to load hieghtmaps with more height levels
 	FIX: reload themes after restart
 	FIX: demo.sve were never loaded, since the auto-load assumed existence even if there was none
