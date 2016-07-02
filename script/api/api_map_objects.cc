@@ -9,7 +9,6 @@
 
 #include "../../simobj.h"
 #include "../../simdepot.h"
-#include "../../simtool.h"
 #include "../../simworld.h"
 #include "../../boden/grund.h"
 #include "../../dataobj/scenario.h"
@@ -235,20 +234,12 @@ void begin_obj_class(HSQUIRRELVM vm, const char* name, const char* base = NULL)
 }
 
 // markers / labels
-label_t* create_marker(koord pos, player_t* player, const char* text)
+call_tool_work create_marker(koord pos, player_t* player, const char* text)
 {
 	if (player == NULL || text == NULL) {
-		return NULL;
+		return "";
 	}
-	tool_marker_t w;
-	w.flags = 0;
-	const char* err = w.work(player, koord3d(pos, 0));
-	if (err) {
-		return NULL;
-	}
-	grund_t *gr = welt->lookup_kartenboden(pos);
-	gr->set_text(text);
-	return gr->find<label_t>();
+	return call_tool_work(TOOL_MARKER | GENERAL_TOOL, text, 0, player, koord3d(pos, 0));
 }
 
 call_tool_init label_set_text(label_t *l, const char* text)
@@ -266,7 +257,7 @@ const char* label_get_text(label_t* l)
 	return NULL;
 }
 
-
+// depot
 call_tool_init depot_append_vehicle(depot_t *depot, player_t *player, convoihandle_t cnv, const vehikel_besch_t *besch)
 {
 	if (besch == NULL) {
@@ -505,7 +496,6 @@ void export_map_objects(HSQUIRRELVM vm)
 	 * @param pl   owner
 	 * @param text text
 	 * @returns label_x instance or null if creation failed
-	 * @warning cannot be used in network games.
 	 */
 	STATIC register_method(vm, &create_marker, "create", false, true);
 	/**

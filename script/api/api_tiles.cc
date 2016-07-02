@@ -6,7 +6,7 @@
 #include "get_next.h"
 #include "../api_class.h"
 #include "../api_function.h"
-#include "../../simtool.h"
+#include "../../simmenu.h"
 #include "../../simworld.h"
 
 using namespace script_api;
@@ -30,19 +30,14 @@ SQInteger get_object_index(HSQUIRRELVM vm)
 	return param<obj_t*>::push(vm, obj);
 }
 
-
-const char* tile_remove_object(grund_t* gr, player_t* player, obj_t::typ type)
+call_tool_work tile_remove_object(grund_t* gr, player_t* player, obj_t::typ type)
 {
-	if (gr == NULL  ||  player == NULL) {
+	if (player == NULL) {
 		return "";
 	}
-	tool_remover_t w;
-	// default param is object type
-	char buf[5];
-	sprintf(buf, "%d", (int)type);
-	w.set_default_param(buf);
-
-	return w.work(player, gr->get_pos());
+	cbuffer_t buf;
+	buf.printf("%d", (int)type);
+	return call_tool_work(TOOL_REMOVER | GENERAL_TOOL, (const char*)buf, 0, player, gr->get_pos());
 }
 
 // return way ribis, have to implement a wrapper, to correctly rotate ribi
@@ -129,7 +124,7 @@ void export_tiles(HSQUIRRELVM vm)
 	 * @param pl player that pays for removal
 	 * @param type object type
 	 * @returns null upon success, an error message otherwise
-	 * @warning Cannot be used in network games. Does not work with all object types.
+	 * @warning Does not work with all object types.
 	 * @ingroup game_cmd
 	 */
 	register_method(vm, &tile_remove_object, "remove_object", true);

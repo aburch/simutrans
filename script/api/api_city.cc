@@ -47,23 +47,32 @@ SQInteger world_get_city_by_index(HSQUIRRELVM vm)
 	return push_instance(vm, "city_x",  pos.x, pos.y);
 }
 
-
-static void_t set_citygrowth(stadt_t *city, bool allow)
+call_tool_init set_citygrowth(stadt_t *city, bool allow)
 {
-	static char param[16];
-	sprintf(param,"g%hi,%hi,%hi", city->get_pos().x, city->get_pos().y, (short)allow );
-	tool_t *tool = tool_t::simple_tool[TOOL_CHANGE_CITY];
-	tool->set_default_param( param );
-	tool->flags |=  tool_t::WFL_SCRIPT;
-	welt->set_tool( tool, welt->get_player(1) );
-	tool->flags &= ~tool_t::WFL_SCRIPT;
-	return void_t();
+	cbuffer_t buf;
+	buf.printf("g%hi,%hi,%hi", city->get_pos().x, city->get_pos().y, (short)allow );
+	return call_tool_init(TOOL_CHANGE_CITY | SIMPLE_TOOL, (const char*)buf, 0, welt->get_player(1));
 }
 
 call_tool_init city_set_name(stadt_t* city, const char* name)
 {
 	return command_rename(welt->get_player(1), 't', welt->get_staedte().index_of(city), name);
 }
+
+
+call_tool_work city_change_size(stadt_t *city, sint32 delta)
+{
+	cbuffer_t buf;
+	buf.printf("%i", delta);
+	grund_t *gr = welt->lookup_kartenboden(city->get_pos());
+	if (gr) {
+		return call_tool_work(TOOL_CHANGE_CITY_SIZE | GENERAL_TOOL, (const char*)buf, 0, welt->get_player(1), gr->get_pos());
+	}
+	else {
+		return "Invalid coordinate.";
+	}
+}
+
 
 void export_city(HSQUIRRELVM vm)
 {
@@ -229,12 +238,13 @@ void export_city(HSQUIRRELVM vm)
 	/**
 	 * Change city size. City will immediately grow.
 	 * @param delta City size will change by this number.
-	 * @warning cannot be used in network games.
+	 * @ingroup game_cmd
 	 */
-	register_method_fv(vm, &stadt_t::change_size, "change_size", freevariable<bool>(false));
+	register_method(vm, city_change_size, "change_size", true);
 
 	/**
 	 * Enable or disable city growth.
+	 * @ingroup game_cmd
 	 */
 	register_method(vm, &set_citygrowth, "set_citygrowth_enabled", true);
 
