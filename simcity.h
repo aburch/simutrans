@@ -62,6 +62,24 @@ enum city_cost {
 	MAX_CITY_HISTORY		// Total number of items in array
 };
 
+// The base offset for passenger statistics.
+static const uint32 HIST_BASE_PASS = HIST_PAS_TRANSPORTED;
+
+// The base offset for mail statistics.
+static const uint32 HIST_BASE_MAIL = HIST_MAIL_TRANSPORTED;
+
+// The offset for transported statistic for passengers and mail.
+static const uint32 HIST_OFFSET_TRANSPORTED = 0;
+
+// The offset for walked statistic for passengers and mail.
+static const uint32 HIST_OFFSET_WALKED = 1;
+
+// The offset for generated statistic for passengers and mail.
+static const uint32 HIST_OFFSET_GENERATED = 2;
+
+// The number of growth factors kept track of.
+static const uint32 GROWTH_FACTOR_NUMBER = 4;
+
 #define LEGACY_HIST_CAR_OWNERSHIP (16)
 
 class private_car_destination_finder_t : public test_driver_t
@@ -180,19 +198,17 @@ private:
 
 	static uint32 cluster_factor;
 
-	// population statistics
-	sint32 bev; // total population
-	sint32 arb; // amount with jobs
-	sint32 won; // amount with homes
+	// attribute for the population (Bevoelkerung)
+	sint32 bev;	// total population (bevoelkerung)
+	sint32 arb;	// with a job (arbeit)
+	sint32 won;	// with a residence (wohnung)
 
 	/**
-	 * Modifier for city growth
-	 * transient data, not saved
-	 * Unsupplied city growth needs
-	 * A value of 2^30 means 1 new resident
-	 * @author Hj. Malthaner
+	 * Un-supplied city growth needs
+	 * A value of 2^32 means 1 new resident
+	 * @author Nathanael Nerode (neroden)
 	 */
-	sint32 wachstum;
+	sint64 unsupplied_city_growth;
 
 	/**
 	* City history
@@ -205,6 +221,45 @@ private:
 	* @author prissi
 	*/
 	void roll_history();
+
+	/* Members used to determine satisfaction for growth rate.
+	 * Satisfaction of this month cannot be used as it is an averaging filter for the entire month up to the present.
+	 * Instead the average over a number of growth ticks is used, defaulting to last month average if nothing is available.
+	 * @author DrSuperGood
+	 */
+private:
+	 // The growth factor type in form of the amount demanded and what was received.
+	 struct city_growth_factor_t {
+		 // The wanted value.
+		 sint64 demand;
+		 // The received value.
+		 sint64 supplied;
+
+		 city_growth_factor_t() : demand(0), supplied(0){}
+	 };
+
+	 // The previous values of the growth factors. Used to get delta between ticks and must be saved for determinism.
+	 city_growth_factor_t city_growth_factor_previous[GROWTH_FACTOR_NUMBER];
+
+	 /* Method to generate comparable growth factor data.
+	 * This allows one to alter the logic which computes growth.
+	 * @param factors factor array.
+	 * @param month the month which is to be used for the growth factors.
+	 */
+	 void city_growth_get_factors(city_growth_factor_t (&factors)[GROWTH_FACTOR_NUMBER], uint32 const month) const;
+
+	 /* Method to compute base growth using growth factors.
+	  * Logs differences in growth factors as well.
+	  * rprec : The returned fractional precision (out of sint32).
+	  * cprec : The computation fractional precision (out of sint32).
+	  */
+	 sint32 city_growth_base(uint32 const rprec = 6, uint32 const cprec = 16);
+
+	 /* Method to roll previous growth factors at end of month, called before history rolls over.
+	  * Needed to prevent loss of data (not set to 0) and while keeping reasonable (no insane values).
+	  * month : The month index of what is now the "last month".
+	  */
+	 void city_growth_monthly(uint32 const month);
 
 	// This is needed to prevent double counting of incoming traffic.
 	sint32 incoming_private_cars;
@@ -563,7 +618,7 @@ public:
 
 	/* change size of city
 	* @author prissi */
-	void change_size( sint32 delta_citizens, bool new_town = false );
+	void change_size( sint64 delta_citizens, bool new_town = false );
 
 	// when ng is false, no town growth any more
 	void set_citygrowth_yesno( bool ng ) { allow_citygrowth = ng; }

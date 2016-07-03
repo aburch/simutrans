@@ -119,18 +119,23 @@ reload_and_save_on_quit = 1
 ############################### Passenger and mail settings ##############################
 # also pak dependent
 
-# town growth multiplier factors (electricity is not used at the moment)
-# A heigher factor mean faster growth
-# passenger_multiplier = 40
-mail_multiplier = 20
+# town growth multiplier factors 
+# The greater the factor, the greater the exent to which the thing to which the factor
+# makes reference influences growth
+passenger_multiplier = 40
+mail_multiplier = 15
 goods_multiplier = 20
-electricity_multiplier = 0
+electricity_multiplier = 20
 
 # town growth is size dependent. There are three different sizes (<1000, 1000-10000, >10000)
 # the idea is, that area increase by square but growth is linear
 growthfactor_villages = 400
 growthfactor_cities = 200
 growthfactor_capitals = 100
+
+# Enable this to use the old algorithm for city growth from Standard.
+# NOTE: The renovation_percentage in cityrules.tab should be increased if this be done.
+quick_city_growth = 0
 
 # if enabled (default = 0 off) stops may have different capacities for passengers, mail, and  freight
 seperate_halt_capacities = 0

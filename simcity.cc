@@ -1470,13 +1470,6 @@ stadt_t::stadt_t(player_t* player, koord pos, sint32 citizens) :
 {
 	assert(welt->is_within_limits(pos));
 
-	if(welt->get_settings().get_quick_city_growth())
-	{
-		// If "quick_city_growth" is enabled, the renovation percentage
-		// needs to be lower to make up for it.
-		renovation_percentage /= 3;
-	}
-
 	pax_destinations_new_change = 0;
 	next_growth_step = 0;
 //	has_low_density = false;
@@ -1543,7 +1536,7 @@ stadt_t::stadt_t(player_t* player, koord pos, sint32 citizens) :
 	// 1. Rathaus bei 0 Leuten bauen
 	check_bau_rathaus(true);
 
-	wachstum = 0;
+	unsupplied_city_growth = 0;
 	allow_citygrowth = true;
 
 	// only build any houses if townhall is already there
@@ -1567,12 +1560,6 @@ stadt_t::stadt_t(loadsave_t* file) :
 	pax_destinations_old(welt->get_size()),
 	pax_destinations_new(welt->get_size())
 {
-	if(welt->get_settings().get_quick_city_growth())
-	{
-		// If "quick_city_growth" is enabled, the renovation percentage
-		// needs to be lower to make up for it.
-		renovation_percentage /= 3;
-	}
 
 	//step_count = 0;
 	//next_step = 0;
@@ -1580,7 +1567,7 @@ stadt_t::stadt_t(loadsave_t* file) :
 	next_growth_step = 0;
 	//has_low_density = false;
 
-	wachstum = 0;
+	unsupplied_city_growth = 0;
 	stadtinfo_options = 3;
 
 	// These things are not yet saved as part of the city's history,
@@ -1624,15 +1611,13 @@ void stadt_t::rdwr(loadsave_t* file)
 	file->rdwr_long(won);
 
 	if(  file->get_version()>=112009  ) {
-		sint64 unsupplied_city_growth = (sint64)wachstum << 28;
 		// Must record the partial (less than 1 citizen) growth factor
 		// Otherwise we will get network desyncs
 		// Also allows accumulation of small growth factors
 		file->rdwr_longlong(unsupplied_city_growth);
-		wachstum = (sint32) (unsupplied_city_growth >> 28);
 	}
 	else if( file->is_loading()  ) {
-		wachstum = 0;
+		unsupplied_city_growth = 0;
 	}
 	// old values zentrum_namen_cnt : aussen_namen_cnt
 	if(file->get_version()<99018) {
@@ -2034,9 +2019,11 @@ void stadt_t::rdwr(loadsave_t* file)
 		}
 	}
 	
-	if(file->get_experimental_version() >= 12)
+	if(file->get_experimental_version() >= 12 && file->get_experimental_version() < 13)
 	{
-		file->rdwr_long(wachstum);
+		// Was waschtum
+		uint32 dummy;
+		file->rdwr_long(dummy);
 	}
 
 	if(file->is_loading())
@@ -2261,17 +2248,16 @@ void stadt_t::show_info()
 
 /* change size of city
  * @author prissi */
-void stadt_t::change_size(sint32 delta_citizen, bool new_town)
+void stadt_t::change_size( sint64 delta_citizen, bool new_town)
 {
 	DBG_MESSAGE("stadt_t::change_size()", "%i + %i", bev, delta_citizen);
-	if (delta_citizen > 0) {
-		wachstum = delta_citizen<<4;
+	if(  delta_citizen > 0  ) {
+		unsupplied_city_growth += delta_citizen * CITYGROWTH_PER_CITICEN;
 		step_grow_city(new_town);
 	}
-	if (delta_citizen < 0) {
-		wachstum = 0;
-		if (bev > -delta_citizen) {
-			bev += delta_citizen;
+	if(  delta_citizen < 0  ) {
+		if(  bev > -delta_citizen  ) {
+			bev += (sint32)delta_citizen;
 		}
 		else {
 //				remove_city();
@@ -2279,12 +2265,6 @@ void stadt_t::change_size(sint32 delta_citizen, bool new_town)
 		}
 		step_grow_city(new_town);
 	}
-	if(bev == 0)
-	{
-		// Cities will experience uncontrollable growth if bev == 0
-		bev = 1;
-	}
-	wachstum = 0;
 	DBG_MESSAGE("stadt_t::change_size()", "%i+%i", bev, delta_citizen);
 }
 
@@ -2599,55 +2579,28 @@ void stadt_t::calc_growth()
 
 	// maybe this town should stay static
 	if(  !allow_citygrowth  ) {
-		wachstum = 0;
-//		unsupplied_city_growth = 0;
+		unsupplied_city_growth = 0;
 		return;
 	}
 
-	/* four parts contribute to town growth:
-	 * passenger transport 40%, mail 16%, goods 24%, and electricity 20% (by default: varies)
-	 *
-	 * Congestion detracts from growth, but towns can now grow as a result of private car
-	 * transport as well as public transport: if private car ownership is high enough.
-	 * (@author: jamespetts)
-	 */
+	// Compute base growth.
+	sint32 const total_supply_percentage = city_growth_base();
 
-	//sint64     const(& h)[MAX_CITY_HISTORY] = city_history_month[0];
-	settings_t const&  s           = welt->get_settings();
+	// By construction, this is a percentage times 2^6 (Q25.6).
+	// Although intended to be out of 100, it can be more or less.
+	// We will divide it by 2^4=16 for traditional reasons, which means
+	// it generates 2^2 (=4) or fewer people at 100%.
 
-//	sint32     const   pas         = (sint32)( (h[HIST_PAS_TRANSPORTED]  * (s.get_passenger_multiplier() << 6)) / (h[HIST_PAS_GENERATED]  + 1) );
-//	sint32     const   mail        = (sint32)( (h[HIST_MAIL_TRANSPORTED] * (s.get_mail_multiplier()      << 6)) / (h[HIST_MAIL_GENERATED] + 1) );
-//	sint32     const   electricity = 0;
-//	sint32     const   goods       = (sint32)( h[HIST_GOODS_NEEDED] == 0 ? 0 : (h[HIST_GOODS_RECIEVED] * (s.get_goods_multiplier() << 6)) / (h[HIST_GOODS_NEEDED]) );
-//	sint32     const   total_supply_percentage = pas + mail + electricity + goods;
-//	// By construction, this is a percentage times 2^6.
-//	// We will divide it by 2^4=16 for traditional reasons, which means
-//	// it generates 2^2 (=4) or fewer people at 100%.
-
-	const sint32 electricity_multiplier = 20;
-	// const sint32 electricity_multiplier = welt->get_settings().get_electricity_multiplier();
-	const sint32 electricity_proportion = (get_electricity_consumption(welt->get_timeline_year_month()) * electricity_multiplier / 100);
-	const sint32 mail_proportion = 100 - (s.get_passenger_multiplier() + electricity_proportion + s.get_goods_multiplier());
-
-	const sint32 pas			= (sint32) ((city_history_month[0][HIST_PAS_TRANSPORTED] + city_history_month[0][HIST_PAS_WALKED] + (city_history_month[0][HIST_CITYCARS] - outgoing_private_cars)) * (s.get_passenger_multiplier()<<6)) / (city_history_month[0][HIST_PAS_GENERATED] + 1);
-	const sint32 mail			= (sint32) (city_history_month[0][HIST_MAIL_TRANSPORTED] * (mail_proportion)<<6) / (city_history_month[0][HIST_MAIL_GENERATED] + 1);
-	const sint32 electricity	= (sint32) city_history_month[0][HIST_POWER_NEEDED] == 0 ? 0 : (city_history_month[0][HIST_POWER_RECIEVED] * (electricity_proportion<<6)) / (city_history_month[0][HIST_POWER_NEEDED]);
-	const sint32 goods			= (sint32) city_history_month[0][HIST_GOODS_NEEDED] == 0 ? 0 : (city_history_month[0][HIST_GOODS_RECIEVED] * (s.get_goods_multiplier()<<6)) / (city_history_month[0][HIST_GOODS_NEEDED]);
-
-	const sint32 total_supply_percentage = pas + mail + electricity + goods;
+	settings_t const& s = welt->get_settings();
 
 	// smaller towns should grow slower to have villages for a longer time
-	sint32 weight_factor = s.get_growthfactor_large();
-	if(  bev < (sint64)s.get_city_threshold_size()  ) {
-		weight_factor = s.get_growthfactor_small();
-	}
-	else if(  bev < (sint64)s.get_capital_threshold_size()  ) {
-		weight_factor = s.get_growthfactor_medium();
-	}
+	sint32 const weight_factor =
+		get_city_population() < s.get_city_threshold_size() ? welt->get_settings().get_growthfactor_small()  :
+		get_city_population() < s.get_capital_threshold_size() ? welt->get_settings().get_growthfactor_medium() :
+		welt->get_settings().get_growthfactor_large();
 
-	// now give the growth for this step
+	// now compute the growth for this step
 	sint32 growth_factor = weight_factor > 0 ? total_supply_percentage / weight_factor : 0;
-
 
 	// Congestion adversely impacts on growth. At 100% congestion, there will be no growth. 
 	if(city_history_month[0][HIST_CONGESTION] > 0)
@@ -2655,43 +2608,131 @@ void stadt_t::calc_growth()
 		const uint32 congestion_factor = city_history_month[0][HIST_CONGESTION];
 		growth_factor -= (congestion_factor * growth_factor) / 100;
 	}
-	
-	sint32 new_wachstum = growth_factor;
 
-//	sint64 new_unsupplied_city_growth = growth_factor * (CITYGROWTH_PER_CITICEN / 16);
+	// Scale up growth to have a larger fractional component. This allows small growth units to accumulate in the case of long months.
+	sint64 new_unsupplied_city_growth = growth_factor * (CITYGROWTH_PER_CITICEN / 16);
+
+	// Growth is scaled down by month length.
+	// The result is that ~ the same monthly growth will occur independent of month length.
+	new_unsupplied_city_growth = welt->inverse_scale_with_month_length( new_unsupplied_city_growth );
+
+	// Add the computed growth to the growth accumulator.
+	// Future growth scale factors can be applied here.
+	unsupplied_city_growth += new_unsupplied_city_growth;
+}
+
+void stadt_t::city_growth_get_factors(city_growth_factor_t(&factors)[GROWTH_FACTOR_NUMBER], uint32 const month) const
+{
+	// optimize view of history for convenience
+	sint64 const (&h)[MAX_CITY_HISTORY] = city_history_month[month];
+
+	// go through each index one at a time
+	uint32 index = 0;
+
+	// passenger growth factors
+	factors[index].demand = h[HIST_PAS_GENERATED];
+	factors[index++].supplied = h[HIST_PAS_TRANSPORTED] + h[HIST_PAS_WALKED] + (h[HIST_CITYCARS] - outgoing_private_cars);
+
+	// mail growth factors
+	factors[index].demand = h[HIST_MAIL_GENERATED];
+	factors[index++].supplied = h[HIST_MAIL_TRANSPORTED];
+
+	// goods growth factors
+	factors[index].demand = h[HIST_GOODS_NEEDED];
+	factors[index++].supplied = h[HIST_GOODS_RECIEVED];
+
+	// Electricity growth factors
+	factors[index].demand = h[HIST_POWER_NEEDED];
+	factors[index++].supplied = h[HIST_POWER_RECIEVED];
+}
 
 
-	// OK.  Now we must adjust for the steps per month.
-	// Cities were growing way too fast without this adjustment.
-	// The original value was based on 18 bit months.
+sint32 stadt_t::city_growth_base(uint32 const rprec, uint32 const cprec)
+{
+	// Resolve constant references.
+	settings_t const & s = welt->get_settings();
+	const sint32 electricity_multiplier = s.get_electricity_multiplier();
+	const sint32 electricity_proportion = (get_electricity_consumption(welt->get_timeline_year_month()) * electricity_multiplier / 100);
+	sint32 const weight[GROWTH_FACTOR_NUMBER] = { s.get_passenger_multiplier(), s.get_mail_multiplier(),
+	    s.get_goods_multiplier(), electricity_proportion };
 
-	// TODO: implement a more realistic city growth algorithm (exponential not linear)
-	const sint64 tpm = welt->ticks_per_world_month;
-	const sint64 old_ticks_per_world_month = 1LL << 18;
-	if (tpm > old_ticks_per_world_month) {
-		sint64 quot = tpm / old_ticks_per_world_month;
-		wachstum += new_wachstum / quot;
-		if (simrand(quot, "calc_growth") < new_wachstum % quot) {
-			wachstum++;
+	sint32 acc = 0; // The weighted satisfaction accululator.
+	sint32 div = 0; // The weight dividend.
+	sint32 total = 0; // The total weight.
+
+	// initalize const growth array
+	city_growth_factor_t growthfactors[GROWTH_FACTOR_NUMBER];
+	city_growth_get_factors(growthfactors, 0);
+
+	// Loop through each growth factor and compute it.
+	for( uint32 i = 0; i < GROWTH_FACTOR_NUMBER; i += 1 ) {
+		// Resolve the weight.
+		total += weight[i];
+
+		// Compute the differentials.
+		sint64 const had = growthfactors[i].demand - city_growth_factor_previous[i].demand;
+		city_growth_factor_previous[i].demand = growthfactors[i].demand;
+		sint64 const got = growthfactors[i].supplied - city_growth_factor_previous[i].supplied;
+		city_growth_factor_previous[i].supplied = growthfactors[i].supplied;
+
+		// If we had anything to satisfy add it to weighting otherwise skip.
+		if( had == 0 ) {
+			continue;
+		}
+
+		// Compute fractional satisfaction.
+		sint32 const frac = (sint32)((got << cprec) / had);
+
+		// Add to weight and div.
+		acc += frac * weight[i];
+		div += weight[i];
+	}
+
+	// If there was not anything to satisfy then use last month averages.
+	if (  div == 0  ) {
+		// initalize growth factor array
+		city_growth_factor_t prev_growthfactors[GROWTH_FACTOR_NUMBER];
+		city_growth_get_factors(prev_growthfactors, 1);
+
+		for( uint32 i = 0; i < GROWTH_FACTOR_NUMBER; i += 1 ){
+
+			// Extract the values of growth.
+			sint64 const had = prev_growthfactors[i].demand;
+			sint64 const got = prev_growthfactors[i].supplied;
+
+			// If we had anything to satisfy add it to weighting otherwise skip.
+			if( had == 0 ) {
+				continue;
+			}
+
+			// Compute fractional satisfaction.
+			sint32 const frac = (sint32)((got << cprec) / had);
+
+			// Add to weight and div.
+			acc += frac * weight[i];
+			div += weight[i];
 		}
 	}
-	else {
-		new_wachstum *= (old_ticks_per_world_month / tpm);
-		wachstum += new_wachstum;
+
+	// Return computed result. If still no demand then assume no growth to prevent self-growing new hamlets.
+	return div != 0 ? (total * (acc / div)) >> (cprec - rprec) : 0;
+}
+
+
+void stadt_t::city_growth_monthly(uint32 const month)
+{
+	// initalize growth factor array
+	city_growth_factor_t growthfactors[GROWTH_FACTOR_NUMBER];
+	city_growth_get_factors(growthfactors, month);
+
+	// Perform roll over.
+	for( uint32 i = 0; i < GROWTH_FACTOR_NUMBER; i += 1 ){
+		// Compute the differentials.
+		sint64 const had = growthfactors[i].demand - city_growth_factor_previous[i].demand;
+		city_growth_factor_previous[i].demand = -had;
+		sint64 const got = growthfactors[i].supplied - city_growth_factor_previous[i].supplied;
+		city_growth_factor_previous[i].supplied = -got;
 	}
-
-//	const sint64 tpm = welt->ticks_per_world_month;
-//	const sint64 old_ticks_per_world_month = (1ll << 18);
-//	if(  tpm > old_ticks_per_world_month  ) {
-//		new_unsupplied_city_growth *= (tpm / old_ticks_per_world_month);
-//	}
-//	else {
-//		new_unsupplied_city_growth /= (old_ticks_per_world_month / tpm);
-//	}
-//	// on may add another multiplier here for further slowdown/speed up
-//
-//	unsupplied_city_growth += new_unsupplied_city_growth;
-
 }
 
 
@@ -2702,16 +2743,18 @@ void stadt_t::step_grow_city(bool new_town)
 	bool failure = false;
 
 	// Try harder to build if this is a new town
-	int num_tries = new_town ? 50 : 30;
+	int num_tries = new_town ? 60 : 30;
 
 	// since we use internally a finer value ...
-	int growth_steps = (wachstum >> 4);
-	wachstum &= 0x0F;
+	const sint64 growth_steps = unsupplied_city_growth / CITYGROWTH_PER_CITICEN;
+	if(  growth_steps > 0  ) {
+		unsupplied_city_growth %= CITYGROWTH_PER_CITICEN;
+	}
 
 	// Hajo: let city grow in steps of 1
 	// @author prissi: No growth without development
-	while ( --growth_steps >= 0 ) {
-		bev ++; // Hajo: bevoelkerung wachsen lassen ("grow population" - Google)
+	for(  sint64 n = 0;  n < growth_steps;  n++  ) {
+		bev++;
 
 		if (!failure) {
 			int i;
