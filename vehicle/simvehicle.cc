@@ -5473,7 +5473,7 @@ void rail_vehicle_t::leave_tile()
 									{
 										continue;
 									}
-									if(!signal_route->get_no_junctions_to_next_signal() || signal_route->get_besch()->is_choose_sign() || signal_route->get_besch()->get_normal_danger())
+									if(!signal_route->get_besch()->is_pre_signal() && (!signal_route->get_no_junctions_to_next_signal() || signal_route->get_besch()->is_choose_sign() || signal_route->get_besch()->get_normal_danger()))
 									{
 										break;
 									}
