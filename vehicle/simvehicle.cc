@@ -5293,7 +5293,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 	
 		FOR(slist_tpl<signal_t*>, const signal, pre_signals)
 		{		
-			if(!do_not_clear_distant)
+			if(!do_not_clear_distant && !(not_entirely_free && next_signal_index == first_stop_signal_index))
 			{
 				signal->set_state(roadsign_t::clear); 
 			}
