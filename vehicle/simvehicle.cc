@@ -4374,16 +4374,16 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 					// Only reserve if the crossing is clear.
 					if(i < first_stop_signal_index)
 					{
-						success = cr->request_crossing(this);
+						success = cr->request_crossing(this, true);
 					}
 					else
 					{
-						not_entirely_free = !cr->request_crossing(this);
+						not_entirely_free = !cr->request_crossing(this, true);
 						if(not_entirely_free)
 						{
 							count --;
 							next_signal_index = last_stop_signal_index;
-							}
+						}
 					}
 				}
 			}
@@ -4846,6 +4846,20 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 				{
 					last_stop_signal_index = this_stop_signal_index;
 				}
+
+				if(attempt_reservation)
+				{
+					if(sch1->is_crossing()) 
+					{
+						crossing_t* cr = gr->find<crossing_t>(2);
+						if(cr)
+						{
+							// Actually reserve the crossing
+							cr->request_crossing(this);
+						}
+					}
+				}
+
 				if(end_of_block && !is_from_token && !directional_only)
 				{
 					next_signal_index = last_stop_signal_index;
@@ -5130,6 +5144,10 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 					&& sch1->get_pos() != get_pos())
 				{
 					sch1->unreserve(cnv->self);
+					if(sch1->is_crossing())
+					{
+						gr_this->find<crossing_t>()->release_crossing(this);
+					}
 				}
 			}
 		}

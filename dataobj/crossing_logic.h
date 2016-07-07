@@ -56,7 +56,7 @@ public:
 	void recalc_state();
 
 	// returns true, if the crossing can be passed by this vehicle
-	bool request_crossing( const vehicle_base_t * );
+	bool request_crossing( const vehicle_base_t*, bool check_only = false );
 
 	// adds to crossing
 	void add_to_crossing( const vehicle_base_t *v );

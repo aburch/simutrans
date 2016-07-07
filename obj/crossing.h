@@ -68,7 +68,7 @@ public:
 	virtual const char * is_deletable(const player_t *player, bool allow_public = false);
 
 	// returns true, if the crossing can be passed by this vehicle
-	bool request_crossing( const vehicle_base_t *v ) { return logic->request_crossing( v ); }
+	bool request_crossing( const vehicle_base_t *v, bool check_only = false ) { return logic->request_crossing( v, check_only ); }
 
 	// adds to crossing
 	void add_to_crossing( const vehicle_base_t *v ) { return logic->add_to_crossing( v ); }

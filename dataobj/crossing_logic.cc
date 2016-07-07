@@ -82,7 +82,7 @@ void crossing_logic_t::recalc_state()
 
 
 // request permission to pass crossing
-bool crossing_logic_t::request_crossing( const vehicle_base_t *v )
+bool crossing_logic_t::request_crossing(const vehicle_base_t *v, bool check_only)
 {
 	if(v->get_waytype()==besch->get_waytype(0)) {
 		if(on_way2.empty()  &&  state == CROSSING_OPEN) {
@@ -99,12 +99,18 @@ bool crossing_logic_t::request_crossing( const vehicle_base_t *v )
 		// vehikel from way2 arrives
 		if(on_way1.get_count()) {
 			// sorry, still things on the crossing, but we will prepare
-			set_state( CROSSING_REQUEST_CLOSE );
+			if(!check_only)
+			{
+				set_state( CROSSING_REQUEST_CLOSE );
+			}
 			return false;
 		}
 		else {
-			request_close = v;
-			set_state( CROSSING_CLOSED );
+			if(!check_only)
+			{
+				request_close = v;
+				set_state( CROSSING_CLOSED );
+			}
 			return true;
 		}
 	}
