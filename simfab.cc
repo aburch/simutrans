@@ -2894,8 +2894,6 @@ void fabrik_t::rem_supplier(koord pos)
 /** crossconnect everything possible */
 void fabrik_t::add_all_suppliers()
 {
-	lieferziele.clear();
-	suppliers.clear();
 	for(int i=0; i < besch->get_lieferanten(); i++) {
 		const fabrik_lieferant_besch_t *lieferant = besch->get_lieferant(i);
 		const ware_besch_t *ware = lieferant->get_ware();
@@ -2904,9 +2902,8 @@ void fabrik_t::add_all_suppliers()
 			// connect to an existing one, if this is an producer
 			if(fab!=this  &&  fab->vorrat_an(ware) > -1) {
 				// add us to this factory
+				// will also add to our suppliers list
 				fab->add_lieferziel(pos.get_2d());
-				// and vice versa
-				add_supplier(fab->get_pos().get_2d());
 			}
 		}
 	}

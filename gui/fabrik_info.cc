@@ -296,7 +296,6 @@ void fabrik_info_t::update_info()
 	int y_off = LINESPACE;
 	make_buttons(lieferbuttons,   fab->get_lieferziele(),   y_off, fab_info, this);
 	make_buttons(supplierbuttons, fab->get_suppliers(),     y_off, fab_info, this);
-	//make_buttons(stadtbuttons,    fab->get_target_cities(), y_off, fab_info, this);
 
 	fab_info.set_size( scr_size( fab_info.get_size().w, txt.get_size().h ) );
 }
