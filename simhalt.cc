@@ -303,7 +303,7 @@ halthandle_t haltestelle_t::get_halt(const koord3d pos, const player_t *player )
 
 				halthandle_t halt = plan->get_haltlist()[i].halt;
 				const uint8 distance_to_dock = plan->get_haltlist()[i].distance;
-				if(halt->get_owner() == player  && distance_to_dock <= 1 && halt->get_station_type() & dock)
+				if(halt->get_owner() == player && distance_to_dock <= 1 && halt->get_station_type() & dock)
 				{
 					return halt;
 				}
@@ -4518,16 +4518,24 @@ bool haltestelle_t::existiert_in_welt() const
 /* return the closest square that belongs to this halt
  * @author prissi
  */
-koord haltestelle_t::get_next_pos( koord start ) const
+koord haltestelle_t::get_next_pos( koord start, bool square ) const
 {
 	koord find = koord::invalid;
 
 	if (!tiles.empty()) {
 		// find the closest one
-		int	dist = 0x7FFF;
+		sint32	dist = 0x7FFF;
 		FOR(slist_tpl<tile_t>, const& i, tiles) {
 			koord const p = i.grund->get_pos().get_2d();
-			int d = shortest_distance(start, p );
+			sint32 d;
+			if(square)
+			{
+				d = koord_distance(start, p);
+			}
+			else
+			{
+				d = shortest_distance(start, p );
+			}
 			if(d<dist) {
 				// ok, this one is closer
 				dist = d;

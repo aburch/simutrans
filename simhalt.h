@@ -693,7 +693,7 @@ public:
 	/* return the closest square that belongs to this halt
 	 * @author prissi
 	 */
-	koord get_next_pos( koord start ) const;
+	koord get_next_pos( koord start, bool square = false ) const;
 
 	// true, if this station is overcroded for this category
 	bool is_overcrowded( const uint8 idx ) const { return (overcrowded[idx/8] & (1<<(idx%8)))!=0; }
