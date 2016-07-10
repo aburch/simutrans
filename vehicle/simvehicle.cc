@@ -5142,7 +5142,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 		{
 			for(uint32 j = relevant_index; j < route->get_count(); j++)
 			{
-				const grund_t* gr_this = welt->lookup(route->position_bei(j));
+				grund_t* gr_this = welt->lookup(route->position_bei(j));
 				schiene_t * sch1 = gr_this ? (schiene_t *)gr_this->get_weg(get_waytype()) : NULL;
 				if(sch1 && (sch1->is_reserved(schiene_t::block)
 					|| (!directional_reservation_succeeded
@@ -5151,6 +5151,12 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 					&& sch1->get_pos() != get_pos())
 				{
 					sch1->unreserve(cnv->self);
+					if(sch1->has_signal()) 
+					{
+						ribi_t::ribi direction_of_travel = ribi_typ(route->position_bei(max(1u,i)-1u), route->position_bei(min(route->get_count()-1u,i+1u)));
+						signal_t* signal = sch1->get_signal(direction_of_travel);
+						signs.remove(gr_this);
+					}
 					if(sch1->is_crossing())
 					{
 						gr_this->find<crossing_t>()->release_crossing(this);
