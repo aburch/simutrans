@@ -3781,7 +3781,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 	bool signal_on_current_tile = false;
 	bool exiting_one_train_staff = false;
 
-	if(working_method == one_train_staff)
+	if(working_method == one_train_staff && cnv->get_state() != convoi_t::LEAVING_DEPOT)
 	{
 		ribi_t::ribi ribi = ribi_typ(cnv->get_route()->position_bei(max(1u,route_index)-1u), cnv->get_route()->position_bei(min(cnv->get_route()->get_count()-1u,route_index+1u)));
 		const weg_t* way = gr->get_weg(besch->get_waytype());	
@@ -3876,12 +3876,12 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 	schiene_t * sch1 = (schiene_t *)gr->get_weg(get_waytype());
 	const koord dir = gr->get_pos().get_2d() - get_pos().get_2d();
 	const ribi_t::ribi ribi = ribi_typ(dir);
-	const sint32 emergency_stop_duration = welt->seconds_to_ticks(welt->get_settings().get_time_interval_seconds_to_caution() / 2); 
 	if(!w->can_reserve(cnv->self, ribi))
 	{
 		restart_speed = 0;
 		if((working_method == time_interval || working_method == time_interval_with_telegraph) && cnv->get_state() == convoi_t::DRIVING)
 		{
+			const sint32 emergency_stop_duration = welt->seconds_to_ticks(welt->get_settings().get_time_interval_seconds_to_caution() / 2); 
 			convoihandle_t c = w->get_reserved_convoi();
 			const koord3d ground_pos = gr->get_pos();
 			for(sint32 i = 0; i < c->get_vehikel_anzahl(); i ++)
@@ -5333,7 +5333,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 	// Trim route to the early platform index.
 	if(early_platform_index < INVALID_INDEX)
 	{
-		cnv->get_route()->remove_koord_from(early_platform_index);
+		route->remove_koord_from(early_platform_index);
 	}
 
 	return reached_end_of_loop || working_method != track_circuit_block ? (!combined_signals.empty() && !pre_signals.empty() ? 2 : 1) + choose_return : (sint32)signs.get_count() + choose_return;
