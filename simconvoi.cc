@@ -1294,8 +1294,10 @@ bool convoi_t::drive_to()
 				}
 			}
 		}
+
+		const bool rail_type = front()->get_waytype() == track_wt || front()->get_waytype() == tram_wt || front()->get_waytype() == narrowgauge_wt || front()->get_waytype() == maglev_wt || front()->get_waytype() == monorail_wt;
 		
-		if(front()->get_waytype() == track_wt || front()->get_waytype() == tram_wt || front()->get_waytype() == narrowgauge_wt || front()->get_waytype() == maglev_wt || front()->get_waytype() == monorail_wt)
+		if(rail_type)
 		{
 			rail_vehicle_t* rail_vehicle = (rail_vehicle_t*)front();
 			// If this is token block working, the route must only be unreserved if the token is released.
@@ -1312,9 +1314,8 @@ bool convoi_t::drive_to()
 		bool success = calc_route(start, ziel, speed_to_kmh(get_min_top_speed()));
 		
 		grund_t* gr = welt->lookup(ziel);
-		bool extend_route = gr;
 
-		if(extend_route && !gr->get_depot())
+		if(rail_type && gr && !gr->get_depot())
 		{
 			// We need to calculate the full route through to the next signal or reversing point
 			// to avoid ignoring signals.
