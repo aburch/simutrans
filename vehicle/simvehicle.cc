@@ -4171,6 +4171,10 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 				}
 			}
 		}
+		else if(working_method == one_train_staff)
+		{
+			cnv->set_next_stop_index(next_signal);
+		}
 	}
 
 	if(sch1->has_signal())
@@ -5025,7 +5029,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 		uint16 next_next_signal;
 		bool route_success;
 		sint32 token_block_blocks = 0;
-		if(no_reverse)
+		if(no_reverse || working_method == one_train_staff)
 		{
 			do
 			{
