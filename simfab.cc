@@ -1541,6 +1541,10 @@ sint32 fabrik_t::liefere_an(const ware_besch_t *typ, sint32 menge)
 	if(  typ==warenbauer_t::passagiere  ) {
 		// book pax arrival and recalculate pax boost
 		book_stat(menge, FAB_PAX_ARRIVED);
+		if(!building)
+		{
+			building = welt->lookup(pos)->find<gebaeude_t>();
+		}
 		building->set_commute_trip(menge);
 		arrival_stats_pax.book_arrival(menge);
 		update_prodfactor_pax();
