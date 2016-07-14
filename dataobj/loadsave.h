@@ -65,7 +65,8 @@ private:
 	loadsave_t(const loadsave_t&);
 	loadsave_t& operator=(const loadsave_t&);
 
-	friend void *loadsave_thread( void *ptr );
+	friend void *save_thread( void *ptr );
+	friend void *load_thread( void *ptr );
 
 	/**
 	 * Reads into buffer number @p buf_num.

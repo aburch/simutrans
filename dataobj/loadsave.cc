@@ -43,55 +43,139 @@ typedef struct{
 } loadsave_param_t;
 static loadsave_param_t ls;
 
-
-void *loadsave_thread( void *ptr )
+/*
+ * Multi-threaded loading:
+ * more complicated synchronization due to different sources of errors
+ * - less data available than needed (noticed within load_thread)
+ * - more data available than needed (main thread finishes reading but load_thread still waits)
+ *
+ * Communication of error by variable readdata_flag, protected by readdata_mutex
+ *
+ * Intended program flow:
+ *
+ * main                                                      load_thread
+ * (data processing)                        (finalize)       fill_buffer
+ * < --  thread_barrier_wait ------------------------------------------------>
+ * (error handling)                                          pthread_cond_wait
+ * if readdata_flag < 0
+ *       load_thread already exited
+ *       not enough data -> fatal error
+ *
+ * readdata_flag = 1                        readdata_flag = -1
+ * pthread_cond_broadcast --------------------------------------------------->
+ * repeat                                                            (error handling)
+ *                                                           if readdata_flag < 0
+ *                                                         <------ end thread
+ *                                                           if error occured during previous fill_buffer
+ *                                                                 readdata_flag = -1
+ *                                          (join threads) <------ end thread
+ *                                                           repeat
+ */
+void *load_thread( void *ptr )
 {
 	loadsave_param_t *lsp = reinterpret_cast<loadsave_param_t *>(ptr);
 	int buf = 1;
 
 	while(true) {
-		if(  lsp->loadsave_routine->is_saving()  ) {
-			// wait to sync with main thread before flushing the buffer
-			simthread_barrier_wait(&loadsave_barrier);
+		int res = lsp->loadsave_routine->fill_buffer(buf);
 
-			buf = (buf+1)&1;
-			if(  lsp->loadsave_routine->get_buf_pos(buf)==0  ) {
-				// empty buffer after sync - signal to exit
-				break;
-			}
-			lsp->loadsave_routine->flush_buffer(buf);
+		// always wait to sync with main thread before filling the next buffer
+		pthread_mutex_lock(&readdata_mutex);
+		simthread_barrier_wait(&loadsave_barrier);
+
+		while(  readdata_flag == 0  ) {
+			pthread_cond_wait(&readdata_cond, &readdata_mutex);
 		}
-		else {
-			int res = lsp->loadsave_routine->fill_buffer(buf);
-
-			// always wait to sync with main thread before filling the next buffer
-			pthread_mutex_lock(&readdata_mutex);
-			simthread_barrier_wait(&loadsave_barrier);
-
-			while(  readdata_flag == 0  ) {
-				pthread_cond_wait(&readdata_cond, &readdata_mutex);
-			}
-			if (readdata_flag < 0) {
-				// leave if  no more data needed
-				pthread_mutex_unlock(&readdata_mutex);
-				break;
-			}
-			if (res <= 0) {
-				// nothing read into buffer, or error occured
-				// flag error to main thread
-				readdata_flag = -1;
-				pthread_mutex_unlock(&readdata_mutex);
-				break;
-			}
-			readdata_flag = 0;
+		if (readdata_flag < 0) {
+			// leave if  no more data needed
 			pthread_mutex_unlock(&readdata_mutex);
-
-			// switch buffer
-			buf = (buf+1)&1;
+			break;
 		}
+		if (res <= 0) {
+			// nothing read into buffer, or error occured
+			// flag error to main thread
+			readdata_flag = -1;
+			pthread_mutex_unlock(&readdata_mutex);
+			break;
+		}
+		readdata_flag = 0;
+		pthread_mutex_unlock(&readdata_mutex);
+
+		// switch buffer
+		buf = (buf+1)&1;
 	}
 	return ptr;
 }
+
+void loading_trigger_fill_buffer()
+{
+	// sync with other thread, tell to read more data
+	simthread_barrier_wait(&loadsave_barrier);
+
+	pthread_mutex_lock(&readdata_mutex);
+	if (readdata_flag < 0) {
+		pthread_mutex_unlock(&readdata_mutex);
+		// reading thread exited due to error
+		dbg->fatal("loadsave_t::read","savegame corrupt, not enough data");
+		return;
+	}
+	readdata_flag = 1; // more data please
+
+	pthread_cond_broadcast(&readdata_cond);
+	pthread_mutex_unlock(&readdata_mutex);
+}
+
+void loading_finalize()
+{
+	simthread_barrier_wait(&loadsave_barrier);
+	// reader thread waits, signal end of loadingdata
+	pthread_mutex_lock(&readdata_mutex);
+	readdata_flag = -1; // no more data
+
+	pthread_cond_broadcast(&readdata_cond);
+	pthread_mutex_unlock(&readdata_mutex);
+}
+/*
+ * Multi-threaded saving:
+ *
+ * - synchronization is done with barriers
+ * - end-of-saving is signaled to thread with get_buf_pos(buf)==0,
+ *   which is protected by loadsave_mutex
+ */
+
+void *save_thread( void *ptr )
+{
+	loadsave_param_t *lsp = reinterpret_cast<loadsave_param_t *>(ptr);
+	int buf = 1;
+
+	while(true) {
+		// wait to sync with main thread before flushing the buffer
+		simthread_barrier_wait(&loadsave_barrier);
+
+		buf = (buf+1)&1;
+		if(  lsp->loadsave_routine->get_buf_pos(buf)==0  ) {
+			// empty buffer after sync - signal to exit
+			break;
+		}
+		lsp->loadsave_routine->flush_buffer(buf);
+	}
+	return ptr;
+}
+
+void saving_trigger_flush()
+{
+	// sync with thread to flush the buffer
+	simthread_barrier_wait(&loadsave_barrier);
+}
+
+void saving_finalize()
+{
+	// first sync with thread causes buffer to be flushed
+	simthread_barrier_wait(&loadsave_barrier);
+	// second sync with empty buffer signals thread to exit
+	simthread_barrier_wait(&loadsave_barrier);
+}
+
 #endif
 
 
@@ -146,7 +230,7 @@ void loadsave_t::set_buffered(bool enable)
 
 			ls.loadsave_routine = this;
 
-			pthread_create(&ls_thread, &attr, loadsave_thread, (void *)&ls);
+			pthread_create(&ls_thread, &attr, saving ? save_thread : load_thread, (void *)&ls);
 
 			pthread_attr_destroy(&attr);
 #endif
@@ -156,24 +240,14 @@ void loadsave_t::set_buffered(bool enable)
 		if(  buffered  ) {
 			if(  saving  &&  buf_pos[curr_buff]>0  ) {
 #ifdef MULTI_THREAD
-				// first sync with thread causes buffer to be flushed
-				simthread_barrier_wait(&loadsave_barrier);
-				// second sync with empty buffer signals thread to exit
-				simthread_barrier_wait(&loadsave_barrier);
+				saving_finalize();
 #else
 				flush_buffer(curr_buff);
 #endif
 			}
 #ifdef MULTI_THREAD
-
 			if(  !saving  ) {
-				simthread_barrier_wait(&loadsave_barrier);
-				// reader thread waits, signal end of loadingdata
-				pthread_mutex_lock(&readdata_mutex);
-				readdata_flag = -1; // no more data
-
-				pthread_cond_broadcast(&readdata_cond);
-				pthread_mutex_unlock(&readdata_mutex);
+				loading_finalize();
 			}
 			pthread_join(ls_thread,NULL);
 
@@ -511,8 +585,7 @@ size_t loadsave_t::write(const void *buf, size_t len)
 			}
 
 #ifdef MULTI_THREAD
-			// sync with thread to flush the buffer
-			simthread_barrier_wait(&loadsave_barrier);
+			saving_trigger_flush();
 
 			// switch buffers
 			curr_buff = (curr_buff+1)&1;
@@ -593,20 +666,7 @@ size_t loadsave_t::read(void *buf, size_t len)
 				}
 			}
 #ifdef MULTI_THREAD
-			// sync with other thread, tell to read more data
-			simthread_barrier_wait(&loadsave_barrier);
-
-			pthread_mutex_lock(&readdata_mutex);
-			if (readdata_flag < 0) {
-				pthread_mutex_unlock(&readdata_mutex);
-				// reading thread exited due to error
-				dbg->fatal("loadsave_t::read","savegame corrupt, not enough data");
-				return 0;
-			}
-			readdata_flag = 1; // more data please
-
-			pthread_cond_broadcast(&readdata_cond);
-			pthread_mutex_unlock(&readdata_mutex);
+			loading_trigger_fill_buffer();
 
 			// switch buffers
 			curr_buff = (curr_buff+1)&1;
