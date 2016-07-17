@@ -269,7 +269,7 @@ const char* script_vm_t::intern_call_function(HSQUIRRELVM job, call_type_t ct, i
 	BEGIN_STACK_WATCH(job);
 	dbg->message("script_vm_t::intern_call_function", "start: stack=%d nparams=%d ret=%d", sq_gettop(job), nparams, retvalue);
 	const char* err = NULL;
-	uint32 opcodes = ct == FORCEX ? 100000 : 1000;
+	uint32 opcodes = ct == FORCEX ? 100000 : 10000;
 	// call the script
 	if (!SQ_SUCCEEDED(sq_call_restricted(job, nparams, retvalue, ct == FORCE  ||  ct == FORCEX, opcodes))) {
 		err = "Call function failed";
@@ -338,7 +338,7 @@ void script_vm_t::intern_resume_call(HSQUIRRELVM job)
 	}
 
 	// resume v.m.
-	if (!SQ_SUCCEEDED(sq_resumevm(job, retvalue))) {
+	if (!SQ_SUCCEEDED(sq_resumevm(job, retvalue, 10000))) {
 		retvalue = false;
 	}
 	// if finished, clear stack
