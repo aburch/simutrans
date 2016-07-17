@@ -223,6 +223,17 @@ const char* script_vm_t::intern_finish_call(HSQUIRRELVM job, call_type_t ct, int
 	// stack: closure, nparams*objects
 	const char* err = NULL;
 	bool suspended = sq_getvmstate(job) == SQ_VMSTATE_SUSPENDED;
+	// check queue, if not empty resume first job in queue
+	if (!suspended  &&  ct != FORCE  &&  ct != FORCEX) {
+		sq_pushregistrytable(job);
+		sq_pushstring(job, "queue", -1);
+		sq_get(job, -2);
+		// stack: registry, queue
+		if (sq_getsize(job, -1) > 0) {
+			suspended = true;
+		}
+		sq_pop(job, 2);
+	}
 	// queue function call?
 	if (suspended  &&  ct == QUEUE) {
 		intern_queue_call(job, nparams, retvalue);
