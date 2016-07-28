@@ -5569,7 +5569,7 @@ DBG_MESSAGE("tool_headquarter()", "building headquarters at (%d,%d)", pos.x, pos
 	}
 
 	koord size = besch->get_groesse();
-	sint64 const cost = besch->get_price(welt) * size.x * size.y;
+	sint64 const cost = -besch->get_price(welt) * size.x * size.y;
 	if(  -cost > player->get_finance()->get_account_balance()  ) {
 		return "Not enough money!";
 	}
