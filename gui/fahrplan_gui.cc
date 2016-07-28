@@ -339,7 +339,7 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, player_t* player_, convoihandle
 		add_component(&bt_return);
 	}
 
-	ypos += lb_waitlevel.get_size().h;
+	ypos += max(lb_waitlevel.get_size().h, bt_return.get_size().h);
 
 	bt_add.init(button_t::roundbox_state, "Add Stop", scr_coord(BUTTON1_X, ypos ), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT) );
 	bt_add.set_tooltip("Appends stops at the end of the schedule");
