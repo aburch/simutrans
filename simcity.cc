@@ -706,6 +706,8 @@ bool stadt_t::cityrules_init(const std::string &objfilename)
 	renovations_try   = (uint32)contents.get_int("renovations_try", renovations_try);
 
 	// to keep compatible with the typo, here both are ok
+	// NOTE: This parameter is disused at present following Neroden's change in the building code as of July 2013.
+	// This has the result that cities are all square on flat terrain, which is unfortunate. 
 	min_building_density = (uint32)contents.get_int("minimum_building_desity", 25);
 	min_building_density = (uint32)contents.get_int("minimum_building_density", min_building_density);
 
