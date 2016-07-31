@@ -117,9 +117,9 @@ bool schiene_t::reserve(convoihandle_t c, ribi_t::ribi dir, reservation_type t, 
 		}
 		if(old_direction != dir)
 		{
-			if(signal_t* sig = get_signal(dir))
+			if(signal_t* sig = welt->lookup(get_pos())->find<signal_t>())
 			{
-				if(sig->is_bidirectional())
+				if(sig->is_bidirectional() && sig == get_signal(dir))
 				{
 					// A suitable state for facing in the opposite direction
 					// will not be a suitable state for facing in this new
