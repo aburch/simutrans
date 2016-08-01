@@ -5990,7 +5990,8 @@ void convoi_t::set_next_stop_index(uint16 n)
 	   }
 
 	   grund_t const* const gr = welt->lookup(route_end);
-	   if(gr && (gr->is_halt() || reverse_waypoint))
+	   rail_vehicle_t* rv = (rail_vehicle_t*)front();
+	   if(gr && (gr->is_halt() || reverse_waypoint) && (front()->get_typ() != obj_t::rail_vehicle || rv->get_working_method() != one_train_staff))
 	   {
 		   n = route.get_count() - 1;
 	   }

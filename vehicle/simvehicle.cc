@@ -4115,7 +4115,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 			{
 				if(working_method != token_block)
 				{
-					if(signal->get_besch()->get_working_method() != one_train_staff || (!do_not_set_one_train_staff && signal->get_pos() == get_pos() && signal->get_state() != roadsign_t::call_on))
+					if(signal->get_besch()->get_working_method() != one_train_staff || (!do_not_set_one_train_staff && (signal->get_pos() == get_pos()) && (signal->get_state() != roadsign_t::call_on)))
 					{
 						working_method = signal->get_besch()->get_working_method(); 
 					}
@@ -5079,7 +5079,10 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 					}
 					else
 					{
-						cnv->set_next_stop_index(cnv->get_route()->get_count() - 1u);
+						if(working_method != one_train_staff)
+						{
+							cnv->set_next_stop_index(cnv->get_route()->get_count() - 1u);
+						}
 						break;
 					}
 				}
@@ -5103,7 +5106,14 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 		{
 			if(cnv->get_next_stop_index() - 1 <= route_index) 
 			{
-				cnv->set_next_stop_index(cnv->get_route()->get_count() - 1);
+				if(working_method == one_train_staff && next_signal_index >= INVALID_INDEX)
+				{
+					cnv->set_next_stop_index(next_next_signal);
+				}
+				else
+				{
+					cnv->set_next_stop_index(cnv->get_route()->get_count() - 1);
+				}
 			}
 		}
 	} 
