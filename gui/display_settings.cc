@@ -35,7 +35,8 @@
 #define GRID_MODE						(6)
 #define UNDERGROUND						(GRID_MODE+13)
 #define SLICE							(UNDERGROUND+13)
-#define DAY_NIGHT						(SLICE+13)
+#define SLICE_LABEL						(SLICE+13)
+#define DAY_NIGHT						(SLICE_LABEL+13)
 #define BRIGHTNESS						(DAY_NIGHT+13)
 #define SCROLL_INVERS					(BRIGHTNESS+13)
 #define SCROLL_SPEED					(SCROLL_INVERS+13)
@@ -90,14 +91,6 @@
 color_gui_t::color_gui_t() :
 gui_frame_t( translator::translate("Helligk. u. Farben") )
 {
-
-	// underground slice
-	inp_underground_level.set_pos( scr_coord(L_DIALOG_WIDTH-10-50, SLICE-1) );
-	inp_underground_level.set_size( scr_size( 50, D_BUTTON_HEIGHT-1 ) );
-	inp_underground_level.set_value( grund_t::underground_mode==grund_t::ugm_level ? grund_t::underground_level : welt->get_zeiger()->get_pos().z);
-	inp_underground_level.set_limits(welt->get_grundwasser()-10, 32);
-	inp_underground_level.add_listener(this);
-
 	// brightness
 	brightness.set_pos( scr_coord(L_DIALOG_WIDTH-10-40,BRIGHTNESS-1) );
 	brightness.set_size( scr_size( 40, D_BUTTON_HEIGHT-1 ) );
@@ -224,6 +217,14 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	buttons[b].set_typ(button_t::square_state);
 	buttons[b].set_text("sliced underground mode");
 	buttons[b].set_tooltip("See under the ground, one layer at a time. Toggle with CTRL + U. Move up/down in layers with HOME and END.");
+
+	// underground slice edit
+	inp_underground_level.set_pos( scr_coord(L_DIALOG_WIDTH-10-50, SLICE_LABEL-1) );
+	inp_underground_level.set_size( scr_size( 50, D_BUTTON_HEIGHT-1 ) );
+	//inp_underground_level.align_to(&buttons[20], ALIGN_CENTER_V);
+	inp_underground_level.set_value( grund_t::underground_mode==grund_t::ugm_level ? grund_t::underground_level : welt->get_zeiger()->get_pos().z);
+	inp_underground_level.set_limits(welt->get_grundwasser()-10, 32);
+	inp_underground_level.add_listener(this);
 
 	//21
 	buttons[++b].set_pos( scr_coord(10, LEFT_TO_RIGHT_GRAPHS) );
