@@ -113,12 +113,6 @@ private:
 //    return n;
 //}
 
-static inline uint32 koord_distance(const koord &a, const koord &b)
-{
-	// Manhattan distance
-	return abs(a.x - b.x) + abs(a.y - b.y);
-}
-
 //static inline uint32 accurate_distance(const koord &a, const koord &b)
 //{
 //	// Euclidian distance
@@ -140,6 +134,12 @@ static inline uint32 shortest_distance(const koord &a, const koord &b)
 	else {
 		return (y_offset - x_offset) + ( ((x_offset * 181u) + 64u) >> 7 );
 	}
+}
+
+static inline uint32 koord_distance(const koord &a, const koord &b)
+{
+	// Manhattan distance
+	return abs(a.x - b.x) + abs(a.y - b.y);
 }
 
 // Knightly : multiply the value by the distance weight

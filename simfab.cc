@@ -2638,7 +2638,7 @@ void fabrik_t::recalc_nearby_halts()
 							// We always want the shorter of the two distances,
 							// since goods/passengers can ship from any part of a factory.
 							uint8 new_distance = min(nearby_halts[j].distance, new_nearby_halt.distance);
-							if(nearby_halts[j].distance <= welt->get_settings().get_station_coverage_factories())
+							if(nearby_halts[j].distance <= welt->get_settings().get_station_coverage_factories() + 2)
 							{
 								duplicate_freight = true;
 							}
@@ -2659,7 +2659,7 @@ void fabrik_t::recalc_nearby_halts()
 					}
 					if(!duplicate_freight)
 					{
-						if(new_nearby_halt.halt->get_ware_enabled() && new_nearby_halt.distance <= welt->get_settings().get_station_coverage_factories())
+						if(new_nearby_halt.halt->get_ware_enabled() && new_nearby_halt.distance <= welt->get_settings().get_station_coverage_factories() + 2) // We add 2 here as we do not count the first or last tile in the distance
 						{
 							// Halt is within freight coverage distance (shorter than regular) and handles freight...
 							if(get_besch()->get_platzierung() == fabrik_besch_t::Wasser && (new_nearby_halt.halt->get_station_type() & haltestelle_t::dock) == 0)
@@ -2839,7 +2839,7 @@ void fabrik_t::add_supplier(koord ziel)
 				FOR(  array_tpl<ware_production_t>,  &w,  eingang ) {
 					if(  w_out.get_typ() == w.get_typ()  ) {
 #ifdef TRANSIT_DISTANCE
-						sint64 distance = koord_distance( fab->get_pos(), get_pos() );
+						sint64 distance = shortest_distance( fab->get_pos(), get_pos() );
 						// calculate next mean by the following formula: average + (next - average)/(n+1)
 						w.count_suppliers ++;
 						sint64 next = 1 + ( distance * welt->get_settings().get_factory_maximum_intransit_percentage() * (w.max >> fabrik_t::precision_bits) ) / 131072;
@@ -2878,7 +2878,7 @@ void fabrik_t::rem_supplier(koord pos)
 					FOR(  array_tpl<ware_production_t>,  &w,  eingang ) {
 						if(  w_out.get_typ() == w.get_typ()  ) {
 #ifdef TRANSIT_DISTANCE
-							sint64 distance = koord_distance( fab->get_pos(), get_pos() );
+							sint64 distance = shortest_distance( fab->get_pos(), get_pos() );
 							// calculate next mean by the following formula: average + (next - average)/(n+1)
 							w.count_suppliers ++;
 							sint64 next = 1 + ( distance * welt->get_settings().get_factory_maximum_intransit_percentage() * (w.max >> fabrik_t::precision_bits) ) / 131072;
