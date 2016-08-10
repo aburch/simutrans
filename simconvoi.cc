@@ -2218,7 +2218,7 @@ void convoi_t::enter_depot(depot_t *dep)
 			v->set_flag( obj_t::not_on_map );
 		}
 	}
-
+	last_signal_pos = koord3d::invalid;
 	dep->convoi_arrived(self, get_schedule());
 
 	close_windows();
