@@ -2134,6 +2134,8 @@ bool wegbauer_t::baue_tunnelboden()
 						weg->set_max_speed( wo->get_besch()->get_topspeed() );
 					}
 					gr->calc_bild();
+					// respect speed limit of crossing
+					weg->count_sign();
 
 					cost -= tunnel_besch->get_preis();
 				}
@@ -2233,6 +2235,8 @@ void wegbauer_t::baue_strasse()
 				weg->set_gehweg(add_sidewalk);
 				player_t::add_maintenance( player_builder, weg->get_besch()->get_wartung(), weg->get_besch()->get_finance_waytype());
 				weg->set_owner(player_builder);
+				// respect speed limit of crossing
+				weg->count_sign();
 			}
 		}
 		else {
@@ -2324,6 +2328,8 @@ void wegbauer_t::baue_schiene()
 					}
 					player_t::add_maintenance( player_builder, weg->get_besch()->get_wartung(), weg->get_besch()->get_finance_waytype());
 					weg->set_owner(player_builder);
+					// respect speed limit of crossing
+					weg->count_sign();
 				}
 			}
 			else {
