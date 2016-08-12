@@ -377,13 +377,9 @@ static bild_besch_t* create_alpha_tile(const bild_besch_t* bild_lightmap, hang_t
 				// (and do not forget: tile_y_corrected middle = 0!
 				sint16 x_t = tile_x - tile_y_corrected;
 				sint16 y_t = tile_y_corrected + tile_x;
-				// due to some inexactness of interger arithmethics, we have to take care of overflow
-				if(  y_t >= x_y  ) {
-					y_t = x_y - 1;
-				}
-				if(  x_t >= x_y  ) {
-					x_t = x_y - 1;
-				}
+				// due to some inexactness of integer arithmethics, we have to take care of overflow and underflow
+				x_t = max(0, min(x_t, x_y-1));
+				y_t = max(0, min(y_t, x_y-1));
 				sint32 alphamap_offset = ((y_t * mix_x_y) / x_y) * (mix_x_y + 3) + 2 + (x_t * mix_x_y) / x_y;
 
 				// see only the mixmap for mixing
