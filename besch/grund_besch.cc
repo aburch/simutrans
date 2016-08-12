@@ -387,7 +387,10 @@ static bild_besch_t* create_alpha_tile(const bild_besch_t* bild_lightmap, hang_t
 				sint32 alphamap_offset = ((y_t * mix_x_y) / x_y) * (mix_x_y + 3) + 2 + (x_t * mix_x_y) / x_y;
 
 				// see only the mixmap for mixing
-				*dest++ = alphamap[alphamap_offset];
+				//
+				// clear 0x8000 bit as it has special meaning,
+				// confuses rezoom_img() and crashes later
+				*dest++ = alphamap[alphamap_offset] & 0x7fff;
 				tile_x++;
 			}
 			tile_x += *dest;
