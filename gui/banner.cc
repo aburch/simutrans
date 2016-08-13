@@ -181,7 +181,7 @@ void banner_t::draw(scr_coord pos, scr_size size )
 	cursor.y += LINESPACE+2;
 	display_shadow_proportional( cursor.x+24, cursor.y, SYSCOL_TEXT_HIGHLIGHT, SYSCOL_TEXT_SHADOW, "under the Artistic Licence; forked", true );
 	cursor.y += LINESPACE+2;
-	display_shadow_proportional( cursor.x+24, cursor.y, SYSCOL_TEXT_HIGHLIGHT, SYSCOL_TEXT_SHADOW, "from Simutrans-Standard "QUOTEME(SIM_VERSION_MAJOR) "." QUOTEME(SIM_VERSION_MINOR), true );
+	display_shadow_proportional( cursor.x+24, cursor.y, SYSCOL_TEXT_HIGHLIGHT, SYSCOL_TEXT_SHADOW, "from Simutrans-Standard " QUOTEME(SIM_VERSION_MAJOR) "." QUOTEME(SIM_VERSION_MINOR), true );
 	cursor.y += LINESPACE+7;
 
 	display_shadow_proportional( cursor.x+24, cursor.y, COL_LIGHT_ORANGE, SYSCOL_TEXT_SHADOW, "Selling this software is forbidden.", true );

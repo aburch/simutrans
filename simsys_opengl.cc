@@ -16,8 +16,13 @@
 
 #include <SDL.h>
 
-#include <GL/glew.h>
-#include <GL/gl.h>
+#ifdef __APPLE__
+  // GLEW is not needed on Apple
+  #include <OpenGL/gl.h>
+#else
+  #include <GL/glew.h>
+  #include <GL/gl.h>
+#endif
 
 #include <stdio.h>
 #include <vector>
@@ -215,6 +220,7 @@ static void update_tex_dims(){
  * GL_ARB_texture_non_power_of_two, and sets the global variables npot_able and pbo_able
  */
 static void check_for_extensions(){
+#ifndef __APPLE__
 
 	// Initialize GLEW
 	GLenum err = glewInit();
@@ -245,6 +251,9 @@ static void check_for_extensions(){
 		fprintf(stderr, "Renderer is not PBO able.\n");
 		DBG_MESSAGE("check_for_extensions(OpenGL)", "Renderer does NOT support PBO extension");
 	}
+
+#endif
+
 }
 
 
@@ -1138,7 +1147,7 @@ void ex_ord_update_mx_my()
 }
 
 
-unsigned long dr_time()
+uint32 dr_time()
 {
 	return SDL_GetTicks();
 }
@@ -1148,6 +1157,19 @@ void dr_sleep(uint32 usec)
 {
 	SDL_Delay(usec);
 }
+
+void dr_start_textinput()
+{
+}
+
+void dr_stop_textinput()
+{
+}
+
+void dr_notify_input_pos(int, int)
+{
+}
+
 
 
 #ifdef _WIN32

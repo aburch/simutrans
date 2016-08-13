@@ -564,11 +564,16 @@ ifeq ($(BACKEND),opengl)
     SDL_LDFLAGS := $(shell $(SDL_CONFIG) --libs)
   endif
   CFLAGS += $(SDL_CFLAGS)
-  LIBS   += $(SDL_LDFLAGS) -lglew32
+  LIBS   += $(SDL_LDFLAGS)
   ifeq ($(OSTYPE),mingw)
-    LIBS += -lopengl32
+    LIBS += -lglew32 -lopengl32
   else
     LIBS += -lGL
+    ifeq ($(OSTYPE),mac)
+      LIBS += -framework OpenGL
+    else
+      LIBS += -lglew32 -lGL
+    endif
   endif
 endif
 

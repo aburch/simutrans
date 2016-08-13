@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "../simversion.h"
 
-main()
+int main()
 {
 	printf("%s\n", VERSION_NUMBER);
 }

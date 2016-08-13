@@ -798,9 +798,10 @@ void grund_t::calc_back_bild(const sint8 hgt, const hang_t::typ slope_this)
 	// store corner heights sw, nw, ne scaled to screen dimensions
 	const sint16 scale_z_step = tile_raster_scale_y(TILE_HEIGHT_STEP,64);
 	const sint16 scale_y_step = 64/2;
-	sint16 corners[3] = {scale_z_step*(hgt + corner1(slope_this)),
-	                     scale_z_step*(hgt + corner4(slope_this)),
-	                     scale_z_step*(hgt + corner3(slope_this))};
+	sint16 corners[3] = {static_cast<sint16>(scale_z_step*(hgt + corner1(slope_this))),
+	                     static_cast<sint16>(scale_z_step*(hgt + corner4(slope_this))),
+	                     static_cast<sint16>(scale_z_step*(hgt + corner3(slope_this)))};
+
 	sint16 corners_add[3] = {0,0,0}; // extra height of possible back-image
 
 	// now calculate back image
@@ -895,7 +896,7 @@ void grund_t::calc_back_bild(const sint8 hgt, const hang_t::typ slope_this)
 	const koord  testdir[3] = { koord(-1,0), koord(-1,-1), koord(0,-1) };
 
 	for(int step = 0; step<5  &&  !get_flag(draw_as_obj); step ++) {
-		sint16 test[3] = {corners[0]+1, corners[1]+1, corners[2]+1};
+		sint16 test[3] = {static_cast<sint16>(corners[0]+1), static_cast<sint16>(corners[1]+1), static_cast<sint16>(corners[2]+1)};
 		for(int i=0; i<=2; i++) {
 			if(  const grund_t *gr=welt->lookup_kartenboden(k + testdir[i] - koord(1,1)*step)  ) {
 				sint16 h = gr->get_disp_height()*scale_z_step;
