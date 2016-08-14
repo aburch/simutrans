@@ -5396,8 +5396,8 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 	// loading is finished => maybe drive on
 	bool can_go = false;
 	
-	can_go = loading_level >= loading_limit || now >= go_on_ticks;
-	can_go = can_go || (now >= go_on_ticks_waiting && !wait_for_time);
+	can_go = loading_level >= loading_limit && now >= go_on_ticks;
+	can_go = can_go || (now >= go_on_ticks && !wait_for_time);
 	can_go = can_go || running_late; 
 	can_go = can_go || no_load;
 	can_go = can_go && now > earliest_departure_time;
