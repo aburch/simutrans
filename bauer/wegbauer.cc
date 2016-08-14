@@ -2770,7 +2770,6 @@ void wegbauer_t::baue_fluss()
 				weg_t *sch=weg_t::alloc(water_wt);
 				sch->set_besch(besch);
 				gr->neuen_weg_bauen(sch, ribi, NULL);
-				sch->set_public_right_of_way();
 			}
 		}
 	}
@@ -2798,6 +2797,11 @@ void wegbauer_t::baue_fluss()
 					if(  type>0  ) {
 						// thus we enlarge
 						w->set_besch( alle_wegtypen.get(env_t::river_type[type-1]) );
+						if(w->get_besch()->get_max_axle_load() > 0)
+						{
+							// It does not make sense for unnavigable rivers to be public rights of way.
+							w->set_public_right_of_way();
+						}
 						w->calc_image();
 					}
 				}
