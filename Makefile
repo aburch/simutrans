@@ -59,6 +59,11 @@ else
   endif
 endif
 
+ifeq ($(OSTYPE),mac)
+  CFLAGS +=  -std=c++11 -stdlib=libstdc++
+  LDFLAGS += -stdlib=libstdc++
+endif
+
 ifeq ($(OSTYPE),mingw)
   SOURCES += clipboard_w32.cc
 else
@@ -512,8 +517,8 @@ ifeq ($(BACKEND),sdl2)
   endif
   ifeq ($(SDL2_CONFIG),)
     ifeq ($(OSTYPE),mac)
-      SDL_CFLAGS  := -I/System/Libraries/Frameworks/SDL2/Headers -Dmain=SDL_main
-      SDL_LDFLAGS := -framework SDL2 -framework Cocoa -I/System/Libraries/Frameworks/SDL2/Headers SDLMain.m
+      SDL_CFLAGS  := -I/Library/Frameworks/SDL2.framework/Headers
+      SDL_LDFLAGS := -framework SDL2
     else
       SDL_CFLAGS  := -I$(MINGDIR)/include/SDL2 -Dmain=SDL_main
       SDL_LDFLAGS := -lSDL2main -lSDL2
@@ -565,12 +570,11 @@ ifeq ($(BACKEND),opengl)
   endif
   CFLAGS += $(SDL_CFLAGS)
   LIBS   += $(SDL_LDFLAGS)
-  ifeq ($(OSTYPE),mingw)
-    LIBS += -lglew32 -lopengl32
+  ifeq ($(OSTYPE),mac)
+    LIBS += -framework OpenGL
   else
-    LIBS += -lGL
-    ifeq ($(OSTYPE),mac)
-      LIBS += -framework OpenGL
+    ifeq ($(OSTYPE),mingw)
+      LIBS += -lglew32 -lopengl32
     else
       LIBS += -lglew32 -lGL
     endif

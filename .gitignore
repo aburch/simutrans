@@ -12,6 +12,7 @@
 *.log
 *.out
 *.exe
+*.app
 *.vcxproj.filters
 *.zip*
 *.7z
@@ -33,6 +34,7 @@ ipch
 /makeobj/makeobj
 *sim
 /binaries
+/OSX/getversion
 /save
 /screenshot
 /maps
