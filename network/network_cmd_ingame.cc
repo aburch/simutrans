@@ -1186,7 +1186,7 @@ void nwc_tool_t::do_command(karte_t *welt)
 		// remove preview tiles of active tool
 		two_click_tool_t *active_tool = dynamic_cast<two_click_tool_t*>(welt->get_tool(welt->get_active_player_nr()));
 		if(active_tool  &&  active_tool->remove_preview_necessary()) {
-			active_tool->cleanup(true);
+			active_tool->cleanup();
 		}
 		err = tool->work( player, pos );
 		// only local players get the callback

@@ -4817,7 +4817,7 @@ const char *tool_build_roadsign_t::do_work( player_t *player, const koord3d &sta
 		weg->count_sign();
 		gr->calc_bild();
 	}
-	cleanup(true);
+	cleanup();
 	directions.clear();
 	return NULL;
 }
