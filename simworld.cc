@@ -1915,7 +1915,7 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 	uint16 const cov = settings.get_station_coverage();
 	if(  old_y < new_groesse_y  ) {
 		for(  sint16 y=0;  y<old_y;  y++  ) {
-			for(  sint16 x=old_x-cov;  x<old_x;  x++  ) {
+			for(  sint16 x=max(0,old_x-cov);  x<old_x;  x++  ) {
 				const planquadrat_t* pl = access_nocheck(x,y);
 				for(  uint8 i=0;  i < pl->get_boden_count();  i++  ) {
 					// update limits
@@ -1928,8 +1928,8 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 					// update halt
 					halthandle_t h = pl->get_boden_bei(i)->get_halt();
 					if(  h.is_bound()  ) {
-						for(  sint16 xp=max(0,x-cov);  xp<x+cov+1;  xp++  ) {
-							for(  sint16 yp=y;  yp<y+cov+1;  yp++  ) {
+						for(  sint16 xp=max(0,x-cov);  xp<min(new_groesse_x,x+cov+1);  xp++  ) {
+							for(  sint16 yp=y;  yp<min(new_groesse_y,y+cov+1);  yp++  ) {
 								access_nocheck(xp,yp)->add_to_haltlist(h);
 							}
 						}
@@ -1939,7 +1939,7 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 		}
 	}
 	if(  old_x < new_groesse_x  ) {
-		for(  sint16 y=old_y-cov;  y<old_y;  y++  ) {
+		for(  sint16 y=max(0,old_y-cov);  y<old_y;  y++  ) {
 			for(  sint16 x=0;  x<old_x;  x++  ) {
 				const planquadrat_t* pl = access_nocheck(x,y);
 				for(  uint8 i=0;  i < pl->get_boden_count();  i++  ) {
@@ -1953,8 +1953,8 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 					// update halt
 					halthandle_t h = pl->get_boden_bei(i)->get_halt();
 					if(  h.is_bound()  ) {
-						for(  sint16 xp=x;  xp<x+cov+1;  xp++  ) {
-							for(  sint16 yp=max(0,y-cov);  yp<y+cov+1;  yp++  ) {
+						for(  sint16 xp=x;  xp<min(new_groesse_x,x+cov+1);  xp++  ) {
+							for(  sint16 yp=max(0,y-cov);  yp<min(new_groesse_y,y+cov+1);  yp++  ) {
 								access_nocheck(xp,yp)->add_to_haltlist(h);
 							}
 						}
