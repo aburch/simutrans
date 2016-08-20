@@ -575,6 +575,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d start, const koord3
 	 */
 
 	const bool use_jps     = tdriver->get_waytype()==water_wt;
+	//const bool use_jps     = false;
 
 	bool ziel_erreicht=false;
 
