@@ -49,7 +49,7 @@
 " Nathanael Nerode","developer",
 " Inkelyad", "developer",
 " Isidoro","developer (vehicle replacement)",
-" Zhaop", "Mac OSX patch",
+" Zhaop", "Mac OSX patch and fixes",
 " Vladki", "patch",
 " Hanczar","profiling, fixes",
 " Octavius","patch",
