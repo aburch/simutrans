@@ -2361,8 +2361,8 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 				for(  uint8 i=0;  i < pl->get_boden_count();  i++  ) {
 					halthandle_t h = pl->get_boden_bei(i)->get_halt();
 					if(  h.is_bound()  ) {
-						for(  sint16 xp=max(0,x-cov);  xp<x+cov+1;  xp++  ) {
-							for(  sint16 yp=y;  yp<y+cov+1;  yp++  ) {
+						for(  sint16 xp=max(0,x-cov);  xp<min(new_groesse_x,x+cov+1);  xp++  ) {
+							for(  sint16 yp=y;  yp<min(new_groesse_y,y+cov+1);  yp++  ) {
 								access_nocheck(xp,yp)->add_to_haltlist(h);
 							}
 						}
@@ -2378,8 +2378,8 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 				for(  uint8 i=0;  i < pl->get_boden_count();  i++  ) {
 					halthandle_t h = pl->get_boden_bei(i)->get_halt();
 					if(  h.is_bound()  ) {
-						for(  sint16 xp=x;  xp<x+cov+1;  xp++  ) {
-							for(  sint16 yp=max(0,y-cov);  yp<y+cov+1;  yp++  ) {
+						for(  sint16 xp=x;  xp<min(new_groesse_x,x+cov+1);  xp++  ) {
+							for(  sint16 yp=max(0,y-cov);  yp<min(new_groesse_y,y+cov+1);  yp++  ) {
 								access_nocheck(xp,yp)->add_to_haltlist(h);
 							}
 						}
