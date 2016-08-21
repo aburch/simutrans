@@ -2678,13 +2678,13 @@ static const weg_besch_t *get_timeline_road_type( uint16 year, uint16 num_roads,
 
 weg_besch_t const* settings_t::get_city_road_type(uint16 const year)
 {
-	return get_timeline_road_type(year, num_city_roads, city_roads );
+	return get_timeline_road_type(year, num_city_roads, city_roads);
 }
 
 
 weg_besch_t const* settings_t::get_intercity_road_type(uint16 const year)
 {
-	return get_timeline_road_type(year, num_intercity_roads, intercity_roads );
+	return get_timeline_road_type(year, num_intercity_roads, intercity_roads);
 }
 
 

@@ -2398,7 +2398,7 @@ void wegbauer_t::baue_strasse()
 
 	// init undo
 	if(player!=NULL) {
-		// intercity roads have no owner, so we must check for an owner
+		// Some roads have no owner, so we must check for an owner
 		player->init_undo(road_wt,get_count());
 	}
 
