@@ -5223,7 +5223,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 		{
 			if(signal_t* const signal = g->find<signal_t>())
 			{
-				if(((counter -- || pre_signals.empty() || (reached_end_of_loop && (early_platform_index == INVALID_INDEX || last_stop_signal_index < early_platform_index))) && ( signal->get_besch()->get_working_method() != token_block || starting_at_signal)) && route->position_bei(route->get_count() - 1) != signal->get_pos())
+				if(((counter -- || (pre_signals.empty() && (!starting_at_signal || signs.get_count() == 1)) || (reached_end_of_loop && (early_platform_index == INVALID_INDEX || last_stop_signal_index < early_platform_index))) && (signal->get_besch()->get_working_method() != token_block || starting_at_signal)) && route->position_bei(route->get_count() - 1) != signal->get_pos())
 				{
 					const bool use_no_choose_aspect = signal->get_besch()->is_choose_sign() && !is_choosing && choose_return == 0;
 					if(signal->get_besch()->get_working_method() == absolute_block || signal->get_besch()->get_working_method() == token_block || signal->get_besch()->get_working_method() == cab_signalling)
