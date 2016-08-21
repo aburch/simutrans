@@ -1624,7 +1624,7 @@ void settings_t::rdwr(loadsave_t *file)
 				time_interval_seconds_to_clear = 600;
 				time_interval_seconds_to_caution = 300;
 			}
-			if(file->get_experimental_revision() >= 6)
+			if(file->get_experimental_revision() >= 7)
 			{
 				file->rdwr_long(town_road_speed_limit);
 			}
