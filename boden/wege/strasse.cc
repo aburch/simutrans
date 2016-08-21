@@ -34,9 +34,16 @@ void strasse_t::set_gehweg(bool janein)
 	}
 
 	weg_t::set_gehweg(janein);
-	if(janein && get_besch() && get_besch()->get_topspeed() > welt->get_city_road()->get_topspeed()) 
+	if(janein && get_besch()) 
 	{
-		set_max_speed(welt->get_city_road()->get_topspeed());
+		if(welt->get_settings().get_town_road_speed_limit())
+		{
+			set_max_speed(min(welt->get_settings().get_town_road_speed_limit(), get_besch()->get_topspeed()));
+		}
+		else
+		{
+			set_max_speed(get_besch()->get_topspeed());
+		}
 	}
 	if(!janein && get_besch()) {
 		set_max_speed(get_besch()->get_topspeed());

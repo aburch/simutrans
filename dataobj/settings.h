@@ -671,6 +671,8 @@ public:
 	uint32 time_interval_seconds_to_clear;
 	uint32 time_interval_seconds_to_caution;
 
+	uint32 town_road_speed_limit;
+
 	/**
 	 * If map is read from a heightfield, this is the name of the heightfield.
 	 * Set to empty string in order to avoid loading.
@@ -1133,6 +1135,8 @@ public:
 
 	uint32 get_time_interval_seconds_to_clear() const { return time_interval_seconds_to_clear; }
 	uint32 get_time_interval_seconds_to_caution() const { return time_interval_seconds_to_caution; }
+
+	uint32 get_town_road_speed_limit() const { return town_road_speed_limit; }
 };
 
 #endif 

@@ -641,6 +641,14 @@ time_interval_seconds_to_caution = 300
 #
 assumed_curve_radius_45_degrees = 1000
 
+# Towns have speed limits. This value, expressed in km/h, is the speed limit
+# value for urban roads in the game.
+# Default: 50
+# Set to 0 to disable town speed limits (roads will have their base speed limits in towns).
+# This only applies to roads.
+
+town_road_speed_limit = 50
+
 ################################# Tree settings #################################
 #  please be careful in changing them, I spent lot of time finding optimals.
 #  those values have impact on no. of spawned trees -> memory consumption

@@ -512,6 +512,8 @@ settings_t::settings_t() :
 
 	time_interval_seconds_to_clear = 600;
 	time_interval_seconds_to_caution = 300;
+
+	town_road_speed_limit = 50;
 }
 
 void settings_t::set_default_climates()
@@ -1622,6 +1624,14 @@ void settings_t::rdwr(loadsave_t *file)
 				time_interval_seconds_to_clear = 600;
 				time_interval_seconds_to_caution = 300;
 			}
+			if(file->get_experimental_revision() >= 6)
+			{
+				file->rdwr_long(town_road_speed_limit);
+			}
+			else
+			{
+				town_road_speed_limit = 50;
+			}
 		}
 		else
 		{
@@ -2472,6 +2482,7 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	time_interval_seconds_to_clear = contents.get_int("time_interval_seconds_to_clear", time_interval_seconds_to_clear);
 	time_interval_seconds_to_caution = contents.get_int("time_interval_seconds_to_caution", time_interval_seconds_to_caution);
 	
+	town_road_speed_limit = contents.get_int("town_road_speed_limit", town_road_speed_limit);
 
 	// OK, this is a bit complex.  We are at risk of loading the same livery schemes repeatedly, which
 	// gives duplicate livery schemes and utter confusion.
