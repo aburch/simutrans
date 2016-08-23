@@ -3634,7 +3634,7 @@ bool rail_vehicle_t::is_target(const grund_t *gr,const grund_t *prev_gr)
 	return false;
 }
 
-sint32 rail_vehicle_t::activate_choose_signal(const uint16 start_block, uint16 &next_signal_index, uint32 brake_steps, uint16 modified_sighting_distance_tiles, route_t* route)
+sint32 rail_vehicle_t::activate_choose_signal(const uint16 start_block, uint16 &next_signal_index, uint32 brake_steps, uint16 modified_sighting_distance_tiles, route_t* route, sint32 modified_route_index)
 {
 	grund_t const* target = welt->lookup(route->back());
 
@@ -3650,7 +3650,7 @@ sint32 rail_vehicle_t::activate_choose_signal(const uint16 start_block, uint16 &
 
 	// check whether there is another choose signal or end_of_choose on the route
 	uint32 break_index = start_block + 1;
-	for(uint32 idx = start_block + 1; choose_ok && idx <route->get_count(); idx++)
+	for(uint32 idx = start_block + 1; choose_ok && idx < route->get_count(); idx++)
 	{
 		grund_t *gr = welt->lookup(route->position_bei(idx));
 		if(!gr)
@@ -3687,7 +3687,7 @@ sint32 rail_vehicle_t::activate_choose_signal(const uint16 start_block, uint16 &
 		if(way->has_signal())
 		{
 			signal_t *sig = gr->find<signal_t>(1);
- 			ribi_t::ribi ribi = ribi_typ(route->position_bei(max(1u,route_index)-1u));	
+ 			ribi_t::ribi ribi = ribi_typ(route->position_bei(max(1u, modified_route_index) - 1u));	
 			if(!gr->get_weg(get_waytype())->get_ribi_maske() & ribi) // Check that the signal is facing in the right direction.
 			{
 				if(sig && sig->get_besch()->is_choose_sign())
@@ -5209,7 +5209,17 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 		if(will_choose)
 		{
 			// This will call the block reserver afresh from the last choose signal with choose logic enabled. 
-			choose_return = activate_choose_signal(last_choose_signal_index, next_signal_index, brake_steps, modified_sighting_distance_tiles, route); 
+			sint32 modified_route_index;
+			if(onward_reservation)
+			{
+				modified_route_index  = route_index - route->get_count(); 
+			}
+			else
+			{
+				modified_route_index = route_index;
+			}
+
+			choose_return = activate_choose_signal(last_choose_signal_index, next_signal_index, brake_steps, modified_sighting_distance_tiles, route, modified_route_index); 
 		}
 
 		if(!success && !choose_return)
