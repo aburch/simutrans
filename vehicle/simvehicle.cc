@@ -5233,7 +5233,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 					if(signal->get_besch()->get_working_method() == absolute_block || signal->get_besch()->get_working_method() == token_block || signal->get_besch()->get_working_method() == cab_signalling)
 					{
 						// There is no need to set a combined signal to clear here, as this is set below in the pre-signals clearing loop.
-						signal->set_state(use_no_choose_aspect ? roadsign_t::clear_no_choose : signal->get_besch()->is_combined_signal() ? roadsign_t::caution : roadsign_t::clear);
+						signal->set_state(use_no_choose_aspect && signal->get_state() != roadsign_t::clear ? roadsign_t::clear_no_choose : signal->get_besch()->is_combined_signal() ? roadsign_t::caution : roadsign_t::clear);
 					}
 
 					if(signal->get_besch()->get_working_method() == time_interval || signal->get_besch()->get_working_method() == time_interval_with_telegraph)
