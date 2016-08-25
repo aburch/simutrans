@@ -860,6 +860,7 @@ void weg_t::new_month()
 		}
 		statistics[0][type] = 0;
 	}
+	wear_way(besch->get_monthly_base_wear()); 
 }
 
 
@@ -997,7 +998,7 @@ uint32 weg_t::get_condition_percent() const
 
 void weg_t::wear_way(uint32 wear)
 {
-	if(remaining_wear_capacity == UINT32_MAX_VALUE)
+	if(!wear || remaining_wear_capacity == UINT32_MAX_VALUE)
 	{
 		// If ways are defined with UINT32_MAX_VALUE,
 		// this feature is intended to be disabled.

@@ -82,6 +82,7 @@ protected:
 	sint8 max_altitude;			///< Maximum height in tiles above sea level at which this way may be built
 	uint8 max_vehicles_on_tile;	///< Maximum number of vehicles permitted on the tile at once. Only used for waterways. Default: 251
 	uint32 wear_capacity;		///< The total number of standard axle passes (*10,000 for precision) that this way can take
+	uint32 monthly_base_wear;	///< The amount of wear (in the same units as above) as the way experienecs monthly from the weather etc. without taking into account vehicles passing upon it. Default 1/12th of 1/50th of the way's total capacity (i.e., will wear out in 50 years with no traffic) unless a waterway.
 	uint32 base_way_only_cost;	///< The cost of upgrading/renewing only the way on the elevated way (without scale factor).
 	uint32 way_only_cost;		///< The cost of upgrading/renewing only the way on the elevated way.
 	uint8 upgrade_group;		///< The group of elevated ways between which this can be upgraded for the way only cost.
@@ -118,6 +119,8 @@ public:
 	inline uint16 get_axle_load() const { return axle_load; }
 
 	inline uint32 get_wear_capacity() const { return wear_capacity; }
+
+	inline uint32 get_monthly_base_wear() const { return monthly_base_wear; }
 
 	void set_scale(uint16 scale_factor)
 	{

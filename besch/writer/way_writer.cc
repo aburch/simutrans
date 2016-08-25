@@ -27,7 +27,7 @@ void way_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 	int ribi, hang;
 
 	// node size is 46 bytes
-	obj_node_t node(this, 45, &parent);
+	obj_node_t node(this, 49, &parent);
 
 
 	// Hajo: Version needs high bit set as trigger -> this is required
@@ -74,6 +74,7 @@ void way_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 
 	// Must use get_int64 here, as get_int is limited to the length of a *signed* 32-bit integer.
 	uint32 wear_capacity		= obj.get_int64("wear_capacity", wtyp == road_wt ? 100000000 : 4000000000);
+	uint32 monthly_base_wear	= obj.get_int64("monthly_base_wear", wtyp == water_wt ? 0 : wear_capacity / 600);
 
 	// true to draw as foregrund and not much earlier (default)
 	uint8 draw_as_obj = (obj.get_int("draw_as_ding", 0) == 1);
@@ -133,6 +134,7 @@ void way_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 	node.write_uint32(outfp, wear_capacity,				36);
 	node.write_uint32(outfp, way_only_cost,				40);
 	node.write_uint8(outfp, upgrade_group,				44); 
+	node.write_uint32(outfp, monthly_base_wear, 		45); 
 
 	static const char* const image_type[] = { "", "front" };
 

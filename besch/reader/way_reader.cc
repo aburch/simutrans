@@ -107,6 +107,7 @@ obj_besch_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 					besch->wear_capacity = decode_uint32(p);
 					besch->way_only_cost = decode_uint32(p);
 					besch->upgrade_group = decode_uint8(p);
+					besch->monthly_base_wear = decode_uint32(p); 
 				}
 				if(experimental_version > 1)
 				{
@@ -200,6 +201,11 @@ obj_besch_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			besch->way_only_cost = besch->cost;
 			besch->upgrade_group = 0;
 		}
+
+		if(version < 6 || experimental_version < 1 || !experimental)
+		{
+			besch->monthly_base_wear = besch->wear_capacity / 600;
+		}
 	}
 
 	// some internal corrections to pay for previous confusion with two waytypes
@@ -229,7 +235,7 @@ obj_besch_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 	DBG_DEBUG("way_reader_t::read_node()",
 		"version=%d, price=%d, maintenance=%d, topspeed=%d, max_weight=%d, "
-		"wtype=%d, styp=%d, intro_year=%i, axle_load=%d, wear_capacity=%d"
+		"wtype=%d, styp=%d, intro_year=%i, axle_load=%d, wear_capacity=%d, monthly_base_wear=%d, "
 		"way_constraints_permissive = %d, way_constraints_prohibitive = %d",
 		version,
 		besch->cost,
@@ -240,6 +246,7 @@ obj_besch_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->intro_date/12,
 		besch->axle_load,
 		besch->wear_capacity,
+		besch->monthly_base_wear,
 		besch->get_way_constraints().get_permissive(),
 		besch->get_way_constraints().get_prohibitive());
 
