@@ -4414,6 +4414,13 @@ void convoi_t::rdwr(loadsave_t *file)
 
 		file->rdwr_long(max_signal_speed); 
 		last_signal_pos.rdwr(file); 
+
+		if(file->get_experimental_revision() >= 8)
+		{
+			// This allows for compatibility with saves from the reserving-through branch
+			uint8 has_reserved = 0;
+			file->rdwr_byte(has_reserved);
+		}
 	}
 
 	// This must come *after* all the loading/saving.
