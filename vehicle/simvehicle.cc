@@ -4377,7 +4377,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 			{
 				no_junctions_to_next_signal = false;
 			}
-			if(sch1->is_crossing()) 
+			if(sch1->is_crossing() && !directional_only) 
 			{
 				crossing_t* cr = gr->find<crossing_t>(2);
 				if(cr)
@@ -4880,7 +4880,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 					last_stop_signal_index = this_stop_signal_index;
 				}
 
-				if(attempt_reservation)
+				if(attempt_reservation && !directional_only)
 				{
 					if(sch1->is_crossing()) 
 					{
