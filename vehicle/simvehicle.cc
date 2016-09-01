@@ -5210,7 +5210,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 		{
 			// This will call the block reserver afresh from the last choose signal with choose logic enabled. 
 			sint32 modified_route_index;
-			if(is_from_token)
+			if(is_from_token || is_from_directional)
 			{
 				modified_route_index  = route_index - route->get_count(); 
 			}
@@ -5382,7 +5382,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 		}
 	}
 
-	if(cnv)
+	if(cnv && !is_from_token && !is_from_directional)
 	{
 		cnv->set_next_reservation_index(last_non_directional_index);
 	}
@@ -5393,7 +5393,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 		route->remove_koord_from(early_platform_index);
 	}
 
-	return reached_end_of_loop || working_method != track_circuit_block ? (!combined_signals.empty() && !pre_signals.empty() ? 2 : 1) + choose_return : (sint32)signs.get_count() + choose_return;
+	return reached_end_of_loop || working_method != track_circuit_block ? (!combined_signals.empty() && !pre_signals.empty() ? 2 : 1) + choose_return : directional_only && success ? 1 : (sint32)signs.get_count() + choose_return;
 }
 
 void rail_vehicle_t::clear_token_reservation(signal_t* sig, rail_vehicle_t* w, schiene_t* sch)
