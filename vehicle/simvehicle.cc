@@ -5210,7 +5210,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 		{
 			// This will call the block reserver afresh from the last choose signal with choose logic enabled. 
 			sint32 modified_route_index;
-			if(onward_reservation)
+			if(is_from_token)
 			{
 				modified_route_index  = route_index - route->get_count(); 
 			}
