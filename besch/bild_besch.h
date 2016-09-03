@@ -16,7 +16,7 @@
 #define SPECIAL (31)
 
 //#define TRANSPARENT 0x808088
-#define SPECIAL_TRANSPARENT (0xE7FFFF)
+#define SPECIAL_TRANSPARENT (0x00E7FFFF)
 
 
 struct bild_t {
@@ -44,6 +44,10 @@ class bild_besch_t : public obj_besch_t
 {
 public:
 	static const uint32 rgbtab[SPECIAL];
+	static const uint8  special_pal[224*3];
+
+	// returns next matching color to an rgb
+	static COLOR_VAL get_index_from_rgb( uint8 r, uint8 g, uint8 b );
 
 	const bild_t* get_pic() const { return &pic; }
 

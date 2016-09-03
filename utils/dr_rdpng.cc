@@ -73,19 +73,27 @@ static void read_png(unsigned char** block, unsigned* width, unsigned* height, F
 	png_set_packing(png_ptr);
 
 	/* Expand paletted colors into true RGB triplets */
-	png_set_expand(png_ptr);
-
-	/* Don't output alpha channel */
-	png_set_strip_alpha(png_ptr);
-
-	if(  (color_type & PNG_COLOR_MASK_ALPHA) == PNG_COLOR_MASK_ALPHA  ) {
-		dbg->warning( "while loading PNG", "ignoring alpha channel for %s", filename_.c_str() );
-		// author note: It might be that this won't catch files with format
-		// palette + transparency, which is a really rare but possible combination.
+    if(  color_type == PNG_COLOR_TYPE_PALETTE  ) {
+        png_set_expand(png_ptr);
+		/* Don't output alpha channel on indexed images (There is a bug in libpng that the first pixel of such a bitmap ihas alpha 0xFFxxxxx */
+		png_set_strip_alpha(png_ptr);
+		// add dummy alpha
+		png_set_filler(png_ptr, 0, PNG_FILLER_BEFORE);
+	}
+	else if (color_type == PNG_COLOR_TYPE_RGB) {
+		// add zero aplpha channel
+		png_set_filler(png_ptr, 0, PNG_FILLER_BEFORE);
+	}
+	else if (color_type == PNG_COLOR_TYPE_RGB_ALPHA) {
+        png_set_swap_alpha(png_ptr);
+		png_set_invert_alpha(png_ptr);
+		/* alpha 0 is opaque, alpha 255 is transparent */
 	}
 
 	// update info - png_get_rowbytes might return incorrect values
 	png_read_update_info( png_ptr,  info_ptr);
+
+	// now the image should be in 4 byte Alpha, R, G; B format
 
 	rowbytes = png_get_rowbytes(png_ptr, info_ptr);
 	row_pointers = MALLOCN(png_byte*, *height);
@@ -101,11 +109,11 @@ static void read_png(unsigned char** block, unsigned* width, unsigned* height, F
 	// we use fixed height here because block is of limited, fixed size
 	// not fixed any more
 
-	*block = REALLOC(*block, unsigned char, *height * *width * 3);
+	*block = REALLOC(*block, unsigned char, *height * *width * 4);
 
 	dst = *block;
 	for (y = 0; y < *height; y++) {
-		for (x = 0; x < *width * 3; x++) {
+		for (x = 0; x < *width * 4; x++) {
 			*dst++ = row_pointers[y][x];
 		}
 	}

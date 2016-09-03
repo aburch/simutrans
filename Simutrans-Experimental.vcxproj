@@ -1566,6 +1566,9 @@
     <ClCompile Include="dataobj\loadsave.cc" />
     <ClCompile Include="gui\loadsave_frame.cc" />
     <ClCompile Include="utils\csv.cc" />
+    <ClCompile Include="utils\dr_rdpng.cc">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="utils\float32e8_t.cc" />
     <ClCompile Include="utils\log.cc" />
     <ClCompile Include="boden\wege\maglev.cc" />
