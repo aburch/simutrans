@@ -1,5 +1,6 @@
 /* ICON and Version info for Simutrans-Experimental Windows */
 
+#include <windows.h>
 #include "simversion.h"
 
 100 ICON "simutrans.ico"
@@ -32,3 +33,5 @@ PRODUCTVERSION RES_VERSION_NUMBER
  }
 
 }
+
+CREATEPROCESS_MANIFEST_RESOURCE_ID RT_MANIFEST "Simutrans.manifest"
