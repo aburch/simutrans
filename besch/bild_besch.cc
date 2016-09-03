@@ -5,7 +5,7 @@
 #include "../macros.h"
 
 #include <string.h>
-
+#include <stdlib.h>
 
 /*
  * Definition of special colors
