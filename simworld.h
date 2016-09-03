@@ -928,12 +928,6 @@ public:
 	vector_tpl<fabrik_t*> closed_factories_this_month;
 
 	/**
-	 * Reads height data from 8 or 25 bit bmp or ppm files.
-	 * @return Either pointer to heightfield (use delete [] for it) or NULL.
-	 */
-	static bool get_height_data_from_file( const char *filename, sint8 grundwasser, sint8 *&hfield, sint16 &ww, sint16 &hh, bool update_only_values );
-
-	/**
 	 * Returns the messagebox message container.
 	 */
 	message_t *get_message() const { return msg; }

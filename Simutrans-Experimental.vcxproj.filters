@@ -978,6 +978,9 @@
     <ClCompile Include="utils\dr_rdpng.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="dataobj\height_map_loader.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="gui\components\action_listener.h">
@@ -2190,6 +2193,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="display\clip_num.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dataobj\height_map_loader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

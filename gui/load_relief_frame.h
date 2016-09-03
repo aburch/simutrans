@@ -19,6 +19,8 @@ class load_relief_frame_t : public savegame_frame_t
 private:
 	settings_t* sets;
 
+	button_t new_format;
+
 protected:
 	virtual bool item_action(const char *fullpath);
 	virtual const char *get_info(const char *fullpath);

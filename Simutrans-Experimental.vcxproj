@@ -1335,6 +1335,7 @@
     <ClCompile Include="clipboard_w32.cc" />
     <ClCompile Include="dataobj\environment.cc" />
     <ClCompile Include="dataobj\gameinfo.cc" />
+    <ClCompile Include="dataobj\height_map_loader.cc" />
     <ClCompile Include="dataobj\livery_scheme.cc" />
     <ClCompile Include="dataobj\objlist.cc" />
     <ClCompile Include="dataobj\records.cc" />
@@ -1728,6 +1729,7 @@
   <ItemGroup>
     <ClInclude Include="dataobj\environment.h" />
     <ClInclude Include="dataobj\gameinfo.h" />
+    <ClInclude Include="dataobj\height_map_loader.h" />
     <ClInclude Include="dataobj\livery_scheme.h" />
     <ClInclude Include="dataobj\objlist.h" />
     <ClInclude Include="dataobj\records.h" />

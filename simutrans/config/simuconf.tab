@@ -646,6 +646,9 @@ assumed_curve_radius_45_degrees = 1000
 
 town_road_speed_limit = 50
 
+# This allows for height maps with more height levels
+new_height_map_conversion = 0
+
 ################################# Tree settings #################################
 #  please be careful in changing them, I spent lot of time finding optimals.
 #  those values have impact on no. of spawned trees -> memory consumption
