@@ -5,6 +5,7 @@
 #include "../api_param.h"
 #include "../../simobj.h"
 #include "../../simmenu.h"
+#include "../../boden/wege/weg.h"
 
 using namespace script_api;
 

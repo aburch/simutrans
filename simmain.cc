@@ -31,7 +31,7 @@
 #include "simloadingscreen.h"
 #include "simticker.h"
 #include "simmesg.h"
-#include "simtool.h"
+#include "simmenu.h"
 #include "siminteraction.h"
 
 #include "simsys.h"

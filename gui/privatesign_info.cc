@@ -11,6 +11,7 @@
 
 
 #include "../simmenu.h"
+#include "../simworld.h"
 
 privatesign_info_t::privatesign_info_t(roadsign_t* s) :
 	obj_infowin_t(s),

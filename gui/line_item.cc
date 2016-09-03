@@ -3,6 +3,7 @@
 #include "line_item.h"
 #include "../simline.h"
 #include "../simmenu.h"
+#include "../simworld.h"
 #include "../utils/cbuffer_t.h"
 
 
