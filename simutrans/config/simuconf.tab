@@ -385,9 +385,6 @@ show_names = 3
 # Color of background default: COL_GREY2 (210)
 #background_color = 210
 
-# show the windows close etc. buttons on the right (like windows 98)
-#window_buttons_right = 0
-
 # there are three different ways to indicate an active window
 
 # first: draw a frame with titlebar color around active window
