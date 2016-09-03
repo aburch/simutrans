@@ -39,6 +39,7 @@ void image_writer_t::dump_special_histogramm()
 	}
 }
 
+
 uint32 image_writer_t::block_getpix(int x, int y)
 {
 	return (image_writer_t::block[y * width * 4 + x * 4 + 0]<<24) +
@@ -85,6 +86,7 @@ static uint16 pixrgb_to_pixval(uint32 rgb)
 
 
 	// non-transparent pixel
+	for (int i = 0; i < SPECIAL; i++) {
 		if (bild_besch_t::rgbtab[i] == (uint32)rgb) {
 			pix = 0x8000 + i;
 			return endian(pix);
@@ -100,11 +102,14 @@ static uint16 pixrgb_to_pixval(uint32 rgb)
 	return endian(pix);
 }
 
+
+
 // true if transparent
 inline bool is_transparent( const uint32 pix )
 {
 	return (pix & 0x00FFFFFF) == SPECIAL_TRANSPARENT  ||  (pix >= ALPHA_THRESHOLD);
 }
+
 
 
 static void init_dim(uint32 *image, dimension *dim, int img_size)
@@ -185,10 +190,25 @@ uint16 *image_writer_t::encode_image(int x, int y, dimension* dim, int* len)
 			while(  !is_transparent(pix)  ) {
 				// write the colored pixel
 				PIXVAL pixval = pixrgb_to_pixval(pix);
-				*dest++ = pixval;
-				if(  pixval >= 0x8020  ) {
+				if(  pixval >= 0x8020  &&  !has_transparent  ) {
+					if(  count  ) {
+						*colored_run_counter = endian(count);
+						*dest++ = endian(0x8000);
+						colored_run_counter = dest++;
+						count = 0;
+					}
 					has_transparent = 0x8000;
 				}
+				else if(  pixval < 0x8020  &&  has_transparent  ) {
+					if(  count  ) {
+						*colored_run_counter = endian(count+has_transparent);
+						*dest++ = endian(0x8000);
+						colored_run_counter = dest++;
+						count = 0;
+					}
+					has_transparent = 0;
+				}
+				*dest++ = pixval;
 				count++;
 				if (row_px_count >= img_width) { // end of line ?
 					break;
@@ -207,7 +227,7 @@ uint16 *image_writer_t::encode_image(int x, int y, dimension* dim, int* len)
 			}
 			else {
 				*colored_run_counter = endian(count + has_transparent);
- 				clear_colored_run_pair_count++;
+				clear_colored_run_pair_count++;
 			}
 		} while(  row_px_count < img_width  );
 
