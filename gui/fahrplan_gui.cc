@@ -695,12 +695,14 @@ bool fahrplan_gui_t::infowin_event(const event_t *ev)
 						cbuffer_t buf;
 						fpl->sprintf_schedule( buf );
 						cnv->call_convoi_tool( 'g', buf );
+						delete fpl;
 					}
 				}
 				else {
 					cbuffer_t buf;
 					fpl->sprintf_schedule( buf );
 					cnv->call_convoi_tool( 'g', buf );
+					delete fpl;
 				}
 
 				if(  cnv->in_depot()  ) {
