@@ -443,6 +443,7 @@ static const grund_besch_t* boden_texture            = NULL;
 static const grund_besch_t* light_map                = NULL;
 static const grund_besch_t* transition_water_texture = NULL;
 static const grund_besch_t* transition_slope_texture = NULL;
+const grund_besch_t *grund_besch_t::shore = NULL;
 const grund_besch_t *grund_besch_t::fundament = NULL;
 const grund_besch_t *grund_besch_t::slopes = NULL;
 const grund_besch_t *grund_besch_t::fences = NULL;
@@ -521,7 +522,7 @@ bool grund_besch_t::register_besch(const grund_besch_t *besch)
 bool grund_besch_t::alles_geladen()
 {
 	DBG_MESSAGE("grund_besch_t::alles_geladen()","boden");
-	return ::alles_geladen(grounds);
+	return ::alles_geladen(grounds+1);
 }
 
 
