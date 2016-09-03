@@ -675,7 +675,20 @@ void objlist_t::calc_image()
 	}
 }
 
-
+void objlist_t::set_all_dirty()
+{
+	if(  capacity == 0  ) {
+		// nothing
+	}
+	else if(  capacity == 1  ) {
+		obj.one->set_flag( obj_t::dirty );
+	}
+	else {
+		for(  uint8 i = 0;  i < top;  i++  ) {
+			obj.some[i]->set_flag( obj_t::dirty );
+		}
+	}
+}
 
 /* check for obj */
 bool objlist_t::ist_da(const obj_t* test_obj) const

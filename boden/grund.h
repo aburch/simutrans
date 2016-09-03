@@ -234,6 +234,13 @@ public:
 	void check_season_snowline(const bool season_change, const bool snowline_change) { if( snowline_change ) { calc_bild_internal( snowline_change ); } objlist.check_season( season_change && !snowline_change ); }
 
 	/**
+	 * Sets all objects to dirty to prevent artifacts with smart hide cursor
+	 */
+	void set_all_obj_dirty() { objlist.set_all_dirty(); }
+
+	/**
+
+	/**
 	 * Dient zur Neuberechnung des Bildes, wenn sich die Umgebung
 	 * oder die Lage (Hang) des grundes geaendert hat.
 	 * @author Hj. Malthaner

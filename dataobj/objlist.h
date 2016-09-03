@@ -108,6 +108,11 @@ public:
 	void calc_image();
 
 	/**
+	 * Sets all objects dirty to prevent artifacts with smart hide cursor
+	 */
+	void set_all_dirty();
+
+	/**
 	 * Called whenever the season or snowline height changes
 	 */
 	void check_season(const bool calc_only_season_change);
