@@ -969,15 +969,16 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 r
 			// choose foundation or natural slopes
 			const grund_besch_t *sl_draw = artificial ? grund_besch_t::fundament : grund_besch_t::slopes;
 
+			const sint8 disp_slope = get_disp_slope();
 			// first draw left, then back slopes
 			for(  int i=0;  i<2;  i++  ) {
-				const uint8 back_height = min(i==0?corner1(slope):corner3(slope),corner4(slope));
+				const uint8 back_height = min(i==0?corner1(disp_slope):corner3(disp_slope),corner4(disp_slope));
 
 				if (back_height + get_disp_height() > underground_level) {
 					continue;
 				}
 
-				sint16  yoff = tile_raster_scale_y( -TILE_HEIGHT_STEP*back_height, raster_tile_width );
+				sint16 yoff = tile_raster_scale_y( -TILE_HEIGHT_STEP*back_height, raster_tile_width );
 				if(  back_bild[i]  ) {
 					grund_t *gr = welt->lookup_kartenboden( k + koord::nsow[(i-1)&3] );
 					if(  gr  ) {
@@ -1010,8 +1011,8 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 r
 	}
 
 	// ground
-	image_id image = get_image();
-	if(image==IMG_LEER) {
+	image_id bild = get_image();
+	if(bild==IMG_LEER) {
 		// only check for forced redraw (of marked ... )
 		if(dirty) {
 			mark_rect_dirty_clip( xpos, ypos + raster_tile_width / 2, xpos + raster_tile_width - 1, ypos + raster_tile_width - 1 CLIP_NUM_PAR );
@@ -1119,7 +1120,7 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 r
 						}
 						else {
 							// animate
-							display_alpha( grund_besch_t::sea->get_image(0,wasser_t::stage), grund_besch_t::get_beach_tile( slope, water_corners ), ALPHA_BLUE, xpos, ypos, 0, 0, true, dirty|wasser_t::change_stage CLIP_NUM_PAR );
+							display_alpha( grund_besch_t::sea->get_image(0,wasser_t::stage), grund_besch_t::get_beach_tile( slope, water_corners ), ALPHA_RED, xpos, ypos, 0, 0, true, dirty|wasser_t::change_stage CLIP_NUM_PAR );
 						}
 					}
 				}
@@ -1193,6 +1194,7 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 r
 		}
 	}
 }
+
 
 
 void grund_t::display_border( sint16 xpos, sint16 ypos, const sint16 raster_tile_width CLIP_NUM_DEF)
@@ -1311,6 +1313,7 @@ hang_t::typ grund_t::get_disp_way_slope() const
 		return hang_t::flach;
 	}
 }
+
 
 
 /**
