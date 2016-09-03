@@ -307,7 +307,7 @@ void player_t::display_messages()
  * Age messages (move them upwards), delete too old ones
  * @author prissi
  */
-void player_t::age_messages(long /*delta_t*/)
+void player_t::age_messages(uint32 /*delta_t*/)
 {
 	for(slist_tpl<income_message_t *>::iterator iter = messages.begin(); iter != messages.end(); ) {
 		income_message_t *m = *iter;

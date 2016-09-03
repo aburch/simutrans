@@ -144,7 +144,7 @@ public:
 
 	const stadtauto_besch_t *get_besch() const { return besch; }
 
-	bool sync_step(long delta_t);
+	sync_result sync_step(uint32 delta_t);
 
 	void hop(grund_t *gr);
 	bool can_enter_tile(grund_t *gr);

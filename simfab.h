@@ -584,7 +584,7 @@ public:
 
 	sint32 liefere_an(const ware_besch_t *, sint32 menge);
 
-	void step(long delta_t);                  // fabrik muss auch arbeiten ("factory must also work")
+	void step(uint32 delta_t);                  // fabrik muss auch arbeiten ("factory must also work")
 
 	void new_month();
 

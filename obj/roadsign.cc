@@ -85,7 +85,7 @@ roadsign_t::roadsign_t(loadsave_t *file) : obj_t ()
 	}
 	// only traffic light need switches
 	if(  automatic  ) {
-		welt->sync_add(this);
+		welt->sync.add(this);
 	}
 }
 
@@ -130,7 +130,7 @@ roadsign_t::roadsign_t(player_t *player, koord3d pos, ribi_t::ribi dir, const ro
 	automatic = (besch->get_bild_anzahl()>4  &&  besch->get_wtyp()==road_wt)  ||  (besch->get_bild_anzahl()>2  &&  besch->is_private_way());
 	// only traffic light need switches
 	if(  automatic  ) {
-		welt->sync_add(this);
+		welt->sync.add(this);
 	}
 }
 
@@ -163,7 +163,7 @@ roadsign_t::~roadsign_t()
 		}
 	}
 	if(automatic) {
-		welt->sync_remove(this);
+		welt->sync.remove(this);
 	}
 }
 
@@ -503,7 +503,7 @@ void roadsign_t::calc_image()
 
 
 // only used for traffic light: change the current state
-bool roadsign_t::sync_step(long /*delta_t*/)
+sync_result roadsign_t::sync_step(uint32 /*delta_t*/)
 {
 	if(  besch->is_private_way()  ) {
 		uint8 image = 1-(dir&1);
@@ -526,7 +526,7 @@ bool roadsign_t::sync_step(long /*delta_t*/)
 			calc_image();
 		}
 	}
-	return true;
+	return SYNC_OK;
 }
 
 

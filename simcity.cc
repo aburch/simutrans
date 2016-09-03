@@ -2271,7 +2271,7 @@ void stadt_t::change_size( sint64 delta_citizen, bool new_town)
 }
 
 
-void stadt_t::step(long delta_t)
+void stadt_t::step(uint32 delta_t)
 {
 	// is it time for the next step?
 	next_growth_step += delta_t;
@@ -4307,7 +4307,7 @@ void stadt_t::generate_private_cars(koord pos, uint16 journey_tenths_of_minutes,
 							const sint32 time_to_live = ((sint32)journey_tenths_of_minutes * 136584) / (sint32)welt->get_settings().get_meters_per_tile();
 							vt->set_time_to_life(time_to_live);
 							gr->obj_add(vt);
-							welt->sync_add(vt);
+							welt->sync.add(vt);
 						}
 						goto outer_loop;
 					}

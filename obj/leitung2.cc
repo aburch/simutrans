@@ -570,7 +570,7 @@ void pumpe_t::neue_karte()
 }
 
 
-void pumpe_t::step_all(long delta_t)
+void pumpe_t::step_all(uint32 delta_t)
 {
 	FOR(slist_tpl<pumpe_t*>, const p, pumpe_list) {
 		p->step(delta_t);
@@ -614,7 +614,7 @@ pumpe_t::~pumpe_t()
 }
 
 
-void pumpe_t::step(long delta_t)
+void pumpe_t::step(uint32 delta_t)
 {
 	if(fab==NULL) {
 		return;
@@ -705,7 +705,7 @@ void senke_t::neue_karte()
 }
 
 
-void senke_t::step_all(long delta_t)
+void senke_t::step_all(uint32 delta_t)
 {
 	FOR(slist_tpl<senke_t*>, const s, senke_list) {
 		s->step(delta_t);
@@ -728,7 +728,7 @@ senke_t::senke_t(loadsave_t *file) :
 	last_power_demand = 0;
 	power_load = 0;
 	rdwr( file );
-	welt->sync_add(this);
+	welt->sync.add(this);
 }
 
 
@@ -752,14 +752,14 @@ senke_t::senke_t(koord3d pos, player_t *player, stadt_t* c) :
 	last_power_demand = 0;
 	power_load = 0;
 	player_t::book_construction_costs(player, welt->get_settings().cst_transformer, get_pos().get_2d(), powerline_wt);
-	welt->sync_add(this);
+	welt->sync.add(this);
 }
 
 
 senke_t::~senke_t()
 {
 	senke_list.remove( this );
-	welt->sync_remove( this );
+	welt->sync.remove( this );
 	if(fab || city)
 	{
 		if(fab)
@@ -779,7 +779,7 @@ senke_t::~senke_t()
 }
 
 
-void senke_t::step(long delta_t)
+void senke_t::step(uint32 delta_t)
 {
 	if(fab == NULL && city == NULL)
 	{
@@ -1031,10 +1031,10 @@ uint32 senke_t::get_power_load() const
 	return pl;
 }
 
-bool senke_t::sync_step(long delta_t)
+sync_result senke_t::sync_step(uint32 delta_t)
 {
 	if( fab == NULL && city == NULL) {
-		return true;
+		return SYNC_DELETE;
 	}
 
 	delta_sum += delta_t;
@@ -1082,7 +1082,7 @@ bool senke_t::sync_step(long delta_t)
 			set_bild( new_bild );
 		}
 	}
-	return true;
+	return SYNC_OK;
 }
 
 

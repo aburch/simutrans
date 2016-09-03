@@ -406,7 +406,7 @@ private_car_t::~private_car_t()
 	
 	// just to be sure we are removed from this list!
 	if(time_to_life>0) {
-		welt->sync_remove(this);
+		welt->sync.remove(this);
 	}
 }
 
@@ -421,7 +421,7 @@ private_car_t::private_car_t(loadsave_t *file) :
 	rdwr(file);
 		
 	if(besch) {
-		welt->sync_add(this);
+		welt->sync.add(this);
 	}
 }
 
@@ -448,11 +448,11 @@ private_car_t::private_car_t(grund_t* gr, koord const target) :
 }
 
 
-bool private_car_t::sync_step(long delta_t)
+sync_result private_car_t::sync_step(uint32 delta_t)
 {
 	time_to_life -= delta_t;
 	if(  time_to_life<=0 ) {
-		return false;
+		return SYNC_DELETE;
 	}
 
 	if(  current_speed==0  ) {
@@ -499,7 +499,7 @@ bool private_car_t::sync_step(long delta_t)
 		}
 	}
 
-	return time_to_life > 0;
+	return time_to_life>0 ? SYNC_OK : SYNC_DELETE;
 }
 
 

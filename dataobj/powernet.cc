@@ -30,7 +30,7 @@ void powernet_t::neue_karte()
 }
 
 
-void powernet_t::step_all(long delta_t)
+void powernet_t::step_all(uint32 delta_t)
 {
 	FOR(slist_tpl<powernet_t*>, const p, powernet_list) {
 		p->step(delta_t);
@@ -67,7 +67,7 @@ powernet_t::~powernet_t()
 }
 
 
-void powernet_t::step(long delta_t)
+void powernet_t::step(uint32 delta_t)
 {
 	if(  delta_t==0  ) {
 		return;

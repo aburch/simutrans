@@ -155,14 +155,14 @@ class pumpe_t : public leitung_t
 {
 public:
 	static void neue_karte();
-	static void step_all(long delta_t);
+	static void step_all(uint32 delta_t);
 
 private:
 	static slist_tpl<pumpe_t *> pumpe_list;
 
 	uint32 supply;
 
-	void step(long delta_t);
+	void step(uint32 delta_t);
 
 public:
 	pumpe_t(loadsave_t *file);
@@ -191,7 +191,7 @@ class senke_t : public leitung_t, public sync_steppable
 {
 public:
 	static void neue_karte();
-	static void step_all(long delta_t);
+	static void step_all(uint32 delta_t);
 	static slist_tpl<senke_t *> senke_list;
 
 private:
@@ -203,7 +203,7 @@ private:
 	uint32 last_power_demand;
 	uint32 power_load;
 
-	void step(long delta_t);
+	void step(uint32 delta_t);
 
 public:
 	senke_t(loadsave_t *file);
@@ -217,7 +217,7 @@ public:
 
 	// used to alternate between displaying power on and power off images at a frequency determined by the percentage of power supplied
 	// gives players a visual indication of a power network with insufficient generation
-	bool sync_step(long delta_t);
+	sync_result sync_step(uint32 delta_t);
 
 	const char *get_name() const {return "Abspanntransformator";}
 

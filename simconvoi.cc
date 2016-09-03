@@ -264,7 +264,7 @@ DBG_MESSAGE("convoi_t::~convoi_t()", "destroying %d, %p", self.get_id(), this);
 		welt->get_viewport()->set_follow_convoi( convoihandle_t() );
 	}
 
-	welt->sync_remove( this );
+	welt->sync.remove( this );
 	welt->rem_convoi( self );
 
 	clear_estimated_times();
@@ -899,7 +899,7 @@ inline weg_t *get_weg_on_grund(const grund_t *grund, const waytype_t waytype)
 /* Calculates (and sets) new akt_speed and sp_soll
  * needed for driving, entering and leaving a depot)
  */
-void convoi_t::calc_acceleration(long delta_t)
+void convoi_t::calc_acceleration(uint32 delta_t)
 {
 	// existing_convoy_t is designed to become a part of convoi_t.
 	// There it will help to minimize updating convoy summary data.
@@ -1086,24 +1086,19 @@ int convoi_t::get_vehicle_at_length(uint16 length)
 
 
 // moves all vehicles of a convoi
-bool convoi_t::sync_step(long delta_t)
+sync_result convoi_t::sync_step(uint32 delta_t)
 {
 	// still have to wait before next action?
 	wait_lock -= delta_t;
 	if(wait_lock > 0) {
-		return true;
+		return SYNC_OK;
 	}
 	wait_lock = 0;
 
 	switch(state) {
 		case INITIAL:
-			// jemand muﬂ start aufrufen, damit der convoi von INITIAL
-			// nach ROUTING_1 geht, das kann nicht automatisch gehen
-
-			//someone must call start, so that convoi from INITIAL
-			//to ROUTING_1 goes, which cannot go automatically (Google)
-			break;
-
+			// in depot, should not be in sync list, remove
+			return SYNC_REMOVE;
 		case FAHRPLANEINGABE:
 		case ROUTING_1:
 		case DUMMY4:
@@ -1152,7 +1147,7 @@ bool convoi_t::sync_step(long delta_t)
 						//}
 
  						state = DRIVING;
- 						return true;
+ 						return SYNC_OK;
 					}
 					// now only the right numbers
 					for(int i=1; i<=v_nr; i++) {
@@ -1190,7 +1185,7 @@ bool convoi_t::sync_step(long delta_t)
 				uint32 sp_hat = front()->do_drive(sp_soll < 0 ? 0 : sp_soll);
 				// stop when depot reached ...
 				if(state==INITIAL) {
-					break;
+					return SYNC_REMOVE;
 				}
 				// now move the rest (so all vehikel are moving synchroniously)
 				for(unsigned i=1; i<anz_vehikel; i++) {
@@ -1230,7 +1225,7 @@ bool convoi_t::sync_step(long delta_t)
 			break;
 	}
 
-	return true;
+	return SYNC_OK;
 }
 
 
@@ -2224,10 +2219,6 @@ void convoi_t::enter_depot(depot_t *dep)
 
 	close_windows();
 
-	// Hajo: since 0.81.5exp it's safe to
-	// remove the current sync object from
-	// the sync list from inside sync_step()
-	welt->sync_remove(this);
 	state = INITIAL;
 	wait_lock = 0;
 }

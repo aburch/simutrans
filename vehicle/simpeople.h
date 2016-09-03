@@ -43,7 +43,7 @@ public:
 	typ get_typ() const { return pedestrian; }
 #endif
 
-	bool sync_step(long delta_t);
+	sync_result sync_step(uint32 delta_t);
 
 	// prissi: always free
 	virtual bool can_enter_tile() { return true; }

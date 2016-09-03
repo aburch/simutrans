@@ -70,7 +70,7 @@ pedestrian_t::pedestrian_t(loadsave_t *file)
 {
 	rdwr(file);
 	if(besch) {
-		welt->sync_add(this);
+		welt->sync.add(this);
 	}
 }
 
@@ -91,7 +91,7 @@ pedestrian_t::pedestrian_t(grund_t *gr) :
 pedestrian_t::~pedestrian_t()
 {
 	if(  time_to_life>0  ) {
-		welt->sync_remove( this );
+		welt->sync.remove( this );
 	}
 }
 
@@ -160,7 +160,7 @@ void pedestrian_t::generate_pedestrians_at(const koord3d k, int &anzahl)
 						// walk a little
 						fg->sync_step( (i & 3) * 64 * 24);
 					}
-					welt->sync_add(fg);
+					welt->sync.add(fg);
 					anzahl--;
 				}
 				else {
@@ -177,16 +177,16 @@ void pedestrian_t::generate_pedestrians_at(const koord3d k, int &anzahl)
 }
 
 
-bool pedestrian_t::sync_step(long delta_t)
+sync_result pedestrian_t::sync_step(uint32 delta_t)
 {
 	time_to_life -= delta_t;
 
 	if (time_to_life>0) {
 		weg_next += 128*delta_t;
 		weg_next -= do_drive( weg_next );
-		return time_to_life>0;
+		return time_to_life>0 ? SYNC_OK : SYNC_DELETE;
 	}
-	return false;
+	return SYNC_DELETE;
 }
 
 

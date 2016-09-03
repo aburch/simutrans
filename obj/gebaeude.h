@@ -262,11 +262,10 @@ public:
 	void rdwr(loadsave_t *file);
 
 	/**
-	 * Methode für Echtzeitfunktionen eines Objekts. Spielt animation.
-	 * @return true
-	 * @author Hj. Malthaner
+	 * Play animations of animated buildings.
+	 * Count-down to replace construction site image by regular image.
 	 */
-	bool sync_step(long delta_t);
+	sync_result sync_step(uint32 delta_t);
 
 	void set_tile( const haus_tile_besch_t *t, bool start_with_construction );
 

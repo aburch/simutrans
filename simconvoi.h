@@ -589,7 +589,7 @@ private:
 	/* Calculates (and sets) akt_speed
 	 * needed for driving, entering and leaving a depot)
 	 */
-	void calc_acceleration(long delta_t);
+	void calc_acceleration(uint32 delta_t);
 
 	/*
 	* struct holds new financial history for convoi
@@ -1043,7 +1043,7 @@ public:
 	 * all other stuff => convoi_t::step()
 	 * @author Hj. Malthaner
 	 */
-	bool sync_step(long delta_t);
+	sync_result sync_step(uint32 delta_t);
 
 	/**
 	 * All things like route search or laoding, that may take a little

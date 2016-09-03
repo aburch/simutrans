@@ -519,7 +519,7 @@ DBG_MESSAGE("tool_remover_intern()","at (%s)", pos.get_str());
 				senke_t* sn = (senke_t*)lt;
 				if(sn->city != NULL)
 				{
-					welt->sync_remove(sn);
+					welt->sync.remove(sn);
 				}
 			}				
 			delete lt;
@@ -6778,7 +6778,7 @@ const char *tool_add_citycar_t::work( player_t *player, koord3d pos )
 		// add citycar
 		private_car_t* vt = new private_car_t(gr, koord::invalid);
 		gr->obj_add(vt);
-		welt->sync_add(vt);
+		welt->sync.add(vt);
 		return NULL;
 	}
 	return "";

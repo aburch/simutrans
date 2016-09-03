@@ -54,9 +54,7 @@ wolke_t::~wolke_t()
 {
 	mark_image_dirty( get_image(), 0 );
 	if(  purchase_time != 2499  ) {
-		if(  !welt->sync_way_eyecandy_remove( this )  ) {
-			dbg->error( "wolke_t::~wolke_t()", "wolke not in the correct sync list" );
-		}
+		welt->sync_way_eyecandy.remove( this );
 	}
 }
 
@@ -103,13 +101,13 @@ void wolke_t::rdwr(loadsave_t *file)
 
 
 
-bool wolke_t::sync_step(long delta_t)
+sync_result wolke_t::sync_step(uint32 delta_t)
 {
 	purchase_time += (uint16)delta_t;
 	if(purchase_time>=2499) {
 		// delete wolke ...
 		purchase_time = 2499;
-		return false;
+		return SYNC_DELETE;
 	}
 	// move cloud up
 	sint8 ymove = ((purchase_time*OBJECT_OFFSET_STEPS) >> 12);
@@ -121,7 +119,7 @@ bool wolke_t::sync_step(long delta_t)
 		set_yoff(  base_y_off - ymove  );
 		set_flag(obj_t::dirty);
 	}
-	return true;
+	return SYNC_OK;
 }
 
 
