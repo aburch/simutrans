@@ -768,10 +768,14 @@ void scenario_t::rdwr(loadsave_t *file)
 				// load script
 				cbuffer_t script_filename;
 
-				// try addon directory first
-				scenario_path = ( std::string("addons/") + env_t::objfilename + "scenario/" + scenario_name.c_str() + "/").c_str();
-				script_filename.printf("%sscenario.nut", scenario_path.c_str());
-				rdwr_error = !load_script(script_filename);
+				// assume error
+				rdwr_error = true;
+ 				// try addon directory first
+				if (env_t::default_settings.get_with_private_paks()) {
+					scenario_path = ( std::string("addons/") + env_t::objfilename + "scenario/" + scenario_name.c_str() + "/").c_str();
+					script_filename.printf("%sscenario.nut", scenario_path.c_str());
+					rdwr_error = !load_script(script_filename);
+				}
 
 				// failed, try scenario from pakset directory
 				if (rdwr_error) {

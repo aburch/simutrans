@@ -31,7 +31,9 @@ scenario_frame_t::scenario_frame_t() : savegame_frame_t(NULL, true, NULL, false)
 	addons_scenario.clear();
 	addons_scenario.printf("addons/%sscenario/", env_t::objfilename.c_str());
 
-	this->add_path(addons_scenario);
+	if (env_t::default_settings.get_with_private_paks()) {
+		this->add_path(addons_scenario);
+	}
 	this->add_path(pakset_scenario);
 
 	set_name(translator::translate("Load scenario"));
