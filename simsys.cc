@@ -123,6 +123,7 @@ const char *dr_utf8_to_system_filename( const char *path_in_utf8, bool create )
 	WideCharToMultiByte( CP_UTF8, 0, bufferW2, -1, buffer, lengthof(buffer), NULL, NULL );
 	return buffer;
 #endif
+	(void)create;
 	return path_in_utf8;
 }
 

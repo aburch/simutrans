@@ -119,7 +119,6 @@ private:
 	};
 	vector_tpl<line_segment_t> schedule_cache;
 	convoihandle_t current_cnv;
-	uint8 fpl_player_nr;
 	uint8 last_schedule_counter;
 	vector_tpl<halthandle_t> stop_cache;
 

@@ -28,7 +28,6 @@ label_info_t::label_info_t(label_t* l) :
 	view(l->get_pos(), scr_size( max(64, get_base_tile_raster_width()), max(56, (get_base_tile_raster_width()*7)/8) ))
 {
 
-	this->player = player;
 	label = l;
 
 	const char *const p_name = label->get_owner()->get_name();

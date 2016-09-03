@@ -47,7 +47,6 @@ private:
 	gui_chart_t chart, mchart;
 
 	button_t filterButtons[MAX_CITY_HISTORY];
-	bool bFilterIsActive[MAX_CITY_HISTORY];
 
 	array2d_tpl<uint8> pax_dest_old, pax_dest_new;
 

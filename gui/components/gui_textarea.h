@@ -33,9 +33,6 @@ private:
 	 */
 	bool my_own_buf;
 
-	// we cache the number of lines, to dynamically recalculate the size, if needed
-	uint16	lines;
-
 public:
 	gui_textarea_t(cbuffer_t* buf_);
 	gui_textarea_t(const char* text);

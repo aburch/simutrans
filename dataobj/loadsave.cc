@@ -395,7 +395,6 @@ bool loadsave_t::wr_open(const char *filename_utf8, mode_t m, const char *pak_ex
 	experimental_version = versions.experimental_version;
 	experimental_revision = versions.experimental_revision;
 
-	this->mode = mode;
 	this->filename = filename;
 
 	if(experimental_version >= 12)
