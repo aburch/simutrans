@@ -2230,28 +2230,26 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 	if ( old_x > 0  &&  old_y > 0){
 		for(i=0; i<old_x; i++) {
 			gr = lookup_kartenboden_nocheck(i, old_y-1);
-			h = gr->get_hoehe(hang_t::corner_SW);
-			raise_grid_to(i, old_y+1, h);
+			if (!gr->ist_wasser()) {
+				h = gr->get_hoehe(hang_t::corner_SW);
+				raise_grid_to(i, old_y+1, h);
+				lower_grid_to(i, old_y+1, h );
+			}
 		}
 		for(i=0; i<old_y; i++) {
 			gr = lookup_kartenboden_nocheck(old_x-1, i);
-			h = gr->get_hoehe(hang_t::corner_NE);
-			raise_grid_to(old_x+1, i, h);
-		}
-		for(i=0; i<old_x; i++) {
-			gr = lookup_kartenboden_nocheck(i, old_y-1);
-			h = gr->get_hoehe(hang_t::corner_SW);
-			lower_grid_to(i, old_y+1, h );
-		}
-		for(i=0; i<old_y; i++) {
-			gr = lookup_kartenboden_nocheck(old_x-1, i);
-			h = gr->get_hoehe(hang_t::corner_NE);
-			lower_grid_to(old_x+1, i, h);
+			if (!gr->ist_wasser()) {
+				h = gr->get_hoehe(hang_t::corner_NE);
+				raise_grid_to(old_x+1, i, h);
+				lower_grid_to(old_x+1, i, h);
+			}
 		}
 		gr = lookup_kartenboden_nocheck(old_x-1, old_y -1);
-		h = gr ->get_hoehe(hang_t::corner_SE);
-		raise_grid_to(old_x+1, old_y+1, h);
-		lower_grid_to(old_x+1, old_y+1, h);
+		if (!gr->ist_wasser()) {
+			h = gr->get_hoehe(hang_t::corner_SE);
+			raise_grid_to(old_x+1, old_y+1, h);
+			lower_grid_to(old_x+1, old_y+1, h);
+		}
 	}
 
 	if (  old_x > 0  &&  old_y > 0  ) {
