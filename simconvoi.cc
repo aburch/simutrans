@@ -2683,13 +2683,10 @@ bool convoi_t::set_schedule(schedule_t * f)
 		return false;
 	}
 
-	states old_state = state;
-	state = INITIAL;	// because during a sync-step we might be called twice ...
-
 	DBG_DEBUG("convoi_t::set_schedule()", "new=%p, old=%p", f, fpl);
 	assert(f != NULL);
 
-	if(!line.is_bound() && old_state != INITIAL)
+	if(!line.is_bound() && state != INITIAL)
 	{
 		// New method - recalculate as necessary
 
@@ -2764,7 +2761,7 @@ bool convoi_t::set_schedule(schedule_t * f)
 	check_freight();
 
 	// ok, now we have a schedule
-	if(old_state != INITIAL)
+	if(state != INITIAL)
 	{
 		state = FAHRPLANEINGABE;
 	}
