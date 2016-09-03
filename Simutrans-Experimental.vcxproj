@@ -2248,6 +2248,9 @@
     <Text Include="simutrans\text\en\way_wear.txt" />
     <Text Include="simutrans\text\en\window.txt" />
   </ItemGroup>
+  <ItemGroup>
+    <Manifest Include="Simutrans.manifest" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

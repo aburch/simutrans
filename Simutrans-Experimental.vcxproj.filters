@@ -2563,4 +2563,9 @@
       <Filter>Resource Files\Help texts</Filter>
     </Text>
   </ItemGroup>
+  <ItemGroup>
+    <Manifest Include="Simutrans.manifest">
+      <Filter>Resource Files</Filter>
+    </Manifest>
+  </ItemGroup>
 </Project>
