@@ -45,6 +45,7 @@ public:
  * @author V. Meyer
  */
 class tabfile_t {
+private:
 	FILE *file;
 
 	/**
@@ -59,6 +60,34 @@ class tabfile_t {
 	 * @author V. Meyer
 	 */
 	bool read_line(char *s, int size);
+
+	/**
+	 * Return parameters and expansions
+	 *
+	 * @author Kieron Green
+	 */
+	int find_parameter_expansion(char *key, char *data, int *parameters, int *expansions, char *parameter_ptr[10], char *expansion_ptr[10]);
+
+	/**
+	 * Calculates expression provided in buffer, substituting parameters provided
+	 *
+	 * @author Kieron Green
+	 */
+	int calculate(char *expression, int parameter_value[10][256], int parameters, int combination[10]);
+
+	/**
+	 * Adds brackets to expression to ensure calculate_internal processes expression correctly
+	 *
+	 * @author Kieron Green
+	 */
+	void add_operator_brackets(char *expression, char *processed);
+
+	/**
+	 * Calculates expression provided in buffer (do not call directly!)
+	 *
+	 * @author Kieron Green
+	 */
+	int calculate_internal(char *expression, int parameter_value[10][256], int parameters, int combination[10]);
 
 	/**
 	 * Format the key string (trimright and lowercase)
@@ -154,7 +183,6 @@ public:
 	 * @author V. Meyer
 	 */
 	const koord &get_koord(const char *key, koord def);
-
 	const scr_coord &get_scr_coord(const char *key, scr_coord def);
 	const scr_size &get_scr_size(const char *key, scr_size def);
 
