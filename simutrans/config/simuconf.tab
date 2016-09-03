@@ -431,6 +431,9 @@ hide_keyboard = 0
 # default for minimap is 1+12=13
 compass_screen_position = 0
 
+# Should either account (default) or net wealth be shown blow the screen?
+player_finance_display_account = 1
+
 ################################### Finance settings ##################################
 #
 # These values are usually set in the pak files

@@ -13,6 +13,7 @@
 #include "simintr.h"
 #include "gui/simwin.h"
 #include "player/simplay.h"
+#include "player/finance.h"
 #include "dataobj/environment.h"
 #include "dataobj/translator.h"
 
@@ -74,7 +75,7 @@ void intr_refresh_display(bool dirty)
 	wasser_t::prepare_for_refresh();
 	dr_prepare_flush();
 	welt_ansicht->display( dirty );
-	win_display_flush(welt_modell->get_active_player()->get_account_balance_as_double());
+	win_display_flush( (double)welt_modell->get_active_player()->get_finance()->get_history_com_month(0,1-env_t::player_finance_display_account)/100.0 );
 	dr_flush();
 }
 
