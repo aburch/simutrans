@@ -352,8 +352,8 @@ void ki_kontroll_t::update_data()
 				{
 					add_component(player_change_to+i);
 				}
-				player_get_finances[i].set_text(player->get_name());
 			}
+			player_get_finances[i].set_text(player->get_name());
 
 			access_in[i].pressed = player && player->allows_access_to(welt->get_active_player_nr());
 			if(access_in[i].pressed && player)
