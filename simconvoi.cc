@@ -177,8 +177,9 @@ void convoi_t::init(player_t *player)
 	loading_limit = 0;
 	free_seats = 0;
 
+	//speed_limit = SPEED_UNLIMITED;
 	//brake_speed_soll = SPEED_UNLIMITED;
-	akt_speed_soll = 0;            // Sollgeschwindigkeit
+	akt_speed_soll = 0;             // target speed
 	set_akt_speed(0);                 // momentane Geschwindigkeit
 	sp_soll = 0;
 
