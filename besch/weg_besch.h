@@ -12,10 +12,10 @@
 #include "skin_besch.h"
 #include "../dataobj/ribi.h"
 #include "../dataobj/way_constraints.h"
-#include "../network/checksum.h"
 
 class tool_t;
 class karte_t;
+class checksum_t;
 
 /**
  * Way type description. Contains all needed values to describe a
@@ -277,17 +277,7 @@ public:
 
 	bool is_mothballed() const { return get_base_price() == 0 && topspeed == 0 && base_maintenance == 0; }
 
-	void calc_checksum(checksum_t *chk) const
-	{
-		obj_besch_transport_infrastructure_t::calc_checksum(chk);
-		chk->input(axle_load);
-		chk->input(styp);
-		chk->input(has_double_slopes());
-
-		//Experimental values
-		chk->input(way_constraints.get_permissive());
-		chk->input(way_constraints.get_prohibitive());
-	}
+	void calc_checksum(checksum_t *chk) const;
 };
 
 #endif
