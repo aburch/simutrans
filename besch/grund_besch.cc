@@ -76,8 +76,8 @@ static bild_besch_t* create_textured_tile(const bild_besch_t* bild_lightmap, con
 	sint16        const x_y     = bild_texture->get_pic()->w;
 	// now mix the images
 	for (int j = 0; j < bild_dest->get_pic()->h; j++) {
-		sint16 x = *dest++;
-		const sint16 offset = (bild_dest->get_pic()->y + j - bild_texture->get_pic()->y) * (x_y + 3) + 2; // position of the pixel in a rectangular map
+		sint32 x = *dest++;
+		const sint32 offset = (bild_dest->get_pic()->y + j - bild_texture->get_pic()->y) * (x_y + 3) + 2; // position of the pixel in a rectangular map
 		do
 		{
 			sint16 runlen = *dest++;
