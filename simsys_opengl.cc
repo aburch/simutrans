@@ -9,20 +9,13 @@
  */
 
 #ifdef _WIN32
-// windows.h defines min and max macros which we don't want
-#define NOMINMAX 1
 #include <windows.h>
 #endif
 
 #include <SDL.h>
 
-#ifdef __APPLE__
-  // GLEW is not needed on Apple
-  #include <OpenGL/gl.h>
-#else
-  #include <GL/glew.h>
-  #include <GL/gl.h>
-#endif
+#include <GL/glew.h>
+#include <GL/gl.h>
 
 #include <stdio.h>
 #include <vector>
@@ -220,7 +213,6 @@ static void update_tex_dims(){
  * GL_ARB_texture_non_power_of_two, and sets the global variables npot_able and pbo_able
  */
 static void check_for_extensions(){
-#ifndef __APPLE__
 
 	// Initialize GLEW
 	GLenum err = glewInit();
@@ -251,9 +243,6 @@ static void check_for_extensions(){
 		fprintf(stderr, "Renderer is not PBO able.\n");
 		DBG_MESSAGE("check_for_extensions(OpenGL)", "Renderer does NOT support PBO extension");
 	}
-
-#endif
-
 }
 
 
@@ -1169,8 +1158,6 @@ void dr_stop_textinput()
 void dr_notify_input_pos(int, int)
 {
 }
-
-
 
 #ifdef _WIN32
 int CALLBACK WinMain(HINSTANCE, HINSTANCE, LPSTR, int)

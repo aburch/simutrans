@@ -3,18 +3,19 @@
  *
  * This file is part of the Simutrans project under the artistic license.
  */
-#ifndef _MSC_VER
-#define SDL2
-#endif
 
-#ifdef SDL2
-#include <SDL.h>
+#include <SDL2/SDL.h>
 
 #ifdef _WIN32
 #include <windows.h>
 #endif
 
 #include <stdio.h>
+
+#ifdef __CYGWIN__
+extern int __argc;
+extern char **__argv;
+#endif
 
 #include "macros.h"
 #include "simsys_w32_png.h"
@@ -23,8 +24,16 @@
 #include "simevent.h"
 #include "display/simgraph.h"
 #include "simdebug.h"
-#include "dataobj/environment.h" 
+#include "dataobj/environment.h"
+#include "gui/simwin.h"
+#include "gui/components/gui_component.h"
+#include "gui/components/gui_textinput.h"
 
+// Both backends have critical bugs...
+#if !defined(_WIN32) && !defined(__linux__)
+#define USE_SDL_TEXTEDITING
+#else
+#endif
 
 static Uint8 hourglass_cursor[] = {
 	0x3F, 0xFE, //   *************
@@ -110,7 +119,9 @@ bool dr_os_init(const int* parameter)
 	printf("SDL Driver: %s\n", SDL_GetCurrentVideoDriver() );
 
 	// disable event types not interested in
+#ifndef USE_SDL_TEXTEDITING
 	SDL_EventState( SDL_TEXTEDITING, SDL_DISABLE );
+#endif
 	SDL_EventState( SDL_FINGERDOWN, SDL_DISABLE );
 	SDL_EventState( SDL_FINGERUP, SDL_DISABLE );
 	SDL_EventState( SDL_FINGERMOTION, SDL_DISABLE );
@@ -428,6 +439,11 @@ static int conv_mouse_buttons(Uint8 const state)
 
 static void internal_GetEvents(bool const wait)
 {
+#ifdef __APPLE__
+	// Apparently Cocoa SDL posts key events that meant to be used by IM...
+	// Ignoring SDL_KEYDOWN during preedit seems to work fine.
+	static bool composition_is_underway = false;
+#endif
 	SDL_Event event;
 	event.type = 1;
 	if(  wait  ) {
@@ -457,6 +473,8 @@ static void internal_GetEvents(bool const wait)
 			return;
 		}
 	}
+
+	static char textinput[SDL_TEXTINPUTEVENT_TEXT_SIZE];
 	switch(  event.type  ) {
 		case SDL_WINDOWEVENT: {
 			if(  event.window.event == SDL_WINDOWEVENT_RESIZED  ) {
@@ -503,6 +521,11 @@ static void internal_GetEvents(bool const wait)
 			break;
 		}
 		case SDL_KEYDOWN: {
+#ifdef __APPLE__
+			if(  composition_is_underway  ) {
+				break;
+			}
+#endif
 			unsigned long code;
 #ifdef _WIN32
 			// SDL doesn't set numlock state correctly on startup. Revert to win32 function as workaround.
@@ -570,12 +593,55 @@ static void internal_GetEvents(bool const wait)
 			break;
 		}
 		case SDL_TEXTINPUT: {
-			size_t len = 0;
-			sys_event.type    = SIM_KEYBOARD;
-			sys_event.code    = utf8_to_utf16( (utf8*)event.text.text, &len );
+			size_t in_pos = 0;
+			utf16 uc = utf8_to_utf16( (utf8 *)event.text.text, &in_pos );
+			if(  event.text.text[in_pos]==0  ) {
+				// single character
+				sys_event.type    = SIM_KEYBOARD;
+				sys_event.code    = (unsigned long)uc;
+			}
+			else {
+				// string
+				strcpy( textinput, event.text.text );
+				sys_event.type    = SIM_STRING;
+				sys_event.ptr     = (void*)textinput;
+			}
 			sys_event.key_mod = ModifierKeys();
+#ifdef __APPLE__
+			composition_is_underway = false;
+#endif
 			break;
 		}
+#ifdef USE_SDL_TEXTEDITING
+		case SDL_TEXTEDITING: {
+			//printf( "SDL_TEXTEDITING {timestamp=%d, \"%s\", start=%d, length=%d}\n", event.edit.timestamp, event.edit.text, event.edit.start, event.edit.length );
+			strcpy( textinput, event.edit.text );
+#ifdef __APPLE__
+			if(  !textinput[0]  ) {
+				composition_is_underway = false;
+			}
+#endif
+			int i = 0;
+			int start = 0;
+			for(  ; i<event.edit.start; ++i  ) {
+				start = utf8_get_next_char( (utf8 *)event.edit.text, start );
+			}
+			int end = start;
+			for(  ; i<event.edit.start+event.edit.length; ++i  ) {
+				end = utf8_get_next_char( (utf8*)event.edit.text, end );
+			}
+
+			if(  gui_component_t *c = win_get_focus()  ) {
+				if(  gui_textinput_t *tinp = dynamic_cast<gui_textinput_t *>(c)  ) {
+					tinp->set_composition_status( textinput, start, end-start );
+				}
+			}
+#ifdef __APPLE__
+			composition_is_underway = true;
+#endif
+			break;
+		}
+#endif
 		case SDL_MOUSEMOTION: {
 			sys_event.type    = SIM_MOUSE_MOVE;
 			sys_event.code    = SIM_MOUSE_MOVED;
@@ -686,4 +752,3 @@ int main(int argc, char **argv)
 #endif
 	return sysmain(argc, argv);
 }
-#endif

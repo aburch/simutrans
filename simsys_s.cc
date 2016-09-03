@@ -4,16 +4,9 @@
  * This file is part of the Simutrans project under the artistic license.
  */
 
-#ifndef _MSC_VER
-#define SDL
-#endif
-
-#ifdef SDL
 #include <SDL.h>
 
 #ifdef _WIN32
-// windows.h defines min and max macros which we don't want
-#define NOMINMAX 1
 #include <windows.h>
 #endif
 
@@ -25,7 +18,6 @@
 #include "simsys.h"
 #include "simevent.h"
 #include "display/simgraph.h"
-#include "dataobj/environment.h"
 #include "simdebug.h"
 
 
@@ -134,7 +126,6 @@ static int num_SDL_Rects = 0;
 static SDL_Rect SDL_Rects[MAX_SDL_RECTS];
 #endif
 
-
 /*
  * Hier sind die Basisfunktionen zur Initialisierung der
  * Schnittstelle untergebracht
@@ -159,7 +150,6 @@ bool dr_os_init(const int* parameter)
 	sys_event.code = 0;
 
 	atexit(SDL_Quit); // clean up on exit
-
 	return true;
 }
 
@@ -228,12 +218,9 @@ int dr_os_open(int w, int const h, int const fullscreen)
 	}
 
 	// open the window now
-	// The interface for SDL_putenv requires char*, not const char*, so give it a modifiable string just in case.
-	char centered_window_env_string[32] = "SDL_VIDEO_CENTERED=center";
-	SDL_putenv(centered_window_env_string); // request game window centered to stop it opening off screen since SDL1.2 has no way to open at a fixed position
+	SDL_putenv("SDL_VIDEO_CENTERED=center"); // request game window centered to stop it opening off screen since SDL1.2 has no way to open at a fixed position
 	screen = SDL_SetVideoMode( w, h, COLOUR_DEPTH, flags );
-	char not_centered_window_env_string[32] = "SDL_VIDEO_CENTERED=";
-	SDL_putenv(not_centered_window_env_string); // clear flag so it doesn't continually recenter upon resizing the window
+	SDL_putenv("SDL_VIDEO_CENTERED="); // clear flag so it doesn't continually recenter upon resizing the window
 	if(  screen == NULL  ) {
 		fprintf(stderr, "Couldn't open the window: %s\n", SDL_GetError());
 		return 0;
@@ -241,11 +228,11 @@ int dr_os_open(int w, int const h, int const fullscreen)
 	else {
 		const SDL_VideoInfo* vi = SDL_GetVideoInfo();
 		char driver_name[128];
-		SDL_VideoDriverName( driver_name, 128);
+		SDL_VideoDriverName( driver_name, lengthof(driver_name) );
 		fprintf(stderr, "SDL_driver=%s, hw_available=%i, video_mem=%i, blit_sw=%i, bpp=%i, bytes=%i\n", driver_name, vi->hw_available, vi->video_mem, vi->blit_sw, vi->vfmt->BitsPerPixel, vi->vfmt->BytesPerPixel );
 		fprintf(stderr, "Screen Flags: requested=%x, actual=%x\n", flags, screen->flags );
 	}
-	printf("dr_os_open(SDL): SDL realized screen size width=%d, height=%d (requested w=%d, h=%d)", screen->w, screen->h, w, h );
+	printf("dr_os_open(SDL): SDL realized screen size width=%d, height=%d (requested w=%d, h=%d)\n", screen->w, screen->h, w, h );
 
 	SDL_EnableUNICODE(true);
 	SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
@@ -681,7 +668,6 @@ void ex_ord_update_mx_my()
 	SDL_PumpEvents();
 }
 
-
 uint32 dr_time()
 {
 	return SDL_GetTicks();
@@ -735,5 +721,3 @@ int main(int argc, char **argv)
 	char** const argv = __argv;
 #endif
 	return sysmain(argc, argv);
-}
-#endif

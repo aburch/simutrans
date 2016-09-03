@@ -423,7 +423,7 @@ void ex_ord_update_mx_my()
 }
 
 
-static volatile long milli_counter;
+static volatile uint32 milli_counter;
 
 void timer_callback()
 {
@@ -454,7 +454,7 @@ static void simtimer_init()
 }
 
 
-unsigned long dr_time()
+uint32 dr_time()
 {
 	return milli_counter;
 }
@@ -465,6 +465,17 @@ void dr_sleep(uint32 usec)
 	rest(usec);
 }
 
+void dr_start_textinput()
+{
+}
+
+void dr_stop_textinput()
+{
+}
+
+void dr_notify_input_pos(int, int)
+{
+}
 
 int main(int argc, char **argv)
 {
