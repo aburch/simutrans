@@ -4096,6 +4096,10 @@ const char *tool_build_station_t::tool_station_dock_aux(player_t *player, koord3
 
 			// check whether we can build something
 			const grund_t *gr=welt->lookup_kartenboden(k-dx*i);
+			if (gr->get_hoehe() != pos.z) {
+				return "No suitable ground!";
+				break;
+			}
 			if (const char *msg = gr->kann_alle_obj_entfernen(player)) {
 				return msg;
 			}
@@ -4294,7 +4298,7 @@ const char *tool_build_station_t::tool_station_flat_dock_aux(player_t *player, k
 	uint8        total_dir = 0;
 	for(  uint8 i=0;  i<4;  i++  ) {
 		if(  grund_t *gr = welt->lookup_kartenboden(k+koord::nsow[i])  ) {
-			if(  gr->ist_wasser()  ) {
+			if(  gr->ist_wasser()  &&  gr->get_hoehe() == pos.z) {
 				water_dir |= ribi_t::nsow[i];
 				total_dir ++;
 			}
@@ -4325,6 +4329,11 @@ const char *tool_build_station_t::tool_station_flat_dock_aux(player_t *player, k
 			if( !gr ) {
 				// need at least a single tile to navigate ...
 				last_error = "Zu nah am Kartenrand";
+				break;
+			}
+
+			if (gr->get_hoehe() != pos.z) {
+				return "No suitable ground!";
 				break;
 			}
 
