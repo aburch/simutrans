@@ -326,7 +326,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 		input.set_color(cnv->has_obsolete_vehicles() ? COL_DARK_BLUE : SYSCOL_TEXT);
 
 		// make titlebar dirty to display the correct coordinates
-		if(cnv->get_owner()==welt->get_active_player()) {
+		if(cnv->get_owner()==welt->get_active_player()  &&  !welt->get_active_player()->is_locked()) {
 			if(  line_bound  &&  !cnv->get_line().is_bound()  ) {
 				remove_component( &line_button );
 				line_bound = false;
@@ -652,7 +652,7 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 	}
 
 	// some actions only allowed, when I am the player
-	if(cnv->get_owner()==welt->get_active_player()) {
+	if(cnv->get_owner()==welt->get_active_player()  &&  !welt->get_active_player()->is_locked()) {
 
 		if(comp == &button) {
 			cnv->call_convoi_tool( 'f', NULL );
