@@ -1544,7 +1544,16 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_longlong( cst_alter_climate );
 			file->rdwr_byte( way_height_clearance );
 		}
+		if(  file->get_version()>=120002 && file->get_experimental_version() == 0 ) {
+			uint32 default_ai_construction_speed;
+			file->rdwr_long( default_ai_construction_speed );
+			// This feature is used in Standard only
+		}
+		if(  file->get_version() >=120002 && (file->get_experimental_revision() >= 9 || file->get_experimental_version() == 0 )) {
+			file->rdwr_bool(lake);
+			file->rdwr_bool(no_trees);
 		// otherwise the default values of the last one will be used
+		}
 
 		if(file->get_experimental_version() >= 12)
 		{
