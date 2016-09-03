@@ -2832,7 +2832,10 @@ void tool_build_bridge_t::mark_tiles(  player_t *player, const koord3d &start, c
 			gr->set_grund_hang( 0 );
 			welt->access(pos.get_2d())->boden_hinzufuegen(gr);
 		}
-		zeiger_t *way = new zeiger_t(pos, player );
+		if (gr->ist_wasser()) {
+				continue;
+			}
+		zeiger_t *way = new zeiger_t(pos, player);
 		gr->obj_add( way );
 		grund_t *kb = welt->lookup_kartenboden(pos.get_2d());
 		sint16 height = pos.z - kb->get_pos().z;
@@ -3702,7 +3705,7 @@ void tool_wayobj_t::mark_tiles( player_t * player, const koord3d &start, const k
 			}
 			zeiger_t *way_obj = NULL;
 			if( build ) {
-				way_obj = new zeiger_t(pos, NULL );
+				way_obj = new zeiger_t(pos, player );
 				if(  gr->get_weg_hang()  ) {
 					way_obj->set_after_bild( besch->get_front_slope_image_id(gr->get_weg_hang()) );
 					way_obj->set_bild( besch->get_back_slope_image_id(gr->get_weg_hang()) );
@@ -3718,7 +3721,7 @@ void tool_wayobj_t::mark_tiles( player_t * player, const koord3d &start, const k
 			}
 			else {
 				if( gr->get_wayobj( wt ) ) {
-					way_obj = new zeiger_t(pos, NULL );
+					way_obj = new zeiger_t(pos, player );
 					way_obj->set_bild( cursor ); //skinverwaltung_t::bauigelsymbol->get_bild_nr(0));
 				}
 			}
