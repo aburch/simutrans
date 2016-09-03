@@ -1044,8 +1044,8 @@ void settings_climates_stats_t::init(settings_t* const sets)
 	sint16 arctic = 0;
 	for(  int i=desert_climate;  i!=arctic_climate;  i++  ) {
 		INIT_NUM( grund_besch_t::get_climate_name_from_bit((climate)i), sets->get_climate_borders()[i], sets->get_grundwasser(), 24, gui_numberinput_t::AUTOLINEAR, false );
-		if(sets->get_climate_borders()[i]>arctic) {
-			arctic = sets->get_climate_borders()[i];
+		if(sets->get_climate_borders()[i+1]>arctic) {
+			arctic = sets->get_climate_borders()[i+1];
 		}
 	}
 	numinp.at(3)->set_limits( 0, arctic );
