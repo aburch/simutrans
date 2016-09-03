@@ -5609,7 +5609,7 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 
 					if(current_journey_time < best_journey_time)
 					{
-						if(!current_halt->is_overcrowded(wtyp->get_catg_index()))
+						if(!current_halt->is_overcrowded(wtyp->get_index()))
 						{
 							best_journey_time = current_journey_time;
 							best_non_crowded_start_halt = i;
@@ -6098,7 +6098,7 @@ no_route:
 				ware_t test_passengers;
 				test_passengers.set_ziel(start_halts[best_bad_start_halt].halt);
 				const bool overcrowded_route = ret_halt->find_route(test_passengers) < 65535;
-				if(!ret_halt->is_overcrowded(wtyp->get_catg_index()) || !overcrowded_route)
+				if(!ret_halt->is_overcrowded(wtyp->get_index()) || !overcrowded_route)
 				{
 					// prissi: not overcrowded and can recieve => add them
 					// Only mark the passengers as unable to get to their destination

@@ -862,7 +862,7 @@ uint16 vehicle_t::unload_cargo(halthandle_t halt, sint64 & revenue_from_unloadin
 					// hier sollte nur ordentliche ware verabeitet werden
 					// "here only tidy commodity should be processed" (Babelfish)
 
-					if(halt != end_halt && welt->get_settings().is_avoid_overcrowding() && tmp.is_passenger() && !halt->is_within_walking_distance_of(via_halt) && halt->is_overcrowded(tmp.get_besch()->get_catg_index()))
+					if(halt != end_halt && welt->get_settings().is_avoid_overcrowding() && tmp.is_passenger() && !halt->is_within_walking_distance_of(via_halt) && halt->is_overcrowded(tmp.get_besch()->get_index()))
 					{
 						// The avoid_overcrowding setting is activated
 						// Halt overcrowded - discard passengers, and collect no revenue.
