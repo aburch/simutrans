@@ -2524,7 +2524,11 @@ void fabrik_t::info_prod(cbuffer_t& buf) const
 		buf.append("\n");
 		buf.printf("%s: %d\n", translator::translate("Visitor demand"), building->get_adjusted_visitor_demand());
 		buf.printf("%s %i\n", translator::translate("Visitors this year:"), building->get_passengers_succeeded_visiting());
+#ifdef DEBUG
 		buf.printf("%s (%s): %d (%d)\n", translator::translate("Jobs"), translator::translate("available"), building->get_adjusted_jobs(), building->check_remaining_available_jobs());
+#else
+		buf.printf("%s (%s): %d (%d)\n", translator::translate("Jobs"), translator::translate("available"), building->get_adjusted_jobs(), max(0, building->check_remaining_available_jobs()));
+#endif
 		if(building->get_passenger_success_percent_last_year_visiting() < 65535)
 		{
 			buf.printf("%s %i\n", translator::translate("Visitors last year:"), building->get_passenger_success_percent_last_year_visiting());

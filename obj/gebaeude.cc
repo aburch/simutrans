@@ -941,7 +941,11 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 
 		buf.printf("\n%s: %d\n", translator::translate("citicens"), get_adjusted_population());
 		buf.printf("%s: %d\n", translator::translate("Visitor demand"), get_adjusted_visitor_demand());
+#ifdef DEBUG
 		buf.printf("%s (%s): %d (%d)\n", translator::translate("Jobs"), translator::translate("available"), get_adjusted_jobs(), check_remaining_available_jobs());
+#else
+		buf.printf("%s (%s): %d (%d)\n", translator::translate("Jobs"), translator::translate("available"), get_adjusted_jobs(), max(0, check_remaining_available_jobs()));
+#endif
 		buf.printf("%s: %d\n", translator::translate("Mail demand/output"), get_adjusted_mail_demand());
 
 		haus_besch_t const& h = *tile->get_besch();
