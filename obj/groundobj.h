@@ -35,7 +35,7 @@ public:
 	static bool register_besch(groundobj_besch_t *besch);
 	static bool alles_geladen();
 
-	static const groundobj_besch_t *random_groundobj_for_climate(climate cl, hang_t::typ slope );
+	static const groundobj_besch_t *random_groundobj_for_climate(climate_bits cl, hang_t::typ slope );
 
 	groundobj_t(loadsave_t *file);
 	groundobj_t(koord3d pos, const groundobj_besch_t *);
@@ -54,14 +54,11 @@ public:
 	bool check_season(const bool);
 
 	const char *get_name() const {return "Groundobj";}
-#ifdef INLINE_OBJ_TYPE
-#else
 	typ get_typ() const { return groundobj; }
-#endif
 
 	void show_info();
 
-	void info(cbuffer_t & buf, bool dummy = false) const;
+	void info(cbuffer_t & buf) const;
 
 	void cleanup(player_t *player);
 

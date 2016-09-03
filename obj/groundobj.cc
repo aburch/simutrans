@@ -10,7 +10,6 @@
 #include "../simobj.h"
 #include "../display/simimg.h"
 #include "../player/simplay.h"
-#include "../utils/simrandom.h"
 #include "../simtypes.h"
 
 #include "../boden/grund.h"
@@ -18,6 +17,7 @@
 
 #include "../utils/cbuffer_t.h"
 #include "../utils/simstring.h"
+#include "../utils/simrandom.h"
 
 #include "../dataobj/loadsave.h"
 #include "../dataobj/translator.h"
@@ -74,7 +74,7 @@ bool groundobj_t::register_besch(groundobj_besch_t *besch)
 /* also checks for distribution values
  * @author prissi
  */
-const groundobj_besch_t *groundobj_t::random_groundobj_for_climate(climate cl, hang_t::typ slope  )
+const groundobj_besch_t *groundobj_t::random_groundobj_for_climate(climate_bits cl, hang_t::typ slope  )
 {
 	// none there
 	if(  besch_names.empty()  ) {
@@ -83,17 +83,17 @@ const groundobj_besch_t *groundobj_t::random_groundobj_for_climate(climate cl, h
 
 	int weight = 0;
 	FOR(  vector_tpl<groundobj_besch_t const*>,  const i,  groundobj_typen  ) {
-		if(  i->is_allowed_climate(cl)  &&  (slope == hang_t::flach  ||  i->get_phases() == 16)  ) {
+		if(  i->is_allowed_climate_bits(cl)  &&  (slope == hang_t::flach  ||  (i->get_phases() >= slope  &&  i->get_image_nr(0,slope)!=IMG_LEER  )  )  ) {
 			weight += i->get_distribution_weight();
 		}
 	}
 
 	// now weight their distribution
 	if(  weight > 0  ) {
-		const int w=simrand(weight, "const groundobj_besch_t *groundobj_t::random_groundobj_for_climate(");
+		const int w=simrand(weight, "const groundobj_besch_t *groundobj_t::random_groundobj_for_climate(climate_bits cl, hang_t::typ slope  )");
 		weight = 0;
 		FOR(vector_tpl<groundobj_besch_t const*>, const i, groundobj_typen) {
-			if (i->is_allowed_climate(cl) && (slope == hang_t::flach || i->get_phases() == 16)) {
+			if(  i->is_allowed_climate_bits(cl)  &&  (slope == hang_t::flach  ||  (i->get_phases() >= slope  &&  i->get_image_nr(0,slope)!=IMG_LEER  )  )  ) {
 				weight += i->get_distribution_weight();
 				if(weight>=w) {
 					return i;
@@ -132,19 +132,18 @@ void groundobj_t::calc_image()
 					season = seasons;
 				}
 				else {
-					// welt->get_yearsteps(): resolution 1/8th month (0..95)
-					season = (seasons * (welt->get_yearsteps() + 1) - 1) / 96;
-
+					// resolution 1/8th month (0..95)
+					const uint32 yearsteps = (welt->get_current_month()%12)*8 + ((welt->get_zeit_ms()>>(welt->ticks_per_world_month_shift-3))&7) + 1;
+					season = (seasons*yearsteps-1)/96;
 				}
 				break;
 	}
 	// check for slopes?
 	uint16 phase = 0;
-	if(besch->get_phases()==hang_t::erhoben) {
+	if(besch->get_phases()>1) {
 		phase = welt->lookup(get_pos())->get_grund_hang();
 	}
-	const bild_besch_t *bild_ptr = get_besch()->get_image( season, phase );
-	image = bild_ptr ? bild_ptr->get_nummer() : IMG_LEER;
+	image = get_besch()->get_image_nr( season, phase );
 }
 
 
@@ -176,7 +175,7 @@ bool groundobj_t::check_season(const bool)
 	const image_id old_image = get_image();
 	calc_image();
 
-	if( get_image() != old_image ) {
+	if(  get_image() != old_image  ) {
 		mark_image_dirty( get_image(), 0 );
 	}
 	return true;
@@ -198,7 +197,7 @@ void groundobj_t::rdwr(loadsave_t *file)
 		file->rdwr_str(bname, lengthof(bname));
 		groundobj_besch_t *besch = besch_names.get(bname);
 		if(  besch_names.empty()  ||  besch==NULL  ) {
-			groundobjtype = simrand(groundobj_typen.get_count(), "void groundobj_t::rdwr");
+			groundobjtype = simrand(groundobj_typen.get_count(), "void groundobj_t::rdwr(loadsave_t *file)");
 		}
 		else {
 			groundobjtype = besch->get_index();
@@ -209,7 +208,7 @@ void groundobj_t::rdwr(loadsave_t *file)
 
 
 /**
- * Öffnet ein neues Beobachtungsfenster für das Objekt.
+ * uffnet ein neues Beobachtungsfenster fur das Objekt.
  * @author Hj. Malthaner
  */
 void groundobj_t::show_info()
@@ -221,11 +220,11 @@ void groundobj_t::show_info()
 
 
 /**
- * @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
+ * @return Einen Beschreibungsstring fur das Objekt, der z.B. in einem
  * Beobachtungsfenster angezeigt wird.
  * @author Hj. Malthaner
  */
-void groundobj_t::info(cbuffer_t & buf, bool dummy) const
+void groundobj_t::info(cbuffer_t & buf) const
 {
 	obj_t::info(buf);
 
