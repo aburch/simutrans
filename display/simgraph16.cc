@@ -3375,13 +3375,13 @@ static void pix_alpha_15(PIXVAL *dest, const PIXVAL *src, const PIXVAL *alphamap
 {
 	const PIXVAL *const end = dest + len;
 
-	const uint16 rmask = alpha_flags & ALPHA_RED ? 0x001f : 0;
+	const uint16 rmask = alpha_flags & ALPHA_RED ? 0x7c00 : 0;
 	const uint16 gmask = alpha_flags & ALPHA_GREEN ? 0x03e0 : 0;
-	const uint16 bmask = alpha_flags & ALPHA_BLUE ? 0x7c00 : 0;
+	const uint16 bmask = alpha_flags & ALPHA_BLUE ? 0x001f : 0;
 
 	while(  dest < end  ) {
 		// read mask components - always 15bpp
-		uint16 alpha_value = ((*alphamap) & rmask) + (((*alphamap) & gmask) >> 5) + (((*alphamap) & bmask) >> 10);
+		uint16 alpha_value = ((*alphamap) & bmask) + (((*alphamap) & gmask) >> 5) + (((*alphamap) & rmask) >> 10);
 
 		if(  alpha_value > 30  ) {
 			// opaque, just copy source
@@ -3415,13 +3415,13 @@ static void pix_alpha_16(PIXVAL *dest, const PIXVAL *src, const PIXVAL *alphamap
 {
 	const PIXVAL *const end = dest + len;
 
-	const uint16 rmask = alpha_flags & ALPHA_RED ? 0x001f : 0;
+	const uint16 rmask = alpha_flags & ALPHA_RED ? 0x7c00 : 0;
 	const uint16 gmask = alpha_flags & ALPHA_GREEN ? 0x03e0 : 0;
-	const uint16 bmask = alpha_flags & ALPHA_BLUE ? 0x7c00 : 0;
+	const uint16 bmask = alpha_flags & ALPHA_BLUE ? 0x001f : 0;
 
 	while(  dest < end  ) {
 		// read mask components - always 15bpp
-		uint16 alpha_value = ((*alphamap) & rmask) + (((*alphamap) & gmask) >> 5) + (((*alphamap) & bmask) >> 10);
+		uint16 alpha_value = ((*alphamap) & bmask) + (((*alphamap) & gmask) >> 5) + (((*alphamap) & rmask) >> 10);
 
 		if(  alpha_value > 30  ) {
 			// opaque, just copy source
@@ -3455,13 +3455,13 @@ static void pix_alpha_recode_15(PIXVAL *dest, const PIXVAL *src, const PIXVAL *a
 {
 	const PIXVAL *const end = dest + len;
 
-	const uint16 rmask = alpha_flags & ALPHA_RED ? 0x001f : 0;
+	const uint16 rmask = alpha_flags & ALPHA_RED ? 0x7c00 : 0;
 	const uint16 gmask = alpha_flags & ALPHA_GREEN ? 0x03e0 : 0;
-	const uint16 bmask = alpha_flags & ALPHA_BLUE ? 0x7c00 : 0;
+	const uint16 bmask = alpha_flags & ALPHA_BLUE ? 0x001f : 0;
 
 	while(  dest < end  ) {
 		// read mask components - always 15bpp
-		uint16 alpha_value = ((*alphamap) & rmask) + (((*alphamap) & gmask) >> 5) + (((*alphamap) & bmask) >> 10);
+		uint16 alpha_value = ((*alphamap) & bmask) + (((*alphamap) & gmask) >> 5) + (((*alphamap) & rmask) >> 10);
 
 		if(  alpha_value > 30  ) {
 			// opaque, just copy source
@@ -3495,13 +3495,13 @@ static void pix_alpha_recode_16(PIXVAL *dest, const PIXVAL *src, const PIXVAL *a
 {
 	const PIXVAL *const end = dest + len;
 
-	const uint16 rmask = alpha_flags & ALPHA_RED ? 0x001f : 0;
+	const uint16 rmask = alpha_flags & ALPHA_RED ? 0x7c00 : 0;
 	const uint16 gmask = alpha_flags & ALPHA_GREEN ? 0x03e0 : 0;
-	const uint16 bmask = alpha_flags & ALPHA_BLUE ? 0x7c00 : 0;
+	const uint16 bmask = alpha_flags & ALPHA_BLUE ? 0x001f : 0;
 
 	while(  dest < end  ) {
 		// read mask components - always 15bpp
-		uint16 alpha_value = ((*alphamap) & rmask) + (((*alphamap) & gmask) >> 5) + (((*alphamap) & bmask) >> 10);
+		uint16 alpha_value = ((*alphamap) & bmask) + (((*alphamap) & gmask) >> 5) + (((*alphamap) & rmask) >> 10);
 
 		if(  alpha_value > 30  ) {
 			// opaque, just copy source
