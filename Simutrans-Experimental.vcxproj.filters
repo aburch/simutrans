@@ -2345,6 +2345,9 @@
     <None Include=".gitattributes">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include=".desktop">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="simres.rc">

@@ -2135,6 +2135,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\Simutrans\simu-server.log" />
+    <None Include=".desktop" />
     <None Include=".gitattributes" />
     <None Include=".gitignore" />
     <None Include="base-texts-depot-window-refurbish.dat" />
