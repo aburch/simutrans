@@ -831,12 +831,7 @@ DBG_MESSAGE("karte_t::destroy()", "towns destroyed");
 
 	// removes all moving stuff from the sync_step
 	while(!sync_list.empty()) {
-#ifndef SYNC_VECTOR
-		sync_steppable *ss = sync_list.remove_first();
-		delete ss;
-#else
 		delete sync_list.back();
-#endif
 	}
 	sync_list.clear();
 
@@ -847,12 +842,7 @@ DBG_MESSAGE("karte_t::destroy()", "towns destroyed");
 	}
 
 	while(!sync_way_eyecandy_list.empty()) {
-#ifndef SYNC_VECTOR
-		sync_steppable *ss = sync_way_eyecandy_list.remove_first();
-		delete ss;
-#else
 		delete sync_way_eyecandy_list.back();
-#endif
 	}
 
 	ls.set_progress( old_progress );
@@ -4134,19 +4124,6 @@ void karte_t::sync_way_eyecandy_step(long delta_t)
 	}
 	// now the actualy stepping
 	sync_way_eyecandy_running = true;
-#ifndef SYNC_VECTOR
-	for(  slist_tpl<sync_steppable*>::iterator i=sync_way_eyecandy_list.begin();  !i.end();  ) {
-		// if false, then remove
-		sync_steppable *ss = *i;
-		if(!ss->sync_step(delta_t)) {
-			i = sync_list.erase(i);
-			delete ss;
-		}
-		else {
-			++i;
-		}
-	}
-#else
 	static vector_tpl<sync_steppable *> sync_way_eyecandy_list_copy;
 	sync_way_eyecandy_list_copy.resize( (uint32) (sync_way_eyecandy_list.get_count()*1.1) );
 	FOR(vector_tpl<sync_steppable*>, const ss, sync_way_eyecandy_list) {
@@ -4160,7 +4137,6 @@ void karte_t::sync_way_eyecandy_step(long delta_t)
 	}
 	swap( sync_way_eyecandy_list_copy, sync_way_eyecandy_list );
 	sync_way_eyecandy_list_copy.clear();
-#endif
 	// now remove everything from last time
 	sync_way_eyecandy_running = false;
 	while(  !sync_way_eyecandy_remove_list.empty()  ) {
@@ -4242,16 +4218,9 @@ rands[7] = 0;
 
 		/* and now the rest for the other moving stuff */
 		sync_step_running = true;
-#ifndef SYNC_VECTOR
-		// insert new objects created during last sync_step (eg vehicle smoke)
-		if(!sync_add_list.empty()) {
-			sync_list.append_list(sync_add_list);
-		}
-#else
 		while(  !sync_add_list.empty()  ) {
 			sync_list.append( sync_add_list.remove_first() );
 		}
-#endif
 
 		// now remove everything from last time
 		sync_step_running = false;
@@ -4260,19 +4229,6 @@ rands[7] = 0;
 		}
 
 		sync_step_running = true;
-#ifndef SYNC_VECTOR
-		for(  slist_tpl<sync_steppable*>::iterator i=sync_list.begin();  !i.end();  /* Note no ++i */ ) {
-			// if false, then remove
-			sync_steppable *ss = *i;
-			if(!ss->sync_step(delta_t)) {
-				i = sync_list.erase(i);
-				delete ss;
-			}
-			else {
-				++i;
-			}
-		}
-#else
 		static vector_tpl<sync_steppable *> sync_list_copy;
 		sync_list_copy.resize( sync_list.get_count() );
 		FOR(vector_tpl<sync_steppable*>, const ss, sync_list) {
@@ -4286,7 +4242,6 @@ rands[7] = 0;
 		}
 		swap( sync_list_copy, sync_list );
 		sync_list_copy.clear();
-#endif
 
 		// now remove everything from this time
 		sync_step_running = false;

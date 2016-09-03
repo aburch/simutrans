@@ -45,9 +45,6 @@
 // define this for automaticcally joining stations next to a public stop with it
 //#define AUTOJOIN_PUBLIC
 
-// vector_tpl can be faster for sync_lists
-#define SYNC_VECTOR
-
 // allow minspeed and private way signs on waterways (imho pointless)
 //#define ENABLE_WATERWAY_SIGNS
 
