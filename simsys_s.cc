@@ -721,3 +721,4 @@ int main(int argc, char **argv)
 	char** const argv = __argv;
 #endif
 	return sysmain(argc, argv);
+}
