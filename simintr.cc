@@ -75,7 +75,13 @@ void intr_refresh_display(bool dirty)
 	wasser_t::prepare_for_refresh();
 	dr_prepare_flush();
 	welt_ansicht->display( dirty );
-	win_display_flush( (double)welt_modell->get_active_player()->get_finance()->get_history_com_month(0,1-env_t::player_finance_display_account)/100.0 );
+	if(  env_t::player_finance_display_account  ) {
+		win_display_flush( (double)welt_modell->get_active_player()->get_finance()->get_account_balance()/100.0 );
+	}
+	else {
+		win_display_flush( (double)welt_modell->get_active_player()->get_finance()->get_netwealth()/100.0 );
+	}
+	// with a switch statement more types could be supported ...
 	dr_flush();
 }
 
