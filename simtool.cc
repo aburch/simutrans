@@ -1547,7 +1547,7 @@ const char *tool_marker_t::work( player_t *player, koord3d pos )
 			{
 				return CREDIT_MESSAGE;
 			}
-			gr->obj_add(new label_t(gr->get_pos(), player, "\0"));
+			gr->obj_add(new label_t(gr->get_pos(), player, default_param ? default_param : "\0"));
 			if (is_local_execution()) {
 				gr->find<label_t>()->show_info();
 			}
