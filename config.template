@@ -64,8 +64,6 @@
 # OTTD_LIKE: Enables half height tiles and crossconnects all industries
 # AUTOMATIC_BRIDGES and AUTOMATIC_TUNNELS: will be built also for player
 # AUTOJOIN_PUBLIC: stations next to a public stop will be joined to it
-# MAX_CHOOSE_BLOCK_TILES=xxx: maximum distance between choose signal and a
-#    target (undefined means no limit)
 # USE_DIFFERENT_WIND: different airplane approach directions over the map
 # DESTINATION_CITYCARS: Citycars can have a destination (enabled automatically - cannot be disabled)
 #

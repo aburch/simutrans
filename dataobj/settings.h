@@ -235,6 +235,9 @@ private:
 	/* prissi: maximum number of steps for breath search */
 	sint32 max_route_steps;
 
+	// maximum length for route search at signs/signals
+	sint32 max_choose_route_steps;
+
 	// max steps for good routing
 	sint32 max_hops;
 
@@ -773,6 +776,7 @@ public:
 	void set_freeplay( bool f ) { freeplay = f; }
 
 	sint32 get_max_route_steps() const { return max_route_steps; }
+	sint32 get_max_choose_route_steps() const { return max_choose_route_steps; }
 	sint32 get_max_hops() const { return max_hops; }
 	sint32 get_max_transfers() const { return max_transfers; }
 

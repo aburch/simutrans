@@ -167,8 +167,9 @@ settings_t::settings_t() :
 	num_intercity_roads = 0;
 
 	max_route_steps = 1000000;
-	max_transfers = 7;
-	max_hops = 300;
+	max_choose_route_steps = 200;
+	max_transfers = 9;
+	max_hops = 2000;
 
 	// Eighteen hours - the control of real journey times
 	// should be the journey time tolerance feature, not
@@ -1552,6 +1553,7 @@ void settings_t::rdwr(loadsave_t *file)
 		if(  file->get_version() >=120002 && (file->get_experimental_revision() >= 9 || file->get_experimental_version() == 0 )) {
 			file->rdwr_bool(lake);
 			file->rdwr_bool(no_trees);
+			file->rdwr_long(max_choose_route_steps );
 		// otherwise the default values of the last one will be used
 		}
 
@@ -1991,6 +1993,7 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	env_t::autosave = (contents.get_int("autosave", env_t::autosave) );
 
 	max_route_steps = contents.get_int("max_route_steps", max_route_steps );
+	max_choose_route_steps = contents.get_int("max_choose_route_steps", max_choose_route_steps );
 	max_hops = contents.get_int("max_hops", max_hops );
 	max_transfers = contents.get_int("max_transfers", max_transfers );
 

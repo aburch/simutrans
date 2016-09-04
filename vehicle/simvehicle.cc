@@ -3728,11 +3728,18 @@ sint32 rail_vehicle_t::activate_choose_signal(const uint16 start_block, uint16 &
 	if(target_halt.is_bound())
 	{
 		// The target is a stop.
-#ifdef MAX_CHOOSE_BLOCK_TILES
-		can_find_route = target_rt.find_route(welt, route->position_bei(start_block), this, speed_to_kmh(cnv->get_min_top_speed()), direction, cnv->get_highest_axle_load(), cnv->get_tile_length(), cnv->get_weight_summary().weight / 1000, MAX_CHOOSE_BLOCK_TILES, route_t::choose_signal);
-#else
-		can_find_route = target_rt.find_route(welt, route->position_bei(start_block), this, speed_to_kmh(cnv->get_min_top_speed()), direction, cnv->get_highest_axle_load(), cnv->get_tile_length(), cnv->get_weight_summary().weight / 1000, (welt->get_size().x + welt->get_size().y) * 1000, route_t::choose_signal);
-#endif
+		uint32 route_depth;
+		const sint32 route_steps = welt->get_settings().get_max_choose_route_steps();
+		if(route_steps)
+		{
+			route_depth = route_steps;
+		}
+		else
+		{
+			route_depth = (welt->get_size().x + welt->get_size().y) * 1000;
+		}
+
+		can_find_route = target_rt.find_route(welt, route->position_bei(start_block), this, speed_to_kmh(cnv->get_min_top_speed()), direction, cnv->get_highest_axle_load(), cnv->get_tile_length(), cnv->get_weight_summary().weight / 1000, route_depth, route_t::choose_signal);
 	}
 	else
 	{
@@ -3752,7 +3759,7 @@ sint32 rail_vehicle_t::activate_choose_signal(const uint16 start_block, uint16 &
 	sint32 blocks;
 	if(!can_find_route)
 	{
-		// nothing empty or not route with less than MAX_CHOOSE_BLOCK_TILES tiles (if applicable)
+		// nothing empty or not route with less than welt->get_settings().get_max_choose_route_steps() tiles (if applicable)
 		target_halt = halthandle_t();
 		cnv->set_is_choosing(false);
 		return 0;
@@ -4219,7 +4226,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 
 /*
  * reserves or un-reserves all blocks and returns whether it succeeded.
- * if count is larger than 1, (and defined) maximum MAX_CHOOSE_BLOCK_TILES tiles will be checked
+ * if count is larger than 1, (and defined) maximum welt->get_settings().get_max_choose_route_steps() tiles will be checked
  * (freeing or reserving a choose signal path)
  * if (!reserve && force_unreserve) then un-reserve everything till the end of the route
  * @author prissi
@@ -4227,9 +4234,8 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16 modified_sighting_distance_tiles, uint16 &next_signal_index, int count, bool reserve, bool force_unreserve, bool is_choosing, bool is_from_token, bool is_from_starter, bool is_from_directional, uint32 brake_steps)
 {
 	bool success = true;
-#ifdef MAX_CHOOSE_BLOCK_TILES
-	int max_tiles  =2 * MAX_CHOOSE_BLOCK_TILES; // max tiles to check for choosesignals
-#endif
+	sint32 max_tiles = 2 * welt->get_settings().get_max_choose_route_steps(); // max tiles to check for choosesignals
+
 	slist_tpl<grund_t *> signs;	// switch all signals on the route
 	slist_tpl<signal_t*> pre_signals; 
 	slist_tpl<signal_t*> combined_signals;
@@ -4367,13 +4373,15 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 		}
 		// we un-reserve also nonexistent tiles! (may happen during deletion)
 
-#ifdef MAX_CHOOSE_BLOCK_TILES
-		max_tiles--;
-		if(max_tiles < 0 && count > 1) 
+		if(is_choosing && welt->get_settings().get_max_choose_route_steps())
 		{
-			break;
+			max_tiles--;
+			if(max_tiles < 0) 
+			{
+				break;
+			}
 		}
-#endif
+
 		if(reserve)
 		{
 			if(sch1->is_junction())
