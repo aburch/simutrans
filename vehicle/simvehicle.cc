@@ -4667,10 +4667,17 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 							first_stop_signal_index = i;
 							if(next_signal_working_method == time_interval || next_signal_working_method == time_interval_with_telegraph)
 							{
-								if(next_signal_protects_no_junctions && (signal->get_state() == roadsign_t::caution || signal->get_state() == roadsign_t::caution_no_choose))
+								if(next_signal_protects_no_junctions)
 								{
-									// Half line speed allowed for caution indications on time interval stop signals on straight track
-									cnv->set_maximum_signal_speed(min(kmh_to_speed(sch1->get_max_speed()) / 2, signal->get_besch()->get_max_speed() / 2));
+									if(signal->get_state() == roadsign_t::danger)
+									{
+										count --;
+									}
+									if(signal->get_state() == roadsign_t::caution || signal->get_state() == roadsign_t::caution_no_choose)
+									{
+										// Half line speed allowed for caution indications on time interval stop signals on straight track
+										cnv->set_maximum_signal_speed(min(kmh_to_speed(sch1->get_max_speed()) / 2, signal->get_besch()->get_max_speed() / 2));
+									}
 								}
 								else if(!next_signal_protects_no_junctions)
 								{
@@ -4681,7 +4688,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 									}
 									else // With telegraph
 									{
-										// The same as for cautiont
+										// The same as for caution
 										cnv->set_maximum_signal_speed(min(kmh_to_speed(sch1->get_max_speed()) / 2, signal->get_besch()->get_max_speed() / 2));
 									}
 								}
