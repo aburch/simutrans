@@ -308,8 +308,6 @@ fahrplan_gui_t::~fahrplan_gui_t()
 		// hide schedule on minimap (may not current, but for safe)
 		reliefkarte_t::get_karte()->set_current_cnv( convoihandle_t() );
 	}
-	delete fpl;
-
 }
 
 
