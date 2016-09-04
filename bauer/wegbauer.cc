@@ -2357,6 +2357,8 @@ bool wegbauer_t::baue_tunnelboden()
 					weg->set_max_speed( wo->get_besch()->get_topspeed() );
 				}
 				gr->calc_image();
+				// respect speed limit of crossing
+				weg->count_sign();
 
 				cost -= tunnel_besch->get_preis();
 			}
@@ -2450,6 +2452,8 @@ void wegbauer_t::baue_strasse()
 					}
 
 					weg->set_besch(besch);
+					// respect speed limit of crossing
+					weg->count_sign();
 					// respect max speed of catenary
 					wayobj_t const* const wo = gr->get_wayobj(besch->get_wtyp());
 					if (wo  &&  wo->get_besch()->get_topspeed() < weg->get_max_speed()) {
@@ -2487,7 +2491,8 @@ void wegbauer_t::baue_strasse()
 					str->set_public_right_of_way();
 				}
 				cost = gr->neuen_weg_bauen(str, route.get_short_ribi(i), player, &route) + besch->get_preis();
-
+				// respect speed limit of crossing
+				str->count_sign();
 				// prissi: into UNDO-list, so we can remove it later
 				if(player!=NULL) 
 				{
@@ -2504,6 +2509,7 @@ void wegbauer_t::baue_strasse()
 				}
 			}
 			gr->calc_image();	// because it may be a crossing ...
+			
 			reliefkarte_t::get_karte()->calc_map_pixel(k);
 			player_t::book_construction_costs(player, cost, k, road_wt);
 		} 
@@ -2595,6 +2601,8 @@ void wegbauer_t::baue_schiene()
 							weg->add_way_constraints(wayobj->get_besch()->get_way_constraints());
 						}					
 						weg->set_owner(player);
+						// respect speed limit of crossing
+						weg->count_sign();
 					}
 				}
 				else 
@@ -2610,7 +2618,8 @@ void wegbauer_t::baue_schiene()
 						sch->add_way_constraints(wayobj->get_besch()->get_way_constraints());
 					}
 					cost = gr->neuen_weg_bauen(sch, ribi, player, &route) - besch->get_preis();
-
+					// respect speed limit of crossing
+					sch->count_sign();
 					// connect canals to sea
 					if(  besch->get_wtyp() == water_wt  ) {
 						for(  int j = 0;  j < 4;  j++  ) {
