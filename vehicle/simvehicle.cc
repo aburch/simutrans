@@ -4470,8 +4470,9 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 				signal_t* signal = gr->get_weg(get_waytype())->get_signal(ribi); 
 				if(signal)
 				{
-					if(next_signal_working_method == time_interval || next_signal_working_method == time_interval_with_telegraph)
+					if(signal->get_besch()->get_working_method() == time_interval || signal->get_besch()->get_working_method() == time_interval_with_telegraph)
 					{
+						// Note that this gives the pure time interval state, ignoring whether the signal protects any junctions. 
 						const sint64 last_passed = signal->get_train_last_passed();
 						const sint64 caution_interval_ticks = welt->seconds_to_ticks(welt->get_settings().get_time_interval_seconds_to_caution());
 						const sint64 clear_interval_ticks =  welt->seconds_to_ticks(welt->get_settings().get_time_interval_seconds_to_clear());
@@ -4692,17 +4693,33 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 										// Half line speed allowed for caution indications on time interval stop signals on straight track
 										cnv->set_maximum_signal_speed(min(kmh_to_speed(sch1->get_max_speed()) / 2, signal->get_besch()->get_max_speed() / 2));
 									}
-									else if (signal->get_state() == roadsign_t::clear || signal->get_state() == roadsign_t::clear_no_choose)
+									else if(signal->get_state() == roadsign_t::clear || signal->get_state() == roadsign_t::clear_no_choose)
 									{
 										cnv->set_maximum_signal_speed(signal->get_besch()->get_max_speed());
 									}
 								}
-								else
+								else // Junction signal
 								{
-									// Junction signal - must proceed with great caution in basic time interval and some caution even with a telegraph (see LT&S Signalling, p. 5)
+									// Must proceed with great caution in basic time interval and some caution even with a telegraph (see LT&S Signalling, p. 5)
 									if(next_signal_working_method == time_interval)
 									{
 										cnv->set_maximum_signal_speed(welt->get_settings().get_max_speed_drive_by_sight());
+									}
+									else if(signal->get_besch()->is_longblock_signal())
+									{
+										if(next_time_interval_state == roadsign_t::danger || last_longblock_signal_index < INVALID_INDEX && i > first_stop_signal_index)
+										{
+											next_signal_index = i;
+											count --;
+										}
+										else if(next_time_interval_state == roadsign_t::caution || next_time_interval_state == roadsign_t::caution_no_choose)
+										{
+											cnv->set_maximum_signal_speed(min(kmh_to_speed(sch1->get_max_speed()) / 2, signal->get_besch()->get_max_speed() / 2));
+										}
+										else if(next_time_interval_state == roadsign_t::clear || next_time_interval_state == roadsign_t::clear_no_choose)
+										{
+											cnv->set_maximum_signal_speed(signal->get_besch()->get_max_speed());
+										}
 									}
 									else // With telegraph
 									{
@@ -4747,8 +4764,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 						{
 							if(signal->get_besch()->is_longblock_signal())
 							{
-								if(welt->get_zeit_ms() - signal->get_train_last_passed() < welt->seconds_to_ticks(welt->get_settings().get_time_interval_seconds_to_caution()) ||
-									last_longblock_signal_index < INVALID_INDEX && i > first_stop_signal_index)
+								if(next_time_interval_state == roadsign_t::danger || last_longblock_signal_index < INVALID_INDEX && i > first_stop_signal_index)
 								{
 									next_signal_index = i;
 									count --;
@@ -5280,24 +5296,16 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 
 					if((signal->get_besch()->get_working_method() == time_interval || signal->get_besch()->get_working_method() == time_interval_with_telegraph) && (end_of_block || i > last_stop_signal_index + 1))
 					{
-						//  Do not clear time interval signals unless the requisite time has elapsed, as this reserves only up to the sighting distance ahead.
-
-						const sint64 caution_interval_ticks = seconds_to_ticks(welt->get_settings().get_time_interval_seconds_to_caution(), welt->get_settings().get_meters_per_tile());
-						const sint64 clear_interval_ticks = seconds_to_ticks(welt->get_settings().get_time_interval_seconds_to_clear(), welt->get_settings().get_meters_per_tile()); 
-						const sint64 ticks = welt->get_zeit_ms();
-
-						// A clear indication is not shown at junctions: see LT&S Signalling, p. 5
-						if((signal->get_train_last_passed() + caution_interval_ticks) < ticks)
+						if(signal->get_besch()->get_working_method() == time_interval_with_telegraph && signal->get_besch()->is_longblock_signal())
 						{
-							// We assume that these are not distant signals here, as they should not be added to this list.
-							signal->set_state(use_no_choose_aspect && signal->get_state() !=  roadsign_t::caution ? roadsign_t::caution_no_choose : roadsign_t::caution);
+							// Longblock signals in time interval with telegraph can clear fully.
+							// We also assume that these will not also be choose signals.
+							signal->set_state(next_time_interval_state); 
 						}
-						else if(signal->get_besch()->get_working_method() == time_interval_with_telegraph && !signal->get_no_junctions_to_next_signal())
+						else
 						{
-							// Because this is a telegraph fitted signal, we know that the junction must be clear whenever the last train passed.
-							signal->set_state(use_no_choose_aspect && signal->get_state() !=  roadsign_t::caution ? roadsign_t::caution_no_choose : roadsign_t::caution);
+							signal->set_state(use_no_choose_aspect && signal->get_state() != roadsign_t::caution ? roadsign_t::caution_no_choose : roadsign_t::caution);
 						}
-						// Otherwise, leave at danger.
 					}
 
 					if(signal->get_besch()->get_working_method() == track_circuit_block)
