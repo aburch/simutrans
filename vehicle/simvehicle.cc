@@ -4110,6 +4110,20 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 	}
 
 	const sint32 max_element = cnv->get_route_infos().get_count() - 1u;
+
+	if((working_method == cab_signalling || working_method == moving_block) && sch1->has_signal())
+	{	
+		// With cab signalling, even if we need do nothing else at this juncture, we may need to change the working method.
+		const uint16 check_route_index = next_block <= 0 ? 0 : next_block - 1u;
+		ribi_t::ribi ribi = ribi_typ(cnv->get_route()->position_bei(max(1u, check_route_index) - 1u), cnv->get_route()->position_bei(min(max_element, check_route_index + 1u)));
+		signal_t* signal = sch1->get_signal(ribi); 
+	
+		if(signal)
+		{
+			set_working_method(signal->get_besch()->get_working_method());
+		}
+	}
+
 	if(next_block > max_element)
 	{
 		next_block = cnv->get_next_stop_index() - 1;
@@ -4764,6 +4778,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 						{
 							if(signal->get_besch()->is_longblock_signal())
 							{
+
 								if(next_time_interval_state == roadsign_t::danger || last_longblock_signal_index < INVALID_INDEX && i > first_stop_signal_index)
 								{
 									next_signal_index = i;
@@ -5274,7 +5289,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 		{
 			cnv->set_next_reservation_index(relevant_index);
 			return 0;
-		}
+		} 
 	}
 
 	// Clear signals on the route.
