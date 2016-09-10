@@ -247,6 +247,7 @@ void weg_t::set_besch(const weg_besch_t *b, bool from_saved_game)
 	{	
 		degraded = true;
 		remaining_wear_capacity = 0;
+		replacement_way = NULL;
 	}
 	else if(!from_saved_game)
 	{
