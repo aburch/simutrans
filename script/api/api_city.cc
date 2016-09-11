@@ -37,14 +37,13 @@ SQInteger world_get_next_city(HSQUIRRELVM vm)
 	return generic_get_next(vm, welt->get_staedte().get_count());
 }
 
+namespace script_api {
+	declare_fake_param(city_list_t, "city_list_x");
+}
 
-SQInteger world_get_city_by_index(HSQUIRRELVM vm)
+stadt_t* world_get_city_by_index(city_list_t, uint32 index)
 {
-	sint32 index = param<sint32>::get(vm, -1);
-	koord pos = (0<=index  &&  (uint32)index<welt->get_staedte().get_count()) ?  welt->get_staedte()[index]->get_pos() : koord::invalid;
-	// transform coordinates
-	coordinate_transform_t::koord_w2sq(pos);
-	return push_instance(vm, "city_x",  pos.x, pos.y);
+	return index < welt->get_staedte().get_count()  ?  welt->get_staedte()[index] : NULL;
 }
 
 call_tool_init set_citygrowth(stadt_t *city, bool allow)
@@ -95,7 +94,7 @@ void export_city(HSQUIRRELVM vm)
 	/**
 	 * Meta-method to be used in foreach loops. Do not call them directly.
 	 */
-	register_function(vm, world_get_city_by_index, "_get",    2, "xi");
+	register_method(vm, &world_get_city_by_index, "_get", true);
 	end_class(vm);
 
 	/**
