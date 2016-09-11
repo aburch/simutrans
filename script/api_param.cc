@@ -38,6 +38,10 @@ namespace script_api {
 
 	void coordinate_transform_t::koord_w2sq(koord &k)
 	{
+		// do not transform koord::invalid
+		if (k.x == -1  &&  k.y == -1) {
+			return;
+		}
 		switch( rotation ) {
 			// 0: do nothing
 			case 1: k = koord(k.y, welt->get_size().y-1 - k.x); break;
@@ -297,23 +301,12 @@ namespace script_api {
 		return k;
 	}
 
-
-
 	SQInteger param<koord>::push(HSQUIRRELVM vm, koord const& v)
 	{
 		koord k(v);
-		if (k.x != -1  &&  k.y != -1) {
-			// transform coordinates
-			coordinate_transform_t::koord_w2sq(k);
-		}
-		else {
-			k = koord::invalid;
-		}
-
-		sq_newtable(vm);
-		create_slot<sint16>(vm, "x", k.x);
-		create_slot<sint16>(vm, "y", k.y);
-		return 1;
+		// transform coordinates
+		coordinate_transform_t::koord_w2sq(k);
+		return push_instance(vm, "coord", k.x, k.y);
 	}
 
 	koord3d param<koord3d>::get(HSQUIRRELVM vm, SQInteger index)
@@ -329,9 +322,10 @@ namespace script_api {
 
 	SQInteger param<koord3d>::push(HSQUIRRELVM vm, koord3d const& v)
 	{
-		param<koord>::push(vm, v.get_2d());
-		create_slot<sint8>(vm, "z", v.z);
-		return 1;
+		koord k(v.get_2d());
+		// transform coordinates
+		coordinate_transform_t::koord_w2sq(k);
+		return push_instance(vm, "coord3d", k.x, k.y, v.z);
 	}
 
 // pointers to classes

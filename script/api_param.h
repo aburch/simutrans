@@ -453,7 +453,7 @@ namespace script_api {
 		static void rdwr(loadsave_t*);
 
 		/**
-		 * rotate actual world coordinates back
+		 * rotate actual world coordinates back,
 		 * coordinates after transform are like in the
 		 * scenario's original savegame
 		 */
