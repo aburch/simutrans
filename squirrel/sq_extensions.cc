@@ -3,7 +3,24 @@
 #include "squirrel/sqpcheader.h" // for declarations...
 #include "squirrel/sqvm.h"       // for Raise_Error_vl
 #include <stdarg.h>
+#include "../tpl/ptrhashtable_tpl.h"
 
+// store data associate to vm's here
+struct my_vm_info_t {
+	const char* suspend_blocker; /// if not null then no suspendable functions should be called
+};
+
+static ptrhashtable_tpl<HSQUIRRELVM, my_vm_info_t> vm_info;
+
+void register_vm(HSQUIRRELVM v)
+{
+	vm_info.put(v);
+}
+
+void unregister_vm(HSQUIRRELVM v)
+{
+	vm_info.remove(v);
+}
 
 void* get_instanceup(HSQUIRRELVM vm, SQInteger index, void* tag, const char* type)
 {
@@ -85,4 +102,16 @@ SQRESULT sq_get_ops_remaing(HSQUIRRELVM v)
 {
 	sq_pushinteger(v, v->_ops_remaining);
 	return 1;
+}
+
+void sq_block_suspend(HSQUIRRELVM v, const char* f)
+{
+	if (my_vm_info_t* i = vm_info.access(v)) {
+		i->suspend_blocker = f;
+	}
+}
+
+const char* sq_get_suspend_blocker(HSQUIRRELVM v)
+{
+	return vm_info.get(v).suspend_blocker;
 }

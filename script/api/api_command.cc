@@ -59,6 +59,10 @@ SQInteger param<call_tool_init>::push(HSQUIRRELVM vm, call_tool_init v)
 	if (player == NULL) {
 		return SQ_ERROR;
 	}
+	// check if calling suspendable tools is blocked
+	if (const char* blocker = env_t::networkmode ? sq_get_suspend_blocker(vm) : NULL) {
+		return sq_raise_error(vm, "Cannot call this tool from within `%s'.", blocker);
+	}
 
 	// register this tool call for callback with this id
 	uint32 callback_id = suspended_scripts_t::get_unique_key(tool);
@@ -206,6 +210,11 @@ SQInteger param<call_tool_work>::push(HSQUIRRELVM vm, call_tool_work v)
 			return sq_raise_error(vm, "First click has side effects");
 		}
 	}
+	// check if calling suspendable tools is blocked
+	if (const char* blocker = env_t::networkmode ? sq_get_suspend_blocker(vm) : NULL) {
+		return sq_raise_error(vm, "Cannot call this tool from within `%s'.", blocker);
+	}
+
 
 	bool suspended = false;
 	const char* err = NULL;

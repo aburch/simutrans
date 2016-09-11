@@ -91,6 +91,7 @@ script_vm_t::script_vm_t(const char* include_path_, const char* log_name)
 	vm = sq_open(1024);
 	sqstd_seterrorhandlers(vm);
 	sq_setprintfunc(vm, printfunc, errorfunc);
+	register_vm(vm);
 	log = new log_t(log_name, true, true, true, "script engine started.\n");
 
 	// store ptr to us in vm
@@ -101,6 +102,7 @@ script_vm_t::script_vm_t(const char* include_path_, const char* log_name)
 	sq_pushstring(vm, "thread", -1);
 	thread = sq_newthread(vm, 100);
 	sq_newslot(vm, -3, false);
+	register_vm(thread);
 	// create queue array
 	sq_pushstring(vm, "queue", -1);
 	sq_newarray(vm, 0);
@@ -130,6 +132,8 @@ script_vm_t::script_vm_t(const char* include_path_, const char* log_name)
 
 script_vm_t::~script_vm_t()
 {
+	unregister_vm(thread);
+	unregister_vm(vm);
 	// remove from suspended calls list
 	suspended_scripts_t::remove_vm(thread);
 	suspended_scripts_t::remove_vm(vm);
@@ -189,6 +193,8 @@ const char* script_vm_t::intern_prepare_call(HSQUIRRELVM &job, call_type_t ct, c
 		case FORCE:
 		case FORCEX:
 			job = vm;
+			// block calls to suspendable functions
+			sq_block_suspend(job, function);
 			break;
 		case TRY:
 			if (sq_getvmstate(thread) == SQ_VMSTATE_SUSPENDED) {
@@ -252,7 +258,6 @@ const char* script_vm_t::intern_finish_call(HSQUIRRELVM job, call_type_t ct, int
 		sq_pushregistrytable(job);
 		script_api::create_slot(job, "was_queued", false);
 		sq_poptop(job);
-
 		END_STACK_WATCH(job,0);
 		err = intern_call_function(job, ct, nparams, retvalue);
 	}
@@ -275,6 +280,9 @@ const char* script_vm_t::intern_call_function(HSQUIRRELVM job, call_type_t ct, i
 		err = "Call function failed";
 		retvalue = false;
 	}
+	if (ct == FORCE  ||  ct == FORCEX) {
+		sq_block_suspend(job, NULL);
+	}
 	if (sq_getvmstate(job) != SQ_VMSTATE_SUSPENDED) {
 		// remove closure
 		sq_remove(job, retvalue ? -2 : -1);
@@ -293,6 +301,7 @@ const char* script_vm_t::intern_call_function(HSQUIRRELVM job, call_type_t ct, i
 		END_STACK_WATCH(job, -nparams-1 + retvalue);
 	}
 	else {
+		assert(ct != FORCE  &&  ct != FORCEX);
 		// call suspended: pop dummy return value
 		if (retvalue) {
 			sq_poptop(job);

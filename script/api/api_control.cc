@@ -7,6 +7,14 @@
 
 using namespace script_api;
 
+SQInteger sleep(HSQUIRRELVM vm)
+{
+	if (const char* blocker = sq_get_suspend_blocker(vm)) {
+		return sq_raise_error(vm, "Cannot call sleep from within `%s'.", blocker);
+	}
+	return sq_suspendvm(vm);
+}
+
 void export_control(HSQUIRRELVM vm)
 {
 	// in global scope
@@ -17,7 +25,7 @@ void export_control(HSQUIRRELVM vm)
 	 * i.e. writing into @ref persistent.
 	 * @typemask void()
 	 */
-	register_function(vm, sq_suspendvm, "sleep", 1, ".");
+	register_function(vm, sleep, "sleep", 1, ".");
 
 	/**
 	 * @returns total amount of opcodes executed by vm
