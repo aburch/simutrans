@@ -136,7 +136,7 @@ ifneq ($(WITH_REVISION),)
 endif
 
 CFLAGS   += -Wall -W -Wcast-qual -Wpointer-arith -Wcast-align $(FLAGS)
-CCFLAGS  += -Wstrict-prototypes
+CCFLAGS  += -ansi -Wstrict-prototypes -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64
 
 
 SOURCES += bauer/brueckenbauer.cc

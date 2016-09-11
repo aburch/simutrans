@@ -166,18 +166,27 @@ bool internal_create_surfaces(const bool print_info)
 	// Select opengl renderer driver if possible
 	SDL_RendererInfo ri;
 	int rend_index = -1;
+	bool has_accelerated_renderer = false;
 	const int num_rend = SDL_GetNumRenderDrivers();
 	for(  int i = 0;  i < num_rend;  i++  ) {
+		bool has_format = false;
 		SDL_GetRenderDriverInfo( i, &ri );
 		if(  print_info  ) {
 			printf("Renderer: %s, Max_w: %d, Max_h: %d, Flags: %d, Formats: %d, ", ri.name, ri.max_texture_width, ri.max_texture_height, ri.flags, ri.num_texture_formats );
 			for(  Uint32 j = 0;  j < ri.num_texture_formats;  j++  ) {
 				printf("%s, ", SDL_GetPixelFormatName( ri.texture_formats[j] ));
+				has_format |= (ri.texture_formats[j] == pixel_format);
 			}
 			printf("\n");
 		}
-		if(  strcmp( "opengl", ri.name ) == 0  ) {
-			rend_index = i;
+		if(  has_format  ) {
+			if(  strcmp( "opengl", ri.name ) == 0  ) {
+				rend_index = i;
+			}
+			if(  rend_index == -1  ) {
+				// fallback renderer
+				rend_index = i;
+			}
 		}
 	}
 
@@ -190,14 +199,9 @@ bool internal_create_surfaces(const bool print_info)
 		fprintf( stderr, "Couldn't create renderer: %s\n", SDL_GetError() );
 		return false;
 	}
-	if(  print_info  ) {
-		SDL_GetRendererInfo( renderer, &ri );
-		printf("Using: Renderer: %s, Max_w: %d, Max_h: %d, Flags: %d, Formats: %d, ", ri.name, ri.max_texture_width, ri.max_texture_height, ri.flags, ri.num_texture_formats );
-		for(  Uint32 j = 0;  j < ri.num_texture_formats;  j++  ) {
-			printf("%s, ", SDL_GetPixelFormatName( ri.texture_formats[j] ) );
-		}
-		printf("\n");
-	}
+
+	SDL_GetRendererInfo( renderer, &ri );
+	DBG_DEBUG( "internal_create_surfaces()", "Using: Renderer: %s, Max_w: %d, Max_h: %d, Flags: %d, Formats: %d, %s", ri.name, ri.max_texture_width, ri.max_texture_height, ri.flags, ri.num_texture_formats, SDL_GetPixelFormatName(SDL_PIXELFORMAT_RGB565) );
 
 	screen_tx = SDL_CreateTexture( renderer, pixel_format, SDL_TEXTUREACCESS_STREAMING, width, height );
 	if(  screen_tx == NULL  ) {

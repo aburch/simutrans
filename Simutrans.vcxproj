@@ -129,6 +129,7 @@
     <ClCompile Include="display\simgraph16.cc" />
     <ClCompile Include="display\simview.cc" />
     <ClCompile Include="display\viewport.cc" />
+    <ClCompile Include="gui\ai_selector.cc" />
     <ClCompile Include="gui\base_info.cc" />
     <ClCompile Include="gui\city_info.cc" />
     <ClCompile Include="gui\components\gui_container.cc" />
@@ -143,8 +144,10 @@
     <ClCompile Include="player\ai_goods.cc" />
     <ClCompile Include="gui\ai_option_t.cc" />
     <ClCompile Include="player\ai_passenger.cc" />
+    <ClCompile Include="player\ai_scripted.cc" />
     <ClCompile Include="player\finance.cc" />
     <ClCompile Include="script\api\api_city.cc" />
+    <ClCompile Include="script\api\api_command.cc" />
     <ClCompile Include="script\api\api_gui.cc" />
     <ClCompile Include="script\api\api_map_objects.cc" />
     <ClCompile Include="script\api\api_obj_desc.cc" />
@@ -439,6 +442,7 @@
     <ClInclude Include="display\simimg.h" />
     <ClInclude Include="display\simview.h" />
     <ClInclude Include="display\viewport.h" />
+    <ClInclude Include="gui\ai_selector.h" />
     <ClInclude Include="gui\base_info.h" />
     <ClInclude Include="gui\city_info.h" />
     <ClInclude Include="gui\components\action_listener.h" />
@@ -451,9 +455,11 @@
     <ClInclude Include="player\ai_goods.h" />
     <ClInclude Include="gui\ai_option_t.h" />
     <ClInclude Include="player\ai_passenger.h" />
+    <ClInclude Include="player\ai_scripted.h" />
     <ClInclude Include="player\finance.h" />
     <ClInclude Include="script\api\api.h" />
     <ClInclude Include="script\api\api_base.h" />
+    <ClInclude Include="script\api\api_command.h" />
     <ClInclude Include="script\api\api_doc.h" />
     <ClInclude Include="script\api\api_obj_desc_base.h" />
     <ClInclude Include="siminteraction.h" />
