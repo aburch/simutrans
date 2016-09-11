@@ -1685,8 +1685,9 @@ const char *tool_set_climate_t::get_tooltip(player_t const*) const
 	return tooltip_with_price( temp,  welt->get_settings().cst_alter_climate );
 }
 
-uint8 tool_set_climate_t::is_valid_pos(player_t *player, const koord3d &, const char *&, const koord3d &)
+uint8 tool_set_climate_t::is_valid_pos(player_t *player, const koord3d &, const char *& error, const koord3d &)
 {
+	error = NULL;
 	// no dragging in networkmode but for admin
 	return env_t::networkmode ? (player->get_player_nr()==1)+1 : 2;
 }
