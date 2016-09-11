@@ -10,6 +10,7 @@
 // for creation of lines
 #include "../../simline.h"
 #include "../../simmenu.h"
+#include "../../simworld.h"
 
 
 using namespace script_api;
@@ -102,6 +103,14 @@ call_tool_init player_create_line(player_t *player, waytype_t wt)
 	cbuffer_t buf;
 	buf.printf( "c,0,%i,0,0|%i|", lt, lt);
 	return call_tool_init(TOOL_CHANGE_LINE | SIMPLE_TOOL, buf, 0, player);
+}
+
+call_tool_init player_book_account(player_t *player, sint32 delta)
+{
+	// build param string (see tool_change_player_t)
+	cbuffer_t buf;
+	buf.printf( "$,%i,%i", player->get_player_nr(), delta);
+	return call_tool_init(TOOL_CHANGE_PLAYER | SIMPLE_TOOL, buf, 0, welt->get_player(1));
 }
 
 SQInteger player_get_my_player(HSQUIRRELVM vm)
@@ -251,12 +260,14 @@ void export_player(HSQUIRRELVM vm, bool scenario)
 	 */
 	register_method_fv(vm, &get_player_stat, "get_way_tolls",         freevariable3<sint32,sint32,bool>(ATV_WAY_TOLL, TT_ALL, true), true);
 
-	/**
-	 * Change bank account of player by given amount @p delta.
-	 * @param delta
-	 * @warning cannot be used in network games.
-	 */
-	register_method(vm, &finance_t::book_account, "book_cash");
+	if (scenario) {
+		/**
+		 * Change bank account of player by given amount @p delta.
+		 * @param delta
+		 * @ingroup scen_only
+		 */
+		register_method(vm, player_book_account, "book_cash", true);
+	}
 	/**
 	 * Returns the current account balance.
 	 */

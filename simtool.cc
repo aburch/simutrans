@@ -7100,9 +7100,8 @@ bool tool_change_depot_t::init( player_t *player )
  * [function],[player_id],[state]
  * following command exists:
  * 'a' : activate/deactivate player (depends on state)
- * 'n' : create player at id of type state
- * 'f' : activates/deactivates freeplay
  * 'c' : change player color
+ * '$' : change bank account
  */
 bool tool_change_player_t::init( player_t *player_in)
 {
@@ -7111,16 +7110,17 @@ bool tool_change_player_t::init( player_t *player_in)
 		return false;
 	}
 
-	char tool=0;
-	int id=0;
-	int state=0;
-
 	// skip the rest of the command
 	const char *p = default_param;
 	while(  *p  &&  *p<=' '  ) {
 		p++;
 	}
-	sscanf( p, "%c,%i,%i", &tool, &id, &state );
+
+	char tool = 0;
+	int id = 0;
+	if (sscanf( p, "%c,%i", &tool, &id ) < 2) {
+		return false; // invalid command
+	}
 
 	player_t *player = welt->get_player(id);
 
@@ -7128,8 +7128,11 @@ bool tool_change_player_t::init( player_t *player_in)
 	switch(  tool  ) {
 		case 'a': // activate/deactivate AI
 			if(  player  &&  player->get_ai_id()!=player_t::HUMAN  &&  (player_in==welt->get_player(1)  ||  !env_t::networkmode)  ) {
-				player->set_active(state);
-				welt->get_settings().set_player_active(id, player->is_active());
+				int state = 0;
+				if (sscanf( p, "%c,%i,%i", &tool, &id, &state ) == 3) {
+					player->set_active(state);
+					welt->get_settings().set_player_active(id, player->is_active());
+				}
 			}
 			break;
 		case 'c': // change player color
@@ -7139,6 +7142,16 @@ bool tool_change_player_t::init( player_t *player_in)
 				player->set_player_color( c1, c2 );
 			}
 			break;
+
+		case '$': // change bank account
+			if(  player  &&  player_in==welt->get_player(1) ) {
+				int delta;
+				if (sscanf(p, "%c,%i,%i", &tool, &id, &delta) == 3) {
+					player->get_finance()->book_account(delta);
+				}
+			}
+			break;
+
 		case 'n': // WAS: new player with type state
 		case 'f': // WAS: activate/deactivate freeplay
 			dbg->error( "tool_change_player_t::init()", "deprecated command called" );
