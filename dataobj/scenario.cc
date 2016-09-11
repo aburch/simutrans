@@ -826,7 +826,7 @@ void scenario_t::rdwr(loadsave_t *file)
 		}
 		else {
 			plainstring str;
-			script->call_function(script_vm_t::FORCE, "save", str);
+			script->call_function(script_vm_t::FORCEX, "save", str);
 			dbg->warning("scenario_t::rdwr", "write persistent scenario data: %s", str.c_str());
 			file->rdwr_str(str);
 		}
@@ -847,7 +847,7 @@ void scenario_t::rdwr(loadsave_t *file)
 	}
 
 	if (what_scenario == SCRIPTED  &&  file->is_loading()  &&  !rdwr_error) {
-		const char* err = script->call_function(script_vm_t::FORCE, "resume_game");
+		const char* err = script->call_function(script_vm_t::FORCEX, "resume_game");
 		if (err) {
 			dbg->warning("scenario_t::rdwr", "error [%s] calling resume_game", err);
 			rdwr_error = true;
