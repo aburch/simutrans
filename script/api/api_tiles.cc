@@ -298,5 +298,10 @@ void export_tiles(HSQUIRRELVM vm)
 	 */
 	register_method(vm, &square_get_halt_list, "get_halt_list", true);
 
+	/**
+	 * Returns climate of ground tile.
+	 */
+	register_method(vm, &planquadrat_t::get_climate, "get_climate");
+
 	end_class(vm);
 }

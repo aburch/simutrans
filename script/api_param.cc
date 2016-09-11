@@ -211,6 +211,12 @@ namespace script_api {
 	{
 		return param<uint8>::push(vm, v);
 	}
+
+
+	SQInteger param<climate>::push(HSQUIRRELVM vm, climate const& v)
+	{
+		return param<uint8>::push(vm, v);
+	}
 // floats
 	double param<double>::get(HSQUIRRELVM vm, SQInteger index)
 	{

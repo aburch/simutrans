@@ -257,4 +257,20 @@ void export_global_constants(HSQUIRRELVM vm)
 	enum_slot(vm, "CARUNITS_PER_TILE", (uint32)CARUNITS_PER_TILE);
 
 	end_enum();
+
+	/**
+	 * Climate zones. Their naming may differ from the graphical representation and
+	 * translation in some paksets.
+	 */
+	begin_enum("climates");
+	enum_slot(vm, "cl_water", water_climate);
+	enum_slot(vm, "cl_desert", desert_climate);
+	enum_slot(vm, "cl_tropic", tropic_climate);
+	enum_slot(vm, "cl_mediterran", mediterran_climate);
+	enum_slot(vm, "cl_temperate", temperate_climate);
+	enum_slot(vm, "cl_tundra", tundra_climate);
+	enum_slot(vm, "cl_rocky", rocky_climate);
+	enum_slot(vm, "cl_arctic", arctic_climate);
+	end_enum();
+
 }
