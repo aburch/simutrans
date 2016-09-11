@@ -97,6 +97,16 @@ SQInteger world_get_convoy_list(HSQUIRRELVM vm)
 	return 1;
 }
 
+SQInteger world_get_size(HSQUIRRELVM vm)
+{
+	koord k = welt->get_size();
+	if (coordinate_transform_t::get_rotation() & 1) {
+		return push_instance(vm, "coord", k.y, k.x);
+	}
+	else {
+		return push_instance(vm, "coord", k.x, k.y);
+	}
+}
 
 void export_world(HSQUIRRELVM vm)
 {
@@ -294,6 +304,11 @@ void export_world(HSQUIRRELVM vm)
 	 * @typemask convoy_list_x()
 	 */
 	STATIC register_function(vm, world_get_convoy_list, "get_convoy_list", 1, ".");
+	/**
+	 * Returns size of the map.
+	 * @typemask coord()
+	 */
+	STATIC register_function(vm, world_get_size, "get_size", 1, ".");
 
 	end_class(vm);
 

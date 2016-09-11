@@ -473,6 +473,8 @@ namespace script_api {
 		 * rotate actual world coordinates direction to original direction
 		 */
 		static void ribi_sq2w(ribi_t::ribi &r);
+
+		static uint8 get_rotation() { return rotation; }
 	};
 
 	/// called by karte_t directly
