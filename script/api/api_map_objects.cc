@@ -221,9 +221,9 @@ void begin_obj_class(HSQUIRRELVM vm, const char* name, const char* base = NULL)
 {
 	SQInteger res = create_class(vm, name, base);
 	if(  !SQ_SUCCEEDED(res)  ) {
-		// base class not found: maybe scenario_base.nut is not up-to-date
-		dbg->error( "begin_obj_class()", "Create class failed for %s. Base class %s missing. Please update simutrans (or just script/scenario_base.nut)!", name, base );
-		sq_raise_error(vm, "Create class failed for %s. Base class %s missing. Please update simutrans (or just script/scenario_base.nut)!", name, base);
+		// base class not found: maybe script_base.nut is not up-to-date
+		dbg->error( "begin_obj_class()", "Create class failed for %s. Base class %s missing. Please update simutrans (or just script/script_base.nut)!", name, base );
+		sq_raise_error(vm, "Create class failed for %s. Base class %s missing. Please update simutrans (or just script/script_base.nut)!", name, base);
 	}
 	uint8 objtype = bind_code<D>::objtype;
 	// store typetag to identify pointers

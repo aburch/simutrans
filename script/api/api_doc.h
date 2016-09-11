@@ -96,6 +96,7 @@
  *
  * @section s_general_advice General scripting advice
  *
+ * Check out the sections on the <a href="modules.html">Modules</a> page.
  * See also @ref pitfalls.
  *
  * @subsection sec_data_types Squirrel data types
@@ -292,19 +293,27 @@
  */
 
 /**
- * @defgroup game_cmd Function to alter the state of the game and map
+ * @defgroup game_cmd Functions to alter the state of the game and map
  *
  * The player parameter in these functions represents the player that executes the command
  * and pays for it. If the call is from an AI player then the parameter is set to player_x::self,
  * and it will be checked whether the
  * player is permitted to execute the command. Calls from scenario always pass this check.
  *
+ * In network games, the script is suspended until the command is executed, which is transparent to the script.
+ * Hence such commands cannot be called from within functions that should return immediately, see @ref quick_return_func.
  */
-
 
 /**
  * @defgroup rename_func Functions to rename something in the game
  * @ingroup game_cmd
  *
  * In AI mode, renaming works only if the object is owned by the script's player.
+ */
+
+/**
+ * @defgroup quick_return_func Functions that should return quickly.
+ *
+ * These functions are intended to quickly return a result. In network games, it is not
+ * allowed to call any map-latering tools from within such a function, see the section on @ref game_cmd.
  */

@@ -118,6 +118,7 @@ void export_simple(HSQUIRRELVM vm)
 
 	/**
 	 * Class that holds 2d coordinates.
+	 * All functions that use this as input parameters will accept every data structure that contains members x and y.
 	 *
 	 * Coordinates always refer to the original rotation in @ref map.file.
 	 * They will be rotated if transferred between the game engine and squirrel.
@@ -128,7 +129,8 @@ void export_simple(HSQUIRRELVM vm)
 	integer x;
 	/// y-coordinate
 	integer y;
-	// operators are defined in scenario_base.nut
+	// operators are defined in script_base.nut
+	coord(int x, int y);
 	coord operator + (coord other);
 	coord operator - (coord other);
 	coord operator - ();
@@ -152,6 +154,7 @@ void export_simple(HSQUIRRELVM vm)
 
 	/**
 	 * Class that holds 3d coordinates.
+	 * All functions that use this as input parameters will accept every data structure that contains members x, y, and z.
 	 *
 	 * Coordinates always refer to the original rotation in @ref map.file.
 	 * They will be rotated if transferred between the game engine and squirrel.
@@ -164,7 +167,8 @@ void export_simple(HSQUIRRELVM vm)
 	integer y;
 	/// z-coordinate - height
 	integer z;
-	// operators are defined in scenario_base.nut
+	// operators are defined in script_base.nut
+	coord(int x, int y, int z);
 	coord3d operator + (coord3d other);
 	coord3d operator - (coord other);
 	coord3d operator + (coord3d other);

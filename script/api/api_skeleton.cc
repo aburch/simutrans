@@ -29,6 +29,7 @@ register_function("start");
  * Do all the initializations and post-processing here.
  * @typemask void()
  * @ingroup scen_skel
+ * @ingroup quick_return_func
  */
 register_function("resume_game");
 
@@ -42,6 +43,14 @@ register_function("resume_game");
  * @ingroup ai_skel
  */
 register_function("resume_game");
+
+/**
+ * The heartbeat of the AI player. Here, all AI-related calculations and work can be done.
+ *
+ * @typemask void()
+ * @ingroup ai_skel
+ */
+register_function("step");
 
 /**
  * Called at the beginning of a new month.
@@ -69,6 +78,7 @@ register_function("new_year")
  * @returns filename or "<attach>"
  * @typemask string()
  * @ingroup scen_skel
+ * @ingroup quick_return_func
  */
 register_function("get_map_file")
 
@@ -163,6 +173,7 @@ register_function("get_debug_text");
  *
  * @typemask string()
  * @ingroup scen_skel
+ * @ingroup quick_return_func
  */
 register_function("get_api_version");
 
@@ -196,6 +207,7 @@ register_function("is_scenario_completed");
  * @returns true if tool is allowed.
  * @typemask bool(integer,integer,way_types)
  * @ingroup scen_skel
+ * @ingroup quick_return_func
  */
 register_function("is_tool_allowed");
 
@@ -213,6 +225,7 @@ register_function("is_tool_allowed");
  * @return null if allowed, an error message otherwise
  * @typemask string(integer,integer,coord3d)
  * @ingroup scen_skel
+ * @ingroup quick_return_func
  */
 register_function("is_work_allowed_here");
 
@@ -227,6 +240,7 @@ register_function("is_work_allowed_here");
  * @return null if allowed, an error message otherwise
  * @typemask string(integer,schedule_x)
  * @ingroup scen_skel
+ * @ingroup quick_return_func
  */
 register_function("is_schedule_allowed");
 

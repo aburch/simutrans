@@ -110,7 +110,7 @@ void export_tiles(HSQUIRRELVM vm)
 	 * @param y z-coordinate
 	 * @typemask (integer,integer,integer)
 	 */
-	// actually defined simutrans/script/scenario_base.nut
+	// actually defined simutrans/script/script_base.nut
 	// register_function(..., "constructor", ...);
 
 
@@ -263,7 +263,7 @@ void export_tiles(HSQUIRRELVM vm)
 	 * @param y z-coordinate
 	 * @typemask (integer,integer)
 	 */
-	// actually defined simutrans/script/scenario_base.nut
+	// actually defined simutrans/script/script_base.nut
 	// register_function(..., "constructor", ...);
 	/**
 	 * Access some halt at this square.
