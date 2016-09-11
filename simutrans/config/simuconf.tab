@@ -488,11 +488,6 @@ toll_waycost_percentage = 0
 #cost_depot_road=1300
 #cost_depot_ship=2500
 
-# other way related stuff
-#cost_signal=500
-#cost_tunnel=10000
-#cost_third_rail=80
-
 # other construction/destruction stuff
 #cost_buy_land=100
 #cost_alter_land=1000
