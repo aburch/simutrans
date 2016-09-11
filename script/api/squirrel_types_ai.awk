@@ -1,6 +1,7 @@
 # file used to generate doxygen documentation of squirrel API
 # needs to be copied to trunk/script/api
 BEGIN {
+	export_types["city_list_x::_get"] = "city_x(integer)"
 	export_types["city_x::get_name"] = "string()"
 	export_types["city_x::set_name"] = "string(string)"
 	export_types["city_x::get_citizens"] = "array<integer>()"
@@ -214,7 +215,6 @@ BEGIN {
 	export_types["player_x::get_transported_goods"] = "array<integer>()"
 	export_types["player_x::get_convoys"] = "array<integer>()"
 	export_types["player_x::get_way_tolls"] = "array<integer>()"
-	export_types["player_x::book_cash"] = "void(integer)"
 	export_types["player_x::get_current_cash"] = "float()"
 	export_types["player_x::get_current_net_wealth"] = "integer()"
 	export_types["player_x::get_current_maintenance"] = "integer()"
@@ -259,6 +259,7 @@ BEGIN {
 	export_types["square_x::get_tile_at_height"] = "tile_x(integer)"
 	export_types["square_x::get_ground_tile"] = "tile_x()"
 	export_types["square_x::get_halt_list"] = "array<halt_x>()"
+	export_types["square_x::get_climate"] = "climates()"
 	export_types["world::is_coord_valid"] = "bool(coord)"
 	export_types["world::find_nearest_city"] = "city_x(coord)"
 	export_types["world::get_season"] = "integer()"

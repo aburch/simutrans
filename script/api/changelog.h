@@ -7,6 +7,7 @@
  * - Feature: scripted AI players
  * - Feature: script calls can be suspended and waken up, less strict checks of 'script take too long'
  * - Feature: add commands to modify game state, see @ref game_cmd
+ * - Added @ref climates, square_x::get_climate, world::get_size
  * - Added new classes command_x, vehicle_desc_x
  * - Added tool_ids::tool_set_climate, tool_ids::tool_change_water_height
  * - Added string::toalnum (converts strings to strings that can be used as table keys)
