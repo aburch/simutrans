@@ -812,6 +812,12 @@ bool network_broadcast_world_command_t::execute(karte_t *welt)
 		return network_world_command_t::execute(welt);
 	}
 	else if (env_t::server) {
+		// check map_counter
+		if (map_counter != welt->get_map_counter()) {
+			// command from another world
+			dbg->warning("network_broadcast_world_command_t::execute", "wanted to execute(%d) from another world", get_id());
+			return true;
+		}
 		// clone
 		network_broadcast_world_command_t *nwc = clone(welt);
 		if (nwc == NULL) {
@@ -902,7 +908,7 @@ void nwc_chg_player_t::do_command(karte_t *welt)
 		company_creator[player_nr] =  pending_company_creator;
 
 		if (pending_company_creator) {
-			dbg->warning("nwc_chg_player_t::clone", "company_creator for %d is set to %s/%s", player_nr,
+			dbg->warning("nwc_chg_player_t::do_command", "company_creator for %d is set to %s/%s", player_nr,
 					 pending_company_creator->address.get_str(), pending_company_creator->nickname.c_str());
 		}
 		pending_company_creator = NULL; // to prevent deletion in ~nwc_chg_player_t
@@ -1026,13 +1032,6 @@ void nwc_tool_t::init_tool()
 
 network_broadcast_world_command_t* nwc_tool_t::clone(karte_t *welt)
 {
-	if (map_counter != welt->get_map_counter()) {
-		// command from another world
-		// maybe sent before sync happened -> ignore
-		dbg->warning("nwc_tool_t::clone", "wanted to execute(%d) from another world", get_id());
-		return NULL; // indicate failure
-	}
-
 	init_tool();
 	if (tool == NULL) {
 		// invalid id
