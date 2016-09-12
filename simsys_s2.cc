@@ -168,24 +168,16 @@ bool internal_create_surfaces(const bool print_info)
 	int rend_index = -1;
 	const int num_rend = SDL_GetNumRenderDrivers();
 	for(  int i = 0;  i < num_rend;  i++  ) {
-		bool has_format = false;
 		SDL_GetRenderDriverInfo( i, &ri );
 		char str[4096];
 		str[0] = 0;
 		for(  Uint32 j = 0;  j < ri.num_texture_formats;  j++  ) {
 			strcat( str, ", " );
 			strcat( str, SDL_GetPixelFormatName( ri.texture_formats[j] ) );
-			has_format |= (ri.texture_formats[j] == pixel_format);
 		}
 		DBG_DEBUG( "internal_create_surfaces()", "Renderer: %s, Max_w: %d, Max_h: %d, Flags: %d, Formats: %d%s", ri.name, ri.max_texture_width, ri.max_texture_height, ri.flags, ri.num_texture_formats, str );
-		if(  has_format  ) {
-			if(  strcmp( "opengl", ri.name ) == 0  ) {
-				rend_index = i;
-			}
-			if(  rend_index == -1  ) {
-				// fallback renderer
-				rend_index = i;
-			}
+		if(  strcmp( "opengl", ri.name ) == 0  ) {
+			rend_index = i;
 		}
 	}
 
@@ -195,14 +187,20 @@ bool internal_create_surfaces(const bool print_info)
 	}
 	renderer = SDL_CreateRenderer( window, rend_index, flags );
 	if(  renderer == NULL  ) {
-		dbg->error( "internal_create_surfaces()", "Couldn't create renderer: %s", SDL_GetError() );
-		return false;
+		dbg->warning( "internal_create_surfaces()", "Couldn't create opengl renderer: %s", SDL_GetError() );
+		// try all other renderer until success
+		for(  int i = 0;  i < num_rend  &&  renderer==NULL;  i++  ) {
+			if(  i != rend_index  ) {
+				renderer = SDL_CreateRenderer( window, i, flags );
+			}
+		}
+		if(  renderer == NULL  ) {
+			dbg->fatal( "internal_create_surfaces()", "No SDL2 renderer found!" );
+		}
+		dbg->warning( "internal_create_surfaces()", "Using fallback render %s instead of opengl: Performance may be low!", ri.name );
 	}
 
 	SDL_GetRendererInfo( renderer, &ri );
-	if(  strcmp( "opengl", ri.name )  ) {
-		dbg->warning( "internal_create_surfaces()", "Using fallback render %s instead of opengl: Performance may be low!", ri.name );
-	}
 	DBG_DEBUG( "internal_create_surfaces()", "Using: Renderer: %s, Max_w: %d, Max_h: %d, Flags: %d, Formats: %d, %s", ri.name, ri.max_texture_width, ri.max_texture_height, ri.flags, ri.num_texture_formats, SDL_GetPixelFormatName(SDL_PIXELFORMAT_RGB565) );
 
 	screen_tx = SDL_CreateTexture( renderer, pixel_format, SDL_TEXTUREACCESS_STREAMING, width, height );
