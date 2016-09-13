@@ -450,6 +450,17 @@ private:
 	/* station flags (most what enabled) */
 	uint8 enables;
 
+	/**
+	* 0 = North; 1 = South; 2 = East 3 = West
+	* Used for the time interval system
+	*/
+	sint64 train_last_departed[4]; 
+
+	/**
+	* Used for the time interval system
+	*/
+	vector_tpl<koord3d> station_signals;
+
 #ifdef USE_QUOTE
 	// for station rating
 	//const char * quote_bezeichnung(int quote, convoihandle_t cnv) const;
@@ -993,6 +1004,41 @@ public:
 
 	const arrival_times_map& get_estimated_convoy_arrival_times() { return estimated_convoy_arrival_times; }
 	const arrival_times_map& get_estimated_convoy_departure_times() { return estimated_convoy_departure_times; }
+
+	private: 
+
+	sint32 translate_direction(ribi_t::ribi direction) const
+	{
+		sint32 dir;
+		switch(direction)
+		{
+		default:
+		case ribi_t::nord:
+			dir = 0;
+			break;
+		case ribi_t::sued:
+			dir = 1;
+			break;
+		case ribi_t::ost:
+			dir = 2;
+			break;
+		case ribi_t::west:
+			dir = 3;
+		};
+		return dir;
+	}
+
+	public:
+
+	sint64 get_train_last_departed(ribi_t::ribi direction) const { return train_last_departed[translate_direction(direction)]; }
+	sint64 get_train_last_departed(uint32 dir) const { return train_last_departed[dir]; }
+	void set_train_last_departed(sint64 time, ribi_t::ribi direction) { train_last_departed[translate_direction(direction)] = time; }
+
+	void add_station_signal(koord3d pos) { station_signals.append(pos); }
+	void remove_station_signal(koord3d pos) { station_signals.remove(pos); }
+	uint32 get_station_signals_count() const { return station_signals.get_count(); }
+	koord3d get_station_signal(uint32 value) const { return station_signals[value]; }
+	bool is_station_signal_contained(koord3d pos) const { return station_signals.is_contained(pos); }
 };
 
 ENUM_BITSET(haltestelle_t::stationtyp)

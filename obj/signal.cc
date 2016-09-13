@@ -21,6 +21,7 @@
 #include "../obj/gebaeude.h"
 #include "../simsignalbox.h"
 #include "../besch/haus_besch.h"
+#include "../simhalt.h"
 
 #include "signal.h"
 
@@ -71,6 +72,16 @@ signal_t::signal_t(player_t *player, koord3d pos, ribi_t::ribi dir,const roadsig
 			}
 		}
 	}
+
+	if(besch->is_longblock_signal() && (besch->get_working_method() == time_interval || besch->get_working_method() == time_interval_with_telegraph))
+	{
+		// Register station signals at the halt.
+		halthandle_t halt = haltestelle_t::get_halt(pos, player);
+		if(halt.is_bound())
+		{
+			halt->add_station_signal(pos);
+		}
+	}
 }
 
 signal_t::~signal_t()
@@ -86,6 +97,15 @@ signal_t::~signal_t()
 		}
 	}
 	welt->remove_time_interval_signal_to_check(this); 
+	if(besch->is_longblock_signal() && (besch->get_working_method() == time_interval || besch->get_working_method() == time_interval_with_telegraph))
+	{
+		// De-register station signals at the halt.
+		halthandle_t halt = haltestelle_t::get_halt(get_pos(), get_owner());
+		if(halt.is_bound())
+		{
+			halt->remove_station_signal(get_pos());
+		}
+	}
 }
 
 
@@ -108,12 +128,51 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 	buf.append(translator::translate(get_working_method_name(besch->get_working_method())));
 	buf.append("\n\n");
 
-	buf.append(translator::translate("Time since a train last passed")); 
-	buf.append(": "); 
-	char time_since_train_last_passed[32];
-	welt->sprintf_ticks(time_since_train_last_passed,sizeof(time_since_train_last_passed), welt->get_zeit_ms() - sig->get_train_last_passed());
-	buf.append(time_since_train_last_passed);
-	buf.append("\n\n");
+	
+
+	// Deal with station signals where the time since the train last passed is standardised for the whole station.
+	halthandle_t this_tile_halt = haltestelle_t::get_halt(sig->get_pos(), get_owner()); 
+	uint32 station_signals_count = this_tile_halt.is_bound() ? this_tile_halt->get_station_signals_count() : 0;
+	if(station_signals_count)
+	{
+		for(uint32 i = 0; i < 4; i ++)
+		{
+			switch(i)
+			{
+			case 0:
+			default:
+				buf.append(translator::translate("Time since a train last passed")); 
+				buf.append("\n");
+				buf.append(translator::translate("North"));
+				break;
+			case 1:
+				buf.append(translator::translate("South"));
+				break;
+			case 2:
+				buf.append(translator::translate("East"));
+				break;
+			case 3:
+				buf.append(translator::translate("West"));
+			};
+			buf.append(": "); 
+			char time_since_train_last_passed[32];
+			welt->sprintf_ticks(time_since_train_last_passed, sizeof(time_since_train_last_passed), welt->get_zeit_ms() - this_tile_halt->get_train_last_departed(i));
+			buf.append(time_since_train_last_passed);		
+			buf.append("\n");
+		}
+	}
+	else
+	{
+		buf.append(translator::translate("Time since a train last passed")); 
+		buf.append(": "); 
+		char time_since_train_last_passed[32];
+		welt->sprintf_ticks(time_since_train_last_passed, sizeof(time_since_train_last_passed), welt->get_zeit_ms() - sig->get_train_last_passed());
+		buf.append(time_since_train_last_passed);
+		buf.append("\n");
+	}
+
+	buf.append("\n");
+	
 
 	buf.append(translator::translate("Controlled from"));
 	buf.append(":\n");
@@ -289,7 +348,12 @@ void signal_t::calc_image()
 			}
 
 			const schiene_t* sch1 = (schiene_t*)sch; 
-			const ribi_t::ribi reserved_direction = sch1->get_reserved_direction();
+			ribi_t::ribi reserved_direction = sch1->get_reserved_direction();
+			if(besch->is_longblock_signal() && (besch->get_working_method() == time_interval || besch->get_working_method() == time_interval_with_telegraph))
+			{
+				// Allow both directions for a station signal
+				reserved_direction |= ribi_t::rueckwaerts(reserved_direction);
+			}
 			// signs for left side need other offsets and other front/back order
 			if(  left_swap  ) {
 				const sint16 XOFF = 2*besch->get_offset_left();
@@ -404,7 +468,7 @@ void signal_t::rdwr_signal(loadsave_t *file)
 #endif
 	}
 
-	if(besch && (besch->get_working_method() == time_interval || besch->get_working_method() == time_interval_with_telegraph) && (state == caution || state == caution_no_choose || state == danger))
+	if(no_junctions_to_next_signal && besch && (besch->get_working_method() == time_interval || besch->get_working_method() == time_interval_with_telegraph) && (state == caution || state == caution_no_choose || state == danger))
 	{
 		welt->add_time_interval_signal_to_check(this); 
 	}

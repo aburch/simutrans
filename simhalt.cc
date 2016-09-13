@@ -56,6 +56,7 @@
 
 #include "obj/gebaeude.h"
 #include "obj/label.h"
+#include "obj/signal.h"
 
 #include "gui/halt_info.h"
 #include "gui/halt_detail.h"
@@ -560,6 +561,11 @@ haltestelle_t::haltestelle_t(koord k, player_t* player)
 	control_towers = 0;
 
 	transfer_time = 0;
+
+	for(sint32 i = 0; i < 4; i ++)
+	{
+		train_last_departed[i] = 0;
+	}
 }
 
 
@@ -712,7 +718,7 @@ void haltestelle_t::rotate90( const sint16 y_size )
 
 	// rotate waren destinations
 	// iterate over all different categories
-	for(unsigned i=0; i<warenbauer_t::get_max_catg_index(); i++) {
+	for(uint8 i=0; i<warenbauer_t::get_max_catg_index(); i++) {
 		if(waren[i]) {
 			vector_tpl<ware_t>& warray = *waren[i];
 			for (size_t j = warray.get_count(); j-- > 0;) {
@@ -728,6 +734,27 @@ void haltestelle_t::rotate90( const sint16 y_size )
 			}
 		}
 	}
+
+	sint64 temp_last_departed[4];
+	// Rotate station signal timings
+	for(uint32 i = 0; i < 4; i ++)
+	{
+		temp_last_departed[i] = train_last_departed[i];
+	}
+
+	// Rotation is clockwise.
+	
+	// North becomes East
+	train_last_departed[2] = temp_last_departed[0];
+
+	// South becomes West
+	train_last_departed[3] = temp_last_departed[1];
+
+	// East becomes South
+	train_last_departed[1] = temp_last_departed[2];
+
+	// West becomes North
+	train_last_departed[0] = temp_last_departed[3];
 
 	// Update our list of factories.
 	verbinde_fabriken();
@@ -3879,6 +3906,42 @@ void haltestelle_t::rdwr(loadsave_t *file)
 		}
 	}
 	
+	if(file->get_experimental_version() >= 12 && file->get_experimental_revision() >= 11)
+	{
+		uint32 station_signals_count = station_signals.get_count();
+		file->rdwr_long(station_signals_count);
+		if(file->is_loading())
+		{
+			station_signals.clear();
+		}
+		for(uint32 n = 0; n < station_signals_count; n++)
+		{
+			if(file->is_saving())
+			{
+				station_signals[n].rdwr(file);
+			}
+			else
+			{
+				// Loading
+				koord3d k;
+				k.rdwr(file);
+				station_signals.append(k);
+			}
+		}
+
+		for(sint32 i = 0; i < 4; i ++)
+		{
+			file->rdwr_longlong(train_last_departed[i]);
+		}
+	}
+	else
+	{
+		for(sint32 i = 0; i < 4; i ++)
+		{
+			train_last_departed[i] = 0;
+		}
+		station_signals.clear();
+	}
 
 	// So compute it fresh every time
 	calc_transfer_time();
@@ -4297,6 +4360,13 @@ bool haltestelle_t::add_grund(grund_t *gr, bool relink_factories)
 		fab->recalc_nearby_halts();
 	}
 
+	signal_t* signal = gr->find<signal_t>();
+
+	if(signal && signal->get_besch()->is_longblock_signal() && (signal->get_besch()->get_working_method() == time_interval || signal->get_besch()->get_working_method() == time_interval_with_telegraph))
+	{
+		// Register station signals at the halt.
+		station_signals.append(gr->get_pos());
+	}
 
 	// check if we have to register line(s) and/or lineless convoy(s) which serve this halt
 	vector_tpl<linehandle_t> check_line(0);
@@ -4376,6 +4446,8 @@ bool haltestelle_t::rem_grund(grund_t *gr)
 	if(!gr) {
 		return false;
 	}
+
+	station_signals.remove(gr->get_pos());
 
 	slist_tpl<tile_t>::iterator i = std::find(tiles.begin(), tiles.end(), gr);
 	if (i == tiles.end()) {

@@ -1684,12 +1684,15 @@ end_loop:
 				position = fpl ? fpl->get_aktuell() : 0;
 				rev = !reverse_schedule;
 				fpl->increment_index(&position, &rev);
-				if(haltestelle_t::get_halt(front()->get_pos(), owner) == haltestelle_t::get_halt(fpl->eintrag[position].pos, owner))
+				halthandle_t this_halt = haltestelle_t::get_halt(front()->get_pos(), owner);
+				if(this_halt == haltestelle_t::get_halt(fpl->eintrag[position].pos, owner))
 				{
 					// Load any newly arrived passengers/mail bundles/goods before setting off.
 					laden();
 				}
+				// A convoy starts after reversing
 				state = CAN_START;
+				
 				if(front()->last_stop_pos == front()->get_pos())
 				{
 					book_waiting_times();
@@ -3141,9 +3144,10 @@ void convoi_t::vorfahren()
 		}
 
 		if(!at_dest)
-		{
+		{	
 			if(state != REVERSING)
 			{
+				// A convoy starts without reversing
 				state = CAN_START;
 			}
 			// to advance more smoothly
@@ -3164,7 +3168,8 @@ void convoi_t::vorfahren()
 			{
 				// If a rail type vehicle is reversing in a station, reserve the entire platform.
 				const waytype_t wt = front()->get_waytype();
-				if(wt == track_wt || wt == monorail_wt || wt == maglev_wt || wt == tram_wt || wt == narrowgauge_wt)
+				const bool rail_type = front()->get_waytype() == track_wt || front()->get_waytype() == tram_wt || front()->get_waytype() == narrowgauge_wt || front()->get_waytype() == maglev_wt || front()->get_waytype() == monorail_wt;
+				if(rail_type)
 				{
 					grund_t* vgr = gr;
 					schiene_t *w = gr ? (schiene_t *)vgr->get_weg(wt) : NULL;
