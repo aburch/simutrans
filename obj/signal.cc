@@ -143,16 +143,16 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 			default:
 				buf.append(translator::translate("Time since a train last passed")); 
 				buf.append("\n");
-				buf.append(translator::translate("North"));
+				buf.append(translator::translate("nord"));
 				break;
 			case 1:
-				buf.append(translator::translate("South"));
+				buf.append(translator::translate("sued"));
 				break;
 			case 2:
-				buf.append(translator::translate("East"));
+				buf.append(translator::translate("ost"));
 				break;
 			case 3:
-				buf.append(translator::translate("West"));
+				buf.append(translator::translate("west"));
 			};
 			buf.append(": "); 
 			char time_since_train_last_passed[32];
