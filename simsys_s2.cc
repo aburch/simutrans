@@ -169,13 +169,13 @@ bool internal_create_surfaces(const bool print_info)
 	const int num_rend = SDL_GetNumRenderDrivers();
 	for(  int i = 0;  i < num_rend;  i++  ) {
 		SDL_GetRenderDriverInfo( i, &ri );
-		if(  print_info  ) {
-			printf("Renderer: %s, Max_w: %d, Max_h: %d, Flags: %d, Formats: %d, ", ri.name, ri.max_texture_width, ri.max_texture_height, ri.flags, ri.num_texture_formats );
-			for(  Uint32 j = 0;  j < ri.num_texture_formats;  j++  ) {
-				printf("%s, ", SDL_GetPixelFormatName( ri.texture_formats[j] ));
-			}
-			printf("\n");
+		char str[4096];
+		str[0] = 0;
+		for(  Uint32 j = 0;  j < ri.num_texture_formats;  j++  ) {
+			strcat( str, ", " );
+			strcat( str, SDL_GetPixelFormatName( ri.texture_formats[j] ) );
 		}
+		DBG_DEBUG( "internal_create_surfaces()", "Renderer: %s, Max_w: %d, Max_h: %d, Flags: %d, Formats: %d%s", ri.name, ri.max_texture_width, ri.max_texture_height, ri.flags, ri.num_texture_formats, str );
 		if(  strcmp( "opengl", ri.name ) == 0  ) {
 			rend_index = i;
 		}
@@ -187,21 +187,25 @@ bool internal_create_surfaces(const bool print_info)
 	}
 	renderer = SDL_CreateRenderer( window, rend_index, flags );
 	if(  renderer == NULL  ) {
-		fprintf( stderr, "Couldn't create renderer: %s\n", SDL_GetError() );
-		return false;
-	}
-	if(  print_info  ) {
-		SDL_GetRendererInfo( renderer, &ri );
-		printf("Using: Renderer: %s, Max_w: %d, Max_h: %d, Flags: %d, Formats: %d, ", ri.name, ri.max_texture_width, ri.max_texture_height, ri.flags, ri.num_texture_formats );
-		for(  Uint32 j = 0;  j < ri.num_texture_formats;  j++  ) {
-			printf("%s, ", SDL_GetPixelFormatName( ri.texture_formats[j] ) );
+		dbg->warning( "internal_create_surfaces()", "Couldn't create opengl renderer: %s", SDL_GetError() );
+		// try all other renderer until success
+		for(  int i = 0;  i < num_rend  &&  renderer==NULL;  i++  ) {
+			if(  i != rend_index  ) {
+				renderer = SDL_CreateRenderer( window, i, flags );
+			}
 		}
-		printf("\n");
+		if(  renderer == NULL  ) {
+			dbg->fatal( "internal_create_surfaces()", "No SDL2 renderer found!" );
+		}
+		dbg->warning( "internal_create_surfaces()", "Using fallback render %s instead of opengl: Performance may be low!", ri.name );
 	}
+
+	SDL_GetRendererInfo( renderer, &ri );
+	DBG_DEBUG( "internal_create_surfaces()", "Using: Renderer: %s, Max_w: %d, Max_h: %d, Flags: %d, Formats: %d, %s", ri.name, ri.max_texture_width, ri.max_texture_height, ri.flags, ri.num_texture_formats, SDL_GetPixelFormatName(SDL_PIXELFORMAT_RGB565) );
 
 	screen_tx = SDL_CreateTexture( renderer, pixel_format, SDL_TEXTUREACCESS_STREAMING, width, height );
 	if(  screen_tx == NULL  ) {
-		fprintf( stderr, "Couldn't create texture: %s\n", SDL_GetError() );
+		dbg->error( "internal_create_surfaces()", "Couldn't create texture: %s", SDL_GetError() );
 		return false;
 	}
 
@@ -218,13 +222,13 @@ bool internal_create_surfaces(const bool print_info)
 	Uint32 rmask, gmask, bmask, amask;
 	SDL_PixelFormatEnumToMasks( pixel_format, &bpp, &rmask, &gmask, &bmask, &amask );
 	if(  bpp != COLOUR_DEPTH  ||  amask != 0  ) {
-		fprintf( stderr, "Pixel format error. %d != %d, %d != 0\n", bpp, COLOUR_DEPTH, amask );
+		dbg->error( "internal_create_surfaces()", "Pixel format error. %d != %d, %d != 0", bpp, COLOUR_DEPTH, amask );
 		return false;
 	}
 
 	screen = SDL_CreateRGBSurface( 0, width, height, bpp, rmask, gmask, bmask, amask );
 	if(  screen == NULL  ) {
-		fprintf( stderr, "Couldn't get the window surface: %s\n", SDL_GetError() );
+		dbg->error( "internal_create_surfaces()", "Couldn't get the window surface: %s", SDL_GetError() );
 		return false;
  	}
 
