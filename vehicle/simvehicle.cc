@@ -5367,7 +5367,14 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 		// Clear any station signals
 		if(first_station_signal)
 		{
-			first_station_signal->set_state(first_time_interval_state);
+			if(first_station_signal->get_besch()->get_working_method() == absolute_block && success)
+			{
+				first_station_signal->set_state(station_signal == inverse ? roadsign_t::clear : roadsign_t::clear_no_choose); 
+			}
+			else
+			{
+				first_station_signal->set_state(first_time_interval_state);
+			}
 		}
 
 		sint32 counter = (signs.get_count() - 1) + choose_return;

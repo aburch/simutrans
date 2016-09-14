@@ -73,7 +73,7 @@ signal_t::signal_t(player_t *player, koord3d pos, ribi_t::ribi dir,const roadsig
 		}
 	}
 
-	if(besch->is_longblock_signal() && (besch->get_working_method() == time_interval || besch->get_working_method() == time_interval_with_telegraph))
+	if(besch->is_longblock_signal() && (besch->get_working_method() == time_interval || besch->get_working_method() == time_interval_with_telegraph || besch->get_working_method() == absolute_block))
 	{
 		// Register station signals at the halt.
 		halthandle_t halt = haltestelle_t::get_halt(pos, player);
@@ -127,8 +127,6 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 
 	buf.append(translator::translate(get_working_method_name(besch->get_working_method())));
 	buf.append("\n\n");
-
-	
 
 	// Deal with station signals where the time since the train last passed is standardised for the whole station.
 	halthandle_t this_tile_halt = haltestelle_t::get_halt(sig->get_pos(), get_owner()); 
