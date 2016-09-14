@@ -3805,9 +3805,10 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		return false;
 	}
 
+	ribi_t::ribi ribi = ribi_typ(cnv->get_route()->position_bei(max(1u, route_index) - 1u), cnv->get_route()->position_bei(min(cnv->get_route()->get_count() - 1u, route_index + 1u)));
+
 	if(working_method == one_train_staff && cnv->get_state() != convoi_t::LEAVING_DEPOT)
 	{
-		ribi_t::ribi ribi = ribi_typ(cnv->get_route()->position_bei(max(1u,route_index) - 1u), cnv->get_route()->position_bei(min(cnv->get_route()->get_count() - 1u, route_index + 1u)));
 		signal_t* signal = w->get_signal(ribi); 
 		if(signal && signal->get_besch()->get_working_method() == one_train_staff)
 		{
@@ -3818,7 +3819,6 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		}
 	}
 
-	ribi_t::ribi ribi = ribi_typ(cnv->get_route()->position_bei(max(1u, route_index) - 1u), cnv->get_route()->position_bei(min(cnv->get_route()->get_count() - 1u, route_index + 1u)));
 	const signal_t* signal_current = w_current->get_signal(ribi); 
 
 	if(cnv->get_state() == convoi_t::CAN_START)
@@ -3839,6 +3839,37 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 
 	halthandle_t this_halt = haltestelle_t::get_halt(get_pos(), get_owner());
 	const bool this_halt_has_station_signals = this_halt.is_bound() && this_halt->get_station_signals_count();
+
+	/*if(this_halt_has_station_signals && !signal_current)
+	{
+		for(uint32 i = 0; i < this_halt->get_station_signals_count(); i ++)
+		{
+			const koord3d k = this_halt->get_station_signal(i);
+			const grund_t* gr_station_signal = welt->lookup(k);
+			if(gr_station_signal)
+			{
+				weg_t* way_station_signal = gr_station_signal->get_weg(get_waytype()); 
+				if(way_station_signal)
+				{
+					signal_current = way_station_signal->get_signal(ribi);
+					if(signal_current)
+					{
+						set_working_method(signal_current->get_besch()->get_working_method()); 
+						break;
+					}
+					else
+					{
+						signal_current = way_station_signal->get_signal(ribi_t::rueckwaerts(ribi));
+						if(signal_current)
+						{
+							set_working_method(signal_current->get_besch()->get_working_method()); 
+							break;
+						}
+					}
+				}
+			}
+		}
+	}*/
 
 	const bool starting_from_stand = cnv->get_state() == convoi_t::WAITING_FOR_CLEARANCE_ONE_MONTH
 		|| cnv->get_state() == convoi_t::WAITING_FOR_CLEARANCE_TWO_MONTHS
@@ -4085,6 +4116,16 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 			uint16 modified_route_index = min(route_index + tiles_to_check, cnv->get_route()->get_count() - 1u);
 			ribi_t::ribi ribi = ribi_typ(cnv->get_route()->position_bei(max(1u,modified_route_index)-1u), cnv->get_route()->position_bei(min(cnv->get_route()->get_count()-1u,modified_route_index+1u)));
 			signal_t* signal = way->get_signal(ribi); 
+
+			// There might be a station signal here, which might be operative despite facing in the opposite direction.
+			if(!signal && haltestelle_t::get_halt(tile_to_check_ahead, NULL).is_bound())
+			{
+				signal = way->get_signal(ribi_t::rueckwaerts(ribi));
+				if(signal && !signal->get_besch()->is_longblock_signal())
+				{
+					signal = NULL;
+				}
+			}
 
 			if(signal && (signal->get_state() == signal_t::caution
 				|| signal->get_state() == signal_t::preliminary_caution
@@ -4356,10 +4397,11 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 	bool directional_reservation_succeeded = true;
 	bool one_train_staff_loop_complete = false;
 	bool time_interval_reservation = false;
+	bool set_first_station_signal = false;
 	const uint32 station_signals = this_halt.is_bound() ? this_halt->get_station_signals_count() : 0;
 	signal_t* first_station_signal = NULL;
 	enum station_signal_status { none, forward, inverse };
-	station_signal_status station_signal = none;
+	station_signal_status station_signal;
 	uint16 brake_tiles = brake_steps / VEHICLE_STEPS_PER_TILE;
 	roadsign_t::signal_aspects next_time_interval_state = roadsign_t::danger;
 	roadsign_t::signal_aspects first_time_interval_state = roadsign_t::advance_caution; // A time interval signal will never be in advance caution, so this is a placeholder to indicate that this value has not been set.
@@ -4374,6 +4416,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 
 	for( ; success && count >= 0 && i < route->get_count(); i++)
 	{
+		station_signal = none;
 		this_stop_signal_index = INVALID_INDEX;
 		last_pos = pos;
 		pos = route->position_bei(i);
@@ -4466,7 +4509,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 				}
 			}
 
-			halthandle_t check_halt = haltestelle_t::get_halt(pos, get_owner());
+			halthandle_t check_halt = haltestelle_t::get_halt(pos, NULL);
 
 			if(check_halt.is_bound() && (check_halt == this_halt))
 			{
@@ -4491,15 +4534,34 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 				}
 			}
 
-			if(sch1->has_signal() || station_signals)
+			const uint32 station_signals_ahead = check_halt.is_bound() ? check_halt->get_station_signals_count() : 0;
+
+			if(sch1->has_signal() || station_signals || (check_halt != this_halt && station_signals_ahead))
 			{			 
 				signal_t* signal = NULL;
+				halthandle_t station_signal_halt;
+				uint32 check_station_signals = 0;
+
 				if(station_signals && last_station_tile >= i)
 				{
+					// This finds a station signal on the station at which the train is currently standing
+					check_station_signals = station_signals;
+					station_signal_halt = this_halt;
+				}
+				else if(station_signals_ahead)
+				{
+					// This finds a station signal in a station in advance
+					check_station_signals = station_signals_ahead;
+					station_signal_halt = check_halt;
+				}		
+
+				if(check_station_signals)
+				{
 					// This is a signal that applies to the whole station for the relevant direction. Find it if it is there.
-					for(uint32 k = 0; k < station_signals; k ++)
+					
+					for(uint32 k = 0; k < check_station_signals; k ++)
 					{
-						grund_t* gr_check = welt->lookup(this_halt->get_station_signal(k));
+						grund_t* gr_check = welt->lookup(station_signal_halt->get_station_signal(k));
 						if(gr_check)
 						{
 							weg_t* way_check = gr_check->get_weg(get_waytype());
@@ -4507,7 +4569,6 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 							if(signal)
 							{
 								station_signal = forward;
-								first_station_signal = signal;
 								break;
 							}
 							else
@@ -4518,7 +4579,6 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 								if(signal)
 								{
 									station_signal = inverse;
-									first_station_signal = signal;
 									break;
 								}
 							}
@@ -4527,18 +4587,24 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 				}
 				else
 				{
+					// An ordinary signal on plain track
 					signal = gr->get_weg(get_waytype())->get_signal(ribi); 
 				}
 
-				if(signal && (signal != first_station_signal || i == start_index) && !(signal->get_besch()->get_working_method() == time_interval && signal->get_besch()->get_working_method() == time_interval_with_telegraph && haltestelle_t::get_halt(signal->get_pos(), NULL).is_bound()))
+				if(signal && (signal != first_station_signal || !set_first_station_signal))
 				{
+					if(station_signal)
+					{
+						first_station_signal = signal;
+						set_first_station_signal = true;
+					}
 					if(signal->get_besch()->get_working_method() == time_interval || signal->get_besch()->get_working_method() == time_interval_with_telegraph)
 					{
 						// Note that this gives the pure time interval state, ignoring whether the signal protects any junctions. 
 						sint64 last_passed;
-						if(station_signal)
+						if(station_signal && station_signal_halt.is_bound())
 						{
-							last_passed = this_halt->get_train_last_departed(ribi);
+							last_passed = station_signal_halt->get_train_last_departed(ribi);
 						}
 						else
 						{
