@@ -4772,7 +4772,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 							directional_only = true;
 						}
 
-						if((!is_from_token || first_stop_signal_index == INVALID_INDEX) && !directional_only)
+						if((!is_from_token || first_stop_signal_index >= INVALID_INDEX) && !directional_only)
 						{
 							next_signal_index = i;
 						}
@@ -4826,7 +4826,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 							}
 						}			
 						
-						if(first_stop_signal_index == INVALID_INDEX)
+						if(first_stop_signal_index >= INVALID_INDEX)
 						{
 							first_stop_signal_index = i;
 							if(next_signal_working_method == time_interval || next_signal_working_method == time_interval_with_telegraph)
@@ -5000,7 +5000,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 				(next_signal_working_method == time_interval || next_signal_working_method == time_interval_with_telegraph)
 				&& (!next_signal_protects_no_junctions && this_stop_signal_index != i)
 				&& (this_stop_signal_index < INVALID_INDEX || last_stop_signal_index < INVALID_INDEX || last_choose_signal_index < INVALID_INDEX)
-				&& ((i - start_index <  welt->get_settings().get_sighting_distance_tiles()) || next_signal_working_method == time_interval_with_telegraph || (gr->get_halt().is_bound() && gr->get_halt() == last_step_halt)); // Time interval with telegraph signals have no distance limit for reserving.
+				&& ((i - start_index <  welt->get_settings().get_sighting_distance_tiles()) || next_signal_working_method == time_interval_with_telegraph || (check_halt.is_bound() && check_halt == last_step_halt)); // Time interval with telegraph signals have no distance limit for reserving.
 			const bool telegraph_directional = time_interval_reservation && next_signal_working_method == time_interval_with_telegraph && (last_longblock_signal_index == last_stop_signal_index) && last_longblock_signal_index < INVALID_INDEX;
 			const schiene_t::reservation_type rt = directional_only || telegraph_directional ? schiene_t::directional : schiene_t::block;
 			bool attempt_reservation = directional_only || time_interval_reservation || (next_signal_working_method != time_interval && next_signal_working_method != time_interval_with_telegraph);
@@ -5098,7 +5098,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 				}
 			}
 
-			last_step_halt = gr->get_halt();
+			last_step_halt = check_halt;
 			
 			// Do not attempt to reserve beyond a train ahead.
 			if((next_signal_working_method != time_interval_with_telegraph || next_time_interval_state == roadsign_t::danger) && attempt_reservation && !directional_only && sch1->get_reserved_convoi().is_bound() && sch1->get_reserved_convoi() != cnv->self && sch1->get_reserved_convoi()->get_pos() == pos)
@@ -5459,9 +5459,9 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 
 					if((signal->get_besch()->get_working_method() == time_interval || signal->get_besch()->get_working_method() == time_interval_with_telegraph) && (end_of_block || i > last_stop_signal_index + 1))
 					{
-						if(signal->get_besch()->get_working_method() == time_interval_with_telegraph && signal->get_besch()->is_longblock_signal())
+						if((signal->get_besch()->get_working_method() == time_interval_with_telegraph || signal->get_besch()->get_working_method() == time_interval) && signal->get_besch()->is_longblock_signal())
 						{
-							// Longblock signals in time interval with telegraph can clear fully.
+							// Longblock signals in time interval can clear fully.
 							// We also assume that these will not also be choose signals.
 							signal->set_state(next_time_interval_state); 
 						}
@@ -5555,6 +5555,10 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 						}
 					}
 				}
+			}
+			else
+			{
+				counter --;
 			}
 		}
 	
