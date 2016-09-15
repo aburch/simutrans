@@ -4868,7 +4868,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 									}
 									else if(next_signal_working_method == time_interval)
 									{
-										cnv->set_maximum_signal_speed(welt->get_settings().get_max_speed_drive_by_sight());
+										cnv->set_maximum_signal_speed(min(kmh_to_speed(sch1->get_max_speed()) / 2, signal->get_besch()->get_max_speed() / 2));
 									}
 									else // With telegraph
 									{
