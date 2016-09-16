@@ -2,6 +2,9 @@
  * Copyright (c) 1997 - 2001 Hansjörg Malthaner
  *
  * This file is part of the Simutrans project under the artistic license.
+ *
+ * It contains the code to use the SDL2 backend for simutrans displayu
+ *
  */
 
 #include <SDL2/SDL.h>
@@ -189,6 +192,7 @@ bool internal_create_surfaces(const bool print_info)
 	if(  renderer == NULL  ) {
 		dbg->warning( "internal_create_surfaces()", "Couldn't create opengl renderer: %s", SDL_GetError() );
 		// try all other renderer until success
+		// (however, on my windows machines opengles crashed, so the software renderer is never ever called) 
 		for(  int i = 0;  i < num_rend  &&  renderer==NULL;  i++  ) {
 			if(  i != rend_index  ) {
 				renderer = SDL_CreateRenderer( window, i, flags );
