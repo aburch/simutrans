@@ -4381,6 +4381,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 	uint16 first_oneway_sign_index = INVALID_INDEX;
 	uint16 first_one_train_staff_index = INVALID_INDEX;
 	uint16 last_station_tile = INVALID_INDEX;
+	halthandle_t stop_at_station_signal;
 	bool do_not_clear_distant = false;
 	working_method_t next_signal_working_method = working_method;
 	bool next_signal_protects_no_junctions = false;
@@ -4589,6 +4590,11 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 				{
 					// An ordinary signal on plain track
 					signal = gr->get_weg(get_waytype())->get_signal(ribi); 
+					// But, do not select a station signal here, as this will lead to capricious behaviour depending on whether the train passes the track on which the station signal happens to be situated or not. 
+					if(signal && signal->get_besch()->is_longblock_signal() && check_halt.is_bound() && (signal->get_besch()->get_working_method() == time_interval || signal->get_besch()->get_working_method() == time_interval_with_telegraph || signal->get_besch()->get_working_method() == absolute_block))
+					{
+						signal = NULL;
+					}
 				}
 
 				if(signal && (signal != first_station_signal || !set_first_station_signal))
@@ -4598,40 +4604,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 						first_station_signal = signal;
 						set_first_station_signal = true;
 					}
-					if(signal->get_besch()->get_working_method() == time_interval || signal->get_besch()->get_working_method() == time_interval_with_telegraph)
-					{
-						// Note that this gives the pure time interval state, ignoring whether the signal protects any junctions. 
-						sint64 last_passed;
-						if(station_signal && station_signal_halt.is_bound())
-						{
-							last_passed = station_signal_halt->get_train_last_departed(ribi);
-						}
-						else
-						{
-							last_passed = signal->get_train_last_passed();
-						}
-						const sint64 caution_interval_ticks = welt->seconds_to_ticks(welt->get_settings().get_time_interval_seconds_to_caution());
-						const sint64 clear_interval_ticks =  welt->seconds_to_ticks(welt->get_settings().get_time_interval_seconds_to_clear());
-						const sint64 ticks = welt->get_zeit_ms();
-
-						if(last_passed + caution_interval_ticks > ticks)
-						{
-							next_time_interval_state = roadsign_t::danger;
-						}
-						else if(last_passed + clear_interval_ticks > ticks)
-						{
-							next_time_interval_state = station_signal == inverse ? roadsign_t::caution : roadsign_t::caution_no_choose;
-						}
-						else
-						{
-							next_time_interval_state = station_signal == inverse ? roadsign_t::clear : roadsign_t::clear_no_choose;
-						}
-
-						if(first_time_interval_state == roadsign_t::advance_caution)
-						{
-							first_time_interval_state = next_time_interval_state;
-						}
-					}
+					
 					
 					if(!directional_only && (signal->get_besch()->is_longblock_signal() || signal->is_bidirectional()))
 					{
@@ -4679,6 +4652,41 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 
 					if(!signal->get_besch()->is_pre_signal()) // Stop signal or multiple aspect signal
 					{
+						if(signal->get_besch()->get_working_method() == time_interval || signal->get_besch()->get_working_method() == time_interval_with_telegraph)
+						{
+							// Note that this gives the pure time interval state, ignoring whether the signal protects any junctions. 
+							sint64 last_passed;
+							if(station_signal && station_signal_halt.is_bound())
+							{
+								last_passed = station_signal_halt->get_train_last_departed(ribi);
+							}
+							else
+							{
+								last_passed = signal->get_train_last_passed();
+							}
+							const sint64 caution_interval_ticks = welt->seconds_to_ticks(welt->get_settings().get_time_interval_seconds_to_caution());
+							const sint64 clear_interval_ticks =  welt->seconds_to_ticks(welt->get_settings().get_time_interval_seconds_to_clear());
+							const sint64 ticks = welt->get_zeit_ms();
+
+							if(last_passed + caution_interval_ticks > ticks)
+							{
+								next_time_interval_state = roadsign_t::danger;
+							}
+							else if(last_passed + clear_interval_ticks > ticks)
+							{
+								next_time_interval_state = station_signal == inverse ? roadsign_t::caution : roadsign_t::caution_no_choose;
+							}
+							else
+							{
+								next_time_interval_state = station_signal == inverse ? roadsign_t::clear : roadsign_t::clear_no_choose;
+							}
+
+							if(first_time_interval_state == roadsign_t::advance_caution)
+							{
+								first_time_interval_state = next_time_interval_state;
+							}
+						}
+						
 						if(last_bidirectional_signal_index >= INVALID_INDEX)
 						{
 							last_stop_signal_before_first_bidirectional_signal_index = i;
@@ -4752,6 +4760,15 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 							end_of_block = true;
 						}
 
+						if(stop_at_station_signal.is_bound() && stop_at_station_signal != check_halt)
+						{
+							// We have gone beyond the end of the station where we need to be stopping for the station signal.
+							next_signal_index = i - 1;
+							count --;
+							last_stop_signal_index = i - 1;
+							end_of_block = true;
+						}
+
 						if(!directional_only && (next_signal_working_method == time_interval || next_signal_working_method == time_interval_with_telegraph) && last_longblock_signal_index < INVALID_INDEX && last_longblock_signal_index < this_stop_signal_index)
 						{
 							if( next_signal_working_method == time_interval_with_telegraph)
@@ -4765,7 +4782,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 							}
 							last_stop_signal_index = i;
 							end_of_block = true;
-						}
+						}				
 
 						if(!directional_only && next_signal_working_method == time_interval_with_telegraph && signal->get_no_junctions_to_next_signal() && signal->get_besch()->is_longblock_signal())
 						{
@@ -4900,32 +4917,62 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 							// No distant signals: just reserve one block beyond the first stop signal and no more.
 							count --;
 						}
-						else if(next_signal_working_method == time_interval && (last_longblock_signal_index >= INVALID_INDEX || !signal->get_no_junctions_to_next_signal()))
+						else if(next_signal_working_method == time_interval && (last_longblock_signal_index >= INVALID_INDEX || !next_signal_protects_no_junctions) && signal->get_state() == roadsign_t::danger && next_signal_protects_no_junctions && pre_signals.empty())
 						{
 							next_time_interval_state = signal->get_state();
-							if((last_pre_signal_index > i && ((i - (start_index - 1)) > modified_sighting_distance_tiles)) || (signal->get_state() == roadsign_t::danger && next_signal_protects_no_junctions && pre_signals.empty()))
+							if(station_signal)
+							{
+								stop_at_station_signal = check_halt;
+							}
+							else
 							{
 								next_signal_index = i;
 								count --;
 							}
 						}
-						else if(next_signal_working_method == time_interval_with_telegraph || (next_signal_working_method == time_interval && last_longblock_signal_index < INVALID_INDEX))
+						else if(next_signal_working_method == time_interval_with_telegraph || next_signal_working_method == time_interval)
 						{
-							if(signal->get_besch()->is_longblock_signal())
+							if(signal->get_besch()->is_longblock_signal() && (last_longblock_signal_index < INVALID_INDEX || working_method == time_interval_with_telegraph))
 							{
 
 								if(next_time_interval_state == roadsign_t::danger || last_longblock_signal_index < INVALID_INDEX && i > first_stop_signal_index)
 								{
-									next_signal_index = i;
-									count --;
+									if(station_signal)
+									{
+										stop_at_station_signal = check_halt;
+									}
+									else
+									{
+										next_signal_index = i;
+										count --;
+									}
 								}
 							}
 							else
 							{
-								if(i > first_stop_signal_index && (last_longblock_signal_index >= INVALID_INDEX) || !next_signal_protects_no_junctions)
+								if(working_method == time_interval_with_telegraph && i > first_stop_signal_index && (last_longblock_signal_index >= INVALID_INDEX) || !next_signal_protects_no_junctions)
 								{
-									next_signal_index = i;
-									count --;
+									if(station_signal)
+									{
+										stop_at_station_signal = check_halt;
+									}
+									else
+									{
+										next_signal_index = i;
+										count --;
+									}
+								}
+								else if(working_method == time_interval && i > first_stop_signal_index)
+								{
+									if(station_signal)
+									{
+										stop_at_station_signal = check_halt;
+									}
+									else
+									{
+										next_signal_index = i;
+										count --;
+									}
 								}
 							}
 						}
@@ -5003,7 +5050,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 				&& ((i - start_index <  welt->get_settings().get_sighting_distance_tiles()) || next_signal_working_method == time_interval_with_telegraph || (check_halt.is_bound() && check_halt == last_step_halt)); // Time interval with telegraph signals have no distance limit for reserving.
 			const bool telegraph_directional = time_interval_reservation && next_signal_working_method == time_interval_with_telegraph && (last_longblock_signal_index == last_stop_signal_index) && last_longblock_signal_index < INVALID_INDEX;
 			const schiene_t::reservation_type rt = directional_only || telegraph_directional ? schiene_t::directional : schiene_t::block;
-			bool attempt_reservation = directional_only || time_interval_reservation || (next_signal_working_method != time_interval && next_signal_working_method != time_interval_with_telegraph);
+			bool attempt_reservation = directional_only || time_interval_reservation || (next_signal_working_method != time_interval && next_signal_working_method != time_interval_with_telegraph) && (!stop_at_station_signal.is_bound() || stop_at_station_signal == check_halt);
 			if(attempt_reservation && !sch1->reserve(cnv->self, ribi_typ(route->position_bei(max(1u,i)-1u), route->position_bei(min(route->get_count()-1u,i+1u))), rt, (working_method == time_interval || working_method == time_interval_with_telegraph)))
 			{
 				not_entirely_free = true;
