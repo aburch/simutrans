@@ -25,6 +25,8 @@
 #include <string.h>
 
 
+karte_ptr_t message_t::welt;
+
 void message_t::node::rdwr(loadsave_t *file)
 {
 	file->rdwr_str( msg, lengthof(msg) );
@@ -50,17 +52,14 @@ PLAYER_COLOR_VAL message_t::node::get_player_color(karte_t *welt) const
 }
 
 
-message_t::message_t(karte_t *w)
+message_t::message_t()
 {
-	welt = w;
 	ticker_flags = 0xFF7F;	// everything on the ticker only
 	win_flags = 0;
 	auto_win_flags = 0;
 	ignore_flags = 0;
-	if(w) {
-		win_flags = 256+8;
-		auto_win_flags = 128+512;
-	}
+	win_flags = 256+8;
+	auto_win_flags = 128+512;
 }
 
 

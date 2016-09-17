@@ -8,6 +8,7 @@
 #include "tpl/slist_tpl.h"
 
 class karte_t;
+class karte_ptr_t;
 
 /* class for a simple message
  * this way they are stored in a list
@@ -42,11 +43,11 @@ public:
 	void get_message_flags( sint32 *t, sint32 *w, sint32 *a, sint32  *i);
 	void set_message_flags( sint32, sint32, sint32, sint32 );
 
-	message_t(karte_t *welt);
+	message_t();
 	~message_t();
 
 private:
-	karte_t	*welt;
+	static karte_ptr_t welt;
 
 	// bitfields that contains the messages
 	sint32 ticker_flags;

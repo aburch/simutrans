@@ -2043,7 +2043,7 @@ karte_t::karte_t() :
 
 	map_counter = 0;
 
-	msg = new message_t(this);
+	msg = new message_t();
 	cached_size.x = 0;
 	cached_size.y = 0;
 
