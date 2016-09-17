@@ -65,6 +65,12 @@ public:
 	void rotate90( sint16 size_w );
 
 	void rdwr( loadsave_t *file );
+
+	/**
+	 * Returns first valid coordinate from text (or koord::invalid if none is found).
+	 * syntax: either @x,y or (x,y)
+	 */
+	static koord get_coord_from_text(const char* text);
 };
 
 #endif

@@ -179,7 +179,7 @@ void export_scenario(HSQUIRRELVM vm)
 	 * @param wt waytype
 	 * @param pos_nw coordinate of north-western corner of rectangle
 	 * @param pos_se coordinate of south-eastern corner of rectangle
-	 * @param err error message presented to user when trying to apply this tool
+	 * @param err error message presented to user when trying to apply this tool, see also @ref is_work_allowed_here
 	 * @see tool_ids way_types player_all
 	 */
 	STATIC register_method(vm, &scenario_t::forbid_way_tool_rect, "forbid_way_tool_rect");
@@ -206,7 +206,7 @@ void export_scenario(HSQUIRRELVM vm)
 	 * @param wt waytype
 	 * @param pos_nw 3d-coordinate of north-western corner of cube
 	 * @param pos_se 3d-coordinate of south-eastern corner of cube
-	 * @param err error message presented to user when trying to apply this tool
+	 * @param err error message presented to user when trying to apply this tool, see also @ref is_work_allowed_here
 	 * @see tool_ids way_types player_all
 	 */
 	STATIC register_method(vm, &scenario_t::forbid_way_tool_cube, "forbid_way_tool_cube");
