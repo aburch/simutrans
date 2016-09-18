@@ -3840,37 +3840,6 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 	halthandle_t this_halt = haltestelle_t::get_halt(get_pos(), get_owner());
 	const bool this_halt_has_station_signals = this_halt.is_bound() && this_halt->get_station_signals_count();
 
-	/*if(this_halt_has_station_signals && !signal_current)
-	{
-		for(uint32 i = 0; i < this_halt->get_station_signals_count(); i ++)
-		{
-			const koord3d k = this_halt->get_station_signal(i);
-			const grund_t* gr_station_signal = welt->lookup(k);
-			if(gr_station_signal)
-			{
-				weg_t* way_station_signal = gr_station_signal->get_weg(get_waytype()); 
-				if(way_station_signal)
-				{
-					signal_current = way_station_signal->get_signal(ribi);
-					if(signal_current)
-					{
-						set_working_method(signal_current->get_besch()->get_working_method()); 
-						break;
-					}
-					else
-					{
-						signal_current = way_station_signal->get_signal(ribi_t::rueckwaerts(ribi));
-						if(signal_current)
-						{
-							set_working_method(signal_current->get_besch()->get_working_method()); 
-							break;
-						}
-					}
-				}
-			}
-		}
-	}*/
-
 	const bool starting_from_stand = cnv->get_state() == convoi_t::WAITING_FOR_CLEARANCE_ONE_MONTH
 		|| cnv->get_state() == convoi_t::WAITING_FOR_CLEARANCE_TWO_MONTHS
 		|| cnv->get_state() == convoi_t::WAITING_FOR_CLEARANCE
