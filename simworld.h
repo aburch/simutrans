@@ -350,7 +350,7 @@ private:
 	/**
 	 * Recalculates sleep time etc.
 	 */
-	void update_frame_sleep_time(uint32 delta_t);
+	void update_frame_sleep_time();
 
 	/**
 	 * Table for fast conversion from height to climate.

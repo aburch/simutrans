@@ -60,7 +60,7 @@ public:
 	*/
 	void set_dir(ribi_t::ribi dir);
 
-	void set_state(signal_aspects s) {state = s; calc_image();}
+	void set_state(signal_aspects s) { state = s; calc_image(); }
 	signal_aspects get_state() const { return (signal_aspects)state; }
 
 #ifdef INLINE_OBJ_TYPE

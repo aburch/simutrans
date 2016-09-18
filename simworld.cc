@@ -3894,21 +3894,22 @@ rands[1] = get_random_seed();
 
 		// display new frame with water animation
 		intr_refresh_display( false );
-		update_frame_sleep_time(delta_t);
+		update_frame_sleep_time();
 	}
 	clear_random_mode( SYNC_STEP_RANDOM );
 }
 
 
 // does all the magic about frame timing
-void karte_t::update_frame_sleep_time(uint32 /*delta_t*/)
+void karte_t::update_frame_sleep_time()
 {
 	// get average frame time
 	uint32 last_ms = dr_time();
 	last_frame_ms[last_frame_idx] = last_ms;
 	last_frame_idx = (last_frame_idx+1) % 32;
-	if(last_frame_ms[last_frame_idx]<last_ms) {
-		realFPS = (32000u) / (last_ms-last_frame_ms[last_frame_idx]);
+	sint32 ms_diff = (sint32)( last_ms - last_frame_ms[last_frame_idx] );
+	if(ms_diff > 0) {
+		realFPS = (32000u) / ms_diff;
 	}
 	else {
 		realFPS = env_t::fps;
@@ -4000,7 +4001,7 @@ void karte_t::update_frame_sleep_time(uint32 /*delta_t*/)
 	}
 	else  { // here only with fyst forward ...
 		// try to get 10 fps or lower rate (if set)
-		sint32 frame_intervall = max( 100, 1000/env_t::fps );
+		uint32 frame_intervall = max( 100, 1000/env_t::fps );
 		if(get_frame_time()>frame_intervall) {
 			reduce_frame_time();
 		}
