@@ -5479,7 +5479,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 
 		sint32 counter = (signs.get_count() - 1) + choose_return;
 		bool time_interval_junction_signal = false;
-		if(next_signal_working_method == time_interval && last_stop_signal_index > start_index + modified_sighting_distance_tiles && success)
+		if(next_signal_working_method == time_interval && last_stop_signal_index > start_index + modified_sighting_distance_tiles && success && !not_entirely_free)
 		{
 			// A signal in the plain time interval method protecting a junction should clear even if the route all the way to the next signal is not clear, provided that the route within the sighting distance is clear.
 			counter ++;
