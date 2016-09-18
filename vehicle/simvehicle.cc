@@ -3898,10 +3898,13 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		}
 		return true;
 	}
-	if(starting_from_stand && working_method != one_train_staff)
+	if(working_method != one_train_staff)
 	{
-		cnv->set_next_stop_index(max(route_index, 1) - 1);
-		if(steps < steps_next)
+		if(starting_from_stand)
+		{
+			cnv->set_next_stop_index(max(route_index, 1) - 1);
+		}
+		else if(steps < steps_next)
 		{
 			// not yet at tile border => can drive to signal safely
 			return true;
@@ -3916,7 +3919,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 
 	if(starting_from_stand && cnv->get_next_stop_index() == route_index && !signal_current && working_method != drive_by_sight && working_method != moving_block)
 	{
-		// If we are starting from stand,  have no reservation beyond here and there is no signal, assume that it has been deleted and revert to drive by sight.
+		// If we are starting from stand, have no reservation beyond here and there is no signal, assume that it has been deleted and revert to drive by sight.
 		set_working_method(drive_by_sight); 
 	}
 
