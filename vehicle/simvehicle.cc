@@ -4109,8 +4109,13 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 				|| signal->get_state() == signal_t::advance_caution_no_choose))
 			{
 				// We come accross a signal at caution: try (again) to free the block ahead.
-				bool ok = block_reserver(cnv->get_route(), route_index, modified_sighting_distance_tiles - (tiles_to_check - 1), next_signal, 0, true, false);
+				const bool ok = block_reserver(cnv->get_route(), route_index, modified_sighting_distance_tiles - (tiles_to_check - 1), next_signal, 0, true, false);
 				cnv->set_next_stop_index(next_signal);
+				if(!ok && working_method != drive_by_sight && starting_from_stand && this_halt.is_bound())
+				{
+					// 
+					return false;
+				}
 				break;
 				// Setting the aspect of the signal is done inside the block reserver
 			}
@@ -5022,13 +5027,9 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 				{
 					time_interval_starting_point = last_station_tile;
 				}
-				else if(next_signal_working_method == time_interval && first_stop_signal_index == last_stop_signal_index && last_pre_signal_index < last_stop_signal_index)
+				else 
 				{
 					time_interval_starting_point = last_stop_signal_index;
-				}
-				else
-				{
-					time_interval_starting_point = start_index;
 				}
 				
 				time_interval_reservation = 
@@ -5479,6 +5480,13 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 		}
 
 		sint32 counter = (signs.get_count() - 1) + choose_return;
+		bool time_interval_junction_signal = false;
+		if(next_signal_working_method == time_interval && last_stop_signal_index > start_index + modified_sighting_distance_tiles && success)
+		{
+			// A signal in the plain time interval method protecting a junction should clear even if the route all the way to the next signal is not clear, provided that the route within the sighting distance is clear.
+			counter ++;
+			time_interval_junction_signal = true;
+		}
 		FOR(slist_tpl<grund_t*>, const g, signs)
 		{
 			if(signal_t* const signal = g->find<signal_t>())
@@ -5492,7 +5500,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 						signal->set_state(use_no_choose_aspect && signal->get_state() != roadsign_t::clear ? roadsign_t::clear_no_choose : signal->get_besch()->is_combined_signal() ? roadsign_t::caution : roadsign_t::clear);
 					}
 
-					if((signal->get_besch()->get_working_method() == time_interval || signal->get_besch()->get_working_method() == time_interval_with_telegraph) && (end_of_block || i > last_stop_signal_index + 1))
+					if((signal->get_besch()->get_working_method() == time_interval || signal->get_besch()->get_working_method() == time_interval_with_telegraph) && (end_of_block || i > last_stop_signal_index + 1 || time_interval_junction_signal))
 					{
 						if((signal->get_besch()->get_working_method() == time_interval_with_telegraph || signal->get_besch()->get_working_method() == time_interval) && signal->get_besch()->is_longblock_signal())
 						{
