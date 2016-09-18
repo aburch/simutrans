@@ -220,10 +220,11 @@ void signal_t::calc_image()
 
 	grund_t *gr = welt->lookup(get_pos());
 	if(gr) {
+		set_flag(obj_t::dirty);
 		const hang_t::typ full_hang = gr->get_weg_hang();
 		const sint8 hang_diff = hang_t::max_diff(full_hang);
 		const ribi_t::ribi hang_dir = ribi_t::rueckwaerts( ribi_typ(full_hang) );
-		set_flag(obj_t::dirty);
+		
 		const sint8 height_step = TILE_HEIGHT_STEP << hang_t::ist_doppel(gr->get_weg_hang());
 
 		weg_t *sch = gr->get_weg(besch->get_wtyp()!=tram_wt ? besch->get_wtyp() : track_wt);
@@ -350,7 +351,11 @@ void signal_t::calc_image()
 			if(besch->is_longblock_signal() && (besch->get_working_method() == time_interval || besch->get_working_method() == time_interval_with_telegraph))
 			{
 				// Allow both directions for a station signal
-				reserved_direction |= ribi_t::rueckwaerts(reserved_direction);
+				//reserved_direction |= ribi_t::rueckwaerts(reserved_direction);
+				
+				// The above does not work because the reservation is taken from the track below the signal, and the train might be departing from another track. 
+				// Which state, if any, to set should be handled by the block reserver in the case of station signals. 
+				reserved_direction = ribi_t::alle;
 			}
 			// signs for left side need other offsets and other front/back order
 			if(  left_swap  ) {
