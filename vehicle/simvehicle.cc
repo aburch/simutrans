@@ -3639,7 +3639,7 @@ bool rail_vehicle_t::is_target(const grund_t *gr,const grund_t *prev_gr)
 
 sint32 rail_vehicle_t::activate_choose_signal(const uint16 start_block, uint16 &next_signal_index, uint32 brake_steps, uint16 modified_sighting_distance_tiles, route_t* route, sint32 modified_route_index)
 {
-	grund_t const* target = welt->lookup(route->back());
+	grund_t const* target = welt->lookup(cnv->get_fpl_target());
 
 	if(target == NULL) 
 	{
@@ -3653,7 +3653,7 @@ sint32 rail_vehicle_t::activate_choose_signal(const uint16 start_block, uint16 &
 
 	// check whether there is another choose signal or end_of_choose on the route
 	uint32 break_index = start_block + 1;
-	for(uint32 idx = start_block + 1; choose_ok && idx < route->get_count(); idx++)
+	for(uint32 idx = break_index; choose_ok && idx < route->get_count(); idx++)
 	{
 		grund_t *gr = welt->lookup(route->position_bei(idx));
 		if(!gr)
