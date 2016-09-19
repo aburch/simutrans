@@ -1104,11 +1104,12 @@ void route_t::postprocess_water_route(karte_t *welt)
 
 	// advance so all convoy fits into a halt (only set for trains and cars)
 	bool move_to_end_of_station = max_len >= 8888;
-	if (move_to_end_of_station)
+	if(move_to_end_of_station)
+	{
 		max_len -= 8888;
+	}
 	if(max_len > 1 )
 	{
-
 		// we need a halt of course ...
 		grund_t *gr = welt->lookup(ziel);
 		halthandle_t halt = gr->get_halt();
@@ -1124,13 +1125,13 @@ void route_t::postprocess_water_route(karte_t *welt)
 			// Find the end of the station, and append these tiles to the route.
 			const uint32 max_n = route.get_count() - 1;
 			const koord zv = route[max_n].get_2d() - route[max_n - 1].get_2d();
-			const int ribi = ribi_typ(zv);//tdriver->get_ribi(welt->lookup(start));
+			const int ribi = ribi_typ(zv);
 
 			const waytype_t wegtyp = tdriver->get_waytype();
 
 			const bool is_rail_type = tdriver->get_waytype() == track_wt || tdriver->get_waytype() == narrowgauge_wt || tdriver->get_waytype() == maglev_wt || tdriver->get_waytype() == tram_wt || tdriver->get_waytype() == monorail_wt;
 			bool first_run = true;
-			while(gr->get_neighbour(gr, wegtyp, ribi) && gr->get_halt() == halt && tdriver->check_next_tile(gr) && (tdriver->get_ribi(gr) & ribi) != 0 || (first_run && is_rail_type))
+			while(gr->get_neighbour(gr, wegtyp, ribi) && gr->get_halt() == halt && tdriver->check_next_tile(gr) && (((tdriver->get_ribi(gr) & ribi) != 0) || (first_run && is_rail_type)))
 			{
 				first_run = false;
 				// Do not go on a tile where a one way sign forbids going.
@@ -1152,6 +1153,7 @@ void route_t::postprocess_water_route(karte_t *welt)
 						break;
 					}
 				}
+				
 				route.append(gr->get_pos());
 				platform_size++;
 			}
