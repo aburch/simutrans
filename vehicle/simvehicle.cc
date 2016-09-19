@@ -4681,12 +4681,12 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 									// Treat the last distant as a combined signal.
 									// Check whether it can be used from the current box. 
 									signal_t* last_combined_signal = combined_signals.back();
-									const signalbox_t* sb; 
+									const signalbox_t* sb = NULL;
 									const grund_t* gr_signalbox = welt->lookup(signal->get_signalbox());
 									if(gr_signalbox)
 									{
 										const gebaeude_t* gb = gr_signalbox->get_building();
-										if(gb->get_tile()->get_besch()->get_utyp() == haus_besch_t::signalbox)
+										if(gb && gb->get_tile()->get_besch()->get_utyp() == haus_besch_t::signalbox)
 										{
 											sb = (signalbox_t*)gb; 
 										}
