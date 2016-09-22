@@ -918,6 +918,9 @@ void fabrik_t::baue(sint32 rotate, bool build_fields, bool force_initial_prodbas
 			}
 		}
 	}
+	else {
+		fields.clear();
+	}
 
 	/// Determine control logic
 	if( welt->get_settings().get_just_in_time() >= 2 ) {
@@ -1186,6 +1189,7 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 		ware.rdwr( file );
 
 		if(  file->is_loading()  ) {
+
 			ware.set_typ( warenbauer_t::get_info(ware_name) );
 			guarded_free(const_cast<char *>(ware_name));
 
@@ -1194,23 +1198,38 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 				ware.max_transit = 0;
 			}
 
-			// Inputs used to be with respect to actual units of production. They now are normalized with respect to factory production so require conversion.
-			const uint32 prod_factor = besch ? besch->get_lieferant(i)->get_verbrauch() : 1;
-			if(  file->get_version() <= 120000  ) {
-				ware.menge = (sint32)(((sint64)menge << DEFAULT_PRODUCTION_FACTOR_BITS) / (sint64)prod_factor);
-			}
-			else {
-				ware.menge = menge;
-			}
-
-			// Hajo: repair files that have 'insane' values
-			const sint32 max = (sint32)((((sint64)FAB_MAX_INPUT << (precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS)) + (sint64)(prod_factor - 1)) / (sint64)prod_factor);
-			if(  ware.menge < 0  ) {
+			if(  !besch  ||  !besch->get_lieferant(i)  ) {
+				dbg->warning( "fabrik_t::rdwr()", "Factory at %s requested producer for %s but has none!", pos_origin.get_fullstr(), ware.get_typ()->get_name() );
 				ware.menge = 0;
 			}
-			if(  ware.menge > max  ) {
-				ware.menge = max;
+			else {
+
+				// Inputs used to be with respect to actual units of production. They now are normalized with respect to factory production so require conversion.
+				const uint32 prod_factor = besch ? besch->get_lieferant(i)->get_verbrauch() : 1;
+				if(  file->get_version() <= 120000  ) {
+					ware.menge = (sint32)(((sint64)menge << DEFAULT_PRODUCTION_FACTOR_BITS) / (sint64)prod_factor);
+				}
+				else {
+					ware.menge = menge;
+				}
+
+				// Hajo: repair files that have 'insane' values
+				const sint32 max = (sint32)((((sint64)FAB_MAX_INPUT << (precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS)) + (sint64)(prod_factor - 1)) / (sint64)prod_factor);
+				if(  ware.menge < 0  ) {
+					ware.menge = 0;
+				}
+				if(  ware.menge > max  ) {
+					ware.menge = max;
+				}
 			}
+		}
+
+		if(  besch  ) {
+			// in case of missing producer, we have to remove the superflous entires
+			while(  eingang_count > 0  &&   besch->get_lieferant(eingang_count-1)==NULL  ) {
+				eingang_count --;
+			}
+			eingang.resize( eingang_count );
 		}
 	}
 
@@ -1356,18 +1375,20 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 					k.rdwr(file);
 					uint16 idx;
 					file->rdwr_short(idx);
-					if(  besch==NULL  ||  idx>=besch->get_field_group()->get_field_class_count()  ) {
-						// set class index to 0 if it is out of range
-						idx = 0;
+					if(  besch  &&  besch->get_field_group()  ) {
+						// set class index to 0 if it is out of range, if there fields at all
+						fields.append( field_data_t(k, idx >= besch->get_field_group()->get_field_class_count() ? 0 : idx ) );
 					}
-					fields.append( field_data_t(k, idx) );
 				}
 			}
 			else {
 				// each field only stores location
 				for(  uint16 i=0  ;  i<nr  ;  ++i  ) {
 					k.rdwr(file);
-					fields.append( field_data_t(k, 0) );
+					if(  besch  &&  besch->get_field_group()  ) {
+						// oald add fields if there are any defined
+						fields.append( field_data_t(k, 0) );
+					}
 				}
 			}
 		}

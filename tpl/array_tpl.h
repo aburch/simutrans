@@ -45,14 +45,15 @@ template<class T> class array_tpl
 		void resize(index resize)
 		{
 			if (size < resize) {
+				// extend if needed
 				T* new_data = new T[resize];
 				for (index i = 0;  i < size; i++) {
 					new_data[i] = data[i];
 				}
 				delete [] data;
 				data = new_data;
-				size = resize;
 			}
+			size = resize;
 		}
 
 		void resize(index resize, const T& value)
