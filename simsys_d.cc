@@ -174,12 +174,17 @@ END_OF_FUNCTION(my_close_button_callback)
 
 
 
+// no autoscaling yet
+bool dr_auto_scale(bool)
+{
+	return false;
+}
+
+
 /*
  * Hier sind die Basisfunktionen zur Initialisierung der Schnittstelle untergebracht
  * -> init,open,close
  */
-
-
 bool dr_os_init(int const* parameter)
 {
 	if (allegro_init() != 0) {

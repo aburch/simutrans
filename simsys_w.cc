@@ -71,6 +71,31 @@ CRITICAL_SECTION redraw_underway;
 DWORD WINAPI dr_flush_screen(LPVOID lpParam);
 #endif
 
+static long x_scale = 32;
+static long y_scale = 32;
+
+
+
+// scale automatically
+bool dr_auto_scale(bool on_off)
+{
+	if(  on_off  ) {
+		HDC hdc = GetDC(NULL);
+		if (hdc) {
+			x_scale = (GetDeviceCaps(hdc, LOGPIXELSX)*32)/96;
+			y_scale = (GetDeviceCaps(hdc, LOGPIXELSY)*32)/96;
+			ReleaseDC(NULL, hdc);
+		}
+		return true;
+	}
+	else {
+		x_scale = 32;
+		y_scale = 32;
+		return false;
+	}
+}
+
+
 
 /*
  * Hier sind die Basisfunktionen zur Initialisierung der
@@ -90,8 +115,8 @@ bool dr_os_init(int const* /*parameter*/)
 resolution dr_query_screen_resolution()
 {
 	resolution res;
-	res.w = GetSystemMetrics(SM_CXSCREEN);
-	res.h = GetSystemMetrics(SM_CYSCREEN);
+	res.w = (GetSystemMetrics(SM_CXSCREEN)*32)/x_scale;
+	res.h = (GetSystemMetrics(SM_CYSCREEN)*32)/y_scale;
 	return res;
 }
 
@@ -119,8 +144,8 @@ static void create_window(DWORD const ex_style, DWORD const style, int const x, 
 // open the window
 int dr_os_open(int const w, int const h, int fullscreen)
 {
-	MaxSize.right = (w+15)&0x7FF0;
-	MaxSize.bottom = h+1;
+	MaxSize.right = ((w*x_scale)/32+15) & 0x7FF0;
+	MaxSize.bottom = (h*y_scale)/32+1;
 
 #ifdef MULTI_THREAD
 	InitializeCriticalSection( &redraw_underway );
@@ -136,8 +161,8 @@ int dr_os_open(int const w, int const h, int fullscreen)
 		settings.dmSize = sizeof(settings);
 		settings.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
 		settings.dmBitsPerPel = COLOUR_DEPTH;
-		settings.dmPelsWidth  = w;
-		settings.dmPelsHeight = h;
+		settings.dmPelsWidth  = MaxSize.right;
+		settings.dmPelsHeight = MaxSize.bottom-1;
 		settings.dmDisplayFrequency = 0;
 
 		if(  ChangeDisplaySettings(&settings, CDS_TEST)!=DISP_CHANGE_SUCCESSFUL  ) {
@@ -157,20 +182,20 @@ int dr_os_open(int const w, int const h, int fullscreen)
 		is_fullscreen = fullscreen;
 	}
 	if(  fullscreen  ) {
-		create_window(WS_EX_TOPMOST, WS_POPUP, 0, 0, w, h);
+		create_window(WS_EX_TOPMOST, WS_POPUP, 0, 0, MaxSize.right, MaxSize.bottom-1);
 	}
 	else {
-		create_window(0, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, w, h);
+		create_window(0, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, MaxSize.right, MaxSize.bottom-1);
 	}
 
-	WindowSize.right  = w;
-	WindowSize.bottom = h;
+	WindowSize.right  = MaxSize.right;
+	WindowSize.bottom = MaxSize.bottom-1;
 
 	AllDib = MALLOCF(BITMAPINFO, bmiColors, 3);
 	BITMAPINFOHEADER& header = AllDib->bmiHeader;
 	header.biSize          = sizeof(BITMAPINFOHEADER);
-	header.biWidth         = w;
-	header.biHeight        = h;
+	header.biWidth         = (w+15) & 0x7FF0;
+	header.biHeight        = h+1;
 	header.biPlanes        = 1;
 	header.biBitCount      = COLOUR_DEPTH;
 	header.biCompression   = BI_RGB;
@@ -191,7 +216,7 @@ int dr_os_open(int const w, int const h, int fullscreen)
 	masks[2]               = 0x03;
 #endif
 
-	return MaxSize.right;
+	return header.biWidth;
 }
 
 
@@ -230,18 +255,21 @@ int dr_textur_resize(unsigned short** const textur, int w, int const h)
 		w = 16;
 	}
 
-	if(w>MaxSize.right  ||  h>=MaxSize.bottom) {
+	int img_w = ((w*32)/x_scale+15)&0x7FF0;
+	int img_h = (h*32)/y_scale;
+
+	if(  w > MaxSize.right  ||  h >= MaxSize.bottom  ) {
 		// since the query routines that return the desktop data do not take into account a change of resolution
 		free(AllDibData);
 		AllDibData = NULL;
 		MaxSize.right = w;
 		MaxSize.bottom = h+1;
-		AllDibData = MALLOCN(PIXVAL, MaxSize.right * MaxSize.bottom);
+		AllDibData = MALLOCN(PIXVAL, img_w * img_h);
 		*textur = (unsigned short*)AllDibData;
 	}
 
-	AllDib->bmiHeader.biWidth  = w;
-	AllDib->bmiHeader.biHeight = h;
+	AllDib->bmiHeader.biWidth  = img_w;
+	AllDib->bmiHeader.biHeight = img_h;
 	WindowSize.right           = w;
 	WindowSize.bottom          = h;
 
@@ -254,7 +282,7 @@ int dr_textur_resize(unsigned short** const textur, int w, int const h)
 
 unsigned short *dr_textur_init()
 {
-	size_t const n = MaxSize.right * MaxSize.bottom;
+	size_t const n = AllDib->bmiHeader.biWidth * AllDib->bmiHeader.biHeight;
 	AllDibData = MALLOCN(PIXVAL, n);
 	// start with black
 	MEMZERON(AllDibData, n);
@@ -324,14 +352,12 @@ void dr_flush()
 void dr_textur(int xp, int yp, int w, int h)
 {
 	// make really sure we are not beyond screen coordinates
-	h = min( yp+h, WindowSize.bottom ) - yp;
-#ifdef DEBUG
-	w = min( xp+w, WindowSize.right ) - xp;
-	if(  h>1  &&  w>0  )
-#endif
-	{
-		AllDib->bmiHeader.biHeight = h + 1;
-		StretchDIBits(hdc, xp, yp, w, h, xp, h + 1, w, -h, AllDibData + yp * WindowSize.right, AllDib, DIB_RGB_COLORS, SRCCOPY);
+	int xscr = (xp*x_scale)/32;
+	int yscr = (yp*y_scale)/32;
+	w = min( xp+w, AllDib->bmiHeader.biWidth ) - xp;
+	h = min( yp+h, AllDib->bmiHeader.biHeight ) - yp;
+	if(  h>1  &&  w>0  ) {
+		StretchDIBits(hdc, xscr, yscr, (w*x_scale)/32, (h*y_scale)/32, xp, yp+h+1, w, -h, AllDibData, AllDib, DIB_RGB_COLORS, SRCCOPY);
 	}
 }
 
@@ -339,7 +365,7 @@ void dr_textur(int xp, int yp, int w, int h)
 // move cursor to the specified location
 void move_pointer(int x, int y)
 {
-	POINT pt = { x, y };
+	POINT pt = { ((long)x*x_scale+16)/32, ((long)y*y_scale+16)/32 };
 
 	ClientToScreen(hwnd, &pt);
 	SetCursorPos(pt.x, pt.y);
@@ -415,6 +441,7 @@ static inline unsigned int ModifierKeys()
 /* Windows eventhandler: does most of the work */
 LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
+	bool update_mouse = false;
 	// Used for IME handling.
 	static utf8 *u8buf = NULL;
 	static size_t u8bufsize;
@@ -489,20 +516,14 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 			SetCapture(this_hwnd);
 			sys_event.type    = SIM_MOUSE_BUTTONS;
 			sys_event.code    = SIM_MOUSE_LEFTBUTTON;
-			sys_event.key_mod = ModifierKeys();
-			sys_event.mb = last_mb = (wParam&3);
-			sys_event.mx      = LOWORD(lParam);
-			sys_event.my      = HIWORD(lParam);
+			update_mouse = true;
 			break;
 
 		case WM_LBUTTONUP: /* originally ButtonRelease */
 			ReleaseCapture();
 			sys_event.type    = SIM_MOUSE_BUTTONS;
 			sys_event.code    = SIM_MOUSE_LEFTUP;
-			sys_event.key_mod = ModifierKeys();
-			sys_event.mb = last_mb = (wParam&3);
-			sys_event.mx      = LOWORD(lParam);
-			sys_event.my      = HIWORD(lParam);
+			update_mouse = true;
 			break;
 
 		case WM_MBUTTONDOWN: /* because capture or release may not start with the expected button */
@@ -519,29 +540,20 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 			SetCapture(this_hwnd);
 			sys_event.type    = SIM_MOUSE_BUTTONS;
 			sys_event.code    = SIM_MOUSE_RIGHTBUTTON;
-			sys_event.key_mod = ModifierKeys();
-			sys_event.mb = last_mb = (wParam&3);
-			sys_event.mx      = LOWORD(lParam);
-			sys_event.my      = HIWORD(lParam);
+			update_mouse = true;
 			break;
 
 		case WM_RBUTTONUP: /* originally ButtonRelease */
 			ReleaseCapture();
 			sys_event.type    = SIM_MOUSE_BUTTONS;
 			sys_event.code    = SIM_MOUSE_RIGHTUP;
-			sys_event.key_mod = ModifierKeys();
-			sys_event.mb = last_mb = (wParam&3);
-			sys_event.mx      = LOWORD(lParam);
-			sys_event.my      = HIWORD(lParam);
+			update_mouse = true;
 			break;
 
 		case WM_MOUSEMOVE:
 			sys_event.type    = SIM_MOUSE_MOVE;
 			sys_event.code    = SIM_MOUSE_MOVED;
-			sys_event.key_mod = ModifierKeys();
-			sys_event.mb = last_mb = (wParam&3);
-			sys_event.mx      = LOWORD(lParam);
-			sys_event.my      = HIWORD(lParam);
+			update_mouse = true;
 			break;
 
 		case WM_MOUSEWHEEL:
@@ -549,21 +561,32 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 			sys_event.code = GET_WHEEL_DELTA_WPARAM(wParam) > 0 ? SIM_MOUSE_WHEELUP : SIM_MOUSE_WHEELDOWN;
 			sys_event.key_mod = ModifierKeys();
 			/* the returned coordinate in LPARAM are absolute coordinates, which will deeply confuse simutrans
-			 * we just reuse the coordinates we used the last time but not chaning mx/my ...
+			 * we just reuse the coordinates we used the last time by not chaning mx/my ...
 			 */
 			return 0;
+
+#ifdef WM_DPICHANGED
+		case WM_DPICHANGED:
+			{
+				RECT *r = (LPRECT)lParam;
+				x_scale = (LOWORD(wParam)*32)/96;
+				y_scale = (HIWORD(wParam)*32)/96;
+				SetWindowPos( Hwnd, NULL, r->left, r->top, r->right-r->left, r->bottom-r->top, SWP_NOZORDER );
+			}
+			break;
+#endif
 
 		case WM_SIZE: // resize client area
 			if(lParam!=0) {
 				sys_event.type = SIM_SYSTEM;
 				sys_event.code = SYSTEM_RESIZE;
 
-				sys_event.mx = LOWORD(lParam) + 1;
+				sys_event.mx = ((LOWORD(lParam) + 1)*32)/x_scale;
 				if (sys_event.mx <= 0) {
 					sys_event.mx = 4;
 				}
 
-				sys_event.my = HIWORD(lParam);
+				sys_event.my = (HIWORD(lParam)*32)/y_scale;
 				if (sys_event.my <= 1) {
 					sys_event.my = 64;
 				}
@@ -575,8 +598,8 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 			HDC hdcp;
 
 			hdcp = BeginPaint(hwnd, &ps);
-			AllDib->bmiHeader.biHeight = WindowSize.bottom;
-			StretchDIBits(hdcp, 0, 0, WindowSize.right, WindowSize.bottom, 0, WindowSize.bottom + 1, WindowSize.right, -WindowSize.bottom, AllDibData, AllDib, DIB_RGB_COLORS, SRCCOPY);
+			AllDib->bmiHeader.biHeight = (WindowSize.bottom*32)/y_scale;
+			StretchDIBits(hdcp, 0, 0, WindowSize.right, WindowSize.bottom, 0, AllDib->bmiHeader.biHeight + 1, AllDib->bmiHeader.biWidth, -AllDib->bmiHeader.biHeight, AllDibData, AllDib, DIB_RGB_COLORS, SRCCOPY);
 			EndPaint(this_hwnd, &ps);
 			break;
 		}
@@ -832,6 +855,15 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 		default:
 			return DefWindowProcW(this_hwnd, msg, wParam, lParam);
 	}
+
+	if(  update_mouse  ) {
+		sys_event.key_mod = ModifierKeys();
+		sys_event.mb = last_mb = (wParam&3);
+		sys_event.mx      = (LOWORD(lParam) * 32)/x_scale;
+		sys_event.my      = (HIWORD(lParam) * 32)/y_scale;
+	}
+
+
 	return 0;
 }
 
@@ -909,6 +941,9 @@ void dr_stop_textinput()
 
 void dr_notify_input_pos(int x, int y)
 {
+	x = (x*x_scale)/32;
+	y = (y*y_scale)/32;
+
 	COMPOSITIONFORM co;
 	co.dwStyle = CFS_POINT;
 	co.ptCurrentPos.x = (LONG)x;

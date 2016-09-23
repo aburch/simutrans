@@ -336,7 +336,14 @@ void inline pbo_unmap(){
 }
 
 
-/*
+// no autoscaling yet
+bool dr_auto_scale(bool)
+{
+	return false;
+}
+
+
+S/*
  * Hier sind die Basisfunktionen zur Initialisierung der
  * Schnittstelle untergebracht
  * -> init,open,close

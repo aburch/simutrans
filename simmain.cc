@@ -390,6 +390,7 @@ int simu_main(int argc, char** argv)
 	sint16 disp_width = 0;
 	sint16 disp_height = 0;
 	sint16 fullscreen = false;
+	bool dpi_scale_on = false;
 
 	uint32 quit_month = 0x7FFFFFFFu;
 
@@ -444,6 +445,7 @@ int simu_main(int argc, char** argv)
 			" -server [PORT]      starts program as server (for network game)\n"
 			"                     without port specified uses 13353\n"
 			" -announce           Enable server announcements\n"
+			" -autodpi            Scale for high DPI screens\n"
 			" -server_dns FQDN/IP FQDN or IP address of server for announcements\n"
 			" -server_name NAME   Name of server for announcements\n"
 			" -server_admin_pw PW password for server administration\n"
@@ -788,6 +790,10 @@ int simu_main(int argc, char** argv)
 			);
 			return 1;
 		}
+	}
+
+	if(  gimme_arg( argc, argv, "-autodpi", 0)  ) {
+		dr_auto_scale( true );
 	}
 
 	int parameter[2];

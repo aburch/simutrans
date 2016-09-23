@@ -70,6 +70,9 @@ extern struct sys_event sys_event;
 bool dr_movetotrash(const char *path);
 #endif
 
+// scale according to dpi setting
+bool dr_auto_scale(bool);
+
 bool dr_os_init(int const* parameter);
 
 /* maximum size possible (if there) */
