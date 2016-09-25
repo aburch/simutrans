@@ -62,14 +62,14 @@ static pthread_mutex_t weg_calc_bild_mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER
  * Alle instantiierten Wege
  * @author Hj. Malthaner
  */
-slist_tpl <weg_t *> alle_wege;
+vector_tpl <weg_t *> alle_wege;
 
 
 /**
  * Get list of all ways
  * @author Hj. Malthaner
  */
-const slist_tpl <weg_t *> & weg_t::get_alle_wege()
+const vector_tpl <weg_t *> & weg_t::get_alle_wege()
 {
 	return alle_wege;
 }
@@ -300,7 +300,7 @@ void weg_t::init()
 	bridge_weight_limit = UINT32_MAX_VALUE;
 	besch = 0;
 	init_statistics();
-	alle_wege.insert(this);
+	alle_wege.append(this);
 	flags = 0;
 	image = IMG_LEER;
 	after_bild = IMG_LEER;

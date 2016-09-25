@@ -5662,7 +5662,7 @@ void rail_vehicle_t::clear_token_reservation(signal_t* sig, rail_vehicle_t* w, s
 			route_tiles.append(k);
 		}
 		const waytype_t waytype = sch->get_waytype();
-		FOR(slist_tpl<weg_t*>, const way, weg_t::get_alle_wege())
+		FOR(vector_tpl<weg_t*>, const way, weg_t::get_alle_wege())
 		{
 			if(route_tiles.is_contained(way->get_pos().get_2d()))
 			{

@@ -20,7 +20,7 @@ class weg_besch_t;
 class cbuffer_t;
 class player_t;
 class signal_t;
-template <class T> class slist_tpl;
+template <class T> class vector_tpl;
 
 
 // maximum number of months to store information
@@ -56,7 +56,7 @@ public:
 	* Get list of all ways
 	* @author Hj. Malthaner
 	*/
-	static const slist_tpl <weg_t *> & get_alle_wege();
+	static const vector_tpl <weg_t *> & get_alle_wege();
 
 	enum {
 		HAS_SIDEWALK   = 0x01,

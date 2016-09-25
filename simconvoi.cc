@@ -325,7 +325,7 @@ bool convoi_t::is_waypoint( koord3d ziel ) const
 void convoi_t::unreserve_route()
 {
 	// Clears all reserved tiles on the whole map belonging to this convoy.
-	FOR(slist_tpl<weg_t*>, const way, weg_t::get_alle_wege())
+	FOR(vector_tpl<weg_t*>, const way, weg_t::get_alle_wege())
 	{
 		if(way->get_waytype() == front()->get_waytype())
 		{

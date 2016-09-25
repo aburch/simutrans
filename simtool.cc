@@ -1615,7 +1615,7 @@ const char *tool_clear_reservation_t::work( player_t *player, koord3d k )
 					// reset driving state
 					cnv->suche_neue_route();
 				}
-				FOR(slist_tpl<weg_t*>, const w, weg_t::get_alle_wege()) {
+				FOR(vector_tpl<weg_t*>, const w, weg_t::get_alle_wege()) {
 					if (w->get_waytype() == waytype) {
 						schiene_t* const sch = obj_cast<schiene_t>(w);
 						if (sch->get_reserved_convoi() == cnv) {

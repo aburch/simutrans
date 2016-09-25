@@ -4053,7 +4053,7 @@ void karte_t::new_month()
 
 	// this should be done before a map update, since the map may want an update of the way usage
 //	DBG_MESSAGE("karte_t::new_month()","ways");
-	FOR(slist_tpl<weg_t*>, const w, weg_t::get_alle_wege()) {
+	FOR(vector_tpl<weg_t*>, const w, weg_t::get_alle_wege()) {
 		w->new_month();
 	}
 
