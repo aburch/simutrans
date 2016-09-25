@@ -3908,23 +3908,13 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 					cnv->set_wait_lock(emergency_stop_duration + 500); // We add 500 to what we assume is the rear train to ensure that the front train starts first.
 					working_method = drive_by_sight;
 					cnv->unreserve_route();
-					grund_t *gr_current = welt->lookup( cnv->back()->get_pos() );
-					schiene_t *sch2 = gr_current ? (schiene_t*)gr_current->get_weg(get_waytype()) : NULL;
-					if(sch2)
-					{
-						sch2->reserve(cnv->self, ribi); 
-					}
+					cnv->reserve_own_tiles();
 					if(c.is_bound())
 					{
 						c->set_state(convoi_t::EMERGENCY_STOP);
 						c->set_wait_lock(emergency_stop_duration);
 						c->unreserve_route();
-						gr_current = welt->lookup( c->back()->get_pos() );
-						sch2 = gr_current ? (schiene_t*)gr_current->get_weg(get_waytype()) : NULL;	
-						if(sch2)
-						{
-							sch2->reserve(c->self, ribi); 
-						}
+						c->reserve_own_tiles();
 					}
 					break;
 				}

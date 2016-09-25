@@ -566,9 +566,6 @@ private:
 	*/
 	bool can_go_alte_richtung();
 
-	// Reserve the tiles on which the convoy is standing to prevent collisions.
-	void reserve_own_tiles();
-
 	/**
 	* Mark first and last vehicle.
 	* @author Hanjsörg Malthaner
@@ -1176,6 +1173,9 @@ public:
 	inline void set_wait_lock(sint32 value) { wait_lock = value; }
 
 	bool check_destination_reverse(route_t* current_route = NULL, route_t* target_rt = NULL); 
+
+	// Reserve the tiles on which the convoy is standing to prevent collisions.
+	void reserve_own_tiles();
 
 private:
 	journey_times_map average_journey_times;

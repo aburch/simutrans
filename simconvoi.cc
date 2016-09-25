@@ -1303,8 +1303,9 @@ bool convoi_t::drive_to()
 				unreserve_route();
 			}
 		}
-		else
+		else if(front()->get_waytype() == air_wt)
 		{
+			// Sea and road waytypes do not have any sort of reserveation, and calls to unreserve_route() are expensive.
 			unreserve_route();
 		}
 
