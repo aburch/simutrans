@@ -289,6 +289,8 @@ public:
 	*/
 	waytype_t get_waytype() const { return waytype; }
 
+	bool is_rail_type() const { return waytype == track_wt || waytype == maglev_wt || waytype == tram_wt || waytype == narrowgauge_wt || waytype == monorail_wt;  }
+
 	/**
 	* 'Jedes Ding braucht einen Typ.'
 	* @return Gibt den typ des Objekts zurück.
