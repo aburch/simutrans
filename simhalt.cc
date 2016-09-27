@@ -1925,6 +1925,7 @@ void haltestelle_t::get_destination_halts_of_ware(ware_t &ware, vector_tpl<halth
 
 uint16 haltestelle_t::find_route(const vector_tpl<halthandle_t>& destination_halts_list, ware_t &ware, const uint16 previous_journey_time, const koord destination_pos)
 {
+	// ** Beware ** This is the most computationally intensive (taking into account how often that it is called) function in the game
 	// Find the best route (sequence of halts) for a given packet
 	// from here to its final destination -- *and* reroute the packet.
 	//
@@ -1951,7 +1952,6 @@ uint16 haltestelle_t::find_route(const vector_tpl<halthandle_t>& destination_hal
 		path_explorer_t::get_catg_path_between(ware_catg, self, *destination_halt, test_time, test_transfer);
 
 		if(!destination_halt->is_bound()) 
-
 		{
 			// This halt has been deleted recently.  Don't go there.
 			continue;
@@ -1974,10 +1974,19 @@ uint16 haltestelle_t::find_route(const vector_tpl<halthandle_t>& destination_hal
 			// Done for real packets
 			real_destination_pos = ware.get_zielpos();
 		}
+		
+		/**
+		* This is far too computationally expensive. Find the standard halt location instead.
+		*
 		// Find the halt square closest to the real destination (closest exit)
 		destination_stop_pos = (*destination_halt)->get_next_pos(real_destination_pos);
+		*/
+
+		destination_stop_pos = (*destination_halt)->get_init_pos();
+
 		// And find the shortest walking distance to there.
 		const uint32 walk_distance = shortest_distance(destination_stop_pos, real_destination_pos);
+
 		if(!ware.is_freight())
 		{
 			// Passengers or mail.
@@ -4606,7 +4615,7 @@ koord haltestelle_t::get_next_pos( koord start, bool square ) const
 			}
 			else
 			{
-				d = shortest_distance(start, p );
+				d = shortest_distance(start, p);
 			}
 			if(d<dist) {
 				// ok, this one is closer
