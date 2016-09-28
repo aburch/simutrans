@@ -219,6 +219,30 @@ obj_besch_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->nachfolger = decode_uint8(p);
 		besch->freight_image_type = decode_uint8(p);
 	}
+	else if (version==11) {
+		// new: fix cost as uint32
+		besch->cost = decode_uint32(p);
+		besch->zuladung = decode_uint16(p);
+		besch->loading_time = decode_uint16(p);
+		besch->topspeed = decode_uint16(p);
+		besch->gewicht = decode_uint32(p);
+		besch->axle_load = decode_uint16(p);
+		besch->leistung = decode_uint32(p);
+		besch->running_cost = decode_uint16(p);
+		besch->fixed_cost = decode_uint32(p);
+
+		besch->intro_date = decode_uint16(p);
+		besch->obsolete_date = decode_uint16(p);
+		besch->gear = decode_uint16(p);
+
+		besch->wt = decode_uint8(p);
+		besch->sound = decode_sint8(p);
+		besch->engine_type = decode_uint8(p);
+		besch->len = decode_uint8(p);
+		besch->vorgaenger = decode_uint8(p);
+		besch->nachfolger = decode_uint8(p);
+		besch->freight_image_type = decode_uint8(p);
+	}
 	else {
 		if(  version!=0  ) {
 			dbg->fatal( "vehicle_reader_t::read_node()","Do not know how to handle version=%i", version );

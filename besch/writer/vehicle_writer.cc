@@ -56,7 +56,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	int i;
 	uint8  uv8;
 
-	int total_len = 39;
+	int total_len = 41;
 
 	// prissi: must be done here, since it may affect the len of the header!
 	string sound_str = ltrim( obj.get("sound") );
@@ -86,7 +86,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	// Hajo: version number
 	// Hajo: Version needs high bit set as trigger -> this is required
 	//       as marker because formerly nodes were unversionend
-	uint16 version = 0x800A;
+	uint16 version = 0x800B;
 	node.write_uint16(fp, version, pos);
 	pos += sizeof(uint16);
 
@@ -133,12 +133,12 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	pos += sizeof(uint16);
 
 	// monthly maintenance
-	uint16 fixcost = obj.get_int("fixed_cost", 65535 );
-	if(  fixcost == 65535  ) {
+	uint32 fixcost = obj.get_int("fixed_cost", 0xFFFFFFFFul );
+	if(  fixcost == 0xFFFFFFFFul  ) {
 		fixcost = obj.get_int("maintenance", 0);
 	}
-	node.write_uint16(fp, fixcost, pos);
-	pos += sizeof(uint16);
+	node.write_uint32(fp, fixcost, pos);
+	pos += sizeof(uint32);
 
 	// Hajodoc: Introduction date (year * 12 + month)
 	uint16 intro  = obj.get_int("intro_year", DEFAULT_INTRO_DATE) * 12;

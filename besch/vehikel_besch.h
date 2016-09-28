@@ -70,7 +70,7 @@ private:
 	uint32  gewicht;
 	uint32  leistung;
 	uint16  running_cost;
-	uint16  fixed_cost;
+	uint32  fixed_cost;
 
 	uint16  gear;       // engine gear (power multiplier), 64=100
 
@@ -238,7 +238,7 @@ public:
 	uint16 get_loading_time() const { return loading_time; } // ms per full loading/unloading
 	uint32 get_gewicht() const { return gewicht; }
 	uint32 get_leistung() const { return leistung; }
-	uint16 get_betriebskosten() const { return running_cost; }
+	uint32 get_betriebskosten() const { return running_cost; }
 	uint16 get_maintenance() const { return fixed_cost; }
 	sint8 get_sound() const { return sound; }
 

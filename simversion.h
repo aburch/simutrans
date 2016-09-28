@@ -20,7 +20,8 @@
 #define SIM_SAVE_MINOR      2
 #define SIM_SERVER_MINOR    2
 
-#define MAKEOBJ_VERSION "55.4"
+#define MAKEOBJ_VERSION "55.5"
+// needs new makeobj for higher fixcosts!
 
 #ifndef QUOTEME
 #	define QUOTEME_(x) #x
