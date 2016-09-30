@@ -1552,6 +1552,7 @@ void vehicle_t::hop(grund_t* gr)
 		weg->wear_way(besch->get_way_wear_factor());
 	}
 	hop_count ++;
+	gr->set_all_obj_dirty();
 }
 
 /* Calculates the modified speed limit of the current way,

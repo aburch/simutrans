@@ -1190,7 +1190,7 @@ sync_result convoi_t::sync_step(uint32 delta_t)
 				}
 				// now move the rest (so all vehikel are moving synchroniously)
 				for(unsigned i=1; i<anz_vehikel; i++) {
-					vehicle[i]->do_drive(sp_hat); //"move basis"
+					vehicle[i]->do_drive(max(1,sp_hat)); 
 				}
 				// maybe we have been stopped be something => avoid wide jumps
 				sp_soll = (sp_soll-sp_hat) & 0x0FFF;
