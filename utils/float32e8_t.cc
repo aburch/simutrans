@@ -568,6 +568,8 @@ sint32 float32e8_t::to_sint32() const
 	return ms ? -(sint32) rm : (sint32) rm;
 }
 
+
+
 //const string float32e8_t::to_string() const
 //{
 //	char buf[256];

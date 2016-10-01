@@ -312,9 +312,7 @@ void convoy_t::calc_move(const settings_t &settings, long delta_t, const weight_
 		const float32e8_t vlim = speed_to_v(next_speed_limit); // vlim in m/s, next_speed_limit in simutrans vehicle speed.
 		const float32e8_t xlim = settings.steps_to_meters(steps_til_limit); // xbrk in m, steps_til_limit in simutrans steps
 		const float32e8_t xbrk = settings.steps_to_meters(steps_til_brake); // xbrk in m, steps_til_brake in simutrans steps
-		const float32e8_t vehicle_limit = kmh2ms * min(adverse.max_speed, get_vehicle_summary().max_speed); 
-		const float32e8_t v_akt_soll = (speed_to_v(akt_speed_soll));
-		float32e8_t vsoll = v_akt_soll < vehicle_limit ? v_akt_soll : vehicle_limit; // vsoll in m/s, akt_speed_soll in simutrans vehicle speed. "Soll" translates to "Should", so this is the speed limit. Cannot use "min" here, as this works only in integers and can cause rounding errors with low speeds
+		float32e8_t vsoll = min(speed_to_v(akt_speed_soll), kmh2ms * min(adverse.max_speed, get_vehicle_summary().max_speed)); // vsoll in m/s, akt_speed_soll in simutrans vehicle speed. "Soll" translates to "Should", so this is the speed limit.
 		float32e8_t fvsoll = float32e8_t::zero; // force in N needed to hold vsoll. calculated when needed.
 		float32e8_t speed_ratio = float32e8_t::zero; // requested speed / convoy's max speed. calculated when needed.
 		float32e8_t dx = float32e8_t::zero; // covered distance in m

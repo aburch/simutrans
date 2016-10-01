@@ -383,5 +383,15 @@ public:
 	const char* get_message()  const { return message.c_str(); }
 };
 
+static inline float32e8_t min(const float32e8_t a, const float32e8_t b)
+{
+	return a < b ? a : b;
+}
+
+static inline float32e8_t max(const float32e8_t a, const float32e8_t b)
+{
+	return a > b ? a : b;
+}
+
 
 #endif /* FLOAT32E8_T_H_ */
