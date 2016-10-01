@@ -6058,7 +6058,32 @@ bool water_vehicle_t::check_next_tile(const grund_t *bd) const
 		}
 	}
 #endif
-	return (check_access(w)  &&  w->get_max_speed()>0 && check_way_constraints(*w));
+	const uint8 convoy_vehicle_count = cnv->get_vehikel_anzahl();
+	bool can_clear_way_constraints = true;
+	if(convoy_vehicle_count < 2)
+	{
+		return(check_access(w) && w->get_max_speed() > 0 && check_way_constraints(*w));
+	}
+	else
+	{
+		// We must check the way constraints of each vehicle in the convoy
+		if(check_access(w) && w->get_max_speed() > 0)
+		{
+			for(sint32 i = 0; i < convoy_vehicle_count; i++)
+			{
+				if(!cnv->get_vehikel(i)->check_way_constraints(*w))
+				{
+					can_clear_way_constraints = false;
+					break;
+				}
+			}
+		}
+		else
+		{
+			return false;
+		}
+	}
+	return can_clear_way_constraints;
 }
 
 
