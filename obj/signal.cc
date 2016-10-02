@@ -122,11 +122,187 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 	obj_t::info(buf);
 	signal_t* sig = (signal_t*)this;
 
-	buf.printf("%s\n%s%u", translator::translate(besch->get_name()), translator::translate("\ndirection:"), get_dir());
+//	buf.printf("%s\n%s%u", translator::translate(besch->get_name()), translator::translate("\ndirection:"), get_dir());
+	buf.append(translator::translate(besch->get_name()));
 	buf.append("\n\n");
 
 	buf.append(translator::translate(get_working_method_name(besch->get_working_method())));
-	buf.append("\n\n");
+	buf.append("\n");
+
+	if (besch->is_choose_sign())
+	{
+		buf.append(translator::translate("choose_signal"));
+		buf.append("\n");
+	}
+	if (besch->is_longblock_signal() && (besch->get_working_method() == time_interval || besch->get_working_method() == time_interval_with_telegraph || besch->get_working_method() == absolute_block))
+	{
+		buf.append(translator::translate("station_signal"));
+		buf.append("\n");
+	}
+	else if (besch->is_longblock_signal())
+	{
+		buf.append(translator::translate("longblock_signal"));
+		buf.append("\n");
+	}
+	if (besch->is_combined_signal())
+	{
+		buf.append(translator::translate("combined_signal"));
+		buf.append("\n");
+	}
+	if (besch->is_pre_signal())
+	{
+		buf.append(translator::translate("distant_signal"));
+		buf.append("\n");
+	}
+	if (besch->get_intermediate_block() == true)
+	{
+		buf.append(translator::translate("intermediate_signal"));
+		buf.append("\n");
+	}
+	if (besch->get_permissive() == true)
+	{
+		buf.append(translator::translate("permissive_signal"));
+		buf.append("\n");
+	}
+	buf.printf("%s%s%d%s%s", translator::translate("Max. speed:")," ", speed_to_kmh(besch->get_max_speed()), " ", "km/h");
+	buf.append("\n");
+
+	buf.append(translator::translate("Direction"));
+	buf.append(": ");
+	if (besch->is_longblock_signal() && (besch->get_working_method() == time_interval || besch->get_working_method() == time_interval_with_telegraph || besch->get_working_method() == absolute_block))
+	{
+		if (get_dir() == 1 || get_dir() == 4)
+		{
+			buf.append(translator::translate("north_and_south"));
+		}
+		else
+		{
+			buf.append(translator::translate("east_and_west"));
+		}
+	}
+	else
+	{
+		buf.append(translator::translate(get_directions_name(get_dir())));
+	}
+	buf.append("\n");
+
+	// Show the signal state in the info window // Ves
+	if (besch->is_longblock_signal() && (besch->get_working_method() == time_interval || besch->get_working_method() == time_interval_with_telegraph || besch->get_working_method() == absolute_block))
+	{
+		buf.append(translator::translate("current_state"));
+		buf.append(": ");
+		if (get_state() != danger)
+			{
+				if (get_dir() == 1)
+				{
+					if (get_state() == clear_no_choose)
+					{
+						buf.printf("%s (%s)", translator::translate("clear"), translator::translate("sued"));
+					}
+					if (get_state() == caution_no_choose)
+					{
+						buf.printf("%s (%s)", translator::translate("caution"), translator::translate("sued"));
+					}
+					if (get_state() == clear)
+					{
+						buf.printf("%s (%s)", translator::translate("clear"), translator::translate("nord"));
+					}
+					if (get_state() == caution)
+					{
+						buf.printf("%s (%s)", translator::translate("caution"), translator::translate("nord"));
+					}
+				}
+				if (get_dir() == 2)
+				{
+					if (get_state() == clear_no_choose)
+					{
+						buf.printf("%s (%s)", translator::translate("clear"), translator::translate("west"));
+					}
+					if (get_state() == caution_no_choose)
+					{
+						buf.printf("%s (%s)", translator::translate("caution"), translator::translate("west"));
+					}
+					if (get_state() == clear)
+					{
+						buf.printf("%s (%s)", translator::translate("clear"), translator::translate("ost"));
+					}
+					if (get_state() == caution)
+					{
+						buf.printf("%s (%s)", translator::translate("caution"), translator::translate("ost"));
+					}
+				}				
+				if (get_dir() == 4)
+				{
+					if (get_state() == clear_no_choose)
+					{
+						buf.printf("%s (%s)", translator::translate("clear"), translator::translate("nord"));
+					}
+					if (get_state() == caution_no_choose)
+					{
+						buf.printf("%s (%s)", translator::translate("caution"), translator::translate("nord"));
+					}
+					if (get_state() == clear)
+					{
+						buf.printf("%s (%s)", translator::translate("clear"), translator::translate("sued"));
+					}
+					if (get_state() == caution)
+					{
+						buf.printf("%s (%s)", translator::translate("caution"), translator::translate("sued"));
+					}
+				}				
+				if (get_dir() == 8)
+				{
+					if (get_state() == clear_no_choose)
+					{
+						buf.printf("%s (%s)", translator::translate("clear"), translator::translate("ost"));
+					}
+					if (get_state() == caution_no_choose)
+					{
+						buf.printf("%s (%s)", translator::translate("caution"), translator::translate("ost"));
+					}
+					if (get_state() == clear)
+					{
+						buf.printf("%s (%s)", translator::translate("clear"), translator::translate("west"));
+					}
+					if (get_state() == caution)
+					{
+						buf.printf("%s (%s)", translator::translate("caution"), translator::translate("west"));
+					}
+				}
+				buf.append(translator::translate("\n\n"));
+			}	
+		else
+		{
+			buf.append(translator::translate("danger"));
+			buf.append(translator::translate("\n\n"));
+		}
+	}
+	else if (besch->is_choose_sign())
+	{
+		buf.append(translator::translate("current_state"));
+		buf.append(": ");
+		buf.append(translator::translate(get_choose_signal_aspects_name(get_state())));
+		buf.append("\n\n");
+	}
+	else if (besch->get_working_method() == drive_by_sight || besch->get_aspects() <= 1)
+	{
+	}
+	else
+	{
+		buf.append(translator::translate("current_state"));
+		buf.append(": ");
+		buf.append(translator::translate(get_signal_aspects_name(get_state())));
+		buf.append("\n\n");
+	}
+
+	// Wether this signal will create a directional reservation.
+
+	if (((besch->is_longblock_signal() || get_dir() == 3 || get_dir() == 6 || get_dir() == 9 || get_dir() == 12 || get_dir() == 5 || get_dir() == 10 ) && (besch->get_working_method() == time_interval_with_telegraph || besch->get_working_method() == track_circuit_block || besch->get_working_method() == cab_signalling || besch->get_working_method() == moving_block)) && (besch->is_pre_signal()) == false )
+		{
+		buf.append(translator::translate("This signal creates directional reservations"));
+		buf.append(translator::translate("\n\n"));
+	}
+
 
 	// Deal with station signals where the time since the train last passed is standardised for the whole station.
 	halthandle_t this_tile_halt = haltestelle_t::get_halt(sig->get_pos(), get_owner()); 
@@ -140,7 +316,7 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 			case 0:
 			default:
 				buf.append(translator::translate("Time since a train last passed")); 
-				buf.append("\n");
+				buf.append(":\n");
 				buf.append(translator::translate("nord"));
 				break;
 			case 1:

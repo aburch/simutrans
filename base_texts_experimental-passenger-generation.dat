@@ -291,5 +291,123 @@ note=Text in the convoy detail window showing the current working method
 obj=program_text
 name=Time since a train last passed
 note=Text in the signal information window showing the time since a train last passed. Particularly useful for time interval signals, but shown on all signals for information.
-
-
+-
+obj=program_text
+name=choose_signal
+note=Text in the signal infowindow showing which attributes this signal has
+-
+obj=program_text
+name=station_signal
+note=Text in the signal infowindow showing which attributes this signal has
+-
+obj=program_text
+name=longblock_signal
+note=Text in the signal infowindow showing which attributes this signal has
+-
+obj=program_text
+name=combined_signal
+note=Text in the signal infowindow showing which attributes this signal has
+-
+obj=program_text
+name=distant_signal
+note=Text in the signal infowindow showing which attributes this signal has
+-
+obj=program_text
+name=intermediate_signal
+note=Text in the signal infowindow showing which attributes this signal has
+-
+obj=program_text
+name=permissive_signal
+note=Text in the signal infowindow showing which attributes this signal has
+-
+obj=program_text
+name=current_state
+note=Text in the signal infowindow telling the current state of the signal
+-
+obj=program_text
+name=danger
+note=The name of a signal state
+-
+obj=program_text
+name=clear
+note=The name of a signal state
+-
+obj=program_text
+name=caution
+note=The name of a signal state
+-
+obj=program_text
+name=preliminary_caution
+note=The name of a signal state
+-
+obj=program_text
+name=advanced_caution
+note=The name of a signal state
+-
+obj=program_text
+name=call_on
+note=The name of a signal state
+-
+obj=program_text
+name=danger_choose
+note=The name of a signal state
+-
+obj=program_text
+name=clear_main
+note=The name of a signal state
+-
+obj=program_text
+name=caution_main
+note=The name of a signal state
+-
+obj=program_text
+name=preliminary_caution_main
+note=The name of a signal state
+-
+obj=program_text
+name=advanced_caution_main
+note=The name of a signal state
+-
+obj=program_text
+name=clear_alternate
+note=The name of a signal state
+-
+obj=program_text
+name=caution_alternate
+note=The name of a signal state
+-
+obj=program_text
+name=preliminary_caution_alternate
+note=The name of a signal state
+-
+obj=program_text
+name=advanced_caution_alternate
+note=The name of a signal state
+-
+obj=program_text
+name=This signal creates directional reservations
+note=Text in the signal infowindow telling that the signal makes directional reservation
+-
+obj=program_text
+name=north_and_east
+note=Additional directions shown in the signal infowindow for "station signals"
+-
+obj=program_text
+name=north_and_south
+note=Additional directions shown in the signal infowindow for "station signals"
+-
+obj=program_text
+name=north_and_west
+note=Additional directions shown in the signal infowindow for "station signals"
+-
+obj=program_text
+name=south_and_east
+note=Additional directions shown in the signal infowindow for "station signals"
+-
+obj=program_text
+name=south_and_west
+note=Additional directions shown in the signal infowindow for "station signals"
+-
+obj=program_text
+name=east_and_west
+note=Additional directions shown in the signal infowindow for "station signals"

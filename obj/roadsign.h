@@ -14,6 +14,7 @@
 #include "../ifc/sync_steppable.h"
 #include "../tpl/vector_tpl.h"
 #include "../tpl/stringhashtable_tpl.h"
+#include "../simunits.h"
 
 class tool_selector_t;
 
@@ -184,6 +185,7 @@ public:
 	bool upgrade(const roadsign_besch_t* new_besch); 
 	bool upgrade(bool underground) { return upgrade(find_best_upgrade(underground)); } 
 
+
 	static const char* get_working_method_name(working_method_t wm)
 	{
 		switch(wm)
@@ -206,6 +208,90 @@ public:
 			return "one_train_staff";
 		case time_interval_with_telegraph:
 			return "time_interval_with_telegraph";
+		default:
+			return "unknown";
+		};
+	}
+	static const char* get_signal_aspects_name(signal_aspects wm)
+	{
+		switch (wm)
+		{
+		case 0:
+			return "danger";
+		case 1:
+			return "clear";
+		case 2:
+			return "caution";
+		case 3:
+			return "preliminary_caution";
+		case 4:
+			return "advanced_caution";
+		case 5:
+			return "clear_no_choose";
+		case 6:
+			return "caution_no_choose";
+		case 7:
+			return "preliminary_caution_no_choose";
+		case 8:
+			return "advanced_caution_no_choose";
+		case 9:
+			return "call_on";
+		default:
+			return "unknown";
+		};
+	}
+	static const char* get_choose_signal_aspects_name(signal_aspects wm)
+	{
+		switch (wm)
+		{
+		case 0:
+			return "danger_choose";
+		case 1:
+			return "clear_alternate";
+		case 2:
+			return "caution_alternate";
+		case 3:
+			return "preliminary_caution_alternate";
+		case 4:
+			return "advanced_caution_alternate";
+		case 5:
+			return "clear_main";
+		case 6:
+			return "caution_main";
+		case 7:
+			return "preliminary_caution_main";
+		case 8:
+			return "advanced_caution_main";
+		case 9:
+			return "call_on";
+		default:
+			return "unknown";
+		};
+	}
+	static const char* get_directions_name(ribi_t::ribi wm)
+	{
+		switch (wm)
+		{
+		case 1:
+			return "sued";
+		case 2:
+			return "west";
+		case 3:
+			return "north_and_east";
+		case 4:
+			return "nord";
+		case 5:
+			return "north_and_south";
+		case 6:
+			return "south_and_east";
+		case 8:
+			return "ost";
+		case 9:
+			return "north_and_west";
+		case 10:
+			return "east_and_west";
+		case 12:
+			return "south_and_west";
 		default:
 			return "unknown";
 		};
