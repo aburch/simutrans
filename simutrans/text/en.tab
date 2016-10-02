@@ -2601,6 +2601,8 @@ The percentage of passengers transported in the region overall
 The percentage of intending passengers making successful journeys in the region overall
 Spacing cnv/month, shift
 Departures/month; shift
+#-----------------------------
+#-- Signals working methods:--
 drive_by_sight
 Drive by sight
 time_interval
@@ -2619,3 +2621,65 @@ one_train_staff
 One train staff
 time_interval_with_telegraph
 Time interval with telegraph
+#------------------------------------
+#-- Signals states and information:--
+choose_signal
+choose signal
+station_signal
+Station Signal
+longblock_signal
+Longblock Signal
+combined_signal
+Combined Signal
+distant_signal
+Distant Signal
+intermediate_signal
+Intermediate Signal
+permissive_signal
+Permissive Signal
+current_state
+Current state
+danger
+Danger
+clear
+Clear
+caution
+Caution
+preliminary_caution
+Preliminary Caution
+advanced_caution
+Advanced Caution
+call_on
+Call on
+danger_choose
+Danger\n
+clear_main
+\nClear (main route)
+caution_main
+\nCaution (main route)
+preliminary_caution_main
+\nPreliminary Caution (main route)
+advanced_caution_main
+\nAdvanced Caution (main route)
+clear_alternate
+\nClear (alternative route)
+caution_alternate
+\nCaution (alternative route)
+preliminary_caution_alternate
+\nPreliminary Caution (alternative route)
+advanced_caution_alternate
+\nAdvanced Caution (alternative route)
+This signal creates directional reservations
+This signal creates directional reservations
+north_and_east
+North and East
+north_and_south
+North and South
+north_and_west
+North and West
+south_and_east
+South and East
+south_and_west
+South and West
+east_and_west
+East and West
