@@ -423,11 +423,11 @@ bool tunnelbauer_t::baue_tunnel(player_t *player, koord3d start, koord3d end, ko
 
 DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d,%d) to (%d,%d,%d) ", pos.x, pos.y, pos.z, end.x, end.y, end.z );
 
-	// now we search a matching way for the tunnels top speed
+	// now we search for a matching way for the tunnel's top speed
 	weg_besch = besch->get_weg_besch();
-	if(weg_besch==NULL) {
-		// ignore timeline to get consistent results
-		weg_besch = wegbauer_t::weg_search(wegtyp, besch->get_topspeed(), besch->get_max_axle_load(), 0, weg_t::type_flat, besch->get_wear_capacity());
+	if(weg_besch == NULL)
+	{
+		weg_besch = wegbauer_t::weg_search(wegtyp, besch->get_topspeed(), besch->get_max_axle_load(), welt->get_timeline_year_month(), weg_t::type_flat, besch->get_wear_capacity());
 	}
 
 	baue_einfahrt(player, pos, zv, besch, weg_besch, cost);
@@ -450,9 +450,13 @@ DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d,%d) to (%d,%d,%d) ", pos.
 		const weg_t* old_way = gr ? gr->get_weg(wegtyp) : NULL;
 		tunnelboden_t *tunnel = new tunnelboden_t( pos, 0);	
 		welt->access(pos.get_2d())->boden_hinzufuegen(tunnel);
-		if(wegtyp != powerline_wt) {
+		if(wegtyp != powerline_wt)
+		{
+			const uint32 max_speed = min(besch->get_topspeed(), weg_besch->get_topspeed());
+			const uint32 max_axle_load = min(besch->get_axle_load(), weg_besch->get_axle_load());
 			weg = weg_t::alloc(besch->get_waytype());
 			weg->set_besch(weg_besch);
+			
 			const grund_t* gr = welt->lookup(pos);
 			const hang_t::typ hang = gr ? gr->get_weg_hang() : hang_t::flach;
 			if(hang != hang_t::flach) 
@@ -460,18 +464,18 @@ DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d,%d) to (%d,%d,%d) ", pos.
 				const uint slope_height = (hang & 7) ? 1 : 2;
 				if(slope_height == 1)
 				{
-					weg->set_max_speed(besch->get_topspeed_gradient_1());
+					weg->set_max_speed(min(besch->get_topspeed_gradient_1(), weg_besch->get_topspeed_gradient_1()));
 				}
 				else
 				{
-					weg->set_max_speed(besch->get_topspeed_gradient_2());
+					weg->set_max_speed(min(besch->get_topspeed_gradient_2(), weg_besch->get_topspeed_gradient_2()));
 				}
 			}
 			else
 			{
-				weg->set_max_speed(besch->get_topspeed());
+				weg->set_max_speed(max_speed);
 			}
-			weg->set_max_axle_load(besch->get_max_axle_load());
+			weg->set_max_axle_load(max_axle_load);
 
 			tunnel->neuen_weg_bauen(weg, ribi_t::doppelt(ribi), player);;
 		}
