@@ -2624,7 +2624,7 @@ Time interval with telegraph
 #------------------------------------
 #-- Signals states and information:--
 choose_signal
-choose signal
+Choose Signal
 station_signal
 Station Signal
 longblock_signal
