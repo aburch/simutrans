@@ -3640,7 +3640,8 @@ bool rail_vehicle_t::is_target(const grund_t *gr,const grund_t *prev_gr)
 
 sint32 rail_vehicle_t::activate_choose_signal(const uint16 start_block, uint16 &next_signal_index, uint32 brake_steps, uint16 modified_sighting_distance_tiles, route_t* route, sint32 modified_route_index)
 {
-	grund_t const* target = welt->lookup(cnv->get_fpl_target());
+	const schedule_t* schedule = cnv->get_schedule(); 	
+	grund_t const* target = welt->lookup(schedule->get_current_eintrag().pos); 
 
 	if(target == NULL) 
 	{
