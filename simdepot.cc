@@ -39,7 +39,7 @@
 #include "utils/cbuffer_t.h"
 
 #ifdef MULTI_THREAD
-#include <pthread.h>
+#include "utils/simthread.h"
 static pthread_mutex_t sync_mutex = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutex_t add_to_world_list_mutex = PTHREAD_MUTEX_INITIALIZER;
 #endif
