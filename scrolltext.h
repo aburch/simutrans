@@ -50,6 +50,7 @@
 " Inkelyad", "developer",
 " Isidoro","developer (vehicle replacement)",
 " Zhaop", "Mac OSX patch and fixes",
+" Victor", "patch",
 " Vladki", "patch",
 " Hanczar","profiling, fixes",
 " Octavius","patch",
