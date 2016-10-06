@@ -3011,7 +3011,7 @@ void convoi_t::vorfahren()
 
 					default:
 
-						const bool reverse_as_unit = reversed ? front()->get_besch()->get_can_lead_from_rear() : back()->get_besch()->get_can_lead_from_rear();
+						const bool reverse_as_unit = back()->get_besch()->get_can_lead_from_rear();
 
 						reversable = reverse_as_unit || (anz_vehikel == 1 && front()->get_besch()->is_bidirectional());
 
