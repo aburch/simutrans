@@ -50,4 +50,9 @@ function compat_120_1()
 			return false
 		}
 	}
+	// gui.add_message got extra parameter (r7890)
+	gui.add_message_new <- gui.add_message
+	gui.add_message <- function(text) {
+		gui.add_message_new( player_x(-1) /*will be set to active player*/, text)
+	}
 }

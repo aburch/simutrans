@@ -11,6 +11,7 @@
  * - Added new classes command_x, vehicle_desc_x
  * - Added tool_ids::tool_set_climate, tool_ids::tool_change_water_height
  * - Added string::toalnum (converts strings to strings that can be used as table keys)
+ * - Changed gui::add_message to take additional player_x parameter
  *
  * @section api-120-1-2 Release 120.1.2
  *

@@ -6,6 +6,7 @@
 #include "../api_function.h"
 
 #include "../../simmesg.h"
+#include "../../simmenu.h"
 #include "../../simworld.h"
 #include "../../dataobj/scenario.h"
 #include "../../player/simplay.h"
@@ -20,6 +21,16 @@ void_t add_scenario_message_at(const char* text, koord pos)
 		msg->add_message(text, pos, message_t::scenario, PLAYER_FLAG|welt->get_active_player()->get_player_nr());
 	}
 	return void_t();
+}
+
+
+call_tool_init add_scenario_message(player_t* player, const char* text)
+{
+	// build param string (see tool_add_message_t::init)
+	cbuffer_t buf;
+	buf.printf("%d,%s", message_t::scenario, text);
+
+	return call_tool_init(TOOL_ADD_MESSAGE | SIMPLE_TOOL, (const char*)buf, 0, player ? player : welt->get_active_player());
 }
 
 
@@ -55,11 +66,10 @@ void export_gui(HSQUIRRELVM vm, bool scenario)
 		* Will be shown in ticker or as pop-up window depending on players preferences.
 		*
 		* @param text Text to be shown. Has to be a translated string or a translatable string.
-		* @warning Message only shown on server, but stored in savegame.
 		* @note Only available in scenario mode.
 		* @ingroup scen_only
 		*/
-		STATIC register_method_fv(vm, &add_scenario_message_at, "add_message", freevariable<koord>(koord::invalid) );
+		STATIC register_method(vm, &add_scenario_message, "add_message");
 	}
 
 	end_class(vm);
