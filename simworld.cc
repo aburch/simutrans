@@ -4126,6 +4126,7 @@ void karte_t::step()
 		last_clients = socket_list_t::get_playing_clients();
 		// add message via tool
 		cbuffer_t buf;
+		buf.printf("%d,", message_t::general | message_t::local_flag);
 		buf.printf(translator::translate("Now %u clients connected.", settings.get_name_language_id()), last_clients);
 		tool_t *tmp_tool = create_tool( TOOL_ADD_MESSAGE | SIMPLE_TOOL );
 		tmp_tool->set_default_param( buf );

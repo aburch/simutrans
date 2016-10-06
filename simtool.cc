@@ -7379,11 +7379,16 @@ bool tool_rename_t::init(player_t *player)
 /*
  * Add a message to the message queue
  */
-bool tool_add_message_t::init(player_t*)
+bool tool_add_message_t::init(player_t *player)
 {
 	if (  *default_param  ) {
-		// Local message, not stored by server
-		welt->get_message()->add_message( default_param, koord::invalid, message_t::general | message_t::local_flag, COL_BLACK, IMG_LEER );
+		uint32 type = atoi(default_param);
+		const char* text = strchr(default_param, ',');
+		if ((type & ~message_t::local_flag) >= message_t::MAX_MESSAGE_TYPE  ||  text == NULL) {
+			return false;
+		}
+		welt->get_message()->add_message( text+1, koord::invalid, type,
+							    type & message_t::local_flag ? COL_BLACK : PLAYER_FLAG|player->get_player_nr(), IMG_LEER );
 	}
 	return false;
 }
