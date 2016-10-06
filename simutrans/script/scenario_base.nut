@@ -15,6 +15,7 @@ scenario.short_description <- "This is a random scripted scenario"
 scenario.author <- ""
 scenario.version <- ""
 scenario.translation <- ""
+scenario.api <- "112.3"
 
 // table to hold routines for gui access
 gui <- {}
