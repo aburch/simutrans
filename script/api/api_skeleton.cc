@@ -167,6 +167,7 @@ register_function("get_debug_text");
 /**
  * Returns string containing the version of the api
  * that the scenario supports.
+ * By default returns the string @ref scenario.api.
  *
  * If it returns "*" then this indicates that the scenario works in the most current api version.
  * Currently "112.3" and "120.1" are supported.

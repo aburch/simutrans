@@ -46,6 +46,7 @@ void export_gui(HSQUIRRELVM vm, bool scenario)
 		* @param position Position of the view on the map. Clicking on the message will center viewport at this position.
 		* @warning Message only shown on server, but stored in savegame.
 		* @note Only available in scenario mode.
+		* @ingroup scen_only
 		*/
 		STATIC register_method(vm, &add_scenario_message_at, "add_message_at");
 
@@ -56,6 +57,7 @@ void export_gui(HSQUIRRELVM vm, bool scenario)
 		* @param text Text to be shown. Has to be a translated string or a translatable string.
 		* @warning Message only shown on server, but stored in savegame.
 		* @note Only available in scenario mode.
+		* @ingroup scen_only
 		*/
 		STATIC register_method_fv(vm, &add_scenario_message_at, "add_message", freevariable<koord>(koord::invalid) );
 	}

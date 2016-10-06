@@ -495,7 +495,7 @@ void export_map_objects(HSQUIRRELVM vm)
 	 * @param pos  position
 	 * @param pl   owner
 	 * @param text text
-	 * @returns label_x instance or null if creation failed
+	 * @ingroup game_cmd
 	 */
 	STATIC register_method(vm, &create_marker, "create", false, true);
 	/**
