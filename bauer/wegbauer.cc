@@ -176,7 +176,7 @@ const weg_besch_t* wegbauer_t::weg_search(const waytype_t wtyp, const sint32 spe
 			(test->get_styp()==system_type  ||  system_type==weg_t::type_all))  ||  (test->get_wtyp()==track_wt  &&  test->get_styp()==weg_t::type_tram  &&  wtyp==tram_wt))
 			&&  test->get_cursor()->get_bild_nr(1)!=IMG_LEER  ) 
 		{
-				bool test_allowed = (time == 0 || (test->get_intro_year_month() <= time && time < test->get_retire_year_month())) && !test->is_mothballed();
+			bool test_allowed = (time == 0 || (test->get_intro_year_month() <= time && time < test->get_retire_year_month())) && !test->is_mothballed();
 				if(!best_allowed || test_allowed) 
 				{
 					if(  best==NULL  ||
@@ -197,7 +197,7 @@ const weg_besch_t* wegbauer_t::weg_search(const waytype_t wtyp, const sint32 spe
 // Finds a way with a given speed *and* weight limit
 // for a given way type.
 // @author: jamespetts (slightly adapted from the standard version with just speed limit)
-const weg_besch_t* wegbauer_t::weg_search(const waytype_t wtyp, const sint32 speed_limit, const uint32 weight_limit, const uint16 time, const weg_t::system_type system_type, const uint32 wear_capacity_limit)
+const weg_besch_t* wegbauer_t::weg_search(const waytype_t wtyp, const sint32 speed_limit, const uint32 weight_limit, const uint16 time, const weg_t::system_type system_type, const uint32 wear_capacity_limit, way_constraints_of_vehicle_t way_constraints)
 {
 	const weg_besch_t* best = NULL;
 	bool best_allowed = false; // Does the best way fulfill the timeline?
@@ -212,7 +212,8 @@ const weg_besch_t* wegbauer_t::weg_search(const waytype_t wtyp, const sint32 spe
 				 wtyp == tram_wt))
 			     && test->get_cursor()->get_bild_nr(1) != IMG_LEER) 
 		{
-			bool test_allowed = time == 0 || (test->get_intro_year_month() <= time && time < test->get_retire_year_month());
+			const missing_way_constraints_t missing_constraints(way_constraints, test->get_way_constraints());
+			bool test_allowed = (time == 0 || (test->get_intro_year_month() <= time && time < test->get_retire_year_month())) && missing_constraints.get_count() == 0;
 
 			const sint32 test_topspeed = test->get_topspeed();
 			const uint32 test_max_axle_load = test->get_max_axle_load();

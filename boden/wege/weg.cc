@@ -1044,7 +1044,10 @@ bool weg_t::renew()
 		bool is_current = !time || (replacement_way->get_intro_year_month() <= time && time < replacement_way->get_retire_year_month());
 		if(!is_current)
 		{
-			replacement_way = wegbauer_t::weg_search(replacement_way->get_waytype(), replacement_way->get_topspeed(), (const sint32)replacement_way->get_axle_load(), time, (weg_t::system_type)replacement_way->get_styp(), replacement_way->get_wear_capacity());
+			way_constraints_of_vehicle_t constraints;
+			constraints.set_permissive(besch->get_way_constraints().get_permissive());
+			constraints.set_prohibitive(besch->get_way_constraints().get_prohibitive());
+			replacement_way = wegbauer_t::weg_search(replacement_way->get_waytype(), replacement_way->get_topspeed(), (const sint32)replacement_way->get_axle_load(), time, (weg_t::system_type)replacement_way->get_styp(), replacement_way->get_wear_capacity(), constraints);
 		}
 		
 		if(!replacement_way)
