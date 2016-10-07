@@ -129,7 +129,7 @@ BEGIN {
 	export_types["good_desc_x::calc_revenue"] = "integer(way_types, integer)"
 	export_types["::open_info_win"] = "bool()"
 	export_types["gui::add_message_at"] = "void(string, coord)"
-	export_types["gui::add_message"] = "void(string)"
+	export_types["gui::add_message"] = "string(player_x, string)"
 	export_types["halt_x::get_name"] = "string()"
 	export_types["halt_x::set_name"] = "string(string)"
 	export_types["halt_x::get_owner"] = "player_x()"

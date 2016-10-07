@@ -6466,7 +6466,13 @@ static bool scenario_check_schedule(karte_t *welt, player_t *player, schedule_t 
 	const char* err = welt->get_scenario()->is_schedule_allowed(player, schedule);
 	if (err) {
 		if (*err  &&  local) {
-			create_win( new news_img(err), w_time_delete, magic_none);
+			koord pos = message_t::get_coord_from_text(err);
+			if (pos != koord::invalid) {
+				create_win( new news_loc(err, pos), w_time_delete, magic_none);
+			}
+			else {
+				create_win( new news_img(err), w_time_delete, magic_none);
+			}
 		}
 		return false;
 	}
