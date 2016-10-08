@@ -6248,7 +6248,7 @@ const char* karte_t::call_work(tool_t *tool, player_t *player, koord3d pos, bool
 		// do the work
 		tool->flags |= tool_t::WFL_LOCAL;
 		// check allowance by scenario
-		if (get_scenario()->is_scripted()) {
+		if ( (tool->flags & tool_t::WFL_NO_CHK) == 0  &&  get_scenario()->is_scripted()) {
 			if (!get_scenario()->is_tool_allowed(player, tool->get_id(), tool->get_waytype()) ) {
 				err = "";
 			}
