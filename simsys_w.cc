@@ -571,7 +571,7 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 				RECT *r = (LPRECT)lParam;
 				x_scale = (LOWORD(wParam)*32)/96;
 				y_scale = (HIWORD(wParam)*32)/96;
-				SetWindowPos( Hwnd, NULL, r->left, r->top, r->right-r->left, r->bottom-r->top, SWP_NOZORDER );
+				SetWindowPos( hwnd, NULL, r->left, r->top, r->right-r->left, r->bottom-r->top, SWP_NOZORDER );
 			}
 			break;
 #endif
