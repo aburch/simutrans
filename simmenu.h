@@ -307,6 +307,12 @@ public:
 	virtual const char *move( player_t *, uint16 /* buttonstate */, koord3d ) { return ""; }
 
 	/**
+	 * Should be overloaded if derived class implements move,
+	 * move will only be called, if this function returns true.
+	 */
+	virtual bool move_has_effects() const { return false;}
+
+	/**
 	 * Returns whether the 2d koordinate passed it's a valid position for this tool to highlight a tile,
 	 * just takes into account is_grid_tool. It does not check if work is allowed there, that's check_pos() work.
 	 * @see check_pos
@@ -352,6 +358,7 @@ public:
 
 	char const* work(player_t*, koord3d) OVERRIDE;
 	char const* move(player_t*, uint16 /* buttonstate */, koord3d) OVERRIDE;
+	bool move_has_effects() const OVERRIDE { return true; }
 
 	bool is_work_here_network_save(player_t *, koord3d) OVERRIDE;
 

@@ -80,7 +80,10 @@ void interaction_t::move_cursor( const event_t &ev )
 
 		zeiger->change_pos(pos);
 
-		if(  !env_t::networkmode  ||  tool->is_move_network_save(world->get_active_player())) {
+		if (!tool->move_has_effects()) {
+			is_dragging = false;
+		}
+		else if(  !env_t::networkmode  ||  tool->is_move_network_save(world->get_active_player())) {
 			tool->flags = event_get_last_control_shift() | tool_t::WFL_LOCAL;
 			if(tool->check_pos( world->get_active_player(), zeiger->get_pos() )==NULL) {
 				if(  ev.button_state == 0  ) {

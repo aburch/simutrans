@@ -79,6 +79,7 @@ public:
 	 * it sends work commands over network itself
 	 */
 	char const* move(player_t*, uint16 /* buttonstate */, koord3d) OVERRIDE;
+	bool move_has_effects() const OVERRIDE { return true; }
 
 	bool is_init_network_save() const OVERRIDE { return true; }
 	/**
@@ -230,6 +231,7 @@ public:
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate( "Plant tree" ); }
 	bool init(player_t*) { return baum_t::get_anzahl_besch() > 0; }
 	char const* move(player_t* const player, uint16 const b, koord3d const k) OVERRIDE;
+	bool move_has_effects() const OVERRIDE { return true; }
 	char const* work(player_t*, koord3d) OVERRIDE;
 	bool is_init_network_save() const OVERRIDE { return true; }
 };
@@ -389,6 +391,7 @@ public:
 	bool init(player_t*) OVERRIDE;
 	char const* check_pos(player_t*, koord3d) OVERRIDE;
 	char const* move(player_t*, uint16 /* buttonstate */, koord3d) OVERRIDE;
+	bool move_has_effects() const OVERRIDE { return true; }
 	char const* work(player_t*, koord3d) OVERRIDE;
 	bool is_init_network_save() const OVERRIDE { return true; }
 	waytype_t get_waytype() const OVERRIDE;
@@ -590,6 +593,7 @@ public:
 	bool exit(player_t *s ) { return init(s); }
 	char const* get_tooltip(player_t const*) const OVERRIDE;
 	char const* move(player_t*, uint16 /* buttonstate */, koord3d) OVERRIDE;
+	bool move_has_effects() const OVERRIDE { return true; }
 	char const* work(player_t*, koord3d) OVERRIDE;
 	bool is_init_network_save() const OVERRIDE { return true; }
 };
