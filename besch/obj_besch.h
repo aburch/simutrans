@@ -11,13 +11,12 @@
 #include "../simtypes.h"
 
 /*
- *  Autor:
+ *  Author:
  *      Volker Meyer
  *
- *  Beschreibung:
- *      Basis aller besch_t-Klassen, d.h. Beschreibungen, die aus den .pak
- *	Files geladen werden.
- *	Keine virtuellen Methoden erlaubt !
+ *  Description:
+ *      Basis of all besch_t classes, which are loaded from the .pak files.
+ *	No virtual methods are allowed!
  */
 class obj_besch_t {
 public:
@@ -30,9 +29,19 @@ public:
 		return ::operator new(size);
 	}
 
-	void* operator new(size_t size, unsigned extra)
+	void* operator new(size_t size, size_t extra)
 	{
 		return ::operator new(size + extra);
+	}
+
+	/*
+	* Only support basic delete operator.
+	* Prevents C++14 and newer compilers from implicitly adding a sized delete operator.
+	* The sized delete operator conflicts with the definiton of the placement new operator.
+	*/
+	void operator delete(void* ptr)
+	{
+		return ::operator delete(ptr);
 	}
 
 protected:
