@@ -206,6 +206,7 @@ void gui_scrolled_list_t::set_size(scr_size size)
 {
 	gui_component_t::set_size(size);
 	adjust_scrollbar();
+	offset = sb.get_knob_offset();
 }
 
 
@@ -223,30 +224,41 @@ bool gui_scrolled_list_t::infowin_event(const event_t *ev)
 	const int x = ev->mx;
 	const int y = ev->my;
 
+	const int boarder_w = border / 2;
+
 	// size without scrollbar
 	const int w = size.w - D_SCROLLBAR_WIDTH+2;
 	const int h = size.h;
 	if(x <= w) { // inside list
 		bool notify = true;
-		if(  x>=(border/2) && x<(w-border/2) &&  y>=(border/2) && y<(h-border/2)) {
-			int new_selection_h = (y-(border/2)-2+offset);
+		if(  x>=boarder_w && x<(w-boarder_w) &&  y>=boarder_w && y<(h-boarder_w)  ) {
+			// translate y to list space
+			const int list_y = y - boarder_w + offset;
+
 			int new_selection = -1;
-			if(  new_selection_h >= 0  ) {
-				int h = 0;
-				while(  new_selection+1 < (int)item_list.get_count()  &&  h < new_selection_h  ) {
-					new_selection ++;
-					h += item_list[new_selection]->get_h();
+
+			if(  list_y >= 0  ) {
+				// locate the item which was pressed by searching down the list
+				const int list_count = (int)item_list.get_count();
+				int selection_h = 0;
+				int i = 0;
+				for(  ; i < list_count ; i++  ) {
+					selection_h += item_list[i]->get_h();
+					if(  selection_h > list_y  ) {
+						break;
+					}
 				}
-				if(  h < new_selection  ||  new_selection < 0  ) {
-					// below end of list => no selection
-					new_selection = -1;
-				}
-				else {
+
+				// if an item was pressed then select and trigger it
+				if(  i < list_count  ) {
+					new_selection = i;
 					event_t new_ev = *ev;
-					translate_event( &new_ev, 0, -(h-offset-item_list[new_selection]->get_h()) );
+					translate_event( &new_ev, -boarder_w, offset + item_list[new_selection]->get_h() - selection_h - boarder_w);
 					notify = !item_list[new_selection]->infowin_event( &new_ev );
 				}
 			}
+
+			// update selection on release
 			if(  IS_LEFTRELEASE(ev)  ) {
 				selection = new_selection;
 				if(  notify  ) {
