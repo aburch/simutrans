@@ -108,8 +108,8 @@ static SDL_Cursor *hourglass;
 static SDL_Cursor *blank;
 
 
-int x_scale = 36;
-int y_scale = 36;
+int x_scale = 32;
+int y_scale = 32;
 
 
 // no autoscaling yet

@@ -7,6 +7,7 @@
 	FIX: smoke tile when rotated factory views
 	ADD: length of max tiles checker after choose sign/signal configurable (max_choose_route_steps)
 	CHG: Update to squirrel 3.1
+	CHG: monthly fixed costs for vehicles now uint32 (needs makeobj 55.4)
 
 
 Release of 120.1.3: (r7753 on 2-Feb-2016):
