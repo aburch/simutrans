@@ -6,9 +6,12 @@
 	ADD: ground name=shore with Image[slope][0,1=snow, if there] for display at shoreline
 	FIX: smoke tile when rotated factory views
 	ADD: length of max tiles checker after choose sign/signal configurable (max_choose_route_steps)
-	CHG: Update to squirrel 3.1
+	CHG: update to squirrel 3.1
 	CHG: monthly fixed costs for vehicles now uint32 (needs makeobj 55.4)
-
+	ADD: basic nearest pixel DPI awareness to prevent UI from being too small on high density displays
+	FIX: no longer assert when a duplicate tiles exists in convoy path list, instead it gets logged (please report log if it occurs)
+	FIX: corrected hitbox and resize logic of scrolled list GUI element, which prevents crashes caused by invalid selection
+	CHG: building cities, headquarters and artificial slopes now require sufficient funds
 
 Release of 120.1.3: (r7753 on 2-Feb-2016):
 	FIX: road vehicles search for new route when arriving at intersection and old route is invalid
