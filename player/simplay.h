@@ -197,7 +197,14 @@ public:
 
 	bool has_money_or_assets() const;
 
-	finance_t * get_finance() { return finance; }
+	/**
+	* Test if the player has sufficient funds for an action.
+	* Returns true if the player has the funds or does not need to.
+	* @param cost the amount of funds that want to be added to the balance
+	*/
+	bool can_afford(sint64 cost) const;
+
+	finance_t * get_finance() const { return finance; }
 
 	virtual bool set_active( bool b ) { return active = b; }
 

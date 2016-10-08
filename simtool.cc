@@ -104,6 +104,10 @@
 		return "Out of funds";\
 	}\
 
+ /**
+  * Message returned when a player cannot afford to complete an action.
+  */
+const char *const NOTICE_INSUFFICIENT_FUNDS = "Insufficient funds!";
 
 /****************************************** static helper functions **************************************/
 
@@ -1007,7 +1011,7 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 					return ""; // invalid parameter
 			}
 		}
-	}
+	}	
 
 	bool ok = false;
 
@@ -1230,10 +1234,11 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 		ok |= slope_changed;
 
 		if(ok) {
+			// check if clear
 			if(  gr1->kann_alle_obj_entfernen(player)  ) {
-				// not empty ...
 				return "Tile not empty.";
 			}
+
 			// check way ownership
 			if(gr1->hat_wege()) {
 				if(gr1->get_weg_nr(0)->is_deletable(player)!=NULL) {
@@ -1242,6 +1247,13 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 				if(gr1->has_two_ways()  &&  gr1->get_weg_nr(1)->is_deletable(player)!=NULL) {
 					return "Tile not empty.";
 				}
+			}
+
+			// check funds
+			settings_t const& s = welt->get_settings();
+			sint64 const cost = new_slope == RESTORE_SLOPE ? s.cst_alter_land : s.cst_set_slope;
+			if(  !player->can_afford(cost)  ) {
+				return NOTICE_INSUFFICIENT_FUNDS;
 			}
 
 			// ok, it was a success
@@ -1330,8 +1342,7 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 
 				welt->calc_climate( k, true );
 			}
-			settings_t const& s = welt->get_settings();
-			player_t::book_construction_costs(player, new_slope == RESTORE_SLOPE ? s.cst_alter_land : s.cst_set_slope, k, ignore_wt);
+			player_t::book_construction_costs(player, cost, k, ignore_wt);
 		}
 		// update limits
 		if(  welt->min_height > gr1->get_hoehe()  ) {
@@ -1555,7 +1566,11 @@ const char *tool_transformer_t::work( player_t *player, koord3d pos )
  */
 const char *tool_add_city_t::work( player_t *player, koord3d pos )
 {
-	CHECK_FUNDS();
+	// check funds
+	const sint64 cost = welt->get_settings().cst_found_city;
+	if(  !player->can_afford(cost)  ) {
+		return NOTICE_INSUFFICIENT_FUNDS;
+	}
 
 	koord k(pos.get_2d());
 
@@ -1591,7 +1606,7 @@ const char *tool_add_city_t::work( player_t *player, koord3d pos )
 				stadt->finish_rd();
 				stadt->verbinde_fabriken();
 
-				player_t::book_construction_costs(player, welt->get_settings().cst_found_city, k, ignore_wt);
+				player_t::book_construction_costs(player, cost, k, ignore_wt);
 				reliefkarte_t::get_karte()->calc_map();
 				return NULL;
 			}
@@ -5569,15 +5584,14 @@ DBG_MESSAGE("tool_headquarter()", "building headquarters at (%d,%d)", pos.x, pos
 		return "";
 	}
 
+	// check funds
 	koord size = besch->get_groesse();
 	sint64 const cost = -besch->get_price(welt) * size.x * size.y;
-	if(  -cost > player->get_finance()->get_account_balance()  ) {
-		return "Not enough money!";
+	if(  !player->can_afford(cost)  ) {
+		return NOTICE_INSUFFICIENT_FUNDS;
 	}
 
-
 	koord k(pos.get_2d());
-
 	grund_t *gr = welt->lookup_kartenboden(k);
 
 	if(gr) {

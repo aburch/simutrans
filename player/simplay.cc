@@ -933,3 +933,10 @@ bool player_t::has_money_or_assets() const
 {
 	return finance->has_money_or_assets();
 }
+
+bool player_t::can_afford(sint64 cost) const
+{
+	return welt->get_settings().is_freeplay() ||
+		get_player_nr() == 1 ||
+		get_finance()->get_netwealth() >= -cost;
+}
