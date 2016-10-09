@@ -144,6 +144,11 @@ void ai_scripted_t::rdwr(loadsave_t *file)
 	file->rdwr_str(ai_name);
 
 	if (file->is_loading()) {
+		// ai saved, but no script was assigned
+		if (ai_name == NULL  ||  *ai_name == 0) {
+			script = NULL;
+			return;
+		}
 		// load persistent data
 		plainstring str;
 		file->rdwr_str(str);
@@ -191,10 +196,12 @@ void ai_scripted_t::rdwr(loadsave_t *file)
 		}
 	}
 	else {
-		plainstring str;
-		script->call_function(script_vm_t::FORCEX, "save", str);
-		dbg->warning("ai_scripted_t::rdwr", "write persistent ai data: %s", str.c_str());
-		file->rdwr_str(str);
+		if (script) {
+			plainstring str;
+			script->call_function(script_vm_t::FORCEX, "save", str);
+			dbg->warning("ai_scripted_t::rdwr", "write persistent ai data: %s", str.c_str());
+			file->rdwr_str(str);
+		}
 	}
 }
 
