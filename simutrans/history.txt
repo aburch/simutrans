@@ -12,6 +12,7 @@
 	FIX: no longer assert when a duplicate tiles exists in convoy path list, instead it gets logged (please report log if it occurs)
 	FIX: corrected hitbox and resize logic of scrolled list GUI element, which prevents crashes caused by invalid selection
 	CHG: building cities, headquarters and artificial slopes now require sufficient funds
+	CHG: plant trees now requires sufficient funs and is no longer possible when no_trees is set
 
 Release of 120.1.3: (r7753 on 2-Feb-2016):
 	FIX: road vehicles search for new route when arriving at intersection and old route is invalid

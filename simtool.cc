@@ -104,10 +104,15 @@
 		return "Out of funds";\
 	}\
 
- /**
-  * Message returned when a player cannot afford to complete an action.
-  */
-const char *const NOTICE_INSUFFICIENT_FUNDS = "Insufficient funds!";
+/**
+ * Message returned when a player cannot afford to complete an action.
+ */
+char const *const NOTICE_INSUFFICIENT_FUNDS = "Insufficient funds!";
+
+/**
+ * Message returned when a player tries to place trees when trees are disabled.
+ */
+char const *const NOTICE_NO_TREES = "Trees disabled!";
 
 /****************************************** static helper functions **************************************/
 
@@ -2046,6 +2051,17 @@ const char *tool_plant_tree_t::work( player_t *player, koord3d pos )
 
 	grund_t *gr = welt->lookup_kartenboden(k);
 	if(gr) {
+		// check if trees are allowed
+		if(  welt->get_settings().get_no_trees()  ) {
+			return NOTICE_NO_TREES;
+		}
+
+		// check funds
+		sint64 const cost = welt->get_settings().cst_remove_tree;
+		if(  !player->can_afford(cost)  ) {
+			return NOTICE_INSUFFICIENT_FUNDS;
+		}
+
 		const baum_besch_t *besch = NULL;
 		bool check_climates = true;
 		bool random_age = false;
@@ -2059,7 +2075,7 @@ const char *tool_plant_tree_t::work( player_t *player, koord3d pos )
 			besch = baum_t::find_tree(default_param+3);
 		}
 		if(besch  &&  baum_t::plant_tree_on_coordinate( k, besch, check_climates, random_age )  ) {
-			player_t::book_construction_costs(player, welt->get_settings().cst_remove_tree, k, ignore_wt);
+			player_t::book_construction_costs(player, cost, k, ignore_wt);
 			return NULL;
 		}
 		return "";
