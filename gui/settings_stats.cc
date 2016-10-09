@@ -441,6 +441,7 @@ void settings_costs_stats_t::init(settings_t const* const sets)
 	INIT_COST( "cost_multiply_remove_field", -sets->cst_multiply_remove_field, 1, 100000000, 10, false );
 	INIT_COST( "cost_transformer", -sets->cst_transformer, 1, 100000000, 10, false );
 	INIT_COST( "cost_maintain_transformer", -sets->cst_maintain_transformer, 1, 100000000, 10, false );
+	INIT_NUM("cost_make_public_months", sets->cst_make_public_months, 0, 36000, gui_numberinput_t::AUTOLINEAR, false );
 
 	height = ypos;
 	set_size( settings_stats_t::get_size() );
@@ -473,6 +474,7 @@ void settings_costs_stats_t::read(settings_t* const sets)
 	READ_COST_VALUE( sets->cst_multiply_remove_field )*(-1);
 	READ_COST_VALUE( sets->cst_transformer )*(-1);
 	READ_COST_VALUE( sets->cst_maintain_transformer )*(-1);
+	READ_NUM_VALUE(sets->cst_make_public_months);
 
 	clear_dirty();
 	set_size( settings_stats_t::get_size() );

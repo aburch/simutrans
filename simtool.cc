@@ -6069,8 +6069,7 @@ bool tool_make_stop_public_t::init( player_t * )
 
 const char* tool_make_stop_public_t::get_tooltip(const player_t *) const
 {
-	sint32 const cost = (welt->get_settings().maint_building * 60);
-	sprintf(toolstr, translator::translate("make stop public (or join with public stop next) costs %i per tile and level"), cost);
+	sprintf(toolstr, translator::translate("Make way or stop public (will join with neighbours), %i times maintainance"), welt->get_settings().cst_make_public_months);
 	return toolstr;
 }
 
@@ -6123,20 +6122,23 @@ const char *tool_make_stop_public_t::move( player_t *player, uint16, koord3d p )
 
 const char *tool_make_stop_public_t::work( player_t *player, koord3d p )
 {
-	const grund_t *gr = welt->lookup(p);
-	if(  !gr  ||  !gr->get_halt().is_bound()  ||  gr->get_halt()->get_owner()==welt->get_player(1)  ) {
+	// months maintainance cost to make public
+	sint64 const COST_MONTHS_MAINTAINANCE = welt->scale_with_month_length(welt->get_settings().cst_make_public_months);
+	player_t *const psplayer = welt->get_player(1);
+	grund_t const *gr = welt->lookup(p);
+	if(  !gr  ||  !gr->get_halt().is_bound()  ||  gr->get_halt()->get_owner()==psplayer  ) {
 		weg_t *w = NULL;
 		//convert a way here, if there is no halt or already public halt
-		{
-			if(  gr->get_typ()==grund_t::brueckenboden  ||  gr->get_grund_hang()!=hang_t::flach  ) {
-				// not making ways public on bridges or slopes
+		{			
+			if(  gr->get_typ()==grund_t::brueckenboden  ) {
+				// not making ways public on bridges
 				return "No suitable ground!";
 			}
 			w = gr->get_weg_nr(0);
 			// no need for action if already player(1) => XOR ...
-			if(  !(w  &&  (  (w->get_owner()==player)  ^  (player==welt->get_player(1))  ))  ) {
+			if(  !(w  &&  (  (w->get_owner()==player)  ^  (player==psplayer)  ))  ) {
 				w = gr->get_weg_nr(1);
-				if(  !(w  &&  (  (w->get_owner()==player)  ^  (player==welt->get_player(1))  ))  ) {
+				if(  !(w  &&  (  (w->get_owner()==player)  ^  (player==psplayer)  ))  ) {
 					w = NULL;
 				}
 			}
@@ -6145,33 +6147,55 @@ const char *tool_make_stop_public_t::work( player_t *player, koord3d p )
 				if(  w->has_sign()  ) {
 					return "No suitable ground!";
 				}
-				// change maintenance and ownership
-				sint32 costs = w->get_besch()->get_wartung();
-				if(  gr->ist_im_tunnel()  ) {
-					tunnel_t *t = gr->find<tunnel_t>();
+
+				// compute maintainance cost
+				sint64 costs = w->get_besch()->get_wartung();
+				tunnel_t *t = NULL;
+				// tunnel cost overwrites way cost
+				if(  gr->ist_tunnel()  ) {
+					t = gr->find<tunnel_t>();
 					costs = t->get_besch()->get_wartung();
-					t->set_owner( welt->get_player(1) );
 				}
-				player_t::add_maintenance( w->get_owner(), -costs, w->get_besch()->get_finance_waytype() );
-				player_t::book_construction_costs(   w->get_owner(), -costs*60, gr->get_pos().get_2d(), w->get_besch()->get_finance_waytype());
-				player_t::book_construction_costs( welt->get_player(1), costs*60, koord::invalid, w->get_besch()->get_finance_waytype());
-				w->set_owner( welt->get_player(1) );
-				w->set_flag(obj_t::dirty);
-				player_t::add_maintenance( welt->get_player(1), costs, w->get_besch()->get_finance_waytype() );
-				// now search for wayobjects
+				// add cost of way objects
 				for(  uint8 i=1;  i<gr->get_top();  i++  ) {
-					if(  wayobj_t *wo = obj_cast<wayobj_t>(gr->obj_bei(i))  ) {
-						costs = wo->get_besch()->get_wartung();
-						player_t::add_maintenance( wo->get_owner(), -costs, w->get_besch()->get_finance_waytype() );
-						player_t::book_construction_costs(wo->get_owner(), -costs*60, gr->get_pos().get_2d(), w->get_waytype());
-						wo->set_owner( welt->get_player(1) );
-						wo->set_flag(obj_t::dirty);
-						player_t::add_maintenance( welt->get_player(1), costs, w->get_besch()->get_finance_waytype() );
-						player_t::book_construction_costs( welt->get_player(1), costs*60, koord::invalid, w->get_waytype());
+					wayobj_t *wo = obj_cast<wayobj_t>(gr->obj_bei(i));
+					if(  wo  &&  wo->get_owner() == player  ) {
+						costs+= wo->get_besch()->get_wartung();
 					}
 				}
-				// and add message
-				if(  player->get_player_nr()!=1  &&  env_t::networkmode  ) {
+
+				// check funds
+				sint64 const workcost = -welt->scale_with_month_length(costs * welt->get_settings().cst_make_public_months);
+				if(  !player->can_afford(workcost)  ) {
+					return NOTICE_INSUFFICIENT_FUNDS;
+				}
+
+				// change ownership of way...
+				w->set_owner(psplayer);
+				w->set_flag(obj_t::dirty);
+				// of tunnel...
+				if(  t  ) {
+					t->set_owner(psplayer);
+					t->set_flag(obj_t::dirty);
+				}
+				// of way objects
+				for(  uint8 i=1;  i<gr->get_top();  i++  ) {
+					wayobj_t *wo = obj_cast<wayobj_t>(gr->obj_bei(i));
+					if(  wo  &&  wo->get_owner() == player  ) {
+						wo->set_owner( psplayer );
+						wo->set_flag(obj_t::dirty);
+					}
+				}
+
+				// book financials
+				waytype_t const financetype = w->get_besch()->get_finance_waytype();
+				player_t::add_maintenance(player, -costs, financetype);
+				player_t::add_maintenance(psplayer, costs, financetype);
+				player_t::book_construction_costs(player, workcost, gr->get_pos().get_2d(), financetype);
+				player_t::book_construction_costs(psplayer, -workcost, koord::invalid, financetype);
+				
+				// multiplayer notification message
+				if(  player != psplayer  &&  env_t::networkmode  ) {
 					cbuffer_t buf;
 					buf.printf( translator::translate("(%s) now public way."), w->get_pos().get_str() );
 					welt->get_message()->add_message( buf, w->get_pos().get_2d(), message_t::ai, PLAYER_FLAG|player->get_player_nr(), IMG_LEER );
@@ -6184,7 +6208,7 @@ const char *tool_make_stop_public_t::work( player_t *player, koord3d p )
 	}
 	else {
 		halthandle_t halt = gr->get_halt();
-		if(  !(player_t::check_owner(halt->get_owner(),player)  ||  halt->get_owner()==welt->get_player(1))  ) {
+		if(  !(player_t::check_owner(halt->get_owner(),player)  ||  halt->get_owner()==psplayer)  ) {
 			return "Das Feld gehoert\neinem anderen Spieler\n";
 		}
 		else {

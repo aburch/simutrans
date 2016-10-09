@@ -430,6 +430,9 @@ toll_waycost_percentage = 0
 #cost_transformer=2500
 #cost_maintain_transformer=20
 
+# how many months of maintainance the make public tool costs
+#cst_make_public_months=60
+
 ###################################other stuff##################################
 #
 # also pak dependent
@@ -515,6 +518,7 @@ no_tree_climates = 130
 
 # if set, no trees will be created at all (save about 30% memory and
 # the season change will be much smoother on small machines)
+# also prevents construction of trees
 no_trees = 0
 
 # if set, no lakes will be created at all

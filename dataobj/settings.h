@@ -301,6 +301,9 @@ public:
 	sint64 cst_transformer;
 	sint64 cst_maintain_transformer;
 
+	// maintainance cost in months to make something public
+	sint64 cst_make_public_months;
+
 	// costs for the way searcher
 	sint32 way_count_straight;
 	sint32 way_count_curve;
