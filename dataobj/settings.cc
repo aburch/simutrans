@@ -1649,6 +1649,7 @@ void settings_t::rdwr(loadsave_t *file)
 			// Calibrate old saved games with reference to their original passenger factor.
 			passenger_trips_per_month_hundredths = (passenger_trips_per_month_hundredths * 16) / old_passenger_factor;
 			mail_packets_per_month_hundredths = (mail_packets_per_month_hundredths * 16) / old_passenger_factor;
+			way_degridation_fraction = 7;
 		}
 	}
 
