@@ -6157,14 +6157,15 @@ const char *tool_make_stop_public_t::work( player_t *player, koord3d p )
 					costs = t->get_besch()->get_wartung();
 				}
 				// add cost of way objects
+				player_t *const wowner = w->get_owner();
 				for(  uint8 i=1;  i<gr->get_top();  i++  ) {
 					wayobj_t *wo = obj_cast<wayobj_t>(gr->obj_bei(i));
-					if(  wo  &&  wo->get_owner() == player  ) {
+					if(  wo  &&  wo->get_owner() == wowner  ) {
 						costs+= wo->get_besch()->get_wartung();
 					}
 				}
 
-				// check funds
+				// check funds, public service always has funds
 				sint64 const workcost = -welt->scale_with_month_length(costs * welt->get_settings().cst_make_public_months);
 				if(  !player->can_afford(workcost)  ) {
 					return NOTICE_INSUFFICIENT_FUNDS;
@@ -6181,7 +6182,7 @@ const char *tool_make_stop_public_t::work( player_t *player, koord3d p )
 				// of way objects
 				for(  uint8 i=1;  i<gr->get_top();  i++  ) {
 					wayobj_t *wo = obj_cast<wayobj_t>(gr->obj_bei(i));
-					if(  wo  &&  wo->get_owner() == player  ) {
+					if(  wo  &&  wo->get_owner() == wowner  ) {
 						wo->set_owner( psplayer );
 						wo->set_flag(obj_t::dirty);
 					}
@@ -6189,11 +6190,14 @@ const char *tool_make_stop_public_t::work( player_t *player, koord3d p )
 
 				// book financials
 				waytype_t const financetype = w->get_besch()->get_finance_waytype();
-				player_t::add_maintenance(player, -costs, financetype);
+				player_t::add_maintenance(wowner, -costs, financetype);
 				player_t::add_maintenance(psplayer, costs, financetype);
-				player_t::book_construction_costs(player, workcost, gr->get_pos().get_2d(), financetype);
-				player_t::book_construction_costs(psplayer, -workcost, koord::invalid, financetype);
-				
+				// cost is transfered to public service player
+				if(  player != psplayer  ) {
+					player_t::book_construction_costs(player, workcost, gr->get_pos().get_2d(), financetype);
+					player_t::book_construction_costs(psplayer, -workcost, koord::invalid, financetype);
+				}
+
 				// multiplayer notification message
 				if(  player != psplayer  &&  env_t::networkmode  ) {
 					cbuffer_t buf;
