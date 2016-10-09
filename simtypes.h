@@ -163,15 +163,19 @@ template<typename T> static inline int sgn(T x)
 		return 0;
 }
 
+#ifndef min
 static inline int min(const int a, const int b)
 {
 	return a < b ? a : b;
 }
+#endif
 
+#ifndef max
 static inline int max(const int a, const int b)
 {
 	return a > b ? a : b;
 }
+#endif
 
 // @author: jamespetts, April 2011
 template<class T> static T set_scale_generic(T value, uint16 scale_factor) { return (value * (T)scale_factor) / (T)1000; }
