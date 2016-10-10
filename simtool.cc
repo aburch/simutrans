@@ -6123,7 +6123,6 @@ const char *tool_make_stop_public_t::move( player_t *player, uint16, koord3d p )
 const char *tool_make_stop_public_t::work( player_t *player, koord3d p )
 {
 	// months maintainance cost to make public
-	sint64 const COST_MONTHS_MAINTAINANCE = welt->scale_with_month_length(welt->get_settings().cst_make_public_months);
 	player_t *const psplayer = welt->get_player(1);
 	grund_t const *gr = welt->lookup(p);
 	if(  !gr  ||  !gr->get_halt().is_bound()  ||  gr->get_halt()->get_owner()==psplayer  ) {
@@ -6215,6 +6214,12 @@ const char *tool_make_stop_public_t::work( player_t *player, koord3d p )
 		if(  !(player_t::check_owner(halt->get_owner(),player)  ||  halt->get_owner()==psplayer)  ) {
 			return "Das Feld gehoert\neinem anderen Spieler\n";
 		}
+
+		sint64 const workcost = -welt->scale_with_month_length(halt->calc_maintenance() * welt->get_settings().cst_make_public_months);
+		if(  !player->can_afford(workcost)  ) {
+			return NOTICE_INSUFFICIENT_FUNDS;
+		}
+
 		else {
 			halt->make_public_and_join(player);
 		}

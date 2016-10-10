@@ -2258,58 +2258,67 @@ sint64 haltestelle_t::calc_maintenance() const
 // changes this to a public transfer exchange stop
 void haltestelle_t::make_public_and_join( player_t *player )
 {
-	player_t *public_owner=welt->get_player(1);
-	slist_tpl<halthandle_t> joining;
+	player_t *const public_owner = welt->get_player(1);
 
-	// only something to do if not yet owner ...
-	if(owner_p!=public_owner) {
-		// now recalculate maintenance
-		FOR(slist_tpl<tile_t>, const& i, tiles) {
-			grund_t* const gr = i.grund;
-			gebaeude_t* gb = gr->find<gebaeude_t>();
-			if(gb) {
-				player_t *gb_player=gb->get_owner();
-				sint64 const monthly_costs = welt->get_settings().maint_building * gb->get_tile()->get_besch()->get_level();
-				player_t::add_maintenance( gb_player, -monthly_costs, gb->get_waytype() );
-				gb->set_owner( public_owner );
-				gb->set_flag( obj_t::dirty );
-				player_t::add_maintenance(public_owner, monthly_costs, gb->get_waytype() );
-				// it is not real construction cost, it is fee paid for public authority for future maintenance. So money are transferred to public authority
-				player_t::book_construction_costs( player,          -monthly_costs*60, get_basis_pos(), gb->get_waytype());
-				player_t::book_construction_costs( public_owner, monthly_costs*60, koord::invalid, gb->get_waytype());
+	// check if already public
+	if(  owner_p == public_owner  ) {
+		return;
+	}
+
+	// process every tile of stop
+	slist_tpl<halthandle_t> joining;
+	FOR(slist_tpl<tile_t>, const& i, tiles) {
+		grund_t* const gr = i.grund;
+		gebaeude_t* gb = gr->find<gebaeude_t>();
+		if(  gb  ) {
+			// change ownership
+			gb->set_owner(public_owner);
+			gb->set_flag(obj_t::dirty);
+			player_t *gb_player=gb->get_owner();
+			sint64 const monthly_costs = welt->get_settings().maint_building * gb->get_tile()->get_besch()->get_level();
+			waytype_t const costs_type = gb->get_waytype();
+			player_t::add_maintenance(gb_player, -monthly_costs, costs_type);
+			player_t::add_maintenance(public_owner, monthly_costs, costs_type);
+
+			// cost is computed and transfered to public player
+			if(  player != public_owner  ) {
+				sint64 const cost = -welt->scale_with_month_length(monthly_costs * welt->get_settings().cst_make_public_months);
+				player_t::book_construction_costs(player, cost, get_basis_pos(), costs_type);
+				player_t::book_construction_costs(public_owner, -cost, koord::invalid, costs_type);
 			}
-			// ok, valid start, now we can join them
-			// First search the same square
-			const planquadrat_t *pl = welt->access(gr->get_pos().get_2d());
-			for(  uint8 i=0;  i < pl->get_boden_count();  i++  ) {
-				halthandle_t my_halt = pl->get_boden_bei(i)->get_halt();
-				if(  my_halt.is_bound()  &&  my_halt->get_owner()==public_owner  &&  !joining.is_contained(my_halt)  ) {
-					joining.append(my_halt);
-				}
+		}
+
+		// search for stops to join, starting with this tile
+		const planquadrat_t *pl = welt->access(gr->get_pos().get_2d());
+		for(  uint8 i=0;  i < pl->get_boden_count();  i++  ) {
+			halthandle_t my_halt = pl->get_boden_bei(i)->get_halt();
+			if(  my_halt.is_bound()  &&  my_halt->get_owner()==public_owner  &&  !joining.is_contained(my_halt)  ) {
+				joining.append(my_halt);
 			}
-			// Now neighboring squares
-			for( uint8 i=0;  i<8;  i++  ) {
-				const planquadrat_t *pl2 = welt->access(gr->get_pos().get_2d()+koord::neighbours[i]);
-				if(  pl2  ) {
-					for(  uint8 i=0;  i < pl2->get_boden_count();  i++  ) {
-						halthandle_t my_halt = pl2->get_boden_bei(i)->get_halt();
-						if(  my_halt.is_bound()  &&  my_halt->get_owner()==public_owner  &&  !joining.is_contained(my_halt)  ) {
-							joining.append(my_halt);
-						}
+		}
+		// search neighbouring tiles
+		for( uint8 i=0;  i<8;  i++  ) {
+			const planquadrat_t *pl2 = welt->access(gr->get_pos().get_2d()+koord::neighbours[i]);
+			if(  pl2  ) {
+				for(  uint8 i=0;  i < pl2->get_boden_count();  i++  ) {
+					halthandle_t my_halt = pl2->get_boden_bei(i)->get_halt();
+					if(  my_halt.is_bound()  &&  my_halt->get_owner()==public_owner  &&  !joining.is_contained(my_halt)  ) {
+						joining.append(my_halt);
 					}
 				}
 			}
 		}
-		// transfer ownership
-		owner_p = public_owner;
 	}
+
+	// transfer ownership
+	owner_p = public_owner;
 
 	// set name to name of first public stop
 	if(  !joining.empty()  ) {
 		set_name( joining.front()->get_name());
 	}
 
-	while(!joining.empty()) {
+	while(  !joining.empty()  ) {
 		// join this halt with me
 		halthandle_t halt = joining.remove_first();
 
@@ -2326,20 +2335,7 @@ void haltestelle_t::make_public_and_join( player_t *player )
 			// we always take the first remaining tile and transfer it => more safe
 			koord3d t = halt->get_basis_pos3d();
 			grund_t *gr = welt->lookup(t);
-			gebaeude_t* gb = gr->find<gebaeude_t>();
-			if(gb) {
-				// there are also water tiles, which may not have a building
-				player_t *gb_player=gb->get_owner();
-				if(public_owner!=gb_player) {
-					sint64 const monthly_costs = welt->get_settings().maint_building * gb->get_tile()->get_besch()->get_level();
-					player_t::add_maintenance( gb_player, -monthly_costs, gb->get_waytype() );
-					player_t::book_construction_costs(gb_player, monthly_costs*60, gr->get_pos().get_2d(), gb->get_waytype());
-					player_t::book_construction_costs(public_owner, -monthly_costs*60, koord::invalid, gb->get_waytype());
-					gb->set_owner(public_owner);
-					gb->set_flag(obj_t::dirty);
-					player_t::add_maintenance(public_owner, monthly_costs, gb->get_waytype() );
-				}
-			}
+
 			// transfer tiles to us
 			halt->rem_grund(gr);
 			add_grund(gr);
@@ -2359,7 +2355,7 @@ void haltestelle_t::make_public_and_join( player_t *player )
 	}
 
 	// tell the world of it ...
-	if(  player->get_player_nr()!=1  &&  env_t::networkmode  ) {
+	if(  player != public_owner  &&  env_t::networkmode  ) {
 		cbuffer_t buf;
 		buf.printf( translator::translate("%s at (%i,%i) now public stop."), get_name(), get_basis_pos().x, get_basis_pos().y );
 		welt->get_message()->add_message( buf, get_basis_pos(), message_t::ai, PLAYER_FLAG|player->get_player_nr(), IMG_LEER );
