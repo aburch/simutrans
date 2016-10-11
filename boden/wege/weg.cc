@@ -1040,6 +1040,7 @@ bool weg_t::renew()
 	if(welt->get_city(get_pos().get_2d()) || (player && (player->can_afford(price) || player->is_public_service())))
 	{
 		// Unowned ways in cities are assumed to be owned by the city and will be renewed by it.
+		waytype_t wt = replacement_way->get_waytype();
 		const uint16 time = welt->get_timeline_year_month();
 		bool is_current = !time || (replacement_way->get_intro_year_month() <= time && time < replacement_way->get_retire_year_month());
 		if(!is_current)
@@ -1047,7 +1048,7 @@ bool weg_t::renew()
 			way_constraints_of_vehicle_t constraints;
 			constraints.set_permissive(besch->get_way_constraints().get_permissive());
 			constraints.set_prohibitive(besch->get_way_constraints().get_prohibitive());
-			replacement_way = wegbauer_t::weg_search(replacement_way->get_waytype(), replacement_way->get_topspeed(), (const sint32)replacement_way->get_axle_load(), time, (weg_t::system_type)replacement_way->get_styp(), replacement_way->get_wear_capacity(), constraints);
+			replacement_way = wegbauer_t::weg_search(wt, replacement_way->get_topspeed(), (const sint32)replacement_way->get_axle_load(), time, (weg_t::system_type)replacement_way->get_styp(), replacement_way->get_wear_capacity(), constraints);
 		}
 		
 		if(!replacement_way)
@@ -1060,7 +1061,7 @@ bool weg_t::renew()
 		success = true;
 		if(player)
 		{
-			player->book_way_renewal(price, replacement_way->get_waytype());
+			player->book_way_renewal(price, wt);
 		}
 	}
 	else if(player && !player->get_has_been_warned_about_no_money_for_renewals())
