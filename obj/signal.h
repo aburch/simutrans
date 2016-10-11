@@ -11,6 +11,8 @@
 #include "roadsign.h"
 
 #include "../simobj.h"
+#include "../gui/gui_frame.h"
+#include "../gui/components/gui_button.h"
 
 
 /**
@@ -24,6 +26,7 @@ class signal_t : public roadsign_t
 {
 private:
 	koord3d signalbox;
+	button_t	find_signalbox;
 
 	bool no_junctions_to_next_signal;
 
@@ -45,6 +48,8 @@ public:
 	* @author Hj. Malthaner
 	*/
 	virtual void info(cbuffer_t & buf, bool dummy = false) const;
+
+	bool action_triggered(gui_action_creator_t * comp, value_t);
 
 #ifdef INLINE_OBJ_TYPE
 #else
