@@ -36,8 +36,16 @@ char curiosity_edit_frame_t::param_str[256];
 
 
 static bool compare_haus_besch(const haus_besch_t* a, const haus_besch_t* b)
+{ 
+	int diff = strcmp( a->get_name(), b->get_name() );
+	return diff < 0;
+}
+
+
+
+static bool compare_haus_besch_trans(const haus_besch_t* a, const haus_besch_t* b)
 {
-	int diff = strcmp(a->get_name(), b->get_name());
+	int diff = strcmp( translator::translate(a->get_name()), translator::translate(b->get_name()) );
 	return diff < 0;
 }
 
@@ -109,7 +117,7 @@ void curiosity_edit_frame_t::fill_list( bool translate )
 		FOR(vector_tpl<haus_besch_t const*>, const besch, *hausbauer_t::get_list(haus_besch_t::attraction_city)) {
 			if(!use_timeline  ||  (!besch->is_future(month_now)  &&  (!besch->is_retired(month_now)  ||  allow_obsolete))  ) {
 				// timeline allows for this
-				hauslist.insert_ordered(besch,compare_haus_besch);
+				hauslist.insert_ordered( besch, translate?compare_haus_besch_trans:compare_haus_besch );
 			}
 		}
 	}
@@ -118,7 +126,7 @@ void curiosity_edit_frame_t::fill_list( bool translate )
 		FOR(vector_tpl<haus_besch_t const*>, const besch, *hausbauer_t::get_list(haus_besch_t::attraction_land)) {
 			if(!use_timeline  ||  (!besch->is_future(month_now)  &&  (!besch->is_retired(month_now)  ||  allow_obsolete))  ) {
 				// timeline allows for this
-				hauslist.insert_ordered(besch,compare_haus_besch);
+				hauslist.insert_ordered( besch, translate?compare_haus_besch_trans:compare_haus_besch );
 			}
 		}
 	}
@@ -127,7 +135,7 @@ void curiosity_edit_frame_t::fill_list( bool translate )
 		FOR(vector_tpl<haus_besch_t const*>, const besch, *hausbauer_t::get_list(haus_besch_t::denkmal)) {
 			if(!use_timeline  ||  (!besch->is_future(month_now)  &&  (!besch->is_retired(month_now)  ||  allow_obsolete))  ) {
 				// timeline allows for this
-				hauslist.insert_ordered(besch,compare_haus_besch);
+				hauslist.insert_ordered( besch, translate?compare_haus_besch_trans:compare_haus_besch );
 			}
 		}
 	}

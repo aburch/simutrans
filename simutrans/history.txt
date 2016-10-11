@@ -1,4 +1,5 @@
-	ADD: scriptable AI players
+	FIX: sorting accoring to displayed name in house/cur/industry building lists
+	ADD: scriptable AI players (folder AI which contains sqai now with distribution)
 	ADD: (jk271) switch to load hieghtmaps with more height levels
 	FIX: reload themes after restart
 	FIX: demo.sve were never loaded, since the auto-load assumed existence even if there was none

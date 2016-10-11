@@ -355,9 +355,7 @@ int dr_textur_resize(unsigned short** const textur, int w, int const h)
 			DBG_MESSAGE("dr_textur_resize(SDL)", "SDL realized screen size width=%d, height=%d (requested w=%d, h=%d)", screen->w, screen->h, w, h );
 		}
 		else {
-			if(  dbg  ) {
-				dbg->warning("dr_textur_resize(SDL)", "screen is NULL. Good luck!");
-			}
+			dbg->warning("dr_textur_resize(SDL)", "screen is NULL. Good luck!");
 		}
 		fflush( NULL );
 	}

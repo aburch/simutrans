@@ -49,6 +49,20 @@ static bool compare_haus_besch(const haus_besch_t* a, const haus_besch_t* b)
 
 
 
+static bool compare_haus_besch_trans(const haus_besch_t* a, const haus_besch_t* b)
+{
+	int diff = strcmp( translator::translate(a->get_name()), translator::translate(b->get_name()) );
+	if(  diff==0  ) {
+		diff = a->get_level()-b->get_level();
+	}
+	if(  diff==0  ) {
+		diff = a->get_typ()-b->get_typ();
+	}
+	return diff < 0;
+}
+
+
+
 citybuilding_edit_frame_t::citybuilding_edit_frame_t(player_t* player_) :
 	extend_edit_gui_t(translator::translate("citybuilding builder"), player_),
 	hauslist(16),
@@ -115,7 +129,7 @@ void citybuilding_edit_frame_t::fill_list( bool translate )
 		FOR(vector_tpl<haus_besch_t const*>, const besch, *hausbauer_t::get_citybuilding_list(gebaeude_t::wohnung)) {
 			if(!use_timeline  ||  (!besch->is_future(month_now)  &&  (!besch->is_retired(month_now)  ||  allow_obsolete))  ) {
 				// timeline allows for this
-				hauslist.insert_ordered(besch, compare_haus_besch);
+				hauslist.insert_ordered(besch, translate?compare_haus_besch_trans:compare_haus_besch );
 			}
 		}
 	}
@@ -124,7 +138,7 @@ void citybuilding_edit_frame_t::fill_list( bool translate )
 		FOR(vector_tpl<haus_besch_t const*>, const besch, *hausbauer_t::get_citybuilding_list(gebaeude_t::gewerbe)) {
 			if(!use_timeline  ||  (!besch->is_future(month_now)  &&  (!besch->is_retired(month_now)  ||  allow_obsolete))  ) {
 				// timeline allows for this
-				hauslist.insert_ordered(besch, compare_haus_besch);
+				hauslist.insert_ordered(besch, translate?compare_haus_besch_trans:compare_haus_besch );
 			}
 		}
 	}
@@ -133,7 +147,7 @@ void citybuilding_edit_frame_t::fill_list( bool translate )
 		FOR(vector_tpl<haus_besch_t const*>, const besch, *hausbauer_t::get_citybuilding_list(gebaeude_t::industrie)) {
 			if(!use_timeline  ||  (!besch->is_future(month_now)  &&  (!besch->is_retired(month_now)  ||  allow_obsolete))  ) {
 				// timeline allows for this
-				hauslist.insert_ordered(besch, compare_haus_besch);
+				hauslist.insert_ordered(besch, translate?compare_haus_besch_trans:compare_haus_besch );
 			}
 		}
 	}
