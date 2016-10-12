@@ -7,6 +7,7 @@
 
 #include <stdio.h>
 
+#include "../gui/simwin.h"
 #include "../simdebug.h"
 #include "../simworld.h"
 #include "../simobj.h"
@@ -22,6 +23,8 @@
 #include "../simsignalbox.h"
 #include "../besch/haus_besch.h"
 #include "../simhalt.h"
+
+#include "../gui/signal_info.h"
 
 #include "signal.h"
 
@@ -116,6 +119,12 @@ signal_t::~signal_t()
  * Observation window is displayed." (Google)
  * @author Hj. Malthaner
  */
+
+void signal_t::show_info()
+{
+	create_win(new signal_info_t(this), w_info, (ptrdiff_t)this);
+}
+
 void signal_t::info(cbuffer_t & buf, bool dummy) const
 {
 	// well, needs to be done

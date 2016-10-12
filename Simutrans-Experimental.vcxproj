@@ -1375,6 +1375,7 @@
     <ClCompile Include="gui\privatesign_info.cc" />
     <ClCompile Include="gui\scenario_info.cc" />
     <ClCompile Include="gui\server_frame.cc" />
+    <ClCompile Include="gui\signal_info.cc" />
     <ClCompile Include="gui\simwin.cc" />
     <ClCompile Include="gui\themeselector.cc" />
     <ClCompile Include="network\checksum.cc" />
@@ -1788,6 +1789,7 @@
     <ClInclude Include="gui\privatesign_info.h" />
     <ClInclude Include="gui\scenario_info.h" />
     <ClInclude Include="gui\server_frame.h" />
+    <ClInclude Include="gui\signal_info.h" />
     <ClInclude Include="gui\simwin.h" />
     <ClInclude Include="gui\themeselector.h" />
     <ClInclude Include="network\checksum.h" />
