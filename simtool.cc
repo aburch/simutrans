@@ -104,6 +104,15 @@
 		return "Out of funds";\
 	}\
 
+/****************************************** notification strings **************************************/
+
+/**
+ * Translated notification text identifiers used by tools are placed here.
+ * This is because they are not simple well structured internal identifiers.
+ * Instead they can be complex sentences intended to be read untranslated.
+ * Using these constants assues a valid and correct text identifier is choosen.
+ */
+
 /**
  * Message returned when a player cannot afford to complete an action.
  */
@@ -113,6 +122,21 @@ char const *const NOTICE_INSUFFICIENT_FUNDS = "Insufficient funds!";
  * Message returned when a player tries to place trees when trees are disabled.
  */
 char const *const NOTICE_NO_TREES = "Trees disabled!";
+
+/**
+ * Message returned when valid terrain cannot be found for a tool to use.
+ */
+char const *const NOTICE_UNSUITABLE_GROUND = "No suitable ground!";
+
+/**
+ * Message returned when a depot cannot be placed.
+ */
+char const *const NOTICE_DEPOT_BAD_POS = "Cannot built depot here!";
+
+/**
+ * Message returned when a tool fails due to the target tile being occupied.
+ */
+char const *const NOTICE_TILE_FULL = "Tile not empty.";
 
 /****************************************** static helper functions **************************************/
 
@@ -892,7 +916,7 @@ const char *tool_raise_t::work(player_t* player, koord3d pos )
 				player_t::book_construction_costs(player, welt->get_settings().cst_alter_land * n, k, ignore_wt);
 			}
 			return err == NULL ? (n ? NULL : "")
-			                   : (*err == 0 ? "Tile not empty." : err);
+			                   : (*err == 0 ? NOTICE_TILE_FULL : err);
 		}
 		else {
 			// no mountains higher than welt->get_maximumheight() ...
@@ -956,7 +980,7 @@ const char *tool_lower_t::work( player_t *player, koord3d pos )
 				player_t::book_construction_costs(player, welt->get_settings().cst_alter_land * n, k, ignore_wt);
 			}
 			return err == NULL ? (n ? NULL : "")
-			                   : (*err == 0 ? "Tile not empty." : err);
+			                   : (*err == 0 ? NOTICE_TILE_FULL : err);
 		}
 		else {
 			// below water level
@@ -1034,13 +1058,13 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 		}
 
 		if(  new_slope==RESTORE_SLOPE  &&  !(gr1->get_typ()==grund_t::boden  ||  gr1->get_typ()==grund_t::wasser)  ) {
-			return "No suitable ground!";
+			return NOTICE_UNSUITABLE_GROUND;
 		}
 
 		// finally: empty enough
 		if(  gr1->get_grund_hang()!=gr1->get_weg_hang()  ||  gr1->get_halt().is_bound()  ||  gr1->kann_alle_obj_entfernen(player)  ||
 				   gr1->find<gebaeude_t>()  ||  gr1->get_depot()  ||  (gr1->get_leitung() && gr1->hat_wege())  ||  gr1->get_weg(air_wt)  ||  gr1->find<label_t>()  ||  gr1->get_typ()==grund_t::brueckenboden) {
-			return "Tile not empty.";
+			return NOTICE_TILE_FULL;
 		}
 
 		if(  !welt->is_within_limits(k+koord(1,1))  ||  !welt->is_within_limits(k+koord(-1,-1))) {
@@ -1065,7 +1089,7 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 
 			if(  new_slope==RESTORE_SLOPE  ||  !ribi_t::ist_einfach(ribis)  ||  (new_slope<hang_t::erhoben  &&  ribi_t::rueckwaerts(ribi_typ(new_slope))!=ribis)  ) {
 				// has the wrong tilt
-				return "Tile not empty.";
+				return NOTICE_TILE_FULL;
 			}
 			/* new things getting tricky:
 			 * A single way on an all up or down slope will result in
@@ -1080,14 +1104,14 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 					if(  (gr1->get_weg_nr(0)  &&  !gr1->get_weg_nr(0)->get_besch()->has_double_slopes())
 					  ||  (gr1->get_weg_nr(1)  &&  !gr1->get_weg_nr(1)->get_besch()->has_double_slopes())
 					  ||  (gr1->get_leitung()  &&  !gr1->get_leitung()->get_besch()->has_double_slopes())  ) {
-						return "Tile not empty.";
+						return NOTICE_TILE_FULL;
 					}
 					new_slope = hang_typ(ribis) * 2;
 				}
 				else if(  gr1->get_weg_hang() == hang_typ( ribi_t::rueckwaerts(ribis) ) * 2  ) {
 					new_pos.z++;
 					if(  welt->lookup(new_pos)  ) {
-						return "Tile not empty.";
+						return NOTICE_TILE_FULL;
 					}
 					new_slope = hang_typ( ribi_t::rueckwaerts(ribis) );
 				}
@@ -1099,12 +1123,12 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 				if(  gr1->get_grund_hang()==hang_typ(ribis)  ) {
 					// do not lower tiles to sea
 					if(  pos.z == water_hgt  &&  !gr1->ist_tunnel()  ) {
-						return "Tile not empty.";
+						return NOTICE_TILE_FULL;
 					}
 				}
 				else if(  gr1->get_grund_hang() == hang_typ(ribis) * 2  ) {
 					if(  pos.z == water_hgt  &&  !gr1->ist_tunnel()  ) {
-						return "Tile not empty.";
+						return NOTICE_TILE_FULL;
 					}
 					new_slope = hang_typ(ribis);
 				}
@@ -1112,7 +1136,7 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 					new_slope = hang_typ( ribi_t::rueckwaerts(ribis) );
 					new_pos.z--;
 					if(  welt->lookup(new_pos)  ) {
-						return "Tile not empty.";
+						return NOTICE_TILE_FULL;
 					}
 				}
 				else if(  gr1->get_grund_hang() == hang_typ( ribi_t::rueckwaerts(ribis) )  ) {
@@ -1120,12 +1144,12 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 					if(  (gr1->get_weg_nr(0)  &&  !gr1->get_weg_nr(0)->get_besch()->has_double_slopes())
 					  ||  (gr1->get_weg_nr(1)  &&  !gr1->get_weg_nr(1)->get_besch()->has_double_slopes())
 					  ||  (gr1->get_leitung()  &&  !gr1->get_leitung()->get_besch()->has_double_slopes())  ) {
-						return "Tile not empty.";
+						return NOTICE_TILE_FULL;
 					}
 					new_slope = hang_typ( ribi_t::rueckwaerts(ribis) ) * 2;
 					new_pos.z--;
 					if(  welt->lookup(new_pos)  ) {
-						return "Tile not empty.";
+						return NOTICE_TILE_FULL;
 					}
 				}
 				else {
@@ -1171,7 +1195,7 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 
 			if(  water_table>new_pos.z  ||  (water_table == new_pos.z  &&  min_neighbour_height < new_pos.z)  ) {
 				// do not lower tiles when it will be below water level
-				return "Tile not empty.";
+				return NOTICE_TILE_FULL;
 			}
 			welt->set_water_hgt( k, water_table );
 			water_hgt = water_table;
@@ -1183,7 +1207,7 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 
 		// already some ground here (tunnel, bridge, monorail?)
 		if(  new_pos.z != pos.z  &&  welt->lookup(new_pos) != NULL  ) {
-			return "Tile not empty.";
+			return NOTICE_TILE_FULL;
 		}
 		// check for grounds above / below
 		if(  new_pos.z >= pos.z  ) {
@@ -1196,7 +1220,7 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 			}
 			// slope may alter amount of clearance required
 			if(  gr2  &&  gr2->get_pos().z - new_pos.z + hang_t::min_diff( gr2->get_weg_hang(), new_slope ) < welt->get_settings().get_way_height_clearance()  ) {
-				return "Tile not empty.";
+				return NOTICE_TILE_FULL;
 			}
 		}
 		if(  new_pos.z <= pos.z  ) {
@@ -1209,7 +1233,7 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 			}
 			// slope may alter amount of clearance required
 			if(  gr2  &&  new_pos.z - gr2->get_pos().z + hang_t::min_diff( new_slope, gr2->get_weg_hang() ) < welt->get_settings().get_way_height_clearance()  ) {
-				return "Tile not empty.";
+				return NOTICE_TILE_FULL;
 			}
 		}
 
@@ -1241,16 +1265,16 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 		if(ok) {
 			// check if clear
 			if(  gr1->kann_alle_obj_entfernen(player)  ) {
-				return "Tile not empty.";
+				return NOTICE_TILE_FULL;
 			}
 
 			// check way ownership
 			if(gr1->hat_wege()) {
 				if(gr1->get_weg_nr(0)->is_deletable(player)!=NULL) {
-					return "Tile not empty.";
+					return NOTICE_TILE_FULL;
 				}
 				if(gr1->has_two_ways()  &&  gr1->get_weg_nr(1)->is_deletable(player)!=NULL) {
-					return "Tile not empty.";
+					return NOTICE_TILE_FULL;
 				}
 			}
 
@@ -1271,7 +1295,7 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 			else if(  gr1->ist_wasser()  &&  (new_pos.z > water_hgt  ||  new_slope != 0)  ) {
 				// build underwater hill first
 				if(  !welt->ebne_planquadrat( player, k, water_hgt, false, true )  ) {
-					return "Tile not empty.";
+					return NOTICE_TILE_FULL;
 				}
 				gr1->obj_loesche_alle(player);
 				welt->access(k)->kartenboden_setzen( new boden_t(new_pos,new_slope) );
@@ -1517,11 +1541,11 @@ const char *tool_transformer_t::work( player_t *player, koord3d pos )
 		}
 
 		if(welt->lookup(pos)) {
-			return "Tile not empty.";
+			return NOTICE_TILE_FULL;
 		}
 
 		if(  welt->get_settings().get_way_height_clearance()==2  &&  welt->lookup(pos + koord3d( 0, 0, 1 ))  ) {
-			return "Tile not empty.";
+			return NOTICE_TILE_FULL;
 		}
 
 		const tunnel_besch_t *tunnel_besch = tunnelbauer_t::find_tunnel(powerline_wt, 0, 0);
@@ -1589,7 +1613,7 @@ const char *tool_add_city_t::work( player_t *player, koord3d pos )
 			gebaeude_t const* const gb = obj_cast<gebaeude_t>(gr->first_obj());
 			if(gb && gb->ist_rathaus()) {
 				dbg->warning("tool_add_city()", "Already a city here");
-				return "Tile not empty.";
+				return NOTICE_TILE_FULL;
 			}
 			else {
 
@@ -1604,7 +1628,7 @@ const char *tool_add_city_t::work( player_t *player, koord3d pos )
 				stadt_t* stadt = new stadt_t(welt->get_player(1), k, citizens / 10);
 				if (stadt->get_buildings() == 0) {
 					delete stadt;
-					return "No suitable ground!";
+					return NOTICE_UNSUITABLE_GROUND;
 				}
 
 				welt->add_stadt(stadt);
@@ -1617,7 +1641,7 @@ const char *tool_add_city_t::work( player_t *player, koord3d pos )
 			}
 		}
 		else {
-			return "No suitable ground!";
+			return NOTICE_UNSUITABLE_GROUND;
 		}
 	}
 	return "";
@@ -2052,7 +2076,7 @@ const char *tool_plant_tree_t::work( player_t *player, koord3d pos )
 	grund_t *gr = welt->lookup_kartenboden(k);
 	if(gr) {
 		// check if trees are allowed
-		if(  welt->get_settings().get_no_trees()  ) {
+		if(  welt->get_settings().get_no_trees()  &&  player->get_player_nr() != 1  ) {
 			return NOTICE_NO_TREES;
 		}
 
@@ -2813,7 +2837,7 @@ uint8 tool_build_tunnel_t::is_valid_pos(  player_t *player, const koord3d &pos, 
 			// use the check_owner routine of wegbauer_t (not spieler_t!), needs an instance
 			weg_t *w = gr->get_weg_nr(0);
 			if(  w==NULL  ||  w->get_besch()->get_wtyp()!=besch->get_waytype()  ) {
-				error = "No suitable ground!";
+				error = NOTICE_UNSUITABLE_GROUND;
 				return 0;
 			}
 			wegbauer_t bauigel(player);
@@ -2824,7 +2848,7 @@ uint8 tool_build_tunnel_t::is_valid_pos(  player_t *player, const koord3d &pos, 
 		}
 	}
 	else {
-		error = "No suitable ground!";
+		error = NOTICE_UNSUITABLE_GROUND;
 		return 0;
 	}
 	// if starting tile is tunnel .. build underground tracks
@@ -2984,7 +3008,7 @@ uint8 tool_wayremover_t::is_valid_pos( player_t *player, const koord3d &pos, con
 	}
 	// do not remove ground from depot
 	if(gr->get_depot()) {
-		error = "No suitable ground!";
+		error = NOTICE_UNSUITABLE_GROUND;
 		return 0;
 	}
 	if(is_scenario()) {
@@ -3421,7 +3445,7 @@ DBG_MESSAGE("tool_station_building_aux()", "building mail office/station buildin
 
 	koord offsets;
 	halthandle_t halt;
-	const char *msg = "Tile not empty.";
+	const char *msg = NOTICE_TILE_FULL;
 
 	if(  rotation==-1  ) {
 		//no predefined rotation
@@ -3578,7 +3602,7 @@ DBG_MESSAGE("tool_station_building_aux()", "building mail office/station buildin
 		offsets = koord(0,0);
 
 		if(  !welt->square_is_free(k, testsize.x, testsize.y, NULL, besch->get_allowed_climate_bits())  ) {
-			return "Tile not empty.";
+			return NOTICE_TILE_FULL;
 		}
 		// check over/under halt
 		for(  sint16 x=0;  x<testsize.x;  x++  ) {
@@ -3675,7 +3699,7 @@ const char *tool_build_station_t::tool_station_dock_aux(player_t *player, koord3
 			// check whether we can build something
 			const grund_t *gr=welt->lookup_kartenboden(k-dx*i);
 			if (gr->get_hoehe() != pos.z) {
-				return "No suitable ground!";
+				return NOTICE_UNSUITABLE_GROUND;
 				break;
 			}
 			if (const char *msg = gr->kann_alle_obj_entfernen(player)) {
@@ -3685,13 +3709,13 @@ const char *tool_build_station_t::tool_station_dock_aux(player_t *player, koord3
 			if (i==0) {
 				// start tile on slope near water
 				if(gr->hat_wege()  ||  gr->get_typ()!=grund_t::boden  ||  gr->is_halt()) {
-					return "Tile not empty.";
+					return NOTICE_TILE_FULL;
 				}
 			}
 			else {
 				// all other tiles in water
 				if (!gr->ist_wasser()  ||  gr->find<gebaeude_t>()  ||  gr->get_depot()  ||  gr->is_halt()) {
-					return "Tile not empty.";
+					return NOTICE_TILE_FULL;
 				}
 			}
 		}
@@ -3827,7 +3851,7 @@ const char *tool_build_station_t::tool_station_flat_dock_aux(player_t *player, k
 
 	// check, if we can build here ...
 	if(  !gr->ist_natur()  ||  gr->get_grund_hang() != hang_t::flach  ) {
-		return "No suitable ground!";
+		return NOTICE_UNSUITABLE_GROUND;
 	}
 
 	// now find the direction
@@ -3845,7 +3869,7 @@ const char *tool_build_station_t::tool_station_flat_dock_aux(player_t *player, k
 
 	// not surrounded by water => fail
 	if(  total_dir == 0  ) {
-		return "No suitable ground!";
+		return NOTICE_UNSUITABLE_GROUND;
 	}
 
 	// prefer layouts that reach an existing halt
@@ -3871,7 +3895,7 @@ const char *tool_build_station_t::tool_station_flat_dock_aux(player_t *player, k
 			}
 
 			if (gr->get_hoehe() != pos.z) {
-				return "No suitable ground!";
+				return NOTICE_UNSUITABLE_GROUND;
 				break;
 			}
 
@@ -3892,7 +3916,7 @@ const char *tool_build_station_t::tool_station_flat_dock_aux(player_t *player, k
 			if (i>0) {
 				// all other tiles in water
 				if (!gr->ist_wasser()  ||  gr->find<gebaeude_t>()  ||  gr->get_depot()  ||  gr->is_halt()) {
-					last_error = "Tile not empty.";
+					last_error = NOTICE_TILE_FULL;
 				}
 			}
 		}
@@ -3940,7 +3964,7 @@ const char *tool_build_station_t::tool_station_flat_dock_aux(player_t *player, k
 			if (rotation != -1) {
 				// desired rotation not possible, try others
 				if(  --total_dir == 0  ) {
-					return "No suitable ground!";
+					return NOTICE_UNSUITABLE_GROUND;
 				}
 			}
 		}
@@ -4059,7 +4083,7 @@ DBG_MESSAGE("tool_station_aux()", "building %s on square %d,%d for waytype %x", 
 
 	if(  bd->get_depot()  ) {
 		// not on depots
-		return "No suitable ground!";
+		return NOTICE_UNSUITABLE_GROUND;
 	}
 
 	if(  bd->hat_weg(air_wt)  &&  bd->get_weg(air_wt)->get_besch()->get_styp()!=0  ) {
@@ -4989,12 +5013,12 @@ const char *tool_build_depot_t::tool_depot_aux(player_t *player, koord3d pos, co
 			bd = tool_intern_koord_to_weg_grund(player,welt,pos,wegtype);
 		}
 		if(!bd  ||  bd->has_two_ways()) {
-			return "Cannot built depot here!";
+			return NOTICE_DEPOT_BAD_POS;
 		}
 
 		// no depots on runways!
 		if(besch->get_extra()==air_wt  &&  bd->get_weg(air_wt)->get_besch()->get_styp()!=0) {
-			return "Cannot built depot here!";
+			return NOTICE_DEPOT_BAD_POS;
 		}
 
 		const char *p=bd->kann_alle_obj_entfernen(player);
@@ -5004,7 +5028,7 @@ const char *tool_build_depot_t::tool_depot_aux(player_t *player, koord3d pos, co
 
 		// avoid building over a stop
 		if(bd->is_halt()  ||  bd->get_depot()!=NULL) {
-			return "Cannot built depot here!";
+			return NOTICE_DEPOT_BAD_POS;
 		}
 
 		ribi_t::ribi ribi;
@@ -5033,7 +5057,7 @@ const char *tool_build_depot_t::tool_depot_aux(player_t *player, koord3d pos, co
 
 			return NULL;
 		}
-		return "Cannot built depot here!";
+		return NOTICE_DEPOT_BAD_POS;
 	}
 	return "";
 }
@@ -5240,7 +5264,7 @@ const char *tool_build_house_t::work( player_t *player, koord3d pos )
 			return NULL;
 		}
 	}
-	return "No suitable ground!";
+	return NOTICE_UNSUITABLE_GROUND;
 }
 
 
@@ -5342,7 +5366,7 @@ const char *tool_build_land_chain_t::work( player_t *player, koord3d pos )
 			return NULL;
 		}
 	}
-	return "No suitable ground!";
+	return NOTICE_UNSUITABLE_GROUND;
 }
 
 
@@ -5409,7 +5433,7 @@ const char *tool_city_chain_t::work( player_t *player, koord3d pos )
 		player_t::book_construction_costs(player, anzahl * welt->get_settings().cst_multiply_found_industry, pos.get_2d(), ignore_wt);
 		return NULL;
 	}
-	return "No suitable ground!";
+	return NOTICE_UNSUITABLE_GROUND;
 }
 
 
@@ -5503,7 +5527,7 @@ const char *tool_build_factory_t::work( player_t *player, koord3d pos )
 			return NULL;
 		}
 	}
-	return "No suitable ground!";
+	return NOTICE_UNSUITABLE_GROUND;
 }
 
 
@@ -5688,7 +5712,7 @@ DBG_MESSAGE("tool_headquarter()", "building headquarters at (%d,%d)", pos.x, pos
 				built = true;
 			}
 			else {
-				return "No suitable ground!";
+				return NOTICE_UNSUITABLE_GROUND;
 			}
 		}
 
@@ -5852,7 +5876,7 @@ uint8 tool_stop_mover_t::is_valid_pos(  player_t *player, const koord3d &pos, co
 	}
 	// check for halt on the tile
 	if(  h.is_bound()  &&  !(bd->is_halt()  ||  (h->get_station_type()&haltestelle_t::dock  &&  bd->ist_wasser())  )  ) {
-		error = "No suitable ground!";
+		error = NOTICE_UNSUITABLE_GROUND;
 		return 0;
 	}
 
@@ -5862,7 +5886,7 @@ uint8 tool_stop_mover_t::is_valid_pos(  player_t *player, const koord3d &pos, co
 			return 2;
 		}
 		else {
-			error = "No suitable ground!";
+			error = NOTICE_UNSUITABLE_GROUND;
 			return 0;
 		}
 	}
@@ -5880,7 +5904,7 @@ uint8 tool_stop_mover_t::is_valid_pos(  player_t *player, const koord3d &pos, co
 			return 2;
 		}
 		else {
-			error = "No suitable ground!";
+			error = NOTICE_UNSUITABLE_GROUND;
 			return 0;
 		}
 	}
@@ -6089,7 +6113,7 @@ const char *tool_make_stop_public_t::move( player_t *player, uint16, koord3d p )
 		else {
 			if(  gr->get_typ()==grund_t::brueckenboden  ||  gr->get_grund_hang()!=hang_t::flach  ) {
 				// not making ways public on bridges or slopes
-				return "No suitable ground!";
+				return NOTICE_UNSUITABLE_GROUND;
 			}
 			weg_t *w = gr->get_weg_nr(0);
 			// no need for action if already player(1) => XOR ...
@@ -6102,7 +6126,7 @@ const char *tool_make_stop_public_t::move( player_t *player, uint16, koord3d p )
 			if(  w  ) {
 				// no public way with signs
 				if(  w->has_sign()  ) {
-					return "No suitable ground!";
+					return NOTICE_UNSUITABLE_GROUND;
 				}
 				sint64 costs = w->get_besch()->get_wartung();
 				if(  gr->ist_im_tunnel()  ) {
@@ -6131,7 +6155,7 @@ const char *tool_make_stop_public_t::work( player_t *player, koord3d p )
 		{			
 			if(  gr->get_typ()==grund_t::brueckenboden  ) {
 				// not making ways public on bridges
-				return "No suitable ground!";
+				return NOTICE_UNSUITABLE_GROUND;
 			}
 			w = gr->get_weg_nr(0);
 			// no need for action if already player(1) => XOR ...
@@ -6144,7 +6168,7 @@ const char *tool_make_stop_public_t::work( player_t *player, koord3d p )
 			if(  w  ) {
 				// no public way with signs
 				if(  w->has_sign()  ) {
-					return "No suitable ground!";
+					return NOTICE_UNSUITABLE_GROUND;
 				}
 
 				// compute maintainance cost
