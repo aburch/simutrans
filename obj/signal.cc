@@ -371,10 +371,6 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 				buf.append(",");
 				buf.append(sb.z);
 				buf.append(">"); 
-
-				find_signalbox.init(button_t::roundbox, "", scr_coord(BUTTON2_X, 14), scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
-				find_signalbox.add_listener(this);
-				add_component(&find_signalbox);
 			}
 			else
 			{
@@ -386,14 +382,6 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 			buf.append(translator::translate("keine"));
 		}
 	}
-}
-
-bool signal_t::action_triggered(gui_action_creator_t *comp, value_t /* */)           // 28-Dec-01    Markus Weber    Added
-{
-	if (comp == &find_signalbox) {
-
-	}
-
 }
 
 
