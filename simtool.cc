@@ -5913,12 +5913,11 @@ const char* tool_signalbox_t::tool_signalbox_aux(player_t* player, koord3d pos, 
 
 image_id tool_signalbox_t::get_icon(player_t* player) const
 {
-	if(  player  &&  player->get_player_nr()!=1  ) {
-		const haus_besch_t *besch = hausbauer_t::find_tile(default_param,0)->get_besch();
-		const uint16 time = welt->get_timeline_year_month();
-		if( besch && besch->is_available(time) ) {
-			return besch->get_cursor()->get_bild_nr(1);
-		}
+	const haus_besch_t *besch = hausbauer_t::find_tile(default_param,0)->get_besch();
+	const uint16 time = welt->get_timeline_year_month();
+	if( besch && besch->is_available(time) )
+	{
+		return besch->get_cursor()->get_bild_nr(1);
 	}
 	return IMG_LEER;
 }
