@@ -38,24 +38,14 @@ signal_info_t::signal_info_t(roadsign_t* s) :
  * components should be triggered.
  * V.Meyer
    */
-bool signal_info_t::action_triggered( gui_action_creator_t *comp, value_t v)
+bool signal_info_t::action_triggered( gui_action_creator_t *comp, value_t)
 {
-	signal_t* sig = (signal_t*)this;
-	koord3d sb = sig->get_signalbox();
-	koord signalbox_position = sb->get_world_position();
-	if (sb != koord3d::invalid)
+	if (comp == &signalbox_button)
 	{
-		const grund_t* gr = welt->lookup(sb);
-		if (gr)
-		{
-			const gebaeude_t* gb = gr->get_building();
-			if (gb)
-			{
-				if (comp == &signalbox_button) {
-					welt->get_viewport()->change_world_position(koord3d(welt->max_hgt(signalbox_position)));
-				}
-			}
-		}
+		signal_t* sig = (signal_t*)this;
+		koord3d sb = sig->get_signalbox();
+		welt->get_viewport()->change_world_position(koord3d(sb, welt->min_hgt(sb)));;
+		return true;
 	}
 }
 
