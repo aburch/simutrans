@@ -3362,7 +3362,10 @@ void convoi_t::reverse_order(bool rev)
 
 	back()->set_last(true);
 
-	reversed = !reversed;
+	if(rev)
+	{
+		reversed = !reversed;
+	}
 	for(const_iterator i = begin(); i != end(); ++i)
 	{
 		(*i)->set_reversed(reversed);
