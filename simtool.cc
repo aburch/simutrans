@@ -5918,7 +5918,7 @@ image_id tool_signalbox_t::get_icon(player_t* player) const
 	if( besch && besch->is_available(time) )
 	{
 		return besch->get_cursor()->get_bild_nr(1);
-	}
+	}	
 	return IMG_LEER;
 }
 
