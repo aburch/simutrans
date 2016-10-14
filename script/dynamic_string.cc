@@ -6,6 +6,7 @@
 #include "../network/network.h"
 #include "../network/network_cmd_scenario.h"
 #include "../dataobj/environment.h"
+#include "../dataobj/loadsave.h"
 #include "../player/simplay.h"
 #include "../tpl/plainstringhashtable_tpl.h"
 #include "../utils/cbuffer_t.h"
@@ -18,6 +19,18 @@ struct cached_string_t {
 	uint32 time;
 	dynamic_string *listener;
 	cached_string_t(const char* str, uint32 t, dynamic_string *l) : result(str), time(t), listener(l) {}
+
+	cached_string_t(loadsave_t* file)
+	{
+		time = dr_time() - CACHE_TIME;
+		listener = NULL;
+		rdwr(file);
+	}
+
+	void rdwr(loadsave_t* file)
+	{
+		file->rdwr_str(result);
+	}
 };
 
 static plainstringhashtable_tpl<cached_string_t*> cached_results;
@@ -52,6 +65,31 @@ void dynamic_string::init(script_vm_t *script)
 		delete cached_results.remove_first();
 	}
 	script->register_callback(&dynamic_string::record_result, "dynamicstring_record_result");
+}
+
+
+void dynamic_string::rdwr_cache(loadsave_t *file)
+{
+	uint32 count = cached_results.get_count();
+	file->rdwr_long(count);
+
+	if (file->is_loading()) {
+		// clear list
+		while(!cached_results.empty()) {
+			delete cached_results.remove_first();
+		}
+		for(uint32 i=0; i<count; i++) {
+			plainstring key;
+			file->rdwr_str(key);
+			cached_results.set(key, new cached_string_t(file));
+		}
+	}
+	else {
+		FOR(plainstringhashtable_tpl<cached_string_t*>, &iter, cached_results) {
+			file->rdwr_str(iter.key);
+			iter.value->rdwr(file);
+		}
+	}
 }
 
 
@@ -101,7 +139,7 @@ void dynamic_string::update(script_vm_t *script, player_t *player, bool force_up
 	}
 	else {
 		if (env_t::networkmode  &&  !env_t::server) {
-			s = dynamic_string::fetch_result( function, script, this, force_update);
+			s = dynamic_string::fetch_result( function, NULL, this, force_update);
 			if ( s == NULL) {
 				s = "Waiting for server response...";
 			}
