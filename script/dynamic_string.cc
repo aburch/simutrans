@@ -159,24 +159,22 @@ void dynamic_string::update(script_vm_t *script, player_t *player, bool force_up
 const char* dynamic_string::fetch_result(const char* function, script_vm_t *script, dynamic_string *listener, bool force_update)
 {
 	//dbg->warning("dynamic_string::fetch_result", "function = '%s'", function);
-	cached_string_t *entry = get_cached_result(function, CACHE_TIME);
+	cached_string_t *entry = cached_results.get(function);
 
-	bool const needs_update = entry == NULL  ||  force_update;
+	bool const needs_update = entry == NULL  ||  force_update  ||  (dr_time() - entry->time > CACHE_TIME);
 
 	if (needs_update) {
-		if (script != NULL  ||  env_t::server) {
-			// directly call script if at server
-			if (script) {
-				// suspended calls have to be caught by script callbacks
-				plainstring str;
-				if(call_script(function, script, str)) {
-					record_result(function, str);
-				}
+		if (script) {
+			// suspended calls have to be caught by script callbacks
+			plainstring str;
+			if(call_script(function, script, str)) {
+				record_result(function, str);
 			}
 		}
 		else {
 			if (entry == NULL) {
-				cached_results.set(function, new cached_string_t(NULL, dr_time(), listener));
+				cached_string_t *old = cached_results.set(function, new cached_string_t(NULL, dr_time(), listener));
+				assert(old == NULL);
 			}
 			// send request
 			nwc_scenario_t *nwc = new nwc_scenario_t();
@@ -187,7 +185,6 @@ const char* dynamic_string::fetch_result(const char* function, script_vm_t *scri
 		// entry maybe invalid now, fetch again
 		entry = cached_results.get(function);
 	}
-
 	return entry ? entry->result.c_str() : NULL;
 }
 
