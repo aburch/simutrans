@@ -446,6 +446,8 @@ bool player_t::check_owner( const player_t *owner, const player_t *test )
 
 void player_t::ai_bankrupt()
 {
+	player_t *const psplayer = welt->get_player(1);
+
 	DBG_MESSAGE("player_t::ai_bankrupt()","Removing convois");
 
 	for (size_t i = welt->convoys().get_count(); i-- != 0;) {
@@ -456,13 +458,10 @@ void player_t::ai_bankrupt()
 
 		linehandle_t line = cnv->get_line();
 
+		cnv->self_destruct();
+		// convois not in depots must step to really get rid of them
 		if(  cnv->get_state() != convoi_t::INITIAL  ) {
-			cnv->self_destruct();
-			cnv->step();	// to really get rid of it
-		}
-		else {
-			// convois in depots are directly destroyed
-			cnv->self_destruct();
+			cnv->step();
 		}
 
 		// last vehicle on that connection (no line => railroad)
@@ -496,12 +495,16 @@ void player_t::ai_bankrupt()
 				grund_t const* const gr = i.grund;
 				for(  uint8 wnr=0;  wnr<2;  wnr++  ) {
 					weg_t *w = gr->get_weg_nr(wnr);
+					// make public
 					if(  w  &&  w->get_owner()==this  ) {
-						// take ownership
-						if (wnr>1  ||  (!gr->ist_bruecke()  &&  !gr->ist_tunnel())) {
-							player_t::add_maintenance( this, -w->get_besch()->get_wartung(), w->get_besch()->get_finance_waytype() );
+						// tunnels and bridges are handled later? (logic needs to be checked for correct maintenance costs)
+						if (!gr->ist_bruecke()  &&  !gr->ist_tunnel()) {
+							sint32 const costs = w->get_besch()->get_wartung();
+							waytype_t const wt = w->get_besch()->get_finance_waytype();
+							player_t::add_maintenance(this, -costs, wt);
+							player_t::add_maintenance(psplayer, costs, wt);
 						}
-						w->set_owner(NULL); // make public
+						w->set_owner(psplayer); 
 					}
 				}
 			}
@@ -535,9 +538,11 @@ void player_t::ai_bankrupt()
 						continue;
 					}
 				}
-				for (size_t i = gr->get_top(); i-- != 0;) {
+				for (uint8 i = gr->get_top(); i-- != 0;) {
 					obj_t *obj = gr->obj_bei(i);
 					if(obj->get_owner()==this) {
+						sint32 costs = 0;
+						waytype_t wt = waytype_t::ignore_wt;
 						switch(obj->get_typ()) {
 							case obj_t::roadsign:
 							case obj_t::signal:
@@ -555,10 +560,12 @@ void player_t::ai_bankrupt()
 								delete obj;
 								break;
 							case obj_t::leitung:
+								// do not remove powerline from bridges
 								if(gr->ist_bruecke()) {
-									add_maintenance( -((leitung_t*)obj)->get_besch()->get_wartung(), powerline_wt );
-									// do not remove powerline from bridges
-									obj->set_owner( welt->get_player(1) );
+									costs = ((leitung_t*)obj)->get_besch()->get_wartung();
+									add_maintenance(-costs, powerline_wt);
+									psplayer->add_maintenance(costs, powerline_wt);
+									obj->set_owner(psplayer);
 								}
 								else {
 									obj->cleanup(this);
@@ -571,12 +578,17 @@ void player_t::ai_bankrupt()
 							case obj_t::way:
 							{
 								weg_t *w=(weg_t *)obj;
+								// tunnels and bridges made public
 								if (gr->ist_bruecke()  ||  gr->ist_tunnel()) {
-									w->set_owner( NULL );
+									w->set_owner(psplayer);
 								}
+								// roads and water ways also made public
 								else if(w->get_waytype()==road_wt  ||  w->get_waytype()==water_wt) {
-									add_maintenance( -w->get_besch()->get_wartung(), w->get_waytype() );
-									w->set_owner( NULL );
+									costs = w->get_besch()->get_wartung();
+									wt = w->get_waytype();
+									add_maintenance(-costs, wt);
+									psplayer->add_maintenance(costs, wt);
+									w->set_owner(psplayer);
 								}
 								else {
 									gr->weg_entfernen( w->get_waytype(), true );
@@ -584,16 +596,22 @@ void player_t::ai_bankrupt()
 								break;
 							}
 							case obj_t::bruecke:
-								add_maintenance( -((bruecke_t*)obj)->get_besch()->get_wartung(), obj->get_waytype() );
-								obj->set_owner( NULL );
+								costs = ((bruecke_t*)obj)->get_besch()->get_wartung();
+								wt = obj->get_waytype();
+								add_maintenance(-costs, wt);
+								psplayer->add_maintenance(costs, wt);
+								obj->set_owner(psplayer);
 								break;
 							case obj_t::tunnel:
-								add_maintenance( -((tunnel_t*)obj)->get_besch()->get_wartung(), ((tunnel_t*)obj)->get_besch()->get_finance_waytype() );
-								obj->set_owner( NULL );
+								costs = ((tunnel_t*)obj)->get_besch()->get_wartung();
+								wt = ((tunnel_t*)obj)->get_besch()->get_finance_waytype();
+								add_maintenance(-costs, wt);
+								psplayer->add_maintenance(costs, wt);
+								obj->set_owner(psplayer);
 								break;
 
 							default:
-								obj->set_owner( welt->get_player(1) );
+								obj->set_owner(psplayer);
 						}
 					}
 				}
