@@ -2103,7 +2103,7 @@ const char* karte_t::can_lower_plan_to(const player_t *player, sint16 x, sint16 
 	if(  !gr  && settings.get_way_height_clearance()==2  ) {
 		gr = plan->get_boden_in_hoehe( h - 3 );
 	}
-	if(  gr  &&  h-gr->get_pos().z + hang_t::max_diff( gr->get_weg_hang() ) < settings.get_way_height_clearance()  ) {
+	if(  gr  &&  h < gr->get_pos().z + hang_t::max_diff( gr->get_weg_hang() ) + settings.get_way_height_clearance()  ) {
 		return "";
 	}
 
