@@ -830,6 +830,10 @@ void brueckenbauer_t::baue_bruecke(player_t *player, const koord3d start, const 
 				ribi_t::ribi ribi = gr->get_weg_ribi_unmasked(besch->get_waytype());
 				grund_t *to = NULL;
 				if(  ribi_t::ist_einfach(ribi)  &&  gr->get_neighbour(to, invalid_wt, ribi_t::rueckwaerts(ribi))) {
+					// connect to open sea, calc_bild will recompute ribi at to.
+					if (to->ist_wasser()) {
+						to->calc_bild();
+					}
 					// only single tile under bridge => try to connect to next tile
 					wegbauer_t bauigel(player);
 					bauigel.set_keep_existing_ways(true);
