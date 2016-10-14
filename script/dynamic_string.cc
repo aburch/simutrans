@@ -41,7 +41,7 @@ struct cached_string_t {
 static plainstringhashtable_tpl<cached_string_t*> cached_results;
 
 
-cached_string_t* get_cashed_result(const char* function, uint32 cache_time)
+cached_string_t* get_cached_result(const char* function, uint32 cache_time)
 {
 	cached_string_t *entry = cached_results.get(function);
 
@@ -107,7 +107,7 @@ void dynamic_string::update(script_vm_t *script, player_t *player, bool force_up
 	if (script) {
 		cached_string_t *entry = NULL;
 		if (!force_update) {
-			entry = get_cashed_result(function, CACHE_TIME);
+			entry = get_cached_result(function, CACHE_TIME);
 		}
 		if (entry) {
 			// valid cache entry
@@ -159,7 +159,7 @@ void dynamic_string::update(script_vm_t *script, player_t *player, bool force_up
 const char* dynamic_string::fetch_result(const char* function, script_vm_t *script, dynamic_string *listener, bool force_update)
 {
 	//dbg->warning("dynamic_string::fetch_result", "function = '%s'", function);
-	cached_string_t *entry = get_cashed_result(function, CACHE_TIME);
+	cached_string_t *entry = get_cached_result(function, CACHE_TIME);
 
 	bool const needs_update = entry == NULL  ||  force_update;
 
