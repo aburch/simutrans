@@ -504,7 +504,7 @@ void player_t::ai_bankrupt()
 							player_t::add_maintenance(this, -costs, wt);
 							player_t::add_maintenance(psplayer, costs, wt);
 						}
-						w->set_owner(psplayer); 
+						w->set_owner(psplayer);
 					}
 				}
 			}
@@ -542,7 +542,7 @@ void player_t::ai_bankrupt()
 					obj_t *obj = gr->obj_bei(i);
 					if(obj->get_owner()==this) {
 						sint32 costs = 0;
-						waytype_t wt = waytype_t::ignore_wt;
+						waytype_t wt = ignore_wt;
 						switch(obj->get_typ()) {
 							case obj_t::roadsign:
 							case obj_t::signal:
