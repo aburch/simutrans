@@ -432,8 +432,8 @@ bool network_init_server( int port )
 			/* Disable IPv4-mapped IPv6 addresses for this IPv6 listen socket
 			   This ensures that we are using separate sockets for dual-stack, one for v4, one for v6 */
 			if (  walk->ai_family == AF_INET6  ) {
-				int on = 1;
-				if (  setsockopt(server_socket, IPPROTO_IPV6, IPV6_V6ONLY, (char*)&on, sizeof(on)) != 0  ) {
+				int const on = 1;
+				if (  setsockopt(server_socket, IPPROTO_IPV6, IPV6_V6ONLY, reinterpret_cast<const char *>(&on), sizeof(on)) != 0  ) {
 					dbg->warning( "network_init_server()", "Call to setsockopt(IPV6_V6ONLY) failed for: \"%s\", error was: \"%s\"", ip.c_str(), strerror(GET_LAST_ERROR()) );
 					network_close_socket( server_socket );
 					server_socket = INVALID_SOCKET;
@@ -441,8 +441,8 @@ bool network_init_server( int port )
 				}
 			}
 			// Enable reusing of local addresses
-			int enable = 1;
-			if (  setsockopt(server_socket, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int)) != 0  ) {
+			int const enable = 1;
+			if (  setsockopt(server_socket, SOL_SOCKET, SO_REUSEADDR, reinterpret_cast<const char *>(&enable), sizeof(enable)) != 0  ) {
 				dbg->warning( "network_init_server()", "Call to setsockopt(SO_REUSEADDR) failed for: \"%s\", error was: \"%s\"", ip.c_str(), strerror(GET_LAST_ERROR()) );
 			}
 
