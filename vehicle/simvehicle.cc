@@ -6059,7 +6059,7 @@ bool water_vehicle_t::check_next_tile(const grund_t *bd) const
 		}
 	}
 #endif
-	const uint8 convoy_vehicle_count = cnv->get_vehikel_anzahl();
+	const uint8 convoy_vehicle_count = cnv ? cnv->get_vehikel_anzahl() : 1;
 	bool can_clear_way_constraints = true;
 	if(convoy_vehicle_count < 2)
 	{
