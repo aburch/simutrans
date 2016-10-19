@@ -236,8 +236,8 @@ void begin_obj_class(HSQUIRRELVM vm, const char* name, const char* base = NULL)
 // markers / labels
 call_tool_work create_marker(koord pos, player_t* player, const char* text)
 {
-	if (player == NULL || text == NULL) {
-		return "";
+	if (text == NULL) {
+		return "Cannot create label with text == null";
 	}
 	return call_tool_work(TOOL_MARKER | GENERAL_TOOL, text, 0, player, koord3d(pos, 0));
 }
@@ -261,7 +261,7 @@ const char* label_get_text(label_t* l)
 call_tool_init depot_append_vehicle(depot_t *depot, player_t *player, convoihandle_t cnv, const vehikel_besch_t *besch)
 {
 	if (besch == NULL) {
-		return call_tool_init(""); // error
+		return "Invalid vehicle_desc_x provided";
 	}
 	// see depot_frame_t::image_from_storage_list: tool = 'a'
 	// see depot_t::call_depot_tool for command string composition

@@ -57,17 +57,17 @@ bool line_is_valid(linehandle_t line)
 	return line.is_bound();
 }
 
-call_tool_init line_change_schedule(linehandle_t line, player_t *player, schedule_t *sched)
+call_tool_init line_change_schedule(simline_t* line, player_t *player, schedule_t *sched)
 {
-	if (line.is_bound()  &&  sched) {
+	if (sched) {
 		// build param string (see line_management_gui_t::infowin_event)
 		cbuffer_t buf;
-		buf.printf( "g,%i,", line.get_id() );
+		buf.printf( "g,%i,", line->get_handle().get_id() );
 		sched->sprintf_schedule( buf );
 
 		return call_tool_init(TOOL_CHANGE_LINE | SIMPLE_TOOL, buf, 0, player);
 	}
-	return call_tool_init(""); // error
+	return "Invalid schedule provided";
 }
 
 SQInteger line_export_convoy_list(HSQUIRRELVM vm)
@@ -81,12 +81,9 @@ SQInteger line_export_convoy_list(HSQUIRRELVM vm)
 	return SQ_ERROR;
 }
 
-call_tool_init line_set_name(linehandle_t line, const char* name)
+call_tool_init line_set_name(simline_t* line, const char* name)
 {
-	if (!line.is_bound()) {
-		return call_tool_init(""); // error
-	}
-	return command_rename(line->get_owner(), 'l', line.get_id(), name);
+	return command_rename(line->get_owner(), 'l', line->get_handle().get_id(), name);
 }
 
 vector_tpl<linehandle_t> const* generic_get_line_list(HSQUIRRELVM vm, SQInteger index)

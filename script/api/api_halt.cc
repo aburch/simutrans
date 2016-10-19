@@ -69,7 +69,7 @@ SQInteger halt_export_convoy_list(HSQUIRRELVM vm)
 call_tool_init halt_set_name(halthandle_t halt, const char* name)
 {
 	if (!halt.is_bound()) {
-		return call_tool_init(""); // error
+		return "Invalid halt provided";
 	}
 	return command_rename(halt->get_owner(), 'h', halt.get_id(), name);
 }

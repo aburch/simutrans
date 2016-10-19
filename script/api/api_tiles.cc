@@ -32,9 +32,6 @@ SQInteger get_object_index(HSQUIRRELVM vm)
 
 call_tool_work tile_remove_object(grund_t* gr, player_t* player, obj_t::typ type)
 {
-	if (player == NULL) {
-		return "";
-	}
 	cbuffer_t buf;
 	buf.printf("%d", (int)type);
 	return call_tool_work(TOOL_REMOVER | GENERAL_TOOL, (const char*)buf, 0, player, gr->get_pos());

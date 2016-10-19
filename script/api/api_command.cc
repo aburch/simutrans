@@ -33,7 +33,7 @@ SQInteger command_constructor(HSQUIRRELVM vm)
 SQInteger param<call_tool_init>::push(HSQUIRRELVM vm, call_tool_init v)
 {
 	if (v.error) {
-		return *v.error ? sq_raise_error(vm, v.error) : SQ_ERROR;
+		return sq_raise_error(vm, *v.error ? v.error : "Strange error occured");
 	}
 	// create tool, if necessary, delete on exit
 	std::auto_ptr<tool_t> our_tool;
@@ -57,7 +57,7 @@ SQInteger param<call_tool_init>::push(HSQUIRRELVM vm, call_tool_init v)
 	}
 	// sanity check
 	if (player == NULL) {
-		return SQ_ERROR;
+		return sq_raise_error(vm, "Called tool with player == null");
 	}
 	// check if calling suspendable tools is blocked
 	if (const char* blocker = env_t::networkmode ? sq_get_suspend_blocker(vm) : NULL) {
@@ -160,7 +160,7 @@ tool_t * call_tool_base_t::create_tool()
 SQInteger param<call_tool_work>::push(HSQUIRRELVM vm, call_tool_work v)
 {
 	if (v.error) {
-		return *v.error ? sq_raise_error(vm, v.error) : SQ_ERROR;
+		return sq_raise_error(vm, *v.error ? v.error : "Strange error occured");
 	}
 	// create tool, if necessary, delete on exit
 	std::auto_ptr<tool_t> our_tool;
@@ -184,7 +184,7 @@ SQInteger param<call_tool_work>::push(HSQUIRRELVM vm, call_tool_work v)
 	}
 	// sanity check
 	if (player == NULL) {
-		return SQ_ERROR;
+		return sq_raise_error(vm, "Called tool with player == null");
 	}
 	uint8 flags = tool->flags; // might be reset by init()
 

@@ -97,7 +97,7 @@ call_tool_init player_create_line(player_t *player, waytype_t wt)
 {
 	simline_t::linetype lt = simline_t::get_linetype(wt);
 	if (lt == simline_t::MAX_LINE_TYPE) {
-		return call_tool_init("Invalid waytype provided");
+		return "Invalid waytype provided";
 	}
 	// build param string (see schedule_list_gui_t::action_triggered)
 	cbuffer_t buf;

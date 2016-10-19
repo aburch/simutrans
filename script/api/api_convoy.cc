@@ -126,9 +126,8 @@ call_tool_init convoy_set_name(convoi_t *cnv, const char* name)
 call_tool_init convoy_set_line(convoi_t *cnv, player_t *player, linehandle_t line)
 {
 	if (!line.is_bound()) {
-		return call_tool_init(""); // error
+		return "Invalid line handle provided";
 	}
-
 	// see depot_frame_t::apply_line() and convoi_t::call_convoi_tool()
 	cbuffer_t buf;
 	buf.printf("%c,%u,%i", 'l', cnv->self.get_id(), line->get_handle().get_id());
@@ -140,7 +139,7 @@ call_tool_init convoy_generic_tool(convoi_t *cnv, player_t *player, uint8 cnvtoo
 {
 	char c = (char)cnvtool;
 	if (strchr("wx", c) == NULL) {
-		return call_tool_init(""); // error
+		return "Invalid convoy tool called";
 	}
 	// see convoi_t::call_convoi_tool()
 	cbuffer_t buf;
