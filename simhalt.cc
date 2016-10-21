@@ -735,6 +735,11 @@ void haltestelle_t::rotate90( const sint16 y_size )
 		}
 	}
 
+	FOR(vector_tpl<koord3d>, i, station_signals)
+	{
+		i.rotate90(y_size); 
+	}
+
 	sint64 temp_last_departed[4];
 	// Rotate station signal timings
 	for(uint32 i = 0; i < 4; i ++)
@@ -3934,7 +3939,10 @@ void haltestelle_t::rdwr(loadsave_t *file)
 				// Loading
 				koord3d k;
 				k.rdwr(file);
-				station_signals.append(k);
+				if(get_halt(k, get_owner()).is_bound())
+				{
+					station_signals.append(k);
+				}
 			}
 		}
 
