@@ -22,7 +22,7 @@
 
 #define EX_VERSION_MAJOR	12
 #define EX_VERSION_MINOR	9000
-#define EX_SAVE_MINOR		11
+#define EX_SAVE_MINOR		12
 
 #define MAKEOBJ_VERSION "55.4"
 

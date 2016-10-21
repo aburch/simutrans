@@ -193,7 +193,7 @@ void convoi_t::init(player_t *player)
 
 	reversable = false;
 	reversed = false;
-	//recalc_data = true;
+	re_ordered = false;
 
 	livery_scheme_index = 0;
 
@@ -3011,7 +3011,7 @@ void convoi_t::vorfahren()
 
 					default:
 
-						const bool reverse_as_unit = reversed ? front()->get_besch()->get_can_lead_from_rear() : back()->get_besch()->get_can_lead_from_rear();
+						const bool reverse_as_unit = re_ordered ? front()->get_besch()->get_can_lead_from_rear() : back()->get_besch()->get_can_lead_from_rear();
 
 						reversable = reverse_as_unit || (anz_vehikel == 1 && front()->get_besch()->is_bidirectional());
 
@@ -3362,10 +3362,12 @@ void convoi_t::reverse_order(bool rev)
 
 	back()->set_last(true);
 
-	if(rev)
+	reversed = !reversed;
+	if (rev)
 	{
-		reversed = !reversed;
+		re_ordered = !re_ordered;
 	}
+
 	for(const_iterator i = begin(); i != end(); ++i)
 	{
 		(*i)->set_reversed(reversed);
@@ -4001,6 +4003,10 @@ void convoi_t::rdwr(loadsave_t *file)
 	if(file->get_experimental_version() >= 1)
 	{
 		file->rdwr_bool(reversed);
+		if (file->get_experimental_version() >= 13 || file->get_experimental_revision() >= 12)
+		{
+			file->rdwr_bool(re_ordered);
+		}
 
 		//Replacing settings
 		// BG, 31-MAR-2010: new replacing code starts with exp version 8:
