@@ -13,6 +13,7 @@
 #define signal_info_t_h
 
 #include "obj_info.h"
+#include "../obj/signal.h"
 #include "components/action_listener.h"
 #include "components/gui_numberinput.h"
 #include "components/gui_container.h"
@@ -26,13 +27,10 @@ class roadsign_t;
 class signal_info_t : public obj_infowin_t, public action_listener_t
 {
  private:
-	roadsign_t* ampel;
-	gui_numberinput_t ns, ow, offset;
-
+	 signal_t* sig;
 	button_t signalbox_button;
-
  public:
-	signal_info_t(roadsign_t* s);
+	signal_info_t(signal_t* s);
 
 	
 
@@ -46,7 +44,7 @@ class signal_info_t : public obj_infowin_t, public action_listener_t
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
 	// called, after external change
-	void update_data();
+	//void update_data();
 };
 
 #endif
