@@ -16,6 +16,7 @@
 	CHG: plant trees now requires sufficient funs and is no longer possible when no_trees is set
 	ADD: make public tool now works on inclines and tunnel entrances
 	CHG: make public tool logic revised to check for sufficient funds and have a configurable cost model
+	ADD: make public tool can now be configured to not work on ways
 	CHG: retained ways from liquidated companies now are transferred to the public service player
 
 Release of 120.1.3: (r7753 on 2-Feb-2016):

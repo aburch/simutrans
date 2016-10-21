@@ -113,6 +113,8 @@
  * Using these constants assues a valid and correct text identifier is choosen.
  */
 
+
+
 /**
  * Message returned when a player cannot afford to complete an action.
  */
@@ -137,6 +139,11 @@ char const *const NOTICE_DEPOT_BAD_POS = "Cannot built depot here!";
  * Message returned when a tool fails due to the target tile being occupied.
  */
 char const *const NOTICE_TILE_FULL = "Tile not empty.";
+
+/**
+ * Message returned when a company tries to make a public way when public ways are disabled.
+ */
+char const *const NOTICE_DISABLED_PUBLIC_WAY = "Not allowed to make publicly owned ways!";
 
 /****************************************** static helper functions **************************************/
 
@@ -6146,12 +6153,16 @@ const char *tool_make_stop_public_t::move( player_t *player, uint16, koord3d p )
 
 const char *tool_make_stop_public_t::work( player_t *player, koord3d p )
 {
-	// months maintainance cost to make public
 	player_t *const psplayer = welt->get_player(1);
 	grund_t const *gr = welt->lookup(p);
 	if(  !gr  ||  !gr->get_halt().is_bound()  ||  gr->get_halt()->get_owner()==psplayer  ) {
-		weg_t *w = NULL;
+
+		if(  player != psplayer  &&  welt->get_settings().get_disable_make_way_public()  ) {
+			return NOTICE_DISABLED_PUBLIC_WAY;
+		}
+
 		//convert a way here, if there is no halt or already public halt
+		weg_t *w = NULL;
 		{			
 			if(  gr->get_typ()==grund_t::brueckenboden  ) {
 				// not making ways public on bridges
@@ -6172,7 +6183,7 @@ const char *tool_make_stop_public_t::work( player_t *player, koord3d p )
 				}
 
 				// compute maintainance cost
-				sint64 costs = w->get_besch()->get_wartung();
+				sint32 costs = w->get_besch()->get_wartung();
 				tunnel_t *t = NULL;
 				// tunnel cost overwrites way cost
 				if(  gr->ist_tunnel()  ) {

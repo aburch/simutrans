@@ -273,6 +273,9 @@ private:
 	// true if transformers are allowed to built underground
 	bool allow_underground_transformers;
 
+	// true if companies can make ways public
+	bool disable_make_way_public;
+
 public:
 	/* the big cost section */
 	sint32 maint_building;	// normal building
@@ -563,6 +566,7 @@ public:
 	sint32 get_bonus_basefactor() const { return bonus_basefactor; }
 
 	bool get_allow_underground_transformers() const { return allow_underground_transformers; }
+	bool get_disable_make_way_public() const { return disable_make_way_public; }
 
 	uint16 get_remove_dummy_player_months() const { return remove_dummy_player_months; }
 	uint16 get_unprotect_abandoned_player_months() const { return unprotect_abandoned_player_months; }

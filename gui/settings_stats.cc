@@ -285,6 +285,7 @@ void settings_economy_stats_t::init(settings_t const* const sets)
 	INIT_NUM( "used_vehicle_reduction", sets->get_used_vehicle_reduction(), 0, 1000, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "toll_runningcost_percentage", sets->get_way_toll_runningcost_percentage(), 0, 100, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "toll_waycost_percentage", sets->get_way_toll_waycost_percentage(), 0, 100, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_BOOL("disable_make_way_public", sets->get_disable_make_way_public());
 	SEPERATOR
 
 	INIT_NUM( "ai_construction_speed", sets->get_default_ai_construction_speed(), 0, 1000000000, 1000, false );
@@ -372,6 +373,7 @@ void settings_economy_stats_t::read(settings_t* const sets)
 	READ_NUM_VALUE( sets->used_vehicle_reduction );
 	READ_NUM_VALUE( sets->way_toll_runningcost_percentage );
 	READ_NUM_VALUE( sets->way_toll_waycost_percentage );
+	READ_BOOL_VALUE(sets->disable_make_way_public);
 
 	READ_NUM_VALUE( sets->default_ai_construction_speed );
 	env_t::default_ai_construction_speed = sets->get_default_ai_construction_speed();

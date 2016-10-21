@@ -19,6 +19,7 @@
 // ==> These have no direct connection at all!
 #define SIM_SAVE_MINOR      3
 #define SIM_SERVER_MINOR    3
+// NOTE: increment before next release to enable save/load of new features
 
 #define MAKEOBJ_VERSION "55.5"
 // needs new makeobj for higher fixcosts!
