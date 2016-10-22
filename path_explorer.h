@@ -353,6 +353,9 @@ private:
 
 		static void initialise();
 		static void finalise();
+#ifdef MULTI_THREAD_NOT
+		friend void *thread_step(void *args);
+#endif
 		void step();
 		void reset(const bool reset_finished_set);
 
@@ -431,7 +434,9 @@ private:
 	static karte_t *world;
 	static uint8 max_categories;
 	static uint8 category_empty;
+public:
 	static compartment_t *goods_compartment;
+private:
 	static uint8 current_compartment;
 	static bool processing;
 
