@@ -6153,112 +6153,143 @@ const char *tool_make_stop_public_t::move( player_t *player, uint16, koord3d p )
 
 const char *tool_make_stop_public_t::work( player_t *player, koord3d p )
 {
-	player_t *const psplayer = welt->get_player(1);
-	grund_t const *gr = welt->lookup(p);
-	if(  !gr  ||  !gr->get_halt().is_bound()  ||  gr->get_halt()->get_owner()==psplayer  ) {
-
-		if(  player != psplayer  &&  welt->get_settings().get_disable_make_way_public()  ) {
-			return NOTICE_DISABLED_PUBLIC_WAY;
-		}
-
-		//convert a way here, if there is no halt or already public halt
-		weg_t *w = NULL;
-		{			
-			if(  gr->get_typ()==grund_t::brueckenboden  ) {
-				// not making ways public on bridges
-				return NOTICE_UNSUITABLE_GROUND;
-			}
-			w = gr->get_weg_nr(0);
-			// no need for action if already player(1) => XOR ...
-			if(  !(w  &&  (  (w->get_owner()==player)  ^  (player==psplayer)  ))  ) {
-				w = gr->get_weg_nr(1);
-				if(  !(w  &&  (  (w->get_owner()==player)  ^  (player==psplayer)  ))  ) {
-					w = NULL;
-				}
-			}
-			if(  w  ) {
-				// no public way with signs
-				if(  w->has_sign()  ) {
-					return NOTICE_UNSUITABLE_GROUND;
-				}
-
-				// compute maintainance cost
-				sint32 costs = w->get_besch()->get_wartung();
-				tunnel_t *t = NULL;
-				// tunnel cost overwrites way cost
-				if(  gr->ist_tunnel()  ) {
-					t = gr->find<tunnel_t>();
-					costs = t->get_besch()->get_wartung();
-				}
-				// add cost of way objects
-				player_t *const wowner = w->get_owner();
-				for(  uint8 i=1;  i<gr->get_top();  i++  ) {
-					wayobj_t *wo = obj_cast<wayobj_t>(gr->obj_bei(i));
-					if(  wo  &&  wo->get_owner() == wowner  ) {
-						costs+= wo->get_besch()->get_wartung();
-					}
-				}
-
-				// check funds, public service always has funds
-				sint64 const workcost = -welt->scale_with_month_length(costs * welt->get_settings().cst_make_public_months);
-				if(  !player->can_afford(workcost)  ) {
-					return NOTICE_INSUFFICIENT_FUNDS;
-				}
-
-				// change ownership of way...
-				w->set_owner(psplayer);
-				w->set_flag(obj_t::dirty);
-				// of tunnel...
-				if(  t  ) {
-					t->set_owner(psplayer);
-					t->set_flag(obj_t::dirty);
-				}
-				// of way objects
-				for(  uint8 i=1;  i<gr->get_top();  i++  ) {
-					wayobj_t *wo = obj_cast<wayobj_t>(gr->obj_bei(i));
-					if(  wo  &&  wo->get_owner() == wowner  ) {
-						wo->set_owner( psplayer );
-						wo->set_flag(obj_t::dirty);
-					}
-				}
-
-				// book financials
-				waytype_t const financetype = w->get_besch()->get_finance_waytype();
-				player_t::add_maintenance(wowner, -costs, financetype);
-				player_t::add_maintenance(psplayer, costs, financetype);
-				// cost is transfered to public service player
-				if(  player != psplayer  ) {
-					player_t::book_construction_costs(player, workcost, gr->get_pos().get_2d(), financetype);
-					player_t::book_construction_costs(psplayer, -workcost, koord::invalid, financetype);
-				}
-
-				// multiplayer notification message
-				if(  player != psplayer  &&  env_t::networkmode  ) {
-					cbuffer_t buf;
-					buf.printf( translator::translate("(%s) now public way."), w->get_pos().get_str() );
-					welt->get_message()->add_message( buf, w->get_pos().get_2d(), message_t::ai, PLAYER_FLAG|player->get_player_nr(), IMG_LEER );
-				}
-			}
-		}
-		if(  w==NULL  ) {
-			return "No stop here!";
-		}
+	// target ground must exist
+	grund_t const *const gr = welt->lookup(p);
+	if(  !gr  ) {
+		return NOTICE_UNSUITABLE_GROUND;
 	}
-	else {
-		halthandle_t halt = gr->get_halt();
-		if(  !(player_t::check_owner(halt->get_owner(),player)  ||  halt->get_owner()==psplayer)  ) {
-			return "Das Feld gehoert\neinem anderen Spieler\n";
-		}
 
+	player_t *const psplayer = welt->get_player(1);
+	bool const giveaway = player != psplayer;
+
+	// make stop public if any suitable
+	halthandle_t const halt = gr->get_halt();
+	if(  halt.is_bound()  &&  halt->get_owner() != psplayer  &&  player_t::check_owner(halt->get_owner(), player)  ) {
+		/*if(  !(player_t::check_owner(halt->get_owner(),player)  ||  halt->get_owner()==psplayer)  ) {
+			return "Das Feld gehoert\neinem anderen Spieler\n";
+		}*/
+
+		// check funds
 		sint64 const workcost = -welt->scale_with_month_length(halt->calc_maintenance() * welt->get_settings().cst_make_public_months);
-		if(  !player->can_afford(workcost)  ) {
+		if(  giveaway  &&  !player->can_afford(workcost)  ) {
 			return NOTICE_INSUFFICIENT_FUNDS;
 		}
 
-		else {
-			halt->make_public_and_join(player);
+		// change ownership
+		halt->make_public_and_join(player);
+
+		return NULL;
+	}
+
+	// make way public if any suitable
+	weg_t *w = NULL;
+	for(  int i = 0;  i < 2;  i++  ) {
+		weg_t *const wtest = gr->get_weg_nr(i);
+		if(  wtest  &&  wtest->get_owner() != psplayer  &&  player_t::check_owner(wtest->get_owner(), player)  ) {
+			w = wtest;
+			break;
 		}
 	}
+	if(  w  ) {
+		// public ways must be enabled
+		if(  !giveaway  &&  welt->get_settings().get_disable_make_way_public()  ) {
+			return NOTICE_DISABLED_PUBLIC_WAY;
+		}
+
+		// not making ways public on bridges
+		if(  gr->get_typ()==grund_t::brueckenboden  ) {
+			return NOTICE_UNSUITABLE_GROUND;
+		}
+
+		// no public way with signs
+		if(  w->has_sign()  ) {
+			return NOTICE_UNSUITABLE_GROUND;
+		}
+
+		// compute maintainance cost
+		sint32 cost = w->get_besch()->get_wartung();
+		tunnel_t *t = NULL;
+		// tunnel cost overwrites way cost
+		if(  gr->ist_tunnel()  ) {
+			t = gr->find<tunnel_t>();
+			cost = t->get_besch()->get_wartung();
+		}
+
+		// check funds
+		sint64 const workcost = -welt->scale_with_month_length(cost * welt->get_settings().cst_make_public_months);
+		if(  giveaway  &&  !player->can_afford(workcost)  ) {
+			return NOTICE_INSUFFICIENT_FUNDS;
+		}
+
+		// change ownership of way...
+		w->set_owner(psplayer);
+		w->set_flag(obj_t::dirty);
+		// of tunnel...
+		if(  t  ) {
+			t->set_owner(psplayer);
+			t->set_flag(obj_t::dirty);
+		}
+		player_t *const wowner = w->get_owner();
+		waytype_t const financetype = w->get_besch()->get_finance_waytype();
+		player_t::add_maintenance(wowner, -cost, financetype);
+		player_t::add_maintenance(psplayer, cost, financetype);
+
+		// cost is transfered to public service player
+		if(  giveaway  ) {
+			player_t::book_construction_costs(player, workcost, gr->get_pos().get_2d(), financetype);
+			player_t::book_construction_costs(psplayer, -workcost, koord::invalid, financetype);
+		}
+
+		// multiplayer notification message
+		if(  player != psplayer  &&  env_t::networkmode  ) {
+			cbuffer_t buf;
+			buf.printf( translator::translate("(%s) now public way."), w->get_pos().get_str() );
+			welt->get_message()->add_message( buf, w->get_pos().get_2d(), message_t::ai, PLAYER_FLAG|player->get_player_nr(), IMG_LEER );
+		}
+
+		return NULL;
+	}
+
+	// make way object public if any suitable
+	wayobj_t *wo = NULL;
+	for(  uint8 i = 1;  i < gr->get_top();  i++  ) {
+		wayobj_t *const wotest = obj_cast<wayobj_t>(gr->obj_bei(i));
+		if(  wotest  &&  wotest->get_owner() != psplayer  &&  player_t::check_owner(wotest->get_owner(), player)  ) {
+			wo = wotest;
+			break;
+		}
+	}
+	if(  wo  ) {
+		// public ways must be enabled
+		if(  !giveaway  &&  welt->get_settings().get_disable_make_way_public()  ) {
+			return NOTICE_DISABLED_PUBLIC_WAY;
+		}
+
+		// check funds
+		sint32 const cost = wo->get_besch()->get_wartung();
+		sint64 const workcost = -welt->scale_with_month_length(cost * welt->get_settings().cst_make_public_months);
+		if(  giveaway  &&  !player->can_afford(workcost)  ) {
+			return NOTICE_INSUFFICIENT_FUNDS;
+		}
+
+		// change ownership
+		wo->set_owner( psplayer );
+		wo->set_flag(obj_t::dirty);
+		player_t *const woowner = wo->get_owner();
+		waytype_t const financetype = wo->get_besch()->get_waytype();
+		player_t::add_maintenance(woowner, -cost, financetype);
+		player_t::add_maintenance(psplayer, cost, financetype);
+
+		// cost is transfered to public service player
+		if(  giveaway  ) {
+			player_t::book_construction_costs(player, workcost, gr->get_pos().get_2d(), financetype);
+			player_t::book_construction_costs(psplayer, -workcost, koord::invalid, financetype);
+		}
+
+		return NULL;
+	}
+
+	// nothing to make public
 	return NULL;
 }
 
