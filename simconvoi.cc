@@ -1320,6 +1320,7 @@ bool convoi_t::drive_to()
 			int counter = fpl->get_count();
 
 			linieneintrag_t* schedule_entry = &fpl->eintrag[fpl->get_aktuell()];
+			bool update_line = false;
 			while(success && counter--)
 			{
 				if(schedule_entry->reverse == -1)
@@ -1328,7 +1329,10 @@ bool convoi_t::drive_to()
 					fpl->set_reverse(schedule_entry->reverse, fpl->get_aktuell()); 
 					if(line.is_bound())
 					{
-						simlinemgmt_t::update_line(line);
+						schedule_t* line_schedule = line->get_schedule();
+						linieneintrag_t &line_entry = line_schedule->eintrag[fpl->get_aktuell()];
+						line_entry.reverse = schedule_entry->reverse;
+						update_line = true;	
 					}
 				}
 
@@ -1340,6 +1344,11 @@ bool convoi_t::drive_to()
 				advance_schedule();
 				schedule_entry = &fpl->eintrag[fpl->get_aktuell()];
 				success = front()->reroute(route.get_count() - 1, schedule_entry->pos);
+			}
+
+			if (update_line)
+			{
+				simlinemgmt_t::update_line(line);
 			}
 		}
 
@@ -5976,6 +5985,7 @@ void convoi_t::set_next_stop_index(uint16 n)
 	   // do not brake at non-reversing waypoints
 	   bool reverse_waypoint = false;
 	   koord3d route_end = route.back();
+	   bool update_line = false;
 
 	   if(front()->get_typ() != obj_t::air_vehicle)
 	   {
@@ -5989,15 +5999,24 @@ void convoi_t::set_next_stop_index(uint16 n)
 				   {
 					   eintrag.reverse = check_destination_reverse() ? 1 : 0;
 					   fpl->set_reverse(eintrag.reverse, i); 
+					   
 					   if(line.is_bound())
 					   {
-						   simlinemgmt_t::update_line(line);
+						   schedule_t* line_schedule = line->get_schedule();
+						   linieneintrag_t &line_entry = line_schedule->eintrag[i];
+						   line_entry.reverse = eintrag.reverse;
+						   update_line = true;
 					   }
 				   }
 					reverse_waypoint = eintrag.reverse == 1;
 
 					break;
 			   }
+		   }
+
+		   if (update_line)
+		   {
+			   simlinemgmt_t::update_line(line);
 		   }
 	   }
 
