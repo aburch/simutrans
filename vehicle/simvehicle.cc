@@ -6153,7 +6153,7 @@ bool water_vehicle_t::check_tile_occupancy(const grund_t* gr)
 		int relevant_water_vehicles_on_tile = 0;		
 		if(max_water_vehicles_on_tile < base_max_vehicles_on_tile && water_vehicles_on_tile < base_max_vehicles_on_tile)
 		{
-			for(size_t n = gr->get_top(); n-- != 0;)
+			for(sint32 n = gr->get_top(); n-- != 0;)
 			{
 				const obj_t *obj = gr->obj_bei(n);
 				if(obj && obj->get_typ() == obj_t::water_vehicle)
