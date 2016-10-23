@@ -1161,14 +1161,17 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 	// Enable server announcements
 	if(  gimme_arg(argc, argv, "-announce", 0) != NULL  ) {
 		env_t::server_announce = 1;
+		DBG_DEBUG( "simmain()", "Server will be announced." );
 	}
 
 	if(  const char *ref_str = gimme_arg(argc, argv, "-server_dns", 1)  ) {
 		env_t::server_dns = ref_str;
+		DBG_DEBUG( "simmain()", "Server IP set to '%s'.", ref_str );
 	}
 
 	if(  const char *ref_str = gimme_arg(argc, argv, "-server_name", 1)  ) {
 		env_t::server_name = ref_str;
+		DBG_DEBUG( "simmain()", "Server name set to '%s'.", ref_str );
 	}
 
 	if(  const char *ref_str = gimme_arg(argc, argv, "-server_admin_pw", 1)  ) {
