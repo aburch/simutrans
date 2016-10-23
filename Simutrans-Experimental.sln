@@ -12,8 +12,8 @@ Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug (command-line server)|Win32 = Debug (command-line server)|Win32
 		Debug (command-line server)|x64 = Debug (command-line server)|x64
-		Debug (network)|Win32 = Debug (network)|Win32
-		Debug (network)|x64 = Debug (network)|x64
+		Debug (graphical server)|Win32 = Debug (graphical server)|Win32
+		Debug (graphical server)|x64 = Debug (graphical server)|x64
 		Debug (SDL)|Win32 = Debug (SDL)|Win32
 		Debug (SDL)|x64 = Debug (SDL)|x64
 		Debug (single threaded)|Win32 = Debug (single threaded)|Win32
@@ -46,10 +46,10 @@ Global
 		{0621B295-BEB7-4767-82F1-F27995610323}.Debug (command-line server)|Win32.Build.0 = Debug (command-line server)|Win32
 		{0621B295-BEB7-4767-82F1-F27995610323}.Debug (command-line server)|x64.ActiveCfg = Debug (command-line server)|x64
 		{0621B295-BEB7-4767-82F1-F27995610323}.Debug (command-line server)|x64.Build.0 = Debug (command-line server)|x64
-		{0621B295-BEB7-4767-82F1-F27995610323}.Debug (network)|Win32.ActiveCfg = Debug (network)|Win32
-		{0621B295-BEB7-4767-82F1-F27995610323}.Debug (network)|Win32.Build.0 = Debug (network)|Win32
-		{0621B295-BEB7-4767-82F1-F27995610323}.Debug (network)|x64.ActiveCfg = Debug (network)|x64
-		{0621B295-BEB7-4767-82F1-F27995610323}.Debug (network)|x64.Build.0 = Debug (network)|x64
+		{0621B295-BEB7-4767-82F1-F27995610323}.Debug (graphical server)|Win32.ActiveCfg = Debug (graphical server)|Win32
+		{0621B295-BEB7-4767-82F1-F27995610323}.Debug (graphical server)|Win32.Build.0 = Debug (graphical server)|Win32
+		{0621B295-BEB7-4767-82F1-F27995610323}.Debug (graphical server)|x64.ActiveCfg = Debug (graphical server)|x64
+		{0621B295-BEB7-4767-82F1-F27995610323}.Debug (graphical server)|x64.Build.0 = Debug (graphical server)|x64
 		{0621B295-BEB7-4767-82F1-F27995610323}.Debug (SDL)|Win32.ActiveCfg = Debug (SDL)|Win32
 		{0621B295-BEB7-4767-82F1-F27995610323}.Debug (SDL)|Win32.Build.0 = Debug (SDL)|Win32
 		{0621B295-BEB7-4767-82F1-F27995610323}.Debug (SDL)|x64.ActiveCfg = Debug (SDL)|x64
