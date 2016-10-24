@@ -1251,7 +1251,6 @@ void haltestelle_t::step()
 					const uint32 max_wait = welt->get_settings().get_passenger_max_wait();
 					const uint32 max_wait_minutes = max_wait / tmp.get_besch()->get_speed_bonus();
 					uint32 max_wait_tenths = max_wait_minutes * 10u;
-					halthandle_t h = haltestelle_t::get_halt(tmp.get_zielpos(), owner);
 
 					// Passengers' maximum waiting times were formerly limited to thrice their estimated
 					// journey time, but this is no longer so from version 11.14 onwards.
