@@ -773,11 +773,16 @@ void convoi_t::add_running_cost(sint64 cost, const weg_t *weg)
 
 void convoi_t::increment_odometer(uint32 steps)
 { 
+	steps_since_last_odometer_increment += steps;
+	if (steps_since_last_odometer_increment < welt->get_settings().get_steps_per_km())
+	{
+		return;
+	}
+	
 	// Increment the way distance: used for apportioning revenue by owner of ways.
 	// Use steps, as only relative distance is important here.
 	sint8 player;
 	waytype_t waytype = front()->get_waytype();
-	//const grund_t* gr = front()->get_grund();
 	weg_t* way = front()->get_weg();
 	if(way == NULL)
 	{
@@ -800,15 +805,9 @@ void convoi_t::increment_odometer(uint32 steps)
 		player = owner->get_player_nr();
 	}
 
-	FOR(departure_map, & i, departures)
+	FOR(departure_map, &i, departures)
 	{
-		i.value.increment_way_distance(player, steps);
-	}
-
-	steps_since_last_odometer_increment += steps;
-	if (steps_since_last_odometer_increment < welt->get_settings().get_steps_per_km())
-	{
-		return;
+		i.value.increment_way_distance(player, steps_since_last_odometer_increment);
 	}
 
 	const sint64 km = steps_since_last_odometer_increment / welt->get_settings().get_steps_per_km();
@@ -829,7 +828,6 @@ void convoi_t::increment_odometer(uint32 steps)
 				add_running_cost(running_cost, weg);
 			}
 			pos = v.get_pos();
-			//const grund_t* gr = welt->lookup(pos);
 			weg = v.get_weg();
 			running_cost = 0;
 		}
