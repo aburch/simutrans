@@ -6104,51 +6104,16 @@ const char* tool_make_stop_public_t::get_tooltip(const player_t *) const
 	return toolstr;
 }
 
-const char *tool_make_stop_public_t::move( player_t *player, uint16, koord3d p )
+const char *tool_make_stop_public_t::move( player_t *player, uint16 b, koord3d p )
 {
-	win_set_static_tooltip( NULL );
-	const grund_t *gr = welt->lookup(p);
-	if(gr!=NULL) {
-		halthandle_t halt = gr->get_halt();
-		if(  halt.is_bound()  &&  player_t::check_owner(halt->get_owner(),player)  &&  halt->get_owner()!=welt->get_player(1) ) {
-			sint64 costs = halt->calc_maintenance();
-			// set only tooltip if it costs (us)
-			if(costs>0) {
-				win_set_static_tooltip( tooltip_with_price("Building costs estimates", costs*60 ) );
-			}
-		}
-		else {
-			if(  gr->get_typ()==grund_t::brueckenboden  ||  gr->get_grund_hang()!=hang_t::flach  ) {
-				// not making ways public on bridges or slopes
-				return NOTICE_UNSUITABLE_GROUND;
-			}
-			weg_t *w = gr->get_weg_nr(0);
-			// no need for action if already player(1) => XOR ...
-			if(  !(w  &&  (  (w->get_owner()==player)  ^  (player==welt->get_player(1))  ))  ) {
-				w = gr->get_weg_nr(1);
-				if(  !(w  &&  (  (w->get_owner()==player)  ^  (player==welt->get_player(1))  ))  ) {
-					w = NULL;
-				}
-			}
-			if(  w  ) {
-				// no public way with signs
-				if(  w->has_sign()  ) {
-					return NOTICE_UNSUITABLE_GROUND;
-				}
-				sint64 costs = w->get_besch()->get_wartung();
-				if(  gr->ist_im_tunnel()  ) {
-					tunnel_t *t = gr->find<tunnel_t>();
-					costs = t->get_besch()->get_wartung();
-				}
-				// set only tooltip if it costs (us)
-				if(costs>0) {
-					win_set_static_tooltip( tooltip_with_price("Building costs estimates", -costs*60 ) );
-				}
-
-			}
-		}
+	// queue tool for network
+	if (env_t::networkmode) {
+		nwc_tool_t *nwc = new nwc_tool_t(player, this, p, welt->get_steps(), welt->get_map_counter(), false);
+		network_send_server(nwc);
+		return NULL;
 	}
-	return NULL;
+	
+	return work( player, p );
 }
 
 const char *tool_make_stop_public_t::work( player_t *player, koord3d p )

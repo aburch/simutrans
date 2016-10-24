@@ -139,6 +139,19 @@ DBG_MESSAGE("message_t::add_msg()","%40s (at %i,%i)", text, pos.x, pos.y );
 		}
 	}
 
+	// filter out AI messages for a similar area to recent activity messages 
+	if(  what == ai  &&  pos != koord::invalid  ) {
+		uint32 i = 0;
+		FOR(slist_tpl<node*>, const iter, list) {
+			node const& n = *iter;
+			if ((n.pos.x & 0xFFE0) == (pos.x & 0xFFE0) &&
+				(n.pos.y & 0xFFE0) == (pos.y & 0xFFE0)) {
+				return;
+			}
+			if (++i == 20) break;
+		}
+	}
+
 	// if no coordinate is provided, there is maybe one in the text message?
 	// syntax: either @x,y or (x,y)
 	if (pos == koord::invalid) {
