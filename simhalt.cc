@@ -1931,7 +1931,7 @@ void haltestelle_t::get_destination_halts_of_ware(ware_t &ware, vector_tpl<halth
 
 uint16 haltestelle_t::find_route(const vector_tpl<halthandle_t>& destination_halts_list, ware_t &ware, const uint16 previous_journey_time, const koord destination_pos)
 {
-	// ** Beware ** This is the most computationally intensive (taking into account how often that it is called) function in the game
+	// ** Beware ** This is the one of the most computationally intensive (taking into account how often that it is called) functions in the game
 	// Find the best route (sequence of halts) for a given packet
 	// from here to its final destination -- *and* reroute the packet.
 	//

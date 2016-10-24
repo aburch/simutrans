@@ -74,6 +74,11 @@ const vector_tpl <weg_t *> & weg_t::get_alle_wege()
 	return alle_wege;
 }
 
+const uint32  weg_t::get_all_ways_count()
+{
+	return alle_wege.get_count();  
+}
+
 
 // returns a way with matching waytype
 weg_t* weg_t::alloc(waytype_t wt)

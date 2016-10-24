@@ -66,6 +66,12 @@
 
 #include "besch/ware_besch.h"
 
+#ifdef MULTI_THREAD
+#include "utils/simthread.h"
+static vector_tpl<pthread_t> unreserve_threads;
+static pthread_attr_t thread_attributes;
+#endif
+
 //#if _MSC_VER
 //#define snprintf _snprintf
 //#endif
@@ -325,6 +331,55 @@ bool convoi_t::is_waypoint( koord3d ziel ) const
 void convoi_t::unreserve_route()
 {
 	// Clears all reserved tiles on the whole map belonging to this convoy.
+#ifdef MULTI_THREAD
+	pthread_attr_init(&thread_attributes);
+	pthread_attr_setdetachstate(&thread_attributes, PTHREAD_CREATE_JOINABLE);
+	
+	sint32 rc;
+
+	const uint32 parallel_operations = 4; // TODO: Have this set in simuconf.tab to make this network safe: "threads" is in env_t and is not network safe. This should be independent from threads.
+	pthread_t unreserve_thread;
+	route_range_specification range;
+	const uint32 max_count = weg_t::get_all_ways_count() - 1;
+	range.self_entry = self.get_id();
+	range.wt = front()->get_waytype();
+	const uint32 fraction = max_count / parallel_operations;
+	for (uint32 i = 0; i < parallel_operations; i++)
+	{
+		range.start = i * fraction;
+		if (i = parallel_operations - 1)
+		{
+			range.end = max_count;
+		}
+		else
+		{
+			range.end = min(((i + 1) * fraction - 1), max_count);
+		}
+			
+		rc = pthread_create(&unreserve_thread, &thread_attributes, &unreserve_route_range, (void*)&range);
+		if (rc)
+		{
+			dbg->fatal("void path_explorer_t::step()", "Failed to create thread, error %d. See here for a translation of the error numbers: http://epydoc.sourceforge.net/stdlib/errno-module.html", rc);
+		}
+		else
+		{
+			unreserve_threads.append(unreserve_thread);
+		}
+	}
+
+	pthread_attr_destroy(&thread_attributes);	
+	FOR(vector_tpl<pthread_t>, const &thread, unreserve_threads)
+	{
+		rc = pthread_join(thread, NULL);
+		if (rc)
+		{
+			dbg->fatal("void path_explorer_t::step()", "Failed to join thread, error %d. See here for a translation of the error numbers: http://epydoc.sourceforge.net/stdlib/errno-module.html", rc);
+		}
+	}
+
+	unreserve_threads.clear();
+
+#else
 	FOR(vector_tpl<weg_t*>, const way, weg_t::get_alle_wege())
 	{
 		if(way->get_waytype() == front()->get_waytype())
@@ -337,8 +392,36 @@ void convoi_t::unreserve_route()
 			}
 		}
 	}
+#endif
 	set_needs_full_route_flush(false);
 }
+
+#ifdef MULTI_THREAD
+
+void *unreserve_route_range(void *args)
+{
+	route_range_specification *range = (route_range_specification*)args;
+
+	const vector_tpl<weg_t *> all_ways = weg_t::get_alle_wege();
+	for (uint32 i = range->start; i < range->end; i++)
+	{
+		weg_t* const way = all_ways[i];
+		if (way->get_waytype() == range->wt)
+		{
+			//schiene_t* const sch = obj_cast<schiene_t>(way);
+			schiene_t* const sch = way->is_rail_type() ? (schiene_t*)way : NULL;
+			if (sch && sch->get_reserved_convoi().get_id() == range->self_entry)
+			{
+				convoihandle_t ch;
+				ch.set_id(range->self_entry);
+				sch->unreserve(ch);
+			}
+		}
+	}
+	return NULL;
+}
+
+#endif
 
 void convoi_t::reserve_own_tiles()
 {
@@ -361,6 +444,7 @@ void convoi_t::reserve_own_tiles()
 		}
 	}
 }
+
 
 /**
  * Sets route_index of all vehicles to startindex.

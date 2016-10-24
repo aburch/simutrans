@@ -75,6 +75,16 @@ struct departure_point_t
 
 };
 
+#ifdef MULTI_THREAD
+struct route_range_specification
+{
+	uint32 start;
+	uint32 end;
+	uint16 self_entry;
+	waytype_t wt;
+};
+#endif
+
 static inline bool operator == (const departure_point_t &a, const departure_point_t &b)
 {
 	// only this works with O3 optimisation!
@@ -829,6 +839,11 @@ public:
 	 * remove all track reservations (trains only)
 	 */
 	void unreserve_route();
+#ifdef MULTI_THREAD
+private:
+	friend void *unreserve_route_range(void* args);
+public:
+#endif
 
 	route_t* get_route() { return &route; }
 	route_t* access_route() { return &route; }
