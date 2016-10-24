@@ -1719,13 +1719,15 @@ uint16 haltestelle_t::get_service_frequency(halthandle_t destination, uint8 cate
 				}
 			}
 
-			if(haltestelle_t::get_halt(current_halt, owner) == destination)
+			halthandle_t current_halthandle = haltestelle_t::get_halt(current_halt, owner);
+
+			if(current_halthandle == destination)
 			{
 				// This line serves this destination.
 				line_serves_destination = true;
 			}
 			
-			if(haltestelle_t::get_halt(current_halt, owner) == self)
+			if(current_halthandle == self)
 			{
 				number_of_calls_at_this_stop ++;
 			}
