@@ -58,6 +58,7 @@ public:
 	*/
 	static const vector_tpl <weg_t *> & get_alle_wege();
 	static const uint32 get_all_ways_count();
+	static void clear_list_of__ways();
 
 	enum {
 		HAS_SIDEWALK   = 0x01,

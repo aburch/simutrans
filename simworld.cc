@@ -602,7 +602,7 @@ DBG_MESSAGE("karte_t::destroy()", "towns destroyed");
 		delete [] plan;
 		plan = NULL;
 	}
-	DBG_MESSAGE("karte_t::destroy()", "planquadrat destroyed");
+DBG_MESSAGE("karte_t::destroy()", "planquadrat destroyed");
 
 	old_progress += (cached_size.x*cached_size.y)/2;
 	ls.set_progress( old_progress );
@@ -642,6 +642,9 @@ DBG_MESSAGE("karte_t::destroy()", "factories destroyed");
 	ausflugsziele.clear();
 DBG_MESSAGE("karte_t::destroy()", "attraction list destroyed");
 
+	weg_t::clear_list_of__ways();
+DBG_MESSAGE("karte_t::destroy()", "way list destroyed");
+
 	delete scenario;
 	scenario = NULL;
 
@@ -652,8 +655,6 @@ DBG_MESSAGE("karte_t::destroy()", "attraction list destroyed");
 	assert( empty_depot_list );
 
 DBG_MESSAGE("karte_t::destroy()", "world destroyed");
-	
-	is_shutting_down = false;
 
 	// Added by : B.Gabriel
 	route_t::TERM_NODES();
@@ -2166,7 +2167,6 @@ karte_t::karte_t() :
 	ausflugsziele(16),
 	stadt(0),
 	idle_time(0),
-	is_shutting_down(false),
 	speed_factors_are_set(false)
 {
 	// length of day and other time stuff

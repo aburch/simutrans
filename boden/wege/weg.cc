@@ -74,9 +74,14 @@ const vector_tpl <weg_t *> & weg_t::get_alle_wege()
 	return alle_wege;
 }
 
-const uint32  weg_t::get_all_ways_count()
+const uint32 weg_t::get_all_ways_count()
 {
 	return alle_wege.get_count();  
+}
+
+void weg_t::clear_list_of__ways()
+{
+	alle_wege.clear();
 }
 
 
@@ -318,17 +323,20 @@ void weg_t::init()
 
 weg_t::~weg_t()
 {
-	alle_wege.remove(this);
-	player_t *player=get_owner();
-	if(player  &&  besch) 
+	if (!welt->is_destroying())
 	{
-		sint32 maint = besch->get_wartung();
-		if(is_diagonal())
+		alle_wege.remove(this);
+		player_t *player = get_owner();
+		if (player  &&  besch)
 		{
-			maint *= 10;
-			maint /= 14;
+			sint32 maint = besch->get_wartung();
+			if (is_diagonal())
+			{
+				maint *= 10;
+				maint /= 14;
+			}
+			player_t::add_maintenance(player, -maint, besch->get_finance_waytype());
 		}
-		player_t::add_maintenance( player,  -maint, besch->get_finance_waytype() );
 	}
 }
 

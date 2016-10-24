@@ -254,12 +254,6 @@ private:
 	 */
 	tool_t *selected_tool[MAX_PLAYER_COUNT];
 
-	// Whether the map is currently being destroyed. 
-	// Useful to prevent access violations if objects with
-	// references to other objects that are destroyed first
-	// reference members of those objects in their destructors.
-	bool is_shutting_down; 
-
 	/**
 	 * Redraw whole map.
 	 */
