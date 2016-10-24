@@ -324,6 +324,32 @@ bool convoi_t::is_waypoint( koord3d ziel ) const
 	return !haltestelle_t::get_halt(ziel,get_owner()).is_bound();
 }
 
+#ifdef MULTI_THREAD
+
+void *unreserve_route_range(void *args)
+{
+	route_range_specification *range = (route_range_specification*)args;
+
+	const vector_tpl<weg_t *> all_ways = weg_t::get_alle_wege();
+	for (uint32 i = range->start; i < range->end; i++)
+	{
+		weg_t* const way = all_ways[i];
+		if (way->get_waytype() == range->wt)
+		{
+			//schiene_t* const sch = obj_cast<schiene_t>(way);
+			schiene_t* const sch = way->is_rail_type() ? (schiene_t*)way : NULL;
+			if (sch && sch->get_reserved_convoi().get_id() == range->self_entry)
+			{
+				convoihandle_t ch;
+				ch.set_id(range->self_entry);
+				sch->unreserve(ch);
+			}
+		}
+	}
+	return NULL;
+}
+
+#endif
 
 /**
  * unreserves the whole remaining route
@@ -395,33 +421,6 @@ void convoi_t::unreserve_route()
 #endif
 	set_needs_full_route_flush(false);
 }
-
-#ifdef MULTI_THREAD
-
-void *unreserve_route_range(void *args)
-{
-	route_range_specification *range = (route_range_specification*)args;
-
-	const vector_tpl<weg_t *> all_ways = weg_t::get_alle_wege();
-	for (uint32 i = range->start; i < range->end; i++)
-	{
-		weg_t* const way = all_ways[i];
-		if (way->get_waytype() == range->wt)
-		{
-			//schiene_t* const sch = obj_cast<schiene_t>(way);
-			schiene_t* const sch = way->is_rail_type() ? (schiene_t*)way : NULL;
-			if (sch && sch->get_reserved_convoi().get_id() == range->self_entry)
-			{
-				convoihandle_t ch;
-				ch.set_id(range->self_entry);
-				sch->unreserve(ch);
-			}
-		}
-	}
-	return NULL;
-}
-
-#endif
 
 void convoi_t::reserve_own_tiles()
 {

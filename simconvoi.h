@@ -835,15 +835,17 @@ public:
 	*/
 	void hat_gehalten(halthandle_t halt);
 
-	/**
-	 * remove all track reservations (trains only)
-	 */
-	void unreserve_route();
 #ifdef MULTI_THREAD
 private:
 	friend void *unreserve_route_range(void* args);
 public:
 #endif
+
+	/**
+	 * remove all track reservations (trains only)
+	 */
+	void unreserve_route();
+
 
 	route_t* get_route() { return &route; }
 	route_t* access_route() { return &route; }
