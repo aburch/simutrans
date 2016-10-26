@@ -20,9 +20,8 @@
 signal_info_t::signal_info_t(signal_t* s) :
 	obj_infowin_t(s),
 	sig(s)
+
 {
-	//sint16 offset_y = LINESPACE * 16;
-	sint16 offset_y = D_MARGINS_Y;
 
 	buf.append(translator::translate("Controlled from"));
 	buf.append(":\n");
@@ -39,18 +38,11 @@ signal_info_t::signal_info_t(signal_t* s) :
 			const gebaeude_t* gb = gr->get_building();
 			if (gb)
 			{
-				signalbox_button.init(button_t::posbutton, NULL, scr_coord(D_MARGIN_LEFT, offset_y));
+				signalbox_button.init(button_t::posbutton, NULL, scr_coord(D_MARGIN_LEFT, get_windowsize().h - 25 - LINESPACE));
 				signalbox_button.set_tooltip("Goto_signalbox.");
 				add_component(&signalbox_button);
 				signalbox_button.add_listener(this);
-				buf.append(translator::translate(gb->get_name()));
-				buf.append(" <");
-				buf.append(sb.x);
-				buf.append(",");
-				buf.append(sb.y);
-				buf.append(",");
-				buf.append(sb.z);
-				buf.append(">");
+
 			}
 			else
 			{

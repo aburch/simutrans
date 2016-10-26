@@ -29,11 +29,10 @@ class signal_info_t : public obj_infowin_t, public action_listener_t
  private:
 	 signal_t* sig;
 	button_t signalbox_button;
+
  public:
 	signal_info_t(signal_t* s);
-
 	
-
 	/*
 	 * Set the window associated helptext
 	 * @return the filename for the helptext, or NULL
