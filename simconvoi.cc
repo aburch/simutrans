@@ -66,6 +66,12 @@
 
 #include "besch/ware_besch.h"
 
+#ifdef MULTI_THREAD
+#include "utils/simthread.h"
+static vector_tpl<pthread_t> unreserve_threads;
+static pthread_attr_t thread_attributes;
+#endif
+
 //#if _MSC_VER
 //#define snprintf _snprintf
 //#endif
@@ -318,6 +324,32 @@ bool convoi_t::is_waypoint( koord3d ziel ) const
 	return !haltestelle_t::get_halt(ziel,get_owner()).is_bound();
 }
 
+#ifdef MULTI_THREAD
+
+void *unreserve_route_range(void *args)
+{
+	route_range_specification *range = (route_range_specification*)args;
+
+	const vector_tpl<weg_t *> all_ways = weg_t::get_alle_wege();
+	for (uint32 i = range->start; i < range->end; i++)
+	{
+		weg_t* const way = all_ways[i];
+		if (way->get_waytype() == range->wt)
+		{
+			//schiene_t* const sch = obj_cast<schiene_t>(way);
+			schiene_t* const sch = way->is_rail_type() ? (schiene_t*)way : NULL;
+			if (sch && sch->get_reserved_convoi().get_id() == range->self_entry)
+			{
+				convoihandle_t ch;
+				ch.set_id(range->self_entry);
+				sch->unreserve(ch);
+			}
+		}
+	}
+	return NULL;
+}
+
+#endif
 
 /**
  * unreserves the whole remaining route
@@ -325,6 +357,55 @@ bool convoi_t::is_waypoint( koord3d ziel ) const
 void convoi_t::unreserve_route()
 {
 	// Clears all reserved tiles on the whole map belonging to this convoy.
+#ifdef MULTI_THREAD
+	pthread_attr_init(&thread_attributes);
+	pthread_attr_setdetachstate(&thread_attributes, PTHREAD_CREATE_JOINABLE);
+	
+	sint32 rc;
+
+	const uint32 parallel_operations = 4; // TODO: Have this set in simuconf.tab to make this network safe: "threads" is in env_t and is not network safe. This should be independent from threads.
+	pthread_t unreserve_thread;
+	route_range_specification range;
+	const uint32 max_count = weg_t::get_all_ways_count() - 1;
+	range.self_entry = self.get_id();
+	range.wt = front()->get_waytype();
+	const uint32 fraction = max_count / parallel_operations;
+	for (uint32 i = 0; i < parallel_operations; i++)
+	{
+		range.start = i * fraction;
+		if (i = parallel_operations - 1)
+		{
+			range.end = max_count;
+		}
+		else
+		{
+			range.end = min(((i + 1) * fraction - 1), max_count);
+		}
+			
+		rc = pthread_create(&unreserve_thread, &thread_attributes, &unreserve_route_range, (void*)&range);
+		if (rc)
+		{
+			dbg->fatal("void path_explorer_t::step()", "Failed to create thread, error %d. See here for a translation of the error numbers: http://epydoc.sourceforge.net/stdlib/errno-module.html", rc);
+		}
+		else
+		{
+			unreserve_threads.append(unreserve_thread);
+		}
+	}
+
+	pthread_attr_destroy(&thread_attributes);	
+	FOR(vector_tpl<pthread_t>, const &thread, unreserve_threads)
+	{
+		rc = pthread_join(thread, NULL);
+		if (rc)
+		{
+			dbg->fatal("void path_explorer_t::step()", "Failed to join thread, error %d. See here for a translation of the error numbers: http://epydoc.sourceforge.net/stdlib/errno-module.html", rc);
+		}
+	}
+
+	unreserve_threads.clear();
+
+#else
 	FOR(vector_tpl<weg_t*>, const way, weg_t::get_alle_wege())
 	{
 		if(way->get_waytype() == front()->get_waytype())
@@ -337,6 +418,7 @@ void convoi_t::unreserve_route()
 			}
 		}
 	}
+#endif
 	set_needs_full_route_flush(false);
 }
 
@@ -361,6 +443,7 @@ void convoi_t::reserve_own_tiles()
 		}
 	}
 }
+
 
 /**
  * Sets route_index of all vehicles to startindex.
@@ -773,11 +856,16 @@ void convoi_t::add_running_cost(sint64 cost, const weg_t *weg)
 
 void convoi_t::increment_odometer(uint32 steps)
 { 
+	steps_since_last_odometer_increment += steps;
+	if (steps_since_last_odometer_increment < welt->get_settings().get_steps_per_km())
+	{
+		return;
+	}
+	
 	// Increment the way distance: used for apportioning revenue by owner of ways.
 	// Use steps, as only relative distance is important here.
 	sint8 player;
 	waytype_t waytype = front()->get_waytype();
-	//const grund_t* gr = front()->get_grund();
 	weg_t* way = front()->get_weg();
 	if(way == NULL)
 	{
@@ -800,15 +888,9 @@ void convoi_t::increment_odometer(uint32 steps)
 		player = owner->get_player_nr();
 	}
 
-	FOR(departure_map, & i, departures)
+	FOR(departure_map, &i, departures)
 	{
-		i.value.increment_way_distance(player, steps);
-	}
-
-	steps_since_last_odometer_increment += steps;
-	if (steps_since_last_odometer_increment < welt->get_settings().get_steps_per_km())
-	{
-		return;
+		i.value.increment_way_distance(player, steps_since_last_odometer_increment);
 	}
 
 	const sint64 km = steps_since_last_odometer_increment / welt->get_settings().get_steps_per_km();
@@ -829,7 +911,6 @@ void convoi_t::increment_odometer(uint32 steps)
 				add_running_cost(running_cost, weg);
 			}
 			pos = v.get_pos();
-			//const grund_t* gr = welt->lookup(pos);
 			weg = v.get_weg();
 			running_cost = 0;
 		}
@@ -1320,6 +1401,7 @@ bool convoi_t::drive_to()
 			int counter = fpl->get_count();
 
 			linieneintrag_t* schedule_entry = &fpl->eintrag[fpl->get_aktuell()];
+			bool update_line = false;
 			while(success && counter--)
 			{
 				if(schedule_entry->reverse == -1)
@@ -1328,7 +1410,10 @@ bool convoi_t::drive_to()
 					fpl->set_reverse(schedule_entry->reverse, fpl->get_aktuell()); 
 					if(line.is_bound())
 					{
-						simlinemgmt_t::update_line(line);
+						schedule_t* line_schedule = line->get_schedule();
+						linieneintrag_t &line_entry = line_schedule->eintrag[fpl->get_aktuell()];
+						line_entry.reverse = schedule_entry->reverse;
+						update_line = true;	
 					}
 				}
 
@@ -1340,6 +1425,11 @@ bool convoi_t::drive_to()
 				advance_schedule();
 				schedule_entry = &fpl->eintrag[fpl->get_aktuell()];
 				success = front()->reroute(route.get_count() - 1, schedule_entry->pos);
+			}
+
+			if (update_line)
+			{
+				simlinemgmt_t::update_line(line);
 			}
 		}
 
@@ -5976,6 +6066,7 @@ void convoi_t::set_next_stop_index(uint16 n)
 	   // do not brake at non-reversing waypoints
 	   bool reverse_waypoint = false;
 	   koord3d route_end = route.back();
+	   bool update_line = false;
 
 	   if(front()->get_typ() != obj_t::air_vehicle)
 	   {
@@ -5989,15 +6080,24 @@ void convoi_t::set_next_stop_index(uint16 n)
 				   {
 					   eintrag.reverse = check_destination_reverse() ? 1 : 0;
 					   fpl->set_reverse(eintrag.reverse, i); 
+					   
 					   if(line.is_bound())
 					   {
-						   simlinemgmt_t::update_line(line);
+						   schedule_t* line_schedule = line->get_schedule();
+						   linieneintrag_t &line_entry = line_schedule->eintrag[i];
+						   line_entry.reverse = eintrag.reverse;
+						   update_line = true;
 					   }
 				   }
 					reverse_waypoint = eintrag.reverse == 1;
 
 					break;
 			   }
+		   }
+
+		   if (update_line)
+		   {
+			   simlinemgmt_t::update_line(line);
 		   }
 	   }
 

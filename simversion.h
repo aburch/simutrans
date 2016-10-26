@@ -1,6 +1,13 @@
 #ifndef simversion_h
 #define simversion_h
 
+#ifdef MAKEOBJ
+#ifdef _MSC_VER
+FILE _iob[] = { *stdin, *stdout, *stderr };
+extern "C" FILE * __cdecl __iob_func(void) { return _iob; }
+#endif
+#endif
+
 #if defined(REVISION_FROM_FILE)  &&  !defined(REVISION)
 // include external generated revision file
 #include "revision.h"
