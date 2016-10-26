@@ -550,8 +550,12 @@ bool nwc_auth_player_t::execute(karte_t *welt)
 				}
 			}
 			else if (player_nr < PLAYER_UNOWNED) {
+				// players with public service player access always pass password checks
+				if(  info.is_player_unlocked(1)  ) {
+					info.unlock_player(player_nr);
+				}
 				// check password
-				if (welt->get_player(player_nr)->access_password_hash() == hash) {
+				else if (welt->get_player(player_nr)->access_password_hash() == hash) {
 
 					dbg->message("nwc_auth_player_t::execute","unlock plnr = %d at our_client_id = %d", player_nr, our_client_id);
 
