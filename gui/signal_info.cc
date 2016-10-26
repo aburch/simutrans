@@ -22,13 +22,10 @@ signal_info_t::signal_info_t(signal_t* s) :
 	sig(s)
 
 {
-
-	buf.append(translator::translate("Controlled from"));
-	buf.append(":\n");
 	koord3d sb = sig->get_signalbox();
 	if (sb == koord3d::invalid)
 	{
-		buf.append(translator::translate("keine"));
+// No signalbox
 	}
 	else
 	{
@@ -39,19 +36,19 @@ signal_info_t::signal_info_t(signal_t* s) :
 			if (gb)
 			{
 				signalbox_button.init(button_t::posbutton, NULL, scr_coord(D_MARGIN_LEFT, get_windowsize().h - 25 - LINESPACE));
-				signalbox_button.set_tooltip("Goto_signalbox.");
+				signalbox_button.set_tooltip("goto_signalbox");
 				add_component(&signalbox_button);
 				signalbox_button.add_listener(this);
 
 			}
 			else
 			{
-				buf.append(translator::translate("keine"));
+				// No signalbox
 			}
 		}
 		else
 		{
-			buf.append(translator::translate("keine"));
+			// No signalbox
 		}
 	}
 

@@ -130,62 +130,50 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 	// well, needs to be done
 	obj_t::info(buf);
 	signal_t* sig = (signal_t*)this;
-
-	sint16 offset_y = LINESPACE;
-
+	
 	buf.append(translator::translate(besch->get_name()));
 	buf.append("\n\n");
-	offset_y += (LINESPACE * 2);
 
 	buf.append(translator::translate(get_working_method_name(besch->get_working_method())));
 	buf.append("\n");
-	offset_y += (LINESPACE);
 
 	if (besch->is_choose_sign())
 	{
 		buf.append(translator::translate("choose_signal"));
 		buf.append("\n");
-		offset_y += (LINESPACE);
 	}
 	if (besch->is_longblock_signal() && (besch->get_working_method() == time_interval || besch->get_working_method() == time_interval_with_telegraph || besch->get_working_method() == absolute_block))
 	{
 		buf.append(translator::translate("station_signal"));
 		buf.append("\n");
-		offset_y += (LINESPACE);
 	}
 	else if (besch->is_longblock_signal())
 	{
 		buf.append(translator::translate("longblock_signal"));
 		buf.append("\n");
-		offset_y += (LINESPACE);
 	}
 	if (besch->is_combined_signal())
 	{
 		buf.append(translator::translate("combined_signal"));
 		buf.append("\n");
-		offset_y += (LINESPACE);
 	}
 	if (besch->is_pre_signal())
 	{
 		buf.append(translator::translate("distant_signal"));
 		buf.append("\n");
-		offset_y += (LINESPACE);
 	}
 	if (besch->get_intermediate_block() == true)
 	{
 		buf.append(translator::translate("intermediate_signal"));
 		buf.append("\n");
-		offset_y += (LINESPACE);
 	}
 	if (besch->get_permissive() == true)
 	{
 		buf.append(translator::translate("permissive_signal"));
 		buf.append("\n");
-		offset_y += (LINESPACE);
 	}
 	buf.printf("%s%s%d%s%s", translator::translate("Max. speed:")," ", speed_to_kmh(besch->get_max_speed()), " ", "km/h");
 	buf.append("\n");
-	offset_y += (LINESPACE);
 
 	buf.append(translator::translate("Direction"));
 	buf.append(": ");
@@ -205,7 +193,6 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 		buf.append(translator::translate(get_directions_name(get_dir())));
 	}
 	buf.append("\n");
-	offset_y += (LINESPACE);
 
 	// Show the signal state in the info window // Ves
 	if (besch->is_longblock_signal() && (besch->get_working_method() == time_interval || besch->get_working_method() == time_interval_with_telegraph || besch->get_working_method() == absolute_block))
@@ -291,13 +278,11 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 					}
 				}
 				buf.append(translator::translate("\n\n"));
-				offset_y += (LINESPACE * 2);
 			}	
 		else
 		{
 			buf.append(translator::translate("danger"));
 			buf.append(translator::translate("\n\n"));
-			offset_y += (LINESPACE * 2);
 		}
 	}
 	else if (besch->is_choose_sign())
@@ -306,7 +291,6 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 		buf.append(": ");
 		buf.append(translator::translate(get_choose_signal_aspects_name(get_state())));
 		buf.append("\n\n");
-		offset_y += (LINESPACE * 2);
 	}
 	else if (besch->get_working_method() == drive_by_sight || besch->get_aspects() <= 1)
 	{
@@ -317,7 +301,6 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 		buf.append(": ");
 		buf.append(translator::translate(get_signal_aspects_name(get_state())));
 		buf.append("\n\n");
-		offset_y += (LINESPACE * 2);
 	}
 
 	// Wether this signal will create a directional reservation.
@@ -326,7 +309,6 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 		{
 		buf.append(translator::translate("This signal creates directional reservations"));
 		buf.append(translator::translate("\n\n"));
-		offset_y += (LINESPACE);
 	}
 
 
@@ -359,7 +341,6 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 			welt->sprintf_ticks(time_since_train_last_passed, sizeof(time_since_train_last_passed), welt->get_zeit_ms() - this_tile_halt->get_train_last_departed(i));
 			buf.append(time_since_train_last_passed);		
 			buf.append("\n");
-			offset_y += (LINESPACE * 5);
 		}
 	}
 	else
@@ -370,12 +351,9 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 		welt->sprintf_ticks(time_since_train_last_passed, sizeof(time_since_train_last_passed), welt->get_zeit_ms() - sig->get_train_last_passed());
 		buf.append(time_since_train_last_passed);
 		buf.append("\n");
-		offset_y += (LINESPACE);
 	}
 
 	buf.append("\n");
-	offset_y += (LINESPACE);
-	
 	
 	buf.append(translator::translate("Controlled from"));
 	buf.append(":\n");
