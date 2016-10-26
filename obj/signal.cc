@@ -302,9 +302,6 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 		buf.append(translator::translate(get_signal_aspects_name(get_state())));
 		buf.append("\n\n");
 	}
-
-	// Wether this signal will create a directional reservation.
-
 	if (((besch->is_longblock_signal() || get_dir() == 3 || get_dir() == 6 || get_dir() == 9 || get_dir() == 12 || get_dir() == 5 || get_dir() == 10 ) && (besch->get_working_method() == time_interval_with_telegraph || besch->get_working_method() == track_circuit_block || besch->get_working_method() == cab_signalling || besch->get_working_method() == moving_block)) && (besch->is_pre_signal()) == false )
 		{
 		buf.append(translator::translate("This signal creates directional reservations"));
@@ -352,7 +349,6 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 		buf.append(time_since_train_last_passed);
 		buf.append("\n");
 	}
-
 	buf.append("\n");
 	
 	buf.append(translator::translate("Controlled from"));
@@ -390,7 +386,6 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 			buf.append(translator::translate("keine"));
 		}
 	}
-	
 }
 
 
