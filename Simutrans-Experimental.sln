@@ -1,11 +1,14 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.25123.0
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Simutrans-Experimental", "Simutrans-Experimental.vcxproj", "{0621B295-BEB7-4767-82F1-F27995610323}"
 EndProject
 Global
+	GlobalSection(Performance) = preSolution
+		HasPerformanceSessions = true
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug (command-line server)|Win32 = Debug (command-line server)|Win32
 		Debug (command-line server)|x64 = Debug (command-line server)|x64

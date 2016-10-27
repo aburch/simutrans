@@ -363,7 +363,16 @@ void convoi_t::unreserve_route()
 	
 	sint32 rc;
 
-	const uint32 parallel_operations = 4; // TODO: Have this set in simuconf.tab to make this network safe: "threads" is in env_t and is not network safe. This should be independent from threads.
+	uint32 parallel_operations;
+	if (env_t::networkmode)
+	{
+		// TODO: Have this set in simuconf.tab to make this network safe: "threads" is in env_t and is not network safe. This should be independent from threads.
+		parallel_operations = 4;
+	}
+	else
+	{
+		parallel_operations = env_t::num_threads - 1;
+	}
 	pthread_t unreserve_thread;
 	route_range_specification range;
 	const uint32 max_count = weg_t::get_all_ways_count() - 1;
@@ -394,6 +403,7 @@ void convoi_t::unreserve_route()
 	}
 
 	pthread_attr_destroy(&thread_attributes);	
+	INT_CHECK("void convoi_t::unreserve_route() (multi-threaded)");
 	FOR(vector_tpl<pthread_t>, const &thread, unreserve_threads)
 	{
 		rc = pthread_join(thread, NULL);
