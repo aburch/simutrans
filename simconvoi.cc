@@ -403,7 +403,10 @@ void convoi_t::unreserve_route()
 	}
 
 	pthread_attr_destroy(&thread_attributes);	
-	INT_CHECK("void convoi_t::unreserve_route() (multi-threaded)");
+	if (!env_t::networkmode)
+	{
+		INT_CHECK("void convoi_t::unreserve_route() (multi-threaded)");
+	}
 	FOR(vector_tpl<pthread_t>, const &thread, unreserve_threads)
 	{
 		rc = pthread_join(thread, NULL);
