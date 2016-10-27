@@ -411,3 +411,7 @@ note=Additional directions shown in the signal infowindow for "station signals"
 obj=program_text
 name=east_and_west
 note=Additional directions shown in the signal infowindow for "station signals"
+-
+obj=program_text
+name=goto_signalbox
+note=Tooltip for the goto signalbox button
