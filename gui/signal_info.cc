@@ -25,7 +25,7 @@ signal_info_t::signal_info_t(signal_t* s) :
 	koord3d sb = sig->get_signalbox();
 	if (sb == koord3d::invalid)
 	{
-// No signalbox
+		// No signalbox
 	}
 	else
 	{
