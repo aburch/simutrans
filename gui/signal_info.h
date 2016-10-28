@@ -29,7 +29,7 @@ class signal_info_t : public obj_infowin_t, public action_listener_t
 	button_t signalbox_button;
 
  public:
-	signal_info_t(signal_t* s);
+	signal_info_t(signal_t* const s);
 	
 	/*
 	 * Set the window associated helptext
