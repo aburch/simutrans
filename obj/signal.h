@@ -12,6 +12,7 @@
 
 #include "../simobj.h"
 
+class signal_info_t;
 
 /**
  * Signale für die Bahnlinien.
