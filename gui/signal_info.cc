@@ -17,7 +17,7 @@
 #include "../simworld.h"
 #include "../display/viewport.h"
 
-signal_info_t::signal_info_t(signal_t* s) :
+signal_info_t::signal_info_t(signal_t* const s) :
 	obj_infowin_t(s),
 	sig(s)
 
