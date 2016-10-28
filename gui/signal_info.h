@@ -18,8 +18,6 @@
 #include "components/gui_numberinput.h"
 #include "components/gui_container.h"
 
-class roadsign_t;
-
 /**
  * Info window for signals
  * @author Hj. Malthaner
