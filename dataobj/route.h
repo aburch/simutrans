@@ -75,14 +75,13 @@ public:
 		inline bool operator <= (const ANode &k) const { return f==k.f ? g<=k.g : f<=k.f; }
 	};
 
-// These will need to be made non-static if this is ever to be threaded.
 private:
 	static const uint8 MAX_NODES_ARRAY = 2;
-	static ANode *_nodes[MAX_NODES_ARRAY]; 
-	static bool _nodes_in_use[MAX_NODES_ARRAY]; // semaphores, since we only have few nodes arrays in memory
+	static thread_local ANode *_nodes[MAX_NODES_ARRAY];
+	static thread_local bool _nodes_in_use[MAX_NODES_ARRAY]; // semaphores, since we only have few nodes arrays in memory
 public:
-	static uint32 MAX_STEP;
-	static uint32 max_used_steps;
+	static thread_local uint32 MAX_STEP;
+	static thread_local uint32 max_used_steps;
 	static void INIT_NODES(uint32 max_route_steps, const koord &world_size);
 	static uint8 GET_NODES(ANode **nodes); 
 	static void RELEASE_NODES(uint8 nodes_index);

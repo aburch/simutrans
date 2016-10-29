@@ -155,6 +155,10 @@ typedef unsigned long long  uint64;
 #	define NORETURN      __attribute__ ((noreturn))
 #endif
 #define UINT64_MAX_VALUE	ULLONG_MAX
+#ifndef  MULTI_THREAD
+#define thread_local  
+#endif // ! MULTI_THREAD
+
 
 template<typename T> static inline int sgn(T x)
 {

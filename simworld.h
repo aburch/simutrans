@@ -2101,6 +2101,10 @@ public:
 	sync_list_t sync_eyecandy;     ///< animated buildings
 	sync_list_t sync_way_eyecandy; ///< smoke
 
+#ifdef MULTI_THREAD
+	friend void *check_road_connexions_threaded(void* args);
+#endif
+
 	/**
 	 * Synchronous stepping of objects like vehicles.
 	 */

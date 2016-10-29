@@ -9,7 +9,7 @@
 #include "../boden/grund.h"
 #include "marker.h"
 
-marker_t marker_t::the_instance;
+marker_t thread_local marker_t::the_instance;
 
 
 void marker_t::init(int welt_groesse_x,int welt_groesse_y)

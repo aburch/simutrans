@@ -120,6 +120,12 @@
 
 #include "dataobj/tabfile.h" // For reload of simuconf.tab to override savegames
 
+#ifdef MULTI_THREAD
+#include "utils/simthread.h"
+static vector_tpl<pthread_t> private_car_route_threads;
+static pthread_attr_t thread_attributes;
+#endif
+
 #ifdef DEBUG_SIMRAND_CALLS
 bool karte_t::print_randoms = true;
 int karte_t::random_calls = 0;
@@ -4567,12 +4573,65 @@ rands[11] = get_random_seed();
 	}
 rands[12] = get_random_seed();
 
-	if(cities_awaiting_private_car_route_check.get_count() > 0 && (steps % 12) == 0)
+	const bool check_city_routes = cities_awaiting_private_car_route_check.get_count() > 0 && (steps % 12) == 0;
+	if(check_city_routes)
 	{
-		stadt_t* city = cities_awaiting_private_car_route_check.remove_first();
-		city->check_all_private_car_routes();
-		city->set_check_road_connexions(false);
+#ifdef MULTI_THREAD
+		sint32 rc;
+#endif
+		uint32 parallel_operations;
+		if (env_t::networkmode)
+		{
+			parallel_operations = 4; // TODO: Have this set from the server 
+		}
+		else
+		{
+#ifdef MULTI_THREAD
+			parallel_operations = env_t::num_threads - 1;
+#else
+			parallel_operations = 1;
+#endif
+		}
+
+		for (uint32 j = 0; j < parallel_operations && !cities_awaiting_private_car_route_check.empty(); j++)
+		{
+			stadt_t* city = cities_awaiting_private_car_route_check.remove_first();
+#ifdef MULTI_THREAD
+			pthread_attr_init(&thread_attributes);
+			pthread_attr_setdetachstate(&thread_attributes, PTHREAD_CREATE_JOINABLE);
+			
+			pthread_t private_car_route_thread;
+
+			rc = pthread_create(&private_car_route_thread, &thread_attributes, &check_road_connexions_threaded, (void*)city);
+			if (rc)
+			{
+				dbg->fatal("void path_explorer_t::step()", "Failed to create thread, error %d. See here for a translation of the error numbers: http://epydoc.sourceforge.net/stdlib/errno-module.html", rc);
+			}
+			else
+			{
+				private_car_route_threads.append(private_car_route_thread);
+			}
+#else			
+			city->check_all_private_car_routes();
+			city->set_check_road_connexions(false);
+#endif	
+		}
+
+#ifdef MULTI_THREAD
+		pthread_attr_destroy(&thread_attributes);
+		FOR(vector_tpl<pthread_t>, const &thread, private_car_route_threads)
+		{
+			rc = pthread_join(thread, NULL);
+			if (rc)
+			{
+				dbg->fatal("void path_explorer_t::step()", "Failed to join thread, error %d. See here for a translation of the error numbers: http://epydoc.sourceforge.net/stdlib/errno-module.html", rc);
+			}
+		}
+		
+		private_car_route_threads.clear();
+#endif		
 	}
+
 rands[13] = get_random_seed();
 
 
@@ -4743,6 +4802,14 @@ rands[19] = get_random_seed();
 	}
 	DBG_DEBUG4("karte_t::step", "end");
 rands[20] = get_random_seed();
+}
+
+void *check_road_connexions_threaded(void *args)
+{
+	stadt_t* city = (stadt_t*)args;
+	city->check_all_private_car_routes();
+	city->set_check_road_connexions(false);
+	return NULL;
 }
 
 sint32 karte_t::calc_adjusted_step_interval(const uint32 weight, uint32 trips_per_month_hundredths) const
