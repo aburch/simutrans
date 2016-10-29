@@ -4804,13 +4804,16 @@ rands[19] = get_random_seed();
 rands[20] = get_random_seed();
 }
 
+#ifdef MULTI_THREAD
 void *check_road_connexions_threaded(void *args)
 {
 	stadt_t* city = (stadt_t*)args;
 	city->check_all_private_car_routes();
 	city->set_check_road_connexions(false);
-	return NULL;
+	pthread_exit(args);
+	return args;
 }
+#endif
 
 sint32 karte_t::calc_adjusted_step_interval(const uint32 weight, uint32 trips_per_month_hundredths) const
 {
