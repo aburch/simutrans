@@ -4591,6 +4591,27 @@ rands[9] = get_random_seed();
 	// to make sure the tick counter will be updated
 	INT_CHECK("karte_t::step");
 
+	// Check the private car routes. In multi-threaded mode, this can be running in the background whilst a number of other steps are processed.
+	const bool check_city_routes = cities_awaiting_private_car_route_check.get_count() > 0 && (steps % 12) == 0;
+	if (check_city_routes)
+	{
+		const sint32 parallel_operations = get_parallel_operations();
+		cities_to_process = min(cities_awaiting_private_car_route_check.get_count() - 1, parallel_operations);
+#ifdef MULTI_THREAD
+		pthread_barrier_wait(&private_car_barrier); // One wait barrier to activate all the private car checker threads, the second to wait until they have all finished. This is the first.
+#else			
+		for (uint32 j = 0; j < cities_to_process; j++)
+		{
+			stadt_t* city = cities_awaiting_private_car_route_check.remove_first();
+			city->check_all_private_car_routes();
+			city->set_check_road_connexions(false);
+
+		}
+#endif	
+	}
+
+rands[10] = get_random_seed();
+
 	/// check for pending seasons change
 	const bool season_change = pending_season_change > 0;
 	const bool snowline_change = pending_snowline_change > 0;
@@ -4616,14 +4637,15 @@ rands[9] = get_random_seed();
 			tile_counter = 0;
 		}
 	}
-rands[10] = get_random_seed();
+
+rands[11] = get_random_seed();
 
 	// to make sure the tick counter will be updated
 	INT_CHECK("karte_t::step 1");
 
 	// Knightly : calling global path explorer
 	path_explorer_t::step();
-rands[11] = get_random_seed();
+rands[12] = get_random_seed();
 	INT_CHECK("karte_t::step 2");
 	
 	DBG_DEBUG4("karte_t::step 4", "step %d convois", convoi_array.get_count());
@@ -4635,34 +4657,8 @@ rands[11] = get_random_seed();
 			INT_CHECK("karte_t::step 5");
 		}
 	}
-rands[12] = get_random_seed();
 
-	const bool check_city_routes = cities_awaiting_private_car_route_check.get_count() > 0 && (steps % 12) == 0;
-	if(check_city_routes)
-	{
-		const sint32 parallel_operations = get_parallel_operations();
-		cities_to_process = min(cities_awaiting_private_car_route_check.get_count() - 1, parallel_operations);
-#ifdef MULTI_THREAD
-		pthread_barrier_wait(&private_car_barrier); // One wait barrier to activate all the private car checker threads, the second to wait until they have all finished.
-#else			
-		for (uint32 j = 0; j < cities_to_process; j++)
-		{
-			stadt_t* city = cities_awaiting_private_car_route_check.remove_first();
-			city->check_all_private_car_routes();
-			city->set_check_road_connexions(false);
-
-		}
-#endif	
-
-#ifdef MULTI_THREAD
-		
-		pthread_barrier_wait(&private_car_barrier); // One wait barrier to activate all the private car checker threads, the second to wait until they have all finished.
-		
-#endif		
-	}
-
-rands[13] = get_random_seed();
-
+rands[13] = get_random_seed();	
 
 	// now step all towns 
 	DBG_DEBUG4("karte_t::step 6", "step cities");
@@ -4672,6 +4668,15 @@ rands[13] = get_random_seed();
 		rands[22] += i->get_buildings();
 	}
 rands[14] = get_random_seed();
+
+#ifdef MULTI_THREAD
+// The placement of this barrier must be before any code that in any way relies on the private car routes between cities, most especially the mail and passenger generation (step_passengers_and_mail(delta_t)).
+if (check_city_routes)
+{
+	pthread_barrier_wait(&private_car_barrier); // One wait barrier to activate all the private car checker threads, the second to wait until they have all finished. This is the second.
+}
+#endif	
+
 rands[23] = 0;
 
 rands[24] = 0;
