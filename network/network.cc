@@ -166,30 +166,33 @@ SOCKET network_open_address(char const* cp, char const*& err)
 
 #else
 
-	// Address format e.g.: "128.0.0.1:13353" or "[::1]:80"
-	char address[1024];
+	// Address format e.g.: "example.com:13353", "128.0.0.1:13353" or "[::1]:80"
+	// this should be replaced with a URI parser...
 	static char err_str[256];
-	uint16 port = 13353;
-	const char *cp2 = strrchr( cp, ':' );
-	const char *cp1 = strrchr( cp, ']' );
 
-	if (  cp1 != NULL  ||  cp2 != NULL  ) {
-		if (  cp2 != NULL  &&  cp2 > cp1  ) {
-			port = atoi( cp2 + 1 );
-		}
-		else {
-			cp2 = cp1 + 1;
-		}
-		if (  cp1  ) {
-			// IPv6 addresse net:[....]:port
-			tstrncpy( address, cp + 1, cp1 - cp >= ptrdiff_t(sizeof(address)) ? sizeof(address) : cp1 - cp);
-		}
-		else {
-			// Copy the address part
-			tstrncpy( address, cp, cp2 - cp >= ptrdiff_t(sizeof(address)) ? sizeof(address) : cp2 - cp + 1 );
-		}
-		cp = address;
+	// scan address string for key features
+	const char *cp2 = strrchr( cp, ':' );
+	const char *ipv6end = strrchr( cp, ']' );
+	const char *ipv6start = strchr( cp, '[' );
+
+	// extract port if available
+	std::string cpport;
+	if (  cp2 != NULL  &&  cp2 > ipv6end  ) {
+		cpport = std::string(cp2 + 1);
 	}
+	else {
+		cpport = std::string("13353");
+		cp2 = strrchr(cp, '\0');
+	}
+
+	// remove brackets from IPv6 addresses
+	const bool ipv6exists = ipv6start != NULL  &&  ipv6end != NULL;
+	const char *const start = ipv6exists ? ipv6start + 1 : cp;
+	const char *const end = ipv6exists ? ipv6end : cp2;
+
+	// extract address
+	const size_t addresslen = size_t(end - start);
+	std::string const cpaddress(start, addresslen);
 
 	SOCKET my_client_socket = INVALID_SOCKET;
 
@@ -209,8 +212,6 @@ SOCKET network_open_address(char const* cp, char const*& err)
 		std::string const& ip = ips[i];
 
 		int ret;
-		char port_nr[8];
-		sprintf( port_nr, "%u", port );
 
 		// Set up remote addrinfo
 		struct addrinfo *remote;
@@ -221,7 +222,7 @@ SOCKET network_open_address(char const* cp, char const*& err)
 
 		// Test remote address to ensure it is valid
 		// Fill out remote address structure
-		if (  (ret = getaddrinfo( cp, port_nr, &remote_hints, &remote) ) != 0  ) {
+		if (  (ret = getaddrinfo(cpaddress.c_str(), cpport.c_str(), &remote_hints, &remote)) != 0) {
 			sprintf( err_str, "Bad address %s", cp );
 			RET_ERR_STR;
 		}
@@ -231,10 +232,10 @@ SOCKET network_open_address(char const* cp, char const*& err)
 		struct addrinfo local_hints;
 		memset( &local_hints, 0, sizeof( struct addrinfo ) );
 		local_hints.ai_socktype = SOCK_STREAM;
+		local_hints.ai_family = PF_UNSPEC;
 
 		// Insert listen address into local_hints struct to influence local address to bind to
 		DBG_MESSAGE( "network_open_address()", "Preparing to bind address: %s", ip.c_str() );
-		local_hints.ai_family = PF_UNSPEC;
 		if (  (ret = getaddrinfo( ip.c_str(), 0, &local_hints, &local )) != 0  ) {
 			dbg->warning( "network_open_address()", "Failed to getaddrinfo for %s, error was: %s", ip.c_str(), gai_strerror(ret) );
 #ifndef NETTOOL
@@ -248,17 +249,9 @@ SOCKET network_open_address(char const* cp, char const*& err)
 		struct addrinfo *walk_local;
 		for(  walk_local = local;  !connected  &&  walk_local != NULL;  walk_local = walk_local->ai_next  ) {
 			char ipstr_local[INET6_ADDRSTRLEN];
-			socklen_t socklen_local;
 
-			// Correct size for salen parameter of getnameinfo call depends on address family
-			if (  walk_local->ai_family == AF_INET6  ) {
-				socklen_local = sizeof(struct sockaddr_in6);
-			}
-			else {
-				socklen_local = sizeof(struct sockaddr_in);
-			}
 			// Validate address + get string representation for logging
-			if (  (ret = getnameinfo( (walk_local->ai_addr), socklen_local, ipstr_local, sizeof(ipstr_local), NULL, 0, NI_NUMERICHOST )) !=0  ) {
+			if (  (ret = getnameinfo( (walk_local->ai_addr), (socklen_t)walk_local->ai_addrlen, ipstr_local, sizeof(ipstr_local), NULL, 0, NI_NUMERICHOST )) !=0  ) {
 				dbg->warning( "network_open_address()", "Call to getnameinfo() failed with error: \"%s\"", gai_strerror(ret) );
 				continue;
 			}
@@ -273,7 +266,7 @@ SOCKET network_open_address(char const* cp, char const*& err)
 			}
 
 			// Bind socket to local IP
-			if (  bind( my_client_socket, local->ai_addr, local->ai_addrlen )  ) {
+			if (  bind( my_client_socket, walk_local->ai_addr, walk_local->ai_addrlen )  ) {
 				DBG_MESSAGE( "network_open_address()", "Unable to bind socket to local IP address! Error: \"%s\"", strerror(GET_LAST_ERROR()) );
 				network_close_socket( my_client_socket );
 				my_client_socket = INVALID_SOCKET;
@@ -284,25 +277,16 @@ SOCKET network_open_address(char const* cp, char const*& err)
 			struct addrinfo *walk_remote;
 			for (  walk_remote = remote;  !connected  &&  walk_remote != NULL;  walk_remote = walk_remote->ai_next  ) {
   				char ipstr_remote[INET6_ADDRSTRLEN];
-				socklen_t socklen_remote;
-
-				// Correct size for salen parameter of getnameinfo call depends on address family
-				if (  walk_remote->ai_family == AF_INET6  ) {
-					socklen_remote = sizeof(struct sockaddr_in6);
-				}
-				else {
-					socklen_remote = sizeof(struct sockaddr_in);
-				}
 
 				// Validate remote address + get string representation for logging
-				if (  (ret = getnameinfo( walk_remote->ai_addr, socklen_remote, ipstr_remote, sizeof(ipstr_remote), NULL, 0, NI_NUMERICHOST )) !=0  ) {
+				if (  (ret = getnameinfo( walk_remote->ai_addr, (socklen_t)walk_remote->ai_addrlen, ipstr_remote, sizeof(ipstr_remote), NULL, 0, NI_NUMERICHOST )) !=0  ) {
 					dbg->warning( "network_open_address()", "Call to getnameinfo() failed with error: \"%s\"", gai_strerror(ret) );
 					continue;
 				}
 
 				DBG_MESSAGE( "network_open_address()", "Potential remote address: %s", ipstr_remote );
 
-				if (  connect( my_client_socket, walk_remote->ai_addr, walk_remote->ai_addrlen ) != 0  ) {
+				if (  connect( my_client_socket, walk_remote->ai_addr, (socklen_t)walk_remote->ai_addrlen ) != 0  ) {
 					DBG_MESSAGE( "network_open_address()", "Could not connect using this socket. Error: \"%s\"", strerror(GET_LAST_ERROR()) );
 					continue;
 				}
@@ -404,18 +388,9 @@ bool network_init_server( int port )
 		// Open a listen socket for each IP address specified by this entry in the listen list
 		for (  walk = server;  walk != NULL;  walk = walk->ai_next  ) {
 			char ipstr[INET6_ADDRSTRLEN];
-			socklen_t socklen;
-
-			// Correct size for salen parameter of getnameinfo call depends on address family
-			if (  walk->ai_family == AF_INET6  ) {
-				socklen = sizeof(struct sockaddr_in6);
-			}
-			else {
-				socklen = sizeof(struct sockaddr_in);
-			}
 
 			// Validate address + get string representation for logging
-			if (  (ret = getnameinfo( (walk->ai_addr), socklen, ipstr, sizeof(ipstr), NULL, 0, NI_NUMERICHOST )) != 0  ) {
+			if (  (ret = getnameinfo( walk->ai_addr, (socklen_t)walk->ai_addrlen, ipstr, sizeof(ipstr), NULL, 0, NI_NUMERICHOST )) != 0  ) {
 				dbg->warning( "network_init_server()", "Call to getnameinfo() failed with error: \"%s\"", gai_strerror(ret) );
 				continue;
 			}
