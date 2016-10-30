@@ -4505,6 +4505,40 @@ void karte_t::set_schedule_counter()
 	schedule_counter++;
 }
 
+#ifdef MULTI_THREAD
+void *check_road_connexions_threaded(void *args)
+{
+	while (true)
+	{
+		pthread_mutex_lock(&private_car_route_mutex);
+		if (karte_t::cities_to_process > 0)
+		{
+			slist_tpl<stadt_t*>* list = (slist_tpl<stadt_t*>*)args;
+			stadt_t* city;
+			city = list->remove_first();
+			karte_t::cities_to_process--;
+			pthread_mutex_unlock(&private_car_route_mutex);
+
+			if (!city)
+			{
+				continue;
+			}
+
+			city->check_all_private_car_routes();
+			city->set_check_road_connexions(false);
+
+			pthread_barrier_wait(&private_car_barrier);
+		}
+		pthread_mutex_unlock(&private_car_route_mutex);
+		// Having two barrier waits here is intentional.
+		pthread_barrier_wait(&private_car_barrier);
+	}
+
+	pthread_exit(NULL);
+	return args;
+}
+#endif
+
 
 void karte_t::step()
 {
@@ -4821,40 +4855,6 @@ rands[19] = get_random_seed();
 	DBG_DEBUG4("karte_t::step", "end");
 rands[20] = get_random_seed();
 }
-
-#ifdef MULTI_THREAD
-void *check_road_connexions_threaded(void *args)
-{
-	while (true)
-	{
-		pthread_mutex_lock(&private_car_route_mutex);
-		if (karte_t::cities_to_process > 0)
-		{
-			slist_tpl<stadt_t*>* list = (slist_tpl<stadt_t*>*)args;
-			stadt_t* city;
-			city = list->remove_first();
-			karte_t::cities_to_process--;
-			pthread_mutex_unlock(&private_car_route_mutex);
-
-			if (!city)
-			{
-				continue;
-			}
-
-			city->check_all_private_car_routes();
-			city->set_check_road_connexions(false);
-
-			pthread_barrier_wait(&private_car_barrier);
-		}
-		pthread_mutex_unlock(&private_car_route_mutex);
-		// Having two barrier waits here is intentional.
-		pthread_barrier_wait(&private_car_barrier);
-	}
-
-	pthread_exit(NULL);
-	return args;
-}
-#endif
 
 void karte_t::step_time_interval_signals()
 {
