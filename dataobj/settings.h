@@ -656,7 +656,7 @@ public:
 
 	uint32 max_diversion_tiles;
 
-	uint32 way_degridation_fraction;
+	uint32 way_degradation_fraction;
 
 	uint32 way_wear_power_factor_road_type;
 	uint32 way_wear_power_factor_rail_type;
@@ -1122,7 +1122,7 @@ public:
 	sint8 get_way_height_clearance() const { return way_height_clearance; }
 	void set_way_height_clearance( sint8 n ) { way_height_clearance = n; }
 
-	uint32 get_way_degridation_fraction() const { return way_degridation_fraction; }
+	uint32 get_way_degradation_fraction() const { return way_degradation_fraction; }
 
 	uint32 get_way_wear_power_factor_road_type() const { return way_wear_power_factor_road_type; }
 	uint32 get_way_wear_power_factor_rail_type() const { return way_wear_power_factor_rail_type; }

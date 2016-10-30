@@ -1020,7 +1020,7 @@ void weg_t::wear_way(uint32 wear)
 	}
 	if(remaining_wear_capacity > wear)
 	{
-		const uint32 degridation_fraction = welt->get_settings().get_way_degridation_fraction();
+		const uint32 degridation_fraction = welt->get_settings().get_way_degradation_fraction();
 		remaining_wear_capacity -= wear;
 		if(remaining_wear_capacity < besch->get_wear_capacity() / degridation_fraction)
 		{

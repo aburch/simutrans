@@ -498,7 +498,7 @@ settings_t::settings_t() :
 
 	max_diversion_tiles = 16;
 
-	way_degridation_fraction = 7;
+	way_degradation_fraction = 7;
 
 	way_wear_power_factor_road_type = 4;
 	way_wear_power_factor_rail_type = 1;
@@ -1596,14 +1596,14 @@ void settings_t::rdwr(loadsave_t *file)
 #ifdef SPECIAL_RESCUE_12_3
 			if(file->is_saving())
 			{
-				file->rdwr_long(way_degridation_fraction);
+				file->rdwr_long(way_degradation_fraction);
 				file->rdwr_long(way_wear_power_factor_road_type);
 				file->rdwr_long(way_wear_power_factor_rail_type);
 				file->rdwr_short(standard_axle_load);
 				file->rdwr_long(citycar_way_wear_factor);
 			}
 #else
-			file->rdwr_long(way_degridation_fraction);
+			file->rdwr_long(way_degradation_fraction);
 			file->rdwr_long(way_wear_power_factor_road_type);
 			file->rdwr_long(way_wear_power_factor_rail_type);
 			file->rdwr_short(standard_axle_load); 
@@ -1649,7 +1649,7 @@ void settings_t::rdwr(loadsave_t *file)
 			// Calibrate old saved games with reference to their original passenger factor.
 			passenger_trips_per_month_hundredths = (passenger_trips_per_month_hundredths * 16) / old_passenger_factor;
 			mail_packets_per_month_hundredths = (mail_packets_per_month_hundredths * 16) / old_passenger_factor;
-			way_degridation_fraction = 7;
+			way_degradation_fraction = 7;
 		}
 	}
 
@@ -2481,7 +2481,7 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 
 	max_diversion_tiles = contents.get_int("max_diversion_tiles", max_diversion_tiles);
 
-	way_degridation_fraction = contents.get_int("way_degridation_fraction", way_degridation_fraction);
+	way_degradation_fraction = contents.get_int("way_degradation_fraction", way_degradation_fraction);
 
 	way_wear_power_factor_road_type = contents.get_int("way_wear_power_factor_road_type", way_wear_power_factor_road_type);
 	way_wear_power_factor_rail_type = contents.get_int("way_wear_power_factor_rail_type", way_wear_power_factor_rail_type);

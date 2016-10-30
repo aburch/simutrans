@@ -210,7 +210,7 @@ void settings_experimental_general_stats_t::init( settings_t *sets )
 	INIT_NUM("global_force_factor_percent", sets->get_global_force_factor_percent(), 0, 1000, gui_numberinput_t::AUTOLINEAR, false);
 	INIT_NUM("enforce_weight_limits", sets->get_enforce_weight_limits(), 0, 3, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM("max_diversion_tiles", sets->get_max_diversion_tiles(), 0, 65535, gui_numberinput_t::AUTOLINEAR, false );
-	INIT_NUM("way_degridation_fraction", sets->get_way_degridation_fraction(), 0, 40, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM("way_degradation_fraction", sets->get_way_degradation_fraction(), 0, 40, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM("sighting_distance_meters", sets->get_sighting_distance_meters(), 0, 7500, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM("assumed_curve_radius_45_degrees", sets->get_assumed_curve_radius_45_degrees(), 0, 10000, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM("max_speed_drive_by_sight_kmh", sets->get_max_speed_drive_by_sight_kmh(), 0, 1000, gui_numberinput_t::AUTOLINEAR, false );
@@ -342,7 +342,7 @@ void settings_experimental_general_stats_t::read(settings_t *sets)
 	READ_NUM( sets->set_global_force_factor_percent );
 	READ_NUM( sets->set_enforce_weight_limits );
 	READ_NUM_VALUE( sets->max_diversion_tiles );
-	READ_NUM_VALUE( sets->way_degridation_fraction );
+	READ_NUM_VALUE( sets->way_degradation_fraction );
 	READ_NUM_VALUE( sets->sighting_distance_meters );
 	sets->sighting_distance_tiles = sets->sighting_distance_meters / sets->meters_per_tile;
 	READ_NUM_VALUE( sets->assumed_curve_radius_45_degrees );
