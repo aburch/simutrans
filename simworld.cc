@@ -124,6 +124,9 @@
 #include "utils/simthread.h"
 static vector_tpl<pthread_t> private_car_route_threads;
 static pthread_attr_t thread_attributes;
+static pthread_mutex_t private_car_route_mutex = PTHREAD_MUTEX_INITIALIZER;
+static simthread_barrier_t private_car_barrier;
+sint32 karte_t::cities_to_process = 0;
 #endif
 
 #ifdef DEBUG_SIMRAND_CALLS
@@ -660,6 +663,11 @@ DBG_MESSAGE("karte_t::destroy()", "way list destroyed");
 	bool empty_depot_list = depot_t::get_depot_list().empty();
 	assert( empty_depot_list );
 
+#ifdef MULTI_THREAD
+	destroy_threads();
+	DBG_MESSAGE("karte_t::destroy()", "threads destroyed");
+#endif
+
 DBG_MESSAGE("karte_t::destroy()", "world destroyed");
 
 	// Added by : B.Gabriel
@@ -670,6 +678,7 @@ DBG_MESSAGE("karte_t::destroy()", "world destroyed");
 
 	dbg->important("World destroyed.");
 	destroying = false;
+	cities_to_process = 0;
 }
 
 
@@ -1549,6 +1558,56 @@ DBG_DEBUG("karte_t::init()","built timeline");
 	settings.update_max_alternative_destinations_visiting(visitor_targets.get_sum_weight());
 }
 
+#ifdef MULTI_THREAD
+void karte_t::init_threads()
+{
+	sint32 rc;
+
+	const sint32 parallel_operations = get_parallel_operations();
+
+	pthread_attr_init(&thread_attributes);
+	pthread_attr_setdetachstate(&thread_attributes, PTHREAD_CREATE_JOINABLE);
+
+	// Private car route checker threads
+	simthread_barrier_init(&private_car_barrier, NULL, parallel_operations + 1);
+	for (sint32 i = 0; i < parallel_operations; i++)
+	{
+		pthread_t private_car_route_thread;
+
+		rc = pthread_create(&private_car_route_thread, &thread_attributes, &check_road_connexions_threaded, (void*)&cities_awaiting_private_car_route_check);
+		if (rc)
+		{
+			dbg->fatal("void karte_t::init_threads()", "Failed to create thread, error %d. See here for a translation of the error numbers: http://epydoc.sourceforge.net/stdlib/errno-module.html", rc);
+		}
+		else
+		{
+			private_car_route_threads.append(private_car_route_thread);
+		}
+	}
+}
+
+void karte_t::destroy_threads()
+{
+	pthread_attr_destroy(&thread_attributes);
+	private_car_route_threads.clear();
+}
+#endif
+
+sint32 karte_t::get_parallel_operations() const
+{
+	uint32 parallel_operations;
+	if (env_t::networkmode)
+	 {
+		parallel_operations = 4; // TODO: Have this set from the server 
+		}
+	else
+	{
+		parallel_operations = env_t::num_threads - 1;
+	}
+
+	return parallel_operations;
+}
+
 #define array_koord(px,py) (px + py * get_size().x)
 
 
@@ -2191,6 +2250,7 @@ karte_t::karte_t() :
 	next_step_passenger = 0;
 	next_step_mail = 0;
 	destroying = false;
+	cities_to_process = 0;
 
 	for(  uint i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
 		selected_tool[i] = tool_t::general_tool[TOOL_QUERY];
@@ -2256,6 +2316,10 @@ karte_t::karte_t() :
 
 	// set single instance
 	world = this;
+
+#ifdef MULTI_THREAD
+	init_threads();
+#endif
 }
 
 #ifdef DEBUG_SIMRAND_CALLS
@@ -4576,59 +4640,24 @@ rands[12] = get_random_seed();
 	const bool check_city_routes = cities_awaiting_private_car_route_check.get_count() > 0 && (steps % 12) == 0;
 	if(check_city_routes)
 	{
+		const sint32 parallel_operations = get_parallel_operations();
+		cities_to_process = min(cities_awaiting_private_car_route_check.get_count() - 1, parallel_operations);
 #ifdef MULTI_THREAD
-		sint32 rc;
-#endif
-		uint32 parallel_operations;
-		if (env_t::networkmode)
-		{
-			parallel_operations = 4; // TODO: Have this set from the server 
-		}
-		else
-		{
-#ifdef MULTI_THREAD
-			parallel_operations = env_t::num_threads - 1;
-#else
-			parallel_operations = 1;
-#endif
-		}
-
-		for (uint32 j = 0; j < parallel_operations && !cities_awaiting_private_car_route_check.empty(); j++)
+		pthread_barrier_wait(&private_car_barrier); // One wait barrier to activate all the private car checker threads, the second to wait until they have all finished.
+#else			
+		for (uint32 j = 0; j < cities_to_process; j++)
 		{
 			stadt_t* city = cities_awaiting_private_car_route_check.remove_first();
-#ifdef MULTI_THREAD
-			pthread_attr_init(&thread_attributes);
-			pthread_attr_setdetachstate(&thread_attributes, PTHREAD_CREATE_JOINABLE);
-			
-			pthread_t private_car_route_thread;
-
-			rc = pthread_create(&private_car_route_thread, &thread_attributes, &check_road_connexions_threaded, (void*)city);
-			if (rc)
-			{
-				dbg->fatal("void path_explorer_t::step()", "Failed to create thread, error %d. See here for a translation of the error numbers: http://epydoc.sourceforge.net/stdlib/errno-module.html", rc);
-			}
-			else
-			{
-				private_car_route_threads.append(private_car_route_thread);
-			}
-#else			
 			city->check_all_private_car_routes();
 			city->set_check_road_connexions(false);
-#endif	
+
 		}
+#endif	
 
 #ifdef MULTI_THREAD
-		pthread_attr_destroy(&thread_attributes);
-		FOR(vector_tpl<pthread_t>, const &thread, private_car_route_threads)
-		{
-			rc = pthread_join(thread, NULL);
-			if (rc)
-			{
-				dbg->fatal("void path_explorer_t::step()", "Failed to join thread, error %d. See here for a translation of the error numbers: http://epydoc.sourceforge.net/stdlib/errno-module.html", rc);
-			}
-		}
 		
-		private_car_route_threads.clear();
+		pthread_barrier_wait(&private_car_barrier); // One wait barrier to activate all the private car checker threads, the second to wait until they have all finished.
+		
 #endif		
 	}
 
@@ -4807,10 +4836,33 @@ rands[20] = get_random_seed();
 #ifdef MULTI_THREAD
 void *check_road_connexions_threaded(void *args)
 {
-	stadt_t* city = (stadt_t*)args;
-	city->check_all_private_car_routes();
-	city->set_check_road_connexions(false);
-	pthread_exit(args);
+	while (true)
+	{
+		pthread_mutex_lock(&private_car_route_mutex);
+		if (karte_t::cities_to_process > 0)
+		{
+			slist_tpl<stadt_t*>* list = (slist_tpl<stadt_t*>*)args;
+			stadt_t* city;
+			city = list->remove_first();
+			karte_t::cities_to_process--;
+			pthread_mutex_unlock(&private_car_route_mutex);
+
+			if (!city)
+			{
+				continue;
+			}
+
+			city->check_all_private_car_routes();
+			city->set_check_road_connexions(false);
+
+			pthread_barrier_wait(&private_car_barrier);
+		}
+		pthread_mutex_unlock(&private_car_route_mutex);
+		// Having two barrier waits here is intentional.
+		pthread_barrier_wait(&private_car_barrier);
+	}
+
+	pthread_exit(NULL);
 	return args;
 }
 #endif

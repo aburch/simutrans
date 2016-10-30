@@ -1462,6 +1462,18 @@ private:
 		walking_numerator = unit_movement_numerator / get_settings().get_walking_speed();
 	}
 
+#ifdef MULTI_THREAD
+	friend void *check_road_connexions_threaded(void* args);
+	static sint32 cities_to_process;
+#endif
+
+	/** Get the number of parallel operations
+	* currently set. This should be set by the server
+	* in network games, and based on the thread count
+	* in single player games.
+	*/
+	sint32 get_parallel_operations() const;
+
 public:
 
 	/**
@@ -1607,6 +1619,18 @@ public:
 	 * Initializes the height_to_climate field from settings.
 	 */
 	void init_height_to_climate();
+
+#ifdef MULTI_THREAD
+	/**
+	* Initialise threads
+	*/
+	void init_threads();
+
+	/**
+	* De-initialise threads
+	*/
+	void destroy_threads();
+#endif
 
 	/**
 	 * Returns the climate for a given height, ruled by world creation settings.
@@ -2100,10 +2124,6 @@ public:
 	sync_list_t sync;              ///< vehicles, transformers, traffic lights
 	sync_list_t sync_eyecandy;     ///< animated buildings
 	sync_list_t sync_way_eyecandy; ///< smoke
-
-#ifdef MULTI_THREAD
-	friend void *check_road_connexions_threaded(void* args);
-#endif
 
 	/**
 	 * Synchronous stepping of objects like vehicles.
