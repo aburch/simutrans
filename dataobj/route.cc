@@ -121,10 +121,10 @@ bool route_t::append_straight_route(karte_t *welt, koord3d dest )
 
 
 // node arrays
-uint32 thread_local route_t::MAX_STEP=0;
-uint32 thread_local route_t::max_used_steps=0;
-route_t::ANode thread_local *route_t::_nodes[MAX_NODES_ARRAY];
-bool thread_local route_t::_nodes_in_use[MAX_NODES_ARRAY]; // semaphores, since we only have few nodes arrays in memory
+thread_local uint32 route_t::MAX_STEP=0;
+thread_local uint32 route_t::max_used_steps=0;
+thread_local route_t::ANode *route_t::_nodes[MAX_NODES_ARRAY];
+thread_local bool route_t::_nodes_in_use[MAX_NODES_ARRAY]; // semaphores, since we only have few nodes arrays in memory
 
 void route_t::INIT_NODES(uint32 max_route_steps, const koord &world_size)
 {
