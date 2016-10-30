@@ -384,7 +384,7 @@ void convoi_t::unreserve_route()
 		rc = pthread_create(&unreserve_thread, &thread_attributes, &unreserve_route_range, (void*)&range);
 		if (rc)
 		{
-			dbg->fatal("void path_explorer_t::step()", "Failed to create thread, error %d. See here for a translation of the error numbers: http://epydoc.sourceforge.net/stdlib/errno-module.html", rc);
+			dbg->fatal(":unreserve_route()", "Failed to create thread, error %d. See here for a translation of the error numbers: http://epydoc.sourceforge.net/stdlib/errno-module.html", rc);
 		}
 		else
 		{
@@ -398,7 +398,7 @@ void convoi_t::unreserve_route()
 		rc = pthread_join(thread, NULL);
 		if (rc)
 		{
-			dbg->fatal("void path_explorer_t::step()", "Failed to join thread, error %d. See here for a translation of the error numbers: http://epydoc.sourceforge.net/stdlib/errno-module.html", rc);
+			dbg->fatal(":unreserve_route()", "Failed to join thread, error %d. See here for a translation of the error numbers: http://epydoc.sourceforge.net/stdlib/errno-module.html", rc);
 		}
 	}
 

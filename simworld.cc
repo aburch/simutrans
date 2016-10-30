@@ -4684,7 +4684,7 @@ rands[11] = get_random_seed();
 rands[12] = get_random_seed();
 	INT_CHECK("karte_t::step 2");
 	
-	// This is computationally intensive. 
+	// This is computationally intensive, especially the route searching.
 	DBG_DEBUG4("karte_t::step 4", "step %d convois", convoi_array.get_count());
 	// since convois will be deleted during stepping, we need to step backwards
 	for (size_t i = convoi_array.get_count(); i-- != 0;) {
