@@ -893,6 +893,11 @@ private:
 
 	destination find_destination(trip_type trip);
 
+#ifdef MULTI_THREAD
+	friend void *check_road_connexions_threaded(void* args);
+	static sint32 cities_to_process;
+#endif
+
 public:
 
 	static void privatecar_init(const std::string &objfilename);
@@ -1461,11 +1466,6 @@ private:
 		// This represents walking speed:
 		walking_numerator = unit_movement_numerator / get_settings().get_walking_speed();
 	}
-
-#ifdef MULTI_THREAD
-	friend void *check_road_connexions_threaded(void* args);
-	static sint32 cities_to_process;
-#endif
 
 	/** Get the number of parallel operations
 	* currently set. This should be set by the server
