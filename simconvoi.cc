@@ -1594,10 +1594,9 @@ void convoi_t::step()
 			// If there is a pending replacement, just do it
 			if (replace && replace->get_replacing_vehicles()->get_count()>0)
 			{
-
 				autostart = replace->get_autostart();
 
-				// Knightly : before replacing, copy the existing set of goods category index
+				// Knightly : before replacing, copy the existing set of goods category indices
 				minivec_tpl<uint8> old_goods_catg_index(goods_catg_index.get_count());
 				for( uint8 i = 0; i < goods_catg_index.get_count(); ++i )
 				{

@@ -4591,7 +4591,10 @@ rands[9] = get_random_seed();
 	// to make sure the tick counter will be updated
 	INT_CHECK("karte_t::step");
 
+	/** THREADING CAN START HERE **/
+
 	// Check the private car routes. In multi-threaded mode, this can be running in the background whilst a number of other steps are processed.
+	// This is computationally intensive, but intermittently.
 	const bool check_city_routes = cities_awaiting_private_car_route_check.get_count() > 0 && (steps % 12) == 0;
 	if (check_city_routes)
 	{
@@ -4613,6 +4616,7 @@ rands[9] = get_random_seed();
 rands[10] = get_random_seed();
 
 	/// check for pending seasons change
+	// This is not very computationally intensive.
 	const bool season_change = pending_season_change > 0;
 	const bool snowline_change = pending_snowline_change > 0;
 	if(  season_change  ||  snowline_change  ) {
@@ -4644,10 +4648,12 @@ rands[11] = get_random_seed();
 	INT_CHECK("karte_t::step 1");
 
 	// Knightly : calling global path explorer
+	// This is computationally intensive, but it is not always running, so it is intermittently so.
 	path_explorer_t::step();
 rands[12] = get_random_seed();
 	INT_CHECK("karte_t::step 2");
 	
+	// This is computationally intensive. 
 	DBG_DEBUG4("karte_t::step 4", "step %d convois", convoi_array.get_count());
 	// since convois will be deleted during stepping, we need to step backwards
 	for (size_t i = convoi_array.get_count(); i-- != 0;) {
@@ -4661,6 +4667,7 @@ rands[12] = get_random_seed();
 rands[13] = get_random_seed();	
 
 	// now step all towns 
+	// This is not very computationally intensive at present, but might become more so when town growth is reworked.
 	DBG_DEBUG4("karte_t::step 6", "step cities");
 	FOR(weighted_vector_tpl<stadt_t*>, const i, stadt) {
 		i->step(delta_t);
@@ -4689,6 +4696,7 @@ rands[30] = 0;
 rands[31] = 0;
 rands[23] = 0;
 
+	// This is quite computationally intensive, but not as much as the path explorer. It can be more or less than the convoys, depending on the map.
 	step_passengers_and_mail(delta_t);
 
 	// the inhabitants stuff
@@ -4717,6 +4725,7 @@ rands[16] = get_random_seed();
 	finance_history_year[0][WORLD_FACTORIES] = finance_history_month[0][WORLD_FACTORIES] = fab_list.get_count();
 
 	// step powerlines - required order: pumpe, senke, then powernet
+	// This is not computationally intensive.
 	DBG_DEBUG4("karte_t::step", "step poweline stuff");
 	pumpe_t::step_all( delta_t );
 	senke_t::step_all( delta_t );
@@ -4725,6 +4734,7 @@ rands[17] = get_random_seed();
 
 	DBG_DEBUG4("karte_t::step", "step players");
 	// then step all players
+	// This is not computationally intensive (except possibly occasionally when liquidating a company)
 	for(  int i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
 		if(  players[i] != NULL  ) {
 			players[i]->step();
@@ -4732,6 +4742,7 @@ rands[17] = get_random_seed();
 	}
 rands[18] = get_random_seed();
 
+	// This is not computationally intensive
 	DBG_DEBUG4("karte_t::step", "step halts");
 	haltestelle_t::step_all();
 rands[19] = get_random_seed();
@@ -4742,6 +4753,7 @@ rands[19] = get_random_seed();
 	// routings for goods/passengers.
 	// Default: 8192 ~ 1h (game time) at 125m/tile.
 
+	// This is not the computationally intensive bit of the path explorer.
 	if((steps % get_settings().get_reroute_check_interval_steps()) == 0)
 	{
 		path_explorer_t::refresh_all_categories(true);
@@ -4757,38 +4769,10 @@ rands[19] = get_random_seed();
 
 	recalc_season_snowline(true);
 
-	if(!time_interval_signals_to_check.empty())
-	{
-		const sint64 caution_interval_ticks = seconds_to_ticks(settings.get_time_interval_seconds_to_caution());
-		const sint64 clear_interval_ticks = seconds_to_ticks(settings.get_time_interval_seconds_to_clear()); 
+	// This is not particularly computationally intensive.
+	step_time_interval_signals();
 
-		for(vector_tpl<signal_t*>::iterator iter = time_interval_signals_to_check.begin(); iter != time_interval_signals_to_check.end();) 
-		{
-			signal_t* sig = *iter;
-			if(((sig->get_train_last_passed() + clear_interval_ticks) < ticks) && sig->get_no_junctions_to_next_signal())
-			{
-				iter = time_interval_signals_to_check.swap_erase(iter);
-				sig->set_state(roadsign_t::clear_no_choose);
-			}
-			else if(sig->get_state() == roadsign_t::danger && ((sig->get_train_last_passed() + caution_interval_ticks) < ticks) && sig->get_no_junctions_to_next_signal())
-			{
-				if(sig->get_besch()->is_pre_signal())
-				{
-					sig->set_state(roadsign_t::clear_no_choose);
-				}
-				else
-				{
-					sig->set_state(roadsign_t::caution_no_choose);
-				}
-				
-				++iter;
-			}
-			else 
-			{
-				++iter;
-			}
-		}
-	}
+	/** END OF THREADABLE AREA **/
 
 	// number of playing clients changed
 	if(  env_t::server  &&  last_clients!=socket_list_t::get_playing_clients()  ) {
@@ -4871,6 +4855,42 @@ void *check_road_connexions_threaded(void *args)
 	return args;
 }
 #endif
+
+void karte_t::step_time_interval_signals()
+{
+	if (!time_interval_signals_to_check.empty())
+	{
+		const sint64 caution_interval_ticks = seconds_to_ticks(settings.get_time_interval_seconds_to_caution());
+		const sint64 clear_interval_ticks = seconds_to_ticks(settings.get_time_interval_seconds_to_clear());
+
+		for (vector_tpl<signal_t*>::iterator iter = time_interval_signals_to_check.begin(); iter != time_interval_signals_to_check.end();)
+		{
+			signal_t* sig = *iter;
+			if (((sig->get_train_last_passed() + clear_interval_ticks) < ticks) && sig->get_no_junctions_to_next_signal())
+			{
+				iter = time_interval_signals_to_check.swap_erase(iter);
+				sig->set_state(roadsign_t::clear_no_choose);
+			}
+			else if (sig->get_state() == roadsign_t::danger && ((sig->get_train_last_passed() + caution_interval_ticks) < ticks) && sig->get_no_junctions_to_next_signal())
+			{
+				if (sig->get_besch()->is_pre_signal())
+				{
+					sig->set_state(roadsign_t::clear_no_choose);
+				}
+				else
+				{
+					sig->set_state(roadsign_t::caution_no_choose);
+				}
+
+				++iter;
+			}
+			else
+			{
+				++iter;
+			}
+		}
+	}
+}
 
 sint32 karte_t::calc_adjusted_step_interval(const uint32 weight, uint32 trips_per_month_hundredths) const
 {

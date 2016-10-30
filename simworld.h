@@ -1620,6 +1620,11 @@ public:
 	 */
 	void init_height_to_climate();
 
+	/**
+	* Update the status of time interval signals
+	*/
+	void step_time_interval_signals();
+
 #ifdef MULTI_THREAD
 	/**
 	* Initialise threads

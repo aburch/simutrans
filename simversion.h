@@ -85,7 +85,7 @@ extern "C" FILE * __cdecl __iob_func(void) { return _iob; }
 
 /* Server to announce status to */
 //#define ANNOUNCE_SERVER "servers.experimental.simutrans.org:80"
-#define ANNOUNCE_SERVER "simlist-exp-simulist-exp.44fs.preview.openshiftapps.com:80"
+#define ANNOUNCE_SERVER "server.exp.simutrans.com:8080"
 
 /* Relative URL of the announce function on server */
 #define ANNOUNCE_URL "/announce"
