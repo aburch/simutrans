@@ -7,6 +7,8 @@
 
 #include "../tpl/ptrhashtable_tpl.h"
 
+#include "../utils/simthread.h"
+
 class grund_t;
 
 /**

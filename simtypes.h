@@ -156,7 +156,10 @@ typedef unsigned long long  uint64;
 #endif
 #define UINT64_MAX_VALUE	ULLONG_MAX
 #ifndef  MULTI_THREAD
+#if defined _MSC_VER
+#include <xkeycheck.h>
 #define thread_local  
+#endif
 #endif // ! MULTI_THREAD
 
 
