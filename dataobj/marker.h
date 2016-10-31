@@ -42,7 +42,7 @@ class marker_t {
 	void init(int welt_groesse_x,int welt_groesse_y);
 
 	/// the instance
-	static thread_local marker_t the_instance;
+	static marker_t thread_local the_instance;
 public:
 	/**
 	 * Return handle to marker instance.
