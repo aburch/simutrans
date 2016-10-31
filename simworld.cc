@@ -682,8 +682,10 @@ DBG_MESSAGE("karte_t::destroy()", "world destroyed");
 
 	dbg->important("World destroyed.");
 	destroying = false;
+#ifdef MULTI_THREAD
 	cities_to_process = 0;
 	step_passengers_delta_t = 0;
+#endif
 }
 
 
@@ -2344,8 +2346,10 @@ karte_t::karte_t() :
 	next_step_passenger = 0;
 	next_step_mail = 0;
 	destroying = false;
+#ifdef MULTI_THREAD
 	cities_to_process = 0;
 	step_passengers_delta_t = 0;
+#endif
 
 	for(  uint i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
 		selected_tool[i] = tool_t::general_tool[TOOL_QUERY];
@@ -4693,10 +4697,12 @@ rands[9] = get_random_seed();
 	if (check_city_routes)
 	{
 		const sint32 parallel_operations = get_parallel_operations();
-		cities_to_process = min(cities_awaiting_private_car_route_check.get_count() - 1, parallel_operations);
+		
 #ifdef MULTI_THREAD
+		cities_to_process = min(cities_awaiting_private_car_route_check.get_count() - 1, parallel_operations);
 		simthread_barrier_wait(&private_car_barrier); // One wait barrier to activate all the private car checker threads, the second to wait until they have all finished. This is the first.
 #else			
+		const uint32 cities_to_process = min(cities_awaiting_private_car_route_check.get_count() - 1, parallel_operations);
 		for (uint32 j = 0; j < cities_to_process; j++)
 		{
 			stadt_t* city = cities_awaiting_private_car_route_check.remove_first();
