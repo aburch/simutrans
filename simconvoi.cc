@@ -336,8 +336,8 @@ void *unreserve_route_range(void *args)
 		weg_t* const way = all_ways[i];
 		if (way->get_waytype() == range->wt)
 		{
-			schiene_t* const sch = obj_cast<schiene_t>(way);
-			//schiene_t* const sch = way->is_rail_type() ? (schiene_t*)way : NULL;
+			//schiene_t* const sch = obj_cast<schiene_t>(way);
+			schiene_t* const sch = way->is_rail_type() ? (schiene_t*)way : NULL;
 			if (sch && sch->get_reserved_convoi().get_id() == range->self_entry)
 			{
 				convoihandle_t ch;
@@ -409,8 +409,8 @@ void convoi_t::unreserve_route()
 	{
 		if(way->get_waytype() == front()->get_waytype())
 		{
-			schiene_t* const sch = obj_cast<schiene_t>(way);
-			//schiene_t* const sch = way->is_rail_type() ? (schiene_t*)way : NULL;
+			//schiene_t* const sch = obj_cast<schiene_t>(way);
+			schiene_t* const sch = way->is_rail_type() ? (schiene_t*)way : NULL;
 			if(sch && sch->get_reserved_convoi() == self)
 			{
 				sch->unreserve(front());
