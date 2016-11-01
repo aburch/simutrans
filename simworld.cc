@@ -4738,7 +4738,7 @@ rands[10] = get_random_seed();
 			plan[tile_counter].check_season_snowline( season_change, snowline_change );
 			tile_counter++;
 			if(  (tile_counter & 0x3FF) == 0  ) {
-				INT_CHECK("karte_t::step");
+				INT_CHECK("karte_t::step 1");
 			}
 		}
 
@@ -4767,11 +4767,11 @@ rands[12] = get_random_seed();
 	// This is computationally intensive, especially the route searching.
 	DBG_DEBUG4("karte_t::step 4", "step %d convois", convoi_array.get_count());
 	// since convois will be deleted during stepping, we need to step backwards
-	for (size_t i = convoi_array.get_count(); i-- != 0;) {
+	for (uint32 i = convoi_array.get_count(); i-- != 0;) {
 		convoihandle_t cnv = convoi_array[i];
 		cnv->step();
 		if((i&7)==0) {
-			INT_CHECK("karte_t::step 5");
+			INT_CHECK("karte_t::step 3");
 		}
 	}
 
@@ -4858,6 +4858,9 @@ rands[15] = get_random_seed();
 	{
 		simthread_barrier_wait(&step_passengers_and_mail_barrier);
 	}
+
+	// This cannot be before the barrier because sync_step/INT_CHECK uses simrand, as does step_passengers_and_mail, and both cannot be calling simrand simultaneously.
+	INT_CHECK("karte_t::step 4");
 
 	DBG_DEBUG4("karte_t::step", "step factories");
 	FOR(vector_tpl<fabrik_t*>, const f, fab_list) {
