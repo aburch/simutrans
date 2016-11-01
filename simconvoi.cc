@@ -22,9 +22,7 @@
 #include "simintr.h"
 #include "simlinemgmt.h"
 #include "simline.h"
-#include "utils/simrandom.h"
 #include "freight_list_sorter.h"
-#include "utils/simrandom.h"
 
 #include "gui/karte.h"
 #include "gui/convoi_info_t.h"
@@ -2047,7 +2045,7 @@ end_loop:
 					
 		case OUT_OF_RANGE:
 		case NO_ROUTE:
-			wait_lock =  max( wait_lock, no_route_retry_count * no_route_retry_count * (20000 + simrand(10000,"convoi_t::step()")));
+			wait_lock =  max(wait_lock, no_route_retry_count * no_route_retry_count * (20000 + (welt->get_zeit_ms() % 16 ? 10000 : welt->get_zeit_ms() % 12 ? 5000 : 2500))); // We cannot use the full RNG here if this is to be deterministic between threads.
 			break;
 
 		case EMERGENCY_STOP:

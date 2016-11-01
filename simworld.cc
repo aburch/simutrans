@@ -129,6 +129,7 @@ static pthread_mutex_t private_car_route_mutex = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutex_t step_passengers_and_mail_mutex = PTHREAD_MUTEX_INITIALIZER;
 static simthread_barrier_t private_car_barrier;
 static simthread_barrier_t  step_passengers_and_mail_barrier;
+//static simthread_barrier_t  step_passengers_and_mail_barrier_internal;
 sint32 karte_t::cities_to_process = 0;
 #endif
 
@@ -1607,24 +1608,43 @@ void *step_passengers_and_mail_threaded(void* args)
 
 		// The generate passengers function is called many times (often well > 100) each step; the mail version is called only once or twice each step, sometimes not at all.
 		uint32 units_this_step;
-		while (world->passenger_step_interval <= world->next_step_passenger)
-		{
-			if (world->passenger_origins.get_count() == 0)
-			{
-				goto top;
-			}
-			units_this_step = world->generate_passengers_or_mail(warenbauer_t::passagiere);
-			world->next_step_passenger -= (world->passenger_step_interval *units_this_step);
-		}
 
-		while (world->mail_step_interval <= world->next_step_mail)
+		//simthread_barrier_wait(&step_passengers_and_mail_barrier_internal);
+		if (world->passenger_step_interval <= world->next_step_passenger)
 		{
-			if (world->mail_origins_and_targets.get_count() == 0)
+			do
 			{
-				goto top;
-			}
-			units_this_step = world->generate_passengers_or_mail(warenbauer_t::post);
-			world->next_step_mail -= (world->mail_step_interval *units_this_step);	
+				if (world->passenger_origins.get_count() == 0)
+				{
+					goto top;
+				}
+				units_this_step = world->generate_passengers_or_mail(warenbauer_t::passagiere);
+
+				pthread_mutex_lock(&step_passengers_and_mail_mutex);
+				world->next_step_passenger -= (world->passenger_step_interval * units_this_step);
+				pthread_mutex_unlock(&step_passengers_and_mail_mutex);
+
+				//simthread_barrier_wait(&step_passengers_and_mail_barrier_internal);
+			} while (world->passenger_step_interval <= world->next_step_passenger);
+		}
+		
+		//simthread_barrier_wait(&step_passengers_and_mail_barrier_internal);
+		if (world->mail_step_interval <= world->next_step_mail)
+		{
+			do
+			{
+				if (world->mail_origins_and_targets.get_count() == 0)
+				{
+					goto top;
+				}
+				units_this_step = world->generate_passengers_or_mail(warenbauer_t::post);
+
+				pthread_mutex_lock(&step_passengers_and_mail_mutex);
+				world->next_step_mail -= (world->mail_step_interval * units_this_step);
+				pthread_mutex_unlock(&step_passengers_and_mail_mutex);
+
+				//simthread_barrier_wait(&step_passengers_and_mail_barrier_internal);
+			} while (world->mail_step_interval <= world->next_step_mail);
 		}
 		simthread_barrier_wait(&step_passengers_and_mail_barrier); // Having two of these (one at the top and one at the bottom) is intentional.
 	}
@@ -1644,6 +1664,7 @@ void karte_t::init_threads()
 
 	simthread_barrier_init(&private_car_barrier, NULL, parallel_operations + 1);
 	simthread_barrier_init(&step_passengers_and_mail_barrier, NULL, parallel_operations + 1);
+	//simthread_barrier_init(&step_passengers_and_mail_barrier_internal, NULL, parallel_operations);
 
 	for (sint32 i = 0; i < parallel_operations; i++)
 	{
@@ -4774,8 +4795,6 @@ if (check_city_routes)
 }
 #endif	
 
-rands[23] = 0;
-
 rands[24] = 0;
 rands[25] = 0;
 rands[26] = 0;
@@ -4793,6 +4812,7 @@ rands[23] = 0;
 	{
 		// At present, this cannot work in network mode because the generate_passengers_or_mail function modifies the next_step_passenger and next_step_mail variables,
 		// which in turn are used to count how many times that the generate_passengers_or_mail function is run. 
+		// Also, nothing that uses the random number generator can currently be deterministic accross clients when multi-threaded. 
 		step_passengers_and_mail(delta_t);
 	}
 	else
@@ -4811,7 +4831,7 @@ rands[23] = 0;
 #endif
 	DBG_DEBUG4("karte_t::step", "step generate passengers and mail");
 	// TODO: Consider whether other things in step() can be put between these.
-	simthread_barrier_wait(&step_passengers_and_mail_barrier);
+	
 
 rands[15] = get_random_seed();
 
@@ -4830,6 +4850,13 @@ rands[15] = get_random_seed();
 
 		finance_history_month[0][WORLD_VISITOR_DEMAND] += city->get_finance_history_month(0, HIST_VISITOR_DEMAND);
 		finance_history_year[0][WORLD_VISITOR_DEMAND] += city->get_finance_history_year(0, HIST_VISITOR_DEMAND);
+	}
+
+	rands[23] = get_random_seed();
+
+	if (!env_t::networkmode)
+	{
+		simthread_barrier_wait(&step_passengers_and_mail_barrier);
 	}
 
 	DBG_DEBUG4("karte_t::step", "step factories");
