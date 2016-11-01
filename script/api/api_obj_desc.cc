@@ -538,6 +538,12 @@ void export_goods_desc(HSQUIRRELVM vm)
 	 */
 	// register_function( .., "constructor", .. )
 
+	create_slot(vm, "passenger", warenbauer_t::passagiere, true);
+	create_slot(vm, "mail",      warenbauer_t::post,       true);
+#ifdef DOXYGEN
+	static good_desc_x passenger; ///< descriptor for passenger
+	static good_desc_x mail;      ///< descriptor for mail
+#endif
 	/**
 	 * @return freight category. 0=Passengers, 1=Mail, 2=None, >=3 anything else
 	 */
