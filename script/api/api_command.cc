@@ -256,6 +256,12 @@ void_t set_flags(tool_t *tool, uint8 flags)
 }
 
 
+void* script_api::param<tool_t*>::tag()
+{
+	return (void*)param<tool_t*>::get;
+}
+
+
 void export_commands(HSQUIRRELVM vm)
 {
 	/**
@@ -273,7 +279,7 @@ void export_commands(HSQUIRRELVM vm)
 	 */
 	register_function(vm, command_constructor, "constructor", 2, "xi");
 	// set type tag to custom getter
-	sq_settypetag(vm, -1, (void*)param<tool_t*>::get);
+	sq_settypetag(vm, -1, param<tool_t*>::tag());
 
 	/**
 	 * @returns flags set for this tool

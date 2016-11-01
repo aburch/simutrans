@@ -593,7 +593,7 @@ namespace script_api {
 
 	tool_t* param<tool_t*>::get(HSQUIRRELVM vm, SQInteger index)
 	{
-		my_tool_t *mtool = get_attached_instance<my_tool_t>(vm, index, (void*)param<tool_t*>::get);
+		my_tool_t *mtool = get_attached_instance<my_tool_t>(vm, index, param<tool_t*>::tag());
 		if (mtool) {
 			return mtool->tool;
 		}
