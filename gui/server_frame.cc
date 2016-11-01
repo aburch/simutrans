@@ -100,7 +100,7 @@ server_frame_t::server_frame_t() :
 		addinput.add_listener( this );
 		add_component( &addinput );
 
-		add.init( button_t::roundbox, "Query server", scr_coord( ww - D_BUTTON_WIDTH - D_MARGIN_RIGHT, pos_y ), scr_size( D_BUTTON_WIDTH, D_BUTTON_HEIGHT) );
+		add.init( button_t::roundbox, "Query server", scr_coord( ww - D_BUTTON_WIDTH - D_MARGIN_RIGHT, pos_y ));
 		add.add_listener( this );
 
 		pos_y += D_BUTTON_HEIGHT;

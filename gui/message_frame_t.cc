@@ -80,7 +80,7 @@ message_frame_t::message_frame_t() :
 	tabs.add_listener(this);
 	add_component(&tabs);
 
-	option_bt.init(button_t::roundbox, translator::translate("Optionen"), scr_coord(BUTTON1_X,0), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
+	option_bt.init(button_t::roundbox, translator::translate("Optionen"), scr_coord(BUTTON1_X,0));
 	option_bt.add_listener(this);
 	add_component(&option_bt);
 

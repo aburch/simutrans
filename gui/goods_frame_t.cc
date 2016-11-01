@@ -97,11 +97,11 @@ goods_frame_t::goods_frame_t() :
 
 	y += LINESPACE+1;
 
-	sortedby.init(button_t::roundbox, "", scr_coord(BUTTON1_X, y), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
+	sortedby.init(button_t::roundbox, "", scr_coord(BUTTON1_X, y));
 	sortedby.add_listener(this);
 	add_component(&sortedby);
 
-	sorteddir.init(button_t::roundbox, "", scr_coord(BUTTON2_X, y), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
+	sorteddir.init(button_t::roundbox, "", scr_coord(BUTTON2_X, y));
 	sorteddir.add_listener(this);
 	add_component(&sorteddir);
 

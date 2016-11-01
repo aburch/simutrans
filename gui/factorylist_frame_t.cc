@@ -49,11 +49,11 @@ factorylist_frame_t::factorylist_frame_t() :
 	sort_label.set_pos(scr_coord(BUTTON1_X, 2));
 	add_component(&sort_label);
 
-	sortedby.init(button_t::roundbox, "", scr_coord(BUTTON1_X, 14), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
+	sortedby.init(button_t::roundbox, "", scr_coord(BUTTON1_X, 14));
 	sortedby.add_listener(this);
 	add_component(&sortedby);
 
-	sorteddir.init(button_t::roundbox, "", scr_coord(BUTTON2_X, 14), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
+	sorteddir.init(button_t::roundbox, "", scr_coord(BUTTON2_X, 14));
 	sorteddir.add_listener(this);
 	add_component(&sorteddir);
 

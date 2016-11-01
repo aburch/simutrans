@@ -108,17 +108,17 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	add_component(&view);
 
 	// this convoi doesn't belong to an AI
-	button.init(button_t::roundbox, "Fahrplan", scr_coord(BUTTON1_X,offset_below_viewport), scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
+	button.init(button_t::roundbox, "Fahrplan", scr_coord(BUTTON1_X,offset_below_viewport));
 	button.set_tooltip("Alters a schedule.");
 	button.add_listener(this);
 	add_component(&button);
 
-	go_home_button.init(button_t::roundbox, "go home", scr_coord(BUTTON2_X,offset_below_viewport), scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
+	go_home_button.init(button_t::roundbox, "go home", scr_coord(BUTTON2_X,offset_below_viewport));
 	go_home_button.set_tooltip("Sends the convoi to the last depot it departed from!");
 	go_home_button.add_listener(this);
 	add_component(&go_home_button);
 
-	no_load_button.init(button_t::roundbox, "no load", scr_coord(BUTTON3_X,offset_below_viewport), scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
+	no_load_button.init(button_t::roundbox, "no load", scr_coord(BUTTON3_X,offset_below_viewport));
 	no_load_button.set_tooltip("No goods are loaded onto this convoi.");
 	no_load_button.add_listener(this);
 	add_component(&no_load_button);
@@ -157,17 +157,17 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 
 	const sint16 yoff = offset_below_viewport + LINESPACE + 2*D_V_SPACE + D_BUTTON_HEIGHT;
 
-	sort_button.init(button_t::roundbox, sort_text[env_t::default_sortmode], scr_coord(BUTTON1_X,yoff), scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
+	sort_button.init(button_t::roundbox, sort_text[env_t::default_sortmode], scr_coord(BUTTON1_X,yoff));
 	sort_button.set_tooltip("Sort by");
 	sort_button.add_listener(this);
 	add_component(&sort_button);
 
-	toggler.init(button_t::roundbox_state, "Chart", scr_coord(BUTTON3_X,yoff), scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
+	toggler.init(button_t::roundbox_state, "Chart", scr_coord(BUTTON3_X,yoff));
 	toggler.set_tooltip("Show/hide statistics");
 	toggler.add_listener(this);
 	add_component(&toggler);
 
-	details_button.init(button_t::roundbox, "Details", scr_coord(BUTTON4_X,yoff), scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
+	details_button.init(button_t::roundbox, "Details", scr_coord(BUTTON4_X,yoff));
 	details_button.set_tooltip("Vehicle details");
 	details_button.add_listener(this);
 	add_component(&details_button);

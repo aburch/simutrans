@@ -136,22 +136,22 @@ halt_info_t::halt_info_t(halthandle_t halt) :
 	const sint16 yoff = offset_below_viewport + D_V_SPACE;
 
 	// hsiegeln: added sort_button
-	sort_button.init(button_t::roundbox, sort_text[env_t::default_sortmode],scr_coord(BUTTON1_X, yoff), scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
+	sort_button.init(button_t::roundbox, sort_text[env_t::default_sortmode],scr_coord(BUTTON1_X, yoff));
 	sort_button.set_tooltip("Sort waiting list by");
 	sort_button.add_listener(this);
 	add_component(&sort_button);
 
-	toggler_departures.init( button_t::roundbox_state, "Departure board", scr_coord( BUTTON2_X, yoff ), scr_size( D_BUTTON_WIDTH, D_BUTTON_HEIGHT ) );
+	toggler_departures.init( button_t::roundbox_state, "Departure board", scr_coord( BUTTON2_X, yoff ));
 	toggler_departures.set_tooltip("Show/hide estimated arrival times");
 	toggler_departures.add_listener( this );
 	add_component( &toggler_departures );
 
-	toggler.init(button_t::roundbox_state, "Chart", scr_coord(BUTTON3_X, yoff), scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
+	toggler.init(button_t::roundbox_state, "Chart", scr_coord(BUTTON3_X, yoff));
 	toggler.set_tooltip("Show/hide statistics");
 	toggler.add_listener(this);
 	add_component(&toggler);
 
-	button.init(button_t::roundbox, "Details", scr_coord(BUTTON4_X, yoff), scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
+	button.init(button_t::roundbox, "Details", scr_coord(BUTTON4_X, yoff));
 	button.set_tooltip("Open station/stop details");
 	button.add_listener(this);
 	add_component(&button);

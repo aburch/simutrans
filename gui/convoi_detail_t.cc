@@ -48,12 +48,12 @@ convoi_detail_t::convoi_detail_t(convoihandle_t cnv)
 {
 	this->cnv = cnv;
 
-	sale_button.init(button_t::roundbox, "Verkauf", scr_coord(BUTTON4_X, 0), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
+	sale_button.init(button_t::roundbox, "Verkauf", scr_coord(BUTTON4_X, 0));
 	sale_button.set_tooltip("Remove vehicle from map. Use with care!");
 	sale_button.add_listener(this);
 	add_component(&sale_button);
 
-	withdraw_button.init(button_t::roundbox, "withdraw", scr_coord(BUTTON3_X, 0), scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
+	withdraw_button.init(button_t::roundbox, "withdraw", scr_coord(BUTTON3_X, 0));
 	withdraw_button.set_tooltip("Convoi is sold when all wagons are empty.");
 	withdraw_button.add_listener(this);
 	add_component(&withdraw_button);

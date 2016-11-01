@@ -105,7 +105,7 @@ station_building_select_t::station_building_select_t(const haus_besch_t *besch) 
 
 	// button
 	for(int i=0; i<layout; i++) {
-		actionbutton[i].init( button_t::roundbox, translator::translate(label_text[i]), base_offsets[i+row*2]+scr_coord((width-D_BUTTON_WIDTH)/2, height), scr_size( D_BUTTON_WIDTH,D_BUTTON_HEIGHT ) );
+		actionbutton[i].init( button_t::roundbox, translator::translate(label_text[i]), base_offsets[i+row*2]+scr_coord((width-D_BUTTON_WIDTH)/2, height));
 		actionbutton[i].add_listener(this);
 		add_component(&actionbutton[i]);
 	}

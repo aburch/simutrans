@@ -60,7 +60,7 @@ fabrik_info_t::fabrik_info_t(fabrik_t* fab_, const gebaeude_t* gb) :
 	const sint16 offset_below_viewport = D_MARGIN_TOP+D_BUTTON_HEIGHT+D_V_SPACE+ max( prod.get_size().h, view.get_size().h + 8 ) + D_V_SPACE;
 
 	chart.set_pos( scr_coord(0, offset_below_viewport) );
-	chart_button.init(button_t::roundbox_state, "Chart", scr_coord(BUTTON3_X,offset_below_viewport), scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
+	chart_button.init(button_t::roundbox_state, "Chart", scr_coord(BUTTON3_X,offset_below_viewport));
 	chart_button.set_tooltip("Show/hide statistics");
 	chart_button.add_listener(this);
 	add_component(&chart_button);
@@ -70,7 +70,7 @@ fabrik_info_t::fabrik_info_t(fabrik_t* fab_, const gebaeude_t* gb) :
 	sprintf(key, "factory_%s_details", fab->get_besch()->get_name());
 	const char * value = translator::translate(key);
 	if(value && *value != 'f') {
-		details_button.init( button_t::roundbox, "Details", scr_coord(BUTTON4_X,offset_below_viewport), scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
+		details_button.init( button_t::roundbox, "Details", scr_coord(BUTTON4_X,offset_below_viewport));
 //		details_button.set_tooltip("Factory details");
 		details_button.add_listener(this);
 		add_component(&details_button);
@@ -387,7 +387,7 @@ fabrik_info_t::fabrik_info_t() :
 	prod.set_pos( scr_coord( D_MARGIN_LEFT, D_MARGIN_TOP+D_BUTTON_HEIGHT+D_V_SPACE ) );
 	add_component( &prod );
 
-	chart_button.init(button_t::roundbox_state, "Chart", scr_coord(BUTTON3_X,0), scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
+	chart_button.init(button_t::roundbox_state, "Chart", scr_coord(BUTTON3_X,0));
 	chart_button.set_tooltip("Show/hide statistics");
 	chart_button.add_listener(this);
 	add_component(&chart_button);
@@ -459,7 +459,7 @@ void fabrik_info_t::rdwr( loadsave_t *file )
 		sprintf(key, "factory_%s_details", fab->get_besch()->get_name());
 		const char * value = translator::translate(key);
 		if(value && *value != 'f') {
-			details_button.init( button_t::roundbox, "Details", scr_coord(BUTTON4_X,offset_below_viewport), scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
+			details_button.init( button_t::roundbox, "Details", scr_coord(BUTTON4_X,offset_below_viewport));
 //			details_button.set_tooltip("Factory details");
 			details_button.add_listener(this);
 			add_component(&details_button);

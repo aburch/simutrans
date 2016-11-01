@@ -229,15 +229,15 @@ convoi_frame_t::convoi_frame_t(player_t* player) :
 	add_component(&sortedby);
 
 
-	sorteddir.init(button_t::roundbox, "", scr_coord(BUTTON2_X, 14), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
+	sorteddir.init(button_t::roundbox, "", scr_coord(BUTTON2_X, 14));
 	sorteddir.add_listener(this);
 	add_component(&sorteddir);
 
-	filter_on.init(button_t::roundbox, filter_is_on ? "cl_btn_filter_enable" : "cl_btn_filter_disable", scr_coord(BUTTON3_X, 14), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
+	filter_on.init(button_t::roundbox, filter_is_on ? "cl_btn_filter_enable" : "cl_btn_filter_disable", scr_coord(BUTTON3_X, 14));
 	filter_on.add_listener(this);
 	add_component(&filter_on);
 
-	filter_details.init(button_t::roundbox, "cl_btn_filter_settings", scr_coord(BUTTON4_X, 14), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
+	filter_details.init(button_t::roundbox, "cl_btn_filter_settings", scr_coord(BUTTON4_X, 14));
 	filter_details.add_listener(this);
 	add_component(&filter_details);
 

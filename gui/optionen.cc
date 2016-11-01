@@ -86,7 +86,7 @@ optionen_gui_t::optionen_gui_t() :
 		}
 
 		// Add button at cursor
-		option_buttons[i].init( button_t::roundbox, option_buttons_text[i], cursor, scr_size( D_BUTTON_WIDTH, D_BUTTON_HEIGHT ) );
+		option_buttons[i].init( button_t::roundbox, option_buttons_text[i], cursor);
 		option_buttons[i].add_listener(this);
 		add_component( option_buttons+i );
 		cursor.y += D_BUTTON_HEIGHT + D_V_SPACE;

@@ -96,15 +96,15 @@ citylist_frame_t::citylist_frame_t() :
 	sort_label.set_pos(scr_coord(BUTTON1_X, 40-D_BUTTON_HEIGHT-(LINESPACE+1)));
 	add_component(&sort_label);
 
-	sortedby.init(button_t::roundbox, "", scr_coord(BUTTON1_X, 40-D_BUTTON_HEIGHT), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
+	sortedby.init(button_t::roundbox, "", scr_coord(BUTTON1_X, 40-D_BUTTON_HEIGHT));
 	sortedby.add_listener(this);
 	add_component(&sortedby);
 
-	sorteddir.init(button_t::roundbox, "", scr_coord(BUTTON2_X, 40-D_BUTTON_HEIGHT), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
+	sorteddir.init(button_t::roundbox, "", scr_coord(BUTTON2_X, 40-D_BUTTON_HEIGHT));
 	sorteddir.add_listener(this);
 	add_component(&sorteddir);
 
-	show_stats.init(button_t::roundbox_state, "Chart", scr_coord(BUTTON4_X, 40-D_BUTTON_HEIGHT), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
+	show_stats.init(button_t::roundbox_state, "Chart", scr_coord(BUTTON4_X, 40-D_BUTTON_HEIGHT));
 	show_stats.set_tooltip("Show/hide statistics");
 	show_stats.add_listener(this);
 	add_component(&show_stats);
