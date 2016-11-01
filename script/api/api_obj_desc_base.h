@@ -10,9 +10,11 @@ class obj_besch_std_name_t;
 class obj_besch_timelined_t;
 class obj_besch_transport_related_t;
 class baum_besch_t;
+class bruecke_besch_t;
 class haus_besch_t;
 class haus_tile_besch_t;
 class ware_besch_t;
+class tunnel_besch_t;
 class vehikel_besch_t;
 class weg_besch_t;
 
@@ -75,6 +77,8 @@ namespace script_api {
 	declare_besch_param(haus_besch_t, "building_desc_x");
 	declare_besch_param(weg_besch_t, "way_desc_x");
 	declare_besch_param(vehikel_besch_t, "vehicle_desc_x");
+	declare_besch_param(tunnel_besch_t, "tunnel_desc_x");
+	declare_besch_param(bruecke_besch_t, "bridge_desc_x");
 
 	// only push the haus_besch_t-pointer
 	declare_besch_param(haus_tile_besch_t, "building_desc_x");

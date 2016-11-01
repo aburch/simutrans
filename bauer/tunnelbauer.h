@@ -45,6 +45,10 @@ public:
 	static const tunnel_besch_t *find_tunnel(const waytype_t wtyp, const sint32 min_speed,const uint16 time);
 
 	static void fill_menu(tool_selector_t *tool_selector, const waytype_t wtyp, sint16 sound_ok);
+	/**
+	 * Returns a list with available tunnel types.
+	 */
+	static const vector_tpl<const tunnel_besch_t *>& get_available_tunnels(const waytype_t wtyp);
 
 	static const char *baue( player_t *player, koord pos, const tunnel_besch_t *besch, bool full_tunnel  );
 

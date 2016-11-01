@@ -8,10 +8,13 @@
 #include "get_next.h"
 #include "../api_class.h"
 #include "../api_function.h"
+#include "../../besch/bruecke_besch.h"
 #include "../../besch/haus_besch.h"
 #include "../../besch/vehikel_besch.h"
 #include "../../besch/ware_besch.h"
+#include "../../bauer/brueckenbauer.h"
 #include "../../bauer/hausbauer.h"
+#include "../../bauer/tunnelbauer.h"
 #include "../../bauer/vehikelbauer.h"
 #include "../../bauer/warenbauer.h"
 #include "../../bauer/wegbauer.h"
@@ -499,6 +502,43 @@ void export_goods_desc(HSQUIRRELVM vm)
 	 * @returns the list
 	 */
 	STATIC register_method(vm, &get_available_ways, "get_available_ways", false, true);
+
+	end_class(vm);
+
+	/**
+	 * Object descriptors for tunnels.
+	 */
+	begin_besch_class(vm, "tunnel_desc_x", "obj_desc_transport_x", (GETBESCHFUNC)param<const tunnel_besch_t*>::getfunc());
+	/**
+	 * Returns a list with available tunnel types.
+	 */
+	STATIC register_method(vm, tunnelbauer_t::get_available_tunnels, "get_available_tunnels", false, true);
+	end_class(vm);
+
+	/**
+	 * Object descriptors for bridges.
+	 */
+	begin_besch_class(vm, "bridge_desc_x", "obj_desc_transport_x", (GETBESCHFUNC)param<const bruecke_besch_t*>::getfunc());
+	/**
+	 * @return true if this bridge can raise two level from flat terrain
+	 */
+	register_method(vm, &bruecke_besch_t::has_double_ramp, "has_double_ramp");
+	/**
+	 * @return true if this bridge can start or end on a double slope
+	 */
+	register_method(vm, &bruecke_besch_t::has_double_start, "has_double_start");
+	/**
+	 * @return maximal bridge length in tiles
+	 */
+	register_method(vm, &bruecke_besch_t::get_max_length, "get_max_length");
+	/**
+	 * @return maximal bridge height
+	 */
+	register_method(vm, &bruecke_besch_t::get_max_height, "get_max_height");
+	/**
+	 * Returns a list with available bridge types.
+	 */
+	STATIC register_method(vm, brueckenbauer_t::get_available_bridges, "get_available_bridges", false, true);
 
 	end_class(vm);
 

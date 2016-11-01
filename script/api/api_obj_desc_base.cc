@@ -1,9 +1,13 @@
 #include "api_obj_desc_base.h"
 
+#include "../../bauer/brueckenbauer.h"
 #include "../../bauer/hausbauer.h"
+#include "../../bauer/tunnelbauer.h"
 #include "../../bauer/vehikelbauer.h"
 #include "../../bauer/warenbauer.h"
 #include "../../bauer/wegbauer.h"
+#include "../../besch/bruecke_besch.h"
+#include "../../besch/tunnel_besch.h"
 #include "../../besch/vehikel_besch.h"
 #include "../../besch/ware_besch.h"
 #include "../../obj/baum.h"
@@ -21,6 +25,8 @@ implement_besch_param(haus_besch_t, "building_desc_x", &hausbauer_t::get_besch);
 implement_besch_param(ware_besch_t, "good_desc_x", (const ware_besch_t* (*)(const char*))(&warenbauer_t::get_info) );
 implement_besch_param(weg_besch_t, "way_desc_x", &my_get_besch);
 implement_besch_param(vehikel_besch_t, "vehicle_desc_x", &vehikelbauer_t::get_info);
+implement_besch_param(tunnel_besch_t, "tunnel_desc_x", &tunnelbauer_t::get_besch);
+implement_besch_param(bruecke_besch_t, "bridge_desc_x", &brueckenbauer_t::get_besch);
 
 /**
  * Macro to get the implementation of get method based on unique tag.

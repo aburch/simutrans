@@ -655,8 +655,25 @@ namespace script_api {
 	// 5 parameters
 	template<typename A1, typename A2, typename A3, typename A4, typename A5>
 	struct embed_call_t<void (*)(A1, A2, A3, A4, A5)> {
-		typedef A1                   sig_first;   // type of first parameter
-		typedef void(*sig_reduced)(A2,A3,A4,A5);  // signature of function with without return type, class, and last parameter
+		static SQInteger call_function(HSQUIRRELVM vm, void (*func)(A1, A2, A3, A4, A5), bool discard_first)
+		{
+			A1 a1 = param<A1>::get(vm, 2-discard_first);
+			if (discard_first  &&  param_chk_t<A1>::is_null(a1)) {
+				return -1;
+			}
+			(*func)(a1,
+				param<A2>::get(vm, 3-discard_first),
+				param<A3>::get(vm, 4-discard_first),
+				param<A4>::get(vm, 5-discard_first),
+				param<A5>::get(vm, 6-discard_first)
+			);
+			return 0;
+		}
+
+		typedef void_t         sig_return;  // return type
+		typedef void_t         sig_class;   // type of class
+		typedef A1             sig_first;   // type of first parameter
+		typedef void(*sig_reduced)(A2,A3,A4);  // signature of function with without return type, class, and last parameter
 	};
 
 	template<class C, typename A1, typename A2, typename A3, typename A4, typename A5>

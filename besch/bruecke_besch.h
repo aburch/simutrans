@@ -93,7 +93,7 @@ public:
 	bool has_double_ramp() const;
 
 	/**
-	 * @return true if this bridge can start or end onm a double slope
+	 * @return true if this bridge can start or end on a double slope
 	 */
 	bool has_double_start() const;
 

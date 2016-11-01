@@ -143,6 +143,11 @@ public:
 	 * @param welt the current world
 	 */
 	static void fill_menu(tool_selector_t *tool_selector, const waytype_t wtyp, sint16 sound_ok);
+
+	/**
+	 * Returns a list with available bridge types.
+	 */
+	static const vector_tpl<const bruecke_besch_t *>& get_available_bridges(const waytype_t wtyp);
 };
 
 #endif
