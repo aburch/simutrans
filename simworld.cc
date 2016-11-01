@@ -1538,7 +1538,6 @@ void karte_t::create_beaches(  int xoff, int yoff  )
 	const uint16 size_x = get_size().x;
 	const uint16 size_y = get_size().y;
 
-//printf("%d: creating beaches\n",dr_time());
 	// bays have wide beaches
 	for(  uint16 iy = 0;  iy < size_y;  iy++  ) {
 		for(  uint16 ix = (iy >= yoff - 19) ? 0 : max( xoff - 19, 0 );  ix < size_x;  ix++  ) {
@@ -1577,7 +1576,6 @@ void karte_t::create_beaches(  int xoff, int yoff  )
 		}
 	}
 
-//printf("%d: removing beaches from headlands\n",dr_time());
 	// headlands should not have beaches at all
 	for(  uint16 iy = 0;  iy < size_y;  iy++  ) {
 		for(  uint16 ix = (iy >= yoff - 19) ? 0 : max( xoff - 19, 0 );  ix < size_x;  ix++  ) {
@@ -1599,7 +1597,6 @@ void karte_t::create_beaches(  int xoff, int yoff  )
 		}
 	}
 
-//printf("%d: removing isloated beaches\n",dr_time());
 	// remove any isolated 1 tile beaches
 	for(  uint16 iy = 0;  iy < size_y;  iy++  ) {
 		for(  uint16 ix = (iy >= yoff - 19) ? 0 : max( xoff - 19, 0 );  ix < size_x;  ix++  ) {
@@ -1661,7 +1658,6 @@ void karte_t::init_height_to_climate()
 
 void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 {
-//printf("%d: enlarge map\n",dr_time());
 	sint16 new_groesse_x = sets->get_groesse_x();
 	sint16 new_groesse_y = sets->get_groesse_y();
 
