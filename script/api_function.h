@@ -673,7 +673,7 @@ namespace script_api {
 		typedef void_t         sig_return;  // return type
 		typedef void_t         sig_class;   // type of class
 		typedef A1             sig_first;   // type of first parameter
-		typedef void(*sig_reduced)(A2,A3,A4);  // signature of function with without return type, class, and last parameter
+		typedef void(*sig_reduced)(A2,A3,A4,A5);  // signature of function with without return type, class, and last parameter
 	};
 
 	template<class C, typename A1, typename A2, typename A3, typename A4, typename A5>
