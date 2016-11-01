@@ -889,7 +889,7 @@ private:
 
 	sint32 calc_adjusted_step_interval(const uint32 weight, uint32 trips_per_month_hundredths) const;
 
-	void generate_passengers_or_mail(const ware_besch_t * wtyp);
+	uint32 generate_passengers_or_mail(const ware_besch_t * wtyp);
 
 	destination find_destination(trip_type trip);
 
@@ -897,7 +897,6 @@ private:
 	friend void *check_road_connexions_threaded(void* args);
 	friend void *step_passengers_and_mail_threaded(void* args);
 	static sint32 cities_to_process;
-	static sint32 step_passengers_delta_t;
 #endif
 
 public:
