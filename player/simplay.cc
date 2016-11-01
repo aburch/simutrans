@@ -440,7 +440,7 @@ void player_t::set_scenario_completion(sint32 percent)
 
 bool player_t::check_owner( const player_t *owner, const player_t *test )
 {
-	return owner == test  ||  owner == NULL  ||  test == welt->get_player(1);
+	return owner == test  ||  owner == NULL  ||  (test != NULL  &&  test->is_public_serivce());
 }
 
 
@@ -955,6 +955,11 @@ bool player_t::has_money_or_assets() const
 bool player_t::can_afford(sint64 cost) const
 {
 	return welt->get_settings().is_freeplay() ||
-		get_player_nr() == 1 ||
+		is_public_serivce() ||
 		get_finance()->get_netwealth() >= -cost;
+}
+
+bool player_t::is_public_serivce() const
+{
+	return get_player_nr() == 1;
 }

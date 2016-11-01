@@ -888,6 +888,20 @@ public:
 	void remove_player(uint8 player_nr);
 
 	/**
+	 * Get the public service player whos domain of influence includes the ground gr.
+	 * If gr is NULL then the default public service player is returned.
+	 * @param gr the ground to lookup
+	 * @return a public service player
+	 */
+	player_t *get_public_player(grund_t const *const gr) const;
+
+	/**
+	* Get the default public service player.
+	* @return the default public service player
+	*/
+	player_t *get_public_player() const;
+
+	/**
 	 * Network safe initiation of new and deletion of players, change freeplay.
 	 * @param param Player type (human / ai) of new players.
 	 */

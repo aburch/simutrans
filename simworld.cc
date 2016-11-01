@@ -6831,3 +6831,13 @@ const vector_tpl<const ware_besch_t*> &karte_t::get_goods_list()
 
 	return goods_in_game;
 }
+
+player_t *karte_t::get_public_player(grund_t const *const gr) const
+{
+	return get_public_player();
+}
+
+player_t *karte_t::get_public_player() const
+{
+	return get_player(1);
+}

@@ -250,6 +250,12 @@ public:
 	sint8 get_player_nr() const {return player_nr; }
 
 	/**
+	 * Test if this player is a public service player.
+	 * @return true if the player is a public service player, otherwise false.
+	 */
+	bool is_public_serivce() const;
+
+	/**
 	 * return true, if the owner is none, myself or player(1), i.e. the ownership can be taken by player test
 	 * @author prissi
 	 */
