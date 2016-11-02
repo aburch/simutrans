@@ -1579,9 +1579,8 @@ void *check_road_connexions_threaded(void *args)
 		pthread_mutex_lock(&private_car_route_mutex);
 		if (karte_t::cities_to_process > 0)
 		{
-			slist_tpl<stadt_t*>* list = (slist_tpl<stadt_t*>*)args;
 			stadt_t* city;
-			city = list->remove_first();
+			city = world->cities_awaiting_private_car_route_check.remove_first();
 			karte_t::cities_to_process--;
 			pthread_mutex_unlock(&private_car_route_mutex);
 
