@@ -1696,7 +1696,11 @@ void* step_individual_convoi_threaded(void* args)
 		simthread_barrier_wait(&step_convois_barrier_internal);
 		if (convois_next_step.get_count() > thread_number)
 		{
-			convois_next_step[thread_number].is_bound() ? convois_next_step[thread_number]->threaded_step() : true /* do nothing */;
+			convoihandle_t cnv = convois_next_step[thread_number];
+			if (cnv.is_bound())
+			{
+				cnv->threaded_step();
+			}
 		}
 		simthread_barrier_wait(&step_convois_barrier_internal);
 	}
