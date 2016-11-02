@@ -185,7 +185,7 @@ void bruecke_t::finish_rd()
 		if(weg==NULL) {
 			dbg->error("bruecke_t::finish_rd()","Bridge without way at(%s)!", gr->get_pos().get_str() );
 			weg = weg_t::alloc( besch->get_waytype() );
-			gr->neuen_weg_bauen( weg, 0, welt->get_player(1) );
+			gr->neuen_weg_bauen( weg, 0, welt->get_public_player() );
 		}
 		weg->set_max_speed(besch->get_topspeed());
 		// take ownership of way
@@ -261,7 +261,7 @@ void bruecke_t::rotate90()
 // players can remove public owned ways
 const char *bruecke_t::is_deletable(const player_t *player)
 {
-	if (get_player_nr()==1) {
+	if (get_player_nr()==welt->get_public_player()->get_player_nr()) {
 		return NULL;
 	}
 	else {

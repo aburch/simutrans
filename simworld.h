@@ -888,14 +888,6 @@ public:
 	void remove_player(uint8 player_nr);
 
 	/**
-	 * Get the public service player whos domain of influence includes the ground gr.
-	 * If gr is NULL then the default public service player is returned.
-	 * @param gr the ground to lookup
-	 * @return a public service player
-	 */
-	player_t *get_public_player(grund_t const *const gr) const;
-
-	/**
 	* Get the default public service player.
 	* @return the default public service player
 	*/

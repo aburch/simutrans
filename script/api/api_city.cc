@@ -50,12 +50,12 @@ call_tool_init set_citygrowth(stadt_t *city, bool allow)
 {
 	cbuffer_t buf;
 	buf.printf("g%hi,%hi,%hi", city->get_pos().x, city->get_pos().y, (short)allow );
-	return call_tool_init(TOOL_CHANGE_CITY | SIMPLE_TOOL, (const char*)buf, 0, welt->get_player(1));
+	return call_tool_init(TOOL_CHANGE_CITY | SIMPLE_TOOL, (const char*)buf, 0, welt->get_public_player());
 }
 
 call_tool_init city_set_name(stadt_t* city, const char* name)
 {
-	return command_rename(welt->get_player(1), 't', welt->get_staedte().index_of(city), name);
+	return command_rename(welt->get_public_player(), 't', welt->get_staedte().index_of(city), name);
 }
 
 
@@ -65,7 +65,7 @@ call_tool_work city_change_size(stadt_t *city, sint32 delta)
 	buf.printf("%i", delta);
 	grund_t *gr = welt->lookup_kartenboden(city->get_pos());
 	if (gr) {
-		return call_tool_work(TOOL_CHANGE_CITY_SIZE | GENERAL_TOOL, (const char*)buf, 0, welt->get_player(1), gr->get_pos());
+		return call_tool_work(TOOL_CHANGE_CITY_SIZE | GENERAL_TOOL, (const char*)buf, 0, welt->get_public_player(), gr->get_pos());
 	}
 	else {
 		return "Invalid coordinate.";

@@ -253,7 +253,7 @@ public:
 	 * Test if this player is a public service player.
 	 * @return true if the player is a public service player, otherwise false.
 	 */
-	bool is_public_serivce() const;
+	bool is_public_service() const;
 
 	/**
 	 * return true, if the owner is none, myself or player(1), i.e. the ownership can be taken by player test

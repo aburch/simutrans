@@ -2746,7 +2746,7 @@ void convoi_t::laden()
 	// eigene haltestelle ?
 	if(  halt.is_bound()  ) {
 		const player_t* owner = halt->get_owner();
-		if(  owner == get_owner()  ||  owner == welt->get_player(1)  ) {
+		if(  owner == get_owner()  ||  owner == welt->get_public_player()  ) {
 			// loading/unloading ...
 			halt->request_loading( self );
 		}

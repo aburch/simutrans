@@ -1315,7 +1315,7 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 		// set the owner to the default of player 1
 		if(owner_n == -1) {
 			// Use default
-			owner = welt->get_player(1);
+			owner = welt->get_public_player();
 		}
 		else {
 			// Restore owner pointer

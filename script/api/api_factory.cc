@@ -110,7 +110,7 @@ vector_tpl<halthandle_t> const& factory_get_halt_list(fabrik_t *fab)
 
 call_tool_init factory_set_name(fabrik_t *fab, const char* name)
 {
-	return command_rename(welt->get_player(1), 'f', fab->get_pos(), name);
+	return command_rename(welt->get_public_player(), 'f', fab->get_pos(), name);
 }
 
 

@@ -72,7 +72,7 @@ int leitung_t::gimme_neighbours(leitung_t **conn)
 			if(  lt  &&  (ribi_t::rueckwaerts(ribi_t::nsow[i]) & get_powerline_ribi(gr))  &&  ok  ) {
 				const player_t *owner = get_owner();
 				const player_t *other = lt->get_owner();
-				const player_t *super = welt->get_player(1);
+				const player_t *super = welt->get_public_player();
 				if (owner==other  ||  owner==super  ||  other==super) {
 					conn[i] = lt;
 					count++;
@@ -438,7 +438,7 @@ void leitung_t::rdwr(loadsave_t *file)
 // players can remove public owned powerlines
 const char *leitung_t::is_deletable(const player_t *player)
 {
-	if(  get_player_nr()==1  &&  player  ) {
+	if(  get_player_nr()==welt->get_public_player()->get_player_nr()  &&  player  ) {
 		return NULL;
 	}
 	return obj_t::is_deletable(player);

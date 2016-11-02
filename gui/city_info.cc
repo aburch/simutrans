@@ -217,7 +217,7 @@ void city_info_t::rename_city()
 			buf.printf( "t%u,%s", welt->get_staedte().index_of(city), name );
 			tool_t *tmp_tool = create_tool( TOOL_RENAME | SIMPLE_TOOL );
 			tmp_tool->set_default_param( buf );
-			welt->set_tool( tmp_tool, welt->get_player(1));
+			welt->set_tool( tmp_tool, welt->get_public_player());
 			// since init always returns false, it is safe to delete immediately
 			delete tmp_tool;
 			// do not trigger this command again
@@ -336,7 +336,7 @@ bool city_info_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 	if(  komp==&allow_growth  ) {
 		sprintf(param,"g%hi,%hi,%hi", city->get_pos().x, city->get_pos().y, (short)(!city->get_citygrowth()) );
 		tool_t::simple_tool[TOOL_CHANGE_CITY]->set_default_param( param );
-		welt->set_tool( tool_t::simple_tool[TOOL_CHANGE_CITY], welt->get_player(1));
+		welt->set_tool( tool_t::simple_tool[TOOL_CHANGE_CITY], welt->get_public_player());
 		return true;
 	}
 	if(  komp==&name_input  ) {

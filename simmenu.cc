@@ -705,7 +705,7 @@ const char *kartenboden_tool_t::check_pos(player_t *, koord3d pos )
 image_id toolbar_t::get_icon(player_t *player) const
 {
 	// no image for edit tools => do not open
-	if(  icon==IMG_LEER  ||  (player!=NULL  &&  strcmp(default_param,"EDITTOOLS")==0  &&  player->get_player_nr()!=1)  ) {
+	if(  icon==IMG_LEER  ||  (player!=NULL  &&  strcmp(default_param,"EDITTOOLS")==0  &&  player->get_player_nr()!=welt->get_public_player()->get_player_nr())  ) {
 		return IMG_LEER;
 	}
 	// now have we a least one visible tool?
@@ -815,7 +815,7 @@ void toolbar_t::update(player_t *player)
 		}
 	}
 
-	if(  (strcmp(this->default_param,"EDITTOOLS")==0  &&  player!=welt->get_player(1))  ) {
+	if(  (strcmp(this->default_param,"EDITTOOLS")==0  &&  player!=welt->get_public_player())  ) {
 		destroy_win(tool_selector);
 		return;
 	}
@@ -827,7 +827,7 @@ void toolbar_t::update(player_t *player)
 bool toolbar_t::init(player_t *player)
 {
 	update( player );
-	bool close = (strcmp(this->default_param,"EDITTOOLS")==0  &&  player!=welt->get_player(1));
+	bool close = (strcmp(this->default_param,"EDITTOOLS")==0  &&  player!=welt->get_public_player());
 
 	// show/create window
 	if(  close  ) {

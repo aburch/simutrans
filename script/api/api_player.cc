@@ -110,7 +110,7 @@ call_tool_init player_book_account(player_t *player, sint32 delta)
 	// build param string (see tool_change_player_t)
 	cbuffer_t buf;
 	buf.printf( "$,%i,%i", player->get_player_nr(), delta);
-	return call_tool_init(TOOL_CHANGE_PLAYER | SIMPLE_TOOL, buf, 0, welt->get_player(1));
+	return call_tool_init(TOOL_CHANGE_PLAYER | SIMPLE_TOOL, buf, 0, welt->get_public_player());
 }
 
 SQInteger player_get_my_player(HSQUIRRELVM vm)

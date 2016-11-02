@@ -976,7 +976,7 @@ stadt_t::~stadt_t()
 				}
 				else {
 					gb->set_stadt( NULL );
-					hausbauer_t::remove(welt->get_player(1),gb);
+					hausbauer_t::remove(welt->get_public_player(),gb);
 				}
 			}
 			// avoid the bookkeeping if world gets destroyed

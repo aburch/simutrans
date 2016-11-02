@@ -24,7 +24,7 @@ call_tool_init set_traffic_level(settings_t*, sint16 rate)
 {
 	cbuffer_t buf;
 	buf.printf("%i", rate);
-	return call_tool_init(TOOL_TRAFFIC_LEVEL | SIMPLE_TOOL, buf, 0, welt->get_player(1));
+	return call_tool_init(TOOL_TRAFFIC_LEVEL | SIMPLE_TOOL, buf, 0, welt->get_public_player());
 }
 
 

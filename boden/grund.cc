@@ -1922,7 +1922,7 @@ bool grund_t::remove_everything_from_way(player_t* player_, waytype_t wt, ribi_t
 		const koord here = pos.get_2d();
 
 		// stops
-		if(flags&is_halt_flag  &&  (get_halt()->get_owner()==player_  || player_==welt->get_player(1))) {
+		if(flags&is_halt_flag  &&  (get_halt()->get_owner()==player_  || player_==welt->get_public_player())) {
 			bool remove_halt = get_typ()!=boden;
 			// remove only if there is no other way
 			if(get_weg_nr(1)==NULL) {

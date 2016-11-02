@@ -84,7 +84,7 @@ void brueckenboden_t::rdwr(loadsave_t *file)
 			if(  kb && get_pos().z - kb->get_pos().z > 1 ) {
 				height = 2;
 			}
-			bruecke_t *br = new bruecke_t( get_pos(), welt->get_player(1), br_besch, ist_karten_boden() ? br_besch->get_end( slope, get_grund_hang(), get_weg_hang() ) : br_besch->get_simple( w->get_ribi_unmasked(), height ) );
+			bruecke_t *br = new bruecke_t( get_pos(), welt->get_public_player(), br_besch, ist_karten_boden() ? br_besch->get_end( slope, get_grund_hang(), get_weg_hang() ) : br_besch->get_simple( w->get_ribi_unmasked(), height ) );
 			obj_add( br );
 		}
 	}

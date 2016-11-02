@@ -398,7 +398,7 @@ void fabrikbauer_t::verteile_tourist(int max_number)
 		pos = finde_zufallsbauplatz(pos.get_2d(), 20, attraction->get_groesse(rotation),false,attraction,false,0x0FFFFFFF);	// so far -> land only
 		if(welt->lookup(pos)) {
 			// space found, build attraction
-			hausbauer_t::baue(welt->get_player(1), pos, rotation, attraction);
+			hausbauer_t::baue(welt->get_public_player(), pos, rotation, attraction);
 			current_number ++;
 			retrys = max_number*4;
 		}
@@ -451,7 +451,7 @@ fabrik_t* fabrikbauer_t::baue_fabrik(koord3d* parent, const fabrik_besch_t* info
 		koord dim = besch->get_groesse(rotate);
 
 		// create water halt
-		halthandle_t halt = haltestelle_t::create(pos.get_2d(), welt->get_player(1));
+		halthandle_t halt = haltestelle_t::create(pos.get_2d(), welt->get_public_player());
 		if(halt.is_bound()) {
 
 			// add all other tiles of the factory to the halt
@@ -929,7 +929,7 @@ next_ware_check:
 
 		uint32 last_suppliers = last_built_consumer->get_suppliers().get_count();
 		do {
-			nr += baue_link_hierarchie( last_built_consumer, last_built_consumer->get_besch(), last_built_consumer_ware, welt->get_player(1) );
+			nr += baue_link_hierarchie( last_built_consumer, last_built_consumer->get_besch(), last_built_consumer_ware, welt->get_public_player() );
 			last_built_consumer_ware ++;
 		} while(  last_built_consumer_ware < last_built_consumer->get_besch()->get_lieferanten()  &&  last_built_consumer->get_suppliers().get_count()==last_suppliers  );
 
@@ -1002,7 +1002,7 @@ next_ware_check:
 				}
 				if(welt->lookup(pos)) {
 					// Space found...
-					nr += baue_hierarchie(NULL, fab, -1 /* random prodbase */, rotation, &pos, welt->get_player(1), 1 );
+					nr += baue_hierarchie(NULL, fab, -1 /* random prodbase */, rotation, &pos, welt->get_public_player(), 1 );
 					if(nr>0) {
 						fabrik_t *our_fab = fabrik_t::get_fab( pos.get_2d() );
 						reliefkarte_t::get_karte()->calc_map_size();

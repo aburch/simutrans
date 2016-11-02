@@ -200,7 +200,7 @@ halthandle_t haltestelle_t::get_halt(const koord3d pos, const player_t *player )
 			// then for public stop
 			for(  uint8 i=0;  i<cnt;  i++  ) {
 				halthandle_t halt = plan->get_haltlist()[i];
-				if(  halt->get_owner()==welt->get_player(1)  &&  halt->get_station_type()&dock  ) {
+				if(  halt->get_owner()==welt->get_public_player()  &&  halt->get_station_type()&dock  ) {
 					return halt;
 				}
 			}
@@ -2258,7 +2258,7 @@ sint64 haltestelle_t::calc_maintenance() const
 // changes this to a public transfer exchange stop
 void haltestelle_t::make_public_and_join( player_t *player )
 {
-	player_t *const public_owner = welt->get_player(1);
+	player_t *const public_owner = welt->get_public_player();
 
 	// check if already public
 	if(  owner_p == public_owner  ) {
@@ -3020,7 +3020,7 @@ bool haltestelle_t::add_grund(grund_t *gr, bool relink_factories)
 	vector_tpl<linehandle_t> check_line(0);
 
 	// public halt: must iterate over all players lines / convoys
-	bool public_halt = get_owner() == welt->get_player(1);
+	bool public_halt = get_owner() == welt->get_public_player();
 
 	uint8 const pl_min = public_halt ? 0                : get_owner()->get_player_nr();
 	uint8 const pl_max = public_halt ? MAX_PLAYER_COUNT : get_owner()->get_player_nr()+1;

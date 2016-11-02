@@ -577,7 +577,7 @@ void weg_t::finish_rd()
 // players can remove public owned ways
 const char *weg_t::is_deletable(const player_t *player)
 {
-	if(  get_player_nr()==1  ) {
+	if(  get_player_nr()==welt->get_public_player()->get_player_nr()  ) {
 		return NULL;
 	}
 	return obj_t::is_deletable(player);

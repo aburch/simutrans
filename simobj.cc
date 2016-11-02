@@ -171,7 +171,7 @@ void obj_t::show_info()
 // returns NULL, if removal is allowed
 const char *obj_t::is_deletable(const player_t *player)
 {
-	if(owner_n==PLAYER_UNOWNED  ||  welt->get_player(owner_n) == player  ||  welt->get_player(1) == player) {
+	if(owner_n==PLAYER_UNOWNED  ||  welt->get_player(owner_n) == player  ||  welt->get_public_player() == player) {
 		return NULL;
 	}
 	else {

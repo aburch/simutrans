@@ -440,13 +440,13 @@ void player_t::set_scenario_completion(sint32 percent)
 
 bool player_t::check_owner( const player_t *owner, const player_t *test )
 {
-	return owner == test  ||  owner == NULL  ||  (test != NULL  &&  test->is_public_serivce());
+	return owner == test  ||  owner == NULL  ||  test == welt->get_public_player();
 }
 
 
 void player_t::ai_bankrupt()
 {
-	player_t *const psplayer = welt->get_player(1);
+	player_t *const psplayer = welt->get_public_player();
 
 	DBG_MESSAGE("player_t::ai_bankrupt()","Removing convois");
 
@@ -489,7 +489,7 @@ void player_t::ai_bankrupt()
 
 	// transfer all ways in public stops belonging to me to no one
 	FOR(vector_tpl<halthandle_t>, const halt, haltestelle_t::get_alle_haltestellen()) {
-		if(  halt->get_owner()==welt->get_player(1)  ) {
+		if(  halt->get_owner()==welt->get_public_player()  ) {
 			// only concerns public stops tiles
 			FOR(slist_tpl<haltestelle_t::tile_t>, const& i, halt->get_tiles()) {
 				grund_t const* const gr = i.grund;
@@ -955,11 +955,11 @@ bool player_t::has_money_or_assets() const
 bool player_t::can_afford(sint64 cost) const
 {
 	return welt->get_settings().is_freeplay() ||
-		is_public_serivce() ||
+		is_public_service() ||
 		get_finance()->get_netwealth() >= -cost;
 }
 
-bool player_t::is_public_serivce() const
+bool player_t::is_public_service() const
 {
 	return get_player_nr() == 1;
 }
