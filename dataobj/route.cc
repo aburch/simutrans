@@ -512,7 +512,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 
 ribi_t::ribi *get_next_dirs(const koord3d& gr_pos, const koord3d& ziel)
 {
-	static ribi_t::ribi next_ribi[4];
+	static thread_local ribi_t::ribi next_ribi[4];
 	if( abs(gr_pos.x-ziel.x)>abs(gr_pos.y-ziel.y) ) {
 		next_ribi[0] = (ziel.x>gr_pos.x) ? ribi_t::ost : ribi_t::west;
 		next_ribi[1] = (ziel.y>gr_pos.y) ? ribi_t::sued : ribi_t::nord;
