@@ -151,6 +151,7 @@ public:
 		REVERSING,
 		OUT_OF_RANGE,
 		EMERGENCY_STOP,
+		ROUTE_JUST_FOUND,
 		MAX_STATES
 	};
 
@@ -1065,6 +1066,15 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	void step();
+
+	/** 
+	* All the difficult tasks that can be multi-threaded.
+	* This excludes anything that might call the block reserver,
+	* which cannot be multi-threaded because it is critical to preserve
+	* between network connected clients the order in which convoys call
+	* the block reserver.
+	*/
+	void threaded_step();
 
 	/**
 	* setzt einen neuen convoi in fahrt

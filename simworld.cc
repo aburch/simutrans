@@ -124,13 +124,18 @@
 #include "utils/simthread.h"
 static vector_tpl<pthread_t> private_car_route_threads;
 static vector_tpl<pthread_t> step_passengers_and_mail_threads;
+static vector_tpl<pthread_t> individual_convoi_step_threads;
+static pthread_t convoi_step_master_thread;
 static pthread_attr_t thread_attributes;
 static pthread_mutex_t private_car_route_mutex = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutex_t step_passengers_and_mail_mutex = PTHREAD_MUTEX_INITIALIZER;
 static simthread_barrier_t private_car_barrier;
 static simthread_barrier_t  step_passengers_and_mail_barrier;
+static simthread_barrier_t  step_convois_barrier_external;
+static simthread_barrier_t  step_convois_barrier_internal;
 //static simthread_barrier_t  step_passengers_and_mail_barrier_internal;
 sint32 karte_t::cities_to_process = 0;
+vector_tpl<convoihandle_t> convois_next_step; 
 #endif
 
 #ifdef DEBUG_SIMRAND_CALLS
@@ -1567,7 +1572,9 @@ DBG_DEBUG("karte_t::init()","built timeline");
 #ifdef MULTI_THREAD
 void *check_road_connexions_threaded(void *args)
 {
-	while (true)
+	karte_t* world = (karte_t*)args;
+
+	while (!world->is_destroying())
 	{
 		pthread_mutex_lock(&private_car_route_mutex);
 		if (karte_t::cities_to_process > 0)
@@ -1601,7 +1608,7 @@ void *step_passengers_and_mail_threaded(void* args)
 {
 	karte_t* world = (karte_t*)args;
 	
-	while (true)
+	while (!world->is_destroying())
 	{	
 	top:
 		simthread_barrier_wait(&step_passengers_and_mail_barrier);
@@ -1653,6 +1660,51 @@ void *step_passengers_and_mail_threaded(void* args)
 	return args;
 }
 
+void *step_convois_threaded(void* args)
+{
+	karte_t* world = (karte_t*)args;
+	const sint32 parallel_operations = world->get_parallel_operations();
+
+	while (!world->is_destroying())
+	{	
+		simthread_barrier_wait(&step_convois_barrier_external);
+		// since convois will be deleted during stepping, we need to step backwards
+		for (uint32 i = world->convoi_array.get_count(); i-- != 0;)
+		{
+			convoihandle_t cnv = world->convoi_array[i];
+			convois_next_step.append(cnv);
+			if ((convois_next_step.get_count() == parallel_operations - 2) || (i == world->convoi_array.get_count() - 1))
+			{
+				simthread_barrier_wait(&step_convois_barrier_internal); 
+				simthread_barrier_wait(&step_convois_barrier_internal); // The multiples of these is intentional: we must stop the individual threads before the clear() command is executed.
+				convois_next_step.clear();
+			}
+		}
+		simthread_barrier_wait(&step_convois_barrier_external);
+	}
+	pthread_exit(NULL);
+	return args;
+}
+
+void* step_individual_convoi_threaded(void* args)
+{
+	const uint32* thread_number_ptr = (const uint32*)args;
+	const uint32 thread_number = *thread_number_ptr;
+	//delete thread_number_ptr;
+
+	while (!karte_t::world->is_destroying())
+	{
+		simthread_barrier_wait(&step_convois_barrier_internal);
+		if (convois_next_step.get_count() > thread_number)
+		{
+			convois_next_step[thread_number].is_bound() ? convois_next_step[thread_number]->threaded_step() : true /* do nothing */;
+		}
+		simthread_barrier_wait(&step_convois_barrier_internal);
+	}
+	pthread_exit(NULL);
+	return args;
+}
+
 void karte_t::init_threads()
 {
 	sint32 rc;
@@ -1665,13 +1717,16 @@ void karte_t::init_threads()
 	simthread_barrier_init(&private_car_barrier, NULL, parallel_operations + 1);
 	simthread_barrier_init(&step_passengers_and_mail_barrier, NULL, parallel_operations + 1);
 	//simthread_barrier_init(&step_passengers_and_mail_barrier_internal, NULL, parallel_operations);
+	simthread_barrier_init(&step_convois_barrier_external, NULL, 2);
+	simthread_barrier_init(&step_convois_barrier_internal, NULL, parallel_operations);	
 
 	for (sint32 i = 0; i < parallel_operations; i++)
 	{
 		pthread_t private_car_route_thread;
 		pthread_t step_passengers_and_mail_thread;
+		pthread_t individual_convoi_step_thread;
 
-		rc = pthread_create(&private_car_route_thread, &thread_attributes, &check_road_connexions_threaded, (void*)&cities_awaiting_private_car_route_check);
+		rc = pthread_create(&private_car_route_thread, &thread_attributes, &check_road_connexions_threaded, (void*)this);
 		if (rc)
 		{
 			dbg->fatal("void karte_t::init_threads()", "Failed to create private car thread, error %d. See here for a translation of the error numbers: http://epydoc.sourceforge.net/stdlib/errno-module.html", rc);
@@ -1690,6 +1745,27 @@ void karte_t::init_threads()
 		{
 			step_passengers_and_mail_threads.append(step_passengers_and_mail_thread);
 		}
+
+		if (i < parallel_operations - 1)
+		{
+			sint32 thread_number = *new sint32;
+			thread_number = i;
+			rc = pthread_create(&individual_convoi_step_thread, &thread_attributes, &step_individual_convoi_threaded, (void*)&thread_number);
+			if (rc)
+			{
+				dbg->fatal("void karte_t::init_threads()", "Failed to create individual convoy thread, error %d. See here for a translation of the error numbers: http://epydoc.sourceforge.net/stdlib/errno-module.html", rc);
+			}
+			else
+			{
+				individual_convoi_step_threads.append(individual_convoi_step_thread);
+			}
+		}
+	}
+
+	rc = pthread_create(&convoi_step_master_thread, &thread_attributes, &step_convois_threaded, (void*)this);
+	if (rc)
+	{
+		dbg->fatal("void karte_t::init_threads()", "Failed to create convoy master thread, error %d. See here for a translation of the error numbers: http://epydoc.sourceforge.net/stdlib/errno-module.html", rc);
 	}
 }
 
@@ -1698,6 +1774,7 @@ void karte_t::destroy_threads()
 	pthread_attr_destroy(&thread_attributes);
 	private_car_route_threads.clear();
 	step_passengers_and_mail_threads.clear();
+	individual_convoi_step_threads.clear();
 }
 #endif
 
@@ -4726,6 +4803,10 @@ rands[9] = get_random_seed();
 
 rands[10] = get_random_seed();
 
+#if 0
+	simthread_barrier_wait(&step_convois_barrier_external); // Start the threaded part of the convoys' steps: this is mainly route searches. Block reservation, etc., is in the single threaded part. 
+#endif
+
 	/// check for pending seasons change
 	// This is not very computationally intensive.
 	const bool season_change = pending_season_change > 0;
@@ -4757,12 +4838,23 @@ rands[11] = get_random_seed();
 
 	// to make sure the tick counter will be updated
 	INT_CHECK("karte_t::step 1");
+	
 
 	// Knightly : calling global path explorer
 	// This is computationally intensive, but it is not always running, so it is intermittently so.
 	path_explorer_t::step();
 rands[12] = get_random_seed();
 	INT_CHECK("karte_t::step 2");
+
+#if 0 
+	simthread_barrier_wait(&step_convois_barrier_external); // Finish the threaded part of the convoys' steps: this is mainly route searches. Block reservation, etc., is in the single threaded part. 
+#else
+	for (uint32 i = convoi_array.get_count(); i-- != 0;)
+	{
+		convoihandle_t cnv = convoi_array[i];
+		cnv->threaded_step();
+	}
+#endif
 	
 	// This is computationally intensive, especially the route searching.
 	DBG_DEBUG4("karte_t::step 4", "step %d convois", convoi_array.get_count());
@@ -7088,6 +7180,9 @@ bool karte_t::load(const char *filename)
 	loadsave_t file;
 	cities_awaiting_private_car_route_check.clear();
 	time_interval_signals_to_check.clear();
+#ifdef MULTI_THREAD
+	init_threads();
+#endif
 
 	// clear hash table with missing paks (may cause some small memory loss though)
 	missing_pak_names.clear();

@@ -896,7 +896,10 @@ private:
 #ifdef MULTI_THREAD
 	friend void *check_road_connexions_threaded(void* args);
 	friend void *step_passengers_and_mail_threaded(void* args);
+	friend void *step_convois_threaded(void* args);
+	friend void *step_individual_convoi_threaded(void* args);
 	static sint32 cities_to_process;
+	static vector_tpl<convoihandle_t> convois_next_step;
 #endif
 
 public:

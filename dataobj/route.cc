@@ -629,10 +629,11 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d start, const koord3
 	int best_distance = 65535;
 	do {
 		// Hajo: this is too expensive to be called each step
-		if((beat++ & 1023) == 0)
+		// We cannot call INT_CHECK here if this is multi-threaded.
+		/*if((beat++ & 1023) == 0)
 		{
 			INT_CHECK("route 161");
-		}
+		}*/
 
 		if (new_top) {
 			// this is not in closed list, no check necessary
@@ -848,7 +849,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d start, const koord3
 							to_target = ribi_t::rotate45(to_target);
 							turns ++;
 						}
-						while(to_target!=current_dir) {
+						while(to_target!=current_dir /*&& turns < 126*/) {
 							to_target = ribi_t::rotate90(to_target);
 							turns +=2;
 						}
