@@ -43,6 +43,10 @@
 #define sprintf_s snprintf
 #endif 
 
+#ifdef MULTI_THREAD
+#include "utils/simthread.h"
+#endif
+
 struct sound_info;
 class stadt_t;
 class fabrik_t;
@@ -268,6 +272,13 @@ private:
 	 * True during destroying of the map.
 	 */
 	bool destroying;
+
+#ifdef MULTI_THREAD
+	/**
+	* True when threads are to be terminated.
+	*/
+	bool terminating_threads;
+#endif
 
 	/**
 	 * The rotation of the map when first loaded.
@@ -1040,6 +1051,13 @@ public:
 	 */
 	bool is_destroying() const { return destroying; }
 
+#ifdef MULTI_THREAD
+	/**
+	* @returns true if threads are being terminated
+	*/
+	bool is_terminating_threads() const { return terminating_threads;  }
+#endif
+
 	/**
 	 * Gets the world view.
 	 */
@@ -1639,6 +1657,8 @@ public:
 	* De-initialise threads
 	*/
 	void destroy_threads();
+
+	void clean_threads(vector_tpl<pthread_t>* thread); 
 #endif
 
 	/**

@@ -865,7 +865,7 @@ void settings_routing_stats_t::read(settings_t* const sets)
 	READ_NUM_VALUE( sets->way_max_bridge_len );
 	READ_NUM_VALUE( sets->way_count_leaving_road );
 
-	if(old_route_steps !=  sets->max_route_steps)
+	if(old_route_steps != sets->max_route_steps)
 	{
 		route_t::TERM_NODES();
 		route_t::INIT_NODES(sets->max_route_steps, koord::invalid);
