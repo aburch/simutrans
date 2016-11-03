@@ -3581,7 +3581,6 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 				}
 			}
 		}
-		convoi_t *ocnv = dynamic_cast<convoi_t *>(other_overtaker);
 		set_tiles_overtaking( tiles );
 		return true;
 	}

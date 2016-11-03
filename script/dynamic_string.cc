@@ -171,6 +171,7 @@ const char* dynamic_string::fetch_result(const char* function, script_vm_t *scri
 			if (entry == NULL) {
 				cached_string_t *old = cached_results.set(function, new cached_string_t(NULL, dr_time(), listener));
 				assert(old == NULL);
+				(void)old;
 			}
 			// send request
 			nwc_scenario_t *nwc = new nwc_scenario_t();

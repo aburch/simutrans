@@ -1047,7 +1047,7 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 					return ""; // invalid parameter
 			}
 		}
-	}	
+	}
 
 	bool ok = false;
 
@@ -6104,7 +6104,7 @@ const char* tool_make_stop_public_t::get_tooltip(const player_t *) const
 	return toolstr;
 }
 
-const char *tool_make_stop_public_t::move( player_t *player, uint16 b, koord3d p )
+const char *tool_make_stop_public_t::move( player_t *player, uint16, koord3d p )
 {
 	// queue tool for network
 	if (env_t::networkmode) {
@@ -6112,7 +6112,7 @@ const char *tool_make_stop_public_t::move( player_t *player, uint16 b, koord3d p
 		network_send_server(nwc);
 		return NULL;
 	}
-	
+
 	return work( player, p );
 }
 

@@ -15,7 +15,6 @@
 class ai_selector_t : public savegame_frame_t
 {
 private:
-	bool do_load;
 	cbuffer_t path;
 	cbuffer_t title;
 

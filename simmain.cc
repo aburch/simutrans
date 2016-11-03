@@ -390,7 +390,6 @@ int simu_main(int argc, char** argv)
 	sint16 disp_width = 0;
 	sint16 disp_height = 0;
 	sint16 fullscreen = false;
-	bool dpi_scale_on = false;
 
 	uint32 quit_month = 0x7FFFFFFFu;
 
