@@ -5000,10 +5000,12 @@ rands[15] = get_random_seed();
 
 	rands[23] = get_random_seed();
 
+#ifdef MULTI_THREAD
 	if (!env_t::networkmode)
 	{
 		simthread_barrier_wait(&step_passengers_and_mail_barrier);
 	}
+#endif
 
 	// This cannot be before the barrier because sync_step/INT_CHECK uses simrand, as does step_passengers_and_mail, and both cannot be calling simrand simultaneously.
 	INT_CHECK("karte_t::step 4");
