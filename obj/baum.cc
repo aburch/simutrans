@@ -541,7 +541,10 @@ void baum_t::rdwr(loadsave_t *file)
 	if(file->is_loading()) {
 		char buf[128];
 		file->rdwr_str(buf, lengthof(buf));
-		const baum_besch_t *besch = besch_names.get(buf);
+		const baum_besch_t *besch = besch_names.get( buf );
+		if(  !baum_typen.is_contained(besch)  ) {
+			besch = besch_names.get( translator::compatibility_name(buf) );
+		}
 		if(  baum_typen.is_contained(besch)  ) {
 			baumtype = baum_typen.index_of( besch );
 		}
