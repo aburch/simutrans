@@ -1708,7 +1708,7 @@ void* step_individual_convoi_threaded(void* args)
 	pthread_cleanup_push(&route_t::TERM_NODES, NULL);
 	const uint32* thread_number_ptr = (const uint32*)args;
 	const uint32 thread_number = *thread_number_ptr;
-	//delete thread_number_ptr;
+	delete thread_number_ptr;
 
 	do
 	{
