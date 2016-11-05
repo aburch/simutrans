@@ -123,6 +123,7 @@
 #ifdef MULTI_THREAD
 #include "utils/simthread.h"
 static vector_tpl<pthread_t> private_car_route_threads;
+static vector_tpl<pthread_t> unreserve_route_threads;
 static vector_tpl<pthread_t> step_passengers_and_mail_threads;
 static vector_tpl<pthread_t> individual_convoi_step_threads;
 static pthread_t convoi_step_master_thread;
@@ -130,6 +131,7 @@ static pthread_attr_t thread_attributes;
 static pthread_mutex_t private_car_route_mutex = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutex_t step_passengers_and_mail_mutex = PTHREAD_MUTEX_INITIALIZER;
 static simthread_barrier_t private_car_barrier;
+simthread_barrier_t karte_t::unreserve_route_barrier;
 static simthread_barrier_t step_passengers_and_mail_barrier;
 //static simthread_barrier_t  step_passengers_and_mail_barrier_internal;
 static simthread_barrier_t step_convois_barrier_internal;
@@ -1735,6 +1737,48 @@ void* step_individual_convoi_threaded(void* args)
 	return args;
 }
 
+void* unreserve_route_threaded(void* args)
+{
+	const uint32* thread_number_ptr = (const uint32*)args;
+	const uint32 thread_number = *thread_number_ptr;
+	delete thread_number_ptr;
+
+	do
+	{
+		simthread_barrier_wait(&karte_t::unreserve_route_barrier);
+		if (karte_t::world->is_terminating_threads())
+		{
+			break;
+		}
+		if (convoi_t::current_unreserver == 0)
+		{
+			continue;
+		}
+
+		const uint32 max_count = weg_t::get_all_ways_count() - 1;
+		const uint32 fraction = max_count / karte_t::world->get_parallel_operations();
+
+		route_range_specification range;
+
+		range.start = thread_number * fraction;
+		if (thread_number == karte_t::world->get_parallel_operations() - 1)
+		{
+			range.end = max_count;
+		}
+		else
+		{
+			range.end = min(((thread_number + 1) * fraction - 1), max_count);
+		}
+
+		convoi_t::unreserve_route_range(range);
+
+		simthread_barrier_wait(&karte_t::unreserve_route_barrier);
+	} while (!karte_t::world->is_terminating_threads());
+
+	pthread_exit(NULL);
+	return args;
+}
+
 void karte_t::init_threads()
 {
 	sint32 rc;
@@ -1745,49 +1789,60 @@ void karte_t::init_threads()
 	pthread_attr_setdetachstate(&thread_attributes, PTHREAD_CREATE_JOINABLE);
 
 	simthread_barrier_init(&private_car_barrier, NULL, parallel_operations + 1);
+	simthread_barrier_init(&karte_t::unreserve_route_barrier, NULL, parallel_operations + 1);
 	simthread_barrier_init(&step_passengers_and_mail_barrier, NULL, parallel_operations + 1);
 	//simthread_barrier_init(&step_passengers_and_mail_barrier_internal, NULL, parallel_operations);
 	simthread_barrier_init(&step_convois_barrier_external, NULL, 2);
 	simthread_barrier_init(&step_convois_barrier_internal, NULL, parallel_operations);	
 
+	pthread_t thread;
+	
 	for (sint32 i = 0; i < parallel_operations; i++)
 	{
-		pthread_t private_car_route_thread;
-		pthread_t step_passengers_and_mail_thread;
-		pthread_t individual_convoi_step_thread;
-
-		rc = pthread_create(&private_car_route_thread, &thread_attributes, &check_road_connexions_threaded, (void*)this);
+		rc = pthread_create(&thread, &thread_attributes, &check_road_connexions_threaded, (void*)this);
 		if (rc)
 		{
 			dbg->fatal("void karte_t::init_threads()", "Failed to create private car thread, error %d. See here for a translation of the error numbers: http://epydoc.sourceforge.net/stdlib/errno-module.html", rc);
 		}
 		else
 		{
-			private_car_route_threads.append(private_car_route_thread);
+			private_car_route_threads.append(thread);
+		}
+
+		sint32* thread_number = new sint32;
+		*thread_number = i;
+		rc = pthread_create(&thread, &thread_attributes, &unreserve_route_threaded, (void*)thread_number);
+		if (rc)
+		{
+			dbg->fatal("void karte_t::init_threads()", "Failed to create private car thread, error %d. See here for a translation of the error numbers: http://epydoc.sourceforge.net/stdlib/errno-module.html", rc);
+		}
+		else
+		{
+			unreserve_route_threads.append(thread);
 		}
 		
-		rc = pthread_create(&step_passengers_and_mail_thread, &thread_attributes, &step_passengers_and_mail_threaded, (void*)this);
+		rc = pthread_create(&thread, &thread_attributes, &step_passengers_and_mail_threaded, (void*)this);
 		if (rc)
 		{
 			dbg->fatal("void karte_t::init_threads()", "Failed to create step passengers and mail thread, error %d. See here for a translation of the error numbers: http://epydoc.sourceforge.net/stdlib/errno-module.html", rc);
 		}
 		else
 		{
-			step_passengers_and_mail_threads.append(step_passengers_and_mail_thread);
+			step_passengers_and_mail_threads.append(thread);
 		}
 
 		if (i < parallel_operations - 1)
 		{
 			sint32* thread_number = new sint32;
 			*thread_number = i;
-			rc = pthread_create(&individual_convoi_step_thread, &thread_attributes, &step_individual_convoi_threaded, (void*)thread_number);
+			rc = pthread_create(&thread, &thread_attributes, &step_individual_convoi_threaded, (void*)thread_number);
 			if (rc)
 			{
 				dbg->fatal("void karte_t::init_threads()", "Failed to create individual convoy thread, error %d. See here for a translation of the error numbers: http://epydoc.sourceforge.net/stdlib/errno-module.html", rc);
 			}
 			else
 			{
-				individual_convoi_step_threads.append(individual_convoi_step_thread);
+				individual_convoi_step_threads.append(thread);
 			}
 		}
 	}
@@ -1810,6 +1865,7 @@ void karte_t::destroy_threads()
 	simthread_barrier_wait(&step_convois_barrier_internal);
 	simthread_barrier_wait(&step_passengers_and_mail_barrier);
 	simthread_barrier_wait(&private_car_barrier);
+	simthread_barrier_wait(&unreserve_route_barrier);
 
 	clean_threads(&private_car_route_threads);
 	private_car_route_threads.clear();
@@ -1819,6 +1875,10 @@ void karte_t::destroy_threads()
 
 	clean_threads(&individual_convoi_step_threads);
 	individual_convoi_step_threads.clear();
+
+	clean_threads(&unreserve_route_threads);
+	unreserve_route_threads.clear();
+
 	terminating_threads = false;
 }
 

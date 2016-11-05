@@ -890,6 +890,7 @@ private:
 	sint32 first_step;
 public:
 	static simthread_barrier_t step_convois_barrier_external;
+	static simthread_barrier_t unreserve_route_barrier;
 #else
 public:
 #endif
@@ -922,6 +923,7 @@ private:
 
 #ifdef MULTI_THREAD
 	friend void *check_road_connexions_threaded(void* args);
+	friend void *unreserve_route_threaded(void* args);
 	friend void *step_passengers_and_mail_threaded(void* args);
 	friend void *step_convois_threaded(void* args);
 	friend void *step_individual_convoi_threaded(void* args);

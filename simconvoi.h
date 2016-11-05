@@ -80,8 +80,6 @@ struct route_range_specification
 {
 	uint32 start;
 	uint32 end;
-	uint16 self_entry;
-	waytype_t wt;
 };
 #endif
 
@@ -838,7 +836,10 @@ public:
 
 #ifdef MULTI_THREAD
 private:
-	friend void *unreserve_route_range(void* args);
+	static void unreserve_route_range(route_range_specification range);
+	friend void *unreserve_route_threaded(void* args);
+	static waytype_t current_waytype;
+	static uint16 current_unreserver;
 public:
 #endif
 

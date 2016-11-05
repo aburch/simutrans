@@ -69,6 +69,8 @@
 static pthread_mutex_t step_convois_mutex = PTHREAD_MUTEX_INITIALIZER;
 static vector_tpl<pthread_t> unreserve_threads;
 static pthread_attr_t thread_attributes;
+waytype_t convoi_t::current_waytype = road_wt; 
+uint16 convoi_t::current_unreserver = 0;
 #endif
 
 //#if _MSC_VER
@@ -326,27 +328,24 @@ bool convoi_t::is_waypoint( koord3d ziel ) const
 
 #ifdef MULTI_THREAD
 
-void *unreserve_route_range(void *args)
+void convoi_t::unreserve_route_range(route_range_specification range)
 {
-	route_range_specification *range = (route_range_specification*)args;
-
 	const vector_tpl<weg_t *> all_ways = weg_t::get_alle_wege();
-	for (uint32 i = range->start; i < range->end; i++)
+	for (uint32 i = range.start; i < range.end; i++)
 	{
 		weg_t* const way = all_ways[i];
-		if (way->get_waytype() == range->wt)
+		if (way->get_waytype() == convoi_t::current_waytype)
 		{
 			//schiene_t* const sch = obj_cast<schiene_t>(way);
 			schiene_t* const sch = way->is_rail_type() ? (schiene_t*)way : NULL;
-			if (sch && sch->get_reserved_convoi().get_id() == range->self_entry)
+			if (sch && sch->get_reserved_convoi().get_id() == convoi_t::current_unreserver)
 			{
 				convoihandle_t ch;
-				ch.set_id(range->self_entry);
+				ch.set_id(convoi_t::current_unreserver);
 				sch->unreserve(ch);
 			}
 		}
 	}
-	return NULL;
 }
 
 #endif
@@ -358,52 +357,9 @@ void convoi_t::unreserve_route()
 {
 	// Clears all reserved tiles on the whole map belonging to this convoy.
 #ifdef MULTI_THREAD
-	pthread_attr_init(&thread_attributes);
-	pthread_attr_setdetachstate(&thread_attributes, PTHREAD_CREATE_JOINABLE);
-	
-	sint32 rc;
-
-	pthread_t unreserve_thread;
-	route_range_specification range;
-	const uint32 max_count = weg_t::get_all_ways_count() - 1;
-	range.self_entry = self.get_id();
-	range.wt = front()->get_waytype();
-	const uint32 fraction = max_count / env_t::num_threads;
-	for (uint32 i = 0; i < env_t::num_threads; i++)
-	{
-		range.start = i * fraction;
-		if (i = env_t::num_threads - 1)
-		{
-			range.end = max_count;
-		}
-		else
-		{
-			range.end = min(((i + 1) * fraction - 1), max_count);
-		}
-			
-		rc = pthread_create(&unreserve_thread, &thread_attributes, &unreserve_route_range, (void*)&range);
-		if (rc)
-		{
-			dbg->fatal(":unreserve_route()", "Failed to create thread, error %d. See here for a translation of the error numbers: http://epydoc.sourceforge.net/stdlib/errno-module.html", rc);
-		}
-		else
-		{
-			unreserve_threads.append(unreserve_thread);
-		}
-	}
-
-	pthread_attr_destroy(&thread_attributes);	
-	FOR(vector_tpl<pthread_t>, const &thread, unreserve_threads)
-	{
-		rc = pthread_join(thread, NULL);
-		if (rc)
-		{
-			dbg->fatal(":unreserve_route()", "Failed to join thread, error %d. See here for a translation of the error numbers: http://epydoc.sourceforge.net/stdlib/errno-module.html", rc);
-		}
-	}
-
-	unreserve_threads.clear();
-
+	simthread_barrier_wait(&karte_t::unreserve_route_barrier);
+	current_unreserver = self.get_id();
+	current_waytype = front()->get_waytype();
 #else
 	FOR(vector_tpl<weg_t*>, const way, weg_t::get_alle_wege())
 	{
@@ -418,7 +374,13 @@ void convoi_t::unreserve_route()
 		}
 	}
 #endif
+
 	set_needs_full_route_flush(false);
+
+#ifdef MULTI_THREAD
+	simthread_barrier_wait(&karte_t::unreserve_route_barrier);
+	current_unreserver = 0;
+#endif
 }
 
 void convoi_t::reserve_own_tiles()
