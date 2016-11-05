@@ -1826,10 +1826,6 @@ void karte_t::clean_threads(vector_tpl<pthread_t> *thread)
 {
 	FOR(vector_tpl<pthread_t>, this_thread, *thread)
 	{
-		// FIXME: Killing rather than cancelling the convoy threads introduces a large memory leak in that route_t::TERM_NODES() is not called on the thread_local nodes.
-		// A straight cancel does not work because the threads are waiting at a barrier. 
-		//pthread_kill(this_thread, 0);
-		//pthread_cancel(this_thread);
 		pthread_join(this_thread, 0);
 	}
 }
@@ -1838,17 +1834,17 @@ void karte_t::clean_threads(vector_tpl<pthread_t> *thread)
 
 sint32 karte_t::get_parallel_operations() const
 {
-	uint32 parallel_operations;
-	if (env_t::networkmode)
+	sint32 po;
+	if(parallel_operations > 0 && env_t::networkmode && !env_t::server)
 	 {
-		parallel_operations = 4; // TODO: Have this set from the server 
-		}
+		po = parallel_operations;
+	}
 	else
 	{
-		parallel_operations = env_t::num_threads - 1;
+		po = env_t::num_threads - 1;
 	}
 
-	return parallel_operations;
+	return po;
 }
 
 #define array_koord(px,py) (px + py * get_size().x)
@@ -2562,6 +2558,8 @@ karte_t::karte_t() :
 
 	// set single instance
 	world = this;
+
+	parallel_operations = -1;
 
 #ifdef MULTI_THREAD
 	first_step = 1;
@@ -7204,6 +7202,28 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved messages");
 	{
 		file->rdwr_long(next_step_passenger);
 		file->rdwr_long(next_step_mail);
+		if (file->get_experimental_version() >= 13 || file->get_experimental_revision() >= 13)
+		{
+			if (env_t::networkmode)
+			{
+				if (env_t::server)
+				{
+					sint32 po = env_t::num_threads - 1;
+					file->rdwr_long(po);
+					parallel_operations = 0;
+				}
+				else
+				{
+					file->rdwr_long(parallel_operations);
+				}
+			}
+			else
+			{
+				sint32 dummy;
+				file->rdwr_long(dummy);
+				parallel_operations = -1;
+			}
+		}
 	}
 
 	if(  file->get_version() >= 112008  ) {
@@ -8226,6 +8246,31 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 	{
 		file->rdwr_long(next_step_passenger);
 		file->rdwr_long(next_step_mail);
+
+		if (file->get_experimental_version() >= 13 || file->get_experimental_revision() >= 13)
+		{
+			if (env_t::networkmode)
+			{
+				if (env_t::server)
+				{
+					sint32 po = env_t::num_threads - 1;
+					file->rdwr_long(po);
+					parallel_operations = 0;
+				}
+				else
+				{
+					file->rdwr_long(parallel_operations);
+					destroy_threads();
+					init_threads();
+				}
+			}
+			else
+			{
+				sint32 dummy;
+				file->rdwr_long(dummy);
+				parallel_operations = -1;
+			}
+		}
 	}
 
 	// show message about server

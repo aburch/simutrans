@@ -876,6 +876,14 @@ private:
 	// to change to a less restrictive aspect.
 	vector_tpl<signal_t*> time_interval_signals_to_check;
 
+	// The number of operations to run in parallel. 
+	// This is important for multi-threading 
+	// synchronisation over the network.
+	// -1: this is not in network mode: use the number of threads
+	// 0: this is the network server: broadcast the number of threads
+	// >0: This is the number of parallel operations to use.
+	sint32 parallel_operations;
+
 #ifdef MULTI_THREAD
 	// Check whether this is the first time that karte_t::step() has been run
 	// in order to know when to launch the background threads. 
