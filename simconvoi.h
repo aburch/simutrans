@@ -134,7 +134,7 @@ public:
 	enum states {INITIAL,
 		FAHRPLANEINGABE, // "Schedule enter" (Google)
 		ROUTING_1,
-		DUMMY4,
+		ROUTING_2,
 		DUMMY5,
 		NO_ROUTE,
 		DRIVING,
@@ -894,6 +894,9 @@ public:
 	* @author hsiegeln
 	*/
 	int get_state() const { return state; }
+
+	// In any of these states, user interaction should not be possible. 
+	bool is_locked() const { return state == convoi_t::FAHRPLANEINGABE || state == convoi_t::ROUTING_2 || state == convoi_t::ROUTE_JUST_FOUND; }
 
 	/**
 	* true if in waiting state (maybe also due to starting)

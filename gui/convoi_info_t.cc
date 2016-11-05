@@ -673,10 +673,9 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 
 		if(comp == &go_home_button) {
 			// limit update to certain states that are considered to be safe for fahrplan updates
-			int state = cnv->get_state();
-			if(state==convoi_t::FAHRPLANEINGABE) 
+			if(cnv->is_locked())
 			{
-				DBG_MESSAGE("convoi_info_t::action_triggered()","convoi state %i => cannot change schedule ... ", state );
+				DBG_MESSAGE("convoi_info_t::action_triggered()","convoi state %i => cannot change schedule ... ", cnv->get_state() );
 				return false;
 			}
 			go_home_button.pressed = true;

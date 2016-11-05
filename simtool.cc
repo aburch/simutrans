@@ -7375,6 +7375,17 @@ const char *tool_make_stop_public_t::work( player_t *player, koord3d p )
 					construction_cost = maintenance_cost * 60;
 				}
 
+#ifdef MULTI_THREAD
+				if (env_t::networkmode)
+				{
+					// In network mode, we cannot have anything that alters a way running concurrently with
+					// convoy path-finding because  whether the convoy path-finder is called
+					// on this tile of way before or after this function is indeterminate.
+					simthread_barrier_wait(&karte_t::step_convois_barrier_external);
+					simthread_barrier_wait(&karte_t::step_convois_barrier_external);
+				}
+#endif
+
 				if(gr->ist_im_tunnel()) 
 				{
 					tunnel_t *t = gr->find<tunnel_t>();

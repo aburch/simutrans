@@ -1912,6 +1912,17 @@ sint32 grund_t::weg_entfernen(waytype_t wegtyp, bool ribi_rem)
 
 		weg->mark_image_dirty(get_image(), 0);
 
+#ifdef MULTI_THREAD
+		if (env_t::networkmode)
+		{
+			// In network mode, we cannot have anything that alters a way running concurrently with
+			// convoy path-finding because whether the convoy path-finder is called
+			// on this tile of way before or after this function is indeterminate.
+			simthread_barrier_wait(&karte_t::step_convois_barrier_external);
+			simthread_barrier_wait(&karte_t::step_convois_barrier_external);
+		}
+#endif
+
 		if(ribi_rem) {
 			ribi_t::ribi ribi = weg->get_ribi();
 			grund_t *to;

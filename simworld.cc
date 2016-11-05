@@ -130,10 +130,10 @@ static pthread_attr_t thread_attributes;
 static pthread_mutex_t private_car_route_mutex = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutex_t step_passengers_and_mail_mutex = PTHREAD_MUTEX_INITIALIZER;
 static simthread_barrier_t private_car_barrier;
-static simthread_barrier_t  step_passengers_and_mail_barrier;
-static simthread_barrier_t  step_convois_barrier_external;
-static simthread_barrier_t  step_convois_barrier_internal;
+static simthread_barrier_t step_passengers_and_mail_barrier;
 //static simthread_barrier_t  step_passengers_and_mail_barrier_internal;
+static simthread_barrier_t step_convois_barrier_internal;
+simthread_barrier_t karte_t::step_convois_barrier_external;
 sint32 karte_t::cities_to_process = 0;
 vector_tpl<convoihandle_t> convois_next_step; 
 #endif
@@ -1570,6 +1570,7 @@ DBG_DEBUG("karte_t::init()","built timeline");
 	settings.update_max_alternative_destinations_visiting(visitor_targets.get_sum_weight());
 #ifdef MULTI_THREAD
 	init_threads();
+	first_step = 1;
 #endif
 }
 
@@ -1680,7 +1681,7 @@ void *step_convois_threaded(void* args)
 
 	do
 	{	
-		simthread_barrier_wait(&step_convois_barrier_external);
+		simthread_barrier_wait(&karte_t::step_convois_barrier_external);
 		if (world->is_terminating_threads())
 		{
 			break;
@@ -1697,7 +1698,7 @@ void *step_convois_threaded(void* args)
 				convois_next_step.clear();
 			}
 		}
-		simthread_barrier_wait(&step_convois_barrier_external);
+		simthread_barrier_wait(&karte_t::step_convois_barrier_external);
 	} while (!world->is_terminating_threads());
 	pthread_exit(NULL);
 	return args;
@@ -2561,6 +2562,10 @@ karte_t::karte_t() :
 
 	// set single instance
 	world = this;
+
+#ifdef MULTI_THREAD
+	first_step = 1;
+#endif
 }
 
 #ifdef DEBUG_SIMRAND_CALLS
@@ -4841,6 +4846,7 @@ rands[9] = get_random_seed();
 		const sint32 parallel_operations = get_parallel_operations();
 		
 #ifdef MULTI_THREAD
+		// This cannot be started at the end of the step, as we will not know at that point whether we need to call this at all.
 		cities_to_process = min(cities_awaiting_private_car_route_check.get_count() - 1, parallel_operations);
 		simthread_barrier_wait(&private_car_barrier); // One wait barrier to activate all the private car checker threads, the second to wait until they have all finished. This is the first.
 #else			
@@ -4858,7 +4864,10 @@ rands[9] = get_random_seed();
 rands[10] = get_random_seed();
 
 #ifdef MULTI_THREAD
-	simthread_barrier_wait(&step_convois_barrier_external); // Start the threaded part of the convoys' steps: this is mainly route searches. Block reservation, etc., is in the single threaded part. 
+	if (first_step == 1)
+	{
+		simthread_barrier_wait(&step_convois_barrier_external); // Start the threaded part of the convoys' steps: this is mainly route searches. Block reservation, etc., is in the single threaded part. 
+	}
 #endif
 
 	/// check for pending seasons change
@@ -4898,10 +4907,15 @@ rands[11] = get_random_seed();
 	// This is computationally intensive, but it is not always running, so it is intermittently so.
 	path_explorer_t::step();
 rands[12] = get_random_seed();
+	
 	INT_CHECK("karte_t::step 2");
 
 #ifdef MULTI_THREAD
 	simthread_barrier_wait(&step_convois_barrier_external); // Finish the threaded part of the convoys' steps: this is mainly route searches. Block reservation, etc., is in the single threaded part. 
+	if (first_step == 1)
+	{
+		first_step = 2;
+	}
 #else
 	for (uint32 i = convoi_array.get_count(); i-- != 0;)
 	{
@@ -4922,6 +4936,23 @@ rands[12] = get_random_seed();
 	}
 
 rands[13] = get_random_seed();	
+
+#ifdef MULTI_THREAD
+// Start the convoys' route finding again immediately after the convoys have been stepped: this maximises efficiency and concurrency.
+// Since it is purely route finding in the multi-threaded convoy step, it is safe to have this concurrent with everything but the single-
+// threaded convoy step.
+if (first_step == 0 || first_step == 2)
+{
+	simthread_barrier_wait(&step_convois_barrier_external); // Start the threaded part of the convoys' steps: this is mainly route searches. Block reservation, etc., is in the single threaded part. This will end in the next step
+}
+
+if (first_step == 2)
+{
+	// Convoys cannot be stepped concurrently with sync_step running in network mode because whether they need routing may depend on a command executed in sync_step,
+	// and it will be entirely by chance whether that command is executed before or after the threads get to processing that particular convoy.
+	first_step = 0;
+}
+#endif
 
 	// now step all towns 
 	// This is not very computationally intensive at present, but might become more so when town growth is reworked.
@@ -5112,6 +5143,7 @@ rands[19] = get_random_seed();
 	if(  get_scenario()->is_scripted() ) {
 		get_scenario()->step();
 	}
+
 	DBG_DEBUG4("karte_t::step", "end");
 rands[20] = get_random_seed();
 }
@@ -7321,11 +7353,6 @@ DBG_MESSAGE("karte_t::load()","Savegame version is %d", file.get_version());
 
 		load(&file);
 
-#ifdef MULTI_THREAD
-		// The above line destroys the threads, so this must be here.
-		init_threads();
-#endif
-
 		if(  env_t::networkmode  ) {
 			clear_command_queue();
 		}
@@ -7498,7 +7525,11 @@ void karte_t::load(loadsave_t *file)
 	// Added by : Knightly
 	path_explorer_t::initialise(this);
 
-	//fast_forward = false;
+#ifdef MULTI_THREAD
+	// destroy() destroys the threads, so this must be here.
+	init_threads();
+	first_step = 1;
+#endif
 
 	tile_counter = 0;
 
@@ -9237,7 +9268,7 @@ bool karte_t::interactive(uint32 quit_month)
 					station_check("karte_t::interactive FIX_RATIO after sync_step", this);
 #endif
 					if (++network_frame_count == settings.get_frames_per_step()) {
-						// ever fourth frame
+						// ever Nth frame (default: every 4th - can be set in simuconf.tab)
 						set_random_mode( STEP_RANDOM );
 						step();
 #ifdef DEBUG_SIMRAND_CALLS
@@ -9282,7 +9313,7 @@ bool karte_t::interactive(uint32 quit_month)
 						set_pause(true);
 					}
 				}
-				else {
+				else { // Normal step mode
 					INT_CHECK( "karte_t::interactive()" );
 #ifdef DEBUG_SIMRAND_CALLS
 					station_check("karte_t::interactive else after INT_CHECK 1", this);

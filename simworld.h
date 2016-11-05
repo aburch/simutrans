@@ -876,7 +876,15 @@ private:
 	// to change to a less restrictive aspect.
 	vector_tpl<signal_t*> time_interval_signals_to_check;
 
+#ifdef MULTI_THREAD
+	// Check whether this is the first time that karte_t::step() has been run
+	// in order to know when to launch the background threads. 
+	sint32 first_step;
 public:
+	static simthread_barrier_t step_convois_barrier_external;
+#else
+public:
+#endif
 
 	enum building_type { passenger_origin, commuter_target, visitor_target, mail_origin_or_target, none };
 	enum trip_type { commuting_trip, visiting_trip, mail_trip };
