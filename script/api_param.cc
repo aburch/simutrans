@@ -399,7 +399,7 @@ namespace script_api {
 		// obtain index into wareproduction_t arrays
 		SQInteger i = -1;
 		if (SQ_SUCCEEDED(get_slot(vm, "index", i, index))) {
-			if (i>=0  &&  i<fab->get_eingang().get_count()) {
+			if (i>=0  &&  (uint32)i<fab->get_eingang().get_count()) {
 				const ware_production_t& in = fab->get_eingang()[i];
 				const fabrik_lieferant_besch_t* besch = fab->get_besch()->get_lieferant(i);
 				// sanity check
@@ -422,7 +422,7 @@ namespace script_api {
 		SQInteger i = -1;
 		if (SQ_SUCCEEDED(get_slot(vm, "index", i, index))) {
 			i -= fab->get_eingang().get_count();
-			if (i>=0  &&  i<fab->get_ausgang().get_count()) {
+			if (i>=0  &&  (uint32)i<fab->get_ausgang().get_count()) {
 				const ware_production_t& out = fab->get_ausgang()[i];
 				const fabrik_produkt_besch_t* besch = fab->get_besch()->get_produkt(i);
 				// sanity check
