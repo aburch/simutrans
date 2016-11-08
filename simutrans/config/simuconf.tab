@@ -539,7 +539,7 @@ max_diversion_tiles = 16
 # the way will become totally impassable). 
 # Default: 7 (approx. 14%). 
 
-way_degridation_fraction = 7
+way_degradation_fraction = 7
 
 # These two settings determine the default relationship between
 # the weight of vehicles and their way wear factors. Air and
@@ -757,7 +757,7 @@ toolbar_max_height = 0
 
 # How many frames per second to use? Display may look pretty until 10 or so
 # (depends very much on computer, game complexity and graphics driver)
-frames_per_second = 25
+frames_per_second = 30
 
 # during zooming out simutrans may get slow due to the very high number
 # of tiles visible. If the tiles become equal or smaller than the tile size

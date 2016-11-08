@@ -75,6 +75,16 @@ struct departure_point_t
 
 };
 
+#ifdef MULTI_THREAD
+struct route_range_specification
+{
+	uint32 start;
+	uint32 end;
+	uint16 self_entry;
+	waytype_t wt;
+};
+#endif
+
 static inline bool operator == (const departure_point_t &a, const departure_point_t &b)
 {
 	// only this works with O3 optimisation!
@@ -141,6 +151,7 @@ public:
 		REVERSING,
 		OUT_OF_RANGE,
 		EMERGENCY_STOP,
+		ROUTE_JUST_FOUND,
 		MAX_STATES
 	};
 
@@ -243,6 +254,7 @@ public:
 private:
 	weight_summary_t weight;
 	static const sint32 timings_reduction_point = 6;
+	bool re_ordered; // Whether this convoy's vehicles are currently arranged in reverse order.
 protected:
 	virtual void update_vehicle_summary(vehicle_summary_t &vehicle);
 	virtual void update_adverse_summary(adverse_summary_t &adverse);
@@ -824,10 +836,17 @@ public:
 	*/
 	void hat_gehalten(halthandle_t halt);
 
+#ifdef MULTI_THREAD
+private:
+	friend void *unreserve_route_range(void* args);
+public:
+#endif
+
 	/**
 	 * remove all track reservations (trains only)
 	 */
 	void unreserve_route();
+
 
 	route_t* get_route() { return &route; }
 	route_t* access_route() { return &route; }
@@ -1047,6 +1066,15 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	void step();
+
+	/** 
+	* All the difficult tasks that can be multi-threaded.
+	* This excludes anything that might call the block reserver,
+	* which cannot be multi-threaded because it is critical to preserve
+	* between network connected clients the order in which convoys call
+	* the block reserver.
+	*/
+	void threaded_step();
 
 	/**
 	* setzt einen neuen convoi in fahrt

@@ -12,7 +12,6 @@
 
 #include "../simobj.h"
 
-
 /**
  * Signale für die Bahnlinien.
  *
@@ -67,6 +66,8 @@ public:
 
 	void set_train_last_passed(sint64 value) { train_last_passed = value; }
 	sint64 get_train_last_passed() const { return train_last_passed; }
+
+	void show_info();
 };
 
 #endif

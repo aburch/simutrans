@@ -7,6 +7,8 @@
 
 #include "../tpl/ptrhashtable_tpl.h"
 
+#include "../utils/simthread.h"
+
 class grund_t;
 
 /**
@@ -42,7 +44,7 @@ class marker_t {
 	void init(int welt_groesse_x,int welt_groesse_y);
 
 	/// the instance
-	static marker_t the_instance;
+	static marker_t thread_local the_instance;
 public:
 	/**
 	 * Return handle to marker instance.

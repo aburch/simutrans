@@ -155,6 +155,13 @@ typedef unsigned long long  uint64;
 #	define NORETURN      __attribute__ ((noreturn))
 #endif
 #define UINT64_MAX_VALUE	ULLONG_MAX
+#ifndef  MULTI_THREAD
+#if defined _MSC_VER
+#include <xkeycheck.h>
+#define thread_local  
+#endif
+#endif // ! MULTI_THREAD
+
 
 template<typename T> static inline int sgn(T x)
 {
@@ -163,15 +170,19 @@ template<typename T> static inline int sgn(T x)
 		return 0;
 }
 
+#ifndef min
 static inline int min(const int a, const int b)
 {
 	return a < b ? a : b;
 }
+#endif
 
+#ifndef max
 static inline int max(const int a, const int b)
 {
 	return a > b ? a : b;
 }
+#endif
 
 // @author: jamespetts, April 2011
 template<class T> static T set_scale_generic(T value, uint16 scale_factor) { return (value * (T)scale_factor) / (T)1000; }

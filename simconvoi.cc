@@ -22,9 +22,7 @@
 #include "simintr.h"
 #include "simlinemgmt.h"
 #include "simline.h"
-#include "utils/simrandom.h"
 #include "freight_list_sorter.h"
-#include "utils/simrandom.h"
 
 #include "gui/karte.h"
 #include "gui/convoi_info_t.h"
@@ -65,6 +63,13 @@
 #include "convoy.h"
 
 #include "besch/ware_besch.h"
+
+#ifdef MULTI_THREAD
+#include "utils/simthread.h"
+static pthread_mutex_t step_convois_mutex = PTHREAD_MUTEX_INITIALIZER;
+static vector_tpl<pthread_t> unreserve_threads;
+static pthread_attr_t thread_attributes;
+#endif
 
 //#if _MSC_VER
 //#define snprintf _snprintf
@@ -193,7 +198,7 @@ void convoi_t::init(player_t *player)
 
 	reversable = false;
 	reversed = false;
-	//recalc_data = true;
+	re_ordered = false;
 
 	livery_scheme_index = 0;
 
@@ -318,6 +323,32 @@ bool convoi_t::is_waypoint( koord3d ziel ) const
 	return !haltestelle_t::get_halt(ziel,get_owner()).is_bound();
 }
 
+#ifdef MULTI_THREAD
+
+void *unreserve_route_range(void *args)
+{
+	route_range_specification *range = (route_range_specification*)args;
+
+	const vector_tpl<weg_t *> all_ways = weg_t::get_alle_wege();
+	for (uint32 i = range->start; i < range->end; i++)
+	{
+		weg_t* const way = all_ways[i];
+		if (way->get_waytype() == range->wt)
+		{
+			//schiene_t* const sch = obj_cast<schiene_t>(way);
+			schiene_t* const sch = way->is_rail_type() ? (schiene_t*)way : NULL;
+			if (sch && sch->get_reserved_convoi().get_id() == range->self_entry)
+			{
+				convoihandle_t ch;
+				ch.set_id(range->self_entry);
+				sch->unreserve(ch);
+			}
+		}
+	}
+	return NULL;
+}
+
+#endif
 
 /**
  * unreserves the whole remaining route
@@ -325,6 +356,54 @@ bool convoi_t::is_waypoint( koord3d ziel ) const
 void convoi_t::unreserve_route()
 {
 	// Clears all reserved tiles on the whole map belonging to this convoy.
+#ifdef MULTI_THREAD
+	pthread_attr_init(&thread_attributes);
+	pthread_attr_setdetachstate(&thread_attributes, PTHREAD_CREATE_JOINABLE);
+	
+	sint32 rc;
+
+	pthread_t unreserve_thread;
+	route_range_specification range;
+	const uint32 max_count = weg_t::get_all_ways_count() - 1;
+	range.self_entry = self.get_id();
+	range.wt = front()->get_waytype();
+	const uint32 fraction = max_count / env_t::num_threads;
+	for (uint32 i = 0; i < env_t::num_threads; i++)
+	{
+		range.start = i * fraction;
+		if (i = env_t::num_threads - 1)
+		{
+			range.end = max_count;
+		}
+		else
+		{
+			range.end = min(((i + 1) * fraction - 1), max_count);
+		}
+			
+		rc = pthread_create(&unreserve_thread, &thread_attributes, &unreserve_route_range, (void*)&range);
+		if (rc)
+		{
+			dbg->fatal(":unreserve_route()", "Failed to create thread, error %d. See here for a translation of the error numbers: http://epydoc.sourceforge.net/stdlib/errno-module.html", rc);
+		}
+		else
+		{
+			unreserve_threads.append(unreserve_thread);
+		}
+	}
+
+	pthread_attr_destroy(&thread_attributes);	
+	FOR(vector_tpl<pthread_t>, const &thread, unreserve_threads)
+	{
+		rc = pthread_join(thread, NULL);
+		if (rc)
+		{
+			dbg->fatal(":unreserve_route()", "Failed to join thread, error %d. See here for a translation of the error numbers: http://epydoc.sourceforge.net/stdlib/errno-module.html", rc);
+		}
+	}
+
+	unreserve_threads.clear();
+
+#else
 	FOR(vector_tpl<weg_t*>, const way, weg_t::get_alle_wege())
 	{
 		if(way->get_waytype() == front()->get_waytype())
@@ -337,6 +416,7 @@ void convoi_t::unreserve_route()
 			}
 		}
 	}
+#endif
 	set_needs_full_route_flush(false);
 }
 
@@ -361,6 +441,7 @@ void convoi_t::reserve_own_tiles()
 		}
 	}
 }
+
 
 /**
  * Sets route_index of all vehicles to startindex.
@@ -773,11 +854,16 @@ void convoi_t::add_running_cost(sint64 cost, const weg_t *weg)
 
 void convoi_t::increment_odometer(uint32 steps)
 { 
+	steps_since_last_odometer_increment += steps;
+	if (steps_since_last_odometer_increment < welt->get_settings().get_steps_per_km())
+	{
+		return;
+	}
+	
 	// Increment the way distance: used for apportioning revenue by owner of ways.
 	// Use steps, as only relative distance is important here.
 	sint8 player;
 	waytype_t waytype = front()->get_waytype();
-	//const grund_t* gr = front()->get_grund();
 	weg_t* way = front()->get_weg();
 	if(way == NULL)
 	{
@@ -800,15 +886,9 @@ void convoi_t::increment_odometer(uint32 steps)
 		player = owner->get_player_nr();
 	}
 
-	FOR(departure_map, & i, departures)
+	FOR(departure_map, &i, departures)
 	{
-		i.value.increment_way_distance(player, steps);
-	}
-
-	steps_since_last_odometer_increment += steps;
-	if (steps_since_last_odometer_increment < welt->get_settings().get_steps_per_km())
-	{
-		return;
+		i.value.increment_way_distance(player, steps_since_last_odometer_increment);
 	}
 
 	const sint64 km = steps_since_last_odometer_increment / welt->get_settings().get_steps_per_km();
@@ -829,7 +909,6 @@ void convoi_t::increment_odometer(uint32 steps)
 				add_running_cost(running_cost, weg);
 			}
 			pos = v.get_pos();
-			//const grund_t* gr = welt->lookup(pos);
 			weg = v.get_weg();
 			running_cost = 0;
 		}
@@ -1110,7 +1189,8 @@ sync_result convoi_t::sync_step(uint32 delta_t)
 		case CAN_START_ONE_MONTH:
 		case CAN_START_TWO_MONTHS:
 		case REVERSING:
-			// Hajo: this is an async task, see step()
+		case ROUTE_JUST_FOUND:
+			// Hajo: this is an async task, see step() or thread_step()
 			break;
 
 		case ENTERING_DEPOT:
@@ -1263,7 +1343,13 @@ bool convoi_t::drive_to()
 			if(distance > min_range)
 			{
 				state = OUT_OF_RANGE;
+#ifdef MULTI_THREAD
+				pthread_mutex_lock(&step_convois_mutex);
+#endif
 				get_owner()->report_vehicle_problem(self, ziel);
+#ifdef MULTI_THREAD
+				pthread_mutex_unlock(&step_convois_mutex);
+#endif
 				return false;
 			}
 		}
@@ -1300,13 +1386,25 @@ bool convoi_t::drive_to()
 			// If this is token block working, the route must only be unreserved if the token is released.
 			if(rail_vehicle->get_working_method() != token_block && rail_vehicle->get_working_method() != one_train_staff)
 			{
+#ifdef MULTI_THREAD
+				pthread_mutex_lock(&step_convois_mutex);
+#endif
 				unreserve_route();
+#ifdef MULTI_THREAD
+				pthread_mutex_unlock(&step_convois_mutex);
+#endif
 			}
 		}
 		else if(front()->get_waytype() == air_wt)
 		{
 			// Sea and road waytypes do not have any sort of reserveation, and calls to unreserve_route() are expensive.
+#ifdef MULTI_THREAD
+			pthread_mutex_lock(&step_convois_mutex);
+#endif
 			unreserve_route();
+#ifdef MULTI_THREAD
+			pthread_mutex_unlock(&step_convois_mutex);
+#endif
 		}
 
 		bool success = calc_route(start, ziel, speed_to_kmh(get_min_top_speed()));
@@ -1320,6 +1418,7 @@ bool convoi_t::drive_to()
 			int counter = fpl->get_count();
 
 			linieneintrag_t* schedule_entry = &fpl->eintrag[fpl->get_aktuell()];
+			bool update_line = false;
 			while(success && counter--)
 			{
 				if(schedule_entry->reverse == -1)
@@ -1328,7 +1427,10 @@ bool convoi_t::drive_to()
 					fpl->set_reverse(schedule_entry->reverse, fpl->get_aktuell()); 
 					if(line.is_bound())
 					{
-						simlinemgmt_t::update_line(line);
+						schedule_t* line_schedule = line->get_schedule();
+						linieneintrag_t &line_entry = line_schedule->eintrag[fpl->get_aktuell()];
+						line_entry.reverse = schedule_entry->reverse;
+						update_line = true;	
 					}
 				}
 
@@ -1341,6 +1443,17 @@ bool convoi_t::drive_to()
 				schedule_entry = &fpl->eintrag[fpl->get_aktuell()];
 				success = front()->reroute(route.get_count() - 1, schedule_entry->pos);
 			}
+
+			if (update_line)
+			{
+#ifdef MULTI_THREAD
+				pthread_mutex_lock(&step_convois_mutex);
+#endif
+				simlinemgmt_t::update_line(line);
+#ifdef MULTI_THREAD
+				pthread_mutex_unlock(&step_convois_mutex);
+#endif
+			}
 		}
 
 		if(!success)
@@ -1349,8 +1462,14 @@ bool convoi_t::drive_to()
 			{
 				state = NO_ROUTE;
 				no_route_retry_count = 0;
+#ifdef MULTI_THREAD
+				pthread_mutex_lock(&step_convois_mutex);
+#endif
 				get_owner()->report_vehicle_problem( self, ziel );
 				reserve_own_tiles();
+#ifdef MULTI_THREAD
+				pthread_mutex_unlock(&step_convois_mutex);
+#endif
 			}
 			// wait 25s before next attempt
 			wait_lock = 25000;
@@ -1455,7 +1574,8 @@ bool convoi_t::drive_to()
 			fpl->set_aktuell(aktuell);
 			fpl_target = ziel;
 			if(  route_ok  ) {
-				vorfahren();
+				// When this was single threaded, this was an immediate call to vorfahren(), but this cannot be called when multi-threaded.
+				state = ROUTE_JUST_FOUND;
 				return true;
 			}
 		}
@@ -1477,9 +1597,215 @@ void convoi_t::suche_neue_route()
 	wait_lock = 0;
 }
 
+/**
+ * Things that call a convoy's route finding
+ * but not block reserving
+ */
+void convoi_t::threaded_step()
+{
+	if (wait_lock != 0)
+	{
+		return;
+	}
+
+#ifdef MULTI_THREAD
+	pthread_mutex_lock(&step_convois_mutex);
+#endif
+	// moved check to here, as this will apply the same update
+	// logic/constraints convois have for manual schedule manipulation
+	if (line_update_pending.is_bound()) {
+		check_pending_updates();
+	}
+
+#ifdef MULTI_THREAD
+	pthread_mutex_unlock(&step_convois_mutex);
+#endif
+
+	switch (state)
+	{
+	case INITIAL:
+	case DUMMY4:
+	case DUMMY5:
+	case REVERSING:
+		// These are all for the single threaded step
+		break;
+
+	case FAHRPLANEINGABE:
+		// schedule window closed?
+		if (fpl != NULL && fpl->ist_abgeschlossen())
+		{
+			set_schedule(fpl);
+			fpl_target = koord3d::invalid;
+
+			if (fpl->empty())
+			{
+				// no entry => no route ...
+				state = NO_ROUTE;
+				// A convoy without a schedule should not be left lingering on the map.
+				emergency_go_to_depot();
+				// Get out of this routine; object might be destroyed.
+				return;
+			}
+			else
+			{
+				// The schedule window might be closed whilst this vehicle is still loading.
+				// Do not allow the player to cheat by sending the vehicle on its way before it has finished.
+				bool can_go = true;
+				const uint32 reversing_time = fpl->get_current_eintrag().reverse == 1 ? calc_reverse_delay() : 0;
+				can_go = can_go || welt->get_zeit_ms() > go_on_ticks;
+				can_go = can_go && welt->get_zeit_ms() > arrival_time + ((sint64)current_loading_time - (sint64)reversing_time);
+				can_go = can_go || no_load;
+
+				grund_t *gr = welt->lookup(fpl->get_current_eintrag().pos);
+				depot_t * this_depot = NULL;
+				if (gr)
+				{
+					this_depot = gr->get_depot();
+					if (this_depot && this_depot->is_suitable_for(front()))
+					{
+						if (fpl->get_current_eintrag().pos == get_pos())
+						{
+							// If it's a suitable depot, move into the depot
+							// This check must come before the station check, because for
+							// ships we may be in a depot and at a sea stop!
+#ifdef MULTI_THREAD
+							pthread_mutex_lock(&step_convois_mutex);
+#endif
+							enter_depot(gr->get_depot());
+#ifdef MULTI_THREAD
+							pthread_mutex_unlock(&step_convois_mutex);
+#endif
+							break;
+						}
+						else
+						{
+							// The go to depot command has been set previously and has not been unset.
+							can_go = true;
+							wait_lock = (arrival_time + ((sint64)current_loading_time - (sint64)reversing_time)) - welt->get_zeit_ms();
+						}
+					}
+				}
+
+				halthandle_t h = haltestelle_t::get_halt(get_pos(), get_owner());
+				if (h.is_bound() && h == haltestelle_t::get_halt(fpl->get_current_eintrag().pos, get_owner()))
+				{
+					// We are at the station we are scheduled to be at
+					// (possibly a different platform)
+					if (route.get_count() > 0)
+					{
+						koord3d const& pos = route.back();
+						if (h == haltestelle_t::get_halt(pos, get_owner()))
+						{
+							// If this is also the station at the end of the current route
+							// (the correct platform)
+							if (get_pos() == pos)
+							{
+								// And this is also the correct platform... then load.
+								state = LOADING;
+								break;
+							}
+							else
+							{
+								// Right station, wrong platform
+								can_go ? state = DRIVING : state = LOADING;
+								break;
+							}
+						}
+					}
+					else
+					{
+						// We're at the scheduled station,
+						// but there is no programmed route.
+						if (can_go && drive_to())
+						{
+							state = DRIVING;
+							break;
+						}
+						else if (!can_go)
+						{
+							state = LOADING;
+						}
+					}
+				}
+
+				// We aren't at our destination; start routing.
+				can_go ? state = ROUTING_1 : state = LOADING;
+			}
+		}
+
+		case ROUTING_1:
+		{
+			vehicle_t* v = front();
+
+			if (fpl->empty()) {
+				state = NO_ROUTE;
+#ifdef MULTI_THREAD
+				pthread_mutex_lock(&step_convois_mutex);
+#endif
+				owner->report_vehicle_problem(self, koord3d::invalid);
+#ifdef MULTI_THREAD
+				pthread_mutex_unlock(&step_convois_mutex);
+#endif
+			}
+			else {
+				// check first, if we are already there:
+				assert(fpl->get_aktuell()<fpl->get_count());
+				if (v->get_pos() == fpl->get_current_eintrag().pos) {
+					advance_schedule();
+				}
+				// Hajo: now calculate a new route
+
+				drive_to();
+			}
+		}
+		break;
+
+		case OUT_OF_RANGE:
+		case NO_ROUTE:
+		{
+			// stuck vehicles
+			if (no_route_retry_count < 7)
+			{
+				no_route_retry_count++;
+			}
+			if (no_route_retry_count >= 3 && front()->get_waytype() != water_wt && (!welt->lookup(get_pos())->ist_wasser()))
+			{
+				// If the convoy is stuck for too long, send it to a depot.
+				emergency_go_to_depot();
+				// get out of this routine; vehicle might be destroyed
+				return;
+			}
+			else if (fpl->empty())
+			{
+				// no entries => no route ...
+			}
+			else
+			{
+				// Hajo: now calculate a new route
+				drive_to();
+			}
+			break;
+		}
+
+		case CAN_START:
+		case CAN_START_ONE_MONTH:
+		case CAN_START_TWO_MONTHS:
+		case WAITING_FOR_CLEARANCE_ONE_MONTH:
+		case WAITING_FOR_CLEARANCE_TWO_MONTHS:
+		case WAITING_FOR_CLEARANCE:
+		case LOADING:
+		case SELF_DESTRUCT:
+		case ENTERING_DEPOT:
+		case DRIVING:
+		case ROUTE_JUST_FOUND:
+		default:
+			break;
+			// These are all either single threaded or sync_step tasks.
+	}
+}
 
 /**
- * Asynchrne step methode des Convois
+ * Asynchroneous single-threaded stepping of convoys
  * @author Hj. Malthaner
  */
 void convoi_t::step()
@@ -1489,26 +1815,19 @@ void convoi_t::step()
 		return;
 	}
 
-	// moved check to here, as this will apply the same update
-	// logic/constraints convois have for manual schedule manipulation
-	if (line_update_pending.is_bound()) {
-		check_pending_updates();
-	}
-
 	bool autostart = false;
 	uint8 position;
 	bool rev;
 
-	switch(state) {
-
+	switch(state)
+	{
 		case INITIAL:
 			// If there is a pending replacement, just do it
 			if (replace && replace->get_replacing_vehicles()->get_count()>0)
 			{
-
 				autostart = replace->get_autostart();
 
-				// Knightly : before replacing, copy the existing set of goods category index
+				// Knightly : before replacing, copy the existing set of goods category indices
 				minivec_tpl<uint8> old_goods_catg_index(goods_catg_index.get_count());
 				for( uint8 i = 0; i < goods_catg_index.get_count(); ++i )
 				{
@@ -1603,7 +1922,7 @@ end_loop:
 							old_veh->discard_cargo();
 							old_veh->set_leading(false);
 							old_veh->set_last(false);
-							dep->get_vehicle_list().append(old_veh);
+							dep->get_vehicle_list().append(old_veh);				
 						}
 					}
 					anz_vehikel = 0;
@@ -1704,148 +2023,17 @@ end_loop:
 			break;
 
 		case FAHRPLANEINGABE:
-			// schedule window closed?
-			if(fpl != NULL && fpl->ist_abgeschlossen())
-			{
-				set_schedule(fpl);
-				fpl_target = koord3d::invalid;
-
-				if(fpl->empty())
-				{
-					// no entry => no route ...
-					state = NO_ROUTE;
-					// A convoy without a schedule should not be left lingering on the map.
-					emergency_go_to_depot();
-					// Get out of this routine; object might be destroyed.
-					return;
-				}
-				else
-				{
-					// The schedule window might be closed whilst this vehicle is still loading.
-					// Do not allow the player to cheat by sending the vehicle on its way before it has finished.
- 					bool can_go = true;
-					const uint32 reversing_time = fpl->get_current_eintrag().reverse == 1 ? calc_reverse_delay() : 0;
- 					can_go = can_go || welt->get_zeit_ms() > go_on_ticks;
- 					can_go = can_go && welt->get_zeit_ms() > arrival_time + ((sint64)current_loading_time - (sint64)reversing_time);
- 					can_go = can_go || no_load;
-
-					grund_t *gr = welt->lookup(fpl->get_current_eintrag().pos);
-					depot_t * this_depot = NULL;
-					if(gr)
-					{
-						this_depot = gr->get_depot();
-						if(this_depot && this_depot->is_suitable_for(front()))
-						{
-							if(fpl->get_current_eintrag().pos == get_pos())
-							{
-								// If it's a suitable depot, move into the depot
-								// This check must come before the station check, because for
-								// ships we may be in a depot and at a sea stop!
-								enter_depot(gr->get_depot());
-								break;
-							}
-							else
-							{
-								// The go to depot command has been set previously and has not been unset.
-								can_go = true;
-								wait_lock = (arrival_time + ((sint64)current_loading_time - (sint64)reversing_time)) - welt->get_zeit_ms();
-							}
-						}
-					}
-
-					halthandle_t h = haltestelle_t::get_halt(get_pos(), get_owner());
-					if(h.is_bound() && h == haltestelle_t::get_halt(fpl->get_current_eintrag().pos, get_owner()))
-					{
-						// We are at the station we are scheduled to be at
-						// (possibly a different platform)
-						if (route.get_count() > 0)
-						{
-							koord3d const& pos = route.back();
-							if (h == haltestelle_t::get_halt(pos, get_owner()))
-							{
-								// If this is also the station at the end of the current route
-								// (the correct platform)
-								if(get_pos() == pos)
-								{
-									// And this is also the correct platform... then load.
-									state = LOADING;
-									break;
-								}
-								else
-								{
-									// Right station, wrong platform
-									can_go ? state = DRIVING : state = LOADING;
-									break;
-								}
-							}
-						}
-						else
-						{
-							// We're at the scheduled station,
-							// but there is no programmed route.
-							if(can_go && drive_to())
-							{
-								state = DRIVING;
-								break;
-							}
-							else if(!can_go)
-							{
-								state = LOADING;
-							}
-						}
-					}
-
-					// We aren't at our destination; start routing.
-					can_go ? state = ROUTING_1 : state = LOADING;
-				}
-			}
-			break;
-
 		case ROUTING_1:
-			{
-				vehicle_t* v = front();
-
-				if(  fpl->empty()  ) {
-					state = NO_ROUTE;
-					owner->report_vehicle_problem( self, koord3d::invalid );
-				}
-				else {
-					// check first, if we are already there:
-					assert( fpl->get_aktuell()<fpl->get_count()  );
-					if(  v->get_pos()==fpl->get_current_eintrag().pos  ) {
-						advance_schedule();
-					}
-					// Hajo: now calculate a new route
-
-					drive_to();
-				}
-			}
-			break;
-
 		case OUT_OF_RANGE:
 		case NO_ROUTE:
 			// stuck vehicles
-			if(no_route_retry_count < 7)
-			{
-				no_route_retry_count++;
-			}
-			if(no_route_retry_count >= 3 && front()->get_waytype() != water_wt && (!welt->lookup(get_pos())->ist_wasser()))
-			{
-				// If the convoy is stuck for too long, send it to a depot.
-				emergency_go_to_depot();
-				// get out of this routine; vehicle might be destroyed
-				return;
-			}
-			else if (fpl->empty())
-			{
-				// no entries => no route ...
-			}
-			else
-			{
-				// Hajo: now calculate a new route
-				drive_to();
-			}
+			// These are now multi-threaded - see thread_step();
 			break;
+
+		case ROUTE_JUST_FOUND:
+			vorfahren();
+			break;
+			// This used to be part of drive_to(), but this was not suitable for use in a multi-threaded state.
 
 		case CAN_START:
 		case CAN_START_ONE_MONTH:
@@ -1955,11 +2143,6 @@ end_loop:
 		case INITIAL:
 		case FAHRPLANEINGABE:
 			wait_lock = max( wait_lock, 25000 );
-			break;
-					
-		case OUT_OF_RANGE:
-		case NO_ROUTE:
-			wait_lock =  max( wait_lock, no_route_retry_count * no_route_retry_count * (20000 + simrand(10000,"convoi_t::step()")));
 			break;
 
 		case EMERGENCY_STOP:
@@ -3011,7 +3194,7 @@ void convoi_t::vorfahren()
 
 					default:
 
-						const bool reverse_as_unit = reversed ? front()->get_besch()->get_can_lead_from_rear() : back()->get_besch()->get_can_lead_from_rear();
+						const bool reverse_as_unit = re_ordered ? front()->get_besch()->get_can_lead_from_rear() : back()->get_besch()->get_can_lead_from_rear();
 
 						reversable = reverse_as_unit || (anz_vehikel == 1 && front()->get_besch()->is_bidirectional());
 
@@ -3363,6 +3546,11 @@ void convoi_t::reverse_order(bool rev)
 	back()->set_last(true);
 
 	reversed = !reversed;
+	if (rev)
+	{
+		re_ordered = !re_ordered;
+	}
+
 	for(const_iterator i = begin(); i != end(); ++i)
 	{
 		(*i)->set_reversed(reversed);
@@ -3998,6 +4186,10 @@ void convoi_t::rdwr(loadsave_t *file)
 	if(file->get_experimental_version() >= 1)
 	{
 		file->rdwr_bool(reversed);
+		if (file->get_experimental_version() >= 13 || file->get_experimental_revision() >= 12)
+		{
+			file->rdwr_bool(re_ordered);
+		}
 
 		//Replacing settings
 		// BG, 31-MAR-2010: new replacing code starts with exp version 8:
@@ -5967,6 +6159,7 @@ void convoi_t::set_next_stop_index(uint16 n)
 	   // do not brake at non-reversing waypoints
 	   bool reverse_waypoint = false;
 	   koord3d route_end = route.back();
+	   bool update_line = false;
 
 	   if(front()->get_typ() != obj_t::air_vehicle)
 	   {
@@ -5980,15 +6173,24 @@ void convoi_t::set_next_stop_index(uint16 n)
 				   {
 					   eintrag.reverse = check_destination_reverse() ? 1 : 0;
 					   fpl->set_reverse(eintrag.reverse, i); 
+					   
 					   if(line.is_bound())
 					   {
-						   simlinemgmt_t::update_line(line);
+						   schedule_t* line_schedule = line->get_schedule();
+						   linieneintrag_t &line_entry = line_schedule->eintrag[i];
+						   line_entry.reverse = eintrag.reverse;
+						   update_line = true;
 					   }
 				   }
 					reverse_waypoint = eintrag.reverse == 1;
 
 					break;
 			   }
+		   }
+
+		   if (update_line)
+		   {
+			   simlinemgmt_t::update_line(line);
 		   }
 	   }
 
@@ -6903,7 +7105,13 @@ void convoi_t::clear_replace()
 				// alights a convoy and then immediately re-boards that same convoy.
 				if(waiting_minutes > 0)
 				{
+#ifdef MULTI_THREAD
+					pthread_mutex_lock(&step_convois_mutex);
+#endif
 					halt->add_waiting_time(waiting_minutes, iter.get_zwischenziel(), iter.get_besch()->get_catg_index());
+#ifdef MULTI_THREAD
+					pthread_mutex_unlock(&step_convois_mutex);
+#endif
 				}
 			}
 		}
@@ -7114,11 +7322,18 @@ void convoi_t::emergency_go_to_depot()
 
 			// Give a different message than the usual depot arrival message.
 			cbuffer_t buf;
+#ifdef MULTI_THREAD
+			pthread_mutex_lock(&step_convois_mutex);
+#endif
 			buf.printf( translator::translate("No route to depot for convoy %s: teleported to depot!"), get_name() );
 			const vehicle_t* v = front();
+
 			welt->get_message()->add_message(buf, v->get_pos().get_2d(),message_t::warnings, PLAYER_FLAG|get_owner()->get_player_nr(), IMG_LEER);
 
 			enter_depot(dep);
+#ifdef MULTI_THREAD
+			pthread_mutex_unlock(&step_convois_mutex);
+#endif
 			// Do NOT do the convoi_arrived here: it's done in enter_depot!
 			state = INITIAL;
 			fpl->set_aktuell(0);
@@ -7128,6 +7343,9 @@ void convoi_t::emergency_go_to_depot()
 			// We can't send it to a depot, because there are no appropriate depots.  Destroy it!
 
 			cbuffer_t buf;
+#ifdef MULTI_THREAD
+			pthread_mutex_lock(&step_convois_mutex);
+#endif
 			buf.printf( translator::translate("No route and no depot for convoy %s: convoy has been sold!"), get_name() );
 			const vehicle_t* v = front();
 			welt->get_message()->add_message(buf, v->get_pos().get_2d(),message_t::warnings, PLAYER_FLAG|get_owner()->get_player_nr(), IMG_LEER);
@@ -7137,6 +7355,9 @@ void convoi_t::emergency_go_to_depot()
 			dbg->error("void convoi_t::emergency_go_to_depot()", "Could not find a depot to which to send convoy %i", self.get_id() );
 
 			destroy();
+#ifdef MULTI_THREAD
+			pthread_mutex_unlock(&step_convois_mutex);
+#endif
 		}
 	}
 }

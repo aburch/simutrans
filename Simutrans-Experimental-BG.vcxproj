@@ -125,9 +125,10 @@
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <DisableSpecificWarnings>4200;4800;4311;4996;4554;4373;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winmm.lib;zlibstat.lib;advapi32.lib;wsock32.lib;libbz2.lib;Strmiids.lib;Ws2_32.lib;pthreadVCE2.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winmm.lib;zlibstat.lib;advapi32.lib;wsock32.lib;libbz2.lib;Strmiids.lib;Ws2_32.lib;Imm32.lib;Shell32.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>libcmt.lib; msvcrt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
@@ -166,7 +167,7 @@
       <LinkLibraryDependencies>false</LinkLibraryDependencies>
     </ProjectReference>
     <Link>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winmm.lib;zlibstat.lib;advapi32.lib;wsock32.lib;libbz2.lib;Strmiids.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winmm.lib;zlibstat.lib;advapi32.lib;wsock32.lib;libbz2.lib;Strmiids.lib;Ws2_32.lib;Imm32.lib;Shell32.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>libcmt.lib; msvcrt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
@@ -202,7 +203,7 @@
     </ClCompile>
     <Link>
       <AdditionalOptions>SDL.lib SDLmain.lib %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winmm.lib;zlibstat.lib;advapi32.lib;wsock32.lib;libbz2.lib;Strmiids.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winmm.lib;zlibstat.lib;advapi32.lib;wsock32.lib;libbz2.lib;Strmiids.lib;Ws2_32.lib;Imm32.lib;Shell32.lib</AdditionalDependencies>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <AdditionalLibraryDirectories>F:\My Documents\Development\Simutrans\SDL-1.2.13\include;c:\Program Files\PlatformSDK\Lib;F:\My Documents\Development\Zlib\include;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>libcmt.lib; msvcrt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
@@ -235,7 +236,7 @@
     </ClCompile>
     <Link>
       <AdditionalOptions>SDL.lib SDLmain.lib %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winmm.lib;zlibstat.lib;advapi32.lib;wsock32.lib;libbz2.lib;Strmiids.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winmm.lib;zlibstat.lib;advapi32.lib;wsock32.lib;libbz2.lib;Strmiids.lib;Ws2_32.lib;Imm32.lib;Shell32.lib</AdditionalDependencies>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <AdditionalLibraryDirectories>F:\My Documents\Development\Simutrans\SDL-1.2.13\include;G:\Program Files\PlatformSDK\Lib;F:\My Documents\Development\Zlib\include;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
@@ -269,7 +270,7 @@
       <DisableSpecificWarnings>4200;4800;4311;4996;4554;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winmm.lib;zlibstat.lib;advapi32.lib;wsock32.lib;libbz2.lib;Strmiids.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winmm.lib;zlibstat.lib;advapi32.lib;wsock32.lib;libbz2.lib;Strmiids.lib;Ws2_32.lib;Imm32.lib;Shell32.lib</AdditionalDependencies>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <AdditionalLibraryDirectories>F:\My Documents\Development\Zlib\include;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
@@ -289,6 +290,7 @@
     <ClCompile Include="clipboard_w32.cc" />
     <ClCompile Include="dataobj\environment.cc" />
     <ClCompile Include="dataobj\gameinfo.cc" />
+    <ClCompile Include="dataobj\height_map_loader.cc" />
     <ClCompile Include="dataobj\livery_scheme.cc" />
     <ClCompile Include="dataobj\objlist.cc" />
     <ClCompile Include="dataobj\records.cc" />
@@ -298,10 +300,11 @@
     <ClCompile Include="display\simview.cc" />
     <ClCompile Include="display\viewport.cc" />
     <ClCompile Include="gui\ai_option_t.cc" />
+    <ClCompile Include="gui\city_info.cc" />
+    <ClCompile Include="gui\components\gui_component.cc" />
     <ClCompile Include="gui\components\gui_container.cc" />
     <ClCompile Include="gui\components\gui_convoiinfo.cc" />
     <ClCompile Include="gui\components\gui_image.cc" />
-    <ClCompile Include="gui\components\gui_komponente.cc" />
     <ClCompile Include="gui\components\gui_map_preview.cc" />
     <ClCompile Include="gui\components\gui_obj_view_t.cc" />
     <ClCompile Include="gui\convoy_item.cc" />
@@ -315,6 +318,7 @@
     <ClCompile Include="gui\server_frame.cc" />
     <ClCompile Include="gui\simwin.cc" />
     <ClCompile Include="gui\themeselector.cc" />
+    <ClCompile Include="gui\tool_selector.cc" />
     <ClCompile Include="network\checksum.cc" />
     <ClCompile Include="network\memory_rw.cc" />
     <ClCompile Include="network\network.cc" />
@@ -383,9 +387,11 @@
     <ClCompile Include="siminteraction.cc" />
     <ClCompile Include="simloadingscreen.cc" />
     <ClCompile Include="simobj.cc" />
+    <ClCompile Include="simsignalbox.cc" />
     <ClCompile Include="simsys.cc" />
     <ClCompile Include="simsys_w.cc" />
     <ClCompile Include="simsys_w32_png.cc" />
+    <ClCompile Include="simtool.cc" />
     <ClCompile Include="simunits.cc" />
     <ClCompile Include="squirrel\sqstdlib\sqstdaux.cc" />
     <ClCompile Include="squirrel\sqstdlib\sqstdblob.cc" />
@@ -504,6 +510,7 @@
     <ClCompile Include="gui\money_frame.cc" />
     <ClCompile Include="boden\wege\monorail.cc" />
     <ClCompile Include="boden\monorailboden.cc" />
+    <ClCompile Include="utils\simrandom.cc" />
     <ClCompile Include="vehicle\movingobj.cc" />
     <ClCompile Include="boden\wege\narrowgauge.cc" />
     <ClCompile Include="besch\reader\obj_reader.cc" />
@@ -566,20 +573,16 @@
     <ClCompile Include="simskin.cc" />
     <ClCompile Include="simsound.cc" />
     <ClCompile Include="utils\simstring.cc" />
-    <ClCompile Include="simsys_s.cc" />
     <ClCompile Include="simticker.cc" />
-    <ClCompile Include="simtools.cc" />
-    <ClCompile Include="vehicle\simvehikel.cc" />
-    <ClCompile Include="vehicle\simverkehr.cc" />
+    <ClCompile Include="vehicle\simroadtraffic.cc" />
+    <ClCompile Include="vehicle\simvehicle.cc" />
     <ClCompile Include="simware.cc" />
-    <ClCompile Include="simwerkz.cc" />
     <ClCompile Include="simworld.cc" />
     <ClCompile Include="besch\reader\skin_reader.cc" />
     <ClCompile Include="besch\sound_besch.cc" />
     <ClCompile Include="gui\sound_frame.cc" />
     <ClCompile Include="besch\reader\sound_reader.cc" />
     <ClCompile Include="gui\sprachen.cc" />
-    <ClCompile Include="gui\stadt_info.cc" />
     <ClCompile Include="gui\station_building_select.cc" />
     <ClCompile Include="boden\wege\strasse.cc" />
     <ClCompile Include="dataobj\tabfile.cc" />
@@ -605,13 +608,13 @@
     <ClCompile Include="boden\wege\weg.cc" />
     <ClCompile Include="bauer\wegbauer.cc" />
     <ClCompile Include="gui\welt.cc" />
-    <ClCompile Include="gui\werkzeug_waehler.cc" />
     <ClCompile Include="sound\win32_sound.cc" />
     <ClCompile Include="besch\reader\xref_reader.cc" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="dataobj\environment.h" />
     <ClInclude Include="dataobj\gameinfo.h" />
+    <ClInclude Include="dataobj\height_map_loader.h" />
     <ClInclude Include="dataobj\livery_scheme.h" />
     <ClInclude Include="dataobj\objlist.h" />
     <ClInclude Include="dataobj\records.h" />
@@ -623,7 +626,9 @@
     <ClInclude Include="display\simview.h" />
     <ClInclude Include="display\viewport.h" />
     <ClInclude Include="gui\ai_option_t.h" />
+    <ClInclude Include="gui\city_info.h" />
     <ClInclude Include="gui\components\action_listener.h" />
+    <ClInclude Include="gui\components\gui_component.h" />
     <ClInclude Include="gui\components\gui_container.h" />
     <ClInclude Include="gui\components\gui_convoiinfo.h" />
     <ClInclude Include="gui\components\gui_fixedwidth_textarea.h" />
@@ -640,6 +645,7 @@
     <ClInclude Include="gui\server_frame.h" />
     <ClInclude Include="gui\simwin.h" />
     <ClInclude Include="gui\themeselector.h" />
+    <ClInclude Include="gui\tool_selector.h" />
     <ClInclude Include="network\checksum.h" />
     <ClInclude Include="network\memory_rw.h" />
     <ClInclude Include="network\network.h" />
@@ -689,6 +695,8 @@
     <ClInclude Include="siminteraction.h" />
     <ClInclude Include="simloadingscreen.h" />
     <ClInclude Include="simobj.h" />
+    <ClInclude Include="simsignalbox.h" />
+    <ClInclude Include="simtool.h" />
     <ClInclude Include="simunits.h" />
     <ClInclude Include="squirrel\sqstdaux.h" />
     <ClInclude Include="squirrel\sqstdblob.h" />
@@ -871,6 +879,7 @@
     <ClInclude Include="gui\money_frame.h" />
     <ClInclude Include="boden\wege\monorail.h" />
     <ClInclude Include="boden\monorailboden.h" />
+    <ClInclude Include="utils\simrandom.h" />
     <ClInclude Include="vehicle\movingobj.h" />
     <ClInclude Include="music\music.h" />
     <ClInclude Include="boden\wege\narrowgauge.h" />
@@ -948,6 +957,8 @@
     <ClInclude Include="simticker.h" />
     <ClInclude Include="simtools.h" />
     <ClInclude Include="simtypes.h" />
+    <ClInclude Include="vehicle\simroadtraffic.h" />
+    <ClInclude Include="vehicle\simvehicle.h" />
     <ClInclude Include="vehicle\simvehikel.h" />
     <ClInclude Include="vehicle\simverkehr.h" />
     <ClInclude Include="simversion.h" />
@@ -1014,21 +1025,11 @@
     <ClInclude Include="besch\writer\xref_writer.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="base_texts_experimental.dat" />
-    <None Include="base_texts_experimental_6_2.dat" />
-    <None Include="base_texts_experimental_6_3.dat" />
-    <None Include="base_texts_experimental_7_0.dat" />
-    <None Include="base_texts_experimental_additional_5_0.dat" />
-    <None Include="base_texts_experimental_additional_5_1.dat" />
     <None Include="..\simutrans-experimental-binaries\config\electricity.tab" />
     <None Include="..\simutrans-experimental-binaries\text\en.tab" />
     <None Include="Makefile" />
     <None Include="..\simutrans-experimental-binaries\config\privatecar.tab" />
     <None Include="..\simutrans-experimental-binaries\config\simuconf.tab" />
-    <None Include="makeobj\Makefile" />
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="simres.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

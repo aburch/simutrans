@@ -121,10 +121,10 @@ bool route_t::append_straight_route(karte_t *welt, koord3d dest )
 
 
 // node arrays
-uint32 route_t::MAX_STEP=0;
-uint32 route_t::max_used_steps=0;
-route_t::ANode *route_t::_nodes[MAX_NODES_ARRAY];
-bool route_t::_nodes_in_use[MAX_NODES_ARRAY]; // semaphores, since we only have few nodes arrays in memory
+thread_local uint32 route_t::MAX_STEP=0;
+thread_local uint32 route_t::max_used_steps=0;
+thread_local route_t::ANode *route_t::_nodes[MAX_NODES_ARRAY];
+thread_local bool route_t::_nodes_in_use[MAX_NODES_ARRAY]; // semaphores, since we only have few nodes arrays in memory
 
 void route_t::INIT_NODES(uint32 max_route_steps, const koord &world_size)
 {
@@ -202,12 +202,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 		INIT_NODES(welt->get_settings().get_max_route_steps(), welt->get_size());
 	}
 
-//	INT_CHECK("route 347");
-
 	// nothing in lists
-	// NOTE: This will have to be reworked substantially if this algorithm
-	// is to be multi-threaded anywhere: a specific vector or hashtable will 
-	// have to be used instead.
 	marker_t& marker = marker_t::instance(welt->get_size().x, welt->get_size().y);
 
 	// there are several variant for maintaining the open list
@@ -262,14 +257,9 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 	queue.insert(tmp);
 
 	const grund_t* gr = NULL;
-	int bridge_tile_count = 0;
+	sint32 bridge_tile_count = 0;
 	do 
 	{
-		// Hajo: this is too expensive to be called each step
-		//if((step & 127) == 0) {
-		//	INT_CHECK("route 161");
-		//}
-
 		ANode *test_tmp = queue.pop();
 
 		// already in open or closed (i.e. all processed nodes) list?
@@ -298,6 +288,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 				// Cost should be journey time per *straight line* tile, as the private car route
 				// system needs to be able to approximate the total travelling time from the straight
 				// line distance.
+
 				const koord3d k = gr->get_pos();
 				const stadt_t* destination_city = welt->access(k.get_2d())->get_city();
 				stadt_t* origin_city = welt->access(start.get_2d())->get_city();
@@ -325,12 +316,12 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 					{
 						if(!gb)
 						{
-							// Dud building - remove
-							str->connected_buildings.remove(gb);
+							// Dud building 
+							// Is not thread-safe to remove this here.
 							continue;
 						}
 						
-						uint16 straight_line_distance = shortest_distance(origin_city->get_townhall_road(), k.get_2d());
+						const uint16 straight_line_distance = shortest_distance(origin_city->get_townhall_road(), k.get_2d());
 						uint16 journey_time_per_tile;
 						if(straight_line_distance == 0)
 						{
@@ -483,8 +474,6 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 
 	} while(  !queue.empty()  &&  step < MAX_STEP  &&  queue.get_count() < max_depth  );
 
-//	INT_CHECK("route 194");
-
 	// target reached?
 	if(!tdriver->is_target(gr, tmp->parent == NULL ? NULL : tmp->parent->gr) || step >= MAX_STEP)
 	{
@@ -523,7 +512,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 
 ribi_t::ribi *get_next_dirs(const koord3d& gr_pos, const koord3d& ziel)
 {
-	static ribi_t::ribi next_ribi[4];
+	static thread_local ribi_t::ribi next_ribi[4];
 	if( abs(gr_pos.x-ziel.x)>abs(gr_pos.y-ziel.y) ) {
 		next_ribi[0] = (ziel.x>gr_pos.x) ? ribi_t::ost : ribi_t::west;
 		next_ribi[1] = (ziel.y>gr_pos.y) ? ribi_t::sued : ribi_t::nord;
@@ -585,8 +574,6 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d start, const koord3
 		INIT_NODES(welt->get_settings().get_max_route_steps(), welt->get_size());
 	}
 
-	//INT_CHECK("route 347");
-
 	// there are several variant for maintaining the open list
 	// however, only binary heap and HOT queue with binary heap are worth considering
 #if defined(tpl_HOT_queue_tpl_h)
@@ -642,10 +629,11 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d start, const koord3
 	int best_distance = 65535;
 	do {
 		// Hajo: this is too expensive to be called each step
-		if((beat++ & 1023) == 0)
+		// We cannot call INT_CHECK here if this is multi-threaded.
+		/*if((beat++ & 1023) == 0)
 		{
 			INT_CHECK("route 161");
-		}
+		}*/
 
 		if (new_top) {
 			// this is not in closed list, no check necessary
@@ -861,7 +849,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d start, const koord3
 							to_target = ribi_t::rotate45(to_target);
 							turns ++;
 						}
-						while(to_target!=current_dir) {
+						while(to_target!=current_dir /*&& turns < 126*/) {
 							to_target = ribi_t::rotate90(to_target);
 							turns +=2;
 						}

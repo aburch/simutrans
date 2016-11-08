@@ -1,6 +1,13 @@
 #ifndef simversion_h
 #define simversion_h
 
+#ifdef MAKEOBJ
+#ifdef _MSC_VER
+FILE _iob[] = { *stdin, *stdout, *stderr };
+extern "C" FILE * __cdecl __iob_func(void) { return _iob; }
+#endif
+#endif
+
 #if defined(REVISION_FROM_FILE)  &&  !defined(REVISION)
 // include external generated revision file
 #include "revision.h"
@@ -22,7 +29,7 @@
 
 #define EX_VERSION_MAJOR	12
 #define EX_VERSION_MINOR	9000
-#define EX_SAVE_MINOR		11
+#define EX_SAVE_MINOR		12
 
 #define MAKEOBJ_VERSION "55.4"
 
@@ -77,7 +84,8 @@
 /*********************** Settings related to network games ********************/
 
 /* Server to announce status to */
-#define ANNOUNCE_SERVER "servers.experimental.simutrans.org:80"
+//#define ANNOUNCE_SERVER "servers.experimental.simutrans.org:80"
+#define ANNOUNCE_SERVER "server.exp.simutrans.com:8080"
 
 /* Relative URL of the announce function on server */
 #define ANNOUNCE_URL "/announce"

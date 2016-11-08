@@ -735,6 +735,11 @@ void haltestelle_t::rotate90( const sint16 y_size )
 		}
 	}
 
+	FOR(vector_tpl<koord3d>, i, station_signals)
+	{
+		i.rotate90(y_size); 
+	}
+
 	sint64 temp_last_departed[4];
 	// Rotate station signal timings
 	for(uint32 i = 0; i < 4; i ++)
@@ -1246,7 +1251,6 @@ void haltestelle_t::step()
 					const uint32 max_wait = welt->get_settings().get_passenger_max_wait();
 					const uint32 max_wait_minutes = max_wait / tmp.get_besch()->get_speed_bonus();
 					uint32 max_wait_tenths = max_wait_minutes * 10u;
-					halthandle_t h = haltestelle_t::get_halt(tmp.get_zielpos(), owner);
 
 					// Passengers' maximum waiting times were formerly limited to thrice their estimated
 					// journey time, but this is no longer so from version 11.14 onwards.
@@ -1715,13 +1719,15 @@ uint16 haltestelle_t::get_service_frequency(halthandle_t destination, uint8 cate
 				}
 			}
 
-			if(haltestelle_t::get_halt(current_halt, owner) == destination)
+			halthandle_t current_halthandle = haltestelle_t::get_halt(current_halt, owner);
+
+			if(current_halthandle == destination)
 			{
 				// This line serves this destination.
 				line_serves_destination = true;
 			}
 			
-			if(haltestelle_t::get_halt(current_halt, owner) == self)
+			if(current_halthandle == self)
 			{
 				number_of_calls_at_this_stop ++;
 			}
@@ -1925,7 +1931,7 @@ void haltestelle_t::get_destination_halts_of_ware(ware_t &ware, vector_tpl<halth
 
 uint16 haltestelle_t::find_route(const vector_tpl<halthandle_t>& destination_halts_list, ware_t &ware, const uint16 previous_journey_time, const koord destination_pos)
 {
-	// ** Beware ** This is the most computationally intensive (taking into account how often that it is called) function in the game
+	// ** Beware ** This is the one of the most computationally intensive (taking into account how often that it is called) functions in the game
 	// Find the best route (sequence of halts) for a given packet
 	// from here to its final destination -- *and* reroute the packet.
 	//
@@ -3934,7 +3940,10 @@ void haltestelle_t::rdwr(loadsave_t *file)
 				// Loading
 				koord3d k;
 				k.rdwr(file);
-				station_signals.append(k);
+				if(get_halt(k, get_owner()).is_bound())
+				{
+					station_signals.append(k);
+				}
 			}
 		}
 

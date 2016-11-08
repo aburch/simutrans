@@ -120,6 +120,24 @@
 
 #include "dataobj/tabfile.h" // For reload of simuconf.tab to override savegames
 
+#ifdef MULTI_THREAD
+#include "utils/simthread.h"
+static vector_tpl<pthread_t> private_car_route_threads;
+static vector_tpl<pthread_t> step_passengers_and_mail_threads;
+static vector_tpl<pthread_t> individual_convoi_step_threads;
+static pthread_t convoi_step_master_thread;
+static pthread_attr_t thread_attributes;
+static pthread_mutex_t private_car_route_mutex = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t step_passengers_and_mail_mutex = PTHREAD_MUTEX_INITIALIZER;
+static simthread_barrier_t private_car_barrier;
+static simthread_barrier_t  step_passengers_and_mail_barrier;
+static simthread_barrier_t  step_convois_barrier_external;
+static simthread_barrier_t  step_convois_barrier_internal;
+//static simthread_barrier_t  step_passengers_and_mail_barrier_internal;
+sint32 karte_t::cities_to_process = 0;
+vector_tpl<convoihandle_t> convois_next_step; 
+#endif
+
 #ifdef DEBUG_SIMRAND_CALLS
 bool karte_t::print_randoms = true;
 int karte_t::random_calls = 0;
@@ -602,7 +620,7 @@ DBG_MESSAGE("karte_t::destroy()", "towns destroyed");
 		delete [] plan;
 		plan = NULL;
 	}
-	DBG_MESSAGE("karte_t::destroy()", "planquadrat destroyed");
+DBG_MESSAGE("karte_t::destroy()", "planquadrat destroyed");
 
 	old_progress += (cached_size.x*cached_size.y)/2;
 	ls.set_progress( old_progress );
@@ -642,6 +660,9 @@ DBG_MESSAGE("karte_t::destroy()", "factories destroyed");
 	ausflugsziele.clear();
 DBG_MESSAGE("karte_t::destroy()", "attraction list destroyed");
 
+	weg_t::clear_list_of__ways();
+DBG_MESSAGE("karte_t::destroy()", "way list destroyed");
+
 	delete scenario;
 	scenario = NULL;
 
@@ -651,9 +672,12 @@ DBG_MESSAGE("karte_t::destroy()", "attraction list destroyed");
 	bool empty_depot_list = depot_t::get_depot_list().empty();
 	assert( empty_depot_list );
 
+#ifdef MULTI_THREAD
+	destroy_threads();
+	DBG_MESSAGE("karte_t::destroy()", "threads destroyed");
+#endif
+
 DBG_MESSAGE("karte_t::destroy()", "world destroyed");
-	
-	is_shutting_down = false;
 
 	// Added by : B.Gabriel
 	route_t::TERM_NODES();
@@ -663,6 +687,9 @@ DBG_MESSAGE("karte_t::destroy()", "world destroyed");
 
 	dbg->important("World destroyed.");
 	destroying = false;
+#ifdef MULTI_THREAD
+	cities_to_process = 0;
+#endif
 }
 
 
@@ -1542,6 +1569,233 @@ DBG_DEBUG("karte_t::init()","built timeline");
 	settings.update_max_alternative_destinations_visiting(visitor_targets.get_sum_weight());
 }
 
+#ifdef MULTI_THREAD
+void *check_road_connexions_threaded(void *args)
+{
+	karte_t* world = (karte_t*)args;
+
+	while (!world->is_destroying())
+	{
+		pthread_mutex_lock(&private_car_route_mutex);
+		if (karte_t::cities_to_process > 0)
+		{
+			stadt_t* city;
+			city = world->cities_awaiting_private_car_route_check.remove_first();
+			karte_t::cities_to_process--;
+			pthread_mutex_unlock(&private_car_route_mutex);
+
+			if (!city)
+			{
+				continue;
+			}
+
+			city->check_all_private_car_routes();
+			city->set_check_road_connexions(false);
+
+			simthread_barrier_wait(&private_car_barrier);
+		}
+		pthread_mutex_unlock(&private_car_route_mutex);
+		// Having two barrier waits here is intentional.
+		simthread_barrier_wait(&private_car_barrier);
+	}
+
+	pthread_exit(NULL);
+	return args;
+}
+
+void *step_passengers_and_mail_threaded(void* args)
+{
+	karte_t* world = (karte_t*)args;
+	
+	while (!world->is_destroying())
+	{	
+	top:
+		simthread_barrier_wait(&step_passengers_and_mail_barrier);
+
+		// The generate passengers function is called many times (often well > 100) each step; the mail version is called only once or twice each step, sometimes not at all.
+		uint32 units_this_step;
+
+		//simthread_barrier_wait(&step_passengers_and_mail_barrier_internal);
+		if (world->passenger_step_interval <= world->next_step_passenger)
+		{
+			do
+			{
+				if (world->passenger_origins.get_count() == 0)
+				{
+					goto top;
+				}
+				units_this_step = world->generate_passengers_or_mail(warenbauer_t::passagiere);
+
+				pthread_mutex_lock(&step_passengers_and_mail_mutex);
+				world->next_step_passenger -= (world->passenger_step_interval * units_this_step);
+				pthread_mutex_unlock(&step_passengers_and_mail_mutex);
+
+				//simthread_barrier_wait(&step_passengers_and_mail_barrier_internal);
+			} while (world->passenger_step_interval <= world->next_step_passenger);
+		}
+		
+		//simthread_barrier_wait(&step_passengers_and_mail_barrier_internal);
+		if (world->mail_step_interval <= world->next_step_mail)
+		{
+			do
+			{
+				if (world->mail_origins_and_targets.get_count() == 0)
+				{
+					goto top;
+				}
+				units_this_step = world->generate_passengers_or_mail(warenbauer_t::post);
+
+				pthread_mutex_lock(&step_passengers_and_mail_mutex);
+				world->next_step_mail -= (world->mail_step_interval * units_this_step);
+				pthread_mutex_unlock(&step_passengers_and_mail_mutex);
+
+				//simthread_barrier_wait(&step_passengers_and_mail_barrier_internal);
+			} while (world->mail_step_interval <= world->next_step_mail);
+		}
+		simthread_barrier_wait(&step_passengers_and_mail_barrier); // Having two of these (one at the top and one at the bottom) is intentional.
+	}
+
+	pthread_exit(NULL);
+	return args;
+}
+
+void *step_convois_threaded(void* args)
+{
+	karte_t* world = (karte_t*)args;
+	const sint32 parallel_operations = world->get_parallel_operations();
+
+	while (!world->is_destroying())
+	{	
+		simthread_barrier_wait(&step_convois_barrier_external);
+		// since convois will be deleted during stepping, we need to step backwards
+		for (uint32 i = world->convoi_array.get_count(); i-- != 0;)
+		{
+			convoihandle_t cnv = world->convoi_array[i];
+			convois_next_step.append(cnv);
+			if ((convois_next_step.get_count() == parallel_operations - 2) || (i == world->convoi_array.get_count() - 1))
+			{
+				simthread_barrier_wait(&step_convois_barrier_internal); 
+				simthread_barrier_wait(&step_convois_barrier_internal); // The multiples of these is intentional: we must stop the individual threads before the clear() command is executed.
+				convois_next_step.clear();
+			}
+		}
+		simthread_barrier_wait(&step_convois_barrier_external);
+	}
+	pthread_exit(NULL);
+	return args;
+}
+
+void* step_individual_convoi_threaded(void* args)
+{
+	const uint32* thread_number_ptr = (const uint32*)args;
+	const uint32 thread_number = *thread_number_ptr;
+	//delete thread_number_ptr;
+
+	while (!karte_t::world->is_destroying())
+	{
+		simthread_barrier_wait(&step_convois_barrier_internal);
+		if (convois_next_step.get_count() > thread_number)
+		{
+			convoihandle_t cnv = convois_next_step[thread_number];
+			if (cnv.is_bound())
+			{
+				cnv->threaded_step();
+			}
+		}
+		simthread_barrier_wait(&step_convois_barrier_internal);
+	}
+	pthread_exit(NULL);
+	return args;
+}
+
+void karte_t::init_threads()
+{
+	sint32 rc;
+
+	const sint32 parallel_operations = get_parallel_operations();
+
+	pthread_attr_init(&thread_attributes);
+	pthread_attr_setdetachstate(&thread_attributes, PTHREAD_CREATE_JOINABLE);
+
+	simthread_barrier_init(&private_car_barrier, NULL, parallel_operations + 1);
+	simthread_barrier_init(&step_passengers_and_mail_barrier, NULL, parallel_operations + 1);
+	//simthread_barrier_init(&step_passengers_and_mail_barrier_internal, NULL, parallel_operations);
+	simthread_barrier_init(&step_convois_barrier_external, NULL, 2);
+	simthread_barrier_init(&step_convois_barrier_internal, NULL, parallel_operations);	
+
+	for (sint32 i = 0; i < parallel_operations; i++)
+	{
+		pthread_t private_car_route_thread;
+		pthread_t step_passengers_and_mail_thread;
+		pthread_t individual_convoi_step_thread;
+
+		rc = pthread_create(&private_car_route_thread, &thread_attributes, &check_road_connexions_threaded, (void*)this);
+		if (rc)
+		{
+			dbg->fatal("void karte_t::init_threads()", "Failed to create private car thread, error %d. See here for a translation of the error numbers: http://epydoc.sourceforge.net/stdlib/errno-module.html", rc);
+		}
+		else
+		{
+			private_car_route_threads.append(private_car_route_thread);
+		}
+		
+		rc = pthread_create(&step_passengers_and_mail_thread, &thread_attributes, &step_passengers_and_mail_threaded, (void*)this);
+		if (rc)
+		{
+			dbg->fatal("void karte_t::init_threads()", "Failed to create step passengers and mail thread, error %d. See here for a translation of the error numbers: http://epydoc.sourceforge.net/stdlib/errno-module.html", rc);
+		}
+		else
+		{
+			step_passengers_and_mail_threads.append(step_passengers_and_mail_thread);
+		}
+
+		if (i < parallel_operations - 1)
+		{
+			sint32 thread_number = *new sint32;
+			thread_number = i;
+			rc = pthread_create(&individual_convoi_step_thread, &thread_attributes, &step_individual_convoi_threaded, (void*)&thread_number);
+			if (rc)
+			{
+				dbg->fatal("void karte_t::init_threads()", "Failed to create individual convoy thread, error %d. See here for a translation of the error numbers: http://epydoc.sourceforge.net/stdlib/errno-module.html", rc);
+			}
+			else
+			{
+				individual_convoi_step_threads.append(individual_convoi_step_thread);
+			}
+		}
+	}
+
+	rc = pthread_create(&convoi_step_master_thread, &thread_attributes, &step_convois_threaded, (void*)this);
+	if (rc)
+	{
+		dbg->fatal("void karte_t::init_threads()", "Failed to create convoy master thread, error %d. See here for a translation of the error numbers: http://epydoc.sourceforge.net/stdlib/errno-module.html", rc);
+	}
+}
+
+void karte_t::destroy_threads()
+{
+	pthread_attr_destroy(&thread_attributes);
+	private_car_route_threads.clear();
+	step_passengers_and_mail_threads.clear();
+	individual_convoi_step_threads.clear();
+}
+#endif
+
+sint32 karte_t::get_parallel_operations() const
+{
+	uint32 parallel_operations;
+	if (env_t::networkmode)
+	 {
+		parallel_operations = 4; // TODO: Have this set from the server 
+		}
+	else
+	{
+		parallel_operations = env_t::num_threads - 1;
+	}
+
+	return parallel_operations;
+}
+
 #define array_koord(px,py) (px + py * get_size().x)
 
 
@@ -2166,7 +2420,6 @@ karte_t::karte_t() :
 	ausflugsziele(16),
 	stadt(0),
 	idle_time(0),
-	is_shutting_down(false),
 	speed_factors_are_set(false)
 {
 	// length of day and other time stuff
@@ -2185,6 +2438,9 @@ karte_t::karte_t() :
 	next_step_passenger = 0;
 	next_step_mail = 0;
 	destroying = false;
+#ifdef MULTI_THREAD
+	cities_to_process = 0;
+#endif
 
 	for(  uint i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
 		selected_tool[i] = tool_t::general_tool[TOOL_QUERY];
@@ -2250,6 +2506,10 @@ karte_t::karte_t() :
 
 	// set single instance
 	world = this;
+
+#ifdef MULTI_THREAD
+	init_threads();
+#endif
 }
 
 #ifdef DEBUG_SIMRAND_CALLS
@@ -4435,7 +4695,6 @@ void karte_t::set_schedule_counter()
 	schedule_counter++;
 }
 
-
 void karte_t::step()
 {
 rands[8] = get_random_seed();
@@ -4443,7 +4702,7 @@ rands[8] = get_random_seed();
 	uint32 time = dr_time();
 
 	// calculate delta_t before handling overflow in ticks
-	const long delta_t = (long)(ticks-last_step_ticks);
+	const sint32 delta_t = (sint32)(ticks-last_step_ticks);
 
 	// first: check for new month
 	if(ticks > next_month_ticks) {
@@ -4521,7 +4780,38 @@ rands[9] = get_random_seed();
 	// to make sure the tick counter will be updated
 	INT_CHECK("karte_t::step");
 
+	/** THREADING CAN START HERE **/
+
+	// Check the private car routes. In multi-threaded mode, this can be running in the background whilst a number of other steps are processed.
+	// This is computationally intensive, but intermittently.
+	const bool check_city_routes = cities_awaiting_private_car_route_check.get_count() > 0 && (steps % 12) == 0;
+	if (check_city_routes)
+	{
+		const sint32 parallel_operations = get_parallel_operations();
+		
+#ifdef MULTI_THREAD
+		cities_to_process = min(cities_awaiting_private_car_route_check.get_count() - 1, parallel_operations);
+		simthread_barrier_wait(&private_car_barrier); // One wait barrier to activate all the private car checker threads, the second to wait until they have all finished. This is the first.
+#else			
+		const uint32 cities_to_process = min(cities_awaiting_private_car_route_check.get_count() - 1, parallel_operations);
+		for (uint32 j = 0; j < cities_to_process; j++)
+		{
+			stadt_t* city = cities_awaiting_private_car_route_check.remove_first();
+			city->check_all_private_car_routes();
+			city->set_check_road_connexions(false);
+
+		}
+#endif	
+	}
+
+rands[10] = get_random_seed();
+
+#if 0
+	simthread_barrier_wait(&step_convois_barrier_external); // Start the threaded part of the convoys' steps: this is mainly route searches. Block reservation, etc., is in the single threaded part. 
+#endif
+
 	/// check for pending seasons change
+	// This is not very computationally intensive.
 	const bool season_change = pending_season_change > 0;
 	const bool snowline_change = pending_snowline_change > 0;
 	if(  season_change  ||  snowline_change  ) {
@@ -4532,7 +4822,7 @@ rands[9] = get_random_seed();
 			plan[tile_counter].check_season_snowline( season_change, snowline_change );
 			tile_counter++;
 			if(  (tile_counter & 0x3FF) == 0  ) {
-				INT_CHECK("karte_t::step");
+				INT_CHECK("karte_t::step 1");
 			}
 		}
 
@@ -4546,37 +4836,44 @@ rands[9] = get_random_seed();
 			tile_counter = 0;
 		}
 	}
-rands[10] = get_random_seed();
+
+rands[11] = get_random_seed();
 
 	// to make sure the tick counter will be updated
 	INT_CHECK("karte_t::step 1");
+	
 
 	// Knightly : calling global path explorer
+	// This is computationally intensive, but it is not always running, so it is intermittently so.
 	path_explorer_t::step();
-rands[11] = get_random_seed();
+rands[12] = get_random_seed();
 	INT_CHECK("karte_t::step 2");
+
+#if 0 
+	simthread_barrier_wait(&step_convois_barrier_external); // Finish the threaded part of the convoys' steps: this is mainly route searches. Block reservation, etc., is in the single threaded part. 
+#else
+	for (uint32 i = convoi_array.get_count(); i-- != 0;)
+	{
+		convoihandle_t cnv = convoi_array[i];
+		cnv->threaded_step();
+	}
+#endif
 	
+	// This is computationally intensive, especially the route searching.
 	DBG_DEBUG4("karte_t::step 4", "step %d convois", convoi_array.get_count());
 	// since convois will be deleted during stepping, we need to step backwards
-	for (size_t i = convoi_array.get_count(); i-- != 0;) {
+	for (uint32 i = convoi_array.get_count(); i-- != 0;) {
 		convoihandle_t cnv = convoi_array[i];
 		cnv->step();
 		if((i&7)==0) {
-			INT_CHECK("karte_t::step 5");
+			INT_CHECK("karte_t::step 3");
 		}
 	}
-rands[12] = get_random_seed();
 
-	if(cities_awaiting_private_car_route_check.get_count() > 0 && (steps % 12) == 0)
-	{
-		stadt_t* city = cities_awaiting_private_car_route_check.remove_first();
-		city->check_all_private_car_routes();
-		city->set_check_road_connexions(false);
-	}
-rands[13] = get_random_seed();
-
+rands[13] = get_random_seed();	
 
 	// now step all towns 
+	// This is not very computationally intensive at present, but might become more so when town growth is reworked.
 	DBG_DEBUG4("karte_t::step 6", "step cities");
 	FOR(weighted_vector_tpl<stadt_t*>, const i, stadt) {
 		i->step(delta_t);
@@ -4584,7 +4881,14 @@ rands[13] = get_random_seed();
 		rands[22] += i->get_buildings();
 	}
 rands[14] = get_random_seed();
-rands[23] = 0;
+
+#ifdef MULTI_THREAD
+// The placement of this barrier must be before any code that in any way relies on the private car routes between cities, most especially the mail and passenger generation (step_passengers_and_mail(delta_t)).
+if (check_city_routes)
+{
+	simthread_barrier_wait(&private_car_barrier); // One wait barrier to activate all the private car checker threads, the second to wait until they have all finished. This is the second.
+}
+#endif	
 
 rands[24] = 0;
 rands[25] = 0;
@@ -4596,7 +4900,35 @@ rands[30] = 0;
 rands[31] = 0;
 rands[23] = 0;
 
+	// This is quite computationally intensive, but not as much as the path explorer. It can be more or less than the convoys, depending on the map.
+#ifdef MULTI_THREAD
+	
+	if (env_t::networkmode)
+	{
+		// At present, this cannot work in network mode because the generate_passengers_or_mail function modifies the next_step_passenger and next_step_mail variables,
+		// which in turn are used to count how many times that the generate_passengers_or_mail function is run. 
+		// Also, nothing that uses the random number generator can currently be deterministic accross clients when multi-threaded. 
+		step_passengers_and_mail(delta_t);
+	}
+	else
+	{
+		sint32 dt = delta_t;
+		if (dt > world->ticks_per_world_month)
+		{
+			dt = 1;
+		}
+		next_step_passenger += dt;
+		next_step_mail += dt;
+		simthread_barrier_wait(&step_passengers_and_mail_barrier);
+	}
+	#else
 	step_passengers_and_mail(delta_t);
+#endif
+	DBG_DEBUG4("karte_t::step", "step generate passengers and mail");
+	// TODO: Consider whether other things in step() can be put between these.
+	
+
+rands[15] = get_random_seed();
 
 	// the inhabitants stuff
 	finance_history_year[0][WORLD_CITICENS] = finance_history_month[0][WORLD_CITICENS] = 0;
@@ -4615,6 +4947,16 @@ rands[23] = 0;
 		finance_history_year[0][WORLD_VISITOR_DEMAND] += city->get_finance_history_year(0, HIST_VISITOR_DEMAND);
 	}
 
+	rands[23] = get_random_seed();
+
+	if (!env_t::networkmode)
+	{
+		simthread_barrier_wait(&step_passengers_and_mail_barrier);
+	}
+
+	// This cannot be before the barrier because sync_step/INT_CHECK uses simrand, as does step_passengers_and_mail, and both cannot be calling simrand simultaneously.
+	INT_CHECK("karte_t::step 4");
+
 	DBG_DEBUG4("karte_t::step", "step factories");
 	FOR(vector_tpl<fabrik_t*>, const f, fab_list) {
 		f->step(delta_t);
@@ -4624,6 +4966,7 @@ rands[16] = get_random_seed();
 	finance_history_year[0][WORLD_FACTORIES] = finance_history_month[0][WORLD_FACTORIES] = fab_list.get_count();
 
 	// step powerlines - required order: pumpe, senke, then powernet
+	// This is not computationally intensive.
 	DBG_DEBUG4("karte_t::step", "step poweline stuff");
 	pumpe_t::step_all( delta_t );
 	senke_t::step_all( delta_t );
@@ -4632,6 +4975,7 @@ rands[17] = get_random_seed();
 
 	DBG_DEBUG4("karte_t::step", "step players");
 	// then step all players
+	// This is not computationally intensive (except possibly occasionally when liquidating a company)
 	for(  int i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
 		if(  players[i] != NULL  ) {
 			players[i]->step();
@@ -4639,6 +4983,7 @@ rands[17] = get_random_seed();
 	}
 rands[18] = get_random_seed();
 
+	// This is not computationally intensive
 	DBG_DEBUG4("karte_t::step", "step halts");
 	haltestelle_t::step_all();
 rands[19] = get_random_seed();
@@ -4649,6 +4994,7 @@ rands[19] = get_random_seed();
 	// routings for goods/passengers.
 	// Default: 8192 ~ 1h (game time) at 125m/tile.
 
+	// This is not the computationally intensive bit of the path explorer.
 	if((steps % get_settings().get_reroute_check_interval_steps()) == 0)
 	{
 		path_explorer_t::refresh_all_categories(true);
@@ -4664,38 +5010,10 @@ rands[19] = get_random_seed();
 
 	recalc_season_snowline(true);
 
-	if(!time_interval_signals_to_check.empty())
-	{
-		const sint64 caution_interval_ticks = seconds_to_ticks(settings.get_time_interval_seconds_to_caution());
-		const sint64 clear_interval_ticks = seconds_to_ticks(settings.get_time_interval_seconds_to_clear()); 
+	// This is not particularly computationally intensive.
+	step_time_interval_signals();
 
-		for(vector_tpl<signal_t*>::iterator iter = time_interval_signals_to_check.begin(); iter != time_interval_signals_to_check.end();) 
-		{
-			signal_t* sig = *iter;
-			if(((sig->get_train_last_passed() + clear_interval_ticks) < ticks) && sig->get_no_junctions_to_next_signal())
-			{
-				iter = time_interval_signals_to_check.swap_erase(iter);
-				sig->set_state(roadsign_t::clear_no_choose);
-			}
-			else if(sig->get_state() == roadsign_t::danger && ((sig->get_train_last_passed() + caution_interval_ticks) < ticks) && sig->get_no_junctions_to_next_signal())
-			{
-				if(sig->get_besch()->is_pre_signal())
-				{
-					sig->set_state(roadsign_t::clear_no_choose);
-				}
-				else
-				{
-					sig->set_state(roadsign_t::caution_no_choose);
-				}
-				
-				++iter;
-			}
-			else 
-			{
-				++iter;
-			}
-		}
-	}
+	/** END OF THREADABLE AREA **/
 
 	// number of playing clients changed
 	if(  env_t::server  &&  last_clients!=socket_list_t::get_playing_clients()  ) {
@@ -4745,6 +5063,42 @@ rands[19] = get_random_seed();
 rands[20] = get_random_seed();
 }
 
+void karte_t::step_time_interval_signals()
+{
+	if (!time_interval_signals_to_check.empty())
+	{
+		const sint64 caution_interval_ticks = seconds_to_ticks(settings.get_time_interval_seconds_to_caution());
+		const sint64 clear_interval_ticks = seconds_to_ticks(settings.get_time_interval_seconds_to_clear());
+
+		for (vector_tpl<signal_t*>::iterator iter = time_interval_signals_to_check.begin(); iter != time_interval_signals_to_check.end();)
+		{
+			signal_t* sig = *iter;
+			if (((sig->get_train_last_passed() + clear_interval_ticks) < ticks) && sig->get_no_junctions_to_next_signal())
+			{
+				iter = time_interval_signals_to_check.swap_erase(iter);
+				sig->set_state(roadsign_t::clear_no_choose);
+			}
+			else if (sig->get_state() == roadsign_t::danger && ((sig->get_train_last_passed() + caution_interval_ticks) < ticks) && sig->get_no_junctions_to_next_signal())
+			{
+				if (sig->get_besch()->is_pre_signal())
+				{
+					sig->set_state(roadsign_t::clear_no_choose);
+				}
+				else
+				{
+					sig->set_state(roadsign_t::caution_no_choose);
+				}
+
+				++iter;
+			}
+			else
+			{
+				++iter;
+			}
+		}
+	}
+}
+
 sint32 karte_t::calc_adjusted_step_interval(const uint32 weight, uint32 trips_per_month_hundredths) const
 {
 	const uint32 median_packet_size = (uint32)(get_settings().get_passenger_routing_packet_size() + 1) / 2;	
@@ -4763,14 +5117,17 @@ void karte_t::step_passengers_and_mail(uint32 delta_t)
 	next_step_passenger += delta_t;
 	next_step_mail += delta_t;
 
+	// The generate passengers function is called many times (often well > 100) each step; the mail version is called only once or twice each step, sometimes not at all.
+	uint32 units_this_step;
 	while(passenger_step_interval <= next_step_passenger) 
 	{
 		if(passenger_origins.get_count() == 0)
 		{
 			return;
 		}
-		generate_passengers_or_mail(warenbauer_t::passagiere);	
-		INT_CHECK("simworld 5093");
+		units_this_step = generate_passengers_or_mail(warenbauer_t::passagiere);
+		next_step_passenger -= (passenger_step_interval * units_this_step);
+
 	} 
 
 	while(mail_step_interval <= next_step_mail) 
@@ -4779,8 +5136,8 @@ void karte_t::step_passengers_and_mail(uint32 delta_t)
 		{
 			return;
 		}
-		generate_passengers_or_mail(warenbauer_t::post);
-		INT_CHECK("simworld 5103");
+		units_this_step = generate_passengers_or_mail(warenbauer_t::post);
+		next_step_mail -= (mail_step_interval * units_this_step);
 	} 
 }
 
@@ -4843,23 +5200,40 @@ void karte_t::get_nearby_halts_of_tiles(const vector_tpl<const planquadrat_t*> &
 	}
 }
 
-void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
+uint32 karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 {
 	const city_cost history_type = (wtyp == warenbauer_t::passagiere) ? HIST_PAS_TRANSPORTED : HIST_MAIL_TRANSPORTED;
+#ifdef MULTI_THREAD
+	pthread_mutex_lock(&step_passengers_and_mail_mutex);
+#endif
 	const uint32 units_this_step = simrand((uint32)settings.get_passenger_routing_packet_size(), "void karte_t::step_passengers_and_mail(uint32 delta_t) passenger/mail packet size") + 1;
-
+#ifdef MULTI_THREAD
+	pthread_mutex_unlock(&step_passengers_and_mail_mutex);
+#endif
 	// Pick the building from which to generate passengers/mail
 	gebaeude_t* gb;
 	if(wtyp == warenbauer_t::passagiere)
 	{
 		// Pick a passenger building at random
+#ifdef MULTI_THREAD
+		pthread_mutex_lock(&step_passengers_and_mail_mutex);
+#endif
 		const uint32 weight = simrand(passenger_origins.get_sum_weight() - 1, "void karte_t::step_passengers_and_mail(uint32 delta_t) pick origin building (passengers)");
+#ifdef MULTI_THREAD
+		pthread_mutex_unlock(&step_passengers_and_mail_mutex);
+#endif
 		gb = passenger_origins.at_weight(weight);
 	}
 	else
 	{
 		// Pick a mail building at random
+#ifdef MULTI_THREAD
+		pthread_mutex_lock(&step_passengers_and_mail_mutex);
+#endif
 		const uint32 weight = simrand(mail_origins_and_targets.get_sum_weight() - 1, "void karte_t::step_passengers_and_mail(uint32 delta_t) pick origin building (mail)");
+#ifdef MULTI_THREAD
+		pthread_mutex_unlock(&step_passengers_and_mail_mutex);
+#endif
 		gb = mail_origins_and_targets.at_weight(weight);
 	}
 
@@ -4872,9 +5246,14 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 	{
 		// Mail is generated in non-city buildings such as attractions.
 		// That will be the only legitimate case in which this condition is not fulfilled.
+#ifdef MULTI_THREAD
+		pthread_mutex_lock(&step_passengers_and_mail_mutex);
+#endif
 		city->set_generated_passengers(units_this_step, history_type + 1);
+#ifdef MULTI_THREAD
+		pthread_mutex_unlock(&step_passengers_and_mail_mutex);
+#endif
 	}
-	
 	
 	koord3d origin_pos = gb->get_pos();
 	vector_tpl<const planquadrat_t*> tile_list;
@@ -4884,14 +5263,18 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 	vector_tpl<nearby_halt_t> start_halts(tile_list.empty() ? 0 : tile_list[0]->get_haltlist_count() * size);
 	get_nearby_halts_of_tiles(tile_list, wtyp, start_halts);
 
-	//INT_CHECK("simworld 4490");
-
 	// Check whether this batch of passengers has access to a private car each.
 		
 	const sint16 private_car_percent = wtyp == warenbauer_t::passagiere ? get_private_car_ownership(get_timeline_year_month()) : 0; 
 	// Only passengers have private cars
 	// QUERY: Should people be taken to be able to deliver mail packets in their own cars?
+#ifdef MULTI_THREAD
+	pthread_mutex_lock(&step_passengers_and_mail_mutex);
+#endif
 	bool has_private_car = private_car_percent > 0 ? simrand(100, "karte_t::step_passengers_and_mail() (has private car?)") <= (uint16)private_car_percent : false;
+#ifdef MULTI_THREAD
+	pthread_mutex_unlock(&step_passengers_and_mail_mutex);
+#endif
 	
 	// Record the most useful set of information about why passengers cannot reach their chosen destination:
 	// Too slow > overcrowded > no route. Tiebreaker: higher destination preference.
@@ -4907,10 +5290,15 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 	const uint16 range_visiting_tolerance = max(0, settings.get_range_visiting_tolerance() - min_visiting_tolerance);
 
 	const uint16 max_onward_trips = settings.get_max_onward_trips();
-
+#ifdef MULTI_THREAD
+	pthread_mutex_lock(&step_passengers_and_mail_mutex);
+#endif
 	trip_type trip = (wtyp == warenbauer_t::passagiere) ?
 			simrand(100, "karte_t::step_passengers_and_mail() (commuting or visiting trip?)") < settings.get_commuting_trip_chance_percent() ?
-			commuting_trip : visiting_trip : mail_trip;
+		commuting_trip : visiting_trip : mail_trip;
+#ifdef MULTI_THREAD
+	pthread_mutex_unlock(&step_passengers_and_mail_mutex);
+#endif
 	// Add 1 because the simuconf.tab setting is for maximum *alternative* destinations, whereas we need maximum *actual* desintations 
 	// Mail does not have alternative destinations: people do not send mail to one place because they cannot reach another. Mail has specific desinations.
 	const uint32 max_destinations = trip == commuting_trip ? settings.get_max_alternative_destinations_commuting() + 1 : 
@@ -4926,16 +5314,27 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 	// Find passenger destination
 
 	// Mail does not make onward journeys.
+#ifdef MULTI_THREAD
+	pthread_mutex_lock(&step_passengers_and_mail_mutex);
+#endif
 	const uint16 onward_trips = simrand(100, "void stadt_t::step_passagiere() (any onward trips?)") < settings.get_onward_trip_chance_percent() &&
 		wtyp == warenbauer_t::passagiere ? simrand(max_onward_trips, "void stadt_t::step_passagiere() (how many onward trips?)") + 1 : 1;
+#ifdef MULTI_THREAD
+	pthread_mutex_unlock(&step_passengers_and_mail_mutex);
+#endif
 
 	route_status = initialising;
 
 	for(uint32 trip_count = 0; trip_count < onward_trips && route_status != no_route && route_status != too_slow && route_status != overcrowded && route_status != destination_unavailable; trip_count ++)
 	{
+#ifdef MULTI_THREAD
+		pthread_mutex_lock(&step_passengers_and_mail_mutex);
+#endif
 		// Permit onward journeys - but only for successful journeys
 		const uint32 destination_count = simrand(max_destinations, "void stadt_t::step_passagiere() (number of destinations?)") + 1;
-
+#ifdef MULTI_THREAD
+		pthread_mutex_unlock(&step_passengers_and_mail_mutex);
+#endif
 		// Split passengers between commuting trips and other trips.
 		if(trip_count == 0)
 		{
@@ -4946,11 +5345,23 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 			}
 			else if(trip == commuting_trip)
 			{
+#ifdef MULTI_THREAD
+				pthread_mutex_lock(&step_passengers_and_mail_mutex);
+#endif
 				tolerance = (uint16)simrand_normal(range_commuting_tolerance, settings.get_random_mode_commuting(), "karte_t::step_passengers_and_mail (commuting tolerance?)") + min_commuting_tolerance;
+#ifdef MULTI_THREAD
+				pthread_mutex_unlock(&step_passengers_and_mail_mutex);
+#endif
 			}
 			else
 			{
+#ifdef MULTI_THREAD
+				pthread_mutex_lock(&step_passengers_and_mail_mutex);
+#endif
 				tolerance = (uint16)simrand_normal(range_visiting_tolerance, settings.get_random_mode_visiting(), "karte_t::step_passengers_and_mail (visiting tolerance?)") + min_visiting_tolerance;
+#ifdef MULTI_THREAD
+				pthread_mutex_unlock(&step_passengers_and_mail_mutex);
+#endif
 			}
 		}
 		else
@@ -4980,7 +5391,13 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 			// Added here as the original journey had its generated passengers set much earlier, outside the for loop.
 			if(city)
 			{
+#ifdef MULTI_THREAD
+				pthread_mutex_lock(&step_passengers_and_mail_mutex);
+#endif
 				city->set_generated_passengers(units_this_step, history_type + 1);
+#ifdef MULTI_THREAD
+				pthread_mutex_unlock(&step_passengers_and_mail_mutex);
+#endif
 			}
 
 			if(route_status != private_car)
@@ -5008,32 +5425,48 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 
 		if(trip == commuting_trip)
 		{
+#ifdef MULTI_THREAD
+			pthread_mutex_lock(&step_passengers_and_mail_mutex);
+#endif
 			first_origin->add_passengers_generated_commuting(units_this_step);
+#ifdef MULTI_THREAD
+			pthread_mutex_unlock(&step_passengers_and_mail_mutex);
+#endif
 		}
 			
 		else if(trip == visiting_trip)
 		{
+#ifdef MULTI_THREAD
+			pthread_mutex_lock(&step_passengers_and_mail_mutex);
+#endif
 			first_origin->add_passengers_generated_visiting(units_this_step);
+#ifdef MULTI_THREAD
+			pthread_mutex_unlock(&step_passengers_and_mail_mutex);
+#endif
 		}
 
 		// Do nothing if trip == mail_trip
 
-		//INT_CHECK("simworld 4557");
-
 		/**
-			* Quasi tolerance is necessary because mail can be delivered by hand. If it is delivered
-			* by hand, the deliverer has a tolerance, but if it is sent through the postal system,
-			* the mail packet itself does not have a tolerance.
-			*
-			* In addition, walking tolerance is divided by two because passengers prefer not to
-			* walk for long distances, as it is tiring, especially with luggage.
-			* (Neroden suggests that this be reconsidered)
-			*/
+		* Quasi tolerance is necessary because mail can be delivered by hand. If it is delivered
+		* by hand, the deliverer has a tolerance, but if it is sent through the postal system,
+		* the mail packet itself does not have a tolerance.
+		*
+		* In addition, walking tolerance is divided by two because passengers prefer not to
+		* walk for long distances, as it is tiring, especially with luggage.
+		* (Neroden suggests that this be reconsidered)
+		*/
 		uint16 quasi_tolerance = tolerance;
 		if(wtyp == warenbauer_t::post)
 		{
 			// People will walk long distances with mail: it is not heavy.
+#ifdef MULTI_THREAD
+			pthread_mutex_lock(&step_passengers_and_mail_mutex);
+#endif
 			quasi_tolerance = simrand_normal(range_visiting_tolerance, settings.get_random_mode_visiting(), "karte_t::step_passengers_and_mail (quasi tolerance)") + min_visiting_tolerance;
+#ifdef MULTI_THREAD
+			pthread_mutex_unlock(&step_passengers_and_mail_mutex);
+#endif
 		}
 		else
 		{
@@ -5241,8 +5674,6 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 					}
 				}
 			}
-
-			//INT_CHECK("simworld.cc 4774");
 			
 			if(has_private_car) 
 			{
@@ -5284,7 +5715,13 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 					break;
 				default:
 					//Some error - this should not be reached.
+#ifdef MULTI_THREAD
+					pthread_mutex_lock(&step_passengers_and_mail_mutex);
+#endif
 					dbg->error("simworld.cc", "Incorrect destination type detected");
+#ifdef MULTI_THREAD
+					pthread_mutex_unlock(&step_passengers_and_mail_mutex);
+#endif
 				};
 
 				if(time_per_tile < 65535)
@@ -5329,7 +5766,13 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 			// a private car journey is not possible.
 			if(car_minutes < tolerance)
 			{
+#ifdef MULTI_THREAD
+				pthread_mutex_lock(&step_passengers_and_mail_mutex);
+#endif
 				const uint16 private_car_chance = (uint16)simrand(100, "void stadt_t::step_passagiere() (private car chance?)");
+#ifdef MULTI_THREAD
+				pthread_mutex_unlock(&step_passengers_and_mail_mutex);
+#endif
 
 				if(route_status != public_transport)
 				{
@@ -5365,7 +5808,6 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 				}
 			}
 				
-			//INT_CHECK("simworld 4897");
 			if((route_status == no_route || route_status == too_slow || route_status == overcrowded || route_status == destination_unavailable) && n < destination_count - 1)
 			{
 				// Do not get a new destination if there is a good status,
@@ -5379,6 +5821,10 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 
 		bool set_return_trip = false;
 		stadt_t* destination_town;
+
+#ifdef MULTI_THREAD
+		pthread_mutex_lock(&step_passengers_and_mail_mutex);
+#endif
 
 		switch(route_status)
 		{
@@ -5428,6 +5874,7 @@ void karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 			if(city)
 			{
 #ifdef DESTINATION_CITYCARS
+
 				city->generate_private_cars(origin_pos.get_2d(), car_minutes, destination_pos, units_this_step);
 #endif
 				if(wtyp == warenbauer_t::passagiere)
@@ -5599,6 +6046,9 @@ no_route:
 				}
 			}
 		};
+#ifdef MULTI_THREAD
+		pthread_mutex_unlock(&step_passengers_and_mail_mutex);
+#endif
 
 		if(set_return_trip)
 		{
@@ -5613,11 +6063,23 @@ no_route:
 			stadt_t* const destination_town = get_city(current_destination.location);
 			if(destination_town)
 			{
+#ifdef MULTI_THREAD
+				pthread_mutex_lock(&step_passengers_and_mail_mutex);
+#endif
 				destination_town->set_generated_passengers(units_this_step, history_type + 1);
+#ifdef MULTI_THREAD
+				pthread_mutex_unlock(&step_passengers_and_mail_mutex);
+#endif
 			}
 			else if(city)
 			{
+#ifdef MULTI_THREAD
+				pthread_mutex_lock(&step_passengers_and_mail_mutex);
+#endif
 				city->set_generated_passengers(units_this_step, history_type + 1);
+#ifdef MULTI_THREAD
+				pthread_mutex_unlock(&step_passengers_and_mail_mutex);
+#endif
 				// Cannot add success figures for buildings here as cannot get a building from a koord. 
 				// However, this should not matter much, as equally not recording generated passengers
 				// for all return journeys should still show accurate percentages overall. 
@@ -5626,7 +6088,13 @@ no_route:
 			{
 				// The only passengers generated by a factory are returning passengers who have already reached the factory somehow or another
 				// from home (etc.).
+#ifdef MULTI_THREAD
+				pthread_mutex_lock(&step_passengers_and_mail_mutex);
+#endif
 				current_destination.building->get_fabrik()->book_stat(units_this_step, (wtyp == warenbauer_t::passagiere ? FAB_PAX_GENERATED : FAB_MAIL_GENERATED));
+#ifdef MULTI_THREAD
+				pthread_mutex_unlock(&step_passengers_and_mail_mutex);
+#endif
 			}
 		
 			halthandle_t ret_halt = pax.get_ziel();
@@ -5684,14 +6152,26 @@ no_route:
 						if(ret_halt->find_route(return_pax) != 65535)
 						{
 							return_pax.arrival_time = get_zeit_ms();
+#ifdef MULTI_THREAD
+							pthread_mutex_lock(&step_passengers_and_mail_mutex);
+#endif
 							ret_halt->starte_mit_route(return_pax);
+#ifdef MULTI_THREAD
+							pthread_mutex_unlock(&step_passengers_and_mail_mutex);
+#endif
 						}
 						if(current_destination.type == factory && (trip == commuting_trip || trip == mail_trip))
 						{
 							// This is somewhat anomalous, as we are recording that the passengers have departed, not arrived, whereas for cities, we record
 							// that they have successfully arrived. However, this is not easy to implement for factories, as passengers do not store their ultimate
 							// origin, so the origin factory is not known by the time that the passengers reach the end of their journey.
+#ifdef MULTI_THREAD
+							pthread_mutex_lock(&step_passengers_and_mail_mutex);
+#endif
 							current_destination.building->get_fabrik()->book_stat(units_this_step, (wtyp == warenbauer_t::passagiere ? FAB_PAX_DEPARTED : FAB_MAIL_DEPARTED));
+#ifdef MULTI_THREAD
+							pthread_mutex_unlock(&step_passengers_and_mail_mutex);
+#endif
 						}
 					}
 					else 
@@ -5703,7 +6183,13 @@ no_route:
 						}
 						else
 						{	
+#ifdef MULTI_THREAD
+							pthread_mutex_lock(&step_passengers_and_mail_mutex);
+#endif
 							ret_halt->add_pax_no_route(units_this_step);
+#ifdef MULTI_THREAD
+							pthread_mutex_unlock(&step_passengers_and_mail_mutex);
+#endif
 						}
 					}
 				}
@@ -5716,11 +6202,20 @@ no_route:
 					}
 					else if(overcrowded_route)
 					{
+#ifdef MULTI_THREAD
+						pthread_mutex_lock(&step_passengers_and_mail_mutex);
+#endif
 						ret_halt->add_pax_unhappy(units_this_step);
+#ifdef MULTI_THREAD
+						pthread_mutex_unlock(&step_passengers_and_mail_mutex);
+#endif
 					}
 				}
 			}
-					
+		
+#ifdef MULTI_THREAD
+			pthread_mutex_lock(&step_passengers_and_mail_mutex);
+#endif
 			if(return_in_private_car)
 			{
 				if(car_minutes < 65535)
@@ -5755,7 +6250,6 @@ no_route:
 					//citycars with destination
 					city->generate_private_cars(current_destination.location, car_minutes, origin_pos.get_2d(), units_this_step);
 #endif
-
 					if(current_destination.type == factory && (trip == commuting_trip || trip == mail_trip))
 					{
 						current_destination.building->get_fabrik()->book_stat(units_this_step, (wtyp == warenbauer_t::passagiere ? FAB_PAX_DEPARTED : FAB_MAIL_DEPARTED));
@@ -5806,17 +6300,12 @@ return_on_foot:
 					current_destination.building->get_fabrik()->book_stat(units_this_step, (wtyp==warenbauer_t::passagiere ? FAB_PAX_DEPARTED : FAB_MAIL_DEPARTED));
 				}
 			}
+#ifdef MULTI_THREAD
+			pthread_mutex_unlock(&step_passengers_and_mail_mutex);
+#endif
 		} // Set return trip
 	} // Onward journeys (for loop)
-
-	if(wtyp == warenbauer_t::passagiere)
-	{
-		next_step_passenger -= (passenger_step_interval * units_this_step);
-	}
-	else
-	{
-		next_step_mail -= (mail_step_interval * units_this_step);
-	}
+	return units_this_step;
 }
 
 karte_t::destination karte_t::find_destination(trip_type trip)
@@ -5825,9 +6314,12 @@ karte_t::destination karte_t::find_destination(trip_type trip)
 	current_destination.type = karte_t::invalid;
 	gebaeude_t* gb;
 
+#ifdef MULTI_THREAD
+	pthread_mutex_lock(&step_passengers_and_mail_mutex);
+#endif
 	switch(trip)
 	{
-	
+	// This needs a mutex because pick_any_weighted involves a simrand call
 	case commuting_trip: 
 		gb = pick_any_weighted(commuter_targets);
 		break;
@@ -5840,7 +6332,9 @@ karte_t::destination karte_t::find_destination(trip_type trip)
 	case mail_trip:
 		gb = pick_any_weighted(mail_origins_and_targets);
 	};
-
+#ifdef MULTI_THREAD
+	pthread_mutex_unlock(&step_passengers_and_mail_mutex);
+#endif
 	if(!gb)
 	{
 		// Might happen if the relevant collection object is empty.		
@@ -6689,6 +7183,9 @@ bool karte_t::load(const char *filename)
 	loadsave_t file;
 	cities_awaiting_private_car_route_check.clear();
 	time_interval_signals_to_check.clear();
+#ifdef MULTI_THREAD
+	init_threads();
+#endif
 
 	// clear hash table with missing paks (may cause some small memory loss though)
 	missing_pak_names.clear();

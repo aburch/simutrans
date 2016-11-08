@@ -254,12 +254,6 @@ private:
 	 */
 	tool_t *selected_tool[MAX_PLAYER_COUNT];
 
-	// Whether the map is currently being destroyed. 
-	// Useful to prevent access violations if objects with
-	// references to other objects that are destroyed first
-	// reference members of those objects in their destructors.
-	bool is_shutting_down; 
-
 	/**
 	 * Redraw whole map.
 	 */
@@ -895,9 +889,18 @@ private:
 
 	sint32 calc_adjusted_step_interval(const uint32 weight, uint32 trips_per_month_hundredths) const;
 
-	void generate_passengers_or_mail(const ware_besch_t * wtyp);
+	uint32 generate_passengers_or_mail(const ware_besch_t * wtyp);
 
 	destination find_destination(trip_type trip);
+
+#ifdef MULTI_THREAD
+	friend void *check_road_connexions_threaded(void* args);
+	friend void *step_passengers_and_mail_threaded(void* args);
+	friend void *step_convois_threaded(void* args);
+	friend void *step_individual_convoi_threaded(void* args);
+	static sint32 cities_to_process;
+	static vector_tpl<convoihandle_t> convois_next_step;
+#endif
 
 public:
 
@@ -1468,6 +1471,13 @@ private:
 		walking_numerator = unit_movement_numerator / get_settings().get_walking_speed();
 	}
 
+	/** Get the number of parallel operations
+	* currently set. This should be set by the server
+	* in network games, and based on the thread count
+	* in single player games.
+	*/
+	sint32 get_parallel_operations() const;
+
 public:
 
 	/**
@@ -1613,6 +1623,23 @@ public:
 	 * Initializes the height_to_climate field from settings.
 	 */
 	void init_height_to_climate();
+
+	/**
+	* Update the status of time interval signals
+	*/
+	void step_time_interval_signals();
+
+#ifdef MULTI_THREAD
+	/**
+	* Initialise threads
+	*/
+	void init_threads();
+
+	/**
+	* De-initialise threads
+	*/
+	void destroy_threads();
+#endif
 
 	/**
 	 * Returns the climate for a given height, ruled by world creation settings.

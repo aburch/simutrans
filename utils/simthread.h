@@ -18,6 +18,11 @@
 #define _TIMESPEC_DEFINED
 #endif
 
+#if defined _MSC_VER && _MSC_VER < 1900
+#include <xkeycheck.h>
+#define thread_local __declspec( thread )
+#endif
+
 #include <pthread.h>
 
 // Mac OS X defines this initializers without _NP.

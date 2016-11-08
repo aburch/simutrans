@@ -3982,7 +3982,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 	sint32 next_block = (sint32)cnv->get_next_stop_index() - 1;
 	last_index = route.get_count() - 1;
 	
-	if(next_block > last_index && !exiting_one_train_staff) // last_index is a waypoint and we need to keep routing.
+	if(next_block > last_index && !exiting_one_train_staff && !(working_method == one_train_staff && next_block >= INVALID_INDEX)) // last_index is a waypoint and we need to keep routing.
 	{
 		const sint32 route_steps = route_infos.get_element(last_index).steps_from_start - (route_index < route_infos.get_count() ? route_infos.get_element(route_index).steps_from_start : 0);
 		bool weg_frei = route_steps >= brake_steps || brake_steps <= 0 || route_steps == 0; // If brake_steps <= 0 and weg_frei == false, weird excess block reservations can occur that cause blockages.
@@ -4164,7 +4164,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		if(sch1->has_signal()) 
 		{
 			const uint16 check_route_index = next_block <= 0 ? 0 : next_block - 1u;
-			ribi_t::ribi ribi = ribi_typ(cnv->get_route()->position_bei(max(1u, check_route_index) - 1u), cnv->get_route()->position_bei(min(max_element, check_route_index + 1u)));
+			ribi_t::ribi ribi = ribi_typ(cnv->get_route()->position_bei(max(1u, (min(max_element, check_route_index))) - 1u), cnv->get_route()->position_bei(min(max_element, check_route_index + 1u)));
 			signal_t* signal = sch1->get_signal(ribi); 
 	
 			if(signal)
@@ -6059,7 +6059,7 @@ bool water_vehicle_t::check_next_tile(const grund_t *bd) const
 		}
 	}
 #endif
-	const uint8 convoy_vehicle_count = cnv->get_vehikel_anzahl();
+	const uint8 convoy_vehicle_count = cnv ? cnv->get_vehikel_anzahl() : 1;
 	bool can_clear_way_constraints = true;
 	if(convoy_vehicle_count < 2)
 	{
@@ -6153,7 +6153,7 @@ bool water_vehicle_t::check_tile_occupancy(const grund_t* gr)
 		int relevant_water_vehicles_on_tile = 0;		
 		if(max_water_vehicles_on_tile < base_max_vehicles_on_tile && water_vehicles_on_tile < base_max_vehicles_on_tile)
 		{
-			for(size_t n = gr->get_top(); n-- != 0;)
+			for(sint32 n = gr->get_top(); n-- != 0;)
 			{
 				const obj_t *obj = gr->obj_bei(n);
 				if(obj && obj->get_typ() == obj_t::water_vehicle)

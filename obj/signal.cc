@@ -7,6 +7,7 @@
 
 #include <stdio.h>
 
+#include "../gui/simwin.h"
 #include "../simdebug.h"
 #include "../simworld.h"
 #include "../simobj.h"
@@ -22,6 +23,8 @@
 #include "../simsignalbox.h"
 #include "../besch/haus_besch.h"
 #include "../simhalt.h"
+
+#include "../gui/signal_info.h"
 
 #include "signal.h"
 
@@ -108,21 +111,26 @@ signal_t::~signal_t()
 	}
 }
 
+void signal_t::show_info()
+{
+	create_win(new signal_info_t(this), w_info, (ptrdiff_t)this);
+}
+
 
 /**
- * @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
- * Beobachtungsfenster angezeigt wird.
- * "return a description string for the object , such as the in a
- * Observation window is displayed." (Google)
- * @author Hj. Malthaner
- */
+* @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
+* Beobachtungsfenster angezeigt wird.
+* "return a description string for the object , such as the in a
+* Observation window is displayed." (Google)
+* @author Hj. Malthaner
+*/
+
 void signal_t::info(cbuffer_t & buf, bool dummy) const
 {
 	// well, needs to be done
 	obj_t::info(buf);
 	signal_t* sig = (signal_t*)this;
-
-//	buf.printf("%s\n%s%u", translator::translate(besch->get_name()), translator::translate("\ndirection:"), get_dir());
+	
 	buf.append(translator::translate(besch->get_name()));
 	buf.append("\n\n");
 
@@ -294,9 +302,6 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 		buf.append(translator::translate(get_signal_aspects_name(get_state())));
 		buf.append("\n\n");
 	}
-
-	// Wether this signal will create a directional reservation.
-
 	if (((besch->is_longblock_signal() || get_dir() == 3 || get_dir() == 6 || get_dir() == 9 || get_dir() == 12 || get_dir() == 5 || get_dir() == 10 ) && (besch->get_working_method() == time_interval_with_telegraph || besch->get_working_method() == track_circuit_block || besch->get_working_method() == cab_signalling || besch->get_working_method() == moving_block)) && (besch->is_pre_signal()) == false )
 		{
 		buf.append(translator::translate("This signal creates directional reservations"));
@@ -344,10 +349,8 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 		buf.append(time_since_train_last_passed);
 		buf.append("\n");
 	}
-
 	buf.append("\n");
 	
-
 	buf.append(translator::translate("Controlled from"));
 	buf.append(":\n");
 	koord3d sb = sig->get_signalbox();
@@ -363,6 +366,7 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 			const gebaeude_t* gb = gr->get_building();
 			if(gb)
 			{
+				buf.append("   ");
 				buf.append(translator::translate(gb->get_name()));
 				buf.append(" <");
 				buf.append(sb.x);
