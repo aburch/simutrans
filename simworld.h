@@ -43,6 +43,10 @@
 #define sprintf_s snprintf
 #endif 
 
+#ifdef MULTI_THREAD
+#include "utils/simthread.h"
+#endif
+
 struct sound_info;
 class stadt_t;
 class fabrik_t;
@@ -268,6 +272,13 @@ private:
 	 * True during destroying of the map.
 	 */
 	bool destroying;
+
+#ifdef MULTI_THREAD
+	/**
+	* True when threads are to be terminated.
+	*/
+	bool terminating_threads;
+#endif
 
 	/**
 	 * The rotation of the map when first loaded.
@@ -865,7 +876,24 @@ private:
 	// to change to a less restrictive aspect.
 	vector_tpl<signal_t*> time_interval_signals_to_check;
 
+	// The number of operations to run in parallel. 
+	// This is important for multi-threading 
+	// synchronisation over the network.
+	// -1: this is not in network mode: use the number of threads
+	// 0: this is the network server: broadcast the number of threads
+	// >0: This is the number of parallel operations to use.
+	sint32 parallel_operations;
+
+#ifdef MULTI_THREAD
+	// Check whether this is the first time that karte_t::step() has been run
+	// in order to know when to launch the background threads. 
+	sint32 first_step;
 public:
+	static simthread_barrier_t step_convois_barrier_external;
+	static simthread_barrier_t unreserve_route_barrier;
+#else
+public:
+#endif
 
 	enum building_type { passenger_origin, commuter_target, visitor_target, mail_origin_or_target, none };
 	enum trip_type { commuting_trip, visiting_trip, mail_trip };
@@ -895,6 +923,7 @@ private:
 
 #ifdef MULTI_THREAD
 	friend void *check_road_connexions_threaded(void* args);
+	friend void *unreserve_route_threaded(void* args);
 	friend void *step_passengers_and_mail_threaded(void* args);
 	friend void *step_convois_threaded(void* args);
 	friend void *step_individual_convoi_threaded(void* args);
@@ -1039,6 +1068,13 @@ public:
 	 * @returns true if world gets destroyed
 	 */
 	bool is_destroying() const { return destroying; }
+
+#ifdef MULTI_THREAD
+	/**
+	* @returns true if threads are being terminated
+	*/
+	bool is_terminating_threads() const { return terminating_threads;  }
+#endif
 
 	/**
 	 * Gets the world view.
@@ -1639,6 +1675,8 @@ public:
 	* De-initialise threads
 	*/
 	void destroy_threads();
+
+	void clean_threads(vector_tpl<pthread_t>* thread); 
 #endif
 
 	/**

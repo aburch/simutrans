@@ -802,14 +802,17 @@ server_frames_ahead = 4
 #
 # The sum of server_frames_ahead and additional_client_frames_behind should be
 # evenly divisble by server_frames_between_checks for best network performance.
-#additional_client_frames_behind = 0
+additional_client_frames_behind = 0
 
 # In network mode, there will be a fixed number of screen updates before a step.
 # Reasonable values should result in 2-5 steps per second.
 #
-# The sum of server_frames_ahead and additional_client_frames_behind should be
-# evenly divisble by server_frames_between_checks for best network performance.
-server_frames_per_step = 4
+# This is the number of sync steps for every step. Sync steps handle user interaction
+# and things that update regularly: steps handle things that take much computational
+# effort, such as routing. Each step takes much more time than each sync step. 
+# This setting is only active in network mode: the timing is automated in single
+# player mode.
+server_frames_per_step = 8
 
 # The server sends after a fixed number of steps some information to the clients.
 # Large values here means: reduced server communication (if that is of importance...)

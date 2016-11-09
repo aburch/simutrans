@@ -80,8 +80,6 @@ struct route_range_specification
 {
 	uint32 start;
 	uint32 end;
-	uint16 self_entry;
-	waytype_t wt;
 };
 #endif
 
@@ -134,7 +132,7 @@ public:
 	enum states {INITIAL,
 		FAHRPLANEINGABE, // "Schedule enter" (Google)
 		ROUTING_1,
-		DUMMY4,
+		ROUTING_2,
 		DUMMY5,
 		NO_ROUTE,
 		DRIVING,
@@ -838,7 +836,10 @@ public:
 
 #ifdef MULTI_THREAD
 private:
-	friend void *unreserve_route_range(void* args);
+	static void unreserve_route_range(route_range_specification range);
+	friend void *unreserve_route_threaded(void* args);
+	static waytype_t current_waytype;
+	static uint16 current_unreserver;
 public:
 #endif
 
@@ -894,6 +895,9 @@ public:
 	* @author hsiegeln
 	*/
 	int get_state() const { return state; }
+
+	// In any of these states, user interaction should not be possible. 
+	bool is_locked() const { return state == convoi_t::FAHRPLANEINGABE || state == convoi_t::ROUTING_2 || state == convoi_t::ROUTE_JUST_FOUND; }
 
 	/**
 	* true if in waiting state (maybe also due to starting)

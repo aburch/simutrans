@@ -2542,7 +2542,8 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_gobal) const
 				break;
 
 			case convoi_t::FAHRPLANEINGABE:
-//			case convoi_t::ROUTING_1:
+			case convoi_t::ROUTING_2:
+			case convoi_t::ROUTE_JUST_FOUND:
 				if(  state>=2  ) {
 					tstrncpy( tooltip_text, translator::translate("Schedule changing!"), lengthof(tooltip_text) );
 					color = COL_LIGHT_YELLOW;
