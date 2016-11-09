@@ -329,60 +329,184 @@ name=danger
 note=The name of a signal state
 -
 obj=program_text
-name=clear
-note=The name of a signal state
+name=clear2
+note=Two aspect signal showing clear
 -
 obj=program_text
-name=caution
-note=The name of a signal state
+name=clear3
+note=Three aspect signal showing clear
 -
 obj=program_text
-name=preliminary_caution
-note=The name of a signal state
+name=clear4
+note=Four aspect signal showing clear
 -
 obj=program_text
-name=advanced_caution
-note=The name of a signal state
+name=clear5
+note=Five aspect signal showing clear
+-
+obj=program_text
+name=clear2_alternate
+note=Choose signal showing clear
+-
+obj=program_text
+name=clear3_alternate
+note=Choose signal showing clear
+-
+obj=program_text
+name=clear4_alternate
+note=Choose signal showing clear
+-
+obj=program_text
+name=clear5_alternate
+note=Choose signal showing clear
+-
+obj=program_text
+name=clear2_main
+note=Choose signal showing clear
+-
+obj=program_text
+name=clear3_main
+note=Choose signal showing clear
+-
+obj=program_text
+name=clear4_main
+note=Choose signal showing clear
+-
+obj=program_text
+name=clear5_main
+note=Choose signal showing clear
+-
+obj=program_text
+name=cleartime_alternate
+note=Time interval signal showing clear
+-
+obj=program_text
+name=cleartime_main
+note=Time interval choose signal showing clear
+-
+obj=program_text
+name=cleartime
+note=Time interval choose signal showing clear
+-
+obj=program_text
+name=clearpre
+note=Presignal showing clear
+-
+obj=program_text
+name=caution2
+note=Two aspect signal showing caution (used in some occasions)
+-
+obj=program_text
+name=caution3
+note=Three aspect signal showing caution
+-
+obj=program_text
+name=caution4
+note=Four aspect signal showing caution
+-
+obj=program_text
+name=caution5
+note=Five aspect signal showing caution
+-
+obj=program_text
+name=caution2_alternate
+note=Two aspect choose signal showing caution (used in some occasions)
+-
+obj=program_text
+name=caution3_alternate
+note=Three aspect choose signal showing caution 
+-
+obj=program_text
+name=caution4_alternate
+note=Four aspect choose signal showing caution 
+-
+obj=program_text
+name=caution5_alternate
+note=Five aspect choose signal showing caution 
+-
+obj=program_text
+name=caution2_main
+note=Two aspect choose signal showing caution (used in some occasions)
+-
+obj=program_text
+name=caution3_main
+note=Three aspect choose signal showing caution 
+-
+obj=program_text
+name=caution4_main
+note=Four aspect choose signal showing caution 
+-
+obj=program_text
+name=caution5_main
+note=Five aspect choose signal showing caution 
+-
+obj=program_text
+name=cautiontime
+note=Time interval signal showing caution 
+-
+obj=program_text
+name=cautiontime_alternate
+note=Time interval choose signal showing caution 
+-
+obj=program_text
+name=cautiontime_main
+note=Time interval choose signal showing caution 
+-
+obj=program_text
+name=cautionpre
+note=Presignal showing caution
+-
+obj=program_text
+name=preliminary_caution4
+note=Four aspect signal showing preliminary caution
+-
+obj=program_text
+name=preliminary_caution5
+note=Five aspect signal showing preliminary caution
+-
+obj=program_text
+name=preliminary_caution4_alternate
+note=Four aspect choose signal showing preliminary caution
+-
+obj=program_text
+name=preliminary_caution5_alternate
+note=Five aspect choose signal showing preliminary caution
+-
+obj=program_text
+name=preliminary_caution4_main
+note=Four aspect choose signal showing preliminary caution
+-
+obj=program_text
+name=preliminary_caution5_main
+note=Five aspect choose signal showing preliminary caution
+-
+obj=program_text
+name=advanced_caution5
+note=Five aspect signal showing advanced caution
+-
+obj=program_text
+name=advanced_caution5_alternate
+note=Five aspect choose signal showing advanced caution
+-
+obj=program_text
+name=advanced_caution5_main
+note=Five aspect choose signal showing advanced caution
 -
 obj=program_text
 name=call_on
-note=The name of a signal state
+note=A signal showing a call on aspect
 -
 obj=program_text
-name=danger_choose
-note=The name of a signal state
+name=call_ontime
+note=A time interval signal showing a call on aspect
 -
 obj=program_text
-name=clear_main
-note=The name of a signal state
+name=call_on_choose
+note=A choose signal showing a call on aspect
 -
 obj=program_text
-name=caution_main
-note=The name of a signal state
--
-obj=program_text
-name=preliminary_caution_main
-note=The name of a signal state
--
-obj=program_text
-name=advanced_caution_main
-note=The name of a signal state
--
-obj=program_text
-name=clear_alternate
-note=The name of a signal state
--
-obj=program_text
-name=caution_alternate
-note=The name of a signal state
--
-obj=program_text
-name=preliminary_caution_alternate
-note=The name of a signal state
--
-obj=program_text
-name=advanced_caution_alternate
-note=The name of a signal state
+name=call_ontime_choose
+note=A time interval choose signal showing a call on aspect
 -
 obj=program_text
 name=This signal creates directional reservations

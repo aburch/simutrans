@@ -223,27 +223,27 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 						{
 						case 1:
 							if (get_state() == clear_no_choose || caution_no_choose)
-								buf.printf("%s (%s)", translator::translate(get_station_signal_aspects_name(get_state())), translator::translate("sued"));
+								buf.printf("%s (%s)", translator::translate(get_3_signal_aspects_name(get_state())), translator::translate("sued"));
 							else
-								buf.printf("%s (%s)", translator::translate(get_station_signal_aspects_name(get_state())), translator::translate("nord"));
+								buf.printf("%s (%s)", translator::translate(get_3_signal_aspects_name(get_state())), translator::translate("nord"));
 							break;
 						case 2:
 							if (get_state() == clear_no_choose || caution_no_choose)
-								buf.printf("%s (%s)", translator::translate(get_station_signal_aspects_name(get_state())), translator::translate("west"));
+								buf.printf("%s (%s)", translator::translate(get_3_signal_aspects_name(get_state())), translator::translate("west"));
 							else
-								buf.printf("%s (%s)", translator::translate(get_station_signal_aspects_name(get_state())), translator::translate("ost"));
+								buf.printf("%s (%s)", translator::translate(get_3_signal_aspects_name(get_state())), translator::translate("ost"));
 							break;
 						case 4:
 							if (get_state() == clear_no_choose || caution_no_choose)
-								buf.printf("%s (%s)", translator::translate(get_station_signal_aspects_name(get_state())), translator::translate("nord"));
+								buf.printf("%s (%s)", translator::translate(get_3_signal_aspects_name(get_state())), translator::translate("nord"));
 							else
-								buf.printf("%s (%s)", translator::translate(get_station_signal_aspects_name(get_state())), translator::translate("sued"));
+								buf.printf("%s (%s)", translator::translate(get_3_signal_aspects_name(get_state())), translator::translate("sued"));
 							break;
 						case 8:
 							if (get_state() == clear_no_choose || caution_no_choose)
-								buf.printf("%s (%s)", translator::translate(get_station_signal_aspects_name(get_state())), translator::translate("ost"));
+								buf.printf("%s (%s)", translator::translate(get_3_signal_aspects_name(get_state())), translator::translate("ost"));
 							else
-								buf.printf("%s (%s)", translator::translate(get_station_signal_aspects_name(get_state())), translator::translate("west"));
+								buf.printf("%s (%s)", translator::translate(get_3_signal_aspects_name(get_state())), translator::translate("west"));
 							break;
 						}
 					}
@@ -326,7 +326,6 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 							break;
 						};
 			}
-			buf.append("\n\n");
 		}
 		else
 			buf.append(translator::translate("danger"));

@@ -239,15 +239,21 @@ public:
 			return "unknown";
 		};
 	}
-	// Two aspect signals:
+	// Two aspect signals. This also holds the station signals:
 	static const char* get_2_signal_aspects_name(signal_aspects wm)
 	{
 		switch (wm)
 		{
 		case 1:
 			return "clear2";
+		case 2:
+			return "caution2";
+		case 5:
+			return "clear2";
+		case 6:
+			return "caution2";
 		case 9:
-			return "call_on2";
+			return "call_on";
 		default:
 			return "unknown";
 		};
@@ -261,12 +267,8 @@ public:
 			return "clear3";
 		case 2:
 			return "caution3";
-		case 5:
-			return "clear3";
-		case 6:
-			return "caution3";
 		case 9:
-			return "call_on3";
+			return "call_on";
 		default:
 			return "unknown";
 		};
@@ -283,7 +285,7 @@ public:
 		case 3:
 			return "preliminary_caution4";
 		case 9:
-			return "call_on4";
+			return "call_on";
 		default:
 			return "unknown";
 		};
@@ -300,7 +302,7 @@ public:
 		case 3:
 			return "preliminary_caution5";
 		case 9:
-			return "call_on5";
+			return "call_on";
 		default:
 			return "unknown";
 		};
@@ -316,7 +318,7 @@ public:
 		case 5:
 			return "clear2_main";
 		case 9:
-			return "call_on2_choose";
+			return "call_on_choose";
 		default:
 			return "unknown";
 		};
@@ -335,7 +337,7 @@ public:
 		case 6:
 			return "caution3_main";
 		case 9:
-			return "call_on3_choose";
+			return "call_on_choose";
 		default:
 			return "unknown";
 		};
@@ -358,7 +360,7 @@ public:
 		case 7:
 			return "preliminary_caution4_main";
 		case 9:
-			return "call_on4_choose";
+			return "call_on_choose";
 		default:
 			return "unknown";
 		};
@@ -385,7 +387,7 @@ public:
 		case 8:
 			return "advanced_caution5_main";
 		case 9:
-			return "call_on5_choose";
+			return "call_on_choose";
 		default:
 			return "unknown";
 		};
@@ -397,15 +399,15 @@ public:
 		switch (wm)
 		{
 		case 1:
-			return "cleartime3";
+			return "cleartime";
 		case 2:
-			return "cautiontime3";
+			return "cautiontime";
 		case 5:
-			return "cleartime3";
+			return "cleartime";
 		case 6:
-			return "cautiontime3";
+			return "cautiontime";
 		case 9:
-			return "call_ontime3";
+			return "call_ontime";
 		default:
 			return "unknown";
 		};
@@ -416,32 +418,15 @@ public:
 		switch (wm)
 		{
 		case 1:
-			return "cleartime3_alternate";
+			return "cleartime_alternate";
 		case 2:
-			return "cautiontime3_alternate";
+			return "cautiontime_alternate";
 		case 5:
-			return "cleartime3_main";
+			return "cleartime_main";
 		case 6:
-			return "cautiontime3_main";
+			return "cautiontime_main";
 		case 9:
-			return "call_ontime3_choose";
-		default:
-			return "unknown";
-		};
-	}
-	// Station signal (non time interval, station signals using time interval uses the same list as normal time interval):
-	static const char* get_station_signal_aspects_name(signal_aspects wm)
-	{
-		switch (wm)
-		{
-		case 1:
-			return "clear2";
-		case 2:
-			return "caution2";
-		case 5:
-			return "clear2";
-		case 6:
-			return "caution2";
+			return "call_ontime_choose";
 		default:
 			return "unknown";
 		};
