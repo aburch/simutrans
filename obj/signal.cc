@@ -195,115 +195,146 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 	buf.append("\n");
 
 	// Show the signal state in the info window // Ves
-	if (besch->is_longblock_signal() && (besch->get_working_method() == time_interval || besch->get_working_method() == time_interval_with_telegraph || besch->get_working_method() == absolute_block))
-	{
-		buf.append(translator::translate("current_state"));
-		buf.append(": ");
-		if (get_state() != danger)
-			{
-				if (get_dir() == 1)
-				{
-					if (get_state() == clear_no_choose)
-					{
-						buf.printf("%s (%s)", translator::translate("clear"), translator::translate("sued"));
-					}
-					if (get_state() == caution_no_choose)
-					{
-						buf.printf("%s (%s)", translator::translate("caution"), translator::translate("sued"));
-					}
-					if (get_state() == clear)
-					{
-						buf.printf("%s (%s)", translator::translate("clear"), translator::translate("nord"));
-					}
-					if (get_state() == caution)
-					{
-						buf.printf("%s (%s)", translator::translate("caution"), translator::translate("nord"));
-					}
-				}
-				if (get_dir() == 2)
-				{
-					if (get_state() == clear_no_choose)
-					{
-						buf.printf("%s (%s)", translator::translate("clear"), translator::translate("west"));
-					}
-					if (get_state() == caution_no_choose)
-					{
-						buf.printf("%s (%s)", translator::translate("caution"), translator::translate("west"));
-					}
-					if (get_state() == clear)
-					{
-						buf.printf("%s (%s)", translator::translate("clear"), translator::translate("ost"));
-					}
-					if (get_state() == caution)
-					{
-						buf.printf("%s (%s)", translator::translate("caution"), translator::translate("ost"));
-					}
-				}				
-				if (get_dir() == 4)
-				{
-					if (get_state() == clear_no_choose)
-					{
-						buf.printf("%s (%s)", translator::translate("clear"), translator::translate("nord"));
-					}
-					if (get_state() == caution_no_choose)
-					{
-						buf.printf("%s (%s)", translator::translate("caution"), translator::translate("nord"));
-					}
-					if (get_state() == clear)
-					{
-						buf.printf("%s (%s)", translator::translate("clear"), translator::translate("sued"));
-					}
-					if (get_state() == caution)
-					{
-						buf.printf("%s (%s)", translator::translate("caution"), translator::translate("sued"));
-					}
-				}				
-				if (get_dir() == 8)
-				{
-					if (get_state() == clear_no_choose)
-					{
-						buf.printf("%s (%s)", translator::translate("clear"), translator::translate("ost"));
-					}
-					if (get_state() == caution_no_choose)
-					{
-						buf.printf("%s (%s)", translator::translate("caution"), translator::translate("ost"));
-					}
-					if (get_state() == clear)
-					{
-						buf.printf("%s (%s)", translator::translate("clear"), translator::translate("west"));
-					}
-					if (get_state() == caution)
-					{
-						buf.printf("%s (%s)", translator::translate("caution"), translator::translate("west"));
-					}
-				}
-				buf.append(translator::translate("\n\n"));
-			}	
-		else
-		{
-			buf.append(translator::translate("danger"));
-			buf.append(translator::translate("\n\n"));
-		}
-	}
-	else if (besch->is_choose_sign())
-	{
-		buf.append(translator::translate("current_state"));
-		buf.append(": ");
-		buf.append(translator::translate(get_choose_signal_aspects_name(get_state())));
-		buf.append("\n\n");
-	}
-	else if (besch->get_working_method() == drive_by_sight || besch->get_aspects() <= 1)
+	// Does this signal have any aspects to show?
+	if (besch->get_working_method() == drive_by_sight || besch->get_aspects() <= 1)
 	{
 	}
 	else
 	{
+		// yay!
 		buf.append(translator::translate("current_state"));
 		buf.append(": ");
-		buf.append(translator::translate(get_signal_aspects_name(get_state())));
-		buf.append("\n\n");
-	}
-	if (((besch->is_longblock_signal() || get_dir() == 3 || get_dir() == 6 || get_dir() == 9 || get_dir() == 12 || get_dir() == 5 || get_dir() == 10 ) && (besch->get_working_method() == time_interval_with_telegraph || besch->get_working_method() == track_circuit_block || besch->get_working_method() == cab_signalling || besch->get_working_method() == moving_block)) && (besch->is_pre_signal()) == false )
+		if (get_state() != danger)
 		{
+			// Is this signal a presignal?
+			if (besch->is_pre_signal())
+			{
+				buf.append(translator::translate(get_pre_signal_aspects_name(get_state())));
+			}
+			else
+			{
+				// Is this a "station signal"?
+				if (besch->is_longblock_signal() && (besch->get_working_method() == time_interval || besch->get_working_method() == time_interval_with_telegraph || besch->get_working_method() == absolute_block))
+				{
+					// Is the station signal using a 'normal' working method?
+					if (besch->get_working_method() != time_interval && besch->get_working_method() != time_interval_with_telegraph)
+					{
+						switch (get_dir())
+						{
+						case 1:
+							if (get_state() == clear_no_choose || caution_no_choose)
+								buf.printf("%s (%s)", translator::translate(get_station_signal_aspects_name(get_state())), translator::translate("sued"));
+							else
+								buf.printf("%s (%s)", translator::translate(get_station_signal_aspects_name(get_state())), translator::translate("nord"));
+							break;
+						case 2:
+							if (get_state() == clear_no_choose || caution_no_choose)
+								buf.printf("%s (%s)", translator::translate(get_station_signal_aspects_name(get_state())), translator::translate("west"));
+							else
+								buf.printf("%s (%s)", translator::translate(get_station_signal_aspects_name(get_state())), translator::translate("ost"));
+							break;
+						case 4:
+							if (get_state() == clear_no_choose || caution_no_choose)
+								buf.printf("%s (%s)", translator::translate(get_station_signal_aspects_name(get_state())), translator::translate("nord"));
+							else
+								buf.printf("%s (%s)", translator::translate(get_station_signal_aspects_name(get_state())), translator::translate("sued"));
+							break;
+						case 8:
+							if (get_state() == clear_no_choose || caution_no_choose)
+								buf.printf("%s (%s)", translator::translate(get_station_signal_aspects_name(get_state())), translator::translate("ost"));
+							else
+								buf.printf("%s (%s)", translator::translate(get_station_signal_aspects_name(get_state())), translator::translate("west"));
+							break;
+						}
+					}
+					// Nope, it is indeed using one of the time interval working methods!
+					else
+					{
+						switch (get_dir())
+						{
+						case 1:
+							if (get_state() == clear_no_choose || caution_no_choose)
+								buf.printf("%s (%s)", translator::translate(get_time_signal_aspects_name(get_state())), translator::translate("sued"));
+							else
+								buf.printf("%s (%s)", translator::translate(get_time_signal_aspects_name(get_state())), translator::translate("nord"));
+							break;
+						case 2:
+							if (get_state() == clear_no_choose || caution_no_choose)
+								buf.printf("%s (%s)", translator::translate(get_time_signal_aspects_name(get_state())), translator::translate("west"));
+							else
+								buf.printf("%s (%s)", translator::translate(get_time_signal_aspects_name(get_state())), translator::translate("ost"));
+							break;
+						case 4:
+							if (get_state() == clear_no_choose || caution_no_choose)
+								buf.printf("%s (%s)", translator::translate(get_time_signal_aspects_name(get_state())), translator::translate("nord"));
+							else
+								buf.printf("%s (%s)", translator::translate(get_time_signal_aspects_name(get_state())), translator::translate("sued"));
+							break;
+						case 8:
+							if (get_state() == clear_no_choose || caution_no_choose)
+								buf.printf("%s (%s)", translator::translate(get_time_signal_aspects_name(get_state())), translator::translate("ost"));
+							else
+								buf.printf("%s (%s)", translator::translate(get_time_signal_aspects_name(get_state())), translator::translate("west"));
+							break;
+						}
+					}
+				}
+				// is it a choose signal?
+				else if (besch->is_choose_sign())
+				{
+					if (besch->get_working_method() == time_interval || (besch->get_working_method() == time_interval_with_telegraph))
+					{
+						buf.append(translator::translate(get_time_choose_signal_aspects_name(get_state())));
+					}
+					else
+						switch (besch->get_aspects())
+						{
+						case 2:
+							buf.append(translator::translate(get_2_choose_signal_aspects_name(get_state())));
+							break;
+						case 3:
+							buf.append(translator::translate(get_3_choose_signal_aspects_name(get_state())));
+							break;
+						case 4:
+							buf.append(translator::translate(get_4_choose_signal_aspects_name(get_state())));
+							break;
+						case 5:
+							buf.append(translator::translate(get_5_choose_signal_aspects_name(get_state())));
+							break;
+						};
+				}
+				else
+					// Time interval or time interval with telegraph?
+					if (besch->get_working_method() == time_interval || (besch->get_working_method() == time_interval_with_telegraph))
+					{
+						buf.append(translator::translate(get_time_signal_aspects_name(get_state())));
+					}
+					else // just a normal lousy signal then..
+						switch (besch->get_aspects())
+						{
+						case 2:
+							buf.append(translator::translate(get_2_signal_aspects_name(get_state())));
+							break;
+						case 3:
+							buf.append(translator::translate(get_3_signal_aspects_name(get_state())));
+							break;
+						case 4:
+							buf.append(translator::translate(get_4_signal_aspects_name(get_state())));
+							break;
+						case 5:
+							buf.append(translator::translate(get_5_signal_aspects_name(get_state())));
+							break;
+						};
+			}
+			buf.append("\n\n");
+		}
+		else
+			buf.append(translator::translate("danger"));
+		buf.append(translator::translate("\n\n"));
+	}
+
+	if (((besch->is_longblock_signal() || get_dir() == 3 || get_dir() == 6 || get_dir() == 9 || get_dir() == 12 || get_dir() == 5 || get_dir() == 10) && (besch->get_working_method() == time_interval_with_telegraph || besch->get_working_method() == track_circuit_block || besch->get_working_method() == cab_signalling || besch->get_working_method() == moving_block)) && (besch->is_pre_signal()) == false)
+	{
 		buf.append(translator::translate("This signal creates directional reservations"));
 		buf.append(translator::translate("\n\n"));
 	}
