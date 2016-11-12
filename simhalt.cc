@@ -2233,9 +2233,18 @@ bool haltestelle_t::hole_ab( slist_tpl<ware_t> &fracht, const ware_besch_t *wtyp
 						
 						bool wait_for_faster_convoy = true;
 						
-						const sint64 waiting_time_for_faster_convoy = fast_here_departure_time - welt->get_zeit_ms();
+						sint64 waiting_time_for_faster_convoy = fast_here_departure_time - welt->get_zeit_ms();
 						if(!fast_is_here)
 						{
+							if (waiting_time_for_faster_convoy == 0)
+							{
+								// We know that this must be wrong, since it is not here.
+								// Also, this will cause a division by zero crash if this proceeds.
+
+								// We infer that this must be late, so estimate its arrival time.
+								waiting_time_for_faster_convoy = difference_in_arrival_times * 3;
+							}
+
 							if(waiting_time_for_faster_convoy >= difference_in_arrival_times)
 							{
 								// Sanity check - cannot be better to wait.
