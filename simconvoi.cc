@@ -357,9 +357,15 @@ void convoi_t::unreserve_route()
 {
 	// Clears all reserved tiles on the whole map belonging to this convoy.
 #ifdef MULTI_THREAD
-	simthread_barrier_wait(&karte_t::unreserve_route_barrier);
 	current_unreserver = self.get_id();
 	current_waytype = front()->get_waytype();
+
+	simthread_barrier_wait(&karte_t::unreserve_route_barrier);
+	simthread_barrier_wait(&karte_t::unreserve_route_barrier);
+
+	current_unreserver = 0;
+	current_waytype = invalid_wt;
+	
 #else
 	FOR(vector_tpl<weg_t*>, const way, weg_t::get_alle_wege())
 	{
@@ -376,11 +382,6 @@ void convoi_t::unreserve_route()
 #endif
 
 	set_needs_full_route_flush(false);
-
-#ifdef MULTI_THREAD
-	simthread_barrier_wait(&karte_t::unreserve_route_barrier);
-	current_unreserver = 0;
-#endif
 }
 
 void convoi_t::reserve_own_tiles()
@@ -452,6 +453,7 @@ uint32 convoi_t::move_to(uint16 const start_index)
 
 void convoi_t::finish_rd()
 {
+	world()->stop_path_explorer();
 	if(fpl==NULL) {
 		if(  state!=INITIAL  ) {
 			emergency_go_to_depot();
@@ -1411,6 +1413,7 @@ bool convoi_t::drive_to()
 			{
 #ifdef MULTI_THREAD
 				pthread_mutex_lock(&step_convois_mutex);
+				world()->stop_path_explorer();
 #endif
 				simlinemgmt_t::update_line(line);
 #ifdef MULTI_THREAD

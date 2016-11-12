@@ -176,10 +176,12 @@ void weg_t::set_besch(const weg_besch_t *b, bool from_saved_game)
 	const tunnel_t *tunnel = gr ? gr->find<tunnel_t>() : NULL;
 	const hang_t::typ hang = gr ? gr->get_weg_hang() : hang_t::flach;
 
-#ifdef MULTI_THREAD
+#if 0
 	const bool is_destroying = welt->is_destroying();
 	if (env_t::networkmode && !is_destroying)
 	{
+		// FIXME: This may give indeterminate results: consider reworking this to
+		// work more like the path explorer's system. 
 		// In network mode, we cannot have set_besch running concurrently with
 		// convoy path-finding because  whether the convoy path-finder is called
 		// on this tile of way before or after this function is indeterminate.

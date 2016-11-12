@@ -1332,7 +1332,7 @@ DBG_MESSAGE("simmain","demo file not found at %s",buf.get_str() );
 		if(  !env_t::networkmode  &&  new_world  ) {
 			dbg->important( "Show banner ... " );
 			ticker::add_msg("Welcome to Simutrans-Experimental, a fork of Simutrans-Standard, extended and maintained by the Simutrans community.", koord::invalid, PLAYER_FLAG + 1);
-			modal_dialogue( new banner_t(), magic_none, welt, never_quit );
+				modal_dialogue( new banner_t(), magic_none, welt, never_quit );
 			// only show new world, if no other dialoge is active ...
 			new_world = win_get_open_count()==0;
 		}

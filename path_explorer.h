@@ -441,7 +441,10 @@ private:
 	static bool processing;
 
 public:
-
+#ifdef MULTI_THREAD
+	static thread_local bool allow_path_explorer_on_this_thread;
+	friend void *path_explorer_threaded(void* args);
+#endif
 	static void initialise(karte_t *welt);
 	static void finalise();
 	static void step();

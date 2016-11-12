@@ -556,7 +556,8 @@ haltestelle_t::haltestelle_t(koord k, player_t* player)
 	check_nearby_halts();
 
 	// Added by : Knightly
-	inauguration_time = dr_time();
+	//inauguration_time = dr_time();
+	inauguration_time = welt->get_zeit_ms(); // Possibly more network safe than the original (commented out above)
 
 	control_towers = 0;
 
@@ -1194,6 +1195,12 @@ void haltestelle_t::step()
 
 	COLOR_VAL old_status_color = status_color;
 
+	FOR(vector_tpl<uint8>, catg, categories_to_refresh_next_step)
+	{
+		reroute_goods(catg);
+	}
+	categories_to_refresh_next_step.clear();
+
 	recalc_status();
 
 	if(status_color == COL_RED || old_status_color != status_color)
@@ -1830,6 +1837,12 @@ void haltestelle_t::refresh_routing(const schedule_t *const sched, const minivec
 	if(sched && player)
 	{
 		const uint8 catg_count = categories.get_count();
+#ifdef MULTI_THREAD
+		if (!welt->is_destroying())
+		{
+			world()->stop_path_explorer();
+		}
+#endif
 
 		for (uint8 i = 0; i < catg_count; i++)
 		{
@@ -4451,6 +4464,9 @@ bool haltestelle_t::add_grund(grund_t *gr, bool relink_factories)
 	check_nearby_halts();
 	calc_transfer_time();
 
+#ifdef MULTI_THREAD
+	world()->stop_path_explorer();
+#endif
 	path_explorer_t::refresh_all_categories(false);
 
 	return true;
@@ -4485,6 +4501,9 @@ bool haltestelle_t::rem_grund(grund_t *gr)
 
 	// now remove tile from list
 	tiles.erase(i);
+#ifdef MULTI_THREAD
+	world()->stop_path_explorer();
+#endif
 	path_explorer_t::refresh_all_categories(false);
 	init_pos = tiles.empty() ? koord::invalid : tiles.front().grund->get_pos().get_2d();
 
@@ -4591,7 +4610,9 @@ bool haltestelle_t::rem_grund(grund_t *gr)
 
 	check_nearby_halts();
 	calc_transfer_time();
-
+#ifdef MULTI_THREAD
+	world()->stop_path_explorer();
+#endif
 	path_explorer_t::refresh_all_categories(false);
 
 	return true;
@@ -4848,6 +4869,9 @@ void haltestelle_t::check_nearby_halts()
 		}
 	}
 	// Must refresh here, but only passengers can walk, so only refresh passengers.
+#ifdef MULTI_THREAD
+	world()->stop_path_explorer();
+#endif
 	path_explorer_t::refresh_category(0);
 }
 

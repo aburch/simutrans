@@ -7046,7 +7046,9 @@ const char *tool_stop_moving_t::do_work( player_t *player, const koord3d &last_p
 		// since factory connections may have changed
 
 		// Modified by : Knightly
-
+#ifdef MULTI_THREAD
+		//world()->stop_path_explorer();
+#endif
 		path_explorer_t::refresh_all_categories(true);
 	}
 	return NULL;
@@ -9012,7 +9014,9 @@ bool tool_access_t::init(player_t *player)
 				// Note that this may destroy the convoy in extreme cases.
 			}
 		}		
-
+#ifdef MULTI_THREAD
+		world()->stop_path_explorer();
+#endif
 		path_explorer_t::refresh_all_categories(false);
 		cnv->clear_departures();
 	}

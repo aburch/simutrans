@@ -172,6 +172,13 @@ private:
 	 */
 	uint16 transshipment_time;
 
+	/* This is called by the path explorer
+	 * when this halt needs to re-route goods.
+	 * This cannot be done from within the 
+	 * path explorer when it is multi-threaded.
+	 */
+	vector_tpl<uint8> categories_to_refresh_next_step;
+
 public:
 	const slist_tpl<convoihandle_t> &get_loading_convois() const { return loading_here; }
 
@@ -982,6 +989,8 @@ public:
 	* in 1/10ths of minutes.
 	*/
 	inline uint16 get_transshipment_time() const { return transshipment_time; }
+
+	void set_reroute_goods_next_step(uint8 catg) { categories_to_refresh_next_step.append(catg); }
 
 	/**
 	* Calculate the transfer and transshipment time values.
