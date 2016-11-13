@@ -5068,7 +5068,7 @@ rands[12] = get_random_seed();
 #if MULTI_THREAD
 	simthread_barrier_wait(&step_convoys_barrier_external); 
 	// Finish the threaded part of the convoys' steps: this is mainly route searches. Block reservation, etc., is in the single threaded part. 
-	if (first_step == 1 /*&& !env_t::networkmode*/)
+	if (first_step == 1)
 	{
 		first_step = 2;
 	}
@@ -5129,7 +5129,7 @@ rands[31] = 0;
 rands[23] = 0;
 
 	// This is quite computationally intensive, but not as much as the path explorer. It can be more or less than the convoys, depending on the map.
-#if 0
+#if MULTI_THREAD
 	
 	if (env_t::networkmode)
 	{
@@ -5177,7 +5177,7 @@ rands[15] = get_random_seed();
 
 	rands[23] = get_random_seed();
 
-#if 0
+#if MULTI_THREAD
 	if (!env_t::networkmode)
 	{
 		simthread_barrier_wait(&step_passengers_and_mail_barrier);

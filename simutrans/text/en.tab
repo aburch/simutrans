@@ -747,6 +747,28 @@ Mex
 Con
 %145_CITY_SYLL
 With
+%146_CITY_SYLL
+Bex
+%147_CITY_SYLL
+Ac
+%148_CITY_SYLL
+Beck
+%149_CITY_SYLL
+Berk
+%14A_CITY_SYLL
+Bost
+%14B_CITY_SYLL
+Bre
+%14C_CITY_SYLL
+Chep
+%14D_CITY_SYLL
+Lang
+%14E_CITY_SYLL
+Sud
+%14F_CITY_SYLL
+Sut
+%150_CITY_SYLL
+Wim
 %d buildings\n
 %d buildings
 %d convois
@@ -985,6 +1007,8 @@ ney
 erham
 &64_CITY_SYLL
 erworth
+&65_CITY_SYLL
+stead
 (%i)-
 (%i) 
 (in depot)
