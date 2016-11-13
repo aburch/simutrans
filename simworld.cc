@@ -135,6 +135,7 @@ static pthread_mutex_t step_passengers_and_mail_mutex = PTHREAD_MUTEX_INITIALIZE
 static pthread_mutex_t path_explorer_mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t karte_t::unreserve_route_mutex = PTHREAD_MUTEX_INITIALIZER;
 static simthread_barrier_t private_car_barrier;
+bool karte_t::threads_initialised = false;
 simthread_barrier_t karte_t::unreserve_route_barrier;
 static simthread_barrier_t step_passengers_and_mail_barrier;
 static simthread_barrier_t start_path_explorer_barrier;
@@ -1923,6 +1924,8 @@ void karte_t::init_threads()
 	{
 		dbg->fatal("void karte_t::init_threads()", "Failed to create convoy master thread, error %d. See here for a translation of the error numbers: http://epydoc.sourceforge.net/stdlib/errno-module.html", rc);
 	}
+
+	threads_initialised = true;
 }
 
 void karte_t::destroy_threads()
@@ -1932,12 +1935,15 @@ void karte_t::destroy_threads()
 
 	// Send waiting threads to their doom
 	
-	simthread_barrier_wait(&step_convoys_barrier_external);
-	simthread_barrier_wait(&step_convoys_barrier_internal);
-	simthread_barrier_wait(&step_passengers_and_mail_barrier);
-	simthread_barrier_wait(&private_car_barrier);
-	simthread_barrier_wait(&unreserve_route_barrier);
-	start_path_explorer();
+	if (threads_initialised)
+	{
+		simthread_barrier_wait(&step_convoys_barrier_external);
+		simthread_barrier_wait(&step_convoys_barrier_internal);
+		simthread_barrier_wait(&step_passengers_and_mail_barrier);
+		simthread_barrier_wait(&private_car_barrier);
+		simthread_barrier_wait(&unreserve_route_barrier);
+		start_path_explorer();
+	}
 
 	pthread_join(path_explorer_thread, 0);
 	pthread_join(convoi_step_master_thread, 0);
@@ -1963,6 +1969,7 @@ void karte_t::destroy_threads()
 
 	first_step = 1;
 
+	threads_initialised = false;
 	terminating_threads = false;
 }
 

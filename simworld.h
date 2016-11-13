@@ -938,6 +938,7 @@ private:
 	public:
 	static uint32 path_explorer_step_progress;
 	static bool unreserve_route_running;
+	static bool threads_initialised; 
 	private:
 #endif
 
