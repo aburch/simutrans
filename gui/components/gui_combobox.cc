@@ -113,6 +113,11 @@ DBG_MESSAGE("event","HOWDY!");
 
 			// swallow the first mouse click
 			if(IS_LEFTRELEASE(ev)) {
+				// close all droplist in the current window
+				event_t ev(INFOWIN);
+				ev.ev_code = WIN_UNTOP;
+				win_get_top()->infowin_event( &ev );
+
 				first_call = false;
 			}
 
