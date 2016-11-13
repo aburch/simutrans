@@ -143,7 +143,7 @@ void route_t::INIT_NODES(uint32 max_route_steps, const koord &world_size)
 	}
 }
 
-void* route_t::TERM_NODES(void* args)
+void route_t::TERM_NODES(void* args)
 {
 	if (MAX_STEP)
 	{
@@ -155,8 +155,6 @@ void* route_t::TERM_NODES(void* args)
 			_nodes_in_use[i] = false;
 		}
 	}
-
-	return NULL;
 }
 
 uint8 route_t::GET_NODES(ANode **nodes) 
