@@ -2723,8 +2723,11 @@ clear4_main
 Clear (main route)
 clear5_main
 Clear (main route)
+cleartime
 Clear
+cleartime_alternate
 Clear (alternative route)
+cleartime_main
 Clear (main route)
 clearpre
 Clear
@@ -2746,8 +2749,11 @@ caution4_main
 Caution (main route)
 caution5_main
 Caution (main route)
+cautiontime
 Caution
+cautiontime_alternate
 Caution
+cautiontime_main
 Caution
 cautionpre
 Caution
@@ -2771,9 +2777,11 @@ advanced_caution5_main
 Advanced Caution (main route)
 call_on
 Call on
+call_ontime
 Call on
 call_on_choose
 Call on
+call_ontime_choose
 Call on
 This signal creates directional reservations
 This signal creates directional reservations
