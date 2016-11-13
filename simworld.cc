@@ -1931,41 +1931,44 @@ void karte_t::init_threads()
 void karte_t::destroy_threads()
 {
 	terminating_threads = true;
-	pthread_attr_destroy(&thread_attributes);
 
-	// Send waiting threads to their doom
-	
 	if (threads_initialised)
 	{
+		pthread_attr_destroy(&thread_attributes);
+
+		// Send waiting threads to their doom
+
+
 		simthread_barrier_wait(&step_convoys_barrier_external);
 		simthread_barrier_wait(&step_convoys_barrier_internal);
 		simthread_barrier_wait(&step_passengers_and_mail_barrier);
 		simthread_barrier_wait(&private_car_barrier);
 		simthread_barrier_wait(&unreserve_route_barrier);
 		start_path_explorer();
+
+
+		pthread_join(path_explorer_thread, 0);
+		pthread_join(convoi_step_master_thread, 0);
+
+		clean_threads(&private_car_route_threads);
+		private_car_route_threads.clear();
+
+		clean_threads(&step_passengers_and_mail_threads);
+		step_passengers_and_mail_threads.clear();
+
+		clean_threads(&individual_convoi_step_threads);
+		individual_convoi_step_threads.clear();
+
+		clean_threads(&unreserve_route_threads);
+		unreserve_route_threads.clear();
+
+		simthread_barrier_destroy(&step_convoys_barrier_external);
+		simthread_barrier_destroy(&step_convoys_barrier_internal);
+		simthread_barrier_destroy(&step_passengers_and_mail_barrier);
+		simthread_barrier_destroy(&private_car_barrier);
+		simthread_barrier_destroy(&unreserve_route_barrier);
+		simthread_barrier_destroy(&start_path_explorer_barrier);
 	}
-
-	pthread_join(path_explorer_thread, 0);
-	pthread_join(convoi_step_master_thread, 0);
-
-	clean_threads(&private_car_route_threads);
-	private_car_route_threads.clear();
-
-	clean_threads(&step_passengers_and_mail_threads);
-	step_passengers_and_mail_threads.clear();
-
-	clean_threads(&individual_convoi_step_threads);
-	individual_convoi_step_threads.clear();
-
-	clean_threads(&unreserve_route_threads);
-	unreserve_route_threads.clear();
-
-	simthread_barrier_destroy(&step_convoys_barrier_external);
-	simthread_barrier_destroy(&step_convoys_barrier_internal);
-	simthread_barrier_destroy(&step_passengers_and_mail_barrier);
-	simthread_barrier_destroy(&private_car_barrier);
-	simthread_barrier_destroy(&unreserve_route_barrier);
-	simthread_barrier_destroy(&start_path_explorer_barrier);
 
 	first_step = 1;
 
