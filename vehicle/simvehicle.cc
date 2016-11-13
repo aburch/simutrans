@@ -483,6 +483,13 @@ void vehicle_base_t::calc_height(grund_t *gr)
 		}
 	}
 	else {
+		// force a valid image above ground, with special handling of tunnel entraces
+		if(  get_image()==IMG_LEER  ) {
+			if(  !gr->ist_tunnel()  &&  gr->ist_karten_boden()  ) {
+				calc_image();
+			}
+		}
+
 		// will not work great with ways, but is very short!
 		hang_t::typ hang = gr->get_weg_hang();
 		if(  hang  ) {
@@ -500,7 +507,7 @@ void vehicle_base_t::calc_height(grund_t *gr)
 		}
 		else {
 			zoff_start = (gr->get_weg_yoff() * 2) / TILE_HEIGHT_STEP;
-			zoff_end   = zoff_start;
+			zoff_end = zoff_start;
 		}
 	}
 }
