@@ -114,7 +114,7 @@ roadsign_t::roadsign_t(player_t *player, koord3d pos, ribi_t::ribi dir, const ro
 		// on this tile of way before or after this function is indeterminate.
 		if (!world()->get_first_step())
 		{
-			simthread_barrier_wait(&karte_t::step_convois_barrier_external);
+			simthread_barrier_wait(&karte_t::step_convoys_barrier_external);
 			welt->set_first_step(1);
 		}
 	}

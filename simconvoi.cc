@@ -1147,15 +1147,15 @@ sync_result convoi_t::sync_step(uint32 delta_t)
 		case FAHRPLANEINGABE:
 		case ROUTING_1:
 		case ROUTING_2:
+		case ROUTE_JUST_FOUND:
 		case DUMMY5:
 		case OUT_OF_RANGE:
 		case NO_ROUTE:
 		case CAN_START:
 		case CAN_START_ONE_MONTH:
 		case CAN_START_TWO_MONTHS:
-		case REVERSING:
-		case ROUTE_JUST_FOUND:
-			// Hajo: this is an async task, see step() or thread_step()
+		case REVERSING:	
+			// Hajo: this is an async task, see step() or threaded_step()
 			break;
 
 		case ENTERING_DEPOT:
@@ -1282,273 +1282,187 @@ sync_result convoi_t::sync_step(uint32 delta_t)
  */
 bool convoi_t::drive_to()
 {
-	if(  anz_vehikel>0 && fpl  )
+	koord3d start = front()->get_pos();
+	koord3d ziel = fpl->get_current_eintrag().pos;
+	const koord3d original_ziel = ziel;
+	
+	bool success = calc_route(start, ziel, speed_to_kmh(get_min_top_speed()));
+		
+	grund_t* gr = welt->lookup(ziel);
+	const bool rail_type = front()->get_waytype() == track_wt || front()->get_waytype() == tram_wt || front()->get_waytype() == narrowgauge_wt || front()->get_waytype() == maglev_wt || front()->get_waytype() == monorail_wt;
+
+	if(rail_type && gr && !gr->get_depot())
 	{
-		koord3d start = front()->get_pos();
-		koord3d ziel = fpl->get_current_eintrag().pos;
-		const koord3d original_ziel = ziel;
+		// We need to calculate the full route through to the next signal or reversing point
+		// to avoid ignoring signals.
+		int counter = fpl->get_count();
 
-		// Check whether the next stop is within range.
-		if(min_range > 0)
+		linieneintrag_t* schedule_entry = &fpl->eintrag[fpl->get_aktuell()];
+		bool update_line = false;
+		while(success && counter--)
 		{
-			int count = 0;
-			const uint8 original_aktuell = fpl->get_aktuell();
-			const grund_t* gr = welt->lookup(ziel);
-			const depot_t* depot = gr ? gr->get_depot() : NULL;
-			while(count < fpl->get_count() && !haltestelle_t::get_halt(ziel, owner).is_bound() && !depot)
+			if(schedule_entry->reverse == -1)
 			{
-				// The next stop is a waypoint - advance 
-				reverse_schedule ? fpl->advance_reverse() : fpl->advance();
-				ziel = fpl->get_current_eintrag().pos;
-				count ++;
-			}
-			const uint16 distance = (shortest_distance(start.get_2d(), ziel.get_2d()) * welt->get_settings().get_meters_per_tile()) / 1000u;
-			fpl->set_aktuell(original_aktuell);
-			ziel = original_ziel;
-			if(distance > min_range)
-			{
-				state = OUT_OF_RANGE;
-#ifdef MULTI_THREAD
-				pthread_mutex_lock(&step_convois_mutex);
-#endif
-				get_owner()->report_vehicle_problem(self, ziel);
-#ifdef MULTI_THREAD
-				pthread_mutex_unlock(&step_convois_mutex);
-#endif
-				return false;
-			}
-		}
-
-		halthandle_t destination_halt = haltestelle_t::get_halt(ziel,get_owner());
-		halthandle_t this_halt = haltestelle_t::get_halt(start,get_owner());
-		if(this_halt.is_bound() && this_halt == destination_halt)
-		{
-			// For some reason, the schedule has failed to advance. Advance it before calculating the route.
-			reverse_schedule ? fpl->advance_reverse() : fpl->advance();
-			ziel = fpl->get_current_eintrag().pos;
-		}
-
-		// avoid stopping midhalt
-		if(  start==ziel  ) {
-			if(  destination_halt.is_bound()  &&  route.is_contained(start)  ) {
-				for(  uint32 i=route.index_of(start);  i<route.get_count();  i++  ) {
-					grund_t *gr = welt->lookup(route.position_bei(i));
-					if(  gr  && gr->get_halt()==destination_halt  ) {
-						ziel = gr->get_pos();
-					}
-					else {
-						break;
-					}
+				schedule_entry->reverse = check_destination_reverse() ? 1 : 0;
+				fpl->set_reverse(schedule_entry->reverse, fpl->get_aktuell()); 
+				if(line.is_bound())
+				{
+					schedule_t* line_schedule = line->get_schedule();
+					linieneintrag_t &line_entry = line_schedule->eintrag[fpl->get_aktuell()];
+					line_entry.reverse = schedule_entry->reverse;
+					update_line = true;	
 				}
 			}
+
+			if(schedule_entry->reverse == 1 || haltestelle_t::get_halt(schedule_entry->pos, get_owner()).is_bound())
+			{
+				// The convoy must stop at the current route's end.
+				break;
+			}
+			advance_schedule();
+			schedule_entry = &fpl->eintrag[fpl->get_aktuell()];
+			success = front()->reroute(route.get_count() - 1, schedule_entry->pos);
 		}
 
-		const bool rail_type = front()->get_waytype() == track_wt || front()->get_waytype() == tram_wt || front()->get_waytype() == narrowgauge_wt || front()->get_waytype() == maglev_wt || front()->get_waytype() == monorail_wt;
-		
-		if(rail_type)
+		if (update_line)
 		{
-			rail_vehicle_t* rail_vehicle = (rail_vehicle_t*)front();
-			// If this is token block working, the route must only be unreserved if the token is released.
-			if(rail_vehicle->get_working_method() != token_block && rail_vehicle->get_working_method() != one_train_staff)
-			{
-#ifdef MULTI_THREAD
-				pthread_mutex_lock(&step_convois_mutex);
-#endif
-				unreserve_route();
-#ifdef MULTI_THREAD
-				pthread_mutex_unlock(&step_convois_mutex);
-#endif
-			}
-		}
-		else if(front()->get_waytype() == air_wt)
-		{
-			// Sea and road waytypes do not have any sort of reserveation, and calls to unreserve_route() are expensive.
 #ifdef MULTI_THREAD
 			pthread_mutex_lock(&step_convois_mutex);
+			world()->stop_path_explorer();
 #endif
-			unreserve_route();
+			simlinemgmt_t::update_line(line);
 #ifdef MULTI_THREAD
 			pthread_mutex_unlock(&step_convois_mutex);
 #endif
 		}
+	}
 
-		bool success = calc_route(start, ziel, speed_to_kmh(get_min_top_speed()));
-		
-		grund_t* gr = welt->lookup(ziel);
-
-		if(rail_type && gr && !gr->get_depot())
+	if(!success)
+	{
+		if(state != NO_ROUTE)
 		{
-			// We need to calculate the full route through to the next signal or reversing point
-			// to avoid ignoring signals.
-			int counter = fpl->get_count();
+			state = NO_ROUTE;
+			no_route_retry_count = 0;
+#ifdef MULTI_THREAD
+			pthread_mutex_lock(&step_convois_mutex);
+#endif
+			get_owner()->report_vehicle_problem( self, ziel );
+#ifdef MULTI_THREAD
+			pthread_mutex_unlock(&step_convois_mutex);
+#endif
+		}
+		// wait 25s before next attempt
+		wait_lock = 25000;
+	}
+	else {
+		bool route_ok = true;
+		const uint8 aktuell = fpl->get_aktuell();
+		if(  front()->get_waytype() != water_wt  ) {
+			air_vehicle_t *plane = dynamic_cast<air_vehicle_t *>(front());
+			uint32 takeoff = 0, search = 0, landing = 0;
+			air_vehicle_t::flight_state plane_state = air_vehicle_t::taxiing;
+			if(  plane  ) {
+				// due to the complex state system of aircrafts, we have to save index and state
+				plane->get_event_index( plane_state, takeoff, search, landing );
+			}
 
-			linieneintrag_t* schedule_entry = &fpl->eintrag[fpl->get_aktuell()];
-			bool update_line = false;
-			while(success && counter--)
-			{
-				if(schedule_entry->reverse == -1)
-				{
-					schedule_entry->reverse = check_destination_reverse() ? 1 : 0;
-					fpl->set_reverse(schedule_entry->reverse, fpl->get_aktuell()); 
-					if(line.is_bound())
-					{
-						schedule_t* line_schedule = line->get_schedule();
-						linieneintrag_t &line_entry = line_schedule->eintrag[fpl->get_aktuell()];
-						line_entry.reverse = schedule_entry->reverse;
-						update_line = true;	
-					}
-				}
+			// set next schedule target position if next is a waypoint
+			if(  is_waypoint(ziel)  ) {
+				fpl_target = ziel;
+			}
 
-				if(schedule_entry->reverse == 1 || haltestelle_t::get_halt(schedule_entry->pos, get_owner()).is_bound())
-				{
-					// The convoy must stop at the current route's end.
+			// continue route search until the destination is a station
+			while(  is_waypoint(ziel)  ) {
+				start = ziel;
+				fpl->advance();
+				ziel = fpl->get_current_eintrag().pos;
+
+				if(  fpl->get_aktuell() == aktuell  ) {
+					// looped around without finding a halt => entire schedule is waypoints.
 					break;
 				}
-				advance_schedule();
-				schedule_entry = &fpl->eintrag[fpl->get_aktuell()];
-				success = front()->reroute(route.get_count() - 1, schedule_entry->pos);
-			}
 
-			if (update_line)
-			{
-#ifdef MULTI_THREAD
-				pthread_mutex_lock(&step_convois_mutex);
-				world()->stop_path_explorer();
-#endif
-				simlinemgmt_t::update_line(line);
-#ifdef MULTI_THREAD
-				pthread_mutex_unlock(&step_convois_mutex);
-#endif
-			}
-		}
-
-		if(!success)
-		{
-			if(state != NO_ROUTE)
-			{
-				state = NO_ROUTE;
-				no_route_retry_count = 0;
-#ifdef MULTI_THREAD
-				pthread_mutex_lock(&step_convois_mutex);
-#endif
-				get_owner()->report_vehicle_problem( self, ziel );
-#ifdef MULTI_THREAD
-				pthread_mutex_unlock(&step_convois_mutex);
-#endif
-			}
-			// wait 25s before next attempt
-			wait_lock = 25000;
-		}
-		else {
-			bool route_ok = true;
-			const uint8 aktuell = fpl->get_aktuell();
-			if(  front()->get_waytype() != water_wt  ) {
-				air_vehicle_t *plane = dynamic_cast<air_vehicle_t *>(front());
-				uint32 takeoff = 0, search = 0, landing = 0;
-				air_vehicle_t::flight_state plane_state = air_vehicle_t::taxiing;
-				if(  plane  ) {
-					// due to the complex state system of aircrafts, we have to save index and state
-					plane->get_event_index( plane_state, takeoff, search, landing );
-				}
-
-				// set next schedule target position if next is a waypoint
-				if(  is_waypoint(ziel)  ) {
-					fpl_target = ziel;
-				}
-
-				// continue route search until the destination is a station
-				while(  is_waypoint(ziel)  ) {
-					start = ziel;
-					fpl->advance();
-					ziel = fpl->get_current_eintrag().pos;
-
-					if(  fpl->get_aktuell() == aktuell  ) {
-						// looped around without finding a halt => entire schedule is waypoints.
+				route_t next_segment;
+				if(  !front()->calc_route( start, ziel, speed_to_kmh(get_min_top_speed()), &next_segment )  ) {
+					// do we still have a valid route to proceed => then go until there
+					if(  route.get_count()>1  ) {
 						break;
 					}
+					// we are stuck on our first routing attempt => give up
+					if(  state != NO_ROUTE  ) {
+						state = NO_ROUTE;
+#ifdef MULTI_THREAD
+						pthread_mutex_lock(&step_convois_mutex);
+#endif
+						get_owner()->report_vehicle_problem( self, ziel );
+#ifdef MULTI_THREAD
+						pthread_mutex_unlock(&step_convois_mutex);
+#endif
+					}
+					// wait 25s before next attempt
+					wait_lock = 25000;
+					route_ok = false;
+					break;
+				}
+				else {
+					bool looped = false;
+					if(  front()->get_waytype() != air_wt  ) {
+							// check if the route circles back on itself (only check the first tile, should be enough)
+						looped = route.is_contained(next_segment.position_bei(1));
+#if 0
+						// this will forbid an eight firure, which might be clever to avoid a problem of reserving one own track
+						for(  unsigned i = 1;  i<next_segment.get_count();  i++  ) {
+							if(  route.is_contained(next_segment.position_bei(i))  ) {
+								looped = true;
+								break;
+							}
+						}
+#endif
+					}
 
-					route_t next_segment;
-					if(  !front()->calc_route( start, ziel, speed_to_kmh(get_min_top_speed()), &next_segment )  ) {
-						// do we still have a valid route to proceed => then go until there
-						if(  route.get_count()>1  ) {
-							break;
-						}
-						// we are stuck on our first routing attempt => give up
-						if(  state != NO_ROUTE  ) {
-							state = NO_ROUTE;
-#ifdef MULTI_THREAD
-							pthread_mutex_lock(&step_convois_mutex);
-#endif
-							get_owner()->report_vehicle_problem( self, ziel );
-#ifdef MULTI_THREAD
-							pthread_mutex_unlock(&step_convois_mutex);
-#endif
-						}
-						// wait 25s before next attempt
-						wait_lock = 25000;
-						route_ok = false;
+					if(  looped  ) {
+						// proceed upto the waypoint before the loop. Will pause there for a new route search.
+						fpl_target = koord3d::invalid;
 						break;
 					}
 					else {
-						bool looped = false;
-						if(  front()->get_waytype() != air_wt  ) {
-							 // check if the route circles back on itself (only check the first tile, should be enough)
-							looped = route.is_contained(next_segment.position_bei(1));
-#if 0
-							// this will forbid an eight firure, which might be clever to avoid a problem of reserving one own track
-							for(  unsigned i = 1;  i<next_segment.get_count();  i++  ) {
-								if(  route.is_contained(next_segment.position_bei(i))  ) {
-									looped = true;
-									break;
-								}
+						uint32 count_offset = route.get_count()-1;
+						route.append( &next_segment);
+						if(  plane  ) {
+							// maybe we need to restore index
+							uint32 dummy2;
+							air_vehicle_t::flight_state dummy1;
+							uint32 new_takeoff, new_search, new_landing;
+							plane->get_event_index( dummy1, new_takeoff, new_search, new_landing );
+							if(  takeoff == 0x7FFFFFFF  &&  new_takeoff != 0x7FFFFFFF  ) {
+								takeoff = new_takeoff + count_offset;
 							}
-#endif
-						}
-
-						if(  looped  ) {
-							// proceed upto the waypoint before the loop. Will pause there for a new route search.
-							fpl_target = koord3d::invalid;
-							break;
-						}
-						else {
-							uint32 count_offset = route.get_count()-1;
-							route.append( &next_segment);
-							if(  plane  ) {
-								// maybe we need to restore index
-								uint32 dummy2;
-								air_vehicle_t::flight_state dummy1;
-								uint32 new_takeoff, new_search, new_landing;
-								plane->get_event_index( dummy1, new_takeoff, new_search, new_landing );
-								if(  takeoff == 0x7FFFFFFF  &&  new_takeoff != 0x7FFFFFFF  ) {
-									takeoff = new_takeoff + count_offset;
-								}
-								if(  landing == 0x7FFFFFFF  &&  new_landing != 0x7FFFFFFF  ) {
-									landing = new_landing + count_offset;
-								}
-								if(  landing == 0x7FFFFFFF  &&  new_landing != 0x7FFFFFFF  ) {
-									landing = new_landing + count_offset;
-								}
-								if(  search == 0x7FFFFFFF  &&  new_search != 0x7FFFFFFF ) {
-									search = new_search + count_offset;
-								}
+							if(  landing == 0x7FFFFFFF  &&  new_landing != 0x7FFFFFFF  ) {
+								landing = new_landing + count_offset;
+							}
+							if(  landing == 0x7FFFFFFF  &&  new_landing != 0x7FFFFFFF  ) {
+								landing = new_landing + count_offset;
+							}
+							if(  search == 0x7FFFFFFF  &&  new_search != 0x7FFFFFFF ) {
+								search = new_search + count_offset;
 							}
 						}
 					}
 				}
-
-				if(  plane  ) {
-					// due to the complex state system of aircrafts, we have to restore index and state
-					plane->set_event_index( plane_state, takeoff, search, landing );
-				}
 			}
 
-			fpl->set_aktuell(aktuell);
-			fpl_target = ziel;
-			if(  route_ok  ) {
-				// When this was single threaded, this was an immediate call to vorfahren(), but this cannot be called when multi-threaded.
-				state = ROUTE_JUST_FOUND;
-				return true;
+			if(  plane  ) {
+				// due to the complex state system of aircrafts, we have to restore index and state
+				plane->set_event_index( plane_state, takeoff, search, landing );
 			}
+		}
+
+		fpl->set_aktuell(aktuell);
+		fpl_target = ziel;
+		if(  route_ok  ) {
+			// When this was single threaded, this was an immediate call to vorfahren(), but this cannot be called when multi-threaded.
+			state = ROUTE_JUST_FOUND;
+			return true;
 		}
 	}
 	return false;
@@ -1574,20 +1488,6 @@ void convoi_t::suche_neue_route()
  */
 void convoi_t::threaded_step()
 {
-	if (wait_lock != 0)
-	{
-		return;
-	}
-
-#ifdef MULTI_THREAD
-	pthread_mutex_lock(&step_convois_mutex);
-#endif
-
-
-#ifdef MULTI_THREAD
-	pthread_mutex_unlock(&step_convois_mutex);
-#endif
-
 	if (state == ROUTING_2)
 	{
 		// Only perform route finding in the threaded step
@@ -1968,7 +1868,88 @@ end_loop:
 			else
 			{
 				// Hajo: now calculate a new route
-				// Calculating a new route is multi-threaded
+				
+				// Much of the below was originally part of do_drive(),
+				// but the part of do_drive() that can be multi-threaded
+				// has been set to be called from thread_step, so this code
+				// is now directly here. In particular, calls to 
+				// unreserve_route() cannot be multi-threaded because calls
+				// to can_enter_tile(), which depend on route reservation 
+				// status, are ultimately made from sync_step(). 
+
+				if (anz_vehikel > 0 && fpl)
+				{
+					koord3d start = front()->get_pos();
+					koord3d ziel = fpl->get_current_eintrag().pos;
+					const koord3d original_ziel = ziel;
+
+					// Check whether the next stop is within range.
+					if (min_range > 0)
+					{
+						int count = 0;
+						const uint8 original_aktuell = fpl->get_aktuell();
+						const grund_t* gr = welt->lookup(ziel);
+						const depot_t* depot = gr ? gr->get_depot() : NULL;
+						while (count < fpl->get_count() && !haltestelle_t::get_halt(ziel, owner).is_bound() && !depot)
+						{
+							// The next stop is a waypoint - advance 
+							reverse_schedule ? fpl->advance_reverse() : fpl->advance();
+							ziel = fpl->get_current_eintrag().pos;
+							count++;
+						}
+						const uint16 distance = (shortest_distance(start.get_2d(), ziel.get_2d()) * welt->get_settings().get_meters_per_tile()) / 1000u;
+						fpl->set_aktuell(original_aktuell);
+						ziel = original_ziel;
+						if (distance > min_range)
+						{
+							state = OUT_OF_RANGE;
+							get_owner()->report_vehicle_problem(self, ziel);
+							break;
+						}
+					}
+
+					halthandle_t destination_halt = haltestelle_t::get_halt(ziel, get_owner());
+					halthandle_t this_halt = haltestelle_t::get_halt(start, get_owner());
+					if (this_halt.is_bound() && this_halt == destination_halt)
+					{
+						// For some reason, the schedule has failed to advance. Advance it before calculating the route.
+						reverse_schedule ? fpl->advance_reverse() : fpl->advance();
+						ziel = fpl->get_current_eintrag().pos;
+					}
+
+					// avoid stopping midhalt
+					if (start == ziel) {
+						if (destination_halt.is_bound() && route.is_contained(start)) {
+							for (uint32 i = route.index_of(start); i < route.get_count(); i++) {
+								grund_t *gr = welt->lookup(route.position_bei(i));
+								if (gr  && gr->get_halt() == destination_halt) {
+									ziel = gr->get_pos();
+								}
+								else {
+									break;
+								}
+							}
+						}
+					}
+
+					const bool rail_type = front()->get_waytype() == track_wt || front()->get_waytype() == tram_wt || front()->get_waytype() == narrowgauge_wt || front()->get_waytype() == maglev_wt || front()->get_waytype() == monorail_wt;
+
+					if (rail_type)
+					{
+						rail_vehicle_t* rail_vehicle = (rail_vehicle_t*)front();
+						// If this is token block working, the route must only be unreserved if the token is released.
+						if (rail_vehicle->get_working_method() != token_block && rail_vehicle->get_working_method() != one_train_staff)
+						{
+							unreserve_route();
+						}
+					}
+					else if (front()->get_waytype() == air_wt)
+					{
+						// Sea and road waytypes do not have any sort of reserveation, and calls to unreserve_route() are expensive.
+						unreserve_route();
+					}
+				}
+
 				state = ROUTING_2;
 			}
 			break;

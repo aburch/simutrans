@@ -889,7 +889,7 @@ private:
 	// in order to know when to launch the background threads. 
 	sint32 first_step;
 public:
-	static simthread_barrier_t step_convois_barrier_external;
+	static simthread_barrier_t step_convoys_barrier_external;
 	static simthread_barrier_t unreserve_route_barrier;
 	static pthread_mutex_t unreserve_route_mutex;
 	sint32 get_first_step() const { return first_step; }
@@ -930,11 +930,11 @@ private:
 	friend void *check_road_connexions_threaded(void* args);
 	friend void *unreserve_route_threaded(void* args);
 	friend void *step_passengers_and_mail_threaded(void* args);
-	friend void *step_convois_threaded(void* args);
+	friend void *step_convoys_threaded(void* args);
 	friend void *path_explorer_threaded(void* args);
-	friend void *step_individual_convoi_threaded(void* args);
+	friend void *step_individual_convoy_threaded(void* args);
 	static sint32 cities_to_process;
-	static vector_tpl<convoihandle_t> convois_next_step;
+	static vector_tpl<convoihandle_t> convoys_next_step;
 	public:
 	static uint32 path_explorer_step_progress;
 	static bool unreserve_route_running;

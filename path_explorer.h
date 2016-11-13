@@ -353,9 +353,7 @@ private:
 
 		static void initialise();
 		static void finalise();
-#ifdef MULTI_THREAD_NOT
-		friend void *thread_step(void *args);
-#endif
+
 		void step();
 		void reset(const bool reset_finished_set);
 
