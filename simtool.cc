@@ -7383,8 +7383,11 @@ const char *tool_make_stop_public_t::work( player_t *player, koord3d p )
 					// In network mode, we cannot have anything that alters a way running concurrently with
 					// convoy path-finding because  whether the convoy path-finder is called
 					// on this tile of way before or after this function is indeterminate.
-					simthread_barrier_wait(&karte_t::step_convois_barrier_external);
-					simthread_barrier_wait(&karte_t::step_convois_barrier_external);
+					if (!world()->get_first_step())
+					{
+						simthread_barrier_wait(&karte_t::step_convois_barrier_external);
+						welt->set_first_step(1);
+					}
 				}
 #endif
 

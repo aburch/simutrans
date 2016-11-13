@@ -1432,7 +1432,6 @@ bool convoi_t::drive_to()
 				pthread_mutex_lock(&step_convois_mutex);
 #endif
 				get_owner()->report_vehicle_problem( self, ziel );
-				reserve_own_tiles();
 #ifdef MULTI_THREAD
 				pthread_mutex_unlock(&step_convois_mutex);
 #endif
@@ -1477,7 +1476,13 @@ bool convoi_t::drive_to()
 						// we are stuck on our first routing attempt => give up
 						if(  state != NO_ROUTE  ) {
 							state = NO_ROUTE;
+#ifdef MULTI_THREAD
+							pthread_mutex_lock(&step_convois_mutex);
+#endif
 							get_owner()->report_vehicle_problem( self, ziel );
+#ifdef MULTI_THREAD
+							pthread_mutex_unlock(&step_convois_mutex);
+#endif
 						}
 						// wait 25s before next attempt
 						wait_lock = 25000;
@@ -1943,6 +1948,7 @@ end_loop:
 		case OUT_OF_RANGE:
 		case NO_ROUTE:
 		{
+			reserve_own_tiles();
 			// stuck vehicles
 			if (no_route_retry_count < 7)
 			{

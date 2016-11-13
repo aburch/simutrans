@@ -5018,7 +5018,7 @@ rands[9] = get_random_seed();
 
 rands[10] = get_random_seed();
 
-#if 0
+#ifdef MULTI_THREAD
 	if (first_step == 1)
 	{
 		simthread_barrier_wait(&step_convois_barrier_external); // Start the threaded part of the convoys' steps: this is mainly route searches. Block reservation, etc., is in the single threaded part. 
@@ -5056,27 +5056,11 @@ rands[11] = get_random_seed();
 
 	// to make sure the tick counter will be updated
 	INT_CHECK("karte_t::step 1");
-	
-#define FULL_PATH_EXPLORER_MULTI_THREAD
-//#define DISABLE_PATH_EXPLORER_MULTI_THREAD
 
 #ifdef MULTI_THREAD
 	// Stop the path explorer before we use its results.
-#ifdef DISABLE_PATH_EXPLORER_MULTI_THREAD
-	path_explorer_t::allow_path_explorer_on_this_thread = true;
-	path_explorer_t::step();
+	stop_path_explorer();
 #else
-#ifdef FULL_PATH_EXPLORER_MULTI_THREAD	
-	stop_path_explorer();
-#else	
-	// For TESTing only
-	start_path_explorer();
-	stop_path_explorer();
-#endif
-#endif
-#endif
-	
-#ifndef MULTI_THREAD
 	// Knightly : calling global path explorer
 	path_explorer_t::step();
 #endif
@@ -5084,9 +5068,10 @@ rands[12] = get_random_seed();
 	
 	INT_CHECK("karte_t::step 2");
 
-#if 0
-	simthread_barrier_wait(&step_convois_barrier_external); // Finish the threaded part of the convoys' steps: this is mainly route searches. Block reservation, etc., is in the single threaded part. 
-	if (first_step == 1)
+#if MULTI_THREAD
+	simthread_barrier_wait(&step_convois_barrier_external); 
+	// Finish the threaded part of the convoys' steps: this is mainly route searches. Block reservation, etc., is in the single threaded part. 
+	if (first_step == 1 && !env_t::networkmode)
 	{
 		first_step = 2;
 	}
@@ -5112,20 +5097,24 @@ rands[12] = get_random_seed();
 rands[13] = get_random_seed();	
 
 #ifdef MULTI_THREAD
-	// Start the convoys' route finding again immediately after the convoys have been stepped: this maximises efficiency and concurrency.
-	// Since it is purely route finding in the multi-threaded convoy step, it is safe to have this concurrent with everything but the single-
-	// threaded convoy step.
-	if (first_step == 0 || first_step == 2)
+	// At present, making the convoys' route finding concurrent with sync_steps (etc.) causes desyncs in network mode for reasons that have not been ascertained.
+	if (!env_t::networkmode)
 	{
-		simthread_barrier_wait(&step_convois_barrier_external); // Start the threaded part of the convoys' steps: this is mainly route searches. Block reservation, etc., is in the single threaded part. This will end in the next step
-	}
+		// Start the convoys' route finding again immediately after the convoys have been stepped: this maximises efficiency and concurrency.
+		// Since it is purely route finding in the multi-threaded convoy step, it is safe to have this concurrent with everything but the single-
+		// threaded convoy step.
+		if (first_step == 0 || first_step == 2)
+		{
+			simthread_barrier_wait(&step_convois_barrier_external); // Start the threaded part of the convoys' steps: this is mainly route searches. Block reservation, etc., is in the single threaded part. This will end in the next step
+		}
 
-	if (first_step == 2)
-	{
-		// Convoys cannot be stepped concurrently with sync_step running in network mode because whether they need routing may depend on a command executed in sync_step,
-		// and it will be entirely by chance whether that command is executed before or after the threads get to processing that particular convoy.
-		first_step = 0;
-	}
+		if (first_step == 2)
+		{
+			// Convoys cannot be stepped concurrently with sync_step running in network mode because whether they need routing may depend on a command executed in sync_step,
+			// and it will be entirely by chance whether that command is executed before or after the threads get to processing that particular convoy.
+			first_step = 0;
+		}
+}
 #endif
 
 	// now step all towns 
@@ -5155,8 +5144,6 @@ rands[29] = 0;
 rands[30] = 0;
 rands[31] = 0;
 rands[23] = 0;
-
-
 
 	// This is quite computationally intensive, but not as much as the path explorer. It can be more or less than the convoys, depending on the map.
 #if 0
@@ -5263,9 +5250,7 @@ rands[19] = get_random_seed();
 #ifdef MULTI_THREAD
 	// Start the path explorer ready for the next step. This can be very 
 	// computationally intensive, but intermittently so.
-#ifdef FULL_PATH_EXPLORER_MULTI_THREAD
 	start_path_explorer();
-#endif
 #endif
 
 	// ok, next step

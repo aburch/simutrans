@@ -111,17 +111,12 @@ void path_explorer_t::step()
 
 void path_explorer_t::full_instant_refresh()
 {
-// For TESTing only
+
 	path_explorer_t::allow_path_explorer_on_this_thread = true;
 
-#if 0
-	world->stop_path_explorer();
-	
-#else
 	uint16 curr_step = 0;
 	// exclude empty goods (nichts)
 	uint16 total_steps = (max_categories - 1) * 6;
-#endif
 
 	processing = true;
 
@@ -177,7 +172,6 @@ void path_explorer_t::full_instant_refresh()
 	current_compartment = 0;
 
 	processing = false;
-	// For TESTing only
 	path_explorer_t::allow_path_explorer_on_this_thread = false;
 }
 

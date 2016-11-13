@@ -893,6 +893,7 @@ public:
 	static simthread_barrier_t unreserve_route_barrier;
 	static pthread_mutex_t unreserve_route_mutex;
 	sint32 get_first_step() const { return first_step; }
+	void set_first_step(sint32 value) { first_step = value;  }
 	void stop_path_explorer(); 
 	void start_path_explorer();
 #else
