@@ -87,7 +87,7 @@ public:
 	static void INIT_NODES(uint32 max_route_steps, const koord &world_size);
 	static uint8 GET_NODES(ANode **nodes); 
 	static void RELEASE_NODES(uint8 nodes_index);
-	static void TERM_NODES();
+	static void* TERM_NODES();
 
 	const koord3d_vector_t &get_route() const { return route; }
 
