@@ -482,7 +482,7 @@ sync_result private_car_t::sync_step(uint32 delta_t)
 		{
 			ms_traffic_jam = 0;
 			// If this is the first step, get the car moving at a sensible speed as soon as possible.
-			weg_next += kmh_to_speed(50) * delta_t;
+			weg_next += kmh_to_speed(welt->get_settings().get_town_road_speed_limit()) * delta_t;
 			steps_next = 1;
 		}
 		else
