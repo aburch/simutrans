@@ -453,7 +453,9 @@ uint32 convoi_t::move_to(uint16 const start_index)
 
 void convoi_t::finish_rd()
 {
+#ifdef MULTI_THREAD
 	world()->stop_path_explorer();
+#endif
 	if(fpl==NULL) {
 		if(  state!=INITIAL  ) {
 			emergency_go_to_depot();

@@ -1922,7 +1922,7 @@ void karte_t::init_threads()
 	rc = pthread_create(&path_explorer_thread, &thread_attributes, &path_explorer_threaded, (void*)this); 
 	if (rc)
 	{
-		dbg->fatal("void karte_t::init_threads()", "Failed to create convoy master thread, error %d. See here for a translation of the error numbers: http://epydoc.sourceforge.net/stdlib/errno-module.html", rc);
+		dbg->fatal("void karte_t::init_threads()", "Failed to create path explorer thread, error %d. See here for a translation of the error numbers: http://epydoc.sourceforge.net/stdlib/errno-module.html", rc);
 	}
 
 	threads_initialised = true;
@@ -1937,15 +1937,12 @@ void karte_t::destroy_threads()
 		pthread_attr_destroy(&thread_attributes);
 
 		// Send waiting threads to their doom
-
-
 		simthread_barrier_wait(&step_convoys_barrier_external);
 		simthread_barrier_wait(&step_convoys_barrier_internal);
 		simthread_barrier_wait(&step_passengers_and_mail_barrier);
 		simthread_barrier_wait(&private_car_barrier);
 		simthread_barrier_wait(&unreserve_route_barrier);
 		start_path_explorer();
-
 
 		pthread_join(path_explorer_thread, 0);
 		pthread_join(convoi_step_master_thread, 0);
@@ -7115,9 +7112,9 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "start");
 	if(!silent) {
 		ls = new loadingscreen_t( translator::translate("Saving map ..."), get_size().y );
 	}
-
+#ifdef MULTI_THERAD
 	stop_path_explorer(); 
-
+#endif
 	// rotate the map until it can be saved completely
 	for( int i=0;  i<4  &&  nosave_warning;  i++  ) {
 		rotate90();
