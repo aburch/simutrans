@@ -3404,7 +3404,7 @@ void convoi_t::reverse_order(bool rev)
 		if(front()->get_besch()->get_leistung() > 0)
 		{
 			// If this is a locomotive, check for tenders/pair units.
-			if(front()->get_besch()->get_nachfolger_count() > 0 && vehicle[1]->get_besch()->get_vorgaenger_count() > 0 && front()->get_besch()->get_engine_type() == vehikel_besch_t::steam && vehicle[1]->get_besch()->get_engine_type() == vehikel_besch_t::steam)
+			if (front()->get_besch()->get_nachfolger_count() > 0 && vehicle[1]->get_besch()->get_vorgaenger_count() > 0)
 			{
 				a ++;
 			}
@@ -3421,7 +3421,7 @@ void convoi_t::reverse_order(bool rev)
 				first++;
 				second++;
 			}
-			if(anz_vehikel > 1 && vehicle[1]->get_besch()->get_leistung() == 0 && vehicle[1]->get_besch()->get_nachfolger_count() == 1 && vehicle[1]->get_besch()->get_nachfolger(0) && vehicle[1]->get_besch()->get_nachfolger(0)->get_leistung() == 0 && vehicle[1]->get_besch()->get_nachfolger(0)->get_preis() == 0 && front()->get_besch()->get_engine_type() == vehikel_besch_t::steam && vehicle[1]->get_besch()->get_engine_type() == vehikel_besch_t::steam)
+			if (anz_vehikel > 1 && vehicle[1]->get_besch()->get_leistung() == 0 && vehicle[1]->get_besch()->get_nachfolger_count() == 1 && vehicle[1]->get_besch()->get_nachfolger(0) && vehicle[1]->get_besch()->get_nachfolger(0)->get_leistung() == 0 && vehicle[1]->get_besch()->get_nachfolger(0)->get_preis() == 0)
 			{
 				// Multiple tenders or Garretts with powered front units.
 				a ++;
