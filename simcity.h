@@ -637,9 +637,9 @@ public:
 	// Checks to see whether this town is connected
 	// by road to each other town.
 	// @author: jamespetts, April 2010
-	uint16 check_road_connexion_to(stadt_t* city);
-	uint16 check_road_connexion_to(const fabrik_t* industry);
-	uint16 check_road_connexion_to(const gebaeude_t* attraction);
+	uint16 check_road_connexion_to(stadt_t* city) const;
+	uint16 check_road_connexion_to(const fabrik_t* industry) const;
+	uint16 check_road_connexion_to(const gebaeude_t* attraction) const;
 
 	void generate_private_cars(koord pos, uint16 journey_tenths_of_minutes, koord target, uint8 number_of_passengers);
 

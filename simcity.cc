@@ -2776,7 +2776,7 @@ void stadt_t::step_grow_city(bool new_town)
 }
 
 
-uint16 stadt_t::check_road_connexion_to(stadt_t* city)
+uint16 stadt_t::check_road_connexion_to(stadt_t* city) const
 {
 	if(welt->get_settings().get_assume_everywhere_connected_by_road())
 	{
@@ -2800,7 +2800,8 @@ uint16 stadt_t::check_road_connexion_to(stadt_t* city)
 		const grund_t* gr = welt->lookup_kartenboden(townhall_road);
 		const weg_t* road = gr ? gr->get_weg(road_wt) : NULL;
 		const uint16 journey_time_per_tile = road ? road->get_besch() == welt->get_city_road() ? welt->get_generic_road_time_per_tile_city() : welt->calc_generic_road_time_per_tile(road->get_besch()) : welt->get_generic_road_time_per_tile_city();
-		connected_cities.put(pos, journey_time_per_tile);
+		// The below is not network safe.
+		//connected_cities.put(pos, journey_time_per_tile);
 		return journey_time_per_tile;
 	}
 	else
@@ -2809,7 +2810,7 @@ uint16 stadt_t::check_road_connexion_to(stadt_t* city)
 	}
 }
 
-uint16 stadt_t::check_road_connexion_to(const fabrik_t* industry)
+uint16 stadt_t::check_road_connexion_to(const fabrik_t* industry) const
 {
 	stadt_t* city = industry->get_city(); 
 
@@ -2839,7 +2840,7 @@ uint16 stadt_t::check_road_connexion_to(const fabrik_t* industry)
 }
 
 
-uint16 stadt_t::check_road_connexion_to(const gebaeude_t* attraction)
+uint16 stadt_t::check_road_connexion_to(const gebaeude_t* attraction) const
 {
 	if(welt->get_settings().get_assume_everywhere_connected_by_road())
 	{
