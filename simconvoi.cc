@@ -1276,6 +1276,84 @@ sync_result convoi_t::sync_step(uint32 delta_t)
 	return SYNC_OK;
 }
 
+bool convoi_t::prepare_for_routing()
+{
+	if (anz_vehikel > 0 && fpl)
+	{
+		koord3d start = front()->get_pos();
+		koord3d ziel = fpl->get_current_eintrag().pos;
+		const koord3d original_ziel = ziel;
+
+		// Check whether the next stop is within range.
+		if (min_range > 0)
+		{
+			int count = 0;
+			const uint8 original_aktuell = fpl->get_aktuell();
+			const grund_t* gr = welt->lookup(ziel);
+			const depot_t* depot = gr ? gr->get_depot() : NULL;
+			while (count < fpl->get_count() && !haltestelle_t::get_halt(ziel, owner).is_bound() && !depot)
+			{
+				// The next stop is a waypoint - advance 
+				reverse_schedule ? fpl->advance_reverse() : fpl->advance();
+				ziel = fpl->get_current_eintrag().pos;
+				count++;
+			}
+			const uint16 distance = (shortest_distance(start.get_2d(), ziel.get_2d()) * welt->get_settings().get_meters_per_tile()) / 1000u;
+			fpl->set_aktuell(original_aktuell);
+			ziel = original_ziel;
+			if (distance > min_range)
+			{
+				state = OUT_OF_RANGE;
+				get_owner()->report_vehicle_problem(self, ziel);
+				return false;
+			}
+		}
+
+		halthandle_t destination_halt = haltestelle_t::get_halt(ziel, get_owner());
+		halthandle_t this_halt = haltestelle_t::get_halt(start, get_owner());
+		if (this_halt.is_bound() && this_halt == destination_halt)
+		{
+			// For some reason, the schedule has failed to advance. Advance it before calculating the route.
+			reverse_schedule ? fpl->advance_reverse() : fpl->advance();
+			ziel = fpl->get_current_eintrag().pos;
+		}
+
+		// avoid stopping midhalt
+		if (start == ziel) {
+			if (destination_halt.is_bound() && route.is_contained(start)) {
+				for (uint32 i = route.index_of(start); i < route.get_count(); i++) {
+					grund_t *gr = welt->lookup(route.position_bei(i));
+					if (gr  && gr->get_halt() == destination_halt) {
+						ziel = gr->get_pos();
+					}
+					else {
+						break;
+					}
+				}
+			}
+		}
+
+		const bool rail_type = front()->get_waytype() == track_wt || front()->get_waytype() == tram_wt || front()->get_waytype() == narrowgauge_wt || front()->get_waytype() == maglev_wt || front()->get_waytype() == monorail_wt;
+
+		if (rail_type)
+		{
+			rail_vehicle_t* rail_vehicle = (rail_vehicle_t*)front();
+			// If this is token block working, the route must only be unreserved if the token is released.
+			if (rail_vehicle->get_working_method() != token_block && rail_vehicle->get_working_method() != one_train_staff)
+			{
+				unreserve_route();
+			}
+		}
+		else if (front()->get_waytype() == air_wt)
+		{
+			// Sea and road waytypes do not have any sort of reserveation, and calls to unreserve_route() are expensive.
+			unreserve_route();
+		}
+	}
+
+	return true;
+}
+
 
 /**
  * Berechne route von Start- zu Zielkoordinate
@@ -1809,7 +1887,11 @@ end_loop:
 							if (can_go)
 							{
 								// Checking for a route is now multi-threaded
-								state = ROUTING_2;
+								// Calculate a route in the next threaded step.
+								if (prepare_for_routing())
+								{
+									state = ROUTING_2;
+								}
 								break;
 							}
 							else 
@@ -1839,10 +1921,11 @@ end_loop:
 				if (v->get_pos() == fpl->get_current_eintrag().pos) {
 					advance_schedule();
 				}
-				// Hajo: now calculate a new route
-
-				// Now route finding is multi-threaded
-				state = ROUTING_2;
+				// Calculate a route in the next threaded step.
+				if (prepare_for_routing())
+				{
+					state = ROUTING_2;
+				}
 			}
 		}
 		break;
@@ -1869,90 +1952,11 @@ end_loop:
 			}
 			else
 			{
-				// Hajo: now calculate a new route
-				
-				// Much of the below was originally part of do_drive(),
-				// but the part of do_drive() that can be multi-threaded
-				// has been set to be called from thread_step, so this code
-				// is now directly here. In particular, calls to 
-				// unreserve_route() cannot be multi-threaded because calls
-				// to can_enter_tile(), which depend on route reservation 
-				// status, are ultimately made from sync_step(). 
-
-				if (anz_vehikel > 0 && fpl)
+				// Calculate a route in the next threaded step.
+				if (prepare_for_routing())
 				{
-					koord3d start = front()->get_pos();
-					koord3d ziel = fpl->get_current_eintrag().pos;
-					const koord3d original_ziel = ziel;
-
-					// Check whether the next stop is within range.
-					if (min_range > 0)
-					{
-						int count = 0;
-						const uint8 original_aktuell = fpl->get_aktuell();
-						const grund_t* gr = welt->lookup(ziel);
-						const depot_t* depot = gr ? gr->get_depot() : NULL;
-						while (count < fpl->get_count() && !haltestelle_t::get_halt(ziel, owner).is_bound() && !depot)
-						{
-							// The next stop is a waypoint - advance 
-							reverse_schedule ? fpl->advance_reverse() : fpl->advance();
-							ziel = fpl->get_current_eintrag().pos;
-							count++;
-						}
-						const uint16 distance = (shortest_distance(start.get_2d(), ziel.get_2d()) * welt->get_settings().get_meters_per_tile()) / 1000u;
-						fpl->set_aktuell(original_aktuell);
-						ziel = original_ziel;
-						if (distance > min_range)
-						{
-							state = OUT_OF_RANGE;
-							get_owner()->report_vehicle_problem(self, ziel);
-							break;
-						}
-					}
-
-					halthandle_t destination_halt = haltestelle_t::get_halt(ziel, get_owner());
-					halthandle_t this_halt = haltestelle_t::get_halt(start, get_owner());
-					if (this_halt.is_bound() && this_halt == destination_halt)
-					{
-						// For some reason, the schedule has failed to advance. Advance it before calculating the route.
-						reverse_schedule ? fpl->advance_reverse() : fpl->advance();
-						ziel = fpl->get_current_eintrag().pos;
-					}
-
-					// avoid stopping midhalt
-					if (start == ziel) {
-						if (destination_halt.is_bound() && route.is_contained(start)) {
-							for (uint32 i = route.index_of(start); i < route.get_count(); i++) {
-								grund_t *gr = welt->lookup(route.position_bei(i));
-								if (gr  && gr->get_halt() == destination_halt) {
-									ziel = gr->get_pos();
-								}
-								else {
-									break;
-								}
-							}
-						}
-					}
-
-					const bool rail_type = front()->get_waytype() == track_wt || front()->get_waytype() == tram_wt || front()->get_waytype() == narrowgauge_wt || front()->get_waytype() == maglev_wt || front()->get_waytype() == monorail_wt;
-
-					if (rail_type)
-					{
-						rail_vehicle_t* rail_vehicle = (rail_vehicle_t*)front();
-						// If this is token block working, the route must only be unreserved if the token is released.
-						if (rail_vehicle->get_working_method() != token_block && rail_vehicle->get_working_method() != one_train_staff)
-						{
-							unreserve_route();
-						}
-					}
-					else if (front()->get_waytype() == air_wt)
-					{
-						// Sea and road waytypes do not have any sort of reserveation, and calls to unreserve_route() are expensive.
-						unreserve_route();
-					}
+					state = ROUTING_2;
 				}
-
-				state = ROUTING_2;
 			}
 			break;
 		}

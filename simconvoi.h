@@ -569,6 +569,13 @@ private:
 	*/
 	bool drive_to();
 
+	/** This was formerly part of
+	 * drive_to(), but is separated
+	 * in order to allow multi-threading
+	 * to work in network mode.
+	 */
+	bool prepare_for_routing();
+
 	/**
 	* Setup vehicles for moving in same direction than before
 	* if the direction is the same as before
