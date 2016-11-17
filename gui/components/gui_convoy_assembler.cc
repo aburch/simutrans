@@ -156,7 +156,7 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(waytype_t wt, signed char player_
 	scrolly_electrics.set_show_scroll_x(false);
 	scrolly_electrics.set_size_corner(false);
 	// add only if there are any trolleybuses
-	const uint8 shifter = 1 << vehikel_besch_t::electric;
+	const uint16 shifter = 1 << vehikel_besch_t::electric;
 	const bool correct_traction_type = !depot_frame || (shifter & depot_frame->get_depot()->get_tile()->get_besch()->get_enabled());
 	if(!electrics_vec.empty() && correct_traction_type) 
 	{
@@ -981,7 +981,7 @@ void gui_convoy_assembler_t::build_vehicle_lists()
 							}
 						}
 					}
-					const uint8 shifter = 1 << info->get_engine_type();
+					const uint16 shifter = 1 << info->get_engine_type();
 					const bool correct_traction_type = !depot_frame || (shifter & depot_frame->get_depot()->get_tile()->get_besch()->get_enabled());
 					const weg_t* way = depot_frame ? welt->lookup(depot_frame->get_depot()->get_pos())->get_weg(depot_frame->get_depot()->get_waytype()) : NULL;
 					const bool correct_way_constraint = !way || missing_way_constraints_t(info->get_way_constraints(), way->get_way_constraints()).check_next_tile();
@@ -1461,8 +1461,8 @@ void gui_convoy_assembler_t::update_data()
 				}
 				if(depot_frame && (i.key->get_leistung() > 0 || veh_action == va_insert && i.key->get_vorgaenger_count() == 1 && i.key->get_vorgaenger(0) && i.key->get_vorgaenger(0)->get_leistung() > 0))
 				{
-					const uint8 traction_type = i.key->get_engine_type();
-					const uint8 shifter = 1 << traction_type;
+					const uint16 traction_type = i.key->get_engine_type();
+					const uint16 shifter = 1 << traction_type;
 					if(!(shifter & depot_frame->get_depot()->get_tile()->get_besch()->get_enabled()))
 					{
 						// Do not allow purchasing of vehicle if depot is of the wrong type.
@@ -1684,7 +1684,7 @@ void gui_convoy_assembler_t::update_tabs()
 	scrolly_electrics.set_show_scroll_x(false);
 	scrolly_electrics.set_size_corner(false);
 	// add only if there are any trolleybuses
-	const uint8 shifter = 1 << vehikel_besch_t::electric;
+	const uint16 shifter = 1 << vehikel_besch_t::electric;
 	const bool correct_traction_type = !depot_frame || (shifter & depot_frame->get_depot()->get_tile()->get_besch()->get_enabled());
 	if(!electrics_vec.empty() && correct_traction_type) 
 	{

@@ -192,7 +192,7 @@ class haus_besch_t : public obj_besch_timelined_t {
 	flag_t flags;
 	uint16 level;			// or passengers;
 	uint8  layouts;			// 1 2, 4, 8  or 16
-	uint8  enables;			// if it is a stop, what is enabled; if it is a signal box, the signal group that can be linked to this box.
+	uint16 enables;			// if it is a stop, what is enabled; if it is a signal box, the signal group that can be linked to this box.
 	uint8  chance;			// Hajo: chance to build, special buildings, only other is weight factor
 
 	/** @author: jamespetts.
@@ -344,7 +344,7 @@ public:
 	* @return station flags (only used for station buildings, oil rigs and traction types in depots)
 	* @author prissi
 	*/
-	int get_enabled() const { return enables; }
+	uint16 get_enabled() const { return enables; }
 
 	/**
 	* @return time for doing one step

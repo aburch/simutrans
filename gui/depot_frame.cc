@@ -160,15 +160,15 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	{
 		txt_traction_types.printf("%s", translator::translate("Unpowered vehicles only"));
 	}
-	else if(depot->get_tile()->get_besch()->get_enabled() == 255)
+	else if(depot->get_tile()->get_besch()->get_enabled() == 65535)
 	{
 		txt_traction_types.printf("%s", translator::translate("All traction types"));
 	}
 	else
 	{
-		uint8 shifter;
+		uint16 shifter;
 		bool first = true;
-		for(uint8 i = 0; i < 8; i ++)
+		for(uint16 i = 0; i < (vehikel_besch_t::MAX_TRACTION_TYPE - 1); i ++)
 		{
 			shifter = 1 << i;
 			if((shifter & depot->get_tile()->get_besch()->get_enabled()))

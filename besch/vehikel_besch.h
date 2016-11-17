@@ -71,7 +71,8 @@ public:
 		hydrogene,
 		battery,
 		petrol,
-		turbine
+		turbine,
+		MAX_TRACTION_TYPE
 	};
 
 	static const char* get_engine_type(engine_t e) 
@@ -690,7 +691,7 @@ public:
 	* eletric engines require an electrified way to run
 	* @author Hj. Malthaner
 	*/
-	uint8 get_engine_type() const { return engine_type; }
+	uint16 get_engine_type() const { return engine_type; }
 
 	/* @return the vehicles length in 1/8 of the normal len
 	* @author prissi

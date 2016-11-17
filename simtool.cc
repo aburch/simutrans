@@ -139,7 +139,7 @@ char *tooltip_with_price_maintenance(karte_t *welt, const char *tip, sint64 pric
 /**
  * Creates a tooltip from tip text and money value
  */
-char *tooltip_with_price_maintenance_level(karte_t *welt, const char *tip, sint64 price, sint64 maintenance, uint16 capacity, uint8 enables)
+char *tooltip_with_price_maintenance_level(karte_t *welt, const char *tip, sint64 price, sint64 maintenance, uint16 capacity, uint16 enables)
 {
 	int n = sprintf(tool_t::toolstr, "%s, ", translator::translate(tip) );
 	money_to_string(tool_t::toolstr+n, (double)price/-100.0);

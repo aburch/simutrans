@@ -455,7 +455,7 @@ private:
 	uint32 last_ware_index;
 
 	/* station flags (most what enabled) */
-	uint8 enables;
+	uint16 enables;
 
 	/**
 	* 0 = North; 1 = South; 2 = East 3 = West

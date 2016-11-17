@@ -849,7 +849,7 @@ const haus_besch_t* hausbauer_t::get_besch(const char *name)
 }
 
 
-const haus_besch_t* hausbauer_t::get_random_station(const haus_besch_t::utyp utype, const waytype_t wt, const uint16 time, const uint8 enables)
+const haus_besch_t* hausbauer_t::get_random_station(const haus_besch_t::utyp utype, const waytype_t wt, const uint16 time, const uint16 enables)
 {
 	weighted_vector_tpl<const haus_besch_t*> stops;
 

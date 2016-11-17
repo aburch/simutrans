@@ -294,7 +294,7 @@ obj_besch_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			{
 				besch->upgrades = 0;
 			}
-			if(experimental_version > 2)
+			if(experimental_version > 3)
 			{
 				// Check for incompatible future versions
 				dbg->fatal( "factory_reader_t::read_node()","Incompatible pak file version for Simutrans-Ex, number %i", experimental_version );

@@ -56,7 +56,7 @@ sint64 get_scaled_maintenance_building(const haus_besch_t* besch)
 }
 
 
-bool building_enables(const haus_besch_t* besch, uint8 which)
+bool building_enables(const haus_besch_t* besch, uint16 which)
 {
 	return besch ? besch->get_enabled() & which : 0;
 }
