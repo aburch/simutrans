@@ -69,7 +69,9 @@ public:
 		sail,
 		fuel_cell,
 		hydrogene,
-		battery
+		battery,
+		petrol,
+		turbine
 	};
 
 	static const char* get_engine_type(engine_t e) 
@@ -95,6 +97,10 @@ public:
 			return "hydrogene";
 		case battery:
 			return "battery";
+		case petrol:
+			return "petrol";
+		case turbine:
+			return "turbine";
 		}
 	}
 

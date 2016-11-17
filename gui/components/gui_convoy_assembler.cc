@@ -36,7 +36,7 @@
 
 #include "../../dataobj/settings.h"
 
-static const char * engine_type_names [9] =
+static const char * engine_type_names [11] =
 {
   "unknown",
   "steam",
@@ -46,7 +46,9 @@ static const char * engine_type_names [9] =
   "sail",
   "fuel_cell",
   "hydrogene",
-  "battery"
+  "battery",
+  "petrol",
+  "turbine"
 };
 
 gui_convoy_assembler_t::gui_convoy_assembler_t(waytype_t wt, signed char player_nr, bool electrified) :
@@ -842,7 +844,7 @@ void gui_convoy_assembler_t::build_vehicle_lists()
 			int loks = 0, waggons = 0, pax=0, electrics = 0;
 			FOR(slist_tpl<vehikel_besch_t *>, const info, vehikelbauer_t::get_info(way_type)) 
 			{
-				if(  info->get_engine_type() == vehikel_besch_t::electric  &&  (info->get_ware()==warenbauer_t::passagiere  ||  info->get_ware()==warenbauer_t::post)) 
+				if(info->get_engine_type() == vehikel_besch_t::electric  &&  (info->get_ware()==warenbauer_t::passagiere  ||  info->get_ware()==warenbauer_t::post)) 
 				{
 					electrics++;
 				}
@@ -1825,7 +1827,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 
 		int n = sprintf(buf, "%s", translator::translate(veh_type->get_name(),welt->get_settings().get_name_language_id()));
 
-		if(  veh_type->get_leistung() > 0 && veh_type->get_waytype() != air_wt ) { // LOCO
+		if(  veh_type->get_leistung() > 0 ) { // LOCO
 			n += sprintf( buf + n, " (%s)\n", translator::translate( engine_type_names[veh_type->get_engine_type()+1] ) );
 		}
 		else {
