@@ -1655,17 +1655,9 @@ void *step_passengers_and_mail_threaded(void* args)
 		total_units_mail = 0;
 
 		next_step_passenger_this_thread = karte_t::world->next_step_passenger / (karte_t::world->get_parallel_operations() - 1);
-		if (thread_number == 0)
-		{
-			next_step_passenger_this_thread += karte_t::world->next_step_passenger % (karte_t::world->get_parallel_operations() - 1);
-			
-		}
 
 		next_step_mail_this_thread = karte_t::world->next_step_mail / (karte_t::world->get_parallel_operations() - 1);
-		if (thread_number == 0)
-		{
-			next_step_mail_this_thread += karte_t::world->next_step_mail % (karte_t::world->get_parallel_operations() - 1);
-		}
+		
 
 		if (next_step_passenger_this_thread < karte_t::world->passenger_step_interval && karte_t::world->next_step_passenger > karte_t::world->passenger_step_interval)
 		{
@@ -1679,6 +1671,11 @@ void *step_passengers_and_mail_threaded(void* args)
 				next_step_passenger_this_thread = 0;
 			}
 		}
+		else if (thread_number == 0)
+		{
+			next_step_passenger_this_thread += karte_t::world->next_step_passenger % (karte_t::world->get_parallel_operations() - 1);
+
+		}
 
 		if (next_step_mail_this_thread < karte_t::world->mail_step_interval && karte_t::world->next_step_mail > karte_t::world->mail_step_interval)
 		{
@@ -1691,6 +1688,10 @@ void *step_passengers_and_mail_threaded(void* args)
 			{
 				next_step_mail_this_thread = 0;
 			}
+		}
+		else if (thread_number == 0)
+		{
+			next_step_mail_this_thread += karte_t::world->next_step_mail % (karte_t::world->get_parallel_operations() - 1);
 		}
 			
 		if (karte_t::world->passenger_step_interval <= next_step_passenger_this_thread)
