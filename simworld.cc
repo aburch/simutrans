@@ -5141,7 +5141,9 @@ rands[31] = 0;
 rands[23] = 0;
 
 	// This is quite computationally intensive, but not as much as the path explorer. It can be more or less than the convoys, depending on the map.
-#if MULTI_THREAD
+	// Multi-threading the passenger and mail generation is currently not working well as dividing the number of passengers/mail to be generated per
+	//step by the number of parallel operations introduces significant rounding errors.
+#if 0
 	
 	if (env_t::networkmode)
 	{
@@ -5189,7 +5191,7 @@ rands[15] = get_random_seed();
 
 	rands[23] = get_random_seed();
 
-#if MULTI_THREAD
+#if 0 // Disabled for reasons given above.
 	if (!env_t::networkmode)
 	{
 		// Stop the passenger and mail generation.
