@@ -1637,6 +1637,9 @@ void *step_passengers_and_mail_threaded(void* args)
 	sint32 next_step_passenger_this_thread;
 	sint32 next_step_mail_this_thread;
 
+	sint32 total_units_passenger;
+	sint32 total_units_mail;
+
 	do
 	{	
 	top:
@@ -1648,9 +1651,47 @@ void *step_passengers_and_mail_threaded(void* args)
 
 		// The generate passengers function is called many times (often well > 100) each step; the mail version is called only once or twice each step, sometimes not at all.
 		uint32 units_this_step;
+		total_units_passenger = 0;
+		total_units_mail = 0;
 
 		next_step_passenger_this_thread = karte_t::world->next_step_passenger / (karte_t::world->get_parallel_operations() - 1);
+		if (thread_number == 0)
+		{
+			next_step_passenger_this_thread += karte_t::world->next_step_passenger % (karte_t::world->get_parallel_operations() - 1);
+			
+		}
+
 		next_step_mail_this_thread = karte_t::world->next_step_mail / (karte_t::world->get_parallel_operations() - 1);
+		if (thread_number == 0)
+		{
+			next_step_mail_this_thread += karte_t::world->next_step_mail % (karte_t::world->get_parallel_operations() - 1);
+		}
+
+		if (next_step_passenger_this_thread < karte_t::world->passenger_step_interval && karte_t::world->next_step_passenger > karte_t::world->passenger_step_interval)
+		{
+			if (thread_number == 0)
+			{
+				// In case of very small numbers, make this effectively single threaded, or else rounding errors will prevent any passenger generation.
+				next_step_passenger_this_thread = karte_t::world->next_step_passenger;
+			}
+			else
+			{
+				next_step_passenger_this_thread = 0;
+			}
+		}
+
+		if (next_step_mail_this_thread < karte_t::world->mail_step_interval && karte_t::world->next_step_mail > karte_t::world->mail_step_interval)
+		{
+			if (thread_number == 0)
+			{
+				// In case of very small numbers, make this effectively single threaded, or else rounding errors will prevent any mail generation.
+				next_step_mail_this_thread = karte_t::world->next_step_mail;
+			}
+			else
+			{
+				next_step_mail_this_thread = 0;
+			}
+		}
 			
 		if (karte_t::world->passenger_step_interval <= next_step_passenger_this_thread)
 		{
@@ -1661,7 +1702,7 @@ void *step_passengers_and_mail_threaded(void* args)
 					goto top;
 				}
 				units_this_step = karte_t::world->generate_passengers_or_mail(warenbauer_t::passagiere);
-
+				total_units_passenger += units_this_step;
 				next_step_passenger_this_thread -= (karte_t::world->passenger_step_interval * units_this_step);
 
 			} while (karte_t::world->passenger_step_interval <= next_step_passenger_this_thread);
@@ -1676,13 +1717,18 @@ void *step_passengers_and_mail_threaded(void* args)
 					goto top;
 				}
 				units_this_step = karte_t::world->generate_passengers_or_mail(warenbauer_t::post);
-
+				total_units_mail += units_this_step;
 				next_step_mail_this_thread -= (karte_t::world->mail_step_interval * units_this_step);
 
 			} while (karte_t::world->mail_step_interval <= next_step_mail_this_thread);
 		}
-		simthread_barrier_wait(&step_passengers_and_mail_barrier); // Having two of these (one at the top and one at the bottom) is intentional.
 
+		simthread_barrier_wait(&step_passengers_and_mail_barrier); // Having three of these is intentional.
+		pthread_mutex_lock(&step_passengers_and_mail_mutex);
+		karte_t::world->next_step_passenger -= (total_units_passenger * karte_t::world->passenger_step_interval);
+		karte_t::world->next_step_mail -= (total_units_mail * karte_t::world->mail_step_interval);
+		pthread_mutex_unlock(&step_passengers_and_mail_mutex);
+		simthread_barrier_wait(&step_passengers_and_mail_barrier);
 	} while (!karte_t::world->is_terminating_threads());
 
 	pthread_exit(NULL);
@@ -5143,7 +5189,7 @@ rands[23] = 0;
 	// This is quite computationally intensive, but not as much as the path explorer. It can be more or less than the convoys, depending on the map.
 	// Multi-threading the passenger and mail generation is currently not working well as dividing the number of passengers/mail to be generated per
 	//step by the number of parallel operations introduces significant rounding errors.
-#if 0
+#if MULTI_THREAD
 	
 	if (env_t::networkmode)
 	{
@@ -5161,8 +5207,6 @@ rands[23] = 0;
 		}
 		next_step_passenger += dt;
 		next_step_mail += dt;
-
-
 
 		simthread_barrier_wait(&step_passengers_and_mail_barrier);
 	}
@@ -5194,13 +5238,13 @@ rands[15] = get_random_seed();
 
 	rands[23] = get_random_seed();
 
-#if 0 // Disabled for reasons given above.
+#if MULTI_THREAD
 	if (!env_t::networkmode)
 	{
 		// Stop the passenger and mail generation.
 		simthread_barrier_wait(&step_passengers_and_mail_barrier);
-		next_step_passenger = passenger_step_interval - 1;
-		next_step_mail = mail_step_interval - 1;
+		// The extra barrier is needed to synchronise the generation figures.
+		simthread_barrier_wait(&step_passengers_and_mail_barrier);
 	}
 #endif
 
