@@ -5123,11 +5123,11 @@ rands[13] = get_random_seed();
 rands[14] = get_random_seed();
 
 #ifdef MULTI_THREAD
-// The placement of this barrier must be before any code that in any way relies on the private car routes between cities, most especially the mail and passenger generation (step_passengers_and_mail(delta_t)).
-if (check_city_routes)
-{
-	simthread_barrier_wait(&private_car_barrier); // One wait barrier to activate all the private car checker threads, the second to wait until they have all finished. This is the second.
-}
+	// The placement of this barrier must be before any code that in any way relies on the private car routes between cities, most especially the mail and passenger generation (step_passengers_and_mail(delta_t)).
+	if (check_city_routes)
+	{
+		simthread_barrier_wait(&private_car_barrier); // One wait barrier to activate all the private car checker threads, the second to wait until they have all finished. This is the second.
+	}
 #endif	
 
 rands[24] = 0;
@@ -5161,6 +5161,9 @@ rands[23] = 0;
 		}
 		next_step_passenger += dt;
 		next_step_mail += dt;
+
+
+
 		simthread_barrier_wait(&step_passengers_and_mail_barrier);
 	}
 	#else
