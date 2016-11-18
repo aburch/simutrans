@@ -5476,19 +5476,19 @@ void karte_t::get_nearby_halts_of_tiles(const vector_tpl<const planquadrat_t*> &
 uint32 karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 {
 	const city_cost history_type = (wtyp == warenbauer_t::passagiere) ? HIST_PAS_TRANSPORTED : HIST_MAIL_TRANSPORTED;
-	const uint32 units_this_step = simrand((uint32)settings.get_passenger_routing_packet_size(), "void karte_t::step_passengers_and_mail(uint32 delta_t) passenger/mail packet size") + 1;
+	const uint32 units_this_step = simrand((uint32)settings.get_passenger_routing_packet_size(), "void karte_t::generate_passengers_and_mail(uint32 delta_t) passenger/mail packet size") + 1;
 	// Pick the building from which to generate passengers/mail
 	gebaeude_t* gb;
 	if(wtyp == warenbauer_t::passagiere)
 	{
 		// Pick a passenger building at random
-		const uint32 weight = simrand(passenger_origins.get_sum_weight() - 1, "void karte_t::step_passengers_and_mail(uint32 delta_t) pick origin building (passengers)");
+		const uint32 weight = simrand(passenger_origins.get_sum_weight() - 1, "void karte_t::generate_passengers_and_mail(uint32 delta_t) pick origin building (passengers)");
 		gb = passenger_origins.at_weight(weight);
 	}
 	else
 	{
 		// Pick a mail building at random
-		const uint32 weight = simrand(mail_origins_and_targets.get_sum_weight() - 1, "void karte_t::step_passengers_and_mail(uint32 delta_t) pick origin building (mail)");
+		const uint32 weight = simrand(mail_origins_and_targets.get_sum_weight() - 1, "void karte_t::generate_passengers_and_mail(uint32 delta_t) pick origin building (mail)");
 		gb = mail_origins_and_targets.at_weight(weight);
 	}
 
@@ -5523,7 +5523,7 @@ uint32 karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 	const sint16 private_car_percent = wtyp == warenbauer_t::passagiere ? get_private_car_ownership(get_timeline_year_month()) : 0; 
 	// Only passengers have private cars
 	// QUERY: Should people be taken to be able to deliver mail packets in their own cars?
-	bool has_private_car = private_car_percent > 0 ? simrand(100, "karte_t::step_passengers_and_mail() (has private car?)") <= (uint16)private_car_percent : false;
+	bool has_private_car = private_car_percent > 0 ? simrand(100, "karte_t::generate_passengers_and_mail() (has private car?)") <= (uint16)private_car_percent : false;
 	
 	// Record the most useful set of information about why passengers cannot reach their chosen destination:
 	// Too slow > overcrowded > no route. Tiebreaker: higher destination preference.
@@ -5540,7 +5540,7 @@ uint32 karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 
 	const uint16 max_onward_trips = settings.get_max_onward_trips();
 	trip_type trip = (wtyp == warenbauer_t::passagiere) ?
-			simrand(100, "karte_t::step_passengers_and_mail() (commuting or visiting trip?)") < settings.get_commuting_trip_chance_percent() ?
+			simrand(100, "karte_t::generate_passengers_and_mail() (commuting or visiting trip?)") < settings.get_commuting_trip_chance_percent() ?
 		commuting_trip : visiting_trip : mail_trip;
 
 	// Add 1 because the simuconf.tab setting is for maximum *alternative* destinations, whereas we need maximum *actual* desintations 
@@ -5558,7 +5558,7 @@ uint32 karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 	// Find passenger destination
 
 	// Mail does not make onward journeys.
-	const uint16 onward_trips = simrand(100, "void stadt_t::step_passagiere() (any onward trips?)") < settings.get_onward_trip_chance_percent() &&
+	const uint16 onward_trips = simrand(100, "void stadt_t::generate_passengers_and_mail() (any onward trips?)") < settings.get_onward_trip_chance_percent() &&
 		wtyp == warenbauer_t::passagiere ? simrand(max_onward_trips, "void stadt_t::step_passagiere() (how many onward trips?)") + 1 : 1;
 
 	route_status = initialising;
@@ -5566,7 +5566,7 @@ uint32 karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 	for(uint32 trip_count = 0; trip_count < onward_trips && route_status != no_route && route_status != too_slow && route_status != overcrowded && route_status != destination_unavailable; trip_count ++)
 	{
 		// Permit onward journeys - but only for successful journeys
-		const uint32 destination_count = simrand(max_destinations, "void stadt_t::step_passagiere() (number of destinations?)") + 1;
+		const uint32 destination_count = simrand(max_destinations, "void stadt_t::generate_passengers_and_mail() (number of destinations?)") + 1;
 		// Split passengers between commuting trips and other trips.
 		if(trip_count == 0)
 		{
@@ -5577,11 +5577,11 @@ uint32 karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 			}
 			else if(trip == commuting_trip)
 			{
-				tolerance = (uint16)simrand_normal(range_commuting_tolerance, settings.get_random_mode_commuting(), "karte_t::step_passengers_and_mail (commuting tolerance?)") + min_commuting_tolerance;
+				tolerance = (uint16)simrand_normal(range_commuting_tolerance, settings.get_random_mode_commuting(), "karte_t::generate_passengers_and_mail (commuting tolerance?)") + min_commuting_tolerance;
 			}
 			else
 			{
-				tolerance = (uint16)simrand_normal(range_visiting_tolerance, settings.get_random_mode_visiting(), "karte_t::step_passengers_and_mail (visiting tolerance?)") + min_visiting_tolerance;
+				tolerance = (uint16)simrand_normal(range_visiting_tolerance, settings.get_random_mode_visiting(), "karte_t::generate_passengers_and_mail (visiting tolerance?)") + min_visiting_tolerance;
 			}
 		}
 		else
@@ -5680,7 +5680,7 @@ uint32 karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 		if(wtyp == warenbauer_t::post)
 		{
 			// People will walk long distances with mail: it is not heavy.
-			quasi_tolerance = simrand_normal(range_visiting_tolerance, settings.get_random_mode_visiting(), "karte_t::step_passengers_and_mail (quasi tolerance)") + min_visiting_tolerance;
+			quasi_tolerance = simrand_normal(range_visiting_tolerance, settings.get_random_mode_visiting(), "karte_t::generate_passengers_and_mail (quasi tolerance)") + min_visiting_tolerance;
 		}
 		else
 		{
@@ -5980,7 +5980,7 @@ uint32 karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 			// a private car journey is not possible.
 			if(car_minutes < tolerance)
 			{
-				const uint16 private_car_chance = (uint16)simrand(100, "void stadt_t::step_passagiere() (private car chance?)");
+				const uint16 private_car_chance = (uint16)simrand(100, "void stadt_t::generate_passengers_and_mail() (private car chance?)");
 
 				if(route_status != public_transport)
 				{
