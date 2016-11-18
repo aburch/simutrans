@@ -59,7 +59,7 @@ public:
 	 *   - 0 if we don't want to filter by traction type
 	 *   - a bitmask of possible traction types; we need only match one
 	 */
-	bool is_suitable_for( const vehicle_t * test_vehicle, const uint8 traction_types = 0) const;
+	bool is_suitable_for( const vehicle_t * test_vehicle, const uint16 traction_types = 0) const;
 
 	// finds the next/previous depot relative to the current position
 	static depot_t *find_depot( koord3d start, const obj_t::typ depot_type, const player_t *player, bool next);

@@ -6262,9 +6262,9 @@ class depot_finder_t : public test_driver_t
 {
 private:
 	vehicle_t *master;
-	uint8 traction_type;
+	uint16 traction_type;
 public:
-	depot_finder_t( convoihandle_t cnv, uint8 tt )
+	depot_finder_t( convoihandle_t cnv, uint16 tt )
 	{
 		master = cnv->get_vehikel(0);
 		assert(master!=NULL);
@@ -6327,8 +6327,8 @@ DBG_MESSAGE("convoi_t::go_to_depot()","convoi state %i => cannot change schedule
 	}
 
 	// Identify this convoi's traction types.  We want to match at least one.
-	uint8 traction_types = 0;
-	uint8 shifter;
+	uint16 traction_types = 0;
+	uint16 shifter;
 	if(replace)
 	{
 		ITERATE_PTR(replace->get_replacing_vehicles(), i)

@@ -275,7 +275,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 		marker.mark(gr);
 
 		// already there
-		if(tdriver-> is_target(gr, tmp->parent == NULL ? NULL : tmp->parent->gr))
+		if(tdriver->is_target(gr, tmp->parent == NULL ? NULL : tmp->parent->gr))
 		{
 			if(flags != private_car_checker)
 			{
