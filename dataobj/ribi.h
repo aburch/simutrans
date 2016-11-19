@@ -186,7 +186,6 @@ public:
 	typedef uint8 dir;
 
 private:
-	static const ribi fwrd[16];
 	static const ribi rwr[16];
 	static const ribi doppelr[16];
 	static const dir  dirs[16];
@@ -221,7 +220,6 @@ public:
 		return ((x  |  x<<4) >> 2) & 0xf;
 	}
 
-	static ribi get_forward(ribi x) { return fwrd[x]; }	// all ribis, that are in front of this thing
 	/// Rotate 90 degrees to the right. Does bit rotation.
 	static ribi rotate90(ribi x) { return ((x  |  x<<4) >> 3) & 0xf; }
 	/// Rotate 90 degrees to the left. Does bit rotation.

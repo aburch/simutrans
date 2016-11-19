@@ -84,25 +84,6 @@ const ribi_t::ribi ribi_t::doppelr[16] = {
 	keine		// all
 };
 
-const ribi_t::ribi ribi_t::fwrd[16] = {
-	alle,			// none
-	nordostwest,	// north
-	nordsuedost,	// east
-	nordost,		// north-east
-	suedostwest,	// south
-	keine,			// north-south
-	suedost,		// south-east
-	keine,			// north-south-east
-	nordsuedwest,	// west
-	nordwest,		// north-west
-	keine,			// east-west
-	keine,			// north-east-west
-	suedwest,		// south-west
-	keine,			// north-south-west
-	keine,			// south-east-west
-	keine			// all
-};
-
 
 static const ribi_t::ribi from_hang[81] = {
 	ribi_t::keine, // ribi_t::none:flat
