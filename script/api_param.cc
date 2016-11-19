@@ -4,7 +4,7 @@
 #include "../simcity.h"
 #include "../simfab.h"
 #include "../bauer/warenbauer.h"
-#include "../dataobj/fahrplan.h"
+#include "../dataobj/schedule.h"
 #include "../dataobj/loadsave.h"
 #include "../dataobj/scenario.h"
 #include "../player/simplay.h"

@@ -32,7 +32,7 @@
 
 #include "../bauer/vehikelbauer.h"
 
-#include "../dataobj/fahrplan.h"
+#include "../dataobj/schedule.h"
 #include "../dataobj/translator.h"
 #include "../dataobj/environment.h"
 

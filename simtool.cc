@@ -73,7 +73,7 @@
 
 #include "dataobj/settings.h"
 #include "dataobj/environment.h"
-#include "dataobj/fahrplan.h"
+#include "dataobj/schedule.h"
 #include "dataobj/route.h"
 #include "dataobj/scenario.h"
 #include "network/network_cmd_ingame.h" // for dragging raise / lower tools

@@ -22,7 +22,7 @@
 #include "../simware.h"
 #include "../gui/simwin.h"
 
-#include "../dataobj/fahrplan.h"
+#include "../dataobj/schedule.h"
 #include "../dataobj/translator.h"
 #include "../dataobj/loadsave.h"
 // @author hsiegeln

@@ -18,7 +18,7 @@
 #include "../simdepot.h"
 #include "loadsave.h"
 
-#include "fahrplan.h"
+#include "schedule.h"
 
 #include "../tpl/slist_tpl.h"
 

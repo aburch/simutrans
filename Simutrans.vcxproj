@@ -219,7 +219,6 @@
     <ClCompile Include="besch\reader\factory_reader.cc" />
     <ClCompile Include="gui\factorylist_frame_t.cc" />
     <ClCompile Include="gui\factorylist_stats_t.cc" />
-    <ClCompile Include="dataobj\fahrplan.cc" />
     <ClCompile Include="gui\fahrplan_gui.cc" />
     <ClCompile Include="obj\field.cc" />
     <ClCompile Include="dataobj\freelist.cc" />
@@ -330,6 +329,7 @@
     <ClCompile Include="dataobj\scenario.cc" />
     <ClCompile Include="gui\scenario_frame.cc" />
     <ClCompile Include="gui\scenario_info.cc" />
+    <ClCompile Include="dataobj\schedule.cc" />
     <ClCompile Include="gui\schedule_list.cc" />
     <ClCompile Include="boden\wege\schiene.cc" />
     <ClCompile Include="script\script.cc" />
@@ -516,7 +516,6 @@
     <ClInclude Include="gui\factorylist_frame_t.h" />
     <ClInclude Include="gui\factorylist_stats_t.h" />
     <ClInclude Include="ifc\simtestdriver.h" />
-    <ClInclude Include="dataobj\fahrplan.h" />
     <ClInclude Include="gui\fahrplan_gui.h" />
     <ClInclude Include="obj\field.h" />
     <ClInclude Include="dataobj\freelist.h" />
@@ -590,7 +589,6 @@
     <ClInclude Include="gui\line_item.h" />
     <ClInclude Include="gui\line_management_gui.h" />
     <ClInclude Include="linehandle_t.h" />
-    <ClInclude Include="dataobj\linieneintrag.h" />
     <ClInclude Include="gui\components\list_button.h" />
     <ClInclude Include="gui\load_relief_frame.h" />
     <ClInclude Include="dataobj\loadsave.h" />
@@ -655,6 +653,8 @@
     <ClInclude Include="dataobj\scenario.h" />
     <ClInclude Include="gui\scenario_frame.h" />
     <ClInclude Include="gui\scenario_info.h" />
+    <ClInclude Include="dataobj\schedule.h" />
+    <ClInclude Include="dataobj\schedule_entry.h" />
     <ClInclude Include="gui\schedule_list.h" />
     <ClInclude Include="boden\wege\schiene.h" />
     <ClInclude Include="scrolltext.h" />

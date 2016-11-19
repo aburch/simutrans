@@ -35,7 +35,7 @@
 #include "besch/vehikel_besch.h"
 #include "besch/roadsign_besch.h"
 
-#include "dataobj/fahrplan.h"
+#include "dataobj/schedule.h"
 #include "dataobj/route.h"
 #include "dataobj/loadsave.h"
 #include "dataobj/translator.h"

@@ -14,7 +14,7 @@
 
 // for manipulation of lines
 #include "../../simmenu.h"
-#include "../../dataobj/fahrplan.h"
+#include "../../dataobj/schedule.h"
 
 // template<> schedule_t* script_api::param<schedule_t*>::get(HSQUIRRELVM, SQInteger);
 

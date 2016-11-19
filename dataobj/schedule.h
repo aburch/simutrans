@@ -1,7 +1,7 @@
 #ifndef fahrplan_h
 #define fahrplan_h
 
-#include "linieneintrag.h"
+#include "schedule_entry.h"
 
 #include "../halthandle_t.h"
 

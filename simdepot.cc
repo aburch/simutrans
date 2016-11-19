@@ -22,7 +22,7 @@
 #include "gui/depot_frame.h"
 #include "gui/messagebox.h"
 
-#include "dataobj/fahrplan.h"
+#include "dataobj/schedule.h"
 #include "dataobj/loadsave.h"
 #include "dataobj/translator.h"
 

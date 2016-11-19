@@ -59,7 +59,7 @@
 #include "../besch/skin_besch.h"
 #include "../besch/roadsign_besch.h"
 
-#include "../dataobj/fahrplan.h"
+#include "../dataobj/schedule.h"
 #include "../dataobj/translator.h"
 #include "../dataobj/loadsave.h"
 #include "../dataobj/environment.h"

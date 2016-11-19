@@ -14,7 +14,7 @@
 
 #include "../dataobj/translator.h"
 #include "../dataobj/settings.h"
-#include "../dataobj/fahrplan.h"
+#include "../dataobj/schedule.h"
 #include "../dataobj/powernet.h"
 #include "../dataobj/ribi.h"
 #include "../dataobj/loadsave.h"

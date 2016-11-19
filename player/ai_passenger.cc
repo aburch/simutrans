@@ -22,7 +22,7 @@
 #include "../bauer/vehikelbauer.h"
 #include "../bauer/wegbauer.h"
 
-#include "../dataobj/fahrplan.h"
+#include "../dataobj/schedule.h"
 #include "../dataobj/loadsave.h"
 #include "../dataobj/marker.h"
 

@@ -5,7 +5,7 @@
 #include "simworld.h"
 
 #include "utils/simstring.h"
-#include "dataobj/fahrplan.h"
+#include "dataobj/schedule.h"
 #include "dataobj/translator.h"
 #include "dataobj/loadsave.h"
 #include "gui/gui_theme.h"
