@@ -12,17 +12,17 @@
 marker_t marker_t::the_instance;
 
 
-void marker_t::init(int welt_groesse_x,int welt_groesse_y)
+void marker_t::init(int world_size_x, int world_size_y)
 {
 	// do not reallocate it, if same size ...
-	cached_groesse = welt_groesse_x;
-	int new_bits_groesse = (welt_groesse_x*welt_groesse_y + bit_mask) / (bit_unit);
+	cached_size_x = world_size_x;
+	int new_bits_length = (world_size_x*world_size_y + bit_mask) / (bit_unit);
 
-	if(  bits_groesse != new_bits_groesse  ) {
-		bits_groesse = new_bits_groesse;
+	if( bits_length != new_bits_length  ) {
+		bits_length = new_bits_length;
 		delete [] bits;
-		if(bits_groesse) {
-			bits = new unsigned char[bits_groesse];
+		if(bits_length) {
+			bits = new unsigned char[bits_length];
 		}
 		else {
 			bits = NULL;
@@ -31,9 +31,9 @@ void marker_t::init(int welt_groesse_x,int welt_groesse_y)
 	unmark_all();
 }
 
-marker_t& marker_t::instance(int welt_groesse_x,int welt_groesse_y)
+marker_t& marker_t::instance(int world_size_x, int world_size_y)
 {
-	the_instance.init(welt_groesse_x, welt_groesse_y);
+	the_instance.init(world_size_x, world_size_y);
 	return the_instance;
 }
 
@@ -45,7 +45,7 @@ marker_t::~marker_t()
 void marker_t::unmark_all()
 {
 	if(bits) {
-		MEMZERON(bits, bits_groesse);
+		MEMZERON(bits, bits_length);
 	}
 	more.clear();
 }
@@ -55,7 +55,7 @@ void marker_t::mark(const grund_t *gr)
 	if(gr != NULL) {
 		if(gr->ist_karten_boden()) {
 			// ground level
-			const int bit = gr->get_pos().y*cached_groesse+gr->get_pos().x;
+			const int bit = gr->get_pos().y*cached_size_x+gr->get_pos().x;
 			bits[bit/bit_unit] |= 1 << (bit & bit_mask);
 		}
 		else {
@@ -69,7 +69,7 @@ void marker_t::unmark(const grund_t *gr)
 	if(gr != NULL) {
 		if(gr->ist_karten_boden()) {
 			// ground level
-			const int bit = gr->get_pos().y*cached_groesse+gr->get_pos().x;
+			const int bit = gr->get_pos().y*cached_size_x+gr->get_pos().x;
 			bits[bit/bit_unit] &= ~(1 << (bit & bit_mask));
 		}
 		else {
@@ -85,7 +85,7 @@ bool marker_t::is_marked(const grund_t *gr) const
 	}
 	if(gr->ist_karten_boden()) {
 		// ground level
-		const int bit = gr->get_pos().y*cached_groesse+gr->get_pos().x;
+		const int bit = gr->get_pos().y*cached_size_x+gr->get_pos().x;
 		return (bits[bit/bit_unit] & (1 << (bit & bit_mask))) != 0;
 	}
 	else {
@@ -98,7 +98,7 @@ bool marker_t::test_and_mark(const grund_t *gr)
 	if(gr != NULL) {
 		if(gr->ist_karten_boden()) {
 			// ground level
-			const int bit = gr->get_pos().y*cached_groesse+gr->get_pos().x;
+			const int bit = gr->get_pos().y*cached_size_x+gr->get_pos().x;
 			if ((bits[bit/bit_unit] & (1 << (bit & bit_mask))) != 0) {
 				return true;
 			}

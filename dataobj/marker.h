@@ -23,10 +23,10 @@ class marker_t {
 	unsigned char *bits;
 
 	/// length of field
-	int bits_groesse;
+	int bits_length;
 
 	/// bit-field is made for this x-size
-	int cached_groesse;
+	int cached_size_x;
 
 	/// hashtable to mark non-ground tiles (bridges, tunnels)
 	ptrhashtable_tpl <const grund_t *, bool> more;
@@ -36,21 +36,21 @@ class marker_t {
 
 	/**
 	 * Initializes marker. Set all tiles to not marked.
-	 * @param welt_groesse_x x-size of map
-	 * @param welt_groesse_y y-size of map
+	 * @param world_size_x x-size of map
+	 * @param world_size_y y-size of map
 	 */
-	void init(int welt_groesse_x,int welt_groesse_y);
+	void init(int world_size_x, int world_size_y);
 
 	/// the instance
 	static marker_t the_instance;
 public:
 	/**
 	 * Return handle to marker instance.
-	 * @param welt_groesse_x x-size of map
-	 * @param welt_groesse_y y-size of map
+	 * @param world_size_x x-size of map
+	 * @param world_size_y y-size of map
 	 * @returns handle to the singleton instance
 	 */
-	static marker_t& instance(int welt_groesse_x,int welt_groesse_y);
+	static marker_t& instance(int world_size_x, int world_size_y);
 
 	/**
 	 * Marks tile as visited.
