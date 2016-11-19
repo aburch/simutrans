@@ -47,7 +47,6 @@
 #include "dataobj/loadsave.h"
 #include "dataobj/translator.h"
 #include "dataobj/environment.h"
-#include "dataobj/warenziel.h"
 
 #include "obj/gebaeude.h"
 #include "obj/label.h"
@@ -2536,6 +2535,14 @@ int haltestelle_t::generate_pedestrians(koord3d pos, int anzahl)
 	return anzahl;
 }
 
+// necessary to load pre0.99.13 savegames
+void warenziel_rdwr(loadsave_t *file)
+{
+	koord ziel;
+	ziel.rdwr(file);
+	char tn[256];
+	file->rdwr_str(tn, lengthof(tn));
+}
 
 
 void haltestelle_t::rdwr(loadsave_t *file)
@@ -2682,9 +2689,8 @@ void haltestelle_t::rdwr(loadsave_t *file)
 		if(file->get_version()<99013) {
 			uint16 count;
 			file->rdwr_short(count);
-			warenziel_t dummy;
 			for(int i=0; i<count; i++) {
-				dummy.rdwr(file);
+				warenziel_rdwr(file);
 			}
 		}
 

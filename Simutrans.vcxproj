@@ -419,7 +419,6 @@
     <ClCompile Include="music\w32_midi.cc" />
     <ClCompile Include="besch\ware_besch.cc" />
     <ClCompile Include="bauer\warenbauer.cc" />
-    <ClCompile Include="dataobj\warenziel.cc" />
     <ClCompile Include="boden\wasser.cc" />
     <ClCompile Include="besch\reader\way_obj_reader.cc" />
     <ClCompile Include="besch\reader\way_reader.cc" />
@@ -756,7 +755,6 @@
     <ClInclude Include="bauer\vehikelbauer.h" />
     <ClInclude Include="besch\ware_besch.h" />
     <ClInclude Include="bauer\warenbauer.h" />
-    <ClInclude Include="dataobj\warenziel.h" />
     <ClInclude Include="boden\wasser.h" />
     <ClInclude Include="besch\way_obj_besch.h" />
     <ClInclude Include="besch\reader\way_obj_reader.h" />
