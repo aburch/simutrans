@@ -318,13 +318,6 @@ void karte_t::recalc_season_snowline(bool set_pending)
 }
 
 
-/**
- * copy of settings needed for perlin height loop
- * set in enlarge map before calling loop
- */
-
-settings_t* perlin_sets;
-
 void karte_t::perlin_hoehe_loop( sint16 x_min, sint16 x_max, sint16 y_min, sint16 y_max )
 {
 	for(  int y = y_min;  y < y_max;  y++  ) {
