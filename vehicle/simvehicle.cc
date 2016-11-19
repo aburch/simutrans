@@ -578,14 +578,14 @@ vehicle_base_t *vehicle_base_t::no_cars_blocking( const grund_t *gr, const convo
 				const bool other_straight = other_direction == other_90direction; // other is driving straight
 				const bool other_exit_same_side = current_90direction == other_90direction; // other is exiting same side as we're entering
 				const bool other_exit_opposite_side = ribi_t::rueckwaerts(current_90direction) == other_90direction; // other is exiting side across from where we're entering
-				if(  across  &&  ((ribi_t::ist_orthogonal(current_90direction,other_direction)  &&  other_moving)  ||  (other_across  &&  other_exit_opposite_side)  ||  ((other_across  ||  other_straight)  &&  other_exit_same_side  &&  other_moving) ) )  {
+				if(  across  &&  ((ribi_t::ist_exakt_orthogonal(current_90direction,other_direction)  &&  other_moving)  ||  (other_across  &&  other_exit_opposite_side)  ||  ((other_across  ||  other_straight)  &&  other_exit_same_side  &&  other_moving) ) )  {
 					// other turning across in front of us from orth entry dir'n   ~4%
 					return v;
 				}
 
 				const bool headon = ribi_t::rueckwaerts(current_direction) == other_direction; // we're meeting the other headon
 				const bool other_exit_across = (drives_on_left ? ribi_t::rotate90l(next_90direction) : ribi_t::rotate90(next_90direction)) == other_90direction; // other is exiting by turning across the opposite directions lane
-				if(  straight  &&  (ribi_t::ist_orthogonal(current_90direction,other_direction)  ||  (other_across  &&  other_moving  &&  (other_exit_across  ||  (other_exit_same_side  &&  !headon))) ) ) {
+				if(  straight  &&  (ribi_t::ist_exakt_orthogonal(current_90direction,other_direction)  ||  (other_across  &&  other_moving  &&  (other_exit_across  ||  (other_exit_same_side  &&  !headon))) ) ) {
 					// other turning across in front of us, but allow if other is stopped - duplicating historic behaviour   ~2%
 					return v;
 				}

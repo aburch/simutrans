@@ -10,6 +10,7 @@
 
 #include "../simtypes.h"
 #include "../simconst.h"
+#include "../simdebug.h"
 
 class koord;
 class koord3d;
@@ -201,7 +202,6 @@ public:
 	static bool is_threeway(ribi x) { return (flags[x]&threeway)!=0; }
 
 	static bool ist_exakt_orthogonal(ribi x, ribi y);
-	static bool ist_orthogonal(ribi x, ribi y) { return (doppelr[x] | doppelr[y]) == alle; }
 	static bool ist_einfach(ribi x) { return (flags[x] & einfach) != 0; }
 	static bool ist_kurve(ribi x) { return (flags[x] & kurve) != 0; }
 	static bool ist_gerade(ribi x) { return (flags[x] & (gerade_ns | gerade_ow)) != 0; }

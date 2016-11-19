@@ -340,9 +340,9 @@ ribi_t::ribi ribi_typ(const koord3d& dir)
  */
 bool ribi_t::ist_exakt_orthogonal(ribi x, ribi y)
 {
-	// for straight, we are finished here
+	// for straight direction x use doppelr lookup table
 	if(ist_gerade(x)) {
-		return ist_orthogonal(x,y);
+		return (doppelr[x] | doppelr[y]) == alle;
 	}
 	// now diagonals (more tricky)
 	if(x!=y) {
