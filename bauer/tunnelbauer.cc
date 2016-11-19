@@ -173,11 +173,11 @@ koord3d tunnelbauer_t::finde_ende(player_t *player, koord3d pos, koord zv, const
 
 		// steep slopes and we are appearing at the top of one
 		if(  gr->get_hoehe() == pos.z-1  &&  env_t::pak_height_conversion_factor==1  ) {
-			const hang_t::typ new_slope = hang_typ(-zv);
-			sint8 hsw = pos.z + corner1(new_slope);
-			sint8 hse = pos.z + corner2(new_slope);
-			sint8 hne = pos.z + corner3(new_slope);
-			sint8 hnw = pos.z + corner4(new_slope);
+			const slope_t::type new_slope = slope_type(-zv);
+			sint8 hsw = pos.z + corner_sw(new_slope);
+			sint8 hse = pos.z + corner_se(new_slope);
+			sint8 hne = pos.z + corner_ne(new_slope);
+			sint8 hnw = pos.z + corner_nw(new_slope);
 			karte_t::terraformer_t raise(welt);
 			raise.add_raise_node(pos.x, pos.y, hsw, hse, hne, hnw);
 			raise.iterate(true);
@@ -212,7 +212,7 @@ koord3d tunnelbauer_t::finde_ende(player_t *player, koord3d pos, koord zv, const
  			if(  !gr  ) {
 				gr = welt->lookup(pos + koord3d(0,0,-2));
 			}
-			if(  gr  &&  gr->get_weg_hang() == hang_t::flach  ) {
+			if(  gr  &&  gr->get_weg_hang() == slope_t::flat  ) {
 				// Don't care about _flat_ tunnels below.
 				gr = NULL;
 			}
@@ -226,12 +226,12 @@ koord3d tunnelbauer_t::finde_ende(player_t *player, koord3d pos, koord zv, const
 		if(gr) {
 			// if there is a tunnel try to connect
 			if(  gr->ist_tunnel() ) {
-				if(  gr->get_vmove(ribi_typ(-zv))!=pos.z) {
+				if(  gr->get_vmove(ribi_type(-zv))!=pos.z) {
 					// wrong slope
 					return koord3d::invalid;
 				}
 				// fake tunnel tile
-				tunnelboden_t from(pos - zv, hang_t::flach);
+				tunnelboden_t from(pos - zv, slope_t::flat);
 				if (bauigel.is_allowed_step(&from, gr, &dummy)) {
 					return gr->get_pos();
 				}
@@ -240,15 +240,15 @@ koord3d tunnelbauer_t::finde_ende(player_t *player, koord3d pos, koord zv, const
 				}
 			}
 			const uint8 slope = gr->get_grund_hang();
-			const hang_t::typ new_slope = hang_typ(-zv) * welt->get_settings().get_way_height_clearance();
+			const slope_t::type new_slope = slope_type(-zv) * welt->get_settings().get_way_height_clearance();
 
 			if(  gr->ist_karten_boden()  &&  ( slope!=new_slope  ||  pos.z!=gr->get_pos().z )  ) {
 				// lower terrain to match - most of time shouldn't need to raise
 				// however player might have manually altered terrain so check this anyway
-				sint8 hsw = pos.z + corner1(new_slope);
-				sint8 hse = pos.z + corner2(new_slope);
-				sint8 hne = pos.z + corner3(new_slope);
-				sint8 hnw = pos.z + corner4(new_slope);
+				sint8 hsw = pos.z + corner_sw(new_slope);
+				sint8 hse = pos.z + corner_se(new_slope);
+				sint8 hne = pos.z + corner_ne(new_slope);
+				sint8 hnw = pos.z + corner_nw(new_slope);
 				karte_t::terraformer_t raise(welt), lower(welt);
 				raise.add_raise_node(pos.x, pos.y, hsw, hse, hne, hnw);
 				raise.iterate(false);
@@ -325,7 +325,7 @@ const char *tunnelbauer_t::baue( player_t *player, koord pos, const tunnel_besch
 
 	koord zv;
 	const waytype_t wegtyp = besch->get_waytype();
-	const hang_t::typ slope = gr->get_grund_hang();
+	const slope_t::type slope = gr->get_grund_hang();
 
 	if(  wegtyp != powerline_wt  ) {
 		const weg_t *weg = gr->get_weg(wegtyp);
@@ -334,7 +334,7 @@ const char *tunnelbauer_t::baue( player_t *player, koord pos, const tunnel_besch
 			return "Tunnel must start on single way!";
 		}
 		// If there is a way on this tile, it must have the right ribis.
-		if(  weg  &&  (weg->get_ribi_unmasked() & ~ribi_t::rueckwaerts( ribi_typ(slope) ))  ) {
+		if(  weg  &&  (weg->get_ribi_unmasked() & ~ribi_t::backward( ribi_type(slope) ))  ) {
 			return "Tunnel must start on single way!";
 		}
 	}
@@ -343,11 +343,11 @@ const char *tunnelbauer_t::baue( player_t *player, koord pos, const tunnel_besch
 		if(  gr->get_typ() != grund_t::boden  ||  gr->hat_wege()  ) {
 			return "Tunnel must start on single way!";
 		}
-		if(  lt  &&  (lt->get_ribi() & ~ribi_t::rueckwaerts( ribi_typ(slope) ))  ) {
+		if(  lt  &&  (lt->get_ribi() & ~ribi_t::backward( ribi_type(slope) ))  ) {
 			return "Tunnel must start on single way!";
 		}
 	}
-	if(  !hang_t::ist_einfach(slope)  ) {
+	if(  !slope_t::is_single(slope)  ) {
 		return "Tunnel muss an\neinfachem\nHang beginnen!\n";
 	}
 
@@ -386,13 +386,13 @@ const char *tunnelbauer_t::baue( player_t *player, koord pos, const tunnel_besch
 	// Begin and end found, we can build
 
 	const grund_t *end_gr = welt->lookup(end);
-	hang_t::typ end_slope = hang_typ(-zv) * env_t::pak_height_conversion_factor;
+	slope_t::type end_slope = slope_type(-zv) * env_t::pak_height_conversion_factor;
 	if(  full_tunnel  &&  (!end_gr  ||  end_gr->get_grund_hang()!=end_slope)  ) {
 		// end slope not at correct height - we have already checked in finde_ende that we can change this
-		sint8 hsw = end.z + corner1(end_slope);
-		sint8 hse = end.z + corner2(end_slope);
-		sint8 hne = end.z + corner3(end_slope);
-		sint8 hnw = end.z + corner4(end_slope);
+		sint8 hsw = end.z + corner_sw(end_slope);
+		sint8 hse = end.z + corner_se(end_slope);
+		sint8 hne = end.z + corner_ne(end_slope);
+		sint8 hnw = end.z + corner_nw(end_slope);
 
 		int n = 0;
 
@@ -439,7 +439,7 @@ DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d,%d) to (%d,%d,%d) ", pos.
 
 	baue_einfahrt(player, pos, zv, besch, weg_besch, cost);
 
-	ribi = ribi_typ(-zv);
+	ribi = ribi_type(-zv);
 	// don't move on to next tile if only one tile long
 	if(  end != start  ) {
 		pos = pos + zv;
@@ -459,7 +459,7 @@ DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d,%d) to (%d,%d,%d) ", pos.
 			weg = weg_t::alloc(besch->get_waytype());
 			weg->set_besch(weg_besch);
 			weg->set_max_speed(besch->get_topspeed());
-			tunnel->neuen_weg_bauen(weg, ribi_t::doppelt(ribi), player);
+			tunnel->neuen_weg_bauen(weg, ribi_t::doubles(ribi), player);
 			player_t::add_maintenance( player, -weg->get_besch()->get_wartung(), weg->get_besch()->get_finance_waytype() );
 		}
 		else {
@@ -536,7 +536,7 @@ void tunnelbauer_t::baue_einfahrt(player_t *player, koord3d end, koord zv, const
 	grund_t *alter_boden = welt->lookup(end);
 	ribi_t::ribi ribi = 0;
 	if(besch->get_waytype()!=powerline_wt) {
-		ribi = alter_boden->get_weg_ribi_unmasked(besch->get_waytype()) | ribi_typ(zv);
+		ribi = alter_boden->get_weg_ribi_unmasked(besch->get_waytype()) | ribi_type(zv);
 	}
 
 	tunnelboden_t *tunnel = new tunnelboden_t( end, alter_boden->get_grund_hang());
@@ -607,13 +607,13 @@ void tunnelbauer_t::baue_einfahrt(player_t *player, koord3d end, koord zv, const
 			bauigel.route_fuer( (wegbauer_t::bautyp_t)besch->get_waytype(), way_outside->get_besch());
 			sint32 dummy;
 			if(bauigel.is_allowed_step(tunnel, ground_outside, &dummy)) {
-				tunnel->weg_erweitern(besch->get_waytype(), ribi_typ(-zv));
-				ground_outside->weg_erweitern(besch->get_waytype(), ribi_typ(zv));
+				tunnel->weg_erweitern(besch->get_waytype(), ribi_type(-zv));
+				ground_outside->weg_erweitern(besch->get_waytype(), ribi_type(zv));
 			}
 		}
 		if (besch->get_waytype()==water_wt  &&  ground_outside->ist_wasser()) {
 			// connect to the sea
-			tunnel->weg_erweitern(besch->get_waytype(), ribi_typ(-zv));
+			tunnel->weg_erweitern(besch->get_waytype(), ribi_type(-zv));
 			ground_outside->calc_bild(); // to recalculate ribis
 		}
 	}
@@ -663,7 +663,7 @@ const char *tunnelbauer_t::remove(player_t *player, koord3d start, waytype_t weg
 			return "Der Tunnel ist nicht frei!\n";
 		}
 
-		ribi_t::ribi waytype_ribi = ribi_t::keine;
+		ribi_t::ribi waytype_ribi = ribi_t::none;
 		if(  wegtyp == powerline_wt  ) {
 			if(  from->get_leitung()  ) {
 				waytype_ribi = from->get_leitung()->get_ribi();
@@ -678,8 +678,8 @@ const char *tunnelbauer_t::remove(player_t *player, koord3d start, waytype_t weg
 
 		// Nachbarn raussuchen
 		for(int r = 0; r < 4; r++) {
-			if((zv == koord::invalid || zv == koord::nsow[r]) &&
-				from->get_neighbour(to, delete_wegtyp, ribi_t::nsow[r]) &&
+			if((zv == koord::invalid || zv == koord::nsew[r]) &&
+				from->get_neighbour(to, delete_wegtyp, ribi_t::nsew[r]) &&
 				!marker.is_marked(to) &&
 				(wegtyp != powerline_wt || to->get_leitung()))
 			{
@@ -695,9 +695,9 @@ const char *tunnelbauer_t::remove(player_t *player, koord3d start, waytype_t weg
 		grund_t *gr = welt->lookup(pos);
 		// remove the second way first in the tunnel
 		if(gr->get_weg_nr(1)) {
-			gr->remove_everything_from_way(player,gr->get_weg_nr(1)->get_waytype(),ribi_t::keine);
+			gr->remove_everything_from_way(player,gr->get_weg_nr(1)->get_waytype(),ribi_t::none);
 		}
-		gr->remove_everything_from_way(player,wegtyp,ribi_t::keine);	// removes stop and signals correctly
+		gr->remove_everything_from_way(player,wegtyp,ribi_t::none);	// removes stop and signals correctly
 		// remove everything else
 		gr->obj_loesche_alle(player);
 		gr->mark_image_dirty();
@@ -721,14 +721,14 @@ const char *tunnelbauer_t::remove(player_t *player, koord3d start, waytype_t weg
 			}
 			if (leitung_t *lt = gr->get_leitung()) {
 				// remove single powerlines
-				if ( (lt->get_ribi()  & ~ribi_typ(gr->get_grund_hang())) == ribi_t::keine ) {
+				if ( (lt->get_ribi()  & ~ribi_type(gr->get_grund_hang())) == ribi_t::none ) {
 					lt->cleanup(player);
 					delete lt;
 				}
 			}
 		}
 		else {
-			ribi_t::ribi mask = gr->get_grund_hang()!=hang_t::flach ? ~ribi_typ(gr->get_grund_hang()) : ~ribi_typ(hang_t::gegenueber(gr->get_weg_hang()));
+			ribi_t::ribi mask = gr->get_grund_hang()!=slope_t::flat ? ~ribi_type(gr->get_grund_hang()) : ~ribi_type(slope_t::opposite(gr->get_weg_hang()));
 
 			// remove the second way first in the tunnel
 			if(gr->get_weg_nr(1)) {
@@ -749,8 +749,8 @@ const char *tunnelbauer_t::remove(player_t *player, koord3d start, waytype_t weg
 			}
 
 			if( broad_type ) {
-				hang_t::typ hang = gr->get_grund_hang();
-				ribi_t::ribi dir = ribi_t::rotate90( ribi_typ( hang ) );
+				slope_t::type hang = gr->get_grund_hang();
+				ribi_t::ribi dir = ribi_t::rotate90( ribi_type( hang ) );
 				if( broad_type & 1 ) {
 					const grund_t *gr_l = welt->lookup(pos + dir);
 					tunnel_t* tunnel_l = gr_l ? gr_l->find<tunnel_t>() : NULL;

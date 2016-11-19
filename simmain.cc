@@ -186,7 +186,7 @@ static void show_times(karte_t *welt, karte_ansicht_t *view)
  	for (i = 0; i < 40000000/(int)weg_t::get_alle_wege().get_count(); i++) {
 		FOR( slist_tpl<weg_t *>, const w, weg_t::get_alle_wege() ) {
 			grund_t *dummy;
-			welt->lookup( w->get_pos() )->get_neighbour( dummy, invalid_wt, ribi_t::nord );
+			welt->lookup( w->get_pos() )->get_neighbour( dummy, invalid_wt, ribi_t::north );
 		}
 	}
 	dbg->message( "grund_t::get_neighbour()", "%i iterations took %li ms", i*weg_t::get_alle_wege().get_count(), dr_time() - ms );

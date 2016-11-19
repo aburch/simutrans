@@ -415,7 +415,7 @@ void hausbauer_t::remove( player_t *player, gebaeude_t *gb )
 						const uint8 new_slope = welt->recalc_natural_slope(newk,new_hgt);
 						// test for ground at new height
 						const grund_t *gr2 = welt->lookup(koord3d(newk,new_hgt));
-						if(  (gr2==NULL  ||  gr2==gr) &&  new_slope!=hang_t::flach  ) {
+						if(  (gr2==NULL  ||  gr2==gr) &&  new_slope!=slope_t::flat  ) {
 							// and for ground above new sloped tile
 							gr2 = welt->lookup(koord3d(newk, new_hgt+1));
 						}
@@ -423,10 +423,10 @@ void hausbauer_t::remove( player_t *player, gebaeude_t *gb )
 						if(  gr2  &&  gr2!=gr  ) {
 							// there is another ground below or above
 							// => do not change height, keep foundation
-							welt->access(newk)->kartenboden_setzen( new boden_t( gr->get_pos(), hang_t::flach ) );
+							welt->access(newk)->kartenboden_setzen( new boden_t( gr->get_pos(), slope_t::flat ) );
 							ground_recalc = false;
 						}
-						else if(  new_hgt <= welt->get_water_hgt(newk)  &&  new_slope == hang_t::flach  ) {
+						else if(  new_hgt <= welt->get_water_hgt(newk)  &&  new_slope == slope_t::flat  ) {
 							welt->access(newk)->kartenboden_setzen( new wasser_t( koord3d( newk, new_hgt ) ) );
 							welt->calc_climate( newk, true );
 						}
@@ -439,10 +439,10 @@ void hausbauer_t::remove( player_t *player, gebaeude_t *gb )
 						}
 						// there might be walls from foundations left => thus some tiles may need to be redrawn
 						if(ground_recalc) {
-							if(grund_t *gr = welt->lookup_kartenboden(newk+koord::ost)) {
+							if(grund_t *gr = welt->lookup_kartenboden(newk+koord::east)) {
 								gr->calc_bild();
 							}
-							if(grund_t *gr = welt->lookup_kartenboden(newk+koord::sued)) {
+							if(grund_t *gr = welt->lookup_kartenboden(newk+koord::south)) {
 								gr->calc_bild();
 							}
 						}
@@ -513,7 +513,7 @@ gebaeude_t* hausbauer_t::baue(player_t* player_, koord3d pos, int org_layout, co
 				}
 
 				// build new foundation
-				needs_ground_recalc |= gr->get_grund_hang()!=hang_t::flach;
+				needs_ground_recalc |= gr->get_grund_hang()!=slope_t::flat;
 				grund_t *gr2 = new fundament_t(gr->get_pos(), gr->get_grund_hang());
 				welt->access(gr->get_pos().get_2d())->boden_ersetzen(gr, gr2);
 				gr = gr2;
@@ -564,17 +564,17 @@ gebaeude_t *hausbauer_t::neues_gebaeude(player_t *player, koord3d pos, int built
 
 		// detect if we are connected at far (north/west) end
 		sint8 offset = welt->lookup( pos )->get_weg_yoff()/TILE_HEIGHT_STEP;
-		koord3d checkpos = pos+koord3d( (layout & 1 ? koord::ost : koord::sued), offset);
+		koord3d checkpos = pos+koord3d( (layout & 1 ? koord::east : koord::south), offset);
 		grund_t * gr = welt->lookup( checkpos );
 
 		if(!gr) {
 			// check whether bridge end tile
-			grund_t * gr_tmp = welt->lookup( pos+koord3d( (layout & 1 ? koord::ost : koord::sued),offset - 1) );
+			grund_t * gr_tmp = welt->lookup( pos+koord3d( (layout & 1 ? koord::east : koord::south),offset - 1) );
 			if(gr_tmp && gr_tmp->get_weg_yoff()/TILE_HEIGHT_STEP == 1) {
 				gr = gr_tmp;
 			}
 			else {
-				gr_tmp = welt->lookup( pos+koord3d( (layout & 1 ? koord::ost : koord::sued),offset - 2) );
+				gr_tmp = welt->lookup( pos+koord3d( (layout & 1 ? koord::east : koord::south),offset - 2) );
 				if(gr_tmp && gr_tmp->get_weg_yoff()/TILE_HEIGHT_STEP == 2) {
 					gr = gr_tmp;
 				}
@@ -611,15 +611,15 @@ gebaeude_t *hausbauer_t::neues_gebaeude(player_t *player, koord3d pos, int built
 		}
 
 		// detect if near (south/east) end
-		gr = welt->lookup( pos+koord3d( (layout & 1 ? koord::west : koord::nord), offset) );
+		gr = welt->lookup( pos+koord3d( (layout & 1 ? koord::west : koord::north), offset) );
 		if(!gr) {
 			// check whether bridge end tile
-			grund_t * gr_tmp = welt->lookup( pos+koord3d( (layout & 1 ? koord::west : koord::nord),offset - 1) );
+			grund_t * gr_tmp = welt->lookup( pos+koord3d( (layout & 1 ? koord::west : koord::north),offset - 1) );
 			if(gr_tmp && gr_tmp->get_weg_yoff()/TILE_HEIGHT_STEP == 1) {
 				gr = gr_tmp;
 			}
 			else {
-				gr_tmp = welt->lookup( pos+koord3d( (layout & 1 ? koord::west : koord::nord),offset - 2) );
+				gr_tmp = welt->lookup( pos+koord3d( (layout & 1 ? koord::west : koord::north),offset - 2) );
 				if(gr_tmp && gr_tmp->get_weg_yoff()/TILE_HEIGHT_STEP == 2) {
 					gr = gr_tmp;
 				}

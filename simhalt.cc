@@ -2531,7 +2531,7 @@ int haltestelle_t::generate_pedestrians(koord3d pos, int anzahl)
 {
 	pedestrian_t::generate_pedestrians_at(pos, anzahl);
 	for(int i=0; i<4 && anzahl>0; i++) {
-		pedestrian_t::generate_pedestrians_at(pos+koord::nsow[i], anzahl);
+		pedestrian_t::generate_pedestrians_at(pos+koord::nsew[i], anzahl);
 	}
 	return anzahl;
 }

@@ -58,7 +58,7 @@ SQInteger get_neighbour(HSQUIRRELVM vm)
 	ribi_t::ribi ribi = get_ribi(vm, 3);
 
 	grund_t *to = NULL;
-	if (gr  &&  ribi_t::ist_einfach(ribi)) {
+	if (gr  &&  ribi_t::is_single(ribi)) {
 		gr->get_neighbour(to, wt, ribi);
 	}
 	return param<grund_t*>::push(vm, to);

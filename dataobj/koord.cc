@@ -14,11 +14,11 @@ const scr_coord scr_coord::invalid(-1, -1);
 const scr_size scr_size::invalid(-1, -1);
 
 const koord koord::invalid(-1, -1);
-const koord koord::nord(    0, -1);
-const koord koord::ost(     1,  0);
-const koord koord::sued(    0,  1);
+const koord koord::north(    0, -1);
+const koord koord::east(     1,  0);
+const koord koord::south(    0,  1);
 const koord koord::west(   -1,  0);
-const koord koord::nsow[] = {
+const koord koord::nsew[] = {
 	koord( 0, -1),
 	koord( 0,  1),
 	koord( 1,  0),

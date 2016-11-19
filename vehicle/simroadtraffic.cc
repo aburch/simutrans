@@ -74,11 +74,11 @@ road_user_t::road_user_t(grund_t* bd, uint16 random) :
 
 	// randomized offset
 	uint8 offset = random & 3;
-	direction = ribi_t::nsow[offset];
+	direction = ribi_t::nsew[offset];
 
 	grund_t *to = NULL;
 	for(uint8 r = 0; r < 4; r++) {
-		ribi_t::ribi ribi = ribi_t::nsow[ (r + offset) &3];
+		ribi_t::ribi ribi = ribi_t::nsew[ (r + offset) &3];
 		if( (ribi & road_ribi)!=0  &&  bd->get_neighbour(to, road_wt, ribi)) {
 			direction = ribi;
 			break;
@@ -86,15 +86,15 @@ road_user_t::road_user_t(grund_t* bd, uint16 random) :
 	}
 
 	switch(direction) {
-		case ribi_t::nord:
+		case ribi_t::north:
 			dx = 2;
 			dy = -1;
 			break;
-		case ribi_t::sued:
+		case ribi_t::south:
 			dx = -2;
 			dy = 1;
 			break;
-		case ribi_t::ost:
+		case ribi_t::east:
 			dx = 2;
 			dy = 1;
 			break;
@@ -483,7 +483,7 @@ bool private_car_t::ist_weg_frei(grund_t *gr)
 	bool frei = false;
 	if(  get_pos()==pos_next_next  ) {
 		// turning around => single check
-		const uint8 next_direction = ribi_t::rueckwaerts(this_direction);
+		const uint8 next_direction = ribi_t::backward(this_direction);
 		frei = (NULL == no_cars_blocking( gr, NULL, next_direction, next_direction, next_direction ));
 
 		// do not block railroad crossing
@@ -575,8 +575,8 @@ bool private_car_t::ist_weg_frei(grund_t *gr)
 					// should not reach here ! (z9999)
 					break;
 				}
-				const uint8 next_direction = ribi_typ(dir);
-				const uint8 nextnext_direction = ribi_typ(dir);
+				const uint8 next_direction = ribi_type(dir);
+				const uint8 nextnext_direction = ribi_type(dir);
 				// test next field after way crossing
 				if(no_cars_blocking( test, NULL, next_direction, nextnext_direction, nextnext_direction )) {
 					return false;
@@ -649,7 +649,7 @@ grund_t* private_car_t::hop_check()
 	}
 
 	// traffic light phase check (since this is on next tile, it will always be necessary!)
-	const ribi_t::ribi direction90 = ribi_typ(get_pos(), pos_next);
+	const ribi_t::ribi direction90 = ribi_type(get_pos(), pos_next);
 
 	if(  weg->has_sign(  )) {
 		const roadsign_t* rs = from->find<roadsign_t>();
@@ -669,7 +669,7 @@ grund_t* private_car_t::hop_check()
 
 		// ok, nobody did delete the road in front of us
 		// so we can check for valid directions
-		ribi_t::ribi ribi = weg->get_ribi() & (~ribi_t::rueckwaerts(direction90));
+		ribi_t::ribi ribi = weg->get_ribi() & (~ribi_t::backward(direction90));
 
 		// cul de sac: return
 		if(ribi==0) {
@@ -680,23 +680,23 @@ grund_t* private_car_t::hop_check()
 #ifdef DESTINATION_CITYCARS
 		static weighted_vector_tpl<koord3d> posliste(4);
 		posliste.clear();
-		const uint8 offset = ribi_t::ist_einfach(ribi) ? 0 : simrand(4);
+		const uint8 offset = ribi_t::is_single(ribi) ? 0 : simrand(4);
 		for(uint8 r = 0; r < 4; r++) {
-			if(  get_pos().get_2d()==koord::nsow[r]+pos_next.get_2d()  ) {
+			if(  get_pos().get_2d()==koord::nsew[r]+pos_next.get_2d()  ) {
 				continue;
 			}
 #else
-		const uint8 offset = ribi_t::ist_einfach(ribi) ? 0 : simrand(4);
+		const uint8 offset = ribi_t::is_single(ribi) ? 0 : simrand(4);
 		for(uint8 i = 0; i < 4; i++) {
 			const uint8 r = (i+offset)&3;
 #endif
-			if(  (ribi&ribi_t::nsow[r])!=0  ) {
+			if(  (ribi&ribi_t::nsew[r])!=0  ) {
 				grund_t *to;
-				if(  from->get_neighbour(to, road_wt, ribi_t::nsow[r])  ) {
+				if(  from->get_neighbour(to, road_wt, ribi_t::nsew[r])  ) {
 					// check, if this is just a single tile deep after a crossing
 					weg_t *w = to->get_weg(road_wt);
-					if(  ribi_t::ist_einfach(w->get_ribi())  &&  (w->get_ribi()&ribi_t::nsow[r])==0  &&  !ribi_t::ist_einfach(ribi)  ) {
-						ribi &= ~ribi_t::nsow[r];
+					if(  ribi_t::is_single(w->get_ribi())  &&  (w->get_ribi()&ribi_t::nsew[r])==0  &&  !ribi_t::is_single(ribi)  ) {
+						ribi &= ~ribi_t::nsew[r];
 						continue;
 					}
 					// check, if roadsign forbid next step ...
@@ -705,7 +705,7 @@ grund_t* private_car_t::hop_check()
 						const roadsign_besch_t* rs_besch = rs->get_besch();
 						if(rs_besch->get_min_speed()>besch->get_geschw()  ||  (rs_besch->is_private_way()  &&  (rs->get_player_mask()&2)==0)  ) {
 							// not allowed to go here
-							ribi &= ~ribi_t::nsow[r];
+							ribi &= ~ribi_t::nsew[r];
 							continue;
 						}
 					}
@@ -730,7 +730,7 @@ grund_t* private_car_t::hop_check()
 				}
 				else {
 					// not connected?!? => ribi likely wrong
-					ribi &= ~ribi_t::nsow[r];
+					ribi &= ~ribi_t::nsew[r];
 				}
 			}
 		}
@@ -989,7 +989,7 @@ bool private_car_t::can_overtake( overtaker_t *other_overtaker, sint32 other_spe
 			return false;
 		}
 
-		int d = ribi_t::ist_gerade(str->get_ribi()) ? VEHICLE_STEPS_PER_TILE : diagonal_vehicle_steps_per_tile;
+		int d = ribi_t::is_straight(str->get_ribi()) ? VEHICLE_STEPS_PER_TILE : diagonal_vehicle_steps_per_tile;
 		distance -= d;
 		time_overtaking += d;
 
@@ -1005,10 +1005,10 @@ bool private_car_t::can_overtake( overtaker_t *other_overtaker, sint32 other_spe
 			ribi_t::ribi rib = str->get_ribi();
 			bool found_one = false;
 			for(  int r=0;  r<4;  r++  ) {
-				if(  (rib&ribi_t::nsow[r])==0  ||  check_pos.get_2d()+koord::nsow[r]==pos_prev) {
+				if(  (rib&ribi_t::nsew[r])==0  ||  check_pos.get_2d()+koord::nsew[r]==pos_prev) {
 					continue;
 				}
-				if(gr->get_neighbour(to, road_wt, ribi_t::nsow[r])) {
+				if(gr->get_neighbour(to, road_wt, ribi_t::nsew[r])) {
 					if(found_one) {
 						// two directions to go: unexpected cars may occurs => abort
 						return false;
@@ -1044,7 +1044,7 @@ bool private_car_t::can_overtake( overtaker_t *other_overtaker, sint32 other_spe
 		gr = to;
 		check_pos = to->get_pos();
 
-		direction = ~ribi_typ( check_pos, pos_prev ) & str->get_ribi();
+		direction = ~ribi_type( check_pos, pos_prev ) & str->get_ribi();
 	}
 
 	// Second phase: only facing traffic is forbidden
@@ -1055,7 +1055,7 @@ bool private_car_t::can_overtake( overtaker_t *other_overtaker, sint32 other_spe
 	time_overtaking = (time_overtaking << 16)/(sint32)current_speed;
 	do {
 		// we can allow crossings or traffic lights here, since they will stop also oncoming traffic
-		if(  ribi_t::ist_gerade(str->get_ribi())  ) {
+		if(  ribi_t::is_straight(str->get_ribi())  ) {
 			time_overtaking -= (VEHICLE_STEPS_PER_TILE<<16) / kmh_to_speed(str->get_max_speed());
 		}
 		else {
@@ -1073,10 +1073,10 @@ bool private_car_t::can_overtake( overtaker_t *other_overtaker, sint32 other_spe
 			// check for crossings/bridges, if necessary
 			bool found_one = false;
 			for(  int r=0;  r<4;  r++  ) {
-				if(check_pos.get_2d()+koord::nsow[r]==pos_prev) {
+				if(check_pos.get_2d()+koord::nsew[r]==pos_prev) {
 					continue;
 				}
-				if(gr->get_neighbour(to, road_wt, ribi_t::nsow[r])) {
+				if(gr->get_neighbour(to, road_wt, ribi_t::nsew[r])) {
 					if(found_one) {
 						return false;
 					}
@@ -1095,7 +1095,7 @@ bool private_car_t::can_overtake( overtaker_t *other_overtaker, sint32 other_spe
 
 		// Check for other vehicles in facing direction
 		// now only I know direction on this tile ...
-		ribi_t::ribi their_direction = ribi_t::rueckwaerts(calc_direction( pos_prev_prev, to->get_pos()));
+		ribi_t::ribi their_direction = ribi_t::backward(calc_direction( pos_prev_prev, to->get_pos()));
 		const uint8 top = gr->get_top();
 		for(  uint8 j=1;  j<top;  j++ ) {
 			vehicle_base_t* const v = obj_cast<vehicle_base_t>(gr->obj_bei(j));
@@ -1110,7 +1110,7 @@ bool private_car_t::can_overtake( overtaker_t *other_overtaker, sint32 other_spe
 		gr = to;
 		check_pos = to->get_pos();
 
-		direction = ~ribi_typ( check_pos, pos_prev ) & str->get_ribi();
+		direction = ~ribi_type( check_pos, pos_prev ) & str->get_ribi();
 	} while( time_overtaking > 0 );
 
 	set_tiles_overtaking( 1+n_tiles );

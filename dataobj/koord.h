@@ -25,7 +25,7 @@ public:
 	koord(short xp, short yp) : x(xp), y(yp) {}
 	koord(loadsave_t* file);
 	koord(ribi_t::ribi ribi) { *this = from_ribi[ribi]; }
-	koord(hang_t::typ hang)  { *this = from_hang[hang]; }
+	koord(slope_t::type slope) { *this = from_hang[slope]; }
 
 	// use this instead of koord(simrand(x),simrand(y)) to avoid
 	// different order on different compilers
@@ -82,12 +82,12 @@ public:
 	}
 
 	static const koord invalid;
-	static const koord nord;
-	static const koord sued;
-	static const koord ost;
+	static const koord north;
+	static const koord south;
+	static const koord east;
 	static const koord west;
 	// the 4 basic directions as an Array
-	static const koord nsow[4];
+	static const koord nsew[4];
 	// 8 next neighbours
 	static const koord neighbours[8];
 

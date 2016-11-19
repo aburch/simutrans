@@ -311,7 +311,7 @@ bool movingobj_t::check_next_tile( const grund_t *gr ) const
 
 	if(besch->get_waytype()==road_wt) {
 		// can cross roads
-		if(gr->get_typ()!=grund_t::boden  ||  !hang_t::ist_wegbar(gr->get_grund_hang())) {
+		if(gr->get_typ()!=grund_t::boden  ||  !slope_t::is_way(gr->get_grund_hang())) {
 			return false;
 		}
 		// only on roads, do not walk in cities
@@ -332,7 +332,7 @@ bool movingobj_t::check_next_tile( const grund_t *gr ) const
 	}
 	else if(besch->get_waytype()==ignore_wt) {
 		// crosses nothing
-		if(!gr->ist_natur()  ||  !hang_t::ist_wegbar(gr->get_grund_hang())) {
+		if(!gr->ist_natur()  ||  !slope_t::is_way(gr->get_grund_hang())) {
 			return false;
 		}
 		if(!besch->can_built_trees_here()) {
@@ -378,7 +378,7 @@ grund_t* movingobj_t::hop_check()
 		uint8 until=0;
 		// find all tiles we can go
 		for(  int i=0;  i<4;  i++  ) {
-			const grund_t *check = welt->lookup_kartenboden(pos+koord::nsow[i]);
+			const grund_t *check = welt->lookup_kartenboden(pos+koord::nsew[i]);
 			if(check_next_tile(check)  &&  check->get_pos()!=get_pos()) {
 				to[until++] = check;
 			}
@@ -408,7 +408,7 @@ void movingobj_t::hop(grund_t* gr)
 	leave_tile();
 
 	if(pos_next.get_2d()==get_pos().get_2d()) {
-		direction = ribi_t::rueckwaerts(direction);
+		direction = ribi_t::backward(direction);
 		dx = -dx;
 		dy = -dy;
 		calc_image();

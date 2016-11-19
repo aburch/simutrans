@@ -83,8 +83,8 @@ public:
 	}
 
 	img_t get_simple(ribi_t::ribi ribi, uint8 height) const;
-	img_t get_start(hang_t::typ slope) const;
-	img_t get_rampe(hang_t::typ slope) const;
+	img_t get_start(slope_t::type slope) const;
+	img_t get_rampe(slope_t::type slope) const;
 	static img_t get_pillar(ribi_t::ribi ribi);
 
 	/**
@@ -97,7 +97,7 @@ public:
 	 */
 	bool has_double_start() const;
 
-	img_t get_end(hang_t::typ test_slope, hang_t::typ ground_slope, hang_t::typ way_slope) const;
+	img_t get_end(slope_t::type test_slope, slope_t::type ground_slope, slope_t::type way_slope) const;
 
 	/**
 	 * There is no way to distinguish between train bridge and tram bridge.

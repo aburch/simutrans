@@ -128,11 +128,11 @@ void interaction_t::interactive_event( const event_t &ev )
 
 			// cursor movements
 			case '9':
-				viewport->change_world_position(viewport->get_world_position() + koord::nord);
+				viewport->change_world_position(viewport->get_world_position() + koord::north);
 				world->set_dirty();
 				break;
 			case '1':
-				viewport->change_world_position(viewport->get_world_position() + koord::sued);
+				viewport->change_world_position(viewport->get_world_position() + koord::south);
 				world->set_dirty();
 				break;
 			case '7':
@@ -140,7 +140,7 @@ void interaction_t::interactive_event( const event_t &ev )
 				world->set_dirty();
 				break;
 			case '3':
-				viewport->change_world_position(viewport->get_world_position() + koord::ost);
+				viewport->change_world_position(viewport->get_world_position() + koord::east);
 				world->set_dirty();
 				break;
 			case '6':

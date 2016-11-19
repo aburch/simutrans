@@ -435,7 +435,7 @@ bool ai_t::find_harbour(koord &start, koord &size, koord target)
 	for(  k.y=max(1,shore.y-5);  k.y<shore.y+6  &&  k.y<welt->get_size().y-2; k.y++  ) {
 		for(  k.x=max(1,shore.x-5);  k.x<shore.x+6  &&  k.y<welt->get_size().x-2; k.x++  ) {
 			grund_t *gr = welt->lookup_kartenboden(k);
-			if(  gr  &&  gr->get_grund_hang() != 0  &&  hang_t::ist_wegbar( gr->get_grund_hang() )  &&  gr->ist_natur()  &&  gr->get_hoehe() == welt->get_water_hgt(k)  &&  !gr->is_halt()  ) {
+			if(  gr  &&  gr->get_grund_hang() != 0  &&  slope_t::is_way( gr->get_grund_hang() )  &&  gr->ist_natur()  &&  gr->get_hoehe() == welt->get_water_hgt(k)  &&  !gr->is_halt()  ) {
 				koord zv = koord(gr->get_grund_hang());
 				if(welt->lookup_kartenboden(k-zv)->get_weg_ribi(water_wt)) {
 					// next place is also water

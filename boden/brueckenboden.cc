@@ -33,7 +33,7 @@ void brueckenboden_t::calc_bild_internal(const bool calc_only_snowline_change)
 		if(  !calc_only_snowline_change  ) {
 			grund_t::calc_back_bild( get_pos().z, slope );
 			set_flag( draw_as_obj );
-			if(  (get_grund_hang() == hang_t::west  &&  abs(back_bild_nr) > 11)  ||  (get_grund_hang() == hang_t::nord  &&  get_back_bild(0) != IMG_LEER)  ) {
+			if(  (get_grund_hang() == slope_t::west  &&  abs(back_bild_nr) > 11)  ||  (get_grund_hang() == slope_t::north  &&  get_back_bild(0) != IMG_LEER)  ) {
 				// must draw as obj, since there is a slop here nearby
 				koord pos = get_pos().get_2d() + koord( get_grund_hang() );
 				grund_t *gr = welt->lookup_kartenboden( pos );
@@ -62,7 +62,7 @@ void brueckenboden_t::rdwr(loadsave_t *file)
 	}
 	if(  file->is_saving()  &&  file->get_version() < 112007  ) {
 		// truncate double weg_hang to single weg_hang, better than nothing
-		uint8 sl = min( corner1(weg_hang), 1 ) + min( corner2(weg_hang), 1 ) * 2 + min( corner3(weg_hang), 1 ) * 4 + min( corner4(weg_hang), 1 ) * 8;
+		uint8 sl = min( corner_sw(weg_hang), 1 ) + min( corner_se(weg_hang), 1 ) * 2 + min( corner_ne(weg_hang), 1 ) * 4 + min( corner_nw(weg_hang), 1 ) * 8;
 		file->rdwr_byte(sl);
 	}
 	else {
@@ -71,7 +71,7 @@ void brueckenboden_t::rdwr(loadsave_t *file)
 
 	if(  file->is_loading()  &&  file->get_version() < 112007  ) {
 		// convert slopes from old single height saved game
-		weg_hang = (scorner1(weg_hang) + scorner2(weg_hang) * 3 + scorner3(weg_hang) * 9 + scorner4(weg_hang) * 27) * env_t::pak_height_conversion_factor;
+		weg_hang = (scorner_sw(weg_hang) + scorner_se(weg_hang) * 3 + scorner_ne(weg_hang) * 9 + scorner_nw(weg_hang) * 27) * env_t::pak_height_conversion_factor;
 	}
 
 	if(!find<bruecke_t>()) {
@@ -93,7 +93,7 @@ void brueckenboden_t::rdwr(loadsave_t *file)
 
 void brueckenboden_t::rotate90()
 {
-	weg_hang = hang_t::rotate90( weg_hang );
+	weg_hang = slope_t::rotate90( weg_hang );
 	grund_t::rotate90();
 }
 
@@ -102,7 +102,7 @@ sint8 brueckenboden_t::get_weg_yoff() const
 {
 	if(  ist_karten_boden()  &&  weg_hang == 0  ) {
 		// we want to find maximum height of slope corner shortcut as we know this is n, s, e or w and single heights are not integer multiples of 8
-		return TILE_HEIGHT_STEP * hang_t::max_diff(slope);
+		return TILE_HEIGHT_STEP * slope_t::max_diff(slope);
 	}
 	else {
 		return 0;

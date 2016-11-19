@@ -101,7 +101,7 @@ koord ai_passenger_t::find_area_for_hub( const koord lo, const koord ru, const k
 			const grund_t * gr = welt->lookup_kartenboden(trypos);
 			if(gr) {
 				// flat, solid
-				if(  gr->get_typ()==grund_t::boden  &&  gr->get_grund_hang()==hang_t::flach  ) {
+				if(  gr->get_typ()==grund_t::boden  &&  gr->get_grund_hang()==slope_t::flat  ) {
 					const obj_t* obj = gr->obj_bei(0);
 					int test_dist = koord_distance( trypos, basis );
 					if (!obj || !obj->get_owner() || obj->get_owner() == sim::up_cast<player_t const*>(this)) {
@@ -110,7 +110,7 @@ koord ai_passenger_t::find_area_for_hub( const koord lo, const koord ru, const k
 							return trypos;
 						} else if(  test_dist<dist  &&  gr->hat_weg(road_wt)  &&  !gr->is_halt()  ) {
 							ribi_t::ribi  ribi = gr->get_weg_ribi_unmasked(road_wt);
-							if(  ribi_t::ist_gerade(ribi)  ||  ribi_t::ist_einfach(ribi)  ) {
+							if(  ribi_t::is_straight(ribi)  ||  ribi_t::is_single(ribi)  ) {
 								best_pos = trypos;
 								dist = test_dist;
 							}
@@ -159,8 +159,8 @@ koord ai_passenger_t::find_harbour_pos(karte_t* welt, const stadt_t *s )
 				}
 				if(  testdist<bestdist  ) {
 					grund_t *gr = welt->lookup_kartenboden(k);
-					hang_t::typ hang = gr->get_grund_hang();
-					if(  gr->ist_natur()  &&  gr->get_hoehe() == welt->get_water_hgt(k)  &&  hang_t::ist_wegbar(hang)  &&  welt->ist_wasser( k - koord(hang), koord(hang) * 4 + koord(1, 1) )  ) {
+					slope_t::type hang = gr->get_grund_hang();
+					if(  gr->ist_natur()  &&  gr->get_hoehe() == welt->get_water_hgt(k)  &&  slope_t::is_way(hang)  &&  welt->ist_wasser( k - koord(hang), koord(hang) * 4 + koord(1, 1) )  ) {
 						// can built busstop here?
 						koord bushalt = k+koord(hang);
 						gr = welt->lookup_kartenboden(bushalt);
@@ -504,11 +504,11 @@ halthandle_t ai_passenger_t::build_airport(const stadt_t* city, koord pos, int r
 	// 3x3 layout, first we make the taxiway cross
 	koord center=pos+dx;
 	bauigel.route_fuer( wegbauer_t::luft, taxi_besch, NULL, NULL );
-	bauigel.calc_straight_route( welt->lookup_kartenboden(center+koord::nord)->get_pos(), welt->lookup_kartenboden(center+koord::sued)->get_pos() );
+	bauigel.calc_straight_route( welt->lookup_kartenboden(center+koord::north)->get_pos(), welt->lookup_kartenboden(center+koord::south)->get_pos() );
 	assert(bauigel.get_count()-1 > 1);
 	bauigel.baue();
 	bauigel.route_fuer( wegbauer_t::luft, taxi_besch, NULL, NULL );
-	bauigel.calc_straight_route( welt->lookup_kartenboden(center+koord::west)->get_pos(), welt->lookup_kartenboden(center+koord::ost)->get_pos() );
+	bauigel.calc_straight_route( welt->lookup_kartenboden(center+koord::west)->get_pos(), welt->lookup_kartenboden(center+koord::east)->get_pos() );
 	assert(bauigel.get_count()-1 > 1);
 	bauigel.baue();
 	// now try to connect one of the corners with a road
@@ -535,11 +535,11 @@ halthandle_t ai_passenger_t::build_airport(const stadt_t* city, koord pos, int r
 
 	if(rotation==-1) {
 		// if we every get here that means no connection road => remove airport
-		welt->lookup_kartenboden(center+koord::nord)->remove_everything_from_way( this, air_wt, ribi_t::keine );
-		welt->lookup_kartenboden(center+koord::sued)->remove_everything_from_way( this, air_wt, ribi_t::keine );
-		welt->lookup_kartenboden(center+koord::west)->remove_everything_from_way( this, air_wt, ribi_t::keine );
-		welt->lookup_kartenboden(center+koord::ost)->remove_everything_from_way( this, air_wt, ribi_t::keine );
-		welt->lookup_kartenboden(center)->remove_everything_from_way( this, air_wt, ribi_t::alle );
+		welt->lookup_kartenboden(center+koord::north)->remove_everything_from_way( this, air_wt, ribi_t::none );
+		welt->lookup_kartenboden(center+koord::south)->remove_everything_from_way( this, air_wt, ribi_t::none );
+		welt->lookup_kartenboden(center+koord::west)->remove_everything_from_way( this, air_wt, ribi_t::none );
+		welt->lookup_kartenboden(center+koord::east)->remove_everything_from_way( this, air_wt, ribi_t::none );
+		welt->lookup_kartenboden(center)->remove_everything_from_way( this, air_wt, ribi_t::all );
 		return halthandle_t();
 	}
 
@@ -551,11 +551,11 @@ halthandle_t ai_passenger_t::build_airport(const stadt_t* city, koord pos, int r
 	// get an airport name (even though the hub is the bus stop ... )
 	// now built the bus stop
 	if(!call_general_tool( TOOL_BUILD_STATION, bushalt, busstop_besch->get_name() )) {
-		welt->lookup_kartenboden(center+koord::nord)->remove_everything_from_way( this, air_wt, ribi_t::keine );
-		welt->lookup_kartenboden(center+koord::sued)->remove_everything_from_way( this, air_wt, ribi_t::keine );
-		welt->lookup_kartenboden(center+koord::west)->remove_everything_from_way( this, air_wt, ribi_t::keine );
-		welt->lookup_kartenboden(center+koord::ost)->remove_everything_from_way( this, air_wt, ribi_t::keine );
-		welt->lookup_kartenboden(center)->remove_everything_from_way( this, air_wt, ribi_t::alle );
+		welt->lookup_kartenboden(center+koord::north)->remove_everything_from_way( this, air_wt, ribi_t::none );
+		welt->lookup_kartenboden(center+koord::south)->remove_everything_from_way( this, air_wt, ribi_t::none );
+		welt->lookup_kartenboden(center+koord::west)->remove_everything_from_way( this, air_wt, ribi_t::none );
+		welt->lookup_kartenboden(center+koord::east)->remove_everything_from_way( this, air_wt, ribi_t::none );
+		welt->lookup_kartenboden(center)->remove_everything_from_way( this, air_wt, ribi_t::all );
 		return halthandle_t();
 	}
 	// and change name to airport ...
@@ -574,14 +574,14 @@ halthandle_t ai_passenger_t::build_airport(const stadt_t* city, koord pos, int r
 	// now the airstops (only on single tiles, this will always work
 	const haus_besch_t* airstop_besch = hausbauer_t::get_random_station(haus_besch_t::generic_stop, air_wt, welt->get_timeline_year_month(), 0 );
 	for(  int i=0;  i<4;  i++  ) {
-		if(  koord_distance(center+koord::nsow[i],bushalt)==1  &&  ribi_t::ist_einfach( welt->lookup_kartenboden(center+koord::nsow[i])->get_weg_ribi_unmasked(air_wt) )  ) {
-			call_general_tool( TOOL_BUILD_STATION, center+koord::nsow[i], airstop_besch->get_name() );
+		if(  koord_distance(center+koord::nsew[i],bushalt)==1  &&  ribi_t::is_single( welt->lookup_kartenboden(center+koord::nsew[i])->get_weg_ribi_unmasked(air_wt) )  ) {
+			call_general_tool( TOOL_BUILD_STATION, center+koord::nsew[i], airstop_besch->get_name() );
 		}
 	}
 	// and now the one far away ...
 	for(  int i=0;  i<4;  i++  ) {
-		if(  koord_distance(center+koord::nsow[i],bushalt)>1  &&  ribi_t::ist_einfach( welt->lookup_kartenboden(center+koord::nsow[i])->get_weg_ribi_unmasked(air_wt) )  ) {
-			call_general_tool( TOOL_BUILD_STATION, center+koord::nsow[i], airstop_besch->get_name() );
+		if(  koord_distance(center+koord::nsew[i],bushalt)>1  &&  ribi_t::is_single( welt->lookup_kartenboden(center+koord::nsew[i])->get_weg_ribi_unmasked(air_wt) )  ) {
+			call_general_tool( TOOL_BUILD_STATION, center+koord::nsew[i], airstop_besch->get_name() );
 		}
 	}
 	// sucess
@@ -710,12 +710,12 @@ bool ai_passenger_t::create_air_transport_vehikel(const stadt_t *start_stadt, co
 			if(!end_hub.is_bound()) {
 				if (start_hub->get_pax_connections().empty()) {
 					// remove airport busstop
-					welt->lookup_kartenboden(start_hub->get_basis_pos())->remove_everything_from_way( this, road_wt, ribi_t::keine );
+					welt->lookup_kartenboden(start_hub->get_basis_pos())->remove_everything_from_way( this, road_wt, ribi_t::none );
 					koord center = start_hub->get_basis_pos() + koord( welt->lookup_kartenboden(start_hub->get_basis_pos())->get_weg_ribi_unmasked( air_wt ) );
 					// now the remaining taxi-/runways
 					for( sint16 y=center.y-1;  y<=center.y+1;  y++  ) {
 						for( sint16 x=center.x-1;  x<=center.x+1;  x++  ) {
-							welt->lookup_kartenboden(koord(x,y))->remove_everything_from_way( this, air_wt, ribi_t::keine );
+							welt->lookup_kartenboden(koord(x,y))->remove_everything_from_way( this, air_wt, ribi_t::none );
 						}
 					}
 				}
@@ -822,19 +822,19 @@ void ai_passenger_t::walk_city(linehandle_t const line, grund_t* const start, in
 	for(int r=0; r<4; r++) {
 
 		// a way in our direction?
-		if(  (ribi & ribi_t::nsow[r])==0  ) {
+		if(  (ribi & ribi_t::nsew[r])==0  ) {
 			continue;
 		}
 
 		// ok, if connected, not marked, and not owner by somebody else
 		grund_t *to;
-		if(  start->get_neighbour(to, road_wt, ribi_t::nsow[r] )  &&  !marker->is_marked(to)  &&  check_owner(to->obj_bei(0)->get_owner(),this)  ) {
+		if(  start->get_neighbour(to, road_wt, ribi_t::nsew[r] )  &&  !marker->is_marked(to)  &&  check_owner(to->obj_bei(0)->get_owner(),this)  ) {
 
 			// ok, here is a valid street tile
 			marker->mark(to);
 
 			// can built a station here
-			if(  ribi_t::ist_gerade(to->get_weg_ribi(road_wt))  ) {
+			if(  ribi_t::is_straight(to->get_weg_ribi(road_wt))  ) {
 
 				// find out how many tiles we have covered already
 				int covered_tiles=0;

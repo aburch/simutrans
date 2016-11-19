@@ -113,7 +113,7 @@ roadsign_t::~roadsign_t()
 				if (!preview) {
 					if (besch->is_single_way()  ||  besch->is_signal_type()) {
 						// signal removed, remove direction mask
-						weg->set_ribi_maske(ribi_t::keine);
+						weg->set_ribi_maske(ribi_t::none);
 					}
 					weg->clear_sign_flag();
 				}
@@ -229,9 +229,9 @@ void roadsign_t::calc_image()
 	      ||  (besch->get_wtyp()!=air_wt  &&  besch->get_wtyp()!=road_wt  &&  welt->get_settings().is_signals_left())
 	    );
 
-	const hang_t::typ full_hang = gr->get_weg_hang();
-	const sint8 hang_diff = hang_t::max_diff(full_hang);
-	const ribi_t::ribi hang_dir = ribi_t::rueckwaerts( ribi_typ(full_hang) );
+	const slope_t::type full_hang = gr->get_weg_hang();
+	const sint8 hang_diff = slope_t::max_diff(full_hang);
+	const ribi_t::ribi hang_dir = ribi_t::backward( ribi_type(full_hang) );
 
 	// private way have also closed/open states
 	if(  besch->is_private_way()  ) {
@@ -258,8 +258,8 @@ void roadsign_t::calc_image()
 	}
 	else {
 		// since the places were switched
-		const ribi_t::ribi test_hang = left_offsets ? ribi_t::rueckwaerts(hang_dir) : hang_dir;
-		if(test_hang==ribi_t::ost ||  test_hang==ribi_t::nord) {
+		const ribi_t::ribi test_hang = left_offsets ? ribi_t::backward(hang_dir) : hang_dir;
+		if(test_hang==ribi_t::east ||  test_hang==ribi_t::north) {
 			yoff = -TILE_HEIGHT_STEP*hang_diff;
 			after_yoffset = 0;
 		}
@@ -279,12 +279,12 @@ void roadsign_t::calc_image()
 		if(  gr->get_typ()==grund_t::tunnelboden  &&  gr->ist_karten_boden()  &&
 			(grund_t::underground_mode==grund_t::ugm_none  ||  (grund_t::underground_mode==grund_t::ugm_level  &&  gr->get_hoehe()<grund_t::underground_level))   ) {
 			// entering tunnel here: hide the image further in if not undergroud/sliced
-			const ribi_t::ribi tunnel_hang_dir = ribi_t::rueckwaerts( ribi_typ(gr->get_grund_hang()) );
-			if(  tunnel_hang_dir==ribi_t::ost ||  tunnel_hang_dir==ribi_t::nord  ) {
-				temp_dir &= ~ribi_t::suedwest;
+			const ribi_t::ribi tunnel_hang_dir = ribi_t::backward( ribi_type(gr->get_grund_hang()) );
+			if(  tunnel_hang_dir==ribi_t::east ||  tunnel_hang_dir==ribi_t::north  ) {
+				temp_dir &= ~ribi_t::southwest;
 			}
 			else {
-				temp_dir &= ~ribi_t::nordost;
+				temp_dir &= ~ribi_t::northeast;
 			}
 		}
 
@@ -293,13 +293,13 @@ void roadsign_t::calc_image()
 			const sint16 XOFF = 2*besch->get_offset_left();
 			const sint16 YOFF = besch->get_offset_left();
 
-			if(temp_dir&ribi_t::ost) {
+			if(temp_dir&ribi_t::east) {
 				tmp_bild = besch->get_bild_nr(3);
 				xoff += XOFF;
 				yoff += -YOFF;
 			}
 
-			if(temp_dir&ribi_t::nord) {
+			if(temp_dir&ribi_t::north) {
 				if(tmp_bild!=IMG_LEER) {
 					after_bild = besch->get_bild_nr(0);
 					after_xoffset += -XOFF;
@@ -318,7 +318,7 @@ void roadsign_t::calc_image()
 				after_yoffset += YOFF;
 			}
 
-			if(temp_dir&ribi_t::sued) {
+			if(temp_dir&ribi_t::south) {
 				if(after_bild!=IMG_LEER) {
 					tmp_bild = besch->get_bild_nr(1);
 					xoff += XOFF;
@@ -333,11 +333,11 @@ void roadsign_t::calc_image()
 		}
 		else {
 
-			if(temp_dir&ribi_t::ost) {
+			if(temp_dir&ribi_t::east) {
 				after_bild = besch->get_bild_nr(3);
 			}
 
-			if(temp_dir&ribi_t::nord) {
+			if(temp_dir&ribi_t::north) {
 				if(after_bild!=IMG_LEER) {
 					tmp_bild = besch->get_bild_nr(0);
 				}
@@ -350,7 +350,7 @@ void roadsign_t::calc_image()
 				tmp_bild = besch->get_bild_nr(2);
 			}
 
-			if(temp_dir&ribi_t::sued) {
+			if(temp_dir&ribi_t::south) {
 				if(tmp_bild!=IMG_LEER) {
 					after_bild = besch->get_bild_nr(1);
 				}
@@ -373,15 +373,15 @@ void roadsign_t::calc_image()
 		weg_t *str=gr->get_weg(road_wt);
 		if(str) {
 			const uint8 weg_dir = str->get_ribi_unmasked();
-			const uint8 direction = (dir&ribi_t::nord)!=0;
+			const uint8 direction = (dir&ribi_t::north)!=0;
 
 			// other front/back images for left side ...
 			if(  left_offsets  ) {
 			const sint16 XOFF = 2*besch->get_offset_left();
 			const sint16 YOFF = besch->get_offset_left();
 
-				if(weg_dir&ribi_t::nord) {
-					if(weg_dir&ribi_t::ost) {
+				if(weg_dir&ribi_t::north) {
+					if(weg_dir&ribi_t::east) {
 						after_bild = besch->get_bild_nr(6+direction*8);
 						after_xoffset += 0;
 						after_yoffset += 0;
@@ -392,14 +392,14 @@ void roadsign_t::calc_image()
 						after_yoffset += YOFF;
 					}
 				}
-				else if(weg_dir&ribi_t::ost) {
+				else if(weg_dir&ribi_t::east) {
 					after_bild = besch->get_bild_nr(2+direction*8);
 					after_xoffset += -XOFF;
 					after_yoffset += YOFF;
 				}
 
 				if(weg_dir&ribi_t::west) {
-					if(weg_dir&ribi_t::sued) {
+					if(weg_dir&ribi_t::south) {
 						tmp_bild = besch->get_bild_nr(7+direction*8);
 						xoff += 0;
 						yoff += 0;
@@ -410,7 +410,7 @@ void roadsign_t::calc_image()
 						yoff += -YOFF;
 					}
 				}
-				else if(weg_dir&ribi_t::sued) {
+				else if(weg_dir&ribi_t::south) {
 					tmp_bild = besch->get_bild_nr(0+direction*8);
 					xoff += -XOFF;
 					yoff += -YOFF;
@@ -418,27 +418,27 @@ void roadsign_t::calc_image()
 			}
 			else {
 				// drive right ...
-				if(weg_dir&ribi_t::sued) {
-					if(weg_dir&ribi_t::ost) {
+				if(weg_dir&ribi_t::south) {
+					if(weg_dir&ribi_t::east) {
 						after_bild = besch->get_bild_nr(4+direction*8);
 					}
 					else {
 						after_bild = besch->get_bild_nr(0+direction*8);
 					}
 				}
-				else if(weg_dir&ribi_t::ost) {
+				else if(weg_dir&ribi_t::east) {
 					after_bild = besch->get_bild_nr(2+direction*8);
 				}
 
 				if(weg_dir&ribi_t::west) {
-					if(weg_dir&ribi_t::nord) {
+					if(weg_dir&ribi_t::north) {
 						tmp_bild = besch->get_bild_nr(5+direction*8);
 					}
 					else {
 						tmp_bild = besch->get_bild_nr(3+direction*8);
 					}
 				}
-				else if(weg_dir&ribi_t::nord) {
+				else if(weg_dir&ribi_t::north) {
 					tmp_bild = besch->get_bild_nr(1+direction*8);
 				}
 			}
@@ -473,7 +473,7 @@ sync_result roadsign_t::sync_step(uint32 /*delta_t*/)
 		uint8 new_zustand = (ticks >= ticks_ns) ^ (welt->get_settings().get_rotation() & 1);
 		if(zustand!=new_zustand) {
 			zustand = new_zustand;
-			dir = (new_zustand==0) ? ribi_t::nordsued : ribi_t::ostwest;
+			dir = (new_zustand==0) ? ribi_t::northsouth : ribi_t::eastwest;
 			calc_image();
 		}
 	}
@@ -560,7 +560,7 @@ void roadsign_t::rdwr(loadsave_t *file)
 	file->rdwr_byte(dummy);
 	dir = dummy;
 	if(file->get_version()<89000) {
-		dir = ribi_t::rueckwaerts(dir);
+		dir = ribi_t::backward(dir);
 	}
 
 	if(file->is_saving()) {

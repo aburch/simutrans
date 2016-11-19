@@ -388,8 +388,8 @@ public:
 	inline void set_pos(koord3d newpos) { pos = newpos;}
 
 	// slope are now maintained locally
-	hang_t::typ get_grund_hang() const { return (hang_t::typ)slope; }
-	void set_grund_hang(hang_t::typ sl) { slope = sl; }
+	slope_t::type get_grund_hang() const { return (slope_t::type)slope; }
+	void set_grund_hang(slope_t::type sl) { slope = sl; }
 
 	/**
 	 * Manche Böden können zu Haltestellen gehören.
@@ -411,26 +411,26 @@ public:
 	inline sint8 get_hoehe() const {return pos.z;}
 
 	/**
-	 * @param corner hang_t::_corner mask of corners to check.
+	 * @param corner slope_t::_corner mask of corners to check.
 	 * @return The height of the tile at the requested corner.
 	 */
-	inline sint8 get_hoehe(hang_t::typ corner) const
+	inline sint8 get_hoehe(slope4_t::type corner) const
 	{
 		switch(  corner  ) {
-			case hang_t::corner_SW: {
-				return pos.z + corner1(slope);
+			case slope4_t::corner_SW: {
+				return pos.z + corner_sw(slope);
 				break;
 			}
-			case hang_t::corner_SE: {
-				return pos.z + corner2(slope);
+			case slope4_t::corner_SE: {
+				return pos.z + corner_se(slope);
 				break;
 			}
-			case hang_t::corner_NE: {
-				return pos.z + corner3(slope);
+			case slope4_t::corner_NE: {
+				return pos.z + corner_ne(slope);
 				break;
 			}
 			default: {
-				return pos.z + corner4(slope);
+				return pos.z + corner_nw(slope);
 				break;
 			}
 		}
@@ -451,16 +451,16 @@ public:
 	// returns slope
 	// if tile is not visible, 'flat' is returned
 	// special care has to be taken of tunnel mouths
-	inline hang_t::typ get_disp_slope() const {
+	inline slope_t::type get_disp_slope() const {
 		return (  (underground_mode & ugm_level)  &&  (pos.z > underground_level  ||  (get_typ()==tunnelboden  &&  ist_karten_boden()  &&  pos.z == underground_level))
-							? (hang_t::typ)hang_t::flach
+							? (slope_t::type)slope_t::flat
 							: get_grund_hang() );
 
 		/*switch(underground_mode) {// long version of the return statement above
 			case ugm_none: return(get_grund_hang());
-			case ugm_all:  return(get_grund_hang()); // get_typ()==tunnelboden && !ist_karten? hang_t::flach : get_grund_hang());
+			case ugm_all:  return(get_grund_hang()); // get_typ()==tunnelboden && !ist_karten? slope_t::flat : get_grund_hang());
 			case ugm_level:return((pos.z > underground_level || (get_typ()==tunnelboden && ist_karten_boden() && pos.z == underground_level))
-							? hang_t::flach
+							? slope_t::flat
 							: get_grund_hang());
 		}*/
 	}
@@ -470,7 +470,7 @@ public:
 			switch(underground_mode) {
 				case ugm_none: return ist_karten_boden();
 				case ugm_all:  return true;
-				case ugm_level:return  pos.z == underground_level  ||  pos.z+max(max(corner1(slope),corner2(slope)),max(corner3(slope),corner4(slope))) == underground_level  ||  (ist_karten_boden()  &&  pos.z <= underground_level);
+				case ugm_level:return  pos.z == underground_level  ||  pos.z+max(max(corner_sw(slope),corner_se(slope)),max(corner_ne(slope),corner_nw(slope))) == underground_level  ||  (ist_karten_boden()  &&  pos.z <= underground_level);
 			}
 		}
 		else {
@@ -496,7 +496,7 @@ public:
 	/**
 	 * returns slope of ways as displayed (special cases: bridge ramps, tunnel mouths, undergroundmode etc)
 	 */
-	hang_t::typ get_disp_way_slope() const;
+	slope_t::type get_disp_way_slope() const;
 
 	/**
 	 * Displays the ground images (including foundations, fences and ways)
@@ -712,7 +712,7 @@ public:
 	*/
 	obj_t *get_convoi_vehicle() const { return objlist.get_convoi_vehicle(); }
 
-	virtual hang_t::typ get_weg_hang() const { return get_grund_hang(); }
+	virtual slope_t::type get_weg_hang() const { return get_grund_hang(); }
 
 	/*
 	 * Search a matching wayobj
@@ -793,7 +793,7 @@ public:
 	 * Description;
 	 *      Check, whether it is possible that a way goes up or down in ribi
 	 *      direction. The result depends of the ground type (i.e tunnel entries)
-	 *      and the "hang_typ" of the ground.
+	 *      and the "slope_type" of the ground.
 	 *
 	 *      Returns the height if one moves in direction given by ribi
 	 *
@@ -805,15 +805,15 @@ public:
 	 */
 	inline sint8 get_vmove(ribi_t::ribi ribi) const {
 		sint8 h = pos.z;
-		const hang_t::typ way_slope = get_weg_hang();
+		const slope_t::type way_slope = get_weg_hang();
 
 		// only on slope height may changes
 		if(  way_slope  ) {
-			if(ribi & ribi_t::nordost) {
-				h += corner3(way_slope);
+			if(ribi & ribi_t::northeast) {
+				h += corner_ne(way_slope);
 			}
 			else {
-				h += corner1(way_slope);
+				h += corner_sw(way_slope);
 			}
 		}
 

@@ -39,7 +39,7 @@ void wasser_t::calc_bild_internal(const bool calc_only_snowline_change)
 		koord pos2d( get_pos().get_2d() );
 		sint16 height = welt->get_water_hgt( pos2d );
 		set_hoehe( height );
-		slope = hang_t::flach;
+		slope = slope_t::flat;
 
 		sint16 zpos = min( welt->lookup_hgt( pos2d ), height ); // otherwise slope will fail ...
 
@@ -51,11 +51,11 @@ void wasser_t::calc_bild_internal(const bool calc_only_snowline_change)
 		}
 
 		// test tiles to north, south, east and west and add to ribi if water
-		ribi = ribi_t::keine;
+		ribi = ribi_t::none;
 		for(  uint8 i = 0;  i < 4;  i++  ) {
 			grund_t *gr_neighbour = NULL;
-			if(  get_neighbour( gr_neighbour, invalid_wt, ribi_t::nsow[i] )  &&  (gr_neighbour->ist_wasser()  ||  gr_neighbour->hat_weg( water_wt ))  ) {
-				ribi |= ribi_t::nsow[i];
+			if(  get_neighbour( gr_neighbour, invalid_wt, ribi_t::nsew[i] )  &&  (gr_neighbour->ist_wasser()  ||  gr_neighbour->hat_weg( water_wt ))  ) {
+				ribi |= ribi_t::nsew[i];
 			}
 		}
 

@@ -1305,22 +1305,22 @@ public:
 	 * @note Will always return north-west except on border tiles.
 	 * @pre pos has to be a valid grid coordinate, undefined otherwise.
 	 */
-	inline hang_t::typ get_corner_to_operate(const koord &pos) const
+	inline slope_t::type get_corner_to_operate(const koord &pos) const
 	{
 		// Normal tile
 		if ( ( pos.x != cached_grid_size.x )  &&  ( pos.y != cached_grid_size.y ) ){
-			return hang_t::corner_NW;
+			return slope4_t::corner_NW;
 		}
 		// Border on south-east
 		if ( is_within_limits(pos.x-1, pos.y) ) {
-			return(hang_t::corner_NE);
+			return(slope4_t::corner_NE);
 		}
 		// Border on south-west
 		if ( is_within_limits(pos.x, pos.y-1) ) {
-			return(hang_t::corner_SW);
+			return(slope4_t::corner_SW);
 		}
 		// Border on south
-		return (hang_t::corner_SE);
+		return (slope4_t::corner_SE);
 	}
 
 

@@ -49,12 +49,12 @@ void pillar_t::calc_image()
 	int height = get_yoff();
 	if(  besch->has_pillar_asymmetric()  ) {
 		if(  grund_t *gr = welt->lookup(get_pos())  ) {
-			hang_t::typ slope = gr->get_grund_hang();
+			slope_t::type slope = gr->get_grund_hang();
 			if(  dir == bruecke_besch_t::NS_Pillar  ) {
-				height += min( corner1(slope), corner2(slope) ) * TILE_HEIGHT_STEP;
+				height += min( corner_sw(slope), corner_se(slope) ) * TILE_HEIGHT_STEP;
 			}
 			else {
-				height += min( corner2(slope), corner3(slope) ) * TILE_HEIGHT_STEP;
+				height += min( corner_se(slope), corner_ne(slope) ) * TILE_HEIGHT_STEP;
 			}
 			if(  height > 0  ) {
 				hide = true;

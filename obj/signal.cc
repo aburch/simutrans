@@ -59,9 +59,9 @@ void signal_t::calc_image()
 	grund_t *gr = welt->lookup(get_pos());
 	if(gr) {
 
-		const hang_t::typ full_hang = gr->get_weg_hang();
-		const sint8 hang_diff = hang_t::max_diff(full_hang);
-		const ribi_t::ribi hang_dir = ribi_t::rueckwaerts( ribi_typ(full_hang) );
+		const slope_t::type full_hang = gr->get_weg_hang();
+		const sint8 hang_diff = slope_t::max_diff(full_hang);
+		const ribi_t::ribi hang_dir = ribi_t::backward( ribi_type(full_hang) );
 
 		set_flag(obj_t::dirty);
 
@@ -74,13 +74,13 @@ void signal_t::calc_image()
 			}
 
 			// vertical offset of the signal positions
-			if(full_hang==hang_t::flach) {
+			if(full_hang==slope_t::flat) {
 				yoff = -gr->get_weg_yoff();
 				after_yoffset = yoff;
 			}
 			else {
-				const ribi_t::ribi test_hang = left_swap ? ribi_t::rueckwaerts(hang_dir) : hang_dir;
-				if(test_hang==ribi_t::ost ||  test_hang==ribi_t::nord) {
+				const ribi_t::ribi test_hang = left_swap ? ribi_t::backward(hang_dir) : hang_dir;
+				if(test_hang==ribi_t::east ||  test_hang==ribi_t::north) {
 					yoff = -TILE_HEIGHT_STEP*hang_diff;
 					after_yoffset = 0;
 				}
@@ -96,12 +96,12 @@ void signal_t::calc_image()
 			if(  gr->get_typ()==grund_t::tunnelboden  &&  gr->ist_karten_boden()  &&
 				(grund_t::underground_mode==grund_t::ugm_none  ||  (grund_t::underground_mode==grund_t::ugm_level  &&  gr->get_hoehe()<grund_t::underground_level))   ) {
 				// entering tunnel here: hide the image further in if not undergroud/sliced
-				const ribi_t::ribi tunnel_hang_dir = ribi_t::rueckwaerts( ribi_typ(gr->get_grund_hang()) );
-				if(  tunnel_hang_dir==ribi_t::ost ||  tunnel_hang_dir==ribi_t::nord  ) {
-					temp_dir &= ~ribi_t::suedwest;
+				const ribi_t::ribi tunnel_hang_dir = ribi_t::backward( ribi_type(gr->get_grund_hang()) );
+				if(  tunnel_hang_dir==ribi_t::east ||  tunnel_hang_dir==ribi_t::north  ) {
+					temp_dir &= ~ribi_t::southwest;
 				}
 				else {
-					temp_dir &= ~ribi_t::nordost;
+					temp_dir &= ~ribi_t::northeast;
 				}
 			}
 
@@ -110,13 +110,13 @@ void signal_t::calc_image()
 				const sint16 XOFF = 2*besch->get_offset_left();
 				const sint16 YOFF = besch->get_offset_left();
 
-				if(temp_dir&ribi_t::ost) {
+				if(temp_dir&ribi_t::east) {
 					bild = besch->get_bild_nr(3+zustand*4+offset);
 					xoff += XOFF;
 					yoff += -YOFF;
 				}
 
-				if(temp_dir&ribi_t::nord) {
+				if(temp_dir&ribi_t::north) {
 					if(bild!=IMG_LEER) {
 						after_bild = besch->get_bild_nr(0+zustand*4+offset);
 						after_xoffset += -XOFF;
@@ -135,7 +135,7 @@ void signal_t::calc_image()
 					after_yoffset += YOFF;
 				}
 
-				if(temp_dir&ribi_t::sued) {
+				if(temp_dir&ribi_t::south) {
 					if(after_bild!=IMG_LEER) {
 						bild = besch->get_bild_nr(1+zustand*4+offset);
 						xoff += XOFF;
@@ -149,11 +149,11 @@ void signal_t::calc_image()
 				}
 			}
 			else {
-				if(temp_dir&ribi_t::ost) {
+				if(temp_dir&ribi_t::east) {
 					after_bild = besch->get_bild_nr(3+zustand*4+offset);
 				}
 
-				if(temp_dir&ribi_t::nord) {
+				if(temp_dir&ribi_t::north) {
 					if(after_bild==IMG_LEER) {
 						after_bild = besch->get_bild_nr(0+zustand*4+offset);
 					}
@@ -166,7 +166,7 @@ void signal_t::calc_image()
 					bild = besch->get_bild_nr(2+zustand*4+offset);
 				}
 
-				if(temp_dir&ribi_t::sued) {
+				if(temp_dir&ribi_t::south) {
 					if(bild==IMG_LEER) {
 						bild = besch->get_bild_nr(1+zustand*4+offset);
 					}

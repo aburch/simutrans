@@ -134,7 +134,7 @@ public:
 		return bl->get_bild_nr( ribi );
 	}
 
-	image_id get_hang_bild_nr(hang_t::typ hang, uint8 season, bool front = false) const
+	image_id get_hang_bild_nr(slope_t::type hang, uint8 season, bool front = false) const
 	{
 		if (front  &&  !front_images) {
 			return IMG_LEER;

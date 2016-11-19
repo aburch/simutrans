@@ -35,7 +35,7 @@ public:
 	static bool register_besch(groundobj_besch_t *besch);
 	static bool alles_geladen();
 
-	static const groundobj_besch_t *random_groundobj_for_climate(climate_bits cl, hang_t::typ slope );
+	static const groundobj_besch_t *random_groundobj_for_climate(climate_bits cl, slope_t::type slope );
 
 	groundobj_t(loadsave_t *file);
 	groundobj_t(koord3d pos, const groundobj_besch_t *);

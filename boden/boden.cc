@@ -44,7 +44,7 @@ boden_t::boden_t(loadsave_t *file, koord pos ) : grund_t( koord3d(pos,0) )
 }
 
 
-boden_t::boden_t(koord3d pos, hang_t::typ sl) : grund_t(pos)
+boden_t::boden_t(koord3d pos, slope_t::type sl) : grund_t(pos)
 {
 	slope = sl;
 }
@@ -89,7 +89,7 @@ const char *boden_t::get_name() const
 
 void boden_t::calc_bild_internal(const bool calc_only_snowline_change)
 {
-	const hang_t::typ slope_this = get_disp_slope();
+	const slope_t::type slope_this = get_disp_slope();
 
 	const weg_t *const weg = get_weg( road_wt );
 	if(  weg  &&  weg->hat_gehweg()  ) {

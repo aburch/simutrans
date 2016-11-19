@@ -16,19 +16,19 @@
 fundament_t::fundament_t(loadsave_t *file, koord pos ) : grund_t(koord3d(pos,0) )
 {
 	rdwr(file);
-	slope = (uint8)hang_t::flach;
+	slope = slope_t::flat;
 }
 
 
-fundament_t::fundament_t(koord3d pos, hang_t::typ hang ) : grund_t(pos)
+fundament_t::fundament_t(koord3d pos, slope_t::type hang ) : grund_t(pos)
 {
 	set_bild( IMG_LEER );
 	if(hang) {
 		pos = get_pos();
-		pos.z += hang_t::max_diff(hang);
+		pos.z += slope_t::max_diff(hang);
 		set_pos( pos );
 	}
-	slope = (uint8)hang_t::flach;
+	slope = slope_t::flat;
 }
 
 

@@ -161,7 +161,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 	tmp->g = 0;
 	tmp->dir = 0;
 
-	assert(start_dir == ribi_t::alle  ||  ribi_t::ist_einfach(start_dir) );
+	assert(start_dir == ribi_t::all  ||  ribi_t::is_single(start_dir) );
 	// start_dir is direction to start with, adjust ribi_from such that bit mask boiles down to start_dir
 	tmp->ribi_from = ribi_t::reverse_single(start_dir) ^ 0x0f;
 	// assert that mask in first step is equal to start_dir
@@ -203,9 +203,9 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 		for(  int r=0;  r<4;  r++  ) {
 			// a way goes here, and it is not marked (i.e. in the closed list)
 			grund_t* to;
-			if(  (ribi & ribi_t::nsow[r] )!=0 // do not go backwards
-				&& koord_distance(start, gr->get_pos() + koord::nsow[r])<max_depth	// not too far away
-				&& gr->get_neighbour(to, wegtyp, ribi_t::nsow[r])  // is connected
+			if(  (ribi & ribi_t::nsew[r] )!=0 // do not go backwards
+				&& koord_distance(start, gr->get_pos() + koord::nsew[r])<max_depth	// not too far away
+				&& gr->get_neighbour(to, wegtyp, ribi_t::nsew[r])  // is connected
 				&& !marker.is_marked(to) // not already tested
 				&& tdriver->check_next_tile(to)	// can be driven on
 			) {
@@ -217,9 +217,9 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 				k->count = tmp->count+1;
 				k->f = 0;
 				k->g = tmp->g + tdriver->get_cost(to, max_khm, gr->get_pos().get_2d());
-				k->ribi_from = ribi_t::nsow[r];
+				k->ribi_from = ribi_t::nsew[r];
 
-				uint8 current_dir = ribi_t::nsow[r];
+				uint8 current_dir = ribi_t::nsew[r];
 				if(tmp->parent!=NULL) {
 					current_dir |= tmp->ribi_from;
 					if(tmp->dir!=current_dir) {
@@ -228,7 +228,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 							// discourage 90° turns
 							k->g += 10;
 						}
-						else if(ribi_t::ist_exakt_orthogonal(tmp->dir,current_dir)) {
+						else if(ribi_t::is_perpendicular(tmp->dir,current_dir)) {
 							// discourage v turns heavily
 							k->g += 25;
 						}
@@ -271,15 +271,15 @@ ribi_t::ribi *get_next_dirs(const koord3d& gr_pos, const koord3d& ziel)
 {
 	static ribi_t::ribi next_ribi[4];
 	if( abs(gr_pos.x-ziel.x)>abs(gr_pos.y-ziel.y) ) {
-		next_ribi[0] = (ziel.x>gr_pos.x) ? ribi_t::ost : ribi_t::west;
-		next_ribi[1] = (ziel.y>gr_pos.y) ? ribi_t::sued : ribi_t::nord;
+		next_ribi[0] = (ziel.x>gr_pos.x) ? ribi_t::east : ribi_t::west;
+		next_ribi[1] = (ziel.y>gr_pos.y) ? ribi_t::south : ribi_t::north;
 	}
 	else {
-		next_ribi[0] = (ziel.y>gr_pos.y) ? ribi_t::sued : ribi_t::nord;
-		next_ribi[1] = (ziel.x>gr_pos.x) ? ribi_t::ost : ribi_t::west;
+		next_ribi[0] = (ziel.y>gr_pos.y) ? ribi_t::south : ribi_t::north;
+		next_ribi[1] = (ziel.x>gr_pos.x) ? ribi_t::east : ribi_t::west;
 	}
-	next_ribi[2] = ribi_t::rueckwaerts( next_ribi[1] );
-	next_ribi[3] = ribi_t::rueckwaerts( next_ribi[0] );
+	next_ribi[2] = ribi_t::backward( next_ribi[1] );
+	next_ribi[3] = ribi_t::backward( next_ribi[0] );
 	return next_ribi;
 }
 
@@ -348,8 +348,8 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 	tmp->g = 0;
 	tmp->dir = 0;
 	tmp->count = 0;
-	tmp->ribi_from = ribi_t::keine;
-	tmp->jps_ribi  = ribi_t::alle;
+	tmp->ribi_from = ribi_t::none;
+	tmp->jps_ribi  = ribi_t::all;
 
 	// nothing in lists
 	marker_t& marker = marker_t::instance(welt->get_size().x, welt->get_size().y);
@@ -415,7 +415,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 				weg_t *w = to->get_weg(wegtyp);
 				// Do not go on a tile, where a oneway sign forbids going.
 				// This saves time and fixed the bug, that a oneway sign on the final tile was ignored.
-				if (w  &&  w->get_ribi_maske()  &&  ribi_t::rueckwaerts(next_ribi[r]) == w->get_ribi()) {
+				if (w  &&  w->get_ribi_maske()  &&  ribi_t::backward(next_ribi[r]) == w->get_ribi()) {
 					// there is a signal, and the only direction leaving the next tile
 					// is back to our position
 					continue;
@@ -435,7 +435,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 							// discourage 90° turns
 							new_g += 10;
 						}
-						else if(ribi_t::ist_exakt_orthogonal(tmp->dir,current_dir)) {
+						else if(ribi_t::is_perpendicular(tmp->dir,current_dir)) {
 							// discourage v turns heavily
 							new_g += 25;
 						}
@@ -451,10 +451,10 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 				// count how many 45 degree turns are necessary to get to target
 				sint8 turns = 0;
 				if (dist>1) {
-					ribi_t::ribi to_target = ribi_typ(to->get_pos(), ziel );
+					ribi_t::ribi to_target = ribi_type(to->get_pos(), ziel );
 
 					if (to_target  &&  (to_target!=current_dir)) {
-						if (ribi_t::ist_einfach(current_dir) != ribi_t::ist_einfach(to_target)) {
+						if (ribi_t::is_single(current_dir) != ribi_t::is_single(to_target)) {
 							to_target = ribi_t::rotate45(to_target);
 							turns ++;
 						}
@@ -486,7 +486,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 				k->dir = current_dir;
 				k->ribi_from = next_ribi[r];
 				k->count = tmp->count+1;
-				k->jps_ribi = ribi_t::alle;
+				k->jps_ribi = ribi_t::all;
 
 				if (use_jps  &&  to->ist_wasser()) {
 					// only check previous direction plus directions not available on this tile
@@ -573,7 +573,7 @@ void route_t::postprocess_water_route(karte_t *welt)
 	if (route.get_count() < 5) return;
 
 	// direction of last straight part (and last index of straight part)
-	ribi_t::ribi straight_ribi = ribi_typ(route[0], route[1]);
+	ribi_t::ribi straight_ribi = ribi_type(route[0], route[1]);
 	uint32 straight_end = 0;
 
 	// search for route parts:
@@ -583,8 +583,8 @@ void route_t::postprocess_water_route(karte_t *welt)
 	uint32 i = 1;
 	while( i < route.get_count()-1 )
 	{
-		ribi_t::ribi ribi = ribi_typ(route[i-1], route[i+1]);
-		if (ribi_t::ist_einfach(ribi)) {
+		ribi_t::ribi ribi = ribi_type(route[i-1], route[i+1]);
+		if (ribi_t::is_single(ribi)) {
 			if (ribi == straight_ribi) {
 				if (phase == 1) {
 					// third part starts
@@ -612,7 +612,7 @@ void route_t::postprocess_water_route(karte_t *welt)
 			else if (phase == 2) {
 				// fourth phase
 				// postprocess here
-				bool ok = ribi_typ(route[straight_end], route[i+1]) ==  ribi;
+				bool ok = ribi_type(route[straight_end], route[i+1]) ==  ribi;
 				// try to find straight route, which avoids one diagonal part
 				koord3d_vector_t post;
 				post.append( route[straight_end] );
@@ -621,13 +621,13 @@ void route_t::postprocess_water_route(karte_t *welt)
 					ribi_t::ribi next = 0;
 					koord diff = (end - post.back()).get_2d();
 					if (abs(diff.x)>=abs(diff.y)) {
-						next = diff.x > 0 ? ribi_t::ost : ribi_t::west;
+						next = diff.x > 0 ? ribi_t::east : ribi_t::west;
 						if (abs(diff.x)==abs(diff.y)  &&  next == straight_ribi) {
-							next = diff.y > 0 ? ribi_t::sued : ribi_t::nord;
+							next = diff.y > 0 ? ribi_t::south : ribi_t::north;
 						}
 					}
 					else {
-						next = diff.y > 0 ? ribi_t::sued : ribi_t::nord;
+						next = diff.y > 0 ? ribi_t::south : ribi_t::north;
 					}
 					koord3d pos = post.back() + koord(next);
 					ok = false;
@@ -701,7 +701,7 @@ route_t::route_result_t route_t::calc_route(karte_t *welt, const koord3d ziel, c
 
 				const uint32 max_n = route.get_count()-1;
 				const koord3d zv = route[max_n] - route[max_n - 1];
-				const int ribi = ribi_typ(zv);
+				const int ribi = ribi_type(zv);
 
 				grund_t *gr = welt->lookup(start);
 				const waytype_t wegtyp = tdriver->get_waytype();

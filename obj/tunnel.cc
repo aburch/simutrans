@@ -63,11 +63,11 @@ void tunnel_t::calc_image()
 #endif
 	const grund_t *gr = welt->lookup(get_pos());
 	if(  gr->ist_karten_boden()  &&  besch  ) {
-		hang_t::typ hang = gr->get_grund_hang();
+		slope_t::type hang = gr->get_grund_hang();
 
 		broad_type = 0;
 		if(  besch->has_broad_portals()  ) {
-			ribi_t::ribi dir = ribi_t::rotate90( ribi_typ( hang ) );
+			ribi_t::ribi dir = ribi_t::rotate90( ribi_type( hang ) );
 			if(  dir==0  ) {
 				dbg->error( "tunnel_t::calc_bild()", "pos=%s, dir=%i, hang=%i", get_pos().get_str(), dir, hang );
 			}

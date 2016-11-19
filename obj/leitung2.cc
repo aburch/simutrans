@@ -41,16 +41,16 @@ static pthread_mutex_t senke_list_mutex = PTHREAD_MUTEX_INITIALIZER;
  */
 ribi_t::ribi get_powerline_ribi(grund_t *gr)
 {
-	hang_t::typ slope = gr->get_weg_hang();
-	ribi_t::ribi ribi = (ribi_t::ribi)ribi_t::alle;
-	if (slope == hang_t::flach) {
+	slope_t::type slope = gr->get_weg_hang();
+	ribi_t::ribi ribi = (ribi_t::ribi)ribi_t::all;
+	if (slope == slope_t::flat) {
 		// respect possible directions for bridge and tunnel starts
 		if (gr->ist_karten_boden()  &&  (gr->ist_tunnel()  ||  gr->ist_bruecke())) {
-			ribi = ribi_t::doppelt( ribi_typ( gr->get_grund_hang() ) );
+			ribi = ribi_t::doubles( ribi_type( gr->get_grund_hang() ) );
 		}
 	}
 	else {
-		ribi = ribi_t::doppelt( ribi_typ(slope) );
+		ribi = ribi_t::doubles( ribi_type(slope) );
 	}
 	return ribi;
 }
@@ -64,12 +64,12 @@ int leitung_t::gimme_neighbours(leitung_t **conn)
 		// get next connected tile (if there)
 		grund_t *gr;
 		conn[i] = NULL;
-		if(  (ribi & ribi_t::nsow[i])  &&  gr_base->get_neighbour( gr, invalid_wt, ribi_t::nsow[i] ) ) {
+		if(  (ribi & ribi_t::nsew[i])  &&  gr_base->get_neighbour( gr, invalid_wt, ribi_t::nsew[i] ) ) {
 			leitung_t *lt = gr->get_leitung();
 			// check that we can connect to the other tile: correct slope,
 			// both ground or both tunnel or both not tunnel
 			bool const ok = (gr->ist_karten_boden()  &&  gr_base->ist_karten_boden())  ||  (gr->ist_tunnel()==gr_base->ist_tunnel());
-			if(  lt  &&  (ribi_t::rueckwaerts(ribi_t::nsow[i]) & get_powerline_ribi(gr))  &&  ok  ) {
+			if(  lt  &&  (ribi_t::backward(ribi_t::nsew[i]) & get_powerline_ribi(gr))  &&  ok  ) {
 				const player_t *owner = get_owner();
 				const player_t *other = lt->get_owner();
 				const player_t *super = welt->get_public_player();
@@ -87,7 +87,7 @@ int leitung_t::gimme_neighbours(leitung_t **conn)
 fabrik_t *leitung_t::suche_fab_4(const koord pos)
 {
 	for(int k=0; k<4; k++) {
-		fabrik_t *fab = fabrik_t::get_fab( pos+koord::nsow[k] );
+		fabrik_t *fab = fabrik_t::get_fab( pos+koord::nsew[k] );
 		if(fab) {
 			return fab;
 		}
@@ -100,7 +100,7 @@ leitung_t::leitung_t(loadsave_t *file) : obj_t()
 {
 	bild = IMG_LEER;
 	set_net(NULL);
-	ribi = ribi_t::keine;
+	ribi = ribi_t::none;
 	rdwr(file);
 }
 
@@ -265,30 +265,30 @@ void leitung_t::calc_image()
 	}
 
 	image_id old_image = get_image();
-	hang_t::typ hang = gr->get_weg_hang();
-	if(hang != hang_t::flach) {
+	slope_t::type hang = gr->get_weg_hang();
+	if(hang != slope_t::flat) {
 		set_bild( besch->get_hang_bild_nr(hang, snow));
 	}
 	else {
 		if(gr->hat_wege()) {
 			// crossing with road or rail
 			weg_t* way = gr->get_weg_nr(0);
-			if(ribi_t::ist_gerade_ow(way->get_ribi())) {
-				set_bild( besch->get_diagonal_bild_nr(ribi_t::nord|ribi_t::ost, snow));
+			if(ribi_t::is_straight_ew(way->get_ribi())) {
+				set_bild( besch->get_diagonal_bild_nr(ribi_t::north|ribi_t::east, snow));
 			}
 			else {
-				set_bild( besch->get_diagonal_bild_nr(ribi_t::sued|ribi_t::ost, snow));
+				set_bild( besch->get_diagonal_bild_nr(ribi_t::south|ribi_t::east, snow));
 			}
 			is_crossing = true;
 		}
 		else {
-			if(ribi_t::ist_gerade(ribi)  &&  !ribi_t::ist_einfach(ribi)  &&  (pos.x+pos.y)&1) {
+			if(ribi_t::is_straight(ribi)  &&  !ribi_t::is_single(ribi)  &&  (pos.x+pos.y)&1) {
 				// every second skip mast
-				if(ribi_t::ist_gerade_ns(ribi)) {
-					set_bild( besch->get_diagonal_bild_nr(ribi_t::nord|ribi_t::west, snow));
+				if(ribi_t::is_straight_ns(ribi)) {
+					set_bild( besch->get_diagonal_bild_nr(ribi_t::north|ribi_t::west, snow));
 				}
 				else {
-					set_bild( besch->get_diagonal_bild_nr(ribi_t::sued|ribi_t::west, snow));
+					set_bild( besch->get_diagonal_bild_nr(ribi_t::south|ribi_t::west, snow));
 				}
 			}
 			else {
@@ -311,12 +311,12 @@ void leitung_t::calc_image()
 void leitung_t::calc_neighbourhood()
 {
 	leitung_t *conn[4];
-	ribi = ribi_t::keine;
+	ribi = ribi_t::none;
 	if(gimme_neighbours(conn)>0) {
 		for( uint8 i=0;  i<4 ;  i++  ) {
 			if(conn[i]  &&  conn[i]->get_net()==get_net()) {
-				ribi |= ribi_t::nsow[i];
-				conn[i]->add_ribi(ribi_t::rueckwaerts(ribi_t::nsow[i]));
+				ribi |= ribi_t::nsew[i];
+				conn[i]->add_ribi(ribi_t::backward(ribi_t::nsew[i]));
 				conn[i]->calc_image();
 			}
 		}

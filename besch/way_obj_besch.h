@@ -59,7 +59,7 @@ public:
 
 	image_id get_back_image_id(ribi_t::ribi ribi) const { return get_child<bildliste_besch_t>(3)->get_bild_nr(ribi); }
 
-	image_id get_front_slope_image_id(hang_t::typ hang) const
+	image_id get_front_slope_image_id(slope_t::type hang) const
 	{
 		uint16 nr;
 		switch(hang) {
@@ -99,7 +99,7 @@ public:
 		return hang_img;
 	  }
 
-	image_id get_back_slope_image_id(hang_t::typ hang) const
+	image_id get_back_slope_image_id(slope_t::type hang) const
 	{
 		uint16 nr;
 		switch(hang) {
@@ -141,7 +141,7 @@ public:
 
 	image_id get_front_diagonal_image_id(ribi_t::ribi ribi) const
 	{
-		if(!ribi_t::ist_kurve(ribi)) {
+		if(!ribi_t::is_bend(ribi)) {
 			return IMG_LEER;
 		}
 		return get_child<bildliste_besch_t>(6)->get_bild_nr(ribi / 3 - 1);
@@ -149,7 +149,7 @@ public:
 
 	image_id get_back_diagonal_image_id(ribi_t::ribi ribi) const
 	{
-		if(!ribi_t::ist_kurve(ribi)) {
+		if(!ribi_t::is_bend(ribi)) {
 			return IMG_LEER;
 		}
 		return get_child<bildliste_besch_t>(7)->get_bild_nr(ribi / 3 - 1);

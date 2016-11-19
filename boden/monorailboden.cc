@@ -7,7 +7,7 @@
 #include "wege/weg.h"
 
 
-monorailboden_t::monorailboden_t(koord3d pos,hang_t::typ slope) : grund_t(pos)
+monorailboden_t::monorailboden_t(koord3d pos,slope_t::type slope) : grund_t(pos)
 {
 	this->slope = slope;
 }
@@ -23,7 +23,7 @@ void monorailboden_t::rdwr(loadsave_t *file)
 			uint8 sl;
 			file->rdwr_byte(sl);
 			// convert slopes from old single height saved game
-			slope = (scorner1(sl) + scorner2(sl) * 3 + scorner3(sl) * 9 + scorner4(sl) * 27) * env_t::pak_height_conversion_factor;
+			slope = (scorner_sw(sl) + scorner_se(sl) * 3 + scorner_ne(sl) * 9 + scorner_nw(sl) * 27) * env_t::pak_height_conversion_factor;
 		}
 		else {
 			slope = grund_t::get_grund_hang();

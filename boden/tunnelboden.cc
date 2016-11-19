@@ -61,7 +61,7 @@ void tunnelboden_t::calc_bild_internal(const bool calc_only_snowline_change)
 		}
 
 		if(  grund_t::underground_mode == grund_t::ugm_none  ) {
-			if(  (ribi_typ(get_grund_hang()) == ribi_t::ost  &&  abs(back_bild_nr) > 11)  ||  (ribi_typ(get_grund_hang()) == ribi_t::sued  &&  get_back_bild(0) != IMG_LEER)  ) {
+			if(  (ribi_type(get_grund_hang()) == ribi_t::east  &&  abs(back_bild_nr) > 11)  ||  (ribi_type(get_grund_hang()) == ribi_t::south  &&  get_back_bild(0) != IMG_LEER)  ) {
 				// on east or north slope: must draw as obj, since there is a slope here nearby
 				koord pos = get_pos().get_2d() + koord( get_grund_hang() );
 				grund_t *gr = welt->lookup_kartenboden( pos );
@@ -91,7 +91,7 @@ void tunnelboden_t::rdwr(loadsave_t *file)
 		uint32 sl = slope;
 		file->rdwr_long(sl);
 		// convert slopes from old single height saved game
-		slope = (scorner1(sl) + scorner2(sl) * 3 + scorner3(sl) * 9 + scorner4(sl) * 27) * env_t::pak_height_conversion_factor;
+		slope = (scorner_sw(sl) + scorner_se(sl) * 3 + scorner_ne(sl) * 9 + scorner_nw(sl) * 27) * env_t::pak_height_conversion_factor;
 	}
 
 	// only 99.03 version save the tunnel here

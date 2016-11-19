@@ -116,7 +116,7 @@ static bild_besch_t* create_textured_tile(const bild_besch_t* bild_lightmap, con
  * BEWARE: Assumes all images but bild_lightmap are square!
  * BEWARE: no special colors or your will see literally blue!
  */
-/*static bild_besch_t* create_textured_tile_mix(const bild_besch_t* bild_lightmap, hang_t::typ slope, const bild_besch_t* bild_mixmap,  const bild_besch_t* bild_src1, const bild_besch_t* bild_src2, const bild_besch_t* bild_src3)
+/*static bild_besch_t* create_textured_tile_mix(const bild_besch_t* bild_lightmap, slope_t::type slope, const bild_besch_t* bild_mixmap,  const bild_besch_t* bild_src1, const bild_besch_t* bild_src2, const bild_besch_t* bild_src3)
 {
 	bild_besch_t *bild_dest = bild_lightmap->copy_rotate(0);
 #if COLOUR_DEPTH != 0
@@ -146,11 +146,11 @@ static bild_besch_t* create_textured_tile(const bild_besch_t* bild_lightmap, con
 	*/
 
 /*	// we will need them very often ...
-	const sint16 corner1_y = (3*x_y)/4 - corner1(slope)*tile_raster_scale_y(TILE_HEIGHT_STEP,x_y);
-	const sint16 corner2_y = x_y - corner2(slope)*tile_raster_scale_y(TILE_HEIGHT_STEP,x_y);
-	const sint16 corner3_y = (3*x_y)/4 - corner3(slope)*tile_raster_scale_y(TILE_HEIGHT_STEP,x_y);
-	const sint16 corner4_y = (x_y/2) - corner4(slope)*tile_raster_scale_y(TILE_HEIGHT_STEP,x_y);
-	const sint16 middle_y = (corner2_y+corner4_y)/2;
+	const sint16 corner_sw_y = (3*x_y)/4 - corner_sw(slope)*tile_raster_scale_y(TILE_HEIGHT_STEP,x_y);
+	const sint16 corner_se_y = x_y - corner_se(slope)*tile_raster_scale_y(TILE_HEIGHT_STEP,x_y);
+	const sint16 corner_ne_y = (3*x_y)/4 - corner_ne(slope)*tile_raster_scale_y(TILE_HEIGHT_STEP,x_y);
+	const sint16 corner_nw_y = (x_y/2) - corner_nw(slope)*tile_raster_scale_y(TILE_HEIGHT_STEP,x_y);
+	const sint16 middle_y = (corner_se_y+corner_nw_y)/2;
 
 	// now mix the images
 	PIXVAL* dest = bild_dest->get_daten();
@@ -169,8 +169,8 @@ static bild_besch_t* create_textured_tile(const bild_besch_t* bild_lightmap, con
 				sint16 tile_y_corrected;
 
 				// first; check, if we are front or back half
-				// back half means, we are above a line from the left_y (corner1), middle_y, right_y (corner2)
-				const sint16 back_y = (tile_x<x_y/2) ? corner1_y + ((middle_y-corner1_y)*tile_x)/(x_y/2) : middle_y + ((corner3_y-middle_y)*(tile_x-(x_y/2)))/(x_y/2);
+				// back half means, we are above a line from the left_y (corner_sw), middle_y, right_y (corner_se)
+				const sint16 back_y = (tile_x<x_y/2) ? corner_sw_y + ((middle_y-corner_sw_y)*tile_x)/(x_y/2) : middle_y + ((corner_ne_y-middle_y)*(tile_x-(x_y/2)))/(x_y/2);
 				// in the middle? the it is just the diagonal in the mixmap
 				if(back_y==tile_y) {
 					tile_y_corrected = 0;
@@ -184,10 +184,10 @@ static bild_besch_t* create_textured_tile(const bild_besch_t* bild_lightmap, con
 					// we are in the back tile => calculate border y
 					sint16 backborder_y;
 					if(tile_x>x_y/2) {
-						backborder_y = corner4_y + ((corner3_y-corner4_y)*(x_y/2-x))/(x_y/2);
+						backborder_y = corner_nw_y + ((corner_ne_y-corner_nw_y)*(x_y/2-x))/(x_y/2);
 					}
 					else {
-						backborder_y = corner1_y + ((corner4_y-corner1_y)*x)/(x_y/2);
+						backborder_y = corner_sw_y + ((corner_nw_y-corner_sw_y)*x)/(x_y/2);
 					}
 					// ok, now we have to calculate the y coordinate ...
 					if(backborder_y<tile_y) {
@@ -206,10 +206,10 @@ static bild_besch_t* create_textured_tile(const bild_besch_t* bild_lightmap, con
 					// we are in the front tile => calculate border y
 					sint16 frontborder_y;
 					if(tile_x>x_y/2) {
-						frontborder_y = corner2_y + ((corner3_y-corner2_y)*(x_y/2-x))/(x_y/2);
+						frontborder_y = corner_se_y + ((corner_ne_y-corner_se_y)*(x_y/2-x))/(x_y/2);
 					}
 					else {
-						frontborder_y = corner1_y + ((corner2_y-corner1_y)*x)/(x_y/2);
+						frontborder_y = corner_sw_y + ((corner_se_y-corner_sw_y)*x)/(x_y/2);
 					}
 					// ok, now we have to calculate the y coordinate ...
 					if(frontborder_y>tile_y) {
@@ -268,7 +268,7 @@ static bild_besch_t* create_textured_tile(const bild_besch_t* bild_lightmap, con
  * BEWARE: Assumes all images but bild_lightmap are square!
  * BEWARE: no special colors or your will see literally blue!
  */
-static bild_besch_t* create_alpha_tile(const bild_besch_t* bild_lightmap, hang_t::typ slope, const bild_besch_t* bild_alphamap)
+static bild_besch_t* create_alpha_tile(const bild_besch_t* bild_lightmap, slope_t::type slope, const bild_besch_t* bild_alphamap)
 {
 	if(  bild_lightmap == NULL  ||  bild_alphamap == NULL  ||  bild_alphamap->get_pic()->w < 2  ) {
 		bild_besch_t *bild_dest = bild_besch_t::create_single_pixel();
@@ -302,11 +302,11 @@ static bild_besch_t* create_alpha_tile(const bild_besch_t* bild_lightmap, hang_t
 	*/
 
 	// we will need them very often ...
-	const sint16 corner1_y = (3 * x_y) / 4 - corner1(slope) * tile_raster_scale_y( TILE_HEIGHT_STEP, x_y );
-	const sint16 corner2_y = x_y - corner2(slope) * tile_raster_scale_y( TILE_HEIGHT_STEP, x_y );
-	const sint16 corner3_y = (3 * x_y) / 4 - corner3(slope) * tile_raster_scale_y( TILE_HEIGHT_STEP, x_y );
-	const sint16 corner4_y = (x_y / 2) - corner4(slope) * tile_raster_scale_y( TILE_HEIGHT_STEP, x_y );
-	const sint16 middle_y = (corner2_y + corner4_y) / 2;
+	const sint16 corner_sw_y = (3 * x_y) / 4 - corner_sw(slope) * tile_raster_scale_y( TILE_HEIGHT_STEP, x_y );
+	const sint16 corner_se_y = x_y - corner_se(slope) * tile_raster_scale_y( TILE_HEIGHT_STEP, x_y );
+	const sint16 corner_ne_y = (3 * x_y) / 4 - corner_ne(slope) * tile_raster_scale_y( TILE_HEIGHT_STEP, x_y );
+	const sint16 corner_nw_y = (x_y / 2) - corner_nw(slope) * tile_raster_scale_y( TILE_HEIGHT_STEP, x_y );
+	const sint16 middle_y = (corner_se_y + corner_nw_y) / 2;
 	// now mix the images
 	PIXVAL* dest = bild_dest->get_daten();
 	for(  int j = 0;  j < bild_dest->get_pic()->h;  j++  ) {
@@ -320,8 +320,8 @@ static bild_besch_t* create_alpha_tile(const bild_besch_t* bild_lightmap, hang_t
 				sint16 tile_y_corrected;
 
 				// first; check, if we are front or back half
-				// back half means, we are above a line from the left_y (corner1), middle_y, right_y (corner2)
-				const sint16 back_y = (x_y < 2) ? 0 : ( (tile_x < x_y / 2) ? corner1_y + ((middle_y - corner1_y) * tile_x) / (x_y / 2) : middle_y + ((corner3_y - middle_y) * (tile_x - (x_y / 2))) / (x_y / 2) );
+				// back half means, we are above a line from the left_y (corner_sw), middle_y, right_y (corner_se)
+				const sint16 back_y = (x_y < 2) ? 0 : ( (tile_x < x_y / 2) ? corner_sw_y + ((middle_y - corner_sw_y) * tile_x) / (x_y / 2) : middle_y + ((corner_ne_y - middle_y) * (tile_x - (x_y / 2))) / (x_y / 2) );
 				// in the middle? the it is just the diagonal in the mixmap
 				if(  back_y == tile_y  ) {
 					tile_y_corrected = 0;
@@ -335,10 +335,10 @@ static bild_besch_t* create_alpha_tile(const bild_besch_t* bild_lightmap, hang_t
 					// we are in the back tile => calculate border y
 					sint16 backborder_y;
 					if(  tile_x > x_y / 2  ) {
-						backborder_y = corner4_y + ((corner3_y - corner4_y) * (x_y / 2 - x)) / (x_y / 2);
+						backborder_y = corner_nw_y + ((corner_ne_y - corner_nw_y) * (x_y / 2 - x)) / (x_y / 2);
 					}
 					else {
-						backborder_y = corner1_y + ((corner4_y - corner1_y) * x) / (x_y / 2);
+						backborder_y = corner_sw_y + ((corner_nw_y - corner_sw_y) * x) / (x_y / 2);
 					}
 					// ok, now we have to calculate the y coordinate ...
 					if(  backborder_y < tile_y  ) {
@@ -358,10 +358,10 @@ static bild_besch_t* create_alpha_tile(const bild_besch_t* bild_lightmap, hang_t
 					// we are in the front tile => calculate border y
 					sint16 frontborder_y = 0;
 					if(  tile_x > x_y / 2  ) {
-						frontborder_y = corner2_y + ((corner3_y - corner2_y) * (x_y / 2 - x)) / (x_y / 2);
+						frontborder_y = corner_se_y + ((corner_ne_y - corner_se_y) * (x_y / 2 - x)) / (x_y / 2);
 					}
 					else if(  x_y >=2  ) {
-						frontborder_y = corner1_y + ((corner2_y - corner1_y) * x) / (x_y / 2);
+						frontborder_y = corner_sw_y + ((corner_se_y - corner_sw_y) * x) / (x_y / 2);
 					}
 					// ok, now we have to calculate the y coordinate ...
 					if(  frontborder_y > tile_y  ) {
@@ -518,7 +518,7 @@ bool grund_besch_t::register_besch(const grund_besch_t *besch)
 
 /*
  * called after loading; usually checks for completeness
- * however, in our case hang_t::we have to calculate all textures
+ * however, we have to calculate all textures
  * and put them into images
  */
 bool grund_besch_t::alles_geladen()
@@ -586,7 +586,7 @@ void grund_besch_t::init_ground_textures(karte_t *w)
 		all_rotations_slope[slope] = NULL;
 		doubleslope_to_imgnr[slope] = 255;
 
-		if(  slope != 80  &&  (hang_t::is_all_up(slope)  ||  (!double_grounds  &&  hang_t::max_diff(slope)>1)  )  ) {
+		if(  slope != 80  &&  (slope_t::is_all_up(slope)  ||  (!double_grounds  &&  slope_t::max_diff(slope)>1)  )  ) {
 			// no need to initialize unneeded slopes
 			// slope 80 is needed below
 			continue;
@@ -597,77 +597,77 @@ void grund_besch_t::init_ground_textures(karte_t *w)
 
 		bild_besch_t *tmp_pic = NULL;
 		switch(  slope  ) {
-			case hang_t::nord: {
+			case slope_t::north: {
 				all_rotations_slope[slope] = transition_slope_texture->get_bild_ptr(0)->copy_rotate(180);
 				all_rotations_beach[slope] = transition_water_texture->get_bild_ptr(0)->copy_rotate(180);
 				break;
 			}
-			case hang_t::ost: {
+			case slope_t::east: {
 				all_rotations_slope[slope] = transition_slope_texture->get_bild_ptr(0)->copy_rotate(90);
 				all_rotations_beach[slope] = transition_water_texture->get_bild_ptr(0)->copy_rotate(90);
 				break;
 			}
-			case hang_t::sued: {
+			case slope_t::south: {
 				all_rotations_slope[slope] = transition_slope_texture->get_bild_ptr(0)->copy_rotate(0);
 				all_rotations_beach[slope] = transition_water_texture->get_bild_ptr(0)->copy_rotate(0);
 				break;
 			}
-			case hang_t::west: {
+			case slope_t::west: {
 				all_rotations_slope[slope] = transition_slope_texture->get_bild_ptr(0)->copy_rotate(270);
 				all_rotations_beach[slope] = transition_water_texture->get_bild_ptr(0)->copy_rotate(270);
 				break;
 			}
-			case hang_t::nordwest + hang_t::nordost + hang_t::suedost: {
+			case slope_t::northwest + slope_t::northeast + slope_t::southeast: {
 				all_rotations_slope[slope] = transition_slope_texture->get_bild_ptr(1)->copy_rotate(0);
 				all_rotations_beach[slope] = transition_water_texture->get_bild_ptr(1)->copy_rotate(0);
 				break;
 			}
-			case hang_t::nordost + hang_t::suedost + hang_t::suedwest: {
+			case slope_t::northeast + slope_t::southeast + slope_t::southwest: {
 				all_rotations_slope[slope] = transition_slope_texture->get_bild_ptr(1)->copy_rotate(270);
 				all_rotations_beach[slope] = transition_water_texture->get_bild_ptr(1)->copy_rotate(270);
 				break;
 			}
-			case hang_t::suedost + hang_t::suedwest + hang_t::nordwest: {
+			case slope_t::southeast + slope_t::southwest + slope_t::northwest: {
 				all_rotations_slope[slope] = transition_slope_texture->get_bild_ptr(1)->copy_rotate(180);
 				all_rotations_beach[slope] = transition_water_texture->get_bild_ptr(1)->copy_rotate(180);
 				break;
 			}
-			case hang_t::suedwest + hang_t::nordwest + hang_t::nordost: {
+			case slope_t::southwest + slope_t::northwest + slope_t::northeast: {
 				all_rotations_slope[slope] = transition_slope_texture->get_bild_ptr(1)->copy_rotate(90);
 				all_rotations_beach[slope] = transition_water_texture->get_bild_ptr(1)->copy_rotate(90);
 				break;
 			}
-			case hang_t::nordwest: {
+			case slope_t::northwest: {
 				all_rotations_slope[slope] = transition_slope_texture->get_bild_ptr(2)->copy_rotate(90);
 				all_rotations_beach[slope] = transition_water_texture->get_bild_ptr(2)->copy_rotate(90);
 				break;
 			}
-			case hang_t::nordost: {
+			case slope_t::northeast: {
 				all_rotations_slope[slope] = transition_slope_texture->get_bild_ptr(2)->copy_rotate(0);
 				all_rotations_beach[slope] = transition_water_texture->get_bild_ptr(2)->copy_rotate(0);
 				break;
 			}
-			case hang_t::suedost: {
+			case slope_t::southeast: {
 				all_rotations_slope[slope] = transition_slope_texture->get_bild_ptr(2)->copy_rotate(270);
 				all_rotations_beach[slope] = transition_water_texture->get_bild_ptr(2)->copy_rotate(270);
 				break;
 			}
-			case hang_t::suedwest: {
+			case slope_t::southwest: {
 				all_rotations_slope[slope] = transition_slope_texture->get_bild_ptr(2)->copy_rotate(180);
 				all_rotations_beach[slope] = transition_water_texture->get_bild_ptr(2)->copy_rotate(180);
 				break;
 			}
-			case hang_t::suedwest + hang_t::nordost: {
+			case slope_t::southwest + slope_t::northeast: {
 				all_rotations_slope[slope] = transition_slope_texture->get_bild_ptr(3)->copy_rotate(90);
 				all_rotations_beach[slope] = transition_water_texture->get_bild_ptr(3)->copy_rotate(90);
 				break;
 			}
-			case hang_t::suedost + hang_t::nordwest: {
+			case slope_t::southeast + slope_t::northwest: {
 				all_rotations_slope[slope] = transition_slope_texture->get_bild_ptr(3)->copy_rotate(0);
 				all_rotations_beach[slope] = transition_water_texture->get_bild_ptr(3)->copy_rotate(0);
 				break;
 			}
-			case hang_t::suedwest + hang_t::nordost + hang_t::suedost + hang_t::nordwest: {
+			case slope_t::southwest + slope_t::northeast + slope_t::southeast + slope_t::northwest: {
 				if(  double_grounds  ) {
 					all_rotations_slope[slope] = transition_slope_texture->get_bild_ptr(14)->copy_rotate(0);
 					all_rotations_beach[slope] = transition_water_texture->get_bild_ptr(11)->copy_rotate(0);
@@ -681,231 +681,231 @@ void grund_besch_t::init_ground_textures(karte_t *w)
 			default: {
 				if(  full_climate  ) {
 					switch(  slope  ) {
-						case hang_t::nord * 2: {
+						case slope_t::north * 2: {
 							all_rotations_slope[slope] = transition_slope_texture->get_bild_ptr(4)->copy_rotate(180);
 							break;
 						}
-						case hang_t::ost * 2: {
+						case slope_t::east * 2: {
 							all_rotations_slope[slope] = transition_slope_texture->get_bild_ptr(4)->copy_rotate(90);
 							break;
 						}
-						case hang_t::sued * 2: {
+						case slope_t::south * 2: {
 							all_rotations_slope[slope] = transition_slope_texture->get_bild_ptr(4)->copy_rotate(0);
 							break;
 						}
-						case hang_t::west * 2: {
+						case slope_t::west * 2: {
 							all_rotations_slope[slope] = transition_slope_texture->get_bild_ptr(4)->copy_rotate(270);
 							break;
 						}
-						case hang_t::nordwest * 2 + hang_t::nordost * 2 + hang_t::suedost * 2: {
+						case slope_t::northwest * 2 + slope_t::northeast * 2 + slope_t::southeast * 2: {
 							all_rotations_slope[slope] = transition_slope_texture->get_bild_ptr(5)->copy_rotate(0);
 							break;
 						}
-						case hang_t::nordost * 2 + hang_t::suedost * 2 + hang_t::suedwest * 2: {
+						case slope_t::northeast * 2 + slope_t::southeast * 2 + slope_t::southwest * 2: {
 							all_rotations_slope[slope] = transition_slope_texture->get_bild_ptr(5)->copy_rotate(270);
 							break;
 						}
-						case hang_t::suedost * 2 + hang_t::suedwest * 2 + hang_t::nordwest * 2: {
+						case slope_t::southeast * 2 + slope_t::southwest * 2 + slope_t::northwest * 2: {
 							all_rotations_slope[slope] = transition_slope_texture->get_bild_ptr(5)->copy_rotate(180);
 							break;
 						}
-						case hang_t::suedwest * 2 + hang_t::nordwest * 2 + hang_t::nordost * 2: {
+						case slope_t::southwest * 2 + slope_t::northwest * 2 + slope_t::northeast * 2: {
 							all_rotations_slope[slope] = transition_slope_texture->get_bild_ptr(5)->copy_rotate(90);
 							break;
 						}
-						case hang_t::nordwest * 2: {
+						case slope_t::northwest * 2: {
 							all_rotations_slope[slope] = transition_slope_texture->get_bild_ptr(6)->copy_rotate(90);
 							break;
 						}
-						case hang_t::nordost * 2: {
+						case slope_t::northeast * 2: {
 							all_rotations_slope[slope] = transition_slope_texture->get_bild_ptr(6)->copy_rotate(0);
 							break;
 						}
-						case hang_t::suedost * 2: {
+						case slope_t::southeast * 2: {
 							all_rotations_slope[slope] = transition_slope_texture->get_bild_ptr(6)->copy_rotate(270);
 							break;
 						}
-						case hang_t::suedwest * 2: {
+						case slope_t::southwest * 2: {
 							all_rotations_slope[slope] = transition_slope_texture->get_bild_ptr(6)->copy_rotate(180);
 							break;
 						}
-						case hang_t::suedwest * 2 + hang_t::nordost * 2: {
+						case slope_t::southwest * 2 + slope_t::northeast * 2: {
 							all_rotations_slope[slope] = transition_slope_texture->get_bild_ptr(7)->copy_rotate(90);
 							break;
 						}
-						case hang_t::suedost * 2 + hang_t::nordwest * 2: {
+						case slope_t::southeast * 2 + slope_t::northwest * 2: {
 							all_rotations_slope[slope] = transition_slope_texture->get_bild_ptr(7)->copy_rotate(0);
 							break;
 						}
-						case hang_t::nordwest + hang_t::nordost * 2 + hang_t::suedost: {
+						case slope_t::northwest + slope_t::northeast * 2 + slope_t::southeast: {
 							all_rotations_slope[slope] = transition_slope_texture->get_bild_ptr(13)->copy_rotate(0);
 							break;
 						}
-						case hang_t::nordost + hang_t::suedost * 2+hang_t::suedwest: {
+						case slope_t::northeast + slope_t::southeast * 2+slope_t::southwest: {
 							all_rotations_slope[slope] = transition_slope_texture->get_bild_ptr(13)->copy_rotate(270);
 							break;
 						}
-						case hang_t::suedost + hang_t::suedwest * 2 + hang_t::nordwest: {
+						case slope_t::southeast + slope_t::southwest * 2 + slope_t::northwest: {
 							all_rotations_slope[slope] = transition_slope_texture->get_bild_ptr(13)->copy_rotate(180);
 							break;
 						}
-						case hang_t::suedwest + hang_t::nordwest * 2 + hang_t::nordost: {
+						case slope_t::southwest + slope_t::northwest * 2 + slope_t::northeast: {
 							all_rotations_slope[slope] = transition_slope_texture->get_bild_ptr(13)->copy_rotate(90);
 							break;
 						}
-						case hang_t::nordost * 2 + hang_t::suedost: {
+						case slope_t::northeast * 2 + slope_t::southeast: {
 							all_rotations_slope[slope] = transition_slope_texture->get_bild_ptr(8)->copy_rotate(270);
 							break;
 						}
-						case hang_t::suedost * 2 + hang_t::suedwest: {
+						case slope_t::southeast * 2 + slope_t::southwest: {
 							all_rotations_slope[slope] = transition_slope_texture->get_bild_ptr(8)->copy_rotate(180);
 							break;
 						}
-						case hang_t::suedwest * 2 + hang_t::nordwest: {
+						case slope_t::southwest * 2 + slope_t::northwest: {
 							all_rotations_slope[slope] = transition_slope_texture->get_bild_ptr(8)->copy_rotate(90);
 							break;
 						}
-						case hang_t::nordwest * 2 + hang_t::nordost: {
+						case slope_t::northwest * 2 + slope_t::northeast: {
 							all_rotations_slope[slope] = transition_slope_texture->get_bild_ptr(8)->copy_rotate(0);
 							break;
 						}
-						case hang_t::nordwest + hang_t::nordost * 2: {
+						case slope_t::northwest + slope_t::northeast * 2: {
 							tmp_pic = transition_slope_texture->get_bild_ptr(8)->copy_rotate(0);
 							all_rotations_slope[slope] = tmp_pic->copy_flipvertical();
 							delete tmp_pic;
 							break;
 						}
-						case hang_t::nordost + hang_t::suedost * 2: {
+						case slope_t::northeast + slope_t::southeast * 2: {
 							tmp_pic = transition_slope_texture->get_bild_ptr(8)->copy_rotate(90);
 							all_rotations_slope[slope] = tmp_pic->copy_flipvertical();
 							delete tmp_pic;
 							break;
 						}
-						case hang_t::suedost + hang_t::suedwest * 2: {
+						case slope_t::southeast + slope_t::southwest * 2: {
 							tmp_pic = transition_slope_texture->get_bild_ptr(8)->copy_rotate(0);
 							all_rotations_slope[slope] = tmp_pic->copy_fliphorizontal();
 							delete tmp_pic;
 							break;
 						}
-						case hang_t::nordwest * 2 + hang_t::suedwest: {
+						case slope_t::northwest * 2 + slope_t::southwest: {
 							tmp_pic = transition_slope_texture->get_bild_ptr(8)->copy_rotate(90);
 							all_rotations_slope[slope] = tmp_pic->copy_fliphorizontal();
 							delete tmp_pic;
 							break;
 						}
-						case hang_t::nordwest * 2 + hang_t::suedost + hang_t::suedwest * 2: {
+						case slope_t::northwest * 2 + slope_t::southeast + slope_t::southwest * 2: {
 							all_rotations_slope[slope] = transition_slope_texture->get_bild_ptr(12)->copy_rotate(270);
 							break;
 						}
-						case hang_t::nordwest * 2 + hang_t::nordost * 2 + hang_t::suedwest: {
+						case slope_t::northwest * 2 + slope_t::northeast * 2 + slope_t::southwest: {
 							all_rotations_slope[slope] = transition_slope_texture->get_bild_ptr(12)->copy_rotate(180);
 							break;
 						}
-						case hang_t::nordwest + hang_t::nordost * 2 + hang_t::suedost * 2: {
+						case slope_t::northwest + slope_t::northeast * 2 + slope_t::southeast * 2: {
 							all_rotations_slope[slope] = transition_slope_texture->get_bild_ptr(12)->copy_rotate(90);
 							break;
 						}
-						case hang_t::nordost + hang_t::suedost * 2 + hang_t::suedwest * 2: {
+						case slope_t::northeast + slope_t::southeast * 2 + slope_t::southwest * 2: {
 							all_rotations_slope[slope] = transition_slope_texture->get_bild_ptr(12)->copy_rotate(0);
 							break;
 						}
-						case hang_t::nordost * 2 + hang_t::suedost * 2 + hang_t::suedwest: {
+						case slope_t::northeast * 2 + slope_t::southeast * 2 + slope_t::southwest: {
 							tmp_pic = transition_slope_texture->get_bild_ptr(12)->copy_rotate(270);
 							all_rotations_slope[slope] = tmp_pic->copy_flipvertical();
 							delete tmp_pic;
 							break;
 						}
-						case hang_t::nordwest + hang_t::suedost * 2 + hang_t::suedwest * 2: {
+						case slope_t::northwest + slope_t::southeast * 2 + slope_t::southwest * 2: {
 							tmp_pic = transition_slope_texture->get_bild_ptr(12)->copy_rotate(180);
 							all_rotations_slope[slope] = tmp_pic->copy_fliphorizontal();
 							delete tmp_pic;
 							break;
 						}
-						case hang_t::nordwest * 2 + hang_t::nordost + hang_t::suedwest * 2: {
+						case slope_t::northwest * 2 + slope_t::northeast + slope_t::southwest * 2: {
 							tmp_pic = transition_slope_texture->get_bild_ptr(12)->copy_rotate(90);
 							all_rotations_slope[slope] = tmp_pic->copy_flipvertical();
 							delete tmp_pic;
 							break;
 						}
-						case hang_t::nordwest * 2 + hang_t::nordost * 2 + hang_t::suedost: {
+						case slope_t::northwest * 2 + slope_t::northeast * 2 + slope_t::southeast: {
 							tmp_pic = transition_slope_texture->get_bild_ptr(12)->copy_rotate(0);
 							all_rotations_slope[slope] = tmp_pic->copy_fliphorizontal();
 							delete tmp_pic;
 							break;
 						}
-						case hang_t::suedwest + hang_t::suedost + hang_t::nordost * 2: {
+						case slope_t::southwest + slope_t::southeast + slope_t::northeast * 2: {
 							all_rotations_slope[slope] = transition_slope_texture->get_bild_ptr(10)->copy_rotate(270);
 							break;
 						}
-						case hang_t::suedwest + hang_t::nordwest + hang_t::suedost * 2: {
+						case slope_t::southwest + slope_t::northwest + slope_t::southeast * 2: {
 							all_rotations_slope[slope] = transition_slope_texture->get_bild_ptr(10)->copy_rotate(180);
 							break;
 						}
-						case hang_t::nordwest + hang_t::nordost + hang_t::suedwest * 2: {
+						case slope_t::northwest + slope_t::northeast + slope_t::southwest * 2: {
 							all_rotations_slope[slope] = transition_slope_texture->get_bild_ptr(10)->copy_rotate(90);
 							break;
 						}
-						case hang_t::suedost + hang_t::nordost + hang_t::nordwest * 2: {
+						case slope_t::southeast + slope_t::northeast + slope_t::northwest * 2: {
 							all_rotations_slope[slope] = transition_slope_texture->get_bild_ptr(10)->copy_rotate(0);
 							break;
 						}
-						case hang_t::suedwest + hang_t::suedost + hang_t::nordwest * 2: {
+						case slope_t::southwest + slope_t::southeast + slope_t::northwest * 2: {
 							tmp_pic = transition_slope_texture->get_bild_ptr(10)->copy_rotate(270);
 							all_rotations_slope[slope] = tmp_pic->copy_flipvertical();
 							delete tmp_pic;
 							break;
 						}
-						case hang_t::suedwest + hang_t::nordwest + hang_t::nordost * 2: {
+						case slope_t::southwest + slope_t::northwest + slope_t::northeast * 2: {
 							tmp_pic = transition_slope_texture->get_bild_ptr(10)->copy_rotate(180);
 							all_rotations_slope[slope] = tmp_pic->copy_fliphorizontal();
 							delete tmp_pic;
 							break;
 						}
-						case hang_t::nordwest + hang_t::nordost + hang_t::suedost * 2: {
+						case slope_t::northwest + slope_t::northeast + slope_t::southeast * 2: {
 							tmp_pic = transition_slope_texture->get_bild_ptr(10)->copy_rotate(90);
 							all_rotations_slope[slope] = tmp_pic->copy_flipvertical();
 							delete tmp_pic;
 							break;
 						}
-						case hang_t::suedost + hang_t::nordost + hang_t::suedwest * 2: {
+						case slope_t::southeast + slope_t::northeast + slope_t::southwest * 2: {
 							tmp_pic = transition_slope_texture->get_bild_ptr(10)->copy_rotate(0);
 							all_rotations_slope[slope] = tmp_pic->copy_fliphorizontal();
 							delete tmp_pic;
 							break;
 						}
-						case hang_t::suedost + hang_t::nordwest * 2: {
+						case slope_t::southeast + slope_t::northwest * 2: {
 							all_rotations_slope[slope] = transition_slope_texture->get_bild_ptr(9)->copy_rotate(270);
 							break;
 						}
-						case hang_t::suedwest + hang_t::nordost * 2: {
+						case slope_t::southwest + slope_t::northeast * 2: {
 							all_rotations_slope[slope] = transition_slope_texture->get_bild_ptr(9)->copy_rotate(180);
 							break;
 						}
-						case hang_t::suedost * 2 + hang_t::nordwest: {
+						case slope_t::southeast * 2 + slope_t::northwest: {
 							all_rotations_slope[slope] = transition_slope_texture->get_bild_ptr(9)->copy_rotate(90);
 							break;
 						}
-						case hang_t::suedwest * 2 + hang_t::nordost: {
+						case slope_t::southwest * 2 + slope_t::northeast: {
 							all_rotations_slope[slope] = transition_slope_texture->get_bild_ptr(9)->copy_rotate(0);
 							break;
 						}
-						case hang_t::suedost * 2 + hang_t::nordwest * 2 + hang_t::suedwest: {
+						case slope_t::southeast * 2 + slope_t::northwest * 2 + slope_t::southwest: {
 							all_rotations_slope[slope] = transition_slope_texture->get_bild_ptr(11)->copy_rotate(270);
 							break;
 						}
-						case hang_t::suedwest * 2 + hang_t::nordost * 2 + hang_t::nordwest: {
+						case slope_t::southwest * 2 + slope_t::northeast * 2 + slope_t::northwest: {
 							all_rotations_slope[slope] = transition_slope_texture->get_bild_ptr(11)->copy_rotate(180);
 							break;
 						}
-						case hang_t::suedost * 2 + hang_t::nordwest * 2 + hang_t::nordost: {
+						case slope_t::southeast * 2 + slope_t::northwest * 2 + slope_t::northeast: {
 							all_rotations_slope[slope] = transition_slope_texture->get_bild_ptr(11)->copy_rotate(90);
 							break;
 						}
-						case hang_t::suedwest * 2 + hang_t::nordost * 2 + hang_t::suedost: {
+						case slope_t::southwest * 2 + slope_t::northeast * 2 + slope_t::southeast: {
 							all_rotations_slope[slope] = transition_slope_texture->get_bild_ptr(11)->copy_rotate(0);
 							break;
 						}
-						case hang_t::suedwest * 2 + hang_t::nordost * 2 + hang_t::suedost * 2 + hang_t::nordwest * 2: {
+						case slope_t::southwest * 2 + slope_t::northeast * 2 + slope_t::southeast * 2 + slope_t::northwest * 2: {
 							all_rotations_slope[slope] = transition_slope_texture->get_bild_ptr(14)->copy_rotate(0);
 							all_rotations_beach[slope] = transition_water_texture->get_bild_ptr(11)->copy_rotate(0);
 							break;
@@ -914,7 +914,7 @@ void grund_besch_t::init_ground_textures(karte_t *w)
 				}
 				else {
 					all_rotations_slope[slope] = NULL;
-					if (slope == hang_t::suedwest * 2 + hang_t::nordost * 2 + hang_t::suedost * 2 + hang_t::nordwest * 2) {
+					if (slope == slope_t::southwest * 2 + slope_t::northeast * 2 + slope_t::southeast * 2 + slope_t::northwest * 2) {
 						all_rotations_slope[slope] = transition_slope_texture->get_bild_ptr(0)->copy_rotate(0);
 						all_rotations_beach[slope] = transition_water_texture->get_bild_ptr(0)->copy_rotate(0);
 					}
@@ -979,13 +979,13 @@ void grund_besch_t::init_ground_textures(karte_t *w)
 				// slope of tile
 				int slope = double_grounds ? dslope : slopetable[dslope];
 				// corners with transition
-				uint8 double_corners = corners == 15 ? 80 : scorner1(corners) + 3 * scorner2(corners) + 9 * scorner3(corners) + 27 * scorner4(corners);
+				uint8 double_corners = corners == 15 ? 80 : scorner_sw(corners) + 3 * scorner_se(corners) + 9 * scorner_ne(corners) + 27 * scorner_nw(corners);
 
 				// create alpha image
 				final_tile = create_alpha_tile( light_map->get_bild_ptr( slope ), dslope, all_rotations_slope[double_corners] );
 				alpha_corners_bild[dslope * 15 + corners - 1] = final_tile->get_nummer();
 
-				double_corners = corners == 15 ? 80 : (1 - scorner1(corners)) + 3 * (1 - scorner2(corners)) + 9 * (1 - scorner3(corners)) + 27 * (1 - scorner4(corners));
+				double_corners = corners == 15 ? 80 : (1 - scorner_sw(corners)) + 3 * (1 - scorner_se(corners)) + 9 * (1 - scorner_ne(corners)) + 27 * (1 - scorner_nw(corners));
 				if(  all_rotations_beach[double_corners]  ) {
 					final_tile = create_alpha_tile( light_map->get_bild_ptr( slope ), dslope, all_rotations_beach[double_corners] );
 					alpha_water_bild[dslope * 15 + corners - 1] = final_tile->get_nummer();
@@ -1020,11 +1020,11 @@ void grund_besch_t::init_ground_textures(karte_t *w)
  */
 image_id grund_besch_t::get_ground_tile(grund_t *gr)
 {
-	hang_t::typ slope = gr->get_grund_hang();
+	slope_t::type slope = gr->get_grund_hang();
 	sint16 height = gr->get_hoehe();
 	koord k = gr->get_pos().get_2d();
 	const sint16 tile_h = height - welt->get_water_hgt(k);
-	if(  tile_h < 0  ||  (tile_h == 0  &&  slope == hang_t::flach)  ) {
+	if(  tile_h < 0  ||  (tile_h == 0  &&  slope == slope_t::flat)  ) {
 		// deep water
 		bildliste2d_besch_t const* const liste = sea->get_child<bildliste2d_besch_t>(2);
 		int nr = min( -tile_h, liste->get_anzahl() - 2 );
@@ -1040,37 +1040,37 @@ image_id grund_besch_t::get_ground_tile(grund_t *gr)
 }
 
 
-image_id grund_besch_t::get_water_tile(hang_t::typ slope)
+image_id grund_besch_t::get_water_tile(slope_t::type slope)
 {
 	return water_bild + doubleslope_to_imgnr[slope];
 }
 
 
-image_id grund_besch_t::get_climate_tile(climate cl, hang_t::typ slope)
+image_id grund_besch_t::get_climate_tile(climate cl, slope_t::type slope)
 {
 	return climate_bild[cl <= 0 ? 0 : cl - 1] + doubleslope_to_imgnr[slope];
 }
 
 
-image_id grund_besch_t::get_snow_tile(hang_t::typ slope)
+image_id grund_besch_t::get_snow_tile(slope_t::type slope)
 {
 	return climate_bild[number_of_climates] + doubleslope_to_imgnr[slope];
 }
 
 
-image_id grund_besch_t::get_beach_tile(hang_t::typ slope, uint8 corners)
+image_id grund_besch_t::get_beach_tile(slope_t::type slope, uint8 corners)
 {
 	return alpha_water_bild[slope * 15 + corners - 1];
 }
 
 
-image_id grund_besch_t::get_alpha_tile(hang_t::typ slope, uint8 corners)
+image_id grund_besch_t::get_alpha_tile(slope_t::type slope, uint8 corners)
 {
 	return alpha_corners_bild[slope * 15 + corners - 1];
 }
 
 
-image_id grund_besch_t::get_alpha_tile(hang_t::typ slope)
+image_id grund_besch_t::get_alpha_tile(slope_t::type slope)
 {
 	return alpha_bild[slope];
 }

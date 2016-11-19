@@ -317,7 +317,7 @@ bool objlist_t::intern_add_moving(obj_t* new_obj)
 			// driving on left side
 			if(fahrtrichtung<4) {	// north, northwest
 
-				if((fahrtrichtung&(~ribi_t::suedost))==0) {
+				if((fahrtrichtung&(~ribi_t::southeast))==0) {
 					// if we are going east we must be drawn as the first in east direction
 					intern_insert_at(new_obj, start);
 					return true;
@@ -325,7 +325,7 @@ bool objlist_t::intern_add_moving(obj_t* new_obj)
 				else {
 					// we must be drawn before south or west (thus insert after)
 					for(uint8 i=start;  i<end;  i++  ) {
-						if ((((const vehicle_t*)obj.some[i])->get_direction()&ribi_t::suedwest) != 0) {
+						if ((((const vehicle_t*)obj.some[i])->get_direction()&ribi_t::southwest) != 0) {
 							intern_insert_at(new_obj, i);
 							return true;
 						}
@@ -338,12 +338,12 @@ bool objlist_t::intern_add_moving(obj_t* new_obj)
 			}
 			else {
 				// going south, west or the rest
-				if((fahrtrichtung&(~ribi_t::suedost))==0) {
+				if((fahrtrichtung&(~ribi_t::southeast))==0) {
 					// if we are going south or southeast we must be drawn as the first in east direction (after north and northeast)
 					for(uint8 i=start;  i<end;  i++  ) {
 						if (obj_t const* const dt = obj.some[i]) {
 							if (vehicle_base_t const* const v = obj_cast<vehicle_base_t>(dt)) {
-								if ((v->get_direction() & ribi_t::suedwest) != 0) {
+								if ((v->get_direction() & ribi_t::southwest) != 0) {
 									intern_insert_at(new_obj, i);
 									return true;
 								}
@@ -360,11 +360,11 @@ bool objlist_t::intern_add_moving(obj_t* new_obj)
 			// driving on right side
 			if(fahrtrichtung<4) {	// north, east, northeast
 
-				if((fahrtrichtung&(~ribi_t::suedost))==0) {
+				if((fahrtrichtung&(~ribi_t::southeast))==0) {
 
 					// if we are going east we must be drawn as the first in east direction (after north and northeast)
 					for(uint8 i=start;  i<end;  i++  ) {
-						if ((((const vehicle_t*)obj.some[i])->get_direction()&ribi_t::nordost) != 0) {
+						if ((((const vehicle_t*)obj.some[i])->get_direction()&ribi_t::northeast) != 0) {
 							intern_insert_at(new_obj, i);
 							return true;
 						}
@@ -379,7 +379,7 @@ bool objlist_t::intern_add_moving(obj_t* new_obj)
 			else {
 				// going south, west or the rest
 
-				if((fahrtrichtung&(~ribi_t::suedost))==0) {
+				if((fahrtrichtung&(~ribi_t::southeast))==0) {
 					// going south or southeast, insert as first in this dirs
 					intern_insert_at(new_obj, start);
 					return true;
@@ -387,7 +387,7 @@ bool objlist_t::intern_add_moving(obj_t* new_obj)
 				else {
 					for(uint8 i=start;  i<end;  i++  ) {
 						// west or northwest: append after all westwards
-						if ((((const vehicle_t*)obj.some[i])->get_direction()&ribi_t::suedwest) == 0) {
+						if ((((const vehicle_t*)obj.some[i])->get_direction()&ribi_t::southwest) == 0) {
 							intern_insert_at(new_obj, i);
 							return true;
 						}
@@ -406,7 +406,7 @@ bool objlist_t::intern_add_moving(obj_t* new_obj)
 		// but all vehicles are of the same typ, since this is track/channel etc. ONLY!
 
 		// => much simpler to handle
-		if((((vehicle_t*)new_obj)->get_direction()&(~ribi_t::suedost))==0) {
+		if((((vehicle_t*)new_obj)->get_direction()&(~ribi_t::southeast))==0) {
 			// if we are going east or south, we must be drawn before (i.e. put first)
 			intern_insert_at(new_obj, start);
 			return true;
@@ -1231,10 +1231,10 @@ inline bool local_display_obj_vh(const obj_t *draw_obj, const sint16 xpos, const
 	air_vehicle_t      const*       a;
 	if(  v  &&  (ontile  ||  !(a = obj_cast<air_vehicle_t>(v))  ||  a->is_on_ground())  ) {
 		const ribi_t::ribi veh_ribi = v->get_direction();
-		if(  ontile  ||  (veh_ribi & ribi) == ribi  ||  (ribi_t::rueckwaerts(veh_ribi) & ribi )== ribi  ||  draw_obj->get_typ() == obj_t::air_vehicle  ) {
+		if(  ontile  ||  (veh_ribi & ribi) == ribi  ||  (ribi_t::backward(veh_ribi) & ribi )== ribi  ||  draw_obj->get_typ() == obj_t::air_vehicle  ) {
 			// activate clipping only for our direction masked by the ribi argument
 			// use non-convex clipping (16) only if we are on the currently drawn tile or its n/w neighbours
-			activate_ribi_clip( ((veh_ribi|ribi_t::rueckwaerts(veh_ribi))&ribi) | (ontile  ||  ribi == ribi_t::nord  ||  ribi == ribi_t::west ? 16 : 0)  CLIP_NUM_PAR);
+			activate_ribi_clip( ((veh_ribi|ribi_t::backward(veh_ribi))&ribi) | (ontile  ||  ribi == ribi_t::north  ||  ribi == ribi_t::west ? 16 : 0)  CLIP_NUM_PAR);
 			draw_obj->display( xpos, ypos  CLIP_NUM_PAR);
 		}
 		return true;
@@ -1254,7 +1254,7 @@ uint8 objlist_t::display_obj_vh( const sint16 xpos, const sint16 ypos, const uin
 
 	if(  capacity <= 1  ) {
 		uint8 i = local_display_obj_vh( obj.one, xpos, ypos, ribi, ontile  CLIP_NUM_PAR);
-		activate_ribi_clip( ribi_t::alle  CLIP_NUM_PAR);
+		activate_ribi_clip( ribi_t::all  CLIP_NUM_PAR);
 		return i;
 	}
 
@@ -1267,7 +1267,7 @@ uint8 objlist_t::display_obj_vh( const sint16 xpos, const sint16 ypos, const uin
 			break;
 		}
 	}
-	activate_ribi_clip( ribi_t::alle  CLIP_NUM_PAR);
+	activate_ribi_clip( ribi_t::all  CLIP_NUM_PAR);
 	return nr_v+1;
 }
 

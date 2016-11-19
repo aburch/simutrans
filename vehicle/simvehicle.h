@@ -137,7 +137,7 @@ public:
 	template<class K1, class K2>
 	static ribi_t::ribi calc_direction(const K1& from, const K2& to)
 	{
-		return ribi_typ(from, to);
+		return ribi_type(from, to);
 	}
 
 	ribi_t::ribi calc_set_direction(const koord3d& start, const koord3d& ende);
@@ -476,7 +476,7 @@ class road_vehicle_t : public vehicle_t
 private:
 	// called internally only from ist_weg_frei()
 	// returns true on success
-	bool choose_route(sint32 &restart_speed, ribi_t::ribi richtung, uint16 index);
+	bool choose_route(sint32 &restart_speed, ribi_t::ribi start_direction, uint16 index);
 
 protected:
 	bool check_next_tile(const grund_t *bd) const;

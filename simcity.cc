@@ -223,11 +223,11 @@ bool stadt_t::bewerte_loc(const koord pos, const rule_t &regel, int rotation)
 				break;
 			case 'U':
 				// unbuildable for road
-				if (!hang_t::ist_wegbar(gr->get_grund_hang())) return false;
+				if (!slope_t::is_way(gr->get_grund_hang())) return false;
 				break;
 			case 'u':
 				// road may be buildable
-				if (hang_t::ist_wegbar(gr->get_grund_hang())) return false;
+				if (slope_t::is_way(gr->get_grund_hang())) return false;
 				break;
 			case 't':
 				// here is a stop/extension building
@@ -521,14 +521,14 @@ class denkmal_platz_sucher_t : public platzsucher_t {
 
 			if (ist_randfeld(d)) {
 				return
-					gr->get_grund_hang() == hang_t::flach &&     // Flach
+					gr->get_grund_hang() == slope_t::flat &&     // Flach
 					gr->get_typ() == grund_t::boden &&           // Boden -> no building
 					(!gr->hat_wege() || gr->hat_weg(road_wt)) && // only roads
 					gr->kann_alle_obj_entfernen(NULL) == NULL;   // Irgendwas verbaut den Platz?
 			}
 			else {
 				return
-					gr->get_grund_hang() == hang_t::flach &&
+					gr->get_grund_hang() == slope_t::flat &&
 					gr->get_typ() == grund_t::boden &&
 					gr->ist_natur() &&                         // Keine Wege hier
 					gr->kann_alle_obj_entfernen(NULL) == NULL; // Irgendwas verbaut den Platz?
@@ -551,7 +551,7 @@ class rathausplatz_sucher_t : public platzsucher_t {
 		virtual bool ist_feld_ok(koord pos, koord d, climate_bits cl) const
 		{
 			const grund_t* gr = welt->lookup_kartenboden(pos + d);
-			if (gr == NULL  ||  gr->get_grund_hang() != hang_t::flach) {
+			if (gr == NULL  ||  gr->get_grund_hang() != slope_t::flat) {
 				return false;
 			}
 
@@ -566,10 +566,10 @@ class rathausplatz_sucher_t : public platzsucher_t {
 				}
 			}
 
-			if ( ((dir & ribi_t::sued)!=0  &&  d.y == h - 1) ||
+			if ( ((dir & ribi_t::south)!=0  &&  d.y == h - 1) ||
 				((dir & ribi_t::west)!=0  &&  d.x == 0) ||
-				((dir & ribi_t::nord)!=0  &&  d.y == 0) ||
-				((dir & ribi_t::ost)!=0  &&  d.x == b - 1)) {
+				((dir & ribi_t::north)!=0  &&  d.y == 0) ||
+				((dir & ribi_t::east)!=0  &&  d.x == b - 1)) {
 				// we want to build a road here:
 				return
 					gr->get_typ() == grund_t::boden &&
@@ -2532,7 +2532,7 @@ void stadt_t::check_bau_rathaus(bool new_town)
 						const koord pos = pos_alt + k;
 						gr = welt->lookup_kartenboden(pos);
 						if (gr  &&  gr->ist_natur() &&  gr->kann_alle_obj_entfernen(NULL) == NULL  &&
-							  (  gr->get_grund_hang() == hang_t::flach  ||  welt->lookup(koord3d(k, welt->max_hgt(k))) == NULL  ) ) {
+							  (  gr->get_grund_hang() == slope_t::flat  ||  welt->lookup(koord3d(k, welt->max_hgt(k))) == NULL  ) ) {
 							DBG_MESSAGE("stadt_t::check_bau_rathaus()", "fill empty spot at (%s)", pos.get_str());
 							build_city_building(pos);
 						}
@@ -2546,7 +2546,7 @@ void stadt_t::check_bau_rathaus(bool new_town)
 						gr = welt->lookup_kartenboden(best_pos + k);
 						if(  gr  &&  gr->ist_natur()  ) {
 							// make flat and use right height
-							gr->set_grund_hang(hang_t::flach);
+							gr->set_grund_hang(slope_t::flat);
 							gr->set_pos( koord3d( best_pos + k, old_z ) );
 						}
 					}
@@ -2562,12 +2562,12 @@ void stadt_t::check_bau_rathaus(bool new_town)
 		koord offset(0,0), road0(0,0),road1(0,0);
 		dir = ribi_t::layout_to_ribi[layout & 3];
 		switch(dir) {
-			case ribi_t::ost:
+			case ribi_t::east:
 				road0.x = besch->get_b(layout);
 				road1.x = besch->get_b(layout);
 				road1.y = besch->get_h(layout)-1;
 				break;
-			case ribi_t::nord:
+			case ribi_t::north:
 				road1.x = besch->get_b(layout)-1;
 				if (neugruendung || umziehen) {
 					offset.y = 1;
@@ -2589,14 +2589,14 @@ void stadt_t::check_bau_rathaus(bool new_town)
 					road1.x=-1;
 				}
 				break;
-			case ribi_t::sued:
+			case ribi_t::south:
 			default:
 				road0.y = besch->get_h(layout);
 				road1.x = besch->get_b(layout)-1;
 				road1.y = besch->get_h(layout);
 		}
 		if (neugruendung || umziehen) {
-			best_pos = rathausplatz_sucher_t(welt, dir).suche_platz(pos, besch->get_b(layout) + (dir & ribi_t::ostwest ? 1 : 0), besch->get_h(layout) + (dir & ribi_t::nordsued ? 1 : 0), besch->get_allowed_climate_bits());
+			best_pos = rathausplatz_sucher_t(welt, dir).suche_platz(pos, besch->get_b(layout) + (dir & ribi_t::eastwest ? 1 : 0), besch->get_h(layout) + (dir & ribi_t::northsouth ? 1 : 0), besch->get_allowed_climate_bits());
 		}
 		// check, if the was something found
 		if(best_pos==koord::invalid) {
@@ -2766,7 +2766,7 @@ void stadt_t::build_city_building(const koord k)
 		return;
 	}
 	// Refuse to build on a slope, when there is a ground right on top of it (=> the house would sit on the bridge then!)
-	if(  gr->get_grund_hang() != hang_t::flach  &&  welt->lookup(koord3d(k, welt->max_hgt(k))) != NULL  ) {
+	if(  gr->get_grund_hang() != slope_t::flat  &&  welt->lookup(koord3d(k, welt->max_hgt(k))) != NULL  ) {
 		return;
 	}
 
@@ -3026,8 +3026,8 @@ void stadt_t::generate_private_cars(koord pos, sint32 level, koord target)
 					const weg_t* weg = gr->get_weg(road_wt);
 
 					if (weg != NULL && (
-								gr->get_weg_ribi_unmasked(road_wt) == ribi_t::nordsued ||
-								gr->get_weg_ribi_unmasked(road_wt) == ribi_t::ostwest
+								gr->get_weg_ribi_unmasked(road_wt) == ribi_t::northsouth ||
+								gr->get_weg_ribi_unmasked(road_wt) == ribi_t::eastwest
 							)) {
 #ifdef DESTINATION_CITYCARS
 						// already a car here => avoid congestion
@@ -3076,8 +3076,8 @@ bool stadt_t::baue_strasse(const koord k, player_t* player_, bool forced)
 	}
 
 	// dwachs: If not able to built here, try to make artificial slope
-	hang_t::typ slope = bd->get_grund_hang();
-	if (!hang_t::ist_wegbar(slope)) {
+	slope_t::type slope = bd->get_grund_hang();
+	if (!slope_t::is_way(slope)) {
 		climate c = welt->get_climate(k);
 		if (welt->can_ebne_planquadrat(NULL, k, bd->get_hoehe()+1, true)) {
 			welt->ebne_planquadrat(NULL, k, bd->get_hoehe()+1, true);
@@ -3099,7 +3099,7 @@ bool stadt_t::baue_strasse(const koord k, player_t* player_, bool forced)
 	}
 
 	// initially allow all possible directions ...
-	ribi_t::ribi allowed_dir = (bd->get_grund_hang() != hang_t::flach ? ribi_t::doppelt(ribi_typ(bd->get_weg_hang())) : (ribi_t::ribi)ribi_t::alle);
+	ribi_t::ribi allowed_dir = (bd->get_grund_hang() != slope_t::flat ? ribi_t::doubles(ribi_type(bd->get_weg_hang())) : (ribi_t::ribi)ribi_t::all);
 
 	// we have here a road: check for four corner stops
 	const gebaeude_t* gb = bd->find<gebaeude_t>();
@@ -3111,7 +3111,7 @@ bool stadt_t::baue_strasse(const koord k, player_t* player_, bool forced)
 		}
 		else if(gb->get_tile()->get_besch()->get_all_layouts()) {
 			// through way
-			allowed_dir = ribi_t::doppelt( ribi_t::layout_to_ribi[gb->get_tile()->get_layout() & 1] );
+			allowed_dir = ribi_t::doubles( ribi_t::layout_to_ribi[gb->get_tile()->get_layout() & 1] );
 		}
 		else {
 			dbg->error("stadt_t::baue_strasse()", "building on road with not directions at %i,%i?!?", k.x, k.y );
@@ -3125,7 +3125,7 @@ bool stadt_t::baue_strasse(const koord k, player_t* player_, bool forced)
 		if (sch->get_besch()->get_styp() != 7) {
 			// not a tramway
 			ribi_t::ribi r = sch->get_ribi_unmasked();
-			if (!ribi_t::ist_gerade(r)) {
+			if (!ribi_t::is_straight(r)) {
 				// no building on crossings, curves, dead ends
 				return false;
 			}
@@ -3135,25 +3135,25 @@ bool stadt_t::baue_strasse(const koord k, player_t* player_, bool forced)
 	}
 
 	// determine now, in which directions we can connect to another road
-	ribi_t::ribi connection_roads = ribi_t::keine;
+	ribi_t::ribi connection_roads = ribi_t::none;
 	// add ribi's to connection_roads if possible
 	for (int r = 0; r < 4; r++) {
-		if (ribi_t::nsow[r] & allowed_dir) {
+		if (ribi_t::nsew[r] & allowed_dir) {
 			// now we have to check for several problems ...
 			grund_t* bd2;
-			if(bd->get_neighbour(bd2, invalid_wt, ribi_t::nsow[r])) {
+			if(bd->get_neighbour(bd2, invalid_wt, ribi_t::nsew[r])) {
 				if(bd2->get_typ()==grund_t::fundament  ||  bd2->get_typ()==grund_t::wasser) {
 					// not connecting to a building of course ...
 				}
 				else if (!bd2->ist_karten_boden()) {
 					// do not connect to elevated ways / bridges
 				}
-				else if (bd2->get_typ()==grund_t::tunnelboden  &&  ribi_t::nsow[r]!=ribi_typ(bd2->get_grund_hang())) {
+				else if (bd2->get_typ()==grund_t::tunnelboden  &&  ribi_t::nsew[r]!=ribi_type(bd2->get_grund_hang())) {
 					// not the correct slope
 				}
 				else if (bd2->get_typ()==grund_t::brueckenboden
-					&&  (bd2->get_grund_hang()==hang_t::flach  ?  ribi_t::nsow[r]!=ribi_typ(bd2->get_weg_hang())
-					                                           :  ribi_t::rueckwaerts(ribi_t::nsow[r])!=ribi_typ(bd2->get_grund_hang()))) {
+					&&  (bd2->get_grund_hang()==slope_t::flat  ?  ribi_t::nsew[r]!=ribi_type(bd2->get_weg_hang())
+					                                           :  ribi_t::backward(ribi_t::nsew[r])!=ribi_type(bd2->get_grund_hang()))) {
 					// not the correct slope
 				}
 				else if(bd2->hat_weg(road_wt)) {
@@ -3163,16 +3163,16 @@ bool stadt_t::baue_strasse(const koord k, player_t* player_, bool forced)
 						// nothing to connect
 						if(layouts==4) {
 							// single way
-							if(ribi_t::nsow[r]==ribi_t::rueckwaerts(ribi_t::layout_to_ribi[gb->get_tile()->get_layout()])) {
+							if(ribi_t::nsew[r]==ribi_t::backward(ribi_t::layout_to_ribi[gb->get_tile()->get_layout()])) {
 								// allowed ...
-								connection_roads |= ribi_t::nsow[r];
+								connection_roads |= ribi_t::nsew[r];
 							}
 						}
 						else if(layouts==2 || layouts==8 || layouts==16) {
 							// through way
-							if((ribi_t::doppelt( ribi_t::layout_to_ribi[gb->get_tile()->get_layout() & 1] )&ribi_t::nsow[r])!=0) {
+							if((ribi_t::doubles( ribi_t::layout_to_ribi[gb->get_tile()->get_layout() & 1] )&ribi_t::nsew[r])!=0) {
 								// allowed ...
-								connection_roads |= ribi_t::nsow[r];
+								connection_roads |= ribi_t::nsew[r];
 							}
 						}
 						else {
@@ -3188,7 +3188,7 @@ bool stadt_t::baue_strasse(const koord k, player_t* player_, bool forced)
 						bauer.route_fuer( wegbauer_t::strasse | wegbauer_t::terraform_flag, welt->get_city_road() );
 						if(  bauer.check_slope( bd, bd2 )  ) {
 							// allowed ...
-							connection_roads |= ribi_t::nsow[r];
+							connection_roads |= ribi_t::nsew[r];
 						}
 					}
 				}
@@ -3198,16 +3198,16 @@ bool stadt_t::baue_strasse(const koord k, player_t* player_, bool forced)
 
 	// now add the ribis to the other ways (if there)
 	for (int r = 0; r < 4; r++) {
-		if (ribi_t::nsow[r] & connection_roads) {
-			grund_t* bd2 = welt->lookup_kartenboden(k + koord::nsow[r]);
+		if (ribi_t::nsew[r] & connection_roads) {
+			grund_t* bd2 = welt->lookup_kartenboden(k + koord::nsew[r]);
 			weg_t* w2 = bd2->get_weg(road_wt);
-			w2->ribi_add(ribi_t::rueckwaerts(ribi_t::nsow[r]));
+			w2->ribi_add(ribi_t::backward(ribi_t::nsew[r]));
 			bd2->calc_bild();
 			bd2->set_flag( grund_t::dirty );
 		}
 	}
 
-	if (connection_roads != ribi_t::keine || forced) {
+	if (connection_roads != ribi_t::none || forced) {
 
 		if (!bd->weg_erweitern(road_wt, connection_roads)) {
 			strasse_t* weg = new strasse_t();
@@ -3218,8 +3218,8 @@ bool stadt_t::baue_strasse(const koord k, player_t* player_, bool forced)
 			bd->calc_bild();	// otherwise the
 		}
 		// check to bridge a river
-		if(ribi_t::ist_einfach(connection_roads)) {
-			koord zv = koord(ribi_t::rueckwaerts(connection_roads));
+		if(ribi_t::is_single(connection_roads)) {
+			koord zv = koord(ribi_t::backward(connection_roads));
 			grund_t *bd_next = welt->lookup_kartenboden( k + zv );
 			if(bd_next  &&  (bd_next->ist_wasser()  ||  (bd_next->hat_weg(water_wt)  &&  bd_next->get_weg(water_wt)->get_besch()->get_styp()==255))) {
 				// ok there is a river

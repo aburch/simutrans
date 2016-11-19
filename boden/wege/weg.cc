@@ -159,7 +159,7 @@ void weg_t::init_statistics()
  */
 void weg_t::init()
 {
-	ribi = ribi_maske = ribi_t::keine;
+	ribi = ribi_maske = ribi_t::none;
 	max_speed = 450;
 	besch = 0;
 	init_statistics();
@@ -328,8 +328,8 @@ void weg_t::set_images(image_type typ, uint8 ribi, bool snow, bool switch_nw)
 			set_after_bild( besch->get_bild_nr( ribi, snow, true ) );
 			break;
 		case image_slope:
-			set_bild( besch->get_hang_bild_nr( (hang_t::typ)ribi, snow ) );
-			set_after_bild( besch->get_hang_bild_nr( (hang_t::typ)ribi, snow, true ) );
+			set_bild( besch->get_hang_bild_nr( (slope_t::type)ribi, snow ) );
+			set_after_bild( besch->get_hang_bild_nr( (slope_t::type)ribi, snow, true ) );
 			break;
 		case image_switch:
 			set_bild( besch->get_bild_nr_switch(ribi, snow, switch_nw) );
@@ -375,8 +375,8 @@ bool weg_t::check_season(const bool calc_only_season_change)
 		flags |= IS_SNOW;
 	}
 
-	hang_t::typ hang = from->get_weg_hang();
-	if(  hang != hang_t::flach  ) {
+	slope_t::type hang = from->get_weg_hang();
+	if(  hang != slope_t::flat  ) {
 		set_images( image_slope, hang, snow );
 		return true;
 	}
@@ -459,8 +459,8 @@ void weg_t::calc_image()
 			flags |= IS_SNOW;
 		}
 
-		hang_t::typ hang = from->get_weg_hang();
-		if(hang != hang_t::flach) {
+		slope_t::type hang = from->get_weg_hang();
+		if(hang != slope_t::flat) {
 			// on slope
 			set_images(image_slope, hang, snow);
 		}
@@ -474,7 +474,7 @@ void weg_t::calc_image()
 			if(recursion == 0) {
 				recursion++;
 				for(int r = 0; r < 4; r++) {
-					if(  from->get_neighbour(to, get_waytype(), ribi_t::nsow[r])  ) {
+					if(  from->get_neighbour(to, get_waytype(), ribi_t::nsew[r])  ) {
 						// can fail on water tiles
 						if(  weg_t *w=to->get_weg(get_waytype())  )  {
 							// and will only change the outcome, if it has a diagonal image ...
@@ -518,7 +518,7 @@ void weg_t::check_diagonal()
 	flags &= ~IS_DIAGONAL;
 
 	const ribi_t::ribi ribi = get_ribi_unmasked();
-	if(  !ribi_t::ist_kurve(ribi)  ) {
+	if(  !ribi_t::is_bend(ribi)  ) {
 		// This is not a curve, it can't be a diagonal
 		return;
 	}
@@ -526,11 +526,11 @@ void weg_t::check_diagonal()
 	grund_t *from = welt->lookup(get_pos());
 	grund_t *to;
 
-	ribi_t::ribi r1 = ribi_t::keine;
-	ribi_t::ribi r2 = ribi_t::keine;
+	ribi_t::ribi r1 = ribi_t::none;
+	ribi_t::ribi r2 = ribi_t::none;
 
 	// get the ribis of the ways that connect to us
-	// r1 will be 45 degree clockwise ribi (eg nordost->ost), r2 will be anticlockwise ribi (eg nordost->nord)
+	// r1 will be 45 degree clockwise ribi (eg northeast->east), r2 will be anticlockwise ribi (eg northeast->north)
 	if(  from->get_neighbour(to, get_waytype(), ribi_t::rotate45(ribi))  ) {
 		r1 = to->get_weg_ribi_unmasked(get_waytype());
 	}
@@ -540,7 +540,7 @@ void weg_t::check_diagonal()
 	}
 
 	// diagonal if r1 or r2 are our reverse and neither one is 90 degree rotation of us
-	diagonal = (r1 == ribi_t::rueckwaerts(ribi) || r2 == ribi_t::rueckwaerts(ribi)) && r1 != ribi_t::rotate90l(ribi) && r2 != ribi_t::rotate90(ribi);
+	diagonal = (r1 == ribi_t::backward(ribi) || r2 == ribi_t::backward(ribi)) && r1 != ribi_t::rotate90l(ribi) && r2 != ribi_t::rotate90(ribi);
 
 	if(  diagonal  ) {
 		flags |= IS_DIAGONAL;

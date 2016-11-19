@@ -15,10 +15,10 @@
 bruecke_besch_t::img_t bruecke_besch_t::get_simple(ribi_t::ribi ribi, uint8 height) const
 {
 	if(  height>1 && get_hintergrund(NS_Segment2, 0)!=IMG_LEER  ) {
-		return (ribi & ribi_t::nordsued) ? NS_Segment2 : OW_Segment2;
+		return (ribi & ribi_t::northsouth) ? NS_Segment2 : OW_Segment2;
 	}
 	else {
-		return (ribi & ribi_t::nordsued) ? NS_Segment : OW_Segment;
+		return (ribi & ribi_t::northsouth) ? NS_Segment : OW_Segment;
 	}
 }
 
@@ -26,7 +26,7 @@ bruecke_besch_t::img_t bruecke_besch_t::get_simple(ribi_t::ribi ribi, uint8 heig
 // dito for pillars
 bruecke_besch_t::img_t bruecke_besch_t::get_pillar(ribi_t::ribi ribi)
 {
-	return (ribi & ribi_t::nordsued) ? NS_Pillar : OW_Pillar;
+	return (ribi & ribi_t::northsouth) ? NS_Pillar : OW_Pillar;
 }
 
 
@@ -37,27 +37,27 @@ bruecke_besch_t::img_t bruecke_besch_t::get_pillar(ribi_t::ribi ribi)
  *  Beschreibung:
  *      Richtigen Index für klassischen Hangstart ück bestimmen
  */
-bruecke_besch_t::img_t bruecke_besch_t::get_start(hang_t::typ slope) const
+bruecke_besch_t::img_t bruecke_besch_t::get_start(slope_t::type slope) const
 {
 	// if double heights enabled and besch has 2 height images present then use these
 	if(  grund_besch_t::double_grounds  &&  get_hintergrund(N_Start2, 0) != IMG_LEER  ) {
 		switch(  slope  ) {
-			case hang_t::nord: return N_Start;
-			case hang_t::sued: return S_Start;
-			case hang_t::ost:  return O_Start;
-			case hang_t::west: return W_Start;
-			case hang_t::nord * 2: return N_Start2;
-			case hang_t::sued * 2: return S_Start2;
-			case hang_t::ost  * 2: return O_Start2;
-			case hang_t::west * 2: return W_Start2;
+			case slope_t::north: return N_Start;
+			case slope_t::south: return S_Start;
+			case slope_t::east:  return O_Start;
+			case slope_t::west: return W_Start;
+			case slope_t::north * 2: return N_Start2;
+			case slope_t::south * 2: return S_Start2;
+			case slope_t::east  * 2: return O_Start2;
+			case slope_t::west * 2: return W_Start2;
 		}
 	}
 	else {
 		switch(  slope  ) {
-			case hang_t::nord: case hang_t::nord * 2: return N_Start;
-			case hang_t::sued: case hang_t::sued * 2: return S_Start;
-			case hang_t::ost:  case hang_t::ost  * 2: return O_Start;
-			case hang_t::west: case hang_t::west * 2: return W_Start;
+			case slope_t::north: case slope_t::north * 2: return N_Start;
+			case slope_t::south: case slope_t::south * 2: return S_Start;
+			case slope_t::east:  case slope_t::east  * 2: return O_Start;
+			case slope_t::west: case slope_t::west * 2: return W_Start;
 		}
 	}
 	return (img_t) - 1;
@@ -71,26 +71,26 @@ bruecke_besch_t::img_t bruecke_besch_t::get_start(hang_t::typ slope) const
  *  Beschreibung:
  *      Richtigen Index für Rampenstart ück bestimmen
  */
-bruecke_besch_t::img_t bruecke_besch_t::get_rampe(hang_t::typ slope) const
+bruecke_besch_t::img_t bruecke_besch_t::get_rampe(slope_t::type slope) const
 {
 	if(  grund_besch_t::double_grounds  &&  has_double_ramp()  ) {
 		switch(  slope  ) {
-			case hang_t::nord: return S_Rampe;
-			case hang_t::sued: return N_Rampe;
-			case hang_t::ost:  return W_Rampe;
-			case hang_t::west: return O_Rampe;
-			case hang_t::nord * 2: return S_Rampe2;
-			case hang_t::sued * 2: return N_Rampe2;
-			case hang_t::ost  * 2: return W_Rampe2;
-			case hang_t::west * 2: return O_Rampe2;
+			case slope_t::north: return S_Rampe;
+			case slope_t::south: return N_Rampe;
+			case slope_t::east:  return W_Rampe;
+			case slope_t::west: return O_Rampe;
+			case slope_t::north * 2: return S_Rampe2;
+			case slope_t::south * 2: return N_Rampe2;
+			case slope_t::east  * 2: return W_Rampe2;
+			case slope_t::west * 2: return O_Rampe2;
 		}
 	}
 	else {
 		switch(  slope  ) {
-			case hang_t::nord: case hang_t::nord * 2: return S_Rampe;
-			case hang_t::sued: case hang_t::sued * 2: return N_Rampe;
-			case hang_t::ost:  case hang_t::ost  * 2: return W_Rampe;
-			case hang_t::west: case hang_t::west * 2: return O_Rampe;
+			case slope_t::north: case slope_t::north * 2: return S_Rampe;
+			case slope_t::south: case slope_t::south * 2: return N_Rampe;
+			case slope_t::east:  case slope_t::east  * 2: return W_Rampe;
+			case slope_t::west: case slope_t::west * 2: return O_Rampe;
 		}
 	}
 	return (img_t) - 1;
@@ -104,10 +104,10 @@ bruecke_besch_t::img_t bruecke_besch_t::get_rampe(hang_t::typ slope) const
  *  Description:
  *      returns image index for appropriate ramp or start image given ground and way slopes
  */
-bruecke_besch_t::img_t bruecke_besch_t::get_end(hang_t::typ test_slope, hang_t::typ ground_slope, hang_t::typ way_slope) const
+bruecke_besch_t::img_t bruecke_besch_t::get_end(slope_t::type test_slope, slope_t::type ground_slope, slope_t::type way_slope) const
 {
 	img_t end_image;
-	if(  test_slope == hang_t::flach  ) {
+	if(  test_slope == slope_t::flat  ) {
 		end_image = get_rampe( way_slope );
 	}
 	else {

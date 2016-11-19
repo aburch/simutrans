@@ -42,7 +42,7 @@ protected:
 
 	const roadsign_besch_t *besch;
 
-	ribi_t::ribi calc_mask() const { return ribi_t::ist_einfach(dir) ? dir : (ribi_t::ribi)ribi_t::keine; }
+	ribi_t::ribi calc_mask() const { return ribi_t::is_single(dir) ? dir : (ribi_t::ribi)ribi_t::none; }
 public:
 	enum signalzustand {rot=0, gruen=1, naechste_rot=2 };
 

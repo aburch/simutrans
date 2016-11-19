@@ -1084,11 +1084,11 @@ const fabrik_t* reliefkarte_t::get_fab( const koord, bool enlarge ) const
 {
 	const fabrik_t *fab = fabrik_t::get_fab(last_world_pos);
 	for(  int i=0;  i<4  && fab==NULL;  i++  ) {
-		fab = fabrik_t::get_fab( last_world_pos+koord::nsow[i] );
+		fab = fabrik_t::get_fab( last_world_pos+koord::nsew[i] );
 	}
 	if(  enlarge  ) {
 		for(  int i=0;  i<4  && fab==NULL;  i++  ) {
-			fab = fabrik_t::get_fab( last_world_pos+koord::nsow[i]*2 );
+			fab = fabrik_t::get_fab( last_world_pos+koord::nsew[i]*2 );
 		}
 	}
 	return fab;

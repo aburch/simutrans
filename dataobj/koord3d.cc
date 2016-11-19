@@ -91,31 +91,31 @@ const char *koord3d::get_fullstr() const
 
 ribi_t::ribi koord3d_vector_t::get_ribi( uint32 index ) const
 {
-	ribi_t::ribi ribi = ribi_t::keine;
+	ribi_t::ribi ribi = ribi_t::none;
 	koord3d pos = operator[](index);
 	if( index > 0 ) {
-		ribi |= ribi_typ( operator[](index-1) - pos );
+		ribi |= ribi_type( operator[](index-1) - pos );
 	}
 	if( index+1 < get_count() ) {
-		ribi |= ribi_typ( operator[](index+1) - pos );
+		ribi |= ribi_type( operator[](index+1) - pos );
 	}
 	return ribi;
 }
 
 ribi_t::ribi koord3d_vector_t::get_short_ribi( uint32 index ) const
 {
-	ribi_t::ribi ribi = ribi_t::keine;
+	ribi_t::ribi ribi = ribi_t::none;
 	const koord pos = operator[](index).get_2d();
 	if( index > 0 ) {
 		const koord pos2 = operator[](index-1).get_2d();
 		if (koord_distance(pos,pos2)<=1) {
-			ribi |= ribi_typ( pos2-pos );
+			ribi |= ribi_type( pos2-pos );
 		}
 	}
 	if( index+1 < get_count() ) {
 		const koord pos2 = operator[](index+1).get_2d();
 		if (koord_distance(pos,pos2)<=1) {
-			ribi |= ribi_typ( pos2-pos );
+			ribi |= ribi_type( pos2-pos );
 		}
 	}
 	return ribi;

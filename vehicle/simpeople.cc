@@ -206,14 +206,14 @@ void pedestrian_t::hop(grund_t *gr)
 	// new target
 	grund_t *to = NULL;
 	// ribi opposite to current direction
-	ribi_t::ribi gegenrichtung = ribi_t::rueckwaerts( get_direction() );
+	ribi_t::ribi reverse_direction = ribi_t::backward( get_direction() );
 	// all possible directions
-	ribi_t::ribi ribi = weg->get_ribi_unmasked() & (~gegenrichtung);
+	ribi_t::ribi ribi = weg->get_ribi_unmasked() & (~reverse_direction);
 	// randomized offset
-	const uint8 offset = (ribi > 0  &&  ribi_t::ist_einfach(ribi)) ? 0 : simrand(4);
+	const uint8 offset = (ribi > 0  &&  ribi_t::is_single(ribi)) ? 0 : simrand(4);
 
 	for(uint r = 0; r < 4; r++) {
-		ribi_t::ribi const test_ribi = ribi_t::nsow[ (r+offset) & 3];
+		ribi_t::ribi const test_ribi = ribi_t::nsew[ (r+offset) & 3];
 
 		if(  (ribi & test_ribi)!=0  &&  gr->get_neighbour(to, road_wt, test_ribi) )	{
 			// this is our next target
@@ -227,7 +227,7 @@ void pedestrian_t::hop(grund_t *gr)
 	}
 	else {
 		// turn around
-		direction = gegenrichtung;
+		direction = reverse_direction;
 		dx = -dx;
 		dy = -dy;
 		pos_next = get_pos();

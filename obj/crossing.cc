@@ -183,7 +183,7 @@ void crossing_t::finish_rd()
 		// after loading restore speedlimits
 		w1->count_sign();
 		w2->count_sign();
-		ns = ribi_t::ist_gerade_ns(w2->get_ribi_unmasked());
+		ns = ribi_t::is_straight_ns(w2->get_ribi_unmasked());
 #ifdef MULTI_THREAD
 		pthread_mutex_lock( &crossing_logic_mutex );
 #endif
