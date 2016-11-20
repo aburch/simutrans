@@ -41,6 +41,27 @@
 struct sys_event sys_event;
 
 
+/**
+ * Get Mouse X-Position
+ * @author Hj. Malthaner
+ */
+int get_mouse_x()
+{
+	return sys_event.mx;
+}
+
+
+/**
+ * Get Mouse y-Position
+ * @author Hj. Malthaner
+ */
+int get_mouse_y()
+{
+	return sys_event.my;
+}
+
+
+
 void dr_mkdir(char const* const path)
 {
 #if defined(_WIN32) && !defined(__CYGWIN__)

@@ -73,7 +73,7 @@ void gui_image_list_t::draw(scr_coord parent_pos)
 	const int columns = (size.w - 2 * BORDER) / grid.x;
 
 	// sel_index should come from infowin_event, but it is not sure?
-	int sel_index = index_at(parent_pos, get_maus_x(), get_maus_y());
+	int sel_index = index_at(parent_pos, get_mouse_x(), get_mouse_y());
 
 	// Show available wagon types
 	int xmin = parent_pos.x + pos.x + BORDER;

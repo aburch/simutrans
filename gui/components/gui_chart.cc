@@ -215,7 +215,7 @@ void gui_chart_t::draw(scr_coord offset)
 				// display tooltip?
 				if(i==tooltip_n  &&  abs((int)(baseline-(int)(tmp/scale)-tooltipcoord.y))<10) {
 					number_to_string(tooltip, (double)tmp, c.precision);
-					win_set_tooltip(get_maus_x()+TOOLTIP_MOUSE_OFFSET_X, get_maus_y()-TOOLTIP_MOUSE_OFFSET_Y, tooltip );
+					win_set_tooltip(get_mouse_x()+TOOLTIP_MOUSE_OFFSET_X, get_mouse_y()-TOOLTIP_MOUSE_OFFSET_Y, tooltip );
 				}
 
 				// draw line between two financial markers; this is only possible from the second value on
@@ -258,7 +258,7 @@ void gui_chart_t::draw(scr_coord offset)
 				// display tooltip?
 				if(  t==tooltip_n  &&  abs((int)(baseline-(int)(tmp/scale)-tooltipcoord.y))<10  ) {
 					number_to_string(tooltip, (double)tmp, line.precision);
-					win_set_tooltip( get_maus_x()+8, get_maus_y()-12, tooltip );
+					win_set_tooltip( get_mouse_x()+8, get_mouse_y()-12, tooltip );
 				}
 				// for the first element print the current value (optionally)
 				// only print value if not too close to min/max/zero

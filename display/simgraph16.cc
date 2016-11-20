@@ -5334,26 +5334,6 @@ void display_show_load_pointer(int loading)
 
 
 /**
- * Get Mouse X-Position
- * @author Hj. Malthaner
- */
-int get_maus_x()
-{
-	return sys_event.mx;
-}
-
-
-/**
- * Get Mouse y-Position
- * @author Hj. Malthaner
- */
-int get_maus_y()
-{
-	return sys_event.my;
-}
-
-
-/**
  * Initialises the graphics module
  * @author Hj. Malthaner
  */

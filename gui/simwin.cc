@@ -680,8 +680,8 @@ int create_win(int x, int y, gui_frame_t* const gui, wintype const wt, ptrdiff_t
 				y = min( y, display_get_height()-size.h );
 			}
 			else {
-				x = min(get_maus_x() - size.w/2, display_get_width()-size.w);
-				y = min(get_maus_y() - size.h-env_t::iconsize.h, display_get_height()-size.h);
+				x = min(get_mouse_x() - size.w/2, display_get_width()-size.w);
+				y = min(get_mouse_y() - size.h-env_t::iconsize.h, display_get_height()-size.h);
 			}
 		}
 		if(x<0) {
@@ -940,8 +940,8 @@ void display_all_win()
 	process_kill_list();
 
 	// check which window can set tooltip
-	const sint16 x = get_maus_x();
-	const sint16 y = get_maus_y();
+	const sint16 x = get_mouse_x();
+	const sint16 y = get_mouse_y();
 	tooltip_element = NULL;
 	for(  uint32 i = wins.get_count(); i-- != 0;  ) {
 		if(  (!wins[i].rollup  &&  wins[i].gui->is_hit(x-wins[i].pos.x,y-wins[i].pos.y))  ||
@@ -1513,7 +1513,7 @@ void win_display_flush(double konto)
 		display_fillbox_wh( 0, 0, disp_width, menu_height, MN_GREY2, false );
 	}
 	// .. extra logic to enable tooltips
-	tooltip_element = menu_height > get_maus_y() ? main_menu : NULL;
+	tooltip_element = menu_height > get_mouse_y() ? main_menu : NULL;
 	void *old_inside_event_handling = inside_event_handling;
 	inside_event_handling = main_menu;
 	main_menu->draw( scr_coord(0,-D_TITLEBAR_HEIGHT), scr_size(disp_width,menu_height) );
@@ -1565,7 +1565,7 @@ void win_display_flush(double konto)
 			}
 			else if(static_tooltip_text!=NULL  &&  *static_tooltip_text) {
 				const sint16 width = proportional_string_width(static_tooltip_text)+7;
-				display_ddd_proportional_clip(min(get_maus_x()+16,disp_width-width), max(menu_height+7,get_maus_y()-16), width, 0, env_t::tooltip_color, env_t::tooltip_textcolor, static_tooltip_text, true);
+				display_ddd_proportional_clip(min(get_mouse_x()+16,disp_width-width), max(menu_height+7,get_mouse_y()-16), width, 0, env_t::tooltip_color, env_t::tooltip_textcolor, static_tooltip_text, true);
 				if(wl) {
 					wl->set_background_dirty();
 				}
@@ -1594,9 +1594,9 @@ void win_display_flush(double konto)
 	display_fillbox_wh(0, disp_height-16, disp_width, 1, SYSCOL_STATUSBAR_DIVIDER, false);
 	display_fillbox_wh(0, disp_height-15, disp_width, 15, SYSCOL_STATUSBAR_BACKGROUND, false);
 
-	bool tooltip_check = get_maus_y()>disp_height-15;
+	bool tooltip_check = get_mouse_y()>disp_height-15;
 	if(  tooltip_check  ) {
-		tooltip_xpos = get_maus_x();
+		tooltip_xpos = get_mouse_x();
 		tooltip_ypos = disp_height-15-10-TICKER_HEIGHT*show_ticker;
 	}
 

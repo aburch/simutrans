@@ -62,7 +62,7 @@ scr_coord_val citylist_stats_t::draw( scr_coord pos, scr_coord_val width, bool s
 		}
 		if(  mouse_over  ) {
 			// still+pressed? (release will be extra event)
-			scr_coord_val mx = get_maus_x(), my = get_maus_y();
+			scr_coord_val mx = get_mouse_x(), my = get_mouse_y();
 			mouse_over = mx>=pos.x  &&  mx<pos.x+width  &&  my>=pos.y  &&  my<pos.y+h;
 			selected |= mouse_over;
 		}

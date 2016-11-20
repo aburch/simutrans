@@ -142,16 +142,6 @@ void display_set_base_image_offset(unsigned, KOORD_VAL, KOORD_VAL)
 }
 */
 
-int get_maus_x()
-{
-	return sys_event.mx;
-}
-
-int get_maus_y()
-{
-	return sys_event.my;
-}
-
 clip_dimension display_get_clip_wh(CLIP_NUM_DEF_NOUSE0)
 {
 	clip_dimension clip_rect;

@@ -216,10 +216,10 @@ void gui_tab_panel_t::draw(scr_coord parent_pos)
 	display_fillbox_wh_clip(text_x-4, ypos+D_TAB_HEADER_HEIGHT-1, xpos+size.w-(text_x-4), 1, SYSCOL_HIGHLIGHT, true);
 
 	// now for tooltips ...
-	int my = get_maus_y()-parent_pos.y-pos.y-6;
+	int my = get_mouse_y()-parent_pos.y-pos.y-6;
 	if(my>=0  &&  my < D_TAB_HEADER_HEIGHT-1) {
 		// Reiter getroffen?
-		int mx = get_maus_x()-parent_pos.x-pos.x-11;
+		int mx = get_mouse_x()-parent_pos.x-pos.x-11;
 		int text_x = 4;
 		int i=0;
 		FORX(slist_tpl<tab>, const& iter, tabs, ++i) {
@@ -229,7 +229,7 @@ void gui_tab_panel_t::draw(scr_coord parent_pos)
 
 				if(text_x < mx && text_x+width+8 > mx  && (required_size.w<=get_size().w || mx < right.get_pos().x-12)) {
 					// tooltip or change
-					win_set_tooltip(get_maus_x() + 16, ypos + D_TAB_HEADER_HEIGHT + 12, iter.tooltip, &iter, this);
+					win_set_tooltip(get_mouse_x() + 16, ypos + D_TAB_HEADER_HEIGHT + 12, iter.tooltip, &iter, this);
 					break;
 				}
 
