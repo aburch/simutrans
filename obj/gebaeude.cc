@@ -543,7 +543,7 @@ gebaeude_t::typ gebaeude_t::get_haustyp() const
 void gebaeude_t::show_info()
 {
 	if(get_fabrik()) {
-		ptr.fab->zeige_info();
+		ptr.fab->open_info_window();
 		return;
 	}
 	int old_count = win_get_open_count();
@@ -553,7 +553,7 @@ void gebaeude_t::show_info()
 		create_win( new money_frame_t(get_owner()), w_info, magic_finances_t+get_owner()->get_player_nr() );
 	}
 	else if (ist_rathaus()) {
-		ptr.stadt->zeige_info();
+		ptr.stadt->open_info_window();
 	}
 
 	if(!tile->get_besch()->ist_ohne_info()) {

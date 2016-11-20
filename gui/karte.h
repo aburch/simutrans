@@ -227,7 +227,7 @@ public:
 	MAP_MODES get_mode() { return mode; }
 
 	// updates the map (if needed)
-	void neuer_monat();
+	void new_month();
 
 	void invalidate_map_lines_cache();
 

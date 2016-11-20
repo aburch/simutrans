@@ -586,7 +586,7 @@ public:
 	sint32 liefere_an(const ware_besch_t *, sint32 menge);
 
 	void step(uint32 delta_t);                  // fabrik muss auch arbeiten
-	void neuer_monat();
+	void new_month();
 
 	char const* get_name() const;
 	void set_name( const char *name );
@@ -599,7 +599,7 @@ public:
 		return p ? p->first_obj()->get_owner() : 0;
 	}
 
-	void zeige_info();
+	void open_info_window();
 
 	// infostring on production
 	void info_prod(cbuffer_t& buf) const;

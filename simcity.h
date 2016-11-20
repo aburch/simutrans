@@ -557,7 +557,7 @@ public:
 
 	void step(uint32 delta_t);
 
-	void neuer_monat( bool recalc_destinations );
+	void new_month( bool recalc_destinations );
 
 private:
 	/**
@@ -625,7 +625,7 @@ public:
 	static vector_tpl<koord> *random_place(sint32 anzahl, sint16 old_x, sint16 old_y);
 	// geeigneten platz zur Stadtgruendung durch Zufall ermitteln
 
-	void zeige_info();
+	void open_info_window();
 };
 
 #endif

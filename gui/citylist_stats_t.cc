@@ -90,7 +90,7 @@ bool citylist_stats_t::infowin_event(const event_t *ev)
 			}
 		}
 		else if(  IS_LEFTRELEASE(ev)  ) {
-			city->zeige_info();
+			city->open_info_window();
 		}
 		else {
 			mouse_over = (ev->button_state &1)  &&  pos_box_hit;

@@ -1408,7 +1408,7 @@ void stadt_t::set_name(const char *new_name)
 /* show city info dialogue
  * @author prissi
  */
-void stadt_t::zeige_info()
+void stadt_t::open_info_window()
 {
 	create_win( new city_info_t(this), w_info, (ptrdiff_t)this );
 }
@@ -1643,7 +1643,7 @@ void stadt_t::city_growth_monthly(uint32 const month)
 }
 
 
-void stadt_t::neuer_monat( bool recalc_destinations )
+void stadt_t::new_month( bool recalc_destinations )
 {
 	swap<uint8>( pax_destinations_old, pax_destinations_new );
 	pax_destinations_new.clear();

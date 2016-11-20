@@ -580,11 +580,11 @@ void grund_t::take_obj_from(grund_t* other_gr)
 }
 
 
-void grund_t::zeige_info()
+void grund_t::open_info_window()
 {
 	int old_count = win_get_open_count();
 	if(get_halt().is_bound()) {
-		get_halt()->zeige_info();
+		get_halt()->open_info_window();
 		if(env_t::single_info  &&  old_count!=win_get_open_count()  ) {
 			return;
 		}

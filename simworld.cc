@@ -3705,20 +3705,20 @@ void karte_t::new_month()
 		koord::locality_factor = settings.get_locality_factor( last_year+1 );
 		need_locality_update = (old_locality_factor != koord::locality_factor);
 	}
-	DBG_MESSAGE("karte_t::neuer_monat()","Month (%d/%d) has started", (last_month%12)+1, last_month/12 );
+	DBG_MESSAGE("karte_t::new_month()","Month (%d/%d) has started", (last_month%12)+1, last_month/12 );
 
 	// this should be done before a map update, since the map may want an update of the way usage
-//	DBG_MESSAGE("karte_t::neuer_monat()","ways");
+//	DBG_MESSAGE("karte_t::new_month()","ways");
 	FOR(slist_tpl<weg_t*>, const w, weg_t::get_alle_wege()) {
-		w->neuer_monat();
+		w->new_month();
 	}
 
 	// recalc old settings (and maybe update the staops with the current values)
-	reliefkarte_t::get_karte()->neuer_monat();
+	reliefkarte_t::get_karte()->new_month();
 
 	INT_CHECK("simworld 1701");
 
-//	DBG_MESSAGE("karte_t::neuer_monat()","convois");
+//	DBG_MESSAGE("karte_t::new_month()","convois");
 	// hsiegeln - call new month for convois
 	FOR(vector_tpl<convoihandle_t>, const cnv, convoi_array) {
 		cnv->new_month();
@@ -3726,17 +3726,17 @@ void karte_t::new_month()
 
 	INT_CHECK("simworld 1701");
 
-//	DBG_MESSAGE("karte_t::neuer_monat()","factories");
+//	DBG_MESSAGE("karte_t::new_month()","factories");
 	FOR(slist_tpl<fabrik_t*>, const fab, fab_list) {
-		fab->neuer_monat();
+		fab->new_month();
 	}
 	INT_CHECK("simworld 1278");
 
 
-//	DBG_MESSAGE("karte_t::neuer_monat()","cities");
+//	DBG_MESSAGE("karte_t::new_month()","cities");
 	stadt.update_weights(get_population);
 	FOR(weighted_vector_tpl<stadt_t*>, const i, stadt) {
-		i->neuer_monat(need_locality_update);
+		i->new_month(need_locality_update);
 	}
 
 	INT_CHECK("simworld 1282");
@@ -3766,14 +3766,14 @@ void karte_t::new_month()
 
 	INT_CHECK("simworld 1289");
 
-//	DBG_MESSAGE("karte_t::neuer_monat()","halts");
+//	DBG_MESSAGE("karte_t::new_month()","halts");
 	FOR(vector_tpl<halthandle_t>, const s, haltestelle_t::get_alle_haltestellen()) {
-		s->neuer_monat();
+		s->new_month();
 		INT_CHECK("simworld 1877");
 	}
 
 	INT_CHECK("simworld 2522");
-	depot_t::neuer_monat();
+	depot_t::new_month();
 
 	scenario->new_month();
 
@@ -3783,7 +3783,7 @@ void karte_t::new_month()
 		INT_CHECK("simworld 1299");
 	}
 
-	wegbauer_t::neuer_monat();
+	wegbauer_t::new_month();
 	INT_CHECK("simworld 1299");
 
 	recalc_average_speed();
@@ -3820,7 +3820,7 @@ DBG_MESSAGE("karte_t::new_year()","speedbonus for %d %i, %i, %i, %i, %i, %i, %i,
 	msg->add_message(buf,koord::invalid,message_t::general,COL_BLACK,skinverwaltung_t::neujahrsymbol->get_bild_nr(0));
 
 	FOR(vector_tpl<convoihandle_t>, const cnv, convoi_array) {
-		cnv->neues_jahr();
+		cnv->new_year();
 	}
 
 	for(int i=0; i<MAX_PLAYER_COUNT; i++) {
@@ -3902,7 +3902,7 @@ void karte_t::recalc_average_speed()
 			city_road = city_road_test;
 		}
 		else {
-			DBG_MESSAGE("karte_t::neuer_monat()","Month %d has started", last_month);
+			DBG_MESSAGE("karte_t::new_month()","Month %d has started", last_month);
 			city_road = wegbauer_t::weg_search(road_wt,50,get_timeline_year_month(),weg_t::type_flat);
 		}
 
@@ -3959,7 +3959,7 @@ void karte_t::step()
 		}
 		next_month_ticks += karte_t::ticks_per_world_month;
 
-		DBG_DEBUG4("karte_t::step", "calling neuer_monat");
+		DBG_DEBUG4("karte_t::step", "calling new_month");
 		new_month();
 	}
 

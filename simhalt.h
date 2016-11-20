@@ -455,7 +455,7 @@ public:
 	 * Called every month/every 24 game hours
 	 * @author Hj. Malthaner
 	 */
-	void neuer_monat();
+	void new_month();
 
 private:
 	/* Node used during route search */
@@ -695,7 +695,7 @@ public:
 	 * Opens an information window for this station.
 	 * @author Hj. Malthaner
 	 */
-	void zeige_info();
+	void open_info_window();
 
 	/**
 	 * @return the type of a station

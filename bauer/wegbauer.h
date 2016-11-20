@@ -36,7 +36,7 @@ public:
 	static bool alle_wege_geladen();
 
 	// generates timeline message
-	static void neuer_monat();
+	static void new_month();
 
 	/**
 	 * Finds a way with a given speed limit for a given waytype

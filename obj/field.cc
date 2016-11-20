@@ -85,5 +85,5 @@ image_id field_t::get_image() const
 void field_t::show_info()
 {
 	// show the info of the corresponding factory
-	fab->zeige_info();
+	fab->open_info_window();
 }

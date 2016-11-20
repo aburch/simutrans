@@ -698,7 +698,7 @@ public:
 	* @author Hj. Malthaner
 	* @see simwin
 	*/
-	void zeige_info();
+	void open_info_window();
 
 	/**
 	* @return a description string for the object, der z.B. in einem
@@ -825,7 +825,7 @@ public:
 	 * Method for yearly action
 	 * @author Hj. Malthaner
 	 */
-	void neues_jahr();
+	void new_year();
 
 	void set_update_line(linehandle_t l) { line_update_pending = l; }
 

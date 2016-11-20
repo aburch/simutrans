@@ -1350,7 +1350,7 @@ void convoi_t::step()
 }
 
 
-void convoi_t::neues_jahr()
+void convoi_t::new_year()
 {
     jahresgewinn = 0;
 }
@@ -2545,7 +2545,7 @@ void convoi_t::rdwr(loadsave_t *file)
 }
 
 
-void convoi_t::zeige_info()
+void convoi_t::open_info_window()
 {
 	if(  in_depot()  ) {
 		// Knightly : if ownership matches, we can try to open the depot dialog

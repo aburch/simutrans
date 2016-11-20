@@ -1040,7 +1040,7 @@ void reliefkarte_t::set_mode(MAP_MODES new_mode)
 }
 
 
-void reliefkarte_t::neuer_monat()
+void reliefkarte_t::new_month()
 {
 	needs_redraw = true;
 }

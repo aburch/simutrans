@@ -308,7 +308,7 @@ public:
 	* Oeffnet standardmaessig kein Infofenster.
 	* @author Hj. Malthaner
 	*/
-	void zeige_info();
+	void open_info_window();
 
 	/**
 	* Gibt die Farbe des Beschreibungstexthintergrundes zuurck

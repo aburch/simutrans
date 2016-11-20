@@ -595,7 +595,7 @@ void depot_t::update_win()
 }
 
 
-void depot_t::neuer_monat()
+void depot_t::new_month()
 {
 	// since vehicles may have become obsolete
 	update_all_win();

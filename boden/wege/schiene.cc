@@ -63,7 +63,7 @@ void schiene_t::info(cbuffer_t & buf) const
 		buf.append(reserved->get_name());
 		buf.append("\n");
 #ifdef DEBUG_PBS
-		reserved->zeige_info();
+		reserved->open_info_window();
 #endif
 	}
 }

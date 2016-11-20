@@ -2499,7 +2499,7 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 }
 
 
-void fabrik_t::neuer_monat()
+void fabrik_t::new_month()
 {
 	// calculate weighted averages
 	if(  aggregate_weight>0  ) {
@@ -2690,7 +2690,7 @@ void fabrik_t::recalc_factory_status()
 }
 
 
-void fabrik_t::zeige_info()
+void fabrik_t::open_info_window()
 {
 	gebaeude_t *gb = welt->lookup(pos)->find<gebaeude_t>();
 	create_win(new fabrik_info_t(this, gb), w_info, (ptrdiff_t)this );

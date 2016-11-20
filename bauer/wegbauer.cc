@@ -263,7 +263,7 @@ const weg_besch_t * wegbauer_t::get_besch(const char * way_name, const uint16 ti
 
 
 // generates timeline message
-void wegbauer_t::neuer_monat()
+void wegbauer_t::new_month()
 {
 	const uint16 current_month = welt->get_timeline_year_month();
 	if(current_month!=0) {

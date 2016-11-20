@@ -362,7 +362,7 @@ const char *tool_query_t::work( player_t *player, koord3d pos )
 				}
 
 				if(  gr->get_halt().is_bound()  ) {
-					gr->get_halt()->zeige_info();
+					gr->get_halt()->open_info_window();
 					if(  old_count!=win_get_open_count()  ) {
 						return NULL;
 					}
@@ -373,7 +373,7 @@ const char *tool_query_t::work( player_t *player, koord3d pos )
 
 				// show halt and labels first ...
 				if(  gr->get_halt().is_bound()  ) {
-					gr->get_halt()->zeige_info();
+					gr->get_halt()->open_info_window();
 					if(  old_count!=win_get_open_count()  ) {
 						return NULL;
 					}
@@ -402,11 +402,11 @@ const char *tool_query_t::work( player_t *player, koord3d pos )
 			}
 
 			// no window yet opened -> try ground info
-			gr->zeige_info();
+			gr->open_info_window();
 		}
 		else {
 			// lowest (less interesting) first
-			gr->zeige_info();
+			gr->open_info_window();
 			for(int n=0; n<gr->get_top();  n++  ) {
 				obj_t *obj = gr->obj_bei(n);
 				if(  obj && obj->get_typ()!=obj_t::wayobj && obj->get_typ()!=obj_t::pillar  ) {

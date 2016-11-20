@@ -1675,7 +1675,7 @@ uint32 vehicle_t::calc_sale_value() const
 void vehicle_t::show_info()
 {
 	if(  cnv != NULL  ) {
-		cnv->zeige_info();
+		cnv->open_info_window();
 	} else {
 		dbg->warning("vehicle_t::show_info()","cnv is null, can't open convoi window!");
 	}

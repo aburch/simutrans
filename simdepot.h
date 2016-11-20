@@ -220,7 +220,7 @@ public:
 	 * Will update all depot_frame_t (new vehicles!)
 	 */
 	static void update_all_win();
-	static void neuer_monat();
+	static void new_month();
 
 	/**
 	 * Update the depot_frame_t.

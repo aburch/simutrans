@@ -442,7 +442,7 @@ public:
 	void new_month();
 
 	/**
-	 * rolls the finance history for player (needed when neues_jahr() or neuer_monat()) triggered
+	 * rolls the finance history for player (needed when new_year() or new_month()) triggered
 	 * @author hsiegeln, jk271
 	 */
 	void roll_history_year();

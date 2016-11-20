@@ -898,7 +898,7 @@ bool haltestelle_t::step(uint8 what, sint16 &units_remaining)
  * Called every month
  * @author Hj. Malthaner
  */
-void haltestelle_t::neuer_monat()
+void haltestelle_t::new_month()
 {
 	if(  welt->get_active_player()==owner_p  &&  status_color==COL_RED  ) {
 		cbuffer_t buf;
@@ -2235,7 +2235,7 @@ void haltestelle_t::get_short_freight_info(cbuffer_t & buf) const
 
 
 
-void haltestelle_t::zeige_info()
+void haltestelle_t::open_info_window()
 {
 	create_win( new halt_info_t(self), w_info, magic_halt_info + self.get_id() );
 }

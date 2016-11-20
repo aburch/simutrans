@@ -153,7 +153,7 @@ bool factorylist_stats_t::infowin_event(const event_t * ev)
 			welt->get_viewport()->change_world_position(pos);
 		}
 		else {
-			fab->zeige_info();
+			fab->open_info_window();
 		}
 	}
 	else if (IS_RIGHTRELEASE(ev)) {

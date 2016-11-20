@@ -36,7 +36,7 @@ bool halt_list_stats_t::infowin_event(const event_t *ev)
 	if(halt.is_bound()) {
 		if(IS_LEFTRELEASE(ev)) {
 			if (event_get_last_control_shift() != 2) {
-				halt->zeige_info();
+				halt->open_info_window();
 			}
 			return true;
 		}

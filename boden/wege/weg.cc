@@ -552,7 +552,7 @@ void weg_t::check_diagonal()
  * new month
  * @author hsiegeln
  */
-void weg_t::neuer_monat()
+void weg_t::new_month()
 {
 	for (int type=0; type<MAX_WAY_STATISTICS; type++) {
 		for (int month=MAX_WAY_STAT_MONTHS-1; month>0; month--) {

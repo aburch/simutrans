@@ -349,7 +349,7 @@ bool halt_detail_t::action_triggered( gui_action_creator_t *, value_t extra)
 			uint16 j = k.y;
 			if(  j<halt->registered_convoys.get_count()  ) {
 				convoihandle_t convoy = halt->registered_convoys[j];
-				convoy->zeige_info();
+				convoy->open_info_window();
 			}
 		}
 	}

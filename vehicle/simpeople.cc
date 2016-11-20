@@ -122,8 +122,8 @@ void pedestrian_t::rdwr(loadsave_t *file)
 
 
 
-// create a number (anzahl) of pedestrians (if possible)
-void pedestrian_t::generate_pedestrians_at(const koord3d k, int &anzahl)
+// create a number (count) of pedestrians (if possible)
+void pedestrian_t::generate_pedestrians_at(const koord3d k, int &count)
 {
 	if (liste.empty()) {
 		return;
@@ -136,7 +136,7 @@ void pedestrian_t::generate_pedestrians_at(const koord3d k, int &anzahl)
 		// we do not start on crossings (not overrunning pedestrians please
 		if (weg && ribi_t::is_twoway(weg->get_ribi_unmasked())) {
 			// we create maximal 4 pedestrians here for performance reasons
-			for (int i = 0; i < 4 && anzahl > 0; i++) {
+			for (int i = 0; i < 4 && count > 0; i++) {
 				pedestrian_t* fg = new pedestrian_t(bd);
 				bool ok = bd->obj_add(fg) != 0;	// 256 limit reached
 				if (ok) {
@@ -146,7 +146,7 @@ void pedestrian_t::generate_pedestrians_at(const koord3d k, int &anzahl)
 						fg->sync_step( (i & 3) * 64 * 24);
 					}
 					welt->sync.add(fg);
-					anzahl--;
+					count--;
 				}
 				else {
 					// delete it, if we could not put it on the map

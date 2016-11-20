@@ -291,7 +291,7 @@ public:
 	* new month
 	* @author hsiegeln
 	*/
-	void neuer_monat();
+	void new_month();
 
 	void check_diagonal();
 
