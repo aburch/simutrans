@@ -140,13 +140,13 @@ void depot_t::convoi_arrived(convoihandle_t acnv, bool fpl_adjust)
 	if(fpl_adjust) {
 		// here a regular convoi arrived
 
-		for(unsigned i=0; i<acnv->get_vehikel_anzahl(); i++) {
+		for(unsigned i=0; i<acnv->get_vehicle_count(); i++) {
 			vehicle_t *v = acnv->get_vehikel(i);
 			// Hajo: reset vehikel data
 			v->discard_cargo();
 			v->set_pos( koord3d::invalid );
 			v->set_leading( i==0 );
-			v->set_last( i+1==acnv->get_vehikel_anzahl() );
+			v->set_last( i+1==acnv->get_vehicle_count() );
 		}
 		// Volker: remove depot from schedule
 		schedule_t *fpl = acnv->get_schedule();
@@ -262,7 +262,7 @@ bool depot_t::check_obsolete_inventory(convoihandle_t cnv)
 	bool ok = true;
 	slist_tpl<vehicle_t*> veh_tmp_list;
 
-	for(  int i = 0;  i < cnv->get_vehikel_anzahl();  i++  ) {
+	for(  int i = 0;  i < cnv->get_vehicle_count();  i++  ) {
 		const vehikel_besch_t* const vb = cnv->get_vehikel(i)->get_besch();
 		if(  vb  ) {
 			// search storage for matching vehicle
@@ -297,11 +297,11 @@ bool depot_t::check_obsolete_inventory(convoihandle_t cnv)
 convoihandle_t depot_t::copy_convoi(convoihandle_t old_cnv, bool local_execution)
 {
 	if(  old_cnv.is_bound()  &&  !convoihandle_t::is_exhausted()  &&
-		old_cnv->get_vehikel_anzahl() > 0  &&  get_waytype() == old_cnv->front()->get_besch()->get_waytype() ) {
+		old_cnv->get_vehicle_count() > 0  &&  get_waytype() == old_cnv->front()->get_besch()->get_waytype() ) {
 
 		convoihandle_t new_cnv = add_convoi( false );
 		new_cnv->set_name(old_cnv->get_internal_name());
-		int vehicle_count = old_cnv->get_vehikel_anzahl();
+		int vehicle_count = old_cnv->get_vehicle_count();
 		for (int i = 0; i<vehicle_count; i++) {
 			const vehikel_besch_t * info = old_cnv->get_vehikel(i)->get_besch();
 			if (info != NULL) {
@@ -557,7 +557,7 @@ const char * depot_t::is_deletable(const player_t *player)
 	}
 
 	FOR(slist_tpl<convoihandle_t>, const c, convois) {
-		if (c->get_vehikel_anzahl() > 0) {
+		if (c->get_vehicle_count() > 0) {
 			return "There are still vehicles\nstored in this depot!\n";
 		}
 	}

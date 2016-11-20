@@ -20,7 +20,7 @@ using namespace script_api;
 
 waytype_t get_convoy_wt(convoi_t* cnv)
 {
-	if (cnv  &&  cnv->get_vehikel_anzahl() > 0) {
+	if (cnv  &&  cnv->get_vehicle_count() > 0) {
 		return cnv->front()->get_waytype();
 	}
 	return invalid_wt;
@@ -45,7 +45,7 @@ vector_tpl<vehikel_besch_t const*> const& convoi_get_vehicles(convoi_t* cnv)
 	static vector_tpl<vehikel_besch_t const*> v;
 	v.clear();
 	if (cnv) {
-		for(uint16 i=0; i<cnv->get_vehikel_anzahl(); i++) {
+		for(uint16 i=0; i<cnv->get_vehicle_count(); i++) {
 			v.append(cnv->get_vehikel(i)->get_besch());
 		}
 	}

@@ -31,7 +31,7 @@
 
 goods_stats_t::goods_stats_t()
 {
-	set_size( scr_size(BUTTON4_X + D_BUTTON_WIDTH + 2, warenbauer_t::get_waren_anzahl() * (LINESPACE+1) ) );
+	set_size( scr_size(BUTTON4_X + D_BUTTON_WIDTH + 2, warenbauer_t::get_count() * (LINESPACE+1) ) );
 }
 
 

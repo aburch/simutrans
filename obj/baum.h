@@ -136,8 +136,8 @@ public:
 
 	static const baum_besch_t *find_tree( const char *tree_name ) { return baum_typen.empty() ? NULL : besch_names.get(tree_name); }
 
-	static int get_anzahl_besch() { return baum_typen.get_count()-1; }
-	static int get_anzahl_besch(climate cl);
+	static int get_count() { return baum_typen.get_count()-1; }
+	static int get_count(climate cl);
 
 };
 

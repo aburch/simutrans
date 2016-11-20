@@ -113,7 +113,7 @@ goods_frame_t::goods_frame_t() :
 
 	sort_list();
 
-	int h = (warenbauer_t::get_waren_anzahl()+1)*(LINESPACE+1)+y;
+	int h = (warenbauer_t::get_count()+1)*(LINESPACE+1)+y;
 	if(h>450) {
 		h = y+27*(LINESPACE+1)+D_TITLEBAR_HEIGHT+1;
 	}
@@ -173,7 +173,7 @@ void goods_frame_t::sort_list()
 	const vector_tpl<const ware_besch_t*> &goods_in_game = welt->get_goods_list();
 
 	int n=0;
-	for(unsigned int i=0; i<warenbauer_t::get_waren_anzahl(); i++) {
+	for(unsigned int i=0; i<warenbauer_t::get_count(); i++) {
 		const ware_besch_t * wtyp = warenbauer_t::get_info(i);
 
 		// Hajo: we skip goods that don't generate income

@@ -617,12 +617,12 @@ public:
 	 * Erzeugt ein Array zufaelliger Startkoordinaten,
 	 * die fuer eine Stadtgruendung geeignet sind.
 	 * @param wl Die Karte auf der die Stadt gegruendet werden soll.
-	 * @param anzahl die Anzahl der zu liefernden Koordinaten
+	 * @param count die Anzahl der zu liefernden Koordinaten
 	 * @author Hj. Malthaner
 	 * @param old_x, old_y: Generate no cities in (0,0) - (old_x, old_y)
 	 * @author Gerd Wachsmuth
 	 */
-	static vector_tpl<koord> *random_place(sint32 anzahl, sint16 old_x, sint16 old_y);
+	static vector_tpl<koord> *random_place(sint32 count, sint16 old_x, sint16 old_y);
 	// geeigneten platz zur Stadtgruendung durch Zufall ermitteln
 
 	void open_info_window();

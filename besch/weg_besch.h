@@ -123,7 +123,7 @@ public:
 		const uint16 n = image_list_base_index(season, front);
 		bildliste_besch_t const* const bl = get_child<bildliste_besch_t>(n);
 		// only do this if extended switches are there
-		if(  bl->get_anzahl()>16  ) {
+		if(  bl->get_count()>16  ) {
 			static uint8 ribi_to_extra[16] = {
 				255, 255, 255, 255, 255, 255, 255, 0,
 				255, 255, 255, 1, 255, 2, 3, 4
@@ -170,7 +170,7 @@ public:
 				return IMG_LEER;
 		}
 		image_id hang_img = get_child<bildliste_besch_t>(n)->get_bild_nr(nr);
-		if(  nr > 3  &&  hang_img == IMG_LEER  &&  get_child<bildliste_besch_t>(n)->get_anzahl()<=4  ) {
+		if(  nr > 3  &&  hang_img == IMG_LEER  &&  get_child<bildliste_besch_t>(n)->get_count()<=4  ) {
 			// hack for old ways without double height images to use single slope images for both
 			nr -= 4;
 			hang_img = get_child<bildliste_besch_t>(n)->get_bild_nr(nr);
@@ -188,8 +188,8 @@ public:
 	}
 
 	bool has_double_slopes() const {
-		return get_child<bildliste_besch_t>(3)->get_anzahl() > 4
-		||     get_child<bildliste_besch_t>(image_list_base_index(false, true) + 1)->get_anzahl() > 4;
+		return get_child<bildliste_besch_t>(3)->get_count() > 4
+		||     get_child<bildliste_besch_t>(image_list_base_index(false, true) + 1)->get_count() > 4;
 	}
 
 	bool has_diagonal_bild() const {
@@ -198,8 +198,8 @@ public:
 	}
 
 	bool has_switch_bild() const {
-		return get_child<bildliste_besch_t>(2)->get_anzahl() > 16
-		||     get_child<bildliste_besch_t>(image_list_base_index(false, true))->get_anzahl() > 16;
+		return get_child<bildliste_besch_t>(2)->get_count() > 16
+		||     get_child<bildliste_besch_t>(image_list_base_index(false, true))->get_count() > 16;
 	}
 
 	/* true, if this tile is to be drawn as a normal thing */

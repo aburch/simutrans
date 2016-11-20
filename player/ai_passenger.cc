@@ -772,7 +772,7 @@ bool ai_passenger_t::create_air_transport_vehikel(const stadt_t *start_stadt, co
 /* creates a more general road transport
  * @author prissi
  */
-void ai_passenger_t::create_bus_transport_vehikel(koord startpos2d,int anz_vehikel,koord *stops,int anzahl,bool do_wait)
+void ai_passenger_t::create_bus_transport_vehikel(koord startpos2d,int anz_vehikel,koord *stops,int count,bool do_wait)
 {
 DBG_MESSAGE("ai_passenger_t::create_bus_transport_vehikel()","bus at (%i,%i)",startpos2d.x,startpos2d.y);
 	// now start all vehicle one field before, so they load immediately
@@ -781,7 +781,7 @@ DBG_MESSAGE("ai_passenger_t::create_bus_transport_vehikel()","bus at (%i,%i)",st
 	// since 86.01 we use lines for road vehicles ...
 	schedule_t *fpl=new autofahrplan_t();
 	// do not start at current stop => wont work ...
-	for(int j=0;  j<anzahl;  j++) {
+	for(int j=0;  j<count;  j++) {
 		fpl->append(welt->lookup_kartenboden(stops[j]), j == 0 || !do_wait ? 0 : 10);
 	}
 	fpl->set_aktuell( stops[0]==startpos2d );
@@ -964,8 +964,8 @@ void ai_passenger_t::step()
 			}
 
 			const weighted_vector_tpl<stadt_t*>& staedte = welt->get_staedte();
-			int anzahl = staedte.get_count();
-			int offset = (anzahl>1) ? simrand(anzahl-1) : 0;
+			int count = staedte.get_count();
+			int offset = (count>1) ? simrand(count-1) : 0;
 			// start with previous target
 			const stadt_t* last_start_stadt=start_stadt;
 			start_stadt = end_stadt;
@@ -992,7 +992,7 @@ if(!start_halt.is_bound()) {
 			}
 DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using place (%i,%i) for start",platz1.x,platz1.y);
 
-			if(anzahl==1  ||  simrand(3)==0) {
+			if(count==1  ||  simrand(3)==0) {
 DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","searching attraction");
 				// 25 % of all connections are tourist attractions
 				const weighted_vector_tpl<gebaeude_t*> &ausflugsziele = welt->get_ausflugsziele();
@@ -1059,8 +1059,8 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","decision: %s wants to built net
 DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","searching town");
 				int last_dist = 9999999;
 				// find a good route
-				for( int i=0;  i<anzahl;  i++  ) {
-					const int nr = (i+offset)%anzahl;
+				for( int i=0;  i<count;  i++  ) {
+					const int nr = (i+offset)%count;
 					const stadt_t* cur = staedte[nr];
 					if(cur!=last_start_stadt  &&  cur!=start_stadt) {
 						halthandle_t end_halt = get_our_hub(cur);

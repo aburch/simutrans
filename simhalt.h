@@ -155,7 +155,7 @@ public:
 	 *
 	 * @author Hj. Malthaner
 	 */
-	static int generate_pedestrians(const koord3d pos, int anzahl);
+	static int generate_pedestrians(const koord3d pos, int count);
 
 	/**
 	 * Returns an index to a halt at koord k

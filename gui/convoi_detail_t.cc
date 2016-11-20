@@ -239,7 +239,7 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 		const sint32 cnv_kmh = (cnv->front()->get_waytype() == air_wt) ? speed_to_kmh(cnv->get_min_top_speed()) : cnv->get_speedbonus_kmh();
 
 		static cbuffer_t freight_info;
-		for(unsigned veh=0;  veh<cnv->get_vehikel_anzahl(); veh++ ) {
+		for(unsigned veh=0;  veh<cnv->get_vehicle_count(); veh++ ) {
 			vehicle_t *v=cnv->get_vehikel(veh);
 			int returns = 0;
 			freight_info.clear();

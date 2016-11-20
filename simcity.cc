@@ -3322,7 +3322,7 @@ void stadt_t::baue()
 
 
 // find suitable places for cities
-vector_tpl<koord>* stadt_t::random_place(const sint32 anzahl, sint16 old_x, sint16 old_y)
+vector_tpl<koord>* stadt_t::random_place(const sint32 count, sint16 old_x, sint16 old_y)
 {
 	int cl = 0;
 	for (int i = 0; i < MAX_CLIMATES; i++) {
@@ -3334,7 +3334,7 @@ vector_tpl<koord>* stadt_t::random_place(const sint32 anzahl, sint16 old_x, sint
 	// search at least places which are 5x5 squares large
 	slist_tpl<koord>* list = welt->find_squares( 5, 5, (climate_bits)cl, old_x, old_y);
 	DBG_DEBUG("karte_t::init()", "found %i places", list->get_count());
-	vector_tpl<koord>* result = new vector_tpl<koord>(anzahl);
+	vector_tpl<koord>* result = new vector_tpl<koord>(count);
 
 	// pre processed array: max 1 city from each square can be built
 	// each entry represents a cell of minimum_city_distance/2 length and width
@@ -3363,7 +3363,7 @@ vector_tpl<koord>* stadt_t::random_place(const sint32 anzahl, sint16 old_x, sint
 	const uint32 ymax2 = welt->get_size().y/minimum_city_distance+1;
 	array2d_tpl< vector_tpl<koord> > result_places(xmax2, ymax2);
 
-	for (int i = 0; i < anzahl; i++) {
+	for (int i = 0; i < count; i++) {
 		// check distances of all cities to their respective neighbours
 		while (!index_to_places.empty()) {
 			// find a random cell
@@ -3404,7 +3404,7 @@ too_close:
 			// if we reached here, the city was not far enough => try again
 		}
 
-		if (index_to_places.empty() && i < anzahl - 1) {
+		if (index_to_places.empty() && i < count - 1) {
 			dbg->warning("stadt_t::random_place()", "Not enough places found!");
 			break;
 		}

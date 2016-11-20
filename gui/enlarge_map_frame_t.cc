@@ -96,7 +96,7 @@ enlarge_map_frame_t::enlarge_map_frame_t() :
 	inp_number_of_towns.set_size(scr_size(preview_size, D_EDIT_HEIGHT));
 	inp_number_of_towns.add_listener(this);
 	inp_number_of_towns.set_limits(0,999);
-	inp_number_of_towns.set_value(abs(sets->get_anzahl_staedte()) );
+	inp_number_of_towns.set_value(abs(sets->get_city_count()) );
 	add_component( &inp_number_of_towns );
 
 	// Number of towns label
@@ -163,7 +163,7 @@ bool enlarge_map_frame_t::action_triggered( gui_action_creator_t *komp,value_t v
 		update_preview();
 	}
 	else if(komp==&inp_number_of_towns) {
-		sets->set_anzahl_staedte( v.i );
+		sets->set_city_count( v.i );
 	}
 	else if(komp==&inp_town_size) {
 		sets->set_mittlere_einwohnerzahl( v.i );
@@ -252,9 +252,9 @@ void enlarge_map_frame_t::update_preview()
 	if(!changed_number_of_towns){// Interpolate number of towns.
 		sint32 new_area = sets->get_groesse_x() * sets->get_groesse_y();
 		sint32 old_area = old_x * old_y;
-		sint32 const towns = welt->get_settings().get_anzahl_staedte();
-		sets->set_anzahl_staedte( towns * new_area / old_area - towns );
-		inp_number_of_towns.set_value(abs(sets->get_anzahl_staedte()) );
+		sint32 const towns = welt->get_settings().get_city_count();
+		sets->set_city_count( towns * new_area / old_area - towns );
+		inp_number_of_towns.set_value(abs(sets->get_city_count()) );
 	}
 
 	// guess the new memory needed
@@ -265,7 +265,7 @@ void enlarge_map_frame_t::update_preview()
 		sizeof(player_t) * 8 +
 		sizeof(convoi_t) * 1000 +
 		(sizeof(schiene_t) + sizeof(vehicle_t)) * 10 * (sx + sy) +
-		sizeof(stadt_t) * sets->get_anzahl_staedte() +
+		sizeof(stadt_t) * sets->get_city_count() +
 		(
 			sizeof(grund_t) +
 			sizeof(planquadrat_t) +

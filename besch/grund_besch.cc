@@ -507,7 +507,7 @@ bool grund_besch_t::register_besch(const grund_besch_t *besch)
 		if(water_animation_stages==1) {
 			env_t::water_animation = 0;
 		}
-		water_depth_levels = besch->get_child<bildliste2d_besch_t>(2)->get_anzahl()-2;
+		water_depth_levels = besch->get_child<bildliste2d_besch_t>(2)->get_count()-2;
 		if(water_depth_levels<=0) {
 			water_depth_levels = 0;
 		}
@@ -1027,7 +1027,7 @@ image_id grund_besch_t::get_ground_tile(grund_t *gr)
 	if(  tile_h < 0  ||  (tile_h == 0  &&  slope == slope_t::flat)  ) {
 		// deep water
 		bildliste2d_besch_t const* const liste = sea->get_child<bildliste2d_besch_t>(2);
-		int nr = min( -tile_h, liste->get_anzahl() - 2 );
+		int nr = min( -tile_h, liste->get_count() - 2 );
 		return liste->get_bild( nr, 0 )->get_nummer();
 	}
 	else {

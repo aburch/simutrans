@@ -89,7 +89,7 @@ stringhashtable_tpl<const baum_besch_t *> baum_t::besch_names;
 
 // total number of trees
 // the same for a certain climate
-int baum_t::get_anzahl_besch(climate cl)
+int baum_t::get_count(climate cl)
 {
 	return baum_typen_per_climate[cl].get_count();
 }
@@ -102,7 +102,7 @@ uint8 baum_t::plant_tree_on_coordinate(koord pos, const uint8 maximum_count, con
 {
 	grund_t * gr = welt->lookup_kartenboden(pos);
 	if(  gr  ) {
-		if(  get_anzahl_besch( welt->get_climate(pos) ) > 0  &&  gr->ist_natur()  &&  gr->get_top() < maximum_count  ) {
+		if(  get_count( welt->get_climate(pos) ) > 0  &&  gr->ist_natur()  &&  gr->get_top() < maximum_count  ) {
 			obj_t *obj = gr->obj_bei(0);
 			if(obj) {
 				switch(obj->get_typ()) {

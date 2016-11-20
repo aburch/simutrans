@@ -123,7 +123,7 @@ bool convoi_frame_t::passes_filter(convoihandle_t cnv)
 
 	if(  get_filter(convoi_filter_frame_t::ware_filter)  ) {
 		unsigned i;
-		for(  i = 0; i < cnv->get_vehikel_anzahl(); i++) {
+		for(  i = 0; i < cnv->get_vehicle_count(); i++) {
 			const ware_besch_t *wb = cnv->get_vehikel(i)->get_cargo_type();
 			if(  wb->get_catg()!=0  ) {
 				wb = warenbauer_t::get_info_catg(wb->get_catg());
@@ -132,7 +132,7 @@ bool convoi_frame_t::passes_filter(convoihandle_t cnv)
 				return true;
 			}
 		}
-		if(  i == cnv->get_vehikel_anzahl()  ) {
+		if(  i == cnv->get_vehicle_count()  ) {
 			return false;
 		}
 	}
@@ -153,7 +153,7 @@ bool convoi_frame_t::compare_convois(convoihandle_t const cnv1, convoihandle_t c
 			result = sgn(cnv1->get_jahresgewinn() - cnv2->get_jahresgewinn());
 			break;
 		case nach_typ:
-			if(cnv1->get_vehikel_anzahl()*cnv2->get_vehikel_anzahl()>0) {
+			if(cnv1->get_vehicle_count()*cnv2->get_vehicle_count()>0) {
 				vehicle_t const* const fahr1 = cnv1->front();
 				vehicle_t const* const fahr2 = cnv2->front();
 

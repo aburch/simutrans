@@ -24,15 +24,15 @@
 class bildliste2d_besch_t : public obj_besch_t {
 	friend class imagelist2d_reader_t;
 
-	uint16  anzahl;
+	uint16  count;
 
 public:
-	bildliste2d_besch_t() : anzahl(0) {}
+	bildliste2d_besch_t() : count(0) {}
 
-	uint16 get_anzahl() const { return anzahl; }
+	uint16 get_count() const { return count; }
 
-	bildliste_besch_t const* get_liste(uint16 i)          const { return i < anzahl ? get_child<bildliste_besch_t>(i)              : 0; }
-	bild_besch_t      const* get_bild(uint16 i, uint16 j) const { return i < anzahl ? get_child<bildliste_besch_t>(i)->get_bild(j) : 0; }
+	bildliste_besch_t const* get_liste(uint16 i)          const { return i < count ? get_child<bildliste_besch_t>(i)              : 0; }
+	bild_besch_t      const* get_bild(uint16 i, uint16 j) const { return i < count ? get_child<bildliste_besch_t>(i)->get_bild(j) : 0; }
 };
 
 #endif

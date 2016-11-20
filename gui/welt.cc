@@ -82,7 +82,7 @@ welt_gui_t::welt_gui_t(settings_t* const sets_par) :
 	sets = sets_par;
 	sets->beginner_mode = env_t::default_settings.get_beginner_mode();
 
-	city_density       = ( sets->get_anzahl_staedte()      ) ? sqrt((double)sets->get_groesse_x()*sets->get_groesse_y()) / sets->get_anzahl_staedte()      : 0.0;
+	city_density       = ( sets->get_city_count()      ) ? sqrt((double)sets->get_groesse_x()*sets->get_groesse_y()) / sets->get_city_count()      : 0.0;
 	industry_density   = ( sets->get_factory_count()       ) ? sqrt((double)sets->get_groesse_x()*sets->get_groesse_y()) / sets->get_factory_count()       : 0.0;
 	attraction_density = ( sets->get_tourist_attractions() ) ? sqrt((double)sets->get_groesse_x()*sets->get_groesse_y()) / sets->get_tourist_attractions() : 0.0;
 	river_density      = ( sets->get_river_number()        ) ? sqrt((double)sets->get_groesse_x()*sets->get_groesse_y()) / sets->get_river_number()        : 0.0;
@@ -185,7 +185,7 @@ welt_gui_t::welt_gui_t(settings_t* const sets_par) :
 	inp_number_of_towns.set_size(scr_size(edit_Width, D_EDIT_HEIGHT));
 	inp_number_of_towns.add_listener(this);
 	inp_number_of_towns.set_limits(0,999);
-	inp_number_of_towns.set_value(abs(sets->get_anzahl_staedte()) );
+	inp_number_of_towns.set_value(abs(sets->get_city_count()) );
 	add_component( &inp_number_of_towns );
 
 	// Number of towns label
@@ -379,7 +379,7 @@ void welt_gui_t::update_densities()
 {
 	if(  city_density!=0.0  ) {
 		inp_number_of_towns.set_value( max( 1, (sint32)(0.5+sqrt((double)sets->get_groesse_x()*sets->get_groesse_y())/city_density) ) );
-		sets->set_anzahl_staedte( inp_number_of_towns.get_value() );
+		sets->set_city_count( inp_number_of_towns.get_value() );
 	}
 	if(  industry_density!=0.0  ) {
 		inp_other_industries.set_value( max( 1, (sint32)(0.5+sqrt((double)sets->get_groesse_x()*sets->get_groesse_y())/industry_density) ) );
@@ -478,8 +478,8 @@ bool welt_gui_t::action_triggered( gui_action_creator_t *komp,value_t v)
 		}
 	}
 	else if(komp==&inp_number_of_towns) {
-		sets->set_anzahl_staedte( v.i );
-		city_density = sets->get_anzahl_staedte() ? sqrt((double)sets->get_groesse_x()*sets->get_groesse_y()) / sets->get_anzahl_staedte() : 0.0;
+		sets->set_city_count( v.i );
+		city_density = sets->get_city_count() ? sqrt((double)sets->get_groesse_x()*sets->get_groesse_y()) / sets->get_city_count() : 0.0;
 	}
 	else if(komp==&inp_town_size) {
 		sets->set_mittlere_einwohnerzahl( v.i );
@@ -648,7 +648,7 @@ void welt_gui_t::draw(scr_coord pos, scr_size size)
 		sizeof(player_t) * 8 +
 		sizeof(convoi_t) * 1000 +
 		(sizeof(schiene_t) + sizeof(vehicle_t)) * 10 * (sx + sy) +
-		sizeof(stadt_t) * sets->get_anzahl_staedte() +
+		sizeof(stadt_t) * sets->get_city_count() +
 		(
 			sizeof(grund_t) +
 			sizeof(planquadrat_t) +

@@ -59,16 +59,16 @@ void field_t::cleanup(player_t *player)
 image_id field_t::get_image() const
 {
 	const skin_besch_t *s=besch->get_bilder();
-	uint16 anzahl=s->get_bild_anzahl() - besch->has_snow_image();
+	uint16 count=s->get_count() - besch->has_snow_image();
 	if(  besch->has_snow_image()  &&  (get_pos().z >= welt->get_snowline()  ||  welt->get_climate( get_pos().get_2d() ) == arctic_climate)  ) {
 		// last images will be shown above snowline
-		return s->get_bild_nr(anzahl);
+		return s->get_bild_nr(count);
 	}
 	else {
 		// resolution 1/8th month (0..95)
 		const uint32 yearsteps = (welt->get_current_month()%12)*8 + ((welt->get_zeit_ms()>>(welt->ticks_per_world_month_shift-3))&7) + 1;
-		const image_id bild = s->get_bild_nr( (anzahl*yearsteps-1)/96 );
-		if((anzahl*yearsteps-1)%96<anzahl) {
+		const image_id bild = s->get_bild_nr( (count*yearsteps-1)/96 );
+		if((count*yearsteps-1)%96<count) {
 			mark_image_dirty( bild, 0 );
 		}
 		return bild;

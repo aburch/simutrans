@@ -267,7 +267,7 @@ map_frame_t::map_frame_t() :
 			freight_type_c.append_element( new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(freight_type->get_catg_name()), SYSCOL_TEXT));
 			viewable_freight_types[count++] = freight_type;
 		}
-		for(  int i=0;  i < warenbauer_t::get_waren_anzahl();  i++  ) {
+		for(  int i=0;  i < warenbauer_t::get_count();  i++  ) {
 			const ware_besch_t *ware = warenbauer_t::get_info(i);
 			if(  ware->get_catg() == 0  &&  ware->get_index() > 2  ) {
 				// Special freight: Each good is special

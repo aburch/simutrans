@@ -130,7 +130,7 @@ void reliefkarte_t::add_to_schedule_cache( convoihandle_t cnv, bool with_waypoin
 				convoihandle_t const cnv_in_line = cnv->get_line()->get_convoy(i);
 				// we do not want to count the capacity of depot convois
 				if(  !cnv_in_line->in_depot()  ) {
-					for(  unsigned j = 0;  j < cnv_in_line->get_vehikel_anzahl();  j++  ) {
+					for(  unsigned j = 0;  j < cnv_in_line->get_vehicle_count();  j++  ) {
 						capacity += cnv_in_line->get_vehikel(j)->get_cargo_max();
 						load += cnv_in_line->get_vehikel(j)->get_total_cargo();
 					}
@@ -140,7 +140,7 @@ void reliefkarte_t::add_to_schedule_cache( convoihandle_t cnv, bool with_waypoin
 		else {
 			// we do not want to count the capacity of depot convois
 			if(!cnv->in_depot()) {
-				for(unsigned j = 0; j < cnv->get_vehikel_anzahl(); j++) {
+				for(unsigned j = 0; j < cnv->get_vehicle_count(); j++) {
 					capacity += cnv->get_vehikel(j)->get_cargo_max();
 					load += cnv->get_vehikel(j)->get_total_cargo();
 				}

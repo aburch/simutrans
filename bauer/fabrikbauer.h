@@ -52,7 +52,7 @@ private:
 	static stringhashtable_tpl<const fabrik_besch_t *> table;
 
 	/// @returns the number of producers producing @p ware
-	static int finde_anzahl_hersteller(const ware_besch_t *ware, uint16 timeline);
+	static int count_producers(const ware_besch_t *ware, uint16 timeline);
 
 	/**
 	 * Finds a random producer producing @p ware.

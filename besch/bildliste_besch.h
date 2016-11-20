@@ -24,14 +24,14 @@
 class bildliste_besch_t : public obj_besch_t {
     friend class imagelist_reader_t;
 
-    uint16  anzahl;
+    uint16  count;
 
 public:
-	bildliste_besch_t() : anzahl(0) {}
+	bildliste_besch_t() : count(0) {}
 
-	uint16 get_anzahl() const { return anzahl; }
+	uint16 get_count() const { return count; }
 
-	bild_besch_t const* get_bild(uint16 i) const { return i < anzahl ? get_child<bild_besch_t>(i) : 0; }
+	bild_besch_t const* get_bild(uint16 i) const { return i < count ? get_child<bild_besch_t>(i) : 0; }
 
 	image_id get_bild_nr(uint16 i) const {
 		const bild_besch_t *bild = get_bild(i);

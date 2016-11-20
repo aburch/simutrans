@@ -1425,7 +1425,7 @@ void convoi_t::new_month()
 		// convoi has obsolete vehicles?
 		const int month_now = welt->get_timeline_year_month();
 		has_obsolete = false;
-		for(unsigned j=0;  j<get_vehikel_anzahl();  j++ ) {
+		for(unsigned j=0;  j<get_vehicle_count();  j++ ) {
 			if (fahr[j]->get_besch()->is_retired(month_now)) {
 				has_obsolete = true;
 				break;
@@ -1716,7 +1716,7 @@ void convoi_t::recalc_catg_index()
 {
 	goods_catg_index.clear();
 
-	for(  uint8 i = 0;  i < get_vehikel_anzahl();  i++  ) {
+	for(  uint8 i = 0;  i < get_vehicle_count();  i++  ) {
 		// Only consider vehicles that really transport something
 		// this helps against routing errors through passenger
 		// trains pulling only freight wagons
@@ -2606,7 +2606,7 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 		// rebuilt the list with goods ...
 		vector_tpl<ware_t> total_fracht;
 
-		size_t const n = warenbauer_t::get_waren_anzahl();
+		size_t const n = warenbauer_t::get_count();
 		ALLOCA(uint32, max_loaded_waren, n);
 		MEMZERON(max_loaded_waren, n);
 
@@ -3167,7 +3167,7 @@ void convoi_t::init_financial_history()
 sint32 convoi_t::get_fix_cost() const
 {
 	sint32 running_cost = 0;
-	for(  unsigned i = 0;  i < get_vehikel_anzahl();  i++  ) {
+	for(  unsigned i = 0;  i < get_vehicle_count();  i++  ) {
 		running_cost += fahr[i]->get_besch()->get_maintenance();
 	}
 	return running_cost;
@@ -3177,7 +3177,7 @@ sint32 convoi_t::get_fix_cost() const
 sint32 convoi_t::get_running_cost() const
 {
 	sint32 running_cost = 0;
-	for(  unsigned i = 0;  i < get_vehikel_anzahl();  i++  ) {
+	for(  unsigned i = 0;  i < get_vehicle_count();  i++  ) {
 		running_cost += fahr[i]->get_operating_cost();
 	}
 	return running_cost;
@@ -3187,7 +3187,7 @@ sint32 convoi_t::get_running_cost() const
 sint64 convoi_t::get_purchase_cost() const
 {
 	sint64 purchase_cost = 0;
-	for(  unsigned i = 0;  i < get_vehikel_anzahl();  i++  ) {
+	for(  unsigned i = 0;  i < get_vehicle_count();  i++  ) {
 		purchase_cost += fahr[i]->get_besch()->get_preis();
 	}
 	return purchase_cost;

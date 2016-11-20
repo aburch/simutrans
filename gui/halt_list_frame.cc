@@ -166,7 +166,7 @@ static bool passes_filter_out(haltestelle_t const& s)
 
 	// Hajo: todo: check if there is a destination for the good (?)
 
-	for (uint32 i = 0; i != warenbauer_t::get_waren_anzahl(); ++i) {
+	for (uint32 i = 0; i != warenbauer_t::get_count(); ++i) {
 		ware_besch_t const* const ware = warenbauer_t::get_info(i);
 		if (!halt_list_frame_t::get_ware_filter_ab(ware)) continue;
 
@@ -201,7 +201,7 @@ static bool passes_filter_in(haltestelle_t const& s)
 
 	// Hajo: todo: check if there is a destination for the good (?)
 
-	for (uint32 i = 0; i != warenbauer_t::get_waren_anzahl(); ++i) {
+	for (uint32 i = 0; i != warenbauer_t::get_count(); ++i) {
 		ware_besch_t const* const ware = warenbauer_t::get_info(i);
 		if (!halt_list_frame_t::get_ware_filter_an(ware)) continue;
 
@@ -509,7 +509,7 @@ void halt_list_frame_t::set_alle_ware_filter_ab(int mode)
 		waren_filter_ab.clear();
 	}
 	else {
-		for(unsigned int i = 0; i<warenbauer_t::get_waren_anzahl(); i++) {
+		for(unsigned int i = 0; i<warenbauer_t::get_count(); i++) {
 			set_ware_filter_ab(warenbauer_t::get_info(i), mode);
 		}
 	}
@@ -522,7 +522,7 @@ void halt_list_frame_t::set_alle_ware_filter_an(int mode)
 		waren_filter_an.clear();
 	}
 	else {
-		for(unsigned int i = 0; i<warenbauer_t::get_waren_anzahl(); i++) {
+		for(unsigned int i = 0; i<warenbauer_t::get_count(); i++) {
 			set_ware_filter_an(warenbauer_t::get_info(i), mode);
 		}
 	}

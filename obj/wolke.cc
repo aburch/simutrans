@@ -65,7 +65,7 @@ wolke_t::wolke_t(loadsave_t* const file) : obj_no_info_t()
 image_id wolke_t::get_image() const
 {
 	const skin_besch_t *besch = all_clouds[cloud_nr];
-	return besch->get_bild_nr( (insta_zeit*besch->get_bild_anzahl())/2500 );
+	return besch->get_bild_nr( (insta_zeit*besch->get_count())/2500 );
 }
 
 

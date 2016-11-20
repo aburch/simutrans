@@ -166,7 +166,7 @@ const ware_besch_t *warenbauer_t::get_info(const char* name)
 const ware_besch_t *warenbauer_t::get_info_catg(const uint8 catg)
 {
 	if(catg>0) {
-		for(unsigned i=0;  i<get_waren_anzahl();  i++  ) {
+		for(unsigned i=0;  i<get_count();  i++  ) {
 			if(waren[i]->catg==catg) {
 				return waren[i];
 			}
@@ -179,7 +179,7 @@ const ware_besch_t *warenbauer_t::get_info_catg(const uint8 catg)
 
 const ware_besch_t *warenbauer_t::get_info_catg_index(const uint8 catg_index)
 {
-	for(unsigned i=0;  i<get_waren_anzahl();  i++  ) {
+	for(unsigned i=0;  i<get_count();  i++  ) {
 		if(waren[i]->get_catg_index()==catg_index) {
 			return waren[i];
 		}
@@ -193,7 +193,7 @@ const ware_besch_t *warenbauer_t::get_info_catg_index(const uint8 catg_index)
 void warenbauer_t::set_multiplier(sint32 multiplier)
 {
 //DBG_MESSAGE("warenbauer_t::set_multiplier()","new factor %i",multiplier);
-	for(unsigned i=0;  i<get_waren_anzahl();  i++  ) {
+	for(unsigned i=0;  i<get_count();  i++  ) {
 		sint32 long_base_value = waren[i]->base_value;
 		waren[i]->value = (uint16)((long_base_value*multiplier)/1000l);
 	}

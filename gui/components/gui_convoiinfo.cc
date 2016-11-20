@@ -89,7 +89,7 @@ void gui_convoiinfo_t::draw(scr_coord offset)
 		// this should work with any vehicle size ...
 		const int xoff = max(190, max_x);
 		int left = pos.x+offset.x+xoff+4;
-		for(unsigned i=0; i<cnv->get_vehikel_anzahl();i++) {
+		for(unsigned i=0; i<cnv->get_vehicle_count();i++) {
 			scr_coord_val x, y, w, h;
 			const image_id bild=cnv->get_vehikel(i)->get_loaded_image();
 			display_get_base_image_offset(bild, &x, &y, &w, &h );

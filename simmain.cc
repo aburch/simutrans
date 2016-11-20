@@ -1197,7 +1197,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 		sets.set_default_climates();
 		sets.set_use_timeline( 1 );
 		sets.set_groesse(64,64);
-		sets.set_anzahl_staedte(1);
+		sets.set_city_count(1);
 		sets.set_factory_count(3);
 		sets.set_tourist_attractions(1);
 		sets.set_verkehr_level(7);

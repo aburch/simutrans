@@ -227,9 +227,9 @@ private:
 class tool_plant_tree_t : public kartenboden_tool_t {
 public:
 	tool_plant_tree_t() : kartenboden_tool_t(TOOL_PLANT_TREE | GENERAL_TOOL) {}
-	image_id get_icon(player_t *) const { return baum_t::get_anzahl_besch() > 0 ? icon : IMG_LEER; }
+	image_id get_icon(player_t *) const { return baum_t::get_count() > 0 ? icon : IMG_LEER; }
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate( "Plant tree" ); }
-	bool init(player_t*) { return baum_t::get_anzahl_besch() > 0; }
+	bool init(player_t*) { return baum_t::get_count() > 0; }
 	char const* move(player_t* const player, uint16 const b, koord3d const k) OVERRIDE;
 	bool move_has_effects() const OVERRIDE { return true; }
 	char const* work(player_t*, koord3d) OVERRIDE;
@@ -555,9 +555,9 @@ public:
 class tool_forest_t : public two_click_tool_t {
 public:
 	tool_forest_t() : two_click_tool_t(TOOL_FOREST | GENERAL_TOOL) {}
-	image_id get_icon(player_t *) const { return baum_t::get_anzahl_besch() > 0 ? icon : IMG_LEER; }
+	image_id get_icon(player_t *) const { return baum_t::get_count() > 0 ? icon : IMG_LEER; }
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("Add forest"); }
-	bool init( player_t *player) { return  baum_t::get_anzahl_besch() > 0  &&  two_click_tool_t::init(player); }
+	bool init( player_t *player) { return  baum_t::get_count() > 0  &&  two_click_tool_t::init(player); }
 private:
 	char const* do_work(player_t*, koord3d const&, koord3d const&) OVERRIDE;
 	void mark_tiles(player_t*, koord3d const&, koord3d const&) OVERRIDE;
@@ -870,9 +870,9 @@ class tool_fill_trees_t : public tool_t {
 public:
 	tool_fill_trees_t() : tool_t(TOOL_FILL_TREES | SIMPLE_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("Fill trees"); }
-	image_id get_icon(player_t *) const { return baum_t::get_anzahl_besch() > 0 ? icon : IMG_LEER; }
+	image_id get_icon(player_t *) const { return baum_t::get_count() > 0 ? icon : IMG_LEER; }
 	bool init(player_t * ) {
-		if(  baum_t::get_anzahl_besch() > 0  &&  default_param  ) {
+		if(  baum_t::get_count() > 0  &&  default_param  ) {
 			baum_t::fill_trees( atoi(default_param) );
 		}
 		return false;

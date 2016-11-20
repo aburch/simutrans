@@ -5356,12 +5356,12 @@ const char *tool_build_land_chain_t::work( player_t *player, koord3d pos )
 		}
 
 		koord3d build_pos = gr->get_pos();
-		int anzahl = fabrikbauer_t::baue_hierarchie(NULL, fab, initial_prod, rotation, &build_pos, welt->get_public_player(), 10000 );
+		int count = fabrikbauer_t::baue_hierarchie(NULL, fab, initial_prod, rotation, &build_pos, welt->get_public_player(), 10000 );
 
-		if(anzahl>0) {
+		if(count>0) {
 			// at least one factory has been built
 			welt->get_viewport()->change_world_position( build_pos );
-			player_t::book_construction_costs(player, anzahl * welt->get_settings().cst_multiply_found_industry, build_pos.get_2d(), ignore_wt);
+			player_t::book_construction_costs(player, count * welt->get_settings().cst_multiply_found_industry, build_pos.get_2d(), ignore_wt);
 
 			// crossconnect all?
 			if (welt->get_settings().is_crossconnect_factories()) {
@@ -5424,8 +5424,8 @@ const char *tool_city_chain_t::work( player_t *player, koord3d pos )
 	}
 
 	pos = gr->get_pos();
-	int anzahl = fabrikbauer_t::baue_hierarchie(NULL, fab, initial_prod, 0, &pos, welt->get_public_player(), 10000 );
-	if(anzahl>0) {
+	int count = fabrikbauer_t::baue_hierarchie(NULL, fab, initial_prod, 0, &pos, welt->get_public_player(), 10000 );
+	if(count>0) {
 		// at least one factory has been built
 		welt->get_viewport()->change_world_position( pos );
 
@@ -5436,7 +5436,7 @@ const char *tool_city_chain_t::work( player_t *player, koord3d pos )
 			}
 		}
 		// ain't going to be cheap
-		player_t::book_construction_costs(player, anzahl * welt->get_settings().cst_multiply_found_industry, pos.get_2d(), ignore_wt);
+		player_t::book_construction_costs(player, count * welt->get_settings().cst_multiply_found_industry, pos.get_2d(), ignore_wt);
 		return NULL;
 	}
 	return NOTICE_UNSUITABLE_GROUND;
@@ -6868,7 +6868,7 @@ bool tool_change_line_t::init( player_t *player )
 							vector_tpl<convoihandle_t> const& cnvs = line->get_convoys();
 							sint64 old_sum_capacity = 0;
 							FOR(vector_tpl<convoihandle_t>,cnv,cnvs) {
-								for(  int i=0;  i<cnv->get_vehikel_anzahl();  i++  ) {
+								for(  int i=0;  i<cnv->get_vehicle_count();  i++  ) {
 									old_sum_capacity += cnv->get_vehikel(i)->get_besch()->get_zuladung();
 								}
 							}
@@ -6887,7 +6887,7 @@ bool tool_change_line_t::init( player_t *player )
 							for(  int j=initial-1;  j >= 0  &&  initial-destroyed > max_left  &&  new_sum_capacity < old_sum_capacity;  j--  ) {
 								convoihandle_t cnv = line->get_convoy(j);
 								if(  cnv->get_state() == convoi_t::INITIAL  ||  cnv->get_state() >= convoi_t::WAITING_FOR_CLEARANCE_ONE_MONTH  ) {
-									for(  int i=0;  i<cnv->get_vehikel_anzahl();  i++  ) {
+									for(  int i=0;  i<cnv->get_vehicle_count();  i++  ) {
 										old_sum_capacity -= cnv->get_vehikel(i)->get_besch()->get_zuladung();
 									}
 									cnv->self_destruct();
@@ -6899,7 +6899,7 @@ bool tool_change_line_t::init( player_t *player )
 							for(  uint j=0;  j < line->get_convoys().get_count()  &&  initial-destroyed > max_left  &&  new_sum_capacity < old_sum_capacity;  j++  ) {
 								convoihandle_t cnv = line->get_convoy(j);
 								if(  cnv->get_state() != convoi_t::SELF_DESTRUCT  ) {
-									for(  int i=0;  i<cnv->get_vehikel_anzahl();  i++  ) {
+									for(  int i=0;  i<cnv->get_vehicle_count();  i++  ) {
 										old_sum_capacity -= cnv->get_vehikel(i)->get_besch()->get_zuladung();
 									}
 									cnv->self_destruct();
@@ -7089,7 +7089,7 @@ bool tool_change_depot_t::init( player_t *player )
 					int nr = start_nr;
 
 					// find end
-					while(nr<cnv->get_vehikel_anzahl()) {
+					while(nr<cnv->get_vehicle_count()) {
 						const vehikel_besch_t *info = cnv->get_vehikel(nr)->get_besch();
 						nr ++;
 						if(info->get_nachfolger_count()!=1) {
@@ -7097,7 +7097,7 @@ bool tool_change_depot_t::init( player_t *player )
 						}
 					}
 					// now remove the vehicles
-					if(  cnv->get_vehikel_anzahl()==nr-start_nr  ||  (tool=='R'  &&  start_nr==0)  ) {
+					if(  cnv->get_vehicle_count()==nr-start_nr  ||  (tool=='R'  &&  start_nr==0)  ) {
 						depot->disassemble_convoi(cnv, false);
 					}
 					else if(  tool=='R'  ) {
@@ -7170,7 +7170,7 @@ bool tool_change_depot_t::init( player_t *player )
 						}
 
 						// now we have a valid cnv
-						if(  cnv->get_vehikel_anzahl()+new_vehicle_info.get_count() <= depot->get_max_convoi_length()  ) {
+						if(  cnv->get_vehicle_count()+new_vehicle_info.get_count() <= depot->get_max_convoi_length()  ) {
 
 							for(  unsigned i=0;  i<new_vehicle_info.get_count();  i++  ) {
 								// insert/append needs reverse order

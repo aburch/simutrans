@@ -691,7 +691,7 @@ void depot_frame_t::build_vehicle_lists()
 		FOR(slist_tpl<vehikel_besch_t const*>, const info, depot->get_vehicle_type()) {
 			const vehikel_besch_t *veh = NULL;
 			convoihandle_t cnv = depot->get_convoi(icnv);
-			if(cnv.is_bound() && cnv->get_vehikel_anzahl()>0) {
+			if(cnv.is_bound() && cnv->get_vehicle_count()>0) {
 				veh = (veh_action == va_insert ? cnv->front() : cnv->back())->get_besch();
 			}
 
@@ -782,8 +782,8 @@ void depot_frame_t::update_data()
 	const vehikel_besch_t *veh = NULL;
 
 	clear_ptr_vector( convoi_pics );
-	if(  cnv.is_bound()  &&  cnv->get_vehikel_anzahl() > 0  ) {
-		for(  unsigned i=0;  i < cnv->get_vehikel_anzahl();  i++  ) {
+	if(  cnv.is_bound()  &&  cnv->get_vehicle_count() > 0  ) {
+		for(  unsigned i=0;  i < cnv->get_vehicle_count();  i++  ) {
 			// just make sure, there is this vehicle also here!
 			const vehikel_besch_t *info=cnv->get_vehikel(i)->get_besch();
 			if(  vehicle_map.get( info ) == NULL  ) {
@@ -798,7 +798,7 @@ void depot_frame_t::update_data()
 		convoi_pics[0]->lcolor = cnv->front()->get_besch()->can_follow(NULL) ? COL_GREEN : COL_YELLOW;
 		{
 			unsigned i;
-			for(  i = 1;  i < cnv->get_vehikel_anzahl();  i++  ) {
+			for(  i = 1;  i < cnv->get_vehicle_count();  i++  ) {
 				convoi_pics[i - 1]->rcolor = cnv->get_vehikel(i-1)->get_besch()->can_lead(cnv->get_vehikel(i)->get_besch()) ? COL_GREEN : COL_RED;
 				convoi_pics[i]->lcolor     = cnv->get_vehikel(i)->get_besch()->can_follow(cnv->get_vehikel(i-1)->get_besch()) ? COL_GREEN : COL_RED;
 			}
@@ -806,7 +806,7 @@ void depot_frame_t::update_data()
 		}
 
 		// change green into blue for vehicles that are not available
-		for(  unsigned i = 0;  i < cnv->get_vehikel_anzahl();  i++  ) {
+		for(  unsigned i = 0;  i < cnv->get_vehicle_count();  i++  ) {
 			if(  !cnv->get_vehikel(i)->get_besch()->is_available(month_now)  ) {
 				if(  convoi_pics[i]->lcolor == COL_GREEN  ) {
 					convoi_pics[i]->lcolor = COL_BLUE;
@@ -984,7 +984,7 @@ void depot_frame_t::image_from_storage_list(gui_image_list_t::image_data_t *bild
 void depot_frame_t::image_from_convoi_list(uint nr, bool to_end)
 {
 	const convoihandle_t cnv = depot->get_convoi( icnv );
-	if(  cnv.is_bound()  &&  nr < cnv->get_vehikel_anzahl()  ) {
+	if(  cnv.is_bound()  &&  nr < cnv->get_vehicle_count()  ) {
 		// we remove all connected vehicles together!
 		// find start
 		unsigned start_nr = nr;
@@ -1298,7 +1298,7 @@ void depot_frame_t::draw(scr_coord pos, scr_size size)
 	bool use_sel_weight = true;
 
 	if(  cnv.is_bound()  ) {
-		if(  cnv->get_vehikel_anzahl() > 0  ) {
+		if(  cnv->get_vehicle_count() > 0  ) {
 			uint8 selected_good_index = 0;
 			if(  depot->selected_filter > VEHICLE_FILTER_RELEVANT  ) {
 				// Filter is set to specific good
@@ -1308,7 +1308,7 @@ void depot_frame_t::draw(scr_coord pos, scr_size size)
 				}
 			}
 
-			for(  unsigned i = 0;  i < cnv->get_vehikel_anzahl();  i++  ) {
+			for(  unsigned i = 0;  i < cnv->get_vehicle_count();  i++  ) {
 				const vehikel_besch_t *besch = cnv->get_vehikel(i)->get_besch();
 
 				total_power += besch->get_leistung()*besch->get_gear();
@@ -1317,7 +1317,7 @@ void depot_frame_t::draw(scr_coord pos, scr_size size)
 				uint32 max_weight = 0;
 				uint32 min_weight = 100000;
 				bool sel_found = false;
-				for(  uint32 j=0;  j<warenbauer_t::get_waren_anzahl();  j++  ) {
+				for(  uint32 j=0;  j<warenbauer_t::get_count();  j++  ) {
 					const ware_besch_t *ware = warenbauer_t::get_info(j);
 
 					if(  besch->get_ware()->get_catg_index() == ware->get_catg_index()  ) {
@@ -1377,7 +1377,7 @@ void depot_frame_t::draw(scr_coord pos, scr_size size)
 				min_kmh =   speed_to_kmh(convoi_t::calc_max_speed(total_power, total_max_weight,   cnv->get_min_top_speed()));
 			}
 
-			const sint32 convoi_length = (cnv->get_vehikel_anzahl()) * CARUNITS_PER_TILE / 2 - 1;
+			const sint32 convoi_length = (cnv->get_vehicle_count()) * CARUNITS_PER_TILE / 2 - 1;
 			convoi_tile_length_sb = convoi_length + (cnv->get_tile_length() * CARUNITS_PER_TILE - cnv->get_length());
 
 			txt_convoi_count.clear();
@@ -1510,7 +1510,7 @@ void depot_frame_t::fahrplaneingabe()
 {
 	convoihandle_t cnv = depot->get_convoi( icnv );
 
-	if(  cnv.is_bound()  &&  cnv->get_vehikel_anzahl() > 0  ) {
+	if(  cnv.is_bound()  &&  cnv->get_vehicle_count() > 0  ) {
 		if(  selected_line.is_bound()  &&  event_get_last_control_shift() == 2  ) { // update line with CTRL-click
 			create_win( new line_management_gui_t( selected_line, depot->get_owner() ), w_info, (ptrdiff_t)selected_line.get_rep() );
 		}

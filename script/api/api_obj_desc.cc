@@ -32,7 +32,7 @@ using namespace script_api;
 
 SQInteger get_next_ware_besch(HSQUIRRELVM vm)
 {
-	return generic_get_next(vm, warenbauer_t::get_waren_anzahl());
+	return generic_get_next(vm, warenbauer_t::get_count());
 }
 
 
@@ -41,7 +41,7 @@ SQInteger get_ware_besch_index(HSQUIRRELVM vm)
 	uint32 index = param<uint32>::get(vm, -1);
 
 	const char* name = "None"; // fall-back
-	if (index < warenbauer_t::get_waren_anzahl()) {
+	if (index < warenbauer_t::get_count()) {
 		name = warenbauer_t::get_info(index)->get_name();
 	}
 	return push_instance(vm, "good_desc_x",  name);

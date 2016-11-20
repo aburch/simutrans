@@ -505,7 +505,7 @@ void pumpe_t::step(uint32 delta_t)
 
 	image_id new_bild;
 	int winter_offset = 0;
-	if(  skinverwaltung_t::senke->get_bild_anzahl() > 3  &&  (get_pos().z >= welt->get_snowline()  ||  welt->get_climate( get_pos().get_2d() ) == arctic_climate)  ) {
+	if(  skinverwaltung_t::senke->get_count() > 3  &&  (get_pos().z >= welt->get_snowline()  ||  welt->get_climate( get_pos().get_2d() ) == arctic_climate)  ) {
 		winter_offset = 2;
 	}
 	if(  supply > 0  ) {
@@ -706,7 +706,7 @@ sync_result senke_t::sync_step(uint32 delta_t)
 
 		image_id new_bild;
 		int winter_offset = 0;
-		if(  skinverwaltung_t::senke->get_bild_anzahl() > 3  &&  (get_pos().z >= welt->get_snowline()  ||  welt->get_climate( get_pos().get_2d() ) == arctic_climate)  ) {
+		if(  skinverwaltung_t::senke->get_count() > 3  &&  (get_pos().z >= welt->get_snowline()  ||  welt->get_climate( get_pos().get_2d() ) == arctic_climate)  ) {
 			winter_offset = 2;
 		}
 		if(  last_power_demand > 0 ) {

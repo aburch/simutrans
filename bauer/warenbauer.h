@@ -55,7 +55,7 @@ public:
 
 	static const ware_besch_t *get_info(uint16 idx) { return waren[idx]; }
 
-	static uint8 get_waren_anzahl() { return (uint8)waren.get_count(); }
+	static uint8 get_count() { return (uint8)waren.get_count(); }
 
 	// good by catg
 	static const ware_besch_t *get_info_catg(const uint8 catg);

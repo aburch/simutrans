@@ -51,7 +51,7 @@ private:
 	sint32 electric_promille;
 	sint32 tourist_attractions;
 
-	sint32 anzahl_staedte;
+	sint32 city_count;
 	sint32 mittlere_einwohnerzahl;
 
 	// town growth factors
@@ -366,8 +366,8 @@ public:
 	void set_tourist_attractions( sint32 n ) { tourist_attractions = n; }
 	sint32 get_tourist_attractions() const {return tourist_attractions;}
 
-	void set_anzahl_staedte(sint32 n) {anzahl_staedte=n;}
-	sint32 get_anzahl_staedte() const {return anzahl_staedte;}
+	void set_city_count(sint32 n) {city_count=n;}
+	sint32 get_city_count() const {return city_count;}
 
 	void set_mittlere_einwohnerzahl( sint32 n ) {mittlere_einwohnerzahl = n;}
 	sint32 get_mittlere_einwohnerzahl() const {return mittlere_einwohnerzahl;}

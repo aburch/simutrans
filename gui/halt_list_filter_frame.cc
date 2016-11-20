@@ -114,7 +114,7 @@ halt_list_filter_frame_t::halt_list_filter_frame_t(player_t *player, halt_list_f
 	add_component(&ware_scrolly_an);
 
 	int n=0;
-	for(  int i=0;  i<warenbauer_t::get_waren_anzahl();  i++  ) {
+	for(  int i=0;  i<warenbauer_t::get_count();  i++  ) {
 		const ware_besch_t *ware = warenbauer_t::get_info(i);
 		if(  ware != warenbauer_t::nichts  ) {
 			ware_item_t *item = new ware_item_t(this, NULL, ware);
@@ -140,7 +140,7 @@ halt_list_filter_frame_t::halt_list_filter_frame_t(player_t *player, halt_list_f
 	add_component(&ware_scrolly_ab);
 
 	n=0;
-	for(  int i=0;  i<warenbauer_t::get_waren_anzahl();  i++  ) {
+	for(  int i=0;  i<warenbauer_t::get_count();  i++  ) {
 		const ware_besch_t *ware = warenbauer_t::get_info(i);
 		if(  ware != warenbauer_t::nichts  ) {
 		ware_item_t *item = new ware_item_t(this, ware, NULL);

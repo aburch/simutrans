@@ -57,7 +57,7 @@ public:
 	uint8 get_seasons() const
 	{
 		if(number_of_seasons==0) {
-			return get_child<bildliste2d_besch_t>(2)->get_anzahl() / 5;
+			return get_child<bildliste2d_besch_t>(2)->get_count() / 5;
 		}
 		return number_of_seasons;
 	}

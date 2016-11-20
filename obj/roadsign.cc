@@ -56,7 +56,7 @@ roadsign_t::roadsign_t(loadsave_t *file) : obj_t ()
 		/* if more than one state, we will switch direction and phase for traffic lights
 		 * however also gate signs need indications
 		 */
-		automatic = (besch->get_bild_anzahl()>4  &&  besch->get_wtyp()==road_wt)  ||  (besch->get_bild_anzahl()>2  &&  besch->is_private_way());
+		automatic = (besch->get_count()>4  &&  besch->get_wtyp()==road_wt)  ||  (besch->get_count()>2  &&  besch->is_private_way());
 	}
 	else {
 		automatic = false;
@@ -95,7 +95,7 @@ roadsign_t::roadsign_t(player_t *player, koord3d pos, ribi_t::ribi dir, const ro
 	/* if more than one state, we will switch direction and phase for traffic lights
 	 * however also gate signs need indications
 	 */
-	automatic = (besch->get_bild_anzahl()>4  &&  besch->get_wtyp()==road_wt)  ||  (besch->get_bild_anzahl()>2  &&  besch->is_private_way());
+	automatic = (besch->get_count()>4  &&  besch->get_wtyp()==road_wt)  ||  (besch->get_count()>2  &&  besch->is_private_way());
 	// only traffic light need switches
 	if(  automatic  ) {
 		welt->sync.add(this);
