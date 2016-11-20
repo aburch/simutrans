@@ -184,10 +184,10 @@ obj_besch_t *factory_supplier_reader_t::read_node(FILE *fp, obj_node_info_t &nod
 	else {
 		// old node, version 0
 		besch->kapazitaet = v;
-		besch->anzahl = decode_uint16(p);
+		besch->supplier_count = decode_uint16(p);
 		besch->verbrauch = decode_uint16(p);
 	}
-	DBG_DEBUG("factory_product_reader_t::read_node()",  "capacity=%d anzahl=%d, verbrauch=%d", version, besch->kapazitaet, besch->anzahl,besch->verbrauch);
+	DBG_DEBUG("factory_product_reader_t::read_node()",  "capacity=%d count=%d, verbrauch=%d", version, besch->kapazitaet, besch->supplier_count,besch->verbrauch);
 
 	return besch;
 }

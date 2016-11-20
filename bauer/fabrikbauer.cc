@@ -698,7 +698,7 @@ int fabrikbauer_t::baue_link_hierarchie(const fabrik_t* our_fab, const fabrik_be
 	slist_tpl<fabrik_t *> new_factories;	      // since the cross-correction must be done later
 	slist_tpl<fabrik_t *> crossconnected_supplier;	// also done after the construction of new chains
 
-	int lcount = lieferant->get_anzahl();
+	int lcount = lieferant->get_supplier_count();
 	int lfound = 0;	// number of found producers
 
 DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","lieferanten %i, lcount %i (need %i of %s)",info->get_lieferanten(),lcount,verbrauch,ware->get_name());

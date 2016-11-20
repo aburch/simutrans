@@ -145,13 +145,13 @@ class fabrik_lieferant_besch_t : public obj_besch_t {
 
 private:
 	uint16  kapazitaet;
-	uint16  anzahl;
+	uint16  supplier_count;
 	uint16  verbrauch;
 
 public:
 	ware_besch_t const* get_ware() const { return get_child<ware_besch_t>(0); }
 	uint16 get_kapazitaet() const { return kapazitaet; }
-	uint16 get_anzahl() const { return anzahl; }
+	uint16 get_supplier_count() const { return supplier_count; }
 	uint16 get_verbrauch() const { return verbrauch; }
 	void calc_checksum(checksum_t *chk) const;
 };
