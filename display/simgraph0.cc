@@ -353,10 +353,6 @@ void display_flush_buffer()
 {
 }
 
-void display_move_pointer(KOORD_VAL, KOORD_VAL)
-{
-}
-
 void display_show_pointer(int)
 {
 }

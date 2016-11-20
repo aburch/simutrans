@@ -46,7 +46,7 @@ void interaction_t::move_view( const event_t &ev )
 #ifdef __BEOS__
 		change_drag_start(ev.mx - ev.cx, ev.my - ev.cy);
 #else
-		display_move_pointer(ev.cx, ev.cy);
+		move_pointer(ev.cx, ev.cy);
 #endif
 	}
 }

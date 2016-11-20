@@ -5296,16 +5296,6 @@ void display_flush_buffer()
 
 
 /**
- * Move mouse pointer
- * @author Hj. Malthaner
- */
-void display_move_pointer(KOORD_VAL dx, KOORD_VAL dy)
-{
-	move_pointer(dx, dy);
-}
-
-
-/**
  * Turn mouse pointer visible/invisible
  * @author Hj. Malthaner
  */
