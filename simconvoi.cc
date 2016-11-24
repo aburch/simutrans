@@ -1342,6 +1342,7 @@ bool convoi_t::prepare_for_routing()
 			if (rail_vehicle->get_working_method() != token_block && rail_vehicle->get_working_method() != one_train_staff)
 			{
 				unreserve_route();
+				reserve_own_tiles();
 			}
 		}
 		else if (front()->get_waytype() == air_wt)
