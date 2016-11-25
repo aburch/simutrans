@@ -10002,7 +10002,7 @@ void karte_t::privatecar_init(const std::string &objfilename)
 
 /**
 * Reads/writes private car ownership data from/to a savegame
-* called from karte_t::speichern and karte_t::laden
+* called from karte_t::speichern and karte_t::load
 * only written for networkgames
 * @author jamespetts
 */

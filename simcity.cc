@@ -133,7 +133,7 @@ void stadt_t::electricity_consumption_init(const std::string &objfilename)
 
 /**
 * Reads/writes electricity consumption data from/to a savegame
-* called from karte_t::speichern and karte_t::laden
+* called from karte_t::speichern and karte_t::load
 * only written for network games
 * @author jamespetts
 */
@@ -851,7 +851,7 @@ bool stadt_t::cityrules_init(const std::string &objfilename)
 
 /**
 * Reads/writes city configuration data from/to a savegame
-* called from karte_t::speichern and karte_t::laden
+* called from karte_t::speichern and karte_t::load
 * only written for networkgames
 * @author Dwachs
 */

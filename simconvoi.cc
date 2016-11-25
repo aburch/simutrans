@@ -3465,7 +3465,7 @@ void convoi_t::reverse_order(bool rev)
 
 	for( ; a<--b; a++) //increment a and decrement b until they meet each other
 	{
-		reverse = vehicle[a]; //put what's in a into swap space
+		reverse = vehicle[a]; //put what's in a into swap spacekarte_t::load(
 		vehicle[a] = vehicle[b]; //put what's in b into a
 		vehicle[b] = reverse; //put what's in the swap (a) into b
 	}
@@ -3520,7 +3520,7 @@ void convoi_t::rdwr(loadsave_t *file)
 	if(file->is_saving()) {
 		if(  file->get_version()<101000  ) {
 			file->wr_obj_id("Convoi");
-			// the matching read is in karte_t::laden(loadsave*)...
+			// the matching read is in karte_t::load(loadsave*)...
 		}
 	}
 
