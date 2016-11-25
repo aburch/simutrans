@@ -609,7 +609,7 @@ void stadt_t::add_gebaeude_to_stadt(const gebaeude_t* gb, bool ordered)
 			for (k.x = 0; k.x < size.x; k.x++) {
 				if (gebaeude_t* const add_gb = obj_cast<gebaeude_t>(welt->lookup_kartenboden(pos + k)->first_obj())) {
 					if(add_gb->get_tile()->get_besch()!=gb->get_tile()->get_besch()) {
-						dbg->error( "stadt_t::add_gebaeude_to_stadt()","two buildings \"%s\" and \"%s\" at (%i,%i): Game will crash during deletion", add_gb->get_tile()->get_besch()->get_name(), gb->get_tile()->get_besch()->get_name(), pos.x + k.x, pos.y + k.y);
+						dbg->warning( "stadt_t::add_gebaeude_to_stadt()","two buildings \"%s\" and \"%s\" at (%i,%i), which might lead to problems", add_gb->get_tile()->get_besch()->get_name(), gb->get_tile()->get_besch()->get_name(), pos.x + k.x, pos.y + k.y);
 						buildings.remove(add_gb);
 					}
 					else {
@@ -621,6 +621,9 @@ void stadt_t::add_gebaeude_to_stadt(const gebaeude_t* gb, bool ordered)
 						}
 					}
 					add_gb->set_stadt(this);
+					if (add_gb->get_tile()->get_besch()->ist_rathaus()) {
+						has_townhall = true;
+					}
 				}
 			}
 		}
@@ -1009,6 +1012,7 @@ stadt_t::stadt_t(player_t* player, koord pos, sint32 citizens) :
 	step_interval = 1;
 	next_growth_step = 0;
 	has_low_density = false;
+	has_townhall = false;
 
 	stadtinfo_options = 3;	// citizen and growth
 
@@ -1057,6 +1061,7 @@ stadt_t::stadt_t(player_t* player, koord pos, sint32 citizens) :
 	}
 	DBG_MESSAGE("stadt_t::stadt_t()", "founding new city named '%s'", n);
 	name = n;
+	has_townhall = false;
 
 	// 1. Rathaus bei 0 Leuten bauen
 	check_bau_rathaus(true);
@@ -1105,6 +1110,7 @@ stadt_t::stadt_t(loadsave_t* file) :
 	step_interval = 1;
 	next_growth_step = 0;
 	has_low_density = false;
+	has_townhall = false;
 
 	unsupplied_city_growth = 0;
 	stadtinfo_options = 3;
@@ -1304,6 +1310,10 @@ void stadt_t::finish_rd()
 		set_name( "simcity" );
 	}
 
+	if (!has_townhall) {
+		dbg->warning("stadt_t::finish_rd()", "City %s has no valid townhall after loading the savegame, try to build a new one.", get_name());
+		check_bau_rathaus(true);
+	}
 	// new city => need to grow
 	if (buildings.empty()) {
 		step_grow_city(true);
@@ -2446,11 +2456,11 @@ void stadt_t::check_bau_spezial(bool new_town)
 
 void stadt_t::check_bau_rathaus(bool new_town)
 {
-	const haus_besch_t* besch = hausbauer_t::get_special( bev, haus_besch_t::rathaus, welt->get_timeline_year_month(), bev == 0, welt->get_climate(pos) );
+	const haus_besch_t* besch = hausbauer_t::get_special( has_townhall ? bev : 0, haus_besch_t::rathaus, welt->get_timeline_year_month(), (bev == 0) || !has_townhall, welt->get_climate(pos) );
 	if(besch != NULL) {
 		grund_t* gr = welt->lookup_kartenboden(pos);
 		gebaeude_t* gb = obj_cast<gebaeude_t>(gr->first_obj());
-		bool neugruendung = !gb || !gb->ist_rathaus();
+		bool neugruendung = !has_townhall ||  !gb || !gb->ist_rathaus();
 		bool umziehen = !neugruendung;
 		koord alte_str(koord::invalid);
 		koord best_pos(pos);
@@ -2624,6 +2634,7 @@ void stadt_t::check_bau_rathaus(bool new_town)
 		gebaeude_t const* const new_gb = hausbauer_t::baue(owner, welt->lookup_kartenboden(best_pos + offset)->get_pos(), layout, besch);
 		DBG_MESSAGE("new townhall", "use layout=%i", layout);
 		add_gebaeude_to_stadt(new_gb);
+		// sets has_townhall to true
 		DBG_MESSAGE("stadt_t::check_bau_rathaus()", "add townhall (bev=%i, ptr=%p)", buildings.get_sum_weight(),welt->lookup_kartenboden(best_pos)->first_obj());
 
 		// if not during initialization

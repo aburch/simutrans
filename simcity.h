@@ -147,6 +147,7 @@ private:
 
 	bool allow_citygrowth;	// town can be static and will grow (true by default)
 
+	bool has_townhall;
 	// this counter indicate which building will be processed next
 	uint32 step_count;
 
