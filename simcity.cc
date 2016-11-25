@@ -2490,16 +2490,34 @@ void stadt_t::check_bau_rathaus(bool new_town)
 			// do we need to move
 			if(  old_layout<=besch->get_all_layouts()  &&  besch->get_b(old_layout) <= groesse_alt.x  &&  besch->get_h(old_layout) <= groesse_alt.y  ) {
 				// no, the size is ok
-				// correct position if new townhall is smaller than old
-				if(  old_layout == 0  ) {
-					best_pos.y -= besch->get_h(old_layout) - groesse_alt.y;
-				}
-				else if (old_layout == 1) {
-					best_pos.x -= besch->get_b(old_layout) - groesse_alt.x;
-				}
+				// still need to check whether the existing townhall is not broken in some way
 				umziehen = false;
+				for(k.y = 0; k.y < groesse_alt.y; k.y ++) {
+					for(k.x = 0; k.x < groesse_alt.x; k.x ++) {
+						// for buildings with holes the hole could be on a different height ->gr==NULL
+						bool ok = false;
+						if (grund_t *gr = welt->lookup(koord3d(k,0)+pos)) {
+							if(gebaeude_t *gb_part = gr->find<gebaeude_t>()) {
+								// there may be buildings with holes, so we only remove our building!
+								if(gb_part->get_tile()  ==  besch_alt->get_tile(old_layout, k.x, k.y)) {
+									ok = true;
+								}
+							}
+						}
+						umziehen |= !ok;
+					}
+				}
+				if (!umziehen) {
+					// correct position if new townhall is smaller than old
+					if(  old_layout == 0  ) {
+						best_pos.y -= besch->get_h(old_layout) - groesse_alt.y;
+					}
+					else if (old_layout == 1) {
+						best_pos.x -= besch->get_b(old_layout) - groesse_alt.x;
+					}
+				}
 			}
-			else {
+			if (umziehen) {
 				// we need to built a new road, thus we will use the old as a starting point (if found)
 				if (welt->lookup_kartenboden(townhall_road)  &&  welt->lookup_kartenboden(townhall_road)->hat_weg(road_wt)) {
 					alte_str = townhall_road;
