@@ -342,14 +342,14 @@ void image_writer_t::write_obj(FILE* outfp, obj_node_t& parent, std::string an_i
 		col *= img_size;
 
 		// Temp. read image and determine drawing area.
-		uint32 *image = new uint32[img_size * img_size];
+		uint32 *image_data = new uint32[img_size * img_size];
 		for (int x = 0; x < img_size; x++) {
 			for (int y = 0; y < img_size; y++) {
-				image[x + y * img_size] = block_getpix(x + col, y + row);
+				image_data[x + y * img_size] = block_getpix(x + col, y + row);
 			}
 		}
-		init_dim(image, &dim, img_size);
-		delete [] image;
+		init_dim(image_data, &dim, img_size);
+		delete [] image_data;
 
 		bild.x += dim.xmin;
 		bild.y += dim.ymin;
