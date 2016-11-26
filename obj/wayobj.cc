@@ -313,7 +313,7 @@ void wayobj_t::calc_image()
 
 				image_id after = besch->get_front_diagonal_image_id(dir);
 				image_id bild = besch->get_back_diagonal_image_id(dir);
-				if(bild==IMG_LEER  &&  after==IMG_LEER) {
+				if(bild==IMG_EMPTY  &&  after==IMG_EMPTY) {
 					// no diagonals available
 					diagonal = false;
 				}
@@ -430,7 +430,7 @@ bool wayobj_t::register_besch(way_obj_besch_t *besch)
 		delete old_besch;
 	}
 
-	if(  besch->get_cursor()->get_bild_nr(1)!=IMG_LEER  ) {
+	if(  besch->get_cursor()->get_bild_nr(1)!=IMG_EMPTY  ) {
 		// only add images for wayobjexts with cursor ...
 		tool_build_wayobj_t *tool = new tool_build_wayobj_t();
 		tool->set_icon( besch->get_cursor()->get_bild_nr(1) );

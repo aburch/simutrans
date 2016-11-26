@@ -517,7 +517,7 @@ image_id overlay_img(grund_t *gr)
 	}
 	else {
 		img = gr->get_bild();
-		if(  img==IMG_LEER  ) {
+		if(  img==IMG_EMPTY  ) {
 			// foundations or underground mode
 			img = grund_besch_t::get_ground_tile( gr );
 		}

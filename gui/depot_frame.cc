@@ -675,7 +675,7 @@ void depot_frame_t::build_vehicle_lists()
 	const weg_t *w = welt->lookup(depot->get_pos())->get_weg(wt!=tram_wt ? wt : track_wt);
 	const bool weg_electrified = w ? w->is_electrified() : false;
 
-	img_bolt.set_image( weg_electrified ? skinverwaltung_t::electricity->get_bild_nr(0) : IMG_LEER );
+	img_bolt.set_image( weg_electrified ? skinverwaltung_t::electricity->get_bild_nr(0) : IMG_EMPTY );
 
 	// use this to show only sellable vehicles
 	if(!show_all  &&  veh_action==va_sell) {

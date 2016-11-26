@@ -320,7 +320,7 @@ void factory_edit_frame_t::change_item_info(sint32 entry)
 		// now the images (maximum is 2x2 size)
 		// since these may be affected by rotation, we do this every time ...
 		for(int i=0;  i<4;  i++  ) {
-			img[i].set_image( IMG_LEER );
+			img[i].set_image( IMG_EMPTY );
 		}
 
 		const haus_besch_t *besch = fab_besch->get_haus();
@@ -361,7 +361,7 @@ void factory_edit_frame_t::change_item_info(sint32 entry)
 	}
 	else if(fab_besch!=NULL) {
 		for(int i=0;  i<4;  i++  ) {
-			img[i].set_image( IMG_LEER );
+			img[i].set_image( IMG_EMPTY );
 		}
 		buf.clear();
 		prod_str[0] = 0;

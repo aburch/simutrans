@@ -14,7 +14,7 @@ gui_image_t::gui_image_t( const image_id i, const uint8 p, control_alignment_t a
 
 void gui_image_t::set_size( scr_size size_par )
 {
-	if( id  !=  IMG_LEER ) {
+	if( id  !=  IMG_EMPTY ) {
 
 		scr_coord_val x,y,w,h;
 		display_get_base_image_offset( id, &x, &y, &w, &h );
@@ -36,7 +36,7 @@ void gui_image_t::set_image( const image_id i, bool remove_offsets ) {
 	id = i;
 	remove_enabled = remove_offsets;
 
-	if(  id ==IMG_LEER  ) {
+	if(  id ==IMG_EMPTY  ) {
 		remove_offset = scr_coord(0,0);
 		remove_enabled = false;
 	}
@@ -52,7 +52,7 @@ void gui_image_t::set_image( const image_id i, bool remove_offsets ) {
  */
 void gui_image_t::draw( scr_coord offset ) {
 
-	if(  id!=IMG_LEER  ) {
+	if(  id!=IMG_EMPTY  ) {
 		scr_coord_val x,y,w,h;
 		display_get_base_image_offset( id, &x, &y, &w, &h );
 

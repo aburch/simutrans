@@ -477,7 +477,7 @@ static const char* const climate_names[MAX_CLIMATES] =
 
 // from this number on there will be all ground images
 // i.e. 15 times slopes + 7
-image_id grund_besch_t::image_offset = IMG_LEER;
+image_id grund_besch_t::image_offset = IMG_EMPTY;
 static const uint8 number_of_climates = 7;
 static slist_tpl<bild_besch_t *> ground_bild_list;
 static image_id climate_bild[32], water_bild;
@@ -499,7 +499,7 @@ bool grund_besch_t::register_besch(const grund_besch_t *besch)
 	// find out water animation stages
 	if(strcmp("Water", besch->get_name())==0) {
 		water_animation_stages = 0;
-		while(  besch->get_bild(0, water_animation_stages)!=IMG_LEER  ) {
+		while(  besch->get_bild(0, water_animation_stages)!=IMG_EMPTY  ) {
 			DBG_MESSAGE( "water", "bild(0,%i)=%u", water_animation_stages, besch->get_bild(0, water_animation_stages) );
 			water_animation_stages ++;
 		}
@@ -543,7 +543,7 @@ void grund_besch_t::init_ground_textures(karte_t *w)
 	printf("Calculating textures ...");
 
 	// free old ones
-	if(image_offset!=IMG_LEER) {
+	if(image_offset!=IMG_EMPTY) {
 		display_free_all_images_above( image_offset );
 	}
 #if COLOUR_DEPTH != 0
@@ -968,7 +968,7 @@ void grund_besch_t::init_ground_textures(karte_t *w)
 			alpha_bild[dslope] = final_tile->get_nummer();
 		}
 		else {
-			alpha_bild[dslope] = IMG_LEER;
+			alpha_bild[dslope] = IMG_EMPTY;
 		}
 	}
 
@@ -992,8 +992,8 @@ void grund_besch_t::init_ground_textures(karte_t *w)
 				}
 			}
 			else {
-				alpha_corners_bild[dslope * 15 + corners - 1] = IMG_LEER;
-				alpha_water_bild[dslope * 15 + corners - 1] = IMG_LEER;
+				alpha_corners_bild[dslope * 15 + corners - 1] = IMG_EMPTY;
+				alpha_water_bild[dslope * 15 + corners - 1] = IMG_EMPTY;
 			}
 		}
 	}
@@ -1036,7 +1036,7 @@ image_id grund_besch_t::get_ground_tile(grund_t *gr)
 		// returns base climate for tile, transitions will be overlayed later
 		return climate_bild[climate_nr] + doubleslope_to_imgnr[slope];
 	}
-	return IMG_LEER;
+	return IMG_EMPTY;
 }
 
 

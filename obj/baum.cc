@@ -385,7 +385,7 @@ image_id baum_t::get_image() const
 	if(  env_t::hide_trees  ) {
 		if(  env_t::hide_with_transparency  ) {
 			// we need the real age for transparency or real image
-			return IMG_LEER;
+			return IMG_EMPTY;
 		}
 		else {
 			return baumtype_to_bild[ baumtype ][ season*5 ];

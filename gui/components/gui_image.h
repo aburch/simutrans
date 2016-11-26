@@ -25,7 +25,7 @@ class gui_image_t : public gui_component_t
 		bool                remove_enabled;
 
 	public:
-		gui_image_t( const image_id i=IMG_LEER, const uint8 p=0, control_alignment_t alignment_par = ALIGN_NONE, bool remove_offset = false );
+		gui_image_t( const image_id i=IMG_EMPTY, const uint8 p=0, control_alignment_t alignment_par = ALIGN_NONE, bool remove_offset = false );
 		void set_size( scr_size size_par ) OVERRIDE;
 		void set_image( const image_id i, bool remove_offsets = false );
 

@@ -2076,7 +2076,7 @@ void register_image(struct bild_besch_t* bild)
 	/* valid image? */
 	if(  bild->len == 0  ||  bild->h == 0  ) {
 		fprintf(stderr, "Warning: ignoring image %d because of missing data\n", anz_images);
-		bild->bild_nr = IMG_LEER;
+		bild->bild_nr = IMG_EMPTY;
 		return;
 	}
 
@@ -2722,20 +2722,20 @@ void display_img_aux(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const sint8 p
 // local helper function for tiles buttons
 static void display_three_image_row( image_id i1, image_id i2, image_id i3, scr_rect row )
 {
-	if(  i1!=IMG_LEER  ) {
+	if(  i1!=IMG_EMPTY  ) {
 		scr_coord_val w = images[i1].w;
 		display_color_img( i1, row.x, row.y, 0, false, true  CLIP_NUM_DEFAULT);
 		row.x += w;
 		row.w -= w;
 	}
 	// right
-	if(  i3!=IMG_LEER  ) {
+	if(  i3!=IMG_EMPTY  ) {
 		scr_coord_val w = images[i3].w;
 		display_color_img( i3, row.get_right()-w, row.y, 0, false, true  CLIP_NUM_DEFAULT);
 		row.w -= w;
 	}
 	// middle
-	if(  i2!=IMG_LEER  ) {
+	if(  i2!=IMG_EMPTY  ) {
 		scr_coord_val w = images[i2].w;
 		// tile it wide
 		while(  w <= row.w  ) {
@@ -2758,17 +2758,17 @@ static void display_three_image_row( image_id i1, image_id i2, image_id i3, scr_
 void display_img_stretch( const stretch_map_t &imag, scr_rect area )
 {
 	scr_coord_val h_top = 0, h_bottom = 0;
-	if(  imag[0][0]!=IMG_LEER  ) {
+	if(  imag[0][0]!=IMG_EMPTY  ) {
 		h_top = images[ imag[0][0] ].h;
 	}
-	if(  imag[0][2]!=IMG_LEER  ) {
+	if(  imag[0][2]!=IMG_EMPTY  ) {
 		h_bottom = images[ imag[0][2] ].h;
 	}
 
 	// center vertically?
-	if(  imag[0][1] == IMG_LEER  ) {
+	if(  imag[0][1] == IMG_EMPTY  ) {
 		scr_coord_val h = h_top;
-		if(  imag[1][0]!=IMG_LEER  ) {
+		if(  imag[1][0]!=IMG_EMPTY  ) {
 			h = max( h, images[ imag[1][0] ].h );
 		}
 		// center vertically
@@ -2779,13 +2779,13 @@ void display_img_stretch( const stretch_map_t &imag, scr_rect area )
 	display_three_image_row( imag[0][0], imag[1][0], imag[2][0], area );
 
 	// bottom row
-	if(  imag[0][2]!=IMG_LEER  ) {
+	if(  imag[0][2]!=IMG_EMPTY  ) {
 		scr_rect row( area.x, area.y+area.h-h_bottom, area.w, h_bottom );
 		display_three_image_row( imag[0][2], imag[1][2], imag[2][2], row );
 	}
 
 	// now stretch the middle
-	if(  imag[0][1]!=IMG_LEER  ) {
+	if(  imag[0][1]!=IMG_EMPTY  ) {
 		scr_rect row( area.x, area.y+h_top, area.w, area.h-h_top-h_bottom );
 		// tile it wide
 		scr_coord_val h = images[imag[0][1]].h;
@@ -2808,20 +2808,20 @@ void display_img_stretch( const stretch_map_t &imag, scr_rect area )
 // local helper function for tiles buttons
 static void display_three_blend_row( image_id i1, image_id i2, image_id i3, scr_rect row, PLAYER_COLOR_VAL color )
 {
-	if(  i1!=IMG_LEER  ) {
+	if(  i1!=IMG_EMPTY  ) {
 		scr_coord_val w = images[i1].w;
 		display_rezoomed_img_blend( i1, row.x, row.y, 0, color, false, true CLIPNUM_IGNORE );
 		row.x += w;
 		row.w -= w;
 	}
 	// right
-	if(  i3!=IMG_LEER  ) {
+	if(  i3!=IMG_EMPTY  ) {
 		scr_coord_val w = images[i3].w;
 		display_rezoomed_img_blend( i3, row.get_right()-w, row.y, 0, color, false, true CLIPNUM_IGNORE );
 		row.w -= w;
 	}
 	// middle
-	if(  i2!=IMG_LEER  ) {
+	if(  i2!=IMG_EMPTY  ) {
 		scr_coord_val w = images[i2].w;
 		// tile it wide
 		while(  w <= row.w  ) {
@@ -2844,17 +2844,17 @@ static void display_three_blend_row( image_id i1, image_id i2, image_id i3, scr_
 void display_img_stretch_blend( const stretch_map_t &imag, scr_rect area, PLAYER_COLOR_VAL color )
 {
 	scr_coord_val h_top = 0, h_bottom = 0;
-	if(  imag[0][0]!=IMG_LEER  ) {
+	if(  imag[0][0]!=IMG_EMPTY  ) {
 		h_top = images[ imag[0][0] ].h;
 	}
-	if(  imag[0][2]!=IMG_LEER  ) {
+	if(  imag[0][2]!=IMG_EMPTY  ) {
 		h_bottom = images[ imag[0][2] ].h;
 	}
 
 	// center vertically?
-	if(  imag[0][1] == IMG_LEER  ) {
+	if(  imag[0][1] == IMG_EMPTY  ) {
 		scr_coord_val h = h_top;
-		if(  imag[1][0]!=IMG_LEER  ) {
+		if(  imag[1][0]!=IMG_EMPTY  ) {
 			h = max( h, images[ imag[1][0] ].h );
 		}
 		// center vertically
@@ -2865,13 +2865,13 @@ void display_img_stretch_blend( const stretch_map_t &imag, scr_rect area, PLAYER
 	display_three_blend_row( imag[0][0], imag[1][0], imag[2][0], area, color );
 
 	// bottom row
-	if(  imag[0][2]!=IMG_LEER  ) {
+	if(  imag[0][2]!=IMG_EMPTY  ) {
 		scr_rect row( area.x, area.y+area.h-h_bottom, area.w, h_bottom );
 		display_three_blend_row( imag[0][2], imag[1][2], imag[2][2], row, color );
 	}
 
 	// now stretch the middle
-	if(  imag[0][1]!=IMG_LEER  ) {
+	if(  imag[0][1]!=IMG_EMPTY  ) {
 		scr_rect row( area.x, area.y+h_top, area.w, area.h-h_top-h_bottom );
 		// tile it wide
 		scr_coord_val h = images[imag[0][1]].h;

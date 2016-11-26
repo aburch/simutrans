@@ -264,7 +264,7 @@ void curiosity_edit_frame_t::change_item_info(sint32 entry)
 		// now the images (maximum is 2x2 size)
 		// since these may be affected by rotation, we do this every time ...
 		for(int i=0;  i<4;  i++  ) {
-			img[i].set_image( IMG_LEER );
+			img[i].set_image( IMG_EMPTY );
 		}
 
 		uint8 rot = (rotation==255) ? 0 : rotation;
@@ -297,7 +297,7 @@ void curiosity_edit_frame_t::change_item_info(sint32 entry)
 	}
 	else if(welt->get_tool(player->get_player_nr())==&haus_tool) {
 		for(int i=0;  i<4;  i++  ) {
-			img[i].set_image( IMG_LEER );
+			img[i].set_image( IMG_EMPTY );
 		}
 		tstrncpy(rot_str, translator::translate("random"), lengthof(rot_str));
 		uint8 rot = (rotation==255) ? 0 : rotation;
@@ -317,7 +317,7 @@ void curiosity_edit_frame_t::draw(scr_coord pos, scr_size size)
 	if(besch  &&  besch->get_utyp()==haus_besch_t::denkmal  &&  !hausbauer_t::is_valid_denkmal(besch)  ) {
 		change_item_info(0x7FFFFFFF);
 		scl.set_selection(-1);
-		img[3].set_image( IMG_LEER );
+		img[3].set_image( IMG_EMPTY );
 		fill_list( is_show_trans_name );
 	}
 

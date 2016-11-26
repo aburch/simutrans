@@ -49,7 +49,7 @@ class async_wolke_t : public obj_t
 public:
 	async_wolke_t(loadsave_t *file);
 	typ get_typ() const { return async_wolke; }
-	image_id get_image() const { return IMG_LEER; }
+	image_id get_image() const { return IMG_EMPTY; }
 };
 
 class raucher_t : public obj_t
@@ -57,7 +57,7 @@ class raucher_t : public obj_t
 public:
 	raucher_t(loadsave_t *file);
 	typ get_typ() const { return raucher; }
-	image_id get_image() const { return IMG_LEER; }
+	image_id get_image() const { return IMG_EMPTY; }
 };
 
 #endif

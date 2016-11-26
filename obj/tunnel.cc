@@ -34,7 +34,7 @@ tunnel_t::tunnel_t(loadsave_t* const file) : obj_no_info_t()
 {
 	besch = 0;
 	rdwr(file);
-	bild = after_bild = IMG_LEER;
+	bild = after_bild = IMG_EMPTY;
 	broad_type = 0;
 }
 
@@ -45,7 +45,7 @@ tunnel_t::tunnel_t(koord3d pos, player_t *player, const tunnel_besch_t *besch) :
 	assert(besch);
 	this->besch = besch;
 	set_owner( player );
-	bild = after_bild = IMG_LEER;
+	bild = after_bild = IMG_EMPTY;
 	broad_type = 0;
 }
 
@@ -95,8 +95,8 @@ void tunnel_t::calc_image()
 		set_after_bild( besch->get_vordergrund_nr( hang, get_pos().z >= welt->get_snowline()  ||  welt->get_climate( get_pos().get_2d() ) == arctic_climate, broad_type ) );
 	}
 	else {
-		set_bild( IMG_LEER );
-		set_after_bild( IMG_LEER );
+		set_bild( IMG_EMPTY );
+		set_after_bild( IMG_EMPTY );
 	}
 #ifdef MULTI_THREAD
 	pthread_mutex_unlock( &tunnel_calc_bild_mutex );

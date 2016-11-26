@@ -96,11 +96,11 @@ void boden_t::calc_bild_internal(const bool calc_only_snowline_change)
 		// single or double slope? (single slopes are not divisible by 8)
 		const uint8 bild_nr = (!slope_this  ||  (slope_this & 7)) ? grund_besch_t::slopetable[slope_this] : grund_besch_t::slopetable[slope_this >> 1] + 12;
 
-		if(  (get_hoehe() >= welt->get_snowline()  ||  welt->get_climate(pos.get_2d()) == arctic_climate)  &&  skinverwaltung_t::fussweg->get_bild_nr(bild_nr + 1) != IMG_LEER  ) {
+		if(  (get_hoehe() >= welt->get_snowline()  ||  welt->get_climate(pos.get_2d()) == arctic_climate)  &&  skinverwaltung_t::fussweg->get_bild_nr(bild_nr + 1) != IMG_EMPTY  ) {
 			// snow images
 			set_bild( skinverwaltung_t::fussweg->get_bild_nr(bild_nr + 1) );
 		}
-		else if(  slope_this != 0  &&  get_hoehe() == welt->get_snowline() - 1  &&  skinverwaltung_t::fussweg->get_bild_nr(bild_nr + 2) != IMG_LEER  ) {
+		else if(  slope_this != 0  &&  get_hoehe() == welt->get_snowline() - 1  &&  skinverwaltung_t::fussweg->get_bild_nr(bild_nr + 2) != IMG_EMPTY  ) {
 			// transition images
 			set_bild( skinverwaltung_t::fussweg->get_bild_nr(bild_nr + 2) );
 		}

@@ -353,7 +353,7 @@ static void win_draw_window_title(const scr_coord pos, const scr_size size,
 static void win_draw_window_dragger(scr_coord pos, scr_size size)
 {
 	pos += size;
-	if(  skinverwaltung_t::gadget  &&  skinverwaltung_t::gadget->get_bild_nr(SKIN_WINDOW_RESIZE)!=IMG_LEER  ) {
+	if(  skinverwaltung_t::gadget  &&  skinverwaltung_t::gadget->get_bild_nr(SKIN_WINDOW_RESIZE)!=IMG_EMPTY  ) {
 		const bild_besch_t *dragger = skinverwaltung_t::gadget->get_bild(SKIN_WINDOW_RESIZE);
 		display_color_img( dragger->get_nummer(), pos.x-dragger->get_pic()->w, pos.y-dragger->get_pic()->h, 0, false, false);
 	}
@@ -1487,7 +1487,7 @@ void win_display_flush(double konto)
 	// display main menu
 	tool_selector_t *main_menu = tool_t::toolbar_tool[0]->get_tool_selector();
 	display_set_clip_wh( 0, 0, disp_width, menu_height+1 );
-	if(  skinverwaltung_t::toolbar_background  &&  skinverwaltung_t::toolbar_background->get_bild_nr(0) != IMG_LEER  ) {
+	if(  skinverwaltung_t::toolbar_background  &&  skinverwaltung_t::toolbar_background->get_bild_nr(0) != IMG_EMPTY  ) {
 		const image_id back_img = skinverwaltung_t::toolbar_background->get_bild_nr(0);
 		scr_coord_val w = env_t::iconsize.w;
 		scr_rect row = scr_rect( 0, 0, disp_width, menu_height );

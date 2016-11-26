@@ -372,7 +372,7 @@ void tool_t::read_menu(const std::string &objfilename)
 						i++;
 					}
 					const skin_besch_t *s=skinverwaltung_t::get_extra(str,i-1);
-					tool->icon = s ? s->get_bild_nr(0) : IMG_LEER;
+					tool->icon = s ? s->get_bild_nr(0) : IMG_EMPTY;
 				}
 				else {
 					if(  icon>=info[t].icons->get_count()  ) {
@@ -455,7 +455,7 @@ void tool_t::read_menu(const std::string &objfilename)
 
 			/* first, parse the string; we could have up to four parameters */
 			const char *toolname = str;
-			image_id icon = IMG_LEER;
+			image_id icon = IMG_EMPTY;
 			const char *key_str = NULL;
 			const char *param_str = NULL; // in case of toolbars, it will also contain the tooltip
 			// parse until next zero-level comma
@@ -488,7 +488,7 @@ void tool_t::read_menu(const std::string &objfilename)
 							i++;
 						}
 						const skin_besch_t *s=skinverwaltung_t::get_extra(str,i-1);
-						icon = s ? s->get_bild_nr(0) : IMG_LEER;
+						icon = s ? s->get_bild_nr(0) : IMG_EMPTY;
 					}
 					else {
 						if(  icon>=skinverwaltung_t::tool_icons_toolbars->get_count()  ) {
@@ -522,7 +522,7 @@ void tool_t::read_menu(const std::string &objfilename)
 					param_str = str;
 				}
 			}
-			bool create_tool = icon!=IMG_LEER  ||  key_str  ||  param_str;
+			bool create_tool = icon!=IMG_EMPTY  ||  key_str  ||  param_str;
 
 			if (char const* const c = strstart(toolname, "general_tool[")) {
 				uint8 toolnr = atoi(c);
@@ -614,7 +614,7 @@ void tool_t::read_menu(const std::string &objfilename)
 				addtool->command_key = 1;
 			}
 			if(addtool) {
-				if(icon!=IMG_LEER) {
+				if(icon!=IMG_EMPTY) {
 					addtool->icon = icon;
 				}
 				if(key_str!=NULL) {
@@ -642,9 +642,9 @@ void tool_t::update_toolbars()
 	for(uint j=0; j<2; j++) {
 		bool change = false;
 		FOR(vector_tpl<toolbar_t*>, const i, toolbar_tool) {
-			bool old_icon_empty = i->get_icon(welt->get_active_player()) == IMG_LEER;
+			bool old_icon_empty = i->get_icon(welt->get_active_player()) == IMG_EMPTY;
 			i->update(welt->get_active_player());
-			change |= old_icon_empty ^ (i->get_icon(welt->get_active_player()) == IMG_LEER);
+			change |= old_icon_empty ^ (i->get_icon(welt->get_active_player()) == IMG_EMPTY);
 		}
 		if (!change) {
 			// no toolbar changes between empty and non-empty, no need to loop again
@@ -658,7 +658,7 @@ void tool_t::draw_after(scr_coord pos, bool dirty) const
 {
 	// default action: grey corner if selected
 	image_id id = get_icon( welt->get_active_player() );
-	if(  id!=IMG_LEER  &&  is_selected()  ) {
+	if(  id!=IMG_EMPTY  &&  is_selected()  ) {
 		display_img_blend( id, pos.x, pos.y, TRANSPARENT50_FLAG|OUTLINE_FLAG|COL_BLACK, false, dirty );
 	}
 }
@@ -705,14 +705,14 @@ const char *kartenboden_tool_t::check_pos(player_t *, koord3d pos )
 image_id toolbar_t::get_icon(player_t *player) const
 {
 	// no image for edit tools => do not open
-	if(  icon==IMG_LEER  ||  (player!=NULL  &&  strcmp(default_param,"EDITTOOLS")==0  &&  player->get_player_nr()!=welt->get_public_player()->get_player_nr())  ) {
-		return IMG_LEER;
+	if(  icon==IMG_EMPTY  ||  (player!=NULL  &&  strcmp(default_param,"EDITTOOLS")==0  &&  player->get_player_nr()!=welt->get_public_player()->get_player_nr())  ) {
+		return IMG_EMPTY;
 	}
 	// now have we a least one visible tool?
 	if (tool_selector  &&  !tool_selector->empty(player)) {
 		return icon;
 	}
-	return IMG_LEER;
+	return IMG_EMPTY;
 }
 
 
@@ -754,7 +754,7 @@ void toolbar_t::update(player_t *player)
 	// now (re)fill it
 	FOR(slist_tpl<tool_t*>, const w, tools) {
 		// no way to call this tool? => then it is most likely a metatool
-		if(w->command_key==1  &&  w->get_icon(player)==IMG_LEER) {
+		if(w->command_key==1  &&  w->get_icon(player)==IMG_EMPTY) {
 			if (char const* const param = w->get_default_param()) {
 				if(  create  ) {
 					DBG_DEBUG("toolbar_t::update()", "add metatool (param=%s)", param);
@@ -797,7 +797,7 @@ void toolbar_t::update(player_t *player)
 				}
 			}
 		}
-		else if(w->get_icon(player)!=IMG_LEER) {
+		else if(w->get_icon(player)!=IMG_EMPTY) {
 			// get the right city_road
 			if(w->get_id() == (TOOL_BUILD_CITYROAD | GENERAL_TOOL)) {
 				w->flags = 0;
@@ -889,7 +889,7 @@ void toolbar_last_used_t::append( tool_t *t, player_t *sp )
 		TOOL_RENAME|SIMPLE_TOOL
 	};
 
-	if(  !sp  ||  t->get_icon(sp)==IMG_LEER  ) {
+	if(  !sp  ||  t->get_icon(sp)==IMG_EMPTY  ) {
 		return;
 	}
 

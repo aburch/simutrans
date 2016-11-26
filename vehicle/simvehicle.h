@@ -746,10 +746,10 @@ public:
 	int get_flyingheight() const {return flying_height-get_hoff()-2;}
 
 	// image: when flying empty, on ground the plane
-	virtual image_id get_image() const {return !is_on_ground() ? IMG_LEER : image;}
+	virtual image_id get_image() const {return !is_on_ground() ? IMG_EMPTY : image;}
 
 	// image: when flying the shadow, on ground empty
-	virtual image_id get_outline_image() const {return !is_on_ground() ? image : IMG_LEER;}
+	virtual image_id get_outline_image() const {return !is_on_ground() ? image : IMG_EMPTY;}
 
 	// shadow has black color (when flying)
 	virtual PLAYER_COLOR_VAL get_outline_colour() const {return !is_on_ground() ? TRANSPARENT75_FLAG | OUTLINE_FLAG | COL_BLACK : 0;}

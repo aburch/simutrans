@@ -56,7 +56,7 @@ public:
 	image_id get_bild_nr(ribi_t::dir dir) const
 	{
 		bild_besch_t const* const bild = get_child<bildliste_besch_t>(2)->get_bild(dir);
-		return bild != NULL ? bild->get_nummer() : IMG_LEER;
+		return bild != NULL ? bild->get_nummer() : IMG_EMPTY;
 	}
 
 	uint16 get_count() const { return get_child<bildliste_besch_t>(2)->get_count(); }

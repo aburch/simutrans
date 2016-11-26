@@ -48,8 +48,8 @@ void signal_t::info(cbuffer_t & buf) const
 
 void signal_t::calc_image()
 {
-	after_bild = IMG_LEER;
-	image_id bild = IMG_LEER;
+	after_bild = IMG_EMPTY;
+	image_id bild = IMG_EMPTY;
 
 	after_xoffset = 0;
 	after_yoffset = 0;
@@ -117,7 +117,7 @@ void signal_t::calc_image()
 				}
 
 				if(temp_dir&ribi_t::north) {
-					if(bild!=IMG_LEER) {
+					if(bild!=IMG_EMPTY) {
 						after_bild = besch->get_bild_nr(0+zustand*4+offset);
 						after_xoffset += -XOFF;
 						after_yoffset += -YOFF;
@@ -136,7 +136,7 @@ void signal_t::calc_image()
 				}
 
 				if(temp_dir&ribi_t::south) {
-					if(after_bild!=IMG_LEER) {
+					if(after_bild!=IMG_EMPTY) {
 						bild = besch->get_bild_nr(1+zustand*4+offset);
 						xoff += XOFF;
 						yoff += YOFF;
@@ -154,7 +154,7 @@ void signal_t::calc_image()
 				}
 
 				if(temp_dir&ribi_t::north) {
-					if(after_bild==IMG_LEER) {
+					if(after_bild==IMG_EMPTY) {
 						after_bild = besch->get_bild_nr(0+zustand*4+offset);
 					}
 					else {
@@ -167,7 +167,7 @@ void signal_t::calc_image()
 				}
 
 				if(temp_dir&ribi_t::south) {
-					if(bild==IMG_LEER) {
+					if(bild==IMG_EMPTY) {
 						bild = besch->get_bild_nr(1+zustand*4+offset);
 					}
 					else {

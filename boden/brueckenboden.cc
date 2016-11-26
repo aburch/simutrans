@@ -33,7 +33,7 @@ void brueckenboden_t::calc_bild_internal(const bool calc_only_snowline_change)
 		if(  !calc_only_snowline_change  ) {
 			grund_t::calc_back_bild( get_pos().z, slope );
 			set_flag( draw_as_obj );
-			if(  (get_grund_hang() == slope_t::west  &&  abs(back_bild_nr) > 11)  ||  (get_grund_hang() == slope_t::north  &&  get_back_bild(0) != IMG_LEER)  ) {
+			if(  (get_grund_hang() == slope_t::west  &&  abs(back_bild_nr) > 11)  ||  (get_grund_hang() == slope_t::north  &&  get_back_bild(0) != IMG_EMPTY)  ) {
 				// must draw as obj, since there is a slop here nearby
 				koord pos = get_pos().get_2d() + koord( get_grund_hang() );
 				grund_t *gr = welt->lookup_kartenboden( pos );
@@ -43,7 +43,7 @@ void brueckenboden_t::calc_bild_internal(const bool calc_only_snowline_change)
 	}
 	else {
 		clear_back_bild();
-		set_bild(IMG_LEER);
+		set_bild(IMG_EMPTY);
 	}
 
 }

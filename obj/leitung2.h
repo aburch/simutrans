@@ -97,8 +97,8 @@ public:
 	ribi_t::ribi get_ribi() const { return ribi; }
 
 	inline void set_bild( image_id b ) { bild = b; }
-	image_id get_image() const {return is_crossing ? IMG_LEER : bild;}
-	image_id get_front_image() const {return is_crossing ? bild : IMG_LEER;}
+	image_id get_image() const {return is_crossing ? IMG_EMPTY : bild;}
+	image_id get_front_image() const {return is_crossing ? bild : IMG_EMPTY;}
 
 	/**
 	* Recalculates the images of all neighbouring

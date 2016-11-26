@@ -101,7 +101,7 @@ class dialog_lines_t : public tool_t {
 public:
 	dialog_lines_t() : tool_t(DIALOG_LINEOVERVIEW | DIALOGE_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE{ return translator::translate("Line Management"); }
-	image_id get_icon(player_t* player_) const OVERRIDE{ return player_->get_player_nr() == 1 ? IMG_LEER : icon; }
+	image_id get_icon(player_t* player_) const OVERRIDE{ return player_->get_player_nr() == 1 ? IMG_EMPTY : icon; }
 	bool is_selected() const OVERRIDE{ return win_get_magic(magic_line_management_t + welt->get_active_player_nr()); }
 		bool init(player_t* player_) OVERRIDE{
 		if (player_->get_player_nr() != welt->get_public_player()->get_player_nr()) {
@@ -409,7 +409,7 @@ class dialog_edit_tree_t : public tool_t {
 public:
 	dialog_edit_tree_t() : tool_t(DIALOG_EDIT_TREE | DIALOGE_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE{ return translator::translate("baum builder"); }
-	image_id get_icon(player_t *) const { return baum_t::get_count() > 0 ? icon : IMG_LEER; }
+	image_id get_icon(player_t *) const { return baum_t::get_count() > 0 ? icon : IMG_EMPTY; }
 	bool is_selected() const OVERRIDE{ return win_get_magic(magic_edit_tree); }
 		bool init(player_t* player_) OVERRIDE{
 		if (baum_t::get_count() > 0 && !is_selected()) {
@@ -427,7 +427,7 @@ class dialog_enlarge_map_t : public tool_t{
 public:
 	dialog_enlarge_map_t() : tool_t(DIALOG_ENLARGE_MAP | DIALOGE_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE{ return env_t::networkmode ? translator::translate("deactivated in online mode") : translator::translate("enlarge map"); }
-	image_id get_icon(player_t *) const { return env_t::networkmode ? IMG_LEER : icon; }
+	image_id get_icon(player_t *) const { return env_t::networkmode ? IMG_EMPTY : icon; }
 	bool is_selected() const OVERRIDE{ return win_get_magic(magic_bigger_map); }
 		bool init(player_t*) OVERRIDE{
 		if (!env_t::networkmode) {
@@ -459,7 +459,7 @@ class dialog_climates_t : public tool_t {
 public:
 	dialog_climates_t() : tool_t(DIALOG_CLIMATES | DIALOGE_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE{ return (!env_t::networkmode || env_t::server) ? translator::translate("Climate Control") : translator::translate("deactivated in online mode"); }
-	image_id get_icon(player_t *) const { return (!env_t::networkmode || env_t::server) ? icon : IMG_LEER; }
+	image_id get_icon(player_t *) const { return (!env_t::networkmode || env_t::server) ? icon : IMG_EMPTY; }
 	bool is_selected() const OVERRIDE{ return win_get_magic(magic_climate); }
 		bool init(player_t*) OVERRIDE{
 		if (!env_t::networkmode || env_t::server) {
@@ -475,7 +475,7 @@ class dialog_settings_t : public tool_t {
 public:
 	dialog_settings_t() : tool_t(DIALOG_SETTINGS | DIALOGE_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE{ return (!env_t::networkmode || env_t::server) ? translator::translate("Setting") : translator::translate("deactivated in online mode"); }
-	image_id get_icon(player_t *) const { return (!env_t::networkmode || env_t::server) ? icon : IMG_LEER; }
+	image_id get_icon(player_t *) const { return (!env_t::networkmode || env_t::server) ? icon : IMG_EMPTY; }
 	bool is_selected() const OVERRIDE{ return win_get_magic(magic_settings_frame_t); }
 		bool init(player_t*) OVERRIDE{
 		if (!env_t::networkmode || env_t::server) {

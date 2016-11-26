@@ -58,7 +58,7 @@ public:
 
 	image_id get_bild_nr(uint8 season, uint16 phase) const {
 		const bild_besch_t *bild = get_child<bildliste2d_besch_t>(2)->get_bild(phase, season);
-		return bild != NULL ? bild->get_nummer() : IMG_LEER;
+		return bild != NULL ? bild->get_nummer() : IMG_EMPTY;
 	}
 
 	// moving stuff should have eight

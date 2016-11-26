@@ -1504,7 +1504,7 @@ void convoi_t::start()
 		fahr[0]->set_leading( true );
 		fahr[anz_vehikel-1]->set_last( true );
 		// do not show the vehicle - it will be wrong positioned -vorfahren() will correct this
-		fahr[0]->set_bild(IMG_LEER);
+		fahr[0]->set_bild(IMG_EMPTY);
 
 		// update finances for used vehicle reduction when first driven
 		owner_p->update_assets( restwert_delta, get_schedule()->get_waytype());
@@ -1552,7 +1552,7 @@ void convoi_t::ziel_erreicht()
 
 		akt_speed = 0;
 		buf.printf( translator::translate("%s has entered a depot."), get_name() );
-		welt->get_message()->add_message(buf, v->get_pos().get_2d(),message_t::warnings, PLAYER_FLAG|get_owner()->get_player_nr(), IMG_LEER);
+		welt->get_message()->add_message(buf, v->get_pos().get_2d(),message_t::warnings, PLAYER_FLAG|get_owner()->get_player_nr(), IMG_EMPTY);
 
 		betrete_depot(dp);
 	}

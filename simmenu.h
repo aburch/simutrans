@@ -237,7 +237,7 @@ public:
 
 	tool_t(uint16 const id) : id(id), cursor_area(1,1)
 	{
-		cursor = icon = IMG_LEER;
+		cursor = icon = IMG_EMPTY;
 		ok_sound = NO_SOUND;
 		offset = Z_PLAN;
 		default_param = NULL;

@@ -48,7 +48,7 @@ tool_selector_t::tool_selector_t(const char* title, const char *help_file, uint3
 void tool_selector_t::add_tool_selector(tool_t *tool_in)
 {
 	image_id tool_img = tool_in->get_icon(welt->get_active_player());
-	if(  tool_img == IMG_LEER  &&  tool_in!=tool_t::dummy  ) {
+	if(  tool_img == IMG_EMPTY  &&  tool_in!=tool_t::dummy  ) {
 		return;
 	}
 
@@ -180,7 +180,7 @@ void tool_selector_t::draw(scr_coord pos, scr_size)
 		// we don't draw in main menu as it is already made in simwin.cc
 		// no background if separator starts with "-b" and has an icon defined
 		if(  toolbar_id>0  &&  !(strstart((param==NULL)? "" : param, "-b"))  ) {
-			if(  skinverwaltung_t::toolbar_background  &&  skinverwaltung_t::toolbar_background->get_bild_nr(toolbar_id) != IMG_LEER  ) {
+			if(  skinverwaltung_t::toolbar_background  &&  skinverwaltung_t::toolbar_background->get_bild_nr(toolbar_id) != IMG_EMPTY  ) {
 				const image_id back_img = skinverwaltung_t::toolbar_background->get_bild_nr(toolbar_id);
 				display_fit_img_to_width( back_img, env_t::iconsize.w );
 				display_color_img( back_img, draw_pos.x, draw_pos.y, 0, false, true );
@@ -191,7 +191,7 @@ void tool_selector_t::draw(scr_coord pos, scr_size)
 		}
 
 		// if there's no image we simply skip, button will be transparent showing toolbar background
-		if(  icon_img != IMG_LEER  ) {
+		if(  icon_img != IMG_EMPTY  ) {
 			bool tool_dirty = dirty  ||  tools[i].tool->is_selected() ^ tools[i].selected;
 			display_fit_img_to_width( icon_img, env_t::iconsize.w );
 			display_color_img(icon_img, draw_pos.x, draw_pos.y, player->get_player_nr(), false, tool_dirty);
@@ -227,7 +227,7 @@ void tool_selector_t::draw(scr_coord pos, scr_size)
 bool tool_selector_t::empty(player_t *player) const
 {
 	FOR(vector_tpl<tool_data_t>, w, tools) {
-		if (w.tool->get_icon(player) != IMG_LEER) {
+		if (w.tool->get_icon(player) != IMG_EMPTY) {
 			return false;
 		}
 	}

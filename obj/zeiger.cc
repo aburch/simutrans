@@ -18,8 +18,8 @@
 
 zeiger_t::zeiger_t(loadsave_t *file) : obj_no_info_t()
 {
-	bild = IMG_LEER;
-	after_bild = IMG_LEER;
+	bild = IMG_EMPTY;
+	after_bild = IMG_EMPTY;
 	area = koord(0,0);
 	offset = koord(0,0);
 	rdwr(file);
@@ -30,8 +30,8 @@ zeiger_t::zeiger_t(koord3d pos, player_t *player) :
     obj_no_info_t(pos)
 {
 	set_owner( player );
-	bild = IMG_LEER;
-	after_bild = IMG_LEER;
+	bild = IMG_EMPTY;
+	after_bild = IMG_EMPTY;
 	area = koord(0,0);
 	offset = koord(0,0);
 }

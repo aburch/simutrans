@@ -74,7 +74,7 @@ public:
 	image_id get_bild(uint16 typ, uint16 stage=0) const
 	{
 		bild_besch_t const* const bild = get_bild_ptr(typ, stage);
-		return bild ? bild->get_nummer() : IMG_LEER;
+		return bild ? bild->get_nummer() : IMG_EMPTY;
 	}
 
 	// image for all ground tiles

@@ -109,7 +109,7 @@ public:
 	image_id get_bild_nr(ribi_t::ribi ribi, uint8 season, bool front = false) const
 	{
 		if (front  &&  !front_images) {
-			return IMG_LEER;
+			return IMG_EMPTY;
 		}
 		const uint16 n = image_list_base_index(season, front);
 		return get_child<bildliste_besch_t>(n)->get_bild_nr(ribi);
@@ -118,7 +118,7 @@ public:
 	image_id get_bild_nr_switch(ribi_t::ribi ribi, uint8 season, bool nw, bool front = false) const
 	{
 		if (front  &&  !front_images) {
-			return IMG_LEER;
+			return IMG_EMPTY;
 		}
 		const uint16 n = image_list_base_index(season, front);
 		bildliste_besch_t const* const bl = get_child<bildliste_besch_t>(n);
@@ -137,7 +137,7 @@ public:
 	image_id get_hang_bild_nr(slope_t::type hang, uint8 season, bool front = false) const
 	{
 		if (front  &&  !front_images) {
-			return IMG_LEER;
+			return IMG_EMPTY;
 		}
 		const uint16 n = image_list_base_index(season, front) + 1;
 		uint16 nr;
@@ -167,10 +167,10 @@ public:
 				nr = 7;
 				break;
 			default:
-				return IMG_LEER;
+				return IMG_EMPTY;
 		}
 		image_id hang_img = get_child<bildliste_besch_t>(n)->get_bild_nr(nr);
-		if(  nr > 3  &&  hang_img == IMG_LEER  &&  get_child<bildliste_besch_t>(n)->get_count()<=4  ) {
+		if(  nr > 3  &&  hang_img == IMG_EMPTY  &&  get_child<bildliste_besch_t>(n)->get_count()<=4  ) {
 			// hack for old ways without double height images to use single slope images for both
 			nr -= 4;
 			hang_img = get_child<bildliste_besch_t>(n)->get_bild_nr(nr);
@@ -181,7 +181,7 @@ public:
 	image_id get_diagonal_bild_nr(ribi_t::ribi ribi, uint8 season, bool front = false) const
 	{
 		if (front  &&  !front_images) {
-			return IMG_LEER;
+			return IMG_EMPTY;
 		}
 		const uint16 n = image_list_base_index(season, front) + 2;
 		return get_child<bildliste_besch_t>(n)->get_bild_nr(ribi / 3 - 1);
@@ -193,8 +193,8 @@ public:
 	}
 
 	bool has_diagonal_bild() const {
-		return get_child<bildliste_besch_t>(4)->get_bild_nr(0) != IMG_LEER
-		||     get_child<bildliste_besch_t>(image_list_base_index(false, true)+2)->get_bild_nr(0) != IMG_LEER;
+		return get_child<bildliste_besch_t>(4)->get_bild_nr(0) != IMG_EMPTY
+		||     get_child<bildliste_besch_t>(image_list_base_index(false, true)+2)->get_bild_nr(0) != IMG_EMPTY;
 	}
 
 	bool has_switch_bild() const {

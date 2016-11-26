@@ -33,7 +33,7 @@ public:
 	image_id get_bild_nr(uint16 i) const
 	{
 		const bild_besch_t *bild = get_bild(i);
-		return bild != NULL ? bild->get_nummer() : IMG_LEER;
+		return bild != NULL ? bild->get_nummer() : IMG_EMPTY;
 	}
 };
 

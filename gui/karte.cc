@@ -1500,7 +1500,7 @@ void reliefkarte_t::draw(scr_coord pos)
 				for(  int type=0;  type<9;  type++  ) {
 					if(  (stype>>type)&1  ) {
 						image_id img = skinverwaltung_t::station_type->get_bild_nr(type);
-						if(  img!=IMG_LEER  ) {
+						if(  img!=IMG_EMPTY  ) {
 							display_color_img( img, temp_stop.x+diagonal_dist+4+(icon/2)*12, temp_stop.y+diagonal_dist+4+(icon&1)*12, station->get_owner()->get_player_nr(), false, false );
 							icon++;
 						}

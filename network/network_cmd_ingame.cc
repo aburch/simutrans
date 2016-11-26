@@ -299,7 +299,7 @@ void nwc_chat_t::add_message (karte_t* welt) const
 			buf.printf( "%s --> %s: %s", clientname.c_str(), destination.c_str(), message.c_str() );
 		}
 	}
-	welt->get_message()->add_message( buf.get_str(), koord::invalid, flag, color, IMG_LEER );
+	welt->get_message()->add_message( buf.get_str(), koord::invalid, flag, color, IMG_EMPTY );
 }
 
 

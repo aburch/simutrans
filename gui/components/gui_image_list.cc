@@ -57,7 +57,7 @@ int gui_image_list_t::index_at(scr_coord parent_pos, int xpos, int ypos) const
 		row * columns + column :
 		column * rows + row;
 
-		if (bild_index < images->get_count()  &&  (*images)[bild_index]->image != IMG_LEER) {
+		if (bild_index < images->get_count()  &&  (*images)[bild_index]->image != IMG_EMPTY) {
 			return bild_index;
 		}
 	}

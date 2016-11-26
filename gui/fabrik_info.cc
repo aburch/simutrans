@@ -168,7 +168,7 @@ void fabrik_info_t::draw(scr_coord pos, scr_size size)
 	display_fillbox_wh_clip(pos.x + view.get_pos().x + 1, pos.y + view.get_pos().y + view.get_size().h + D_TITLEBAR_HEIGHT+1, view.get_size().w - 2, D_INDICATOR_HEIGHT-2, indikatorfarbe, true);
 	scr_coord_val x_view_pos = D_MARGIN_LEFT;
 	scr_coord_val x_prod_pos = D_MARGIN_LEFT+proportional_string_width(prod_buf)+10;
-	if(  skinverwaltung_t::electricity->get_bild_nr(0)!=IMG_LEER  ) {
+	if(  skinverwaltung_t::electricity->get_bild_nr(0)!=IMG_EMPTY  ) {
 		// indicator for receiving
 		if(  fab->get_prodfactor_electric()>0  ) {
 			display_color_img(skinverwaltung_t::electricity->get_bild_nr(0), pos.x + view.get_pos().x + x_view_pos, pos.y + view.get_pos().y + D_TITLEBAR_HEIGHT+4, 0, false, false);
@@ -180,7 +180,7 @@ void fabrik_info_t::draw(scr_coord pos, scr_size size)
 			x_prod_pos += skinverwaltung_t::electricity->get_bild(0)->get_pic()->w+4;
 		}
 	}
-	if(  skinverwaltung_t::passagiere->get_bild_nr(0)!=IMG_LEER  ) {
+	if(  skinverwaltung_t::passagiere->get_bild_nr(0)!=IMG_EMPTY  ) {
 		if(  fab->get_prodfactor_pax()>0  ) {
 			display_color_img(skinverwaltung_t::passagiere->get_bild_nr(0), pos.x + view.get_pos().x + x_view_pos, pos.y + view.get_pos().y + D_TITLEBAR_HEIGHT+4, 0, false, false);
 			x_view_pos += skinverwaltung_t::passagiere->get_bild(0)->get_pic()->w+4;
@@ -190,7 +190,7 @@ void fabrik_info_t::draw(scr_coord pos, scr_size size)
 			x_prod_pos += skinverwaltung_t::passagiere->get_bild(0)->get_pic()->w+4;
 		}
 	}
-	if(  skinverwaltung_t::post->get_bild_nr(0)!=IMG_LEER  ) {
+	if(  skinverwaltung_t::post->get_bild_nr(0)!=IMG_EMPTY  ) {
 		if(  fab->get_prodfactor_mail()>0  ) {
 			display_color_img(skinverwaltung_t::post->get_bild_nr(0), pos.x + view.get_pos().x + x_view_pos, pos.y + view.get_pos().y + D_TITLEBAR_HEIGHT+4, 0, false, false);
 		}

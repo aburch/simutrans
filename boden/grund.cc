@@ -464,7 +464,7 @@ grund_t::grund_t(koord3d pos)
 {
 	this->pos = pos;
 	flags = 0;
-	set_bild(IMG_LEER);    // set   flags = dirty;
+	set_bild(IMG_EMPTY);    // set   flags = dirty;
 	back_bild_nr = 0;
 }
 
@@ -716,7 +716,7 @@ void grund_t::set_underground_mode(const uint8 ugm, const sint8 level)
 image_id grund_t::get_back_bild(int leftback) const
 {
 	if(back_bild_nr==0) {
-		return IMG_LEER;
+		return IMG_EMPTY;
 	}
 	sint8 back_bild = abs(back_bild_nr);
 	back_bild = leftback ? (back_bild/11)+11 : back_bild%11;
@@ -755,7 +755,7 @@ static inline uint8 get_backbild_from_diff(sint8 h1, sint8 h2)
 void grund_t::mark_image_dirty()
 {
 	// see obj_t::mark_image_dirty
-	if(bild_nr!=IMG_LEER) {
+	if(bild_nr!=IMG_EMPTY) {
 		const scr_coord scr_pos = welt->get_viewport()->get_screen_coord(koord3d(pos.get_2d(),get_disp_height()));
 		display_mark_img_dirty( bild_nr, scr_pos.x, scr_pos.y );
 	}
@@ -976,7 +976,7 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 r
 						sint16 hgt_diff = gr->get_disp_height() - get_disp_height() + min( corner_a, corner_b ) - back_height;
 						while(  hgt_diff > 2  ||  (hgt_diff > 0  &&  corner_a != corner_b)  ) {
 							uint16 img_index = 22+(hgt_diff>1)+2*i;
-							if( sl_draw->get_bild( img_index ) == IMG_LEER ) {
+							if( sl_draw->get_bild( img_index ) == IMG_EMPTY ) {
 								img_index = 4+4*(hgt_diff>1)+11*i;
 							}
 							display_normal( sl_draw->get_bild( img_index ), xpos, ypos + yoff, 0, true, dirty CLIP_NUM_PAR );
@@ -992,7 +992,7 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 r
 
 	// ground
 	image_id bild = get_bild();
-	if(bild==IMG_LEER) {
+	if(bild==IMG_EMPTY) {
 		// only check for forced redraw (of marked ... )
 		if(dirty) {
 			mark_rect_dirty_clip( xpos, ypos + raster_tile_width / 2, xpos + raster_tile_width - 1, ypos + raster_tile_width - 1 CLIP_NUM_PAR );
@@ -1092,7 +1092,7 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 r
 							if(  grund_besch_t::shore  ) {
 								// additional shore image
 								image_id shore = grund_besch_t::shore->get_bild(slope,snow_transition<=0);
-								if(  shore==IMG_LEER  &&  snow_transition<=0  ) {
+								if(  shore==IMG_EMPTY  &&  snow_transition<=0  ) {
 									shore = grund_besch_t::shore->get_bild(slope,0);
 								}
 								display_normal( shore, xpos, ypos, 0, true, dirty CLIP_NUM_PAR );

@@ -138,7 +138,7 @@ bool wegbauer_t::register_besch(weg_besch_t *besch)
 		delete old_besch;
 	}
 
-	if(  besch->get_cursor()->get_bild_nr(1)!=IMG_LEER  ) {
+	if(  besch->get_cursor()->get_bild_nr(1)!=IMG_EMPTY  ) {
 		// add the tool
 		tool_build_way_t *tool = new tool_build_way_t();
 		tool->set_icon( besch->get_cursor()->get_bild_nr(1) );
@@ -186,7 +186,7 @@ const weg_besch_t* wegbauer_t::weg_search(const waytype_t wtyp, const sint32 spe
 		weg_besch_t const* const test = i.value;
 		if(  ((test->get_wtyp()==wtyp  &&
 			(test->get_styp()==system_type  ||  system_type==weg_t::type_all))  ||  (test->get_wtyp()==track_wt  &&  test->get_styp()==weg_t::type_tram  &&  wtyp==tram_wt))
-			&&  test->get_cursor()->get_bild_nr(1)!=IMG_LEER  ) {
+			&&  test->get_cursor()->get_bild_nr(1)!=IMG_EMPTY  ) {
 				bool test_allowed = test->get_intro_year_month()<=time  &&  time<test->get_retire_year_month();
 				if(  !best_allowed  ||  time==0  ||  test_allowed  ) {
 					if(  best==NULL  ||
@@ -577,7 +577,7 @@ bool wegbauer_t::is_allowed_step(const grund_t *from, const grund_t *to, sint32 
 		if(gb) {
 			// no halt => citybuilding => do not touch
 			// also check for too high buildings ...
-			if(!check_owner(gb->get_owner(),player_builder)  ||  gb->get_tile()->get_hintergrund(0,1,0)!=IMG_LEER) {
+			if(!check_owner(gb->get_owner(),player_builder)  ||  gb->get_tile()->get_hintergrund(0,1,0)!=IMG_EMPTY) {
 				return false;
 			}
 			// building above houses is expensive ... avoid it!

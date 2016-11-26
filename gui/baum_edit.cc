@@ -92,7 +92,7 @@ void baum_edit_frame_t::fill_list( bool translate )
 void baum_edit_frame_t::change_item_info(sint32 entry)
 {
 	for(int i=0;  i<4;  i++  ) {
-		img[i].set_image( IMG_LEER );
+		img[i].set_image( IMG_EMPTY );
 	}
 	buf.clear();
 	if(entry>=0  &&  entry<(sint32)baumlist.get_count()) {

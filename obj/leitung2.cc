@@ -98,7 +98,7 @@ fabrik_t *leitung_t::suche_fab_4(const koord pos)
 
 leitung_t::leitung_t(loadsave_t *file) : obj_t()
 {
-	bild = IMG_LEER;
+	bild = IMG_EMPTY;
 	set_net(NULL);
 	ribi = ribi_t::none;
 	rdwr(file);
@@ -107,7 +107,7 @@ leitung_t::leitung_t(loadsave_t *file) : obj_t()
 
 leitung_t::leitung_t(koord3d pos, player_t *player) : obj_t(pos)
 {
-	bild = IMG_LEER;
+	bild = IMG_EMPTY;
 	set_net(NULL);
 	set_owner( player );
 	set_besch(wegbauer_t::leitung_besch);
@@ -260,7 +260,7 @@ void leitung_t::calc_image()
 	}
 	if(gr->ist_bruecke() || (gr->get_typ()==grund_t::tunnelboden && gr->ist_karten_boden())) {
 		// don't display on a bridge or in a tunnel)
-		set_bild(IMG_LEER);
+		set_bild(IMG_EMPTY);
 		return;
 	}
 

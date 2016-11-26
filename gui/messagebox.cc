@@ -58,7 +58,7 @@ news_img::news_img(const char* text, image_id id, PLAYER_COLOR_VAL color) :
  */
 void news_img::init(image_id id)
 {
-	if(  id!=IMG_LEER  ) {
+	if(  id!=IMG_EMPTY  ) {
 		bild.set_image(id, true);
 
 		scr_coord_val xoff, yoff, xw, yw;

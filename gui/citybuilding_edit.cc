@@ -272,7 +272,7 @@ void citybuilding_edit_frame_t::change_item_info(sint32 entry)
 		// now the images (maximum is 2x2 size)
 		// since these may be affected by rotation, we do this every time ...
 		for(int i=0;  i<3;  i++  ) {
-			img[i].set_image( IMG_LEER );
+			img[i].set_image( IMG_EMPTY );
 		}
 
 		uint8 rot = (rotation>253) ? 0 : rotation;

@@ -207,7 +207,7 @@ void obj_t::display(int xpos, int ypos  CLIP_NUM_DEF) const
 {
 	image_id bild = get_image();
 	image_id const outline_bild = get_outline_image();
-	if(  bild!=IMG_LEER  ||  outline_bild!=IMG_LEER  ) {
+	if(  bild!=IMG_EMPTY  ||  outline_bild!=IMG_EMPTY  ) {
 		const int raster_width = get_current_tile_raster_width();
 		const bool is_dirty = get_flag(obj_t::dirty);
 
@@ -219,7 +219,7 @@ void obj_t::display(int xpos, int ypos  CLIP_NUM_DEF) const
 		ypos += tile_raster_scale_y(get_yoff(), raster_width);
 
 		const int start_ypos = ypos;
-		for(  int j=0;  bild!=IMG_LEER;  ) {
+		for(  int j=0;  bild!=IMG_EMPTY;  ) {
 
 			if(  owner_n != PLAYER_UNOWNED  ) {
 				if(  obj_t::show_owner  ) {
@@ -237,7 +237,7 @@ void obj_t::display(int xpos, int ypos  CLIP_NUM_DEF) const
 			bild = get_image(++j);
 		}
 
-		if(  outline_bild != IMG_LEER  ) {
+		if(  outline_bild != IMG_EMPTY  ) {
 			// transparency?
 			const PLAYER_COLOR_VAL transparent = get_outline_colour();
 			if(  TRANSPARENT_FLAGS&transparent  ) {
@@ -277,7 +277,7 @@ void obj_t::display_after(int xpos, int ypos, bool) const
 #endif
 {
 	image_id bild = get_front_image();
-	if(  bild != IMG_LEER  ) {
+	if(  bild != IMG_EMPTY  ) {
 		const int raster_width = get_current_tile_raster_width();
 		const bool is_dirty = get_flag( obj_t::dirty );
 
@@ -314,7 +314,7 @@ void obj_t::display_after(int xpos, int ypos, bool) const
  */
 void obj_t::mark_image_dirty(image_id bild, sint16 yoff) const
 {
-	if(  bild != IMG_LEER  ) {
+	if(  bild != IMG_EMPTY  ) {
 		const sint16 rasterweite = get_tile_raster_width();
 		int xpos=0, ypos=0;
 		if(  is_moving()  ) {

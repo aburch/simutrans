@@ -307,13 +307,13 @@ bool player_t::new_month()
 				}
 				else if(  finance->get_netwealth()*10 < welt->get_settings().get_starting_money(welt->get_current_month()/12)  ){
 					// tell the player (problem!)
-					welt->get_message()->add_message( translator::translate("Net wealth less than 10% of starting capital!"), koord::invalid, message_t::problems, player_nr, IMG_LEER );
+					welt->get_message()->add_message( translator::translate("Net wealth less than 10% of starting capital!"), koord::invalid, message_t::problems, player_nr, IMG_EMPTY );
 				}
 				else {
 					// tell the player (just warning)
 					buf.clear();
 					buf.printf( translator::translate("On loan since %i month(s)"), finance->get_account_overdrawn() );
-					welt->get_message()->add_message( buf, koord::invalid, message_t::ai, player_nr, IMG_LEER );
+					welt->get_message()->add_message( buf, koord::invalid, message_t::ai, player_nr, IMG_EMPTY );
 				}
 			}
 			// no assets => nothing to go bankrupt about again
@@ -327,13 +327,13 @@ bool player_t::new_month()
 				if(  welt->get_active_player_nr()==player_nr  ) {
 					if(  finance->get_netwealth()*10 < welt->get_settings().get_starting_money(welt->get_current_month()/12)  ){
 						// net wealth nearly spent (problem!)
-						welt->get_message()->add_message( translator::translate("Net wealth near zero"), koord::invalid, message_t::problems, player_nr, IMG_LEER );
+						welt->get_message()->add_message( translator::translate("Net wealth near zero"), koord::invalid, message_t::problems, player_nr, IMG_EMPTY );
 					}
 					else {
 						// just minus in account (just tell)
 						buf.clear();
 						buf.printf( translator::translate("On loan since %i month(s)"), finance->get_account_overdrawn() );
-						welt->get_message()->add_message( buf, koord::invalid, message_t::ai, player_nr, IMG_LEER );
+						welt->get_message()->add_message( buf, koord::invalid, message_t::ai, player_nr, IMG_EMPTY );
 					}
 				}
 			}

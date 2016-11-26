@@ -56,7 +56,7 @@ public:
 	uint8 get_phasen() const { return phasen; }
 
 	bool has_image() const {
-		return get_hintergrund(0,0,0)!=IMG_LEER  ||  get_vordergrund(0,0)!=IMG_LEER;
+		return get_hintergrund(0,0,0)!=IMG_EMPTY  ||  get_vordergrund(0,0)!=IMG_EMPTY;
 	}
 
 	image_id get_hintergrund(uint16 phase, uint16 hoehe, uint8 season) const
@@ -69,7 +69,7 @@ public:
 		}
 		// here if this phase does not exists ...
 		bild_besch_t const* const bild = bl->get_bild(hoehe, 0);
-		return bild != NULL ? bild->get_nummer() : IMG_LEER;
+		return bild != NULL ? bild->get_nummer() : IMG_EMPTY;
 	}
 
 	// returns true, if the background is animated
@@ -97,7 +97,7 @@ public:
 		}
 		// here if this phase does not exists ...
 		bild_besch_t const* const bild = bl->get_bild(0, 0);
-		return bild != NULL ? bild->get_nummer() : IMG_LEER;
+		return bild != NULL ? bild->get_nummer() : IMG_EMPTY;
 	}
 
 	koord get_offset() const;

@@ -35,7 +35,7 @@ void message_t::node::rdwr(loadsave_t *file)
 	file->rdwr_short( color );
 	file->rdwr_long( time );
 	if(  file->is_loading()  ) {
-		bild = IMG_LEER;
+		bild = IMG_EMPTY;
 	}
 }
 

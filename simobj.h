@@ -249,16 +249,16 @@ public:
 
 	/**
 	 * give image for height > 0 (max. height currently 3)
-	 * IMG_LEER is no images
+	 * IMG_EMPTY is no images
 	 * @author Hj. Malthaner
 	 */
-	virtual image_id get_image(int /*height*/) const {return IMG_LEER;}
+	virtual image_id get_image(int /*height*/) const {return IMG_EMPTY;}
 
 	/**
 	 * this image is drawn after all get_bild() on this tile
 	 * Currently only single height is supported for this feature
 	 */
-	virtual image_id get_front_image() const {return IMG_LEER;}
+	virtual image_id get_front_image() const {return IMG_EMPTY;}
 
 	/**
 	 * if a function returns a value here with TRANSPARENT_FLAGS set
@@ -271,7 +271,7 @@ public:
 	 * The image, that will be outlined
 	 * @author kierongreen
 	 */
-	virtual image_id get_outline_image() const { return IMG_LEER; }
+	virtual image_id get_outline_image() const { return IMG_EMPTY; }
 
 	/**
 	 * Save and Load of object data in one routine

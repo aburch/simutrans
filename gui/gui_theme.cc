@@ -265,8 +265,8 @@ void gui_theme_t::init_gui_from_images()
 	init_size_from_bild( skinverwaltung_t::divider->get_bild(1), gui_divider_size );
 	for(  int i=0;  i<3;  i++  ) {
 		divider[i][0] = skinverwaltung_t::divider->get_bild_nr( i );
-		divider[i][1] = IMG_LEER;
-		divider[i][2] = IMG_LEER;
+		divider[i][1] = IMG_EMPTY;
+		divider[i][2] = IMG_EMPTY;
 	}
 
 	// Calculate arrow size
@@ -293,21 +293,21 @@ void gui_theme_t::init_gui_from_images()
 	// init horizontal scrollbar buttons
 	for(  int i=0;  i<3;  i++  ) {
 		h_scroll_back_tiles[i][0] = skinverwaltung_t::scrollbar->get_bild_nr( SKIN_SCROLLBAR_H_BACKGROUND_LEFT+i );
-		h_scroll_back_tiles[i][1] = IMG_LEER;
-		h_scroll_back_tiles[i][2] = IMG_LEER;
+		h_scroll_back_tiles[i][1] = IMG_EMPTY;
+		h_scroll_back_tiles[i][2] = IMG_EMPTY;
 		h_scroll_knob_tiles[i][0] = skinverwaltung_t::scrollbar->get_bild_nr( SKIN_SCROLLBAR_H_KNOB_LEFT+i );
-		h_scroll_knob_tiles[i][1] = IMG_LEER;
-		h_scroll_knob_tiles[i][2] = IMG_LEER;
+		h_scroll_knob_tiles[i][1] = IMG_EMPTY;
+		h_scroll_knob_tiles[i][2] = IMG_EMPTY;
 	}
 
 	// init vertical scrollbar buttons
 	for(  int i=0;  i<3;  i++  ) {
 		v_scroll_back_tiles[0][i] = skinverwaltung_t::scrollbar->get_bild_nr( SKIN_SCROLLBAR_V_BACKGROUND_TOP+i );
-		v_scroll_back_tiles[1][i] = IMG_LEER;
-		v_scroll_back_tiles[2][i] = IMG_LEER;
+		v_scroll_back_tiles[1][i] = IMG_EMPTY;
+		v_scroll_back_tiles[2][i] = IMG_EMPTY;
 		v_scroll_knob_tiles[0][i] = skinverwaltung_t::scrollbar->get_bild_nr( SKIN_SCROLLBAR_V_KNOB_TOP+i );
-		v_scroll_knob_tiles[1][i] = IMG_LEER;
-		v_scroll_knob_tiles[2][i] = IMG_LEER;
+		v_scroll_knob_tiles[1][i] = IMG_EMPTY;
+		v_scroll_knob_tiles[2][i] = IMG_EMPTY;
 	}
 
 	// Calculate V scrollbar size

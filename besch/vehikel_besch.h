@@ -152,7 +152,7 @@ public:
 		if(!liste) {
 			liste = get_child<bildliste_besch_t>(4);
 			if(!liste) {
-				return IMG_LEER;
+				return IMG_EMPTY;
 			}
 		}
 
@@ -162,7 +162,7 @@ public:
 				bild = liste->get_bild(dir - 4);
 			}
 			if(!bild) {
-				return IMG_LEER;
+				return IMG_EMPTY;
 			}
 		}
 		return bild->get_nummer();

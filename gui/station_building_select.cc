@@ -69,7 +69,7 @@ station_building_select_t::station_building_select_t(const haus_besch_t *besch) 
 				pos.x = pos.x + x_diff;
 			}
 			img[i*4+j].set_pos( pos );
-			img[i*4+j].set_image(IMG_LEER);
+			img[i*4+j].set_image(IMG_EMPTY);
 			img[i*4+j].set_pos( pos );
 			add_component( &img[i*4+j] );
 		}

@@ -165,8 +165,8 @@ void weg_t::init()
 	init_statistics();
 	alle_wege.insert(this);
 	flags = 0;
-	bild = IMG_LEER;
-	after_bild = IMG_LEER;
+	bild = IMG_EMPTY;
+	after_bild = IMG_EMPTY;
 }
 
 
@@ -351,7 +351,7 @@ bool weg_t::check_season(const bool calc_only_season_change)
 	}
 
 	// no way to calculate this or no image set (not visible, in tunnel mouth, etc)
-	if(  besch == NULL  ||  bild == IMG_LEER  ) {
+	if(  besch == NULL  ||  bild == IMG_EMPTY  ) {
 		return true;
 	}
 
@@ -429,8 +429,8 @@ void weg_t::calc_image()
 
 	if(  from==NULL  ||  besch==NULL  ) {
 		// no ground, in tunnel
-		set_bild(IMG_LEER);
-		set_after_bild(IMG_LEER);
+		set_bild(IMG_EMPTY);
+		set_after_bild(IMG_EMPTY);
 		if(  from==NULL  ) {
 			dbg->error( "weg_t::calc_bild()", "Own way at %s not found!", get_pos().get_str() );
 		}
@@ -441,8 +441,8 @@ void weg_t::calc_image()
 	}
 	else if(  from->ist_tunnel() &&  from->ist_karten_boden()  &&  (grund_t::underground_mode==grund_t::ugm_none || (grund_t::underground_mode==grund_t::ugm_level && from->get_hoehe()<grund_t::underground_level))  ) {
 		// in tunnel mouth, no underground mode
-		set_bild(IMG_LEER);
-		set_after_bild(IMG_LEER);
+		set_bild(IMG_EMPTY);
+		set_after_bild(IMG_EMPTY);
 	}
 	else if(  from->ist_bruecke()  &&  from->obj_bei(0)==this  ) {
 		// first way on a bridge (bruecke_t will set the image)
@@ -493,8 +493,8 @@ void weg_t::calc_image()
 
 				// now apply diagonal image
 				if(is_diagonal()) {
-					if( besch->get_diagonal_bild_nr(ribi, snow) != IMG_LEER  ||
-					    besch->get_diagonal_bild_nr(ribi, snow, true) != IMG_LEER) {
+					if( besch->get_diagonal_bild_nr(ribi, snow) != IMG_EMPTY  ||
+					    besch->get_diagonal_bild_nr(ribi, snow, true) != IMG_EMPTY) {
 						set_images(image_diagonal, ribi, snow);
 					}
 				}

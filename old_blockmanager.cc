@@ -49,7 +49,7 @@ public:
 
 	void rdwr(loadsave_t *file);
 
-	image_id get_image() const { return IMG_LEER; }
+	image_id get_image() const { return IMG_EMPTY; }
 };
 
 

@@ -68,7 +68,7 @@ public:
 		if(bild == NULL) {
 			bild = get_child<bildliste_besch_t>(0 + offset)->get_bild(img);
 		}
-		return bild != NULL ? bild->get_nummer() : IMG_LEER;
+		return bild != NULL ? bild->get_nummer() : IMG_EMPTY;
 	}
 
 	image_id get_vordergrund(img_t img, uint8 season) const {
@@ -79,7 +79,7 @@ public:
 		if(bild == NULL) {
 			bild = get_child<bildliste_besch_t>(1 + offset)->get_bild(img);
 		}
-		return bild != NULL ? bild->get_nummer() : IMG_LEER;
+		return bild != NULL ? bild->get_nummer() : IMG_EMPTY;
 	}
 
 	img_t get_simple(ribi_t::ribi ribi, uint8 height) const;

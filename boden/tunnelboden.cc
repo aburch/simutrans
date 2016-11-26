@@ -61,7 +61,7 @@ void tunnelboden_t::calc_bild_internal(const bool calc_only_snowline_change)
 		}
 
 		if(  grund_t::underground_mode == grund_t::ugm_none  ) {
-			if(  (ribi_type(get_grund_hang()) == ribi_t::east  &&  abs(back_bild_nr) > 11)  ||  (ribi_type(get_grund_hang()) == ribi_t::south  &&  get_back_bild(0) != IMG_LEER)  ) {
+			if(  (ribi_type(get_grund_hang()) == ribi_t::east  &&  abs(back_bild_nr) > 11)  ||  (ribi_type(get_grund_hang()) == ribi_t::south  &&  get_back_bild(0) != IMG_EMPTY)  ) {
 				// on east or north slope: must draw as obj, since there is a slope here nearby
 				koord pos = get_pos().get_2d() + koord( get_grund_hang() );
 				grund_t *gr = welt->lookup_kartenboden( pos );

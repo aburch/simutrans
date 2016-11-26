@@ -222,7 +222,7 @@ bool hausbauer_t::register_besch(haus_besch_t *besch)
 
 	// probably needs a tool if it has a cursor
 	const skin_besch_t *sb = besch->get_cursor();
-	if(  sb  &&  sb->get_bild_nr(1)!=IMG_LEER) {
+	if(  sb  &&  sb->get_bild_nr(1)!=IMG_EMPTY) {
 		tool_t *tool;
 		if(  besch->get_utyp()==haus_besch_t::depot  ) {
 			tool = new tool_build_depot_t();
@@ -472,8 +472,8 @@ gebaeude_t* hausbauer_t::baue(player_t* player_, koord3d pos, int org_layout, co
 			// skip empty tiles
 			if (tile == NULL || (
 						!(besch->get_utyp() == haus_besch_t::dock  ||  besch->get_utyp() == haus_besch_t::flat_dock)  &&
-						tile->get_hintergrund(0, 0, 0) == IMG_LEER &&
-						tile->get_vordergrund(0, 0)    == IMG_LEER
+						tile->get_hintergrund(0, 0, 0) == IMG_EMPTY &&
+						tile->get_vordergrund(0, 0)    == IMG_EMPTY
 					)) {
 						// may have a rotation that is not recoverable
 						DBG_MESSAGE("hausbauer_t::baue()","get_tile() empty at %i,%i",k.x,k.y);

@@ -36,7 +36,7 @@ public:
 	const bruecke_besch_t *get_besch() const { return besch; }
 
 	// we will always replace first way image
-	image_id get_image() const { return IMG_LEER; }
+	image_id get_image() const { return IMG_EMPTY; }
 
 	image_id get_front_image() const;
 

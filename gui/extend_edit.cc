@@ -77,7 +77,7 @@ extend_edit_gui_t::extend_edit_gui_t(const char *name, player_t* player_) :
 
 	// image placeholder
 	for(  sint16 i=3;  i>=0;  i--  ) {
-		img[i].set_image(IMG_LEER);
+		img[i].set_image(IMG_EMPTY);
 		add_component( &img[i] );
 	}
 

@@ -903,7 +903,7 @@ void haltestelle_t::new_month()
 	if(  welt->get_active_player()==owner_p  &&  status_color==COL_RED  ) {
 		cbuffer_t buf;
 		buf.printf( translator::translate("%s\nis crowded."), get_name() );
-		welt->get_message()->add_message(buf, get_basis_pos(),message_t::full, PLAYER_FLAG|owner_p->get_player_nr(), IMG_LEER );
+		welt->get_message()->add_message(buf, get_basis_pos(),message_t::full, PLAYER_FLAG|owner_p->get_player_nr(), IMG_EMPTY );
 		enables &= (PAX|POST|WARE);
 	}
 
@@ -2357,7 +2357,7 @@ void haltestelle_t::make_public_and_join( player_t *player )
 	if(  player != public_owner  &&  env_t::networkmode  ) {
 		cbuffer_t buf;
 		buf.printf( translator::translate("%s at (%i,%i) now public stop."), get_name(), get_basis_pos().x, get_basis_pos().y );
-		welt->get_message()->add_message( buf, get_basis_pos(), message_t::ai, PLAYER_FLAG|player->get_player_nr(), IMG_LEER );
+		welt->get_message()->add_message( buf, get_basis_pos(), message_t::ai, PLAYER_FLAG|player->get_player_nr(), IMG_EMPTY );
 	}
 
 	recalc_station_type();
