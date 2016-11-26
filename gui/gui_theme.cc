@@ -192,10 +192,9 @@ void gui_theme_t::init_gui_defaults()
 
 
 // helper for easier init
-void gui_theme_t::init_size_from_bild( const bild_besch_t *pic, scr_size &k )
+void gui_theme_t::init_size_from_bild( const bild_besch_t *image, scr_size &k )
 {
-	if(  pic  ) {
-		const bild_t *image = pic->get_pic();
+	if(  image  ) {
 		k = scr_size(image->x+image->w,image->y+image->h);
 	}
 }

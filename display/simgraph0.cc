@@ -105,7 +105,7 @@ COLOR_VAL display_get_index_from_rgb(uint8, uint8, uint8)
 	return 0;
 }
 
-void register_image(struct bild_t* bild)
+void register_image(struct bild_besch_t* bild)
 {
 	bild->bild_nr = 1;
 }
