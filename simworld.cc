@@ -5215,8 +5215,6 @@ rands[23] = 0;
 	step_passengers_and_mail(delta_t);
 #endif
 	DBG_DEBUG4("karte_t::step", "step generate passengers and mail");
-	// TODO: Consider whether other things in step() can be put between these.
-	
 
 rands[15] = get_random_seed();
 
@@ -5239,6 +5237,8 @@ rands[15] = get_random_seed();
 
 	rands[23] = get_random_seed();
 
+	INT_CHECK("karte_t::step 4");
+
 #if MULTI_THREAD
 	if (!env_t::networkmode)
 	{
@@ -5248,9 +5248,7 @@ rands[15] = get_random_seed();
 		simthread_barrier_wait(&step_passengers_and_mail_barrier);
 	}
 #endif
-
-	// This cannot be before the barrier because sync_step/INT_CHECK uses simrand, as does step_passengers_and_mail, and both cannot be calling simrand simultaneously.
-	INT_CHECK("karte_t::step 4");
+	INT_CHECK("karte_t::step 5");
 
 	DBG_DEBUG4("karte_t::step", "step factories");
 	FOR(vector_tpl<fabrik_t*>, const f, fab_list) {
@@ -5268,6 +5266,8 @@ rands[16] = get_random_seed();
 	powernet_t::step_all( delta_t );
 rands[17] = get_random_seed();
 
+	INT_CHECK("karte_t::step 6");
+
 	DBG_DEBUG4("karte_t::step", "step players");
 	// then step all players
 	// This is not computationally intensive (except possibly occasionally when liquidating a company)
@@ -5277,6 +5277,8 @@ rands[17] = get_random_seed();
 		}
 	}
 rands[18] = get_random_seed();
+
+	INT_CHECK("karte_t::step 7");
 
 	// This is not computationally intensive
 	DBG_DEBUG4("karte_t::step", "step halts");
@@ -5321,7 +5323,7 @@ rands[19] = get_random_seed();
 #endif
 
 	// ok, next step
-	INT_CHECK("karte_t::step 6");
+	INT_CHECK("karte_t::step 8");
 
 	if((steps%8)==0) {
 		DBG_DEBUG4("karte_t::step", "checkmidi");
