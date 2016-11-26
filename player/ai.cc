@@ -312,7 +312,7 @@ void ai_t::set_marker( koord place, koord size )
 		for(  pos.x=place.x;  pos.x<=place.x+size.x;  pos.x++  ) {
 			grund_t *gr = welt->lookup_kartenboden(pos);
 			zeiger_t *z = new zeiger_t(gr->get_pos(), this);
-			z->set_bild( skinverwaltung_t::belegtzeiger->get_bild_nr(0) );
+			z->set_image( skinverwaltung_t::belegtzeiger->get_image_id(0) );
 			gr->obj_add( z );
 		}
 	}

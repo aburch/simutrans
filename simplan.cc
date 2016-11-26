@@ -188,7 +188,7 @@ void planquadrat_t::kartenboden_setzen(grund_t *bd)
 		ground_size = 1;
 		bd->set_kartenboden(true);
 	}
-	bd->calc_bild();
+	bd->calc_image();
 	reliefkarte_t::get_karte()->calc_map_pixel(bd->get_pos().get_2d());
 }
 
@@ -367,7 +367,7 @@ void planquadrat_t::abgesenkt()
 			for(int r=0; r<4; r++) {
 				grund_t *gr2 = welt->lookup_kartenboden(k + koord::nsew[r]);
 				if (gr2  &&  gr2->ist_wasser()) {
-					gr2->calc_bild();
+					gr2->calc_image();
 				}
 			}
 		}
@@ -396,7 +396,7 @@ void planquadrat_t::angehoben()
 			for(int r=0; r<4; r++) {
 				grund_t *gr2 = welt->lookup_kartenboden(k + koord::nsew[r]);
 				if(  gr2  &&  gr2->ist_wasser()  ) {
-					gr2->calc_bild();
+					gr2->calc_image();
 				}
 			}
 		}
@@ -408,7 +408,7 @@ void planquadrat_t::angehoben()
 			for(int r=0; r<4; r++) {
 				grund_t *gr2 = welt->lookup_kartenboden(k + koord::nsew[r]);
 				if(  gr2  &&  gr2->ist_wasser()  ) {
-					gr2->calc_bild();
+					gr2->calc_image();
 				}
 			}
 		}
@@ -513,10 +513,10 @@ image_id overlay_img(grund_t *gr)
 	image_id img;
 	if(  gr->get_typ()==grund_t::wasser  ) {
 		// water is always flat and does not return proper image_id
-		img = grund_besch_t::ausserhalb->get_bild(0);
+		img = grund_besch_t::ausserhalb->get_image(0);
 	}
 	else {
-		img = gr->get_bild();
+		img = gr->get_image();
 		if(  img==IMG_EMPTY  ) {
 			// foundations or underground mode
 			img = grund_besch_t::get_ground_tile( gr );

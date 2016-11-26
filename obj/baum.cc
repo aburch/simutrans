@@ -33,7 +33,7 @@
 
 #include "baum.h"
 
-static const uint8 baum_bild_alter[12] =
+static const uint8 tree_age_index[12] =
 {
 	0,1,2,3,3,3,3,3,3,4,4,4
 };
@@ -44,7 +44,7 @@ PLAYER_COLOR_VAL baum_t::outline_color = 0;
 // missing images just have identical entries
 // seasons are: 0=summer, 1=autumn, 2=winter, 3=spring, 4=snow
 // snow image is used if tree is above snow line, or for arctic climate
-static image_id baumtype_to_bild[256][5*5];
+static image_id baumtype_to_image[256][5*5];
 
 
 // distributes trees on a map
@@ -82,7 +82,7 @@ vector_tpl<const baum_besch_t *> baum_t::baum_typen(0);
 weighted_vector_tpl<uint32>* baum_t::baum_typen_per_climate = NULL;
 
 /*
- * Diese Tabelle ermoeglicht das Auffinden einer Beschreibung durch ihren Namen
+ * Diese Tabelle ermoeglicht das Auffinden einer Description durch ihren Namen
  */
 stringhashtable_tpl<const baum_besch_t *> baum_t::besch_names;
 
@@ -267,7 +267,7 @@ bool baum_t::alles_geladen()
 	baum_typen_per_climate = new weighted_vector_tpl<uint32>[MAX_CLIMATES];
 
 	// clear cache
-	memset( baumtype_to_bild, -1, lengthof(baumtype_to_bild) );
+	memset( baumtype_to_image, -1, lengthof(baumtype_to_image) );
 	// now register all trees for all fitting climates
 	for(  uint32 typ=0;  typ<baum_typen.get_count()-1;  typ++  ) {
 		// add this tree to climates
@@ -296,7 +296,7 @@ bool baum_t::alles_geladen()
 				}
 			}
 			for(  uint8 age = 0;  age < 5;  age++  ) {
-				baumtype_to_bild[typ][season * 5 + age] = baum_typen[typ]->get_bild_nr( use_season, age );
+				baumtype_to_image[typ][season * 5 + age] = baum_typen[typ]->get_image_id( use_season, age );
 			}
 		}
 	}
@@ -388,21 +388,21 @@ image_id baum_t::get_image() const
 			return IMG_EMPTY;
 		}
 		else {
-			return baumtype_to_bild[ baumtype ][ season*5 ];
+			return baumtype_to_image[ baumtype ][ season*5 ];
 		}
 	}
-	const uint8 baum_alter = baum_bild_alter[min(get_age()>>6, 11u)];
-	return baumtype_to_bild[ baumtype ][ season*5 + baum_alter ];
-//	return get_besch()->get_bild_nr( season, baum_alter );
+	const uint8 baum_alter = tree_age_index[min(get_age()>>6, 11u)];
+	return baumtype_to_image[ baumtype ][ season*5 + baum_alter ];
+//	return get_besch()->get_image_id( season, baum_alter );
 }
 
 
 // image which transparent outline is used
 image_id baum_t::get_outline_image() const
 {
-	const uint8 baum_alter = baum_bild_alter[min(get_age()>>6, 11u)];
-	return baumtype_to_bild[ baumtype ][ season*5 + baum_alter ];
-//	return get_besch()->get_bild_nr( season, baum_alter );
+	const uint8 baum_alter = tree_age_index[min(get_age()>>6, 11u)];
+	return baumtype_to_image[ baumtype ][ season*5 + baum_alter ];
+//	return get_besch()->get_image_id( season, baum_alter );
 }
 
 

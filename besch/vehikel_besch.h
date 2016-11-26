@@ -107,19 +107,19 @@ public:
 
 	skin_besch_t const* get_rauch() const { return get_child<skin_besch_t>(3); }
 
-	image_id get_basis_bild() const { return get_bild_nr(ribi_t::dir_south, get_ware() ); }
+	image_id get_base_image() const { return get_image_id(ribi_t::dir_south, get_ware() ); }
 
 	// returns the number of different directions
-	uint8 get_dirs() const { return get_child<bildliste_besch_t>(4)->get_bild(4) ? 8 : 4; }
+	uint8 get_dirs() const { return get_child<image_list_t>(4)->get_image(4) ? 8 : 4; }
 
 	// return a matching image
 	// beware, there are three class of vehicles
 	// vehicles with and without freight images, and vehicles with different freight images
 	// they can have 4 or 8 directions ...
-	image_id get_bild_nr(ribi_t::dir dir, const ware_besch_t *ware) const
+	image_id get_image_id(ribi_t::dir dir, const ware_besch_t *ware) const
 	{
-		const bild_besch_t *bild=0;
-		const bildliste_besch_t *liste=0;
+		const image_t *image=0;
+		const image_list_t *liste=0;
 
 		if(freight_image_type>0  &&  ware!=NULL) {
 			// more freight images and a freight: find the right one
@@ -134,38 +134,38 @@ public:
 			}
 
 			// vehicle has freight images and we want to use - get appropriate one (if no list then fallback to empty image)
-			bildliste2d_besch_t const* const liste2d = get_child<bildliste2d_besch_t>(5);
-			bild=liste2d->get_bild(dir, ware_index);
-			if(!bild) {
+			image_array_t const* const liste2d = get_child<image_array_t>(5);
+			image=liste2d->get_image(dir, ware_index);
+			if(!image) {
 				if(dir>3) {
-					bild = liste2d->get_bild(dir - 4, ware_index);
+					image = liste2d->get_image(dir - 4, ware_index);
 				}
 			}
-			if (bild != NULL) return bild->get_nummer();
+			if (image != NULL) return image->get_id();
 		}
 
 		// only try 1d freight image list for old style vehicles
 		if(freight_image_type==0  &&  ware!=NULL) {
-			liste = get_child<bildliste_besch_t>(5);
+			liste = get_child<image_list_t>(5);
 		}
 
 		if(!liste) {
-			liste = get_child<bildliste_besch_t>(4);
+			liste = get_child<image_list_t>(4);
 			if(!liste) {
 				return IMG_EMPTY;
 			}
 		}
 
-		bild = liste->get_bild(dir);
-		if(!bild) {
+		image = liste->get_image(dir);
+		if(!image) {
 			if(dir>3) {
-				bild = liste->get_bild(dir - 4);
+				image = liste->get_image(dir - 4);
 			}
-			if(!bild) {
+			if(!image) {
 				return IMG_EMPTY;
 			}
 		}
-		return bild->get_nummer();
+		return image->get_id();
 	}
 
 	// Liefert die erlaubten Vorgaenger.

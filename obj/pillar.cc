@@ -62,7 +62,7 @@ void pillar_t::calc_image()
 		}
 
 	}
-	bild = hide ? IMG_EMPTY : besch->get_hintergrund( (bruecke_besch_t::img_t)dir, get_pos().z-height/TILE_HEIGHT_STEP >= welt->get_snowline()  ||  welt->get_climate( get_pos().get_2d() ) == arctic_climate );
+	image = hide ? IMG_EMPTY : besch->get_background( (bruecke_besch_t::img_t)dir, get_pos().z-height/TILE_HEIGHT_STEP >= welt->get_snowline()  ||  welt->get_climate( get_pos().get_2d() ) == arctic_climate );
 }
 
 
@@ -129,7 +129,7 @@ void pillar_t::rotate90()
 {
 	obj_t::rotate90();
 	// may need to hide/show asymmetric pillars
-	// this is done now in calc_bild, which is called after karte_t::rotate anyway
+	// this is done now in calc_image, which is called after karte_t::rotate anyway
 	// we cannot decide this here, since welt->lookup(get_pos())->get_grund_hang() cannot be called
 	// since we are in the middle of the rotation process
 

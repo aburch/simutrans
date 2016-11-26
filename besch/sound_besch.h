@@ -16,14 +16,14 @@
 #define AMBIENT_SOUND_INTERVALL (13000)
 
 /*
- *  Autor:
+ *  Author:
  *      prissi
  *
- *  Beschreibung:
+ *  Description:
  *      Sounds in the game; name is the file name
  *      ingame, sounds are referred to by their number
  *
- *  Kindknoten:
+ *  Child nodes:
  *	0   Name
  *	1   Copyright
  */

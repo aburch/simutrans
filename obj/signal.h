@@ -37,7 +37,7 @@ public:
 	const char *get_name() const {return "Signal";}
 
 	/**
-	* berechnet aktuelles bild
+	* berechnet aktuelles image
 	*/
 	void calc_image();
 };

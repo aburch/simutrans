@@ -22,7 +22,7 @@
 obj_besch_t *image_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
 	ALLOCA(char, besch_buf, node.size);
-	bild_besch_t* besch=NULL;
+	image_t* besch=NULL;
 
 	// Hajo: Read data
 	fread(besch_buf, node.size, 1, fp);
@@ -34,10 +34,10 @@ obj_besch_t *image_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	p = besch_buf;
 
 #if COLOUR_DEPTH != 0
-	besch = new bild_besch_t();
+	besch = new image_t();
 #else
 	// reserve space for one single pixel and initialize data
-	besch = bild_besch_t::create_single_pixel();
+	besch = image_t::create_single_pixel();
 #endif
 
 	if(version==0) {
@@ -46,12 +46,12 @@ obj_besch_t *image_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->y = decode_uint8(p);
 		besch->h = decode_uint8(p);
 		besch->alloc(decode_uint32(p)); // len
-		besch->bild_nr = IMG_EMPTY;
+		besch->imageid = IMG_EMPTY;
 		p += 2;	// dummys
 		besch->zoomable = decode_uint8(p);
 
 		skip_reading_pixels_if_no_graphics;
-		//DBG_DEBUG("bild_besch_t::read_node()","x,y=%d,%d  w,h=%d,%d, len=%i",besch->x,besch->y,besch->w,besch->h, besch->len);
+		//DBG_DEBUG("image_t::read_node()","x,y=%d,%d  w,h=%d,%d, len=%i",besch->x,besch->y,besch->w,besch->h, besch->len);
 
 		uint16* dest = besch->data;
 		p = besch_buf+12;
@@ -75,7 +75,7 @@ obj_besch_t *image_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		p++; // skip version information
 		besch->alloc(decode_uint16(p)); // len
 		besch->zoomable = decode_uint8(p);
-		besch->bild_nr = IMG_EMPTY;
+		besch->imageid = IMG_EMPTY;
 
 		skip_reading_pixels_if_no_graphics;
 		uint16* dest = besch->data;
@@ -93,7 +93,7 @@ obj_besch_t *image_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->h = decode_sint16(p);
 		besch->alloc((node.size-10)/2); // len
 		besch->zoomable = decode_uint8(p);
-		besch->bild_nr = IMG_EMPTY;
+		besch->imageid = IMG_EMPTY;
 
 		skip_reading_pixels_if_no_graphics;
 		uint16* dest = besch->data;
@@ -162,12 +162,12 @@ adjust_image:
 		uint32 adler = adler32(0L, NULL, 0 );
 		// remember len is sizeof(uint16)!
 		adler = adler32(adler, (const Bytef *)(besch->data), besch->len*2 );
-		static inthashtable_tpl<uint32, bild_besch_t *> images_adlers;
-		bild_besch_t *same = images_adlers.get(adler);
+		static inthashtable_tpl<uint32, image_t *> images_adlers;
+		image_t *same = images_adlers.get(adler);
 		if (same) {
 			// same checksum => if same then skip!
-			bild_besch_t const& a = *besch;
-			bild_besch_t const& b = *same;
+			image_t const& a = *besch;
+			image_t const& b = *same;
 			do_register_image =
 				a.x        != b.x        ||
 				a.y        != b.y        ||
@@ -180,7 +180,7 @@ adjust_image:
 		// unique image here
 		if(  do_register_image  ) {
 			if(!same) {
-				images_adlers.put(adler,besch);	// still with bild_nr == IMG_EMPTY!
+				images_adlers.put(adler,besch);	// still with imageid == IMG_EMPTY!
 			}
 			// register image adds this image to the internal array maintained by simgraph??.cc
 			register_image(besch);

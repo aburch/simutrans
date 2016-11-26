@@ -17,10 +17,10 @@
 class checksum_t;
 
 /*
- *  Autor:
+ *  Author:
  *      Volker Meyer
  *
- *  Kindknoten:
+ *  Child nodes:
  *	0   Name
  *	1   Copyright
  *	2   Bild
@@ -50,27 +50,27 @@ public:
 	 * ....
 	 * =>ns=0 NorthSouth ns=1, East-West
 	 */
-	const bild_besch_t *get_bild(uint8 ns, bool open, uint16 phase) const
+	const image_t *get_image(uint8 ns, bool open, uint16 phase) const
 	{
 		if(open) {
-			return get_child<bildliste_besch_t>(2 + ns)->get_bild(phase);
+			return get_child<image_list_t>(2 + ns)->get_image(phase);
 		}
 		else {
-			bildliste_besch_t const* const bl = get_child<bildliste_besch_t>(6 + ns);
-			return bl ? bl->get_bild(phase) : NULL;
+			image_list_t const* const imglist = get_child<image_list_t>(6 + ns);
+			return imglist ? imglist->get_image(phase) : NULL;
 		}
 	}
 
-	const bild_besch_t *get_bild_after(uint8 ns, bool open, uint16 phase) const
+	const image_t *get_image_after(uint8 ns, bool open, uint16 phase) const
 	{
 		uint8 const n = ns + (open ? 4 : 8);
-		bildliste_besch_t const* const bl = get_child<bildliste_besch_t>(n);
-		return bl ? bl->get_bild(phase) : 0;
+		image_list_t const* const imglist = get_child<image_list_t>(n);
+		return imglist ? imglist->get_image(phase) : 0;
 	}
 
 	waytype_t get_waytype(int i) const { return (waytype_t)(i==0? wegtyp1 : wegtyp2); }
 	sint32 get_maxspeed(int i) const { return i==0 ? topspeed1 : topspeed2; }
-	uint16 get_phases(bool open, bool front) const { return get_child<bildliste_besch_t>(6 - 4 * open + 2 * front)->get_count(); }
+	uint16 get_phases(bool open, bool front) const { return get_child<image_list_t>(6 - 4 * open + 2 * front)->get_count(); }
 	uint32 get_animation_time(bool open) const { return open ? open_animation_time : closed_animation_time; }
 
 	sint8 get_sound() const { return sound; }

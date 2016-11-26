@@ -10,29 +10,29 @@
 #include "bildliste_besch.h"
 
 /*
- *  Autor:
+ *  Author:
  *      Volker Meyer
  *
- *  Beschreibung:
- *      2 dimensionales Bilder-Array
+ *  Description:
+ *      Two-dimensional array of images
  *
- *  Kindknoten:
- *	0   1. Bildliste
- *	1   2. Bildliste
+ *  Child nodes:
+ *	0   1st Image-list
+ *	1   2nd Image-list
  *	... ...
  */
-class bildliste2d_besch_t : public obj_besch_t {
+class image_array_t : public obj_besch_t {
 	friend class imagelist2d_reader_t;
 
 	uint16  count;
 
 public:
-	bildliste2d_besch_t() : count(0) {}
+	image_array_t() : count(0) {}
 
 	uint16 get_count() const { return count; }
 
-	bildliste_besch_t const* get_liste(uint16 i)          const { return i < count ? get_child<bildliste_besch_t>(i)              : 0; }
-	bild_besch_t      const* get_bild(uint16 i, uint16 j) const { return i < count ? get_child<bildliste_besch_t>(i)->get_bild(j) : 0; }
+	image_list_t const* get_list(uint16 i)            const { return i < count ? get_child<image_list_t>(i)               : 0; }
+	image_t      const* get_image(uint16 i, uint16 j) const { return i < count ? get_child<image_list_t>(i)->get_image(j) : 0; }
 };
 
 #endif

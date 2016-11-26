@@ -475,7 +475,7 @@ void vehicle_base_t::calc_height(grund_t *gr)
 			// need hiding? One of the few uses of XOR: not half driven XOR exiting => not hide!
 			ribi_t::ribi hang_ribi = ribi_type( gr->get_grund_hang() );
 			if((steps<(steps_next/2))  ^  ((hang_ribi&direction)!=0)  ) {
-				set_bild(IMG_EMPTY);
+				set_image(IMG_EMPTY);
 			}
 			else {
 				calc_image();
@@ -1381,14 +1381,14 @@ void vehicle_t::discard_cargo()
 
 void vehicle_t::calc_image()
 {
-	image_id old_bild=get_image();
+	image_id old_image=get_image();
 	if (fracht.empty()) {
-		set_bild(besch->get_bild_nr(ribi_t::get_dir(get_direction()),NULL));
+		set_image(besch->get_image_id(ribi_t::get_dir(get_direction()),NULL));
 	}
 	else {
-		set_bild(besch->get_bild_nr(ribi_t::get_dir(get_direction()), fracht.front().get_besch()));
+		set_image(besch->get_image_id(ribi_t::get_dir(get_direction()), fracht.front().get_besch()));
 	}
-	if(old_bild!=get_image()) {
+	if(old_image!=get_image()) {
 		set_flag(obj_t::dirty);
 	}
 }
@@ -1396,7 +1396,7 @@ void vehicle_t::calc_image()
 
 image_id vehicle_t::get_loaded_image() const
 {
-	return besch->get_bild_nr(ribi_t::dir_south, fracht.empty() ?  warenbauer_t::nichts  : fracht.front().get_besch());
+	return besch->get_image_id(ribi_t::dir_south, fracht.empty() ?  warenbauer_t::nichts  : fracht.front().get_besch());
 }
 
 
@@ -4034,7 +4034,7 @@ void air_vehicle_t::rdwr_from_convoi(loadsave_t *file)
 {
 	xml_tag_t t( file, "aircraft_t" );
 
-	// initialize as vehicle_t::rdwr_from_convoi calls get_bild()
+	// initialize as vehicle_t::rdwr_from_convoi calls get_image()
 	if (file->is_loading()) {
 		state = taxiing;
 		flying_height = 0;

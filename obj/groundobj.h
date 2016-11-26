@@ -23,7 +23,7 @@ private:
 	uint16 groundobjtype;
 
 	/// the image, cached
-	image_id bild;
+	image_id image;
 
 	/// table to lookup object based on name
 	static stringhashtable_tpl<groundobj_besch_t *> besch_names;
@@ -42,7 +42,7 @@ public:
 
 	void rdwr(loadsave_t *file);
 
-	image_id get_image() const { return bild; }
+	image_id get_image() const { return image; }
 
 	/// recalculates image depending on season and slope of ground
 	void calc_image();

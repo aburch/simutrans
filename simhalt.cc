@@ -285,7 +285,7 @@ DBG_DEBUG("haltestelle_t::remove()","destroy");
 
 	// if building was removed this is false!
 	if(bd) {
-		bd->calc_bild();
+		bd->calc_image();
 		reliefkarte_t::get_karte()->calc_map_pixel(pos.get_2d());
 	}
 	return true;

@@ -12,7 +12,7 @@
 #include "../network/checksum.h"
 
 /*
- *  Autor:
+ *  Author:
  *      Markus Pristovsek
  *
  * this is the description for ground objects like small lakes, hunting post, birds, flower patch, stones, sheeps, ...
@@ -20,10 +20,10 @@
  * or move around the map (water_t=only on water, air_t=everywhere)
  * They are removable with certain costs.
  *
- *  Kindknoten:
+ *  Child nodes:
  *	0   Name
  *	1   Copyright
- *	2   Bildliste2D
+ *	2   Image-array
  */
 
 
@@ -52,13 +52,13 @@ public:
 	// for the paltzsucher needed
 	climate_bits get_allowed_climate_bits() const { return allowed_climates; }
 
-	const bild_besch_t *get_bild(uint8 season, uint16 phase) const {
-		return get_child<bildliste2d_besch_t>(2)->get_bild(phase, season);
+	const image_t *get_image(uint8 season, uint16 phase) const {
+		return get_child<image_array_t>(2)->get_image(phase, season);
 	}
 
-	image_id get_bild_nr(uint8 season, uint16 phase) const {
-		const bild_besch_t *bild = get_child<bildliste2d_besch_t>(2)->get_bild(phase, season);
-		return bild != NULL ? bild->get_nummer() : IMG_EMPTY;
+	image_id get_image_id(uint8 season, uint16 phase) const {
+		const image_t *image = get_child<image_array_t>(2)->get_image(phase, season);
+		return image != NULL ? image->get_id() : IMG_EMPTY;
 	}
 
 	// moving stuff should have eight
@@ -66,7 +66,7 @@ public:
 	// if count==1, this will not appear on slopes
 	uint16 get_phases() const
 	{
-		return get_child<bildliste2d_besch_t>(2)->get_count();
+		return get_child<image_array_t>(2)->get_count();
 	}
 
 	uint8 get_seasons() const { return number_of_seasons; }

@@ -6,11 +6,11 @@
  *  node structure:
  *  0   Name
  *  1   Copyright
- *  2   Bildliste Hintergrund
- *  3   Bildliste Vordergrund
+ *  2   Image-list Hintergrund
+ *  3   Image-list Vordergrund
  *  4   cursor(image 0) and icon (image 1)
- *[ 5   Bildliste Hintergrund - snow ] (if present)
- *[ 6   Bildliste Vordergrund - snow ] (if present)
+ *[ 5   Image-list Hintergrund - snow ] (if present)
+ *[ 6   Image-list Vordergrund - snow ] (if present)
  *[ 7 (or 5 if no snow image) underground way ] (if present)
  */
 
@@ -45,28 +45,28 @@ private:
 	uint8 broad_portals;
 
 public:
-	const bild_besch_t *get_hintergrund(slope_t::type hang, uint8 season, uint8 type ) const
+	const image_t *get_background(slope_t::type hang, uint8 season, uint8 type ) const
 	{
 		const uint8 n = season && number_seasons == 1 ? 5 : 2;
-		return get_child<bildliste_besch_t>(n)->get_bild(hang_indices[hang] + 4 * type);
+		return get_child<image_list_t>(n)->get_image(hang_indices[hang] + 4 * type);
 	}
 
-	image_id get_hintergrund_nr(slope_t::type hang, uint8 season, uint8 type ) const
+	image_id get_background_nr(slope_t::type hang, uint8 season, uint8 type ) const
 	{
-		const bild_besch_t *besch = get_hintergrund(hang, season, type );
-		return besch != NULL ? besch->get_nummer() : IMG_EMPTY;
+		const image_t *besch = get_background(hang, season, type );
+		return besch != NULL ? besch->get_id() : IMG_EMPTY;
 	}
 
-	const bild_besch_t *get_vordergrund(slope_t::type hang, uint8 season, uint8 type ) const
+	const image_t *get_foreground(slope_t::type hang, uint8 season, uint8 type ) const
 	{
 		const uint8 n = season && number_seasons == 1 ? 6 : 3;
-		return get_child<bildliste_besch_t>(n)->get_bild(hang_indices[hang] + 4 * type);
+		return get_child<image_list_t>(n)->get_image(hang_indices[hang] + 4 * type);
 	}
 
-	image_id get_vordergrund_nr(slope_t::type hang, uint8 season, uint8 type) const
+	image_id get_foreground_nr(slope_t::type hang, uint8 season, uint8 type) const
 	{
-		const bild_besch_t *besch = get_vordergrund(hang, season, type );
-		return besch != NULL ? besch->get_nummer() :IMG_EMPTY;
+		const image_t *besch = get_foreground(hang, season, type );
+		return besch != NULL ? besch->get_id() :IMG_EMPTY;
 	}
 
 	skin_besch_t const* get_cursor() const { return get_child<skin_besch_t>(4); }

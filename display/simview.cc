@@ -269,7 +269,7 @@ void main_view_t::display(bool force_dirty)
 			grund_t *gr = welt->lookup( zeiger->get_pos() );
 			if(gr && gr->is_visible()) {
 				const PLAYER_COLOR_VAL transparent = TRANSPARENT25_FLAG|OUTLINE_FLAG| env_t::cursor_overlay_color;
-				if(  gr->get_bild()==IMG_EMPTY  ) {
+				if(  gr->get_image()==IMG_EMPTY  ) {
 					if(  gr->hat_wege()  ) {
 						display_img_blend( gr->obj_bei(0)->get_image(), background_pos.x, background_pos.y, transparent, 0, dirty );
 					}
@@ -278,10 +278,10 @@ void main_view_t::display(bool force_dirty)
 					}
 				}
 				else if(  gr->get_typ()==grund_t::wasser  ) {
-					display_img_blend( grund_besch_t::sea->get_bild(gr->get_bild(),wasser_t::stage), background_pos.x, background_pos.y, transparent, 0, dirty );
+					display_img_blend( grund_besch_t::sea->get_image(gr->get_image(),wasser_t::stage), background_pos.x, background_pos.y, transparent, 0, dirty );
 				}
 				else {
-					display_img_blend( gr->get_bild(), background_pos.x, background_pos.y, transparent, 0, dirty );
+					display_img_blend( gr->get_image(), background_pos.x, background_pos.y, transparent, 0, dirty );
 				}
 			}
 		}
@@ -385,7 +385,7 @@ void main_view_t::display_region( koord lt, koord wh, sint16 y_min, sint16 y_max
 					outside_visible = true;
 					if(  env_t::draw_outside_tile  ) {
 						const sint16 yypos = ypos - tile_raster_scale_y( welt->get_grundwasser() * TILE_HEIGHT_STEP, IMG_SIZE );
-						display_normal( grund_besch_t::ausserhalb->get_bild(0), xpos, yypos, 0, true, false  CLIP_NUM_PAR);
+						display_normal( grund_besch_t::ausserhalb->get_image(0), xpos, yypos, 0, true, false  CLIP_NUM_PAR);
 					}
 				}
 			}

@@ -35,7 +35,7 @@ int image_writer_t::img_size = 64;
 void image_writer_t::dump_special_histogramm()
 {
 	for(int i = 0; i < SPECIAL; i++) {
-		printf("%2d) 0x%06x : %d\n", i, bild_besch_t::rgbtab[i], special_hist[i]);
+		printf("%2d) 0x%06x : %d\n", i, image_t::rgbtab[i], special_hist[i]);
 	}
 }
 
@@ -72,7 +72,7 @@ static uint16 pixrgb_to_pixval(uint32 rgb)
 
 		// first see if this is a transparent special color (like player color)
 		for (int i = 0; i < SPECIAL; i++) {
-			if (bild_besch_t::rgbtab[i] == (uint32)(rgb & 0x00FFFFFFu)) {
+			if (image_t::rgbtab[i] == (uint32)(rgb & 0x00FFFFFFu)) {
 				// player or light color
 				pix = 0x8020 +  i*31 + alpha;
 				return endian(pix);
@@ -87,7 +87,7 @@ static uint16 pixrgb_to_pixval(uint32 rgb)
 
 	// non-transparent pixel
 	for (int i = 0; i < SPECIAL; i++) {
-		if (bild_besch_t::rgbtab[i] == (uint32)rgb) {
+		if (image_t::rgbtab[i] == (uint32)rgb) {
 			pix = 0x8000 + i;
 			return endian(pix);
 		}
@@ -264,19 +264,19 @@ bool image_writer_t::block_laden(const char* fname)
  */
 void image_writer_t::write_obj(FILE* outfp, obj_node_t& parent, std::string an_imagekey, uint32 index)
 {
-	bild_besch_t bild;
+	image_t image;
 	dimension dim;
 	uint16 *pixdata = NULL;
 
-	MEMZERO(bild);
+	MEMZERO(image);
 
 	// Hajo: if first char is a '>' then this image is not zoomeable
 	if(  an_imagekey[0] == '>'  ) {
 		an_imagekey = an_imagekey.substr(1);
-		bild.zoomable = false;
+		image.zoomable = false;
 	}
 	else {
-		bild.zoomable = true;
+		image.zoomable = true;
 	}
 	std::string imagekey = trim(an_imagekey);
 
@@ -314,10 +314,10 @@ void image_writer_t::write_obj(FILE* outfp, obj_node_t& parent, std::string an_i
 			int comma_pos = numkey.find(',');
 			if(comma_pos != -1) {
 				numkey = numkey.substr( comma_pos+1, std::string::npos);
-				bild.x = atoi( numkey.c_str() );
+				image.x = atoi( numkey.c_str() );
 				comma_pos = numkey.find(',');
 				if(comma_pos != -1) {
-					bild.y = atoi(numkey.substr( comma_pos + 1, std::string::npos).c_str());
+					image.y = atoi(numkey.substr( comma_pos + 1, std::string::npos).c_str());
 				}
 			}
 		}
@@ -351,77 +351,77 @@ void image_writer_t::write_obj(FILE* outfp, obj_node_t& parent, std::string an_i
 		init_dim(image_data, &dim, img_size);
 		delete [] image_data;
 
-		bild.x += dim.xmin;
-		bild.y += dim.ymin;
-		bild.w = dim.xmax - dim.xmin + 1;
-		bild.h = dim.ymax - dim.ymin + 1;
-		bild.len = 0;
+		image.x += dim.xmin;
+		image.y += dim.ymin;
+		image.w = dim.xmax - dim.xmin + 1;
+		image.h = dim.ymax - dim.ymin + 1;
+		image.len = 0;
 
-		if (bild.h > 0) {
+		if (image.h > 0) {
 			int len;
 			pixdata = encode_image(col, row, &dim, &len);
-			bild.len = len;
+			image.len = len;
 		}
 
-		dbg->debug( "", "image[%3u] =%-30s %-20s %5u %5u %5u %5u %5u %6u %4s", index, an_imagekey.c_str(), imagekey.c_str(), col, row, bild.x, bild.y, bild.w, bild.h, (bild.zoomable) ? "yes" : "no" );
+		dbg->debug( "", "image[%3u] =%-30s %-20s %5u %5u %5u %5u %5u %6u %4s", index, an_imagekey.c_str(), imagekey.c_str(), col, row, image.x, image.y, image.w, image.h, (image.zoomable) ? "yes" : "no" );
 	}
 	else {
-		dbg->debug( "", "image[%3u] =%-30s %-20s %5u %5u %5u %5u %5u %6u %4s", index, an_imagekey.c_str(), imagekey.c_str(), 0, 0, bild.x, bild.y, bild.w, bild.h, (bild.zoomable) ? "yes" : "no" );
+		dbg->debug( "", "image[%3u] =%-30s %-20s %5u %5u %5u %5u %5u %6u %4s", index, an_imagekey.c_str(), imagekey.c_str(), 0, 0, image.x, image.y, image.w, image.h, (image.zoomable) ? "yes" : "no" );
 	}
 
 #ifdef IMG_VERSION0
 	// version 0
-	obj_node_t node(this, 12 + (bild.len * sizeof(uint16)), &parent);
+	obj_node_t node(this, 12 + (image.len * sizeof(uint16)), &parent);
 
 	// to avoid any problems due to structure changes, we write manually the data
-	node.write_uint8 (outfp, bild.x,         0);
-	node.write_uint8 (outfp, bild.w,         1);
-	node.write_uint8 (outfp, bild.y,         2);
-	node.write_uint8 (outfp, bild.h,         3);
-	node.write_uint32(outfp, bild.len,       4);
+	node.write_uint8 (outfp, image.x,         0);
+	node.write_uint8 (outfp, image.w,         1);
+	node.write_uint8 (outfp, image.y,         2);
+	node.write_uint8 (outfp, image.h,         3);
+	node.write_uint32(outfp, image.len,       4);
 	node.write_uint16(outfp, 0,              8);
-	node.write_uint8 (outfp, bild.zoomable, 10);
+	node.write_uint8 (outfp, image.zoomable, 10);
 	node.write_uint8 (outfp, 0,             11);
 
-	if (bild.len) {
+	if (image.len) {
 		// only called, if there is something to store
-		node.write_data_at(outfp, pixdata, 12, bild.len * sizeof(PIXVAL));
+		node.write_data_at(outfp, pixdata, 12, image.len * sizeof(PIXVAL));
 		delete [] pixdata;
 	}
 #elif IMG_VERSION2
 	// version 1 or 2
-	obj_node_t node(this, 10 + (bild.len * sizeof(uint16)), &parent);
+	obj_node_t node(this, 10 + (image.len * sizeof(uint16)), &parent);
 
 	// to avoid any problems due to structure changes, we write manually the data
-	node.write_uint16(outfp, bild.x,        0);
-	node.write_uint16(outfp, bild.y,        2);
-	node.write_uint8 (outfp, bild.w,        4);
-	node.write_uint8 (outfp, bild.h,        5);
+	node.write_uint16(outfp, image.x,        0);
+	node.write_uint16(outfp, image.y,        2);
+	node.write_uint8 (outfp, image.w,        4);
+	node.write_uint8 (outfp, image.h,        5);
 	node.write_uint8 (outfp, 2,             6); // version
-	node.write_uint16(outfp, bild.len,      7);
-	node.write_uint8 (outfp, bild.zoomable, 9);
+	node.write_uint16(outfp, image.len,      7);
+	node.write_uint8 (outfp, image.zoomable, 9);
 
-	if (bild.len) {
+	if (image.len) {
 		// only called, if there is something to store
-		node.write_data_at(outfp, pixdata, 10, bild.len * sizeof(PIXVAL));
+		node.write_data_at(outfp, pixdata, 10, image.len * sizeof(PIXVAL));
 		delete [] pixdata;
 	}
 #else
 	// version 3
-	obj_node_t node(this, 10 + (bild.len * sizeof(uint16)), &parent);
+	obj_node_t node(this, 10 + (image.len * sizeof(uint16)), &parent);
 
 	// to avoid any problems due to structure changes, we write manually the data
-	node.write_uint16(outfp, bild.x,        0);
-	node.write_uint16(outfp, bild.y,        2);
-	node.write_uint16 (outfp, bild.w,        4);
+	node.write_uint16(outfp, image.x,        0);
+	node.write_uint16(outfp, image.y,        2);
+	node.write_uint16 (outfp, image.w,        4);
 	node.write_uint8 (outfp, 3,             6); // version, always at position 6!
-	node.write_uint16 (outfp, bild.h,        7);
+	node.write_uint16 (outfp, image.h,        7);
 	// len is now automatically calculated
-	node.write_uint8 (outfp, bild.zoomable, 9);
+	node.write_uint8 (outfp, image.zoomable, 9);
 
-	if (bild.len) {
+	if (image.len) {
 		// only called, if there is something to store
-		node.write_data_at(outfp, pixdata, 10, bild.len * sizeof(uint16));
+		node.write_data_at(outfp, pixdata, 10, image.len * sizeof(uint16));
 		delete [] pixdata;
 	}
 #endif

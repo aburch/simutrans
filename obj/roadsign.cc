@@ -49,7 +49,7 @@ stringhashtable_tpl<const roadsign_besch_t *> roadsign_t::table;
 
 roadsign_t::roadsign_t(loadsave_t *file) : obj_t ()
 {
-	bild = after_bild = IMG_EMPTY;
+	image = foreground_image = IMG_EMPTY;
 	preview = false;
 	rdwr(file);
 	if(besch) {
@@ -77,7 +77,7 @@ roadsign_t::roadsign_t(player_t *player, koord3d pos, ribi_t::ribi dir, const ro
 	this->besch = besch;
 	this->dir = dir;
 	this->preview = preview;
-	bild = after_bild = IMG_EMPTY;
+	image = foreground_image = IMG_EMPTY;
 	zustand = 0;
 	ticks_ns = ticks_ow = 16;
 	ticks_offset = 0;
@@ -152,11 +152,11 @@ DBG_MESSAGE("roadsign_t::set_dir()","ribi %i",dir);
 	// some more magic to get left side images right ...
 	sint8 old_x = get_xoff();
 	set_xoff( after_xoffset );
-	mark_image_dirty(after_bild,after_yoffset-get_yoff());
+	mark_image_dirty(foreground_image,after_yoffset-get_yoff());
 	set_xoff( old_x );
 
-	bild = IMG_EMPTY;
-	after_bild = IMG_EMPTY;
+	image = IMG_EMPTY;
+	foreground_image = IMG_EMPTY;
 	calc_image();
 
 	if (preview)
@@ -240,7 +240,7 @@ void roadsign_t::calc_image()
 			// gate open
 			image += 2;
 		}
-		set_bild( besch->get_bild_nr(image) );
+		set_image( besch->get_image_id(image) );
 		set_yoff( 0 );
 		if(  hang_diff  ) {
 				set_yoff( -(TILE_HEIGHT_STEP*hang_diff)/2 );
@@ -248,7 +248,7 @@ void roadsign_t::calc_image()
 		else {
 			set_yoff( -gr->get_weg_yoff() );
 		}
-		after_bild = IMG_EMPTY;
+		foreground_image = IMG_EMPTY;
 		return;
 	}
 
@@ -269,11 +269,11 @@ void roadsign_t::calc_image()
 		}
 	}
 
-	image_id tmp_bild=IMG_EMPTY;
+	image_id tmp_image=IMG_EMPTY;
 	if(!automatic) {
 		assert( zustand==0 );
 
-		after_bild = IMG_EMPTY;
+		foreground_image = IMG_EMPTY;
 		ribi_t::ribi temp_dir = dir;
 
 		if(  gr->get_typ()==grund_t::tunnelboden  &&  gr->ist_karten_boden()  &&
@@ -294,38 +294,38 @@ void roadsign_t::calc_image()
 			const sint16 YOFF = besch->get_offset_left();
 
 			if(temp_dir&ribi_t::east) {
-				tmp_bild = besch->get_bild_nr(3);
+				tmp_image = besch->get_image_id(3);
 				xoff += XOFF;
 				yoff += -YOFF;
 			}
 
 			if(temp_dir&ribi_t::north) {
-				if(tmp_bild!=IMG_EMPTY) {
-					after_bild = besch->get_bild_nr(0);
+				if(tmp_image!=IMG_EMPTY) {
+					foreground_image = besch->get_image_id(0);
 					after_xoffset += -XOFF;
 					after_yoffset += -YOFF;
 				}
 				else {
-					tmp_bild = besch->get_bild_nr(0);
+					tmp_image = besch->get_image_id(0);
 					xoff += -XOFF;
 					yoff += -YOFF;
 				}
 			}
 
 			if(temp_dir&ribi_t::west) {
-				after_bild = besch->get_bild_nr(2);
+				foreground_image = besch->get_image_id(2);
 				after_xoffset += -XOFF;
 				after_yoffset += YOFF;
 			}
 
 			if(temp_dir&ribi_t::south) {
-				if(after_bild!=IMG_EMPTY) {
-					tmp_bild = besch->get_bild_nr(1);
+				if(foreground_image!=IMG_EMPTY) {
+					tmp_image = besch->get_image_id(1);
 					xoff += XOFF;
 					yoff += YOFF;
 				}
 				else {
-					after_bild = besch->get_bild_nr(1);
+					foreground_image = besch->get_image_id(1);
 					after_xoffset += XOFF;
 					after_yoffset += YOFF;
 				}
@@ -334,38 +334,38 @@ void roadsign_t::calc_image()
 		else {
 
 			if(temp_dir&ribi_t::east) {
-				after_bild = besch->get_bild_nr(3);
+				foreground_image = besch->get_image_id(3);
 			}
 
 			if(temp_dir&ribi_t::north) {
-				if(after_bild!=IMG_EMPTY) {
-					tmp_bild = besch->get_bild_nr(0);
+				if(foreground_image!=IMG_EMPTY) {
+					tmp_image = besch->get_image_id(0);
 				}
 				else {
-					after_bild = besch->get_bild_nr(0);
+					foreground_image = besch->get_image_id(0);
 				}
 			}
 
 			if(temp_dir&ribi_t::west) {
-				tmp_bild = besch->get_bild_nr(2);
+				tmp_image = besch->get_image_id(2);
 			}
 
 			if(temp_dir&ribi_t::south) {
-				if(tmp_bild!=IMG_EMPTY) {
-					after_bild = besch->get_bild_nr(1);
+				if(tmp_image!=IMG_EMPTY) {
+					foreground_image = besch->get_image_id(1);
 				}
 				else {
-					tmp_bild = besch->get_bild_nr(1);
+					tmp_image = besch->get_image_id(1);
 				}
 			}
 		}
 
 		// some signs on roads must not have a background (but then they have only two rotations)
 		if(  besch->get_flags()&roadsign_besch_t::ONLY_BACKIMAGE  ) {
-			if(after_bild!=IMG_EMPTY) {
-				tmp_bild = after_bild;
+			if(foreground_image!=IMG_EMPTY) {
+				tmp_image = foreground_image;
 			}
-			after_bild = IMG_EMPTY;
+			foreground_image = IMG_EMPTY;
 		}
 	}
 	else {
@@ -382,36 +382,36 @@ void roadsign_t::calc_image()
 
 				if(weg_dir&ribi_t::north) {
 					if(weg_dir&ribi_t::east) {
-						after_bild = besch->get_bild_nr(6+direction*8);
+						foreground_image = besch->get_image_id(6+direction*8);
 						after_xoffset += 0;
 						after_yoffset += 0;
 					}
 					else {
-						after_bild = besch->get_bild_nr(1+direction*8);
+						foreground_image = besch->get_image_id(1+direction*8);
 						after_xoffset += XOFF;
 						after_yoffset += YOFF;
 					}
 				}
 				else if(weg_dir&ribi_t::east) {
-					after_bild = besch->get_bild_nr(2+direction*8);
+					foreground_image = besch->get_image_id(2+direction*8);
 					after_xoffset += -XOFF;
 					after_yoffset += YOFF;
 				}
 
 				if(weg_dir&ribi_t::west) {
 					if(weg_dir&ribi_t::south) {
-						tmp_bild = besch->get_bild_nr(7+direction*8);
+						tmp_image = besch->get_image_id(7+direction*8);
 						xoff += 0;
 						yoff += 0;
 					}
 					else {
-						tmp_bild = besch->get_bild_nr(3+direction*8);
+						tmp_image = besch->get_image_id(3+direction*8);
 						xoff += XOFF;
 						yoff += -YOFF;
 					}
 				}
 				else if(weg_dir&ribi_t::south) {
-					tmp_bild = besch->get_bild_nr(0+direction*8);
+					tmp_image = besch->get_image_id(0+direction*8);
 					xoff += -XOFF;
 					yoff += -YOFF;
 				}
@@ -420,33 +420,33 @@ void roadsign_t::calc_image()
 				// drive right ...
 				if(weg_dir&ribi_t::south) {
 					if(weg_dir&ribi_t::east) {
-						after_bild = besch->get_bild_nr(4+direction*8);
+						foreground_image = besch->get_image_id(4+direction*8);
 					}
 					else {
-						after_bild = besch->get_bild_nr(0+direction*8);
+						foreground_image = besch->get_image_id(0+direction*8);
 					}
 				}
 				else if(weg_dir&ribi_t::east) {
-					after_bild = besch->get_bild_nr(2+direction*8);
+					foreground_image = besch->get_image_id(2+direction*8);
 				}
 
 				if(weg_dir&ribi_t::west) {
 					if(weg_dir&ribi_t::north) {
-						tmp_bild = besch->get_bild_nr(5+direction*8);
+						tmp_image = besch->get_image_id(5+direction*8);
 					}
 					else {
-						tmp_bild = besch->get_bild_nr(3+direction*8);
+						tmp_image = besch->get_image_id(3+direction*8);
 					}
 				}
 				else if(weg_dir&ribi_t::north) {
-					tmp_bild = besch->get_bild_nr(1+direction*8);
+					tmp_image = besch->get_image_id(1+direction*8);
 				}
 			}
 
 		}
 	}
 	// set image and offsets
-	set_bild( tmp_bild );
+	set_image( tmp_image );
 	set_xoff( xoff );
 	set_yoff( yoff );
 
@@ -464,7 +464,7 @@ sync_result roadsign_t::sync_step(uint32 /*delta_t*/)
 			// force redraw
 			mark_image_dirty(get_image(),0);
 		}
-		set_bild( besch->get_bild_nr(image) );
+		set_image( besch->get_image_id(image) );
 	}
 	else {
 		// change every ~32s
@@ -507,21 +507,21 @@ void roadsign_t::display_after(int xpos, int ypos, const sint8 clip_num ) const
 void roadsign_t::display_after(int xpos, int ypos, bool ) const
 #endif
 {
-	if(  after_bild != IMG_EMPTY  ) {
+	if(  foreground_image != IMG_EMPTY  ) {
 		const int raster_width = get_current_tile_raster_width();
 		xpos += tile_raster_scale_x( after_xoffset, raster_width );
 		ypos += tile_raster_scale_y( after_yoffset, raster_width );
 		// draw with owner
 		if(  get_player_nr() != PLAYER_UNOWNED  ) {
 			if(  obj_t::show_owner  ) {
-				display_blend( after_bild, xpos, ypos, 0, (get_owner()->get_player_color1()+2) | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, dirty  CLIP_NUM_PAR);
+				display_blend( foreground_image, xpos, ypos, 0, (get_owner()->get_player_color1()+2) | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, dirty  CLIP_NUM_PAR);
 			}
 			else {
-				display_color( after_bild, xpos, ypos, get_player_nr(), true, get_flag(obj_t::dirty)  CLIP_NUM_PAR);
+				display_color( foreground_image, xpos, ypos, get_player_nr(), true, get_flag(obj_t::dirty)  CLIP_NUM_PAR);
 			}
 		}
 		else {
-			display_normal( after_bild, xpos, ypos, 0, true, get_flag(obj_t::dirty)  CLIP_NUM_PAR);
+			display_normal( foreground_image, xpos, ypos, 0, true, get_flag(obj_t::dirty)  CLIP_NUM_PAR);
 		}
 	}
 }
@@ -660,11 +660,11 @@ bool roadsign_t::register_besch(roadsign_besch_t *besch)
 		delete old_besch;
 	}
 
-	if(  besch->get_cursor()->get_bild_nr(1)!=IMG_EMPTY  ) {
+	if(  besch->get_cursor()->get_image_id(1)!=IMG_EMPTY  ) {
 		// add the tool
 		tool_build_roadsign_t *tool = new tool_build_roadsign_t();
-		tool->set_icon( besch->get_cursor()->get_bild_nr(1) );
-		tool->cursor = besch->get_cursor()->get_bild_nr(0);
+		tool->set_icon( besch->get_cursor()->get_image_id(1) );
+		tool->cursor = besch->get_cursor()->get_image_id(0);
 		tool->set_default_param(besch->get_name());
 		tool_t::general_tool.append( tool );
 		besch->set_builder( tool );

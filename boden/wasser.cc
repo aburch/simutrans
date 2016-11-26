@@ -33,7 +33,7 @@ void wasser_t::prepare_for_refresh()
 }
 
 
-void wasser_t::calc_bild_internal(const bool calc_only_snowline_change)
+void wasser_t::calc_image_internal(const bool calc_only_snowline_change)
 {
 	if(  !calc_only_snowline_change  ) {
 		koord pos2d( get_pos().get_2d() );
@@ -44,10 +44,10 @@ void wasser_t::calc_bild_internal(const bool calc_only_snowline_change)
 		sint16 zpos = min( welt->lookup_hgt( pos2d ), height ); // otherwise slope will fail ...
 
 		if(  grund_t::underground_mode == grund_t::ugm_level  &&  grund_t::underground_level < zpos  ) {
-			set_bild(IMG_EMPTY);
+			set_image(IMG_EMPTY);
 		}
 		else {
-			set_bild( min( height - zpos, grund_besch_t::water_depth_levels ) /*grund_besch_t::get_ground_tile(0,zpos)*/ );
+			set_image( min( height - zpos, grund_besch_t::water_depth_levels ) /*grund_besch_t::get_ground_tile(0,zpos)*/ );
 		}
 
 		// test tiles to north, south, east and west and add to ribi if water
@@ -60,7 +60,7 @@ void wasser_t::calc_bild_internal(const bool calc_only_snowline_change)
 		}
 
 		// artifical walls from here on ...
-		grund_t::calc_back_bild( height, 0 );
+		grund_t::calc_back_image( height, 0 );
 	}
 }
 

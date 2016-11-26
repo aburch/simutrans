@@ -30,9 +30,9 @@ private:
 	uint16 spawn_weight;
 
 public:
-	skin_besch_t const* get_bilder() const { return get_child<skin_besch_t>(0); }
-	const char *get_name() const { return get_bilder()->get_name(); }
-	const char *get_copyright() const { return get_bilder()->get_copyright(); }
+	skin_besch_t const* get_images() const { return get_child<skin_besch_t>(0); }
+	const char *get_name() const { return get_images()->get_name(); }
+	const char *get_copyright() const { return get_images()->get_copyright(); }
 
 	uint8 has_snow_image() const { return snow_image; }
 	uint16 get_field_production() const { return production_per_field; }
@@ -84,13 +84,13 @@ public:
 
 
 /*
- *  Autor:
+ *  Author:
  *      Volker Meyer
  *
- *  Beschreibung:
+ *  Description:
  *      Der Rauch einer Fabrik verweist auf eine allgemeine Rauchbeschreibung
  *
- *  Kindknoten:
+ *  Child nodes:
  *	0   SKin
  */
 class rauch_besch_t : public obj_besch_t {
@@ -102,9 +102,9 @@ private:
 	sint16 zeitmaske;
 
 public:
-	const char *get_name() const { return get_bilder()->get_name(); }
-	const char *get_copyright() const { return get_bilder()->get_copyright(); }
-	skin_besch_t const* get_bilder() const { return get_child<skin_besch_t>(0); }
+	const char *get_name() const { return get_images()->get_name(); }
+	const char *get_copyright() const { return get_images()->get_copyright(); }
+	skin_besch_t const* get_images() const { return get_child<skin_besch_t>(0); }
 
 	// get the tile with the smoke
 	koord get_pos_off( koord size, uint8 rotation) const {
@@ -131,13 +131,13 @@ public:
 
 
 /*
- *  Autor:
+ *  Author:
  *      Volker Meyer
  *
- *  Beschreibung:
+ *  Description:
  *      Ein Verbrauchsgut einer Fabriktyps
  *
- *  Kindknoten:
+ *  Child nodes:
  *	0   Ware
  */
 class fabrik_lieferant_besch_t : public obj_besch_t {
@@ -158,13 +158,13 @@ public:
 
 
 /*
- *  Autor:
+ *  Author:
  *      Volker Meyer
  *
- *  Beschreibung:
+ *  Description:
  *      Eine Produktion eines Fabriktyps
  *
- *  Kindknoten:
+ *  Child nodes:
  *	0   Ware
  */
 class fabrik_produkt_besch_t : public obj_besch_t {
@@ -189,13 +189,13 @@ public:
 
 
 /*
- *  Autor:
+ *  Author:
  *      Volker Meyer
  *
- *  Beschreibung:
+ *  Description:
  *      Jetzt endlich die Ganze Fabrik
  *
- *  Kindknoten:
+ *  Child nodes:
  *	0   Haus
  *	1   Rauch
  *	2   Lieferant 1

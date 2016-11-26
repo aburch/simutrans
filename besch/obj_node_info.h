@@ -16,10 +16,10 @@
 #define LARGE_RECORD_SIZE (0xFFFFu)
 
 /*
- *  Autor:
+ *  Author:
  *      Volker Meyer
  *
- *  Beschreibung:
+ *  Description:
  *      stored structure of a pak node inside the file.
  */
 struct obj_node_info_t {

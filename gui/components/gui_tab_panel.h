@@ -14,7 +14,7 @@
 #include "gui_komponente.h"
 #include "gui_button.h"
 
-class bild_besch_t;
+class image_t;
 
 class gui_tab_panel_t :
 	public gui_action_creator_t,
@@ -24,11 +24,11 @@ class gui_tab_panel_t :
 private:
 	struct tab
 	{
-		tab(gui_component_t* c, const char *name, const bild_besch_t *b, const char *tool) : component(c), title(name), img(b), tooltip(tool), x_offset(4) {}
+		tab(gui_component_t* c, const char *name, const image_t *b, const char *tool) : component(c), title(name), img(b), tooltip(tool), x_offset(4) {}
 
 		gui_component_t* component;
 		const char *title;
-		const bild_besch_t *img;
+		const image_t *img;
 		const char *tooltip;
 		sint16 x_offset;
 		sint16 width;

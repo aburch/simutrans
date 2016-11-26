@@ -194,7 +194,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	xref_writer_t::instance()->write_obj(fp, node, obj_good, freight, true);
 	xref_writer_t::instance()->write_obj(fp, node, obj_smoke, obj.get("smoke"), false);
 
-	// Jetzt kommen die Bildlisten
+	// Jetzt kommen die Image-listn
 	static const char* const dir_codes[] = {
 		"s", "w", "sw", "se", "n", "e", "ne", "nw"
 	};

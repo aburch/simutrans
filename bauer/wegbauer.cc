@@ -138,11 +138,11 @@ bool wegbauer_t::register_besch(weg_besch_t *besch)
 		delete old_besch;
 	}
 
-	if(  besch->get_cursor()->get_bild_nr(1)!=IMG_EMPTY  ) {
+	if(  besch->get_cursor()->get_image_id(1)!=IMG_EMPTY  ) {
 		// add the tool
 		tool_build_way_t *tool = new tool_build_way_t();
-		tool->set_icon( besch->get_cursor()->get_bild_nr(1) );
-		tool->cursor = besch->get_cursor()->get_bild_nr(0);
+		tool->set_icon( besch->get_cursor()->get_image_id(1) );
+		tool->cursor = besch->get_cursor()->get_image_id(0);
 		tool->set_default_param(besch->get_name());
 		tool_t::general_tool.append( tool );
 		besch->set_builder( tool );
@@ -186,7 +186,7 @@ const weg_besch_t* wegbauer_t::weg_search(const waytype_t wtyp, const sint32 spe
 		weg_besch_t const* const test = i.value;
 		if(  ((test->get_wtyp()==wtyp  &&
 			(test->get_styp()==system_type  ||  system_type==weg_t::type_all))  ||  (test->get_wtyp()==track_wt  &&  test->get_styp()==weg_t::type_tram  &&  wtyp==tram_wt))
-			&&  test->get_cursor()->get_bild_nr(1)!=IMG_EMPTY  ) {
+			&&  test->get_cursor()->get_image_id(1)!=IMG_EMPTY  ) {
 				bool test_allowed = test->get_intro_year_month()<=time  &&  time<test->get_retire_year_month();
 				if(  !best_allowed  ||  time==0  ||  test_allowed  ) {
 					if(  best==NULL  ||
@@ -276,13 +276,13 @@ void wegbauer_t::new_month()
 			const uint16 intro_month = besch->get_intro_year_month();
 			if(intro_month == current_month) {
 				buf.printf( translator::translate("way %s now available:\n"), translator::translate(besch->get_name()) );
-				welt->get_message()->add_message(buf,koord::invalid,message_t::new_vehicle,NEW_VEHICLE,besch->get_bild_nr(5,0));
+				welt->get_message()->add_message(buf,koord::invalid,message_t::new_vehicle,NEW_VEHICLE,besch->get_image_id(5,0));
 			}
 
 			const uint16 retire_month = besch->get_retire_year_month();
 			if(retire_month == current_month) {
 				buf.printf( translator::translate("way %s cannot longer used:\n"), translator::translate(besch->get_name()) );
-				welt->get_message()->add_message(buf,koord::invalid,message_t::new_vehicle,NEW_VEHICLE,besch->get_bild_nr(5,0));
+				welt->get_message()->add_message(buf,koord::invalid,message_t::new_vehicle,NEW_VEHICLE,besch->get_image_id(5,0));
 			}
 		}
 
@@ -577,7 +577,7 @@ bool wegbauer_t::is_allowed_step(const grund_t *from, const grund_t *to, sint32 
 		if(gb) {
 			// no halt => citybuilding => do not touch
 			// also check for too high buildings ...
-			if(!check_owner(gb->get_owner(),player_builder)  ||  gb->get_tile()->get_hintergrund(0,1,0)!=IMG_EMPTY) {
+			if(!check_owner(gb->get_owner(),player_builder)  ||  gb->get_tile()->get_background(0,1,0)!=IMG_EMPTY) {
 				return false;
 			}
 			// building above houses is expensive ... avoid it!
@@ -1045,7 +1045,7 @@ void wegbauer_t::do_terraforming()
 					for(uint8 y=0; y<2; y++) {
 						grund_t *gr = welt->lookup_kartenboden(route[i+j].get_2d()+koord(x,y));
 						if (gr) {
-							gr->calc_bild();
+							gr->calc_image();
 						}
 					}
 				}
@@ -2108,7 +2108,7 @@ bool wegbauer_t::baue_tunnelboden()
 				lt->finish_rd();
 				player_t::add_maintenance( player_builder, -lt->get_besch()->get_wartung(), powerline_wt);
 			}
-			tunnel->calc_bild();
+			tunnel->calc_image();
 			cost -= tunnel_besch->get_preis();
 			player_t::add_maintenance( player_builder,  tunnel_besch->get_wartung(), tunnel_besch->get_finance_waytype() );
 		}
@@ -2133,7 +2133,7 @@ bool wegbauer_t::baue_tunnelboden()
 					if (wo  &&  wo->get_besch()->get_topspeed() < weg->get_max_speed()) {
 						weg->set_max_speed( wo->get_besch()->get_topspeed() );
 					}
-					gr->calc_bild();
+					gr->calc_image();
 					// respect speed limit of crossing
 					weg->count_sign();
 
@@ -2174,7 +2174,7 @@ void wegbauer_t::baue_elevated()
 			// add new elevated ground
 			monorailboden_t* const monorail = new monorailboden_t(i, hang);
 			plan->boden_hinzufuegen(monorail);
-			monorail->calc_bild();
+			monorail->calc_image();
 		}
 	}
 }
@@ -2253,7 +2253,7 @@ void wegbauer_t::baue_strasse()
 				player_builder->add_undo( route[i] );
 			}
 		}
-		gr->calc_bild();	// because it may be a crossing ...
+		gr->calc_image();	// because it may be a crossing ...
 		reliefkarte_t::get_karte()->calc_map_pixel(k);
 		player_t::book_construction_costs(player_builder, cost, k, road_wt);
 	} // for
@@ -2344,7 +2344,7 @@ void wegbauer_t::baue_schiene()
 						grund_t *sea = NULL;
 						if (gr->get_neighbour(sea, invalid_wt, ribi_t::nsew[j])  &&  sea->ist_wasser()  ) {
 							gr->weg_erweitern( water_wt, ribi_t::nsew[j] );
-							sea->calc_bild();
+							sea->calc_image();
 						}
 					}
 				}
@@ -2353,7 +2353,7 @@ void wegbauer_t::baue_schiene()
 				player_builder->add_undo( route[i] );
 			}
 
-			gr->calc_bild();
+			gr->calc_image();
 			reliefkarte_t::get_karte()->calc_map_pixel( gr->get_pos().get_2d() );
 			player_t::book_construction_costs(player_builder, cost, gr->get_pos().get_2d(), besch->get_finance_waytype());
 
@@ -2498,7 +2498,7 @@ void wegbauer_t::baue_fluss()
 			}
 		}
 	}
-	gr_first->calc_bild(); // to calculate ribi of water tiles
+	gr_first->calc_image(); // to calculate ribi of water tiles
 
 	// we will make rivers gradually larger by stepping up their width
 	if(  env_t::river_types>1  &&  start_n<get_count()) {

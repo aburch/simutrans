@@ -2377,7 +2377,7 @@ void stadt_t::check_bau_spezial(bool new_town)
 				if (!new_town) {
 					cbuffer_t buf;
 					buf.printf( translator::translate("To attract more tourists\n%s built\na %s\nwith the aid of\n%i tax payers."), get_name(), make_single_line_string(translator::translate(besch->get_name()), 2), get_einwohner());
-					welt->get_message()->add_message(buf, best_pos, message_t::city, CITY_KI, besch->get_tile(0)->get_hintergrund(0, 0, 0));
+					welt->get_message()->add_message(buf, best_pos, message_t::city, CITY_KI, besch->get_tile(0)->get_background(0, 0, 0));
 				}
 			}
 		}
@@ -2445,7 +2445,7 @@ void stadt_t::check_bau_spezial(bool new_town)
 					if (!new_town) {
 						cbuffer_t buf;
 						buf.printf( translator::translate("With a big festival\n%s built\na new monument.\n%i citicens rejoiced."), get_name(), get_einwohner() );
-						welt->get_message()->add_message(buf, best_pos + koord(1, 1), message_t::city, CITY_KI, besch->get_tile(0)->get_hintergrund(0, 0, 0));
+						welt->get_message()->add_message(buf, best_pos + koord(1, 1), message_t::city, CITY_KI, besch->get_tile(0)->get_background(0, 0, 0));
 					}
 				}
 			}
@@ -2641,7 +2641,7 @@ void stadt_t::check_bau_rathaus(bool new_town)
 		if (!new_town) {
 			cbuffer_t buf;
 			buf.printf(translator::translate("%s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants."), name.c_str(), get_einwohner());
-			welt->get_message()->add_message(buf, best_pos, message_t::city, CITY_KI, besch->get_tile(layout, 0, 0)->get_hintergrund(0, 0, 0));
+			welt->get_message()->add_message(buf, best_pos, message_t::city, CITY_KI, besch->get_tile(layout, 0, 0)->get_background(0, 0, 0));
 		}
 		else {
 			welt->lookup_kartenboden(best_pos + offset)->set_text( name );
@@ -2774,7 +2774,7 @@ bool process_city_street(grund_t& gr, const weg_besch_t* cr)
 		}
 		weg->set_gehweg(true);
 		weg->set_besch(cr);
-		gr.calc_bild();
+		gr.calc_image();
 		reliefkarte_t::get_karte()->calc_map_pixel(gr.get_pos().get_2d());
 	}
 	return true;
@@ -3030,7 +3030,7 @@ void stadt_t::renovate_city_building(gebaeude_t *gb)
 		// exchange building; try to face it to street in front
 		gb->mark_images_dirty();
 		gb->set_tile( h->get_tile(building_layout[streetdir], 0, 0), true );
-		welt->lookup_kartenboden(k)->calc_bild();
+		welt->lookup_kartenboden(k)->calc_image();
 		update_gebaeude_from_stadt(gb);
 
 		switch(want_to_have) {
@@ -3231,7 +3231,7 @@ bool stadt_t::baue_strasse(const koord k, player_t* player_, bool forced)
 			grund_t* bd2 = welt->lookup_kartenboden(k + koord::nsew[r]);
 			weg_t* w2 = bd2->get_weg(road_wt);
 			w2->ribi_add(ribi_t::backward(ribi_t::nsew[r]));
-			bd2->calc_bild();
+			bd2->calc_image();
 			bd2->set_flag( grund_t::dirty );
 		}
 	}
@@ -3244,7 +3244,7 @@ bool stadt_t::baue_strasse(const koord k, player_t* player_, bool forced)
 			weg->set_besch(welt->get_city_road());
 			weg->set_gehweg(true);
 			bd->neuen_weg_bauen(weg, connection_roads, player_);
-			bd->calc_bild();	// otherwise the
+			bd->calc_image();	// otherwise the
 		}
 		// check to bridge a river
 		if(ribi_t::is_single(connection_roads)) {

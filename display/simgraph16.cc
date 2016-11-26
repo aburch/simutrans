@@ -1124,14 +1124,14 @@ void mark_screen_dirty()
  * the area of this image need update
  * @author Hj. Malthaner
  */
-void display_mark_img_dirty(image_id bild, KOORD_VAL xp, KOORD_VAL yp)
+void display_mark_img_dirty(image_id image, KOORD_VAL xp, KOORD_VAL yp)
 {
-	if(  bild < anz_images  ) {
+	if(  image < anz_images  ) {
 		mark_rect_dirty_wc(
-			xp + images[bild].x,
-			yp + images[bild].y,
-			xp + images[bild].x + images[bild].w - 1,
-			yp + images[bild].y + images[bild].h - 1
+			xp + images[image].x,
+			yp + images[image].y,
+			xp + images[image].x + images[image].w - 1,
+			yp + images[image].y + images[image].h - 1
 		);
 	}
 }
@@ -2069,14 +2069,14 @@ void display_set_player_color_scheme(const int player, const COLOR_VAL col1, con
 
 
 
-void register_image(struct bild_besch_t* bild_in)
+void register_image(struct image_t* image_in)
 {
 	struct imd* image;
 
 	/* valid image? */
-	if(  bild_in->len == 0  ||  bild_in->h == 0  ) {
+	if(  image_in->len == 0  ||  image_in->h == 0  ) {
 		fprintf(stderr, "Warning: ignoring image %d because of missing data\n", anz_images);
-		bild_in->bild_nr = IMG_EMPTY;
+		image_in->imageid = IMG_EMPTY;
 		return;
 	}
 
@@ -2094,23 +2094,23 @@ void register_image(struct bild_besch_t* bild_in)
 		images = REALLOC(images, imd, alloc_images);
 	}
 
-	bild_in->bild_nr = anz_images;
+	image_in->imageid = anz_images;
 	image = &images[anz_images];
 	anz_images++;
 
-	image->x = bild_in->x;
-	image->w = bild_in->w;
-	image->y = bild_in->y;
-	image->h = bild_in->h;
+	image->x = image_in->x;
+	image->w = image_in->w;
+	image->y = image_in->y;
+	image->h = image_in->h;
 
 	image->recode_flags = FLAG_REZOOM;
-	if(  bild_in->zoomable  ) {
+	if(  image_in->zoomable  ) {
 		image->recode_flags |= FLAG_ZOOMABLE;
 	}
 	image->player_flags = 0xFFFF; // recode all player colors
 
 	// find out if there are really player colors
-	for(  PIXVAL *src = bild_in->data, y = 0;  y < bild_in->h;  ++y  ) {
+	for(  PIXVAL *src = image_in->data, y = 0;  y < image_in->h;  ++y  ) {
 		uint16 runlen;
 
 		// decode line
@@ -2139,15 +2139,15 @@ void register_image(struct bild_besch_t* bild_in)
 	}
 
 	image->zoom_data = NULL;
-	image->len = bild_in->len;
+	image->len = image_in->len;
 
-	image->base_x = bild_in->x;
-	image->base_w = bild_in->w;
-	image->base_y = bild_in->y;
-	image->base_h = bild_in->h;
+	image->base_x = image_in->x;
+	image->base_w = image_in->w;
+	image->base_y = image_in->y;
+	image->base_h = image_in->h;
 
 	// since we do not recode them, we can work with the original data
-	image->base_data = bild_in->data;
+	image->base_data = image_in->data;
 
 	// now find out, it contains player colors
 
@@ -2173,51 +2173,51 @@ void display_free_all_images_above( image_id above )
 
 
 // prissi: query offsets
-void display_get_image_offset(image_id bild, KOORD_VAL *xoff, KOORD_VAL *yoff, KOORD_VAL *xw, KOORD_VAL *yw)
+void display_get_image_offset(image_id image, KOORD_VAL *xoff, KOORD_VAL *yoff, KOORD_VAL *xw, KOORD_VAL *yw)
 {
-	if(  bild < anz_images  ) {
-		*xoff = images[bild].x;
-		*yoff = images[bild].y;
-		*xw   = images[bild].w;
-		*yw   = images[bild].h;
+	if(  image < anz_images  ) {
+		*xoff = images[image].x;
+		*yoff = images[image].y;
+		*xw   = images[image].w;
+		*yw   = images[image].h;
 	}
 }
 
 
 // prissi: query un-zoomed offsets
-void display_get_base_image_offset(image_id bild, KOORD_VAL *xoff, KOORD_VAL *yoff, KOORD_VAL *xw, KOORD_VAL *yw)
+void display_get_base_image_offset(image_id image, KOORD_VAL *xoff, KOORD_VAL *yoff, KOORD_VAL *xw, KOORD_VAL *yw)
 {
-	if(  bild < anz_images  ) {
-		*xoff = images[bild].base_x;
-		*yoff = images[bild].base_y;
-		*xw   = images[bild].base_w;
-		*yw   = images[bild].base_h;
+	if(  image < anz_images  ) {
+		*xoff = images[image].base_x;
+		*yoff = images[image].base_y;
+		*xw   = images[image].base_w;
+		*yw   = images[image].base_h;
 	}
 }
 
 /*
 // prissi: changes the offset of an image
 // we need it this complex, because the actual x-offset is coded into the image
-void display_set_base_image_offset(unsigned bild, KOORD_VAL xoff, KOORD_VAL yoff)
+void display_set_base_image_offset(unsigned image, KOORD_VAL xoff, KOORD_VAL yoff)
 {
-	if(bild >= anz_images) {
-		fprintf(stderr, "Warning: display_set_base_image_offset(): illegal image=%d\n", bild);
+	if(image >= anz_images) {
+		fprintf(stderr, "Warning: display_set_base_image_offset(): illegal image=%d\n", image);
 		return;
 	}
 
 	// only move images once
-	if(  images[bild].recode_flags & FLAG_POSITION_CHANGED  ) {
-		fprintf(stderr, "Warning: display_set_base_image_offset(): image=%d was already moved!\n", bild);
+	if(  images[image].recode_flags & FLAG_POSITION_CHANGED  ) {
+		fprintf(stderr, "Warning: display_set_base_image_offset(): image=%d was already moved!\n", image);
 		return;
 	}
-	images[bild].recode_flags |= FLAG_POSITION_CHANGED;
+	images[image].recode_flags |= FLAG_POSITION_CHANGED;
 
-	assert(images[bild].base_h > 0);
-	assert(images[bild].base_w > 0);
+	assert(images[image].base_h > 0);
+	assert(images[image].base_w > 0);
 
 	// avoid overflow
-	images[bild].base_x += xoff;
-	images[bild].base_y += yoff;
+	images[image].base_x += xoff;
+	images[image].base_y += yoff;
 }
 */
 

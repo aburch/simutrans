@@ -14,10 +14,10 @@
 class checksum_t;
 
 /*
- *  Autor:
+ *  Author:
  *      Volker Meyer
  *
- *  Kindknoten:
+ *  Child nodes:
  *	0   Name
  *	1   Copyright
  *	2   Text Maﬂeinheit

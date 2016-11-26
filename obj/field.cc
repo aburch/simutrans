@@ -58,20 +58,20 @@ void field_t::cleanup(player_t *player)
 // return the  right month graphic for factories
 image_id field_t::get_image() const
 {
-	const skin_besch_t *s=besch->get_bilder();
+	const skin_besch_t *s=besch->get_images();
 	uint16 count=s->get_count() - besch->has_snow_image();
 	if(  besch->has_snow_image()  &&  (get_pos().z >= welt->get_snowline()  ||  welt->get_climate( get_pos().get_2d() ) == arctic_climate)  ) {
 		// last images will be shown above snowline
-		return s->get_bild_nr(count);
+		return s->get_image_id(count);
 	}
 	else {
 		// resolution 1/8th month (0..95)
 		const uint32 yearsteps = (welt->get_current_month()%12)*8 + ((welt->get_zeit_ms()>>(welt->ticks_per_world_month_shift-3))&7) + 1;
-		const image_id bild = s->get_bild_nr( (count*yearsteps-1)/96 );
+		const image_id image = s->get_image_id( (count*yearsteps-1)/96 );
 		if((count*yearsteps-1)%96<count) {
-			mark_image_dirty( bild, 0 );
+			mark_image_dirty( image, 0 );
 		}
-		return bild;
+		return image;
 	}
 }
 

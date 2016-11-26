@@ -15,22 +15,21 @@
 // number of special colors
 #define SPECIAL (31)
 
-//#define TRANSPARENT 0x808088
 #define SPECIAL_TRANSPARENT (0x00E7FFFF)
 
 
 
 /*
- *  Autor:
+ *  Author:
  *      Volker Meyer
  *
- *  Beschreibung:
- *      Beschreibung eines Bildes.
+ *  Description:
+ *      Data of one image
  *
- *  Kindknoten:
- *	(keine)
+ *  Child nodes:
+ *	(none)
  */
-class bild_besch_t : public obj_besch_t
+class image_t : public obj_besch_t
 {
 public:
 	static const uint32 rgbtab[SPECIAL];
@@ -44,18 +43,18 @@ public:
 	scr_coord_val y;  ///< y offset of data[] image
 	scr_coord_val w;  ///< width of data[] image
 	scr_coord_val h;  ///< height of data[] image
-	image_id bild_nr; ///< set by register_image()
+	image_id imageid; ///< set by register_image()
 	uint8 zoomable;   ///< some image may not be zoomed i.e. icons
 	PIXVAL *data;     ///< RLE encoded image data
 
-	bild_besch_t(size_t len_=0) : data(NULL)
+	image_t(size_t len_=0) : data(NULL)
 	{
 		if (len_) {
 			alloc(len_);
 		}
 	}
 
-	~bild_besch_t()
+	~image_t()
 	{
 		delete [] data;
 	}
@@ -67,25 +66,25 @@ public:
 		len = len_;
 	}
 
-	static bild_besch_t* copy_image(const bild_besch_t& other);
+	static image_t* copy_image(const image_t& other);
 
-	const bild_besch_t* get_pic() const { return this; }
+	const image_t* get_pic() const { return this; }
 
-	uint16 const* get_daten() const { return data; }
-	uint16*       get_daten()       { return data; }
+	uint16 const* get_data() const { return data; }
+	uint16*       get_data()       { return data; }
 
-	image_id get_nummer() const { return bild_nr; }
+	image_id get_id() const { return imageid; }
 
 	/* rotate_image_data - produces a (rotated) bild_besch
 	 * only rotates by 90 degrees or multiples thereof, and assumes a square image
 	 * Otherwise it will only succeed for angle=0;
 	 */
-	bild_besch_t* copy_rotate(const sint16 angle) const;
+	image_t* copy_rotate(const sint16 angle) const;
 
-	bild_besch_t* copy_flipvertical() const;
-	bild_besch_t* copy_fliphorizontal() const;
+	image_t* copy_flipvertical() const;
+	image_t* copy_fliphorizontal() const;
 
-	static bild_besch_t* create_single_pixel();
+	static image_t* create_single_pixel();
 
 	void register_image() { ::register_image(this); }
 

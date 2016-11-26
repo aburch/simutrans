@@ -34,7 +34,7 @@ static pthread_mutex_t crossing_logic_mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZE
 
 crossing_t::crossing_t(loadsave_t* const file) : obj_no_info_t()
 {
-	bild = after_bild = IMG_EMPTY;
+	image = foreground_image = IMG_EMPTY;
 	logic = NULL;
 	rdwr(file);
 }
@@ -46,7 +46,7 @@ crossing_t::crossing_t(player_t* const player_, koord3d const pos, kreuzung_besc
 	this->besch = besch;
 	logic = NULL;
 	zustand = crossing_logic_t::CROSSING_INVALID;
-	bild = after_bild = IMG_EMPTY;
+	image = foreground_image = IMG_EMPTY;
 	set_owner( player_ );
 }
 
@@ -71,8 +71,8 @@ void crossing_t::rotate90()
 // changed state: mark dirty
 void crossing_t::state_changed()
 {
-	mark_image_dirty( bild, 0 );
-	mark_image_dirty( after_bild, 0 );
+	mark_image_dirty( image, 0 );
+	mark_image_dirty( foreground_image, 0 );
 	calc_image();
 }
 
@@ -93,19 +93,19 @@ void crossing_t::calc_image()
 	pthread_mutex_unlock( &crossing_logic_mutex );
 #endif
 	const bool snow_image = get_pos().z >= welt->get_snowline()  ||  welt->get_climate( get_pos().get_2d() ) == arctic_climate;
-	// recalc bild each step ...
-	const bild_besch_t *a = besch->get_bild_after( ns, zustand!=crossing_logic_t::CROSSING_CLOSED, snow_image );
+	// recalc image each step ...
+	const image_t *a = besch->get_image_after( ns, zustand!=crossing_logic_t::CROSSING_CLOSED, snow_image );
 	if(  a==NULL  &&  snow_image  ) {
 		// no snow image? take normal one
-		a = besch->get_bild_after( ns, zustand!=crossing_logic_t::CROSSING_CLOSED, 0);
+		a = besch->get_image_after( ns, zustand!=crossing_logic_t::CROSSING_CLOSED, 0);
 	}
-	after_bild = a ? a->get_nummer() : IMG_EMPTY;
-	const bild_besch_t *b = besch->get_bild( ns, zustand!=crossing_logic_t::CROSSING_CLOSED, snow_image );
+	foreground_image = a ? a->get_id() : IMG_EMPTY;
+	const image_t *b = besch->get_image( ns, zustand!=crossing_logic_t::CROSSING_CLOSED, snow_image );
 	if (b==NULL  &&  snow_image) {
 		// no snow image? take normal one
-		b = besch->get_bild( ns, zustand!=crossing_logic_t::CROSSING_CLOSED, 0);
+		b = besch->get_image( ns, zustand!=crossing_logic_t::CROSSING_CLOSED, 0);
 	}
-	bild = b ? b->get_nummer() : IMG_EMPTY;
+	image = b ? b->get_id() : IMG_EMPTY;
 }
 
 

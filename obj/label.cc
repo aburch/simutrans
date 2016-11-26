@@ -89,7 +89,7 @@ void label_t::finish_rd()
 image_id label_t::get_image() const
 {
 	grund_t *gr=welt->lookup(get_pos());
-	return gr && gr->obj_bei(0) == sim::up_cast<obj_t const*>(this) ? skinverwaltung_t::belegtzeiger->get_bild_nr(0) : IMG_EMPTY;
+	return gr && gr->obj_bei(0) == sim::up_cast<obj_t const*>(this) ? skinverwaltung_t::belegtzeiger->get_image_id(0) : IMG_EMPTY;
 }
 
 

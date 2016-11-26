@@ -19,7 +19,7 @@
 
 
 /*
- *  Autor:
+ *  Author:
  *      prissi
  *
  *  Description:
@@ -28,7 +28,7 @@
  *  Child nodes:
  *	0   Name
  *	1   Copyright
- *	2   Image list (Bildliste)
+ *	2   Image list (Image-list)
  */
 class roadsign_besch_t : public obj_besch_transport_infrastructure_t {
 	friend class roadsign_reader_t;
@@ -53,13 +53,13 @@ public:
 		END_OF_CHOOSE_AREA    = 1U << 7
 	};
 
-	image_id get_bild_nr(ribi_t::dir dir) const
+	image_id get_image_id(ribi_t::dir dir) const
 	{
-		bild_besch_t const* const bild = get_child<bildliste_besch_t>(2)->get_bild(dir);
-		return bild != NULL ? bild->get_nummer() : IMG_EMPTY;
+		image_t const* const image = get_child<image_list_t>(2)->get_image(dir);
+		return image != NULL ? image->get_id() : IMG_EMPTY;
 	}
 
-	uint16 get_count() const { return get_child<bildliste_besch_t>(2)->get_count(); }
+	uint16 get_count() const { return get_child<image_list_t>(2)->get_count(); }
 
 	skin_besch_t const* get_cursor() const { return get_child<skin_besch_t>(3); }
 

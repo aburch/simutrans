@@ -124,7 +124,7 @@ static void show_times(karte_t *welt, main_view_t *view)
 	dbg->message( "show_times()", "simple profiling of drawing routines" );
  	int i;
 
-	image_id img = grund_besch_t::ausserhalb->get_bild(0,0);
+	image_id img = grund_besch_t::ausserhalb->get_image(0,0);
 
 	uint32 ms = dr_time();
 	for (i = 0;  i < 6000000;  i++) {
@@ -136,7 +136,7 @@ static void show_times(karte_t *welt, main_view_t *view)
 	}
 	dbg->message( "display_img()", "%i iterations took %li ms", i, dr_time() - ms );
 
-	image_id player_img = skinverwaltung_t::color_options->get_bild_nr(0);
+	image_id player_img = skinverwaltung_t::color_options->get_image_id(0);
  	ms = dr_time();
 	for (i = 0;  i < 1000000;  i++) {
  		display_color_img( player_img, 120, 100, i%15, 0, 1);
@@ -1263,7 +1263,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 	// Hajo: give user a mouse to work with
 	if (skinverwaltung_t::mouse_cursor != NULL) {
 		// we must use our softpointer (only Allegro!)
-		display_set_pointer(skinverwaltung_t::mouse_cursor->get_bild_nr(0));
+		display_set_pointer(skinverwaltung_t::mouse_cursor->get_image_id(0));
 	}
 #endif
 	display_show_pointer(true);

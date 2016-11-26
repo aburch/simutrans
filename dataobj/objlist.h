@@ -95,7 +95,7 @@ public:
 	/* recalcs all objects on this tile
 	* @author prissi
 	*/
-	void calc_bild();
+	void calc_image();
 
 	/**
 	 * Sets all objects dirty to prevent artifacts with smart hide cursor

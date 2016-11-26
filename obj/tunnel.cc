@@ -26,7 +26,7 @@
 
 #ifdef MULTI_THREAD
 #include "../utils/simthread.h"
-static pthread_mutex_t tunnel_calc_bild_mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+static pthread_mutex_t tunnel_calc_image_mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 #endif
 
 
@@ -34,7 +34,7 @@ tunnel_t::tunnel_t(loadsave_t* const file) : obj_no_info_t()
 {
 	besch = 0;
 	rdwr(file);
-	bild = after_bild = IMG_EMPTY;
+	image = foreground_image = IMG_EMPTY;
 	broad_type = 0;
 }
 
@@ -45,7 +45,7 @@ tunnel_t::tunnel_t(koord3d pos, player_t *player, const tunnel_besch_t *besch) :
 	assert(besch);
 	this->besch = besch;
 	set_owner( player );
-	bild = after_bild = IMG_EMPTY;
+	image = foreground_image = IMG_EMPTY;
 	broad_type = 0;
 }
 
@@ -59,7 +59,7 @@ waytype_t tunnel_t::get_waytype() const
 void tunnel_t::calc_image()
 {
 #ifdef MULTI_THREAD
-	pthread_mutex_lock( &tunnel_calc_bild_mutex );
+	pthread_mutex_lock( &tunnel_calc_image_mutex );
 #endif
 	const grund_t *gr = welt->lookup(get_pos());
 	if(  gr->ist_karten_boden()  &&  besch  ) {
@@ -69,7 +69,7 @@ void tunnel_t::calc_image()
 		if(  besch->has_broad_portals()  ) {
 			ribi_t::ribi dir = ribi_t::rotate90( ribi_type( hang ) );
 			if(  dir==0  ) {
-				dbg->error( "tunnel_t::calc_bild()", "pos=%s, dir=%i, hang=%i", get_pos().get_str(), dir, hang );
+				dbg->error( "tunnel_t::calc_image()", "pos=%s, dir=%i, hang=%i", get_pos().get_str(), dir, hang );
 			}
 			else {
 				const grund_t *gr_l = welt->lookup(get_pos() + dir);
@@ -91,15 +91,15 @@ void tunnel_t::calc_image()
 			}
 		}
 
-		set_bild( besch->get_hintergrund_nr( hang, get_pos().z >= welt->get_snowline()  ||  welt->get_climate( get_pos().get_2d() ) == arctic_climate, broad_type ) );
-		set_after_bild( besch->get_vordergrund_nr( hang, get_pos().z >= welt->get_snowline()  ||  welt->get_climate( get_pos().get_2d() ) == arctic_climate, broad_type ) );
+		set_image( besch->get_background_nr( hang, get_pos().z >= welt->get_snowline()  ||  welt->get_climate( get_pos().get_2d() ) == arctic_climate, broad_type ) );
+		set_foreground_image( besch->get_foreground_nr( hang, get_pos().z >= welt->get_snowline()  ||  welt->get_climate( get_pos().get_2d() ) == arctic_climate, broad_type ) );
 	}
 	else {
-		set_bild( IMG_EMPTY );
-		set_after_bild( IMG_EMPTY );
+		set_image( IMG_EMPTY );
+		set_foreground_image( IMG_EMPTY );
 	}
 #ifdef MULTI_THREAD
-	pthread_mutex_unlock( &tunnel_calc_bild_mutex );
+	pthread_mutex_unlock( &tunnel_calc_image_mutex );
 #endif
 }
 
@@ -191,19 +191,19 @@ void tunnel_t::cleanup( player_t *player2 )
 }
 
 
-void tunnel_t::set_bild( image_id b )
+void tunnel_t::set_image( image_id b )
 {
-	mark_image_dirty( bild, 0 );
+	mark_image_dirty( image, 0 );
 	mark_image_dirty( b, 0 );
-	bild = b;
+	image = b;
 }
 
 
-void tunnel_t::set_after_bild( image_id b )
+void tunnel_t::set_foreground_image( image_id b )
 {
-	mark_image_dirty( after_bild, 0 );
+	mark_image_dirty( foreground_image, 0 );
 	mark_image_dirty( b, 0 );
-	after_bild = b;
+	foreground_image = b;
 }
 
 

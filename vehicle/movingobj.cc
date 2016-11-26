@@ -146,7 +146,7 @@ void movingobj_t::calc_image()
 			break;
 		}
 	}
-	set_bild( get_besch()->get_bild( season, ribi_t::get_dir(get_direction()) )->get_nummer() );
+	set_image( get_besch()->get_image( season, ribi_t::get_dir(get_direction()) )->get_id() );
 }
 
 

@@ -598,7 +598,7 @@ DBG_MESSAGE("tool_remover()",  "removing tunnel  from %d,%d,%d",gr->get_pos().x,
 			// fields have foundations ...
 			sint8 dummy;
 			welt->access(k)->boden_ersetzen( gr, new boden_t(gr->get_pos(), welt->recalc_natural_slope(k,dummy) ) );
-			welt->lookup_kartenboden(k)->calc_bild();
+			welt->lookup_kartenboden(k)->calc_image();
 			welt->lookup_kartenboden(k)->set_flag( grund_t::dirty );
 		}
 		return msg == NULL;
@@ -782,17 +782,17 @@ const char *tool_remover_t::work( player_t *player, koord3d pos )
 
 	// must recalc neighbourhood for slopes etc.
 	if(pos.x>1) {
-		welt->lookup_kartenboden(pos.get_2d()+koord::west)->calc_bild();
+		welt->lookup_kartenboden(pos.get_2d()+koord::west)->calc_image();
 	}
 	if(pos.y>1) {
-		welt->lookup_kartenboden(pos.get_2d()+koord::north)->calc_bild();
+		welt->lookup_kartenboden(pos.get_2d()+koord::north)->calc_image();
 	}
 
 	if(pos.x<welt->get_size().x-1) {
-		welt->lookup_kartenboden(pos.get_2d()+koord::east)->calc_bild();
+		welt->lookup_kartenboden(pos.get_2d()+koord::east)->calc_image();
 	}
 	if(pos.y<welt->get_size().y-1) {
-		welt->lookup_kartenboden(pos.get_2d()+koord::south)->calc_bild();
+		welt->lookup_kartenboden(pos.get_2d()+koord::south)->calc_image();
 	}
 
 	return NULL;
@@ -1330,7 +1330,7 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 					}
 				}
 				if(  !gr1->ist_karten_boden()  ) {
-					gr1->calc_bild();
+					gr1->calc_image();
 				}
 			}
 
@@ -1355,7 +1355,7 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 						grund_t *sea = welt->lookup_kartenboden(k - koord( ribi_type(new_slope ) ));
 						if (sea  &&  sea->ist_wasser()) {
 							gr1->weg_erweitern(water_wt, ribi_t::backward(ribi_type(new_slope)));
-							sea->calc_bild();
+							sea->calc_image();
 						}
 					}
 				}
@@ -1363,7 +1363,7 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 				for(int y=-1; y<=1; y++) {
 					for(int x=-1; x<=1; x++) {
 						grund_t *gr = welt->lookup_kartenboden(k+koord(x,y));
-						gr->calc_bild();
+						gr->calc_image();
 					}
 				}
 				// correct the grid height
@@ -1761,8 +1761,8 @@ void tool_set_climate_t::mark_tiles(player_t *, const koord3d &start, const koor
 			const uint8 weg_hang = gr->get_weg_hang();
 			const uint8 hang = max( corner_sw(grund_hang), corner_sw(weg_hang) ) + 3 * max( corner_se(grund_hang), corner_se(weg_hang) ) + 9 * max( corner_ne(grund_hang), corner_ne(weg_hang) ) + 27 * max( corner_nw(grund_hang), corner_nw(weg_hang) );
 			uint8 back_hang = (hang % 3) + 3 * ((uint8)(hang / 9)) + 27;
-			marker->set_after_bild( grund_besch_t::marker->get_bild( grund_hang % 27 ) );
-			marker->set_bild( grund_besch_t::marker->get_bild( back_hang ) );
+			marker->set_foreground_image( grund_besch_t::marker->get_image( grund_hang % 27 ) );
+			marker->set_image( grund_besch_t::marker->get_image( back_hang ) );
 
 			marker->mark_image_dirty( marker->get_image(), 0 );
 			gr->obj_add( marker );
@@ -2208,12 +2208,12 @@ const weg_besch_t *tool_build_way_t::get_besch( uint16 timeline_year_month, bool
 image_id tool_build_way_t::get_icon(player_t *) const
 {
 	const weg_besch_t *besch = wegbauer_t::get_besch(default_param,0);
-	image_id bild = icon;
+	image_id image = icon;
 	bool is_tram = false;
 	if(  besch  ) {
 		is_tram = (besch->get_wtyp()==tram_wt) || (besch->get_styp() == weg_t::type_tram);
-		if(  bild ==  IMG_EMPTY  ) {
-			bild = besch->get_cursor()->get_bild_nr(1);
+		if(  image ==  IMG_EMPTY  ) {
+			image = besch->get_cursor()->get_image_id(1);
 		}
 		if(  !besch->is_available( world()->get_timeline_year_month() )  ) {
 			return IMG_EMPTY;
@@ -2222,7 +2222,7 @@ image_id tool_build_way_t::get_icon(player_t *) const
 	if(  grund_t::underground_mode==grund_t::ugm_all && !is_tram ) {
 		return IMG_EMPTY;
 	}
-	return bild;
+	return image;
 }
 
 const char* tool_build_way_t::get_tooltip(const player_t *) const
@@ -2281,8 +2281,8 @@ bool tool_build_way_t::init( player_t *player )
 
 	// now get current besch
 	besch = get_besch( welt->get_timeline_year_month(), can_use_gui() );
-	if(  besch  &&  besch->get_cursor()->get_bild_nr(0) != IMG_EMPTY  ) {
-		cursor = besch->get_cursor()->get_bild_nr(0);
+	if(  besch  &&  besch->get_cursor()->get_image_id(0) != IMG_EMPTY  ) {
+		cursor = besch->get_cursor()->get_image_id(0);
 	}
 	if(  besch  &&  !besch->is_available(welt->get_timeline_year_month())  &&  player!=NULL  &&  player!=welt->get_public_player()  ) {
 		// non available way => fail
@@ -2426,13 +2426,13 @@ void tool_build_way_t::mark_tiles(  player_t *player, const koord3d &start, cons
 
 			zeiger_t *way = new zeiger_t(pos, player);
 			if(gr->get_weg_hang()) {
-				way->set_bild( besch->get_hang_bild_nr(gr->get_weg_hang(),0) );
+				way->set_image( besch->get_hang_imageid(gr->get_weg_hang(),0) );
 			}
-			else if(besch->get_wtyp()!=powerline_wt  &&  ribi_t::is_bend(zeige)  &&  besch->has_diagonal_bild()) {
-				way->set_bild( besch->get_diagonal_bild_nr(zeige,0) );
+			else if(besch->get_wtyp()!=powerline_wt  &&  ribi_t::is_bend(zeige)  &&  besch->has_diagonal_image()) {
+				way->set_image( besch->get_diagonal_imageid(zeige,0) );
 			}
 			else {
-				way->set_bild( besch->get_bild_nr(zeige,0) );
+				way->set_image( besch->get_image_id(zeige,0) );
 			}
 			gr->obj_add( way );
 			way->set_yoff(-gr->get_weg_yoff() );
@@ -2552,8 +2552,8 @@ void tool_build_bridge_t::mark_tiles(  player_t *player, const koord3d &start, c
 	const bruecke_besch_t::img_t img0 = besch->get_end( slope, slope, slope_type(zv)*max_height );
 
 	gr->obj_add( way );
-	way->set_bild( besch->get_hintergrund( img0, 0 ) );
-	way->set_after_bild( besch->get_vordergrund( img0, 0 ) );
+	way->set_image( besch->get_background( img0, 0 ) );
+	way->set_foreground_image( besch->get_foreground( img0, 0 ) );
 
 	if(  gr->get_grund_hang() != 0  ) {
 		way->set_yoff( -TILE_HEIGHT_STEP * max_height );
@@ -2588,8 +2588,8 @@ void tool_build_bridge_t::mark_tiles(  player_t *player, const koord3d &start, c
 		gr->obj_add( way );
 		grund_t *kb = welt->lookup_kartenboden(pos.get_2d());
 		sint16 height = pos.z - kb->get_pos().z;
-		way->set_bild(besch->get_hintergrund(besch->get_simple(ribi_mark,height-slope_t::max_diff(kb->get_grund_hang())),0));
-		way->set_after_bild(besch->get_vordergrund(besch->get_simple(ribi_mark,height-slope_t::max_diff(kb->get_grund_hang())), 0));
+		way->set_image(besch->get_background(besch->get_simple(ribi_mark,height-slope_t::max_diff(kb->get_grund_hang())),0));
+		way->set_foreground_image(besch->get_foreground(besch->get_simple(ribi_mark,height-slope_t::max_diff(kb->get_grund_hang())), 0));
 		marked.insert( way );
 		way->mark_image_dirty( way->get_image(), 0 );
 		pos = pos + zv;
@@ -2609,8 +2609,8 @@ void tool_build_bridge_t::mark_tiles(  player_t *player, const koord3d &start, c
 		zeiger_t *way = new zeiger_t(end, player );
 		const bruecke_besch_t::img_t img1 = besch->get_end( end_slope, end_slope, end_slope?0:(pos.z-end.z)*slope_type(-zv) );
 		gr->obj_add( way );
-		way->set_bild(besch->get_hintergrund(img1, 0));
-		way->set_after_bild(besch->get_vordergrund(img1, 0));
+		way->set_image(besch->get_background(img1, 0));
+		way->set_foreground_image(besch->get_foreground(img1, 0));
 		if(  gr->get_grund_hang() != 0  ) {
 			way->set_yoff( -TILE_HEIGHT_STEP * end_max_height );
 		}
@@ -2901,13 +2901,13 @@ void tool_build_tunnel_t::mark_tiles(  player_t *player, const koord3d &start, c
 
 			zeiger_t *way = new zeiger_t(pos, player );
 			if(gr->get_weg_hang()) {
-				way->set_bild( wb->get_hang_bild_nr(gr->get_weg_hang(),0) );
+				way->set_image( wb->get_hang_imageid(gr->get_weg_hang(),0) );
 			}
-			else if(wb->get_wtyp()!=powerline_wt  &&  ribi_t::is_bend(zeige)  &&  wb->has_diagonal_bild()) {
-				way->set_bild( wb->get_diagonal_bild_nr(zeige,0) );
+			else if(wb->get_wtyp()!=powerline_wt  &&  ribi_t::is_bend(zeige)  &&  wb->has_diagonal_image()) {
+				way->set_image( wb->get_diagonal_imageid(zeige,0) );
 			}
 			else {
-				way->set_bild( wb->get_bild_nr(zeige,0) );
+				way->set_image( wb->get_image_id(zeige,0) );
 			}
 			gr->obj_add( way );
 			marked.insert( way );
@@ -2995,7 +2995,7 @@ void tool_wayremover_t::mark_tiles( player_t *player, const koord3d &start, cons
 	if( can_built ) {
 		FOR(vector_tpl<koord3d>, const& pos, verbindung.get_route()) {
 			zeiger_t *marker = new zeiger_t(pos, NULL );
-			marker->set_bild( cursor );
+			marker->set_image( cursor );
 			marker->mark_image_dirty( marker->get_image(), 0 );
 			marked.insert( marker );
 			welt->lookup(pos)->obj_add( marker );
@@ -3182,7 +3182,7 @@ const char *tool_wayremover_t::do_work( player_t *player, const koord3d &start, 
 						gr->mark_image_dirty();
 						if (gr->is_visible() && gr->get_typ()==grund_t::tunnelboden && i>0) { // visibility test does not influence execution
 							grund_t *bd = welt->access(verbindung.position_bei(i-1).get_2d())->get_kartenboden();
-							bd->calc_bild();
+							bd->calc_image();
 							bd->set_flag(grund_t::dirty);
 						}
 						// delete tunnel ground too, if empty
@@ -3211,7 +3211,7 @@ const char *tool_wayremover_t::do_work( player_t *player, const koord3d &start, 
 						else {
 							grund_t *gr_new = new boden_t(gr->get_pos(), gr->get_grund_hang());
 							welt->access(gr->get_pos().get_2d())->boden_ersetzen(gr, gr_new);
-							gr_new->calc_bild();
+							gr_new->calc_image();
 						}
 					}
 				}
@@ -3288,7 +3288,7 @@ bool tool_build_wayobj_t::init( player_t *player )
 	if( build ) {
 		besch = get_besch();
 		if( besch ) {
-			cursor = besch->get_cursor()->get_bild_nr(0);
+			cursor = besch->get_cursor()->get_image_id(0);
 			wt = besch->get_wtyp();
 			default_electric = besch;
 		}
@@ -3367,22 +3367,22 @@ void tool_build_wayobj_t::mark_tiles( player_t* player, const koord3d &start, co
 			if( build ) {
 				way_obj = new zeiger_t(pos, player );
 				if(  gr->get_weg_hang()  ) {
-					way_obj->set_after_bild( besch->get_front_slope_image_id(gr->get_weg_hang()) );
-					way_obj->set_bild( besch->get_back_slope_image_id(gr->get_weg_hang()) );
+					way_obj->set_foreground_image( besch->get_front_slope_image_id(gr->get_weg_hang()) );
+					way_obj->set_image( besch->get_back_slope_image_id(gr->get_weg_hang()) );
 				}
-				else if(  ribi_t::is_bend(show)  &&  besch->has_diagonal_bild()  ) {
-					way_obj->set_after_bild( besch->get_front_diagonal_image_id(show) );
-					way_obj->set_bild( besch->get_back_diagonal_image_id(show) );
+				else if(  ribi_t::is_bend(show)  &&  besch->has_diagonal_image()  ) {
+					way_obj->set_foreground_image( besch->get_front_diagonal_image_id(show) );
+					way_obj->set_image( besch->get_back_diagonal_image_id(show) );
 				}
 				else {
-					way_obj->set_after_bild( besch->get_front_image_id(show) );
-					way_obj->set_bild( besch->get_back_image_id(show) );
+					way_obj->set_foreground_image( besch->get_front_image_id(show) );
+					way_obj->set_image( besch->get_back_image_id(show) );
 				}
 			}
 			else {
 				if( gr->get_wayobj( wt ) ) {
 					way_obj = new zeiger_t(pos, player );
-					way_obj->set_bild( cursor ); //skinverwaltung_t::bauigelsymbol->get_bild_nr(0));
+					way_obj->set_image( cursor ); //skinverwaltung_t::bauigelsymbol->get_image_id(0));
 				}
 			}
 			if( way_obj ) {
@@ -4315,7 +4315,7 @@ bool tool_build_station_t::init( player_t * )
 	if(  hb==NULL  ) {
 		return false;
 	}
-	cursor = hb->get_cursor()->get_bild_nr(0);
+	cursor = hb->get_cursor()->get_image_id(0);
 	if(  !can_use_gui()  ) {
 		// do not change cursor
 		return true;
@@ -4804,21 +4804,21 @@ void tool_build_roadsign_t::mark_tiles( player_t *player, const koord3d &start, 
 					(s.replace_other && rs && !rs->is_deletable(player))) {
 				zeiger_t* zeiger = new zeiger_t(gr->get_pos(), player );
 				marked.append(zeiger);
-				zeiger->set_bild( skinverwaltung_t::bauigelsymbol->get_bild_nr(0) );
+				zeiger->set_image( skinverwaltung_t::bauigelsymbol->get_image_id(0) );
 				gr->obj_add( zeiger );
 				directions.append(ribi /* !=0 -> place sign*/);
 				next_signal = 0;
 				dummy_rs->set_pos(gr->get_pos());
-				dummy_rs->set_dir(ribi); // calls calc_bild()
-				zeiger->set_after_bild(dummy_rs->get_front_image());
-				zeiger->set_bild(dummy_rs->get_image());
+				dummy_rs->set_dir(ribi); // calls calc_image()
+				zeiger->set_foreground_image(dummy_rs->get_front_image());
+				zeiger->set_image(dummy_rs->get_image());
 				cost += rs ? (rs->get_besch()==besch ? 0  : besch->get_preis()+rs->get_besch()->get_preis()) : besch->get_preis();
 			}
 		}
 		else if (s.remove_intermediate && rs && !rs->is_deletable(player)) {
 				zeiger_t* zeiger = new zeiger_t(gr->get_pos(), player );
 				marked.append(zeiger);
-				zeiger->set_bild( tool_t::general_tool[TOOL_REMOVER]->cursor );
+				zeiger->set_image( tool_t::general_tool[TOOL_REMOVER]->cursor );
 				gr->obj_add( zeiger );
 				directions.append(ribi_t::none /*remove sign*/);
 				cost += rs->get_besch()->get_preis();
@@ -4877,7 +4877,7 @@ const char *tool_build_roadsign_t::do_work( player_t *player, const koord3d &sta
 			};
 		}
 		weg->count_sign();
-		gr->calc_bild();
+		gr->calc_image();
 	}
 	cleanup();
 	directions.clear();
@@ -5074,7 +5074,7 @@ image_id tool_build_depot_t::get_icon(player_t *player) const
 		const haus_besch_t *besch = hausbauer_t::find_tile(default_param,0)->get_besch();
 		const uint16 time = welt->get_timeline_year_month();
 		if(  besch  &&  besch->is_available(time)  ) {
-			return besch->get_cursor()->get_bild_nr(1);
+			return besch->get_cursor()->get_image_id(1);
 		}
 	}
 	return IMG_EMPTY;
@@ -5088,7 +5088,7 @@ bool tool_build_depot_t::init( player_t *player )
 	}
 	// no depots for player 1
 	if(player!=welt->get_public_player()) {
-		cursor = besch->get_cursor()->get_bild_nr(0);
+		cursor = besch->get_cursor()->get_image_id(0);
 		return true;
 	}
 	return false;
@@ -5730,7 +5730,7 @@ DBG_MESSAGE("tool_headquarter()", "building headquarters at (%d,%d)", pos.x, pos
 			// tell the world of it ...
 			cbuffer_t buf;
 			buf.printf( translator::translate("%s s\nheadquarter now\nat (%i,%i)."), player->get_name(), pos.x, pos.y );
-			welt->get_message()->add_message( buf, k, message_t::ai, PLAYER_FLAG|player->get_player_nr(), hq->get_tile()->get_hintergrund(0,0,0) );
+			welt->get_message()->add_message( buf, k, message_t::ai, PLAYER_FLAG|player->get_player_nr(), hq->get_tile()->get_background(0,0,0) );
 			// reset to query tool, since costly relocations should be avoided
 			if(can_use_gui()  &&  player == welt->get_active_player()) {
 				welt->set_tool( tool_t::general_tool[TOOL_QUERY], player );
@@ -5810,8 +5810,8 @@ void tool_forest_t::mark_tiles(  player_t *, const koord3d &start, const koord3d
 					9 * max( corner_ne(grund_hang), corner_ne(weg_hang)) +
 					27 * max( corner_nw(grund_hang), corner_nw(weg_hang));
 			uint8 back_hang = (hang % 3) + 3 * ((uint8)(hang / 9)) + 27;
-			marker->set_after_bild( grund_besch_t::marker->get_bild( grund_hang % 27 ) );
-			marker->set_bild( grund_besch_t::marker->get_bild( back_hang ) );
+			marker->set_foreground_image( grund_besch_t::marker->get_image( grund_hang % 27 ) );
+			marker->set_image( grund_besch_t::marker->get_image( back_hang ) );
 
 			marker->mark_image_dirty( marker->get_image(), 0 );
 			gr->obj_add( marker );
@@ -6474,7 +6474,7 @@ void tool_rotate90_t::draw_after(scr_coord pos, bool dirty) const
 {
 	if(  !env_t::networkmode  ) {
 		if(  skinverwaltung_t::compass_map  ) {
-			display_img_aligned( skinverwaltung_t::compass_map->get_bild_nr( welt->get_settings().get_rotation()+4 ), scr_rect(pos,env_t::iconsize), ALIGN_CENTER_V|ALIGN_CENTER_H, false );
+			display_img_aligned( skinverwaltung_t::compass_map->get_image_id( welt->get_settings().get_rotation()+4 ), scr_rect(pos,env_t::iconsize), ALIGN_CENTER_V|ALIGN_CENTER_H, false );
 		}
 		tool_t::draw_after( pos, dirty );
 	}

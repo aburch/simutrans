@@ -862,7 +862,7 @@ fabrik_t::~fabrik_t()
 			if (field_t* f = gr->find<field_t>()) {
 				delete f; // implicitly removes the field from fields
 				plan->boden_ersetzen( gr, new boden_t(gr->get_pos(), slope_t::flat ) );
-				plan->get_kartenboden()->calc_bild();
+				plan->get_kartenboden()->calc_image();
 				continue;
 			}
 		}
@@ -1060,7 +1060,7 @@ bool fabrik_t::add_random_field(uint16 probability)
 		if(lt) {
 			gr2->obj_add( lt );
 		}
-		gr2->calc_bild();
+		gr2->calc_image();
 		return true;
 	}
 	return false;
@@ -1478,7 +1478,7 @@ void fabrik_t::smoke() const
 		// to get same random order on different compilers
 		const sint8 offsetx =  ((rada->get_xy_off(rot).x+sim_async_rand(7)-3)*OBJECT_OFFSET_STEPS)/16;
 		const sint8 offsety =  ((rada->get_xy_off(rot).y+sim_async_rand(7)-3)*OBJECT_OFFSET_STEPS)/16;
-		wolke_t *smoke =  new wolke_t(gr->get_pos(), offsetx, offsety, rada->get_bilder() );
+		wolke_t *smoke =  new wolke_t(gr->get_pos(), offsetx, offsety, rada->get_images() );
 		gr->obj_add(smoke);
 		welt->sync_way_eyecandy.add( smoke );
 	}

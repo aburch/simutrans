@@ -11,7 +11,7 @@
 
 
 /*
- *  Autor:
+ *  Author:
  *      Volker Meyer
  */
 class citycar_reader_t : public obj_reader_t {

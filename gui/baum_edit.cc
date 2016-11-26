@@ -130,7 +130,7 @@ void baum_edit_frame_t::change_item_info(sint32 entry)
 		info_text.recalc_size();
 		cont.set_size( info_text.get_size() + scr_size(0, 20) );
 
-		img[3].set_image( besch->get_bild_nr( 0, 3 ) );
+		img[3].set_image( besch->get_image_id( 0, 3 ) );
 
 		sprintf( param_str, "%i%i,%s", bt_climates.pressed, bt_timeline.pressed, besch->get_name() );
 		baum_tool.set_default_param(param_str);

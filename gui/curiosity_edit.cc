@@ -270,22 +270,22 @@ void curiosity_edit_frame_t::change_item_info(sint32 entry)
 		uint8 rot = (rotation==255) ? 0 : rotation;
 		if(besch->get_b(rot)==1) {
 			if(besch->get_h(rot)==1) {
-				img[3].set_image( besch->get_tile(rot,0,0)->get_hintergrund(0,0,0) );
+				img[3].set_image( besch->get_tile(rot,0,0)->get_background(0,0,0) );
 			}
 			else {
-				img[2].set_image( besch->get_tile(rot,0,0)->get_hintergrund(0,0,0) );
-				img[3].set_image( besch->get_tile(rot,0,1)->get_hintergrund(0,0,0) );
+				img[2].set_image( besch->get_tile(rot,0,0)->get_background(0,0,0) );
+				img[3].set_image( besch->get_tile(rot,0,1)->get_background(0,0,0) );
 			}
 		}
 		else {
 			if(besch->get_h(rot)==1) {
-				img[1].set_image( besch->get_tile(rot,0,0)->get_hintergrund(0,0,0) );
-				img[3].set_image( besch->get_tile(rot,1,0)->get_hintergrund(0,0,0) );
+				img[1].set_image( besch->get_tile(rot,0,0)->get_background(0,0,0) );
+				img[3].set_image( besch->get_tile(rot,1,0)->get_background(0,0,0) );
 			}
 			else {
 				// maximum 2x2 image
 				for(int i=0;  i<4;  i++  ) {
-					img[i].set_image( besch->get_tile(rot,i/2,i&1)->get_hintergrund(0,0,0) );
+					img[i].set_image( besch->get_tile(rot,i/2,i&1)->get_background(0,0,0) );
 				}
 			}
 		}
@@ -302,7 +302,7 @@ void curiosity_edit_frame_t::change_item_info(sint32 entry)
 		tstrncpy(rot_str, translator::translate("random"), lengthof(rot_str));
 		uint8 rot = (rotation==255) ? 0 : rotation;
 		if (besch) {
-			img[3].set_image( besch->get_tile(rot,0,0)->get_hintergrund(0,0,0) );
+			img[3].set_image( besch->get_tile(rot,0,0)->get_background(0,0,0) );
 		}
 
 		besch = NULL;

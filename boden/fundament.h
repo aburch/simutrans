@@ -16,7 +16,7 @@ protected:
 	* Das Fundament hat immer das gleiche Bild.
 	* @author Hj. Malthaner
 	*/
-	void calc_bild_internal(const bool calc_only_snowline_change);
+	void calc_image_internal(const bool calc_only_snowline_change);
 
 public:
 	fundament_t(loadsave_t *file, koord pos );

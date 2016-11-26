@@ -53,12 +53,12 @@ int gui_image_list_t::index_at(scr_coord parent_pos, int xpos, int ypos) const
 		const int column = xpos / grid.x;
 		const int row = ypos / grid.y;
 
-		const unsigned int bild_index = use_rows ?
+		const unsigned int index = use_rows ?
 		row * columns + column :
 		column * rows + row;
 
-		if (bild_index < images->get_count()  &&  (*images)[bild_index]->image != IMG_EMPTY) {
-			return bild_index;
+		if (index < images->get_count()  &&  (*images)[index]->image != IMG_EMPTY) {
+			return index;
 		}
 	}
 	return -1;

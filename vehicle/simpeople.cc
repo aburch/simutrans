@@ -90,7 +90,7 @@ pedestrian_t::~pedestrian_t()
 
 void pedestrian_t::calc_image()
 {
-	set_bild(besch->get_bild_nr(ribi_t::get_dir(get_direction())));
+	set_image(besch->get_image_id(ribi_t::get_dir(get_direction())));
 }
 
 

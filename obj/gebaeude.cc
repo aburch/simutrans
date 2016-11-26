@@ -308,8 +308,8 @@ sync_result gebaeude_t::sync_step(uint32 delta_t)
 			}
 			else {
 				// try foreground
-				image_id bild = tile->get_vordergrund( anim_frame, season );
-				mark_image_dirty( bild, 0 );
+				image_id image = tile->get_foreground( anim_frame, season );
+				mark_image_dirty( image, 0 );
 			}
 
 			anim_frame++;
@@ -319,8 +319,8 @@ sync_result gebaeude_t::sync_step(uint32 delta_t)
 
 			if(  !background_animated  ) {
 				// next phase must be marked dirty too ...
-				image_id bild = tile->get_vordergrund( anim_frame, season );
-				mark_image_dirty( bild, 0 );
+				image_id image = tile->get_foreground( anim_frame, season );
+				mark_image_dirty( image, 0 );
 			}
  		}
  	}
@@ -333,7 +333,7 @@ void gebaeude_t::calc_image()
 	grund_t *gr = welt->lookup( get_pos() );
 	// need no ground?
 	if(  remove_ground  &&  gr->get_typ() == grund_t::fundament  ) {
-		gr->set_bild( IMG_EMPTY );
+		gr->set_image( IMG_EMPTY );
 	}
 
 	static uint8 effective_season[][5] = { {0,0,0,0,0}, {0,0,0,0,1}, {0,0,0,0,1}, {0,1,2,3,2}, {0,1,2,3,4} };  // season image lookup from [number of images] and [actual season/snow]
@@ -363,7 +363,7 @@ image_id gebaeude_t::get_image() const
 	if(env_t::hide_buildings!=0  &&  tile->has_image()) {
 		// opaque houses
 		if(get_haustyp()!=unbekannt) {
-			return env_t::hide_with_transparency ? skinverwaltung_t::fussweg->get_bild_nr(0) : skinverwaltung_t::construction_site->get_bild_nr(0);
+			return env_t::hide_with_transparency ? skinverwaltung_t::fussweg->get_image_id(0) : skinverwaltung_t::construction_site->get_image_id(0);
 		} else if(  (env_t::hide_buildings == env_t::ALL_HIDDEN_BUILDING  &&  tile->get_besch()->get_utyp() < haus_besch_t::weitere)) {
 			// hide with transparency or tile without information
 			if(env_t::hide_with_transparency) {
@@ -371,20 +371,20 @@ image_id gebaeude_t::get_image() const
 					// no ground tiles for water things
 					return IMG_EMPTY;
 				}
-				return skinverwaltung_t::fussweg->get_bild_nr(0);
+				return skinverwaltung_t::fussweg->get_image_id(0);
 			}
 			else {
 				uint16 kind=skinverwaltung_t::construction_site->get_count()<=tile->get_besch()->get_utyp() ? skinverwaltung_t::construction_site->get_count()-1 : tile->get_besch()->get_utyp();
-				return skinverwaltung_t::construction_site->get_bild_nr( kind );
+				return skinverwaltung_t::construction_site->get_image_id( kind );
 			}
 		}
 	}
 
 	if(  zeige_baugrube  )  {
-		return skinverwaltung_t::construction_site->get_bild_nr(0);
+		return skinverwaltung_t::construction_site->get_image_id(0);
 	}
 	else {
-		return tile->get_hintergrund( anim_frame, 0, season );
+		return tile->get_background( anim_frame, 0, season );
 	}
 }
 
@@ -393,7 +393,7 @@ image_id gebaeude_t::get_outline_image() const
 {
 	if(env_t::hide_buildings!=0  &&  env_t::hide_with_transparency  &&  !zeige_baugrube) {
 		// opaque houses
-		return tile->get_hintergrund( anim_frame, 0, season );
+		return tile->get_background( anim_frame, 0, season );
 	}
 	return IMG_EMPTY;
 }
@@ -423,7 +423,7 @@ image_id gebaeude_t::get_image(int nr) const
 		return IMG_EMPTY;
 	}
 	else {
-		return tile->get_hintergrund( anim_frame, nr, season );
+		return tile->get_background( anim_frame, nr, season );
 	}
 }
 
@@ -438,7 +438,7 @@ image_id gebaeude_t::get_front_image() const
 	}
 	else {
 		// Show depots, station buildings etc.
-		return tile->get_vordergrund( anim_frame, season );
+		return tile->get_foreground( anim_frame, season );
 	}
 }
 
@@ -969,10 +969,10 @@ void gebaeude_t::mark_images_dirty() const
 	if(  zeige_baugrube  ||
 			(!env_t::hide_with_transparency  &&
 				env_t::hide_buildings>(get_haustyp()!=unbekannt ? env_t::NOT_HIDE : env_t::SOME_HIDDEN_BUILDING))  ) {
-		img = skinverwaltung_t::construction_site->get_bild_nr(0);
+		img = skinverwaltung_t::construction_site->get_image_id(0);
 	}
 	else {
-		img = tile->get_hintergrund( anim_frame, 0, season ) ;
+		img = tile->get_background( anim_frame, 0, season ) ;
 	}
 	for(  int i=0;  img!=IMG_EMPTY;  img=get_image(++i)  ) {
 		mark_image_dirty( img, -(i*get_tile_raster_width()) );

@@ -39,29 +39,29 @@ tunnelboden_t::tunnelboden_t(loadsave_t *file, koord pos ) : boden_t(koord3d(pos
 }
 
 
-void tunnelboden_t::calc_bild_internal(const bool calc_only_snowline_change)
+void tunnelboden_t::calc_image_internal(const bool calc_only_snowline_change)
 {
 	// tunnel mouth
 	if(  ist_karten_boden()  ) {
 		if(  grund_t::underground_mode == grund_t::ugm_all  ||  (grund_t::underground_mode == grund_t::ugm_level  &&  pos.z == grund_t::underground_level)  ) {
 			if(  grund_t::underground_mode == grund_t::ugm_all  ) {
-				clear_back_bild();
+				clear_back_image();
 			}
 			else {
-				boden_t::calc_bild_internal( calc_only_snowline_change );
+				boden_t::calc_image_internal( calc_only_snowline_change );
 			}
 			// default tunnel ground images
-			set_bild( skinverwaltung_t::tunnel_texture->get_bild_nr(0) );
+			set_image( skinverwaltung_t::tunnel_texture->get_image_id(0) );
 			clear_flag( draw_as_obj );
 		}
 		else {
 			// calculate the ground
-			boden_t::calc_bild_internal( calc_only_snowline_change );
+			boden_t::calc_image_internal( calc_only_snowline_change );
 			set_flag( draw_as_obj );
 		}
 
 		if(  grund_t::underground_mode == grund_t::ugm_none  ) {
-			if(  (ribi_type(get_grund_hang()) == ribi_t::east  &&  abs(back_bild_nr) > 11)  ||  (ribi_type(get_grund_hang()) == ribi_t::south  &&  get_back_bild(0) != IMG_EMPTY)  ) {
+			if(  (ribi_type(get_grund_hang()) == ribi_t::east  &&  abs(back_imageid) > 11)  ||  (ribi_type(get_grund_hang()) == ribi_t::south  &&  get_back_image(0) != IMG_EMPTY)  ) {
 				// on east or north slope: must draw as obj, since there is a slope here nearby
 				koord pos = get_pos().get_2d() + koord( get_grund_hang() );
 				grund_t *gr = welt->lookup_kartenboden( pos );
@@ -71,12 +71,12 @@ void tunnelboden_t::calc_bild_internal(const bool calc_only_snowline_change)
 	}
 	// inside tunnel
 	else if(  !calc_only_snowline_change  ) {
-		clear_back_bild();
+		clear_back_image();
 		// default tunnel ground images
 		// single or double slope? (single slopes are not divisible by 8)
 		const uint8 slope_this =  get_disp_slope();
-		const uint8 bild_nr = (!slope_this  ||  (slope_this & 7)) ? grund_besch_t::slopetable[slope_this] : grund_besch_t::slopetable[slope_this >> 1] + 12;
-		set_bild( skinverwaltung_t::tunnel_texture->get_bild_nr( bild_nr ) );
+		const uint8 imageid = (!slope_this  ||  (slope_this & 7)) ? grund_besch_t::slopetable[slope_this] : grund_besch_t::slopetable[slope_this >> 1] + 12;
+		set_image( skinverwaltung_t::tunnel_texture->get_image_id( imageid ) );
 	}
 }
 

@@ -141,18 +141,18 @@ void reset_textur(void *new_textur);
 uint16 display_load_font(const char* fname);
 
 image_id get_image_count();
-void register_image(struct bild_besch_t*);
+void register_image(struct image_t*);
 
 // delete all images above a certain number ...
 void display_free_all_images_above( image_id above );
 
 // unzoomed offsets
-//void display_set_base_image_offset( unsigned bild, KOORD_VAL xoff, KOORD_VAL yoff );
-void display_get_base_image_offset( image_id bild, KOORD_VAL *xoff, KOORD_VAL *yoff, KOORD_VAL *xw, KOORD_VAL *yw );
+//void display_set_base_image_offset( unsigned image, KOORD_VAL xoff, KOORD_VAL yoff );
+void display_get_base_image_offset( image_id image, KOORD_VAL *xoff, KOORD_VAL *yoff, KOORD_VAL *xw, KOORD_VAL *yw );
 // zoomed offsets
-void display_get_image_offset( image_id bild, KOORD_VAL *xoff, KOORD_VAL *yoff, KOORD_VAL *xw, KOORD_VAL *yw );
-void display_get_base_image_offset( image_id bild, KOORD_VAL *xoff, KOORD_VAL *yoff, KOORD_VAL *xw, KOORD_VAL *yw );
-void display_mark_img_dirty( image_id bild, KOORD_VAL x, KOORD_VAL y );
+void display_get_image_offset( image_id image, KOORD_VAL *xoff, KOORD_VAL *yoff, KOORD_VAL *xw, KOORD_VAL *yw );
+void display_get_base_image_offset( image_id image, KOORD_VAL *xoff, KOORD_VAL *yoff, KOORD_VAL *xw, KOORD_VAL *yw );
+void display_mark_img_dirty( image_id image, KOORD_VAL x, KOORD_VAL y );
 
 void mark_rect_dirty_wc(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL x2, KOORD_VAL y2); // clips to screen only
 void mark_rect_dirty_clip(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL x2, KOORD_VAL y2  CLIP_NUM_DEF); // clips to clip_rect

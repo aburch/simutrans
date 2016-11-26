@@ -35,7 +35,7 @@ void message_t::node::rdwr(loadsave_t *file)
 	file->rdwr_short( color );
 	file->rdwr_long( time );
 	if(  file->is_loading()  ) {
-		bild = IMG_EMPTY;
+		image = IMG_EMPTY;
 	}
 }
 
@@ -104,10 +104,10 @@ void message_t::set_message_flags( sint32 t, sint32 w, sint32 a, sint32 i)
  * @param pos    position of the event
  * @param color  message color
  * @param where type of message
- * @param bild image associated with message (will be ignored if pos!=koord::invalid)
+ * @param image image associated with message (will be ignored if pos!=koord::invalid)
  * @author prissi
  */
-void message_t::add_message(const char *text, koord pos, uint16 what_flags, PLAYER_COLOR_VAL color, image_id bild )
+void message_t::add_message(const char *text, koord pos, uint16 what_flags, PLAYER_COLOR_VAL color, image_id image )
 {
 DBG_MESSAGE("message_t::add_msg()","%40s (at %i,%i)", text, pos.x, pos.y );
 
@@ -166,7 +166,7 @@ DBG_MESSAGE("message_t::add_msg()","%40s (at %i,%i)", text, pos.x, pos.y );
 	n->pos = pos;
 	n->color = color;
 	n->time = welt->get_current_month();
-	n->bild = bild;
+	n->image = image;
 
 	PLAYER_COLOR_VAL colorval = n->get_player_color(welt);
 	// should we send this message to a ticker?
@@ -190,7 +190,7 @@ DBG_MESSAGE("message_t::add_msg()","%40s (at %i,%i)", text, pos.x, pos.y );
 	if (  art & (auto_win_flags | win_flags)  ) {
 		news_window* news;
 		if (pos == koord::invalid) {
-			news = new news_img(p, bild, colorval);
+			news = new news_img(p, image, colorval);
 		} else {
 			news = new news_loc(p, pos, colorval);
 		}

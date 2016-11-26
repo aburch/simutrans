@@ -654,7 +654,7 @@ const char *objlist_t::kann_alle_entfernen(const player_t *player, uint8 offset)
 
 /* recalculates all images
  */
-void objlist_t::calc_bild()
+void objlist_t::calc_image()
 {
 	if(capacity==0) {
 		// nothing

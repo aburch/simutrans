@@ -12,7 +12,7 @@
  * Definition of special colors
  * @author Hj. Malthaner
  */
-const uint32 bild_besch_t::rgbtab[SPECIAL] = {
+const uint32 image_t::rgbtab[SPECIAL] = {
 	0x244B67, // Player color 1
 	0x395E7C,
 	0x4C7191,
@@ -51,7 +51,7 @@ const uint32 bild_besch_t::rgbtab[SPECIAL] = {
 
 // the players colors and colors for simple drawing operations
 // each eight colors are corresponding to a player color
-const uint8 bild_besch_t::special_pal[224*3]=
+const uint8 image_t::special_pal[224*3]=
 {
 	36, 75, 103,
 	57, 94, 124,
@@ -282,7 +282,7 @@ const uint8 bild_besch_t::special_pal[224*3]=
 
 
 // returns next matching color to an rgb
-COLOR_VAL bild_besch_t::get_index_from_rgb( uint8 r, uint8 g, uint8 b )
+COLOR_VAL image_t::get_index_from_rgb( uint8 r, uint8 g, uint8 b )
 {
 	COLOR_VAL result = 0;
 	// special night/player color found?
@@ -305,24 +305,24 @@ COLOR_VAL bild_besch_t::get_index_from_rgb( uint8 r, uint8 g, uint8 b )
 }
 
 
-bild_besch_t* bild_besch_t::copy_image(const bild_besch_t& other)
+image_t* image_t::copy_image(const image_t& other)
 {
-	bild_besch_t* img = new bild_besch_t(other.len);
+	image_t* img = new image_t(other.len);
 	img->len = other.len;
 	img->x   = other.x;
 	img->y   = other.y;
 	img->w   = other.w;
 	img->h   = other.h;
-	img->bild_nr  = IMG_EMPTY;
+	img->imageid  = IMG_EMPTY;
 	img->zoomable = other.zoomable;
 	memcpy(img->data, other.data, other.len * sizeof(PIXVAL));
 	return img;
 }
 
 // creates a single pixel dummy picture
-bild_besch_t* bild_besch_t::create_single_pixel()
+image_t* image_t::create_single_pixel()
 {
-	bild_besch_t* besch = new bild_besch_t(4);
+	image_t* besch = new image_t(4);
 	besch->len = 4;
 	besch->x = 0;
 	besch->y = 0;
@@ -341,7 +341,7 @@ bild_besch_t* bild_besch_t::create_single_pixel()
  * only rotates by 90 degrees or multiples thereof, and assumes a square image
  * Otherwise it will only succeed for angle=0;
 */
-bild_besch_t *bild_besch_t::copy_rotate(const sint16 angle) const
+image_t *image_t::copy_rotate(const sint16 angle) const
 {
 #if COLOUR_DEPTH == 0
 	(void)angle;
@@ -349,7 +349,7 @@ bild_besch_t *bild_besch_t::copy_rotate(const sint16 angle) const
 #endif
 	assert(angle == 0 || (w == h && x == 0 && y == 0));
 
-	bild_besch_t* target_besch = copy_image(*this);
+	image_t* target_image = copy_image(*this);
 
 	// the format is
 	// transparent PIXELVAL number
@@ -360,8 +360,8 @@ bild_besch_t *bild_besch_t::copy_rotate(const sint16 angle) const
 	// now you should understand below arithmetics ...
 
 	sint16        const x_y    = w;
-	PIXVAL const* const src    = get_daten();
-	PIXVAL*       const target = target_besch->get_daten();
+	PIXVAL const* const src    = get_data();
+	PIXVAL*       const target = target_image->get_data();
 
 	switch(angle) {
 		case 90:
@@ -389,13 +389,13 @@ bild_besch_t *bild_besch_t::copy_rotate(const sint16 angle) const
 		default: // no rotation, just converts to array
 			;
 	}
-	return target_besch;
+	return target_image;
 }
 
 
-bild_besch_t *bild_besch_t::copy_flipvertical() const
+image_t *image_t::copy_flipvertical() const
 {
-	bild_besch_t* target_besch = copy_image(*this);
+	image_t* target_image = copy_image(*this);
 
 	// the format is
 	// transparent PIXELVAL number
@@ -406,21 +406,21 @@ bild_besch_t *bild_besch_t::copy_flipvertical() const
 	// now you should understand below arithmetics ...
 
 	sint16        const x_y    = w;
-	PIXVAL const* const src    = get_daten();
-	PIXVAL*       const target = target_besch->get_daten();
+	PIXVAL const* const src    = get_data();
+	PIXVAL*       const target = target_image->get_data();
 
 	for(  int j = 0;  j < x_y;  j++  ) {
 		for(  int i = 0;  i < x_y;  i++  ) {
 			target[i * (x_y + 3) + j + 2] = src[(x_y - i - 1) * (x_y + 3) + j + 2];
 		}
 	}
-	return target_besch;
+	return target_image;
 }
 
 
-bild_besch_t *bild_besch_t::copy_fliphorizontal() const
+image_t *image_t::copy_fliphorizontal() const
 {
-	bild_besch_t* target_besch  = copy_image(*this);
+	image_t* target_image  = copy_image(*this);
 
 	// the format is
 	// transparent PIXELVAL number
@@ -431,15 +431,15 @@ bild_besch_t *bild_besch_t::copy_fliphorizontal() const
 	// now you should understand below arithmetics ...
 
 	sint16        const x_y    = w;
-	PIXVAL const* const src    = get_daten();
-	PIXVAL*       const target = target_besch->get_daten();
+	PIXVAL const* const src    = get_data();
+	PIXVAL*       const target = target_image->get_data();
 
 	for(  int i = 0;  i < x_y;  i++  ) {
 		for(  int j = 0;  j < x_y;  j++  ) {
 			target[i * (x_y + 3) + j + 2] = src[i * (x_y + 3) + (x_y - j - 1) + 2];
 		}
 	}
-	return target_besch;
+	return target_image;
 }
 
 
@@ -456,11 +456,11 @@ bild_besch_t *bild_besch_t::copy_fliphorizontal() const
  *
  * NOT IMPLEMENTED CURRENTLY
  */
-/*bild_besch_t *bild_besch_t::copy_maketransparent(uint8 opaquemask) const
+/*image_t *image_t::copy_maketransparent(uint8 opaquemask) const
 {
 	// step 1 is finding out how much memory picture will need
 	// any pixel with no components specified in opaquemask will be made transparent (so needs no space)
-	PIXVAL const* sp = get_daten();
+	PIXVAL const* sp = get_data();
 	uint16 len = 0;
 	if(  h > 0  ) {
 		do {
@@ -507,7 +507,7 @@ bild_besch_t *bild_besch_t::copy_fliphorizontal() const
 	}
 
 	// now allocate memory
-	bild_besch_t* target_besch = new(len * sizeof(PIXVAL));
+	image_t* target_image = new(len * sizeof(PIXVAL));
 
 	// step 2 actually construct image
 }*/
@@ -516,7 +516,7 @@ bild_besch_t *bild_besch_t::copy_fliphorizontal() const
 /**
  * decodes an image into a 32 bit bitmap
  */
-void bild_besch_t::decode_img(sint16 xoff, sint16 yoff, uint32 *target, uint32 target_width, uint32 target_height ) const
+void image_t::decode_img(sint16 xoff, sint16 yoff, uint32 *target, uint32 target_width, uint32 target_height ) const
 {
 	// Hajo: may this image be zoomed
 	if(  h > 0  && w > 0  ) {

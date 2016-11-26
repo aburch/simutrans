@@ -45,19 +45,19 @@ loadingscreen_t::loadingscreen_t( const char *w, uint32 max_p, bool logo, bool c
 void loadingscreen_t::display_logo()
 {
 	if(  show_logo  &&  skinverwaltung_t::biglogosymbol  ) {
-		const bild_besch_t *bild0 = skinverwaltung_t::biglogosymbol->get_bild(0);
-		const int w = bild0->w;
-		const int h = bild0->h + bild0->y;
+		const image_t *image0 = skinverwaltung_t::biglogosymbol->get_image(0);
+		const int w = image0->w;
+		const int h = image0->h + image0->y;
 		int x = display_get_width()/2-w;
 		int y = display_get_height()/4-w;
 		if(y<0) {
 			y = 1;
 		}
 
-		display_color_img(skinverwaltung_t::biglogosymbol->get_bild_nr(0), x, y, 0, false, true);
-		display_color_img(skinverwaltung_t::biglogosymbol->get_bild_nr(1), x+w, y, 0, false, true);
-		display_color_img(skinverwaltung_t::biglogosymbol->get_bild_nr(2), x, y+h, 0, false, true);
-		display_color_img(skinverwaltung_t::biglogosymbol->get_bild_nr(3), x+w, y+h, 0, false, true);
+		display_color_img(skinverwaltung_t::biglogosymbol->get_image_id(0), x, y, 0, false, true);
+		display_color_img(skinverwaltung_t::biglogosymbol->get_image_id(1), x+w, y, 0, false, true);
+		display_color_img(skinverwaltung_t::biglogosymbol->get_image_id(2), x, y+h, 0, false, true);
+		display_color_img(skinverwaltung_t::biglogosymbol->get_image_id(3), x+w, y+h, 0, false, true);
 	}
 }
 

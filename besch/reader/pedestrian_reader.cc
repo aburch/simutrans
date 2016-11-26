@@ -14,7 +14,7 @@
 #include "../../network/pakset_info.h"
 
 /*
- *  Autor:
+ *  Author:
  *      Volker Meyer
  */
 void pedestrian_reader_t::register_obj(obj_besch_t *&data)

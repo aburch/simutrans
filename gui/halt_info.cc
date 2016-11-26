@@ -229,15 +229,15 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 		// now what do we accept here?
 		int left = 10+D_INDICATOR_WIDTH+2;
 		if (halt->get_pax_enabled()) {
-			display_color_img(skinverwaltung_t::passagiere->get_bild_nr(0), pos.x+left, top, 0, false, false);
+			display_color_img(skinverwaltung_t::passagiere->get_image_id(0), pos.x+left, top, 0, false, false);
 			left += 10;
 		}
 		if (halt->get_post_enabled()) {
-			display_color_img(skinverwaltung_t::post->get_bild_nr(0), pos.x+left, top, 0, false, false);
+			display_color_img(skinverwaltung_t::post->get_image_id(0), pos.x+left, top, 0, false, false);
 			left += 10;
 		}
 		if (halt->get_ware_enabled()) {
-			display_color_img(skinverwaltung_t::waren->get_bild_nr(0), pos.x+left, top, 0, false, false);
+			display_color_img(skinverwaltung_t::waren->get_image_id(0), pos.x+left, top, 0, false, false);
 			left += 10;
 		}
 
@@ -246,39 +246,39 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 		top -= 44;
 		haltestelle_t::stationtyp const halttype = halt->get_station_type();
 		if (halttype & haltestelle_t::railstation) {
-			display_color_img(skinverwaltung_t::zughaltsymbol->get_bild_nr(0), pos.x+left, top, 0, false, false);
+			display_color_img(skinverwaltung_t::zughaltsymbol->get_image_id(0), pos.x+left, top, 0, false, false);
 			left += 23;
 		}
 		if (halttype & haltestelle_t::loadingbay) {
-			display_color_img(skinverwaltung_t::autohaltsymbol->get_bild_nr(0), pos.x+left, top, 0, false, false);
+			display_color_img(skinverwaltung_t::autohaltsymbol->get_image_id(0), pos.x+left, top, 0, false, false);
 			left += 23;
 		}
 		if (halttype & haltestelle_t::busstop) {
-			display_color_img(skinverwaltung_t::bushaltsymbol->get_bild_nr(0), pos.x+left, top, 0, false, false);
+			display_color_img(skinverwaltung_t::bushaltsymbol->get_image_id(0), pos.x+left, top, 0, false, false);
 			left += 23;
 		}
 		if (halttype & haltestelle_t::dock) {
-			display_color_img(skinverwaltung_t::schiffshaltsymbol->get_bild_nr(0), pos.x+left, top, 0, false, false);
+			display_color_img(skinverwaltung_t::schiffshaltsymbol->get_image_id(0), pos.x+left, top, 0, false, false);
 			left += 23;
 		}
 		if (halttype & haltestelle_t::airstop) {
-			display_color_img(skinverwaltung_t::airhaltsymbol->get_bild_nr(0), pos.x+left, top, 0, false, false);
+			display_color_img(skinverwaltung_t::airhaltsymbol->get_image_id(0), pos.x+left, top, 0, false, false);
 			left += 23;
 		}
 		if (halttype & haltestelle_t::monorailstop) {
-			display_color_img(skinverwaltung_t::monorailhaltsymbol->get_bild_nr(0), pos.x+left, top, 0, false, false);
+			display_color_img(skinverwaltung_t::monorailhaltsymbol->get_image_id(0), pos.x+left, top, 0, false, false);
 			left += 23;
 		}
 		if (halttype & haltestelle_t::tramstop) {
-			display_color_img(skinverwaltung_t::tramhaltsymbol->get_bild_nr(0), pos.x+left, top, 0, false, false);
+			display_color_img(skinverwaltung_t::tramhaltsymbol->get_image_id(0), pos.x+left, top, 0, false, false);
 			left += 23;
 		}
 		if (halttype & haltestelle_t::maglevstop) {
-			display_color_img(skinverwaltung_t::maglevhaltsymbol->get_bild_nr(0), pos.x+left, top, 0, false, false);
+			display_color_img(skinverwaltung_t::maglevhaltsymbol->get_image_id(0), pos.x+left, top, 0, false, false);
 			left += 23;
 		}
 		if (halttype & haltestelle_t::narrowgaugestop) {
-			display_color_img(skinverwaltung_t::narrowgaugehaltsymbol->get_bild_nr(0), pos.x+left, top, 0, false, false);
+			display_color_img(skinverwaltung_t::narrowgaugehaltsymbol->get_image_id(0), pos.x+left, top, 0, false, false);
 			left += 23;
 		}
 
@@ -290,19 +290,19 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 		left += display_proportional(left, top, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 		if (welt->get_settings().is_separate_halt_capacities()) {
 			// here only for separate capacities
-			display_color_img(skinverwaltung_t::passagiere->get_bild_nr(0), left, top, 0, false, false);
+			display_color_img(skinverwaltung_t::passagiere->get_image_id(0), left, top, 0, false, false);
 			left += 10;
 			// post
 			info_buf.clear();
 			info_buf.printf(",  %u", halt->get_capacity(1));
 			left += display_proportional(left, top, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true);
-			display_color_img(skinverwaltung_t::post->get_bild_nr(0), left, top, 0, false, false);
+			display_color_img(skinverwaltung_t::post->get_image_id(0), left, top, 0, false, false);
 			left += 10;
 			// goods
 			info_buf.clear();
 			info_buf.printf(",  %u", halt->get_capacity(2));
 			left += display_proportional(left, top, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true);
-			display_color_img(skinverwaltung_t::waren->get_bild_nr(0), left, top, 0, false, false);
+			display_color_img(skinverwaltung_t::waren->get_image_id(0), left, top, 0, false, false);
 			left = 53+LINESPACE;
 		}
 

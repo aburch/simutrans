@@ -192,7 +192,7 @@ void gui_theme_t::init_gui_defaults()
 
 
 // helper for easier init
-void gui_theme_t::init_size_from_bild( const bild_besch_t *image, scr_size &k )
+void gui_theme_t::init_size_from_image( const image_t *image, scr_size &k )
 {
 	if(  image  ) {
 		k = scr_size(image->x+image->w,image->y+image->h);
@@ -211,32 +211,32 @@ void gui_theme_t::init_gui_from_images()
 		dbg->fatal( "gui_theme_t::init_gui_themes", "Wrong theme loaded" );
 	}
 
-	init_size_from_bild( skinverwaltung_t::posbutton->get_bild( SKIN_BUTTON_POS ), gui_pos_button_size );
-	init_size_from_bild( skinverwaltung_t::check_button->get_bild( SKIN_BUTTON_CHECKBOX ), gui_checkbox_size );
+	init_size_from_image( skinverwaltung_t::posbutton->get_image( SKIN_BUTTON_POS ), gui_pos_button_size );
+	init_size_from_image( skinverwaltung_t::check_button->get_image( SKIN_BUTTON_CHECKBOX ), gui_checkbox_size );
 	for(  int i=0;  i<3;  i++  ) {
-		pos_button_img[i] = skinverwaltung_t::posbutton->get_bild_nr( SKIN_BUTTON_POS+i );
-		check_button_img[i] = skinverwaltung_t::check_button->get_bild_nr( SKIN_BUTTON_CHECKBOX+i );
+		pos_button_img[i] = skinverwaltung_t::posbutton->get_image_id( SKIN_BUTTON_POS+i );
+		check_button_img[i] = skinverwaltung_t::check_button->get_image_id( SKIN_BUTTON_CHECKBOX+i );
 	}
 
 	// Normal buttons (colorful ones)
 	scr_coord_val y = gui_button_size.h;
 	scr_size k;
-	init_size_from_bild( skinverwaltung_t::button->get_bild( SKIN_BUTTON_SIDE_LEFT ), k );
+	init_size_from_image( skinverwaltung_t::button->get_image( SKIN_BUTTON_SIDE_LEFT ), k );
 	y = max( y, k.h );
-	init_size_from_bild( skinverwaltung_t::button->get_bild( SKIN_BUTTON_SIDE_RIGHT ), k );
+	init_size_from_image( skinverwaltung_t::button->get_image( SKIN_BUTTON_SIDE_RIGHT ), k );
 	y = max( y, k.h );
-	init_size_from_bild( skinverwaltung_t::button->get_bild( SKIN_BUTTON_BODY ), k );
+	init_size_from_image( skinverwaltung_t::button->get_image( SKIN_BUTTON_BODY ), k );
 	y = max( y, k.h );
 	for(  int i=0;  i<3;  i++  ) {
 		for(  int j=0;  j<9;  j++  ) {
-			button_tiles[i][j%3][j/3] = skinverwaltung_t::button->get_bild_nr( i*9+j );
+			button_tiles[i][j%3][j/3] = skinverwaltung_t::button->get_image_id( i*9+j );
 		}
 	}
 	image_id has_second_mask;
 	for(  int i=0;  i<2;  i++  ) {
 		has_second_mask = 0xFFFF;
 		for(  int j=0;  j<9;  j++  ) {
-			button_color_tiles[i][j%3][j/3] = skinverwaltung_t::button->get_bild_nr( i*9+j+27 );
+			button_color_tiles[i][j%3][j/3] = skinverwaltung_t::button->get_image_id( i*9+j+27 );
 			has_second_mask &= button_color_tiles[i][j%3][j/3];
 		}
 	}
@@ -250,35 +250,35 @@ void gui_theme_t::init_gui_from_images()
 	// Round buttons
 	for(  int i=0;  i<3;  i++  ) {
 		for(  int j=0;  j<9;  j++  ) {
-			round_button_tiles[i][j%3][j/3] = skinverwaltung_t::round_button->get_bild_nr( i*9+j );
+			round_button_tiles[i][j%3][j/3] = skinverwaltung_t::round_button->get_image_id( i*9+j );
 		}
 	}
 
 	// background for editfields, listbuttons, and windows
 	for(  int j=0;  j<9;  j++  ) {
-		editfield[j%3][j/3] = skinverwaltung_t::editfield->get_bild_nr( j );
-		listbox[j%3][j/3] = skinverwaltung_t::listbox->get_bild_nr( j );
-		windowback[j%3][j/3] = skinverwaltung_t::back->get_bild_nr( j );
+		editfield[j%3][j/3] = skinverwaltung_t::editfield->get_image_id( j );
+		listbox[j%3][j/3] = skinverwaltung_t::listbox->get_image_id( j );
+		windowback[j%3][j/3] = skinverwaltung_t::back->get_image_id( j );
 	}
 
 	// Divider (vspace will be added later on)
-	init_size_from_bild( skinverwaltung_t::divider->get_bild(1), gui_divider_size );
+	init_size_from_image( skinverwaltung_t::divider->get_image(1), gui_divider_size );
 	for(  int i=0;  i<3;  i++  ) {
-		divider[i][0] = skinverwaltung_t::divider->get_bild_nr( i );
+		divider[i][0] = skinverwaltung_t::divider->get_image_id( i );
 		divider[i][1] = IMG_EMPTY;
 		divider[i][2] = IMG_EMPTY;
 	}
 
 	// Calculate arrow size
-	init_size_from_bild( skinverwaltung_t::scrollbar->get_bild( SKIN_BUTTON_ARROW_LEFT ), gui_arrow_left_size );
-	init_size_from_bild( skinverwaltung_t::scrollbar->get_bild( SKIN_BUTTON_ARROW_RIGHT ), gui_arrow_right_size );
-	init_size_from_bild( skinverwaltung_t::scrollbar->get_bild( SKIN_BUTTON_ARROW_UP ), gui_arrow_up_size );
-	init_size_from_bild( skinverwaltung_t::scrollbar->get_bild( SKIN_BUTTON_ARROW_DOWN ), gui_arrow_down_size );
+	init_size_from_image( skinverwaltung_t::scrollbar->get_image( SKIN_BUTTON_ARROW_LEFT ), gui_arrow_left_size );
+	init_size_from_image( skinverwaltung_t::scrollbar->get_image( SKIN_BUTTON_ARROW_RIGHT ), gui_arrow_right_size );
+	init_size_from_image( skinverwaltung_t::scrollbar->get_image( SKIN_BUTTON_ARROW_UP ), gui_arrow_up_size );
+	init_size_from_image( skinverwaltung_t::scrollbar->get_image( SKIN_BUTTON_ARROW_DOWN ), gui_arrow_down_size );
 	for(  int i=0;  i<3;  i++  ) {
-		arrow_button_left_img[i] = skinverwaltung_t::scrollbar->get_bild_nr( SKIN_BUTTON_ARROW_LEFT+i );
-		arrow_button_right_img[i] = skinverwaltung_t::scrollbar->get_bild_nr( SKIN_BUTTON_ARROW_RIGHT+i );
-		arrow_button_up_img[i] = skinverwaltung_t::scrollbar->get_bild_nr( SKIN_BUTTON_ARROW_UP+i );
-		arrow_button_down_img[i] = skinverwaltung_t::scrollbar->get_bild_nr( SKIN_BUTTON_ARROW_DOWN+i );
+		arrow_button_left_img[i] = skinverwaltung_t::scrollbar->get_image_id( SKIN_BUTTON_ARROW_LEFT+i );
+		arrow_button_right_img[i] = skinverwaltung_t::scrollbar->get_image_id( SKIN_BUTTON_ARROW_RIGHT+i );
+		arrow_button_up_img[i] = skinverwaltung_t::scrollbar->get_image_id( SKIN_BUTTON_ARROW_UP+i );
+		arrow_button_down_img[i] = skinverwaltung_t::scrollbar->get_image_id( SKIN_BUTTON_ARROW_DOWN+i );
 	}
 	if(  gui_theme_t::gui_arrow_right_size != gui_theme_t::gui_arrow_left_size  ) {
 		dbg->warning( "gui_theme_t::themes_init()", "Size of left and right arrows differ" );
@@ -292,20 +292,20 @@ void gui_theme_t::init_gui_from_images()
 
 	// init horizontal scrollbar buttons
 	for(  int i=0;  i<3;  i++  ) {
-		h_scroll_back_tiles[i][0] = skinverwaltung_t::scrollbar->get_bild_nr( SKIN_SCROLLBAR_H_BACKGROUND_LEFT+i );
+		h_scroll_back_tiles[i][0] = skinverwaltung_t::scrollbar->get_image_id( SKIN_SCROLLBAR_H_BACKGROUND_LEFT+i );
 		h_scroll_back_tiles[i][1] = IMG_EMPTY;
 		h_scroll_back_tiles[i][2] = IMG_EMPTY;
-		h_scroll_knob_tiles[i][0] = skinverwaltung_t::scrollbar->get_bild_nr( SKIN_SCROLLBAR_H_KNOB_LEFT+i );
+		h_scroll_knob_tiles[i][0] = skinverwaltung_t::scrollbar->get_image_id( SKIN_SCROLLBAR_H_KNOB_LEFT+i );
 		h_scroll_knob_tiles[i][1] = IMG_EMPTY;
 		h_scroll_knob_tiles[i][2] = IMG_EMPTY;
 	}
 
 	// init vertical scrollbar buttons
 	for(  int i=0;  i<3;  i++  ) {
-		v_scroll_back_tiles[0][i] = skinverwaltung_t::scrollbar->get_bild_nr( SKIN_SCROLLBAR_V_BACKGROUND_TOP+i );
+		v_scroll_back_tiles[0][i] = skinverwaltung_t::scrollbar->get_image_id( SKIN_SCROLLBAR_V_BACKGROUND_TOP+i );
 		v_scroll_back_tiles[1][i] = IMG_EMPTY;
 		v_scroll_back_tiles[2][i] = IMG_EMPTY;
-		v_scroll_knob_tiles[0][i] = skinverwaltung_t::scrollbar->get_bild_nr( SKIN_SCROLLBAR_V_KNOB_TOP+i );
+		v_scroll_knob_tiles[0][i] = skinverwaltung_t::scrollbar->get_image_id( SKIN_SCROLLBAR_V_KNOB_TOP+i );
 		v_scroll_knob_tiles[1][i] = IMG_EMPTY;
 		v_scroll_knob_tiles[2][i] = IMG_EMPTY;
 	}
@@ -313,28 +313,28 @@ void gui_theme_t::init_gui_from_images()
 	// Calculate V scrollbar size
 	{
 		scr_size back, front;
-		init_size_from_bild( skinverwaltung_t::scrollbar->get_bild( SKIN_SCROLLBAR_V_BACKGROUND ), back );
-		init_size_from_bild( skinverwaltung_t::scrollbar->get_bild( SKIN_SCROLLBAR_V_KNOB_BODY ), front );
+		init_size_from_image( skinverwaltung_t::scrollbar->get_image( SKIN_SCROLLBAR_V_BACKGROUND ), back );
+		init_size_from_image( skinverwaltung_t::scrollbar->get_image( SKIN_SCROLLBAR_V_KNOB_BODY ), front );
 		gui_scrollbar_size.w = max(front.w, back.w);
 
 		// Calculate H scrollbar size
-		init_size_from_bild( skinverwaltung_t::scrollbar->get_bild( SKIN_SCROLLBAR_H_BACKGROUND ), back );
-		init_size_from_bild( skinverwaltung_t::scrollbar->get_bild( SKIN_SCROLLBAR_H_KNOB_BODY ), front );
+		init_size_from_image( skinverwaltung_t::scrollbar->get_image( SKIN_SCROLLBAR_H_BACKGROUND ), back );
+		init_size_from_image( skinverwaltung_t::scrollbar->get_image( SKIN_SCROLLBAR_H_KNOB_BODY ), front );
 		gui_scrollbar_size.h = max(front.h, back.h);
 
 		// calculate minimum width
-		init_size_from_bild( skinverwaltung_t::scrollbar->get_bild( SKIN_SCROLLBAR_H_KNOB_LEFT ), back );
-		init_size_from_bild( skinverwaltung_t::scrollbar->get_bild( SKIN_SCROLLBAR_H_KNOB_RIGHT ), front );
+		init_size_from_image( skinverwaltung_t::scrollbar->get_image( SKIN_SCROLLBAR_H_KNOB_LEFT ), back );
+		init_size_from_image( skinverwaltung_t::scrollbar->get_image( SKIN_SCROLLBAR_H_KNOB_RIGHT ), front );
 		gui_min_scrollbar_size.w = back.w + front.w;
 
 		// calculate minimum height
-		init_size_from_bild( skinverwaltung_t::scrollbar->get_bild( SKIN_SCROLLBAR_V_KNOB_TOP ), back );
-		init_size_from_bild( skinverwaltung_t::scrollbar->get_bild( SKIN_SCROLLBAR_V_KNOB_BOTTOM ), front );
+		init_size_from_image( skinverwaltung_t::scrollbar->get_image( SKIN_SCROLLBAR_V_KNOB_TOP ), back );
+		init_size_from_image( skinverwaltung_t::scrollbar->get_image( SKIN_SCROLLBAR_V_KNOB_BOTTOM ), front );
 		gui_min_scrollbar_size.h = back.h + front.h;
 	}
 
 	// gadgets
-	init_size_from_bild( skinverwaltung_t::gadget->get_bild( SKIN_GADGET_CLOSE ), gui_gadget_size );
+	init_size_from_image( skinverwaltung_t::gadget->get_image( SKIN_GADGET_CLOSE ), gui_gadget_size );
 }
 
 

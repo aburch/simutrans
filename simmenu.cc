@@ -372,13 +372,13 @@ void tool_t::read_menu(const std::string &objfilename)
 						i++;
 					}
 					const skin_besch_t *s=skinverwaltung_t::get_extra(str,i-1);
-					tool->icon = s ? s->get_bild_nr(0) : IMG_EMPTY;
+					tool->icon = s ? s->get_image_id(0) : IMG_EMPTY;
 				}
 				else {
 					if(  icon>=info[t].icons->get_count()  ) {
 						dbg->warning( "tool_t::init_menu()", "wrong icon (%i) given for %s[%i]", icon, info[t].type, i );
 					}
-					tool->icon = info[t].icons->get_bild_nr(icon);
+					tool->icon = info[t].icons->get_image_id(icon);
 				}
 				do {
 					str++;
@@ -393,7 +393,7 @@ void tool_t::read_menu(const std::string &objfilename)
 						if(  cursor>=info[t].cursor->get_count()  ) {
 							dbg->warning( "tool_t::init_menu()", "wrong cursor (%i) given for %s[%i]", cursor, info[t].type, i );
 						}
-						tool->cursor = info[t].cursor->get_bild_nr(cursor);
+						tool->cursor = info[t].cursor->get_image_id(cursor);
 						do {
 							str++;
 						} while(*str  &&  *str!=',');
@@ -488,14 +488,14 @@ void tool_t::read_menu(const std::string &objfilename)
 							i++;
 						}
 						const skin_besch_t *s=skinverwaltung_t::get_extra(str,i-1);
-						icon = s ? s->get_bild_nr(0) : IMG_EMPTY;
+						icon = s ? s->get_image_id(0) : IMG_EMPTY;
 					}
 					else {
 						if(  icon>=skinverwaltung_t::tool_icons_toolbars->get_count()  ) {
 							dbg->warning( "tool_t::read_menu()", "wrong icon (%i) given for toolbar_tool[%i][%i]", icon, i, j );
 							icon = 0;
 						}
-						icon = skinverwaltung_t::tool_icons_toolbars->get_bild_nr(icon);
+						icon = skinverwaltung_t::tool_icons_toolbars->get_image_id(icon);
 					}
 					while(*str  &&  *str!=',') {
 						str++;
@@ -689,7 +689,7 @@ bool tool_t::check_valid_pos(koord k ) const
  */
 void tool_t::init_cursor( zeiger_t *zeiger) const
 {
-	zeiger->set_bild( cursor );
+	zeiger->set_image( cursor );
 	zeiger->set_yoff( offset );
 	zeiger->set_area( cursor_area, cursor_centered, cursor_offset);
 }
@@ -1067,7 +1067,7 @@ void two_click_tool_t::start_at(koord3d &new_start )
 	if (is_local_execution()) {
 		welt->show_distance = new_start;
 		start_marker = new zeiger_t(start, NULL);
-		start_marker->set_bild( get_marker_image() );
+		start_marker->set_image( get_marker_image() );
 		grund_t *gr = welt->lookup( start );
 		if( gr ) {
 			gr->obj_add(start_marker);
@@ -1107,5 +1107,5 @@ void two_click_tool_t::cleanup( bool delete_start_marker )
 
 image_id two_click_tool_t::get_marker_image()
 {
-	return skinverwaltung_t::bauigelsymbol->get_bild_nr(0);
+	return skinverwaltung_t::bauigelsymbol->get_image_id(0);
 }

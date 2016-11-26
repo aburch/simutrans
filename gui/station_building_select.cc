@@ -79,21 +79,21 @@ station_building_select_t::station_building_select_t(const haus_besch_t *besch) 
 	for(int i=0;  i<layout;  i++  ) {
 		uint8 rot = i;
 		for(int j=0;  j<4;  j++  ) {
-			img[i*4].set_image( besch->get_tile(rot,0,0)->get_hintergrund(0,0,0) );
+			img[i*4].set_image( besch->get_tile(rot,0,0)->get_background(0,0,0) );
 
 			if(besch->get_h(rot)>1) {
-				img[i*4+1].set_image( besch->get_tile(rot,0,1)->get_hintergrund(0,0,0) );
+				img[i*4+1].set_image( besch->get_tile(rot,0,1)->get_background(0,0,0) );
 			}
 			if(besch->get_b(rot)==1) {
 				continue;
 			}
 			else {
-				img[i*4+2].set_image( besch->get_tile(rot,1,0)->get_hintergrund(0,0,0) );
+				img[i*4+2].set_image( besch->get_tile(rot,1,0)->get_background(0,0,0) );
 			}
 			if(besch->get_h(rot)==1) {
 				continue;
 			}
-			img[i*4+3].set_image( besch->get_tile(rot,1,1)->get_hintergrund(0,0,0) );
+			img[i*4+3].set_image( besch->get_tile(rot,1,1)->get_background(0,0,0) );
 		}
 	}
 

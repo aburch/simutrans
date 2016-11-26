@@ -146,7 +146,7 @@ protected:
 	/**
 	 * Image number
 	 */
-	image_id bild_nr;
+	image_id imageid;
 
 	/**
 	 * Coordinate (40 bits)
@@ -161,7 +161,7 @@ protected:
 	/**
 	 * Image of the walls
 	 */
-	sint8 back_bild_nr;
+	sint8 back_imageid;
 
 	/**
 	 * Flags to indicate existence of halts, ways, to mark dirty
@@ -174,8 +174,8 @@ public:
 	 * setzt die Bildnr. des anzuzeigenden Bodens
 	 * @author Hj. Malthaner
 	 */
-	inline void set_bild(image_id n) {
-		bild_nr = n;
+	inline void set_image(image_id n) {
+		imageid = n;
 		set_flag(dirty);
 	}
 
@@ -189,10 +189,10 @@ protected:
 	static karte_ptr_t welt;
 
 	// calculates the slope image and sets the draw_as_obj flag correctly
-	void calc_back_bild(const sint8 hgt,const sint8 slope_this);
+	void calc_back_image(const sint8 hgt,const sint8 slope_this);
 
 	// this is the real image calculation, called for the actual ground image
-	virtual void calc_bild_internal(const bool calc_only_snowline_change) = 0;
+	virtual void calc_image_internal(const bool calc_only_snowline_change) = 0;
 
 public:
 	enum typ { boden = 1, wasser, fundament, tunnelboden, brueckenboden, monorailboden };
@@ -230,7 +230,7 @@ public:
 	* Updates snowline dependent grund_t (and derivatives) - none are season dependent
 	* Updates season and or snowline dependent objects
 	*/
-	void check_season_snowline(const bool season_change, const bool snowline_change) { if(  snowline_change  ) { calc_bild_internal( snowline_change ); } objlist.check_season( season_change  &&  !snowline_change ); }
+	void check_season_snowline(const bool season_change, const bool snowline_change) { if(  snowline_change  ) { calc_image_internal( snowline_change ); } objlist.check_season( season_change  &&  !snowline_change ); }
 
 	/**
 	 * Updates images after change of underground mode.
@@ -238,10 +238,10 @@ public:
 	void check_update_underground()
 	{
 		if (ist_tunnel()  ||  ist_bruecke()  ||  ist_wasser()) {
-			calc_bild();
+			calc_image();
 		}
 		else {
-			calc_back_bild( get_disp_height(), get_disp_slope() );
+			calc_back_image( get_disp_height(), get_disp_slope() );
 		}
 	}
 
@@ -255,21 +255,21 @@ public:
 	 * oder die Lage (Hang) des grundes geaendert hat.
 	 * @author Hj. Malthaner
 	 */
-	void calc_bild();
+	void calc_image();
 
 	/**
 	* Return the number of images the ground have.
 	* @return The number of images.
 	* @author Hj. Malthaner
 	*/
-	inline image_id get_bild() const {return bild_nr;}
+	inline image_id get_image() const {return imageid;}
 
 	/**
 	* Returns the number of an eventual foundation
 	* @author prissi
 	*/
-	image_id get_back_bild(int leftback) const;
-	virtual void clear_back_bild() {back_bild_nr=0;}
+	image_id get_back_image(int leftback) const;
+	virtual void clear_back_image() {back_imageid=0;}
 
 	/**
 	* if ground is deleted mark the old spot as dirty

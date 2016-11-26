@@ -205,9 +205,9 @@ void obj_t::rdwr(loadsave_t *file)
  */
 void obj_t::display(int xpos, int ypos  CLIP_NUM_DEF) const
 {
-	image_id bild = get_image();
-	image_id const outline_bild = get_outline_image();
-	if(  bild!=IMG_EMPTY  ||  outline_bild!=IMG_EMPTY  ) {
+	image_id image = get_image();
+	image_id const outline_image = get_outline_image();
+	if(  image!=IMG_EMPTY  ||  outline_image!=IMG_EMPTY  ) {
 		const int raster_width = get_current_tile_raster_width();
 		const bool is_dirty = get_flag(obj_t::dirty);
 
@@ -219,25 +219,25 @@ void obj_t::display(int xpos, int ypos  CLIP_NUM_DEF) const
 		ypos += tile_raster_scale_y(get_yoff(), raster_width);
 
 		const int start_ypos = ypos;
-		for(  int j=0;  bild!=IMG_EMPTY;  ) {
+		for(  int j=0;  image!=IMG_EMPTY;  ) {
 
 			if(  owner_n != PLAYER_UNOWNED  ) {
 				if(  obj_t::show_owner  ) {
-					display_blend( bild, xpos, ypos, owner_n, (welt->get_player(owner_n)->get_player_color1()+2) | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty  CLIP_NUM_PAR);
+					display_blend( image, xpos, ypos, owner_n, (welt->get_player(owner_n)->get_player_color1()+2) | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty  CLIP_NUM_PAR);
 				}
 				else {
-					display_color( bild, xpos, ypos, owner_n, true, is_dirty  CLIP_NUM_PAR);
+					display_color( image, xpos, ypos, owner_n, true, is_dirty  CLIP_NUM_PAR);
 				}
 			}
 			else {
-				display_normal( bild, xpos, ypos, 0, true, is_dirty  CLIP_NUM_PAR);
+				display_normal( image, xpos, ypos, 0, true, is_dirty  CLIP_NUM_PAR);
 			}
 			// this obj has another image on top (e.g. skyscraper)
 			ypos -= raster_width;
-			bild = get_image(++j);
+			image = get_image(++j);
 		}
 
-		if(  outline_bild != IMG_EMPTY  ) {
+		if(  outline_image != IMG_EMPTY  ) {
 			// transparency?
 			const PLAYER_COLOR_VAL transparent = get_outline_colour();
 			if(  TRANSPARENT_FLAGS&transparent  ) {
@@ -276,8 +276,8 @@ void obj_t::display_after(int xpos, int ypos, const sint8 clip_num) const
 void obj_t::display_after(int xpos, int ypos, bool) const
 #endif
 {
-	image_id bild = get_front_image();
-	if(  bild != IMG_EMPTY  ) {
+	image_id image = get_front_image();
+	if(  image != IMG_EMPTY  ) {
 		const int raster_width = get_current_tile_raster_width();
 		const bool is_dirty = get_flag( obj_t::dirty );
 
@@ -286,22 +286,22 @@ void obj_t::display_after(int xpos, int ypos, bool) const
 
 		if(  owner_n != PLAYER_UNOWNED  ) {
 			if(  obj_t::show_owner  ) {
-				display_blend( bild, xpos, ypos, owner_n, (welt->get_player(owner_n)->get_player_color1()+2) | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty  CLIP_NUM_PAR);
+				display_blend( image, xpos, ypos, owner_n, (welt->get_player(owner_n)->get_player_color1()+2) | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty  CLIP_NUM_PAR);
 			}
 			else if(  obj_t::get_flag( highlight )  ) {
 				// highlight this tile
-				display_blend( bild, xpos, ypos, owner_n, COL_RED | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty  CLIP_NUM_PAR);
+				display_blend( image, xpos, ypos, owner_n, COL_RED | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty  CLIP_NUM_PAR);
 			}
 			else {
-				display_color( bild, xpos, ypos, owner_n, true, is_dirty  CLIP_NUM_PAR);
+				display_color( image, xpos, ypos, owner_n, true, is_dirty  CLIP_NUM_PAR);
 			}
 		}
 		else if(  obj_t::get_flag( highlight )  ) {
 			// highlight this tile
-			display_blend( bild, xpos, ypos, owner_n, COL_RED | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty  CLIP_NUM_PAR);
+			display_blend( image, xpos, ypos, owner_n, COL_RED | OUTLINE_FLAG | TRANSPARENT75_FLAG, 0, is_dirty  CLIP_NUM_PAR);
 		}
 		else {
-			display_normal( bild, xpos, ypos, 0, true, is_dirty  CLIP_NUM_PAR);
+			display_normal( image, xpos, ypos, 0, true, is_dirty  CLIP_NUM_PAR);
 		}
 	}
 }
@@ -312,9 +312,9 @@ void obj_t::display_after(int xpos, int ypos, bool) const
  * sometimes they have an extra offset, this is the yoff parameter
 * @author prissi
  */
-void obj_t::mark_image_dirty(image_id bild, sint16 yoff) const
+void obj_t::mark_image_dirty(image_id image, sint16 yoff) const
 {
-	if(  bild != IMG_EMPTY  ) {
+	if(  image != IMG_EMPTY  ) {
 		const sint16 rasterweite = get_tile_raster_width();
 		int xpos=0, ypos=0;
 		if(  is_moving()  ) {
@@ -328,11 +328,11 @@ void obj_t::mark_image_dirty(image_id bild, sint16 yoff) const
 		// xpos, ypos, yoff are already in pixel units, no scaling needed
 
 		// mark the region after the image as dirty
-		display_mark_img_dirty( bild, scr_pos.x + xpos, scr_pos.y + ypos + yoff);
+		display_mark_img_dirty( image, scr_pos.x + xpos, scr_pos.y + ypos + yoff);
 
 		// too close to border => set dirty to be sure (smoke, skyscrapers, birds, or the like)
 		KOORD_VAL xbild, ybild, wbild, hbild;
-		display_get_image_offset( bild, &xbild, &ybild, &wbild, &hbild );
+		display_get_image_offset( image, &xbild, &ybild, &wbild, &hbild );
 		const sint16 distance_to_border = 3 - (yoff+get_yoff()+ybild)/(rasterweite/4);
 		if(  pos.x <= distance_to_border  ||  pos.y <= distance_to_border  ) {
 			// but only if the image is actually visible ...

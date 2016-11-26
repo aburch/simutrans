@@ -11,7 +11,7 @@
 
 
 /*
- *  Autor:
+ *  Author:
  *      Volker Meyer
  */
 class text_besch_t : public obj_besch_t {

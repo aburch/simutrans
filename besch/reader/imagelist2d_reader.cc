@@ -11,7 +11,7 @@ obj_besch_t * imagelist2d_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
 	ALLOCA(char, besch_buf, node.size);
 
-	bildliste2d_besch_t *besch = new bildliste2d_besch_t();
+	image_array_t *besch = new image_array_t();
 
 	// Hajo: Read data
 	fread(besch_buf, node.size, 1, fp);

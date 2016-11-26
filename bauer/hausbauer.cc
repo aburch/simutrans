@@ -222,7 +222,7 @@ bool hausbauer_t::register_besch(haus_besch_t *besch)
 
 	// probably needs a tool if it has a cursor
 	const skin_besch_t *sb = besch->get_cursor();
-	if(  sb  &&  sb->get_bild_nr(1)!=IMG_EMPTY) {
+	if(  sb  &&  sb->get_image_id(1)!=IMG_EMPTY) {
 		tool_t *tool;
 		if(  besch->get_utyp()==haus_besch_t::depot  ) {
 			tool = new tool_build_depot_t();
@@ -233,8 +233,8 @@ bool hausbauer_t::register_besch(haus_besch_t *besch)
 		else {
 			tool = new tool_build_station_t();
 		}
-		tool->set_icon( besch->get_cursor()->get_bild_nr(1) );
-		tool->cursor = besch->get_cursor()->get_bild_nr(0),
+		tool->set_icon( besch->get_cursor()->get_image_id(1) );
+		tool->cursor = besch->get_cursor()->get_image_id(0),
 		tool->set_default_param(besch->get_name());
 		tool_t::general_tool.append( tool );
 		besch->set_builder( tool );
@@ -440,10 +440,10 @@ void hausbauer_t::remove( player_t *player, gebaeude_t *gb )
 						// there might be walls from foundations left => thus some tiles may need to be redrawn
 						if(ground_recalc) {
 							if(grund_t *gr = welt->lookup_kartenboden(newk+koord::east)) {
-								gr->calc_bild();
+								gr->calc_image();
 							}
 							if(grund_t *gr = welt->lookup_kartenboden(newk+koord::south)) {
-								gr->calc_bild();
+								gr->calc_image();
 							}
 						}
 					}
@@ -472,8 +472,8 @@ gebaeude_t* hausbauer_t::baue(player_t* player_, koord3d pos, int org_layout, co
 			// skip empty tiles
 			if (tile == NULL || (
 						!(besch->get_utyp() == haus_besch_t::dock  ||  besch->get_utyp() == haus_besch_t::flat_dock)  &&
-						tile->get_hintergrund(0, 0, 0) == IMG_EMPTY &&
-						tile->get_vordergrund(0, 0)    == IMG_EMPTY
+						tile->get_background(0, 0, 0) == IMG_EMPTY &&
+						tile->get_foreground(0, 0)    == IMG_EMPTY
 					)) {
 						// may have a rotation that is not recoverable
 						DBG_MESSAGE("hausbauer_t::baue()","get_tile() empty at %i,%i",k.x,k.y);
@@ -523,9 +523,9 @@ gebaeude_t* hausbauer_t::baue(player_t* player_, koord3d pos, int org_layout, co
 					gr->obj_add( lt );
 				}
 				if(needs_ground_recalc  &&  welt->is_within_limits(pos.get_2d()+k+koord(1,1))  &&  (k.y+1==dim.y  ||  k.x+1==dim.x)) {
-					welt->lookup_kartenboden(pos.get_2d()+k+koord(1,0))->calc_bild();
-					welt->lookup_kartenboden(pos.get_2d()+k+koord(0,1))->calc_bild();
-					welt->lookup_kartenboden(pos.get_2d()+k+koord(1,1))->calc_bild();
+					welt->lookup_kartenboden(pos.get_2d()+k+koord(1,0))->calc_image();
+					welt->lookup_kartenboden(pos.get_2d()+k+koord(0,1))->calc_image();
+					welt->lookup_kartenboden(pos.get_2d()+k+koord(1,1))->calc_image();
 				}
 			}
 			gb->set_pos( gr->get_pos() );
@@ -541,7 +541,7 @@ gebaeude_t* hausbauer_t::baue(player_t* player_, koord3d pos, int org_layout, co
 					gb->set_yoff(0);
 				}
 			}
-			gr->calc_bild();
+			gr->calc_image();
 			reliefkarte_t::get_karte()->calc_map_pixel(gr->get_pos().get_2d());
 		}
 	}
@@ -698,7 +698,7 @@ gebaeude_t *hausbauer_t::neues_gebaeude(player_t *player, koord3d pos, int built
 	if(  station_building.is_contained(besch)  &&  besch->get_utyp()!=haus_besch_t::depot  ) {
 		// is a station/bus stop
 		(*static_cast<halthandle_t *>(param))->add_grund(gr);
-		gr->calc_bild();
+		gr->calc_image();
 	}
 	else {
 		gb->calc_image();

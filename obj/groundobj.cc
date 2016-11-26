@@ -83,7 +83,7 @@ const groundobj_besch_t *groundobj_t::random_groundobj_for_climate(climate_bits 
 
 	int weight = 0;
 	FOR(  vector_tpl<groundobj_besch_t const*>,  const i,  groundobj_typen  ) {
-		if(  i->is_allowed_climate_bits(cl)  &&  (slope == slope_t::flat  ||  (i->get_phases() >= slope  &&  i->get_bild_nr(0,slope)!=IMG_EMPTY  )  )  ) {
+		if(  i->is_allowed_climate_bits(cl)  &&  (slope == slope_t::flat  ||  (i->get_phases() >= slope  &&  i->get_image_id(0,slope)!=IMG_EMPTY  )  )  ) {
 			weight += i->get_distribution_weight();
 		}
 	}
@@ -93,7 +93,7 @@ const groundobj_besch_t *groundobj_t::random_groundobj_for_climate(climate_bits 
 		const int w=simrand(weight);
 		weight = 0;
 		FOR(vector_tpl<groundobj_besch_t const*>, const i, groundobj_typen) {
-			if(  i->is_allowed_climate_bits(cl)  &&  (slope == slope_t::flat  ||  (i->get_phases() >= slope  &&  i->get_bild_nr(0,slope)!=IMG_EMPTY  )  )  ) {
+			if(  i->is_allowed_climate_bits(cl)  &&  (slope == slope_t::flat  ||  (i->get_phases() >= slope  &&  i->get_image_id(0,slope)!=IMG_EMPTY  )  )  ) {
 				weight += i->get_distribution_weight();
 				if(weight>=w) {
 					return i;
@@ -143,7 +143,7 @@ void groundobj_t::calc_image()
 	if(besch->get_phases()>1) {
 		phase = welt->lookup(get_pos())->get_grund_hang();
 	}
-	bild = get_besch()->get_bild_nr( season, phase );
+	image = get_besch()->get_image_id( season, phase );
 }
 
 

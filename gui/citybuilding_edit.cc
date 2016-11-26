@@ -276,7 +276,7 @@ void citybuilding_edit_frame_t::change_item_info(sint32 entry)
 		}
 
 		uint8 rot = (rotation>253) ? 0 : rotation;
-		img[3].set_image( besch->get_tile(rot,0,0)->get_hintergrund(0,0,0) );
+		img[3].set_image( besch->get_tile(rot,0,0)->get_background(0,0,0) );
 
 		// the tools will be always updated, even though the data up there might be still current
 		sprintf( param_str, "%i%c%s", bt_climates.pressed, rotation>253 ? (rotation==254 ? 'A' : '#') : '0'+rotation, besch->get_name() );

@@ -23,7 +23,7 @@ class checksum_t;
  * Way type description. Contains all needed values to describe a
  * way type in Simutrans.
  *
- *  Kindknoten:
+ *  Child nodes:
  *	0   Name
  *	1   Copyright
  *	2   Flache Bilder mit ribis
@@ -55,9 +55,9 @@ public:
 	waytype_t get_own_wtyp() const { return (waytype_t)own_wtyp; }
 
 	// way objects can have a front and a backimage, unlike ways ...
-	image_id get_front_image_id(ribi_t::ribi ribi) const { return get_child<bildliste_besch_t>(2)->get_bild_nr(ribi); }
+	image_id get_front_image_id(ribi_t::ribi ribi) const { return get_child<image_list_t>(2)->get_image_id(ribi); }
 
-	image_id get_back_image_id(ribi_t::ribi ribi) const { return get_child<bildliste_besch_t>(3)->get_bild_nr(ribi); }
+	image_id get_back_image_id(ribi_t::ribi ribi) const { return get_child<image_list_t>(3)->get_image_id(ribi); }
 
 	image_id get_front_slope_image_id(slope_t::type hang) const
 	{
@@ -90,11 +90,11 @@ public:
 			default:
 				return IMG_EMPTY;
 		}
-		image_id hang_img = get_child<bildliste_besch_t>(4)->get_bild_nr(nr);
+		image_id hang_img = get_child<image_list_t>(4)->get_image_id(nr);
 		if(  nr > 3  &&  hang_img == IMG_EMPTY  ) {
 			// hack for old ways without double height images to use single slope images for both
 			nr -= 4;
-			hang_img = get_child<bildliste_besch_t>(4)->get_bild_nr(nr);
+			hang_img = get_child<image_list_t>(4)->get_image_id(nr);
 		}
 		return hang_img;
 	  }
@@ -130,11 +130,11 @@ public:
 			default:
 				return IMG_EMPTY;
 		}
-		image_id hang_img = get_child<bildliste_besch_t>(5)->get_bild_nr(nr);
+		image_id hang_img = get_child<image_list_t>(5)->get_image_id(nr);
 		if(  nr > 3  &&  hang_img == IMG_EMPTY  ) {
 			// hack for old ways without double height images to use single slope images for both
 			nr -= 4;
-			hang_img = get_child<bildliste_besch_t>(5)->get_bild_nr(nr);
+			hang_img = get_child<image_list_t>(5)->get_image_id(nr);
 		}
 		return hang_img;
 	  }
@@ -144,7 +144,7 @@ public:
 		if(!ribi_t::is_bend(ribi)) {
 			return IMG_EMPTY;
 		}
-		return get_child<bildliste_besch_t>(6)->get_bild_nr(ribi / 3 - 1);
+		return get_child<image_list_t>(6)->get_image_id(ribi / 3 - 1);
 	}
 
 	image_id get_back_diagonal_image_id(ribi_t::ribi ribi) const
@@ -152,15 +152,15 @@ public:
 		if(!ribi_t::is_bend(ribi)) {
 			return IMG_EMPTY;
 		}
-		return get_child<bildliste_besch_t>(7)->get_bild_nr(ribi / 3 - 1);
+		return get_child<image_list_t>(7)->get_image_id(ribi / 3 - 1);
 	}
 
-	bool has_diagonal_bild() const {
-		if (get_child<bildliste_besch_t>(4)->get_bild(0)) {
+	bool has_diagonal_image() const {
+		if (get_child<image_list_t>(4)->get_image(0)) {
 			// has diagonal fontimage
 			return true;
 		}
-		if (get_child<bildliste_besch_t>(5)->get_bild(0)) {
+		if (get_child<image_list_t>(5)->get_image(0)) {
 			// or diagonal back image
 			return true;
 		}

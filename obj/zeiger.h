@@ -16,7 +16,7 @@ class zeiger_t : public obj_no_info_t
 private:
 	koord area, offset;
 	/// images
-	image_id bild, after_bild;
+	image_id image, foreground_image;
 
 public:
 	zeiger_t(loadsave_t *file);
@@ -36,14 +36,14 @@ public:
 	void set_area( koord area, bool center, koord offset = koord(0,0) );
 
 	/// set back image
-	void set_bild( image_id b );
+	void set_image( image_id b );
 	/// get back image
-	image_id get_image() const {return bild;}
+	image_id get_image() const {return image;}
 
 	/// set front image
-	void set_after_bild( image_id b );
+	void set_foreground_image( image_id b );
 	/// get front image
-	image_id get_front_image() const {return after_bild;}
+	image_id get_front_image() const {return foreground_image;}
 };
 
 #endif

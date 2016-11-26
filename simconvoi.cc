@@ -1504,7 +1504,7 @@ void convoi_t::start()
 		fahr[0]->set_leading( true );
 		fahr[anz_vehikel-1]->set_last( true );
 		// do not show the vehicle - it will be wrong positioned -vorfahren() will correct this
-		fahr[0]->set_bild(IMG_EMPTY);
+		fahr[0]->set_image(IMG_EMPTY);
 
 		// update finances for used vehicle reduction when first driven
 		owner_p->update_assets( restwert_delta, get_schedule()->get_waytype());

@@ -555,7 +555,7 @@ void depot_frame_t::layout(scr_size *size)
 	lb_vehicle_filter.align_to(&vehicle_filter, ALIGN_RIGHT | ALIGN_EXTERIOR_H | ALIGN_TOP, scr_coord(D_V_SPACE,D_GET_CENTER_ALIGN_OFFSET(LINESPACE,D_EDIT_HEIGHT)));
 
 	const scr_coord_val margin = 4;
-	img_bolt.set_pos(scr_coord(get_windowsize().w - skinverwaltung_t::electricity->get_bild(0)->get_pic()->w - margin, margin));
+	img_bolt.set_pos(scr_coord(get_windowsize().w - skinverwaltung_t::electricity->get_image(0)->get_pic()->w - margin, margin));
 }
 
 
@@ -629,7 +629,7 @@ void depot_frame_t::add_to_vehicle_list(const vehikel_besch_t *info)
 		}
 	}
 
-	gui_image_list_t::image_data_t* img_data = new gui_image_list_t::image_data_t(info->get_name(), info->get_basis_bild());
+	gui_image_list_t::image_data_t* img_data = new gui_image_list_t::image_data_t(info->get_name(), info->get_base_image());
 
 	if(  info->get_engine_type() == vehikel_besch_t::electric  &&  (info->get_ware()==warenbauer_t::passagiere  ||  info->get_ware()==warenbauer_t::post)  ) {
 		electrics_vec.append(img_data);
@@ -675,7 +675,7 @@ void depot_frame_t::build_vehicle_lists()
 	const weg_t *w = welt->lookup(depot->get_pos())->get_weg(wt!=tram_wt ? wt : track_wt);
 	const bool weg_electrified = w ? w->is_electrified() : false;
 
-	img_bolt.set_image( weg_electrified ? skinverwaltung_t::electricity->get_bild_nr(0) : IMG_EMPTY );
+	img_bolt.set_image( weg_electrified ? skinverwaltung_t::electricity->get_image_id(0) : IMG_EMPTY );
 
 	// use this to show only sellable vehicles
 	if(!show_all  &&  veh_action==va_sell) {
@@ -790,7 +790,7 @@ void depot_frame_t::update_data()
 				add_to_vehicle_list( info );
 			}
 
-			gui_image_list_t::image_data_t* img_data = new gui_image_list_t::image_data_t(info->get_name(), info->get_basis_bild());
+			gui_image_list_t::image_data_t* img_data = new gui_image_list_t::image_data_t(info->get_name(), info->get_base_image());
 			convoi_pics.append(img_data);
 		}
 
@@ -961,11 +961,11 @@ sint64 depot_frame_t::calc_restwert(const vehikel_besch_t *veh_type)
 }
 
 
-void depot_frame_t::image_from_storage_list(gui_image_list_t::image_data_t *bild_data)
+void depot_frame_t::image_from_storage_list(gui_image_list_t::image_data_t *image_data)
 {
-	if(  bild_data->lcolor != COL_RED  &&  bild_data->rcolor != COL_RED  ) {
+	if(  image_data->lcolor != COL_RED  &&  image_data->rcolor != COL_RED  ) {
 		if(  veh_action == va_sell  ) {
-			depot->call_depot_tool('s', convoihandle_t(), bild_data->text );
+			depot->call_depot_tool('s', convoihandle_t(), image_data->text );
 		}
 		else {
 			convoihandle_t cnv = depot->get_convoi( icnv );
@@ -975,7 +975,7 @@ void depot_frame_t::image_from_storage_list(gui_image_list_t::image_data_t *bild
 				// rather than one new convoi with multiple vehicles
 				depot->set_command_pending();
 			}
-			depot->call_depot_tool( veh_action == va_insert ? 'i' : 'a', cnv, bild_data->text );
+			depot->call_depot_tool( veh_action == va_insert ? 'i' : 'a', cnv, image_data->text );
 		}
 	}
 }
@@ -1764,17 +1764,17 @@ void depot_convoi_capacity_t::draw(scr_coord off)
 	cbuf.clear();
 	cbuf.printf("%s %d", translator::translate("Capacity:"), total_pax );
 	w += display_proportional_clip( pos.x+off.x + w, pos.y+off.y , cbuf, ALIGN_LEFT, SYSCOL_TEXT, true);
-	display_color_img( skinverwaltung_t::passagiere->get_bild_nr(0), pos.x + off.x + w, pos.y + off.y, 0, false, false);
+	display_color_img( skinverwaltung_t::passagiere->get_image_id(0), pos.x + off.x + w, pos.y + off.y, 0, false, false);
 
 	w += 16;
 	cbuf.clear();
 	cbuf.printf("%d", total_mail );
 	w += display_proportional_clip( pos.x+off.x + w, pos.y+off.y, cbuf, ALIGN_LEFT, SYSCOL_TEXT, true);
-	display_color_img( skinverwaltung_t::post->get_bild_nr(0), pos.x + off.x + w, pos.y + off.y, 0, false, false);
+	display_color_img( skinverwaltung_t::post->get_image_id(0), pos.x + off.x + w, pos.y + off.y, 0, false, false);
 
 	w += 16;
 	cbuf.clear();
 	cbuf.printf("%d", total_goods );
 	w += display_proportional_clip( pos.x+off.x + w, pos.y+off.y, cbuf, ALIGN_LEFT, SYSCOL_TEXT, true);
-	display_color_img( skinverwaltung_t::waren->get_bild_nr(0), pos.x + off.x + w, pos.y + off.y, 0, false, false);
+	display_color_img( skinverwaltung_t::waren->get_image_id(0), pos.x + off.x + w, pos.y + off.y, 0, false, false);
 }

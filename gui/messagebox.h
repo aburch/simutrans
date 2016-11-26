@@ -39,11 +39,11 @@ class news_img : public news_window
 {
 public:
 	news_img(const char* text);
-	news_img(const char* text, image_id bild, PLAYER_COLOR_VAL color=WIN_TITLE);
+	news_img(const char* text, image_id image, PLAYER_COLOR_VAL color=WIN_TITLE);
 
 private:
-	void init(image_id bild);
-	gui_image_t bild;
+	void init(image_id image);
+	gui_image_t image;
 };
 
 

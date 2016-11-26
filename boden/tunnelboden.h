@@ -7,7 +7,7 @@
 class tunnelboden_t : public boden_t
 {
 protected:
-	void calc_bild_internal(const bool calc_only_snowline_change);
+	void calc_image_internal(const bool calc_only_snowline_change);
 
 public:
 	tunnelboden_t(loadsave_t *file, koord pos );

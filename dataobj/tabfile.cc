@@ -144,7 +144,7 @@ uint8 tabfileobj_t::get_color(const char *key, uint8 def)
 		}
 		if(  *value=='#'  ) {
 			uint32 rgb = strtoul( value+1, NULL, 16 ) & 0XFFFFFFul;
-			return bild_besch_t::get_index_from_rgb( rgb>>16, (rgb>>8)&0xFF, rgb&0xFF );
+			return image_t::get_index_from_rgb( rgb>>16, (rgb>>8)&0xFF, rgb&0xFF );
 		}
 		else {
 			// this inputs also hex correct

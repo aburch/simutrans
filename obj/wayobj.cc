@@ -43,7 +43,7 @@
 
 #ifdef MULTI_THREAD
 #include "../utils/simthread.h"
-static pthread_mutex_t wayobj_calc_bild_mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+static pthread_mutex_t wayobj_calc_image_mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 #endif
 
 // the descriptions ...
@@ -249,7 +249,7 @@ ribi_t::ribi wayobj_t::find_next_ribi(const grund_t *start, ribi_t::ribi const d
 void wayobj_t::calc_image()
 {
 #ifdef MULTI_THREAD
-	pthread_mutex_lock( &wayobj_calc_bild_mutex );
+	pthread_mutex_lock( &wayobj_calc_image_mutex );
 #endif
 	grund_t *gr = welt->lookup(get_pos());
 	diagonal = false;
@@ -257,13 +257,13 @@ void wayobj_t::calc_image()
 		const waytype_t wt = (besch->get_wtyp()==tram_wt) ? track_wt : besch->get_wtyp();
 		weg_t *w=gr->get_weg(wt);
 		if(!w) {
-			dbg->error("wayobj_t::calc_bild()","without way at (%s)", get_pos().get_str() );
+			dbg->error("wayobj_t::calc_image()","without way at (%s)", get_pos().get_str() );
 			// well, we are not on a way anymore? => delete us
 			cleanup(get_owner());
 			delete this;
 			gr->set_flag(grund_t::dirty);
 #ifdef MULTI_THREAD
-			pthread_mutex_unlock( &wayobj_calc_bild_mutex );
+			pthread_mutex_unlock( &wayobj_calc_image_mutex );
 #endif
 			return;
 		}
@@ -275,13 +275,13 @@ void wayobj_t::calc_image()
 		hang = gr->get_weg_hang();
 		if(hang!=slope_t::flat) {
 #ifdef MULTI_THREAD
-			pthread_mutex_unlock( &wayobj_calc_bild_mutex );
+			pthread_mutex_unlock( &wayobj_calc_image_mutex );
 #endif
 			return;
 		}
 
 		// find out whether using diagonals or straight lines
-		if(ribi_t::is_bend(dir)  &&  besch->has_diagonal_bild()) {
+		if(ribi_t::is_bend(dir)  &&  besch->has_diagonal_image()) {
 			ribi_t::ribi r1 = ribi_t::none, r2 = ribi_t::none;
 
 			// get the ribis of the ways that connect to us
@@ -312,8 +312,8 @@ void wayobj_t::calc_image()
 				}
 
 				image_id after = besch->get_front_diagonal_image_id(dir);
-				image_id bild = besch->get_back_diagonal_image_id(dir);
-				if(bild==IMG_EMPTY  &&  after==IMG_EMPTY) {
+				image_id image = besch->get_back_diagonal_image_id(dir);
+				if(image==IMG_EMPTY  &&  after==IMG_EMPTY) {
 					// no diagonals available
 					diagonal = false;
 				}
@@ -321,7 +321,7 @@ void wayobj_t::calc_image()
 		}
 	}
 #ifdef MULTI_THREAD
-	pthread_mutex_unlock( &wayobj_calc_bild_mutex );
+	pthread_mutex_unlock( &wayobj_calc_image_mutex );
 #endif
 }
 
@@ -430,11 +430,11 @@ bool wayobj_t::register_besch(way_obj_besch_t *besch)
 		delete old_besch;
 	}
 
-	if(  besch->get_cursor()->get_bild_nr(1)!=IMG_EMPTY  ) {
+	if(  besch->get_cursor()->get_image_id(1)!=IMG_EMPTY  ) {
 		// only add images for wayobjexts with cursor ...
 		tool_build_wayobj_t *tool = new tool_build_wayobj_t();
-		tool->set_icon( besch->get_cursor()->get_bild_nr(1) );
-		tool->cursor = besch->get_cursor()->get_bild_nr(0);
+		tool->set_icon( besch->get_cursor()->get_image_id(1) );
+		tool->cursor = besch->get_cursor()->get_image_id(0);
 		tool->set_default_param(besch->get_name());
 		tool_t::general_tool.append( tool );
 		besch->set_builder( tool );

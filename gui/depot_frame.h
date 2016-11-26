@@ -230,7 +230,7 @@ private:
 	// for convoi image
 	void image_from_convoi_list(uint nr, bool to_end);
 
-	void image_from_storage_list(gui_image_list_t::image_data_t *bild_data);
+	void image_from_storage_list(gui_image_list_t::image_data_t *image_data);
 
 public:
 	// the next two are only needed for depot_t update notifications

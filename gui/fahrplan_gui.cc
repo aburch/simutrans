@@ -205,7 +205,7 @@ fahrplan_gui_stats_t::fahrplan_gui_stats_t(player_t *player_)
 	player = player_;
 	if(  aktuell_mark==NULL  ) {
 		aktuell_mark = new zeiger_t(koord3d::invalid, NULL );
-		aktuell_mark->set_bild( tool_t::general_tool[TOOL_SCHEDULE_ADD]->cursor );
+		aktuell_mark->set_image( tool_t::general_tool[TOOL_SCHEDULE_ADD]->cursor );
 	}
 }
 

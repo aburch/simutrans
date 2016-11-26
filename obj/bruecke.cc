@@ -62,15 +62,15 @@ void bruecke_t::calc_image()
 			bool is_snow = welt->get_climate( get_pos().get_2d() ) == arctic_climate  ||  get_pos().z + slope_t::max_diff(slope) >= welt->get_snowline();
 
 			// handle cases where old bridges don't have correct images
-			image_id display_image=besch->get_hintergrund( img, is_snow );
-			if(  display_image==IMG_EMPTY && besch->get_vordergrund( img, is_snow )==IMG_EMPTY  ) {
-				display_image=besch->get_hintergrund( single_img[img], is_snow );
+			image_id display_image=besch->get_background( img, is_snow );
+			if(  display_image==IMG_EMPTY && besch->get_foreground( img, is_snow )==IMG_EMPTY  ) {
+				display_image=besch->get_background( single_img[img], is_snow );
 			}
-			weg0->set_bild( display_image );
+			weg0->set_image( display_image );
 
 			weg0->set_yoff(-gr->get_weg_yoff() );
 
-			weg0->set_after_bild(IMG_EMPTY);
+			weg0->set_foreground_image(IMG_EMPTY);
 			weg0->set_flag(obj_t::dirty);
 #ifdef MULTI_THREAD
 			weg0->unlock_mutex();
@@ -98,9 +98,9 @@ image_id bruecke_t::get_front_image() const
 	const slope_t::type slope = gr->get_grund_hang();
 	bool is_snow = welt->get_climate( get_pos().get_2d() ) == arctic_climate  ||  get_pos().z + slope_t::max_diff(slope) >= welt->get_snowline();
 	// handle cases where old bridges don't have correct images
-	image_id display_image=besch->get_vordergrund( img, is_snow );
-	if(  display_image==IMG_EMPTY && besch->get_hintergrund( img, is_snow )==IMG_EMPTY  ) {
-		display_image=besch->get_vordergrund( single_img[img], is_snow );
+	image_id display_image=besch->get_foreground( img, is_snow );
+	if(  display_image==IMG_EMPTY && besch->get_background( img, is_snow )==IMG_EMPTY  ) {
+		display_image=besch->get_foreground( single_img[img], is_snow );
 	}
 	return display_image;
 }

@@ -57,8 +57,8 @@ void brueckenbauer_t::register_besch(bruecke_besch_t *besch)
 
 	// add the tool
 	tool_build_bridge_t *tool = new tool_build_bridge_t();
-	tool->set_icon( besch->get_cursor()->get_bild_nr(1) );
-	tool->cursor = besch->get_cursor()->get_bild_nr(0);
+	tool->set_icon( besch->get_cursor()->get_image_id(1) );
+	tool->cursor = besch->get_cursor()->get_image_id(0);
 	tool->set_default_param(besch->get_name());
 	tool_t::general_tool.append( tool );
 	besch->set_builder( tool );
@@ -756,7 +756,7 @@ void brueckenbauer_t::baue_bruecke(player_t *player, const koord3d start, const 
 			weg->set_besch( weg_besch );
 			player_t::book_construction_costs( player, -start_gr->neuen_weg_bauen( weg, ribi, player ) -weg->get_besch()->get_preis(), end.get_2d(), weg->get_waytype());
 		}
-		start_gr->calc_bild();
+		start_gr->calc_image();
 	}
 
 	koord3d pos = start+koord3d( zv.x, zv.y, add_height );
@@ -777,7 +777,7 @@ void brueckenbauer_t::baue_bruecke(player_t *player, const koord3d start, const 
 		sint16 height = pos.z - gr->get_pos().z;
 		bruecke_t *br = new bruecke_t(bruecke->get_pos(), player, besch, besch->get_simple(ribi,height-slope_t::max_diff(gr->get_grund_hang())));
 		bruecke->obj_add(br);
-		bruecke->calc_bild();
+		bruecke->calc_image();
 		br->finish_rd();
 //DBG_MESSAGE("bool brueckenbauer_t::baue_bruecke()","at (%i,%i)",pos.x,pos.y);
 		if(besch->get_pillar()>0) {
@@ -820,7 +820,7 @@ void brueckenbauer_t::baue_bruecke(player_t *player, const koord3d start, const 
 				weg->set_besch( weg_besch );
 				player_t::book_construction_costs( player, -gr->neuen_weg_bauen( weg, ribi, player ) -weg->get_besch()->get_preis(), end.get_2d(), weg->get_waytype());
 			}
-			gr->calc_bild();
+			gr->calc_image();
 		}
 		else {
 			leitung_t *lt = gr->get_leitung();
@@ -844,9 +844,9 @@ void brueckenbauer_t::baue_bruecke(player_t *player, const koord3d start, const 
 				ribi_t::ribi ribi = gr->get_weg_ribi_unmasked(besch->get_waytype());
 				grund_t *to = NULL;
 				if(  ribi_t::is_single(ribi)  &&  gr->get_neighbour(to, invalid_wt, ribi_t::backward(ribi))) {
-					// connect to open sea, calc_bild will recompute ribi at to.
+					// connect to open sea, calc_image will recompute ribi at to.
 					if (to->ist_wasser()) {
-						to->calc_bild();
+						to->calc_image();
 					}
 					// only single tile under bridge => try to connect to next tile
 					wegbauer_t bauigel(player);
@@ -909,7 +909,7 @@ void brueckenbauer_t::baue_auffahrt(player_t* player, koord3d end, ribi_t::ribi 
 	bruecke_t *br = new bruecke_t(end, player, besch, img);
 	bruecke->obj_add( br );
 	br->finish_rd();
-	bruecke->calc_bild();
+	bruecke->calc_image();
 }
 
 
@@ -1175,7 +1175,7 @@ const char *brueckenbauer_t::remove(player_t *player, koord3d pos_start, waytype
 		welt->access(pos.get_2d())->kartenboden_setzen( gr_new );
 
 		if(  wegtyp == powerline_wt  ) {
-			gr_new->get_leitung()->calc_neighbourhood(); // Recalc the image. calc_bild() doesn't do the right job...
+			gr_new->get_leitung()->calc_neighbourhood(); // Recalc the image. calc_image() doesn't do the right job...
 		}
 	}
 

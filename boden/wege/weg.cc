@@ -46,7 +46,7 @@
 
 #ifdef MULTI_THREAD
 #include "../../utils/simthread.h"
-static pthread_mutex_t weg_calc_bild_mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+static pthread_mutex_t weg_calc_image_mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 #endif
 
 /**
@@ -123,8 +123,8 @@ const char *weg_t::waytype_to_string(waytype_t wt)
 
 
 /**
- * Setzt neue Beschreibung. Ersetzt alte Höchstgeschwindigkeit
- * mit wert aus Beschreibung.
+ * Setzt neue Description. Ersetzt alte Höchstgeschwindigkeit
+ * mit wert aus Description.
  * @author Hj. Malthaner
  */
 void weg_t::set_besch(const weg_besch_t *b)
@@ -165,8 +165,8 @@ void weg_t::init()
 	init_statistics();
 	alle_wege.insert(this);
 	flags = 0;
-	bild = IMG_EMPTY;
-	after_bild = IMG_EMPTY;
+	image = IMG_EMPTY;
+	foreground_image = IMG_EMPTY;
 }
 
 
@@ -324,20 +324,20 @@ void weg_t::set_images(image_type typ, uint8 ribi, bool snow, bool switch_nw)
 	switch(typ) {
 		case image_flat:
 		default:
-			set_bild( besch->get_bild_nr( ribi, snow ) );
-			set_after_bild( besch->get_bild_nr( ribi, snow, true ) );
+			set_image( besch->get_image_id( ribi, snow ) );
+			set_foreground_image( besch->get_image_id( ribi, snow, true ) );
 			break;
 		case image_slope:
-			set_bild( besch->get_hang_bild_nr( (slope_t::type)ribi, snow ) );
-			set_after_bild( besch->get_hang_bild_nr( (slope_t::type)ribi, snow, true ) );
+			set_image( besch->get_hang_imageid( (slope_t::type)ribi, snow ) );
+			set_foreground_image( besch->get_hang_imageid( (slope_t::type)ribi, snow, true ) );
 			break;
 		case image_switch:
-			set_bild( besch->get_bild_nr_switch(ribi, snow, switch_nw) );
-			set_after_bild( besch->get_bild_nr_switch(ribi, snow, switch_nw, true) );
+			set_image( besch->get_image_id_switch(ribi, snow, switch_nw) );
+			set_foreground_image( besch->get_image_id_switch(ribi, snow, switch_nw, true) );
 			break;
 		case image_diagonal:
-			set_bild( besch->get_diagonal_bild_nr(ribi, snow) );
-			set_after_bild( besch->get_diagonal_bild_nr(ribi, snow, true) );
+			set_image( besch->get_diagonal_imageid(ribi, snow) );
+			set_foreground_image( besch->get_diagonal_imageid(ribi, snow, true) );
 			break;
 	}
 }
@@ -351,7 +351,7 @@ bool weg_t::check_season(const bool calc_only_season_change)
 	}
 
 	// no way to calculate this or no image set (not visible, in tunnel mouth, etc)
-	if(  besch == NULL  ||  bild == IMG_EMPTY  ) {
+	if(  besch == NULL  ||  image == IMG_EMPTY  ) {
 		return true;
 	}
 
@@ -384,12 +384,12 @@ bool weg_t::check_season(const bool calc_only_season_change)
 	if(  is_diagonal()  ) {
 		set_images( image_diagonal, ribi, snow );
 	}
-	else if(  ribi_t::is_threeway( ribi )  &&  besch->has_switch_bild()  ) {
+	else if(  ribi_t::is_threeway( ribi )  &&  besch->has_switch_image()  ) {
 		// there might be two states of the switch; remember it when changing seasons
-		if(  bild == besch->get_bild_nr_switch( ribi, old_snow, false )  ) {
+		if(  image == besch->get_image_id_switch( ribi, old_snow, false )  ) {
 			set_images( image_switch, ribi, snow, false );
 		}
-		else if(  bild == besch->get_bild_nr_switch( ribi, old_snow, true )  ) {
+		else if(  image == besch->get_image_id_switch( ribi, old_snow, true )  ) {
 			set_images( image_switch, ribi, snow, true );
 		}
 		else {
@@ -407,13 +407,13 @@ bool weg_t::check_season(const bool calc_only_season_change)
 #ifdef MULTI_THREAD
 void weg_t::lock_mutex()
 {
-	pthread_mutex_lock( &weg_calc_bild_mutex );
+	pthread_mutex_lock( &weg_calc_image_mutex );
 }
 
 
 void weg_t::unlock_mutex()
 {
-	pthread_mutex_unlock( &weg_calc_bild_mutex );
+	pthread_mutex_unlock( &weg_calc_image_mutex );
 }
 #endif
 
@@ -421,33 +421,33 @@ void weg_t::unlock_mutex()
 void weg_t::calc_image()
 {
 #ifdef MULTI_THREAD
-	pthread_mutex_lock( &weg_calc_bild_mutex );
+	pthread_mutex_lock( &weg_calc_image_mutex );
 #endif
 	grund_t *from = welt->lookup(get_pos());
 	grund_t *to;
-	image_id old_bild = bild;
+	image_id old_image = image;
 
 	if(  from==NULL  ||  besch==NULL  ) {
 		// no ground, in tunnel
-		set_bild(IMG_EMPTY);
-		set_after_bild(IMG_EMPTY);
+		set_image(IMG_EMPTY);
+		set_foreground_image(IMG_EMPTY);
 		if(  from==NULL  ) {
-			dbg->error( "weg_t::calc_bild()", "Own way at %s not found!", get_pos().get_str() );
+			dbg->error( "weg_t::calc_image()", "Own way at %s not found!", get_pos().get_str() );
 		}
 #ifdef MULTI_THREAD
-		pthread_mutex_unlock( &weg_calc_bild_mutex );
+		pthread_mutex_unlock( &weg_calc_image_mutex );
 #endif
 		return;	// otherwise crashing during enlargement
 	}
 	else if(  from->ist_tunnel() &&  from->ist_karten_boden()  &&  (grund_t::underground_mode==grund_t::ugm_none || (grund_t::underground_mode==grund_t::ugm_level && from->get_hoehe()<grund_t::underground_level))  ) {
 		// in tunnel mouth, no underground mode
-		set_bild(IMG_EMPTY);
-		set_after_bild(IMG_EMPTY);
+		set_image(IMG_EMPTY);
+		set_foreground_image(IMG_EMPTY);
 	}
 	else if(  from->ist_bruecke()  &&  from->obj_bei(0)==this  ) {
 		// first way on a bridge (bruecke_t will set the image)
 #ifdef MULTI_THREAD
-		pthread_mutex_unlock( &weg_calc_bild_mutex );
+		pthread_mutex_unlock( &weg_calc_image_mutex );
 #endif
 		return;
 	}
@@ -478,7 +478,7 @@ void weg_t::calc_image()
 						// can fail on water tiles
 						if(  weg_t *w=to->get_weg(get_waytype())  )  {
 							// and will only change the outcome, if it has a diagonal image ...
-							if(  w->get_besch()->has_diagonal_bild()  ) {
+							if(  w->get_besch()->has_diagonal_image()  ) {
 								w->calc_image();
 							}
 						}
@@ -488,25 +488,25 @@ void weg_t::calc_image()
 			}
 
 			// try diagonal image
-			if(  besch->has_diagonal_bild()  ) {
+			if(  besch->has_diagonal_image()  ) {
 				check_diagonal();
 
 				// now apply diagonal image
 				if(is_diagonal()) {
-					if( besch->get_diagonal_bild_nr(ribi, snow) != IMG_EMPTY  ||
-					    besch->get_diagonal_bild_nr(ribi, snow, true) != IMG_EMPTY) {
+					if( besch->get_diagonal_imageid(ribi, snow) != IMG_EMPTY  ||
+					    besch->get_diagonal_imageid(ribi, snow, true) != IMG_EMPTY) {
 						set_images(image_diagonal, ribi, snow);
 					}
 				}
 			}
 		}
 	}
-	if(  bild!=old_bild  ) {
-		mark_image_dirty(old_bild, from->get_weg_yoff());
-		mark_image_dirty(bild, from->get_weg_yoff());
+	if(  image!=old_image  ) {
+		mark_image_dirty(old_image, from->get_weg_yoff());
+		mark_image_dirty(image, from->get_weg_yoff());
 	}
 #ifdef MULTI_THREAD
-	pthread_mutex_unlock( &weg_calc_bild_mutex );
+	pthread_mutex_unlock( &weg_calc_image_mutex );
 #endif
 }
 

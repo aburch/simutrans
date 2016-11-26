@@ -255,7 +255,7 @@ public:
 	virtual image_id get_image(int /*height*/) const {return IMG_EMPTY;}
 
 	/**
-	 * this image is drawn after all get_bild() on this tile
+	 * this image is drawn after all get_image() on this tile
 	 * Currently only single height is supported for this feature
 	 */
 	virtual image_id get_front_image() const {return IMG_EMPTY;}
@@ -346,7 +346,7 @@ public:
 	* @param yoff extra y-offset, in most cases 0, in pixels.
 	* @author prissi
 	*/
-	void mark_image_dirty(image_id bild, sint16 yoff) const;
+	void mark_image_dirty(image_id image, sint16 yoff) const;
 
 	/**
 	 * Function for recalculating the image.

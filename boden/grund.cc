@@ -175,7 +175,7 @@ void grund_t::operator delete(void* p, size_t s)
 grund_t::grund_t(loadsave_t *file)
 {
 	flags = 0;
-	back_bild_nr = 0;
+	back_imageid = 0;
 	rdwr(file);
 }
 
@@ -464,8 +464,8 @@ grund_t::grund_t(koord3d pos)
 {
 	this->pos = pos;
 	flags = 0;
-	set_bild(IMG_EMPTY);    // set   flags = dirty;
-	back_bild_nr = 0;
+	set_image(IMG_EMPTY);    // set   flags = dirty;
+	back_imageid = 0;
 }
 
 
@@ -627,8 +627,8 @@ void grund_t::info(cbuffer_t& buf) const
 	buf.printf("\nflags $%0X", flags );
 	buf.printf("\n\npos: (%s)",pos.get_str());
 	buf.printf("\nslope: %i",get_grund_hang());
-	buf.printf("\nback0: %i",abs(back_bild_nr)%11);
-	buf.printf("\nback1: %i",(abs(back_bild_nr)/11)+11);
+	buf.printf("\nback0: %i",abs(back_imageid)%11);
+	buf.printf("\nback1: %i",(abs(back_imageid)/11)+11);
 	if(  get_weg_nr(0)  ) {
 		buf.printf("\nway slope %i", (int)get_weg_hang() );
 	}
@@ -686,12 +686,12 @@ halthandle_t grund_t::get_halt() const
 // ----------------------- image calculation stuff from here ------------------
 
 
-void grund_t::calc_bild()
+void grund_t::calc_image()
 {
 	// will automatically recalculate ways ...
-	objlist.calc_bild();
+	objlist.calc_image();
 	// since bridges may alter images of ways, this order is needed!
-	calc_bild_internal( false );
+	calc_image_internal( false );
 }
 
 
@@ -713,25 +713,25 @@ void grund_t::set_underground_mode(const uint8 ugm, const sint8 level)
 }
 
 
-image_id grund_t::get_back_bild(int leftback) const
+image_id grund_t::get_back_image(int leftback) const
 {
-	if(back_bild_nr==0) {
+	if(back_imageid==0) {
 		return IMG_EMPTY;
 	}
-	sint8 back_bild = abs(back_bild_nr);
-	back_bild = leftback ? (back_bild/11)+11 : back_bild%11;
-	if(back_bild_nr<0) {
-		return grund_besch_t::fundament->get_bild(back_bild);
+	sint8 back_image = abs(back_imageid);
+	back_image = leftback ? (back_image/11)+11 : back_image%11;
+	if(back_imageid<0) {
+		return grund_besch_t::fundament->get_image(back_image);
 	}
 	else {
-		return grund_besch_t::slopes->get_bild(back_bild);
+		return grund_besch_t::slopes->get_image(back_image);
 	}
 }
 
 
 // with double height ground tiles!
 // can also happen with single height tiles
-static inline uint8 get_backbild_from_diff(sint8 h1, sint8 h2)
+static inline uint8 get_back_image_from_diff(sint8 h1, sint8 h2)
 {
 	sint8 min_diff = min( h1, h2 );
 	while(  min_diff > 2  ||  (min_diff > 0  &&  h1 != h2)  ) {
@@ -755,19 +755,19 @@ static inline uint8 get_backbild_from_diff(sint8 h1, sint8 h2)
 void grund_t::mark_image_dirty()
 {
 	// see obj_t::mark_image_dirty
-	if(bild_nr!=IMG_EMPTY) {
+	if(imageid!=IMG_EMPTY) {
 		const scr_coord scr_pos = welt->get_viewport()->get_screen_coord(koord3d(pos.get_2d(),get_disp_height()));
-		display_mark_img_dirty( bild_nr, scr_pos.x, scr_pos.y );
+		display_mark_img_dirty( imageid, scr_pos.x, scr_pos.y );
 	}
 }
 
 // artificial walls from here on ...
-void grund_t::calc_back_bild(const sint8 hgt, const slope_t::type slope_this)
+void grund_t::calc_back_image(const sint8 hgt, const slope_t::type slope_this)
 {
-	// full underground mode or not ground -> no back bild, no need for draw_as_obj
+	// full underground mode or not ground -> no back image, no need for draw_as_obj
 	if(  underground_mode == ugm_all  ||  !ist_karten_boden()  ) {
 		clear_flag(grund_t::draw_as_obj);
-		this->back_bild_nr = 0;
+		this->back_imageid = 0;
 		return;
 	}
 
@@ -780,7 +780,7 @@ void grund_t::calc_back_bild(const sint8 hgt, const slope_t::type slope_this)
 	sint16 corners_add[3] = {0,0,0}; // extra height of possible back-image
 
 	// now calculate back image
-	sint8 back_bild_nr=0;
+	sint8 back_imageid=0;
 	bool is_building = get_typ()==grund_t::fundament;
 	const bool isvisible = is_visible();
 	bool fence[2] = {false, false};
@@ -855,7 +855,7 @@ void grund_t::calc_back_bild(const sint8 hgt, const slope_t::type slope_this)
 			// any height difference AND something to see?
 			if(  (diff_from_ground_1-corner_a>0  ||  diff_from_ground_2-corner_b>0)
 				&&  (diff_from_ground_1>0  ||  diff_from_ground_2>0)  ) {
-				back_bild_nr += get_backbild_from_diff( diff_from_ground_1, diff_from_ground_2 )*(i==0?1:11);
+				back_imageid += get_back_image_from_diff( diff_from_ground_1, diff_from_ground_2 )*(i==0?1:11);
 				is_building |= gr->get_typ()==grund_t::fundament;
 			}
 			// update corner heights
@@ -881,7 +881,7 @@ void grund_t::calc_back_bild(const sint8 hgt, const slope_t::type slope_this)
 				sint16 h = gr->get_disp_height()*scale_z_step;
 				sint8 s = gr->get_disp_slope();
 				// take backimage into account, take base-height of back image as corner heights
-				sint8 bb = abs(gr->back_bild_nr);
+				sint8 bb = abs(gr->back_imageid);
 				sint8 lh = 2, rh = 2; // height of start of back image
 				if (bb  &&  bb<=121) {
 					if (bb % 11) {
@@ -911,13 +911,13 @@ void grund_t::calc_back_bild(const sint8 hgt, const slope_t::type slope_this)
 	}
 
 	// needs a fence?
-	if(back_bild_nr==0) {
+	if(back_imageid==0) {
 		sint8 fence_offset = fence[0] + 2 * fence[1];
 		if(fence_offset) {
-			back_bild_nr = 121 + fence_offset;
+			back_imageid = 121 + fence_offset;
 		}
 	}
-	this->back_bild_nr = (is_building!=0)? -back_bild_nr : back_bild_nr;
+	this->back_imageid = (is_building!=0)? -back_imageid : back_imageid;
 }
 
 
@@ -934,17 +934,17 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 r
 	const bool visible = !ist_karten_boden()  ||  is_karten_boden_visible();
 
 	// walls, fences, foundations etc
-	if(back_bild_nr!=0) {
-		const uint8 abs_back_bild_nr = abs(back_bild_nr);
-		const bool artificial = back_bild_nr < 0;
-		if(abs_back_bild_nr>121) {
+	if(back_imageid!=0) {
+		const uint8 abs_back_imageid = abs(back_imageid);
+		const bool artificial = back_imageid < 0;
+		if(abs_back_imageid>121) {
 			// fence before a drop
 			const sint16 offset = -tile_raster_scale_y( TILE_HEIGHT_STEP*corner_nw(get_grund_hang()), raster_tile_width);
-			display_normal( grund_besch_t::fences->get_bild( abs_back_bild_nr + (artificial ? -122 + 3 : -122) ), xpos, ypos + offset, 0, true, dirty CLIP_NUM_PAR );
+			display_normal( grund_besch_t::fences->get_image( abs_back_imageid + (artificial ? -122 + 3 : -122) ), xpos, ypos + offset, 0, true, dirty CLIP_NUM_PAR );
 		}
 		else {
 			// artificial slope
-			const int back_bild[2] = {abs_back_bild_nr%11, (abs_back_bild_nr/11)+11};
+			const int back_image[2] = {abs_back_imageid%11, (abs_back_imageid/11)+11};
 
 			// choose foundation or natural slopes
 			const grund_besch_t *sl_draw = artificial ? grund_besch_t::fundament : grund_besch_t::slopes;
@@ -959,7 +959,7 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 r
 				}
 
 				sint16 yoff = tile_raster_scale_y( -TILE_HEIGHT_STEP*back_height, raster_tile_width );
-				if(  back_bild[i]  ) {
+				if(  back_image[i]  ) {
 					grund_t *gr = welt->lookup_kartenboden( k + koord::nsew[(i-1)&3] );
 					if(  gr  ) {
 						// for left we test corners 2 and 3 (east), for back we use 1 and 2 (south)
@@ -976,23 +976,23 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 r
 						sint16 hgt_diff = gr->get_disp_height() - get_disp_height() + min( corner_a, corner_b ) - back_height;
 						while(  hgt_diff > 2  ||  (hgt_diff > 0  &&  corner_a != corner_b)  ) {
 							uint16 img_index = 22+(hgt_diff>1)+2*i;
-							if( sl_draw->get_bild( img_index ) == IMG_EMPTY ) {
+							if( sl_draw->get_image( img_index ) == IMG_EMPTY ) {
 								img_index = 4+4*(hgt_diff>1)+11*i;
 							}
-							display_normal( sl_draw->get_bild( img_index ), xpos, ypos + yoff, 0, true, dirty CLIP_NUM_PAR );
+							display_normal( sl_draw->get_image( img_index ), xpos, ypos + yoff, 0, true, dirty CLIP_NUM_PAR );
 							yoff     -= tile_raster_scale_y( TILE_HEIGHT_STEP * (hgt_diff > 1 ? 2 : 1), raster_tile_width );
 							hgt_diff -= 2;
 						}
 					}
-					display_normal( sl_draw->get_bild( back_bild[i] ), xpos, ypos + yoff, 0, true, dirty CLIP_NUM_PAR );
+					display_normal( sl_draw->get_image( back_image[i] ), xpos, ypos + yoff, 0, true, dirty CLIP_NUM_PAR );
 				}
 			}
 		}
 	}
 
 	// ground
-	image_id bild = get_bild();
-	if(bild==IMG_EMPTY) {
+	image_id image = get_image();
+	if(image==IMG_EMPTY) {
 		// only check for forced redraw (of marked ... )
 		if(dirty) {
 			mark_rect_dirty_clip( xpos, ypos + raster_tile_width / 2, xpos + raster_tile_width - 1, ypos + raster_tile_width - 1 CLIP_NUM_PAR );
@@ -1002,10 +1002,10 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 r
 		if(get_typ()!=wasser) {
 			// show image if tile is visible
 			if (visible)  {
-				display_normal( get_bild(), xpos, ypos, 0, true, dirty CLIP_NUM_PAR );
+				display_normal( get_image(), xpos, ypos, 0, true, dirty CLIP_NUM_PAR );
 #ifdef SHOW_FORE_GRUND
 				if (get_flag(grund_t::draw_as_obj)) {
-					display_blend( get_bild(), xpos, ypos, 0, COL_RED | OUTLINE_FLAG |TRANSPARENT50_FLAG, true, dirty CLIP_NUM_PAR );
+					display_blend( get_image(), xpos, ypos, 0, COL_RED | OUTLINE_FLAG |TRANSPARENT50_FLAG, true, dirty CLIP_NUM_PAR );
 				}
 #endif
 				//display climate transitions - only needed if below snowline (snow_transition>0)
@@ -1091,16 +1091,16 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 r
 							display_alpha( grund_besch_t::get_water_tile(slope), grund_besch_t::get_beach_tile( slope, water_corners ), ALPHA_RED, xpos, ypos, 0, 0, true, dirty CLIP_NUM_PAR );
 							if(  grund_besch_t::shore  ) {
 								// additional shore image
-								image_id shore = grund_besch_t::shore->get_bild(slope,snow_transition<=0);
+								image_id shore = grund_besch_t::shore->get_image(slope,snow_transition<=0);
 								if(  shore==IMG_EMPTY  &&  snow_transition<=0  ) {
-									shore = grund_besch_t::shore->get_bild(slope,0);
+									shore = grund_besch_t::shore->get_image(slope,0);
 								}
 								display_normal( shore, xpos, ypos, 0, true, dirty CLIP_NUM_PAR );
 							}
 						}
 						else {
 							// animate
-							display_alpha( grund_besch_t::sea->get_bild(0,wasser_t::stage), grund_besch_t::get_beach_tile( slope, water_corners ), ALPHA_RED, xpos, ypos, 0, 0, true, dirty|wasser_t::change_stage CLIP_NUM_PAR );
+							display_alpha( grund_besch_t::sea->get_image(0,wasser_t::stage), grund_besch_t::get_beach_tile( slope, water_corners ), ALPHA_RED, xpos, ypos, 0, 0, true, dirty|wasser_t::change_stage CLIP_NUM_PAR );
 						}
 					}
 				}
@@ -1136,10 +1136,10 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 r
 		else {
 			// take animation into account
 			if(  underground_mode != ugm_all  ) {
-				display_normal( grund_besch_t::sea->get_bild(get_bild(),wasser_t::stage), xpos, ypos, 0, true, dirty|wasser_t::change_stage CLIP_NUM_PAR );
+				display_normal( grund_besch_t::sea->get_image(get_image(),wasser_t::stage), xpos, ypos, 0, true, dirty|wasser_t::change_stage CLIP_NUM_PAR );
 			}
 			else {
-				display_blend( grund_besch_t::sea->get_bild(get_bild(),wasser_t::stage), xpos, ypos, 0, TRANSPARENT50_FLAG, true, dirty|wasser_t::change_stage CLIP_NUM_PAR );
+				display_blend( grund_besch_t::sea->get_image(get_image(),wasser_t::stage), xpos, ypos, 0, TRANSPARENT50_FLAG, true, dirty|wasser_t::change_stage CLIP_NUM_PAR );
 			}
 			return;
 		}
@@ -1192,17 +1192,17 @@ void grund_t::display_border( sint16 xpos, sint16 ypos, const sint16 raster_tile
 		sint16 y = ypos + raster_tile_width/4 + (pos.z-welt->get_grundwasser())*hgt_step;
 		// left side border
 		sint16 diff = corner_sw(slope)-corner_se(slope);
-		image_id slope_img = grund_besch_t::slopes->get_bild( lookup_hgt[ 2+diff ]+11 );
+		image_id slope_img = grund_besch_t::slopes->get_image( lookup_hgt[ 2+diff ]+11 );
 		diff = -min(corner_sw(slope),corner_se(slope));
 		sint16 zz = pos.z-welt->get_grundwasser();
 		if(  diff < zz && ((zz-diff)&1)==1  ) {
-			display_normal( grund_besch_t::slopes->get_bild(15), x, y, 0, true, false CLIP_NUM_PAR );
+			display_normal( grund_besch_t::slopes->get_image(15), x, y, 0, true, false CLIP_NUM_PAR );
 			y -= hgt_step;
 			diff++;
 		}
 		// ok, now we have the height; since the slopes may end with a fence they are drawn in reverse order
 		while(  diff < zz  ) {
-			display_normal( grund_besch_t::slopes->get_bild(19), x, y, 0, true, false CLIP_NUM_PAR );
+			display_normal( grund_besch_t::slopes->get_image(19), x, y, 0, true, false CLIP_NUM_PAR );
 			y -= hgt_step*2;
 			diff+=2;
 		}
@@ -1215,17 +1215,17 @@ void grund_t::display_border( sint16 xpos, sint16 ypos, const sint16 raster_tile
 		sint16 y = ypos + raster_tile_width/4 + (pos.z-welt->get_grundwasser())*hgt_step;
 		// right side border
 		sint16 diff = corner_se(slope)-corner_ne(slope);
-		image_id slope_img = grund_besch_t::slopes->get_bild( lookup_hgt[ 2+diff ] );
+		image_id slope_img = grund_besch_t::slopes->get_image( lookup_hgt[ 2+diff ] );
 		diff = -min(corner_se(slope),corner_ne(slope));
 		sint16 zz = pos.z-welt->get_grundwasser();
 		if(  diff < zz && ((zz-diff)&1)==1  ) {
-			display_normal( grund_besch_t::slopes->get_bild(4), x, y, 0, true, false CLIP_NUM_PAR );
+			display_normal( grund_besch_t::slopes->get_image(4), x, y, 0, true, false CLIP_NUM_PAR );
 			y -= hgt_step;
 			diff++;
 		}
 		// ok, now we have the height; since the slopes may end with a fence they are drawn in reverse order
 		while(  diff < zz  ) {
-			display_normal( grund_besch_t::slopes->get_bild(8), x, y, 0, true, false CLIP_NUM_PAR );
+			display_normal( grund_besch_t::slopes->get_image(8), x, y, 0, true, false CLIP_NUM_PAR );
 			y -= hgt_step*2;
 			diff+=2;
 		}
@@ -1418,7 +1418,7 @@ void grund_t::display_obj_all(const sint16 xpos, const sint16 ypos, const sint16
 	}
 
 	// ships might be large and could be clipped by vertical walls on our tile
-	const bool ontile_se = back_bild_nr  &&  ist_wasser();
+	const bool ontile_se = back_imageid  &&  ist_wasser();
 
 	// get slope of way as displayed
 	const uint8 slope = get_disp_way_slope();
@@ -1426,7 +1426,7 @@ void grund_t::display_obj_all(const sint16 xpos, const sint16 ypos, const sint16
 	const int hgt_step = tile_raster_scale_y( TILE_HEIGHT_STEP, raster_tile_width);
 	// .. nonconvex n/w if not both n/w are active and if we have back image
 	//              otherwise our backwall clips into the part of our back image that is drawn by n/w neighbor
-	const uint8 non_convex = ((ribi & ribi_t::northwest) == ribi_t::northwest)  &&  back_bild_nr ? 0 : 16;
+	const uint8 non_convex = ((ribi & ribi_t::northwest) == ribi_t::northwest)  &&  back_imageid ? 0 : 16;
 	if(  ribi & ribi_t::west  ) {
 		const int dh = corner_nw(slope) * hgt_step;
 		add_poly_clip( xpos + raster_tile_width / 2 - 1, ypos + raster_tile_width / 2 - dh, xpos - 1, ypos + 3 * raster_tile_width / 4 - dh, ribi_t::west | non_convex CLIP_NUM_PAR );
@@ -1710,7 +1710,7 @@ bool grund_t::weg_erweitern(waytype_t wegtyp, ribi_t::ribi ribi)
 				}
 			}
 		}
-		calc_bild();
+		calc_image();
 		set_flag(dirty);
 		return true;
 	}
@@ -1728,7 +1728,7 @@ sint64 grund_t::remove_trees()
 	// remove all trees ...
 	while (baum_t* const d = find<baum_t>(0)) {
 		// we must mark it by hand, since we want to join costs
-		d->mark_image_dirty( get_bild(), 0 );
+		d->mark_image_dirty( get_image(), 0 );
 		delete d;
 		cost -= welt->get_settings().cst_remove_tree;
 	}
@@ -1803,7 +1803,7 @@ sint32 grund_t::weg_entfernen(waytype_t wegtyp, bool ribi_rem)
 	weg_t *weg = get_weg(wegtyp);
 	if(weg!=NULL) {
 
-		weg->mark_image_dirty(get_bild(), 0);
+		weg->mark_image_dirty(get_image(), 0);
 
 		if(ribi_rem) {
 			ribi_t::ribi ribi = weg->get_ribi();
@@ -1814,7 +1814,7 @@ sint32 grund_t::weg_entfernen(waytype_t wegtyp, bool ribi_rem)
 					weg_t *weg2 = to->get_weg(wegtyp);
 					if(weg2) {
 						weg2->ribi_rem(ribi_t::backward(ribi_t::nsew[r]));
-						to->calc_bild();
+						to->calc_image();
 					}
 				}
 			}
@@ -1844,7 +1844,7 @@ sint32 grund_t::weg_entfernen(waytype_t wegtyp, bool ribi_rem)
 			flags &= ~has_way1;
 		}
 
-		calc_bild();
+		calc_image();
 		reliefkarte_t::get_karte()->calc_map_pixel(get_pos().get_2d());
 
 		return costs;
@@ -2033,7 +2033,7 @@ bool grund_t::remove_everything_from_way(player_t* player_, waytype_t wt, ribi_t
 				if(  wt == water_wt  &&  pos.z == welt->get_water_hgt( here )  &&  slope != slope_t::flat  ) {
 					grund_t *gr = welt->lookup_kartenboden(here - ribi_type(slope));
 					if (gr  &&  gr->ist_wasser()) {
-						gr->calc_bild(); // to recalculate ribis
+						gr->calc_image(); // to recalculate ribis
 					}
 				}
 				// make tunnel portals to normal ground
@@ -2050,7 +2050,7 @@ bool grund_t::remove_everything_from_way(player_t* player_, waytype_t wt, ribi_t
 DBG_MESSAGE("tool_wayremover()","change remaining way to ribi %d",add);
 			// something will remain, we just change ribis
 			weg->set_ribi(add);
-			calc_bild();
+			calc_image();
 		}
 		// we have to pay?
 		if(costs) {

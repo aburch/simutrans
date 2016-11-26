@@ -9,7 +9,7 @@
 #ifdef MULTI_THREAD
 #include "../utils/simthread.h"
 static pthread_mutex_t verbinde_mutex = PTHREAD_MUTEX_INITIALIZER;
-static pthread_mutex_t calc_bild_mutex = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t calc_image_mutex = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutex_t pumpe_list_mutex = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutex_t senke_list_mutex = PTHREAD_MUTEX_INITIALIZER;
 #endif
@@ -98,7 +98,7 @@ fabrik_t *leitung_t::suche_fab_4(const koord pos)
 
 leitung_t::leitung_t(loadsave_t *file) : obj_t()
 {
-	bild = IMG_EMPTY;
+	image = IMG_EMPTY;
 	set_net(NULL);
 	ribi = ribi_t::none;
 	rdwr(file);
@@ -107,7 +107,7 @@ leitung_t::leitung_t(loadsave_t *file) : obj_t()
 
 leitung_t::leitung_t(koord3d pos, player_t *player) : obj_t(pos)
 {
-	bild = IMG_EMPTY;
+	image = IMG_EMPTY;
 	set_net(NULL);
 	set_owner( player );
 	set_besch(wegbauer_t::leitung_besch);
@@ -162,7 +162,7 @@ leitung_t::~leitung_t()
 void leitung_t::cleanup(player_t *player)
 {
 	player_t::book_construction_costs(player, -besch->get_preis()/2, get_pos().get_2d(), powerline_wt);
-	mark_image_dirty( bild, 0 );
+	mark_image_dirty( image, 0 );
 }
 
 
@@ -260,24 +260,24 @@ void leitung_t::calc_image()
 	}
 	if(gr->ist_bruecke() || (gr->get_typ()==grund_t::tunnelboden && gr->ist_karten_boden())) {
 		// don't display on a bridge or in a tunnel)
-		set_bild(IMG_EMPTY);
+		set_image(IMG_EMPTY);
 		return;
 	}
 
 	image_id old_image = get_image();
 	slope_t::type hang = gr->get_weg_hang();
 	if(hang != slope_t::flat) {
-		set_bild( besch->get_hang_bild_nr(hang, snow));
+		set_image( besch->get_hang_imageid(hang, snow));
 	}
 	else {
 		if(gr->hat_wege()) {
 			// crossing with road or rail
 			weg_t* way = gr->get_weg_nr(0);
 			if(ribi_t::is_straight_ew(way->get_ribi())) {
-				set_bild( besch->get_diagonal_bild_nr(ribi_t::north|ribi_t::east, snow));
+				set_image( besch->get_diagonal_imageid(ribi_t::north|ribi_t::east, snow));
 			}
 			else {
-				set_bild( besch->get_diagonal_bild_nr(ribi_t::south|ribi_t::east, snow));
+				set_image( besch->get_diagonal_imageid(ribi_t::south|ribi_t::east, snow));
 			}
 			is_crossing = true;
 		}
@@ -285,14 +285,14 @@ void leitung_t::calc_image()
 			if(ribi_t::is_straight(ribi)  &&  !ribi_t::is_single(ribi)  &&  (pos.x+pos.y)&1) {
 				// every second skip mast
 				if(ribi_t::is_straight_ns(ribi)) {
-					set_bild( besch->get_diagonal_bild_nr(ribi_t::north|ribi_t::west, snow));
+					set_image( besch->get_diagonal_imageid(ribi_t::north|ribi_t::west, snow));
 				}
 				else {
-					set_bild( besch->get_diagonal_bild_nr(ribi_t::south|ribi_t::west, snow));
+					set_image( besch->get_diagonal_imageid(ribi_t::south|ribi_t::west, snow));
 				}
 			}
 			else {
-				set_bild( besch->get_bild_nr(ribi, snow));
+				set_image( besch->get_image_id(ribi, snow));
 			}
 		}
 	}
@@ -364,11 +364,11 @@ void leitung_t::finish_rd()
 	pthread_mutex_unlock( &verbinde_mutex );
 #endif
 #ifdef MULTI_THREAD
-	pthread_mutex_lock( &calc_bild_mutex );
+	pthread_mutex_lock( &calc_image_mutex );
 #endif
 	calc_neighbourhood();
 #ifdef MULTI_THREAD
-	pthread_mutex_unlock( &calc_bild_mutex );
+	pthread_mutex_unlock( &calc_image_mutex );
 #endif
 	grund_t *gr = welt->lookup(get_pos());
 	assert(gr); (void)gr;
@@ -503,21 +503,21 @@ void pumpe_t::step(uint32 delta_t)
 
 	supply = fab->get_power();
 
-	image_id new_bild;
+	image_id new_image;
 	int winter_offset = 0;
 	if(  skinverwaltung_t::senke->get_count() > 3  &&  (get_pos().z >= welt->get_snowline()  ||  welt->get_climate( get_pos().get_2d() ) == arctic_climate)  ) {
 		winter_offset = 2;
 	}
 	if(  supply > 0  ) {
 		get_net()->add_supply( supply );
-		new_bild = skinverwaltung_t::pumpe->get_bild_nr(1+winter_offset);
+		new_image = skinverwaltung_t::pumpe->get_image_id(1+winter_offset);
 	}
 	else {
-		new_bild = skinverwaltung_t::pumpe->get_bild_nr(0+winter_offset);
+		new_image = skinverwaltung_t::pumpe->get_image_id(0+winter_offset);
 	}
-	if(bild!=new_bild) {
+	if(image!=new_image) {
 		set_flag(obj_t::dirty);
-		set_bild( new_bild );
+		set_image( new_image );
 	}
 }
 
@@ -551,12 +551,12 @@ void pumpe_t::finish_rd()
 	pthread_mutex_unlock( &pumpe_list_mutex );
 #endif
 #ifdef MULTI_THREAD
-	pthread_mutex_lock( &calc_bild_mutex );
+	pthread_mutex_lock( &calc_image_mutex );
 #endif
-	set_bild(skinverwaltung_t::pumpe->get_bild_nr(0));
+	set_image(skinverwaltung_t::pumpe->get_image_id(0));
 	is_crossing = false;
 #ifdef MULTI_THREAD
-	pthread_mutex_unlock( &calc_bild_mutex );
+	pthread_mutex_unlock( &calc_image_mutex );
 #endif
 }
 
@@ -704,7 +704,7 @@ sync_result senke_t::sync_step(uint32 delta_t)
 		// sawtooth waveform resetting at PRODUCTION_DELTA_T / 16 => image changes at most this fast
 		next_t -= next_t - next_t % (PRODUCTION_DELTA_T / 16);
 
-		image_id new_bild;
+		image_id new_image;
 		int winter_offset = 0;
 		if(  skinverwaltung_t::senke->get_count() > 3  &&  (get_pos().z >= welt->get_snowline()  ||  welt->get_climate( get_pos().get_2d() ) == arctic_climate)  ) {
 			winter_offset = 2;
@@ -724,18 +724,18 @@ sync_result senke_t::sync_step(uint32 delta_t)
 			}
 
 			if(  delta_sum <= (sint32)load_factor  ) {
-				new_bild = skinverwaltung_t::senke->get_bild_nr(1+winter_offset);
+				new_image = skinverwaltung_t::senke->get_image_id(1+winter_offset);
 			}
 			else {
-				new_bild = skinverwaltung_t::senke->get_bild_nr(0+winter_offset);
+				new_image = skinverwaltung_t::senke->get_image_id(0+winter_offset);
 			}
 		}
 		else {
-			new_bild = skinverwaltung_t::senke->get_bild_nr(0+winter_offset);
+			new_image = skinverwaltung_t::senke->get_image_id(0+winter_offset);
 		}
-		if(  bild != new_bild  ) {
+		if(  image != new_image  ) {
 			set_flag( obj_t::dirty );
-			set_bild( new_bild );
+			set_image( new_image );
 		}
 	}
 	return SYNC_OK;
@@ -768,12 +768,12 @@ void senke_t::finish_rd()
 	senke_list.insert( this );
 #ifdef MULTI_THREAD
 	pthread_mutex_unlock( &senke_list_mutex );
-	pthread_mutex_lock( &calc_bild_mutex );
+	pthread_mutex_lock( &calc_image_mutex );
 #endif
-	set_bild(skinverwaltung_t::senke->get_bild_nr(0));
+	set_image(skinverwaltung_t::senke->get_image_id(0));
 	is_crossing = false;
 #ifdef MULTI_THREAD
-	pthread_mutex_unlock( &calc_bild_mutex );
+	pthread_mutex_unlock( &calc_image_mutex );
 #endif
 }
 

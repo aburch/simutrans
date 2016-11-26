@@ -23,7 +23,7 @@ public:
 		sint32 type;
 		koord pos;
 		PLAYER_COLOR_VAL color;
-		image_id bild;
+		image_id image;
 		sint32 time;
 
 		void rdwr(loadsave_t *file);
@@ -49,7 +49,7 @@ public:
 		local_flag = 0x8000u
 	};
 
-	void add_message( const char *text, koord pos, uint16 what, PLAYER_COLOR_VAL color=SYSCOL_TEXT, image_id bild=IMG_EMPTY );
+	void add_message( const char *text, koord pos, uint16 what, PLAYER_COLOR_VAL color=SYSCOL_TEXT, image_id image=IMG_EMPTY );
 
 	/* determines, which message is displayed where */
 	void get_message_flags( sint32 *t, sint32 *w, sint32 *a, sint32  *i);

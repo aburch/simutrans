@@ -39,7 +39,7 @@ gui_tab_panel_t::gui_tab_panel_t() :
 
 void gui_tab_panel_t::add_tab(gui_component_t *c, const char *name, const skin_besch_t *besch, const char *tooltip )
 {
-	tabs.append( tab(c, besch?NULL:name, besch?besch->get_bild(0):NULL, tooltip) );
+	tabs.append( tab(c, besch?NULL:name, besch?besch->get_image(0):NULL, tooltip) );
 	set_size( get_size() );
 }
 
@@ -189,7 +189,7 @@ void gui_tab_panel_t::draw(scr_coord parent_pos)
 				else {
 					scr_coord_val const y = ypos   - iter.img->get_pic()->y + 10            - iter.img->get_pic()->h / 2;
 					scr_coord_val const x = text_x - iter.img->get_pic()->x + IMG_WIDTH / 2 - iter.img->get_pic()->w / 2;
-					display_img_blend(iter.img->get_nummer(), x, y, TRANSPARENT50_FLAG, false, true);
+					display_img_blend(iter.img->get_id(), x, y, TRANSPARENT50_FLAG, false, true);
 				}
 			}
 			else {
@@ -205,7 +205,7 @@ void gui_tab_panel_t::draw(scr_coord parent_pos)
 				else {
 					scr_coord_val const y = ypos   - iter.img->get_pic()->y + 10            - iter.img->get_pic()->h / 2;
 					scr_coord_val const x = text_x - iter.img->get_pic()->x + IMG_WIDTH / 2 - iter.img->get_pic()->w / 2;
-					display_color_img(iter.img->get_nummer(), x, y, 0, false, true);
+					display_color_img(iter.img->get_id(), x, y, 0, false, true);
 				}
 			}
 			text_x += width + 8;

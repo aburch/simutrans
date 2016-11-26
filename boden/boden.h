@@ -19,7 +19,7 @@
 class boden_t : public grund_t
 {
 protected:
-	virtual void calc_bild_internal(const bool calc_only_snowline_change);
+	virtual void calc_image_internal(const bool calc_only_snowline_change);
 
 public:
 	boden_t(loadsave_t *file, koord pos );

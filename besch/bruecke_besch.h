@@ -4,11 +4,11 @@
  * This file is part of the Simutrans project under the artistic licence.
  *
  *  BEWARE: non-standard node structure!
- *	0   Vordergrundbilder
- *	1   Hintergrundbilder
+ *	0   Foreground-images
+ *	1   Background-images
  *	2   Cursor/Icon (Hajo: 14-Feb-02: now also icon image)
- *	3   Vordergrundbilder - snow
- *	4   Hintergrundbilder - snow
+ *	3   Foreground-images - snow
+ *	4   Background-images - snow
  */
 
 #ifndef __BRUECKE_BESCH_H
@@ -60,26 +60,26 @@ public:
 
 	skin_besch_t const* get_cursor() const { return get_child<skin_besch_t>(2 + offset); }
 
-	image_id get_hintergrund(img_t img, uint8 season) const 	{
-		const bild_besch_t *bild = NULL;
+	image_id get_background(img_t img, uint8 season) const 	{
+		const image_t *image = NULL;
 		if(season && number_seasons == 1) {
-			bild = get_child<bildliste_besch_t>(3 + offset)->get_bild(img);
+			image = get_child<image_list_t>(3 + offset)->get_image(img);
 		}
-		if(bild == NULL) {
-			bild = get_child<bildliste_besch_t>(0 + offset)->get_bild(img);
+		if(image == NULL) {
+			image = get_child<image_list_t>(0 + offset)->get_image(img);
 		}
-		return bild != NULL ? bild->get_nummer() : IMG_EMPTY;
+		return image != NULL ? image->get_id() : IMG_EMPTY;
 	}
 
-	image_id get_vordergrund(img_t img, uint8 season) const {
-		const bild_besch_t *bild = NULL;
+	image_id get_foreground(img_t img, uint8 season) const {
+		const image_t *image = NULL;
 		if(season && number_seasons == 1) {
-			bild = get_child<bildliste_besch_t>(4 + offset)->get_bild(img);
+			image = get_child<image_list_t>(4 + offset)->get_image(img);
 		}
-		if(bild == NULL) {
-			bild = get_child<bildliste_besch_t>(1 + offset)->get_bild(img);
+		if(image == NULL) {
+			image = get_child<image_list_t>(1 + offset)->get_image(img);
 		}
-		return bild != NULL ? bild->get_nummer() : IMG_EMPTY;
+		return image != NULL ? image->get_id() : IMG_EMPTY;
 	}
 
 	img_t get_simple(ribi_t::ribi ribi, uint8 height) const;

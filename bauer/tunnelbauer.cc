@@ -54,8 +54,8 @@ void tunnelbauer_t::register_besch(tunnel_besch_t *besch)
 	}
 	// add the tool
 	tool_build_tunnel_t *tool = new tool_build_tunnel_t();
-	tool->set_icon( besch->get_cursor()->get_bild_nr(1) );
-	tool->cursor = besch->get_cursor()->get_bild_nr(0);
+	tool->set_icon( besch->get_cursor()->get_image_id(1) );
+	tool->cursor = besch->get_cursor()->get_image_id(0);
 	tool->set_default_param( besch->get_name() );
 	tool_t::general_tool.append( tool );
 	besch->set_builder( tool );
@@ -447,7 +447,7 @@ DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d,%d) to (%d,%d,%d) ", pos.
 	// calc new back image for the ground
 	if(grund_t::underground_mode) {
 		grund_t *gr = welt->lookup_kartenboden(pos.get_2d());
-		gr->calc_bild();
+		gr->calc_image();
 		gr->set_flag(grund_t::dirty);
 	}
 
@@ -470,7 +470,7 @@ DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d,%d) to (%d,%d,%d) ", pos.
 			player_t::add_maintenance( player, -weg_besch->get_wartung(), powerline_wt );
 		}
 		tunnel->obj_add(new tunnel_t(pos, player, besch));
-		tunnel->calc_bild();
+		tunnel->calc_image();
 		tunnel->set_flag(grund_t::dirty);
 		assert(!tunnel->ist_karten_boden());
 		player_t::add_maintenance( player, besch->get_wartung(), besch->get_finance_waytype() );
@@ -491,7 +491,7 @@ DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d,%d) to (%d,%d,%d) ", pos.
 			// calc new back image for the ground
 			if (end!=start && grund_t::underground_mode) {
 				grund_t *gr = welt->lookup_kartenboden(pos.get_2d()-zv);
-				gr->calc_bild();
+				gr->calc_image();
 				gr->set_flag(grund_t::dirty);
 			}
 		}
@@ -519,7 +519,7 @@ DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d,%d) to (%d,%d,%d) ", pos.
 			player_t::add_maintenance( player, -weg_besch->get_wartung(), powerline_wt );
 		}
 		tunnel->obj_add(new tunnel_t(pos, player, besch));
-		tunnel->calc_bild();
+		tunnel->calc_image();
 		tunnel->set_flag(grund_t::dirty);
 		assert(!tunnel->ist_karten_boden());
 		player_t::add_maintenance( player,  besch->get_wartung(), besch->get_finance_waytype() );
@@ -587,7 +587,7 @@ void tunnelbauer_t::baue_einfahrt(player_t *player, koord3d end, koord zv, const
 		str->set_gehweg(false);
 	}
 
-	tunnel->calc_bild();
+	tunnel->calc_image();
 	tunnel->set_flag(grund_t::dirty);
 
 	// Auto-connect to a way outside the new tunnel mouth
@@ -614,7 +614,7 @@ void tunnelbauer_t::baue_einfahrt(player_t *player, koord3d end, koord zv, const
 		if (besch->get_waytype()==water_wt  &&  ground_outside->ist_wasser()) {
 			// connect to the sea
 			tunnel->weg_erweitern(besch->get_waytype(), ribi_type(-zv));
-			ground_outside->calc_bild(); // to recalculate ribis
+			ground_outside->calc_image(); // to recalculate ribis
 		}
 	}
 
@@ -790,7 +790,7 @@ const char *tunnelbauer_t::remove(player_t *player, koord3d start, waytype_t weg
 
 		// recalc image of ground
 		grund_t *kb = welt->access(pos.get_2d()+koord(gr_new->get_grund_hang()))->get_kartenboden();
-		kb->calc_bild();
+		kb->calc_image();
 		kb->set_flag(grund_t::dirty);
 	}
 	return NULL;

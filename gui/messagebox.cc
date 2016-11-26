@@ -37,15 +37,15 @@ fatal_news::fatal_news(const char* text) :
 
 news_img::news_img(const char* text) :
 	news_window(text, WIN_TITLE),
-	bild()
+	image()
 {
-	init(skinverwaltung_t::meldungsymbol->get_bild_nr(0));
+	init(skinverwaltung_t::meldungsymbol->get_image_id(0));
 }
 
 
 news_img::news_img(const char* text, image_id id, PLAYER_COLOR_VAL color) :
 	news_window(text, color),
-	bild()
+	image()
 {
 	init(id);
 }
@@ -59,13 +59,13 @@ news_img::news_img(const char* text, image_id id, PLAYER_COLOR_VAL color) :
 void news_img::init(image_id id)
 {
 	if(  id!=IMG_EMPTY  ) {
-		bild.set_image(id, true);
+		image.set_image(id, true);
 
 		scr_coord_val xoff, yoff, xw, yw;
 		display_get_base_image_offset(id, &xoff, &yoff, &xw, &yw);
-		bild.set_size( scr_size(xw, yw) );
+		image.set_size( scr_size(xw, yw) );
 
-		set_embedded(&bild);
+		set_embedded(&image);
 	}
 }
 

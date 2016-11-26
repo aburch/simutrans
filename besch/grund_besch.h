@@ -13,16 +13,16 @@
 #include "../dataobj/ribi.h"
 
 /*
- *  Autor:
+ *  Author:
  *      Volker Meyer
  *
- *  Beschreibung:
+ *  Description:
  *      Verschiedene Untergründe - viellcht bald weisse Berge?
  *
- *  Kindknoten:
+ *  Child nodes:
  *	0   Name
  *	1   Copyright
- *	2   Bildliste2D
+ *	2   Image-array
  */
 
 class grund_t;
@@ -59,22 +59,22 @@ public:
 	}
 
 	// returns the pointer to an image structure
-	const bild_besch_t *get_bild_ptr(uint16 typ, uint16 stage=0) const
+	const image_t *get_image_ptr(uint16 typ, uint16 stage=0) const
 	{
-		bildliste2d_besch_t const* const bl2   = get_child<bildliste2d_besch_t>(2);
-		bildliste_besch_t   const* const liste = bl2->get_liste(typ);
+		image_array_t const* const imgarray   = get_child<image_array_t>(2);
+		image_list_t   const* const liste = imgarray->get_list(typ);
 		if(liste && liste->get_count() > 0) {
-			bild_besch_t const* const bild = bl2->get_bild(typ, stage);
-			return bild;
+			image_t const* const image = imgarray->get_image(typ, stage);
+			return image;
 		}
 		return NULL;
 	}
 
 	// image for all non-climate stuff like foundations ...
-	image_id get_bild(uint16 typ, uint16 stage=0) const
+	image_id get_image(uint16 typ, uint16 stage=0) const
 	{
-		bild_besch_t const* const bild = get_bild_ptr(typ, stage);
-		return bild ? bild->get_nummer() : IMG_EMPTY;
+		image_t const* const image = get_image_ptr(typ, stage);
+		return image ? image->get_id() : IMG_EMPTY;
 	}
 
 	// image for all ground tiles
@@ -103,14 +103,14 @@ public:
 		                                           : ((slope & 1) + ((slope >> 1) & 6) + 8))
 		                         : (double_grounds ?  slope % 27
 		                                           : (slope & 7 ));
-		return marker->get_bild(index);
+		return marker->get_image(index);
 	}
 
 	static image_id get_border_image(slope_t::type slope_in)
 	{
 		uint8 slope = double_grounds ? slope_in : slopetable[slope_in];
 		uint8 index = double_grounds ? (slope % 3) + 3 * ((uint8)(slope / 9)) : (slope & 1) + ((slope >> 1) & 6);
-		return borders->get_bild(index);
+		return borders->get_image(index);
 	}
 };
 

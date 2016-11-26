@@ -10,8 +10,8 @@ class tunnel_t : public obj_no_info_t
 {
 private:
 	const tunnel_besch_t *besch;
-	image_id bild;
-	image_id after_bild;
+	image_id image;
+	image_id foreground_image;
 	uint8 broad_type; // Is this a broad tunnel mouth?
 
 public:
@@ -34,10 +34,10 @@ public:
 	 */
 	bool check_season(const bool calc_only_season_change) { if(  !calc_only_season_change  ) { calc_image(); } return true; };  // depends on snowline only
 
-	void set_bild( image_id b );
-	void set_after_bild( image_id b );
-	image_id get_image() const {return bild;}
-	image_id get_front_image() const { return after_bild; }
+	void set_image( image_id b );
+	void set_foreground_image( image_id b );
+	image_id get_image() const {return image;}
+	image_id get_front_image() const { return foreground_image; }
 
 	const tunnel_besch_t *get_besch() const { return besch; }
 

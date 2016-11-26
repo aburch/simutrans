@@ -13,10 +13,10 @@
 
 
 /*
- *  Autor:
+ *  Author:
  *      Volker Meyer
  *
- *  Beschreibung:
+ *  Description:
  *      Rechnet aus dem Index das Layout aus, zu dem diese Tile gehört.
  */
 uint8 haus_tile_besch_t::get_layout() const
@@ -28,10 +28,10 @@ uint8 haus_tile_besch_t::get_layout() const
 
 
 /*
- *  Autor:
+ *  Author:
  *      Volker Meyer
  *
- *  Beschreibung:
+ *  Description:
  *      Bestimmt die Relativ-Position des Einzelbildes im Gesamtbild des
  *	Gebäudes.
  */
@@ -107,10 +107,10 @@ bool haus_besch_t::is_connected_with_town() const
 
 
 /*
- *  Autor:
+ *  Author:
  *      Volker Meyer
  *
- *  Beschreibung:
+ *  Description:
  *      Abhängig von Position und Layout ein tile zurückliefern
  */
 const haus_tile_besch_t *haus_besch_t::get_tile(uint8 layout, sint16 x, sint16 y) const
@@ -129,10 +129,10 @@ const haus_tile_besch_t *haus_besch_t::get_tile(uint8 layout, sint16 x, sint16 y
 
 
 /*
- *  Autor:
+ *  Author:
  *      Volker Meyer
  *
- *  Beschreibung:
+ *  Description:
  *      Layout normalisieren.
  */
 uint8 haus_besch_t::layout_anpassen(uint8 layout) const
