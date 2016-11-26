@@ -2069,14 +2069,14 @@ void display_set_player_color_scheme(const int player, const COLOR_VAL col1, con
 
 
 
-void register_image(struct bild_besch_t* bild)
+void register_image(struct bild_besch_t* bild_in)
 {
 	struct imd* image;
 
 	/* valid image? */
-	if(  bild->len == 0  ||  bild->h == 0  ) {
+	if(  bild_in->len == 0  ||  bild_in->h == 0  ) {
 		fprintf(stderr, "Warning: ignoring image %d because of missing data\n", anz_images);
-		bild->bild_nr = IMG_EMPTY;
+		bild_in->bild_nr = IMG_EMPTY;
 		return;
 	}
 
@@ -2094,23 +2094,23 @@ void register_image(struct bild_besch_t* bild)
 		images = REALLOC(images, imd, alloc_images);
 	}
 
-	bild->bild_nr = anz_images;
+	bild_in->bild_nr = anz_images;
 	image = &images[anz_images];
 	anz_images++;
 
-	image->x = bild->x;
-	image->w = bild->w;
-	image->y = bild->y;
-	image->h = bild->h;
+	image->x = bild_in->x;
+	image->w = bild_in->w;
+	image->y = bild_in->y;
+	image->h = bild_in->h;
 
 	image->recode_flags = FLAG_REZOOM;
-	if(  bild->zoomable  ) {
+	if(  bild_in->zoomable  ) {
 		image->recode_flags |= FLAG_ZOOMABLE;
 	}
 	image->player_flags = 0xFFFF; // recode all player colors
 
 	// find out if there are really player colors
-	for(  PIXVAL *src = bild->data, y = 0;  y < bild->h;  ++y  ) {
+	for(  PIXVAL *src = bild_in->data, y = 0;  y < bild_in->h;  ++y  ) {
 		uint16 runlen;
 
 		// decode line
@@ -2139,15 +2139,15 @@ void register_image(struct bild_besch_t* bild)
 	}
 
 	image->zoom_data = NULL;
-	image->len = bild->len;
+	image->len = bild_in->len;
 
-	image->base_x = bild->x;
-	image->base_w = bild->w;
-	image->base_y = bild->y;
-	image->base_h = bild->h;
+	image->base_x = bild_in->x;
+	image->base_w = bild_in->w;
+	image->base_y = bild_in->y;
+	image->base_h = bild_in->h;
 
 	// since we do not recode them, we can work with the original data
-	image->base_data = bild->data;
+	image->base_data = bild_in->data;
 
 	// now find out, it contains player colors
 
