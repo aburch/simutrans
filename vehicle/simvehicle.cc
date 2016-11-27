@@ -1745,7 +1745,7 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_gobal) const
 				}
 				break;
 
-			case convoi_t::FAHRPLANEINGABE:
+			case convoi_t::EDIT_SCHEDULE:
 //			case convoi_t::ROUTING_1:
 				if(  state>=2  ) {
 					tstrncpy( tooltip_text, translator::translate("Schedule changing!"), lengthof(tooltip_text) );

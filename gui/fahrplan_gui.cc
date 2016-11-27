@@ -690,8 +690,8 @@ void schedule_gui_t::draw(scr_coord pos, scr_size size)
 	}
 
 	// after loading in network games, the schedule might still being updated
-	if(  cnv.is_bound()  &&  cnv->get_state()==convoi_t::FAHRPLANEINGABE  &&  schedule->is_editing_finished()  ) {
-		assert( convoi_t::FAHRPLANEINGABE==1 ); // convoi_t::FAHRPLANEINGABE is 1
+	if(  cnv.is_bound()  &&  cnv->get_state()==convoi_t::EDIT_SCHEDULE  &&  schedule->is_editing_finished()  ) {
+		assert( convoi_t::EDIT_SCHEDULE==1 ); // convoi_t::EDIT_SCHEDULE is 1
 		schedule->start_editing();
 		cnv->call_convoi_tool( 's', "1" );
 	}

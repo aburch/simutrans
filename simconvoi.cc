@@ -71,7 +71,7 @@ karte_ptr_t convoi_t::welt;
 static const char * state_names[convoi_t::MAX_STATES] =
 {
 	"INITIAL",
-	"FAHRPLANEINGABE",
+	"EDIT_SCHEDULE",
 	"ROUTING_1",
 	"",
 	"",
@@ -494,7 +494,7 @@ DBG_MESSAGE("convoi_t::finish_rd()","next_stop_index=%d", next_stop_index );
 				}
 			}
 			fahr[0]->set_leading(true);
-			if(  state != INITIAL  &&  state != FAHRPLANEINGABE  &&  fahr[0]->get_pos() != last_start  ) {
+			if(  state != INITIAL  &&  state != EDIT_SCHEDULE  &&  fahr[0]->get_pos() != last_start  ) {
 				state = WAITING_FOR_CLEARANCE;
 			}
 		}
@@ -504,7 +504,7 @@ DBG_MESSAGE("convoi_t::finish_rd()","next_stop_index=%d", next_stop_index );
 		wait_lock = 2000-loading_level*20;
 	}
 	// when saving with open window, this can happen
-	if(  state==FAHRPLANEINGABE  ) {
+	if(  state==EDIT_SCHEDULE  ) {
 		if (env_t::networkmode) {
 			wait_lock = 30000; // 60s to drive on, if the client in question had left
 		}
@@ -884,7 +884,7 @@ sync_result convoi_t::sync_step(uint32 delta_t)
 			// in depot, should not be in sync list, remove
 			return SYNC_REMOVE;
 
-		case FAHRPLANEINGABE:
+		case EDIT_SCHEDULE:
 		case ROUTING_1:
 		case DUMMY4:
 		case DUMMY5:
@@ -1165,7 +1165,7 @@ void convoi_t::step()
 		case DUMMY5:
 			break;
 
-		case FAHRPLANEINGABE:
+		case EDIT_SCHEDULE:
 			// schedule window closed?
 			if(schedule!=NULL  &&  schedule->is_editing_finished()) {
 
@@ -1326,7 +1326,7 @@ void convoi_t::step()
 
 		// just waiting for action here
 		case INITIAL:
-		case FAHRPLANEINGABE:
+		case EDIT_SCHEDULE:
 		case NO_ROUTE:
 			wait_lock = max( wait_lock, 25000 );
 			break;
@@ -1810,7 +1810,7 @@ bool convoi_t::set_schedule(schedule_t * f)
 
 	// ok, now we have a schedule
 	if(state != INITIAL) {
-		state = FAHRPLANEINGABE;
+		state = EDIT_SCHEDULE;
 	}
 	// to avoid jumping trains
 	alte_richtung = fahr[0]->get_direction();
@@ -2676,7 +2676,7 @@ void convoi_t::open_schedule_window( bool show )
 	// manipulation of schedule not allowed while:
 	// - just starting
 	// - a line update is pending
-	if(  (state==FAHRPLANEINGABE  ||  line_update_pending.is_bound())  &&  get_owner()==welt->get_active_player()  ) {
+	if(  (state==EDIT_SCHEDULE  ||  line_update_pending.is_bound())  &&  get_owner()==welt->get_active_player()  ) {
 		if (show) {
 			create_win( new news_img("Not allowed!\nThe convoi's schedule can\nnot be changed currently.\nTry again later!"), w_time_delete, magic_none );
 		}
@@ -2690,7 +2690,7 @@ void convoi_t::open_schedule_window( bool show )
 
 	akt_speed = 0;	// stop the train ...
 	if(state!=INITIAL) {
-		state = FAHRPLANEINGABE;
+		state = EDIT_SCHEDULE;
 	}
 	wait_lock = 25000;
 	alte_richtung = fahr[0]->get_direction();
@@ -2735,7 +2735,7 @@ bool convoi_t::pruefe_alle()
  */
 void convoi_t::laden()
 {
-	if(  state == FAHRPLANEINGABE  ) {
+	if(  state == EDIT_SCHEDULE  ) {
 		return;
 	}
 
@@ -3364,7 +3364,7 @@ void convoi_t::check_pending_updates()
 			}
 			else {
 				// need re-routing
-				state = FAHRPLANEINGABE;
+				state = EDIT_SCHEDULE;
 			}
 			// make this change immediately
 			if(  state!=LOADING  ) {

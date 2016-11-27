@@ -58,7 +58,7 @@ public:
 	enum { max_vehicle=4, max_rail_vehicle = 24 };
 
 	enum states {INITIAL,
-		FAHRPLANEINGABE,
+		EDIT_SCHEDULE,
 		ROUTING_1,
 		DUMMY4,
 		DUMMY5,
