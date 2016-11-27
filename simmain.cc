@@ -1196,7 +1196,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 		sets.copy_city_road( env_t::default_settings );
 		sets.set_default_climates();
 		sets.set_use_timeline( 1 );
-		sets.set_groesse(64,64);
+		sets.set_size(64,64);
 		sets.set_city_count(1);
 		sets.set_factory_count(3);
 		sets.set_tourist_attractions(1);

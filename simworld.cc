@@ -940,7 +940,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 					bool ok = false;
 					if(  gb  &&  gb->ist_rathaus()  ) {
 						koord k_check = stadt[i]->get_pos() + koord(-1,-1);
-						const koord size = gb->get_tile()->get_besch()->get_groesse(gb->get_tile()->get_layout());
+						const koord size = gb->get_tile()->get_besch()->get_size(gb->get_tile()->get_layout());
 						koord inc(1,0);
 						// scan all adjacent tiles, take the first that has a road
 						for(sint32 i=0; i<2*size.x+2*size.y+4  &&  !ok; i++) {
@@ -1655,28 +1655,28 @@ void karte_t::init_height_to_climate()
 
 void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 {
-	sint16 new_groesse_x = sets->get_groesse_x();
-	sint16 new_groesse_y = sets->get_groesse_y();
+	sint16 new_size_x = sets->get_size_x();
+	sint16 new_size_y = sets->get_size_y();
 
-	if(  cached_grid_size.y>0  &&  cached_grid_size.y!=new_groesse_y  ) {
+	if(  cached_grid_size.y>0  &&  cached_grid_size.y!=new_size_y  ) {
 		// to keep the labels
-		grund_t::enlarge_map( new_groesse_x, new_groesse_y );
+		grund_t::enlarge_map( new_size_x, new_size_y );
 	}
 
-	planquadrat_t *new_plan = new planquadrat_t[new_groesse_x*new_groesse_y];
-	sint8 *new_grid_hgts = new sint8[(new_groesse_x + 1) * (new_groesse_y + 1)];
-	sint8 *new_water_hgts = new sint8[new_groesse_x * new_groesse_y];
+	planquadrat_t *new_plan = new planquadrat_t[new_size_x*new_size_y];
+	sint8 *new_grid_hgts = new sint8[(new_size_x + 1) * (new_size_y + 1)];
+	sint8 *new_water_hgts = new sint8[new_size_x * new_size_y];
 
-	memset( new_grid_hgts, grundwasser, sizeof(sint8) * (new_groesse_x + 1) * (new_groesse_y + 1) );
-	memset( new_water_hgts, grundwasser, sizeof(sint8) * new_groesse_x * new_groesse_y );
+	memset( new_grid_hgts, grundwasser, sizeof(sint8) * (new_size_x + 1) * (new_size_y + 1) );
+	memset( new_water_hgts, grundwasser, sizeof(sint8) * new_size_x * new_size_y );
 
 	sint16 old_x = cached_grid_size.x;
 	sint16 old_y = cached_grid_size.y;
 
-	settings.set_groesse_x(new_groesse_x);
-	settings.set_groesse_y(new_groesse_y);
-	cached_grid_size.x = new_groesse_x;
-	cached_grid_size.y = new_groesse_y;
+	settings.set_size_x(new_size_x);
+	settings.set_size_y(new_size_y);
+	cached_grid_size.x = new_size_x;
+	cached_grid_size.y = new_size_y;
 	cached_size_max = max(cached_grid_size.x,cached_grid_size.y);
 	cached_size.x = cached_grid_size.x-1;
 	cached_size.y = cached_grid_size.y-1;
@@ -1700,7 +1700,7 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 		for (sint16 iy = 0; iy<old_y; iy++) {
 			for (sint16 ix = 0; ix<old_x; ix++) {
 				uint32 nr = ix+(iy*old_x);
-				uint32 nnr = ix+(iy*new_groesse_x);
+				uint32 nnr = ix+(iy*new_size_x);
 				swap(new_plan[nnr], plan[nr]);
 				new_water_hgts[nnr] = water_hgts[nr];
 			}
@@ -1708,7 +1708,7 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 		for (sint16 iy = 0; iy<=old_y; iy++) {
 			for (sint16 ix = 0; ix<=old_x; ix++) {
 				uint32 nr = ix+(iy*(old_x+1));
-				uint32 nnr = ix+(iy*(new_groesse_x+1));
+				uint32 nnr = ix+(iy*(new_size_x+1));
 				new_grid_hgts[nnr] = grid_hgts[nr];
 			}
 		}
@@ -1751,17 +1751,17 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 	else {
 		if(  sets->get_rotation()==0  &&  sets->get_origin_x()==0  &&  sets->get_origin_y()==0) {
 			// otherwise negative offsets may occur, so we cache only non-rotated maps
-			init_perlin_map(new_groesse_x,new_groesse_y);
+			init_perlin_map(new_size_x,new_size_y);
 		}
 		if (  old_x > 0  &&  old_y > 0  ) {
 			// loop only new tiles:
-			for(  sint16 y = 0;  y<=new_groesse_y;  y++  ) {
-				for(  sint16 x = (y>old_y) ? 0 : old_x+1;  x<=new_groesse_x;  x++  ) {
+			for(  sint16 y = 0;  y<=new_size_y;  y++  ) {
+				for(  sint16 x = (y>old_y) ? 0 : old_x+1;  x<=new_size_x;  x++  ) {
 					koord k(x,y);
 					sint16 const h = perlin_hoehe(&settings, k, koord(old_x, old_y));
 					set_grid_hgt( k, (sint8) h);
 				}
-				ls.set_progress( (y*16)/new_groesse_y );
+				ls.set_progress( (y*16)/new_size_y );
 			}
 		}
 		else {
@@ -1813,8 +1813,8 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 
 	if (  old_x > 0  &&  old_y > 0  ) {
 		// create grounds on new part
-		for (sint16 iy = 0; iy<new_groesse_y; iy++) {
-			for (sint16 ix = (iy>=old_y)?0:old_x; ix<new_groesse_x; ix++) {
+		for (sint16 iy = 0; iy<new_size_y; iy++) {
+			for (sint16 ix = (iy>=old_y)?0:old_x; ix<new_size_x; ix++) {
 				koord k(ix,iy);
 				access_nocheck(k)->kartenboden_setzen( new boden_t( koord3d( ix, iy, max( min_hgt_nocheck(k), get_water_hgt_nocheck(k) ) ), 0 ) );
 			}
@@ -1840,8 +1840,8 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 	}
 
 	// set climates in new area and old map near seam
-	for(  sint16 iy = 0;  iy < new_groesse_y;  iy++  ) {
-		for(  sint16 ix = (iy >= old_y - 19) ? 0 : max( old_x - 19, 0 );  ix < new_groesse_x;  ix++  ) {
+	for(  sint16 iy = 0;  iy < new_size_y;  iy++  ) {
+		for(  sint16 ix = (iy >= old_y - 19) ? 0 : max( old_x - 19, 0 );  ix < new_size_x;  ix++  ) {
 			calc_climate( koord( ix, iy ), false );
 		}
 	}
@@ -1856,8 +1856,8 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 
 	if (  old_x > 0  &&  old_y > 0  ) {
 		// and calculate transitions in a 1 tile larger area
-		for(  sint16 iy = 0;  iy < new_groesse_y;  iy++  ) {
-			for(  sint16 ix = (iy >= old_y - 20) ? 0 : max( old_x - 20, 0 );  ix < new_groesse_x;  ix++  ) {
+		for(  sint16 iy = 0;  iy < new_size_y;  iy++  ) {
+			for(  sint16 ix = (iy >= old_y - 20) ? 0 : max( old_x - 20, 0 );  ix < new_size_x;  ix++  ) {
 				recalc_transitions( koord( ix, iy ) );
 			}
 		}
@@ -1883,16 +1883,16 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 	// eventual update origin
 	switch(  settings.get_rotation()  ) {
 		case 1: {
-			settings.set_origin_y( settings.get_origin_y() - new_groesse_y + old_y );
+			settings.set_origin_y( settings.get_origin_y() - new_size_y + old_y );
 			break;
 		}
 		case 2: {
-			settings.set_origin_x( settings.get_origin_x() - new_groesse_x + old_x );
-			settings.set_origin_y( settings.get_origin_y() - new_groesse_y + old_y );
+			settings.set_origin_x( settings.get_origin_x() - new_size_x + old_x );
+			settings.set_origin_y( settings.get_origin_y() - new_size_y + old_y );
 			break;
 		}
 		case 3: {
-			settings.set_origin_x( settings.get_origin_x() - new_groesse_y + old_y );
+			settings.set_origin_x( settings.get_origin_x() - new_size_y + old_y );
 			break;
 		}
 	}
@@ -1906,7 +1906,7 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 	// Refresh the haltlist for the affected tiles / stations.
 	// It is enough to check the tile just at the border ...
 	uint16 const cov = settings.get_station_coverage();
-	if(  old_y < new_groesse_y  ) {
+	if(  old_y < new_size_y  ) {
 		for(  sint16 y=0;  y<old_y;  y++  ) {
 			for(  sint16 x=max(0,old_x-cov);  x<old_x;  x++  ) {
 				const planquadrat_t* pl = access_nocheck(x,y);
@@ -1921,8 +1921,8 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 					// update halt
 					halthandle_t h = pl->get_boden_bei(i)->get_halt();
 					if(  h.is_bound()  ) {
-						for(  sint16 xp=max(0,x-cov);  xp<min(new_groesse_x,x+cov+1);  xp++  ) {
-							for(  sint16 yp=y;  yp<min(new_groesse_y,y+cov+1);  yp++  ) {
+						for(  sint16 xp=max(0,x-cov);  xp<min(new_size_x,x+cov+1);  xp++  ) {
+							for(  sint16 yp=y;  yp<min(new_size_y,y+cov+1);  yp++  ) {
 								access_nocheck(xp,yp)->add_to_haltlist(h);
 							}
 						}
@@ -1931,7 +1931,7 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 			}
 		}
 	}
-	if(  old_x < new_groesse_x  ) {
+	if(  old_x < new_size_x  ) {
 		for(  sint16 y=max(0,old_y-cov);  y<old_y;  y++  ) {
 			for(  sint16 x=0;  x<old_x;  x++  ) {
 				const planquadrat_t* pl = access_nocheck(x,y);
@@ -1946,8 +1946,8 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 					// update halt
 					halthandle_t h = pl->get_boden_bei(i)->get_halt();
 					if(  h.is_bound()  ) {
-						for(  sint16 xp=x;  xp<min(new_groesse_x,x+cov+1);  xp++  ) {
-							for(  sint16 yp=max(0,y-cov);  yp<min(new_groesse_y,y+cov+1);  yp++  ) {
+						for(  sint16 xp=x;  xp<min(new_size_x,x+cov+1);  xp++  ) {
+							for(  sint16 yp=max(0,y-cov);  yp<min(new_size_y,y+cov+1);  yp++  ) {
 								access_nocheck(xp,yp)->add_to_haltlist(h);
 							}
 						}
@@ -5147,12 +5147,12 @@ void karte_t::load(loadsave_t *file)
 	season = (2+last_month/3)&3; // summer always zero
 	snowline = settings.get_winter_snowline() + grundwasser;
 
-	DBG_DEBUG("karte_t::laden", "settings loaded (groesse %i,%i) timeline=%i beginner=%i", settings.get_groesse_x(), settings.get_groesse_y(), settings.get_use_timeline(), settings.get_beginner_mode());
+	DBG_DEBUG("karte_t::laden", "settings loaded (size %i,%i) timeline=%i beginner=%i", settings.get_size_x(), settings.get_size_y(), settings.get_use_timeline(), settings.get_beginner_mode());
 
 	// wird gecached, um den Pointerzugriff zu sparen, da
-	// die groesse _sehr_ oft referenziert wird
-	cached_grid_size.x = settings.get_groesse_x();
-	cached_grid_size.y = settings.get_groesse_y();
+	// die size _sehr_ oft referenziert wird
+	cached_grid_size.x = settings.get_size_x();
+	cached_grid_size.y = settings.get_size_y();
 	cached_size_max = max(cached_grid_size.x,cached_grid_size.y);
 	cached_size.x = cached_grid_size.x-1;
 	cached_size.y = cached_grid_size.y-1;
@@ -5911,7 +5911,7 @@ void karte_t::load_heightfield(settings_t* const sets)
 	sint8 *h_field;
 	height_map_loader_t hml(sets);
 	if(hml.get_height_data_from_file(sets->heightfield.c_str(), (sint8)(sets->get_grundwasser()), h_field, w, h, false )) {
-		sets->set_groesse(w,h);
+		sets->set_size(w,h);
 		// create map
 		init(sets,h_field);
 		delete [] h_field;

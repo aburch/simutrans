@@ -448,7 +448,7 @@ image_id gebaeude_t::get_front_image() const
  */
 int gebaeude_t::get_passagier_level() const
 {
-	koord dim = tile->get_besch()->get_groesse();
+	koord dim = tile->get_besch()->get_size();
 	sint32 pax = tile->get_besch()->get_level();
 	if(  !is_factory  &&  ptr.stadt != NULL  ) {
 		// belongs to a city ...
@@ -460,7 +460,7 @@ int gebaeude_t::get_passagier_level() const
 
 int gebaeude_t::get_post_level() const
 {
-	koord dim = tile->get_besch()->get_groesse();
+	koord dim = tile->get_besch()->get_size();
 	sint32 post = tile->get_besch()->get_post_level();
 	if(  !is_factory  &&  ptr.stadt != NULL  ) {
 		return ((post + 5) >> 2) * welt->get_settings().get_passenger_factor() / 16;

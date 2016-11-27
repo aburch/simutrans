@@ -40,7 +40,7 @@ class settings_t
 	friend class welt_gui_t;
 
 private:
-	sint32 groesse_x, groesse_y;
+	sint32 size_x, size_y;
 	sint32 nummer;
 
 	/* new setting since version 0.85.01
@@ -350,11 +350,11 @@ public:
 	// init form this file ...
 	void parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, sint16 &disp_height, sint16 &fullscreen, std::string &objfilename );
 
-	void set_groesse_x(sint32 g) {groesse_x=g;}
-	void set_groesse_y(sint32 g) {groesse_y=g;}
-	void set_groesse(sint32 x, sint32 y) {groesse_x = x; groesse_y=y;}
-	sint32 get_groesse_x() const {return groesse_x;}
-	sint32 get_groesse_y() const {return groesse_y;}
+	void set_size_x(sint32 g) {size_x=g;}
+	void set_size_y(sint32 g) {size_y=g;}
+	void set_size(sint32 x, sint32 y) {size_x = x; size_y=y;}
+	sint32 get_size_x() const {return size_x;}
+	sint32 get_size_y() const {return size_y;}
 
 	sint32 get_karte_nummer() const {return nummer;}
 
@@ -415,7 +415,7 @@ public:
 
 	void rotate90() {
 		rotation = (rotation+1)&3;
-		set_groesse( groesse_y, groesse_x );
+		set_size( size_y, size_x );
 	}
 	uint8 get_rotation() const { return rotation; }
 

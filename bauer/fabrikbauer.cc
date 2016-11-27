@@ -206,7 +206,7 @@ void fabrikbauer_t::register_besch(fabrik_besch_t *besch)
 {
 	uint16 p=besch->get_produktivitaet();
 	if(p&0x8000) {
-		koord k=besch->get_haus()->get_groesse();
+		koord k=besch->get_haus()->get_size();
 
 		// to be compatible with old factories, since new code only steps once per factory, not per tile
 		besch->set_produktivitaet( (p&0x7FFF)*k.x*k.y );
@@ -293,12 +293,12 @@ void fabrikbauer_t::finde_hersteller(weighted_vector_tpl<const fabrik_besch_t *>
 }
 
 
-bool fabrikbauer_t::ist_bauplatz(koord pos, koord groesse, bool water, bool is_fabrik, climate_bits cl)
+bool fabrikbauer_t::ist_bauplatz(koord pos, koord size, bool water, bool is_fabrik, climate_bits cl)
 {
 	// check for water (no shore in sight!)
 	if(water) {
-		for(int y=0;y<groesse.y;y++) {
-			for(int x=0;x<groesse.x;x++) {
+		for(int y=0;y<size.y;y++) {
+			for(int x=0;x<size.x;x++) {
 				const grund_t *gr=welt->lookup_kartenboden(pos+koord(x,y));
 				if(gr==NULL  ||  !gr->ist_wasser()  ||  gr->get_grund_hang()!=slope_t::flat) {
 					return false;
@@ -308,14 +308,14 @@ bool fabrikbauer_t::ist_bauplatz(koord pos, koord groesse, bool water, bool is_f
 	}
 	else {
 		// check on land
-		if (!welt->square_is_free(pos, groesse.x, groesse.y, NULL, cl)) {
+		if (!welt->square_is_free(pos, size.x, size.y, NULL, cl)) {
 			return false;
 		}
 	}
 	// check for existing factories
 	if (is_fabrik) {
-		for(int y=0;y<groesse.y;y++) {
-			for(int x=0;x<groesse.x;x++) {
+		for(int y=0;y<size.y;y++) {
+			for(int x=0;x<size.x;x++) {
 				if (is_factory_at(pos.x + x, pos.y + y)){
 					return false;
 				}
@@ -326,12 +326,12 @@ bool fabrikbauer_t::ist_bauplatz(koord pos, koord groesse, bool water, bool is_f
 }
 
 
-koord3d fabrikbauer_t::finde_zufallsbauplatz( koord pos, const int radius, koord groesse, bool wasser, const haus_besch_t *besch, bool ignore_climates, uint32 max_iterations )
+koord3d fabrikbauer_t::finde_zufallsbauplatz( koord pos, const int radius, koord size, bool wasser, const haus_besch_t *besch, bool ignore_climates, uint32 max_iterations )
 {
 	bool is_fabrik = besch->get_utyp()==haus_besch_t::fabrik;
 	if(wasser) {
 		// to ensure at least 3x3 water around (maybe this should be the station catchment area+1?)
-		groesse += koord(6,6);
+		size += koord(6,6);
 	}
 
 	climate_bits climates = !ignore_climates ? besch->get_allowed_climate_bits() : ALL_CLIMATES;
@@ -341,7 +341,7 @@ koord3d fabrikbauer_t::finde_zufallsbauplatz( koord pos, const int radius, koord
 	uint32 index  = simrand(area);
 	koord k;
 
-	max_iterations = min( area/(groesse.x*groesse.y)+1, max_iterations );
+	max_iterations = min( area/(size.x*size.y)+1, max_iterations );
 	const uint32 a = diam+1;
 	const uint32 c = 37; // very unlikely to have this as a factor in somewhere ...
 
@@ -352,7 +352,7 @@ koord3d fabrikbauer_t::finde_zufallsbauplatz( koord pos, const int radius, koord
 		k = koord( pos.x - radius + (index % diam), pos.y - radius + (index / diam) );
 
 		// check place (it will actually check an grosse.x/y size rectangle, so we can iterate over less tiles)
-		if(  fabrikbauer_t::ist_bauplatz(k, groesse, wasser, is_fabrik, climates)  ) {
+		if(  fabrikbauer_t::ist_bauplatz(k, size, wasser, is_fabrik, climates)  ) {
 			// then accept first hit
 			goto finish;
 		}
@@ -395,7 +395,7 @@ void fabrikbauer_t::verteile_tourist(int max_number)
 		}
 
 		int	rotation=simrand(attraction->get_all_layouts()-1);
-		pos = finde_zufallsbauplatz(pos.get_2d(), 20, attraction->get_groesse(rotation),false,attraction,false,0x0FFFFFFF);	// so far -> land only
+		pos = finde_zufallsbauplatz(pos.get_2d(), 20, attraction->get_size(rotation),false,attraction,false,0x0FFFFFFF);	// so far -> land only
 		if(welt->lookup(pos)) {
 			// space found, build attraction
 			hausbauer_t::baue(welt->get_public_player(), pos, rotation, attraction);
@@ -448,7 +448,7 @@ fabrik_t* fabrikbauer_t::baue_fabrik(koord3d* parent, const fabrik_besch_t* info
 	// make all water station
 	if(info->get_platzierung() == fabrik_besch_t::Wasser) {
 		const haus_besch_t *besch = info->get_haus();
-		koord dim = besch->get_groesse(rotate);
+		koord dim = besch->get_size(rotate);
 
 		// create water halt
 		halthandle_t halt = haltestelle_t::create(pos.get_2d(), welt->get_public_player());
@@ -474,7 +474,7 @@ fabrik_t* fabrikbauer_t::baue_fabrik(koord3d* parent, const fabrik_besch_t* info
 	else {
 		// connect factory to stations
 		// search for nearby stations and connect factory to them
-		koord dim = info->get_haus()->get_groesse(rotate);
+		koord dim = info->get_haus()->get_size(rotate);
 
 		for(  int x=pos.x;  x<pos.x+dim.x;  x++  ) {
 			for(  int y=pos.y;  y<pos.y+dim.y;  y++  ) {
@@ -577,7 +577,7 @@ int fabrikbauer_t::baue_hierarchie(koord3d* parent, const fabrik_besch_t* info, 
 	// in town we need a different place search
 	if (info->get_platzierung() == fabrik_besch_t::Stadt) {
 
-		koord size=info->get_haus()->get_groesse(0);
+		koord size=info->get_haus()->get_size(0);
 
 		// build consumer (factory) in town
 		stadt_t *city = welt->suche_naechste_stadt(pos->get_2d());
@@ -800,7 +800,7 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","lieferanten %i, lcount %i (need %i
 
 		INT_CHECK("fabrikbauer 697");
 
-		koord3d k = finde_zufallsbauplatz( our_fab->get_pos().get_2d(), DISTANCE, hersteller->get_haus()->get_groesse(rotate),hersteller->get_platzierung()==fabrik_besch_t::Wasser, hersteller->get_haus(), ignore_climates, 20000 );
+		koord3d k = finde_zufallsbauplatz( our_fab->get_pos().get_2d(), DISTANCE, hersteller->get_haus()->get_size(rotate),hersteller->get_platzierung()==fabrik_besch_t::Wasser, hersteller->get_haus(), ignore_climates, 20000 );
 		if(  k == koord3d::invalid  ) {
 			// this factory cannot buuild in the desired vincinity
 			producer.remove( hersteller );
@@ -992,13 +992,13 @@ next_ware_check:
 				int rotation = simrand( fab->get_haus()->get_all_layouts() );
 				if(!in_city) {
 					// find somewhere on the map
-					pos = finde_zufallsbauplatz( koord(welt->get_size().x/2,welt->get_size().y/2), welt->get_size_max()/2, fab->get_haus()->get_groesse(rotation),fab->get_platzierung()==fabrik_besch_t::Wasser,fab->get_haus(),ignore_climates,10000);
+					pos = finde_zufallsbauplatz( koord(welt->get_size().x/2,welt->get_size().y/2), welt->get_size_max()/2, fab->get_haus()->get_size(rotation),fab->get_platzierung()==fabrik_besch_t::Wasser,fab->get_haus(),ignore_climates,10000);
 				}
 				else {
 					// or within the city limit
 					const stadt_t *city = pick_any_weighted(welt->get_staedte());
 					koord diff = city->get_rechtsunten()-city->get_linksoben();
-					pos = finde_zufallsbauplatz( city->get_center(), max(diff.x,diff.y)/2, fab->get_haus()->get_groesse(rotation),fab->get_platzierung()==fabrik_besch_t::Wasser,fab->get_haus(),ignore_climates, 1000);
+					pos = finde_zufallsbauplatz( city->get_center(), max(diff.x,diff.y)/2, fab->get_haus()->get_size(rotation),fab->get_platzierung()==fabrik_besch_t::Wasser,fab->get_haus(),ignore_climates, 1000);
 				}
 				if(welt->lookup(pos)) {
 					// Space found...

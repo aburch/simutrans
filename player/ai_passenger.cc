@@ -1011,7 +1011,7 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","searching attraction");
 							continue;
 						}
 						pos  = a->get_pos().get_2d();
-						size = a->get_tile()->get_besch()->get_groesse(a->get_tile()->get_layout());
+						size = a->get_tile()->get_besch()->get_size(a->get_tile()->get_layout());
 					}
 					else {
 						const fabrik_t* f = fabriken[i].factory;
@@ -1021,7 +1021,7 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","searching attraction");
 							continue;
 						}
 						pos  = f->get_pos().get_2d();
-						size = f->get_besch()->get_haus()->get_groesse(f->get_rotate());
+						size = f->get_besch()->get_haus()->get_size(f->get_rotate());
 					}
 					const stadt_t *next_town = welt->suche_naechste_stadt(pos);
 					if(next_town==NULL  ||  start_stadt==next_town) {

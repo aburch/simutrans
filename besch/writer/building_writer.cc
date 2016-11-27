@@ -83,7 +83,7 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 
 	write_head(fp, node, obj);
 
-	koord groesse(1, 1);
+	koord size(1, 1);
 	uint8 layouts = 0;
 
 	int* ints = obj.get_ints("dims");
@@ -91,12 +91,12 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	switch (ints[0]) {
 		default:
 		case 3: layouts   = ints[3]; /* FALLTHROUGH */
-		case 2: groesse.y = ints[2]; /* FALLTHROUGH */
-		case 1: groesse.x = ints[1]; /* FALLTHROUGH */
+		case 2: size.y = ints[2]; /* FALLTHROUGH */
+		case 1: size.x = ints[1]; /* FALLTHROUGH */
 		case 0: break;
 	}
 	if (layouts == 0) {
-		layouts = groesse.x == groesse.y ? 1 : 2;
+		layouts = size.x == size.y ? 1 : 2;
 	}
 	delete [] ints;
 
@@ -266,8 +266,8 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	// scan for most number of seasons
 	int seasons = 1;
 	for (int l = 0; l < layouts; l++) { // each layout
-		int const h = l & 1 ? groesse.x : groesse.y;
-		int const w = l & 1 ? groesse.y : groesse.x;
+		int const h = l & 1 ? size.x : size.y;
+		int const w = l & 1 ? size.y : size.x;
 		for (int y = 0; y < h; ++y) {
 			for (int x = 0; x < w; ++x) { // each tile
 				for (int pos = 0; pos < 2; pos++) {
@@ -288,8 +288,8 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 
 	int tile_index = 0;
 	for (int l = 0; l < layouts; l++) { // each layout
-		int const h = l & 1 ? groesse.x : groesse.y;
-		int const w = l & 1 ? groesse.y : groesse.x;
+		int const h = l & 1 ? size.x : size.y;
+		int const w = l & 1 ? size.y : size.x;
 		for (int y = 0; y < h; ++y) {
 			for (int x = 0; x < w; ++x) { // each tile
 				slist_tpl<slist_tpl<slist_tpl<string> > > backkeys;
@@ -352,8 +352,8 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	node.write_uint8 (fp, utype,             3);
 	node.write_uint16(fp, level,             4);
 	node.write_uint32(fp, extra_data,        6);
-	node.write_uint16(fp, groesse.x,        10);
-	node.write_uint16(fp, groesse.y,        12);
+	node.write_uint16(fp, size.x,        10);
+	node.write_uint16(fp, size.y,        12);
 	node.write_uint8 (fp, layouts,          14);
 	node.write_uint16(fp, allowed_climates, 15);
 	node.write_uint8 (fp, enables,          17);

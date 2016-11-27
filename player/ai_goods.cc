@@ -313,7 +313,7 @@ bool ai_goods_t::suche_platz1_platz2(fabrik_t *qfab, fabrik_t *zfab, int length 
 			}
 		}
 		if( !ok ) {
-			ok = suche_platz(start, start_size, ziel, qfab->get_besch()->get_haus()->get_groesse(qfab->get_rotate()) );
+			ok = suche_platz(start, start_size, ziel, qfab->get_besch()->get_haus()->get_size(qfab->get_rotate()) );
 		}
 	}
 	else {
@@ -323,7 +323,7 @@ bool ai_goods_t::suche_platz1_platz2(fabrik_t *qfab, fabrik_t *zfab, int length 
 
 	if( ok && !has_ziel ) {
 		// found a place, search for target
-		ok = suche_platz(ziel, ziel_size, start, zfab->get_besch()->get_haus()->get_groesse(zfab->get_rotate()) );
+		ok = suche_platz(ziel, ziel_size, start, zfab->get_besch()->get_haus()->get_size(zfab->get_rotate()) );
 	}
 
 	INT_CHECK("simplay 1729");
@@ -392,7 +392,7 @@ bool ai_goods_t::create_ship_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 
 	// sea pos (and not on harbour ... )
 	halthandle_t halt = haltestelle_t::get_halt(gr->get_pos(),this);
-	koord pos1 = platz1 - koord(gr->get_grund_hang())*h->get_groesse().y;
+	koord pos1 = platz1 - koord(gr->get_grund_hang())*h->get_size().y;
 	koord best_pos = pos1;
 	uint16 const cov = welt->get_settings().get_station_coverage();
 	for(  int y = pos1.y - cov; y <= pos1.y + cov; ++y  ) {

@@ -26,3 +26,6 @@ neue_karte,new_world
 \\<fahrplan\\>,schedule
 fahrplan_gui_,schedule_gui_
 tool_fahrplan_,tool_schedule_
+groesse_x,size_x
+groesse_y,size_y
+groesse\\>,size

@@ -1625,7 +1625,7 @@ void reliefkarte_t::draw(scr_coord pos)
 			}
 			scr_coord fab_pos = karte_to_screen( fab_tl_pos.get_2d() );
 			fab_pos = fab_pos + pos;
-			koord size = f->get_besch()->get_haus()->get_groesse(f->get_rotate());
+			koord size = f->get_besch()->get_haus()->get_size(f->get_rotate());
 			sint16 x_size = max( 5, size.x*zoom_in );
 			sint16 y_size = max( 5, size.y*zoom_in );
 			display_fillbox_wh_clip( fab_pos.x-1, fab_pos.y-1, x_size+2, y_size+2, COL_BLACK, false );

@@ -62,8 +62,8 @@ enlarge_map_frame_t::enlarge_map_frame_t() :
 	sets(new settings_t(welt->get_settings())), // Make a copy.
 	memory(memory_str)
 {
-	sets->set_groesse_x(welt->get_size().x);
-	sets->set_groesse_y(welt->get_size().y);
+	sets->set_size_x(welt->get_size().x);
+	sets->set_size_y(welt->get_size().y);
 
 	changed_number_of_towns = false;
 	scr_coord cursor = scr_coord(D_MARGIN_LEFT, D_MARGIN_TOP);
@@ -74,9 +74,9 @@ enlarge_map_frame_t::enlarge_map_frame_t() :
 	inp_x_size.set_pos(scr_coord(LEFT_ARROW, cursor.y) );
 	inp_x_size.set_size(scr_size(RIGHT_ARROW-LEFT_ARROW+10, D_EDIT_HEIGHT));
 	inp_x_size.add_listener(this);
-	inp_x_size.set_value( sets->get_groesse_x() );
+	inp_x_size.set_value( sets->get_size_x() );
 	inp_x_size.set_limits( welt->get_size().x, 32766 );
-	inp_x_size.set_increment_mode( sets->get_groesse_x()>=512 ? 128 : 64 );
+	inp_x_size.set_increment_mode( sets->get_size_x()>=512 ? 128 : 64 );
 	inp_x_size.wrap_mode( false );
 	add_component( &inp_x_size );
 	cursor.y += max(D_EDIT_HEIGHT, LINESPACE) + D_V_SPACE;
@@ -85,8 +85,8 @@ enlarge_map_frame_t::enlarge_map_frame_t() :
 	inp_y_size.set_size(scr_size(RIGHT_ARROW-LEFT_ARROW+10, D_EDIT_HEIGHT));
 	inp_y_size.add_listener(this);
 	inp_y_size.set_limits( welt->get_size().y, 32766 );
-	inp_y_size.set_value( sets->get_groesse_y() );
-	inp_y_size.set_increment_mode( sets->get_groesse_y()>=512 ? 128 : 64 );
+	inp_y_size.set_value( sets->get_size_y() );
+	inp_y_size.set_increment_mode( sets->get_size_y()>=512 ? 128 : 64 );
 	inp_y_size.wrap_mode( false );
 	add_component( &inp_y_size );
 
@@ -151,15 +151,15 @@ enlarge_map_frame_t::~enlarge_map_frame_t()
 bool enlarge_map_frame_t::action_triggered( gui_action_creator_t *komp,value_t v)
 {
 	if(komp==&inp_x_size) {
-		sets->set_groesse_x( v.i );
+		sets->set_size_x( v.i );
 		inp_x_size.set_increment_mode( v.i>=64 ? (v.i>=512 ? 128 : 64) : 8 );
-		inp_y_size.set_limits( welt->get_size().y, min(32766,16777216/sets->get_groesse_x()) );
+		inp_y_size.set_limits( welt->get_size().y, min(32766,16777216/sets->get_size_x()) );
 		update_preview();
 	}
 	else if(komp==&inp_y_size) {
-		sets->set_groesse_y( v.i );
+		sets->set_size_y( v.i );
 		inp_y_size.set_increment_mode( v.i>=64 ? (v.i>=512 ? 128 : 64) : 8 );
-		inp_x_size.set_limits( welt->get_size().x, min(32766,16777216/sets->get_groesse_y()) );
+		inp_x_size.set_limits( welt->get_size().x, min(32766,16777216/sets->get_size_y()) );
 		update_preview();
 	}
 	else if(komp==&inp_number_of_towns) {
@@ -186,7 +186,7 @@ void enlarge_map_frame_t::draw(scr_coord pos, scr_size size)
 	while (welt->get_settings().get_rotation() != sets->get_rotation()) {
 		// map was rotated while we are active ... => rotate too!
 		sets->rotate90();
-		sets->set_groesse( sets->get_groesse_y(), sets->get_groesse_x() );
+		sets->set_size( sets->get_size_y(), sets->get_size_x() );
 		update_preview();
 	}
 
@@ -212,11 +212,11 @@ void enlarge_map_frame_t::update_preview()
 	// "welt" still knows the old size. The new size is saved in "sets".
 	sint16 old_x = welt->get_size().x;
 	sint16 old_y = welt->get_size().y;
-	sint16 pre_x = min(sets->get_groesse_x(), preview_size);
-	sint16 pre_y = min(sets->get_groesse_y(), preview_size);
+	sint16 pre_x = min(sets->get_size_x(), preview_size);
+	sint16 pre_y = min(sets->get_size_y(), preview_size);
 
-	const int mx = sets->get_groesse_x()/pre_x;
-	const int my = sets->get_groesse_y()/pre_y;
+	const int mx = sets->get_size_x()/pre_x;
+	const int my = sets->get_size_y()/pre_y;
 
 
 	for(  int j=0;  j<pre_y;  j++  ) {
@@ -250,7 +250,7 @@ void enlarge_map_frame_t::update_preview()
 	sets->heightfield = "";
 
 	if(!changed_number_of_towns){// Interpolate number of towns.
-		sint32 new_area = sets->get_groesse_x() * sets->get_groesse_y();
+		sint32 new_area = sets->get_size_x() * sets->get_size_y();
 		sint32 old_area = old_x * old_y;
 		sint32 const towns = welt->get_settings().get_city_count();
 		sets->set_city_count( towns * new_area / old_area - towns );
@@ -258,8 +258,8 @@ void enlarge_map_frame_t::update_preview()
 	}
 
 	// guess the new memory needed
-	const uint sx = sets->get_groesse_x();
-	const uint sy = sets->get_groesse_y();
+	const uint sx = sets->get_size_x();
+	const uint sy = sets->get_size_y();
 	const sint32 memory = (
 		sizeof(karte_t) +
 		sizeof(player_t) * 8 +

@@ -248,7 +248,7 @@ bool hausbauer_t::register_besch(haus_besch_t *besch)
 	 * This is necessary since each building consists of separate tiles,
 	 * even if it is part of the same description (haus_besch_t)
 	 */
-	const int max_index = besch->get_all_layouts()*besch->get_groesse().x*besch->get_groesse().y;
+	const int max_index = besch->get_all_layouts()*besch->get_size().x*besch->get_size().y;
 	for( int i=0;  i<max_index;  i++  ) {
 		const_cast<haus_tile_besch_t *>(besch->get_tile(i))->set_besch(besch);
 	}
@@ -309,7 +309,7 @@ void hausbauer_t::remove( player_t *player, gebaeude_t *gb )
 
 	// get start position and size
 	const koord3d pos = gb->get_pos() - koord3d( tile->get_offset(), 0 );
-	koord size = tile->get_besch()->get_groesse( layout );
+	koord size = tile->get_besch()->get_size( layout );
 	koord k;
 
 	if(  tile->get_besch()->get_utyp() == haus_besch_t::firmensitz  ) {
@@ -461,7 +461,7 @@ gebaeude_t* hausbauer_t::baue(player_t* player_, koord3d pos, int org_layout, co
 	koord dim;
 
 	uint8 layout = besch->layout_anpassen(org_layout);
-	dim = besch->get_groesse(org_layout);
+	dim = besch->get_size(org_layout);
 	bool needs_ground_recalc = false;
 
 	for(k.y = 0; k.y < dim.y; k.y ++) {

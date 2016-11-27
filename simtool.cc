@@ -1679,7 +1679,7 @@ const char *tool_buy_house_t::work( player_t *player, koord3d pos)
 	player_t *old_owner = gb->get_owner();
 	const haus_tile_besch_t *tile  = gb->get_tile();
 	const haus_besch_t * hb = tile->get_besch();
-	koord size = hb->get_groesse( tile->get_layout() );
+	koord size = hb->get_size( tile->get_layout() );
 
 	koord k;
 	for(k.y = 0; k.y < size.y; k.y ++) {
@@ -3463,7 +3463,7 @@ DBG_MESSAGE("tool_station_building_aux()", "building mail office/station buildin
 		// find valid rotations (since halt extensions are symmetric, we need to check only two)
 		bool any_ok = false;
 		for( int r=0;  r<2;  r++  ) {
-			koord testsize = besch->get_groesse(r);
+			koord testsize = besch->get_size(r);
 			for(  sint8 j=3;  j>=0;  j-- ) {
 				bool ok = true;
 				koord offset(((j&1)^1)*(testsize.x-1),((j>>1)&1)*(testsize.y-1));
@@ -3605,7 +3605,7 @@ DBG_MESSAGE("tool_station_building_aux()", "building mail office/station buildin
 	else {
 		// rotation was pre-selected; just search for stop now
 		assert(  rotation < besch->get_all_layouts()  );
-		koord testsize = besch->get_groesse(rotation);
+		koord testsize = besch->get_size(rotation);
 		offsets = koord(0,0);
 
 		if(  !welt->square_is_free(k, testsize.x, testsize.y, NULL, besch->get_allowed_climate_bits())  ) {
@@ -3671,7 +3671,7 @@ const char *tool_build_station_t::tool_station_dock_aux(player_t *player, koord3
 	}
 	slope_t::type hang = gr->get_grund_hang();
 	// first get the size
-	int len = besch->get_groesse().y-1;
+	int len = besch->get_size().y-1;
 	koord dx = koord((slope_t::type)hang);
 	koord last_k = k - dx*len;
 	halthandle_t halt;
@@ -3854,7 +3854,7 @@ const char *tool_build_station_t::tool_station_flat_dock_aux(player_t *player, k
 		return "";
 	}
 	// first get the size
-	int len = besch->get_groesse().y-1;
+	int len = besch->get_size().y-1;
 
 	// check, if we can build here ...
 	if(  !gr->ist_natur()  ||  gr->get_grund_hang() != slope_t::flat  ) {
@@ -4399,7 +4399,7 @@ const char* tool_build_station_t::get_tooltip(const player_t *) const
 	}
 
 	if(besch->get_utyp()==haus_besch_t::generic_extension || besch->get_utyp()==haus_besch_t::dock || besch->get_utyp()==haus_besch_t::flat_dock) {
-		const sint16 size_multiplier = besch->get_groesse().x * besch->get_groesse().y;
+		const sint16 size_multiplier = besch->get_size().x * besch->get_size().y;
 		price *= size_multiplier;
 		cap *= size_multiplier;
 		maint *= size_multiplier;
@@ -5178,7 +5178,7 @@ bool tool_build_house_t::init( player_t * )
 		const haus_tile_besch_t *tile = hausbauer_t::find_tile(c,0);
 		if(tile!=NULL) {
 			int rotation = (default_param[1]-'0') % tile->get_besch()->get_all_layouts();
-			cursor_area = tile->get_besch()->get_groesse(rotation);
+			cursor_area = tile->get_besch()->get_size(rotation);
 		}
 	}
 	return true;
@@ -5242,7 +5242,7 @@ const char *tool_build_house_t::work( player_t *player, koord3d pos )
 		rotation = (default_param[1]-'0') % besch->get_all_layouts();
 	}
 
-	koord size = besch->get_groesse(rotation);
+	koord size = besch->get_size(rotation);
 
 	// process ignore climates switch
 	climate_bits cl = (default_param  &&  default_param[0]=='1') ? ALL_CLIMATES : besch->get_allowed_climate_bits();
@@ -5287,7 +5287,7 @@ bool tool_build_land_chain_t::init( player_t * )
 			return false;
 		}
 		int rotation = (default_param[1]-'0') % fab->get_haus()->get_all_layouts();
-		cursor_area = fab->get_haus()->get_groesse(rotation);
+		cursor_area = fab->get_haus()->get_size(rotation);
 	}
 	return true;
 }
@@ -5321,7 +5321,7 @@ const char *tool_build_land_chain_t::work( player_t *player, koord3d pos )
 		return "";
 	}
 	int rotation = (default_param  &&  default_param[1]!='#') ? (default_param[1]-'0') % fab->get_haus()->get_all_layouts() : simrand(fab->get_haus()->get_all_layouts()-1);
-	koord size = fab->get_haus()->get_groesse(rotation);
+	koord size = fab->get_haus()->get_size(rotation);
 
 	// process ignore climates switch
 	climate_bits cl = (default_param  &&  default_param[0]=='1') ? ALL_CLIMATES : fab->get_haus()->get_allowed_climate_bits();
@@ -5329,12 +5329,12 @@ const char *tool_build_land_chain_t::work( player_t *player, koord3d pos )
 	bool hat_platz = false;
 	if(fab->get_platzierung()==fabrik_besch_t::Wasser) {
 		// at sea
-		hat_platz = welt->ist_wasser( pos.get_2d(), fab->get_haus()->get_groesse(rotation) );
+		hat_platz = welt->ist_wasser( pos.get_2d(), fab->get_haus()->get_size(rotation) );
 
 		if(!hat_platz  &&  size.y!=size.x  &&  fab->get_haus()->get_all_layouts()>1  &&  (default_param==NULL  ||  default_param[1]=='#')) {
 			// try other rotation too ...
 			rotation = (rotation+1) % fab->get_haus()->get_all_layouts();
-			hat_platz = welt->ist_wasser( pos.get_2d(), fab->get_haus()->get_groesse(rotation) );
+			hat_platz = welt->ist_wasser( pos.get_2d(), fab->get_haus()->get_size(rotation) );
 		}
 	}
 	else {
@@ -5388,7 +5388,7 @@ bool tool_city_chain_t::init( player_t * )
 			return false;
 		}
 		int rotation = (default_param[1]-'0') % fab->get_haus()->get_all_layouts();
-		cursor_area = fab->get_haus()->get_groesse(rotation);
+		cursor_area = fab->get_haus()->get_size(rotation);
 	}
 	return true;
 }
@@ -5456,7 +5456,7 @@ bool tool_build_factory_t::init( player_t * )
 			return false;
 		}
 		int rotation = (default_param[1]-'0') % fab->get_haus()->get_all_layouts();
-		cursor_area = fab->get_haus()->get_groesse(rotation);
+		cursor_area = fab->get_haus()->get_size(rotation);
 		return true;
 	}
 	return true;
@@ -5484,7 +5484,7 @@ const char *tool_build_factory_t::work( player_t *player, koord3d pos )
 		return "";
 	}
 	int rotation = (default_param  &&  default_param[1]!='#') ? (default_param[1]-'0') % fab->get_haus()->get_all_layouts() : simrand(fab->get_haus()->get_all_layouts());
-	koord size = fab->get_haus()->get_groesse(rotation);
+	koord size = fab->get_haus()->get_size(rotation);
 
 	// process ignore climates switch
 	climate_bits cl = (default_param  &&  default_param[0]=='1') ? ALL_CLIMATES : fab->get_haus()->get_allowed_climate_bits();
@@ -5492,12 +5492,12 @@ const char *tool_build_factory_t::work( player_t *player, koord3d pos )
 	bool hat_platz = false;
 	if(fab->get_platzierung()==fabrik_besch_t::Wasser) {
 		// at sea
-		hat_platz = welt->ist_wasser( pos.get_2d(), fab->get_haus()->get_groesse(rotation) );
+		hat_platz = welt->ist_wasser( pos.get_2d(), fab->get_haus()->get_size(rotation) );
 
 		if(!hat_platz  &&  size.y!=size.x  &&  fab->get_haus()->get_all_layouts()>1  &&  (default_param==NULL  ||  default_param[1]=='#')) {
 			// try other rotation too ...
 			rotation = (rotation+1) % fab->get_haus()->get_all_layouts();
-			hat_platz = welt->ist_wasser( pos.get_2d(), fab->get_haus()->get_groesse(rotation) );
+			hat_platz = welt->ist_wasser( pos.get_2d(), fab->get_haus()->get_size(rotation) );
 		}
 	}
 	else {
@@ -5609,7 +5609,7 @@ bool tool_headquarter_t::init( player_t *player )
 	if (besch) {
 		if (can_use_gui()) {
 			const int rotation = 0;
-			cursor_area = besch->get_groesse(rotation);
+			cursor_area = besch->get_size(rotation);
 		}
 		return true;
 	}
@@ -5631,7 +5631,7 @@ DBG_MESSAGE("tool_headquarter()", "building headquarters at (%d,%d)", pos.x, pos
 	}
 
 	// check funds
-	koord size = besch->get_groesse();
+	koord size = besch->get_size();
 	sint64 const cost = -besch->get_price(welt) * size.x * size.y;
 	if(  !player->can_afford(cost)  ) {
 		return NOTICE_INSUFFICIENT_FUNDS;
@@ -5654,8 +5654,8 @@ DBG_MESSAGE("tool_headquarter()", "building headquarters at (%d,%d)", pos.x, pos
 				// check if sizes fit
 				uint8 prev_layout = prev_hq->get_tile()->get_layout();
 				uint8 layout =  prev_layout % besch->get_all_layouts();
-				koord size = besch->get_groesse(layout);
-				if (prev_besch->get_groesse(prev_layout) == size) {
+				koord size = besch->get_size(layout);
+				if (prev_besch->get_size(prev_layout) == size) {
 					// check for same tile structure
 					ok = true;
 					for (sint16 x=0; x<size.x  &&  ok; x++) {

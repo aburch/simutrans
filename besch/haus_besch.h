@@ -182,7 +182,7 @@ class haus_besch_t : public obj_besch_timelined_t {
 		// waytype for depots
 		// player level for headquarters
 		// cluster number for city buildings (0 means no clustering)
-	koord  groesse;
+	koord  size;
 	flag_t flags;
 	uint16 level;          // or passengers;
 	uint8  layouts;        // 1 2, 4, 8  or 16
@@ -222,17 +222,17 @@ class haus_besch_t : public obj_besch_timelined_t {
 
 public:
 
-	koord get_groesse(uint8 layout = 0) const {
-		return (layout & 1) ? koord(groesse.y, groesse.x) : groesse;
+	koord get_size(uint8 layout = 0) const {
+		return (layout & 1) ? koord(size.y, size.x) : size;
 	}
 
 	// size of the building
 	sint16 get_h(uint8 layout = 0) const {
-		return (layout & 1) ? groesse.x: groesse.y;
+		return (layout & 1) ? size.x: size.y;
 	}
 
 	sint16 get_b(uint8 layout = 0) const {
-		return (layout & 1) ? groesse.y : groesse.x;
+		return (layout & 1) ? size.y : size.x;
 	}
 
 	uint8 get_all_layouts() const { return layouts; }
@@ -281,7 +281,7 @@ public:
 	uint8 get_chance() const { return chance; }
 
 	const haus_tile_besch_t *get_tile(uint16 index) const {
-		assert(index < layouts * groesse.x * groesse.y);
+		assert(index < layouts * size.x * size.y);
 		return get_child<haus_tile_besch_t>(index + 2);
 	}
 
@@ -289,12 +289,12 @@ public:
 
 	// returns true,if building can be rotated
 	bool can_rotate() const {
-		if(groesse.x!=groesse.y  &&  layouts==1) {
+		if(size.x!=size.y  &&  layouts==1) {
 			return false;
 		}
 		// check for missing tiles after rotation
-		for( sint16 x=0;  x<groesse.x;  x++  ) {
-			for( sint16 y=0;  y<groesse.y;  y++  ) {
+		for( sint16 x=0;  x<size.x;  x++  ) {
+			for( sint16 y=0;  y<size.y;  y++  ) {
 				// only true, if one is missing
 				if(get_tile( 0, x, y )->has_image()  ^  get_tile( 1, get_b(1)-y-1, x )->has_image()) {
 					return false;
@@ -311,7 +311,7 @@ public:
 	* @author Hj. Malthaner
 	*/
 	const skin_besch_t * get_cursor() const {
-		return flags & FLAG_HAS_CURSOR ? get_child<skin_besch_t>(2 + groesse.x * groesse.y * layouts) : 0;
+		return flags & FLAG_HAS_CURSOR ? get_child<skin_besch_t>(2 + size.x * size.y * layouts) : 0;
 	}
 
 	// the right house for this area?

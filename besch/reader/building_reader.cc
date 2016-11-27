@@ -209,8 +209,8 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->utype     = (haus_besch_t::utyp)decode_uint8(p);
 		besch->level     = decode_uint16(p);
 		besch->extra_data= decode_uint32(p);
-		besch->groesse.x = decode_uint16(p);
-		besch->groesse.y = decode_uint16(p);
+		besch->size.x = decode_uint16(p);
+		besch->size.y = decode_uint16(p);
 		besch->layouts   = decode_uint8(p);
 		besch->allowed_climates = (climate_bits)decode_uint16(p);
 		besch->enables   = decode_uint8(p);
@@ -231,8 +231,8 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->utype     = (haus_besch_t::utyp)decode_uint8(p);
 		besch->level     = decode_uint16(p);
 		besch->extra_data= decode_uint32(p);
-		besch->groesse.x = decode_uint16(p);
-		besch->groesse.y = decode_uint16(p);
+		besch->size.x = decode_uint16(p);
+		besch->size.y = decode_uint16(p);
 		besch->layouts   = decode_uint8(p);
 		besch->allowed_climates = (climate_bits)decode_uint16(p);
 		besch->enables   = decode_uint8(p);
@@ -250,8 +250,8 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->utype     = (haus_besch_t::utyp)decode_uint8(p);
 		besch->level     = decode_uint16(p);
 		besch->extra_data= decode_uint32(p);
-		besch->groesse.x = decode_uint16(p);
-		besch->groesse.y = decode_uint16(p);
+		besch->size.x = decode_uint16(p);
+		besch->size.y = decode_uint16(p);
 		besch->layouts   = decode_uint8(p);
 		besch->allowed_climates = (climate_bits)decode_uint16(p);
 		besch->enables   = decode_uint8(p);
@@ -268,8 +268,8 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->utype     = (haus_besch_t::utyp)decode_uint8(p);
 		besch->level     = decode_uint16(p);
 		besch->extra_data= decode_uint32(p);
-		besch->groesse.x = decode_uint16(p);
-		besch->groesse.y = decode_uint16(p);
+		besch->size.x = decode_uint16(p);
+		besch->size.y = decode_uint16(p);
 		besch->layouts   = decode_uint8(p);
 		besch->allowed_climates = (climate_bits)decode_uint16(p);
 		besch->enables   = decode_uint8(p);
@@ -285,8 +285,8 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->utype     = (haus_besch_t::utyp)decode_uint8(p);
 		besch->level     = decode_uint16(p);
 		besch->extra_data= decode_uint32(p);
-		besch->groesse.x = decode_uint16(p);
-		besch->groesse.y = decode_uint16(p);
+		besch->size.x = decode_uint16(p);
+		besch->size.y = decode_uint16(p);
 		besch->layouts   = decode_uint8(p);
 		besch->allowed_climates   =  (climate_bits)0xFFFE; // all but water
 		besch->enables   = decode_uint8(p);
@@ -302,8 +302,8 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->utype     = (haus_besch_t::utyp)decode_uint8(p);
 		besch->level     = decode_uint16(p);
 		besch->extra_data= decode_uint32(p);
-		besch->groesse.x = decode_uint16(p);
-		besch->groesse.y = decode_uint16(p);
+		besch->size.x = decode_uint16(p);
+		besch->size.y = decode_uint16(p);
 		besch->layouts   = decode_uint8(p);
 		besch->allowed_climates   =  (climate_bits)0xFFFE; // all but water
 		besch->enables   = 0x80;
@@ -319,8 +319,8 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->utype     = (haus_besch_t::utyp)decode_uint8(p);
 		besch->level     = decode_uint16(p);
 		besch->extra_data= decode_uint32(p);
-		besch->groesse.x = decode_uint16(p);
-		besch->groesse.y = decode_uint16(p);
+		besch->size.x = decode_uint16(p);
+		besch->size.y = decode_uint16(p);
 		besch->layouts   = decode_uint8(p);
 		besch->allowed_climates   =  (climate_bits)0xFFFE; // all but water
 		besch->enables   = 0x80;
@@ -338,8 +338,8 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->utype     = (haus_besch_t::utyp)decode_uint32(p);
 		besch->level     = decode_uint32(p);
 		besch->extra_data= decode_uint32(p);
-		besch->groesse.x = decode_uint16(p);
-		besch->groesse.y = decode_uint16(p);
+		besch->size.x = decode_uint16(p);
+		besch->size.y = decode_uint16(p);
 		besch->layouts   = decode_uint32(p);
 		besch->allowed_climates   =  (climate_bits)0xFFFE; // all but water
 		besch->enables   = 0x80;
@@ -351,7 +351,7 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->animation_time = 300;
 	}
 	// there are additional nodes for cursor/icon
-	if(  node.children > 2+besch->groesse.x*besch->groesse.y*besch->layouts  ) {
+	if(  node.children > 2+besch->size.x*besch->size.y*besch->layouts  ) {
 		besch->flags |= haus_besch_t::FLAG_HAS_CURSOR;
 	}
 
@@ -388,8 +388,8 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		" utyp=%d"
 		" level=%d"
 		" extra_data=%d"
-		" groesse.x=%d"
-		" groesse.y=%d"
+		" size.x=%d"
+		" size.y=%d"
 		" layouts=%d"
 		" enables=%x"
 		" flags=%d"
@@ -403,8 +403,8 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->utype,
 		besch->level,
 		besch->extra_data,
-		besch->groesse.x,
-		besch->groesse.y,
+		besch->size.x,
+		besch->size.y,
 		besch->layouts,
 		besch->enables,
 		besch->flags,

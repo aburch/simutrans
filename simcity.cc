@@ -600,7 +600,7 @@ void stadt_t::add_gebaeude_to_stadt(const gebaeude_t* gb, bool ordered)
 {
 	if (gb != NULL) {
 		const haus_tile_besch_t* tile  = gb->get_tile();
-		koord size = tile->get_besch()->get_groesse(tile->get_layout());
+		koord size = tile->get_besch()->get_size(tile->get_layout());
 		const koord pos = gb->get_pos().get_2d() - tile->get_offset();
 		koord k;
 
@@ -1332,7 +1332,7 @@ void stadt_t::finish_rd()
 		// guess road tile based on current orientation
 		gebaeude_t const* const gb = obj_cast<gebaeude_t>(welt->lookup_kartenboden(pos)->first_obj());
 		if(  gb  &&  gb->ist_rathaus()  ) {
-			koord k(gb->get_tile()->get_besch()->get_groesse(gb->get_tile()->get_layout()));
+			koord k(gb->get_tile()->get_besch()->get_size(gb->get_tile()->get_layout()));
 			switch (gb->get_tile()->get_layout()) {
 				default:
 				case 0:
@@ -2495,7 +2495,7 @@ void stadt_t::check_bau_rathaus(bool new_town)
 					corner_offset = koord(-corner_offset.y, corner_offset.x);
 				}
 			}
-			koord groesse_alt = besch_alt->get_groesse(old_layout);
+			koord groesse_alt = besch_alt->get_size(old_layout);
 
 			// do we need to move
 			if(  old_layout<=besch->get_all_layouts()  &&  besch->get_b(old_layout) <= groesse_alt.x  &&  besch->get_h(old_layout) <= groesse_alt.y  ) {

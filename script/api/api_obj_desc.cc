@@ -385,7 +385,7 @@ void export_goods_desc(HSQUIRRELVM vm)
 	 * @param rotation
 	 * @return size of building in the given @p rotation
 	 */
-	register_method(vm, &haus_besch_t::get_groesse, "get_size");
+	register_method(vm, &haus_besch_t::get_size, "get_size");
 	/**
 	 * @return monthly maintenance cost
 	 */

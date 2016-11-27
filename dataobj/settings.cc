@@ -35,8 +35,8 @@ settings_t::settings_t() :
 	filename(""),
 	heightfield("")
 {
-	groesse_x = 256;
-	groesse_y = 256;
+	size_x = 256;
+	size_y = 256;
 
 	nummer = 33;
 
@@ -307,8 +307,8 @@ void settings_t::rdwr(loadsave_t *file)
 	if(file->get_version() < 86000) {
 		uint32 dummy;
 
-		file->rdwr_long(groesse_x );
-		groesse_y = groesse_x;
+		file->rdwr_long(size_x );
+		size_y = size_x;
 
 		file->rdwr_long(nummer );
 
@@ -344,7 +344,7 @@ void settings_t::rdwr(loadsave_t *file)
 	}
 	else {
 		// newer versions
-		file->rdwr_long(groesse_x );
+		file->rdwr_long(size_x );
 		file->rdwr_long(nummer );
 
 		// industries
@@ -388,10 +388,10 @@ void settings_t::rdwr(loadsave_t *file)
 
 		if(file->get_version() >= 86006) {
 			// handle also size on y direction
-			file->rdwr_long(groesse_y );
+			file->rdwr_long(size_y );
 		}
 		else {
-			groesse_y = groesse_x;
+			size_y = size_x;
 		}
 
 		if(file->get_version() >= 86011) {

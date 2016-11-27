@@ -130,18 +130,18 @@ public:
 private:
 	/**
 	 * Checks if the site at @p pos is suitable for construction.
-	 * @param groesse Size of the building site
+	 * @param size Size of the building site
 	 * @param water true to search on water
 	 * @param cl allowed climates
 	 */
-	static bool ist_bauplatz(koord pos, koord groesse, bool water, bool is_fabrik, climate_bits cl);
+	static bool ist_bauplatz(koord pos, koord size, bool water, bool is_fabrik, climate_bits cl);
 
 	/**
 	 * Find a random site to place a factory.
 	 * @param radius Radius of the search circle around @p pos
-	 * @param groesse size of the building site
+	 * @param size size of the building site
 	 */
-	static koord3d finde_zufallsbauplatz(koord pos, int radius, koord groesse,bool on_water, const haus_besch_t *besch, bool ignore_climates, uint32 max_iterations);
+	static koord3d finde_zufallsbauplatz(koord pos, int radius, koord size,bool on_water, const haus_besch_t *besch, bool ignore_climates, uint32 max_iterations);
 
 	/**
 	 * Checks if all factories in this factory tree can be rotated.

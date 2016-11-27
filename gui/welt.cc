@@ -82,10 +82,10 @@ welt_gui_t::welt_gui_t(settings_t* const sets_par) :
 	sets = sets_par;
 	sets->beginner_mode = env_t::default_settings.get_beginner_mode();
 
-	city_density       = ( sets->get_city_count()      ) ? sqrt((double)sets->get_groesse_x()*sets->get_groesse_y()) / sets->get_city_count()      : 0.0;
-	industry_density   = ( sets->get_factory_count()       ) ? sqrt((double)sets->get_groesse_x()*sets->get_groesse_y()) / sets->get_factory_count()       : 0.0;
-	attraction_density = ( sets->get_tourist_attractions() ) ? sqrt((double)sets->get_groesse_x()*sets->get_groesse_y()) / sets->get_tourist_attractions() : 0.0;
-	river_density      = ( sets->get_river_number()        ) ? sqrt((double)sets->get_groesse_x()*sets->get_groesse_y()) / sets->get_river_number()        : 0.0;
+	city_density       = ( sets->get_city_count()      ) ? sqrt((double)sets->get_size_x()*sets->get_size_y()) / sets->get_city_count()      : 0.0;
+	industry_density   = ( sets->get_factory_count()       ) ? sqrt((double)sets->get_size_x()*sets->get_size_y()) / sets->get_factory_count()       : 0.0;
+	attraction_density = ( sets->get_tourist_attractions() ) ? sqrt((double)sets->get_size_x()*sets->get_size_y()) / sets->get_tourist_attractions() : 0.0;
+	river_density      = ( sets->get_river_number()        ) ? sqrt((double)sets->get_size_x()*sets->get_size_y()) / sets->get_river_number()        : 0.0;
 
 	// find earliest start and end date ...
 	uint16 game_start = 4999;
@@ -149,7 +149,7 @@ welt_gui_t::welt_gui_t(settings_t* const sets_par) :
 	cursor.y += LINESPACE;
 
 	// Map X size edit
-	inp_x_size.init( sets->get_groesse_x(), 8, 32766, sets->get_groesse_x()>=512 ? 128 : 64, false );
+	inp_x_size.init( sets->get_size_x(), 8, 32766, sets->get_size_x()>=512 ? 128 : 64, false );
 	inp_x_size.set_pos( scr_coord(L_COLUMN1_X,cursor.y) );
 	inp_x_size.set_size(scr_size(edit_Width, D_EDIT_HEIGHT));
 	inp_x_size.add_listener(this);
@@ -157,7 +157,7 @@ welt_gui_t::welt_gui_t(settings_t* const sets_par) :
 	cursor.y += D_EDIT_HEIGHT;
 
 	// Map size Y edit
-	inp_y_size.init( sets->get_groesse_y(), 8, 32766, sets->get_groesse_y()>=512 ? 128 : 64, false );
+	inp_y_size.init( sets->get_size_y(), 8, 32766, sets->get_size_y()>=512 ? 128 : 64, false );
 	inp_y_size.set_pos(scr_coord(L_COLUMN1_X,cursor.y) );
 	inp_y_size.set_size(scr_size(edit_Width, D_EDIT_HEIGHT));
 	inp_y_size.add_listener(this);
@@ -351,17 +351,17 @@ bool welt_gui_t::update_from_heightfield(const char *filename)
 	sint8 *h_field=NULL;
 	height_map_loader_t hml(sets);
 	if(hml.get_height_data_from_file(filename, (sint8)sets->get_grundwasser(), h_field, w, h, false )) {
-		sets->set_groesse_x(w);
-		sets->set_groesse_y(h);
+		sets->set_size_x(w);
+		sets->set_size_y(h);
 		update_densities();
 
-		inp_x_size.set_value(sets->get_groesse_x());
-		inp_y_size.set_value(sets->get_groesse_y());
+		inp_x_size.set_value(sets->get_size_x());
+		inp_y_size.set_value(sets->get_size_y());
 
 		resize_preview();
 
-		const int mx = sets->get_groesse_x()/map_size.w;
-		const int my = sets->get_groesse_y()/map_size.h;
+		const int mx = sets->get_size_x()/map_size.w;
+		const int my = sets->get_size_y()/map_size.h;
 		for(  int y=0;  y<map_size.h;  y++  ) {
 			for(  int x=0;  x<map_size.w;  x++  ) {
 				map.at(x,y) = reliefkarte_t::calc_hoehe_farbe( h_field[x*mx+y*my*w], sets->get_grundwasser()-1 );
@@ -378,19 +378,19 @@ bool welt_gui_t::update_from_heightfield(const char *filename)
 void welt_gui_t::update_densities()
 {
 	if(  city_density!=0.0  ) {
-		inp_number_of_towns.set_value( max( 1, (sint32)(0.5+sqrt((double)sets->get_groesse_x()*sets->get_groesse_y())/city_density) ) );
+		inp_number_of_towns.set_value( max( 1, (sint32)(0.5+sqrt((double)sets->get_size_x()*sets->get_size_y())/city_density) ) );
 		sets->set_city_count( inp_number_of_towns.get_value() );
 	}
 	if(  industry_density!=0.0  ) {
-		inp_other_industries.set_value( max( 1, (sint32)(0.5+sqrt((double)sets->get_groesse_x()*sets->get_groesse_y())/industry_density) ) );
+		inp_other_industries.set_value( max( 1, (sint32)(0.5+sqrt((double)sets->get_size_x()*sets->get_size_y())/industry_density) ) );
 		sets->set_factory_count( inp_other_industries.get_value() );
 	}
 	if(  attraction_density!=0.0  ) {
-		inp_tourist_attractions.set_value( max( 1, (sint32)(0.5+sqrt((double)sets->get_groesse_x()*sets->get_groesse_y())/attraction_density) ) );
+		inp_tourist_attractions.set_value( max( 1, (sint32)(0.5+sqrt((double)sets->get_size_x()*sets->get_size_y())/attraction_density) ) );
 		sets->set_tourist_attractions( inp_tourist_attractions.get_value() );
 	}
 	if(  river_density!=0.0  ) {
-		sets->river_number = max( 1, (sint32)(0.5+sqrt((double)sets->get_groesse_x()*sets->get_groesse_y())/river_density) );
+		sets->river_number = max( 1, (sint32)(0.5+sqrt((double)sets->get_size_x()*sets->get_size_y())/river_density) );
 		if(  climate_gui_t *climate_gui = (climate_gui_t *)win_get_magic( magic_climate )  ) {
 			climate_gui->update_river_number( sets->get_river_number() );
 		}
@@ -413,8 +413,8 @@ void welt_gui_t::update_preview(bool load_heightfield)
 
 		setsimrand( 0xFFFFFFFF, sets->get_karte_nummer() );
 
-		const int mx = sets->get_groesse_x()/map_size.w;
-		const int my = sets->get_groesse_y()/map_size.h;
+		const int mx = sets->get_size_x()/map_size.w;
+		const int my = sets->get_size_y()/map_size.h;
 		for(  int y=0;  y<map_size.h;  y++  ) {
 			for(  int x=0;  x<map_size.w;  x++  ) {
 				map.at(x,y) = reliefkarte_t::calc_hoehe_farbe(karte_t::perlin_hoehe( sets, koord(x*mx,y*my), koord::invalid ), sets->get_grundwasser());
@@ -428,7 +428,7 @@ void welt_gui_t::update_preview(bool load_heightfield)
 
 void welt_gui_t::resize_preview()
 {
-	const float world_aspect = (float)sets->get_groesse_x() / (float)sets->get_groesse_y();
+	const float world_aspect = (float)sets->get_size_x() / (float)sets->get_size_y();
 
 	if(  world_aspect > 1.0  ) {
 		map_size.w = MAP_PREVIEW_SIZE_X-2;
@@ -457,29 +457,29 @@ bool welt_gui_t::action_triggered( gui_action_creator_t *komp,value_t v)
 	}
 	else if(komp==&inp_x_size) {
 		if(  !loaded_heightfield  ) {
-			sets->set_groesse_x( v.i );
+			sets->set_size_x( v.i );
 			inp_x_size.set_increment_mode( v.i>=64 ? (v.i>=512 ? 128 : 64) : 8 );
 			inp_y_size.set_limits( 8, 32766 );
 			update_densities();
 		}
 		else {
-			inp_x_size.set_value(sets->get_groesse_x()); // can't change size with heightfield loaded
+			inp_x_size.set_value(sets->get_size_x()); // can't change size with heightfield loaded
 		}
 	}
 	else if(komp==&inp_y_size) {
 		if(  !loaded_heightfield  ) {
-			sets->set_groesse_y( v.i );
+			sets->set_size_y( v.i );
 			inp_y_size.set_increment_mode( v.i>=64 ? (v.i>=512 ? 128 : 64) : 8 );
 			inp_x_size.set_limits( 8, 32766 );
 			update_densities();
 		}
 		else {
-			inp_y_size.set_value(sets->get_groesse_y()); // can't change size with heightfield loaded
+			inp_y_size.set_value(sets->get_size_y()); // can't change size with heightfield loaded
 		}
 	}
 	else if(komp==&inp_number_of_towns) {
 		sets->set_city_count( v.i );
-		city_density = sets->get_city_count() ? sqrt((double)sets->get_groesse_x()*sets->get_groesse_y()) / sets->get_city_count() : 0.0;
+		city_density = sets->get_city_count() ? sqrt((double)sets->get_size_x()*sets->get_size_y()) / sets->get_city_count() : 0.0;
 	}
 	else if(komp==&inp_town_size) {
 		sets->set_mean_citizen_count( v.i );
@@ -490,11 +490,11 @@ bool welt_gui_t::action_triggered( gui_action_creator_t *komp,value_t v)
 	}
 	else if(komp==&inp_other_industries) {
 		sets->set_factory_count( v.i );
-		industry_density = sets->get_factory_count() ? sqrt((double)sets->get_groesse_x()*sets->get_groesse_y()) / sets->get_factory_count() : 0.0;
+		industry_density = sets->get_factory_count() ? sqrt((double)sets->get_size_x()*sets->get_size_y()) / sets->get_factory_count() : 0.0;
 	}
 	else if(komp==&inp_tourist_attractions) {
 		sets->set_tourist_attractions( v.i );
-		attraction_density = sets->get_tourist_attractions() ? sqrt((double)sets->get_groesse_x()*sets->get_groesse_y()) / sets->get_tourist_attractions() : 0.0;
+		attraction_density = sets->get_tourist_attractions() ? sqrt((double)sets->get_size_x()*sets->get_size_y()) / sets->get_tourist_attractions() : 0.0;
 	}
 	else if(komp==&inp_intro_date) {
 		sets->set_starting_year( (sint16)(v.i) );
@@ -631,9 +631,9 @@ void welt_gui_t::draw(scr_coord pos, scr_size size)
 	if(  win_get_magic( magic_climate )  ) {
 		open_climate_gui.pressed = true;
 		// check if number was directly changed
-		sint16 new_river_number = max( 1, (sint32)(0.5+sqrt((double)sets->get_groesse_x()*sets->get_groesse_y())/river_density) );
+		sint16 new_river_number = max( 1, (sint32)(0.5+sqrt((double)sets->get_size_x()*sets->get_size_y())/river_density) );
 		if(  sets->get_river_number() != new_river_number  ) {
-			river_density = sets->get_river_number() ? sqrt((double)sets->get_groesse_x()*sets->get_groesse_y()) / sets->get_river_number() : 0.0;
+			river_density = sets->get_river_number() ? sqrt((double)sets->get_size_x()*sets->get_size_y()) / sets->get_river_number() : 0.0;
 		}
 	}
 
@@ -641,8 +641,8 @@ void welt_gui_t::draw(scr_coord pos, scr_size size)
 	use_beginner_mode.pressed = sets->get_beginner_mode();
 
 	// Calculate map memory
-	const uint sx = sets->get_groesse_x();
-	const uint sy = sets->get_groesse_y();
+	const uint sx = sets->get_size_x();
+	const uint sy = sets->get_size_y();
 	const uint64 memory = (
 		(uint64)sizeof(karte_t) +
 		sizeof(player_t) * 8 +

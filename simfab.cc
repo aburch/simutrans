@@ -1011,8 +1011,8 @@ bool fabrik_t::add_random_field(uint16 probability)
 	// pick a coordinate to use - create a list of valid locations and choose a random one
 	slist_tpl<grund_t *> build_locations;
 	do {
-		for(sint32 xoff = -radius; xoff < radius + get_besch()->get_haus()->get_groesse().x ; xoff++) {
-			for(sint32 yoff =-radius ; yoff < radius + get_besch()->get_haus()->get_groesse().y; yoff++) {
+		for(sint32 xoff = -radius; xoff < radius + get_besch()->get_haus()->get_size().x ; xoff++) {
+			for(sint32 yoff =-radius ; yoff < radius + get_besch()->get_haus()->get_size().y; yoff++) {
 				// if we can build on this tile then add it to the list
 				grund_t *gr = welt->lookup_kartenboden(pos.get_2d()+koord(xoff,yoff));
 				if (gr != NULL &&
@@ -1026,8 +1026,8 @@ bool fabrik_t::add_random_field(uint16 probability)
 					assert(gr->find<field_t>() == NULL);
 				}
 				// skip inside of rectange (already checked earlier)
-				if(radius > 1 && yoff == -radius && (xoff > -radius && xoff < radius + get_besch()->get_haus()->get_groesse().x - 1)) {
-					yoff = radius + get_besch()->get_haus()->get_groesse().y - 2;
+				if(radius > 1 && yoff == -radius && (xoff > -radius && xoff < radius + get_besch()->get_haus()->get_size().x - 1)) {
+					yoff = radius + get_besch()->get_haus()->get_size().y - 2;
 				}
 			}
 		}
@@ -1304,7 +1304,7 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 	if(  file->is_loading()  ) {
 		// take care of old files
 		if(  file->get_version() < 86001  ) {
-			koord k = besch ? besch->get_haus()->get_groesse() : koord(1,1);
+			koord k = besch ? besch->get_haus()->get_size() : koord(1,1);
 			DBG_DEBUG("fabrik_t::rdwr()","correction of production by %i",k.x*k.y);
 			// since we step from 86.01 per factory, not per tile!
 			prodbase *= k.x*k.y*2;
@@ -1471,7 +1471,7 @@ void fabrik_t::smoke() const
 {
 	const rauch_besch_t *rada = besch->get_rauch();
 	if(rada) {
-		const koord size = besch->get_haus()->get_groesse(0)-koord(1,1);
+		const koord size = besch->get_haus()->get_size(0)-koord(1,1);
 		const uint8 rot = (4-rotate)%besch->get_haus()->get_all_layouts();
 		koord ro = rada->get_pos_off(size,rot);
 		grund_t *gr = welt->lookup_kartenboden(pos_origin.get_2d()+ro);
@@ -3075,7 +3075,7 @@ void fabrik_t::get_tile_list( vector_tpl<koord> &tile_list ) const
 	tile_list.clear();
 
 	koord pos_2d = pos.get_2d();
-	koord size = this->get_besch()->get_haus()->get_groesse(this->get_rotate());
+	koord size = this->get_besch()->get_haus()->get_size(this->get_rotate());
 	koord test;
 	// Which tiles belong to the fab?
 	for( test.x = 0; test.x < size.x; test.x++ ) {
