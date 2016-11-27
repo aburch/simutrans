@@ -810,7 +810,7 @@ Lead
 %161_CITY_SYLL
 Craf
 %162_CITY_SYLL
-Wendle
+Wend
 %163_CITY_SYLL
 Sheaf
 %164_CITY_SYLL
@@ -821,6 +821,18 @@ Yox
 Gid
 %167_CITY_SYLL
 Goat
+%168_CITY_SYLL
+Chal
+%169_CITY_SYLL
+Chen
+%16A_CITY_SYLL
+Chim
+%16B_CITY_SYLL
+Summer
+%16C_CITY_SYLL
+Butter
+%16D_CITY_SYLL
+Sandal
 #
 # Town name end syllables.
 # There can be up to 1024 of these.
@@ -1055,6 +1067,8 @@ grave
 endon
 &71_CITY_SYLL
 cott
+&72_CITY_SYLL
+font
 #
 # Town name prefixes.
 # There can be up to 256 of these.
@@ -1094,7 +1108,7 @@ Nether
 &E_CITY_PREFIX
 Fenny 
 &F_CITY_PREFIX
-Bishop's
+Bishop's 
 &10_CITY_PREFIX
 Market 
 &11_CITY_PREFIX

@@ -6660,7 +6660,7 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 		}
 
 		uint16 idx = front()->get_route_index();
-		const sint32 tiles = (steps_other-1)/(CARUNITS_PER_TILE*VEHICLE_STEPS_PER_CARUNIT) + get_tile_length() + 1;
+		const sint32 tiles = other_speed == 0 ? 2 : (steps_other - 1) / (CARUNITS_PER_TILE*VEHICLE_STEPS_PER_CARUNIT) + get_tile_length() + 1;
 		if(  tiles > 0  &&  idx+(uint32)tiles >= route.get_count()  ) {
 			// needs more space than there
 			return false;
@@ -6700,7 +6700,7 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 			}
 		}
 		convoi_t *ocnv = dynamic_cast<convoi_t *>(other_overtaker);
-		set_tiles_overtaking( 2 + ocnv->get_length()/CARUNITS_PER_TILE + get_length()/CARUNITS_PER_TILE );
+		set_tiles_overtaking(tiles);
 		return true;
 	}
 
