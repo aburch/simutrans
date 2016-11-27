@@ -4850,7 +4850,7 @@ DBG_MESSAGE("haltestelle_t::is_reservable()","gr=%d,%d already reserved by cnv=%
 					return true;
 				}
 			}
-			return false;
+			//return false;
 		}
 	}
 DBG_MESSAGE("haltestelle_t::reserve_position()","failed for gr=%i,%i, cnv=%d",gr->get_pos().x,gr->get_pos().y,cnv.get_id());

@@ -3102,84 +3102,90 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 
 				// first: check roadsigns
 				const roadsign_t *rs = NULL;
-				if(  str->has_sign()  ) {
+				if (str->has_sign()) {
 					rs = gr->find<roadsign_t>();
+					const ribi_t::ribi dir = rs->get_dir();
+					const bool is_traffic_light = rs->get_besch()->is_traffic_light();
 					route_t const& r = *cnv->get_route();
-
-					if(  rs  &&  (route_index + 1u < r.get_count())  ) {
-						// since at the corner, our direction may be diagonal, we make it straight
-						uint8 richtung = ribi_typ( get_pos().get_2d(), pos_next.get_2d() );
-
-						if(  rs->get_besch()->is_traffic_light()  &&  (rs->get_dir()&richtung) == 0  ) {
-							// wait here
-							restart_speed = 16;
-							return false;
-						}
-						// check, if we reached a choose point
-						else {
-							// route position after road sign
-							const koord pos_next_next = r.position_bei(route_index + 1u).get_2d();
+				
+					if (is_traffic_light || gr->get_weg(get_waytype())->get_ribi_maske() & dir)
+					{
+						if (rs && (route_index + 1u < r.get_count())) {
 							// since at the corner, our direction may be diagonal, we make it straight
-							richtung = ribi_typ( pos_next.get_2d(), pos_next_next );
-
-							if(  rs->is_free_route(richtung)  &&  !target_halt.is_bound()  ) {
-								if(  second_check_count  ) {
-									return false;
-								}
-								if(  !choose_route( restart_speed, richtung, route_index )  ) {
-									return false;
-								}
+							
+							uint8 richtung = ribi_typ(get_pos().get_2d(), pos_next.get_2d());
+							if (is_traffic_light && (dir & richtung) == 0) {
+								// wait here
+								restart_speed = 16;
+								return false;
 							}
+							// Check whether if we reached a choose point
+							else if (rs->get_besch()->is_choose_sign()) 
+							{
+								// route position after road sign
+								const koord pos_next_next = r.position_bei(route_index + 1u).get_2d();
+								// since at the corner, our direction may be diagonal, we make it straight
+								richtung = ribi_typ(pos_next.get_2d(), pos_next_next);
 
-							const route_t *rt = cnv->get_route();
-							// is our target occupied?
-							target_halt = haltestelle_t::get_halt( rt->back(), get_owner() );
-							if(  target_halt.is_bound()  ) {
-								// since convois can long than one tile, check is more difficult
-								bool can_go_there = true;
-								for(  uint32 length=0;  can_go_there  &&  length<cnv->get_tile_length()  &&  length+1<rt->get_count();  length++  ) {
-									can_go_there &= target_halt->is_reservable( welt->lookup( rt->position_bei( rt->get_count()-length-1) ), cnv->self );
+								if (rs->is_free_route(richtung) && !target_halt.is_bound()) {
+									if (second_check_count) {
+										return false;
+									}
+									if (!choose_route(restart_speed, richtung, route_index)) {
+										return false;
+									}
 								}
-								if(  can_go_there  ) {
-									// then reserve it ...
-									for(  uint32 length=0;  length<cnv->get_tile_length()  &&  length+1<rt->get_count();  length++  ) {
-										target_halt->reserve_position( welt->lookup( rt->position_bei( rt->get_count()-length-1) ), cnv->self );
-									}
-								}
-								else {
-									// cannot go there => need slot search
 
-									// if we fail, we will wait in a step, much more simulation friendly
-									if(!cnv->is_waiting()) {
-										restart_speed = -1;
-										target_halt = halthandle_t();
-										return false;
+								const route_t *rt = cnv->get_route();
+								// is our target occupied?
+								target_halt = haltestelle_t::get_halt(rt->back(), get_owner());
+								if (target_halt.is_bound()) {
+									// since convois can long than one tile, check is more difficult
+									bool can_go_there = true;
+									for (uint32 length = 0; can_go_there && length < cnv->get_tile_length() && length + 1 < rt->get_count(); length++) {
+										can_go_there &= target_halt->is_reservable(welt->lookup(rt->position_bei(rt->get_count() - length - 1)), cnv->self);
 									}
+									if (can_go_there) {
+										// then reserve it ...
+										for (uint32 length = 0; length < cnv->get_tile_length() && length + 1 < rt->get_count(); length++) {
+											target_halt->reserve_position(welt->lookup(rt->position_bei(rt->get_count() - length - 1)), cnv->self);
+										}
+									}
+									else {
+										// cannot go there => need slot search
 
-									// check if there is a free position
-									// this is much faster than waysearch
-									if(!target_halt->find_free_position(road_wt,cnv->self,obj_t::automobil)) {
-										restart_speed = 0;
-										target_halt = halthandle_t();
-										//DBG_MESSAGE("road_vehicle_t::can_enter_tile()","cnv=%d nothing free found!",cnv->self.get_id());
-										return false;
-									}
+										// if we fail, we will wait in a step, much more simulation friendly
+										if (!cnv->is_waiting()) {
+											restart_speed = -1;
+											target_halt = halthandle_t();
+											return false;
+										}
 
-									// now it make sense to search a route
-									route_t target_rt;
-									koord3d next3d = r.position_bei(test_index);
-									if(  !target_rt.find_route( welt, next3d, this, speed_to_kmh(cnv->get_min_top_speed()), curr_90direction, cnv->get_highest_axle_load(), cnv->get_tile_length(), cnv->get_weight_summary().weight / 1000, 33, route_t::choose_signal )  ) {
-										// nothing empty or not route with less than 33 tiles
-										target_halt = halthandle_t();
-										restart_speed = 0;
-										return false;
-									}
+										// check if there is a free position
+										// this is much faster than waysearch
+										if (!target_halt->find_free_position(road_wt, cnv->self, obj_t::automobil)) {
+											restart_speed = 0;
+											target_halt = halthandle_t();
+											//DBG_MESSAGE("road_vehicle_t::can_enter_tile()","cnv=%d nothing free found!",cnv->self.get_id());
+											return false;
+										}
 
-									// now reserve our choice (beware: might be longer than one tile!)
-									for(  uint32 length=0;  length<cnv->get_tile_length()  &&  length+1<target_rt.get_count();  length++  ) {
-										target_halt->reserve_position( welt->lookup( target_rt.position_bei( target_rt.get_count()-length-1) ), cnv->self );
+										// now it make sense to search a route
+										route_t target_rt;
+										koord3d next3d = r.position_bei(test_index);
+										if (!target_rt.find_route(welt, next3d, this, speed_to_kmh(cnv->get_min_top_speed()), curr_90direction, cnv->get_highest_axle_load(), cnv->get_tile_length(), cnv->get_weight_summary().weight / 1000, 33, route_t::choose_signal)) {
+											// nothing empty or not route with less than 33 tiles
+											target_halt = halthandle_t();
+											restart_speed = 0;
+											return false;
+										}
+
+										// now reserve our choice (beware: might be longer than one tile!)
+										for (uint32 length = 0; length < cnv->get_tile_length() && length + 1 < target_rt.get_count(); length++) {
+											target_halt->reserve_position(welt->lookup(target_rt.position_bei(target_rt.get_count() - length - 1)), cnv->self);
+										}
+										cnv->update_route(test_index, target_rt);
 									}
-									cnv->update_route(test_index, target_rt);
 								}
 							}
 						}
