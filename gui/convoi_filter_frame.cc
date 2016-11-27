@@ -65,7 +65,7 @@ convoi_filter_frame_t::filter_flag_t convoi_filter_frame_t::filter_buttons_types
 	stucked_filter,
 	noincome_filter,
 	indepot_filter,
-	nofpl_filter,
+	noschedule_filter,
 	noline_filter,
 	obsolete_filter
 };

@@ -414,13 +414,13 @@ bool ai_goods_t::create_ship_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 	}
 
 	// since 86.01 we use lines for vehicles ...
-	schedule_t *fpl=new schifffahrplan_t();
-	fpl->append( welt->lookup_kartenboden(best_pos), 0 );
-	fpl->append( welt->lookup(qfab->get_pos()), 100 );
-	fpl->set_aktuell( 1 );
-	fpl->eingabe_abschliessen();
-	linehandle_t line=simlinemgmt.create_line(simline_t::shipline,this,fpl);
-	delete fpl;
+	schedule_t *schedule=new ship_schedule_t();
+	schedule->append( welt->lookup_kartenboden(best_pos), 0 );
+	schedule->append( welt->lookup(qfab->get_pos()), 100 );
+	schedule->set_current_stop( 1 );
+	schedule->finish_editing();
+	linehandle_t line=simlinemgmt.create_line(simline_t::shipline,this,schedule);
+	delete schedule;
 
 	// now create all vehicles as convois
 	for(int i=0;  i<anz_vehikel;  i++) {
@@ -477,13 +477,13 @@ void ai_goods_t::create_road_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 		startpos = welt->lookup_kartenboden(koord(startpos.get_2d())+koord(w_ribi))->get_pos();
 
 		// since 86.01 we use lines for road vehicles ...
-		schedule_t *fpl=new autofahrplan_t();
-		fpl->append(welt->lookup(pos1), start_location == 0 ? 100 : 0);
-		fpl->append(welt->lookup(pos2), start_location == 1 ? 100 : 0);
-		fpl->set_aktuell( start_location );
-		fpl->eingabe_abschliessen();
-		linehandle_t line=simlinemgmt.create_line(simline_t::truckline,this,fpl);
-		delete fpl;
+		schedule_t *schedule=new truck_schedule_t();
+		schedule->append(welt->lookup(pos1), start_location == 0 ? 100 : 0);
+		schedule->append(welt->lookup(pos2), start_location == 1 ? 100 : 0);
+		schedule->set_current_stop( start_location );
+		schedule->finish_editing();
+		linehandle_t line=simlinemgmt.create_line(simline_t::truckline,this,schedule);
+		delete schedule;
 
 		// now create all vehicles as convois
 		for(int i=0;  i<anz_vehikel;  i++) {
@@ -508,9 +508,9 @@ void ai_goods_t::create_road_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 /* now obeys timeline and use "more clever" scheme for vehicle selection *
  * @author prissi
  */
-void ai_goods_t::create_rail_transport_vehikel(const koord platz1, const koord platz2, int anz_vehikel, int ladegrad)
+void ai_goods_t::create_rail_transport_vehikel(const koord platz1, const koord platz2, int anz_vehikel, int minimum_loading)
 {
-	schedule_t *fpl;
+	schedule_t *schedule;
 	if(  convoihandle_t::is_exhausted()  ) {
 		// too many convois => cannot do anything about this ...
 		return;
@@ -549,14 +549,14 @@ void ai_goods_t::create_rail_transport_vehikel(const koord platz1, const koord p
 		cnv->add_vehikel( v );
 	}
 
-	fpl = cnv->front()->generate_new_schedule();
+	schedule = cnv->front()->generate_new_schedule();
 
-	fpl->set_aktuell( 0 );
-	fpl->append(welt->lookup(pos1), ladegrad);
-	fpl->append(welt->lookup(pos2), 0);
-	fpl->eingabe_abschliessen();
+	schedule->set_current_stop( 0 );
+	schedule->append(welt->lookup(pos1), minimum_loading);
+	schedule->append(welt->lookup(pos2), 0);
+	schedule->finish_editing();
 
-	cnv->set_schedule(fpl);
+	cnv->set_schedule(schedule);
 	cnv->start();
 }
 
@@ -1151,8 +1151,8 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 					simlinemgmt.get_lines( simline_t::shipline, &lines );
 					if(!lines.empty()) {
 						linehandle_t line = lines.back();
-						schedule_t *fpl=line->get_schedule();
-						if(fpl->get_count()>1  &&  haltestelle_t::get_halt(fpl->eintrag[0].pos,this)==start_halt) {
+						schedule_t *schedule=line->get_schedule();
+						if(schedule->get_count()>1  &&  haltestelle_t::get_halt(schedule->entries[0].pos,this)==start_halt) {
 							while(line->count_convoys()>0) {
 								convoihandle_t cnv = line->get_convoy(0);
 								cnv->self_destruct();
@@ -1250,10 +1250,10 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 					DBG_MESSAGE("ai_goods_t::do_ki()","%s retires convoi %s!", get_name(), cnv->get_name());
 
 					koord3d start_pos, end_pos;
-					schedule_t *fpl = cnv->get_schedule();
-					if(fpl  &&  fpl->get_count()>1) {
-						start_pos = fpl->eintrag[0].pos;
-						end_pos = fpl->eintrag[1].pos;
+					schedule_t *schedule = cnv->get_schedule();
+					if(schedule  &&  schedule->get_count()>1) {
+						start_pos = schedule->entries[0].pos;
+						end_pos = schedule->entries[1].pos;
 					}
 
 					cnv->self_destruct();
@@ -1271,9 +1271,9 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 							koord water_stop = koord::invalid;
 							simlinemgmt.get_lines( simline_t::shipline, &lines );
 							FOR(vector_tpl<linehandle_t>, const line, lines) {
-								schedule_t *fpl=line->get_schedule();
-								if(fpl->get_count()>1  &&  haltestelle_t::get_halt(fpl->eintrag[0].pos,this)==start_halt) {
-									water_stop = koord( (start_pos.x+fpl->eintrag[0].pos.x)/2, (start_pos.y+fpl->eintrag[0].pos.y)/2 );
+								schedule_t *schedule=line->get_schedule();
+								if(schedule->get_count()>1  &&  haltestelle_t::get_halt(schedule->entries[0].pos,this)==start_halt) {
+									water_stop = koord( (start_pos.x+schedule->entries[0].pos.x)/2, (start_pos.y+schedule->entries[0].pos.y)/2 );
 									while(line->count_convoys()>0) {
 										convoihandle_t cnv = line->get_convoy(0);
 										cnv->self_destruct();

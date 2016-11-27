@@ -245,7 +245,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 				go_home_button.enable();
 			}
 
-			if(  grund_t* gr=welt->lookup(cnv->get_schedule()->get_current_eintrag().pos)  ) {
+			if(  grund_t* gr=welt->lookup(cnv->get_schedule()->get_current_entry().pos)  ) {
 				go_home_button.pressed = gr->get_depot() != NULL;
 			}
 			details_button.pressed = win_get_magic( magic_convoi_detail+cnv.get_id() );
@@ -318,10 +318,10 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 		ypos += LINESPACE;
 
 		// next stop
-		const schedule_t * fpl = cnv->get_schedule();
+		const schedule_t * schedule = cnv->get_schedule();
 		info_buf.clear();
 		info_buf.append(translator::translate("Fahrtziel"));
-		fahrplan_gui_t::gimme_short_stop_name(info_buf, welt, cnv->get_owner(), fpl->get_current_eintrag(), 34);
+		schedule_gui_t::gimme_short_stop_name(info_buf, welt, cnv->get_owner(), schedule->get_current_entry(), 34);
 		len = display_proportional_clip( xpos, ypos, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true );
 
 		// convoi load indicator
@@ -438,13 +438,13 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 		}
 
 		if(  comp == &go_home_button  &&  !route_search_in_progress  ) {
-			// limit update to certain states that are considered to be safe for fahrplan updates
+			// limit update to certain states that are considered to be safe for schedule updates
 			int state = cnv->get_state();
 			if(state==convoi_t::FAHRPLANEINGABE) {
 				return true;
 			}
 
-			grund_t* gr = welt->lookup(cnv->get_schedule()->get_current_eintrag().pos);
+			grund_t* gr = welt->lookup(cnv->get_schedule()->get_current_entry().pos);
 			const bool enable_gohome = gr && gr->get_depot() == NULL;
 
 			if(  enable_gohome  ) {
@@ -454,13 +454,13 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 			}
 			else {
 				// back to normal schedule
-				schedule_t* fpl = cnv->get_schedule()->copy();
-				fpl->remove(); // remove depot entry
+				schedule_t* schedule = cnv->get_schedule()->copy();
+				schedule->remove(); // remove depot entry
 
 				cbuffer_t buf;
-				fpl->sprintf_schedule( buf );
+				schedule->sprintf_schedule( buf );
 				cnv->call_convoi_tool( 'g', buf );
-				delete fpl;
+				delete schedule;
 			}
 		} // end go home button
 	}

@@ -39,7 +39,7 @@ public:
 	enum linetype { line = 0, truckline = 1, trainline = 2, shipline = 3, airline = 4, monorailline=5, tramline=6, maglevline=7, narrowgaugeline=8, MAX_LINE_TYPE};
 
 protected:
-	schedule_t * fpl;
+	schedule_t * schedule;
 	player_t *player;
 	linetype type;
 
@@ -129,12 +129,12 @@ public:
 	COLOR_VAL get_state_color() const { return state_color; }
 
 	/*
-	 * return fahrplan (schedule) of line
+	 * return schedule (schedule) of line
 	 * @author hsiegeln
 	 */
-	schedule_t * get_schedule() const { return fpl; }
+	schedule_t * get_schedule() const { return schedule; }
 
-	void set_schedule(schedule_t* fpl);
+	void set_schedule(schedule_t* schedule);
 
 	/*
 	 * get name of line
@@ -156,14 +156,14 @@ public:
 	/*
 	 * register line with stop
 	 */
-	void register_stops(schedule_t * fpl);
+	void register_stops(schedule_t * schedule);
 
 	void finish_rd();
 
 	/*
 	 * unregister line from stop
 	 */
-	void unregister_stops(schedule_t * fpl);
+	void unregister_stops(schedule_t * schedule);
 	void unregister_stops();
 
 	/*

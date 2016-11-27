@@ -34,14 +34,14 @@ SQInteger schedule_constructor(HSQUIRRELVM vm) // instance, wt, entries
 		// the c++ schedule_t instance will be refilled everytime when transfered to the c++ side of things.
 		schedule_t* sched = NULL;
 		switch(wt) {
-			case road_wt:        sched = new autofahrplan_t(); break;
-			case track_wt:       sched = new zugfahrplan_t(); break;
-			case water_wt:       sched = new schifffahrplan_t(); break;
-			case air_wt:         sched = new airfahrplan_t(); break;
-			case monorail_wt:    sched = new monorailfahrplan_t(); break;
-			case tram_wt:        sched = new tramfahrplan_t(); break;
-			case maglev_wt:      sched = new maglevfahrplan_t(); break;
-			case narrowgauge_wt: sched = new narrowgaugefahrplan_t(); break;
+			case road_wt:        sched = new truck_schedule_t(); break;
+			case track_wt:       sched = new train_schedule_t(); break;
+			case water_wt:       sched = new ship_schedule_t(); break;
+			case air_wt:         sched = new airplane_schedule_t(); break;
+			case monorail_wt:    sched = new monorail_schedule_t(); break;
+			case tram_wt:        sched = new tram_schedule_t(); break;
+			case maglev_wt:      sched = new maglev_schedule_t(); break;
+			case narrowgauge_wt: sched = new narrowgauge_schedule_t(); break;
 			default:
 				sq_raise_error(vm, "Invalid waytype %d", wt);
 				return SQ_ERROR;
@@ -56,15 +56,15 @@ void append_entry(HSQUIRRELVM vm, SQInteger index, schedule_t* sched)
 {
 	koord3d pos = param<koord3d>::get(vm, index);
 
-	uint8 ladegrad = 0;
-	get_slot(vm, "load", ladegrad, index);
+	uint8 minimum_loading = 0;
+	get_slot(vm, "load", minimum_loading, index);
 
 	sint8 waiting_time_shift = 0;
 	get_slot(vm, "wait", waiting_time_shift, index);
 
 	grund_t *gr = welt->lookup(pos);
 	if (gr) {
-		sched->append(gr, ladegrad, waiting_time_shift);
+		sched->append(gr, minimum_loading, waiting_time_shift);
 	}
 }
 
@@ -77,7 +77,7 @@ schedule_t* script_api::param<schedule_t*>::get(HSQUIRRELVM vm, SQInteger index)
 	// get instance pointer
 	schedule_t* sched = get_attached_instance<schedule_t>(vm, index, param<schedule_t*>::tag());
 	if (sched) {
-		sched->eintrag.clear();
+		sched->entries.clear();
 		// now read the entries
 		sq_pushstring(vm, "entries", -1);
 		SQInteger new_index = index > 0 ? index : index-1;

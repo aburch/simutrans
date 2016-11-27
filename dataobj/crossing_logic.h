@@ -32,7 +32,7 @@ protected:
 	// the last vehikel, that request a closing
 	const vehicle_base_t *request_close;
 
-	crossing_state_t zustand;
+	crossing_state_t state;
 	const kreuzung_besch_t *besch;
 	minivec_tpl<crossing_t *>crossings;
 
@@ -67,7 +67,7 @@ public:
 	/* states of the crossing;
 	 * since way2 has priority over way1 there is a third state, during a closing request
 	 */
-	crossing_state_t get_state() { return zustand; }
+	crossing_state_t get_state() { return state; }
 
 	void append_crossing( crossing_t *cr ) { crossings.append_unique(cr); }
 
@@ -90,7 +90,7 @@ public:
 
 	// returns a new or an existing crossing_logic_t object
 	// new, of no matching crossings are next to it
-	static void add( crossing_t *cr, crossing_logic_t::crossing_state_t zustand );
+	static void add( crossing_t *cr, crossing_logic_t::crossing_state_t state );
 
 	// remove logic from crossing(s)
 	void remove( crossing_t *cr );

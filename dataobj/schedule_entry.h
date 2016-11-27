@@ -1,5 +1,5 @@
-#ifndef linieneintrag_t_h
-#define linieneintrag_t_h
+#ifndef schedule_entry_t_h
+#define schedule_entry_t_h
 
 #include "koord3d.h"
 
@@ -7,14 +7,14 @@
  * A schedule entry.
  * @author Hj. Malthaner
  */
-struct linieneintrag_t
+struct schedule_entry_t
 {
 public:
-	linieneintrag_t() {}
+	schedule_entry_t() {}
 
-	linieneintrag_t(koord3d const& pos, uint const ladegrad, sint8 const waiting_time_shift) :
+	schedule_entry_t(koord3d const& pos, uint const minimum_loading, sint8 const waiting_time_shift) :
 		pos(pos),
-		ladegrad(ladegrad),
+		minimum_loading(minimum_loading),
 		waiting_time_shift(waiting_time_shift)
 	{}
 
@@ -29,11 +29,11 @@ public:
 	 * (ignored on waypoints)
 	 * @author Hj. Malthaner
 	 */
-	uint8 ladegrad;
+	uint8 minimum_loading;
 
 	/**
 	 * maximum waiting time in 1/2^(16-n) parts of a month
-	 * (only active if ladegrad!=0)
+	 * (only active if minimum_loading!=0)
 	 * @author prissi
 	 */
 	sint8 waiting_time_shift;

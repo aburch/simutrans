@@ -450,7 +450,7 @@ const char *leitung_t::is_deletable(const player_t *player)
 slist_tpl<pumpe_t *> pumpe_t::pumpe_list;
 
 
-void pumpe_t::neue_karte()
+void pumpe_t::new_world()
 {
 	pumpe_list.clear();
 }
@@ -576,7 +576,7 @@ void pumpe_t::info(cbuffer_t & buf) const
 slist_tpl<senke_t *> senke_t::senke_list;
 
 
-void senke_t::neue_karte()
+void senke_t::new_world()
 {
 	senke_list.clear();
 }

@@ -1061,10 +1061,10 @@ sint32 haltestelle_t::rebuild_connections()
 	// Knightly : halts which either immediately precede or succeed self halt in serving schedules
 	static vector_tpl<halthandle_t> consecutive_halts[256];
 	// Dwachs : halts which either immediately precede or succeed self halt in currently processed schedule
-	static vector_tpl<halthandle_t> consecutive_halts_fpl[256];
+	static vector_tpl<halthandle_t> consecutive_halts_schedule[256];
 	// remember max number of consecutive halts for one schedule
-	uint8 max_consecutive_halts_fpl[256];
-	MEMZERON(max_consecutive_halts_fpl, warenbauer_t::get_max_catg_index());
+	uint8 max_consecutive_halts_schedule[256];
+	MEMZERON(max_consecutive_halts_schedule, warenbauer_t::get_max_catg_index());
 	// Knightly : previous halt supporting the ware categories of the serving line
 	static halthandle_t previous_halt[256];
 
@@ -1081,7 +1081,7 @@ sint32 haltestelle_t::rebuild_connections()
 // DBG_MESSAGE("haltestelle_t::rebuild_destinations()", "Adding new table entries");
 
 	const player_t *owner;
-	schedule_t *fpl;
+	schedule_t *schedule;
 	const minivec_tpl<uint8> *goods_catg_index;
 
 	minivec_tpl<uint8> supported_catg_index(32);
@@ -1096,7 +1096,7 @@ sint32 haltestelle_t::rebuild_connections()
 	uint32 current_index = 0;
 	while(  lines  ||  current_index < registered_convoys.get_count()  ) {
 
-		// Now, collect the "fpl", "owner" and "add_catg_index" from line resp. convoy.
+		// Now, collect the "schedule", "owner" and "add_catg_index" from line resp. convoy.
 		if(  lines  ) {
 			if(  current_index >= registered_lines.get_count()  ) {
 				// We have looped over all lines.
@@ -1109,7 +1109,7 @@ sint32 haltestelle_t::rebuild_connections()
 			++current_index;
 
 			owner = line->get_owner();
-			fpl = line->get_schedule();
+			schedule = line->get_schedule();
 			goods_catg_index = &line->get_goods_catg_index();
 		}
 		else {
@@ -1117,13 +1117,13 @@ sint32 haltestelle_t::rebuild_connections()
 			++current_index;
 
 			owner = cnv->get_owner();
-			fpl = cnv->get_schedule();
+			schedule = cnv->get_schedule();
 			goods_catg_index = &cnv->get_goods_catg_index();
 		}
 
 		// find the index from which to start processing
 		uint8 start_index = 0;
-		while(  start_index < fpl->get_count()  &&  get_halt( fpl->eintrag[start_index].pos, owner ) != self  ) {
+		while(  start_index < schedule->get_count()  &&  get_halt( schedule->entries[start_index].pos, owner ) != self  ) {
 			++start_index;
 		}
 		++start_index;	// the next index after self halt; it's okay to be out-of-range
@@ -1134,7 +1134,7 @@ sint32 haltestelle_t::rebuild_connections()
 			if(  is_enabled(catg_index)  ) {
 				supported_catg_index.append(catg_index);
 				previous_halt[catg_index] = self;
-				consecutive_halts_fpl[catg_index].clear();
+				consecutive_halts_schedule[catg_index].clear();
 			}
 		}
 
@@ -1147,9 +1147,9 @@ sint32 haltestelle_t::rebuild_connections()
 
 		// now we add the schedule to the connection array
 		uint16 aggregate_weight = WEIGHT_WAIT;
-		for(  uint8 j=0;  j<fpl->get_count();  ++j  ) {
+		for(  uint8 j=0;  j<schedule->get_count();  ++j  ) {
 
-			halthandle_t current_halt = get_halt(fpl->eintrag[(start_index+j)%fpl->get_count()].pos, owner );
+			halthandle_t current_halt = get_halt(schedule->entries[(start_index+j)%schedule->get_count()].pos, owner );
 			if(  !current_halt.is_bound()  ) {
 				// ignore way points
 				continue;
@@ -1159,7 +1159,7 @@ sint32 haltestelle_t::rebuild_connections()
 				FOR(minivec_tpl<uint8>, const catg_index, supported_catg_index) {
 					if(  previous_halt[catg_index]!=self  ) {
 						consecutive_halts[catg_index].append_unique(previous_halt[catg_index]);
-						consecutive_halts_fpl[catg_index].append_unique(previous_halt[catg_index]);
+						consecutive_halts_schedule[catg_index].append_unique(previous_halt[catg_index]);
 						previous_halt[catg_index] = self;
 					}
 				}
@@ -1175,7 +1175,7 @@ sint32 haltestelle_t::rebuild_connections()
 					// Knightly : check for consecutive halts which succeed self halt
 					if(  previous_halt[catg_index] == self  ) {
 						consecutive_halts[catg_index].append_unique(current_halt);
-						consecutive_halts_fpl[catg_index].append_unique(current_halt);
+						consecutive_halts_schedule[catg_index].append_unique(current_halt);
 					}
 					previous_halt[catg_index] = current_halt;
 
@@ -1189,15 +1189,15 @@ sint32 haltestelle_t::rebuild_connections()
 		}
 
 		FOR(minivec_tpl<uint8>, const catg_index, supported_catg_index) {
-			if(  consecutive_halts_fpl[catg_index].get_count() > max_consecutive_halts_fpl[catg_index]  ) {
-				max_consecutive_halts_fpl[catg_index] = consecutive_halts_fpl[catg_index].get_count();
+			if(  consecutive_halts_schedule[catg_index].get_count() > max_consecutive_halts_schedule[catg_index]  ) {
+				max_consecutive_halts_schedule[catg_index] = consecutive_halts_schedule[catg_index].get_count();
 			}
 		}
-		connections_searched += fpl->get_count();
+		connections_searched += schedule->get_count();
 	}
 	for(  uint8 i=0;  i<warenbauer_t::get_max_catg_index();  i++  ){
 		if(  !consecutive_halts[i].empty()  ) {
-			if(  consecutive_halts[i].get_count() == max_consecutive_halts_fpl[i]  ) {
+			if(  consecutive_halts[i].get_count() == max_consecutive_halts_schedule[i]  ) {
 				// one schedule reaches all consecutive halts -> this is not transfer halt
 			}
 			else {
@@ -1885,15 +1885,15 @@ void haltestelle_t::fetch_goods( slist_tpl<ware_t> &load, const ware_besch_t *go
 		// startet die schleife ab 1, d.h. dem naechsten halt
 		const uint8 count = schedule->get_count();
 		for(  uint8 i=1;  i<count;  i++  ) {
-			const uint8 wrap_i = (i + schedule->get_aktuell()) % count;
+			const uint8 wrap_i = (i + schedule->get_current_stop()) % count;
 
-			const halthandle_t plan_halt = haltestelle_t::get_halt(schedule->eintrag[wrap_i].pos, player);
+			const halthandle_t plan_halt = haltestelle_t::get_halt(schedule->entries[wrap_i].pos, player);
 			if(plan_halt == self) {
 				// we will come later here again ...
 				break;
 			}
 			else if(  !plan_halt.is_bound()  ) {
-				if(  grund_t *gr = welt->lookup( schedule->eintrag[wrap_i].pos )  ) {
+				if(  grund_t *gr = welt->lookup( schedule->entries[wrap_i].pos )  ) {
 					if(  gr->get_depot()  ) {
 						// do not load for stops after a depot
 						break;
@@ -3037,7 +3037,7 @@ bool haltestelle_t::add_grund(grund_t *gr, bool relink_factories)
 			FOR(  vector_tpl<linehandle_t>, const j, check_line  ) {
 				// only add unknown lines
 				if(  !registered_lines.is_contained(j)  &&  j->count_convoys() > 0  ) {
-					FOR(  minivec_tpl<linieneintrag_t>, const& k, j->get_schedule()->eintrag  ) {
+					FOR(  minivec_tpl<schedule_entry_t>, const& k, j->get_schedule()->entries  ) {
 						if(  get_halt(k.pos, player) == self  ) {
 							registered_lines.append(j);
 							break;
@@ -3051,8 +3051,8 @@ bool haltestelle_t::add_grund(grund_t *gr, bool relink_factories)
 	FOR(vector_tpl<convoihandle_t>, const cnv, welt->convoys()) {
 		// only check lineless convoys which have matching ownership and which are not yet registered
 		if(  !cnv->get_line().is_bound()  &&  (public_halt  ||  cnv->get_owner()==get_owner())  &&  !registered_convoys.is_contained(cnv)  ) {
-			if(  const schedule_t *const fpl = cnv->get_schedule()  ) {
-				FOR(minivec_tpl<linieneintrag_t>, const& k, fpl->eintrag) {
+			if(  const schedule_t *const schedule = cnv->get_schedule()  ) {
+				FOR(minivec_tpl<schedule_entry_t>, const& k, schedule->entries) {
 					if (get_halt(k.pos, cnv->get_owner()) == self) {
 						registered_convoys.append(cnv);
 						break;
@@ -3161,7 +3161,7 @@ bool haltestelle_t::rem_grund(grund_t *gr)
 	// remove lines eventually
 	for(  size_t j = registered_lines.get_count();  j-- != 0;  ) {
 		bool ok = false;
-		FOR(  minivec_tpl<linieneintrag_t>, const& k, registered_lines[j]->get_schedule()->eintrag  ) {
+		FOR(  minivec_tpl<schedule_entry_t>, const& k, registered_lines[j]->get_schedule()->entries  ) {
 			if(  get_halt(k.pos, registered_lines[j]->get_owner()) == self  ) {
 				ok = true;
 				break;
@@ -3177,7 +3177,7 @@ bool haltestelle_t::rem_grund(grund_t *gr)
 	// Knightly : remove registered lineless convoys as well
 	for(  size_t j = registered_convoys.get_count();  j-- != 0;  ) {
 		bool ok = false;
-		FOR(  minivec_tpl<linieneintrag_t>, const& k, registered_convoys[j]->get_schedule()->eintrag  ) {
+		FOR(  minivec_tpl<schedule_entry_t>, const& k, registered_convoys[j]->get_schedule()->entries  ) {
 			if(  get_halt(k.pos, registered_convoys[j]->get_owner()) == self  ) {
 				ok = true;
 				break;

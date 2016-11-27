@@ -14,7 +14,7 @@
 class ai_goods_t : public ai_t
 {
 private:
-	enum zustand {
+	enum state {
 		NR_INIT,
 		NR_SAMMLE_ROUTEN,
 		NR_BAUE_ROUTE1,
@@ -29,7 +29,7 @@ private:
 	};
 
 	// vars für die KI
-	zustand state;
+	state state;
 
 	/* test more than one supplier and more than one good *
 	 * save last factory for building next supplier/consumer *
@@ -105,7 +105,7 @@ private:
 	// create way and stops for these routes
 	bool create_ship_transport_vehikel(fabrik_t *qfab, int anz_vehikel);
 	void create_road_transport_vehikel(fabrik_t *qfab, int anz_vehikel);
-	void create_rail_transport_vehikel(const koord pos1,const koord pos2, int anz_vehikel, int ladegrad);
+	void create_rail_transport_vehikel(const koord pos1,const koord pos2, int anz_vehikel, int minimum_loading);
 
 public:
 	ai_goods_t(uint8 nr);

@@ -815,7 +815,7 @@ void vehicle_t::remove_stale_cargo()
 
 			if(  tmp.get_zwischenziel().is_bound()  ) {
 				// the original halt exists, but does we still go there?
-				FOR(minivec_tpl<linieneintrag_t>, const& i, cnv->get_schedule()->eintrag) {
+				FOR(minivec_tpl<schedule_entry_t>, const& i, cnv->get_schedule()->entries) {
 					if(  haltestelle_t::get_halt( i.pos, cnv->get_owner()) == tmp.get_zwischenziel()  ) {
 						found = true;
 						break;
@@ -824,11 +824,11 @@ void vehicle_t::remove_stale_cargo()
 			}
 			if(  !found  ) {
 				// the target halt may have been joined or there is a closer one now, thus our original target is no longer valid
-				const int offset = cnv->get_schedule()->get_aktuell();
-				const int max_count = cnv->get_schedule()->eintrag.get_count();
+				const int offset = cnv->get_schedule()->get_current_stop();
+				const int max_count = cnv->get_schedule()->entries.get_count();
 				for(  int i=0;  i<max_count;  i++  ) {
 					// try to unload on next stop
-					halthandle_t halt = haltestelle_t::get_halt( cnv->get_schedule()->eintrag[ (i+offset)%max_count ].pos, cnv->get_owner() );
+					halthandle_t halt = haltestelle_t::get_halt( cnv->get_schedule()->entries[ (i+offset)%max_count ].pos, cnv->get_owner() );
 					if(  halt.is_bound()  ) {
 						if(  halt->is_enabled(tmp.get_index())  ) {
 							// ok, lets change here, since goods are accepted here
@@ -1111,16 +1111,16 @@ void vehicle_t::hop(grund_t* gr)
 
 	// check if arrived at waypoint, and update schedule to next destination
 	// route search through the waypoint is already complete
-//	if(  ist_erstes  &&  get_pos()==cnv->get_fpl_target()  ) { // ist_erstes turned off in vorfahren when reversing
-	if(  get_pos()==cnv->get_fpl_target()  ) {
+//	if(  ist_erstes  &&  get_pos()==cnv->get_schedule_target()  ) { // ist_erstes turned off in vorfahren when reversing
+	if(  get_pos()==cnv->get_schedule_target()  ) {
 		if(  route_index >= cnv->get_route()->get_count()  ) {
 			// we end up here after loading a game or when a waypoint is reached which crosses next itself
-			cnv->set_fpl_target( koord3d::invalid );
+			cnv->set_schedule_target( koord3d::invalid );
 		}
 		else {
 			cnv->get_schedule()->advance();
-			const koord3d ziel = cnv->get_schedule()->get_current_eintrag().pos;
-			cnv->set_fpl_target( cnv->is_waypoint(ziel) ? ziel : koord3d::invalid );
+			const koord3d ziel = cnv->get_schedule()->get_current_entry().pos;
+			cnv->set_schedule_target( cnv->is_waypoint(ziel) ? ziel : koord3d::invalid );
 		}
 	}
 
@@ -1988,7 +1988,7 @@ void road_vehicle_t::get_screen_offset( int &xoff, int &yoff, const sint16 raste
 // chooses a route at a choose sign; returns true on success
 bool road_vehicle_t::choose_route(sint32 &restart_speed, ribi_t::ribi start_direction, uint16 index)
 {
-	if(  cnv->get_fpl_target()!=koord3d::invalid  ) {
+	if(  cnv->get_schedule_target()!=koord3d::invalid  ) {
 		// destination is a waypoint!
 		return true;
 	}
@@ -2000,7 +2000,7 @@ bool road_vehicle_t::choose_route(sint32 &restart_speed, ribi_t::ribi start_dire
 
 		// since convois can long than one tile, check is more difficult
 		bool can_go_there = true;
-		bool original_route = (rt->back() == cnv->get_schedule()->get_current_eintrag().pos);
+		bool original_route = (rt->back() == cnv->get_schedule()->get_current_entry().pos);
 		for(  uint32 length=0;  can_go_there  &&  length<cnv->get_tile_length()  &&  length+1<rt->get_count();  length++  ) {
 			if(  grund_t *gr = welt->lookup( rt->position_bei( rt->get_count()-length-1) )  ) {
 				if (gr->get_halt().is_bound()) {
@@ -2293,7 +2293,7 @@ void road_vehicle_t::enter_tile(grund_t* gr)
 
 schedule_t * road_vehicle_t::generate_new_schedule() const
 {
-  return new autofahrplan_t();
+  return new truck_schedule_t();
 }
 
 
@@ -2581,14 +2581,14 @@ bool rail_vehicle_t::is_longblock_signal_clear(signal_t *sig, uint16 next_block,
 	uint16 next_signal, next_crossing;
 	if(  !block_reserver( cnv->get_route(), next_block+1, next_signal, next_crossing, 0, true, false )  ) {
 		// not even the "Normal" signal route part is free => no bother checking further on
-		sig->set_zustand( roadsign_t::rot );
+		sig->set_state( roadsign_t::rot );
 		restart_speed = 0;
 		return false;
 	}
 
 	if(  next_signal != INVALID_INDEX  ) {
 		// success, and there is a signal before end of route => finished
-		sig->set_zustand( roadsign_t::gruen );
+		sig->set_state( roadsign_t::gruen );
 		cnv->set_next_stop_index( min( next_crossing, next_signal ) );
 		return true;
 	}
@@ -2601,17 +2601,17 @@ bool rail_vehicle_t::is_longblock_signal_clear(signal_t *sig, uint16 next_block,
 
 	// now we can use the route search array
 	// (route until end is already reserved at this point!)
-	uint8 fahrplan_index = cnv->get_schedule()->get_aktuell()+1;
+	uint8 fahrplan_index = cnv->get_schedule()->get_current_stop()+1;
 	route_t target_rt;
 	koord3d cur_pos = cnv->get_route()->back();
 	uint16 dummy, next_next_signal;
 	if(fahrplan_index >= cnv->get_schedule()->get_count()) {
 		fahrplan_index = 0;
 	}
-	while(  fahrplan_index != cnv->get_schedule()->get_aktuell()  ) {
+	while(  fahrplan_index != cnv->get_schedule()->get_current_stop()  ) {
 		// now search
 		// search for route
-		bool success = target_rt.calc_route( welt, cur_pos, cnv->get_schedule()->eintrag[fahrplan_index].pos, this, speed_to_kmh(cnv->get_min_top_speed()), 8888 /*cnv->get_tile_length()*/ );
+		bool success = target_rt.calc_route( welt, cur_pos, cnv->get_schedule()->entries[fahrplan_index].pos, this, speed_to_kmh(cnv->get_min_top_speed()), 8888 /*cnv->get_tile_length()*/ );
 		if(  success  ) {
 			success = block_reserver( &target_rt, 1, next_next_signal, dummy, 0, true, false );
 			block_reserver( &target_rt, 1, dummy, dummy, 0, false, false );
@@ -2625,7 +2625,7 @@ bool rail_vehicle_t::is_longblock_signal_clear(signal_t *sig, uint16 next_block,
 				if(  target_rt.position_bei(next_next_signal) == cnv->get_route()->position_bei( next_block )  ) {
 					block_reserver( cnv->get_route(), next_block+1, next_signal, next_crossing, 0, true, false );
 				}
-				sig->set_zustand( roadsign_t::gruen );
+				sig->set_state( roadsign_t::gruen );
 				cnv->set_next_stop_index( min( min( next_crossing, next_signal ), cnv->get_route()->get_count() ) );
 				return true;
 			}
@@ -2633,7 +2633,7 @@ bool rail_vehicle_t::is_longblock_signal_clear(signal_t *sig, uint16 next_block,
 
 		if(  !success  ) {
 			block_reserver( cnv->get_route(), next_block+1, next_next_signal, dummy, 0, false, false );
-			sig->set_zustand( roadsign_t::rot );
+			sig->set_state( roadsign_t::rot );
 			restart_speed = 0;
 			return false;
 		}
@@ -2659,7 +2659,7 @@ bool rail_vehicle_t::is_choose_signal_clear(signal_t *sig, const uint16 start_bl
 	uint16 next_signal, next_crossing;
 	grund_t const* const target = welt->lookup(cnv->get_route()->back());
 
-	if(  cnv->get_fpl_target()!=koord3d::invalid  ) {
+	if(  cnv->get_schedule_target()!=koord3d::invalid  ) {
 		// destination is a waypoint!
 		goto skip_choose;
 	}
@@ -2715,12 +2715,12 @@ skip_choose:
 	if(  !choose_ok  ) {
 		// just act as normal signal
 		if(  block_reserver( cnv->get_route(), start_block+1, next_signal, next_crossing, 0, true, false )  ) {
-			sig->set_zustand(  roadsign_t::gruen );
+			sig->set_state(  roadsign_t::gruen );
 			cnv->set_next_stop_index( min( next_crossing, next_signal ) );
 			return true;
 		}
 		// not free => wait here if directly in front
-		sig->set_zustand(  roadsign_t::rot );
+		sig->set_state(  roadsign_t::rot );
 		restart_speed = 0;
 		return false;
 	}
@@ -2744,7 +2744,7 @@ skip_choose:
 		if(  !target_rt.find_route( welt, cnv->get_route()->position_bei(start_block), this, speed_to_kmh(cnv->get_min_top_speed()), richtung, welt->get_settings().get_max_choose_route_steps() )  ) {
 			// nothing empty or not route with less than get_max_choose_route_steps() tiles
 			target_halt = halthandle_t();
-			sig->set_zustand(  roadsign_t::rot );
+			sig->set_state(  roadsign_t::rot );
 			restart_speed = 0;
 			return false;
 		}
@@ -2755,14 +2755,14 @@ skip_choose:
 			if(  !block_reserver( cnv->get_route(), start_block+1, next_signal, next_crossing, 100000, true, false )  ) {
 				dbg->error( "rail_vehicle_t::is_choose_signal_clear()", "could not reserved route after find_route!" );
 				target_halt = halthandle_t();
-				sig->set_zustand(  roadsign_t::rot );
+				sig->set_state(  roadsign_t::rot );
 				restart_speed = 0;
 				return false;
 			}
 		}
 		// reserved route to target
 	}
-	sig->set_zustand(  roadsign_t::gruen );
+	sig->set_state(  roadsign_t::gruen );
 	cnv->set_next_stop_index( min( next_crossing, next_signal ) );
 	return true;
 }
@@ -2775,18 +2775,18 @@ bool rail_vehicle_t::is_pre_signal_clear(signal_t *sig, uint16 next_block, sint3
 	if(  block_reserver( cnv->get_route(), next_block+1, next_signal, next_crossing, 0, true, false )  ) {
 		if(  next_signal == INVALID_INDEX  ||  cnv->get_route()->position_bei(next_signal) == cnv->get_route()->back()  ||  is_signal_clear( next_signal, restart_speed )  ) {
 			// ok, end of route => we can go
-			sig->set_zustand( roadsign_t::gruen );
+			sig->set_state( roadsign_t::gruen );
 			cnv->set_next_stop_index( min( next_signal, next_crossing ) );
 			return true;
 		}
 		// when we reached here, the way is apparently not free => release reservation and set state to next free
-		sig->set_zustand( roadsign_t::naechste_rot );
+		sig->set_state( roadsign_t::naechste_rot );
 		block_reserver( cnv->get_route(), next_block+1, next_signal, next_crossing, 0, false, false );
 		restart_speed = 0;
 		return false;
 	}
 	// if we end up here, there was not even the next block free
-	sig->set_zustand( roadsign_t::rot );
+	sig->set_state( roadsign_t::rot );
 	restart_speed = 0;
 	return false;
 }
@@ -2810,12 +2810,12 @@ bool rail_vehicle_t::is_signal_clear(uint16 next_block, sint32 &restart_speed)
 
 		uint16 next_signal, next_crossing;
 		if(  block_reserver( cnv->get_route(), next_block+1, next_signal, next_crossing, 0, true, false )  ) {
-			sig->set_zustand(  roadsign_t::gruen );
+			sig->set_state(  roadsign_t::gruen );
 			cnv->set_next_stop_index( min( next_crossing, next_signal ) );
 			return true;
 		}
 		// not free => wait here if directly in front
-		sig->set_zustand(  roadsign_t::rot );
+		sig->set_state(  roadsign_t::rot );
 		restart_speed = 0;
 		return false;
 	}
@@ -3029,7 +3029,7 @@ bool rail_vehicle_t::block_reserver(const route_t *route, uint16 start_index, ui
 			if(sch1->has_signal()) {
 				signal_t* signal = gr->find<signal_t>();
 				if(signal) {
-					signal->set_zustand(roadsign_t::rot);
+					signal->set_state(roadsign_t::rot);
 				}
 			}
 			if(sch1->is_crossing()) {
@@ -3059,7 +3059,7 @@ bool rail_vehicle_t::block_reserver(const route_t *route, uint16 start_index, ui
 	// ok, switch everything green ...
 	FOR(slist_tpl<grund_t*>, const g, signs) {
 		if (signal_t* const signal = g->find<signal_t>()) {
-			signal->set_zustand(roadsign_t::gruen);
+			signal->set_state(roadsign_t::gruen);
 		}
 	}
 	cnv->set_next_reservation_index( i );
@@ -3084,7 +3084,7 @@ void rail_vehicle_t::leave_tile()
 				if(sch0->has_signal()) {
 					signal_t* sig = gr->find<signal_t>();
 					if(sig) {
-						sig->set_zustand(roadsign_t::rot);
+						sig->set_state(roadsign_t::rot);
 					}
 				}
 			}
@@ -3111,25 +3111,25 @@ void rail_vehicle_t::enter_tile(grund_t* gr)
 
 schedule_t * rail_vehicle_t::generate_new_schedule() const
 {
-	return besch->get_waytype()==tram_wt ? new tramfahrplan_t() : new zugfahrplan_t();
+	return besch->get_waytype()==tram_wt ? new tram_schedule_t() : new train_schedule_t();
 }
 
 
 schedule_t * monorail_vehicle_t::generate_new_schedule() const
 {
-	return new monorailfahrplan_t();
+	return new monorail_schedule_t();
 }
 
 
 schedule_t * maglev_vehicle_t::generate_new_schedule() const
 {
-	return new maglevfahrplan_t();
+	return new maglev_schedule_t();
 }
 
 
 schedule_t * narrowgauge_vehicle_t::generate_new_schedule() const
 {
-	return new narrowgaugefahrplan_t();
+	return new narrowgauge_schedule_t();
 }
 
 
@@ -3255,7 +3255,7 @@ bool water_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, u
 
 schedule_t * water_vehicle_t::generate_new_schedule() const
 {
-  return new schifffahrplan_t();
+  return new ship_schedule_t();
 }
 
 
@@ -4026,7 +4026,7 @@ void air_vehicle_t::set_convoi(convoi_t *c)
 
 schedule_t *air_vehicle_t::generate_new_schedule() const
 {
-	return new airfahrplan_t();
+	return new airplane_schedule_t();
 }
 
 

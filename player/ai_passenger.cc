@@ -418,13 +418,13 @@ bool ai_passenger_t::create_water_transport_vehikel(const stadt_t* start_stadt, 
 	}
 
 	// since 86.01 we use lines for vehicles ...
-	schedule_t *fpl=new schifffahrplan_t();
-	fpl->append( welt->lookup_kartenboden(start_pos), 0, 0 );
-	fpl->append( welt->lookup_kartenboden(end_pos), 90, 0 );
-	fpl->set_aktuell( 1 );
-	fpl->eingabe_abschliessen();
-	linehandle_t line=simlinemgmt.create_line(simline_t::shipline,this,fpl);
-	delete fpl;
+	schedule_t *schedule=new ship_schedule_t();
+	schedule->append( welt->lookup_kartenboden(start_pos), 0, 0 );
+	schedule->append( welt->lookup_kartenboden(end_pos), 90, 0 );
+	schedule->set_current_stop( 1 );
+	schedule->finish_editing();
+	linehandle_t line=simlinemgmt.create_line(simline_t::shipline,this,schedule);
+	delete schedule;
 
 	// now create one ship
 	vehicle_t* v = vehikelbauer_t::baue( koord3d( start_pos, welt->get_water_hgt( start_pos ) ), this, NULL, v_besch );
@@ -737,13 +737,13 @@ bool ai_passenger_t::create_air_transport_vehikel(const stadt_t *start_stadt, co
 	const grund_t *end = end_hub->find_matching_position(air_wt);
 
 	// since 86.01 we use lines for vehicles ...
-	schedule_t *fpl=new airfahrplan_t();
-	fpl->append( start, 0, 0 );
-	fpl->append( end, 90, 0 );
-	fpl->set_aktuell( 1 );
-	fpl->eingabe_abschliessen();
-	linehandle_t line=simlinemgmt.create_line(simline_t::airline,this,fpl);
-	delete fpl;
+	schedule_t *schedule=new airplane_schedule_t();
+	schedule->append( start, 0, 0 );
+	schedule->append( end, 90, 0 );
+	schedule->set_current_stop( 1 );
+	schedule->finish_editing();
+	linehandle_t line=simlinemgmt.create_line(simline_t::airline,this,schedule);
+	delete schedule;
 
 	// now create one plane
 	vehicle_t* v = vehikelbauer_t::baue( start->get_pos(), this, NULL, v_besch);
@@ -779,15 +779,15 @@ DBG_MESSAGE("ai_passenger_t::create_bus_transport_vehikel()","bus at (%i,%i)",st
 	koord3d startpos = welt->lookup_kartenboden(startpos2d)->get_pos();
 
 	// since 86.01 we use lines for road vehicles ...
-	schedule_t *fpl=new autofahrplan_t();
+	schedule_t *schedule=new truck_schedule_t();
 	// do not start at current stop => wont work ...
 	for(int j=0;  j<count;  j++) {
-		fpl->append(welt->lookup_kartenboden(stops[j]), j == 0 || !do_wait ? 0 : 10);
+		schedule->append(welt->lookup_kartenboden(stops[j]), j == 0 || !do_wait ? 0 : 10);
 	}
-	fpl->set_aktuell( stops[0]==startpos2d );
-	fpl->eingabe_abschliessen();
-	linehandle_t line=simlinemgmt.create_line(simline_t::truckline,this,fpl);
-	delete fpl;
+	schedule->set_current_stop( stops[0]==startpos2d );
+	schedule->finish_editing();
+	linehandle_t line=simlinemgmt.create_line(simline_t::truckline,this,schedule);
+	delete schedule;
 
 	// now create all vehicles as convois
 	for(int i=0;  i<anz_vehikel;  i++) {
@@ -905,12 +905,12 @@ void ai_passenger_t::cover_city_with_bus_route(koord start_pos, int number_of_st
 
 	// and init all stuff for recursion
 	grund_t *start = welt->lookup_kartenboden(start_pos);
-	linehandle_t line = simlinemgmt.create_line( simline_t::truckline,this, new autofahrplan_t() );
+	linehandle_t line = simlinemgmt.create_line( simline_t::truckline,this, new truck_schedule_t() );
 	line->get_schedule()->append(start,0);
 
 	// now create a line
 	walk_city( line, start, number_of_stops );
-	line->get_schedule()->eingabe_abschliessen();
+	line->get_schedule()->finish_editing();
 
 	road_vehicle = vehikel_search( road_wt, 1, 50, warenbauer_t::passagiere, false);
 	if( line->get_schedule()->get_count()>1  ) {
@@ -1317,7 +1317,7 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using %s on %s",road_vehicle->g
 										// too many convois => cannot do anything about this ...
 										break;
 									}
-									vehicle_t* v = vehikelbauer_t::baue( line->get_schedule()->eintrag[0].pos, this, NULL, v_besch  );
+									vehicle_t* v = vehikelbauer_t::baue( line->get_schedule()->entries[0].pos, this, NULL, v_besch  );
 									convoi_t* new_cnv = new convoi_t(this);
 									new_cnv->set_name( v->get_besch()->get_name() );
 									new_cnv->add_vehikel( v );
@@ -1347,15 +1347,15 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using %s on %s",road_vehicle->g
 				// next: check for overflowing lines, i.e. running with 3/4 of the capacity
 				if(  ratio<10  &&  !convoihandle_t::is_exhausted()  ) {
 					// else add the first convoi again
-					vehicle_t* const v = vehikelbauer_t::baue(line->get_schedule()->eintrag[0].pos, this, NULL, line->get_convoy(0)->front()->get_besch());
+					vehicle_t* const v = vehikelbauer_t::baue(line->get_schedule()->entries[0].pos, this, NULL, line->get_convoy(0)->front()->get_besch());
 					convoi_t* new_cnv = new convoi_t(this);
 					new_cnv->set_name( v->get_besch()->get_name() );
 					new_cnv->add_vehikel( v );
 					new_cnv->set_line( line );
 					// on waiting line, wait at alternating stations for load balancing
-					if(  line->get_schedule()->eintrag[1].ladegrad==90  &&  line->get_linetype()!=simline_t::truckline  &&  (line->count_convoys()&1)==0  ) {
-						new_cnv->get_schedule()->eintrag[0].ladegrad = 90;
-						new_cnv->get_schedule()->eintrag[1].ladegrad = 0;
+					if(  line->get_schedule()->entries[1].minimum_loading==90  &&  line->get_linetype()!=simline_t::truckline  &&  (line->count_convoys()&1)==0  ) {
+						new_cnv->get_schedule()->entries[0].minimum_loading = 90;
+						new_cnv->get_schedule()->entries[1].minimum_loading = 0;
 					}
 					new_cnv->start();
 					return;

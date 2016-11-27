@@ -523,9 +523,9 @@ namespace script_api {
 	}
 
 
-	SQInteger param<linieneintrag_t>::push(HSQUIRRELVM vm, linieneintrag_t const& v)
+	SQInteger param<schedule_entry_t>::push(HSQUIRRELVM vm, schedule_entry_t const& v)
 	{
-		return push_instance(vm, "schedule_entry_x", v.pos, v.ladegrad, v.waiting_time_shift);
+		return push_instance(vm, "schedule_entry_x", v.pos, v.minimum_loading, v.waiting_time_shift);
 	}
 
 
@@ -538,7 +538,7 @@ namespace script_api {
 	SQInteger param<const schedule_t*>::push(HSQUIRRELVM vm, const schedule_t* const& v)
 	{
 		if (v) {
-			return push_instance(vm, "schedule_x", v->get_waytype(), v->eintrag);
+			return push_instance(vm, "schedule_x", v->get_waytype(), v->entries);
 		}
 		else {
 			sq_pushnull(vm); return 1;

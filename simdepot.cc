@@ -135,9 +135,9 @@ void depot_t::call_depot_tool( char tool, convoihandle_t cnv, const char *extra)
  * first a convoy reaches the depot during its journey
  * second during loading a convoi is stored in a depot => only store it again
  */
-void depot_t::convoi_arrived(convoihandle_t acnv, bool fpl_adjust)
+void depot_t::convoi_arrived(convoihandle_t acnv, bool schedule_adjust)
 {
-	if(fpl_adjust) {
+	if(schedule_adjust) {
 		// here a regular convoi arrived
 
 		for(unsigned i=0; i<acnv->get_vehicle_count(); i++) {
@@ -149,13 +149,13 @@ void depot_t::convoi_arrived(convoihandle_t acnv, bool fpl_adjust)
 			v->set_last( i+1==acnv->get_vehicle_count() );
 		}
 		// Volker: remove depot from schedule
-		schedule_t *fpl = acnv->get_schedule();
-		for(  int i=0;  i<fpl->get_count();  i++  ) {
+		schedule_t *schedule = acnv->get_schedule();
+		for(  int i=0;  i<schedule->get_count();  i++  ) {
 			// only if convoi found
-			if(fpl->eintrag[i].pos==get_pos()) {
-				fpl->set_aktuell( i );
-				fpl->remove();
-				acnv->set_schedule(fpl);
+			if(schedule->entries[i].pos==get_pos()) {
+				schedule->set_current_stop( i );
+				schedule->remove();
+				acnv->set_schedule(schedule);
 				break;
 			}
 		}
@@ -321,7 +321,7 @@ convoihandle_t depot_t::copy_convoi(convoihandle_t old_cnv, bool local_execution
 		}
 		if (old_cnv->get_line().is_bound()) {
 			new_cnv->set_line(old_cnv->get_line());
-			new_cnv->get_schedule()->set_aktuell( old_cnv->get_schedule()->get_aktuell() );
+			new_cnv->get_schedule()->set_current_stop( old_cnv->get_schedule()->get_current_stop() );
 		}
 		else {
 			if (old_cnv->get_schedule() != NULL) {
@@ -386,7 +386,7 @@ bool depot_t::start_convoi(convoihandle_t cnv, bool local_execution)
 {
 	// close schedule window if not yet closed
 	if(cnv.is_bound() &&  cnv->get_schedule()!=NULL) {
-		if(!cnv->get_schedule()->ist_abgeschlossen()) {
+		if(!cnv->get_schedule()->is_editing_finished()) {
 			// close the schedule window
 			destroy_win((ptrdiff_t)cnv->get_schedule());
 		}
@@ -399,7 +399,7 @@ bool depot_t::start_convoi(convoihandle_t cnv, bool local_execution)
 
 	if (cnv.is_bound() && cnv->get_schedule() && !cnv->get_schedule()->empty()) {
 		// if next schedule entry is this depot => advance to next entry
-		const koord3d& cur_pos = cnv->get_schedule()->get_current_eintrag().pos;
+		const koord3d& cur_pos = cnv->get_schedule()->get_current_entry().pos;
 		if (cur_pos == get_pos()) {
 			cnv->get_schedule()->advance();
 		}
@@ -438,7 +438,7 @@ bool depot_t::start_convoi(convoihandle_t cnv, bool local_execution)
 			dbg->warning("depot_t::start_convoi()","No convoi to start!");
 		} else if (!cnv->get_schedule()) {
 			dbg->warning("depot_t::start_convoi()","No schedule for convoi.");
-		} else if (!cnv->get_schedule()->ist_abgeschlossen()) {
+		} else if (!cnv->get_schedule()->is_editing_finished()) {
 			dbg->warning("depot_t::start_convoi()","Schedule is incomplete/not finished");
 		}
 	}

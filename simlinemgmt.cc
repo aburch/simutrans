@@ -51,7 +51,7 @@ void simlinemgmt_t::delete_line(linehandle_t line)
 
 void simlinemgmt_t::update_line(linehandle_t line)
 {
-	// when a line is updated, all managed convoys must get the new fahrplan!
+	// when a line is updated, all managed convoys must get the new schedule!
 	const int count = line->count_convoys();
 	for(  int i = 0;  i<count;  i++  ) {
 		const convoihandle_t cnv = line->get_convoy(i);
@@ -172,8 +172,8 @@ void simlinemgmt_t::finish_rd()
 void simlinemgmt_t::rotate90( sint16 y_size )
 {
 	FOR(vector_tpl<linehandle_t>, const i, all_managed_lines) {
-		if (schedule_t* const fpl = i->get_schedule()) {
-			fpl->rotate90( y_size );
+		if (schedule_t* const schedule = i->get_schedule()) {
+			schedule->rotate90( y_size );
 		}
 	}
 }
@@ -201,11 +201,11 @@ linehandle_t simlinemgmt_t::create_line(int ltype, player_t * player_)
 }
 
 
-linehandle_t simlinemgmt_t::create_line(int ltype, player_t * player_, schedule_t * fpl)
+linehandle_t simlinemgmt_t::create_line(int ltype, player_t * player_, schedule_t * schedule)
 {
 	linehandle_t line = create_line( ltype, player_ );
-	if(fpl) {
-		line->get_schedule()->copy_from(fpl);
+	if(schedule) {
+		line->get_schedule()->copy_from(schedule);
 	}
 	return line;
 }

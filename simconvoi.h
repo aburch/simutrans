@@ -110,12 +110,12 @@ private:
 	* All vehicle-schedule pointers point here
 	* @author Hj. Malthaner
 	*/
-	schedule_t *fpl;
+	schedule_t *schedule;
 
-	koord3d fpl_target;
+	koord3d schedule_target;
 
 	/**
-	* loading_level was ladegrad before. Actual percentage loaded for loadable vehicles (station length!).
+	* loading_level was minimum_loading before. Actual percentage loaded for loadable vehicles (station length!).
 	* needed as int, since used by the gui
 	* @author Volker Meyer
 	* @date  12.06.2003
@@ -407,8 +407,8 @@ public:
 	const route_t* get_route() const { return &route; }
 	route_t* access_route() { return &route; }
 
-	const koord3d get_fpl_target() const { return fpl_target; }
-	void set_fpl_target( koord3d t ) { fpl_target = t; }
+	const koord3d get_schedule_target() const { return schedule_target; }
+	void set_schedule_target( koord3d t ) { schedule_target = t; }
 
 	/**
 	* get line
@@ -675,7 +675,7 @@ public:
 	* @return Current schedule
 	* @author Hj. Malthaner
 	*/
-	schedule_t* get_schedule() const { return fpl; }
+	schedule_t* get_schedule() const { return schedule; }
 
 	/**
 	* Creates a new schedule if there isn't one already.
@@ -758,7 +758,7 @@ public:
 	bool in_depot() const { return state == INITIAL; }
 
 	/**
-	* loading_level was ladegrad before. Actual percentage loaded of loadable
+	* loading_level was minimum_loading before. Actual percentage loaded of loadable
 	* vehicles.
 	* @author Volker Meyer
 	* @date  12.06.2003

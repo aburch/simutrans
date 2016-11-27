@@ -85,7 +85,7 @@ const uint8 reliefkarte_t::severity_color[MAX_SEVERITY_COLORS] =
 // helper function for line segment_t
 bool reliefkarte_t::line_segment_t::operator == (const line_segment_t & k) const
 {
-	return start == k.start  &&  end == k.end  &&  player == k.player  &&  fpl->similar( k.fpl, player );
+	return start == k.start  &&  end == k.end  &&  player == k.player  &&  schedule->similar( k.schedule, player );
 }
 
 // Ordering based on first start then end coordinate
@@ -111,7 +111,7 @@ void reliefkarte_t::add_to_schedule_cache( convoihandle_t cnv, bool with_waypoin
 	if(  !cnv.is_bound()  ) {
 		return;
 	}
-	schedule_t *fpl = cnv->get_schedule();
+	schedule_t *schedule = cnv->get_schedule();
 	if(  !show_network_load_factor  ) {
 		colore += 8;
 		if(  colore >= 208  ) {
@@ -164,9 +164,9 @@ void reliefkarte_t::add_to_schedule_cache( convoihandle_t cnv, bool with_waypoin
 	uint8 old_offset = 0, first_offset = 0, temp_offset = 0;
 	koord old_stop, first_stop, temp_stop;
 	bool last_diagonal = false;
-	const bool add_schedule = fpl->get_waytype() != air_wt;
+	const bool add_schedule = schedule->get_waytype() != air_wt;
 
-	FOR(  minivec_tpl<linieneintrag_t>, cur, fpl->eintrag  ) {
+	FOR(  minivec_tpl<schedule_entry_t>, cur, schedule->entries  ) {
 
 		//cycle on stops
 		//try to read station's coordinates if there's a station at this schedule stop
@@ -190,13 +190,13 @@ void reliefkarte_t::add_to_schedule_cache( convoihandle_t cnv, bool with_waypoin
 		slist_tpl<schedule_t *>*pt_list = waypoint_hash.access(key);
 		if(  add_schedule  ) {
 			// init key
-			if(  !pt_list->is_contained( fpl )  ) {
+			if(  !pt_list->is_contained( schedule )  ) {
 				// not known => append
 				temp_offset = pt_list->get_count();
 			}
 			else {
 				// how many times we reached here?
-				temp_offset = pt_list->index_of( fpl );
+				temp_offset = pt_list->index_of( schedule );
 			}
 		}
 		else {
@@ -208,18 +208,18 @@ void reliefkarte_t::add_to_schedule_cache( convoihandle_t cnv, bool with_waypoin
 			if(  (temp_stop.x-old_stop.x)*(temp_stop.y-old_stop.y) == 0  ) {
 				last_diagonal = false;
 			}
-			if(  !schedule_cache.insert_unique_ordered( line_segment_t( temp_stop, temp_offset, old_stop, old_offset, fpl, cnv->get_owner(), colore, last_diagonal ), LineSegmentOrdering() )  &&  add_schedule  ) {
+			if(  !schedule_cache.insert_unique_ordered( line_segment_t( temp_stop, temp_offset, old_stop, old_offset, schedule, cnv->get_owner(), colore, last_diagonal ), LineSegmentOrdering() )  &&  add_schedule  ) {
 				// append if added and not yet there
-				if(  !pt_list->is_contained( fpl )  ) {
-					pt_list->append( fpl );
+				if(  !pt_list->is_contained( schedule )  ) {
+					pt_list->append( schedule );
 				}
 				if(  stops == 2  ) {
 					// append first stop too, when this is called for the first time
 					const int key = first_stop.x + first_stop.y*welt->get_size().x;
 					waypoint_hash.put( key );
 					slist_tpl<schedule_t *>*pt_list = waypoint_hash.access(key);
-					if(  !pt_list->is_contained( fpl )  ) {
-						pt_list->append( fpl );
+					if(  !pt_list->is_contained( schedule )  ) {
+						pt_list->append( schedule );
 					}
 				}
 			}
@@ -237,7 +237,7 @@ void reliefkarte_t::add_to_schedule_cache( convoihandle_t cnv, bool with_waypoin
 	if(  stops > 2  ) {
 		// connect to start
 		last_diagonal ^= true;
-		schedule_cache.insert_unique_ordered( line_segment_t( first_stop, first_offset, old_stop, old_offset, fpl, cnv->get_owner(), colore, last_diagonal ), LineSegmentOrdering() );
+		schedule_cache.insert_unique_ordered( line_segment_t( first_stop, first_offset, old_stop, old_offset, schedule, cnv->get_owner(), colore, last_diagonal ), LineSegmentOrdering() );
 	}
 }
 
@@ -1288,7 +1288,7 @@ void reliefkarte_t::draw(scr_coord pos)
 				}
 			}
 		}
-		/************ ATTENTION: The schedule pointers fpl in the line segments ******************
+		/************ ATTENTION: The schedule pointers schedule in the line segments ******************
 		 ************            are invalid after this point!                  ******************/
 	}
 	//end MAP_LINES

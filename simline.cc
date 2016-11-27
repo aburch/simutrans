@@ -39,7 +39,7 @@ simline_t::simline_t(player_t* player, linetype type)
 
 	init_financial_history();
 	this->type = type;
-	this->fpl = NULL;
+	this->schedule = NULL;
 	this->player = player;
 	withdraw = false;
 	state_color = SYSCOL_TEXT;
@@ -52,7 +52,7 @@ simline_t::simline_t(player_t* player, linetype type, loadsave_t *file)
 	// id will be read and assigned during rdwr
 	self = linehandle_t();
 	this->type = type;
-	this->fpl = NULL;
+	this->schedule = NULL;
 	this->player = player;
 	withdraw = false;
 	create_schedule();
@@ -68,12 +68,12 @@ simline_t::simline_t(player_t* player, linetype type, loadsave_t *file)
 
 simline_t::~simline_t()
 {
-	DBG_DEBUG("simline_t::~simline_t()", "deleting fpl=%p", fpl);
+	DBG_DEBUG("simline_t::~simline_t()", "deleting schedule=%p", schedule);
 
 	assert(count_convoys()==0);
 	unregister_stops();
 
-	delete fpl;
+	delete schedule;
 	self.detach();
 	DBG_MESSAGE("simline_t::~simline_t()", "line %d (%p) destroyed", self.get_id(), this);
 }
@@ -95,27 +95,27 @@ simline_t::linetype simline_t::get_linetype(const waytype_t wt)
 }
 
 
-void simline_t::set_schedule(schedule_t* fpl)
+void simline_t::set_schedule(schedule_t* schedule)
 {
-	if (this->fpl) {
+	if (this->schedule) {
 		unregister_stops();
-		delete this->fpl;
+		delete this->schedule;
 	}
-	this->fpl = fpl;
+	this->schedule = schedule;
 }
 
 
 void simline_t::create_schedule()
 {
 	switch(type) {
-		case simline_t::truckline:       set_schedule(new autofahrplan_t()); break;
-		case simline_t::trainline:       set_schedule(new zugfahrplan_t()); break;
-		case simline_t::shipline:        set_schedule(new schifffahrplan_t()); break;
-		case simline_t::airline:         set_schedule(new airfahrplan_t()); break;
-		case simline_t::monorailline:    set_schedule(new monorailfahrplan_t()); break;
-		case simline_t::tramline:        set_schedule(new tramfahrplan_t()); break;
-		case simline_t::maglevline:      set_schedule(new maglevfahrplan_t()); break;
-		case simline_t::narrowgaugeline: set_schedule(new narrowgaugefahrplan_t()); break;
+		case simline_t::truckline:       set_schedule(new truck_schedule_t()); break;
+		case simline_t::trainline:       set_schedule(new train_schedule_t()); break;
+		case simline_t::shipline:        set_schedule(new ship_schedule_t()); break;
+		case simline_t::airline:         set_schedule(new airplane_schedule_t()); break;
+		case simline_t::monorailline:    set_schedule(new monorail_schedule_t()); break;
+		case simline_t::tramline:        set_schedule(new tram_schedule_t()); break;
+		case simline_t::maglevline:      set_schedule(new maglev_schedule_t()); break;
+		case simline_t::narrowgaugeline: set_schedule(new narrowgauge_schedule_t()); break;
 		default:
 			dbg->fatal( "simline_t::create_schedule()", "Cannot create default schedule!" );
 	}
@@ -127,7 +127,7 @@ void simline_t::add_convoy(convoihandle_t cnv)
 	if (line_managed_convoys.empty()  &&  self.is_bound()) {
 		// first convoi -> ok, now we can announce this connection to the stations
 		// unbound self can happen during loading if this line had line_id=0
-		register_stops(fpl);
+		register_stops(schedule);
 	}
 
 	// first convoi may change line type
@@ -220,13 +220,13 @@ void simline_t::rdwr(loadsave_t *file)
 {
 	xml_tag_t s( file, "simline_t" );
 
-	assert(fpl);
+	assert(schedule);
 
 	file->rdwr_str(name);
 
 	rdwr_linehandle_t(file, self);
 
-	fpl->rdwr(file);
+	schedule->rdwr(file);
 
 	//financial history
 	if(  file->get_version()<=102002  ) {
@@ -289,17 +289,17 @@ void simline_t::finish_rd()
 		DBG_MESSAGE("simline_t::finish_rd", "assigned id=%d to line %s", self.get_id(), get_name());
 	}
 	if (!line_managed_convoys.empty()) {
-		register_stops(fpl);
+		register_stops(schedule);
 	}
 	recalc_status();
 }
 
 
 
-void simline_t::register_stops(schedule_t * fpl)
+void simline_t::register_stops(schedule_t * schedule)
 {
-DBG_DEBUG("simline_t::register_stops()", "%d fpl entries in schedule %p", fpl->get_count(),fpl);
-	FOR(minivec_tpl<linieneintrag_t>, const& i, fpl->eintrag) {
+DBG_DEBUG("simline_t::register_stops()", "%d schedule entries in schedule %p", schedule->get_count(),schedule);
+	FOR(minivec_tpl<schedule_entry_t>, const& i, schedule->entries) {
 		halthandle_t const halt = haltestelle_t::get_halt(i.pos, player);
 		if(halt.is_bound()) {
 //DBG_DEBUG("simline_t::register_stops()", "halt not null");
@@ -315,13 +315,13 @@ DBG_DEBUG("simline_t::register_stops()", "halt null");
 
 void simline_t::unregister_stops()
 {
-	unregister_stops(fpl);
+	unregister_stops(schedule);
 }
 
 
-void simline_t::unregister_stops(schedule_t * fpl)
+void simline_t::unregister_stops(schedule_t * schedule)
 {
-	FOR(minivec_tpl<linieneintrag_t>, const& i, fpl->eintrag) {
+	FOR(minivec_tpl<schedule_entry_t>, const& i, schedule->entries) {
 		halthandle_t const halt = haltestelle_t::get_halt(i.pos, player);
 		if(halt.is_bound()) {
 			halt->remove_line(self);
@@ -333,7 +333,7 @@ void simline_t::unregister_stops(schedule_t * fpl)
 void simline_t::renew_stops()
 {
 	if (!line_managed_convoys.empty()) {
-		register_stops( fpl );
+		register_stops( schedule );
 		DBG_DEBUG("simline_t::renew_stops()", "Line id=%d, name='%s'", self.get_id(), name.c_str());
 	}
 }

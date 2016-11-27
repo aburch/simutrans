@@ -52,7 +52,7 @@ private:
 	sint32 tourist_attractions;
 
 	sint32 city_count;
-	sint32 mittlere_einwohnerzahl;
+	sint32 mean_citizen_count;
 
 	// town growth factors
 	sint32 passenger_multiplier;
@@ -369,8 +369,8 @@ public:
 	void set_city_count(sint32 n) {city_count=n;}
 	sint32 get_city_count() const {return city_count;}
 
-	void set_mittlere_einwohnerzahl( sint32 n ) {mittlere_einwohnerzahl = n;}
-	sint32 get_mittlere_einwohnerzahl() const {return mittlere_einwohnerzahl;}
+	void set_mean_citizen_count( sint32 n ) {mean_citizen_count = n;}
+	sint32 get_mean_citizen_count() const {return mean_citizen_count;}
 
 	void set_verkehr_level(sint32 l) {verkehr_level=l;}
 	sint32 get_verkehr_level() const {return verkehr_level;}

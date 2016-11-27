@@ -29,7 +29,7 @@ karte_ptr_t crossing_logic_t::welt;
 
 crossing_logic_t::crossing_logic_t( const kreuzung_besch_t *besch )
 {
-	zustand = CROSSING_INVALID;
+	state = CROSSING_INVALID;
 	this->besch = besch;
 	request_close = NULL;
 }
@@ -42,11 +42,11 @@ crossing_logic_t::crossing_logic_t( const kreuzung_besch_t *besch )
 void crossing_logic_t::info(cbuffer_t & buf) const
 {
 	static char const* const state_str[4] = { "invalid", "open", "request closing", "closed" };
-	assert(zustand<4);
+	assert(state<4);
 	buf.printf("%s%u%s%u%s%s\n",
 		translator::translate("\nway1 reserved by"), on_way1.get_count(),
 		translator::translate("\nway2 reserved by"), on_way2.get_count(),
-		translator::translate("cars.\nstate"), translator::translate(state_str[zustand])
+		translator::translate("cars.\nstate"), translator::translate(state_str[state])
 	);
 }
 
@@ -69,7 +69,7 @@ void crossing_logic_t::recalc_state()
 		}
 	}
 	request_close = NULL;
-	if(zustand==CROSSING_INVALID) {
+	if(state==CROSSING_INVALID) {
 		// now just set the state, if needed
 		if(on_way2.empty()) {
 			set_state( CROSSING_OPEN );
@@ -85,7 +85,7 @@ void crossing_logic_t::recalc_state()
 bool crossing_logic_t::request_crossing( const vehicle_base_t *v )
 {
 	if(v->get_waytype()==besch->get_waytype(0)) {
-		if(on_way2.empty()  &&  zustand == CROSSING_OPEN) {
+		if(on_way2.empty()  &&  state == CROSSING_OPEN) {
 			// way2 is empty ...
 			return true;
 		}
@@ -138,7 +138,7 @@ void crossing_logic_t::release_crossing( const vehicle_base_t *v )
 {
 	if(  v->get_waytype() == besch->get_waytype(0)  ) {
 		on_way1.remove(v);
-		if(  zustand == CROSSING_REQUEST_CLOSE  &&  on_way1.empty()  ) {
+		if(  state == CROSSING_REQUEST_CLOSE  &&  on_way1.empty()  ) {
 			set_state( CROSSING_CLOSED );
 		}
 	}
@@ -162,8 +162,8 @@ void crossing_logic_t::set_state( crossing_state_t new_state )
 		welt->play_sound_area_clipped(crossings[0]->get_pos().get_2d(), besch->get_sound());
 	}
 
-	if(new_state!=zustand) {
-		zustand = new_state;
+	if(new_state!=state) {
+		state = new_state;
 		FOR(minivec_tpl<crossing_t*>, const i, crossings) {
 			i->state_changed();
 		}
@@ -282,7 +282,7 @@ bool have_crossings_same_wt(const kreuzung_besch_t *c0, const kreuzung_besch_t *
 
 // returns a new or an existing crossing_logic_t object
 // new, of no matching crossings are next to it
-void crossing_logic_t::add( crossing_t *start_cr, crossing_state_t zustand )
+void crossing_logic_t::add( crossing_t *start_cr, crossing_state_t state )
 {
 	koord3d pos = start_cr->get_pos();
 	const koord zv = start_cr->get_dir() ? koord::west : koord::north;
@@ -347,7 +347,7 @@ void crossing_logic_t::add( crossing_t *start_cr, crossing_state_t zustand )
 		cr->set_logic( found_logic );
 		found_logic->append_crossing( cr );
 	}
-	found_logic->set_state( zustand );
+	found_logic->set_state( state );
 	found_logic->recalc_state();
 }
 

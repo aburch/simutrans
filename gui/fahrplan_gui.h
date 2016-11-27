@@ -28,29 +28,29 @@
 
 class zeiger_t;
 class schedule_t;
-struct linieneintrag_t;
+struct schedule_entry_t;
 class player_t;
 class cbuffer_t;
 class loadsave_t;
 
 
-class fahrplan_gui_stats_t : public gui_world_component_t
+class schedule_gui_stats_t : public gui_world_component_t
 {
 private:
 	static cbuffer_t buf;
-	static zeiger_t *aktuell_mark;
+	static zeiger_t *current_stop_mark;
 
 
-	schedule_t* fpl;
+	schedule_t* schedule;
 	player_t* player;
 
 public:
-	fahrplan_gui_stats_t(player_t *player_);
-	~fahrplan_gui_stats_t();
+	schedule_gui_stats_t(player_t *player_);
+	~schedule_gui_stats_t();
 
-	void set_fahrplan( schedule_t* f ) { fpl = f; }
+	void set_fahrplan( schedule_t* f ) { schedule = f; }
 
-	void highlight_schedule( schedule_t *markfpl, bool marking );
+	void highlight_schedule( schedule_t *markschedule, bool marking );
 
 	// Draw the component
 	void draw(scr_coord offset);
@@ -63,7 +63,7 @@ public:
  *
  * @author Hj. Malthaner
  */
-class fahrplan_gui_t :	public gui_frame_t,
+class schedule_gui_t :	public gui_frame_t,
 						public action_listener_t
 {
 public:
@@ -71,7 +71,7 @@ public:
 	 * Append description of entry to buf.
 	 * short version, without loading level and position
 	 */
-	static void gimme_short_stop_name(cbuffer_t& buf, karte_t* welt, player_t const* player_, linieneintrag_t const& entry, int max_chars);
+	static void gimme_short_stop_name(cbuffer_t& buf, karte_t* welt, player_t const* player_, schedule_entry_t const& entry, int max_chars);
 
 private:
 	enum mode_t {adding, inserting, removing, undefined_mode};
@@ -95,7 +95,7 @@ private:
 
 	char str_parts_month[32];
 
-	fahrplan_gui_stats_t stats;
+	schedule_gui_stats_t stats;
 	gui_scrollpane_t scrolly;
 
 	// to add new lines automatically
@@ -109,17 +109,17 @@ private:
 	void update_selection();
 
 protected:
-	schedule_t *fpl;
-	schedule_t* old_fpl;
+	schedule_t *schedule;
+	schedule_t* old_schedule;
 	player_t *player;
 	convoihandle_t cnv;
 
 	linehandle_t new_line, old_line;
 
 public:
-	fahrplan_gui_t(schedule_t* fpl, player_t* player, convoihandle_t cnv);
+	schedule_gui_t(schedule_t* schedule, player_t* player, convoihandle_t cnv);
 
-	virtual ~fahrplan_gui_t();
+	virtual ~schedule_gui_t();
 
 	// for updating info ...
 	void init_line_selector();
@@ -157,7 +157,7 @@ public:
 	void map_rotate90( sint16 );
 
 	// this constructor is only used during loading
-	fahrplan_gui_t();
+	schedule_gui_t();
 
 	virtual void rdwr( loadsave_t *file );
 

@@ -111,7 +111,7 @@ enlarge_map_frame_t::enlarge_map_frame_t() :
 	inp_town_size.add_listener(this);
 	inp_town_size.set_limits(0,999999);
 	inp_town_size.set_increment_mode(50);
-	inp_town_size.set_value( sets->get_mittlere_einwohnerzahl() );
+	inp_town_size.set_value( sets->get_mean_citizen_count() );
 	add_component( &inp_town_size );
 
 	// Town size label
@@ -166,7 +166,7 @@ bool enlarge_map_frame_t::action_triggered( gui_action_creator_t *komp,value_t v
 		sets->set_city_count( v.i );
 	}
 	else if(komp==&inp_town_size) {
-		sets->set_mittlere_einwohnerzahl( v.i );
+		sets->set_mean_citizen_count( v.i );
 	}
 	else if(komp==&start_button) {
 		// since soon those are invalid

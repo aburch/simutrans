@@ -47,7 +47,7 @@ settings_t::settings_t() :
 	tourist_attractions = 16;
 
 	city_count = 16;
-	mittlere_einwohnerzahl = 1600;
+	mean_citizen_count = 1600;
 
 	station_coverage_size = 2;
 
@@ -319,7 +319,7 @@ void settings_t::rdwr(loadsave_t *file)
 		tourist_attractions = 12;
 
 		// now towns
-		mittlere_einwohnerzahl = 1600;
+		mean_citizen_count = 1600;
 		dummy =  city_count;
 		file->rdwr_long(dummy );
 		dummy &= 127;
@@ -359,7 +359,7 @@ void settings_t::rdwr(loadsave_t *file)
 		file->rdwr_long(tourist_attractions );
 
 		// now towns
-		file->rdwr_long(mittlere_einwohnerzahl );
+		file->rdwr_long(mean_citizen_count );
 		file->rdwr_long(city_count );
 
 		// rest

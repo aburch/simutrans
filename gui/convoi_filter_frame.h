@@ -40,7 +40,7 @@ public:
 		schiffe_filter     = 1 << 7,
 		aircraft_filter    = 1 << 8,
 		noroute_filter     = 1 << 9,
-		nofpl_filter       = 1 << 10,
+		noschedule_filter  = 1 << 10,
 		noincome_filter    = 1 << 11,
 		indepot_filter     = 1 << 12,
 		noline_filter      = 1 << 13,

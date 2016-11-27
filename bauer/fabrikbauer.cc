@@ -99,7 +99,7 @@ inline bool is_factory_at( sint16 x, sint16 y)
 }
 
 
-void fabrikbauer_t::neue_karte()
+void fabrikbauer_t::new_world()
 {
 	init_fab_map( welt );
 }

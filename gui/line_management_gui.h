@@ -14,7 +14,7 @@
 class player_t;
 class loadsave_t;
 
-class line_management_gui_t : public fahrplan_gui_t
+class line_management_gui_t : public schedule_gui_t
 {
 public:
 	line_management_gui_t(linehandle_t line, player_t* player);

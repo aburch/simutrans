@@ -172,11 +172,11 @@ public:
 
 	/**
 	 * A convoi arrived at the depot and is added to the convoi list.
-	 * If fpl_adjust is true, the current depot is removed from schedule.
+	 * If schedule_adjust is true, the current depot is removed from schedule.
 	 * @author Volker Meyer
 	 * @date  09.06.2003
 	 */
-	void convoi_arrived(convoihandle_t cnv, bool fpl_adjust);
+	void convoi_arrived(convoihandle_t cnv, bool schedule_adjust);
 
 	/**
 	 * Parameters to determine layout and behaviour of the depot_frame_t.

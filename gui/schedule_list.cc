@@ -652,7 +652,7 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 		// fill haltestellen container with info of stops of the line
 		cont_haltestellen.remove_all();
 		ypos = 0;
-		FOR(minivec_tpl<linieneintrag_t>, const& i, new_line->get_schedule()->eintrag) {
+		FOR(minivec_tpl<schedule_entry_t>, const& i, new_line->get_schedule()->entries) {
 			halthandle_t const halt = haltestelle_t::get_halt(i.pos, player);
 			if(  halt.is_bound()  ) {
 				halt_list_stats_t* cinfo = new halt_list_stats_t(halt);

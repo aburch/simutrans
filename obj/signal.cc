@@ -28,7 +28,7 @@ signal_t::signal_t(loadsave_t *file) :
 	if(besch==NULL) {
 		besch = roadsign_t::default_signal;
 	}
-	zustand = rot;
+	state = rot;
 }
 
 
@@ -111,38 +111,38 @@ void signal_t::calc_image()
 				const sint16 YOFF = besch->get_offset_left();
 
 				if(temp_dir&ribi_t::east) {
-					image = besch->get_image_id(3+zustand*4+offset);
+					image = besch->get_image_id(3+state*4+offset);
 					xoff += XOFF;
 					yoff += -YOFF;
 				}
 
 				if(temp_dir&ribi_t::north) {
 					if(image!=IMG_EMPTY) {
-						foreground_image = besch->get_image_id(0+zustand*4+offset);
+						foreground_image = besch->get_image_id(0+state*4+offset);
 						after_xoffset += -XOFF;
 						after_yoffset += -YOFF;
 					}
 					else {
-						image = besch->get_image_id(0+zustand*4+offset);
+						image = besch->get_image_id(0+state*4+offset);
 						xoff += -XOFF;
 						yoff += -YOFF;
 					}
 				}
 
 				if(temp_dir&ribi_t::west) {
-					foreground_image = besch->get_image_id(2+zustand*4+offset);
+					foreground_image = besch->get_image_id(2+state*4+offset);
 					after_xoffset += -XOFF;
 					after_yoffset += YOFF;
 				}
 
 				if(temp_dir&ribi_t::south) {
 					if(foreground_image!=IMG_EMPTY) {
-						image = besch->get_image_id(1+zustand*4+offset);
+						image = besch->get_image_id(1+state*4+offset);
 						xoff += XOFF;
 						yoff += YOFF;
 					}
 					else {
-						foreground_image = besch->get_image_id(1+zustand*4+offset);
+						foreground_image = besch->get_image_id(1+state*4+offset);
 						after_xoffset += XOFF;
 						after_yoffset += YOFF;
 					}
@@ -150,28 +150,28 @@ void signal_t::calc_image()
 			}
 			else {
 				if(temp_dir&ribi_t::east) {
-					foreground_image = besch->get_image_id(3+zustand*4+offset);
+					foreground_image = besch->get_image_id(3+state*4+offset);
 				}
 
 				if(temp_dir&ribi_t::north) {
 					if(foreground_image==IMG_EMPTY) {
-						foreground_image = besch->get_image_id(0+zustand*4+offset);
+						foreground_image = besch->get_image_id(0+state*4+offset);
 					}
 					else {
-						image = besch->get_image_id(0+zustand*4+offset);
+						image = besch->get_image_id(0+state*4+offset);
 					}
 				}
 
 				if(temp_dir&ribi_t::west) {
-					image = besch->get_image_id(2+zustand*4+offset);
+					image = besch->get_image_id(2+state*4+offset);
 				}
 
 				if(temp_dir&ribi_t::south) {
 					if(image==IMG_EMPTY) {
-						image = besch->get_image_id(1+zustand*4+offset);
+						image = besch->get_image_id(1+state*4+offset);
 					}
 					else {
-						foreground_image = besch->get_image_id(1+zustand*4+offset);
+						foreground_image = besch->get_image_id(1+state*4+offset);
 					}
 				}
 			}

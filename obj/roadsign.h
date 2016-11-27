@@ -29,7 +29,7 @@ protected:
 
 	enum { SHOW_FONT=1, SHOW_BACK=2, SWITCH_AUTOMATIC=16 };
 
-	uint8 zustand:2;	// counter for steps ...
+	uint8 state:2;	// counter for steps ...
 	uint8 dir:4;
 
 	uint8 automatic:1;
@@ -44,7 +44,7 @@ protected:
 
 	ribi_t::ribi calc_mask() const { return ribi_t::is_single(dir) ? dir : (ribi_t::ribi)ribi_t::none; }
 public:
-	enum signalzustand {rot=0, gruen=1, naechste_rot=2 };
+	enum signalstate {rot=0, gruen=1, naechste_rot=2 };
 
 	/*
 	 * return direction or the state of the traffic light
@@ -58,8 +58,8 @@ public:
 	*/
 	void set_dir(ribi_t::ribi dir);
 
-	void set_zustand(signalzustand z) {zustand = z; calc_image();}
-	signalzustand get_zustand() { return (signalzustand)zustand; }
+	void set_state(signalstate z) {state = z; calc_image();}
+	signalstate get_state() { return (signalstate)state; }
 
 	typ get_typ() const { return roadsign; }
 	const char* get_name() const { return "Roadsign"; }

@@ -505,7 +505,7 @@ void rdwr_all_win(loadsave_t *file)
 					case magic_halt_detail:    w = new halt_detail_t(); break;
 					case magic_reliefmap:      w = new map_frame_t(); break;
 					case magic_ki_kontroll_t:  w = new ki_kontroll_t(); break;
-					case magic_schedule_rdwr_dummy: w = new fahrplan_gui_t(); break;
+					case magic_schedule_rdwr_dummy: w = new schedule_gui_t(); break;
 					case magic_line_schedule_rdwr_dummy: w = new line_management_gui_t(); break;
 					case magic_city_info_t:    w = new city_info_t(); break;
 					case magic_messageframe:   w = new message_frame_t(); break;

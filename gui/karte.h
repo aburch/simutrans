@@ -82,7 +82,7 @@ private:
 	{
 	public:
 		koord start, end;
-		schedule_t *fpl;
+		schedule_t *schedule;
 		player_t *player;
 		waytype_t waytype;
 		uint8 colorcount;
@@ -91,7 +91,7 @@ private:
 		bool start_diagonal;
 		line_segment_t() {}
 		line_segment_t( koord s, uint8 so, koord e, uint8 eo, schedule_t *f, player_t *player_, uint8 cc, bool diagonal ) {
-			fpl = f;
+			schedule = f;
 			waytype = f->get_waytype();
 			player = player_;
 			colorcount = cc;

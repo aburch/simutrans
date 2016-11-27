@@ -292,7 +292,7 @@ void hausbauer_t::fill_menu(tool_selector_t* tool_selector, haus_besch_t::utyp u
 }
 
 
-void hausbauer_t::neue_karte()
+void hausbauer_t::new_world()
 {
 	ungebaute_denkmaeler.clear();
 	FOR(vector_tpl<haus_besch_t const*>, const i, denkmaeler) {

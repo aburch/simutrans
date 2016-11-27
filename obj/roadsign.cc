@@ -61,9 +61,9 @@ roadsign_t::roadsign_t(loadsave_t *file) : obj_t ()
 	else {
 		automatic = false;
 	}
-	// some sve had rather strange entries in zustand
+	// some sve had rather strange entries in state
 	if(  !automatic  ||  besch==NULL  ) {
-		zustand = 0;
+		state = 0;
 	}
 	// only traffic light need switches
 	if(  automatic  ) {
@@ -78,7 +78,7 @@ roadsign_t::roadsign_t(player_t *player, koord3d pos, ribi_t::ribi dir, const ro
 	this->dir = dir;
 	this->preview = preview;
 	image = foreground_image = IMG_EMPTY;
-	zustand = 0;
+	state = 0;
 	ticks_ns = ticks_ow = 16;
 	ticks_offset = 0;
 	set_owner( player );
@@ -271,7 +271,7 @@ void roadsign_t::calc_image()
 
 	image_id tmp_image=IMG_EMPTY;
 	if(!automatic) {
-		assert( zustand==0 );
+		assert( state==0 );
 
 		foreground_image = IMG_EMPTY;
 		ribi_t::ribi temp_dir = dir;
@@ -470,10 +470,10 @@ sync_result roadsign_t::sync_step(uint32 /*delta_t*/)
 		// change every ~32s
 		uint32 ticks = ((welt->get_zeit_ms()>>10)+ticks_offset) % (ticks_ns+ticks_ow);
 
-		uint8 new_zustand = (ticks >= ticks_ns) ^ (welt->get_settings().get_rotation() & 1);
-		if(zustand!=new_zustand) {
-			zustand = new_zustand;
-			dir = (new_zustand==0) ? ribi_t::northsouth : ribi_t::eastwest;
+		uint8 new_state = (ticks >= ticks_ns) ^ (welt->get_settings().get_rotation() & 1);
+		if(state!=new_state) {
+			state = new_state;
+			dir = (new_state==0) ? ribi_t::northsouth : ribi_t::eastwest;
 			calc_image();
 		}
 	}
@@ -486,7 +486,7 @@ void roadsign_t::rotate90()
 	// only meaningful for traffic lights
 	obj_t::rotate90();
 	if(automatic  &&  !besch->is_private_way()) {
-		zustand = (zustand+1)&1;
+		state = (state+1)&1;
 		uint8 temp = ticks_ns;
 		ticks_ns = ticks_ow;
 		ticks_ow = temp;
@@ -553,9 +553,9 @@ void roadsign_t::rdwr(loadsave_t *file)
 		}
 	}
 
-	dummy = zustand;
+	dummy = state;
 	file->rdwr_byte(dummy);
-	zustand = dummy;
+	state = dummy;
 	dummy = dir;
 	file->rdwr_byte(dummy);
 	dir = dummy;

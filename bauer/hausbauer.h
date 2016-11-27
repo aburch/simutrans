@@ -106,7 +106,7 @@ public:
 	 * In this case the list of unbuilt monuments must be refilled
 	 * to ensure each monument is only present once per map.
 	 */
-	static void neue_karte();
+	static void new_world();
 
 	/// @returns true if this monument has not yet been built.
 	static bool is_valid_denkmal(const haus_besch_t* besch) { return ungebaute_denkmaeler.is_contained(besch); }

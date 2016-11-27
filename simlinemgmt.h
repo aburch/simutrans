@@ -34,7 +34,7 @@ public:
 	void delete_line(linehandle_t line);
 
 	/*
-	 * update a line -> apply updated fahrplan to all convoys
+	 * update a line -> apply updated schedule to all convoys
 	 * @author hsiegeln
 	 */
 	void update_line(linehandle_t line);
@@ -73,7 +73,7 @@ public:
 	 * Creates a line and sets its schedule
 	 * @author prissi
 	 */
-	linehandle_t create_line(int ltype, player_t * player_, schedule_t * fpl);
+	linehandle_t create_line(int ltype, player_t * player_, schedule_t * schedule);
 
 
 	/**

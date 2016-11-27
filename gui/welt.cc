@@ -201,7 +201,7 @@ welt_gui_t::welt_gui_t(settings_t* const sets_par) :
 	inp_town_size.add_listener(this);
 	inp_town_size.set_limits(0,999999);
 	inp_town_size.set_increment_mode(50);
-	inp_town_size.set_value( sets->get_mittlere_einwohnerzahl() );
+	inp_town_size.set_value( sets->get_mean_citizen_count() );
 	add_component( &inp_town_size );
 
 	// Town size label
@@ -482,7 +482,7 @@ bool welt_gui_t::action_triggered( gui_action_creator_t *komp,value_t v)
 		city_density = sets->get_city_count() ? sqrt((double)sets->get_groesse_x()*sets->get_groesse_y()) / sets->get_city_count() : 0.0;
 	}
 	else if(komp==&inp_town_size) {
-		sets->set_mittlere_einwohnerzahl( v.i );
+		sets->set_mean_citizen_count( v.i );
 	}
 	else if(komp==&inp_intercity_road_len) {
 		env_t::intercity_road_length = v.i;

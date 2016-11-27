@@ -45,7 +45,7 @@ crossing_t::crossing_t(player_t* const player_, koord3d const pos, kreuzung_besc
 	this->ns = ns;
 	this->besch = besch;
 	logic = NULL;
-	zustand = crossing_logic_t::CROSSING_INVALID;
+	state = crossing_logic_t::CROSSING_INVALID;
 	image = foreground_image = IMG_EMPTY;
 	set_owner( player_ );
 }
@@ -87,23 +87,23 @@ void crossing_t::calc_image()
 	pthread_mutex_lock( &crossing_logic_mutex );
 #endif
 	if(  logic  ) {
-		zustand = logic->get_state();
+		state = logic->get_state();
 	}
 #ifdef MULTI_THREAD
 	pthread_mutex_unlock( &crossing_logic_mutex );
 #endif
 	const bool snow_image = get_pos().z >= welt->get_snowline()  ||  welt->get_climate( get_pos().get_2d() ) == arctic_climate;
 	// recalc image each step ...
-	const image_t *a = besch->get_image_after( ns, zustand!=crossing_logic_t::CROSSING_CLOSED, snow_image );
+	const image_t *a = besch->get_image_after( ns, state!=crossing_logic_t::CROSSING_CLOSED, snow_image );
 	if(  a==NULL  &&  snow_image  ) {
 		// no snow image? take normal one
-		a = besch->get_image_after( ns, zustand!=crossing_logic_t::CROSSING_CLOSED, 0);
+		a = besch->get_image_after( ns, state!=crossing_logic_t::CROSSING_CLOSED, 0);
 	}
 	foreground_image = a ? a->get_id() : IMG_EMPTY;
-	const image_t *b = besch->get_image( ns, zustand!=crossing_logic_t::CROSSING_CLOSED, snow_image );
+	const image_t *b = besch->get_image( ns, state!=crossing_logic_t::CROSSING_CLOSED, snow_image );
 	if (b==NULL  &&  snow_image) {
 		// no snow image? take normal one
-		b = besch->get_image( ns, zustand!=crossing_logic_t::CROSSING_CLOSED, 0);
+		b = besch->get_image( ns, state!=crossing_logic_t::CROSSING_CLOSED, 0);
 	}
 	image = b ? b->get_id() : IMG_EMPTY;
 }
@@ -116,8 +116,8 @@ void crossing_t::rdwr(loadsave_t *file)
 	obj_t::rdwr(file);
 
 	// variables ... attention, logic now in crossing_logic_t
-	zustand = logic==NULL ? crossing_logic_t::CROSSING_INVALID : logic->get_state();
-	file->rdwr_byte(zustand);
+	state = logic==NULL ? crossing_logic_t::CROSSING_INVALID : logic->get_state();
+	file->rdwr_byte(state);
 	file->rdwr_byte(ns);
 	if(file->get_version()<99016) {
 		uint32 ldummy=0;
@@ -155,7 +155,7 @@ void crossing_t::rdwr(loadsave_t *file)
 		if(besch==NULL) {
 			dbg->fatal("crossing_t::rdwr()","requested for waytypes %i and %i but nothing defined!", w1, w2 );
 		}
-		crossing_logic_t::add( this, static_cast<crossing_logic_t::crossing_state_t>(zustand) );
+		crossing_logic_t::add( this, static_cast<crossing_logic_t::crossing_state_t>(state) );
 	}
 }
 
@@ -187,7 +187,7 @@ void crossing_t::finish_rd()
 #ifdef MULTI_THREAD
 		pthread_mutex_lock( &crossing_logic_mutex );
 #endif
-		crossing_logic_t::add( this, static_cast<crossing_logic_t::crossing_state_t>(zustand) );
+		crossing_logic_t::add( this, static_cast<crossing_logic_t::crossing_state_t>(state) );
 		logic->recalc_state();
 #ifdef MULTI_THREAD
 		pthread_mutex_unlock( &crossing_logic_mutex );

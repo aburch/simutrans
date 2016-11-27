@@ -74,7 +74,7 @@ public:
 	 * Tells the factory builder a new map is being loaded or generated.
 	 * In this case the list of all factory positions must be reinitialized.
 	 */
-	static void neue_karte();
+	static void new_world();
 
 	/// Creates a certain number of tourist attractions.
 	static void verteile_tourist(int max_number);

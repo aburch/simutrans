@@ -29,7 +29,7 @@
 class oldsignal_t : public obj_t
 {
 protected:
-	uint8 zustand;
+	uint8 state;
 	uint8 blockend;
 	uint8 dir;
 	obj_t::typ type;
@@ -74,7 +74,7 @@ oldsignal_t::rdwr(loadsave_t *file)
 	// loading from blockmanager!
 	obj_t::rdwr(file);
 	file->rdwr_byte(blockend);
-	file->rdwr_byte(zustand);
+	file->rdwr_byte(state);
 	file->rdwr_byte(dir);
 }
 

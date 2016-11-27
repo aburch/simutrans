@@ -24,7 +24,7 @@ class crossing_t : public obj_no_info_t
 protected:
 	image_id foreground_image, image;
 	uint8 ns;				// direction
-	uint8 zustand;	// only needed for loading ...
+	uint8 state;	// only needed for loading ...
 	crossing_logic_t *logic;
 	const kreuzung_besch_t *besch;
 
