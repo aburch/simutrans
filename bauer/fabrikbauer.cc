@@ -337,16 +337,16 @@ koord3d fabrikbauer_t::finde_zufallsbauplatz( koord pos, const int radius, koord
 	climate_bits climates = !ignore_climates ? besch->get_allowed_climate_bits() : ALL_CLIMATES;
 
 	uint32 diam   = 2*radius + 1;
-	uint32 size   = diam * diam;
-	uint32 index  = simrand(size);
+	uint32 area   = diam * diam;
+	uint32 index  = simrand(area);
 	koord k;
 
-	max_iterations = min( size/(groesse.x*groesse.y)+1, max_iterations );
+	max_iterations = min( area/(groesse.x*groesse.y)+1, max_iterations );
 	const uint32 a = diam+1;
 	const uint32 c = 37; // very unlikely to have this as a factor in somewhere ...
 
 	// in order to stop on the first occurence, one has to iterate over all tiles in a reproducable but random enough manner
-	for(  uint32 i = 0;  i<max_iterations; i++,  index = (a*index+c) % size  ) {
+	for(  uint32 i = 0;  i<max_iterations; i++,  index = (a*index+c) % area  ) {
 
 		// so it is guaranteed that the iteration hits all tiles and does not repeat itself
 		k = koord( pos.x - radius + (index % diam), pos.y - radius + (index / diam) );
