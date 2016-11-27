@@ -21,6 +21,7 @@
 #include "../utils/cbuffer_t.h"
 #include "../utils/searchfolder.h"
 #include "../utils/simstring.h"
+#include "../utils/simrandom.h"
 #include "../unicode.h"
 #include "../tpl/vector_tpl.h"
 
@@ -285,8 +286,8 @@ void translator::init_custom_names(int lang)
 	if (city_name_list.empty()) {
 		DBG_MESSAGE("translator::init_city_names", "reading failed, creating random names.");
 		// Hajo: try to read list failed, create random names
-		for(  uint i = 0;  i < 1024;  i++  ) {
-			char name[32];
+		for(  uint i = 0;  i < 2048;  i++  ) {
+			char name[64];
 			sprintf( name, "%%%X_CITY_SYLL", i );
 			const char *s1 = translator::translate(name,lang);
 			if(s1==name) {
@@ -307,6 +308,80 @@ void translator::init_custom_names(int lang)
 				char *const c = MALLOCN(char, l1 + l2 + 1);
 				sprintf(c, "%s%s", s1, s2);
 				city_name_list.append(c);
+				
+				// Now prefixes and suffixes. 
+				// Only add a random fraction of these, as
+				// it would be too repetative to have every
+				// prefix and suffix with every name.
+
+				// TODO: Add geographically specific 
+				// prefixes and suffixes (e.g. "-on-sea"
+				// appearing only where the town is
+				// actually by the sea). 
+
+				const uint32 random_percent = simrand(100, "translator::init_city_names (general)");
+				
+				// TODO: Have these set from simuconf.tab
+				const uint32 prefix_probability = 5;
+				const uint32 suffix_probability = 5;
+
+				const uint32 max_prefixes_per_name = 5;
+				const uint32 max_suffixes_per_name = 5;
+
+				const bool allow_prefixes_and_suffixes_together = false;
+
+				uint32 prefixes_this_name = 0;
+				uint32 suffixes_this_name = 0;
+
+				if (random_percent <= prefix_probability)
+				{
+					// Prefixes
+					for (uint32 p = 0; p < 256; p++)
+					{
+						sprintf(name, "&%X_CITY_PREFIX", p);
+						const char *s3 = translator::translate(name, lang);
+						const uint32 random_percent_prefix = simrand(100, "translator::init_city_names (prefix)");
+						
+						if (s3 == name || random_percent_prefix > prefix_probability)
+						{
+							// name not available ...
+							continue;
+						}
+						const size_t l3 = strlen(s3);
+						char *const c2 = MALLOCN(char, l1 + l2 +l3 + 1);
+						sprintf(c2, "%s%s%s", s3, s1, s2);
+						city_name_list.append(c2);
+						if (prefixes_this_name++ > max_prefixes_per_name)
+						{
+							break;
+						}
+					}
+				}
+
+				if (random_percent >= (100 - suffix_probability) && (random_percent >= prefix_probability || allow_prefixes_and_suffixes_together))
+				{
+					// Suffixes
+					for (uint32 p = 0; p < 256; p++)
+					{
+						sprintf(name, "&%X_CITY_SUFFIX", p);
+						const char *s3 = translator::translate(name, lang);
+						const uint32 random_percent_suffix = simrand(100, "translator::init_city_names (suffix)");
+
+						if (s3 == name || random_percent_suffix > prefix_probability || strcmp(s3, s2) == 0)
+						{
+							// name not available or the suffix is identical to the final syllable
+							continue;
+						}
+						const size_t l3 = strlen(s3);
+						char *const c2 = MALLOCN(char, l1 + l2 + l3 + 1);
+						sprintf(c2, "%s%s%s", s1, s2, s3);
+						city_name_list.append(c2);
+						if (suffixes_this_name++ > max_prefixes_per_name)
+						{
+							break;
+						}
+					}
+				}
 			}
 		}
 	}
