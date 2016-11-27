@@ -207,7 +207,7 @@ void enlarge_map_frame_t::draw(scr_coord pos, scr_size size)
 void enlarge_map_frame_t::update_preview()
 {
 	// reset noise seed
-	setsimrand(0xFFFFFFFF, welt->get_settings().get_karte_nummer());
+	setsimrand(0xFFFFFFFF, welt->get_settings().get_map_number());
 
 	// "welt" still knows the old size. The new size is saved in "sets".
 	sint16 old_x = welt->get_size().x;

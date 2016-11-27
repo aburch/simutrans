@@ -129,7 +129,7 @@ welt_gui_t::welt_gui_t(settings_t* const sets_par) :
 	cursor.y += D_DIVIDER_HEIGHT;
 
 	// Map number edit
-	inp_map_number.init( abs(sets->get_karte_nummer()), 0, 0x7FFFFFFF, 1, true );
+	inp_map_number.init( abs(sets->get_map_number()), 0, 0x7FFFFFFF, 1, true );
 	inp_map_number.set_pos(scr_coord(L_COLUMN1_X, cursor.y));
 	inp_map_number.set_size(scr_size(edit_Width, D_EDIT_HEIGHT));
 	inp_map_number.add_listener( this );
@@ -411,7 +411,7 @@ void welt_gui_t::update_preview(bool load_heightfield)
 	else {
 		resize_preview();
 
-		setsimrand( 0xFFFFFFFF, sets->get_karte_nummer() );
+		setsimrand( 0xFFFFFFFF, sets->get_map_number() );
 
 		const int mx = sets->get_size_x()/map_size.w;
 		const int my = sets->get_size_y()/map_size.h;
@@ -512,7 +512,7 @@ bool welt_gui_t::action_triggered( gui_action_creator_t *komp,value_t v)
 		sets->grundwasser = -2;
 		load_relief_frame_t* lrf = new load_relief_frame_t(sets);
 		create_win((display_get_width() - lrf->get_windowsize().w-10), 40, lrf, w_info, magic_load_t );
-		knr = sets->get_karte_nummer();	// otherwise using cancel would not show the normal generated map again
+		knr = sets->get_map_number();	// otherwise using cancel would not show the normal generated map again
 	}
 	else if(komp==&use_intro_dates) {
 		// 0,1 should force setting to new game as well. don't allow to change
@@ -587,7 +587,7 @@ bool welt_gui_t::action_triggered( gui_action_creator_t *komp,value_t v)
 	}
 
 	if(knr>=0) {
-		sets->nummer = knr;
+		sets->map_number = knr;
 		if(!loaded_heightfield) {
 			update_preview();
 		}

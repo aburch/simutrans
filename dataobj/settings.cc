@@ -38,7 +38,7 @@ settings_t::settings_t() :
 	size_x = 256;
 	size_y = 256;
 
-	nummer = 33;
+	map_number = 33;
 
 	/* new setting since version 0.85.01
 	 * @author prissi
@@ -310,7 +310,7 @@ void settings_t::rdwr(loadsave_t *file)
 		file->rdwr_long(size_x );
 		size_y = size_x;
 
-		file->rdwr_long(nummer );
+		file->rdwr_long(map_number );
 
 		// to be compatible with previous savegames
 		dummy = 0;
@@ -345,7 +345,7 @@ void settings_t::rdwr(loadsave_t *file)
 	else {
 		// newer versions
 		file->rdwr_long(size_x );
-		file->rdwr_long(nummer );
+		file->rdwr_long(map_number );
 
 		// industries
 		file->rdwr_long(factory_count );

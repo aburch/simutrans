@@ -41,7 +41,7 @@ class settings_t
 
 private:
 	sint32 size_x, size_y;
-	sint32 nummer;
+	sint32 map_number;
 
 	/* new setting since version 0.85.01
 	 * @author prissi
@@ -356,7 +356,7 @@ public:
 	sint32 get_size_x() const {return size_x;}
 	sint32 get_size_y() const {return size_y;}
 
-	sint32 get_karte_nummer() const {return nummer;}
+	sint32 get_map_number() const {return map_number;}
 
 	void set_factory_count(sint32 d) { factory_count=d; }
 	sint32 get_factory_count() const {return factory_count;}

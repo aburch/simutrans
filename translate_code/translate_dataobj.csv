@@ -29,3 +29,5 @@ tool_fahrplan_,tool_schedule_
 groesse_x,size_x
 groesse_y,size_y
 groesse\\>,size
+karte_nummer,map_number
+nummer\\>,map_number
