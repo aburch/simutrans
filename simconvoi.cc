@@ -655,8 +655,11 @@ DBG_MESSAGE("convoi_t::finish_rd()","next_stop_index=%d", next_stop_index );
 		alte_richtung = front()->get_direction();
 	}
 	// Knightly : if lineless convoy -> register itself with stops
-	if(  !line.is_bound()  ) {
-		register_stops();
+	if (state > INITIAL)
+	{
+		if (!line.is_bound()) {
+			register_stops();
+		}
 	}
 
 	for(int i = 0; i < anz_vehikel; i++)
@@ -4410,39 +4413,94 @@ void convoi_t::rdwr(loadsave_t *file)
 			uint32 count = average_journey_times.get_count();
 			file->rdwr_long(count);
 
-			FOR(journey_times_map, const& iter, average_journey_times)
+			if (file->get_experimental_version() >= 13 || file->get_experimental_revision() >= 14)
 			{
-				id_pair idp = iter.key;
-				file->rdwr_short(idp.x);
-				file->rdwr_short(idp.y);
-				sint16 value = iter.value.count;
-				file->rdwr_short(value);
-				value = iter.value.total;
-				file->rdwr_short(value);
+				// New 32-bit journey times
+				FOR(journey_times_map, const& iter, average_journey_times)
+				{
+					id_pair idp = iter.key;
+					file->rdwr_short(idp.x);
+					file->rdwr_short(idp.y);
+					uint32 value = iter.value.count;
+					file->rdwr_long(value);
+					value = iter.value.total;
+					file->rdwr_long(value);
+				}
 			}
-
+			else
+			{
+				FOR(journey_times_map, const& iter, average_journey_times)
+				{
+					id_pair idp = iter.key;
+					file->rdwr_short(idp.x);
+					file->rdwr_short(idp.y);
+					sint16 value = (sint16)iter.value.count;
+					file->rdwr_short(value);
+					if (iter.value.total == UINT32_MAX_VALUE)
+					{
+						value = 65535;
+					}
+					else
+					{
+						value = (sint16)iter.value.total;
+					}
+					file->rdwr_short(value);
+				}
+			}
 		}
 		else
 		{
 			uint32 count = 0;
 			file->rdwr_long(count);
 			average_journey_times.clear();
-			for(uint32 i = 0; i < count; i ++)
+
+			if (file->get_experimental_version() >= 13 || file->get_experimental_revision() >= 14)
 			{
-				id_pair idp;
-				file->rdwr_short(idp.x);
-				file->rdwr_short(idp.y);
+				// New 32-bit journey times
+				for (uint32 i = 0; i < count; i++)
+				{
+					id_pair idp;
+					file->rdwr_short(idp.x);
+					file->rdwr_short(idp.y);
 
-				uint16 count;
-				uint16 total;
-				file->rdwr_short(count);
-				file->rdwr_short(total);
+					uint32 count;
+					uint32 total;
+					file->rdwr_long(count);
+					file->rdwr_long(total);
 
-				average_tpl<uint16> average;
-				average.count = count;
-				average.total = total;
+					average_tpl<uint32> average;
+					average.count = count;
+					average.total = total;
 
-				average_journey_times.put(idp, average);
+					average_journey_times.put(idp, average);
+				}
+			}
+			else
+			{
+				for (uint32 i = 0; i < count; i++)
+				{
+					id_pair idp;
+					file->rdwr_short(idp.x);
+					file->rdwr_short(idp.y);
+
+					uint16 count;
+					uint16 total;
+					file->rdwr_short(count);
+					file->rdwr_short(total);				
+
+					average_tpl<uint32> average;
+					average.count = (uint32)count;
+					if (total == 65535)
+					{
+						average.total = UINT32_MAX_VALUE;
+					}
+					else
+					{
+						average.total = (uint32)total;
+					}
+
+					average_journey_times.put(idp, average);
+				}
 			}
 		}
 
@@ -4885,13 +4943,13 @@ void convoi_t::laden() //"load" (Babelfish)
 			FOR(int_map, const& iter, best_times_in_schedule)
 			{
 				id_pair pair(iter.key, this_halt_id);
-				const sint32 this_journey_time = (uint16)welt->ticks_to_tenths_of_minutes(arrival_time - iter.value);
+				const sint32 this_journey_time = (uint32)welt->ticks_to_tenths_of_minutes(arrival_time - iter.value);
 
 				departures_already_booked.set(pair, iter.value);
-				const average_tpl<uint16> *average_check = average_journey_times.access(pair);
+				const average_tpl<uint32> *average_check = average_journey_times.access(pair);
 				if(!average_check)
 				{
-					average_tpl<uint16> average_new;
+					average_tpl<uint32> average_new;
 					average_new.add(this_journey_time);
 					average_journey_times.put(pair, average_new);
 				}
@@ -4901,10 +4959,10 @@ void convoi_t::laden() //"load" (Babelfish)
 				}
 				if(line.is_bound())
 				{
-					const average_tpl<uint16> *average = get_average_journey_times().access(pair);
+					const average_tpl<uint32> *average = get_average_journey_times().access(pair);
 					if(!average)
 					{
-						average_tpl<uint16> average_new;
+						average_tpl<uint32> average_new;
 						average_new.add(this_journey_time);
 						get_average_journey_times().put(pair, average_new);
 					}
@@ -5626,7 +5684,7 @@ uint32 convoi_t::get_average_kmh()
 {
 	halthandle_t halt = haltestelle_t::get_halt(fpl->get_current_eintrag().pos, owner);
 	id_pair idp(last_stop_id, halt.get_id());
-	average_tpl<uint16>* avr = get_average_journey_times().access(idp);
+	average_tpl<uint32>* avr = get_average_journey_times().access(idp);
 	return avr ? avr->get_average() : get_vehicle_summary().max_speed;
 }
 

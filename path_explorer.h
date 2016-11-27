@@ -101,10 +101,10 @@ private:
 		// element used during path search and for storing calculated paths
 		struct path_element_t
 		{
-			uint16 aggregate_time;
+			uint32 aggregate_time;
 			halthandle_t next_transfer;
 
-			path_element_t() : aggregate_time(65535u) { }
+			path_element_t() : aggregate_time(UINT32_MAX_VALUE) { }
 		};
 
 		// element used during path search only for storing best lines/convoys
@@ -373,7 +373,7 @@ private:
 		void set_refresh() { refresh_requested = true; }
 
 		bool get_path_between(const halthandle_t origin_halt, const halthandle_t target_halt,
-							  uint16 &aggregate_time, halthandle_t &next_transfer);
+							  uint32 &aggregate_time, halthandle_t &next_transfer);
 
 		const char *get_category_name() const { return ( catg_name ? catg_name : "" ); }
 		const char *get_current_phase_name() const { return phase_name[current_phase]; }
@@ -451,7 +451,7 @@ public:
 	static void refresh_all_categories(const bool reset_working_set);
 	static void refresh_category(const uint8 category) { goods_compartment[category].set_refresh(); }
 	static bool get_catg_path_between(const uint8 category, const halthandle_t origin_halt, const halthandle_t target_halt,
-									  uint16 &aggregate_time, halthandle_t &next_transfer)
+									  uint32 &aggregate_time, halthandle_t &next_transfer)
 	{
 		return goods_compartment[category].get_path_between(origin_halt, target_halt, aggregate_time, next_transfer);
 	}

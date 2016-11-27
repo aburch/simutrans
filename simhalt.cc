@@ -477,7 +477,7 @@ haltestelle_t::haltestelle_t(loadsave_t* file)
 	for ( uint8 i = 0; i < max_categories; i++ ) {
 		non_identical_schedules[i] = 0;
 	}
-	waiting_times = new inthashtable_tpl<uint16, waiting_time_set >[max_categories];
+	waiting_times = new inthashtable_tpl<uint32, waiting_time_set >[max_categories];
 	connexions = new quickstone_hashtable_tpl<haltestelle_t, connexion*>*[max_categories];
 
 	// Knightly : create the actual connexion hash tables
@@ -534,7 +534,7 @@ haltestelle_t::haltestelle_t(koord k, player_t* player)
 	for ( uint8 i = 0; i < max_categories; i++ ) {
 		non_identical_schedules[i] = 0;
 	}
-	waiting_times = new inthashtable_tpl<uint16, waiting_time_set >[max_categories];
+	waiting_times = new inthashtable_tpl<uint32, waiting_time_set >[max_categories];
 	connexions = new quickstone_hashtable_tpl<haltestelle_t, connexion*>*[max_categories];
 
 	// Knightly : create the actual connexion hash tables
@@ -1350,12 +1350,7 @@ void haltestelle_t::step()
 						// have waited to get transport.
 						waiting_tenths *= 4;
 
-						// Avoid integer overflow
-						if (waiting_tenths > 65535) {
-							waiting_tenths = 65535;
-						}
-						const uint16 waiting_tenths_short = waiting_tenths;
-						add_waiting_time(waiting_tenths_short, tmp.get_zwischenziel(), tmp.get_besch()->get_catg_index());
+						add_waiting_time(waiting_tenths, tmp.get_zwischenziel(), tmp.get_besch()->get_catg_index());
 
 						// The goods/passengers leave.  We must record the lower "in transit" count on factories.
 						fabrik_t::update_transit(tmp, false);
@@ -1371,20 +1366,12 @@ void haltestelle_t::step()
 				// artificially low time from being recorded if there is a long service interval.
 				if(waiting_tenths > 2 * get_average_waiting_time(tmp.get_zwischenziel(), tmp.get_besch()->get_catg_index()))
 				{
-					// Avoid integer overflow
-					if (waiting_tenths > 65535) {
-						waiting_tenths = 65535;
-					}
-					const uint16 waiting_tenths_short = waiting_tenths;
-
-					add_waiting_time(waiting_tenths_short, tmp.get_zwischenziel(), tmp.get_besch()->get_catg_index());
+					add_waiting_time(waiting_tenths, tmp.get_zwischenziel(), tmp.get_besch()->get_catg_index());
 				}
 			}
 		}
 	}
 }
-
-
 
 /**
  * Called every month
@@ -1482,7 +1469,7 @@ uint32 haltestelle_t::reroute_goods(const uint8 catg)
 
 			// check if this good can still reach its destination
 
-			if(find_route(ware) == 65535)
+			if(find_route(ware) == UINT32_MAX_VALUE)
 			{
 				// remove invalid destinations
 				continue;
@@ -1648,10 +1635,10 @@ sint8 haltestelle_t::is_connected(halthandle_t halt, uint8 catg_index) const
 
 uint16 haltestelle_t::get_average_waiting_time(halthandle_t halt, uint8 category) const
 {
-	inthashtable_tpl<uint16, haltestelle_t::waiting_time_set> * const wt = &waiting_times[category];
+	inthashtable_tpl<uint32, haltestelle_t::waiting_time_set> * const wt = &waiting_times[category];
 	if(wt->is_contained((halt.get_id())))
 	{
-		fixed_list_tpl<uint16, 32> times = waiting_times[category].get(halt.get_id()).times;
+		fixed_list_tpl<uint32, 32> times = waiting_times[category].get(halt.get_id()).times;
 		const uint32 count = times.get_count();
 		if(count > 0 && halt.is_bound())
 		{
@@ -1669,7 +1656,7 @@ uint16 haltestelle_t::get_average_waiting_time(halthandle_t halt, uint8 category
 	// half the interval between services, because they do not all arrive
 	// just after the previous service has departed. 
 	uint16 estimated_waiting_time = get_service_frequency(halt, category) / 2;
-	fixed_list_tpl<uint16, 32> tmp;
+	fixed_list_tpl<uint32, 32> tmp;
 	waiting_time_set set;
 	set.times = tmp;
 	set.month = 2; // Set this so as to be stale and flushed quickly to keep this up to date.
@@ -1707,8 +1694,8 @@ uint16 haltestelle_t::get_service_frequency(halthandle_t destination, uint8 cate
 			}
 			if(n < schedule_count - 1)
 			{
-				const uint16 average_time = registered_lines[i]->get_average_journey_times().get(id_pair(haltestelle_t::get_halt(current_halt, owner).get_id(), haltestelle_t::get_halt(next_halt, owner).get_id())).get_average();
-				if(average_time != 0 && average_time != 65535)
+				const uint32 average_time = registered_lines[i]->get_average_journey_times().get(id_pair(haltestelle_t::get_halt(current_halt, owner).get_id(), haltestelle_t::get_halt(next_halt, owner).get_id())).get_average();
+				if(average_time != 0 && average_time != UINT32_MAX_VALUE)
 				{
 					timing += average_time;
 				}
@@ -1718,11 +1705,9 @@ uint16 haltestelle_t::get_service_frequency(halthandle_t destination, uint8 cate
 					const uint32 distance = shortest_distance(current_halt, next_halt);
 					const uint32 recorded_average_speed = registered_lines[i]->get_finance_history(1, LINE_AVERAGE_SPEED);
 					const uint32 average_speed = recorded_average_speed > 0 ? recorded_average_speed : speed_to_kmh(registered_lines[i]->get_convoy(0)->get_min_top_speed()) >> 1;
-					const uint32 journey_time_32 = welt->travel_time_tenths_from_distance(distance, average_speed);
-					
-					// TODO: Seriously consider using 32 bits here for all journey time data
-					uint16 approximated_time = journey_time_32 > 65534 ? 65534 : journey_time_32;					
-					timing += approximated_time;
+					const uint32 journey_time = welt->travel_time_tenths_from_distance(distance, average_speed);
+									
+					timing += journey_time;
 				}
 			}
 
@@ -1942,7 +1927,7 @@ void haltestelle_t::get_destination_halts_of_ware(ware_t &ware, vector_tpl<halth
 	}
 }
 
-uint16 haltestelle_t::find_route(const vector_tpl<halthandle_t>& destination_halts_list, ware_t &ware, const uint16 previous_journey_time, const koord destination_pos)
+uint32 haltestelle_t::find_route(const vector_tpl<halthandle_t>& destination_halts_list, ware_t &ware, const uint32 previous_journey_time, const koord destination_pos)
 {
 	// ** Beware ** This is the one of the most computationally intensive (taking into account how often that it is called) functions in the game
 	// Find the best route (sequence of halts) for a given packet
@@ -1955,7 +1940,7 @@ uint16 haltestelle_t::find_route(const vector_tpl<halthandle_t>& destination_hal
 	//
 	// Authors: Knightly, James Petts, Nathanael Nerode (neroden)
 
-	uint16 best_journey_time = previous_journey_time;
+	uint32 best_journey_time = previous_journey_time;
 	halthandle_t best_destination_halt;
 	halthandle_t best_transfer;
 
@@ -1966,7 +1951,7 @@ uint16 haltestelle_t::find_route(const vector_tpl<halthandle_t>& destination_hal
 	bool found_a_halt = false;
 	for(vector_tpl<halthandle_t>::const_iterator destination_halt = destination_halts_list.begin(); destination_halt != destination_halts_list.end(); destination_halt++)
 	{
-		uint16 test_time;
+		uint32 test_time;
 		halthandle_t test_transfer;
 		path_explorer_t::get_catg_path_between(ware_catg, self, *destination_halt, test_time, test_transfer);
 
@@ -1977,8 +1962,6 @@ uint16 haltestelle_t::find_route(const vector_tpl<halthandle_t>& destination_hal
 		} 
 
 		found_a_halt = true;
-
-		uint32 long_test_time = (uint32)test_time; // get the test time from the path explorer...
 
 		koord real_destination_pos = koord::invalid;
 		if(destination_pos != koord::invalid)
@@ -2006,20 +1989,23 @@ uint16 haltestelle_t::find_route(const vector_tpl<halthandle_t>& destination_hal
 		// And find the shortest walking distance to there.
 		const uint32 walk_distance = shortest_distance(destination_stop_pos, real_destination_pos);
 
-		if(!ware.is_freight())
+		if (test_time < UINT32_MAX_VALUE)
 		{
-			// Passengers or mail.
-			// Calculate walking time from destination stop to final destination; add it.
-			long_test_time += welt->walking_time_tenths_from_distance(walk_distance);
-		}
-		else
-		{
-			// Freight.
-			// Calculate a transshipment time based on a notional 1km/h dispersal speed; add it.
-			long_test_time += welt->walk_haulage_time_tenths_from_distance(walk_distance);
+			// The above check is necessary or there will be an overflow causing spurious routes to be found.
+			if (!ware.is_freight())
+			{
+				// Passengers or mail.
+				// Calculate walking time from destination stop to final destination; add it.
+				test_time += welt->walking_time_tenths_from_distance(walk_distance);
+			}
+			else
+			{
+				// Freight
+				// Calculate a transshipment time based on a notional 1km/h dispersal speed; add it.
+				test_time += welt->walk_haulage_time_tenths_from_distance(walk_distance);
+			}
 		}
 
-		test_time = (uint16) min(long_test_time, 65535);
 		if(test_time < best_journey_time)
 		{
 			// This is quicker than the last halt we tried.
@@ -2029,12 +2015,18 @@ uint16 haltestelle_t::find_route(const vector_tpl<halthandle_t>& destination_hal
 		}
 	}
 
+	if (self == best_destination_halt)
+	{
+		// There is no point in starting and finishing at the same stop.
+		found_a_halt = false;
+	}
+
 	if(!found_a_halt)
 	{
 		//no target station found
 		ware.set_ziel(halthandle_t());
 		ware.set_zwischenziel(halthandle_t());
-		return 65535;
+		return UINT32_MAX_VALUE;
 	}
 
 	if(best_journey_time < previous_journey_time)
@@ -2045,11 +2037,11 @@ uint16 haltestelle_t::find_route(const vector_tpl<halthandle_t>& destination_hal
 	return best_journey_time;
 }
 
-uint16 haltestelle_t::find_route(ware_t &ware, const uint16 previous_journey_time)
+uint32 haltestelle_t::find_route(ware_t &ware, const uint32 previous_journey_time)
 {
 	vector_tpl<halthandle_t> destination_halts_list;
 	get_destination_halts_of_ware(ware, destination_halts_list);
-	const uint16 journey_time = find_route(destination_halts_list, ware, previous_journey_time);
+	const uint32 journey_time = find_route(destination_halts_list, ware, previous_journey_time);
 	return journey_time;
 }
 
@@ -2611,7 +2603,7 @@ uint32 haltestelle_t::starte_mit_route(ware_t ware)
 	if(ware.get_zwischenziel() == self)
 	{
 		// Route cannot contain self as first transfer.
-		if(find_route(ware) == 65535)
+		if(find_route(ware) == UINT32_MAX_VALUE)
 		{
 			// no route found?
 			return ware.menge;
@@ -2702,10 +2694,11 @@ uint32 haltestelle_t::liefere_an(ware_t ware, uint8 walked_between_stations)
 		return 0;
 	}
 	// Now we know, that "ware" has a vaild destination building "gb", which implies having a "plan".
-
+	bool twice = false;
+	arrived:
 	// have we arrived?
 	if(ware.get_ziel() == self)
-	{
+	{	
 		// Arrived at destination stop. Check whether we can still reach the destination building.
 		if(plan->is_connected(self)) 
 		{
@@ -2737,10 +2730,28 @@ uint32 haltestelle_t::liefere_an(ware_t ware, uint8 walked_between_stations)
 				}
 			}
 		}
+		//assert(false);
 	}
 	uint16 straight_line_distance_destination;
 	bool destination_is_within_coverage;
-	if(find_route(ware) == 65535)
+
+	const uint32 route_time = find_route(ware);
+	if (ware.get_ziel() == self)
+	{
+		DBG_MESSAGE("haltestelle_t::liefere_an()", "%s has discovered that it is quicker to walk to its destination from %s than take its previously planned route.", translator::translate(ware.get_name()), get_name());
+		if (!twice)
+		{
+			twice = true;
+			goto arrived;
+		}
+		else
+		{
+			// Otherwise, bad things happen.
+			return deposit_ware_at_destination(ware);
+		}
+	}
+
+	if(route_time == UINT32_MAX_VALUE)
 	{
 		if(ware.is_passenger() && is_within_walking_distance_of(ware.get_zwischenziel()) && ware.get_zwischenziel() != self && ware.get_zwischenziel().is_bound())
 		{
@@ -3734,8 +3745,25 @@ void haltestelle_t::rdwr(loadsave_t *file)
 					ITERATE(iter.value.times, i)
 					{
 						// Store each waiting time
-						uint16 current_time = iter.value.times.get_element(i);
-						file->rdwr_short(current_time);
+						if (file->get_experimental_version() >= 13 || file->get_experimental_revision() >= 14)
+						{
+							uint32 current_time = iter.value.times.get_element(i);
+							file->rdwr_long(current_time);
+						}
+						else
+						{
+							uint32 ct = iter.value.times.get_element(i);
+							if (ct == UINT32_MAX_VALUE)
+							{
+								ct = 65535;
+							}
+							else if (ct > 65534)
+							{
+								ct = 65534;
+							}
+							uint16 current_time = (uint16)ct;
+							file->rdwr_short(current_time);
+						}
 					}
 
 					if(file->get_experimental_version() >= 9)
@@ -3778,15 +3806,31 @@ void haltestelle_t::rdwr(loadsave_t *file)
 						}
 					}
 
-					fixed_list_tpl<uint16, 32> list;
+					fixed_list_tpl<uint32, 32> list;
 					uint8 month;
 					waiting_time_set set;
 					uint8 waiting_time_count;
 					file->rdwr_byte(waiting_time_count);
 					for(uint8 j = 0; j < waiting_time_count; j ++)
 					{
-						uint16 current_time;
-						file->rdwr_short(current_time);
+						uint32 current_time;
+						if (file->get_experimental_version() >= 13 || file->get_experimental_revision() >= 14)
+						{
+							file->rdwr_long(current_time);
+						}
+						else
+						{
+							uint16 old_current_time;
+							file->rdwr_short(old_current_time);
+							if (old_current_time == 65535)
+							{
+								current_time = UINT32_MAX_VALUE;
+							}
+							else
+							{
+								current_time = (uint32)old_current_time;
+							}
+						}
 						list.add_to_tail(current_time);
 					}
 					if(file->get_experimental_version() >= 9)
@@ -3872,7 +3916,24 @@ void haltestelle_t::rdwr(loadsave_t *file)
 		// We considered caching the transfer time at the halt,
 		// but this was a bad idea since the algorithm has not settled down
 		// and it's pretty fast to compute during loading
-		file->rdwr_short(transfer_time);
+
+		if (file->get_experimental_version() >= 13 || file->get_experimental_revision() >= 14)
+		{
+			file->rdwr_long(transfer_time);
+		}
+		else
+		{
+			uint16 old_tt = min(transfer_time, 65535);
+			file->rdwr_short(old_tt);
+			if (old_tt == 65535)
+			{
+				transfer_time = UINT32_MAX_VALUE;
+			}
+			else
+			{
+				transfer_time = (uint32)old_tt;
+			}
+		}
 	}
 
 	if(file->get_experimental_version() >= 12 || (file->get_version() >= 112007 && file->get_experimental_version() >= 11))
@@ -4945,11 +5006,11 @@ void haltestelle_t::calc_transfer_time()
 	const uint32 walking_around = welt->walking_time_tenths_from_distance(length_around);
 	// Guess that someone has to walk roughly from the middle to one end, so divide by *4*.
 	// Finally, round down to a uint16 (just in case).
-	transfer_time = min(walking_around / 4, 65535);
+	transfer_time = min(walking_around / 4, UINT32_MAX_VALUE);
 
 	// Repeat the process for the transshipment time.  (This is all inlined.)
 	const uint32 hauling_around = welt->walk_haulage_time_tenths_from_distance(length_around);
-	transshipment_time = min(hauling_around / 4, 65535);
+	transshipment_time = min(hauling_around / 4, UINT32_MAX_VALUE);
 
 	// Adjust for overcrowding - transfer time increases with a more crowded stop.
 	// TODO: Better separate waiting times for different types of goods.
@@ -4979,13 +5040,13 @@ void haltestelle_t::calc_transfer_time()
 	if(capacity[0] > 0 && waiting_passengers > capacity[0])
 	{
 		const sint64 overcrowded_proporion_passengers = waiting_passengers * 10ll / capacity[0];
-		transfer_time = min(max(transfer_time, ((uint16)overcrowded_proporion_passengers * (2 * (uint16)overcrowded_proporion_passengers)) / 10), transfer_time * 10);
+		transfer_time = min(max(transfer_time, ((uint32)overcrowded_proporion_passengers * (2 * (uint32)overcrowded_proporion_passengers)) / 10), transfer_time * 10);
 	}
 
 	if(capacity[2] > 0 && waiting_goods > capacity[2])
 	{
 		const sint64 overcrowded_proportion_goods = waiting_goods * 10ll / capacity[2];
-		transshipment_time = min(max(transshipment_time, ((uint16)overcrowded_proportion_goods * (2 * (uint16)overcrowded_proportion_goods)) / 10), transshipment_time * 10);
+		transshipment_time = min(max(transshipment_time, ((uint32)overcrowded_proportion_goods * (2 * (uint32)overcrowded_proportion_goods)) / 10), transshipment_time * 10);
 	}
 
 	// For reference, with a transshipment speed of 1 km/h and a walking speed of 5 km/h,
@@ -4998,7 +5059,7 @@ void haltestelle_t::calc_transfer_time()
 	// reduce this transshipment time (convyer belts, travellators, etc.).
 }
 
-void haltestelle_t::add_waiting_time(uint16 time, halthandle_t halt, uint8 category, bool do_not_reset_month)
+void haltestelle_t::add_waiting_time(uint32 time, halthandle_t halt, uint8 category, bool do_not_reset_month)
 {
 	if(halt.is_bound())
 	{
@@ -5006,7 +5067,7 @@ void haltestelle_t::add_waiting_time(uint16 time, halthandle_t halt, uint8 categ
 
 		if(!wt->is_contained(halt.get_id()))
 		{
-			fixed_list_tpl<uint16, 32> tmp;
+			fixed_list_tpl<uint32, 32> tmp;
 			waiting_time_set set;
 			set.times = tmp;
 			set.month = 0;

@@ -51,7 +51,7 @@ class replace_data_t;
 * The table of point-to-point average journey times.
 * @author jamespetts
 */
-typedef koordhashtable_tpl<id_pair, average_tpl<uint16> > journey_times_map;
+typedef koordhashtable_tpl<id_pair, average_tpl<uint32> > journey_times_map;
 
 # define entry x
 # define reversed y

@@ -1975,9 +1975,9 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 		FOR(vector_tpl<distribute_ware_t>, & i, dist_list) 
 		{
 			// now search route
-			const uint32 transfer_time = ((uint32)i.nearby_halt.distance * transfer_journey_time_factor) / 100;
-			const uint32 current_journey_time = (uint32)i.nearby_halt.halt->find_route(i.ware) + transfer_time;
-			if(current_journey_time < 65535)
+			const uint32 transfer_time = (i.nearby_halt.distance * transfer_journey_time_factor) / 100;
+			const uint32 current_journey_time = i.nearby_halt.halt->find_route(i.ware) + transfer_time;
+			if(current_journey_time < UINT32_MAX_VALUE)
 			{
 				best = &i;
 				break;
@@ -3047,15 +3047,15 @@ void fabrik_t::calc_max_intransit_percentages()
 			continue;
 		}
 
-		const uint16 lead_time = get_lead_time(w.get_typ());
-		if(lead_time == 65535)
+		const uint32 lead_time = get_lead_time(w.get_typ());
+		if(lead_time == UINT32_MAX_VALUE)
 		{
 			// No factories connected; use the default intransit percentage for now.
 			max_intransit_percentages.put(catg, base_max_intransit_percentage);
 			index ++;
 			continue;
 		}
-		const uint16 time_to_consume = max(1, get_time_to_consume_stock(index)); 
+		const uint32 time_to_consume = max(1, get_time_to_consume_stock(index)); 
 		const uint32 ratio = ((uint32)lead_time * 1000 / (uint32)time_to_consume);
 		const uint32 modified_max_intransit_percentage = (ratio * (uint32)base_max_intransit_percentage) / 1000;
 		max_intransit_percentages.put(catg, (uint16)modified_max_intransit_percentage);
@@ -3067,11 +3067,11 @@ uint32 fabrik_t::get_lead_time(const ware_besch_t* wtype)
 {
 	if(suppliers.empty())
 	{
-		return 65535;
+		return UINT32_MAX_VALUE;
 	}
 	
 	// Tenths of minutes.
-	uint32 longest_lead_time = 65535;
+	uint32 longest_lead_time = UINT32_MAX_VALUE;
 
 	FOR(vector_tpl<koord>, const& supplier, suppliers)
 	{
@@ -3085,7 +3085,7 @@ uint32 fabrik_t::get_lead_time(const ware_besch_t* wtype)
 			const fabrik_produkt_besch_t *product = fab->get_besch()->get_produkt(i);
 			if(product->get_ware() == wtype)
 			{
-				uint16 best_journey_time = 65535;
+				uint32 best_journey_time = UINT32_MAX_VALUE;
 				const uint32 transfer_journey_time_factor = ((uint32)welt->get_settings().get_meters_per_tile() * 6) * 10;
 
 				FOR(vector_tpl<nearby_halt_t>, const& nearby_halt, fab->nearby_freight_halts) 
@@ -3103,7 +3103,7 @@ uint32 fabrik_t::get_lead_time(const ware_besch_t* wtype)
 					}
 				}
 
-				if(best_journey_time < 65535 && (best_journey_time > longest_lead_time || longest_lead_time == 65535))
+				if(best_journey_time < UINT32_MAX_VALUE && (best_journey_time > longest_lead_time || longest_lead_time == UINT32_MAX_VALUE))
 				{
 					longest_lead_time = best_journey_time;
 				}

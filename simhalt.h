@@ -161,7 +161,7 @@ private:
 	 * connexion to another. This is
 	 * based on the size of the stop.
 	 */
-	uint16 transfer_time;
+	uint32 transfer_time;
 
 	/*
 	 * The time (in 10ths of seconds)
@@ -170,7 +170,7 @@ private:
 	 * rate of 1km/h and is based on the size
 	 * of the stop.
 	 */
-	uint16 transshipment_time;
+	uint32 transshipment_time;
 
 	/* This is called by the path explorer
 	 * when this halt needs to re-route goods.
@@ -284,9 +284,9 @@ public:
 	struct connexion
 	{
 		// Times in tenths of minutes
-		uint16 journey_time;
-		uint16 waiting_time;
-		uint16 transfer_time;
+		uint32 journey_time;
+		uint32 waiting_time;
+		uint32 transfer_time;
 
 		// Convoy only used if line not used
 		// (i.e., if the best route involves using a convoy without a line)
@@ -311,11 +311,11 @@ public:
 
 	struct waiting_time_set
 	{
-		fixed_list_tpl<uint16, 32> times;
+		fixed_list_tpl<uint32, 32> times;
 		uint8 month;
 	};
 
-	typedef inthashtable_tpl<uint16, waiting_time_set > waiting_time_map;
+	typedef inthashtable_tpl<uint32, waiting_time_set > waiting_time_map;
 
 	void add_control_tower() { control_towers ++; }
 	void remove_control_tower() { if(control_towers > 0) control_towers --; }
@@ -632,10 +632,10 @@ public:
 	void new_month();
 
 	// @author: jamespetts, although much is borrowed from suche_route
-	// Returns the journey time of the best possible route from this halt. Time == 65535 when there is no route.
-	uint16 find_route(ware_t &ware, const uint16 journey_time = 65535);
+	// Returns the journey time of the best possible route from this halt. Time == UINT32_MAX_VALUE when there is no route.
+	uint32 find_route(ware_t &ware, const uint32 journey_time = UINT32_MAX_VALUE);
 	void get_destination_halts_of_ware(ware_t &ware, vector_tpl<halthandle_t>& destination_halts_list);
-	uint16 find_route(const vector_tpl<halthandle_t>& ziel_list, ware_t & ware, const uint16 journey_time = 65535, const koord destination_pos = koord::invalid);
+	uint32 find_route(const vector_tpl<halthandle_t>& ziel_list, ware_t & ware, const uint32 journey_time = UINT32_MAX_VALUE, const koord destination_pos = koord::invalid);
 
 	bool get_pax_enabled()  const { return enables & PAX;  }
 	bool get_post_enabled() const { return enables & POST; }
@@ -932,7 +932,7 @@ public:
 	// @author: jamespetts
 	uint16 get_average_waiting_time(halthandle_t halt, uint8 category) const;
 
-	void add_waiting_time(uint16 time, halthandle_t halt, uint8 category, bool do_not_reset_month = false);
+	void add_waiting_time(uint32 time, halthandle_t halt, uint8 category, bool do_not_reset_month = false);
 
 	typedef quickstone_hashtable_tpl<haltestelle_t, connexion*>* connexions_map_single;
 	connexions_map_single get_connexions(uint8 c) { return connexions[c]; }
@@ -982,13 +982,13 @@ public:
 	* Get the time that it takes for passengers to transfer within this stop
 	* in 1/10ths of minutes.
 	*/
-	inline uint16 get_transfer_time() const { return transfer_time; }
+	inline uint32 get_transfer_time() const { return transfer_time; }
 
 	/**
 	* Get the time that it takes for goods to be transferred within this stop
 	* in 1/10ths of minutes.
 	*/
-	inline uint16 get_transshipment_time() const { return transshipment_time; }
+	inline uint32 get_transshipment_time() const { return transshipment_time; }
 
 	void set_reroute_goods_next_step(uint8 catg) { categories_to_refresh_next_step.append(catg); }
 

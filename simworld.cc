@@ -5192,7 +5192,8 @@ rands[23] = 0;
 	//step by the number of parallel operations introduces significant rounding errors.
 #if MULTI_THREAD
 	
-	if (env_t::networkmode)
+	//if (env_t::networkmode)
+	if(true)
 	{
 		// At present, this cannot work in network mode because the generate_passengers_or_mail function modifies the next_step_passenger and next_step_mail variables,
 		// which in turn are used to count how many times that the generate_passengers_or_mail function is run. 
@@ -5240,7 +5241,8 @@ rands[15] = get_random_seed();
 	INT_CHECK("karte_t::step 4");
 
 #if MULTI_THREAD
-	if (!env_t::networkmode)
+	//if (!env_t::networkmode)
+	if(false)
 	{
 		// Stop the passenger and mail generation.
 		simthread_barrier_wait(&step_passengers_and_mail_barrier);
@@ -5582,11 +5584,11 @@ uint32 karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 	bool too_slow_already_set;
 	bool overcrowded_already_set;
 
-	const uint16 min_commuting_tolerance = settings.get_min_commuting_tolerance();
-	const uint16 range_commuting_tolerance = max(0, settings.get_range_commuting_tolerance() - min_commuting_tolerance);
+	const uint32 min_commuting_tolerance = settings.get_min_commuting_tolerance();
+	const uint32 range_commuting_tolerance = max(0, settings.get_range_commuting_tolerance() - min_commuting_tolerance);
 
-	const uint16 min_visiting_tolerance = settings.get_min_visiting_tolerance();
-	const uint16 range_visiting_tolerance = max(0, settings.get_range_visiting_tolerance() - min_visiting_tolerance);
+	const uint32 min_visiting_tolerance = settings.get_min_visiting_tolerance();
+	const uint32 range_visiting_tolerance = max(0, settings.get_range_visiting_tolerance() - min_visiting_tolerance);
 
 	const uint16 max_onward_trips = settings.get_max_onward_trips();
 	trip_type trip = (wtyp == warenbauer_t::passagiere) ?
@@ -5602,8 +5604,8 @@ uint32 karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 	destination current_destination;
 	destination first_destination;
 	first_destination.location = koord::invalid;
-	uint16 time_per_tile;
-	uint16 tolerance;
+	uint32 time_per_tile;
+	uint32 tolerance;
 
 	// Find passenger destination
 
@@ -5623,15 +5625,15 @@ uint32 karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 			// Set here because we deduct the previous journey time from the tolerance for onward trips.
 			if(trip == mail_trip)
 			{
-				tolerance = 65535;
+				tolerance = UINT32_MAX_VALUE;
 			}
 			else if(trip == commuting_trip)
 			{
-				tolerance = (uint16)simrand_normal(range_commuting_tolerance, settings.get_random_mode_commuting(), "karte_t::generate_passengers_and_mail (commuting tolerance?)") + min_commuting_tolerance;
+				tolerance = simrand_normal(range_commuting_tolerance, settings.get_random_mode_commuting(), "karte_t::generate_passengers_and_mail (commuting tolerance?)") + min_commuting_tolerance;
 			}
 			else
 			{
-				tolerance = (uint16)simrand_normal(range_visiting_tolerance, settings.get_random_mode_visiting(), "karte_t::generate_passengers_and_mail (visiting tolerance?)") + min_visiting_tolerance;
+				tolerance = simrand_normal(range_visiting_tolerance, settings.get_random_mode_visiting(), "karte_t::generate_passengers_and_mail (visiting tolerance?)") + min_visiting_tolerance;
 			}
 		}
 		else
@@ -5726,7 +5728,7 @@ uint32 karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 		* walk for long distances, as it is tiring, especially with luggage.
 		* (Neroden suggests that this be reconsidered)
 		*/
-		uint16 quasi_tolerance = tolerance;
+		uint32 quasi_tolerance = tolerance;
 		if(wtyp == warenbauer_t::post)
 		{
 			// People will walk long distances with mail: it is not heavy.
@@ -5738,7 +5740,7 @@ uint32 karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 			quasi_tolerance = max(quasi_tolerance / 2, min(tolerance, 300));
 		}
 
-		uint16 car_minutes = 65535;
+		uint32 car_minutes = UINT32_MAX_VALUE;
 
 		best_bad_destination = first_destination.location;
 		best_bad_start_halt = 0;
@@ -5747,7 +5749,7 @@ uint32 karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 		ware_t pax(wtyp);
 		pax.is_commuting_trip = trip == commuting_trip;
 		halthandle_t start_halt;
-		uint16 best_journey_time;
+		uint32 best_journey_time;
 		uint32 walking_time;
 		route_status = initialising;
 
@@ -5784,7 +5786,7 @@ uint32 karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 			// Careful -- use uint32 here to avoid overflow cutoff errors.
 			// This number may be very long.
 			walking_time = walking_time_tenths_from_distance(straight_line_distance);
-			car_minutes = 65535;
+			car_minutes = UINT32_MAX_VALUE;
 
 			// If can_walk is true, it also guarantees that walking_time will fit in a uint16.
 			const bool can_walk = walking_time <= quasi_tolerance;
@@ -5834,7 +5836,7 @@ uint32 karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 				}
 			}
 
-			best_journey_time = 65535;
+			best_journey_time = UINT32_MAX_VALUE;
 			if(start_halts.get_count() == 1 && destination_list.get_count() == 1 && start_halts[0].halt == destination_list.get_element(0))
 			{
 				/** There is no public transport route, as the only stop
@@ -5855,7 +5857,7 @@ uint32 karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 
 				uint32 best_start_halt = 0;
 				uint32 best_non_crowded_start_halt = 0;
-				uint32 best_journey_time_including_crowded_halts = 65535;
+				uint32 best_journey_time_including_crowded_halts = UINT32_MAX_VALUE;
 
 				ITERATE(start_halts, i)
 				{
@@ -5865,10 +5867,10 @@ uint32 karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 					
 					// Add walking time from the origin to the origin stop. 
 					// Note that the walking time to the destination stop is already added by find_route.
-					current_journey_time += walking_time_tenths_from_distance(start_halts[i].distance);
-					if(current_journey_time > 65535)
+					if (current_journey_time < UINT32_MAX_VALUE)
 					{
-						current_journey_time = 65535;
+						// The above check is needed to prevent an overflow.
+						current_journey_time += walking_time_tenths_from_distance(start_halts[i].distance);
 					}
 					// TODO: Add facility to check whether station/stop has car parking facilities, and add the possibility of a (faster) private car journey.
 					// Use the private car journey time per tile from the passengers' origin to the city in which the stop is located.
@@ -5918,7 +5920,7 @@ uint32 karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 						overcrowded_already_set = true;
 					}
 				}
-				else if((route_status == public_transport || route_status == no_route) && best_journey_time_including_crowded_halts >= tolerance)
+				else if((route_status == public_transport || route_status == no_route) && best_journey_time_including_crowded_halts >= tolerance && best_journey_time_including_crowded_halts < UINT32_MAX_VALUE)
 				{
 					route_status = too_slow;
 				
@@ -5943,7 +5945,7 @@ uint32 karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 			{
 				// time_per_tile here is in 100ths of minutes per tile.
 				// 1/100th of a minute per tile = km/h * 6.
-				time_per_tile = 65535;
+				time_per_tile = UINT32_MAX_VALUE;
 				switch(current_destination.type)
 				{
 				case town:
@@ -5988,7 +5990,7 @@ uint32 karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 #endif
 				};
 
-				if(time_per_tile < 65535)
+				if(time_per_tile < UINT32_MAX_VALUE)
 				{
 					// *Hundredths* of minutes used here for per tile times for accuracy.
 					// Convert to tenths, but only after multiplying to preserve accuracy.
@@ -6026,11 +6028,11 @@ uint32 karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 				}
 			}
 
-			// Cannot be <=, as mail has a tolerance of 65535, which is used as the car_minutes when
+			// Cannot be <=, as mail has a tolerance of UINT32_MAX_VALUE, which is used as the car_minutes when
 			// a private car journey is not possible.
 			if(car_minutes < tolerance)
 			{
-				const uint16 private_car_chance = (uint16)simrand(100, "void stadt_t::generate_passengers_and_mail() (private car chance?)");
+				const uint32 private_car_chance = simrand(100, "void stadt_t::generate_passengers_and_mail() (private car chance?)");
 
 				if(route_status != public_transport)
 				{
@@ -6052,7 +6054,7 @@ uint32 karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 					route_status = private_car;
 				}
 			}
-			else if(car_minutes != 65535)
+			else if(car_minutes != UINT32_MAX_VALUE)
 			{
 				route_status = too_slow;
 
@@ -6088,7 +6090,7 @@ uint32 karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 		{
 		case public_transport:
 
-			if(tolerance < 65535)
+			if(tolerance < UINT32_MAX_VALUE)
 			{
 				tolerance -= best_journey_time;
 				quasi_tolerance -= best_journey_time;
@@ -6123,7 +6125,7 @@ uint32 karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 
 		case private_car:
 					
-			if(tolerance < 65535)
+			if(tolerance < UINT32_MAX_VALUE)
 			{
 				tolerance -= car_minutes;
 				quasi_tolerance -= car_minutes;
@@ -6177,7 +6179,7 @@ uint32 karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 
 		case on_foot:
 					
-			if(tolerance < 65535)
+			if(tolerance < UINT32_MAX_VALUE)
 			{
 				tolerance -= walking_time;
 				quasi_tolerance -= walking_time;
@@ -6258,7 +6260,7 @@ uint32 karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 				{
 					city->merke_passagier_ziel(best_bad_destination, COL_LIGHT_PURPLE);
 				}
-				else if(car_minutes < 65535)
+				else if(car_minutes < UINT32_MAX_VALUE)
 				{
 					city->merke_passagier_ziel(best_bad_destination, COL_PURPLE);
 				}
@@ -6274,7 +6276,7 @@ uint32 karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 				// This will be dud for a private car trip.
 				start_halt = start_halts[best_bad_start_halt].halt; 					
 			}
-			if(start_halt.is_bound())
+			if(start_halt.is_bound() && best_journey_time < UINT32_MAX_VALUE)
 			{
 				start_halt->add_pax_too_slow(units_this_step);
 			}
@@ -6393,7 +6395,7 @@ no_route:
 				// Now try to add them to the target halt
 				ware_t test_passengers;
 				test_passengers.set_ziel(start_halts[best_bad_start_halt].halt);
-				const bool overcrowded_route = ret_halt->find_route(test_passengers) < 65535;
+				const bool overcrowded_route = ret_halt->find_route(test_passengers) < UINT32_MAX_VALUE;
 				if(!ret_halt->is_overcrowded(wtyp->get_index()) || !overcrowded_route)
 				{
 					// prissi: not overcrowded and can recieve => add them
@@ -6408,7 +6410,7 @@ no_route:
 						return_pax.set_zielpos(origin_pos.get_2d());
 						return_pax.set_ziel(start_halt);
 						return_pax.is_commuting_trip = trip == commuting_trip;
-						if(ret_halt->find_route(return_pax) != 65535)
+						if(ret_halt->find_route(return_pax) != UINT32_MAX_VALUE)
 						{
 							return_pax.arrival_time = get_zeit_ms();
 #ifdef MULTI_THREAD
@@ -6477,7 +6479,7 @@ no_route:
 #endif
 			if(return_in_private_car)
 			{
-				if(car_minutes < 65535)
+				if(car_minutes < UINT32_MAX_VALUE)
 				{
 					// Do not check tolerance, as they must come back!
 					if(wtyp == warenbauer_t::passagiere)
@@ -7355,8 +7357,29 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved messages");
 		// Existing values now saved in order to prevent network desyncs
 		file->rdwr_long(citycar_speed_average);
 		file->rdwr_bool(recheck_road_connexions);
-		file->rdwr_short(generic_road_time_per_tile_city);
-		file->rdwr_short(generic_road_time_per_tile_intercity);
+		if (file->get_experimental_version() >= 13 || file->get_experimental_revision() >= 14)
+		{
+			file->rdwr_long(generic_road_time_per_tile_city);
+			file->rdwr_long(generic_road_time_per_tile_intercity);
+		}
+		else
+		{
+			uint16 tmp = generic_road_time_per_tile_city < UINT32_MAX_VALUE ? (uint16)generic_road_time_per_tile_city : 65535;
+			file->rdwr_short(tmp);
+			if (tmp == 65535)
+			{
+				generic_road_time_per_tile_city = UINT32_MAX_VALUE;
+			}
+			else
+			{
+				generic_road_time_per_tile_city = (uint32)tmp;
+			}
+
+			tmp = (uint16)generic_road_time_per_tile_intercity;
+			file->rdwr_short(tmp);
+			generic_road_time_per_tile_intercity = (uint32)tmp;
+		}
+		
 		file->rdwr_long(max_road_check_depth);
 		if(file->get_experimental_version() < 10)
 		{
@@ -8394,8 +8417,35 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 		// Existing values now saved in order to prevent network desyncs
 		file->rdwr_long(citycar_speed_average);
 		file->rdwr_bool(recheck_road_connexions);
-		file->rdwr_short(generic_road_time_per_tile_city);
-		file->rdwr_short(generic_road_time_per_tile_intercity);
+		if (file->get_experimental_version() >= 13 || file->get_experimental_revision() >= 14)
+		{
+			file->rdwr_long(generic_road_time_per_tile_city);
+			file->rdwr_long(generic_road_time_per_tile_intercity);
+		}
+		else
+		{
+			uint16 tmp = generic_road_time_per_tile_city < UINT32_MAX_VALUE ? (uint16)generic_road_time_per_tile_city : 65535;
+			file->rdwr_short(tmp);
+			if (tmp == 65535)
+			{
+				generic_road_time_per_tile_city = UINT32_MAX_VALUE;
+			}
+			else
+			{
+				generic_road_time_per_tile_city = (uint32)tmp;
+			}
+
+			tmp = generic_road_time_per_tile_intercity < UINT32_MAX_VALUE ? (uint16)generic_road_time_per_tile_intercity : 65535;
+			file->rdwr_short(tmp);
+			if (tmp == 65535)
+			{
+				generic_road_time_per_tile_intercity = UINT32_MAX_VALUE;
+			}
+			else
+			{
+				generic_road_time_per_tile_intercity = (uint32)tmp;
+			}
+		}
 		file->rdwr_long(max_road_check_depth);
 		if(file->get_experimental_version() < 10)
 		{

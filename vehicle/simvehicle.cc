@@ -894,6 +894,7 @@ uint16 vehicle_t::unload_cargo(halthandle_t halt, sint64 & revenue_from_unloadin
 					}
 					else
 					{
+						assert(halt.is_bound());
 						const uint32 menge = halt->liefere_an(tmp); //"supply" (Babelfish)
 						sum_menge += menge;
 						index = tmp.get_index(); // Note that there is only one freight type per vehicle

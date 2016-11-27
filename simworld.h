@@ -806,8 +806,8 @@ private:
 	 * minutes.
 	 * @author: jamespetts, April 2010
 	 */
-	uint16 generic_road_time_per_tile_city;
-	uint16 generic_road_time_per_tile_intercity;
+	uint32 generic_road_time_per_tile_city;
+	uint32 generic_road_time_per_tile_intercity;
 
 	uint32 max_road_check_depth;
 
@@ -2434,8 +2434,8 @@ public:
 	 * of road. This is measured in 100ths 
 	 * of a minute per tile.
 	 */
-	uint16 get_generic_road_time_per_tile_city() const { return generic_road_time_per_tile_city; }
-	uint16 get_generic_road_time_per_tile_intercity() const { return generic_road_time_per_tile_intercity; };
+	uint32 get_generic_road_time_per_tile_city() const { return generic_road_time_per_tile_city; }
+	uint32 get_generic_road_time_per_tile_intercity() const { return generic_road_time_per_tile_intercity; };
 
 	sint32 calc_generic_road_time_per_tile(const weg_besch_t* besch);
 

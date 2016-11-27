@@ -1923,7 +1923,7 @@ void stadt_t::rdwr(loadsave_t* file)
 
 	if(file->is_saving() && file->get_experimental_version() >=9 && file->get_version() >= 110000)
 	{		
-		uint16 time;
+		uint32 time;
 		koord k;
 		uint32 count;
 
@@ -1932,7 +1932,23 @@ void stadt_t::rdwr(loadsave_t* file)
 		FOR(connexion_map, const& city_iter, connected_cities)
 		{
 			time = city_iter.value;
-			file->rdwr_short(time);
+			if (file->get_experimental_version() >= 13 || file->get_experimental_revision() >= 14)
+			{
+				file->rdwr_long(time);
+			}
+			else
+			{
+				uint16 t;
+				if (time == UINT32_MAX_VALUE)
+				{
+					t = 65535;
+				}
+				else
+				{
+					t = (uint16)time;
+				}
+				file->rdwr_short(t);
+			}
 			k = city_iter.key;
 			k.rdwr(file);
 		}
@@ -1942,7 +1958,23 @@ void stadt_t::rdwr(loadsave_t* file)
 		FOR(connexion_map, const& industry_iter, connected_industries)
 		{
 			time = industry_iter.value;
-			file->rdwr_short(time);
+			if (file->get_experimental_version() >= 13 || file->get_experimental_revision() >= 14)
+			{
+				file->rdwr_long(time);
+			}
+			else
+			{
+				uint16 t;
+				if (time == UINT32_MAX_VALUE)
+				{
+					t = 65535;
+				}
+				else
+				{
+					t = (uint16)time;
+				}
+				file->rdwr_short(t);
+			}
 			k = industry_iter.key;
 			k.rdwr(file);
 		}
@@ -1952,7 +1984,23 @@ void stadt_t::rdwr(loadsave_t* file)
 		FOR(connexion_map, const& attraction_iter, connected_attractions)
 		{
 			time = attraction_iter.value;
-			file->rdwr_short(time);
+			if (file->get_experimental_version() >= 13 || file->get_experimental_revision() >= 14)
+			{
+				file->rdwr_long(time);
+			}
+			else
+			{
+				uint16 t;
+				if (time == UINT32_MAX_VALUE)
+				{
+					t = 65535;
+				}
+				else
+				{
+					t = (uint16)time;
+				}
+				file->rdwr_short(t);
+			}
 			k = attraction_iter.key;
 			k.rdwr(file);
 		}
@@ -1979,7 +2027,7 @@ void stadt_t::rdwr(loadsave_t* file)
 		connected_attractions.clear();
 		if(file->get_experimental_version() >=9 && file->get_version() >= 110000)
 		{		
-			uint16 time;
+			uint32 time;
 			koord k;
 			uint32 count;
 
@@ -1987,7 +2035,24 @@ void stadt_t::rdwr(loadsave_t* file)
 			file->rdwr_long(count);
 			for(uint32 x = 0; x < count; x ++)
 			{
-				file->rdwr_short(time);
+				if (file->get_experimental_version() >= 13 || file->get_experimental_revision() >= 14)
+				{
+					file->rdwr_long(time);
+				}
+				else
+				{
+					uint16 t;
+					file->rdwr_short(t);
+					if (t == 65535)
+					{
+						time = UINT32_MAX_VALUE;
+					}
+					else
+					{
+						time = (uint32)t;
+					}
+				}
+				
 				k.rdwr(file);
 				connected_cities.put(k, time);
 			}
@@ -1997,7 +2062,23 @@ void stadt_t::rdwr(loadsave_t* file)
 			file->rdwr_long(count);
 			for(uint32 x = 0; x < count; x ++)
 			{
-				file->rdwr_short(time);
+				if (file->get_experimental_version() >= 13 || file->get_experimental_revision() >= 14)
+				{
+					file->rdwr_long(time);
+				}
+				else
+				{
+					uint16 t;
+					file->rdwr_short(t);
+					if (t == 65535)
+					{
+						time = UINT32_MAX_VALUE;
+					}
+					else
+					{
+						time = (uint32)t;
+					}
+				}
 				k.rdwr(file);
 				connected_industries.put(k, time);
 			}
@@ -2007,7 +2088,23 @@ void stadt_t::rdwr(loadsave_t* file)
 			file->rdwr_long(count);
 			for(uint32 x = 0; x < count; x ++)
 			{
-				file->rdwr_short(time);
+				if (file->get_experimental_version() >= 13 || file->get_experimental_revision() >= 14)
+				{
+					file->rdwr_long(time);
+				}
+				else
+				{
+					uint16 t;
+					file->rdwr_short(t);
+					if (t == 65535)
+					{
+						time = UINT32_MAX_VALUE;
+					}
+					else
+					{
+						time = (uint32)t;
+					}
+				}
 				k.rdwr(file);
 				connected_attractions.put(k, time);
 			}
@@ -2776,7 +2873,7 @@ void stadt_t::step_grow_city(bool new_town)
 }
 
 
-uint16 stadt_t::check_road_connexion_to(stadt_t* city) const
+uint32 stadt_t::check_road_connexion_to(stadt_t* city) const
 {
 	if(welt->get_settings().get_assume_everywhere_connected_by_road())
 	{
@@ -2788,7 +2885,7 @@ uint16 stadt_t::check_road_connexion_to(stadt_t* city) const
 	if(connected_cities.is_contained(city->get_pos()))
 	{
 		const uint16 journey_time_per_tile = connected_cities.get(city->get_pos());
-		if(city != this || journey_time_per_tile < 65535)
+		if(city != this || journey_time_per_tile < UINT32_MAX_VALUE)
 		{
 			return journey_time_per_tile;
 		}
@@ -2799,18 +2896,18 @@ uint16 stadt_t::check_road_connexion_to(stadt_t* city) const
 		// Should always be possible to travel within the city.
 		const grund_t* gr = welt->lookup_kartenboden(townhall_road);
 		const weg_t* road = gr ? gr->get_weg(road_wt) : NULL;
-		const uint16 journey_time_per_tile = road ? road->get_besch() == welt->get_city_road() ? welt->get_generic_road_time_per_tile_city() : welt->calc_generic_road_time_per_tile(road->get_besch()) : welt->get_generic_road_time_per_tile_city();
+		const uint32 journey_time_per_tile = road ? road->get_besch() == welt->get_city_road() ? welt->get_generic_road_time_per_tile_city() : welt->calc_generic_road_time_per_tile(road->get_besch()) : welt->get_generic_road_time_per_tile_city();
 		// The below is not network safe.
 		//connected_cities.put(pos, journey_time_per_tile);
 		return journey_time_per_tile;
 	}
 	else
 	{
-		return 65535;
+		return UINT32_MAX_VALUE;
 	}
 }
 
-uint16 stadt_t::check_road_connexion_to(const fabrik_t* industry) const
+uint32 stadt_t::check_road_connexion_to(const fabrik_t* industry) const
 {
 	stadt_t* city = industry->get_city(); 
 
@@ -2829,18 +2926,18 @@ uint16 stadt_t::check_road_connexion_to(const fabrik_t* industry) const
 	{
 		// If an industry is in a city, presume that it is connected
 		// if the city is connected. Do not presume the converse.
-		const uint16 time_to_city = check_road_connexion_to(city);
-		if(time_to_city < 65535)
+		const uint32 time_to_city = check_road_connexion_to(city);
+		if(time_to_city < UINT32_MAX_VALUE)
 		{
 			return time_to_city;
 		}
 	}
 
-	return 65535;
+	return UINT32_MAX_VALUE;
 }
 
 
-uint16 stadt_t::check_road_connexion_to(const gebaeude_t* attraction) const
+uint32 stadt_t::check_road_connexion_to(const gebaeude_t* attraction) const
 {
 	if(welt->get_settings().get_assume_everywhere_connected_by_road())
 	{
@@ -2860,10 +2957,10 @@ uint16 stadt_t::check_road_connexion_to(const gebaeude_t* attraction) const
 		return check_road_connexion_to(welt->get_city(pos));
 	}
 
-	return 65535;
+	return UINT32_MAX_VALUE;
 }
 
-void stadt_t::add_road_connexion(uint16 journey_time_per_tile, const stadt_t* city)
+void stadt_t::add_road_connexion(uint32 journey_time_per_tile, const stadt_t* city)
 {
 	if(this == NULL)
 	{
@@ -2872,7 +2969,7 @@ void stadt_t::add_road_connexion(uint16 journey_time_per_tile, const stadt_t* ci
 	connected_cities.set(city->get_pos(), journey_time_per_tile);
 }
 
-void stadt_t::add_road_connexion(uint16 journey_time_per_tile, const fabrik_t* industry)
+void stadt_t::add_road_connexion(uint32 journey_time_per_tile, const fabrik_t* industry)
 {
 	if(this == NULL)
 	{
@@ -2881,7 +2978,7 @@ void stadt_t::add_road_connexion(uint16 journey_time_per_tile, const fabrik_t* i
 	connected_industries.set(industry->get_pos().get_2d(), journey_time_per_tile);
 }
 
-void stadt_t::add_road_connexion(uint16 journey_time_per_tile, const gebaeude_t* attraction)
+void stadt_t::add_road_connexion(uint32 journey_time_per_tile, const gebaeude_t* attraction)
 {
 	if(this == NULL)
 	{
@@ -4278,7 +4375,7 @@ void stadt_t::add_all_buildings_to_world_list()
 	}
 }
 
-void stadt_t::generate_private_cars(koord pos, uint16 journey_tenths_of_minutes, koord target, uint8 number_of_passengers)
+void stadt_t::generate_private_cars(koord pos, uint32 journey_tenths_of_minutes, koord target, uint8 number_of_passengers)
 {
 	welt->inc_rands(28);
 	// Account for (1) the number of passengers; and (2) the occupancy level.

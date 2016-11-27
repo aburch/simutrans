@@ -383,7 +383,7 @@ void simline_t::rdwr(loadsave_t *file)
 				file->rdwr_short(count);
 				file->rdwr_short(total);
 
-				average_tpl<uint16> average;
+				average_tpl<uint32> average;
 				average.count = count;
 				average.total = total;
 

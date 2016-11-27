@@ -324,7 +324,6 @@ void halt_detail_t::halt_detail_info()
 				haltestelle_t::connexion* cnx = iter.value;
 				if(a_halt.is_bound()) 
 				{
-
 					has_stops = true;
 					buf.append("   ");
 					buf.append(a_halt->get_name());

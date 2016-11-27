@@ -601,7 +601,7 @@ void path_explorer_t::compartment_t::step()
 						walking_distance_halt->get_next_pos(all_halts_list[i]->get_basis_pos())
 						);
 
-					const uint16 journey_time = world->walking_time_tenths_from_distance(walking_journey_distance);
+					const uint32 journey_time = world->walking_time_tenths_from_distance(walking_journey_distance);
 					
 					// Check the journey times to the connexion
 					new_connexion = new haltestelle_t::connexion;
@@ -718,7 +718,7 @@ void path_explorer_t::compartment_t::step()
 			halthandle_t current_halt;
 
 			minivec_tpl<halthandle_t> halt_list(64);
-			minivec_tpl<uint16> journey_time_list(64);
+			minivec_tpl<uint32> journey_time_list(64);
 			minivec_tpl<bool> recurrence_list(64);		// an array indicating whether certain halts have been processed already
 
 			uint32 accumulated_journey_time;
@@ -785,7 +785,7 @@ void path_explorer_t::compartment_t::step()
 				// precalculate journey times between consecutive halts
 				// This is now only a fallback in case the point to point journey time data are not available.
 				entry_count = halt_list.get_count();	
-				uint16 journey_time = 0;
+				uint32 journey_time = 0;
 				journey_time_list.clear();
 				journey_time_list.append(0);	// reserve the first entry for the last journey time from last halt to first halt
 
@@ -825,9 +825,7 @@ void path_explorer_t::compartment_t::step()
 						// Zero here means that there are no journey time data even if the hashtable entry exists.
 						// Fallback to convoy's general average speed if a point-to-point average is not available.
 						const uint32 distance = shortest_distance(halt_list[i]->get_basis_pos(), halt_list[(i+1)%entry_count]->get_basis_pos());
-						const uint32 journey_time_32 = world->travel_time_tenths_from_distance(distance, current_average_speed);
-						// TODO: Seriously consider using 32 bits here for all journey time data
-						journey_time = journey_time_32 > 65534 ? 65534 : journey_time_32;
+						journey_time = world->travel_time_tenths_from_distance(distance, current_average_speed);
 					}
 
 					// journey time from halt 0 to halt 1 is stored in journey_time_list[1]
@@ -882,7 +880,7 @@ void path_explorer_t::compartment_t::step()
 						new_connexion->transfer_time = catg != warenbauer_t::passagiere->get_catg_index() ? halt_list[h]->get_transshipment_time() : halt_list[h]->get_transfer_time();
 						if(current_linkage.line.is_bound())
 						{
-							average_tpl<uint16>* ave = current_linkage.line->get_average_journey_times().access(halt_pair);
+							average_tpl<uint32>* ave = current_linkage.line->get_average_journey_times().access(halt_pair);
 							if(ave && ave->count > 0)
 							{
 								new_connexion->journey_time = ave->reduce();
@@ -895,7 +893,7 @@ void path_explorer_t::compartment_t::step()
 						}
 						else if(current_linkage.convoy.is_bound())
 						{
-							average_tpl<uint16>* ave = current_linkage.convoy->get_average_journey_times().access(halt_pair);
+							average_tpl<uint32>* ave = current_linkage.convoy->get_average_journey_times().access(halt_pair);
 							if(ave && ave->count > 0)
 							{
 								new_connexion->journey_time = ave->reduce();
@@ -1372,7 +1370,7 @@ void path_explorer_t::compartment_t::step()
 					// identify halts which are connected with the current transfer halt
 					for ( uint16 idx = 0; idx < working_halt_count; ++idx )
 					{
-						if ( working_matrix[via][idx].aggregate_time != 65535 && via != idx )
+						if ( working_matrix[via][idx].aggregate_time != UINT32_MAX_VALUE && via != idx )
 						{
 							inbound_connections->register_connection( transport_matrix[idx][via].last_transport, idx );
 							outbound_connections->register_connection( transport_matrix[via][idx].first_transport, idx );
@@ -1417,14 +1415,6 @@ void path_explorer_t::compartment_t::step()
 													 + working_matrix[via][target].aggregate_time ) 
 											< working_matrix[origin][target].aggregate_time			   )
 								{
-									if(combined_time > 65535)
-									{
-										// Prevent perverse results with integer overflows here.
-										// It will probably be necessary eventually to put all journey
-										// times into 32-bit, but the impact on memory consumption and
-										// performance of this step is unknown.
-										combined_time = 65534;
-									}
 									working_matrix[origin][target].aggregate_time = combined_time;
 									working_matrix[origin][target].next_transfer = working_matrix[origin][via].next_transfer;
 									transport_matrix[origin][target].first_transport = transport_matrix[origin][via].first_transport;
@@ -1727,7 +1717,7 @@ void path_explorer_t::compartment_t::enumerate_all_paths(const path_element_t *c
 				
 				transfer_halt = matrix[x][y].next_transfer;
 
-				if (matrix[x][y].aggregate_time == 65535)
+				if (matrix[x][y].aggregate_time == UINT32_MAX_VALUE)
 				{
 					printf("\t\t\t\t******** No Route ********\n");
 				}
@@ -1737,7 +1727,7 @@ void path_explorer_t::compartment_t::enumerate_all_paths(const path_element_t *c
 					{
 						printf("\t\t\t\t%s\n", transfer_halt->get_name());
 
-						if ( halt_map[transfer_halt.get_id()] != 65535 )
+						if ( halt_map[transfer_halt.get_id()] != 65535)
 						{
 							transfer_halt = matrix[ halt_map[transfer_halt.get_id()] ][y].next_transfer;
 						}
@@ -1758,9 +1748,9 @@ void path_explorer_t::compartment_t::enumerate_all_paths(const path_element_t *c
 
 
 bool path_explorer_t::compartment_t::get_path_between(const halthandle_t origin_halt, const halthandle_t target_halt, 
-													  uint16 &aggregate_time, halthandle_t &next_transfer)
+													  uint32 &aggregate_time, halthandle_t &next_transfer)
 {
-	uint32 origin_index, target_index;
+	uint16 origin_index, target_index;
 	
 	// check if origin and target halts are both present in matrix; if yes, check the validity of the next transfer
 	if ( paths_available && origin_halt.is_bound() && target_halt.is_bound()
@@ -1774,7 +1764,7 @@ bool path_explorer_t::compartment_t::get_path_between(const halthandle_t origin_
 	}
 
 	// requested path not found
-	aggregate_time = 65535;
+	aggregate_time = UINT32_MAX_VALUE;
 	next_transfer = halthandle_t();
 	return false;
 }
