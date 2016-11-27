@@ -2131,7 +2131,7 @@ static const char *tool_schedule_insert_aux(karte_t *welt, player_t *player, koo
 	if (bd) {
 		// now just for error messages, we're assuming a valid ground
 		// check for right way type
-		if(!schedule->ist_halt_erlaubt(bd)) {
+		if(!schedule->is_stop_allowed(bd)) {
 			return schedule->get_error_msg();
 		}
 		// and check for ownership
@@ -5983,7 +5983,7 @@ const char *tool_stop_mover_t::do_work( player_t *player, const koord3d &last_po
 				if(!cnv->get_line().is_bound()  &&  cnv->get_owner()==player) {
 					schedule_t *schedule = cnv->get_schedule();
 					// check waytype
-					if(schedule  &&  schedule->ist_halt_erlaubt(bd)) {
+					if(schedule  &&  schedule->is_stop_allowed(bd)) {
 						bool updated = false;
 						FOR(minivec_tpl<schedule_entry_t>, & k, schedule->entries) {
 							if ((catch_all_halt && haltestelle_t::get_halt( k.pos, cnv->get_owner()) == last_halt) ||
@@ -6018,7 +6018,7 @@ const char *tool_stop_mover_t::do_work( player_t *player, const koord3d &last_po
 			FOR(vector_tpl<linehandle_t>, const line, lines) {
 				schedule_t *schedule = line->get_schedule();
 				// check waytype
-				if(schedule->ist_halt_erlaubt(bd)) {
+				if(schedule->is_stop_allowed(bd)) {
 					bool updated = false;
 					FOR(minivec_tpl<schedule_entry_t>, & k, schedule->entries) {
 						// ok!

@@ -15,7 +15,7 @@ class karte_t;
 
 
 /**
- * Eine Klasse zur Speicherung von Fahrpl‰nen in Simutrans.
+ * Class to hold schedule of vehicles in Simutrans.
  *
  * @author Hj. Malthaner
  */
@@ -33,17 +33,17 @@ public:
 	minivec_tpl<schedule_entry_t> entries;
 
 	/**
-	* sollte eine Fehlermeldung ausgeben, wenn halt nicht erlaubt ist
-	* @author Hj. Malthaner
-	*/
+	 * Returns error message if stops are not allowed
+	 * @author Hj. Malthaner
+	 */
 	virtual char const* get_error_msg() const = 0;
 
 	/**
-	* der allgemeine Fahrplan erlaubt haltestellen ¸berall.
-	* diese Methode sollte in den unterklassen redefiniert werden.
-	* @author Hj. Malthaner
-	*/
-	virtual bool ist_halt_erlaubt(const grund_t *gr) const;
+	 * Returns true if this schedule allows stop at the
+	 * given tile.
+	 * @author Hj. Malthaner
+	 */
+	bool is_stop_allowed(const grund_t *gr) const;
 
 	bool empty() const { return entries.empty(); }
 
@@ -54,12 +54,12 @@ public:
 	virtual waytype_t get_waytype() const = 0;
 
 	/**
-	* get current stop of the schedule (schedule)
-	* @author hsiegeln
-	*/
+	 * Get current stop of the schedule.
+	 * @author hsiegeln
+	 */
 	uint8 get_current_stop() const { return current_stop; }
 
-	// always returns a valid entry to the current stop
+	/// returns the current stop, always a valid entry
 	schedule_entry_t const& get_current_entry() const { return current_stop >= entries.get_count() ? dummy_entry : entries[current_stop]; }
 
 private:
@@ -79,8 +79,8 @@ private:
 
 public:
 	/**
-	 * set the current stop of the schedule (schedule)
-	 * if new value is bigger than stops available, the max stop will be used
+	 * Set the current stop of the schedule .
+	 * If new value is bigger than stops available, the max stop will be used.
 	 * @author hsiegeln
 	 */
 	void set_current_stop(uint8 new_current_stop) {
@@ -88,7 +88,7 @@ public:
 		make_current_stop_valid();
 	}
 
-	// advance entry by one ...
+	/// advance current_stop by one
 	void advance() {
 		if(  !entries.empty()  ) {
 			current_stop = (current_stop+1)%entries.get_count();
@@ -114,22 +114,22 @@ public:
 	halthandle_t get_prev_halt( player_t *player ) const;
 
 	/**
-	 * f¸gt eine koordinate an stelle current_stop in den Fahrplan ein
-	 * alle folgenden Koordinaten verschieben sich dadurch
+	 * Inserts a coordinate at current_stop into the schedule.
 	 */
 	bool insert(const grund_t* gr, uint8 minimum_loading = 0, uint8 waiting_time_shift = 0);
 
 	/**
-	 * h‰ngt eine koordinate an den schedule an
+	 * Appends a coordinate to the schedule.
 	 */
 	bool append(const grund_t* gr, uint8 minimum_loading = 0, uint8 waiting_time_shift = 0);
 
-	// cleanup a schedule, removes double entries
+	/**
+	 * Cleanup a schedule, removes double entries.
+	 */
 	void cleanup();
 
 	/**
-	 * entfern entries[current_stop] aus dem schedule
-	 * alle folgenden Koordinaten verschieben sich dadurch
+	 * Remove current_stop entry from the schedule.
 	 */
 	bool remove();
 
@@ -143,15 +143,15 @@ public:
 	 */
 	bool matches(karte_t *welt, const schedule_t *schedule);
 
-	/*
-	 * compare this schedule with another, ignoring order and exact positions and waypoints
+	/**
+	 * Compare this schedule with another, ignoring order and exact positions and waypoints.
 	 * @author prissi
 	 */
 	bool similar( const schedule_t *schedule, const player_t *player );
 
 	/**
-	 * calculates a return way for this schedule
-	 * will add elements 1 to maxi-1 in reverse order to schedule
+	 * Calculates a return way for this schedule.
+	 * Will add elements 1 to end in reverse order to schedule.
 	 * @author hsiegeln
 	 */
 	void add_return_way();
@@ -176,8 +176,7 @@ private:
 
 
 /**
- * Eine Spezialisierung des Fahrplans die nur Stops auf Schienen
- * zul‰ﬂt.
+ * Schedules with stops on tracks.
  *
  * @author Hj. Malthaner
  */
@@ -194,7 +193,8 @@ public:
 	waytype_t get_waytype() const { return track_wt; }
 };
 
-/* the schedule for monorail ...
+/**
+ * Schedules with stops on tram tracks.
  * @author Hj. Malthaner
  */
 class tram_schedule_t : public train_schedule_t
@@ -211,8 +211,7 @@ public:
 
 
 /**
- * Eine Spezialisierung des Fahrplans die nur Stops auf Straﬂen
- * zul‰ﬂt.
+ * Schedules with stops on roads.
  *
  * @author Hj. Malthaner
  */
@@ -231,8 +230,7 @@ public:
 
 
 /**
- * Eine Spezialisierung des Fahrplans die nur Stops auf Wasser
- * zul‰ﬂt.
+ * Schedules with stops on water.
  *
  * @author Hj. Malthaner
  */
@@ -250,7 +248,9 @@ public:
 };
 
 
-/* the schedule for air ...
+/**
+ * Schedules for airplanes.
+ *
  * @author Hj. Malthaner
  */
 class airplane_schedule_t : public schedule_t
@@ -266,7 +266,8 @@ public:
 	waytype_t get_waytype() const { return air_wt; }
 };
 
-/* the schedule for monorail ...
+/**
+ * Schedules with stops on mono-rails.
  * @author Hj. Malthaner
  */
 class monorail_schedule_t : public schedule_t
@@ -282,7 +283,8 @@ public:
 	waytype_t get_waytype() const { return monorail_wt; }
 };
 
-/* the schedule for maglev ...
+/**
+ * Schedules with stops on maglev tracks.
  * @author Hj. Malthaner
  */
 class maglev_schedule_t : public schedule_t
@@ -298,7 +300,9 @@ public:
 	waytype_t get_waytype() const { return maglev_wt; }
 };
 
-/* and narrow guage ...
+/**
+ * Schedules with stops on narrowgauge tracks.
+ *
  * @author Hj. Malthaner
  */
 class narrowgauge_schedule_t : public schedule_t
