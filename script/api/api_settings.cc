@@ -52,7 +52,7 @@ void export_settings(HSQUIRRELVM vm)
 	/**
 	 * Get traffic level.
 	 */
-	register_method(vm, &settings_t::get_verkehr_level, "get_traffic_level");
+	register_method(vm, &settings_t::get_traffic_level, "get_traffic_level");
 
 	/**
 	 * Set traffic level. The higher the level the more city cars will be created.

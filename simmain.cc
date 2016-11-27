@@ -1200,7 +1200,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 		sets.set_city_count(1);
 		sets.set_factory_count(3);
 		sets.set_tourist_attractions(1);
-		sets.set_verkehr_level(7);
+		sets.set_traffic_level(7);
 		welt->init(&sets,0);
 		//  start in June ...
 		intr_set(welt, view);

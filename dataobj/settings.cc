@@ -51,7 +51,7 @@ settings_t::settings_t() :
 
 	station_coverage_size = 2;
 
-	verkehr_level = 5;
+	traffic_level = 5;
 
 	show_pax = true;
 
@@ -330,7 +330,7 @@ void settings_t::rdwr(loadsave_t *file)
 
 		// rest
 		file->rdwr_long(dummy );	// scroll ignored
-		file->rdwr_long(verkehr_level );
+		file->rdwr_long(traffic_level );
 		file->rdwr_long(show_pax );
 		dummy = grundwasser;
 		file->rdwr_long(dummy );
@@ -367,7 +367,7 @@ void settings_t::rdwr(loadsave_t *file)
 			uint32 dummy;	// was scroll dir
 			file->rdwr_long(dummy );
 		}
-		file->rdwr_long(verkehr_level );
+		file->rdwr_long(traffic_level );
 		file->rdwr_long(show_pax );
 		sint32 dummy = grundwasser;
 		file->rdwr_long(dummy );
@@ -1117,7 +1117,7 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 
 	random_pedestrians = contents.get_int("random_pedestrians", random_pedestrians ) != 0;
 	show_pax = contents.get_int("stop_pedestrians", show_pax ) != 0;
-	verkehr_level = contents.get_int("citycar_level", verkehr_level );	// ten normal years
+	traffic_level = contents.get_int("citycar_level", traffic_level );	// ten normal years
 	stadtauto_duration = contents.get_int("default_citycar_life", stadtauto_duration );	// ten normal years
 	allow_buying_obsolete_vehicles = contents.get_int("allow_buying_obsolete_vehicles", allow_buying_obsolete_vehicles );
 	used_vehicle_reduction  = clamp( contents.get_int("used_vehicle_reduction", used_vehicle_reduction ), 0, 1000 );

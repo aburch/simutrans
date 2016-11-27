@@ -1676,7 +1676,7 @@ void stadt_t::new_month( bool recalc_destinations )
 		recalc_target_attractions();
 	}
 
-	if(  !private_car_t::list_empty()  &&  welt->get_settings().get_verkehr_level() > 0  ) {
+	if(  !private_car_t::list_empty()  &&  welt->get_settings().get_traffic_level() > 0  ) {
 		// spawn eventual citycars
 		// the more transported, the less are spawned
 		// the larger the city, the more spawned ...
@@ -1707,7 +1707,7 @@ void stadt_t::new_month( bool recalc_destinations )
 		uint32 factor = (uint32)( comp_stats(pax_stat, mail_stat) ? (comp_stats(good_stat, pax_stat) ? comp_factor(good_stat) : comp_factor(pax_stat)) : comp_factor(mail_stat) );
 		factor = log10(factor);
 
-		uint16 number_of_cars = simrand( factor * welt->get_settings().get_verkehr_level() ) / 16;
+		uint16 number_of_cars = simrand( factor * welt->get_settings().get_traffic_level() ) / 16;
 
 		city_history_month[0][HIST_CITYCARS] = number_of_cars;
 		city_history_year[0][HIST_CITYCARS] += number_of_cars;
@@ -3045,8 +3045,8 @@ void stadt_t::renovate_city_building(gebaeude_t *gb)
 
 void stadt_t::generate_private_cars(koord pos, sint32 level, koord target)
 {
-	int const verkehr_level = welt->get_settings().get_verkehr_level();
-	if (verkehr_level > 0 && level % (17 - verkehr_level) == 0) {
+	int const traffic_level = welt->get_settings().get_traffic_level();
+	if (traffic_level > 0 && level % (17 - traffic_level) == 0) {
 		koord k;
 		for (k.y = pos.y - 1; k.y <= pos.y + 1; k.y++) {
 			for (k.x = pos.x - 1; k.x <= pos.x + 1; k.x++) {

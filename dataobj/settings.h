@@ -97,7 +97,7 @@ private:
 	/**
 	 * At which level buildings generate traffic?
 	 */
-	sint32 verkehr_level;
+	sint32 traffic_level;
 
 	/**
 	 * Should pedestrians be displayed?
@@ -372,8 +372,8 @@ public:
 	void set_mean_citizen_count( sint32 n ) {mean_citizen_count = n;}
 	sint32 get_mean_citizen_count() const {return mean_citizen_count;}
 
-	void set_verkehr_level(sint32 l) {verkehr_level=l;}
-	sint32 get_verkehr_level() const {return verkehr_level;}
+	void set_traffic_level(sint32 l) {traffic_level=l;}
+	sint32 get_traffic_level() const {return traffic_level;}
 
 	void set_show_pax(bool yesno) {show_pax=yesno;}
 	bool get_show_pax() const {return show_pax != 0;}

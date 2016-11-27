@@ -238,7 +238,7 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	traffic_density.set_pos( cursor );
 	traffic_density.set_width( edit_width );
 	traffic_density.align_to(&traffic_density_label, ALIGN_CENTER_V);
-	traffic_density.set_value(welt->get_settings().get_verkehr_level());
+	traffic_density.set_value(welt->get_settings().get_traffic_level());
 	traffic_density.set_limits( 0, 16 );
 	traffic_density.add_listener(this);
 	cursor.y += D_CHECKBOX_HEIGHT + D_V_SPACE;
@@ -408,7 +408,7 @@ bool color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 			welt->set_tool( tool_t::simple_tool[TOOL_TRAFFIC_LEVEL&0xFFF], welt->get_active_player() );
 		}
 		else {
-			traffic_density.set_value(welt->get_settings().get_verkehr_level());
+			traffic_density.set_value(welt->get_settings().get_traffic_level());
 		}
 	} else
 
