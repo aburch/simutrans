@@ -2601,17 +2601,17 @@ bool rail_vehicle_t::is_longblock_signal_clear(signal_t *sig, uint16 next_block,
 
 	// now we can use the route search array
 	// (route until end is already reserved at this point!)
-	uint8 fahrplan_index = cnv->get_schedule()->get_current_stop()+1;
+	uint8 schedule_index = cnv->get_schedule()->get_current_stop()+1;
 	route_t target_rt;
 	koord3d cur_pos = cnv->get_route()->back();
 	uint16 dummy, next_next_signal;
-	if(fahrplan_index >= cnv->get_schedule()->get_count()) {
-		fahrplan_index = 0;
+	if(schedule_index >= cnv->get_schedule()->get_count()) {
+		schedule_index = 0;
 	}
-	while(  fahrplan_index != cnv->get_schedule()->get_current_stop()  ) {
+	while(  schedule_index != cnv->get_schedule()->get_current_stop()  ) {
 		// now search
 		// search for route
-		bool success = target_rt.calc_route( welt, cur_pos, cnv->get_schedule()->entries[fahrplan_index].pos, this, speed_to_kmh(cnv->get_min_top_speed()), 8888 /*cnv->get_tile_length()*/ );
+		bool success = target_rt.calc_route( welt, cur_pos, cnv->get_schedule()->entries[schedule_index].pos, this, speed_to_kmh(cnv->get_min_top_speed()), 8888 /*cnv->get_tile_length()*/ );
 		if(  success  ) {
 			success = block_reserver( &target_rt, 1, next_next_signal, dummy, 0, true, false );
 			block_reserver( &target_rt, 1, dummy, dummy, 0, false, false );
@@ -2639,9 +2639,9 @@ bool rail_vehicle_t::is_longblock_signal_clear(signal_t *sig, uint16 next_block,
 		}
 		// prepare for next leg of schedule
 		cur_pos = target_rt.back();
-		fahrplan_index ++;
-		if(fahrplan_index >= cnv->get_schedule()->get_count()) {
-			fahrplan_index = 0;
+		schedule_index ++;
+		if(schedule_index >= cnv->get_schedule()->get_count()) {
+			schedule_index = 0;
 		}
 	}
 	if(  cnv->get_next_stop_index()-1 <= route_index  ) {

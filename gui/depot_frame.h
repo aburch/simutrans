@@ -299,7 +299,7 @@ public:
 	 * Open dialog for schedule entry.
 	 * @author Hj. Malthaner
 	 */
-	void fahrplaneingabe();
+	void open_schedule_editor();
 
 	bool infowin_event(event_t const*) OVERRIDE;
 

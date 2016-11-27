@@ -1,5 +1,5 @@
-#ifndef fahrplan_h
-#define fahrplan_h
+#ifndef schedule_h
+#define schedule_h
 
 #include "schedule_entry.h"
 

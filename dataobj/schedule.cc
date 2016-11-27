@@ -41,7 +41,7 @@ void schedule_t::copy_from(const schedule_t *src)
 {
 	// make sure, we can access both
 	if(  src==NULL  ) {
-		dbg->fatal("fahrplan_t::copy_to()","cannot copy from NULL");
+		dbg->fatal("schedule_t::copy_to()","cannot copy from NULL");
 		return;
 	}
 	entries.clear();
@@ -154,7 +154,7 @@ bool schedule_t::append(const grund_t* gr, uint8 minimum_loading, uint8 waiting_
 		return true;
 	}
 	else {
-		DBG_MESSAGE("fahrplan_t::append()","forbidden stop at %i,%i,%i",gr->get_pos().x, gr->get_pos().x, gr->get_pos().z );
+		DBG_MESSAGE("schedule_t::append()","forbidden stop at %i,%i,%i",gr->get_pos().x, gr->get_pos().x, gr->get_pos().z );
 		// error
 		create_win( new news_img(get_error_msg()), w_time_delete, magic_none);
 		return false;
@@ -218,7 +218,7 @@ void schedule_t::rdwr(loadsave_t *file)
 
 		sint32 maxi=size;
 		file->rdwr_long(maxi);
-		DBG_MESSAGE("fahrplan_t::rdwr()","read schedule %p with %i entries",this,maxi);
+		DBG_MESSAGE("schedule_t::rdwr()","read schedule %p with %i entries",this,maxi);
 		if(file->get_version()<86010) {
 			// old array had different maxi-counter
 			maxi ++;
@@ -259,7 +259,7 @@ void schedule_t::rdwr(loadsave_t *file)
 	}
 	if(current_stop>=entries.get_count()  ) {
 		if (!entries.empty()) {
-			dbg->error("fahrplan_t::rdwr()","current_stop %i >count %i => current_stop = 0", current_stop, entries.get_count() );
+			dbg->error("schedule_t::rdwr()","current_stop %i >count %i => current_stop = 0", current_stop, entries.get_count() );
 		}
 		current_stop = 0;
 	}

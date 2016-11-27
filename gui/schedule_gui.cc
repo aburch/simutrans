@@ -249,7 +249,7 @@ schedule_gui_t::schedule_gui_t(schedule_t* schedule_, player_t* player_, convoih
 {
 	old_schedule->start_editing();
 	schedule = old_schedule->copy();
-	stats.set_fahrplan(schedule);
+	stats.set_schedule(schedule);
 	if(  !cnv.is_bound()  ) {
 		old_line = new_line = linehandle_t();
 		show_line_selector(false);

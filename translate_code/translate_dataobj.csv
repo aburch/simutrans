@@ -35,3 +35,8 @@ verkehr_level,traffic_level
 position_bei,at
 FAHRPLANEINGABE,EDIT_SCHEDULE
 fahrplan_gui,schedule_gui
+fahrplaneingabe,open_schedule_editor
+fahrplan_h,schedule_h
+fahrplan_t,schedule_t
+set_fahrplan,set_schedule
+fahrplan_index,schedule_index

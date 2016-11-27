@@ -48,7 +48,7 @@ public:
 	schedule_gui_stats_t(player_t *player_);
 	~schedule_gui_stats_t();
 
-	void set_fahrplan( schedule_t* f ) { schedule = f; }
+	void set_schedule( schedule_t* f ) { schedule = f; }
 
 	void highlight_schedule( schedule_t *markschedule, bool marking );
 

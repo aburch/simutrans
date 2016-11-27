@@ -1039,7 +1039,7 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *comp, value_t p)
 				return true;
 			}
 			else {
-				fahrplaneingabe();
+				open_schedule_editor();
 				return true;
 			}
 		}
@@ -1506,7 +1506,7 @@ void depot_frame_t::apply_line()
 }
 
 
-void depot_frame_t::fahrplaneingabe()
+void depot_frame_t::open_schedule_editor()
 {
 	convoihandle_t cnv = depot->get_convoi( icnv );
 
