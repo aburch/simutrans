@@ -45,7 +45,6 @@ private:
 
 	/* new setting since version 0.85.01
 	 * @author prissi
-	 * not used any more:    sint32 industrie_dichte;
 	 */
 	sint32 factory_count;
 	sint32 electric_promille;
