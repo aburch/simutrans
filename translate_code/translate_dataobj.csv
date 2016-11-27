@@ -34,3 +34,4 @@ nummer\\>,map_number
 verkehr_level,traffic_level
 position_bei,at
 FAHRPLANEINGABE,EDIT_SCHEDULE
+fahrplan_gui,schedule_gui

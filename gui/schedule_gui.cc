@@ -34,7 +34,7 @@
 #include "../tpl/vector_tpl.h"
 
 #include "depot_frame.h"
-#include "fahrplan_gui.h"
+#include "schedule_gui.h"
 #include "line_item.h"
 
 #include "components/gui_button.h"

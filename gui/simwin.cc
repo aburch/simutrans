@@ -64,7 +64,7 @@
 #include "halt_info.h"
 #include "convoi_detail_t.h"
 #include "convoi_info_t.h"
-#include "fahrplan_gui.h"
+#include "schedule_gui.h"
 #include "line_management_gui.h"
 #include "schedule_list.h"
 #include "city_info.h"

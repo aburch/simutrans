@@ -27,7 +27,7 @@
 #include "../dataobj/translator.h"
 #include "../dataobj/environment.h"
 #include "../dataobj/loadsave.h"
-#include "fahrplan_gui.h"
+#include "schedule_gui.h"
 // @author hsiegeln
 #include "../simlinemgmt.h"
 #include "../simline.h"

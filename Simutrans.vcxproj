@@ -219,7 +219,6 @@
     <ClCompile Include="besch\reader\factory_reader.cc" />
     <ClCompile Include="gui\factorylist_frame_t.cc" />
     <ClCompile Include="gui\factorylist_stats_t.cc" />
-    <ClCompile Include="gui\fahrplan_gui.cc" />
     <ClCompile Include="obj\field.cc" />
     <ClCompile Include="dataobj\freelist.cc" />
     <ClCompile Include="freight_list_sorter.cc" />
@@ -330,6 +329,7 @@
     <ClCompile Include="gui\scenario_frame.cc" />
     <ClCompile Include="gui\scenario_info.cc" />
     <ClCompile Include="dataobj\schedule.cc" />
+    <ClCompile Include="gui\schedule_gui.cc" />
     <ClCompile Include="gui\schedule_list.cc" />
     <ClCompile Include="boden\wege\schiene.cc" />
     <ClCompile Include="script\script.cc" />
@@ -655,6 +655,7 @@
     <ClInclude Include="gui\scenario_info.h" />
     <ClInclude Include="dataobj\schedule.h" />
     <ClInclude Include="dataobj\schedule_entry.h" />
+    <ClInclude Include="gui\schedule_gui.h" />
     <ClInclude Include="gui\schedule_list.h" />
     <ClInclude Include="boden\wege\schiene.h" />
     <ClInclude Include="scrolltext.h" />

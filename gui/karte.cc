@@ -10,7 +10,7 @@
 #include "../simfab.h"
 #include "../simcity.h"
 #include "karte.h"
-#include "fahrplan_gui.h"
+#include "schedule_gui.h"
 
 #include "../dataobj/translator.h"
 #include "../dataobj/settings.h"

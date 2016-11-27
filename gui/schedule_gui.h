@@ -6,8 +6,8 @@
  * Juli 2000
  */
 
-#ifndef gui_fahrplan_gui_h
-#define gui_fahrplan_gui_h
+#ifndef gui_schedule_gui_h
+#define gui_schedule_gui_h
 
 #include "gui_frame.h"
 

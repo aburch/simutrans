@@ -28,7 +28,7 @@
 
 #include "../tpl/slist_tpl.h"
 
-#include "fahrplan_gui.h"
+#include "schedule_gui.h"
 #include "line_management_gui.h"
 #include "line_item.h"
 #include "convoy_item.h"
