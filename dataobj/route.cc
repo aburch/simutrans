@@ -49,7 +49,7 @@ void route_t::append(const route_t *r)
 	}
 	// then append
 	for( unsigned int i=0;  i<=hops;  i++ ) {
-		route.append(r->position_bei(i));
+		route.append(r->at(i));
 	}
 }
 

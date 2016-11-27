@@ -88,7 +88,7 @@ public:
 	 * @return Coordinate at index @p n.
 	 * @author Hj. Malthaner
 	 */
-	const koord3d& position_bei(const uint16 n) const { return route[n]; }
+	const koord3d& at(const uint16 n) const { return route[n]; }
 
 	koord3d const& front() const { return route.front(); }
 

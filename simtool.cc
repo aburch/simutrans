@@ -3137,7 +3137,7 @@ const char *tool_wayremover_t::do_work( player_t *player, const koord3d &start, 
 	// if successful => delete everything
 	for( uint32 i=0;  i<verbindung.get_count();  i++  ) {
 
-		grund_t *gr=welt->lookup(verbindung.position_bei(i));
+		grund_t *gr=welt->lookup(verbindung.at(i));
 
 		// ground can be missing after deleting a bridge ...
 		if(gr  &&  !gr->ist_wasser()) {
@@ -3146,11 +3146,11 @@ const char *tool_wayremover_t::do_work( player_t *player, const koord3d &start, 
 				if(gr->find<bruecke_t>()->get_besch()->get_waytype()==wt) {
 					if(  brueckenbauer_t::is_start_of_bridge(gr)  ) {
 						const char *err = NULL;
-						err = brueckenbauer_t::remove(player,verbindung.position_bei(i),wt);
+						err = brueckenbauer_t::remove(player,verbindung.at(i),wt);
 						if(err) {
 							return err;
 						}
-						gr = welt->lookup(verbindung.position_bei(i));
+						gr = welt->lookup(verbindung.at(i));
 						if(  !gr  ) {
 							// happens with bridges without ramps
 							continue;
@@ -3181,7 +3181,7 @@ const char *tool_wayremover_t::do_work( player_t *player, const koord3d &start, 
 						gr->obj_loesche_alle(player);
 						gr->mark_image_dirty();
 						if (gr->is_visible() && gr->get_typ()==grund_t::tunnelboden && i>0) { // visibility test does not influence execution
-							grund_t *bd = welt->access(verbindung.position_bei(i-1).get_2d())->get_kartenboden();
+							grund_t *bd = welt->access(verbindung.at(i-1).get_2d())->get_kartenboden();
 							bd->calc_image();
 							bd->set_flag(grund_t::dirty);
 						}
@@ -3343,7 +3343,7 @@ void tool_build_wayobj_t::mark_tiles( player_t* player, const koord3d &start, co
 		sint32 cost_estimate = 0;
 
 		for( uint32 j = 0; j < verbindung.get_count(); j++ ) {
-			koord3d pos = verbindung.position_bei(j);
+			koord3d pos = verbindung.at(j);
 			grund_t *gr = welt->lookup(pos);
 
 			ribi_t::ribi show = verbindung.get_route().get_ribi(j);
@@ -3425,7 +3425,7 @@ const char *tool_build_wayobj_t::do_work( player_t* player, const koord3d &start
 	// Update depots (new electric tab?). Depots can only be on first and last tile.
 	for(  uint8 j = 0;  j < 2;  j++  ) {
 		uint8 i = j==0 ? 0 : verbindung.get_count()-1;
-		depot_t *dep = welt->lookup( verbindung.position_bei(i) )->get_depot();
+		depot_t *dep = welt->lookup( verbindung.at(i) )->get_depot();
 		if( dep ) {
 			dep->update_win();
 		}
@@ -4770,18 +4770,18 @@ void tool_build_roadsign_t::mark_tiles( player_t *player, const koord3d &start, 
 
 	bool single_ribi = besch->is_signal_type() || besch->is_single_way() || besch->is_choose_sign();
 	for(  uint16 i = 0;  i < route.get_count();  i++  ) {
-		grund_t* gr = welt->lookup( route.position_bei(i) );
+		grund_t* gr = welt->lookup( route.at(i) );
 
 		weg_t *weg = gr->get_weg(besch->get_wtyp());
 		ribi_t::ribi ribi=weg->get_ribi_unmasked(); // set full ribi when signal is on a crossing.
 		if(  single_ribi  ) {
 			if(i>0) {
 				// take backward direction
-				ribi = ribi_type(route.position_bei(i), route.position_bei(i-1));
+				ribi = ribi_type(route.at(i), route.at(i-1));
 			}
 			else {
 				// clear one direction bit to get single direction for signal
-				ribi &= ~ribi_type(route.position_bei(i), route.position_bei(i+1));
+				ribi &= ~ribi_type(route.at(i), route.at(i+1));
 			}
 		}
 
@@ -4796,11 +4796,11 @@ void tool_build_roadsign_t::mark_tiles( player_t *player, const koord3d &start, 
 		}
 
 		// check owner .. other signals...
-		bool straight = (i == 0)  ||  (i == route.get_count()-1)  ||  ribi_t::is_straight(ribi_type(route.position_bei(i-1), route.position_bei(i+1)));
+		bool straight = (i == 0)  ||  (i == route.get_count()-1)  ||  ribi_t::is_straight(ribi_type(route.at(i-1), route.at(i+1)));
 		next_signal += straight ? 2 : 1;
 		if(  next_signal >= signal_density  ) {
 			// can we place signal here?
-			if (check_pos_intern(player, route.position_bei(i))==NULL  ||
+			if (check_pos_intern(player, route.at(i))==NULL  ||
 					(s.replace_other && rs && !rs->is_deletable(player))) {
 				zeiger_t* zeiger = new zeiger_t(gr->get_pos(), player );
 				marked.append(zeiger);
