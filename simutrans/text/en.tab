@@ -833,6 +833,24 @@ Summer
 Butter
 %16D_CITY_SYLL
 Sandal
+%16E_CITY_SYLL
+Comp
+%16F_CITY_SYLL
+Cromp
+%170_CITY_SYLL
+Cramp
+%171_CITY_SYLL
+Cram
+%172_CITY_SYLL
+Cran
+%173_CITY_SYLL
+Maple
+%174_CITY_SYLL
+Map
+%175_CITY_SYLL
+Swain
+%176_CITY_SYLL
+Bov
 #
 # Town name end syllables.
 # There can be up to 1024 of these.
@@ -1069,6 +1087,14 @@ endon
 cott
 &72_CITY_SYLL
 font
+&73_CITY_SYLL
+grove
+&74_CITY_SYLL
+tun
+&75_CITY_SYLL
+bourne
+&76_CITY_SYLL
+ey
 #
 # Town name prefixes.
 # There can be up to 256 of these.
