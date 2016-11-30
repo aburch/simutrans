@@ -5192,8 +5192,7 @@ rands[23] = 0;
 	//step by the number of parallel operations introduces significant rounding errors.
 #if MULTI_THREAD
 	
-	//if (env_t::networkmode)
-	if(true)
+	if (env_t::networkmode)
 	{
 		// At present, this cannot work in network mode because the generate_passengers_or_mail function modifies the next_step_passenger and next_step_mail variables,
 		// which in turn are used to count how many times that the generate_passengers_or_mail function is run. 
@@ -5241,8 +5240,7 @@ rands[15] = get_random_seed();
 	INT_CHECK("karte_t::step 4");
 
 #if MULTI_THREAD
-	//if (!env_t::networkmode)
-	if(false)
+	if (!env_t::networkmode)
 	{
 		// Stop the passenger and mail generation.
 		simthread_barrier_wait(&step_passengers_and_mail_barrier);
@@ -5786,6 +5784,7 @@ uint32 karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 			// Careful -- use uint32 here to avoid overflow cutoff errors.
 			// This number may be very long.
 			walking_time = walking_time_tenths_from_distance(straight_line_distance);
+			speed_factors_are_set = true;
 			car_minutes = UINT32_MAX_VALUE;
 
 			// If can_walk is true, it also guarantees that walking_time will fit in a uint16.
@@ -5871,6 +5870,7 @@ uint32 karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 					{
 						// The above check is needed to prevent an overflow.
 						current_journey_time += walking_time_tenths_from_distance(start_halts[i].distance);
+						speed_factors_are_set = true;
 					}
 					// TODO: Add facility to check whether station/stop has car parking facilities, and add the possibility of a (faster) private car journey.
 					// Use the private car journey time per tile from the passengers' origin to the city in which the stop is located.
