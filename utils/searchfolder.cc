@@ -9,7 +9,7 @@
 #ifndef _MSC_VER
 #include <dirent.h>
 #else
-#include <Windows.h>
+#include <windows.h>
 #include <io.h>
 #endif
 

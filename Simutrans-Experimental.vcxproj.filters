@@ -2239,7 +2239,6 @@
     <None Include="Makefile">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="makeobj\Makefile" />
     <None Include="base_texts_experimental_forgotten_items_1.dat">
       <Filter>Resource Files</Filter>
     </None>
@@ -2352,6 +2351,12 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include=".desktop">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="makeobj\Makefile">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="nettools\Makefile">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

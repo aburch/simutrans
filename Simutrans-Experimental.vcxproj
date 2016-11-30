@@ -2473,6 +2473,7 @@
     <None Include="config.template" />
     <None Include="Makefile" />
     <None Include="makeobj\Makefile" />
+    <None Include="nettools\Makefile" />
     <None Include="simutrans\config\electricity.tab" />
     <None Include="simutrans\config\privatecar.tab" />
     <None Include="simutrans\config\simuconf.tab" />
