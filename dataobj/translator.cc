@@ -369,9 +369,26 @@ void translator::init_custom_names(int lang)
 
 						if (s3 == name || random_percent_suffix > prefix_probability || strcmp(s3, s2) == 0)
 						{
-							// name not available or the suffix is identical to the final syllable
+							// Name not available or the suffix is identical to the final syllable
+							// (This should avoid names such as Tarwoodwood). 
 							continue;
 						}
+
+						// Compare lower cases end parts without spaces with upper case end parts with spaces.
+						// This should avoid town names such as "Bumblewick Wick"
+						// First, remove the space
+						std::string spaceless_name = s3;
+						spaceless_name.erase(0, 1);
+						// Now perform case insensitive comparison. Different for Linux and Windows.
+#ifdef _MSC_VER
+						if (stricmp(spaceless_name.c_str(), s2) == 0 || stricmp(s2, s3) == 0)
+#else
+						if (strcasecmp(spaceless_name.c_str(), s2) == 0 || strcasecmp(s2, s3) == 0)
+#endif
+						{
+							continue;
+						}
+
 						const size_t l3 = strlen(s3);
 						char *const c2 = MALLOCN(char, l1 + l2 + l3 + 1);
 						sprintf(c2, "%s%s%s", s1, s2, s3);
