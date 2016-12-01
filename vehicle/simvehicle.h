@@ -439,7 +439,7 @@ public:
 	*/
 	void initialise_journey( uint16 start_route_index, bool recalc );
 
-		void set_direction_steps(sint16 value) { direction_steps = value; }
+	void set_direction_steps(sint16 value) { direction_steps = value; }
 
 #ifdef INLINE_OBJ_TYPE
 protected:
@@ -749,6 +749,8 @@ public:
 
 	void leave_tile();
 
+	void unreserve_in_rear();
+
 	void clear_token_reservation(signal_t* sig, rail_vehicle_t* w, schiene_t* sch); 
 
 #ifdef INLINE_OBJ_TYPE
@@ -770,8 +772,7 @@ public:
 	virtual schedule_t * generate_new_schedule() const;
 
 	working_method_t get_working_method() const { return working_method; }
-	void set_working_method(working_method_t value) { working_method = value; }
-
+	void set_working_method(working_method_t value);
 };
 
 

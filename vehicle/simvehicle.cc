@@ -254,8 +254,7 @@ void vehicle_base_t::rotate90()
 
 
 
-void
-vehicle_base_t::leave_tile() //"leave field" (Google)
+void vehicle_base_t::leave_tile() 
 {
 	// first: release crossing
 	// This needs to be refreshed here even though this value is cached:
@@ -3824,7 +3823,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		{
 			signal->set_state(roadsign_t::call_on); // Do not use the same cabinet to switch back to drive by sight immediately after releasing. 
 			clear_token_reservation(signal, this, w); 
-			working_method = drive_by_sight;
+			set_working_method(drive_by_sight);
 			exiting_one_train_staff = true;
 		}
 	}
@@ -3835,14 +3834,14 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 	{
 		if(working_method != token_block && working_method != one_train_staff)
 		{
-			working_method = drive_by_sight;
+			set_working_method(drive_by_sight);
 		}
 
 		if(signal_current && working_method != token_block)
 		{
 			if(working_method != one_train_staff && (signal_current->get_besch()->get_working_method() != one_train_staff || signal_current->get_pos() != cnv->get_last_signal_pos()))
 			{
-				working_method = signal_current->get_besch()->get_working_method();
+				set_working_method(signal_current->get_besch()->get_working_method());
 			}
 		}
 	}
@@ -3916,7 +3915,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 				{
 					cnv->set_state(convoi_t::EMERGENCY_STOP);
 					cnv->set_wait_lock(emergency_stop_duration + 500); // We add 500 to what we assume is the rear train to ensure that the front train starts first.
-					working_method = drive_by_sight;
+					set_working_method(drive_by_sight);
 					cnv->unreserve_route();
 					cnv->reserve_own_tiles();
 					if(c.is_bound())
@@ -4065,7 +4064,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 	{
 		modify_check_tile = true;
 		do_not_set_one_train_staff = working_method == one_train_staff;
-		working_method = working_method != one_train_staff ? drive_by_sight : one_train_staff;
+		set_working_method(working_method != one_train_staff ? drive_by_sight : one_train_staff); 
 	}
 
 	if(working_method == absolute_block || working_method == track_circuit_block || working_method == drive_by_sight || working_method == token_block || working_method == time_interval || working_method == time_interval_with_telegraph)
@@ -4181,7 +4180,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 				{
 					if(signal->get_besch()->get_working_method() != one_train_staff || (!do_not_set_one_train_staff && (signal->get_pos() == get_pos()) && (signal->get_state() != roadsign_t::call_on)))
 					{
-						working_method = signal->get_besch()->get_working_method(); 
+						set_working_method(signal->get_besch()->get_working_method()); 
 					}
 				}
 
@@ -4207,7 +4206,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 							{
 								// Permissive working allowed: call on.
 								signal->set_state(roadsign_t::call_on);
-								working_method = drive_by_sight;
+								set_working_method(drive_by_sight); 
 							}
 						}
 						cnv->set_next_stop_index(next_signal == INVALID_INDEX ? next_block : next_signal);
@@ -4258,7 +4257,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 	
 		if(signal && signal->get_besch()->get_working_method() == token_block)
 		{
-			working_method = token_block;
+			set_working_method(token_block); 
 		}
 	}
 	if(working_method == drive_by_sight || working_method == moving_block)
@@ -4272,7 +4271,15 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 	return true;
 }
 
+void rail_vehicle_t::set_working_method(working_method_t value)
+{
+	if (working_method == one_train_staff && value != one_train_staff)
+	{
+		unreserve_in_rear();
+	}
 
+	working_method = value; 
+}
 
 /*
  * reserves or un-reserves all blocks and returns whether it succeeded.
@@ -4480,7 +4487,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 				if(!sg || sg->get_besch()->get_max_distance_to_signalbox() < shortest_distance(pos.get_2d(), cnv->get_last_signal_pos().get_2d()))
 				{
 					// Out of range of the moving block beacon/signal; revert to drive by sight
-					working_method = drive_by_sight;
+					set_working_method(drive_by_sight);
 					break;
 				}
 			}
@@ -4600,7 +4607,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 					next_signal_protects_no_junctions = signal->get_no_junctions_to_next_signal();
 					if(working_method == drive_by_sight && sch1->can_reserve(cnv->self, ribi) && (signal->get_pos() != cnv->get_last_signal_pos() || signal->get_besch()->get_working_method() != one_train_staff))
 					{
-						working_method = next_signal_working_method;
+						set_working_method(next_signal_working_method);
 					}
 
 					if(next_signal_working_method == one_train_staff && first_one_train_staff_index == INVALID_INDEX)
@@ -5693,6 +5700,22 @@ void rail_vehicle_t::clear_token_reservation(signal_t* sig, rail_vehicle_t* w, s
 	}
 }
 
+void rail_vehicle_t::unreserve_in_rear()
+{
+	route_t* route = cnv ? cnv->get_route() : NULL;
+
+	for (int i = route_index - 1; i >= 0; i--)
+	{
+		const koord3d this_pos = route->position_bei(i);
+		grund_t* gr_route = welt->lookup(this_pos);
+		schiene_t* sch_route = gr_route ? (schiene_t *)gr_route->get_weg(get_waytype()) : NULL;
+		if (sch_route)
+		{
+			sch_route->unreserve(cnv->self);
+		}
+	}
+}
+
 
 /* beware: we must un-reserve rail blocks... */
 void rail_vehicle_t::leave_tile()
@@ -5701,16 +5724,50 @@ void rail_vehicle_t::leave_tile()
 	schiene_t *sch0 = (schiene_t *) get_weg();
 	vehicle_t::leave_tile();
 	// fix counters
-	if(last) // Last vehicle
+	if(last)
 	{
 		if(gr) 
 		{
 			if(sch0) 
 			{
 				rail_vehicle_t* w = cnv ? (rail_vehicle_t*)cnv->front() : NULL;
+			
 				const halthandle_t this_halt = gr->get_halt();
 				const halthandle_t dest_halt = haltestelle_t::get_halt((cnv && cnv->get_schedule() ? cnv->get_schedule()->get_current_eintrag().pos : koord3d::invalid), get_owner()); 
 				const bool at_reversing_destination = dest_halt.is_bound() && this_halt == dest_halt && cnv->get_schedule() && cnv->get_schedule()->get_current_eintrag().reverse; 
+
+				route_t* route = cnv ? cnv->get_route() : NULL;
+				koord3d this_tile;
+				koord3d previous_tile;
+				if (route)
+				{
+					// It can very occasionally happen that a train due to reverse at a station
+					// passes through another, unconnected part of that station before it stops.
+					// When this happens, an island of reservation can remain which can block
+					// other trains.
+					// Detect this case when it has just begun to occur and rectify it.
+					if (route_index > route->get_count() - 1)
+					{
+						route_index = route->get_count() - 1;
+					}
+					const uint16 ri = min(route_index, route->get_count() - 1u);
+					this_tile = cnv->get_route()->position_bei(ri);
+					previous_tile = cnv->get_route()->position_bei(max(1u, ri) - 1u);
+
+					if (cnv->get_schedule() && cnv->get_schedule()->get_current_eintrag().reverse)
+					{
+						grund_t* gr_previous_tile = welt->lookup(previous_tile);
+						grund_t* gr_this_tile = welt->lookup(this_tile); 
+						if (gr_previous_tile && gr_this_tile)
+						{
+							if (gr_previous_tile->get_halt().is_bound() && gr_previous_tile->get_halt() == dest_halt && !gr_this_tile->get_halt().is_bound())
+							{
+								unreserve_in_rear();
+							}
+						}
+					}
+				}
+
 				if((!cnv || cnv->get_state() != convoi_t::REVERSING) && (!w || (w->get_working_method() != token_block && w->get_working_method() != one_train_staff)) && !at_reversing_destination)
 				{
 					sch0->unreserve(this);
@@ -5720,18 +5777,10 @@ void rail_vehicle_t::leave_tile()
 				// or, in the case of a distant signal in absolute or token block working, reset 
 				// it only when the tail of the train has passed the next home signal.
 				if(sch0->has_signal())
-				{
-					route_t* route = cnv ? cnv->get_route() : NULL;
+				{		
 					signal_t* sig;
 					if(route)
 					{
-						if(route_index > route->get_count() - 1)
-						{
-							route_index = route->get_count() - 1;
-						}
-						const uint16 ri = min(route_index, route->get_count() - 1u); 
-						const koord3d this_tile = cnv->get_route()->position_bei(ri);
-						const koord3d previous_tile = cnv->get_route()->position_bei(max(1u, ri) -1u);
 						grund_t *gr_ahead = welt->lookup(this_tile);
 						weg_t *way = gr_ahead->get_weg(get_waytype());
 						const koord dir = this_tile.get_2d() - previous_tile.get_2d();

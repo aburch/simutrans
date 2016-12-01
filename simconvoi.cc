@@ -1335,7 +1335,7 @@ bool convoi_t::prepare_for_routing()
 				}
 			}
 		}
-
+		/*
 		const bool rail_type = front()->get_waytype() == track_wt || front()->get_waytype() == tram_wt || front()->get_waytype() == narrowgauge_wt || front()->get_waytype() == maglev_wt || front()->get_waytype() == monorail_wt;
 
 		if (rail_type)
@@ -1352,7 +1352,7 @@ bool convoi_t::prepare_for_routing()
 		{
 			// Sea and road waytypes do not have any sort of reserveation, and calls to unreserve_route() are expensive.
 			unreserve_route();
-		}
+		}*/
 	}
 
 	return true;
