@@ -136,6 +136,8 @@ static pthread_mutex_t path_explorer_mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t karte_t::unreserve_route_mutex = PTHREAD_MUTEX_INITIALIZER;
 static simthread_barrier_t private_car_barrier;
 bool karte_t::threads_initialised = false;
+vector_tpl<sync_steppable*> *karte_t::sync_objects_added_threaded;
+thread_local uint32 karte_t::passenger_generation_thread_number;
 simthread_barrier_t karte_t::unreserve_route_barrier;
 static simthread_barrier_t step_passengers_and_mail_barrier;
 static simthread_barrier_t start_path_explorer_barrier;
@@ -1625,13 +1627,13 @@ void *check_road_connexions_threaded(void *args)
 void *step_passengers_and_mail_threaded(void* args)
 {
 	const uint32* thread_number_ptr = (const uint32*)args;
-	const uint32 thread_number = *thread_number_ptr;
+	karte_t::passenger_generation_thread_number = *thread_number_ptr;
 	delete thread_number_ptr;
 
 	// The random seed is now thread local, so this must be initialised here
 	// with values that will be deterministic between different clients in
 	// a networked multi-player setup.
-	setsimrand(karte_t::world->get_zeit_ms(), thread_number);
+	setsimrand(karte_t::world->get_zeit_ms(), karte_t::passenger_generation_thread_number);
 	set_random_mode(STEP_RANDOM);
 
 	sint32 next_step_passenger_this_thread;
@@ -1661,7 +1663,7 @@ void *step_passengers_and_mail_threaded(void* args)
 
 		if (next_step_passenger_this_thread < karte_t::world->passenger_step_interval && karte_t::world->next_step_passenger > karte_t::world->passenger_step_interval)
 		{
-			if (thread_number == 0)
+			if (karte_t::passenger_generation_thread_number == 0)
 			{
 				// In case of very small numbers, make this effectively single threaded, or else rounding errors will prevent any passenger generation.
 				next_step_passenger_this_thread = karte_t::world->next_step_passenger;
@@ -1671,7 +1673,7 @@ void *step_passengers_and_mail_threaded(void* args)
 				next_step_passenger_this_thread = 0;
 			}
 		}
-		else if (thread_number == 0)
+		else if (karte_t::passenger_generation_thread_number == 0)
 		{
 			next_step_passenger_this_thread += karte_t::world->next_step_passenger % (karte_t::world->get_parallel_operations() - 1);
 
@@ -1679,7 +1681,7 @@ void *step_passengers_and_mail_threaded(void* args)
 
 		if (next_step_mail_this_thread < karte_t::world->mail_step_interval && karte_t::world->next_step_mail > karte_t::world->mail_step_interval)
 		{
-			if (thread_number == 0)
+			if (karte_t::passenger_generation_thread_number == 0)
 			{
 				// In case of very small numbers, make this effectively single threaded, or else rounding errors will prevent any mail generation.
 				next_step_mail_this_thread = karte_t::world->next_step_mail;
@@ -1689,7 +1691,7 @@ void *step_passengers_and_mail_threaded(void* args)
 				next_step_mail_this_thread = 0;
 			}
 		}
-		else if (thread_number == 0)
+		else if (karte_t::passenger_generation_thread_number == 0)
 		{
 			next_step_mail_this_thread += karte_t::world->next_step_mail % (karte_t::world->get_parallel_operations() - 1);
 		}
@@ -1904,6 +1906,8 @@ void karte_t::init_threads()
 
 	const sint32 parallel_operations = get_parallel_operations();
 
+	sync_objects_added_threaded = new vector_tpl<sync_steppable*>[parallel_operations]; 
+
 	pthread_attr_init(&thread_attributes);
 	pthread_attr_setdetachstate(&thread_attributes, PTHREAD_CREATE_JOINABLE);
 
@@ -2020,6 +2024,8 @@ void karte_t::destroy_threads()
 	}
 
 	first_step = 1;
+
+	delete[] sync_objects_added_threaded; 
 
 	threads_initialised = false;
 	terminating_threads = false;
@@ -5246,6 +5252,18 @@ rands[15] = get_random_seed();
 		simthread_barrier_wait(&step_passengers_and_mail_barrier);
 		// The extra barrier is needed to synchronise the generation figures.
 		simthread_barrier_wait(&step_passengers_and_mail_barrier);
+
+		// This is necessary in network mode to ensure that all cars set in motion
+		// by passenger generation are added to the world list in the same order
+		// even when the creation of those objects was multi-threaded. 
+		for (uint32 i = 0; i < get_parallel_operations(); i++)
+		{
+			FOR(vector_tpl<sync_steppable*>, ss, sync_objects_added_threaded[i])
+			{
+				sync.add(ss);
+			}
+			sync_objects_added_threaded[i].clear();
+		}
 	}
 #endif
 	INT_CHECK("karte_t::step 5");

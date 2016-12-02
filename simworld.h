@@ -939,6 +939,8 @@ private:
 	static uint32 path_explorer_step_progress;
 	static bool unreserve_route_running;
 	static bool threads_initialised; 
+	static vector_tpl<sync_steppable*> *sync_objects_added_threaded; // Intended to be an array of vectors
+	static thread_local uint32 passenger_generation_thread_number;
 	private:
 #endif
 

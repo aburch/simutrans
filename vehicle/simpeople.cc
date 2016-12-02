@@ -14,6 +14,7 @@
 #include "../utils/simrandom.h"
 #include "../boden/grund.h"
 #include "../dataobj/loadsave.h"
+#include "../dataobj/environment.h"
 
 #include "simpeople.h"
 #include "../besch/fussgaenger_besch.h"
@@ -160,7 +161,12 @@ void pedestrian_t::generate_pedestrians_at(const koord3d k, int &anzahl)
 						// walk a little
 						fg->sync_step( (i & 3) * 64 * 24);
 					}
+#if MULTI_THREAD
+					karte_t::sync_objects_added_threaded[karte_t::passenger_generation_thread_number].append(fg);
+#else
+
 					welt->sync.add(fg);
+#endif
 					anzahl--;
 				}
 				else {
