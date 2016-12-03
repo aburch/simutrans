@@ -6428,7 +6428,7 @@ no_route:
 						return_pax.set_zielpos(origin_pos.get_2d());
 						return_pax.set_ziel(start_halt);
 						return_pax.is_commuting_trip = trip == commuting_trip;
-						if(ret_halt->find_route(return_pax) != UINT32_MAX_VALUE)
+						if(ret_halt->find_route(return_pax) < UINT32_MAX_VALUE)
 						{
 							return_pax.arrival_time = get_zeit_ms();
 #ifdef MULTI_THREAD

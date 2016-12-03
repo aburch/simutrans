@@ -1976,9 +1976,10 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 		{
 			// now search route
 			const uint32 transfer_time = (i.nearby_halt.distance * transfer_journey_time_factor) / 100;
-			const uint32 current_journey_time = i.nearby_halt.halt->find_route(i.ware) + transfer_time;
+			uint32 current_journey_time = i.nearby_halt.halt->find_route(i.ware);
 			if(current_journey_time < UINT32_MAX_VALUE)
 			{
+				current_journey_time += transfer_time;
 				best = &i;
 				break;
 			}
@@ -3096,11 +3097,15 @@ uint32 fabrik_t::get_lead_time(const ware_besch_t* wtype)
 					tmp.set_besch(wtype);
 					tmp.set_zielpos(pos.get_2d());
 					tmp.set_origin(nearby_halt.halt);
-					const uint32 current_journey_time = (uint32)nearby_halt.halt->find_route(tmp, best_journey_time) + transfer_time;
-					if(current_journey_time < best_journey_time)
+					uint32 current_journey_time = (uint32)nearby_halt.halt->find_route(tmp, best_journey_time);
+					if (current_journey_time < UINT32_MAX_VALUE)
 					{
-						best_journey_time = current_journey_time;
-					}
+						current_journey_time += transfer_time;
+						if (current_journey_time < best_journey_time)
+						{
+							best_journey_time = current_journey_time;
+						}
+					}		
 				}
 
 				if(best_journey_time < UINT32_MAX_VALUE && (best_journey_time > longest_lead_time || longest_lead_time == UINT32_MAX_VALUE))

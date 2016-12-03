@@ -493,8 +493,8 @@ public:
 
 	/**
 	 * Recalculate nearby halts
-	 * These are stashed, so must be recalced when
-	 * halts are built or destroyed
+	 * These are stashed, so must be recalced 
+	 * when halts are built or destroyed
 	 * @author neroden
 	 */
 	void recalc_nearby_halts();
@@ -519,8 +519,8 @@ public:
 	 * Adds a new delivery goal
 	 * @author Hj. Malthaner
 	 */
-	void  add_lieferziel(koord ziel);
-	void  rem_lieferziel(koord pos);
+	void add_lieferziel(koord ziel);
+	void rem_lieferziel(koord pos);
 
 	bool disconnect_consumer(koord pos);
 	bool disconnect_supplier(koord pos);
