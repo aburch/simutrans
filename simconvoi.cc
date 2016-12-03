@@ -3116,7 +3116,7 @@ void convoi_t::vorfahren()
 			//Convoy needs to reverse
 			//@author: jamespetts
 			if(must_change_direction)
-			{
+			{				
 				switch(front()->get_waytype())
 				{
 					case road_wt:
