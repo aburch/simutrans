@@ -139,7 +139,7 @@ void pedestrian_t::rdwr(loadsave_t *file)
 
 
 // create a number (anzahl) of pedestrians (if possible)
-void pedestrian_t::generate_pedestrians_at(const koord3d k, int &anzahl)
+void pedestrian_t::generate_pedestrians_at(const koord3d k, uint32 &anzahl)
 {
 	if (liste.empty()) {
 		return;

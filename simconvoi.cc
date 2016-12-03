@@ -7158,7 +7158,7 @@ void convoi_t::clear_replace()
 				journey_time_tenths_minutes = welt->travel_time_tenths_from_distance(distance, current_average_speed);
 			}
 
-			journey_time_ticks = welt->seconds_to_ticks(journey_time_tenths_minutes * 6);
+			journey_time_ticks = welt->get_seconds_to_ticks(journey_time_tenths_minutes * 6);
 			eta = etd;
 			eta += journey_time_ticks;
 			etd += journey_time_ticks;

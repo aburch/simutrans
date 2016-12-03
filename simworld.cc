@@ -5252,18 +5252,18 @@ rands[15] = get_random_seed();
 		simthread_barrier_wait(&step_passengers_and_mail_barrier);
 		// The extra barrier is needed to synchronise the generation figures.
 		simthread_barrier_wait(&step_passengers_and_mail_barrier);
+	}
 
-		// This is necessary in network mode to ensure that all cars set in motion
-		// by passenger generation are added to the world list in the same order
-		// even when the creation of those objects was multi-threaded. 
-		for (uint32 i = 0; i < get_parallel_operations(); i++)
+	// This is necessary in network mode to ensure that all cars set in motion
+	// by passenger generation are added to the world list in the same order
+	// even when the creation of those objects was multi-threaded. 
+	for (uint32 i = 0; i < get_parallel_operations(); i++)
+	{
+		FOR(vector_tpl<sync_steppable*>, ss, sync_objects_added_threaded[i])
 		{
-			FOR(vector_tpl<sync_steppable*>, ss, sync_objects_added_threaded[i])
-			{
-				sync.add(ss);
-			}
-			sync_objects_added_threaded[i].clear();
+			sync.add(ss);
 		}
+		sync_objects_added_threaded[i].clear();
 	}
 #endif
 	INT_CHECK("karte_t::step 5");
@@ -5316,12 +5316,6 @@ rands[19] = get_random_seed();
 	}
 	
 #ifdef MULTI_THREAD
-	// Start the path explorer ready for the next step. This can be very 
-	// computationally intensive, but intermittently so.
-	start_path_explorer();
-#endif
-
-#ifdef MULTI_THREAD
 	// This must start after the multi-threaded path explorer starts
 
 	// Start the convoys' route finding again immediately after the convoys have been stepped: this maximises efficiency and concurrency.
@@ -5340,8 +5334,18 @@ rands[19] = get_random_seed();
 	}
 #endif
 
-	// ok, next step
 	INT_CHECK("karte_t::step 8");
+
+	check_transferring_cargoes();
+
+#ifdef MULTI_THREAD
+	// Start the path explorer ready for the next step. This can be very 
+	// computationally intensive, but intermittently so.
+	start_path_explorer();
+#endif
+
+	// ok, next step
+	INT_CHECK("karte_t::step 9");
 
 	if((steps%8)==0) {
 		DBG_DEBUG4("karte_t::step", "checkmidi");
@@ -5408,8 +5412,8 @@ void karte_t::step_time_interval_signals()
 {
 	if (!time_interval_signals_to_check.empty())
 	{
-		const sint64 caution_interval_ticks = seconds_to_ticks(settings.get_time_interval_seconds_to_caution());
-		const sint64 clear_interval_ticks = seconds_to_ticks(settings.get_time_interval_seconds_to_clear());
+		const sint64 caution_interval_ticks = get_seconds_to_ticks(settings.get_time_interval_seconds_to_caution());
+		const sint64 clear_interval_ticks = get_seconds_to_ticks(settings.get_time_interval_seconds_to_clear());
 
 		for (vector_tpl<signal_t*>::iterator iter = time_interval_signals_to_check.begin(); iter != time_interval_signals_to_check.end();)
 		{
@@ -5538,6 +5542,128 @@ void karte_t::get_nearby_halts_of_tiles(const vector_tpl<const planquadrat_t*> &
 				halts.append(halt);
 			}
 		}
+	}
+}
+
+void karte_t::add_to_waiting_list(ware_t ware, koord origin_pos)
+{
+	sint64 ready_time = calc_ready_time(ware, origin_pos);
+	
+	transferring_cargo_t tc;
+	tc.ware = ware;
+	tc.ready_time = ready_time;
+	transferring_cargoes.append(tc);
+}
+
+sint64 karte_t::calc_ready_time(ware_t ware, koord origin_pos) const
+{
+	sint64 ready_time = get_zeit_ms();
+
+	uint16 distance = shortest_distance(ware.get_zielpos(), origin_pos);
+
+	if (ware.is_freight())
+	{
+		const uint32 tenths_of_minutes = walk_haulage_time_tenths_from_distance(distance);
+		const sint64 carting_time = get_seconds_to_ticks(tenths_of_minutes * 6);
+		ready_time += carting_time;
+	}
+	else
+	{
+		const uint32 seconds = walking_time_secs_from_distance(distance);
+		const sint64 walking_time = get_seconds_to_ticks(seconds);
+		ready_time += walking_time;
+	}
+
+	return ready_time;
+}
+
+void karte_t::check_transferring_cargoes()
+{
+	const sint64 current_time = ticks;
+	ware_t ware;
+	
+	FOR(vector_tpl<transferring_cargo_t>, tc, transferring_cargoes)
+	{
+		const uint32 ready_seconds = ticks_to_seconds((tc.ready_time - current_time));
+		const uint32 ready_minutes = ready_seconds / 60;
+		const uint32 ready_hours = ready_minutes / 60;
+		if (tc.ready_time <= current_time)
+		{
+			ware = tc.ware;
+			transferring_cargoes.remove(tc);
+			deposit_ware_at_destination(ware);
+		}
+	}
+}
+
+void karte_t::deposit_ware_at_destination(ware_t ware)
+{
+	const grund_t* gr = lookup_kartenboden(ware.get_zielpos());
+	gebaeude_t* gb_dest = gr->get_building();
+	fabrik_t* const fab = gb_dest ? gb_dest->get_fabrik() : NULL;
+	if (!gb_dest) 
+	{
+		gb_dest = gr->get_depot();
+	}
+
+	if (fab)
+	{
+		// Packet is headed to a factory;
+		// the factory exists;
+		if (fab_list.is_contained(fab) || !ware.is_freight())
+		{
+			if (!ware.is_passenger() || ware.is_commuting_trip)
+			{
+				// Only book arriving passengers for commuting trips.
+				fab->liefere_an(ware.get_besch(), ware.menge);
+			}
+			gb_dest =lookup(fab->get_pos())->find<gebaeude_t>();
+		}
+		else
+		{
+			gb_dest = NULL;
+		}
+	}
+
+	if (gb_dest)
+	{
+		if (ware.is_passenger())
+		{
+			if (ware.is_commuting_trip)
+			{
+				if (gb_dest && gb_dest->get_tile()->get_besch()->get_typ() != gebaeude_t::wohnung)
+				{
+					// Do not record the passengers coming back home again.
+					gb_dest->set_commute_trip(ware.menge);
+				}
+			}
+			else if (gb_dest && gb_dest->get_tile()->get_besch()->get_typ() != gebaeude_t::wohnung)
+			{
+				gb_dest->add_passengers_succeeded_visiting(ware.menge);
+			}
+
+			// Arriving passengers may create pedestrians
+			// at the arriving halt or the building 
+			// that they left (not their ultimate destination). 
+			if (get_settings().get_show_pax())
+			{
+				const uint32 menge = ware.menge;
+				koord3d pos_pedestrians;
+				if (ware.get_zwischenziel().is_bound())
+				{
+					pos_pedestrians = ware.get_zwischenziel()->get_basis_pos3d();
+				}
+				else
+				{
+					pos_pedestrians = ware.get_origin().is_bound() ? ware.get_origin()->get_basis_pos3d() : koord3d::invalid;
+				}
+				haltestelle_t::generate_pedestrians(pos_pedestrians, menge);
+			}
+		}
+#ifdef DEBUG_SIMRAND_CALLS
+		if (talk)
+			dbg->message("haltestelle_t::liefere_an", "%d arrived at station \"%s\" waren[0].count %d", ware.menge, get_name(), get_warray(0)->get_count());
+#endif
 	}
 }
 
@@ -6115,7 +6241,7 @@ uint32 karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 			}
 			pax.arrival_time = get_zeit_ms();
 			pax.set_origin(start_halt);
-			start_halt->starte_mit_route(pax);
+			start_halt->starte_mit_route(pax, origin_pos.get_2d());
 			if(city && wtyp == warenbauer_t::passagiere)
 			{
 				city->merke_passagier_ziel(destination_pos, COL_YELLOW);
@@ -6169,34 +6295,23 @@ uint32 karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 			}
 
 			set_return_trip = true;
+			pax.set_zielpos(current_destination.location);
 			// We cannot do this on arrival, as the ware packets do not remember their origin building.
 			if(trip == commuting_trip)
 			{
 				first_origin->add_passengers_succeeded_commuting(units_this_step);
-				if(current_destination.type == factory)
-				{
-					// Only add commuting passengers at a factory.
-					current_destination.building->get_fabrik()->liefere_an(wtyp, units_this_step);
-				}
-				else if(current_destination.building->get_tile()->get_besch()->get_typ() != gebaeude_t::wohnung)
-				{
-					// Houses do not record received passengers.
-					current_destination.building->set_commute_trip(units_this_step);
-				}
 			}
 			else if(trip == visiting_trip)
 			{
 				first_origin->add_passengers_succeeded_visiting(units_this_step);
-				if(current_destination.building->get_tile()->get_besch()->get_typ() != gebaeude_t::wohnung)
-				{
-					// Houses do not record received passengers.
-					current_destination.building->add_passengers_succeeded_visiting(units_this_step);
-				}
 			}
+			add_to_waiting_list(pax, origin_pos.get_2d());
 			break;
 
 		case on_foot:
 					
+			pax.set_zielpos(current_destination.location);
+
 			if(tolerance < UINT32_MAX_VALUE)
 			{
 				tolerance -= walking_time;
@@ -6229,26 +6344,13 @@ uint32 karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 			if(trip == commuting_trip)
 			{
 				first_origin->add_passengers_succeeded_commuting(units_this_step);
-				if(current_destination.type == factory)
-				{
-					// Only add commuting passengers at a factory.
-					current_destination.building->get_fabrik()->liefere_an(wtyp, units_this_step);
-				}
-				else if(current_destination.building->get_tile()->get_besch()->get_typ() != gebaeude_t::wohnung)
-				{
-					// Houses do not record received passengers.
-					current_destination.building->set_commute_trip(units_this_step);
-				}
 			}
 			else if(trip == visiting_trip)
 			{
 				first_origin->add_passengers_succeeded_visiting(units_this_step);
-				if(current_destination.building->get_tile()->get_besch()->get_typ() != gebaeude_t::wohnung)
-				{
-					// Houses do not record received passengers.
-					current_destination.building->add_passengers_succeeded_visiting(units_this_step);
-				}
+				
 			}
+			add_to_waiting_list(pax, origin_pos.get_2d());
 			// Do nothing if trip == mail.
 			break;
 
@@ -6434,7 +6536,7 @@ no_route:
 #ifdef MULTI_THREAD
 							pthread_mutex_lock(&step_passengers_and_mail_mutex);
 #endif
-							ret_halt->starte_mit_route(return_pax);
+							ret_halt->starte_mit_route(return_pax, pax.get_zielpos());
 #ifdef MULTI_THREAD
 							pthread_mutex_unlock(&step_passengers_and_mail_mutex);
 #endif
@@ -7439,6 +7541,26 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved messages");
 		}
 	}
 
+	if (file->get_experimental_version() >= 13 || file->get_experimental_revision() >= 15)
+	{
+		uint32 count;
+		sint64 ready;
+		ware_t ware;
+
+		count = transferring_cargoes.get_count();
+
+		file->rdwr_long(count);
+
+		for (uint32 i = 0; i < count; i++)
+		{
+			ready = transferring_cargoes[i].ready_time;
+			ware = transferring_cargoes[i].ware;
+
+			file->rdwr_longlong(ready);
+			ware.rdwr(file);
+		}
+	}
+
 	if(  file->get_version() >= 112008  ) {
 		xml_tag_t t( file, "motd_t" );
 
@@ -7820,7 +7942,6 @@ void karte_t::load(loadsave_t *file)
 				simuconf.close();
 			}
 		}
-
 	}
 
 	loaded_rotation = settings.get_rotation();
@@ -8500,10 +8621,6 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 				else
 				{
 					file->rdwr_long(parallel_operations);
-#ifdef MULTI_THREAD
-					destroy_threads();
-					init_threads();
-#endif
 				}
 			}
 			else
@@ -8512,6 +8629,33 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 				file->rdwr_long(dummy);
 				parallel_operations = -1;
 			}
+		}
+	}
+
+#ifdef MULTI_THREAD
+	destroy_threads();
+	init_threads();
+#endif
+
+	if (file->get_experimental_version() >= 13 || file->get_experimental_revision() >= 15)
+	{
+		uint32 count;
+		sint64 ready;
+		ware_t ware;
+
+		transferring_cargoes.clear();
+
+		file->rdwr_long(count);
+
+		for (uint32 i = 0; i < count; i++)
+		{
+			file->rdwr_longlong(ready);
+			ware.rdwr(file);
+
+			transferring_cargo_t tc;
+			tc.ready_time = ready;
+			tc.ware = ware;
+			transferring_cargoes.append(tc);
 		}
 	}
 

@@ -59,6 +59,7 @@ class loadsave_t;
 class schedule_t;
 class player_t;
 class ware_t;
+class transferring_cargo_t;
 
 // elements of the lines_loaded vector
 struct lines_loaded_t
@@ -163,7 +164,7 @@ private:
 	 */
 	uint32 transfer_time;
 
-	/*
+	/**
 	 * The time (in 10ths of seconds)
 	 * that it takes goods to be trans-shipped
 	 * inside this stop. This assumes a fixed
@@ -178,6 +179,15 @@ private:
 	 * path explorer when it is multi-threaded.
 	 */
 	vector_tpl<uint8> categories_to_refresh_next_step;
+
+	/**
+	* This is the list of passengers/mail/goods that
+	* have arrived at this stop but are in the process
+	* of transferring either to catch the next service,
+	* or walking/being carted to their ultimate 
+	* destination.
+	*/
+	vector_tpl<transferring_cargo_t> transferring_cargoes;
 
 public:
 	const slist_tpl<convoihandle_t> &get_loading_convois() const { return loading_here; }
@@ -206,7 +216,7 @@ public:
 	 *
 	 * @author Hj. Malthaner
 	 */
-	static int generate_pedestrians(const koord3d pos, int anzahl);
+	static int generate_pedestrians(const koord3d pos, uint32 anzahl);
 
 	/**
 	 * Returns an index to a halt at koord k
@@ -346,6 +356,8 @@ public:
 
 	typedef inthashtable_tpl<uint16, sint64> arrival_times_map;
 
+	uint32 get_transferring_cargoes_count() { return transferring_cargoes.get_count(); }
+
 private:
 	slist_tpl<tile_t> tiles;
 
@@ -477,11 +489,15 @@ private:
 	// add the ware to the internal storage, called only internally
 	void add_ware_to_halt(ware_t ware, bool from_saved = false);
 
+	// Add cargoes to the waiting list
+	void add_to_waiting_list(ware_t ware, sint64 ready_time);
+
 	/**
-	 * liefert wartende ware an eine Fabrik
-	 * @author Hj. Malthaner
-	 */
-	void liefere_an_fabrik(const ware_t& ware) const;
+	* This calculates how long that it will take any given
+	* cargo packet to be ready to transfer onwards from
+	* this stop.
+	*/
+	sint64 calc_ready_time(ware_t ware, bool arriving_from_vehicle, koord origin_pos = koord::invalid) const;
 
 	/*
 	 * transfers all goods to given station
@@ -532,7 +548,12 @@ private:
 	 */
 	sint64 calc_earliest_arrival_time_at(halthandle_t halt, convoihandle_t &convoi, uint8 catg_index);
 
-	uint32 deposit_ware_at_destination(ware_t ware);
+	/**
+	* This will check the list of transferring cargoes
+	* and register at their destination those that
+	* are ready to go there.
+	*/
+	void check_transferring_cargoes();
 
 public:
 #ifdef DEBUG_SIMRAND_CALLS
@@ -759,8 +780,8 @@ public:
 	 * @return angenommene menge
 	 * @author Hj. Malthaner/prissi
 	 */
-	uint32 liefere_an(ware_t ware, uint8 walked_between_stations = 0);
-	uint32 starte_mit_route(ware_t ware);
+	void liefere_an(ware_t ware, uint8 walked_between_stations = 0);
+	void starte_mit_route(ware_t ware, koord origin_pos);
 
 	const grund_t *find_matching_position(waytype_t wt) const;
 

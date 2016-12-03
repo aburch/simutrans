@@ -774,7 +774,7 @@ void private_car_t::enter_tile(grund_t* gr)
 	if(target!=koord::invalid  &&  shortest_distance(pos_next.get_2d(),target)<10) {
 		// delete it ...
 		time_to_life = 0;
-		int number = 2;
+		uint32 number = 2;
 		pedestrian_t::generate_pedestrians_at(get_pos(), number);
 	}
 #endif /* DESTINATION_CITYCARS */

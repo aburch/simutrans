@@ -29,6 +29,8 @@
 #include "network/pwd_hash.h"
 #include "dataobj/loadsave.h"
 
+#include "simware.h"
+
 #include "simplan.h"
 
 #include "simdebug.h"
@@ -129,6 +131,18 @@ public:
 		year = y * 12;
 		ownership_percent = ownership;
 	};
+};
+
+class transferring_cargo_t
+{
+public:
+	ware_t ware;
+	sint64 ready_time;
+
+	bool operator ==(const transferring_cargo_t& o)
+	{
+		return ware == o.ware && o.ready_time == ready_time;
+	}
 };
 
 /**
@@ -1427,14 +1441,16 @@ public:
 	/** 
 	* Reverse conversion of the above.
 	*/
-	inline sint64 seconds_to_ticks(uint32 seconds)
+	inline sint64 get_seconds_to_ticks(uint32 seconds) const
 	{
 		// S = a * T * c * d / (e * f)
 		// S / a = T * c * d / (e * f)
 		// S / a / c / d = T / (e * f)
 		// (S / a / c / d) * (e * f) = T
 
-		return ((sint64)seconds * 4096L * 1000L) / (sint64)get_settings().get_meters_per_tile() / 30L / 6L;
+		//return ((sint64)seconds * 4096L * 1000L) / (sint64)get_settings().get_meters_per_tile() / 30L / 6L;
+
+		return seconds_to_ticks(seconds, get_settings().get_meters_per_tile()); 
 	}
 
 	/**
@@ -1527,6 +1543,25 @@ private:
 	*/
 	sint32 get_parallel_operations() const;
 
+	/**
+	* This is the list of passengers/mail/goods that
+	* are transferring to/from buildings without
+	* going via a stop. Those that go via a stop use
+	* the like named vector in the haltestelle_t class.
+	*/
+	vector_tpl<transferring_cargo_t> transferring_cargoes;
+
+	/**
+	* Iterate through the transferring_cargoes
+	* vector and dispatch all those cargoes
+	* that are ready.
+	*/
+	void check_transferring_cargoes(); 
+
+	// Calculate the time that a ware packet is
+	// taken out of the waiting list.
+	sint64 calc_ready_time(ware_t ware, koord origin_pos) const;
+
 public:
 
 	/**
@@ -1562,7 +1597,7 @@ public:
 	/**
 	 * Conversion from walking distance in tiles to walk haulage time for freight
 	 * Walking haulage for freight is always at 1 km/h.
-	 * Returns tenths of minutes (god only knows why)
+	 * Returns tenths of minutes
 	 */
 	uint32 walk_haulage_time_tenths_from_distance(uint32 distance) const {
 		if (!speed_factors_are_set) {
@@ -1678,6 +1713,11 @@ public:
 	*/
 	void step_time_interval_signals();
 
+	/**
+	* Add cargoes to the waiting list
+	*/
+	void add_to_waiting_list(ware_t ware, koord origin_pos);
+
 #ifdef MULTI_THREAD
 	/**
 	* Initialise threads
@@ -1735,6 +1775,12 @@ public:
 
 	void set_mouse_rest_time(uint32 new_val) { mouse_rest_time = new_val; };
 	void set_sound_wait_time(uint32 new_val) { sound_wait_time = new_val; };
+
+	/**
+	* Call this when a ware is ready according to
+	* check_transferring_cargoes().
+	*/
+	void deposit_ware_at_destination(ware_t ware);
 
 private:
 	/**

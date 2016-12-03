@@ -1900,11 +1900,7 @@ public:
 void fabrik_t::verteile_waren(const uint32 produkt)
 {	
 	// wohin liefern ?
-	if(  lieferziele.empty()  ) {
-		return;
-	}
-
-	if(nearby_freight_halts.empty())
+	if(  lieferziele.empty()  ) 
 	{
 		return;
 	}
@@ -1922,7 +1918,68 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 	 */
 	sint32 menge = min( (prodbase > 640 ? (prodbase>>6) : 10), ausgang[produkt].menge >> precision_bits );
 
+	// Check to see whether any consumers are within carting distance: there is no point in boarding transport
+	// if the consumer industry is next door.
+
+	bool can_cart_to_consumer = false;
+	sint8 needed = 0;
+
+	for (uint32 n = 0; n < lieferziele.get_count(); n++)
+	{
+		// Check whether these can be carted to their destination.
+		const koord lieferziel = lieferziele[(n + ausgang[produkt].index_offset) % lieferziele.get_count()];
+		const uint32 distance_to_consumer = shortest_distance(lieferziel, pos.get_2d());
+		if (distance_to_consumer <= welt->get_settings().get_station_coverage_factories())
+		{
+			fabrik_t * ziel_fab = get_fab(lieferziel);
+			
+			if (ziel_fab && !(get_besch()->get_platzierung() == fabrik_besch_t::Wasser)) // Goods cannot be carted over water.
+			{
+				needed = ziel_fab->is_needed(ausgang[produkt].get_typ());
+				if (needed >= 0) 
+				{
+					can_cart_to_consumer = true;
+
+					ware_t ware(ausgang[produkt].get_typ());
+					ware.menge = menge;
+					ware.set_zielpos(lieferziel);
+
+					uint32 w;
+					// find the index in the target factory
+					for (w = 0; w < ziel_fab->get_eingang().get_count() && ziel_fab->get_eingang()[w].get_typ() != ware.get_besch(); w++)
+					{
+						// empty
+					}
+
+					// if only overflown factories found => deliver to first
+					// else deliver to non-overflown factory
+					nearby_halt_t nh;
+					nh.distance = distance_to_consumer;
+					nh.halt = halthandle_t();
+
+					if (!welt->get_settings().get_just_in_time()) 
+					{
+						// without production stop when target overflowing, distribute to least overflown target
+						const sint32 fab_left = ziel_fab->get_eingang()[w].max - ziel_fab->get_eingang()[w].menge;					
+						dist_list.insert_ordered(distribute_ware_t(nh, fab_left, ziel_fab->get_eingang()[w].max, 0, ware), distribute_ware_t::compare);
+					}
+					else if (needed > 0)
+					{
+						// we are not overflowing: Station can only store up to a maximum amount of goods per square
+						dist_list.insert_ordered(distribute_ware_t(nh, 0, 0, 0, ware), distribute_ware_t::compare);
+					}
+				}
+			}
+		}
+	}
+
 	const uint32 count = nearby_freight_halts.get_count();
+
+	if (!can_cart_to_consumer && count == 0)
+	{
+		return;
+	}
+
 	for(unsigned i = 0; i < count; i++)
 	{
 		nearby_halt_t nearby_halt = nearby_freight_halts[(i + ausgang[produkt].index_offset) % count];
@@ -1941,7 +1998,7 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 					ware.set_zielpos( lieferziel );
 					ware.arrival_time = welt->get_zeit_ms();
 
-					unsigned w;
+					uint32 w;
 					// find the index in the target factory
 					for(  w = 0;  w < ziel_fab->get_eingang().get_count()  &&  ziel_fab->get_eingang()[w].get_typ() != ware.get_besch();  w++  ) {
 						// empty
@@ -1972,11 +2029,18 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 		// Assume a fixed 1km/h transshipment time of goods to industries. This gives a minimum transfer time
 		// of 15 minutes for each stop at 125m/tile.
 		const uint32 transfer_journey_time_factor = ((uint32)welt->get_settings().get_meters_per_tile() * 6) * 10;
+		uint32 current_journey_time;
 		FOR(vector_tpl<distribute_ware_t>, & i, dist_list) 
 		{
+			if (!i.nearby_halt.halt.is_bound())
+			{ 
+				best = &i;
+				break;
+			}
+
 			// now search route
 			const uint32 transfer_time = (i.nearby_halt.distance * transfer_journey_time_factor) / 100;
-			uint32 current_journey_time = i.nearby_halt.halt->find_route(i.ware);
+			current_journey_time = i.nearby_halt.halt->find_route(i.ware);
 			if(current_journey_time < UINT32_MAX_VALUE)
 			{
 				current_journey_time += transfer_time;
@@ -1993,7 +2057,7 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 		ware_t       &best_ware = best->ware;
 
 		// now process found route
-		const sint32 space_left = welt->get_settings().get_just_in_time() ? best->space_left : (sint32)best_halt->get_capacity(2) - (sint32)best_halt->get_ware_summe(best_ware.get_besch());
+		const sint32 space_left = best_halt.is_bound() ? welt->get_settings().get_just_in_time() ? best->space_left : (sint32)best_halt->get_capacity(2) - (sint32)best_halt->get_ware_summe(best_ware.get_besch()) : needed - 9;
 		menge = min( menge, 9 + space_left );
 		// ensure amount is not negative ...
 		if(  menge<0  ) {
@@ -2002,7 +2066,7 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 		// since it is assigned here to an unsigned variable!
 		best_ware.menge = menge;
 
-		if(  space_left<0  ) {
+		if(  space_left<0 && best_halt.is_bound()  ) {
 			// find, what is most waiting here from us
 			ware_t most_waiting(ausgang[produkt].get_typ());
 			most_waiting.menge = 0;
@@ -2036,8 +2100,15 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 			}
 		}
 		ausgang[produkt].menge -= menge << precision_bits;
-		best_halt->starte_mit_route(best_ware);
-		best_halt->recalc_status();
+		if (best_halt.is_bound())
+		{
+			best_halt->starte_mit_route(best_ware, get_pos().get_2d());
+			best_halt->recalc_status();
+		}
+		else
+		{
+			world()->add_to_waiting_list(best_ware, get_pos().get_2d());
+		}
 		fabrik_t::update_transit( best_ware, true );
 		// add as active destination
 		lieferziele_active_last_month |= (1 << lieferziele.index_of(best_ware.get_zielpos()));

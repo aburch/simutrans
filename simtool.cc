@@ -3400,7 +3400,6 @@ const char *tool_wayremover_t::do_work( player_t *player, const koord3d &start, 
 	bool can_delete = true;	// assume success
 
 	// if successful => delete everything
-	// TODO: Find a way of allowing a bridge's way to be removed and replaced with a different way type here.
 	for( uint32 i=0;  i<verbindung.get_count();  i++  ) 
 	{
 		grund_t *gr = welt->lookup(verbindung.position_bei(i));

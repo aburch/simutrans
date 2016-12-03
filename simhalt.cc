@@ -1180,7 +1180,35 @@ void haltestelle_t::request_loading(convoihandle_t cnv)
 	}
 }
 
+void haltestelle_t::check_transferring_cargoes()
+{
+	const sint64 current_time = welt->get_zeit_ms();
+	ware_t ware;
 
+	FOR(vector_tpl<transferring_cargo_t>, tc, transferring_cargoes)
+	{
+		const uint32 ready_seconds = world()->ticks_to_seconds((tc.ready_time - current_time)); 
+		const uint32 ready_minutes = ready_seconds / 60;
+		const uint32 ready_hours = ready_minutes / 60; 
+		if (tc.ready_time <= current_time)
+		{
+			ware = tc.ware;
+			transferring_cargoes.remove(tc);
+			if (ware.get_ziel() == self)
+			{
+				// This is the final destination: register the cargoes
+				// at their ultimate end point.
+				world()->deposit_ware_at_destination(ware);
+			}
+			else
+			{
+				// This is just a transfer - add this to the stop's
+				// internal storage for onward travel.
+				add_ware_to_halt(ware);
+			}
+		}
+	}
+}
 
 void haltestelle_t::step()
 {
@@ -1189,7 +1217,7 @@ void haltestelle_t::step()
 #endif
 	// Knightly : update status
 	//   There is no idle state in Experimental
-	//   as rerouting request may be sent via
+	//   as rerouting requests may be sent via
 	//   refresh_routing() instead of
 	//   karte_t::set_schedule_counter()
 
@@ -1209,9 +1237,11 @@ void haltestelle_t::step()
 		calc_transfer_time();
 	}
 
+	check_transferring_cargoes();
+
 	// Every 256 steps - check whether passengers/goods have been waiting too long.
 	// Will overflow at 255.
-	if(++check_waiting == 0)
+	if(++ check_waiting == 0)
 	{
 		vector_tpl<ware_t> *warray;
 		for(uint16 j = 0; j < warenbauer_t::get_max_catg_index(); j ++)
@@ -1283,7 +1313,7 @@ void haltestelle_t::step()
 							if(shortest_distance(get_next_pos(tmp.get_zielpos()), tmp.get_zielpos()) <= max_walking_distance)
 							{
 								// Passengers can walk to their ultimate destination.
-								deposit_ware_at_destination(tmp);
+								add_to_waiting_list(tmp, calc_ready_time(tmp, false));
 								passengers_walked = true;
 							}
 
@@ -1461,8 +1491,8 @@ uint32 haltestelle_t::reroute_goods(const uint8 catg)
 				// If there's no factory there, wait.
 				if ( fab_list.is_contained(fab) ) {
 					// If this factory is on our list of connected factories... we're there!
-					// FIXME: This should be delayed by the transshipment time
-					liefere_an_fabrik(ware);
+
+					add_to_waiting_list(ware, calc_ready_time(ware, true)); 
 					continue;
 				}
 			}
@@ -2085,17 +2115,6 @@ void haltestelle_t::add_pax_no_route(int n)
 	book(n, HALT_NOROUTE);
 }
 
-
-void haltestelle_t::liefere_an_fabrik(const ware_t& ware) const //"deliver to the factory" (Google)
-{
-	fabrik_t *const factory = fabrik_t::get_fab(ware.get_zielpos());
-	if(factory)
-	{
-		factory->liefere_an(ware.get_besch(), ware.menge);
-	}
-}
-
-
 /* retrieves a ware packet for any destination in the list
  * needed, if the factory in question wants to remove something
  */
@@ -2569,6 +2588,55 @@ void haltestelle_t::add_ware_to_halt(ware_t ware, bool from_saved)
 	warray->append(ware);
 }
 
+void haltestelle_t::add_to_waiting_list(ware_t ware, sint64 ready_time)
+{
+	transferring_cargo_t tc;
+	tc.ware = ware;
+	tc.ready_time = ready_time;
+	transferring_cargoes.append(tc);
+}
+
+sint64 haltestelle_t::calc_ready_time(ware_t ware, bool arriving_from_vehicle, koord origin_pos) const
+{
+	sint64 ready_time = welt->get_zeit_ms();
+
+	if (ware.is_freight())
+	{
+		ready_time += world()->get_seconds_to_ticks(transshipment_time * 6);
+	}
+	else // Passengers
+	{
+		ready_time += world()->get_seconds_to_ticks(transfer_time * 6);
+	}
+
+	if (!arriving_from_vehicle && ware.get_ziel() != self)
+	{
+		uint16 distance;
+		if (origin_pos == koord::invalid)
+		{
+			distance = shortest_distance(get_basis_pos(), ware.get_zielpos());
+		}
+		else
+		{
+			distance = shortest_distance(get_basis_pos(), origin_pos);
+		}
+
+		if (ware.is_freight())
+		{
+			const uint32 tenths_of_minutes = world()->walk_haulage_time_tenths_from_distance(distance);
+			const sint64 carting_time = world()->get_seconds_to_ticks(tenths_of_minutes * 6);
+			ready_time += carting_time;
+		}
+		else
+		{
+			const uint32 seconds = world()->walking_time_secs_from_distance(distance);
+			const sint64 walking_time = world()->get_seconds_to_ticks(seconds);
+			ready_time += walking_time;
+		}
+	}
+
+	return ready_time;
+}
 
 
 /* same as liefere an, but there will be no route calculated,
@@ -2576,7 +2644,7 @@ void haltestelle_t::add_ware_to_halt(ware_t ware, bool from_saved)
  * (execption: route contains us as intermediate stop)
  * @author prissi
  */
-uint32 haltestelle_t::starte_mit_route(ware_t ware)
+void haltestelle_t::starte_mit_route(ware_t ware, koord origin_pos)
 {
 #ifdef DEBUG_SIMRAND_CALLS
 	bool talk = !strcmp(get_name(), "Newton Abbot Railway Station");
@@ -2588,15 +2656,14 @@ uint32 haltestelle_t::starte_mit_route(ware_t ware)
 	if(ware.get_ziel()==self) {
 		if(fabrik_t::get_fab(ware.get_zielpos())) 
 		{
-			// muss an fabrik geliefert werden
-			liefere_an_fabrik(ware);
+			add_to_waiting_list(ware, calc_ready_time(ware, false));
 		}
 		// already there: finished (may be happen with overlapping areas and returning passengers)
 #ifdef DEBUG_SIMRAND_CALLS
 		if (talk)
 			dbg->message("\t", "already finished");
 #endif
-		return ware.menge;
+		return;
 	}
 
 	// no valid next stops? Or we are the next stop?
@@ -2606,7 +2673,7 @@ uint32 haltestelle_t::starte_mit_route(ware_t ware)
 		if(find_route(ware) == UINT32_MAX_VALUE)
 		{
 			// no route found?
-			return ware.menge;
+			return;
 		}
 	}
 
@@ -2626,12 +2693,12 @@ uint32 haltestelle_t::starte_mit_route(ware_t ware)
 			dbg->message("\t", "walking to %s", ware.get_zwischenziel()->get_name());
 #endif
 		ware.set_last_transfer(self);
-		return ware.get_zwischenziel()->liefere_an(ware, 1);
+		ware.get_zwischenziel()->liefere_an(ware, 1);
+		return;
 	}
 
+	add_to_waiting_list(ware, calc_ready_time(ware, false, origin_pos));
 
-	// add to internal storage
-	add_ware_to_halt(ware);
 #ifdef DEBUG_SIMRAND_CALLS
 	if (talk)
 	{
@@ -2639,7 +2706,7 @@ uint32 haltestelle_t::starte_mit_route(ware_t ware)
 		dbg->message("\t", "warray count %d", (*warray).get_count());
 	}
 #endif
-	return ware.menge;
+	return;
 }
 
 
@@ -2652,7 +2719,7 @@ uint32 haltestelle_t::starte_mit_route(ware_t ware)
  *
  * @author prissi
  */
-uint32 haltestelle_t::liefere_an(ware_t ware, uint8 walked_between_stations)
+void haltestelle_t::liefere_an(ware_t ware, uint8 walked_between_stations)
 {
 #ifdef DEBUG_SIMRAND_CALLS
 	bool talk = !strcmp(get_name(), "Newton Abbot Railway Station");
@@ -2666,7 +2733,7 @@ uint32 haltestelle_t::liefere_an(ware_t ware, uint8 walked_between_stations)
 		//
 		// This was the 5th consecutive attempt to walk between stations.  Fail.
 		dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s has walked between too many consecutive stops: terminating early to avoid infinite loops", ware.menge, translator::translate(ware.get_name()), get_name() );
-		return ware.menge;
+		return;
 	}
 
 	// no valid next stops?
@@ -2675,12 +2742,12 @@ uint32 haltestelle_t::liefere_an(ware_t ware, uint8 walked_between_stations)
 		if(ware.is_passenger() && shortest_distance(ware.get_zielpos(), get_next_pos(ware.get_zielpos())) < welt->get_settings().get_station_coverage() / 2)
 		{
 			// Passengers can walk to their destination if it is close enough.
-			return deposit_ware_at_destination(ware);
+			add_to_waiting_list(ware, calc_ready_time(ware, false));
 		}
 		
 		// write a log entry and discard the goods
 		dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer a route to their destination!", ware.menge, translator::translate(ware.get_name()), get_name() );
-		return 0;
+		return;
 	}
 
 	const planquadrat_t* plan = welt->access(ware.get_zielpos());
@@ -2691,7 +2758,7 @@ uint32 haltestelle_t::liefere_an(ware_t ware, uint8 walked_between_stations)
 	{
 		// Destination factory has been deleted: write a log entry and discard the goods.
 		dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s were intended for a factory that has been deleted.", ware.menge, translator::translate(ware.get_name()), get_name() );
-		return 0;
+		return;
 	}
 	// Now we know, that "ware" has a vaild destination building "gb", which implies having a "plan".
 	bool twice = false;
@@ -2703,7 +2770,8 @@ uint32 haltestelle_t::liefere_an(ware_t ware, uint8 walked_between_stations)
 		if(plan->is_connected(self)) 
 		{
 			// The destination tile is within the station coverage area
-			return deposit_ware_at_destination(ware);	
+			add_to_waiting_list(ware, calc_ready_time(ware, true));
+			return;
 		}
 		else
 		{
@@ -2712,7 +2780,8 @@ uint32 haltestelle_t::liefere_an(ware_t ware, uint8 walked_between_stations)
 			if(fab && fab_list.is_contained(fab))
 			{
 				// This is a connected factory: destination reached.
-				return deposit_ware_at_destination(ware);	
+				add_to_waiting_list(ware, calc_ready_time(ware, true));
+				return;
 			}
 
 			if(!ware.is_freight())
@@ -2725,12 +2794,12 @@ uint32 haltestelle_t::liefere_an(ware_t ware, uint8 walked_between_stations)
 					{
 						// This is a multi-tile building other than a factory,
 						// part of which is in the coverage area.
-						return deposit_ware_at_destination(ware);
+						add_to_waiting_list(ware, calc_ready_time(ware, true));
+						return;
 					}
 				}
 			}
 		}
-		//assert(false);
 	}
 	uint16 straight_line_distance_destination;
 	bool destination_is_within_coverage;
@@ -2747,7 +2816,8 @@ uint32 haltestelle_t::liefere_an(ware_t ware, uint8 walked_between_stations)
 		else
 		{
 			// Otherwise, bad things happen.
-			return deposit_ware_at_destination(ware);
+			add_to_waiting_list(ware, calc_ready_time(ware, true));
+			return;
 		}
 	}
 
@@ -2765,7 +2835,7 @@ uint32 haltestelle_t::liefere_an(ware_t ware, uint8 walked_between_stations)
 		DBG_MESSAGE("haltestelle_t::liefere_an()","%s: delivered goods (%d %s) to ??? via ??? could not be routed to their destination!",get_name(), ware.menge, translator::translate(ware.get_name()) );
 		// target halt no longer there => delete and remove from fab in transit
 		fabrik_t::update_transit( ware, false );
-		return ware.menge;
+		return;
 	}
 
 	if(ware.is_passenger())
@@ -2779,10 +2849,10 @@ uint32 haltestelle_t::liefere_an(ware_t ware, uint8 walked_between_stations)
 			const sint64 best_arrival_time_destination_stop = calc_earliest_arrival_time_at(ware.get_ziel(), dummy, ware.get_besch()->get_catg_index());
 			sint64 best_arrival_time_transfer = ware.get_zwischenziel() != ware.get_ziel() ? calc_earliest_arrival_time_at(ware.get_zwischenziel(), dummy, ware.get_besch()->get_catg_index()) : SINT64_MAX_VALUE;
 
-			const sint64 arrival_after_walking_to_destination = welt->seconds_to_ticks(welt->walking_time_tenths_from_distance((uint32)straight_line_distance_destination) * 6) + welt->get_zeit_ms();
+			const sint64 arrival_after_walking_to_destination = welt->get_seconds_to_ticks(welt->walking_time_tenths_from_distance((uint32)straight_line_distance_destination) * 6) + welt->get_zeit_ms();
 
 			const uint16 straight_line_distance_to_next_transfer = shortest_distance(get_init_pos(), ware.get_zwischenziel()->get_next_pos(get_next_pos(ware.get_zwischenziel()->get_basis_pos())));
-			const sint64 arrival_after_walking_to_next_transfer = welt->seconds_to_ticks(welt->walking_time_tenths_from_distance((uint32)straight_line_distance_to_next_transfer) * 6) + welt->get_zeit_ms();
+			const sint64 arrival_after_walking_to_next_transfer = welt->get_seconds_to_ticks(welt->walking_time_tenths_from_distance((uint32)straight_line_distance_to_next_transfer) * 6) + welt->get_zeit_ms();
 			
 			sint64 extra_time_to_ultimate_destination = 0;
 			if(best_arrival_time_transfer < SINT64_MAX_VALUE)
@@ -2793,12 +2863,13 @@ uint32 haltestelle_t::liefere_an(ware_t ware, uint8 walked_between_stations)
 					ware.set_zwischenziel(ware.get_ziel());
 					best_arrival_time_transfer = best_arrival_time_destination_stop;
 					const uint16 distance_destination_stop_to_destination = shortest_distance(ware.get_zielpos(), ware.get_ziel()->get_next_pos(ware.get_zielpos()));
-					extra_time_to_ultimate_destination = welt->seconds_to_ticks(welt->walking_time_tenths_from_distance((uint32)distance_destination_stop_to_destination) * 6);
+					extra_time_to_ultimate_destination = welt->get_seconds_to_ticks(welt->walking_time_tenths_from_distance((uint32)distance_destination_stop_to_destination) * 6);
 				}
 		
 				if(destination_is_within_coverage && arrival_after_walking_to_destination < best_arrival_time_transfer + extra_time_to_ultimate_destination)
 				{
-					return deposit_ware_at_destination(ware);
+					add_to_waiting_list(ware, calc_ready_time(ware, false));
+					return;
 				}
 
 				if(arrival_after_walking_to_next_transfer < best_arrival_time_transfer)
@@ -2819,7 +2890,8 @@ uint32 haltestelle_t::liefere_an(ware_t ware, uint8 walked_between_stations)
 			if (talk)
 				dbg->message("haltestelle_t::liefere_an", "%d walk to station \"%s\" waren[0].count %d", ware.menge, ware.get_zwischenziel()->get_name(), get_warray(0)->get_count());
 	#endif
-			return ware.get_zwischenziel()->liefere_an(ware, walked_between_stations + 1);
+			ware.get_zwischenziel()->liefere_an(ware, walked_between_stations + 1);
+			return; 
 		}
 	}
 
@@ -2829,79 +2901,7 @@ uint32 haltestelle_t::liefere_an(ware_t ware, uint8 walked_between_stations)
 	if (talk)
 		dbg->message("haltestelle_t::liefere_an", "%d waiting for transfer to station \"%s\" waren[0].count %d", ware.menge, ware.get_zwischenziel()->get_name(), get_warray(0)->get_count());
 #endif
-	return ware.menge;
-}
-
-uint32 haltestelle_t::deposit_ware_at_destination(ware_t ware)
-{
-	const grund_t* gr = welt->lookup_kartenboden(ware.get_zielpos());
-	gebaeude_t* gb_dest = gr->get_building();
-	fabrik_t* const fab = gb_dest ? gb_dest->get_fabrik() : NULL;
-	if(!gb_dest) {
-		gb_dest = gr->get_depot();
-	}
-	if(fab) 
-	{
-		// Packet is headed to a factory;
-		// the factory exists;
-		if (fab_list.is_contained(fab) || !ware.is_freight())
-		{
-			// the factory is considered linked to this halt or it is no freight
-			// FIXME: this should be delayed by transshipment time / walking time.
-			if( !ware.is_passenger() || ware.is_commuting_trip)
-			{
-				// Only book arriving passengers for commuting trips.
-				liefere_an_fabrik(ware);
-			}
-			gb_dest = welt->lookup(fab->get_pos())->find<gebaeude_t>();
-		}
-		else
-		{
-			gb_dest = NULL;
-		}
-	}
-
-	if(gb_dest)
-	{
-		// Arrived!  Passengers & mail vanish mysteriously upon arrival.
-		// FIXME: walking time delay should be implemented right here!
-		if(ware.is_passenger()) 
-		{	
-			if(ware.is_commuting_trip)
-			{
-				if(gb_dest && gb_dest->get_tile()->get_besch()->get_typ() != gebaeude_t::wohnung)
-				{
-					// Do not record the passengers coming back home again.
-					gb_dest->set_commute_trip(ware.menge);
-				}
-			}
-			else if(gb_dest && gb_dest->get_tile()->get_besch()->get_typ() != gebaeude_t::wohnung)
-			{
-				gb_dest->add_passengers_succeeded_visiting(ware.menge);
-			}
-
-			// Arriving passengers may create pedestrians
-			if(welt->get_settings().get_show_pax())
-			{
-				int menge = ware.menge;
-				FOR(slist_tpl<tile_t>, const& i, tiles)
-				{
-					if(menge <= 0) 
-					{
-						break;
-					}
-					menge = generate_pedestrians(i.grund->get_pos(), menge);
-				}
-			}
-		}
-#ifdef DEBUG_SIMRAND_CALLS
-		if (talk)
-			dbg->message("haltestelle_t::liefere_an", "%d arrived at station \"%s\" waren[0].count %d", ware.menge, get_name(), get_warray(0)->get_count());
-#endif
-		return ware.menge;
-	}
-
-	return 0;
+	return;
 }
 
 void haltestelle_t::info(cbuffer_t & buf, bool dummy) const
@@ -3370,7 +3370,7 @@ void haltestelle_t::recalc_station_type()
 
 
 
-int haltestelle_t::generate_pedestrians(koord3d pos, int anzahl)
+int haltestelle_t::generate_pedestrians(koord3d pos, uint32 anzahl)
 {
 	if(pedestrian_limit < pedestrian_generate_max)
 	{
@@ -4042,6 +4042,44 @@ void haltestelle_t::rdwr(loadsave_t *file)
 			train_last_departed[i] = 0;
 		}
 		station_signals.clear();
+	}
+
+	if (file->get_experimental_version() >= 13 || file->get_experimental_revision() >= 15)
+	{
+		uint32 count;
+		sint64 ready;
+		ware_t ware;
+
+		if (file->is_saving())
+		{
+			count = transferring_cargoes.get_count();
+		}
+		else // Loading
+		{
+			transferring_cargoes.clear();
+		}
+
+		file->rdwr_long(count);
+
+		for (uint32 i = 0; i < count; i++)
+		{
+			if (file->is_saving())
+			{
+				ready = transferring_cargoes[i].ready_time;
+				ware = transferring_cargoes[i].ware;
+			}
+
+			file->rdwr_longlong(ready);
+			ware.rdwr(file);
+
+			if (file->is_loading())
+			{
+				transferring_cargo_t tc;
+				tc.ready_time = ready;
+				tc.ware = ware;
+				transferring_cargoes.append(tc);
+			}
+		}
 	}
 
 	// So compute it fresh every time
