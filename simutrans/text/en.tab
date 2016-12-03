@@ -3092,34 +3092,90 @@ current_state
 Current state
 danger
 Danger
-clear
+clear2
 Clear
-caution
+clear3
+Clear
+clear4
+Clear
+clear5
+Clear
+clear2_alternate
+Clear (alternative route)
+clear3_alternate
+Clear (alternative route)
+clear4_alternate
+Clear (alternative route)
+clear5_alternate
+Clear (alternative route)
+clear2_main
+Clear (main route)
+clear3_main
+Clear (main route)
+clear4_main
+Clear (main route)
+clear5_main
+Clear (main route)
+cleartime
+Clear
+cleartime_alternate
+Clear (alternative route)
+cleartime_main
+Clear (main route)
+clearpre
+Clear
+caution3
 Caution
-preliminary_caution
+caution4
+Caution
+caution5
+Caution
+caution3_alternate
+Caution (alternative route)
+caution4_alternate
+Caution (alternative route)
+caution5_alternate
+Caution (alternative route)
+caution3_main
+Caution (main route)
+caution4_main
+Caution (main route)
+caution5_main
+Caution (main route)
+cautiontime
+Caution
+cautiontime_alternate
+Caution
+cautiontime_main
+Caution
+cautionpre
+Caution
+preliminary_caution4
 Preliminary Caution
-advanced_caution
+preliminary_caution5
+Preliminary Caution
+preliminary_caution4_alternate
+Preliminary Caution (alternative route)
+preliminary_caution5_alternate
+Preliminary Caution (alternative route)
+preliminary_caution4_main
+Preliminary Caution (main route)
+preliminary_caution5_main
+Preliminary Caution (main route)
+advanced_caution5
 Advanced Caution
+advanced_caution5_alternate
+Advanced Caution (alternative route)
+advanced_caution5_main
+Advanced Caution (main route)
 call_on
 Call on
-danger_choose
-Danger\n
-clear_main
-\nClear (main route)
-caution_main
-\nCaution (main route)
-preliminary_caution_main
-\nPreliminary Caution (main route)
-advanced_caution_main
-\nAdvanced Caution (main route)
-clear_alternate
-\nClear (alternative route)
-caution_alternate
-\nCaution (alternative route)
-preliminary_caution_alternate
-\nPreliminary Caution (alternative route)
-advanced_caution_alternate
-\nAdvanced Caution (alternative route)
+call_ontime
+Call on
+call_on_choose
+Call on
+call_ontime_choose
+Call on
 This signal creates directional reservations
 This signal creates directional reservations
 north_and_east

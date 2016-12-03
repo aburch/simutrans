@@ -212,58 +212,221 @@ public:
 			return "unknown";
 		};
 	}
-	static const char* get_signal_aspects_name(signal_aspects wm)
+
+	/* In order to allow for Swedish and Czeck translations (and possibly other translations as well), the type of signal showing the aspect need to be identified by the aspect name.
+	Also, wether it is a time interval signal needs to be identified from the aspect name, as "CLEAR" or "CAUTION" on a three aspect signal in this case do not refer to 
+	the forthcomming signal (however, it does on the presignal!).
+	Choose signals have their own namelist as well.
+	 clearpre = presignal
+	 clear2 = Two aspect signal (stop signal)
+	 clear3 = three aspect signal
+	 ...
+	 cleartimepre = Time interval presignal
+	 cleartime3 = Time interval three aspect signal (as there is no two aspect signal)
+	 etc...
+	*/
+
+	// Presignals:
+	static const char* get_pre_signal_aspects_name(signal_aspects wm)
 	{
 		switch (wm)
 		{
-		case 0:
-			return "danger";
 		case 1:
-			return "clear";
+			return "clearpre";
 		case 2:
-			return "caution";
-		case 3:
-			return "preliminary_caution";
-		case 4:
-			return "advanced_caution";
+			return "cautionpre";
+		default:
+			return "unknown";
+		};
+	}
+	// Two aspect signals. This also holds the station signals:
+	static const char* get_2_signal_aspects_name(signal_aspects wm)
+	{
+		switch (wm)
+		{
+		case 1:
+			return "clear2";
+		case 2:
+			return "caution2";
 		case 5:
-			return "clear_no_choose";
+			return "clear2";
 		case 6:
-			return "caution_no_choose";
-		case 7:
-			return "preliminary_caution_no_choose";
-		case 8:
-			return "advanced_caution_no_choose";
+			return "caution2";
 		case 9:
 			return "call_on";
 		default:
 			return "unknown";
 		};
 	}
-	static const char* get_choose_signal_aspects_name(signal_aspects wm)
+	// Three aspect signals:
+	static const char* get_3_signal_aspects_name(signal_aspects wm)
 	{
 		switch (wm)
 		{
-		case 0:
-			return "danger_choose";
 		case 1:
-			return "clear_alternate";
+			return "clear3";
 		case 2:
-			return "caution_alternate";
+			return "caution3";
+		case 9:
+			return "call_on";
+		default:
+			return "unknown";
+		};
+	}
+	// Four aspect signals:
+	static const char* get_4_signal_aspects_name(signal_aspects wm)
+	{
+		switch (wm)
+		{
+		case 1:
+			return "clear4";
+		case 2:
+			return "caution4";
 		case 3:
-			return "preliminary_caution_alternate";
+			return "preliminary_caution4";
+		case 9:
+			return "call_on";
+		default:
+			return "unknown";
+		};
+	}
+	// Five aspect signals:
+	static const char* get_5_signal_aspects_name(signal_aspects wm)
+	{
+		switch (wm)
+		{
+		case 1:
+			return "clear5";
+		case 2:
+			return "caution5";
+		case 3:
+			return "preliminary_caution5";
+		case 9:
+			return "call_on";
+		default:
+			return "unknown";
+		};
+	}
+	// Now the same for Choose signals!
+	// Two aspect choose signals:
+	static const char* get_2_choose_signal_aspects_name(signal_aspects wm)
+	{
+		switch (wm)
+		{
+		case 1:
+			return "clear2_alternate";
+		case 5:
+			return "clear2_main";
+		case 9:
+			return "call_on_choose";
+		default:
+			return "unknown";
+		};
+	}
+	// Three aspect choose signals:
+	static const char* get_3_choose_signal_aspects_name(signal_aspects wm)
+	{
+		switch (wm)
+		{
+		case 1:
+			return "clear3_alternate";
+		case 2:
+			return "caution3_alternate";
+		case 5:
+			return "clear3_main";
+		case 6:
+			return "caution3_main";
+		case 9:
+			return "call_on_choose";
+		default:
+			return "unknown";
+		};
+	}
+	// Four aspect choose signals:
+	static const char* get_4_choose_signal_aspects_name(signal_aspects wm)
+	{
+		switch (wm)
+		{
+		case 1:
+			return "clear4_alternate";
+		case 2:
+			return "caution4_alternate";
+		case 3:
+			return "preliminary_caution4_alternate";
+		case 5:
+			return "clear4_main";
+		case 6:
+			return "caution4_main";
+		case 7:
+			return "preliminary_caution4_main";
+		case 9:
+			return "call_on_choose";
+		default:
+			return "unknown";
+		};
+	}
+	// Five aspect choose signals:
+	static const char* get_5_choose_signal_aspects_name(signal_aspects wm)
+	{
+		switch (wm)
+		{
+		case 1:
+			return "clear5_alternate";
+		case 2:
+			return "caution5_alternate";
+		case 3:
+			return "preliminary_caution5_alternate";
 		case 4:
-			return "advanced_caution_alternate";
+			return "advanced_caution5_alternate";
 		case 5:
 			return "clear_main";
 		case 6:
 			return "caution_main";
 		case 7:
-			return "preliminary_caution_main";
+			return "preliminary_caution5_main";
 		case 8:
-			return "advanced_caution_main";
+			return "advanced_caution5_main";
 		case 9:
-			return "call_on";
+			return "call_on_choose";
+		default:
+			return "unknown";
+		};
+	}
+	// Now some time interval signals.
+	// Time interval three aspect signals (There is no two aspect signal). Presignal use the standard presignal:
+	static const char* get_time_signal_aspects_name(signal_aspects wm)
+	{
+		switch (wm)
+		{
+		case 1:
+			return "cleartime";
+		case 2:
+			return "cautiontime";
+		case 5:
+			return "cleartime";
+		case 6:
+			return "cautiontime";
+		case 9:
+			return "call_ontime";
+		default:
+			return "unknown";
+		};
+	}
+	// Time interval choose signals:
+	static const char* get_time_choose_signal_aspects_name(signal_aspects wm)
+	{
+		switch (wm)
+		{
+		case 1:
+			return "cleartime_alternate";
+		case 2:
+			return "cautiontime_alternate";
+		case 5:
+			return "cleartime_main";
+		case 6:
+			return "cautiontime_main";
+		case 9:
+			return "call_ontime_choose";
 		default:
 			return "unknown";
 		};
