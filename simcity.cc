@@ -4377,7 +4377,16 @@ void stadt_t::add_all_buildings_to_world_list()
 
 void stadt_t::generate_private_cars(koord pos, uint32 journey_tenths_of_minutes, koord target, uint8 number_of_passengers)
 {
-	welt->inc_rands(28);
+	if (NETWORK_MULTI_THREADED_PASSENGER_GENERATION_TEST)
+	{
+		return; // For TESTing only
+	}
+	if (!env_t::networkmode)
+	{
+		// This cannot work with network mode
+		// and multi-therading.
+		welt->inc_rands(28);
+	}
 	// Account for (1) the number of passengers; and (2) the occupancy level.
 	const uint32 round_up = simrand(2, "void stadt_t::generate_private_cars") == 1 ? 900 : 0;
 	const sint32 number_of_trips = ((((sint32)number_of_passengers) * traffic_level) + round_up) / 1000;
@@ -4403,11 +4412,11 @@ void stadt_t::generate_private_cars(koord pos, uint32 journey_tenths_of_minutes,
 						{
 							private_car_t* vt = new private_car_t(gr, target);
 							const sint32 time_to_live = ((sint32)journey_tenths_of_minutes * 136584) / (sint32)welt->get_settings().get_meters_per_tile();
-							vt->set_time_to_life(time_to_live);
+							vt->set_time_to_life(time_to_live);	
 							gr->obj_add(vt);
 #ifdef MULTI_THREAD
 							karte_t::sync_objects_added_threaded[karte_t::passenger_generation_thread_number].append(vt);
-#else
+#else						
 							welt->sync.add(vt);
 #endif						
 						}

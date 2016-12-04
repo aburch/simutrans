@@ -72,6 +72,8 @@ class records_t;
 
 #define CHK_RANDS 32
 
+const bool NETWORK_MULTI_THREADED_PASSENGER_GENERATION_TEST = false; // For TESTing only. Set to false for pushing to Github.
+
 struct checklist_t
 {
 	uint32 ss;
@@ -906,6 +908,7 @@ public:
 	static simthread_barrier_t step_convoys_barrier_external;
 	static simthread_barrier_t unreserve_route_barrier;
 	static pthread_mutex_t unreserve_route_mutex;
+	static pthread_mutex_t step_passengers_and_mail_mutex;
 	sint32 get_first_step() const { return first_step; }
 	void set_first_step(sint32 value) { first_step = value;  }
 	void stop_path_explorer(); 

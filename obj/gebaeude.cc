@@ -786,7 +786,7 @@ void gebaeude_t::show_info()
 }
 
 
-bool gebaeude_t::is_same_building(gebaeude_t* other)
+bool gebaeude_t::is_same_building(gebaeude_t* other) const
 {
 	return (other != NULL)  &&  (get_tile()->get_besch() == other->get_tile()->get_besch())
 	       &&  (get_first_tile() == other->get_first_tile());

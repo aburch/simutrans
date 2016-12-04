@@ -333,7 +333,7 @@ public:
 	/**
 	 * @returns true if both building tiles are part of one (multi-tile) building.
 	 */
-	bool is_same_building(gebaeude_t* other);
+	bool is_same_building(gebaeude_t* other) const;
 
 	/**
 	* Returns the number of jobs left in this building this month.

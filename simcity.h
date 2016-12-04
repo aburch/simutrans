@@ -701,6 +701,7 @@ public:
 
 	void show_info();
 
+	// This is actually last month's congestion - but this is necessary
 	uint8 get_congestion() const { return (uint8) city_history_month[0][HIST_CONGESTION]; }
 
 	void add_city_factory(fabrik_t *fab) { city_factories.append_unique(fab); }

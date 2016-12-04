@@ -1512,7 +1512,6 @@ uint32 haltestelle_t::reroute_goods(const uint8 catg)
 			   && !get_preferred_convoy(ware.get_zwischenziel(), 0).is_bound()
 			   && !get_preferred_line(ware.get_zwischenziel(), 0).is_bound())
 			{
-				// FIXME: The passengers need to actually be delayed by the walking time
 				generate_pedestrians(get_basis_pos3d(), ware.menge);
 				ware.get_zwischenziel()->liefere_an(ware, 1); // start counting walking steps at 1 again
 				continue;
@@ -1870,7 +1869,7 @@ void haltestelle_t::refresh_routing(const schedule_t *const sched, const minivec
 	}
 }
 
-void haltestelle_t::get_destination_halts_of_ware(ware_t &ware, vector_tpl<halthandle_t>& destination_halts_list)
+void haltestelle_t::get_destination_halts_of_ware(ware_t &ware, vector_tpl<halthandle_t>& destination_halts_list) const
 {
 	const ware_besch_t * warentyp = ware.get_besch();
 
@@ -1957,7 +1956,7 @@ void haltestelle_t::get_destination_halts_of_ware(ware_t &ware, vector_tpl<halth
 	}
 }
 
-uint32 haltestelle_t::find_route(const vector_tpl<halthandle_t>& destination_halts_list, ware_t &ware, const uint32 previous_journey_time, const koord destination_pos)
+uint32 haltestelle_t::find_route(const vector_tpl<halthandle_t>& destination_halts_list, ware_t &ware, const uint32 previous_journey_time, const koord destination_pos) const
 {
 	// ** Beware ** This is the one of the most computationally intensive (taking into account how often that it is called) functions in the game
 	// Find the best route (sequence of halts) for a given packet
@@ -2008,7 +2007,7 @@ uint32 haltestelle_t::find_route(const vector_tpl<halthandle_t>& destination_hal
 		}
 		
 		/**
-		* This is far too computationally expensive. Find the standard halt location instead.
+		* The below is far too computationally expensive. Find the standard halt location instead.
 		*
 		// Find the halt square closest to the real destination (closest exit)
 		destination_stop_pos = (*destination_halt)->get_next_pos(real_destination_pos);
@@ -2067,7 +2066,7 @@ uint32 haltestelle_t::find_route(const vector_tpl<halthandle_t>& destination_hal
 	return best_journey_time;
 }
 
-uint32 haltestelle_t::find_route(ware_t &ware, const uint32 previous_journey_time)
+uint32 haltestelle_t::find_route(ware_t &ware, const uint32 previous_journey_time) const
 {
 	vector_tpl<halthandle_t> destination_halts_list;
 	get_destination_halts_of_ware(ware, destination_halts_list);
@@ -2593,7 +2592,13 @@ void haltestelle_t::add_to_waiting_list(ware_t ware, sint64 ready_time)
 	transferring_cargo_t tc;
 	tc.ware = ware;
 	tc.ready_time = ready_time;
+#ifdef MULTI_THREAD
+	pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
+#endif
 	transferring_cargoes.append(tc);
+#ifdef MULTI_THREAD
+	pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+#endif
 }
 
 sint64 haltestelle_t::calc_ready_time(ware_t ware, bool arriving_from_vehicle, koord origin_pos) const
@@ -2732,7 +2737,14 @@ void haltestelle_t::liefere_an(ware_t ware, uint8 walked_between_stations)
 		// Check for an excessively long number of walking steps.  If we have one, complain and fail.
 		//
 		// This was the 5th consecutive attempt to walk between stations.  Fail.
+		// UPDATE December 2016: Walking between stations now does take actual time. Is this still needed?
+#ifdef MULTI_THREAD
+		pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
+#endif
 		dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s has walked between too many consecutive stops: terminating early to avoid infinite loops", ware.menge, translator::translate(ware.get_name()), get_name() );
+#ifdef MULTI_THREAD
+		pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+#endif
 		return;
 	}
 
@@ -2746,7 +2758,13 @@ void haltestelle_t::liefere_an(ware_t ware, uint8 walked_between_stations)
 		}
 		
 		// write a log entry and discard the goods
+#ifdef MULTI_THREAD
+		pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
+#endif
 		dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer a route to their destination!", ware.menge, translator::translate(ware.get_name()), get_name() );
+#ifdef MULTI_THREAD
+		pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+#endif
 		return;
 	}
 
@@ -2757,7 +2775,13 @@ void haltestelle_t::liefere_an(ware_t ware, uint8 walked_between_stations)
 	if(!gb || ware.is_freight() && !fab)
 	{
 		// Destination factory has been deleted: write a log entry and discard the goods.
+#ifdef MULTI_THREAD
+		pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
+#endif
 		dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s were intended for a factory that has been deleted.", ware.menge, translator::translate(ware.get_name()), get_name() );
+#ifdef MULTI_THREAD
+		pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+#endif
 		return;
 	}
 	// Now we know, that "ware" has a vaild destination building "gb", which implies having a "plan".
@@ -2807,7 +2831,13 @@ void haltestelle_t::liefere_an(ware_t ware, uint8 walked_between_stations)
 	const uint32 route_time = find_route(ware);
 	if (ware.get_ziel() == self)
 	{
+#ifdef MULTI_THREAD
+		pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
+#endif
 		DBG_MESSAGE("haltestelle_t::liefere_an()", "%s has discovered that it is quicker to walk to its destination from %s than take its previously planned route.", translator::translate(ware.get_name()), get_name());
+#ifdef MULTI_THREAD
+		pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+#endif
 		if (!twice)
 		{
 			twice = true;
@@ -2832,9 +2862,15 @@ void haltestelle_t::liefere_an(ware_t ware, uint8 walked_between_stations)
 
 		//INT_CHECK("simhalt 1364");
 
+#ifdef MULTI_THREAD
+		pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
+#endif
 		DBG_MESSAGE("haltestelle_t::liefere_an()","%s: delivered goods (%d %s) to ??? via ??? could not be routed to their destination!",get_name(), ware.menge, translator::translate(ware.get_name()) );
 		// target halt no longer there => delete and remove from fab in transit
 		fabrik_t::update_transit( ware, false );
+#ifdef MULTI_THREAD
+		pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+#endif
 		return;
 	}
 
@@ -2895,8 +2931,7 @@ void haltestelle_t::liefere_an(ware_t ware, uint8 walked_between_stations)
 		}
 	}
 
-	// add to internal storage
-	add_ware_to_halt(ware);
+	add_to_waiting_list(ware, calc_ready_time(ware, false));
 #ifdef DEBUG_SIMRAND_CALLS
 	if (talk)
 		dbg->message("haltestelle_t::liefere_an", "%d waiting for transfer to station \"%s\" waren[0].count %d", ware.menge, ware.get_zwischenziel()->get_name(), get_warray(0)->get_count());
@@ -3372,15 +3407,15 @@ void haltestelle_t::recalc_station_type()
 
 int haltestelle_t::generate_pedestrians(koord3d pos, uint32 anzahl)
 {
-	if(pedestrian_limit < pedestrian_generate_max)
-	{
+	//if(pedestrian_limit < pedestrian_generate_max)
+	//{
 		pedestrian_limit ++;
 		pedestrian_t::generate_pedestrians_at(pos, anzahl);
 		for(int i=0; i<4 && anzahl>0; i++) 
 		{
 			pedestrian_t::generate_pedestrians_at(pos+koord::nsow[i], anzahl);
 		}
-	}
+	//}
 	return anzahl;
 }
 
@@ -5163,7 +5198,7 @@ void haltestelle_t::remove_convoy(convoihandle_t convoy)
 	}
 }
 
-sint64 haltestelle_t::calc_earliest_arrival_time_at(halthandle_t halt, convoihandle_t &convoy, uint8 catg_index)
+sint64 haltestelle_t::calc_earliest_arrival_time_at(halthandle_t halt, convoihandle_t &convoy, uint8 catg_index) const
 {
 	const arrival_times_map& next_transfer_arrivals = halt->get_estimated_convoy_arrival_times();
 	sint64 best_arrival_time = SINT64_MAX_VALUE;

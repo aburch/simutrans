@@ -164,7 +164,7 @@ Winter
 %21_CITY_SYLL
 Hunger
 %22_CITY_SYLL
-Hard
+Har
 %23_CITY_SYLL
 Hurl
 %24_CITY_SYLL
@@ -857,6 +857,10 @@ Calv
 Cag
 %179_CITY_SYLL
 Weal
+%17A_CITY_SYLL
+Pegs
+%17B_CITY_SYLL
+Tem
 #
 # Town name end syllables.
 # There can be up to 1024 of these.

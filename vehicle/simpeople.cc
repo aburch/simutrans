@@ -141,6 +141,10 @@ void pedestrian_t::rdwr(loadsave_t *file)
 // create a number (anzahl) of pedestrians (if possible)
 void pedestrian_t::generate_pedestrians_at(const koord3d k, uint32 &anzahl)
 {
+	if (NETWORK_MULTI_THREADED_PASSENGER_GENERATION_TEST)
+	{
+		return; // For TESTing only
+	}
 	if (liste.empty()) {
 		return;
 	}
@@ -155,11 +159,12 @@ void pedestrian_t::generate_pedestrians_at(const koord3d k, uint32 &anzahl)
 			for (int i = 0; i < 4 && anzahl > 0; i++) {
 				pedestrian_t* fg = new pedestrian_t(bd);
 				bool ok = bd->obj_add(fg) != 0;	// 256 limit reached
+				// ok == false is quite frequent here.
 				if (ok) {
 					fg->calc_height(bd);
 					if (i > 0) {
 						// walk a little
-						fg->sync_step( (i & 3) * 64 * 24);
+						//fg->sync_step((i & 3) * 64 * 24);
 					}
 #if MULTI_THREAD
 					karte_t::sync_objects_added_threaded[karte_t::passenger_generation_thread_number].append(fg);
