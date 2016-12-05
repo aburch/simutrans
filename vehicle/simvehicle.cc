@@ -5705,6 +5705,8 @@ void rail_vehicle_t::unreserve_in_rear()
 {
 	route_t* route = cnv ? cnv->get_route() : NULL;
 
+	route_index = min(route_index, route->get_count() - 1); 
+
 	for (int i = route_index - 1; i >= 0; i--)
 	{
 		const koord3d this_pos = route->position_bei(i);
