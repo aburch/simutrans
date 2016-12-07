@@ -2069,9 +2069,9 @@ void display_set_player_color_scheme(const int player, const COLOR_VAL col1, con
 
 
 
-void register_image(struct image_t* image_in)
+void register_image(image_t *image_in)
 {
-	struct imd* image;
+	struct imd *image;
 
 	/* valid image? */
 	if(  image_in->len == 0  ||  image_in->h == 0  ) {
