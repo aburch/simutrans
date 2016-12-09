@@ -139,49 +139,61 @@ void pedestrian_t::rdwr(loadsave_t *file)
 
 
 // create a number (anzahl) of pedestrians (if possible)
-void pedestrian_t::generate_pedestrians_at(const koord3d k, uint32 &anzahl)
+void pedestrian_t::generate_pedestrians_at(const koord3d k, uint32 anzahl)
 {
-	if (NETWORK_MULTI_THREADED_PASSENGER_GENERATION_TEST)
+#ifdef FORBID_SYNC_OBJECTS
+	return;
+#endif
+#ifdef FORBID_PEDESTRIANS
+	return;
+#endif
+	if (liste.empty()) 
 	{
-		return; // For TESTing only
-	}
-	if (liste.empty()) {
 		return;
 	}
 
-	grund_t* bd = welt->lookup(k);
-	if (bd) {
-		const weg_t* weg = bd->get_weg(road_wt);
+	grund_t* gr = welt->lookup(k);
+	if (gr)
+	{
+		const weg_t* weg = gr->get_weg(road_wt);
 
-		// we do not start on crossings (not overrunning pedestrians please
-		if (weg && ribi_t::is_twoway(weg->get_ribi_unmasked())) {
+		// we do not start on crossings (not overrunning pedestrians please)
+		if (weg && ribi_t::is_twoway(weg->get_ribi_unmasked()))
+		{
 			// we create maximal 4 pedestrians here for performance reasons
-			for (int i = 0; i < 4 && anzahl > 0; i++) {
-				pedestrian_t* fg = new pedestrian_t(bd);
-				bool ok = bd->obj_add(fg) != 0;	// 256 limit reached
+			for (int i = 0; i < 4 && anzahl > 0; i++)
+			{
+				pedestrian_t* ped = new pedestrian_t(gr);
+				ped->calc_height(gr);
+#ifndef MULTI_THREAD
+				bool ok = gr->obj_add(ped) != 0;	// 256 limit reached
 				// ok == false is quite frequent here.
-				if (ok) {
-					fg->calc_height(bd);
-					if (i > 0) {
+				if (ok)
+				{				
+					if (i > 0)
+					{
 						// walk a little
-						//fg->sync_step((i & 3) * 64 * 24);
+						ped->sync_step((i & 3) * 64 * 24);
 					}
-#if MULTI_THREAD
-					karte_t::sync_objects_added_threaded[karte_t::passenger_generation_thread_number].append(fg);
+#endif
+#ifdef MULTI_THREAD
+					karte_t::pedestrians_added_threaded[karte_t::passenger_generation_thread_number].append(ped);
 #else
-
-					welt->sync.add(fg);
+					welt->sync.add(ped);
 #endif
 					anzahl--;
+#ifndef MULTI_THREAD
 				}
-				else {
+				else
+				{
 					// delete it, if we could not put it on the map
-					fg->set_flag(obj_t::not_on_map);
+					ped->set_flag(obj_t::not_on_map);
 					// do not try to delete it from sync-list
-					fg->time_to_life = 0;
-					delete fg;
+					ped->time_to_life = 0;
+					delete ped;
 					return; // it is pointless to try again
 				}
+#endif
 			}
 		}
 	}

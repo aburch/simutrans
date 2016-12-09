@@ -863,6 +863,14 @@ Pegs
 Tem
 %17C_CITY_SYLL
 Hog
+%17D_CITY_SYLL
+Flak
+%17E_CITY_SYLL
+Fleck
+%17F_CITY_SYLL
+Carl
+%180_CITY_SYLL
+Gom
 #
 # Town name end syllables.
 # There can be up to 1024 of these.
@@ -1256,7 +1264,7 @@ wood
 &8_CITY_SUFFIX
  Common
 &9_CITY_SUFFIX
- St. Mary
+ St. Nicohlas
 &9_CITY_SUFFIX
  Cross
 &A_CITY_SUFFIX
@@ -1310,13 +1318,13 @@ wood
 &21_CITY_SUFFIX
  Dyke
 &22_CITY_SUFFIX
- Downs
+ Thicket
 &23_CITY_SUFFIX
  Rye
 &24_CITY_SUFFIX
 -in-the-marsh
 &25_CITY_SUFFIX
- Hill
+ St. Hilda
 &26_CITY_SUFFIX
  Tye
 &27_CITY_SUFFIX
@@ -1347,6 +1355,10 @@ wood
  Lode
 &34_CITY_SUFFIX
 brook
+&35_CITY_SUFFIX
+heath
+&36_CITY_SUFFIX
+ Ponds
 # 
 # Other strings
 # 

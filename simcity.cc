@@ -4377,10 +4377,12 @@ void stadt_t::add_all_buildings_to_world_list()
 
 void stadt_t::generate_private_cars(koord pos, uint32 journey_tenths_of_minutes, koord target, uint8 number_of_passengers)
 {
-	if (NETWORK_MULTI_THREADED_PASSENGER_GENERATION_TEST)
-	{
-		return; // For TESTing only
-	}
+#ifdef FORBID_SYNC_OBJECTS
+	return;
+#endif
+#ifdef FORBID_PRIVATE_CARS
+	return;
+#endif
 	if (!env_t::networkmode)
 	{
 		// This cannot work with network mode
@@ -4404,18 +4406,18 @@ void stadt_t::generate_private_cars(koord pos, uint32 journey_tenths_of_minutes,
 					const weg_t* weg = gr->get_weg(road_wt);
 
 					if (weg != NULL &&
-					    weg->is_public_right_of_way() &&
-					    (gr->get_weg_ribi_unmasked(road_wt) == ribi_t::nordsued ||
-					     gr->get_weg_ribi_unmasked(road_wt) == ribi_t::ostwest))
+					    (weg->is_public_right_of_way() || weg->get_owner() == NULL || weg->get_owner()->allows_access_to(1))
+						&& (gr->get_weg_ribi_unmasked(road_wt) == ribi_t::nordsued ||
+					       gr->get_weg_ribi_unmasked(road_wt) == ribi_t::ostwest))
 					{
 						if (!private_car_t::list_empty())
 						{
 							private_car_t* vt = new private_car_t(gr, target);
 							const sint32 time_to_live = ((sint32)journey_tenths_of_minutes * 136584) / (sint32)welt->get_settings().get_meters_per_tile();
 							vt->set_time_to_life(time_to_live);	
-							gr->obj_add(vt);
+							//gr->obj_add(vt);
 #ifdef MULTI_THREAD
-							karte_t::sync_objects_added_threaded[karte_t::passenger_generation_thread_number].append(vt);
+							karte_t::private_cars_added_threaded[karte_t::passenger_generation_thread_number].append(vt);
 #else						
 							welt->sync.add(vt);
 #endif						
@@ -5327,7 +5329,7 @@ int private_car_destination_finder_t::get_cost(const grund_t* gr, sint32 max_spe
 	last_tile_speed = max_tile_speed;
 
 	uint32 speed = min(max_speed, max_tile_speed);
-
+#ifndef FORBID_CONGESTION_EFFECTS
 	if(city)
 	{
 		// If this is in a city, take account of congestion when calculating 
@@ -5342,7 +5344,7 @@ int private_car_destination_finder_t::get_cost(const grund_t* gr, sint32 max_spe
 		speed = (speed * 100) / congestion;
 		speed = max(4, speed);
 	}
-
+#endif
 	// Time = distance / speed
 	int mpt;
 

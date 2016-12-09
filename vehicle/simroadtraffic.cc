@@ -323,7 +323,7 @@ void road_user_t::finish_rd()
 
 
 /**********************************************************************************************************************/
-/* statsauto_t (city cars) from here on */
+/* private_car_t (city cars) from here on */
 
 
 static weighted_vector_tpl<const stadtauto_besch_t*> liste_timeline;

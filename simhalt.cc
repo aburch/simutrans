@@ -2692,7 +2692,8 @@ void haltestelle_t::starte_mit_route(ware_t ware, koord origin_pos)
 		// This is a bug which should be fixed.  The passenger has already walked here,
 		// and presumably does not wish to walk further... --neroden
 		// If this is within walking distance of the next transfer, and there is not a faster way there, walk there.
-		generate_pedestrians(get_basis_pos3d(), ware.menge);
+		//generate_pedestrians(get_basis_pos3d(), ware.menge);
+		pedestrian_t::generate_pedestrians_at(get_basis_pos3d(), ware.menge);
 #ifdef DEBUG_SIMRAND_CALLS
 		if (talk)
 			dbg->message("\t", "walking to %s", ware.get_zwischenziel()->get_name());
@@ -2919,8 +2920,9 @@ void haltestelle_t::liefere_an(ware_t ware, uint8 walked_between_stations)
 		    && !get_preferred_line(ware.get_zwischenziel(), 0).is_bound())
 		{
 			// If this is within walking distance of the next transfer, and there is not a faster way there, walk there.
-	walking:
-			generate_pedestrians(get_basis_pos3d(), ware.menge);
+		walking:
+			//generate_pedestrians(get_basis_pos3d(), ware.menge);
+			pedestrian_t::generate_pedestrians_at(get_basis_pos3d(), ware.menge);
 			ware.set_last_transfer(self);
 	#ifdef DEBUG_SIMRAND_CALLS
 			if (talk)
@@ -3407,9 +3409,15 @@ void haltestelle_t::recalc_station_type()
 
 int haltestelle_t::generate_pedestrians(koord3d pos, uint32 anzahl)
 {
+#ifdef FORBID_SYNC_OBJECTS
+	return 0;
+#endif
+#ifdef FORBID_PEDESTRIANS
+	return 0;
+#endif
 	//if(pedestrian_limit < pedestrian_generate_max)
 	//{
-		pedestrian_limit ++;
+		//pedestrian_limit ++;
 		pedestrian_t::generate_pedestrians_at(pos, anzahl);
 		for(int i=0; i<4 && anzahl>0; i++) 
 		{

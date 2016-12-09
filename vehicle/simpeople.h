@@ -54,7 +54,7 @@ public:
 	static bool register_besch(const fussgaenger_besch_t *besch);
 	static bool alles_geladen();
 
-	static void generate_pedestrians_at(koord3d k, uint32 &anzahl);
+	static void generate_pedestrians_at(koord3d k, uint32 anzahl);
 };
 
 #endif

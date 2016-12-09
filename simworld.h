@@ -72,7 +72,19 @@ class records_t;
 
 #define CHK_RANDS 32
 
-const bool NETWORK_MULTI_THREADED_PASSENGER_GENERATION_TEST = false; // For TESTing only. Set to false for pushing to Github.
+#ifdef MULTI_THREAD
+#define FORBID_MULTI_THREAD_PASSENGER_GENERATION_IN_NETWORK_MODE
+#define MULTI_THREAD_PASSENGER_GENERATION // Currently fails (desync) in any known configuration.
+#define MULTI_THREAD_CONVOYS // Fails (desync) even if FORBID_SYNC_OBJECTS is defined and even if MULTI_THREAD_PATH_EXPLORER is undefined; but only in one specific old game.
+#define MULTI_THREAD_PATH_EXPLORER // Confirmed working 
+#endif
+
+#ifdef MULTI_THREAD_PASSENGER_GENERATION
+//#define FORBID_SYNC_OBJECTS // The desync is in the actual numbers of passengers that end up at any given stop, so this does not assist.
+//#define FORBID_PRIVATE_CARS // Fails without this defined and FORBID_SYNC_OJBECTS not defined
+//#define FORBID_PEDESTRIANS // Fails without this defined and FORBID_SYNC_OJBECTS not defined
+//#define FORBID_CONGESTION_EFFECTS // This appears to make no difference.
+#endif
 
 struct checklist_t
 {
@@ -913,6 +925,7 @@ public:
 	void set_first_step(sint32 value) { first_step = value;  }
 	void stop_path_explorer(); 
 	void start_path_explorer();
+
 #else
 public:
 #endif
@@ -956,7 +969,8 @@ private:
 	static uint32 path_explorer_step_progress;
 	static bool unreserve_route_running;
 	static bool threads_initialised; 
-	static vector_tpl<sync_steppable*> *sync_objects_added_threaded; // Intended to be an array of vectors
+	static vector_tpl<private_car_t*> *private_cars_added_threaded; // Intended to be an array of vectors
+	static vector_tpl<pedestrian_t*> *pedestrians_added_threaded;
 	static thread_local uint32 passenger_generation_thread_number;
 	private:
 #endif

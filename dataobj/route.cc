@@ -625,8 +625,8 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d start, const koord3
 
 	const uint8 enforce_weight_limits = welt->get_settings().get_enforce_weight_limits();
 	uint32 beat=1;
-	int bridge_tile_count = 0;
-	int best_distance = 65535;
+	sint32 bridge_tile_count = 0;
+	sint32 best_distance = 65535;
 	do {
 		// Hajo: this is too expensive to be called each step
 		// We cannot call INT_CHECK here if this is multi-threaded.
@@ -709,7 +709,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d start, const koord3
 					}
 				}
 
-				int is_overweight = not_overweight;
+				sint32 is_overweight = not_overweight;
 
 				if(enforce_weight_limits > 0 && w != NULL)
 				{
@@ -1161,7 +1161,6 @@ void route_t::postprocess_water_route(karte_t *welt)
 			{
 				return valid_route_halt_too_short;
 			}
-
 		}
 	}
 
