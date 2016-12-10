@@ -5643,14 +5643,9 @@ void karte_t::add_to_waiting_list(ware_t ware, koord origin_pos)
 	tc.ware = ware;
 	tc.ready_time = ready_time;
 #ifdef MULTI_THREAD
-	pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
 	transferring_cargoes[karte_t::passenger_generation_thread_number].append(tc);
 #else
 	transferring_cargoes[0].append(tc);
-#endif
-	
-#ifdef MULTI_THREAD
-	pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
 #endif
 }
 

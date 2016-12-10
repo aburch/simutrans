@@ -480,6 +480,12 @@ haltestelle_t::haltestelle_t(loadsave_t* file)
 	waiting_times = new inthashtable_tpl<uint32, waiting_time_set >[max_categories];
 	connexions = new quickstone_hashtable_tpl<haltestelle_t, connexion*>*[max_categories];
 
+#ifdef MULTI_THREAD
+	transferring_cargoes = new vector_tpl<transferring_cargo_t>[world()->get_parallel_operations()];
+#else
+	transferring cargoes = new vector_tpl<transferring_cargo_t>[1];
+#endif
+
 	// Knightly : create the actual connexion hash tables
 	for(uint8 i = 0; i < max_categories; i ++)
 	{
@@ -567,6 +573,12 @@ haltestelle_t::haltestelle_t(koord k, player_t* player)
 	{
 		train_last_departed[i] = 0;
 	}
+
+#ifdef MULTI_THREAD
+	transferring_cargoes = new vector_tpl<transferring_cargo_t>[world()->get_parallel_operations()];
+#else
+	transferring cargoes = new vector_tpl<transferring_cargo_t>[1];
+#endif
 }
 
 
@@ -710,6 +722,8 @@ haltestelle_t::~haltestelle_t()
 
 	delete[] non_identical_schedules;
 //	delete[] all_links;
+	
+	delete[] transferring_cargoes;
 }
 
 
@@ -1185,26 +1199,35 @@ void haltestelle_t::check_transferring_cargoes()
 	const sint64 current_time = welt->get_zeit_ms();
 	ware_t ware;
 
-	FOR(vector_tpl<transferring_cargo_t>, tc, transferring_cargoes)
+#ifdef MULTI_THREAD
+	sint32 po = world()->get_parallel_operations();
+#else
+	sint32 po = 1;
+#endif
+
+	for (sint32 i = 0; i < po; i++)
 	{
-		const uint32 ready_seconds = world()->ticks_to_seconds((tc.ready_time - current_time)); 
-		const uint32 ready_minutes = ready_seconds / 60;
-		const uint32 ready_hours = ready_minutes / 60; 
-		if (tc.ready_time <= current_time)
+		FOR(vector_tpl<transferring_cargo_t>, tc, transferring_cargoes[i])
 		{
-			ware = tc.ware;
-			transferring_cargoes.remove(tc);
-			if (ware.get_ziel() == self)
+			const uint32 ready_seconds = world()->ticks_to_seconds((tc.ready_time - current_time));
+			const uint32 ready_minutes = ready_seconds / 60;
+			const uint32 ready_hours = ready_minutes / 60;
+			if (tc.ready_time <= current_time)
 			{
-				// This is the final destination: register the cargoes
-				// at their ultimate end point.
-				world()->deposit_ware_at_destination(ware);
-			}
-			else
-			{
-				// This is just a transfer - add this to the stop's
-				// internal storage for onward travel.
-				add_ware_to_halt(ware);
+				ware = tc.ware;
+				transferring_cargoes[i].remove(tc);
+				if (ware.get_ziel() == self)
+				{
+					// This is the final destination: register the cargoes
+					// at their ultimate end point.
+					world()->deposit_ware_at_destination(ware);
+				}
+				else
+				{
+					// This is just a transfer - add this to the stop's
+					// internal storage for onward travel.
+					add_ware_to_halt(ware);
+				}
 			}
 		}
 	}
@@ -2593,11 +2616,9 @@ void haltestelle_t::add_to_waiting_list(ware_t ware, sint64 ready_time)
 	tc.ware = ware;
 	tc.ready_time = ready_time;
 #ifdef MULTI_THREAD
-	pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
-#endif
-	transferring_cargoes.append(tc);
-#ifdef MULTI_THREAD
-	pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+	transferring_cargoes[karte_t::passenger_generation_thread_number].append(tc);
+#else
+	transferring_cargoes[0].append(tc);
 #endif
 }
 
@@ -4072,32 +4093,57 @@ void haltestelle_t::rdwr(loadsave_t *file)
 
 		if (file->is_saving())
 		{
-			count = transferring_cargoes.get_count();
-		}
-		else // Loading
-		{
-			transferring_cargoes.clear();
+#ifdef MULTI_THREAD
+			count = 0;
+			for (sint32 i = 0; i < world()->get_parallel_operations(); i++)
+			{
+				count += transferring_cargoes[i].get_count();
+			}
+#else
+			count = transferring_cargoes[0].get_count();
+#endif
 		}
 
 		file->rdwr_long(count);
-
-		for (uint32 i = 0; i < count; i++)
+#ifdef MULTI_THREAD
+		sint32 po;
+		if (file->is_saving())
 		{
+			po = world()->get_parallel_operations();
+		}
+		else
+		{
+			po = 1;
+		}
+#else
+		const sint32 po = 1;
+#endif
+		for (sint32 i = 0; i < po; i++)
+		{
+#ifdef MULTI_THREAD
 			if (file->is_saving())
 			{
-				ready = transferring_cargoes[i].ready_time;
-				ware = transferring_cargoes[i].ware;
+				count = transferring_cargoes[i].get_count();
 			}
-
-			file->rdwr_longlong(ready);
-			ware.rdwr(file);
-
-			if (file->is_loading())
+#endif
+			for (uint32 j = 0; j < count; j++)
 			{
-				transferring_cargo_t tc;
-				tc.ready_time = ready;
-				tc.ware = ware;
-				transferring_cargoes.append(tc);
+				if (file->is_saving())
+				{
+					ready = transferring_cargoes[i][j].ready_time;
+					ware = transferring_cargoes[i][j].ware;
+				}
+
+				file->rdwr_longlong(ready);
+				ware.rdwr(file);
+
+				if (file->is_loading())
+				{
+					transferring_cargo_t tc;
+					tc.ready_time = ready;
+					tc.ware = ware;
+					transferring_cargoes[0].append(tc);
+				}
 			}
 		}
 	}
@@ -5238,4 +5284,14 @@ sint64 haltestelle_t::calc_earliest_arrival_time_at(halthandle_t halt, convoihan
 		}
 	}
 	return best_arrival_time;
+}
+
+uint32 haltestelle_t::get_transferring_cargoes_count()
+{
+	uint32 count = 0;
+	for (sint32 i = 0; i < world()->get_parallel_operations(); i++)
+	{
+		count += transferring_cargoes[i].get_count();
+	}
+	return count;
 }

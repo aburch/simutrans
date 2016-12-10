@@ -73,7 +73,7 @@ class records_t;
 #define CHK_RANDS 32
 
 #ifdef MULTI_THREAD
-#define FORBID_MULTI_THREAD_PASSENGER_GENERATION_IN_NETWORK_MODE
+//#define FORBID_MULTI_THREAD_PASSENGER_GENERATION_IN_NETWORK_MODE
 #define MULTI_THREAD_PASSENGER_GENERATION // Currently fails (desync) in any known configuration.
 #define MULTI_THREAD_CONVOYS // Fails (desync) even if FORBID_SYNC_OBJECTS is defined and even if MULTI_THREAD_PATH_EXPLORER is undefined; but only in one specific old game.
 #define MULTI_THREAD_PATH_EXPLORER // Confirmed working 
@@ -85,7 +85,7 @@ class records_t;
 //#define FORBID_PEDESTRIANS // This does not cause the desync, but causes it to be detected more quickly. This should not be defined.
 //#define FORBID_CONGESTION_EFFECTS // This appears to make no difference.
 //#define DISABLE_JOB_EFFECTS // This appears to make no difference
-#define FORBID_PUBLIC_TRANSPORT // Desyncs without this defined.
+//#define FORBID_PUBLIC_TRANSPORT // Desyncs without this defined.
 //#define FORBID_RETURN_TRIPS // This appears to make no difference
 //#define DISABLE_GLOBAL_WAITING_LIST // Will desync without this enabled
 #endif
@@ -1560,13 +1560,6 @@ private:
 		walking_numerator = unit_movement_numerator / get_settings().get_walking_speed();
 	}
 
-	/** Get the number of parallel operations
-	* currently set. This should be set by the server
-	* in network games, and based on the thread count
-	* in single player games.
-	*/
-	sint32 get_parallel_operations() const;
-
 	/**
 	* This is the list of passengers/mail/goods that
 	* are transferring to/from buildings without
@@ -1807,6 +1800,13 @@ public:
 	* check_transferring_cargoes().
 	*/
 	void deposit_ware_at_destination(ware_t ware);
+
+	/** Get the number of parallel operations
+	* currently set. This should be set by the server
+	* in network games, and based on the thread count
+	* in single player games.
+	*/
+	sint32 get_parallel_operations() const;
 
 private:
 	/**

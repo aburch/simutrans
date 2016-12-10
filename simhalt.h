@@ -186,8 +186,11 @@ private:
 	* of transferring either to catch the next service,
 	* or walking/being carted to their ultimate 
 	* destination.
+	*
+	* This is an array of these vectors: one per thread,
+	* indexed by thread number.
 	*/
-	vector_tpl<transferring_cargo_t> transferring_cargoes;
+	vector_tpl<transferring_cargo_t> *transferring_cargoes;
 
 public:
 	const slist_tpl<convoihandle_t> &get_loading_convois() const { return loading_here; }
@@ -346,8 +349,11 @@ public:
 //	bool is_transfer(const uint8 catg) const { return all_links[catg].is_transfer; }
 
 	typedef inthashtable_tpl<uint16, sint64> arrival_times_map;
-
+#ifdef MULTI_THREAD
+	uint32 get_transferring_cargoes_count();
+#else
 	uint32 get_transferring_cargoes_count() { return transferring_cargoes.get_count(); }
+#endif
 
 private:
 	slist_tpl<tile_t> tiles;
