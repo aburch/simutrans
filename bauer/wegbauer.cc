@@ -1707,7 +1707,7 @@ bool wegbauer_t::intern_calc_route_runways(koord3d start3d, const koord3d ziel3d
 		// only straight runways!
 		return false;
 	}
-	const ribi_t::ribi ribi_gerade = ribi_t::doubles(ribi);
+	const ribi_t::ribi ribi_straight = ribi_t::doubles(ribi);
 
 	// not too close to the border?
 	if(	 !(welt->is_within_limits(start-koord(5,5))  &&  welt->is_within_limits(start+koord(5,5)))  ||
@@ -1723,7 +1723,7 @@ bool wegbauer_t::intern_calc_route_runways(koord3d start3d, const koord3d ziel3d
 	// end start
 	const grund_t *gr = welt->lookup_kartenboden(start);
 	const weg_t *weg = gr->get_weg(air_wt);
-	if(weg  &&  !ribi_t::is_straight(weg->get_ribi()|ribi_gerade)  ) {
+	if(weg  &&  !ribi_t::is_straight(weg->get_ribi()|ribi_straight)  ) {
 		// cannot connect with curve at the end
 		return false;
 	}
@@ -1734,7 +1734,7 @@ bool wegbauer_t::intern_calc_route_runways(koord3d start3d, const koord3d ziel3d
 	// check end
 	gr = welt->lookup_kartenboden(ziel);
 	weg = gr->get_weg(air_wt);
-	if(weg  &&  !ribi_t::is_straight(weg->get_ribi()|ribi_gerade)  ) {
+	if(weg  &&  !ribi_t::is_straight(weg->get_ribi()|ribi_straight)  ) {
 		// cannot connect with curve at the end
 		return false;
 	}
@@ -1752,7 +1752,7 @@ bool wegbauer_t::intern_calc_route_runways(koord3d start3d, const koord3d ziel3d
 			return false;
 		}
 		weg = to->get_weg(air_wt);
-		if(  weg  &&  weg->get_besch()->get_styp()==1  &&  (ribi_t::is_threeway(weg->get_ribi_unmasked()|ribi_gerade))  &&  (weg->get_ribi_unmasked()|ribi_gerade)!=ribi_t::all  ) {
+		if(  weg  &&  weg->get_besch()->get_styp()==1  &&  (ribi_t::is_threeway(weg->get_ribi_unmasked()|ribi_straight))  &&  (weg->get_ribi_unmasked()|ribi_straight)!=ribi_t::all  ) {
 			// only fourway crossings of runways allowed, no threeways => fail
 			return false;
 		}
