@@ -5338,8 +5338,13 @@ rands[15] = get_random_seed();
 			}
 			if (ok)
 			{
-				//ped->calc_height(gr);
 				sync.add(ped);
+
+				if (i > 0)
+				{
+					// walk a little
+					ped->sync_step((i & 3) * 64 * 24);
+				}
 			}
 			else
 			{
