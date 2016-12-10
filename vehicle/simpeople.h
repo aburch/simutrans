@@ -28,7 +28,7 @@ protected:
 	 * Creates pedestrian at position given by @p gr.
 	 * Does not add pedestrian to the tile!
 	 */
-	pedestrian_t(grund_t *gr);
+	pedestrian_t(grund_t *gr, uint32 time_to_live = 0);
 
 public:
 	pedestrian_t(loadsave_t *file);
@@ -54,7 +54,9 @@ public:
 	static bool register_besch(const fussgaenger_besch_t *besch);
 	static bool alles_geladen();
 
-	static void generate_pedestrians_at(koord3d k, uint32 anzahl);
+	static void generate_pedestrians_at(koord3d k, uint32 anzahl, uint32 time_to_live = 0);
+
+	static void check_timeline_pedestrians(); 
 };
 
 #endif

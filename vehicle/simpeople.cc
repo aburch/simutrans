@@ -21,7 +21,8 @@
 
 static uint32 const strecke[] = { 6000, 11000, 15000, 20000, 25000, 30000, 35000, 40000 };
 
-static weighted_vector_tpl<const fussgaenger_besch_t*> liste;
+static weighted_vector_tpl<const fussgaenger_besch_t*> liste; // All pedestrians
+static weighted_vector_tpl<const fussgaenger_besch_t*> current_pedestrians; // Only those allowed on the current timeline
 stringhashtable_tpl<const fussgaenger_besch_t *> pedestrian_t::table;
 
 
@@ -76,15 +77,15 @@ pedestrian_t::pedestrian_t(loadsave_t *file)
 }
 
 
-pedestrian_t::pedestrian_t(grund_t *gr) :
+pedestrian_t::pedestrian_t(grund_t *gr, uint32 time_to_live) :
 #ifdef INLINE_OBJ_TYPE
 	road_user_t(pedestrian, gr, simrand(65535, "pedestrian_t::pedestrian_t (weg_next)")),
 #else
 	road_user_t(gr, simrand(65535, "pedestrian_t::pedestrian_t (weg_next)")),
 #endif
-	besch(pick_any_weighted(liste))
+	besch(pick_any_weighted(current_pedestrians))
 {
-	time_to_life = pick_any(strecke);
+	time_to_life = time_to_live == 0 ? pick_any(strecke) : time_to_live;
 	calc_image();
 }
 
@@ -139,7 +140,7 @@ void pedestrian_t::rdwr(loadsave_t *file)
 
 
 // create a number (anzahl) of pedestrians (if possible)
-void pedestrian_t::generate_pedestrians_at(const koord3d k, uint32 anzahl)
+void pedestrian_t::generate_pedestrians_at(const koord3d k, uint32 anzahl, uint32 time_to_live)
 {
 #ifdef FORBID_SYNC_OBJECTS
 	return;
@@ -147,7 +148,7 @@ void pedestrian_t::generate_pedestrians_at(const koord3d k, uint32 anzahl)
 #ifdef FORBID_PEDESTRIANS
 	return;
 #endif
-	if (liste.empty()) 
+	if (current_pedestrians.empty()) 
 	{
 		return;
 	}
@@ -155,46 +156,57 @@ void pedestrian_t::generate_pedestrians_at(const koord3d k, uint32 anzahl)
 	grund_t* gr = welt->lookup(k);
 	if (gr)
 	{
-		const weg_t* weg = gr->get_weg(road_wt);
+		weg_t* weg = gr->get_weg(road_wt);
 
-		// we do not start on crossings (not overrunning pedestrians please)
-		if (weg && ribi_t::is_twoway(weg->get_ribi_unmasked()))
+		if (!weg)
 		{
-			// we create maximal 4 pedestrians here for performance reasons
-			for (int i = 0; i < 4 && anzahl > 0; i++)
+			for (int i = 0; i < 8; i++)
 			{
-				pedestrian_t* ped = new pedestrian_t(gr);
-				ped->calc_height(gr);
+				grund_t *gr2 = world()->lookup_kartenboden(k.get_2d() + koord::neighbours[i]);
+				weg = gr2->get_weg(road_wt);
+				if (weg)
+				{
+					break;
+				}
+			}
+		}
+
+		if (!weg)
+		{
+			return;
+		}
+
+		
+		for (int i = 0; i < anzahl; i++)
+		{
+			pedestrian_t* ped = new pedestrian_t(gr, time_to_live);
+			ped->calc_height(gr);
 #ifndef MULTI_THREAD
-				bool ok = gr->obj_add(ped) != 0;	// 256 limit reached
-				// ok == false is quite frequent here.
-				if (ok)
-				{				
-					if (i > 0)
-					{
-						// walk a little
-						ped->sync_step((i & 3) * 64 * 24);
-					}
+			bool ok = gr->obj_add(ped) != 0;	// 256 limit reached
+			// ok == false is quite frequent here.
+			if (ok)
+			{				
+				if (i > 0)
+				{
+					// walk a little
+					ped->sync_step((i & 3) * 64 * 24);
+				}
 #endif
 #ifdef MULTI_THREAD
-					karte_t::pedestrians_added_threaded[karte_t::passenger_generation_thread_number].append(ped);
+				karte_t::pedestrians_added_threaded[karte_t::passenger_generation_thread_number].append(ped);
 #else
-					welt->sync.add(ped);
-#endif
-					anzahl--;
-#ifndef MULTI_THREAD
-				}
-				else
-				{
-					// delete it, if we could not put it on the map
-					ped->set_flag(obj_t::not_on_map);
-					// do not try to delete it from sync-list
-					ped->time_to_life = 0;
-					delete ped;
-					return; // it is pointless to try again
-				}
-#endif
+				welt->sync.add(ped);
 			}
+			else
+			{
+				// delete it, if we could not put it on the map
+				ped->set_flag(obj_t::not_on_map);
+				// do not try to delete it from sync-list
+				ped->time_to_life = 0;
+				delete ped;
+				return; // it is pointless to try again
+			}
+#endif
 		}
 	}
 }
@@ -271,5 +283,17 @@ void pedestrian_t::hop(grund_t *gr)
 		pos_next = get_pos();
 		// .. but this looks ugly, so disappear
 		time_to_life = 0;
+	}
+}
+
+void pedestrian_t::check_timeline_pedestrians()
+{
+	current_pedestrians.clear();
+	FOR(weighted_vector_tpl<const fussgaenger_besch_t*>, fb, liste)
+	{
+		if (fb->is_available(world()->get_timeline_year_month()))
+		{
+			current_pedestrians.append(fb, fb->get_gewichtung()); 
+		}
 	}
 }

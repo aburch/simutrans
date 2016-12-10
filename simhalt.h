@@ -210,15 +210,6 @@ public:
 	static void reset_routing();
 
 	/**
-	 * Tries to generate some pedestrians on the sqaure and the
-	 * adjacent sqaures. Return actual number of generated
-	 * pedestrians.
-	 *
-	 * @author Hj. Malthaner
-	 */
-	static int generate_pedestrians(const koord3d pos, uint32 anzahl);
-
-	/**
 	 * Returns an index to a halt at koord k
    	 * optionally limit to that owned by player player
    	 * by default create a new halt if none found

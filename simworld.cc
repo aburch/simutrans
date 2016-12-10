@@ -4822,6 +4822,8 @@ void karte_t::new_month()
 	calc_generic_road_time_per_tile_intercity();
 	calc_max_road_check_depth();
 
+	pedestrian_t::check_timeline_pedestrians();
+
 #ifdef MULTI_THREAD
 	stop_path_explorer();
 #endif
@@ -5741,7 +5743,10 @@ void karte_t::deposit_ware_at_destination(ware_t ware)
 				{
 					pos_pedestrians = ware.get_origin().is_bound() ? ware.get_origin()->get_basis_pos3d() : koord3d::invalid;
 				}
-				haltestelle_t::generate_pedestrians(pos_pedestrians, menge);
+				if (pos_pedestrians != koord3d::invalid)
+				{
+					pedestrian_t::generate_pedestrians_at(pos_pedestrians, menge);
+				}
 			}
 		}
 #ifdef DEBUG_SIMRAND_CALLS
@@ -5985,7 +5990,11 @@ uint32 karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 			if(trip == commuting_trip)
 			{
 				gebaeude_t* gb = current_destination.building;
+#ifdef DISABLE_JOB_EFFECTS
+				if(!gb)
+#else
 				if(!gb || !gb->jobs_available())
+#endif
 				{
 					if(route_status == initialising)
 					{
@@ -6338,7 +6347,6 @@ uint32 karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 			// create pedestrians in the near area?
 			if(settings.get_random_pedestrians() && wtyp == warenbauer_t::passagiere) 
 			{
-				haltestelle_t::generate_pedestrians(origin_pos, units_this_step);
 				pedestrian_t::generate_pedestrians_at(origin_pos, units_this_step);
 			}
 			// We cannot do this on arrival, as the ware packets do not remember their origin building.
@@ -6416,8 +6424,7 @@ uint32 karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 
 			if(settings.get_random_pedestrians() && wtyp == warenbauer_t::passagiere) 
 			{
-				//haltestelle_t::generate_pedestrians(origin_pos, units_this_step);
-				pedestrian_t::generate_pedestrians_at(origin_pos, units_this_step);
+				pedestrian_t::generate_pedestrians_at(origin_pos, units_this_step, get_seconds_to_ticks(walking_time * 6));
 			}
 				
 			if(city)
@@ -6750,6 +6757,14 @@ return_on_foot:
 			{
 				if(wtyp == warenbauer_t::passagiere)
 				{
+					if (settings.get_random_pedestrians())
+					{
+						koord3d destination_pos_3d;
+						destination_pos_3d.x = destination_pos.x;
+						destination_pos_3d.y = destination_pos.y;
+						destination_pos_3d.z = lookup_hgt(destination_pos);
+						pedestrian_t::generate_pedestrians_at(destination_pos_3d, units_this_step, get_seconds_to_ticks(walking_time * 6));
+					}
 					if(destination_town)
 					{
 						destination_town->add_walking_passengers(units_this_step);
@@ -8801,6 +8816,8 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 		// This must be done here, as the cities have not been initialised on loading.
 		dep->add_to_world_list();
 	}
+
+	pedestrian_t::check_timeline_pedestrians();
 
 	dbg->warning("karte_t::load()","loaded savegame from %i/%i, next month=%i, ticks=%i (per month=1<<%i)",last_month,last_year,next_month_ticks,ticks,karte_t::ticks_per_world_month_shift);
 }

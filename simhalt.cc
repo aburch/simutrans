@@ -1320,7 +1320,7 @@ void haltestelle_t::step()
 							if(shortest_distance(get_next_pos(tmp.get_zwischenziel()->get_basis_pos()), get_next_pos(tmp.get_zwischenziel()->get_basis_pos())) <= max_walking_distance)
 							{
 								// Passengers can walk to their next transfer.
-								generate_pedestrians(get_basis_pos3d(), tmp.menge);
+								pedestrian_t::generate_pedestrians_at(get_basis_pos3d(), tmp.menge);
 								tmp.set_last_transfer(self);
 								tmp.get_zwischenziel()->liefere_an(tmp, 1);
 								passengers_walked = true;
@@ -1512,7 +1512,7 @@ uint32 haltestelle_t::reroute_goods(const uint8 catg)
 			   && !get_preferred_convoy(ware.get_zwischenziel(), 0).is_bound()
 			   && !get_preferred_line(ware.get_zwischenziel(), 0).is_bound())
 			{
-				generate_pedestrians(get_basis_pos3d(), ware.menge);
+				pedestrian_t::generate_pedestrians_at(get_basis_pos3d(), ware.menge);
 				ware.get_zwischenziel()->liefere_an(ware, 1); // start counting walking steps at 1 again
 				continue;
 			}
@@ -2692,7 +2692,6 @@ void haltestelle_t::starte_mit_route(ware_t ware, koord origin_pos)
 		// This is a bug which should be fixed.  The passenger has already walked here,
 		// and presumably does not wish to walk further... --neroden
 		// If this is within walking distance of the next transfer, and there is not a faster way there, walk there.
-		//generate_pedestrians(get_basis_pos3d(), ware.menge);
 		pedestrian_t::generate_pedestrians_at(get_basis_pos3d(), ware.menge);
 #ifdef DEBUG_SIMRAND_CALLS
 		if (talk)
@@ -2921,7 +2920,6 @@ void haltestelle_t::liefere_an(ware_t ware, uint8 walked_between_stations)
 		{
 			// If this is within walking distance of the next transfer, and there is not a faster way there, walk there.
 		walking:
-			//generate_pedestrians(get_basis_pos3d(), ware.menge);
 			pedestrian_t::generate_pedestrians_at(get_basis_pos3d(), ware.menge);
 			ware.set_last_transfer(self);
 	#ifdef DEBUG_SIMRAND_CALLS
@@ -3404,30 +3402,6 @@ void haltestelle_t::recalc_station_type()
 	}
 	recalc_status();
 }
-
-
-
-int haltestelle_t::generate_pedestrians(koord3d pos, uint32 anzahl)
-{
-#ifdef FORBID_SYNC_OBJECTS
-	return 0;
-#endif
-#ifdef FORBID_PEDESTRIANS
-	return 0;
-#endif
-	//if(pedestrian_limit < pedestrian_generate_max)
-	//{
-		//pedestrian_limit ++;
-		pedestrian_t::generate_pedestrians_at(pos, anzahl);
-		for(int i=0; i<4 && anzahl>0; i++) 
-		{
-			pedestrian_t::generate_pedestrians_at(pos+koord::nsow[i], anzahl);
-		}
-	//}
-	return anzahl;
-}
-
-
 
 void haltestelle_t::rdwr(loadsave_t *file)
 {

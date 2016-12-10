@@ -73,7 +73,7 @@ class records_t;
 #define CHK_RANDS 32
 
 #ifdef MULTI_THREAD
-#define FORBID_MULTI_THREAD_PASSENGER_GENERATION_IN_NETWORK_MODE
+//#define FORBID_MULTI_THREAD_PASSENGER_GENERATION_IN_NETWORK_MODE
 #define MULTI_THREAD_PASSENGER_GENERATION // Currently fails (desync) in any known configuration.
 #define MULTI_THREAD_CONVOYS // Fails (desync) even if FORBID_SYNC_OBJECTS is defined and even if MULTI_THREAD_PATH_EXPLORER is undefined; but only in one specific old game.
 #define MULTI_THREAD_PATH_EXPLORER // Confirmed working 
@@ -84,6 +84,7 @@ class records_t;
 //#define FORBID_PRIVATE_CARS // Fails without this defined and FORBID_SYNC_OJBECTS not defined
 //#define FORBID_PEDESTRIANS // Fails without this defined and FORBID_SYNC_OJBECTS not defined
 //#define FORBID_CONGESTION_EFFECTS // This appears to make no difference.
+//#define DISABLE_JOB_EFFECTS // This appears to make no difference
 #endif
 
 struct checklist_t
