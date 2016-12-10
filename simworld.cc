@@ -551,6 +551,8 @@ DBG_MESSAGE("karte_t::destroy()", "destroying world");
 #ifdef MULTI_THREAD
 	destroy_threads();
 	DBG_MESSAGE("karte_t::destroy()", "threads destroyed");
+#else
+	delete[] transferring_cargoes;
 #endif
 
 	passenger_origins.clear();
@@ -1586,6 +1588,8 @@ DBG_DEBUG("karte_t::init()","built timeline");
 #ifdef MULTI_THREAD
 	init_threads();
 	first_step = 1;
+#else
+	transferring_cargoes = new vector_tpl<transferring_cargoes_t>[1];
 #endif
 }
 
@@ -1916,6 +1920,7 @@ void karte_t::init_threads()
 
 	private_cars_added_threaded = new vector_tpl<private_car_t*>[parallel_operations];
 	pedestrians_added_threaded = new vector_tpl<pedestrian_t*>[parallel_operations];
+	transferring_cargoes = new vector_tpl<transferring_cargo_t>[parallel_operations];
 
 	pthread_attr_init(&thread_attributes);
 	pthread_attr_setdetachstate(&thread_attributes, PTHREAD_CREATE_JOINABLE);
@@ -2058,6 +2063,7 @@ void karte_t::destroy_threads()
 
 	delete[] private_cars_added_threaded; 
 	delete[] pedestrians_added_threaded;
+	delete[] transferring_cargoes;
 
 	threads_initialised = false;
 	terminating_threads = false;
@@ -2733,6 +2739,7 @@ karte_t::karte_t() :
 	next_step_passenger = 0;
 	next_step_mail = 0;
 	destroying = false;
+	transferring_cargoes = NULL;
 #ifdef MULTI_THREAD
 	cities_to_process = 0;
 	terminating_threads = false;
@@ -5627,6 +5634,9 @@ void karte_t::get_nearby_halts_of_tiles(const vector_tpl<const planquadrat_t*> &
 
 void karte_t::add_to_waiting_list(ware_t ware, koord origin_pos)
 {
+#ifdef DISABLE_GLOBAL_WAITING_LIST
+	return;
+#endif
 	sint64 ready_time = calc_ready_time(ware, origin_pos);
 	
 	transferring_cargo_t tc;
@@ -5634,8 +5644,11 @@ void karte_t::add_to_waiting_list(ware_t ware, koord origin_pos)
 	tc.ready_time = ready_time;
 #ifdef MULTI_THREAD
 	pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
+	transferring_cargoes[karte_t::passenger_generation_thread_number].append(tc);
+#else
+	transferring_cargoes[0].append(tc);
 #endif
-	transferring_cargoes.append(tc);
+	
 #ifdef MULTI_THREAD
 	pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
 #endif
@@ -5667,17 +5680,24 @@ void karte_t::check_transferring_cargoes()
 {
 	const sint64 current_time = ticks;
 	ware_t ware;
-	
-	FOR(vector_tpl<transferring_cargo_t>, tc, transferring_cargoes)
+#ifdef MULTI_THREAD
+	sint32 po = get_parallel_operations();;
+#else
+	sint32 po = 1;
+#endif
+	for (sint32 i = 0; i < po; i++)
 	{
-		const uint32 ready_seconds = ticks_to_seconds((tc.ready_time - current_time));
-		const uint32 ready_minutes = ready_seconds / 60;
-		const uint32 ready_hours = ready_minutes / 60;
-		if (tc.ready_time <= current_time)
+		FOR(vector_tpl<transferring_cargo_t>, tc, transferring_cargoes[i])
 		{
-			ware = tc.ware;
-			transferring_cargoes.remove(tc);
-			deposit_ware_at_destination(ware);
+			const uint32 ready_seconds = ticks_to_seconds((tc.ready_time - current_time));
+			const uint32 ready_minutes = ready_seconds / 60;
+			const uint32 ready_hours = ready_minutes / 60;
+			if (tc.ready_time <= current_time)
+			{
+				ware = tc.ware;
+				transferring_cargoes[i].remove(tc);
+				deposit_ware_at_destination(ware);
+			}
 		}
 	}
 }
@@ -6351,7 +6371,6 @@ uint32 karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 			}
 			// We cannot do this on arrival, as the ware packets do not remember their origin building.
 			// However, as for the destination, this can be set when the passengers arrive.
-					
 			if(trip == commuting_trip && first_origin)
 			{
 				first_origin->add_passengers_succeeded_commuting(units_this_step);
@@ -6483,7 +6502,6 @@ uint32 karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 			break;
 
 		case too_slow:
-		
 			if(city && wtyp == warenbauer_t::passagiere)
 			{
 				if(car_minutes >= best_journey_time)
@@ -6510,7 +6528,6 @@ uint32 karte_t::generate_passengers_or_mail(const ware_besch_t * wtyp)
 			{
 				start_halt->add_pax_too_slow(units_this_step);
 			}
-
 			break;
 
 		case no_route:
@@ -6538,11 +6555,15 @@ no_route:
 				}
 			}
 		};
+
 #ifdef MULTI_THREAD
 		pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
 #endif
-
+#ifdef FORBID_RETURN_TRIPS
+		if(false)
+#else
 		if(set_return_trip)
+#endif
 		{
 			// Calculate a return journey
 			// This comes most of the time for free and also balances the flows of passengers to and from any given place.
@@ -6731,7 +6752,6 @@ no_route:
 							city->add_transported_mail(units_this_step);
 						}
 					}
-
 #ifdef DESTINATION_CITYCARS
 					city->generate_private_cars(current_destination.location, car_minutes, origin_pos.get_2d(), units_this_step);
 #endif
@@ -7657,18 +7677,35 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved messages");
 		uint32 count;
 		sint64 ready;
 		ware_t ware;
-
-		count = transferring_cargoes.get_count();
+#ifdef MULTI_THREAD
+		count = 0;
+		for (sint32 i = 0; i < parallel_operations; i++)
+		{
+			count += transferring_cargoes[i].get_count();
+		}
+#else
+		count = transferring_cargoes[0].get_count();
+#endif
 
 		file->rdwr_long(count);
 
-		for (uint32 i = 0; i < count; i++)
-		{
-			ready = transferring_cargoes[i].ready_time;
-			ware = transferring_cargoes[i].ware;
+		sint32 po;
+#ifdef MULTI_THREAD
+		po = parallel_operations;
+#else
+		po = 1;
+#endif
 
-			file->rdwr_longlong(ready);
-			ware.rdwr(file);
+		for (sint32 i = 0; i < po; i++)
+		{
+			for (uint32 j = 0; j < count; j++)
+			{
+				ready = transferring_cargoes[i][j].ready_time;
+				ware = transferring_cargoes[i][j].ware;
+
+				file->rdwr_longlong(ready);
+				ware.rdwr(file);
+			}
 		}
 	}
 
@@ -8746,6 +8783,9 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 #ifdef MULTI_THREAD
 	destroy_threads();
 	init_threads();
+#else
+	delete[] transferring_cargoes;
+	transferring_cargoes = new vector_tpl<transferring_cargo_t>[1];
 #endif
 
 	if (file->get_experimental_version() >= 13 || file->get_experimental_revision() >= 15)
@@ -8754,8 +8794,17 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 		sint64 ready;
 		ware_t ware;
 
-		transferring_cargoes.clear();
+#ifdef MULTI_THREAD
+		count = 0;
+		for (sint32 i = 0; i < parallel_operations; i++)
+		{
+			transferring_cargoes[i].clear();
+		}
+#else
+		transferring_cargoes[0].clear();
+#endif
 
+	
 		file->rdwr_long(count);
 
 		for (uint32 i = 0; i < count; i++)
@@ -8766,7 +8815,9 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 			transferring_cargo_t tc;
 			tc.ready_time = ready;
 			tc.ware = ware;
-			transferring_cargoes.append(tc);
+			// On re-loading, there is no need to distribute the
+			// cargoes about different members of this array.
+			transferring_cargoes[0].append(tc);
 		}
 	}
 

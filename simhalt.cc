@@ -2651,6 +2651,9 @@ sint64 haltestelle_t::calc_ready_time(ware_t ware, bool arriving_from_vehicle, k
  */
 void haltestelle_t::starte_mit_route(ware_t ware, koord origin_pos)
 {
+#ifdef FORBID_PUBLIC_TRANSPORT
+	return;
+#endif
 #ifdef DEBUG_SIMRAND_CALLS
 	bool talk = !strcmp(get_name(), "Newton Abbot Railway Station");
 
