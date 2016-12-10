@@ -2640,7 +2640,7 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 				}
 			}
 
-			INT_CHECK("simvehikel 876");
+			INT_CHECK("simconvoi 2643");
 		}
 		buf.clear();
 
