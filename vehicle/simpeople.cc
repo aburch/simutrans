@@ -163,7 +163,7 @@ void pedestrian_t::generate_pedestrians_at(const koord3d k, uint32 anzahl, uint3
 			for (int i = 0; i < 8; i++)
 			{
 				grund_t *gr2 = world()->lookup_kartenboden(k.get_2d() + koord::neighbours[i]);
-				weg = gr2->get_weg(road_wt);
+				weg = gr2 ? gr2->get_weg(road_wt) : NULL;
 				if (weg)
 				{
 					break;
