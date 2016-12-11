@@ -75,8 +75,6 @@ private:
 
 	void set_relief_color_clip( sint16 x, sint16 y, uint8 color );
 
-	void set_relief_farbe_area(koord k, int areasize, uint8 color);
-
 	// all stuff connected with schedule display
 	class line_segment_t
 	{
