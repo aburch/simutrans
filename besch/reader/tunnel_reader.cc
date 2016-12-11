@@ -143,7 +143,7 @@ obj_besch_t * tunnel_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			besch->broad_portals = decode_uint8(p);
 		}
 		else if(version == 3) {
-			// versioned node, version 3 - underground way image support
+			// versioned node, version 3 - underground way specification support
 			besch->topspeed = decode_uint32(p);
 			besch->cost = decode_uint32(p);
 			besch->maintenance = decode_uint32(p);

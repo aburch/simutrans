@@ -71,7 +71,7 @@ public:
 	image_id get_vordergrund_nr(hang_t::typ hang, uint8 season, uint8 type) const
 	{
 		const bild_besch_t *besch = get_vordergrund(hang, season, type );
-		return besch != NULL ? besch->get_nummer() :IMG_LEER;
+		return besch != NULL ? besch->get_nummer() : IMG_LEER;
 	}
 
 	skin_besch_t const* get_cursor() const { return get_child<skin_besch_t>(4); }
