@@ -99,7 +99,7 @@ static pthread_mutex_t redraw_mutex = PTHREAD_MUTEX_INITIALIZER;
 // parameters passed starting a thread
 typedef struct{
 	pthread_t thread;
-	uint8 number;
+	bool ready;
 } redraw_param_t;
 static redraw_param_t redraw_param;
 
@@ -109,6 +109,10 @@ void* redraw_thread( void* ptr )
 	while(true) {
 		simthread_barrier_wait( &redraw_barrier );	// wait to start
 		pthread_mutex_lock( &redraw_mutex );
+		if ( ((redraw_param_t*)ptr)->ready ) {
+			pthread_mutex_unlock( &redraw_mutex );
+			break;
+		}
 		display_flush_buffer();
 		if(  use_hw  ) {
 			SDL_UnlockSurface( screen );
@@ -197,7 +201,7 @@ int dr_os_open(int w, int const h, int const fullscreen)
 	pthread_attr_init( &attr );
 	pthread_attr_setdetachstate( &attr, PTHREAD_CREATE_DETACHED);
 
-	redraw_param.number = 0;
+	redraw_param.ready = false;
 	if(  pthread_create( &(redraw_param.thread), &attr, redraw_thread, (void*)&redraw_param )  ) {
 		fprintf(stderr, "dr_os_open(): cannot multithread\n");
 		return 0;
@@ -261,8 +265,12 @@ int dr_os_open(int w, int const h, int const fullscreen)
 void dr_os_close()
 {
 #ifdef MULTI_THREAD
-	// make sure redraw thread is waiting before closing
+	// signal thread to return
 	pthread_mutex_lock( &redraw_mutex );
+	redraw_param.ready = true;
+	pthread_mutex_unlock( &redraw_mutex );
+	// .. and join
+	pthread_join(redraw_param.thread, NULL);
 #endif
 	SDL_FreeCursor(hourglass);
 	SDL_FreeCursor(blank);
