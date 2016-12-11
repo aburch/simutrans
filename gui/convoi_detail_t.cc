@@ -401,6 +401,12 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 			display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true );
 			extra_y += LINESPACE;
 
+			// Axle load
+			buf.clear();
+			buf.printf("%s %dt", translator::translate("Axle load:"), v->get_besch()->get_axle_load());
+			display_proportional_clip(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
+			extra_y += LINESPACE;
+
 			// Brake force
 			buf.clear();
 			buf.printf("%s %u kN", translator::translate("Max. brake force:"), v->get_besch()->get_brake_force());
