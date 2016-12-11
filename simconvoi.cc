@@ -6162,15 +6162,26 @@ void convoi_t::set_next_stop_index(uint16 n)
 			   {
 				   if(eintrag.reverse == -1)
 				   {
-					   eintrag.reverse = check_destination_reverse() ? 1 : 0;
-					   fpl->set_reverse(eintrag.reverse, i); 
-					   
-					   if(line.is_bound())
+					   grund_t* gr = world()->lookup(eintrag.pos);
+					   if (gr && gr->get_depot())
 					   {
-						   schedule_t* line_schedule = line->get_schedule();
-						   linieneintrag_t &line_entry = line_schedule->eintrag[i];
-						   line_entry.reverse = eintrag.reverse;
-						   update_line = true;
+						   fpl->set_reverse(1, i); 
+					   }
+					   else
+					   {
+						   eintrag.reverse = check_destination_reverse() ? 1 : 0;
+						   fpl->set_reverse(eintrag.reverse, i);
+
+						   if (line.is_bound())
+						   {
+							   schedule_t* line_schedule = line->get_schedule();
+							   if (line_schedule->get_count() > i)
+							   {
+								   linieneintrag_t &line_entry = line_schedule->eintrag[i];
+								   line_entry.reverse = eintrag.reverse;
+								   update_line = true;
+							   }
+						   }
 					   }
 				   }
 					reverse_waypoint = eintrag.reverse == 1;
