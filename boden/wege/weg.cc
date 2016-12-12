@@ -749,7 +749,7 @@ void weg_t::lock_mutex()
 
 
 void weg_t::unlock_mutex()
-{
+{ 
 	pthread_mutex_unlock( &weg_calc_bild_mutex );
 }
 #endif

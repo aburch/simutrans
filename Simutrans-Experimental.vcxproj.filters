@@ -2204,6 +2204,9 @@
     <ClInclude Include="gui\signal_info.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="base_texts_experimental.dat">
@@ -2596,5 +2599,52 @@
     <Manifest Include="Simutrans.manifest">
       <Filter>Resource Files</Filter>
     </Manifest>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="simutrans.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="old.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="icon1.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="icon-256.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="icon2.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\PakBritain sources\Git Blends\Pak128.Britain-blends\components\icon-256.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\PakBritain sources\Git Blends\Pak128.Britain-blends\components\simutrans-ex.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\PakBritain sources\Git Blends\Pak128.Britain-blends\components\icon-64.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\PakBritain sources\Git Blends\Pak128.Britain-blends\components\icon-64.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\PakBritain sources\Git Blends\Pak128.Britain-blends\components\icon-32.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\pakbritain sources\git blends\pak128.britain-blends\components\icon1.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="icon-32.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="icon-64.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="simutrans-ex.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="stormoog.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>
