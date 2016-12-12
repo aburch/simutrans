@@ -24,6 +24,10 @@
 *.obj
 *.rules
 *.log*
+*.diagsession
+*.iobj
+*.ipdb
+settings-experimental-debug.xml
 ipch
 /Debug
 /Debug (SDL)
