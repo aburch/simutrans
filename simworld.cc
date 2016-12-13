@@ -1916,7 +1916,7 @@ void karte_t::init_threads()
 {
 	sint32 rc;
 
-	const sint32 parallel_operations = get_parallel_operations();
+	const sint32 parallel_operations = max(get_parallel_operations(), env_t::num_threads - 1); 
 
 	private_cars_added_threaded = new vector_tpl<private_car_t*>[parallel_operations];
 	pedestrians_added_threaded = new vector_tpl<pedestrian_t*>[parallel_operations];
@@ -2083,7 +2083,7 @@ sint32 karte_t::get_parallel_operations() const
 {
 	sint32 po;
 	if(parallel_operations > 0 && env_t::networkmode && !env_t::server)
-	 {
+	{
 		po = parallel_operations;
 	}
 	else
