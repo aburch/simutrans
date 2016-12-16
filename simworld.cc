@@ -5141,7 +5141,16 @@ void karte_t::load(loadsave_t *file)
 	min_height = max_height = grundwasser;
 	DBG_DEBUG("karte_t::laden()","grundwasser %i",grundwasser);
 
-	init_height_to_climate();
+	if(  file->get_version() < 112007  ) {
+		// r7930 fixed a bug in init_height_to_climate
+		// recover old behavior to not mix up climate when loading old savegames
+		grundwasser = settings.get_climate_borders()[0];
+		init_height_to_climate();
+		grundwasser = settings.get_grundwasser();
+	}
+	else {
+		init_height_to_climate();
+	}
 
 	// just an initialisation for the loading
 	season = (2+last_month/3)&3; // summer always zero
