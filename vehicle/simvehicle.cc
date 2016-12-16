@@ -3744,7 +3744,7 @@ bool air_vehicle_t::block_reserver( uint32 start, uint32 end, bool reserve ) con
 					break;
 				}
 				// end of runway?
-				if(  i > start  &&  (ribi_t::is_single( sch1->get_ribi_unmasked() )  ||  sch1->get_besch()->get_styp() != weg_t::type_runway)   ) {
+				if(  i > start  &&  (ribi_t::is_single( sch1->get_ribi_unmasked() )  ||  sch1->get_besch()->get_styp() != type_runway)   ) {
 					return true;
 				}
 			}
@@ -3806,7 +3806,7 @@ bool air_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uin
 			return false;
 		}
 		// next tile a runway => then reserve
-		if(rw->get_besch()->get_styp()==weg_t::type_runway) {
+		if(rw->get_besch()->get_styp()==type_runway) {
 			// try to reserve the runway
 			if(!block_reserver(takeoff,takeoff+100,true)) {
 				// runway already blocked ...
@@ -3824,7 +3824,7 @@ bool air_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uin
 		if(  route_index >= touchdown  ) {
 			runway_t *rw = (runway_t *)gr->get_weg(air_wt);
 			// next tile a not runway => then unreserve
-			if(  rw == NULL  ||  rw->get_besch()->get_styp() != weg_t::type_runway  ||  gr->is_halt()  ) {
+			if(  rw == NULL  ||  rw->get_besch()->get_styp() != type_runway  ||  gr->is_halt()  ) {
 				block_reserver( touchdown, searchforstop+1, false );
 			}
 		}

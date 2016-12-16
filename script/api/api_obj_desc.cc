@@ -206,11 +206,6 @@ const vector_tpl<const vehikel_besch_t*>& get_available_vehicles(waytype_t wt)
 	return dummy;
 }
 
-const vector_tpl<const weg_besch_t*>& get_available_ways(waytype_t wt, weg_t::system_type st)
-{
-	return wegbauer_t::get_way_list(wt, st);
-}
-
 uint32 get_power(const vehikel_besch_t *besch)
 {
 	return besch->get_leistung() * besch->get_gear();
@@ -501,7 +496,7 @@ void export_goods_desc(HSQUIRRELVM vm)
 	 * @param st system type of way
 	 * @returns the list
 	 */
-	STATIC register_method(vm, &get_available_ways, "get_available_ways", false, true);
+	STATIC register_method(vm, wegbauer_t::get_way_list, "get_available_ways", false, true);
 
 	end_class(vm);
 

@@ -9,13 +9,12 @@
  */
 
 #include "weg_besch.h"
-#include "../boden/wege/weg.h"
 #include "../network/checksum.h"
 
 
 waytype_t weg_besch_t::get_finance_waytype() const
 {
-	return get_styp() == weg_t::type_tram ? tram_wt : get_wtyp();
+	return get_styp() == type_tram ? tram_wt : get_wtyp();
 }
 
 void weg_besch_t::calc_checksum(checksum_t *chk) const

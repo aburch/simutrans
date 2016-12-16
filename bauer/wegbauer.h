@@ -8,9 +8,9 @@
 #ifndef simbau_h
 #define simbau_h
 
-#include "../boden/wege/weg.h"
-#include "../tpl/vector_tpl.h"
 #include "../simtypes.h"
+#include "../dataobj/koord3d.h"
+#include "../tpl/vector_tpl.h"
 
 
 class weg_besch_t;
@@ -42,7 +42,7 @@ public:
 	 * Finds a way with a given speed limit for a given waytype
 	 * @author prissi
 	 */
-	static const weg_besch_t *weg_search(const waytype_t wtyp,const sint32 speed_limit, const uint16 time, const weg_t::system_type system_type);
+	static const weg_besch_t *weg_search(const waytype_t wtyp,const sint32 speed_limit, const uint16 time, const systemtype_t system_type);
 
 	static const weg_besch_t *get_besch(const char *way_name,const uint16 time=0);
 
@@ -52,14 +52,14 @@ public:
 
 	static bool waytype_available( const waytype_t wtyp, uint16 time );
 
-	static const vector_tpl<const weg_besch_t *>&  get_way_list(waytype_t, weg_t::system_type system_type);
+	static const vector_tpl<const weg_besch_t *>&  get_way_list(waytype_t, systemtype_t system_type);
 
 
 	/**
 	 * Fill menu with icons of given waytype
 	 * @author Hj. Malthaner
 	 */
-	static void fill_menu(tool_selector_t *tool_selector, const waytype_t wtyp, const weg_t::system_type styp, sint16 ok_sound);
+	static void fill_menu(tool_selector_t *tool_selector, const waytype_t wtyp, const systemtype_t styp, sint16 ok_sound);
 
 	enum bautyp_t {
 		strasse=road_wt,

@@ -19,7 +19,7 @@ void narrowgauge_t::rdwr(loadsave_t *file)
 
 	if(get_besch()->get_wtyp()!=narrowgauge_wt) {
 		int old_max_speed = get_max_speed();
-		const weg_besch_t *besch = wegbauer_t::weg_search( narrowgauge_wt, (old_max_speed>0 ? old_max_speed : 120), 0, (weg_t::system_type)((get_besch()->get_styp()==weg_t::type_elevated)*weg_t::type_elevated) );
+		const weg_besch_t *besch = wegbauer_t::weg_search( narrowgauge_wt, (old_max_speed>0 ? old_max_speed : 120), 0, (systemtype_t)((get_besch()->get_styp()==type_elevated)*type_elevated) );
 		if (besch==NULL) {
 			dbg->fatal("narrowgauge_t::rwdr()", "No narrowgauge way available");
 		}

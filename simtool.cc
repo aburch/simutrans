@@ -303,7 +303,7 @@ static grund_t *tool_intern_koord_to_weg_grund(player_t *player, karte_t *welt, 
 	// tram
 	if(wt==tram_wt) {
 		weg_t *way = gr->get_weg(track_wt);
-		if (way && way->get_besch()->get_styp() == weg_t::type_tram &&  way->is_deletable(player)==NULL) {
+		if (way && way->get_besch()->get_styp() == type_tram &&  way->is_deletable(player)==NULL) {
 			return gr;
 		}
 		else {
@@ -2184,7 +2184,7 @@ const weg_besch_t *tool_build_way_t::get_besch( uint16 timeline_year_month, bool
 		if(besch==NULL  ||  !besch->is_available(timeline_year_month)) {
 			// search fastest way.
 			if(  wt == tram_wt  ||  wt == powerline_wt  ) {
-				besch = wegbauer_t::weg_search(wt, 0xffffffff, timeline_year_month, weg_t::type_flat);
+				besch = wegbauer_t::weg_search(wt, 0xffffffff, timeline_year_month, type_flat);
 			}
 			else {
 				// this triggers an assertion if wt == powerline_wt
@@ -2195,7 +2195,7 @@ const weg_besch_t *tool_build_way_t::get_besch( uint16 timeline_year_month, bool
 		}
 	}
 	if(  besch  &&  remember  ) {
-		if(  besch->get_styp() == weg_t::type_tram  ) {
+		if(  besch->get_styp() == type_tram  ) {
 			defaults[ tram_wt ] = besch;
 		}
 		else {
@@ -2211,7 +2211,7 @@ image_id tool_build_way_t::get_icon(player_t *) const
 	image_id image = icon;
 	bool is_tram = false;
 	if(  besch  ) {
-		is_tram = (besch->get_wtyp()==tram_wt) || (besch->get_styp() == weg_t::type_tram);
+		is_tram = (besch->get_wtyp()==tram_wt) || (besch->get_styp() == type_tram);
 		if(  image ==  IMG_EMPTY  ) {
 			image = besch->get_cursor()->get_image_id(1);
 		}
@@ -2514,7 +2514,7 @@ const char *tool_build_bridge_t::do_work( player_t *player, const koord3d &start
 		const char *error;
 		koord3d end2 = brueckenbauer_t::finde_ende(player, start, zv, besch, error, bridge_height, false, koord_distance(start, end), is_ctrl_pressed());
 		assert(end2 == end); (void)end2;
-		brueckenbauer_t::baue_bruecke( player, start, end, zv, bridge_height, besch, wegbauer_t::weg_search(besch->get_waytype(), besch->get_topspeed(), welt->get_timeline_year_month(), weg_t::type_flat));
+		brueckenbauer_t::baue_bruecke( player, start, end, zv, bridge_height, besch, wegbauer_t::weg_search(besch->get_waytype(), besch->get_topspeed(), welt->get_timeline_year_month(), type_flat));
 		return NULL; // all checks are performed before building.
 	}
 }
@@ -2620,7 +2620,7 @@ void tool_build_bridge_t::mark_tiles(  player_t *player, const koord3d &start, c
 	}
 	else {
 		if (besch->get_waytype() == powerline_wt  ? !gr->find<leitung_t>() : !gr->hat_weg(besch->get_waytype())) {
-			const weg_besch_t *weg_besch = wegbauer_t::weg_search(besch->get_waytype(), besch->get_topspeed(), welt->get_timeline_year_month(), weg_t::type_flat);
+			const weg_besch_t *weg_besch = wegbauer_t::weg_search(besch->get_waytype(), besch->get_topspeed(), welt->get_timeline_year_month(), type_flat);
 			costs += weg_besch->get_preis();
 		}
 	}
@@ -2795,7 +2795,7 @@ void tool_build_tunnel_t::calc_route( wegbauer_t &bauigel, const koord3d &start,
 	const weg_besch_t *wb = besch->get_weg_besch();
 	if(wb==NULL) {
 		// ignore timeline to get consistent results
-		wb = wegbauer_t::weg_search( besch->get_waytype(), besch->get_topspeed(), 0, weg_t::type_flat );
+		wb = wegbauer_t::weg_search( besch->get_waytype(), besch->get_topspeed(), 0, type_flat );
 	}
 
 	bauigel.route_fuer(bt | wegbauer_t::tunnel_flag, wb, besch);
@@ -2879,7 +2879,7 @@ void tool_build_tunnel_t::mark_tiles(  player_t *player, const koord3d &start, c
 	const weg_besch_t *wb = besch->get_weg_besch();
 	if(wb==NULL) {
 		// ignore timeline to get consistent results
-		wb = wegbauer_t::weg_search( besch->get_waytype(), besch->get_topspeed(), 0, weg_t::type_flat );
+		wb = wegbauer_t::weg_search( besch->get_waytype(), besch->get_topspeed(), 0, type_flat );
 	}
 
 	welt->lookup_kartenboden(end.get_2d())->clear_flag(grund_t::marked);

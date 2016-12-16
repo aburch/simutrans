@@ -29,6 +29,7 @@
 #include "../besch/haus_besch.h"
 #include "../besch/kreuzung_besch.h"
 
+#include "../boden/wege/weg.h"
 #include "../boden/wege/strasse.h"
 #include "../boden/wege/schiene.h"
 #include "../boden/wege/monorail.h"
@@ -91,11 +92,11 @@ static stringhashtable_tpl <const weg_besch_t *> alle_wegtypen;
 
 static void set_default(weg_besch_t const*& def, waytype_t const wtyp, sint32 const speed_limit = 1)
 {
-	def = wegbauer_t::weg_search(wtyp, speed_limit, 0, weg_t::type_flat);
+	def = wegbauer_t::weg_search(wtyp, speed_limit, 0, type_flat);
 }
 
 
-static void set_default(weg_besch_t const*& def, waytype_t const wtyp, weg_t::system_type const system_type, sint32 const speed_limit = 1)
+static void set_default(weg_besch_t const*& def, waytype_t const wtyp, systemtype_t const system_type, sint32 const speed_limit = 1)
 {
 	set_default(def, wtyp, speed_limit);
 	if (def) {
@@ -108,17 +109,17 @@ static void set_default(weg_besch_t const*& def, waytype_t const wtyp, weg_t::sy
 bool wegbauer_t::alle_wege_geladen()
 {
 	// some defaults to avoid hardcoded values
-	set_default(strasse_t::default_strasse,         road_wt,        weg_t::type_flat, 50);
+	set_default(strasse_t::default_strasse,         road_wt,        type_flat, 50);
 	if(  strasse_t::default_strasse == NULL ) {
 		dbg->fatal( "wegbauer_t::alle_wege_geladen()", "No road found at all!" );
 		return false;
 	}
 
-	set_default(schiene_t::default_schiene,         track_wt,       weg_t::type_flat, 80);
-	set_default(monorail_t::default_monorail,       monorail_wt,    weg_t::type_elevated); // Only elevated?
-	set_default(maglev_t::default_maglev,           maglev_wt,      weg_t::type_elevated); // Only elevated?
+	set_default(schiene_t::default_schiene,         track_wt,       type_flat, 80);
+	set_default(monorail_t::default_monorail,       monorail_wt,    type_elevated); // Only elevated?
+	set_default(maglev_t::default_maglev,           maglev_wt,      type_elevated); // Only elevated?
 	set_default(narrowgauge_t::default_narrowgauge, narrowgauge_wt);
-	set_default(kanal_t::default_kanal,             water_wt,       weg_t::type_all); // Also find hidden rivers.
+	set_default(kanal_t::default_kanal,             water_wt,       type_all); // Also find hidden rivers.
 	set_default(runway_t::default_runway,           air_wt);
 	set_default(wegbauer_t::leitung_besch,          powerline_wt);
 
@@ -155,7 +156,7 @@ bool wegbauer_t::register_besch(weg_besch_t *besch)
 }
 
 
-const vector_tpl<const weg_besch_t *>&  wegbauer_t::get_way_list(const waytype_t wtyp, const weg_t::system_type styp)
+const vector_tpl<const weg_besch_t *>&  wegbauer_t::get_way_list(const waytype_t wtyp, systemtype_t styp)
 {
 	static vector_tpl<const weg_besch_t *> dummy;
 	dummy.clear();
@@ -178,16 +179,16 @@ const vector_tpl<const weg_besch_t *>&  wegbauer_t::get_way_list(const waytype_t
  * The timeline is also respected.
  * @author prissi, gerw
  */
-const weg_besch_t* wegbauer_t::weg_search(const waytype_t wtyp, const sint32 speed_limit, const uint16 time, const weg_t::system_type system_type)
+const weg_besch_t* wegbauer_t::weg_search(const waytype_t wtyp, const sint32 speed_limit, const uint16 time, const systemtype_t system_type)
 {
 	const weg_besch_t* best = NULL;
 	bool best_allowed = false; // Does the best way fulfil the timeline?
 	FOR(stringhashtable_tpl<weg_besch_t const*>, const& i, alle_wegtypen) {
 		weg_besch_t const* const test = i.value;
 		if(  ((test->get_wtyp()==wtyp  &&
-			(test->get_styp()==system_type  ||  system_type==weg_t::type_all))  ||  (test->get_wtyp()==track_wt  &&  test->get_styp()==weg_t::type_tram  &&  wtyp==tram_wt))
+			(test->get_styp()==system_type  ||  system_type==type_all))  ||  (test->get_wtyp()==track_wt  &&  test->get_styp()==type_tram  &&  wtyp==tram_wt))
 			&&  test->get_cursor()->get_image_id(1)!=IMG_EMPTY  ) {
-				bool test_allowed = test->get_intro_year_month()<=time  &&  time<test->get_retire_year_month();
+			bool test_allowed = test->get_intro_year_month()<=time  &&  time<test->get_retire_year_month();
 				if(  !best_allowed  ||  time==0  ||  test_allowed  ) {
 					if(  best==NULL  ||
 						( best->get_topspeed() <  test->get_topspeed()  &&  test->get_topspeed() <=     speed_limit  )    || // closer to desired speed (from the low end)
@@ -307,10 +308,10 @@ static bool compare_ways(const weg_besch_t* a, const weg_besch_t* b)
  * Fill menu with icons of given waytype, return number of added entries
  * @author Hj. Malthaner/prissi/dariok
  */
-void wegbauer_t::fill_menu(tool_selector_t *tool_selector, const waytype_t wtyp, const weg_t::system_type styp, sint16 /*ok_sound*/)
+void wegbauer_t::fill_menu(tool_selector_t *tool_selector, const waytype_t wtyp, const systemtype_t styp, sint16 /*ok_sound*/)
 {
 	// check if scenario forbids this
-	const waytype_t rwtyp = wtyp!=track_wt  || styp!=weg_t::type_tram  ? wtyp : tram_wt;
+	const waytype_t rwtyp = wtyp!=track_wt  || styp!=type_tram  ? wtyp : tram_wt;
 	if (!welt->get_scenario()->is_tool_allowed(welt->get_active_player(), TOOL_BUILD_WAY | GENERAL_TOOL, rwtyp)) {
 		return;
 	}
@@ -1082,7 +1083,7 @@ void wegbauer_t::check_for_bridge(const grund_t* parent_from, const grund_t* fro
 				}
 				if (  other  ) {
 					if (  (bautyp&bautyp_mask) == strasse  ) {
-						if (  other->get_waytype() != track_wt  ||  other->get_besch()->get_styp()!=weg_t::type_tram  ) {
+						if (  other->get_waytype() != track_wt  ||  other->get_besch()->get_styp()!=type_tram  ) {
 							// road only on tram
 							return;
 						}
@@ -2085,7 +2086,7 @@ bool wegbauer_t::baue_tunnelboden()
 		if(wb==NULL) {
 			// now we search a matching way for the tunnels top speed
 			// ignore timeline to get consistent results
-			wb = wegbauer_t::weg_search( tunnel_besch->get_waytype(), tunnel_besch->get_topspeed(), 0, weg_t::type_flat );
+			wb = wegbauer_t::weg_search( tunnel_besch->get_waytype(), tunnel_besch->get_topspeed(), 0, type_flat );
 		}
 
 		if(gr==NULL) {

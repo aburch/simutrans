@@ -43,7 +43,7 @@ void runway_t::rdwr(loadsave_t *file)
 		const weg_besch_t *besch = wegbauer_t::get_besch(bname);
 		int old_max_speed=get_max_speed();
 		if(besch==NULL) {
-			besch = wegbauer_t::weg_search(air_wt,old_max_speed>0 ? old_max_speed : 20, 0, (weg_t::system_type)(old_max_speed>250) );
+			besch = wegbauer_t::weg_search(air_wt,old_max_speed>0 ? old_max_speed : 20, 0, (systemtype_t)(old_max_speed>250) );
 			if(besch==NULL) {
 				besch = default_runway;
 				welt->add_missing_paks( bname, karte_t::MISSING_WAY );

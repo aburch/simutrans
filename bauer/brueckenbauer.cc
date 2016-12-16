@@ -702,7 +702,7 @@ DBG_MESSAGE("brueckenbauer_t::baue()", "end not ok");
 		way_besch = lt->get_besch();
 	}
 	else {
-		way_besch = wegbauer_t::weg_search(besch->get_waytype(), besch->get_topspeed(), welt->get_timeline_year_month(), weg_t::type_flat);
+		way_besch = wegbauer_t::weg_search(besch->get_waytype(), besch->get_topspeed(), welt->get_timeline_year_month(), type_flat);
 	}
 
 	// Start and end have been checked, we can start to build eventually

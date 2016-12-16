@@ -911,7 +911,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 		weg_besch_t const* besch = settings.get_intercity_road_type(get_timeline_year_month());
 		if(besch == 0) {
 			// Hajo: try some default (might happen with timeline ... )
-			besch = wegbauer_t::weg_search(road_wt,80,get_timeline_year_month(),weg_t::type_flat);
+			besch = wegbauer_t::weg_search(road_wt,80,get_timeline_year_month(),type_flat);
 		}
 
 		wegbauer_t bauigel (players[1] );
@@ -3903,7 +3903,7 @@ void karte_t::recalc_average_speed()
 		}
 		else {
 			DBG_MESSAGE("karte_t::new_month()","Month %d has started", last_month);
-			city_road = wegbauer_t::weg_search(road_wt,50,get_timeline_year_month(),weg_t::type_flat);
+			city_road = wegbauer_t::weg_search(road_wt,50,get_timeline_year_month(),type_flat);
 		}
 
 	}
@@ -3911,7 +3911,7 @@ void karte_t::recalc_average_speed()
 		// defaults
 		city_road = settings.get_city_road_type(0);
 		if(city_road==NULL) {
-			city_road = wegbauer_t::weg_search(road_wt,50,0,weg_t::type_flat);
+			city_road = wegbauer_t::weg_search(road_wt,50,0,type_flat);
 		}
 	}
 }

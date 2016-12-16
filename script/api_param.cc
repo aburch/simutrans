@@ -193,11 +193,11 @@ namespace script_api {
 	}
 
 
-	weg_t::system_type param<weg_t::system_type>::get(HSQUIRRELVM vm, SQInteger index)
+	systemtype_t param<systemtype_t>::get(HSQUIRRELVM vm, SQInteger index)
 	{
-		return (weg_t::system_type)(param<uint8>::get(vm, index));
+		return (systemtype_t)(param<uint8>::get(vm, index));
 	}
-	SQInteger param<weg_t::system_type>::push(HSQUIRRELVM vm, weg_t::system_type const& v)
+	SQInteger param<systemtype_t>::push(HSQUIRRELVM vm, systemtype_t const& v)
 	{
 		return param<uint8>::push(vm, v);
 	}

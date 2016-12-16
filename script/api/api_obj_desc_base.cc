@@ -10,6 +10,7 @@
 #include "../../besch/tunnel_besch.h"
 #include "../../besch/vehikel_besch.h"
 #include "../../besch/ware_besch.h"
+#include "../../besch/weg_besch.h"
 #include "../../obj/baum.h"
 #include "../../squirrel/sq_extensions.h"
 
