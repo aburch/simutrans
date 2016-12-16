@@ -1,7 +1,6 @@
 #include "../../simdebug.h"
 #include "../../utils/simstring.h"	// for STRICMP
 #include "../../dataobj/tabfile.h"
-#include "../../boden/wege/weg.h"
 
 /**
  * Convert waytype string to enum wegtyp

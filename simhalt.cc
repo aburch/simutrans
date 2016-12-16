@@ -40,7 +40,6 @@
 #include "boden/grund.h"
 #include "boden/wasser.h"
 #include "boden/wege/strasse.h"
-#include "boden/wege/weg.h"
 
 #include "dataobj/settings.h"
 #include "dataobj/schedule.h"

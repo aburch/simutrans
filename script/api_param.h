@@ -8,7 +8,6 @@
 #include "../simtypes.h"
 #include "../tpl/quickstone_tpl.h"
 #include "../utils/cbuffer_t.h"
-#include "../boden/wege/weg.h" // weg_t::system_type
 
 class baum_t;
 class convoi_t;

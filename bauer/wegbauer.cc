@@ -29,7 +29,6 @@
 #include "../besch/haus_besch.h"
 #include "../besch/kreuzung_besch.h"
 
-#include "../boden/wege/weg.h"
 #include "../boden/wege/strasse.h"
 #include "../boden/wege/schiene.h"
 #include "../boden/wege/monorail.h"

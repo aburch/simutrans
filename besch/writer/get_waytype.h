@@ -1,7 +1,6 @@
 #ifndef GET_WAYTYPE_H
 #define GET_WAYTYPE_H
 
-#include "../../boden/wege/weg.h"
 #include "../../simtypes.h"
 
 
