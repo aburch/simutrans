@@ -800,7 +800,7 @@ void brueckenbauer_t::baue_bruecke(player_t *player, const koord3d start, const 
 	bool need_auffahrt = pos.z != end_slope_height;
 	if(  need_auffahrt  ) {
 		if(  weg_t const* const w = welt->lookup(end)->get_weg( weg_besch->get_wtyp() )  ) {
-			need_auffahrt &= w->get_besch()->get_styp() != weg_besch_t::elevated;
+			need_auffahrt &= w->get_besch()->get_styp() != type_elevated;
 		}
 	}
 

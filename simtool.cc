@@ -4597,7 +4597,7 @@ const char* tool_build_roadsign_t::check_pos_intern(player_t *player, koord3d po
 		ribi_t::ribi dir = weg->get_ribi_unmasked();
 
 		// no signs on runways
-		if(  weg->get_waytype() == air_wt  &&  weg->get_besch()->get_styp() == weg_besch_t::runway  ) {
+		if(  weg->get_waytype() == air_wt  &&  weg->get_besch()->get_styp() == type_runway  ) {
 			return error;
 		}
 
