@@ -402,8 +402,7 @@ koord3d brueckenbauer_t::finde_ende(player_t *player, koord3d pos, const koord z
 			return koord3d::invalid;
 		}
 
-		if(  gr->hat_weg(air_wt)  &&  gr->get_styp(air_wt)==1  ) {
-			// sytem_type==1 is runway
+		if(  gr->hat_weg(air_wt)  &&  gr->get_styp(air_wt)==type_runway  ) {
 			error_msg = "No bridges over runways!";
 			return koord3d::invalid;
 		}

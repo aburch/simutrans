@@ -279,7 +279,7 @@ public:
 	bool is_init_network_save() const OVERRIDE { return true; }
 	waytype_t get_waytype() const OVERRIDE;
 	// remove preview necessary while building elevated ways
-	bool remove_preview_necessary() const OVERRIDE { return !is_first_click()  &&  (besch  &&  (besch->get_styp() == 1  &&  besch->get_wtyp() != air_wt)); }
+	bool remove_preview_necessary() const OVERRIDE { return !is_first_click()  &&  (besch  &&  (besch->get_styp() == type_elevated  &&  besch->get_wtyp() != air_wt)); }
 };
 
 class tool_build_cityroad : public tool_build_way_t {

@@ -3151,7 +3151,7 @@ bool stadt_t::baue_strasse(const koord k, player_t* player_, bool forced)
 	// only crossing or tramways allowed
 	if(  bd->hat_weg(track_wt)  ) {
 		weg_t* sch = bd->get_weg(track_wt);
-		if (sch->get_besch()->get_styp() != 7) {
+		if (sch->get_besch()->get_styp() != type_tram) {
 			// not a tramway
 			ribi_t::ribi r = sch->get_ribi_unmasked();
 			if (!ribi_t::is_straight(r)) {
@@ -3250,7 +3250,7 @@ bool stadt_t::baue_strasse(const koord k, player_t* player_, bool forced)
 		if(ribi_t::is_single(connection_roads)) {
 			koord zv = koord(ribi_t::backward(connection_roads));
 			grund_t *bd_next = welt->lookup_kartenboden( k + zv );
-			if(bd_next  &&  (bd_next->ist_wasser()  ||  (bd_next->hat_weg(water_wt)  &&  bd_next->get_weg(water_wt)->get_besch()->get_styp()==255))) {
+			if(bd_next  &&  (bd_next->ist_wasser()  ||  (bd_next->hat_weg(water_wt)  &&  bd_next->get_weg(water_wt)->get_besch()->get_styp()== type_river))) {
 				// ok there is a river
 				const bruecke_besch_t *bridge = brueckenbauer_t::find_bridge(road_wt, welt->get_city_road()->get_topspeed(), welt->get_timeline_year_month() );
 				if(  bridge==NULL  ) {

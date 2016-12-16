@@ -3316,7 +3316,7 @@ int air_vehicle_t::get_cost(const grund_t *gr, const sint32, koord) const
 			costs += 1;
 		}
 		else {
-			if(w->get_besch()->get_styp()==0) {
+			if(w->get_besch()->get_styp()==type_flat) {
 				costs += 25;
 			}
 		}
@@ -3325,7 +3325,7 @@ int air_vehicle_t::get_cost(const grund_t *gr, const sint32, koord) const
 		// only, if not flying ...
 		assert(w);
 
-		if(w->get_besch()->get_styp()==0) {
+		if(w->get_besch()->get_styp()==type_flat) {
 			costs += 3;
 		}
 		else {
@@ -3367,7 +3367,7 @@ bool air_vehicle_t::is_target(const grund_t *gr,const grund_t *) const
 	if(state!=looking_for_parking  ||  !target_halt.is_bound()) {
 		// search for the end of the runway
 		const weg_t *w=gr->get_weg(air_wt);
-		if(w  &&  w->get_besch()->get_styp()==1) {
+		if(w  &&  w->get_besch()->get_styp()==type_runway) {
 			// ok here is a runway
 			ribi_t::ribi ribi= w->get_ribi_unmasked();
 			if(ribi_t::is_single(ribi)  &&  (ribi&approach_dir)!=0) {
@@ -3495,7 +3495,7 @@ bool air_vehicle_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, ro
 		}
 	}
 
-	if(start_in_the_air  ||  (w->get_besch()->get_styp()==1  &&  ribi_t::is_single(w->get_ribi())) ) {
+	if(start_in_the_air  ||  (w->get_besch()->get_styp()==type_runway  &&  ribi_t::is_single(w->get_ribi())) ) {
 		// we start here, if we are in the air or at the end of a runway
 		search_start = start;
 		start_in_the_air = true;
@@ -4005,7 +4005,7 @@ void air_vehicle_t::set_convoi(convoi_t *c)
 			// restore reservation
 			if(  grund_t *gr = welt->lookup(get_pos())  ) {
 				if(  weg_t *weg = gr->get_weg(air_wt)  ) {
-					if(  weg->get_besch()->get_styp()==1  ) {
+					if(  weg->get_besch()->get_styp()==type_runway  ) {
 						// but only if we are on a runway ...
 						if(  route_index>=takeoff  &&  route_index<touchdown-21  &&  state!=flying  ) {
 							block_reserver( takeoff, takeoff+100, true );
@@ -4086,7 +4086,7 @@ void air_vehicle_t::hop(grund_t* gr)
 			// take off, when a) end of runway or b) last tile of runway or c) fast enough
 			weg_t *weg=welt->lookup(get_pos())->get_weg(air_wt);
 			if(  (weg==NULL  ||  // end of runway (broken runway)
-				 weg->get_besch()->get_styp()!=1  ||  // end of runway (grass now ... )
+				 weg->get_besch()->get_styp()!=type_runway  ||  // end of runway (grass now ... )
 				 (route_index>takeoff+1  &&  ribi_t::is_single(weg->get_ribi_unmasked())) )  ||  // single ribi at end of runway
 				 cnv->get_akt_speed()>kmh_to_speed(besch->get_geschw())/3 // fast enough
 			) {

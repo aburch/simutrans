@@ -704,7 +704,7 @@ public:
 	* Strassenbahnschienen duerfen nicht als Kreuzung erkannt werden!
 	* @author V. Meyer, dariok
 	*/
-	inline bool ist_uebergang() const { return (flags&has_way2)!=0  &&  ((weg_t *)objlist.bei(1))->get_besch()->get_styp()!=7; }
+	inline bool ist_uebergang() const { return (flags&has_way2)!=0  &&  ((weg_t *)objlist.bei(1))->get_besch()->get_styp()!=type_tram; }
 
 	/**
 	* returns the vehicle of a convoi (if there)
