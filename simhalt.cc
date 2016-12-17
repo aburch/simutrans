@@ -483,7 +483,7 @@ haltestelle_t::haltestelle_t(loadsave_t* file)
 #ifdef MULTI_THREAD
 	transferring_cargoes = new vector_tpl<transferring_cargo_t>[world()->get_parallel_operations()];
 #else
-	transferring cargoes = new vector_tpl<transferring_cargo_t>[1];
+	transferring_cargoes = new vector_tpl<transferring_cargo_t>[1];
 #endif
 
 	// Knightly : create the actual connexion hash tables
@@ -577,7 +577,7 @@ haltestelle_t::haltestelle_t(koord k, player_t* player)
 #ifdef MULTI_THREAD
 	transferring_cargoes = new vector_tpl<transferring_cargo_t>[world()->get_parallel_operations()];
 #else
-	transferring cargoes = new vector_tpl<transferring_cargo_t>[1];
+	transferring_cargoes = new vector_tpl<transferring_cargo_t>[1];
 #endif
 }
 
@@ -5286,6 +5286,7 @@ sint64 haltestelle_t::calc_earliest_arrival_time_at(halthandle_t halt, convoihan
 	return best_arrival_time;
 }
 
+#ifdef MULTI_THREAD
 uint32 haltestelle_t::get_transferring_cargoes_count()
 {
 	uint32 count = 0;
@@ -5295,3 +5296,4 @@ uint32 haltestelle_t::get_transferring_cargoes_count()
 	}
 	return count;
 }
+#endif

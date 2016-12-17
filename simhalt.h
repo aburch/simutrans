@@ -352,7 +352,7 @@ public:
 #ifdef MULTI_THREAD
 	uint32 get_transferring_cargoes_count();
 #else
-	uint32 get_transferring_cargoes_count() { return transferring_cargoes.get_count(); }
+	uint32 get_transferring_cargoes_count() { return transferring_cargoes->get_count(); }
 #endif
 
 private:

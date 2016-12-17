@@ -1589,7 +1589,7 @@ DBG_DEBUG("karte_t::init()","built timeline");
 	init_threads();
 	first_step = 1;
 #else
-	transferring_cargoes = new vector_tpl<transferring_cargoes_t>[1];
+	transferring_cargoes = new vector_tpl<transferring_cargo_t>[1];
 #endif
 }
 
