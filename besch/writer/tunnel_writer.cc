@@ -189,7 +189,6 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 	static const char* const image_type[] = { "", "front" };
 	for (int backtofront = 0; backtofront<2; backtofront++)
 	{
-		// way images defined without seasons
 		char buf[64];
 		sprintf(buf, "%sundergroundimage[new2][0]", image_type[backtofront]);
 		// test for switch images

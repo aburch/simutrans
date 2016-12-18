@@ -2512,7 +2512,7 @@ void wegbauer_t::baue_strasse()
 			gr->calc_image();	// because it may be a crossing ...
 			
 			reliefkarte_t::get_karte()->calc_map_pixel(k);
-			player_t::book_construction_costs(player, cost, k, road_wt);
+			player_t::book_construction_costs(player, -cost, k, road_wt);
 		} 
 		welt->set_recheck_road_connexions();
 	} // for
