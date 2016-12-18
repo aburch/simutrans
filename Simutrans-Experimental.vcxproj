@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug (command-line server)|Win32">
@@ -593,7 +593,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;WIN32;DEBUG=3;%(PreprocessorDefinitions);COLOUR_DEPTH=16;MULTI_THREAD;DEBUG_FREELIST</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;WIN32;DEBUG=3;%(PreprocessorDefinitions);COLOUR_DEPTH=16;DEBUG_FREELIST;MULTI_THREAD</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
