@@ -50,6 +50,27 @@ private:
 	uint8 broad_portals;
 
 public:
+	
+	uint8 addition_for_underground_images() const
+	{
+		// One of each for each position (back, front)
+		uint8 number = 2;
+
+		if (number_seasons > 1)
+		{
+			// One of each for each season (normal, snow)
+			number *= 2;
+		}
+
+		if (broad_portals)
+		{
+			// One of each for each portal type (single, left, middle, right)
+			number *= 4;
+		}
+
+		return number;
+	}
+
 	const bild_besch_t *get_hintergrund(hang_t::typ hang, uint8 season, uint8 type ) const
 	{
 		int const n = season && number_seasons == 1 ? 5 : 2;
@@ -72,6 +93,19 @@ public:
 	{
 		const bild_besch_t *besch = get_vordergrund(hang, season, type );
 		return besch != NULL ? besch->get_nummer() : IMG_LEER;
+	}
+
+	image_id get_underground_backimage_nr(ribi_t::ribi ribi) const
+	{
+		//int const n = addition_for_underground_images();
+		int n = 8;
+		return get_child<bildliste_besch_t>(n)->get_bild_nr(ribi);
+	}
+
+	image_id get_underground_frontimage_nr(ribi_t::ribi ribi) const
+	{
+		int const n = addition_for_underground_images();
+		return get_child<bildliste_besch_t>(n)->get_bild_nr(ribi);
 	}
 
 	skin_besch_t const* get_cursor() const { return get_child<skin_besch_t>(4); }
