@@ -24,6 +24,7 @@
 	ADD: on multiplayer servers any client capable of using the public service player can bypass password checks for all companies
 	FIX: network core correctly enumerates local bind addresses instead of repeatedly trying to bind to the first local address
 	ADD: support service names for ports in network URNs
+	CHG: cities can now build on tiles with bridge pillars, matching the logic that pillared bridges can be placed over city buildings
 
 Release of 120.1.3: (r7753 on 2-Feb-2016):
 	FIX: road vehicles search for new route when arriving at intersection and old route is invalid

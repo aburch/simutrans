@@ -2790,9 +2790,12 @@ void stadt_t::build_city_building(const koord k)
 	if(  !gr->ist_natur() ) {
 		return;
 	}
-	// again, should not happen ...
-	if( gr->kann_alle_obj_entfernen(NULL) != NULL ) {
-		return;
+	// test ownership of all objects that can block construction
+	for(  uint8 i = 0;  i < gr->obj_count();  i++  ) {
+		obj_t *const obj = gr->obj_bei(i);
+		if(  obj->is_deletable(NULL) != NULL  &&  obj->get_typ() != obj_t::pillar  ) {
+			return;
+		}
 	}
 	// Refuse to build on a slope, when there is a ground right on top of it (=> the house would sit on the bridge then!)
 	if(  gr->get_grund_hang() != slope_t::flat  &&  welt->lookup(koord3d(k, welt->max_hgt(k))) != NULL  ) {

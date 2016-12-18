@@ -32,6 +32,7 @@
 #include "../simworld.h"
 #include "../tpl/stringhashtable_tpl.h"
 #include "../tpl/weighted_vector_tpl.h"
+#include "../tpl/vector_tpl.h"
 #include "hausbauer.h"
 
 karte_ptr_t hausbauer_t::welt;
@@ -502,14 +503,23 @@ gebaeude_t* hausbauer_t::baue(player_t* player_, koord3d pos, int org_layout, co
 				gr->obj_add(gb);
 			}
 			else {
-				// very likely remove all
-				leitung_t *lt = NULL;
+				// mostly remove everything
+				vector_tpl<obj_t *> keptobjs;
 				if(!gr->hat_wege()) {
-					lt = gr->find<leitung_t>();
-					if(lt) {
-						gr->obj_remove(lt);
+					// save certain object types
+					for(  uint8 i = 0;  i < gr->obj_count();  i++  ) {
+						obj_t *const obj = gr->obj_bei(i);
+						obj_t::typ const objtype = obj->get_typ();
+						if(  objtype == obj_t::leitung  ||  objtype == obj_t::pillar  ) {
+							keptobjs.append(obj);
+						}
 					}
-					gr->obj_loesche_alle(player_);	// delete everything except vehicles
+					for(  size_t i = 0;  i < keptobjs.get_count();  i++  ) {
+						gr->obj_remove(keptobjs[i]);
+					}
+
+					// delete everything except vehicles
+					gr->obj_loesche_alle(player_);
 				}
 
 				// build new foundation
@@ -519,9 +529,12 @@ gebaeude_t* hausbauer_t::baue(player_t* player_, koord3d pos, int org_layout, co
 				gr = gr2;
 //DBG_DEBUG("hausbauer_t::baue()","ground count now %i",gr->obj_count());
 				gr->obj_add( gb );
-				if(lt) {
-					gr->obj_add( lt );
+
+				// restore saved objects
+				for(  size_t i = 0;  i < keptobjs.get_count();  i++  ) {
+					gr->obj_add(keptobjs[i]);
 				}
+
 				if(needs_ground_recalc  &&  welt->is_within_limits(pos.get_2d()+k+koord(1,1))  &&  (k.y+1==dim.y  ||  k.x+1==dim.x)) {
 					welt->lookup_kartenboden(pos.get_2d()+k+koord(1,0))->calc_image();
 					welt->lookup_kartenboden(pos.get_2d()+k+koord(0,1))->calc_image();
