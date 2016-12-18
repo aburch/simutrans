@@ -118,6 +118,7 @@ ifneq ($(MULTI_THREAD),)
     CFLAGS += -DMULTI_THREAD
     ifeq ($(OSTYPE),mingw)
 #use lpthreadGC2d for debug alternatively
+#		Disabled, as this does not work for cross-compiling
 #      LDFLAGS += -lpthreadGC2
 	   LDFLAGS += -lpthread
     else

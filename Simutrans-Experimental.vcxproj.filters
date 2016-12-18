@@ -2362,6 +2362,9 @@
     <None Include="nettools\Makefile">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="common.mk">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="simres.rc">

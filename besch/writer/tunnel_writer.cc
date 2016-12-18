@@ -190,13 +190,13 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 	for (int backtofront = 0; backtofront<2; backtofront++)
 	{
 		// way images defined without seasons
-		char buf[40];
+		char buf[64];
 		sprintf(buf, "%sundergroundimage[new2][0]", image_type[backtofront]);
 		// test for switch images
 		const uint8 ribinr = *(obj.get(buf)) == 0 ? 16 : 26;
 		for (ribi = 0; ribi < ribinr; ribi++)
 		{
-			char buf[40];
+			char buf[64];
 
 			sprintf(buf, "%sundergroundimage[%s]", image_type[backtofront], ribi_codes[ribi]);
 			string str = obj.get(buf);
@@ -207,17 +207,17 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 		keys.clear();
 		for (hang = 3; hang <= 12; hang += 3) 
 		{
-			char buf[40];
+			char buf[64];
 
-			sprintf(buf, "%ssundergroundimageup[%d]", image_type[backtofront], hang);
+			sprintf(buf, "%sundergroundimageup[%d]", image_type[backtofront], hang);
 			string str = obj.get(buf);
 			keys.append(str);
 		}
 		for (hang = 3; hang <= 12; hang += 3) 
 		{
-			char buf[40];
+			char buf[64];
 
-			sprintf(buf, "%ssundergroundimageup2[%d]", image_type[backtofront], hang);
+			sprintf(buf, "%sundergroundimageup2[%d]", image_type[backtofront], hang);
 			string str = obj.get(buf);
 			if (!str.empty())
 			{
@@ -229,7 +229,7 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 		keys.clear();
 		for (ribi = 3; ribi <= 12; ribi += 3)
 		{
-			char buf[40];
+			char buf[64];
 
 			sprintf(buf, "%sundergrounddiagonal[%s]", image_type[backtofront], ribi_codes[ribi]);
 			string str = obj.get(buf);
