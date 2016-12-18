@@ -593,7 +593,7 @@ CFLAGS += -DCOLOUR_DEPTH=$(COLOUR_DEPTH)
 
 ifneq ($(findstring $(OSTYPE), cygwin mingw),)
   SOURCES += simres.rc
-  WINDRES ?= windres
+  WINDRES ?= windres -F pe-i386
 endif
 
 CCFLAGS  += $(CFLAGS)

@@ -52,7 +52,5 @@ $(BUILDDIR)/%.o: %.cc
 
 $(BUILDDIR)/%.o: %.rc
 	@echo "===> RES $<"
-	# The -F pe-i38 is necessary for cross-compiling as Windres defaults to 64-bit by default: see https://sourceforge.net/p/tdm-gcc/bugs/193/
-	$(Q)$(WINDRES) --preprocessor="$(CXX) -F pe-i38 -E -xc -DRC_INVOKED -MMD -MT $@" -O COFF $< $@
-#	$(Q)$(WINDRES) --preprocessor="$(CXX) -E -xc -DRC_INVOKED -MMD -MT $@" -O COFF $< $@
+	$(Q)$(WINDRES) --preprocessor="$(CXX) -E -xc -DRC_INVOKED -MMD -MT $@" -O COFF $< $@
 #	$(Q)$(WINDRES) --preprocessor "$(CXX) -E -xc -DRC_INVOKED -MMD -MF $(@:%.o=%.d) -MT $@" -O COFF $< $@
