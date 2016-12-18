@@ -118,7 +118,8 @@ ifneq ($(MULTI_THREAD),)
     CFLAGS += -DMULTI_THREAD
     ifeq ($(OSTYPE),mingw)
 #use lpthreadGC2d for debug alternatively
-      LDFLAGS += -lpthreadGC2
+#      LDFLAGS += -lpthreadGC2
+	   LDFLAGS += -lpthread
     else
       ifneq ($(OSTYPE),haiku)
         LDFLAGS += -lpthread
@@ -593,6 +594,7 @@ CFLAGS += -DCOLOUR_DEPTH=$(COLOUR_DEPTH)
 
 ifneq ($(findstring $(OSTYPE), cygwin mingw),)
   SOURCES += simres.rc
+  # See https://sourceforge.net/p/mingw-w64/discussion/723798/thread/bf2a464d/
   WINDRES ?= windres -F pe-i386
 endif
 
