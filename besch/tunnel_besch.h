@@ -50,27 +50,24 @@ private:
 	uint8 broad_portals;
 
 public:
+
+	/* 
+	* Nodes:
+	* Data (0), 
+	* way (1), 
+	* back portal images (normal) (2),
+	* front portal images (normal) (3), 
+	* cursor images (4), 
+	* back portal images (snow) (5),
+	* front portal images (snow) (6), 
+	* back underground flat (7), 
+	* back underground slope (8),
+	* back underground diagonal (9), 
+	* front underground flat (10), 
+	* front underground slope (11), 
+	* front underground diagonal (12). 
+	*/
 	
-	uint8 addition_for_underground_images() const
-	{
-		// One of each for each position (back, front)
-		uint8 number = 2;
-
-		if (number_seasons > 1)
-		{
-			// One of each for each season (normal, snow)
-			number *= 2;
-		}
-
-		if (broad_portals)
-		{
-			// One of each for each portal type (single, left, middle, right)
-			number *= 4;
-		}
-
-		return number;
-	}
-
 	const bild_besch_t *get_hintergrund(hang_t::typ hang, uint8 season, uint8 type ) const
 	{
 		int const n = season && number_seasons == 1 ? 5 : 2;
@@ -95,18 +92,70 @@ public:
 		return besch != NULL ? besch->get_nummer() : IMG_LEER;
 	}
 
-	image_id get_underground_backimage_nr(ribi_t::ribi ribi) const
+	image_id get_underground_backimage_nr(ribi_t::ribi ribi, hang_t::typ hang) const
 	{
-		//int const n = addition_for_underground_images();
-		int n = 8;
-		return get_child<bildliste_besch_t>(n)->get_bild_nr(ribi);
+		return hang == hang_t::flach ? get_child<bildliste_besch_t>(7)->get_bild_nr(ribi) : get_hang_bild_nr(hang, false);
 	}
 
-	image_id get_underground_frontimage_nr(ribi_t::ribi ribi) const
+	image_id get_underground_frontimage_nr(ribi_t::ribi ribi, hang_t::typ hang) const
 	{
-		int const n = addition_for_underground_images();
-		return get_child<bildliste_besch_t>(n)->get_bild_nr(ribi);
+		return hang == hang_t::flach ? get_child<bildliste_besch_t>(10)->get_bild_nr(ribi) : get_hang_bild_nr(hang, true);
 	}
+
+	image_id get_diagonal_bild_nr(ribi_t::ribi ribi, bool front) const
+	{
+		const uint16 n = front ? 12 : 9;
+		return get_child<bildliste_besch_t>(n)->get_bild_nr(ribi / 3 - 1);
+	}
+
+private:
+
+	image_id get_hang_bild_nr(hang_t::typ hang,  bool front) const
+	{
+		int const n = front ? 11 : 8;
+		int nr;
+		switch (hang)
+		{
+		case 4:
+			nr = 0;
+			break;
+		case 12:
+			nr = 1;
+			break;
+		case 28:
+			nr = 2;
+			break;
+		case 36:
+			nr = 3;
+			break;
+		case 8:
+			nr = 4;
+			break;
+		case 24:
+			nr = 5;
+			break;
+		case 56:
+			nr = 6;
+			break;
+		case 72:
+			nr = 7;
+			break;
+		default:
+			return IMG_LEER;
+		}
+
+		image_id hang_img = get_child<bildliste_besch_t>(n)->get_bild_nr(nr);
+
+		if (nr > 3 && hang_img == IMG_LEER  &&  get_child<bildliste_besch_t>(n)->get_anzahl() <= 4) 
+		{
+			// hack for old ways without double height images to use single slope images for both
+			nr -= 4;
+			hang_img = get_child<bildliste_besch_t>(n)->get_bild_nr(nr);
+		}
+		return hang_img;
+	}
+	
+public:
 
 	skin_besch_t const* get_cursor() const { return get_child<skin_besch_t>(4); }
 

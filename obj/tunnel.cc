@@ -120,16 +120,8 @@ void tunnel_t::calc_image()
 			}
 			else
 			{
-#if TUNNEL_INTERNAL_GRAPHICS
-				// TODO:  these need to show a tunnel interior. Currently, there is no code for doing that. This is code for portals, from above.
-				// Further, because these portals only have slope graphics, this will only display on a slope. Thus, this code is disabled until
-				// a way of reading/writing tunnel internal graphics is properly devised.
-				set_bild(besch->get_underground_backimage_nr(ribi));
-				set_after_bild(besch->get_underground_frontimage_nr(ribi));
-#else
-				set_bild( IMG_LEER );
-				set_after_bild( IMG_LEER );
-#endif
+				set_bild(besch->get_underground_backimage_nr(ribi, hang));
+				set_after_bild(besch->get_underground_frontimage_nr(ribi, hang));
 			}
 		}
 	}
