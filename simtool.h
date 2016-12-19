@@ -315,6 +315,8 @@ public:
 
 class tool_build_tunnel_t : public two_click_tool_t {
 private:
+	const weg_besch_t* weg_besch;
+
 	void calc_route( wegbauer_t &bauigel, const koord3d &, const koord3d &);
 	char const* do_work(player_t*, koord3d const&, koord3d const&) OVERRIDE;
 	void mark_tiles(player_t*, koord3d const&, koord3d const&) OVERRIDE;
@@ -326,6 +328,7 @@ public:
 	bool is_init_network_save() const OVERRIDE { return true; }
 	waytype_t get_waytype() const OVERRIDE;
 	bool remove_preview_necessary() const OVERRIDE { return !is_first_click(); }
+	void rdwr_custom_data(memory_rw_t*) OVERRIDE;
 	bool init(player_t*) OVERRIDE;
 };
 

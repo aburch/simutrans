@@ -3060,6 +3060,26 @@ bool tool_build_tunnel_t::init( player_t *player )
 	return besch!=NULL;
 }
 
+void tool_build_tunnel_t::rdwr_custom_data(memory_rw_t *packet)
+{
+	two_click_tool_t::rdwr_custom_data(packet);
+	if (packet->is_loading())
+	{
+		plainstring weg_besch_string;
+		packet->rdwr_str(weg_besch_string);
+		weg_besch = wegbauer_t::get_besch(weg_besch_string);
+	}
+	else
+	{
+		const tunnel_besch_t* tb = tunnelbauer_t::get_besch(default_param);
+		const waytype_t wt = tb ? tb->get_waytype() : invalid_wt;
+		weg_besch = tool_build_way_t::defaults[wt & 63];
+
+		plainstring weg_besch_string = weg_besch ? weg_besch->get_name() : "none";
+		packet->rdwr_str(weg_besch_string);
+	}
+}
+
 const char *tool_build_tunnel_t::check_pos( player_t *player, koord3d pos)
 {
 	if (grund_t::underground_mode == grund_t::ugm_all) {
@@ -3093,7 +3113,7 @@ const char *tool_build_tunnel_t::do_work( player_t *player, const koord3d &start
 		// Build tunnel mouths
 		if (welt->lookup_kartenboden(start.get_2d())->get_hoehe() == start.z) {
 			const tunnel_besch_t *besch = tunnelbauer_t::get_besch(default_param);
-			return tunnelbauer_t::baue( player, start.get_2d(), besch, !is_ctrl_pressed() );
+			return tunnelbauer_t::baue( player, start.get_2d(), besch, !is_ctrl_pressed(), weg_besch );
 		}
 		else {
 			return "";
@@ -3104,6 +3124,7 @@ const char *tool_build_tunnel_t::do_work( player_t *player, const koord3d &start
 		wegbauer_t bauigel(player);
 		calc_route( bauigel, start, end );
 		welt->mute_sound(true);
+		bauigel.set_besch(weg_besch);
 		bauigel.baue();
 		welt->mute_sound(false);
 		welt->lookup_kartenboden(end.get_2d())->clear_flag(grund_t::marked);

@@ -232,6 +232,8 @@ public:
 
 	void set_maximum(uint32 n) { maximum = n; }
 
+	void set_besch(const weg_besch_t* weg_besch) { besch = weg_besch; }
+
 	wegbauer_t(player_t *player_);
 
 	void calc_straight_route(const koord3d start, const koord3d ziel);
