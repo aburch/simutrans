@@ -70,6 +70,8 @@ void tunnelboden_t::calc_bild_internal(const bool calc_only_snowline_change)
 		}
 	}
 	// inside tunnel
+	// This should no longer be necessary now that we have proper tunnel internal graphics for ways.
+#ifdef TUNNEL_GROUND_IMAGES
 	else if(  !calc_only_snowline_change  ) {
 		clear_back_bild();
 		// default tunnel ground images
@@ -78,6 +80,7 @@ void tunnelboden_t::calc_bild_internal(const bool calc_only_snowline_change)
 		const uint8 bild_nr = (!slope_this  ||  (slope_this & 7)) ? grund_besch_t::slopetable[slope_this] : grund_besch_t::slopetable[slope_this >> 1] + 12;
 		set_bild( skinverwaltung_t::tunnel_texture->get_bild_nr( bild_nr ) );
 	}
+#endif 
 }
 
 
