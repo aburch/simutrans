@@ -189,11 +189,7 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 	static const char* const image_type[] = { "", "front" };
 	for (int backtofront = 0; backtofront<2; backtofront++)
 	{
-		char buf[64];
-		sprintf(buf, "%sundergroundimage[new2][0]", image_type[backtofront]);
-		// test for switch images
-		const uint8 ribinr = *(obj.get(buf)) == 0 ? 16 : 26;
-		for (ribi = 0; ribi < ribinr; ribi++)
+		for (ribi = 0; ribi < 16; ribi++) 
 		{
 			char buf[64];
 
