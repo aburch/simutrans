@@ -118,7 +118,7 @@ void tunnel_t::calc_image()
 				set_bild( IMG_LEER );
 				set_after_bild( IMG_LEER );
 			}
-			else
+			else if(besch->get_waytype() != powerline_wt)
 			{
 				set_bild(besch->get_underground_backimage_nr(ribi, hang));
 				set_after_bild(besch->get_underground_frontimage_nr(ribi, hang));
