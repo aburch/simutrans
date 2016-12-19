@@ -4939,7 +4939,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 									{
 										stop_at_station_signal = check_halt;
 									}
-									else
+									else if((!directional_only || signal->get_besch()->get_working_method() != time_interval) && !signal->get_no_junctions_to_next_signal())
 									{
 										next_signal_index = i;
 										count --;
