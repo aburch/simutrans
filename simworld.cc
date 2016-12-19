@@ -1535,7 +1535,7 @@ void karte_t::create_beaches(  int xoff, int yoff  )
 	for(  uint16 iy = 0;  iy < size_y;  iy++  ) {
 		for(  uint16 ix = (iy >= yoff - 19) ? 0 : max( xoff - 19, 0 );  ix < size_x;  ix++  ) {
 			grund_t *gr = lookup_kartenboden_nocheck(ix,iy);
-			if(  gr->ist_wasser()  && gr->get_hoehe()==grundwasser  ) {
+			if(  gr->ist_wasser()  &&  gr->get_hoehe()==grundwasser  &&  gr->kann_alle_obj_entfernen(NULL)==NULL) {
 				koord k( ix, iy );
 				uint8 neighbour_water = 0;
 				bool water[8];
