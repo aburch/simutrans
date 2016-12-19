@@ -256,9 +256,9 @@ public:
 };
 
 class tool_build_way_t : public two_click_tool_t {
-private:
+public: 
 	static const weg_besch_t *defaults[18];	// default ways for all types
-
+private:
 	char const* do_work(player_t*, koord3d const&, koord3d const&) OVERRIDE;
 	void mark_tiles(player_t*, koord3d const&, koord3d const&) OVERRIDE;
 	uint8 is_valid_pos(player_t*, koord3d const&, char const*&, koord3d const&) OVERRIDE;
@@ -297,12 +297,13 @@ public:
 class tool_build_bridge_t : public two_click_tool_t {
 private:
 	ribi_t::ribi ribi;
+	const weg_besch_t* weg_besch;
 
 	char const* do_work(player_t*, koord3d const&, koord3d const&) OVERRIDE;
 	void mark_tiles(player_t*, koord3d const&, koord3d const&) OVERRIDE;
 	uint8 is_valid_pos(player_t*, koord3d const&, char const*&, koord3d const&) OVERRIDE;
 public:
-	tool_build_bridge_t() : two_click_tool_t(TOOL_BUILD_BRIDGE | GENERAL_TOOL) {}
+	tool_build_bridge_t() : two_click_tool_t(TOOL_BUILD_BRIDGE | GENERAL_TOOL) { weg_besch = NULL; }
 	image_id get_icon(player_t*) const OVERRIDE { return grund_t::underground_mode==grund_t::ugm_all ? IMG_LEER : icon; }
 	char const* get_tooltip(player_t const*) const OVERRIDE;
 	bool is_init_network_save() const OVERRIDE { return true; }

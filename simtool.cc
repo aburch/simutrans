@@ -2368,10 +2368,10 @@ const weg_besch_t *tool_build_way_t::defaults[18] = { 0, 0, 0, 0, 0, 0, 0, 0, 0,
 
 const weg_besch_t *tool_build_way_t::get_besch( uint16 timeline_year_month, bool remember ) const
 {
-	const weg_besch_t *besch = default_param ? wegbauer_t::get_besch(default_param,0) :NULL;
+	const weg_besch_t *besch = default_param ? wegbauer_t::get_besch(default_param,0) : NULL;
 	if(  besch==NULL  &&  default_param  ) {
 		waytype_t wt = (waytype_t)atoi(default_param);
-		besch = defaults[wt&63];
+		besch = defaults[wt & 63];
 		if(besch == NULL || !besch->is_available(timeline_year_month)) {
 			// Search for default way
 			besch = wegbauer_t::weg_search(wt, 0xffffffff, timeline_year_month, weg_t::type_flat);
@@ -2479,7 +2479,7 @@ bool tool_build_way_t::init( player_t *player )
 	}
 
 	// now get current besch
-	besch = get_besch( welt->get_timeline_year_month(), is_local_execution() );
+	besch = get_besch( welt->get_timeline_year_month(), /*is_local_execution()*/ true );
 	if(  besch  &&  besch->get_cursor()->get_bild_nr(0) != IMG_LEER  ) {
 		cursor = besch->get_cursor()->get_bild_nr(0);
 	}
@@ -2500,7 +2500,7 @@ waytype_t tool_build_way_t::get_waytype() const
 	return wt;
 }
 
-uint8 tool_build_way_t::is_valid_pos(  player_t *player, const koord3d &pos, const char *&error, const koord3d & )
+uint8 tool_build_way_t::is_valid_pos( player_t *player, const koord3d &pos, const char *&error, const koord3d & )
 {
 	error = NULL;
 	grund_t *gr=welt->lookup(pos);
@@ -2761,7 +2761,11 @@ const char *tool_build_bridge_t::do_work( player_t *player, const koord3d &start
 		const char *error;
 		koord3d end2 = brueckenbauer_t::finde_ende(player, start, zv, besch, error, bridge_height, false, koord_distance(start, end), is_ctrl_pressed());
 		assert(end2 == end); (void)end2;
-		const weg_besch_t* weg_besch = besch->get_weg_besch();
+		waytype_t wt = besch->get_waytype();
+		if (weg_besch == NULL)
+		{
+			weg_besch = besch->get_weg_besch();
+		}
 		brueckenbauer_t::baue_bruecke( player, start, end, zv, bridge_height, besch, weg_besch ? weg_besch : wegbauer_t::weg_search(besch->get_waytype(), besch->get_topspeed(), welt->get_timeline_year_month(), weg_t::type_flat));
 		return NULL; // all checks are performed before building.
 	}
@@ -2773,6 +2777,21 @@ void tool_build_bridge_t::rdwr_custom_data(memory_rw_t *packet)
 	uint8 i = ribi;
 	packet->rdwr_byte(i);
 	ribi = (ribi_t::ribi)i;
+	if (packet->is_loading())
+	{
+		plainstring weg_besch_string;
+		packet->rdwr_str(weg_besch_string);
+		weg_besch = wegbauer_t::get_besch(weg_besch_string);
+	}
+	else
+	{
+		const bruecke_besch_t* bb = brueckenbauer_t::get_besch(default_param);
+		const waytype_t wt = bb ? bb->get_waytype() : invalid_wt;
+		weg_besch = tool_build_way_t::defaults[wt & 63];
+
+		plainstring weg_besch_string = weg_besch ? weg_besch->get_name() : "none";
+		packet->rdwr_str(weg_besch_string);
+	}
 }
 
 void tool_build_bridge_t::mark_tiles(  player_t *player, const koord3d &start, const koord3d &end )

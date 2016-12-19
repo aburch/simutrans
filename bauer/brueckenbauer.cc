@@ -991,7 +991,7 @@ void brueckenbauer_t::baue_bruecke(player_t *player, const koord3d start, const 
 				bauigel.set_keep_existing_ways(true);
 				bauigel.set_keep_city_roads(true);
 				bauigel.set_maximum(20);
-				bauigel.route_fuer( (wegbauer_t::bautyp_t)besch->get_waytype(), wegbauer_t::weg_search( besch->get_waytype(), besch->get_topspeed(), welt->get_timeline_year_month(), weg_t::type_flat ), NULL, NULL );
+				bauigel.route_fuer( (wegbauer_t::bautyp_t)besch->get_waytype(), weg_besch ? weg_besch : wegbauer_t::weg_search( besch->get_waytype(), besch->get_topspeed(), welt->get_timeline_year_month(), weg_t::type_flat ), NULL, NULL );
 				bauigel.calc_route( start, next_to_start );
 				if(  bauigel.get_count() == 2  ) {
 					bauigel.baue();
@@ -1007,7 +1007,7 @@ void brueckenbauer_t::baue_bruecke(player_t *player, const koord3d start, const 
 				bauigel.set_keep_existing_ways(true);
 				bauigel.set_keep_city_roads(true);
 				bauigel.set_maximum(20);
-				bauigel.route_fuer( (wegbauer_t::bautyp_t)besch->get_waytype(), wegbauer_t::weg_search( besch->get_waytype(), besch->get_topspeed(), welt->get_timeline_year_month(), weg_t::type_flat ), NULL, NULL );
+				bauigel.route_fuer( (wegbauer_t::bautyp_t)besch->get_waytype(), weg_besch ? weg_besch : wegbauer_t::weg_search( besch->get_waytype(), besch->get_topspeed(), welt->get_timeline_year_month(), weg_t::type_flat ), NULL, NULL );
 				bauigel.calc_route( end, next_to_end );
 				if(  bauigel.get_count() == 2  ) {
 					bauigel.baue();
