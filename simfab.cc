@@ -1021,6 +1021,9 @@ void fabrik_t::baue(sint32 rotate, bool build_fields, bool force_initial_prodbas
 			}
 		}
 	}
+	else {
+		fields.clear();
+	}
 }
 
 
@@ -1232,6 +1235,14 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 		}
 	}
 
+	if (besch) {
+		// in case of missing producer, we have to remove the superflous entires
+		while (eingang_count > 0 && besch->get_lieferant(eingang_count - 1) == NULL) {
+			eingang_count--;
+		}
+		eingang.resize(eingang_count);
+	}
+
 	// now rebuilt information for produced goods
 	file->rdwr_long(ausgang_count);
 	if(  file->is_loading()  ) {
@@ -1354,18 +1365,20 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 					k.rdwr(file);
 					uint16 idx;
 					file->rdwr_short(idx);
-					if(  besch==NULL  ||  idx>=besch->get_field_group()->get_field_class_count()  ) {
-						// set class index to 0 if it is out of range
-						idx = 0;
+					if (besch  &&  besch->get_field_group()) {
+						// set class index to 0 if it is out of range, if there fields at all
+						fields.append(field_data_t(k, idx >= besch->get_field_group()->get_field_class_count() ? 0 : idx));
 					}
-					fields.append( field_data_t(k, idx) );
 				}
 			}
 			else {
 				// each field only stores location
-				for(  uint16 i=0  ;  i<nr  ;  ++i  ) {
+				for (uint16 i = 0; i<nr; ++i) {
 					k.rdwr(file);
-					fields.append( field_data_t(k, 0) );
+					if (besch  &&  besch->get_field_group()) {
+						// oald add fields if there are any defined
+						fields.append(field_data_t(k, 0));
+					}
 				}
 			}
 		}
