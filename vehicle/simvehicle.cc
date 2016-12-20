@@ -5506,7 +5506,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 						signal->set_state(use_no_choose_aspect && signal->get_state() != roadsign_t::clear ? roadsign_t::clear_no_choose : signal->get_besch()->is_combined_signal() ? roadsign_t::caution : roadsign_t::clear);
 					}
 
-					if((signal->get_besch()->get_working_method() == time_interval || signal->get_besch()->get_working_method() == time_interval_with_telegraph) && (end_of_block || i > last_stop_signal_index + 1 || time_interval_junction_signal))
+					if((signal->get_besch()->get_working_method() == time_interval || signal->get_besch()->get_working_method() == time_interval_with_telegraph) && (end_of_block || i >= last_stop_signal_index + 1 || time_interval_junction_signal))
 					{
 						if((signal->get_besch()->get_working_method() == time_interval_with_telegraph || signal->get_besch()->get_working_method() == time_interval) && signal->get_besch()->is_longblock_signal())
 						{
