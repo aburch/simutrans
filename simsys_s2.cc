@@ -104,10 +104,29 @@ static SDL_Cursor *arrow;
 static SDL_Cursor *hourglass;
 static SDL_Cursor *blank;
 
+
+int x_scale = 36;
+int y_scale = 36;
+
+
 // no autoscaling yet
-bool dr_auto_scale(bool)
+bool dr_auto_scale(bool on_off)
 {
-	return false;
+	if (on_off) {
+		float hdpi, vdpi;
+		SDL_Init(SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE);
+		if (SDL_GetDisplayDPI(0, NULL, &hdpi, &vdpi) == 0) {
+			x_scale = ((long)hdpi * 32 + 1) / 96;
+			y_scale = ((long)vdpi * 32 + 1) / 96;
+			return true;
+		}
+		return false;
+	}
+	else {
+		x_scale = 32;
+		y_scale = 32;
+		return false;
+	}
 }
 
 /*
@@ -156,13 +175,13 @@ resolution dr_query_screen_resolution()
 	SDL_DisplayMode mode;
 	SDL_GetCurrentDisplayMode(0, &mode);
 	DBG_MESSAGE("dr_query_screen_resolution(SDL)", "screen resolution width=%d, height=%d", mode.w, mode.h);
-	res.w = mode.w;
-	res.h = mode.h;
+	res.w = (mode.w * 32) / x_scale;
+	res.h = (mode.h * 32) / y_scale;
 	return res;
 }
 
 
-bool internal_create_surfaces(const bool print_info)
+bool internal_create_surfaces(const bool print_info, int w, int h)
 {
 	// The pixel format needs to match the graphics code within simgraph16.cc.
 	// Note that alpha is handled by simgraph16, not by SDL.
@@ -247,8 +266,12 @@ bool internal_create_surfaces(const bool print_info)
 
 
 // open the window
-int dr_os_open(int w, int const h, int const fullscreen)
+int dr_os_open(int w, int h, int const fullscreen)
 {
+	// scale up
+	w = (w*x_scale) / 32;
+	h = (h*y_scale) / 32;
+
 	// some cards need those alignments
 	// especially 64bit want a border of 8bytes
 	w = (w + 15) & 0x7FF0;
@@ -256,8 +279,8 @@ int dr_os_open(int w, int const h, int const fullscreen)
 		w = 16;
 	}
 
-	width = w;
-	height = h;
+	width = ((w * 32) / x_scale + 15) & 0x7FF0;
+	height = (h * 32) / y_scale + 1;
 
 	Uint32 flags = fullscreen ? SDL_WINDOW_FULLSCREEN : SDL_WINDOW_RESIZABLE;
 	window = SDL_CreateWindow(SIM_TITLE, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, w, h, flags);
@@ -266,7 +289,7 @@ int dr_os_open(int w, int const h, int const fullscreen)
 		return 0;
 	}
 
-	if (!internal_create_surfaces(true)) {
+	if (!internal_create_surfaces(true, w, h)) {
 		return 0;
 	}
 	DBG_MESSAGE("dr_os_open(SDL)", "SDL realized screen size width=%d, height=%d (requested w=%d, h=%d)", screen->w, screen->h, w, h);
@@ -282,8 +305,9 @@ int dr_os_open(int w, int const h, int const fullscreen)
 		SDL_StartTextInput();
 	}
 
-	display_set_actual_width(w);
-	return w;
+	display_set_actual_width(width);
+	display_set_height(height);
+	return width;
 }
 
 
@@ -311,14 +335,14 @@ int dr_textur_resize(unsigned short** const textur, int w, int const h)
 
 	SDL_UnlockTexture(screen_tx);
 	if (w != screen->w || h != screen->h) {
-		width = w;
-		height = h;
+		width = (w * 32l) / x_scale;
+		height = (h * 32l) / y_scale;
 
 		SDL_SetWindowSize(window, w, h);
 		// Recreate the SDL surfaces at the new resolution.
 		SDL_DestroyTexture(screen_tx);
 		SDL_DestroyRenderer(renderer);
-		internal_create_surfaces(false);
+		internal_create_surfaces(false, w, h);
 		if (screen) {
 			DBG_MESSAGE("dr_textur_resize(SDL)", "SDL realized screen size width=%d, height=%d (requested w=%d, h=%d)", screen->w, screen->h, w, h);
 		}
@@ -330,8 +354,9 @@ int dr_textur_resize(unsigned short** const textur, int w, int const h)
 		fflush(NULL);
 	}
 	*textur = dr_textur_init();
-	display_set_actual_width(w);
-	return w;
+	display_set_actual_width(width);
+	display_set_height(height);
+	return width;
 }
 
 
@@ -368,7 +393,14 @@ void dr_flush()
 	if (!use_dirty_tiles) {
 		SDL_UpdateTexture(screen_tx, NULL, screen->pixels, screen->pitch);
 	}
-	SDL_RenderCopy(renderer, screen_tx, NULL, NULL);
+	if (x_scale != 32 && y_scale != 32) {
+		SDL_Rect rDest = { 0, 0, (screen->w*x_scale) / 32, (screen->h*y_scale) / 32 };
+		SDL_Rect rSrc = { 0, 0, screen->w, screen->h };
+		SDL_RenderCopy(renderer, screen_tx, &rSrc, &rDest);
+	}
+	else {
+		SDL_RenderCopy(renderer, screen_tx, NULL, NULL);
+	}
 	SDL_RenderPresent(renderer);
 }
 
@@ -379,8 +411,8 @@ void dr_textur(int xp, int yp, int w, int h)
 		SDL_Rect r;
 		r.x = xp;
 		r.y = yp;
-		r.w = xp + w > screen->w ? screen->w - xp : w;
-		r.h = yp + h > screen->h ? screen->h - yp : h;
+		r.w = xp + w > width ? width - xp : w;
+		r.h = yp + h > height ? height - yp : h;
 		SDL_UpdateTexture(screen_tx, &r, (uint8*)screen->pixels + yp * screen->pitch + xp * 2, screen->pitch);
 	}
 }
@@ -389,7 +421,7 @@ void dr_textur(int xp, int yp, int w, int h)
 // move cursor to the specified location
 void move_pointer(int x, int y)
 {
-	SDL_WarpMouseInWindow(window, x, y);
+	SDL_WarpMouseInWindow(window, (x*x_scale) / 32, (y*y_scale) / 32);
 }
 
 
@@ -473,8 +505,8 @@ static void internal_GetEvents(bool const wait)
 				if (event.type == SDL_MOUSEMOTION) {
 					sys_event.type = SIM_MOUSE_MOVE;
 					sys_event.code = SIM_MOUSE_MOVED;
-					sys_event.mx = event.motion.x;
-					sys_event.my = event.motion.y;
+					sys_event.mx = (event.motion.x * 32) / x_scale;
+					sys_event.my = (event.motion.y * 32) / y_scale;
 					sys_event.mb = conv_mouse_buttons(event.motion.state);
 				}
 			}
@@ -505,8 +537,8 @@ static void internal_GetEvents(bool const wait)
 		case SDL_BUTTON_X1:     sys_event.code = SIM_MOUSE_WHEELUP;     break;
 		case SDL_BUTTON_X2:     sys_event.code = SIM_MOUSE_WHEELDOWN;   break;
 		}
-		sys_event.mx = event.button.x;
-		sys_event.my = event.button.y;
+		sys_event.mx = (event.button.x * 32) / x_scale;
+		sys_event.my = (event.button.y * 32) / y_scale;
 		sys_event.mb = conv_mouse_buttons(SDL_GetMouseState(0, 0));
 		sys_event.key_mod = ModifierKeys();
 		break;
@@ -518,8 +550,8 @@ static void internal_GetEvents(bool const wait)
 		case SDL_BUTTON_MIDDLE: sys_event.code = SIM_MOUSE_MIDUP;   break;
 		case SDL_BUTTON_RIGHT:  sys_event.code = SIM_MOUSE_RIGHTUP; break;
 		}
-		sys_event.mx = event.button.x;
-		sys_event.my = event.button.y;
+		sys_event.mx = (event.button.x * 32) / x_scale;
+		sys_event.my = (event.button.y * 32) / y_scale;
 		sys_event.mb = conv_mouse_buttons(SDL_GetMouseState(0, 0));
 		sys_event.key_mod = ModifierKeys();
 		break;
@@ -534,7 +566,7 @@ static void internal_GetEvents(bool const wait)
 #ifdef __APPLE__
 		if (composition_is_underway) {
 			break;
-	}
+		}
 #endif
 		unsigned long code;
 #ifdef _WIN32
@@ -601,7 +633,7 @@ static void internal_GetEvents(bool const wait)
 		sys_event.type = SIM_KEYBOARD;
 		sys_event.code = code;
 		break;
-		}
+	}
 	case SDL_TEXTINPUT: {
 		size_t in_pos = 0;
 		utf16 uc = utf8_to_utf16((utf8 *)event.text.text, &in_pos);
@@ -621,7 +653,7 @@ static void internal_GetEvents(bool const wait)
 		composition_is_underway = false;
 #endif
 		break;
-	}
+			}
 #ifdef USE_SDL_TEXTEDITING
 	case SDL_TEXTEDITING: {
 		//printf( "SDL_TEXTEDITING {timestamp=%d, \"%s\", start=%d, length=%d}\n", event.edit.timestamp, event.edit.text, event.edit.start, event.edit.length );
@@ -655,8 +687,8 @@ static void internal_GetEvents(bool const wait)
 	case SDL_MOUSEMOTION: {
 		sys_event.type = SIM_MOUSE_MOVE;
 		sys_event.code = SIM_MOUSE_MOVED;
-		sys_event.mx = event.motion.x;
-		sys_event.my = event.motion.y;
+		sys_event.mx = (event.motion.x * 32) / x_scale;
+		sys_event.my = (event.motion.y * 32) / y_scale;
 		sys_event.mb = conv_mouse_buttons(event.motion.state);
 		sys_event.key_mod = ModifierKeys();
 		break;
@@ -676,8 +708,8 @@ static void internal_GetEvents(bool const wait)
 		sys_event.code = 0;
 		break;
 	}
-	}
-}
+		}
+		}
 
 
 void GetEvents()
@@ -724,7 +756,7 @@ void dr_start_textinput()
 	if (env_t::hide_keyboard) {
 		SDL_StartTextInput();
 	}
-}
+	}
 
 
 void dr_stop_textinput()
@@ -736,7 +768,7 @@ void dr_stop_textinput()
 
 void dr_notify_input_pos(int x, int y)
 {
-	SDL_Rect rect = { x, y + LINESPACE, 1, 1 };
+	SDL_Rect rect = { (x*x_scale) / 32, ((y + LINESPACE)*y_scale) / 32, 1, 1 };
 	SDL_SetTextInputRect(&rect);
 }
 

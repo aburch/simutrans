@@ -23,6 +23,12 @@
 
 static bool sigterm_received = false;
 
+// no autoscaling as we have no display ...
+bool dr_auto_scale(bool)
+{
+	return false;
+}
+
 bool dr_os_init(const int*)
 {
 	// prepare for next event
