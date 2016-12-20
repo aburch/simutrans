@@ -335,6 +335,11 @@ void inline pbo_unmap(){
 	reset_textur(pixels);
 }
 
+// no autoscaling yet
+bool dr_auto_scale(bool)
+{
+	+return false;
+}
 
 /*
  * Hier sind die Basisfunktionen zur Initialisierung der

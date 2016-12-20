@@ -172,7 +172,11 @@ void my_close_button_callback()
 }
 END_OF_FUNCTION(my_close_button_callback)
 
-
+// no autoscaling yet
+ bool dr_auto_scale(bool)
+ {
+	return false;
+	}
 
 /*
  * Hier sind die Basisfunktionen zur Initialisierung der Schnittstelle untergebracht

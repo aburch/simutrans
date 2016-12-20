@@ -104,6 +104,11 @@ static SDL_Cursor *arrow;
 static SDL_Cursor *hourglass;
 static SDL_Cursor *blank;
 
+// no autoscaling yet
+bool dr_auto_scale(bool)
+{
+	return false;
+}
 
 /*
 * Hier sind die Basisfunktionen zur Initialisierung der
