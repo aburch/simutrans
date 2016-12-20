@@ -112,6 +112,7 @@ int y_scale = 36;
 // no autoscaling yet
 bool dr_auto_scale(bool on_off)
 {
+#if SDL_VERSION_ATLEAST(2,0,4)
 	if (on_off) {
 		float hdpi, vdpi;
 		SDL_Init(SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE);
@@ -122,7 +123,11 @@ bool dr_auto_scale(bool on_off)
 		}
 		return false;
 	}
-	else {
+	else
+#else
+#pragma message "SDL version must be at least 2.0.4 to support autoscaling."
+#endif
+	{
 		x_scale = 32;
 		y_scale = 32;
 		return false;
@@ -213,7 +218,7 @@ bool internal_create_surfaces(const bool print_info, int w, int h)
 	if (renderer == NULL) {
 		dbg->warning("internal_create_surfaces()", "Couldn't create opengl renderer: %s", SDL_GetError());
 		// try all other renderer until success
-		// (however, on my windows machines opengles crashed, so the software renderer is never ever called) 
+		// (however, on my windows machines opengles crashed, so the software renderer is never ever called)  
 		for (int i = 0; i < num_rend && renderer == NULL; i++) {
 			if (i != rend_index) {
 				renderer = SDL_CreateRenderer(window, i, flags);
@@ -653,7 +658,7 @@ static void internal_GetEvents(bool const wait)
 		composition_is_underway = false;
 #endif
 		break;
-			}
+	}
 #ifdef USE_SDL_TEXTEDITING
 	case SDL_TEXTEDITING: {
 		//printf( "SDL_TEXTEDITING {timestamp=%d, \"%s\", start=%d, length=%d}\n", event.edit.timestamp, event.edit.text, event.edit.start, event.edit.length );
@@ -708,8 +713,8 @@ static void internal_GetEvents(bool const wait)
 		sys_event.code = 0;
 		break;
 	}
-		}
-		}
+	}
+	}
 
 
 void GetEvents()
@@ -756,7 +761,7 @@ void dr_start_textinput()
 	if (env_t::hide_keyboard) {
 		SDL_StartTextInput();
 	}
-	}
+}
 
 
 void dr_stop_textinput()
@@ -793,4 +798,5 @@ int main(int argc, char **argv)
 	char** const argv = __argv;
 #endif
 	return sysmain(argc, argv);
+}
 }}
