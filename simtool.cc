@@ -1647,7 +1647,7 @@ const char* tool_transformer_t::get_tooltip(const player_t *) const
 
 image_id tool_transformer_t::get_icon(player_t*) const
 {
-	return wegbauer_t::waytype_available( powerline_wt, welt->get_timeline_year_month() ) ? icon : IMG_LEER;
+	return wegbauer_t::waytype_available( powerline_wt, welt->get_timeline_year_month() ) ? icon : IMG_EMPTY;
 }
 
 bool tool_transformer_t::init( player_t *)
@@ -2392,7 +2392,7 @@ image_id tool_build_way_t::get_icon(player_t *) const
 {
 	const weg_besch_t *besch = wegbauer_t::get_besch(default_param,0);
 	const bool is_tram = besch ? (besch->get_wtyp()==tram_wt) || (besch->get_styp() == weg_t::type_tram) : false;
-	return (grund_t::underground_mode==grund_t::ugm_all && !is_tram ) ? IMG_LEER : icon;
+	return (grund_t::underground_mode==grund_t::ugm_all && !is_tram ) ? IMG_EMPTY : icon;
 }
 
 const char* tool_build_way_t::get_tooltip(const player_t *) const
@@ -2480,7 +2480,7 @@ bool tool_build_way_t::init( player_t *player )
 
 	// now get current besch
 	besch = get_besch( welt->get_timeline_year_month(), /*is_local_execution()*/ true );
-	if(  besch  &&  besch->get_cursor()->get_bild_nr(0) != IMG_LEER  ) {
+	if(  besch  &&  besch->get_cursor()->get_bild_nr(0) != IMG_EMPTY  ) {
 		cursor = besch->get_cursor()->get_bild_nr(0);
 	}
 	if(  besch  &&  !besch->is_available(welt->get_timeline_year_month())  &&  player!=NULL  &&  player!=welt->get_player(1)  ) {
@@ -3244,7 +3244,7 @@ image_id tool_wayremover_t::get_icon(player_t *) const
 	if(  default_param  &&  wegbauer_t::waytype_available( (waytype_t)atoi(default_param), welt->get_timeline_year_month() )  ) {
 		return icon;
 	}
-	return IMG_LEER;
+	return IMG_EMPTY;
 }
 
 waytype_t tool_wayremover_t::get_waytype() const
@@ -4878,27 +4878,27 @@ image_id tool_build_station_t::get_icon( player_t * ) const
 	sint8 dummy;
 	const haus_besch_t *besch=get_besch(dummy);
 	if (besch == NULL) {
-		return IMG_LEER;
+		return IMG_EMPTY;
 	}
 	if(  grund_t::underground_mode==grund_t::ugm_all  ) {
 		// in underground mode, buildings will be done invisible above ground => disallow such confusion
 //		if(besch->get_allow_underground() == 0 ||  besch->get_extra()==air_wt) {
 		if(  besch->get_utyp()!=haus_besch_t::generic_stop  ||  besch->get_extra()==air_wt) {
-			return IMG_LEER;
+			return IMG_EMPTY;
 		}
 		if(  besch->get_utyp()==haus_besch_t::generic_stop  &&  !besch->can_be_built_underground()) {
-			return IMG_LEER;
+			return IMG_EMPTY;
 		}
 	}
 	if(  grund_t::underground_mode==grund_t::ugm_none  ) {
 		if(  besch->get_utyp()==haus_besch_t::generic_stop  &&  !besch->can_be_built_aboveground()) {
-			return IMG_LEER;
+			return IMG_EMPTY;
 		}
 	}
 	else if(besch->get_allow_underground() == 1 && grund_t::underground_mode == grund_t::ugm_none)
 	{
 		// Allow both underground and above ground buildings in sliced underground mode.
-		return IMG_LEER;
+		return IMG_EMPTY;
 	}
 	return icon;
 }
@@ -5233,7 +5233,7 @@ char const* tool_build_roadsign_t::get_tooltip(player_t const*) const
 
 void tool_build_roadsign_t::draw_after(scr_coord k, bool dirty) const
 {
-	if(  icon!=IMG_LEER  &&  is_selected()  ) {
+	if(  icon!=IMG_EMPTY  &&  is_selected()  ) {
 		display_img_blend( icon, k.x, k.y, TRANSPARENT50_FLAG|OUTLINE_FLAG|COL_BLACK, false, dirty );
 		char level_str[16];
 		sprintf(level_str, "%i", signal[welt->get_active_player_nr()].spacing);
@@ -5958,7 +5958,7 @@ image_id tool_signalbox_t::get_icon(player_t* player) const
 	{
 		return besch->get_cursor()->get_bild_nr(1);
 	}	
-	return IMG_LEER;
+	return IMG_EMPTY;
 }
 
 char const* tool_signalbox_t::get_tooltip(player_t const*) const
@@ -6088,7 +6088,7 @@ image_id tool_depot_t::get_icon(player_t *player) const
 			return besch->get_cursor()->get_bild_nr(1);
 		}
 	}
-	return IMG_LEER;
+	return IMG_EMPTY;
 }
 
 bool tool_depot_t::init( player_t *player )
@@ -7523,7 +7523,7 @@ const char *tool_make_stop_public_t::work( player_t *player, koord3d p )
 				{
 					cbuffer_t buf;
 					buf.printf(translator::translate("(%s) now public way."), w->get_pos().get_str());
-					welt->get_message()->add_message(buf, w->get_pos().get_2d(), message_t::ai, PLAYER_FLAG|player->get_player_nr(), IMG_LEER);
+					welt->get_message()->add_message(buf, w->get_pos().get_2d(), message_t::ai, PLAYER_FLAG|player->get_player_nr(), IMG_EMPTY);
 				}
 			}
 		}
@@ -7749,7 +7749,7 @@ bool tool_show_underground_t::is_selected() const
 
 void tool_show_underground_t::draw_after(scr_coord k, bool dirty) const
 {
-	if(  icon!=IMG_LEER  &&  is_selected()  ) {
+	if(  icon!=IMG_EMPTY  &&  is_selected()  ) {
 		display_img_blend( icon, k.x, k.y, TRANSPARENT50_FLAG|OUTLINE_FLAG|COL_BLACK, false, dirty );
 		// additionall show level in sliced mode
 		if(  default_param!=NULL  &&  grund_t::underground_mode==grund_t::ugm_level  ) {
@@ -9084,7 +9084,7 @@ bool tool_add_message_t::init(player_t*)
 {
 	if (  *default_param  ) {
 		// Local message, not stored by server
-		welt->get_message()->add_message( default_param, koord::invalid, message_t::general | message_t::local_flag, COL_BLACK, IMG_LEER );
+		welt->get_message()->add_message( default_param, koord::invalid, message_t::general | message_t::local_flag, COL_BLACK, IMG_EMPTY );
 	}
 	return false;
 }

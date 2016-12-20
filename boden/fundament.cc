@@ -22,7 +22,7 @@ fundament_t::fundament_t(loadsave_t *file, koord pos ) : grund_t(koord3d(pos,0) 
 
 fundament_t::fundament_t(koord3d pos, hang_t::typ hang, bool build_up ) : grund_t(pos)
 {
-	set_bild( IMG_LEER );
+	set_bild( IMG_EMPTY );
 	if(hang && build_up) {
 		pos = get_pos();
 		pos.z += hang_t::max_diff(hang);

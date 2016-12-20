@@ -39,7 +39,7 @@ tunnel_t::tunnel_t(loadsave_t* const file) :
 {
 	besch = 0;
 	rdwr(file);
-	image = after_bild = IMG_LEER;
+	image = after_bild = IMG_EMPTY;
 	broad_type = 0;
 }
 
@@ -55,7 +55,7 @@ tunnel_t::tunnel_t(koord3d pos, player_t *player, const tunnel_besch_t *besch) :
 	assert(besch);
 	this->besch = besch;
 	set_owner( player );
-	image = after_bild = IMG_LEER;
+	image = after_bild = IMG_EMPTY;
 	broad_type = 0;
 }
 
@@ -115,8 +115,8 @@ void tunnel_t::calc_image()
 			// No portal. Determine whether to show the inside of the tunnel or nothing.
 			if(grund_t::underground_mode==grund_t::ugm_none || (grund_t::underground_mode==grund_t::ugm_level && from->get_hoehe()<grund_t::underground_level))
 			{
-				set_bild( IMG_LEER );
-				set_after_bild( IMG_LEER );
+				set_bild( IMG_EMPTY );
+				set_after_bild( IMG_EMPTY );
 			}
 			else if(besch->get_waytype() != powerline_wt)
 			{
@@ -127,8 +127,8 @@ void tunnel_t::calc_image()
 	}
 	else
 	{
-		set_bild( IMG_LEER );
-		set_after_bild( IMG_LEER );
+		set_bild( IMG_EMPTY );
+		set_after_bild( IMG_EMPTY );
 	}
 #ifdef MULTI_THREAD
 	pthread_mutex_unlock( &tunnel_calc_bild_mutex );

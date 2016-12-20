@@ -328,8 +328,8 @@ void weg_t::init()
 	init_statistics();
 	alle_wege.append(this);
 	flags = 0;
-	image = IMG_LEER;
-	after_bild = IMG_LEER;
+	image = IMG_EMPTY;
+	after_bild = IMG_EMPTY;
 	public_right_of_way = false;
 	degraded = false;
 	remaining_wear_capacity = 100000000;
@@ -682,7 +682,7 @@ bool weg_t::check_season(const bool calc_only_season_change)
 	}
 
 	// no way to calculate this or no image set (not visible, in tunnel mouth, etc)
-	if(  besch == NULL  ||  image == IMG_LEER  ) {
+	if(  besch == NULL  ||  image == IMG_EMPTY  ) {
 		return true;
 	}
 
@@ -710,8 +710,8 @@ bool weg_t::check_season(const bool calc_only_season_change)
 
 	if(  is_diagonal()  ) 
 	{
-		if( besch->get_diagonal_bild_nr(ribi, snow) != IMG_LEER  ||
-			besch->get_diagonal_bild_nr(ribi, snow, true) != IMG_LEER) 
+		if( besch->get_diagonal_bild_nr(ribi, snow) != IMG_EMPTY  ||
+			besch->get_diagonal_bild_nr(ribi, snow, true) != IMG_EMPTY) 
 		{
 			set_images(image_diagonal, ribi, snow);
 		}
@@ -766,8 +766,8 @@ void weg_t::calc_image()
 
 	if(  from==NULL  ||  besch==NULL  ||  !from->is_visible()  ) {
 		// no ground, in tunnel
-		set_bild(IMG_LEER);
-		set_after_bild(IMG_LEER);
+		set_bild(IMG_EMPTY);
+		set_after_bild(IMG_EMPTY);
 		if(  from==NULL  ) {
 			dbg->error( "weg_t::calc_image()", "Own way at %s not found!", get_pos().get_str() );
 		}
@@ -779,8 +779,8 @@ void weg_t::calc_image()
 	else if(  from->ist_tunnel() &&  from->ist_karten_boden()  &&  (grund_t::underground_mode==grund_t::ugm_none || (grund_t::underground_mode==grund_t::ugm_level && from->get_hoehe()<grund_t::underground_level))  ) {
 		// in tunnel mouth, no underground mode
 		// TODO: Consider special treatment of tunnel portal images here.
-		set_bild(IMG_LEER);
-		set_after_bild(IMG_LEER);
+		set_bild(IMG_EMPTY);
+		set_after_bild(IMG_EMPTY);
 	}
 	else {
 		// use snow image if above snowline and above ground
@@ -824,8 +824,8 @@ void weg_t::calc_image()
 
 				// now apply diagonal image
 				if(is_diagonal()) {
-					if( besch->get_diagonal_bild_nr(ribi, snow) != IMG_LEER  ||
-					    besch->get_diagonal_bild_nr(ribi, snow, true) != IMG_LEER) {
+					if( besch->get_diagonal_bild_nr(ribi, snow) != IMG_EMPTY  ||
+					    besch->get_diagonal_bild_nr(ribi, snow, true) != IMG_EMPTY) {
 						set_images(image_diagonal, ribi, snow);
 					}
 				}

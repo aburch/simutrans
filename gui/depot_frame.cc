@@ -846,7 +846,7 @@ bool depot_frame_t::check_way_electrified(bool init)
 
 	else
 	{
-		//img_bolt.set_image(IMG_LEER);
+		//img_bolt.set_image(IMG_EMPTY);
  	}
 
 	return way_electrified;

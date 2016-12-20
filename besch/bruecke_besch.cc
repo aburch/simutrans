@@ -14,7 +14,7 @@
  */
 bruecke_besch_t::img_t bruecke_besch_t::get_simple(ribi_t::ribi ribi, uint8 height) const
 {
-	if(  height>1 && get_hintergrund(NS_Segment2, 0)!=IMG_LEER  ) {
+	if(  height>1 && get_hintergrund(NS_Segment2, 0)!=IMG_EMPTY  ) {
 		return (ribi & ribi_t::nordsued) ? NS_Segment2 : OW_Segment2;
 	}
 	else {
@@ -40,7 +40,7 @@ bruecke_besch_t::img_t bruecke_besch_t::get_pillar(ribi_t::ribi ribi)
 bruecke_besch_t::img_t bruecke_besch_t::get_start(hang_t::typ slope) const
 {
 	// if double heights enabled and besch has 2 height images present then use these
-	if(  grund_besch_t::double_grounds  &&  get_hintergrund(N_Start2, 0) != IMG_LEER  ) {
+	if(  grund_besch_t::double_grounds  &&  get_hintergrund(N_Start2, 0) != IMG_EMPTY  ) {
 		switch(  slope  ) {
 			case hang_t::nord: return N_Start;
 			case hang_t::sued: return S_Start;
@@ -126,12 +126,12 @@ bruecke_besch_t::img_t bruecke_besch_t::get_end(hang_t::typ test_slope, hang_t::
  */
 bool bruecke_besch_t::has_double_ramp() const
 {
-	return (get_hintergrund(bruecke_besch_t::N_Rampe2, 0)!=IMG_LEER || get_vordergrund(bruecke_besch_t::N_Rampe2, 0)!=IMG_LEER);
+	return (get_hintergrund(bruecke_besch_t::N_Rampe2, 0)!=IMG_EMPTY || get_vordergrund(bruecke_besch_t::N_Rampe2, 0)!=IMG_EMPTY);
 }
 
 bool bruecke_besch_t::has_double_start() const
 {
-	return (get_hintergrund(bruecke_besch_t::N_Start2, 0) != IMG_LEER  ||  get_vordergrund(bruecke_besch_t::N_Start2, 0) != IMG_LEER);
+	return (get_hintergrund(bruecke_besch_t::N_Start2, 0) != IMG_EMPTY  ||  get_vordergrund(bruecke_besch_t::N_Start2, 0) != IMG_EMPTY);
 }
 
 

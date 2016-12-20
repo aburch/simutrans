@@ -196,7 +196,7 @@ vehicle_base_t::vehicle_base_t():
 	obj_t()
 #endif
 {
-	image = IMG_LEER;
+	image = IMG_EMPTY;
 	set_flag( obj_t::is_vehicle );
 	steps = 0;
 	steps_next = VEHICLE_STEPS_PER_TILE - 1;
@@ -218,7 +218,7 @@ vehicle_base_t::vehicle_base_t(koord3d pos):
 	obj_t(pos)
 #endif
 {
-	image = IMG_LEER;
+	image = IMG_EMPTY;
 	set_flag( obj_t::is_vehicle );
 	pos_next = pos;
 	steps = 0;
@@ -597,7 +597,7 @@ void vehicle_base_t::calc_height(grund_t *gr)
 			// need hiding? One of the few uses of XOR: not half driven XOR exiting => not hide!
 			ribi_t::ribi hang_ribi = ribi_typ( gr->get_grund_hang() );
 			if((steps<(steps_next/2))  ^  ((hang_ribi&direction)!=0)  ) {
-				set_bild(IMG_LEER);
+				set_bild(IMG_EMPTY);
 			}
 			else {
 				calc_image();
@@ -605,7 +605,7 @@ void vehicle_base_t::calc_height(grund_t *gr)
 		}
 	}
 	else if(  !gr->is_visible()  ) {
-		set_bild(IMG_LEER);
+		set_bild(IMG_EMPTY);
 	}
 	else {
 		// will not work great with ways, but is very short!
@@ -7443,7 +7443,7 @@ void air_vehicle_t::display_after(int xpos_org, int ypos_org, const sint8 clip_n
 void air_vehicle_t::display_after(int xpos_org, int ypos_org, bool is_global) const
 #endif
 {
-	if(  image != IMG_LEER  &&  !is_on_ground()  ) {
+	if(  image != IMG_EMPTY  &&  !is_on_ground()  ) {
 		int xpos = xpos_org, ypos = ypos_org;
 
 		const int raster_width = get_current_tile_raster_width();
@@ -7476,7 +7476,7 @@ void air_vehicle_t::display_after(int xpos_org, int ypos_org, bool is_global) co
 }
 void air_vehicle_t::display_overlay(int xpos_org, int ypos_org) const
 {
-	if(  image != IMG_LEER  &&  !is_on_ground()  ) {
+	if(  image != IMG_EMPTY  &&  !is_on_ground()  ) {
 		const int raster_width = get_current_tile_raster_width();
 		const sint16 z = get_pos().z;
 		if(  z + flying_height/TILE_HEIGHT_STEP - 1 > grund_t::underground_level  ) {

@@ -333,7 +333,7 @@ bild_besch_t *bild_besch_t::copy_rotate(const sint16 angle) const
 
 	bild_besch_t* target_besch = new(pic.len * sizeof(PIXVAL)) bild_besch_t();
 	target_besch->pic = pic;
-	target_besch->pic.bild_nr = IMG_LEER;
+	target_besch->pic.bild_nr = IMG_EMPTY;
 	memcpy(target_besch->pic.data, pic.data, pic.len * sizeof(PIXVAL));
 
 	// the format is
@@ -382,7 +382,7 @@ bild_besch_t *bild_besch_t::copy_flipvertical() const
 {
 	bild_besch_t* target_besch = new(pic.len * sizeof(PIXVAL)) bild_besch_t();
 	target_besch->pic = pic;
-	target_besch->pic.bild_nr = IMG_LEER;
+	target_besch->pic.bild_nr = IMG_EMPTY;
 	memcpy( target_besch->pic.data, pic.data, pic.len * sizeof(PIXVAL) );
 
 	// the format is
@@ -410,7 +410,7 @@ bild_besch_t *bild_besch_t::copy_fliphorizontal() const
 {
 	bild_besch_t* target_besch = new(pic.len * sizeof(PIXVAL)) bild_besch_t();
 	target_besch->pic = pic;
-	target_besch->pic.bild_nr = IMG_LEER;
+	target_besch->pic.bild_nr = IMG_EMPTY;
 	memcpy( target_besch->pic.data, pic.data, pic.len * sizeof(PIXVAL) );
 
 	// the format is

@@ -34,7 +34,7 @@ void monorailboden_t::rdwr(loadsave_t *file)
 
 void monorailboden_t::calc_bild_internal(const bool calc_only_snowline_change)
 {
-	set_bild(IMG_LEER);
+	set_bild(IMG_EMPTY);
 	clear_back_bild();
 
 	weg_t *const weg = get_weg_nr(0);

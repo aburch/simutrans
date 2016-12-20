@@ -422,7 +422,7 @@ public:
 			liste = get_child<bildliste_besch_t>(4);
 			if(!liste)
 			{
-				return IMG_LEER;
+				return IMG_EMPTY;
 			}
 		}
 
@@ -435,7 +435,7 @@ public:
 			}
 			if(!image) 
 			{
-				return IMG_LEER;
+				return IMG_EMPTY;
 			}
 		}
 		return image->get_nummer();

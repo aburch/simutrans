@@ -78,14 +78,14 @@ void bruecke_t::calc_image()
 
 			// handle cases where old bridges don't have correct images
 			image_id display_image=besch->get_hintergrund( img, is_snow );
-			if(  display_image==IMG_LEER && besch->get_vordergrund( img, is_snow )==IMG_LEER  ) {
+			if(  display_image==IMG_EMPTY && besch->get_vordergrund( img, is_snow )==IMG_EMPTY  ) {
 				display_image=besch->get_hintergrund( single_img[img], is_snow );
 			}
 			
-			weg0->set_after_bild(IMG_LEER);
+			weg0->set_after_bild(IMG_EMPTY);
 			if(besch->get_has_own_way_graphics())
 			{
-				weg0->set_bild(IMG_LEER);
+				weg0->set_bild(IMG_EMPTY);
 				weg0->set_yoff(-gr->get_weg_yoff() );
 
 				weg0->set_flag(obj_t::dirty);
@@ -134,7 +134,7 @@ image_id bruecke_t::get_front_image() const
 	bool is_snow = welt->get_climate( get_pos().get_2d() ) == arctic_climate  ||  get_pos().z + hang_t::max_diff(slope) >= welt->get_snowline();
 	// handle cases where old bridges don't have correct images
 	image_id display_image=besch->get_vordergrund( img, is_snow );
-	if(  display_image==IMG_LEER && besch->get_hintergrund( img, is_snow )==IMG_LEER  ) {
+	if(  display_image==IMG_EMPTY && besch->get_hintergrund( img, is_snow )==IMG_EMPTY  ) {
 		display_image=besch->get_vordergrund( single_img[img], is_snow );
 	}
 	return display_image;

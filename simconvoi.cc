@@ -1732,7 +1732,7 @@ end_loop:
 						if (line->get_replacing_convoys_count()==0) {
 							char buf[256];
 							sprintf(buf, translator::translate("Replacing\nvehicles of\n%-20s\ncompleted"), line->get_name());
-							welt->get_message()->add_message(buf, home_depot.get_2d(),message_t::general, PLAYER_FLAG|get_owner()->get_player_nr(), IMG_LEER);
+							welt->get_message()->add_message(buf, home_depot.get_2d(),message_t::general, PLAYER_FLAG|get_owner()->get_player_nr(), IMG_EMPTY);
 						}
 
 					}
@@ -2394,7 +2394,7 @@ void convoi_t::start()
 		front()->set_leading( true );
 		vehicle[anz_vehikel-1]->set_last( true );
 		// do not show the vehicle - it will be wrong positioned -vorfahren() will correct this
-		front()->set_bild(IMG_LEER);
+		front()->set_bild(IMG_EMPTY);
 
 		// update finances for used vehicle reduction when first driven
 		owner->update_assets( restwert_delta, get_schedule()->get_waytype());
@@ -2444,7 +2444,7 @@ void convoi_t::ziel_erreicht()
 
 		if (!replace || !replace->get_autostart()) {
 			buf.printf( translator::translate("!1_DEPOT_REACHED"), get_name() );
-			welt->get_message()->add_message(buf, v->get_pos().get_2d(),message_t::warnings, PLAYER_FLAG|get_owner()->get_player_nr(), IMG_LEER);
+			welt->get_message()->add_message(buf, v->get_pos().get_2d(),message_t::warnings, PLAYER_FLAG|get_owner()->get_player_nr(), IMG_EMPTY);
 		}
 
 		enter_depot(dp);
@@ -7330,7 +7330,7 @@ void convoi_t::emergency_go_to_depot()
 			buf.printf( translator::translate("No route to depot for convoy %s: teleported to depot!"), get_name() );
 			const vehicle_t* v = front();
 
-			welt->get_message()->add_message(buf, v->get_pos().get_2d(),message_t::warnings, PLAYER_FLAG|get_owner()->get_player_nr(), IMG_LEER);
+			welt->get_message()->add_message(buf, v->get_pos().get_2d(),message_t::warnings, PLAYER_FLAG|get_owner()->get_player_nr(), IMG_EMPTY);
 
 			enter_depot(dep);
 #ifdef MULTI_THREAD
@@ -7350,7 +7350,7 @@ void convoi_t::emergency_go_to_depot()
 #endif
 			buf.printf( translator::translate("No route and no depot for convoy %s: convoy has been sold!"), get_name() );
 			const vehicle_t* v = front();
-			welt->get_message()->add_message(buf, v->get_pos().get_2d(),message_t::warnings, PLAYER_FLAG|get_owner()->get_player_nr(), IMG_LEER);
+			welt->get_message()->add_message(buf, v->get_pos().get_2d(),message_t::warnings, PLAYER_FLAG|get_owner()->get_player_nr(), IMG_EMPTY);
 
 			// The player can engineer this deliberately by blowing up depots and tracks, so it isn't always a game error.
 			// But it usually is an error, so report it as one.

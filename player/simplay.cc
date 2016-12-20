@@ -462,7 +462,7 @@ bool player_t::new_month()
 						// This is a more serious problem than the interest
 						warning_message_type = message_t::problems;
 					}
-					welt->get_message()->add_message( buf, koord::invalid, warning_message_type, player_nr, IMG_LEER );
+					welt->get_message()->add_message( buf, koord::invalid, warning_message_type, player_nr, IMG_EMPTY );
 				}
 			}
 			

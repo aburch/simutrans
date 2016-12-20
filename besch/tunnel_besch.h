@@ -77,7 +77,7 @@ public:
 	image_id get_hintergrund_nr(hang_t::typ hang, uint8 season, uint8 type ) const
 	{
 		const bild_besch_t *besch = get_hintergrund(hang, season, type );
-		return besch != NULL ? besch->get_nummer() : IMG_LEER;
+		return besch != NULL ? besch->get_nummer() : IMG_EMPTY;
 	}
 
 	const bild_besch_t *get_vordergrund(hang_t::typ hang, uint8 season, uint8 type ) const
@@ -89,7 +89,7 @@ public:
 	image_id get_vordergrund_nr(hang_t::typ hang, uint8 season, uint8 type) const
 	{
 		const bild_besch_t *besch = get_vordergrund(hang, season, type );
-		return besch != NULL ? besch->get_nummer() : IMG_LEER;
+		return besch != NULL ? besch->get_nummer() : IMG_EMPTY;
 	}
 
 	image_id get_underground_backimage_nr(ribi_t::ribi ribi, hang_t::typ hang) const
@@ -141,12 +141,12 @@ private:
 			nr = 7;
 			break;
 		default:
-			return IMG_LEER;
+			return IMG_EMPTY;
 		}
 
 		image_id hang_img = get_child<bildliste_besch_t>(n)->get_bild_nr(nr);
 
-		if (nr > 3 && hang_img == IMG_LEER  &&  get_child<bildliste_besch_t>(n)->get_anzahl() <= 4) 
+		if (nr > 3 && hang_img == IMG_EMPTY  &&  get_child<bildliste_besch_t>(n)->get_anzahl() <= 4) 
 		{
 			// hack for old ways without double height images to use single slope images for both
 			nr -= 4;

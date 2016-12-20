@@ -142,7 +142,7 @@ bool wegbauer_t::register_besch(weg_besch_t *besch)
 		delete old_besch;
 	}
 
-	if(  besch->get_cursor()->get_bild_nr(1)!=IMG_LEER  ) {
+	if(  besch->get_cursor()->get_bild_nr(1)!=IMG_EMPTY  ) {
 		// add the tool
 		tool_build_way_t *tool = new tool_build_way_t();
 		tool->set_icon( besch->get_cursor()->get_bild_nr(1) );
@@ -174,7 +174,7 @@ const weg_besch_t* wegbauer_t::weg_search(const waytype_t wtyp, const sint32 spe
 		weg_besch_t const* const test = i.value;
 		if(  ((test->get_wtyp()==wtyp  &&
 			(test->get_styp()==system_type  ||  system_type==weg_t::type_all))  ||  (test->get_wtyp()==track_wt  &&  test->get_styp()==weg_t::type_tram  &&  wtyp==tram_wt))
-			&&  test->get_cursor()->get_bild_nr(1)!=IMG_LEER  ) 
+			&&  test->get_cursor()->get_bild_nr(1)!=IMG_EMPTY  ) 
 		{
 			bool test_allowed = (time == 0 || (test->get_intro_year_month() <= time && time < test->get_retire_year_month())) && !test->is_mothballed();
 				if(!best_allowed || test_allowed) 
@@ -210,7 +210,7 @@ const weg_besch_t* wegbauer_t::weg_search(const waytype_t wtyp, const sint32 spe
 				 (test->get_wtyp() == track_wt &&  
 				 test->get_styp() == weg_t::type_tram &&  
 				 wtyp == tram_wt))
-			     && test->get_cursor()->get_bild_nr(1) != IMG_LEER) 
+			     && test->get_cursor()->get_bild_nr(1) != IMG_EMPTY) 
 		{
 			const missing_way_constraints_t missing_constraints(way_constraints, test->get_way_constraints());
 			bool test_allowed = (time == 0 || (test->get_intro_year_month() <= time && time < test->get_retire_year_month())) && missing_constraints.get_count() == 0;
@@ -673,7 +673,7 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, sint32
 				return false;
 			}
 
-			if(tile->get_hintergrund(0,1,0)!=IMG_LEER) 
+			if(tile->get_hintergrund(0,1,0)!=IMG_EMPTY) 
 			{
 				return false;
 			}

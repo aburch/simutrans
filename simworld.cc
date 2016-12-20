@@ -2787,7 +2787,7 @@ karte_t::karte_t() :
 
 	map_counter = 0;
 
-	msg = new message_t(this);
+	msg = new message_t();
 	cached_size.x = 0;
 	cached_size.y = 0;
 
@@ -9445,7 +9445,7 @@ void karte_t::switch_active_player(uint8 new_player, bool silent)
 			// tell the player
 			cbuffer_t buf;
 			buf.printf( translator::translate("Now active as %s.\n"), get_active_player()->get_name() );
-			msg->add_message(buf, koord::invalid, message_t::ai | message_t::local_flag, PLAYER_FLAG|get_active_player()->get_player_nr(), IMG_LEER);
+			msg->add_message(buf, koord::invalid, message_t::ai | message_t::local_flag, PLAYER_FLAG|get_active_player()->get_player_nr(), IMG_EMPTY);
 		}
 
 		// update menu entries

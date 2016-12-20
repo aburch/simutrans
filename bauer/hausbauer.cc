@@ -212,7 +212,7 @@ bool hausbauer_t::register_besch(haus_besch_t *besch)
 	}
 	// probably need a tools, if it has a cursor
 	const skin_besch_t *sb = besch->get_cursor();
-	if(  sb  &&  sb->get_bild_nr(1)!=IMG_LEER) {
+	if(  sb  &&  sb->get_bild_nr(1)!=IMG_EMPTY) {
 		tool_t *tool;
 		if(  besch->get_utyp()==haus_besch_t::depot  ) {
 			tool = new tool_depot_t();
@@ -497,8 +497,8 @@ gebaeude_t* hausbauer_t::baue(player_t* player, koord3d pos, int org_layout, con
 			// here test for good tile
 			if (tile == NULL || (
 						!(besch->get_utyp() == haus_besch_t::dock  ||  besch->get_utyp() == haus_besch_t::flat_dock)  &&
-						tile->get_hintergrund(0, 0, 0) == IMG_LEER &&
-						tile->get_vordergrund(0, 0)    == IMG_LEER
+						tile->get_hintergrund(0, 0, 0) == IMG_EMPTY &&
+						tile->get_vordergrund(0, 0)    == IMG_EMPTY
 					)) {
 						// may have a rotation, that is not recoverable
 						DBG_MESSAGE("hausbauer_t::baue()","get_tile() empty at %i,%i",k.x,k.y);
@@ -1070,7 +1070,7 @@ void hausbauer_t::new_month()
 			{
 				cbuffer_t buf;
 				buf.printf(translator::translate("New %s now available:\n%s\n"), "building", translator::translate(building->get_name()));
-				welt->get_message()->add_message(buf, koord::invalid, message_t::new_vehicle, NEW_VEHICLE, IMG_LEER);
+				welt->get_message()->add_message(buf, koord::invalid, message_t::new_vehicle, NEW_VEHICLE, IMG_EMPTY);
 			}
 		}
 	}

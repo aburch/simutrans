@@ -74,7 +74,7 @@ news_img::news_img(const char* text, image_id id, PLAYER_COLOR_VAL color) :
 void news_img::init(image_id id)
 {
 	image.set_image(id);
-	if(  id!=IMG_LEER  ) {
+	if(  id!=IMG_EMPTY  ) {
 		scr_coord_val xoff, yoff, xw, yw;
 		display_get_base_image_offset(id, &xoff, &yoff, &xw, &yw);
 		extend_window_with_component(&image, scr_size(xw, yw), scr_coord(-xoff, -yoff));
