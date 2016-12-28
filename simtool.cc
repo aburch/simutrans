@@ -1740,7 +1740,7 @@ uint8 tool_set_climate_t::is_valid_pos(player_t *player, const koord3d &, const 
 {
 	error = NULL;
 	// no dragging in networkmode but for admin
-	return env_t::networkmode ? (player->is_public_service() ? 1 : 2) : 2;
+	return env_t::networkmode  &&  !player->is_public_service()  ?  1 /*no dragging*/ :  2 /*dragging allowed*/;
 }
 
 void tool_set_climate_t::mark_tiles(player_t *, const koord3d &start, const koord3d &end)
