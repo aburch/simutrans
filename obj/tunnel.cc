@@ -39,7 +39,7 @@ tunnel_t::tunnel_t(loadsave_t* const file) :
 {
 	besch = 0;
 	rdwr(file);
-	image = after_bild = IMG_LEER;
+	image = after_bild = IMG_EMPTY;
 	broad_type = 0;
 }
 
@@ -55,7 +55,7 @@ tunnel_t::tunnel_t(koord3d pos, player_t *player, const tunnel_besch_t *besch) :
 	assert(besch);
 	this->besch = besch;
 	set_owner( player );
-	image = after_bild = IMG_LEER;
+	image = after_bild = IMG_EMPTY;
 	broad_type = 0;
 }
 
@@ -78,6 +78,7 @@ void tunnel_t::calc_image()
 		grund_t *from = welt->lookup(get_pos());
 		image_id old_bild = image;
 		hang_t::typ hang = gr->get_grund_hang();
+		ribi_t::ribi ribi = gr->get_weg_ribi(besch->get_waytype());
 		if(gr->ist_karten_boden()) 
 		{
 			// Tunnel portal
@@ -114,28 +115,20 @@ void tunnel_t::calc_image()
 			// No portal. Determine whether to show the inside of the tunnel or nothing.
 			if(grund_t::underground_mode==grund_t::ugm_none || (grund_t::underground_mode==grund_t::ugm_level && from->get_hoehe()<grund_t::underground_level))
 			{
-				set_bild( IMG_LEER );
-				set_after_bild( IMG_LEER );
+				set_bild( IMG_EMPTY );
+				set_after_bild( IMG_EMPTY );
 			}
-			else
+			else if(besch->get_waytype() != powerline_wt)
 			{
-#if 0
-				// TODO:  these need to show a tunnel interior. Currently, there is no code for doing that. This is code for portals, from above.
-				// Further, because these portals only have slope graphics, this will only display on a slope. Thus, this code is disabled until
-				// a way of reading/writing tunnel internal graphics is properly devised.
-				set_bild( besch->get_hintergrund_nr( hang, 0, broad_type ) );
-				set_after_bild( besch->get_vordergrund_nr( hang, 0, broad_type ) );
-#else
-				set_bild( IMG_LEER );
-				set_after_bild( IMG_LEER );
-#endif
+				set_bild(besch->get_underground_backimage_nr(ribi, hang));
+				set_after_bild(besch->get_underground_frontimage_nr(ribi, hang));
 			}
 		}
 	}
 	else
 	{
-		set_bild( IMG_LEER );
-		set_after_bild( IMG_LEER );
+		set_bild( IMG_EMPTY );
+		set_after_bild( IMG_EMPTY );
 	}
 #ifdef MULTI_THREAD
 	pthread_mutex_unlock( &tunnel_calc_bild_mutex );

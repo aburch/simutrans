@@ -67,7 +67,7 @@ void roadsign_t::init(loadsave_t *file)
 roadsign_t::roadsign_t(loadsave_t *file) : obj_t ()
 #endif
 {
-	image = after_bild = IMG_LEER;
+	image = after_bild = IMG_EMPTY;
 	preview = false;
 	rdwr(file);
 	if(besch) {
@@ -112,14 +112,17 @@ roadsign_t::roadsign_t(player_t *player, koord3d pos, ribi_t::ribi dir, const ro
 		// In network mode, we cannot have a sign being created concurrently with
 		// convoy path-finding because  whether the convoy path-finder is called
 		// on this tile of way before or after this function is indeterminate.
-		simthread_barrier_wait(&karte_t::step_convois_barrier_external);
-		simthread_barrier_wait(&karte_t::step_convois_barrier_external);
+		if (!world()->get_first_step())
+		{
+			simthread_barrier_wait(&karte_t::step_convoys_barrier_external);
+			welt->set_first_step(1);
+		}
 	}
 #endif
 	this->besch = besch;
 	this->dir = dir;
 	this->preview = preview;
-	image = after_bild = IMG_LEER;
+	image = after_bild = IMG_EMPTY;
 	state = 0;
 	ticks_ns = ticks_ow = 16;
 	ticks_offset = 0;
@@ -204,8 +207,8 @@ DBG_MESSAGE("roadsign_t::set_dir()","ribi %i",dir);
 	mark_image_dirty(after_bild,after_yoffset-get_yoff());
 	set_xoff( old_x );
 
-	image = IMG_LEER;
-	after_bild = IMG_LEER;
+	image = IMG_EMPTY;
+	after_bild = IMG_EMPTY;
 	calc_image();
 
 	if (preview)
@@ -307,7 +310,7 @@ void roadsign_t::calc_image()
 		else {
 			set_yoff( -gr->get_weg_yoff() );
 		}
-		after_bild = IMG_LEER;
+		after_bild = IMG_EMPTY;
 		return;
 	}
 
@@ -328,11 +331,11 @@ void roadsign_t::calc_image()
 		}
 	}
 
-	image_id tmp_bild=IMG_LEER;
+	image_id tmp_bild=IMG_EMPTY;
 	if(!automatic) {
 		assert( state==0 );
 
-		after_bild = IMG_LEER;
+		after_bild = IMG_EMPTY;
 		ribi_t::ribi temp_dir = dir;
 
 		if(  gr->get_typ()==grund_t::tunnelboden  &&  gr->ist_karten_boden()  &&
@@ -359,7 +362,7 @@ void roadsign_t::calc_image()
 			}
 
 			if(temp_dir&ribi_t::nord) {
-				if(tmp_bild!=IMG_LEER) {
+				if(tmp_bild!=IMG_EMPTY) {
 					after_bild = besch->get_bild_nr(0);
 					after_xoffset += -XOFF;
 					after_yoffset += -YOFF;
@@ -378,7 +381,7 @@ void roadsign_t::calc_image()
 			}
 
 			if(temp_dir&ribi_t::sued) {
-				if(after_bild!=IMG_LEER) {
+				if(after_bild!=IMG_EMPTY) {
 					tmp_bild = besch->get_bild_nr(1);
 					xoff += XOFF;
 					yoff += YOFF;
@@ -397,7 +400,7 @@ void roadsign_t::calc_image()
 			}
 
 			if(temp_dir&ribi_t::nord) {
-				if(after_bild!=IMG_LEER) {
+				if(after_bild!=IMG_EMPTY) {
 					tmp_bild = besch->get_bild_nr(0);
 				}
 				else {
@@ -410,7 +413,7 @@ void roadsign_t::calc_image()
 			}
 
 			if(temp_dir&ribi_t::sued) {
-				if(tmp_bild!=IMG_LEER) {
+				if(tmp_bild!=IMG_EMPTY) {
 					after_bild = besch->get_bild_nr(1);
 				}
 				else {
@@ -421,10 +424,10 @@ void roadsign_t::calc_image()
 
 		// some signs on roads must not have a background (but then they have only two rotations)
 		if(  besch->get_flags()&roadsign_besch_t::ONLY_BACKIMAGE  ) {
-			if(after_bild!=IMG_LEER) {
+			if(after_bild!=IMG_EMPTY) {
 				tmp_bild = after_bild;
 			}
-			after_bild = IMG_LEER;
+			after_bild = IMG_EMPTY;
 		}
 	}
 	else {
@@ -566,7 +569,7 @@ void roadsign_t::display_after(int xpos, int ypos, const sint8 clip_num ) const
 void roadsign_t::display_after(int xpos, int ypos, bool ) const
 #endif
 {
-	if(  after_bild != IMG_LEER  ) {
+	if(  after_bild != IMG_EMPTY  ) {
 		const int raster_width = get_current_tile_raster_width();
 		xpos += tile_raster_scale_x( after_xoffset, raster_width );
 		ypos += tile_raster_scale_y( after_yoffset, raster_width );
@@ -725,7 +728,7 @@ bool roadsign_t::register_besch(roadsign_besch_t *besch)
 		delete old_besch;
 	}
 
-	if(  besch->get_cursor()->get_bild_nr(1)!=IMG_LEER  ) {
+	if(  besch->get_cursor()->get_bild_nr(1)!=IMG_EMPTY  ) {
 		// add the tool
 		tool_build_roadsign_t *tool = new tool_build_roadsign_t();
 		tool->set_icon( besch->get_cursor()->get_bild_nr(1) );

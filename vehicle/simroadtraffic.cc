@@ -323,7 +323,7 @@ void road_user_t::finish_rd()
 
 
 /**********************************************************************************************************************/
-/* statsauto_t (city cars) from here on */
+/* private_car_t (city cars) from here on */
 
 
 static weighted_vector_tpl<const stadtauto_besch_t*> liste_timeline;
@@ -482,7 +482,7 @@ sync_result private_car_t::sync_step(uint32 delta_t)
 		{
 			ms_traffic_jam = 0;
 			// If this is the first step, get the car moving at a sensible speed as soon as possible.
-			weg_next += kmh_to_speed(50) * delta_t;
+			weg_next += kmh_to_speed(welt->get_settings().get_town_road_speed_limit()) * delta_t;
 			steps_next = 1;
 		}
 		else
@@ -774,7 +774,7 @@ void private_car_t::enter_tile(grund_t* gr)
 	if(target!=koord::invalid  &&  shortest_distance(pos_next.get_2d(),target)<10) {
 		// delete it ...
 		time_to_life = 0;
-		int number = 2;
+		uint32 number = 2;
 		pedestrian_t::generate_pedestrians_at(get_pos(), number);
 	}
 #endif /* DESTINATION_CITYCARS */

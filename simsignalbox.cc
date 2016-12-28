@@ -187,7 +187,7 @@ bool signalbox_t::transfer_signal(signal_t* s, signalbox_t* sb)
 
 	if(!s->get_besch()->get_working_method() != moving_block)
 	{
-		if((s->get_besch()->get_max_distance_to_signalbox() / welt->get_settings().get_meters_per_tile()) < shortest_distance(s->get_pos().get_2d(), sb->get_pos().get_2d()))
+		if(s->get_besch()->get_max_distance_to_signalbox() != 0 && ((s->get_besch()->get_max_distance_to_signalbox() / welt->get_settings().get_meters_per_tile()) < shortest_distance(s->get_pos().get_2d(), sb->get_pos().get_2d())))
 		{
 			return false;
 		}
@@ -229,7 +229,7 @@ koord signalbox_t::transfer_all_signals(signalbox_t* sb)
 
 		if(!s->get_besch()->get_working_method() != moving_block)
 		{
-			if((s->get_besch()->get_max_distance_to_signalbox() / welt->get_settings().get_meters_per_tile()) < shortest_distance(s->get_pos().get_2d(), sb->get_pos().get_2d()))
+			if (s->get_besch()->get_max_distance_to_signalbox() != 0 && ((s->get_besch()->get_max_distance_to_signalbox() / welt->get_settings().get_meters_per_tile()) < shortest_distance(s->get_pos().get_2d(), sb->get_pos().get_2d())))
 			{
 				failure++;
 				continue;

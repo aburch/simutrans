@@ -126,6 +126,12 @@ static int num_SDL_Rects = 0;
 static SDL_Rect SDL_Rects[MAX_SDL_RECTS];
 #endif
 
+// no autoscaling yet
+bool dr_auto_scale(bool)
+{
+	return false;
+}
+
 /*
  * Hier sind die Basisfunktionen zur Initialisierung der
  * Schnittstelle untergebracht

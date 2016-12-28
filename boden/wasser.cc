@@ -44,7 +44,7 @@ void wasser_t::calc_bild_internal(const bool calc_only_snowline_change)
 		sint16 zpos = min( welt->lookup_hgt( pos2d ), height ); // otherwise slope will fail ...
 
 		if(  grund_t::underground_mode == grund_t::ugm_level  &&  grund_t::underground_level < zpos  ) {
-			set_bild(IMG_LEER);
+			set_bild(IMG_EMPTY);
 		}
 		else {
 			set_bild( min( height - zpos, grund_besch_t::water_depth_levels ) /*grund_besch_t::get_ground_tile(0,zpos)*/ );

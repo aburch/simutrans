@@ -15,6 +15,14 @@ using std::string;
 
 void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 {
+	static const char* const ribi_codes[26] = {
+		"-", "n",  "e",  "ne",  "s",  "ns",  "se",  "nse",
+		"w", "nw", "ew", "new", "sw", "nsw", "sew", "nsew",
+		"nse1", "new1", "nsw1", "sew1", "nsew1",	// different crossings: northwest/southeast is straight
+		"nse2", "new2", "nsw2", "sew2", "nsew2",
+	};
+	int ribi, hang;
+	
 	obj_node_t node(this, 32, &parent);
 
 	sint32 topspeed					= obj.get_int("topspeed",    1000);
@@ -40,7 +48,7 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 	}
 
 	// prissi: timeline
-	uint16 intro_date  = obj.get_int("intro_year", DEFAULT_INTRO_DATE) * 12;
+	uint16 intro_date = obj.get_int("intro_year", DEFAULT_INTRO_DATE) * 12;
 	intro_date += obj.get_int("intro_month", 1) - 1;
 
 	uint16 obsolete_date  = obj.get_int("retire_year", DEFAULT_RETIRE_DATE) * 12;
@@ -150,6 +158,7 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 	cursorkeys.append(string(obj.get("cursor")));
 	cursorkeys.append(string(obj.get("icon")));
 
+	// These are the portal images only.
 	for(  uint8 season = 0;  season <= number_seasons;  season++  ) {
 		for(  uint8 pos = 0;  pos < 2;  pos++  ) {
 			for(  uint8 j = 0;  j < number_portals;  j++  ) {
@@ -172,6 +181,57 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 		if(season == 0) {
 			cursorskin_writer_t::instance()->write_obj(fp, node, obj, cursorkeys);
 		}
+	}
+
+	// These are the internal images
+	// Code adapted from the way writer
+	slist_tpl<string> keys;
+	static const char* const image_type[] = { "", "front" };
+	for (int backtofront = 0; backtofront<2; backtofront++)
+	{
+		for (ribi = 0; ribi < 16; ribi++) 
+		{
+			char buf[64];
+
+			sprintf(buf, "%sundergroundimage[%s]", image_type[backtofront], ribi_codes[ribi]);
+			string str = obj.get(buf);
+			keys.append(str);
+		}
+		imagelist_writer_t::instance()->write_obj(fp, node, keys);
+
+		keys.clear();
+		for (hang = 3; hang <= 12; hang += 3) 
+		{
+			char buf[64];
+
+			sprintf(buf, "%sundergroundimageup[%d]", image_type[backtofront], hang);
+			string str = obj.get(buf);
+			keys.append(str);
+		}
+		for (hang = 3; hang <= 12; hang += 3) 
+		{
+			char buf[64];
+
+			sprintf(buf, "%sundergroundimageup2[%d]", image_type[backtofront], hang);
+			string str = obj.get(buf);
+			if (!str.empty())
+			{
+				keys.append(str);
+			}
+		}
+		imagelist_writer_t::instance()->write_obj(fp, node, keys);
+
+		keys.clear();
+		for (ribi = 3; ribi <= 12; ribi += 3)
+		{
+			char buf[64];
+
+			sprintf(buf, "%sundergrounddiagonal[%s]", image_type[backtofront], ribi_codes[ribi]);
+			string str = obj.get(buf);
+			keys.append(str);
+		}
+		imagelist_writer_t::instance()->write_obj(fp, node, keys);
+		keys.clear();
 	}
 
 	str = obj.get("way");

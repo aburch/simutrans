@@ -59,7 +59,7 @@ public:
 	int get_phasen() const { return phasen; }
 
 	bool has_image() const {
-		return get_hintergrund(0,0,0)!=IMG_LEER  ||  get_vordergrund(0,0)!=IMG_LEER;
+		return get_hintergrund(0,0,0)!=IMG_EMPTY  ||  get_vordergrund(0,0)!=IMG_EMPTY;
 	}
 
 	image_id get_hintergrund(int phase, int hoehe, int season) const
@@ -72,7 +72,7 @@ public:
 		}
 		// here if this phase does not exists ...
 		bild_besch_t const* const image = bl->get_image(hoehe, 0);
-		return image != NULL ? image->get_nummer() : IMG_LEER;
+		return image != NULL ? image->get_nummer() : IMG_EMPTY;
 	}
 
 	// returns true, if the background is animated
@@ -100,7 +100,7 @@ public:
 		}
 		// here if this phase does not exists ...
 		bild_besch_t const* const image = bl->get_image(0, 0);
-		return image != NULL ? image->get_nummer() : IMG_LEER;
+		return image != NULL ? image->get_nummer() : IMG_EMPTY;
 	}
 
 	koord get_offset() const;
@@ -192,7 +192,7 @@ class haus_besch_t : public obj_besch_timelined_t {
 	flag_t flags;
 	uint16 level;			// or passengers;
 	uint8  layouts;			// 1 2, 4, 8  or 16
-	uint8  enables;			// if it is a stop, what is enabled; if it is a signal box, the signal group that can be linked to this box.
+	uint16 enables;			// if it is a stop, what is enabled; if it is a signal box, the signal group that can be linked to this box.
 	uint8  chance;			// Hajo: chance to build, special buildings, only other is weight factor
 
 	/** @author: jamespetts.
@@ -344,7 +344,7 @@ public:
 	* @return station flags (only used for station buildings, oil rigs and traction types in depots)
 	* @author prissi
 	*/
-	int get_enabled() const { return enables; }
+	uint16 get_enabled() const { return enables; }
 
 	/**
 	* @return time for doing one step

@@ -29,6 +29,8 @@
 #include "network/pwd_hash.h"
 #include "dataobj/loadsave.h"
 
+#include "simware.h"
+
 #include "simplan.h"
 
 #include "simdebug.h"
@@ -69,6 +71,24 @@ class viewport_t;
 class records_t;
 
 #define CHK_RANDS 32
+
+#ifdef MULTI_THREAD
+//#define FORBID_MULTI_THREAD_PASSENGER_GENERATION_IN_NETWORK_MODE
+#define MULTI_THREAD_PASSENGER_GENERATION // Currently fails (desync) in any known configuration.
+#define MULTI_THREAD_CONVOYS // Fails (desync) even if FORBID_SYNC_OBJECTS is defined and even if MULTI_THREAD_PATH_EXPLORER is undefined; but only in one specific old game.
+#define MULTI_THREAD_PATH_EXPLORER // Confirmed working 
+#endif
+
+#ifndef FORBID_MULTI_THREAD_PASSENGER_GENERATION_IN_NETWORK_MODE
+//#define FORBID_SYNC_OBJECTS // The desync is in the actual numbers of passengers that end up at any given stop, so this does not assist.
+//#define FORBID_PRIVATE_CARS // This does not cause the desync, but causes it to be detected more quickly. This should not be defined.
+//#define FORBID_PEDESTRIANS // This does not cause the desync, but causes it to be detected more quickly. This should not be defined.
+//#define FORBID_CONGESTION_EFFECTS // This appears to make no difference.
+//#define DISABLE_JOB_EFFECTS // This appears to make no difference
+//#define FORBID_PUBLIC_TRANSPORT // Desyncs without this defined.
+//#define FORBID_RETURN_TRIPS // This appears to make no difference
+//#define DISABLE_GLOBAL_WAITING_LIST // Will desync without this enabled
+#endif
 
 struct checklist_t
 {
@@ -129,6 +149,18 @@ public:
 		year = y * 12;
 		ownership_percent = ownership;
 	};
+};
+
+class transferring_cargo_t
+{
+public:
+	ware_t ware;
+	sint64 ready_time;
+
+	bool operator ==(const transferring_cargo_t& o)
+	{
+		return ware == o.ware && o.ready_time == ready_time;
+	}
 };
 
 /**
@@ -806,8 +838,8 @@ private:
 	 * minutes.
 	 * @author: jamespetts, April 2010
 	 */
-	uint16 generic_road_time_per_tile_city;
-	uint16 generic_road_time_per_tile_intercity;
+	uint32 generic_road_time_per_tile_city;
+	uint32 generic_road_time_per_tile_intercity;
 
 	uint32 max_road_check_depth;
 
@@ -889,8 +921,15 @@ private:
 	// in order to know when to launch the background threads. 
 	sint32 first_step;
 public:
-	static simthread_barrier_t step_convois_barrier_external;
+	static simthread_barrier_t step_convoys_barrier_external;
 	static simthread_barrier_t unreserve_route_barrier;
+	static pthread_mutex_t unreserve_route_mutex;
+	static pthread_mutex_t step_passengers_and_mail_mutex;
+	sint32 get_first_step() const { return first_step; }
+	void set_first_step(sint32 value) { first_step = value;  }
+	void stop_path_explorer(); 
+	void start_path_explorer();
+
 #else
 public:
 #endif
@@ -925,10 +964,22 @@ private:
 	friend void *check_road_connexions_threaded(void* args);
 	friend void *unreserve_route_threaded(void* args);
 	friend void *step_passengers_and_mail_threaded(void* args);
-	friend void *step_convois_threaded(void* args);
-	friend void *step_individual_convoi_threaded(void* args);
+	friend void *step_convoys_threaded(void* args);
+	friend void *path_explorer_threaded(void* args);
+	friend void *step_individual_convoy_threaded(void* args);
 	static sint32 cities_to_process;
-	static vector_tpl<convoihandle_t> convois_next_step;
+	static vector_tpl<convoihandle_t> convoys_next_step;
+	public:
+	static uint32 path_explorer_step_progress;
+	static bool unreserve_route_running;
+	static bool threads_initialised; 
+	
+	// These are both intended to be arrays of vectors
+	static vector_tpl<private_car_t*> *private_cars_added_threaded; 
+	static vector_tpl<pedestrian_t*> *pedestrians_added_threaded;
+
+	static thread_local uint32 passenger_generation_thread_number;
+	private:
 #endif
 
 public:
@@ -1410,20 +1461,22 @@ public:
 		 */
 		return get_settings().get_meters_per_tile() * ticks * 30L * 6L / (4096L * 1000L);
 	}
-	
+#ifndef NETTOOL	
 	/** 
 	* Reverse conversion of the above.
 	*/
-	inline sint64 seconds_to_ticks(uint32 seconds)
+	inline sint64 get_seconds_to_ticks(uint32 seconds) const
 	{
 		// S = a * T * c * d / (e * f)
 		// S / a = T * c * d / (e * f)
 		// S / a / c / d = T / (e * f)
 		// (S / a / c / d) * (e * f) = T
 
-		return ((sint64)seconds * 4096L * 1000L) / (sint64)get_settings().get_meters_per_tile() / 30L / 6L;
-	}
+		//return ((sint64)seconds * 4096L * 1000L) / (sint64)get_settings().get_meters_per_tile() / 30L / 6L;
 
+		return seconds_to_ticks(seconds, get_settings().get_meters_per_tile()); 
+	}
+#endif
 	/**
 	* Adds a single tile of a building to the relevant world list for passenger 
 	* and mail generation purposes
@@ -1507,12 +1560,26 @@ private:
 		walking_numerator = unit_movement_numerator / get_settings().get_walking_speed();
 	}
 
-	/** Get the number of parallel operations
-	* currently set. This should be set by the server
-	* in network games, and based on the thread count
-	* in single player games.
+	/**
+	* This is the list of passengers/mail/goods that
+	* are transferring to/from buildings without
+	* going via a stop. Those that go via a stop use
+	* the like named vector in the haltestelle_t class.
+	* This is an array of vectors, one per thread.
+	* In single threaded mode, there is only one.
 	*/
-	sint32 get_parallel_operations() const;
+	vector_tpl<transferring_cargo_t> *transferring_cargoes;
+
+	/**
+	* Iterate through the transferring_cargoes
+	* vector and dispatch all those cargoes
+	* that are ready.
+	*/
+	void check_transferring_cargoes(); 
+
+	// Calculate the time that a ware packet is
+	// taken out of the waiting list.
+	sint64 calc_ready_time(ware_t ware, koord origin_pos) const;
 
 public:
 
@@ -1549,7 +1616,7 @@ public:
 	/**
 	 * Conversion from walking distance in tiles to walk haulage time for freight
 	 * Walking haulage for freight is always at 1 km/h.
-	 * Returns tenths of minutes (god only knows why)
+	 * Returns tenths of minutes
 	 */
 	uint32 walk_haulage_time_tenths_from_distance(uint32 distance) const {
 		if (!speed_factors_are_set) {
@@ -1665,6 +1732,11 @@ public:
 	*/
 	void step_time_interval_signals();
 
+	/**
+	* Add cargoes to the waiting list
+	*/
+	void add_to_waiting_list(ware_t ware, koord origin_pos);
+
 #ifdef MULTI_THREAD
 	/**
 	* Initialise threads
@@ -1722,6 +1794,19 @@ public:
 
 	void set_mouse_rest_time(uint32 new_val) { mouse_rest_time = new_val; };
 	void set_sound_wait_time(uint32 new_val) { sound_wait_time = new_val; };
+
+	/**
+	* Call this when a ware is ready according to
+	* check_transferring_cargoes().
+	*/
+	void deposit_ware_at_destination(ware_t ware);
+
+	/** Get the number of parallel operations
+	* currently set. This should be set by the server
+	* in network games, and based on the thread count
+	* in single player games.
+	*/
+	sint32 get_parallel_operations() const;
 
 private:
 	/**
@@ -2423,8 +2508,8 @@ public:
 	 * of road. This is measured in 100ths 
 	 * of a minute per tile.
 	 */
-	uint16 get_generic_road_time_per_tile_city() const { return generic_road_time_per_tile_city; }
-	uint16 get_generic_road_time_per_tile_intercity() const { return generic_road_time_per_tile_intercity; };
+	uint32 get_generic_road_time_per_tile_city() const { return generic_road_time_per_tile_city; }
+	uint32 get_generic_road_time_per_tile_intercity() const { return generic_road_time_per_tile_intercity; };
 
 	sint32 calc_generic_road_time_per_tile(const weg_besch_t* besch);
 

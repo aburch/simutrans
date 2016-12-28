@@ -19,14 +19,6 @@
 #include "simconvoi.h"
 #include "simloadingscreen.h"
 
-#ifdef MULTI_THREAD_NOT
-static const int number_of_threads = min(MAX_THREADS, 4);
-#include "utils/simthread.h"
-
-static pthread_t compartment_thread[MAX_THREADS];
-static pthread_attr_t thread_attributes;
-#endif
-
 typedef quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*> connexions_map_single_remote;
 
 
@@ -44,7 +36,9 @@ uint8 path_explorer_t::category_empty = 255;
 path_explorer_t::compartment_t *path_explorer_t::goods_compartment = NULL;
 uint8 path_explorer_t::current_compartment = 0;
 bool path_explorer_t::processing = false;
-
+#ifdef MULTI_THREAD
+bool thread_local path_explorer_t::allow_path_explorer_on_this_thread = false;
+#endif
 
 void path_explorer_t::initialise(karte_t *welt)
 {
@@ -80,25 +74,13 @@ void path_explorer_t::finalise()
 	compartment_t::finalise();
 }
 
-#ifdef MULTI_THREAD_NOT
-void* thread_step(void *args)
-{
-	uint8 *current_compartment = (uint8*)args;
-	path_explorer_t::goods_compartment[*current_compartment].step();
-	pthread_exit(NULL);
-	return NULL;
-}
-#endif
-
 void path_explorer_t::step()
 {
-#ifdef MULTI_THREAD_NOT
-	pthread_attr_init(&thread_attributes);
-	pthread_attr_setdetachstate(&thread_attributes, PTHREAD_CREATE_JOINABLE);
-	
-	int rc;
-	sint32 threads_left_to_process = number_of_threads;
-	bool advance_to_next_category = true;
+#ifdef MULTI_THREAD
+	if (!allow_path_explorer_on_this_thread)
+	{
+		return;
+	}
 #endif
 	// at most check all goods categories once
 	for (uint8 i = 0; i < max_categories; ++i)
@@ -108,62 +90,20 @@ void path_explorer_t::step()
 			     || goods_compartment[current_compartment].is_refresh_requested() ) )
 		{
 			processing = true;	// this step performs something
-#ifdef MULTI_THREAD_NOT
-			rc = pthread_create(&compartment_thread[--threads_left_to_process], &thread_attributes, thread_step, (void*)&current_compartment);
-			if (rc)
-			{
-				dbg->fatal("void path_explorer_t::step()", "Failed to create thread, error %d. See here for a translation of the error numbers: http://epydoc.sourceforge.net/stdlib/errno-module.html", rc);
-			}
-#else
 			// perform step
 			goods_compartment[current_compartment].step();
-#endif
-			// FIXME: In both single and multi-threaded mode, do not allow multiple threads to be run on the same category as this makes things go very wrong.
-			// This may need some redesign of the path explorer's stepping feature.
-			//  Must be the same for single and multi-threaded because otherwise a single threaded client and multi-threaded server of vice-versa will not stay in sync.
-
 			// if refresh is completed, move on to the next category
 			if ( goods_compartment[current_compartment].is_refresh_completed() )
 			{
 				current_compartment = (current_compartment + 1) % max_categories;
 			}
-#ifdef MULTI_THREAD_NOT
-			if(threads_left_to_process == 0)
-			{
-				// Allow up to number_of_threads goods categories when multi-threaded.
-				advance_to_next_category = false;
-				break;
-			}
-#else
-			// each step process at most 1 goods category when single threaded
+			// each step process at most 1 goods category
 			return;
-#endif
 		}
 
 		// advance to the next category only if compartment.step() is not invoked
-#ifdef MULTI_THREAD_NOT
-		if(advance_to_next_category)
-		{
-			current_compartment = (current_compartment + 1) % max_categories;
-		}
-#else
 		current_compartment = (current_compartment + 1) % max_categories;
-#endif
 	}
-
-#ifdef MULTI_THREAD_NOT
-	pthread_attr_destroy(&thread_attributes);
-	const sint32 threads_to_go = threads_left_to_process - 1;
-
-	for (sint32 j = number_of_threads - 1; j > threads_to_go; j--)
-	{
-		rc = pthread_join(compartment_thread[j], NULL);
-		if (rc)
-		{
-			dbg->fatal("void path_explorer_t::step()", "Failed to join thread, error %d. See here for a translation of the error numbers: http://epydoc.sourceforge.net/stdlib/errno-module.html", rc);
-		}
-	}
-#endif
 
 	processing = false;	// this step performs nothing
 }
@@ -171,15 +111,14 @@ void path_explorer_t::step()
 
 void path_explorer_t::full_instant_refresh()
 {
+#ifdef MULTI_THREAD
+	path_explorer_t::allow_path_explorer_on_this_thread = true;
+#endif
+	uint16 curr_step = 0;
 	// exclude empty goods (nichts)
 	uint16 total_steps = (max_categories - 1) * 6;
-	uint16 curr_step = 0;
 
 	processing = true;
-
-	// initialize progress bar
-	loadingscreen_t ls( translator::translate("Calculating paths ..."), total_steps, true, true);
-	ls.set_progress(curr_step);
 
 	// disable the iteration limits
 	compartment_t::enable_limits(false);
@@ -191,6 +130,10 @@ void path_explorer_t::full_instant_refresh()
 	unsigned long start, diff;
 	start = dr_time();
 #endif
+
+	// initialize progress bar
+	loadingscreen_t ls(translator::translate("Calculating paths ..."), total_steps, true, true);
+	ls.set_progress(curr_step);
 
 	for (uint8 c = 0; c < max_categories; ++c)
 	{
@@ -229,6 +172,9 @@ void path_explorer_t::full_instant_refresh()
 	current_compartment = 0;
 
 	processing = false;
+#ifdef MULTI_THREAD
+	path_explorer_t::allow_path_explorer_on_this_thread = false;
+#endif
 }
 
 
@@ -553,6 +499,12 @@ void path_explorer_t::compartment_t::finalise()
 
 void path_explorer_t::compartment_t::step()
 {
+#ifdef MULTI_THREAD
+	if (!allow_path_explorer_on_this_thread)
+	{
+		return;
+	}
+#endif
 
 #ifdef DEBUG_COMPARTMENT_STEP
 	printf("\n\nCategory :  %s \n", translator::translate( catg_name ) );
@@ -573,6 +525,7 @@ void path_explorer_t::compartment_t::step()
 				refresh_requested = false;	// immediately reset it so that we can take new requests
 				refresh_completed = false;	// indicate that processing is at work
 				refresh_start_time = dr_time();
+				//refresh_start_time = world->get_zeit_ms(); // Possibly more network safe than the original (commented out above)
 				current_phase = phase_init_prepare;	// proceed to next phase
 				// no return statement here, as we want to fall through to the next phase
 			}
@@ -607,7 +560,7 @@ void path_explorer_t::compartment_t::step()
 				all_halts_list = new halthandle_t[all_halts_count];
 			}
 
-			const bool no_walking_connexions = !world->get_settings().get_allow_routing_on_foot() || catg!=warenbauer_t::passagiere->get_catg_index();
+			const bool no_walking_connexions = !world->get_settings().get_allow_routing_on_foot() || catg != warenbauer_t::passagiere->get_catg_index();
 
 			// Save the halt list in an array first to prevent the list from being modified across steps, causing bugs
 			for (uint16 i = 0; i < all_halts_count; ++i)
@@ -648,7 +601,7 @@ void path_explorer_t::compartment_t::step()
 						walking_distance_halt->get_next_pos(all_halts_list[i]->get_basis_pos())
 						);
 
-					const uint16 journey_time = world->walking_time_tenths_from_distance(walking_journey_distance);
+					const uint32 journey_time = world->walking_time_tenths_from_distance(walking_journey_distance);
 					
 					// Check the journey times to the connexion
 					new_connexion = new haltestelle_t::connexion;
@@ -765,14 +718,14 @@ void path_explorer_t::compartment_t::step()
 			halthandle_t current_halt;
 
 			minivec_tpl<halthandle_t> halt_list(64);
-			minivec_tpl<uint16> journey_time_list(64);
+			minivec_tpl<uint32> journey_time_list(64);
 			minivec_tpl<bool> recurrence_list(64);		// an array indicating whether certain halts have been processed already
 
 			uint32 accumulated_journey_time;
 			quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*> *catg_connexions;
 			haltestelle_t::connexion *new_connexion;
 
-			start = dr_time();	// start timing
+			start = dr_time();	// start timing. Note that this was originally dr_time()
 
 			// for each schedule of line / lineless convoy
 			while (phase_counter < linkages->get_count())
@@ -832,7 +785,7 @@ void path_explorer_t::compartment_t::step()
 				// precalculate journey times between consecutive halts
 				// This is now only a fallback in case the point to point journey time data are not available.
 				entry_count = halt_list.get_count();	
-				uint16 journey_time = 0;
+				uint32 journey_time = 0;
 				journey_time_list.clear();
 				journey_time_list.append(0);	// reserve the first entry for the last journey time from last halt to first halt
 
@@ -872,9 +825,7 @@ void path_explorer_t::compartment_t::step()
 						// Zero here means that there are no journey time data even if the hashtable entry exists.
 						// Fallback to convoy's general average speed if a point-to-point average is not available.
 						const uint32 distance = shortest_distance(halt_list[i]->get_basis_pos(), halt_list[(i+1)%entry_count]->get_basis_pos());
-						const uint32 journey_time_32 = world->travel_time_tenths_from_distance(distance, current_average_speed);
-						// TODO: Seriously consider using 32 bits here for all journey time data
-						journey_time = journey_time_32 > 65534 ? 65534 : journey_time_32;
+						journey_time = world->travel_time_tenths_from_distance(distance, current_average_speed);
 					}
 
 					// journey time from halt 0 to halt 1 is stored in journey_time_list[1]
@@ -929,7 +880,7 @@ void path_explorer_t::compartment_t::step()
 						new_connexion->transfer_time = catg != warenbauer_t::passagiere->get_catg_index() ? halt_list[h]->get_transshipment_time() : halt_list[h]->get_transfer_time();
 						if(current_linkage.line.is_bound())
 						{
-							average_tpl<uint16>* ave = current_linkage.line->get_average_journey_times().access(halt_pair);
+							average_tpl<uint32>* ave = current_linkage.line->get_average_journey_times().access(halt_pair);
 							if(ave && ave->count > 0)
 							{
 								new_connexion->journey_time = ave->reduce();
@@ -942,7 +893,7 @@ void path_explorer_t::compartment_t::step()
 						}
 						else if(current_linkage.convoy.is_bound())
 						{
-							average_tpl<uint16>* ave = current_linkage.convoy->get_average_journey_times().access(halt_pair);
+							average_tpl<uint32>* ave = current_linkage.convoy->get_average_journey_times().access(halt_pair);
 							if(ave && ave->count > 0)
 							{
 								new_connexion->journey_time = ave->reduce();
@@ -1419,7 +1370,7 @@ void path_explorer_t::compartment_t::step()
 					// identify halts which are connected with the current transfer halt
 					for ( uint16 idx = 0; idx < working_halt_count; ++idx )
 					{
-						if ( working_matrix[via][idx].aggregate_time != 65535 && via != idx )
+						if ( working_matrix[via][idx].aggregate_time != UINT32_MAX_VALUE && via != idx )
 						{
 							inbound_connections->register_connection( transport_matrix[idx][via].last_transport, idx );
 							outbound_connections->register_connection( transport_matrix[via][idx].first_transport, idx );
@@ -1464,14 +1415,6 @@ void path_explorer_t::compartment_t::step()
 													 + working_matrix[via][target].aggregate_time ) 
 											< working_matrix[origin][target].aggregate_time			   )
 								{
-									if(combined_time > 65535)
-									{
-										// Prevent perverse results with integer overflows here.
-										// It will probably be necessary eventually to put all journey
-										// times into 32-bit, but the impact on memory consumption and
-										// performance of this step is unknown.
-										combined_time = 65534;
-									}
 									working_matrix[origin][target].aggregate_time = combined_time;
 									working_matrix[origin][target].next_transfer = working_matrix[origin][via].next_transfer;
 									transport_matrix[origin][target].first_transport = transport_matrix[origin][via].first_transport;
@@ -1655,13 +1598,18 @@ void path_explorer_t::compartment_t::step()
 					++phase_counter;
 					continue;
 				}
+			
+				all_halts_list[phase_counter]->set_reroute_goods_next_step(catg);
+				++iterations;
+				++total_iterations;
 
-				if ( all_halts_list[phase_counter]->reroute_goods(catg) )
+				// The below is not compatible with multi-threading.
+				/*if ( all_halts_list[phase_counter]->reroute_goods(catg) )
 				{
 					// only halts with relevant goods packets are counted
 					++iterations;
 					++total_iterations;
-				}
+				}*/
 
 				++phase_counter;
 
@@ -1769,7 +1717,7 @@ void path_explorer_t::compartment_t::enumerate_all_paths(const path_element_t *c
 				
 				transfer_halt = matrix[x][y].next_transfer;
 
-				if (matrix[x][y].aggregate_time == 65535)
+				if (matrix[x][y].aggregate_time == UINT32_MAX_VALUE)
 				{
 					printf("\t\t\t\t******** No Route ********\n");
 				}
@@ -1779,7 +1727,7 @@ void path_explorer_t::compartment_t::enumerate_all_paths(const path_element_t *c
 					{
 						printf("\t\t\t\t%s\n", transfer_halt->get_name());
 
-						if ( halt_map[transfer_halt.get_id()] != 65535 )
+						if ( halt_map[transfer_halt.get_id()] != 65535)
 						{
 							transfer_halt = matrix[ halt_map[transfer_halt.get_id()] ][y].next_transfer;
 						}
@@ -1800,9 +1748,9 @@ void path_explorer_t::compartment_t::enumerate_all_paths(const path_element_t *c
 
 
 bool path_explorer_t::compartment_t::get_path_between(const halthandle_t origin_halt, const halthandle_t target_halt, 
-													  uint16 &aggregate_time, halthandle_t &next_transfer)
+													  uint32 &aggregate_time, halthandle_t &next_transfer)
 {
-	uint32 origin_index, target_index;
+	uint16 origin_index, target_index;
 	
 	// check if origin and target halts are both present in matrix; if yes, check the validity of the next transfer
 	if ( paths_available && origin_halt.is_bound() && target_halt.is_bound()
@@ -1816,7 +1764,7 @@ bool path_explorer_t::compartment_t::get_path_between(const halthandle_t origin_
 	}
 
 	// requested path not found
-	aggregate_time = 65535;
+	aggregate_time = UINT32_MAX_VALUE;
 	next_transfer = halthandle_t();
 	return false;
 }

@@ -297,7 +297,7 @@ void nwc_chat_t::add_message (karte_t* welt) const
 			buf.printf( "%s --> %s: %s", clientname.c_str(), destination.c_str(), message.c_str() );
 		}
 	}
-	welt->get_message()->add_message( buf.get_str(), koord::invalid, flag, color, IMG_LEER );
+	welt->get_message()->add_message( buf.get_str(), koord::invalid, flag, color, IMG_EMPTY );
 }
 
 
@@ -711,7 +711,7 @@ void nwc_sync_t::do_command(karte_t *welt)
 		}
 
 		// remove passwords before transfer on the server and set default client mask
-		// they will be restored in karte_t::laden
+		// they will be restored in karte_t::load
 		uint16 unlocked_players = 0;
 		for(  int i=0;  i<PLAYER_UNOWNED; i++  ) {
 			player_t *player = welt->get_player(i);

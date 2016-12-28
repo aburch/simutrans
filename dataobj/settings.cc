@@ -2801,6 +2801,9 @@ void settings_t::set_default_player_color(player_t* const player) const
 void settings_t::set_allow_routing_on_foot(bool value)
 { 
 	allow_routing_on_foot = value; 
+#ifdef MULTI_THREAD
+	world()->stop_path_explorer();
+#endif
 	path_explorer_t::refresh_category(0);
 }
 

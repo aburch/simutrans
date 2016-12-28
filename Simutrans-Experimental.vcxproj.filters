@@ -2204,6 +2204,9 @@
     <ClInclude Include="gui\signal_info.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="base_texts_experimental.dat">
@@ -2239,7 +2242,6 @@
     <None Include="Makefile">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="makeobj\Makefile" />
     <None Include="base_texts_experimental_forgotten_items_1.dat">
       <Filter>Resource Files</Filter>
     </None>
@@ -2352,6 +2354,15 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include=".desktop">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="makeobj\Makefile">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="nettools\Makefile">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="common.mk">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>
@@ -2591,5 +2602,10 @@
     <Manifest Include="Simutrans.manifest">
       <Filter>Resource Files</Filter>
     </Manifest>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="simutrans-ex.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>

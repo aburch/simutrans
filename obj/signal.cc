@@ -421,8 +421,8 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 
 void signal_t::calc_image()
 {
-	after_bild = IMG_LEER;
-	image_id image = IMG_LEER;
+	after_bild = IMG_EMPTY;
+	image_id image = IMG_EMPTY;
 	after_xoffset = 0;
 	after_yoffset = 0;
 	sint8 xoff = 0, yoff = 0;
@@ -581,7 +581,7 @@ void signal_t::calc_image()
 
 				if(temp_dir&ribi_t::nord) {
 					uint8 direction_state = (reserved_direction & ribi_t::nord) ? modified_state * 4 : 0;
-					if(image!=IMG_LEER) {			
+					if(image!=IMG_EMPTY) {			
 						after_bild = besch->get_bild_nr(0+direction_state+offset);
 						after_xoffset += -XOFF;
 						after_yoffset += -YOFF;
@@ -602,7 +602,7 @@ void signal_t::calc_image()
 
 				if(temp_dir&ribi_t::sued) {
 					uint8 direction_state = (reserved_direction & ribi_t::sued) ? modified_state * 4 : 0;
-					if(after_bild!=IMG_LEER) {
+					if(after_bild!=IMG_EMPTY) {
 						image = besch->get_bild_nr(1+direction_state+offset);
 						xoff += XOFF;
 						yoff += YOFF;
@@ -622,7 +622,7 @@ void signal_t::calc_image()
 
 				if(temp_dir&ribi_t::nord) {
 					uint8 direction_state = (reserved_direction & ribi_t::nord) ? modified_state * 4 : 0;
-					if(after_bild==IMG_LEER) {
+					if(after_bild==IMG_EMPTY) {
 						after_bild = besch->get_bild_nr(0+direction_state+offset);
 					}
 					else {
@@ -637,7 +637,7 @@ void signal_t::calc_image()
 
 				if(temp_dir&ribi_t::sued) {
 					uint8 direction_state = (reserved_direction & ribi_t::sued) ? modified_state * 4 : 0;
-					if(image==IMG_LEER) {
+					if(image==IMG_EMPTY) {
 						image = besch->get_bild_nr(1+direction_state+offset);
 					}
 					else {

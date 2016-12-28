@@ -3,8 +3,7 @@
 #include <windows.h>
 #include "simversion.h"
 
-100 ICON "simutrans.ico"
-101 ICON "old.ico"
+100 ICON "simutrans-ex.ico"
 
 
 1 VERSIONINFO
@@ -19,7 +18,7 @@ PRODUCTVERSION RES_VERSION_NUMBER
    VALUE "FileDescription",  "Simutrans-Experimental"
    VALUE "FileVersion",      VERSION_NUMBER EXPERIMENTAL_VERSION
    VALUE "InternalName",     "SIMUTRANS"
-   VALUE "LegalCopyright",   "\251 Hj. Malthaner '97-'04 Simutrans-Experimental Team '05-'13"
+   VALUE "LegalCopyright",   "\251 Hj. Malthaner '97-'04 Simutrans-Experimental Team '05-'16"
    VALUE "OriginalFilename", "simutrans-experimental.exe"
    VALUE "ProductName",      "Simutrans-Experimental"
    VALUE "ProductVersion",   VERSION_NUMBER EXPERIMENTAL_VERSION

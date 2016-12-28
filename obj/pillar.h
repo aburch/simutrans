@@ -34,11 +34,11 @@ public:
 
 	const bruecke_besch_t* get_besch() const { return besch; }
 
-	image_id get_image() const { return asymmetric ? IMG_LEER : image; }
+	image_id get_image() const { return asymmetric ? IMG_EMPTY : image; }
 
 	// asymmetric pillars are placed at the southern/eastern boundary of the tile
 	// thus the images have to be displayed after vehicles
-	image_id get_front_image() const { return asymmetric ? image : IMG_LEER;}
+	image_id get_front_image() const { return asymmetric ? image : IMG_EMPTY;}
 
 	// needs to check for hiding asymmetric pillars
 	void calc_image();

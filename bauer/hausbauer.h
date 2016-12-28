@@ -62,7 +62,7 @@ public:
 	 * If time==0 the timeline will be ignored.
 	 * Returns station that can be built above ground.
 	 */
-	static const haus_besch_t* get_random_station(const haus_besch_t::utyp utype, const waytype_t wt, const uint16 time, const uint8 enables);
+	static const haus_besch_t* get_random_station(const haus_besch_t::utyp utype, const waytype_t wt, const uint16 time, const uint16 enables);
 
 	static const haus_tile_besch_t* find_tile(const char* name, int idx);
 

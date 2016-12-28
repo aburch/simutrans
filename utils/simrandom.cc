@@ -19,10 +19,10 @@
 #define UPPER_MASK 0x80000000UL /* most significant w-r bits */
 #define LOWER_MASK 0x7fffffffUL /* least significant r bits */
 
-static uint32 mersenne_twister[MERSENNE_TWISTER_N]; // the array for the state vector
-static int mersenne_twister_index = MERSENNE_TWISTER_N + 1; // mersenne_twister_index==N+1 means mersenne_twister[N] is not initialized
+static uint32 thread_local mersenne_twister[MERSENNE_TWISTER_N]; // the array for the state vector
+static int thread_local mersenne_twister_index = MERSENNE_TWISTER_N + 1; // mersenne_twister_index==N+1 means mersenne_twister[N] is not initialized
 
-static uint8 random_origin = 0;
+static uint8 thread_local random_origin = 0;
 
 
 /* initializes mersenne_twister[N] with a seed */
@@ -254,7 +254,7 @@ uint32 sim_async_rand( uint32 max )
 	return (async_rand_seed >> 8) % max;
 }
 
-static uint32 noise_seed = 0;
+static uint32 thread_local noise_seed = 0;
 
 uint32 setsimrand(uint32 seed,uint32 ns)
 {
@@ -270,7 +270,6 @@ uint32 setsimrand(uint32 seed,uint32 ns)
 	}
 	return old_noise_seed;
 }
-
 
 static double int_noise(const sint32 x, const sint32 y)
 {

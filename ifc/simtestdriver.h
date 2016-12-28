@@ -20,7 +20,6 @@ class test_driver_t
 public:
 	virtual ~test_driver_t() {}
 
-	//Is passable (Babelfish)
 	virtual bool check_next_tile(const grund_t* ) const = 0;
 
 	/**

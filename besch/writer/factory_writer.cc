@@ -297,7 +297,6 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	node.write_uint16(fp, mail_boost,					31);
 	node.write_uint16(fp, electric_amount,				33);
 	node.write_uint16(fp, max_distance_to_consumer,		35);
-	
 
 	node.write(fp);
 }

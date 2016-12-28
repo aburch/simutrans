@@ -61,6 +61,14 @@ obj_besch_t * pedestrian_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	if(version == 0) {
 		// old, nonversion node
 		besch->gewichtung = v;
+
+		// This was a spare datum set to zero on all older versions
+		uint16 intro = decode_uint16(p);
+		if (intro > 0)
+		{
+			besch->intro_date = intro;
+			besch->obsolete_date = decode_uint16(p);
+		}
 	}
 	DBG_DEBUG("pedestrian_reader_t::read_node()","version=%i, gewichtung",version,besch->gewichtung);
 	return besch;

@@ -260,8 +260,11 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 				update_departures();
 				joined_buf.append( freight_info );
 			}
-			text.recalc_size();
 		}
+
+		char transferring[64];
+		sprintf(transferring, "%i %s", halt->get_transferring_cargoes_count(), translator::translate("units transferring"));
+		text.recalc_size();
 
 		gui_frame_t::draw(pos, size);
 		set_dirty();
@@ -331,6 +334,7 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 
 		info_buf.clear();
 		info_buf.printf("%s: %u", translator::translate("Storage capacity"), halt->get_capacity(0));
+		
 		left = pos.x + D_MARGIN_LEFT;
 		// passengers
 		left += display_proportional(left, top, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true);
@@ -357,6 +361,12 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 		// information about the passengers happiness
 		info_buf.clear();
 		halt->info(info_buf);
+#ifdef DEBUG
+		// This system currently only gives the number of
+		// packets, not the actual number of passengers (etc.). 
+		// Useful only for debugging therefore.
+		info_buf.printf(transferring);
+#endif
 		display_multiline_text(pos.x + D_MARGIN_LEFT, top, info_buf, SYSCOL_TEXT);
 	}
 }

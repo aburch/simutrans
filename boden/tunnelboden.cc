@@ -61,7 +61,7 @@ void tunnelboden_t::calc_bild_internal(const bool calc_only_snowline_change)
 		}
 
 		if(  grund_t::underground_mode == grund_t::ugm_none  ) {
-			if(  (ribi_typ(get_grund_hang()) == ribi_t::ost  &&  abs(back_bild_nr) > 11)  ||  (ribi_typ(get_grund_hang()) == ribi_t::sued  &&  get_back_bild(0) != IMG_LEER)  ) {
+			if(  (ribi_typ(get_grund_hang()) == ribi_t::ost  &&  abs(back_bild_nr) > 11)  ||  (ribi_typ(get_grund_hang()) == ribi_t::sued  &&  get_back_bild(0) != IMG_EMPTY)  ) {
 				// on east or north slope: must draw as obj, since there is a slope here nearby
 				koord pos = get_pos().get_2d() + koord( get_grund_hang() );
 				grund_t *gr = welt->lookup_kartenboden( pos );
@@ -70,6 +70,8 @@ void tunnelboden_t::calc_bild_internal(const bool calc_only_snowline_change)
 		}
 	}
 	// inside tunnel
+	// This should no longer be necessary now that we have proper tunnel internal graphics for ways.
+#ifdef TUNNEL_GROUND_IMAGES
 	else if(  !calc_only_snowline_change  ) {
 		clear_back_bild();
 		// default tunnel ground images
@@ -78,6 +80,7 @@ void tunnelboden_t::calc_bild_internal(const bool calc_only_snowline_change)
 		const uint8 bild_nr = (!slope_this  ||  (slope_this & 7)) ? grund_besch_t::slopetable[slope_this] : grund_besch_t::slopetable[slope_this >> 1] + 12;
 		set_bild( skinverwaltung_t::tunnel_texture->get_bild_nr( bild_nr ) );
 	}
+#endif 
 }
 
 

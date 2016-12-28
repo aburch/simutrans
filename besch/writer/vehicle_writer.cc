@@ -40,6 +40,10 @@ static vehikel_besch_t::engine_t get_engine_type(char const* const engine_type)
 		uv8 = vehikel_besch_t::hydrogene;
 	} else if (!STRICMP(engine_type, "battery")) {
 		uv8 = vehikel_besch_t::battery;
+	} else if (!STRICMP(engine_type, "petrol")) {
+		uv8 = vehikel_besch_t::petrol;
+	} else if (!STRICMP(engine_type, "turbine")) {
+		uv8 = vehikel_besch_t::turbine;
 	} else if (!STRICMP(engine_type, "unknown")) {
 		uv8 = vehikel_besch_t::unknown;
 	}

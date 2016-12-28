@@ -43,7 +43,7 @@ class tool_query_t : public tool_t {
 public:
 	tool_query_t() : tool_t(TOOL_QUERY | GENERAL_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("Abfrage"); }
-	image_id get_icon(player_t *player) const OVERRIDE { return (!env_t::networkmode || player->get_player_nr()==1) ? icon : IMG_LEER; }
+	image_id get_icon(player_t *player) const OVERRIDE { return (!env_t::networkmode || player->get_player_nr()==1) ? icon : IMG_EMPTY; }
 	char const* work(player_t*, koord3d) OVERRIDE;
 	bool is_init_network_save() const OVERRIDE { return true; }
 	bool is_work_network_save() const OVERRIDE { return true; }
@@ -74,7 +74,7 @@ protected:
 
 public:
 	tool_raise_lower_base_t(uint16 id) : tool_t(id | GENERAL_TOOL), is_dragging(false), drag_height(0) { offset = Z_GRID; }
-	image_id get_icon(player_t*) const OVERRIDE { return grund_t::underground_mode==grund_t::ugm_all ? IMG_LEER : icon; }
+	image_id get_icon(player_t*) const OVERRIDE { return grund_t::underground_mode==grund_t::ugm_all ? IMG_EMPTY : icon; }
 	bool init(player_t*) OVERRIDE { is_dragging = false; return true; }
 	bool exit(player_t*) OVERRIDE { is_dragging = false; return true; }
 	/**
@@ -228,7 +228,7 @@ private:
 class tool_plant_tree_t : public kartenboden_tool_t {
 public:
 	tool_plant_tree_t() : kartenboden_tool_t(TOOL_PLANT_TREE | GENERAL_TOOL) {}
-	image_id get_icon(player_t *) const { return baum_t::get_anzahl_besch() > 0 ? icon : IMG_LEER; }
+	image_id get_icon(player_t *) const { return baum_t::get_anzahl_besch() > 0 ? icon : IMG_EMPTY; }
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate( "Plant tree" ); }
 	bool init(player_t*) { return baum_t::get_anzahl_besch() > 0; }
 	char const* move(player_t* const player, uint16 const b, koord3d const k) OVERRIDE;
@@ -256,9 +256,9 @@ public:
 };
 
 class tool_build_way_t : public two_click_tool_t {
-private:
+public: 
 	static const weg_besch_t *defaults[18];	// default ways for all types
-
+private:
 	char const* do_work(player_t*, koord3d const&, koord3d const&) OVERRIDE;
 	void mark_tiles(player_t*, koord3d const&, koord3d const&) OVERRIDE;
 	uint8 is_valid_pos(player_t*, koord3d const&, char const*&, koord3d const&) OVERRIDE;
@@ -297,13 +297,14 @@ public:
 class tool_build_bridge_t : public two_click_tool_t {
 private:
 	ribi_t::ribi ribi;
+	const weg_besch_t* weg_besch;
 
 	char const* do_work(player_t*, koord3d const&, koord3d const&) OVERRIDE;
 	void mark_tiles(player_t*, koord3d const&, koord3d const&) OVERRIDE;
 	uint8 is_valid_pos(player_t*, koord3d const&, char const*&, koord3d const&) OVERRIDE;
 public:
-	tool_build_bridge_t() : two_click_tool_t(TOOL_BUILD_BRIDGE | GENERAL_TOOL) {}
-	image_id get_icon(player_t*) const OVERRIDE { return grund_t::underground_mode==grund_t::ugm_all ? IMG_LEER : icon; }
+	tool_build_bridge_t() : two_click_tool_t(TOOL_BUILD_BRIDGE | GENERAL_TOOL) { weg_besch = NULL; }
+	image_id get_icon(player_t*) const OVERRIDE { return grund_t::underground_mode==grund_t::ugm_all ? IMG_EMPTY : icon; }
 	char const* get_tooltip(player_t const*) const OVERRIDE;
 	bool is_init_network_save() const OVERRIDE { return true; }
 	waytype_t get_waytype() const OVERRIDE;
@@ -314,6 +315,8 @@ public:
 
 class tool_build_tunnel_t : public two_click_tool_t {
 private:
+	const weg_besch_t* weg_besch;
+
 	void calc_route( wegbauer_t &bauigel, const koord3d &, const koord3d &);
 	char const* do_work(player_t*, koord3d const&, koord3d const&) OVERRIDE;
 	void mark_tiles(player_t*, koord3d const&, koord3d const&) OVERRIDE;
@@ -325,6 +328,7 @@ public:
 	bool is_init_network_save() const OVERRIDE { return true; }
 	waytype_t get_waytype() const OVERRIDE;
 	bool remove_preview_necessary() const OVERRIDE { return !is_first_click(); }
+	void rdwr_custom_data(memory_rw_t*) OVERRIDE;
 	bool init(player_t*) OVERRIDE;
 };
 
@@ -555,7 +559,7 @@ class tool_lock_game_t : public tool_t {
 public:
 	tool_lock_game_t() : tool_t(TOOL_LOCK_GAME | GENERAL_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE { return env_t::networkmode ? translator::translate("deactivated in online mode") : translator::translate("Lock game"); }
-	image_id get_icon(player_t*) const OVERRIDE { return env_t::networkmode ? IMG_LEER : icon; }
+	image_id get_icon(player_t*) const OVERRIDE { return env_t::networkmode ? IMG_EMPTY : icon; }
 	// deactivate in network mode
 	bool init(player_t *) { return !env_t::networkmode; }
 	const char *work( player_t *, koord3d );
@@ -575,7 +579,7 @@ public:
 class tool_forest_t : public two_click_tool_t {
 public:
 	tool_forest_t() : two_click_tool_t(TOOL_FOREST | GENERAL_TOOL) {}
-	image_id get_icon(player_t *) const { return baum_t::get_anzahl_besch() > 0 ? icon : IMG_LEER; }
+	image_id get_icon(player_t *) const { return baum_t::get_anzahl_besch() > 0 ? icon : IMG_EMPTY; }
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("Add forest"); }
 	bool init( player_t *player) { return  baum_t::get_anzahl_besch() > 0  &&  two_click_tool_t::init(player); }
 private:
@@ -653,7 +657,7 @@ class tool_pause_t : public tool_t {
 public:
 	tool_pause_t() : tool_t(TOOL_PAUSE | SIMPLE_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE { return env_t::networkmode ? translator::translate("deactivated in online mode") : translator::translate("Pause"); }
-	image_id get_icon(player_t*) const OVERRIDE { return env_t::networkmode ? IMG_LEER : icon; }
+	image_id get_icon(player_t*) const OVERRIDE { return env_t::networkmode ? IMG_EMPTY : icon; }
 	bool is_selected() const OVERRIDE { return welt->is_paused(); }
 	bool init( player_t * ) {
 		if(  !env_t::networkmode  ) {
@@ -671,7 +675,7 @@ class tool_fastforward_t : public tool_t {
 public:
 	tool_fastforward_t() : tool_t(TOOL_FASTFORWARD | SIMPLE_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE { return env_t::networkmode ? translator::translate("deactivated in online mode") : translator::translate("Fast forward"); }
-	image_id get_icon(player_t*) const OVERRIDE { return env_t::networkmode ? IMG_LEER : icon; }
+	image_id get_icon(player_t*) const OVERRIDE { return env_t::networkmode ? IMG_EMPTY : icon; }
 	bool is_selected() const OVERRIDE { return welt->is_fast_forward(); }
 	bool init( player_t * ) {
 		if(  !env_t::networkmode  ) {
@@ -886,7 +890,7 @@ public:
 class tool_rotate90_t : public tool_t {
 public:
 	tool_rotate90_t() : tool_t(TOOL_ROTATE90 | SIMPLE_TOOL) {}
-	image_id get_icon(player_t*) const OVERRIDE { return env_t::networkmode ? IMG_LEER : icon; }
+	image_id get_icon(player_t*) const OVERRIDE { return env_t::networkmode ? IMG_EMPTY : icon; }
 	char const* get_tooltip(player_t const*) const OVERRIDE { return env_t::networkmode ? translator::translate("deactivated in online mode") : translator::translate("Rotate map"); }
 	bool init( player_t * ) OVERRIDE;
 	bool is_init_network_save() const OVERRIDE { return !env_t::networkmode; }
@@ -907,7 +911,7 @@ class tool_fill_trees_t : public tool_t {
 public:
 	tool_fill_trees_t() : tool_t(TOOL_FILL_TREES | SIMPLE_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("Fill trees"); }
-	image_id get_icon(player_t *) const { return baum_t::get_anzahl_besch() > 0 ? icon : IMG_LEER; }
+	image_id get_icon(player_t *) const { return baum_t::get_anzahl_besch() > 0 ? icon : IMG_EMPTY; }
 	bool init(player_t * ) {
 		if(  baum_t::get_anzahl_besch() > 0  &&  default_param  ) {
 			baum_t::fill_trees( atoi(default_param) );

@@ -69,7 +69,10 @@ public:
 		sail,
 		fuel_cell,
 		hydrogene,
-		battery
+		battery,
+		petrol,
+		turbine,
+		MAX_TRACTION_TYPE
 	};
 
 	static const char* get_engine_type(engine_t e) 
@@ -95,6 +98,10 @@ public:
 			return "hydrogene";
 		case battery:
 			return "battery";
+		case petrol:
+			return "petrol";
+		case turbine:
+			return "turbine";
 		}
 	}
 
@@ -415,7 +422,7 @@ public:
 			liste = get_child<bildliste_besch_t>(4);
 			if(!liste)
 			{
-				return IMG_LEER;
+				return IMG_EMPTY;
 			}
 		}
 
@@ -428,7 +435,7 @@ public:
 			}
 			if(!image) 
 			{
-				return IMG_LEER;
+				return IMG_EMPTY;
 			}
 		}
 		return image->get_nummer();
@@ -684,7 +691,7 @@ public:
 	* eletric engines require an electrified way to run
 	* @author Hj. Malthaner
 	*/
-	uint8 get_engine_type() const { return engine_type; }
+	uint16 get_engine_type() const { return engine_type; }
 
 	/* @return the vehicles length in 1/8 of the normal len
 	* @author prissi

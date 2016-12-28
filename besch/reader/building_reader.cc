@@ -217,6 +217,12 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		}
 	}
 
+	//HACK: I have no idea why the above does not work.
+	if (experimental && v == 49928)
+	{
+		experimental_version = 3;
+	}
+
 	if(version <= 7)
 	{
 		// Capacity, maintenance and price were set from level;
@@ -241,10 +247,17 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->groesse.y = decode_uint16(p);
 		besch->layouts   = decode_uint8(p);
 		besch->allowed_climates = (climate_bits)decode_uint16(p);
-		besch->enables   = decode_uint8(p);
+		if (experimental_version >= 3)
+		{
+			besch->enables = decode_uint16(p);
+		}
+		else
+		{
+			besch->enables = decode_uint8(p);
+		}
 		if(!experimental && besch->utype == haus_besch_t::depot)
 		{
-			besch->enables = 255;
+			besch->enables = 65535;
 		}
 		besch->flags     = (haus_besch_t::flag_t)decode_uint8(p);
 		besch->chance    = decode_uint8(p);
@@ -257,7 +270,7 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->allow_underground = decode_uint8(p);
 		if(experimental)
 		{
-			if(experimental_version > 2)
+			if(experimental_version > 3)
 			{
 				dbg->fatal( "building_reader_t::read_node()","Incompatible pak file version for Simutrans-Ex, number %i", experimental_version );
 			}
@@ -294,7 +307,7 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->enables   = decode_uint8(p);
 		if(experimental_version < 1 && besch->utype == haus_besch_t::depot)
 		{
-			besch->enables = 255;
+			besch->enables = 65535;
 		}
 		besch->flags     = (haus_besch_t::flag_t)decode_uint8(p);
 		besch->chance    = decode_uint8(p);
@@ -343,7 +356,7 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->enables			= decode_uint8(p);
 		if(experimental_version < 1 && besch->utype == haus_besch_t::depot)
 		{
-			besch->enables = 255;
+			besch->enables = 65535;
 		}
 		besch->flags		 = (haus_besch_t::flag_t)decode_uint8(p);
 		besch->chance		 = decode_uint8(p);
@@ -395,7 +408,7 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->enables   = decode_uint8(p);
 		if(besch->utype == haus_besch_t::depot)
 		{
-			besch->enables = 255;
+			besch->enables = 65535;
 		}
 		besch->flags     = (haus_besch_t::flag_t)decode_uint8(p);
 		besch->chance    = decode_uint8(p);
@@ -438,7 +451,7 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->enables   = decode_uint8(p);
 		if(besch->utype == haus_besch_t::depot)
 		{
-			besch->enables = 255;
+			besch->enables = 65535;
 		}
 		else
 		{
@@ -462,7 +475,7 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->allowed_climates   =  (climate_bits)0xFFFE; // all but water
 		if(besch->utype == haus_besch_t::depot)
 		{
-			besch->enables = 255;
+			besch->enables = 65535;
 		}
 		else
 		{
@@ -488,7 +501,7 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->allowed_climates   =  (climate_bits)0xFFFE; // all but water
 		if(besch->utype == haus_besch_t::depot)
 		{
-			besch->enables = 255;
+			besch->enables = 65535;
 		}
 		else
 		{

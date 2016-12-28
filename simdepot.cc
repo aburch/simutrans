@@ -192,7 +192,9 @@ void depot_t::convoi_arrived(convoihandle_t acnv, bool fpl_adjust)
 		{
 			acnv->unregister_stops();
 		}
-		
+#ifdef MULTI_THREAD
+		world()->stop_path_explorer();
+#endif
 		path_explorer_t::refresh_all_categories(true);
 	}
 
@@ -839,7 +841,7 @@ void depot_t::update_all_win()
  *   - 0 if we don't want to filter by traction type
  *   - a bitmask of possible traction types; we need only match one
  */
-bool depot_t::is_suitable_for( const vehicle_t * test_vehicle, const uint8 traction_types /* = 0 */ ) const {
+bool depot_t::is_suitable_for( const vehicle_t * test_vehicle, const uint16 traction_types /* = 0 */ ) const {
 	assert(test_vehicle != NULL);
 
 	// Owner must be the same

@@ -20,7 +20,7 @@ using std::string;
  */
 static uint8 get_engine_type(const char* engine_type, tabfileobj_t& obj)
 {
-	uint8 uv8 = vehikel_besch_t::diesel;
+	uint16 uv8 = vehikel_besch_t::diesel;
 
 	if (!STRICMP(engine_type, "diesel")) {
 		uv8 = vehikel_besch_t::diesel;
@@ -38,6 +38,10 @@ static uint8 get_engine_type(const char* engine_type, tabfileobj_t& obj)
 		uv8 = vehikel_besch_t::hydrogene;
 	} else if (!STRICMP(engine_type, "battery")) {
 		uv8 = vehikel_besch_t::battery;
+	} else if (!STRICMP(engine_type, "petrol")) {
+		uv8 = vehikel_besch_t::petrol;
+	} else if (!STRICMP(engine_type, "turbine")) {
+		uv8 = vehikel_besch_t::turbine;
 	} else if (!STRICMP(engine_type, "unknown")) {
 		uv8 = vehikel_besch_t::unknown;
 	}
@@ -96,7 +100,7 @@ void tile_writer_t::write_obj(FILE* fp, obj_node_t& parent, int index, int seaso
 void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 {
 	// Hajo: take care, hardocded size of node on disc here!
-	obj_node_t node(this, 48, &parent);
+	obj_node_t node(this, 49, &parent);
 
 	write_head(fp, node, obj);
 
@@ -121,7 +125,7 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	haus_besch_t::utyp         utype            = haus_besch_t::unbekannt;
 	uint32                     extra_data       = 0;
 	climate_bits               allowed_climates = all_but_water_climate; // all but water
-	uint8                      enables          = 0;
+	uint16                     enables          = 0;
 	uint16                     level            = obj.get_int("level", 1);
 	haus_besch_t::flag_t const flags            =
 		(obj.get_int("noinfo",         0) > 0 ? haus_besch_t::FLAG_KEINE_INFO  : haus_besch_t::FLAG_NULL) |
@@ -278,10 +282,10 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	if(utype == haus_besch_t::depot)
 	{
 		// HACK: Use "enables" (only used for a stop type) to encode traction types
-		enables = 255; // Default - all types enabled.
+		enables = 65535; // Default - all types enabled.
 		
-		uint8 traction_type_count = 0;
-		uint8 traction_type = 1;
+		uint16 traction_type_count = 0;
+		uint16 traction_type = 1;
 		bool engaged = false;
 		string engine_type;
 		do {
@@ -295,12 +299,12 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 				if(!engaged)
 				{
 					// If the user specifies anything, the
-					// default of 255 must be cleared.
+					// default of 65535 must be cleared.
 					engaged = true;
 					enables = 0;
 				}
 				traction_type = get_engine_type(engine_type.c_str(), obj);
-				const uint8 shifter = 1 << traction_type;
+				const uint16 shifter = 1 << traction_type;
 				enables |= shifter;
 				traction_type_count++;
 			}
@@ -407,7 +411,8 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	// Start at 0x100 and increment in hundreds (hex).
 	// Reset to 0x100 for Standard 0x8008
 	// 0x200: Experimental version 12: radii for buildings
-	version += 0x200;
+	// 0x300: 16-bit traction types
+	version += 0x300;
 	
 	// Hajo: write version data
 	node.write_uint16(fp, version,									0);
@@ -421,21 +426,21 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	node.write_uint16(fp, groesse.y,								12);
 	node.write_uint8 (fp, layouts,									14);
 	node.write_uint16(fp, allowed_climates,							15);
-	node.write_uint8 (fp, enables,									17);
-	node.write_uint8 (fp, flags,									18);
-	node.write_uint8 (fp, chance,									19);
-	node.write_uint16(fp, intro_date,								20);
-	node.write_uint16(fp, obsolete_date,							22);
-	node.write_uint16(fp, animation_time,							24);
-	node.write_uint16(fp, capacity,									26);
-	node.write_sint32(fp, maintenance,								28);
-	node.write_sint32(fp, price,									32);
-	node.write_uint8 (fp, allow_underground,						36);
-	node.write_uint8 (fp, is_control_tower,							37);
-	node.write_uint16(fp, population_and_visitor_demand_capacity,	38);
-	node.write_uint16(fp, employment_capacity,						40);
-	node.write_uint16(fp, mail_demand_and_production_capacity,		42);
-	node.write_uint32(fp, radius,									44);
+	node.write_uint16(fp, enables,									17);
+	node.write_uint8 (fp, flags,									19);
+	node.write_uint8 (fp, chance,									20);
+	node.write_uint16(fp, intro_date,								21);
+	node.write_uint16(fp, obsolete_date,							23);
+	node.write_uint16(fp, animation_time,							25);
+	node.write_uint16(fp, capacity,									27);
+	node.write_sint32(fp, maintenance,								29);
+	node.write_sint32(fp, price,									33);
+	node.write_uint8 (fp, allow_underground,						37);
+	node.write_uint8 (fp, is_control_tower,							38);
+	node.write_uint16(fp, population_and_visitor_demand_capacity,	39);
+	node.write_uint16(fp, employment_capacity,						41);
+	node.write_uint16(fp, mail_demand_and_production_capacity,		43);
+	node.write_uint32(fp, radius,									45);
 	
 	// probably add some icons, if defined
 	slist_tpl<string> cursorkeys;

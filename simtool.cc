@@ -139,7 +139,7 @@ char *tooltip_with_price_maintenance(karte_t *welt, const char *tip, sint64 pric
 /**
  * Creates a tooltip from tip text and money value
  */
-char *tooltip_with_price_maintenance_level(karte_t *welt, const char *tip, sint64 price, sint64 maintenance, uint16 capacity, uint8 enables)
+char *tooltip_with_price_maintenance_level(karte_t *welt, const char *tip, sint64 price, sint64 maintenance, uint16 capacity, uint16 enables)
 {
 	int n = sprintf(tool_t::toolstr, "%s, ", translator::translate(tip) );
 	money_to_string(tool_t::toolstr+n, (double)price/-100.0);
@@ -1647,7 +1647,7 @@ const char* tool_transformer_t::get_tooltip(const player_t *) const
 
 image_id tool_transformer_t::get_icon(player_t*) const
 {
-	return wegbauer_t::waytype_available( powerline_wt, welt->get_timeline_year_month() ) ? icon : IMG_LEER;
+	return wegbauer_t::waytype_available( powerline_wt, welt->get_timeline_year_month() ) ? icon : IMG_EMPTY;
 }
 
 bool tool_transformer_t::init( player_t *)
@@ -2368,10 +2368,10 @@ const weg_besch_t *tool_build_way_t::defaults[18] = { 0, 0, 0, 0, 0, 0, 0, 0, 0,
 
 const weg_besch_t *tool_build_way_t::get_besch( uint16 timeline_year_month, bool remember ) const
 {
-	const weg_besch_t *besch = default_param ? wegbauer_t::get_besch(default_param,0) :NULL;
+	const weg_besch_t *besch = default_param ? wegbauer_t::get_besch(default_param,0) : NULL;
 	if(  besch==NULL  &&  default_param  ) {
 		waytype_t wt = (waytype_t)atoi(default_param);
-		besch = defaults[wt&63];
+		besch = defaults[wt & 63];
 		if(besch == NULL || !besch->is_available(timeline_year_month)) {
 			// Search for default way
 			besch = wegbauer_t::weg_search(wt, 0xffffffff, timeline_year_month, weg_t::type_flat);
@@ -2392,7 +2392,7 @@ image_id tool_build_way_t::get_icon(player_t *) const
 {
 	const weg_besch_t *besch = wegbauer_t::get_besch(default_param,0);
 	const bool is_tram = besch ? (besch->get_wtyp()==tram_wt) || (besch->get_styp() == weg_t::type_tram) : false;
-	return (grund_t::underground_mode==grund_t::ugm_all && !is_tram ) ? IMG_LEER : icon;
+	return (grund_t::underground_mode==grund_t::ugm_all && !is_tram ) ? IMG_EMPTY : icon;
 }
 
 const char* tool_build_way_t::get_tooltip(const player_t *) const
@@ -2479,8 +2479,8 @@ bool tool_build_way_t::init( player_t *player )
 	}
 
 	// now get current besch
-	besch = get_besch( welt->get_timeline_year_month(), is_local_execution() );
-	if(  besch  &&  besch->get_cursor()->get_bild_nr(0) != IMG_LEER  ) {
+	besch = get_besch( welt->get_timeline_year_month(), /*is_local_execution()*/ true );
+	if(  besch  &&  besch->get_cursor()->get_bild_nr(0) != IMG_EMPTY  ) {
 		cursor = besch->get_cursor()->get_bild_nr(0);
 	}
 	if(  besch  &&  !besch->is_available(welt->get_timeline_year_month())  &&  player!=NULL  &&  player!=welt->get_player(1)  ) {
@@ -2500,7 +2500,7 @@ waytype_t tool_build_way_t::get_waytype() const
 	return wt;
 }
 
-uint8 tool_build_way_t::is_valid_pos(  player_t *player, const koord3d &pos, const char *&error, const koord3d & )
+uint8 tool_build_way_t::is_valid_pos( player_t *player, const koord3d &pos, const char *&error, const koord3d & )
 {
 	error = NULL;
 	grund_t *gr=welt->lookup(pos);
@@ -2761,7 +2761,11 @@ const char *tool_build_bridge_t::do_work( player_t *player, const koord3d &start
 		const char *error;
 		koord3d end2 = brueckenbauer_t::finde_ende(player, start, zv, besch, error, bridge_height, false, koord_distance(start, end), is_ctrl_pressed());
 		assert(end2 == end); (void)end2;
-		const weg_besch_t* weg_besch = besch->get_weg_besch();
+		waytype_t wt = besch->get_waytype();
+		if (weg_besch == NULL)
+		{
+			weg_besch = besch->get_weg_besch();
+		}
 		brueckenbauer_t::baue_bruecke( player, start, end, zv, bridge_height, besch, weg_besch ? weg_besch : wegbauer_t::weg_search(besch->get_waytype(), besch->get_topspeed(), welt->get_timeline_year_month(), weg_t::type_flat));
 		return NULL; // all checks are performed before building.
 	}
@@ -2773,6 +2777,21 @@ void tool_build_bridge_t::rdwr_custom_data(memory_rw_t *packet)
 	uint8 i = ribi;
 	packet->rdwr_byte(i);
 	ribi = (ribi_t::ribi)i;
+	if (packet->is_loading())
+	{
+		plainstring weg_besch_string;
+		packet->rdwr_str(weg_besch_string);
+		weg_besch = wegbauer_t::get_besch(weg_besch_string);
+	}
+	else
+	{
+		const bruecke_besch_t* bb = brueckenbauer_t::get_besch(default_param);
+		const waytype_t wt = bb ? bb->get_waytype() : invalid_wt;
+		weg_besch = tool_build_way_t::defaults[wt & 63];
+
+		plainstring weg_besch_string = weg_besch ? weg_besch->get_name() : "none";
+		packet->rdwr_str(weg_besch_string);
+	}
 }
 
 void tool_build_bridge_t::mark_tiles(  player_t *player, const koord3d &start, const koord3d &end )
@@ -3041,6 +3060,26 @@ bool tool_build_tunnel_t::init( player_t *player )
 	return besch!=NULL;
 }
 
+void tool_build_tunnel_t::rdwr_custom_data(memory_rw_t *packet)
+{
+	two_click_tool_t::rdwr_custom_data(packet);
+	if (packet->is_loading())
+	{
+		plainstring weg_besch_string;
+		packet->rdwr_str(weg_besch_string);
+		weg_besch = wegbauer_t::get_besch(weg_besch_string);
+	}
+	else
+	{
+		const tunnel_besch_t* tb = tunnelbauer_t::get_besch(default_param);
+		const waytype_t wt = tb ? tb->get_waytype() : invalid_wt;
+		weg_besch = tool_build_way_t::defaults[wt & 63];
+
+		plainstring weg_besch_string = weg_besch ? weg_besch->get_name() : "none";
+		packet->rdwr_str(weg_besch_string);
+	}
+}
+
 const char *tool_build_tunnel_t::check_pos( player_t *player, koord3d pos)
 {
 	if (grund_t::underground_mode == grund_t::ugm_all) {
@@ -3074,7 +3113,7 @@ const char *tool_build_tunnel_t::do_work( player_t *player, const koord3d &start
 		// Build tunnel mouths
 		if (welt->lookup_kartenboden(start.get_2d())->get_hoehe() == start.z) {
 			const tunnel_besch_t *besch = tunnelbauer_t::get_besch(default_param);
-			return tunnelbauer_t::baue( player, start.get_2d(), besch, !is_ctrl_pressed() );
+			return tunnelbauer_t::baue( player, start.get_2d(), besch, !is_ctrl_pressed(), weg_besch );
 		}
 		else {
 			return "";
@@ -3085,6 +3124,7 @@ const char *tool_build_tunnel_t::do_work( player_t *player, const koord3d &start
 		wegbauer_t bauigel(player);
 		calc_route( bauigel, start, end );
 		welt->mute_sound(true);
+		bauigel.set_besch(weg_besch);
 		bauigel.baue();
 		welt->mute_sound(false);
 		welt->lookup_kartenboden(end.get_2d())->clear_flag(grund_t::marked);
@@ -3204,7 +3244,7 @@ image_id tool_wayremover_t::get_icon(player_t *) const
 	if(  default_param  &&  wegbauer_t::waytype_available( (waytype_t)atoi(default_param), welt->get_timeline_year_month() )  ) {
 		return icon;
 	}
-	return IMG_LEER;
+	return IMG_EMPTY;
 }
 
 waytype_t tool_wayremover_t::get_waytype() const
@@ -3400,7 +3440,6 @@ const char *tool_wayremover_t::do_work( player_t *player, const koord3d &start, 
 	bool can_delete = true;	// assume success
 
 	// if successful => delete everything
-	// TODO: Find a way of allowing a bridge's way to be removed and replaced with a different way type here.
 	for( uint32 i=0;  i<verbindung.get_count();  i++  ) 
 	{
 		grund_t *gr = welt->lookup(verbindung.position_bei(i));
@@ -4839,27 +4878,27 @@ image_id tool_build_station_t::get_icon( player_t * ) const
 	sint8 dummy;
 	const haus_besch_t *besch=get_besch(dummy);
 	if (besch == NULL) {
-		return IMG_LEER;
+		return IMG_EMPTY;
 	}
 	if(  grund_t::underground_mode==grund_t::ugm_all  ) {
 		// in underground mode, buildings will be done invisible above ground => disallow such confusion
 //		if(besch->get_allow_underground() == 0 ||  besch->get_extra()==air_wt) {
 		if(  besch->get_utyp()!=haus_besch_t::generic_stop  ||  besch->get_extra()==air_wt) {
-			return IMG_LEER;
+			return IMG_EMPTY;
 		}
 		if(  besch->get_utyp()==haus_besch_t::generic_stop  &&  !besch->can_be_built_underground()) {
-			return IMG_LEER;
+			return IMG_EMPTY;
 		}
 	}
 	if(  grund_t::underground_mode==grund_t::ugm_none  ) {
 		if(  besch->get_utyp()==haus_besch_t::generic_stop  &&  !besch->can_be_built_aboveground()) {
-			return IMG_LEER;
+			return IMG_EMPTY;
 		}
 	}
 	else if(besch->get_allow_underground() == 1 && grund_t::underground_mode == grund_t::ugm_none)
 	{
 		// Allow both underground and above ground buildings in sliced underground mode.
-		return IMG_LEER;
+		return IMG_EMPTY;
 	}
 	return icon;
 }
@@ -5194,7 +5233,7 @@ char const* tool_build_roadsign_t::get_tooltip(player_t const*) const
 
 void tool_build_roadsign_t::draw_after(scr_coord k, bool dirty) const
 {
-	if(  icon!=IMG_LEER  &&  is_selected()  ) {
+	if(  icon!=IMG_EMPTY  &&  is_selected()  ) {
 		display_img_blend( icon, k.x, k.y, TRANSPARENT50_FLAG|OUTLINE_FLAG|COL_BLACK, false, dirty );
 		char level_str[16];
 		sprintf(level_str, "%i", signal[welt->get_active_player_nr()].spacing);
@@ -5919,7 +5958,7 @@ image_id tool_signalbox_t::get_icon(player_t* player) const
 	{
 		return besch->get_cursor()->get_bild_nr(1);
 	}	
-	return IMG_LEER;
+	return IMG_EMPTY;
 }
 
 char const* tool_signalbox_t::get_tooltip(player_t const*) const
@@ -6049,7 +6088,7 @@ image_id tool_depot_t::get_icon(player_t *player) const
 			return besch->get_cursor()->get_bild_nr(1);
 		}
 	}
-	return IMG_LEER;
+	return IMG_EMPTY;
 }
 
 bool tool_depot_t::init( player_t *player )
@@ -7046,7 +7085,9 @@ const char *tool_stop_moving_t::do_work( player_t *player, const koord3d &last_p
 		// since factory connections may have changed
 
 		// Modified by : Knightly
-
+#ifdef MULTI_THREAD
+		//world()->stop_path_explorer();
+#endif
 		path_explorer_t::refresh_all_categories(true);
 	}
 	return NULL;
@@ -7381,8 +7422,11 @@ const char *tool_make_stop_public_t::work( player_t *player, koord3d p )
 					// In network mode, we cannot have anything that alters a way running concurrently with
 					// convoy path-finding because  whether the convoy path-finder is called
 					// on this tile of way before or after this function is indeterminate.
-					simthread_barrier_wait(&karte_t::step_convois_barrier_external);
-					simthread_barrier_wait(&karte_t::step_convois_barrier_external);
+					if (!world()->get_first_step())
+					{
+						simthread_barrier_wait(&karte_t::step_convoys_barrier_external);
+						welt->set_first_step(1);
+					}
 				}
 #endif
 
@@ -7479,7 +7523,7 @@ const char *tool_make_stop_public_t::work( player_t *player, koord3d p )
 				{
 					cbuffer_t buf;
 					buf.printf(translator::translate("(%s) now public way."), w->get_pos().get_str());
-					welt->get_message()->add_message(buf, w->get_pos().get_2d(), message_t::ai, PLAYER_FLAG|player->get_player_nr(), IMG_LEER);
+					welt->get_message()->add_message(buf, w->get_pos().get_2d(), message_t::ai, PLAYER_FLAG|player->get_player_nr(), IMG_EMPTY);
 				}
 			}
 		}
@@ -7705,7 +7749,7 @@ bool tool_show_underground_t::is_selected() const
 
 void tool_show_underground_t::draw_after(scr_coord k, bool dirty) const
 {
-	if(  icon!=IMG_LEER  &&  is_selected()  ) {
+	if(  icon!=IMG_EMPTY  &&  is_selected()  ) {
 		display_img_blend( icon, k.x, k.y, TRANSPARENT50_FLAG|OUTLINE_FLAG|COL_BLACK, false, dirty );
 		// additionall show level in sliced mode
 		if(  default_param!=NULL  &&  grund_t::underground_mode==grund_t::ugm_level  ) {
@@ -9012,7 +9056,9 @@ bool tool_access_t::init(player_t *player)
 				// Note that this may destroy the convoy in extreme cases.
 			}
 		}		
-
+#ifdef MULTI_THREAD
+		world()->stop_path_explorer();
+#endif
 		path_explorer_t::refresh_all_categories(false);
 		cnv->clear_departures();
 	}
@@ -9038,7 +9084,7 @@ bool tool_add_message_t::init(player_t*)
 {
 	if (  *default_param  ) {
 		// Local message, not stored by server
-		welt->get_message()->add_message( default_param, koord::invalid, message_t::general | message_t::local_flag, COL_BLACK, IMG_LEER );
+		welt->get_message()->add_message( default_param, koord::invalid, message_t::general | message_t::local_flag, COL_BLACK, IMG_EMPTY );
 	}
 	return false;
 }

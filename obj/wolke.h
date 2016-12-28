@@ -55,7 +55,7 @@ public:
 #else
 	typ get_typ() const { return async_wolke; }
 #endif
-	image_id get_image() const { return IMG_LEER; }
+	image_id get_image() const { return IMG_EMPTY; }
 };
 
 class raucher_t : public obj_t
@@ -66,7 +66,7 @@ public:
 #else
 	typ get_typ() const { return raucher; }
 #endif
-	image_id get_image() const { return IMG_LEER; }
+	image_id get_image() const { return IMG_EMPTY; }
 };
 
 #endif

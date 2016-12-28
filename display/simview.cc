@@ -270,7 +270,7 @@ void karte_ansicht_t::display(bool force_dirty)
 			grund_t *gr = welt->lookup( zeiger->get_pos() );
 			if(gr && gr->is_visible()) {
 				const PLAYER_COLOR_VAL transparent = TRANSPARENT25_FLAG|OUTLINE_FLAG| env_t::cursor_overlay_color;
-				if(  gr->get_image()==IMG_LEER  ) {
+				if(  gr->get_image()==IMG_EMPTY  ) {
 					if(  gr->hat_wege()  ) {
 						display_img_blend( gr->obj_bei(0)->get_image(), background_pos.x, background_pos.y, transparent, 0, dirty );
 					}

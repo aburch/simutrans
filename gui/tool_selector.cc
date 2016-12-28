@@ -48,7 +48,7 @@ tool_selector_t::tool_selector_t(const char* title, const char *helpfile, uint32
 void tool_selector_t::add_tool_selector(tool_t *tool_in)
 {
 	image_id tool_img = tool_in->get_icon(welt->get_active_player());
-	if(  tool_img == IMG_LEER  &&  tool_in!=tool_t::dummy  ) {
+	if(  tool_img == IMG_EMPTY  &&  tool_in!=tool_t::dummy  ) {
 		return;
 	}
 
@@ -182,7 +182,7 @@ void tool_selector_t::draw(scr_coord pos, scr_size)
 		const image_id icon_img = tools[i].tool->get_icon(player);
 
 		const scr_coord draw_pos=pos+scr_coord(((i-tool_icon_disp_start)%tool_icon_width)*env_t::iconsize.w,D_TITLEBAR_HEIGHT+((i-tool_icon_disp_start)/tool_icon_width)*env_t::iconsize.h);
-		if(icon_img == IMG_LEER) {
+		if(icon_img == IMG_EMPTY) {
 			// Hajo: no icon image available, draw a blank
 			// DDD box as replacement
 
@@ -233,7 +233,7 @@ void tool_selector_t::draw(scr_coord pos, scr_size)
 bool tool_selector_t::empty(player_t *player) const
 {
 	FOR(vector_tpl<tool_data_t>, w, tools) {
-		if (w.tool->get_icon(player) != IMG_LEER) {
+		if (w.tool->get_icon(player) != IMG_EMPTY) {
 			return false;
 		}
 	}

@@ -95,10 +95,10 @@ public:
 				nr = 7;
 				break;
 			default:
-				return IMG_LEER;
+				return IMG_EMPTY;
 		}
 		image_id hang_img = get_child<bildliste_besch_t>(4)->get_bild_nr(nr);
-		if(  nr > 3  &&  hang_img == IMG_LEER  ) {
+		if(  nr > 3  &&  hang_img == IMG_EMPTY  ) {
 			// hack for old ways without double height images to use single slope images for both
 			nr -= 4;
 			hang_img = get_child<bildliste_besch_t>(4)->get_bild_nr(nr);
@@ -135,10 +135,10 @@ public:
 				nr = 7;
 				break;
 			default:
-				return IMG_LEER;
+				return IMG_EMPTY;
 		}
 		image_id hang_img = get_child<bildliste_besch_t>(5)->get_bild_nr(nr);
-		if(  nr > 3  &&  hang_img == IMG_LEER  ) {
+		if(  nr > 3  &&  hang_img == IMG_EMPTY  ) {
 			// hack for old ways without double height images to use single slope images for both
 			nr -= 4;
 			hang_img = get_child<bildliste_besch_t>(5)->get_bild_nr(nr);
@@ -149,7 +149,7 @@ public:
 	image_id get_front_diagonal_image_id(ribi_t::ribi ribi) const
 	{
 		if(!ribi_t::ist_kurve(ribi)) {
-			return IMG_LEER;
+			return IMG_EMPTY;
 		}
 		return get_child<bildliste_besch_t>(6)->get_bild_nr(ribi / 3 - 1);
 	}
@@ -157,7 +157,7 @@ public:
 	image_id get_back_diagonal_image_id(ribi_t::ribi ribi) const
 	{
 		if(!ribi_t::ist_kurve(ribi)) {
-			return IMG_LEER;
+			return IMG_EMPTY;
 		}
 		return get_child<bildliste_besch_t>(7)->get_bild_nr(ribi / 3 - 1);
 	}

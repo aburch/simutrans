@@ -535,3 +535,14 @@ note=Additional directions shown in the signal infowindow for "station signals"
 obj=program_text
 name=east_and_west
 note=Additional directions shown in the signal infowindow for "station signals"
+-
+obj=program_text
+name=petrol
+note=One of the new engine types (existing engine types include diesel, steam, electric, etc)
+-
+obj=program_text
+name=turbine
+note=One of the new engine types (existing engine types include diesel, steam, electric, etc)-
+obj=program_text
+name=units transferring
+note=A description of the number of mail/passengers/goods currently transferring at a stop

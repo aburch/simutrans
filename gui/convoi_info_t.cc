@@ -449,7 +449,7 @@ enable_home:
 			const int pos_y = pos_y0 + LINESPACE; // line 2
 			char tmp[256];
 			// Bernd Gabriel, 01.07.2009: inconsistent adding of ':'. Sometimes in code, sometimes in translation. Consistently moved to code.
-			sprintf(tmp, caption, translator::translate("Gewinn"));
+			sprintf(tmp, caption, translator::translate("Profit"));
 			int len = display_proportional(pos_x, pos_y, tmp, ALIGN_LEFT, SYSCOL_TEXT, true ) + 5;
 			money_to_string(tmp, cnv->get_jahresgewinn()/100.0 );
 			len += display_proportional(pos_x + len, pos_y, tmp, ALIGN_LEFT, cnv->get_jahresgewinn() > 0 ? MONEY_PLUS : MONEY_MINUS, true ) + 5;

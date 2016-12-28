@@ -59,6 +59,7 @@ class loadsave_t;
 class schedule_t;
 class player_t;
 class ware_t;
+class transferring_cargo_t;
 
 // elements of the lines_loaded vector
 struct lines_loaded_t
@@ -161,16 +162,35 @@ private:
 	 * connexion to another. This is
 	 * based on the size of the stop.
 	 */
-	uint16 transfer_time;
+	uint32 transfer_time;
 
-	/*
+	/**
 	 * The time (in 10ths of seconds)
 	 * that it takes goods to be trans-shipped
 	 * inside this stop. This assumes a fixed
 	 * rate of 1km/h and is based on the size
 	 * of the stop.
 	 */
-	uint16 transshipment_time;
+	uint32 transshipment_time;
+
+	/* This is called by the path explorer
+	 * when this halt needs to re-route goods.
+	 * This cannot be done from within the 
+	 * path explorer when it is multi-threaded.
+	 */
+	vector_tpl<uint8> categories_to_refresh_next_step;
+
+	/**
+	* This is the list of passengers/mail/goods that
+	* have arrived at this stop but are in the process
+	* of transferring either to catch the next service,
+	* or walking/being carted to their ultimate 
+	* destination.
+	*
+	* This is an array of these vectors: one per thread,
+	* indexed by thread number.
+	*/
+	vector_tpl<transferring_cargo_t> *transferring_cargoes;
 
 public:
 	const slist_tpl<convoihandle_t> &get_loading_convois() const { return loading_here; }
@@ -191,15 +211,6 @@ public:
 	 * The next call to step_all() will start complete reconnecting.
 	 */
 	static void reset_routing();
-
-	/**
-	 * Tries to generate some pedestrians on the sqaure and the
-	 * adjacent sqaures. Return actual number of generated
-	 * pedestrians.
-	 *
-	 * @author Hj. Malthaner
-	 */
-	static int generate_pedestrians(const koord3d pos, int anzahl);
 
 	/**
 	 * Returns an index to a halt at koord k
@@ -277,9 +288,9 @@ public:
 	struct connexion
 	{
 		// Times in tenths of minutes
-		uint16 journey_time;
-		uint16 waiting_time;
-		uint16 transfer_time;
+		uint32 journey_time;
+		uint32 waiting_time;
+		uint32 transfer_time;
 
 		// Convoy only used if line not used
 		// (i.e., if the best route involves using a convoy without a line)
@@ -304,11 +315,11 @@ public:
 
 	struct waiting_time_set
 	{
-		fixed_list_tpl<uint16, 32> times;
+		fixed_list_tpl<uint32, 32> times;
 		uint8 month;
 	};
 
-	typedef inthashtable_tpl<uint16, waiting_time_set > waiting_time_map;
+	typedef inthashtable_tpl<uint32, waiting_time_set > waiting_time_map;
 
 	void add_control_tower() { control_towers ++; }
 	void remove_control_tower() { if(control_towers > 0) control_towers --; }
@@ -338,6 +349,11 @@ public:
 //	bool is_transfer(const uint8 catg) const { return all_links[catg].is_transfer; }
 
 	typedef inthashtable_tpl<uint16, sint64> arrival_times_map;
+#ifdef MULTI_THREAD
+	uint32 get_transferring_cargoes_count();
+#else
+	uint32 get_transferring_cargoes_count() { return transferring_cargoes->get_count(); }
+#endif
 
 private:
 	slist_tpl<tile_t> tiles;
@@ -448,7 +464,7 @@ private:
 	uint32 last_ware_index;
 
 	/* station flags (most what enabled) */
-	uint8 enables;
+	uint16 enables;
 
 	/**
 	* 0 = North; 1 = South; 2 = East 3 = West
@@ -470,11 +486,15 @@ private:
 	// add the ware to the internal storage, called only internally
 	void add_ware_to_halt(ware_t ware, bool from_saved = false);
 
+	// Add cargoes to the waiting list
+	void add_to_waiting_list(ware_t ware, sint64 ready_time);
+
 	/**
-	 * liefert wartende ware an eine Fabrik
-	 * @author Hj. Malthaner
-	 */
-	void liefere_an_fabrik(const ware_t& ware) const;
+	* This calculates how long that it will take any given
+	* cargo packet to be ready to transfer onwards from
+	* this stop.
+	*/
+	sint64 calc_ready_time(ware_t ware, bool arriving_from_vehicle, koord origin_pos = koord::invalid) const;
 
 	/*
 	 * transfers all goods to given station
@@ -523,9 +543,14 @@ private:
 	 * Calculates the earliest time in ticks that passengers/mail/goods can arrive
 	 * at the given halt in light of the current estimated departure times.
 	 */
-	sint64 calc_earliest_arrival_time_at(halthandle_t halt, convoihandle_t &convoi, uint8 catg_index);
+	sint64 calc_earliest_arrival_time_at(halthandle_t halt, convoihandle_t &convoi, uint8 catg_index) const;
 
-	uint32 deposit_ware_at_destination(ware_t ware);
+	/**
+	* This will check the list of transferring cargoes
+	* and register at their destination those that
+	* are ready to go there.
+	*/
+	void check_transferring_cargoes();
 
 public:
 #ifdef DEBUG_SIMRAND_CALLS
@@ -625,10 +650,10 @@ public:
 	void new_month();
 
 	// @author: jamespetts, although much is borrowed from suche_route
-	// Returns the journey time of the best possible route from this halt. Time == 65535 when there is no route.
-	uint16 find_route(ware_t &ware, const uint16 journey_time = 65535);
-	void get_destination_halts_of_ware(ware_t &ware, vector_tpl<halthandle_t>& destination_halts_list);
-	uint16 find_route(const vector_tpl<halthandle_t>& ziel_list, ware_t & ware, const uint16 journey_time = 65535, const koord destination_pos = koord::invalid);
+	// Returns the journey time of the best possible route from this halt. Time == UINT32_MAX_VALUE when there is no route.
+	uint32 find_route(ware_t &ware, const uint32 journey_time = UINT32_MAX_VALUE) const;
+	void get_destination_halts_of_ware(ware_t &ware, vector_tpl<halthandle_t>& destination_halts_list) const;
+	uint32 find_route(const vector_tpl<halthandle_t>& ziel_list, ware_t & ware, const uint32 journey_time = UINT32_MAX_VALUE, const koord destination_pos = koord::invalid) const;
 
 	bool get_pax_enabled()  const { return enables & PAX;  }
 	bool get_post_enabled() const { return enables & POST; }
@@ -752,8 +777,8 @@ public:
 	 * @return angenommene menge
 	 * @author Hj. Malthaner/prissi
 	 */
-	uint32 liefere_an(ware_t ware, uint8 walked_between_stations = 0);
-	uint32 starte_mit_route(ware_t ware);
+	void liefere_an(ware_t ware, uint8 walked_between_stations = 0);
+	void starte_mit_route(ware_t ware, koord origin_pos);
 
 	const grund_t *find_matching_position(waytype_t wt) const;
 
@@ -925,7 +950,7 @@ public:
 	// @author: jamespetts
 	uint16 get_average_waiting_time(halthandle_t halt, uint8 category) const;
 
-	void add_waiting_time(uint16 time, halthandle_t halt, uint8 category, bool do_not_reset_month = false);
+	void add_waiting_time(uint32 time, halthandle_t halt, uint8 category, bool do_not_reset_month = false);
 
 	typedef quickstone_hashtable_tpl<haltestelle_t, connexion*>* connexions_map_single;
 	connexions_map_single get_connexions(uint8 c) { return connexions[c]; }
@@ -975,13 +1000,15 @@ public:
 	* Get the time that it takes for passengers to transfer within this stop
 	* in 1/10ths of minutes.
 	*/
-	inline uint16 get_transfer_time() const { return transfer_time; }
+	inline uint32 get_transfer_time() const { return transfer_time; }
 
 	/**
 	* Get the time that it takes for goods to be transferred within this stop
 	* in 1/10ths of minutes.
 	*/
-	inline uint16 get_transshipment_time() const { return transshipment_time; }
+	inline uint32 get_transshipment_time() const { return transshipment_time; }
+
+	void set_reroute_goods_next_step(uint8 catg) { categories_to_refresh_next_step.append(catg); }
 
 	/**
 	* Calculate the transfer and transshipment time values.

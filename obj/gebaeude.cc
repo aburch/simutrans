@@ -573,7 +573,7 @@ void gebaeude_t::calc_image()
 	grund_t *gr = welt->lookup( get_pos() );
 	// need no ground?
 	if(  remove_ground  && gr && gr->get_typ() == grund_t::fundament  ) {
-		gr->set_bild( IMG_LEER );
+		gr->set_bild( IMG_EMPTY );
 	}
 
 	static uint8 effective_season[][5] = { {0,0,0,0,0}, {0,0,0,0,1}, {0,0,0,0,1}, {0,1,2,3,2}, {0,1,2,3,4} };  // season image lookup from [number of images] and [actual season/snow]
@@ -609,7 +609,7 @@ image_id gebaeude_t::get_image() const
 			if(env_t::hide_with_transparency) {
 				if(tile->get_besch()->get_utyp() == haus_besch_t::fabrik  &&  ptr.fab->get_besch()->get_platzierung() == fabrik_besch_t::Wasser) {
 					// no ground tiles for water thingies
-					return IMG_LEER;
+					return IMG_EMPTY;
 				}
 				return skinverwaltung_t::fussweg->get_bild_nr(0);
 			}
@@ -636,7 +636,7 @@ image_id gebaeude_t::get_outline_image() const
 		// opaque houses
 		return tile->get_hintergrund( anim_frame, 0, season );
 	}
-	return IMG_LEER;
+	return IMG_EMPTY;
 }
 
 
@@ -661,7 +661,7 @@ PLAYER_COLOR_VAL gebaeude_t::get_outline_colour() const
 image_id gebaeude_t::get_image(int nr) const
 {
 	if(zeige_baugrube || env_t::hide_buildings) {
-		return IMG_LEER;
+		return IMG_EMPTY;
 	}
 	else {
 		return tile->get_hintergrund( anim_frame, nr, season );
@@ -672,10 +672,10 @@ image_id gebaeude_t::get_image(int nr) const
 image_id gebaeude_t::get_front_image() const
 {
 	if(zeige_baugrube) {
-		return IMG_LEER;
+		return IMG_EMPTY;
 	}
 	if (env_t::hide_buildings != 0 && tile->get_besch()->get_utyp() < haus_besch_t::weitere) {
-		return IMG_LEER;
+		return IMG_EMPTY;
 	}
 	else {
 		// Show depots, station buildings etc.
@@ -786,7 +786,7 @@ void gebaeude_t::show_info()
 }
 
 
-bool gebaeude_t::is_same_building(gebaeude_t* other)
+bool gebaeude_t::is_same_building(gebaeude_t* other) const
 {
 	return (other != NULL)  &&  (get_tile()->get_besch() == other->get_tile()->get_besch())
 	       &&  (get_first_tile() == other->get_first_tile());
@@ -1541,7 +1541,7 @@ void gebaeude_t::mark_images_dirty() const
 	else {
 		img = tile->get_hintergrund( anim_frame, 0, season ) ;
 	}
-	for(  int i=0;  img!=IMG_LEER;  img=get_image(++i)  ) {
+	for(  int i=0;  img!=IMG_EMPTY;  img=get_image(++i)  ) {
 		mark_image_dirty( img, -(i*get_tile_raster_width()) );
 	}
 }

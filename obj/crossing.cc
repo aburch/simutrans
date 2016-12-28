@@ -37,7 +37,7 @@ crossing_t::crossing_t(loadsave_t* const file) :
 	obj_no_info_t()
 #endif
 {
-	image = after_bild = IMG_LEER;
+	image = after_bild = IMG_EMPTY;
 	logic = NULL;
 	rdwr(file);
 }
@@ -54,7 +54,7 @@ crossing_t::crossing_t(player_t* const player, koord3d const pos, kreuzung_besch
 	this->besch = besch;
 	logic = NULL;
 	state = crossing_logic_t::CROSSING_INVALID;
-	image = after_bild = IMG_LEER;
+	image = after_bild = IMG_EMPTY;
 	set_owner( player );
 }
 
@@ -107,13 +107,13 @@ void crossing_t::calc_image()
 		// no snow image? take normal one
 		a = besch->get_bild_after( ns, state!=crossing_logic_t::CROSSING_CLOSED, 0);
 	}
-	after_bild = a ? a->get_nummer() : IMG_LEER;
+	after_bild = a ? a->get_nummer() : IMG_EMPTY;
 	const bild_besch_t *b = besch->get_image( ns, state!=crossing_logic_t::CROSSING_CLOSED, snow_image );
 	if (b==NULL  &&  snow_image) {
 		// no snow image? take normal one
 		b = besch->get_image( ns, state!=crossing_logic_t::CROSSING_CLOSED, 0);
 	}
-	image = b ? b->get_nummer() : IMG_LEER;
+	image = b ? b->get_nummer() : IMG_EMPTY;
 }
 
 

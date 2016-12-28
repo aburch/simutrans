@@ -57,6 +57,7 @@ template<class T> class array_tpl
 		void resize(index resize, const T& value)
 		{
 			if (size < resize) {
+				// extend if needed
 				T* new_data = new T[resize];
 				index i;
 				for (i = 0;  i < size; i++) {
@@ -67,8 +68,8 @@ template<class T> class array_tpl
 				}
 				delete [] data;
 				data = new_data;
-				size = resize;
 			}
+			size = resize;
 		}
 
 		T& operator [](index i)

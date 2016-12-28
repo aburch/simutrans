@@ -89,6 +89,12 @@ Prop-Latin1.bdf
 %s\nis crowded.
 !1_DEPOT_REACHED
 %s \nhas entered a depot.
+#
+# Town name beginning syllables.
+# There can be up to 2048 of these.
+# They must be specified in hexadecimal
+# (i.e. with a max. in hex of 400)
+#
 %0_CITY_SYLL
 Gar
 %1_CITY_SYLL
@@ -158,7 +164,7 @@ Winter
 %21_CITY_SYLL
 Hunger
 %22_CITY_SYLL
-Hard
+Har
 %23_CITY_SYLL
 Hurl
 %24_CITY_SYLL
@@ -336,7 +342,7 @@ Chil
 %7A_CITY_SYLL
 Dar
 %7B_CITY_SYLL
-Dor
+Doll
 %7C_CITY_SYLL
 Kings
 %7D_CITY_SYLL
@@ -743,42 +749,134 @@ Ver
 Arn
 %143_CITY_SYLL
 Mex
-%d buildings\n
-%d buildings
-%d convois
-%d convoys
-%d Einzelfahrzeuge im Depot
-%d vehicles stored here.
-%i km/h (max. %ikm/h)
-%i km/h (max. %ikm/h)
-%s building %s %s
-%s %s %s
-%s city %d %s
-%s city %d %s
-%s land %d %s
-%s land %d %s
-%s now\noffers bus services\nbetween %s\nand attraction\n%s\nat (%i,%i).\n
-%s now\noffers bus services\nbetween %s\nand attraction\n%s\nat (%i,%i).\n
-%s now\noffers bus services\nbetween %s\nand factory\n%s\nat (%i,%i).\n
-%s now\noffers bus services\nbetween %s\nand industry\n%s\nat (%i,%i).\n
-%s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
-%s \nbuilt a\nnew town hall\nwhen it reached\n%i inhabitants.
-%s's\nheadquarter now\nat (%i,%i).
-%s's\nheadquarters now\nat (%i,%i).
-%s\nnow operates\n%i trucks between\n%s at (%i,%i)\nand %s at (%i,%i).
-%s\nnow operates\n%i trucks between\n%s at (%i,%i)\nand %s\nat (%i,%i).
-%s\nopened a new railway\nbetween %s\nat (%i,%i) and\n%s at (%i,%i).
-%s\nopened a new railway\nbetween %s\nat (%i,%i) and\n%s\nat (%i,%i).
-%s\nspeed %i\nmax_speed %i\ndx:%i dy:%i
-%s\nSpeed: %i km/h\nMax. speed: %i km/h
-%s\nwas liquidated.
-%s\nhas been liquidated.
-<em>%C</em> - %s<br>\n
-[<em>%C</em>]: %s<br>\n
-<no line>
-<no line selected>
-<title>Keyboard Help</title>\n<h1><strong>Keyboard Help</strong></h1><p>\n
-<title>Keyboard Help</title>\n<h1><strong>Keyboard Help</strong></h1>\n<p>\n<strong>Keyboard Help</strong> shows functions for various key presses on the keyboard.\n</p>\n<p>\nThe <strong>Keyboard Help</strong> window opens when an unassigned key is pressed or from <a href="general.txt">general help</a>.\n</p>\n<p>\nKey presses are case sensitive (use [<em>Shift</em>] for upper-case letters).\n</p>\n<p>\nKeys with assigned functions include:\n</p>\n<p>\n[<em>Arrow Keys</em>]: scroll the main game window in the direction of the arrow.<br>\n[<em>Backspace</em>]: close all windows, toolbars and help-texts in the main game window.<br>\n[<em>Delete</em>], or [<em>Escape</em>]: close the top window, toolbar or help text visible.<br>\n[<em>Enter</em>], or [<em>Return</em>]: used to confirm actions.<br>\n[<em>Page-Up</em>], or [<em>></em>]: zoom in the main game window.<br>\n[<em>Page-Down</em>], or [<em>less than symbol</em>]: zoom-out the main game window.\n[<em>F1</em>]: open <a href="general.txt">Simutrans Help</a>.<br></p>\n<p>\n[<em>1</em>]: scroll the main game window South.<br>\n[<em>2</em>]: scroll the main game window South-East.<br>\n[<em>3</em>]: scroll the main game window east-wards.<br>\n[<em>4</em>]: scroll the main game window South-West.<br>\n[<em>6</em>]: scroll the main game window North-East.<br>\n[<em>7</em>]: scroll the main game window West.<br>\n[<em>8</em>]: scroll the main game window North-West.<br>\n[<em>9</em>]: scroll the main game window North.\n</p>\n<p>\n[<em>Shift</em>] + <a href="mouse.txt">mouse</a>: used on the <a href="map.txt">map</a> to see links in <a href="industry_info.txt">industry chains</a>.<br>\n[<em>CTRL</em>] + tool: construct (signals & <a href="station.txt">Stops</a>) on upper level; or build slower roads and tracks over faster ones; or build straighter (more direct) roads and tracks.<br>\n[<em>CTRL</em>] + ([<em>F2</em>] to [<em>F12</em>]): sets the select current tool to keypresses [<em>F2</em>] to [<em>F12</em>].\n</p>\n<p>
+%144_CITY_SYLL
+Con
+%145_CITY_SYLL
+With
+%146_CITY_SYLL
+Bex
+%147_CITY_SYLL
+Ac
+%148_CITY_SYLL
+Beck
+%149_CITY_SYLL
+Berk
+%14A_CITY_SYLL
+Bost
+%14B_CITY_SYLL
+Bre
+%14C_CITY_SYLL
+Chep
+%14D_CITY_SYLL
+Lang
+%14E_CITY_SYLL
+Sud
+%14F_CITY_SYLL
+Sut
+%150_CITY_SYLL
+Wim
+%151_CITY_SYLL
+Bick
+%152_CITY_SYLL
+Chat
+%153_CITY_SYLL
+Dim
+%154_CITY_SYLL
+Dym
+%155_CITY_SYLL
+Bram
+%156_CITY_SYLL
+Chor
+%157_CITY_SYLL
+Wag
+%158_CITY_SYLL
+Dickle
+%159_CITY_SYLL
+Peb
+%15A_CITY_SYLL
+Gos
+%15B_CITY_SYLL
+Het
+%15C_CITY_SYLL
+Lem
+%15D_CITY_SYLL
+Wheat
+%15E_CITY_SYLL
+Pepper
+%15F_CITY_SYLL
+Trow
+%160_CITY_SYLL
+Lead
+%161_CITY_SYLL
+Craf
+%162_CITY_SYLL
+Wend
+%163_CITY_SYLL
+Sheaf
+%164_CITY_SYLL
+Cass
+%165_CITY_SYLL
+Yox
+%166_CITY_SYLL
+Gid
+%167_CITY_SYLL
+Goat
+%168_CITY_SYLL
+Chal
+%169_CITY_SYLL
+Chen
+%16A_CITY_SYLL
+Chim
+%16B_CITY_SYLL
+Summer
+%16C_CITY_SYLL
+Butter
+%16D_CITY_SYLL
+Sandal
+%16E_CITY_SYLL
+Comp
+%16F_CITY_SYLL
+Cromp
+%170_CITY_SYLL
+Cramp
+%171_CITY_SYLL
+Cram
+%172_CITY_SYLL
+Cran
+%173_CITY_SYLL
+Maple
+%174_CITY_SYLL
+Map
+%175_CITY_SYLL
+Swain
+%176_CITY_SYLL
+Bov
+%177_CITY_SYLL
+Calv
+%178_CITY_SYLL
+Cag
+%179_CITY_SYLL
+Weal
+%17A_CITY_SYLL
+Pegs
+%17B_CITY_SYLL
+Tem
+%17C_CITY_SYLL
+Hog
+%17D_CITY_SYLL
+Flak
+%17E_CITY_SYLL
+Fleck
+%17F_CITY_SYLL
+Carl
+%180_CITY_SYLL
+Gom
+#
+# Town name end syllables.
+# There can be up to 1024 of these.
+# They must be specified in hexadecimal
+# (i.e. with a max. in hex of 200)
+#
 &1_CITY_SYLL
 ington
 &2_CITY_SYLL
@@ -981,6 +1079,325 @@ ney
 erham
 &64_CITY_SYLL
 erworth
+&65_CITY_SYLL
+stead
+&66_CITY_SYLL
+over
+&67_CITY_SYLL
+ly
+&68_CITY_SYLL
+nell
+&69_CITY_SYLL
+ershall
+&6A_CITY_SYLL
+broke
+&6B_CITY_SYLL
+burgh
+&6C_CITY_SYLL
+stock
+&6D_CITY_SYLL
+all
+&6E_CITY_SYLL
+burn
+&6F_CITY_SYLL
+grave
+&70_CITY_SYLL
+endon
+&71_CITY_SYLL
+cott
+&72_CITY_SYLL
+font
+&73_CITY_SYLL
+grove
+&74_CITY_SYLL
+tun
+&75_CITY_SYLL
+bourne
+&76_CITY_SYLL
+ey
+#
+# Town name prefixes.
+# There can be up to 256 of these.
+# They must be specified in hexadecimal
+# (i.e. with a max. in hex of 50)
+# Do not forget to add spaces after this
+# if the prefix is to be a separate word
+# (This is advised as the town name first
+# syllables all begin with capital letters)
+#
+&1_CITY_PREFIX
+Much 
+&2_CITY_PREFIX
+Great 
+&3_CITY_PREFIX
+Little 
+&4_CITY_PREFIX
+High 
+&5_CITY_PREFIX
+Low 
+&6_CITY_PREFIX
+Chipping 
+&7_CITY_PREFIX
+St. Mary 
+&8_CITY_PREFIX
+St. Clement 
+&9_CITY_PREFIX
+St. John 
+&A_CITY_PREFIX
+St. Margaret 
+&B_CITY_PREFIX
+St. Bride 
+&C_CITY_PREFIX
+Lesser 
+&D_CITY_PREFIX
+Nether 
+&E_CITY_PREFIX
+Fenny 
+&F_CITY_PREFIX
+Bishop's 
+&10_CITY_PREFIX
+Market 
+&11_CITY_PREFIX
+Stoke 
+&12_CITY_PREFIX
+Marsh 
+&13_CITY_PREFIX
+Larch 
+&14_CITY_PREFIX
+Earl's 
+&15_CITY_PREFIX
+Water 
+&16_CITY_PREFIX
+Ferry 
+&17_CITY_PREFIX
+Abbot's 
+&18_CITY_PREFIX
+Friar's 
+&19_CITY_PREFIX
+Broad 
+&1A_CITY_PREFIX
+Old 
+&1B_CITY_PREFIX
+New 
+&1C_CITY_PREFIX
+Stony 
+&1D_CITY_PREFIX
+Dry 
+&1E_CITY_PREFIX
+Toot 
+&1F_CITY_PREFIX
+Church 
+&20_CITY_PREFIX
+Castle 
+&21_CITY_PREFIX
+St. Luke 
+&22_CITY_PREFIX
+King's 
+&23_CITY_PREFIX
+Fen 
+&24_CITY_PREFIX
+St. Catherine 
+&25_CITY_PREFIX
+All 
+&26_CITY_PREFIX
+Long 
+&27_CITY_PREFIX
+Aston 
+&28_CITY_PREFIX
+Steeple 
+&29_CITY_PREFIX
+Wake 
+&2A_CITY_PREFIX
+St. Paul 
+&2B_CITY_PREFIX
+Monk 
+&2C_CITY_PREFIX
+St. Lawrence 
+&2D_CITY_PREFIX
+St. Peter 
+&2E_CITY_PREFIX
+St. Giles 
+&2F_CITY_PREFIX
+St. James 
+&30_CITY_PREFIX
+St. Martin 
+&31_CITY_PREFIX
+Mickle 
+&32_CITY_PREFIX
+Cold 
+&33_CITY_PREFIX
+St. Andrew 
+&34_CITY_PREFIX
+Prince's 
+&35_CITY_PREFIX
+Wood 
+&36_CITY_PREFIX
+Green 
+&37_CITY_PREFIX
+Rose 
+&38_CITY_PREFIX
+Mount 
+&39_CITY_PREFIX
+St. Michael 
+#
+# Town name suffixes.
+# There can be up to 256 of these.
+# They must be specified in hexadecimal
+# (i.e. with a max. in hex of 50)
+# Do not forget to add spaces before this
+# if the suffix is to be a separate word
+#
+&1_CITY_SUFFIX
+wood
+&2_CITY_SUFFIX
+ St. Mary
+&3_CITY_SUFFIX
+ St. John
+&4_CITY_SUFFIX
+ St. Catherine
+&5_CITY_SUFFIX
+ St. Luke
+&6_CITY_SUFFIX
+ St. Margaret
+&7_CITY_SUFFIX
+ St. Clement
+&8_CITY_SUFFIX
+ Common
+&9_CITY_SUFFIX
+ St. Nicohlas
+&9_CITY_SUFFIX
+ Cross
+&A_CITY_SUFFIX
+ St. Paul
+&B_CITY_SUFFIX
+ St. Lawrence
+&B_CITY_SUFFIX
+ End
+&C_CITY_SUFFIX
+ St. Peter
+&D_CITY_SUFFIX
+ St. Giles
+&E_CITY_SUFFIX
+ St. James
+&F_CITY_SUFFIX
+ Manga
+&10_CITY_SUFFIX
+ Heath
+&11_CITY_SUFFIX
+ Varley
+&12_CITY_SUFFIX
+ Lacey
+&13_CITY_SUFFIX
+ St. Martin
+&14_CITY_SUFFIX
+ Green
+&15_CITY_SUFFIX
+-on-the-Hill
+&16_CITY_SUFFIX
+ Percy
+&17_CITY_SUFFIX
+ Courtney
+&18_CITY_SUFFIX
+ St. Andrew
+&19_CITY_SUFFIX
+ Mill
+&1A_CITY_SUFFIX
+ Hill
+&1B_CITY_SUFFIX
+ Beacon
+&1C_CITY_SUFFIX
+ Major
+&1D_CITY_SUFFIX
+ Minor
+&1E_CITY_SUFFIX
+ Downs
+&1F_CITY_SUFFIX
+ Bottom
+&20_CITY_SUFFIX
+ All Saints
+&21_CITY_SUFFIX
+ Dyke
+&22_CITY_SUFFIX
+ Thicket
+&23_CITY_SUFFIX
+ Rye
+&24_CITY_SUFFIX
+-in-the-marsh
+&25_CITY_SUFFIX
+ St. Hilda
+&26_CITY_SUFFIX
+ Tye
+&27_CITY_SUFFIX
+ Mount
+&28_CITY_SUFFIX
+ Underwood
+&29_CITY_SUFFIX
+ Bassett
+&2A_CITY_SUFFIX
+ Poyle
+&2B_CITY_SUFFIX
+ Gray
+&2C_CITY_SUFFIX
+ Gay
+&2D_CITY_SUFFIX
+ Keynes
+&2E_CITY_SUFFIX
+ St. Michael
+&2F_CITY_SUFFIX
+ Wick
+&30_CITY_SUFFIX
+ Wallop
+&31_CITY_SUFFIX
+ Mallet
+&32_CITY_SUFFIX
+ Wells
+&33_CITY_SUFFIX
+ Lode
+&34_CITY_SUFFIX
+brook
+&35_CITY_SUFFIX
+heath
+&36_CITY_SUFFIX
+ Ponds
+# 
+# Other strings
+# 
+%d buildings\n
+%d buildings
+%d convois
+%d convoys
+%d Einzelfahrzeuge im Depot
+%d vehicles stored here.
+%i km/h (max. %ikm/h)
+%i km/h (max. %ikm/h)
+%s building %s %s
+%s %s %s
+%s city %d %s
+%s city %d %s
+%s land %d %s
+%s land %d %s
+%s now\noffers bus services\nbetween %s\nand attraction\n%s\nat (%i,%i).\n
+%s now\noffers bus services\nbetween %s\nand attraction\n%s\nat (%i,%i).\n
+%s now\noffers bus services\nbetween %s\nand factory\n%s\nat (%i,%i).\n
+%s now\noffers bus services\nbetween %s\nand industry\n%s\nat (%i,%i).\n
+%s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
+%s \nbuilt a\nnew town hall\nwhen it reached\n%i inhabitants.
+%s's\nheadquarter now\nat (%i,%i).
+%s's\nheadquarters now\nat (%i,%i).
+%s\nnow operates\n%i trucks between\n%s at (%i,%i)\nand %s at (%i,%i).
+%s\nnow operates\n%i trucks between\n%s at (%i,%i)\nand %s\nat (%i,%i).
+%s\nopened a new railway\nbetween %s\nat (%i,%i) and\n%s at (%i,%i).
+%s\nopened a new railway\nbetween %s\nat (%i,%i) and\n%s\nat (%i,%i).
+%s\nspeed %i\nmax_speed %i\ndx:%i dy:%i
+%s\nSpeed: %i km/h\nMax. speed: %i km/h
+%s\nwas liquidated.
+%s\nhas been liquidated.
+<em>%C</em> - %s<br>\n
+[<em>%C</em>]: %s<br>\n
+<no line>
+<no line selected>
+<title>Keyboard Help</title>\n<h1><strong>Keyboard Help</strong></h1><p>\n
+<title>Keyboard Help</title>\n<h1><strong>Keyboard Help</strong></h1>\n<p>\n<strong>Keyboard Help</strong> shows functions for various key presses on the keyboard.\n</p>\n<p>\nThe <strong>Keyboard Help</strong> window opens when an unassigned key is pressed or from <a href="general.txt">general help</a>.\n</p>\n<p>\nKey presses are case sensitive (use [<em>Shift</em>] for upper-case letters).\n</p>\n<p>\nKeys with assigned functions include:\n</p>\n<p>\n[<em>Arrow Keys</em>]: scroll the main game window in the direction of the arrow.<br>\n[<em>Backspace</em>]: close all windows, toolbars and help-texts in the main game window.<br>\n[<em>Delete</em>], or [<em>Escape</em>]: close the top window, toolbar or help text visible.<br>\n[<em>Enter</em>], or [<em>Return</em>]: used to confirm actions.<br>\n[<em>Page-Up</em>], or [<em>></em>]: zoom in the main game window.<br>\n[<em>Page-Down</em>], or [<em>less than symbol</em>]: zoom-out the main game window.\n[<em>F1</em>]: open <a href="general.txt">Simutrans Help</a>.<br></p>\n<p>\n[<em>1</em>]: scroll the main game window South.<br>\n[<em>2</em>]: scroll the main game window South-East.<br>\n[<em>3</em>]: scroll the main game window east-wards.<br>\n[<em>4</em>]: scroll the main game window South-West.<br>\n[<em>6</em>]: scroll the main game window North-East.<br>\n[<em>7</em>]: scroll the main game window West.<br>\n[<em>8</em>]: scroll the main game window North-West.<br>\n[<em>9</em>]: scroll the main game window North.\n</p>\n<p>\n[<em>Shift</em>] + <a href="mouse.txt">mouse</a>: used on the <a href="map.txt">map</a> to see links in <a href="industry_info.txt">industry chains</a>.<br>\n[<em>CTRL</em>] + tool: construct (signals & <a href="station.txt">Stops</a>) on upper level; or build slower roads and tracks over faster ones; or build straighter (more direct) roads and tracks.<br>\n[<em>CTRL</em>] + ([<em>F2</em>] to [<em>F12</em>]): sets the select current tool to keypresses [<em>F2</em>] to [<em>F12</em>].\n</p>\n<p>
 (%i)-
 (%i) 
 (in depot)

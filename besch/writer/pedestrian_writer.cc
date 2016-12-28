@@ -10,7 +10,7 @@ void pedestrian_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& 
 {
 	int i;
 
-	obj_node_t node(this, 4, &parent);
+	obj_node_t node(this, 6, &parent);
 
 	write_head(fp, node, obj);
 
@@ -31,8 +31,15 @@ void pedestrian_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& 
 	}
 	imagelist_writer_t::instance()->write_obj(fp, node, keys);
 
-	node.write_uint16(fp, gewichtung, 0);
-	node.write_uint16(fp, 0,          2); //dummy, unused (and uninitialized in past versions)
+	uint16 intro_date = obj.get_int("intro_year", DEFAULT_INTRO_DATE) * 12;
+	intro_date += obj.get_int("intro_month", 1) - 1;
+
+	uint16 obsolete_date = obj.get_int("retire_year", DEFAULT_RETIRE_DATE) * 12;
+	obsolete_date += obj.get_int("retire_month", 1) - 1;
+
+	node.write_uint16(fp, gewichtung,					 0);
+	node.write_uint16(fp, intro_date,				     2); // Formerly dummy
+	node.write_uint16(fp, obsolete_date,				 4); 
 
 	node.write(fp);
 }

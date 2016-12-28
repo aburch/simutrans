@@ -29,7 +29,7 @@ extern "C" FILE * __cdecl __iob_func(void) { return _iob; }
 
 #define EX_VERSION_MAJOR	12
 #define EX_VERSION_MINOR	9000
-#define EX_SAVE_MINOR		13
+#define EX_SAVE_MINOR		15
 
 #define MAKEOBJ_VERSION "55.4"
 
@@ -57,7 +57,7 @@ extern "C" FILE * __cdecl __iob_func(void) { return _iob; }
 #define VERSION_NUMBER QUOTEME(SIM_VERSION_MAJOR) "." QUOTEME(SIM_VERSION_MINOR) SIM_VERSION_PATCH_STRING " Experimental" SIM_VERSION_BUILD_STRING " "
 #define EXPERIMENTAL_VERSION QUOTEME(EX_VERSION_MAJOR) "." QUOTEME(EX_VERSION_MINOR)
 
-#define REVISION 129000
+#define REVISION EX_VERSION_MAJOR.EX_VERSION_MINOR
 
 #define VERSION_DATE __DATE__
 
