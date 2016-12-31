@@ -1461,7 +1461,7 @@ public:
 		 */
 		return get_settings().get_meters_per_tile() * ticks * 30L * 6L / (4096L * 1000L);
 	}
-	
+#ifndef NETTOOL	
 	/** 
 	* Reverse conversion of the above.
 	*/
@@ -1476,7 +1476,7 @@ public:
 
 		return seconds_to_ticks(seconds, get_settings().get_meters_per_tile()); 
 	}
-
+#endif
 	/**
 	* Adds a single tile of a building to the relevant world list for passenger 
 	* and mail generation purposes
