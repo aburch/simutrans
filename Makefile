@@ -130,7 +130,7 @@ ifneq ($(MULTI_THREAD),)
 endif
 
 ifneq ($(WITH_REVISION),)
-  REV = $(shell svnversion)
+  REV = $(shell git rev-parse --short HEAD)
   ifneq ($(REV),)
     CFLAGS  += -DREVISION="$(REV)"
   endif
