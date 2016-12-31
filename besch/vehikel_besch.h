@@ -780,7 +780,7 @@ public:
 				// Add estimate of hammer blow for steam locomotives
 				// See http://www.archive.org/stream/steelrailstheir02sellgoog/steelrailstheir02sellgoog_djvu.txt pp. 70-72 for details of this formula.
 				// This assumes a 2 cylinder locomotive.
-				if(get_waytype() == track_wt && leistung > 0 && engine_type == steam)
+				if((get_waytype() == track_wt || get_waytype() == narrowgauge_wt) && leistung > 0 && engine_type == steam)
 				{
 					if(axle_load < 11)
 					{
