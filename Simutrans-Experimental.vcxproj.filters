@@ -984,6 +984,9 @@
     <ClCompile Include="gui\signal_info.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="gui\schiene_info.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="gui\components\action_listener.h">
@@ -2206,6 +2209,9 @@
     </ClInclude>
     <ClInclude Include="resource.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\schiene_info.h">
+      <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

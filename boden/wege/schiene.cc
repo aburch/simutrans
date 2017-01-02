@@ -7,6 +7,7 @@
 
 #include <stdio.h>
 
+#include "../../gui/simwin.h"
 #include "../../simconvoi.h"
 #include "../../simworld.h"
 #include "../../vehicle/simvehicle.h"
@@ -20,6 +21,8 @@
 
 #include "../../besch/weg_besch.h"
 #include "../../bauer/wegbauer.h"
+
+#include "../../gui/schiene_info.h"
 
 #include "schiene.h"
 
@@ -60,6 +63,11 @@ void schiene_t::rotate90()
 {
 	direction = ribi_t::rotate90(direction); 
 	weg_t::rotate90();
+}
+
+void schiene_t::show_info()
+{
+	create_win(new schiene_info_t(this), w_info, (ptrdiff_t)this);
 }
 
 

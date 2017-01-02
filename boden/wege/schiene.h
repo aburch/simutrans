@@ -127,6 +127,8 @@ public:
 
 	void rotate90();
 
+	void show_info();
+
 	/**
 	 * if a function return here a value with TRANSPARENT_FLAGS set
 	 * then a transparent outline with the color form the lower 8 Bit is drawn
