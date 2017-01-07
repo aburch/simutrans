@@ -87,3 +87,4 @@ get_haus\\>,get_building
 \\<ht\\>,tdsc
 layout_anpassen,adjust_layout
 hauslist,building_list
+baue_hierarchie,build_link
