@@ -205,23 +205,23 @@ private:
 	* Is not stored, but is calculated from individual functions
 	* @author Hj. Malthaner
 	*/
-	uint32 sum_leistung;
+	uint32 sum_power;
 
 	/**
 	* Overall performance with Gear.
 	* Is not stored, but is calculated from individual functions
 	* @author prissi
 	*/
-	sint32 sum_gear_und_leistung;
+	sint32 sum_gear_and_power;
 
-	/* sum_gewicht: unloaded weight of all vehicles *
-	* sum_gesamtgewicht: total weight of all vehicles *
+	/* sum_weight: unloaded weight of all vehicles *
+	* sum_gesamtweight: total weight of all vehicles *
 	* Are not stored, but are calculated from individual weights
 	* when loading/driving.
 	* @author Hj. Malthaner, prissi
 	*/
-	sint64 sum_gewicht;
-	sint64 sum_gesamtgewicht;
+	sint64 sum_weight;
+	sint64 sum_gesamtweight;
 
 	bool recalc_data_front;  ///< true, when front vehicle has to recalculate braking
 	bool recalc_data;        ///< true, when convoy has to recalculate weights and speed limits
@@ -566,17 +566,17 @@ public:
 	 * @return total power of this convoi
 	 * @author Hj. Malthaner
 	 */
-	const uint32 & get_sum_leistung() const {return sum_leistung;}
+	const uint32 & get_sum_power() const {return sum_power;}
 	const sint32 & get_min_top_speed() const {return min_top_speed;}
 	const sint32 & get_speed_limit() const {return speed_limit;}
 
 	void set_speed_limit(sint32 s) { speed_limit = s;}
 
 	/// @returns weight of the convoy's vehicles (excluding freight)
-	const sint64 & get_sum_gewicht() const {return sum_gewicht;}
+	const sint64 & get_sum_weight() const {return sum_weight;}
 
 	/// @returns weight of convoy including freight
-	const sint64 & get_sum_gesamtgewicht() const {return sum_gesamtgewicht;}
+	const sint64 & get_sum_gesamtweight() const {return sum_gesamtweight;}
 
 	/// changes sum_friction_weight, called when vehicle changed tile and friction changes as well.
 	void update_friction_weight(sint64 delta_friction_weight) { sum_friction_weight += delta_friction_weight; }

@@ -109,9 +109,9 @@ void convoi_t::init(player_t *player)
 	owner_p = player;
 
 	is_electric = false;
-	sum_gesamtgewicht = sum_gewicht = 0;
-	sum_running_costs = sum_gear_und_leistung = previous_delta_v = 0;
-	sum_leistung = 0;
+	sum_gesamtweight = sum_weight = 0;
+	sum_running_costs = sum_gear_and_power = previous_delta_v = 0;
+	sum_power = 0;
 	min_top_speed = SPEED_UNLIMITED;
 	speedbonus_kmh = SPEED_UNLIMITED; // speed_to_kmh() not needed
 
@@ -682,7 +682,7 @@ void convoi_t::add_running_cost( const weg_t *weg )
 /**
  * Returns residual power given power, weight, and current speed.
  * @param speed (in internal speed unit)
- * @param total_power sum of power times gear (see calculation of sum_gear_und_leistung)
+ * @param total_power sum of power times gear (see calculation of sum_gear_and_power)
  * @param friction_weight weight including friction of the convoy
  * @param total_weight weight of the convoy
  * @returns residual power
@@ -699,8 +699,8 @@ static inline sint32 res_power(sint64 speed, sint32 total_power, sint64 friction
 void convoi_t::calc_acceleration(uint32 delta_t)
 {
 	if(  !recalc_data  &&  !recalc_speed_limit  &&  !recalc_data_front  &&  (
-		(sum_friction_weight == sum_gesamtgewicht  &&  akt_speed_soll <= akt_speed  &&  akt_speed_soll+24 >= akt_speed)  ||
-		(sum_friction_weight > sum_gesamtgewicht  &&  akt_speed_soll == akt_speed)  )
+		(sum_friction_weight == sum_gesamtweight  &&  akt_speed_soll <= akt_speed  &&  akt_speed_soll+24 >= akt_speed)  ||
+		(sum_friction_weight > sum_gesamtweight  &&  akt_speed_soll == akt_speed)  )
 		) {
 		// at max speed => go with max speed and finish calculation here
 		// at slopes/curves, only do this if there is absolutely now change
@@ -714,8 +714,8 @@ void convoi_t::calc_acceleration(uint32 delta_t)
 		const vehicle_t* v = front();
 		speed_limit = min( min_top_speed, v->get_speed_limit() );
 		if (recalc_data) {
-			sum_gesamtgewicht   = v->get_total_weight();
-			sum_friction_weight = v->get_frictionfactor() * sum_gesamtgewicht;
+			sum_gesamtweight   = v->get_total_weight();
+			sum_friction_weight = v->get_frictionfactor() * sum_gesamtweight;
 		}
 
 		for(  unsigned i=1; i<anz_vehikel; i++  ) {
@@ -725,7 +725,7 @@ void convoi_t::calc_acceleration(uint32 delta_t)
 			if (recalc_data) {
 				int total_vehicle_weight = v->get_total_weight();
 				sum_friction_weight += v->get_frictionfactor() * total_vehicle_weight;
-				sum_gesamtgewicht += total_vehicle_weight;
+				sum_gesamtweight += total_vehicle_weight;
 			}
 		}
 		recalc_data = recalc_speed_limit = false;
@@ -752,7 +752,7 @@ void convoi_t::calc_acceleration(uint32 delta_t)
 	// Prissi: more pleasant and a little more "physical" model *
 
 	// try to simulate quadratic friction
-	if(sum_gesamtgewicht != 0) {
+	if(sum_gesamtweight != 0) {
 		/*
 			* The parameter consist of two parts (optimized for good looking):
 			*  - every vehicle in a convoi has a the friction of its weight
@@ -763,22 +763,22 @@ void convoi_t::calc_acceleration(uint32 delta_t)
 			* @author prissi
 			*/
 
-		/* but for integer, we have to use the order below and calculate actually 64*deccel, like the sum_gear_und_leistung
+		/* but for integer, we have to use the order below and calculate actually 64*deccel, like the sum_gear_and_power
 			* since akt_speed=10/128 km/h and we want 64*200kW=(100km/h)^2*100t, we must multiply by (128*2)/100
 			* But since the acceleration was too fast, we just decelerate 4x more => >>6 instead >>8 */
-		//sint32 deccel = ( ( (akt_speed*sum_friction_weight)>>6 )*(akt_speed>>2) ) / 25 + (sum_gesamtgewicht*64);	// this order is needed to prevent overflows!
-		//sint32 deccel = (sint32)( ( (sint64)akt_speed * (sint64)sum_friction_weight * (sint64)akt_speed ) / (25ll*256ll) + sum_gesamtgewicht * 64ll) / 1000ll; // intermediate still overflows so sint64
-		//sint32 deccel = (sint32)( ( (sint64)akt_speed * ( (sum_friction_weight * (sint64)akt_speed ) / 3125ll + 1ll) ) / 2048ll + (sum_gesamtgewicht * 64ll) / 1000ll);
+		//sint32 deccel = ( ( (akt_speed*sum_friction_weight)>>6 )*(akt_speed>>2) ) / 25 + (sum_gesamtweight*64);	// this order is needed to prevent overflows!
+		//sint32 deccel = (sint32)( ( (sint64)akt_speed * (sint64)sum_friction_weight * (sint64)akt_speed ) / (25ll*256ll) + sum_gesamtweight * 64ll) / 1000ll; // intermediate still overflows so sint64
+		//sint32 deccel = (sint32)( ( (sint64)akt_speed * ( (sum_friction_weight * (sint64)akt_speed ) / 3125ll + 1ll) ) / 2048ll + (sum_gesamtweight * 64ll) / 1000ll);
 
 		// prissi: integer sucks with planes => using floats ...
 		// turfit: result can overflow sint32 and double so onto sint64. planes ok.
-		//sint32 delta_v =  (sint32)( ( (double)( (akt_speed>akt_speed_soll?0l:sum_gear_und_leistung) - deccel)*(double)delta_t)/(double)sum_gesamtgewicht);
+		//sint32 delta_v =  (sint32)( ( (double)( (akt_speed>akt_speed_soll?0l:sum_gear_and_power) - deccel)*(double)delta_t)/(double)sum_gesamtweight);
 
-		sint64 residual_power = res_power(akt_speed, akt_speed>akt_speed_soll? 0l : sum_gear_und_leistung, sum_friction_weight, sum_gesamtgewicht);
+		sint64 residual_power = res_power(akt_speed, akt_speed>akt_speed_soll? 0l : sum_gear_and_power, sum_friction_weight, sum_gesamtweight);
 
 		// we normalize delta_t to 1/64th and check for speed limit */
-		//sint32 delta_v = ( ( (akt_speed>akt_speed_soll?0l:sum_gear_und_leistung) - deccel) * delta_t)/sum_gesamtgewicht;
-		sint64 delta_v = ( residual_power * (sint64)delta_t * 1000ll) / (sint64)sum_gesamtgewicht;
+		//sint32 delta_v = ( ( (akt_speed>akt_speed_soll?0l:sum_gear_and_power) - deccel) * delta_t)/sum_gesamtweight;
+		sint64 delta_v = ( residual_power * (sint64)delta_t * 1000ll) / (sint64)sum_gesamtweight;
 
 		// we need more accurate arithmetic, so we store the previous value
 		delta_v += previous_delta_v;
@@ -1616,15 +1616,15 @@ DBG_MESSAGE("convoi_t::add_vehikel()","extend array_tpl to %i totals.",max_rail_
 		anz_vehikel ++;
 
 		const vehikel_besch_t *info = v->get_desc();
-		if(info->get_leistung()) {
+		if(info->get_power()) {
 			is_electric |= info->get_engine_type()==vehikel_besch_t::electric;
 		}
-		sum_leistung += info->get_leistung();
-		sum_gear_und_leistung += info->get_leistung()*info->get_gear();
-		sum_gewicht += info->get_gewicht();
-		sum_running_costs -= info->get_betriebskosten();
+		sum_power += info->get_power();
+		sum_gear_and_power += info->get_power()*info->get_gear();
+		sum_weight += info->get_weight();
+		sum_running_costs -= info->get_running_cost();
 		min_top_speed = min( min_top_speed, kmh_to_speed( v->get_desc()->get_geschw() ) );
-		sum_gesamtgewicht = sum_gewicht;
+		sum_gesamtweight = sum_weight;
 		calc_loading();
 		freight_info_resort = true;
 		// Add good_catg_index:
@@ -1668,13 +1668,13 @@ vehicle_t *convoi_t::remove_vehikel_bei(uint16 i)
 			fahr[anz_vehikel] = NULL;
 
 			const vehikel_besch_t *info = v->get_desc();
-			sum_leistung -= info->get_leistung();
-			sum_gear_und_leistung -= info->get_leistung()*info->get_gear();
-			sum_gewicht -= info->get_gewicht();
-			sum_running_costs += info->get_betriebskosten();
+			sum_power -= info->get_power();
+			sum_gear_and_power -= info->get_power()*info->get_gear();
+			sum_weight -= info->get_weight();
+			sum_running_costs += info->get_running_cost();
 			player_t::add_maintenance( get_owner(), -info->get_maintenance(), info->get_waytype() );
 		}
-		sum_gesamtgewicht = sum_gewicht;
+		sum_gesamtweight = sum_weight;
 		calc_loading();
 		freight_info_resort = true;
 
@@ -1701,7 +1701,7 @@ vehicle_t *convoi_t::remove_vehikel_bei(uint16 i)
 		if(is_electric) {
 			is_electric = false;
 			for(unsigned i=0; i<anz_vehikel; i++) {
-				if(fahr[i]->get_desc()->get_leistung()) {
+				if(fahr[i]->get_desc()->get_power()) {
 					is_electric |= fahr[i]->get_desc()->get_engine_type()==vehikel_besch_t::electric;
 				}
 			}
@@ -2279,10 +2279,10 @@ void convoi_t::rdwr(loadsave_t *file)
 			// game with a different vehicle.tab, there might be no vehicle
 			// info
 			if(info) {
-				sum_leistung += info->get_leistung();
-				sum_gear_und_leistung += info->get_leistung()*info->get_gear();
-				sum_gewicht += info->get_gewicht();
-				sum_running_costs -= info->get_betriebskosten();
+				sum_power += info->get_power();
+				sum_gear_and_power += info->get_power()*info->get_gear();
+				sum_weight += info->get_weight();
+				sum_running_costs -= info->get_running_cost();
 				is_electric |= info->get_engine_type()==vehikel_besch_t::electric;
 				has_obsolete |= welt->use_timeline()  &&  info->is_retired( welt->get_timeline_year_month() );
 				player_t::add_maintenance( get_owner(), info->get_maintenance(), info->get_waytype() );
@@ -2331,7 +2331,7 @@ void convoi_t::rdwr(loadsave_t *file)
 			// add to convoi
 			fahr[i] = v;
 		}
-		sum_gesamtgewicht = sum_gewicht;
+		sum_gesamtweight = sum_weight;
 	}
 
 	bool has_schedule = (schedule != NULL);
@@ -2580,8 +2580,8 @@ void convoi_t::info(cbuffer_t & buf) const
 		char tmp[128];
 
 		buf.printf("\n %d/%dkm/h (%1.2f$/km)\n", speed_to_kmh(min_top_speed), v->get_desc()->get_geschw(), get_running_cost() / 100.0);
-		buf.printf(" %s: %ikW\n", translator::translate("Leistung"), sum_leistung);
-		buf.printf(" %s: %i (%i) t\n", translator::translate("Gewicht"), sum_gewicht, sum_gesamtgewicht - sum_gewicht);
+		buf.printf(" %s: %ikW\n", translator::translate("Leistung"), sum_power);
+		buf.printf(" %s: %i (%i) t\n", translator::translate("Gewicht"), sum_weight, sum_gesamtweight - sum_weight);
 		buf.printf(" %s: ", translator::translate("Gewinn"));
 		money_to_string(tmp, (double)jahresgewinn);
 		buf.append(tmp);
@@ -2615,7 +2615,7 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 
 			// first add to capacity indicator
 			const ware_besch_t* ware_desc = v->get_desc()->get_ware();
-			const uint16 menge = v->get_desc()->get_zuladung();
+			const uint16 menge = v->get_desc()->get_capacity();
 			if(menge>0  &&  ware_desc!=warenbauer_t::nichts) {
 				max_loaded_waren[ware_desc->get_index()] += menge;
 			}
@@ -2979,14 +2979,14 @@ void convoi_t::calc_speedbonus_kmh()
 		sint32 total_weight = 0;
 		for(  unsigned i=0;  i<anz_vehikel;  i++  ) {
 			const vehikel_besch_t* const desc = fahr[i]->get_desc();
-			total_max_weight += desc->get_gewicht();
-			total_weight += fahr[i]->get_total_weight(); // convoi_t::sum_gesamgewicht may not be updated yet when this method is called...
+			total_max_weight += desc->get_weight();
+			total_weight += fahr[i]->get_total_weight(); // convoi_t::sum_gesamweight may not be updated yet when this method is called...
 			if(  desc->get_ware() == warenbauer_t::nichts  ) {
 				; // nothing
 			}
 			else if(  desc->get_ware()->get_catg() == 0  ) {
 				// use full weight for passengers, post, and special goods
-				total_max_weight += desc->get_ware()->get_weight_per_unit() * desc->get_zuladung();
+				total_max_weight += desc->get_ware()->get_weight_per_unit() * desc->get_capacity();
 			}
 			else {
 				// use actual weight for regular goods
@@ -2996,11 +2996,11 @@ void convoi_t::calc_speedbonus_kmh()
 		// very old vehicles have zero weight ...
 		if(  total_weight>0  ) {
 
-			speedbonus_kmh = speed_to_kmh( calc_max_speed(sum_gear_und_leistung, total_max_weight, min_top_speed) );
+			speedbonus_kmh = speed_to_kmh( calc_max_speed(sum_gear_and_power, total_max_weight, min_top_speed) );
 
 			// convoi overtakers use current actual weight for achievable speed
 			if(  front()->get_overtaker()  ) {
-				max_power_speed = calc_max_speed(sum_gear_und_leistung, total_weight, min_top_speed);
+				max_power_speed = calc_max_speed(sum_gear_and_power, total_weight, min_top_speed);
 			}
 		}
 	}

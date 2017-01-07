@@ -166,9 +166,9 @@ const vector_tpl<const vehikel_besch_t*>& get_predecessors(const vehikel_besch_t
 {
 	static vector_tpl<const vehikel_besch_t*> dummy;
 	dummy.clear();
-	for(int i=0; i<desc->get_vorgaenger_count(); i++) {
-		if (desc->get_vorgaenger(i)) {
-			dummy.append(desc->get_vorgaenger(i));
+	for(int i=0; i<desc->get_leader_count(); i++) {
+		if (desc->get_leader(i)) {
+			dummy.append(desc->get_leader(i));
 		}
 	}
 	return dummy;
@@ -178,9 +178,9 @@ const vector_tpl<const vehikel_besch_t*>& get_successors(const vehikel_besch_t *
 {
 	static vector_tpl<const vehikel_besch_t*> dummy;
 	dummy.clear();
-	for(int i=0; i<desc->get_nachfolger_count(); i++) {
-		if (desc->get_nachfolger(i)) {
-			dummy.append(desc->get_nachfolger(i));
+	for(int i=0; i<desc->get_trailer_count(); i++) {
+		if (desc->get_trailer(i)) {
+			dummy.append(desc->get_trailer(i));
 		}
 	}
 	return dummy;
@@ -208,7 +208,7 @@ const vector_tpl<const vehikel_besch_t*>& get_available_vehicles(waytype_t wt)
 
 uint32 get_power(const vehikel_besch_t *desc)
 {
-	return desc->get_leistung() * desc->get_gear();
+	return desc->get_power() * desc->get_gear();
 }
 
 // export of building_desc_t::btype only here
@@ -335,11 +335,11 @@ void export_goods_desc(HSQUIRRELVM vm)
 	/**
 	 * @returns capacity
 	 */
-	register_method(vm, &vehikel_besch_t::get_zuladung, "get_capacity");
+	register_method(vm, &vehikel_besch_t::get_capacity, "get_capacity");
 	/**
 	 * @returns running cost in 1/100 credits per tile
 	 */
-	register_method(vm, &vehikel_besch_t::get_betriebskosten, "get_running_cost");
+	register_method(vm, &vehikel_besch_t::get_running_cost, "get_running_cost");
 	/**
 	 * @returns fixed cost in 1/100 credits per month
 	 */
@@ -347,7 +347,7 @@ void export_goods_desc(HSQUIRRELVM vm)
 	/**
 	 * @returns weight of the empty vehicle
 	 */
-	register_method(vm, &vehikel_besch_t::get_gewicht, "get_weight"); // in kg
+	register_method(vm, &vehikel_besch_t::get_weight, "get_weight"); // in kg
 	/**
 	 * @returns lengths in @ref units::CARUNITS_PER_TILE
 	 */

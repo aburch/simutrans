@@ -1302,7 +1302,7 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using %s on %s",road_vehicle->g
 							convoihandle_t cnv = line->get_convoy(i);
 							if(cnv->has_obsolete_vehicles()) {
 								obsolete.append(cnv);
-								capacity += cnv->front()->get_desc()->get_zuladung();
+								capacity += cnv->front()->get_desc()->get_capacity();
 							}
 						}
 						if(capacity>0) {
@@ -1312,7 +1312,7 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using %s on %s",road_vehicle->g
 							vehikel_besch_t const* const  v_desc = vehikelbauer_t::vehikel_search(wt, welt->get_current_month(), 50, welt->get_average_speed(wt), warenbauer_t::passagiere, false, true);
 							if (!v_desc->is_retired(welt->get_current_month()) && v_desc != v.get_desc()) {
 								// there is a newer one ...
-								for(  uint32 new_capacity=0;  capacity>new_capacity;  new_capacity+=v_desc->get_zuladung()) {
+								for(  uint32 new_capacity=0;  capacity>new_capacity;  new_capacity+=v_desc->get_capacity()) {
 									if(  convoihandle_t::is_exhausted()  ) {
 										// too many convois => cannot do anything about this ...
 										break;

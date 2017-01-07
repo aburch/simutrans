@@ -748,18 +748,18 @@ uint16 vehicle_t::load_cargo(halthandle_t halt)
 	}
 
 	uint32 loaded_started_at = 0;
-	if (total_freight < desc->get_zuladung()) {
-		const uint16 hinein = desc->get_zuladung() - total_freight;
+	if (total_freight < desc->get_capacity()) {
+		const uint16 capacity_left = desc->get_capacity() - total_freight;
 
-		slist_tpl<ware_t> zuladung;
-		halt->fetch_goods( zuladung, desc->get_ware(), hinein, cnv->get_schedule(), cnv->get_owner() );
+		slist_tpl<ware_t> freight_add;
+		halt->fetch_goods( freight_add, desc->get_ware(), capacity_left, cnv->get_schedule(), cnv->get_owner() );
 
-		if(  zuladung.empty()  ) {
+		if(  freight_add.empty()  ) {
 			// now empty, but usually, we can get it here ...
 			return 0;
 		}
 
-		for(  slist_tpl<ware_t>::iterator iter_z = zuladung.begin();  iter_z != zuladung.end();  ) {
+		for(  slist_tpl<ware_t>::iterator iter_z = freight_add.begin();  iter_z != freight_add.end();  ) {
 			ware_t &ware = *iter_z;
 
 			total_freight += ware.menge;
@@ -782,12 +782,12 @@ uint16 vehicle_t::load_cargo(halthandle_t halt)
 				// we add list directly
 			}
 			else {
-				iter_z = zuladung.erase(iter_z);
+				iter_z = freight_add.erase(iter_z);
 			}
 		}
 
-		if(  !zuladung.empty()  ) {
-			fracht.append_list(zuladung);
+		if(  !freight_add.empty()  ) {
+			fracht.append_list(freight_add);
 		}
 	}
 	return total_freight-loaded_started_at;
@@ -862,7 +862,7 @@ void vehicle_t::remove_stale_cargo()
 			fracht.remove(c);
 		}
 	}
-	sum_weight =  get_cargo_weight() + desc->get_gewicht();
+	sum_weight =  get_cargo_weight() + desc->get_weight();
 }
 
 
@@ -945,7 +945,7 @@ vehicle_t::vehicle_t(koord3d pos, const vehikel_besch_t* desc, player_t* player_
 
 	current_friction = 4;
 	total_freight = 0;
-	sum_weight = desc->get_gewicht();
+	sum_weight = desc->get_weight();
 
 	leading = last = false;
 	check_for_finish = false;
@@ -1375,7 +1375,7 @@ void vehicle_t::discard_cargo()
 		fabrik_t::update_transit( &w, false );
 	}
 	fracht.clear();
-	sum_weight =  desc->get_gewicht();
+	sum_weight =  desc->get_weight();
 }
 
 
@@ -1424,7 +1424,7 @@ void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 		fracht_count = fracht.get_count();
 		// we try to have one freight count to guess the right freight
 		// when no desc is given
-		if(fracht_count==0  &&  desc->get_ware()!=warenbauer_t::nichts  &&  desc->get_zuladung()>0) {
+		if(fracht_count==0  &&  desc->get_ware()!=warenbauer_t::nichts  &&  desc->get_capacity()>0) {
 			fracht_count = 1;
 		}
 	}
@@ -1638,7 +1638,7 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(purchase_time%12
 			calc_image();
 
 			// full weight after loading
-			sum_weight =  get_cargo_weight() + desc->get_gewicht();
+			sum_weight =  get_cargo_weight() + desc->get_weight();
 		}
 		// recalc total freight
 		total_freight = 0;
@@ -2343,7 +2343,7 @@ rail_vehicle_t::rail_vehicle_t(loadsave_t *file, bool is_first, bool is_last) : 
 			int power = (is_first || fracht.empty() || fracht.front() == warenbauer_t::nichts) ? 500 : 0;
 			const ware_besch_t* w = fracht.empty() ? warenbauer_t::nichts : fracht.front().get_desc();
 			dbg->warning("rail_vehicle_t::rail_vehicle_t()","try to find a fitting vehicle for %s.", power>0 ? "engine": w->get_name() );
-			if(last_desc!=NULL  &&  last_desc->can_follow(last_desc)  &&  last_desc->get_ware()==w  &&  (!is_last  ||  last_desc->get_nachfolger(0)==NULL)) {
+			if(last_desc!=NULL  &&  last_desc->can_follow(last_desc)  &&  last_desc->get_ware()==w  &&  (!is_last  ||  last_desc->get_trailer(0)==NULL)) {
 				// same as previously ...
 				desc = last_desc;
 			}

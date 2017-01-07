@@ -310,9 +310,9 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 		info_buf.clear();
 		info_buf.append( translator::translate("Gewicht") );
 		info_buf.append( ": " );
-		info_buf.append( cnv->get_sum_gesamtgewicht()/1000.0, 1 );
+		info_buf.append( cnv->get_sum_gesamtweight()/1000.0, 1 );
 		info_buf.append( "t (" );
-		info_buf.append( (cnv->get_sum_gesamtgewicht()-cnv->get_sum_gewicht())/1000.0, 1 );
+		info_buf.append( (cnv->get_sum_gesamtweight()-cnv->get_sum_weight())/1000.0, 1 );
 		info_buf.append( "t)" );
 		display_proportional( xpos, ypos, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true );
 		ypos += LINESPACE;

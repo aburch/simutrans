@@ -65,10 +65,10 @@ public:
 
 
 private:
-	uint16  zuladung;
+	uint16  capacity;
 	uint16  loading_time;	// time per full loading/unloading
-	uint32  gewicht;
-	uint32  leistung;
+	uint32  weight;
+	uint32  power;
 	uint16  running_cost;
 	uint32  fixed_cost;
 
@@ -77,8 +77,8 @@ private:
 	uint8 len;			// length (=8 is half a tile, the old default)
 	sint8 sound;
 
-	uint8  vorgaenger;	// all defined leading vehicles
-	uint8  nachfolger;	// all defined trailer
+	uint8  leader_count;	// all defined leading vehicles
+	uint8  trailer_count;	// all defined trailer
 
 	uint8  engine_type; // diesel, steam, electric (requires electrified ways), fuel_cell, etc.
 
@@ -92,8 +92,8 @@ public:
 	// default vehicle (used for way seach and similar tasks)
 	// since it has no images and not even a name knot any calls to this will case a crash
 	vehikel_besch_t(uint8 wtyp, uint16 speed, engine_t engine) {
-		freight_image_type = cost = zuladung = axle_load = running_cost = fixed_cost = intro_date = vorgaenger = nachfolger = 0;
-		leistung = gewicht = 1;
+		freight_image_type = cost = capacity = axle_load = running_cost = fixed_cost = intro_date = leader_count = trailer_count = 0;
+		power = weight = 1;
 		loading_time = 1000;
 		gear = 64;
 		len = 8;
@@ -127,7 +127,7 @@ public:
 			sint8 ware_index=0; // freight images: if not found use first freight
 
 			for( sint8 i=0;  i<freight_image_type;  i++  ) {
-				if (ware == get_child<ware_besch_t>(6 + nachfolger + vorgaenger + i)) {
+				if (ware == get_child<ware_besch_t>(6 + trailer_count + leader_count + i)) {
 					ware_index = i;
 					break;
 				}
@@ -169,43 +169,43 @@ public:
 	}
 
 	// Liefert die erlaubten Vorgaenger.
-	// liefert get_vorgaenger(0) == NULL, so bedeutet das entweder alle
+	// liefert get_leader(0) == NULL, so bedeutet das entweder alle
 	// Vorgänger sind erlaubt oder keine. Um das zu unterscheiden, sollte man
 	// vorher hat_vorgaenger() befragen
-	const vehikel_besch_t *get_vorgaenger(uint8 i) const
+	const vehikel_besch_t *get_leader(uint8 i) const
 	{
-		if(  i >= vorgaenger  ) {
+		if(  i >= leader_count  ) {
 			return 0;
 		}
 		return get_child<vehikel_besch_t>(6 + i);
 	}
 
-	uint8 get_vorgaenger_count() const { return vorgaenger; }
+	uint8 get_leader_count() const { return leader_count; }
 
 	// Liefert die erlaubten Nachfolger.
-	// liefert get_nachfolger(0) == NULL, so bedeutet das entweder alle
+	// liefert get_trailer(0) == NULL, so bedeutet das entweder alle
 	// Nachfolger sind erlaubt oder keine. Um das zu unterscheiden, sollte
 	// man vorher hat_nachfolger() befragen
-	const vehikel_besch_t *get_nachfolger(uint8 i) const
+	const vehikel_besch_t *get_trailer(uint8 i) const
 	{
-		if(  i >= nachfolger  ) {
+		if(  i >= trailer_count  ) {
 			return 0;
 		}
-		return get_child<vehikel_besch_t>(6 + vorgaenger + i);
+		return get_child<vehikel_besch_t>(6 + leader_count + i);
 	}
 
-	uint8 get_nachfolger_count() const { return nachfolger; }
+	uint8 get_trailer_count() const { return trailer_count; }
 
 	/* returns true, if this veh can be before the next_veh
 	 * uses NULL to indicate end of convoi
 	 */
 	bool can_lead(const vehikel_besch_t *next_veh) const
 	{
-		if(  nachfolger==0  ) {
+		if(  trailer_count==0  ) {
 			return true;
 		}
-		for( uint8 i=0;  i<nachfolger;  i++  ) {
-			vehikel_besch_t const* const veh = get_child<vehikel_besch_t>(6 + vorgaenger + i);
+		for( uint8 i=0;  i<trailer_count;  i++  ) {
+			vehikel_besch_t const* const veh = get_child<vehikel_besch_t>(6 + leader_count + i);
 			if(veh==next_veh) {
 				return true;
 			}
@@ -219,10 +219,10 @@ public:
 	 */
 	bool can_follow(const vehikel_besch_t *prev_veh) const
 	{
-		if(  vorgaenger==0  ) {
+		if(  leader_count==0  ) {
 			return true;
 		}
-		for( uint8 i=0;  i<vorgaenger;  i++  ) {
+		for( uint8 i=0;  i<leader_count;  i++  ) {
 			vehikel_besch_t const* const veh = get_child<vehikel_besch_t>(6 + i);
 			if(veh==prev_veh) {
 				return true;
@@ -232,13 +232,13 @@ public:
 		return false;
 	}
 
-	bool can_follow_any() const { return nachfolger==0; }
+	bool can_follow_any() const { return trailer_count==0; }
 
-	uint16 get_zuladung() const { return zuladung; }
+	uint16 get_capacity() const { return capacity; }
 	uint16 get_loading_time() const { return loading_time; } // ms per full loading/unloading
-	uint32 get_gewicht() const { return gewicht; }
-	uint32 get_leistung() const { return leistung; }
-	uint32 get_betriebskosten() const { return running_cost; }
+	uint32 get_weight() const { return weight; }
+	uint32 get_power() const { return power; }
+	uint32 get_running_cost() const { return running_cost; }
 	uint16 get_maintenance() const { return fixed_cost; }
 	sint8 get_sound() const { return sound; }
 

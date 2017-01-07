@@ -95,7 +95,7 @@ void convoi_detail_t::draw(scr_coord pos, scr_size size)
 		cbuffer_t buf;
 
 		// current power
-		buf.printf( translator::translate("Leistung: %d kW"), cnv->get_sum_leistung() );
+		buf.printf( translator::translate("Leistung: %d kW"), cnv->get_sum_power() );
 		display_proportional_clip( pos.x+10, offset_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true );
 		offset_y += LINESPACE;
 
@@ -275,9 +275,9 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 			extra_y += LINESPACE;
 
 			// power
-			if(v->get_desc()->get_leistung()>0) {
+			if(v->get_desc()->get_power()>0) {
 				buf.clear();
-				buf.printf( "%s %i kW, %s %.2f", translator::translate("Power:"), v->get_desc()->get_leistung(), translator::translate("Gear:"), v->get_desc()->get_gear()/64.0 );
+				buf.printf( "%s %i kW, %s %.2f", translator::translate("Power:"), v->get_desc()->get_power(), translator::translate("Gear:"), v->get_desc()->get_gear()/64.0 );
 				display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, buf, ALIGN_LEFT, MONEY_PLUS, true );
 				extra_y += LINESPACE;
 			}

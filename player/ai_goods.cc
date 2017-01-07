@@ -357,19 +357,19 @@ bool ai_goods_t::create_ship_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 {
 	// pak64 has barges ...
 	const vehikel_besch_t *v_second = NULL;
-	if(ship_vehicle->get_leistung()==0) {
+	if(ship_vehicle->get_power()==0) {
 		v_second = ship_vehicle;
-		if(v_second->get_vorgaenger_count()==0  ||  v_second->get_vorgaenger(0)==NULL) {
+		if(v_second->get_leader_count()==0  ||  v_second->get_leader(0)==NULL) {
 			// pushed barge?
-			if(ship_vehicle->get_nachfolger_count()>0  &&  ship_vehicle->get_nachfolger(0)!=NULL) {
-				v_second = ship_vehicle->get_nachfolger(0);
+			if(ship_vehicle->get_trailer_count()>0  &&  ship_vehicle->get_trailer(0)!=NULL) {
+				v_second = ship_vehicle->get_trailer(0);
 			}
 			else {
 				return false;
 			}
 		}
 		else {
-			ship_vehicle = v_second->get_vorgaenger(0);
+			ship_vehicle = v_second->get_leader(0);
 		}
 	}
 	DBG_MESSAGE( "ai_goods_t::create_ship_transport_vehikel()", "for %i ships", anz_vehikel );
@@ -909,10 +909,10 @@ DBG_MESSAGE("do_ki()","check railway");
 				// if our car is faster: well use slower speed to save money
 				best_rail_speed = min(51, rail_vehicle->get_geschw());
 				// for engine: gues number of cars
-				count_rail = (prod*dist) / (rail_vehicle->get_zuladung()*best_rail_speed)+1;
+				count_rail = (prod*dist) / (rail_vehicle->get_capacity()*best_rail_speed)+1;
 				// assume the engine weight 100 tons for power needed calcualtion
-				int total_weight = count_rail*( rail_vehicle->get_zuladung()*freight->get_weight_per_unit() + rail_vehicle->get_gewicht() );
-//				long power_needed = (long)(((best_rail_speed*best_rail_speed)/2500.0+1.0)*(100.0+count_rail*(rail_vehicle->get_gewicht()+rail_vehicle->get_zuladung()*freight->get_weight_per_unit()*0.001)));
+				int total_weight = count_rail*( rail_vehicle->get_capacity()*freight->get_weight_per_unit() + rail_vehicle->get_weight() );
+//				long power_needed = (long)(((best_rail_speed*best_rail_speed)/2500.0+1.0)*(100.0+count_rail*(rail_vehicle->get_weight()+rail_vehicle->get_capacity()*freight->get_weight_per_unit()*0.001)));
 				rail_engine = vehikel_search( track_wt, total_weight/1000, best_rail_speed, NULL, wayobj_t::default_oberleitung!=NULL);
 				if(  rail_engine!=NULL  ) {
 					best_rail_speed = min(rail_engine->get_geschw(),rail_vehicle->get_geschw());
@@ -923,10 +923,10 @@ DBG_MESSAGE("do_ki()","check railway");
 							best_rail_speed = rail_weg->get_topspeed();
 						}
 						// no train can have more than 15 cars
-						count_rail = min( 22, (3*prod*dist) / (rail_vehicle->get_zuladung()*best_rail_speed*2) );
+						count_rail = min( 22, (3*prod*dist) / (rail_vehicle->get_capacity()*best_rail_speed*2) );
 						// if engine too week, reduce number of cars
-						if(  count_rail*80*64>(int)(rail_engine->get_leistung()*rail_engine->get_gear())  ) {
-							count_rail = rail_engine->get_leistung()*rail_engine->get_gear()/(80*64);
+						if(  count_rail*80*64>(int)(rail_engine->get_power()*rail_engine->get_gear())  ) {
+							count_rail = rail_engine->get_power()*rail_engine->get_gear()/(80*64);
 						}
 						count_rail = ((count_rail+1)&0x0FE)+1;
 DBG_MESSAGE("ai_goods_t::do_ki()","Engine %s guess to need %d rail cars %s for route (%s)", rail_engine->get_name(), count_rail, rail_vehicle->get_name(), rail_weg->get_name() );
@@ -954,7 +954,7 @@ DBG_MESSAGE("do_ki()","check railway");
 						best_road_speed = road_weg->get_topspeed();
 					}
 					// minimum vehicle is 1, maximum vehicle is 48, more just result in congestion
-					count_road = min( 254, (prod*dist) / (road_vehicle->get_zuladung()*best_road_speed*2)+2 );
+					count_road = min( 254, (prod*dist) / (road_vehicle->get_capacity()*best_road_speed*2)+2 );
 DBG_MESSAGE("ai_goods_t::do_ki()","guess to need %d road cars %s for route %s", count_road, road_vehicle->get_name(), road_weg->get_name() );
 				}
 				else {
@@ -970,12 +970,12 @@ DBG_MESSAGE("ai_goods_t::do_ki()","No roadway possible.");
 
 			// calculate cost for rail
 			if(  count_rail<255  ) {
-				int freight_price = (freight->get_preis()*rail_vehicle->get_zuladung()*count_rail)/24*((8000+(best_rail_speed-80)*freight->get_speed_bonus())/1000);
+				int freight_price = (freight->get_preis()*rail_vehicle->get_capacity()*count_rail)/24*((8000+(best_rail_speed-80)*freight->get_speed_bonus())/1000);
 				// calculated here, since the above number was based on production
 				// only uneven number of cars bigger than 3 makes sense ...
 				count_rail = max( 3, count_rail );
 				income_rail = (freight_price*best_rail_speed)/(2*dist+count_rail);
-				cost_rail = rail_weg->get_wartung() + (((count_rail+1)/2)*300)/dist + ((count_rail*rail_vehicle->get_betriebskosten()+rail_engine->get_betriebskosten())*best_rail_speed)/(2*dist+count_rail);
+				cost_rail = rail_weg->get_wartung() + (((count_rail+1)/2)*300)/dist + ((count_rail*rail_vehicle->get_running_cost()+rail_engine->get_running_cost())*best_rail_speed)/(2*dist+count_rail);
 				DBG_MESSAGE("ai_goods_t::do_ki()","Netto credits per day for rail transport %.2f (income %.2f)",cost_rail/100.0, income_rail/100.0 );
 				cost_rail -= income_rail;
 			}
@@ -985,8 +985,8 @@ DBG_MESSAGE("ai_goods_t::do_ki()","No roadway possible.");
 				// for short distance: reduce number of cars
 				// calculated here, since the above number was based on production
 				count_road = CLIP( (sint32)(dist*15)/best_road_speed, 2, count_road );
-				int freight_price = (freight->get_preis()*road_vehicle->get_zuladung()*count_road)/24*((8000+(best_road_speed-80)*freight->get_speed_bonus())/1000);
-				cost_road = road_weg->get_wartung() + 300/dist + (count_road*road_vehicle->get_betriebskosten()*best_road_speed)/(2*dist+5);
+				int freight_price = (freight->get_preis()*road_vehicle->get_capacity()*count_road)/24*((8000+(best_road_speed-80)*freight->get_speed_bonus())/1000);
+				cost_road = road_weg->get_wartung() + 300/dist + (count_road*road_vehicle->get_running_cost()*best_road_speed)/(2*dist+5);
 				income_road = (freight_price*best_road_speed)/(2*dist+5);
 				DBG_MESSAGE("ai_goods_t::do_ki()","Netto credits per day and km for road transport %.2f (income %.2f)",cost_road/100.0, income_road/100.0 );
 				cost_road -= income_road;
@@ -1041,7 +1041,7 @@ DBG_MESSAGE("ai_goods_t::do_ki()","No roadway possible.");
 				}
 				// just remember the position, where the harbour will be built
 				harbour=platz1;
-				int ships_needed = 1 + (prod*koord_distance(harbour,start->get_pos().get_2d())) / (ship_vehicle->get_zuladung()*max(20,ship_vehicle->get_geschw()));
+				int ships_needed = 1 + (prod*koord_distance(harbour,start->get_pos().get_2d())) / (ship_vehicle->get_capacity()*max(20,ship_vehicle->get_geschw()));
 				if(create_ship_transport_vehikel(start,ships_needed)) {
 					bool already_connected = false;
 					const planquadrat_t* pl = welt->access(harbour);
@@ -1084,9 +1084,9 @@ DBG_MESSAGE("ai_goods_t::do_ki()","No roadway possible.");
 						// rethink engine
 						int best_rail_speed = min(51, rail_vehicle->get_geschw());
 						// for engine: gues number of cars
-						sint32 power_needed=(sint32)(((best_rail_speed*best_rail_speed)/2500.0+1.0)*(100.0+count_rail*( (rail_vehicle->get_gewicht()+rail_vehicle->get_zuladung()*freight->get_weight_per_unit())*0.001 )));
+						sint32 power_needed=(sint32)(((best_rail_speed*best_rail_speed)/2500.0+1.0)*(100.0+count_rail*( (rail_vehicle->get_weight()+rail_vehicle->get_capacity()*freight->get_weight_per_unit())*0.001 )));
 						const vehikel_besch_t *v=vehikel_search( track_wt, power_needed, best_rail_speed, NULL, false);
-						if(v->get_betriebskosten()<rail_engine->get_betriebskosten()) {
+						if(v->get_running_cost()<rail_engine->get_running_cost()) {
 							rail_engine = v;
 						}
 					}

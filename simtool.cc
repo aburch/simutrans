@@ -6867,7 +6867,7 @@ bool tool_change_line_t::init( player_t *player )
 							sint64 old_sum_capacity = 0;
 							FOR(vector_tpl<convoihandle_t>,cnv,cnvs) {
 								for(  int i=0;  i<cnv->get_vehicle_count();  i++  ) {
-									old_sum_capacity += cnv->get_vehikel(i)->get_desc()->get_zuladung();
+									old_sum_capacity += cnv->get_vehikel(i)->get_desc()->get_capacity();
 								}
 							}
 							/* now we have the total capacity. We will now remove convois until this capacity
@@ -6886,7 +6886,7 @@ bool tool_change_line_t::init( player_t *player )
 								convoihandle_t cnv = line->get_convoy(j);
 								if(  cnv->get_state() == convoi_t::INITIAL  ||  cnv->get_state() >= convoi_t::WAITING_FOR_CLEARANCE_ONE_MONTH  ) {
 									for(  int i=0;  i<cnv->get_vehicle_count();  i++  ) {
-										old_sum_capacity -= cnv->get_vehikel(i)->get_desc()->get_zuladung();
+										old_sum_capacity -= cnv->get_vehikel(i)->get_desc()->get_capacity();
 									}
 									cnv->self_destruct();
 									destroyed ++;
@@ -6898,7 +6898,7 @@ bool tool_change_line_t::init( player_t *player )
 								convoihandle_t cnv = line->get_convoy(j);
 								if(  cnv->get_state() != convoi_t::SELF_DESTRUCT  ) {
 									for(  int i=0;  i<cnv->get_vehicle_count();  i++  ) {
-										old_sum_capacity -= cnv->get_vehikel(i)->get_desc()->get_zuladung();
+										old_sum_capacity -= cnv->get_vehikel(i)->get_desc()->get_capacity();
 									}
 									cnv->self_destruct();
 									destroyed ++;
@@ -7090,7 +7090,7 @@ bool tool_change_depot_t::init( player_t *player )
 					while(nr<cnv->get_vehicle_count()) {
 						const vehikel_besch_t *info = cnv->get_vehikel(nr)->get_desc();
 						nr ++;
-						if(info->get_nachfolger_count()!=1) {
+						if(info->get_trailer_count()!=1) {
 							break;
 						}
 					}
@@ -7119,18 +7119,18 @@ bool tool_change_depot_t::init( player_t *player )
 
 					if(tool!='a') {
 						// start of composition
-						while(  info->get_vorgaenger_count() == 1  &&  info->get_vorgaenger(0) != NULL  &&  !new_vehicle_info.is_contained(info)  ) {
-							info = info->get_vorgaenger(0);
+						while(  info->get_leader_count() == 1  &&  info->get_leader(0) != NULL  &&  !new_vehicle_info.is_contained(info)  ) {
+							info = info->get_leader(0);
 							new_vehicle_info.insert(info);
 						}
 						info = start_info;
 					}
 					while(info) {
 						new_vehicle_info.append( info );
-						if(info->get_nachfolger_count() != 1  ||  (tool == 'i'  &&  info == start_info)  ||  new_vehicle_info.is_contained(info->get_nachfolger(0))  ) {
+						if(info->get_trailer_count() != 1  ||  (tool == 'i'  &&  info == start_info)  ||  new_vehicle_info.is_contained(info->get_trailer(0))  ) {
 							break;
 						}
-						info = info->get_nachfolger(0);
+						info = info->get_trailer(0);
 					}
 					// now we have a valid composition together
 					if(  tool=='s'  ) {

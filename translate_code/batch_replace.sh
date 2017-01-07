@@ -7,6 +7,10 @@ do
 	find ../ -name "*.cc" -or -name "*.h" | while read fname; do
 
 		sed "${REPLACE}" $fname > tmp.sed
+		if [ $? -ne 0 ]; then
+			break
+		fi
+
 		cmp -s tmp.sed $fname
 		res=$?
 

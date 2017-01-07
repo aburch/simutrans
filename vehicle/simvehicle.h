@@ -307,7 +307,7 @@ public:
 	* @return die running_cost in Cr/100Km
 	* @author Hj. Malthaner
 	*/
-	int get_operating_cost() const { return desc->get_betriebskosten(); }
+	int get_operating_cost() const { return desc->get_running_cost(); }
 
 	/**
 	* Play sound, when the vehicle is visible on screen
@@ -376,7 +376,7 @@ public:
 	/**
 	* Get the maximum capacity
 	*/
-	uint16 get_cargo_max() const {return desc->get_zuladung(); }
+	uint16 get_cargo_max() const {return desc->get_capacity(); }
 
 	const char * get_cargo_mass() const;
 

@@ -602,7 +602,7 @@ void depot_frame_t::add_to_vehicle_list(const vehikel_besch_t *info)
 	// Check if vehicle should be filtered
 	const ware_besch_t *freight = info->get_ware();
 	// Only filter when required and never filter engines
-	if (depot->selected_filter > 0 && info->get_zuladung() > 0) {
+	if (depot->selected_filter > 0 && info->get_capacity() > 0) {
 		if (depot->selected_filter == VEHICLE_FILTER_RELEVANT) {
 			if(freight->get_catg_index() >= 3) {
 				bool found = false;
@@ -638,7 +638,7 @@ void depot_frame_t::add_to_vehicle_list(const vehikel_besch_t *info)
 	else if(info->get_ware()==warenbauer_t::passagiere  ||  info->get_ware()==warenbauer_t::post) {
 		pas_vec.append(img_data);
 	}
-	else if(info->get_leistung() > 0  ||  info->get_zuladung()==0) {
+	else if(info->get_power() > 0  ||  info->get_capacity()==0) {
 		loks_vec.append(img_data);
 	}
 	else {
@@ -991,7 +991,7 @@ void depot_frame_t::image_from_convoi_list(uint nr, bool to_end)
 		while(  start_nr > 0  ) {
 			start_nr--;
 			const vehikel_besch_t *info = cnv->get_vehikel(start_nr)->get_desc();
-			if(  info->get_nachfolger_count() != 1  ) {
+			if(  info->get_trailer_count() != 1  ) {
 				start_nr++;
 				break;
 			}
@@ -1311,7 +1311,7 @@ void depot_frame_t::draw(scr_coord pos, scr_size size)
 			for(  unsigned i = 0;  i < cnv->get_vehicle_count();  i++  ) {
 				const vehikel_besch_t *desc = cnv->get_vehikel(i)->get_desc();
 
-				total_power += desc->get_leistung()*desc->get_gear();
+				total_power += desc->get_power()*desc->get_gear();
 
 				uint32 sel_weight = 0; // actual weight using vehicle filter selected good to fill
 				uint32 max_weight = 0;
@@ -1343,23 +1343,23 @@ void depot_frame_t::draw(scr_coord pos, scr_size size)
 					use_sel_weight = false;
 				}
 
-				total_empty_weight += desc->get_gewicht();
-				total_selected_weight += desc->get_gewicht() + sel_weight * desc->get_zuladung();
-				total_max_weight += desc->get_gewicht() + max_weight * desc->get_zuladung();
-				total_min_weight += desc->get_gewicht() + min_weight * desc->get_zuladung();
+				total_empty_weight += desc->get_weight();
+				total_selected_weight += desc->get_weight() + sel_weight * desc->get_capacity();
+				total_max_weight += desc->get_weight() + max_weight * desc->get_capacity();
+				total_min_weight += desc->get_weight() + min_weight * desc->get_capacity();
 
 				const ware_besch_t* const ware = desc->get_ware();
 				switch(  ware->get_catg_index()  ) {
 					case warenbauer_t::INDEX_PAS: {
-						total_pax += desc->get_zuladung();
+						total_pax += desc->get_capacity();
 						break;
 					}
 					case warenbauer_t::INDEX_MAIL: {
-						total_mail += desc->get_zuladung();
+						total_mail += desc->get_capacity();
 						break;
 					}
 					default: {
-						total_goods += desc->get_zuladung();
+						total_goods += desc->get_capacity();
 						break;
 					}
 				}
@@ -1428,7 +1428,7 @@ void depot_frame_t::draw(scr_coord pos, scr_size size)
 			}
 
 			txt_convoi_power.clear();
-			txt_convoi_power.printf( translator::translate("Power: %4d kW\n"), cnv->get_sum_leistung() );
+			txt_convoi_power.printf( translator::translate("Power: %4d kW\n"), cnv->get_sum_power() );
 
 			txt_convoi_weight.clear();
 			if(  total_empty_weight != (use_sel_weight ? total_selected_weight : total_max_weight)  ) {
@@ -1602,7 +1602,7 @@ void depot_frame_t::draw_vehicle_info_text(scr_coord pos)
 		buf.clear();
 		buf.printf( "%s", translator::translate( veh_type->get_name(), welt->get_settings().get_name_language_id() ) );
 
-		if(  veh_type->get_leistung() > 0  ) { // LOCO
+		if(  veh_type->get_power() > 0  ) { // LOCO
 			buf.printf( " (%s)\n", translator::translate( engine_type_names[veh_type->get_engine_type()+1] ) );
 		}
 		else {
@@ -1612,17 +1612,17 @@ void depot_frame_t::draw_vehicle_info_text(scr_coord pos)
 		if(  sint64 fix_cost = welt->scale_with_month_length(veh_type->get_maintenance())  ) {
 			char tmp[128];
 			money_to_string( tmp, veh_type->get_preis() / 100.0, false );
-			buf.printf( translator::translate("Cost: %8s (%.2f$/km %.2f$/m)\n"), tmp, veh_type->get_betriebskosten()/100.0, fix_cost/100.0 );
+			buf.printf( translator::translate("Cost: %8s (%.2f$/km %.2f$/m)\n"), tmp, veh_type->get_running_cost()/100.0, fix_cost/100.0 );
 		}
 		else {
 			char tmp[128];
 			money_to_string(  tmp, veh_type->get_preis() / 100.0, false );
-			buf.printf( translator::translate("Cost: %8s (%.2f$/km)\n"), tmp, veh_type->get_betriebskosten()/100.0 );
+			buf.printf( translator::translate("Cost: %8s (%.2f$/km)\n"), tmp, veh_type->get_running_cost()/100.0 );
 		}
 
-		if(  veh_type->get_zuladung() > 0  ) { // must translate as "Capacity: %3d%s %s\n"
+		if(  veh_type->get_capacity() > 0  ) { // must translate as "Capacity: %3d%s %s\n"
 			buf.printf( translator::translate("Capacity: %d%s %s\n"),
-				veh_type->get_zuladung(),
+				veh_type->get_capacity(),
 				translator::translate( veh_type->get_ware()->get_mass() ),
 				veh_type->get_ware()->get_catg()==0 ? translator::translate( veh_type->get_ware()->get_name() ) : translator::translate( veh_type->get_ware()->get_catg_name() )
 				);
@@ -1631,14 +1631,14 @@ void depot_frame_t::draw_vehicle_info_text(scr_coord pos)
 			buf.append( "\n" );
 		}
 
-		if(  veh_type->get_leistung() > 0  ) { // LOCO
-			buf.printf( translator::translate("Power: %4d kW\n"), veh_type->get_leistung() );
+		if(  veh_type->get_power() > 0  ) { // LOCO
+			buf.printf( translator::translate("Power: %4d kW\n"), veh_type->get_power() );
 		}
 		else {
 			buf.append( "\n" );
 		}
 
-		buf.printf( "%s %4.1ft\n", translator::translate("Weight:"), veh_type->get_gewicht() / 1000.0 );
+		buf.printf( "%s %4.1ft\n", translator::translate("Weight:"), veh_type->get_weight() / 1000.0 );
 		buf.printf( "%s %3d km/h", translator::translate("Max. speed:"), veh_type->get_geschw() );
 
 		display_multiline_text( pos.x + D_MARGIN_LEFT, pos.y + D_TITLEBAR_HEIGHT + bt_show_all.get_pos().y + bt_show_all.get_size().h + D_V_SPACE, buf, SYSCOL_TEXT);
@@ -1662,7 +1662,7 @@ void depot_frame_t::draw_vehicle_info_text(scr_coord pos)
 			buf.append( "\n" );
 		}
 
-		if(  veh_type->get_leistung() > 0  &&  veh_type->get_gear() != 64  ) {
+		if(  veh_type->get_power() > 0  &&  veh_type->get_gear() != 64  ) {
 			buf.printf( "%s %0.2f : 1\n", translator::translate("Gear:"), veh_type->get_gear() / 64.0 );
 		}
 		else {
