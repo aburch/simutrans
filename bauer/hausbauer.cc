@@ -455,7 +455,7 @@ void hausbauer_t::remove( player_t *player, gebaeude_t *gb )
 }
 
 
-gebaeude_t* hausbauer_t::baue(player_t* player_, koord3d pos, int org_layout, const haus_besch_t* desc, void* param)
+gebaeude_t* hausbauer_t::build(player_t* player_, koord3d pos, int org_layout, const haus_besch_t* desc, void* param)
 {
 	gebaeude_t* first_building = NULL;
 	koord k;
@@ -467,7 +467,7 @@ gebaeude_t* hausbauer_t::baue(player_t* player_, koord3d pos, int org_layout, co
 
 	for(k.y = 0; k.y < dim.y; k.y ++) {
 		for(k.x = 0; k.x < dim.x; k.x ++) {
-//DBG_DEBUG("hausbauer_t::baue()","get_tile() at %i,%i",k.x,k.y);
+//DBG_DEBUG("hausbauer_t::build()","get_tile() at %i,%i",k.x,k.y);
 			const haus_tile_besch_t *tile = desc->get_tile(layout, k.x, k.y);
 
 			// skip empty tiles
@@ -477,7 +477,7 @@ gebaeude_t* hausbauer_t::baue(player_t* player_, koord3d pos, int org_layout, co
 						tile->get_foreground(0, 0)    == IMG_EMPTY
 					)) {
 						// may have a rotation that is not recoverable
-						DBG_MESSAGE("hausbauer_t::baue()","get_tile() empty at %i,%i",k.x,k.y);
+						DBG_MESSAGE("hausbauer_t::build()","get_tile() empty at %i,%i",k.x,k.y);
 				continue;
 			}
 			gebaeude_t *gb = new gebaeude_t(pos + k, player_, tile);
@@ -527,7 +527,7 @@ gebaeude_t* hausbauer_t::baue(player_t* player_, koord3d pos, int org_layout, co
 				grund_t *gr2 = new fundament_t(gr->get_pos(), gr->get_grund_hang());
 				welt->access(gr->get_pos().get_2d())->boden_ersetzen(gr, gr2);
 				gr = gr2;
-//DBG_DEBUG("hausbauer_t::baue()","ground count now %i",gr->obj_count());
+//DBG_DEBUG("hausbauer_t::build()","ground count now %i",gr->obj_count());
 				gr->obj_add( gb );
 
 				// restore saved objects

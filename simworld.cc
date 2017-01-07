@@ -787,7 +787,7 @@ void karte_t::create_rivers( sint16 number )
 			riverbuilder.calc_route( lookup_kartenboden(end)->get_pos(), lookup_kartenboden(start)->get_pos() );
 			if(  riverbuilder.get_count() >= (uint32)settings.get_min_river_length()  ) {
 				// do not built too short rivers
-				riverbuilder.baue();
+				riverbuilder.build();
 				number --;
 				retrys++;
 				break;
@@ -915,7 +915,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 		}
 
 		wegbauer_t bauigel (players[1] );
-		bauigel.route_fuer(wegbauer_t::strasse | wegbauer_t::terraform_flag, desc, tunnelbauer_t::find_tunnel(road_wt,15,get_timeline_year_month()), brueckenbauer_t::find_bridge(road_wt,15,get_timeline_year_month()) );
+		bauigel.route_fuer(wegbauer_t::strasse | wegbauer_t::terraform_flag, desc, tunnelbauer_t::find_tunnel(road_wt,15,get_timeline_year_month()), bridge_builder_t::find_bridge(road_wt,15,get_timeline_year_month()) );
 		bauigel.set_keep_existing_ways(true);
 		bauigel.set_maximum(env_t::intercity_road_length);
 
@@ -994,7 +994,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 			route_t verbindung;
 			vehicle_t* test_driver;
 			vehikel_besch_t test_drive_desc(road_wt, 500, vehikel_besch_t::diesel );
-			test_driver = vehikelbauer_t::baue(koord3d(), players[1], NULL, &test_drive_desc);
+			test_driver = vehikelbauer_t::build(koord3d(), players[1], NULL, &test_drive_desc);
 			test_driver->set_flag( obj_t::not_on_map );
 
 			bool ready=false;
@@ -1093,7 +1093,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 					}
 
 					if(  build  &&  bauigel.get_count() >= 2  ) {
-						bauigel.baue();
+						bauigel.build();
 						if (phase==0) {
 							city_flag[ conn.y ] = conn_comp;
 						}

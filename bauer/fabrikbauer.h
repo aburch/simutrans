@@ -23,7 +23,7 @@ class fabrik_t;
 
 /**
  * This class builds factories. Never construct factories directly
- * but always by calling fabrikbauer_t::baue() (for a single factory)
+ * but always by calling fabrikbauer_t::build() (for a single factory)
  * or fabrikbauer_t::baue_hierachie() (for a full chain of suppliers).
  */
 class fabrikbauer_t

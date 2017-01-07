@@ -27,7 +27,7 @@ class tool_t;
 class checksum_t;
 
 
-class bruecke_besch_t : public obj_desc_transport_infrastructure_t {
+class bridge_desc_t : public obj_desc_transport_infrastructure_t {
     friend class bridge_reader_t;
 
 private:
@@ -48,8 +48,8 @@ public:
 	 * Nummerierung all der verschiedenen Schienstücke
 	 */
 	enum img_t {
-		NS_Segment, OW_Segment, N_Start, S_Start, O_Start, W_Start, N_Rampe, S_Rampe, O_Rampe, W_Rampe, NS_Pillar, OW_Pillar,
-		NS_Segment2, OW_Segment2, N_Start2, S_Start2, O_Start2, W_Start2, N_Rampe2, S_Rampe2, O_Rampe2, W_Rampe2, NS_Pillar2, OW_Pillar2
+		NS_Segment, OW_Segment, N_Start, S_Start, O_Start, W_Start, N_Ramp, S_Ramp, O_Ramp, W_Ramp, NS_Pillar, OW_Pillar,
+		NS_Segment2, OW_Segment2, N_Start2, S_Start2, O_Start2, W_Start2, N_Ramp2, S_Ramp2, O_Ramp2, W_Ramp2, NS_Pillar2, OW_Pillar2
 	};
 
 	/*
@@ -84,7 +84,7 @@ public:
 
 	img_t get_simple(ribi_t::ribi ribi, uint8 height) const;
 	img_t get_start(slope_t::type slope) const;
-	img_t get_rampe(slope_t::type slope) const;
+	img_t get_ramp(slope_t::type slope) const;
 	static img_t get_pillar(ribi_t::ribi ribi);
 
 	/**

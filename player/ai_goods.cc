@@ -294,7 +294,7 @@ bool ai_goods_t::suche_platz1_platz2(fabrik_t *qfab, fabrik_t *zfab, int length 
 			}
 			// Test which tiles are the best:
 			wegbauer_t bauigel(this);
-			bauigel.route_fuer( wegbauer_t::strasse, road_weg, tunnelbauer_t::find_tunnel(road_wt,road_weg->get_topspeed(),welt->get_timeline_year_month()), brueckenbauer_t::find_bridge(road_wt,road_weg->get_topspeed(),welt->get_timeline_year_month()) );
+			bauigel.route_fuer( wegbauer_t::strasse, road_weg, tunnelbauer_t::find_tunnel(road_wt,road_weg->get_topspeed(),welt->get_timeline_year_month()), bridge_builder_t::find_bridge(road_wt,road_weg->get_topspeed(),welt->get_timeline_year_month()) );
 			// we won't destroy cities (and save the money)
 			bauigel.set_keep_existing_faster_ways(true);
 			bauigel.set_keep_city_roads(true);
@@ -428,7 +428,7 @@ bool ai_goods_t::create_ship_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 			// too many convois => cannot do anything about this ...
 			return i>0;
 		}
-		vehicle_t* v = vehikelbauer_t::baue( qfab->get_pos(), this, NULL, ship_vehicle);
+		vehicle_t* v = vehikelbauer_t::build( qfab->get_pos(), this, NULL, ship_vehicle);
 		convoi_t* cnv = new convoi_t(this);
 		// V.Meyer: give the new convoi name from first vehicle
 		cnv->set_name(v->get_desc()->get_name());
@@ -436,7 +436,7 @@ bool ai_goods_t::create_ship_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 
 		// two part consist
 		if(v_second!=NULL) {
-			v = vehikelbauer_t::baue( qfab->get_pos(), this, NULL, v_second );
+			v = vehikelbauer_t::build( qfab->get_pos(), this, NULL, v_second );
 			cnv->add_vehikel( v );
 		}
 
@@ -491,7 +491,7 @@ void ai_goods_t::create_road_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 				// too many convois => cannot do anything about this ...
 				return;
 			}
-			vehicle_t* v = vehikelbauer_t::baue(startpos, this, NULL, road_vehicle);
+			vehicle_t* v = vehikelbauer_t::build(startpos, this, NULL, road_vehicle);
 			convoi_t* cnv = new convoi_t(this);
 			// V.Meyer: give the new convoi name from first vehicle
 			cnv->set_name(v->get_desc()->get_name());
@@ -532,7 +532,7 @@ void ai_goods_t::create_rail_transport_vehikel(const koord platz1, const koord p
 	}
 
 	koord3d start_pos = welt->lookup_kartenboden(pos1.get_2d() + (abs(size1.x)>abs(size1.y) ? koord(size1.x,0) : koord(0,size1.y)))->get_pos();
-	vehicle_t* v = vehikelbauer_t::baue( start_pos, this, NULL, rail_engine);
+	vehicle_t* v = vehikelbauer_t::build( start_pos, this, NULL, rail_engine);
 
 	// V.Meyer: give the new convoi name from first vehicle
 	cnv->set_name(rail_engine->get_name());
@@ -545,7 +545,7 @@ void ai_goods_t::create_rail_transport_vehikel(const koord platz1, const koord p
 	 */
 	for(int i = 0; i < anz_vehikel; i++) {
 		// use the vehicle we searched before
-		vehicle_t* v = vehikelbauer_t::baue(start_pos, this, NULL, rail_vehicle);
+		vehicle_t* v = vehikelbauer_t::build(start_pos, this, NULL, rail_vehicle);
 		cnv->add_vehikel( v );
 	}
 
@@ -638,14 +638,14 @@ bool ai_goods_t::create_simple_rail_transport()
 	clean_marker(platz2,size2);
 
 	wegbauer_t bauigel(this);
-	bauigel.route_fuer( wegbauer_t::schiene|wegbauer_t::bot_flag, rail_weg, tunnelbauer_t::find_tunnel(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()), brueckenbauer_t::find_bridge(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()) );
+	bauigel.route_fuer( wegbauer_t::schiene|wegbauer_t::bot_flag, rail_weg, tunnelbauer_t::find_tunnel(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()), bridge_builder_t::find_bridge(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()) );
 	bauigel.set_keep_existing_ways(false);
 	// for stations
 	wegbauer_t bauigel1(this);
-	bauigel1.route_fuer( wegbauer_t::schiene|wegbauer_t::bot_flag, rail_weg, tunnelbauer_t::find_tunnel(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()), brueckenbauer_t::find_bridge(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()) );
+	bauigel1.route_fuer( wegbauer_t::schiene|wegbauer_t::bot_flag, rail_weg, tunnelbauer_t::find_tunnel(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()), bridge_builder_t::find_bridge(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()) );
 	bauigel1.set_keep_existing_ways(false);
 	wegbauer_t bauigel2(this);
-	bauigel2.route_fuer( wegbauer_t::schiene|wegbauer_t::bot_flag, rail_weg, tunnelbauer_t::find_tunnel(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()), brueckenbauer_t::find_bridge(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()) );
+	bauigel2.route_fuer( wegbauer_t::schiene|wegbauer_t::bot_flag, rail_weg, tunnelbauer_t::find_tunnel(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()), bridge_builder_t::find_bridge(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()) );
 	bauigel2.set_keep_existing_ways(false);
 
 	// first: make plain stations tiles as intended
@@ -692,8 +692,8 @@ bool ai_goods_t::create_simple_rail_transport()
 	bauigel2.calc_route( koord3d(platz2,z2), koord3d(platz2+size2-diff2, z2));
 
 	// build immediately, otherwise wegbauer could get confused and connect way to a tile in the middle of the station
-	bauigel1.baue();
-	bauigel2.baue();
+	bauigel1.build();
+	bauigel2.build();
 
 	vector_tpl<koord3d> starttiles, endtiles;
 	// now calc the route
@@ -709,7 +709,7 @@ bool ai_goods_t::create_simple_rail_transport()
 
 	// now try route with terraforming
 	wegbauer_t baumaulwurf(this);
-	baumaulwurf.route_fuer( wegbauer_t::schiene|wegbauer_t::bot_flag|wegbauer_t::terraform_flag, rail_weg, tunnelbauer_t::find_tunnel(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()), brueckenbauer_t::find_bridge(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()) );
+	baumaulwurf.route_fuer( wegbauer_t::schiene|wegbauer_t::bot_flag|wegbauer_t::terraform_flag, rail_weg, tunnelbauer_t::find_tunnel(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()), bridge_builder_t::find_bridge(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()) );
 	baumaulwurf.set_keep_existing_ways(false);
 	baumaulwurf.calc_route( starttiles, endtiles );
 
@@ -721,10 +721,10 @@ bool ai_goods_t::create_simple_rail_transport()
 
 	// now build with or without terraforming
 	if (with_tf) {
-		baumaulwurf.baue();
+		baumaulwurf.build();
 	}
 	else if (build_no_tf) {
-		bauigel.baue();
+		bauigel.build();
 	}
 
 	// connect track to station
@@ -737,11 +737,11 @@ DBG_MESSAGE("ai_goods_t::create_simple_rail_transport()","building simple track 
 		koord3d                 tile2 = r.back();
 		if (!starttiles.is_contained(tile1)) sim::swap(tile1, tile2);
 		// No botflag, since we want to connect with the station.
-		bauigel.route_fuer( wegbauer_t::schiene, rail_weg, tunnelbauer_t::find_tunnel(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()), brueckenbauer_t::find_bridge(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()) );
+		bauigel.route_fuer( wegbauer_t::schiene, rail_weg, tunnelbauer_t::find_tunnel(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()), bridge_builder_t::find_bridge(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()) );
 		bauigel.calc_straight_route( koord3d(platz1,z1), tile1);
-		bauigel.baue();
+		bauigel.build();
 		bauigel.calc_straight_route( koord3d(platz2,z2), tile2);
-		bauigel.baue();
+		bauigel.build();
 		// If connection is built not at platz1/2, we must alter platz1/2, otherwise baue_bahnhof gets confused.
 		if(  tile1.get_2d() != platz1 + size1  ) {
 			platz1 = platz1 + size1 - diff1;

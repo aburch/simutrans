@@ -32,7 +32,7 @@ pillar_t::pillar_t(loadsave_t *file) : obj_t()
 }
 
 
-pillar_t::pillar_t(koord3d pos, player_t *player, const bruecke_besch_t *desc, bruecke_besch_t::img_t img, int hoehe) : obj_t(pos)
+pillar_t::pillar_t(koord3d pos, player_t *player, const bridge_desc_t *desc, bridge_desc_t::img_t img, int hoehe) : obj_t(pos)
 {
 	this->desc = desc;
 	this->dir = (uint8)img;
@@ -50,7 +50,7 @@ void pillar_t::calc_image()
 	if(  desc->has_pillar_asymmetric()  ) {
 		if(  grund_t *gr = welt->lookup(get_pos())  ) {
 			slope_t::type slope = gr->get_grund_hang();
-			if(  dir == bruecke_besch_t::NS_Pillar  ) {
+			if(  dir == bridge_desc_t::NS_Pillar  ) {
 				height += min( corner_sw(slope), corner_se(slope) ) * TILE_HEIGHT_STEP;
 			}
 			else {
@@ -62,7 +62,7 @@ void pillar_t::calc_image()
 		}
 
 	}
-	image = hide ? IMG_EMPTY : desc->get_background( (bruecke_besch_t::img_t)dir, get_pos().z-height/TILE_HEIGHT_STEP >= welt->get_snowline()  ||  welt->get_climate( get_pos().get_2d() ) == arctic_climate );
+	image = hide ? IMG_EMPTY : desc->get_background( (bridge_desc_t::img_t)dir, get_pos().z-height/TILE_HEIGHT_STEP >= welt->get_snowline()  ||  welt->get_climate( get_pos().get_2d() ) == arctic_climate );
 }
 
 
@@ -102,14 +102,14 @@ void pillar_t::rdwr(loadsave_t *file)
 		file->rdwr_str(s, lengthof(s));
 		file->rdwr_byte(dir);
 
-		desc = brueckenbauer_t::get_desc(s);
+		desc = bridge_builder_t::get_desc(s);
 		if(desc==0) {
 			if(strstr(s,"ail")) {
-				desc = brueckenbauer_t::get_desc("ClassicRail");
+				desc = bridge_builder_t::get_desc("ClassicRail");
 				dbg->warning("pillar_t::rdwr()","Unknown bridge %s replaced by ClassicRail",s);
 			}
 			else if(strstr(s,"oad")) {
-				desc = brueckenbauer_t::get_desc("ClassicRoad");
+				desc = bridge_builder_t::get_desc("ClassicRoad");
 				dbg->warning("pillar_t::rdwr()","Unknown bridge %s replaced by ClassicRoad",s);
 			}
 		}
@@ -117,8 +117,8 @@ void pillar_t::rdwr(loadsave_t *file)
 
 		if(  file->get_version() < 112007 && env_t::pak_height_conversion_factor==2  ) {
 			switch(dir) {
-				case bruecke_besch_t::OW_Pillar:  dir = bruecke_besch_t::OW_Pillar2;  break;
-				case bruecke_besch_t::NS_Pillar:  dir = bruecke_besch_t::NS_Pillar2;  break;
+				case bridge_desc_t::OW_Pillar:  dir = bridge_desc_t::OW_Pillar2;  break;
+				case bridge_desc_t::NS_Pillar:  dir = bridge_desc_t::NS_Pillar2;  break;
 			}
 		}
 	}
@@ -135,9 +135,9 @@ void pillar_t::rotate90()
 
 	// the rotated image parameter is just one in front/back
 	switch(dir) {
-		case bruecke_besch_t::NS_Pillar:  dir=bruecke_besch_t::OW_Pillar ; break;
-		case bruecke_besch_t::OW_Pillar:  dir=bruecke_besch_t::NS_Pillar ; break;
-		case bruecke_besch_t::NS_Pillar2: dir=bruecke_besch_t::OW_Pillar2 ; break;
-		case bruecke_besch_t::OW_Pillar2: dir=bruecke_besch_t::NS_Pillar2 ; break;
+		case bridge_desc_t::NS_Pillar:  dir=bridge_desc_t::OW_Pillar ; break;
+		case bridge_desc_t::OW_Pillar:  dir=bridge_desc_t::NS_Pillar ; break;
+		case bridge_desc_t::NS_Pillar2: dir=bridge_desc_t::OW_Pillar2 ; break;
+		case bridge_desc_t::OW_Pillar2: dir=bridge_desc_t::NS_Pillar2 ; break;
 	}
 }

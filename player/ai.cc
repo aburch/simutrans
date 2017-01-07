@@ -492,7 +492,7 @@ bool ai_t::create_simple_road_transport(koord platz1, koord size1, koord platz2,
 	// is there already a connection?
 	// get a default vehikel
 	vehikel_besch_t test_desc(road_wt, 25, vehikel_besch_t::diesel );
-	vehicle_t* test_driver = vehikelbauer_t::baue(welt->lookup_kartenboden(platz1)->get_pos(), this, NULL, &test_desc);
+	vehicle_t* test_driver = vehikelbauer_t::build(welt->lookup_kartenboden(platz1)->get_pos(), this, NULL, &test_desc);
 	test_driver->set_flag( obj_t::not_on_map );
 	route_t verbindung;
 	if(  verbindung.calc_route(welt, welt->lookup_kartenboden(platz1)->get_pos(), welt->lookup_kartenboden(platz2)->get_pos(), test_driver, 0, 0)  &&
@@ -506,7 +506,7 @@ DBG_MESSAGE("ai_passenger_t::create_simple_road_transport()","Already connection
 
 	// no connection => built one!
 	wegbauer_t bauigel(this);
-	bauigel.route_fuer( wegbauer_t::strasse, road_weg, tunnelbauer_t::find_tunnel(road_wt,road_weg->get_topspeed(),welt->get_timeline_year_month()), brueckenbauer_t::find_bridge(road_wt,road_weg->get_topspeed(),welt->get_timeline_year_month()) );
+	bauigel.route_fuer( wegbauer_t::strasse, road_weg, tunnelbauer_t::find_tunnel(road_wt,road_weg->get_topspeed(),welt->get_timeline_year_month()), bridge_builder_t::find_bridge(road_wt,road_weg->get_topspeed(),welt->get_timeline_year_month()) );
 
 	// we won't destroy cities (and save the money)
 	bauigel.set_keep_existing_faster_ways(true);
@@ -523,7 +523,7 @@ DBG_MESSAGE("ai_passenger_t::create_simple_road_transport()","Already connection
 
 	// now try route with terraforming
 	wegbauer_t baumaulwurf(this);
-	baumaulwurf.route_fuer( wegbauer_t::strasse|wegbauer_t::terraform_flag, road_weg, tunnelbauer_t::find_tunnel(road_wt,road_weg->get_topspeed(),welt->get_timeline_year_month()), brueckenbauer_t::find_bridge(road_wt,road_weg->get_topspeed(),welt->get_timeline_year_month()) );
+	baumaulwurf.route_fuer( wegbauer_t::strasse|wegbauer_t::terraform_flag, road_weg, tunnelbauer_t::find_tunnel(road_wt,road_weg->get_topspeed(),welt->get_timeline_year_month()), bridge_builder_t::find_bridge(road_wt,road_weg->get_topspeed(),welt->get_timeline_year_month()) );
 	baumaulwurf.set_keep_existing_faster_ways(true);
 	baumaulwurf.set_keep_city_roads(true);
 	baumaulwurf.set_maximum(10000);
@@ -539,12 +539,12 @@ DBG_MESSAGE("ai_passenger_t::create_simple_road_transport()","Already connection
 	// now build with or without terraforming
 	if (with_tf) {
 		DBG_MESSAGE("ai_t::create_simple_road_transport()","building not so simple road from %d,%d to %d,%d",platz1.x, platz1.y, platz2.x, platz2.y);
-		baumaulwurf.baue();
+		baumaulwurf.build();
 		return true;
 	}
 	else if(bauigel.get_count() > 2) {
 		DBG_MESSAGE("ai_t::create_simple_road_transport()","building simple road from %d,%d to %d,%d",platz1.x, platz1.y, platz2.x, platz2.y);
-		bauigel.baue();
+		bauigel.build();
 		return true;
 	}
 	// beware: The stop position might have changes!

@@ -526,7 +526,7 @@ void player_t::ai_bankrupt()
 
 					waytype_t wt = gr->hat_wege() ? gr->get_weg_nr(0)->get_waytype() : powerline_wt;
 					if (gr->ist_bruecke()) {
-						brueckenbauer_t::remove( this, pos, wt );
+						bridge_builder_t::remove( this, pos, wt );
 						// fails if powerline bridge somehow connected to powerline bridge of another player
 					}
 					else {

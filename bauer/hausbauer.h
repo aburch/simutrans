@@ -134,7 +134,7 @@ public:
 	 * @return The first built part of the building. Usually at @p pos, if this
 	 *         building tile is not empty.
 	 */
-	static gebaeude_t* baue(player_t* player, koord3d pos, int layout, const haus_besch_t* desc, void* param = NULL);
+	static gebaeude_t* build(player_t* player, koord3d pos, int layout, const haus_besch_t* desc, void* param = NULL);
 
 	/**
 	 * Build all kind of stops and depots. The building size must be 1x1.

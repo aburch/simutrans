@@ -11,3 +11,13 @@ compare_baum_desc,compare_tree_desc
 baumlist,tree_list
 baum_typen,tree_list
 baumtype,tree_id
+bruecke_besch_t,bridge_desc_t
+_Rampe,_Ramp
+_rampe,_ramp
+bruecken_by_name,desc_table
+finde_ende,find_end_pos
+ist_ende_ok,can_place_ramp
+baue_auffahrt,build_ramp
+baue_bruecke,build_bridge
+\\<baue\\>,build
+brueckenbauer_t,bridge_builder_t

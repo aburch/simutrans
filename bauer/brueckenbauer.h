@@ -10,7 +10,7 @@
 #include "../dataobj/koord.h"
 #include "../dataobj/koord3d.h"
 
-class bruecke_besch_t;
+class bridge_desc_t;
 class grund_t;
 class karte_ptr_t;
 class player_t;               // Hajo: 22-Nov-01: Added forward declaration
@@ -21,17 +21,17 @@ class tool_selector_t;
 
 /**
  * Bridge management: builds bridges, manages list of available bridge types
- * Bridges should not be built directly but always by calling brueckenbauer_t::baue().
+ * Bridges should not be built directly but always by calling bridge_builder_t::build().
  */
-class brueckenbauer_t {
+class bridge_builder_t {
 private:
 
-	brueckenbauer_t() {} ///< private -> no instance please
+	bridge_builder_t() {} ///< private -> no instance please
 
 	static karte_ptr_t welt;
 
 	static bool is_blocked(koord3d pos, ribi_t::ribi check_ribi, const char *&error_msg);
-	static bool is_monorail_junction(koord3d pos, player_t *player, const bruecke_besch_t *desc, const char *&error_msg);
+	static bool is_monorail_junction(koord3d pos, player_t *player, const bridge_desc_t *desc, const char *&error_msg);
 public:
 	/**
 	 * Finds the position of the end of the bridge. Does all kind of checks.
@@ -49,7 +49,7 @@ public:
 	 * @param min_length the minimum length of the bridge.
 	 * @return the position of the other end of the bridge or koord3d::invalid if no possible end is found
 	 */
-	static koord3d finde_ende(player_t *player, koord3d pos, const koord zv, const bruecke_besch_t *desc, const char *&error_msg, sint8 &bridge_height, bool ai_bridge=false, uint32 min_length=0, bool high_bridge = false );
+	static koord3d find_end_pos(player_t *player, koord3d pos, const koord zv, const bridge_desc_t *desc, const char *&error_msg, sint8 &bridge_height, bool ai_bridge=false, uint32 min_length=0, bool high_bridge = false );
 
 	/**
 	 * Checks whether given tile @p gr is suitable for placing bridge ramp.
@@ -58,7 +58,7 @@ public:
 	 * @param gr the ground to check.
 	 * @return true, if bridge ramp can be built here.
 	 */
-	static bool ist_ende_ok(player_t *player, const grund_t *gr, waytype_t wt, ribi_t::ribi r );
+	static bool can_place_ramp(player_t *player, const grund_t *gr, waytype_t wt, ribi_t::ribi r );
 
 	/**
 	 * Checks if a bridge starts on @p gr
@@ -76,12 +76,12 @@ public:
 	 * @param zv direction the bridge will face
 	 * @param desc the bridge description.
 	 */
-	static void baue_auffahrt(player_t *player, koord3d end, ribi_t::ribi ribi_neu, slope_t::type weg_hang, const bruecke_besch_t *desc);
+	static void build_ramp(player_t *player, koord3d end, ribi_t::ribi ribi_neu, slope_t::type weg_hang, const bridge_desc_t *desc);
 
 	/**
 	 * Actually builds the bridge without checks.
 	 * Therefore checks should be done before in
-	 * brueckenbauer_t::baue().
+	 * bridge_builder_t::build().
 	 *
 	 * @param sp the master builder of the bridge.
 	 * @param start start position.
@@ -91,21 +91,21 @@ public:
 	 * @param desc bridge description.
 	 * @param weg_desc description of the way to be built on the bridge
 	 */
-	static void baue_bruecke(player_t *player, const koord3d start, const koord3d end, koord zv, sint8 bridge_height, const bruecke_besch_t *desc, const weg_besch_t *weg_desc);
+	static void build_bridge(player_t *player, const koord3d start, const koord3d end, koord zv, sint8 bridge_height, const bridge_desc_t *desc, const weg_besch_t *weg_desc);
 
 	/**
 	 * Registers a new bridge type and adds it to the list of build tools.
 	 *
 	 * @param desc Description of the bridge to register.
 	 */
-	static void register_desc(bruecke_besch_t *desc);
+	static void register_desc(bridge_desc_t *desc);
 
 	/**
 	 * Method to retrieve bridge descriptor
 	 * @param name name of the bridge
 	 * @return bridge descriptor or NULL if not found
 	 */
-	static const bruecke_besch_t *get_desc(const char *name);
+	static const bridge_desc_t *get_desc(const char *name);
 
 	/**
 	 * Builds the bridge and performs all checks.
@@ -116,7 +116,7 @@ public:
 	 * @param desc Description of the bridge to build
 	 * @return NULL on success or error message otherwise
 	 */
-	static const char *baue( player_t *player, const koord3d pos, const bruecke_besch_t *desc);
+	static const char *build( player_t *player, const koord3d pos, const bridge_desc_t *desc);
 
 	/**
 	 * Removes a bridge
@@ -134,7 +134,7 @@ public:
 	 * @param time current in-game time
 	 * @return bridge descriptor or NULL
 	 */
-	static const bruecke_besch_t *find_bridge(const waytype_t wtyp, const sint32 min_speed,const uint16 time);
+	static const bridge_desc_t *find_bridge(const waytype_t wtyp, const sint32 min_speed,const uint16 time);
 
 	/**
 	 * Fill menu with icons for all ways of the given waytype
@@ -147,7 +147,7 @@ public:
 	/**
 	 * Returns a list with available bridge types.
 	 */
-	static const vector_tpl<const bruecke_besch_t *>& get_available_bridges(const waytype_t wtyp);
+	static const vector_tpl<const bridge_desc_t *>& get_available_bridges(const waytype_t wtyp);
 };
 
 #endif

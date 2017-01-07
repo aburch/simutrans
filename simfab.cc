@@ -739,7 +739,7 @@ fabrik_t::fabrik_t(loadsave_t* file)
 		desc = NULL; // to get rid of this broken factory later...
 	}
 	else {
-		baue(rotate, false, false);
+		build(rotate, false, false);
 		// now get rid of construction image
 		for(  sint16 y=0;  y<desc->get_haus()->get_h(rotate);  y++  ) {
 			for(  sint16 x=0;  x<desc->get_haus()->get_b(rotate);  x++  ) {
@@ -873,11 +873,11 @@ fabrik_t::~fabrik_t()
 }
 
 
-void fabrik_t::baue(sint32 rotate, bool build_fields, bool force_initial_prodbase)
+void fabrik_t::build(sint32 rotate, bool build_fields, bool force_initial_prodbase)
 {
 	this->rotate = rotate;
 	pos_origin = welt->lookup_kartenboden(pos_origin.get_2d())->get_pos();
-	gebaeude_t *gb = hausbauer_t::baue(owner, pos_origin, rotate, desc->get_haus(), this);
+	gebaeude_t *gb = hausbauer_t::build(owner, pos_origin, rotate, desc->get_haus(), this);
 	pos = gb->get_pos();
 	pos_origin.z = pos.z;
 
@@ -1156,7 +1156,7 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 		}
 	}
 	pos_origin.rdwr(file);
-	// pos will be assigned after call to hausbauer_t::baue
+	// pos will be assigned after call to hausbauer_t::build
 	file->rdwr_byte(rotate);
 
 	// now rebuilt information for received goods

@@ -15,15 +15,15 @@ class karte_t;
 class bruecke_t : public obj_no_info_t
 {
 private:
-	const bruecke_besch_t *desc;
-	bruecke_besch_t::img_t img;
+	const bridge_desc_t *desc;
+	bridge_desc_t::img_t img;
 
 protected:
 	void rdwr(loadsave_t *file);
 
 public:
 	bruecke_t(loadsave_t *file);
-	bruecke_t(koord3d pos, player_t *player, const bruecke_besch_t *desc, bruecke_besch_t::img_t img);
+	bruecke_t(koord3d pos, player_t *player, const bridge_desc_t *desc, bridge_desc_t::img_t img);
 
 	const char *get_name() const {return "Bruecke";}
 	typ get_typ() const { return bruecke; }
@@ -33,7 +33,7 @@ public:
 	 */
 	waytype_t get_waytype() const { return desc ? desc->get_waytype() : invalid_wt; }
 
-	const bruecke_besch_t *get_desc() const { return desc; }
+	const bridge_desc_t *get_desc() const { return desc; }
 
 	// we will always replace first way image
 	image_id get_image() const { return IMG_EMPTY; }

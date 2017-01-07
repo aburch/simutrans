@@ -37,7 +37,7 @@ public:
 	static bool register_desc(const vehikel_besch_t *desc);
 	static bool alles_geladen();
 
-	static vehicle_t* baue(koord3d k, player_t* player, convoi_t* cnv, const vehikel_besch_t* vb );
+	static vehicle_t* build(koord3d k, player_t* player, convoi_t* cnv, const vehikel_besch_t* vb );
 
 	static const vehikel_besch_t * get_info(const char *name);
 	static slist_tpl<vehikel_besch_t const*> const& get_info(waytype_t);

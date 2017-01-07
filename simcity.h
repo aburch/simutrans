@@ -396,7 +396,7 @@ private:
 	 */
 	bool baue_strasse(const koord k, player_t *player, bool forced);
 
-	void baue();
+	void build();
 
 	/**
 	 * @param pos position to check

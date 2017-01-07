@@ -36,7 +36,7 @@ private:
 	tunnelbauer_t() {} // private -> no instance please
 
 public:
-	static koord3d finde_ende(player_t *player, koord3d pos, koord zv, const tunnel_besch_t *desc, bool full_tunnel=true, const char** msg=NULL);
+	static koord3d find_end_pos(player_t *player, koord3d pos, koord zv, const tunnel_besch_t *desc, bool full_tunnel=true, const char** msg=NULL);
 
 	static void register_desc(tunnel_besch_t *desc);
 
@@ -50,7 +50,7 @@ public:
 	 */
 	static const vector_tpl<const tunnel_besch_t *>& get_available_tunnels(const waytype_t wtyp);
 
-	static const char *baue( player_t *player, koord pos, const tunnel_besch_t *desc, bool full_tunnel  );
+	static const char *build( player_t *player, koord pos, const tunnel_besch_t *desc, bool full_tunnel  );
 
 	static const char *remove(player_t *player, koord3d pos, waytype_t wegtyp, bool all);
 };

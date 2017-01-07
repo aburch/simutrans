@@ -78,7 +78,7 @@ void brueckenboden_t::rdwr(loadsave_t *file)
 		dbg->error( "brueckenboden_t::rdwr()","no bridge on bridge ground at (%s); try replacement", pos.get_str() );
 		weg_t *w = get_weg_nr(0);
 		if(w) {
-			const bruecke_besch_t *br_desc = brueckenbauer_t::find_bridge( w->get_waytype(), w->get_max_speed(), 0 );
+			const bridge_desc_t *br_desc = bridge_builder_t::find_bridge( w->get_waytype(), w->get_max_speed(), 0 );
 			const grund_t *kb = welt->lookup_kartenboden(get_pos().get_2d());
 			int height = 1;
 			if(  kb && get_pos().z - kb->get_pos().z > 1 ) {
@@ -113,7 +113,7 @@ void brueckenboden_t::info(cbuffer_t & buf) const
 {
 	const bruecke_t *bridge = find<bruecke_t>();
 	if(bridge  &&  bridge->get_desc()) {
-		const bruecke_besch_t *desc = bridge->get_desc();
+		const bridge_desc_t *desc = bridge->get_desc();
 		buf.append(translator::translate(desc->get_name()));
 		buf.append("\n");
 	}

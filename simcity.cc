@@ -375,7 +375,7 @@ bool stadt_t::cityrules_init(const std::string &objfilename)
 			for (uint x = 0; x < size; x++) {
 				const char flag = rule[x + y * (size + 1)];
 				// check for allowed characters; ignore '.';
-				// leave midpoint out, should be 'n', which is checked in baue() anyway
+				// leave midpoint out, should be 'n', which is checked in build() anyway
 				if ((x+offset!=3  ||  y+offset!=3)  &&  (flag!=0  &&  strchr(allowed_chars_in_rule, flag))) {
 					house_rules[i]->rule.append(rule_entry_t(x+offset,y+offset,flag));
 				}
@@ -419,7 +419,7 @@ bool stadt_t::cityrules_init(const std::string &objfilename)
 			for (uint x = 0; x < size; x++) {
 				const char flag = rule[x + y * (size + 1)];
 				// check for allowed characters; ignore '.';
-				// leave midpoint out, should be 'n', which is checked in baue() anyway
+				// leave midpoint out, should be 'n', which is checked in build() anyway
 				if ((x+offset!=3  ||  y+offset!=3)  &&  (flag!=0  &&  strchr(allowed_chars_in_rule, flag))) {
 					road_rules[i]->rule.append(rule_entry_t(x+offset,y+offset,flag));
 				}
@@ -1812,7 +1812,7 @@ void stadt_t::step_grow_city( bool new_town )
 		bev++;
 
 		for(  int i = 0;  i < num_tries  &&  bev * 2 > won + arb + 100;  i++  ) {
-			baue();
+			build();
 		}
 
 		check_bau_spezial(new_town);
@@ -2372,7 +2372,7 @@ void stadt_t::check_bau_spezial(bool new_town)
 				if (desc->get_all_layouts() > 1) {
 					rotate = (simrand(20) & 2) + is_rotate;
 				}
-				hausbauer_t::baue( owner, welt->lookup_kartenboden(best_pos)->get_pos(), rotate, desc );
+				hausbauer_t::build( owner, welt->lookup_kartenboden(best_pos)->get_pos(), rotate, desc );
 				// tell the player, if not during initialization
 				if (!new_town) {
 					cbuffer_t buf;
@@ -2438,7 +2438,7 @@ void stadt_t::check_bau_spezial(bool new_town)
 						}
 					}
 					// and then build it
-					const gebaeude_t* gb = hausbauer_t::baue(owner, welt->lookup_kartenboden(best_pos + koord(1, 1))->get_pos(), 0, desc);
+					const gebaeude_t* gb = hausbauer_t::build(owner, welt->lookup_kartenboden(best_pos + koord(1, 1))->get_pos(), 0, desc);
 					hausbauer_t::denkmal_gebaut(desc);
 					add_gebaeude_to_stadt(gb);
 					// tell the player, if not during initialization
@@ -2631,7 +2631,7 @@ void stadt_t::check_bau_rathaus(bool new_town)
 			dbg->error( "stadt_t::check_bau_rathaus", "no better position found!" );
 			return;
 		}
-		gebaeude_t const* const new_gb = hausbauer_t::baue(owner, welt->lookup_kartenboden(best_pos + offset)->get_pos(), layout, desc);
+		gebaeude_t const* const new_gb = hausbauer_t::build(owner, welt->lookup_kartenboden(best_pos + offset)->get_pos(), layout, desc);
 		DBG_MESSAGE("new townhall", "use layout=%i", layout);
 		add_gebaeude_to_stadt(new_gb);
 		// sets has_townhall to true
@@ -2654,7 +2654,7 @@ void stadt_t::check_bau_rathaus(bool new_town)
 				bauigel.route_fuer(wegbauer_t::strasse, welt->get_city_road(), NULL, NULL);
 				bauigel.set_build_sidewalk(true);
 				bauigel.calc_straight_route(welt->lookup_kartenboden(best_pos + road0)->get_pos(), welt->lookup_kartenboden(best_pos + road1)->get_pos());
-				bauigel.baue();
+				bauigel.build();
 			}
 			else {
 				baue_strasse(best_pos + road0, NULL, true);
@@ -2666,7 +2666,7 @@ void stadt_t::check_bau_rathaus(bool new_town)
 			wegbauer_t bauer(NULL);
 			bauer.route_fuer(wegbauer_t::strasse | wegbauer_t::terraform_flag, welt->get_city_road());
 			bauer.calc_route(welt->lookup_kartenboden(alte_str)->get_pos(), welt->lookup_kartenboden(townhall_road)->get_pos());
-			bauer.baue();
+			bauer.build();
 		}
 		else if (neugruendung) {
 			lo = best_pos+offset - koord(2, 2);
@@ -2901,7 +2901,7 @@ void stadt_t::build_city_building(const koord k)
 		}
 		// TO DO: fix building orientation here, to improve terraced building appearance.
 
-		const gebaeude_t* gb = hausbauer_t::baue(NULL, pos, building_layout[streetdir], h);
+		const gebaeude_t* gb = hausbauer_t::build(NULL, pos, building_layout[streetdir], h);
 		add_gebaeude_to_stadt(gb);
 	}
 }
@@ -3255,20 +3255,20 @@ bool stadt_t::baue_strasse(const koord k, player_t* player_, bool forced)
 			grund_t *bd_next = welt->lookup_kartenboden( k + zv );
 			if(bd_next  &&  (bd_next->ist_wasser()  ||  (bd_next->hat_weg(water_wt)  &&  bd_next->get_weg(water_wt)->get_desc()->get_styp()== type_river))) {
 				// ok there is a river
-				const bruecke_besch_t *bridge = brueckenbauer_t::find_bridge(road_wt, welt->get_city_road()->get_topspeed(), welt->get_timeline_year_month() );
+				const bridge_desc_t *bridge = bridge_builder_t::find_bridge(road_wt, welt->get_city_road()->get_topspeed(), welt->get_timeline_year_month() );
 				if(  bridge==NULL  ) {
 					// does not have a bridge available ...
 					return false;
 				}
 				const char *err = NULL;
 				sint8 bridge_height;
-				koord3d end = brueckenbauer_t::finde_ende(NULL, bd->get_pos(), zv, bridge, err, bridge_height, false);
+				koord3d end = bridge_builder_t::find_end_pos(NULL, bd->get_pos(), zv, bridge, err, bridge_height, false);
 				if(err  ||   koord_distance( k, end.get_2d())>3) {
 					// try to find shortest possible
-					end = brueckenbauer_t::finde_ende(NULL, bd->get_pos(), zv, bridge, err, bridge_height, true);
+					end = bridge_builder_t::find_end_pos(NULL, bd->get_pos(), zv, bridge, err, bridge_height, true);
 				}
 				if((err==NULL||*err == 0)  &&   koord_distance( k, end.get_2d())<=3) {
-					brueckenbauer_t::baue_bruecke(NULL, bd->get_pos(), end, zv, bridge_height, bridge, welt->get_city_road());
+					bridge_builder_t::build_bridge(NULL, bd->get_pos(), end, zv, bridge_height, bridge, welt->get_city_road());
 					// try to build one connecting piece of road
 					baue_strasse( (end+zv).get_2d(), NULL, false);
 					// try to build a house near the bridge end
@@ -3286,8 +3286,8 @@ bool stadt_t::baue_strasse(const koord k, player_t* player_, bool forced)
 }
 
 
-// will check a single random pos in the city, then baue will be called
-void stadt_t::baue()
+// will check a single random pos in the city, then build will be called
+void stadt_t::build()
 {
 	const koord k(lo + koord::koord_random(ur.x - lo.x + 2,ur.y - lo.y + 2)-koord(1,1) );
 

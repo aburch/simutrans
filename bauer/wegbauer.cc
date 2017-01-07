@@ -1116,7 +1116,7 @@ void wegbauer_t::check_for_bridge(const grund_t* parent_from, const grund_t* fro
 
 	// ok, so now we do a closer investigation
 	if(  bruecke_desc  && (  ribi_type(from->get_grund_hang()) == ribi_t::backward(ribi_type(zv))  ||  from->get_grund_hang() == 0  )
-		&&  brueckenbauer_t::ist_ende_ok(player_builder, from, desc->get_wtyp(),ribi_t::backward(ribi_type(zv)))  ) {
+		&&  bridge_builder_t::can_place_ramp(player_builder, from, desc->get_wtyp(),ribi_t::backward(ribi_type(zv)))  ) {
 		// Try a bridge.
 		const sint32 cost_difference = desc->get_wartung() > 0 ? (bruecke_desc->get_wartung() * 4l + 3l) / desc->get_wartung() : 16;
 		// try eight possible lengths ..
@@ -1124,7 +1124,7 @@ void wegbauer_t::check_for_bridge(const grund_t* parent_from, const grund_t* fro
 		for (uint8 i = 0; i < 8 && min_length <= welt->get_settings().way_max_bridge_len; ++i) {
 			sint8 bridge_height;
 			const char *error = NULL;
-			koord3d end = brueckenbauer_t::finde_ende( player_builder, from->get_pos(), zv, bruecke_desc, error, bridge_height, true, min_length );
+			koord3d end = bridge_builder_t::find_end_pos( player_builder, from->get_pos(), zv, bruecke_desc, error, bridge_height, true, min_length );
 			const grund_t* gr_end = welt->lookup(end);
 			if(  gr_end == NULL) {
 				// no valid end point found
@@ -1132,7 +1132,7 @@ void wegbauer_t::check_for_bridge(const grund_t* parent_from, const grund_t* fro
 				continue;
 			}
 			uint32 length = koord_distance(from->get_pos(), end);
-			if(!ziel.is_contained(end)  &&  brueckenbauer_t::ist_ende_ok(player_builder, gr_end, desc->get_wtyp(), ribi_type(zv))) {
+			if(!ziel.is_contained(end)  &&  bridge_builder_t::can_place_ramp(player_builder, gr_end, desc->get_wtyp(), ribi_type(zv))) {
 				// If there is a slope on the starting tile, it's taken into account in is_allowed_step, but a bridge will be flat!
 				sint8 num_slopes = (from->get_grund_hang() == slope_t::flat) ? 1 : -1;
 				// On the end tile, we haven't to subtract way_count_slope, since is_allowed_step isn't called with this tile.
@@ -1150,7 +1150,7 @@ void wegbauer_t::check_for_bridge(const grund_t* parent_from, const grund_t* fro
 	if(  tunnel_desc  &&  ribi_type(from->get_grund_hang()) == ribi_type(zv)  ) {
 		// uphill hang ... may be tunnel?
 		const sint32 cost_difference = desc->get_wartung() > 0 ? (tunnel_desc->get_wartung() * 4l + 3l) / desc->get_wartung() : 16;
-		koord3d end = tunnelbauer_t::finde_ende( player_builder, from->get_pos(), zv, tunnel_desc);
+		koord3d end = tunnelbauer_t::find_end_pos( player_builder, from->get_pos(), zv, tunnel_desc);
 		if(  end != koord3d::invalid  &&  !ziel.is_contained(end)  ) {
 			uint32 length = koord_distance(from->get_pos(), end);
 			next_gr.append(next_gr_t(welt->lookup(end), length * cost_difference, build_straight | build_tunnel_bridge ));
@@ -1193,7 +1193,7 @@ void wegbauer_t::set_keep_existing_faster_ways(bool yesno)
 }
 
 
-void wegbauer_t::route_fuer(bautyp_t wt, const weg_besch_t *b, const tunnel_besch_t *tunnel, const bruecke_besch_t *br)
+void wegbauer_t::route_fuer(bautyp_t wt, const weg_besch_t *b, const tunnel_besch_t *tunnel, const bridge_desc_t *br)
 {
 	bautyp = wt;
 	desc = b;
@@ -1212,7 +1212,7 @@ void wegbauer_t::route_fuer(bautyp_t wt, const weg_besch_t *b, const tunnel_besc
 	else if(  bautyp != river  ) {
 #ifdef AUTOMATIC_BRIDGES
 		if(  bruecke_desc == NULL  ) {
-			bruecke_desc = brueckenbauer_t::find_bridge(b->get_wtyp(), 25, welt->get_timeline_year_month());
+			bruecke_desc = bridge_builder_t::find_bridge(b->get_wtyp(), 25, welt->get_timeline_year_month());
 		}
 #endif
 #ifdef AUTOMATIC_TUNNELS
@@ -1891,11 +1891,11 @@ void wegbauer_t::baue_tunnel_und_bruecken()
 
 			if(start->get_grund_hang()==0  ||  start->get_grund_hang()==slope_type(zv*(-1))) {
 				// bridge here, since the route is saved backwards, we have to build it at the posterior end
-				brueckenbauer_t::baue( player_builder, route[i+1], bruecke_desc);
+				bridge_builder_t::build( player_builder, route[i+1], bruecke_desc);
 			}
 			else {
 				// tunnel
-				tunnelbauer_t::baue( player_builder, route[i].get_2d(), tunnel_desc, true );
+				tunnelbauer_t::build( player_builder, route[i].get_2d(), tunnel_desc, true );
 			}
 			INT_CHECK( "wegbauer 1584" );
 		}
@@ -1921,14 +1921,14 @@ void wegbauer_t::baue_tunnel_und_bruecken()
 						if( bruecke_desc ) {
 							wi->set_ribi(ribi_type(h));
 							wi1->set_ribi(ribi_type(slope_t::opposite(h)));
-							brueckenbauer_t::baue( player_builder, route[i], bruecke_desc);
+							bridge_builder_t::build( player_builder, route[i], bruecke_desc);
 						}
 					}
 					else if( tunnel_desc ) {
 						// make a short tunnel
 						wi->set_ribi(ribi_type(slope_t::opposite(h)));
 						wi1->set_ribi(ribi_type(h));
-						tunnelbauer_t::baue( player_builder, route[i].get_2d(), tunnel_desc, true );
+						tunnelbauer_t::build( player_builder, route[i].get_2d(), tunnel_desc, true );
 					}
 					INT_CHECK( "wegbauer 1584" );
 				}
@@ -2532,14 +2532,14 @@ void wegbauer_t::baue_fluss()
 
 
 
-void wegbauer_t::baue()
+void wegbauer_t::build()
 {
 	if(get_count()<2  ||  get_count() > maximum) {
-DBG_MESSAGE("wegbauer_t::baue()","called, but no valid route.");
+DBG_MESSAGE("wegbauer_t::build()","called, but no valid route.");
 		// no valid route here ...
 		return;
 	}
-	DBG_MESSAGE("wegbauer_t::baue()", "type=%d max_n=%d start=%d,%d end=%d,%d", bautyp, get_count() - 1, route.front().x, route.front().y, route.back().x, route.back().y);
+	DBG_MESSAGE("wegbauer_t::build()", "type=%d max_n=%d start=%d,%d end=%d,%d", bautyp, get_count() - 1, route.front().x, route.front().y, route.back().x, route.back().y);
 
 #ifdef DEBUG_ROUTES
 uint32 ms = dr_time();
@@ -2570,12 +2570,12 @@ INT_CHECK("simbau 1072");
 		case maglev:
 		case narrowgauge:
 		case luft:
-			DBG_MESSAGE("wegbauer_t::baue", "schiene");
+			DBG_MESSAGE("wegbauer_t::build", "schiene");
 			baue_schiene();
 			break;
 		case strasse:
 			baue_strasse();
-			DBG_MESSAGE("wegbauer_t::baue", "strasse");
+			DBG_MESSAGE("wegbauer_t::build", "strasse");
 			break;
 		case leitung:
 			baue_leitung();
@@ -2593,7 +2593,7 @@ INT_CHECK("simbau 1072");
 	INT_CHECK("simbau 1087");
 
 #ifdef DEBUG_ROUTES
-DBG_MESSAGE("wegbauer_t::baue", "took %u ms", dr_time() - ms );
+DBG_MESSAGE("wegbauer_t::build", "took %u ms", dr_time() - ms );
 #endif
 }
 

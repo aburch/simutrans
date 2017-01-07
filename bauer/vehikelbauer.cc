@@ -162,7 +162,7 @@ void vehikelbauer_t::rdwr_speedbonus(loadsave_t *file)
 }
 
 
-vehicle_t* vehikelbauer_t::baue(koord3d k, player_t* player, convoi_t* cnv, const vehikel_besch_t* vb )
+vehicle_t* vehikelbauer_t::build(koord3d k, player_t* player, convoi_t* cnv, const vehikel_besch_t* vb )
 {
 	vehicle_t* v;
 	switch (vb->get_waytype()) {
@@ -176,7 +176,7 @@ vehicle_t* vehikelbauer_t::baue(koord3d k, player_t* player, convoi_t* cnv, cons
 		case narrowgauge_wt:v = new narrowgauge_vehicle_t(k, vb, player, cnv); break;
 
 		default:
-			dbg->fatal("vehikelbauer_t::baue()", "cannot built a vehicle with waytype %i", vb->get_waytype());
+			dbg->fatal("vehikelbauer_t::build()", "cannot built a vehicle with waytype %i", vb->get_waytype());
 	}
 
 	player->book_new_vehicle(-(sint64)vb->get_preis(), k.get_2d(), vb->get_waytype() );

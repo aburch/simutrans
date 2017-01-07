@@ -266,7 +266,7 @@ bool ai_passenger_t::create_water_transport_vehikel(const stadt_t* start_stadt, 
 	{
 		// we use the free own vehikel_besch_t
 		vehikel_besch_t remover_desc( water_wt, 500, vehikel_besch_t::diesel );
-		vehicle_t* test_driver = vehikelbauer_t::baue( koord3d( start_harbour - start_dx, welt->get_water_hgt( start_harbour - start_dx ) ), this, NULL, &remover_desc );
+		vehicle_t* test_driver = vehikelbauer_t::build( koord3d( start_harbour - start_dx, welt->get_water_hgt( start_harbour - start_dx ) ), this, NULL, &remover_desc );
 		test_driver->set_flag( obj_t::not_on_map );
 		route_t verbindung;
 		bool connected = verbindung.calc_route( welt, koord3d( start_harbour - start_dx, welt->get_water_hgt( start_harbour - start_dx ) ), koord3d( end_harbour - end_dx, welt->get_water_hgt( end_harbour - end_dx ) ), test_driver, 0, 0 );
@@ -292,7 +292,7 @@ bool ai_passenger_t::create_water_transport_vehikel(const stadt_t* start_stadt, 
 			if(bauigel.get_count()-1 <= 1) {
 				return false;
 			}
-			bauigel.baue();
+			bauigel.build();
 		}
 	}
 	if(!end_hub.is_bound()) {
@@ -310,7 +310,7 @@ bool ai_passenger_t::create_water_transport_vehikel(const stadt_t* start_stadt, 
 			if(bauigel.get_count()-1 <= 1) {
 				return false;
 			}
-			bauigel.baue();
+			bauigel.build();
 		}
 	}
 	// now built the stops ... (since the roads were ok!)
@@ -427,7 +427,7 @@ bool ai_passenger_t::create_water_transport_vehikel(const stadt_t* start_stadt, 
 	delete schedule;
 
 	// now create one ship
-	vehicle_t* v = vehikelbauer_t::baue( koord3d( start_pos, welt->get_water_hgt( start_pos ) ), this, NULL, v_desc );
+	vehicle_t* v = vehikelbauer_t::build( koord3d( start_pos, welt->get_water_hgt( start_pos ) ), this, NULL, v_desc );
 	convoi_t* cnv = new convoi_t(this);
 	cnv->set_name(v->get_desc()->get_name());
 	cnv->add_vehikel( v );
@@ -506,18 +506,18 @@ halthandle_t ai_passenger_t::build_airport(const stadt_t* city, koord pos, int r
 	bauigel.route_fuer( wegbauer_t::luft, taxi_desc, NULL, NULL );
 	bauigel.calc_straight_route( welt->lookup_kartenboden(center+koord::north)->get_pos(), welt->lookup_kartenboden(center+koord::south)->get_pos() );
 	assert(bauigel.get_count()-1 > 1);
-	bauigel.baue();
+	bauigel.build();
 	bauigel.route_fuer( wegbauer_t::luft, taxi_desc, NULL, NULL );
 	bauigel.calc_straight_route( welt->lookup_kartenboden(center+koord::west)->get_pos(), welt->lookup_kartenboden(center+koord::east)->get_pos() );
 	assert(bauigel.get_count()-1 > 1);
-	bauigel.baue();
+	bauigel.build();
 	// now try to connect one of the corners with a road
 	koord bushalt = koord::invalid, runwaystart, runwayend;
 	koord trypos[4] = { koord(0,0), koord(size.x,0), koord(0,size.y), koord(size.x,size.y) };
 	uint32 length=9999;
 	rotation=-1;
 
-	bauigel.route_fuer( wegbauer_t::strasse, wegbauer_t::weg_search( road_wt, 25, welt->get_timeline_year_month(), type_flat ), tunnelbauer_t::find_tunnel(road_wt,road_vehicle->get_geschw(),welt->get_timeline_year_month()), brueckenbauer_t::find_bridge(road_wt,road_vehicle->get_geschw(),welt->get_timeline_year_month()) );
+	bauigel.route_fuer( wegbauer_t::strasse, wegbauer_t::weg_search( road_wt, 25, welt->get_timeline_year_month(), type_flat ), tunnelbauer_t::find_tunnel(road_wt,road_vehicle->get_geschw(),welt->get_timeline_year_month()), bridge_builder_t::find_bridge(road_wt,road_vehicle->get_geschw(),welt->get_timeline_year_month()) );
 	bauigel.set_keep_existing_faster_ways(true);
 	bauigel.set_keep_city_roads(true);
 	bauigel.set_maximum(10000);
@@ -545,7 +545,7 @@ halthandle_t ai_passenger_t::build_airport(const stadt_t* city, koord pos, int r
 
 	bushalt = pos+trypos[rotation];
 	bauigel.calc_route(welt->lookup_kartenboden(bushalt)->get_pos(),welt->lookup_kartenboden(town_road)->get_pos());
-	bauigel.baue();
+	bauigel.build();
 	// now the busstop (our next hub ... )
 	const haus_besch_t* busstop_desc = hausbauer_t::get_random_station(haus_besch_t::generic_stop, road_wt, welt->get_timeline_year_month(), haltestelle_t::PAX );
 	// get an airport name (even though the hub is the bus stop ... )
@@ -570,7 +570,7 @@ halthandle_t ai_passenger_t::build_airport(const stadt_t* city, koord pos, int r
 	bauigel.route_fuer( wegbauer_t::luft, runway_desc, NULL, NULL );
 	bauigel.calc_straight_route( welt->lookup_kartenboden(pos+trypos[rotation==0?3:0])->get_pos(), welt->lookup_kartenboden(pos+trypos[1+(rotation&1)])->get_pos() );
 	assert(bauigel.get_count()-1 > 1);
-	bauigel.baue();
+	bauigel.build();
 	// now the airstops (only on single tiles, this will always work
 	const haus_besch_t* airstop_desc = hausbauer_t::get_random_station(haus_besch_t::generic_stop, air_wt, welt->get_timeline_year_month(), 0 );
 	for(  int i=0;  i<4;  i++  ) {
@@ -746,7 +746,7 @@ bool ai_passenger_t::create_air_transport_vehikel(const stadt_t *start_stadt, co
 	delete schedule;
 
 	// now create one plane
-	vehicle_t* v = vehikelbauer_t::baue( start->get_pos(), this, NULL, v_desc);
+	vehicle_t* v = vehikelbauer_t::build( start->get_pos(), this, NULL, v_desc);
 	convoi_t* cnv = new convoi_t(this);
 	cnv->set_name(v->get_desc()->get_name());
 	cnv->add_vehikel( v );
@@ -791,7 +791,7 @@ DBG_MESSAGE("ai_passenger_t::create_bus_transport_vehikel()","bus at (%i,%i)",st
 
 	// now create all vehicles as convois
 	for(int i=0;  i<anz_vehikel;  i++) {
-		vehicle_t* v = vehikelbauer_t::baue(startpos, this, NULL, road_vehicle);
+		vehicle_t* v = vehikelbauer_t::build(startpos, this, NULL, road_vehicle);
 		if(  convoihandle_t::is_exhausted()  ) {
 			// too many convois => cannot do anything about this ...
 			return;
@@ -915,7 +915,7 @@ void ai_passenger_t::cover_city_with_bus_route(koord start_pos, int number_of_st
 	road_vehicle = vehikel_search( road_wt, 1, 50, warenbauer_t::passagiere, false);
 	if( line->get_schedule()->get_count()>1  ) {
 		// success: add a bus to the line
-		vehicle_t* v = vehikelbauer_t::baue(start->get_pos(), this, NULL, road_vehicle);
+		vehicle_t* v = vehikelbauer_t::build(start->get_pos(), this, NULL, road_vehicle);
 		convoi_t* cnv = new convoi_t(this);
 
 		cnv->set_name(v->get_desc()->get_name());
@@ -1317,7 +1317,7 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using %s on %s",road_vehicle->g
 										// too many convois => cannot do anything about this ...
 										break;
 									}
-									vehicle_t* v = vehikelbauer_t::baue( line->get_schedule()->entries[0].pos, this, NULL, v_desc  );
+									vehicle_t* v = vehikelbauer_t::build( line->get_schedule()->entries[0].pos, this, NULL, v_desc  );
 									convoi_t* new_cnv = new convoi_t(this);
 									new_cnv->set_name( v->get_desc()->get_name() );
 									new_cnv->add_vehikel( v );
@@ -1347,7 +1347,7 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using %s on %s",road_vehicle->g
 				// next: check for overflowing lines, i.e. running with 3/4 of the capacity
 				if(  ratio<10  &&  !convoihandle_t::is_exhausted()  ) {
 					// else add the first convoi again
-					vehicle_t* const v = vehikelbauer_t::baue(line->get_schedule()->entries[0].pos, this, NULL, line->get_convoy(0)->front()->get_desc());
+					vehicle_t* const v = vehikelbauer_t::build(line->get_schedule()->entries[0].pos, this, NULL, line->get_convoy(0)->front()->get_desc());
 					convoi_t* new_cnv = new convoi_t(this);
 					new_cnv->set_name( v->get_desc()->get_name() );
 					new_cnv->add_vehikel( v );

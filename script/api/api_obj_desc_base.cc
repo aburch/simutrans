@@ -27,7 +27,7 @@ implement_besch_param(ware_besch_t, "good_desc_x", (const ware_besch_t* (*)(cons
 implement_besch_param(weg_besch_t, "way_desc_x", &my_get_desc);
 implement_besch_param(vehikel_besch_t, "vehicle_desc_x", &vehikelbauer_t::get_info);
 implement_besch_param(tunnel_besch_t, "tunnel_desc_x", &tunnelbauer_t::get_desc);
-implement_besch_param(bruecke_besch_t, "bridge_desc_x", &brueckenbauer_t::get_desc);
+implement_besch_param(bridge_desc_t, "bridge_desc_x", &bridge_builder_t::get_desc);
 
 /**
  * Macro to get the implementation of get method based on unique tag.

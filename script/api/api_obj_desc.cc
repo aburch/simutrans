@@ -513,27 +513,27 @@ void export_goods_desc(HSQUIRRELVM vm)
 	/**
 	 * Object descriptors for bridges.
 	 */
-	begin_besch_class(vm, "bridge_desc_x", "obj_desc_transport_x", (GETBESCHFUNC)param<const bruecke_besch_t*>::getfunc());
+	begin_besch_class(vm, "bridge_desc_x", "obj_desc_transport_x", (GETBESCHFUNC)param<const bridge_desc_t*>::getfunc());
 	/**
 	 * @return true if this bridge can raise two level from flat terrain
 	 */
-	register_method(vm, &bruecke_besch_t::has_double_ramp, "has_double_ramp");
+	register_method(vm, &bridge_desc_t::has_double_ramp, "has_double_ramp");
 	/**
 	 * @return true if this bridge can start or end on a double slope
 	 */
-	register_method(vm, &bruecke_besch_t::has_double_start, "has_double_start");
+	register_method(vm, &bridge_desc_t::has_double_start, "has_double_start");
 	/**
 	 * @return maximal bridge length in tiles
 	 */
-	register_method(vm, &bruecke_besch_t::get_max_length, "get_max_length");
+	register_method(vm, &bridge_desc_t::get_max_length, "get_max_length");
 	/**
 	 * @return maximal bridge height
 	 */
-	register_method(vm, &bruecke_besch_t::get_max_height, "get_max_height");
+	register_method(vm, &bridge_desc_t::get_max_height, "get_max_height");
 	/**
 	 * Returns a list with available bridge types.
 	 */
-	STATIC register_method(vm, brueckenbauer_t::get_available_bridges, "get_available_bridges", false, true);
+	STATIC register_method(vm, bridge_builder_t::get_available_bridges, "get_available_bridges", false, true);
 
 	end_class(vm);
 
