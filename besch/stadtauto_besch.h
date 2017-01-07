@@ -29,7 +29,7 @@
 class stadtauto_besch_t : public obj_desc_timelined_t {
 	friend class citycar_reader_t;
 
-	uint16 gewichtung;
+	uint16 chance;
 
 	/// topspeed in internal speed units !!! not km/h!!!
 	uint16 geschw;
@@ -41,7 +41,7 @@ public:
 		return image != NULL ? image->get_id() : IMG_EMPTY;
 	}
 
-	uint16 get_gewichtung() const { return gewichtung; }
+	uint16 get_chance() const { return chance; }
 
 	/// topspeed in internal speed units !!! not km/h!!!
 	uint16 get_geschw() const { return geschw; }
@@ -49,7 +49,7 @@ public:
 	void calc_checksum(checksum_t *chk) const
 	{
 		obj_desc_timelined_t::calc_checksum(chk);
-		chk->input(gewichtung);
+		chk->input(chance);
 		chk->input(geschw);
 	}
 };

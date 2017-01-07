@@ -213,7 +213,7 @@ private:
 	site_t platzierung;
 	uint16 produktivitaet;
 	uint16 bereich;
-	uint16 gewichtung;	// Wie wahrscheinlich soll der Bau sein?
+	uint16 chance;	// Wie wahrscheinlich soll der Bau sein?
 	uint8 kennfarbe;
 	uint16 lieferanten;
 	uint16 produkte;
@@ -264,7 +264,7 @@ public:
 
 	/* where to built */
 	site_t get_platzierung() const { return platzierung; }
-	uint16 get_gewichtung() const { return gewichtung;     }
+	uint16 get_chance() const { return chance;     }
 
 	uint8 get_kennfarbe() const { return kennfarbe; }
 

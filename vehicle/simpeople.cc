@@ -54,7 +54,7 @@ bool pedestrian_t::alles_geladen()
 			temp_liste.insert_ordered(i.value, compare_fussgaenger_desc);
 		}
 		FOR(vector_tpl<fussgaenger_besch_t const*>, const i, temp_liste) {
-			liste.append(i, i->get_gewichtung());
+			liste.append(i, i->get_chance());
 		}
 	}
 	return true;

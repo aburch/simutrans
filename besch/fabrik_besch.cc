@@ -46,7 +46,7 @@ void fabrik_besch_t::calc_checksum(checksum_t *chk) const
 	chk->input((uint8)platzierung);
 	chk->input(produktivitaet);
 	chk->input(bereich);
-	chk->input(gewichtung);
+	chk->input(chance);
 	chk->input(kennfarbe);
 	chk->input(lieferanten);
 	chk->input(produkte);

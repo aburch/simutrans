@@ -148,7 +148,7 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 		fabrik_besch_t::Land;
 	uint16 const produktivitaet = obj.get_int("productivity",        10);
 	uint16 const bereich        = obj.get_int("range",               10);
-	uint16 const gewichtung     = obj.get_int("distributionweight",   1);
+	uint16 const chance         = obj.get_int("distributionweight",   1);
 	uint8  const kennfarbe      = obj.get_color("mapcolor", 255);
 	if (kennfarbe == 255) {
 		dbg->fatal( "Factory", "%s missing an indentification color! (mapcolor)", obj_writer_t::last_name );
@@ -238,7 +238,7 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	node.write_uint16(fp, platzierung,         2);
 	node.write_uint16(fp, produktivitaet,      4);
 	node.write_uint16(fp, bereich,             6);
-	node.write_uint16(fp, gewichtung,          8);
+	node.write_uint16(fp, chance,              8);
 	node.write_uint8 (fp, kennfarbe,          10);
 	node.write_uint8 (fp, fields,             11);
 	node.write_uint16(fp, lieferanten,        12);

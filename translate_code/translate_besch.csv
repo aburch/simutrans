@@ -21,3 +21,4 @@ baue_auffahrt,build_ramp
 baue_bruecke,build_bridge
 \\<baue\\>,build
 brueckenbauer_t,bridge_builder_t
+gewichtung,chance

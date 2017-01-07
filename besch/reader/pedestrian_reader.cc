@@ -60,8 +60,8 @@ obj_desc_t * pedestrian_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 	if(version == 0) {
 		// old, nonversion node
-		desc->gewichtung = v;
+		desc->chance = v;
 	}
-	DBG_DEBUG("pedestrian_reader_t::read_node()","version=%i, gewichtung",version,desc->gewichtung);
+	DBG_DEBUG("pedestrian_reader_t::read_node()","version=%i, chance",version,desc->chance);
 	return desc;
 }

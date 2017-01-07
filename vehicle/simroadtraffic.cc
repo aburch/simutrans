@@ -292,7 +292,7 @@ void private_car_t::build_timeline_list(karte_t *welt)
 	}
 	liste_timeline.resize( temp_liste.get_count() );
 	FOR(vector_tpl<stadtauto_besch_t const*>, const i, temp_liste) {
-		liste_timeline.append(i, i->get_gewichtung());
+		liste_timeline.append(i, i->get_chance());
 	}
 }
 

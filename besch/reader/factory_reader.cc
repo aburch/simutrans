@@ -251,7 +251,7 @@ obj_desc_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->platzierung = (site_t)decode_uint16(p);
 		desc->produktivitaet = decode_uint16(p);
 		desc->bereich = decode_uint16(p);
-		desc->gewichtung = decode_uint16(p);
+		desc->chance = decode_uint16(p);
 		desc->kennfarbe = decode_uint8(p);
 		desc->fields = decode_uint8(p);
 		desc->lieferanten = decode_uint16(p);
@@ -274,7 +274,7 @@ obj_desc_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->platzierung = (site_t)decode_uint16(p);
 		desc->produktivitaet = decode_uint16(p);
 		desc->bereich = decode_uint16(p);
-		desc->gewichtung = decode_uint16(p);
+		desc->chance = decode_uint16(p);
 		desc->kennfarbe = decode_uint8(p);
 		desc->fields = decode_uint8(p);
 		desc->lieferanten = decode_uint16(p);
@@ -297,7 +297,7 @@ obj_desc_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->platzierung = (site_t)decode_uint16(p);
 		desc->produktivitaet = decode_uint16(p);
 		desc->bereich = decode_uint16(p);
-		desc->gewichtung = decode_uint16(p);
+		desc->chance = decode_uint16(p);
 		desc->kennfarbe = (uint8)decode_uint16(p);
 		desc->lieferanten = decode_uint16(p);
 		desc->produkte = decode_uint16(p);
@@ -322,7 +322,7 @@ obj_desc_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		decode_uint16(p);	// alsways zero
 		desc->produktivitaet = decode_uint16(p)|0x8000;
 		desc->bereich = decode_uint16(p);
-		desc->gewichtung = decode_uint16(p);
+		desc->chance = decode_uint16(p);
 		desc->kennfarbe = (uint8)decode_uint16(p);
 		desc->lieferanten = decode_uint16(p);
 		desc->produkte = decode_uint16(p);

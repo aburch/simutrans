@@ -27,7 +27,7 @@
 class fussgaenger_besch_t : public obj_named_desc_t {
     friend class pedestrian_reader_t;
 
-    uint16 gewichtung;
+    uint16 chance;
 
 public:
     image_id get_image_id(ribi_t::dir dir) const
@@ -36,11 +36,11 @@ public:
 		return image != NULL ? image->get_id() : IMG_EMPTY;
     }
 
-    uint16 get_gewichtung() const { return gewichtung; }
+    uint16 get_chance() const { return chance; }
 
 	void calc_checksum(checksum_t *chk) const
 	{
-		chk->input(gewichtung);
+		chk->input(chance);
 	}
 };
 

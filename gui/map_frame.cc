@@ -357,7 +357,7 @@ void map_frame_t::update_factory_legend()
 	if(  directory_visible  ) {
 		if(  filter_factory_list  ) {
 			FOR(slist_tpl<fabrik_t*>, const f, welt->get_fab_list()) {
-				if(  f->get_desc()->get_gewichtung() > 0  ) {
+				if(  f->get_desc()->get_chance() > 0  ) {
 					std::string const label( translator::translate(f->get_desc()->get_name()) );
 					legend.append_unique( legend_entry_t(label, f->get_desc()->get_kennfarbe()) );
 				}
@@ -366,7 +366,7 @@ void map_frame_t::update_factory_legend()
 		else {
 			FOR(stringhashtable_tpl<fabrik_besch_t const*>, const& i, fabrikbauer_t::get_factory_table()) {
 				fabrik_besch_t const& d = *i.value;
-				if (d.get_gewichtung() > 0) {
+				if (d.get_chance() > 0) {
 					std::string const label(translator::translate(d.get_name()));
 					legend.append_unique(legend_entry_t(label, d.get_kennfarbe()));
 				}

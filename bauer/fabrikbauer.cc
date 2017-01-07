@@ -181,7 +181,7 @@ const fabrik_besch_t *fabrikbauer_t::get_random_consumer(bool electric, climate_
 			current->get_haus()->is_allowed_climate_bits(cl)  &&
 			(electric ^ !current->is_electricity_producer())  &&
 			current->get_haus()->is_available(timeline)  ) {
-				consumer.insert_unique_ordered(current, current->get_gewichtung(), compare_fabrik_desc);
+				consumer.insert_unique_ordered(current, current->get_chance(), compare_fabrik_desc);
 		}
 	}
 	// no consumer installed?
@@ -254,7 +254,7 @@ int fabrikbauer_t::count_producers(const ware_besch_t *ware, uint16 timeline)
 		fabrik_besch_t const* const tmp = t.value;
 		for (uint i = 0; i < tmp->get_produkte(); i++) {
 			const fabrik_produkt_besch_t *produkt = tmp->get_produkt(i);
-			if(  produkt->get_ware()==ware  &&  tmp->get_gewichtung()>0  &&  tmp->get_haus()->is_available(timeline)  ) {
+			if(  produkt->get_ware()==ware  &&  tmp->get_chance()>0  &&  tmp->get_haus()->is_available(timeline)  ) {
 				count++;
 			}
 		}
@@ -274,11 +274,11 @@ void fabrikbauer_t::finde_hersteller(weighted_vector_tpl<const fabrik_besch_t *>
 	producer.clear();
 	FOR(stringhashtable_tpl<fabrik_besch_t const*>, const& t, desc_table) {
 		fabrik_besch_t const* const tmp = t.value;
-		if (  tmp->get_gewichtung()>0  &&  tmp->get_haus()->is_available(timeline)  ) {
+		if (  tmp->get_chance()>0  &&  tmp->get_haus()->is_available(timeline)  ) {
 			for(  uint i=0; i<tmp->get_produkte();  i++  ) {
 				const fabrik_produkt_besch_t *produkt = tmp->get_produkt(i);
 				if(  produkt->get_ware()==ware  ) {
-					producer.insert_unique_ordered(tmp, tmp->get_gewichtung(), compare_fabrik_desc);
+					producer.insert_unique_ordered(tmp, tmp->get_chance(), compare_fabrik_desc);
 					break;
 				}
 			}
@@ -527,7 +527,7 @@ bool fabrikbauer_t::can_factory_tree_rotate( const fabrik_besch_t *desc )
 			fabrik_besch_t const* const tmp = t.value;
 			// now check if we produce this good...
 			for (uint i = 0; i < tmp->get_produkte(); i++) {
-				if(tmp->get_produkt(i)->get_ware()==ware  &&  tmp->get_gewichtung()>0) {
+				if(tmp->get_produkt(i)->get_ware()==ware  &&  tmp->get_chance()>0) {
 
 					if(!can_factory_tree_rotate( tmp )) {
 						return false;

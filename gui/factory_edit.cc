@@ -122,7 +122,7 @@ void factory_edit_frame_t::fill_list( bool translate )
 	// timeline will be obeyed; however, we may show obsolete ones ...
 	FOR(stringhashtable_tpl<fabrik_besch_t const*>, const& i, fabrikbauer_t::get_factory_table()) {
 		fabrik_besch_t const* const desc = i.value;
-		if(desc->get_gewichtung()>0) {
+		if(desc->get_chance()>0) {
 			// DistributionWeight=0 is obsoleted item, only for backward compatibility
 
 			if(!use_timeline  ||  (!desc->get_haus()->is_future(month_now)  &&  (!desc->get_haus()->is_retired(month_now)  ||  allow_obsolete))  ) {
