@@ -5,8 +5,8 @@
  * (see licence.txt)
  */
 
-#ifndef fabrikbauer_t_h
-#define fabrikbauer_t_h
+#ifndef factory_builder_t_h
+#define factory_builder_t_h
 
 #include "../tpl/stringhashtable_tpl.h"
 #include "../tpl/weighted_vector_tpl.h"
@@ -14,7 +14,7 @@
 
 class haus_besch_t;
 class ware_besch_t;
-class fabrik_besch_t;
+class factory_desc_t;
 class stadt_t;
 class karte_ptr_t;
 class player_t;
@@ -23,33 +23,33 @@ class fabrik_t;
 
 /**
  * This class builds factories. Never construct factories directly
- * but always by calling fabrikbauer_t::build() (for a single factory)
- * or fabrikbauer_t::baue_hierachie() (for a full chain of suppliers).
+ * but always by calling factory_builder_t::build() (for a single factory)
+ * or factory_builder_t::baue_hierachie() (for a full chain of suppliers).
  */
-class fabrikbauer_t
+class factory_builder_t
 {
 private:
 	static karte_ptr_t welt;
 
 	/**
-	 * @class fabs_to_crossconnect_t
+	 * @class factories_to_crossconnect_t
 	 * Used for cross-connection checks between factories.
 	 * This is necessary for finding producers for factory supply.
 	 */
-	class fabs_to_crossconnect_t {
+	class factories_to_crossconnect_t {
 	public:
 		fabrik_t *fab;		///< The factory
 		sint32 demand;		///< To how many factories this factory needs to connect to
 
-		fabs_to_crossconnect_t() { fab = NULL; demand = 0; }
-		fabs_to_crossconnect_t(fabrik_t *f, sint32 d) { fab = f; demand = d; }
+		factories_to_crossconnect_t() { fab = NULL; demand = 0; }
+		factories_to_crossconnect_t(fabrik_t *f, sint32 d) { fab = f; demand = d; }
 
-		bool operator == (const fabs_to_crossconnect_t& x) const { return fab == x.fab; }
-		bool operator != (const fabs_to_crossconnect_t& x) const { return fab != x.fab; }
+		bool operator == (const factories_to_crossconnect_t& x) const { return fab == x.fab; }
+		bool operator != (const factories_to_crossconnect_t& x) const { return fab != x.fab; }
 	};
 
 	/// Table of all factories that can be built
-	static stringhashtable_tpl<const fabrik_besch_t *> desc_table;
+	static stringhashtable_tpl<const factory_desc_t *> desc_table;
 
 	/// @returns the number of producers producing @p ware
 	static int count_producers(const ware_besch_t *ware, uint16 timeline);
@@ -58,11 +58,11 @@ private:
 	 * Finds a random producer producing @p ware.
 	 * @param timeline the current time (months)
 	 */
-	static void finde_hersteller(weighted_vector_tpl<const fabrik_besch_t *> &producer, const ware_besch_t *ware, uint16 timeline );
+	static void find_producer(weighted_vector_tpl<const factory_desc_t *> &producer, const ware_besch_t *ware, uint16 timeline );
 
 public:
 	/// Registers the factory description so the factory can be built in-game.
-	static void register_desc(fabrik_besch_t *desc);
+	static void register_desc(factory_desc_t *desc);
 
 	/**
 	 * Initializes weighted vector for farm field class indices.
@@ -77,20 +77,20 @@ public:
 	static void new_world();
 
 	/// Creates a certain number of tourist attractions.
-	static void verteile_tourist(int max_number);
+	static void distribute_attractions(int max_number);
 
 	/// @returns a factory description for a factory name
-	static const fabrik_besch_t *get_desc(const char *factory_name);
+	static const factory_desc_t *get_desc(const char *factory_name);
 
 	/// @returns the table containing all factory descriptions
-	static const stringhashtable_tpl<const fabrik_besch_t*>& get_factory_table() { return desc_table; }
+	static const stringhashtable_tpl<const factory_desc_t*>& get_factory_table() { return desc_table; }
 
 	/**
 	 * @param electric true to limit search to electricity producers only
 	 * @param cl allowed climates
 	 * @returns a random consumer
 	 */
-	static const fabrik_besch_t *get_random_consumer(bool electric, climate_bits cl, uint16 timeline );
+	static const factory_desc_t *get_random_consumer(bool electric, climate_bits cl, uint16 timeline );
 
 	/**
 	 * Builds a single new factory.
@@ -101,7 +101,7 @@ public:
 	 * @param rotate building rotation (0..3)
 	 * @returns The newly constructed factory.
 	 */
-	static fabrik_t* baue_fabrik(koord3d* parent, const fabrik_besch_t* info, sint32 initial_prod_base, int rotate, koord3d pos, player_t* owner);
+	static fabrik_t* build_factory(koord3d* parent, const factory_desc_t* info, sint32 initial_prod_base, int rotate, koord3d pos, player_t* owner);
 
 	/**
 	 * Builds a new full chain of factories. Precondition before calling this function:
@@ -110,13 +110,13 @@ public:
 	 * (meaning there are no unfinished factory chains).
 	 * @returns number of factories built
 	 */
-	static int baue_hierarchie(koord3d* parent, const fabrik_besch_t* info, sint32 initial_prod_base, int rotate, koord3d* pos, player_t* player, int number_of_chains );
+	static int baue_hierarchie(koord3d* parent, const factory_desc_t* info, sint32 initial_prod_base, int rotate, koord3d* pos, player_t* player, int number_of_chains );
 
 	/**
 	 * Helper function for baue_hierachie(): builds the connections (chain) for one single product)
 	 * @returns number of factories built
 	 */
-	static int baue_link_hierarchie(const fabrik_t* our_fab, const fabrik_besch_t* info, int lieferant_nr, player_t* player);
+	static int build_chain_link(const fabrik_t* our_fab, const factory_desc_t* info, int supplier_nr, player_t* player);
 
 	/**
 	 * This function is called whenever it is time for industry growth.
@@ -134,21 +134,21 @@ private:
 	 * @param water true to search on water
 	 * @param cl allowed climates
 	 */
-	static bool ist_bauplatz(koord pos, koord size, bool water, bool is_fabrik, climate_bits cl);
+	static bool check_construction_site(koord pos, koord size, bool water, bool is_fabrik, climate_bits cl);
 
 	/**
 	 * Find a random site to place a factory.
 	 * @param radius Radius of the search circle around @p pos
 	 * @param size size of the building site
 	 */
-	static koord3d finde_zufallsbauplatz(koord pos, int radius, koord size,bool on_water, const haus_besch_t *desc, bool ignore_climates, uint32 max_iterations);
+	static koord3d find_random_construction_site(koord pos, int radius, koord size,bool on_water, const haus_besch_t *desc, bool ignore_climates, uint32 max_iterations);
 
 	/**
 	 * Checks if all factories in this factory tree can be rotated.
 	 * This method is called recursively on all potential suppliers.
 	 * @returns true if all factories in this tree can be rotated.
 	 */
-	static bool can_factory_tree_rotate( const fabrik_besch_t *desc );
+	static bool can_factory_tree_rotate( const factory_desc_t *desc );
 };
 
 #endif

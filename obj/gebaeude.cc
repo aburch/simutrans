@@ -201,15 +201,15 @@ void gebaeude_t::rotate90()
 /* sets the corresponding pointer to a factory
  * @author prissi
  */
-void gebaeude_t::set_fab(fabrik_t *fb)
+void gebaeude_t::set_fab(fabrik_t *fd)
 {
 	// sets the pointer in non-zero
-	if(fb) {
+	if(fd) {
 		if(!is_factory  &&  ptr.stadt!=NULL) {
 			dbg->fatal("gebaeude_t::set_fab()","building already bound to city!");
 		}
 		is_factory = true;
-		ptr.fab = fb;
+		ptr.fab = fd;
 	}
 	else if(is_factory) {
 		ptr.fab = NULL;
@@ -367,7 +367,7 @@ image_id gebaeude_t::get_image() const
 		} else if(  (env_t::hide_buildings == env_t::ALL_HIDDEN_BUILDING  &&  tile->get_desc()->get_utyp() < haus_besch_t::weitere)) {
 			// hide with transparency or tile without information
 			if(env_t::hide_with_transparency) {
-				if(tile->get_desc()->get_utyp() == haus_besch_t::fabrik  &&  ptr.fab->get_desc()->get_platzierung() == fabrik_besch_t::Wasser) {
+				if(tile->get_desc()->get_utyp() == haus_besch_t::fabrik  &&  ptr.fab->get_desc()->get_placement() == factory_desc_t::Water) {
 					// no ground tiles for water things
 					return IMG_EMPTY;
 				}

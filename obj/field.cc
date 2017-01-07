@@ -20,7 +20,7 @@
 #include "field.h"
 
 
-field_t::field_t(koord3d p, player_t *player, const field_class_besch_t *desc, fabrik_t *fab) : obj_t()
+field_t::field_t(koord3d p, player_t *player, const field_class_desc_t *desc, fabrik_t *fab) : obj_t()
 {
 	this->desc = desc;
 	this->fab = fab;

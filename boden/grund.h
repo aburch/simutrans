@@ -609,7 +609,7 @@ public:
 	/*
 	* Interface zur Abfrage der Wege
 	* ==============================
-	* Jeder Boden hat bis zu 2. Special fuer Wasser: ohne Weg-Objekt werden
+	* Jeder Boden hat bis zu 2. Special fuer Water: ohne Weg-Objekt werden
 	* alle ribis vom weg_t::wassert als gesetzt zurueckgeliefert.
 	*/
 
@@ -694,7 +694,7 @@ public:
 	virtual sint8 get_weg_yoff() const { return 0; }
 
 	/**
-	* Hat der Boden mindestens ein weg_t-Objekt? Liefert false für Wasser!
+	* Hat der Boden mindestens ein weg_t-Objekt? Liefert false für Water!
 	* @author V. Meyer
 	*/
 	inline bool hat_wege() const { return (flags&(has_way1|has_way2))!=0;}

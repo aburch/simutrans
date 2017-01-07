@@ -297,7 +297,7 @@ void karte_t::recalc_season_snowline(bool set_pending)
 	// calculate snowline with day precision
 	// use linear interpolation
 	const sint32 ticks_this_month = get_zeit_ms() & (karte_t::ticks_per_world_month - 1);
-	const sint32 faktor = mfactor[last_month] + (  ( (mfactor[(last_month + 1) % 12] - mfactor[last_month]) * (ticks_this_month >> 12) ) >> (karte_t::ticks_per_world_month_shift - 12) );
+	const sint32 factor = mfactor[last_month] + (  ( (mfactor[(last_month + 1) % 12] - mfactor[last_month]) * (ticks_this_month >> 12) ) >> (karte_t::ticks_per_world_month_shift - 12) );
 
 	// just remember them
 	const uint8 old_season = season;
@@ -311,7 +311,7 @@ void karte_t::recalc_season_snowline(bool set_pending)
 
 	const sint16 winterline = settings.get_winter_snowline();
 	const sint16 summerline = settings.get_climate_borders()[arctic_climate] + 1;
-	snowline = summerline - (sint16)(((summerline-winterline)*faktor)/100) + grundwasser;
+	snowline = summerline - (sint16)(((summerline-winterline)*factor)/100) + grundwasser;
 	if(  old_snowline != snowline  && set_pending  ) {
 		pending_snowline_change++;
 	}
@@ -1291,14 +1291,14 @@ DBG_DEBUG("karte_t::init()","built timeline");
 	nosave_warning = nosave = false;
 
 	dbg->important("Creating factories ...");
-	fabrikbauer_t::new_world();
+	factory_builder_t::new_world();
 
 	int consecutive_build_failures = 0;
 
 	loadingscreen_t ls( translator::translate("distributing factories"), 16 + settings.get_city_count() * 4 + settings.get_factory_count(), true, true );
 
 	while(  fab_list.get_count() < (uint32)settings.get_factory_count()  ) {
-		if(  !fabrikbauer_t::increase_industry_density( false )  ) {
+		if(  !factory_builder_t::increase_industry_density( false )  ) {
 			if(  ++consecutive_build_failures > 3  ) {
 				// Industry chain building starts failing consecutively as map approaches full.
 				break;
@@ -1314,7 +1314,7 @@ DBG_DEBUG("karte_t::init()","built timeline");
 	finance_history_year[0][WORLD_FACTORIES] = finance_history_month[0][WORLD_FACTORIES] = fab_list.get_count();
 
 	// tourist attractions
-	fabrikbauer_t::verteile_tourist(settings.get_tourist_attractions());
+	factory_builder_t::distribute_attractions(settings.get_tourist_attractions());
 
 	dbg->important("Preparing startup ...");
 	if(zeiger == 0) {
@@ -1900,7 +1900,7 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 	distribute_groundobjs_cities( sets->get_city_count(), sets->get_mean_citizen_count(), old_x, old_y );
 
 	// hausbauer_t::new_world(); <- this would reinit monuments! do not do this!
-	fabrikbauer_t::new_world();
+	factory_builder_t::new_world();
 	set_schedule_counter();
 
 	// Refresh the haltlist for the affected tiles / stations.
@@ -3288,7 +3288,7 @@ DBG_MESSAGE( "karte_t::rotate90()", "called" );
 	}
 
 	//  rotate map search array
-	fabrikbauer_t::new_world();
+	factory_builder_t::new_world();
 
 	// update minimap
 	if(reliefkarte_t::is_visible) {
@@ -3357,7 +3357,7 @@ bool karte_t::rem_fab(fabrik_t *fab)
 		delete fab;
 
 		// recalculate factory position map
-		fabrikbauer_t::new_world();
+		factory_builder_t::new_world();
 	}
 	return true;
 }
@@ -5179,7 +5179,7 @@ void karte_t::load(loadsave_t *file)
 	zeiger = new zeiger_t(koord3d::invalid, NULL );
 
 	hausbauer_t::new_world();
-	fabrikbauer_t::new_world();
+	factory_builder_t::new_world();
 
 DBG_DEBUG("karte_t::laden", "init felder ok");
 

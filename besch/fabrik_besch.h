@@ -19,7 +19,7 @@ class checksum_t;
 /* Knightly : this desc will store data specific to each class of fields
  * Fields are xref'ed from skin_besch_t
  */
-class field_class_besch_t : public obj_desc_t {
+class field_class_desc_t : public obj_desc_t {
 	friend class factory_field_class_reader_t;
 	friend class factory_field_group_reader_t;		// Knightly : this is a special case due to desc restructuring
 
@@ -44,7 +44,7 @@ public:
 
 
 // Knightly : this desc now only contains common, shared data regarding fields
-class field_group_besch_t : public obj_desc_t {
+class field_group_desc_t : public obj_desc_t {
 	friend class factory_field_group_reader_t;
 
 private:
@@ -74,7 +74,7 @@ public:
 	uint16 get_min_fields() const { return min_fields; }
 	uint16 get_start_fields() const { return start_fields; }
 	uint16 get_field_class_count() const { return field_classes; }
-	field_class_besch_t const* get_field_class(uint16 const idx) const { return idx < field_classes ? get_child<field_class_besch_t>(idx) : 0; }
+	field_class_desc_t const* get_field_class(uint16 const idx) const { return idx < field_classes ? get_child<field_class_desc_t>(idx) : 0; }
 	const weighted_vector_tpl<uint16> &get_field_class_indices() const { return field_class_indices; }
 
 	void calc_checksum(checksum_t *chk) const;
@@ -93,7 +93,7 @@ public:
  *  Child nodes:
  *	0   SKin
  */
-class rauch_besch_t : public obj_desc_t {
+class smoke_desc_t : public obj_desc_t {
 	friend class factory_smoke_reader_t;
 
 private:
@@ -137,19 +137,19 @@ public:
  *  Child nodes:
  *	0   Ware
  */
-class fabrik_lieferant_besch_t : public obj_desc_t {
+class factory_supplier_desc_t : public obj_desc_t {
 	friend class factory_supplier_reader_t;
 
 private:
-	uint16  kapazitaet;
+	uint16  capacity;
 	uint16  supplier_count;
-	uint16  verbrauch;
+	uint16  consumption;
 
 public:
 	ware_besch_t const* get_ware() const { return get_child<ware_besch_t>(0); }
-	uint16 get_kapazitaet() const { return kapazitaet; }
+	uint16 get_capacity() const { return capacity; }
 	uint16 get_supplier_count() const { return supplier_count; }
-	uint16 get_verbrauch() const { return verbrauch; }
+	uint16 get_consumption() const { return consumption; }
 	void calc_checksum(checksum_t *chk) const;
 };
 
@@ -164,23 +164,23 @@ public:
  *  Child nodes:
  *	0   Ware
  */
-class fabrik_produkt_besch_t : public obj_desc_t {
+class factory_product_desc_t : public obj_desc_t {
 	friend class factory_product_reader_t;
 
 private:
-    uint16 kapazitaet;
+    uint16 capacity;
 
     /**
      * How much of this product is derived from one unit of factory
      * production? 256 means 1.0
      * @author Hj. Malthaner
      */
-    uint16 faktor;
+    uint16 factor;
 
 public:
 	ware_besch_t const* get_ware() const { return get_child<ware_besch_t>(0); }
-	uint16 get_kapazitaet() const { return kapazitaet; }
-	uint16 get_faktor() const { return faktor; }
+	uint16 get_capacity() const { return capacity; }
+	uint16 get_factor() const { return factor; }
 	void calc_checksum(checksum_t *chk) const;
 };
 
@@ -203,20 +203,20 @@ public:
  *	n+3 Produkt 2
  *	... ...
  */
-class fabrik_besch_t : public obj_desc_t {
+class factory_desc_t : public obj_desc_t {
 	friend class factory_reader_t;
 
 public:
-	enum site_t { Land, Wasser, Stadt };
+	enum site_t { Land, Water, City };
 
 private:
-	site_t platzierung;
-	uint16 produktivitaet;
-	uint16 bereich;
+	site_t placement;
+	uint16 productivity;
+	uint16 range;
 	uint16 chance;	// Wie wahrscheinlich soll der Bau sein?
-	uint8 kennfarbe;
-	uint16 lieferanten;
-	uint16 produkte;
+	uint8 color;
+	uint16 supplier_count;
+	uint16 product_count;
 	uint8 fields;	// only if there are any ...
 	uint16 pax_level;
 	bool electricity_producer;
@@ -238,39 +238,39 @@ public:
 	const char *get_name() const { return get_haus()->get_name(); }
 	const char *get_copyright() const { return get_haus()->get_copyright(); }
 	haus_besch_t  const* get_haus()  const { return get_child<haus_besch_t>(0); }
-	rauch_besch_t const* get_rauch() const { return get_child<rauch_besch_t>(1); }
+	smoke_desc_t const* get_smoke() const { return get_child<smoke_desc_t>(1); }
 
 	// we must take care, for the case of no producer/consumer
-	const fabrik_lieferant_besch_t *get_lieferant(uint16 i) const
+	const factory_supplier_desc_t *get_supplier(uint16 i) const
 	{
-		return i < lieferanten ? get_child<fabrik_lieferant_besch_t>(2 + i) : 0;
+		return i < supplier_count ? get_child<factory_supplier_desc_t>(2 + i) : 0;
 	}
-	const fabrik_produkt_besch_t *get_produkt(uint16 i) const
+	const factory_product_desc_t *get_product(uint16 i) const
 	{
-		return i < produkte ? get_child<fabrik_produkt_besch_t>(2 + lieferanten + i) : 0;
+		return i < product_count ? get_child<factory_product_desc_t>(2 + supplier_count + i) : 0;
 	}
-	const field_group_besch_t *get_field_group() const {
+	const field_group_desc_t *get_field_group() const {
 		if(!fields) {
 			return NULL;
 		}
-		return get_child<field_group_besch_t>(2 + lieferanten + produkte);
+		return get_child<field_group_desc_t>(2 + supplier_count + product_count);
 	}
 
-	bool is_consumer_only() const { return produkte    == 0; }
-	bool is_producer_only() const { return lieferanten == 0; }
+	bool is_consumer_only() const { return product_count    == 0; }
+	bool is_producer_only() const { return supplier_count == 0; }
 
-	uint16 get_lieferanten() const { return lieferanten; }
-	uint16 get_produkte() const { return produkte; }
+	uint16 get_supplier_count() const { return supplier_count; }
+	uint16 get_product_count() const { return product_count; }
 
 	/* where to built */
-	site_t get_platzierung() const { return platzierung; }
+	site_t get_placement() const { return placement; }
 	uint16 get_chance() const { return chance;     }
 
-	uint8 get_kennfarbe() const { return kennfarbe; }
+	uint8 get_color() const { return color; }
 
-	void set_produktivitaet(uint16 p) { produktivitaet=p; }
-	uint16 get_produktivitaet() const { return produktivitaet; }
-	uint16 get_bereich() const { return bereich; }
+	void set_productivity(uint16 p) { productivity=p; }
+	uint16 get_productivity() const { return productivity; }
+	uint16 get_range() const { return range; }
 
 	/* level for post and passenger generation */
 	uint16 get_pax_level() const { return pax_level; }

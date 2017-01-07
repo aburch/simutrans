@@ -31,7 +31,7 @@ obj_desc_t *factory_field_class_reader_t::read_node(FILE *fp, obj_node_info_t &n
 {
 	ALLOCA(char, besch_buf, node.size);
 
-	field_class_besch_t *desc = new field_class_besch_t();
+	field_class_desc_t *desc = new field_class_desc_t();
 
 	// Hajo: Read data
 	fread(besch_buf, node.size, 1, fp);
@@ -59,7 +59,7 @@ obj_desc_t *factory_field_group_reader_t::read_node(FILE *fp, obj_node_info_t &n
 {
 	ALLOCA(char, besch_buf, node.size);
 
-	field_group_besch_t *desc = new field_group_besch_t();
+	field_group_desc_t *desc = new field_group_desc_t();
 
 	// Hajo: Read data
 	fread(besch_buf, node.size, 1, fp);
@@ -89,7 +89,7 @@ obj_desc_t *factory_field_group_reader_t::read_node(FILE *fp, obj_node_info_t &n
 		 *   leave shared, common data in field besch
 		 *   field class specific data goes to field class besch
 		 */
-		field_class_besch_t *const field_class_desc = new field_class_besch_t();
+		field_class_desc_t *const field_class_desc = new field_class_desc_t();
 
 		field_class_desc->snow_image = decode_uint8(p);
 		desc->probability = rescale_probability( decode_uint16(p) );
@@ -118,10 +118,10 @@ obj_desc_t *factory_field_group_reader_t::read_node(FILE *fp, obj_node_info_t &n
 
 void factory_field_group_reader_t::register_obj(obj_desc_t *&data)
 {
-	field_group_besch_t *const desc = static_cast<field_group_besch_t *>(data);
+	field_group_desc_t *const desc = static_cast<field_group_desc_t *>(data);
 
 	// Knightly : check if we need to continue with the construction of field class besch
-	if (field_class_besch_t *const field_class_desc = incomplete_field_class_desc) {
+	if (field_class_desc_t *const field_class_desc = incomplete_field_class_desc) {
 		// we *must* transfer the obj_desc_t array and not just the desc object itself
 		// as xref reader has already logged the address of the array element for xref resolution
 		field_class_desc->children  = desc->children;
@@ -137,7 +137,7 @@ obj_desc_t *factory_smoke_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
 	ALLOCA(char, besch_buf, node.size);
 
-	rauch_besch_t *desc = new rauch_besch_t();
+	smoke_desc_t *desc = new smoke_desc_t();
 
 	// Hajo: Read data
 	fread(besch_buf, node.size, 1, fp);
@@ -164,7 +164,7 @@ obj_desc_t *factory_supplier_reader_t::read_node(FILE *fp, obj_node_info_t &node
 	// DBG_DEBUG("factory_product_reader_t::read_node()", "called");
 	ALLOCA(char, besch_buf, node.size);
 
-	fabrik_lieferant_besch_t *desc = new fabrik_lieferant_besch_t();
+	factory_supplier_desc_t *desc = new factory_supplier_desc_t();
 
 	// Hajo: Read data
 	fread(besch_buf, node.size, 1, fp);
@@ -183,11 +183,11 @@ obj_desc_t *factory_supplier_reader_t::read_node(FILE *fp, obj_node_info_t &node
 	}
 	else {
 		// old node, version 0
-		desc->kapazitaet = v;
+		desc->capacity = v;
 		desc->supplier_count = decode_uint16(p);
-		desc->verbrauch = decode_uint16(p);
+		desc->consumption = decode_uint16(p);
 	}
-	DBG_DEBUG("factory_product_reader_t::read_node()",  "capacity=%d count=%d, verbrauch=%d", version, desc->kapazitaet, desc->supplier_count,desc->verbrauch);
+	DBG_DEBUG("factory_product_reader_t::read_node()",  "capacity=%d count=%d, consumption=%d", version, desc->capacity, desc->supplier_count,desc->consumption);
 
 	return desc;
 }
@@ -198,7 +198,7 @@ obj_desc_t *factory_product_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	// DBG_DEBUG("factory_product_reader_t::read_node()", "called");
 	ALLOCA(char, besch_buf, node.size);
 
-	fabrik_produkt_besch_t *desc = new fabrik_produkt_besch_t();
+	factory_product_desc_t *desc = new factory_product_desc_t();
 
 	// Hajo: Read data
 	fread(besch_buf, node.size, 1, fp);
@@ -212,17 +212,17 @@ obj_desc_t *factory_product_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 	if(version == 1) {
 		// Versioned node, version 1
-		desc->kapazitaet = decode_uint16(p);
-		desc->faktor = decode_uint16(p);
+		desc->capacity = decode_uint16(p);
+		desc->factor = decode_uint16(p);
 	}
 	else {
 		// old node, version 0
 		decode_uint16(p);
-		desc->kapazitaet = v;
-		desc->faktor = 256;
+		desc->capacity = v;
+		desc->factor = 256;
 	}
 
-	DBG_DEBUG("factory_product_reader_t::read_node()", "version=%d capacity=%d factor=%x", version, desc->kapazitaet, desc->faktor);
+	DBG_DEBUG("factory_product_reader_t::read_node()", "version=%d capacity=%d factor=%x", version, desc->capacity, desc->factor);
 	return desc;
 }
 
@@ -232,7 +232,7 @@ obj_desc_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	// DBG_DEBUG("factory_reader_t::read_node()", "called");
 	ALLOCA(char, besch_buf, node.size);
 
-	fabrik_besch_t *desc = new fabrik_besch_t();
+	factory_desc_t *desc = new factory_desc_t();
 
 	// Hajo: Read data
 	fread(besch_buf, node.size, 1, fp);
@@ -245,17 +245,17 @@ obj_desc_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	const uint16 v = decode_uint16(p);
 	const int version = v & 0x8000 ? v & 0x7FFF : 0;
 
-	typedef fabrik_besch_t::site_t site_t;
+	typedef factory_desc_t::site_t site_t;
 	if(version == 3) {
 		// Versioned node, version 3
-		desc->platzierung = (site_t)decode_uint16(p);
-		desc->produktivitaet = decode_uint16(p);
-		desc->bereich = decode_uint16(p);
+		desc->placement = (site_t)decode_uint16(p);
+		desc->productivity = decode_uint16(p);
+		desc->range = decode_uint16(p);
 		desc->chance = decode_uint16(p);
-		desc->kennfarbe = decode_uint8(p);
+		desc->color = decode_uint8(p);
 		desc->fields = decode_uint8(p);
-		desc->lieferanten = decode_uint16(p);
-		desc->produkte = decode_uint16(p);
+		desc->supplier_count = decode_uint16(p);
+		desc->product_count = decode_uint16(p);
 		desc->pax_level = decode_uint16(p);
 		desc->expand_probability = rescale_probability( decode_uint16(p) );
 		desc->expand_minimum = decode_uint16(p);
@@ -267,18 +267,18 @@ obj_desc_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->electric_amount = decode_uint16(p);
 		desc->pax_demand = decode_uint16(p);
 		desc->mail_demand = decode_uint16(p);
-		DBG_DEBUG("factory_reader_t::read_node()","version=3, platz=%i, lieferanten=%i, pax=%i", desc->platzierung, desc->lieferanten, desc->pax_level );
+		DBG_DEBUG("factory_reader_t::read_node()","version=3, platz=%i, supplier_count=%i, pax=%i", desc->placement, desc->supplier_count, desc->pax_level );
 	}
 	else if(version == 2) {
 		// Versioned node, version 2
-		desc->platzierung = (site_t)decode_uint16(p);
-		desc->produktivitaet = decode_uint16(p);
-		desc->bereich = decode_uint16(p);
+		desc->placement = (site_t)decode_uint16(p);
+		desc->productivity = decode_uint16(p);
+		desc->range = decode_uint16(p);
 		desc->chance = decode_uint16(p);
-		desc->kennfarbe = decode_uint8(p);
+		desc->color = decode_uint8(p);
 		desc->fields = decode_uint8(p);
-		desc->lieferanten = decode_uint16(p);
-		desc->produkte = decode_uint16(p);
+		desc->supplier_count = decode_uint16(p);
+		desc->product_count = decode_uint16(p);
 		desc->pax_level = decode_uint16(p);
 		desc->expand_probability = 0;
 		desc->expand_minimum = 0;
@@ -290,17 +290,17 @@ obj_desc_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->electric_amount = 65535;
 		desc->pax_demand = 65535;
 		desc->mail_demand = 65535;
-		DBG_DEBUG("factory_reader_t::read_node()","version=2, platz=%i, lieferanten=%i, pax=%i", desc->platzierung, desc->lieferanten, desc->pax_level );
+		DBG_DEBUG("factory_reader_t::read_node()","version=2, platz=%i, supplier_count=%i, pax=%i", desc->placement, desc->supplier_count, desc->pax_level );
 	}
 	else if(version == 1) {
 		// Versioned node, version 1
-		desc->platzierung = (site_t)decode_uint16(p);
-		desc->produktivitaet = decode_uint16(p);
-		desc->bereich = decode_uint16(p);
+		desc->placement = (site_t)decode_uint16(p);
+		desc->productivity = decode_uint16(p);
+		desc->range = decode_uint16(p);
 		desc->chance = decode_uint16(p);
-		desc->kennfarbe = (uint8)decode_uint16(p);
-		desc->lieferanten = decode_uint16(p);
-		desc->produkte = decode_uint16(p);
+		desc->color = (uint8)decode_uint16(p);
+		desc->supplier_count = decode_uint16(p);
+		desc->product_count = decode_uint16(p);
 		desc->pax_level = decode_uint16(p);
 		desc->fields = 0;
 		desc->expand_probability = 0;
@@ -313,19 +313,19 @@ obj_desc_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->electric_amount = 65535;
 		desc->pax_demand = 65535;
 		desc->mail_demand = 65535;
-		DBG_DEBUG("factory_reader_t::read_node()","version=1, platz=%i, lieferanten=%i, pax=%i", desc->platzierung, desc->lieferanten, desc->pax_level);
+		DBG_DEBUG("factory_reader_t::read_node()","version=1, platz=%i, supplier_count=%i, pax=%i", desc->placement, desc->supplier_count, desc->pax_level);
 	}
 	else {
 		// old node, version 0, without pax_level
 		DBG_DEBUG("factory_reader_t::read_node()","version=0");
-		desc->platzierung = (site_t)v;
+		desc->placement = (site_t)v;
 		decode_uint16(p);	// alsways zero
-		desc->produktivitaet = decode_uint16(p)|0x8000;
-		desc->bereich = decode_uint16(p);
+		desc->productivity = decode_uint16(p)|0x8000;
+		desc->range = decode_uint16(p);
 		desc->chance = decode_uint16(p);
-		desc->kennfarbe = (uint8)decode_uint16(p);
-		desc->lieferanten = decode_uint16(p);
-		desc->produkte = decode_uint16(p);
+		desc->color = (uint8)decode_uint16(p);
+		desc->supplier_count = decode_uint16(p);
+		desc->product_count = decode_uint16(p);
 		desc->pax_level = 12;
 		desc->fields = 0;
 		desc->expand_probability = 0;
@@ -346,14 +346,14 @@ obj_desc_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 void factory_reader_t::register_obj(obj_desc_t *&data)
 {
-	fabrik_besch_t* desc = static_cast<fabrik_besch_t*>(data);
+	factory_desc_t* desc = static_cast<factory_desc_t*>(data);
 	size_t fab_name_len = strlen( desc->get_name() );
 	desc->electricity_producer = ( fab_name_len>11   &&  (strcmp(desc->get_name()+fab_name_len-9, "kraftwerk")==0  ||  strcmp(desc->get_name()+fab_name_len-11, "Power Plant")==0) );
-	fabrikbauer_t::register_desc(desc);
+	factory_builder_t::register_desc(desc);
 }
 
 
 bool factory_reader_t::successfully_loaded() const
 {
-	return fabrikbauer_t::alles_geladen();
+	return factory_builder_t::alles_geladen();
 }

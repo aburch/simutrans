@@ -1025,7 +1025,7 @@ void haltestelle_t::verbinde_fabriken()
 		FOR(vector_tpl<fabrik_t*>, const fab, fabrik_t::sind_da_welche(p - koord(cov, cov), p + koord(cov, cov))) {
 			if(!fab_list.is_contained(fab)) {
 				// water factories can only connect to docks
-				if(  fab->get_desc()->get_platzierung() != fabrik_besch_t::Wasser  ||  (station_type & dock) > 0  ) {
+				if(  fab->get_desc()->get_placement() != factory_desc_t::Water  ||  (station_type & dock) > 0  ) {
 					// do no link to oil rigs via stations ...
 					fab_list.insert(fab);
 					fab->link_halt(self);

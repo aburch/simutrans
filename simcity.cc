@@ -1746,11 +1746,11 @@ void stadt_t::calc_growth()
 		fabrik_t *const fab = i.factory;
 		if (fab->get_lieferziele().empty() && !fab->get_suppliers().empty()) {
 			// consumer => check for it storage
-			const fabrik_besch_t *const desc = fab->get_desc();
-			for(  int i=0;  i<desc->get_lieferanten();  i++  ) {
+			const factory_desc_t *const desc = fab->get_desc();
+			for(  int i=0;  i<desc->get_supplier_count();  i++  ) {
 				city_history_month[0][HIST_GOODS_NEEDED] ++;
 				city_history_year[0][HIST_GOODS_NEEDED] ++;
-				if(  fab->input_vorrat_an( desc->get_lieferant(i)->get_ware() )>0  ) {
+				if(  fab->input_vorrat_an( desc->get_supplier(i)->get_ware() )>0  ) {
 					city_history_month[0][HIST_GOODS_RECIEVED] ++;
 					city_history_year[0][HIST_GOODS_RECIEVED] ++;
 				}
@@ -2696,7 +2696,7 @@ void stadt_t::check_bau_factory(bool new_town)
 		for( uint8 i = 0; i < 8; i++  ) {
 			if(  div == (1u<<i)  ) {
 				DBG_MESSAGE("stadt_t::check_bau_factory", "adding new industry at %i inhabitants.", get_einwohner());
-				fabrikbauer_t::increase_industry_density( true );
+				factory_builder_t::increase_industry_density( true );
 			}
 		}
 	}

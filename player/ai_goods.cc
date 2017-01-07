@@ -129,8 +129,8 @@ bool ai_goods_t::set_active(bool new_state)
 bool ai_goods_t::get_factory_tree_lowest_missing( fabrik_t *fab )
 {
 	// now check for all products (should be changed later for the root)
-	for(  int i=0;  i<fab->get_desc()->get_lieferanten();  i++  ) {
-		const ware_besch_t *ware = fab->get_desc()->get_lieferant(i)->get_ware();
+	for(  int i=0;  i<fab->get_desc()->get_supplier_count();  i++  ) {
+		const ware_besch_t *ware = fab->get_desc()->get_supplier(i)->get_ware();
 
 		// find out how much is there
 		const array_tpl<ware_production_t>& eingang = fab->get_eingang();
@@ -144,9 +144,9 @@ bool ai_goods_t::get_factory_tree_lowest_missing( fabrik_t *fab )
 
 		FOR(vector_tpl<koord>, const& q, fab->get_suppliers()) {
 			fabrik_t* const qfab = fabrik_t::get_fab(q);
-			const fabrik_besch_t* const fb = qfab->get_desc();
-			for(  uint qq = 0;  qq < fb->get_produkte();  qq++  ) {
-				if(  fb->get_produkt(qq)->get_ware() == ware  &&
+			const factory_desc_t* const fd = qfab->get_desc();
+			for(  uint qq = 0;  qq < fd->get_product_count();  qq++  ) {
+				if(  fd->get_product(qq)->get_ware() == ware  &&
 					 !is_forbidden(qfab, fab, ware)  &&
 					 !is_connected(q, fab->get_pos().get_2d(), ware)  ) {
 					// find out how much is there
@@ -182,15 +182,15 @@ int ai_goods_t::get_factory_tree_missing_count( fabrik_t *fab )
 {
 	int numbers=0;	// how many missing?
 
-	fabrik_besch_t const& d = *fab->get_desc();
+	factory_desc_t const& d = *fab->get_desc();
 	// ok, this is a source ...
 	if (d.is_producer_only()) {
 		return 0;
 	}
 
 	// now check for all
-	for (int i = 0; i < d.get_lieferanten(); ++i) {
-		ware_besch_t const* const ware = d.get_lieferant(i)->get_ware();
+	for (int i = 0; i < d.get_supplier_count(); ++i) {
+		ware_besch_t const* const ware = d.get_supplier(i)->get_ware();
 
 		bool complete = false;	// found at least one factory
 		FOR(vector_tpl<koord>, const& q, fab->get_suppliers()) {
@@ -200,9 +200,9 @@ int ai_goods_t::get_factory_tree_missing_count( fabrik_t *fab )
 				continue;
 			}
 			if( !is_forbidden( qfab, fab, ware ) ) {
-				const fabrik_besch_t* const fb = qfab->get_desc();
-				for (uint qq = 0; qq < fb->get_produkte(); qq++) {
-					if (fb->get_produkt(qq)->get_ware() == ware ) {
+				const factory_desc_t* const fd = qfab->get_desc();
+				for (uint qq = 0; qq < fd->get_product_count(); qq++) {
+					if (fd->get_product(qq)->get_ware() == ware ) {
 						int n = get_factory_tree_missing_count( qfab );
 						if(n>=0) {
 							complete = true;
@@ -249,7 +249,7 @@ bool ai_goods_t::suche_platz1_platz2(fabrik_t *qfab, fabrik_t *zfab, int length 
 	bool ok = false;
 	bool has_ziel = false;
 
-	if(qfab->get_desc()->get_platzierung()!=fabrik_besch_t::Wasser) {
+	if(qfab->get_desc()->get_placement()!=factory_desc_t::Water) {
 		if( length == 0 ) {
 			vector_tpl<koord3d> tile_list[2];
 			uint16 const cov = welt->get_settings().get_station_coverage();
@@ -827,7 +827,7 @@ void ai_goods_t::step()
 		*/
 		case NR_SAMMLE_ROUTEN:
 			if(  get_factory_tree_lowest_missing(root)  ) {
-				if(  start->get_desc()->get_platzierung()!=fabrik_besch_t::Wasser  ||  vehikel_search( water_wt, 0, 10, freight, false)!=NULL  ) {
+				if(  start->get_desc()->get_placement()!=factory_desc_t::Water  ||  vehikel_search( water_wt, 0, 10, freight, false)!=NULL  ) {
 					DBG_MESSAGE("ai_goods_t::do_ki", "Consider route from %s (%i,%i) to %s (%i,%i)", start->get_name(), start->get_pos().x, start->get_pos().y, ziel->get_name(), ziel->get_pos().x, ziel->get_pos().y );
 					state = NR_BAUE_ROUTE1;
 				}
@@ -884,7 +884,7 @@ DBG_MESSAGE("do_ki()","rail vehicle %p",rail_vehicle);
 DBG_MESSAGE("do_ki()","road vehicle %p",road_vehicle);
 
 			ship_vehicle = NULL;
-			if(start->get_desc()->get_platzierung()==fabrik_besch_t::Wasser) {
+			if(start->get_desc()->get_placement()==factory_desc_t::Water) {
 				// largest ship available
 				ship_vehicle = vehikel_search( water_wt, 0, 20, freight, false);
 			}
@@ -900,7 +900,7 @@ DBG_MESSAGE("do_ki()","road vehicle %p",road_vehicle);
 			}
 			assert(  start_ware<ausgang.get_count()  );
 			const int prod = min((uint32)ziel->get_base_production(),
-			                 ( start->get_base_production() * start->get_desc()->get_produkt(start_ware)->get_faktor() )/256u - (uint32)(start->get_ausgang()[start_ware].get_stat(1, FAB_GOODS_DELIVERED)) );
+			                 ( start->get_base_production() * start->get_desc()->get_product(start_ware)->get_factor() )/256u - (uint32)(start->get_ausgang()[start_ware].get_stat(1, FAB_GOODS_DELIVERED)) );
 
 DBG_MESSAGE("do_ki()","check railway");
 			/* calculate number of cars for railroad */
@@ -1033,7 +1033,7 @@ DBG_MESSAGE("ai_goods_t::do_ki()","No roadway possible.");
 				while(  start_ware<ausgang.get_count()  &&  ausgang[start_ware].get_typ()!=freight  ) {
 					start_ware++;
 				}
-				const sint32 prod = min( ziel->get_base_production(), (sint32)(start->get_base_production() * start->get_desc()->get_produkt(start_ware)->get_faktor()) - (sint32)(start->get_ausgang()[start_ware].get_stat(1, FAB_GOODS_DELIVERED)) );
+				const sint32 prod = min( ziel->get_base_production(), (sint32)(start->get_base_production() * start->get_desc()->get_product(start_ware)->get_factor()) - (sint32)(start->get_ausgang()[start_ware].get_stat(1, FAB_GOODS_DELIVERED)) );
 				if(prod<0) {
 					// too much supplied last time?!? => retry
 					state = CHECK_CONVOI;
@@ -1522,7 +1522,7 @@ void ai_goods_t::report_vehicle_problem(convoihandle_t cnv,const koord3d ziel)
 
 /**
  * Tells the player that a fabrik_t is going to be deleted.
- * It could also tell, that a fab has been created, but by now the fabrikbauer_t does not.
+ * It could also tell, that a fab has been created, but by now the factory_builder_t does not.
  * @author Bernd Gabriel, Jan 01, 2010
  */
 void ai_goods_t::notify_factory(notification_factory_t flag, const fabrik_t* fab)

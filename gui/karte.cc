@@ -667,7 +667,7 @@ uint8 reliefkarte_t::calc_relief_farbe(const grund_t *gr)
 						color = COL_GREY3;
 					}
 					else {
-						color = fab->get_kennfarbe();
+						color = fab->get_color();
 					}
 				}
 				break;
@@ -682,7 +682,7 @@ uint8 reliefkarte_t::calc_relief_farbe(const grund_t *gr)
 						//color = COL_BLUE;	// water with boat?
 					}
 					else {
-						color = fab->get_kennfarbe();
+						color = fab->get_color();
 					}
 				}
 				break;
@@ -1602,7 +1602,7 @@ void reliefkarte_t::draw(scr_coord pos)
 			sint16 x_size = max( 5, size.x*zoom_in );
 			sint16 y_size = max( 5, size.y*zoom_in );
 			display_fillbox_wh_clip( fab_pos.x-1, fab_pos.y-1, x_size+2, y_size+2, COL_BLACK, false );
-			display_fillbox_wh_clip( fab_pos.x, fab_pos.y, x_size, y_size, f->get_kennfarbe(), false );
+			display_fillbox_wh_clip( fab_pos.x, fab_pos.y, x_size, y_size, f->get_color(), false );
 		}
 	}
 

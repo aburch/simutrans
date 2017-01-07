@@ -1015,7 +1015,7 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","searching attraction");
 					}
 					else {
 						const fabrik_t* f = fabriken[i].factory;
-						const fabrik_besch_t *const desc = f->get_desc();
+						const factory_desc_t *const desc = f->get_desc();
 						if (( desc->get_pax_demand()==65535 ? desc->get_pax_level() : desc->get_pax_demand() ) <= 10) {
 							// not a good object to go to ... we want more action ...
 							continue;

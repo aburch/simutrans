@@ -99,7 +99,7 @@ public:
 
 	void add_alter(uint32 a);
 
-	void set_fab(fabrik_t *fb);
+	void set_fab(fabrik_t *fd);
 	void set_stadt(stadt_t *s);
 
 	/**

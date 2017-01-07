@@ -58,7 +58,7 @@ private:
 	static bool is_cursor_hidden;
 
 	// Cache of factories in current game world
-	static stringhashtable_tpl<const fabrik_besch_t *> factory_list;
+	static stringhashtable_tpl<const factory_desc_t *> factory_list;
 
 	/**
 	 * We need to keep track of drag/click events

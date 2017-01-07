@@ -4,7 +4,7 @@
 #include "grund.h"
 
 /**
- * Der Wasser-Untergrund modelliert Fluesse und Seen in Simutrans.
+ * Der Water-Untergrund modelliert Fluesse und Seen in Simutrans.
  *
  * @author Hj. Malthaner
  */
@@ -26,7 +26,7 @@ public:
 	ribi_t::ribi get_weg_ribi(waytype_t typ) const { return (typ==water_wt) ? ribi : (ribi_t::ribi)ribi_t::none; }
 	ribi_t::ribi get_weg_ribi_unmasked(waytype_t typ) const  { return (typ==water_wt) ? ribi : (ribi_t::ribi)ribi_t::none; }
 
-	const char *get_name() const {return "Wasser";}
+	const char *get_name() const {return "Water";}
 	grund_t::typ get_typ() const {return wasser;}
 
 	// map rotation

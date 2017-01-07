@@ -9,7 +9,7 @@
 #include "components/gui_label.h"
 #include "components/gui_numberinput.h"
 
-class fabrik_besch_t;
+class factory_desc_t;
 
 class tool_build_land_chain_t;
 class tool_city_chain_t;
@@ -24,13 +24,13 @@ private:
 	static tool_build_factory_t fab_tool;
 	static char param_str[256];
 
-	const fabrik_besch_t *fab_desc;
+	const factory_desc_t *fac_desc;
 	uint32 production;
 	uint8 rotation; //255 for any
 
 	char prod_str[32], rot_str[16];
 
-	vector_tpl<const fabrik_besch_t *>fablist;
+	vector_tpl<const factory_desc_t *>factory_list;
 
 	button_t bt_city_chain;
 	button_t bt_land_chain;

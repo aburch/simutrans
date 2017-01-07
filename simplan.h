@@ -186,7 +186,7 @@ public:
 	void correct_water();
 
 	/**
-	* konvertiert Land zu Wasser wenn unter Grundwasserniveau abgesenkt
+	* konvertiert Land zu Water wenn unter Grundwasserniveau abgesenkt
 	* @author Hj. Malthaner
 	*/
 	void abgesenkt();

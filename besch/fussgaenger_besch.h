@@ -17,7 +17,7 @@
  *      Volker Meyer
  *
  *  Description:
- *	Automatisch generierte Autos, die in der Stadt umherfahren.
+ *	Automatisch generierte Autos, die in der City umherfahren.
  *
  *  Child nodes:
  *	0   Name

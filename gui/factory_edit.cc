@@ -35,13 +35,13 @@ tool_city_chain_t factory_edit_frame_t::city_chain_tool = tool_city_chain_t();
 tool_build_factory_t factory_edit_frame_t::fab_tool = tool_build_factory_t();
 char factory_edit_frame_t::param_str[256];
 
-static bool compare_fabrik_desc(const fabrik_besch_t* a, const fabrik_besch_t* b)
+static bool compare_fabrik_desc(const factory_desc_t* a, const factory_desc_t* b)
 {
 	int diff = strcmp( a->get_name(), b->get_name() );
 	return diff < 0;
 }
 
-static bool compare_fabrik_besch_trans(const fabrik_besch_t* a, const fabrik_besch_t* b)
+static bool compare_factory_desc_trans(const factory_desc_t* a, const factory_desc_t* b)
 {
 	int diff = strcmp( translator::translate(a->get_name()), translator::translate(b->get_name()) );
 	return diff < 0;
@@ -49,7 +49,7 @@ static bool compare_fabrik_besch_trans(const fabrik_besch_t* a, const fabrik_bes
 
 factory_edit_frame_t::factory_edit_frame_t(player_t* player_) :
 	extend_edit_gui_t(translator::translate("factorybuilder"), player_),
-	fablist(16),
+	factory_list(16),
 	lb_rotation( rot_str, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::right ),
 	lb_rotation_info( translator::translate("Rotation"), SYSCOL_TEXT, gui_label_t::left ),
 	lb_production_info( translator::translate("Produktion"), SYSCOL_TEXT, gui_label_t::left )
@@ -61,7 +61,7 @@ factory_edit_frame_t::factory_edit_frame_t(player_t* player_) :
 	fab_tool.set_default_param(param_str);
 	land_chain_tool.cursor = city_chain_tool.cursor = fab_tool.cursor = tool_t::general_tool[TOOL_BUILD_FACTORY]->cursor;
 
-	fab_desc = NULL;
+	fac_desc = NULL;
 
 	bt_city_chain.init( button_t::square_state, "Only city chains", scr_coord(get_tab_panel_width()+2*MARGIN, offset_of_comp-4 ) );
 	bt_city_chain.add_listener(this);
@@ -108,7 +108,7 @@ factory_edit_frame_t::factory_edit_frame_t(player_t* player_) :
 
 
 
-// fill the current fablist
+// fill the current factory_list
 void factory_edit_frame_t::fill_list( bool translate )
 {
 	const bool allow_obsolete = bt_obsolete.pressed;
@@ -117,11 +117,11 @@ void factory_edit_frame_t::fill_list( bool translate )
 	const bool land_chain = bt_land_chain.pressed;
 	const sint32 month_now = bt_timeline.pressed ? welt->get_current_month() : 0;
 
-	fablist.clear();
+	factory_list.clear();
 
 	// timeline will be obeyed; however, we may show obsolete ones ...
-	FOR(stringhashtable_tpl<fabrik_besch_t const*>, const& i, fabrikbauer_t::get_factory_table()) {
-		fabrik_besch_t const* const desc = i.value;
+	FOR(stringhashtable_tpl<factory_desc_t const*>, const& i, factory_builder_t::get_factory_table()) {
+		factory_desc_t const* const desc = i.value;
 		if(desc->get_chance()>0) {
 			// DistributionWeight=0 is obsoleted item, only for backward compatibility
 
@@ -129,17 +129,17 @@ void factory_edit_frame_t::fill_list( bool translate )
 				// timeline allows for this
 
 				if(city_chain) {
-					if (desc->get_platzierung() == fabrik_besch_t::Stadt && desc->is_consumer_only()) {
-						fablist.insert_ordered( desc, translate?compare_fabrik_besch_trans:compare_fabrik_desc );
+					if (desc->get_placement() == factory_desc_t::City && desc->is_consumer_only()) {
+						factory_list.insert_ordered( desc, translate?compare_factory_desc_trans:compare_fabrik_desc );
 					}
 				}
 				if(land_chain) {
-					if (desc->get_platzierung() == fabrik_besch_t::Land && desc->is_consumer_only()) {
-						fablist.insert_ordered( desc, translate?compare_fabrik_besch_trans:compare_fabrik_desc );
+					if (desc->get_placement() == factory_desc_t::Land && desc->is_consumer_only()) {
+						factory_list.insert_ordered( desc, translate?compare_factory_desc_trans:compare_fabrik_desc );
 					}
 				}
 				if(!city_chain  &&  !land_chain) {
-					fablist.insert_ordered( desc, translate?compare_fabrik_besch_trans:compare_fabrik_desc );
+					factory_list.insert_ordered( desc, translate?compare_factory_desc_trans:compare_fabrik_desc );
 				}
 			}
 		}
@@ -148,14 +148,14 @@ void factory_edit_frame_t::fill_list( bool translate )
 	// now build scrolled list
 	scl.clear_elements();
 	scl.set_selection(-1);
-	FOR(vector_tpl<fabrik_besch_t const*>, const i, fablist) {
+	FOR(vector_tpl<factory_desc_t const*>, const i, factory_list) {
 		COLOR_VAL const color =
 			i->is_consumer_only() ? COL_BLUE       :
 			i->is_producer_only() ? COL_DARK_GREEN :
 			SYSCOL_TEXT;
 		char const* const name = translate ? translator::translate(i->get_name()) : i->get_name();
 		scl.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(name, color));
-		if (i == fab_desc) {
+		if (i == fac_desc) {
 			scl.set_selection(scl.get_count()-1);
 		}
 	}
@@ -182,7 +182,7 @@ bool factory_edit_frame_t::action_triggered( gui_action_creator_t *komp,value_t 
 		}
 		fill_list( is_show_trans_name );
 	}
-	else if(fab_desc) {
+	else if(fac_desc) {
 		if (komp==&inp_production) {
 			production = inp_production.get_value();
 		}
@@ -194,7 +194,7 @@ bool factory_edit_frame_t::action_triggered( gui_action_creator_t *komp,value_t 
 				rotation --;
 			}
 		}
-		else if(  komp==&bt_right_rotate  &&  rotation!=fab_desc->get_haus()->get_all_layouts()-1) {
+		else if(  komp==&bt_right_rotate  &&  rotation!=fac_desc->get_haus()->get_all_layouts()-1) {
 			rotation ++;
 		}
 		// update info ...
@@ -207,15 +207,15 @@ bool factory_edit_frame_t::action_triggered( gui_action_creator_t *komp,value_t 
 
 void factory_edit_frame_t::change_item_info(sint32 entry)
 {
-	if(entry>=0  &&  entry<(sint32)fablist.get_count()) {
+	if(entry>=0  &&  entry<(sint32)factory_list.get_count()) {
 
-		const fabrik_besch_t *new_fab_desc = fablist[entry];
-		if(new_fab_desc!=fab_desc) {
+		const factory_desc_t *new_fac_desc = factory_list[entry];
+		if(new_fac_desc!=fac_desc) {
 
-			fab_desc = new_fab_desc;
-			production = fab_desc->get_produktivitaet() + sim_async_rand( fab_desc->get_bereich() );
+			fac_desc = new_fac_desc;
+			production = fac_desc->get_productivity() + sim_async_rand( fac_desc->get_range() );
 			// Knightly : should also consider the effects of the minimum number of fields
-			const field_group_besch_t *const field_group_desc = fab_desc->get_field_group();
+			const field_group_desc_t *const field_group_desc = fac_desc->get_field_group();
 			if(  field_group_desc  &&  field_group_desc->get_field_class_count()>0  ) {
 				const weighted_vector_tpl<uint16> &field_class_indices = field_group_desc->get_field_class_indices();
 				sint32 min_fields = field_group_desc->get_min_fields();
@@ -228,39 +228,39 @@ void factory_edit_frame_t::change_item_info(sint32 entry)
 			inp_production.set_value( production);
 			// show produced goods
 			buf.clear();
-			if (!fab_desc->is_consumer_only()) {
+			if (!fac_desc->is_consumer_only()) {
 				buf.append( translator::translate("Produktion") );
 				buf.append("\n");
-				for (uint i = 0; i < fab_desc->get_produkte(); i++) {
+				for (uint i = 0; i < fac_desc->get_product_count(); i++) {
 					buf.append(" - ");
-					buf.append( translator::translate(fab_desc->get_produkt(i)->get_ware()->get_name()) );
+					buf.append( translator::translate(fac_desc->get_product(i)->get_ware()->get_name()) );
 					buf.append( " (" );
-					buf.append( translator::translate(fab_desc->get_produkt(i)->get_ware()->get_catg_name()) );
+					buf.append( translator::translate(fac_desc->get_product(i)->get_ware()->get_catg_name()) );
 					buf.append( ")\n" );
 				}
 				buf.append("\n");
 			}
 
 			// show consumed goods
-			if (!fab_desc->is_producer_only()) {
+			if (!fac_desc->is_producer_only()) {
 				buf.append( translator::translate("Verbrauch") );
 				buf.append("\n");
-				for(  int i=0;  i<fab_desc->get_lieferanten();  i++  ) {
+				for(  int i=0;  i<fac_desc->get_supplier_count();  i++  ) {
 					buf.append(" - ");
-					buf.append( translator::translate(fab_desc->get_lieferant(i)->get_ware()->get_name()) );
+					buf.append( translator::translate(fac_desc->get_supplier(i)->get_ware()->get_name()) );
 					buf.append( " (" );
-					buf.append( translator::translate(fab_desc->get_lieferant(i)->get_ware()->get_catg_name()) );
+					buf.append( translator::translate(fac_desc->get_supplier(i)->get_ware()->get_catg_name()) );
 					buf.append( ")\n" );
 				}
 				buf.append("\n");
 			}
 
-			if(fab_desc->is_electricity_producer()) {
+			if(fac_desc->is_electricity_producer()) {
 				buf.append( translator::translate( "Electricity producer\n\n" ) );
 			}
 
 			// now the house stuff
-			const haus_besch_t *desc = fab_desc->get_haus();
+			const haus_besch_t *desc = fac_desc->get_haus();
 
 			// climates
 			buf.append( translator::translate("allowed climates:\n") );
@@ -280,7 +280,7 @@ void factory_edit_frame_t::change_item_info(sint32 entry)
 			}
 			buf.append("\n");
 
-			fabrik_besch_t const& f = *fablist[entry];
+			factory_desc_t const& f = *factory_list[entry];
 			buf.printf( translator::translate("Passenger Demand %d\n"), f.get_pax_demand()  != 65535 ? f.get_pax_demand()  : f.get_pax_level());
 			buf.printf( translator::translate("Mail Demand %d\n"),      f.get_mail_demand() != 65535 ? f.get_mail_demand() : f.get_pax_level() >> 2);
 
@@ -306,7 +306,7 @@ void factory_edit_frame_t::change_item_info(sint32 entry)
 			}
 
 			// now for the tool
-			fab_desc = fablist[entry];
+			fac_desc = factory_list[entry];
 		}
 
 		// change label numbers
@@ -323,7 +323,7 @@ void factory_edit_frame_t::change_item_info(sint32 entry)
 			img[i].set_image( IMG_EMPTY );
 		}
 
-		const haus_besch_t *desc = fab_desc->get_haus();
+		const haus_besch_t *desc = fac_desc->get_haus();
 		uint8 rot = (rotation==255) ? 0 : rotation;
 		if(desc->get_b(rot)==1) {
 			if(desc->get_h(rot)==1) {
@@ -348,7 +348,7 @@ void factory_edit_frame_t::change_item_info(sint32 entry)
 		}
 
 		// the tools will be always updated, even though the data up there might be still current
-		sprintf( param_str, "%i%c%i,%s", bt_climates.pressed, rotation==255 ? '#' : '0'+rotation, production, fab_desc->get_name() );
+		sprintf( param_str, "%i%c%i,%s", bt_climates.pressed, rotation==255 ? '#' : '0'+rotation, production, fac_desc->get_name() );
 		if(bt_land_chain.pressed) {
 			welt->set_tool( &land_chain_tool, player );
 		}
@@ -359,14 +359,14 @@ void factory_edit_frame_t::change_item_info(sint32 entry)
 			welt->set_tool( &fab_tool, player );
 		}
 	}
-	else if(fab_desc!=NULL) {
+	else if(fac_desc!=NULL) {
 		for(int i=0;  i<4;  i++  ) {
 			img[i].set_image( IMG_EMPTY );
 		}
 		buf.clear();
 		prod_str[0] = 0;
 		tstrncpy(rot_str, translator::translate("random"), lengthof(rot_str));
-		fab_desc = NULL;
+		fac_desc = NULL;
 		welt->set_tool( tool_t::general_tool[TOOL_QUERY], player );
 	}
 }

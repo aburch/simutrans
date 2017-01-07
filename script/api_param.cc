@@ -390,7 +390,7 @@ namespace script_api {
 		return NULL;
 	}
 
-	const fabrik_lieferant_besch_t* param<const fabrik_lieferant_besch_t*>::get(HSQUIRRELVM vm, SQInteger index)
+	const factory_supplier_desc_t* param<const factory_supplier_desc_t*>::get(HSQUIRRELVM vm, SQInteger index)
 	{
 		fabrik_t* fab = param<fabrik_t*>::get(vm, index);
 		if (fab == NULL) {
@@ -401,7 +401,7 @@ namespace script_api {
 		if (SQ_SUCCEEDED(get_slot(vm, "index", i, index))) {
 			if (i>=0  &&  (uint32)i<fab->get_eingang().get_count()) {
 				const ware_production_t& in = fab->get_eingang()[i];
-				const fabrik_lieferant_besch_t* desc = fab->get_desc()->get_lieferant(i);
+				const factory_supplier_desc_t* desc = fab->get_desc()->get_supplier(i);
 				// sanity check
 				if (desc  &&  desc->get_ware() == in.get_typ()) {
 					return desc;
@@ -412,7 +412,7 @@ namespace script_api {
 		return NULL;
 	}
 
-	const fabrik_produkt_besch_t* param<const fabrik_produkt_besch_t*>::get(HSQUIRRELVM vm, SQInteger index)
+	const factory_product_desc_t* param<const factory_product_desc_t*>::get(HSQUIRRELVM vm, SQInteger index)
 	{
 		fabrik_t* fab = param<fabrik_t*>::get(vm, index);
 		if (fab == NULL) {
@@ -424,7 +424,7 @@ namespace script_api {
 			i -= fab->get_eingang().get_count();
 			if (i>=0  &&  (uint32)i<fab->get_ausgang().get_count()) {
 				const ware_production_t& out = fab->get_ausgang()[i];
-				const fabrik_produkt_besch_t* desc = fab->get_desc()->get_produkt(i);
+				const factory_product_desc_t* desc = fab->get_desc()->get_product(i);
 				// sanity check
 				if (desc  &&  desc->get_ware() == out.get_typ()) {
 					return desc;

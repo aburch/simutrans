@@ -284,7 +284,7 @@ private:
 	 * Die erzeugten waren auf die Haltestellen verteilen
 	 * @author Hj. Malthaner
 	 */
-	void verteile_waren(const uint32 produkt);
+	void verteile_waren(const uint32 product);
 
 	// List of target cities
 	vector_tpl<stadt_t *> target_cities;
@@ -292,7 +292,7 @@ private:
 	player_t *owner;
 	static karte_ptr_t welt;
 
-	const fabrik_besch_t *desc;
+	const factory_desc_t *desc;
 
 	/**
 	 * Bauposition gedreht?
@@ -301,7 +301,7 @@ private:
 	uint8 rotate;
 
 	/**
-	 * produktionsgrundmenge
+	 * productionsgrundmenge
 	 * @author Hj. Malthaner
 	 */
 	sint32 prodbase;
@@ -465,7 +465,7 @@ private:
 
 public:
 	fabrik_t(loadsave_t *file);
-	fabrik_t(koord3d pos, player_t* owner, const fabrik_besch_t* fabesch, sint32 initial_prod_base);
+	fabrik_t(koord3d pos, player_t* owner, const factory_desc_t* fabesch, sint32 initial_prod_base);
 	~fabrik_t();
 
 	/**
@@ -508,7 +508,7 @@ public:
 	 * @return vehicle description object
 	 * @author Hj. Malthaner
 	 */
-	const fabrik_besch_t *get_desc() const {return desc; }
+	const factory_desc_t *get_desc() const {return desc; }
 
 	void finish_rd();
 
@@ -577,7 +577,7 @@ public:
 	void set_transformer_connected(bool connected) { transformer_connected = connected; }
 
 	/**
-	 * @return 1 wenn verbrauch,
+	 * @return 1 wenn consumption,
 	 * 0 wenn Produktionsstopp,
 	 * -1 wenn Ware nicht verarbeitet wird
 	 */
@@ -591,7 +591,7 @@ public:
 	char const* get_name() const;
 	void set_name( const char *name );
 
-	sint32 get_kennfarbe() const { return desc->get_kennfarbe(); }
+	sint32 get_color() const { return desc->get_color(); }
 
 	player_t *get_owner() const
 	{

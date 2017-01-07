@@ -216,8 +216,8 @@ private:
 	sint32 max_transfers;
 
 	/* multiplier for steps on diagonal:
-	 * 1024: TT-like, faktor 2, vehicle will be too long and too fast
-	 * 724: correct one, faktor sqrt(2)
+	 * 1024: TT-like, factor 2, vehicle will be too long and too fast
+	 * 724: correct one, factor sqrt(2)
 	 */
 	uint16 pak_diagonal_multiplier;
 
