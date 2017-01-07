@@ -49,7 +49,7 @@ scr_coord_val gui_scrolled_list_t::const_text_scrollitem_t::draw( scr_coord pos,
 {
 	if(selected) {
 		// selected element
-		display_fillbox_wh_clip( pos.x+3, pos.y-1, w-5, get_h()+1, (focus ? SYSCOL_LIST_BACKGROUND_SELECTED_F : SYSCOL_LIST_BACKGROUND_SELECTED_NF), true);
+		display_fillbox_wh_clip( pos.x+3, pos.y-1, w-5, get_height()+1, (focus ? SYSCOL_LIST_BACKGROUND_SELECTED_F : SYSCOL_LIST_BACKGROUND_SELECTED_NF), true);
 		return display_proportional_clip( pos.x+7, pos.y, get_text(), ALIGN_LEFT, (focus ? SYSCOL_LIST_TEXT_SELECTED_FOCUS : SYSCOL_LIST_TEXT_SELECTED_NOFOCUS), true);
 	}
 	else {
@@ -97,10 +97,10 @@ void gui_scrolled_list_t::show_selection(int sel)
 {
 	if(  (unsigned)sel<item_list.get_count()  ) {
 		int s = 0;
-		for(  int i=0;  i<sel;  s += item_list[i]->get_h(), i++  ) {
+		for(  int i=0;  i<sel;  s += item_list[i]->get_height(), i++  ) {
 		}
 DBG_MESSAGE("gui_scrolled_list_t::show_selection()","sel=%d, offset=%d, size.h=%d",s,offset,size.h);
-		if(  s < offset  ||  (s+item_list[sel]->get_h()) > offset+size.h  ) {
+		if(  s < offset  ||  (s+item_list[sel]->get_height()) > offset+size.h  ) {
 			// outside range => reposition
 			sb.set_knob_offset( max(0,s-(size.h/2) ) );
 			offset = sb.get_knob_offset();
@@ -126,7 +126,7 @@ void gui_scrolled_list_t::clear_elements()
 void gui_scrolled_list_t::append_element( scrollitem_t *item )
 {
 	item_list.append( item );
-	total_vertical_size += item->get_h();
+	total_vertical_size += item->get_height();
 	adjust_scrollbar();
 }
 
@@ -137,7 +137,7 @@ void gui_scrolled_list_t::insert_element( scrollitem_t *item )
 	if(  selection >=0 ) {
 		selection ++;
 	}
-	total_vertical_size += item->get_h();
+	total_vertical_size += item->get_height();
 	adjust_scrollbar();
 }
 
@@ -243,7 +243,7 @@ bool gui_scrolled_list_t::infowin_event(const event_t *ev)
 				int selection_h = 0;
 				int i = 0;
 				for(  ; i < list_count ; i++  ) {
-					selection_h += item_list[i]->get_h();
+					selection_h += item_list[i]->get_height();
 					if(  selection_h > list_y  ) {
 						break;
 					}
@@ -253,7 +253,7 @@ bool gui_scrolled_list_t::infowin_event(const event_t *ev)
 				if(  i < list_count  ) {
 					new_selection = i;
 					event_t new_ev = *ev;
-					translate_event( &new_ev, -boarder_w, offset + item_list[new_selection]->get_h() - selection_h - boarder_w);
+					translate_event( &new_ev, -boarder_w, offset + item_list[new_selection]->get_height() - selection_h - boarder_w);
 					notify = !item_list[new_selection]->infowin_event( &new_ev );
 				}
 			}
@@ -339,7 +339,7 @@ void gui_scrolled_list_t::draw(scr_coord pos)
 			if(  this_w > max_w  ) {
 				max_w = this_w;
 			}
-			ycum += item->get_h();
+			ycum += item->get_height();
 			++iter;
 			i++;
 		}

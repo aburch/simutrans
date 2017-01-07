@@ -36,7 +36,7 @@ public:
 public:
 	citylist_stats_t(stadt_t *);
 
-	scr_coord_val get_h() const { return h; }
+	scr_coord_val get_height() const { return h; }
 
 	scr_coord_val draw( scr_coord pos, scr_coord_val width, bool is_selected, bool has_focus );
 	char const* get_text() const { return city->get_name(); }
