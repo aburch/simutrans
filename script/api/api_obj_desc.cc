@@ -96,7 +96,7 @@ bool is_obsolete_future(const obj_desc_timelined_t* desc, mytime_t time, uint8 w
 }
 
 
-const vector_tpl<const haus_besch_t*>& get_building_list(haus_besch_t::utyp type)
+const vector_tpl<const haus_besch_t*>& get_building_list(haus_besch_t::btype type)
 {
 	const vector_tpl<const haus_besch_t*>* p = hausbauer_t::get_list(type);
 
@@ -106,7 +106,7 @@ const vector_tpl<const haus_besch_t*>& get_building_list(haus_besch_t::utyp type
 }
 
 
-const vector_tpl<const haus_besch_t*>& get_available_stations(haus_besch_t::utyp type, waytype_t wt, const ware_besch_t *freight)
+const vector_tpl<const haus_besch_t*>& get_available_stations(haus_besch_t::btype type, waytype_t wt, const ware_besch_t *freight)
 {
 	static vector_tpl<const haus_besch_t*> dummy;
 	dummy.clear();
@@ -130,7 +130,7 @@ const vector_tpl<const haus_besch_t*>& get_available_stations(haus_besch_t::utyp
 
 	uint16 time = welt->get_timeline_year_month();
 	FOR(vector_tpl<haus_besch_t const*>, const desc, *p) {
-		if(  desc->get_utyp()==type  &&  desc->get_extra()==(uint32)wt  &&  (enables==0  ||  (desc->get_enabled()&enables)!=0)  &&  desc->is_available(time)) {
+		if(  desc->get_type()==type  &&  desc->get_extra()==(uint32)wt  &&  (enables==0  ||  (desc->get_enabled()&enables)!=0)  &&  desc->is_available(time)) {
 			dummy.append(desc);
 		}
 	}
@@ -144,7 +144,7 @@ sint64 building_get_cost(const haus_besch_t* desc)
 
 bool building_is_terminus(const haus_besch_t *desc)
 {
-	return desc  &&  desc->get_utyp() == haus_besch_t::generic_stop  &&  desc->get_all_layouts() == 4;
+	return desc  &&  desc->get_type() == haus_besch_t::generic_stop  &&  desc->get_all_layouts() == 4;
 }
 
 bool can_be_first(const vehikel_besch_t *desc)
@@ -211,18 +211,18 @@ uint32 get_power(const vehikel_besch_t *desc)
 	return desc->get_leistung() * desc->get_gear();
 }
 
-// export of haus_besch_t::utyp only here
+// export of haus_besch_t::btype only here
 namespace script_api {
-	declare_specialized_param(haus_besch_t::utyp, "i", "building_desc_x::building_type");
+	declare_specialized_param(haus_besch_t::btype, "i", "building_desc_x::building_type");
 
-	SQInteger param<haus_besch_t::utyp>::push(HSQUIRRELVM vm, const haus_besch_t::utyp & u)
+	SQInteger param<haus_besch_t::btype>::push(HSQUIRRELVM vm, const haus_besch_t::btype & u)
 	{
 		return param<uint16>::push(vm, u);
 	}
 
-	haus_besch_t::utyp param<haus_besch_t::utyp>::get(HSQUIRRELVM vm, SQInteger index)
+	haus_besch_t::btype param<haus_besch_t::btype>::get(HSQUIRRELVM vm, SQInteger index)
 	{
-		return (haus_besch_t::utyp)param<uint16>::get(vm, index);
+		return (haus_besch_t::btype)param<uint16>::get(vm, index);
 	}
 };
 
@@ -442,7 +442,7 @@ void export_goods_desc(HSQUIRRELVM vm)
 	/**
 	 * @returns building type
 	 */
-	register_method(vm, &haus_besch_t::get_utyp, "get_type");
+	register_method(vm, &haus_besch_t::get_type, "get_type");
 
 	/**
 	 * @returns way type, can be @ref wt_invalid.

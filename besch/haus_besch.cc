@@ -46,24 +46,24 @@ koord haus_tile_besch_t::get_offset() const
 
 waytype_t haus_besch_t::get_finance_waytype() const
 {
-	switch( get_utyp() )
+	switch( get_type() )
 	{
-		case haus_besch_t::bahnhof:      return track_wt;
-		case haus_besch_t::bushalt:      return road_wt;
-		case haus_besch_t::dock:         return water_wt;
-		case haus_besch_t::flat_dock:    return water_wt;
-		case haus_besch_t::binnenhafen:  return water_wt;
-		case haus_besch_t::airport:      return air_wt;
-		case haus_besch_t::monorailstop: return monorail_wt;
-		case haus_besch_t::bahnhof_geb:  return track_wt;
-		case haus_besch_t::bushalt_geb:  return road_wt;
-		case haus_besch_t::hafen_geb:    return water_wt;
-		case haus_besch_t::binnenhafen_geb: return water_wt;
-		case haus_besch_t::airport_geb:  return air_wt;
-		case haus_besch_t::monorail_geb: return monorail_wt;
-		case haus_besch_t::depot:
-		case haus_besch_t::generic_stop:
-		case haus_besch_t::generic_extension:
+		case bahnhof:      return track_wt;
+		case bushalt:      return road_wt;
+		case dock:         return water_wt;
+		case flat_dock:    return water_wt;
+		case binnenhafen:  return water_wt;
+		case airport:      return air_wt;
+		case monorailstop: return monorail_wt;
+		case bahnhof_geb:  return track_wt;
+		case bushalt_geb:  return road_wt;
+		case hafen_geb:    return water_wt;
+		case binnenhafen_geb: return water_wt;
+		case airport_geb:  return air_wt;
+		case monorail_geb: return monorail_wt;
+		case depot:
+		case generic_stop:
+		case generic_extension:
 			return (waytype_t) get_extra();
 		default: return ignore_wt;
 	}
@@ -77,11 +77,11 @@ waytype_t haus_besch_t::get_finance_waytype() const
  */
 uint16 haus_besch_t::get_post_level() const
 {
-	switch (gtyp) {
+	switch (type) {
 		default:
-		case gebaeude_t::wohnung:   return level;
-		case gebaeude_t::gewerbe:   return level * 2;
-		case gebaeude_t::industrie: return level / 2;
+		case city_res:   return level;
+		case city_com:   return level * 2;
+		case city_ind:   return level / 2;
 	}
 }
 
@@ -93,11 +93,13 @@ uint16 haus_besch_t::get_post_level() const
  */
 bool haus_besch_t::is_connected_with_town() const
 {
-	switch(get_utyp()) {
-		case haus_besch_t::unbekannt:	// normal town buildings (RES, COM, IND)
-		case haus_besch_t::denkmal:	// monuments
-		case haus_besch_t::rathaus:	// townhalls
-		case haus_besch_t::firmensitz:	// headquarter
+	switch(get_type()) {
+		case city_res:
+		case city_com:
+		case city_ind:    // normal town buildings (RES, COM, IND)
+		case denkmal:     // monuments
+		case rathaus:     // townhalls
+		case firmensitz:  // headquarter
 			return true;
 		default:
 			return false;
@@ -157,8 +159,7 @@ uint8 haus_besch_t::layout_anpassen(uint8 layout) const
 void haus_besch_t::calc_checksum(checksum_t *chk) const
 {
 	obj_desc_timelined_t::calc_checksum(chk);
-	chk->input((uint8)gtyp);
-	chk->input((uint8)utype);
+	chk->input((uint8)type);
 	chk->input(animation_time);
 	chk->input(extra_data);
 	chk->input(size.x);
@@ -208,15 +209,15 @@ sint32 haus_besch_t::get_price(karte_t *welt) const
 {
 	if(  price == COST_MAGIC  ) {
 		settings_t const& s = welt->get_settings();
-		switch (get_utyp()) {
-			case haus_besch_t::dock:
-			case haus_besch_t::flat_dock:
+		switch (get_type()) {
+			case dock:
+			case flat_dock:
 				return -s.cst_multiply_dock * get_level();
 
-			case haus_besch_t::generic_extension:
+			case generic_extension:
 				return -s.cst_multiply_post * get_level();
 
-			case haus_besch_t::generic_stop:
+			case generic_stop:
 				switch(get_extra()) {
 					case road_wt:        return -s.cst_multiply_roadstop * get_level();
 					case track_wt:
@@ -228,7 +229,7 @@ sint32 haus_besch_t::get_price(karte_t *welt) const
 					case air_wt:         return -s.cst_multiply_airterminal * get_level();
 					case 0:              return -s.cst_multiply_post * get_level();
 				}
-			case haus_besch_t::depot:
+			case depot:
 				switch(get_extra()) {
 					case road_wt:        return -s.cst_depot_road;
 					case track_wt:
@@ -240,7 +241,7 @@ sint32 haus_besch_t::get_price(karte_t *welt) const
 					case air_wt:         return -s.cst_depot_air;
 					default:             return 0;
 				}
-			case haus_besch_t::firmensitz:
+			case firmensitz:
 				return -s.cst_multiply_headquarter * get_level();
 			default:
 				return -s.cst_multiply_remove_haus * get_level();

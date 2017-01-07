@@ -100,7 +100,7 @@ static sint16 ind_start_score =   0;
 static sint16 com_start_score = -10;
 static sint16 res_start_score =   0;
 
-// order: res com, ind, given by gebaeude_t::typ
+// order: res, com, ind
 static sint16 ind_neighbour_score[] = { -8, 0,  8 };
 static sint16 com_neighbour_score[] = {  1, 8,  1 };
 static sint16 res_neighbour_score[] = {  8, 0, -8 };
@@ -703,7 +703,7 @@ void stadt_t::recalc_city_size()
 	lo = pos;
 	ur = pos;
 	FOR(weighted_vector_tpl<gebaeude_t*>, const i, buildings) {
-		if (i->get_tile()->get_desc()->get_utyp() != haus_besch_t::firmensitz) {
+		if (i->get_tile()->get_desc()->get_type() != haus_besch_t::firmensitz) {
 			koord const& gb_pos = i->get_pos().get_2d();
 			lo.clip_max(gb_pos);
 			ur.clip_min(gb_pos);
@@ -970,7 +970,7 @@ stadt_t::~stadt_t()
 				gebaeude_t* const gb = buildings.pop_back();
 				assert(  gb!=NULL  &&  !buildings.is_contained(gb)  );
 
-				if(gb->get_tile()->get_desc()->get_utyp()==haus_besch_t::firmensitz) {
+				if(gb->get_tile()->get_desc()->get_type()==haus_besch_t::firmensitz) {
 					stadt_t *city = welt->suche_naechste_stadt(gb->get_pos().get_2d());
 					gb->set_stadt( city );
 					if(city) {
@@ -2327,7 +2327,7 @@ class bauplatz_mit_strasse_sucher_t: public bauplatz_sucher_t
 						// border: not direct next to special buildings
 						if (big_city) {
 							if(  gebaeude_t *gb=gr->find<gebaeude_t>()  ) {
-								const haus_besch_t::utyp utyp = gb->get_tile()->get_desc()->get_utyp();
+								const haus_besch_t::btype utyp = gb->get_tile()->get_desc()->get_type();
 								if(  haus_besch_t::attraction_city <= utyp  &&  utyp <= haus_besch_t::firmensitz) {
 									return false;
 								}
@@ -2703,20 +2703,6 @@ void stadt_t::check_bau_factory(bool new_town)
 }
 
 
-gebaeude_t::typ stadt_t::was_ist_an(const koord k) const
-{
-	const grund_t* gr = welt->lookup_kartenboden(k);
-	gebaeude_t::typ t = gebaeude_t::unbekannt;
-
-	if (gr != NULL) {
-		if (gebaeude_t const* const gb = obj_cast<gebaeude_t>(gr->first_obj())) {
-			t = gb->get_haustyp();
-		}
-	}
-	return t;
-}
-
-
 // find out, what building matches best
 void stadt_t::bewerte_res_com_ind(const koord pos, int &ind_score, int &com_score, int &res_score)
 {
@@ -2728,11 +2714,25 @@ void stadt_t::bewerte_res_com_ind(const koord pos, int &ind_score, int &com_scor
 
 	for (k.y = pos.y - 2; k.y <= pos.y + 2; k.y++) {
 		for (k.x = pos.x - 2; k.x <= pos.x + 2; k.x++) {
-			gebaeude_t::typ t = was_ist_an(k);
-			if (t != gebaeude_t::unbekannt) {
-				ind_score += ind_neighbour_score[t];
-				com_score += com_neighbour_score[t];
-				res_score += res_neighbour_score[t];
+
+			haus_besch_t::btype t = haus_besch_t::unbekannt;
+			if (const grund_t* gr = welt->lookup_kartenboden(k)) {
+				if (gebaeude_t const* const gb = obj_cast<gebaeude_t>(gr->first_obj())) {
+					t = gb->get_tile()->get_desc()->get_type();
+				}
+			}
+
+			int i = -1;
+			switch(t) {
+				case haus_besch_t::city_res: i = 0; break;
+				case haus_besch_t::city_com: i = 1; break;
+				case haus_besch_t::city_ind: i = 2; break;
+				default: ;
+			}
+			if (i >= 0) {
+				ind_score += ind_neighbour_score[i];
+				com_score += com_neighbour_score[i];
+				res_score += res_neighbour_score[i];
 			}
 		}
 	}
@@ -2909,8 +2909,8 @@ void stadt_t::build_city_building(const koord k)
 
 void stadt_t::renovate_city_building(gebaeude_t *gb)
 {
-	const gebaeude_t::typ alt_typ = gb->get_haustyp();
-	if(  alt_typ == gebaeude_t::unbekannt  ) {
+	const haus_besch_t::btype alt_typ = gb->get_tile()->get_desc()->get_type();
+	if(  !gb->is_city_building()  ) {
 		return; // only renovate res, com, ind
 	}
 
@@ -2954,39 +2954,39 @@ void stadt_t::renovate_city_building(gebaeude_t *gb)
 		}
 	}
 
-	gebaeude_t::typ want_to_have = gebaeude_t::unbekannt;
+	haus_besch_t::btype want_to_have = haus_besch_t::unbekannt;
 	int sum = 0;
 
 	// try to build
 	const haus_besch_t* h = NULL;
 	if (sum_commercial > sum_industrial && sum_commercial > sum_residential) {
 		// we must check, if we can really update to higher level ...
-		const int try_level = (alt_typ == gebaeude_t::gewerbe ? level + 1 : level);
+		const int try_level = (alt_typ == haus_besch_t::city_com ? level + 1 : level);
 		h = hausbauer_t::get_commercial(try_level, current_month, cl, neighbor_building_clusters);
 		if(  h != NULL  &&  h->get_level() >= try_level  ) {
-			want_to_have = gebaeude_t::gewerbe;
+			want_to_have = haus_besch_t::city_com;
 			sum = sum_commercial;
 		}
 	}
 	// check for industry, also if we wanted com, but there was no com good enough ...
 	if(    (sum_industrial > sum_commercial  &&  sum_industrial > sum_residential)
-      || (sum_commercial > sum_residential  &&  want_to_have == gebaeude_t::unbekannt)  ) {
+      || (sum_commercial > sum_residential  &&  want_to_have == haus_besch_t::unbekannt)  ) {
 		// we must check, if we can really update to higher level ...
-		const int try_level = (alt_typ == gebaeude_t::industrie ? level + 1 : level);
+		const int try_level = (alt_typ == haus_besch_t::city_ind ? level + 1 : level);
 		h = hausbauer_t::get_industrial(try_level , current_month, cl, neighbor_building_clusters);
 		if(  h != NULL  &&  h->get_level() >= try_level  ) {
-			want_to_have = gebaeude_t::industrie;
+			want_to_have = haus_besch_t::city_ind;
 			sum = sum_industrial;
 		}
 	}
 	// check for residence
 	// (sum_wohnung>sum_industrie  &&  sum_wohnung>sum_gewerbe
-	if(  want_to_have == gebaeude_t::unbekannt  ) {
+	if(  want_to_have == haus_besch_t::unbekannt  ) {
 		// we must check, if we can really update to higher level ...
-		const int try_level = (alt_typ == gebaeude_t::wohnung ? level + 1 : level);
+		const int try_level = (alt_typ == haus_besch_t::city_res ? level + 1 : level);
 		h = hausbauer_t::get_residential(try_level, current_month, cl, neighbor_building_clusters);
 		if(  h != NULL  &&  h->get_level() >= try_level  ) {
-			want_to_have = gebaeude_t::wohnung;
+			want_to_have = haus_besch_t::city_res;
 			sum = sum_residential;
 		}
 		else {
@@ -3025,9 +3025,9 @@ void stadt_t::renovate_city_building(gebaeude_t *gb)
 		}
 
 		switch(alt_typ) {
-			case gebaeude_t::wohnung:   won -= level * 10; break;
-			case gebaeude_t::gewerbe:   arb -= level * 20; break;
-			case gebaeude_t::industrie: arb -= level * 20; break;
+			case haus_besch_t::city_res: won -= level * 10; break;
+			case haus_besch_t::city_com: arb -= level * 20; break;
+			case haus_besch_t::city_ind: arb -= level * 20; break;
 			default: break;
 		}
 		// exchange building; try to face it to street in front
@@ -3037,9 +3037,9 @@ void stadt_t::renovate_city_building(gebaeude_t *gb)
 		update_gebaeude_from_stadt(gb);
 
 		switch(want_to_have) {
-			case gebaeude_t::wohnung:   won += h->get_level() * 10; break;
-			case gebaeude_t::gewerbe:   arb += h->get_level() * 20; break;
-			case gebaeude_t::industrie: arb += h->get_level() * 20; break;
+			case haus_besch_t::city_res: won += h->get_level() * 10; break;
+			case haus_besch_t::city_com: arb += h->get_level() * 20; break;
+			case haus_besch_t::city_ind: arb += h->get_level() * 20; break;
 			default: break;
 		}
 	}

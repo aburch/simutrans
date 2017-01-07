@@ -328,7 +328,7 @@ bool factory_builder_t::check_construction_site(koord pos, koord size, bool wate
 
 koord3d factory_builder_t::find_random_construction_site( koord pos, const int radius, koord size, bool wasser, const haus_besch_t *desc, bool ignore_climates, uint32 max_iterations )
 {
-	bool is_fabrik = desc->get_utyp()==haus_besch_t::fabrik;
+	bool is_fabrik = desc->get_type()==haus_besch_t::fabrik;
 	if(wasser) {
 		// to ensure at least 3x3 water around (maybe this should be the station catchment area+1?)
 		size += koord(6,6);

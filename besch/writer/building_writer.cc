@@ -100,8 +100,7 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	}
 	delete [] ints;
 
-	gebaeude_t::typ            gtyp             = gebaeude_t::unbekannt;
-	haus_besch_t::utyp         utype            = haus_besch_t::unbekannt;
+	haus_besch_t::btype        type             = haus_besch_t::unbekannt;
 	uint32                     extra_data       = 0;
 	climate_bits               allowed_climates = all_but_water_climate; // all but water
 	uint8                      enables          = 0;
@@ -121,55 +120,55 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	const char* type_name = obj.get("type");
 	if (!STRICMP(type_name, "res")) {
 		extra_data = get_cluster_data(obj);
-		gtyp = gebaeude_t::wohnung;
+		type = haus_besch_t::city_res;
 	}
 	else if (!STRICMP(type_name, "com")) {
 		extra_data = get_cluster_data(obj);
-		gtyp = gebaeude_t::gewerbe;
+		type = haus_besch_t::city_com;
 	}
 	else if (!STRICMP(type_name, "ind")) {
 		extra_data = get_cluster_data(obj);
-		gtyp = gebaeude_t::industrie;
+		type = haus_besch_t::city_ind;
 	}
 	else if (!STRICMP(type_name, "cur")) {
 		extra_data = obj.get_int("build_time", 0);
 		level      = obj.get_int("passengers",  level);
-		utype      = extra_data == 0 ? haus_besch_t::attraction_land : haus_besch_t::attraction_city;
+		type       = extra_data == 0 ? haus_besch_t::attraction_land : haus_besch_t::attraction_city;
 	}
 	else if (!STRICMP(type_name, "mon")) {
-		utype = haus_besch_t::denkmal;
+		type = haus_besch_t::denkmal;
 		level = obj.get_int("passengers",  level);
 	}
 	else if (!STRICMP(type_name, "tow")) {
 		level      = obj.get_int("passengers",  level);
 		extra_data = obj.get_int("build_time", 0);
-		utype = haus_besch_t::rathaus;
+		type = haus_besch_t::rathaus;
 	}
 	else if (!STRICMP(type_name, "hq")) {
 		level      = obj.get_int("passengers",  level);
 		extra_data = obj.get_int("hq_level", 0);
-		utype = haus_besch_t::firmensitz;
+		type = haus_besch_t::firmensitz;
 	}
 	else if (!STRICMP(type_name, "habour")  ||  !STRICMP(type_name, "harbour")) {
 		// buildable only on sloped shores
-		utype      = haus_besch_t::dock;
+		type       = haus_besch_t::dock;
 		extra_data = water_wt;
 	}
 	else if (!STRICMP(type_name, "dock")) {
 		// buildable only on flat shores
-		utype      = haus_besch_t::flat_dock;
+		type       = haus_besch_t::flat_dock;
 		extra_data = water_wt;
 	}
 	else if (!STRICMP(type_name, "fac")) {
-		utype    = haus_besch_t::fabrik;
+		type     = haus_besch_t::fabrik;
 		enables |= 4;
 	}
 	else if (!STRICMP(type_name, "stop")) {
-		utype      = haus_besch_t::generic_stop;
+		type       = haus_besch_t::generic_stop;
 		extra_data = get_waytype(obj.get("waytype"));
 	}
 	else if (!STRICMP(type_name, "extension")) {
-		utype = haus_besch_t::generic_extension;
+		type = haus_besch_t::generic_extension;
 		const char *wt = obj.get("waytype");
 		if(wt  &&  *wt>' ') {
 			// not waytype => just a generic exten that fits all
@@ -177,12 +176,12 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 		}
 	}
 	else if (!STRICMP(type_name, "depot")) {
-		utype      = haus_besch_t::depot;
+		type       = haus_besch_t::depot;
 		extra_data = get_waytype(obj.get("waytype"));
 	}
 	else if (!STRICMP(type_name, "any") || *type_name == '\0') {
 		// for instance "MonorailGround"
-		utype = haus_besch_t::weitere;
+		type = haus_besch_t::weitere;
 	}
 	else if (
 		!STRICMP(type_name, "station")  ||
@@ -213,11 +212,11 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	if (obj.get_int("enables_post", 0) > 0) {
 		enables |= 2;
 	}
-	if(  utype == haus_besch_t::fabrik  ||  obj.get_int("enables_ware", 0) > 0  ) {
+	if(  type  == haus_besch_t::fabrik  ||  obj.get_int("enables_ware", 0) > 0  ) {
 		enables |= 4;
 	}
 
-	if(  utype==haus_besch_t::generic_extension  ||  utype==haus_besch_t::generic_stop  ||  utype==haus_besch_t::dock  ||  utype==haus_besch_t::depot  ||  utype==haus_besch_t::fabrik  ) {
+	if(  type == haus_besch_t::generic_extension  ||  type == haus_besch_t::generic_stop  ||  type == haus_besch_t::dock  ||  type == haus_besch_t::depot  ||  type == haus_besch_t::fabrik  ) {
 		// since elevel was reduced by one beforehand ...
 		++level;
 	}
@@ -345,15 +344,15 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	}
 
 	// Hajo: write version data
-	node.write_uint16(fp, 0x8008,            0);
+	node.write_uint16(fp, 0x8009,            0);
 
 	// Hajo: write desc data
-	node.write_uint8 (fp, gtyp,              2);
-	node.write_uint8 (fp, utype,             3);
+	node.write_uint8 (fp, 0,                 2); // was gtyp
+	node.write_uint8 (fp, type,              3);
 	node.write_uint16(fp, level,             4);
 	node.write_uint32(fp, extra_data,        6);
-	node.write_uint16(fp, size.x,        10);
-	node.write_uint16(fp, size.y,        12);
+	node.write_uint16(fp, size.x,           10);
+	node.write_uint16(fp, size.y,           12);
 	node.write_uint8 (fp, layouts,          14);
 	node.write_uint16(fp, allowed_climates, 15);
 	node.write_uint8 (fp, enables,          17);
@@ -364,7 +363,7 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	node.write_uint16(fp, animation_time,   24);
 	node.write_uint16(fp, capacity,         26);
 	node.write_sint32(fp, maintenance,      28);
-	node.write_sint32(fp, price,	        32);
+	node.write_sint32(fp, price,            32);
 	node.write_uint8 (fp, allow_underground,36);
 
 	// probably add some icons, if defined

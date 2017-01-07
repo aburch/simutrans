@@ -54,7 +54,7 @@ public:
 	 * @param enables station enabled flags (see haltestelle_t::station_flags)
 	 * @returns a random station that can be built above ground.
 	 */
-	static const haus_besch_t* get_random_station(const haus_besch_t::utyp utype, const waytype_t wt, const uint16 time, const uint8 enables);
+	static const haus_besch_t* get_random_station(const haus_besch_t::btype utype, const waytype_t wt, const uint16 time, const uint8 enables);
 
 	/// Finds and returns the tile at position @p idx
 	static const haus_tile_besch_t* find_tile(const char* name, int idx);
@@ -75,7 +75,7 @@ public:
 	 * Fills menu with icons of buildings of a given waytype.
 	 * This is needed for station extensions and headquarters.
  	 */
-	static void fill_menu(tool_selector_t* tool_selector, haus_besch_t::utyp, waytype_t wt, sint16 sound_ok);
+	static void fill_menu(tool_selector_t* tool_selector, haus_besch_t::btype, waytype_t wt, sint16 sound_ok);
 
 	/// @returns a random commercial building matching the requirements.
 	static const haus_besch_t* get_commercial(int level, uint16 time, climate c, uint32 clusters = 0l);
@@ -115,7 +115,7 @@ public:
 	static void denkmal_gebaut(const haus_besch_t* desc) { ungebaute_denkmaeler.remove(desc); }
 
 	/// Called for a city attraction or a town hall with a certain number of inhabitants (bev).
-	static const haus_besch_t* get_special(uint32 bev, haus_besch_t::utyp utype, uint16 time, bool ignore_retire, climate cl);
+	static const haus_besch_t* get_special(uint32 bev, haus_besch_t::btype utype, uint16 time, bool ignore_retire, climate cl);
 
 	/**
 	 * Removes an arbitrary building.
@@ -144,10 +144,10 @@ public:
 	static gebaeude_t* neues_gebaeude(player_t* player, koord3d pos, int layout, const haus_besch_t* desc, void* param = NULL);
 
 	/// @returns house list of type @p typ
-	static const vector_tpl<const haus_besch_t *> *get_list(haus_besch_t::utyp typ);
+	static const vector_tpl<const haus_besch_t *> *get_list(haus_besch_t::btype typ);
 
 	/// @returns city building list of type @p typ (res/com/ind)
-	static const vector_tpl<const haus_besch_t *> *get_citybuilding_list(gebaeude_t::typ typ);
+	static const vector_tpl<const haus_besch_t *> *get_citybuilding_list(haus_besch_t::btype  typ);
 };
 
 #endif

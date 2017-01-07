@@ -679,8 +679,8 @@ char* haltestelle_t::create_name(koord const k, char const* const typ)
 					building_name = translator::translate(gb->get_name(),lang);
 				}
 				else if (gb->ist_rathaus() ||
-					gb->get_tile()->get_desc()->get_utyp() == haus_besch_t::attraction_land || // land attraction
-					gb->get_tile()->get_desc()->get_utyp() == haus_besch_t::attraction_city) { // town attraction
+					gb->get_tile()->get_desc()->get_type() == haus_besch_t::attraction_land || // land attraction
+					gb->get_tile()->get_desc()->get_type() == haus_besch_t::attraction_city) { // town attraction
 					building_name = make_single_line_string(translator::translate(gb->get_tile()->get_desc()->get_name(),lang), 2);
 				}
 				else {
@@ -2431,7 +2431,7 @@ void haltestelle_t::add_to_station_type( grund_t *gr )
 	}
 
 	// there is only one loading bay ...
-	switch (desc->get_utyp()) {
+	switch (desc->get_type()) {
 		case haus_besch_t::ladebucht:    station_type |= loadingbay;   break;
 		case haus_besch_t::dock:
 		case haus_besch_t::flat_dock:

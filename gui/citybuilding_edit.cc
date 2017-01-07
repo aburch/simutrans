@@ -39,7 +39,7 @@ static bool compare_haus_desc(const haus_besch_t* a, const haus_besch_t* b)
 {
 	int diff = a->get_level()-b->get_level();
 	if(  diff==0  ) {
-		diff = a->get_typ()-b->get_typ();
+		diff = a->get_type()-b->get_type();
 	}
 	if(  diff==0  ) {
 		diff = strcmp(a->get_name(), b->get_name());
@@ -56,7 +56,7 @@ static bool compare_haus_besch_trans(const haus_besch_t* a, const haus_besch_t* 
 		diff = a->get_level()-b->get_level();
 	}
 	if(  diff==0  ) {
-		diff = a->get_typ()-b->get_typ();
+		diff = a->get_type()-b->get_type();
 	}
 	return diff < 0;
 }
@@ -126,7 +126,7 @@ void citybuilding_edit_frame_t::fill_list( bool translate )
 	hauslist.clear();
 
 	if(bt_res.pressed) {
-		FOR(vector_tpl<haus_besch_t const*>, const desc, *hausbauer_t::get_citybuilding_list(gebaeude_t::wohnung)) {
+		FOR(vector_tpl<haus_besch_t const*>, const desc, *hausbauer_t::get_citybuilding_list(haus_besch_t::city_res)) {
 			if(!use_timeline  ||  (!desc->is_future(month_now)  &&  (!desc->is_retired(month_now)  ||  allow_obsolete))  ) {
 				// timeline allows for this
 				hauslist.insert_ordered(desc, translate?compare_haus_besch_trans:compare_haus_desc );
@@ -135,7 +135,7 @@ void citybuilding_edit_frame_t::fill_list( bool translate )
 	}
 
 	if(bt_com.pressed) {
-		FOR(vector_tpl<haus_besch_t const*>, const desc, *hausbauer_t::get_citybuilding_list(gebaeude_t::gewerbe)) {
+		FOR(vector_tpl<haus_besch_t const*>, const desc, *hausbauer_t::get_citybuilding_list(haus_besch_t::city_com)) {
 			if(!use_timeline  ||  (!desc->is_future(month_now)  &&  (!desc->is_retired(month_now)  ||  allow_obsolete))  ) {
 				// timeline allows for this
 				hauslist.insert_ordered(desc, translate?compare_haus_besch_trans:compare_haus_desc );
@@ -144,7 +144,7 @@ void citybuilding_edit_frame_t::fill_list( bool translate )
 	}
 
 	if(bt_ind.pressed) {
-		FOR(vector_tpl<haus_besch_t const*>, const desc, *hausbauer_t::get_citybuilding_list(gebaeude_t::industrie)) {
+		FOR(vector_tpl<haus_besch_t const*>, const desc, *hausbauer_t::get_citybuilding_list(haus_besch_t::city_ind)) {
 			if(!use_timeline  ||  (!desc->is_future(month_now)  &&  (!desc->is_retired(month_now)  ||  allow_obsolete))  ) {
 				// timeline allows for this
 				hauslist.insert_ordered(desc, translate?compare_haus_besch_trans:compare_haus_desc );
@@ -158,10 +158,10 @@ void citybuilding_edit_frame_t::fill_list( bool translate )
 	FOR(vector_tpl<haus_besch_t const*>, const i, hauslist) {
 		// color code for objects: BLACK: normal, YELLOW: consumer only, GREEN: source only
 		COLOR_VAL color;
-		switch (i->get_typ()) {
-			case gebaeude_t::wohnung: color = COL_BLUE;       break;
-			case gebaeude_t::gewerbe: color = COL_DARK_GREEN; break;
-			default:                  color = SYSCOL_TEXT;      break;
+		switch (i->get_type()) {
+			case haus_besch_t::city_res: color = COL_BLUE;       break;
+			case haus_besch_t::city_com: color = COL_DARK_GREEN; break;
+			default:                     color = SYSCOL_TEXT;      break;
 		}
 		char const* const name = translate ? translator::translate(i->get_name()) : i->get_name();
 		scl.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(name, color));
@@ -219,13 +219,13 @@ void citybuilding_edit_frame_t::change_item_info(sint32 entry)
 
 			buf.clear();
 			desc = new_desc;
-			if(desc->get_typ()==gebaeude_t::wohnung) {
+			if(desc->get_type()==haus_besch_t::city_res) {
 				buf.append( translator::translate( "residential house" ) );
 			}
-			else if(desc->get_typ()==gebaeude_t::gewerbe) {
+			else if(desc->get_type()==haus_besch_t::city_com) {
 				buf.append( translator::translate( "shops and stores" ) );
 			}
-			else if(desc->get_typ()==gebaeude_t::industrie) {
+			else if(desc->get_type()==haus_besch_t::city_ind) {
 				buf.append( translator::translate( "industrial building" ) );
 			}
 			buf.append("\n\n");

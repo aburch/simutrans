@@ -11,14 +11,12 @@
 #include "bildliste2d_besch.h"
 #include "obj_besch_std_name.h"
 #include "skin_besch.h"
-#include "../obj/gebaeude.h"
-
+#include "../dataobj/koord.h"
 
 class haus_besch_t;
 class tool_t;
 class karte_t;
 class checksum_t;
-
 
 /*
  *  Author:
@@ -123,9 +121,9 @@ public:
 class haus_besch_t : public obj_desc_timelined_t {
 	friend class building_reader_t;
 
-	public:
-		/* Unbekannte Gebäude sind nochmal unterteilt */
-		enum utyp
+public:
+
+		enum btype
 		{
 			unbekannt         =  0,
 			attraction_city   =  1,
@@ -159,8 +157,10 @@ class haus_besch_t : public obj_desc_timelined_t {
 			generic_extension = 35,
 			// there are more types of docks
 			flat_dock         = 36, // dock, but can start on a flat coast line
-			last_haus_typ,
-			unbekannt_flag    = 128,
+			// city buildings
+			city_res          = 37, ///< residential city buildings
+			city_com          = 38, ///< commercial  city buildings
+			city_ind          = 39, ///< industrial  city buildings
 		};
 
 		enum flag_t {
@@ -171,10 +171,8 @@ class haus_besch_t : public obj_desc_timelined_t {
 			FLAG_HAS_CURSOR  = 8  // there is cursor/icon for this
 		};
 
-	private:
-	gebaeude_t::typ     gtyp;      // Hajo: this is the type of the building
-	utyp            utype; // Hajo: if gtyp == gebaeude_t::unbekannt, then this is the real type
-
+private:
+	haus_besch_t::btype type;
 	uint16 animation_time;	// in ms
 	uint32 extra_data;
 		// extra data:
@@ -214,8 +212,8 @@ class haus_besch_t : public obj_desc_timelined_t {
 	 */
 	uint8 allow_underground;
 
-	bool ist_utyp(utyp u) const {
-		return gtyp == gebaeude_t::unbekannt && utype == u;
+	bool is_type(haus_besch_t::btype u) const {
+		return type == u;
 	}
 
 	tool_t *builder;
@@ -251,14 +249,14 @@ public:
 	// do not open info for this
 	bool ist_ohne_info() const { return (flags & FLAG_KEINE_INFO) != 0; }
 
-	// see gebaeude_t and hausbauer for the different types
-	gebaeude_t::typ get_typ() const { return gtyp; }
-	utyp get_utyp() const { return utype; }
+	haus_besch_t::btype get_type() const { return type; }
 
-	bool ist_rathaus()      const { return ist_utyp(rathaus); }
-	bool ist_firmensitz()   const { return ist_utyp(firmensitz); }
-	bool ist_ausflugsziel() const { return ist_utyp(attraction_land) || ist_utyp(attraction_city); }
-	bool ist_fabrik()       const { return ist_utyp(fabrik); }
+	bool ist_rathaus()      const { return is_type(rathaus); }
+	bool ist_firmensitz()   const { return is_type(firmensitz); }
+	bool ist_ausflugsziel() const { return is_type(attraction_land) || is_type(attraction_city); }
+	bool ist_fabrik()       const { return is_type(fabrik); }
+	bool is_city_building() const { return is_type(city_res) || is_type(city_com) || is_type(city_ind); }
+	bool is_transport_building() const { return type>=bahnhof  && type <= flat_dock; }
 
 	bool is_connected_with_town() const;
 
@@ -359,12 +357,7 @@ public:
 
 	uint32 get_clusters() const {
 		// Only meaningful for res, com, ind
-		if(  gtyp != gebaeude_t::wohnung  &&  gtyp != gebaeude_t::gewerbe  &&  gtyp != gebaeude_t::industrie  ) {
-			return 0;
-		}
-		else {
-			return extra_data;
-		}
+		return is_city_building() ? extra_data : 0;
 	}
 };
 

@@ -15,20 +15,12 @@
 class haus_tile_besch_t;
 class fabrik_t;
 class stadt_t;
-
 /**
  * Asynchronous or synchronous animations for buildings.
  * @author Hj. Malthaner
  */
 class gebaeude_t : public obj_t, sync_steppable
 {
-public:
-	/**
-	 * Vom typ "unbekannt" sind auch spezielle gebaeude z.B. das Rathaus
-	 * @author Hj. Malthaner
-	 */
-	enum typ {wohnung, gewerbe, industrie, unbekannt};
-
 private:
 	const haus_tile_besch_t *tile;
 
@@ -95,8 +87,6 @@ public:
 
 	void rotate90();
 
-	typ get_haustyp() const;
-
 	void add_alter(uint32 a);
 
 	void set_fab(fabrik_t *fd);
@@ -146,6 +136,8 @@ public:
 	bool ist_firmensitz() const;
 
 	bool is_monument() const;
+
+	bool is_city_building() const;
 
 	/**
 	 * @return Einen Beschreibungsstring für das Objekt, der z.B. in einem

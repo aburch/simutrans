@@ -372,9 +372,6 @@ private:
 	 */
 	void check_bau_factory(bool);
 
-	// bewertungsfunktionen fuer den Hauserbau
-	// wie gut passt so ein Gebaeudetyp an diese Stelle ?
-	gebaeude_t::typ was_ist_an(koord pos) const;
 
 	// find out, what building matches best
 	void bewerte_res_com_ind(const koord pos, int &ind, int &com, int &res);

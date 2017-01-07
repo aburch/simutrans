@@ -890,7 +890,7 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 			}
 			else if(  gr->get_typ() == grund_t::fundament  ) {
 				if(  gebaeude_t *gb = gr->find<gebaeude_t>()  ) {
-					if(  gb->get_haustyp() != gebaeude_t::unbekannt  ) {
+					if(  gb->is_city_building()  ) {
 						sint32 level = gb->get_tile()->get_desc()->get_level();
 						if(  level > max_building_level  ) {
 							max_building_level = level;
