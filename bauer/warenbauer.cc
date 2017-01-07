@@ -28,7 +28,7 @@ ware_besch_t *warenbauer_t::load_passagiere = NULL;
 ware_besch_t *warenbauer_t::load_post = NULL;
 ware_besch_t *warenbauer_t::load_nichts = NULL;
 
-static spezial_obj_tpl<ware_besch_t> const spezial_objekte[] = {
+static spezial_obj_tpl<ware_besch_t> const special_objects[] = {
 	{ &warenbauer_t::passagiere,    "Passagiere" },
 	{ &warenbauer_t::post,	    "Post" },
 	{ &warenbauer_t::nichts,	    "None" },
@@ -38,7 +38,7 @@ static spezial_obj_tpl<ware_besch_t> const spezial_objekte[] = {
 
 bool warenbauer_t::successfully_loaded()
 {
-	if(!::successfully_loaded(spezial_objekte)) {
+	if(!::successfully_loaded(special_objects)) {
 		return false;
 	}
 
@@ -121,7 +121,7 @@ static bool compare_ware_desc(const ware_besch_t* a, const ware_besch_t* b)
 bool warenbauer_t::register_desc(ware_besch_t *desc)
 {
 	desc->value = desc->base_value;
-	::register_desc(spezial_objekte, desc);
+	::register_desc(special_objects, desc);
 	// avoid duplicates with same name
 	ware_besch_t *old_desc = const_cast<ware_besch_t *>(desc_table.get(desc->get_name()));
 	if(  old_desc  ) {

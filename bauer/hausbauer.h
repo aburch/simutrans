@@ -30,16 +30,16 @@ class tool_selector_t;
 class hausbauer_t
 {
 private:
-	static vector_tpl<const building_desc_t*> sehenswuerdigkeiten_land;  ///< Sights outside of cities
-	static vector_tpl<const building_desc_t*> sehenswuerdigkeiten_city;  ///< Sights within cities
-	static vector_tpl<const building_desc_t*> rathaeuser;                ///< Town halls
-	static vector_tpl<const building_desc_t*> denkmaeler;                ///< All monuments
-	static vector_tpl<const building_desc_t*> ungebaute_denkmaeler;      ///< All unbuilt monuments
-	static vector_tpl<const building_desc_t*> headquarter;               ///< Company headquarters
-	static vector_tpl<const building_desc_t*> station_building;          ///< All station buildings
+	static vector_tpl<const building_desc_t*> attractions_land;  ///< Sights outside of cities
+	static vector_tpl<const building_desc_t*> attractions_city;  ///< Sights within cities
+	static vector_tpl<const building_desc_t*> townhalls;         ///< Town halls
+	static vector_tpl<const building_desc_t*> monuments;         ///< All monuments
+	static vector_tpl<const building_desc_t*> unbuilt_monuments; ///< All unbuilt monuments
+	static vector_tpl<const building_desc_t*> headquarter;       ///< Company headquarters
+	static vector_tpl<const building_desc_t*> station_building;  ///< All station buildings
 
 	/// @returns a random entry from @p liste
-	static const building_desc_t* waehle_aus_liste(vector_tpl<const building_desc_t*>& liste, uint16 time, bool ignore_retire, climate cl);
+	static const building_desc_t* get_random_desc(vector_tpl<const building_desc_t*>& liste, uint16 time, bool ignore_retire, climate cl);
 
 	/// our game world
 	static karte_ptr_t welt;
@@ -90,15 +90,15 @@ public:
 	static const building_desc_t* get_headquarter(int level, uint16 time);
 
 	/// @returns a random tourist attraction matching the requirements.
-	static const building_desc_t* waehle_sehenswuerdigkeit(uint16 time, bool ignore_retire, climate cl)
+	static const building_desc_t* get_random_attraction(uint16 time, bool ignore_retire, climate cl)
 	{
-		return waehle_aus_liste(sehenswuerdigkeiten_land, time, ignore_retire, cl);
+		return get_random_desc(attractions_land, time, ignore_retire, cl);
 	}
 
 	/// @returns a random unbuilt monument.
-	static const building_desc_t* waehle_monument(uint16 time = 0)
+	static const building_desc_t* get_random_monument(uint16 time = 0)
 	{
-		return waehle_aus_liste(ungebaute_denkmaeler, time, false, MAX_CLIMATES);
+		return get_random_desc(unbuilt_monuments, time, false, MAX_CLIMATES);
 	}
 
 	/**
@@ -109,10 +109,10 @@ public:
 	static void new_world();
 
 	/// @returns true if this monument has not yet been built.
-	static bool is_valid_monument(const building_desc_t* desc) { return ungebaute_denkmaeler.is_contained(desc); }
+	static bool is_valid_monument(const building_desc_t* desc) { return unbuilt_monuments.is_contained(desc); }
 
 	/// Tells the house builder a monument has been built.
-	static void monument_gebaut(const building_desc_t* desc) { ungebaute_denkmaeler.remove(desc); }
+	static void monument_erected(const building_desc_t* desc) { unbuilt_monuments.remove(desc); }
 
 	/// Called for a city attraction or a town hall with a certain number of inhabitants (bev).
 	static const building_desc_t* get_special(uint32 bev, building_desc_t::btype utype, uint16 time, bool ignore_retire, climate cl);
@@ -141,7 +141,7 @@ public:
 	 * Stations with layout>4 may change the layout of neighbouring buildings. (->end of rail platforms)
 	 * @param param if building a stop, pointer to the halt handle
 	 */
-	static gebaeude_t* neues_gebaeude(player_t* player, koord3d pos, int layout, const building_desc_t* desc, void* param = NULL);
+	static gebaeude_t* build_station_extension_depot(player_t* player, koord3d pos, int layout, const building_desc_t* desc, void* param = NULL);
 
 	/// @returns house list of type @p typ
 	static const vector_tpl<const building_desc_t *> *get_list(building_desc_t::btype typ);

@@ -813,7 +813,7 @@ void gebaeude_t::rdwr(loadsave_t *file)
 		 * remove them from selection lists
 		 */
 		if (tile  &&  tile->get_desc()->get_type() == building_desc_t::monument) {
-			hausbauer_t::monument_gebaut(tile->get_desc());
+			hausbauer_t::monument_erected(tile->get_desc());
 		}
 		if (tile) {
 			remove_ground = tile->has_image()  &&  !tile->get_desc()->needs_ground();
