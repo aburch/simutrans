@@ -154,7 +154,7 @@ static spezial_obj_tpl<skin_besch_t> const cursor_objekte[] = {
 };
 
 
-bool skinverwaltung_t::alles_geladen(skintyp_t type)
+bool skinverwaltung_t::successfully_loaded(skintyp_t type)
 {
 	spezial_obj_tpl<skin_besch_t> const* sb;
 	switch (type) {
@@ -171,7 +171,7 @@ bool skinverwaltung_t::alles_geladen(skintyp_t type)
 		case nothing: return true;
 		default:      return false;
 	}
-	return ::alles_geladen(sb);
+	return ::successfully_loaded(sb);
 }
 
 

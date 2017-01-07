@@ -69,7 +69,7 @@ public:
 	static bool register_desc(building_desc_t *desc);
 
 	/// Sorts all house descriptions into their respective lists.
-	static bool alles_geladen();
+	static bool successfully_loaded();
 
 	/**
 	 * Fills menu with icons of buildings of a given waytype.

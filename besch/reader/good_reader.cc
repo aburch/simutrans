@@ -25,7 +25,7 @@ void good_reader_t::register_obj(obj_desc_t *&data)
 
 bool good_reader_t::successfully_loaded() const
 {
-	return warenbauer_t::alles_geladen();
+	return warenbauer_t::successfully_loaded();
 }
 
 

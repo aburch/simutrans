@@ -68,7 +68,7 @@ public:
 	 * Initializes weighted vector for farm field class indices.
 	 * @returns true
 	 */
-	static bool alles_geladen();
+	static bool successfully_loaded();
 
 	/**
 	 * Tells the factory builder a new map is being loaded or generated.

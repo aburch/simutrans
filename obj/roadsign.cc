@@ -639,7 +639,7 @@ static bool compare_roadsign_desc(const roadsign_besch_t* a, const roadsign_besc
 
 
 /* static stuff from here on ... */
-bool roadsign_t::alles_geladen()
+bool roadsign_t::successfully_loaded()
 {
 	if(table.empty()) {
 		DBG_MESSAGE("roadsign_t", "No signs found - feature disabled");

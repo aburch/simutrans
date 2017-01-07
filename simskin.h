@@ -139,7 +139,7 @@ public:
 	static const skin_besch_t *tunnel_texture;
 
 	static bool register_desc(skintyp_t type, const skin_besch_t *desc);
-	static bool alles_geladen(skintyp_t type);
+	static bool successfully_loaded(skintyp_t type);
 
 	/**
 	 * retrieves objects with type=menu and given name

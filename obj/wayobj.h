@@ -120,7 +120,7 @@ public:
 	static void extend_wayobj_t(koord3d pos, player_t *owner, ribi_t::ribi dir, const way_obj_desc_t *desc);
 
 	static bool register_desc(way_obj_desc_t *desc);
-	static bool alles_geladen();
+	static bool successfully_loaded();
 
 	// search an object (currently only used by AI for caternary)
 	static const way_obj_desc_t *wayobj_search(waytype_t wt,waytype_t own,uint16 time);

@@ -49,7 +49,7 @@ public:
 
 	// class register functions
 	static bool register_desc(const pedestrian_desc_t *desc);
-	static bool alles_geladen();
+	static bool successfully_loaded();
 
 	static void generate_pedestrians_at(koord3d k, int &count);
 };

@@ -248,7 +248,7 @@ static bool compare_vehikel_desc(const vehikel_besch_t* a, const vehikel_besch_t
 }
 
 
-bool vehikelbauer_t::alles_geladen()
+bool vehikelbauer_t::successfully_loaded()
 {
 	// first: check for bonus tables
 	DBG_MESSAGE("vehikelbauer_t::sort_lists()","called");

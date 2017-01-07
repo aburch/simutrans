@@ -41,7 +41,7 @@ bool pedestrian_t::register_desc(const pedestrian_desc_t *desc)
 }
 
 
-bool pedestrian_t::alles_geladen()
+bool pedestrian_t::successfully_loaded()
 {
 	liste.resize(table.get_count());
 	if (table.empty()) {

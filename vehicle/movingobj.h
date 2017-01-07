@@ -48,7 +48,7 @@ protected:
 
 public:
 	static bool register_desc(groundobj_desc_t *desc);
-	static bool alles_geladen();
+	static bool successfully_loaded();
 
 	static const groundobj_desc_t *random_movingobj_for_climate(climate cl);
 

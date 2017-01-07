@@ -36,9 +36,9 @@ static spezial_obj_tpl<ware_besch_t> const spezial_objekte[] = {
 };
 
 
-bool warenbauer_t::alles_geladen()
+bool warenbauer_t::successfully_loaded()
 {
-	if(!::alles_geladen(spezial_objekte)) {
+	if(!::successfully_loaded(spezial_objekte)) {
 		return false;
 	}
 
@@ -51,7 +51,7 @@ bool warenbauer_t::alles_geladen()
 	waren.insert_at(0,load_passagiere);
 
 	if(waren.get_count()>=255) {
-		dbg->fatal("warenbauer_t::alles_geladen()","Too many different goods %i>255",waren.get_count()-1 );
+		dbg->fatal("warenbauer_t::successfully_loaded()","Too many different goods %i>255",waren.get_count()-1 );
 	}
 
 	// assign indexes
@@ -106,7 +106,7 @@ bool warenbauer_t::alles_geladen()
 	// however, some place do need the dummy ...
 	ware_t::index_to_desc[2] = NULL;
 
-	DBG_MESSAGE("warenbauer_t::alles_geladen()","total goods %i, different kind of categories %i", waren.get_count(), max_catg_index );
+	DBG_MESSAGE("warenbauer_t::successfully_loaded()","total goods %i, different kind of categories %i", waren.get_count(), max_catg_index );
 
 	return true;
 }

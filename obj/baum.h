@@ -124,7 +124,7 @@ public:
 	static bool plant_tree_on_coordinate(koord pos, const tree_desc_t *desc, const bool check_climate, const bool random_age );
 
 	static bool register_desc(tree_desc_t *desc);
-	static bool alles_geladen();
+	static bool successfully_loaded();
 
 	static uint32 create_forest(koord center, koord size );
 	static void fill_trees(int dichte);

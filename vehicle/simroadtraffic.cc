@@ -246,7 +246,7 @@ bool private_car_t::register_desc(const stadtauto_besch_t *desc)
 
 
 
-bool private_car_t::alles_geladen()
+bool private_car_t::successfully_loaded()
 {
 	if(table.empty()) {
 		DBG_MESSAGE("private_car_t", "No citycars found - feature disabled");

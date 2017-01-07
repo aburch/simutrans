@@ -14,7 +14,7 @@ void ground_reader_t::register_obj(obj_desc_t *&data)
 
 bool ground_reader_t::successfully_loaded() const
 {
-    return ground_besch_t::alles_geladen();
+    return ground_besch_t::successfully_loaded();
 }
 
 

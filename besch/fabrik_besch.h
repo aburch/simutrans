@@ -57,7 +57,7 @@ private:
 	weighted_vector_tpl<uint16> field_class_indices;
 
 public:
-	// fills the array, is only called once during alles_geladen() after resolve xrefs
+	// fills the array, is only called once during successfully_loaded() after resolve xrefs
 	void init_field_class_indices()
 	{
 		if(  field_classes>0  ) {

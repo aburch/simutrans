@@ -133,7 +133,7 @@ static bool compare_station_desc(const building_desc_t* a, const building_desc_t
 }
 
 
-bool hausbauer_t::alles_geladen()
+bool hausbauer_t::successfully_loaded()
 {
 	FOR(stringhashtable_tpl<building_desc_t const*>, const& i, desc_table) {
 		building_desc_t const* const desc = i.value;
@@ -187,7 +187,7 @@ bool hausbauer_t::alles_geladen()
 
 				default:
 					// obsolete object, usually such pak set will not load properly anyway (old objects should be caught before!)
-					dbg->error("hausbauer_t::alles_geladen()","unknown subtype %i of \"%s\" ignored",desc->get_type(), desc->get_name());
+					dbg->error("hausbauer_t::successfully_loaded()","unknown subtype %i of \"%s\" ignored",desc->get_type(), desc->get_name());
 		}
 	}
 

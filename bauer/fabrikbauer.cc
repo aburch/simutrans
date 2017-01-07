@@ -220,7 +220,7 @@ DBG_DEBUG("factory_builder_t::register_desc()","Correction for old factory: Incr
 }
 
 
-bool factory_builder_t::alles_geladen()
+bool factory_builder_t::successfully_loaded()
 {
 	FOR(stringhashtable_tpl<factory_desc_t const*>, const& i, desc_table) {
 		factory_desc_t const* const current = i.value;

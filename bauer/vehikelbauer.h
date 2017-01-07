@@ -35,7 +35,7 @@ public:
 	static void rdwr_speedbonus(loadsave_t *file);
 
 	static bool register_desc(const vehikel_besch_t *desc);
-	static bool alles_geladen();
+	static bool successfully_loaded();
 
 	static vehicle_t* build(koord3d k, player_t* player, convoi_t* cnv, const vehikel_besch_t* vb );
 

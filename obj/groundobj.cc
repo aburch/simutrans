@@ -40,7 +40,7 @@ bool compare_groundobj_desc(const groundobj_desc_t* a, const groundobj_desc_t* b
 }
 
 
-bool groundobj_t::alles_geladen()
+bool groundobj_t::successfully_loaded()
 {
 	groundobj_typen.resize(desc_table.get_count());
 	FOR(stringhashtable_tpl<groundobj_desc_t*>, const& i, desc_table) {

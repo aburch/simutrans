@@ -41,7 +41,7 @@ stringhashtable_tpl<groundobj_desc_t *> movingobj_t::desc_table;
 bool compare_groundobj_desc(const groundobj_desc_t* a, const groundobj_desc_t* b);
 
 
-bool movingobj_t::alles_geladen()
+bool movingobj_t::successfully_loaded()
 {
 	movingobj_typen.resize(desc_table.get_count());
 	FOR(stringhashtable_tpl<groundobj_desc_t*>, const& i, desc_table) {

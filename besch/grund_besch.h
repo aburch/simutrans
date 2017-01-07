@@ -89,7 +89,7 @@ public:
 
 	static bool register_desc(const ground_besch_t *desc);
 
-	static bool alles_geladen();
+	static bool successfully_loaded();
 
 	/**
 	 * Generates ground texture images, transition maps, etc.

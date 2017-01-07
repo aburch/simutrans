@@ -398,10 +398,10 @@ static bool compare_wayobj_desc(const way_obj_desc_t* a, const way_obj_desc_t* b
 }
 
 
-bool wayobj_t::alles_geladen()
+bool wayobj_t::successfully_loaded()
 {
 	if(table.empty()) {
-		dbg->warning("wayobj_t::alles_geladen()", "No obj found - may crash when loading catenary.");
+		dbg->warning("wayobj_t::successfully_loaded()", "No obj found - may crash when loading catenary.");
 	}
 
 	way_obj_desc_t const* def = 0;

@@ -197,7 +197,7 @@ void building_reader_t::register_obj(obj_desc_t *&data)
 
 bool building_reader_t::successfully_loaded() const
 {
-	return hausbauer_t::alles_geladen();
+	return hausbauer_t::successfully_loaded();
 }
 
 

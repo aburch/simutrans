@@ -521,10 +521,10 @@ bool ground_besch_t::register_desc(const ground_besch_t *desc)
  * however, we have to calculate all textures
  * and put them into images
  */
-bool ground_besch_t::alles_geladen()
+bool ground_besch_t::successfully_loaded()
 {
-	DBG_MESSAGE("ground_besch_t::alles_geladen()","boden");
-	return ::alles_geladen(grounds+1);
+	DBG_MESSAGE("ground_besch_t::successfully_loaded()","boden");
+	return ::successfully_loaded(grounds+1);
 }
 
 

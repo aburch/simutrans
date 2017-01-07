@@ -355,5 +355,5 @@ void factory_reader_t::register_obj(obj_desc_t *&data)
 
 bool factory_reader_t::successfully_loaded() const
 {
-	return factory_builder_t::alles_geladen();
+	return factory_builder_t::successfully_loaded();
 }
