@@ -99,7 +99,6 @@ class rauch_besch_t : public obj_desc_t {
 private:
 	koord pos_off;
 	koord xy_off;
-	sint16 zeitmaske;
 
 public:
 	const char *get_name() const { return get_images()->get_name(); }
@@ -125,8 +124,6 @@ public:
 		}
 		return xy_off;
 	}
-
-	sint16 get_zeitmaske() const { return zeitmaske; }
 };
 
 

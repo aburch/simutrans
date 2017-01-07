@@ -93,13 +93,13 @@ void factory_smoke_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileo
 	xref_writer_t::instance()->write_obj(outfp, node, obj_smoke, obj.get("smoke"), true);
 	koord  const pos_off   = obj.get_koord("smoketile",   koord(0, 0));
 	koord  const xy_off    = obj.get_koord("smokeoffset", koord(0, 0));
-	sint16 const zeitmaske = obj.get_int(  "smokespeed",  0);
+	sint16 const smokespeed = 0; /* was obj.get_int("smokespeed",  0); */
 
 	node.write_sint16(outfp, pos_off.x, 0);
 	node.write_sint16(outfp, pos_off.y, 2);
 	node.write_sint16(outfp, xy_off.x,  4);
 	node.write_sint16(outfp, xy_off.y,  6);
-	node.write_sint16(outfp, zeitmaske, 8);
+	node.write_sint16(outfp, smokespeed, 8);
 
 	node.write(outfp);
 }
