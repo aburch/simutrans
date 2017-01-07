@@ -48,19 +48,8 @@ waytype_t building_desc_t::get_finance_waytype() const
 {
 	switch( get_type() )
 	{
-		case bahnhof:      return track_wt;
-		case bushalt:      return road_wt;
 		case dock:         return water_wt;
 		case flat_dock:    return water_wt;
-		case binnenhafen:  return water_wt;
-		case airport:      return air_wt;
-		case monorailstop: return monorail_wt;
-		case bahnhof_geb:  return track_wt;
-		case bushalt_geb:  return road_wt;
-		case hafen_geb:    return water_wt;
-		case binnenhafen_geb: return water_wt;
-		case airport_geb:  return air_wt;
-		case monorail_geb: return monorail_wt;
 		case depot:
 		case generic_stop:
 		case generic_extension:

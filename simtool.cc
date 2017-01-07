@@ -4509,7 +4509,6 @@ const char *tool_build_station_t::work( player_t *player, koord3d pos )
 		case building_desc_t::flat_dock:
 			msg = tool_build_station_t::tool_station_flat_dock_aux(player, pos, desc, rotation );
 			break;
-		case building_desc_t::hafen_geb:
 		case building_desc_t::generic_extension:
 			msg = tool_build_station_t::tool_station_building_aux(player, false, pos, desc, rotation );
 			if (msg) {

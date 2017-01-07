@@ -171,7 +171,6 @@ bool hausbauer_t::alles_geladen()
 
 				case building_desc_t::dock:
 				case building_desc_t::flat_dock:
-				case building_desc_t::hafen_geb:
 				case building_desc_t::depot:
 				case building_desc_t::generic_stop:
 				case building_desc_t::generic_extension:
@@ -941,7 +940,6 @@ const vector_tpl<const building_desc_t*>* hausbauer_t::get_list(const building_d
 		case building_desc_t::attraction_city: return &sehenswuerdigkeiten_city;
 		case building_desc_t::dock:
 		case building_desc_t::flat_dock:
-		case building_desc_t::hafen_geb:
 		case building_desc_t::depot:
 		case building_desc_t::generic_stop:
 		case building_desc_t::generic_extension:
