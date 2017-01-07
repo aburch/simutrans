@@ -94,16 +94,16 @@ void crossing_t::calc_image()
 #endif
 	const bool snow_image = get_pos().z >= welt->get_snowline()  ||  welt->get_climate( get_pos().get_2d() ) == arctic_climate;
 	// recalc image each step ...
-	const image_t *a = desc->get_image_after( ns, state!=crossing_logic_t::CROSSING_CLOSED, snow_image );
+	const image_t *a = desc->get_foreground( ns, state!=crossing_logic_t::CROSSING_CLOSED, snow_image );
 	if(  a==NULL  &&  snow_image  ) {
 		// no snow image? take normal one
-		a = desc->get_image_after( ns, state!=crossing_logic_t::CROSSING_CLOSED, 0);
+		a = desc->get_foreground( ns, state!=crossing_logic_t::CROSSING_CLOSED, 0);
 	}
 	foreground_image = a ? a->get_id() : IMG_EMPTY;
-	const image_t *b = desc->get_image( ns, state!=crossing_logic_t::CROSSING_CLOSED, snow_image );
+	const image_t *b = desc->get_background( ns, state!=crossing_logic_t::CROSSING_CLOSED, snow_image );
 	if (b==NULL  &&  snow_image) {
 		// no snow image? take normal one
-		b = desc->get_image( ns, state!=crossing_logic_t::CROSSING_CLOSED, 0);
+		b = desc->get_background( ns, state!=crossing_logic_t::CROSSING_CLOSED, 0);
 	}
 	image = b ? b->get_id() : IMG_EMPTY;
 }
