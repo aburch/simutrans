@@ -115,7 +115,7 @@ uint8 baum_t::plant_tree_on_coordinate(koord pos, const uint8 maximum_count, con
 						// ok to built here
 						break;
 					case obj_t::groundobj:
-						if(((groundobj_t *)obj)->get_besch()->can_built_trees_here()) {
+						if(((groundobj_t *)obj)->get_desc()->can_built_trees_here()) {
 							break;
 						}
 						// leave these (and all other empty)
@@ -137,7 +137,7 @@ uint8 baum_t::plant_tree_on_coordinate(koord pos, const uint8 maximum_count, con
 /**
  * tree planting function - it takes care of checking suitability of area
  */
-bool baum_t::plant_tree_on_coordinate(koord pos, const baum_besch_t *besch, const bool check_climate, const bool random_age )
+bool baum_t::plant_tree_on_coordinate(koord pos, const baum_besch_t *desc, const bool check_climate, const bool random_age )
 {
 	// none there
 	if(  besch_names.empty()  ) {
@@ -145,7 +145,7 @@ bool baum_t::plant_tree_on_coordinate(koord pos, const baum_besch_t *besch, cons
 	}
 	grund_t *gr = welt->lookup_kartenboden(pos);
 	if(  gr  ) {
-		if(  gr->ist_natur()  &&  gr->get_top() < welt->get_settings().get_max_no_of_trees_on_square()  &&  (!check_climate  ||  besch->is_allowed_climate( welt->get_climate(pos) ))  ) {
+		if(  gr->ist_natur()  &&  gr->get_top() < welt->get_settings().get_max_no_of_trees_on_square()  &&  (!check_climate  ||  desc->is_allowed_climate( welt->get_climate(pos) ))  ) {
 			if(  gr->get_top() > 0  ) {
 				switch(gr->obj_bei(0)->get_typ()) {
 					case obj_t::wolke:
@@ -157,7 +157,7 @@ bool baum_t::plant_tree_on_coordinate(koord pos, const baum_besch_t *besch, cons
 						// ok to built here
 						break;
 					case obj_t::groundobj:
-						if(((groundobj_t *)(gr->obj_bei(0)))->get_besch()->can_built_trees_here()) {
+						if(((groundobj_t *)(gr->obj_bei(0)))->get_desc()->can_built_trees_here()) {
 							break;
 						}
 						// leave these (and all other empty)
@@ -165,7 +165,7 @@ bool baum_t::plant_tree_on_coordinate(koord pos, const baum_besch_t *besch, cons
 						return false;
 				}
 			}
-			baum_t *b = new baum_t(gr->get_pos(), besch); //plants the tree
+			baum_t *b = new baum_t(gr->get_pos(), desc); //plants the tree
 			if(  random_age  ) {
 				b->geburt = welt->get_current_month() - simrand(703);
 				b->calc_off( welt->lookup( b->get_pos() )->get_grund_hang() );
@@ -304,13 +304,13 @@ bool baum_t::alles_geladen()
 }
 
 
-bool baum_t::register_besch(baum_besch_t *besch)
+bool baum_t::register_desc(baum_besch_t *desc)
 {
 	// avoid duplicates with same name
-	if(besch_names.remove(besch->get_name())) {
-		dbg->warning( "baum_t::register_besch()", "Object %s was overlaid by addon!", besch->get_name() );
+	if(besch_names.remove(desc->get_name())) {
+		dbg->warning( "baum_t::register_desc()", "Object %s was overlaid by addon!", desc->get_name() );
 	}
-	besch_names.put(besch->get_name(), besch );
+	besch_names.put(desc->get_name(), desc );
 	return true;
 }
 
@@ -393,7 +393,7 @@ image_id baum_t::get_image() const
 	}
 	const uint8 baum_alter = tree_age_index[min(get_age()>>6, 11u)];
 	return baumtype_to_image[ baumtype ][ season*5 + baum_alter ];
-//	return get_besch()->get_image_id( season, baum_alter );
+//	return get_desc()->get_image_id( season, baum_alter );
 }
 
 
@@ -402,7 +402,7 @@ image_id baum_t::get_outline_image() const
 {
 	const uint8 baum_alter = tree_age_index[min(get_age()>>6, 11u)];
 	return baumtype_to_image[ baumtype ][ season*5 + baum_alter ];
-//	return get_besch()->get_image_id( season, baum_alter );
+//	return get_desc()->get_image_id( season, baum_alter );
 }
 
 
@@ -459,10 +459,10 @@ baum_t::baum_t(koord3d pos, uint8 type, sint32 age, uint8 slope ) : obj_t(pos)
 }
 
 
-baum_t::baum_t(koord3d pos, const baum_besch_t *besch) : obj_t(pos)
+baum_t::baum_t(koord3d pos, const baum_besch_t *desc) : obj_t(pos)
 {
 	geburt = welt->get_current_month();
-	baumtype = baum_typen.index_of(besch);
+	baumtype = baum_typen.index_of(desc);
 	season = 0;
 	calc_off( welt->lookup( get_pos())->get_grund_hang() );
 	calc_image();
@@ -541,12 +541,12 @@ void baum_t::rdwr(loadsave_t *file)
 	if(file->is_loading()) {
 		char buf[128];
 		file->rdwr_str(buf, lengthof(buf));
-		const baum_besch_t *besch = besch_names.get( buf );
-		if(  !baum_typen.is_contained(besch)  ) {
-			besch = besch_names.get( translator::compatibility_name(buf) );
+		const baum_besch_t *desc = besch_names.get( buf );
+		if(  !baum_typen.is_contained(desc)  ) {
+			desc = besch_names.get( translator::compatibility_name(buf) );
 		}
-		if(  baum_typen.is_contained(besch)  ) {
-			baumtype = baum_typen.index_of( besch );
+		if(  baum_typen.is_contained(desc)  ) {
+			baumtype = baum_typen.index_of( desc );
 		}
 		else {
 			// not a tree
@@ -554,7 +554,7 @@ void baum_t::rdwr(loadsave_t *file)
 		}
 	}
 	else {
-		const char *c = get_besch()->get_name();
+		const char *c = get_desc()->get_name();
 		file->rdwr_str(c);
 	}
 
@@ -604,7 +604,7 @@ void baum_t::info(cbuffer_t & buf) const
 {
 	obj_t::info(buf);
 
-	buf.append( translator::translate(get_besch()->get_name()) );
+	buf.append( translator::translate(get_desc()->get_name()) );
 	buf.append( "\n" );
 	uint32 age = get_age();
 	buf.printf( translator::translate("%i years %i months old."), age/12, (age%12) );

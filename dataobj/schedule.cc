@@ -77,7 +77,7 @@ bool schedule_t::is_stop_allowed(const grund_t *gr) const
 	if(  ok  ) {
 		// ok, we can go here; but we must also check, that we are not entering a foreign depot
 		depot_t *dp = gr->get_depot();
-		ok &= (dp==NULL  ||  (int)dp->get_tile()->get_besch()->get_extra()==my_waytype);
+		ok &= (dp==NULL  ||  (int)dp->get_tile()->get_desc()->get_extra()==my_waytype);
 	}
 
 	return ok;

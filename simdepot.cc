@@ -228,11 +228,11 @@ void depot_t::sell_vehicle(vehicle_t* veh)
 
 
 // returns the indest of the oldest/newest vehicle in a list
-vehicle_t* depot_t::find_oldest_newest(const vehikel_besch_t* besch, bool old)
+vehicle_t* depot_t::find_oldest_newest(const vehikel_besch_t* desc, bool old)
 {
 	vehicle_t* found_veh = NULL;
 	FOR(  slist_tpl<vehicle_t*>,  const veh,  vehicles  ) {
-		if(  veh->get_besch() == besch  ) {
+		if(  veh->get_desc() == desc  ) {
 			// joy of XOR, finally a line where I could use it!
 			if(  found_veh == NULL  ||
 					old ^ (found_veh->get_purchase_time() > veh->get_purchase_time())  ) {
@@ -263,12 +263,12 @@ bool depot_t::check_obsolete_inventory(convoihandle_t cnv)
 	slist_tpl<vehicle_t*> veh_tmp_list;
 
 	for(  int i = 0;  i < cnv->get_vehicle_count();  i++  ) {
-		const vehikel_besch_t* const vb = cnv->get_vehikel(i)->get_besch();
+		const vehikel_besch_t* const vb = cnv->get_vehikel(i)->get_desc();
 		if(  vb  ) {
 			// search storage for matching vehicle
 			vehicle_t* veh = NULL;
 			for(  slist_tpl<vehicle_t*>::iterator i = vehicles.begin();  i != vehicles.end();  ++i  ) {
-				if(  (*i)->get_besch() == vb  ) {
+				if(  (*i)->get_desc() == vb  ) {
 					// found in storage, remove to temp list while searching for next vehicle
 					veh = *i;
 					vehicles.erase(i);
@@ -297,13 +297,13 @@ bool depot_t::check_obsolete_inventory(convoihandle_t cnv)
 convoihandle_t depot_t::copy_convoi(convoihandle_t old_cnv, bool local_execution)
 {
 	if(  old_cnv.is_bound()  &&  !convoihandle_t::is_exhausted()  &&
-		old_cnv->get_vehicle_count() > 0  &&  get_waytype() == old_cnv->front()->get_besch()->get_waytype() ) {
+		old_cnv->get_vehicle_count() > 0  &&  get_waytype() == old_cnv->front()->get_desc()->get_waytype() ) {
 
 		convoihandle_t new_cnv = add_convoi( false );
 		new_cnv->set_name(old_cnv->get_internal_name());
 		int vehicle_count = old_cnv->get_vehicle_count();
 		for (int i = 0; i<vehicle_count; i++) {
-			const vehikel_besch_t * info = old_cnv->get_vehikel(i)->get_besch();
+			const vehikel_besch_t * info = old_cnv->get_vehikel(i)->get_desc();
 			if (info != NULL) {
 				// search in depot for an existing vehicle of correct type
 				vehicle_t* oldest_vehicle = get_oldest_vehicle(info);
@@ -525,12 +525,12 @@ void depot_t::rdwr_vehikel(slist_tpl<vehicle_t *> &list, loadsave_t *file)
 				default:
 					dbg->fatal("depot_t::vehikel_laden()","invalid vehicle type $%X", typ);
 			}
-			if(v->get_besch()) {
-				DBG_MESSAGE("depot_t::vehikel_laden()","loaded %s", v->get_besch()->get_name());
+			if(v->get_desc()) {
+				DBG_MESSAGE("depot_t::vehikel_laden()","loaded %s", v->get_desc()->get_name());
 				list.insert( v );
 			}
 			else {
-				dbg->error("depot_t::vehikel_laden()","vehicle has no besch => ignored");
+				dbg->error("depot_t::vehikel_laden()","vehicle has no desc => ignored");
 			}
 		}
 	}
@@ -571,11 +571,11 @@ slist_tpl<vehikel_besch_t const*> const& depot_t::get_vehicle_type() const
 }
 
 
-vehicle_t* depot_t::get_oldest_vehicle(const vehikel_besch_t* besch)
+vehicle_t* depot_t::get_oldest_vehicle(const vehikel_besch_t* desc)
 {
 	vehicle_t* oldest_veh = NULL;
 	FOR(slist_tpl<vehicle_t*>, const veh, get_vehicle_list()) {
-		if (veh->get_besch() == besch) {
+		if (veh->get_desc() == desc) {
 			if (oldest_veh == NULL ||
 					oldest_veh->get_purchase_time() > veh->get_purchase_time()) {
 				oldest_veh = veh;

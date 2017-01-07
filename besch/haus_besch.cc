@@ -21,7 +21,7 @@
  */
 uint8 haus_tile_besch_t::get_layout() const
 {
-	koord size = get_besch()->get_size();
+	koord size = get_desc()->get_size();
 	return index / (size.x * size.y);
 }
 
@@ -37,8 +37,8 @@ uint8 haus_tile_besch_t::get_layout() const
  */
 koord haus_tile_besch_t::get_offset() const
 {
-	const haus_besch_t *besch = get_besch();
-	koord size = besch->get_size(get_layout());	// ggf. gedreht
+	const haus_besch_t *desc = get_desc();
+	koord size = desc->get_size(get_layout());	// ggf. gedreht
 	return koord( index % size.x, (index / size.x) % size.y );
 }
 

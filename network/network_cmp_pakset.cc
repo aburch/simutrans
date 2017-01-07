@@ -190,7 +190,7 @@ void network_compare_pakset_with_server(const char* cp, std::string &msg)
 						checksum_t* chk = addons.remove(nwi->name);
 						if(chk) {
 							if((*chk)==(*(nwi->chk))) {
-								// found identical besch's
+								// found identical desc's
 							}
 							else {
 								different.put(nwi->name, nwi->chk);

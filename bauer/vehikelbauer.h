@@ -34,7 +34,7 @@ public:
 	static sint32 get_speedbonus( sint32 monthyear, waytype_t wt );
 	static void rdwr_speedbonus(loadsave_t *file);
 
-	static bool register_besch(const vehikel_besch_t *besch);
+	static bool register_desc(const vehikel_besch_t *desc);
 	static bool alles_geladen();
 
 	static vehicle_t* baue(koord3d k, player_t* player, convoi_t* cnv, const vehikel_besch_t* vb );

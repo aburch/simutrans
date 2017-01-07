@@ -360,11 +360,11 @@ void grund_t::rdwr(loadsave_t *file)
 
 					case track_wt: {
 						schiene_t *sch = new schiene_t(file);
-						if(sch->get_besch()->get_wtyp()==monorail_wt) {
+						if(sch->get_desc()->get_wtyp()==monorail_wt) {
 							dbg->warning("grund_t::rdwr()", "converting railroad to monorail at (%i,%i)",get_pos().x, get_pos().y);
 							// compatibility code: Convert to monorail
 							monorail_t *w= new monorail_t();
-							w->set_besch(sch->get_besch());
+							w->set_besch(sch->get_desc());
 							w->set_max_speed(sch->get_max_speed());
 							w->set_ribi(sch->get_ribi_unmasked());
 							delete sch;
@@ -377,7 +377,7 @@ void grund_t::rdwr(loadsave_t *file)
 
 					case tram_wt:
 						weg = new schiene_t(file);
-						if(weg->get_besch()->get_styp()!=type_tram) {
+						if(weg->get_desc()->get_styp()!=type_tram) {
 							weg->set_besch(wegbauer_t::weg_search(tram_wt,weg->get_max_speed(),0,type_tram));
 						}
 						break;
@@ -788,8 +788,8 @@ void grund_t::calc_back_image(const sint8 hgt, const slope_t::type slope_this)
 
 	clear_flag(grund_t::draw_as_obj);
 	weg_t const* w;
-	if(  (  (w = get_weg_nr(0))  &&  w->get_besch()->is_draw_as_obj()  )  ||
-			(  (w = get_weg_nr(1))  &&  w->get_besch()->is_draw_as_obj()  )
+	if(  (  (w = get_weg_nr(0))  &&  w->get_desc()->is_draw_as_obj()  )  ||
+			(  (w = get_weg_nr(1))  &&  w->get_desc()->is_draw_as_obj()  )
 	  ) {
 		set_flag(grund_t::draw_as_obj);
 	}
@@ -1734,7 +1734,7 @@ sint64 grund_t::remove_trees()
 	}
 	// remove all groundobjs ...
 	while (groundobj_t* const d = find<groundobj_t>(0)) {
-		cost += d->get_besch()->get_preis();
+		cost += d->get_desc()->get_preis();
 		delete d;
 	}
 	return cost;
@@ -1775,7 +1775,7 @@ sint64 grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, player_t *player)
 			if(ist_uebergang()) {
 				// no tram => crossing needed!
 				waytype_t w2 =  other->get_waytype();
-				const kreuzung_besch_t *cr_besch = crossing_logic_t::get_crossing( weg->get_waytype(), w2, weg->get_max_speed(), other->get_besch()->get_topspeed(), welt->get_timeline_year_month() );
+				const kreuzung_besch_t *cr_besch = crossing_logic_t::get_crossing( weg->get_waytype(), w2, weg->get_max_speed(), other->get_desc()->get_topspeed(), welt->get_timeline_year_month() );
 				if(cr_besch==0) {
 					dbg->fatal("crossing_t::crossing_t()","requested for waytypes %i and %i but nothing defined!", weg->get_waytype(), w2 );
 				}
@@ -1787,7 +1787,7 @@ sint64 grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, player_t *player)
 
 		// just add the maintenance
 		if(player && !ist_wasser()) {
-			player_t::add_maintenance( player, weg->get_besch()->get_wartung(), weg->get_besch()->get_finance_waytype() );
+			player_t::add_maintenance( player, weg->get_desc()->get_wartung(), weg->get_desc()->get_finance_waytype() );
 			weg->set_owner( player );
 		}
 
@@ -1820,7 +1820,7 @@ sint32 grund_t::weg_entfernen(waytype_t wegtyp, bool ribi_rem)
 			}
 		}
 
-		sint32 costs=weg->get_besch()->get_preis();	// costs for removal are construction costs
+		sint32 costs=weg->get_desc()->get_preis();	// costs for removal are construction costs
 		weg->cleanup( NULL );
 		delete weg;
 
@@ -1836,7 +1836,7 @@ sint32 grund_t::weg_entfernen(waytype_t wegtyp, bool ribi_rem)
 				delete cr;
 				// restore speed limit
 				weg_t* w = (weg_t*)obj_bei(0);
-				w->set_besch(w->get_besch());
+				w->set_besch(w->get_desc());
 				w->count_sign();
 			}
 		}
@@ -1918,7 +1918,7 @@ bool grund_t::remove_everything_from_way(player_t* player_, waytype_t wt, ribi_t
 	weg_t *weg = get_weg(wt);
 	if(weg) {
 		waytype_t wt = weg->get_waytype();
-		waytype_t finance_wt = weg->get_besch()->get_finance_waytype();
+		waytype_t finance_wt = weg->get_desc()->get_finance_waytype();
 		const koord here = pos.get_2d();
 
 		// stops
@@ -1933,7 +1933,7 @@ bool grund_t::remove_everything_from_way(player_t* player_, waytype_t wt, ribi_t
 				// delete halts with the same waytype ... may lead to confusing / unexpected but completely logical results ;)
 				gebaeude_t *gb = find<gebaeude_t>();
 				if (gb) {
-					waytype_t halt_wt = (waytype_t)gb->get_tile()->get_besch()->get_extra();
+					waytype_t halt_wt = (waytype_t)gb->get_tile()->get_desc()->get_extra();
 					if (halt_wt == wt || (wt==track_wt && halt_wt==tram_wt) || (wt==tram_wt && halt_wt==track_wt)) {
 						remove_halt = true;
 					}
@@ -1969,28 +1969,28 @@ bool grund_t::remove_everything_from_way(player_t* player_, waytype_t wt, ribi_t
 			}
 			if (roadsign_t* const sign = obj_cast<roadsign_t>(obj)) {
 				// roadsigns: check dir: dirs changed => delete
-				if (sign->get_besch()->get_wtyp() == wt && (sign->get_dir() & ~add) != 0) {
-					costs -= sign->get_besch()->get_preis();
+				if (sign->get_desc()->get_wtyp() == wt && (sign->get_dir() & ~add) != 0) {
+					costs -= sign->get_desc()->get_preis();
 					delete sign;
 				}
 			}
 			else if (signal_t* const signal = obj_cast<signal_t>(obj)) {
 				// signal: not on crossings => remove all
-				if (signal->get_besch()->get_wtyp() == wt) {
-					costs -= signal->get_besch()->get_preis();
+				if (signal->get_desc()->get_wtyp() == wt) {
+					costs -= signal->get_desc()->get_preis();
 					delete signal;
 				}
 			}
 			else if (wayobj_t* const wayobj = obj_cast<wayobj_t>(obj)) {
 				// wayobj: check dir
-				if (add == ribi_t::none && wayobj->get_besch()->get_wtyp() == wt) {
+				if (add == ribi_t::none && wayobj->get_desc()->get_wtyp() == wt) {
 					uint8 new_dir=wayobj->get_dir()&add;
 					if(new_dir) {
 						// just change dir
 						wayobj->set_dir(new_dir);
 					}
 					else {
-						costs -= wayobj->get_besch()->get_preis();
+						costs -= wayobj->get_desc()->get_preis();
 						delete wayobj;
 					}
 				}
@@ -2006,7 +2006,7 @@ bool grund_t::remove_everything_from_way(player_t* player_, waytype_t wt, ribi_t
 			else if (tunnel_t* const tunnel = obj_cast<tunnel_t>(obj)) {
 				// remove tunnel portal, if not the last tile ...
 				// must be done before weg_entfernen() to get maintenance right
-				uint8 wt = tunnel->get_besch()->get_waytype();
+				uint8 wt = tunnel->get_desc()->get_waytype();
 				if (weg->get_waytype()==wt) {
 					if((flags&has_way2)==0) {
 						if (add==ribi_t::none) {
@@ -2069,7 +2069,7 @@ wayobj_t *grund_t::get_wayobj( waytype_t wt ) const
 	for(  uint8 i = 0;  i < get_top();  i++  ) {
 		obj_t *obj = obj_bei(i);
 		if (wayobj_t* const wayobj = obj_cast<wayobj_t>(obj)) {
-			waytype_t wt2 = wayobj->get_besch()->get_wtyp();
+			waytype_t wt2 = wayobj->get_desc()->get_wtyp();
 			if(  wt2 == tram_wt  ) {
 				wt2 = track_wt;
 			}

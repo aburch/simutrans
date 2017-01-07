@@ -717,7 +717,7 @@ void karte_t::set_scenario(scenario_t *s)
 void karte_t::create_rivers( sint16 number )
 {
 	// First check, wether there is a canal:
-	const weg_besch_t* river_besch = wegbauer_t::get_besch( env_t::river_type[env_t::river_types-1], 0 );
+	const weg_besch_t* river_besch = wegbauer_t::get_desc( env_t::river_type[env_t::river_types-1], 0 );
 	if(  river_besch == NULL  ) {
 		// should never reaching here ...
 		dbg->warning("karte_t::create_rivers()","There is no river defined!\n");
@@ -850,8 +850,8 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 
 			uint32 game_start = current_month;
 			// townhalls available since?
-			FOR(vector_tpl<haus_besch_t const*>, const besch, *hausbauer_t::get_list(haus_besch_t::rathaus)) {
-				uint32 intro_year_month = besch->get_intro_year_month();
+			FOR(vector_tpl<haus_besch_t const*>, const desc, *hausbauer_t::get_list(haus_besch_t::rathaus)) {
+				uint32 intro_year_month = desc->get_intro_year_month();
 				if(  intro_year_month<game_start  ) {
 					game_start = intro_year_month;
 				}
@@ -908,14 +908,14 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 		finance_history_year[0][WORLD_CITICENS] = finance_history_month[0][WORLD_CITICENS] = last_month_bev;
 
 		// Hajo: connect some cities with roads
-		weg_besch_t const* besch = settings.get_intercity_road_type(get_timeline_year_month());
-		if(besch == 0) {
+		weg_besch_t const* desc = settings.get_intercity_road_type(get_timeline_year_month());
+		if(desc == 0) {
 			// Hajo: try some default (might happen with timeline ... )
-			besch = wegbauer_t::weg_search(road_wt,80,get_timeline_year_month(),type_flat);
+			desc = wegbauer_t::weg_search(road_wt,80,get_timeline_year_month(),type_flat);
 		}
 
 		wegbauer_t bauigel (players[1] );
-		bauigel.route_fuer(wegbauer_t::strasse | wegbauer_t::terraform_flag, besch, tunnelbauer_t::find_tunnel(road_wt,15,get_timeline_year_month()), brueckenbauer_t::find_bridge(road_wt,15,get_timeline_year_month()) );
+		bauigel.route_fuer(wegbauer_t::strasse | wegbauer_t::terraform_flag, desc, tunnelbauer_t::find_tunnel(road_wt,15,get_timeline_year_month()), brueckenbauer_t::find_bridge(road_wt,15,get_timeline_year_month()) );
 		bauigel.set_keep_existing_ways(true);
 		bauigel.set_maximum(env_t::intercity_road_length);
 
@@ -940,7 +940,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 					bool ok = false;
 					if(  gb  &&  gb->ist_rathaus()  ) {
 						koord k_check = stadt[i]->get_pos() + koord(-1,-1);
-						const koord size = gb->get_tile()->get_besch()->get_size(gb->get_tile()->get_layout());
+						const koord size = gb->get_tile()->get_desc()->get_size(gb->get_tile()->get_layout());
 						koord inc(1,0);
 						// scan all adjacent tiles, take the first that has a road
 						for(sint32 i=0; i<2*size.x+2*size.y+4  &&  !ok; i++) {
@@ -1159,10 +1159,10 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","distributing groundobjs");
 							}
 						}
 						const climate_bits cl = neighbour_water ? water_climate_bit : (climate_bits)(1<<get_climate(k));
-						const groundobj_besch_t *besch = groundobj_t::random_groundobj_for_climate( cl, gr->get_grund_hang() );
-						if(besch) {
+						const groundobj_besch_t *desc = groundobj_t::random_groundobj_for_climate( cl, gr->get_grund_hang() );
+						if(desc) {
 							queried = simrand(env_t::ground_object_probability*2-1);
-							gr->obj_add( new groundobj_t( gr->get_pos(), besch ) );
+							gr->obj_add( new groundobj_t( gr->get_pos(), desc ) );
 						}
 					}
 				}
@@ -1184,11 +1184,11 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","distributing movingobjs");
 				if(  gr->get_top()==0  &&  (  (gr->get_typ()==grund_t::boden  &&  gr->get_grund_hang()==slope_t::flat)  ||  (has_water  &&  gr->ist_wasser())  )  ) {
 					queried --;
 					if(  queried<0  ) {
-						const groundobj_besch_t *besch = movingobj_t::random_movingobj_for_climate( get_climate(k) );
-						if(  besch  &&  ( besch->get_waytype() != water_wt  ||  gr->get_hoehe() <= get_water_hgt_nocheck(k) )  ) {
-							if(besch->get_speed()!=0) {
+						const groundobj_besch_t *desc = movingobj_t::random_movingobj_for_climate( get_climate(k) );
+						if(  desc  &&  ( desc->get_waytype() != water_wt  ||  gr->get_hoehe() <= get_water_hgt_nocheck(k) )  ) {
+							if(desc->get_speed()!=0) {
 								queried = simrand(env_t::moving_object_probability*2);
-								gr->obj_add( new movingobj_t( gr->get_pos(), besch ) );
+								gr->obj_add( new movingobj_t( gr->get_pos(), desc ) );
 							}
 						}
 					}
@@ -3370,7 +3370,7 @@ bool karte_t::rem_fab(fabrik_t *fab)
 void karte_t::add_ausflugsziel(gebaeude_t *gb)
 {
 	assert(gb != NULL);
-	ausflugsziele.append( gb, gb->get_tile()->get_besch()->get_level() );
+	ausflugsziele.append( gb, gb->get_tile()->get_desc()->get_level() );
 
 	// Knightly : add links between this attraction and all cities
 	FOR(weighted_vector_tpl<stadt_t*>, const c, stadt) {
@@ -5334,7 +5334,7 @@ DBG_MESSAGE("karte_t::laden()", "init player");
 	for(sint32 i = 0; i < fabs; i++) {
 		// liste in gleicher reihenfolge wie vor dem speichern wieder aufbauen
 		fabrik_t *fab = new fabrik_t(file);
-		if(fab->get_besch()) {
+		if(fab->get_desc()) {
 			fab_list.append( fab );
 		}
 		else {

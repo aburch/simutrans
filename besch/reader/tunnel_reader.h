@@ -10,7 +10,7 @@ class tunnel_reader_t : public obj_reader_t {
 
 	tunnel_reader_t() { register_reader(); }
 
-	static void convert_old_tunnel(tunnel_besch_t *besch);
+	static void convert_old_tunnel(tunnel_besch_t *desc);
 
 protected:
 	void register_obj(obj_besch_t*&) OVERRIDE;

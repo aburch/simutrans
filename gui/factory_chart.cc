@@ -230,9 +230,9 @@ void factory_chart_t::set_factory(const fabrik_t *_factory)
 		prod_buttons[s].pressed = false;
 		// only show buttons, if the is something to do ...
 		if(
-			(s==FAB_BOOST_ELECTRIC  &&  (factory->get_besch()->is_electricity_producer()  ||  factory->get_besch()->get_electric_boost()==0))  ||
-			(s==FAB_BOOST_PAX  &&  factory->get_besch()->get_pax_boost()==0)  ||
-			(s==FAB_BOOST_MAIL  &&  factory->get_besch()->get_mail_boost()==0)
+			(s==FAB_BOOST_ELECTRIC  &&  (factory->get_desc()->is_electricity_producer()  ||  factory->get_desc()->get_electric_boost()==0))  ||
+			(s==FAB_BOOST_PAX  &&  factory->get_desc()->get_pax_boost()==0)  ||
+			(s==FAB_BOOST_MAIL  &&  factory->get_desc()->get_mail_boost()==0)
 			) {
 			prod_buttons[s].disable();
 		}
@@ -248,12 +248,12 @@ void factory_chart_t::set_factory(const fabrik_t *_factory)
 				prod_ref_line_buttons[r].background_color = ref_color[r];
 				prod_ref_line_buttons[r].pressed = false;
 				if(
-					(r==FAB_REF_MAX_BOOST_ELECTRIC  &&  (factory->get_besch()->is_electricity_producer()  ||  factory->get_besch()->get_electric_boost()==0))  ||
-					(r==FAB_REF_MAX_BOOST_PAX  &&  factory->get_besch()->get_pax_boost()==0)  ||
-					(r==FAB_REF_MAX_BOOST_MAIL  &&  factory->get_besch()->get_mail_boost()==0)  ||
-					(r==FAB_REF_DEMAND_ELECTRIC  &&  (factory->get_besch()->is_electricity_producer()  ||  factory->get_besch()->get_electric_amount()==0))  ||
-					(r==FAB_REF_DEMAND_PAX  &&  factory->get_besch()->get_pax_demand()==0)  ||
-					(r==FAB_REF_DEMAND_MAIL  &&  factory->get_besch()->get_mail_demand()==0)
+					(r==FAB_REF_MAX_BOOST_ELECTRIC  &&  (factory->get_desc()->is_electricity_producer()  ||  factory->get_desc()->get_electric_boost()==0))  ||
+					(r==FAB_REF_MAX_BOOST_PAX  &&  factory->get_desc()->get_pax_boost()==0)  ||
+					(r==FAB_REF_MAX_BOOST_MAIL  &&  factory->get_desc()->get_mail_boost()==0)  ||
+					(r==FAB_REF_DEMAND_ELECTRIC  &&  (factory->get_desc()->is_electricity_producer()  ||  factory->get_desc()->get_electric_amount()==0))  ||
+					(r==FAB_REF_DEMAND_PAX  &&  factory->get_desc()->get_pax_demand()==0)  ||
+					(r==FAB_REF_DEMAND_MAIL  &&  factory->get_desc()->get_mail_demand()==0)
 					) {
 					prod_ref_line_buttons[r].disable();
 				}
@@ -281,9 +281,9 @@ void factory_chart_t::set_factory(const fabrik_t *_factory)
 	tab_panel.set_size( size );
 
 	// initialize reference lines' data (these do not change over time)
-	prod_ref_line_data[FAB_REF_MAX_BOOST_ELECTRIC] = factory->get_besch()->get_electric_boost();
-	prod_ref_line_data[FAB_REF_MAX_BOOST_PAX] = factory->get_besch()->get_pax_boost();
-	prod_ref_line_data[FAB_REF_MAX_BOOST_MAIL] = factory->get_besch()->get_mail_boost();
+	prod_ref_line_data[FAB_REF_MAX_BOOST_ELECTRIC] = factory->get_desc()->get_electric_boost();
+	prod_ref_line_data[FAB_REF_MAX_BOOST_PAX] = factory->get_desc()->get_pax_boost();
+	prod_ref_line_data[FAB_REF_MAX_BOOST_MAIL] = factory->get_desc()->get_mail_boost();
 }
 
 
@@ -346,7 +346,7 @@ bool factory_chart_t::action_triggered(gui_action_creator_t *komp, value_t)
 void factory_chart_t::draw(scr_coord pos)
 {
 	// update reference lines' data (these might change over time)
-	prod_ref_line_data[FAB_REF_DEMAND_ELECTRIC] = ( factory->get_besch()->is_electricity_producer() ? 0 : factory->get_scaled_electric_amount() );
+	prod_ref_line_data[FAB_REF_DEMAND_ELECTRIC] = ( factory->get_desc()->is_electricity_producer() ? 0 : factory->get_scaled_electric_amount() );
 	prod_ref_line_data[FAB_REF_DEMAND_PAX] = factory->get_scaled_pax_demand();
 	prod_ref_line_data[FAB_REF_DEMAND_MAIL] = factory->get_scaled_mail_demand();
 

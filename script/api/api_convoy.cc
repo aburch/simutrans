@@ -46,7 +46,7 @@ vector_tpl<vehikel_besch_t const*> const& convoi_get_vehicles(convoi_t* cnv)
 	v.clear();
 	if (cnv) {
 		for(uint16 i=0; i<cnv->get_vehicle_count(); i++) {
-			v.append(cnv->get_vehikel(i)->get_besch());
+			v.append(cnv->get_vehikel(i)->get_desc());
 		}
 	}
 	return v;

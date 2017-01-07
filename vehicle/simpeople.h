@@ -17,7 +17,7 @@ private:
 	static stringhashtable_tpl<const fussgaenger_besch_t *> table;
 
 private:
-	const fussgaenger_besch_t *besch;
+	const fussgaenger_besch_t *desc;
 
 protected:
 	void rdwr(loadsave_t *file);
@@ -35,7 +35,7 @@ public:
 
 	virtual ~pedestrian_t();
 
-	const fussgaenger_besch_t *get_besch() const { return besch; }
+	const fussgaenger_besch_t *get_desc() const { return desc; }
 
 	const char *get_name() const {return "Fussgaenger";}
 	typ get_typ() const { return pedestrian; }
@@ -48,7 +48,7 @@ public:
 	virtual void hop(grund_t* gr);
 
 	// class register functions
-	static bool register_besch(const fussgaenger_besch_t *besch);
+	static bool register_desc(const fussgaenger_besch_t *desc);
 	static bool alles_geladen();
 
 	static void generate_pedestrians_at(koord3d k, int &count);

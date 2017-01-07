@@ -77,7 +77,7 @@ class private_car_t : public road_user_t, public overtaker_t
 private:
 	static stringhashtable_tpl<const stadtauto_besch_t *> table;
 
-	const stadtauto_besch_t *besch;
+	const stadtauto_besch_t *desc;
 
 	// prissi: time to life in blocks
 #ifdef DESTINATION_CITYCARS
@@ -111,7 +111,7 @@ public:
 
 	virtual ~private_car_t();
 
-	const stadtauto_besch_t *get_besch() const { return besch; }
+	const stadtauto_besch_t *get_desc() const { return desc; }
 
 	sync_result sync_step(uint32 delta_t);
 
@@ -144,7 +144,7 @@ public:
 	static void build_timeline_list(karte_t *welt);
 	static bool list_empty();
 
-	static bool register_besch(const stadtauto_besch_t *besch);
+	static bool register_desc(const stadtauto_besch_t *desc);
 	static bool alles_geladen();
 
 	// since we must consider overtaking, we use this for offset calculation

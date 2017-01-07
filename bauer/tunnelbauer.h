@@ -30,17 +30,17 @@ class tunnelbauer_t {
 private:
 	static karte_ptr_t welt;
 
-	static bool baue_tunnel(player_t *player, koord3d pos, koord3d end, koord zv, const tunnel_besch_t *besch);
-	static void baue_einfahrt(player_t *player, koord3d end, koord zv, const tunnel_besch_t *besch, const weg_besch_t *weg_besch, int &cost);
+	static bool baue_tunnel(player_t *player, koord3d pos, koord3d end, koord zv, const tunnel_besch_t *desc);
+	static void baue_einfahrt(player_t *player, koord3d end, koord zv, const tunnel_besch_t *desc, const weg_besch_t *weg_besch, int &cost);
 
 	tunnelbauer_t() {} // private -> no instance please
 
 public:
-	static koord3d finde_ende(player_t *player, koord3d pos, koord zv, const tunnel_besch_t *besch, bool full_tunnel=true, const char** msg=NULL);
+	static koord3d finde_ende(player_t *player, koord3d pos, koord zv, const tunnel_besch_t *desc, bool full_tunnel=true, const char** msg=NULL);
 
-	static void register_besch(tunnel_besch_t *besch);
+	static void register_desc(tunnel_besch_t *desc);
 
-	static const tunnel_besch_t *get_besch(const char *);
+	static const tunnel_besch_t *get_desc(const char *);
 
 	static const tunnel_besch_t *find_tunnel(const waytype_t wtyp, const sint32 min_speed,const uint16 time);
 
@@ -50,7 +50,7 @@ public:
 	 */
 	static const vector_tpl<const tunnel_besch_t *>& get_available_tunnels(const waytype_t wtyp);
 
-	static const char *baue( player_t *player, koord pos, const tunnel_besch_t *besch, bool full_tunnel  );
+	static const char *baue( player_t *player, koord pos, const tunnel_besch_t *desc, bool full_tunnel  );
 
 	static const char *remove(player_t *player, koord3d pos, waytype_t wegtyp, bool all);
 };

@@ -14,7 +14,7 @@ class karte_t;
 
 class pillar_t : public obj_t
 {
-	const bruecke_besch_t *besch;
+	const bruecke_besch_t *desc;
 	uint8 dir;
 	bool asymmetric;
 	image_id image;
@@ -24,12 +24,12 @@ protected:
 
 public:
 	pillar_t(loadsave_t *file);
-	pillar_t(koord3d pos, player_t *player, const bruecke_besch_t *besch, bruecke_besch_t::img_t img, int hoehe);
+	pillar_t(koord3d pos, player_t *player, const bruecke_besch_t *desc, bruecke_besch_t::img_t img, int hoehe);
 
 	const char* get_name() const { return "Pillar"; }
 	typ get_typ() const { return obj_t::pillar; }
 
-	const bruecke_besch_t* get_besch() const { return besch; }
+	const bruecke_besch_t* get_desc() const { return desc; }
 
 	image_id get_image() const { return asymmetric ? IMG_EMPTY : image; }
 

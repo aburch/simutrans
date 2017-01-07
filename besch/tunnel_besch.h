@@ -53,8 +53,8 @@ public:
 
 	image_id get_background_nr(slope_t::type hang, uint8 season, uint8 type ) const
 	{
-		const image_t *besch = get_background(hang, season, type );
-		return besch != NULL ? besch->get_id() : IMG_EMPTY;
+		const image_t *desc = get_background(hang, season, type );
+		return desc != NULL ? desc->get_id() : IMG_EMPTY;
 	}
 
 	const image_t *get_foreground(slope_t::type hang, uint8 season, uint8 type ) const
@@ -65,8 +65,8 @@ public:
 
 	image_id get_foreground_nr(slope_t::type hang, uint8 season, uint8 type) const
 	{
-		const image_t *besch = get_foreground(hang, season, type );
-		return besch != NULL ? besch->get_id() :IMG_EMPTY;
+		const image_t *desc = get_foreground(hang, season, type );
+		return desc != NULL ? desc->get_id() :IMG_EMPTY;
 	}
 
 	skin_besch_t const* get_cursor() const { return get_child<skin_besch_t>(4); }

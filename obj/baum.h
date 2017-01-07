@@ -63,7 +63,7 @@ public:
 	baum_t(loadsave_t *file);
 	baum_t(koord3d pos);
 	baum_t(koord3d pos, uint8 type, sint32 age, uint8 slope );
-	baum_t(koord3d pos, const baum_besch_t *besch);
+	baum_t(koord3d pos, const baum_besch_t *desc);
 
 	void rdwr(loadsave_t *file);
 
@@ -110,9 +110,9 @@ public:
 	void * operator new(size_t s);
 	void operator delete(void *p);
 
-	const baum_besch_t* get_besch() const { return baum_typen[baumtype]; }
+	const baum_besch_t* get_desc() const { return baum_typen[baumtype]; }
 	void set_besch( const baum_besch_t *b ) { baumtype = baum_typen.index_of(b); }
-	uint16 get_besch_id() const { return baumtype; }
+	uint16 get_desc_id() const { return baumtype; }
 
 	uint32 get_age() const;
 
@@ -121,9 +121,9 @@ public:
 	// distributes trees on a map
 	static void distribute_trees(int dichte);
 
-	static bool plant_tree_on_coordinate(koord pos, const baum_besch_t *besch, const bool check_climate, const bool random_age );
+	static bool plant_tree_on_coordinate(koord pos, const baum_besch_t *desc, const bool check_climate, const bool random_age );
 
-	static bool register_besch(baum_besch_t *besch);
+	static bool register_desc(baum_besch_t *desc);
 	static bool alles_geladen();
 
 	static uint32 create_forest(koord center, koord size );

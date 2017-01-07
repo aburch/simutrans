@@ -90,21 +90,21 @@ SQInteger halt_export_line_list(HSQUIRRELVM vm)
 }
 
 
-uint32 halt_get_capacity(const haltestelle_t *halt, const ware_besch_t *besch)
+uint32 halt_get_capacity(const haltestelle_t *halt, const ware_besch_t *desc)
 {
 	// passenger has index 0, mail 1, everything else >=2
-	return halt  &&  besch  ?  halt->get_capacity(min( besch->get_catg_index(), 2 )) : 0;
+	return halt  &&  desc  ?  halt->get_capacity(min( desc->get_catg_index(), 2 )) : 0;
 }
 
 // 0: not connected
 // 1: connected
 // -1: undecided
-sint8 is_halt_connected(const haltestelle_t *a, halthandle_t b, const ware_besch_t *besch)
+sint8 is_halt_connected(const haltestelle_t *a, halthandle_t b, const ware_besch_t *desc)
 {
-	if (besch == 0  ||  a == NULL  ||  !b.is_bound()) {
+	if (desc == 0  ||  a == NULL  ||  !b.is_bound()) {
 		return 0;
 	}
-	return a->is_connected(b, besch->get_catg_index());
+	return a->is_connected(b, desc->get_catg_index());
 }
 
 

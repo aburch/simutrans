@@ -92,12 +92,12 @@ welt_gui_t::welt_gui_t(settings_t* const sets_par) :
 	uint16 game_ends = 0;
 
 	// first check town halls
-	FOR(vector_tpl<haus_besch_t const*>, const besch, *hausbauer_t::get_list(haus_besch_t::rathaus)) {
-		uint16 intro_year = (besch->get_intro_year_month()+11)/12;
+	FOR(vector_tpl<haus_besch_t const*>, const desc, *hausbauer_t::get_list(haus_besch_t::rathaus)) {
+		uint16 intro_year = (desc->get_intro_year_month()+11)/12;
 		if(  intro_year<game_start  ) {
 			game_start = intro_year;
 		}
-		uint16 retire_year = (besch->get_retire_year_month()+11)/12;
+		uint16 retire_year = (desc->get_retire_year_month()+11)/12;
 		if(  retire_year>game_ends  ) {
 			game_ends = retire_year;
 		}

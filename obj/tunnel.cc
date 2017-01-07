@@ -32,18 +32,18 @@ static pthread_mutex_t tunnel_calc_image_mutex = PTHREAD_RECURSIVE_MUTEX_INITIAL
 
 tunnel_t::tunnel_t(loadsave_t* const file) : obj_no_info_t()
 {
-	besch = 0;
+	desc = 0;
 	rdwr(file);
 	image = foreground_image = IMG_EMPTY;
 	broad_type = 0;
 }
 
 
-tunnel_t::tunnel_t(koord3d pos, player_t *player, const tunnel_besch_t *besch) :
+tunnel_t::tunnel_t(koord3d pos, player_t *player, const tunnel_besch_t *desc) :
 	obj_no_info_t(pos)
 {
-	assert(besch);
-	this->besch = besch;
+	assert(desc);
+	this->desc = desc;
 	set_owner( player );
 	image = foreground_image = IMG_EMPTY;
 	broad_type = 0;
@@ -52,7 +52,7 @@ tunnel_t::tunnel_t(koord3d pos, player_t *player, const tunnel_besch_t *besch) :
 
 waytype_t tunnel_t::get_waytype() const
 {
-	return besch ? besch->get_waytype() : invalid_wt;
+	return desc ? desc->get_waytype() : invalid_wt;
 }
 
 
@@ -62,11 +62,11 @@ void tunnel_t::calc_image()
 	pthread_mutex_lock( &tunnel_calc_image_mutex );
 #endif
 	const grund_t *gr = welt->lookup(get_pos());
-	if(  gr->ist_karten_boden()  &&  besch  ) {
+	if(  gr->ist_karten_boden()  &&  desc  ) {
 		slope_t::type hang = gr->get_grund_hang();
 
 		broad_type = 0;
-		if(  besch->has_broad_portals()  ) {
+		if(  desc->has_broad_portals()  ) {
 			ribi_t::ribi dir = ribi_t::rotate90( ribi_type( hang ) );
 			if(  dir==0  ) {
 				dbg->error( "tunnel_t::calc_image()", "pos=%s, dir=%i, hang=%i", get_pos().get_str(), dir, hang );
@@ -74,7 +74,7 @@ void tunnel_t::calc_image()
 			else {
 				const grund_t *gr_l = welt->lookup(get_pos() + dir);
 				tunnel_t* tunnel_l = gr_l ? gr_l->find<tunnel_t>() : NULL;
-				if(  tunnel_l  &&  tunnel_l->get_besch() == besch  &&  gr_l->get_grund_hang() == hang  ) {
+				if(  tunnel_l  &&  tunnel_l->get_desc() == desc  &&  gr_l->get_grund_hang() == hang  ) {
 					broad_type += 1;
 					if(  !(tunnel_l->get_broad_type() & 2)  ) {
 						tunnel_l->calc_image();
@@ -82,7 +82,7 @@ void tunnel_t::calc_image()
 				}
 				const grund_t *gr_r = welt->lookup(get_pos() - dir);
 				tunnel_t* tunnel_r = gr_r ? gr_r->find<tunnel_t>() : NULL;
-				if(  tunnel_r  &&  tunnel_r->get_besch() == besch  &&  gr_r->get_grund_hang() == hang  ) {
+				if(  tunnel_r  &&  tunnel_r->get_desc() == desc  &&  gr_r->get_grund_hang() == hang  ) {
 					broad_type += 2;
 					if(  !(tunnel_r->get_broad_type() & 1)  ) {
 						tunnel_r->calc_image();
@@ -91,8 +91,8 @@ void tunnel_t::calc_image()
 			}
 		}
 
-		set_image( besch->get_background_nr( hang, get_pos().z >= welt->get_snowline()  ||  welt->get_climate( get_pos().get_2d() ) == arctic_climate, broad_type ) );
-		set_foreground_image( besch->get_foreground_nr( hang, get_pos().z >= welt->get_snowline()  ||  welt->get_climate( get_pos().get_2d() ) == arctic_climate, broad_type ) );
+		set_image( desc->get_background_nr( hang, get_pos().z >= welt->get_snowline()  ||  welt->get_climate( get_pos().get_2d() ) == arctic_climate, broad_type ) );
+		set_foreground_image( desc->get_foreground_nr( hang, get_pos().z >= welt->get_snowline()  ||  welt->get_climate( get_pos().get_2d() ) == arctic_climate, broad_type ) );
 	}
 	else {
 		set_image( IMG_EMPTY );
@@ -113,16 +113,16 @@ void tunnel_t::rdwr(loadsave_t *file)
 		char  buf[256];
 		if(  file->is_loading()  ) {
 			file->rdwr_str(buf, lengthof(buf));
-			besch = tunnelbauer_t::get_besch(buf);
-			if(  besch==NULL  ) {
-				besch = tunnelbauer_t::get_besch(translator::compatibility_name(buf));
+			desc = tunnelbauer_t::get_desc(buf);
+			if(  desc==NULL  ) {
+				desc = tunnelbauer_t::get_desc(translator::compatibility_name(buf));
 			}
-			if(  besch==NULL  ) {
+			if(  desc==NULL  ) {
 				welt->add_missing_paks( buf, karte_t::MISSING_WAY );
 			}
 		}
 		else {
-			strcpy( buf, besch->get_name() );
+			strcpy( buf, desc->get_name() );
 			file->rdwr_str(buf,0);
 		}
 	}
@@ -134,39 +134,39 @@ void tunnel_t::finish_rd()
 	const grund_t *gr = welt->lookup(get_pos());
 	player_t *player=get_owner();
 
-	if(besch==NULL) {
+	if(desc==NULL) {
 		// find a matching besch
 		if (gr->get_weg_nr(0)==NULL) {
 			// no way? underground powerline
 			if (gr->get_leitung()) {
-				besch = tunnelbauer_t::find_tunnel(powerline_wt, 1, 0);
+				desc = tunnelbauer_t::find_tunnel(powerline_wt, 1, 0);
 			}
 			// no tunnel -> use dummy road tunnel
-			if (besch==NULL) {
-				besch = tunnelbauer_t::find_tunnel(road_wt, 1, 0);
+			if (desc==NULL) {
+				desc = tunnelbauer_t::find_tunnel(road_wt, 1, 0);
 			}
 		}
 		else {
-			besch = tunnelbauer_t::find_tunnel(gr->get_weg_nr(0)->get_besch()->get_wtyp(), 450, 0);
-			if(  besch == NULL  ) {
+			desc = tunnelbauer_t::find_tunnel(gr->get_weg_nr(0)->get_desc()->get_wtyp(), 450, 0);
+			if(  desc == NULL  ) {
 				dbg->error( "tunnel_t::finish_rd()", "Completely unknown tunnel for this waytype: Lets use a rail tunnel!" );
-				besch = tunnelbauer_t::find_tunnel(track_wt, 1, 0);
+				desc = tunnelbauer_t::find_tunnel(track_wt, 1, 0);
 			}
 		}
 	}
 
 	if(player) {
 		// change maintenance
-		weg_t *weg = gr->get_weg(besch->get_waytype());
+		weg_t *weg = gr->get_weg(desc->get_waytype());
 		if(weg) {
-			weg->set_max_speed(besch->get_topspeed());
-			player_t::add_maintenance( player, -weg->get_besch()->get_wartung(), weg->get_besch()->get_finance_waytype());
+			weg->set_max_speed(desc->get_topspeed());
+			player_t::add_maintenance( player, -weg->get_desc()->get_wartung(), weg->get_desc()->get_finance_waytype());
 		}
 		leitung_t *lt = gr->get_leitung();
 		if(lt) {
-			player_t::add_maintenance( player, -lt->get_besch()->get_wartung(), powerline_wt );
+			player_t::add_maintenance( player, -lt->get_desc()->get_wartung(), powerline_wt );
 		}
-		player_t::add_maintenance( player,  besch->get_wartung(), besch->get_finance_waytype() );
+		player_t::add_maintenance( player,  desc->get_wartung(), desc->get_finance_waytype() );
 	}
 }
 
@@ -179,15 +179,15 @@ void tunnel_t::cleanup( player_t *player2 )
 		// inside tunnel => do nothing but change maintenance
 		const grund_t *gr = welt->lookup(get_pos());
 		if(gr) {
-			weg_t *weg = gr->get_weg( besch->get_waytype() );
+			weg_t *weg = gr->get_weg( desc->get_waytype() );
 			if(weg)	{
-				weg->set_max_speed( weg->get_besch()->get_topspeed() );
-				player_t::add_maintenance( player,  weg->get_besch()->get_wartung(), weg->get_besch()->get_finance_waytype());
+				weg->set_max_speed( weg->get_desc()->get_topspeed() );
+				player_t::add_maintenance( player,  weg->get_desc()->get_wartung(), weg->get_desc()->get_finance_waytype());
 			}
-			player_t::add_maintenance( player,  -besch->get_wartung(), besch->get_finance_waytype() );
+			player_t::add_maintenance( player,  -desc->get_wartung(), desc->get_finance_waytype() );
 		}
 	}
-	player_t::book_construction_costs(player2, -besch->get_preis(), get_pos().get_2d(), besch->get_finance_waytype() );
+	player_t::book_construction_costs(player2, -desc->get_preis(), get_pos().get_2d(), desc->get_finance_waytype() );
 }
 
 

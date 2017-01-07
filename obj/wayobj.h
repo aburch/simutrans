@@ -30,7 +30,7 @@ class tool_selector_t;
 class wayobj_t : public obj_no_info_t
 {
 private:
-	const way_obj_besch_t *besch;
+	const way_obj_besch_t *desc;
 
 	uint8 diagonal:1;
 	uint8 hang:7;
@@ -42,13 +42,13 @@ private:
 
 
 public:
-	wayobj_t(koord3d pos, player_t *owner, ribi_t::ribi dir, const way_obj_besch_t *besch);
+	wayobj_t(koord3d pos, player_t *owner, ribi_t::ribi dir, const way_obj_besch_t *desc);
 
 	wayobj_t(loadsave_t *file);
 
 	virtual ~wayobj_t();
 
-	const way_obj_besch_t *get_besch() const {return besch;}
+	const way_obj_besch_t *get_desc() const {return desc;}
 
 	void rotate90();
 
@@ -57,8 +57,8 @@ public:
 	* @author V. Meyer
 	*/
 	image_id get_image() const {
-		return hang ? besch->get_back_slope_image_id(hang) :
-			(diagonal ? besch->get_back_diagonal_image_id(dir) : besch->get_back_image_id(dir));
+		return hang ? desc->get_back_slope_image_id(hang) :
+			(diagonal ? desc->get_back_diagonal_image_id(dir) : desc->get_back_image_id(dir));
 	}
 
 	/**
@@ -66,8 +66,8 @@ public:
 	* @author V. Meyer
 	*/
 	image_id get_front_image() const {
-		return hang ? besch->get_front_slope_image_id(hang) :
-			diagonal ? besch->get_front_diagonal_image_id(dir) : besch->get_front_image_id(dir);
+		return hang ? desc->get_front_slope_image_id(hang) :
+			diagonal ? desc->get_front_diagonal_image_id(dir) : desc->get_front_image_id(dir);
 	}
 
 	/**
@@ -80,7 +80,7 @@ public:
 	/**
 	 * waytype associated with this object
 	 */
-	waytype_t get_waytype() const { return besch ? besch->get_wtyp() : invalid_wt; }
+	waytype_t get_waytype() const { return desc ? desc->get_wtyp() : invalid_wt; }
 
 	void calc_image();
 
@@ -117,9 +117,9 @@ public:
 	static const way_obj_besch_t *default_oberleitung;
 
 	// use this constructor; it will extend a matching existing wayobj
-	static void extend_wayobj_t(koord3d pos, player_t *owner, ribi_t::ribi dir, const way_obj_besch_t *besch);
+	static void extend_wayobj_t(koord3d pos, player_t *owner, ribi_t::ribi dir, const way_obj_besch_t *desc);
 
-	static bool register_besch(way_obj_besch_t *besch);
+	static bool register_desc(way_obj_besch_t *desc);
 	static bool alles_geladen();
 
 	// search an object (currently only used by AI for caternary)

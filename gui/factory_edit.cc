@@ -121,25 +121,25 @@ void factory_edit_frame_t::fill_list( bool translate )
 
 	// timeline will be obeyed; however, we may show obsolete ones ...
 	FOR(stringhashtable_tpl<fabrik_besch_t const*>, const& i, fabrikbauer_t::get_fabesch()) {
-		fabrik_besch_t const* const besch = i.value;
-		if(besch->get_gewichtung()>0) {
+		fabrik_besch_t const* const desc = i.value;
+		if(desc->get_gewichtung()>0) {
 			// DistributionWeight=0 is obsoleted item, only for backward compatibility
 
-			if(!use_timeline  ||  (!besch->get_haus()->is_future(month_now)  &&  (!besch->get_haus()->is_retired(month_now)  ||  allow_obsolete))  ) {
+			if(!use_timeline  ||  (!desc->get_haus()->is_future(month_now)  &&  (!desc->get_haus()->is_retired(month_now)  ||  allow_obsolete))  ) {
 				// timeline allows for this
 
 				if(city_chain) {
-					if (besch->get_platzierung() == fabrik_besch_t::Stadt && besch->is_consumer_only()) {
-						fablist.insert_ordered( besch, translate?compare_fabrik_besch_trans:compare_fabrik_besch );
+					if (desc->get_platzierung() == fabrik_besch_t::Stadt && desc->is_consumer_only()) {
+						fablist.insert_ordered( desc, translate?compare_fabrik_besch_trans:compare_fabrik_besch );
 					}
 				}
 				if(land_chain) {
-					if (besch->get_platzierung() == fabrik_besch_t::Land && besch->is_consumer_only()) {
-						fablist.insert_ordered( besch, translate?compare_fabrik_besch_trans:compare_fabrik_besch );
+					if (desc->get_platzierung() == fabrik_besch_t::Land && desc->is_consumer_only()) {
+						fablist.insert_ordered( desc, translate?compare_fabrik_besch_trans:compare_fabrik_besch );
 					}
 				}
 				if(!city_chain  &&  !land_chain) {
-					fablist.insert_ordered( besch, translate?compare_fabrik_besch_trans:compare_fabrik_besch );
+					fablist.insert_ordered( desc, translate?compare_fabrik_besch_trans:compare_fabrik_besch );
 				}
 			}
 		}
@@ -260,11 +260,11 @@ void factory_edit_frame_t::change_item_info(sint32 entry)
 			}
 
 			// now the house stuff
-			const haus_besch_t *besch = fab_besch->get_haus();
+			const haus_besch_t *desc = fab_besch->get_haus();
 
 			// climates
 			buf.append( translator::translate("allowed climates:\n") );
-			uint16 cl = besch->get_allowed_climate_bits();
+			uint16 cl = desc->get_allowed_climate_bits();
 			if(cl==0) {
 				buf.append( translator::translate("none") );
 				buf.append("\n");
@@ -284,12 +284,12 @@ void factory_edit_frame_t::change_item_info(sint32 entry)
 			buf.printf( translator::translate("Passenger Demand %d\n"), f.get_pax_demand()  != 65535 ? f.get_pax_demand()  : f.get_pax_level());
 			buf.printf( translator::translate("Mail Demand %d\n"),      f.get_mail_demand() != 65535 ? f.get_mail_demand() : f.get_pax_level() >> 2);
 
-			buf.printf("%s%u", translator::translate("\nBauzeit von"), besch->get_intro_year_month() / 12);
-			if(besch->get_retire_year_month()!=DEFAULT_RETIRE_DATE*12) {
-				buf.printf("%s%u", translator::translate("\nBauzeit bis"), besch->get_retire_year_month() / 12);
+			buf.printf("%s%u", translator::translate("\nBauzeit von"), desc->get_intro_year_month() / 12);
+			if(desc->get_retire_year_month()!=DEFAULT_RETIRE_DATE*12) {
+				buf.printf("%s%u", translator::translate("\nBauzeit bis"), desc->get_retire_year_month() / 12);
 			}
 
-			if (char const* const maker = besch->get_copyright()) {
+			if (char const* const maker = desc->get_copyright()) {
 				buf.append("\n");
 				buf.printf(translator::translate("Constructed by %s"), maker);
 			}
@@ -298,7 +298,7 @@ void factory_edit_frame_t::change_item_info(sint32 entry)
 			cont.set_size( info_text.get_size() + scr_size(0, 20) );
 
 			// orientation (255=random)
-			if(besch->get_all_layouts()>1) {
+			if(desc->get_all_layouts()>1) {
 				rotation = 255; // no definition yet
 			}
 			else {
@@ -323,26 +323,26 @@ void factory_edit_frame_t::change_item_info(sint32 entry)
 			img[i].set_image( IMG_EMPTY );
 		}
 
-		const haus_besch_t *besch = fab_besch->get_haus();
+		const haus_besch_t *desc = fab_besch->get_haus();
 		uint8 rot = (rotation==255) ? 0 : rotation;
-		if(besch->get_b(rot)==1) {
-			if(besch->get_h(rot)==1) {
-				img[3].set_image( besch->get_tile(rot,0,0)->get_background(0,0,0) );
+		if(desc->get_b(rot)==1) {
+			if(desc->get_h(rot)==1) {
+				img[3].set_image( desc->get_tile(rot,0,0)->get_background(0,0,0) );
 			}
 			else {
-				img[2].set_image( besch->get_tile(rot,0,0)->get_background(0,0,0) );
-				img[3].set_image( besch->get_tile(rot,0,1)->get_background(0,0,0) );
+				img[2].set_image( desc->get_tile(rot,0,0)->get_background(0,0,0) );
+				img[3].set_image( desc->get_tile(rot,0,1)->get_background(0,0,0) );
 			}
 		}
 		else {
-			if(besch->get_h(rot)==1) {
-				img[1].set_image( besch->get_tile(rot,0,0)->get_background(0,0,0) );
-				img[3].set_image( besch->get_tile(rot,1,0)->get_background(0,0,0) );
+			if(desc->get_h(rot)==1) {
+				img[1].set_image( desc->get_tile(rot,0,0)->get_background(0,0,0) );
+				img[3].set_image( desc->get_tile(rot,1,0)->get_background(0,0,0) );
 			}
 			else {
 				// maximum 2x2 image
 				for(int i=0;  i<4;  i++  ) {
-					img[i].set_image( besch->get_tile(rot,i/2,i&1)->get_background(0,0,0) );
+					img[i].set_image( desc->get_tile(rot,i/2,i&1)->get_background(0,0,0) );
 				}
 			}
 		}

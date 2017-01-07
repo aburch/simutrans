@@ -489,30 +489,30 @@ image_id alpha_water_image[totalslopes * 15];
  *      called every time an object is read
  *      the object will be assigned according to its name
  */
-bool grund_besch_t::register_besch(const grund_besch_t *besch)
+bool grund_besch_t::register_desc(const grund_besch_t *desc)
 {
-	if(strcmp("Outside", besch->get_name())==0) {
-		image_t const* const image = besch->get_child<image_array_t>(2)->get_image(0,0);
-		dbg->message("grund_besch_t::register_besch()", "setting raster width to %i", image->get_pic()->w);
+	if(strcmp("Outside", desc->get_name())==0) {
+		image_t const* const image = desc->get_child<image_array_t>(2)->get_image(0,0);
+		dbg->message("grund_besch_t::register_desc()", "setting raster width to %i", image->get_pic()->w);
 		display_set_base_raster_width(image->get_pic()->w);
 	}
 	// find out water animation stages
-	if(strcmp("Water", besch->get_name())==0) {
+	if(strcmp("Water", desc->get_name())==0) {
 		water_animation_stages = 0;
-		while(  besch->get_image(0, water_animation_stages)!=IMG_EMPTY  ) {
-			DBG_MESSAGE( "water", "image(0,%i)=%u", water_animation_stages, besch->get_image(0, water_animation_stages) );
+		while(  desc->get_image(0, water_animation_stages)!=IMG_EMPTY  ) {
+			DBG_MESSAGE( "water", "image(0,%i)=%u", water_animation_stages, desc->get_image(0, water_animation_stages) );
 			water_animation_stages ++;
 		}
 		// then ignore all ms settings
 		if(water_animation_stages==1) {
 			env_t::water_animation = 0;
 		}
-		water_depth_levels = besch->get_child<image_array_t>(2)->get_count()-2;
+		water_depth_levels = desc->get_child<image_array_t>(2)->get_count()-2;
 		if(water_depth_levels<=0) {
 			water_depth_levels = 0;
 		}
 	}
-	return ::register_besch(grounds, besch);
+	return ::register_desc(grounds, desc);
 }
 
 

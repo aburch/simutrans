@@ -21,7 +21,7 @@ const weg_besch_t *strasse_t::default_strasse=NULL;
 void strasse_t::set_gehweg(bool janein)
 {
 	weg_t::set_gehweg(janein);
-	if(janein  &&  get_besch()  &&  get_besch()->get_topspeed()>50) {
+	if(janein  &&  get_desc()  &&  get_desc()->get_topspeed()>50) {
 		set_max_speed(50);
 	}
 }
@@ -55,28 +55,28 @@ void strasse_t::rdwr(loadsave_t *file)
 	}
 
 	if(file->is_saving()) {
-		const char *s = get_besch()->get_name();
+		const char *s = get_desc()->get_name();
 		file->rdwr_str(s);
 	}
 	else {
 		char bname[128];
 		file->rdwr_str(bname, lengthof(bname));
 
-		const weg_besch_t *besch = wegbauer_t::get_besch(bname);
+		const weg_besch_t *desc = wegbauer_t::get_desc(bname);
 		int old_max_speed = get_max_speed();
-		if(besch==NULL) {
-			besch = wegbauer_t::get_besch(translator::compatibility_name(bname));
-			if(besch==NULL) {
-				besch = default_strasse;
+		if(desc==NULL) {
+			desc = wegbauer_t::get_desc(translator::compatibility_name(bname));
+			if(desc==NULL) {
+				desc = default_strasse;
 				welt->add_missing_paks( bname, karte_t::MISSING_WAY );
 			}
-			dbg->warning("strasse_t::rdwr()", "Unknown street %s replaced by %s (old_max_speed %i)", bname, besch->get_name(), old_max_speed );
+			dbg->warning("strasse_t::rdwr()", "Unknown street %s replaced by %s (old_max_speed %i)", bname, desc->get_name(), old_max_speed );
 		}
-		set_besch(besch);
+		set_besch(desc);
 		if(old_max_speed>0) {
 			set_max_speed(old_max_speed);
 		}
-		if(besch->get_topspeed()>50  &&  hat_gehweg()) {
+		if(desc->get_topspeed()>50  &&  hat_gehweg()) {
 			set_max_speed(50);
 		}
 	}

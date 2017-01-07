@@ -39,7 +39,7 @@ public:
 	static const ware_besch_t *nichts;
 
 	static bool alles_geladen();
-	static bool register_besch(ware_besch_t *besch);
+	static bool register_desc(ware_besch_t *desc);
 
 	static uint8 get_max_catg_index() { return max_catg_index; }
 

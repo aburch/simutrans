@@ -8,7 +8,7 @@ class field_class_besch_t;
 
 // Knightly : new reader for field class besch
 class factory_field_class_reader_t : public obj_reader_t {
-	friend class factory_field_group_reader_t;	// Knightly : this is a special case due to besch restructuring
+	friend class factory_field_group_reader_t;	// Knightly : this is a special case due to desc restructuring
 
 	static factory_field_class_reader_t the_instance;
 
@@ -28,7 +28,7 @@ class factory_field_group_reader_t : public obj_reader_t {
 
 	factory_field_group_reader_t() { register_reader(); }
 
-	// hold a field class besch under construction
+	// hold a field class desc under construction
 	static field_class_besch_t* incomplete_field_class_besch;
 
 protected:

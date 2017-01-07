@@ -32,7 +32,7 @@ tunnelboden_t::tunnelboden_t(loadsave_t *file, koord pos ) : boden_t(koord3d(pos
 			obj_add(new tunnel_t(get_pos(), NULL, tunnelbauer_t::find_tunnel(road_wt, 450, 0)));
 		}
 		else {
-			obj_add(new tunnel_t(get_pos(), weg->get_owner(), tunnelbauer_t::find_tunnel(weg->get_besch()->get_wtyp(), 450, 0)));
+			obj_add(new tunnel_t(get_pos(), weg->get_owner(), tunnelbauer_t::find_tunnel(weg->get_desc()->get_wtyp(), 450, 0)));
 		}
 		DBG_MESSAGE("tunnelboden_t::tunnelboden_t()","added tunnel to pos (%i,%i,%i)",get_pos().x, get_pos().y,get_pos().z);
 	}
@@ -97,12 +97,12 @@ void tunnelboden_t::rdwr(loadsave_t *file)
 	// only 99.03 version save the tunnel here
 	if(file->get_version()==99003) {
 		char  buf[256];
-		const tunnel_besch_t *besch = NULL;
+		const tunnel_besch_t *desc = NULL;
 		file->rdwr_str(buf, lengthof(buf));
 		if (find<tunnel_t>() == NULL) {
-			besch = tunnelbauer_t::get_besch(buf);
-			if(besch) {
-				obj_add(new tunnel_t(get_pos(), obj_bei(0)->get_owner(), besch));
+			desc = tunnelbauer_t::get_desc(buf);
+			if(desc) {
+				obj_add(new tunnel_t(get_pos(), obj_bei(0)->get_owner(), desc));
 			}
 		}
 	}
@@ -112,9 +112,9 @@ void tunnelboden_t::rdwr(loadsave_t *file)
 void tunnelboden_t::info(cbuffer_t & buf) const
 {
 	const tunnel_t *tunnel = find<tunnel_t>();
-	if(tunnel  &&  tunnel->get_besch()) {
-		const tunnel_besch_t *besch = tunnel->get_besch();
-		buf.append(translator::translate(besch->get_name()));
+	if(tunnel  &&  tunnel->get_desc()) {
+		const tunnel_besch_t *desc = tunnel->get_desc();
+		buf.append(translator::translate(desc->get_name()));
 		buf.append("\n");
 	}
 	boden_t::info(buf);

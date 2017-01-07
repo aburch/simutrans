@@ -27,10 +27,10 @@
 karte_ptr_t crossing_logic_t::welt;
 
 
-crossing_logic_t::crossing_logic_t( const kreuzung_besch_t *besch )
+crossing_logic_t::crossing_logic_t( const kreuzung_besch_t *desc )
 {
 	state = CROSSING_INVALID;
-	this->besch = besch;
+	this->desc = desc;
 	request_close = NULL;
 }
 
@@ -84,7 +84,7 @@ void crossing_logic_t::recalc_state()
 // request permission to pass crossing
 bool crossing_logic_t::request_crossing( const vehicle_base_t *v )
 {
-	if(v->get_waytype()==besch->get_waytype(0)) {
+	if(v->get_waytype()==desc->get_waytype(0)) {
 		if(on_way2.empty()  &&  state == CROSSING_OPEN) {
 			// way2 is empty ...
 			return true;
@@ -94,7 +94,7 @@ bool crossing_logic_t::request_crossing( const vehicle_base_t *v )
 		// => ok only if I am already crossing
 		return on_way1.is_contained(v);
 	}
-	else if(v->get_waytype()==besch->get_waytype(1)) {
+	else if(v->get_waytype()==desc->get_waytype(1)) {
 
 		// vehikel from way2 arrives
 		if(on_way1.get_count()) {
@@ -117,10 +117,10 @@ bool crossing_logic_t::request_crossing( const vehicle_base_t *v )
 void crossing_logic_t::add_to_crossing( const vehicle_base_t *v )
 {
 	if(  v->get_typ()!=obj_t::pedestrian  ) {
-		if(v->get_waytype()==besch->get_waytype(0)) {
+		if(v->get_waytype()==desc->get_waytype(0)) {
 			on_way1.append_unique(v);
 		}
-		else if (v->get_waytype() == besch->get_waytype(1)) {
+		else if (v->get_waytype() == desc->get_waytype(1)) {
 			// add it and close crossing
 			on_way2.append_unique(v);
 			if(  request_close==v  ) {
@@ -136,7 +136,7 @@ void crossing_logic_t::add_to_crossing( const vehicle_base_t *v )
 // or of a city car; releases the crossing which may switch state
 void crossing_logic_t::release_crossing( const vehicle_base_t *v )
 {
-	if(  v->get_waytype() == besch->get_waytype(0)  ) {
+	if(  v->get_waytype() == desc->get_waytype(0)  ) {
 		on_way1.remove(v);
 		if(  state == CROSSING_REQUEST_CLOSE  &&  on_way1.empty()  ) {
 			set_state( CROSSING_CLOSED );
@@ -158,8 +158,8 @@ void crossing_logic_t::release_crossing( const vehicle_base_t *v )
 void crossing_logic_t::set_state( crossing_state_t new_state )
 {
 	// play sound (if there and closing)
-	if(new_state==CROSSING_CLOSED  &&  besch->get_sound()>=0  &&  !welt->is_fast_forward()) {
-		welt->play_sound_area_clipped(crossings[0]->get_pos().get_2d(), besch->get_sound());
+	if(new_state==CROSSING_CLOSED  &&  desc->get_sound()>=0  &&  !welt->is_fast_forward()) {
+		welt->play_sound_area_clipped(crossings[0]->get_pos().get_2d(), desc->get_sound());
 	}
 
 	if(new_state!=state) {
@@ -203,11 +203,11 @@ int compare_crossing(const kreuzung_besch_t *c0, const kreuzung_besch_t *c1)
 }
 
 
-void crossing_logic_t::register_besch(kreuzung_besch_t *besch)
+void crossing_logic_t::register_desc(kreuzung_besch_t *desc)
 {
 	// mark if crossing possible
-	const waytype_t way0 = (const waytype_t)min(besch->get_waytype(0), besch->get_waytype(1));
-	const waytype_t way1 = (const waytype_t)max(besch->get_waytype(0), besch->get_waytype(1));
+	const waytype_t way0 = (const waytype_t)min(desc->get_waytype(0), desc->get_waytype(1));
+	const waytype_t way1 = (const waytype_t)max(desc->get_waytype(0), desc->get_waytype(1));
 	if(way0<8  &&  way1<9  &&  way0<way1) {
 		uint8 index = way0 * 9 + way1 - ((way0+2)*(way0+1))/2;
 		// max index = 7*9 + 8 - 9*4 = 71-36 = 35
@@ -215,20 +215,20 @@ void crossing_logic_t::register_besch(kreuzung_besch_t *besch)
 		minivec_tpl<const kreuzung_besch_t *> &vec = can_cross_array[index];
 		// first check for existing crossing with the same name
 		for(uint8 i=0; i<vec.get_count(); i++) {
-			if (strcmp(vec[i]->get_name(), besch->get_name())==0) {
+			if (strcmp(vec[i]->get_name(), desc->get_name())==0) {
 				vec.remove_at(i);
-				dbg->warning( "crossing_logic_t::register_besch()", "Object %s was overlaid by addon!", besch->get_name() );
+				dbg->warning( "crossing_logic_t::register_desc()", "Object %s was overlaid by addon!", desc->get_name() );
 			}
 		}
-DBG_DEBUG( "crossing_logic_t::register_besch()","%s", besch->get_name() );
+DBG_DEBUG( "crossing_logic_t::register_desc()","%s", desc->get_name() );
 		// .. then make sorted insert
 		for(uint8 i=0; i<vec.get_count(); i++) {
-			if (compare_crossing(besch, vec[i])<0) {
-				vec.insert_at(i, besch);
+			if (compare_crossing(desc, vec[i])<0) {
+				vec.insert_at(i, desc);
 				return;
 			}
 		}
-		vec.append(besch);
+		vec.append(desc);
 	}
 }
 
@@ -301,7 +301,7 @@ void crossing_logic_t::add( crossing_t *start_cr, crossing_state_t state )
 			break;
 		}
 		crossing_t *found_cr = gr->find<crossing_t>();
-		if(found_cr==NULL  ||  !have_crossings_same_wt(found_cr->get_besch(),start_cr->get_besch())  ||  start_cr->get_dir() != found_cr->get_dir()) {
+		if(found_cr==NULL  ||  !have_crossings_same_wt(found_cr->get_desc(),start_cr->get_desc())  ||  start_cr->get_dir() != found_cr->get_dir()) {
 			break;
 		}
 		crossings.append( found_cr );
@@ -318,7 +318,7 @@ void crossing_logic_t::add( crossing_t *start_cr, crossing_state_t state )
 			break;
 		}
 		crossing_t *found_cr = gr->find<crossing_t>();
-		if(found_cr==NULL  ||  !have_crossings_same_wt(found_cr->get_besch(),start_cr->get_besch())  ||  start_cr->get_dir() != found_cr->get_dir()) {
+		if(found_cr==NULL  ||  !have_crossings_same_wt(found_cr->get_desc(),start_cr->get_desc())  ||  start_cr->get_dir() != found_cr->get_dir()) {
 			break;
 		}
 		crossings.append( found_cr );
@@ -339,7 +339,7 @@ void crossing_logic_t::add( crossing_t *start_cr, crossing_state_t state )
 	}
 	// no old logic there create a new one
 	if(  found_logic == NULL ) {
-		found_logic = new crossing_logic_t( start_cr->get_besch() );
+		found_logic = new crossing_logic_t( start_cr->get_desc() );
 	}
 
 	// set new crossing logic to all
@@ -366,7 +366,7 @@ void crossing_logic_t::remove( crossing_t *cr )
 		const grund_t *gr = welt->lookup( pos-zv );
 		if(  gr  ) {
 			crossing_t *found_cr = gr->find<crossing_t>();
-			if(  found_cr  &&  have_crossings_same_wt(found_cr->get_besch(),cr->get_besch())  ) {
+			if(  found_cr  &&  have_crossings_same_wt(found_cr->get_desc(),cr->get_desc())  ) {
 				// crossing to the east/south so split logic from any found to the north/west
 				crossing_logic_t *split_logic = NULL;
 				while(1) {
@@ -376,13 +376,13 @@ void crossing_logic_t::remove( crossing_t *cr )
 						break;
 					}
 					found_cr = gr->find<crossing_t>();
-					if(  found_cr == NULL  ||  !have_crossings_same_wt(found_cr->get_besch(),cr->get_besch())  ) {
+					if(  found_cr == NULL  ||  !have_crossings_same_wt(found_cr->get_desc(),cr->get_desc())  ) {
 						break;
 					}
 					assert(this==found_cr->get_logic());
 
 					if(  !split_logic  ) {
-						split_logic = new crossing_logic_t( cr->get_besch() );
+						split_logic = new crossing_logic_t( cr->get_desc() );
 					}
 					crossings.remove( found_cr );
 					found_cr->set_logic( split_logic );

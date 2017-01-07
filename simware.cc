@@ -81,7 +81,7 @@ void ware_t::rdwr(loadsave_t *file)
 
 	if(file->is_saving()) {
 		const char *typ = NULL;
-		typ = get_besch()->get_name();
+		typ = get_desc()->get_name();
 		file->rdwr_str(typ);
 	}
 	else {
@@ -179,7 +179,7 @@ void ware_t::update_factory_target()
 }
 
 
-sint64 ware_t::calc_revenue(const ware_besch_t* besch, waytype_t wt, sint32 speedkmh)
+sint64 ware_t::calc_revenue(const ware_besch_t* desc, waytype_t wt, sint32 speedkmh)
 {
 	static karte_ptr_t welt;
 
@@ -187,7 +187,7 @@ sint64 ware_t::calc_revenue(const ware_besch_t* besch, waytype_t wt, sint32 spee
 	const sint32 kmh_base = (100 * speedkmh) / ref_kmh - 100;
 
 	const sint32 grundwert128    = welt->get_settings().get_bonus_basefactor(); // minimal bonus factor
-	const sint32 grundwert_bonus = 1000+kmh_base*besch->get_speed_bonus();      // speed bonus factor
+	const sint32 grundwert_bonus = 1000+kmh_base*desc->get_speed_bonus();      // speed bonus factor
 	// take the larger of both
-	return besch->get_preis() * (grundwert128 > grundwert_bonus ? grundwert128 : grundwert_bonus);
+	return desc->get_preis() * (grundwert128 > grundwert_bonus ? grundwert128 : grundwert_bonus);
 }

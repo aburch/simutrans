@@ -25,7 +25,7 @@ SQInteger exp_factory_constructor(HSQUIRRELVM vm)
 	if (!fab) {
 		return sq_raise_error(vm, "No factory found at (%s)", pos.get_str());
 	}
-	const fabrik_besch_t *besch = fab->get_besch();
+	const fabrik_besch_t *desc = fab->get_desc();
 	// create input/output tables
 	for (int io=0; io<2; io++) {
 		sq_pushstring(vm, io==0 ? "input" : "output", -1);
@@ -44,7 +44,7 @@ SQInteger exp_factory_constructor(HSQUIRRELVM vm)
 			// set max value
 			set_slot(vm, "max_storage", prodslot[p].max >> fabrik_t::precision_bits, -1);
 			// production/consumption scaling
-			set_slot(vm, "scaling", io == 0 ? (sint64)besch->get_lieferant(p)->get_verbrauch() : (sint64)besch->get_produkt(p)->get_faktor(), -1);
+			set_slot(vm, "scaling", io == 0 ? (sint64)desc->get_lieferant(p)->get_verbrauch() : (sint64)desc->get_produkt(p)->get_faktor(), -1);
 			// put class into table
 			sq_newslot(vm, -3, false);
 		}
@@ -80,15 +80,15 @@ vector_tpl<sint64> const& get_factory_production_stat(const ware_production_t *p
 }
 
 
-uint32 get_production_factor(const fabrik_produkt_besch_t *besch)
+uint32 get_production_factor(const fabrik_produkt_besch_t *desc)
 {
-	return besch ? ( (1<< (DEFAULT_PRODUCTION_FACTOR_BITS-1)) + (uint32)besch->get_faktor() * 100) >> DEFAULT_PRODUCTION_FACTOR_BITS : 0;
+	return desc ? ( (1<< (DEFAULT_PRODUCTION_FACTOR_BITS-1)) + (uint32)desc->get_faktor() * 100) >> DEFAULT_PRODUCTION_FACTOR_BITS : 0;
 }
 
 
-uint32 get_consumption_factor(const fabrik_lieferant_besch_t *besch)
+uint32 get_consumption_factor(const fabrik_lieferant_besch_t *desc)
 {
-	return besch ? ( (1<< (DEFAULT_PRODUCTION_FACTOR_BITS-1)) + (uint32)besch->get_verbrauch() * 100) >> DEFAULT_PRODUCTION_FACTOR_BITS : 0;
+	return desc ? ( (1<< (DEFAULT_PRODUCTION_FACTOR_BITS-1)) + (uint32)desc->get_verbrauch() * 100) >> DEFAULT_PRODUCTION_FACTOR_BITS : 0;
 }
 
 

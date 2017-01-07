@@ -175,7 +175,7 @@ bool skinverwaltung_t::alles_geladen(skintyp_t type)
 }
 
 
-bool skinverwaltung_t::register_besch(skintyp_t type, const skin_besch_t* besch)
+bool skinverwaltung_t::register_desc(skintyp_t type, const skin_besch_t* desc)
 {
 	spezial_obj_tpl<skin_besch_t> const* sb;
 	switch (type) {
@@ -186,19 +186,19 @@ bool skinverwaltung_t::register_besch(skintyp_t type, const skin_besch_t* besch)
 		case nothing: return true;
 		default:      return false;
 	}
-	if(  !::register_besch(sb, besch)  ) {
+	if(  !::register_desc(sb, desc)  ) {
 		// currently no misc objects allowed ...
 		if(  !(type==cursor  ||  type==symbol)  ) {
 			if(  type==menu  ) {
-				extra_obj.insert( besch );
-				dbg->message( "skinverwaltung_t::register_besch()","Extra object %s added.", besch->get_name() );
+				extra_obj.insert( desc );
+				dbg->message( "skinverwaltung_t::register_desc()","Extra object %s added.", desc->get_name() );
 			}
 			else {
-				dbg->warning("skinverwaltung_t::register_besch()","Spurious object '%s' loaded (will not be referenced anyway)!", besch->get_name() );
+				dbg->warning("skinverwaltung_t::register_desc()","Spurious object '%s' loaded (will not be referenced anyway)!", desc->get_name() );
 			}
 		}
 		else {
-			return ::register_besch( fakultative_objekte,  besch );
+			return ::register_desc( fakultative_objekte,  desc );
 		}
 	}
 	return true;

@@ -39,7 +39,7 @@ bruecke_besch_t::img_t bruecke_besch_t::get_pillar(ribi_t::ribi ribi)
  */
 bruecke_besch_t::img_t bruecke_besch_t::get_start(slope_t::type slope) const
 {
-	// if double heights enabled and besch has 2 height images present then use these
+	// if double heights enabled and desc has 2 height images present then use these
 	if(  grund_besch_t::double_grounds  &&  get_background(N_Start2, 0) != IMG_EMPTY  ) {
 		switch(  slope  ) {
 			case slope_t::north: return N_Start;
@@ -122,7 +122,7 @@ bruecke_besch_t::img_t bruecke_besch_t::get_end(slope_t::type test_slope, slope_
  *      Kieron Green
  *
  *  Description:
- *      returns whether besch has double height images for ramps
+ *      returns whether desc has double height images for ramps
  */
 bool bruecke_besch_t::has_double_ramp() const
 {

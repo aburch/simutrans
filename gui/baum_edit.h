@@ -19,7 +19,7 @@ private:
 	static tool_plant_tree_t baum_tool;
 	static char param_str[256];
 
-	const baum_besch_t *besch;
+	const baum_besch_t *desc;
 
 	vector_tpl<const baum_besch_t *>baumlist;
 

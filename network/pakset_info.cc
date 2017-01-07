@@ -43,7 +43,7 @@ void pakset_info_t::calculate_checksum()
 {
 	general.reset();
 
-	// first sort all the besch's
+	// first sort all the desc's
 	vector_tpl<entry_t> sorted(info.get_count());
 	FOR(stringhashtable_tpl<checksum_t*>, const& i, info) {
 		sorted.insert_ordered(entry_t(i.key, i.value), entry_cmp);

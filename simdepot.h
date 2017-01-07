@@ -75,7 +75,7 @@ public:
 	virtual const char * get_zieher_name() { return "Lokomotive_tab"; }
 	virtual const char * get_haenger_name() { return "Waggon_tab"; }
 
-	vehicle_t* find_oldest_newest(const vehikel_besch_t* besch, bool old);
+	vehicle_t* find_oldest_newest(const vehikel_besch_t* desc, bool old);
 
 	/**
 	 * Access to convoi list.
@@ -208,7 +208,7 @@ public:
 	 * @return NULL if no vehicle is found
 	 * @author hsiegeln (stolen from Hajo)
 	 */
-	vehicle_t* get_oldest_vehicle(const vehikel_besch_t* besch);
+	vehicle_t* get_oldest_vehicle(const vehikel_besch_t* desc);
 
 	/**
 	 * Sets/gets the line that was selected the last time in the depot dialog

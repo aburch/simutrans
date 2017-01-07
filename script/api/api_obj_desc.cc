@@ -54,41 +54,41 @@ bool are_equal(const obj_besch_std_name_t* a, const obj_besch_std_name_t* b)
 }
 
 
-sint64 get_scaled_maintenance(const obj_besch_transport_related_t* besch)
+sint64 get_scaled_maintenance(const obj_besch_transport_related_t* desc)
 {
-	return besch ? welt->scale_with_month_length(besch->get_maintenance()) : 0;
+	return desc ? welt->scale_with_month_length(desc->get_maintenance()) : 0;
 }
 
-sint64 get_scaled_maintenance_vehicle(const vehikel_besch_t* besch)
+sint64 get_scaled_maintenance_vehicle(const vehikel_besch_t* desc)
 {
-	return besch ? welt->scale_with_month_length(besch->vehikel_besch_t::get_maintenance()) : 0;
+	return desc ? welt->scale_with_month_length(desc->vehikel_besch_t::get_maintenance()) : 0;
 }
 
-sint64 get_scaled_maintenance_building(const haus_besch_t* besch)
+sint64 get_scaled_maintenance_building(const haus_besch_t* desc)
 {
-	return besch ? welt->scale_with_month_length(besch->get_maintenance(welt)) : 0;
-}
-
-
-bool building_enables(const haus_besch_t* besch, uint8 which)
-{
-	return besch ? besch->get_enabled() & which : 0;
+	return desc ? welt->scale_with_month_length(desc->get_maintenance(welt)) : 0;
 }
 
 
-mytime_t get_intro_retire(const obj_besch_timelined_t* besch, bool intro)
+bool building_enables(const haus_besch_t* desc, uint8 which)
 {
-	return (uint32)(besch ? ( intro ? besch->get_intro_year_month() : besch->get_retire_year_month() ) : 1);
+	return desc ? desc->get_enabled() & which : 0;
 }
 
 
-bool is_obsolete_future(const obj_besch_timelined_t* besch, mytime_t time, uint8 what)
+mytime_t get_intro_retire(const obj_besch_timelined_t* desc, bool intro)
 {
-	if (besch) {
+	return (uint32)(desc ? ( intro ? desc->get_intro_year_month() : desc->get_retire_year_month() ) : 1);
+}
+
+
+bool is_obsolete_future(const obj_besch_timelined_t* desc, mytime_t time, uint8 what)
+{
+	if (desc) {
 		switch(what) {
-			case 0: return besch->is_future(time.raw);
-			case 1: return besch->is_retired(time.raw);
-			case 2: return besch->is_available(time.raw);
+			case 0: return desc->is_future(time.raw);
+			case 1: return desc->is_retired(time.raw);
+			case 2: return desc->is_available(time.raw);
 			default: ;
 		}
 	}
@@ -129,32 +129,32 @@ const vector_tpl<const haus_besch_t*>& get_available_stations(haus_besch_t::utyp
 	}
 
 	uint16 time = welt->get_timeline_year_month();
-	FOR(vector_tpl<haus_besch_t const*>, const besch, *p) {
-		if(  besch->get_utyp()==type  &&  besch->get_extra()==(uint32)wt  &&  (enables==0  ||  (besch->get_enabled()&enables)!=0)  &&  besch->is_available(time)) {
-			dummy.append(besch);
+	FOR(vector_tpl<haus_besch_t const*>, const desc, *p) {
+		if(  desc->get_utyp()==type  &&  desc->get_extra()==(uint32)wt  &&  (enables==0  ||  (desc->get_enabled()&enables)!=0)  &&  desc->is_available(time)) {
+			dummy.append(desc);
 		}
 	}
 	return dummy;
 }
 
-sint64 building_get_cost(const haus_besch_t* besch)
+sint64 building_get_cost(const haus_besch_t* desc)
 {
-	return besch->get_price(welt) * besch->get_b() * besch->get_h();
+	return desc->get_price(welt) * desc->get_b() * desc->get_h();
 }
 
-bool building_is_terminus(const haus_besch_t *besch)
+bool building_is_terminus(const haus_besch_t *desc)
 {
-	return besch  &&  besch->get_utyp() == haus_besch_t::generic_stop  &&  besch->get_all_layouts() == 4;
+	return desc  &&  desc->get_utyp() == haus_besch_t::generic_stop  &&  desc->get_all_layouts() == 4;
 }
 
-bool can_be_first(const vehikel_besch_t *besch)
+bool can_be_first(const vehikel_besch_t *desc)
 {
-	return besch->can_follow(NULL);
+	return desc->can_follow(NULL);
 }
 
-bool can_be_last(const vehikel_besch_t *besch)
+bool can_be_last(const vehikel_besch_t *desc)
 {
-	return besch->can_lead(NULL);
+	return desc->can_lead(NULL);
 }
 
 bool is_coupling_allowed(const vehikel_besch_t *besch1, const vehikel_besch_t *besch2)
@@ -162,25 +162,25 @@ bool is_coupling_allowed(const vehikel_besch_t *besch1, const vehikel_besch_t *b
 	return besch1->can_lead(besch2)  &&  besch2->can_follow(besch1);
 }
 
-const vector_tpl<const vehikel_besch_t*>& get_predecessors(const vehikel_besch_t *besch)
+const vector_tpl<const vehikel_besch_t*>& get_predecessors(const vehikel_besch_t *desc)
 {
 	static vector_tpl<const vehikel_besch_t*> dummy;
 	dummy.clear();
-	for(int i=0; i<besch->get_vorgaenger_count(); i++) {
-		if (besch->get_vorgaenger(i)) {
-			dummy.append(besch->get_vorgaenger(i));
+	for(int i=0; i<desc->get_vorgaenger_count(); i++) {
+		if (desc->get_vorgaenger(i)) {
+			dummy.append(desc->get_vorgaenger(i));
 		}
 	}
 	return dummy;
 }
 
-const vector_tpl<const vehikel_besch_t*>& get_successors(const vehikel_besch_t *besch)
+const vector_tpl<const vehikel_besch_t*>& get_successors(const vehikel_besch_t *desc)
 {
 	static vector_tpl<const vehikel_besch_t*> dummy;
 	dummy.clear();
-	for(int i=0; i<besch->get_nachfolger_count(); i++) {
-		if (besch->get_nachfolger(i)) {
-			dummy.append(besch->get_nachfolger(i));
+	for(int i=0; i<desc->get_nachfolger_count(); i++) {
+		if (desc->get_nachfolger(i)) {
+			dummy.append(desc->get_nachfolger(i));
 		}
 	}
 	return dummy;
@@ -206,9 +206,9 @@ const vector_tpl<const vehikel_besch_t*>& get_available_vehicles(waytype_t wt)
 	return dummy;
 }
 
-uint32 get_power(const vehikel_besch_t *besch)
+uint32 get_power(const vehikel_besch_t *desc)
 {
-	return besch->get_leistung() * besch->get_gear();
+	return desc->get_leistung() * desc->get_gear();
 }
 
 // export of haus_besch_t::utyp only here

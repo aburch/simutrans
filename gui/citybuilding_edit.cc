@@ -70,7 +70,7 @@ citybuilding_edit_frame_t::citybuilding_edit_frame_t(player_t* player_) :
 	lb_rotation_info( translator::translate("Rotation"), SYSCOL_TEXT, gui_label_t::left )
 {
 	rot_str[0] = 0;
-	besch = NULL;
+	desc = NULL;
 	haus_tool.set_default_param(NULL);
 	haus_tool.cursor = tool_t::general_tool[TOOL_BUILD_HOUSE]->cursor;
 
@@ -126,28 +126,28 @@ void citybuilding_edit_frame_t::fill_list( bool translate )
 	hauslist.clear();
 
 	if(bt_res.pressed) {
-		FOR(vector_tpl<haus_besch_t const*>, const besch, *hausbauer_t::get_citybuilding_list(gebaeude_t::wohnung)) {
-			if(!use_timeline  ||  (!besch->is_future(month_now)  &&  (!besch->is_retired(month_now)  ||  allow_obsolete))  ) {
+		FOR(vector_tpl<haus_besch_t const*>, const desc, *hausbauer_t::get_citybuilding_list(gebaeude_t::wohnung)) {
+			if(!use_timeline  ||  (!desc->is_future(month_now)  &&  (!desc->is_retired(month_now)  ||  allow_obsolete))  ) {
 				// timeline allows for this
-				hauslist.insert_ordered(besch, translate?compare_haus_besch_trans:compare_haus_besch );
+				hauslist.insert_ordered(desc, translate?compare_haus_besch_trans:compare_haus_besch );
 			}
 		}
 	}
 
 	if(bt_com.pressed) {
-		FOR(vector_tpl<haus_besch_t const*>, const besch, *hausbauer_t::get_citybuilding_list(gebaeude_t::gewerbe)) {
-			if(!use_timeline  ||  (!besch->is_future(month_now)  &&  (!besch->is_retired(month_now)  ||  allow_obsolete))  ) {
+		FOR(vector_tpl<haus_besch_t const*>, const desc, *hausbauer_t::get_citybuilding_list(gebaeude_t::gewerbe)) {
+			if(!use_timeline  ||  (!desc->is_future(month_now)  &&  (!desc->is_retired(month_now)  ||  allow_obsolete))  ) {
 				// timeline allows for this
-				hauslist.insert_ordered(besch, translate?compare_haus_besch_trans:compare_haus_besch );
+				hauslist.insert_ordered(desc, translate?compare_haus_besch_trans:compare_haus_besch );
 			}
 		}
 	}
 
 	if(bt_ind.pressed) {
-		FOR(vector_tpl<haus_besch_t const*>, const besch, *hausbauer_t::get_citybuilding_list(gebaeude_t::industrie)) {
-			if(!use_timeline  ||  (!besch->is_future(month_now)  &&  (!besch->is_retired(month_now)  ||  allow_obsolete))  ) {
+		FOR(vector_tpl<haus_besch_t const*>, const desc, *hausbauer_t::get_citybuilding_list(gebaeude_t::industrie)) {
+			if(!use_timeline  ||  (!desc->is_future(month_now)  &&  (!desc->is_retired(month_now)  ||  allow_obsolete))  ) {
 				// timeline allows for this
-				hauslist.insert_ordered(besch, translate?compare_haus_besch_trans:compare_haus_besch );
+				hauslist.insert_ordered(desc, translate?compare_haus_besch_trans:compare_haus_besch );
 			}
 		}
 	}
@@ -165,7 +165,7 @@ void citybuilding_edit_frame_t::fill_list( bool translate )
 		}
 		char const* const name = translate ? translator::translate(i->get_name()) : i->get_name();
 		scl.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(name, color));
-		if (i == besch) {
+		if (i == desc) {
 			scl.set_selection(scl.get_count()-1);
 		}
 	}
@@ -190,7 +190,7 @@ bool citybuilding_edit_frame_t::action_triggered( gui_action_creator_t *komp,val
 		bt_ind.pressed ^= 1;
 		fill_list( is_show_trans_name );
 	}
-	else if(besch) {
+	else if(desc) {
 		if(  komp==&bt_left_rotate  &&  rotation!=254) {
 			if(rotation==0) {
 				rotation = 255;
@@ -199,7 +199,7 @@ bool citybuilding_edit_frame_t::action_triggered( gui_action_creator_t *komp,val
 				rotation --;
 			}
 		}
-		else if(  komp==&bt_right_rotate  &&  rotation!=besch->get_all_layouts()-1) {
+		else if(  komp==&bt_right_rotate  &&  rotation!=desc->get_all_layouts()-1) {
 			rotation ++;
 		}
 		// update info ...
@@ -215,32 +215,32 @@ void citybuilding_edit_frame_t::change_item_info(sint32 entry)
 	if(entry>=0  &&  entry<(sint32)hauslist.get_count()) {
 
 		const haus_besch_t *new_besch = hauslist[entry];
-		if(new_besch!=besch) {
+		if(new_besch!=desc) {
 
 			buf.clear();
-			besch = new_besch;
-			if(besch->get_typ()==gebaeude_t::wohnung) {
+			desc = new_besch;
+			if(desc->get_typ()==gebaeude_t::wohnung) {
 				buf.append( translator::translate( "residential house" ) );
 			}
-			else if(besch->get_typ()==gebaeude_t::gewerbe) {
+			else if(desc->get_typ()==gebaeude_t::gewerbe) {
 				buf.append( translator::translate( "shops and stores" ) );
 			}
-			else if(besch->get_typ()==gebaeude_t::industrie) {
+			else if(desc->get_typ()==gebaeude_t::industrie) {
 				buf.append( translator::translate( "industrial building" ) );
 			}
 			buf.append("\n\n");
-			buf.append( translator::translate( besch->get_name() ) );
+			buf.append( translator::translate( desc->get_name() ) );
 
-			buf.printf("\n\n%s: %i\n",translator::translate("Passagierrate"),besch->get_level());
-			buf.printf("%s: %i\n",translator::translate("Postrate"),besch->get_post_level());
+			buf.printf("\n\n%s: %i\n",translator::translate("Passagierrate"),desc->get_level());
+			buf.printf("%s: %i\n",translator::translate("Postrate"),desc->get_post_level());
 
-			buf.printf("%s%u", translator::translate("\nBauzeit von"), besch->get_intro_year_month() / 12);
-			if(besch->get_retire_year_month()!=DEFAULT_RETIRE_DATE*12) {
-				buf.printf("%s%u", translator::translate("\nBauzeit bis"), besch->get_retire_year_month() / 12);
+			buf.printf("%s%u", translator::translate("\nBauzeit von"), desc->get_intro_year_month() / 12);
+			if(desc->get_retire_year_month()!=DEFAULT_RETIRE_DATE*12) {
+				buf.printf("%s%u", translator::translate("\nBauzeit bis"), desc->get_retire_year_month() / 12);
 			}
 			buf.append("\n");
 
-			if (char const* const maker = besch->get_copyright()) {
+			if (char const* const maker = desc->get_copyright()) {
 				buf.append("\n");
 				buf.printf(translator::translate("Constructed by %s"), maker);
 				buf.append("\n");
@@ -250,7 +250,7 @@ void citybuilding_edit_frame_t::change_item_info(sint32 entry)
 			cont.set_size( info_text.get_size() + scr_size(0, 20) );
 
 			// orientation (254=auto, 255=random)
-			if(besch->get_all_layouts()>1) {
+			if(desc->get_all_layouts()>1) {
 				rotation = 255; // no definition yet
 			}
 			else {
@@ -276,15 +276,15 @@ void citybuilding_edit_frame_t::change_item_info(sint32 entry)
 		}
 
 		uint8 rot = (rotation>253) ? 0 : rotation;
-		img[3].set_image( besch->get_tile(rot,0,0)->get_background(0,0,0) );
+		img[3].set_image( desc->get_tile(rot,0,0)->get_background(0,0,0) );
 
 		// the tools will be always updated, even though the data up there might be still current
-		sprintf( param_str, "%i%c%s", bt_climates.pressed, rotation>253 ? (rotation==254 ? 'A' : '#') : '0'+rotation, besch->get_name() );
+		sprintf( param_str, "%i%c%s", bt_climates.pressed, rotation>253 ? (rotation==254 ? 'A' : '#') : '0'+rotation, desc->get_name() );
 		haus_tool.set_default_param(param_str);
 		welt->set_tool( &haus_tool, player );
 	}
 	else if(welt->get_tool(player->get_player_nr())==&haus_tool) {
-		besch = NULL;
+		desc = NULL;
 		welt->set_tool( tool_t::general_tool[TOOL_QUERY], player );
 	}
 }

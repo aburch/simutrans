@@ -15,13 +15,13 @@
 
 void citycar_reader_t::register_obj(obj_besch_t *&data)
 {
-	stadtauto_besch_t *besch = static_cast<stadtauto_besch_t *>(data);
+	stadtauto_besch_t *desc = static_cast<stadtauto_besch_t *>(data);
 
-	private_car_t::register_besch(besch);
+	private_car_t::register_desc(desc);
 
 	checksum_t *chk = new checksum_t();
-	besch->calc_checksum(chk);
-	pakset_info_t::append(besch->get_name(), chk);
+	desc->calc_checksum(chk);
+	pakset_info_t::append(desc->get_name(), chk);
 }
 
 
@@ -35,7 +35,7 @@ obj_besch_t * citycar_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
 	ALLOCA(char, besch_buf, node.size);
 
-	stadtauto_besch_t *besch = new stadtauto_besch_t();
+	stadtauto_besch_t *desc = new stadtauto_besch_t();
 
 	// Hajo: Read data
 	fread(besch_buf, node.size, 1, fp);
@@ -51,32 +51,32 @@ obj_besch_t * citycar_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	if(version == 2) {
 		// Versioned node, version 1
 
-		besch->gewichtung = decode_uint16(p);
-		besch->geschw = kmh_to_speed(decode_uint16(p)/16);
-		besch->intro_date = decode_uint16(p);
-		besch->obsolete_date = decode_uint16(p);
+		desc->gewichtung = decode_uint16(p);
+		desc->geschw = kmh_to_speed(decode_uint16(p)/16);
+		desc->intro_date = decode_uint16(p);
+		desc->obsolete_date = decode_uint16(p);
 	}
 	else if(version == 1) {
 		// Versioned node, version 1
 
-		besch->gewichtung = decode_uint16(p);
-		besch->geschw = kmh_to_speed(decode_uint16(p)/16);
+		desc->gewichtung = decode_uint16(p);
+		desc->geschw = kmh_to_speed(decode_uint16(p)/16);
 		uint16 intro_date = decode_uint16(p);
-		besch->intro_date = (intro_date/16)*12  + (intro_date%12);
+		desc->intro_date = (intro_date/16)*12  + (intro_date%12);
 		uint16 obsolete_date = decode_uint16(p);
-		besch->obsolete_date= (obsolete_date/16)*12  + (obsolete_date%12);
+		desc->obsolete_date= (obsolete_date/16)*12  + (obsolete_date%12);
 	}
 	else {
-		besch->gewichtung = v;
-		besch->geschw = kmh_to_speed(80);
-		besch->intro_date = DEFAULT_INTRO_DATE*12;
-		besch->obsolete_date = DEFAULT_RETIRE_DATE*12;
+		desc->gewichtung = v;
+		desc->geschw = kmh_to_speed(80);
+		desc->intro_date = DEFAULT_INTRO_DATE*12;
+		desc->obsolete_date = DEFAULT_RETIRE_DATE*12;
 	}
 	// zero speed not allowed, we want something that moves!
-	if(  besch->geschw<=16  ) {
+	if(  desc->geschw<=16  ) {
 		dbg->warning( "citycar_reader_t::read_node()", "citycar must have minimum speed => changed to 1.25 km/h!" );
-		besch->geschw = 16;
+		desc->geschw = 16;
 	}
-	DBG_DEBUG("citycar_reader_t::read_node()","version=%i, weight=%i, intro=%i, retire=%i speed=%i",version,besch->gewichtung,besch->intro_date/12,besch->obsolete_date/12, speed_to_kmh(besch->geschw) );
-	return besch;
+	DBG_DEBUG("citycar_reader_t::read_node()","version=%i, weight=%i, intro=%i, retire=%i speed=%i",version,desc->gewichtung,desc->intro_date/12,desc->obsolete_date/12, speed_to_kmh(desc->geschw) );
+	return desc;
 }

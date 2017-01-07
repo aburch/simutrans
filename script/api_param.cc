@@ -401,10 +401,10 @@ namespace script_api {
 		if (SQ_SUCCEEDED(get_slot(vm, "index", i, index))) {
 			if (i>=0  &&  (uint32)i<fab->get_eingang().get_count()) {
 				const ware_production_t& in = fab->get_eingang()[i];
-				const fabrik_lieferant_besch_t* besch = fab->get_besch()->get_lieferant(i);
+				const fabrik_lieferant_besch_t* desc = fab->get_desc()->get_lieferant(i);
 				// sanity check
-				if (besch  &&  besch->get_ware() == in.get_typ()) {
-					return besch;
+				if (desc  &&  desc->get_ware() == in.get_typ()) {
+					return desc;
 				}
 			}
 		}
@@ -424,10 +424,10 @@ namespace script_api {
 			i -= fab->get_eingang().get_count();
 			if (i>=0  &&  (uint32)i<fab->get_ausgang().get_count()) {
 				const ware_production_t& out = fab->get_ausgang()[i];
-				const fabrik_produkt_besch_t* besch = fab->get_besch()->get_produkt(i);
+				const fabrik_produkt_besch_t* desc = fab->get_desc()->get_produkt(i);
 				// sanity check
-				if (besch  &&  besch->get_ware() == out.get_typ()) {
-					return besch;
+				if (desc  &&  desc->get_ware() == out.get_typ()) {
+					return desc;
 				}
 			}
 		}

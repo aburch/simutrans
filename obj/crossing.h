@@ -26,7 +26,7 @@ protected:
 	uint8 ns;				// direction
 	uint8 state;	// only needed for loading ...
 	crossing_logic_t *logic;
-	const kreuzung_besch_t *besch;
+	const kreuzung_besch_t *desc;
 
 public:
 	typ get_typ() const { return crossing; }
@@ -40,7 +40,7 @@ public:
 	waytype_t get_waytype() const { return invalid_wt; }
 
 	crossing_t(loadsave_t *file);
-	crossing_t(player_t *player, koord3d pos, const kreuzung_besch_t *besch, uint8 ns = 0);
+	crossing_t(player_t *player, koord3d pos, const kreuzung_besch_t *desc, uint8 ns = 0);
 
 	/**
 	 * crossing logic is removed here
@@ -50,7 +50,7 @@ public:
 
 	void rotate90();
 
-	const kreuzung_besch_t *get_besch() const { return besch; }
+	const kreuzung_besch_t *get_desc() const { return desc; }
 
 	/**
 	 * @return string (only used for debugg at the moment)

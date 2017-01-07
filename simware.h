@@ -74,13 +74,13 @@ public:
 	 * gibt den nicht-uebersetzten warennamen zurück
 	 * @author Hj. Malthaner
 	 */
-	const char *get_name() const { return get_besch()->get_name(); }
-	const char *get_mass() const { return get_besch()->get_mass(); }
-	uint16 get_preis() const { return get_besch()->get_preis(); }
-	uint8 get_catg() const { return get_besch()->get_catg(); }
+	const char *get_name() const { return get_desc()->get_name(); }
+	const char *get_mass() const { return get_desc()->get_mass(); }
+	uint16 get_preis() const { return get_desc()->get_preis(); }
+	uint8 get_catg() const { return get_desc()->get_catg(); }
 	uint8 get_index() const { return index; }
 
-	const ware_besch_t* get_besch() const { return index_to_besch[index]; }
+	const ware_besch_t* get_desc() const { return index_to_besch[index]; }
 	void set_besch(const ware_besch_t* type);
 
 	void rdwr(loadsave_t *file);
@@ -118,11 +118,11 @@ public:
 	/**
 	 * Calculates transport revenue per tile and freight unit.
 	 * Takes speedbonus into account!
-	 * @param besch the freight
+	 * @param desc the freight
 	 * @param wt waytype of vehicle
 	 * @param speedkmh actual achieved speed in km/h
 	 */
-	static sint64 calc_revenue(const ware_besch_t* besch, waytype_t wt, sint32 speedkmh);
+	static sint64 calc_revenue(const ware_besch_t* desc, waytype_t wt, sint32 speedkmh);
 };
 
 #endif

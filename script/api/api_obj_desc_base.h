@@ -1,7 +1,7 @@
 #ifndef _API_OBJ_DESC_BASE_H_
 #define _API_OBJ_DESC_BASE_H_
 
-/** @file api_obj_desc.h templates for transfer of besch-pointers */
+/** @file api_obj_desc.h templates for transfer of desc-pointers */
 
 #include "../api_param.h"
 #include "../api_class.h"

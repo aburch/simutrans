@@ -17,14 +17,14 @@ void narrowgauge_t::rdwr(loadsave_t *file)
 {
 	schiene_t::rdwr(file);
 
-	if(get_besch()->get_wtyp()!=narrowgauge_wt) {
+	if(get_desc()->get_wtyp()!=narrowgauge_wt) {
 		int old_max_speed = get_max_speed();
-		const weg_besch_t *besch = wegbauer_t::weg_search( narrowgauge_wt, (old_max_speed>0 ? old_max_speed : 120), 0, (systemtype_t)((get_besch()->get_styp()==type_elevated)*type_elevated) );
-		if (besch==NULL) {
+		const weg_besch_t *desc = wegbauer_t::weg_search( narrowgauge_wt, (old_max_speed>0 ? old_max_speed : 120), 0, (systemtype_t)((get_desc()->get_styp()==type_elevated)*type_elevated) );
+		if (desc==NULL) {
 			dbg->fatal("narrowgauge_t::rwdr()", "No narrowgauge way available");
 		}
-		dbg->warning("narrowgauge_t::rwdr()", "Unknown way replaced by narrow gauge %s (old_max_speed %i)", besch->get_name(), old_max_speed );
-		set_besch(besch);
+		dbg->warning("narrowgauge_t::rwdr()", "Unknown way replaced by narrow gauge %s (old_max_speed %i)", desc->get_name(), old_max_speed );
+		set_besch(desc);
 		if(old_max_speed>0) {
 			set_max_speed(old_max_speed);
 		}

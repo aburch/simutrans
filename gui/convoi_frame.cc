@@ -69,7 +69,7 @@ bool convoi_frame_t::passes_filter(convoihandle_t cnv)
 				break;
 			case obj_t::rail_vehicle:
 				// filter trams: a convoi is considered tram if the first vehicle is a tram vehicle
-				if(fahr->get_besch()->get_waytype()==tram_wt) {
+				if(fahr->get_desc()->get_waytype()==tram_wt) {
 					if (!get_filter(convoi_filter_frame_t::tram_filter)) {
 						return false;
 					}

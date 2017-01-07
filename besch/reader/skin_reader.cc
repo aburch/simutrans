@@ -13,16 +13,16 @@
 
 void skin_reader_t::register_obj(obj_besch_t *&data)
 {
-	skin_besch_t* besch = static_cast<skin_besch_t*>(data);
+	skin_besch_t* desc = static_cast<skin_besch_t*>(data);
 
 	if(get_skintype() != skinverwaltung_t::nothing) {
-		skinverwaltung_t::register_besch(get_skintype(), besch);
+		skinverwaltung_t::register_desc(get_skintype(), desc);
 	}
 	else {
-		obj_for_xref(get_type(), besch->get_name(), data);
+		obj_for_xref(get_type(), desc->get_name(), data);
 		// smoke needs its own registering
 		if(  get_type()==obj_smoke  ) {
-			wolke_t::register_besch(besch);
+			wolke_t::register_desc(desc);
 		}
 	}
 }

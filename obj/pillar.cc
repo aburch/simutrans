@@ -26,19 +26,19 @@
 
 pillar_t::pillar_t(loadsave_t *file) : obj_t()
 {
-	besch = NULL;
+	desc = NULL;
 	asymmetric = false;
 	rdwr(file);
 }
 
 
-pillar_t::pillar_t(koord3d pos, player_t *player, const bruecke_besch_t *besch, bruecke_besch_t::img_t img, int hoehe) : obj_t(pos)
+pillar_t::pillar_t(koord3d pos, player_t *player, const bruecke_besch_t *desc, bruecke_besch_t::img_t img, int hoehe) : obj_t(pos)
 {
-	this->besch = besch;
+	this->desc = desc;
 	this->dir = (uint8)img;
 	set_yoff(-hoehe);
 	set_owner( player );
-	asymmetric = besch->has_pillar_asymmetric();
+	asymmetric = desc->has_pillar_asymmetric();
 	calc_image();
 }
 
@@ -47,7 +47,7 @@ void pillar_t::calc_image()
 {
 	bool hide = false;
 	int height = get_yoff();
-	if(  besch->has_pillar_asymmetric()  ) {
+	if(  desc->has_pillar_asymmetric()  ) {
 		if(  grund_t *gr = welt->lookup(get_pos())  ) {
 			slope_t::type slope = gr->get_grund_hang();
 			if(  dir == bruecke_besch_t::NS_Pillar  ) {
@@ -62,7 +62,7 @@ void pillar_t::calc_image()
 		}
 
 	}
-	image = hide ? IMG_EMPTY : besch->get_background( (bruecke_besch_t::img_t)dir, get_pos().z-height/TILE_HEIGHT_STEP >= welt->get_snowline()  ||  welt->get_climate( get_pos().get_2d() ) == arctic_climate );
+	image = hide ? IMG_EMPTY : desc->get_background( (bruecke_besch_t::img_t)dir, get_pos().z-height/TILE_HEIGHT_STEP >= welt->get_snowline()  ||  welt->get_climate( get_pos().get_2d() ) == arctic_climate );
 }
 
 
@@ -78,7 +78,7 @@ void pillar_t::show_info()
 		grund_t *bd=plan->get_boden_bei(i);
 		if(bd->ist_bruecke()) {
 			bruecke_t* br = bd->find<bruecke_t>();
-			if(br  &&  br->get_besch()==besch) {
+			if(br  &&  br->get_desc()==desc) {
 				br->show_info();
 			}
 		}
@@ -93,7 +93,7 @@ void pillar_t::rdwr(loadsave_t *file)
 	obj_t::rdwr(file);
 
 	if(file->is_saving()) {
-		const char *s = besch->get_name();
+		const char *s = desc->get_name();
 		file->rdwr_str(s);
 		file->rdwr_byte(dir);
 	}
@@ -102,18 +102,18 @@ void pillar_t::rdwr(loadsave_t *file)
 		file->rdwr_str(s, lengthof(s));
 		file->rdwr_byte(dir);
 
-		besch = brueckenbauer_t::get_besch(s);
-		if(besch==0) {
+		desc = brueckenbauer_t::get_desc(s);
+		if(desc==0) {
 			if(strstr(s,"ail")) {
-				besch = brueckenbauer_t::get_besch("ClassicRail");
+				desc = brueckenbauer_t::get_desc("ClassicRail");
 				dbg->warning("pillar_t::rdwr()","Unknown bridge %s replaced by ClassicRail",s);
 			}
 			else if(strstr(s,"oad")) {
-				besch = brueckenbauer_t::get_besch("ClassicRoad");
+				desc = brueckenbauer_t::get_desc("ClassicRoad");
 				dbg->warning("pillar_t::rdwr()","Unknown bridge %s replaced by ClassicRoad",s);
 			}
 		}
-		asymmetric = besch && besch->has_pillar_asymmetric();
+		asymmetric = desc && desc->has_pillar_asymmetric();
 
 		if(  file->get_version() < 112007 && env_t::pak_height_conversion_factor==2  ) {
 			switch(dir) {

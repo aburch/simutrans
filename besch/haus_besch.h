@@ -49,7 +49,7 @@ class haus_tile_besch_t : public obj_besch_t {
 public:
 	void set_besch(const haus_besch_t *haus_besch) { haus = haus_besch; }
 
-	const haus_besch_t *get_besch() const { return haus; }
+	const haus_besch_t *get_desc() const { return haus; }
 
 	uint16 get_index() const { return index; }
 	uint8 get_seasons() const { return seasons; }

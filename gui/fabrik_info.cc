@@ -67,7 +67,7 @@ fabrik_info_t::fabrik_info_t(fabrik_t* fab_, const gebaeude_t* gb) :
 
 	// Hajo: "About" button only if translation is available
 	char key[256];
-	sprintf(key, "factory_%s_details", fab->get_besch()->get_name());
+	sprintf(key, "factory_%s_details", fab->get_desc()->get_name());
 	const char * value = translator::translate(key);
 	if(value && *value != 'f') {
 		details_button.init( button_t::roundbox, "Details", scr_coord(BUTTON4_X,offset_below_viewport));
@@ -175,7 +175,7 @@ void fabrik_info_t::draw(scr_coord pos, scr_size size)
 			x_view_pos += skinverwaltung_t::electricity->get_image(0)->get_pic()->w+4;
 		}
 		// indicator for enabled
-		if(  fab->get_besch()->get_electric_boost()  ) {
+		if(  fab->get_desc()->get_electric_boost()  ) {
 			display_color_img( skinverwaltung_t::electricity->get_image_id(0), pos.x + x_prod_pos, pos.y + view.get_pos().y + D_TITLEBAR_HEIGHT, 0, false, false);
 			x_prod_pos += skinverwaltung_t::electricity->get_image(0)->get_pic()->w+4;
 		}
@@ -185,7 +185,7 @@ void fabrik_info_t::draw(scr_coord pos, scr_size size)
 			display_color_img(skinverwaltung_t::passagiere->get_image_id(0), pos.x + view.get_pos().x + x_view_pos, pos.y + view.get_pos().y + D_TITLEBAR_HEIGHT+4, 0, false, false);
 			x_view_pos += skinverwaltung_t::passagiere->get_image(0)->get_pic()->w+4;
 		}
-		if(  fab->get_besch()->get_pax_boost()  ) {
+		if(  fab->get_desc()->get_pax_boost()  ) {
 			display_color_img( skinverwaltung_t::passagiere->get_image_id(0), pos.x + x_prod_pos, pos.y + view.get_pos().y + D_TITLEBAR_HEIGHT, 0, false, false);
 			x_prod_pos += skinverwaltung_t::passagiere->get_image(0)->get_pic()->w+4;
 		}
@@ -194,7 +194,7 @@ void fabrik_info_t::draw(scr_coord pos, scr_size size)
 		if(  fab->get_prodfactor_mail()>0  ) {
 			display_color_img(skinverwaltung_t::post->get_image_id(0), pos.x + view.get_pos().x + x_view_pos, pos.y + view.get_pos().y + D_TITLEBAR_HEIGHT+4, 0, false, false);
 		}
-		if(  fab->get_besch()->get_mail_boost()  ) {
+		if(  fab->get_desc()->get_mail_boost()  ) {
 			display_color_img( skinverwaltung_t::post->get_image_id(0), pos.x + x_prod_pos, pos.y + view.get_pos().y + D_TITLEBAR_HEIGHT, 0, false, false);
 		}
 	}
@@ -238,7 +238,7 @@ bool fabrik_info_t::action_triggered( gui_action_creator_t *comp, value_t v)
 	else if(  comp == &details_button  ) {
 		help_frame_t * frame = new help_frame_t();
 		char key[256];
-		sprintf(key, "factory_%s_details", fab->get_besch()->get_name());
+		sprintf(key, "factory_%s_details", fab->get_desc()->get_name());
 		frame->set_text(translator::translate(key));
 		create_win(frame, w_info, (ptrdiff_t)this);
 	}
@@ -456,7 +456,7 @@ void fabrik_info_t::rdwr( loadsave_t *file )
 
 		// Hajo: "About" button only if translation is available
 		char key[256];
-		sprintf(key, "factory_%s_details", fab->get_besch()->get_name());
+		sprintf(key, "factory_%s_details", fab->get_desc()->get_name());
 		const char * value = translator::translate(key);
 		if(value && *value != 'f') {
 			details_button.init( button_t::roundbox, "Details", scr_coord(BUTTON4_X,offset_below_viewport));

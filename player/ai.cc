@@ -324,11 +324,11 @@ void ai_t::set_marker( koord place, koord size )
 bool ai_t::built_update_headquarter()
 {
 	// find next level
-	const haus_besch_t* besch = hausbauer_t::get_headquarter(get_headquarter_level(), welt->get_timeline_year_month());
+	const haus_besch_t* desc = hausbauer_t::get_headquarter(get_headquarter_level(), welt->get_timeline_year_month());
 	// is the a suitable one?
-	if(besch!=NULL) {
+	if(desc!=NULL) {
 		// cost is negative!
-		sint64 const cost = welt->get_settings().cst_multiply_headquarter * besch->get_level() * besch->get_b() * besch->get_h();
+		sint64 const cost = welt->get_settings().cst_multiply_headquarter * desc->get_level() * desc->get_b() * desc->get_h();
 		if(  finance->get_account_balance()+cost > finance->get_starting_money() ) {
 			// and enough money left ...
 			koord place = get_headquarter_pos();
@@ -337,7 +337,7 @@ bool ai_t::built_update_headquarter()
 				grund_t *gr = welt->lookup_kartenboden(place);
 				gebaeude_t *prev_hq = gr->find<gebaeude_t>();
 				// other size?
-				if(  besch->get_size()!=prev_hq->get_tile()->get_besch()->get_size()  ) {
+				if(  desc->get_size()!=prev_hq->get_tile()->get_desc()->get_size()  ) {
 					// needs new place
 					place = koord::invalid;
 				}
@@ -356,8 +356,8 @@ bool ai_t::built_update_headquarter()
 					}
 				}
 				if(st) {
-					bool is_rotate=besch->get_all_layouts()>1;
-					place = ai_bauplatz_mit_strasse_sucher_t(welt).suche_platz(st->get_pos(), besch->get_b(), besch->get_h(), besch->get_allowed_climate_bits(), &is_rotate);
+					bool is_rotate=desc->get_all_layouts()>1;
+					place = ai_bauplatz_mit_strasse_sucher_t(welt).suche_platz(st->get_pos(), desc->get_b(), desc->get_h(), desc->get_allowed_climate_bits(), &is_rotate);
 				}
 			}
 			const char *err="No suitable ground!";

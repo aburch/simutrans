@@ -1494,15 +1494,15 @@ uint32 settings_t::get_locality_factor(sint16 const year) const
 
 
 /**
- * returns newest way-besch for road_timeline_t arrays
+ * returns newest way-desc for road_timeline_t arrays
  * @param road_timeline_t must be an array with at least num_roads elements, no range checks!
  */
 static const weg_besch_t *get_timeline_road_type( uint16 year, uint16 num_roads, road_timeline_t* roads)
 {
-	const weg_besch_t *besch = NULL;
+	const weg_besch_t *desc = NULL;
 	const weg_besch_t *test;
 	for(  int i=0;  i<num_roads;  i++  ) {
-		test = wegbauer_t::get_besch( roads[i].name, 0 );
+		test = wegbauer_t::get_desc( roads[i].name, 0 );
 		if(  test  ) {
 			// return first available for no timeline
 			if(  year==0  ) {
@@ -1521,13 +1521,13 @@ static const weg_besch_t *get_timeline_road_type( uint16 year, uint16 num_roads,
 			}
 			// find newest available ...
 			if(  year>=roads[i].intro  &&  year<roads[i].retire  ) {
-				if(  besch==0  ||  besch->get_intro_year_month()<test->get_intro_year_month()  ) {
-					besch = test;
+				if(  desc==0  ||  desc->get_intro_year_month()<test->get_intro_year_month()  ) {
+					desc = test;
 				}
 			}
 		}
 	}
-	return besch;
+	return desc;
 }
 
 

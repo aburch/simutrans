@@ -15,7 +15,7 @@
  * the list. The list is "{NULL, NULL}" terminated.
  */
 template<class besch_t> struct spezial_obj_tpl {
-	const besch_t** besch;
+	const besch_t** desc;
 	const char* name;
 };
 
@@ -24,16 +24,16 @@ template<class besch_t> struct spezial_obj_tpl {
  * An object pointer is set on the passed list, if the name of the
  * object belongs to one of the objects mentioned in the list.
  * @param so List to operate over.
- * @parem besch Descriptor to add.
+ * @parem desc Descriptor to add.
  */
-template<class besch_t> bool register_besch(spezial_obj_tpl<besch_t> const* so, besch_t const* const besch)
+template<class besch_t> bool register_desc(spezial_obj_tpl<besch_t> const* so, besch_t const* const desc)
 {
 	for (; so->name; ++so) {
-		if (strcmp(so->name, besch->get_name()) == 0) {
-			if (*so->besch != NULL) {
-				dbg->message("register_besch()", "Notice: obj %s already defined", so->name);
+		if (strcmp(so->name, desc->get_name()) == 0) {
+			if (*so->desc != NULL) {
+				dbg->message("register_desc()", "Notice: obj %s already defined", so->name);
 			}
-			*so->besch = besch;
+			*so->desc = desc;
 			return true;
 		}
 	}
@@ -48,8 +48,8 @@ template<class besch_t> bool register_besch(spezial_obj_tpl<besch_t> const* so, 
 template<class besch_t> bool alles_geladen(spezial_obj_tpl<besch_t> const* so)
 {
 	for (; so->name; ++so) {
-		if (!*so->besch) {
-			dbg->fatal("alles_geladen()", "%s-object %s not found.\n*** PLEASE INSTALL PROPER BASE FILE AND CHECK PATH ***", typeid(**so->besch).name(), so->name);
+		if (!*so->desc) {
+			dbg->fatal("alles_geladen()", "%s-object %s not found.\n*** PLEASE INSTALL PROPER BASE FILE AND CHECK PATH ***", typeid(**so->desc).name(), so->name);
 			return false;
 		}
 	}
@@ -64,7 +64,7 @@ template<class besch_t> bool alles_geladen(spezial_obj_tpl<besch_t> const* so)
 template<class besch_t> void warne_ungeladene(spezial_obj_tpl<besch_t> const* so)
 {
 	for (; so->name; ++so) {
-		if (!*so->besch) {
+		if (!*so->desc) {
 			dbg->message("warne_ungeladene", "Object %s not found, feature disabled", so->name);
 		}
 	}

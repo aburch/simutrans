@@ -56,7 +56,7 @@ public:
 
 	static sint16 get_sound_id(const char *name);
 
-	static bool register_besch(sound_besch_t *besch);
+	static bool register_desc(sound_besch_t *desc);
 
 	static void init();
 

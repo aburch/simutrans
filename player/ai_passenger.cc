@@ -429,7 +429,7 @@ bool ai_passenger_t::create_water_transport_vehikel(const stadt_t* start_stadt, 
 	// now create one ship
 	vehicle_t* v = vehikelbauer_t::baue( koord3d( start_pos, welt->get_water_hgt( start_pos ) ), this, NULL, v_besch );
 	convoi_t* cnv = new convoi_t(this);
-	cnv->set_name(v->get_besch()->get_name());
+	cnv->set_name(v->get_desc()->get_name());
 	cnv->add_vehikel( v );
 	cnv->set_line(line);
 	cnv->start();
@@ -748,7 +748,7 @@ bool ai_passenger_t::create_air_transport_vehikel(const stadt_t *start_stadt, co
 	// now create one plane
 	vehicle_t* v = vehikelbauer_t::baue( start->get_pos(), this, NULL, v_besch);
 	convoi_t* cnv = new convoi_t(this);
-	cnv->set_name(v->get_besch()->get_name());
+	cnv->set_name(v->get_desc()->get_name());
 	cnv->add_vehikel( v );
 	cnv->set_line(line);
 	cnv->start();
@@ -798,7 +798,7 @@ DBG_MESSAGE("ai_passenger_t::create_bus_transport_vehikel()","bus at (%i,%i)",st
 		}
 		convoi_t* cnv = new convoi_t(this);
 		// V.Meyer: give the new convoi name from first vehicle
-		cnv->set_name(v->get_besch()->get_name());
+		cnv->set_name(v->get_desc()->get_name());
 		cnv->add_vehikel( v );
 
 		cnv->set_line(line);
@@ -918,7 +918,7 @@ void ai_passenger_t::cover_city_with_bus_route(koord start_pos, int number_of_st
 		vehicle_t* v = vehikelbauer_t::baue(start->get_pos(), this, NULL, road_vehicle);
 		convoi_t* cnv = new convoi_t(this);
 
-		cnv->set_name(v->get_besch()->get_name());
+		cnv->set_name(v->get_desc()->get_name());
 		cnv->add_vehikel( v );
 
 		cnv->set_line(line);
@@ -1011,17 +1011,17 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","searching attraction");
 							continue;
 						}
 						pos  = a->get_pos().get_2d();
-						size = a->get_tile()->get_besch()->get_size(a->get_tile()->get_layout());
+						size = a->get_tile()->get_desc()->get_size(a->get_tile()->get_layout());
 					}
 					else {
 						const fabrik_t* f = fabriken[i].factory;
-						const fabrik_besch_t *const besch = f->get_besch();
-						if (( besch->get_pax_demand()==65535 ? besch->get_pax_level() : besch->get_pax_demand() ) <= 10) {
+						const fabrik_besch_t *const desc = f->get_desc();
+						if (( desc->get_pax_demand()==65535 ? desc->get_pax_level() : desc->get_pax_demand() ) <= 10) {
 							// not a good object to go to ... we want more action ...
 							continue;
 						}
 						pos  = f->get_pos().get_2d();
-						size = f->get_besch()->get_haus()->get_size(f->get_rotate());
+						size = f->get_desc()->get_haus()->get_size(f->get_rotate());
 					}
 					const stadt_t *next_town = welt->suche_naechste_stadt(pos);
 					if(next_town==NULL  ||  start_stadt==next_town) {
@@ -1052,7 +1052,7 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","searching attraction");
 				if(platz2!=koord::invalid) {
 					// found something
 					state = NR_SAMMLE_ROUTEN;
-DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","decision: %s wants to built network between %s and %s",get_name(),start_stadt->get_name(),ausflug?end_ausflugsziel->get_tile()->get_besch()->get_name():ziel->get_name());
+DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","decision: %s wants to built network between %s and %s",get_name(),start_stadt->get_name(),ausflug?end_ausflugsziel->get_tile()->get_desc()->get_name():ziel->get_name());
 				}
 			}
 			else {
@@ -1181,7 +1181,7 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using %s on %s",road_vehicle->g
 					cbuffer_t buf;
 					if(end_ausflugsziel!=NULL) {
 						platz1 = end_ausflugsziel->get_pos().get_2d();
-						buf.printf(translator::translate("%s now\noffers bus services\nbetween %s\nand attraction\n%s\nat (%i,%i).\n"), get_name(), start_stadt->get_name(), make_single_line_string(translator::translate(end_ausflugsziel->get_tile()->get_besch()->get_name()),2), platz1.x, platz1.y );
+						buf.printf(translator::translate("%s now\noffers bus services\nbetween %s\nand attraction\n%s\nat (%i,%i).\n"), get_name(), start_stadt->get_name(), make_single_line_string(translator::translate(end_ausflugsziel->get_tile()->get_desc()->get_name()),2), platz1.x, platz1.y );
 						end_stadt = start_stadt;
 					}
 					else if(ziel!=NULL) {
@@ -1302,7 +1302,7 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using %s on %s",road_vehicle->g
 							convoihandle_t cnv = line->get_convoy(i);
 							if(cnv->has_obsolete_vehicles()) {
 								obsolete.append(cnv);
-								capacity += cnv->front()->get_besch()->get_zuladung();
+								capacity += cnv->front()->get_desc()->get_zuladung();
 							}
 						}
 						if(capacity>0) {
@@ -1310,7 +1310,7 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using %s on %s",road_vehicle->g
 							vehicle_t              const& v       = *line->get_convoy(0)->front();
 							waytype_t              const  wt      = v.get_waytype();
 							vehikel_besch_t const* const  v_besch = vehikelbauer_t::vehikel_search(wt, welt->get_current_month(), 50, welt->get_average_speed(wt), warenbauer_t::passagiere, false, true);
-							if (!v_besch->is_retired(welt->get_current_month()) && v_besch != v.get_besch()) {
+							if (!v_besch->is_retired(welt->get_current_month()) && v_besch != v.get_desc()) {
 								// there is a newer one ...
 								for(  uint32 new_capacity=0;  capacity>new_capacity;  new_capacity+=v_besch->get_zuladung()) {
 									if(  convoihandle_t::is_exhausted()  ) {
@@ -1319,7 +1319,7 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using %s on %s",road_vehicle->g
 									}
 									vehicle_t* v = vehikelbauer_t::baue( line->get_schedule()->entries[0].pos, this, NULL, v_besch  );
 									convoi_t* new_cnv = new convoi_t(this);
-									new_cnv->set_name( v->get_besch()->get_name() );
+									new_cnv->set_name( v->get_desc()->get_name() );
 									new_cnv->add_vehikel( v );
 									new_cnv->set_line(line);
 									new_cnv->start();
@@ -1347,9 +1347,9 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using %s on %s",road_vehicle->g
 				// next: check for overflowing lines, i.e. running with 3/4 of the capacity
 				if(  ratio<10  &&  !convoihandle_t::is_exhausted()  ) {
 					// else add the first convoi again
-					vehicle_t* const v = vehikelbauer_t::baue(line->get_schedule()->entries[0].pos, this, NULL, line->get_convoy(0)->front()->get_besch());
+					vehicle_t* const v = vehikelbauer_t::baue(line->get_schedule()->entries[0].pos, this, NULL, line->get_convoy(0)->front()->get_desc());
 					convoi_t* new_cnv = new convoi_t(this);
-					new_cnv->set_name( v->get_besch()->get_name() );
+					new_cnv->set_name( v->get_desc()->get_name() );
 					new_cnv->add_vehikel( v );
 					new_cnv->set_line( line );
 					// on waiting line, wait at alternating stations for load balancing

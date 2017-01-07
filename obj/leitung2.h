@@ -39,7 +39,7 @@ protected:
 	*/
 	powernet_t * net;
 
-	const weg_besch_t *besch;
+	const weg_besch_t *desc;
 
 	/**
 	* Connect this piece of powerline to its neighbours
@@ -62,8 +62,8 @@ public:
 	powernet_t* get_net() const { return net; }
 	void set_net(powernet_t* p) { net = p; }
 
-	const weg_besch_t * get_besch() { return besch; }
-	void set_besch(const weg_besch_t *new_besch) { besch = new_besch; }
+	const weg_besch_t * get_desc() { return desc; }
+	void set_besch(const weg_besch_t *new_besch) { desc = new_besch; }
 
 	int gimme_neighbours(leitung_t **conn);
 	static fabrik_t * suche_fab_4(koord pos);

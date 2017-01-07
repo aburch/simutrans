@@ -891,7 +891,7 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 			else if(  gr->get_typ() == grund_t::fundament  ) {
 				if(  gebaeude_t *gb = gr->find<gebaeude_t>()  ) {
 					if(  gb->get_haustyp() != gebaeude_t::unbekannt  ) {
-						sint32 level = gb->get_tile()->get_besch()->get_level();
+						sint32 level = gb->get_tile()->get_desc()->get_level();
 						if(  level > max_building_level  ) {
 							max_building_level = level;
 						}
@@ -1598,7 +1598,7 @@ void reliefkarte_t::draw(scr_coord pos)
 			}
 			scr_coord fab_pos = karte_to_screen( fab_tl_pos.get_2d() );
 			fab_pos = fab_pos + pos;
-			koord size = f->get_besch()->get_haus()->get_size(f->get_rotate());
+			koord size = f->get_desc()->get_haus()->get_size(f->get_rotate());
 			sint16 x_size = max( 5, size.x*zoom_in );
 			sint16 y_size = max( 5, size.y*zoom_in );
 			display_fillbox_wh_clip( fab_pos.x-1, fab_pos.y-1, x_size+2, y_size+2, COL_BLACK, false );

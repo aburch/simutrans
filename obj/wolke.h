@@ -22,7 +22,7 @@ private:
 	sint8 cloud_nr;
 
 public:
-	static bool register_besch(const skin_besch_t *besch);
+	static bool register_desc(const skin_besch_t *desc);
 
 	wolke_t(loadsave_t *file);
 	wolke_t(koord3d pos, sint8 xoff, sint8 yoff, const skin_besch_t *cloud );

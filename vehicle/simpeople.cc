@@ -31,12 +31,12 @@ static bool compare_fussgaenger_besch(const fussgaenger_besch_t* a, const fussga
 }
 
 
-bool pedestrian_t::register_besch(const fussgaenger_besch_t *besch)
+bool pedestrian_t::register_desc(const fussgaenger_besch_t *desc)
 {
-	if(  table.remove(besch->get_name())  ) {
-		dbg->warning( "pedestrian_t::register_besch()", "Object %s was overlaid by addon!", besch->get_name() );
+	if(  table.remove(desc->get_name())  ) {
+		dbg->warning( "pedestrian_t::register_desc()", "Object %s was overlaid by addon!", desc->get_name() );
 	}
-	table.put(besch->get_name(), besch);
+	table.put(desc->get_name(), desc);
 	return true;
 }
 
@@ -65,7 +65,7 @@ pedestrian_t::pedestrian_t(loadsave_t *file)
  : road_user_t()
 {
 	rdwr(file);
-	if(besch) {
+	if(desc) {
 		welt->sync.add(this);
 	}
 }
@@ -73,7 +73,7 @@ pedestrian_t::pedestrian_t(loadsave_t *file)
 
 pedestrian_t::pedestrian_t(grund_t *gr) :
 	road_user_t(gr, simrand(65535)),
-	besch(pick_any_weighted(liste))
+	desc(pick_any_weighted(liste))
 {
 	time_to_life = pick_any(strecke);
 	calc_image();
@@ -90,7 +90,7 @@ pedestrian_t::~pedestrian_t()
 
 void pedestrian_t::calc_image()
 {
-	set_image(besch->get_image_id(ribi_t::get_dir(get_direction())));
+	set_image(desc->get_image_id(ribi_t::get_dir(get_direction())));
 }
 
 
@@ -102,16 +102,16 @@ void pedestrian_t::rdwr(loadsave_t *file)
 	road_user_t::rdwr(file);
 
 	if(!file->is_loading()) {
-		const char *s = besch->get_name();
+		const char *s = desc->get_name();
 		file->rdwr_str(s);
 	}
 	else {
 		char s[256];
 		file->rdwr_str(s, lengthof(s));
-		besch = table.get(s);
+		desc = table.get(s);
 		// unknown pedestrian => create random new one
-		if(besch == NULL  &&  !liste.empty()  ) {
-			besch = pick_any_weighted(liste);
+		if(desc == NULL  &&  !liste.empty()  ) {
+			desc = pick_any_weighted(liste);
 		}
 	}
 

@@ -118,31 +118,31 @@ static bool compare_ware_besch(const ware_besch_t* a, const ware_besch_t* b)
 	return diff < 0;
 }
 
-bool warenbauer_t::register_besch(ware_besch_t *besch)
+bool warenbauer_t::register_desc(ware_besch_t *desc)
 {
-	besch->value = besch->base_value;
-	::register_besch(spezial_objekte, besch);
+	desc->value = desc->base_value;
+	::register_desc(spezial_objekte, desc);
 	// avoid duplicates with same name
-	ware_besch_t *old_besch = const_cast<ware_besch_t *>(besch_names.get(besch->get_name()));
+	ware_besch_t *old_besch = const_cast<ware_besch_t *>(besch_names.get(desc->get_name()));
 	if(  old_besch  ) {
-		dbg->warning( "warenbauer_t::register_besch()", "Object %s was overlaid by addon!", besch->get_name() );
-		besch_names.remove(besch->get_name());
+		dbg->warning( "warenbauer_t::register_desc()", "Object %s was overlaid by addon!", desc->get_name() );
+		besch_names.remove(desc->get_name());
 		waren.remove( old_besch );
 	}
-	besch_names.put(besch->get_name(), besch);
+	besch_names.put(desc->get_name(), desc);
 
-	if(besch==passagiere) {
-		besch->ware_index = INDEX_PAS;
-		load_passagiere = besch;
-	} else if(besch==post) {
-		besch->ware_index = INDEX_MAIL;
-		load_post = besch;
-	} else if(besch != nichts) {
-		waren.insert_ordered(besch,compare_ware_besch);
+	if(desc==passagiere) {
+		desc->ware_index = INDEX_PAS;
+		load_passagiere = desc;
+	} else if(desc==post) {
+		desc->ware_index = INDEX_MAIL;
+		load_post = desc;
+	} else if(desc != nichts) {
+		waren.insert_ordered(desc,compare_ware_besch);
 	}
 	else {
-		load_nichts = besch;
-		besch->ware_index = INDEX_NONE;
+		load_nichts = desc;
+		desc->ware_index = INDEX_NONE;
 	}
 	return true;
 }
@@ -156,7 +156,7 @@ const ware_besch_t *warenbauer_t::get_info(const char* name)
 	}
 	if(  ware == NULL  ) {
 		// to avoid crashed with NULL pointer in skripts return good NONE
-		dbg->error( "warenbauer_t::get_info()", "No besch for %s", name );
+		dbg->error( "warenbauer_t::get_info()", "No desc for %s", name );
 		ware = warenbauer_t::nichts;
 	}
 	return ware;

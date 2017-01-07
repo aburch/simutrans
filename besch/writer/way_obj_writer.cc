@@ -115,6 +115,6 @@ void way_obj_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& 
 	cursorkeys.append(string(obj.get("icon")));
 	cursorskin_writer_t::instance()->write_obj(outfp, node, obj, cursorkeys);
 
-	// node.write_data(fp, &besch);
+	// node.write_data(fp, &desc);
 	node.write(outfp);
 }

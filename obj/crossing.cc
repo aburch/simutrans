@@ -40,10 +40,10 @@ crossing_t::crossing_t(loadsave_t* const file) : obj_no_info_t()
 }
 
 
-crossing_t::crossing_t(player_t* const player_, koord3d const pos, kreuzung_besch_t const* const besch, uint8 const ns) : obj_no_info_t(pos)
+crossing_t::crossing_t(player_t* const player_, koord3d const pos, kreuzung_besch_t const* const desc, uint8 const ns) : obj_no_info_t(pos)
 {
 	this->ns = ns;
-	this->besch = besch;
+	this->desc = desc;
 	logic = NULL;
 	state = crossing_logic_t::CROSSING_INVALID;
 	image = foreground_image = IMG_EMPTY;
@@ -94,16 +94,16 @@ void crossing_t::calc_image()
 #endif
 	const bool snow_image = get_pos().z >= welt->get_snowline()  ||  welt->get_climate( get_pos().get_2d() ) == arctic_climate;
 	// recalc image each step ...
-	const image_t *a = besch->get_image_after( ns, state!=crossing_logic_t::CROSSING_CLOSED, snow_image );
+	const image_t *a = desc->get_image_after( ns, state!=crossing_logic_t::CROSSING_CLOSED, snow_image );
 	if(  a==NULL  &&  snow_image  ) {
 		// no snow image? take normal one
-		a = besch->get_image_after( ns, state!=crossing_logic_t::CROSSING_CLOSED, 0);
+		a = desc->get_image_after( ns, state!=crossing_logic_t::CROSSING_CLOSED, 0);
 	}
 	foreground_image = a ? a->get_id() : IMG_EMPTY;
-	const image_t *b = besch->get_image( ns, state!=crossing_logic_t::CROSSING_CLOSED, snow_image );
+	const image_t *b = desc->get_image( ns, state!=crossing_logic_t::CROSSING_CLOSED, snow_image );
 	if (b==NULL  &&  snow_image) {
 		// no snow image? take normal one
-		b = besch->get_image( ns, state!=crossing_logic_t::CROSSING_CLOSED, 0);
+		b = desc->get_image( ns, state!=crossing_logic_t::CROSSING_CLOSED, 0);
 	}
 	image = b ? b->get_id() : IMG_EMPTY;
 }
@@ -131,10 +131,10 @@ void crossing_t::rdwr(loadsave_t *file)
 	sint32 speedlimit0 = 999;
 	sint32 speedlimit1 = 999;
 	if(file->is_saving()) {
-		w1 = besch->get_waytype(0);
-		w2 = besch->get_waytype(1);
-		speedlimit0 = besch->get_maxspeed(0);
-		speedlimit1 = besch->get_maxspeed(1);
+		w1 = desc->get_waytype(0);
+		w2 = desc->get_waytype(1);
+		speedlimit0 = desc->get_maxspeed(0);
+		speedlimit1 = desc->get_maxspeed(1);
 	}
 
 	file->rdwr_byte(w1);
@@ -147,12 +147,12 @@ void crossing_t::rdwr(loadsave_t *file)
 	}
 
 	if(  file->is_loading()  ) {
-		besch = crossing_logic_t::get_crossing( (waytype_t)w1, (waytype_t)w2, speedlimit0, speedlimit1, welt->get_timeline_year_month());
-		if(besch==NULL) {
+		desc = crossing_logic_t::get_crossing( (waytype_t)w1, (waytype_t)w2, speedlimit0, speedlimit1, welt->get_timeline_year_month());
+		if(desc==NULL) {
 			dbg->warning("crossing_t::rdwr()","requested for waytypes %i and %i not available, try to load object without timeline", w1, w2 );
-			besch = crossing_logic_t::get_crossing( (waytype_t)w1, (waytype_t)w2, speedlimit0, speedlimit1, 0);
+			desc = crossing_logic_t::get_crossing( (waytype_t)w1, (waytype_t)w2, speedlimit0, speedlimit1, 0);
 		}
-		if(besch==NULL) {
+		if(desc==NULL) {
 			dbg->fatal("crossing_t::rdwr()","requested for waytypes %i and %i but nothing defined!", w1, w2 );
 		}
 		crossing_logic_t::add( this, static_cast<crossing_logic_t::crossing_state_t>(state) );
@@ -169,16 +169,16 @@ void crossing_t::rdwr(loadsave_t *file)
 void crossing_t::finish_rd()
 {
 	grund_t *gr=welt->lookup(get_pos());
-	if(gr==NULL  ||  !gr->hat_weg(besch->get_waytype(0))  ||  !gr->hat_weg(besch->get_waytype(1))) {
+	if(gr==NULL  ||  !gr->hat_weg(desc->get_waytype(0))  ||  !gr->hat_weg(desc->get_waytype(1))) {
 		dbg->error("crossing_t::finish_rd","way/ground missing at %i,%i => ignore", get_pos().x, get_pos().y );
 	}
 	else {
 		// try to find crossing that matches way max speed
-		weg_t *w1=gr->get_weg(besch->get_waytype(0));
-		weg_t *w2=gr->get_weg(besch->get_waytype(1));
-		const kreuzung_besch_t *test = crossing_logic_t::get_crossing( besch->get_waytype(0), besch->get_waytype(1), w1->get_besch()->get_topspeed(), w2->get_besch()->get_topspeed(), welt->get_timeline_year_month());
-		if (test  &&  test!=besch) {
-			besch = test;
+		weg_t *w1=gr->get_weg(desc->get_waytype(0));
+		weg_t *w2=gr->get_weg(desc->get_waytype(1));
+		const kreuzung_besch_t *test = crossing_logic_t::get_crossing( desc->get_waytype(0), desc->get_waytype(1), w1->get_desc()->get_topspeed(), w2->get_desc()->get_topspeed(), welt->get_timeline_year_month());
+		if (test  &&  test!=desc) {
+			desc = test;
 		}
 		// after loading restore speedlimits
 		w1->count_sign();

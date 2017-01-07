@@ -16,18 +16,18 @@
 
 using namespace script_api;
 
-static const weg_besch_t *my_get_besch(const char *name)
+static const weg_besch_t *my_get_desc(const char *name)
 {
-	return wegbauer_t::get_besch(name);
+	return wegbauer_t::get_desc(name);
 }
 
 implement_besch_param(baum_besch_t, "tree_desc_x", &baum_t::find_tree);
-implement_besch_param(haus_besch_t, "building_desc_x", &hausbauer_t::get_besch);
+implement_besch_param(haus_besch_t, "building_desc_x", &hausbauer_t::get_desc);
 implement_besch_param(ware_besch_t, "good_desc_x", (const ware_besch_t* (*)(const char*))(&warenbauer_t::get_info) );
-implement_besch_param(weg_besch_t, "way_desc_x", &my_get_besch);
+implement_besch_param(weg_besch_t, "way_desc_x", &my_get_desc);
 implement_besch_param(vehikel_besch_t, "vehicle_desc_x", &vehikelbauer_t::get_info);
-implement_besch_param(tunnel_besch_t, "tunnel_desc_x", &tunnelbauer_t::get_besch);
-implement_besch_param(bruecke_besch_t, "bridge_desc_x", &brueckenbauer_t::get_besch);
+implement_besch_param(tunnel_besch_t, "tunnel_desc_x", &tunnelbauer_t::get_desc);
+implement_besch_param(bruecke_besch_t, "bridge_desc_x", &brueckenbauer_t::get_desc);
 
 /**
  * Macro to get the implementation of get method based on unique tag.
@@ -53,5 +53,5 @@ implement_class_with_tag(obj_besch_transport_related_t);
 
 SQInteger param<const haus_tile_besch_t*>::push(HSQUIRRELVM vm, const haus_tile_besch_t* b)
 {
-	return param<const haus_besch_t*>::push(vm, b ? b->get_besch() : NULL);
+	return param<const haus_besch_t*>::push(vm, b ? b->get_desc() : NULL);
 }

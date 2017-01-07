@@ -62,7 +62,7 @@ private:
 
 public:
 	/// Registers the factory description so the factory can be built in-game.
-	static void register_besch(fabrik_besch_t *besch);
+	static void register_desc(fabrik_besch_t *desc);
 
 	/**
 	 * Initializes weighted vector for farm field class indices.
@@ -141,14 +141,14 @@ private:
 	 * @param radius Radius of the search circle around @p pos
 	 * @param size size of the building site
 	 */
-	static koord3d finde_zufallsbauplatz(koord pos, int radius, koord size,bool on_water, const haus_besch_t *besch, bool ignore_climates, uint32 max_iterations);
+	static koord3d finde_zufallsbauplatz(koord pos, int radius, koord size,bool on_water, const haus_besch_t *desc, bool ignore_climates, uint32 max_iterations);
 
 	/**
 	 * Checks if all factories in this factory tree can be rotated.
 	 * This method is called recursively on all potential suppliers.
 	 * @returns true if all factories in this tree can be rotated.
 	 */
-	static bool can_factory_tree_rotate( const fabrik_besch_t *besch );
+	static bool can_factory_tree_rotate( const fabrik_besch_t *desc );
 };
 
 #endif

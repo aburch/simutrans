@@ -138,7 +138,7 @@ public:
 	/// texture to be shown beneath ways in tunnel
 	static const skin_besch_t *tunnel_texture;
 
-	static bool register_besch(skintyp_t type, const skin_besch_t *besch);
+	static bool register_desc(skintyp_t type, const skin_besch_t *desc);
 	static bool alles_geladen(skintyp_t type);
 
 	/**

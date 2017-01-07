@@ -6,9 +6,9 @@
 
 void ground_reader_t::register_obj(obj_besch_t *&data)
 {
-    grund_besch_t *besch = static_cast<grund_besch_t *>(data);
+    grund_besch_t *desc = static_cast<grund_besch_t *>(data);
 
-    grund_besch_t::register_besch(besch);
+    grund_besch_t::register_desc(desc);
 }
 
 

@@ -14,13 +14,13 @@
 
 void vehicle_reader_t::register_obj(obj_besch_t *&data)
 {
-	vehikel_besch_t *besch = static_cast<vehikel_besch_t *>(data);
-	vehikelbauer_t::register_besch(besch);
-	obj_for_xref(get_type(), besch->get_name(), data);
+	vehikel_besch_t *desc = static_cast<vehikel_besch_t *>(data);
+	vehikelbauer_t::register_desc(desc);
+	obj_for_xref(get_type(), desc->get_name(), data);
 
 	checksum_t *chk = new checksum_t();
-	besch->calc_checksum(chk);
-	pakset_info_t::append(besch->get_name(), chk);
+	desc->calc_checksum(chk);
+	pakset_info_t::append(desc->get_name(), chk);
 }
 
 
@@ -34,7 +34,7 @@ obj_besch_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
 	ALLOCA(char, besch_buf, node.size);
 
-	vehikel_besch_t *besch = new vehikel_besch_t();
+	vehikel_besch_t *desc = new vehikel_besch_t();
 
 	// Hajo: Read data
 	fread(besch_buf, node.size, 1, fp);
@@ -49,199 +49,199 @@ obj_besch_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	if(version == 1) {
 		// Versioned node, version 1
 
-		besch->cost = decode_uint32(p);
-		besch->zuladung = decode_uint16(p);
-		besch->topspeed = decode_uint16(p);
-		besch->gewicht = decode_uint16(p);
-		besch->leistung = decode_uint16(p);
-		besch->running_cost = decode_uint16(p);
+		desc->cost = decode_uint32(p);
+		desc->zuladung = decode_uint16(p);
+		desc->topspeed = decode_uint16(p);
+		desc->gewicht = decode_uint16(p);
+		desc->leistung = decode_uint16(p);
+		desc->running_cost = decode_uint16(p);
 
-		besch->intro_date = decode_uint16(p);
-		besch->gear = decode_uint8(p);
+		desc->intro_date = decode_uint16(p);
+		desc->gear = decode_uint8(p);
 
-		besch->wt = decode_uint8(p);
-		besch->sound = decode_sint8(p);
-		besch->vorgaenger = decode_uint8(p);
-		besch->nachfolger = decode_uint8(p);
+		desc->wt = decode_uint8(p);
+		desc->sound = decode_sint8(p);
+		desc->vorgaenger = decode_uint8(p);
+		desc->nachfolger = decode_uint8(p);
 
-		besch->obsolete_date = (DEFAULT_RETIRE_DATE*16);
+		desc->obsolete_date = (DEFAULT_RETIRE_DATE*16);
 	}
 	else if(version == 2) {
 		// Versioned node, version 2
 
-		besch->cost = decode_uint32(p);
-		besch->zuladung = decode_uint16(p);
-		besch->topspeed = decode_uint16(p);
-		besch->gewicht = decode_uint16(p);
-		besch->leistung = decode_uint16(p);
-		besch->running_cost = decode_uint16(p);
+		desc->cost = decode_uint32(p);
+		desc->zuladung = decode_uint16(p);
+		desc->topspeed = decode_uint16(p);
+		desc->gewicht = decode_uint16(p);
+		desc->leistung = decode_uint16(p);
+		desc->running_cost = decode_uint16(p);
 
-		besch->intro_date = decode_uint16(p);
-		besch->gear = decode_uint8(p);
+		desc->intro_date = decode_uint16(p);
+		desc->gear = decode_uint8(p);
 
-		besch->wt = decode_uint8(p);
-		besch->sound = decode_sint8(p);
-		besch->vorgaenger = decode_uint8(p);
-		besch->nachfolger = decode_uint8(p);
-		besch->engine_type = decode_uint8(p);
+		desc->wt = decode_uint8(p);
+		desc->sound = decode_sint8(p);
+		desc->vorgaenger = decode_uint8(p);
+		desc->nachfolger = decode_uint8(p);
+		desc->engine_type = decode_uint8(p);
 
-		besch->obsolete_date = (DEFAULT_RETIRE_DATE*16);
+		desc->obsolete_date = (DEFAULT_RETIRE_DATE*16);
 	}
 	else if (version==3   ||  version==4  ||  version==5) {
 		// Versioned node, version 3 with retire date
 		// version 4 identical, just other values for the waytype
 		// version 5 just uses the new scheme for data calculation
 
-		besch->cost = decode_uint32(p);
-		besch->zuladung = decode_uint16(p);
-		besch->topspeed = decode_uint16(p);
-		besch->gewicht = decode_uint16(p);
-		besch->leistung = decode_uint16(p);
-		besch->running_cost = decode_uint16(p);
+		desc->cost = decode_uint32(p);
+		desc->zuladung = decode_uint16(p);
+		desc->topspeed = decode_uint16(p);
+		desc->gewicht = decode_uint16(p);
+		desc->leistung = decode_uint16(p);
+		desc->running_cost = decode_uint16(p);
 
-		besch->intro_date = decode_uint16(p);
-		besch->obsolete_date = decode_uint16(p);
-		besch->gear = decode_uint8(p);
+		desc->intro_date = decode_uint16(p);
+		desc->obsolete_date = decode_uint16(p);
+		desc->gear = decode_uint8(p);
 
-		besch->wt = decode_uint8(p);
-		besch->sound = decode_sint8(p);
-		besch->vorgaenger = decode_uint8(p);
-		besch->nachfolger = decode_uint8(p);
-		besch->engine_type = decode_uint8(p);
+		desc->wt = decode_uint8(p);
+		desc->sound = decode_sint8(p);
+		desc->vorgaenger = decode_uint8(p);
+		desc->nachfolger = decode_uint8(p);
+		desc->engine_type = decode_uint8(p);
 	}
 	else if (version==6) {
 		// version 5 just 32 bit for power and 16 Bit for gear
 
-		besch->cost = decode_uint32(p);
-		besch->zuladung = decode_uint16(p);
-		besch->topspeed = decode_uint16(p);
-		besch->gewicht = decode_uint16(p);
-		besch->leistung = decode_uint32(p);
-		besch->running_cost = decode_uint16(p);
+		desc->cost = decode_uint32(p);
+		desc->zuladung = decode_uint16(p);
+		desc->topspeed = decode_uint16(p);
+		desc->gewicht = decode_uint16(p);
+		desc->leistung = decode_uint32(p);
+		desc->running_cost = decode_uint16(p);
 
-		besch->intro_date = decode_uint16(p);
-		besch->obsolete_date = decode_uint16(p);
-		besch->gear = decode_uint16(p);
+		desc->intro_date = decode_uint16(p);
+		desc->obsolete_date = decode_uint16(p);
+		desc->gear = decode_uint16(p);
 
-		besch->wt = decode_uint8(p);
-		besch->sound = decode_sint8(p);
-		besch->engine_type = decode_uint8(p);
-		besch->vorgaenger = decode_uint8(p);
-		besch->nachfolger = decode_uint8(p);
+		desc->wt = decode_uint8(p);
+		desc->sound = decode_sint8(p);
+		desc->engine_type = decode_uint8(p);
+		desc->vorgaenger = decode_uint8(p);
+		desc->nachfolger = decode_uint8(p);
 	}
 	else if (version==7) {
 		// different length of cars ...
 
-		besch->cost = decode_uint32(p);
-		besch->zuladung = decode_uint16(p);
-		besch->topspeed = decode_uint16(p);
-		besch->gewicht = decode_uint16(p);
-		besch->leistung = decode_uint32(p);
-		besch->running_cost = decode_uint16(p);
+		desc->cost = decode_uint32(p);
+		desc->zuladung = decode_uint16(p);
+		desc->topspeed = decode_uint16(p);
+		desc->gewicht = decode_uint16(p);
+		desc->leistung = decode_uint32(p);
+		desc->running_cost = decode_uint16(p);
 
-		besch->intro_date = decode_uint16(p);
-		besch->obsolete_date = decode_uint16(p);
-		besch->gear = decode_uint16(p);
+		desc->intro_date = decode_uint16(p);
+		desc->obsolete_date = decode_uint16(p);
+		desc->gear = decode_uint16(p);
 
-		besch->wt = decode_uint8(p);
-		besch->sound = decode_sint8(p);
-		besch->engine_type = decode_uint8(p);
-		besch->len = decode_uint8(p);
-		besch->vorgaenger = decode_uint8(p);
-		besch->nachfolger = decode_uint8(p);
+		desc->wt = decode_uint8(p);
+		desc->sound = decode_sint8(p);
+		desc->engine_type = decode_uint8(p);
+		desc->len = decode_uint8(p);
+		desc->vorgaenger = decode_uint8(p);
+		desc->nachfolger = decode_uint8(p);
 	}
 	else if (version==8) {
 		// multiple freight images...
-		besch->cost = decode_uint32(p);
-		besch->zuladung = decode_uint16(p);
-		besch->topspeed = decode_uint16(p);
-		besch->gewicht = decode_uint16(p);
-		besch->leistung = decode_uint32(p);
-		besch->running_cost = decode_uint16(p);
+		desc->cost = decode_uint32(p);
+		desc->zuladung = decode_uint16(p);
+		desc->topspeed = decode_uint16(p);
+		desc->gewicht = decode_uint16(p);
+		desc->leistung = decode_uint32(p);
+		desc->running_cost = decode_uint16(p);
 
-		besch->intro_date = decode_uint16(p);
-		besch->obsolete_date = decode_uint16(p);
-		besch->gear = decode_uint16(p);
+		desc->intro_date = decode_uint16(p);
+		desc->obsolete_date = decode_uint16(p);
+		desc->gear = decode_uint16(p);
 
-		besch->wt = decode_uint8(p);
-		besch->sound = decode_sint8(p);
-		besch->engine_type = decode_uint8(p);
-		besch->len = decode_uint8(p);
-		besch->vorgaenger = decode_uint8(p);
-		besch->nachfolger = decode_uint8(p);
-		besch->freight_image_type = decode_uint8(p);
+		desc->wt = decode_uint8(p);
+		desc->sound = decode_sint8(p);
+		desc->engine_type = decode_uint8(p);
+		desc->len = decode_uint8(p);
+		desc->vorgaenger = decode_uint8(p);
+		desc->nachfolger = decode_uint8(p);
+		desc->freight_image_type = decode_uint8(p);
 	}
 	else if (version==9) {
 		// new: fixed_cost, loading_time, axle_load
-		besch->cost = decode_uint32(p);
-		besch->zuladung = decode_uint16(p);
-		besch->loading_time = decode_uint16(p);
-		besch->topspeed = decode_uint16(p);
-		besch->gewicht = decode_uint16(p);
-		besch->axle_load = decode_uint16(p);
-		besch->leistung = decode_uint32(p);
-		besch->running_cost = decode_uint16(p);
-		besch->fixed_cost = decode_uint16(p);
+		desc->cost = decode_uint32(p);
+		desc->zuladung = decode_uint16(p);
+		desc->loading_time = decode_uint16(p);
+		desc->topspeed = decode_uint16(p);
+		desc->gewicht = decode_uint16(p);
+		desc->axle_load = decode_uint16(p);
+		desc->leistung = decode_uint32(p);
+		desc->running_cost = decode_uint16(p);
+		desc->fixed_cost = decode_uint16(p);
 
-		besch->intro_date = decode_uint16(p);
-		besch->obsolete_date = decode_uint16(p);
-		besch->gear = decode_uint16(p);
+		desc->intro_date = decode_uint16(p);
+		desc->obsolete_date = decode_uint16(p);
+		desc->gear = decode_uint16(p);
 
-		besch->wt = decode_uint8(p);
-		besch->sound = decode_sint8(p);
-		besch->engine_type = decode_uint8(p);
-		besch->len = decode_uint8(p);
-		besch->vorgaenger = decode_uint8(p);
-		besch->nachfolger = decode_uint8(p);
-		besch->freight_image_type = decode_uint8(p);
+		desc->wt = decode_uint8(p);
+		desc->sound = decode_sint8(p);
+		desc->engine_type = decode_uint8(p);
+		desc->len = decode_uint8(p);
+		desc->vorgaenger = decode_uint8(p);
+		desc->nachfolger = decode_uint8(p);
+		desc->freight_image_type = decode_uint8(p);
 	}
 	else if (version==10) {
 		// new: weight in kgs
-		besch->cost = decode_uint32(p);
-		besch->zuladung = decode_uint16(p);
-		besch->loading_time = decode_uint16(p);
-		besch->topspeed = decode_uint16(p);
-		besch->gewicht = decode_uint32(p);
-		besch->axle_load = decode_uint16(p);
-		besch->leistung = decode_uint32(p);
-		besch->running_cost = decode_uint16(p);
-		besch->fixed_cost = decode_uint16(p);
+		desc->cost = decode_uint32(p);
+		desc->zuladung = decode_uint16(p);
+		desc->loading_time = decode_uint16(p);
+		desc->topspeed = decode_uint16(p);
+		desc->gewicht = decode_uint32(p);
+		desc->axle_load = decode_uint16(p);
+		desc->leistung = decode_uint32(p);
+		desc->running_cost = decode_uint16(p);
+		desc->fixed_cost = decode_uint16(p);
 
-		besch->intro_date = decode_uint16(p);
-		besch->obsolete_date = decode_uint16(p);
-		besch->gear = decode_uint16(p);
+		desc->intro_date = decode_uint16(p);
+		desc->obsolete_date = decode_uint16(p);
+		desc->gear = decode_uint16(p);
 
-		besch->wt = decode_uint8(p);
-		besch->sound = decode_sint8(p);
-		besch->engine_type = decode_uint8(p);
-		besch->len = decode_uint8(p);
-		besch->vorgaenger = decode_uint8(p);
-		besch->nachfolger = decode_uint8(p);
-		besch->freight_image_type = decode_uint8(p);
+		desc->wt = decode_uint8(p);
+		desc->sound = decode_sint8(p);
+		desc->engine_type = decode_uint8(p);
+		desc->len = decode_uint8(p);
+		desc->vorgaenger = decode_uint8(p);
+		desc->nachfolger = decode_uint8(p);
+		desc->freight_image_type = decode_uint8(p);
 	}
 	else if (version==11) {
 		// new: fix cost as uint32
-		besch->cost = decode_uint32(p);
-		besch->zuladung = decode_uint16(p);
-		besch->loading_time = decode_uint16(p);
-		besch->topspeed = decode_uint16(p);
-		besch->gewicht = decode_uint32(p);
-		besch->axle_load = decode_uint16(p);
-		besch->leistung = decode_uint32(p);
-		besch->running_cost = decode_uint16(p);
-		besch->fixed_cost = decode_uint32(p);
+		desc->cost = decode_uint32(p);
+		desc->zuladung = decode_uint16(p);
+		desc->loading_time = decode_uint16(p);
+		desc->topspeed = decode_uint16(p);
+		desc->gewicht = decode_uint32(p);
+		desc->axle_load = decode_uint16(p);
+		desc->leistung = decode_uint32(p);
+		desc->running_cost = decode_uint16(p);
+		desc->fixed_cost = decode_uint32(p);
 
-		besch->intro_date = decode_uint16(p);
-		besch->obsolete_date = decode_uint16(p);
-		besch->gear = decode_uint16(p);
+		desc->intro_date = decode_uint16(p);
+		desc->obsolete_date = decode_uint16(p);
+		desc->gear = decode_uint16(p);
 
-		besch->wt = decode_uint8(p);
-		besch->sound = decode_sint8(p);
-		besch->engine_type = decode_uint8(p);
-		besch->len = decode_uint8(p);
-		besch->vorgaenger = decode_uint8(p);
-		besch->nachfolger = decode_uint8(p);
-		besch->freight_image_type = decode_uint8(p);
+		desc->wt = decode_uint8(p);
+		desc->sound = decode_sint8(p);
+		desc->engine_type = decode_uint8(p);
+		desc->len = decode_uint8(p);
+		desc->vorgaenger = decode_uint8(p);
+		desc->nachfolger = decode_uint8(p);
+		desc->freight_image_type = decode_uint8(p);
 	}
 	else {
 		if(  version!=0  ) {
@@ -249,86 +249,86 @@ obj_besch_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		}
 		// old node, version 0
 
-		besch->wt = (sint8)v;
-		besch->zuladung = decode_uint16(p);
-		besch->cost = decode_uint32(p);
-		besch->topspeed = decode_uint16(p);
-		besch->gewicht = decode_uint16(p);
-		besch->leistung = decode_uint16(p);
-		besch->running_cost = decode_uint16(p);
-		besch->sound = (sint8)decode_sint16(p);
-		besch->vorgaenger = (sint8)decode_uint16(p);
-		besch->nachfolger = (sint8)decode_uint16(p);
+		desc->wt = (sint8)v;
+		desc->zuladung = decode_uint16(p);
+		desc->cost = decode_uint32(p);
+		desc->topspeed = decode_uint16(p);
+		desc->gewicht = decode_uint16(p);
+		desc->leistung = decode_uint16(p);
+		desc->running_cost = decode_uint16(p);
+		desc->sound = (sint8)decode_sint16(p);
+		desc->vorgaenger = (sint8)decode_uint16(p);
+		desc->nachfolger = (sint8)decode_uint16(p);
 
-		besch->intro_date = DEFAULT_INTRO_DATE*16;
-		besch->obsolete_date = (DEFAULT_RETIRE_DATE*16);
-		besch->gear = 64;
+		desc->intro_date = DEFAULT_INTRO_DATE*16;
+		desc->obsolete_date = (DEFAULT_RETIRE_DATE*16);
+		desc->gear = 64;
 	}
 
 	// correct the engine type for old vehicles
 	if(version<2) {
 		// steam eangines usually have a sound of 3
 		// electric engines will be overridden further down ...
-		besch->engine_type = (besch->sound==3) ? vehikel_besch_t::steam : vehikel_besch_t::diesel;
+		desc->engine_type = (desc->sound==3) ? vehikel_besch_t::steam : vehikel_besch_t::diesel;
 	}
 
 	//change the vehicle type
 	if(version<4) {
-		if(besch->wt==4) {
-			besch->engine_type = vehikel_besch_t::electric;
-			besch->wt = 1;
+		if(desc->wt==4) {
+			desc->engine_type = vehikel_besch_t::electric;
+			desc->wt = 1;
 		}
 		// convert to new standard
 		static const waytype_t convert_from_old[8]={road_wt, track_wt, water_wt, air_wt, invalid_wt, monorail_wt, invalid_wt, tram_wt };
-		besch->wt = convert_from_old[besch->wt];
+		desc->wt = convert_from_old[desc->wt];
 	}
 
 	// before version 5 dates were based on base 12 ...
 	if(version<5) {
-		uint16 date=besch->intro_date;
-		besch->intro_date = (date/16)*12 + (date%16);
-		date=besch->obsolete_date;
-		besch->obsolete_date = (date/16)*12 + (date%16);
+		uint16 date=desc->intro_date;
+		desc->intro_date = (date/16)*12 + (date%16);
+		date=desc->obsolete_date;
+		desc->obsolete_date = (date/16)*12 + (date%16);
 	}
 
 	// before the length was always 1/8 (=half a tile)
 	if(version<7) {
-		besch->len = CARUNITS_PER_TILE/2;
+		desc->len = CARUNITS_PER_TILE/2;
 	}
 
 	// adjust length for different offset step sizes (which may arise in future)
-	besch->len *= OBJECT_OFFSET_STEPS/CARUNITS_PER_TILE;
+	desc->len *= OBJECT_OFFSET_STEPS/CARUNITS_PER_TILE;
 
 	// before version 8 vehicles could only have one freight image in each direction
 	if(version<8) {
-		besch->freight_image_type=0;
+		desc->freight_image_type=0;
 	}
 
 	if(version<9) {
-		besch->fixed_cost = 0;
-		besch->axle_load = 0;
-		besch->loading_time = 1000;
+		desc->fixed_cost = 0;
+		desc->axle_load = 0;
+		desc->loading_time = 1000;
 	}
 
 	// old weights were tons
 	if(version<10) {
-		besch->gewicht *= 1000;
+		desc->gewicht *= 1000;
 	}
 
-	if(besch->sound==LOAD_SOUND) {
+	if(desc->sound==LOAD_SOUND) {
 		uint8 len=decode_sint8(p);
 		char wavname[256];
 		wavname[len] = 0;
 		for(uint8 i=0; i<len; i++) {
 			wavname[i] = decode_sint8(p);
 		}
-		besch->sound = (sint8)sound_besch_t::get_sound_id(wavname);
-DBG_MESSAGE("vehicle_reader_t::register_obj()","sound %s to %i",wavname,besch->sound);
+		desc->sound = (sint8)sound_besch_t::get_sound_id(wavname);
+DBG_MESSAGE("vehicle_reader_t::register_obj()","sound %s to %i",wavname,desc->sound);
 	}
-	else if(besch->sound>=0  &&  besch->sound<=MAX_OLD_SOUNDS) {
-		sint16 old_id = besch->sound;
-		besch->sound = (sint8)sound_besch_t::get_compatible_sound_id((sint8)old_id);
-DBG_MESSAGE("vehicle_reader_t::register_obj()","old sound %i to %i",old_id,besch->sound);
+	else if(desc->sound>=0  &&  desc->sound<=MAX_OLD_SOUNDS) {
+		sint16 old_id = desc->sound;
+		desc->sound = (sint8)sound_besch_t::get_compatible_sound_id((sint8)old_id);
+DBG_MESSAGE("vehicle_reader_t::register_obj()","old sound %i to %i",old_id,desc->sound);
 	}
 
 	DBG_DEBUG("vehicle_reader_t::read_node()",
@@ -337,22 +337,22 @@ DBG_MESSAGE("vehicle_reader_t::register_obj()","old sound %i to %i",old_id,besch
 		"betrieb=%d sound=%d vor=%d nach=%d "
 		"date=%d/%d gear=%d engine_type=%d len=%d",
 		version,
-		besch->wt,
-		besch->zuladung,
-		besch->cost,
-		besch->topspeed,
-		besch->gewicht/1000.0,
-		besch->axle_load,
-		besch->leistung,
-		besch->running_cost,
-		besch->sound,
-		besch->vorgaenger,
-		besch->nachfolger,
-		(besch->intro_date%12)+1,
-		besch->intro_date/12,
-		besch->gear,
-		besch->engine_type,
-		besch->len);
+		desc->wt,
+		desc->zuladung,
+		desc->cost,
+		desc->topspeed,
+		desc->gewicht/1000.0,
+		desc->axle_load,
+		desc->leistung,
+		desc->running_cost,
+		desc->sound,
+		desc->vorgaenger,
+		desc->nachfolger,
+		(desc->intro_date%12)+1,
+		desc->intro_date/12,
+		desc->gear,
+		desc->engine_type,
+		desc->len);
 
-	return besch;
+	return desc;
 }

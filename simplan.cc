@@ -546,7 +546,7 @@ void planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos) const
 			fabrik_t* fab=gb->get_fabrik();
 			if(fab) {
 				PLAYER_COLOR_VAL status = COL_RED;
-				if(fab->get_besch()->is_electricity_producer()) {
+				if(fab->get_desc()->is_electricity_producer()) {
 					status = COL_LIGHT_BLUE;
 					if(fab->is_transformer_connected()) {
 						status = COL_LIGHT_TURQUOISE;

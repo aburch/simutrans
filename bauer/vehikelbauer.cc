@@ -186,19 +186,19 @@ vehicle_t* vehikelbauer_t::baue(koord3d k, player_t* player, convoi_t* cnv, cons
 
 
 
-bool vehikelbauer_t::register_besch(const vehikel_besch_t *besch)
+bool vehikelbauer_t::register_desc(const vehikel_besch_t *desc)
 {
 	// register waytype list
-	const int idx = GET_WAYTYPE_INDEX( besch->get_waytype() );
+	const int idx = GET_WAYTYPE_INDEX( desc->get_waytype() );
 
-	const vehikel_besch_t *old_besch = name_fahrzeuge.get( besch->get_name() );
+	const vehikel_besch_t *old_besch = name_fahrzeuge.get( desc->get_name() );
 	if(  old_besch  ) {
-		dbg->warning( "vehikelbauer_t::register_besch()", "Object %s was overlaid by addon!", besch->get_name() );
-		name_fahrzeuge.remove( besch->get_name() );
+		dbg->warning( "vehikelbauer_t::register_desc()", "Object %s was overlaid by addon!", desc->get_name() );
+		name_fahrzeuge.remove( desc->get_name() );
 		typ_fahrzeuge[idx].remove(old_besch);
 	}
-	name_fahrzeuge.put(besch->get_name(), besch);
-	typ_fahrzeuge[idx].append(besch);
+	name_fahrzeuge.put(desc->get_name(), desc);
+	typ_fahrzeuge[idx].append(desc);
 
 	return true;
 }
@@ -293,7 +293,7 @@ slist_tpl<vehikel_besch_t const*> const & vehikelbauer_t::get_info(waytype_t con
  */
 const vehikel_besch_t *vehikelbauer_t::vehikel_search( waytype_t wt, const uint16 month_now, const uint32 target_weight, const sint32 target_speed, const ware_besch_t * target_freight, bool include_electric, bool not_obsolete )
 {
-	const vehikel_besch_t *besch = NULL;
+	const vehikel_besch_t *desc = NULL;
 	sint32 besch_index = -100000;
 
 	if(  target_freight==NULL  &&  target_weight==0  ) {
@@ -337,27 +337,27 @@ const vehikel_besch_t *vehikelbauer_t::vehikel_search( waytype_t wt, const uint1
 
 			sint32 difference=0;	// smaller is better
 			// assign this vehicle if we have not found one yet, or we only found one too weak
-			if(  besch!=NULL  ) {
+			if(  desc!=NULL  ) {
 				// is it cheaper to run? (this is most important)
-				difference += (besch->get_zuladung()*1000)/(1+besch->get_betriebskosten()) < (test_besch->get_zuladung()*1000)/(1+test_besch->get_betriebskosten()) ? -20 : 20;
+				difference += (desc->get_zuladung()*1000)/(1+desc->get_betriebskosten()) < (test_besch->get_zuladung()*1000)/(1+test_besch->get_betriebskosten()) ? -20 : 20;
 				if(  target_weight>0  ) {
 					// is it stronger?
-					difference += (besch->get_leistung()*besch->get_gear())/64 < power ? -10 : 10;
+					difference += (desc->get_leistung()*desc->get_gear())/64 < power ? -10 : 10;
 				}
 				// is it faster? (although we support only up to 120km/h for goods)
-				difference += (besch->get_geschw() < test_besch->get_geschw())? -10 : 10;
+				difference += (desc->get_geschw() < test_besch->get_geschw())? -10 : 10;
 				// is it cheaper? (not so important)
-				difference += (besch->get_preis() > test_besch->get_preis())? -5 : 5;
+				difference += (desc->get_preis() > test_besch->get_preis())? -5 : 5;
 				// add some malus for obsolete vehicles
 				if(test_besch->is_retired(month_now)) {
 					difference += 5;
 				}
 			}
 			// ok, final check
-			if(  besch==NULL  ||  difference<(int)simrand(25)    ) {
+			if(  desc==NULL  ||  difference<(int)simrand(25)    ) {
 				// then we want this vehicle!
-				besch = test_besch;
-				DBG_MESSAGE( "vehikelbauer_t::vehikel_search","Found car %s",besch->get_name());
+				desc = test_besch;
+				DBG_MESSAGE( "vehikelbauer_t::vehikel_search","Found car %s",desc->get_name());
 			}
 		}
 
@@ -383,17 +383,17 @@ const vehikel_besch_t *vehikelbauer_t::vehikel_search( waytype_t wt, const uint1
 			current_index += simrand(100);
 			if(  current_index > besch_index  ) {
 				// then we want this vehicle!
-				besch = test_besch;
+				desc = test_besch;
 				besch_index = current_index;
-				DBG_MESSAGE( "vehikelbauer_t::vehikel_search","Found engine %s",besch->get_name());
+				DBG_MESSAGE( "vehikelbauer_t::vehikel_search","Found engine %s",desc->get_name());
 			}
 		}
 	}
 	// no vehicle found!
-	if(  besch==NULL  ) {
+	if(  desc==NULL  ) {
 		DBG_MESSAGE( "vehikelbauer_t::vehikel_search()","could not find a suitable vehicle! (speed %i, weight %i)",target_speed,target_weight);
 	}
-	return besch;
+	return desc;
 }
 
 
@@ -405,7 +405,7 @@ const vehikel_besch_t *vehikelbauer_t::vehikel_search( waytype_t wt, const uint1
  */
 const vehikel_besch_t *vehikelbauer_t::get_best_matching( waytype_t wt, const uint16 month_now, const uint32 target_weight, const uint32 target_power, const sint32 target_speed, const ware_besch_t * target_freight, bool not_obsolete, const vehikel_besch_t *prev_veh, bool is_last )
 {
-	const vehikel_besch_t *besch = NULL;
+	const vehikel_besch_t *desc = NULL;
 	sint32 besch_index = -100000;
 
 	FOR(slist_tpl<vehikel_besch_t const*>, const test_besch, typ_fahrzeuge[GET_WAYTYPE_INDEX(wt)]) {
@@ -459,27 +459,27 @@ const vehikel_besch_t *vehikelbauer_t::get_best_matching( waytype_t wt, const ui
 
 			sint32 difference=0;	// smaller is better
 			// assign this vehicle if we have not found one yet, or we only found one too weak
-			if(  besch!=NULL  ) {
+			if(  desc!=NULL  ) {
 				// is it cheaper to run? (this is most important)
-				difference += (besch->get_zuladung()*1000)/(1+besch->get_betriebskosten()) < (test_besch->get_zuladung()*1000)/(1+test_besch->get_betriebskosten()) ? -20 : 20;
+				difference += (desc->get_zuladung()*1000)/(1+desc->get_betriebskosten()) < (test_besch->get_zuladung()*1000)/(1+test_besch->get_betriebskosten()) ? -20 : 20;
 				if(  target_weight>0  ) {
 					// is it stronger?
-					difference += (besch->get_leistung()*besch->get_gear())/64 < power ? -10 : 10;
+					difference += (desc->get_leistung()*desc->get_gear())/64 < power ? -10 : 10;
 				}
 				// is it faster? (although we support only up to 120km/h for goods)
-				difference += (besch->get_geschw() < test_besch->get_geschw())? -10 : 10;
+				difference += (desc->get_geschw() < test_besch->get_geschw())? -10 : 10;
 				// is it cheaper? (not so important)
-				difference += (besch->get_preis() > test_besch->get_preis())? -5 : 5;
+				difference += (desc->get_preis() > test_besch->get_preis())? -5 : 5;
 				// add some malus for obsolete vehicles
 				if(test_besch->is_retired(month_now)) {
 					difference += 5;
 				}
 			}
 			// ok, final check
-			if(  besch==NULL  ||  difference<12    ) {
+			if(  desc==NULL  ||  difference<12    ) {
 				// then we want this vehicle!
-				besch = test_besch;
-				DBG_MESSAGE( "vehikelbauer_t::get_best_matching","Found car %s",besch->get_name());
+				desc = test_besch;
+				DBG_MESSAGE( "vehikelbauer_t::get_best_matching","Found car %s",desc->get_name());
 			}
 		}
 		else {
@@ -500,15 +500,15 @@ const vehikel_besch_t *vehikelbauer_t::get_best_matching( waytype_t wt, const ui
 			current_index += 50;
 			if(  current_index > besch_index  ) {
 				// then we want this vehicle!
-				besch = test_besch;
+				desc = test_besch;
 				besch_index = current_index;
-				DBG_MESSAGE( "vehikelbauer_t::get_best_matching","Found engine %s",besch->get_name());
+				DBG_MESSAGE( "vehikelbauer_t::get_best_matching","Found engine %s",desc->get_name());
 			}
 		}
 	}
 	// no vehicle found!
-	if(  besch==NULL  ) {
+	if(  desc==NULL  ) {
 		DBG_MESSAGE( "vehikelbauer_t::get_best_matching()","could not find a suitable vehicle! (speed %i, weight %i)",target_speed,target_weight);
 	}
-	return besch;
+	return desc;
 }

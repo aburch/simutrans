@@ -62,7 +62,7 @@ void boden_t::rdwr(loadsave_t *file)
 				obj_t *obj = objlist.bei(i);
 				if(  obj->get_typ()==obj_t::baum  ) {
 					baum_t *tree = (baum_t *)obj;
-					file->wr_obj_id( tree->get_besch_id() );
+					file->wr_obj_id( tree->get_desc_id() );
 					uint32 age = tree->get_age();
 					file->rdwr_long( age );
 				}

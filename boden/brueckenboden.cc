@@ -112,9 +112,9 @@ sint8 brueckenboden_t::get_weg_yoff() const
 void brueckenboden_t::info(cbuffer_t & buf) const
 {
 	const bruecke_t *bridge = find<bruecke_t>();
-	if(bridge  &&  bridge->get_besch()) {
-		const bruecke_besch_t *besch = bridge->get_besch();
-		buf.append(translator::translate(besch->get_name()));
+	if(bridge  &&  bridge->get_desc()) {
+		const bruecke_besch_t *desc = bridge->get_desc();
+		buf.append(translator::translate(desc->get_name()));
 		buf.append("\n");
 	}
 	grund_t::info(buf);

@@ -821,7 +821,7 @@ void objlist_t::rdwr(loadsave_t *file, koord3d current_pos)
 				case obj_t::wayobj:
 				{
 					wayobj_t* const wo = new wayobj_t(file);
-					if (wo->get_besch() == NULL) {
+					if (wo->get_desc() == NULL) {
 						// ignore missing wayobjs
 						wo->set_flag(obj_t::not_on_map);
 						delete wo;
@@ -839,7 +839,7 @@ void objlist_t::rdwr(loadsave_t *file, koord3d current_pos)
 				case obj_t::pedestrian:
 				{
 					pedestrian_t* const pedestrian = new pedestrian_t(file);
-					if (pedestrian->get_besch() == NULL) {
+					if (pedestrian->get_desc() == NULL) {
 						// no pedestrians ... delete this
 						pedestrian->set_flag(obj_t::not_on_map);
 						delete pedestrian;
@@ -856,7 +856,7 @@ void objlist_t::rdwr(loadsave_t *file, koord3d current_pos)
 				case obj_t::road_user:
 				{
 					private_car_t* const car = new private_car_t(file);
-					if (car->get_besch() == NULL) {
+					if (car->get_desc() == NULL) {
 						// no citycars ... delete this
 						car->set_flag(obj_t::not_on_map);
 						delete car;
@@ -902,7 +902,7 @@ void objlist_t::rdwr(loadsave_t *file, koord3d current_pos)
 					gebaeude_t                     gb(file);
 					haus_tile_besch_t const* const tile = gb.get_tile();
 					if(  tile  ) {
-						switch (tile->get_besch()->get_extra()) {
+						switch (tile->get_desc()->get_extra()) {
 							case monorail_wt: bd = new monoraildepot_t( gb.get_pos(), gb.get_owner(), tile); break;
 							case tram_wt:     bd = new tramdepot_t(     gb.get_pos(), gb.get_owner(), tile); break;
 							default:          bd = new bahndepot_t(     gb.get_pos(), gb.get_owner(), tile); break;
@@ -925,7 +925,7 @@ void objlist_t::rdwr(loadsave_t *file, koord3d current_pos)
 				case obj_t::pillar:
 				{
 					pillar_t *p = new pillar_t(file);
-					if(p->get_besch()!=NULL  &&  p->get_besch()->get_pillar()!=0) {
+					if(p->get_desc()!=NULL  &&  p->get_desc()->get_pillar()!=0) {
 						new_obj = p;
 					}
 					else {
@@ -940,10 +940,10 @@ void objlist_t::rdwr(loadsave_t *file, koord3d current_pos)
 				case obj_t::baum:
 				{
 					baum_t *b = new baum_t(file);
-					if(  !b->get_besch()  ) {
+					if(  !b->get_desc()  ) {
 						// is there a replacement possible
-						if(  const baum_besch_t *besch = baum_t::random_tree_for_climate( world()->get_climate_at_height(current_pos.z) )  ) {
-							b->set_besch( besch );
+						if(  const baum_besch_t *desc = baum_t::random_tree_for_climate( world()->get_climate_at_height(current_pos.z) )  ) {
+							b->set_besch( desc );
 						}
 						else {
 							// do not remove from map on this position, since there will be nothing
@@ -961,7 +961,7 @@ void objlist_t::rdwr(loadsave_t *file, koord3d current_pos)
 				case obj_t::groundobj:
 				{
 					groundobj_t* const groundobj = new groundobj_t(file);
-					if(groundobj->get_besch() == NULL) {
+					if(groundobj->get_desc() == NULL) {
 						// do not remove from this position, since there will be nothing
 						groundobj->set_flag(obj_t::not_on_map);
 						// not use entferne, since it would try to lookup besch
@@ -976,7 +976,7 @@ void objlist_t::rdwr(loadsave_t *file, koord3d current_pos)
 				case obj_t::movingobj:
 				{
 					movingobj_t* const movingobj = new movingobj_t(file);
-					if (movingobj->get_besch() == NULL) {
+					if (movingobj->get_desc() == NULL) {
 						// no citycars ... delete this
 						movingobj->set_flag(obj_t::not_on_map);
 						delete movingobj;
@@ -1007,7 +1007,7 @@ void objlist_t::rdwr(loadsave_t *file, koord3d current_pos)
 				case obj_t::roadsign:
 				{
 					roadsign_t *rs = new roadsign_t(file);
-					if(rs->get_besch()==NULL) {
+					if(rs->get_desc()==NULL) {
 						// roadsign_t without description => ignore
 						rs->set_flag(obj_t::not_on_map);
 						delete rs;

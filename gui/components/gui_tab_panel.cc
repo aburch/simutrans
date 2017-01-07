@@ -37,9 +37,9 @@ gui_tab_panel_t::gui_tab_panel_t() :
 
 
 
-void gui_tab_panel_t::add_tab(gui_component_t *c, const char *name, const skin_besch_t *besch, const char *tooltip )
+void gui_tab_panel_t::add_tab(gui_component_t *c, const char *name, const skin_besch_t *desc, const char *tooltip )
 {
-	tabs.append( tab(c, besch?NULL:name, besch?besch->get_image(0):NULL, tooltip) );
+	tabs.append( tab(c, desc?NULL:name, desc?desc->get_image(0):NULL, tooltip) );
 	set_size( get_size() );
 }
 

@@ -35,7 +35,7 @@ private:
 
 	koord3d pos_next_next;
 
-	/// static table to find besch by name
+	/// static table to find desc by name
 	static stringhashtable_tpl<groundobj_besch_t *> besch_names;
 
 	/// static vector for fast lookup of besch
@@ -47,7 +47,7 @@ protected:
 	void calc_image();
 
 public:
-	static bool register_besch(groundobj_besch_t *besch);
+	static bool register_desc(groundobj_besch_t *desc);
 	static bool alles_geladen();
 
 	static const groundobj_besch_t *random_movingobj_for_climate(climate cl);
@@ -63,7 +63,7 @@ public:
 	virtual bool ist_weg_frei() { return 1; }
 	virtual grund_t* hop_check();
 	virtual void hop(grund_t* gr);
-	virtual waytype_t get_waytype() const { return get_besch()->get_waytype(); }
+	virtual waytype_t get_waytype() const { return get_desc()->get_waytype(); }
 
 	const char *get_name() const {return "Movingobj";}
 	typ get_typ() const { return movingobj; }
@@ -80,7 +80,7 @@ public:
 
 	void cleanup(player_t *player);
 
-	const groundobj_besch_t* get_besch() const { return movingobj_typen[movingobjtype]; }
+	const groundobj_besch_t* get_desc() const { return movingobj_typen[movingobjtype]; }
 
 	void * operator new(size_t s);
 	void operator delete(void *p);

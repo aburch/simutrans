@@ -157,6 +157,6 @@ void bridge_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& o
 		}
 	}
 
-	// node.write_data(outfp, &besch);
+	// node.write_data(outfp, &desc);
 	node.write(outfp);
 }

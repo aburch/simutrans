@@ -292,7 +292,7 @@ private:
 	player_t *owner;
 	static karte_ptr_t welt;
 
-	const fabrik_besch_t *besch;
+	const fabrik_besch_t *desc;
 
 	/**
 	 * Bauposition gedreht?
@@ -508,7 +508,7 @@ public:
 	 * @return vehicle description object
 	 * @author Hj. Malthaner
 	 */
-	const fabrik_besch_t *get_besch() const {return besch; }
+	const fabrik_besch_t *get_desc() const {return desc; }
 
 	void finish_rd();
 
@@ -591,7 +591,7 @@ public:
 	char const* get_name() const;
 	void set_name( const char *name );
 
-	sint32 get_kennfarbe() const { return besch->get_kennfarbe(); }
+	sint32 get_kennfarbe() const { return desc->get_kennfarbe(); }
 
 	player_t *get_owner() const
 	{
@@ -693,7 +693,7 @@ public:
 	uint32 get_scaled_pax_demand() const { return scaled_pax_demand; }
 	uint32 get_scaled_mail_demand() const { return scaled_mail_demand; }
 
-	bool is_end_consumer() const { return (ausgang.empty() && !besch->is_electricity_producer()); }
+	bool is_end_consumer() const { return (ausgang.empty() && !desc->is_electricity_producer()); }
 
 	// Returns a list of goods produced by this factory.
 	slist_tpl<const ware_besch_t*> *get_produced_goods() const;

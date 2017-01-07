@@ -33,7 +33,7 @@ protected:
 	const vehicle_base_t *request_close;
 
 	crossing_state_t state;
-	const kreuzung_besch_t *besch;
+	const kreuzung_besch_t *desc;
 	minivec_tpl<crossing_t *>crossings;
 
 	void set_state( crossing_state_t new_state );
@@ -43,7 +43,7 @@ public:
 	minivec_tpl<const vehicle_base_t *>on_way2;
 
 public:
-	crossing_logic_t( const kreuzung_besch_t *besch );
+	crossing_logic_t( const kreuzung_besch_t *desc );
 
 	/**
 	 * @return string (only used for debug at the moment)
@@ -73,11 +73,11 @@ public:
 	// static routines from here
 private:
 	static slist_tpl<const kreuzung_besch_t *> liste;
-	// save all besch' only for waytype0 < waytype1
+	// save all desc' only for waytype0 < waytype1
 	static minivec_tpl<const kreuzung_besch_t *> can_cross_array[36];
 
 public:
-	static void register_besch(kreuzung_besch_t *besch);
+	static void register_desc(kreuzung_besch_t *desc);
 
 	/**
 	 * returns descriptor for crossing wrt timeline

@@ -19,7 +19,7 @@ private:
 	static tool_build_house_t haus_tool;
 	static char param_str[256];
 
-	const haus_besch_t *besch;
+	const haus_besch_t *desc;
 	uint8 rotation;
 
 	char rot_str[16];

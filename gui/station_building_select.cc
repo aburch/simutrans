@@ -33,19 +33,19 @@ char station_building_select_t::default_str[260];
 tool_build_station_t station_building_select_t::tool=tool_build_station_t();
 
 
-station_building_select_t::station_building_select_t(const haus_besch_t *besch) :
+station_building_select_t::station_building_select_t(const haus_besch_t *desc) :
 	gui_frame_t( translator::translate("Choose direction") ),
 	txt()
 {
-	this->besch = besch;
+	this->desc = desc;
 
-	int layout = besch->get_all_layouts();
+	int layout = desc->get_all_layouts();
 	int row = (layout > 2) ? 1 : 0;
 	sint16 rw = get_base_tile_raster_width()/4;
-	int width = (besch->get_b(0)==1) ? ((besch->get_h(0)==1) ? rw*4 : rw*6) : ((besch->get_h(0)==1) ? rw*6 : rw*8);
+	int width = (desc->get_b(0)==1) ? ((desc->get_h(0)==1) ? rw*4 : rw*6) : ((desc->get_h(0)==1) ? rw*6 : rw*8);
 	int x_diff = (width==rw*8) ? 0 : ((D_BUTTON_WIDTH>width) ? min((D_BUTTON_WIDTH-width)/2,rw*2) : rw*2);
 	width = max(D_BUTTON_WIDTH,width);
-	int height = (besch->get_b(0)==1) ? ((besch->get_h(0)==1) ? rw*4 : rw*5) : ((besch->get_h(0)==1) ? rw*5 : rw*6);
+	int height = (desc->get_b(0)==1) ? ((desc->get_h(0)==1) ? rw*4 : rw*5) : ((desc->get_h(0)==1) ? rw*5 : rw*6);
 	const scr_coord img_offsets[4]={
 		scr_coord(rw*2-x_diff,0),
 		scr_coord(-x_diff,rw),
@@ -65,7 +65,7 @@ station_building_select_t::station_building_select_t(const haus_besch_t *besch) 
 	for( sint16 i=0;  i<layout;  i++ ) {
 		for( sint16 j=0;  j<4;  j++ ) {
 			scr_coord pos = img_offsets[j]+base_offsets[i+row*2];
-			if((height==rw*5)  &&  ((i&1  &&  besch->get_h(0)==1)  ||  (!i&1  &&  besch->get_b(0)==1))) {
+			if((height==rw*5)  &&  ((i&1  &&  desc->get_h(0)==1)  ||  (!i&1  &&  desc->get_b(0)==1))) {
 				pos.x = pos.x + x_diff;
 			}
 			img[i*4+j].set_pos( pos );
@@ -79,26 +79,26 @@ station_building_select_t::station_building_select_t(const haus_besch_t *besch) 
 	for(int i=0;  i<layout;  i++  ) {
 		uint8 rot = i;
 		for(int j=0;  j<4;  j++  ) {
-			img[i*4].set_image( besch->get_tile(rot,0,0)->get_background(0,0,0) );
+			img[i*4].set_image( desc->get_tile(rot,0,0)->get_background(0,0,0) );
 
-			if(besch->get_h(rot)>1) {
-				img[i*4+1].set_image( besch->get_tile(rot,0,1)->get_background(0,0,0) );
+			if(desc->get_h(rot)>1) {
+				img[i*4+1].set_image( desc->get_tile(rot,0,1)->get_background(0,0,0) );
 			}
-			if(besch->get_b(rot)==1) {
+			if(desc->get_b(rot)==1) {
 				continue;
 			}
 			else {
-				img[i*4+2].set_image( besch->get_tile(rot,1,0)->get_background(0,0,0) );
+				img[i*4+2].set_image( desc->get_tile(rot,1,0)->get_background(0,0,0) );
 			}
-			if(besch->get_h(rot)==1) {
+			if(desc->get_h(rot)==1) {
 				continue;
 			}
-			img[i*4+3].set_image( besch->get_tile(rot,1,1)->get_background(0,0,0) );
+			img[i*4+3].set_image( desc->get_tile(rot,1,1)->get_background(0,0,0) );
 		}
 	}
 
 	// text
-	sprintf(buf, "X=%i, Y=%i", besch->get_b(0), besch->get_h(0) );
+	sprintf(buf, "X=%i, Y=%i", desc->get_b(0), desc->get_h(0) );
 	txt.set_text_pointer(buf);
 	txt.set_pos( scr_coord(D_MARGIN_LEFT, D_MARGIN_TOP) );
 	add_component( &txt );
@@ -123,7 +123,7 @@ bool station_building_select_t::action_triggered( gui_action_creator_t *komp,val
 	for(int i=0; i<4; i++) {
 		if(komp == &actionbutton[i]) {
 			static char default_str[1024];
-			sprintf( default_str, "%s,%i", besch->get_name(), i );
+			sprintf( default_str, "%s,%i", desc->get_name(), i );
 			tool.set_default_param(default_str);
 			welt->set_tool( &tool, welt->get_active_player() );
 			destroy_win(this);

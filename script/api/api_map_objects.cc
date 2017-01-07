@@ -258,15 +258,15 @@ const char* label_get_text(label_t* l)
 }
 
 // depot
-call_tool_init depot_append_vehicle(depot_t *depot, player_t *player, convoihandle_t cnv, const vehikel_besch_t *besch)
+call_tool_init depot_append_vehicle(depot_t *depot, player_t *player, convoihandle_t cnv, const vehikel_besch_t *desc)
 {
-	if (besch == NULL) {
+	if (desc == NULL) {
 		return "Invalid vehicle_desc_x provided";
 	}
 	// see depot_frame_t::image_from_storage_list: tool = 'a'
 	// see depot_t::call_depot_tool for command string composition
 	cbuffer_t buf;
-	buf.printf( "%c,%s,%hu,%s", 'a', depot->get_pos().get_str(), cnv.get_id(), besch->get_name());
+	buf.printf( "%c,%s,%hu,%s", 'a', depot->get_pos().get_str(), cnv.get_id(), desc->get_name());
 
 	return call_tool_init(TOOL_CHANGE_DEPOT | SIMPLE_TOOL, buf, 0, player);
 }
@@ -361,7 +361,7 @@ void export_map_objects(HSQUIRRELVM vm)
 	/**
 	 * @returns object descriptor.
 	 */
-	register_method(vm, &baum_t::get_besch, "get_desc");
+	register_method(vm, &baum_t::get_desc, "get_desc");
 
 	end_class(vm);
 
@@ -482,7 +482,7 @@ void export_map_objects(HSQUIRRELVM vm)
 	/**
 	 * @returns object descriptor.
 	 */
-	register_method(vm, &weg_t::get_besch, "get_desc");
+	register_method(vm, &weg_t::get_desc, "get_desc");
 	end_class(vm);
 
 

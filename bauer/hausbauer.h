@@ -21,7 +21,7 @@ class tool_selector_t;
 /**
  * This class deals with building single- and multi-tile buildings. It knows the descriptions
  * of (nearly) all buildings as regards type, height, size, images and animations.
- * To be able to build a new house the house description must be registered by register_besch().
+ * To be able to build a new house the house description must be registered by register_desc().
  *
  * To ensure all monuments are only present once per map, there is a list
  * which monuments have been built and which not.
@@ -60,13 +60,13 @@ public:
 	static const haus_tile_besch_t* find_tile(const char* name, int idx);
 
 	/// @returns the house description with name @p name
-	static const haus_besch_t* get_besch(const char *name);
+	static const haus_besch_t* get_desc(const char *name);
 
 	/**
 	 * Registers the house description so the house can be built in-game.
 	 * @returns true
 	 */
-	static bool register_besch(haus_besch_t *besch);
+	static bool register_desc(haus_besch_t *desc);
 
 	/// Sorts all house descriptions into their respective lists.
 	static bool alles_geladen();
@@ -109,10 +109,10 @@ public:
 	static void new_world();
 
 	/// @returns true if this monument has not yet been built.
-	static bool is_valid_denkmal(const haus_besch_t* besch) { return ungebaute_denkmaeler.is_contained(besch); }
+	static bool is_valid_denkmal(const haus_besch_t* desc) { return ungebaute_denkmaeler.is_contained(desc); }
 
 	/// Tells the house builder a monument has been built.
-	static void denkmal_gebaut(const haus_besch_t* besch) { ungebaute_denkmaeler.remove(besch); }
+	static void denkmal_gebaut(const haus_besch_t* desc) { ungebaute_denkmaeler.remove(desc); }
 
 	/// Called for a city attraction or a town hall with a certain number of inhabitants (bev).
 	static const haus_besch_t* get_special(uint32 bev, haus_besch_t::utyp utype, uint16 time, bool ignore_retire, climate cl);
@@ -134,14 +134,14 @@ public:
 	 * @return The first built part of the building. Usually at @p pos, if this
 	 *         building tile is not empty.
 	 */
-	static gebaeude_t* baue(player_t* player, koord3d pos, int layout, const haus_besch_t* besch, void* param = NULL);
+	static gebaeude_t* baue(player_t* player, koord3d pos, int layout, const haus_besch_t* desc, void* param = NULL);
 
 	/**
 	 * Build all kind of stops and depots. The building size must be 1x1.
 	 * Stations with layout>4 may change the layout of neighbouring buildings. (->end of rail platforms)
 	 * @param param if building a stop, pointer to the halt handle
 	 */
-	static gebaeude_t* neues_gebaeude(player_t* player, koord3d pos, int layout, const haus_besch_t* besch, void* param = NULL);
+	static gebaeude_t* neues_gebaeude(player_t* player, koord3d pos, int layout, const haus_besch_t* desc, void* param = NULL);
 
 	/// @returns house list of type @p typ
 	static const vector_tpl<const haus_besch_t *> *get_list(haus_besch_t::utyp typ);

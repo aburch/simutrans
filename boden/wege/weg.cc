@@ -129,12 +129,12 @@ const char *weg_t::waytype_to_string(waytype_t wt)
  */
 void weg_t::set_besch(const weg_besch_t *b)
 {
-	besch = b;
-	if(  hat_gehweg() &&  besch->get_wtyp() == road_wt  &&  besch->get_topspeed() > 50  ) {
+	desc = b;
+	if(  hat_gehweg() &&  desc->get_wtyp() == road_wt  &&  desc->get_topspeed() > 50  ) {
 		max_speed = 50;
 	}
 	else {
-		max_speed = besch->get_topspeed();
+		max_speed = desc->get_topspeed();
 	}
 }
 
@@ -161,7 +161,7 @@ void weg_t::init()
 {
 	ribi = ribi_maske = ribi_t::none;
 	max_speed = 450;
-	besch = 0;
+	desc = 0;
 	init_statistics();
 	alle_wege.insert(this);
 	flags = 0;
@@ -175,7 +175,7 @@ weg_t::~weg_t()
 	alle_wege.remove(this);
 	player_t *player=get_owner();
 	if(player) {
-		player_t::add_maintenance( player,  -besch->get_wartung(), besch->get_finance_waytype() );
+		player_t::add_maintenance( player,  -desc->get_wartung(), desc->get_finance_waytype() );
 	}
 }
 
@@ -291,7 +291,7 @@ void weg_t::count_sign()
 			flags |= HAS_CROSSING;
 			i = 3;
 			const crossing_t* cr = gr->find<crossing_t>();
-			uint32 top_speed = cr->get_besch()->get_maxspeed( cr->get_besch()->get_waytype(0)==get_waytype() ? 0 : 1);
+			uint32 top_speed = cr->get_desc()->get_maxspeed( cr->get_desc()->get_waytype(0)==get_waytype() ? 0 : 1);
 			if(  top_speed < max_speed  ) {
 				max_speed = top_speed;
 			}
@@ -301,14 +301,14 @@ void weg_t::count_sign()
 			obj_t *obj=gr->obj_bei(i);
 			// sign for us?
 			if(  roadsign_t const* const sign = obj_cast<roadsign_t>(obj)  ) {
-				if(  sign->get_besch()->get_wtyp() == get_besch()->get_wtyp()  ) {
+				if(  sign->get_desc()->get_wtyp() == get_desc()->get_wtyp()  ) {
 					// here is a sign ...
 					flags |= HAS_SIGN;
 					return;
 				}
 			}
 			if(  signal_t const* const signal = obj_cast<signal_t>(obj)  ) {
-				if(  signal->get_besch()->get_wtyp() == get_besch()->get_wtyp()  ) {
+				if(  signal->get_desc()->get_wtyp() == get_desc()->get_wtyp()  ) {
 					// here is a signal ...
 					flags |= HAS_SIGNAL;
 					return;
@@ -324,20 +324,20 @@ void weg_t::set_images(image_type typ, uint8 ribi, bool snow, bool switch_nw)
 	switch(typ) {
 		case image_flat:
 		default:
-			set_image( besch->get_image_id( ribi, snow ) );
-			set_foreground_image( besch->get_image_id( ribi, snow, true ) );
+			set_image( desc->get_image_id( ribi, snow ) );
+			set_foreground_image( desc->get_image_id( ribi, snow, true ) );
 			break;
 		case image_slope:
-			set_image( besch->get_hang_imageid( (slope_t::type)ribi, snow ) );
-			set_foreground_image( besch->get_hang_imageid( (slope_t::type)ribi, snow, true ) );
+			set_image( desc->get_hang_imageid( (slope_t::type)ribi, snow ) );
+			set_foreground_image( desc->get_hang_imageid( (slope_t::type)ribi, snow, true ) );
 			break;
 		case image_switch:
-			set_image( besch->get_image_id_switch(ribi, snow, switch_nw) );
-			set_foreground_image( besch->get_image_id_switch(ribi, snow, switch_nw, true) );
+			set_image( desc->get_image_id_switch(ribi, snow, switch_nw) );
+			set_foreground_image( desc->get_image_id_switch(ribi, snow, switch_nw, true) );
 			break;
 		case image_diagonal:
-			set_image( besch->get_diagonal_imageid(ribi, snow) );
-			set_foreground_image( besch->get_diagonal_imageid(ribi, snow, true) );
+			set_image( desc->get_diagonal_imageid(ribi, snow) );
+			set_foreground_image( desc->get_diagonal_imageid(ribi, snow, true) );
 			break;
 	}
 }
@@ -351,7 +351,7 @@ bool weg_t::check_season(const bool calc_only_season_change)
 	}
 
 	// no way to calculate this or no image set (not visible, in tunnel mouth, etc)
-	if(  besch == NULL  ||  image == IMG_EMPTY  ) {
+	if(  desc == NULL  ||  image == IMG_EMPTY  ) {
 		return true;
 	}
 
@@ -384,12 +384,12 @@ bool weg_t::check_season(const bool calc_only_season_change)
 	if(  is_diagonal()  ) {
 		set_images( image_diagonal, ribi, snow );
 	}
-	else if(  ribi_t::is_threeway( ribi )  &&  besch->has_switch_image()  ) {
+	else if(  ribi_t::is_threeway( ribi )  &&  desc->has_switch_image()  ) {
 		// there might be two states of the switch; remember it when changing seasons
-		if(  image == besch->get_image_id_switch( ribi, old_snow, false )  ) {
+		if(  image == desc->get_image_id_switch( ribi, old_snow, false )  ) {
 			set_images( image_switch, ribi, snow, false );
 		}
-		else if(  image == besch->get_image_id_switch( ribi, old_snow, true )  ) {
+		else if(  image == desc->get_image_id_switch( ribi, old_snow, true )  ) {
 			set_images( image_switch, ribi, snow, true );
 		}
 		else {
@@ -427,7 +427,7 @@ void weg_t::calc_image()
 	grund_t *to;
 	image_id old_image = image;
 
-	if(  from==NULL  ||  besch==NULL  ) {
+	if(  from==NULL  ||  desc==NULL  ) {
 		// no ground, in tunnel
 		set_image(IMG_EMPTY);
 		set_foreground_image(IMG_EMPTY);
@@ -478,7 +478,7 @@ void weg_t::calc_image()
 						// can fail on water tiles
 						if(  weg_t *w=to->get_weg(get_waytype())  )  {
 							// and will only change the outcome, if it has a diagonal image ...
-							if(  w->get_besch()->has_diagonal_image()  ) {
+							if(  w->get_desc()->has_diagonal_image()  ) {
 								w->calc_image();
 							}
 						}
@@ -488,13 +488,13 @@ void weg_t::calc_image()
 			}
 
 			// try diagonal image
-			if(  besch->has_diagonal_image()  ) {
+			if(  desc->has_diagonal_image()  ) {
 				check_diagonal();
 
 				// now apply diagonal image
 				if(is_diagonal()) {
-					if( besch->get_diagonal_imageid(ribi, snow) != IMG_EMPTY  ||
-					    besch->get_diagonal_imageid(ribi, snow, true) != IMG_EMPTY) {
+					if( desc->get_diagonal_imageid(ribi, snow) != IMG_EMPTY  ||
+					    desc->get_diagonal_imageid(ribi, snow, true) != IMG_EMPTY) {
 						set_images(image_diagonal, ribi, snow);
 					}
 				}
@@ -567,8 +567,8 @@ void weg_t::new_month()
 void weg_t::finish_rd()
 {
 	player_t *player = get_owner();
-	if(  player  &&  besch  ) {
-		player_t::add_maintenance( player,  besch->get_wartung(), besch->get_finance_waytype() );
+	if(  player  &&  desc  ) {
+		player_t::add_maintenance( player,  desc->get_wartung(), desc->get_finance_waytype() );
 	}
 }
 

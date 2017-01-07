@@ -584,7 +584,7 @@ void depot_frame_t::activate_convoi( convoihandle_t c )
 bool depot_frame_t::is_in_vehicle_list(const vehikel_besch_t *info)
 {
 	FOR(slist_tpl<vehicle_t*>, const v, depot->get_vehicle_list()) {
-		if(  v->get_besch() == info  ) {
+		if(  v->get_desc() == info  ) {
 			return true;
 		}
 	}
@@ -681,7 +681,7 @@ void depot_frame_t::build_vehicle_lists()
 	if(!show_all  &&  veh_action==va_sell) {
 		// just list the one to sell
 		FOR(slist_tpl<vehicle_t*>, const v, depot->get_vehicle_list()) {
-			vehikel_besch_t const* const d = v->get_besch();
+			vehikel_besch_t const* const d = v->get_desc();
 			if (vehicle_map.get(d)) continue;
 			add_to_vehicle_list(d);
 		}
@@ -692,7 +692,7 @@ void depot_frame_t::build_vehicle_lists()
 			const vehikel_besch_t *veh = NULL;
 			convoihandle_t cnv = depot->get_convoi(icnv);
 			if(cnv.is_bound() && cnv->get_vehicle_count()>0) {
-				veh = (veh_action == va_insert ? cnv->front() : cnv->back())->get_besch();
+				veh = (veh_action == va_insert ? cnv->front() : cnv->back())->get_desc();
 			}
 
 			// current vehicle
@@ -785,7 +785,7 @@ void depot_frame_t::update_data()
 	if(  cnv.is_bound()  &&  cnv->get_vehicle_count() > 0  ) {
 		for(  unsigned i=0;  i < cnv->get_vehicle_count();  i++  ) {
 			// just make sure, there is this vehicle also here!
-			const vehikel_besch_t *info=cnv->get_vehikel(i)->get_besch();
+			const vehikel_besch_t *info=cnv->get_vehikel(i)->get_desc();
 			if(  vehicle_map.get( info ) == NULL  ) {
 				add_to_vehicle_list( info );
 			}
@@ -795,19 +795,19 @@ void depot_frame_t::update_data()
 		}
 
 		/* color bars for current convoi: */
-		convoi_pics[0]->lcolor = cnv->front()->get_besch()->can_follow(NULL) ? COL_GREEN : COL_YELLOW;
+		convoi_pics[0]->lcolor = cnv->front()->get_desc()->can_follow(NULL) ? COL_GREEN : COL_YELLOW;
 		{
 			unsigned i;
 			for(  i = 1;  i < cnv->get_vehicle_count();  i++  ) {
-				convoi_pics[i - 1]->rcolor = cnv->get_vehikel(i-1)->get_besch()->can_lead(cnv->get_vehikel(i)->get_besch()) ? COL_GREEN : COL_RED;
-				convoi_pics[i]->lcolor     = cnv->get_vehikel(i)->get_besch()->can_follow(cnv->get_vehikel(i-1)->get_besch()) ? COL_GREEN : COL_RED;
+				convoi_pics[i - 1]->rcolor = cnv->get_vehikel(i-1)->get_desc()->can_lead(cnv->get_vehikel(i)->get_desc()) ? COL_GREEN : COL_RED;
+				convoi_pics[i]->lcolor     = cnv->get_vehikel(i)->get_desc()->can_follow(cnv->get_vehikel(i-1)->get_desc()) ? COL_GREEN : COL_RED;
 			}
-			convoi_pics[i - 1]->rcolor = cnv->get_vehikel(i-1)->get_besch()->can_lead(NULL) ? COL_GREEN : COL_YELLOW;
+			convoi_pics[i - 1]->rcolor = cnv->get_vehikel(i-1)->get_desc()->can_lead(NULL) ? COL_GREEN : COL_YELLOW;
 		}
 
 		// change green into blue for vehicles that are not available
 		for(  unsigned i = 0;  i < cnv->get_vehicle_count();  i++  ) {
-			if(  !cnv->get_vehikel(i)->get_besch()->is_available(month_now)  ) {
+			if(  !cnv->get_vehikel(i)->get_desc()->is_available(month_now)  ) {
 				if(  convoi_pics[i]->lcolor == COL_GREEN  ) {
 					convoi_pics[i]->lcolor = COL_BLUE;
 				}
@@ -817,7 +817,7 @@ void depot_frame_t::update_data()
 			}
 		}
 
-		veh = (veh_action == va_insert ? cnv->front() : cnv->back())->get_besch();
+		veh = (veh_action == va_insert ? cnv->front() : cnv->back())->get_desc();
 	}
 
 	FOR(vehicle_image_map, const& i, vehicle_map) {
@@ -863,7 +863,7 @@ void depot_frame_t::update_data()
 
 	FOR(slist_tpl<vehicle_t*>, const v, depot->get_vehicle_list()) {
 		// can fail, if currently not visible
-		if (gui_image_list_t::image_data_t* const imgdat = vehicle_map.get(v->get_besch())) {
+		if (gui_image_list_t::image_data_t* const imgdat = vehicle_map.get(v->get_desc())) {
 			imgdat->count++;
 			if(veh_action == va_sell) {
 				imgdat->lcolor = COL_GREEN;
@@ -953,7 +953,7 @@ sint64 depot_frame_t::calc_restwert(const vehikel_besch_t *veh_type)
 {
 	sint64 wert = 0;
 	FOR(slist_tpl<vehicle_t*>, const v, depot->get_vehicle_list()) {
-		if(  v->get_besch() == veh_type  ) {
+		if(  v->get_desc() == veh_type  ) {
 			wert += v->calc_sale_value();
 		}
 	}
@@ -990,7 +990,7 @@ void depot_frame_t::image_from_convoi_list(uint nr, bool to_end)
 		unsigned start_nr = nr;
 		while(  start_nr > 0  ) {
 			start_nr--;
-			const vehikel_besch_t *info = cnv->get_vehikel(start_nr)->get_besch();
+			const vehikel_besch_t *info = cnv->get_vehikel(start_nr)->get_desc();
 			if(  info->get_nachfolger_count() != 1  ) {
 				start_nr++;
 				break;
@@ -1309,9 +1309,9 @@ void depot_frame_t::draw(scr_coord pos, scr_size size)
 			}
 
 			for(  unsigned i = 0;  i < cnv->get_vehicle_count();  i++  ) {
-				const vehikel_besch_t *besch = cnv->get_vehikel(i)->get_besch();
+				const vehikel_besch_t *desc = cnv->get_vehikel(i)->get_desc();
 
-				total_power += besch->get_leistung()*besch->get_gear();
+				total_power += desc->get_leistung()*desc->get_gear();
 
 				uint32 sel_weight = 0; // actual weight using vehicle filter selected good to fill
 				uint32 max_weight = 0;
@@ -1320,7 +1320,7 @@ void depot_frame_t::draw(scr_coord pos, scr_size size)
 				for(  uint32 j=0;  j<warenbauer_t::get_count();  j++  ) {
 					const ware_besch_t *ware = warenbauer_t::get_info(j);
 
-					if(  besch->get_ware()->get_catg_index() == ware->get_catg_index()  ) {
+					if(  desc->get_ware()->get_catg_index() == ware->get_catg_index()  ) {
 						max_weight = max(max_weight, (uint32)ware->get_weight_per_unit());
 						min_weight = min(min_weight, (uint32)ware->get_weight_per_unit());
 
@@ -1343,23 +1343,23 @@ void depot_frame_t::draw(scr_coord pos, scr_size size)
 					use_sel_weight = false;
 				}
 
-				total_empty_weight += besch->get_gewicht();
-				total_selected_weight += besch->get_gewicht() + sel_weight * besch->get_zuladung();
-				total_max_weight += besch->get_gewicht() + max_weight * besch->get_zuladung();
-				total_min_weight += besch->get_gewicht() + min_weight * besch->get_zuladung();
+				total_empty_weight += desc->get_gewicht();
+				total_selected_weight += desc->get_gewicht() + sel_weight * desc->get_zuladung();
+				total_max_weight += desc->get_gewicht() + max_weight * desc->get_zuladung();
+				total_min_weight += desc->get_gewicht() + min_weight * desc->get_zuladung();
 
-				const ware_besch_t* const ware = besch->get_ware();
+				const ware_besch_t* const ware = desc->get_ware();
 				switch(  ware->get_catg_index()  ) {
 					case warenbauer_t::INDEX_PAS: {
-						total_pax += besch->get_zuladung();
+						total_pax += desc->get_zuladung();
 						break;
 					}
 					case warenbauer_t::INDEX_MAIL: {
-						total_mail += besch->get_zuladung();
+						total_mail += desc->get_zuladung();
 						break;
 					}
 					default: {
-						total_goods += besch->get_zuladung();
+						total_goods += desc->get_zuladung();
 						break;
 					}
 				}
@@ -1570,7 +1570,7 @@ void depot_frame_t::draw_vehicle_info_text(scr_coord pos)
 		sel_index = convoi.index_at( pos , x, y - D_TITLEBAR_HEIGHT);
 		if(  sel_index != -1  ) {
 			convoihandle_t cnv = depot->get_convoi( icnv );
-			veh_type = cnv->get_vehikel( sel_index )->get_besch();
+			veh_type = cnv->get_vehikel( sel_index )->get_desc();
 			resale_value = cnv->get_vehikel( sel_index )->calc_sale_value();
 			new_vehicle_length_sb_force_zero = true;
 		}

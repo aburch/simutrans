@@ -357,9 +357,9 @@ void map_frame_t::update_factory_legend()
 	if(  directory_visible  ) {
 		if(  filter_factory_list  ) {
 			FOR(slist_tpl<fabrik_t*>, const f, welt->get_fab_list()) {
-				if(  f->get_besch()->get_gewichtung() > 0  ) {
-					std::string const label( translator::translate(f->get_besch()->get_name()) );
-					legend.append_unique( legend_entry_t(label, f->get_besch()->get_kennfarbe()) );
+				if(  f->get_desc()->get_gewichtung() > 0  ) {
+					std::string const label( translator::translate(f->get_desc()->get_name()) );
+					legend.append_unique( legend_entry_t(label, f->get_desc()->get_kennfarbe()) );
 				}
 			}
 		}

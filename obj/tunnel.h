@@ -9,14 +9,14 @@ class tunnel_besch_t;
 class tunnel_t : public obj_no_info_t
 {
 private:
-	const tunnel_besch_t *besch;
+	const tunnel_besch_t *desc;
 	image_id image;
 	image_id foreground_image;
 	uint8 broad_type; // Is this a broad tunnel mouth?
 
 public:
 	tunnel_t(loadsave_t *file);
-	tunnel_t(koord3d pos, player_t *player, const tunnel_besch_t *besch);
+	tunnel_t(koord3d pos, player_t *player, const tunnel_besch_t *desc);
 
 	const char *get_name() const {return "Tunnelmuendung";}
 	typ get_typ() const { return tunnel; }
@@ -39,9 +39,9 @@ public:
 	image_id get_image() const {return image;}
 	image_id get_front_image() const { return foreground_image; }
 
-	const tunnel_besch_t *get_besch() const { return besch; }
+	const tunnel_besch_t *get_desc() const { return desc; }
 
-	void set_besch( const tunnel_besch_t *_besch ) { besch = _besch; }
+	void set_besch( const tunnel_besch_t *_besch ) { desc = _besch; }
 
 	void rdwr(loadsave_t *file);
 

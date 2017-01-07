@@ -32,7 +32,7 @@ private:
 	static vector_tpl<const groundobj_besch_t *> groundobj_typen;
 
 public:
-	static bool register_besch(groundobj_besch_t *besch);
+	static bool register_desc(groundobj_besch_t *desc);
 	static bool alles_geladen();
 
 	static const groundobj_besch_t *random_groundobj_for_climate(climate_bits cl, slope_t::type slope );
@@ -62,7 +62,7 @@ public:
 
 	void cleanup(player_t *player);
 
-	const groundobj_besch_t* get_besch() const { return groundobj_typen[groundobjtype]; }
+	const groundobj_besch_t* get_desc() const { return groundobj_typen[groundobjtype]; }
 
 	void * operator new(size_t s);
 	void operator delete(void *p);

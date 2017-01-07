@@ -80,7 +80,7 @@ private:
 	* Way type description
 	* @author Hj. Malthaner
 	*/
-	const weg_besch_t * besch;
+	const weg_besch_t * desc;
 
 	/**
 	* Richtungsbits für den Weg. Norden ist oben rechts auf dem Monitor.
@@ -102,7 +102,7 @@ private:
 	uint8 flags;
 
 	/**
-	* max speed; could not be taken for besch, since other object may modify the speed
+	* max speed; could not be taken for desc, since other object may modify the speed
 	* @author Hj. Malthaner
 	*/
 	uint16 max_speed;
@@ -172,7 +172,7 @@ public:
 	* @author Hj. Malthaner
 	*/
 	void set_besch(const weg_besch_t *b);
-	const weg_besch_t *get_besch() const { return besch; }
+	const weg_besch_t *get_desc() const { return desc; }
 
 	// returns a way with the matching type
 	static weg_t *alloc(waytype_t wt);
@@ -210,7 +210,7 @@ public:
 	* Die Bezeichnung des Wegs
 	* @author Hj. Malthaner
 	*/
-	const char *get_name() const { return besch->get_name(); }
+	const char *get_name() const { return desc->get_name(); }
 
 	/**
 	* Setzt neue Richtungsbits für einen Weg.

@@ -34,25 +34,25 @@ void runway_t::rdwr(loadsave_t *file)
 	weg_t::rdwr(file);
 
 	if(file->is_saving()) {
-		const char *s = get_besch()->get_name();
+		const char *s = get_desc()->get_name();
 		file->rdwr_str(s);
 	}
 	else {
 		char bname[128];
 		file->rdwr_str(bname, lengthof(bname));
-		const weg_besch_t *besch = wegbauer_t::get_besch(bname);
+		const weg_besch_t *desc = wegbauer_t::get_desc(bname);
 		int old_max_speed=get_max_speed();
-		if(besch==NULL) {
-			besch = wegbauer_t::weg_search(air_wt,old_max_speed>0 ? old_max_speed : 20, 0, (systemtype_t)(old_max_speed>250) );
-			if(besch==NULL) {
-				besch = default_runway;
+		if(desc==NULL) {
+			desc = wegbauer_t::weg_search(air_wt,old_max_speed>0 ? old_max_speed : 20, 0, (systemtype_t)(old_max_speed>250) );
+			if(desc==NULL) {
+				desc = default_runway;
 				welt->add_missing_paks( bname, karte_t::MISSING_WAY );
 			}
-			dbg->warning("runway_t::rdwr()", "Unknown runway %s replaced by %s (old_max_speed %i)", bname, besch->get_name(), old_max_speed );
+			dbg->warning("runway_t::rdwr()", "Unknown runway %s replaced by %s (old_max_speed %i)", bname, desc->get_name(), old_max_speed );
 		}
 		if(old_max_speed>0) {
 			set_max_speed(old_max_speed);
 		}
-		set_besch(besch);
+		set_besch(desc);
 	}
 }

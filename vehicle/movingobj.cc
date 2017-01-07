@@ -31,7 +31,7 @@
 
 #include "movingobj.h"
 
-/******************************** static stuff: besch management ****************************************************************/
+/******************************** static stuff: desc management ****************************************************************/
 
 vector_tpl<const groundobj_besch_t *> movingobj_t::movingobj_typen(0);
 
@@ -61,13 +61,13 @@ bool movingobj_t::alles_geladen()
 
 
 
-bool movingobj_t::register_besch(groundobj_besch_t *besch)
+bool movingobj_t::register_desc(groundobj_besch_t *desc)
 {
 	// remove duplicates
-	if(  besch_names.remove( besch->get_name() )  ) {
-		dbg->warning( "movingobj_t::register_besch()", "Object %s was overlaid by addon!", besch->get_name() );
+	if(  besch_names.remove( desc->get_name() )  ) {
+		dbg->warning( "movingobj_t::register_desc()", "Object %s was overlaid by addon!", desc->get_name() );
 	}
-	besch_names.put(besch->get_name(), besch );
+	besch_names.put(desc->get_name(), desc );
 	return true;
 }
 
@@ -117,8 +117,8 @@ const groundobj_besch_t *movingobj_t::random_movingobj_for_climate(climate cl)
 // recalculates only the seasonal image
 void movingobj_t::calc_image()
 {
-	const groundobj_besch_t *besch=get_besch();
-	const uint8 seasons = besch->get_seasons()-1;
+	const groundobj_besch_t *desc=get_desc();
+	const uint8 seasons = desc->get_seasons()-1;
 	uint8 season = 0;
 
 	switch(  seasons  ) {
@@ -146,14 +146,14 @@ void movingobj_t::calc_image()
 			break;
 		}
 	}
-	set_image( get_besch()->get_image( season, ribi_t::get_dir(get_direction()) )->get_id() );
+	set_image( get_desc()->get_image( season, ribi_t::get_dir(get_direction()) )->get_id() );
 }
 
 
 movingobj_t::movingobj_t(loadsave_t *file) : vehicle_base_t()
 {
 	rdwr(file);
-	if(get_besch()) {
+	if(get_desc()) {
 		welt->sync.add( this );
 	}
 }
@@ -216,20 +216,20 @@ void movingobj_t::rdwr(loadsave_t *file)
 	file->rdwr_short(timetochange);
 
 	if(file->is_saving()) {
-		const char *s = get_besch()->get_name();
+		const char *s = get_desc()->get_name();
 		file->rdwr_str(s);
 	}
 	else {
 		char bname[128];
 		file->rdwr_str(bname, lengthof(bname));
-		groundobj_besch_t *besch = besch_names.get(bname);
-		if(  besch_names.empty()  ||  besch==NULL  ) {
+		groundobj_besch_t *desc = besch_names.get(bname);
+		if(  besch_names.empty()  ||  desc==NULL  ) {
 			movingobjtype = simrand(movingobj_typen.get_count());
 		}
 		else {
-			movingobjtype = (uint8)besch->get_index();
+			movingobjtype = (uint8)desc->get_index();
 		}
-		// if not there, besch will be zero
+		// if not there, desc will be zero
 
 		use_calc_height = true;
 	}
@@ -260,15 +260,15 @@ void movingobj_t::info(cbuffer_t & buf) const
 {
 	obj_t::info(buf);
 
-	buf.append(translator::translate(get_besch()->get_name()));
-	if (char const* const maker = get_besch()->get_copyright()) {
+	buf.append(translator::translate(get_desc()->get_name()));
+	if (char const* const maker = get_desc()->get_copyright()) {
 		buf.append("\n");
 		buf.printf(translator::translate("Constructed by %s"), maker);
 	}
 	buf.append("\n");
 	buf.append(translator::translate("cost for removal"));
 	char buffer[128];
-	money_to_string( buffer, get_besch()->get_preis()/100.0 );
+	money_to_string( buffer, get_desc()->get_preis()/100.0 );
 	buf.append( buffer );
 }
 
@@ -276,7 +276,7 @@ void movingobj_t::info(cbuffer_t & buf) const
 
 void movingobj_t::cleanup(player_t *player)
 {
-	player_t::book_construction_costs(player, -get_besch()->get_preis(), get_pos().get_2d(), ignore_wt);
+	player_t::book_construction_costs(player, -get_desc()->get_preis(), get_pos().get_2d(), ignore_wt);
 	mark_image_dirty( get_image(), 0 );
 }
 
@@ -285,7 +285,7 @@ void movingobj_t::cleanup(player_t *player)
 
 sync_result movingobj_t::sync_step(uint32 delta_t)
 {
-	weg_next += get_besch()->get_speed() * delta_t;
+	weg_next += get_desc()->get_speed() * delta_t;
 	weg_next -= do_drive( weg_next );
 	return SYNC_OK;
 }
@@ -303,13 +303,13 @@ bool movingobj_t::check_next_tile( const grund_t *gr ) const
 		return false;
 	}
 
-	const groundobj_besch_t *besch = get_besch();
-	if( !besch->is_allowed_climate( welt->get_climate(gr->get_pos().get_2d()) ) ) {
+	const groundobj_besch_t *desc = get_desc();
+	if( !desc->is_allowed_climate( welt->get_climate(gr->get_pos().get_2d()) ) ) {
 		// not an allowed climate zone!
 		return false;
 	}
 
-	if(besch->get_waytype()==road_wt) {
+	if(desc->get_waytype()==road_wt) {
 		// can cross roads
 		if(gr->get_typ()!=grund_t::boden  ||  !slope_t::is_way(gr->get_grund_hang())) {
 			return false;
@@ -318,24 +318,24 @@ bool movingobj_t::check_next_tile( const grund_t *gr ) const
 		if(gr->hat_wege()  &&  (!gr->hat_weg(road_wt)  ||  gr->get_weg(road_wt)->hat_gehweg())) {
 			return false;
 		}
-		if(!besch->can_built_trees_here()) {
+		if(!desc->can_built_trees_here()) {
 			return gr->find<baum_t>()==NULL;
 		}
 	}
-	else if(besch->get_waytype()==air_wt) {
+	else if(desc->get_waytype()==air_wt) {
 		// avoid towns to avoid flying through houses
 		return gr->get_typ()==grund_t::boden  ||  gr->get_typ()==grund_t::wasser;
 	}
-	else if(besch->get_waytype()==water_wt) {
+	else if(desc->get_waytype()==water_wt) {
 		// floating object
 		return gr->get_typ()==grund_t::wasser  ||  gr->hat_weg(water_wt);
 	}
-	else if(besch->get_waytype()==ignore_wt) {
+	else if(desc->get_waytype()==ignore_wt) {
 		// crosses nothing
 		if(!gr->ist_natur()  ||  !slope_t::is_way(gr->get_grund_hang())) {
 			return false;
 		}
-		if(!besch->can_built_trees_here()) {
+		if(!desc->can_built_trees_here()) {
 			return gr->find<baum_t>()==NULL;
 		}
 	}
@@ -372,7 +372,7 @@ grund_t* movingobj_t::hop_check()
 
 	if (timetochange==0) {
 		// direction change needed
-		timetochange = simrand(speed_to_kmh(get_besch()->get_speed())/3);
+		timetochange = simrand(speed_to_kmh(get_desc()->get_speed())/3);
 		const koord pos=pos_next.get_2d();
 		const grund_t *to[4];
 		uint8 until=0;

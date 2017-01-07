@@ -40,7 +40,7 @@ protected:
 
 	sint8 after_yoffset, after_xoffset;
 
-	const roadsign_besch_t *besch;
+	const roadsign_besch_t *desc;
 
 	ribi_t::ribi calc_mask() const { return ribi_t::is_single(dir) ? dir : (ribi_t::ribi)ribi_t::none; }
 public:
@@ -70,12 +70,12 @@ public:
 	/**
 	 * waytype associated with this object
 	 */
-	waytype_t get_waytype() const { return besch ? besch->get_wtyp() : invalid_wt; }
+	waytype_t get_waytype() const { return desc ? desc->get_wtyp() : invalid_wt; }
 
 	roadsign_t(loadsave_t *file);
-	roadsign_t(player_t *player, koord3d pos, ribi_t::ribi dir, const roadsign_besch_t* besch, bool preview = false);
+	roadsign_t(player_t *player, koord3d pos, ribi_t::ribi dir, const roadsign_besch_t* desc, bool preview = false);
 
-	const roadsign_besch_t *get_besch() const {return besch;}
+	const roadsign_besch_t *get_desc() const {return desc;}
 
 	/**
 	 * signale muessen bei der destruktion von der
@@ -99,7 +99,7 @@ public:
 	virtual void calc_image();
 
 	// true, if a free route choose point (these are always single way the avoid recalculation of long return routes)
-	bool is_free_route(uint8 check_dir) const { return besch->is_choose_sign() &&  check_dir == dir; }
+	bool is_free_route(uint8 check_dir) const { return desc->is_choose_sign() &&  check_dir == dir; }
 
 	// changes the state of a traffic light
 	sync_result sync_step(uint32);
@@ -151,7 +151,7 @@ protected:
 	static const roadsign_besch_t *default_signal;
 
 public:
-	static bool register_besch(roadsign_besch_t *besch);
+	static bool register_desc(roadsign_besch_t *desc);
 	static bool alles_geladen();
 
 	/**

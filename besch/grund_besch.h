@@ -87,7 +87,7 @@ public:
 	static image_id get_alpha_tile(slope_t::type slope);
 	static image_id get_alpha_tile(slope_t::type slope, uint8 corners);
 
-	static bool register_besch(const grund_besch_t *besch);
+	static bool register_desc(const grund_besch_t *desc);
 
 	static bool alles_geladen();
 

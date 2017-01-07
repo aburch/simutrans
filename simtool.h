@@ -264,13 +264,13 @@ private:
 	uint8 is_valid_pos(player_t*, koord3d const&, char const*&, koord3d const&) OVERRIDE;
 
 protected:
-	const weg_besch_t *besch;
+	const weg_besch_t *desc;
 
-	virtual weg_besch_t const* get_besch(uint16, bool) const;
+	virtual weg_besch_t const* get_desc(uint16, bool) const;
 	void calc_route( wegbauer_t &bauigel, const koord3d &, const koord3d & );
 
 public:
-	tool_build_way_t(uint16 const id = TOOL_BUILD_WAY | GENERAL_TOOL) : two_click_tool_t(id), besch() {}
+	tool_build_way_t(uint16 const id = TOOL_BUILD_WAY | GENERAL_TOOL) : two_click_tool_t(id), desc() {}
 	image_id get_icon(player_t*) const OVERRIDE;
 	char const* get_tooltip(player_t const*) const OVERRIDE;
 	char const* get_default_param(player_t*) const OVERRIDE;
@@ -279,7 +279,7 @@ public:
 	bool is_init_network_save() const OVERRIDE { return true; }
 	waytype_t get_waytype() const OVERRIDE;
 	// remove preview necessary while building elevated ways
-	bool remove_preview_necessary() const OVERRIDE { return !is_first_click()  &&  (besch  &&  (besch->get_styp() == type_elevated  &&  besch->get_wtyp() != air_wt)); }
+	bool remove_preview_necessary() const OVERRIDE { return !is_first_click()  &&  (desc  &&  (desc->get_styp() == type_elevated  &&  desc->get_wtyp() != air_wt)); }
 };
 
 class tool_build_cityroad : public tool_build_way_t {
@@ -287,7 +287,7 @@ private:
 	char const* do_work(player_t*, koord3d const&, koord3d const&) OVERRIDE;
 public:
 	tool_build_cityroad() : tool_build_way_t(TOOL_BUILD_CITYROAD | GENERAL_TOOL) {}
-	weg_besch_t const* get_besch(uint16, bool) const OVERRIDE;
+	weg_besch_t const* get_desc(uint16, bool) const OVERRIDE;
 	image_id get_icon(player_t* const player) const OVERRIDE { return tool_t::get_icon(player); }
 	bool is_selected() const OVERRIDE { return tool_t::is_selected(); }
 	bool is_init_network_save() const OVERRIDE { return true; }
@@ -349,8 +349,8 @@ protected:
 	const bool build;
 private:
 	static const way_obj_besch_t *default_electric;
-	const way_obj_besch_t *besch;
-	const way_obj_besch_t *get_besch() const;
+	const way_obj_besch_t *desc;
+	const way_obj_besch_t *get_desc() const;
 	waytype_t wt;
 
 	bool calc_route( route_t &, player_t *, const koord3d& start, const koord3d &to );
@@ -382,7 +382,7 @@ private:
 	const char *tool_station_dock_aux(player_t *, koord3d, const haus_besch_t * );
 	const char *tool_station_flat_dock_aux(player_t *, koord3d, const haus_besch_t *, sint8 );
 	const char *tool_station_aux(player_t *, koord3d, const haus_besch_t *, waytype_t, const char *halt_suffix );
-	const haus_besch_t *get_besch( sint8 &rotation ) const;
+	const haus_besch_t *get_desc( sint8 &rotation ) const;
 
 public:
 	tool_build_station_t() : tool_t(TOOL_BUILD_STATION | GENERAL_TOOL) {}
@@ -400,7 +400,7 @@ public:
 // builds roadsigns and signals
 class tool_build_roadsign_t : public two_click_tool_t {
 private:
-	const roadsign_besch_t* besch;
+	const roadsign_besch_t* desc;
 	const char *place_sign_intern( player_t *, grund_t*, const roadsign_besch_t* b = NULL);
 
 	struct signal_info {
@@ -426,7 +426,7 @@ private:
 	vector_tpl< ribi_t::ribi > directions;
 
 public:
-	tool_build_roadsign_t() : two_click_tool_t(TOOL_BUILD_ROADSIGN | GENERAL_TOOL), besch() {}
+	tool_build_roadsign_t() : two_click_tool_t(TOOL_BUILD_ROADSIGN | GENERAL_TOOL), desc() {}
 
 	char const* get_tooltip(player_t const*) const OVERRIDE;
 	bool init(player_t*) OVERRIDE;
@@ -443,7 +443,7 @@ public:
 class tool_build_depot_t : public tool_t {
 private:
 	static char toolstring[256];
-	const char *tool_depot_aux(player_t *player, koord3d pos, const haus_besch_t *besch, waytype_t wegtype);
+	const char *tool_depot_aux(player_t *player, koord3d pos, const haus_besch_t *desc, waytype_t wegtype);
 public:
 	tool_build_depot_t() : tool_t(TOOL_BUILD_DEPOT | GENERAL_TOOL) {}
 	image_id get_icon(player_t*) const OVERRIDE;

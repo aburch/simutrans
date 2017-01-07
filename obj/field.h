@@ -11,10 +11,10 @@ class fabrik_t;
 class field_t : public obj_t
 {
 	fabrik_t *fab;
-	const field_class_besch_t *besch;
+	const field_class_besch_t *desc;
 
 public:
-	field_t(const koord3d pos, player_t *player, const field_class_besch_t *besch, fabrik_t *fab);
+	field_t(const koord3d pos, player_t *player, const field_class_besch_t *desc, fabrik_t *fab);
 	virtual ~field_t();
 
 	const char* get_name() const { return "Field"; }

@@ -16,12 +16,12 @@
 
 class checksum_t;
 
-/* Knightly : this besch will store data specific to each class of fields
+/* Knightly : this desc will store data specific to each class of fields
  * Fields are xref'ed from skin_besch_t
  */
 class field_class_besch_t : public obj_besch_t {
 	friend class factory_field_class_reader_t;
-	friend class factory_field_group_reader_t;		// Knightly : this is a special case due to besch restructuring
+	friend class factory_field_group_reader_t;		// Knightly : this is a special case due to desc restructuring
 
 private:
 	uint8  snow_image;			// 0 or 1 for snow
@@ -43,7 +43,7 @@ public:
 };
 
 
-// Knightly : this besch now only contains common, shared data regarding fields
+// Knightly : this desc now only contains common, shared data regarding fields
 class field_group_besch_t : public obj_besch_t {
 	friend class factory_field_group_reader_t;
 

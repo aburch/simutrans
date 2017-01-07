@@ -322,18 +322,18 @@ image_t* image_t::copy_image(const image_t& other)
 // creates a single pixel dummy picture
 image_t* image_t::create_single_pixel()
 {
-	image_t* besch = new image_t(4);
-	besch->len = 4;
-	besch->x = 0;
-	besch->y = 0;
-	besch->w = 1;
-	besch->h = 1;
-	besch->zoomable = 0;
-	besch->data[0] = 0;
-	besch->data[1] = 0;
-	besch->data[2] = 0;
-	besch->data[3] = 0;
-	return besch;
+	image_t* desc = new image_t(4);
+	desc->len = 4;
+	desc->x = 0;
+	desc->y = 0;
+	desc->w = 1;
+	desc->h = 1;
+	desc->zoomable = 0;
+	desc->data[0] = 0;
+	desc->data[1] = 0;
+	desc->data[2] = 0;
+	desc->data[3] = 0;
+	return desc;
 }
 
 

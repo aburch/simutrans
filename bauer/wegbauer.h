@@ -32,7 +32,7 @@ class wegbauer_t
 public:
 	static const weg_besch_t *leitung_besch;
 
-	static bool register_besch(weg_besch_t *besch);
+	static bool register_desc(weg_besch_t *desc);
 	static bool alle_wege_geladen();
 
 	// generates timeline message
@@ -44,7 +44,7 @@ public:
 	 */
 	static const weg_besch_t *weg_search(const waytype_t wtyp,const sint32 speed_limit, const uint16 time, const systemtype_t system_type);
 
-	static const weg_besch_t *get_besch(const char *way_name,const uint16 time=0);
+	static const weg_besch_t *get_desc(const char *way_name,const uint16 time=0);
 
 	static const weg_besch_t *get_earliest_way(const waytype_t wtyp);
 
@@ -110,7 +110,7 @@ private:
 	 * Type of way to build
 	 * @author Hj. Malthaner
 	 */
-	const weg_besch_t * besch;
+	const weg_besch_t * desc;
 
 	/**
 	 * Type of bridges to build (zero=>no bridges)
@@ -203,7 +203,7 @@ public:
 
 	void set_build_sidewalk(bool yesno) { build_sidewalk = yesno; }
 
-	void route_fuer(bautyp_t wt, const weg_besch_t * besch, const tunnel_besch_t *tunnel_besch=NULL, const bruecke_besch_t *bruecke_besch=NULL);
+	void route_fuer(bautyp_t wt, const weg_besch_t * desc, const tunnel_besch_t *tunnel_besch=NULL, const bruecke_besch_t *bruecke_besch=NULL);
 
 	void set_maximum(uint32 n) { maximum = n; }
 

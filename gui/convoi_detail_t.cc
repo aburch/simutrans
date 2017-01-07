@@ -255,7 +255,7 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 			int extra_y=0;
 
 			// name of this
-			display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, translator::translate(v->get_besch()->get_name()), ALIGN_LEFT, SYSCOL_TEXT, true );
+			display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, translator::translate(v->get_desc()->get_name()), ALIGN_LEFT, SYSCOL_TEXT, true );
 			extra_y += LINESPACE;
 
 			// age
@@ -275,9 +275,9 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 			extra_y += LINESPACE;
 
 			// power
-			if(v->get_besch()->get_leistung()>0) {
+			if(v->get_desc()->get_leistung()>0) {
 				buf.clear();
-				buf.printf( "%s %i kW, %s %.2f", translator::translate("Power:"), v->get_besch()->get_leistung(), translator::translate("Gear:"), v->get_besch()->get_gear()/64.0 );
+				buf.printf( "%s %i kW, %s %.2f", translator::translate("Power:"), v->get_desc()->get_leistung(), translator::translate("Gear:"), v->get_desc()->get_gear()/64.0 );
 				display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, buf, ALIGN_LEFT, MONEY_PLUS, true );
 				extra_y += LINESPACE;
 			}
@@ -297,7 +297,7 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 				display_proportional_clip( pos.x+w+offset.x+len, pos.y+offset.y+total_height+extra_y, number, ALIGN_LEFT, price>0?MONEY_PLUS:MONEY_MINUS, true );
 				extra_y += LINESPACE;
 
-				if(  sint64 cost = welt->scale_with_month_length(v->get_besch()->get_maintenance())  ) {
+				if(  sint64 cost = welt->scale_with_month_length(v->get_desc()->get_maintenance())  ) {
 					KOORD_VAL len = display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, translator::translate("Maintenance"), ALIGN_LEFT, SYSCOL_TEXT, true );
 					len += display_proportional_clip( pos.x+w+offset.x+len, pos.y+offset.y+total_height+extra_y, ": ", ALIGN_LEFT, SYSCOL_TEXT, true );
 					money_to_string( number, cost/(100.0) );
@@ -332,7 +332,7 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 				display_proportional_clip( pos.x+w+offset.x+len, pos.y+offset.y+total_height+extra_y, number, ALIGN_LEFT, cost>=0?MONEY_PLUS:MONEY_MINUS, true );
 				extra_y += LINESPACE;
 				// Fixed costs
-				if(  sint64 cost = welt->scale_with_month_length(v->get_besch()->get_maintenance())  ) {
+				if(  sint64 cost = welt->scale_with_month_length(v->get_desc()->get_maintenance())  ) {
 					KOORD_VAL len = display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, translator::translate("Maintenance"), ALIGN_LEFT, SYSCOL_TEXT, true );
 					len += display_proportional_clip( pos.x+w+offset.x+len, pos.y+offset.y+total_height+extra_y, ": ", ALIGN_LEFT, SYSCOL_TEXT, true );
 					money_to_string( number, cost/(100.0) );
