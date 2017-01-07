@@ -40,28 +40,28 @@ karte_ptr_t hausbauer_t::welt;
 /*
  * The different building groups are sorted into separate lists
  */
-static vector_tpl<const haus_besch_t*> wohnhaeuser;        ///< residential buildings (res)
-static vector_tpl<const haus_besch_t*> gewerbehaeuser;     ///< commercial buildings  (com)
-static vector_tpl<const haus_besch_t*> industriehaeuser;   ///< industrial buildings  (ind)
+static vector_tpl<const building_desc_t*> wohnhaeuser;        ///< residential buildings (res)
+static vector_tpl<const building_desc_t*> gewerbehaeuser;     ///< commercial buildings  (com)
+static vector_tpl<const building_desc_t*> industriehaeuser;   ///< industrial buildings  (ind)
 
-vector_tpl<const haus_besch_t *> hausbauer_t::sehenswuerdigkeiten_land;
-vector_tpl<const haus_besch_t *> hausbauer_t::sehenswuerdigkeiten_city;
-vector_tpl<const haus_besch_t *> hausbauer_t::rathaeuser;
-vector_tpl<const haus_besch_t *> hausbauer_t::denkmaeler;
-vector_tpl<const haus_besch_t *> hausbauer_t::ungebaute_denkmaeler;
+vector_tpl<const building_desc_t *> hausbauer_t::sehenswuerdigkeiten_land;
+vector_tpl<const building_desc_t *> hausbauer_t::sehenswuerdigkeiten_city;
+vector_tpl<const building_desc_t *> hausbauer_t::rathaeuser;
+vector_tpl<const building_desc_t *> hausbauer_t::denkmaeler;
+vector_tpl<const building_desc_t *> hausbauer_t::ungebaute_denkmaeler;
 
 /**
  * List of all registered house descriptors.
  * Allows searching for a desc by its name
  */
-static stringhashtable_tpl<const haus_besch_t*> desc_table;
+static stringhashtable_tpl<const building_desc_t*> desc_table;
 
-const haus_besch_t *hausbauer_t::elevated_foundation_desc = NULL;
-vector_tpl<const haus_besch_t *> hausbauer_t::station_building;
-vector_tpl<const haus_besch_t *> hausbauer_t::headquarter;
+const building_desc_t *hausbauer_t::elevated_foundation_desc = NULL;
+vector_tpl<const building_desc_t *> hausbauer_t::station_building;
+vector_tpl<const building_desc_t *> hausbauer_t::headquarter;
 
 /// special objects directly needed by the program
-static spezial_obj_tpl<haus_besch_t> const spezial_objekte[] = {
+static spezial_obj_tpl<building_desc_t> const spezial_objekte[] = {
 	{ &hausbauer_t::elevated_foundation_desc,   "MonorailGround" },
 	{ NULL, NULL }
 };
@@ -74,7 +74,7 @@ static spezial_obj_tpl<haus_besch_t> const spezial_objekte[] = {
  *  -# by name
  * @return true if @p a < @p b
  */
-static bool compare_haus_desc(const haus_besch_t* a, const haus_besch_t* b)
+static bool compare_building_desc(const building_desc_t* a, const building_desc_t* b)
 {
 	int diff = a->get_level() - b->get_level();
 	if (diff == 0) {
@@ -92,7 +92,7 @@ static bool compare_haus_desc(const haus_besch_t* a, const haus_besch_t* b)
  *  -# by name
  * @return true if @p a < @p b
  */
-static bool compare_hq_desc(const haus_besch_t* a, const haus_besch_t* b)
+static bool compare_hq_desc(const building_desc_t* a, const building_desc_t* b)
 {
 	// the headquarters level is in the extra-variable
 	int diff = a->get_extra() - b->get_extra();
@@ -116,7 +116,7 @@ static bool compare_hq_desc(const haus_besch_t* a, const haus_besch_t* b)
  *  -# by name
  * @return true if @p a < @p b
  */
-static bool compare_station_desc(const haus_besch_t* a, const haus_besch_t* b)
+static bool compare_station_desc(const building_desc_t* a, const building_desc_t* b)
 {
 	int diff = a->get_enabled() - b->get_enabled();
 	if(  diff == 0  ) {
@@ -135,50 +135,50 @@ static bool compare_station_desc(const haus_besch_t* a, const haus_besch_t* b)
 
 bool hausbauer_t::alles_geladen()
 {
-	FOR(stringhashtable_tpl<haus_besch_t const*>, const& i, desc_table) {
-		haus_besch_t const* const desc = i.value;
+	FOR(stringhashtable_tpl<building_desc_t const*>, const& i, desc_table) {
+		building_desc_t const* const desc = i.value;
 
 		// now insert the desc into the correct list.
 		switch(desc->get_type()) {
-			case haus_besch_t::city_res:
-				wohnhaeuser.insert_ordered(desc,compare_haus_desc);
+			case building_desc_t::city_res:
+				wohnhaeuser.insert_ordered(desc,compare_building_desc);
 				break;
-			case haus_besch_t::city_ind:
-				industriehaeuser.insert_ordered(desc,compare_haus_desc);
+			case building_desc_t::city_ind:
+				industriehaeuser.insert_ordered(desc,compare_building_desc);
 				break;
-			case haus_besch_t::city_com:
-				gewerbehaeuser.insert_ordered(desc,compare_haus_desc);
+			case building_desc_t::city_com:
+				gewerbehaeuser.insert_ordered(desc,compare_building_desc);
 				break;
 
-				case haus_besch_t::denkmal:
-					denkmaeler.insert_ordered(desc,compare_haus_desc);
+				case building_desc_t::monument:
+					denkmaeler.insert_ordered(desc,compare_building_desc);
 					break;
-				case haus_besch_t::attraction_land:
-					sehenswuerdigkeiten_land.insert_ordered(desc,compare_haus_desc);
+				case building_desc_t::attraction_land:
+					sehenswuerdigkeiten_land.insert_ordered(desc,compare_building_desc);
 					break;
-				case haus_besch_t::firmensitz:
+				case building_desc_t::headquarter:
 					headquarter.insert_ordered(desc,compare_hq_desc);
 					break;
-				case haus_besch_t::rathaus:
-					rathaeuser.insert_ordered(desc,compare_haus_desc);
+				case building_desc_t::townhall:
+					rathaeuser.insert_ordered(desc,compare_building_desc);
 					break;
-				case haus_besch_t::attraction_city:
-					sehenswuerdigkeiten_city.insert_ordered(desc,compare_haus_desc);
-					break;
-
-				case haus_besch_t::fabrik:
+				case building_desc_t::attraction_city:
+					sehenswuerdigkeiten_city.insert_ordered(desc,compare_building_desc);
 					break;
 
-				case haus_besch_t::dock:
-				case haus_besch_t::flat_dock:
-				case haus_besch_t::hafen_geb:
-				case haus_besch_t::depot:
-				case haus_besch_t::generic_stop:
-				case haus_besch_t::generic_extension:
+				case building_desc_t::factory:
+					break;
+
+				case building_desc_t::dock:
+				case building_desc_t::flat_dock:
+				case building_desc_t::hafen_geb:
+				case building_desc_t::depot:
+				case building_desc_t::generic_stop:
+				case building_desc_t::generic_extension:
 					station_building.insert_ordered(desc,compare_station_desc);
 					break;
 
-				case haus_besch_t::weitere:
+				case building_desc_t::others:
 					if(strcmp(desc->get_name(),"MonorailGround")==0) {
 						// foundation for elevated ways
 						elevated_foundation_desc = desc;
@@ -198,15 +198,15 @@ bool hausbauer_t::alles_geladen()
 }
 
 
-bool hausbauer_t::register_desc(haus_besch_t *desc)
+bool hausbauer_t::register_desc(building_desc_t *desc)
 {
 	::register_desc(spezial_objekte, desc);
 
 	// avoid duplicates with same name
-	const haus_besch_t *old_desc = desc_table.get(desc->get_name());
+	const building_desc_t *old_desc = desc_table.get(desc->get_name());
 	if(old_desc) {
 		// do not overlay existing factories if the new one is not a factory
-		if (old_desc->ist_fabrik()  &&  !desc->ist_fabrik()) {
+		if (old_desc->is_factory()  &&  !desc->is_factory()) {
 			dbg->warning( "hausbauer_t::register_desc()", "Object %s could not be registered since it would overlay an existing factory building!", desc->get_name() );
 			delete desc;
 			return false;
@@ -222,10 +222,10 @@ bool hausbauer_t::register_desc(haus_besch_t *desc)
 	const skin_besch_t *sb = desc->get_cursor();
 	if(  sb  &&  sb->get_image_id(1)!=IMG_EMPTY) {
 		tool_t *tool;
-		if(  desc->get_type()==haus_besch_t::depot  ) {
+		if(  desc->get_type()==building_desc_t::depot  ) {
 			tool = new tool_build_depot_t();
 		}
-		else if(  desc->get_type()==haus_besch_t::firmensitz  ) {
+		else if(  desc->get_type()==building_desc_t::headquarter  ) {
 			tool = new tool_headquarter_t();
 		}
 		else {
@@ -244,29 +244,29 @@ bool hausbauer_t::register_desc(haus_besch_t *desc)
 
 	/* Supply the tiles with a pointer back to the matching description.
 	 * This is necessary since each building consists of separate tiles,
-	 * even if it is part of the same description (haus_besch_t)
+	 * even if it is part of the same description (building_desc_t)
 	 */
 	const int max_index = desc->get_all_layouts()*desc->get_size().x*desc->get_size().y;
 	for( int i=0;  i<max_index;  i++  ) {
-		const_cast<haus_tile_besch_t *>(desc->get_tile(i))->set_desc(desc);
+		const_cast<building_tile_desc_t *>(desc->get_tile(i))->set_desc(desc);
 	}
 
 	return true;
 }
 
 
-void hausbauer_t::fill_menu(tool_selector_t* tool_selector, haus_besch_t::btype btype, waytype_t wt, sint16 /*sound_ok*/)
+void hausbauer_t::fill_menu(tool_selector_t* tool_selector, building_desc_t::btype btype, waytype_t wt, sint16 /*sound_ok*/)
 {
 	// check if scenario forbids this
 	uint16 toolnr = 0;
 	switch(btype) {
-		case haus_besch_t::depot:
+		case building_desc_t::depot:
 			toolnr = TOOL_BUILD_DEPOT | GENERAL_TOOL;
 			break;
-		case haus_besch_t::dock:
-		case haus_besch_t::flat_dock:
-		case haus_besch_t::generic_stop:
-		case haus_besch_t::generic_extension:
+		case building_desc_t::dock:
+		case building_desc_t::flat_dock:
+		case building_desc_t::generic_stop:
+		case building_desc_t::generic_extension:
 			toolnr = TOOL_BUILD_STATION | GENERAL_TOOL;
 			break;
 		default:
@@ -279,9 +279,9 @@ void hausbauer_t::fill_menu(tool_selector_t* tool_selector, haus_besch_t::btype 
 	const uint16 time = welt->get_timeline_year_month();
 	DBG_DEBUG("hausbauer_t::fill_menu()","maximum %i",station_building.get_count());
 
-	FOR(  vector_tpl<haus_besch_t const*>,  const desc,  station_building  ) {
+	FOR(  vector_tpl<building_desc_t const*>,  const desc,  station_building  ) {
 //		DBG_DEBUG("hausbauer_t::fill_menu()", "try to add %s (%p)", desc->get_name(), desc);
-		if(  desc->get_type()==btype  &&  desc->get_builder()  &&  (btype==haus_besch_t::firmensitz  ||  desc->get_extra()==(uint16)wt)  ) {
+		if(  desc->get_type()==btype  &&  desc->get_builder()  &&  (btype==building_desc_t::headquarter  ||  desc->get_extra()==(uint16)wt)  ) {
 			if(  desc->is_available(time)  ) {
 				tool_selector->add_tool_selector( desc->get_builder() );
 			}
@@ -293,7 +293,7 @@ void hausbauer_t::fill_menu(tool_selector_t* tool_selector, haus_besch_t::btype 
 void hausbauer_t::new_world()
 {
 	ungebaute_denkmaeler.clear();
-	FOR(vector_tpl<haus_besch_t const*>, const i, denkmaeler) {
+	FOR(vector_tpl<building_desc_t const*>, const i, denkmaeler) {
 		ungebaute_denkmaeler.append(i);
 	}
 }
@@ -301,8 +301,8 @@ void hausbauer_t::new_world()
 
 void hausbauer_t::remove( player_t *player, gebaeude_t *gb )
 {
-	const haus_tile_besch_t *tile  = gb->get_tile();
-	const haus_besch_t *hb = tile->get_desc();
+	const building_tile_desc_t *tile  = gb->get_tile();
+	const building_desc_t *bdsc = tile->get_desc();
 	const uint8 layout = tile->get_layout();
 
 	// get start position and size
@@ -310,10 +310,10 @@ void hausbauer_t::remove( player_t *player, gebaeude_t *gb )
 	koord size = tile->get_desc()->get_size( layout );
 	koord k;
 
-	if(  tile->get_desc()->get_type() == haus_besch_t::firmensitz  ) {
+	if(  tile->get_desc()->get_type() == building_desc_t::headquarter  ) {
 		gb->get_owner()->add_headquarter( 0, koord::invalid );
 	}
-	if(tile->get_desc()->get_type()==haus_besch_t::denkmal) {
+	if(tile->get_desc()->get_type()==building_desc_t::monument) {
 		ungebaute_denkmaeler.append_unique(tile->get_desc());
 	}
 
@@ -329,7 +329,7 @@ void hausbauer_t::remove( player_t *player, gebaeude_t *gb )
 					gebaeude_t *gb_part = gr->find<gebaeude_t>();
 					if(gb_part) {
 						// there may be buildings with holes, so we only remove our building!
-						if(gb_part->get_tile()  ==  hb->get_tile(layout, k.x, k.y)) {
+						if(gb_part->get_tile()  ==  bdsc->get_tile(layout, k.x, k.y)) {
 							gb_part->set_fab( NULL );
 							planquadrat_t *plan = welt->access( k+pos.get_2d() );
 							for (size_t i = plan->get_haltlist_count(); i-- != 0;) {
@@ -398,7 +398,7 @@ void hausbauer_t::remove( player_t *player, gebaeude_t *gb )
 			if(gr) {
 				gebaeude_t *gb_part = gr->find<gebaeude_t>();
 				// there may be buildings with holes, so we only remove our building!
-				if(  gb_part  &&  gb_part->get_tile()==hb->get_tile(layout, k.x, k.y)  ) {
+				if(  gb_part  &&  gb_part->get_tile()==bdsc->get_tile(layout, k.x, k.y)  ) {
 					// ok, now we can go on with deletion
 					gb_part->cleanup( player );
 					delete gb_part;
@@ -452,24 +452,24 @@ void hausbauer_t::remove( player_t *player, gebaeude_t *gb )
 }
 
 
-gebaeude_t* hausbauer_t::build(player_t* player_, koord3d pos, int org_layout, const haus_besch_t* desc, void* param)
+gebaeude_t* hausbauer_t::build(player_t* player_, koord3d pos, int org_layout, const building_desc_t* desc, void* param)
 {
 	gebaeude_t* first_building = NULL;
 	koord k;
 	koord dim;
 
-	uint8 layout = desc->layout_anpassen(org_layout);
+	uint8 layout = desc->adjust_layout(org_layout);
 	dim = desc->get_size(org_layout);
 	bool needs_ground_recalc = false;
 
 	for(k.y = 0; k.y < dim.y; k.y ++) {
 		for(k.x = 0; k.x < dim.x; k.x ++) {
 //DBG_DEBUG("hausbauer_t::build()","get_tile() at %i,%i",k.x,k.y);
-			const haus_tile_besch_t *tile = desc->get_tile(layout, k.x, k.y);
+			const building_tile_desc_t *tile = desc->get_tile(layout, k.x, k.y);
 
 			// skip empty tiles
 			if (tile == NULL || (
-						!(desc->get_type() == haus_besch_t::dock  ||  desc->get_type() == haus_besch_t::flat_dock)  &&
+						!(desc->get_type() == building_desc_t::dock  ||  desc->get_type() == building_desc_t::flat_dock)  &&
 						tile->get_background(0, 0, 0) == IMG_EMPTY &&
 						tile->get_foreground(0, 0)    == IMG_EMPTY
 					)) {
@@ -482,7 +482,7 @@ gebaeude_t* hausbauer_t::build(player_t* player_, koord3d pos, int org_layout, c
 				first_building = gb;
 			}
 
-			if(desc->ist_fabrik()) {
+			if(desc->is_factory()) {
 				gb->set_fab((fabrik_t *)param);
 			}
 			// try to fake old building
@@ -495,7 +495,7 @@ gebaeude_t* hausbauer_t::build(player_t* player_, koord3d pos, int org_layout, c
 			if(gr->ist_wasser()) {
 				gr->obj_add(gb);
 			}
-			else if(  desc->get_type() == haus_besch_t::dock  ||  desc->get_type() == haus_besch_t::flat_dock  ) {
+			else if(  desc->get_type() == building_desc_t::dock  ||  desc->get_type() == building_desc_t::flat_dock  ) {
 				// it's a dock!
 				gr->obj_add(gb);
 			}
@@ -539,14 +539,14 @@ gebaeude_t* hausbauer_t::build(player_t* player_, koord3d pos, int org_layout, c
 				}
 			}
 			gb->set_pos( gr->get_pos() );
-			if(desc->ist_ausflugsziel()) {
+			if(desc->is_attraction()) {
 				welt->add_ausflugsziel( gb );
 			}
 			if (!desc->is_city_building()) {
 				if(station_building.is_contained(desc)) {
 					(*static_cast<halthandle_t *>(param))->add_grund(gr);
 				}
-				if(  desc->get_type() == haus_besch_t::dock  ||  desc->get_type() == haus_besch_t::flat_dock  ) {
+				if(  desc->get_type() == building_desc_t::dock  ||  desc->get_type() == building_desc_t::flat_dock  ) {
 					// its a dock!
 					gb->set_yoff(0);
 				}
@@ -556,14 +556,14 @@ gebaeude_t* hausbauer_t::build(player_t* player_, koord3d pos, int org_layout, c
 		}
 	}
 	// remove only once ...
-	if(desc->get_type()==haus_besch_t::denkmal) {
-		denkmal_gebaut(desc);
+	if(desc->get_type()==building_desc_t::monument) {
+		monument_gebaut(desc);
 	}
 	return first_building;
 }
 
 
-gebaeude_t *hausbauer_t::neues_gebaeude(player_t *player, koord3d pos, int built_layout, const haus_besch_t *desc, void *param)
+gebaeude_t *hausbauer_t::neues_gebaeude(player_t *player, koord3d pos, int built_layout, const building_desc_t *desc, void *param)
 {
 	uint8 corner_layout = 6;	// assume single building (for more than 4 layouts)
 
@@ -657,9 +657,9 @@ gebaeude_t *hausbauer_t::neues_gebaeude(player_t *player, koord3d pos, int built
 		built_layout = (corner_layout | (built_layout&9) ) % desc->get_all_layouts();
 	}
 
-	const haus_tile_besch_t *tile = desc->get_tile(built_layout, 0, 0);
+	const building_tile_desc_t *tile = desc->get_tile(built_layout, 0, 0);
 	gebaeude_t *gb;
-	if(  desc->get_type() == haus_besch_t::depot  ) {
+	if(  desc->get_type() == building_desc_t::depot  ) {
 		switch(  desc->get_extra()  ) {
 			case track_wt:
 				gb = new bahndepot_t(pos, player, tile);
@@ -705,7 +705,7 @@ gebaeude_t *hausbauer_t::neues_gebaeude(player_t *player, koord3d pos, int built
 
 	gr->obj_add(gb);
 
-	if(  station_building.is_contained(desc)  &&  desc->get_type()!=haus_besch_t::depot  ) {
+	if(  station_building.is_contained(desc)  &&  desc->get_type()!=building_desc_t::depot  ) {
 		// is a station/bus stop
 		(*static_cast<halthandle_t *>(param))->add_grund(gr);
 		gr->calc_image();
@@ -714,7 +714,7 @@ gebaeude_t *hausbauer_t::neues_gebaeude(player_t *player, koord3d pos, int built
 		gb->calc_image();
 	}
 
-	if(desc->ist_ausflugsziel()) {
+	if(desc->is_attraction()) {
 		welt->add_ausflugsziel( gb );
 	}
 
@@ -725,12 +725,12 @@ gebaeude_t *hausbauer_t::neues_gebaeude(player_t *player, koord3d pos, int built
 }
 
 
-const haus_tile_besch_t *hausbauer_t::find_tile(const char *name, int org_idx)
+const building_tile_desc_t *hausbauer_t::find_tile(const char *name, int org_idx)
 {
 	int idx = org_idx;
-	const haus_besch_t *desc = desc_table.get(name);
+	const building_desc_t *desc = desc_table.get(name);
 	if(desc) {
-		const int size = desc->get_h()*desc->get_b();
+		const int size = desc->get_y()*desc->get_x();
 		if(  idx >= desc->get_all_layouts()*size  ) {
 			idx %= desc->get_all_layouts()*size;
 			DBG_MESSAGE("gebaeude_t::rdwr()","%s using tile %i instead of %i",name,idx,org_idx);
@@ -742,21 +742,21 @@ const haus_tile_besch_t *hausbauer_t::find_tile(const char *name, int org_idx)
 }
 
 
-const haus_besch_t* hausbauer_t::get_desc(const char *name)
+const building_desc_t* hausbauer_t::get_desc(const char *name)
 {
 	return desc_table.get(name);
 }
 
 
-const haus_besch_t* hausbauer_t::get_random_station(const haus_besch_t::btype type, const waytype_t wt, const uint16 time, const uint8 enables)
+const building_desc_t* hausbauer_t::get_random_station(const building_desc_t::btype type, const waytype_t wt, const uint16 time, const uint8 enables)
 {
-	weighted_vector_tpl<const haus_besch_t*> stops;
+	weighted_vector_tpl<const building_desc_t*> stops;
 
 	if(  wt < 0  ) {
 		return NULL;
 	}
 
-	FOR(vector_tpl<haus_besch_t const*>, const desc, station_building) {
+	FOR(vector_tpl<building_desc_t const*>, const desc, station_building) {
 		if(  desc->get_type()==type  &&  desc->get_extra()==(uint32)wt  &&  (enables==0  ||  (desc->get_enabled()&enables)!=0)  ) {
 			// skip underground stations
 			if(  !desc->can_be_built_aboveground()  ) {
@@ -764,7 +764,7 @@ const haus_besch_t* hausbauer_t::get_random_station(const haus_besch_t::btype ty
 			}
 			// ok, now check timeline
 			if(  desc->is_available(time)  ) {
-				stops.append(desc,max(1,16-desc->get_level()*desc->get_b()*desc->get_h()));
+				stops.append(desc,max(1,16-desc->get_level()*desc->get_x()*desc->get_y()));
 			}
 		}
 	}
@@ -772,22 +772,22 @@ const haus_besch_t* hausbauer_t::get_random_station(const haus_besch_t::btype ty
 }
 
 
-const haus_besch_t* hausbauer_t::get_special(uint32 bev, haus_besch_t::btype type, uint16 time, bool ignore_retire, climate cl)
+const building_desc_t* hausbauer_t::get_special(uint32 bev, building_desc_t::btype type, uint16 time, bool ignore_retire, climate cl)
 {
-	weighted_vector_tpl<const haus_besch_t *> auswahl(16);
+	weighted_vector_tpl<const building_desc_t *> auswahl(16);
 
-	vector_tpl<const haus_besch_t*> *list = NULL;
+	vector_tpl<const building_desc_t*> *list = NULL;
 	switch(type) {
-		case haus_besch_t::rathaus:
+		case building_desc_t::townhall:
 			list = &rathaeuser;
 			break;
-		case haus_besch_t::attraction_city:
+		case building_desc_t::attraction_city:
 			list = &sehenswuerdigkeiten_city;
 			break;
 		default:
 			return NULL;
 	}
-	FOR(vector_tpl<haus_besch_t const*>, const desc, *list) {
+	FOR(vector_tpl<building_desc_t const*>, const desc, *list) {
 		// extra data contains number of inhabitants for building
 		if(  desc->get_extra()==bev  ) {
 			if(  cl==MAX_CLIMATES  ||  desc->is_allowed_climate(cl)  ) {
@@ -815,13 +815,13 @@ const haus_besch_t* hausbauer_t::get_special(uint32 bev, haus_besch_t::btype typ
  * @param level the minimum level of the house/station
  * @param cl allowed climates
  */
-static const haus_besch_t* get_city_building_from_list(const vector_tpl<const haus_besch_t*>& liste, int level, uint16 time, climate cl, uint32 clusters )
+static const building_desc_t* get_city_building_from_list(const vector_tpl<const building_desc_t*>& liste, int level, uint16 time, climate cl, uint32 clusters )
 {
-	weighted_vector_tpl<const haus_besch_t *> selections(16);
+	weighted_vector_tpl<const building_desc_t *> selections(16);
 
 //	DBG_MESSAGE("hausbauer_t::get_aus_liste()","target level %i", level );
-	const haus_besch_t *besch_at_least=NULL;
-	FOR(vector_tpl<haus_besch_t const*>, const desc, liste) {
+	const building_desc_t *besch_at_least=NULL;
+	FOR(vector_tpl<building_desc_t const*>, const desc, liste) {
 		if(  desc->is_allowed_climate(cl)  &&  desc->get_chance()>0  &&  desc->is_available(time)  ) {
 				besch_at_least = desc;
 		}
@@ -874,30 +874,30 @@ static const haus_besch_t* get_city_building_from_list(const vector_tpl<const ha
 }
 
 
-const haus_besch_t* hausbauer_t::get_commercial(int level, uint16 time, climate cl, uint32 clusters)
+const building_desc_t* hausbauer_t::get_commercial(int level, uint16 time, climate cl, uint32 clusters)
 {
 	return get_city_building_from_list(gewerbehaeuser, level, time, cl, clusters);
 }
 
 
-const haus_besch_t* hausbauer_t::get_industrial(int level, uint16 time, climate cl, uint32 clusters)
+const building_desc_t* hausbauer_t::get_industrial(int level, uint16 time, climate cl, uint32 clusters)
 {
 	return get_city_building_from_list(industriehaeuser, level, time, cl, clusters);
 }
 
 
-const haus_besch_t* hausbauer_t::get_residential(int level, uint16 time, climate cl, uint32 clusters)
+const building_desc_t* hausbauer_t::get_residential(int level, uint16 time, climate cl, uint32 clusters)
 {
 	return get_city_building_from_list(wohnhaeuser, level, time, cl, clusters);
 }
 
 
-const haus_besch_t* hausbauer_t::get_headquarter(int level, uint16 time)
+const building_desc_t* hausbauer_t::get_headquarter(int level, uint16 time)
 {
 	if(  level<0  ) {
 		return NULL;
 	}
-	FOR(vector_tpl<haus_besch_t const*>, const desc, hausbauer_t::headquarter) {
+	FOR(vector_tpl<building_desc_t const*>, const desc, hausbauer_t::headquarter) {
 		if(  desc->get_extra()==(uint32)level  &&  desc->is_available(time)  ) {
 			return desc;
 		}
@@ -906,12 +906,12 @@ const haus_besch_t* hausbauer_t::get_headquarter(int level, uint16 time)
 }
 
 
-const haus_besch_t *hausbauer_t::waehle_aus_liste(vector_tpl<const haus_besch_t *> &liste, uint16 time, bool ignore_retire, climate cl)
+const building_desc_t *hausbauer_t::waehle_aus_liste(vector_tpl<const building_desc_t *> &liste, uint16 time, bool ignore_retire, climate cl)
 {
 	if (!liste.empty()) {
 		// previously just returned a random object; however, now we look at the chance entry
-		weighted_vector_tpl<const haus_besch_t *> auswahl(16);
-		FOR(vector_tpl<haus_besch_t const*>, const desc, liste) {
+		weighted_vector_tpl<const building_desc_t *> auswahl(16);
+		FOR(vector_tpl<building_desc_t const*>, const desc, liste) {
 			if((cl==MAX_CLIMATES  ||  desc->is_allowed_climate(cl))  &&  desc->get_chance()>0  &&  (time==0  ||  (desc->get_intro_year_month()<=time  &&  (ignore_retire  ||  desc->get_retire_year_month()>time)  )  )  ) {
 //				DBG_MESSAGE("hausbauer_t::waehle_aus_liste()","appended %s at %i", desc->get_name(), thislevel );
 				auswahl.append(desc, desc->get_chance());
@@ -931,32 +931,32 @@ const haus_besch_t *hausbauer_t::waehle_aus_liste(vector_tpl<const haus_besch_t 
 }
 
 
-const vector_tpl<const haus_besch_t*>* hausbauer_t::get_list(const haus_besch_t::btype typ)
+const vector_tpl<const building_desc_t*>* hausbauer_t::get_list(const building_desc_t::btype typ)
 {
 	switch (typ) {
-		case haus_besch_t::denkmal:         return &ungebaute_denkmaeler;
-		case haus_besch_t::attraction_land: return &sehenswuerdigkeiten_land;
-		case haus_besch_t::firmensitz:      return &headquarter;
-		case haus_besch_t::rathaus:         return &rathaeuser;
-		case haus_besch_t::attraction_city: return &sehenswuerdigkeiten_city;
-		case haus_besch_t::dock:
-		case haus_besch_t::flat_dock:
-		case haus_besch_t::hafen_geb:
-		case haus_besch_t::depot:
-		case haus_besch_t::generic_stop:
-		case haus_besch_t::generic_extension:
+		case building_desc_t::monument:         return &ungebaute_denkmaeler;
+		case building_desc_t::attraction_land: return &sehenswuerdigkeiten_land;
+		case building_desc_t::headquarter:      return &headquarter;
+		case building_desc_t::townhall:         return &rathaeuser;
+		case building_desc_t::attraction_city: return &sehenswuerdigkeiten_city;
+		case building_desc_t::dock:
+		case building_desc_t::flat_dock:
+		case building_desc_t::hafen_geb:
+		case building_desc_t::depot:
+		case building_desc_t::generic_stop:
+		case building_desc_t::generic_extension:
 		                                    return &station_building;
 		default:                            return NULL;
 	}
 }
 
 
-const vector_tpl<const haus_besch_t*>* hausbauer_t::get_citybuilding_list(const haus_besch_t::btype typ)
+const vector_tpl<const building_desc_t*>* hausbauer_t::get_citybuilding_list(const building_desc_t::btype typ)
 {
 	switch (typ) {
-		case haus_besch_t::city_res:  return &wohnhaeuser;
-		case haus_besch_t::city_com:  return &gewerbehaeuser;
-		case haus_besch_t::city_ind:  return &industriehaeuser;
+		case building_desc_t::city_res:  return &wohnhaeuser;
+		case building_desc_t::city_com:  return &gewerbehaeuser;
+		case building_desc_t::city_ind:  return &industriehaeuser;
 		default:                      return NULL;
 	}
 }

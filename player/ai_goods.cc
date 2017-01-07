@@ -313,7 +313,7 @@ bool ai_goods_t::suche_platz1_platz2(fabrik_t *qfab, fabrik_t *zfab, int length 
 			}
 		}
 		if( !ok ) {
-			ok = suche_platz(start, start_size, ziel, qfab->get_desc()->get_haus()->get_size(qfab->get_rotate()) );
+			ok = suche_platz(start, start_size, ziel, qfab->get_desc()->get_building()->get_size(qfab->get_rotate()) );
 		}
 	}
 	else {
@@ -323,7 +323,7 @@ bool ai_goods_t::suche_platz1_platz2(fabrik_t *qfab, fabrik_t *zfab, int length 
 
 	if( ok && !has_ziel ) {
 		// found a place, search for target
-		ok = suche_platz(ziel, ziel_size, start, zfab->get_desc()->get_haus()->get_size(zfab->get_rotate()) );
+		ok = suche_platz(ziel, ziel_size, start, zfab->get_desc()->get_building()->get_size(zfab->get_rotate()) );
 	}
 
 	INT_CHECK("simplay 1729");
@@ -385,7 +385,7 @@ bool ai_goods_t::create_ship_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 		gr->obj_loesche_alle(this);
 	}
 	// try to built dock
-	const haus_besch_t* h = hausbauer_t::get_random_station(haus_besch_t::dock, water_wt, welt->get_timeline_year_month(), haltestelle_t::WARE);
+	const building_desc_t* h = hausbauer_t::get_random_station(building_desc_t::dock, water_wt, welt->get_timeline_year_month(), haltestelle_t::WARE);
 	if(h==NULL  ||  !call_general_tool(TOOL_BUILD_STATION, platz1, h->get_name())) {
 		return false;
 	}
@@ -456,7 +456,7 @@ bool ai_goods_t::create_ship_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
  */
 void ai_goods_t::create_road_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 {
-	const haus_besch_t* fh = hausbauer_t::get_random_station(haus_besch_t::generic_stop, road_wt, welt->get_timeline_year_month(), haltestelle_t::WARE);
+	const building_desc_t* fh = hausbauer_t::get_random_station(building_desc_t::generic_stop, road_wt, welt->get_timeline_year_month(), haltestelle_t::WARE);
 	// succeed in frachthof creation
 	if(fh  &&  call_general_tool(TOOL_BUILD_STATION, platz1, fh->get_name())  &&  call_general_tool(TOOL_BUILD_STATION, platz2, fh->get_name())  ) {
 		koord3d pos1 = welt->lookup_kartenboden(platz1)->get_pos();
@@ -595,7 +595,7 @@ int ai_goods_t::baue_bahnhof(const koord* p, int anz_vehikel)
 	bool make_all_bahnhof=false;
 
 	// find a freight train station
-	const haus_besch_t* desc = hausbauer_t::get_random_station(haus_besch_t::generic_stop, track_wt, welt->get_timeline_year_month(), haltestelle_t::WARE);
+	const building_desc_t* desc = hausbauer_t::get_random_station(building_desc_t::generic_stop, track_wt, welt->get_timeline_year_month(), haltestelle_t::WARE);
 	if(desc==NULL) {
 		// no freight station
 		return 0;

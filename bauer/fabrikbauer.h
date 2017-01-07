@@ -12,7 +12,7 @@
 #include "../tpl/weighted_vector_tpl.h"
 #include "../dataobj/koord3d.h"
 
-class haus_besch_t;
+class building_desc_t;
 class ware_besch_t;
 class factory_desc_t;
 class stadt_t;
@@ -134,14 +134,14 @@ private:
 	 * @param water true to search on water
 	 * @param cl allowed climates
 	 */
-	static bool check_construction_site(koord pos, koord size, bool water, bool is_fabrik, climate_bits cl);
+	static bool check_construction_site(koord pos, koord size, bool water, bool is_factory, climate_bits cl);
 
 	/**
 	 * Find a random site to place a factory.
 	 * @param radius Radius of the search circle around @p pos
 	 * @param size size of the building site
 	 */
-	static koord3d find_random_construction_site(koord pos, int radius, koord size,bool on_water, const haus_besch_t *desc, bool ignore_climates, uint32 max_iterations);
+	static koord3d find_random_construction_site(koord pos, int radius, koord size,bool on_water, const building_desc_t *desc, bool ignore_climates, uint32 max_iterations);
 
 	/**
 	 * Checks if all factories in this factory tree can be rotated.

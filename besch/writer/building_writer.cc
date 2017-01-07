@@ -20,16 +20,16 @@ void tile_writer_t::write_obj(FILE* fp, obj_node_t& parent, int index, int seaso
 {
 	obj_node_t node(this, 7, &parent);
 
-	uint8 phasen = 0;
+	uint8 phases = 0;
 	for (int i = 0; i < seasons; i++) {
 		FOR(slist_tpl<slist_tpl<string> >, const& s, backkeys.at(i)) {
-			if (phasen < s.get_count()) {
-				phasen = s.get_count();
+			if (phases < s.get_count()) {
+				phases = s.get_count();
 			}
 		}
 		FOR(slist_tpl<slist_tpl<string> >, const& s, frontkeys.at(i)) {
-			if (phasen < s.get_count()) {
-				phasen = s.get_count();
+			if (phases < s.get_count()) {
+				phases = s.get_count();
 			}
 		}
 	}
@@ -46,7 +46,7 @@ void tile_writer_t::write_obj(FILE* fp, obj_node_t& parent, int index, int seaso
 	v16 = 0x8002;
 	node.write_uint16(fp, v16, 0);
 
-	v16 = phasen;
+	v16 = phases;
 	node.write_uint16(fp, v16, 2);
 
 	v16 = index;
@@ -100,15 +100,15 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	}
 	delete [] ints;
 
-	haus_besch_t::btype        type             = haus_besch_t::unbekannt;
+	building_desc_t::btype        type             = building_desc_t::unknown;
 	uint32                     extra_data       = 0;
 	climate_bits               allowed_climates = all_but_water_climate; // all but water
 	uint8                      enables          = 0;
 	uint16                     level            = obj.get_int("level", 1) - 1;
-	haus_besch_t::flag_t const flags            =
-		(obj.get_int("noinfo",         0) > 0 ? haus_besch_t::FLAG_KEINE_INFO  : haus_besch_t::FLAG_NULL) |
-		(obj.get_int("noconstruction", 0) > 0 ? haus_besch_t::FLAG_KEINE_GRUBE : haus_besch_t::FLAG_NULL) |
-		(obj.get_int("needs_ground",   0) > 0 ? haus_besch_t::FLAG_NEED_GROUND : haus_besch_t::FLAG_NULL);
+	building_desc_t::flag_t const flags            =
+		(obj.get_int("noinfo",         0) > 0 ? building_desc_t::FLAG_NO_INFO  : building_desc_t::FLAG_NULL) |
+		(obj.get_int("noconstruction", 0) > 0 ? building_desc_t::FLAG_NO_PIT : building_desc_t::FLAG_NULL) |
+		(obj.get_int("needs_ground",   0) > 0 ? building_desc_t::FLAG_NEED_GROUND : building_desc_t::FLAG_NULL);
 	uint16               const animation_time   = obj.get_int("animation_time", 300);
 
 	// get the allowed area for this building
@@ -120,55 +120,55 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	const char* type_name = obj.get("type");
 	if (!STRICMP(type_name, "res")) {
 		extra_data = get_cluster_data(obj);
-		type = haus_besch_t::city_res;
+		type = building_desc_t::city_res;
 	}
 	else if (!STRICMP(type_name, "com")) {
 		extra_data = get_cluster_data(obj);
-		type = haus_besch_t::city_com;
+		type = building_desc_t::city_com;
 	}
 	else if (!STRICMP(type_name, "ind")) {
 		extra_data = get_cluster_data(obj);
-		type = haus_besch_t::city_ind;
+		type = building_desc_t::city_ind;
 	}
 	else if (!STRICMP(type_name, "cur")) {
 		extra_data = obj.get_int("build_time", 0);
 		level      = obj.get_int("passengers",  level);
-		type       = extra_data == 0 ? haus_besch_t::attraction_land : haus_besch_t::attraction_city;
+		type       = extra_data == 0 ? building_desc_t::attraction_land : building_desc_t::attraction_city;
 	}
 	else if (!STRICMP(type_name, "mon")) {
-		type = haus_besch_t::denkmal;
+		type = building_desc_t::monument;
 		level = obj.get_int("passengers",  level);
 	}
 	else if (!STRICMP(type_name, "tow")) {
 		level      = obj.get_int("passengers",  level);
 		extra_data = obj.get_int("build_time", 0);
-		type = haus_besch_t::rathaus;
+		type = building_desc_t::townhall;
 	}
 	else if (!STRICMP(type_name, "hq")) {
 		level      = obj.get_int("passengers",  level);
 		extra_data = obj.get_int("hq_level", 0);
-		type = haus_besch_t::firmensitz;
+		type = building_desc_t::headquarter;
 	}
 	else if (!STRICMP(type_name, "habour")  ||  !STRICMP(type_name, "harbour")) {
 		// buildable only on sloped shores
-		type       = haus_besch_t::dock;
+		type       = building_desc_t::dock;
 		extra_data = water_wt;
 	}
 	else if (!STRICMP(type_name, "dock")) {
 		// buildable only on flat shores
-		type       = haus_besch_t::flat_dock;
+		type       = building_desc_t::flat_dock;
 		extra_data = water_wt;
 	}
 	else if (!STRICMP(type_name, "fac")) {
-		type     = haus_besch_t::fabrik;
+		type     = building_desc_t::factory;
 		enables |= 4;
 	}
 	else if (!STRICMP(type_name, "stop")) {
-		type       = haus_besch_t::generic_stop;
+		type       = building_desc_t::generic_stop;
 		extra_data = get_waytype(obj.get("waytype"));
 	}
 	else if (!STRICMP(type_name, "extension")) {
-		type = haus_besch_t::generic_extension;
+		type = building_desc_t::generic_extension;
 		const char *wt = obj.get("waytype");
 		if(wt  &&  *wt>' ') {
 			// not waytype => just a generic exten that fits all
@@ -176,12 +176,12 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 		}
 	}
 	else if (!STRICMP(type_name, "depot")) {
-		type       = haus_besch_t::depot;
+		type       = building_desc_t::depot;
 		extra_data = get_waytype(obj.get("waytype"));
 	}
 	else if (!STRICMP(type_name, "any") || *type_name == '\0') {
 		// for instance "MonorailGround"
-		type = haus_besch_t::weitere;
+		type = building_desc_t::others;
 	}
 	else if (
 		!STRICMP(type_name, "station")  ||
@@ -212,11 +212,11 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	if (obj.get_int("enables_post", 0) > 0) {
 		enables |= 2;
 	}
-	if(  type  == haus_besch_t::fabrik  ||  obj.get_int("enables_ware", 0) > 0  ) {
+	if(  type  == building_desc_t::factory  ||  obj.get_int("enables_ware", 0) > 0  ) {
 		enables |= 4;
 	}
 
-	if(  type == haus_besch_t::generic_extension  ||  type == haus_besch_t::generic_stop  ||  type == haus_besch_t::dock  ||  type == haus_besch_t::depot  ||  type == haus_besch_t::fabrik  ) {
+	if(  type == building_desc_t::generic_extension  ||  type == building_desc_t::generic_stop  ||  type == building_desc_t::dock  ||  type == building_desc_t::depot  ||  type == building_desc_t::factory  ) {
 		// since elevel was reduced by one beforehand ...
 		++level;
 	}

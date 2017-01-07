@@ -19,7 +19,7 @@
  *  Description:
  *      Rechnet aus dem Index das Layout aus, zu dem diese Tile gehört.
  */
-uint8 haus_tile_besch_t::get_layout() const
+uint8 building_tile_desc_t::get_layout() const
 {
 	koord size = get_desc()->get_size();
 	return index / (size.x * size.y);
@@ -35,16 +35,16 @@ uint8 haus_tile_besch_t::get_layout() const
  *      Bestimmt die Relativ-Position des Einzelbildes im Gesamtbild des
  *	Gebäudes.
  */
-koord haus_tile_besch_t::get_offset() const
+koord building_tile_desc_t::get_offset() const
 {
-	const haus_besch_t *desc = get_desc();
+	const building_desc_t *desc = get_desc();
 	koord size = desc->get_size(get_layout());	// ggf. gedreht
 	return koord( index % size.x, (index / size.x) % size.y );
 }
 
 
 
-waytype_t haus_besch_t::get_finance_waytype() const
+waytype_t building_desc_t::get_finance_waytype() const
 {
 	switch( get_type() )
 	{
@@ -75,7 +75,7 @@ waytype_t haus_besch_t::get_finance_waytype() const
  * Mail generation level
  * @author Hj. Malthaner
  */
-uint16 haus_besch_t::get_post_level() const
+uint16 building_desc_t::get_mail_level() const
 {
 	switch (type) {
 		default:
@@ -91,15 +91,15 @@ uint16 haus_besch_t::get_post_level() const
  * true, if this building needs a connection with a town
  * @author prissi
  */
-bool haus_besch_t::is_connected_with_town() const
+bool building_desc_t::is_connected_with_town() const
 {
 	switch(get_type()) {
 		case city_res:
 		case city_com:
 		case city_ind:    // normal town buildings (RES, COM, IND)
-		case denkmal:     // monuments
-		case rathaus:     // townhalls
-		case firmensitz:  // headquarter
+		case monument:     // monuments
+		case townhall:     // townhalls
+		case headquarter:  // headquarter
 			return true;
 		default:
 			return false;
@@ -115,13 +115,13 @@ bool haus_besch_t::is_connected_with_town() const
  *  Description:
  *      Abhängig von Position und Layout ein tile zurückliefern
  */
-const haus_tile_besch_t *haus_besch_t::get_tile(uint8 layout, sint16 x, sint16 y) const
+const building_tile_desc_t *building_desc_t::get_tile(uint8 layout, sint16 x, sint16 y) const
 {
-	layout = layout_anpassen(layout);
+	layout = adjust_layout(layout);
 	koord dims = get_size(layout);
 
-	if(  x < 0  ||  y < 0  ||  layout >= layouts  ||  x >= get_b(layout)  ||  y >= get_h(layout)  ) {
-	dbg->fatal("haus_tile_besch_t::get_tile()",
+	if(  x < 0  ||  y < 0  ||  layout >= layouts  ||  x >= get_x(layout)  ||  y >= get_y(layout)  ) {
+	dbg->fatal("building_tile_desc_t::get_tile()",
 			   "invalid request for l=%d, x=%d, y=%d on building %s (l=%d, x=%d, y=%d)",
 		   layout, x, y, get_name(), layouts, size.x, size.y);
 	}
@@ -137,7 +137,7 @@ const haus_tile_besch_t *haus_besch_t::get_tile(uint8 layout, sint16 x, sint16 y
  *  Description:
  *      Layout normalisieren.
  */
-uint8 haus_besch_t::layout_anpassen(uint8 layout) const
+uint8 building_desc_t::adjust_layout(uint8 layout) const
 {
 	if(layout >= 4 && layouts <= 4) {
 		layout -= 4;
@@ -156,7 +156,7 @@ uint8 haus_besch_t::layout_anpassen(uint8 layout) const
 }
 
 
-void haus_besch_t::calc_checksum(checksum_t *chk) const
+void building_desc_t::calc_checksum(checksum_t *chk) const
 {
 	obj_desc_timelined_t::calc_checksum(chk);
 	chk->input((uint8)type);
@@ -176,9 +176,9 @@ void haus_besch_t::calc_checksum(checksum_t *chk) const
 	chk->input(allow_underground);
 	// now check the layout
 	for(uint8 i=0; i<layouts; i++) {
-		sint16 b=get_b(i);
+		sint16 b=get_x(i);
 		for(sint16 x=0; x<b; x++) {
-			sint16 h=get_h(i);
+			sint16 h=get_y(i);
 			for(sint16 y=0; y<h; y++) {
 				if (get_tile(i,x,y)  &&  get_tile(i,x,y)->has_image()) {
 					chk->input((sint16)(x+y+i));
@@ -194,7 +194,7 @@ void haus_besch_t::calc_checksum(checksum_t *chk) const
 * @author jamespetts
 */
 
-sint32 haus_besch_t::get_maintenance(karte_t *welt) const
+sint32 building_desc_t::get_maintenance(karte_t *welt) const
 {
 	if(  maintenance == COST_MAGIC  ) {
 		return welt->get_settings().maint_building*get_level();
@@ -205,7 +205,7 @@ sint32 haus_besch_t::get_maintenance(karte_t *welt) const
 }
 
 
-sint32 haus_besch_t::get_price(karte_t *welt) const
+sint32 building_desc_t::get_price(karte_t *welt) const
 {
 	if(  price == COST_MAGIC  ) {
 		settings_t const& s = welt->get_settings();
@@ -241,7 +241,7 @@ sint32 haus_besch_t::get_price(karte_t *welt) const
 					case air_wt:         return -s.cst_depot_air;
 					default:             return 0;
 				}
-			case firmensitz:
+			case headquarter:
 				return -s.cst_multiply_headquarter * get_level();
 			default:
 				return -s.cst_multiply_remove_haus * get_level();

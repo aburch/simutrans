@@ -491,7 +491,7 @@ void stadt_t::cityrules_rdwr(loadsave_t *file)
 }
 
 /**
- * denkmal_platz_sucher_t:
+ * monument_platz_sucher_t:
  *
  * Search a free place for a building
  * Im Gegensatz zum bauplatz_sucher_t werden Strassen auf den Raendern
@@ -501,9 +501,9 @@ void stadt_t::cityrules_rdwr(loadsave_t *file)
  *
  * @author V. Meyer
  */
-class denkmal_platz_sucher_t : public platzsucher_t {
+class monument_platz_sucher_t : public platzsucher_t {
 	public:
-		denkmal_platz_sucher_t(karte_t* welt, sint16 radius) : platzsucher_t(welt, radius) {}
+		monument_platz_sucher_t(karte_t* welt, sint16 radius) : platzsucher_t(welt, radius) {}
 
 		virtual bool ist_feld_ok(koord pos, koord d, climate_bits cl) const
 		{
@@ -538,15 +538,15 @@ class denkmal_platz_sucher_t : public platzsucher_t {
 
 
 /**
- * rathausplatz_sucher_t:
+ * townhallplatz_sucher_t:
  *
  * 22-Dec-02: Hajo: added safety checks for gr != 0 and plan != 0
  *
  * @author V. Meyer
  */
-class rathausplatz_sucher_t : public platzsucher_t {
+class townhallplatz_sucher_t : public platzsucher_t {
 	public:
-		rathausplatz_sucher_t(karte_t* welt, uint8 dir_) : platzsucher_t(welt), dir(dir_) {}
+		townhallplatz_sucher_t(karte_t* welt, uint8 dir_) : platzsucher_t(welt), dir(dir_) {}
 
 		virtual bool ist_feld_ok(koord pos, koord d, climate_bits cl) const
 		{
@@ -599,7 +599,7 @@ static bool compare_gebaeude_pos(const gebaeude_t* a, const gebaeude_t* b)
 void stadt_t::add_gebaeude_to_stadt(const gebaeude_t* gb, bool ordered)
 {
 	if (gb != NULL) {
-		const haus_tile_besch_t* tile  = gb->get_tile();
+		const building_tile_desc_t* tile  = gb->get_tile();
 		koord size = tile->get_desc()->get_size(tile->get_layout());
 		const koord pos = gb->get_pos().get_2d() - tile->get_offset();
 		koord k;
@@ -621,7 +621,7 @@ void stadt_t::add_gebaeude_to_stadt(const gebaeude_t* gb, bool ordered)
 						}
 					}
 					add_gb->set_stadt(this);
-					if (add_gb->get_tile()->get_desc()->ist_rathaus()) {
+					if (add_gb->get_tile()->get_desc()->is_townhall()) {
 						has_townhall = true;
 					}
 				}
@@ -703,7 +703,7 @@ void stadt_t::recalc_city_size()
 	lo = pos;
 	ur = pos;
 	FOR(weighted_vector_tpl<gebaeude_t*>, const i, buildings) {
-		if (i->get_tile()->get_desc()->get_type() != haus_besch_t::firmensitz) {
+		if (i->get_tile()->get_desc()->get_type() != building_desc_t::headquarter) {
 			koord const& gb_pos = i->get_pos().get_2d();
 			lo.clip_max(gb_pos);
 			ur.clip_min(gb_pos);
@@ -970,7 +970,7 @@ stadt_t::~stadt_t()
 				gebaeude_t* const gb = buildings.pop_back();
 				assert(  gb!=NULL  &&  !buildings.is_contained(gb)  );
 
-				if(gb->get_tile()->get_desc()->get_type()==haus_besch_t::firmensitz) {
+				if(gb->get_tile()->get_desc()->get_type()==building_desc_t::headquarter) {
 					stadt_t *city = welt->suche_naechste_stadt(gb->get_pos().get_2d());
 					gb->set_stadt( city );
 					if(city) {
@@ -1064,7 +1064,7 @@ stadt_t::stadt_t(player_t* player, koord pos, sint32 citizens) :
 	has_townhall = false;
 
 	// 1. Rathaus bei 0 Leuten bauen
-	check_bau_rathaus(true);
+	check_bau_townhall(true);
 
 	unsupplied_city_growth = 0;
 	allow_citygrowth = true;
@@ -1312,7 +1312,7 @@ void stadt_t::finish_rd()
 
 	if (!has_townhall) {
 		dbg->warning("stadt_t::finish_rd()", "City %s has no valid townhall after loading the savegame, try to build a new one.", get_name());
-		check_bau_rathaus(true);
+		check_bau_townhall(true);
 	}
 	// new city => need to grow
 	if (buildings.empty()) {
@@ -1331,7 +1331,7 @@ void stadt_t::finish_rd()
 	if(townhall_road==koord::invalid) {
 		// guess road tile based on current orientation
 		gebaeude_t const* const gb = obj_cast<gebaeude_t>(welt->lookup_kartenboden(pos)->first_obj());
-		if(  gb  &&  gb->ist_rathaus()  ) {
+		if(  gb  &&  gb->is_townhall()  ) {
 			koord k(gb->get_tile()->get_desc()->get_size(gb->get_tile()->get_layout()));
 			switch (gb->get_tile()->get_layout()) {
 				default:
@@ -1375,7 +1375,7 @@ void stadt_t::rotate90( const sint16 y_size )
 	// reset building search
 	best_strasse.reset(pos);
 	best_haus.reset(pos);
-	// rathaus position may be changed a little!
+	// townhall position may be changed a little!
 	sparse_tpl<uint8> pax_destinations_temp(koord( PAX_DESTINATIONS_SIZE, PAX_DESTINATIONS_SIZE ));
 
 	uint8 color;
@@ -1816,7 +1816,7 @@ void stadt_t::step_grow_city( bool new_town )
 		}
 
 		check_bau_spezial(new_town);
-		check_bau_rathaus(new_town);
+		check_bau_townhall(new_town);
 		check_bau_factory(new_town); // add industry? (not during creation)
 		INT_CHECK("simcity 275");
 	}
@@ -1847,7 +1847,7 @@ void stadt_t::step_passagiere()
 	const uint32 num_pax =
 		(ispass) ?
 			(gb->get_tile()->get_desc()->get_level()      + 6) >> 2 :
-			(gb->get_tile()->get_desc()->get_post_level() + 8) >> 3 ;
+			(gb->get_tile()->get_desc()->get_mail_level() + 8) >> 3 ;
 
 	// create pedestrians in the near area?
 	if (welt->get_settings().get_random_pedestrians()  &&  ispass) {
@@ -2327,8 +2327,8 @@ class bauplatz_mit_strasse_sucher_t: public bauplatz_sucher_t
 						// border: not direct next to special buildings
 						if (big_city) {
 							if(  gebaeude_t *gb=gr->find<gebaeude_t>()  ) {
-								const haus_besch_t::btype utyp = gb->get_tile()->get_desc()->get_type();
-								if(  haus_besch_t::attraction_city <= utyp  &&  utyp <= haus_besch_t::firmensitz) {
+								const building_desc_t::btype utyp = gb->get_tile()->get_desc()->get_type();
+								if(  building_desc_t::attraction_city <= utyp  &&  utyp <= building_desc_t::headquarter) {
 									return false;
 								}
 							}
@@ -2356,7 +2356,7 @@ class bauplatz_mit_strasse_sucher_t: public bauplatz_sucher_t
 void stadt_t::check_bau_spezial(bool new_town)
 {
 	// tourist attraction buildings
-	const haus_besch_t* desc = hausbauer_t::get_special( bev, haus_besch_t::attraction_city, welt->get_timeline_year_month(), new_town, welt->get_climate(pos) );
+	const building_desc_t* desc = hausbauer_t::get_special( bev, building_desc_t::attraction_city, welt->get_timeline_year_month(), new_town, welt->get_climate(pos) );
 	if (desc != NULL) {
 		if (simrand(100) < (uint)desc->get_chance()) {
 
@@ -2364,7 +2364,7 @@ void stadt_t::check_bau_spezial(bool new_town)
 			bool is_rotate = desc->get_all_layouts() > 1;
 			sint16 radius = koord_distance( get_rechtsunten(), get_linksoben() )/2 + 10;
 			// find place
-			koord best_pos = bauplatz_mit_strasse_sucher_t(welt, radius, big_city).suche_platz(pos, desc->get_b(), desc->get_h(), desc->get_allowed_climate_bits(), &is_rotate);
+			koord best_pos = bauplatz_mit_strasse_sucher_t(welt, radius, big_city).suche_platz(pos, desc->get_x(), desc->get_y(), desc->get_allowed_climate_bits(), &is_rotate);
 
 			if (best_pos != koord::invalid) {
 				// then built it
@@ -2385,11 +2385,11 @@ void stadt_t::check_bau_spezial(bool new_town)
 
 	if ((bev & 511) == 0) {
 		// Build a monument
-		desc = hausbauer_t::waehle_denkmal(welt->get_timeline_year_month());
+		desc = hausbauer_t::waehle_monument(welt->get_timeline_year_month());
 		if (desc) {
-			koord total_size = koord(2 + desc->get_b(), 2 + desc->get_h());
+			koord total_size = koord(2 + desc->get_x(), 2 + desc->get_y());
 			sint16 radius = koord_distance( get_rechtsunten(), get_linksoben() )/2 + 10;
-			koord best_pos(denkmal_platz_sucher_t(welt, radius).suche_platz(pos, total_size.x, total_size.y, desc->get_allowed_climate_bits()));
+			koord best_pos(monument_platz_sucher_t(welt, radius).suche_platz(pos, total_size.x, total_size.y, desc->get_allowed_climate_bits()));
 
 			if (best_pos != koord::invalid) {
 				// check if borders around the monument are inside the map limits
@@ -2439,7 +2439,7 @@ void stadt_t::check_bau_spezial(bool new_town)
 					}
 					// and then build it
 					const gebaeude_t* gb = hausbauer_t::build(owner, welt->lookup_kartenboden(best_pos + koord(1, 1))->get_pos(), 0, desc);
-					hausbauer_t::denkmal_gebaut(desc);
+					hausbauer_t::monument_gebaut(desc);
 					add_gebaeude_to_stadt(gb);
 					// tell the player, if not during initialization
 					if (!new_town) {
@@ -2454,40 +2454,40 @@ void stadt_t::check_bau_spezial(bool new_town)
 }
 
 
-void stadt_t::check_bau_rathaus(bool new_town)
+void stadt_t::check_bau_townhall(bool new_town)
 {
-	const haus_besch_t* desc = hausbauer_t::get_special( has_townhall ? bev : 0, haus_besch_t::rathaus, welt->get_timeline_year_month(), (bev == 0) || !has_townhall, welt->get_climate(pos) );
+	const building_desc_t* desc = hausbauer_t::get_special( has_townhall ? bev : 0, building_desc_t::townhall, welt->get_timeline_year_month(), (bev == 0) || !has_townhall, welt->get_climate(pos) );
 	if(desc != NULL) {
 		grund_t* gr = welt->lookup_kartenboden(pos);
 		gebaeude_t* gb = obj_cast<gebaeude_t>(gr->first_obj());
-		bool neugruendung = !has_townhall ||  !gb || !gb->ist_rathaus();
+		bool neugruendung = !has_townhall ||  !gb || !gb->is_townhall();
 		bool umziehen = !neugruendung;
 		koord alte_str(koord::invalid);
 		koord best_pos(pos);
 		koord k;
 		int old_layout(0);
 
-		DBG_MESSAGE("check_bau_rathaus()", "bev=%d, new=%d name=%s", bev, neugruendung, name.c_str());
+		DBG_MESSAGE("check_bau_townhall()", "bev=%d, new=%d name=%s", bev, neugruendung, name.c_str());
 
 		if(  umziehen  ) {
 
-			const haus_besch_t* besch_alt = gb->get_tile()->get_desc();
+			const building_desc_t* besch_alt = gb->get_tile()->get_desc();
 			if (besch_alt->get_level() == desc->get_level()) {
-				DBG_MESSAGE("check_bau_rathaus()", "town hall already ok.");
+				DBG_MESSAGE("check_bau_townhall()", "town hall already ok.");
 				return; // Rathaus ist schon okay
 			}
 			old_layout = gb->get_tile()->get_layout();
 			const sint8 old_z = gb->get_pos().z;
 			koord pos_alt = best_pos = gr->get_pos().get_2d() - gb->get_tile()->get_offset();
 			// guess layout for broken townhall's
-			if(besch_alt->get_b() != besch_alt->get_h()  &&  besch_alt->get_all_layouts()==1) {
+			if(besch_alt->get_x() != besch_alt->get_y()  &&  besch_alt->get_all_layouts()==1) {
 				// test all layouts
-				koord corner_offset(besch_alt->get_b()-1, besch_alt->get_h()-1);
+				koord corner_offset(besch_alt->get_x()-1, besch_alt->get_y()-1);
 				for(uint8 test_layout = 0; test_layout<4; test_layout++) {
 					// is there a part of our townhall in this corner
 					grund_t *gr0 = welt->lookup_kartenboden(pos + corner_offset);
 					gebaeude_t const* const gb0 = gr0 ? obj_cast<gebaeude_t>(gr0->first_obj()) : 0;
-					if (gb0  &&  gb0->ist_rathaus()  &&  gb0->get_tile()->get_desc()==besch_alt  &&  gb0->get_stadt()==this) {
+					if (gb0  &&  gb0->is_townhall()  &&  gb0->get_tile()->get_desc()==besch_alt  &&  gb0->get_stadt()==this) {
 						old_layout = test_layout;
 						pos_alt = best_pos = gr->get_pos().get_2d() + koord(test_layout%3!=0 ? corner_offset.x : 0, test_layout&2 ? corner_offset.y : 0);
 						break;
@@ -2498,7 +2498,7 @@ void stadt_t::check_bau_rathaus(bool new_town)
 			koord groesse_alt = besch_alt->get_size(old_layout);
 
 			// do we need to move
-			if(  old_layout<=desc->get_all_layouts()  &&  desc->get_b(old_layout) <= groesse_alt.x  &&  desc->get_h(old_layout) <= groesse_alt.y  ) {
+			if(  old_layout<=desc->get_all_layouts()  &&  desc->get_x(old_layout) <= groesse_alt.x  &&  desc->get_y(old_layout) <= groesse_alt.y  ) {
 				// no, the size is ok
 				// still need to check whether the existing townhall is not broken in some way
 				umziehen = false;
@@ -2520,10 +2520,10 @@ void stadt_t::check_bau_rathaus(bool new_town)
 				if (!umziehen) {
 					// correct position if new townhall is smaller than old
 					if(  old_layout == 0  ) {
-						best_pos.y -= desc->get_h(old_layout) - groesse_alt.y;
+						best_pos.y -= desc->get_y(old_layout) - groesse_alt.y;
 					}
 					else if (old_layout == 1) {
-						best_pos.x -= desc->get_b(old_layout) - groesse_alt.x;
+						best_pos.x -= desc->get_x(old_layout) - groesse_alt.x;
 					}
 				}
 			}
@@ -2533,12 +2533,12 @@ void stadt_t::check_bau_rathaus(bool new_town)
 					alte_str = townhall_road;
 				}
 				else {
-					koord k = pos + (old_layout==0 ? koord(0, besch_alt->get_h()) : koord(besch_alt->get_b(),0) );
+					koord k = pos + (old_layout==0 ? koord(0, besch_alt->get_y()) : koord(besch_alt->get_x(),0) );
 					if (welt->lookup_kartenboden(k)->hat_weg(road_wt)) {
 						alte_str = k;
 					}
 					else {
-						k = pos - (old_layout==0 ? koord(0, besch_alt->get_h()) : koord(besch_alt->get_b(),0) );
+						k = pos - (old_layout==0 ? koord(0, besch_alt->get_y()) : koord(besch_alt->get_x(),0) );
 						if (welt->lookup_kartenboden(k)->hat_weg(road_wt)) {
 							alte_str = k;
 						}
@@ -2548,7 +2548,7 @@ void stadt_t::check_bau_rathaus(bool new_town)
 
 			// remove old townhall
 			if(  gb  ) {
-				DBG_MESSAGE("stadt_t::check_bau_rathaus()", "delete townhall at (%s)", pos_alt.get_str());
+				DBG_MESSAGE("stadt_t::check_bau_townhall()", "delete townhall at (%s)", pos_alt.get_str());
 				hausbauer_t::remove(NULL, gb);
 			}
 
@@ -2561,7 +2561,7 @@ void stadt_t::check_bau_rathaus(bool new_town)
 						gr = welt->lookup_kartenboden(pos);
 						if (gr  &&  gr->ist_natur() &&  gr->kann_alle_obj_entfernen(NULL) == NULL  &&
 							  (  gr->get_grund_hang() == slope_t::flat  ||  welt->lookup(koord3d(k, welt->max_hgt(k))) == NULL  ) ) {
-							DBG_MESSAGE("stadt_t::check_bau_rathaus()", "fill empty spot at (%s)", pos.get_str());
+							DBG_MESSAGE("stadt_t::check_bau_townhall()", "fill empty spot at (%s)", pos.get_str());
 							build_city_building(pos);
 						}
 					}
@@ -2569,8 +2569,8 @@ void stadt_t::check_bau_rathaus(bool new_town)
 			}
 			else {
 				// make tiles flat, hausbauer_t::remove could have set some natural slopes
-				for(  k.x = 0;  k.x < desc->get_b(old_layout);  k.x++  ) {
-					for(  k.y = 0;  k.y < desc->get_h(old_layout);  k.y++  ) {
+				for(  k.x = 0;  k.x < desc->get_x(old_layout);  k.x++  ) {
+					for(  k.y = 0;  k.y < desc->get_y(old_layout);  k.y++  ) {
 						gr = welt->lookup_kartenboden(best_pos + k);
 						if(  gr  &&  gr->ist_natur()  ) {
 							// make flat and use right height
@@ -2591,12 +2591,12 @@ void stadt_t::check_bau_rathaus(bool new_town)
 		dir = ribi_t::layout_to_ribi[layout & 3];
 		switch(dir) {
 			case ribi_t::east:
-				road0.x = desc->get_b(layout);
-				road1.x = desc->get_b(layout);
-				road1.y = desc->get_h(layout)-1;
+				road0.x = desc->get_x(layout);
+				road1.x = desc->get_x(layout);
+				road1.y = desc->get_y(layout)-1;
 				break;
 			case ribi_t::north:
-				road1.x = desc->get_b(layout)-1;
+				road1.x = desc->get_x(layout)-1;
 				if (neugruendung || umziehen) {
 					offset.y = 1;
 				}
@@ -2607,7 +2607,7 @@ void stadt_t::check_bau_rathaus(bool new_town)
 				}
 				break;
 			case ribi_t::west:
-				road1.y = desc->get_h(layout)-1;
+				road1.y = desc->get_y(layout)-1;
 				if (neugruendung || umziehen) {
 					offset.x = 1;
 				}
@@ -2619,23 +2619,23 @@ void stadt_t::check_bau_rathaus(bool new_town)
 				break;
 			case ribi_t::south:
 			default:
-				road0.y = desc->get_h(layout);
-				road1.x = desc->get_b(layout)-1;
-				road1.y = desc->get_h(layout);
+				road0.y = desc->get_y(layout);
+				road1.x = desc->get_x(layout)-1;
+				road1.y = desc->get_y(layout);
 		}
 		if (neugruendung || umziehen) {
-			best_pos = rathausplatz_sucher_t(welt, dir).suche_platz(pos, desc->get_b(layout) + (dir & ribi_t::eastwest ? 1 : 0), desc->get_h(layout) + (dir & ribi_t::northsouth ? 1 : 0), desc->get_allowed_climate_bits());
+			best_pos = townhallplatz_sucher_t(welt, dir).suche_platz(pos, desc->get_x(layout) + (dir & ribi_t::eastwest ? 1 : 0), desc->get_y(layout) + (dir & ribi_t::northsouth ? 1 : 0), desc->get_allowed_climate_bits());
 		}
 		// check, if the was something found
 		if(best_pos==koord::invalid) {
-			dbg->error( "stadt_t::check_bau_rathaus", "no better position found!" );
+			dbg->error( "stadt_t::check_bau_townhall", "no better position found!" );
 			return;
 		}
 		gebaeude_t const* const new_gb = hausbauer_t::build(owner, welt->lookup_kartenboden(best_pos + offset)->get_pos(), layout, desc);
 		DBG_MESSAGE("new townhall", "use layout=%i", layout);
 		add_gebaeude_to_stadt(new_gb);
 		// sets has_townhall to true
-		DBG_MESSAGE("stadt_t::check_bau_rathaus()", "add townhall (bev=%i, ptr=%p)", buildings.get_sum_weight(),welt->lookup_kartenboden(best_pos)->first_obj());
+		DBG_MESSAGE("stadt_t::check_bau_townhall()", "add townhall (bev=%i, ptr=%p)", buildings.get_sum_weight(),welt->lookup_kartenboden(best_pos)->first_obj());
 
 		// if not during initialization
 		if (!new_town) {
@@ -2670,7 +2670,7 @@ void stadt_t::check_bau_rathaus(bool new_town)
 		}
 		else if (neugruendung) {
 			lo = best_pos+offset - koord(2, 2);
-			ur = best_pos+offset + koord(desc->get_b(layout), desc->get_h(layout)) + koord(2, 2);
+			ur = best_pos+offset + koord(desc->get_x(layout), desc->get_y(layout)) + koord(2, 2);
 		}
 		const koord new_pos = best_pos + offset;
 		if(  pos!=new_pos  ) {
@@ -2715,7 +2715,7 @@ void stadt_t::bewerte_res_com_ind(const koord pos, int &ind_score, int &com_scor
 	for (k.y = pos.y - 2; k.y <= pos.y + 2; k.y++) {
 		for (k.x = pos.x - 2; k.x <= pos.x + 2; k.x++) {
 
-			haus_besch_t::btype t = haus_besch_t::unbekannt;
+			building_desc_t::btype t = building_desc_t::unknown;
 			if (const grund_t* gr = welt->lookup_kartenboden(k)) {
 				if (gebaeude_t const* const gb = obj_cast<gebaeude_t>(gr->first_obj())) {
 					t = gb->get_tile()->get_desc()->get_type();
@@ -2724,9 +2724,9 @@ void stadt_t::bewerte_res_com_ind(const koord pos, int &ind_score, int &com_scor
 
 			int i = -1;
 			switch(t) {
-				case haus_besch_t::city_res: i = 0; break;
-				case haus_besch_t::city_com: i = 1; break;
-				case haus_besch_t::city_ind: i = 2; break;
+				case building_desc_t::city_res: i = 0; break;
+				case building_desc_t::city_com: i = 1; break;
+				case building_desc_t::city_ind: i = 2; break;
 				default: ;
 			}
 			if (i >= 0) {
@@ -2828,14 +2828,14 @@ void stadt_t::build_city_building(const koord k)
 			gebaeude_t const* const gb = obj_cast<gebaeude_t>(gr->first_obj());
 			if(  gb != NULL  ) {
 				// We really have a building as a neighbor...
-				const haus_besch_t* neighbor_building = gb->get_tile()->get_desc();
+				const building_desc_t* neighbor_building = gb->get_tile()->get_desc();
 				neighbor_building_clusters |= neighbor_building->get_clusters();
 			}
 		}
 	}
 
 	// Find a house to build
-	const haus_besch_t* h = NULL;
+	const building_desc_t* h = NULL;
 
 	if (sum_commercial > sum_industrial  &&  sum_commercial > sum_residential) {
 		h = hausbauer_t::get_commercial(0, current_month, cl, neighbor_building_clusters);
@@ -2909,12 +2909,12 @@ void stadt_t::build_city_building(const koord k)
 
 void stadt_t::renovate_city_building(gebaeude_t *gb)
 {
-	const haus_besch_t::btype alt_typ = gb->get_tile()->get_desc()->get_type();
+	const building_desc_t::btype alt_typ = gb->get_tile()->get_desc()->get_type();
 	if(  !gb->is_city_building()  ) {
 		return; // only renovate res, com, ind
 	}
 
-	if(  gb->get_tile()->get_desc()->get_b()*gb->get_tile()->get_desc()->get_h() != 1  ) {
+	if(  gb->get_tile()->get_desc()->get_x()*gb->get_tile()->get_desc()->get_y() != 1  ) {
 		return; // too big ...
 	}
 
@@ -2948,45 +2948,45 @@ void stadt_t::renovate_city_building(gebaeude_t *gb)
 			gebaeude_t const* const gb = obj_cast<gebaeude_t>(gr->first_obj());
 			if (gb != NULL) {
 				// We really have a building as a neighbor...
-				const haus_besch_t* neighbor_building = gb->get_tile()->get_desc();
+				const building_desc_t* neighbor_building = gb->get_tile()->get_desc();
 				neighbor_building_clusters |= neighbor_building->get_clusters();
 			}
 		}
 	}
 
-	haus_besch_t::btype want_to_have = haus_besch_t::unbekannt;
+	building_desc_t::btype want_to_have = building_desc_t::unknown;
 	int sum = 0;
 
 	// try to build
-	const haus_besch_t* h = NULL;
+	const building_desc_t* h = NULL;
 	if (sum_commercial > sum_industrial && sum_commercial > sum_residential) {
 		// we must check, if we can really update to higher level ...
-		const int try_level = (alt_typ == haus_besch_t::city_com ? level + 1 : level);
+		const int try_level = (alt_typ == building_desc_t::city_com ? level + 1 : level);
 		h = hausbauer_t::get_commercial(try_level, current_month, cl, neighbor_building_clusters);
 		if(  h != NULL  &&  h->get_level() >= try_level  ) {
-			want_to_have = haus_besch_t::city_com;
+			want_to_have = building_desc_t::city_com;
 			sum = sum_commercial;
 		}
 	}
 	// check for industry, also if we wanted com, but there was no com good enough ...
 	if(    (sum_industrial > sum_commercial  &&  sum_industrial > sum_residential)
-      || (sum_commercial > sum_residential  &&  want_to_have == haus_besch_t::unbekannt)  ) {
+      || (sum_commercial > sum_residential  &&  want_to_have == building_desc_t::unknown)  ) {
 		// we must check, if we can really update to higher level ...
-		const int try_level = (alt_typ == haus_besch_t::city_ind ? level + 1 : level);
+		const int try_level = (alt_typ == building_desc_t::city_ind ? level + 1 : level);
 		h = hausbauer_t::get_industrial(try_level , current_month, cl, neighbor_building_clusters);
 		if(  h != NULL  &&  h->get_level() >= try_level  ) {
-			want_to_have = haus_besch_t::city_ind;
+			want_to_have = building_desc_t::city_ind;
 			sum = sum_industrial;
 		}
 	}
 	// check for residence
 	// (sum_wohnung>sum_industrie  &&  sum_wohnung>sum_gewerbe
-	if(  want_to_have == haus_besch_t::unbekannt  ) {
+	if(  want_to_have == building_desc_t::unknown  ) {
 		// we must check, if we can really update to higher level ...
-		const int try_level = (alt_typ == haus_besch_t::city_res ? level + 1 : level);
+		const int try_level = (alt_typ == building_desc_t::city_res ? level + 1 : level);
 		h = hausbauer_t::get_residential(try_level, current_month, cl, neighbor_building_clusters);
 		if(  h != NULL  &&  h->get_level() >= try_level  ) {
-			want_to_have = haus_besch_t::city_res;
+			want_to_have = building_desc_t::city_res;
 			sum = sum_residential;
 		}
 		else {
@@ -3025,9 +3025,9 @@ void stadt_t::renovate_city_building(gebaeude_t *gb)
 		}
 
 		switch(alt_typ) {
-			case haus_besch_t::city_res: won -= level * 10; break;
-			case haus_besch_t::city_com: arb -= level * 20; break;
-			case haus_besch_t::city_ind: arb -= level * 20; break;
+			case building_desc_t::city_res: won -= level * 10; break;
+			case building_desc_t::city_com: arb -= level * 20; break;
+			case building_desc_t::city_ind: arb -= level * 20; break;
 			default: break;
 		}
 		// exchange building; try to face it to street in front
@@ -3037,9 +3037,9 @@ void stadt_t::renovate_city_building(gebaeude_t *gb)
 		update_gebaeude_from_stadt(gb);
 
 		switch(want_to_have) {
-			case haus_besch_t::city_res: won += h->get_level() * 10; break;
-			case haus_besch_t::city_com: arb += h->get_level() * 20; break;
-			case haus_besch_t::city_ind: arb += h->get_level() * 20; break;
+			case building_desc_t::city_res: won += h->get_level() * 10; break;
+			case building_desc_t::city_com: arb += h->get_level() * 20; break;
+			case building_desc_t::city_ind: arb += h->get_level() * 20; break;
 			default: break;
 		}
 	}
@@ -3358,7 +3358,7 @@ vector_tpl<koord>* stadt_t::random_place(const sint32 count, sint16 old_x, sint1
 {
 	int cl = 0;
 	for (int i = 0; i < MAX_CLIMATES; i++) {
-		if (hausbauer_t::get_special(0, haus_besch_t::rathaus, welt->get_timeline_year_month(), false, (climate)i)) {
+		if (hausbauer_t::get_special(0, building_desc_t::townhall, welt->get_timeline_year_month(), false, (climate)i)) {
 			cl |= (1 << i);
 		}
 	}

@@ -850,7 +850,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 
 			uint32 game_start = current_month;
 			// townhalls available since?
-			FOR(vector_tpl<haus_besch_t const*>, const desc, *hausbauer_t::get_list(haus_besch_t::rathaus)) {
+			FOR(vector_tpl<building_desc_t const*>, const desc, *hausbauer_t::get_list(building_desc_t::townhall)) {
 				uint32 intro_year_month = desc->get_intro_year_month();
 				if(  intro_year_month<game_start  ) {
 					game_start = intro_year_month;
@@ -938,7 +938,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 					// look for a road near the townhall
 					gebaeude_t const* const gb = obj_cast<gebaeude_t>(lookup_kartenboden(stadt[i]->get_pos())->first_obj());
 					bool ok = false;
-					if(  gb  &&  gb->ist_rathaus()  ) {
+					if(  gb  &&  gb->is_townhall()  ) {
 						koord k_check = stadt[i]->get_pos() + koord(-1,-1);
 						const koord size = gb->get_tile()->get_desc()->get_size(gb->get_tile()->get_layout());
 						koord inc(1,0);
@@ -3249,7 +3249,7 @@ DBG_MESSAGE( "karte_t::rotate90()", "called" );
 		i->rotate90(cached_size.x);
 	}
 
-	// fixed order fabrik, halts, convois
+	// fixed order factory, halts, convois
 	FOR(slist_tpl<fabrik_t*>, const f, fab_list) {
 		f->rotate90(cached_size.x);
 	}
@@ -5338,7 +5338,7 @@ DBG_MESSAGE("karte_t::laden()", "init player");
 			fab_list.append( fab );
 		}
 		else {
-			dbg->error("karte_t::laden()","Unknown fabrik skipped!");
+			dbg->error("karte_t::laden()","Unknown factory skipped!");
 			delete fab;
 		}
 		if(i&7) {

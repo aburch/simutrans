@@ -900,7 +900,7 @@ void objlist_t::rdwr(loadsave_t *file, koord3d current_pos)
 					// for compatibility reasons we may have to convert them to tram and monorail depots
 					bahndepot_t*                   bd;
 					gebaeude_t                     gb(file);
-					haus_tile_besch_t const* const tile = gb.get_tile();
+					building_tile_desc_t const* const tile = gb.get_tile();
 					if(  tile  ) {
 						switch (tile->get_desc()->get_extra()) {
 							case monorail_wt: bd = new monoraildepot_t( gb.get_pos(), gb.get_owner(), tile); break;

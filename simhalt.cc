@@ -678,9 +678,9 @@ char* haltestelle_t::create_name(koord const k, char const* const typ)
 				if (gb->is_monument()) {
 					building_name = translator::translate(gb->get_name(),lang);
 				}
-				else if (gb->ist_rathaus() ||
-					gb->get_tile()->get_desc()->get_type() == haus_besch_t::attraction_land || // land attraction
-					gb->get_tile()->get_desc()->get_type() == haus_besch_t::attraction_city) { // town attraction
+				else if (gb->is_townhall() ||
+					gb->get_tile()->get_desc()->get_type() == building_desc_t::attraction_land || // land attraction
+					gb->get_tile()->get_desc()->get_type() == building_desc_t::attraction_city) { // town attraction
 					building_name = make_single_line_string(translator::translate(gb->get_tile()->get_desc()->get_name(),lang), 2);
 				}
 				else {
@@ -2069,7 +2069,7 @@ uint32 haltestelle_t::starte_mit_route(ware_t ware)
 {
 	if(ware.get_ziel()==self) {
 		if(  ware.to_factory  ) {
-			// muss an fabrik geliefert werden
+			// muss an factory geliefert werden
 			liefere_an_fabrik(ware);
 		}
 		// already there: finished (may be happen with overlapping areas and returning passengers)
@@ -2116,7 +2116,7 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 	// did we arrived?
 	if(  welt->access(ware.get_zielpos())->is_connected(self)  ) {
 		if(  ware.to_factory  ) {
-			// muss an fabrik geliefert werden
+			// muss an factory geliefert werden
 			liefere_an_fabrik(ware);
 		}
 		else if(  ware.get_desc() == warenbauer_t::passagiere  ) {
@@ -2395,7 +2395,7 @@ void haltestelle_t::add_to_station_type( grund_t *gr )
 	}
 
 	const gebaeude_t* gb = gr->find<gebaeude_t>();
-	const haus_besch_t *desc=gb?gb->get_tile()->get_desc():NULL;
+	const building_desc_t *desc=gb?gb->get_tile()->get_desc():NULL;
 
 	if(  gr->ist_wasser()  &&  gb  ) {
 		// may happen around oil rigs and so on
@@ -2432,15 +2432,15 @@ void haltestelle_t::add_to_station_type( grund_t *gr )
 
 	// there is only one loading bay ...
 	switch (desc->get_type()) {
-		case haus_besch_t::ladebucht:    station_type |= loadingbay;   break;
-		case haus_besch_t::dock:
-		case haus_besch_t::flat_dock:
-		case haus_besch_t::binnenhafen:  station_type |= dock;         break;
-		case haus_besch_t::bushalt:      station_type |= busstop;      break;
-		case haus_besch_t::airport:      station_type |= airstop;      break;
-		case haus_besch_t::monorailstop: station_type |= monorailstop; break;
+		case building_desc_t::ladebucht:    station_type |= loadingbay;   break;
+		case building_desc_t::dock:
+		case building_desc_t::flat_dock:
+		case building_desc_t::binnenhafen:  station_type |= dock;         break;
+		case building_desc_t::bushalt:      station_type |= busstop;      break;
+		case building_desc_t::airport:      station_type |= airstop;      break;
+		case building_desc_t::monorailstop: station_type |= monorailstop; break;
 
-		case haus_besch_t::bahnhof:
+		case building_desc_t::bahnhof:
 			if (gr->hat_weg(monorail_wt)) {
 				station_type |= monorailstop;
 			}
@@ -2450,7 +2450,7 @@ void haltestelle_t::add_to_station_type( grund_t *gr )
 			break;
 
 		// two ways on ground can only happen for tram tracks on streets, there buses and trams can stop
-		case haus_besch_t::generic_stop:
+		case building_desc_t::generic_stop:
 			switch (desc->get_extra()) {
 				case road_wt:
 					station_type |= (desc->get_enabled()&3)!=0 ? busstop : loadingbay;
@@ -2603,7 +2603,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 			}
 			// prissi: now check, if there is a building -> we allow no longer ground without building!
 			const gebaeude_t* gb = gr->find<gebaeude_t>();
-			const haus_besch_t *desc=gb?gb->get_tile()->get_desc():NULL;
+			const building_desc_t *desc=gb?gb->get_tile()->get_desc():NULL;
 			if(desc) {
 				add_grund( gr, false /*do not relink factories now*/ );
 				// verbinde_fabriken will be called in finish_rd

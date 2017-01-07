@@ -631,7 +631,7 @@ DBG_MESSAGE("tool_remover()",  "removing tunnel  from %d,%d,%d",gr->get_pos().x,
 		DBG_MESSAGE("tool_remover()",  "removing building" );
 
 		// remove town? (when removing townhall)
-		if(gb->ist_rathaus()) {
+		if(gb->is_townhall()) {
 			stadt_t *stadt = welt->suche_naechste_stadt(k);
 			if(!welt->rem_stadt( stadt )) {
 				msg = "Das Feld gehoert\neinem anderen Spieler\n";
@@ -1615,10 +1615,10 @@ const char *tool_add_city_t::work( player_t *player, koord3d pos )
 		if(gr->ist_natur() &&
 			!gr->ist_wasser() &&
 			gr->get_grund_hang() == 0  &&
-			hausbauer_t::get_special( 0, haus_besch_t::rathaus, welt->get_timeline_year_month(), 0, welt->get_climate( k ) ) != NULL  ) {
+			hausbauer_t::get_special( 0, building_desc_t::townhall, welt->get_timeline_year_month(), 0, welt->get_climate( k ) ) != NULL  ) {
 
 			gebaeude_t const* const gb = obj_cast<gebaeude_t>(gr->first_obj());
-			if(gb && gb->ist_rathaus()) {
+			if(gb && gb->is_townhall()) {
 				dbg->warning("tool_add_city()", "Already a city here");
 				return NOTICE_TILE_FULL;
 			}
@@ -1677,9 +1677,9 @@ const char *tool_buy_house_t::work( player_t *player, koord3d pos)
 	}
 
 	player_t *old_owner = gb->get_owner();
-	const haus_tile_besch_t *tile  = gb->get_tile();
-	const haus_besch_t * hb = tile->get_desc();
-	koord size = hb->get_size( tile->get_layout() );
+	const building_tile_desc_t *tile  = gb->get_tile();
+	const building_desc_t * bdsc = tile->get_desc();
+	koord size = bdsc->get_size( tile->get_layout() );
 
 	koord k;
 	for(k.y = 0; k.y < size.y; k.y ++) {
@@ -1688,8 +1688,8 @@ const char *tool_buy_house_t::work( player_t *player, koord3d pos)
 			if(gr) {
 				gebaeude_t *gb_part = gr->find<gebaeude_t>();
 				// there may be buildings with holes
-				if(  gb_part  &&  gb_part->get_tile()->get_desc()==hb  &&  player_t::check_owner(gb_part->get_owner(),player)  ) {
-					sint32 const maint = welt->get_settings().maint_building * hb->get_level();
+				if(  gb_part  &&  gb_part->get_tile()->get_desc()==bdsc  &&  player_t::check_owner(gb_part->get_owner(),player)  ) {
+					sint32 const maint = welt->get_settings().maint_building * bdsc->get_level();
 					player_t::add_maintenance(old_owner, -maint, gb->get_waytype());
 					player_t::add_maintenance(player,        +maint, gb->get_waytype());
 					gb->set_owner(player);
@@ -3435,7 +3435,7 @@ const char *tool_build_wayobj_t::do_work( player_t* player, const koord3d &start
 
 
 /* build all kind of station extension buildings */
-const char *tool_build_station_t::tool_station_building_aux(player_t *player, bool extend_public_halt, koord3d pos, const haus_besch_t *desc, sint8 rotation )
+const char *tool_build_station_t::tool_station_building_aux(player_t *player, bool extend_public_halt, koord3d pos, const building_desc_t *desc, sint8 rotation )
 {
 	koord k = pos.get_2d();
 
@@ -3584,8 +3584,8 @@ DBG_MESSAGE("tool_station_building_aux()", "building mail office/station buildin
 			return msg;
 		}
 		// check over/under halt again
-		for(  sint16 x=0;  x<desc->get_b(rotation);  x++  ) {
-			for(  sint16 y=0;  y<desc->get_h(rotation);  y++  ) {
+		for(  sint16 x=0;  x<desc->get_x(rotation);  x++  ) {
+			for(  sint16 y=0;  y<desc->get_y(rotation);  y++  ) {
 				const planquadrat_t *pl = welt->access( k-offsets+koord(x,y) );
 				for(  uint8 i=0;  i < pl->get_boden_count();  i++  ) {
 					halthandle_t test_halt = pl->get_boden_bei(i)->get_halt();
@@ -3631,7 +3631,7 @@ DBG_MESSAGE("tool_station_building_aux()", "building mail office/station buildin
 			}
 		}
 		if(!halt.is_bound()) {
-			halt = suche_nahe_haltestelle(new_owner, welt, welt->lookup_kartenboden(k)->get_pos(), desc->get_b(rotation), desc->get_h(rotation) );
+			halt = suche_nahe_haltestelle(new_owner, welt, welt->lookup_kartenboden(k)->get_pos(), desc->get_x(rotation), desc->get_y(rotation) );
 			// is there no halt to connect?
 			if(  !halt.is_bound()  ) {
 				return "Post muss neben\nHaltestelle\nliegen!\n";
@@ -3645,7 +3645,7 @@ DBG_MESSAGE("tool_station_building_aux()", "building mail office/station buildin
 
 	hausbauer_t::build(halt->get_owner(), pos-offsets, rotation, desc, &halt);
 
-	sint32     const  factor = desc->get_b() * desc->get_h();
+	sint32     const  factor = desc->get_x() * desc->get_y();
 	sint64     cost = -desc->get_price(welt) * factor;
 
 	if(  player!=halt->get_owner()  &&  halt->get_owner()==welt->get_public_player()  ) {
@@ -3660,7 +3660,7 @@ DBG_MESSAGE("tool_station_building_aux()", "building mail office/station buildin
 }
 
 /* build a dock either small or large */
-const char *tool_build_station_t::tool_station_dock_aux(player_t *player, koord3d pos, const haus_besch_t *desc)
+const char *tool_build_station_t::tool_station_dock_aux(player_t *player, koord3d pos, const building_desc_t *desc)
 {
 	// the cursor cannot be outside the map from here on
 	koord k = pos.get_2d();
@@ -3776,7 +3776,7 @@ const char *tool_build_station_t::tool_station_dock_aux(player_t *player, koord3
 	// find out if middle end or start tile
 	if(gr  &&  gr->is_halt()  &&  player_t::check_owner( player, gr->get_halt()->get_owner() )) {
 		gebaeude_t *gb = gr->find<gebaeude_t>();
-		if(gb  &&  (gb->get_tile()->get_desc()->get_type()==haus_besch_t::dock  ||  gb->get_tile()->get_desc()->get_type()==haus_besch_t::flat_dock)  ) {
+		if(gb  &&  (gb->get_tile()->get_desc()->get_type()==building_desc_t::dock  ||  gb->get_tile()->get_desc()->get_type()==building_desc_t::flat_dock)  ) {
 			if(change_layout) {
 				layout -= 4;
 			}
@@ -3792,7 +3792,7 @@ const char *tool_build_station_t::tool_station_dock_aux(player_t *player, koord3
 	gr = welt->lookup_kartenboden(k-dx2);
 	if(gr  &&  gr->is_halt()  &&  player_t::check_owner( player, gr->get_halt()->get_owner() )) {
 		gebaeude_t *gb = gr->find<gebaeude_t>();
-		if(gb  &&  (gb->get_tile()->get_desc()->get_type()==haus_besch_t::dock  ||  gb->get_tile()->get_desc()->get_type()==haus_besch_t::flat_dock)  ) {
+		if(gb  &&  (gb->get_tile()->get_desc()->get_type()==building_desc_t::dock  ||  gb->get_tile()->get_desc()->get_type()==building_desc_t::flat_dock)  ) {
 			if(change_layout) {
 				layout -= 2;
 			}
@@ -3844,7 +3844,7 @@ const char *tool_build_station_t::tool_station_dock_aux(player_t *player, koord3
 }
 
 /* build a dock either small or large */
-const char *tool_build_station_t::tool_station_flat_dock_aux(player_t *player, koord3d pos, const haus_besch_t *desc, sint8 rotation)
+const char *tool_build_station_t::tool_station_flat_dock_aux(player_t *player, koord3d pos, const building_desc_t *desc, sint8 rotation)
 {
 	// the cursor cannot be outside the map from here on
 	koord k = pos.get_2d();
@@ -3996,7 +3996,7 @@ const char *tool_build_station_t::tool_station_flat_dock_aux(player_t *player, k
 	// find out if middle end or start tile
 	if(gr  &&  gr->is_halt()  &&  player_t::check_owner( player, gr->get_halt()->get_owner() )) {
 		gebaeude_t *gb = gr->find<gebaeude_t>();
-		if(gb  &&  (gb->get_tile()->get_desc()->get_type()==haus_besch_t::dock  ||  gb->get_tile()->get_desc()->get_type()==haus_besch_t::flat_dock)  ) {
+		if(gb  &&  (gb->get_tile()->get_desc()->get_type()==building_desc_t::dock  ||  gb->get_tile()->get_desc()->get_type()==building_desc_t::flat_dock)  ) {
 			if(change_layout) {
 				layout -= 4;
 			}
@@ -4012,7 +4012,7 @@ const char *tool_build_station_t::tool_station_flat_dock_aux(player_t *player, k
 	gr = welt->lookup_kartenboden(k-dx2);
 	if(gr  &&  gr->is_halt()  &&  player_t::check_owner( player, gr->get_halt()->get_owner() )) {
 		gebaeude_t *gb = gr->find<gebaeude_t>();
-		if(gb  &&  (gb->get_tile()->get_desc()->get_type()==haus_besch_t::dock  ||  gb->get_tile()->get_desc()->get_type()==haus_besch_t::flat_dock)  ) {
+		if(gb  &&  (gb->get_tile()->get_desc()->get_type()==building_desc_t::dock  ||  gb->get_tile()->get_desc()->get_type()==building_desc_t::flat_dock)  ) {
 			if(change_layout) {
 				layout -= 2;
 			}
@@ -4067,7 +4067,7 @@ const char *tool_build_station_t::tool_station_flat_dock_aux(player_t *player, k
 }
 
 // build all types of stops but sea harbours
-const char *tool_build_station_t::tool_station_aux(player_t *player, koord3d pos, const haus_besch_t *desc, waytype_t wegtype, const char *type_name )
+const char *tool_build_station_t::tool_station_aux(player_t *player, koord3d pos, const building_desc_t *desc, waytype_t wegtype, const char *type_name )
 {
 	koord k = pos.get_2d();
 DBG_MESSAGE("tool_station_aux()", "building %s on square %d,%d for waytype %x", desc->get_name(), k.x, k.y, wegtype);
@@ -4172,7 +4172,7 @@ DBG_MESSAGE("tool_station_aux()", "building %s on square %d,%d for waytype %x", 
 			if(  gr && gr->get_halt().is_bound()  ) {
 				// check, if there is an oriented stop
 				const gebaeude_t* gb = gr->find<gebaeude_t>();
-				if(gb  &&  gb->get_tile()->get_desc()->get_all_layouts()>4  &&  (gb->get_tile()->get_desc()->get_type()>haus_besch_t::dock  ||  gb->get_tile()->get_desc()->get_type()>haus_besch_t::flat_dock)  ) {
+				if(gb  &&  gb->get_tile()->get_desc()->get_all_layouts()>4  &&  (gb->get_tile()->get_desc()->get_type()>building_desc_t::dock  ||  gb->get_tile()->get_desc()->get_type()>building_desc_t::flat_dock)  ) {
 					next_own |= ribi_t::nsew[i];
 					neighbour_layout[ribi_t::nsew[i]] = gb->get_tile()->get_layout();
 				}
@@ -4222,7 +4222,7 @@ DBG_MESSAGE("tool_station_aux()", "building %s on square %d,%d for waytype %x", 
 
 	if(  old_halt.is_bound()  ) {
 		gebaeude_t* gb = bd->find<gebaeude_t>();
-		const haus_besch_t *old_desc = gb->get_tile()->get_desc();
+		const building_desc_t *old_desc = gb->get_tile()->get_desc();
 		if(  old_desc == desc  ) {
 			// already has the same station
 			return NULL;
@@ -4230,7 +4230,7 @@ DBG_MESSAGE("tool_station_aux()", "building %s on square %d,%d for waytype %x", 
 		if(  old_desc->get_capacity() >= desc->get_capacity()  &&  !is_ctrl_pressed()  ) {
 			return "Upgrade must have\na higher level";
 		}
-		old_cost = old_desc->get_price(welt)*old_desc->get_b()*old_desc->get_h();
+		old_cost = old_desc->get_price(welt)*old_desc->get_x()*old_desc->get_y();
 		gb->cleanup( NULL );
 		delete gb;
 		halt = old_halt;
@@ -4261,14 +4261,14 @@ DBG_MESSAGE("tool_station_aux()", "building %s on square %d,%d for waytype %x", 
 	}
 
 	// cost to build new station
-	sint64 cost = -desc->get_price(welt)*desc->get_b()*desc->get_h();
+	sint64 cost = -desc->get_price(welt)*desc->get_x()*desc->get_y();
 	// discount for existing station
 	cost += old_cost/2;
 	if(  player!=halt->get_owner() && player != welt->get_public_player()  ) {
 		// public stops are expensive!
 		// (Except for the public player itself)
 
-		cost -= (desc->get_maintenance(welt) * desc->get_b() * desc->get_h() * 60);
+		cost -= (desc->get_maintenance(welt) * desc->get_x() * desc->get_y() * 60);
 	}
 	player_t::book_construction_costs(player,  cost, k, wegtype);
 	if(  env_t::station_coverage_show  &&  welt->get_zeiger()->get_pos().get_2d()==k  ) {
@@ -4285,12 +4285,12 @@ DBG_MESSAGE("tool_station_aux()", "building %s on square %d,%d for waytype %x", 
 }
 
 // gives the description and sets the rotation value
-const haus_besch_t *tool_build_station_t::get_desc( sint8 &rotation ) const
+const building_desc_t *tool_build_station_t::get_desc( sint8 &rotation ) const
 {
-	char *haus = strdup( default_param );
-	const haus_tile_besch_t *ht = NULL;
-	if(  haus  ) {
-		char *p = strrchr( haus, ',' );
+	char *building = strdup( default_param );
+	const building_tile_desc_t *tdsc = NULL;
+	if(  building  ) {
+		char *p = strrchr( building, ',' );
 		if(  p  ) {
 			*p++ = 0;
 			rotation = atoi( p );
@@ -4298,41 +4298,41 @@ const haus_besch_t *tool_build_station_t::get_desc( sint8 &rotation ) const
 		else {
 			rotation = -1;
 		}
-		ht = hausbauer_t::find_tile(haus,0);
-		free( haus );
+		tdsc = hausbauer_t::find_tile(building,0);
+		free( building );
 	}
-	if(  ht==NULL  ) {
+	if(  tdsc==NULL  ) {
 		return NULL;
 	}
-	return ht->get_desc();
+	return tdsc->get_desc();
 }
 
 bool tool_build_station_t::init( player_t * )
 {
 	sint8 rotation = -1;
-	const haus_besch_t *hb = get_desc( rotation );
-	if(  hb==NULL  ) {
+	const building_desc_t *bdsc = get_desc( rotation );
+	if(  bdsc==NULL  ) {
 		return false;
 	}
-	cursor = hb->get_cursor()->get_image_id(0);
+	cursor = bdsc->get_cursor()->get_image_id(0);
 	if(  !can_use_gui()  ) {
 		// do not change cursor
 		return true;
 	}
-	if(  (hb->get_type()==haus_besch_t::generic_extension  ||  hb->get_type()==haus_besch_t::flat_dock)  &&  hb->get_all_layouts()>1  ) {
+	if(  (bdsc->get_type()==building_desc_t::generic_extension  ||  bdsc->get_type()==building_desc_t::flat_dock)  &&  bdsc->get_all_layouts()>1  ) {
 		if(  is_ctrl_pressed()  &&  rotation==-1  ) {
 			// call station dialog instead
 			destroy_win( magic_station_building_select );
-			create_win( new station_building_select_t(hb), w_info, magic_station_building_select);
+			create_win( new station_building_select_t(bdsc), w_info, magic_station_building_select);
 			// we do not activate building yet; else uncomment the return statement
 			return false;
 		}
 		else if(  rotation>=0  ) {
 			// rotation is already fixed
-			cursor_area = koord( hb->get_b(rotation), hb->get_h(rotation) );
+			cursor_area = koord( bdsc->get_x(rotation), bdsc->get_y(rotation) );
 			cursor_centered = false;
 			cursor_offset = koord(0,0);
-			if (hb->get_type()==haus_besch_t::flat_dock  &&  rotation >= 2 ) {
+			if (bdsc->get_type()==building_desc_t::flat_dock  &&  rotation >= 2 ) {
 				cursor_offset = cursor_area - koord(1,1);
 			}
 		}
@@ -4354,21 +4354,21 @@ set_area_cov:
 image_id tool_build_station_t::get_icon( player_t * ) const
 {
 	sint8 dummy;
-	const haus_besch_t *desc=get_desc(dummy);
+	const building_desc_t *desc=get_desc(dummy);
 	if (desc == NULL) {
 		return IMG_EMPTY;
 	}
 	if(  grund_t::underground_mode==grund_t::ugm_all  ) {
 		// in underground mode, buildings will be done invisible above ground => disallow such confusion
-		if(  desc->get_type()!=haus_besch_t::generic_stop  ||  desc->get_extra()==air_wt) {
+		if(  desc->get_type()!=building_desc_t::generic_stop  ||  desc->get_extra()==air_wt) {
 			return IMG_EMPTY;
 		}
-		if(  desc->get_type()==haus_besch_t::generic_stop  &&  !desc->can_be_built_underground()) {
+		if(  desc->get_type()==building_desc_t::generic_stop  &&  !desc->can_be_built_underground()) {
 			return IMG_EMPTY;
 		}
 	}
 	if(  grund_t::underground_mode==grund_t::ugm_none  ) {
-		if(  desc->get_type()==haus_besch_t::generic_stop  &&  !desc->can_be_built_aboveground()) {
+		if(  desc->get_type()==building_desc_t::generic_stop  &&  !desc->can_be_built_aboveground()) {
 			return IMG_EMPTY;
 		}
 	}
@@ -4379,7 +4379,7 @@ image_id tool_build_station_t::get_icon( player_t * ) const
 const char* tool_build_station_t::get_tooltip(const player_t *) const
 {
 	sint8               dummy;
-	haus_besch_t const* desc    = get_desc(dummy);
+	building_desc_t const* desc    = get_desc(dummy);
 	if (desc == NULL) {
 		return "";
 	}
@@ -4390,14 +4390,14 @@ const char* tool_build_station_t::get_tooltip(const player_t *) const
 
 	maint = desc->get_maintenance(welt);
 
-	if(  desc->get_type()==haus_besch_t::generic_stop || desc->get_type()==haus_besch_t::generic_extension || desc->get_type()==haus_besch_t::dock || desc->get_type()==haus_besch_t::flat_dock  ) {
+	if(  desc->get_type()==building_desc_t::generic_stop || desc->get_type()==building_desc_t::generic_extension || desc->get_type()==building_desc_t::dock || desc->get_type()==building_desc_t::flat_dock  ) {
 		price = -desc->get_price(welt);
 	}
 	else {
 		return "Illegal description";
 	}
 
-	if(desc->get_type()==haus_besch_t::generic_extension || desc->get_type()==haus_besch_t::dock || desc->get_type()==haus_besch_t::flat_dock) {
+	if(desc->get_type()==building_desc_t::generic_extension || desc->get_type()==building_desc_t::dock || desc->get_type()==building_desc_t::flat_dock) {
 		const sint16 size_multiplier = desc->get_size().x * desc->get_size().y;
 		price *= size_multiplier;
 		cap *= size_multiplier;
@@ -4410,14 +4410,14 @@ const char* tool_build_station_t::get_tooltip(const player_t *) const
 waytype_t tool_build_station_t::get_waytype() const
 {
 	sint8 dummy;
-	haus_besch_t const* desc = get_desc(dummy);
-	switch (desc ? desc->get_type() : haus_besch_t::generic_extension) {
-		case haus_besch_t::generic_stop:
+	building_desc_t const* desc = get_desc(dummy);
+	switch (desc ? desc->get_type() : building_desc_t::generic_extension) {
+		case building_desc_t::generic_stop:
 			return (waytype_t)desc->get_extra();
-		case haus_besch_t::dock:
-		case haus_besch_t::flat_dock:
+		case building_desc_t::dock:
+		case building_desc_t::flat_dock:
 			return water_wt;
-		case haus_besch_t::generic_extension:
+		case building_desc_t::generic_extension:
 		default:
 			return invalid_wt;
 	}
@@ -4428,19 +4428,19 @@ const char *tool_build_station_t::check_pos( player_t*,  koord3d pos )
 {
 	if(  grund_t *gr = welt->lookup( pos )  ) {
 		sint8 rotation;
-		const haus_besch_t *desc = get_desc(rotation);
+		const building_desc_t *desc = get_desc(rotation);
 		if(  grund_t *bd = welt->lookup_kartenboden( pos.get_2d() )  ) {
 			const bool underground = bd->get_hoehe()>gr->get_hoehe();
 			if(  underground  ) {
 				// in underground mode, buildings will be done invisible above ground => disallow such confusion
-				if(  desc->get_type()!=haus_besch_t::generic_stop  ||  desc->get_extra()==air_wt) {
+				if(  desc->get_type()!=building_desc_t::generic_stop  ||  desc->get_extra()==air_wt) {
 					return "Cannot built this station/building\nin underground mode here.";
 				}
-				if(  desc->get_type()==haus_besch_t::generic_stop  &&  !desc->can_be_built_underground()) {
+				if(  desc->get_type()==building_desc_t::generic_stop  &&  !desc->can_be_built_underground()) {
 					return "Cannot built this station/building\nin underground mode here.";
 				}
 			}
-			else if(  desc->get_type()==haus_besch_t::generic_stop  &&  !desc->can_be_built_aboveground()) {
+			else if(  desc->get_type()==building_desc_t::generic_stop  &&  !desc->can_be_built_aboveground()) {
 				return "This station/building\ncan only be built underground.";
 			}
 			return NULL;
@@ -4500,24 +4500,24 @@ const char *tool_build_station_t::work( player_t *player, koord3d pos )
 	}
 
 	sint8 rotation = 0;
-	const haus_besch_t *desc=get_desc(rotation);
+	const building_desc_t *desc=get_desc(rotation);
 	const char *msg = NULL;
 	switch (desc->get_type()) {
-		case haus_besch_t::dock:
+		case building_desc_t::dock:
 			msg = tool_build_station_t::tool_station_dock_aux(player, pos, desc );
 			break;
-		case haus_besch_t::flat_dock:
+		case building_desc_t::flat_dock:
 			msg = tool_build_station_t::tool_station_flat_dock_aux(player, pos, desc, rotation );
 			break;
-		case haus_besch_t::hafen_geb:
-		case haus_besch_t::generic_extension:
+		case building_desc_t::hafen_geb:
+		case building_desc_t::generic_extension:
 			msg = tool_build_station_t::tool_station_building_aux(player, false, pos, desc, rotation );
 			if (msg) {
 				// try to build near a public halt
 				msg = tool_build_station_t::tool_station_building_aux(player, true, pos, desc, rotation );
 			}
 			break;
-		case haus_besch_t::generic_stop: {
+		case building_desc_t::generic_stop: {
 			switch(desc->get_extra()) {
 				case road_wt:
 					msg = tool_build_station_t::tool_station_aux(player, pos, desc, road_wt, "H");
@@ -5003,7 +5003,7 @@ built_sign:
 
 
 // built all types of depots
-const char *tool_build_depot_t::tool_depot_aux(player_t *player, koord3d pos, const haus_besch_t *desc, waytype_t wegtype)
+const char *tool_build_depot_t::tool_depot_aux(player_t *player, koord3d pos, const building_desc_t *desc, waytype_t wegtype)
 {
 	if(welt->is_within_limits(pos.get_2d())) {
 		grund_t *bd=NULL;
@@ -5070,7 +5070,7 @@ const char *tool_build_depot_t::tool_depot_aux(player_t *player, koord3d pos, co
 image_id tool_build_depot_t::get_icon(player_t *player) const
 {
 	if(  player  &&  !player->is_public_service()  ) {
-		const haus_besch_t *desc = hausbauer_t::find_tile(default_param,0)->get_desc();
+		const building_desc_t *desc = hausbauer_t::find_tile(default_param,0)->get_desc();
 		const uint16 time = welt->get_timeline_year_month();
 		if(  desc  &&  desc->is_available(time)  ) {
 			return desc->get_cursor()->get_image_id(1);
@@ -5081,7 +5081,7 @@ image_id tool_build_depot_t::get_icon(player_t *player) const
 
 bool tool_build_depot_t::init( player_t *player )
 {
-	haus_besch_t const* desc = hausbauer_t::find_tile(default_param, 0)->get_desc();
+	building_desc_t const* desc = hausbauer_t::find_tile(default_param, 0)->get_desc();
 	if (desc == NULL) {
 		return false;
 	}
@@ -5096,7 +5096,7 @@ bool tool_build_depot_t::init( player_t *player )
 const char* tool_build_depot_t::get_tooltip(const player_t *) const
 {
 	settings_t   const& settings = welt->get_settings();
-	haus_besch_t const* desc    = hausbauer_t::find_tile(default_param, 0)->get_desc();
+	building_desc_t const* desc    = hausbauer_t::find_tile(default_param, 0)->get_desc();
 	if (desc == NULL) {
 		return NULL;
 	}
@@ -5118,7 +5118,7 @@ const char* tool_build_depot_t::get_tooltip(const player_t *) const
 
 waytype_t tool_build_depot_t::get_waytype() const
 {
-	const haus_besch_t *desc = hausbauer_t::find_tile(default_param,0)->get_desc();
+	const building_desc_t *desc = hausbauer_t::find_tile(default_param,0)->get_desc();
 	return desc ? (waytype_t)desc->get_extra() : invalid_wt;
 }
 
@@ -5129,7 +5129,7 @@ const char *tool_build_depot_t::work( player_t *player, koord3d pos )
 		return 0;
 	}
 
-	haus_besch_t const* const desc = hausbauer_t::find_tile(default_param,0)->get_desc();
+	building_desc_t const* const desc = hausbauer_t::find_tile(default_param,0)->get_desc();
 	switch(desc->get_extra()) {
 		case road_wt:
 		case track_wt:
@@ -5174,7 +5174,7 @@ bool tool_build_house_t::init( player_t * )
 {
 	if (can_use_gui() && !strempty(default_param)) {
 		const char *c = default_param+2;
-		const haus_tile_besch_t *tile = hausbauer_t::find_tile(c,0);
+		const building_tile_desc_t *tile = hausbauer_t::find_tile(c,0);
 		if(tile!=NULL) {
 			int rotation = (default_param[1]-'0') % tile->get_desc()->get_all_layouts();
 			cursor_area = tile->get_desc()->get_size(rotation);
@@ -5196,10 +5196,10 @@ const char *tool_build_house_t::work( player_t *player, koord3d pos )
 	}
 
 	// Parsing parameter (if there)
-	const haus_besch_t *desc = NULL;
+	const building_desc_t *desc = NULL;
 	if (!strempty(default_param)) {
 		const char *c = default_param+2;
-		const haus_tile_besch_t *tile = hausbauer_t::find_tile(c,0);
+		const building_tile_desc_t *tile = hausbauer_t::find_tile(c,0);
 		if(tile) {
 			desc = tile->get_desc();
 		}
@@ -5216,7 +5216,7 @@ const char *tool_build_house_t::work( player_t *player, koord3d pos )
 		rotation = simrand(desc->get_all_layouts());
 	}
 	else if(  default_param[1]=='A'  ) {
-		if(  desc->get_type()!=haus_besch_t::attraction_land  &&  desc->get_type()!=haus_besch_t::attraction_city  ) {
+		if(  desc->get_type()!=building_desc_t::attraction_land  &&  desc->get_type()!=building_desc_t::attraction_city  ) {
 			// auto rotation only valid for city buildings
 			int streetdir = 0;
 			for(  int i = 1;  i < 8;  i+=2  ) {
@@ -5246,11 +5246,11 @@ const char *tool_build_house_t::work( player_t *player, koord3d pos )
 	// process ignore climates switch
 	climate_bits cl = (default_param  &&  default_param[0]=='1') ? ALL_CLIMATES : desc->get_allowed_climate_bits();
 
-	bool hat_platz = welt->square_is_free( k, desc->get_b(rotation), desc->get_h(rotation), NULL, cl );
+	bool hat_platz = welt->square_is_free( k, desc->get_x(rotation), desc->get_y(rotation), NULL, cl );
 	if(!hat_platz  &&  size.y!=size.x  &&  desc->get_all_layouts()>1  &&  (default_param==NULL  ||  default_param[1]=='#'  ||  default_param[1]=='A')) {
 		// try other rotation too ...
 		rotation = (rotation+1) % desc->get_all_layouts();
-		hat_platz = welt->square_is_free( k, desc->get_b(rotation), desc->get_h(rotation), NULL, cl );
+		hat_platz = welt->square_is_free( k, desc->get_x(rotation), desc->get_y(rotation), NULL, cl );
 	}
 
 	// Place found...
@@ -5259,7 +5259,7 @@ const char *tool_build_house_t::work( player_t *player, koord3d pos )
 		gebaeude_t *gb = hausbauer_t::build(gb_player, gr->get_pos(), rotation, desc);
 		if(gb) {
 			// building successful
-			if(  desc->get_type()!=haus_besch_t::attraction_land  &&  desc->get_type()!=haus_besch_t::attraction_city  ) {
+			if(  desc->get_type()!=building_desc_t::attraction_land  &&  desc->get_type()!=building_desc_t::attraction_city  ) {
 				stadt_t *city = welt->suche_naechste_stadt( k );
 				if(city) {
 					city->add_gebaeude_to_stadt(gb);
@@ -5285,8 +5285,8 @@ bool tool_build_land_chain_t::init( player_t * )
 			// wrong tool!
 			return false;
 		}
-		int rotation = (default_param[1]-'0') % fab->get_haus()->get_all_layouts();
-		cursor_area = fab->get_haus()->get_size(rotation);
+		int rotation = (default_param[1]-'0') % fab->get_building()->get_all_layouts();
+		cursor_area = fab->get_building()->get_size(rotation);
 	}
 	return true;
 }
@@ -5319,31 +5319,31 @@ const char *tool_build_land_chain_t::work( player_t *player, koord3d pos )
 	if(fab==NULL) {
 		return "";
 	}
-	int rotation = (default_param  &&  default_param[1]!='#') ? (default_param[1]-'0') % fab->get_haus()->get_all_layouts() : simrand(fab->get_haus()->get_all_layouts()-1);
-	koord size = fab->get_haus()->get_size(rotation);
+	int rotation = (default_param  &&  default_param[1]!='#') ? (default_param[1]-'0') % fab->get_building()->get_all_layouts() : simrand(fab->get_building()->get_all_layouts()-1);
+	koord size = fab->get_building()->get_size(rotation);
 
 	// process ignore climates switch
-	climate_bits cl = (default_param  &&  default_param[0]=='1') ? ALL_CLIMATES : fab->get_haus()->get_allowed_climate_bits();
+	climate_bits cl = (default_param  &&  default_param[0]=='1') ? ALL_CLIMATES : fab->get_building()->get_allowed_climate_bits();
 
 	bool hat_platz = false;
 	if(fab->get_placement()==factory_desc_t::Water) {
 		// at sea
-		hat_platz = welt->ist_wasser( pos.get_2d(), fab->get_haus()->get_size(rotation) );
+		hat_platz = welt->ist_wasser( pos.get_2d(), fab->get_building()->get_size(rotation) );
 
-		if(!hat_platz  &&  size.y!=size.x  &&  fab->get_haus()->get_all_layouts()>1  &&  (default_param==NULL  ||  default_param[1]=='#')) {
+		if(!hat_platz  &&  size.y!=size.x  &&  fab->get_building()->get_all_layouts()>1  &&  (default_param==NULL  ||  default_param[1]=='#')) {
 			// try other rotation too ...
-			rotation = (rotation+1) % fab->get_haus()->get_all_layouts();
-			hat_platz = welt->ist_wasser( pos.get_2d(), fab->get_haus()->get_size(rotation) );
+			rotation = (rotation+1) % fab->get_building()->get_all_layouts();
+			hat_platz = welt->ist_wasser( pos.get_2d(), fab->get_building()->get_size(rotation) );
 		}
 	}
 	else {
 		// and on solid ground
-		hat_platz = welt->square_is_free( pos.get_2d(), fab->get_haus()->get_b(rotation), fab->get_haus()->get_h(rotation), NULL, cl );
+		hat_platz = welt->square_is_free( pos.get_2d(), fab->get_building()->get_x(rotation), fab->get_building()->get_y(rotation), NULL, cl );
 
-		if(!hat_platz  &&  size.y!=size.x  &&  fab->get_haus()->get_all_layouts()>1  &&  (default_param==NULL  ||  default_param[1]=='#')) {
+		if(!hat_platz  &&  size.y!=size.x  &&  fab->get_building()->get_all_layouts()>1  &&  (default_param==NULL  ||  default_param[1]=='#')) {
 			// try other rotation too ...
-			rotation = (rotation+1) % fab->get_haus()->get_all_layouts();
-			hat_platz = welt->square_is_free( pos.get_2d(), fab->get_haus()->get_b(rotation), fab->get_haus()->get_h(rotation), NULL, cl );
+			rotation = (rotation+1) % fab->get_building()->get_all_layouts();
+			hat_platz = welt->square_is_free( pos.get_2d(), fab->get_building()->get_x(rotation), fab->get_building()->get_y(rotation), NULL, cl );
 		}
 	}
 
@@ -5386,8 +5386,8 @@ bool tool_city_chain_t::init( player_t * )
 			// wrong tool!
 			return false;
 		}
-		int rotation = (default_param[1]-'0') % fab->get_haus()->get_all_layouts();
-		cursor_area = fab->get_haus()->get_size(rotation);
+		int rotation = (default_param[1]-'0') % fab->get_building()->get_all_layouts();
+		cursor_area = fab->get_building()->get_size(rotation);
 	}
 	return true;
 }
@@ -5454,8 +5454,8 @@ bool tool_build_factory_t::init( player_t * )
 			// wrong tool!
 			return false;
 		}
-		int rotation = (default_param[1]-'0') % fab->get_haus()->get_all_layouts();
-		cursor_area = fab->get_haus()->get_size(rotation);
+		int rotation = (default_param[1]-'0') % fab->get_building()->get_all_layouts();
+		cursor_area = fab->get_building()->get_size(rotation);
 		return true;
 	}
 	return true;
@@ -5482,31 +5482,31 @@ const char *tool_build_factory_t::work( player_t *player, koord3d pos )
 	if(fab==NULL) {
 		return "";
 	}
-	int rotation = (default_param  &&  default_param[1]!='#') ? (default_param[1]-'0') % fab->get_haus()->get_all_layouts() : simrand(fab->get_haus()->get_all_layouts());
-	koord size = fab->get_haus()->get_size(rotation);
+	int rotation = (default_param  &&  default_param[1]!='#') ? (default_param[1]-'0') % fab->get_building()->get_all_layouts() : simrand(fab->get_building()->get_all_layouts());
+	koord size = fab->get_building()->get_size(rotation);
 
 	// process ignore climates switch
-	climate_bits cl = (default_param  &&  default_param[0]=='1') ? ALL_CLIMATES : fab->get_haus()->get_allowed_climate_bits();
+	climate_bits cl = (default_param  &&  default_param[0]=='1') ? ALL_CLIMATES : fab->get_building()->get_allowed_climate_bits();
 
 	bool hat_platz = false;
 	if(fab->get_placement()==factory_desc_t::Water) {
 		// at sea
-		hat_platz = welt->ist_wasser( pos.get_2d(), fab->get_haus()->get_size(rotation) );
+		hat_platz = welt->ist_wasser( pos.get_2d(), fab->get_building()->get_size(rotation) );
 
-		if(!hat_platz  &&  size.y!=size.x  &&  fab->get_haus()->get_all_layouts()>1  &&  (default_param==NULL  ||  default_param[1]=='#')) {
+		if(!hat_platz  &&  size.y!=size.x  &&  fab->get_building()->get_all_layouts()>1  &&  (default_param==NULL  ||  default_param[1]=='#')) {
 			// try other rotation too ...
-			rotation = (rotation+1) % fab->get_haus()->get_all_layouts();
-			hat_platz = welt->ist_wasser( pos.get_2d(), fab->get_haus()->get_size(rotation) );
+			rotation = (rotation+1) % fab->get_building()->get_all_layouts();
+			hat_platz = welt->ist_wasser( pos.get_2d(), fab->get_building()->get_size(rotation) );
 		}
 	}
 	else {
 		// and on solid ground
-		hat_platz = welt->square_is_free( pos.get_2d(), fab->get_haus()->get_b(rotation), fab->get_haus()->get_h(rotation), NULL, cl );
+		hat_platz = welt->square_is_free( pos.get_2d(), fab->get_building()->get_x(rotation), fab->get_building()->get_y(rotation), NULL, cl );
 
-		if(!hat_platz  &&  size.y!=size.x  &&  fab->get_haus()->get_all_layouts()>1  &&  (default_param==NULL  ||  default_param[1]=='#')) {
+		if(!hat_platz  &&  size.y!=size.x  &&  fab->get_building()->get_all_layouts()>1  &&  (default_param==NULL  ||  default_param[1]=='#')) {
 			// try other rotation too ...
-			rotation = (rotation+1) % fab->get_haus()->get_all_layouts();
-			hat_platz = welt->square_is_free( pos.get_2d(), fab->get_haus()->get_b(rotation), fab->get_haus()->get_h(rotation), NULL, cl );
+			rotation = (rotation+1) % fab->get_building()->get_all_layouts();
+			hat_platz = welt->square_is_free( pos.get_2d(), fab->get_building()->get_x(rotation), fab->get_building()->get_y(rotation), NULL, cl );
 		}
 	}
 
@@ -5585,17 +5585,17 @@ const char *tool_link_factory_t::do_work( player_t *, const koord3d &start, cons
 /* builds company headquarters
  * @author prissi
  */
-const haus_besch_t *tool_headquarter_t::next_level( const player_t *player ) const
+const building_desc_t *tool_headquarter_t::next_level( const player_t *player ) const
 {
 	return hausbauer_t::get_headquarter(player->get_headquarter_level(), welt->get_timeline_year_month());
 }
 
 const char* tool_headquarter_t::get_tooltip(const player_t *player) const
 {
-	if (haus_besch_t const* const desc = next_level(player)) {
+	if (building_desc_t const* const desc = next_level(player)) {
 		settings_t  const& s      = welt->get_settings();
 		char const* const  tip    = player->get_headquarter_level() == 0 ? "build HQ" : "upgrade HQ";
-		sint64      const  factor = desc->get_b() * desc->get_h();
+		sint64      const  factor = desc->get_x() * desc->get_y();
 		return tooltip_with_price_maintenance(welt, tip, -factor * desc->get_price(welt), factor * desc->get_level() * s.maint_building);
 	}
 	return NULL;
@@ -5604,7 +5604,7 @@ const char* tool_headquarter_t::get_tooltip(const player_t *player) const
 bool tool_headquarter_t::init( player_t *player )
 {
 	// do no use this, if there is no next level to build ...
-	const haus_besch_t *desc = next_level(player);
+	const building_desc_t *desc = next_level(player);
 	if (desc) {
 		if (can_use_gui()) {
 			const int rotation = 0;
@@ -5622,7 +5622,7 @@ const char *tool_headquarter_t::work( player_t *player, koord3d pos )
 	bool built = false;
 DBG_MESSAGE("tool_headquarter()", "building headquarters at (%d,%d)", pos.x, pos.y);
 
-	const haus_besch_t* desc = next_level(player);
+	const building_desc_t* desc = next_level(player);
 	if(desc==NULL) {
 		// no further headquarters level
 		dbg->message( "tool_headquarter()", "Already at maximum level!" );
@@ -5649,7 +5649,7 @@ DBG_MESSAGE("tool_headquarter()", "building headquarters at (%d,%d)", pos.x, pos
 			// check if upgrade should be built at same place as current one
 			gebaeude_t *gb = gr->find<gebaeude_t>();
 			if (gb  &&  gb->get_owner()==player  &&  prev_hq->get_tile()->get_desc()==gb->get_tile()->get_desc()) {
-				const haus_besch_t* prev_desc = prev_hq->get_tile()->get_desc();
+				const building_desc_t* prev_desc = prev_hq->get_tile()->get_desc();
 				// check if sizes fit
 				uint8 prev_layout = prev_hq->get_tile()->get_layout();
 				uint8 layout =  prev_layout % desc->get_all_layouts();
@@ -5668,7 +5668,7 @@ DBG_MESSAGE("tool_headquarter()", "building headquarters at (%d,%d)", pos.x, pos
 						koord k_hq = k - gb->get_tile()->get_offset();
 						for(  sint16 x = 0;  x < size.x;  x++  ) {
 							for(  sint16 y = 0;  y < size.y;  y++  ) {
-								if(  const haus_tile_besch_t *tile = desc->get_tile(layout, x, y)  ) {
+								if(  const building_tile_desc_t *tile = desc->get_tile(layout, x, y)  ) {
 									if(  grund_t *gr2 = welt->lookup_kartenboden(k_hq + koord(x, y))  ) {
 										if(  gebaeude_t *gb = gr2->find<gebaeude_t>()  ) {
 											if(  gb  &&  gb->get_owner() == player  &&  prev_desc == gb->get_tile()->get_desc()  ) {

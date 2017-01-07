@@ -26,7 +26,7 @@
 class koord3d;
 class koord;
 class wegbauer_t;
-class haus_besch_t;
+class building_desc_t;
 class roadsign_besch_t;
 class weg_besch_t;
 class route_t;
@@ -378,11 +378,11 @@ public:
 class tool_build_station_t : public tool_t {
 private:
 	static char toolstring[256];
-	const char *tool_station_building_aux(player_t *, bool, koord3d, const haus_besch_t *, sint8 rotation );
-	const char *tool_station_dock_aux(player_t *, koord3d, const haus_besch_t * );
-	const char *tool_station_flat_dock_aux(player_t *, koord3d, const haus_besch_t *, sint8 );
-	const char *tool_station_aux(player_t *, koord3d, const haus_besch_t *, waytype_t, const char *halt_suffix );
-	const haus_besch_t *get_desc( sint8 &rotation ) const;
+	const char *tool_station_building_aux(player_t *, bool, koord3d, const building_desc_t *, sint8 rotation );
+	const char *tool_station_dock_aux(player_t *, koord3d, const building_desc_t * );
+	const char *tool_station_flat_dock_aux(player_t *, koord3d, const building_desc_t *, sint8 );
+	const char *tool_station_aux(player_t *, koord3d, const building_desc_t *, waytype_t, const char *halt_suffix );
+	const building_desc_t *get_desc( sint8 &rotation ) const;
 
 public:
 	tool_build_station_t() : tool_t(TOOL_BUILD_STATION | GENERAL_TOOL) {}
@@ -443,7 +443,7 @@ public:
 class tool_build_depot_t : public tool_t {
 private:
 	static char toolstring[256];
-	const char *tool_depot_aux(player_t *player, koord3d pos, const haus_besch_t *desc, waytype_t wegtype);
+	const char *tool_depot_aux(player_t *player, koord3d pos, const building_desc_t *desc, waytype_t wegtype);
 public:
 	tool_build_depot_t() : tool_t(TOOL_BUILD_DEPOT | GENERAL_TOOL) {}
 	image_id get_icon(player_t*) const OVERRIDE;
@@ -521,7 +521,7 @@ private:
 
 class tool_headquarter_t : public kartenboden_tool_t {
 private:
-	const haus_besch_t *next_level( const player_t *player ) const;
+	const building_desc_t *next_level( const player_t *player ) const;
 public:
 	tool_headquarter_t() : kartenboden_tool_t(TOOL_HEADQUARTER | GENERAL_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE;

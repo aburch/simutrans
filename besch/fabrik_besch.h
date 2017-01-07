@@ -235,9 +235,9 @@ public:
 	/*
 	* Name und Copyright sind beim Gebäude gespeichert!
 	*/
-	const char *get_name() const { return get_haus()->get_name(); }
-	const char *get_copyright() const { return get_haus()->get_copyright(); }
-	haus_besch_t  const* get_haus()  const { return get_child<haus_besch_t>(0); }
+	const char *get_name() const { return get_building()->get_name(); }
+	const char *get_copyright() const { return get_building()->get_copyright(); }
+	building_desc_t  const* get_building()  const { return get_child<building_desc_t>(0); }
 	smoke_desc_t const* get_smoke() const { return get_child<smoke_desc_t>(1); }
 
 	// we must take care, for the case of no producer/consumer

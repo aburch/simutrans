@@ -125,7 +125,7 @@ void factory_edit_frame_t::fill_list( bool translate )
 		if(desc->get_chance()>0) {
 			// DistributionWeight=0 is obsoleted item, only for backward compatibility
 
-			if(!use_timeline  ||  (!desc->get_haus()->is_future(month_now)  &&  (!desc->get_haus()->is_retired(month_now)  ||  allow_obsolete))  ) {
+			if(!use_timeline  ||  (!desc->get_building()->is_future(month_now)  &&  (!desc->get_building()->is_retired(month_now)  ||  allow_obsolete))  ) {
 				// timeline allows for this
 
 				if(city_chain) {
@@ -194,7 +194,7 @@ bool factory_edit_frame_t::action_triggered( gui_action_creator_t *komp,value_t 
 				rotation --;
 			}
 		}
-		else if(  komp==&bt_right_rotate  &&  rotation!=fac_desc->get_haus()->get_all_layouts()-1) {
+		else if(  komp==&bt_right_rotate  &&  rotation!=fac_desc->get_building()->get_all_layouts()-1) {
 			rotation ++;
 		}
 		// update info ...
@@ -260,7 +260,7 @@ void factory_edit_frame_t::change_item_info(sint32 entry)
 			}
 
 			// now the house stuff
-			const haus_besch_t *desc = fac_desc->get_haus();
+			const building_desc_t *desc = fac_desc->get_building();
 
 			// climates
 			buf.append( translator::translate("allowed climates:\n") );
@@ -323,10 +323,10 @@ void factory_edit_frame_t::change_item_info(sint32 entry)
 			img[i].set_image( IMG_EMPTY );
 		}
 
-		const haus_besch_t *desc = fac_desc->get_haus();
+		const building_desc_t *desc = fac_desc->get_building();
 		uint8 rot = (rotation==255) ? 0 : rotation;
-		if(desc->get_b(rot)==1) {
-			if(desc->get_h(rot)==1) {
+		if(desc->get_x(rot)==1) {
+			if(desc->get_y(rot)==1) {
 				img[3].set_image( desc->get_tile(rot,0,0)->get_background(0,0,0) );
 			}
 			else {
@@ -335,7 +335,7 @@ void factory_edit_frame_t::change_item_info(sint32 entry)
 			}
 		}
 		else {
-			if(desc->get_h(rot)==1) {
+			if(desc->get_y(rot)==1) {
 				img[1].set_image( desc->get_tile(rot,0,0)->get_background(0,0,0) );
 				img[3].set_image( desc->get_tile(rot,1,0)->get_background(0,0,0) );
 			}

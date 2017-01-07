@@ -22,7 +22,7 @@ static const weg_besch_t *my_get_desc(const char *name)
 }
 
 implement_besch_param(tree_desc_t, "tree_desc_x", &baum_t::find_tree);
-implement_besch_param(haus_besch_t, "building_desc_x", &hausbauer_t::get_desc);
+implement_besch_param(building_desc_t, "building_desc_x", &hausbauer_t::get_desc);
 implement_besch_param(ware_besch_t, "good_desc_x", (const ware_besch_t* (*)(const char*))(&warenbauer_t::get_info) );
 implement_besch_param(weg_besch_t, "way_desc_x", &my_get_desc);
 implement_besch_param(vehikel_besch_t, "vehicle_desc_x", &vehikelbauer_t::get_info);
@@ -51,7 +51,7 @@ implement_class_with_tag(obj_named_desc_t);
 implement_class_with_tag(obj_desc_timelined_t);
 implement_class_with_tag(obj_desc_transport_related_t);
 
-SQInteger param<const haus_tile_besch_t*>::push(HSQUIRRELVM vm, const haus_tile_besch_t* b)
+SQInteger param<const building_tile_desc_t*>::push(HSQUIRRELVM vm, const building_tile_desc_t* b)
 {
-	return param<const haus_besch_t*>::push(vm, b ? b->get_desc() : NULL);
+	return param<const building_desc_t*>::push(vm, b ? b->get_desc() : NULL);
 }

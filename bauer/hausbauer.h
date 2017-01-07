@@ -30,23 +30,23 @@ class tool_selector_t;
 class hausbauer_t
 {
 private:
-	static vector_tpl<const haus_besch_t*> sehenswuerdigkeiten_land;  ///< Sights outside of cities
-	static vector_tpl<const haus_besch_t*> sehenswuerdigkeiten_city;  ///< Sights within cities
-	static vector_tpl<const haus_besch_t*> rathaeuser;                ///< Town halls
-	static vector_tpl<const haus_besch_t*> denkmaeler;                ///< All monuments
-	static vector_tpl<const haus_besch_t*> ungebaute_denkmaeler;      ///< All unbuilt monuments
-	static vector_tpl<const haus_besch_t*> headquarter;               ///< Company headquarters
-	static vector_tpl<const haus_besch_t*> station_building;          ///< All station buildings
+	static vector_tpl<const building_desc_t*> sehenswuerdigkeiten_land;  ///< Sights outside of cities
+	static vector_tpl<const building_desc_t*> sehenswuerdigkeiten_city;  ///< Sights within cities
+	static vector_tpl<const building_desc_t*> rathaeuser;                ///< Town halls
+	static vector_tpl<const building_desc_t*> denkmaeler;                ///< All monuments
+	static vector_tpl<const building_desc_t*> ungebaute_denkmaeler;      ///< All unbuilt monuments
+	static vector_tpl<const building_desc_t*> headquarter;               ///< Company headquarters
+	static vector_tpl<const building_desc_t*> station_building;          ///< All station buildings
 
 	/// @returns a random entry from @p liste
-	static const haus_besch_t* waehle_aus_liste(vector_tpl<const haus_besch_t*>& liste, uint16 time, bool ignore_retire, climate cl);
+	static const building_desc_t* waehle_aus_liste(vector_tpl<const building_desc_t*>& liste, uint16 time, bool ignore_retire, climate cl);
 
 	/// our game world
 	static karte_ptr_t welt;
 
 public:
 	/// description for elevated monorail (mandatory description)
-	static const haus_besch_t* elevated_foundation_desc;
+	static const building_desc_t* elevated_foundation_desc;
 
 	/**
 	 * Finds a station building enabling pax/mail/goods for the AI.
@@ -54,19 +54,19 @@ public:
 	 * @param enables station enabled flags (see haltestelle_t::station_flags)
 	 * @returns a random station that can be built above ground.
 	 */
-	static const haus_besch_t* get_random_station(const haus_besch_t::btype utype, const waytype_t wt, const uint16 time, const uint8 enables);
+	static const building_desc_t* get_random_station(const building_desc_t::btype utype, const waytype_t wt, const uint16 time, const uint8 enables);
 
 	/// Finds and returns the tile at position @p idx
-	static const haus_tile_besch_t* find_tile(const char* name, int idx);
+	static const building_tile_desc_t* find_tile(const char* name, int idx);
 
 	/// @returns the house description with name @p name
-	static const haus_besch_t* get_desc(const char *name);
+	static const building_desc_t* get_desc(const char *name);
 
 	/**
 	 * Registers the house description so the house can be built in-game.
 	 * @returns true
 	 */
-	static bool register_desc(haus_besch_t *desc);
+	static bool register_desc(building_desc_t *desc);
 
 	/// Sorts all house descriptions into their respective lists.
 	static bool alles_geladen();
@@ -75,28 +75,28 @@ public:
 	 * Fills menu with icons of buildings of a given waytype.
 	 * This is needed for station extensions and headquarters.
  	 */
-	static void fill_menu(tool_selector_t* tool_selector, haus_besch_t::btype, waytype_t wt, sint16 sound_ok);
+	static void fill_menu(tool_selector_t* tool_selector, building_desc_t::btype, waytype_t wt, sint16 sound_ok);
 
 	/// @returns a random commercial building matching the requirements.
-	static const haus_besch_t* get_commercial(int level, uint16 time, climate c, uint32 clusters = 0l);
+	static const building_desc_t* get_commercial(int level, uint16 time, climate c, uint32 clusters = 0l);
 
 	/// @returns a random industrial building matching the requirements.
-	static const haus_besch_t* get_industrial(int level, uint16 time, climate cl, uint32 clusters = 0);
+	static const building_desc_t* get_industrial(int level, uint16 time, climate cl, uint32 clusters = 0);
 
 	/// @returns a random residential building matching the requirements.
-	static const haus_besch_t* get_residential(int level, uint16 time, climate cl, uint32 clusters = 0);
+	static const building_desc_t* get_residential(int level, uint16 time, climate cl, uint32 clusters = 0);
 
 	/// @returns headquarters with level @p level (takes the first matching one)
-	static const haus_besch_t* get_headquarter(int level, uint16 time);
+	static const building_desc_t* get_headquarter(int level, uint16 time);
 
 	/// @returns a random tourist attraction matching the requirements.
-	static const haus_besch_t* waehle_sehenswuerdigkeit(uint16 time, bool ignore_retire, climate cl)
+	static const building_desc_t* waehle_sehenswuerdigkeit(uint16 time, bool ignore_retire, climate cl)
 	{
 		return waehle_aus_liste(sehenswuerdigkeiten_land, time, ignore_retire, cl);
 	}
 
 	/// @returns a random unbuilt monument.
-	static const haus_besch_t* waehle_denkmal(uint16 time = 0)
+	static const building_desc_t* waehle_monument(uint16 time = 0)
 	{
 		return waehle_aus_liste(ungebaute_denkmaeler, time, false, MAX_CLIMATES);
 	}
@@ -109,13 +109,13 @@ public:
 	static void new_world();
 
 	/// @returns true if this monument has not yet been built.
-	static bool is_valid_denkmal(const haus_besch_t* desc) { return ungebaute_denkmaeler.is_contained(desc); }
+	static bool is_valid_monument(const building_desc_t* desc) { return ungebaute_denkmaeler.is_contained(desc); }
 
 	/// Tells the house builder a monument has been built.
-	static void denkmal_gebaut(const haus_besch_t* desc) { ungebaute_denkmaeler.remove(desc); }
+	static void monument_gebaut(const building_desc_t* desc) { ungebaute_denkmaeler.remove(desc); }
 
 	/// Called for a city attraction or a town hall with a certain number of inhabitants (bev).
-	static const haus_besch_t* get_special(uint32 bev, haus_besch_t::btype utype, uint16 time, bool ignore_retire, climate cl);
+	static const building_desc_t* get_special(uint32 bev, building_desc_t::btype utype, uint16 time, bool ignore_retire, climate cl);
 
 	/**
 	 * Removes an arbitrary building.
@@ -134,20 +134,20 @@ public:
 	 * @return The first built part of the building. Usually at @p pos, if this
 	 *         building tile is not empty.
 	 */
-	static gebaeude_t* build(player_t* player, koord3d pos, int layout, const haus_besch_t* desc, void* param = NULL);
+	static gebaeude_t* build(player_t* player, koord3d pos, int layout, const building_desc_t* desc, void* param = NULL);
 
 	/**
 	 * Build all kind of stops and depots. The building size must be 1x1.
 	 * Stations with layout>4 may change the layout of neighbouring buildings. (->end of rail platforms)
 	 * @param param if building a stop, pointer to the halt handle
 	 */
-	static gebaeude_t* neues_gebaeude(player_t* player, koord3d pos, int layout, const haus_besch_t* desc, void* param = NULL);
+	static gebaeude_t* neues_gebaeude(player_t* player, koord3d pos, int layout, const building_desc_t* desc, void* param = NULL);
 
 	/// @returns house list of type @p typ
-	static const vector_tpl<const haus_besch_t *> *get_list(haus_besch_t::btype typ);
+	static const vector_tpl<const building_desc_t *> *get_list(building_desc_t::btype typ);
 
 	/// @returns city building list of type @p typ (res/com/ind)
-	static const vector_tpl<const haus_besch_t *> *get_citybuilding_list(haus_besch_t::btype  typ);
+	static const vector_tpl<const building_desc_t *> *get_citybuilding_list(building_desc_t::btype  typ);
 };
 
 #endif

@@ -51,7 +51,7 @@ depot_t::depot_t(loadsave_t *file) : gebaeude_t()
 }
 
 
-depot_t::depot_t(koord3d pos, player_t *player, const haus_tile_besch_t *t) :
+depot_t::depot_t(koord3d pos, player_t *player, const building_tile_desc_t *t) :
     gebaeude_t(pos, player, t)
 {
 	all_depots.append(this);
@@ -498,7 +498,7 @@ void depot_t::rdwr_vehikel(slist_tpl<vehicle_t *> &list, loadsave_t *file)
 		// no house definition for this => use a normal hut ...
 		if(  this->get_tile()==NULL  ) {
 			dbg->error( "depot_t::rdwr()", "tile for depot not found!" );
-			set_tile( (*hausbauer_t::get_citybuilding_list( haus_besch_t::city_res ))[0]->get_tile(0), true );
+			set_tile( (*hausbauer_t::get_citybuilding_list( building_desc_t::city_res ))[0]->get_tile(0), true );
 		}
 
 		DBG_MESSAGE("depot_t::vehikel_laden()","loading %d vehicles",count);

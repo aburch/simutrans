@@ -784,7 +784,7 @@ void toolbar_t::update(player_t *player)
 					wayobj_t::fill_menu(tool_selector, way, get_sound(c));
 				}
 				else if (char const* c = strstart(param, "buildings(")) {
-					haus_besch_t::btype const utype = (haus_besch_t::btype)atoi(c);
+					building_desc_t::btype const utype = (building_desc_t::btype)atoi(c);
 					while(*c  &&  *c!=','  &&  *c!=')') {
 						c++;
 					}

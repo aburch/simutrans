@@ -585,7 +585,7 @@ public:
 
 	sint32 liefere_an(const ware_besch_t *, sint32 menge);
 
-	void step(uint32 delta_t);                  // fabrik muss auch arbeiten
+	void step(uint32 delta_t);                  // factory muss auch arbeiten
 	void new_month();
 
 	char const* get_name() const;

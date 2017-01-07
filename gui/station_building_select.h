@@ -20,12 +20,12 @@
 #include "components/gui_textinput.h"
 
 
-class haus_besch_t;
+class building_desc_t;
 class tool_build_station_t;
 
 class station_building_select_t : public gui_frame_t, action_listener_t
 {
-	const haus_besch_t *desc;
+	const building_desc_t *desc;
 
 	char buf[64];
 	button_t actionbutton[4];
@@ -36,7 +36,7 @@ class station_building_select_t : public gui_frame_t, action_listener_t
 	static tool_build_station_t tool;
 
 public:
-	station_building_select_t(const haus_besch_t *desc);
+	station_building_select_t(const building_desc_t *desc);
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 };

@@ -364,7 +364,7 @@ private:
 	 * baut ein angemessenes Rathaus
 	 * @author V. Meyer
 	 */
-	void check_bau_rathaus(bool);
+	void check_bau_townhall(bool);
 
 	/**
 	 * constructs a new consumer

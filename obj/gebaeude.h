@@ -12,7 +12,7 @@
 #include "../simobj.h"
 #include "../simcolor.h"
 
-class haus_tile_besch_t;
+class building_tile_desc_t;
 class fabrik_t;
 class stadt_t;
 /**
@@ -22,7 +22,7 @@ class stadt_t;
 class gebaeude_t : public obj_t, sync_steppable
 {
 private:
-	const haus_tile_besch_t *tile;
+	const building_tile_desc_t *tile;
 
 	/**
 	 * Time control for animation progress.
@@ -82,7 +82,7 @@ protected:
 
 public:
 	gebaeude_t(loadsave_t *file);
-	gebaeude_t(koord3d pos,player_t *player, const haus_tile_besch_t *t);
+	gebaeude_t(koord3d pos,player_t *player, const building_tile_desc_t *t);
 	virtual ~gebaeude_t();
 
 	void rotate90();
@@ -131,9 +131,9 @@ public:
 	 */
 	virtual const char *get_name() const;
 
-	bool ist_rathaus() const;
+	bool is_townhall() const;
 
-	bool ist_firmensitz() const;
+	bool is_headquarter() const;
 
 	bool is_monument() const;
 
@@ -160,11 +160,11 @@ public:
 	 */
 	int get_passagier_level() const;
 
-	int get_post_level() const;
+	int get_mail_level() const;
 
-	void set_tile( const haus_tile_besch_t *t, bool start_with_construction );
+	void set_tile( const building_tile_desc_t *t, bool start_with_construction );
 
-	const haus_tile_besch_t *get_tile() const { return tile; }
+	const building_tile_desc_t *get_tile() const { return tile; }
 
 	virtual void show_info();
 

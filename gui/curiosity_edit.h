@@ -11,7 +11,7 @@
 
 
 class tool_build_house_t;
-class haus_besch_t;
+class building_desc_t;
 
 class curiosity_edit_frame_t : public extend_edit_gui_t
 {
@@ -19,12 +19,12 @@ private:
 	static tool_build_house_t haus_tool;
 	static char param_str[256];
 
-	const haus_besch_t *desc;
+	const building_desc_t *desc;
 	uint8 rotation;
 
 	char rot_str[16];
 
-	vector_tpl<const haus_besch_t *>hauslist;
+	vector_tpl<const building_desc_t *>building_list;
 
 	button_t bt_city_attraction;
 	button_t bt_land_attraction;
