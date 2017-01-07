@@ -11,7 +11,7 @@
 class strasse_t : public weg_t
 {
 public:
-	static const weg_besch_t *default_strasse;
+	static const way_desc_t *default_strasse;
 
 	strasse_t(loadsave_t *file);
 	strasse_t();

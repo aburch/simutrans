@@ -13,9 +13,9 @@
 
 void way_reader_t::register_obj(obj_desc_t *&data)
 {
-    weg_besch_t *desc = static_cast<weg_besch_t *>(data);
+    way_desc_t *desc = static_cast<way_desc_t *>(data);
 
-    wegbauer_t::register_desc(desc);
+    way_builder_t::register_desc(desc);
 //    printf("...Weg %s geladen\n", desc->get_name());
 	obj_for_xref(get_type(), desc->get_name(), data);
 
@@ -27,7 +27,7 @@ void way_reader_t::register_obj(obj_desc_t *&data)
 
 bool way_reader_t::successfully_loaded() const
 {
-    return wegbauer_t::alle_wege_geladen();
+    return way_builder_t::successfully_loaded();
 }
 
 
@@ -35,7 +35,7 @@ obj_desc_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
 	ALLOCA(char, besch_buf, node.size);
 
-	weg_besch_t *desc = new weg_besch_t();
+	way_desc_t *desc = new way_desc_t();
 
 	// Hajo: Read data
 	fread(besch_buf, node.size, 1, fp);

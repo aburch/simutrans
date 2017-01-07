@@ -2419,22 +2419,22 @@ void stadt_t::check_bau_spezial(bool new_town)
 						// only build in same height and not on slopes...
 						const grund_t *gr = welt->lookup_kartenboden(best_pos + koord(0, i));
 						if(gr->get_hoehe()==h  &&  gr->get_grund_hang()==0) {
-							baue_strasse(best_pos + koord(0, i), NULL, true);
+							build_road(best_pos + koord(0, i), NULL, true);
 						}
 						gr = welt->lookup_kartenboden(best_pos + koord(total_size.x - 1, i));
 						if(gr->get_hoehe()==h  &&  gr->get_grund_hang()==0) {
-							baue_strasse(best_pos + koord(total_size.x - 1, i), NULL, true);
+							build_road(best_pos + koord(total_size.x - 1, i), NULL, true);
 						}
 					}
 					for (int i = 0; i < total_size.x; i++) {
 						// only build in same height and not on slopes...
 						const grund_t *gr = welt->lookup_kartenboden(best_pos + koord(i, 0));
 						if(gr->get_hoehe()==h  &&  gr->get_grund_hang()==0) {
-							baue_strasse(best_pos + koord(i, 0), NULL, true);
+							build_road(best_pos + koord(i, 0), NULL, true);
 						}
 						gr = welt->lookup_kartenboden(best_pos + koord(i, total_size.y - 1));
 						if(gr->get_hoehe()==h  &&  gr->get_grund_hang()==0) {
-							baue_strasse(best_pos + koord(i, total_size.y - 1), NULL, true);
+							build_road(best_pos + koord(i, total_size.y - 1), NULL, true);
 						}
 					}
 					// and then build it
@@ -2650,21 +2650,21 @@ void stadt_t::check_bau_townhall(bool new_town)
 		if (neugruendung || umziehen) {
 			// build the road in front of the townhall
 			if (road0!=road1) {
-				wegbauer_t bauigel(NULL);
-				bauigel.route_fuer(wegbauer_t::strasse, welt->get_city_road(), NULL, NULL);
+				way_builder_t bauigel(NULL);
+				bauigel.init_builder(way_builder_t::strasse, welt->get_city_road(), NULL, NULL);
 				bauigel.set_build_sidewalk(true);
 				bauigel.calc_straight_route(welt->lookup_kartenboden(best_pos + road0)->get_pos(), welt->lookup_kartenboden(best_pos + road1)->get_pos());
 				bauigel.build();
 			}
 			else {
-				baue_strasse(best_pos + road0, NULL, true);
+				build_road(best_pos + road0, NULL, true);
 			}
 			townhall_road = best_pos + road0;
 		}
 		if (umziehen  &&  alte_str != koord::invalid) {
 			// Strasse vom ehemaligen Rathaus zum neuen verlegen.
-			wegbauer_t bauer(NULL);
-			bauer.route_fuer(wegbauer_t::strasse | wegbauer_t::terraform_flag, welt->get_city_road());
+			way_builder_t bauer(NULL);
+			bauer.init_builder(way_builder_t::strasse | way_builder_t::terraform_flag, welt->get_city_road());
 			bauer.calc_route(welt->lookup_kartenboden(alte_str)->get_pos(), welt->lookup_kartenboden(townhall_road)->get_pos());
 			bauer.build();
 		}
@@ -2759,7 +2759,7 @@ static int const building_layout[] = { 0, 0, 1, 4, 2, 0, 5, 1, 3, 7, 1, 0, 6, 3,
 
 
 
-bool process_city_street(grund_t& gr, const weg_besch_t* cr)
+bool process_city_street(grund_t& gr, const way_desc_t* cr)
 {
 	weg_t* const weg = gr.get_weg(road_wt);
 	if(  weg == NULL  ) {
@@ -3088,7 +3088,7 @@ void stadt_t::generate_private_cars(koord pos, sint32 level, koord target)
  *
  * @author Hj. Malthaner, V. Meyer
  */
-bool stadt_t::baue_strasse(const koord k, player_t* player_, bool forced)
+bool stadt_t::build_road(const koord k, player_t* player_, bool forced)
 {
 	grund_t* bd = welt->lookup_kartenboden(k);
 
@@ -3146,7 +3146,7 @@ bool stadt_t::baue_strasse(const koord k, player_t* player_, bool forced)
 			allowed_dir = ribi_t::doubles( ribi_t::layout_to_ribi[gb->get_tile()->get_layout() & 1] );
 		}
 		else {
-			dbg->error("stadt_t::baue_strasse()", "building on road with not directions at %i,%i?!?", k.x, k.y );
+			dbg->error("stadt_t::build_road()", "building on road with not directions at %i,%i?!?", k.x, k.y );
 		}
 	}
 
@@ -3208,7 +3208,7 @@ bool stadt_t::baue_strasse(const koord k, player_t* player_, bool forced)
 							}
 						}
 						else {
-							dbg->error("stadt_t::baue_strasse()", "building on road with not directions at %i,%i?!?", k.x, k.y );
+							dbg->error("stadt_t::build_road()", "building on road with not directions at %i,%i?!?", k.x, k.y );
 						}
 					}
 					else if(bd2->get_depot()) {
@@ -3216,8 +3216,8 @@ bool stadt_t::baue_strasse(const koord k, player_t* player_, bool forced)
 					}
 					else {
 						// check slopes
-						wegbauer_t bauer( NULL );
-						bauer.route_fuer( wegbauer_t::strasse | wegbauer_t::terraform_flag, welt->get_city_road() );
+						way_builder_t bauer( NULL );
+						bauer.init_builder( way_builder_t::strasse | way_builder_t::terraform_flag, welt->get_city_road() );
 						if(  bauer.check_slope( bd, bd2 )  ) {
 							// allowed ...
 							connection_roads |= ribi_t::nsew[r];
@@ -3270,7 +3270,7 @@ bool stadt_t::baue_strasse(const koord k, player_t* player_, bool forced)
 				if((err==NULL||*err == 0)  &&   koord_distance( k, end.get_2d())<=3) {
 					bridge_builder_t::build_bridge(NULL, bd->get_pos(), end, zv, bridge_height, bridge, welt->get_city_road());
 					// try to build one connecting piece of road
-					baue_strasse( (end+zv).get_2d(), NULL, false);
+					build_road( (end+zv).get_2d(), NULL, false);
 					// try to build a house near the bridge end
 					uint32 old_count = buildings.get_count();
 					for(uint8 i=0; i<lengthof(koord::neighbours)  &&  buildings.get_count() == old_count; i++) {
@@ -3314,7 +3314,7 @@ void stadt_t::build()
 		}
 		// ok => then built road
 		if (best_strasse.found()) {
-			baue_strasse(best_strasse.get_pos(), NULL, false);
+			build_road(best_strasse.get_pos(), NULL, false);
 			INT_CHECK("simcity 1156");
 			return;
 		}

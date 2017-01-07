@@ -20,7 +20,7 @@
 class powernet_t;
 class player_t;
 class fabrik_t;
-class weg_besch_t;
+class way_desc_t;
 
 class leitung_t : public obj_t
 {
@@ -39,7 +39,7 @@ protected:
 	*/
 	powernet_t * net;
 
-	const weg_besch_t *desc;
+	const way_desc_t *desc;
 
 	/**
 	* Connect this piece of powerline to its neighbours
@@ -62,8 +62,8 @@ public:
 	powernet_t* get_net() const { return net; }
 	void set_net(powernet_t* p) { net = p; }
 
-	const weg_besch_t * get_desc() { return desc; }
-	void set_desc(const weg_besch_t *new_desc) { desc = new_desc; }
+	const way_desc_t * get_desc() { return desc; }
+	void set_desc(const way_desc_t *new_desc) { desc = new_desc; }
 
 	int gimme_neighbours(leitung_t **conn);
 	static fabrik_t * suche_fab_4(koord pos);

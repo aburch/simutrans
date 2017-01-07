@@ -110,7 +110,7 @@ leitung_t::leitung_t(koord3d pos, player_t *player) : obj_t(pos)
 	image = IMG_EMPTY;
 	set_net(NULL);
 	set_owner( player );
-	set_desc(wegbauer_t::leitung_desc);
+	set_desc(way_builder_t::leitung_desc);
 }
 
 
@@ -267,17 +267,17 @@ void leitung_t::calc_image()
 	image_id old_image = get_image();
 	slope_t::type hang = gr->get_weg_hang();
 	if(hang != slope_t::flat) {
-		set_image( desc->get_hang_imageid(hang, snow));
+		set_image( desc->get_slope_image_id(hang, snow));
 	}
 	else {
 		if(gr->hat_wege()) {
 			// crossing with road or rail
 			weg_t* way = gr->get_weg_nr(0);
 			if(ribi_t::is_straight_ew(way->get_ribi())) {
-				set_image( desc->get_diagonal_imageid(ribi_t::north|ribi_t::east, snow));
+				set_image( desc->get_diagonal_image_id(ribi_t::north|ribi_t::east, snow));
 			}
 			else {
-				set_image( desc->get_diagonal_imageid(ribi_t::south|ribi_t::east, snow));
+				set_image( desc->get_diagonal_image_id(ribi_t::south|ribi_t::east, snow));
 			}
 			is_crossing = true;
 		}
@@ -285,10 +285,10 @@ void leitung_t::calc_image()
 			if(ribi_t::is_straight(ribi)  &&  !ribi_t::is_single(ribi)  &&  (pos.x+pos.y)&1) {
 				// every second skip mast
 				if(ribi_t::is_straight_ns(ribi)) {
-					set_image( desc->get_diagonal_imageid(ribi_t::north|ribi_t::west, snow));
+					set_image( desc->get_diagonal_image_id(ribi_t::north|ribi_t::west, snow));
 				}
 				else {
-					set_image( desc->get_diagonal_imageid(ribi_t::south|ribi_t::west, snow));
+					set_image( desc->get_diagonal_image_id(ribi_t::south|ribi_t::west, snow));
 				}
 			}
 			else {
@@ -413,12 +413,12 @@ void leitung_t::rdwr(loadsave_t *file)
 				char bname[128];
 				file->rdwr_str(bname, lengthof(bname));
 
-				const weg_besch_t *desc = wegbauer_t::get_desc(bname);
+				const way_desc_t *desc = way_builder_t::get_desc(bname);
 				if(desc==NULL) {
-					desc = wegbauer_t::get_desc(translator::compatibility_name(bname));
+					desc = way_builder_t::get_desc(translator::compatibility_name(bname));
 					if(desc==NULL) {
 						welt->add_missing_paks( bname, karte_t::MISSING_WAY );
-						desc = wegbauer_t::leitung_desc;
+						desc = way_builder_t::leitung_desc;
 					}
 					dbg->warning("leitung_t::rdwr()", "Unknown powerline %s replaced by %s", bname, desc->get_name() );
 				}
@@ -427,7 +427,7 @@ void leitung_t::rdwr(loadsave_t *file)
 		}
 		else {
 			if (file->is_loading()) {
-				set_desc(wegbauer_t::leitung_desc);
+				set_desc(way_builder_t::leitung_desc);
 			}
 		}
 	}

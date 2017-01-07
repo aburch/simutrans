@@ -480,15 +480,15 @@ void export_goods_desc(HSQUIRRELVM vm)
 	/**
 	 * Object descriptors for ways.
 	 */
-	begin_besch_class(vm, "way_desc_x", "obj_desc_transport_x", (GETBESCHFUNC)param<const weg_besch_t*>::getfunc());
+	begin_besch_class(vm, "way_desc_x", "obj_desc_transport_x", (GETBESCHFUNC)param<const way_desc_t*>::getfunc());
 	/**
 	 * @returns true if this way can be build on the steeper (double) slopes.
 	 */
-	register_method(vm, &weg_besch_t::has_double_slopes, "has_double_slopes");
+	register_method(vm, &way_desc_t::has_double_slopes, "has_double_slopes");
 	/**
 	 * @returns system type of the way, see @ref way_system_types.
 	 */
-	register_method(vm, &weg_besch_t::get_styp, "get_system_type");
+	register_method(vm, &way_desc_t::get_styp, "get_system_type");
 
 	/**
 	 * Generates a list of all ways available for building.
@@ -496,7 +496,7 @@ void export_goods_desc(HSQUIRRELVM vm)
 	 * @param st system type of way
 	 * @returns the list
 	 */
-	STATIC register_method(vm, wegbauer_t::get_way_list, "get_available_ways", false, true);
+	STATIC register_method(vm, way_builder_t::get_way_list, "get_available_ways", false, true);
 
 	end_class(vm);
 

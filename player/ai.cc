@@ -456,7 +456,7 @@ bool ai_t::find_harbour(koord &start, koord &size, koord target)
 
 
 
-bool ai_t::create_simple_road_transport(koord platz1, koord size1, koord platz2, koord size2, const weg_besch_t *road_weg )
+bool ai_t::create_simple_road_transport(koord platz1, koord size1, koord platz2, koord size2, const way_desc_t *road_weg )
 {
 	// sanity check here
 	if(road_weg==NULL) {
@@ -505,8 +505,8 @@ DBG_MESSAGE("ai_passenger_t::create_simple_road_transport()","Already connection
 	delete test_driver;
 
 	// no connection => built one!
-	wegbauer_t bauigel(this);
-	bauigel.route_fuer( wegbauer_t::strasse, road_weg, tunnel_builder_t::get_tunnel_desc(road_wt,road_weg->get_topspeed(),welt->get_timeline_year_month()), bridge_builder_t::find_bridge(road_wt,road_weg->get_topspeed(),welt->get_timeline_year_month()) );
+	way_builder_t bauigel(this);
+	bauigel.init_builder( way_builder_t::strasse, road_weg, tunnel_builder_t::get_tunnel_desc(road_wt,road_weg->get_topspeed(),welt->get_timeline_year_month()), bridge_builder_t::find_bridge(road_wt,road_weg->get_topspeed(),welt->get_timeline_year_month()) );
 
 	// we won't destroy cities (and save the money)
 	bauigel.set_keep_existing_faster_ways(true);
@@ -522,8 +522,8 @@ DBG_MESSAGE("ai_passenger_t::create_simple_road_transport()","Already connection
 	}
 
 	// now try route with terraforming
-	wegbauer_t baumaulwurf(this);
-	baumaulwurf.route_fuer( wegbauer_t::strasse|wegbauer_t::terraform_flag, road_weg, tunnel_builder_t::get_tunnel_desc(road_wt,road_weg->get_topspeed(),welt->get_timeline_year_month()), bridge_builder_t::find_bridge(road_wt,road_weg->get_topspeed(),welt->get_timeline_year_month()) );
+	way_builder_t baumaulwurf(this);
+	baumaulwurf.init_builder( way_builder_t::strasse|way_builder_t::terraform_flag, road_weg, tunnel_builder_t::get_tunnel_desc(road_wt,road_weg->get_topspeed(),welt->get_timeline_year_month()), bridge_builder_t::find_bridge(road_wt,road_weg->get_topspeed(),welt->get_timeline_year_month()) );
 	baumaulwurf.set_keep_existing_faster_ways(true);
 	baumaulwurf.set_keep_city_roads(true);
 	baumaulwurf.set_maximum(10000);

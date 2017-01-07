@@ -157,9 +157,9 @@ koord3d tunnel_builder_t::find_end_pos(player_t *player, koord3d pos, koord zv, 
 	const grund_t *gr;
 	leitung_t *lt;
 	waytype_t wegtyp = desc->get_waytype();
-	// use the is_allowed_step routine of wegbauer_t, needs an instance
-	wegbauer_t bauigel(player);
-	bauigel.route_fuer( wegbauer_t::tunnel_flag | (wegbauer_t::bautyp_t)wegtyp, wegbauer_t::weg_search( wegtyp, 1, 0, type_flat ), desc);
+	// use the is_allowed_step routine of way_builder_t, needs an instance
+	way_builder_t bauigel(player);
+	bauigel.init_builder( way_builder_t::tunnel_flag | (way_builder_t::bautyp_t)wegtyp, way_builder_t::weg_search( wegtyp, 1, 0, type_flat ), desc);
 	sint32 dummy;
 
 	while(true) {
@@ -425,19 +425,19 @@ bool tunnel_builder_t::build_tunnel(player_t *player, koord3d start, koord3d end
 	leitung_t *lt = NULL;
 	koord3d pos = start;
 	int cost = 0;
-	const weg_besch_t *weg_desc;
+	const way_desc_t *way_desc;
 	waytype_t wegtyp = desc->get_waytype();
 
 DBG_MESSAGE("tunnel_builder_t::build()","build from (%d,%d,%d) to (%d,%d,%d) ", pos.x, pos.y, pos.z, end.x, end.y, end.z );
 
 	// now we search a matching way for the tunnels top speed
-	weg_desc = desc->get_weg_desc();
-	if(weg_desc==NULL) {
+	way_desc = desc->get_way_desc();
+	if(way_desc==NULL) {
 		// ignore timeline to get consistent results
-		weg_desc = wegbauer_t::weg_search( wegtyp, desc->get_topspeed(), 0, type_flat );
+		way_desc = way_builder_t::weg_search( wegtyp, desc->get_topspeed(), 0, type_flat );
 	}
 
-	build_tunnel_portal(player, pos, zv, desc, weg_desc, cost);
+	build_tunnel_portal(player, pos, zv, desc, way_desc, cost);
 
 	ribi = ribi_type(-zv);
 	// don't move on to next tile if only one tile long
@@ -457,17 +457,17 @@ DBG_MESSAGE("tunnel_builder_t::build()","build from (%d,%d,%d) to (%d,%d,%d) ", 
 		welt->access(pos.get_2d())->boden_hinzufuegen(tunnel);
 		if(wegtyp != powerline_wt) {
 			weg = weg_t::alloc(desc->get_waytype());
-			weg->set_desc(weg_desc);
+			weg->set_desc(way_desc);
 			weg->set_max_speed(desc->get_topspeed());
 			tunnel->neuen_weg_bauen(weg, ribi_t::doubles(ribi), player);
 			player_t::add_maintenance( player, -weg->get_desc()->get_wartung(), weg->get_desc()->get_finance_waytype() );
 		}
 		else {
 			lt = new leitung_t(tunnel->get_pos(), player);
-			lt->set_desc(weg_desc);
+			lt->set_desc(way_desc);
 			tunnel->obj_add( lt );
 			lt->finish_rd();
-			player_t::add_maintenance( player, -weg_desc->get_wartung(), powerline_wt );
+			player_t::add_maintenance( player, -way_desc->get_wartung(), powerline_wt );
 		}
 		tunnel->obj_add(new tunnel_t(pos, player, desc));
 		tunnel->calc_image();
@@ -486,7 +486,7 @@ DBG_MESSAGE("tunnel_builder_t::build()","build from (%d,%d,%d) to (%d,%d,%d) ", 
 		}
 		else if (gr_end->ist_karten_boden()) {
 			// if end is above ground construct an exit
-			build_tunnel_portal(player, pos, -zv, desc, weg_desc, cost);
+			build_tunnel_portal(player, pos, -zv, desc, way_desc, cost);
 			gr_end = NULL; // invalid - replaced by tunnel ground
 			// calc new back image for the ground
 			if (end!=start && grund_t::underground_mode) {
@@ -506,17 +506,17 @@ DBG_MESSAGE("tunnel_builder_t::build()","build from (%d,%d,%d) to (%d,%d,%d) ", 
 		welt->access(pos.get_2d())->boden_hinzufuegen(tunnel);
 		if(wegtyp != powerline_wt) {
 			weg = weg_t::alloc(desc->get_waytype());
-			weg->set_desc(weg_desc);
+			weg->set_desc(way_desc);
 			weg->set_max_speed(desc->get_topspeed());
 			tunnel->neuen_weg_bauen(weg, ribi, player);
 			player_t::add_maintenance( player,  -weg->get_desc()->get_wartung(), weg->get_desc()->get_finance_waytype() );
 		}
 		else {
 			lt = new leitung_t(tunnel->get_pos(), player);
-			lt->set_desc(weg_desc);
+			lt->set_desc(way_desc);
 			tunnel->obj_add( lt );
 			lt->finish_rd();
-			player_t::add_maintenance( player, -weg_desc->get_wartung(), powerline_wt );
+			player_t::add_maintenance( player, -way_desc->get_wartung(), powerline_wt );
 		}
 		tunnel->obj_add(new tunnel_t(pos, player, desc));
 		tunnel->calc_image();
@@ -531,7 +531,7 @@ DBG_MESSAGE("tunnel_builder_t::build()","build from (%d,%d,%d) to (%d,%d,%d) ", 
 }
 
 
-void tunnel_builder_t::build_tunnel_portal(player_t *player, koord3d end, koord zv, const tunnel_desc_t *desc, const weg_besch_t *weg_desc, int &cost)
+void tunnel_builder_t::build_tunnel_portal(player_t *player, koord3d end, koord zv, const tunnel_desc_t *desc, const way_desc_t *way_desc, int &cost)
 {
 	grund_t *alter_boden = welt->lookup(end);
 	ribi_t::ribi ribi = 0;
@@ -557,8 +557,8 @@ void tunnel_builder_t::build_tunnel_portal(player_t *player, koord3d end, koord 
 		else {
 			// needs still one
 			weg = weg_t::alloc( desc->get_waytype() );
-			if(  weg_desc  ) {
-				weg->set_desc( weg_desc );
+			if(  way_desc  ) {
+				weg->set_desc( way_desc );
 			}
 			tunnel->neuen_weg_bauen( weg, ribi, player );
 		}
@@ -569,9 +569,9 @@ void tunnel_builder_t::build_tunnel_portal(player_t *player, koord3d end, koord 
 		leitung_t *lt = tunnel->get_leitung();
 		if(!lt) {
 			lt = new leitung_t(tunnel->get_pos(), player);
-			lt->set_desc(weg_desc);
+			lt->set_desc(way_desc);
 			tunnel->obj_add( lt );
-			player_t::add_maintenance( player, -weg_desc->get_wartung(), powerline_wt );
+			player_t::add_maintenance( player, -way_desc->get_wartung(), powerline_wt );
 		}
 		else {
 			// subtract twice maintenance: once for the already existing powerline
@@ -602,9 +602,9 @@ void tunnel_builder_t::build_tunnel_portal(player_t *player, koord3d end, koord 
 	if( ground_outside) {
 		weg_t *way_outside = ground_outside->get_weg( desc->get_waytype() );
 		if( way_outside ) {
-			// use the check_owner routine of wegbauer_t (not spieler_t!), needs an instance
-			wegbauer_t bauigel(player);
-			bauigel.route_fuer( (wegbauer_t::bautyp_t)desc->get_waytype(), way_outside->get_desc());
+			// use the check_owner routine of way_builder_t (not spieler_t!), needs an instance
+			way_builder_t bauigel(player);
+			bauigel.init_builder( (way_builder_t::bautyp_t)desc->get_waytype(), way_outside->get_desc());
 			sint32 dummy;
 			if(bauigel.is_allowed_step(tunnel, ground_outside, &dummy)) {
 				tunnel->weg_erweitern(desc->get_waytype(), ribi_type(-zv));

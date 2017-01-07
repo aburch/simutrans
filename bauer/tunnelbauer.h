@@ -15,7 +15,7 @@
 class karte_ptr_t;
 class player_t;               // Hajo: 22-Nov-01: Added forward declaration
 class tunnel_desc_t;
-class weg_besch_t;
+class way_desc_t;
 class tool_selector_t;
 
 /**
@@ -31,7 +31,7 @@ private:
 	static karte_ptr_t welt;
 
 	static bool build_tunnel(player_t *player, koord3d pos, koord3d end, koord zv, const tunnel_desc_t *desc);
-	static void build_tunnel_portal(player_t *player, koord3d end, koord zv, const tunnel_desc_t *desc, const weg_besch_t *weg_desc, int &cost);
+	static void build_tunnel_portal(player_t *player, koord3d end, koord zv, const tunnel_desc_t *desc, const way_desc_t *way_desc, int &cost);
 
 	tunnel_builder_t() {} // private -> no instance please
 

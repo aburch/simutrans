@@ -391,7 +391,7 @@ private:
 	 *
 	 * @author Hj. Malthaner, V. Meyer
 	 */
-	bool baue_strasse(const koord k, player_t *player, bool forced);
+	bool build_road(const koord k, player_t *player, bool forced);
 
 	void build();
 

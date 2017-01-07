@@ -45,7 +45,7 @@ class sync_steppable;
 class tool_t;
 class scenario_t;
 class message_t;
-class weg_besch_t;
+class way_desc_t;
 class network_world_command_t;
 class ware_besch_t;
 class memory_rw_t;
@@ -583,7 +583,7 @@ private:
 	/**
 	 * May change due to timeline.
 	 */
-	const weg_besch_t *city_road;
+	const way_desc_t *city_road;
 
 	/**
 	 * What game objectives.
@@ -1036,7 +1036,7 @@ public:
 	 * prissi: current city road.
 	 * @note May change due to timeline.
 	 */
-	const weg_besch_t* get_city_road() const { return city_road; }
+	const way_desc_t* get_city_road() const { return city_road; }
 
 	/**
 	 * Number of steps elapsed since the map was generated.

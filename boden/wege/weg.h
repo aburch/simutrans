@@ -16,7 +16,7 @@
 
 
 class karte_t;
-class weg_besch_t;
+class way_desc_t;
 class cbuffer_t;
 template <class T> class slist_tpl;
 
@@ -80,7 +80,7 @@ private:
 	* Way type description
 	* @author Hj. Malthaner
 	*/
-	const weg_besch_t * desc;
+	const way_desc_t * desc;
 
 	/**
 	* Richtungsbits für den Weg. Norden ist oben rechts auf dem Monitor.
@@ -171,8 +171,8 @@ public:
 	* mit wert aus Description.
 	* @author Hj. Malthaner
 	*/
-	void set_desc(const weg_besch_t *b);
-	const weg_besch_t *get_desc() const { return desc; }
+	void set_desc(const way_desc_t *b);
+	const way_desc_t *get_desc() const { return desc; }
 
 	// returns a way with the matching type
 	static weg_t *alloc(waytype_t wt);

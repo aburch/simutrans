@@ -82,13 +82,13 @@ public:
 			default:
 				return IMG_EMPTY;
 		}
-		image_id hang_img = get_child<image_list_t>(4)->get_image_id(nr);
-		if(  nr > 3  &&  hang_img == IMG_EMPTY  ) {
+		image_id slope_img = get_child<image_list_t>(4)->get_image_id(nr);
+		if(  nr > 3  &&  slope_img == IMG_EMPTY  ) {
 			// hack for old ways without double height images to use single slope images for both
 			nr -= 4;
-			hang_img = get_child<image_list_t>(4)->get_image_id(nr);
+			slope_img = get_child<image_list_t>(4)->get_image_id(nr);
 		}
-		return hang_img;
+		return slope_img;
 	  }
 
 	image_id get_back_slope_image_id(slope_t::type hang) const
@@ -122,13 +122,13 @@ public:
 			default:
 				return IMG_EMPTY;
 		}
-		image_id hang_img = get_child<image_list_t>(5)->get_image_id(nr);
-		if(  nr > 3  &&  hang_img == IMG_EMPTY  ) {
+		image_id slope_img = get_child<image_list_t>(5)->get_image_id(nr);
+		if(  nr > 3  &&  slope_img == IMG_EMPTY  ) {
 			// hack for old ways without double height images to use single slope images for both
 			nr -= 4;
-			hang_img = get_child<image_list_t>(5)->get_image_id(nr);
+			slope_img = get_child<image_list_t>(5)->get_image_id(nr);
 		}
-		return hang_img;
+		return slope_img;
 	  }
 
 	image_id get_front_diagonal_image_id(ribi_t::ribi ribi) const

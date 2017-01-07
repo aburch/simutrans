@@ -34,7 +34,7 @@ private:
 	const vehikel_besch_t *road_vehicle;
 
 	// and the convoi will run on this track:
-	const weg_besch_t *road_weg ;
+	const way_desc_t *road_weg ;
 
 	// time to wait before next contruction
 	sint32 next_construction_steps;

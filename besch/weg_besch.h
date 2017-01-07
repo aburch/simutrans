@@ -35,7 +35,7 @@ class tool_t;
  *
  * @author  Volker Meyer, Hj. Malthaner
  */
-class weg_besch_t : public obj_desc_transport_infrastructure_t {
+class way_desc_t : public obj_desc_transport_infrastructure_t {
 	friend class way_reader_t;
 
 private:
@@ -114,7 +114,7 @@ public:
 		return get_child<image_list_t>(n)->get_image_id(ribi);
 	}
 
-	image_id get_image_id_switch(ribi_t::ribi ribi, uint8 season, bool nw, bool front = false) const
+	image_id get_switch_image_id(ribi_t::ribi ribi, uint8 season, bool nw, bool front = false) const
 	{
 		if (front  &&  !front_images) {
 			return IMG_EMPTY;
@@ -133,7 +133,7 @@ public:
 		return imglist->get_image_id( ribi );
 	}
 
-	image_id get_hang_imageid(slope_t::type hang, uint8 season, bool front = false) const
+	image_id get_slope_image_id(slope_t::type hang, uint8 season, bool front = false) const
 	{
 		if (front  &&  !front_images) {
 			return IMG_EMPTY;
@@ -168,16 +168,16 @@ public:
 			default:
 				return IMG_EMPTY;
 		}
-		image_id hang_img = get_child<image_list_t>(n)->get_image_id(nr);
-		if(  nr > 3  &&  hang_img == IMG_EMPTY  &&  get_child<image_list_t>(n)->get_count()<=4  ) {
+		image_id slope_img = get_child<image_list_t>(n)->get_image_id(nr);
+		if(  nr > 3  &&  slope_img == IMG_EMPTY  &&  get_child<image_list_t>(n)->get_count()<=4  ) {
 			// hack for old ways without double height images to use single slope images for both
 			nr -= 4;
-			hang_img = get_child<image_list_t>(n)->get_image_id(nr);
+			slope_img = get_child<image_list_t>(n)->get_image_id(nr);
 		}
-		return hang_img;
+		return slope_img;
 	}
 
-	image_id get_diagonal_imageid(ribi_t::ribi ribi, uint8 season, bool front = false) const
+	image_id get_diagonal_image_id(ribi_t::ribi ribi, uint8 season, bool front = false) const
 	{
 		if (front  &&  !front_images) {
 			return IMG_EMPTY;

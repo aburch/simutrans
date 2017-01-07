@@ -13,7 +13,7 @@
 #include "../tpl/vector_tpl.h"
 
 
-class weg_besch_t;
+class way_desc_t;
 class bridge_desc_t;
 class tunnel_desc_t;
 class karte_ptr_t;
@@ -26,14 +26,14 @@ class tool_selector_t;
  * way building class with its own route finding
  * @author Hj. Malthaner
  */
-class wegbauer_t
+class way_builder_t
 {
 	static karte_ptr_t welt;
 public:
-	static const weg_besch_t *leitung_desc;
+	static const way_desc_t *leitung_desc;
 
-	static bool register_desc(weg_besch_t *desc);
-	static bool alle_wege_geladen();
+	static bool register_desc(way_desc_t *desc);
+	static bool successfully_loaded();
 
 	// generates timeline message
 	static void new_month();
@@ -42,17 +42,17 @@ public:
 	 * Finds a way with a given speed limit for a given waytype
 	 * @author prissi
 	 */
-	static const weg_besch_t *weg_search(const waytype_t wtyp,const sint32 speed_limit, const uint16 time, const systemtype_t system_type);
+	static const way_desc_t *weg_search(const waytype_t wtyp,const sint32 speed_limit, const uint16 time, const systemtype_t system_type);
 
-	static const weg_besch_t *get_desc(const char *way_name,const uint16 time=0);
+	static const way_desc_t *get_desc(const char *way_name,const uint16 time=0);
 
-	static const weg_besch_t *get_earliest_way(const waytype_t wtyp);
+	static const way_desc_t *get_earliest_way(const waytype_t wtyp);
 
-	static const weg_besch_t *get_latest_way(const waytype_t wtyp);
+	static const way_desc_t *get_latest_way(const waytype_t wtyp);
 
 	static bool waytype_available( const waytype_t wtyp, uint16 time );
 
-	static const vector_tpl<const weg_besch_t *>&  get_way_list(waytype_t, systemtype_t system_type);
+	static const vector_tpl<const way_desc_t *>&  get_way_list(waytype_t, systemtype_t system_type);
 
 
 	/**
@@ -110,13 +110,13 @@ private:
 	 * Type of way to build
 	 * @author Hj. Malthaner
 	 */
-	const weg_besch_t * desc;
+	const way_desc_t * desc;
 
 	/**
 	 * Type of bridges to build (zero=>no bridges)
 	 * @author Hj. Malthaner
 	 */
-	const bridge_desc_t * bruecke_desc;
+	const bridge_desc_t * bridge_desc;
 
 	/**
 	 * Type of bridges to build (zero=>no bridges)
@@ -161,18 +161,18 @@ private:
 	// runways need to meet some special conditions enforced here
 	bool intern_calc_route_runways(koord3d start, const koord3d ziel);
 
-	void baue_tunnel_und_bruecken();
+	void build_tunnel_and_bridges();
 
 	// adds the ground before underground construction (always called before the following construction routines)
-	bool baue_tunnelboden();
+	bool build_tunnel_tile();
 
 	// adds the grounds for elevated tracks
-	void baue_elevated();
+	void build_elevated();
 
-	void baue_strasse();
-	void baue_schiene();
-	void baue_leitung();
-	void baue_fluss();
+	void build_road();
+	void build_track();
+	void build_powerline();
+	void build_river();
 
 	uint32 calc_distance( const koord3d &pos, const koord3d &mini, const koord3d &maxi );
 
@@ -201,11 +201,11 @@ public:
 
 	void set_build_sidewalk(bool yesno) { build_sidewalk = yesno; }
 
-	void route_fuer(bautyp_t wt, const weg_besch_t * desc, const tunnel_desc_t *tunnel_desc=NULL, const bridge_desc_t *bruecke_desc=NULL);
+	void init_builder(bautyp_t wt, const way_desc_t * desc, const tunnel_desc_t *tunnel_desc=NULL, const bridge_desc_t *bridge_desc=NULL);
 
 	void set_maximum(uint32 n) { maximum = n; }
 
-	wegbauer_t(player_t *player_);
+	way_builder_t(player_t *player_);
 
 	void calc_straight_route(const koord3d start, const koord3d ziel);
 	void calc_route(const koord3d &start3d, const koord3d &ziel);
@@ -217,7 +217,7 @@ public:
 	sint64 calc_costs();
 
 	bool check_crossing(const koord zv, const grund_t *bd,waytype_t wtyp, const player_t *player_) const;
-	bool check_for_leitung(const koord zv, const grund_t *bd) const;
+	bool check_powerline(const koord zv, const grund_t *bd) const;
 	// allowed owner?
 	bool check_owner( const player_t *player1, const player_t *player2 ) const;
 	// checks whether buildings on the tile allow to leave in direction dir
@@ -231,6 +231,6 @@ public:
 	void build();
 };
 
-ENUM_BITSET(wegbauer_t::bautyp_t);
+ENUM_BITSET(way_builder_t::bautyp_t);
 
 #endif

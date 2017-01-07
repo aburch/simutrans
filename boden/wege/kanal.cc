@@ -17,7 +17,7 @@
 #include "../../dataobj/translator.h"
 #include "kanal.h"
 
-const weg_besch_t *kanal_t::default_kanal=NULL;
+const way_desc_t *kanal_t::default_kanal=NULL;
 
 
 
@@ -52,10 +52,10 @@ void kanal_t::rdwr(loadsave_t *file)
 		char bname[128];
 		file->rdwr_str(bname, lengthof(bname));
 
-		const weg_besch_t *desc = wegbauer_t::get_desc(bname);
+		const way_desc_t *desc = way_builder_t::get_desc(bname);
 		int old_max_speed = get_max_speed();
 		if(desc==NULL) {
-			desc = wegbauer_t::get_desc(translator::compatibility_name(bname));
+			desc = way_builder_t::get_desc(translator::compatibility_name(bname));
 			if(desc==NULL) {
 				desc = default_kanal;
 				welt->add_missing_paks( bname, karte_t::MISSING_WAY );

@@ -14,7 +14,7 @@ class bridge_desc_t;
 class grund_t;
 class karte_ptr_t;
 class player_t;               // Hajo: 22-Nov-01: Added forward declaration
-class weg_besch_t;
+class way_desc_t;
 class tool_selector_t;
 
 
@@ -89,9 +89,9 @@ public:
 	 * @param zv direction the bridge will face
 	 * @param bridge_height the height above start.z that the bridge will have
 	 * @param desc bridge description.
-	 * @param weg_desc description of the way to be built on the bridge
+	 * @param way_desc description of the way to be built on the bridge
 	 */
-	static void build_bridge(player_t *player, const koord3d start, const koord3d end, koord zv, sint8 bridge_height, const bridge_desc_t *desc, const weg_besch_t *weg_desc);
+	static void build_bridge(player_t *player, const koord3d start, const koord3d end, koord zv, sint8 bridge_height, const bridge_desc_t *desc, const way_desc_t *way_desc);
 
 	/**
 	 * Registers a new bridge type and adds it to the list of build tools.

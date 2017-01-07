@@ -104,8 +104,8 @@ welt_gui_t::welt_gui_t(settings_t* const sets_par) :
 	}
 
 	// then streets
-	game_start = max( game_start, (wegbauer_t::get_earliest_way(road_wt)->get_intro_year_month()+11)/12 );
-	game_ends  = min( game_ends,  (wegbauer_t::get_latest_way(road_wt)->get_retire_year_month()+11)/12 );
+	game_start = max( game_start, (way_builder_t::get_earliest_way(road_wt)->get_intro_year_month()+11)/12 );
+	game_ends  = min( game_ends,  (way_builder_t::get_latest_way(road_wt)->get_retire_year_month()+11)/12 );
 
 	loaded_heightfield = load_heightfield = false;
 	load = start = close = scenario = quit = false;

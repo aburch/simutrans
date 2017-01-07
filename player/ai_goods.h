@@ -49,8 +49,8 @@ private:
 	const vehikel_besch_t *ship_vehicle;
 
 	// and the convoi will run on this track:
-	const weg_besch_t *rail_weg;
-	const weg_besch_t *road_weg;
+	const way_desc_t *rail_weg;
+	const way_desc_t *road_weg;
 
 	sint32 count_rail;
 	sint32 count_road;

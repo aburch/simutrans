@@ -765,7 +765,7 @@ void toolbar_t::update(player_t *player)
 						c++;
 					}
 					systemtype_t subtype = (systemtype_t)(*c!=0 ? atoi(++c) : 0);
-					wegbauer_t::fill_menu( tool_selector, way, subtype, get_sound(c));
+					way_builder_t::fill_menu( tool_selector, way, subtype, get_sound(c));
 				}
 				else if (char const* const c = strstart(param, "bridges(")) {
 					waytype_t const way = (waytype_t)atoi(c);

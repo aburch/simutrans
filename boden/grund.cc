@@ -378,7 +378,7 @@ void grund_t::rdwr(loadsave_t *file)
 					case tram_wt:
 						weg = new schiene_t(file);
 						if(weg->get_desc()->get_styp()!=type_tram) {
-							weg->set_desc(wegbauer_t::weg_search(tram_wt,weg->get_max_speed(),0,type_tram));
+							weg->set_desc(way_builder_t::weg_search(tram_wt,weg->get_max_speed(),0,type_tram));
 						}
 						break;
 

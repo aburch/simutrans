@@ -127,7 +127,7 @@ const char *weg_t::waytype_to_string(waytype_t wt)
  * mit wert aus Description.
  * @author Hj. Malthaner
  */
-void weg_t::set_desc(const weg_besch_t *b)
+void weg_t::set_desc(const way_desc_t *b)
 {
 	desc = b;
 	if(  hat_gehweg() &&  desc->get_wtyp() == road_wt  &&  desc->get_topspeed() > 50  ) {
@@ -328,16 +328,16 @@ void weg_t::set_images(image_type typ, uint8 ribi, bool snow, bool switch_nw)
 			set_foreground_image( desc->get_image_id( ribi, snow, true ) );
 			break;
 		case image_slope:
-			set_image( desc->get_hang_imageid( (slope_t::type)ribi, snow ) );
-			set_foreground_image( desc->get_hang_imageid( (slope_t::type)ribi, snow, true ) );
+			set_image( desc->get_slope_image_id( (slope_t::type)ribi, snow ) );
+			set_foreground_image( desc->get_slope_image_id( (slope_t::type)ribi, snow, true ) );
 			break;
 		case image_switch:
-			set_image( desc->get_image_id_switch(ribi, snow, switch_nw) );
-			set_foreground_image( desc->get_image_id_switch(ribi, snow, switch_nw, true) );
+			set_image( desc->get_switch_image_id(ribi, snow, switch_nw) );
+			set_foreground_image( desc->get_switch_image_id(ribi, snow, switch_nw, true) );
 			break;
 		case image_diagonal:
-			set_image( desc->get_diagonal_imageid(ribi, snow) );
-			set_foreground_image( desc->get_diagonal_imageid(ribi, snow, true) );
+			set_image( desc->get_diagonal_image_id(ribi, snow) );
+			set_foreground_image( desc->get_diagonal_image_id(ribi, snow, true) );
 			break;
 	}
 }
@@ -386,10 +386,10 @@ bool weg_t::check_season(const bool calc_only_season_change)
 	}
 	else if(  ribi_t::is_threeway( ribi )  &&  desc->has_switch_image()  ) {
 		// there might be two states of the switch; remember it when changing seasons
-		if(  image == desc->get_image_id_switch( ribi, old_snow, false )  ) {
+		if(  image == desc->get_switch_image_id( ribi, old_snow, false )  ) {
 			set_images( image_switch, ribi, snow, false );
 		}
-		else if(  image == desc->get_image_id_switch( ribi, old_snow, true )  ) {
+		else if(  image == desc->get_switch_image_id( ribi, old_snow, true )  ) {
 			set_images( image_switch, ribi, snow, true );
 		}
 		else {
@@ -493,8 +493,8 @@ void weg_t::calc_image()
 
 				// now apply diagonal image
 				if(is_diagonal()) {
-					if( desc->get_diagonal_imageid(ribi, snow) != IMG_EMPTY  ||
-					    desc->get_diagonal_imageid(ribi, snow, true) != IMG_EMPTY) {
+					if( desc->get_diagonal_image_id(ribi, snow) != IMG_EMPTY  ||
+					    desc->get_diagonal_image_id(ribi, snow, true) != IMG_EMPTY) {
 						set_images(image_diagonal, ribi, snow);
 					}
 				}

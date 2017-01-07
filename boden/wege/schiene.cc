@@ -21,7 +21,7 @@
 
 #include "schiene.h"
 
-const weg_besch_t *schiene_t::default_schiene=NULL;
+const way_desc_t *schiene_t::default_schiene=NULL;
 bool schiene_t::show_reservations = false;
 
 
@@ -165,10 +165,10 @@ void schiene_t::rdwr(loadsave_t *file)
 		file->rdwr_str(bname, lengthof(bname));
 
 		int old_max_speed=get_max_speed();
-		const weg_besch_t *desc = wegbauer_t::get_desc(bname);
+		const way_desc_t *desc = way_builder_t::get_desc(bname);
 		if(desc==NULL) {
 			int old_max_speed=get_max_speed();
-			desc = wegbauer_t::get_desc(translator::compatibility_name(bname));
+			desc = way_builder_t::get_desc(translator::compatibility_name(bname));
 			if(desc==NULL) {
 				desc = default_schiene;
 				welt->add_missing_paks( bname, karte_t::MISSING_WAY );

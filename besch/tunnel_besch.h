@@ -73,10 +73,10 @@ public:
 
 	waytype_t get_finance_waytype() const;
 
-	const weg_besch_t *get_weg_desc() const
+	const way_desc_t *get_way_desc() const
 	{
 		if(has_way) {
-			return get_child<weg_besch_t>(5 + number_seasons * 2);
+			return get_child<way_desc_t>(5 + number_seasons * 2);
 		}
 		return NULL;
 	}

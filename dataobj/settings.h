@@ -17,7 +17,7 @@
 class player_t;
 class loadsave_t;
 class tabfile_t;
-class weg_besch_t;
+class way_desc_t;
 
 struct road_timeline_t
 {
@@ -450,8 +450,8 @@ public:
 
 	sint32 get_beginner_price_factor() const { return beginner_price_factor; }
 
-	const weg_besch_t *get_city_road_type( uint16 year );
-	const weg_besch_t *get_intercity_road_type( uint16 year );
+	const way_desc_t *get_city_road_type( uint16 year );
+	const way_desc_t *get_intercity_road_type( uint16 year );
 
 	void set_pak_diagonal_multiplier(uint16 n) { pak_diagonal_multiplier = n; }
 	uint16 get_pak_diagonal_multiplier() const { return pak_diagonal_multiplier; }

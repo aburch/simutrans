@@ -31,7 +31,7 @@ protected:
 	convoihandle_t reserved;
 
 public:
-	static const weg_besch_t *default_schiene;
+	static const way_desc_t *default_schiene;
 
 	static bool show_reservations;
 
