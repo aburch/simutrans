@@ -101,7 +101,7 @@ public:
 	* @see systemtype_t
 	* @author DarioK
 	*/
-	uint8 get_styp() const { return styp; }
+	systemtype_t get_styp() const { return (systemtype_t)styp; }
 
 	bool is_tram() const { return wt == track_wt  &&  styp == type_tram; }
 
