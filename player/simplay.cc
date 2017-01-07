@@ -530,7 +530,7 @@ void player_t::ai_bankrupt()
 						// fails if powerline bridge somehow connected to powerline bridge of another player
 					}
 					else {
-						tunnelbauer_t::remove( this, pos, wt, true );
+						tunnel_builder_t::remove( this, pos, wt, true );
 					}
 					// maybe there are some objects left (station on bridge head etc)
 					gr = plan->get_boden_in_hoehe(pos.z);

@@ -503,11 +503,11 @@ void export_goods_desc(HSQUIRRELVM vm)
 	/**
 	 * Object descriptors for tunnels.
 	 */
-	begin_besch_class(vm, "tunnel_desc_x", "obj_desc_transport_x", (GETBESCHFUNC)param<const tunnel_besch_t*>::getfunc());
+	begin_besch_class(vm, "tunnel_desc_x", "obj_desc_transport_x", (GETBESCHFUNC)param<const tunnel_desc_t*>::getfunc());
 	/**
 	 * Returns a list with available tunnel types.
 	 */
-	STATIC register_method(vm, tunnelbauer_t::get_available_tunnels, "get_available_tunnels", false, true);
+	STATIC register_method(vm, tunnel_builder_t::get_available_tunnels, "get_available_tunnels", false, true);
 	end_class(vm);
 
 	/**

@@ -15,7 +15,7 @@
 
 class weg_besch_t;
 class bridge_desc_t;
-class tunnel_besch_t;
+class tunnel_desc_t;
 class karte_ptr_t;
 class player_t;
 class grund_t;
@@ -122,7 +122,7 @@ private:
 	 * Type of bridges to build (zero=>no bridges)
 	 * @author Hj. Malthaner
 	 */
-	const tunnel_besch_t * tunnel_desc;
+	const tunnel_desc_t * tunnel_desc;
 
 	/**
 	 * If a way is built on top of another way, should the type
@@ -203,7 +203,7 @@ public:
 
 	void set_build_sidewalk(bool yesno) { build_sidewalk = yesno; }
 
-	void route_fuer(bautyp_t wt, const weg_besch_t * desc, const tunnel_besch_t *tunnel_desc=NULL, const bridge_desc_t *bruecke_desc=NULL);
+	void route_fuer(bautyp_t wt, const weg_besch_t * desc, const tunnel_desc_t *tunnel_desc=NULL, const bridge_desc_t *bruecke_desc=NULL);
 
 	void set_maximum(uint32 n) { maximum = n; }
 

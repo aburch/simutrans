@@ -25,12 +25,12 @@
 #include "weg_besch.h"
 
 
-class tunnel_besch_t : public obj_desc_transport_infrastructure_t {
+class tunnel_desc_t : public obj_desc_transport_infrastructure_t {
 	friend class tunnel_reader_t;
-	friend class tunnelbauer_t;	// to convert the old tunnels to new ones
+	friend class tunnel_builder_t;	// to convert the old tunnels to new ones
 
 private:
-	static int hang_indices[81];
+	static int slope_indices[81];
 
 	/* number of seasons (0 = none, 1 = no snow/snow
 	 */
@@ -48,10 +48,10 @@ public:
 	const image_t *get_background(slope_t::type hang, uint8 season, uint8 type ) const
 	{
 		const uint8 n = season && number_seasons == 1 ? 5 : 2;
-		return get_child<image_list_t>(n)->get_image(hang_indices[hang] + 4 * type);
+		return get_child<image_list_t>(n)->get_image(slope_indices[hang] + 4 * type);
 	}
 
-	image_id get_background_nr(slope_t::type hang, uint8 season, uint8 type ) const
+	image_id get_background_id(slope_t::type hang, uint8 season, uint8 type ) const
 	{
 		const image_t *desc = get_background(hang, season, type );
 		return desc != NULL ? desc->get_id() : IMG_EMPTY;
@@ -60,10 +60,10 @@ public:
 	const image_t *get_foreground(slope_t::type hang, uint8 season, uint8 type ) const
 	{
 		const uint8 n = season && number_seasons == 1 ? 6 : 3;
-		return get_child<image_list_t>(n)->get_image(hang_indices[hang] + 4 * type);
+		return get_child<image_list_t>(n)->get_image(slope_indices[hang] + 4 * type);
 	}
 
-	image_id get_foreground_nr(slope_t::type hang, uint8 season, uint8 type) const
+	image_id get_foreground_id(slope_t::type hang, uint8 season, uint8 type) const
 	{
 		const image_t *desc = get_foreground(hang, season, type );
 		return desc != NULL ? desc->get_id() :IMG_EMPTY;

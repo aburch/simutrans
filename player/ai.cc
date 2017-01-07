@@ -506,7 +506,7 @@ DBG_MESSAGE("ai_passenger_t::create_simple_road_transport()","Already connection
 
 	// no connection => built one!
 	wegbauer_t bauigel(this);
-	bauigel.route_fuer( wegbauer_t::strasse, road_weg, tunnelbauer_t::find_tunnel(road_wt,road_weg->get_topspeed(),welt->get_timeline_year_month()), bridge_builder_t::find_bridge(road_wt,road_weg->get_topspeed(),welt->get_timeline_year_month()) );
+	bauigel.route_fuer( wegbauer_t::strasse, road_weg, tunnel_builder_t::get_tunnel_desc(road_wt,road_weg->get_topspeed(),welt->get_timeline_year_month()), bridge_builder_t::find_bridge(road_wt,road_weg->get_topspeed(),welt->get_timeline_year_month()) );
 
 	// we won't destroy cities (and save the money)
 	bauigel.set_keep_existing_faster_ways(true);
@@ -523,7 +523,7 @@ DBG_MESSAGE("ai_passenger_t::create_simple_road_transport()","Already connection
 
 	// now try route with terraforming
 	wegbauer_t baumaulwurf(this);
-	baumaulwurf.route_fuer( wegbauer_t::strasse|wegbauer_t::terraform_flag, road_weg, tunnelbauer_t::find_tunnel(road_wt,road_weg->get_topspeed(),welt->get_timeline_year_month()), bridge_builder_t::find_bridge(road_wt,road_weg->get_topspeed(),welt->get_timeline_year_month()) );
+	baumaulwurf.route_fuer( wegbauer_t::strasse|wegbauer_t::terraform_flag, road_weg, tunnel_builder_t::get_tunnel_desc(road_wt,road_weg->get_topspeed(),welt->get_timeline_year_month()), bridge_builder_t::find_bridge(road_wt,road_weg->get_topspeed(),welt->get_timeline_year_month()) );
 	baumaulwurf.set_keep_existing_faster_ways(true);
 	baumaulwurf.set_keep_city_roads(true);
 	baumaulwurf.set_maximum(10000);

@@ -39,7 +39,7 @@ tunnel_t::tunnel_t(loadsave_t* const file) : obj_no_info_t()
 }
 
 
-tunnel_t::tunnel_t(koord3d pos, player_t *player, const tunnel_besch_t *desc) :
+tunnel_t::tunnel_t(koord3d pos, player_t *player, const tunnel_desc_t *desc) :
 	obj_no_info_t(pos)
 {
 	assert(desc);
@@ -91,8 +91,8 @@ void tunnel_t::calc_image()
 			}
 		}
 
-		set_image( desc->get_background_nr( hang, get_pos().z >= welt->get_snowline()  ||  welt->get_climate( get_pos().get_2d() ) == arctic_climate, broad_type ) );
-		set_foreground_image( desc->get_foreground_nr( hang, get_pos().z >= welt->get_snowline()  ||  welt->get_climate( get_pos().get_2d() ) == arctic_climate, broad_type ) );
+		set_image( desc->get_background_id( hang, get_pos().z >= welt->get_snowline()  ||  welt->get_climate( get_pos().get_2d() ) == arctic_climate, broad_type ) );
+		set_foreground_image( desc->get_foreground_id( hang, get_pos().z >= welt->get_snowline()  ||  welt->get_climate( get_pos().get_2d() ) == arctic_climate, broad_type ) );
 	}
 	else {
 		set_image( IMG_EMPTY );
@@ -113,9 +113,9 @@ void tunnel_t::rdwr(loadsave_t *file)
 		char  buf[256];
 		if(  file->is_loading()  ) {
 			file->rdwr_str(buf, lengthof(buf));
-			desc = tunnelbauer_t::get_desc(buf);
+			desc = tunnel_builder_t::get_desc(buf);
 			if(  desc==NULL  ) {
-				desc = tunnelbauer_t::get_desc(translator::compatibility_name(buf));
+				desc = tunnel_builder_t::get_desc(translator::compatibility_name(buf));
 			}
 			if(  desc==NULL  ) {
 				welt->add_missing_paks( buf, karte_t::MISSING_WAY );
@@ -139,18 +139,18 @@ void tunnel_t::finish_rd()
 		if (gr->get_weg_nr(0)==NULL) {
 			// no way? underground powerline
 			if (gr->get_leitung()) {
-				desc = tunnelbauer_t::find_tunnel(powerline_wt, 1, 0);
+				desc = tunnel_builder_t::get_tunnel_desc(powerline_wt, 1, 0);
 			}
 			// no tunnel -> use dummy road tunnel
 			if (desc==NULL) {
-				desc = tunnelbauer_t::find_tunnel(road_wt, 1, 0);
+				desc = tunnel_builder_t::get_tunnel_desc(road_wt, 1, 0);
 			}
 		}
 		else {
-			desc = tunnelbauer_t::find_tunnel(gr->get_weg_nr(0)->get_desc()->get_wtyp(), 450, 0);
+			desc = tunnel_builder_t::get_tunnel_desc(gr->get_weg_nr(0)->get_desc()->get_wtyp(), 450, 0);
 			if(  desc == NULL  ) {
 				dbg->error( "tunnel_t::finish_rd()", "Completely unknown tunnel for this waytype: Lets use a rail tunnel!" );
-				desc = tunnelbauer_t::find_tunnel(track_wt, 1, 0);
+				desc = tunnel_builder_t::get_tunnel_desc(track_wt, 1, 0);
 			}
 		}
 	}

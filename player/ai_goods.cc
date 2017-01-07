@@ -294,7 +294,7 @@ bool ai_goods_t::suche_platz1_platz2(fabrik_t *qfab, fabrik_t *zfab, int length 
 			}
 			// Test which tiles are the best:
 			wegbauer_t bauigel(this);
-			bauigel.route_fuer( wegbauer_t::strasse, road_weg, tunnelbauer_t::find_tunnel(road_wt,road_weg->get_topspeed(),welt->get_timeline_year_month()), bridge_builder_t::find_bridge(road_wt,road_weg->get_topspeed(),welt->get_timeline_year_month()) );
+			bauigel.route_fuer( wegbauer_t::strasse, road_weg, tunnel_builder_t::get_tunnel_desc(road_wt,road_weg->get_topspeed(),welt->get_timeline_year_month()), bridge_builder_t::find_bridge(road_wt,road_weg->get_topspeed(),welt->get_timeline_year_month()) );
 			// we won't destroy cities (and save the money)
 			bauigel.set_keep_existing_faster_ways(true);
 			bauigel.set_keep_city_roads(true);
@@ -638,14 +638,14 @@ bool ai_goods_t::create_simple_rail_transport()
 	clean_marker(platz2,size2);
 
 	wegbauer_t bauigel(this);
-	bauigel.route_fuer( wegbauer_t::schiene|wegbauer_t::bot_flag, rail_weg, tunnelbauer_t::find_tunnel(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()), bridge_builder_t::find_bridge(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()) );
+	bauigel.route_fuer( wegbauer_t::schiene|wegbauer_t::bot_flag, rail_weg, tunnel_builder_t::get_tunnel_desc(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()), bridge_builder_t::find_bridge(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()) );
 	bauigel.set_keep_existing_ways(false);
 	// for stations
 	wegbauer_t bauigel1(this);
-	bauigel1.route_fuer( wegbauer_t::schiene|wegbauer_t::bot_flag, rail_weg, tunnelbauer_t::find_tunnel(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()), bridge_builder_t::find_bridge(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()) );
+	bauigel1.route_fuer( wegbauer_t::schiene|wegbauer_t::bot_flag, rail_weg, tunnel_builder_t::get_tunnel_desc(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()), bridge_builder_t::find_bridge(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()) );
 	bauigel1.set_keep_existing_ways(false);
 	wegbauer_t bauigel2(this);
-	bauigel2.route_fuer( wegbauer_t::schiene|wegbauer_t::bot_flag, rail_weg, tunnelbauer_t::find_tunnel(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()), bridge_builder_t::find_bridge(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()) );
+	bauigel2.route_fuer( wegbauer_t::schiene|wegbauer_t::bot_flag, rail_weg, tunnel_builder_t::get_tunnel_desc(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()), bridge_builder_t::find_bridge(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()) );
 	bauigel2.set_keep_existing_ways(false);
 
 	// first: make plain stations tiles as intended
@@ -709,7 +709,7 @@ bool ai_goods_t::create_simple_rail_transport()
 
 	// now try route with terraforming
 	wegbauer_t baumaulwurf(this);
-	baumaulwurf.route_fuer( wegbauer_t::schiene|wegbauer_t::bot_flag|wegbauer_t::terraform_flag, rail_weg, tunnelbauer_t::find_tunnel(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()), bridge_builder_t::find_bridge(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()) );
+	baumaulwurf.route_fuer( wegbauer_t::schiene|wegbauer_t::bot_flag|wegbauer_t::terraform_flag, rail_weg, tunnel_builder_t::get_tunnel_desc(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()), bridge_builder_t::find_bridge(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()) );
 	baumaulwurf.set_keep_existing_ways(false);
 	baumaulwurf.calc_route( starttiles, endtiles );
 
@@ -737,7 +737,7 @@ DBG_MESSAGE("ai_goods_t::create_simple_rail_transport()","building simple track 
 		koord3d                 tile2 = r.back();
 		if (!starttiles.is_contained(tile1)) sim::swap(tile1, tile2);
 		// No botflag, since we want to connect with the station.
-		bauigel.route_fuer( wegbauer_t::schiene, rail_weg, tunnelbauer_t::find_tunnel(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()), bridge_builder_t::find_bridge(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()) );
+		bauigel.route_fuer( wegbauer_t::schiene, rail_weg, tunnel_builder_t::get_tunnel_desc(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()), bridge_builder_t::find_bridge(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()) );
 		bauigel.calc_straight_route( koord3d(platz1,z1), tile1);
 		bauigel.build();
 		bauigel.calc_straight_route( koord3d(platz2,z2), tile2);

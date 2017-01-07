@@ -112,3 +112,11 @@ sound_besch_t,sound_desc_t
 \\<besch_t,desc_t
 stadtauto_besch_t,citycar_desc_t
 text_besch_t,text_desc_t
+tunnel_besch_t,tunnel_desc_t
+hang_indices,slope_indices
+get_background_nr,get_background_id
+get_foreground_nr,get_foreground_id
+baue_tunnel\\>,build_tunnel
+baue_einfahrt,build_tunnel_portal
+tunnelbauer_t,tunnel_builder_t
+find_tunnel,get_tunnel_desc

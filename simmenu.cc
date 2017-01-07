@@ -773,7 +773,7 @@ void toolbar_t::update(player_t *player)
 				}
 				else if (char const* const c = strstart(param, "tunnels(")) {
 					waytype_t const way = (waytype_t)atoi(c);
-					tunnelbauer_t::fill_menu(tool_selector, way, get_sound(c));
+					tunnel_builder_t::fill_menu(tool_selector, way, get_sound(c));
 				}
 				else if (char const* const c = strstart(param, "signs(")) {
 					waytype_t const way = (waytype_t)atoi(c);

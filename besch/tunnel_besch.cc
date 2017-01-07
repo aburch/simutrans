@@ -10,7 +10,7 @@
 #include "tunnel_besch.h"
 
 
-int tunnel_besch_t::hang_indices[81] = {
+int tunnel_desc_t::slope_indices[81] = {
 	-1, // 0:
 	-1, // 1:
 	-1, // 2:
@@ -95,7 +95,7 @@ int tunnel_besch_t::hang_indices[81] = {
 };
 
 
-waytype_t tunnel_besch_t::get_finance_waytype() const
+waytype_t tunnel_desc_t::get_finance_waytype() const
 {
 	return ((get_weg_desc() && (get_weg_desc()->get_styp() == type_tram)) ? tram_wt : get_waytype()) ;
 }
