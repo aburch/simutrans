@@ -994,7 +994,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 			route_t verbindung;
 			vehicle_t* test_driver;
 			vehikel_besch_t test_drive_desc(road_wt, 500, vehikel_besch_t::diesel );
-			test_driver = vehikelbauer_t::build(koord3d(), players[1], NULL, &test_drive_desc);
+			test_driver = vehicle_builder_t::build(koord3d(), players[1], NULL, &test_drive_desc);
 			test_driver->set_flag( obj_t::not_on_map );
 
 			bool ready=false;
@@ -3842,7 +3842,7 @@ void karte_t::recalc_average_speed()
 
 	for(int i=road_wt; i<=narrowgauge_wt; i++) {
 		const int typ = i==4 ? 3 : (i-1)&7;
-		average_speed[typ] = vehikelbauer_t::get_speedbonus( this->get_timeline_year_month(), i==4 ? air_wt : (waytype_t)i );
+		average_speed[typ] = vehicle_builder_t::get_speedbonus( this->get_timeline_year_month(), i==4 ? air_wt : (waytype_t)i );
 	}
 
 	//	DBG_MESSAGE("karte_t::recalc_average_speed()","");
@@ -3880,7 +3880,7 @@ void karte_t::recalc_average_speed()
 			}
 			vehicle_type = translator::translate( vehicle_type );
 
-			FOR(slist_tpl<vehikel_besch_t const*>, const info, vehikelbauer_t::get_info((waytype_t)i)) {
+			FOR(slist_tpl<vehikel_besch_t const*>, const info, vehicle_builder_t::get_info((waytype_t)i)) {
 				const uint16 intro_month = info->get_intro_year_month();
 				if(intro_month == current_month) {
 					cbuffer_t buf;
@@ -4647,7 +4647,7 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "start");
 		if (do_rdwr) {
 			stadt_t::cityrules_rdwr(file);
 			if(file->get_version()>102003) {
-				vehikelbauer_t::rdwr_speedbonus(file);
+				vehicle_builder_t::rdwr_speedbonus(file);
 			}
 		}
 	}
@@ -5235,7 +5235,7 @@ DBG_MESSAGE("karte_t::laden()", "init player");
 		if (do_rdwr) {
 			stadt_t::cityrules_rdwr(file);
 			if(file->get_version()>102003) {
-				vehikelbauer_t::rdwr_speedbonus(file);
+				vehicle_builder_t::rdwr_speedbonus(file);
 			}
 		}
 	}

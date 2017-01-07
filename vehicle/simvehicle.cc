@@ -1548,9 +1548,9 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(purchase_time%12
 	else {
 		char s[256];
 		file->rdwr_str(s, lengthof(s));
-		desc = vehikelbauer_t::get_info(s);
+		desc = vehicle_builder_t::get_info(s);
 		if(desc==NULL) {
-			desc = vehikelbauer_t::get_info(translator::compatibility_name(s));
+			desc = vehicle_builder_t::get_info(translator::compatibility_name(s));
 		}
 		if(desc==NULL) {
 			welt->add_missing_paks( s, karte_t::MISSING_VEHICLE );
@@ -1823,7 +1823,7 @@ road_vehicle_t::road_vehicle_t(loadsave_t *file, bool is_first, bool is_last) : 
 		if(desc==NULL) {
 			const ware_besch_t* w = (!fracht.empty() ? fracht.front().get_desc() : warenbauer_t::passagiere);
 			dbg->warning("road_vehicle_t::road_vehicle_t()","try to find a fitting vehicle for %s.",  w->get_name() );
-			desc = vehikelbauer_t::get_best_matching(road_wt, 0, (fracht.empty() ? 0 : 50), is_first?50:0, speed_to_kmh(speed_limit), w, true, last_desc, is_last );
+			desc = vehicle_builder_t::get_best_matching(road_wt, 0, (fracht.empty() ? 0 : 50), is_first?50:0, speed_to_kmh(speed_limit), w, true, last_desc, is_last );
 			if(desc) {
 				DBG_MESSAGE("road_vehicle_t::road_vehicle_t()","replaced by %s",desc->get_name());
 				// still wrong load ...
@@ -2349,7 +2349,7 @@ rail_vehicle_t::rail_vehicle_t(loadsave_t *file, bool is_first, bool is_last) : 
 			}
 			else {
 				// we have to search
-				desc = vehikelbauer_t::get_best_matching(get_waytype(), 0, w!=warenbauer_t::nichts?5000:0, power, speed_to_kmh(speed_limit), w, false, last_desc, is_last );
+				desc = vehicle_builder_t::get_best_matching(get_waytype(), 0, w!=warenbauer_t::nichts?5000:0, power, speed_to_kmh(speed_limit), w, false, last_desc, is_last );
 			}
 			if(desc) {
 DBG_MESSAGE("rail_vehicle_t::rail_vehicle_t()","replaced by %s",desc->get_name());
@@ -3153,7 +3153,7 @@ water_vehicle_t::water_vehicle_t(loadsave_t *file, bool is_first, bool is_last) 
 		// try to find a matching vehicle
 		if(desc==NULL) {
 			dbg->warning("water_behicle_t::water_behicle_t()", "try to find a fitting vehicle for %s.", !fracht.empty() ? fracht.front().get_name() : "passagiere");
-			desc = vehikelbauer_t::get_best_matching(water_wt, 0, fracht.empty() ? 0 : 30, 100, 40, !fracht.empty() ? fracht.front().get_desc() : warenbauer_t::passagiere, true, last_desc, is_last );
+			desc = vehicle_builder_t::get_best_matching(water_wt, 0, fracht.empty() ? 0 : 30, 100, 40, !fracht.empty() ? fracht.front().get_desc() : warenbauer_t::passagiere, true, last_desc, is_last );
 			if(desc) {
 				calc_image();
 			}
@@ -3935,7 +3935,7 @@ air_vehicle_t::air_vehicle_t(loadsave_t *file, bool is_first, bool is_last) : ve
 		// try to find a matching vehicle
 		if(desc==NULL) {
 			dbg->warning("aircraft_t::aircraft_t()", "try to find a fitting vehicle for %s.", !fracht.empty() ? fracht.front().get_name() : "passagiere");
-			desc = vehikelbauer_t::get_best_matching(air_wt, 0, 101, 1000, 800, !fracht.empty() ? fracht.front().get_desc() : warenbauer_t::passagiere, true, last_desc, is_last );
+			desc = vehicle_builder_t::get_best_matching(air_wt, 0, 101, 1000, 800, !fracht.empty() ? fracht.front().get_desc() : warenbauer_t::passagiere, true, last_desc, is_last );
 			if(desc) {
 				calc_image();
 			}

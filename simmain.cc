@@ -989,7 +989,7 @@ int simu_main(int argc, char** argv)
 	stadt_t::cityrules_init(env_t::objfilename);
 
 	dbg->important("Reading speedbonus configuration ...");
-	vehikelbauer_t::speedbonus_init(env_t::objfilename);
+	vehicle_builder_t::speedbonus_init(env_t::objfilename);
 
 	dbg->important("Reading menu configuration ...");
 	tool_t::init_menu();

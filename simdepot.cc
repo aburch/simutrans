@@ -180,7 +180,7 @@ void depot_t::show_info()
 vehicle_t* depot_t::buy_vehicle(const vehikel_besch_t* info)
 {
 	DBG_DEBUG("depot_t::buy_vehicle()", info->get_name());
-	vehicle_t* veh = vehikelbauer_t::build(get_pos(), get_owner(), NULL, info );
+	vehicle_t* veh = vehicle_builder_t::build(get_pos(), get_owner(), NULL, info );
 	DBG_DEBUG("depot_t::buy_vehicle()", "vehiclebauer %p", veh);
 
 	vehicles.append(veh);
@@ -313,7 +313,7 @@ convoihandle_t depot_t::copy_convoi(convoihandle_t old_cnv, bool local_execution
 				}
 				else {
 					// buy new vehicle
-					vehicle_t* veh = vehikelbauer_t::build(get_pos(), get_owner(), NULL, info );
+					vehicle_t* veh = vehicle_builder_t::build(get_pos(), get_owner(), NULL, info );
 					veh->set_pos(get_pos());
 					new_cnv->add_vehikel(veh, false);
 				}
@@ -567,7 +567,7 @@ const char * depot_t::is_deletable(const player_t *player)
 
 slist_tpl<vehikel_besch_t const*> const& depot_t::get_vehicle_type() const
 {
-	return vehikelbauer_t::get_info(get_waytype());
+	return vehicle_builder_t::get_info(get_waytype());
 }
 
 

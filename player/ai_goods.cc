@@ -428,7 +428,7 @@ bool ai_goods_t::create_ship_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 			// too many convois => cannot do anything about this ...
 			return i>0;
 		}
-		vehicle_t* v = vehikelbauer_t::build( qfab->get_pos(), this, NULL, ship_vehicle);
+		vehicle_t* v = vehicle_builder_t::build( qfab->get_pos(), this, NULL, ship_vehicle);
 		convoi_t* cnv = new convoi_t(this);
 		// V.Meyer: give the new convoi name from first vehicle
 		cnv->set_name(v->get_desc()->get_name());
@@ -436,7 +436,7 @@ bool ai_goods_t::create_ship_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 
 		// two part consist
 		if(v_second!=NULL) {
-			v = vehikelbauer_t::build( qfab->get_pos(), this, NULL, v_second );
+			v = vehicle_builder_t::build( qfab->get_pos(), this, NULL, v_second );
 			cnv->add_vehikel( v );
 		}
 
@@ -491,7 +491,7 @@ void ai_goods_t::create_road_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 				// too many convois => cannot do anything about this ...
 				return;
 			}
-			vehicle_t* v = vehikelbauer_t::build(startpos, this, NULL, road_vehicle);
+			vehicle_t* v = vehicle_builder_t::build(startpos, this, NULL, road_vehicle);
 			convoi_t* cnv = new convoi_t(this);
 			// V.Meyer: give the new convoi name from first vehicle
 			cnv->set_name(v->get_desc()->get_name());
@@ -532,7 +532,7 @@ void ai_goods_t::create_rail_transport_vehikel(const koord platz1, const koord p
 	}
 
 	koord3d start_pos = welt->lookup_kartenboden(pos1.get_2d() + (abs(size1.x)>abs(size1.y) ? koord(size1.x,0) : koord(0,size1.y)))->get_pos();
-	vehicle_t* v = vehikelbauer_t::build( start_pos, this, NULL, rail_engine);
+	vehicle_t* v = vehicle_builder_t::build( start_pos, this, NULL, rail_engine);
 
 	// V.Meyer: give the new convoi name from first vehicle
 	cnv->set_name(rail_engine->get_name());
@@ -545,7 +545,7 @@ void ai_goods_t::create_rail_transport_vehikel(const koord platz1, const koord p
 	 */
 	for(int i = 0; i < anz_vehikel; i++) {
 		// use the vehicle we searched before
-		vehicle_t* v = vehikelbauer_t::build(start_pos, this, NULL, rail_vehicle);
+		vehicle_t* v = vehicle_builder_t::build(start_pos, this, NULL, rail_vehicle);
 		cnv->add_vehikel( v );
 	}
 
@@ -1424,13 +1424,13 @@ void ai_goods_t::rdwr(loadsave_t *file)
 		freight = temp ? warenbauer_t::get_info(temp) : NULL;
 		// vehicles
 		file->rdwr_str( temp );
-		rail_engine = temp ? vehikelbauer_t::get_info(temp) : NULL;
+		rail_engine = temp ? vehicle_builder_t::get_info(temp) : NULL;
 		file->rdwr_str( temp );
-		rail_vehicle = temp ? vehikelbauer_t::get_info(temp) : NULL;
+		rail_vehicle = temp ? vehicle_builder_t::get_info(temp) : NULL;
 		file->rdwr_str( temp );
-		road_vehicle = temp ? vehikelbauer_t::get_info(temp) : NULL;
+		road_vehicle = temp ? vehicle_builder_t::get_info(temp) : NULL;
 		file->rdwr_str( temp );
-		ship_vehicle = temp ? vehikelbauer_t::get_info(temp) : NULL;
+		ship_vehicle = temp ? vehicle_builder_t::get_info(temp) : NULL;
 		// ways
 		file->rdwr_str( temp );
 		rail_weg = temp ? wegbauer_t::get_desc(temp,0) : NULL;

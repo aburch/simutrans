@@ -15,7 +15,7 @@
 void vehicle_reader_t::register_obj(obj_desc_t *&data)
 {
 	vehikel_besch_t *desc = static_cast<vehikel_besch_t *>(data);
-	vehikelbauer_t::register_desc(desc);
+	vehicle_builder_t::register_desc(desc);
 	obj_for_xref(get_type(), desc->get_name(), data);
 
 	checksum_t *chk = new checksum_t();
@@ -26,7 +26,7 @@ void vehicle_reader_t::register_obj(obj_desc_t *&data)
 
 bool vehicle_reader_t::successfully_loaded() const
 {
-	return vehikelbauer_t::successfully_loaded();
+	return vehicle_builder_t::successfully_loaded();
 }
 
 

@@ -44,7 +44,7 @@ class checksum_t;
  */
 class vehikel_besch_t : public obj_desc_transport_related_t {
     friend class vehicle_reader_t;
-    friend class vehikelbauer_t;
+    friend class vehicle_builder_t;
 
 public:
 	/**

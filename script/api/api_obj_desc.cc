@@ -194,7 +194,7 @@ const vector_tpl<const vehikel_besch_t*>& get_available_vehicles(waytype_t wt)
 	uint16 time = welt->get_timeline_year_month();
 
 	dummy.clear();
-	slist_tpl<vehikel_besch_t const*> const& list = vehikelbauer_t::get_info(wt);
+	slist_tpl<vehikel_besch_t const*> const& list = vehicle_builder_t::get_info(wt);
 
 	FOR(slist_tpl<vehikel_besch_t const*> const, i, list) {
 		if (!i->is_retired(time)  ||  use_obsolete) {

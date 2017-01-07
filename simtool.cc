@@ -3047,7 +3047,7 @@ bool tool_wayremover_t::calc_route( route_t &verbindung, player_t *player, const
 		test_driver_t* test_driver;
 		if(  wt!=powerline_wt  ) {
 			vehikel_besch_t remover_desc(wt, 500, vehikel_besch_t::diesel );
-			vehicle_t *driver = vehikelbauer_t::build(start, player, NULL, &remover_desc);
+			vehicle_t *driver = vehicle_builder_t::build(start, player, NULL, &remover_desc);
 			driver->set_flag( obj_t::not_on_map );
 			test_driver = driver;
 		}
@@ -3304,7 +3304,7 @@ bool tool_build_wayobj_t::calc_route( route_t &verbindung, player_t *player, con
 {
 	// get a default vehikel
 	vehikel_besch_t remover_desc( wt, 500, vehikel_besch_t::diesel );
-	vehicle_t* test_vehicle = vehikelbauer_t::build(start, player, NULL, &remover_desc);
+	vehicle_t* test_vehicle = vehicle_builder_t::build(start, player, NULL, &remover_desc);
 	test_vehicle->set_flag( obj_t::not_on_map );
 	test_driver_t* test_driver = scenario_checker_t::apply(test_vehicle, player, this);
 
@@ -4720,7 +4720,7 @@ bool tool_build_roadsign_t::calc_route( route_t &verbindung, player_t *player, c
 {
 	// get a default vehikel
 	vehikel_besch_t rs_desc( desc->get_wtyp(), 500, vehikel_besch_t::diesel );
-	vehicle_t* test_vehicle = vehikelbauer_t::build(start, player, NULL, &rs_desc);
+	vehicle_t* test_vehicle = vehicle_builder_t::build(start, player, NULL, &rs_desc);
 	test_vehicle->set_flag(obj_t::not_on_map);
 	test_driver_t* test_driver = scenario_checker_t::apply(test_vehicle, player, this);
 
@@ -7110,7 +7110,7 @@ bool tool_change_depot_t::init( player_t *player )
 			}
 			else {
 				// create and append it
-				const vehikel_besch_t *info = vehikelbauer_t::get_info( p );
+				const vehikel_besch_t *info = vehicle_builder_t::get_info( p );
 				// we have a valid vehicle there => now check for details
 				if(  info  ) {
 					// we buy/sell all vehicles together!

@@ -120,3 +120,14 @@ baue_tunnel\\>,build_tunnel
 baue_einfahrt,build_tunnel_portal
 tunnelbauer_t,tunnel_builder_t
 find_tunnel,get_tunnel_desc
+zuladung,capacity
+gewicht,weight
+sum_gear_und_leistung,sum_gear_and_power
+leistung,power
+\\<vorgaenger\\>,leader_count
+\\<nachfolger\\>,trailer_count
+get_vorgaenger_count,get_leader_count
+get_nachfolger_count,get_trailer_count
+get_vorgaenger,get_leader
+get_nachfolger,get_trailer
+get_betriebskosten,get_running_cost
