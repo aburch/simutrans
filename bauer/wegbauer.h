@@ -181,8 +181,6 @@ public:
 
 	uint32 get_count() const { return route.get_count(); }
 
-	sint32 n;
-
 	/**
 	 * If a way is built on top of another way, should the type
 	 * of the former way be kept or replaced (true == keep)

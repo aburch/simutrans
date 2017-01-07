@@ -1162,7 +1162,6 @@ void wegbauer_t::check_for_bridge(const grund_t* parent_from, const grund_t* fro
 
 wegbauer_t::wegbauer_t(player_t* player_) : next_gr(32)
 {
-	n      = 0;
 	player_builder     = player_;
 	bautyp = strasse;   // kann mit route_fuer() gesetzt werden
 	maximum = 2000;// CA $ PER TILE
