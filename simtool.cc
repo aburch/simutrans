@@ -3236,7 +3236,7 @@ const char* tool_build_wayobj_t::get_tooltip(const player_t *) const
 		if(desc) {
 			tooltip_with_price_maintenance( welt, desc->get_name(), -desc->get_preis(), desc->get_wartung() );
 			size_t n= strlen(toolstr);
-			if (desc->get_own_wtyp()==overheadlines_wt) {
+			if (desc->is_overhead_line()) {
 				// only overheadlines impose topspeed
 				sprintf(toolstr+n, ", %dkm/h", desc->get_topspeed());
 			}
@@ -3257,7 +3257,7 @@ const way_obj_desc_t *tool_build_wayobj_t::get_desc() const
 	if(desc==NULL) {
 		desc = default_electric;
 		if(desc==NULL) {
-			desc = wayobj_t::wayobj_search( track_wt, overheadlines_wt, welt->get_timeline_year_month() );
+			desc = wayobj_t::get_overhead_line( track_wt, welt->get_timeline_year_month() );
 		}
 	}
 	return desc;

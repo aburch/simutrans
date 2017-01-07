@@ -123,7 +123,7 @@ public:
 	static bool successfully_loaded();
 
 	// search an object (currently only used by AI for caternary)
-	static const way_obj_desc_t *wayobj_search(waytype_t wt,waytype_t own,uint16 time);
+	static const way_obj_desc_t *get_overhead_line(waytype_t wt, uint16 time);
 
 	static const way_obj_desc_t *find_desc(const char *);
 

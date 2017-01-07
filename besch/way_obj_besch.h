@@ -20,16 +20,15 @@ class tool_t;
 class checksum_t;
 
 /**
- * Way type description. Contains all needed values to describe a
- * way type in Simutrans.
+ * Way objects type description (like overhead lines).
  *
- *  Child nodes:
- *	0   Name
- *	1   Copyright
- *	2   Flache Bilder mit ribis
- *	3   Hangbilder
- *	4   Flache Bilder Diagonalstrecken
- *      5   Hajo: Skin (cursor and icon)
+ * Child nodes:
+ *	0	Name
+ *	1	Copyright
+ *	2	Image on flat ways
+ *	3	Image on sloped ways
+ *	4	Image on diagonal ways
+ *	5	Skin (cursor and icon)
  *
  * @author  Volker Meyer, Hj. Malthaner
  */
@@ -38,21 +37,14 @@ class way_obj_desc_t : public obj_desc_transport_infrastructure_t {
 
 private:
 
-    /**
-     * set to powerline of overheadwire or ignore
-     * @see waytype_t
-     * @author Hj. Malthaner
-     */
+	/**
+	 * Type of the object, only overheadlines_wt is currently used.
+	 */
 	uint8 own_wtyp;
 
 public:
 
-	/**
-	* returns the system type of this way (mostly used with rails)
-	* @see weg_t::styp
-	* @author DarioK
-	*/
-	waytype_t get_own_wtyp() const { return (waytype_t)own_wtyp; }
+	bool is_overhead_line() const { return (waytype_t)own_wtyp == overheadlines_wt; }
 
 	// way objects can have a front and a backimage, unlike ways ...
 	image_id get_front_image_id(ribi_t::ribi ribi) const { return get_child<image_list_t>(2)->get_image_id(ribi); }

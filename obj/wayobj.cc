@@ -73,7 +73,7 @@ wayobj_t::~wayobj_t()
 	if(get_owner()) {
 		player_t::add_maintenance(get_owner(), -desc->get_wartung(), get_waytype());
 	}
-	if(desc->get_own_wtyp()==overheadlines_wt) {
+	if(desc->is_overhead_line()) {
 		grund_t *gr=welt->lookup(get_pos());
 		weg_t *weg=NULL;
 		if(gr) {
@@ -202,7 +202,7 @@ void wayobj_t::finish_rd()
 	}
 
 	// electrify a way if we are a catenary
-	if(desc->get_own_wtyp()==overheadlines_wt) {
+	if(desc->is_overhead_line()) {
 		const waytype_t wt = (desc->get_wtyp()==tram_wt) ? track_wt : desc->get_wtyp();
 		weg_t *weg = welt->lookup(get_pos())->get_weg(wt);
 		if(weg) {
@@ -407,7 +407,7 @@ bool wayobj_t::successfully_loaded()
 	way_obj_desc_t const* def = 0;
 	FOR(stringhashtable_tpl<way_obj_desc_t const*>, const& i, table) {
 		way_obj_desc_t const& b = *i.value;
-		if (b.get_own_wtyp() != overheadlines_wt)           continue;
+		if (!b.is_overhead_line())                          continue;
 		if (b.get_wtyp()     != track_wt)                   continue;
 		if (def && def->get_topspeed() >= b.get_topspeed()) continue;
 		def = &b;
@@ -483,11 +483,11 @@ void wayobj_t::fill_menu(tool_selector_t *tool_selector, waytype_t wtyp, sint16 
 }
 
 
-const way_obj_desc_t *wayobj_t::wayobj_search(waytype_t wt, waytype_t own, uint16 time)
+const way_obj_desc_t *wayobj_t::get_overhead_line(waytype_t wt, uint16 time)
 {
 	FOR(stringhashtable_tpl<way_obj_desc_t const*>, const& i, table) {
 		way_obj_desc_t const* const desc = i.value;
-		if(  desc->is_available(time)  &&  desc->get_wtyp()==wt  &&  desc->get_own_wtyp()==own  ) {
+		if(  desc->is_available(time)  &&  desc->get_wtyp()==wt  &&  desc->is_overhead_line()  ) {
 			return desc;
 		}
 	}
