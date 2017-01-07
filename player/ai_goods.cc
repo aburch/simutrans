@@ -356,7 +356,7 @@ bool ai_goods_t::suche_platz1_platz2(fabrik_t *qfab, fabrik_t *zfab, int length 
 bool ai_goods_t::create_ship_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 {
 	// pak64 has barges ...
-	const vehikel_besch_t *v_second = NULL;
+	const vehicle_desc_t *v_second = NULL;
 	if(ship_vehicle->get_power()==0) {
 		v_second = ship_vehicle;
 		if(v_second->get_leader_count()==0  ||  v_second->get_leader(0)==NULL) {
@@ -520,7 +520,7 @@ void ai_goods_t::create_rail_transport_vehikel(const koord platz1, const koord p
 	koord3d pos2 = welt->lookup_kartenboden(platz2)->get_pos();
 
 	// probably need to electrify the track?
-	if(  rail_engine->get_engine_type()==vehikel_besch_t::electric  ) {
+	if(  rail_engine->get_engine_type()==vehicle_desc_t::electric  ) {
 		// we need overhead wires
 		const way_obj_desc_t *e = wayobj_t::get_overhead_line(track_wt, welt->get_timeline_year_month());
 		tool_build_wayobj_t tool;
@@ -1085,7 +1085,7 @@ DBG_MESSAGE("ai_goods_t::do_ki()","No roadway possible.");
 						int best_rail_speed = min(51, rail_vehicle->get_geschw());
 						// for engine: gues number of cars
 						sint32 power_needed=(sint32)(((best_rail_speed*best_rail_speed)/2500.0+1.0)*(100.0+count_rail*( (rail_vehicle->get_weight()+rail_vehicle->get_capacity()*freight->get_weight_per_unit())*0.001 )));
-						const vehikel_besch_t *v=vehikel_search( track_wt, power_needed, best_rail_speed, NULL, false);
+						const vehicle_desc_t *v=vehikel_search( track_wt, power_needed, best_rail_speed, NULL, false);
 						if(v->get_running_cost()<rail_engine->get_running_cost()) {
 							rail_engine = v;
 						}

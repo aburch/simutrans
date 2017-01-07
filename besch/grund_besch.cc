@@ -1026,9 +1026,9 @@ image_id ground_besch_t::get_ground_tile(grund_t *gr)
 	const sint16 tile_h = height - welt->get_water_hgt(k);
 	if(  tile_h < 0  ||  (tile_h == 0  &&  slope == slope_t::flat)  ) {
 		// deep water
-		image_array_t const* const liste = sea->get_child<image_array_t>(2);
-		int nr = min( -tile_h, liste->get_count() - 2 );
-		return liste->get_image( nr, 0 )->get_id();
+		image_array_t const* const list = sea->get_child<image_array_t>(2);
+		int nr = min( -tile_h, list->get_count() - 2 );
+		return list->get_image( nr, 0 )->get_id();
 	}
 	else {
 		const bool snow = height >= welt->get_snowline();

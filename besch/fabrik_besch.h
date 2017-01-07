@@ -88,7 +88,7 @@ public:
  *      Volker Meyer
  *
  *  Description:
- *      Der Rauch einer Fabrik verweist auf eine allgemeine Rauchbeschreibung
+ *      Smoke objects for factories.
  *
  *  Child nodes:
  *	0   SKin
@@ -190,17 +190,17 @@ public:
  *      Volker Meyer
  *
  *  Description:
- *      Jetzt endlich die Ganze Fabrik
+ *      Factory.
  *
  *  Child nodes:
- *	0   Haus
- *	1   Rauch
- *	2   Lieferant 1
- *	3   Lieferant 2
+ *	0   House descriptor
+ *	1   Smoke descriptor
+ *	2   Supplier descriptor 1
+ *	3   Supplier descriptor 2
  *	... ...
- *	n+1 Lieferant n
- *	n+2 Produkt 1
- *	n+3 Produkt 2
+ *	n+1 Supplier descriptor n
+ *	n+2 Consumer descriptor 1
+ *	n+3 Consumer descriptor 2
  *	... ...
  */
 class factory_desc_t : public obj_desc_t {
@@ -213,7 +213,7 @@ private:
 	site_t placement;
 	uint16 productivity;
 	uint16 range;
-	uint16 chance;	// Wie wahrscheinlich soll der Bau sein?
+	uint16 chance;	// probability of construction of this factory
 	uint8 color;
 	uint16 supplier_count;
 	uint16 product_count;
@@ -232,9 +232,6 @@ private:
 	uint16 mail_demand;
 
 public:
-	/*
-	* Name und Copyright sind beim Gebäude gespeichert!
-	*/
 	const char *get_name() const { return get_building()->get_name(); }
 	const char *get_copyright() const { return get_building()->get_copyright(); }
 	building_desc_t  const* get_building()  const { return get_child<building_desc_t>(0); }

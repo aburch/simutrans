@@ -31,7 +31,7 @@ private:
 	state state;
 
 	// we will use this vehicle!
-	const vehikel_besch_t *road_vehicle;
+	const vehicle_desc_t *road_vehicle;
 
 	// and the convoi will run on this track:
 	const way_desc_t *road_weg ;

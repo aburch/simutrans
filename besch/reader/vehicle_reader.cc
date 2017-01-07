@@ -14,7 +14,7 @@
 
 void vehicle_reader_t::register_obj(obj_desc_t *&data)
 {
-	vehikel_besch_t *desc = static_cast<vehikel_besch_t *>(data);
+	vehicle_desc_t *desc = static_cast<vehicle_desc_t *>(data);
 	vehicle_builder_t::register_desc(desc);
 	obj_for_xref(get_type(), desc->get_name(), data);
 
@@ -34,7 +34,7 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
 	ALLOCA(char, besch_buf, node.size);
 
-	vehikel_besch_t *desc = new vehikel_besch_t();
+	vehicle_desc_t *desc = new vehicle_desc_t();
 
 	// Hajo: Read data
 	fread(besch_buf, node.size, 1, fp);
@@ -269,13 +269,13 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	if(version<2) {
 		// steam eangines usually have a sound of 3
 		// electric engines will be overridden further down ...
-		desc->engine_type = (desc->sound==3) ? vehikel_besch_t::steam : vehikel_besch_t::diesel;
+		desc->engine_type = (desc->sound==3) ? vehicle_desc_t::steam : vehicle_desc_t::diesel;
 	}
 
 	//change the vehicle type
 	if(version<4) {
 		if(desc->wt==4) {
-			desc->engine_type = vehikel_besch_t::electric;
+			desc->engine_type = vehicle_desc_t::electric;
 			desc->wt = 1;
 		}
 		// convert to new standard

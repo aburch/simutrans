@@ -177,7 +177,7 @@ void depot_t::show_info()
 }
 
 
-vehicle_t* depot_t::buy_vehicle(const vehikel_besch_t* info)
+vehicle_t* depot_t::buy_vehicle(const vehicle_desc_t* info)
 {
 	DBG_DEBUG("depot_t::buy_vehicle()", info->get_name());
 	vehicle_t* veh = vehicle_builder_t::build(get_pos(), get_owner(), NULL, info );
@@ -228,7 +228,7 @@ void depot_t::sell_vehicle(vehicle_t* veh)
 
 
 // returns the indest of the oldest/newest vehicle in a list
-vehicle_t* depot_t::find_oldest_newest(const vehikel_besch_t* desc, bool old)
+vehicle_t* depot_t::find_oldest_newest(const vehicle_desc_t* desc, bool old)
 {
 	vehicle_t* found_veh = NULL;
 	FOR(  slist_tpl<vehicle_t*>,  const veh,  vehicles  ) {
@@ -263,7 +263,7 @@ bool depot_t::check_obsolete_inventory(convoihandle_t cnv)
 	slist_tpl<vehicle_t*> veh_tmp_list;
 
 	for(  int i = 0;  i < cnv->get_vehicle_count();  i++  ) {
-		const vehikel_besch_t* const vb = cnv->get_vehikel(i)->get_desc();
+		const vehicle_desc_t* const vb = cnv->get_vehikel(i)->get_desc();
 		if(  vb  ) {
 			// search storage for matching vehicle
 			vehicle_t* veh = NULL;
@@ -303,7 +303,7 @@ convoihandle_t depot_t::copy_convoi(convoihandle_t old_cnv, bool local_execution
 		new_cnv->set_name(old_cnv->get_internal_name());
 		int vehicle_count = old_cnv->get_vehicle_count();
 		for (int i = 0; i<vehicle_count; i++) {
-			const vehikel_besch_t * info = old_cnv->get_vehikel(i)->get_desc();
+			const vehicle_desc_t * info = old_cnv->get_vehikel(i)->get_desc();
 			if (info != NULL) {
 				// search in depot for an existing vehicle of correct type
 				vehicle_t* oldest_vehicle = get_oldest_vehicle(info);
@@ -565,13 +565,13 @@ const char * depot_t::is_deletable(const player_t *player)
 }
 
 
-slist_tpl<vehikel_besch_t const*> const& depot_t::get_vehicle_type() const
+slist_tpl<vehicle_desc_t const*> const& depot_t::get_vehicle_type() const
 {
 	return vehicle_builder_t::get_info(get_waytype());
 }
 
 
-vehicle_t* depot_t::get_oldest_vehicle(const vehikel_besch_t* desc)
+vehicle_t* depot_t::get_oldest_vehicle(const vehicle_desc_t* desc)
 {
 	vehicle_t* oldest_veh = NULL;
 	FOR(slist_tpl<vehicle_t*>, const veh, get_vehicle_list()) {

@@ -110,7 +110,7 @@ public:
 
 	/* the static routines */
 private:
-	static vector_tpl<const way_obj_desc_t *> liste;
+	static vector_tpl<const way_obj_desc_t *> list;
 	static stringhashtable_tpl<const way_obj_desc_t *> table;
 
 public:

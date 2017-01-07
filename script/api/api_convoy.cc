@@ -40,9 +40,9 @@ vector_tpl<sint64> const& get_convoy_stat(convoi_t* cnv, sint32 INDEX)
 }
 
 
-vector_tpl<vehikel_besch_t const*> const& convoi_get_vehicles(convoi_t* cnv)
+vector_tpl<vehicle_desc_t const*> const& convoi_get_vehicles(convoi_t* cnv)
 {
-	static vector_tpl<vehikel_besch_t const*> v;
+	static vector_tpl<vehicle_desc_t const*> v;
 	v.clear();
 	if (cnv) {
 		for(uint16 i=0; i<cnv->get_vehicle_count(); i++) {

@@ -38,8 +38,8 @@ private:
 	static vector_tpl<const building_desc_t*> headquarter;       ///< Company headquarters
 	static vector_tpl<const building_desc_t*> station_building;  ///< All station buildings
 
-	/// @returns a random entry from @p liste
-	static const building_desc_t* get_random_desc(vector_tpl<const building_desc_t*>& liste, uint16 time, bool ignore_retire, climate cl);
+	/// @returns a random entry from @p list
+	static const building_desc_t* get_random_desc(vector_tpl<const building_desc_t*>& list, uint16 time, bool ignore_retire, climate cl);
 
 	/// our game world
 	static karte_ptr_t welt;

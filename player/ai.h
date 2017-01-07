@@ -15,7 +15,7 @@
 #include "../sucher/bauplatz_sucher.h"
 
 class karte_t;
-class vehikel_besch_t;
+class vehicle_desc_t;
 class ware_besch_t;
 
 /**
@@ -98,7 +98,7 @@ public:
 	bool create_simple_road_transport(koord platz1, koord size1, koord platz2, koord size2, const way_desc_t *road );
 
 	/// helper method to call vehicle_builder_t::vehikel_search and fill in time-line related parameters
-	static const vehikel_besch_t *vehikel_search(waytype_t typ, const uint32 target_power, const sint32 target_speed, const ware_besch_t * target_freight, bool include_electric);
+	static const vehicle_desc_t *vehikel_search(waytype_t typ, const uint32 target_power, const sint32 target_speed, const ware_besch_t * target_freight, bool include_electric);
 };
 
 #endif

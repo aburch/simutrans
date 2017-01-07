@@ -43,10 +43,10 @@ private:
 	const ware_besch_t *freight;
 
 	// we will use this vehicle!
-	const vehikel_besch_t *rail_vehicle;
-	const vehikel_besch_t *rail_engine;
-	const vehikel_besch_t *road_vehicle;
-	const vehikel_besch_t *ship_vehicle;
+	const vehicle_desc_t *rail_vehicle;
+	const vehicle_desc_t *rail_engine;
+	const vehicle_desc_t *road_vehicle;
+	const vehicle_desc_t *ship_vehicle;
 
 	// and the convoi will run on this track:
 	const way_desc_t *rail_weg;

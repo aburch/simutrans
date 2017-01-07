@@ -23,10 +23,7 @@ class checksum_t;
  *      Volker Meyer
  *
  *  Description:
- *      Das komplette Bild besteht aus Hinter- und Vorgergrund. Außerdem ist
- *      hier die Anzahl der Animationen festgelegt. Diese weiter unten zu
- *      definieren macht kaum Sinn, da die Animationslogik immer das ganze
- *      Tile betrifft.
+ *      Data for one tile of a potentially multi-tile building.
  *
  *  Child nodes:
  *   0   Imagelist2D season 0 back
@@ -41,7 +38,7 @@ class building_tile_desc_t : public obj_desc_t {
 	const building_desc_t	*building;
 
 	uint8  seasons;
-	uint8  phases;	    // Wie viele Animationsphases haben wir?
+	uint8  phases;	    ///< number of animation phases
 	uint16 index;
 
 public:
@@ -71,7 +68,7 @@ public:
 	}
 
 	// returns true, if the background is animated
-	bool is_hintergrund_phases(uint8 season) const
+	bool is_background_animated(uint8 season) const
 	{
 		image_array_t const* const imglist = get_child<image_array_t>(0 + 2 * season);
 		const uint16 max_h = imglist->get_count();
@@ -108,8 +105,7 @@ public:
  *      Volker Meyer
  *
  *  Description:
- *      Die Hausbeschreibung enthält die Komplettbeschrebung eines Gebäudes.
- *      Das sind mehre Tiles und die Attribute für die Spielsteuerung.
+ *      Data for one building, consists of potentially more than one tile.
  *
  *  Child nodes:
  *	0   Name

@@ -581,7 +581,7 @@ void depot_frame_t::activate_convoi( convoihandle_t c )
 
 
 // true if already stored here
-bool depot_frame_t::is_in_vehicle_list(const vehikel_besch_t *info)
+bool depot_frame_t::is_in_vehicle_list(const vehicle_desc_t *info)
 {
 	FOR(slist_tpl<vehicle_t*>, const v, depot->get_vehicle_list()) {
 		if(  v->get_desc() == info  ) {
@@ -593,7 +593,7 @@ bool depot_frame_t::is_in_vehicle_list(const vehikel_besch_t *info)
 
 
 // add a single vehicle (helper function)
-void depot_frame_t::add_to_vehicle_list(const vehikel_besch_t *info)
+void depot_frame_t::add_to_vehicle_list(const vehicle_desc_t *info)
 {
 	// prissi: is it a non-electric track?
 	// Hajo: check for timeline
@@ -631,7 +631,7 @@ void depot_frame_t::add_to_vehicle_list(const vehikel_besch_t *info)
 
 	gui_image_list_t::image_data_t* img_data = new gui_image_list_t::image_data_t(info->get_name(), info->get_base_image());
 
-	if(  info->get_engine_type() == vehikel_besch_t::electric  &&  (info->get_ware()==warenbauer_t::passagiere  ||  info->get_ware()==warenbauer_t::post)  ) {
+	if(  info->get_engine_type() == vehicle_desc_t::electric  &&  (info->get_ware()==warenbauer_t::passagiere  ||  info->get_ware()==warenbauer_t::post)  ) {
 		electrics_vec.append(img_data);
 	}
 	// since they come "pre-sorted" for the vehikelbauer, we have to do nothing to keep them sorted
@@ -681,15 +681,15 @@ void depot_frame_t::build_vehicle_lists()
 	if(!show_all  &&  veh_action==va_sell) {
 		// just list the one to sell
 		FOR(slist_tpl<vehicle_t*>, const v, depot->get_vehicle_list()) {
-			vehikel_besch_t const* const d = v->get_desc();
+			vehicle_desc_t const* const d = v->get_desc();
 			if (vehicle_map.get(d)) continue;
 			add_to_vehicle_list(d);
 		}
 	}
 	else {
 		// list only matching ones
-		FOR(slist_tpl<vehikel_besch_t const*>, const info, depot->get_vehicle_type()) {
-			const vehikel_besch_t *veh = NULL;
+		FOR(slist_tpl<vehicle_desc_t const*>, const info, depot->get_vehicle_type()) {
+			const vehicle_desc_t *veh = NULL;
 			convoihandle_t cnv = depot->get_convoi(icnv);
 			if(cnv.is_bound() && cnv->get_vehicle_count()>0) {
 				veh = (veh_action == va_insert ? cnv->front() : cnv->back())->get_desc();
@@ -697,7 +697,7 @@ void depot_frame_t::build_vehicle_lists()
 
 			// current vehicle
 			if( is_in_vehicle_list(info)  ||
-				((weg_electrified  ||  info->get_engine_type()!=vehikel_besch_t::electric)  &&
+				((weg_electrified  ||  info->get_engine_type()!=vehicle_desc_t::electric)  &&
 					 ((!info->is_future(month_now))  &&  (show_retired_vehicles  ||  (!info->is_retired(month_now)) )  ) )) {
 				// check, if allowed
 				bool append = true;
@@ -779,13 +779,13 @@ void depot_frame_t::update_data()
 		}
 	}
 
-	const vehikel_besch_t *veh = NULL;
+	const vehicle_desc_t *veh = NULL;
 
 	clear_ptr_vector( convoi_pics );
 	if(  cnv.is_bound()  &&  cnv->get_vehicle_count() > 0  ) {
 		for(  unsigned i=0;  i < cnv->get_vehicle_count();  i++  ) {
 			// just make sure, there is this vehicle also here!
-			const vehikel_besch_t *info=cnv->get_vehikel(i)->get_desc();
+			const vehicle_desc_t *info=cnv->get_vehikel(i)->get_desc();
 			if(  vehicle_map.get( info ) == NULL  ) {
 				add_to_vehicle_list( info );
 			}
@@ -821,7 +821,7 @@ void depot_frame_t::update_data()
 	}
 
 	FOR(vehicle_image_map, const& i, vehicle_map) {
-		vehikel_besch_t const* const    info = i.key;
+		vehicle_desc_t const* const    info = i.key;
 		gui_image_list_t::image_data_t& img  = *i.value;
 		const uint8 ok_color = info->is_available(month_now) ? COL_GREEN : COL_BLUE;
 
@@ -949,7 +949,7 @@ void depot_frame_t::update_data()
 }
 
 
-sint64 depot_frame_t::calc_restwert(const vehikel_besch_t *veh_type)
+sint64 depot_frame_t::calc_restwert(const vehicle_desc_t *veh_type)
 {
 	sint64 wert = 0;
 	FOR(slist_tpl<vehicle_t*>, const v, depot->get_vehicle_list()) {
@@ -990,7 +990,7 @@ void depot_frame_t::image_from_convoi_list(uint nr, bool to_end)
 		unsigned start_nr = nr;
 		while(  start_nr > 0  ) {
 			start_nr--;
-			const vehikel_besch_t *info = cnv->get_vehikel(start_nr)->get_desc();
+			const vehicle_desc_t *info = cnv->get_vehikel(start_nr)->get_desc();
 			if(  info->get_trailer_count() != 1  ) {
 				start_nr++;
 				break;
@@ -1309,7 +1309,7 @@ void depot_frame_t::draw(scr_coord pos, scr_size size)
 			}
 
 			for(  unsigned i = 0;  i < cnv->get_vehicle_count();  i++  ) {
-				const vehikel_besch_t *desc = cnv->get_vehikel(i)->get_desc();
+				const vehicle_desc_t *desc = cnv->get_vehikel(i)->get_desc();
 
 				total_power += desc->get_power()*desc->get_gear();
 
@@ -1548,7 +1548,7 @@ void depot_frame_t::draw_vehicle_info_text(scr_coord pos)
 	int x = get_mouse_x();
 	int y = get_mouse_y();
 	double resale_value = -1.0;
-	const vehikel_besch_t *veh_type = NULL;
+	const vehicle_desc_t *veh_type = NULL;
 	bool new_vehicle_length_sb_force_zero = false;
 	scr_coord relpos = scr_coord( 0, ((gui_scrollpane_t *)tabs.get_aktives_tab())->get_scroll_y() );
 	int sel_index = lst->index_at( pos + tabs.get_pos() - relpos, x, y - D_TITLEBAR_HEIGHT - D_TAB_HEADER_HEIGHT);

@@ -108,7 +108,7 @@ void obj_writer_t::list_nodes(FILE* infp)
 
 void obj_writer_t::show_capabilites()
 {
-	slist_tpl<obj_writer_t*> liste;
+	slist_tpl<obj_writer_t*> list;
 	const char *min_s="A";
 
 	while (true) {

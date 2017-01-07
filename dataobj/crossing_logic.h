@@ -72,7 +72,7 @@ public:
 
 	// static routines from here
 private:
-	static slist_tpl<const crossing_desc_t *> liste;
+	static slist_tpl<const crossing_desc_t *> list;
 	// save all desc' only for waytype0 < waytype1
 	static minivec_tpl<const crossing_desc_t *> can_cross_array[36];
 

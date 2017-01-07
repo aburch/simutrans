@@ -928,7 +928,7 @@ void vehicle_t::initialise_journey(uint16 start_route_index, bool recalc)
 }
 
 
-vehicle_t::vehicle_t(koord3d pos, const vehikel_besch_t* desc, player_t* player_) :
+vehicle_t::vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t* player_) :
 	vehicle_base_t(pos)
 {
 	this->desc = desc;
@@ -1228,7 +1228,7 @@ void vehicle_t::make_smoke() const
 	// does it smoke at all?
 	if(  smoke  &&  desc->get_smoke()  ) {
 		// Hajo: only produce smoke when heavily accelerating or steam engine
-		if(  cnv->get_akt_speed() < (sint32)((cnv->get_speed_limit() * 7u) >> 3)  ||  desc->get_engine_type() == vehikel_besch_t::steam  ) {
+		if(  cnv->get_akt_speed() < (sint32)((cnv->get_speed_limit() * 7u) >> 3)  ||  desc->get_engine_type() == vehicle_desc_t::steam  ) {
 			grund_t* const gr = welt->lookup( get_pos() );
 			if(  gr  ) {
 				wolke_t* const abgas =  new wolke_t( get_pos(), get_xoff() + ((dx * (sint16)((uint16)steps * OBJECT_OFFSET_STEPS)) >> 8), get_yoff() + ((dy * (sint16)((uint16)steps * OBJECT_OFFSET_STEPS)) >> 8) + get_hoff(), desc->get_smoke() );
@@ -1802,7 +1802,7 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_gobal) const
 
 
 
-road_vehicle_t::road_vehicle_t(koord3d pos, const vehikel_besch_t* desc, player_t* player_, convoi_t* cn) :
+road_vehicle_t::road_vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t* player_, convoi_t* cn) :
 	vehicle_t(pos, desc, player_)
 {
 	cnv = cn;
@@ -1814,7 +1814,7 @@ road_vehicle_t::road_vehicle_t(loadsave_t *file, bool is_first, bool is_last) : 
 	rdwr_from_convoi(file);
 
 	if(  file->is_loading()  ) {
-		static const vehikel_besch_t *last_desc = NULL;
+		static const vehicle_desc_t *last_desc = NULL;
 
 		if(is_first) {
 			last_desc = NULL;
@@ -1869,7 +1869,7 @@ bool road_vehicle_t::check_next_tile(const grund_t *bd) const
 	if(str==NULL  ||  str->get_max_speed()==0) {
 		return false;
 	}
-	bool electric = cnv!=NULL  ?  cnv->needs_electrification() : desc->get_engine_type()==vehikel_besch_t::electric;
+	bool electric = cnv!=NULL  ?  cnv->needs_electrification() : desc->get_engine_type()==vehicle_desc_t::electric;
 	if(electric  &&  !str->is_electrified()) {
 		return false;
 	}
@@ -2333,7 +2333,7 @@ rail_vehicle_t::rail_vehicle_t(loadsave_t *file, bool is_first, bool is_last) : 
 	vehicle_t::rdwr_from_convoi(file);
 
 	if(  file->is_loading()  ) {
-		static const vehikel_besch_t *last_desc = NULL;
+		static const vehicle_desc_t *last_desc = NULL;
 
 		if(is_first) {
 			last_desc = NULL;
@@ -2371,7 +2371,7 @@ DBG_MESSAGE("rail_vehicle_t::rail_vehicle_t()","replaced by %s",desc->get_name()
 }
 
 
-rail_vehicle_t::rail_vehicle_t(koord3d pos, const vehikel_besch_t* desc, player_t* player_, convoi_t* cn) :
+rail_vehicle_t::rail_vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t* player_, convoi_t* cn) :
 	vehicle_t(pos, desc, player_)
 {
     cnv = cn;
@@ -2462,7 +2462,7 @@ bool rail_vehicle_t::check_next_tile(const grund_t *bd) const
 
 	// Hajo: diesel and steam engines can use electrified track as well.
 	// also allow driving on foreign tracks ...
-	const bool needs_no_electric = !(cnv!=NULL ? cnv->needs_electrification() : desc->get_engine_type()==vehikel_besch_t::electric);
+	const bool needs_no_electric = !(cnv!=NULL ? cnv->needs_electrification() : desc->get_engine_type()==vehicle_desc_t::electric);
 	if(  (!needs_no_electric  &&  !sch->is_electrified())  ||  sch->get_max_speed() == 0  ) {
 		return false;
 	}
@@ -3133,7 +3133,7 @@ schedule_t * narrowgauge_vehicle_t::generate_new_schedule() const
 }
 
 
-water_vehicle_t::water_vehicle_t(koord3d pos, const vehikel_besch_t* desc, player_t* player_, convoi_t* cn) :
+water_vehicle_t::water_vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t* player_, convoi_t* cn) :
 	vehicle_t(pos, desc, player_)
 {
 	cnv = cn;
@@ -3145,7 +3145,7 @@ water_vehicle_t::water_vehicle_t(loadsave_t *file, bool is_first, bool is_last) 
 	vehicle_t::rdwr_from_convoi(file);
 
 	if(  file->is_loading()  ) {
-		static const vehikel_besch_t *last_desc = NULL;
+		static const vehicle_desc_t *last_desc = NULL;
 
 		if(is_first) {
 			last_desc = NULL;
@@ -3927,7 +3927,7 @@ air_vehicle_t::air_vehicle_t(loadsave_t *file, bool is_first, bool is_last) : ve
 	rdwr_from_convoi(file);
 
 	if(  file->is_loading()  ) {
-		static const vehikel_besch_t *last_desc = NULL;
+		static const vehicle_desc_t *last_desc = NULL;
 
 		if(is_first) {
 			last_desc = NULL;
@@ -3948,7 +3948,7 @@ air_vehicle_t::air_vehicle_t(loadsave_t *file, bool is_first, bool is_last) : ve
 }
 
 
-air_vehicle_t::air_vehicle_t(koord3d pos, const vehikel_besch_t* desc, player_t* player_, convoi_t* cn) :
+air_vehicle_t::air_vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t* player_, convoi_t* cn) :
 	vehicle_t(pos, desc, player_)
 {
 	cnv = cn;

@@ -17,8 +17,8 @@
  *      One-dimensional image list.
  *
  *  Child nodes:
- *	0   1st Bild
- *	1   2nd Bild
+ *	0   1st Image
+ *	1   2nd Image
  *	... ...
  */
 class image_list_t : public obj_desc_t {

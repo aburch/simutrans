@@ -258,7 +258,7 @@ const char* label_get_text(label_t* l)
 }
 
 // depot
-call_tool_init depot_append_vehicle(depot_t *depot, player_t *player, convoihandle_t cnv, const vehikel_besch_t *desc)
+call_tool_init depot_append_vehicle(depot_t *depot, player_t *player, convoihandle_t cnv, const vehicle_desc_t *desc)
 {
 	if (desc == NULL) {
 		return "Invalid vehicle_desc_x provided";

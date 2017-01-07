@@ -151,3 +151,7 @@ get_image_id_switch,get_switch_image_id
 get_hang_imageid,get_slope_image_id
 hang_img,slope_img
 get_diagonal_imageid,get_diagonal_image_id
+is_hintergrund_phases,is_background_animated
+vehikel_besch_t,vehicle_desc_t
+\\<liste\\>,list
+\\<liste2d\\>,list2d

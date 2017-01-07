@@ -354,7 +354,7 @@ void gebaeude_t::calc_image()
 		season = effective_season[tile->get_seasons() - 1][welt->get_season()];
 	}
 
-	background_animated = tile->is_hintergrund_phases( season );
+	background_animated = tile->is_background_animated( season );
 }
 
 

@@ -59,9 +59,9 @@ sint64 get_scaled_maintenance(const obj_desc_transport_related_t* desc)
 	return desc ? welt->scale_with_month_length(desc->get_maintenance()) : 0;
 }
 
-sint64 get_scaled_maintenance_vehicle(const vehikel_besch_t* desc)
+sint64 get_scaled_maintenance_vehicle(const vehicle_desc_t* desc)
 {
-	return desc ? welt->scale_with_month_length(desc->vehikel_besch_t::get_maintenance()) : 0;
+	return desc ? welt->scale_with_month_length(desc->vehicle_desc_t::get_maintenance()) : 0;
 }
 
 sint64 get_scaled_maintenance_building(const building_desc_t* desc)
@@ -147,24 +147,24 @@ bool building_is_terminus(const building_desc_t *desc)
 	return desc  &&  desc->get_type() == building_desc_t::generic_stop  &&  desc->get_all_layouts() == 4;
 }
 
-bool can_be_first(const vehikel_besch_t *desc)
+bool can_be_first(const vehicle_desc_t *desc)
 {
 	return desc->can_follow(NULL);
 }
 
-bool can_be_last(const vehikel_besch_t *desc)
+bool can_be_last(const vehicle_desc_t *desc)
 {
 	return desc->can_lead(NULL);
 }
 
-bool is_coupling_allowed(const vehikel_besch_t *besch1, const vehikel_besch_t *besch2)
+bool is_coupling_allowed(const vehicle_desc_t *besch1, const vehicle_desc_t *besch2)
 {
 	return besch1->can_lead(besch2)  &&  besch2->can_follow(besch1);
 }
 
-const vector_tpl<const vehikel_besch_t*>& get_predecessors(const vehikel_besch_t *desc)
+const vector_tpl<const vehicle_desc_t*>& get_predecessors(const vehicle_desc_t *desc)
 {
-	static vector_tpl<const vehikel_besch_t*> dummy;
+	static vector_tpl<const vehicle_desc_t*> dummy;
 	dummy.clear();
 	for(int i=0; i<desc->get_leader_count(); i++) {
 		if (desc->get_leader(i)) {
@@ -174,9 +174,9 @@ const vector_tpl<const vehikel_besch_t*>& get_predecessors(const vehikel_besch_t
 	return dummy;
 }
 
-const vector_tpl<const vehikel_besch_t*>& get_successors(const vehikel_besch_t *desc)
+const vector_tpl<const vehicle_desc_t*>& get_successors(const vehicle_desc_t *desc)
 {
-	static vector_tpl<const vehikel_besch_t*> dummy;
+	static vector_tpl<const vehicle_desc_t*> dummy;
 	dummy.clear();
 	for(int i=0; i<desc->get_trailer_count(); i++) {
 		if (desc->get_trailer(i)) {
@@ -186,17 +186,17 @@ const vector_tpl<const vehikel_besch_t*>& get_successors(const vehikel_besch_t *
 	return dummy;
 }
 
-const vector_tpl<const vehikel_besch_t*>& get_available_vehicles(waytype_t wt)
+const vector_tpl<const vehicle_desc_t*>& get_available_vehicles(waytype_t wt)
 {
-	static vector_tpl<const vehikel_besch_t*> dummy;
+	static vector_tpl<const vehicle_desc_t*> dummy;
 
 	bool use_obsolete = welt->get_settings().get_allow_buying_obsolete_vehicles();
 	uint16 time = welt->get_timeline_year_month();
 
 	dummy.clear();
-	slist_tpl<vehikel_besch_t const*> const& list = vehicle_builder_t::get_info(wt);
+	slist_tpl<vehicle_desc_t const*> const& list = vehicle_builder_t::get_info(wt);
 
-	FOR(slist_tpl<vehikel_besch_t const*> const, i, list) {
+	FOR(slist_tpl<vehicle_desc_t const*> const, i, list) {
 		if (!i->is_retired(time)  ||  use_obsolete) {
 			if (!i->is_future(time)) {
 				dummy.append(i);
@@ -206,7 +206,7 @@ const vector_tpl<const vehikel_besch_t*>& get_available_vehicles(waytype_t wt)
 	return dummy;
 }
 
-uint32 get_power(const vehikel_besch_t *desc)
+uint32 get_power(const vehicle_desc_t *desc)
 {
 	return desc->get_power() * desc->get_gear();
 }
@@ -303,7 +303,7 @@ void export_goods_desc(HSQUIRRELVM vm)
 	/**
 	 * Vehicle descriptors
 	 */
-	begin_besch_class(vm, "vehicle_desc_x", "obj_desc_transport_x", (GETBESCHFUNC)param<const vehikel_besch_t*>::getfunc());
+	begin_besch_class(vm, "vehicle_desc_x", "obj_desc_transport_x", (GETBESCHFUNC)param<const vehicle_desc_t*>::getfunc());
 	/**
 	 * @returns true if this vehicle can lead a convoy
 	 */
@@ -331,15 +331,15 @@ void export_goods_desc(HSQUIRRELVM vm)
 	/**
 	 * @returns freight that can be transported (or null)
 	 */
-	register_method(vm, &vehikel_besch_t::get_ware, "get_freight");
+	register_method(vm, &vehicle_desc_t::get_ware, "get_freight");
 	/**
 	 * @returns capacity
 	 */
-	register_method(vm, &vehikel_besch_t::get_capacity, "get_capacity");
+	register_method(vm, &vehicle_desc_t::get_capacity, "get_capacity");
 	/**
 	 * @returns running cost in 1/100 credits per tile
 	 */
-	register_method(vm, &vehikel_besch_t::get_running_cost, "get_running_cost");
+	register_method(vm, &vehicle_desc_t::get_running_cost, "get_running_cost");
 	/**
 	 * @returns fixed cost in 1/100 credits per month
 	 */
@@ -347,11 +347,11 @@ void export_goods_desc(HSQUIRRELVM vm)
 	/**
 	 * @returns weight of the empty vehicle
 	 */
-	register_method(vm, &vehikel_besch_t::get_weight, "get_weight"); // in kg
+	register_method(vm, &vehicle_desc_t::get_weight, "get_weight"); // in kg
 	/**
 	 * @returns lengths in @ref units::CARUNITS_PER_TILE
 	 */
-	register_method(vm, &vehikel_besch_t::get_length, "get_length"); // in CAR_UNITS_PER_TILE
+	register_method(vm, &vehicle_desc_t::get_length, "get_length"); // in CAR_UNITS_PER_TILE
 	/**
 	 * Checks if the coupling of @p first and @p second is possible in this order.
 	 * @param first

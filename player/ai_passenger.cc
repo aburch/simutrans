@@ -179,7 +179,7 @@ koord ai_passenger_t::find_harbour_pos(karte_t* welt, const stadt_t *s )
 
 bool ai_passenger_t::create_water_transport_vehikel(const stadt_t* start_stadt, const koord target_pos)
 {
-	const vehikel_besch_t *v_desc = vehikel_search(water_wt, 10, 40, warenbauer_t::passagiere, false);
+	const vehicle_desc_t *v_desc = vehikel_search(water_wt, 10, 40, warenbauer_t::passagiere, false);
 	if(v_desc==NULL  ) {
 		// no ship there
 		return false;
@@ -264,8 +264,8 @@ bool ai_passenger_t::create_water_transport_vehikel(const stadt_t* start_stadt, 
 
 	// now we must check, if these two seas are connected
 	{
-		// we use the free own vehikel_besch_t
-		vehikel_besch_t remover_desc( water_wt, 500, vehikel_besch_t::diesel );
+		// we use the free own vehicle_desc_t
+		vehicle_desc_t remover_desc( water_wt, 500, vehicle_desc_t::diesel );
 		vehicle_t* test_driver = vehicle_builder_t::build( koord3d( start_harbour - start_dx, welt->get_water_hgt( start_harbour - start_dx ) ), this, NULL, &remover_desc );
 		test_driver->set_flag( obj_t::not_on_map );
 		route_t verbindung;
@@ -619,7 +619,7 @@ static koord find_airport_pos(karte_t* welt, const stadt_t *s )
  */
 bool ai_passenger_t::create_air_transport_vehikel(const stadt_t *start_stadt, const stadt_t *end_stadt)
 {
-	const vehikel_besch_t *v_desc = vehikel_search(air_wt, 10, 900, warenbauer_t::passagiere, false);
+	const vehicle_desc_t *v_desc = vehikel_search(air_wt, 10, 900, warenbauer_t::passagiere, false);
 	if(v_desc==NULL) {
 		// no aircraft there
 		return false;
@@ -1309,7 +1309,7 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using %s on %s",road_vehicle->g
 							// now try to finde new vehicle
 							vehicle_t              const& v       = *line->get_convoy(0)->front();
 							waytype_t              const  wt      = v.get_waytype();
-							vehikel_besch_t const* const  v_desc = vehicle_builder_t::vehikel_search(wt, welt->get_current_month(), 50, welt->get_average_speed(wt), warenbauer_t::passagiere, false, true);
+							vehicle_desc_t const* const  v_desc = vehicle_builder_t::vehikel_search(wt, welt->get_current_month(), 50, welt->get_average_speed(wt), warenbauer_t::passagiere, false, true);
 							if (!v_desc->is_retired(welt->get_current_month()) && v_desc != v.get_desc()) {
 								// there is a newer one ...
 								for(  uint32 new_capacity=0;  capacity>new_capacity;  new_capacity+=v_desc->get_capacity()) {

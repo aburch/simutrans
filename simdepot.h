@@ -20,7 +20,7 @@
 class karte_t;
 class vehicle_t;
 class depot_frame_t;
-class vehikel_besch_t;
+class vehicle_desc_t;
 
 
 /**
@@ -75,7 +75,7 @@ public:
 	virtual const char * get_zieher_name() { return "Lokomotive_tab"; }
 	virtual const char * get_haenger_name() { return "Waggon_tab"; }
 
-	vehicle_t* find_oldest_newest(const vehikel_besch_t* desc, bool old);
+	vehicle_t* find_oldest_newest(const vehicle_desc_t* desc, bool old);
 
 	/**
 	 * Access to convoi list.
@@ -155,7 +155,7 @@ public:
 	 * @author Volker Meyer
 	 * @date  09.06.2003
 	 */
-	vehicle_t* buy_vehicle(const vehikel_besch_t* info);
+	vehicle_t* buy_vehicle(const vehicle_desc_t* info);
 
 	/**
 	 * Sell a vehicle from the vehicle list.
@@ -168,7 +168,7 @@ public:
 	 * Access to vehicle types which can be bought in the depot.
 	 * @author Volker Meyer
 	 */
-	slist_tpl<vehikel_besch_t const*> const& get_vehicle_type() const;
+	slist_tpl<vehicle_desc_t const*> const& get_vehicle_type() const;
 
 	/**
 	 * A convoi arrived at the depot and is added to the convoi list.
@@ -208,7 +208,7 @@ public:
 	 * @return NULL if no vehicle is found
 	 * @author hsiegeln (stolen from Hajo)
 	 */
-	vehicle_t* get_oldest_vehicle(const vehikel_besch_t* desc);
+	vehicle_t* get_oldest_vehicle(const vehicle_desc_t* desc);
 
 	/**
 	 * Sets/gets the line that was selected the last time in the depot dialog

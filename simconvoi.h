@@ -28,7 +28,7 @@ class depot_t;
 class karte_ptr_t;
 class player_t;
 class vehicle_t;
-class vehikel_besch_t;
+class vehicle_desc_t;
 class schedule_t;
 class cbuffer_t;
 

@@ -42,7 +42,7 @@ class checksum_t;
  *
  * @author Volker Meyer, Hj. Malthaner, kierongreen
  */
-class vehikel_besch_t : public obj_desc_transport_related_t {
+class vehicle_desc_t : public obj_desc_transport_related_t {
     friend class vehicle_reader_t;
     friend class vehicle_builder_t;
 
@@ -52,7 +52,7 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	enum engine_t {
-		 unknown=-1,
+		unknown=-1,
 		steam=0,
 		diesel,
 		electric,
@@ -87,11 +87,11 @@ private:
 
 public:
 	// since we have a second constructor
-	vehikel_besch_t() { }
+	vehicle_desc_t() { }
 
-	// default vehicle (used for way seach and similar tasks)
-	// since it has no images and not even a name knot any calls to this will case a crash
-	vehikel_besch_t(uint8 wtyp, uint16 speed, engine_t engine) {
+	// default vehicle (used for way search and similar tasks)
+	// since it has no images and not even a name node any calls to this will case a crash
+	vehicle_desc_t(uint8 wtyp, uint16 speed, engine_t engine) {
 		freight_image_type = cost = capacity = axle_load = running_cost = fixed_cost = intro_date = leader_count = trailer_count = 0;
 		power = weight = 1;
 		loading_time = 1000;
@@ -119,7 +119,7 @@ public:
 	image_id get_image_id(ribi_t::dir dir, const ware_besch_t *ware) const
 	{
 		const image_t *image=0;
-		const image_list_t *liste=0;
+		const image_list_t *list=0;
 
 		if(freight_image_type>0  &&  ware!=NULL) {
 			// more freight images and a freight: find the right one
@@ -134,11 +134,11 @@ public:
 			}
 
 			// vehicle has freight images and we want to use - get appropriate one (if no list then fallback to empty image)
-			image_array_t const* const liste2d = get_child<image_array_t>(5);
-			image=liste2d->get_image(dir, ware_index);
+			image_array_t const* const list2d = get_child<image_array_t>(5);
+			image=list2d->get_image(dir, ware_index);
 			if(!image) {
 				if(dir>3) {
-					image = liste2d->get_image(dir - 4, ware_index);
+					image = list2d->get_image(dir - 4, ware_index);
 				}
 			}
 			if (image != NULL) return image->get_id();
@@ -146,20 +146,20 @@ public:
 
 		// only try 1d freight image list for old style vehicles
 		if(freight_image_type==0  &&  ware!=NULL) {
-			liste = get_child<image_list_t>(5);
+			list = get_child<image_list_t>(5);
 		}
 
-		if(!liste) {
-			liste = get_child<image_list_t>(4);
-			if(!liste) {
+		if(!list) {
+			list = get_child<image_list_t>(4);
+			if(!list) {
 				return IMG_EMPTY;
 			}
 		}
 
-		image = liste->get_image(dir);
+		image = list->get_image(dir);
 		if(!image) {
 			if(dir>3) {
-				image = liste->get_image(dir - 4);
+				image = list->get_image(dir - 4);
 			}
 			if(!image) {
 				return IMG_EMPTY;
@@ -168,30 +168,32 @@ public:
 		return image->get_id();
 	}
 
-	// Liefert die erlaubten Vorgaenger.
-	// liefert get_leader(0) == NULL, so bedeutet das entweder alle
-	// Vorgänger sind erlaubt oder keine. Um das zu unterscheiden, sollte man
-	// vorher hat_vorgaenger() befragen
-	const vehikel_besch_t *get_leader(uint8 i) const
+	/**
+	 * Returns allowed leader vehicles.
+	 * If get_leader(0) == NULL then either all or no leaders are allowed.
+	 * To distinguish these cases check get_leader_count().
+	 */
+	const vehicle_desc_t *get_leader(uint8 i) const
 	{
 		if(  i >= leader_count  ) {
 			return 0;
 		}
-		return get_child<vehikel_besch_t>(6 + i);
+		return get_child<vehicle_desc_t>(6 + i);
 	}
 
 	uint8 get_leader_count() const { return leader_count; }
 
-	// Liefert die erlaubten Nachfolger.
-	// liefert get_trailer(0) == NULL, so bedeutet das entweder alle
-	// Nachfolger sind erlaubt oder keine. Um das zu unterscheiden, sollte
-	// man vorher hat_nachfolger() befragen
-	const vehikel_besch_t *get_trailer(uint8 i) const
+	/**
+	 * Returns vehicles that this vehicle is allowed to pull.
+	 * If get_trailer(0) == NULL then either all or no followers are allowed.
+	 * To distinguish these cases check get_trailer_count().
+	 */
+	const vehicle_desc_t *get_trailer(uint8 i) const
 	{
 		if(  i >= trailer_count  ) {
 			return 0;
 		}
-		return get_child<vehikel_besch_t>(6 + leader_count + i);
+		return get_child<vehicle_desc_t>(6 + leader_count + i);
 	}
 
 	uint8 get_trailer_count() const { return trailer_count; }
@@ -199,13 +201,13 @@ public:
 	/* returns true, if this veh can be before the next_veh
 	 * uses NULL to indicate end of convoi
 	 */
-	bool can_lead(const vehikel_besch_t *next_veh) const
+	bool can_lead(const vehicle_desc_t *next_veh) const
 	{
 		if(  trailer_count==0  ) {
 			return true;
 		}
 		for( uint8 i=0;  i<trailer_count;  i++  ) {
-			vehikel_besch_t const* const veh = get_child<vehikel_besch_t>(6 + leader_count + i);
+			vehicle_desc_t const* const veh = get_child<vehicle_desc_t>(6 + leader_count + i);
 			if(veh==next_veh) {
 				return true;
 			}
@@ -217,13 +219,13 @@ public:
 	/* returns true, if this veh can be after the prev_veh
 	 * uses NULL to indicate front of convoi
 	 */
-	bool can_follow(const vehikel_besch_t *prev_veh) const
+	bool can_follow(const vehicle_desc_t *prev_veh) const
 	{
 		if(  leader_count==0  ) {
 			return true;
 		}
 		for( uint8 i=0;  i<leader_count;  i++  ) {
-			vehikel_besch_t const* const veh = get_child<vehikel_besch_t>(6 + i);
+			vehicle_desc_t const* const veh = get_child<vehicle_desc_t>(6 + i);
 			if(veh==prev_veh) {
 				return true;
 			}

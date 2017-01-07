@@ -2,7 +2,7 @@
 #include "xref_besch.h"
 #include "../network/checksum.h"
 
-void vehikel_besch_t::calc_checksum(checksum_t *chk) const
+void vehicle_desc_t::calc_checksum(checksum_t *chk) const
 {
 	obj_desc_transport_related_t::calc_checksum(chk);
 	chk->input(capacity);

@@ -19,7 +19,7 @@
  *      Volker Meyer
  *
  *  Description:
- *	Automatisch generierte Autos, die in der City umherfahren.
+ *	Private city cars, not player owned. They automatically appear in cities.
  *
  *  Child nodes:
  *	0   Name

@@ -20,7 +20,7 @@
 
 static uint32 const strecke[] = { 6000, 11000, 15000, 20000, 25000, 30000, 35000, 40000 };
 
-static weighted_vector_tpl<const pedestrian_desc_t*> liste;
+static weighted_vector_tpl<const pedestrian_desc_t*> list;
 stringhashtable_tpl<const pedestrian_desc_t *> pedestrian_t::table;
 
 
@@ -43,7 +43,7 @@ bool pedestrian_t::register_desc(const pedestrian_desc_t *desc)
 
 bool pedestrian_t::successfully_loaded()
 {
-	liste.resize(table.get_count());
+	list.resize(table.get_count());
 	if (table.empty()) {
 		DBG_MESSAGE("pedestrian_t", "No pedestrians found - feature disabled");
 	}
@@ -54,7 +54,7 @@ bool pedestrian_t::successfully_loaded()
 			temp_liste.insert_ordered(i.value, compare_fussgaenger_desc);
 		}
 		FOR(vector_tpl<pedestrian_desc_t const*>, const i, temp_liste) {
-			liste.append(i, i->get_chance());
+			list.append(i, i->get_chance());
 		}
 	}
 	return true;
@@ -73,7 +73,7 @@ pedestrian_t::pedestrian_t(loadsave_t *file)
 
 pedestrian_t::pedestrian_t(grund_t *gr) :
 	road_user_t(gr, simrand(65535)),
-	desc(pick_any_weighted(liste))
+	desc(pick_any_weighted(list))
 {
 	time_to_life = pick_any(strecke);
 	calc_image();
@@ -110,8 +110,8 @@ void pedestrian_t::rdwr(loadsave_t *file)
 		file->rdwr_str(s, lengthof(s));
 		desc = table.get(s);
 		// unknown pedestrian => create random new one
-		if(desc == NULL  &&  !liste.empty()  ) {
-			desc = pick_any_weighted(liste);
+		if(desc == NULL  &&  !list.empty()  ) {
+			desc = pick_any_weighted(list);
 		}
 	}
 
@@ -125,7 +125,7 @@ void pedestrian_t::rdwr(loadsave_t *file)
 // create a number (count) of pedestrians (if possible)
 void pedestrian_t::generate_pedestrians_at(const koord3d k, int &count)
 {
-	if (liste.empty()) {
+	if (list.empty()) {
 		return;
 	}
 

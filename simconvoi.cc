@@ -1615,9 +1615,9 @@ DBG_MESSAGE("convoi_t::add_vehikel()","extend array_tpl to %i totals.",max_rail_
 		}
 		anz_vehikel ++;
 
-		const vehikel_besch_t *info = v->get_desc();
+		const vehicle_desc_t *info = v->get_desc();
 		if(info->get_power()) {
-			is_electric |= info->get_engine_type()==vehikel_besch_t::electric;
+			is_electric |= info->get_engine_type()==vehicle_desc_t::electric;
 		}
 		sum_power += info->get_power();
 		sum_gear_and_power += info->get_power()*info->get_gear();
@@ -1667,7 +1667,7 @@ vehicle_t *convoi_t::remove_vehikel_bei(uint16 i)
 			--anz_vehikel;
 			fahr[anz_vehikel] = NULL;
 
-			const vehikel_besch_t *info = v->get_desc();
+			const vehicle_desc_t *info = v->get_desc();
 			sum_power -= info->get_power();
 			sum_gear_and_power -= info->get_power()*info->get_gear();
 			sum_weight -= info->get_weight();
@@ -1702,7 +1702,7 @@ vehicle_t *convoi_t::remove_vehikel_bei(uint16 i)
 			is_electric = false;
 			for(unsigned i=0; i<anz_vehikel; i++) {
 				if(fahr[i]->get_desc()->get_power()) {
-					is_electric |= fahr[i]->get_desc()->get_engine_type()==vehikel_besch_t::electric;
+					is_electric |= fahr[i]->get_desc()->get_engine_type()==vehicle_desc_t::electric;
 				}
 			}
 		}
@@ -2272,7 +2272,7 @@ void convoi_t::rdwr(loadsave_t *file)
 				dummy_pos.rdwr(file);
 			}
 
-			const vehikel_besch_t *info = v->get_desc();
+			const vehicle_desc_t *info = v->get_desc();
 			assert(info);
 
 			// Hajo: if we load a game from a file which was saved from a
@@ -2283,7 +2283,7 @@ void convoi_t::rdwr(loadsave_t *file)
 				sum_gear_and_power += info->get_power()*info->get_gear();
 				sum_weight += info->get_weight();
 				sum_running_costs -= info->get_running_cost();
-				is_electric |= info->get_engine_type()==vehikel_besch_t::electric;
+				is_electric |= info->get_engine_type()==vehicle_desc_t::electric;
 				has_obsolete |= welt->use_timeline()  &&  info->is_retired( welt->get_timeline_year_month() );
 				player_t::add_maintenance( get_owner(), info->get_maintenance(), info->get_waytype() );
 			}
@@ -2978,7 +2978,7 @@ void convoi_t::calc_speedbonus_kmh()
 		sint32 total_max_weight = 0;
 		sint32 total_weight = 0;
 		for(  unsigned i=0;  i<anz_vehikel;  i++  ) {
-			const vehikel_besch_t* const desc = fahr[i]->get_desc();
+			const vehicle_desc_t* const desc = fahr[i]->get_desc();
 			total_max_weight += desc->get_weight();
 			total_weight += fahr[i]->get_total_weight(); // convoi_t::sum_gesamweight may not be updated yet when this method is called...
 			if(  desc->get_ware() == warenbauer_t::nichts  ) {

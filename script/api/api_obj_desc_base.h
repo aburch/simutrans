@@ -15,7 +15,7 @@ class building_desc_t;
 class building_tile_desc_t;
 class ware_besch_t;
 class tunnel_desc_t;
-class vehikel_besch_t;
+class vehicle_desc_t;
 class way_desc_t;
 
 namespace script_api {
@@ -76,7 +76,7 @@ namespace script_api {
 	declare_besch_param(ware_besch_t, "good_desc_x");
 	declare_besch_param(building_desc_t, "building_desc_x");
 	declare_besch_param(way_desc_t, "way_desc_x");
-	declare_besch_param(vehikel_besch_t, "vehicle_desc_x");
+	declare_besch_param(vehicle_desc_t, "vehicle_desc_x");
 	declare_besch_param(tunnel_desc_t, "tunnel_desc_x");
 	declare_besch_param(bridge_desc_t, "bridge_desc_x");
 

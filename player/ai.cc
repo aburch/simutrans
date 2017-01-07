@@ -491,7 +491,7 @@ bool ai_t::create_simple_road_transport(koord platz1, koord size1, koord platz2,
 
 	// is there already a connection?
 	// get a default vehikel
-	vehikel_besch_t test_desc(road_wt, 25, vehikel_besch_t::diesel );
+	vehicle_desc_t test_desc(road_wt, 25, vehicle_desc_t::diesel );
 	vehicle_t* test_driver = vehicle_builder_t::build(welt->lookup_kartenboden(platz1)->get_pos(), this, NULL, &test_desc);
 	test_driver->set_flag( obj_t::not_on_map );
 	route_t verbindung;
@@ -577,7 +577,7 @@ void ai_t::rdwr(loadsave_t *file)
 }
 
 
-const vehikel_besch_t *ai_t::vehikel_search(waytype_t typ, const uint32 target_power, const sint32 target_speed, const ware_besch_t * target_freight, bool include_electric)
+const vehicle_desc_t *ai_t::vehikel_search(waytype_t typ, const uint32 target_power, const sint32 target_speed, const ware_besch_t * target_freight, bool include_electric)
 {
 	bool obsolete_allowed = welt->get_settings().get_allow_buying_obsolete_vehicles();
 	return vehicle_builder_t::vehikel_search(typ, welt->get_timeline_year_month(), target_power, target_speed, target_freight, include_electric, !obsolete_allowed);

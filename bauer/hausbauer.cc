@@ -809,18 +809,18 @@ const building_desc_t* hausbauer_t::get_special(uint32 bev, building_desc_t::bty
 
 
 /**
- * Tries to find a matching house desc from @p liste.
+ * Tries to find a matching house desc from @p list.
  * This method will never return NULL if there is at least one valid entry in the list.
  * @param level the minimum level of the house/station
  * @param cl allowed climates
  */
-static const building_desc_t* get_city_building_from_list(const vector_tpl<const building_desc_t*>& liste, int level, uint16 time, climate cl, uint32 clusters )
+static const building_desc_t* get_city_building_from_list(const vector_tpl<const building_desc_t*>& list, int level, uint16 time, climate cl, uint32 clusters )
 {
 	weighted_vector_tpl<const building_desc_t *> selections(16);
 
 //	DBG_MESSAGE("hausbauer_t::get_aus_liste()","target level %i", level );
 	const building_desc_t *besch_at_least=NULL;
-	FOR(vector_tpl<building_desc_t const*>, const desc, liste) {
+	FOR(vector_tpl<building_desc_t const*>, const desc, list) {
 		if(  desc->is_allowed_climate(cl)  &&  desc->get_chance()>0  &&  desc->is_available(time)  ) {
 				besch_at_least = desc;
 		}
@@ -905,12 +905,12 @@ const building_desc_t* hausbauer_t::get_headquarter(int level, uint16 time)
 }
 
 
-const building_desc_t *hausbauer_t::get_random_desc(vector_tpl<const building_desc_t *> &liste, uint16 time, bool ignore_retire, climate cl)
+const building_desc_t *hausbauer_t::get_random_desc(vector_tpl<const building_desc_t *> &list, uint16 time, bool ignore_retire, climate cl)
 {
-	if (!liste.empty()) {
+	if (!list.empty()) {
 		// previously just returned a random object; however, now we look at the chance entry
 		weighted_vector_tpl<const building_desc_t *> auswahl(16);
-		FOR(vector_tpl<building_desc_t const*>, const desc, liste) {
+		FOR(vector_tpl<building_desc_t const*>, const desc, list) {
 			if((cl==MAX_CLIMATES  ||  desc->is_allowed_climate(cl))  &&  desc->get_chance()>0  &&  (time==0  ||  (desc->get_intro_year_month()<=time  &&  (ignore_retire  ||  desc->get_retire_year_month()>time)  )  )  ) {
 //				DBG_MESSAGE("hausbauer_t::get_random_desc()","appended %s at %i", desc->get_name(), thislevel );
 				auswahl.append(desc, desc->get_chance());

@@ -17,7 +17,7 @@
  *      Volker Meyer
  *
  *  Description:
- *      Verschiedene Untergründe - viellcht bald weisse Berge?
+ *      Images of all possible surface tiles: slopes, climates, transitions, etc.
  *
  *  Child nodes:
  *	0   Name
@@ -53,17 +53,13 @@ public:
 	static bool double_grounds;
 
 	static const uint8 slopetable[80];
-	// returns the correct hang number for this slope
-	static inline int get_double_hang(slope_t::type typ) {
-		return slopetable[typ];
-	}
 
 	// returns the pointer to an image structure
 	const image_t *get_image_ptr(uint16 typ, uint16 stage=0) const
 	{
 		image_array_t const* const imgarray   = get_child<image_array_t>(2);
-		image_list_t   const* const liste = imgarray->get_list(typ);
-		if(liste && liste->get_count() > 0) {
+		image_list_t   const* const list = imgarray->get_list(typ);
+		if(list && list->get_count() > 0) {
 			image_t const* const image = imgarray->get_image(typ, stage);
 			return image;
 		}
