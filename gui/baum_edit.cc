@@ -34,7 +34,7 @@ char baum_edit_frame_t::param_str[256];
 
 
 
-static bool compare_baum_desc(const baum_besch_t* a, const baum_besch_t* b)
+static bool compare_tree_desc(const tree_desc_t* a, const tree_desc_t* b)
 {
 	int diff = strcmp( translator::translate(a->get_name()), translator::translate(b->get_name()) );
 	if(diff ==0) {
@@ -46,7 +46,7 @@ static bool compare_baum_desc(const baum_besch_t* a, const baum_besch_t* b)
 
 baum_edit_frame_t::baum_edit_frame_t(player_t* player_) :
 	extend_edit_gui_t(translator::translate("baum builder"), player_),
-	baumlist(16)
+	tree_list(16)
 {
 	bt_timeline.set_text( "Random age" );
 
@@ -63,20 +63,20 @@ baum_edit_frame_t::baum_edit_frame_t(player_t* player_) :
 
 
 
-// fill the current baumlist
+// fill the current tree_list
 void baum_edit_frame_t::fill_list( bool translate )
 {
-	baumlist.clear();
-	FOR(vector_tpl<baum_besch_t const*>, const i, baum_t::get_all_desc()) {
+	tree_list.clear();
+	FOR(vector_tpl<tree_desc_t const*>, const i, baum_t::get_all_desc()) {
 		if (i) {
-			baumlist.insert_ordered(i, compare_baum_desc);
+			tree_list.insert_ordered(i, compare_tree_desc);
 		}
 	}
 
 	// now build scrolled list
 	scl.clear_elements();
 	scl.set_selection(-1);
-	FOR(vector_tpl<baum_besch_t const*>, const i, baumlist) {
+	FOR(vector_tpl<tree_desc_t const*>, const i, tree_list) {
 		char const* const name = translate ? translator::translate(i->get_name()): i->get_name();
 		scl.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(name, SYSCOL_TEXT));
 		if (i == desc) {
@@ -95,9 +95,9 @@ void baum_edit_frame_t::change_item_info(sint32 entry)
 		img[i].set_image( IMG_EMPTY );
 	}
 	buf.clear();
-	if(entry>=0  &&  entry<(sint32)baumlist.get_count()) {
+	if(entry>=0  &&  entry<(sint32)tree_list.get_count()) {
 
-		desc = baumlist[entry];
+		desc = tree_list[entry];
 
 		buf.append(translator::translate(desc->get_name()));
 		buf.append("\n\n");

@@ -30,7 +30,7 @@ private:
 	uint16 geburt;
 
 	/** type of tree (was 9 but for more compact saves now only 254 different ree types are allowed) */
-	uint8 baumtype;
+	uint8 tree_id;
 
 	uint8 season:3;
 
@@ -40,9 +40,9 @@ private:
 	// one bit free ;)
 
 	// static for administration
-	static stringhashtable_tpl<const baum_besch_t *> desc_table;
-	static vector_tpl<const baum_besch_t *> baum_typen;
-	static weighted_vector_tpl<uint32>* baum_typen_per_climate;
+	static stringhashtable_tpl<const tree_desc_t *> desc_table;
+	static vector_tpl<const tree_desc_t *> tree_list;
+	static weighted_vector_tpl<uint32>* tree_list_per_climate;
 
 	bool saee_baum();
 
@@ -63,7 +63,7 @@ public:
 	baum_t(loadsave_t *file);
 	baum_t(koord3d pos);
 	baum_t(koord3d pos, uint8 type, sint32 age, uint8 slope );
-	baum_t(koord3d pos, const baum_besch_t *desc);
+	baum_t(koord3d pos, const tree_desc_t *desc);
 
 	void rdwr(loadsave_t *file);
 
@@ -110,9 +110,9 @@ public:
 	void * operator new(size_t s);
 	void operator delete(void *p);
 
-	const baum_besch_t* get_desc() const { return baum_typen[baumtype]; }
-	void set_desc( const baum_besch_t *b ) { baumtype = baum_typen.index_of(b); }
-	uint16 get_desc_id() const { return baumtype; }
+	const tree_desc_t* get_desc() const { return tree_list[tree_id]; }
+	void set_desc( const tree_desc_t *b ) { tree_id = tree_list.index_of(b); }
+	uint16 get_desc_id() const { return tree_id; }
 
 	uint32 get_age() const;
 
@@ -121,22 +121,22 @@ public:
 	// distributes trees on a map
 	static void distribute_trees(int dichte);
 
-	static bool plant_tree_on_coordinate(koord pos, const baum_besch_t *desc, const bool check_climate, const bool random_age );
+	static bool plant_tree_on_coordinate(koord pos, const tree_desc_t *desc, const bool check_climate, const bool random_age );
 
-	static bool register_desc(baum_besch_t *desc);
+	static bool register_desc(tree_desc_t *desc);
 	static bool alles_geladen();
 
 	static uint32 create_forest(koord center, koord size );
 	static void fill_trees(int dichte);
 
 	// return list to beschs
-	static vector_tpl<baum_besch_t const*> const& get_all_desc() { return baum_typen; }
+	static vector_tpl<tree_desc_t const*> const& get_all_desc() { return tree_list; }
 
-	static const baum_besch_t *random_tree_for_climate(climate cl) { uint16 b = random_tree_for_climate_intern(cl);  return b!=0xFFFF ? baum_typen[b] : NULL; }
+	static const tree_desc_t *random_tree_for_climate(climate cl) { uint16 b = random_tree_for_climate_intern(cl);  return b!=0xFFFF ? tree_list[b] : NULL; }
 
-	static const baum_besch_t *find_tree( const char *tree_name ) { return baum_typen.empty() ? NULL : desc_table.get(tree_name); }
+	static const tree_desc_t *find_tree( const char *tree_name ) { return tree_list.empty() ? NULL : desc_table.get(tree_name); }
 
-	static int get_count() { return baum_typen.get_count()-1; }
+	static int get_count() { return tree_list.get_count()-1; }
 	static int get_count(climate cl);
 
 };

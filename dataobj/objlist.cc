@@ -942,7 +942,7 @@ void objlist_t::rdwr(loadsave_t *file, koord3d current_pos)
 					baum_t *b = new baum_t(file);
 					if(  !b->get_desc()  ) {
 						// is there a replacement possible
-						if(  const baum_besch_t *desc = baum_t::random_tree_for_climate( world()->get_climate_at_height(current_pos.z) )  ) {
+						if(  const tree_desc_t *desc = baum_t::random_tree_for_climate( world()->get_climate_at_height(current_pos.z) )  ) {
 							b->set_desc( desc );
 						}
 						else {

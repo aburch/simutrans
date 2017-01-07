@@ -9,7 +9,7 @@
 class obj_named_desc_t;
 class obj_desc_timelined_t;
 class obj_desc_transport_related_t;
-class baum_besch_t;
+class tree_desc_t;
 class bruecke_besch_t;
 class haus_besch_t;
 class haus_tile_besch_t;
@@ -72,7 +72,7 @@ namespace script_api {
 	declare_specialized_param(const obj_desc_transport_related_t*, "t|x|y", "obj_desc_transport_x");
 	declare_param_mask(obj_desc_transport_related_t*, "t|x|y", "obj_desc_transport_x");
 
-	declare_besch_param(baum_besch_t, "tree_desc_x");
+	declare_besch_param(tree_desc_t, "tree_desc_x");
 	declare_besch_param(ware_besch_t, "good_desc_x");
 	declare_besch_param(haus_besch_t, "building_desc_x");
 	declare_besch_param(weg_besch_t, "way_desc_x");

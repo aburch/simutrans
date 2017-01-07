@@ -2093,7 +2093,7 @@ const char *tool_plant_tree_t::work( player_t *player, koord3d pos )
 			return NOTICE_INSUFFICIENT_FUNDS;
 		}
 
-		const baum_besch_t *desc = NULL;
+		const tree_desc_t *desc = NULL;
 		bool check_climates = true;
 		bool random_age = false;
 		if(default_param==NULL  ||  strlen(default_param)==0) {

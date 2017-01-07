@@ -364,7 +364,7 @@ void export_goods_desc(HSQUIRRELVM vm)
 	/**
 	 * Object descriptors for trees.
 	 */
-	begin_besch_class(vm, "tree_desc_x", "obj_desc_x", (GETBESCHFUNC)param<const baum_besch_t*>::getfunc());
+	begin_besch_class(vm, "tree_desc_x", "obj_desc_x", (GETBESCHFUNC)param<const tree_desc_t*>::getfunc());
 	end_class(vm);
 
 	/**

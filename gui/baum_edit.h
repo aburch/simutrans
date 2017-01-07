@@ -10,7 +10,7 @@
 #include "components/gui_label.h"
 
 
-class baum_besch_t;
+class tree_desc_t;
 class tool_plant_tree_t;
 
 class baum_edit_frame_t : public extend_edit_gui_t
@@ -19,9 +19,9 @@ private:
 	static tool_plant_tree_t baum_tool;
 	static char param_str[256];
 
-	const baum_besch_t *desc;
+	const tree_desc_t *desc;
 
-	vector_tpl<const baum_besch_t *>baumlist;
+	vector_tpl<const tree_desc_t *>tree_list;
 
 	void fill_list( bool translate );
 

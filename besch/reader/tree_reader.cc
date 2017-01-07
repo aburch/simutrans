@@ -12,7 +12,7 @@
 
 void tree_reader_t::register_obj(obj_desc_t *&data)
 {
-    baum_besch_t *desc = static_cast<baum_besch_t *>(data);
+    tree_desc_t *desc = static_cast<tree_desc_t *>(data);
 
     baum_t::register_desc(desc);
 //    printf("...Baum %s geladen\n", desc->get_name());
@@ -32,7 +32,7 @@ obj_desc_t * tree_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
 	ALLOCA(char, besch_buf, node.size);
 
-	baum_besch_t *desc = new baum_besch_t();
+	tree_desc_t *desc = new tree_desc_t();
 
 	// Hajo: Read data
 	fread(besch_buf, node.size, 1, fp);

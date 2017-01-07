@@ -5,3 +5,9 @@ obj_besch_t,obj_desc_t
 obj_besch_std_name_t,obj_named_desc_t
 besch_names,desc_table
 _besch\\>\\([^.]\\),_desc\\1
+baum_besch_t,tree_desc_t
+comapility,compatibility
+compare_baum_desc,compare_tree_desc
+baumlist,tree_list
+baum_typen,tree_list
+baumtype,tree_id
