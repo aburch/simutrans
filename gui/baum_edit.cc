@@ -34,7 +34,7 @@ char baum_edit_frame_t::param_str[256];
 
 
 
-static bool compare_baum_besch(const baum_besch_t* a, const baum_besch_t* b)
+static bool compare_baum_desc(const baum_besch_t* a, const baum_besch_t* b)
 {
 	int diff = strcmp( translator::translate(a->get_name()), translator::translate(b->get_name()) );
 	if(diff ==0) {
@@ -67,9 +67,9 @@ baum_edit_frame_t::baum_edit_frame_t(player_t* player_) :
 void baum_edit_frame_t::fill_list( bool translate )
 {
 	baumlist.clear();
-	FOR(vector_tpl<baum_besch_t const*>, const i, baum_t::get_all_besch()) {
+	FOR(vector_tpl<baum_besch_t const*>, const i, baum_t::get_all_desc()) {
 		if (i) {
-			baumlist.insert_ordered(i, compare_baum_besch);
+			baumlist.insert_ordered(i, compare_baum_desc);
 		}
 	}
 

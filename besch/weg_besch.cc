@@ -19,7 +19,7 @@ waytype_t weg_besch_t::get_finance_waytype() const
 
 void weg_besch_t::calc_checksum(checksum_t *chk) const
 {
-	obj_besch_transport_infrastructure_t::calc_checksum(chk);
+	obj_desc_transport_infrastructure_t::calc_checksum(chk);
 	chk->input(max_weight);
 	chk->input(styp);
 	chk->input(has_double_slopes());

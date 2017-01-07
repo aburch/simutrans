@@ -13,7 +13,7 @@
 #include "../../network/pakset_info.h"
 
 
-void citycar_reader_t::register_obj(obj_besch_t *&data)
+void citycar_reader_t::register_obj(obj_desc_t *&data)
 {
 	stadtauto_besch_t *desc = static_cast<stadtauto_besch_t *>(data);
 
@@ -31,7 +31,7 @@ bool citycar_reader_t::successfully_loaded() const
 }
 
 
-obj_besch_t * citycar_reader_t::read_node(FILE *fp, obj_node_info_t &node)
+obj_desc_t * citycar_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
 	ALLOCA(char, besch_buf, node.size);
 

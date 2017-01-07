@@ -33,26 +33,26 @@
 
 /******************************** static stuff: desc management ****************************************************************/
 
-vector_tpl<const groundobj_besch_t *> movingobj_t::movingobj_typen(0);
+vector_tpl<const groundobj_desc_t *> movingobj_t::movingobj_typen(0);
 
-stringhashtable_tpl<groundobj_besch_t *> movingobj_t::besch_names;
+stringhashtable_tpl<groundobj_desc_t *> movingobj_t::desc_table;
 
 
-bool compare_groundobj_besch(const groundobj_besch_t* a, const groundobj_besch_t* b);
+bool compare_groundobj_desc(const groundobj_desc_t* a, const groundobj_desc_t* b);
 
 
 bool movingobj_t::alles_geladen()
 {
-	movingobj_typen.resize(besch_names.get_count());
-	FOR(stringhashtable_tpl<groundobj_besch_t*>, const& i, besch_names) {
-		movingobj_typen.insert_ordered(i.value, compare_groundobj_besch);
+	movingobj_typen.resize(desc_table.get_count());
+	FOR(stringhashtable_tpl<groundobj_desc_t*>, const& i, desc_table) {
+		movingobj_typen.insert_ordered(i.value, compare_groundobj_desc);
 	}
 	// iterate again to assign the index
-	FOR(stringhashtable_tpl<groundobj_besch_t*>, const& i, besch_names) {
+	FOR(stringhashtable_tpl<groundobj_desc_t*>, const& i, desc_table) {
 		i.value->index = movingobj_typen.index_of(i.value);
 	}
 
-	if(besch_names.empty()) {
+	if(desc_table.empty()) {
 		movingobj_typen.append( NULL );
 		DBG_MESSAGE("movingobj_t", "No movingobj found - feature disabled");
 	}
@@ -61,13 +61,13 @@ bool movingobj_t::alles_geladen()
 
 
 
-bool movingobj_t::register_desc(groundobj_besch_t *desc)
+bool movingobj_t::register_desc(groundobj_desc_t *desc)
 {
 	// remove duplicates
-	if(  besch_names.remove( desc->get_name() )  ) {
+	if(  desc_table.remove( desc->get_name() )  ) {
 		dbg->warning( "movingobj_t::register_desc()", "Object %s was overlaid by addon!", desc->get_name() );
 	}
-	besch_names.put(desc->get_name(), desc );
+	desc_table.put(desc->get_name(), desc );
 	return true;
 }
 
@@ -77,16 +77,16 @@ bool movingobj_t::register_desc(groundobj_besch_t *desc)
 /* also checks for distribution values
  * @author prissi
  */
-const groundobj_besch_t *movingobj_t::random_movingobj_for_climate(climate cl)
+const groundobj_desc_t *movingobj_t::random_movingobj_for_climate(climate cl)
 {
 	// none there
-	if(  besch_names.empty()  ) {
+	if(  desc_table.empty()  ) {
 		return NULL;
 	}
 
 	int weight = 0;
 
-	FOR(vector_tpl<groundobj_besch_t const*>, const i, movingobj_typen) {
+	FOR(vector_tpl<groundobj_desc_t const*>, const i, movingobj_typen) {
 		if (i->is_allowed_climate(cl) ) {
 			weight += i->get_distribution_weight();
 		}
@@ -96,7 +96,7 @@ const groundobj_besch_t *movingobj_t::random_movingobj_for_climate(climate cl)
 	if (weight > 0) {
 		const int w=simrand(weight);
 		weight = 0;
-		FOR(vector_tpl<groundobj_besch_t const*>, const i, movingobj_typen) {
+		FOR(vector_tpl<groundobj_desc_t const*>, const i, movingobj_typen) {
 			if (i->is_allowed_climate(cl)) {
 				weight += i->get_distribution_weight();
 				if(weight>=w) {
@@ -117,7 +117,7 @@ const groundobj_besch_t *movingobj_t::random_movingobj_for_climate(climate cl)
 // recalculates only the seasonal image
 void movingobj_t::calc_image()
 {
-	const groundobj_besch_t *desc=get_desc();
+	const groundobj_desc_t *desc=get_desc();
 	const uint8 seasons = desc->get_seasons()-1;
 	uint8 season = 0;
 
@@ -159,7 +159,7 @@ movingobj_t::movingobj_t(loadsave_t *file) : vehicle_base_t()
 }
 
 
-movingobj_t::movingobj_t(koord3d pos, const groundobj_besch_t *b ) : vehicle_base_t(pos)
+movingobj_t::movingobj_t(koord3d pos, const groundobj_desc_t *b ) : vehicle_base_t(pos)
 {
 	movingobjtype = movingobj_typen.index_of(b);
 	weg_next = 0;
@@ -222,8 +222,8 @@ void movingobj_t::rdwr(loadsave_t *file)
 	else {
 		char bname[128];
 		file->rdwr_str(bname, lengthof(bname));
-		groundobj_besch_t *desc = besch_names.get(bname);
-		if(  besch_names.empty()  ||  desc==NULL  ) {
+		groundobj_desc_t *desc = desc_table.get(bname);
+		if(  desc_table.empty()  ||  desc==NULL  ) {
 			movingobjtype = simrand(movingobj_typen.get_count());
 		}
 		else {
@@ -303,7 +303,7 @@ bool movingobj_t::check_next_tile( const grund_t *gr ) const
 		return false;
 	}
 
-	const groundobj_besch_t *desc = get_desc();
+	const groundobj_desc_t *desc = get_desc();
 	if( !desc->is_allowed_climate( welt->get_climate(gr->get_pos().get_2d()) ) ) {
 		// not an allowed climate zone!
 		return false;

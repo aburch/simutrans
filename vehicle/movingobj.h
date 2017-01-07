@@ -36,10 +36,10 @@ private:
 	koord3d pos_next_next;
 
 	/// static table to find desc by name
-	static stringhashtable_tpl<groundobj_besch_t *> besch_names;
+	static stringhashtable_tpl<groundobj_desc_t *> desc_table;
 
 	/// static vector for fast lookup of besch
-	static vector_tpl<const groundobj_besch_t *> movingobj_typen;
+	static vector_tpl<const groundobj_desc_t *> movingobj_typen;
 
 protected:
 	void rdwr(loadsave_t *file);
@@ -47,13 +47,13 @@ protected:
 	void calc_image();
 
 public:
-	static bool register_desc(groundobj_besch_t *desc);
+	static bool register_desc(groundobj_desc_t *desc);
 	static bool alles_geladen();
 
-	static const groundobj_besch_t *random_movingobj_for_climate(climate cl);
+	static const groundobj_desc_t *random_movingobj_for_climate(climate cl);
 
 	movingobj_t(loadsave_t *file);
-	movingobj_t(koord3d pos, const groundobj_besch_t *);
+	movingobj_t(koord3d pos, const groundobj_desc_t *);
 	~movingobj_t();
 
 	sync_result sync_step(uint32 delta_t);
@@ -80,7 +80,7 @@ public:
 
 	void cleanup(player_t *player);
 
-	const groundobj_besch_t* get_desc() const { return movingobj_typen[movingobjtype]; }
+	const groundobj_desc_t* get_desc() const { return movingobj_typen[movingobjtype]; }
 
 	void * operator new(size_t s);
 	void operator delete(void *p);

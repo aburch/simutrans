@@ -19,7 +19,7 @@
 #define skip_reading_pixels_if_no_graphics goto adjust_image
 #endif
 
-obj_besch_t *image_reader_t::read_node(FILE *fp, obj_node_info_t &node)
+obj_desc_t *image_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
 	ALLOCA(char, besch_buf, node.size);
 	image_t* desc=NULL;

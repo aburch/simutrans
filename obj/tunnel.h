@@ -41,7 +41,7 @@ public:
 
 	const tunnel_besch_t *get_desc() const { return desc; }
 
-	void set_besch( const tunnel_besch_t *_besch ) { desc = _besch; }
+	void set_desc( const tunnel_besch_t *_desc ) { desc = _desc; }
 
 	void rdwr(loadsave_t *file);
 

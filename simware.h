@@ -16,7 +16,7 @@ class ware_t
 
 private:
 	/// private lookup table to speedup
-	static const ware_besch_t *index_to_besch[256];
+	static const ware_besch_t *index_to_desc[256];
 
 public:
 	/// type of good, used as index into index_to_besch
@@ -80,8 +80,8 @@ public:
 	uint8 get_catg() const { return get_desc()->get_catg(); }
 	uint8 get_index() const { return index; }
 
-	const ware_besch_t* get_desc() const { return index_to_besch[index]; }
-	void set_besch(const ware_besch_t* type);
+	const ware_besch_t* get_desc() const { return index_to_desc[index]; }
+	void set_desc(const ware_besch_t* type);
 
 	void rdwr(loadsave_t *file);
 

@@ -2773,7 +2773,7 @@ bool process_city_street(grund_t& gr, const weg_besch_t* cr)
 			weg->set_owner(NULL); // make public
 		}
 		weg->set_gehweg(true);
-		weg->set_besch(cr);
+		weg->set_desc(cr);
 		gr.calc_image();
 		reliefkarte_t::get_karte()->calc_map_pixel(gr.get_pos().get_2d());
 	}
@@ -3244,7 +3244,7 @@ bool stadt_t::baue_strasse(const koord k, player_t* player_, bool forced)
 		if (!bd->weg_erweitern(road_wt, connection_roads)) {
 			strasse_t* weg = new strasse_t();
 			// Hajo: city roads should not belong to any player => so we can ignore any construction costs ...
-			weg->set_besch(welt->get_city_road());
+			weg->set_desc(welt->get_city_road());
 			weg->set_gehweg(true);
 			bd->neuen_weg_bauen(weg, connection_roads, player_);
 			bd->calc_image();	// otherwise the

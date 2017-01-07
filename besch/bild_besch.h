@@ -29,7 +29,7 @@
  *  Child nodes:
  *	(none)
  */
-class image_t : public obj_besch_t
+class image_t : public obj_desc_t
 {
 public:
 	static const uint32 rgbtab[SPECIAL];

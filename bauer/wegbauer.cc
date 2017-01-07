@@ -84,7 +84,7 @@
 
 karte_ptr_t wegbauer_t::welt;
 
-const weg_besch_t *wegbauer_t::leitung_besch = NULL;
+const weg_besch_t *wegbauer_t::leitung_desc = NULL;
 
 static stringhashtable_tpl <const weg_besch_t *> alle_wegtypen;
 
@@ -120,7 +120,7 @@ bool wegbauer_t::alle_wege_geladen()
 	set_default(narrowgauge_t::default_narrowgauge, narrowgauge_wt);
 	set_default(kanal_t::default_kanal,             water_wt,       type_all); // Also find hidden rivers.
 	set_default(runway_t::default_runway,           air_wt);
-	set_default(wegbauer_t::leitung_besch,          powerline_wt);
+	set_default(wegbauer_t::leitung_desc,          powerline_wt);
 
 	return true;
 }
@@ -129,13 +129,13 @@ bool wegbauer_t::alle_wege_geladen()
 bool wegbauer_t::register_desc(weg_besch_t *desc)
 {
 	DBG_DEBUG("wegbauer_t::register_desc()", desc->get_name());
-	const weg_besch_t *old_besch = alle_wegtypen.get(desc->get_name());
-	if(  old_besch  ) {
+	const weg_besch_t *old_desc = alle_wegtypen.get(desc->get_name());
+	if(  old_desc  ) {
 		alle_wegtypen.remove(desc->get_name());
 		dbg->warning( "wegbauer_t::register_desc()", "Object %s was overlaid by addon!", desc->get_name() );
-		tool_t::general_tool.remove( old_besch->get_builder() );
-		delete old_besch->get_builder();
-		delete old_besch;
+		tool_t::general_tool.remove( old_desc->get_builder() );
+		delete old_desc->get_builder();
+		delete old_desc;
 	}
 
 	if(  desc->get_cursor()->get_image_id(1)!=IMG_EMPTY  ) {
@@ -1115,16 +1115,16 @@ void wegbauer_t::check_for_bridge(const grund_t* parent_from, const grund_t* fro
 	}
 
 	// ok, so now we do a closer investigation
-	if(  bruecke_besch  && (  ribi_type(from->get_grund_hang()) == ribi_t::backward(ribi_type(zv))  ||  from->get_grund_hang() == 0  )
+	if(  bruecke_desc  && (  ribi_type(from->get_grund_hang()) == ribi_t::backward(ribi_type(zv))  ||  from->get_grund_hang() == 0  )
 		&&  brueckenbauer_t::ist_ende_ok(player_builder, from, desc->get_wtyp(),ribi_t::backward(ribi_type(zv)))  ) {
 		// Try a bridge.
-		const sint32 cost_difference = desc->get_wartung() > 0 ? (bruecke_besch->get_wartung() * 4l + 3l) / desc->get_wartung() : 16;
+		const sint32 cost_difference = desc->get_wartung() > 0 ? (bruecke_desc->get_wartung() * 4l + 3l) / desc->get_wartung() : 16;
 		// try eight possible lengths ..
 		uint32 min_length = 1;
 		for (uint8 i = 0; i < 8 && min_length <= welt->get_settings().way_max_bridge_len; ++i) {
 			sint8 bridge_height;
 			const char *error = NULL;
-			koord3d end = brueckenbauer_t::finde_ende( player_builder, from->get_pos(), zv, bruecke_besch, error, bridge_height, true, min_length );
+			koord3d end = brueckenbauer_t::finde_ende( player_builder, from->get_pos(), zv, bruecke_desc, error, bridge_height, true, min_length );
 			const grund_t* gr_end = welt->lookup(end);
 			if(  gr_end == NULL) {
 				// no valid end point found
@@ -1147,10 +1147,10 @@ void wegbauer_t::check_for_bridge(const grund_t* parent_from, const grund_t* fro
 		return;
 	}
 
-	if(  tunnel_besch  &&  ribi_type(from->get_grund_hang()) == ribi_type(zv)  ) {
+	if(  tunnel_desc  &&  ribi_type(from->get_grund_hang()) == ribi_type(zv)  ) {
 		// uphill hang ... may be tunnel?
-		const sint32 cost_difference = desc->get_wartung() > 0 ? (tunnel_besch->get_wartung() * 4l + 3l) / desc->get_wartung() : 16;
-		koord3d end = tunnelbauer_t::finde_ende( player_builder, from->get_pos(), zv, tunnel_besch);
+		const sint32 cost_difference = desc->get_wartung() > 0 ? (tunnel_desc->get_wartung() * 4l + 3l) / desc->get_wartung() : 16;
+		koord3d end = tunnelbauer_t::finde_ende( player_builder, from->get_pos(), zv, tunnel_desc);
 		if(  end != koord3d::invalid  &&  !ziel.is_contained(end)  ) {
 			uint32 length = koord_distance(from->get_pos(), end);
 			next_gr.append(next_gr_t(welt->lookup(end), length * cost_difference, build_straight | build_tunnel_bridge ));
@@ -1197,8 +1197,8 @@ void wegbauer_t::route_fuer(bautyp_t wt, const weg_besch_t *b, const tunnel_besc
 {
 	bautyp = wt;
 	desc = b;
-	bruecke_besch = br;
-	tunnel_besch = tunnel;
+	bruecke_desc = br;
+	tunnel_desc = tunnel;
 	if(wt&tunnel_flag  &&  tunnel==NULL) {
 		dbg->fatal("wegbauer_t::route_fuer()","needs a tunnel description for an underground route!");
 	}
@@ -1206,27 +1206,27 @@ void wegbauer_t::route_fuer(bautyp_t wt, const weg_besch_t *b, const tunnel_besc
 		wt &= bautyp_mask | bot_flag;
 	}
 	if(player_builder==NULL) {
-		bruecke_besch = NULL;
-		tunnel_besch = NULL;
+		bruecke_desc = NULL;
+		tunnel_desc = NULL;
 	}
 	else if(  bautyp != river  ) {
 #ifdef AUTOMATIC_BRIDGES
-		if(  bruecke_besch == NULL  ) {
-			bruecke_besch = brueckenbauer_t::find_bridge(b->get_wtyp(), 25, welt->get_timeline_year_month());
+		if(  bruecke_desc == NULL  ) {
+			bruecke_desc = brueckenbauer_t::find_bridge(b->get_wtyp(), 25, welt->get_timeline_year_month());
 		}
 #endif
 #ifdef AUTOMATIC_TUNNELS
-		if(  tunnel_besch == NULL  ) {
-			tunnel_besch = tunnelbauer_t::find_tunnel(b->get_wtyp(), 25, welt->get_timeline_year_month());
+		if(  tunnel_desc == NULL  ) {
+			tunnel_desc = tunnelbauer_t::find_tunnel(b->get_wtyp(), 25, welt->get_timeline_year_month());
 		}
 #endif
 	}
   DBG_MESSAGE("wegbauer_t::route_fuer()",
-         "setting way type to %d, desc=%s, bruecke_besch=%s, tunnel_besch=%s",
+         "setting way type to %d, desc=%s, bruecke_desc=%s, tunnel_desc=%s",
          bautyp,
          desc ? desc->get_name() : "NULL",
-         bruecke_besch ? bruecke_besch->get_name() : "NULL",
-         tunnel_besch ? tunnel_besch->get_name() : "NULL"
+         bruecke_desc ? bruecke_desc->get_name() : "NULL",
+         tunnel_desc ? tunnel_desc->get_name() : "NULL"
          );
 }
 
@@ -1859,7 +1859,7 @@ DBG_MESSAGE("calc_route::calc_route", "took %u ms", dr_time() - ms );
 
 void wegbauer_t::baue_tunnel_und_bruecken()
 {
-	if(bruecke_besch==NULL  &&  tunnel_besch==NULL) {
+	if(bruecke_desc==NULL  &&  tunnel_desc==NULL) {
 		return;
 	}
 	// check for bridges and tunnels (no tunnel/bridge at last/first tile)
@@ -1875,7 +1875,7 @@ void wegbauer_t::baue_tunnel_und_bruecken()
 				continue;
 			}
 
-			DBG_MESSAGE("wegbauer_t::baue_tunnel_und_bruecken", "built bridge %p between %s and %s", bruecke_besch, route[i].get_str(), route[i + 1].get_str());
+			DBG_MESSAGE("wegbauer_t::baue_tunnel_und_bruecken", "built bridge %p between %s and %s", bruecke_desc, route[i].get_str(), route[i + 1].get_str());
 
 			const grund_t* start = welt->lookup(route[i]);
 			const grund_t* end   = welt->lookup(route[i + 1]);
@@ -1891,11 +1891,11 @@ void wegbauer_t::baue_tunnel_und_bruecken()
 
 			if(start->get_grund_hang()==0  ||  start->get_grund_hang()==slope_type(zv*(-1))) {
 				// bridge here, since the route is saved backwards, we have to build it at the posterior end
-				brueckenbauer_t::baue( player_builder, route[i+1], bruecke_besch);
+				brueckenbauer_t::baue( player_builder, route[i+1], bruecke_desc);
 			}
 			else {
 				// tunnel
-				tunnelbauer_t::baue( player_builder, route[i].get_2d(), tunnel_besch, true );
+				tunnelbauer_t::baue( player_builder, route[i].get_2d(), tunnel_desc, true );
 			}
 			INT_CHECK( "wegbauer 1584" );
 		}
@@ -1918,17 +1918,17 @@ void wegbauer_t::baue_tunnel_und_bruecken()
 					// we are the owner
 					if(  h != slope_type(zv)  ) {
 						// its a bridge
-						if( bruecke_besch ) {
+						if( bruecke_desc ) {
 							wi->set_ribi(ribi_type(h));
 							wi1->set_ribi(ribi_type(slope_t::opposite(h)));
-							brueckenbauer_t::baue( player_builder, route[i], bruecke_besch);
+							brueckenbauer_t::baue( player_builder, route[i], bruecke_desc);
 						}
 					}
-					else if( tunnel_besch ) {
+					else if( tunnel_desc ) {
 						// make a short tunnel
 						wi->set_ribi(ribi_type(slope_t::opposite(h)));
 						wi1->set_ribi(ribi_type(h));
-						tunnelbauer_t::baue( player_builder, route[i].get_2d(), tunnel_besch, true );
+						tunnelbauer_t::baue( player_builder, route[i].get_2d(), tunnel_desc, true );
 					}
 					INT_CHECK( "wegbauer 1584" );
 				}
@@ -1951,9 +1951,9 @@ sint64 wegbauer_t::calc_costs()
 	sint32 new_speedlimit;
 
 	if( bautyp&tunnel_flag ) {
-		assert( tunnel_besch );
-		single_cost = tunnel_besch->get_preis();
-		new_speedlimit = tunnel_besch->get_topspeed();
+		assert( tunnel_desc );
+		single_cost = tunnel_desc->get_preis();
+		new_speedlimit = tunnel_desc->get_topspeed();
 	}
 	else {
 		single_cost = desc->get_preis();
@@ -1993,7 +1993,7 @@ sint64 wegbauer_t::calc_costs()
 			if( bautyp&tunnel_flag ) {
 				const tunnel_t *tunnel = gr->find<tunnel_t>();
 				assert( tunnel );
-				if( tunnel->get_desc() == tunnel_besch ) {
+				if( tunnel->get_desc() == tunnel_desc ) {
 					continue; // Nothing to pay on this tile.
 				}
 				old_speedlimit = tunnel->get_desc()->get_topspeed();
@@ -2057,12 +2057,12 @@ sint64 wegbauer_t::calc_costs()
 				}
 				if(start->get_grund_hang()==0  ||  start->get_grund_hang()==slope_type(zv*(-1))) {
 					// bridge
-					costs += bruecke_besch->get_preis()*(sint64)(koord_distance(route[i], route[i+1])+1);
+					costs += bruecke_desc->get_preis()*(sint64)(koord_distance(route[i], route[i+1])+1);
 					continue;
 				}
 				else {
 					// tunnel
-					costs += tunnel_besch->get_preis()*(sint64)(koord_distance(route[i], route[i+1])+1);
+					costs += tunnel_desc->get_preis()*(sint64)(koord_distance(route[i], route[i+1])+1);
 					continue;
 				}
 			}
@@ -2081,55 +2081,55 @@ bool wegbauer_t::baue_tunnelboden()
 
 		grund_t* gr = welt->lookup(route[i]);
 
-		const weg_besch_t *wb = tunnel_besch->get_weg_besch();
+		const weg_besch_t *wb = tunnel_desc->get_weg_desc();
 		if(wb==NULL) {
 			// now we search a matching way for the tunnels top speed
 			// ignore timeline to get consistent results
-			wb = wegbauer_t::weg_search( tunnel_besch->get_waytype(), tunnel_besch->get_topspeed(), 0, type_flat );
+			wb = wegbauer_t::weg_search( tunnel_desc->get_waytype(), tunnel_desc->get_topspeed(), 0, type_flat );
 		}
 
 		if(gr==NULL) {
 			// make new tunnelboden
 			tunnelboden_t* tunnel = new tunnelboden_t(route[i], 0);
 			welt->access(route[i].get_2d())->boden_hinzufuegen(tunnel);
-			if(  tunnel_besch->get_waytype() != powerline_wt  ) {
-				weg_t *weg = weg_t::alloc(tunnel_besch->get_waytype());
-				weg->set_besch( wb );
+			if(  tunnel_desc->get_waytype() != powerline_wt  ) {
+				weg_t *weg = weg_t::alloc(tunnel_desc->get_waytype());
+				weg->set_desc( wb );
 				tunnel->neuen_weg_bauen(weg, route.get_ribi(i), player_builder);
-				tunnel->obj_add(new tunnel_t(route[i], player_builder, tunnel_besch));
-				weg->set_max_speed(tunnel_besch->get_topspeed());
+				tunnel->obj_add(new tunnel_t(route[i], player_builder, tunnel_desc));
+				weg->set_max_speed(tunnel_desc->get_topspeed());
 				player_t::add_maintenance( player_builder, -weg->get_desc()->get_wartung(), weg->get_desc()->get_finance_waytype());
 			}
 			else {
-				tunnel->obj_add(new tunnel_t(route[i], player_builder, tunnel_besch));
+				tunnel->obj_add(new tunnel_t(route[i], player_builder, tunnel_desc));
 				leitung_t *lt = new leitung_t(tunnel->get_pos(), player_builder);
-				lt->set_besch( wb );
+				lt->set_desc( wb );
 				tunnel->obj_add( lt );
 				lt->finish_rd();
 				player_t::add_maintenance( player_builder, -lt->get_desc()->get_wartung(), powerline_wt);
 			}
 			tunnel->calc_image();
-			cost -= tunnel_besch->get_preis();
-			player_t::add_maintenance( player_builder,  tunnel_besch->get_wartung(), tunnel_besch->get_finance_waytype() );
+			cost -= tunnel_desc->get_preis();
+			player_t::add_maintenance( player_builder,  tunnel_desc->get_wartung(), tunnel_desc->get_finance_waytype() );
 		}
 		else if(  gr->get_typ() == grund_t::tunnelboden  ) {
 			// check for extension only ...
-			if(  tunnel_besch->get_waytype() != powerline_wt  ) {
-				gr->weg_erweitern( tunnel_besch->get_waytype(), route.get_ribi(i) );
+			if(  tunnel_desc->get_waytype() != powerline_wt  ) {
+				gr->weg_erweitern( tunnel_desc->get_waytype(), route.get_ribi(i) );
 
 				tunnel_t *tunnel = gr->find<tunnel_t>();
 				assert( tunnel );
 				// take the faster way
-				if(  !keep_existing_faster_ways  ||  (tunnel->get_desc()->get_topspeed() < tunnel_besch->get_topspeed())  ) {
+				if(  !keep_existing_faster_ways  ||  (tunnel->get_desc()->get_topspeed() < tunnel_desc->get_topspeed())  ) {
 					player_t::add_maintenance(player_builder, -tunnel->get_desc()->get_wartung(), tunnel->get_desc()->get_finance_waytype());
-					player_t::add_maintenance(player_builder,  tunnel_besch->get_wartung(), tunnel->get_desc()->get_finance_waytype() );
+					player_t::add_maintenance(player_builder,  tunnel_desc->get_wartung(), tunnel->get_desc()->get_finance_waytype() );
 
-					tunnel->set_besch(tunnel_besch);
-					weg_t *weg = gr->get_weg(tunnel_besch->get_waytype());
-					weg->set_besch(wb);
-					weg->set_max_speed(tunnel_besch->get_topspeed());
+					tunnel->set_desc(tunnel_desc);
+					weg_t *weg = gr->get_weg(tunnel_desc->get_waytype());
+					weg->set_desc(wb);
+					weg->set_max_speed(tunnel_desc->get_topspeed());
 					// respect max speed of catenary
-					wayobj_t const* const wo = gr->get_wayobj(tunnel_besch->get_waytype());
+					wayobj_t const* const wo = gr->get_wayobj(tunnel_desc->get_waytype());
 					if (wo  &&  wo->get_desc()->get_topspeed() < weg->get_max_speed()) {
 						weg->set_max_speed( wo->get_desc()->get_topspeed() );
 					}
@@ -2137,14 +2137,14 @@ bool wegbauer_t::baue_tunnelboden()
 					// respect speed limit of crossing
 					weg->count_sign();
 
-					cost -= tunnel_besch->get_preis();
+					cost -= tunnel_desc->get_preis();
 				}
 			}
 			else {
 				leitung_t *lt = gr->get_leitung();
 				if(!lt) {
 					lt = new leitung_t(gr->get_pos(), player_builder);
-					lt->set_besch( wb );
+					lt->set_desc( wb );
 					gr->obj_add( lt );
 				}
 				else {
@@ -2154,7 +2154,7 @@ bool wegbauer_t::baue_tunnelboden()
 			}
 		}
 	}
-	player_t::book_construction_costs(player_builder, cost, route[0].get_2d(), tunnel_besch->get_waytype());
+	player_t::book_construction_costs(player_builder, cost, route[0].get_2d(), tunnel_desc->get_waytype());
 	return true;
 }
 
@@ -2226,7 +2226,7 @@ void wegbauer_t::baue_strasse()
 				player_t::add_maintenance(s, -weg->get_desc()->get_wartung(), weg->get_desc()->get_finance_waytype());
 				// cost is the more expensive one, so downgrading is between removing and new building
 				cost -= max( weg->get_desc()->get_preis(), desc->get_preis() );
-				weg->set_besch(desc);
+				weg->set_desc(desc);
 				// respect max speed of catenary
 				wayobj_t const* const wo = gr->get_wayobj(desc->get_wtyp());
 				if (wo  &&  wo->get_desc()->get_topspeed() < weg->get_max_speed()) {
@@ -2243,7 +2243,7 @@ void wegbauer_t::baue_strasse()
 			// make new way
 			strasse_t * str = new strasse_t();
 
-			str->set_besch(desc);
+			str->set_desc(desc);
 			str->set_gehweg(add_sidewalk);
 			cost = -gr->neuen_weg_bauen(str, route.get_short_ribi(i), player_builder)-desc->get_preis();
 
@@ -2286,7 +2286,7 @@ void wegbauer_t::baue_schiene()
 
 			if(extend) {
 				weg_t* const weg = gr->get_weg(desc->get_wtyp());
-				bool change_besch = true;
+				bool change_desc = true;
 
 				// do not touch fences, tram way etc. if there is already same way with different type
 				// keep faster ways or if it is the same way ... (@author prissi)
@@ -2296,7 +2296,7 @@ void wegbauer_t::baue_schiene()
 						(keep_existing_faster_ways && weg->get_desc()->get_topspeed() > desc->get_topspeed()) ||
 						(gr->get_typ() == grund_t::monorailboden && !(bautyp & elevated_flag)  &&  gr->get_weg_nr(0)->get_waytype()==desc->get_wtyp())) {
 					//nothing to be done
-					change_besch = false;
+					change_desc = false;
 				}
 
 				// build tram track over crossing -> remove crossing
@@ -2306,21 +2306,21 @@ void wegbauer_t::baue_schiene()
 						cr->mark_image_dirty( cr->get_image(), 0);
 						cr->cleanup(player_builder);
 						delete cr;
-						change_besch = true;
+						change_desc = true;
 						// tell way we have no crossing any more, restore speed limit
 						gr->get_weg_nr(0)->clear_crossing();
-						gr->get_weg_nr(0)->set_besch( gr->get_weg_nr(0)->get_desc() );
+						gr->get_weg_nr(0)->set_desc( gr->get_weg_nr(0)->get_desc() );
 						gr->get_weg_nr(1)->clear_crossing();
 					}
 				}
 
-				if(  change_besch  ) {
+				if(  change_desc  ) {
 					// we take ownership => we take care to maintain the roads completely ...
 					player_t *s = weg->get_owner();
 					player_t::add_maintenance( s, -weg->get_desc()->get_wartung(), weg->get_desc()->get_finance_waytype());
 					// cost is the more expensive one, so downgrading is between removing and new buidling
 					cost -= max( weg->get_desc()->get_preis(), desc->get_preis() );
-					weg->set_besch(desc);
+					weg->set_desc(desc);
 					// respect max speed of catenary
 					wayobj_t const* const wo = gr->get_wayobj(desc->get_wtyp());
 					if (wo  &&  wo->get_desc()->get_topspeed() < weg->get_max_speed()) {
@@ -2334,7 +2334,7 @@ void wegbauer_t::baue_schiene()
 			}
 			else {
 				weg_t* const sch = weg_t::alloc(desc->get_wtyp());
-				sch->set_besch(desc);
+				sch->set_desc(desc);
 
 				cost = -gr->neuen_weg_bauen(sch, ribi, player_builder)-desc->get_preis();
 
@@ -2402,7 +2402,7 @@ void wegbauer_t::baue_leitung()
 			}
 		}
 		if (build_powerline) {
-			lt->set_besch(desc);
+			lt->set_desc(desc);
 			player_t::book_construction_costs(player_builder, -desc->get_preis(), gr->get_pos().get_2d(), powerline_wt);
 			// this adds maintenance
 			lt->leitung_t::finish_rd();
@@ -2493,7 +2493,7 @@ void wegbauer_t::baue_fluss()
 			bool extend = gr->weg_erweitern(water_wt, ribi);
 			if(  !extend  ) {
 				weg_t *sch=weg_t::alloc(water_wt);
-				sch->set_besch(desc);
+				sch->set_desc(desc);
 				gr->neuen_weg_bauen(sch, ribi, NULL);
 			}
 		}
@@ -2521,7 +2521,7 @@ void wegbauer_t::baue_fluss()
 					// still room to expand
 					if(  type>0  ) {
 						// thus we enlarge
-						w->set_besch( alle_wegtypen.get(env_t::river_type[type-1]) );
+						w->set_desc( alle_wegtypen.get(env_t::river_type[type-1]) );
 						w->calc_image();
 					}
 				}

@@ -137,7 +137,7 @@ bool bruecke_besch_t::has_double_start() const
 
 void bruecke_besch_t::calc_checksum(checksum_t *chk) const
 {
-	obj_besch_transport_infrastructure_t::calc_checksum(chk);
+	obj_desc_transport_infrastructure_t::calc_checksum(chk);
 	chk->input(pillars_every);
 	chk->input(pillars_asymmetric);
 	chk->input(max_length);

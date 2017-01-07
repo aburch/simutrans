@@ -10,7 +10,7 @@
 #include "../../network/pakset_info.h"
 
 
-void bridge_reader_t::register_obj(obj_besch_t *&data)
+void bridge_reader_t::register_obj(obj_desc_t *&data)
 {
 	bruecke_besch_t *desc = static_cast<bruecke_besch_t *>(data);
 
@@ -22,7 +22,7 @@ void bridge_reader_t::register_obj(obj_besch_t *&data)
 }
 
 
-obj_besch_t * bridge_reader_t::read_node(FILE *fp, obj_node_info_t &node)
+obj_desc_t * bridge_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
 	// DBG_DEBUG("bridge_reader_t::read_node()", "called");
 	ALLOCA(char, besch_buf, node.size);

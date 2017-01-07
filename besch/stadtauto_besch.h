@@ -26,7 +26,7 @@
  *	1   Copyright
  *	2   Image-list
  */
-class stadtauto_besch_t : public obj_besch_timelined_t {
+class stadtauto_besch_t : public obj_desc_timelined_t {
 	friend class citycar_reader_t;
 
 	uint16 gewichtung;
@@ -48,7 +48,7 @@ public:
 
 	void calc_checksum(checksum_t *chk) const
 	{
-		obj_besch_timelined_t::calc_checksum(chk);
+		obj_desc_timelined_t::calc_checksum(chk);
 		chk->input(gewichtung);
 		chk->input(geschw);
 	}

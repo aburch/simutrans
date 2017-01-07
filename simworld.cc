@@ -717,8 +717,8 @@ void karte_t::set_scenario(scenario_t *s)
 void karte_t::create_rivers( sint16 number )
 {
 	// First check, wether there is a canal:
-	const weg_besch_t* river_besch = wegbauer_t::get_desc( env_t::river_type[env_t::river_types-1], 0 );
-	if(  river_besch == NULL  ) {
+	const weg_besch_t* river_desc = wegbauer_t::get_desc( env_t::river_type[env_t::river_types-1], 0 );
+	if(  river_desc == NULL  ) {
 		// should never reaching here ...
 		dbg->warning("karte_t::create_rivers()","There is no river defined!\n");
 		return;
@@ -781,7 +781,7 @@ void karte_t::create_rivers( sint16 number )
 			koord const end = pick_any(valid_water_tiles);
 			valid_water_tiles.remove( end );
 			wegbauer_t riverbuilder(players[1]);
-			riverbuilder.route_fuer(wegbauer_t::river, river_besch);
+			riverbuilder.route_fuer(wegbauer_t::river, river_desc);
 			sint16 dist = koord_distance(start,end);
 			riverbuilder.set_maximum( dist*50 );
 			riverbuilder.calc_route( lookup_kartenboden(end)->get_pos(), lookup_kartenboden(start)->get_pos() );
@@ -993,8 +993,8 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 			// get a default vehikel
 			route_t verbindung;
 			vehicle_t* test_driver;
-			vehikel_besch_t test_drive_besch(road_wt, 500, vehikel_besch_t::diesel );
-			test_driver = vehikelbauer_t::baue(koord3d(), players[1], NULL, &test_drive_besch);
+			vehikel_besch_t test_drive_desc(road_wt, 500, vehikel_besch_t::diesel );
+			test_driver = vehikelbauer_t::baue(koord3d(), players[1], NULL, &test_drive_desc);
 			test_driver->set_flag( obj_t::not_on_map );
 
 			bool ready=false;
@@ -1159,7 +1159,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","distributing groundobjs");
 							}
 						}
 						const climate_bits cl = neighbour_water ? water_climate_bit : (climate_bits)(1<<get_climate(k));
-						const groundobj_besch_t *desc = groundobj_t::random_groundobj_for_climate( cl, gr->get_grund_hang() );
+						const groundobj_desc_t *desc = groundobj_t::random_groundobj_for_climate( cl, gr->get_grund_hang() );
 						if(desc) {
 							queried = simrand(env_t::ground_object_probability*2-1);
 							gr->obj_add( new groundobj_t( gr->get_pos(), desc ) );
@@ -1184,7 +1184,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","distributing movingobjs");
 				if(  gr->get_top()==0  &&  (  (gr->get_typ()==grund_t::boden  &&  gr->get_grund_hang()==slope_t::flat)  ||  (has_water  &&  gr->ist_wasser())  )  ) {
 					queried --;
 					if(  queried<0  ) {
-						const groundobj_besch_t *desc = movingobj_t::random_movingobj_for_climate( get_climate(k) );
+						const groundobj_desc_t *desc = movingobj_t::random_movingobj_for_climate( get_climate(k) );
 						if(  desc  &&  ( desc->get_waytype() != water_wt  ||  gr->get_hoehe() <= get_water_hgt_nocheck(k) )  ) {
 							if(desc->get_speed()!=0) {
 								queried = simrand(env_t::moving_object_probability*2);

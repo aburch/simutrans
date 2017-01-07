@@ -35,7 +35,7 @@ class tool_t;
  *
  * @author  Volker Meyer, Hj. Malthaner
  */
-class weg_besch_t : public obj_besch_transport_infrastructure_t {
+class weg_besch_t : public obj_desc_transport_infrastructure_t {
 	friend class way_reader_t;
 
 private:

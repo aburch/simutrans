@@ -12,7 +12,7 @@
 #include "../../network/pakset_info.h"
 
 
-void crossing_reader_t::register_obj(obj_besch_t *&data)
+void crossing_reader_t::register_obj(obj_desc_t *&data)
 {
 	kreuzung_besch_t *desc = static_cast<kreuzung_besch_t *>(data);
 	if(desc->topspeed1!=0) {
@@ -25,7 +25,7 @@ void crossing_reader_t::register_obj(obj_besch_t *&data)
 }
 
 
-obj_besch_t * crossing_reader_t::read_node(FILE *fp, obj_node_info_t &node)
+obj_desc_t * crossing_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
 	ALLOCA(char, besch_buf, node.size);
 

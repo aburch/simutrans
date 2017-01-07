@@ -17,7 +17,7 @@ class maglev_t : public schiene_t
 public:
 	static const weg_besch_t *default_maglev;
 
-	maglev_t() : schiene_t() { set_besch(default_maglev); }
+	maglev_t() : schiene_t() { set_desc(default_maglev); }
 
 	/**
 	 * File loading constructor.

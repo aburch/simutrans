@@ -7,7 +7,7 @@
 #include "../obj_node_info.h"
 
 
-obj_besch_t * imagelist_reader_t::read_node(FILE *fp, obj_node_info_t &node)
+obj_desc_t * imagelist_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
 	ALLOCA(char, besch_buf, node.size);
 

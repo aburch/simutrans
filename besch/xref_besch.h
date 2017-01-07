@@ -5,12 +5,12 @@
 #include "objversion.h"
 
 
-class xref_besch_t : public obj_besch_t
+class xref_besch_t : public obj_desc_t
 {
 	public:
 		const char* get_name() const { return name; }
 
-		using obj_besch_t::operator new;
+		using obj_desc_t::operator new;
 
 	private:
 		obj_type type;

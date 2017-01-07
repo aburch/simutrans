@@ -1814,16 +1814,16 @@ road_vehicle_t::road_vehicle_t(loadsave_t *file, bool is_first, bool is_last) : 
 	rdwr_from_convoi(file);
 
 	if(  file->is_loading()  ) {
-		static const vehikel_besch_t *last_besch = NULL;
+		static const vehikel_besch_t *last_desc = NULL;
 
 		if(is_first) {
-			last_besch = NULL;
+			last_desc = NULL;
 		}
 		// try to find a matching vehicle
 		if(desc==NULL) {
 			const ware_besch_t* w = (!fracht.empty() ? fracht.front().get_desc() : warenbauer_t::passagiere);
 			dbg->warning("road_vehicle_t::road_vehicle_t()","try to find a fitting vehicle for %s.",  w->get_name() );
-			desc = vehikelbauer_t::get_best_matching(road_wt, 0, (fracht.empty() ? 0 : 50), is_first?50:0, speed_to_kmh(speed_limit), w, true, last_besch, is_last );
+			desc = vehikelbauer_t::get_best_matching(road_wt, 0, (fracht.empty() ? 0 : 50), is_first?50:0, speed_to_kmh(speed_limit), w, true, last_desc, is_last );
 			if(desc) {
 				DBG_MESSAGE("road_vehicle_t::road_vehicle_t()","replaced by %s",desc->get_name());
 				// still wrong load ...
@@ -1835,7 +1835,7 @@ road_vehicle_t::road_vehicle_t(loadsave_t *file, bool is_first, bool is_last) : 
 			}
 		}
 		if(  desc  ) {
-			last_besch = desc;
+			last_desc = desc;
 		}
 	}
 }
@@ -2333,23 +2333,23 @@ rail_vehicle_t::rail_vehicle_t(loadsave_t *file, bool is_first, bool is_last) : 
 	vehicle_t::rdwr_from_convoi(file);
 
 	if(  file->is_loading()  ) {
-		static const vehikel_besch_t *last_besch = NULL;
+		static const vehikel_besch_t *last_desc = NULL;
 
 		if(is_first) {
-			last_besch = NULL;
+			last_desc = NULL;
 		}
 		// try to find a matching vehicle
 		if(desc==NULL) {
 			int power = (is_first || fracht.empty() || fracht.front() == warenbauer_t::nichts) ? 500 : 0;
 			const ware_besch_t* w = fracht.empty() ? warenbauer_t::nichts : fracht.front().get_desc();
 			dbg->warning("rail_vehicle_t::rail_vehicle_t()","try to find a fitting vehicle for %s.", power>0 ? "engine": w->get_name() );
-			if(last_besch!=NULL  &&  last_besch->can_follow(last_besch)  &&  last_besch->get_ware()==w  &&  (!is_last  ||  last_besch->get_nachfolger(0)==NULL)) {
+			if(last_desc!=NULL  &&  last_desc->can_follow(last_desc)  &&  last_desc->get_ware()==w  &&  (!is_last  ||  last_desc->get_nachfolger(0)==NULL)) {
 				// same as previously ...
-				desc = last_besch;
+				desc = last_desc;
 			}
 			else {
 				// we have to search
-				desc = vehikelbauer_t::get_best_matching(get_waytype(), 0, w!=warenbauer_t::nichts?5000:0, power, speed_to_kmh(speed_limit), w, false, last_besch, is_last );
+				desc = vehikelbauer_t::get_best_matching(get_waytype(), 0, w!=warenbauer_t::nichts?5000:0, power, speed_to_kmh(speed_limit), w, false, last_desc, is_last );
 			}
 			if(desc) {
 DBG_MESSAGE("rail_vehicle_t::rail_vehicle_t()","replaced by %s",desc->get_name());
@@ -2365,7 +2365,7 @@ DBG_MESSAGE("rail_vehicle_t::rail_vehicle_t()","replaced by %s",desc->get_name()
 		}
 		// update last besch
 		if(  desc  ) {
-			last_besch = desc;
+			last_desc = desc;
 		}
 	}
 }
@@ -2803,10 +2803,10 @@ bool rail_vehicle_t::is_signal_clear(uint16 next_block, sint32 &restart_speed)
 	}
 
 	// action depend on the next signal
-	const roadsign_besch_t *sig_besch=sig->get_desc();
+	const roadsign_besch_t *sig_desc=sig->get_desc();
 
 	// simple signal: drive on, if next block is free
-	if(  !sig_besch->is_longblock_signal()  &&  !sig_besch->is_choose_sign()  &&  !sig_besch->is_pre_signal()  ) {
+	if(  !sig_desc->is_longblock_signal()  &&  !sig_desc->is_choose_sign()  &&  !sig_desc->is_pre_signal()  ) {
 
 		uint16 next_signal, next_crossing;
 		if(  block_reserver( cnv->get_route(), next_block+1, next_signal, next_crossing, 0, true, false )  ) {
@@ -2820,15 +2820,15 @@ bool rail_vehicle_t::is_signal_clear(uint16 next_block, sint32 &restart_speed)
 		return false;
 	}
 
-	if(  sig_besch->is_pre_signal()  ) {
+	if(  sig_desc->is_pre_signal()  ) {
 		return is_pre_signal_clear( sig, next_block, restart_speed );
 	}
 
-	if(  sig_besch->is_longblock_signal()  ) {
+	if(  sig_desc->is_longblock_signal()  ) {
 		return is_longblock_signal_clear( sig, next_block, restart_speed );
 	}
 
-	if(  sig_besch->is_choose_sign()  ) {
+	if(  sig_desc->is_choose_sign()  ) {
 		return is_choose_signal_clear( sig, next_block, restart_speed );
 	}
 
@@ -3145,22 +3145,22 @@ water_vehicle_t::water_vehicle_t(loadsave_t *file, bool is_first, bool is_last) 
 	vehicle_t::rdwr_from_convoi(file);
 
 	if(  file->is_loading()  ) {
-		static const vehikel_besch_t *last_besch = NULL;
+		static const vehikel_besch_t *last_desc = NULL;
 
 		if(is_first) {
-			last_besch = NULL;
+			last_desc = NULL;
 		}
 		// try to find a matching vehicle
 		if(desc==NULL) {
 			dbg->warning("water_behicle_t::water_behicle_t()", "try to find a fitting vehicle for %s.", !fracht.empty() ? fracht.front().get_name() : "passagiere");
-			desc = vehikelbauer_t::get_best_matching(water_wt, 0, fracht.empty() ? 0 : 30, 100, 40, !fracht.empty() ? fracht.front().get_desc() : warenbauer_t::passagiere, true, last_besch, is_last );
+			desc = vehikelbauer_t::get_best_matching(water_wt, 0, fracht.empty() ? 0 : 30, 100, 40, !fracht.empty() ? fracht.front().get_desc() : warenbauer_t::passagiere, true, last_desc, is_last );
 			if(desc) {
 				calc_image();
 			}
 		}
 		// update last besch
 		if(  desc  ) {
-			last_besch = desc;
+			last_desc = desc;
 		}
 	}
 }
@@ -3927,22 +3927,22 @@ air_vehicle_t::air_vehicle_t(loadsave_t *file, bool is_first, bool is_last) : ve
 	rdwr_from_convoi(file);
 
 	if(  file->is_loading()  ) {
-		static const vehikel_besch_t *last_besch = NULL;
+		static const vehikel_besch_t *last_desc = NULL;
 
 		if(is_first) {
-			last_besch = NULL;
+			last_desc = NULL;
 		}
 		// try to find a matching vehicle
 		if(desc==NULL) {
 			dbg->warning("aircraft_t::aircraft_t()", "try to find a fitting vehicle for %s.", !fracht.empty() ? fracht.front().get_name() : "passagiere");
-			desc = vehikelbauer_t::get_best_matching(air_wt, 0, 101, 1000, 800, !fracht.empty() ? fracht.front().get_desc() : warenbauer_t::passagiere, true, last_besch, is_last );
+			desc = vehikelbauer_t::get_best_matching(air_wt, 0, 101, 1000, 800, !fracht.empty() ? fracht.front().get_desc() : warenbauer_t::passagiere, true, last_desc, is_last );
 			if(desc) {
 				calc_image();
 			}
 		}
 		// update last besch
 		if(  desc  ) {
-			last_besch = desc;
+			last_desc = desc;
 		}
 	}
 }

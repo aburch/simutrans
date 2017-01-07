@@ -37,7 +37,7 @@ class checksum_t;
  *   3   Imagelist2D season 1 front
  *	... ...
  */
-class haus_tile_besch_t : public obj_besch_t {
+class haus_tile_besch_t : public obj_desc_t {
 	friend class tile_reader_t;
 
 	const haus_besch_t	*haus;
@@ -47,7 +47,7 @@ class haus_tile_besch_t : public obj_besch_t {
 	uint16 index;
 
 public:
-	void set_besch(const haus_besch_t *haus_besch) { haus = haus_besch; }
+	void set_desc(const haus_besch_t *haus_desc) { haus = haus_desc; }
 
 	const haus_besch_t *get_desc() const { return haus; }
 
@@ -120,7 +120,7 @@ public:
  *	3   Tile 2
  *	... ...
  */
-class haus_besch_t : public obj_besch_timelined_t {
+class haus_besch_t : public obj_desc_timelined_t {
 	friend class building_reader_t;
 
 	public:

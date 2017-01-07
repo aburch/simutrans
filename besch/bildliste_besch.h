@@ -21,7 +21,7 @@
  *	1   2nd Bild
  *	... ...
  */
-class image_list_t : public obj_besch_t {
+class image_list_t : public obj_desc_t {
     friend class imagelist_reader_t;
 
     uint16  count;

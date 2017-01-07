@@ -14,7 +14,7 @@
 #include "../dataobj/translator.h"
 
 
-stringhashtable_tpl<const ware_besch_t *> warenbauer_t::besch_names;
+stringhashtable_tpl<const ware_besch_t *> warenbauer_t::desc_table;
 
 vector_tpl<ware_besch_t *> warenbauer_t::waren;
 
@@ -85,11 +85,11 @@ bool warenbauer_t::alles_geladen()
 		if(i>=waren.get_count()) {
 			// these entries will be never looked at;
 			// however, if then this will generate an error
-			ware_t::index_to_besch[i] = NULL;
+			ware_t::index_to_desc[i] = NULL;
 		}
 		else {
 			assert(waren[i]->get_index()==i);
-			ware_t::index_to_besch[i] = waren[i];
+			ware_t::index_to_desc[i] = waren[i];
 			if(waren[i]->color==255) {
 				waren[i]->color = 16+4+((i-2)*8)%207;
 			}
@@ -104,7 +104,7 @@ bool warenbauer_t::alles_geladen()
 	}
 	// none should never be loaded to something ...
 	// however, some place do need the dummy ...
-	ware_t::index_to_besch[2] = NULL;
+	ware_t::index_to_desc[2] = NULL;
 
 	DBG_MESSAGE("warenbauer_t::alles_geladen()","total goods %i, different kind of categories %i", waren.get_count(), max_catg_index );
 
@@ -112,7 +112,7 @@ bool warenbauer_t::alles_geladen()
 }
 
 
-static bool compare_ware_besch(const ware_besch_t* a, const ware_besch_t* b)
+static bool compare_ware_desc(const ware_besch_t* a, const ware_besch_t* b)
 {
 	int diff = strcmp(a->get_name(), b->get_name());
 	return diff < 0;
@@ -123,13 +123,13 @@ bool warenbauer_t::register_desc(ware_besch_t *desc)
 	desc->value = desc->base_value;
 	::register_desc(spezial_objekte, desc);
 	// avoid duplicates with same name
-	ware_besch_t *old_besch = const_cast<ware_besch_t *>(besch_names.get(desc->get_name()));
-	if(  old_besch  ) {
+	ware_besch_t *old_desc = const_cast<ware_besch_t *>(desc_table.get(desc->get_name()));
+	if(  old_desc  ) {
 		dbg->warning( "warenbauer_t::register_desc()", "Object %s was overlaid by addon!", desc->get_name() );
-		besch_names.remove(desc->get_name());
-		waren.remove( old_besch );
+		desc_table.remove(desc->get_name());
+		waren.remove( old_desc );
 	}
-	besch_names.put(desc->get_name(), desc);
+	desc_table.put(desc->get_name(), desc);
 
 	if(desc==passagiere) {
 		desc->ware_index = INDEX_PAS;
@@ -138,7 +138,7 @@ bool warenbauer_t::register_desc(ware_besch_t *desc)
 		desc->ware_index = INDEX_MAIL;
 		load_post = desc;
 	} else if(desc != nichts) {
-		waren.insert_ordered(desc,compare_ware_besch);
+		waren.insert_ordered(desc,compare_ware_desc);
 	}
 	else {
 		load_nichts = desc;
@@ -150,9 +150,9 @@ bool warenbauer_t::register_desc(ware_besch_t *desc)
 
 const ware_besch_t *warenbauer_t::get_info(const char* name)
 {
-	const ware_besch_t *ware = besch_names.get(name);
+	const ware_besch_t *ware = desc_table.get(name);
 	if(  ware==NULL  ) {
-		ware = besch_names.get(translator::compatibility_name(name));
+		ware = desc_table.get(translator::compatibility_name(name));
 	}
 	if(  ware == NULL  ) {
 		// to avoid crashed with NULL pointer in skripts return good NONE

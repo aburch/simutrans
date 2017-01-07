@@ -19,7 +19,7 @@ class checksum_t;
 /* Knightly : this desc will store data specific to each class of fields
  * Fields are xref'ed from skin_besch_t
  */
-class field_class_besch_t : public obj_besch_t {
+class field_class_besch_t : public obj_desc_t {
 	friend class factory_field_class_reader_t;
 	friend class factory_field_group_reader_t;		// Knightly : this is a special case due to desc restructuring
 
@@ -44,7 +44,7 @@ public:
 
 
 // Knightly : this desc now only contains common, shared data regarding fields
-class field_group_besch_t : public obj_besch_t {
+class field_group_besch_t : public obj_desc_t {
 	friend class factory_field_group_reader_t;
 
 private:
@@ -93,7 +93,7 @@ public:
  *  Child nodes:
  *	0   SKin
  */
-class rauch_besch_t : public obj_besch_t {
+class rauch_besch_t : public obj_desc_t {
 	friend class factory_smoke_reader_t;
 
 private:
@@ -140,7 +140,7 @@ public:
  *  Child nodes:
  *	0   Ware
  */
-class fabrik_lieferant_besch_t : public obj_besch_t {
+class fabrik_lieferant_besch_t : public obj_desc_t {
 	friend class factory_supplier_reader_t;
 
 private:
@@ -167,7 +167,7 @@ public:
  *  Child nodes:
  *	0   Ware
  */
-class fabrik_produkt_besch_t : public obj_besch_t {
+class fabrik_produkt_besch_t : public obj_desc_t {
 	friend class factory_product_reader_t;
 
 private:
@@ -206,7 +206,7 @@ public:
  *	n+3 Produkt 2
  *	... ...
  */
-class fabrik_besch_t : public obj_besch_t {
+class fabrik_besch_t : public obj_desc_t {
 	friend class factory_reader_t;
 
 public:

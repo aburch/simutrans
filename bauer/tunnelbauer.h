@@ -31,7 +31,7 @@ private:
 	static karte_ptr_t welt;
 
 	static bool baue_tunnel(player_t *player, koord3d pos, koord3d end, koord zv, const tunnel_besch_t *desc);
-	static void baue_einfahrt(player_t *player, koord3d end, koord zv, const tunnel_besch_t *desc, const weg_besch_t *weg_besch, int &cost);
+	static void baue_einfahrt(player_t *player, koord3d end, koord zv, const tunnel_besch_t *desc, const weg_besch_t *weg_desc, int &cost);
 
 	tunnelbauer_t() {} // private -> no instance please
 

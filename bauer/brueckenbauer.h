@@ -89,9 +89,9 @@ public:
 	 * @param zv direction the bridge will face
 	 * @param bridge_height the height above start.z that the bridge will have
 	 * @param desc bridge description.
-	 * @param weg_besch description of the way to be built on the bridge
+	 * @param weg_desc description of the way to be built on the bridge
 	 */
-	static void baue_bruecke(player_t *player, const koord3d start, const koord3d end, koord zv, sint8 bridge_height, const bruecke_besch_t *desc, const weg_besch_t *weg_besch);
+	static void baue_bruecke(player_t *player, const koord3d start, const koord3d end, koord zv, sint8 bridge_height, const bruecke_besch_t *desc, const weg_besch_t *weg_desc);
 
 	/**
 	 * Registers a new bridge type and adds it to the list of build tools.

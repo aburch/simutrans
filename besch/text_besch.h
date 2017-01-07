@@ -14,11 +14,11 @@
  *  Author:
  *      Volker Meyer
  */
-class text_besch_t : public obj_besch_t {
+class text_besch_t : public obj_desc_t {
 public:
 		const char* get_text() const { return text; }
 
-		using obj_besch_t::operator new;
+		using obj_desc_t::operator new;
 
 	private:
 		char text[];

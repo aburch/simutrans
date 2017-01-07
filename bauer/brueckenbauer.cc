@@ -47,12 +47,12 @@ static stringhashtable_tpl<const bruecke_besch_t *> bruecken_by_name;
 void brueckenbauer_t::register_desc(bruecke_besch_t *desc)
 {
 	// avoid duplicates with same name
-	if( const bruecke_besch_t *old_besch = bruecken_by_name.get(desc->get_name()) ) {
+	if( const bruecke_besch_t *old_desc = bruecken_by_name.get(desc->get_name()) ) {
 		dbg->warning( "brueckenbauer_t::register_desc()", "Object %s was overlaid by addon!", desc->get_name() );
 		bruecken_by_name.remove(desc->get_name());
-		tool_t::general_tool.remove( old_besch->get_builder() );
-		delete old_besch->get_builder();
-		delete old_besch;
+		tool_t::general_tool.remove( old_desc->get_builder() );
+		delete old_desc->get_builder();
+		delete old_desc;
 	}
 
 	// add the tool
@@ -74,20 +74,20 @@ const bruecke_besch_t *brueckenbauer_t::get_desc(const char *name)
 
 const bruecke_besch_t *brueckenbauer_t::find_bridge(const waytype_t wtyp, const sint32 min_speed, const uint16 time)
 {
-	const bruecke_besch_t *find_besch=NULL;
+	const bruecke_besch_t *find_desc=NULL;
 
 	FOR(stringhashtable_tpl<bruecke_besch_t const*>, const& i, bruecken_by_name) {
 		bruecke_besch_t const* const desc = i.value;
 		if(  desc->get_waytype()==wtyp  &&  desc->is_available(time)  ) {
-			if(  find_besch==NULL  ||
-				(find_besch->get_topspeed()<min_speed  &&  find_besch->get_topspeed()<desc->get_topspeed())  ||
-				(desc->get_topspeed()>=min_speed  &&  desc->get_wartung()<find_besch->get_wartung())
+			if(  find_desc==NULL  ||
+				(find_desc->get_topspeed()<min_speed  &&  find_desc->get_topspeed()<desc->get_topspeed())  ||
+				(desc->get_topspeed()>=min_speed  &&  desc->get_wartung()<find_desc->get_wartung())
 			) {
-				find_besch = desc;
+				find_desc = desc;
 			}
 		}
 	}
-	return find_besch;
+	return find_desc;
 }
 
 
@@ -693,25 +693,25 @@ DBG_MESSAGE("brueckenbauer_t::baue()", "end not ok");
 	}
 
 	// associated way
-	const weg_besch_t* way_besch;
+	const weg_besch_t* way_desc;
 	if (weg) {
-		way_besch = weg->get_desc();
+		way_desc = weg->get_desc();
 	}
 	else if (lt) {
-		way_besch = lt->get_desc();
+		way_desc = lt->get_desc();
 	}
 	else {
-		way_besch = wegbauer_t::weg_search(desc->get_waytype(), desc->get_topspeed(), welt->get_timeline_year_month(), type_flat);
+		way_desc = wegbauer_t::weg_search(desc->get_waytype(), desc->get_topspeed(), welt->get_timeline_year_month(), type_flat);
 	}
 
 	// Start and end have been checked, we can start to build eventually
-	baue_bruecke(player, gr->get_pos(), end, zv, bridge_height, desc, way_besch );
+	baue_bruecke(player, gr->get_pos(), end, zv, bridge_height, desc, way_desc );
 
 	return NULL;
 }
 
 
-void brueckenbauer_t::baue_bruecke(player_t *player, const koord3d start, const koord3d end, koord zv, sint8 bridge_height, const bruecke_besch_t *desc, const weg_besch_t *weg_besch)
+void brueckenbauer_t::baue_bruecke(player_t *player, const koord3d start, const koord3d end, koord zv, sint8 bridge_height, const bruecke_besch_t *desc, const weg_besch_t *weg_desc)
 {
 	ribi_t::ribi ribi = ribi_type(zv);
 
@@ -744,7 +744,7 @@ void brueckenbauer_t::baue_bruecke(player_t *player, const koord3d start, const 
 			leitung_t *lt = start_gr->get_leitung();
 			if(!lt) {
 				lt = new leitung_t(start_gr->get_pos(), player);
-				lt->set_besch( weg_besch );
+				lt->set_desc( weg_desc );
 				start_gr->obj_add( lt );
 				lt->finish_rd();
 			}
@@ -752,7 +752,7 @@ void brueckenbauer_t::baue_bruecke(player_t *player, const koord3d start, const 
 		else if(  !start_gr->weg_erweitern( desc->get_waytype(), ribi )  ) {
 			// builds new way
 			weg_t * const weg = weg_t::alloc( desc->get_waytype() );
-			weg->set_besch( weg_besch );
+			weg->set_desc( weg_desc );
 			player_t::book_construction_costs( player, -start_gr->neuen_weg_bauen( weg, ribi, player ) -weg->get_desc()->get_preis(), end.get_2d(), weg->get_waytype());
 		}
 		start_gr->calc_image();
@@ -764,7 +764,7 @@ void brueckenbauer_t::baue_bruecke(player_t *player, const koord3d start, const 
 		welt->access(pos.get_2d())->boden_hinzufuegen(bruecke);
 		if(  desc->get_waytype() != powerline_wt  ) {
 			weg_t * const weg = weg_t::alloc(desc->get_waytype());
-			weg->set_besch(weg_besch);
+			weg->set_desc(weg_desc);
 			bruecke->neuen_weg_bauen(weg, ribi_t::doubles(ribi), player);
 		}
 		else {
@@ -798,7 +798,7 @@ void brueckenbauer_t::baue_bruecke(player_t *player, const koord3d start, const 
 	// must determine end tile: on a slope => likely need auffahrt
 	bool need_auffahrt = pos.z != end_slope_height;
 	if(  need_auffahrt  ) {
-		if(  weg_t const* const w = welt->lookup(end)->get_weg( weg_besch->get_wtyp() )  ) {
+		if(  weg_t const* const w = welt->lookup(end)->get_weg( weg_desc->get_wtyp() )  ) {
 			need_auffahrt &= w->get_desc()->get_styp() != type_elevated;
 		}
 	}
@@ -816,7 +816,7 @@ void brueckenbauer_t::baue_bruecke(player_t *player, const koord3d start, const 
 			if(  !gr->weg_erweitern( desc->get_waytype(), ribi )  ) {
 				// builds new way
 				weg_t * const weg = weg_t::alloc( desc->get_waytype() );
-				weg->set_besch( weg_besch );
+				weg->set_desc( weg_desc );
 				player_t::book_construction_costs( player, -gr->neuen_weg_bauen( weg, ribi, player ) -weg->get_desc()->get_preis(), end.get_2d(), weg->get_waytype());
 			}
 			gr->calc_image();
@@ -825,9 +825,9 @@ void brueckenbauer_t::baue_bruecke(player_t *player, const koord3d start, const 
 			leitung_t *lt = gr->get_leitung();
 			if(  lt==NULL  ) {
 				lt = new leitung_t(end, player );
-				player_t::book_construction_costs(player, -weg_besch->get_preis(), gr->get_pos().get_2d(), powerline_wt);
+				player_t::book_construction_costs(player, -weg_desc->get_preis(), gr->get_pos().get_2d(), powerline_wt);
 				gr->obj_add(lt);
-				lt->set_besch(weg_besch);
+				lt->set_desc(weg_desc);
 				lt->finish_rd();
 			}
 			lt->calc_neighbourhood();
@@ -852,7 +852,7 @@ void brueckenbauer_t::baue_bruecke(player_t *player, const koord3d start, const 
 					bauigel.set_keep_existing_ways(true);
 					bauigel.set_keep_city_roads(true);
 					bauigel.set_maximum(20);
-					bauigel.route_fuer( (wegbauer_t::bautyp_t)desc->get_waytype(), weg_besch, NULL, NULL );
+					bauigel.route_fuer( (wegbauer_t::bautyp_t)desc->get_waytype(), weg_desc, NULL, NULL );
 					bauigel.calc_route( pos, to->get_pos() );
 					if(  bauigel.get_count() == 2  ) {
 						bauigel.baue();
@@ -1159,7 +1159,7 @@ const char *brueckenbauer_t::remove(player_t *player, koord3d pos_start, waytype
 			weg = gr->get_weg(wegtyp);
 			if(  weg  ) {
 				// needs checks, since this fails if it was the last tile
-				weg->set_besch( weg->get_desc() );
+				weg->set_desc( weg->get_desc() );
 				weg->set_ribi( ribi );
 				if(  slope_t::max_diff(gr->get_weg_hang())>=2  &&  !weg->get_desc()->has_double_slopes()  ) {
 					// remove the way totally, if is is on a double slope

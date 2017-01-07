@@ -11,7 +11,7 @@
 #include "../../network/pakset_info.h"
 
 
-void way_reader_t::register_obj(obj_besch_t *&data)
+void way_reader_t::register_obj(obj_desc_t *&data)
 {
     weg_besch_t *desc = static_cast<weg_besch_t *>(data);
 
@@ -31,7 +31,7 @@ bool way_reader_t::successfully_loaded() const
 }
 
 
-obj_besch_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
+obj_desc_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
 	ALLOCA(char, besch_buf, node.size);
 

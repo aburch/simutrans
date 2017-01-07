@@ -27,7 +27,7 @@
  */
 
 
-class groundobj_besch_t : public obj_besch_std_name_t {
+class groundobj_desc_t : public obj_named_desc_t {
 	friend class groundobj_reader_t;
 	friend class groundobj_t;
 	friend class movingobj_t;

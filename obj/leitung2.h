@@ -63,7 +63,7 @@ public:
 	void set_net(powernet_t* p) { net = p; }
 
 	const weg_besch_t * get_desc() { return desc; }
-	void set_besch(const weg_besch_t *new_besch) { desc = new_besch; }
+	void set_desc(const weg_besch_t *new_desc) { desc = new_desc; }
 
 	int gimme_neighbours(leitung_t **conn);
 	static fabrik_t * suche_fab_4(koord pos);

@@ -17,7 +17,7 @@ const weg_besch_t *runway_t::default_runway=NULL;
 
 runway_t::runway_t() : schiene_t()
 {
-	set_besch(default_runway);
+	set_desc(default_runway);
 }
 
 
@@ -53,6 +53,6 @@ void runway_t::rdwr(loadsave_t *file)
 		if(old_max_speed>0) {
 			set_max_speed(old_max_speed);
 		}
-		set_besch(desc);
+		set_desc(desc);
 	}
 }

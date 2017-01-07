@@ -4,7 +4,7 @@
 
 void vehikel_besch_t::calc_checksum(checksum_t *chk) const
 {
-	obj_besch_transport_related_t::calc_checksum(chk);
+	obj_desc_transport_related_t::calc_checksum(chk);
 	chk->input(zuladung);
 	chk->input(loading_time);
 	chk->input(gewicht);

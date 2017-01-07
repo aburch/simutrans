@@ -24,7 +24,7 @@
  *	1   Copyright
  *	2   Image-list
  */
-class fussgaenger_besch_t : public obj_besch_std_name_t {
+class fussgaenger_besch_t : public obj_named_desc_t {
     friend class pedestrian_reader_t;
 
     uint16 gewichtung;

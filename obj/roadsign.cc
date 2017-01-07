@@ -617,8 +617,8 @@ void roadsign_t::finish_rd()
 }
 
 
-// to sort compare_roadsign_besch for always the same menu order
-static bool compare_roadsign_besch(const roadsign_besch_t* a, const roadsign_besch_t* b)
+// to sort compare_roadsign_desc for always the same menu order
+static bool compare_roadsign_desc(const roadsign_besch_t* a, const roadsign_besch_t* b)
 {
 	int diff = a->get_wtyp() - b->get_wtyp();
 	if (diff == 0) {
@@ -651,13 +651,13 @@ bool roadsign_t::alles_geladen()
 bool roadsign_t::register_desc(roadsign_besch_t *desc)
 {
 	// avoid duplicates with same name
-	const roadsign_besch_t *old_besch = table.get(desc->get_name());
-	if(old_besch) {
+	const roadsign_besch_t *old_desc = table.get(desc->get_name());
+	if(old_desc) {
 		dbg->warning( "roadsign_t::register_desc()", "Object %s was overlaid by addon!", desc->get_name() );
 		table.remove(desc->get_name());
-		tool_t::general_tool.remove( old_besch->get_builder() );
-		delete old_besch->get_builder();
-		delete old_besch;
+		tool_t::general_tool.remove( old_desc->get_builder() );
+		delete old_desc->get_builder();
+		delete old_desc;
 	}
 
 	if(  desc->get_cursor()->get_image_id(1)!=IMG_EMPTY  ) {
@@ -702,7 +702,7 @@ void roadsign_t::fill_menu(tool_selector_t *tool_selector, waytype_t wtyp, sint1
 		roadsign_besch_t const* const desc = i.value;
 		if(  desc->is_available(time)  &&  desc->get_wtyp()==wtyp  &&  desc->get_builder()  ) {
 			// only add items with a cursor
-			matching.insert_ordered( desc, compare_roadsign_besch );
+			matching.insert_ordered( desc, compare_roadsign_desc );
 		}
 	}
 	FOR(vector_tpl<roadsign_besch_t const*>, const i, matching) {

@@ -18,11 +18,11 @@
  *      Basis of all besch_t classes, which are loaded from the .pak files.
  *	No virtual methods are allowed!
  */
-class obj_besch_t {
+class obj_desc_t {
 public:
-	obj_besch_t() : children() {}
+	obj_desc_t() : children() {}
 
-	~obj_besch_t() { delete [] children; }
+	~obj_desc_t() { delete [] children; }
 
 	void* operator new(size_t size)
 	{
@@ -52,7 +52,7 @@ private:
 	 * Internal Node information - the derived class knows,
 	 * how many node child nodes really exist.
 	 */
-	obj_besch_t** children;
+	obj_desc_t** children;
 
 	friend class factory_field_group_reader_t;
 	friend class obj_reader_t;

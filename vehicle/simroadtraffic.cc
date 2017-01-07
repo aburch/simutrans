@@ -255,7 +255,7 @@ bool private_car_t::alles_geladen()
 }
 
 
-static bool compare_stadtauto_besch(const stadtauto_besch_t* a, const stadtauto_besch_t* b)
+static bool compare_stadtauto_desc(const stadtauto_besch_t* a, const stadtauto_besch_t* b)
 {
 	int diff = a->get_intro_year_month() - b->get_intro_year_month();
 	if (diff == 0) {
@@ -286,7 +286,7 @@ void private_car_t::build_timeline_list(karte_t *welt)
 			const int retire_month = info->get_retire_year_month();
 
 			if (!welt->use_timeline() || (intro_month <= month_now && month_now < retire_month)) {
-				temp_liste.insert_ordered( info, compare_stadtauto_besch );
+				temp_liste.insert_ordered( info, compare_stadtauto_desc );
 			}
 		}
 	}
@@ -653,8 +653,8 @@ grund_t* private_car_t::hop_check()
 
 	if(  weg->has_sign(  )) {
 		const roadsign_t* rs = from->find<roadsign_t>();
-		const roadsign_besch_t* rs_besch = rs->get_desc();
-		if(rs_besch->is_traffic_light()  &&  (rs->get_dir()&direction90)==0) {
+		const roadsign_besch_t* rs_desc = rs->get_desc();
+		if(rs_desc->is_traffic_light()  &&  (rs->get_dir()&direction90)==0) {
 			direction = direction90;
 			calc_image();
 			// wait here
@@ -702,8 +702,8 @@ grund_t* private_car_t::hop_check()
 					// check, if roadsign forbid next step ...
 					if(w->has_sign()) {
 						const roadsign_t* rs = to->find<roadsign_t>();
-						const roadsign_besch_t* rs_besch = rs->get_desc();
-						if(rs_besch->get_min_speed()>desc->get_geschw()  ||  (rs_besch->is_private_way()  &&  (rs->get_player_mask()&2)==0)  ) {
+						const roadsign_besch_t* rs_desc = rs->get_desc();
+						if(rs_desc->get_min_speed()>desc->get_geschw()  ||  (rs_desc->is_private_way()  &&  (rs->get_player_mask()&2)==0)  ) {
 							// not allowed to go here
 							ribi &= ~ribi_t::nsew[r];
 							continue;

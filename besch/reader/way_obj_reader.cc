@@ -10,9 +10,9 @@
 #include "../../network/pakset_info.h"
 
 
-void way_obj_reader_t::register_obj(obj_besch_t *&data)
+void way_obj_reader_t::register_obj(obj_desc_t *&data)
 {
-    way_obj_besch_t *desc = static_cast<way_obj_besch_t *>(data);
+    way_obj_desc_t *desc = static_cast<way_obj_desc_t *>(data);
     wayobj_t::register_desc(desc);
 
 	checksum_t *chk = new checksum_t();
@@ -27,11 +27,11 @@ bool way_obj_reader_t::successfully_loaded() const
 }
 
 
-obj_besch_t * way_obj_reader_t::read_node(FILE *fp, obj_node_info_t &node)
+obj_desc_t * way_obj_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
 	ALLOCA(char, besch_buf, node.size);
 
-	way_obj_besch_t *desc = new way_obj_besch_t();
+	way_obj_desc_t *desc = new way_obj_desc_t();
 
 	// Hajo: Read data
 	fread(besch_buf, node.size, 1, fp);

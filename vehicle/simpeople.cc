@@ -24,7 +24,7 @@ static weighted_vector_tpl<const fussgaenger_besch_t*> liste;
 stringhashtable_tpl<const fussgaenger_besch_t *> pedestrian_t::table;
 
 
-static bool compare_fussgaenger_besch(const fussgaenger_besch_t* a, const fussgaenger_besch_t* b)
+static bool compare_fussgaenger_desc(const fussgaenger_besch_t* a, const fussgaenger_besch_t* b)
 {
 	// sort pedestrian objects descriptors by their name
 	return strcmp(a->get_name(), b->get_name())<0;
@@ -51,7 +51,7 @@ bool pedestrian_t::alles_geladen()
 		vector_tpl<const fussgaenger_besch_t*> temp_liste(0);
 		FOR(stringhashtable_tpl<fussgaenger_besch_t const*>, const& i, table) {
 			// just entered them sorted
-			temp_liste.insert_ordered(i.value, compare_fussgaenger_besch);
+			temp_liste.insert_ordered(i.value, compare_fussgaenger_desc);
 		}
 		FOR(vector_tpl<fussgaenger_besch_t const*>, const i, temp_liste) {
 			liste.append(i, i->get_gewichtung());

@@ -22,7 +22,7 @@ class checksum_t;
  *	1   Copyright
  *	2   Text Maﬂeinheit
  */
-class ware_besch_t : public obj_besch_std_name_t {
+class ware_besch_t : public obj_named_desc_t {
 	friend class good_reader_t;
 	friend class warenbauer_t;
 

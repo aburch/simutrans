@@ -31,9 +31,9 @@
 
 
 obj_reader_t::obj_map*                                         obj_reader_t::obj_reader;
-inthashtable_tpl<obj_type, stringhashtable_tpl<obj_besch_t*> > obj_reader_t::loaded;
+inthashtable_tpl<obj_type, stringhashtable_tpl<obj_desc_t*> > obj_reader_t::loaded;
 obj_reader_t::unresolved_map                                   obj_reader_t::unresolved;
-ptrhashtable_tpl<obj_besch_t**, int>                           obj_reader_t::fatals;
+ptrhashtable_tpl<obj_desc_t**, int>                           obj_reader_t::fatals;
 
 void obj_reader_t::register_reader()
 {
@@ -187,7 +187,7 @@ void obj_reader_t::read_file(const char *name)
 		DBG_DEBUG("obj_reader_t::read_file()", "read %d blocks, file version is %x", n, version);
 
 		if(version <= COMPILER_VERSION_CODE) {
-			obj_besch_t *data = NULL;
+			obj_desc_t *data = NULL;
 			read_nodes(fp, data, 0, version );
 		}
 		else {
@@ -219,7 +219,7 @@ static void read_node_info(obj_node_info_t& node, FILE* const f, uint32 const ve
 }
 
 
-void obj_reader_t::read_nodes(FILE* fp, obj_besch_t*& data, int register_nodes, uint32 version )
+void obj_reader_t::read_nodes(FILE* fp, obj_desc_t*& data, int register_nodes, uint32 version )
 {
 	obj_node_info_t node;
 	read_node_info(node, fp, version);
@@ -230,7 +230,7 @@ void obj_reader_t::read_nodes(FILE* fp, obj_besch_t*& data, int register_nodes, 
 //DBG_DEBUG("obj_reader_t::read_nodes()","Reading %.4s-node of length %d with '%s'",	reinterpret_cast<const char *>(&node.type),	node.size,	reader->get_type_name());
 		data = reader->read_node(fp, node);
 		if (node.children != 0) {
-			data->children = new obj_besch_t*[node.children];
+			data->children = new obj_desc_t*[node.children];
 			for (int i = 0; i < node.children; i++) {
 				read_nodes(fp, data->children[i], register_nodes + 1, version);
 			}
@@ -268,18 +268,18 @@ void obj_reader_t::skip_nodes(FILE *fp,uint32 version)
 
 void obj_reader_t::resolve_xrefs()
 {
-	slist_tpl<obj_besch_t *> xref_nodes;
+	slist_tpl<obj_desc_t *> xref_nodes;
 	FOR(unresolved_map, const& u, unresolved) {
-		FOR(stringhashtable_tpl<slist_tpl<obj_besch_t**> >, const& i, u.value) {
-			obj_besch_t *obj_loaded = NULL;
+		FOR(stringhashtable_tpl<slist_tpl<obj_desc_t**> >, const& i, u.value) {
+			obj_desc_t *obj_loaded = NULL;
 
 			if (!strempty(i.key)) {
-				if (stringhashtable_tpl<obj_besch_t*>* const objtype_loaded = loaded.access(u.key)) {
+				if (stringhashtable_tpl<obj_desc_t*>* const objtype_loaded = loaded.access(u.key)) {
 					obj_loaded = objtype_loaded->get(i.key);
 				}
 			}
 
-			FOR(slist_tpl<obj_besch_t**>, const x, i.value) {
+			FOR(slist_tpl<obj_desc_t**>, const x, i.value) {
 				if (!obj_loaded && fatals.get(x)) {
 					dbg->fatal("obj_reader_t::resolve_xrefs", "cannot resolve '%4.4s-%s'", &u.key, i.key);
 				}
@@ -300,9 +300,9 @@ void obj_reader_t::resolve_xrefs()
 }
 
 
-void obj_reader_t::obj_for_xref(obj_type type, const char *name, obj_besch_t *data)
+void obj_reader_t::obj_for_xref(obj_type type, const char *name, obj_desc_t *data)
 {
-	stringhashtable_tpl<obj_besch_t *> *objtype_loaded = loaded.access(type);
+	stringhashtable_tpl<obj_desc_t *> *objtype_loaded = loaded.access(type);
 
 	if(!objtype_loaded) {
 		loaded.put(type);
@@ -313,15 +313,15 @@ void obj_reader_t::obj_for_xref(obj_type type, const char *name, obj_besch_t *da
 }
 
 
-void obj_reader_t::xref_to_resolve(obj_type type, const char *name, obj_besch_t **dest, bool fatal)
+void obj_reader_t::xref_to_resolve(obj_type type, const char *name, obj_desc_t **dest, bool fatal)
 {
-	stringhashtable_tpl< slist_tpl<obj_besch_t **> > *typeunresolved = unresolved.access(type);
+	stringhashtable_tpl< slist_tpl<obj_desc_t **> > *typeunresolved = unresolved.access(type);
 
 	if(!typeunresolved) {
 		unresolved.put(type);
 		typeunresolved = unresolved.access(type);
 	}
-	slist_tpl<obj_besch_t **> *list = typeunresolved->access(name);
+	slist_tpl<obj_desc_t **> *list = typeunresolved->access(name);
 	if(!list) {
 		typeunresolved->put(name);
 		list = typeunresolved->access(name);

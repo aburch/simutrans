@@ -30,7 +30,7 @@ class tool_selector_t;
 class wayobj_t : public obj_no_info_t
 {
 private:
-	const way_obj_besch_t *desc;
+	const way_obj_desc_t *desc;
 
 	uint8 diagonal:1;
 	uint8 hang:7;
@@ -42,13 +42,13 @@ private:
 
 
 public:
-	wayobj_t(koord3d pos, player_t *owner, ribi_t::ribi dir, const way_obj_besch_t *desc);
+	wayobj_t(koord3d pos, player_t *owner, ribi_t::ribi dir, const way_obj_desc_t *desc);
 
 	wayobj_t(loadsave_t *file);
 
 	virtual ~wayobj_t();
 
-	const way_obj_besch_t *get_desc() const {return desc;}
+	const way_obj_desc_t *get_desc() const {return desc;}
 
 	void rotate90();
 
@@ -110,22 +110,22 @@ public:
 
 	/* the static routines */
 private:
-	static vector_tpl<const way_obj_besch_t *> liste;
-	static stringhashtable_tpl<const way_obj_besch_t *> table;
+	static vector_tpl<const way_obj_desc_t *> liste;
+	static stringhashtable_tpl<const way_obj_desc_t *> table;
 
 public:
-	static const way_obj_besch_t *default_oberleitung;
+	static const way_obj_desc_t *default_oberleitung;
 
 	// use this constructor; it will extend a matching existing wayobj
-	static void extend_wayobj_t(koord3d pos, player_t *owner, ribi_t::ribi dir, const way_obj_besch_t *desc);
+	static void extend_wayobj_t(koord3d pos, player_t *owner, ribi_t::ribi dir, const way_obj_desc_t *desc);
 
-	static bool register_desc(way_obj_besch_t *desc);
+	static bool register_desc(way_obj_desc_t *desc);
 	static bool alles_geladen();
 
 	// search an object (currently only used by AI for caternary)
-	static const way_obj_besch_t *wayobj_search(waytype_t wt,waytype_t own,uint16 time);
+	static const way_obj_desc_t *wayobj_search(waytype_t wt,waytype_t own,uint16 time);
 
-	static const way_obj_besch_t *find_besch(const char *);
+	static const way_obj_desc_t *find_desc(const char *);
 
 	/**
 	 * Fill menu with icons of given stops from the list

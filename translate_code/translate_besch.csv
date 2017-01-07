@@ -1,0 +1,7 @@
+\\<besch\\([^/_a-z0-9]\\),desc\\1
+register_besch,register_desc
+get_besch,get_desc
+obj_besch_t,obj_desc_t
+obj_besch_std_name_t,obj_named_desc_t
+besch_names,desc_table
+_besch\\>\\([^.]\\),_desc\\1

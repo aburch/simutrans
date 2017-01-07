@@ -8,7 +8,7 @@
 #include "../../simdebug.h"
 
 
-void sound_reader_t::register_obj(obj_besch_t *&data)
+void sound_reader_t::register_obj(obj_desc_t *&data)
 {
 	sound_besch_t *desc = static_cast<sound_besch_t *>(data);
 	sound_besch_t::register_desc(desc);
@@ -17,7 +17,7 @@ void sound_reader_t::register_obj(obj_besch_t *&data)
 }
 
 
-obj_besch_t * sound_reader_t::read_node(FILE *fp, obj_node_info_t &node)
+obj_desc_t * sound_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
 	ALLOCA(char, besch_buf, node.size);
 

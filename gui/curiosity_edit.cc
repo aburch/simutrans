@@ -35,7 +35,7 @@ char curiosity_edit_frame_t::param_str[256];
 
 
 
-static bool compare_haus_besch(const haus_besch_t* a, const haus_besch_t* b)
+static bool compare_haus_desc(const haus_besch_t* a, const haus_besch_t* b)
 { 
 	int diff = strcmp( a->get_name(), b->get_name() );
 	return diff < 0;
@@ -117,7 +117,7 @@ void curiosity_edit_frame_t::fill_list( bool translate )
 		FOR(vector_tpl<haus_besch_t const*>, const desc, *hausbauer_t::get_list(haus_besch_t::attraction_city)) {
 			if(!use_timeline  ||  (!desc->is_future(month_now)  &&  (!desc->is_retired(month_now)  ||  allow_obsolete))  ) {
 				// timeline allows for this
-				hauslist.insert_ordered( desc, translate?compare_haus_besch_trans:compare_haus_besch );
+				hauslist.insert_ordered( desc, translate?compare_haus_besch_trans:compare_haus_desc );
 			}
 		}
 	}
@@ -126,7 +126,7 @@ void curiosity_edit_frame_t::fill_list( bool translate )
 		FOR(vector_tpl<haus_besch_t const*>, const desc, *hausbauer_t::get_list(haus_besch_t::attraction_land)) {
 			if(!use_timeline  ||  (!desc->is_future(month_now)  &&  (!desc->is_retired(month_now)  ||  allow_obsolete))  ) {
 				// timeline allows for this
-				hauslist.insert_ordered( desc, translate?compare_haus_besch_trans:compare_haus_besch );
+				hauslist.insert_ordered( desc, translate?compare_haus_besch_trans:compare_haus_desc );
 			}
 		}
 	}
@@ -135,7 +135,7 @@ void curiosity_edit_frame_t::fill_list( bool translate )
 		FOR(vector_tpl<haus_besch_t const*>, const desc, *hausbauer_t::get_list(haus_besch_t::denkmal)) {
 			if(!use_timeline  ||  (!desc->is_future(month_now)  &&  (!desc->is_retired(month_now)  ||  allow_obsolete))  ) {
 				// timeline allows for this
-				hauslist.insert_ordered( desc, translate?compare_haus_besch_trans:compare_haus_besch );
+				hauslist.insert_ordered( desc, translate?compare_haus_besch_trans:compare_haus_desc );
 			}
 		}
 	}
@@ -202,12 +202,12 @@ void curiosity_edit_frame_t::change_item_info(sint32 entry)
 {
 	if(entry>=0  &&  entry<(sint32)hauslist.get_count()) {
 
-		const haus_besch_t *new_besch = hauslist[entry];
+		const haus_besch_t *new_desc = hauslist[entry];
 
-		if(new_besch!=desc) {
+		if(new_desc!=desc) {
 
 			buf.clear();
-			desc = new_besch;
+			desc = new_desc;
 			if(desc->get_utyp()==haus_besch_t::attraction_city) {
 				buf.printf("%s (%s: %i)",translator::translate( "City attraction" ), translator::translate("Bauzeit"),desc->get_extra());
 			}

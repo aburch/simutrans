@@ -491,8 +491,8 @@ bool ai_t::create_simple_road_transport(koord platz1, koord size1, koord platz2,
 
 	// is there already a connection?
 	// get a default vehikel
-	vehikel_besch_t test_besch(road_wt, 25, vehikel_besch_t::diesel );
-	vehicle_t* test_driver = vehikelbauer_t::baue(welt->lookup_kartenboden(platz1)->get_pos(), this, NULL, &test_besch);
+	vehikel_besch_t test_desc(road_wt, 25, vehikel_besch_t::diesel );
+	vehicle_t* test_driver = vehikelbauer_t::baue(welt->lookup_kartenboden(platz1)->get_pos(), this, NULL, &test_desc);
 	test_driver->set_flag( obj_t::not_on_map );
 	route_t verbindung;
 	if(  verbindung.calc_route(welt, welt->lookup_kartenboden(platz1)->get_pos(), welt->lookup_kartenboden(platz2)->get_pos(), test_driver, 0, 0)  &&

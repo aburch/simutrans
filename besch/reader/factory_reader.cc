@@ -27,7 +27,7 @@ uint16 rescale_probability(const uint16 p)
 }
 
 
-obj_besch_t *factory_field_class_reader_t::read_node(FILE *fp, obj_node_info_t &node)
+obj_desc_t *factory_field_class_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
 	ALLOCA(char, besch_buf, node.size);
 
@@ -55,7 +55,7 @@ obj_besch_t *factory_field_class_reader_t::read_node(FILE *fp, obj_node_info_t &
 }
 
 
-obj_besch_t *factory_field_group_reader_t::read_node(FILE *fp, obj_node_info_t &node)
+obj_desc_t *factory_field_group_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
 	ALLOCA(char, besch_buf, node.size);
 
@@ -89,24 +89,24 @@ obj_besch_t *factory_field_group_reader_t::read_node(FILE *fp, obj_node_info_t &
 		 *   leave shared, common data in field besch
 		 *   field class specific data goes to field class besch
 		 */
-		field_class_besch_t *const field_class_besch = new field_class_besch_t();
+		field_class_besch_t *const field_class_desc = new field_class_besch_t();
 
-		field_class_besch->snow_image = decode_uint8(p);
+		field_class_desc->snow_image = decode_uint8(p);
 		desc->probability = rescale_probability( decode_uint16(p) );
-		field_class_besch->production_per_field = decode_uint16(p);
+		field_class_desc->production_per_field = decode_uint16(p);
 		desc->max_fields = decode_uint16(p);
 		desc->min_fields = decode_uint16(p);
 		desc->field_classes = 1;
-		field_class_besch->storage_capacity = 0;
-		field_class_besch->spawn_weight = 1000;
+		field_class_desc->storage_capacity = 0;
+		field_class_desc->spawn_weight = 1000;
 
 		/* Knightly :
 		 *   store it in a static variable for further processing
 		 *   later in factory_field_reader_t::register_obj()
 		 */
-		incomplete_field_class_besch = field_class_besch;
+		incomplete_field_class_desc = field_class_desc;
 
-		DBG_DEBUG("factory_field_group_reader_t::read_node()", "has_snow %i, probability %i, fields: max %i, min %i, production %i", field_class_besch->snow_image, desc->probability, desc->max_fields, desc->min_fields, field_class_besch->production_per_field);
+		DBG_DEBUG("factory_field_group_reader_t::read_node()", "has_snow %i, probability %i, fields: max %i, min %i, production %i", field_class_desc->snow_image, desc->probability, desc->max_fields, desc->min_fields, field_class_desc->production_per_field);
 	}
 	else {
 		dbg->fatal("factory_field_group_reader_t::read_node()","unknown version %i", v&0x00ff );
@@ -116,24 +116,24 @@ obj_besch_t *factory_field_group_reader_t::read_node(FILE *fp, obj_node_info_t &
 }
 
 
-void factory_field_group_reader_t::register_obj(obj_besch_t *&data)
+void factory_field_group_reader_t::register_obj(obj_desc_t *&data)
 {
 	field_group_besch_t *const desc = static_cast<field_group_besch_t *>(data);
 
 	// Knightly : check if we need to continue with the construction of field class besch
-	if (field_class_besch_t *const field_class_besch = incomplete_field_class_besch) {
-		// we *must* transfer the obj_besch_t array and not just the desc object itself
+	if (field_class_besch_t *const field_class_desc = incomplete_field_class_desc) {
+		// we *must* transfer the obj_desc_t array and not just the desc object itself
 		// as xref reader has already logged the address of the array element for xref resolution
-		field_class_besch->children  = desc->children;
-		desc->children              = new obj_besch_t*[1];
-		desc->children[0]           = field_class_besch;
-		incomplete_field_class_besch = NULL;
+		field_class_desc->children  = desc->children;
+		desc->children              = new obj_desc_t*[1];
+		desc->children[0]           = field_class_desc;
+		incomplete_field_class_desc = NULL;
 	}
 }
 
 
 
-obj_besch_t *factory_smoke_reader_t::read_node(FILE *fp, obj_node_info_t &node)
+obj_desc_t *factory_smoke_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
 	ALLOCA(char, besch_buf, node.size);
 
@@ -159,7 +159,7 @@ obj_besch_t *factory_smoke_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 }
 
 
-obj_besch_t *factory_supplier_reader_t::read_node(FILE *fp, obj_node_info_t &node)
+obj_desc_t *factory_supplier_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
 	// DBG_DEBUG("factory_product_reader_t::read_node()", "called");
 	ALLOCA(char, besch_buf, node.size);
@@ -193,7 +193,7 @@ obj_besch_t *factory_supplier_reader_t::read_node(FILE *fp, obj_node_info_t &nod
 }
 
 
-obj_besch_t *factory_product_reader_t::read_node(FILE *fp, obj_node_info_t &node)
+obj_desc_t *factory_product_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
 	// DBG_DEBUG("factory_product_reader_t::read_node()", "called");
 	ALLOCA(char, besch_buf, node.size);
@@ -227,7 +227,7 @@ obj_besch_t *factory_product_reader_t::read_node(FILE *fp, obj_node_info_t &node
 }
 
 
-obj_besch_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
+obj_desc_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
 	// DBG_DEBUG("factory_reader_t::read_node()", "called");
 	ALLOCA(char, besch_buf, node.size);
@@ -344,7 +344,7 @@ obj_besch_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 }
 
 
-void factory_reader_t::register_obj(obj_besch_t *&data)
+void factory_reader_t::register_obj(obj_desc_t *&data)
 {
 	fabrik_besch_t* desc = static_cast<fabrik_besch_t*>(data);
 	size_t fab_name_len = strlen( desc->get_name() );

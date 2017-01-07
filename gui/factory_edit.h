@@ -24,7 +24,7 @@ private:
 	static tool_build_factory_t fab_tool;
 	static char param_str[256];
 
-	const fabrik_besch_t *fab_besch;
+	const fabrik_besch_t *fab_desc;
 	uint32 production;
 	uint8 rotation; //255 for any
 

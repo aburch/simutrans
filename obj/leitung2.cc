@@ -110,7 +110,7 @@ leitung_t::leitung_t(koord3d pos, player_t *player) : obj_t(pos)
 	image = IMG_EMPTY;
 	set_net(NULL);
 	set_owner( player );
-	set_besch(wegbauer_t::leitung_besch);
+	set_desc(wegbauer_t::leitung_desc);
 }
 
 
@@ -418,16 +418,16 @@ void leitung_t::rdwr(loadsave_t *file)
 					desc = wegbauer_t::get_desc(translator::compatibility_name(bname));
 					if(desc==NULL) {
 						welt->add_missing_paks( bname, karte_t::MISSING_WAY );
-						desc = wegbauer_t::leitung_besch;
+						desc = wegbauer_t::leitung_desc;
 					}
 					dbg->warning("leitung_t::rdwr()", "Unknown powerline %s replaced by %s", bname, desc->get_name() );
 				}
-				set_besch(desc);
+				set_desc(desc);
 			}
 		}
 		else {
 			if (file->is_loading()) {
-				set_besch(wegbauer_t::leitung_besch);
+				set_desc(wegbauer_t::leitung_desc);
 			}
 		}
 	}

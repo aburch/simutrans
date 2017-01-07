@@ -47,8 +47,8 @@ static pthread_mutex_t wayobj_calc_image_mutex = PTHREAD_RECURSIVE_MUTEX_INITIAL
 #endif
 
 // the descriptions ...
-const way_obj_besch_t *wayobj_t::default_oberleitung=NULL;
-stringhashtable_tpl<const way_obj_besch_t *> wayobj_t::table;
+const way_obj_desc_t *wayobj_t::default_oberleitung=NULL;
+stringhashtable_tpl<const way_obj_desc_t *> wayobj_t::table;
 
 
 wayobj_t::wayobj_t(loadsave_t* const file) : obj_no_info_t()
@@ -57,7 +57,7 @@ wayobj_t::wayobj_t(loadsave_t* const file) : obj_no_info_t()
 }
 
 
-wayobj_t::wayobj_t(koord3d const pos, player_t* const owner, ribi_t::ribi const d, way_obj_besch_t const* const b) : obj_no_info_t(pos)
+wayobj_t::wayobj_t(koord3d const pos, player_t* const owner, ribi_t::ribi const d, way_obj_desc_t const* const b) : obj_no_info_t(pos)
 {
 	desc = b;
 	dir = d;
@@ -332,7 +332,7 @@ void wayobj_t::calc_image()
 
 /* better use this constrcutor for new wayobj; it will extend a matching obj or make an new one
  */
-void wayobj_t::extend_wayobj_t(koord3d pos, player_t *owner, ribi_t::ribi dir, const way_obj_besch_t *desc)
+void wayobj_t::extend_wayobj_t(koord3d pos, player_t *owner, ribi_t::ribi dir, const way_obj_desc_t *desc)
 {
 	grund_t *gr=welt->lookup(pos);
 	if(gr) {
@@ -384,7 +384,7 @@ void wayobj_t::extend_wayobj_t(koord3d pos, player_t *owner, ribi_t::ribi dir, c
 
 
 // to sort wayobj for always the same menu order
-static bool compare_wayobj_besch(const way_obj_besch_t* a, const way_obj_besch_t* b)
+static bool compare_wayobj_desc(const way_obj_desc_t* a, const way_obj_desc_t* b)
 {
 	int diff = a->get_wtyp() - b->get_wtyp();
 	if (diff == 0) {
@@ -404,9 +404,9 @@ bool wayobj_t::alles_geladen()
 		dbg->warning("wayobj_t::alles_geladen()", "No obj found - may crash when loading catenary.");
 	}
 
-	way_obj_besch_t const* def = 0;
-	FOR(stringhashtable_tpl<way_obj_besch_t const*>, const& i, table) {
-		way_obj_besch_t const& b = *i.value;
+	way_obj_desc_t const* def = 0;
+	FOR(stringhashtable_tpl<way_obj_desc_t const*>, const& i, table) {
+		way_obj_desc_t const& b = *i.value;
 		if (b.get_own_wtyp() != overheadlines_wt)           continue;
 		if (b.get_wtyp()     != track_wt)                   continue;
 		if (def && def->get_topspeed() >= b.get_topspeed()) continue;
@@ -418,16 +418,16 @@ bool wayobj_t::alles_geladen()
 }
 
 
-bool wayobj_t::register_desc(way_obj_besch_t *desc)
+bool wayobj_t::register_desc(way_obj_desc_t *desc)
 {
 	// avoid duplicates with same name
-	const way_obj_besch_t *old_besch = table.get(desc->get_name());
-	if(old_besch) {
+	const way_obj_desc_t *old_desc = table.get(desc->get_name());
+	if(old_desc) {
 		dbg->warning( "wayobj_t::register_desc()", "Object %s was overlaid by addon!", desc->get_name() );
 		table.remove(desc->get_name());
-		tool_t::general_tool.remove( old_besch->get_builder() );
-		delete old_besch->get_builder();
-		delete old_besch;
+		tool_t::general_tool.remove( old_desc->get_builder() );
+		delete old_desc->get_builder();
+		delete old_desc;
 	}
 
 	if(  desc->get_cursor()->get_image_id(1)!=IMG_EMPTY  ) {
@@ -462,10 +462,10 @@ void wayobj_t::fill_menu(tool_selector_t *tool_selector, waytype_t wtyp, sint16 
 
 	const uint16 time=welt->get_timeline_year_month();
 
-	vector_tpl<const way_obj_besch_t *>matching;
+	vector_tpl<const way_obj_desc_t *>matching;
 
-	FOR(stringhashtable_tpl<way_obj_besch_t const*>, const& i, table) {
-		way_obj_besch_t const* const desc = i.value;
+	FOR(stringhashtable_tpl<way_obj_desc_t const*>, const& i, table) {
+		way_obj_desc_t const* const desc = i.value;
 		if(  desc->is_available(time)  ) {
 
 			DBG_DEBUG("wayobj_t::fill_menu()", "try to add %s(%p)", desc->get_name(), desc);
@@ -476,17 +476,17 @@ void wayobj_t::fill_menu(tool_selector_t *tool_selector, waytype_t wtyp, sint16 
 		}
 	}
 	// sort the tools before adding to menu
-	std::sort(matching.begin(), matching.end(), compare_wayobj_besch);
-	FOR(vector_tpl<way_obj_besch_t const*>, const i, matching) {
+	std::sort(matching.begin(), matching.end(), compare_wayobj_desc);
+	FOR(vector_tpl<way_obj_desc_t const*>, const i, matching) {
 		tool_selector->add_tool_selector(i->get_builder());
 	}
 }
 
 
-const way_obj_besch_t *wayobj_t::wayobj_search(waytype_t wt, waytype_t own, uint16 time)
+const way_obj_desc_t *wayobj_t::wayobj_search(waytype_t wt, waytype_t own, uint16 time)
 {
-	FOR(stringhashtable_tpl<way_obj_besch_t const*>, const& i, table) {
-		way_obj_besch_t const* const desc = i.value;
+	FOR(stringhashtable_tpl<way_obj_desc_t const*>, const& i, table) {
+		way_obj_desc_t const* const desc = i.value;
 		if(  desc->is_available(time)  &&  desc->get_wtyp()==wt  &&  desc->get_own_wtyp()==own  ) {
 			return desc;
 		}
@@ -495,7 +495,7 @@ const way_obj_besch_t *wayobj_t::wayobj_search(waytype_t wt, waytype_t own, uint
 }
 
 
-const way_obj_besch_t* wayobj_t::find_besch(const char *str)
+const way_obj_desc_t* wayobj_t::find_desc(const char *str)
 {
 	return wayobj_t::table.get(str);
 }

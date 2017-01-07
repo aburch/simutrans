@@ -37,7 +37,7 @@ strasse_t::strasse_t(loadsave_t *file) : weg_t()
 strasse_t::strasse_t() : weg_t()
 {
 	set_gehweg(false);
-	set_besch(default_strasse);
+	set_desc(default_strasse);
 }
 
 
@@ -72,7 +72,7 @@ void strasse_t::rdwr(loadsave_t *file)
 			}
 			dbg->warning("strasse_t::rdwr()", "Unknown street %s replaced by %s (old_max_speed %i)", bname, desc->get_name(), old_max_speed );
 		}
-		set_besch(desc);
+		set_desc(desc);
 		if(old_max_speed>0) {
 			set_max_speed(old_max_speed);
 		}

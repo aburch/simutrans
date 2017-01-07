@@ -47,9 +47,9 @@ implement_besch_param(bruecke_besch_t, "bridge_desc_x", &brueckenbauer_t::get_de
 	}
 
 // use the macro to obtain the interface of some abstract classes
-implement_class_with_tag(obj_besch_std_name_t);
-implement_class_with_tag(obj_besch_timelined_t);
-implement_class_with_tag(obj_besch_transport_related_t);
+implement_class_with_tag(obj_named_desc_t);
+implement_class_with_tag(obj_desc_timelined_t);
+implement_class_with_tag(obj_desc_transport_related_t);
 
 SQInteger param<const haus_tile_besch_t*>::push(HSQUIRRELVM vm, const haus_tile_besch_t* b)
 {

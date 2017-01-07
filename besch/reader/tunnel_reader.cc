@@ -14,7 +14,7 @@
 #include "../../network/pakset_info.h"
 
 
-void tunnel_reader_t::register_obj(obj_besch_t *&data)
+void tunnel_reader_t::register_obj(obj_desc_t *&data)
 {
 	tunnel_besch_t *desc = static_cast<tunnel_besch_t *>(data);
 	if(desc->get_topspeed()==0) {
@@ -50,7 +50,7 @@ void tunnel_reader_t::convert_old_tunnel(tunnel_besch_t *desc)
 }
 
 
-obj_besch_t * tunnel_reader_t::read_node(FILE *fp, obj_node_info_t &node)
+obj_desc_t * tunnel_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
 	tunnel_besch_t *desc = new tunnel_besch_t();
 	desc->topspeed = 0;	// indicate, that we have to convert this to reasonable date, when read completely

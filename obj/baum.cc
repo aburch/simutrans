@@ -84,7 +84,7 @@ weighted_vector_tpl<uint32>* baum_t::baum_typen_per_climate = NULL;
 /*
  * Diese Tabelle ermoeglicht das Auffinden einer Description durch ihren Namen
  */
-stringhashtable_tpl<const baum_besch_t *> baum_t::besch_names;
+stringhashtable_tpl<const baum_besch_t *> baum_t::desc_table;
 
 
 // total number of trees
@@ -140,7 +140,7 @@ uint8 baum_t::plant_tree_on_coordinate(koord pos, const uint8 maximum_count, con
 bool baum_t::plant_tree_on_coordinate(koord pos, const baum_besch_t *desc, const bool check_climate, const bool random_age )
 {
 	// none there
-	if(  besch_names.empty()  ) {
+	if(  desc_table.empty()  ) {
 		return false;
 	}
 	grund_t *gr = welt->lookup_kartenboden(pos);
@@ -181,7 +181,7 @@ bool baum_t::plant_tree_on_coordinate(koord pos, const baum_besch_t *desc, const
 uint32 baum_t::create_forest(koord new_center, koord wh )
 {
 	// none there
-	if(  besch_names.empty()  ) {
+	if(  desc_table.empty()  ) {
 		return 0;
 	}
 	const sint16 xpos_f = new_center.x;
@@ -219,7 +219,7 @@ uint32 baum_t::create_forest(koord new_center, koord wh )
 void baum_t::fill_trees(int dichte)
 {
 	// none there
-	if(  besch_names.empty()  ) {
+	if(  desc_table.empty()  ) {
 		return;
 	}
 DBG_MESSAGE("verteile_baeume()","distributing single trees");
@@ -240,7 +240,7 @@ DBG_MESSAGE("verteile_baeume()","distributing single trees");
 }
 
 
-static bool compare_baum_besch(const baum_besch_t* a, const baum_besch_t* b)
+static bool compare_baum_desc(const baum_besch_t* a, const baum_besch_t* b)
 {
 	/* Gleiches Level - wir führen eine künstliche, aber eindeutige Sortierung
 	 * über den Namen herbei. */
@@ -250,14 +250,14 @@ static bool compare_baum_besch(const baum_besch_t* a, const baum_besch_t* b)
 
 bool baum_t::alles_geladen()
 {
-	if(  besch_names.empty()  ) {
+	if(  desc_table.empty()  ) {
 		DBG_MESSAGE("baum_t", "No trees found - feature disabled");
 	}
 
-	FOR(stringhashtable_tpl<baum_besch_t const*>, const& i, besch_names) {
-		baum_typen.insert_ordered(i.value, compare_baum_besch);
+	FOR(stringhashtable_tpl<baum_besch_t const*>, const& i, desc_table) {
+		baum_typen.insert_ordered(i.value, compare_baum_desc);
 		if(  baum_typen.get_count()==255  ) {
-			dbg->error( "baum_t::alles_geladen()", "Maximum tree count exceeded! (max 255 instead of %i)", besch_names.get_count() );
+			dbg->error( "baum_t::alles_geladen()", "Maximum tree count exceeded! (max 255 instead of %i)", desc_table.get_count() );
 			break;
 		}
 	}
@@ -307,10 +307,10 @@ bool baum_t::alles_geladen()
 bool baum_t::register_desc(baum_besch_t *desc)
 {
 	// avoid duplicates with same name
-	if(besch_names.remove(desc->get_name())) {
+	if(desc_table.remove(desc->get_name())) {
 		dbg->warning( "baum_t::register_desc()", "Object %s was overlaid by addon!", desc->get_name() );
 	}
-	besch_names.put(desc->get_name(), desc );
+	desc_table.put(desc->get_name(), desc );
 	return true;
 }
 
@@ -541,9 +541,9 @@ void baum_t::rdwr(loadsave_t *file)
 	if(file->is_loading()) {
 		char buf[128];
 		file->rdwr_str(buf, lengthof(buf));
-		const baum_besch_t *desc = besch_names.get( buf );
+		const baum_besch_t *desc = desc_table.get( buf );
 		if(  !baum_typen.is_contained(desc)  ) {
-			desc = besch_names.get( translator::compatibility_name(buf) );
+			desc = desc_table.get( translator::compatibility_name(buf) );
 		}
 		if(  baum_typen.is_contained(desc)  ) {
 			baumtype = baum_typen.index_of( desc );

@@ -12,7 +12,7 @@
 #include "../../network/pakset_info.h"
 
 
-void roadsign_reader_t::register_obj(obj_besch_t *&data)
+void roadsign_reader_t::register_obj(obj_desc_t *&data)
 {
     roadsign_besch_t *desc = static_cast<roadsign_besch_t *>(data);
 
@@ -30,7 +30,7 @@ bool roadsign_reader_t::successfully_loaded() const
 }
 
 
-obj_besch_t * roadsign_reader_t::read_node(FILE *fp, obj_node_info_t &node)
+obj_desc_t * roadsign_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
 	ALLOCA(char, besch_buf, node.size);
 

@@ -35,7 +35,7 @@ char citybuilding_edit_frame_t::param_str[256];
 
 
 
-static bool compare_haus_besch(const haus_besch_t* a, const haus_besch_t* b)
+static bool compare_haus_desc(const haus_besch_t* a, const haus_besch_t* b)
 {
 	int diff = a->get_level()-b->get_level();
 	if(  diff==0  ) {
@@ -129,7 +129,7 @@ void citybuilding_edit_frame_t::fill_list( bool translate )
 		FOR(vector_tpl<haus_besch_t const*>, const desc, *hausbauer_t::get_citybuilding_list(gebaeude_t::wohnung)) {
 			if(!use_timeline  ||  (!desc->is_future(month_now)  &&  (!desc->is_retired(month_now)  ||  allow_obsolete))  ) {
 				// timeline allows for this
-				hauslist.insert_ordered(desc, translate?compare_haus_besch_trans:compare_haus_besch );
+				hauslist.insert_ordered(desc, translate?compare_haus_besch_trans:compare_haus_desc );
 			}
 		}
 	}
@@ -138,7 +138,7 @@ void citybuilding_edit_frame_t::fill_list( bool translate )
 		FOR(vector_tpl<haus_besch_t const*>, const desc, *hausbauer_t::get_citybuilding_list(gebaeude_t::gewerbe)) {
 			if(!use_timeline  ||  (!desc->is_future(month_now)  &&  (!desc->is_retired(month_now)  ||  allow_obsolete))  ) {
 				// timeline allows for this
-				hauslist.insert_ordered(desc, translate?compare_haus_besch_trans:compare_haus_besch );
+				hauslist.insert_ordered(desc, translate?compare_haus_besch_trans:compare_haus_desc );
 			}
 		}
 	}
@@ -147,7 +147,7 @@ void citybuilding_edit_frame_t::fill_list( bool translate )
 		FOR(vector_tpl<haus_besch_t const*>, const desc, *hausbauer_t::get_citybuilding_list(gebaeude_t::industrie)) {
 			if(!use_timeline  ||  (!desc->is_future(month_now)  &&  (!desc->is_retired(month_now)  ||  allow_obsolete))  ) {
 				// timeline allows for this
-				hauslist.insert_ordered(desc, translate?compare_haus_besch_trans:compare_haus_besch );
+				hauslist.insert_ordered(desc, translate?compare_haus_besch_trans:compare_haus_desc );
 			}
 		}
 	}
@@ -214,11 +214,11 @@ void citybuilding_edit_frame_t::change_item_info(sint32 entry)
 {
 	if(entry>=0  &&  entry<(sint32)hauslist.get_count()) {
 
-		const haus_besch_t *new_besch = hauslist[entry];
-		if(new_besch!=desc) {
+		const haus_besch_t *new_desc = hauslist[entry];
+		if(new_desc!=desc) {
 
 			buf.clear();
-			desc = new_besch;
+			desc = new_desc;
 			if(desc->get_typ()==gebaeude_t::wohnung) {
 				buf.append( translator::translate( "residential house" ) );
 			}

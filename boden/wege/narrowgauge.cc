@@ -24,7 +24,7 @@ void narrowgauge_t::rdwr(loadsave_t *file)
 			dbg->fatal("narrowgauge_t::rwdr()", "No narrowgauge way available");
 		}
 		dbg->warning("narrowgauge_t::rwdr()", "Unknown way replaced by narrow gauge %s (old_max_speed %i)", desc->get_name(), old_max_speed );
-		set_besch(desc);
+		set_desc(desc);
 		if(old_max_speed>0) {
 			set_max_speed(old_max_speed);
 		}

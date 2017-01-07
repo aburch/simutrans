@@ -26,19 +26,19 @@ private:
 	image_id image;
 
 	/// table to lookup object based on name
-	static stringhashtable_tpl<groundobj_besch_t *> besch_names;
+	static stringhashtable_tpl<groundobj_desc_t *> desc_table;
 
 	/// all such objects
-	static vector_tpl<const groundobj_besch_t *> groundobj_typen;
+	static vector_tpl<const groundobj_desc_t *> groundobj_typen;
 
 public:
-	static bool register_desc(groundobj_besch_t *desc);
+	static bool register_desc(groundobj_desc_t *desc);
 	static bool alles_geladen();
 
-	static const groundobj_besch_t *random_groundobj_for_climate(climate_bits cl, slope_t::type slope );
+	static const groundobj_desc_t *random_groundobj_for_climate(climate_bits cl, slope_t::type slope );
 
 	groundobj_t(loadsave_t *file);
-	groundobj_t(koord3d pos, const groundobj_besch_t *);
+	groundobj_t(koord3d pos, const groundobj_desc_t *);
 
 	void rdwr(loadsave_t *file);
 
@@ -62,7 +62,7 @@ public:
 
 	void cleanup(player_t *player);
 
-	const groundobj_besch_t* get_desc() const { return groundobj_typen[groundobjtype]; }
+	const groundobj_desc_t* get_desc() const { return groundobj_typen[groundobjtype]; }
 
 	void * operator new(size_t s);
 	void operator delete(void *p);

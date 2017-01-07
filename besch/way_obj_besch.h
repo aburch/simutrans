@@ -33,7 +33,7 @@ class checksum_t;
  *
  * @author  Volker Meyer, Hj. Malthaner
  */
-class way_obj_besch_t : public obj_besch_transport_infrastructure_t {
+class way_obj_desc_t : public obj_desc_transport_infrastructure_t {
     friend class way_obj_reader_t;
 
 private:
@@ -176,7 +176,7 @@ public:
 
 	void calc_checksum(checksum_t *chk) const
 	{
-		obj_besch_transport_infrastructure_t::calc_checksum(chk);
+		obj_desc_transport_infrastructure_t::calc_checksum(chk);
 		chk->input(own_wtyp);
 	}
 };

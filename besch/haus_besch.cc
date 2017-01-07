@@ -156,7 +156,7 @@ uint8 haus_besch_t::layout_anpassen(uint8 layout) const
 
 void haus_besch_t::calc_checksum(checksum_t *chk) const
 {
-	obj_besch_timelined_t::calc_checksum(chk);
+	obj_desc_timelined_t::calc_checksum(chk);
 	chk->input((uint8)gtyp);
 	chk->input((uint8)utype);
 	chk->input(animation_time);

@@ -28,7 +28,7 @@ bool schiene_t::show_reservations = false;
 schiene_t::schiene_t() : weg_t()
 {
 	reserved = convoihandle_t();
-	set_besch(schiene_t::default_schiene);
+	set_desc(schiene_t::default_schiene);
 }
 
 
@@ -175,7 +175,7 @@ void schiene_t::rdwr(loadsave_t *file)
 			}
 			dbg->warning("schiene_t::rdwr()", "Unknown rail %s replaced by %s (old_max_speed %i)", bname, desc->get_name(), old_max_speed );
 		}
-		set_besch(desc);
+		set_desc(desc);
 		if(old_max_speed>0) {
 			set_max_speed(old_max_speed);
 		}

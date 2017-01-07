@@ -21,7 +21,7 @@ class ware_besch_t;
 class warenbauer_t
 {
 private:
-	static stringhashtable_tpl<const ware_besch_t *> besch_names;
+	static stringhashtable_tpl<const ware_besch_t *> desc_table;
 	static vector_tpl<ware_besch_t *> waren;
 
 	static ware_besch_t *load_passagiere;

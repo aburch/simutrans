@@ -30,7 +30,7 @@
 using namespace script_api;
 
 
-SQInteger get_next_ware_besch(HSQUIRRELVM vm)
+SQInteger get_next_ware_desc(HSQUIRRELVM vm)
 {
 	return generic_get_next(vm, warenbauer_t::get_count());
 }
@@ -48,13 +48,13 @@ SQInteger get_ware_besch_index(HSQUIRRELVM vm)
 }
 
 
-bool are_equal(const obj_besch_std_name_t* a, const obj_besch_std_name_t* b)
+bool are_equal(const obj_named_desc_t* a, const obj_named_desc_t* b)
 {
 	return (a==b);
 }
 
 
-sint64 get_scaled_maintenance(const obj_besch_transport_related_t* desc)
+sint64 get_scaled_maintenance(const obj_desc_transport_related_t* desc)
 {
 	return desc ? welt->scale_with_month_length(desc->get_maintenance()) : 0;
 }
@@ -76,13 +76,13 @@ bool building_enables(const haus_besch_t* desc, uint8 which)
 }
 
 
-mytime_t get_intro_retire(const obj_besch_timelined_t* desc, bool intro)
+mytime_t get_intro_retire(const obj_desc_timelined_t* desc, bool intro)
 {
 	return (uint32)(desc ? ( intro ? desc->get_intro_year_month() : desc->get_retire_year_month() ) : 1);
 }
 
 
-bool is_obsolete_future(const obj_besch_timelined_t* desc, mytime_t time, uint8 what)
+bool is_obsolete_future(const obj_desc_timelined_t* desc, mytime_t time, uint8 what)
 {
 	if (desc) {
 		switch(what) {
@@ -232,13 +232,13 @@ void export_goods_desc(HSQUIRRELVM vm)
 	/**
 	 * Base class of all object descriptors.
 	 */
-	create_class<const obj_besch_std_name_t*>(vm, "obj_desc_x", "extend_get");
+	create_class<const obj_named_desc_t*>(vm, "obj_desc_x", "extend_get");
 
 	/**
 	 * @return raw (untranslated) name
 	 * @typemask string()
 	 */
-	register_method(vm, &obj_besch_std_name_t::get_name, "get_name");
+	register_method(vm, &obj_named_desc_t::get_name, "get_name");
 	/**
 	 * Checks if two object descriptor are equal.
 	 * @param other
@@ -250,7 +250,7 @@ void export_goods_desc(HSQUIRRELVM vm)
 	/**
 	 * Base class of object descriptors with intro / retire dates.
 	 */
-	create_class<const obj_besch_timelined_t*>(vm, "obj_desc_time_x", "obj_desc_x");
+	create_class<const obj_desc_timelined_t*>(vm, "obj_desc_time_x", "obj_desc_x");
 
 	/**
 	 * @return introduction date of this object
@@ -280,7 +280,7 @@ void export_goods_desc(HSQUIRRELVM vm)
 	/**
 	 * Base class of object descriptors for transport related stuff.
 	 */
-	create_class<const obj_besch_transport_related_t*>(vm, "obj_desc_transport_x", "obj_desc_time_x");
+	create_class<const obj_desc_transport_related_t*>(vm, "obj_desc_transport_x", "obj_desc_time_x");
 	/**
 	 * @returns monthly maintenance cost [in 1/100 credits] of one object of this type.
 	 */
@@ -288,15 +288,15 @@ void export_goods_desc(HSQUIRRELVM vm)
 	/**
 	 * @returns cost [in 1/100 credits] to buy or build on piece or tile of this thing.
 	 */
-	register_method(vm, &obj_besch_transport_related_t::get_preis, "get_cost");
+	register_method(vm, &obj_desc_transport_related_t::get_preis, "get_cost");
 	/**
 	 * @returns way type, can be @ref wt_invalid.
 	 */
-	register_method(vm, &obj_besch_transport_related_t::get_waytype, "get_waytype");
+	register_method(vm, &obj_desc_transport_related_t::get_waytype, "get_waytype");
 	/**
 	 * @returns top speed: maximal possible or allowed speed, in km/h.
 	 */
-	register_method(vm, &obj_besch_transport_related_t::get_topspeed, "get_topspeed");
+	register_method(vm, &obj_desc_transport_related_t::get_topspeed, "get_topspeed");
 
 	end_class(vm);
 
@@ -552,7 +552,7 @@ void export_goods_desc(HSQUIRRELVM vm)
 	/**
 	 * Meta-method to be used in foreach loops. Do not call them directly.
 	 */
-	register_function(vm, get_next_ware_besch,  "_nexti",  2, "x o|i");
+	register_function(vm, get_next_ware_desc,  "_nexti",  2, "x o|i");
 	/**
 	 * Meta-method to be used in foreach loops. Do not call them directly.
 	 */

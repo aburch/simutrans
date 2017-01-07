@@ -25,7 +25,7 @@
 #include "weg_besch.h"
 
 
-class tunnel_besch_t : public obj_besch_transport_infrastructure_t {
+class tunnel_besch_t : public obj_desc_transport_infrastructure_t {
 	friend class tunnel_reader_t;
 	friend class tunnelbauer_t;	// to convert the old tunnels to new ones
 
@@ -73,7 +73,7 @@ public:
 
 	waytype_t get_finance_waytype() const;
 
-	const weg_besch_t *get_weg_besch() const
+	const weg_besch_t *get_weg_desc() const
 	{
 		if(has_way) {
 			return get_child<weg_besch_t>(5 + number_seasons * 2);

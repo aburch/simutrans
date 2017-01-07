@@ -30,7 +30,7 @@ class wegbauer_t
 {
 	static karte_ptr_t welt;
 public:
-	static const weg_besch_t *leitung_besch;
+	static const weg_besch_t *leitung_desc;
 
 	static bool register_desc(weg_besch_t *desc);
 	static bool alle_wege_geladen();
@@ -116,13 +116,13 @@ private:
 	 * Type of bridges to build (zero=>no bridges)
 	 * @author Hj. Malthaner
 	 */
-	const bruecke_besch_t * bruecke_besch;
+	const bruecke_besch_t * bruecke_desc;
 
 	/**
 	 * Type of bridges to build (zero=>no bridges)
 	 * @author Hj. Malthaner
 	 */
-	const tunnel_besch_t * tunnel_besch;
+	const tunnel_besch_t * tunnel_desc;
 
 	/**
 	 * If a way is built on top of another way, should the type
@@ -203,7 +203,7 @@ public:
 
 	void set_build_sidewalk(bool yesno) { build_sidewalk = yesno; }
 
-	void route_fuer(bautyp_t wt, const weg_besch_t * desc, const tunnel_besch_t *tunnel_besch=NULL, const bruecke_besch_t *bruecke_besch=NULL);
+	void route_fuer(bautyp_t wt, const weg_besch_t * desc, const tunnel_besch_t *tunnel_desc=NULL, const bruecke_besch_t *bruecke_desc=NULL);
 
 	void set_maximum(uint32 n) { maximum = n; }
 

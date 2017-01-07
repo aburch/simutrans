@@ -23,7 +23,7 @@
 
 
 
-const ware_besch_t *ware_t::index_to_besch[256];
+const ware_besch_t *ware_t::index_to_desc[256];
 
 
 
@@ -48,7 +48,7 @@ ware_t::ware_t(loadsave_t *file)
 }
 
 
-void ware_t::set_besch(const ware_besch_t* type)
+void ware_t::set_desc(const ware_besch_t* type)
 {
 	index = type->get_index();
 }

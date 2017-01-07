@@ -161,7 +161,7 @@ stringhashtable_tpl<const fabrik_besch_t *> fabrikbauer_t::table;
  * Used in get_random_consumer().
  * @return true, if @p a < @p b, false otherwise.
  */
-static bool compare_fabrik_besch(const fabrik_besch_t* a, const fabrik_besch_t* b)
+static bool compare_fabrik_desc(const fabrik_besch_t* a, const fabrik_besch_t* b)
 {
 	const int diff = strcmp( a->get_name(), b->get_name() );
 	return diff < 0;
@@ -181,7 +181,7 @@ const fabrik_besch_t *fabrikbauer_t::get_random_consumer(bool electric, climate_
 			current->get_haus()->is_allowed_climate_bits(cl)  &&
 			(electric ^ !current->is_electricity_producer())  &&
 			current->get_haus()->is_available(timeline)  ) {
-				consumer.insert_unique_ordered(current, current->get_gewichtung(), compare_fabrik_besch);
+				consumer.insert_unique_ordered(current, current->get_gewichtung(), compare_fabrik_desc);
 		}
 	}
 	// no consumer installed?
@@ -212,9 +212,9 @@ void fabrikbauer_t::register_desc(fabrik_besch_t *desc)
 		desc->set_produktivitaet( (p&0x7FFF)*k.x*k.y );
 DBG_DEBUG("fabrikbauer_t::register_desc()","Correction for old factory: Increase production from %i by %i",p&0x7FFF,k.x*k.y);
 	}
-	if(  const fabrik_besch_t *old_besch = table.remove(desc->get_name())  ) {
+	if(  const fabrik_besch_t *old_desc = table.remove(desc->get_name())  ) {
 		dbg->warning( "fabrikbauer_t::register_desc()", "Object %s was overlaid by addon!", desc->get_name() );
-		delete old_besch;
+		delete old_desc;
 	}
 	table.put(desc->get_name(), desc);
 }
@@ -278,7 +278,7 @@ void fabrikbauer_t::finde_hersteller(weighted_vector_tpl<const fabrik_besch_t *>
 			for(  uint i=0; i<tmp->get_produkte();  i++  ) {
 				const fabrik_produkt_besch_t *produkt = tmp->get_produkt(i);
 				if(  produkt->get_ware()==ware  ) {
-					producer.insert_unique_ordered(tmp, tmp->get_gewichtung(), compare_fabrik_besch);
+					producer.insert_unique_ordered(tmp, tmp->get_gewichtung(), compare_fabrik_desc);
 					break;
 				}
 			}

@@ -78,13 +78,13 @@ void brueckenboden_t::rdwr(loadsave_t *file)
 		dbg->error( "brueckenboden_t::rdwr()","no bridge on bridge ground at (%s); try replacement", pos.get_str() );
 		weg_t *w = get_weg_nr(0);
 		if(w) {
-			const bruecke_besch_t *br_besch = brueckenbauer_t::find_bridge( w->get_waytype(), w->get_max_speed(), 0 );
+			const bruecke_besch_t *br_desc = brueckenbauer_t::find_bridge( w->get_waytype(), w->get_max_speed(), 0 );
 			const grund_t *kb = welt->lookup_kartenboden(get_pos().get_2d());
 			int height = 1;
 			if(  kb && get_pos().z - kb->get_pos().z > 1 ) {
 				height = 2;
 			}
-			bruecke_t *br = new bruecke_t( get_pos(), welt->get_public_player(), br_besch, ist_karten_boden() ? br_besch->get_end( slope, get_grund_hang(), get_weg_hang() ) : br_besch->get_simple( w->get_ribi_unmasked(), height ) );
+			bruecke_t *br = new bruecke_t( get_pos(), welt->get_public_player(), br_desc, ist_karten_boden() ? br_desc->get_end( slope, get_grund_hang(), get_weg_hang() ) : br_desc->get_simple( w->get_ribi_unmasked(), height ) );
 			obj_add( br );
 		}
 	}

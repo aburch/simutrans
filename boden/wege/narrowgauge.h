@@ -17,7 +17,7 @@ class narrowgauge_t : public schiene_t
 public:
 	static const weg_besch_t *default_narrowgauge;
 
-	narrowgauge_t() : schiene_t() { set_besch(default_narrowgauge); }
+	narrowgauge_t() : schiene_t() { set_desc(default_narrowgauge); }
 
 	/**
 	 * File loading constructor.

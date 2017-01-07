@@ -1107,7 +1107,7 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 					new_slope = slope_type(ribis);
 				}
 				else if(  gr1->get_weg_hang() == slope_type(ribis)  ) {
-					// check that weg_besch supports such steep slopes
+					// check that weg_desc supports such steep slopes
 					if(  (gr1->get_weg_nr(0)  &&  !gr1->get_weg_nr(0)->get_desc()->has_double_slopes())
 					  ||  (gr1->get_weg_nr(1)  &&  !gr1->get_weg_nr(1)->get_desc()->has_double_slopes())
 					  ||  (gr1->get_leitung()  &&  !gr1->get_leitung()->get_desc()->has_double_slopes())  ) {
@@ -1147,7 +1147,7 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 					}
 				}
 				else if(  gr1->get_grund_hang() == slope_type( ribi_t::backward(ribis) )  ) {
-					// check that weg_besch supports such steep slopes
+					// check that weg_desc supports such steep slopes
 					if(  (gr1->get_weg_nr(0)  &&  !gr1->get_weg_nr(0)->get_desc()->has_double_slopes())
 					  ||  (gr1->get_weg_nr(1)  &&  !gr1->get_weg_nr(1)->get_desc()->has_double_slopes())
 					  ||  (gr1->get_leitung()  &&  !gr1->get_leitung()->get_desc()->has_double_slopes())  ) {
@@ -1555,15 +1555,15 @@ const char *tool_transformer_t::work( player_t *player, koord3d pos )
 			return NOTICE_TILE_FULL;
 		}
 
-		const tunnel_besch_t *tunnel_besch = tunnelbauer_t::find_tunnel(powerline_wt, 0, 0);
-		if(  tunnel_besch==NULL  ) {
+		const tunnel_besch_t *tunnel_desc = tunnelbauer_t::find_tunnel(powerline_wt, 0, 0);
+		if(  tunnel_desc==NULL  ) {
 			return "Cannot built this station/building\nin underground mode here.";
 		}
 
 		tunnelboden_t* tunnel = new tunnelboden_t(pos, 0);
 		welt->access(k)->boden_hinzufuegen(tunnel);
-		tunnel->obj_add(new tunnel_t(pos, player, tunnel_besch));
-		player_t::add_maintenance( player, tunnel_besch->get_wartung(), tunnel_besch->get_finance_waytype() );
+		tunnel->obj_add(new tunnel_t(pos, player, tunnel_desc));
+		player_t::add_maintenance( player, tunnel_desc->get_wartung(), tunnel_desc->get_finance_waytype() );
 		gr = tunnel;
 	}
 	else {
@@ -2252,9 +2252,9 @@ const char* tool_build_way_t::get_default_param(player_t *player) const
 			// no chance to guess anything sensible
 			return NULL;
 		}
-		const weg_besch_t* test_besch = get_desc(0, false);
-		if (test_besch) {
-			return test_besch->get_name();
+		const weg_besch_t* test_desc = get_desc(0, false);
+		if (test_desc) {
+			return test_desc->get_name();
 		}
 		else {
 			return default_param;
@@ -2619,8 +2619,8 @@ void tool_build_bridge_t::mark_tiles(  player_t *player, const koord3d &start, c
 	}
 	else {
 		if (desc->get_waytype() == powerline_wt  ? !gr->find<leitung_t>() : !gr->hat_weg(desc->get_waytype())) {
-			const weg_besch_t *weg_besch = wegbauer_t::weg_search(desc->get_waytype(), desc->get_topspeed(), welt->get_timeline_year_month(), type_flat);
-			costs += weg_besch->get_preis();
+			const weg_besch_t *weg_desc = wegbauer_t::weg_search(desc->get_waytype(), desc->get_topspeed(), welt->get_timeline_year_month(), type_flat);
+			costs += weg_desc->get_preis();
 		}
 	}
 	// eventually we have to remove trees on end tile
@@ -2791,7 +2791,7 @@ void tool_build_tunnel_t::calc_route( wegbauer_t &bauigel, const koord3d &start,
 	const tunnel_besch_t *desc = tunnelbauer_t::get_desc(default_param);
 	wegbauer_t::bautyp_t bt = (wegbauer_t::bautyp_t)(desc->get_waytype());
 
-	const weg_besch_t *wb = desc->get_weg_besch();
+	const weg_besch_t *wb = desc->get_weg_desc();
 	if(wb==NULL) {
 		// ignore timeline to get consistent results
 		wb = wegbauer_t::weg_search( desc->get_waytype(), desc->get_topspeed(), 0, type_flat );
@@ -2875,7 +2875,7 @@ void tool_build_tunnel_t::mark_tiles(  player_t *player, const koord3d &start, c
 
 	const tunnel_besch_t *desc = tunnelbauer_t::get_desc(default_param);
 	// now we search a matching way for the tunnels top speed
-	const weg_besch_t *wb = desc->get_weg_besch();
+	const weg_besch_t *wb = desc->get_weg_desc();
 	if(wb==NULL) {
 		// ignore timeline to get consistent results
 		wb = wegbauer_t::weg_search( desc->get_waytype(), desc->get_topspeed(), 0, type_flat );
@@ -3046,8 +3046,8 @@ bool tool_wayremover_t::calc_route( route_t &verbindung, player_t *player, const
 		// get a default vehikel
 		test_driver_t* test_driver;
 		if(  wt!=powerline_wt  ) {
-			vehikel_besch_t remover_besch(wt, 500, vehikel_besch_t::diesel );
-			vehicle_t *driver = vehikelbauer_t::baue(start, player, NULL, &remover_besch);
+			vehikel_besch_t remover_desc(wt, 500, vehikel_besch_t::diesel );
+			vehicle_t *driver = vehikelbauer_t::baue(start, player, NULL, &remover_desc);
 			driver->set_flag( obj_t::not_on_map );
 			test_driver = driver;
 		}
@@ -3227,12 +3227,12 @@ const char *tool_wayremover_t::do_work( player_t *player, const koord3d &start, 
 
 
 /* add catenary during construction */
-const way_obj_besch_t *tool_build_wayobj_t::default_electric = NULL;
+const way_obj_desc_t *tool_build_wayobj_t::default_electric = NULL;
 
 const char* tool_build_wayobj_t::get_tooltip(const player_t *) const
 {
 	if(  build  ) {
-		const way_obj_besch_t *desc = get_desc();
+		const way_obj_desc_t *desc = get_desc();
 		if(desc) {
 			tooltip_with_price_maintenance( welt, desc->get_name(), -desc->get_preis(), desc->get_wartung() );
 			size_t n= strlen(toolstr);
@@ -3251,9 +3251,9 @@ const char* tool_build_wayobj_t::get_tooltip(const player_t *) const
 	}
 }
 
-const way_obj_besch_t *tool_build_wayobj_t::get_desc() const
+const way_obj_desc_t *tool_build_wayobj_t::get_desc() const
 {
-	const way_obj_besch_t *desc = default_param ? wayobj_t::find_besch(default_param) : NULL;
+	const way_obj_desc_t *desc = default_param ? wayobj_t::find_desc(default_param) : NULL;
 	if(desc==NULL) {
 		desc = default_electric;
 		if(desc==NULL) {
@@ -3266,7 +3266,7 @@ const way_obj_besch_t *tool_build_wayobj_t::get_desc() const
 waytype_t tool_build_wayobj_t::get_waytype() const
 {
 	if(  build  ) {
-		const way_obj_besch_t *desc = get_desc();
+		const way_obj_desc_t *desc = get_desc();
 		return desc ? desc->get_wtyp() : invalid_wt;
 	}
 	else {
@@ -3303,8 +3303,8 @@ bool tool_build_wayobj_t::init( player_t *player )
 bool tool_build_wayobj_t::calc_route( route_t &verbindung, player_t *player, const koord3d& start, const koord3d& to )
 {
 	// get a default vehikel
-	vehikel_besch_t remover_besch( wt, 500, vehikel_besch_t::diesel );
-	vehicle_t* test_vehicle = vehikelbauer_t::baue(start, player, NULL, &remover_besch);
+	vehikel_besch_t remover_desc( wt, 500, vehikel_besch_t::diesel );
+	vehicle_t* test_vehicle = vehikelbauer_t::baue(start, player, NULL, &remover_desc);
 	test_vehicle->set_flag( obj_t::not_on_map );
 	test_driver_t* test_driver = scenario_checker_t::apply(test_vehicle, player, this);
 
@@ -4222,19 +4222,19 @@ DBG_MESSAGE("tool_station_aux()", "building %s on square %d,%d for waytype %x", 
 
 	if(  old_halt.is_bound()  ) {
 		gebaeude_t* gb = bd->find<gebaeude_t>();
-		const haus_besch_t *old_besch = gb->get_tile()->get_desc();
-		if(  old_besch == desc  ) {
+		const haus_besch_t *old_desc = gb->get_tile()->get_desc();
+		if(  old_desc == desc  ) {
 			// already has the same station
 			return NULL;
 		}
-		if(  old_besch->get_capacity() >= desc->get_capacity()  &&  !is_ctrl_pressed()  ) {
+		if(  old_desc->get_capacity() >= desc->get_capacity()  &&  !is_ctrl_pressed()  ) {
 			return "Upgrade must have\na higher level";
 		}
-		old_cost = old_besch->get_price(welt)*old_besch->get_b()*old_besch->get_h();
+		old_cost = old_desc->get_price(welt)*old_desc->get_b()*old_desc->get_h();
 		gb->cleanup( NULL );
 		delete gb;
 		halt = old_halt;
-		if(  old_besch->get_enabled() != desc->get_enabled()  ) {
+		if(  old_desc->get_enabled() != desc->get_enabled()  ) {
 			recalc_schedule = true;
 		}
 	}
@@ -4549,7 +4549,7 @@ const char *tool_build_station_t::work( player_t *player, koord3d pos )
 
 char const* tool_build_roadsign_t::get_tooltip(player_t const*) const
 {
-	const roadsign_besch_t * desc = roadsign_t::find_besch(default_param);
+	const roadsign_besch_t * desc = roadsign_t::find_desc(default_param);
 	if(desc) {
 		return tooltip_with_price( desc->get_name(), -desc->get_preis() );
 	}
@@ -4668,7 +4668,7 @@ void tool_build_roadsign_t::read_default_param(player_t * player)
 		name[i]=default_param[i];
 	}
 	name[i]=0;
-	desc = roadsign_t::find_besch(name);
+	desc = roadsign_t::find_desc(name);
 
 	if (default_param[i]) {
 		signal_info& s = signal[player->get_player_nr()];
@@ -4720,8 +4720,8 @@ uint8 tool_build_roadsign_t::is_valid_pos( player_t *player, const koord3d &pos,
 bool tool_build_roadsign_t::calc_route( route_t &verbindung, player_t *player, const koord3d& start, const koord3d& to )
 {
 	// get a default vehikel
-	vehikel_besch_t rs_besch( desc->get_wtyp(), 500, vehikel_besch_t::diesel );
-	vehicle_t* test_vehicle = vehikelbauer_t::baue(start, player, NULL, &rs_besch);
+	vehikel_besch_t rs_desc( desc->get_wtyp(), 500, vehikel_besch_t::diesel );
+	vehicle_t* test_vehicle = vehikelbauer_t::baue(start, player, NULL, &rs_desc);
 	test_vehicle->set_flag(obj_t::not_on_map);
 	test_driver_t* test_driver = scenario_checker_t::apply(test_vehicle, player, this);
 
@@ -5145,8 +5145,8 @@ const char *tool_build_depot_t::work( player_t *player, koord3d pos )
 				char const* const err = tool_build_depot_t::tool_depot_aux(player, pos, desc, monorail_wt);
 				if(err==NULL) {
 					grund_t *bd = welt->lookup_kartenboden(pos.get_2d());
-					if(hausbauer_t::elevated_foundation_besch  &&  pos.z-bd->get_pos().z==1  &&  bd->ist_natur()) {
-						hausbauer_t::baue(player, bd->get_pos(), 0, hausbauer_t::elevated_foundation_besch );
+					if(hausbauer_t::elevated_foundation_desc  &&  pos.z-bd->get_pos().z==1  &&  bd->ist_natur()) {
+						hausbauer_t::baue(player, bd->get_pos(), 0, hausbauer_t::elevated_foundation_desc );
 					}
 				}
 				return err;
@@ -5649,17 +5649,17 @@ DBG_MESSAGE("tool_headquarter()", "building headquarters at (%d,%d)", pos.x, pos
 			// check if upgrade should be built at same place as current one
 			gebaeude_t *gb = gr->find<gebaeude_t>();
 			if (gb  &&  gb->get_owner()==player  &&  prev_hq->get_tile()->get_desc()==gb->get_tile()->get_desc()) {
-				const haus_besch_t* prev_besch = prev_hq->get_tile()->get_desc();
+				const haus_besch_t* prev_desc = prev_hq->get_tile()->get_desc();
 				// check if sizes fit
 				uint8 prev_layout = prev_hq->get_tile()->get_layout();
 				uint8 layout =  prev_layout % desc->get_all_layouts();
 				koord size = desc->get_size(layout);
-				if (prev_besch->get_size(prev_layout) == size) {
+				if (prev_desc->get_size(prev_layout) == size) {
 					// check for same tile structure
 					ok = true;
 					for (sint16 x=0; x<size.x  &&  ok; x++) {
 						for (sint16 y=0; y<size.y  &&  ok; y++) {
-							ok = (prev_besch->get_tile(prev_layout, x, y)==NULL)==(desc->get_tile(layout, x, y)==NULL);
+							ok = (prev_desc->get_tile(prev_layout, x, y)==NULL)==(desc->get_tile(layout, x, y)==NULL);
 						}
 					}
 					hq = gb;
@@ -5671,8 +5671,8 @@ DBG_MESSAGE("tool_headquarter()", "building headquarters at (%d,%d)", pos.x, pos
 								if(  const haus_tile_besch_t *tile = desc->get_tile(layout, x, y)  ) {
 									if(  grund_t *gr2 = welt->lookup_kartenboden(k_hq + koord(x, y))  ) {
 										if(  gebaeude_t *gb = gr2->find<gebaeude_t>()  ) {
-											if(  gb  &&  gb->get_owner() == player  &&  prev_besch == gb->get_tile()->get_desc()  ) {
-												player_t::add_maintenance( player, -prev_besch->get_maintenance(welt), prev_besch->get_finance_waytype() );
+											if(  gb  &&  gb->get_owner() == player  &&  prev_desc == gb->get_tile()->get_desc()  ) {
+												player_t::add_maintenance( player, -prev_desc->get_maintenance(welt), prev_desc->get_finance_waytype() );
 												gb->set_tile( tile, true );
 												player_t::add_maintenance( player, desc->get_maintenance(welt), desc->get_finance_waytype() );
 											}

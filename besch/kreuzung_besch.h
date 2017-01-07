@@ -25,7 +25,7 @@ class checksum_t;
  *	1   Copyright
  *	2   Bild
  */
-class kreuzung_besch_t : public obj_besch_timelined_t {
+class kreuzung_besch_t : public obj_desc_timelined_t {
     friend class crossing_reader_t;
 
 private:

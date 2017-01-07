@@ -46,7 +46,7 @@ private:
 
 public:
 	/// description for elevated monorail (mandatory description)
-	static const haus_besch_t* elevated_foundation_besch;
+	static const haus_besch_t* elevated_foundation_desc;
 
 	/**
 	 * Finds a station building enabling pax/mail/goods for the AI.

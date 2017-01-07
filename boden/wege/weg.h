@@ -171,7 +171,7 @@ public:
 	* mit wert aus Description.
 	* @author Hj. Malthaner
 	*/
-	void set_besch(const weg_besch_t *b);
+	void set_desc(const weg_besch_t *b);
 	const weg_besch_t *get_desc() const { return desc; }
 
 	// returns a way with the matching type

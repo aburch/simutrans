@@ -8,7 +8,7 @@
 #include "../../network/pakset_info.h"
 
 
-void good_reader_t::register_obj(obj_besch_t *&data)
+void good_reader_t::register_obj(obj_desc_t *&data)
 {
 	ware_besch_t *desc = static_cast<ware_besch_t *>(data);
 
@@ -29,7 +29,7 @@ bool good_reader_t::successfully_loaded() const
 }
 
 
-obj_besch_t * good_reader_t::read_node(FILE *fp, obj_node_info_t &node)
+obj_desc_t * good_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
 	ALLOCA(char, besch_buf, node.size);
 

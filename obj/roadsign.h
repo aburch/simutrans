@@ -162,7 +162,7 @@ public:
 
 	static const roadsign_besch_t *roadsign_search(roadsign_besch_t::types flag, const waytype_t wt, const uint16 time);
 
-	static const roadsign_besch_t *find_besch(const char *name) { return table.get(name); }
+	static const roadsign_besch_t *find_desc(const char *name) { return table.get(name); }
 };
 
 #endif

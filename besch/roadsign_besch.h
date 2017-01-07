@@ -30,7 +30,7 @@
  *	1   Copyright
  *	2   Image list (Image-list)
  */
-class roadsign_besch_t : public obj_besch_transport_infrastructure_t {
+class roadsign_besch_t : public obj_desc_transport_infrastructure_t {
 	friend class roadsign_reader_t;
 
 private:
@@ -96,7 +96,7 @@ public:
 
 	void calc_checksum(checksum_t *chk) const
 	{
-		obj_besch_transport_infrastructure_t::calc_checksum(chk);
+		obj_desc_transport_infrastructure_t::calc_checksum(chk);
 		chk->input(flags);
 		chk->input(min_speed);
 	}

@@ -24,7 +24,7 @@ class monorail_t : public schiene_t
 public:
 	static const weg_besch_t *default_monorail;
 
-	monorail_t() : schiene_t() { set_besch(default_monorail); }
+	monorail_t() : schiene_t() { set_desc(default_monorail); }
 
 	/**
 	 * File loading constructor.

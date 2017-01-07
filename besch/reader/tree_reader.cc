@@ -10,7 +10,7 @@
 #include "../../network/pakset_info.h"
 
 
-void tree_reader_t::register_obj(obj_besch_t *&data)
+void tree_reader_t::register_obj(obj_desc_t *&data)
 {
     baum_besch_t *desc = static_cast<baum_besch_t *>(data);
 
@@ -28,7 +28,7 @@ bool tree_reader_t::successfully_loaded() const
 }
 
 
-obj_besch_t * tree_reader_t::read_node(FILE *fp, obj_node_info_t &node)
+obj_desc_t * tree_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
 	ALLOCA(char, besch_buf, node.size);
 

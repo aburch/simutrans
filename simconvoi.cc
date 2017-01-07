@@ -2614,10 +2614,10 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 			const vehicle_t* v = fahr[i];
 
 			// first add to capacity indicator
-			const ware_besch_t* ware_besch = v->get_desc()->get_ware();
+			const ware_besch_t* ware_desc = v->get_desc()->get_ware();
 			const uint16 menge = v->get_desc()->get_zuladung();
-			if(menge>0  &&  ware_besch!=warenbauer_t::nichts) {
-				max_loaded_waren[ware_besch->get_index()] += menge;
+			if(menge>0  &&  ware_desc!=warenbauer_t::nichts) {
+				max_loaded_waren[ware_desc->get_index()] += menge;
 			}
 
 			// then add the actual load

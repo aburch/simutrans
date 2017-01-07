@@ -10,7 +10,7 @@ class tool_t;
  * Common base class for all object descriptors, which get their name and
  * copyright information from child 0 and 1
  */
-class obj_besch_std_name_t : public obj_besch_t {
+class obj_named_desc_t : public obj_desc_t {
 	public:
 		const char* get_name() const
 		{
@@ -29,14 +29,14 @@ class obj_besch_std_name_t : public obj_besch_t {
 /**
  * Base class for all stuff that depends on timeline.
  */
-class obj_besch_timelined_t : public obj_besch_std_name_t {
+class obj_desc_timelined_t : public obj_named_desc_t {
 
 protected:
 	uint16 intro_date;    ///< this thing is available from this date
 	uint16 obsolete_date; ///< this thing is available until this date
 
 public:
-	obj_besch_timelined_t() : obj_besch_std_name_t(),
+	obj_desc_timelined_t() : obj_named_desc_t(),
 		intro_date(0), obsolete_date(0) {}
 
 	uint16 get_intro_year_month() const { return intro_date; }
@@ -67,7 +67,7 @@ public:
 /**
  * Base class for all transport related stuff.
  */
-class obj_besch_transport_related_t : public obj_besch_timelined_t {
+class obj_desc_transport_related_t : public obj_desc_timelined_t {
 
 protected:
 	sint32 maintenance;   ///< monthly cost for bits_per_month=18
@@ -77,7 +77,7 @@ protected:
 	sint32 topspeed;      ///< maximum allowed speed in km/h
 
 public:
-	obj_besch_transport_related_t() : obj_besch_timelined_t(),
+	obj_desc_transport_related_t() : obj_desc_timelined_t(),
 		maintenance(0), cost(0), axle_load(9999), wt(255), topspeed(0) {}
 
 	sint32 get_maintenance() const { return maintenance; }
@@ -99,7 +99,7 @@ public:
 /**
  * Base class for all transport infrastructure.
  */
-class obj_besch_transport_infrastructure_t : public obj_besch_transport_related_t {
+class obj_desc_transport_infrastructure_t : public obj_desc_transport_related_t {
 
 protected:
 	tool_t *builder;  ///< default tool for building

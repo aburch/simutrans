@@ -6,7 +6,7 @@
 #include "../obj_node_info.h"
 
 
-obj_besch_t * xref_reader_t::read_node(FILE *fp, obj_node_info_t &node)
+obj_desc_t * xref_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
 	xref_besch_t* desc = new(node.size - 4 - 1) xref_besch_t();
 
@@ -23,7 +23,7 @@ obj_besch_t * xref_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 }
 
 
-void xref_reader_t::register_obj(obj_besch_t *&data)
+void xref_reader_t::register_obj(obj_desc_t *&data)
 {
 	xref_besch_t* desc = static_cast<xref_besch_t*>(data);
 

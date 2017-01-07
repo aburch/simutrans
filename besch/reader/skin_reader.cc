@@ -11,7 +11,7 @@
 
 
 
-void skin_reader_t::register_obj(obj_besch_t *&data)
+void skin_reader_t::register_obj(obj_desc_t *&data)
 {
 	skin_besch_t* desc = static_cast<skin_besch_t*>(data);
 
@@ -35,7 +35,7 @@ bool skin_reader_t::successfully_loaded() const
 }
 
 
-obj_besch_t* skin_reader_t::read_node(FILE*, obj_node_info_t& info)
+obj_desc_t* skin_reader_t::read_node(FILE*, obj_node_info_t& info)
 {
 	return obj_reader_t::read_node<skin_besch_t>(info);
 }

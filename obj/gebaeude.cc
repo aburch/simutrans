@@ -147,39 +147,39 @@ void gebaeude_t::rotate90()
 	obj_t::rotate90();
 
 	// must or can rotate?
-	const haus_besch_t* const haus_besch = tile->get_desc();
-	if (haus_besch->get_all_layouts() > 1  ||  haus_besch->get_b() * haus_besch->get_h() > 1) {
+	const haus_besch_t* const haus_desc = tile->get_desc();
+	if (haus_desc->get_all_layouts() > 1  ||  haus_desc->get_b() * haus_desc->get_h() > 1) {
 		uint8 layout = tile->get_layout();
 		koord new_offset = tile->get_offset();
 
-		if(haus_besch->get_utyp() == haus_besch_t::unbekannt  ||  haus_besch->get_all_layouts()<=4) {
-			layout = (layout & 4) + ((layout+3) % haus_besch->get_all_layouts() & 3);
+		if(haus_desc->get_utyp() == haus_besch_t::unbekannt  ||  haus_desc->get_all_layouts()<=4) {
+			layout = (layout & 4) + ((layout+3) % haus_desc->get_all_layouts() & 3);
 		}
 		else {
 			static uint8 layout_rotate[16] = { 1, 8, 5, 10, 3, 12, 7, 14, 9, 0, 13, 2, 11, 4, 15, 6 };
-			layout = layout_rotate[layout] % haus_besch->get_all_layouts();
+			layout = layout_rotate[layout] % haus_desc->get_all_layouts();
 		}
 		// have to rotate the tiles :(
-		if(  !haus_besch->can_rotate()  &&  haus_besch->get_all_layouts() == 1  ) {
+		if(  !haus_desc->can_rotate()  &&  haus_desc->get_all_layouts() == 1  ) {
 			if ((welt->get_settings().get_rotation() & 1) == 0) {
 				// rotate 180 degree
-				new_offset = koord(haus_besch->get_b() - 1 - new_offset.x, haus_besch->get_h() - 1 - new_offset.y);
+				new_offset = koord(haus_desc->get_b() - 1 - new_offset.x, haus_desc->get_h() - 1 - new_offset.y);
 			}
 			// do nothing here, since we cannot fix it properly
 		}
 		else {
 			// rotate on ...
-			new_offset = koord(haus_besch->get_h(tile->get_layout()) - 1 - new_offset.y, new_offset.x);
+			new_offset = koord(haus_desc->get_h(tile->get_layout()) - 1 - new_offset.y, new_offset.x);
 		}
 
 		// such a tile exist?
-		if(  haus_besch->get_b(layout) > new_offset.x  &&  haus_besch->get_h(layout) > new_offset.y  ) {
-			const haus_tile_besch_t* const new_tile = haus_besch->get_tile(layout, new_offset.x, new_offset.y);
+		if(  haus_desc->get_b(layout) > new_offset.x  &&  haus_desc->get_h(layout) > new_offset.y  ) {
+			const haus_tile_besch_t* const new_tile = haus_desc->get_tile(layout, new_offset.x, new_offset.y);
 			// add new tile: but make them old (no construction)
 			uint32 old_insta_zeit = insta_zeit;
 			set_tile( new_tile, false );
 			insta_zeit = old_insta_zeit;
-			if(  haus_besch->get_utyp() != haus_besch_t::dock  &&  !tile->has_image()  ) {
+			if(  haus_desc->get_utyp() != haus_besch_t::dock  &&  !tile->has_image()  ) {
 				// may have a rotation, that is not recoverable
 				if(  !is_factory  &&  new_offset!=koord(0,0)  ) {
 					welt->set_nosave_warning();
@@ -574,12 +574,12 @@ bool gebaeude_t::is_same_building(gebaeude_t* other)
 
 gebaeude_t* gebaeude_t::get_first_tile()
 {
-	const haus_besch_t* const haus_besch = tile->get_desc();
+	const haus_besch_t* const haus_desc = tile->get_desc();
 	const uint8 layout = tile->get_layout();
 	koord k;
-	for(k.x=0; k.x<haus_besch->get_b(layout); k.x++) {
-		for(k.y=0; k.y<haus_besch->get_h(layout); k.y++) {
-			const haus_tile_besch_t *tile = haus_besch->get_tile(layout, k.x, k.y);
+	for(k.x=0; k.x<haus_desc->get_b(layout); k.x++) {
+		for(k.y=0; k.y<haus_desc->get_h(layout); k.y++) {
+			const haus_tile_besch_t *tile = haus_desc->get_tile(layout, k.x, k.y);
 			if (tile==NULL  ||  !tile->has_image()) {
 				continue;
 			}

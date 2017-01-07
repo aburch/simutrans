@@ -127,7 +127,7 @@ const char *weg_t::waytype_to_string(waytype_t wt)
  * mit wert aus Description.
  * @author Hj. Malthaner
  */
-void weg_t::set_besch(const weg_besch_t *b)
+void weg_t::set_desc(const weg_besch_t *b)
 {
 	desc = b;
 	if(  hat_gehweg() &&  desc->get_wtyp() == road_wt  &&  desc->get_topspeed() > 50  ) {

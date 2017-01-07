@@ -30,7 +30,7 @@ kanal_t::kanal_t(loadsave_t *file) :  weg_t()
 
 kanal_t::kanal_t() : weg_t()
 {
-	set_besch(default_kanal);
+	set_desc(default_kanal);
 }
 
 
@@ -40,7 +40,7 @@ void kanal_t::rdwr(loadsave_t *file)
 	weg_t::rdwr(file);
 
 	if(file->get_version() <= 87000) {
-		set_besch(default_kanal);
+		set_desc(default_kanal);
 		return;
 	}
 
@@ -62,7 +62,7 @@ void kanal_t::rdwr(loadsave_t *file)
 			}
 			dbg->warning("kanal_t::rdwr()", "Unknown channel %s replaced by %s (old_max_speed %i)", bname, desc->get_name(), old_max_speed );
 		}
-		set_besch(desc);
+		set_desc(desc);
 		if(old_max_speed>0) {
 			set_max_speed(old_max_speed);
 		}

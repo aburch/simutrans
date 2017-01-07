@@ -364,7 +364,7 @@ void grund_t::rdwr(loadsave_t *file)
 							dbg->warning("grund_t::rdwr()", "converting railroad to monorail at (%i,%i)",get_pos().x, get_pos().y);
 							// compatibility code: Convert to monorail
 							monorail_t *w= new monorail_t();
-							w->set_besch(sch->get_desc());
+							w->set_desc(sch->get_desc());
 							w->set_max_speed(sch->get_max_speed());
 							w->set_ribi(sch->get_ribi_unmasked());
 							delete sch;
@@ -378,7 +378,7 @@ void grund_t::rdwr(loadsave_t *file)
 					case tram_wt:
 						weg = new schiene_t(file);
 						if(weg->get_desc()->get_styp()!=type_tram) {
-							weg->set_besch(wegbauer_t::weg_search(tram_wt,weg->get_max_speed(),0,type_tram));
+							weg->set_desc(wegbauer_t::weg_search(tram_wt,weg->get_max_speed(),0,type_tram));
 						}
 						break;
 
@@ -449,11 +449,11 @@ void grund_t::rdwr(loadsave_t *file)
 
 	// need to add a crossing for old games ...
 	if (file->is_loading()  &&  ist_uebergang()  &&  !find<crossing_t>(2)) {
-		const kreuzung_besch_t *cr_besch = crossing_logic_t::get_crossing( ((weg_t *)obj_bei(0))->get_waytype(), ((weg_t *)obj_bei(1))->get_waytype(), ((weg_t *)obj_bei(0))->get_max_speed(), ((weg_t *)obj_bei(1))->get_max_speed(), 0 );
-		if(cr_besch==0) {
+		const kreuzung_besch_t *cr_desc = crossing_logic_t::get_crossing( ((weg_t *)obj_bei(0))->get_waytype(), ((weg_t *)obj_bei(1))->get_waytype(), ((weg_t *)obj_bei(0))->get_max_speed(), ((weg_t *)obj_bei(1))->get_max_speed(), 0 );
+		if(cr_desc==0) {
 			dbg->fatal("crossing_t::crossing_t()","requested for waytypes %i and %i but nothing defined!", ((weg_t *)obj_bei(0))->get_waytype(), ((weg_t *)obj_bei(1))->get_waytype() );
 		}
-		crossing_t *cr = new crossing_t(obj_bei(0)->get_owner(), pos, cr_besch, ribi_t::is_straight_ns(get_weg(cr_besch->get_waytype(1))->get_ribi_unmasked()) );
+		crossing_t *cr = new crossing_t(obj_bei(0)->get_owner(), pos, cr_desc, ribi_t::is_straight_ns(get_weg(cr_desc->get_waytype(1))->get_ribi_unmasked()) );
 		objlist.add( cr );
 		crossing_logic_t::add( cr, crossing_logic_t::CROSSING_INVALID );
 	}
@@ -1775,11 +1775,11 @@ sint64 grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, player_t *player)
 			if(ist_uebergang()) {
 				// no tram => crossing needed!
 				waytype_t w2 =  other->get_waytype();
-				const kreuzung_besch_t *cr_besch = crossing_logic_t::get_crossing( weg->get_waytype(), w2, weg->get_max_speed(), other->get_desc()->get_topspeed(), welt->get_timeline_year_month() );
-				if(cr_besch==0) {
+				const kreuzung_besch_t *cr_desc = crossing_logic_t::get_crossing( weg->get_waytype(), w2, weg->get_max_speed(), other->get_desc()->get_topspeed(), welt->get_timeline_year_month() );
+				if(cr_desc==0) {
 					dbg->fatal("crossing_t::crossing_t()","requested for waytypes %i and %i but nothing defined!", weg->get_waytype(), w2 );
 				}
-				crossing_t *cr = new crossing_t(obj_bei(0)->get_owner(), pos, cr_besch, ribi_t::is_straight_ns(get_weg(cr_besch->get_waytype(1))->get_ribi_unmasked()) );
+				crossing_t *cr = new crossing_t(obj_bei(0)->get_owner(), pos, cr_desc, ribi_t::is_straight_ns(get_weg(cr_desc->get_waytype(1))->get_ribi_unmasked()) );
 				objlist.add( cr );
 				cr->finish_rd();
 			}
@@ -1836,7 +1836,7 @@ sint32 grund_t::weg_entfernen(waytype_t wegtyp, bool ribi_rem)
 				delete cr;
 				// restore speed limit
 				weg_t* w = (weg_t*)obj_bei(0);
-				w->set_besch(w->get_desc());
+				w->set_desc(w->get_desc());
 				w->count_sign();
 			}
 		}

@@ -30,7 +30,7 @@ class haus_besch_t;
 class roadsign_besch_t;
 class weg_besch_t;
 class route_t;
-class way_obj_besch_t;
+class way_obj_desc_t;
 
 /****************************** helper functions: *****************************/
 
@@ -348,9 +348,9 @@ class tool_build_wayobj_t : public two_click_tool_t {
 protected:
 	const bool build;
 private:
-	static const way_obj_besch_t *default_electric;
-	const way_obj_besch_t *desc;
-	const way_obj_besch_t *get_desc() const;
+	static const way_obj_desc_t *default_electric;
+	const way_obj_desc_t *desc;
+	const way_obj_desc_t *get_desc() const;
 	waytype_t wt;
 
 	bool calc_route( route_t &, player_t *, const koord3d& start, const koord3d &to );
