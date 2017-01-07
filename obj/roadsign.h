@@ -40,7 +40,7 @@ protected:
 
 	sint8 after_yoffset, after_xoffset;
 
-	const roadsign_besch_t *desc;
+	const roadsign_desc_t *desc;
 
 	ribi_t::ribi calc_mask() const { return ribi_t::is_single(dir) ? dir : (ribi_t::ribi)ribi_t::none; }
 public:
@@ -73,9 +73,9 @@ public:
 	waytype_t get_waytype() const { return desc ? desc->get_wtyp() : invalid_wt; }
 
 	roadsign_t(loadsave_t *file);
-	roadsign_t(player_t *player, koord3d pos, ribi_t::ribi dir, const roadsign_besch_t* desc, bool preview = false);
+	roadsign_t(player_t *player, koord3d pos, ribi_t::ribi dir, const roadsign_desc_t* desc, bool preview = false);
 
-	const roadsign_besch_t *get_desc() const {return desc;}
+	const roadsign_desc_t *get_desc() const {return desc;}
 
 	/**
 	 * signale muessen bei der destruktion von der
@@ -144,14 +144,14 @@ public:
 
 	// static routines from here
 private:
-	static vector_tpl<const roadsign_besch_t *> liste;
-	static stringhashtable_tpl<const roadsign_besch_t *> table;
+	static vector_tpl<const roadsign_desc_t *> liste;
+	static stringhashtable_tpl<const roadsign_desc_t *> table;
 
 protected:
-	static const roadsign_besch_t *default_signal;
+	static const roadsign_desc_t *default_signal;
 
 public:
-	static bool register_desc(roadsign_besch_t *desc);
+	static bool register_desc(roadsign_desc_t *desc);
 	static bool successfully_loaded();
 
 	/**
@@ -160,9 +160,9 @@ public:
 	 */
 	static void fill_menu(tool_selector_t *tool_selector, waytype_t wtyp, sint16 sound_ok);
 
-	static const roadsign_besch_t *roadsign_search(roadsign_besch_t::types flag, const waytype_t wt, const uint16 time);
+	static const roadsign_desc_t *roadsign_search(roadsign_desc_t::types flag, const waytype_t wt, const uint16 time);
 
-	static const roadsign_besch_t *find_desc(const char *name) { return table.get(name); }
+	static const roadsign_desc_t *find_desc(const char *name) { return table.get(name); }
 };
 
 #endif

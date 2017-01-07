@@ -407,7 +407,7 @@ void tool_t::read_menu(const std::string &objfilename)
 					if(*str  &&  *str!=',') {
 						int sound = atoi(str);
 						if(  sound>0  ) {
-							tool->ok_sound = sound_besch_t::get_compatible_sound_id(sound);
+							tool->ok_sound = sound_desc_t::get_compatible_sound_id(sound);
 						}
 						do {
 							str++;

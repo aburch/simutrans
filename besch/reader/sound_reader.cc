@@ -10,8 +10,8 @@
 
 void sound_reader_t::register_obj(obj_desc_t *&data)
 {
-	sound_besch_t *desc = static_cast<sound_besch_t *>(data);
-	sound_besch_t::register_desc(desc);
+	sound_desc_t *desc = static_cast<sound_desc_t *>(data);
+	sound_desc_t::register_desc(desc);
 	DBG_DEBUG("sound_reader_t::read_node()","sound %s registered at %i",desc->get_name(),desc->sound_id);
 	delete desc;
 }
@@ -21,7 +21,7 @@ obj_desc_t * sound_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
 	ALLOCA(char, besch_buf, node.size);
 
-	sound_besch_t *desc = new sound_besch_t();
+	sound_desc_t *desc = new sound_desc_t();
 
 		// Hajo: Read data
 	fread(besch_buf, node.size, 1, fp);

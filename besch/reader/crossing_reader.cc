@@ -64,11 +64,11 @@ obj_desc_t * crossing_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			for(uint8 i=0; i<len; i++) {
 				wavname[i] = decode_sint8(p);
 			}
-			desc->sound = (sint8)sound_besch_t::get_sound_id(wavname);
+			desc->sound = (sint8)sound_desc_t::get_sound_id(wavname);
 		}
 		else if(desc->sound>=0  &&  desc->sound<=MAX_OLD_SOUNDS) {
 			sint16 old_id = desc->sound;
-			desc->sound = (sint8)sound_besch_t::get_compatible_sound_id((sint8)old_id);
+			desc->sound = (sint8)sound_desc_t::get_compatible_sound_id((sint8)old_id);
 		}
 
 		desc->intro_date = 0;

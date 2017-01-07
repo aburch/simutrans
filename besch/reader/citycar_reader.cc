@@ -15,7 +15,7 @@
 
 void citycar_reader_t::register_obj(obj_desc_t *&data)
 {
-	stadtauto_besch_t *desc = static_cast<stadtauto_besch_t *>(data);
+	citycar_desc_t *desc = static_cast<citycar_desc_t *>(data);
 
 	private_car_t::register_desc(desc);
 
@@ -35,7 +35,7 @@ obj_desc_t * citycar_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
 	ALLOCA(char, besch_buf, node.size);
 
-	stadtauto_besch_t *desc = new stadtauto_besch_t();
+	citycar_desc_t *desc = new citycar_desc_t();
 
 	// Hajo: Read data
 	fread(besch_buf, node.size, 1, fp);

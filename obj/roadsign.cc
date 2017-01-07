@@ -42,9 +42,9 @@
 #include "roadsign.h"
 
 
-const roadsign_besch_t *roadsign_t::default_signal=NULL;
+const roadsign_desc_t *roadsign_t::default_signal=NULL;
 
-stringhashtable_tpl<const roadsign_besch_t *> roadsign_t::table;
+stringhashtable_tpl<const roadsign_desc_t *> roadsign_t::table;
 
 
 roadsign_t::roadsign_t(loadsave_t *file) : obj_t ()
@@ -72,7 +72,7 @@ roadsign_t::roadsign_t(loadsave_t *file) : obj_t ()
 }
 
 
-roadsign_t::roadsign_t(player_t *player, koord3d pos, ribi_t::ribi dir, const roadsign_besch_t *desc, bool preview) : obj_t(pos)
+roadsign_t::roadsign_t(player_t *player, koord3d pos, ribi_t::ribi dir, const roadsign_desc_t *desc, bool preview) : obj_t(pos)
 {
 	this->desc = desc;
 	this->dir = dir;
@@ -361,7 +361,7 @@ void roadsign_t::calc_image()
 		}
 
 		// some signs on roads must not have a background (but then they have only two rotations)
-		if(  desc->get_flags()&roadsign_besch_t::ONLY_BACKIMAGE  ) {
+		if(  desc->get_flags()&roadsign_desc_t::ONLY_BACKIMAGE  ) {
 			if(foreground_image!=IMG_EMPTY) {
 				tmp_image = foreground_image;
 			}
@@ -618,7 +618,7 @@ void roadsign_t::finish_rd()
 
 
 // to sort compare_roadsign_desc for always the same menu order
-static bool compare_roadsign_desc(const roadsign_besch_t* a, const roadsign_besch_t* b)
+static bool compare_roadsign_desc(const roadsign_desc_t* a, const roadsign_desc_t* b)
 {
 	int diff = a->get_wtyp() - b->get_wtyp();
 	if (diff == 0) {
@@ -628,7 +628,7 @@ static bool compare_roadsign_desc(const roadsign_besch_t* a, const roadsign_besc
 		if(b->is_choose_sign()) {
 			diff -= 120;
 		}
-		diff += (int)(a->get_flags() & ~roadsign_besch_t::SIGN_SIGNAL) - (int)(b->get_flags()  & ~roadsign_besch_t::SIGN_SIGNAL);
+		diff += (int)(a->get_flags() & ~roadsign_desc_t::SIGN_SIGNAL) - (int)(b->get_flags()  & ~roadsign_desc_t::SIGN_SIGNAL);
 	}
 	if (diff == 0) {
 		/* Some type: sort by name */
@@ -648,10 +648,10 @@ bool roadsign_t::successfully_loaded()
 }
 
 
-bool roadsign_t::register_desc(roadsign_besch_t *desc)
+bool roadsign_t::register_desc(roadsign_desc_t *desc)
 {
 	// avoid duplicates with same name
-	const roadsign_besch_t *old_desc = table.get(desc->get_name());
+	const roadsign_desc_t *old_desc = table.get(desc->get_name());
 	if(old_desc) {
 		dbg->warning( "roadsign_t::register_desc()", "Object %s was overlaid by addon!", desc->get_name() );
 		table.remove(desc->get_name());
@@ -675,7 +675,7 @@ bool roadsign_t::register_desc(roadsign_besch_t *desc)
 
 	roadsign_t::table.put(desc->get_name(), desc);
 
-	if(  desc->get_wtyp()==track_wt  &&  desc->get_flags()==roadsign_besch_t::SIGN_SIGNAL  ) {
+	if(  desc->get_wtyp()==track_wt  &&  desc->get_flags()==roadsign_desc_t::SIGN_SIGNAL  ) {
 		default_signal = desc;
 	}
 
@@ -696,16 +696,16 @@ void roadsign_t::fill_menu(tool_selector_t *tool_selector, waytype_t wtyp, sint1
 
 	const uint16 time = welt->get_timeline_year_month();
 
-	vector_tpl<const roadsign_besch_t *>matching;
+	vector_tpl<const roadsign_desc_t *>matching;
 
-	FOR(stringhashtable_tpl<roadsign_besch_t const*>, const& i, table) {
-		roadsign_besch_t const* const desc = i.value;
+	FOR(stringhashtable_tpl<roadsign_desc_t const*>, const& i, table) {
+		roadsign_desc_t const* const desc = i.value;
 		if(  desc->is_available(time)  &&  desc->get_wtyp()==wtyp  &&  desc->get_builder()  ) {
 			// only add items with a cursor
 			matching.insert_ordered( desc, compare_roadsign_desc );
 		}
 	}
-	FOR(vector_tpl<roadsign_besch_t const*>, const i, matching) {
+	FOR(vector_tpl<roadsign_desc_t const*>, const i, matching) {
 		tool_selector->add_tool_selector(i->get_builder());
 	}
 }
@@ -715,10 +715,10 @@ void roadsign_t::fill_menu(tool_selector_t *tool_selector, waytype_t wtyp, sint1
  * Finds a matching roadsign
  * @author prissi
  */
-const roadsign_besch_t *roadsign_t::roadsign_search(roadsign_besch_t::types const flag, waytype_t const wt, uint16 const time)
+const roadsign_desc_t *roadsign_t::roadsign_search(roadsign_desc_t::types const flag, waytype_t const wt, uint16 const time)
 {
-	FOR(stringhashtable_tpl<roadsign_besch_t const*>, const& i, table) {
-		roadsign_besch_t const* const desc = i.value;
+	FOR(stringhashtable_tpl<roadsign_desc_t const*>, const& i, table) {
+		roadsign_desc_t const* const desc = i.value;
 		if(  desc->is_available(time)  &&  desc->get_wtyp()==wt  &&  desc->get_flags()==flag  ) {
 			return desc;
 		}

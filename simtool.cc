@@ -4548,7 +4548,7 @@ const char *tool_build_station_t::work( player_t *player, koord3d pos )
 
 char const* tool_build_roadsign_t::get_tooltip(player_t const*) const
 {
-	const roadsign_besch_t * desc = roadsign_t::find_desc(default_param);
+	const roadsign_desc_t * desc = roadsign_t::find_desc(default_param);
 	if(desc) {
 		return tooltip_with_price( desc->get_name(), -desc->get_preis() );
 	}
@@ -4903,7 +4903,7 @@ void tool_build_roadsign_t::get_values( player_t *player, uint8 &spacing, bool &
 }
 
 
-const char *tool_build_roadsign_t::place_sign_intern( player_t *player, grund_t* gr, const roadsign_besch_t*)
+const char *tool_build_roadsign_t::place_sign_intern( player_t *player, grund_t* gr, const roadsign_desc_t*)
 {
 	const char * error = "Hier kann kein\nSignal aufge-\nstellt werden!\n";
 	// search for starting ground

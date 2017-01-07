@@ -107,3 +107,8 @@ spezial_objekte,special_objects
 wegtyp1,waytype1
 wegtyp2,waytype2
 kreuzung_besch_t,crossing_desc_t
+roadsign_besch_t,roadsign_desc_t
+sound_besch_t,sound_desc_t
+\\<besch_t,desc_t
+stadtauto_besch_t,citycar_desc_t
+text_besch_t,text_desc_t

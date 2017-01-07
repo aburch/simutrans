@@ -15,7 +15,7 @@
  *      Volker Meyer
  *
  *  Description:
- *      Basis of all besch_t classes, which are loaded from the .pak files.
+ *      Basis of all desc_t classes, which are loaded from the .pak files.
  *	No virtual methods are allowed!
  */
 class obj_desc_t {

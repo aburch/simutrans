@@ -1885,7 +1885,7 @@ bool road_vehicle_t::check_next_tile(const grund_t *bd) const
 				return false;
 			}
 			// do not search further for a free stop beyond here
-			if(target_halt.is_bound()  &&  cnv->is_waiting()  &&  rs->get_desc()->get_flags()&roadsign_besch_t::END_OF_CHOOSE_AREA) {
+			if(target_halt.is_bound()  &&  cnv->is_waiting()  &&  rs->get_desc()->get_flags()&roadsign_desc_t::END_OF_CHOOSE_AREA) {
 				return false;
 			}
 		}
@@ -2497,7 +2497,7 @@ bool rail_vehicle_t::check_next_tile(const grund_t *bd) const
 		if(sch->has_sign()) {
 			const roadsign_t* rs = bd->find<roadsign_t>();
 			if(  rs->get_desc()->get_wtyp()==get_waytype()  ) {
-				if(  rs->get_desc()->get_flags() & roadsign_besch_t::END_OF_CHOOSE_AREA  ) {
+				if(  rs->get_desc()->get_flags() & roadsign_desc_t::END_OF_CHOOSE_AREA  ) {
 					return false;
 				}
 			}
@@ -2696,7 +2696,7 @@ bool rail_vehicle_t::is_choose_signal_clear(signal_t *sig, const uint16 start_bl
 		if(  way->has_sign()  ) {
 			roadsign_t *rs = gr->find<roadsign_t>(1);
 			if(  rs  &&  rs->get_desc()->get_wtyp()==get_waytype()  ) {
-				if(  (rs->get_desc()->get_flags()&roadsign_besch_t::END_OF_CHOOSE_AREA)!=0  ) {
+				if(  (rs->get_desc()->get_flags()&roadsign_desc_t::END_OF_CHOOSE_AREA)!=0  ) {
 					// end of choose on route => not choosing here
 					choose_ok = false;
 				}
@@ -2803,7 +2803,7 @@ bool rail_vehicle_t::is_signal_clear(uint16 next_block, sint32 &restart_speed)
 	}
 
 	// action depend on the next signal
-	const roadsign_besch_t *sig_desc=sig->get_desc();
+	const roadsign_desc_t *sig_desc=sig->get_desc();
 
 	// simple signal: drive on, if next block is free
 	if(  !sig_desc->is_longblock_signal()  &&  !sig_desc->is_choose_sign()  &&  !sig_desc->is_pre_signal()  ) {

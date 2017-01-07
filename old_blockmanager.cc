@@ -174,7 +174,7 @@ old_blockmanager_t::finish_rd(karte_t *welt)
 
 		// now we should have a pair of signals ... or something was very wrong
 		grund_t*                new_signal_gr = 0;
-		roadsign_besch_t::types type          = roadsign_besch_t::SIGN_SIGNAL;
+		roadsign_desc_t::types type          = roadsign_desc_t::SIGN_SIGNAL;
 		ribi_t::ribi dir                      = 0;
 
 		// now find out about type and direction
@@ -184,10 +184,10 @@ old_blockmanager_t::finish_rd(karte_t *welt)
 			to = gr;
 			gr = tmp;
 			if(os2->get_typ()==obj_t::old_presignal) {
-				type = roadsign_besch_t::SIGN_PRE_SIGNAL;
+				type = roadsign_desc_t::SIGN_PRE_SIGNAL;
 			}
 			else if(os2->get_typ()==obj_t::old_choosesignal) {
-				type |= roadsign_besch_t::CHOOSE_SIGN;
+				type |= roadsign_desc_t::CHOOSE_SIGN;
 			}
 			dir = os2->get_dir();
 			directions = 1;
@@ -196,10 +196,10 @@ old_blockmanager_t::finish_rd(karte_t *welt)
 			// gr is already the first choice
 			// so we just have to determine the type
 			if(os1->get_typ()==obj_t::old_presignal) {
-				type = roadsign_besch_t::SIGN_PRE_SIGNAL;
+				type = roadsign_desc_t::SIGN_PRE_SIGNAL;
 			}
 			else if(os1->get_typ()==obj_t::old_choosesignal) {
-				type |= roadsign_besch_t::CHOOSE_SIGN;
+				type |= roadsign_desc_t::CHOOSE_SIGN;
 			}
 		}
 		// take care of one way
@@ -221,7 +221,7 @@ old_blockmanager_t::finish_rd(karte_t *welt)
 
 		// found a suitable location, ribi, signal type => construct
 		if(new_signal_gr  &&  dir!=0) {
-			const roadsign_besch_t *sb=roadsign_t::roadsign_search(type,wt,0);
+			const roadsign_desc_t *sb=roadsign_t::roadsign_search(type,wt,0);
 			if(sb!=NULL) {
 				signal_t *sig = new signal_t(new_signal_gr->get_weg(wt)->get_owner(),new_signal_gr->get_pos(),dir,sb);
 				new_signal_gr->obj_add(sig);

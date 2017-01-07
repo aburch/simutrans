@@ -40,7 +40,7 @@ static stringhashtable_tpl<sound_ids *> name_sound;
 static bool sound_on=false;
 static std::string sound_path;
 
-sint16 sound_besch_t::compatible_sound_id[MAX_OLD_SOUNDS]=
+sint16 sound_desc_t::compatible_sound_id[MAX_OLD_SOUNDS]=
 {
 	NO_SOUND, NO_SOUND, NO_SOUND, NO_SOUND,
 	NO_SOUND, NO_SOUND, NO_SOUND, NO_SOUND,
@@ -49,14 +49,14 @@ sint16 sound_besch_t::compatible_sound_id[MAX_OLD_SOUNDS]=
 };
 
 // sound with the names of climates and "beach" and "forest" are reserved for ambient noises
-sint16 sound_besch_t::beach_sound;
-sint16 sound_besch_t::forest_sound;
-sint16 sound_besch_t::climate_sounds[MAX_CLIMATES];
+sint16 sound_desc_t::beach_sound;
+sint16 sound_desc_t::forest_sound;
+sint16 sound_desc_t::climate_sounds[MAX_CLIMATES];
 
 
 /* init sounds */
 /* standard sounds and old sounds are found in the file pak/sound/sound.tab */
-void sound_besch_t::init()
+void sound_desc_t::init()
 {
 	// ok, now init
 	sound_on = true;
@@ -65,7 +65,7 @@ void sound_besch_t::init()
 	// process sound.tab
 	tabfile_t soundconf;
 	if (soundconf.open((sound_path + "sound.tab").c_str())) {
-DBG_MESSAGE("sound_besch_t::init()","successfully opened sound/sound.tab"  );
+DBG_MESSAGE("sound_desc_t::init()","successfully opened sound/sound.tab"  );
 		tabfileobj_t contents;
 		soundconf.read(contents);
 		// max. 16 old sounds ...
@@ -74,9 +74,9 @@ DBG_MESSAGE("sound_besch_t::init()","successfully opened sound/sound.tab"  );
 			sprintf(buf, "sound[%i]", i);
 			const char *fn=ltrim(contents.get(buf));
 			if(fn[0]>0) {
-DBG_MESSAGE("sound_besch_t::init()","reading sound %s", fn  );
+DBG_MESSAGE("sound_desc_t::init()","reading sound %s", fn  );
 				compatible_sound_id[i] = get_sound_id( fn );
-DBG_MESSAGE("sound_besch_t::init()","assigned system sound %d to sound %s (id=%i)", i, (const char *)fn, compatible_sound_id[i] );
+DBG_MESSAGE("sound_desc_t::init()","assigned system sound %d to sound %s (id=%i)", i, (const char *)fn, compatible_sound_id[i] );
 			}
 		}
 		// now assign special sounds for climates, beaches and forest
@@ -94,7 +94,7 @@ DBG_MESSAGE("sound_besch_t::init()","assigned system sound %d to sound %s (id=%i
 
 
 /* return sound id from index */
-sint16 sound_besch_t::get_sound_id(const char *name)
+sint16 sound_desc_t::get_sound_id(const char *name)
 {
 	if(!sound_on  ||  name==NULL  ||  *name==0) {
 		return NO_SOUND;
@@ -106,13 +106,13 @@ sint16 sound_besch_t::get_sound_id(const char *name)
 		if(id!=NO_SOUND) {
 			s = new sound_ids(id,name);
 			name_sound.put(s->filename.c_str(), s );
-DBG_MESSAGE("sound_besch_t::get_sound_id()","successfully loaded sound %s internal id %i", s->filename.c_str(), s->id );
+DBG_MESSAGE("sound_desc_t::get_sound_id()","successfully loaded sound %s internal id %i", s->filename.c_str(), s->id );
 			return s->id;
 		}
-		dbg->warning("sound_besch_t::get_sound_id()","sound \"%s\" not found", name );
+		dbg->warning("sound_desc_t::get_sound_id()","sound \"%s\" not found", name );
 		return NO_SOUND;
 	}
-DBG_MESSAGE("sound_besch_t::get_sound_id()","successfully retrieved sound %s internal id %i", s->filename.c_str(), s->id );
+DBG_MESSAGE("sound_desc_t::get_sound_id()","successfully retrieved sound %s internal id %i", s->filename.c_str(), s->id );
 	return s->id;
 }
 
@@ -122,7 +122,7 @@ DBG_MESSAGE("sound_besch_t::get_sound_id()","successfully retrieved sound %s int
  * if there is already such a sound => fail, else success and get an internal sound id
  * do not store desc as it will be deleted anyway
  */
-bool sound_besch_t::register_desc(sound_besch_t *desc)
+bool sound_desc_t::register_desc(sound_desc_t *desc)
 {
 	if(!sound_on) {
 		return false;
@@ -132,10 +132,10 @@ bool sound_besch_t::register_desc(sound_besch_t *desc)
 	if(desc->sound_id!=NO_SOUND) {
 		if(desc->nr>=0  &&  desc->nr<=8) {
 			compatible_sound_id[desc->nr] = desc->sound_id;
-DBG_MESSAGE("sound_besch_t::get_sound_id()","successfully registered sound %s internal id %i as compatible sound %i", desc->get_name(), desc->sound_id, desc->nr );
+DBG_MESSAGE("sound_desc_t::get_sound_id()","successfully registered sound %s internal id %i as compatible sound %i", desc->get_name(), desc->sound_id, desc->nr );
 			return true;
 		}
 	}
-	dbg->warning("sound_besch_t::get_sound_id()","failed to register sound %s internal id %i", desc->get_name() );
+	dbg->warning("sound_desc_t::get_sound_id()","failed to register sound %s internal id %i", desc->get_name() );
 	return false;
 }

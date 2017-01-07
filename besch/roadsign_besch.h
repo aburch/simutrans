@@ -30,7 +30,7 @@
  *	1   Copyright
  *	2   Image list (Image-list)
  */
-class roadsign_besch_t : public obj_desc_transport_infrastructure_t {
+class roadsign_desc_t : public obj_desc_transport_infrastructure_t {
 	friend class roadsign_reader_t;
 
 private:
@@ -102,6 +102,6 @@ public:
 	}
 };
 
-ENUM_BITSET(roadsign_besch_t::types)
+ENUM_BITSET(roadsign_desc_t::types)
 
 #endif

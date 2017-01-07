@@ -27,7 +27,7 @@ class koord3d;
 class koord;
 class wegbauer_t;
 class building_desc_t;
-class roadsign_besch_t;
+class roadsign_desc_t;
 class weg_besch_t;
 class route_t;
 class way_obj_desc_t;
@@ -400,8 +400,8 @@ public:
 // builds roadsigns and signals
 class tool_build_roadsign_t : public two_click_tool_t {
 private:
-	const roadsign_besch_t* desc;
-	const char *place_sign_intern( player_t *, grund_t*, const roadsign_besch_t* b = NULL);
+	const roadsign_desc_t* desc;
+	const char *place_sign_intern( player_t *, grund_t*, const roadsign_desc_t* b = NULL);
 
 	struct signal_info {
 		signal_info() : spacing(2), remove_intermediate(true), replace_other(true) {}

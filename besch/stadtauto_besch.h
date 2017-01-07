@@ -26,7 +26,7 @@
  *	1   Copyright
  *	2   Image-list
  */
-class stadtauto_besch_t : public obj_desc_timelined_t {
+class citycar_desc_t : public obj_desc_timelined_t {
 	friend class citycar_reader_t;
 
 	uint16 chance;

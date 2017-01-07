@@ -18,7 +18,7 @@
 #include "../tpl/stringhashtable_tpl.h"
 #include "../ifc/sync_steppable.h"
 
-class stadtauto_besch_t;
+class citycar_desc_t;
 class karte_t;
 
 /**
@@ -75,9 +75,9 @@ public:
 class private_car_t : public road_user_t, public overtaker_t
 {
 private:
-	static stringhashtable_tpl<const stadtauto_besch_t *> table;
+	static stringhashtable_tpl<const citycar_desc_t *> table;
 
-	const stadtauto_besch_t *desc;
+	const citycar_desc_t *desc;
 
 	// prissi: time to life in blocks
 #ifdef DESTINATION_CITYCARS
@@ -111,7 +111,7 @@ public:
 
 	virtual ~private_car_t();
 
-	const stadtauto_besch_t *get_desc() const { return desc; }
+	const citycar_desc_t *get_desc() const { return desc; }
 
 	sync_result sync_step(uint32 delta_t);
 
@@ -144,7 +144,7 @@ public:
 	static void build_timeline_list(karte_t *welt);
 	static bool list_empty();
 
-	static bool register_desc(const stadtauto_besch_t *desc);
+	static bool register_desc(const citycar_desc_t *desc);
 	static bool successfully_loaded();
 
 	// since we must consider overtaking, we use this for offset calculation

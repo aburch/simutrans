@@ -948,7 +948,7 @@ int simu_main(int argc, char** argv)
 	// just check before loading objects
 	if (!gimme_arg(argc, argv, "-nosound", 0)  &&  dr_init_sound()) {
 		dbg->important("Reading compatibility sound data ...");
-		sound_besch_t::init();
+		sound_desc_t::init();
 	}
 	else {
 		sound_set_mute(true);

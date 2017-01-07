@@ -14,7 +14,7 @@
  *  Author:
  *      Volker Meyer
  */
-class text_besch_t : public obj_desc_t {
+class text_desc_t : public obj_desc_t {
 public:
 		const char* get_text() const { return text; }
 
