@@ -34,7 +34,7 @@ fundament_t::fundament_t(koord3d pos, slope_t::type hang ) : grund_t(pos)
 
 void fundament_t::calc_image_internal(const bool calc_only_snowline_change)
 {
-	set_image( grund_besch_t::get_ground_tile(this) );
+	set_image( ground_besch_t::get_ground_tile(this) );
 
 	if(  !calc_only_snowline_change  ) {
 		grund_t::calc_back_image( get_disp_height(), 0 );

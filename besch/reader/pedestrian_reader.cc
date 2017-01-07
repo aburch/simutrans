@@ -19,7 +19,7 @@
  */
 void pedestrian_reader_t::register_obj(obj_desc_t *&data)
 {
-	fussgaenger_besch_t *desc = static_cast<fussgaenger_besch_t  *>(data);
+	pedestrian_desc_t *desc = static_cast<pedestrian_desc_t  *>(data);
 
 	pedestrian_t::register_desc(desc);
 
@@ -46,7 +46,7 @@ obj_desc_t * pedestrian_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
 	ALLOCA(char, besch_buf, node.size);
 
-	fussgaenger_besch_t *desc = new fussgaenger_besch_t();
+	pedestrian_desc_t *desc = new pedestrian_desc_t();
 
 	// Hajo: Read data
 	fread(besch_buf, node.size, 1, fp);

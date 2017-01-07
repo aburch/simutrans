@@ -24,7 +24,7 @@
  *	1   Copyright
  *	2   Image-list
  */
-class fussgaenger_besch_t : public obj_named_desc_t {
+class pedestrian_desc_t : public obj_named_desc_t {
     friend class pedestrian_reader_t;
 
     uint16 chance;

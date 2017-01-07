@@ -513,13 +513,13 @@ image_id overlay_img(grund_t *gr)
 	image_id img;
 	if(  gr->get_typ()==grund_t::wasser  ) {
 		// water is always flat and does not return proper image_id
-		img = grund_besch_t::ausserhalb->get_image(0);
+		img = ground_besch_t::outside->get_image(0);
 	}
 	else {
 		img = gr->get_image();
 		if(  img==IMG_EMPTY  ) {
 			// foundations or underground mode
-			img = grund_besch_t::get_ground_tile( gr );
+			img = ground_besch_t::get_ground_tile( gr );
 		}
 	}
 	return img;
