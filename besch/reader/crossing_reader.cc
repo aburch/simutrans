@@ -14,7 +14,7 @@
 
 void crossing_reader_t::register_obj(obj_desc_t *&data)
 {
-	kreuzung_besch_t *desc = static_cast<kreuzung_besch_t *>(data);
+	crossing_desc_t *desc = static_cast<crossing_desc_t *>(data);
 	if(desc->topspeed1!=0) {
 		crossing_logic_t::register_desc(desc);
 	}
@@ -29,7 +29,7 @@ obj_desc_t * crossing_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
 	ALLOCA(char, besch_buf, node.size);
 
-	kreuzung_besch_t *desc = new kreuzung_besch_t();
+	crossing_desc_t *desc = new crossing_desc_t();
 
 	// Hajo: Read data
 	fread(besch_buf, node.size, 1, fp);
@@ -43,14 +43,14 @@ obj_desc_t * crossing_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	if(version == 0) {
 		dbg->error("crossing_reader_t::read_node()","Old version of crossings cannot be used!");
 
-		desc->wegtyp1 = (waytype_t)v;
-		desc->wegtyp2 = (waytype_t)decode_uint16(p);
+		desc->waytype1 = (waytype_t)v;
+		desc->waytype2 = (waytype_t)decode_uint16(p);
 		desc->topspeed1 = 0;
 		desc->topspeed2 = 0;
 	}
 	else if(  version==1  ||  version==2  ) {
-		desc->wegtyp1 = (waytype_t)decode_uint8(p);
-		desc->wegtyp2 = (waytype_t)decode_uint8(p);
+		desc->waytype1 = (waytype_t)decode_uint8(p);
+		desc->waytype2 = (waytype_t)decode_uint8(p);
 		desc->topspeed1 = decode_uint16(p);
 		desc->topspeed2 = decode_uint16(p);
 		desc->open_animation_time = decode_uint32(p);

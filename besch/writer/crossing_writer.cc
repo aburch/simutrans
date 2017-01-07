@@ -74,14 +74,14 @@ void crossing_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	node.write_uint16(fp, uv16, 0);
 
 	// waytypes, waytype 2 will be on top
-	uint8 wegtyp1 = get_waytype(obj.get("waytype[0]"));
-	uint8 wegtyp2 = get_waytype(obj.get("waytype[1]"));
-	if(wegtyp1==wegtyp2) {
+	uint8 waytype1 = get_waytype(obj.get("waytype[0]"));
+	uint8 waytype2 = get_waytype(obj.get("waytype[1]"));
+	if(waytype1==waytype2) {
 		dbg->fatal( "Crossing", "Identical ways (%s) cannot cross (check waytypes)!", obj.get("waytype[0]") );
 		exit(1);
 	}
-	node.write_uint8(fp, wegtyp1, 2);
-	node.write_uint8(fp, wegtyp2, 3);
+	node.write_uint8(fp, waytype1, 2);
+	node.write_uint8(fp, waytype2, 3);
 
 	// Top speed of this way
 	uv16 = obj.get_int("speed[0]", 0);

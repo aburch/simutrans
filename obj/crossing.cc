@@ -40,7 +40,7 @@ crossing_t::crossing_t(loadsave_t* const file) : obj_no_info_t()
 }
 
 
-crossing_t::crossing_t(player_t* const player_, koord3d const pos, kreuzung_besch_t const* const desc, uint8 const ns) : obj_no_info_t(pos)
+crossing_t::crossing_t(player_t* const player_, koord3d const pos, crossing_desc_t const* const desc, uint8 const ns) : obj_no_info_t(pos)
 {
 	this->ns = ns;
 	this->desc = desc;
@@ -176,7 +176,7 @@ void crossing_t::finish_rd()
 		// try to find crossing that matches way max speed
 		weg_t *w1=gr->get_weg(desc->get_waytype(0));
 		weg_t *w2=gr->get_weg(desc->get_waytype(1));
-		const kreuzung_besch_t *test = crossing_logic_t::get_crossing( desc->get_waytype(0), desc->get_waytype(1), w1->get_desc()->get_topspeed(), w2->get_desc()->get_topspeed(), welt->get_timeline_year_month());
+		const crossing_desc_t *test = crossing_logic_t::get_crossing( desc->get_waytype(0), desc->get_waytype(1), w1->get_desc()->get_topspeed(), w2->get_desc()->get_topspeed(), welt->get_timeline_year_month());
 		if (test  &&  test!=desc) {
 			desc = test;
 		}

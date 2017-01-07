@@ -25,12 +25,12 @@ class checksum_t;
  *	1   Copyright
  *	2   Bild
  */
-class kreuzung_besch_t : public obj_desc_timelined_t {
+class crossing_desc_t : public obj_desc_timelined_t {
     friend class crossing_reader_t;
 
 private:
-	waytype_t wegtyp1;
-	waytype_t wegtyp2;
+	waytype_t waytype1;
+	waytype_t waytype2;
 
 	sint8 sound;
 
@@ -68,7 +68,7 @@ public:
 		return imglist ? imglist->get_image(phase) : 0;
 	}
 
-	waytype_t get_waytype(int i) const { return i==0? wegtyp1 : wegtyp2; }
+	waytype_t get_waytype(int i) const { return i==0? waytype1 : waytype2; }
 	sint32 get_maxspeed(int i) const { return i==0 ? topspeed1 : topspeed2; }
 	uint16 get_phases(bool open, bool front) const { return get_child<image_list_t>(6 - 4 * open + 2 * front)->get_count(); }
 	uint32 get_animation_time(bool open) const { return open ? open_animation_time : closed_animation_time; }
@@ -77,8 +77,8 @@ public:
 
 	void calc_checksum(checksum_t *chk) const
 	{
-		chk->input(wegtyp1);
-		chk->input(wegtyp2);
+		chk->input(waytype1);
+		chk->input(waytype2);
 		chk->input(closed_animation_time);
 		chk->input(open_animation_time);
 		chk->input(topspeed1);

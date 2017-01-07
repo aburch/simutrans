@@ -27,7 +27,7 @@
 karte_ptr_t crossing_logic_t::welt;
 
 
-crossing_logic_t::crossing_logic_t( const kreuzung_besch_t *desc )
+crossing_logic_t::crossing_logic_t( const crossing_desc_t *desc )
 {
 	state = CROSSING_INVALID;
 	this->desc = desc;
@@ -183,13 +183,13 @@ void crossing_logic_t::set_state( crossing_state_t new_state )
  *  2 ..     3 4 5 6 7 8
  * ..          ...
  */
-minivec_tpl<const kreuzung_besch_t *> crossing_logic_t::can_cross_array[36];
+minivec_tpl<const crossing_desc_t *> crossing_logic_t::can_cross_array[36];
 
 
 /**
  * compare crossings for the same waytype-combinations
  */
-int compare_crossing(const kreuzung_besch_t *c0, const kreuzung_besch_t *c1)
+int compare_crossing(const crossing_desc_t *c0, const crossing_desc_t *c1)
 {
 	// sort descending wrt maxspeed
 	int diff = c1->get_maxspeed(0) - c0->get_maxspeed(0);
@@ -203,7 +203,7 @@ int compare_crossing(const kreuzung_besch_t *c0, const kreuzung_besch_t *c1)
 }
 
 
-void crossing_logic_t::register_desc(kreuzung_besch_t *desc)
+void crossing_logic_t::register_desc(crossing_desc_t *desc)
 {
 	// mark if crossing possible
 	const waytype_t way0 = (const waytype_t)min(desc->get_waytype(0), desc->get_waytype(1));
@@ -212,7 +212,7 @@ void crossing_logic_t::register_desc(kreuzung_besch_t *desc)
 		uint8 index = way0 * 9 + way1 - ((way0+2)*(way0+1))/2;
 		// max index = 7*9 + 8 - 9*4 = 71-36 = 35
 		// .. overwrite double entries
-		minivec_tpl<const kreuzung_besch_t *> &vec = can_cross_array[index];
+		minivec_tpl<const crossing_desc_t *> &vec = can_cross_array[index];
 		// first check for existing crossing with the same name
 		for(uint8 i=0; i<vec.get_count(); i++) {
 			if (strcmp(vec[i]->get_name(), desc->get_name())==0) {
@@ -233,17 +233,17 @@ DBG_DEBUG( "crossing_logic_t::register_desc()","%s", desc->get_name() );
 }
 
 
-const kreuzung_besch_t *crossing_logic_t::get_crossing(const waytype_t ns, const waytype_t ow, sint32 way_0_speed, sint32 way_1_speed, uint16 timeline_year_month)
+const crossing_desc_t *crossing_logic_t::get_crossing(const waytype_t ns, const waytype_t ow, sint32 way_0_speed, sint32 way_1_speed, uint16 timeline_year_month)
 {
 	// mark if crossing possible
 	const waytype_t way0 = ns <  ow ? ns : ow;
 	const waytype_t way1 = ns >= ow ? ns : ow;
-	const kreuzung_besch_t *best = NULL;
+	const crossing_desc_t *best = NULL;
 	// index 8 is narrowgauge, only air_wt and powerline_wt have higher indexes
 	if(  way0 <= 8  &&  way1 <= 8  &&  way0 != way1  ) {
 
 		const uint8 index = way0 * 9 + way1 - ((way0+2)*(way0+1))/2;
-		FOR(  minivec_tpl<kreuzung_besch_t const*>,  const i,  can_cross_array[index]  ) {
+		FOR(  minivec_tpl<crossing_desc_t const*>,  const i,  can_cross_array[index]  ) {
 			if(  !i->is_available(timeline_year_month)  ) {
 				continue;
 			}
@@ -274,7 +274,7 @@ const kreuzung_besch_t *crossing_logic_t::get_crossing(const waytype_t ns, const
 /**
  * compare crossings for the same waytype-combinations
  */
-bool have_crossings_same_wt(const kreuzung_besch_t *c0, const kreuzung_besch_t *c1)
+bool have_crossings_same_wt(const crossing_desc_t *c0, const crossing_desc_t *c1)
 {
 	return c0->get_waytype(0) == c1->get_waytype(0)  &&  c0->get_waytype(1) == c1->get_waytype(1);
 }

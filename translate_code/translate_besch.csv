@@ -104,3 +104,6 @@ gewerbehaeuser,city_commercial
 industriehaeuser,city_industry
 warne_ungeladene,warn_missing_objects
 spezial_objekte,special_objects
+wegtyp1,waytype1
+wegtyp2,waytype2
+kreuzung_besch_t,crossing_desc_t
