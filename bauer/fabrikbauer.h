@@ -49,7 +49,7 @@ private:
 	};
 
 	/// Table of all factories that can be built
-	static stringhashtable_tpl<const fabrik_besch_t *> table;
+	static stringhashtable_tpl<const fabrik_besch_t *> desc_table;
 
 	/// @returns the number of producers producing @p ware
 	static int count_producers(const ware_besch_t *ware, uint16 timeline);
@@ -80,10 +80,10 @@ public:
 	static void verteile_tourist(int max_number);
 
 	/// @returns a factory description for a factory name
-	static const fabrik_besch_t * get_fabesch(const char *fabtype);
+	static const fabrik_besch_t *get_desc(const char *factory_name);
 
 	/// @returns the table containing all factory descriptions
-	static const stringhashtable_tpl<const fabrik_besch_t*>& get_fabesch() { return table; }
+	static const stringhashtable_tpl<const fabrik_besch_t*>& get_factory_table() { return desc_table; }
 
 	/**
 	 * @param electric true to limit search to electricity producers only

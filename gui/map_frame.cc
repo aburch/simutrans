@@ -364,7 +364,7 @@ void map_frame_t::update_factory_legend()
 			}
 		}
 		else {
-			FOR(stringhashtable_tpl<fabrik_besch_t const*>, const& i, fabrikbauer_t::get_fabesch()) {
+			FOR(stringhashtable_tpl<fabrik_besch_t const*>, const& i, fabrikbauer_t::get_factory_table()) {
 				fabrik_besch_t const& d = *i.value;
 				if (d.get_gewichtung() > 0) {
 					std::string const label(translator::translate(d.get_name()));
