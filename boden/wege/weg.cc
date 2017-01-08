@@ -1108,12 +1108,21 @@ void weg_t::degrade()
 	{
 		// Do not degrade public rights of way, as these should remain passable.
 		// Instead, take them out of private ownership and renew them with the default way.
+		const bool initially_unowned = get_owner() == NULL;
 		set_owner(NULL); 
 		if(waytype == road_wt)
 		{
 			const stadt_t* city = welt->get_city(get_pos().get_2d()); 
-			const weg_besch_t* wb = city ? welt->get_settings().get_city_road_type(welt->get_timeline_year_month()) : welt->get_settings().get_intercity_road_type(welt->get_timeline_year_month());
-			set_besch(wb ? wb : besch);
+			if (!initially_unowned && welt->get_timeline_year_month())
+			{
+				const weg_besch_t* wb = city ? welt->get_settings().get_city_road_type(welt->get_timeline_year_month()) : welt->get_settings().get_intercity_road_type(welt->get_timeline_year_month());
+				set_besch(wb ? wb : besch);
+			}
+			else
+			{
+				// If the timeline is not enabled, renew with the same type, or else the default is just the first way that happens to be in the array and might be something silly like a bridleway
+				set_besch(besch);
+			}
 		}
 		else
 		{
