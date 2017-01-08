@@ -79,6 +79,7 @@ void tunnel_t::calc_image()
 		image_id old_bild = image;
 		hang_t::typ hang = gr->get_grund_hang();
 		ribi_t::ribi ribi = gr->get_weg_ribi(besch->get_waytype());
+		ribi_t::ribi ribi_unmasked = gr->get_weg_ribi_unmasked(besch->get_waytype());
 		if(gr->ist_karten_boden()) 
 		{
 			// Tunnel portal
@@ -120,8 +121,8 @@ void tunnel_t::calc_image()
 			}
 			else if(besch->get_waytype() != powerline_wt)
 			{
-				set_bild(besch->get_underground_backimage_nr(ribi, hang));
-				set_after_bild(besch->get_underground_frontimage_nr(ribi, hang));
+				set_bild(besch->get_underground_backimage_nr(ribi_unmasked, hang));
+				set_after_bild(besch->get_underground_frontimage_nr(ribi_unmasked, hang));
 			}
 		}
 	}
