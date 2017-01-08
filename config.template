@@ -28,7 +28,7 @@
 #PROFILE = 1  # Enable profiling
 #PROFILE = 2  # Enable profiling with optimisation flags, can be used with `OPTIMISE = 1'
 
-#WITH_REVISION = 1 # adds the revision from svn; required for networkgames
+WITH_REVISION = 1 # adds the revision from Github; required for networkgames
 # if you do not use SVN, add -DREVISION="1234" to the FLAGS below
 
 #WIN32_CONSOLE = 1 # adds a console for windows debugging

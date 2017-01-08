@@ -2087,6 +2087,7 @@
     <ClInclude Include="player\ai_passenger.h" />
     <ClInclude Include="player\finance.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="revision.h" />
     <ClInclude Include="script\api\api.h" />
     <ClInclude Include="script\api\api_base.h" />
     <ClInclude Include="script\api\api_doc.h" />
