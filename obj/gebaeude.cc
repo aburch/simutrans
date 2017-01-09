@@ -229,14 +229,19 @@ gebaeude_t::~gebaeude_t()
 	}
 	
 	stadt_t* our_city = get_stadt();
-	if(!our_city && tile->get_besch()->get_utyp() == haus_besch_t::rathaus)
+	if(!our_city /* && tile->get_besch()->get_utyp() == haus_besch_t::rathaus*/)
 	{
 		our_city = welt->get_city(get_pos().get_2d());
+	}
+	if (!our_city)
+	{
+		our_city = welt->get_city(get_first_tile()->get_pos().get_2d()); 
 	}
 	if(our_city) 
 	{
 		our_city->remove_gebaeude_from_stadt(this);
 	}
+
 
 	if(sync) {
 		sync = false;
@@ -1411,7 +1416,7 @@ void gebaeude_t::finish_rd()
 }
 
 
-void gebaeude_t::cleanup(player_t *player) // "Remove" (Google)
+void gebaeude_t::cleanup(player_t *player)
 {
 //	DBG_MESSAGE("gebaeude_t::cleanup()","gb %i");
 	// remove costs

@@ -1401,7 +1401,7 @@ stadt_t::~stadt_t()
 	}
 
 	// olny if there is still a world left to delete from
-	if(welt->get_size().x > 1) 
+	if(!welt->is_destroying() && welt->get_size().x > 1) 
 	{
 		welt->lookup_kartenboden(pos)->set_text(NULL);
 		
@@ -1431,7 +1431,7 @@ stadt_t::~stadt_t()
 				}
 				else
 				{
-					gb->set_stadt( NULL );
+					gb->set_stadt( this );
 					hausbauer_t::remove(welt->get_player(1), gb);
 				}
 			}
