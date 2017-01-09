@@ -213,7 +213,7 @@ const weg_besch_t* wegbauer_t::weg_search(const waytype_t wtyp, const sint32 spe
 			     && test->get_cursor()->get_bild_nr(1) != IMG_EMPTY) 
 		{
 			const missing_way_constraints_t missing_constraints(way_constraints, test->get_way_constraints());
-			bool test_allowed = (time == 0 || (test->get_intro_year_month() <= time && time < test->get_retire_year_month())) && missing_constraints.get_count() == 0;
+			bool test_allowed = (time == 0 || (test->get_intro_year_month() <= time && time < test->get_retire_year_month())) && missing_constraints.get_permissive() == 0;
 
 			const sint32 test_topspeed = test->get_topspeed();
 			const uint32 test_max_axle_load = test->get_max_axle_load();
