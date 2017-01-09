@@ -1298,8 +1298,17 @@ void gebaeude_t::rdwr(loadsave_t *file)
 	if(file->get_version()>=99014 && !is_factory) 
 	{
 		sint32 city_index = -1;
-		if(  file->is_saving()  &&  ptr.stadt!=NULL  ) {
-			city_index = welt->get_staedte().index_of( ptr.stadt );
+		if(  file->is_saving()  &&  ptr.stadt!=NULL  ) 
+		{
+			if (welt->get_staedte().is_contained(ptr.stadt))
+			{
+				city_index = welt->get_staedte().index_of(ptr.stadt);
+			}
+			else
+			{
+				// Reaching here means that the city has been deleted.
+				ptr.stadt = NULL;
+			}
 		}
 		file->rdwr_long(city_index);
 		if(  file->is_loading()  &&  city_index!=-1  &&  (tile==NULL  ||  tile->get_besch()==NULL  ||  tile->get_besch()->is_connected_with_town())  ) {
