@@ -312,6 +312,7 @@ void hausbauer_t::remove( player_t *player, gebaeude_t *gb ) //gebaeude = "build
 	const haus_tile_besch_t *tile  = gb->get_tile();
 	const haus_besch_t *hb = tile->get_besch();
 	const uint8 layout = tile->get_layout();
+	stadt_t* const city = gb->get_stadt();
 
 	// get startpos and size
 	const koord3d pos = gb->get_pos() - koord3d( tile->get_offset(), 0 );
@@ -428,8 +429,11 @@ void hausbauer_t::remove( player_t *player, gebaeude_t *gb ) //gebaeude = "build
 				// there may be buildings with holes, so we only remove our!
 				if(  gb_part  &&  gb_part->get_tile()==hb->get_tile(layout, k.x, k.y)  ) {
 					// ok, now we can go on with deletion
-					gb_part->cleanup( player );
-					gb_part->set_stadt(gb->get_stadt());
+					if (gb_part->get_tile()->get_besch()->get_utyp() == haus_besch_t::rathaus)
+					{
+						gb_part->set_stadt(city);
+					}
+					gb_part->cleanup( player );			
 					delete gb_part;
 					// if this was a station building: delete ground
 					if(gr->get_halt().is_bound()) {

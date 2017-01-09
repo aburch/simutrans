@@ -198,6 +198,7 @@
 " Iwan 'qubodup' Gabovitch","", 
 " soundmary","", 
 " Kayyy","", 
+" Gordon J.Cowan", "",
 "","",
 "Translation:","",
 "","",
