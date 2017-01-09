@@ -3006,6 +3006,14 @@ uint8 tool_build_bridge_t::is_valid_pos(  player_t *player, const koord3d &pos, 
 
 
 /* more difficult, since this builds also underground ways */
+tool_build_tunnel_t::tool_build_tunnel_t() : two_click_tool_t(TOOL_BUILD_TUNNEL | GENERAL_TOOL)
+{
+	if (!env_t::networkmode)
+	{
+		weg_besch = default_param ? wegbauer_t::get_besch(default_param, 0) : tool_build_way_t::defaults[get_waytype() & 63];
+	}
+}
+
 const char* tool_build_tunnel_t::get_tooltip(const player_t *) const
 {
 	const tunnel_besch_t * besch = tunnelbauer_t::get_besch(default_param);
