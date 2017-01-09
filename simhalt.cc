@@ -5287,7 +5287,7 @@ sint64 haltestelle_t::calc_earliest_arrival_time_at(halthandle_t halt, convoihan
 }
 
 #ifdef MULTI_THREAD
-uint32 haltestelle_t::get_transferring_cargoes_count()
+uint32 haltestelle_t::get_transferring_cargoes_count() const
 {
 	uint32 count = 0;
 	for (sint32 i = 0; i < world()->get_parallel_operations(); i++)

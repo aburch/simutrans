@@ -350,9 +350,9 @@ public:
 
 	typedef inthashtable_tpl<uint16, sint64> arrival_times_map;
 #ifdef MULTI_THREAD
-	uint32 get_transferring_cargoes_count();
+	uint32 get_transferring_cargoes_count() const;
 #else
-	uint32 get_transferring_cargoes_count() { return transferring_cargoes->get_count(); }
+	uint32 get_transferring_cargoes_count() const { return transferring_cargoes->get_count(); }
 #endif
 
 private:
