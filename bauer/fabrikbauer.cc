@@ -410,12 +410,12 @@ void fabrikbauer_t::verteile_tourist(int max_number)
 			stadt_t* city = welt->get_city(gb->get_pos().get_2d());
 			if(city)
 			{
-				city->add_building_to_list(gb->get_first_tile()); 
+				city->add_building_to_list(gb->access_first_tile());
 				gb->set_stadt(city);
 			}
 			else
 			{
-				welt->add_building_to_world_list(gb->get_first_tile());
+				welt->add_building_to_world_list(gb->access_first_tile());
 			}
 		}
 

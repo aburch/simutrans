@@ -4073,7 +4073,7 @@ DBG_MESSAGE("tool_station_building_aux()", "building mail office/station buildin
 		gb->set_stadt(city);
 		city->update_city_stats_with_building(gb, false);
 	}
-	welt->add_building_to_world_list(gb->get_first_tile());
+	welt->add_building_to_world_list(gb->access_first_tile());
 
 	// Difficult to distinguish correctly most suitable waytype
 	player_t::book_construction_costs(player, cost, k, besch->get_finance_waytype());
@@ -6285,9 +6285,9 @@ const char *tool_build_house_t::work( player_t *player, koord3d pos )
 			// building successful
 			// ought to be added to the city.
 			stadt_t *city = welt->get_city( pos.get_2d() );
-			welt->add_building_to_world_list(gb->get_first_tile());
+			welt->add_building_to_world_list(gb->access_first_tile());
 			if(city) {
-				city->add_gebaeude_to_stadt(gb->get_first_tile());
+				city->add_gebaeude_to_stadt(gb->access_first_tile());
 				city->reset_city_borders();
 			}
 			player_t::book_construction_costs(player, welt->get_settings().cst_multiply_remove_haus * besch->get_level() * size.x * size.y, k, gb->get_waytype());
@@ -6729,7 +6729,7 @@ DBG_MESSAGE("tool_headquarter()", "building headquarter at (%d,%d)", pos.x, pos.
 							}
 						}
 						built = true;
-						welt->add_building_to_world_list(hq->get_first_tile());
+						welt->add_building_to_world_list(hq->access_first_tile());
 					}
 
 				}
@@ -6762,7 +6762,7 @@ DBG_MESSAGE("tool_headquarter()", "building headquarter at (%d,%d)", pos.x, pos.
 				stadt_t *city = welt->get_city( pos.get_2d() );
 				if(city) {
 					city->add_gebaeude_to_stadt(hq);
-					welt->add_building_to_world_list(hq->get_first_tile());
+					welt->add_building_to_world_list(hq->access_first_tile());
 					city->reset_city_borders();
 				}
 				built = true;
@@ -7133,7 +7133,7 @@ uint8 tool_reassign_signal_t::is_valid_pos(player_t *player, const koord3d &pos,
 	gebaeude_t* gb = gr->get_building();
 	if(gb)
 	{
-		gb = gb->get_first_tile();
+		gb = gb->access_first_tile();
 	}
 	const signalbox_t* sb_end;
 	if(gb && gb->get_tile()->get_besch()->get_utyp() == haus_besch_t::signalbox)
@@ -7160,7 +7160,7 @@ uint8 tool_reassign_signal_t::is_valid_pos(player_t *player, const koord3d &pos,
 	gb = gr_start->get_building();
 	if(gb)
 	{
-		gb = gb->get_first_tile();
+		gb = gb->access_first_tile();
 	}
 	if(gb && gb->get_tile()->get_besch()->get_utyp() == haus_besch_t::signalbox)
 	{
@@ -7218,7 +7218,7 @@ const char *tool_reassign_signal_t::do_work( player_t *player, const koord3d &la
 	gebaeude_t* gb_end = gr_end->get_building();
 	if(gb_end)
 	{
-		gb_end = gb_end->get_first_tile();
+		gb_end = gb_end->access_first_tile();
 	}
 	signalbox_t* sb_end = NULL;
 	if(gb_end && gb_end->get_tile()->get_besch()->get_utyp() == haus_besch_t::signalbox)
@@ -7235,7 +7235,7 @@ const char *tool_reassign_signal_t::do_work( player_t *player, const koord3d &la
 	gebaeude_t* gb_start = gr_start->get_building();
 	if(gb_start)
 	{
-		gb_start = gb_start->get_first_tile();
+		gb_start = gb_start->access_first_tile();
 	}
 	signalbox_t* sb_start = NULL;
 	if(gb_start && gb_start->get_tile()->get_besch()->get_utyp() == haus_besch_t::signalbox)
@@ -7263,7 +7263,7 @@ const char *tool_reassign_signal_t::do_work( player_t *player, const koord3d &la
 	{
 		koord3d sb_location = sig->get_signalbox();
 		grund_t* gr_sb = welt->lookup(sb_location);
-		gebaeude_t* gb_sb = gr_sb->get_building()->get_first_tile();
+		gebaeude_t* gb_sb = gr_sb->get_building()->access_first_tile();
 		signalbox_t* sb = NULL;
 		if(gb_sb && gb_sb->get_tile()->get_besch()->get_utyp() == haus_besch_t::signalbox)
 		{

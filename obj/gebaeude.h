@@ -280,7 +280,9 @@ public:
 	/**
 	 * @returns pointer to first tile of a multi-tile building.
 	 */
-	gebaeude_t* get_first_tile() const;
+	const gebaeude_t* get_first_tile() const;
+
+	gebaeude_t* access_first_tile();
 
 	void add_passengers_generated_commuting(uint16 number) { passengers_generated_commuting += number; }
 	void add_passengers_succeeded_commuting(uint16 number) { passengers_succeeded_commuting += number; }

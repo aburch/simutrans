@@ -3264,8 +3264,8 @@ void stadt_t::check_bau_spezial(bool new_town)
 					rotate = (simrand(20, "void stadt_t::check_bau_spezial") & 2) + is_rotate;
 				}
 				gebaeude_t* gb = hausbauer_t::baue(owner, welt->lookup_kartenboden(best_pos)->get_pos(), rotate, besch);
-				gb->get_first_tile()->set_stadt(this);
-				add_building_to_list(gb->get_first_tile());
+				gb->access_first_tile()->set_stadt(this);
+				add_building_to_list(gb->access_first_tile());
 				// tell the player, if not during initialization
 				if (!new_town) {
 					cbuffer_t buf;

@@ -785,7 +785,7 @@ void gebaeude_t::show_info()
 	if(!tile->get_besch()->ist_ohne_info()) {
 		if(!special  ||  (env_t::townhall_info  &&  old_count==win_get_open_count()) ) {
 			// open info window for the first tile of our building (not relying on presence of (0,0) tile)
-			get_first_tile()->obj_t::show_info();
+			access_first_tile()->obj_t::show_info();
 		}
 	}
 }
@@ -798,7 +798,7 @@ bool gebaeude_t::is_same_building(gebaeude_t* other) const
 }
 
 
-gebaeude_t* gebaeude_t::get_first_tile() const
+const gebaeude_t* gebaeude_t::get_first_tile() const
 {
 	if(tile)
 	{
@@ -830,9 +830,42 @@ gebaeude_t* gebaeude_t::get_first_tile() const
 			}
 		}
 	}
-	// FIXME: Find a way of doing this without having to cast away const,
-	// as this is naughty.
-	return (gebaeude_t*)this;
+	return this;
+}
+
+gebaeude_t* gebaeude_t::access_first_tile()
+{
+	if (tile)
+	{
+		const haus_besch_t* const haus_besch = tile->get_besch();
+		const uint8 layout = tile->get_layout();
+		koord k;
+		for (k.x = 0; k.x<haus_besch->get_b(layout); k.x++) {
+			for (k.y = 0; k.y<haus_besch->get_h(layout); k.y++) {
+				const haus_tile_besch_t *tile = haus_besch->get_tile(layout, k.x, k.y);
+				if (tile == NULL || !tile->has_image()) {
+					continue;
+				}
+				if (grund_t *gr = welt->lookup(get_pos() - get_tile()->get_offset() + k))
+				{
+					gebaeude_t* gb;
+					if (tile->get_besch()->get_utyp() == haus_besch_t::signalbox)
+					{
+						gb = gr->get_signalbox();
+					}
+					else
+					{
+						gb = gr->find<gebaeude_t>();
+					}
+					if (gb && gb->get_tile() == tile)
+					{
+						return gb;
+					}
+				}
+			}
+		}
+	}
+	return this;
 }
 
 void gebaeude_t::get_description(cbuffer_t & buf) const
