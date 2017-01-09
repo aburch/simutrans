@@ -781,6 +781,16 @@ void brueckenbauer_t::baue_bruecke(player_t *player, const koord3d start, const 
 		end_slope_height += hang_t::max_diff(end_slope);
 	}
 
+	if (!env_t::networkmode)
+	{
+		// The last selected way will not have been set if this is not in network mode.
+		const weg_besch_t* wb = tool_build_way_t::defaults[besch->get_waytype() & 63];
+		if (wb)
+		{
+			weg_besch = wb;
+		}
+	}
+
 	if (slope || bridge_height != 0) {
 		// needs a ramp to start on ground
 		add_height = slope ?  hang_t::max_diff(slope) : bridge_height;
