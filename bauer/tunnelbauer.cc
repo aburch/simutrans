@@ -423,10 +423,14 @@ bool tunnelbauer_t::baue_tunnel(player_t *player, koord3d start, koord3d end, ko
 DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d,%d) to (%d,%d,%d) ", pos.x, pos.y, pos.z, end.x, end.y, end.z );
 
 	// now we search for a matching way for the tunnel's top speed
-	if(weg_besch == NULL)
+	// The tunnel ways are no longer properly encoded, with the result that weg_besch is garbled
+	// when fetched here and crashes the game. Since tunnel ways are deprecated in Experimental,
+	// and this bug is likely to be hard to fix, disalbe this for time time being.
+	//@jamespetts January 2017
+	/*if(weg_besch == NULL)
 	{
 		weg_besch = besch->get_weg_besch();
-	}
+	}*/
 	if(weg_besch == NULL)
 	{
 		weg_besch = wegbauer_t::weg_search(waytyp, besch->get_topspeed(), besch->get_max_axle_load(), welt->get_timeline_year_month(), weg_t::type_flat, besch->get_wear_capacity());
