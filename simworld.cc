@@ -7698,7 +7698,7 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved messages");
 
 		for (sint32 i = 0; i < po; i++)
 		{
-			for (uint32 j = 0; j < count; j++)
+			for (uint32 j = 0; j < transferring_cargoes[i].get_count(); j++)
 			{
 				ready = transferring_cargoes[i][j].ready_time;
 				ware = transferring_cargoes[i][j].ware;
