@@ -4123,9 +4123,19 @@ DBG_MESSAGE( "karte_t::rotate90()", "called" );
 	}
 	for (uint32 i = 0; i < get_parallel_operations(); i++)
 	{
-		FOR(vector_tpl<transferring_cargo_t>, t, transferring_cargoes[i])
+		vector_tpl<transferring_cargo_t>& tcarray = transferring_cargoes[i];
+		for (size_t j = tcarray.get_count(); j-- > 0;)
 		{
-			t.ware.rotate90(cached_size.x);
+			transferring_cargo_t& tc = tcarray[j];
+			if (tc.ware.menge > 0)
+			{
+				tc.ware.rotate90(cached_size.x);
+			}
+			else
+			{
+				// empty => remove
+				tcarray.remove_at(j);
+			}
 		}
 	}
 	// Factories need their halt lists recalculated after the halts are rotated.  Yuck!

@@ -634,11 +634,15 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d start, const koord3
 	sint32 bridge_tile_count = 0;
 	sint32 best_distance = 65535;
 	do {
+#ifndef MULTI_THREAD
+		// If this is multi-threaded, we cannot have random
+		// threads calling INT_CHECK.
 		// Hajo: this is too expensive to be called each step
 		if((beat++ & 1023) == 0)
 		{
 			INT_CHECK("route 161");
 		}
+#endif
 
 		if (new_top) {
 			// this is not in closed list, no check necessary
