@@ -542,7 +542,16 @@ note=One of the new engine types (existing engine types include diesel, steam, e
 -
 obj=program_text
 name=turbine
-note=One of the new engine types (existing engine types include diesel, steam, electric, etc)-
+note=One of the new engine types (existing engine types include diesel, steam, electric, etc)
+-
 obj=program_text
 name=units transferring
 note=A description of the number of mail/passengers/goods currently transferring at a stop
+-
+obj=program_text
+name=Low bridge
+note=This text is shown in the way's information window when the way is under a low bridge under which not all vehicles may pass
+-
+obj=program_text
+name=Too tall for low bridges
+note=This text is shown in the convoy assembler for vehicles that are marked as being too tall to pass under low bridges (with is_tall set)

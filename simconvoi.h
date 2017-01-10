@@ -1216,6 +1216,8 @@ public:
 	// Reserve the tiles on which the convoy is standing to prevent collisions.
 	void reserve_own_tiles();
 
+	bool has_tall_vehicles();
+
 private:
 	journey_times_map average_journey_times;
 public:

@@ -207,6 +207,11 @@ private:
 	// measured in Standard Axle loads (8t) * 10,000. 
 	uint32 way_wear_factor;
 
+	// Whether this vehicle may be allowed to pass under
+	// a restricted height bridge.
+	//@jamespetts January 2017
+	bool is_tall;
+
 	// @author: Bernd Gabriel, Dec 12, 2009: called as last action in read_node()
 	void loaded();
 
@@ -717,6 +722,8 @@ public:
 	uint8 get_catering_level() const { return catering_level; }
 
 	uint32 get_way_wear_factor() const { return way_wear_factor; }
+
+	bool get_is_tall() const { return is_tall; }
 
 	void set_scale(uint16 scale_factor, uint32 way_wear_factor_rail, uint32 way_wear_factor_road, uint16 standard_axle_load)
 	{ 

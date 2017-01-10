@@ -1922,6 +1922,12 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 			}
 		}
 
+		if (veh_type->get_is_tall())
+		{
+			n += sprintf(buf + n, "\n");
+			n += sprintf(buf + n, "%s", translator::translate("Too tall for low bridges"));
+		}
+
 		display_multiline_text( pos.x + 4, pos.y + tabs.get_pos().y + tabs.get_size().h + 31 + LINESPACE*1 + 4 + 16, buf, SYSCOL_TEXT);
 
 		// column 2
@@ -1988,7 +1994,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 			n += sprintf( buf + n, "\n");
 		}
 
-		if(veh_type->get_tilting())
+		if (veh_type->get_tilting())
 		{
 			n += sprintf(buf + n, "%s", translator::translate("This is a tilting vehicle\n"));
 		}

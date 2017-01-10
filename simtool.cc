@@ -3369,7 +3369,7 @@ bool tool_wayremover_t::calc_route( route_t &verbindung, player_t *player, const
 		}
 		test_driver = scenario_checker_t::apply(test_driver, player, this);
 
-		verbindung.calc_route(welt, start, end, test_driver, 0, 0, 0);
+		verbindung.calc_route(welt, start, end, test_driver, 0, 0, false, 0);
 		delete test_driver;
 	}
 	DBG_MESSAGE("tool_wayremover()","route with %d tile found",verbindung.get_count());
@@ -3700,7 +3700,7 @@ bool tool_wayobj_t::calc_route( route_t &verbindung, player_t *player, const koo
 
 	bool can_built;
 	if( start != to ) {
-		can_built = verbindung.calc_route(welt, start, to, test_driver, 0, 0, 0);
+		can_built = verbindung.calc_route(welt, start, to, test_driver, 0, 0, false, 0);
 	}
 	else {
 		verbindung.clear();
@@ -5504,7 +5504,7 @@ bool tool_build_roadsign_t::calc_route( route_t &verbindung, player_t *player, c
 
 	bool can_built;
 	if( start != to ) {
-		can_built = verbindung.calc_route(welt, start, to, test_driver, 0, 0, 0);
+		can_built = verbindung.calc_route(welt, start, to, test_driver, 0, 0, false, 0);
 		// prevent building of many signals if start and to are adjacent
 		// but the step start->to is now allowed
 		if (can_built  &&  koord_distance(start, to)==1  &&  verbindung.get_count()>2) {

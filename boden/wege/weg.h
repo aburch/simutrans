@@ -428,6 +428,8 @@ public:
 
 	uint32 get_remaining_wear_capacity() const { return remaining_wear_capacity; }
 	uint32 get_condition_percent() const;
+
+	bool is_height_restricted() const;
 	
 	/**
 	 * Called by a convoy or a city car when it passes over a way

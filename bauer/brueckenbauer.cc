@@ -271,11 +271,12 @@ const char *check_tile( const grund_t *gr, const player_t *player, waytype_t wt,
 	return "";	// could end here by must not end here
 }
 
-bool brueckenbauer_t::is_blocked(koord3d pos, ribi_t::ribi check_ribi, const char *&error_msg)
+bool brueckenbauer_t::is_blocked(koord3d pos, ribi_t::ribi check_ribi, player_t* player, const char *&error_msg)
 {
-	/* can't build directly above or below a way if height clearance == 2 */
+	/* can't build directly above or below a way if height clearance == 2 except if the way below is a friendly road, tramway or waterway,
+	not being a public right of way*/
 	// take slopes on grounds below into accout
-	const sint8 clearance = welt->get_settings().get_way_height_clearance()-1;
+	const sint8 clearance = welt->get_settings().get_way_height_clearance() - 1;
 	for(int dz = -clearance -2; dz <= clearance; dz++) {
 		grund_t *gr2;
 		if (dz != 0 && (gr2 = welt->lookup(pos + koord3d(0,0,dz)))) {
@@ -294,7 +295,15 @@ bool brueckenbauer_t::is_blocked(koord3d pos, ribi_t::ribi check_ribi, const cha
 			}
 
 			weg_t *w = gr2->get_weg_nr(0);
-			if (w && w->get_max_speed() > 0) {
+			if (w 
+				&& !player->is_public_service()
+				&& (w->get_max_speed() > 0
+				&& ((w->get_besch()->get_waytype() != road_wt
+					&& w->get_besch()->get_waytype() != tram_wt
+					&& w->get_besch()->get_waytype() != water_wt)
+					|| (w->get_player_nr() != player->get_player_nr()
+					|| w->is_public_right_of_way()))))
+			{
 				error_msg = "Bridge blocked by way below or above.";
 				return true;
 			}
@@ -457,7 +466,7 @@ koord3d brueckenbauer_t::finde_ende(player_t *player, koord3d pos, const koord z
 		bool abort = true;
 		for(sint8 z = min_bridge_height; z <= max_height; z++) {
 			if(height_okay(z)) {
-				if(is_blocked(koord3d(pos.get_2d(), z), ribi_typ(zv), error_msg)) {
+				if(is_blocked(koord3d(pos.get_2d(), z), ribi_typ(zv), player, error_msg)) {
 					height_okay_array[z-min_bridge_height] = false;
 
 					// connect to suitable monorail tiles if possible

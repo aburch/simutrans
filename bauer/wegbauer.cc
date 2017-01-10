@@ -719,15 +719,18 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, sint32
 		// now 'from' and 'to' point to grounds at the right height
 	}
 
-	if(  env_t::pak_height_conversion_factor == 2  ) {
-		// cannot build if conversion factor 2, we aren't powerline and way with maximum speed > 0 or powerline 1 tile below
+	if(  env_t::pak_height_conversion_factor == 2  )
+	{
+		// cannot build if conversion factor 2, we aren't powerline and way with maximum speed > 0 or powerline 1 tile below except for roads, waterways and tram lines: but mark those as being a "low bridge" type that only allows some vehicles to pass.
 		grund_t *to2 = welt->lookup( to->get_pos() + koord3d(0, 0, -1) );
-		if(  to2 && (((bautyp&bautyp_mask)!=leitung && to2->get_weg_nr(0) && to2->get_weg_nr(0)->get_besch()->get_topspeed()>0) || to2->get_leitung())  ) {
+		if(  to2 && (((bautyp&bautyp_mask)!=leitung && to2->get_weg_nr(0) && to2->get_weg_nr(0)->get_besch()->get_topspeed() > 0 && to2->get_weg_nr(0)->get_besch()->get_waytype() != water_wt && to2->get_weg_nr(0)->get_besch()->get_waytype() != road_wt && to2->get_weg_nr(0)->get_besch()->get_waytype() != tram_wt) || to2->get_leitung())  ) 
+		{
 			return false;
 		}
-		// tile above cannot have way unless we are a way (not powerline) with a maximum speed of 0, or be surface if we are underground
+		// tile above cannot have way unless we are a way (not powerline) with a maximum speed of 0 (and is not a road, waterway or tram line as above), or be surface if we are underground
 		to2 = welt->lookup( to->get_pos() + koord3d(0, 0, 1) );
-		if(  to2  &&  ((to2->get_weg_nr(0) && (besch->get_topspeed()>0 || (bautyp&bautyp_mask)==leitung))  ||  (bautyp & tunnel_flag) != 0)  ) {
+		if(  to2  &&  ((to2->get_weg_nr(0) && ((besch->get_topspeed() > 0 && besch->get_waytype() != water_wt && besch->get_waytype() != road_wt && besch->get_waytype() != tram_wt) || (bautyp&bautyp_mask)==leitung))  ||  (bautyp & tunnel_flag) != 0)  )
+		{
 			return false;
 		}
 	}
@@ -2796,7 +2799,7 @@ void wegbauer_t::baue_fluss()
 		 */
 		route_t to_the_sea;
 		fluss_test_driver_t river_tester;
-		if(to_the_sea.find_route(welt, welt->lookup_kartenboden(route[start_n].get_2d())->get_pos(), &river_tester, 0, ribi_t::alle, 0, 1, 0, 0x7FFFFFFF)) {
+		if(to_the_sea.find_route(welt, welt->lookup_kartenboden(route[start_n].get_2d())->get_pos(), &river_tester, 0, ribi_t::alle, 0, 1, 0, 0x7FFFFFFF, false)) {
 			FOR(koord3d_vector_t, const& i, to_the_sea.get_route()) {
 				if (weg_t* const w = welt->lookup(i)->get_weg(water_wt)) {
 					int type;

@@ -446,6 +446,19 @@ void weg_t::rdwr(loadsave_t *file)
 	}
 }
 
+bool weg_t::is_height_restricted() const
+{
+	const grund_t* gr_above = world()->lookup(get_pos() + koord3d(0, 0, 1));
+	if (env_t::pak_height_conversion_factor == 2 && gr_above && gr_above->get_weg_nr(0))
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
 
 /**
  * Info-text für diesen Weg
@@ -464,6 +477,13 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 		buf.append(translator::translate("Degraded"));
 		buf.append("\n\n");
 	}
+
+	if (is_height_restricted())
+	{
+		buf.append(translator::translate("Low bridge"));
+		buf.append("\n\n");
+	}
+
 	buf.append(translator::translate("Max. speed:"));
 	buf.append(" ");
 	buf.append(max_speed);

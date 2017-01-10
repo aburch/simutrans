@@ -2383,7 +2383,7 @@ bool grund_t::removing_way_would_disrupt_public_right_of_way(waytype_t wt)
 					// Only increment this counter if the ways were already connected.
 					necessary_diversions ++;
 				}
-				const bool route_good = !way_gr->ist_bruecke() && diversionary_route.calc_route(welt, start, end, diversion_checker, max_speed, max_axle_load, 0, welt->get_settings().get_max_diversion_tiles() * 100, bridge_weight_limit, w->get_pos());
+				const bool route_good = !way_gr->ist_bruecke() && diversionary_route.calc_route(welt, start, end, diversion_checker, max_speed, max_axle_load, 0, welt->get_settings().get_max_diversion_tiles() * 100, bridge_weight_limit, false, w->get_pos());
 				if(route_good && (diversionary_route.get_count() < welt->get_settings().get_max_diversion_tiles()))
 				{
 					successful_diversions ++;

@@ -181,7 +181,7 @@ void route_t::RELEASE_NODES(uint8 nodes_index)
 /* find the route to an unknown location
  * @author prissi
  */
-bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdriver, const uint32 max_khm, uint8 start_dir, uint32 axle_load, sint32 max_tile_len, uint32 total_weight, uint32 max_depth, find_route_flags flags)
+bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdriver, const uint32 max_khm, uint8 start_dir, uint32 axle_load, sint32 max_tile_len, uint32 total_weight, uint32 max_depth, bool is_tall, find_route_flags flags)
 {
 	bool ok = false;
 
@@ -385,6 +385,12 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 			) {
 
 				weg_t* w = to->get_weg(tdriver->get_waytype());
+
+				if (is_tall && w->is_height_restricted())
+				{
+					// Tall vehicles cannot pass under low bridges
+					continue;
+				}
 				
 				if(enforce_weight_limits > 1 && w != NULL)
 				{
@@ -526,7 +532,7 @@ ribi_t::ribi *get_next_dirs(const koord3d& gr_pos, const koord3d& ziel)
 	return next_ribi;
 }
 
-bool route_t::intern_calc_route(karte_t *welt, const koord3d start, const koord3d ziel, test_driver_t *tdriver, const sint32 max_speed, const sint64 max_cost, const uint32 axle_load, const uint32 convoy_weight, const sint32 tile_length, koord3d avoid_tile)
+bool route_t::intern_calc_route(karte_t *welt, const koord3d start, const koord3d ziel, test_driver_t *tdriver, const sint32 max_speed, const sint64 max_cost, const uint32 axle_load, const uint32 convoy_weight, bool is_tall, const sint32 tile_length, koord3d avoid_tile)
 {
 	bool ok = false;
 
@@ -629,11 +635,10 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d start, const koord3
 	sint32 best_distance = 65535;
 	do {
 		// Hajo: this is too expensive to be called each step
-		// We cannot call INT_CHECK here if this is multi-threaded.
-		/*if((beat++ & 1023) == 0)
+		if((beat++ & 1023) == 0)
 		{
 			INT_CHECK("route 161");
-		}*/
+		}
 
 		if (new_top) {
 			// this is not in closed list, no check necessary
@@ -709,8 +714,14 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d start, const koord3
 					}
 				}
 
-				sint32 is_overweight = not_overweight;
+				// Low bridges
+				if (is_tall && w->is_height_restricted())
+				{
+					continue;
+				}
 
+				// Weight limits
+				sint32 is_overweight = not_overweight;
 				if(enforce_weight_limits > 0 && w != NULL)
 				{
 					// Bernd Gabriel, Mar 10, 2010: way limit info
@@ -1056,7 +1067,7 @@ void route_t::postprocess_water_route(karte_t *welt)
  * corrected 12/2005 for station search
  * @author Hansjörg Malthaner, prissi
  */
- route_t::route_result_t route_t::calc_route(karte_t *welt, const koord3d start, const koord3d ziel, test_driver_t *tdriver, const sint32 max_khm, const uint32 axle_load, sint32 max_len, const sint64 max_cost, const uint32 convoy_weight, koord3d avoid_tile)
+ route_t::route_result_t route_t::calc_route(karte_t *welt, const koord3d start, const koord3d ziel, test_driver_t *tdriver, const sint32 max_khm, const uint32 axle_load, bool is_tall, sint32 max_len, const sint64 max_cost, const uint32 convoy_weight, koord3d avoid_tile)
 {
 	route.clear();
 	const uint32 distance = shortest_distance(start.get_2d(), ziel.get_2d()) * 600;
@@ -1074,7 +1085,7 @@ void route_t::postprocess_water_route(karte_t *welt)
 	// profiling for routes ...
 	long ms=dr_time();
 #endif
-	bool ok = intern_calc_route(welt, start, ziel, tdriver, max_khm, max_cost, axle_load, convoy_weight, max_len, avoid_tile);
+	bool ok = intern_calc_route(welt, start, ziel, tdriver, max_khm, max_cost, axle_load, convoy_weight, is_tall, max_len, avoid_tile);
 #ifdef DEBUG_ROUTES
 	if(tdriver->get_waytype()==water_wt) {DBG_DEBUG("route_t::calc_route()","route from %d,%d to %d,%d with %i steps in %u ms found.",start.x, start.y, ziel.x, ziel.y, route.get_count()-1, dr_time()-ms );}
 #endif

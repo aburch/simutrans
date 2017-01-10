@@ -386,7 +386,7 @@ public:
 
 	void get_smoke(bool yesno ) { smoke = yesno;}
 
-	virtual route_t::route_result_t calc_route(koord3d start, koord3d ziel, sint32 max_speed_kmh, route_t* route);
+	virtual route_t::route_result_t calc_route(koord3d start, koord3d ziel, sint32 max_speed_kmh, bool is_tall, route_t* route);
 	uint16 get_route_index() const {return route_index;}
 	void set_route_index(uint16 value) { route_index = value; }
 	const koord3d get_pos_prev() const {return pos_prev;}
@@ -684,7 +684,7 @@ public:
 	// how expensive to go here (for way search)
 	virtual int get_cost(const grund_t *, const sint32, koord);
 
-	virtual route_t::route_result_t calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route);
+	virtual route_t::route_result_t calc_route(koord3d start, koord3d ziel, sint32 max_speed, bool is_tall, route_t* route);
 
 	virtual bool can_enter_tile(const grund_t *gr_next, sint32 &restart_speed, uint8 second_check_count);
 
@@ -729,7 +729,7 @@ public:
 	void rdwr_from_convoi(loadsave_t *file);
 
 	// since we might need to unreserve previously used blocks, we must do this before calculation a new route
-	route_t::route_result_t calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route);
+	route_t::route_result_t calc_route(koord3d start, koord3d ziel, sint32 max_speed, bool is_tall, route_t* route);
 
 	// how expensive to go here (for way search)
 	virtual int get_cost(const grund_t *, const sint32, koord);
@@ -986,7 +986,7 @@ public:
 
 	virtual void set_convoi(convoi_t *c);
 
-	route_t::route_result_t calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route);
+	route_t::route_result_t calc_route(koord3d start, koord3d ziel, sint32 max_speed, bool is_tall, route_t* route);
 
 	// BG, 08.08.2012: extracted from can_enter_tile()
     bool reroute(const uint16 reroute_index, const koord3d &ziel);

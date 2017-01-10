@@ -264,6 +264,7 @@ obj_besch_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				{
 					besch->min_loading_time_seconds = besch->max_loading_time_seconds = 65535;
 				}
+				besch->is_tall = false;
 			}
 			else
 			{
@@ -387,6 +388,7 @@ obj_besch_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 					besch->brake_force = BRAKE_FORCE_UNKNOWN;
 					besch->minimum_runway_length = 10;
 				}
+				besch->is_tall = false;
 			}
 			else
 			{
@@ -427,7 +429,7 @@ obj_besch_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->freight_image_type = decode_uint8(p);
 		if(experimental)
 		{
-			if(experimental_version < 2)
+			if(experimental_version < 3)
 			{
 				// NOTE: Experimental version reset to 1 with incrementing of
 				// Standard version to 10.
@@ -467,6 +469,14 @@ obj_besch_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				{
 					besch->range = decode_uint16(p);
 					besch->way_wear_factor = decode_uint32(p);
+				}
+				if (experimental_version > 1)
+				{
+					besch->is_tall = decode_uint8(p);
+				}
+				else
+				{
+					besch->is_tall = false;
 				}
 			}
 			else
@@ -588,7 +598,8 @@ obj_besch_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->brake_force = BRAKE_FORCE_UNKNOWN;
 		besch->minimum_runway_length = 10;
 		besch->range = 0;
-		besch->way_wear_factor = UINT32_MAX_VALUE;
+		besch->way_wear_factor = 1;
+		besch->is_tall = false;
 	}
 	besch->set_way_constraints(way_constraints);
 

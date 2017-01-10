@@ -891,6 +891,21 @@ void convoi_t::increment_odometer(uint32 steps)
 	}
 }
 
+bool convoi_t::has_tall_vehicles()
+{
+	bool is_tall = false;
+
+	for (uint32 i = 0; i < anz_vehikel; i++)
+	{
+		is_tall |= get_vehikel(i)->get_besch()->get_is_tall();
+		if (is_tall)
+		{
+			break;
+		}
+	}
+	return is_tall;
+}
+
 // BG, 06.11.2011
 bool convoi_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed)
 {
@@ -900,7 +915,8 @@ bool convoi_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed)
 	{
 		return false;
 	}
-	bool success = front()->calc_route(start, ziel, max_speed, &route);
+
+	bool success = front()->calc_route(start, ziel, max_speed, has_tall_vehicles(), &route);
 	rail_vehicle_t* rail_vehicle = NULL;
 	switch(front()->get_waytype())
 	{
@@ -1467,7 +1483,7 @@ bool convoi_t::drive_to()
 				}
 
 				route_t next_segment;
-				if(  !front()->calc_route( start, ziel, speed_to_kmh(get_min_top_speed()), &next_segment )  ) {
+				if (!front()->calc_route(start, ziel, speed_to_kmh(get_min_top_speed()), has_tall_vehicles(), &next_segment)) {
 					// do we still have a valid route to proceed => then go until there
 					if(  route.get_count()>1  ) {
 						break;
@@ -6495,7 +6511,7 @@ DBG_MESSAGE("convoi_t::go_to_depot()","convoi state %i => cannot change schedule
 		else {
 			// OK, we're not standing on a depot.  Find a route to a depot.
 			depot_finder_t finder(self, traction_types);
-			route.find_route(welt, get_vehikel(0)->get_pos(), &finder, speed_to_kmh(get_min_top_speed()), ribi_t::alle, get_highest_axle_load(), get_tile_length(), get_weight_summary().weight / 1000, 0x7FFFFFFF);
+			route.find_route(welt, get_vehikel(0)->get_pos(), &finder, speed_to_kmh(get_min_top_speed()), ribi_t::alle, get_highest_axle_load(), get_tile_length(), get_weight_summary().weight / 1000, has_tall_vehicles(), 0x7FFFFFFF);
 			if (!route.empty()) {
 				depot_pos = route.position_bei(route.get_count() - 1);
 				if(range == 0 || (shortest_distance(get_pos().get_2d(), depot_pos.get_2d()) * (uint32)welt->get_settings().get_meters_per_tile()) / 1000 <= range)
@@ -6509,7 +6525,7 @@ DBG_MESSAGE("convoi_t::go_to_depot()","convoi state %i => cannot change schedule
 	if(aircraft && !aircraft->is_on_ground() && home_depot_valid)
 	{
 		// Flying aircraft cannot find a route using the normal means: send to their home depot instead.
-		aircraft->calc_route(get_pos(), home_depot, speed_to_kmh(get_min_top_speed()), &route);
+		aircraft->calc_route(get_pos(), home_depot, speed_to_kmh(get_min_top_speed()), has_tall_vehicles(), &route);
 		if(!route.empty())
 		{
 			depot_pos = route.position_bei(route.get_count() - 1);
