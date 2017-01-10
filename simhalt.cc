@@ -750,6 +750,14 @@ void haltestelle_t::rotate90( const sint16 y_size )
 		}
 	}
 
+	for (uint32 i = 0; i < world()->get_parallel_operations(); i++)
+	{
+		FOR(vector_tpl<transferring_cargo_t>, t, transferring_cargoes[i])
+		{
+			t.ware.rotate90(y_size);
+		}
+	}
+
 	FOR(vector_tpl<koord3d>, i, station_signals)
 	{
 		i.rotate90(y_size); 
