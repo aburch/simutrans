@@ -296,7 +296,7 @@ bool brueckenbauer_t::is_blocked(koord3d pos, ribi_t::ribi check_ribi, player_t*
 
 			weg_t *w = gr2->get_weg_nr(0);
 			if (w 
-				&& !player->is_public_service()
+				&& (player && !player->is_public_service())
 				&& (w->get_max_speed() > 0
 				&& ((w->get_besch()->get_waytype() != road_wt
 					&& w->get_besch()->get_waytype() != tram_wt
