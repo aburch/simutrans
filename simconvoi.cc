@@ -1385,14 +1385,17 @@ bool convoi_t::drive_to()
 	koord3d start = front()->get_pos();
 	koord3d ziel = fpl->get_current_eintrag().pos;
 	const koord3d original_ziel = ziel;
+
+	const bool rail_type = front()->get_waytype() == track_wt || front()->get_waytype() == tram_wt || front()->get_waytype() == narrowgauge_wt || front()->get_waytype() == maglev_wt || front()->get_waytype() == monorail_wt;
 	
 	bool success = calc_route(start, ziel, speed_to_kmh(get_min_top_speed()));
 		
 	grund_t* gr = welt->lookup(ziel);
-	const bool rail_type = front()->get_waytype() == track_wt || front()->get_waytype() == tram_wt || front()->get_waytype() == narrowgauge_wt || front()->get_waytype() == maglev_wt || front()->get_waytype() == monorail_wt;
 
 	if(rail_type && gr && !gr->get_depot())
 	{
+		rail_vehicle_t* rv = (rail_vehicle_t*)back();
+		rv->unreserve_station();
 		// We need to calculate the full route through to the next signal or reversing point
 		// to avoid ignoring signals.
 		int counter = fpl->get_count();

@@ -5719,6 +5719,36 @@ void rail_vehicle_t::unreserve_in_rear()
 	}
 }
 
+void rail_vehicle_t::unreserve_station()
+{
+	grund_t* gr = welt->lookup(get_pos());
+	bool in_station = gr->get_halt().is_bound();
+	
+	route_t* route = cnv ? cnv->get_route() : NULL;
+	route_index = min(route_index, route->get_count() - 1);
+	const koord3d this_pos = route->position_bei(route_index);
+	const koord3d last_pos = route->position_bei(route_index - 1);
+	const koord dir = this_pos.get_2d() - last_pos.get_2d();
+	const ribi_t::ribi direction_of_travel = ribi_typ(dir);
+	const ribi_t::ribi reverse_direction = ribi_t::rueckwaerts(direction_of_travel);
+
+	grund_t* gr_prev = gr;
+	while (in_station)
+	{
+		bool is_previous = gr_prev->get_neighbour(gr_prev, get_waytype(), reverse_direction);
+		if (is_previous)
+		{
+			in_station = gr_prev->get_halt().is_bound();
+			schiene_t* sch = (schiene_t*)gr_prev->get_weg(get_waytype());
+			sch->unreserve(cnv->self); 
+		}
+		else
+		{
+			break;
+		}
+	}
+}
+
 
 /* beware: we must un-reserve rail blocks... */
 void rail_vehicle_t::leave_tile()

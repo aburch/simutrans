@@ -749,7 +749,11 @@ public:
 
 	void leave_tile();
 
+	/// Unreserve behind the train using the current route
 	void unreserve_in_rear();
+
+	/// Unreserve behind the train (irrespective of route) all station tiles in rear
+	void unreserve_station();
 
 	void clear_token_reservation(signal_t* sig, rail_vehicle_t* w, schiene_t* sch); 
 
