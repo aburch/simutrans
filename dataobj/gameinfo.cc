@@ -104,7 +104,8 @@ gameinfo_t::gameinfo_t(karte_t *welt) :
 	}
 
 #ifdef REVISION
-	game_engine_revision = atol( QUOTEME(REVISION) );
+	//game_engine_revision = atol( QUOTEME(REVISION) );
+	game_engine_revision = strtol(QUOTEME(REVISION), NULL, 16);
 #else
 	game_engine_revision = 0;
 #endif

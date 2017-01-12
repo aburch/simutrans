@@ -4,8 +4,10 @@ var ForWriting = 2;
 var fso   = new ActiveXObject("Scripting.FileSystemObject");
 var shell = new ActiveXObject("WScript.Shell");
 
-var svnRevNum	= shell.Exec("svnversion");
-var rev			= svnRevNum.StdOut.ReadAll();
+//var svnRevNum	= shell.Exec("svnversion");
+//var rev			= svnRevNum.StdOut.ReadAll();
+var gitRevNum	= shell.Exec("git rev-parse --short HEAD");
+var rev			= gitRevNum.StdOut.ReadAll();
 var filename	= "revision.h";
 var file;
 var file_ts;
