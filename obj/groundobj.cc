@@ -196,7 +196,10 @@ void groundobj_t::rdwr(loadsave_t *file)
 		char bname[128];
 		file->rdwr_str(bname, lengthof(bname));
 		groundobj_besch_t *besch = besch_names.get(bname);
-		if(  besch_names.empty()  ||  besch==NULL  ) {
+		if (besch == NULL) {
+			besch = besch_names.get(translator::compatibility_name(bname));	
+		}
+		if (besch == NULL) {
 			groundobjtype = simrand(groundobj_typen.get_count(), "void groundobj_t::rdwr(loadsave_t *file)");
 		}
 		else {
