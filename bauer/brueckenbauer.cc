@@ -11,6 +11,7 @@
 #include "../simtool.h"
 #include "brueckenbauer.h"
 #include "wegbauer.h"
+#include "../player/finance.h"
 
 #include "../simworld.h"
 #include "../simhalt.h"
@@ -198,11 +199,11 @@ const char *check_tile( const grund_t *gr, const player_t *player, waytype_t wt,
 	if(  gr->is_halt()  ||  gr->get_depot() || gr->get_signalbox() ) 
 	{
 		// something in the way
-		return "Tile not empty.";
+		return NOTICE_TILE_FULL;
 	}
 
 	if(  wt != powerline_wt  &&  gr->get_leitung()  ) {
-		return "Tile not empty.";
+		return NOTICE_TILE_FULL;
 	}
 
 	// we can build a ramp when there is one (or with tram two) way in our direction and no stations/depot etc.
@@ -315,7 +316,7 @@ bool brueckenbauer_t::is_blocked(koord3d pos, ribi_t::ribi check_ribi, player_t*
 		if(  gr2->get_typ() != grund_t::boden  && gr2->get_typ() != grund_t::tunnelboden  ) {
 			// not through bridges
 			// monorail tiles will be checked in is_monorail_junction
-			error_msg = "Tile not empty.";
+			error_msg = NOTICE_TILE_FULL;
 			return true;
 		}
 	}
@@ -356,7 +357,7 @@ bool brueckenbauer_t::is_monorail_junction(koord3d pos, player_t *player, const 
 					return true;
 				}
 			}
-			error_msg = "Tile not empty.";
+			error_msg = NOTICE_TILE_FULL;
 		}
 	}
 
@@ -447,7 +448,7 @@ koord3d brueckenbauer_t::finde_ende(player_t *player, koord3d pos, const koord z
 		}
 
 		if(  gr->get_hoehe() == max_height-1  &&  besch->get_waytype() != powerline_wt  &&  gr->get_leitung()  ) {
-			error_msg = "Tile not empty.";
+			error_msg = NOTICE_TILE_FULL;
 			return koord3d::invalid;
 		}
 
@@ -548,7 +549,7 @@ koord3d brueckenbauer_t::finde_ende(player_t *player, koord3d pos, const koord z
 					}
 					if (gr->ist_tunnel()) {
 						// non-flat bridges should not end in tunnels
-						error_msg = "Tile not empty.";
+						error_msg = NOTICE_TILE_FULL;
 					}
 					if(  !error_msg  ) {
 						for(sint8 z = hang_height + 3; z <= max_height; z++) {
@@ -677,7 +678,7 @@ const char *brueckenbauer_t::baue( player_t *player, const koord3d pos, const br
 
 	if(  besch->get_waytype()==powerline_wt  ) {
 		if(  gr->hat_wege()  ) {
-			return "Tile not empty.";
+			return NOTICE_TILE_FULL;
 		}
 		if(lt) {
 			ribi = lt->get_ribi();
@@ -685,7 +686,7 @@ const char *brueckenbauer_t::baue( player_t *player, const koord3d pos, const br
 	}
 	else {
 		if(  lt  ) {
-			return "Tile not empty.";
+			return NOTICE_TILE_FULL;
 		}
 		if(  weg  ) {
 			ribi = weg->get_ribi_unmasked();
@@ -698,7 +699,7 @@ const char *brueckenbauer_t::baue( player_t *player, const koord3d pos, const br
 	}
 
 	if(  gr->kann_alle_obj_entfernen(player)  ) {
-		return "Tile not empty.";
+		return NOTICE_TILE_FULL;
 	}
 
 	if(gr->get_weg_hang() == hang_t::flach) {
@@ -736,15 +737,15 @@ DBG_MESSAGE("brueckenbauer_t::baue()", "end not ok");
 	// check ownership
 	grund_t * gr_end = welt->lookup(end);
 	if(gr_end->kann_alle_obj_entfernen(player)) {
-		return "Tile not empty.";
+		return NOTICE_TILE_FULL;
 	}
 	// check way ownership
 	if(gr_end->hat_wege()) {
 		if(gr_end->get_weg_nr(0)->is_deletable(player)!=NULL) {
-			return "Tile not empty.";
+			return NOTICE_TILE_FULL;
 		}
 		if(gr_end->has_two_ways()  &&  gr_end->get_weg_nr(1)->is_deletable(player)!=NULL) {
-			return "Tile not empty.";
+			return NOTICE_TILE_FULL;
 		}
 	}
 

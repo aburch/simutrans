@@ -11,8 +11,39 @@
 #include "../simtypes.h"
 #include "../simworld.h"
 
-// This should be used when players attempt to buy things they can't afford.
-#define NOTICE_INSUFFICIENT_FUNDS "That would exceed\nyour credit limit."
+ /****************************************** notification strings ************************************** /
+
+ /**
+ * Translated notification text identifiers used by tools are placed here.
+ * This is because they are not simple well structured internal identifiers.
+ * Instead they can be complex sentences intended to be read untranslated.
+ * Using these constants assues a valid and correct text identifier is choosen.
+ */
+
+ /**
+ * Message returned when a player cannot afford to complete an action.
+ */
+char const *const NOTICE_INSUFFICIENT_FUNDS = "That would exceed\nyour credit limit.";
+
+/**
+* Message returned when a player tries to place trees when trees are disabled.
+*/
+char const *const NOTICE_NO_TREES = "Trees disabled!";
+
+/**
+* Message returned when valid terrain cannot be found for a tool to use.
+*/
+char const *const NOTICE_UNSUITABLE_GROUND = "No suitable ground!";
+
+/**
+* Message returned when a depot cannot be placed.
+*/
+char const *const NOTICE_DEPOT_BAD_POS = "Cannot built depot here!";
+
+/**
+* Message returned when a tool fails due to the target tile being occupied.
+*/
+char const *const NOTICE_TILE_FULL = "Tile not empty.";
 
 /// for compatibility with old versions
 /// Must be different in experimental!
