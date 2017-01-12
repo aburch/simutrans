@@ -702,7 +702,7 @@ DBG_MESSAGE("tool_remover()",  "removing tunnel  from %d,%d,%d",gr->get_pos().x,
 			}
 			if(!player_t::can_afford(player, -cost))
 			{
-				msg = CREDIT_MESSAGE;
+				msg = NOTICE_INSUFFICIENT_FUNDS;
 				return false;
 			}
 			// townhall is also removed during town removal
@@ -903,7 +903,7 @@ const char *tool_raise_lower_base_t::move( player_t *player, uint16 buttonstate,
 	// This is rough and ready: if you can afford something costing 1, we decide you can afford this
 	// --neroden
 	if (! player_t::can_afford( player, 1 ) ) {
-		return CREDIT_MESSAGE;
+		return NOTICE_INSUFFICIENT_FUNDS;
 	}
 
 	const char *result = NULL;
@@ -995,7 +995,7 @@ const char *tool_raise_t::check_pos(player_t *player, koord3d pos )
 	const sint64 cost = welt->get_settings().cst_alter_land;
 	if(! player_t::can_afford(player, -cost) )
 	{
-		return CREDIT_MESSAGE;
+		return NOTICE_INSUFFICIENT_FUNDS;
 	}
 	return NULL;
 }
@@ -1013,7 +1013,7 @@ const char *tool_raise_t::work(player_t* player, koord3d pos )
 	// This is rough and ready: if you can afford something costing 1, we decide you can afford this
 	// --neroden
 	if (! player_t::can_afford( player, 1 ) ) {
-		return CREDIT_MESSAGE;
+		return NOTICE_INSUFFICIENT_FUNDS;
 	}
 
 	if(welt->is_within_grid_limits(k)) {
@@ -1089,7 +1089,7 @@ const char *tool_lower_t::check_pos( player_t *player, koord3d pos )
 	const sint64 cost = welt->get_settings().cst_alter_land;
 	if(!player_t::can_afford(player, -cost))
 	{
-		return CREDIT_MESSAGE;
+		return NOTICE_INSUFFICIENT_FUNDS;
 	}
 	return NULL;
 }
@@ -1107,7 +1107,7 @@ const char *tool_lower_t::work( player_t *player, koord3d pos )
 	// This is rough and ready: if you can afford something costing 1, we decide you can afford this
 	// --neroden
 	if (! player_t::can_afford( player, 1 ) ) {
-		return CREDIT_MESSAGE;
+		return NOTICE_INSUFFICIENT_FUNDS;
 	}
 
 	if(welt->is_within_grid_limits(k)) {
@@ -1545,7 +1545,7 @@ const char *tool_marker_t::work( player_t *player, koord3d pos )
 			const sint64 cost = welt->get_land_value(gr->get_pos());
 			if(! player_t::can_afford(player, -cost) )
 			{
-				return CREDIT_MESSAGE;
+				return NOTICE_INSUFFICIENT_FUNDS;
 			}
 			gr->obj_add(new label_t(gr->get_pos(), player, default_param ? default_param : "\0"));
 			if (is_local_execution()) {
@@ -1677,7 +1677,7 @@ const char *tool_transformer_t::work( player_t *player, koord3d pos )
 	const sint64 cost = welt->get_settings().cst_transformer + welt->get_land_value(pos);
 	if(!player_t::can_afford(player, -cost) )
 	{
-		return CREDIT_MESSAGE;
+		return NOTICE_INSUFFICIENT_FUNDS;
 	}
 	grund_t *gr=welt->lookup_kartenboden(pos.get_2d());
 
@@ -1794,7 +1794,7 @@ const char *tool_add_city_t::work( player_t *player, koord3d pos )
 	const sint64 cost = welt->get_settings().cst_found_city;
 	if (! player_t::can_afford(player, -cost) )
 	{
-		return CREDIT_MESSAGE;
+		return NOTICE_INSUFFICIENT_FUNDS;
 	}
 
 	koord k(pos.get_2d());
@@ -1880,7 +1880,7 @@ const char *tool_buy_house_t::work( player_t *player, koord3d pos)
 					const sint64 cost = welt->get_land_value(gr->get_pos()) * hb->get_level() * 5; // Developed land is more valuable than undeveloped land.
 					if(!player_t::can_afford(player, -cost))
 					{
-						return CREDIT_MESSAGE;
+						return NOTICE_INSUFFICIENT_FUNDS;
 					}
 					sint32 const maint = welt->get_settings().maint_building * hb->get_level();
 					player_t::add_maintenance(old_owner, -maint, gb->get_waytype());
@@ -2266,16 +2266,17 @@ char const* tool_plant_tree_t::move(player_t* const player, uint16 const b, koor
 
 const char *tool_plant_tree_t::work( player_t *player, koord3d pos )
 {
-	const sint64 cost = welt->get_settings().cst_remove_tree;
-	if(  !player_t::can_afford(player, -cost)  )
-	{
-		return CREDIT_MESSAGE;
-	}
-	
 	const koord& k(pos.get_2d());
 
 	grund_t *gr = welt->lookup_kartenboden(k);
 	if(gr) {
+
+		// check funds
+		const sint64 cost = welt->get_settings().cst_remove_tree;
+		if (!player_t::can_afford(player, -cost))
+		{
+			return NOTICE_INSUFFICIENT_FUNDS;
+		}
 		const baum_besch_t *besch = NULL;
 		bool check_climates = true;
 		bool random_age = false;
@@ -2611,7 +2612,7 @@ const char *tool_build_way_t::do_work( player_t *player, const koord3d &start, c
 		// Check affordability unless just marking to replace later
 		if(!is_shift_pressed() && !player_t::can_afford(player, cost))
 		{
-			return CREDIT_MESSAGE;
+			return NOTICE_INSUFFICIENT_FUNDS;
 		}
 		welt->mute_sound(true);
 		bauigel.baue();
@@ -4063,7 +4064,7 @@ DBG_MESSAGE("tool_station_building_aux()", "building mail office/station buildin
 
 	if(!player_t::can_afford(player, -cost))
 	{
-		return CREDIT_MESSAGE;
+		return NOTICE_INSUFFICIENT_FUNDS;
 	}
 
 	gebaeude_t* gb = hausbauer_t::baue(halt->get_owner(), pos-offsets, rotation, besch, &halt);
@@ -4111,7 +4112,7 @@ const char *tool_build_station_t::tool_station_dock_aux(player_t *player, koord3
 
 	if(!player_t::can_afford(player, -costs))
 	{
-		return CREDIT_MESSAGE;
+		return NOTICE_INSUFFICIENT_FUNDS;
 	}
 
 	// check, if we can build here ...
@@ -4332,7 +4333,7 @@ const char *tool_build_station_t::tool_station_flat_dock_aux(player_t *player, k
 
 	if(!player_t::can_afford(player, -costs))
 	{
-		return CREDIT_MESSAGE;
+		return NOTICE_INSUFFICIENT_FUNDS;
 	}
 
 	// check, if we can build here ...
@@ -4583,7 +4584,7 @@ DBG_MESSAGE("tool_halt_aux()", "building %s on square %d,%d for waytype %x", bes
 
 	if(!player->can_afford(-adjusted_cost))
 	{
-		return CREDIT_MESSAGE;
+		return NOTICE_INSUFFICIENT_FUNDS;
 	}
 
 	if(  bd->get_depot() || bd->get_signalbox() ) {
@@ -5055,7 +5056,7 @@ const char *tool_build_station_t::move( player_t *player, uint16 buttonstate, ko
 	// In network mode the check in ::work may go off too late, however.
 	// --neroden
 	if (! player_t::can_afford( player, 1 ) ) {
-		return CREDIT_MESSAGE;
+		return NOTICE_INSUFFICIENT_FUNDS;
 	}
 
 	const char *result = NULL;
@@ -5121,7 +5122,7 @@ const char *tool_build_station_t::work( player_t *player, koord3d pos )
 			}
 			if(!player_t::can_afford(player, -cost))
 			{
-				return CREDIT_MESSAGE;
+				return NOTICE_INSUFFICIENT_FUNDS;
 			}
 			if( besch->get_utyp() == haus_besch_t::dock)
 			{
@@ -5154,7 +5155,7 @@ const char *tool_build_station_t::work( player_t *player, koord3d pos )
 					}
 					if(!player_t::can_afford(player, -cost))
 					{
-						return CREDIT_MESSAGE;
+						return NOTICE_INSUFFICIENT_FUNDS;
 					}
 					msg = tool_build_station_t::tool_station_aux(player, pos, besch, road_wt, cost, "H");
 					break;
@@ -5173,7 +5174,7 @@ const char *tool_build_station_t::work( player_t *player, koord3d pos )
 					}
 					if(!player_t::can_afford(player, -cost))
 					{
-						return CREDIT_MESSAGE;
+						return NOTICE_INSUFFICIENT_FUNDS;
 					}
 					msg = tool_build_station_t::tool_station_aux(player, pos, besch, (waytype_t)besch->get_extra(), cost, "BF");
 					break;
@@ -5188,7 +5189,7 @@ const char *tool_build_station_t::work( player_t *player, koord3d pos )
 					}
 					if(!player_t::can_afford(player, -cost))
 					{
-						return CREDIT_MESSAGE;
+						return NOTICE_INSUFFICIENT_FUNDS;
 					}
 					msg = tool_build_station_t::tool_station_aux(player, pos, besch, water_wt, cost, "Dock");
 					break;
@@ -5203,7 +5204,7 @@ const char *tool_build_station_t::work( player_t *player, koord3d pos )
 					}
 					if(!player_t::can_afford(player, -cost))
 					{
-						return CREDIT_MESSAGE;
+						return NOTICE_INSUFFICIENT_FUNDS;
 					}
 					msg = tool_build_station_t::tool_station_aux(player, pos, besch, air_wt, cost, "Airport");
 					break;
@@ -5844,7 +5845,7 @@ built_sign:
 const char* tool_signalbox_t::tool_signalbox_aux(player_t* player, koord3d pos, const haus_besch_t* besch, sint64 cost)
 {
 	if ( !player_t::can_afford(player, -cost) ) {
-		return CREDIT_MESSAGE;
+		return NOTICE_INSUFFICIENT_FUNDS;
 	}
 
 	grund_t *gr = welt->lookup_kartenboden(pos.get_2d());
@@ -6022,7 +6023,7 @@ const char *tool_signalbox_t::work( player_t *player, koord3d pos )
 const char *tool_depot_t::tool_depot_aux(player_t *player, koord3d pos, const haus_besch_t *besch, waytype_t wegtype, sint64 cost)
 {
 	if ( !player_t::can_afford(player, -cost) ) {
-		return CREDIT_MESSAGE;
+		return NOTICE_INSUFFICIENT_FUNDS;
 	}
 
 	if(welt->is_within_limits(pos.get_2d())) {
@@ -6673,7 +6674,7 @@ DBG_MESSAGE("tool_headquarter()", "building headquarter at (%d,%d)", pos.x, pos.
 	koord size = besch->get_groesse();
 	sint64 const cost = welt->get_settings().cst_multiply_headquarter * besch->get_level() * size.x * size.y;
 	if(! player_t::can_afford(player, -cost) ) {
-		return CREDIT_MESSAGE;
+		return NOTICE_INSUFFICIENT_FUNDS;
 	}
 
 
@@ -7550,7 +7551,7 @@ const char *tool_make_stop_public_t::work( player_t *player, koord3d p )
 		{
 			if(!halt->make_public_and_join(player))
 			{
-				return CREDIT_MESSAGE;
+				return NOTICE_INSUFFICIENT_FUNDS;
 			}
 		}
 	}

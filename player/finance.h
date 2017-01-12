@@ -12,7 +12,7 @@
 #include "../simworld.h"
 
 // This should be used when players attempt to buy things they can't afford.
-#define CREDIT_MESSAGE "That would exceed\nyour credit limit."
+#define NOTICE_INSUFFICIENT_FUNDS "That would exceed\nyour credit limit."
 
 /// for compatibility with old versions
 /// Must be different in experimental!

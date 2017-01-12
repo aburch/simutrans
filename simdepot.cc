@@ -432,7 +432,7 @@ convoihandle_t depot_t::copy_convoi(convoihandle_t old_cnv, bool local_execution
 					sint64 total_price = info->get_preis();
 					if(!get_owner()->can_afford(total_price))
 					{
-						create_win( new news_img(CREDIT_MESSAGE), w_time_delete, magic_none);
+						create_win( new news_img(NOTICE_INSUFFICIENT_FUNDS), w_time_delete, magic_none);
 						if(!new_cnv.is_bound())
 						{
 							return new_cnv;

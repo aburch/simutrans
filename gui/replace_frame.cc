@@ -424,7 +424,7 @@ bool replace_frame_t::replace_convoy(convoihandle_t cnv_rpl, bool mark)
 
 		if(!welt->get_active_player()->can_afford(0 - money))
 		{
-			const char *err = CREDIT_MESSAGE;
+			const char *err = NOTICE_INSUFFICIENT_FUNDS;
 			news_img *box = new news_img(err);
 			create_win(box, w_time_delete, magic_none);
 			break;
