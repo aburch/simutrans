@@ -7390,13 +7390,16 @@ const char *tool_make_stop_public_t::move( player_t *player, uint16, koord3d p )
 
 const char *tool_make_stop_public_t::work( player_t *player, koord3d p )
 {
-	player_t* public_player = welt->get_player(1);
-	// months maintainance cost to make public
 	sint64 const COST_MONTHS_MAINTAINANCE = welt->scale_with_month_length(welt->get_settings().cst_make_public_months);
 	player_t *const psplayer = welt->get_player(1);
 	grund_t const *gr = welt->lookup(p);
 	if (!gr || !gr->get_halt().is_bound() || gr->get_halt()->get_owner() == psplayer) {
 		weg_t *w = NULL;
+
+		if (player != psplayer  &&  welt->get_settings().get_disable_make_way_public()) {
+			return NOTICE_DISABLED_PUBLIC_WAY;
+			
+		}
 		//convert a way here, if there is no halt or already public halt
 		{
 			// The below is only really relevant in Standard, where ordinary players
@@ -7407,9 +7410,9 @@ const char *tool_make_stop_public_t::work( player_t *player, koord3d p )
 				return NOTICE_UNSUITABLE_GROUND;
 			}*/
 			w = gr->get_weg_nr(0);
-			if(  !(w  &&  (  (w->get_owner()==player)  |  (player==public_player) )) ) {
+			if(  !(w  &&  (  (w->get_owner()==player)  |  (player== psplayer) )) ) {
 				w = gr->get_weg_nr(1);
-				if(  !(w  &&  (  (w->get_owner()==player)  |  (player==public_player) )) ) {
+				if(  !(w  &&  (  (w->get_owner()==player)  |  (player== psplayer) )) ) {
 					w = NULL;
 				}
 			}
@@ -7421,7 +7424,7 @@ const char *tool_make_stop_public_t::work( player_t *player, koord3d p )
 				// change maintenance and ownership
 				sint64 maintenance_cost = w->get_besch()->get_wartung();
 				sint64 construction_cost;
-				if(player == public_player)
+				if(player == psplayer)
 				{
 					construction_cost = w->get_besch()->get_preis();
 				}
@@ -7448,7 +7451,7 @@ const char *tool_make_stop_public_t::work( player_t *player, koord3d p )
 				{
 					tunnel_t *t = gr->find<tunnel_t>();
 					maintenance_cost = t->get_besch()->get_wartung();
-					if(player == public_player)
+					if(player == psplayer)
 					{
 						construction_cost = t->get_besch()->get_preis();
 					}
@@ -7456,13 +7459,13 @@ const char *tool_make_stop_public_t::work( player_t *player, koord3d p )
 					{
 						construction_cost = welt->scale_with_month_length(maintenance_cost * welt->get_settings().cst_make_public_months);
 					}
-					if(t->get_owner() == public_player)
+					if(t->get_owner() == psplayer)
 					{
 						t->set_owner(NULL);
 					}
 					else
 					{
-						t->set_owner(public_player);
+						t->set_owner(psplayer);
 					}
 				}
 
@@ -7470,7 +7473,7 @@ const char *tool_make_stop_public_t::work( player_t *player, koord3d p )
 				{
 					bruecke_t* b = gr->find<bruecke_t>();
 					maintenance_cost = b->get_besch()->get_wartung();
-					if(player == public_player)
+					if(player == psplayer)
 					{
 						construction_cost = b->get_besch()->get_preis();
 					}
@@ -7478,17 +7481,17 @@ const char *tool_make_stop_public_t::work( player_t *player, koord3d p )
 					{
 						construction_cost = welt->scale_with_month_length(maintenance_cost * welt->get_settings().cst_make_public_months);
 					}
-					if(b->get_owner() == public_player)
+					if(b->get_owner() == psplayer)
 					{
 						b->set_owner(NULL);
 					}
 					else
 					{
-						b->set_owner(public_player);
+						b->set_owner(psplayer);
 					}
 				}
 
-				if(w->get_owner() == public_player)
+				if(w->get_owner() == psplayer)
 				{
 					w->set_owner(NULL);
 				}
@@ -7496,13 +7499,13 @@ const char *tool_make_stop_public_t::work( player_t *player, koord3d p )
 				{
 					player_t::add_maintenance(w->get_owner(), -maintenance_cost, w->get_besch()->get_finance_waytype());
 					player_t::book_construction_costs(player, -construction_cost, gr->get_pos().get_2d(), w->get_besch()->get_finance_waytype());
-					if(player == public_player)
+					if(player == psplayer)
 					{
 						// If this is done by the public player, pay compensation.
 						player_t::book_construction_costs(w->get_owner(), construction_cost, gr->get_pos().get_2d(), w->get_besch()->get_finance_waytype());
 					}
-					w->set_owner(public_player);
-					player_t::add_maintenance(public_player, maintenance_cost);
+					w->set_owner(psplayer);
+					player_t::add_maintenance(psplayer, maintenance_cost);
 				}
 
 				w->set_flag(obj_t::dirty);
@@ -7515,7 +7518,7 @@ const char *tool_make_stop_public_t::work( player_t *player, koord3d p )
 						
 						player_t::add_maintenance(player, -maintenance_cost, w->get_besch()->get_finance_waytype() );
 						
-						if(player == public_player)
+						if(player == psplayer)
 						{
 							// If this is done by the public player, pay compensation.
 							construction_cost = wo->get_besch()->get_preis();
@@ -7527,9 +7530,9 @@ const char *tool_make_stop_public_t::work( player_t *player, koord3d p )
 							construction_cost = maintenance_cost * 60;
 						}
 						player_t::book_construction_costs(player, -construction_cost, gr->get_pos().get_2d(), w->get_waytype());
-						wo->set_owner(public_player);
+						wo->set_owner(psplayer);
 						wo->set_flag(obj_t::dirty);
-						player_t::add_maintenance(public_player, maintenance_cost, w->get_besch()->get_finance_waytype());
+						player_t::add_maintenance(psplayer, maintenance_cost, w->get_besch()->get_finance_waytype());
 					}
 				}
 				// and add message
@@ -7548,7 +7551,7 @@ const char *tool_make_stop_public_t::work( player_t *player, koord3d p )
 	else 
 	{
 		halthandle_t halt = gr->get_halt();
-		if(player != public_player && !(player_t::check_owner(halt->get_owner(), player) || halt->get_owner() == public_player))
+		if(player != psplayer && !(player_t::check_owner(halt->get_owner(), player) || halt->get_owner() == psplayer))
 		{
 			return "Das Feld gehoert\neinem anderen Spieler\n";
 		}

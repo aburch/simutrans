@@ -45,6 +45,11 @@ char const *const NOTICE_DEPOT_BAD_POS = "Cannot built depot here!";
 */
 char const *const NOTICE_TILE_FULL = "Tile not empty.";
 
+/**
+ * Message returned when a company tries to make a public way when public ways are disabled.
+ */
+char const *const NOTICE_DISABLED_PUBLIC_WAY = "Not allowed to make publicly owned ways!";
+
 /// for compatibility with old versions
 /// Must be different in experimental!
 #define OLD_MAX_PLAYER_COST (21)

@@ -655,6 +655,11 @@ town_road_speed_limit = 50
 # This allows for height maps with more height levels
 new_height_map_conversion = 0
 
+# disable companies from making ways public with the appropiate tool
+# even when disabled companies can still make stops public
+# does not affect public service provider player
+disable_make_way_public = 0
+
 ################################# Tree settings #################################
 #  please be careful in changing them, I spent lot of time finding optimals.
 #  those values have impact on no. of spawned trees -> memory consumption

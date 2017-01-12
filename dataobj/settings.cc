@@ -242,6 +242,7 @@ settings_t::settings_t() :
 	airport_toll_revenue_percentage = 0;
 
 	allow_underground_transformers = true;
+	disable_make_way_public = false;
 
 	// stop buildings
 	cst_multiply_dock=-50000;
@@ -1563,6 +1564,11 @@ void settings_t::rdwr(loadsave_t *file)
 		// otherwise the default values of the last one will be used
 		}
 
+		if (file->get_version() > 120003 && file->get_experimental_revision() >= 17 || file->get_experimental_version() >= 13)
+		{
+			file->rdwr_bool(disable_make_way_public);
+		}
+
 		if(file->get_experimental_version() >= 12)
 		{
 			file->rdwr_short(population_per_level);
@@ -1877,6 +1883,7 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	drive_on_left = contents.get_int("drive_left", drive_on_left );
 	signals_on_left = contents.get_int("signals_on_left", signals_on_left );
 	allow_underground_transformers = contents.get_int( "allow_underground_transformers", allow_underground_transformers )!=0;
+	disable_make_way_public = contents.get_int("disable_make_way_public", disable_make_way_public) != 0;
 
 	// up to ten rivers are possible
 	for(  int i = 0;  i<10;  i++  ) {

@@ -556,6 +556,9 @@ private:
 	// true if transformers are allowed to built underground
 	bool allow_underground_transformers;
 
+	// true if companies can make ways public
+	bool disable_make_way_public;
+
 public:
 	/* the big cost section */
 	sint32 maint_building;	// normal building
@@ -1077,6 +1080,7 @@ public:
 	void set_max_elevated_way_building_level(uint8 value) { max_elevated_way_building_level = value; }
 
 	bool get_allow_underground_transformers() const { return allow_underground_transformers; }
+	bool get_disable_make_way_public() const { return disable_make_way_public; }
 	void set_scale();
 
 	uint16 get_remove_dummy_player_months() const { return remove_dummy_player_months; }

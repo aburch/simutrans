@@ -890,6 +890,7 @@ void settings_economy_stats_t::init(settings_t const* const sets)
 	INIT_NUM( "toll_runningcost_percentage", sets->get_way_toll_runningcost_percentage(), 0, 100, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "toll_waycost_percentage", sets->get_way_toll_waycost_percentage(), 0, 100, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "toll_revenue_percentage", sets->get_way_toll_revenue_percentage(), 0, 100, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_BOOL("disable_make_way_public", sets->get_disable_make_way_public());
 	SEPERATOR
 
 	INIT_BOOL( "just_in_time", sets->get_just_in_time() );
@@ -946,6 +947,7 @@ void settings_economy_stats_t::read(settings_t* const sets)
 	READ_NUM_VALUE( sets->way_toll_runningcost_percentage );
 	READ_NUM_VALUE( sets->way_toll_waycost_percentage );
 	READ_NUM_VALUE( sets->way_toll_revenue_percentage );
+	READ_BOOL_VALUE(sets->disable_make_way_public);
 	
 	READ_BOOL_VALUE( sets->just_in_time );
 	READ_NUM_VALUE( sets->factory_maximum_intransit_percentage );
