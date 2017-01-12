@@ -130,10 +130,7 @@ ifneq ($(MULTI_THREAD),)
 endif
 
 ifneq ($(WITH_REVISION),)
-  REV = $(shell git rev-parse --short HEAD)
-  ifneq ($(REV),)
-    CFLAGS  += -DREVISION="$(REV)"
-  endif
+  REVISION := $(shell git rev-parse --short HEAD)
 endif
 
 CFLAGS   += -Wall -W -Wcast-qual -Wpointer-arith -Wcast-align $(FLAGS)
@@ -237,6 +234,7 @@ SOURCES += display/simgraph$(COLOUR_DEPTH).cc
 SOURCES += display/simview.cc
 SOURCES += display/viewport.cc
 SOURCES += freight_list_sorter.cc
+SOURCES += gitversion.cc
 SOURCES += gui/ai_option_t.cc
 SOURCES += gui/banner.cc
 SOURCES += gui/baum_edit.cc

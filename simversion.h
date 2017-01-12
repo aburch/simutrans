@@ -45,9 +45,9 @@ extern "C" FILE * __cdecl __iob_func(void) { return _iob; }
 #endif
 
 #if   SIM_VERSION_BUILD == SIM_BUILD_NIGHTLY
-#	define SIM_VERSION_BUILD_STRING " Development build"
+#	define SIM_VERSION_BUILD_STRING " Nightly development build"
 #elif SIM_VERSION_BUILD == SIM_BUILD_RELEASE_CANDIDATE
-#	define SIM_VERSION_BUILD_STRING " Release Candidate"
+#	define SIM_VERSION_BUILD_STRING " Release candidate"
 #elif SIM_VERSION_BUILD == SIM_BUILD_RELEASE
 #	define SIM_VERSION_BUILD_STRING
 #else
@@ -57,7 +57,9 @@ extern "C" FILE * __cdecl __iob_func(void) { return _iob; }
 #define VERSION_NUMBER QUOTEME(SIM_VERSION_MAJOR) "." QUOTEME(SIM_VERSION_MINOR) SIM_VERSION_PATCH_STRING " Experimental" SIM_VERSION_BUILD_STRING " "
 #define EXPERIMENTAL_VERSION QUOTEME(EX_VERSION_MAJOR) "." QUOTEME(EX_VERSION_MINOR)
 
-//#define REVISION EX_VERSION_MAJOR.EX_VERSION_MINOR
+#ifndef REVISION
+#define REVISION EX_VERSION_MAJOR.EX_VERSION_MINOR
+#endif
 
 #define VERSION_DATE __DATE__
 
