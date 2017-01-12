@@ -2450,7 +2450,7 @@ bool vehicle_t::check_way_constraints(const weg_t &way) const
 
 bool vehicle_t::check_access(const weg_t* way) const
 {
-	if(get_owner() && get_owner()->get_player_nr() == 1)
+	if(get_owner() && get_owner()->is_public_serivce())
 	{
 		// The public player can always connect to ways.
 		return true;

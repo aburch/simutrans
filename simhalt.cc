@@ -288,7 +288,7 @@ halthandle_t haltestelle_t::get_halt(const koord3d pos, const player_t *player )
 		// Stops on public roads, even those belonging to other players, should be able to be used by all players.
 		if(gr->get_halt().is_bound() && (gr->get_halt()->check_access(player) ||
 			(w && player_t::check_owner(w->get_owner(), player))) ||
-			(w && (w->get_waytype() == road_wt || w->get_waytype() == tram_wt) && (w->get_owner() == NULL || w->get_owner()->get_player_nr() == 1)))
+			(w && (w->get_waytype() == road_wt || w->get_waytype() == tram_wt) && (w->get_owner() == NULL || w->get_owner()->is_public_serivce())))
 		{
 			return gr->get_halt();
 		}

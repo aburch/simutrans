@@ -579,7 +579,7 @@ void player_t::set_scenario_completion(sint32 percent)
 
 bool player_t::check_owner( const player_t *owner, const player_t *test )
 {
-	return owner == test  ||  owner == NULL  ||  test == welt->get_player(1);
+	return owner == test || owner == NULL || (test != NULL  &&  test->is_public_serivce());
 }
 
 

@@ -11,6 +11,7 @@
 #include "../simworld.h"
 #include "../simobj.h"
 #include "../display/simimg.h"
+#include "../player/simplay.h"
 
 #include "../besch/kreuzung_besch.h"
 
@@ -208,7 +209,7 @@ void crossing_t::finish_rd()
 // players can remove public owned ways
 const char *crossing_t:: is_deletable(const player_t *player, bool allow_public)
 {
-	if(allow_public && get_player_nr() == 1) 
+	if(allow_public && get_owner()->is_public_serivce())
 	{
 		return NULL;
 	}
