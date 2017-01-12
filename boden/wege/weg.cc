@@ -46,6 +46,7 @@
 #include "../../utils/cbuffer_t.h"
 #include "../../dataobj/translator.h"
 #include "../../dataobj/loadsave.h"
+#include "../../dataobj/environment.h"
 #include "../../besch/weg_besch.h"
 #include "../../besch/tunnel_besch.h"
 #include "../../besch/roadsign_besch.h"
@@ -55,7 +56,6 @@
 
 #ifdef MULTI_THREAD
 #include "../../utils/simthread.h"
-#include "../../dataobj/environment.h"
 static pthread_mutex_t weg_calc_bild_mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 #endif
 
