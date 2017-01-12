@@ -234,7 +234,6 @@ SOURCES += display/simgraph$(COLOUR_DEPTH).cc
 SOURCES += display/simview.cc
 SOURCES += display/viewport.cc
 SOURCES += freight_list_sorter.cc
-SOURCES += gitversion.cc
 SOURCES += gui/ai_option_t.cc
 SOURCES += gui/banner.cc
 SOURCES += gui/baum_edit.cc
