@@ -238,6 +238,11 @@ bool player_t::can_afford(player_t* player, sint64 price)
 	}
 }
 
+bool player_t::is_public_serivce() const
+ {
+	return get_player_nr() == 1;
+}
+
 /* returns the name of the player; "player -1" sits in front of the screen
  * @author prissi
  */
@@ -629,7 +634,7 @@ void player_t::ai_bankrupt()
 
 	// transfer all ways in public stops belonging to me to no one
 	FOR(vector_tpl<halthandle_t>, const halt, haltestelle_t::get_alle_haltestellen()) {
-		if(  halt->get_owner()==welt->get_player(1)  ) {
+		if(  halt->get_owner()==welt->get_public_player()  ) {
 			// only concerns public stops tiles
 			FOR(slist_tpl<haltestelle_t::tile_t>, const& i, halt->get_tiles()) {
 				grund_t const* const gr = i.grund;
@@ -679,7 +684,7 @@ void player_t::ai_bankrupt()
 								if(gr->ist_bruecke()) {
 									add_maintenance( -((leitung_t*)obj)->get_besch()->get_wartung(), powerline_wt );
 									// do not remove powerline from bridges
-									obj->set_owner( welt->get_player(1) );
+									obj->set_owner( welt->get_public_player() );
 								}
 								else {
 									obj->cleanup(this);
@@ -724,7 +729,7 @@ void player_t::ai_bankrupt()
 								break;
 
 							default:
-								obj->set_owner( welt->get_player(1) );
+								obj->set_owner( welt->get_public_player() );
 						}
 					}
 				}

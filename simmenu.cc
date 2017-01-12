@@ -803,7 +803,7 @@ void toolbar_t::update(player_t *player)
 		}
 	}
 
-	if(  (strcmp(this->default_param,"EDITTOOLS")==0  &&  player!=welt->get_player(1))  ) {
+	if(  (strcmp(this->default_param,"EDITTOOLS")==0  &&  player!=welt->get_public_player())  ) {
 		destroy_win(tool_selector);
 		return;
 	}
@@ -815,7 +815,7 @@ void toolbar_t::update(player_t *player)
 bool toolbar_t::init(player_t *player)
 {
 	update( player );
-	bool close = (strcmp(this->default_param,"EDITTOOLS")==0  &&  player!=welt->get_player(1));
+	bool close = (strcmp(this->default_param,"EDITTOOLS")==0  &&  player!=welt->get_public_player());
 
 	// show/create window
 	if(  close  ) {

@@ -841,7 +841,8 @@ void convoi_t::increment_odometer(uint32 steps)
 	}
 	else
 	{
-		if(waytype == road_wt && way->get_owner()->is_public_serivce() && welt->get_settings().get_toll_free_public_roads())
+		const player_t* owner = way->get_owner(); 
+		if(waytype == road_wt && owner && owner->is_public_serivce() && welt->get_settings().get_toll_free_public_roads())
 		{
 			player = owner->get_player_nr();
 		}

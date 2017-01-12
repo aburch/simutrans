@@ -964,7 +964,7 @@ class denkmal_platz_sucher_t : public platzsucher_t {
 				obj_t *obj = gr->obj_bei(obj_idx);
 
 				if (obj->get_owner() != NULL &&
-				    obj->get_owner() != welt->get_player(1)) {
+				    obj->get_owner() != welt->get_public_player()) {
 					/* XXX player-owned roads okay to remove? */
 					/* XXX player-owned trams/electrification okay if ist_randfeld()? */
 					return false;
@@ -1432,7 +1432,7 @@ stadt_t::~stadt_t()
 				else
 				{
 					gb->set_stadt( this );
-					hausbauer_t::remove(welt->get_player(1), gb);
+					hausbauer_t::remove(welt->get_public_player(), gb);
 				}
 			}
 			// Remove substations

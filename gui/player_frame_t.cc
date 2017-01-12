@@ -71,7 +71,7 @@ ki_kontroll_t::ki_kontroll_t() :
 	const player_t* const current_player = welt->get_active_player();
 
 	// switching active player allowed?
-	bool player_change_allowed = welt->get_settings().get_allow_player_change() || !welt->get_player(1)->is_locked();
+	bool player_change_allowed = welt->get_settings().get_allow_player_change() || !welt->get_public_player()->is_locked();
 
 	// activate player etc allowed?
 	bool player_tools_allowed = true;
@@ -123,7 +123,7 @@ ki_kontroll_t::ki_kontroll_t() :
 		// Create combobox list data
 		player_select[i].append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("slot empty"), SYSCOL_TEXT ) );
 		player_select[i].append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("Manual (Human)"), SYSCOL_TEXT ) );
-		if(  !welt->get_player(1)->is_locked()  ||  !env_t::networkmode  ) {
+		if(  !welt->get_public_player()->is_locked()  ||  !env_t::networkmode  ) {
 			player_select[i].append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("Goods AI"), SYSCOL_TEXT ) );
 			player_select[i].append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("Passenger AI"), SYSCOL_TEXT ) );
 		}
@@ -210,7 +210,7 @@ ki_kontroll_t::ki_kontroll_t() :
 	// freeplay mode
 	freeplay.init( button_t::square_state, "freeplay mode", cursor);
 	freeplay.add_listener(this);
-	if (welt->get_player(1)->is_locked() || !welt->get_settings().get_allow_player_change()  ||  !player_tools_allowed) {
+	if (welt->get_public_player()->is_locked() || !welt->get_settings().get_allow_player_change()  ||  !player_tools_allowed) {
 		freeplay.disable();
 	}
 	freeplay.pressed = welt->get_settings().is_freeplay();
@@ -277,7 +277,7 @@ bool ki_kontroll_t::action_triggered( gui_action_creator_t *comp,value_t p )
 			welt->switch_active_player(i,false);
 			// unlocked public service player can change into any company in multiplayer games
 			player_t *const player = welt->get_active_player();
-			if (env_t::networkmode  &&  prevplayer == welt->get_player(1) && !prevplayer->is_locked() && player->is_locked()) {
+			if (env_t::networkmode  &&  prevplayer == welt->get_public_player() && !prevplayer->is_locked() && player->is_locked()) {
 				player->unlock(false, true);
 				
 				// send unlock command
@@ -361,7 +361,7 @@ void ki_kontroll_t::update_data()
 				player_select[i].set_visible(false);
 				player_get_finances[i].set_visible(true);
 				add_component(player_get_finances+i);
-				if (welt->get_settings().get_allow_player_change() || !welt->get_player(1)->is_locked()) 
+				if (welt->get_settings().get_allow_player_change() || !welt->get_public_player()->is_locked()) 
 				{
 					add_component(player_change_to+i);
 				}
@@ -441,7 +441,7 @@ void ki_kontroll_t::update_data()
 			if(  env_t::networkmode  ) {
 
 				// change available selection of AIs
-				if(  !welt->get_player(1)->is_locked()  ) 
+				if(  !welt->get_public_player()->is_locked()  ) 
 				{
 					if(  player_select[i].count_elements()==2  ) 
 					{
@@ -473,7 +473,7 @@ void ki_kontroll_t::draw(scr_coord pos, scr_size size)
 {
 	// Update free play
 	freeplay.pressed = welt->get_settings().is_freeplay();
-	if (welt->get_player(1)->is_locked() || !welt->get_settings().get_allow_player_change()) {
+	if (welt->get_public_player()->is_locked() || !welt->get_settings().get_allow_player_change()) {
 		freeplay.disable();
 	}
 	else {

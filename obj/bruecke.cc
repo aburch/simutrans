@@ -209,7 +209,7 @@ void bruecke_t::finish_rd()
 		if(weg==NULL) {
 			dbg->error("bruecke_t::finish_rd()","Bridge without way at(%s)!", gr->get_pos().get_str() );
 			weg = weg_t::alloc( besch->get_waytype() );
-			gr->neuen_weg_bauen( weg, 0, welt->get_public_serivce());
+			gr->neuen_weg_bauen( weg, 0, welt->get_public_player());
 		}
 		const hang_t::typ hang = gr->get_weg_hang();
 		if(hang != hang_t::flach) 

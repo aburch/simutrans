@@ -523,7 +523,7 @@ bool wegbauer_t::check_slope( const grund_t *from, const grund_t *to )
 bool wegbauer_t::check_owner( const player_t *player1, const player_t *player2 ) const
 {
 	// unowned, mine or public property or superuser ... ?
-	return player1==NULL  ||  player1==player2  ||  player1==welt->get_player(1)  ||  player2==welt->get_player(1);
+	return player1==NULL  ||  player1==player2  ||  player1==welt->get_public_player()  ||  player2==welt->get_public_player();
 }
 
 

@@ -54,7 +54,7 @@ road_user_t::road_user_t() :
 	vehicle_base_t()
 #endif
 {
-	set_owner( welt->get_player(1) );
+	set_owner( welt->get_public_player() );
 	time_to_life = 0;
 	weg_next = 0;
 	tiles_since_last_increment = 0;
@@ -123,7 +123,7 @@ road_user_t::road_user_t(grund_t* bd, uint16 random) :
 	else {
 		pos_next = welt->lookup_kartenboden(get_pos().get_2d() + koord(direction))->get_pos();
 	}
-	set_owner( welt->get_player(1) );
+	set_owner( welt->get_public_player() );
 }
 
 

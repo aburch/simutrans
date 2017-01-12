@@ -223,7 +223,7 @@ static halthandle_t suche_nahe_haltestelle(player_t *player, karte_t *welt, koor
 	// now search everything for public stops
 	for(  int i=0;  i<8;  i++ ) {
 		if(  planquadrat_t* plan=welt->access(k+koord::neighbours[i])  ) {
-			my_halt = plan->get_halt( welt->get_player(1) );
+			my_halt = plan->get_halt( welt->get_public_player() );
 			if(  my_halt.is_bound()  ) {
 				return my_halt;
 			}
@@ -1818,10 +1818,10 @@ const char *tool_add_city_t::work( player_t *player, koord3d pos )
 				// always belong to player 1
 
 				int const citizens = (int)(welt->get_settings().get_mittlere_einwohnerzahl() * 0.9);
-				//  stadt_t *stadt = new stadt_t(welt->get_player(1), pos,citizens/10+simrand(2*citizens+1));
+				//  stadt_t *stadt = new stadt_t(welt->get_public_player();, pos,citizens/10+simrand(2*citizens+1));
 
 				// always start with 1/10 citicens
-				stadt_t* stadt = new stadt_t(welt->get_player(1), k, citizens / 10);
+				stadt_t* stadt = new stadt_t(welt->get_public_player(), k, citizens / 10);
 				if (stadt->get_buildings() == 0) {
 					delete stadt;
 					return NOTICE_UNSUITABLE_GROUND;
@@ -1845,7 +1845,7 @@ const char *tool_add_city_t::work( player_t *player, koord3d pos )
 // buy a house
 const char *tool_buy_house_t::work( player_t *player, koord3d pos)
 {
-	if ( player == welt->get_player(1) ) {
+	if ( player == welt->get_public_player() ) {
 		return "";
 	}
 	grund_t* gr = welt->lookup_kartenboden(pos.get_2d());
@@ -2484,7 +2484,7 @@ bool tool_build_way_t::init( player_t *player )
 	if(  besch  &&  besch->get_cursor()->get_bild_nr(0) != IMG_EMPTY  ) {
 		cursor = besch->get_cursor()->get_bild_nr(0);
 	}
-	if(  besch  &&  !besch->is_available(welt->get_timeline_year_month())  &&  player!=NULL  &&  player!=welt->get_player(1)  ) {
+	if(  besch  &&  !besch->is_available(welt->get_timeline_year_month())  &&  player!=NULL  &&  player!=welt->get_public_player() ) {
 		// non available way => fail
 		return false;
 	}
@@ -2744,7 +2744,7 @@ bool tool_build_bridge_t::init( player_t *player )
 	two_click_tool_t::init( player );
 	// now get current besch
 	const bruecke_besch_t *besch = brueckenbauer_t::get_besch(default_param);
-	if(  besch  &&  !besch->is_available(welt->get_timeline_year_month())  &&  player!=NULL  &&  player!=welt->get_player(1)  ) {
+	if(  besch  &&  !besch->is_available(welt->get_timeline_year_month())  &&  player!=NULL  &&  player!=welt->get_public_player()) {
 		return false;
 	}
 	return besch!=NULL;
@@ -3063,7 +3063,7 @@ bool tool_build_tunnel_t::init( player_t *player )
 	two_click_tool_t::init( player );
 	// now get current besch
 	const tunnel_besch_t * besch = tunnelbauer_t::get_besch(default_param);
-	if(  besch  &&  !besch->is_available(welt->get_timeline_year_month())  &&  player!=NULL  &&  player!=welt->get_player(1)  ) {
+	if(  besch  &&  !besch->is_available(welt->get_timeline_year_month())  &&  player!=NULL  &&  player!=welt->get_public_player()) {
 		return false;
 	}
 	return besch!=NULL;
@@ -3842,7 +3842,7 @@ DBG_MESSAGE("tool_station_building_aux()", "building mail office/station buildin
 
 	// Player player pays for the construction
 	// but we try to extend stations of Player new_owner that may be the public player
-	player_t *new_owner = extend_public_halt ? welt->get_player(1) : player;
+	player_t *new_owner = extend_public_halt ? welt->get_public_player() : player;
 
 	koord offsets;
 	halthandle_t halt;
@@ -4055,7 +4055,7 @@ DBG_MESSAGE("tool_station_building_aux()", "building mail office/station buildin
 	// Must buy land to place buildings
 	cost += welt->get_land_value(pos) * besch->get_groesse(rotation).x * besch->get_groesse(rotation).y;
 
-	if(player != halt->get_owner() && halt->get_owner()==welt->get_player(1) && player != welt->get_player(1))
+	if(player != halt->get_owner() && halt->get_owner()==welt->get_public_player() && player != welt->get_public_player())
 	{
 		// public stops are expensive!
 		// (Except for the public player itself)
@@ -4273,7 +4273,7 @@ DBG_MESSAGE("tool_dockbau()","building dock from square (%d,%d) to (%d,%d)", k.x
 	}
 	hausbauer_t::baue(halt->get_owner(), bau_pos, layout, besch, &halt);
 
-	if(player != halt->get_owner() && player != welt->get_player(1)) 
+	if(player != halt->get_owner() && player != welt->get_public_player())
 	{
 		// public stops are expensive!
 		// (Except for the public player itself)
@@ -4523,7 +4523,7 @@ const char *tool_build_station_t::tool_station_flat_dock_aux(player_t *player, k
 
 	hausbauer_t::baue(halt->get_owner(), bau_pos, layout, besch, &halt);
 
-	if(player != halt->get_owner() && player != welt->get_player(1)) 
+	if(player != halt->get_owner() && player != welt->get_public_player())
 	{
 		// public stops are expensive!
 		// (Except for the public player itself)
@@ -4782,7 +4782,7 @@ DBG_MESSAGE("tool_halt_aux()", "building %s on square %d,%d for waytype %x", bes
 	
 	adjusted_cost -= old_cost / 2;
 
-	if(player != halt->get_owner() && player != welt->get_player(1)) 
+	if(player != halt->get_owner() && player != welt->get_public_player())
 	{
 		// public stops are expensive!
 		// (Except for the public player itself, of course)
@@ -6107,7 +6107,7 @@ bool tool_depot_t::init( player_t *player )
 		return false;
 	}
 	// no depots for player 1
-	if(player!=welt->get_player(1)) {
+	if(player!=welt->get_public_player()) {
 		cursor = besch->get_cursor()->get_bild_nr(0);
 		return true;
 	}
@@ -6146,7 +6146,7 @@ waytype_t tool_depot_t::get_waytype() const
 
 const char *tool_depot_t::work( player_t *player, koord3d pos )
 {
-	if(player==welt->get_player(1)) {
+	if(player==welt->get_public_player()) {
 		// no depots for player 1
 		return 0;
 	}
@@ -6280,7 +6280,7 @@ const char *tool_build_house_t::work( player_t *player, koord3d pos )
 
 	// Platz gefunden ...
 	if(hat_platz) {
-		player_t *gb_player = besch->get_typ()!=gebaeude_t::unbekannt ? NULL : welt->get_player(1);
+		player_t *gb_player = besch->get_typ()!=gebaeude_t::unbekannt ? NULL : welt->get_public_player();
 		gebaeude_t *gb = hausbauer_t::baue(gb_player, gr->get_pos(), rotation, besch);
 		if(gb) {
 			// building successful
@@ -6382,7 +6382,7 @@ const char *tool_build_land_chain_t::work( player_t *player, koord3d pos )
 		}
 
 		koord3d build_pos = gr->get_pos();
-		int anzahl = fabrikbauer_t::baue_hierarchie(NULL, fab, initial_prod, rotation, &build_pos, welt->get_player(1), 10000 );
+		int anzahl = fabrikbauer_t::baue_hierarchie(NULL, fab, initial_prod, rotation, &build_pos, welt->get_public_player(), 10000 );
 
 		if(anzahl>0) {
 			// at least one factory has been built
@@ -6453,7 +6453,7 @@ const char *tool_city_chain_t::work( player_t *player, koord3d pos )
 	}
 
 	pos = gr->get_pos();
-	int anzahl = fabrikbauer_t::baue_hierarchie(NULL, fab, initial_prod, 0, &pos, welt->get_player(1), 10000 );
+	int anzahl = fabrikbauer_t::baue_hierarchie(NULL, fab, initial_prod, 0, &pos, welt->get_public_player(), 10000 );
 	if(anzahl>0) {
 		// at least one factory has been built
 		welt->get_viewport()->change_world_position( pos );
@@ -6557,7 +6557,7 @@ const char *tool_build_factory_t::work( player_t *player, koord3d pos )
 			initial_prod = welt->calc_adjusted_monthly_figure(value);
 		}
 
-		fabrik_t *f = fabrikbauer_t::baue_fabrik(NULL, fab, initial_prod, rotation, gr->get_pos(), welt->get_player(1));
+		fabrik_t *f = fabrikbauer_t::baue_fabrik(NULL, fab, initial_prod, rotation, gr->get_pos(), welt->get_public_player());
 		if(f) {
 			// at least one factory has been built
 			welt->get_viewport()->change_world_position( pos );
@@ -6799,11 +6799,11 @@ const char *tool_lock_game_t::work( player_t *, koord3d )
 		return "";
 	}
 	// as the result depends on the local locked state of public player
-	if (welt->get_player(1)->is_locked() || !welt->get_settings().get_allow_player_change()) {
+	if (welt->get_public_player()->is_locked() || !welt->get_settings().get_allow_player_change()) {
 		return "Only public player can lock games!";
 	}
 	welt->clear_player_password_hashes();
-	if(  !welt->get_player(1)->is_locked() ) {
+	if(  !welt->get_public_player()->is_locked() ) {
 		return "In order to lock the game, you have to protect the public player by password!";
 	}
 	welt->get_settings().set_allow_player_change(false);
@@ -7334,7 +7334,7 @@ const char *tool_make_stop_public_t::get_tooltip(const player_t *player) const
 {
 	if(player->get_player_nr() != 1 && !welt->get_settings().get_allow_making_public())
 	{
-		sprintf(toolstr, translator::translate("Only %s can use this tool"), welt->get_player(1)->get_name());
+		sprintf(toolstr, translator::translate("Only %s can use this tool"), welt->get_public_player()->get_name());
 		return toolstr;
 	}
 	sprintf(toolstr, translator::translate("Make way or stop public (will join with neighbours), %i times maintainance"), welt->get_settings().cst_make_public_months);
@@ -7356,7 +7356,7 @@ const char *tool_make_stop_public_t::move(player_t *player, uint16 b, koord3d p)
 const char *tool_make_stop_public_t::work( player_t *player, koord3d p )
 {
 	sint64 const COST_MONTHS_MAINTAINANCE = welt->scale_with_month_length(welt->get_settings().cst_make_public_months);
-	player_t *const psplayer = welt->get_player(1);
+	player_t *const psplayer = welt->get_public_player();
 	grund_t const *gr = welt->lookup(p);
 	if (!gr || !gr->get_halt().is_bound() || gr->get_halt()->get_owner() == psplayer) {
 		weg_t *w = NULL;
@@ -8602,7 +8602,7 @@ bool tool_change_player_t::init( player_t *player)
 	// ok now do our stuff
 	switch(  tool  ) {
 		case 'a': // activate/deactivate AI
-			if(  player  &&  player->get_ai_id()!=player_t::HUMAN  &&  (setting_player==welt->get_player(1)  ||  !env_t::networkmode)  ) {
+			if(  player  &&  player->get_ai_id()!=player_t::HUMAN  &&  (setting_player==welt->get_public_player()  ||  !env_t::networkmode)  ) {
 				player->set_active(state);
 				welt->get_settings().set_player_active(id, player->is_active());
 			}
@@ -8679,7 +8679,7 @@ bool tool_change_traffic_light_t::init( player_t *player )
  */
 bool tool_change_city_t::init( player_t *player )
 {
-	if (player != welt->get_player(1)) {
+	if (player != welt->get_public_player()) {
 		return false;
 	}
 	koord k;
@@ -8787,7 +8787,7 @@ bool tool_rename_t::init(player_t *player)
 
 		case 't':
 		{
-			if(  player == welt->get_player(1)  &&   id<welt->get_staedte().get_count()  ) {
+			if(  player == welt->get_public_player()  &&   id<welt->get_staedte().get_count()  ) {
 				welt->get_staedte()[id]->set_name( p );
 				return false;
 			}
@@ -8814,7 +8814,7 @@ bool tool_rename_t::init(player_t *player)
 
 		case 'f':
 		{
-			if(  player == welt->get_player(1)) {
+			if(  player == welt->get_public_player()) {
 				if(  grund_t *gr = welt->lookup(pos)  ) {
 					if(  gebaeude_t* gb = gr->find<gebaeude_t>()  ) {
 						if (  fabrik_t *fab = gb->get_fabrik()  ) {

@@ -3088,7 +3088,7 @@ sint64 haltestelle_t::calc_maintenance() const
 // changes this to a public transfer exchange stop
 bool haltestelle_t::make_public_and_join(player_t *player)
 {
-	player_t *public_owner = welt->get_player(1);
+	player_t *public_owner = welt->get_public_player();
 	const bool compensate = player == public_owner;
 	slist_tpl<halthandle_t> joining;
 
@@ -4595,7 +4595,7 @@ bool haltestelle_t::add_grund(grund_t *gr, bool relink_factories)
 	vector_tpl<linehandle_t> check_line(0);
 
 	// public halt: must iterate over all players lines / convoys
-	bool public_halt = get_owner() == welt->get_player(1);
+	bool public_halt = get_owner() == welt->get_public_player();
 
 	uint8 const pl_min = public_halt ? 0                : get_owner()->get_player_nr();
 	uint8 const pl_max = public_halt ? MAX_PLAYER_COUNT : get_owner()->get_player_nr() + 1;

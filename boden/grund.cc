@@ -2362,9 +2362,9 @@ bool grund_t::removing_way_would_disrupt_public_right_of_way(waytype_t wt)
 			if(end != koord3d::invalid)
 			{
 				route_t diversionary_route;
-				vehicle_t *diversion_checker = vehikelbauer_t::baue(start, welt->get_player(1), NULL, &diversion_check_type);
+				vehicle_t *diversion_checker = vehikelbauer_t::baue(start, welt->get_public_player(), NULL, &diversion_check_type);
 				diversion_checker->set_flag(obj_t::not_on_map);
-				diversion_checker->set_owner(welt->get_player(1));
+				diversion_checker->set_owner(welt->get_public_player());
 				test_driver_t *driver = diversion_checker;
 				driver = public_driver_t::apply(driver);
 				const weg_besch_t* default_road = welt->get_city(w->get_pos().get_2d()) ? welt->get_settings().get_city_road_type(welt->get_timeline_year_month()) : welt->get_settings().get_intercity_road_type(welt->get_timeline_year_month());
@@ -2482,7 +2482,7 @@ bool grund_t::remove_everything_from_way(player_t* player, waytype_t wt, ribi_t:
 		const koord here = pos.get_2d();
 
 		// stops
-		if(flags&is_halt_flag  &&  (get_halt()->get_owner()==player  || player==welt->get_player(1))) {
+		if(flags&is_halt_flag  &&  (get_halt()->get_owner()==player  || player==welt->get_public_player())) {
 			bool remove_halt = get_typ()!=boden;
 			// remove only if there is no other way
 			if(get_weg_nr(1)==NULL) {
