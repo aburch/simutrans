@@ -608,6 +608,12 @@ void vehicle_base_t::calc_height(grund_t *gr)
 		set_bild(IMG_EMPTY);
 	}
 	else {
+		// force a valid image above ground, with special handling of tunnel entraces
+		if (get_image() == IMG_EMPTY) {
+			if (!gr->ist_tunnel() && gr->ist_karten_boden()) {
+				calc_image();
+			}
+		}
 		// will not work great with ways, but is very short!
 		hang_t::typ hang = gr->get_weg_hang();
 		if(  hang  ) {
