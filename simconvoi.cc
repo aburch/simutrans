@@ -6697,40 +6697,39 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 			return false;
 		}
 
-		for(  sint32 i=0;  i<tiles;  i++  ) {
-			grund_t *gr = welt->lookup( route.position_bei( idx+i ) );
-			if(  gr==NULL  ) {
+		for (sint32 i = 0; i < tiles; i++) {
+			grund_t *gr = welt->lookup(route.position_bei(idx + i));
+			if (gr == NULL) {
 				return false;
 			}
 			weg_t *str = gr->get_weg(road_wt);
-			if(  str==0  ) {
+			if (str == 0) {
 				return false;
 			}
 			// not overtaking on railroad crossings or normal crossings ...
-			if(  str->is_crossing() ) {
+			if (str->is_crossing()) {
 				return false;
 			}
-			if(  ribi_t::is_threeway(str->get_ribi())  ) {
+			if (ribi_t::is_threeway(str->get_ribi())) {
 				return false;
 			}
 			// Check for other vehicles on the next tile
 			const uint8 top = gr->get_top();
-			for(  uint8 j=1;  j<top;  j++  ) {
-				if(  vehicle_base_t* const v = obj_cast<vehicle_base_t>(gr->obj_bei(j))  ) {
+			for (uint8 j = 1; j < top; j++) {
+				if (vehicle_base_t* const v = obj_cast<vehicle_base_t>(gr->obj_bei(j))) {
 					// check for other traffic on the road
 					const overtaker_t *ov = v->get_overtaker();
-					if(ov) {
-						if(this!=ov  &&  other_overtaker!=ov) {
+					if (ov) {
+						if (this != ov  &&  other_overtaker != ov) {
 							return false;
 						}
 					}
-					else if(  v->get_waytype()==road_wt  &&  v->get_typ()!=obj_t::pedestrian  ) {
+					else if (v->get_waytype() == road_wt  &&  v->get_typ() != obj_t::pedestrian) {
 						return false;
 					}
 				}
 			}
 		}
-		convoi_t *ocnv = dynamic_cast<convoi_t *>(other_overtaker);
 		set_tiles_overtaking(tiles);
 		return true;
 	}

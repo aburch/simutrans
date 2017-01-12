@@ -7341,7 +7341,7 @@ const char *tool_make_stop_public_t::get_tooltip(const player_t *player) const
 	return toolstr;
 }
 
-const char *tool_make_stop_public_t::move(player_t *player, uint16 b, koord3d p)
+const char *tool_make_stop_public_t::move(player_t *player, uint16, koord3d p)
 {
 	// queue tool for network
 	if (env_t::networkmode) {

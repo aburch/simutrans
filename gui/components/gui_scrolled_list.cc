@@ -28,7 +28,7 @@ bool  gui_scrolled_list_t::const_text_scrollitem_t::compare(scrollitem_t *aa, sc
 {
 	const_text_scrollitem_t* a = dynamic_cast<const_text_scrollitem_t*>(aa);
 	const_text_scrollitem_t* b = dynamic_cast<const_text_scrollitem_t*>(bb);
-	assert(a != NULL  &&  b != NULL);
+	assert(a != NULL  &&  b != NULL); (void)(a == b);
 	return strcmp(a->get_text(), b->get_text());
 }
 
