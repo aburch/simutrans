@@ -396,7 +396,7 @@ obj_besch_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			}
 		}
 	}
-	else if (version==10) {
+	else if (version==10 || version == 11) {
 		// new: weight in kgs
 		besch->base_cost = decode_uint32(p);
 		besch->zuladung = decode_uint16(p);
@@ -445,7 +445,14 @@ obj_besch_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				besch->upgrades = decode_uint8(p);
 				besch->base_upgrade_price = decode_uint32(p);
 				besch->available_only_as_upgrade = decode_uint8(p);
-				besch->base_fixed_cost = decode_uint32(p);
+				if (!experimental && version == 10)
+				{
+					besch->base_fixed_cost = decode_uint16(p);
+				}
+				else
+				{
+					besch->base_fixed_cost = decode_uint32(p);
+				}
 				besch->tractive_effort = decode_uint16(p);
 				uint32 air_resistance_hundreds = decode_uint16(p);
 				besch->air_resistance = air_resistance_hundreds / float32e8_t::hundred;

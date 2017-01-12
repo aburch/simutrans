@@ -31,7 +31,7 @@ extern "C" FILE * __cdecl __iob_func(void) { return _iob; }
 #define EX_VERSION_MINOR	9000
 #define EX_SAVE_MINOR		15
 
-#define MAKEOBJ_VERSION "55.4"
+#define MAKEOBJ_VERSION "55.5"
 
 #ifndef QUOTEME
 #	define QUOTEME_(x) #x
