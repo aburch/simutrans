@@ -503,6 +503,9 @@ toll_waycost_percentage = 0
 # in beginner mode, all good prices are multiplied by a factor (default 1500=1.5)
 beginner_price_factor = 1500
 
+ # The number of months of maintainance that the make public tool costs to use
+cst_make_public_months = 60
+
 ################################### Miscellaneous settings ##################################
 #
 # also pak dependent

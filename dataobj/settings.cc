@@ -268,6 +268,8 @@ settings_t::settings_t() :
 	cst_transformer=-250000;
 	cst_maintain_transformer=-2000;
 
+	cst_make_public_months = 60;
+
 	// costs for the way searcher
 	way_count_straight=1;
 	way_count_curve=2;
@@ -872,6 +874,10 @@ void settings_t::rdwr(loadsave_t *file)
 			// cost for transformers
 			file->rdwr_longlong(cst_transformer );
 			file->rdwr_longlong(cst_maintain_transformer );
+			if (file->get_version() > 120002 || file->get_experimental_revision() >= 16)
+			{
+				file->rdwr_longlong(cst_make_public_months);	
+			}
 			// wayfinder
 			file->rdwr_long(way_count_straight );
 			file->rdwr_long(way_count_curve );
@@ -2250,6 +2256,8 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	//   It should be possible to override this in .dat files, but it isn't
 	cst_transformer = contents.get_int64("cost_transformer", cst_transformer/(-100) ) * -100;
 	cst_maintain_transformer = contents.get_int64("cost_maintain_transformer", cst_maintain_transformer/(-100) ) * -100;
+
+	cst_make_public_months = contents.get_int64("cost_make_public_months", cst_make_public_months);
 
 	/* now the way builder */
 	way_count_straight = contents.get_int("way_straight", way_count_straight );

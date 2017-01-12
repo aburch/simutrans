@@ -7337,8 +7337,7 @@ const char *tool_make_stop_public_t::get_tooltip(const player_t *player) const
 		sprintf(toolstr, translator::translate("Only %s can use this tool"), welt->get_player(1)->get_name());
 		return toolstr;
 	}
-	sint32 const cost = (welt->get_settings().maint_building * 60) / 100;
-	sprintf(toolstr, translator::translate("make stop public (or join with public stop next) costs %i per tile and level"), cost);
+	sprintf(toolstr, translator::translate("Make way or stop public (will join with neighbours), %i times maintainance"), welt->get_settings().cst_make_public_months);
 	return toolstr;
 }
 
@@ -7391,16 +7390,22 @@ const char *tool_make_stop_public_t::move( player_t *player, uint16, koord3d p )
 
 const char *tool_make_stop_public_t::work( player_t *player, koord3d p )
 {
-	const grund_t *gr = welt->lookup(p);
 	player_t* public_player = welt->get_player(1);
-	if(  !gr  ||  !gr->get_halt().is_bound()  ||  gr->get_halt()->get_owner()==public_player  ) {
+	// months maintainance cost to make public
+	sint64 const COST_MONTHS_MAINTAINANCE = welt->scale_with_month_length(welt->get_settings().cst_make_public_months);
+	player_t *const psplayer = welt->get_player(1);
+	grund_t const *gr = welt->lookup(p);
+	if (!gr || !gr->get_halt().is_bound() || gr->get_halt()->get_owner() == psplayer) {
 		weg_t *w = NULL;
 		//convert a way here, if there is no halt or already public halt
 		{
-			if(  gr->get_typ()==grund_t::brueckenboden  ||  gr->get_grund_hang()!=hang_t::flach  ) {
-				// not making ways public on bridges or slopes
+			// The below is only really relevant in Standard, where ordinary players
+			// are allowed to use this tool and can thus pass off maintenance
+			// of expensive bridges to the public player.
+			/*if (gr->get_typ() == grund_t::brueckenboden) {
+				// not making ways public on bridges
 				return "No suitable ground!";
-			}
+			}*/
 			w = gr->get_weg_nr(0);
 			if(  !(w  &&  (  (w->get_owner()==player)  |  (player==public_player) )) ) {
 				w = gr->get_weg_nr(1);
@@ -7422,7 +7427,7 @@ const char *tool_make_stop_public_t::work( player_t *player, koord3d p )
 				}
 				else
 				{
-					construction_cost = maintenance_cost * 60;
+					construction_cost = welt->scale_with_month_length(maintenance_cost * welt->get_settings().cst_make_public_months);
 				}
 
 #ifdef MULTI_THREAD
@@ -7449,7 +7454,7 @@ const char *tool_make_stop_public_t::work( player_t *player, koord3d p )
 					}
 					else
 					{
-						construction_cost = maintenance_cost * 60;
+						construction_cost = welt->scale_with_month_length(maintenance_cost * welt->get_settings().cst_make_public_months);
 					}
 					if(t->get_owner() == public_player)
 					{
@@ -7471,7 +7476,7 @@ const char *tool_make_stop_public_t::work( player_t *player, koord3d p )
 					}
 					else
 					{
-						construction_cost = maintenance_cost * 60;
+						construction_cost = welt->scale_with_month_length(maintenance_cost * welt->get_settings().cst_make_public_months);
 					}
 					if(b->get_owner() == public_player)
 					{
