@@ -3163,7 +3163,7 @@ bool haltestelle_t::make_public_and_join(player_t *player)
 				{
 					// Player is voluntarily turning this over to the public player:
 					// pay a fee for the public player for future maintenance.
-					sint64 charge = welt->calc_adjusted_monthly_figure(costs * 60);
+					sint64 charge = welt->calc_adjusted_monthly_figure(costs * welt->get_settings().cst_make_public_months);
 					player_t::book_construction_costs(player,         -charge, get_basis_pos(), gb->get_waytype());
 					player_t::book_construction_costs(public_owner, charge, koord::invalid, gb->get_waytype());
 				}
@@ -3171,7 +3171,7 @@ bool haltestelle_t::make_public_and_join(player_t *player)
 				{
 					// The public player itself is acquiring this stop compulsorily, so pay compensation.
 					sint64 charge = welt->calc_adjusted_monthly_figure(costs);
-					player_t::book_construction_costs(player,       -charge, get_basis_pos(), gb->get_waytype());
+					player_t::book_construction_costs(player, -charge, get_basis_pos(), gb->get_waytype());
 					player_t::book_construction_costs(owner, charge, koord::invalid, gb->get_waytype());
 				}
 			}
