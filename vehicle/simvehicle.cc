@@ -5722,6 +5722,10 @@ void rail_vehicle_t::unreserve_in_rear()
 void rail_vehicle_t::unreserve_station()
 {
 	grund_t* gr = welt->lookup(get_pos());
+	if (!gr)
+	{
+		return;
+	}
 	bool in_station = gr->get_halt().is_bound();
 	
 	route_t* route = cnv ? cnv->get_route() : NULL;
