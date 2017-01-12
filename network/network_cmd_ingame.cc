@@ -178,6 +178,8 @@ void nwc_nick_t::server_tools(karte_t *welt, uint32 client_id, uint8 what, const
 	socket_info_t &info = socket_list_t::get_client(client_id);
 
 	cbuffer_t buf;
+	buf.printf("%d,", message_t::general | message_t::local_flag);
+
 	switch(what) {
 		case WELCOME: {
 			// welcome message

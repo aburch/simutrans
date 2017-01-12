@@ -5486,6 +5486,7 @@ rands[19] = get_random_seed();
 		last_clients = socket_list_t::get_playing_clients();
 		// add message via tool
 		cbuffer_t buf;
+		buf.printf("%d,", message_t::general | message_t::local_flag);
 		buf.printf(translator::translate("Now %u clients connected.", settings.get_name_language_id()), last_clients);
 		tool_t *tool = create_tool( TOOL_ADD_MESSAGE | SIMPLE_TOOL );
 		tool->set_default_param( buf );
