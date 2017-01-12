@@ -822,6 +822,11 @@ void scenario_t::rdwr(loadsave_t *file)
 		forbidden_tools[i]->rdwr(file);
 	}
 
+	// cached strings
+	if (file->get_version() >= 120003) {
+		dynamic_string::rdwr_cache(file);
+	}
+
 	if (what_scenario == SCRIPTED  &&  file->is_loading()  &&  !rdwr_error) {
 		const char* err = script->call_function("resume_game");
 		if (err) {

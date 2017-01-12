@@ -6,6 +6,7 @@
 #include "../network/network.h"
 #include "../network/network_cmd_scenario.h"
 #include "../dataobj/environment.h"
+#include "../dataobj/loadsave.h"
 #include "../player/simplay.h"
 #include "../tpl/plainstringhashtable_tpl.h"
 #include "../utils/cbuffer_t.h"
@@ -18,12 +19,24 @@ struct cached_string_t {
 	uint32 time;
 	dynamic_string *listener;
 	cached_string_t(const char* str, uint32 t, dynamic_string *l) : result(str), time(t), listener(l) {}
+
+	cached_string_t(loadsave_t* file)
+	{
+		time = dr_time() - CACHE_TIME;
+		listener = NULL;
+		rdwr(file);
+	}
+
+	void rdwr(loadsave_t* file)
+	{
+		file->rdwr_str(result);
+	}
 };
 
 static plainstringhashtable_tpl<cached_string_t*> cached_results;
 
 
-cached_string_t* get_cached_result(const char* function, uint32 cache_time)
+cached_string_t* get_cashed_result(const char* function, uint32 cache_time)
 {
 	cached_string_t *entry = cached_results.get(function);
 
@@ -53,6 +66,30 @@ void dynamic_string::init()
 	}
 }
 
+void dynamic_string::rdwr_cache(loadsave_t *file)
+{
+	uint32 count = cached_results.get_count();
+	file->rdwr_long(count);
+
+	if (file->is_loading()) {
+		// clear list
+		while (!cached_results.empty()) {
+			delete cached_results.remove_first();
+		}
+		for (uint32 i = 0; i<count; i++) {
+			plainstring key;
+			file->rdwr_str(key);
+			cached_results.set(key, new cached_string_t(file));
+		}
+	}
+	else {
+		FOR(plainstringhashtable_tpl<cached_string_t*>, &iter, cached_results) {
+			file->rdwr_str(iter.key);
+			iter.value->rdwr(file);
+		}
+	}
+}
+
 
 void dynamic_string::update(script_vm_t *script, player_t *player, bool force_update)
 {
@@ -64,7 +101,7 @@ void dynamic_string::update(script_vm_t *script, player_t *player, bool force_up
 	if (script) {
 		cached_string_t *entry = NULL;
 		if (!force_update) {
-			entry = get_cached_result(function, CACHE_TIME);
+			entry = get_cashed_result(function, CACHE_TIME);
 		}
 		if (entry) {
 			// valid cache entry
@@ -95,7 +132,7 @@ void dynamic_string::update(script_vm_t *script, player_t *player, bool force_up
 const char* dynamic_string::fetch_result(const char* function, script_vm_t *script, dynamic_string *listener, bool force_update)
 {
 	//dbg->warning("dynamic_string::fetch_result", "function = '%s'", function);
-	cached_string_t *entry = get_cached_result(function, CACHE_TIME);
+	cached_string_t *entry = get_cashed_result(function, CACHE_TIME);
 
 	bool const needs_update = entry == NULL  ||  force_update;
 
