@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug (command-line server)|Win32">
@@ -590,6 +590,9 @@
     <OutDir>.\simutrans\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+	<PreBuildEvent>
+      <Command>cscript.exe //Nologo revision.jse</Command>
+    </PreBuildEvent>
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -631,6 +634,9 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug (single threaded new)|Win32'">
+	<PreBuildEvent>
+      <Command>cscript.exe //Nologo revision.jse</Command>
+    </PreBuildEvent>
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -672,6 +678,9 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug (graphical server)|Win32'">
+	<PreBuildEvent>
+      <Command>cscript.exe //Nologo revision.jse</Command>
+    </PreBuildEvent>
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -712,6 +721,9 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+	<PreBuildEvent>
+      <Command>cscript.exe //Nologo revision.jse</Command>
+    </PreBuildEvent>
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -743,6 +755,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug (single threaded new)|x64'">
+	<PreBuildEvent>
+      <Command>cscript.exe //Nologo revision.jse</Command>
+    </PreBuildEvent>
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -774,6 +789,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug (graphical server)|x64'">
+	<PreBuildEvent>
+      <Command>cscript.exe //Nologo revision.jse</Command>
+    </PreBuildEvent>
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -805,6 +823,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug-64|Win32'">
+	<PreBuildEvent>
+      <Command>cscript.exe //Nologo revision.jse</Command>
+    </PreBuildEvent>
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -840,6 +861,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug-64|x64'">
+	<PreBuildEvent>
+      <Command>cscript.exe //Nologo revision.jse</Command>
+    </PreBuildEvent>
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -871,6 +895,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug (single threaded old)|Win32'">
+	<PreBuildEvent>
+      <Command>cscript.exe //Nologo revision.jse</Command>
+    </PreBuildEvent>
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -911,6 +938,9 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug (single threaded old)|x64'">
+	<PreBuildEvent>
+      <Command>cscript.exe //Nologo revision.jse</Command>
+    </PreBuildEvent>
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -942,6 +972,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug (network)|Win32'">
+	<PreBuildEvent>
+      <Command>cscript.exe //Nologo revision.jse</Command>
+    </PreBuildEvent>
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -979,6 +1012,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug (network)|x64'">
+	<PreBuildEvent>
+      <Command>cscript.exe //Nologo revision.jse</Command>
+    </PreBuildEvent>
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>F:\My Documents\Development\Zlib\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -1012,6 +1048,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug (command-line server)|Win32'">
+	<PreBuildEvent>
+      <Command>cscript.exe //Nologo revision.jse</Command>
+    </PreBuildEvent>
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -1048,6 +1087,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug (command-line server)|x64'">
+	<PreBuildEvent>
+      <Command>cscript.exe //Nologo revision.jse</Command>
+    </PreBuildEvent>
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -1081,6 +1123,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+	<PreBuildEvent>
+      <Command>cscript.exe //Nologo revision.jse</Command>
+    </PreBuildEvent>
     <ClCompile>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -1122,6 +1167,9 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+	<PreBuildEvent>
+      <Command>cscript.exe //Nologo revision.jse</Command>
+    </PreBuildEvent>
     <ClCompile>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -1156,6 +1204,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release (single threaded)|Win32'">
+	<PreBuildEvent>
+      <Command>cscript.exe //Nologo revision.jse</Command>
+    </PreBuildEvent>
     <ClCompile>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -1194,6 +1245,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release (single threaded)|x64'">
+	<PreBuildEvent>
+      <Command>cscript.exe //Nologo revision.jse</Command>
+    </PreBuildEvent>
     <ClCompile>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -1229,6 +1283,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Dr. Memory|Win32'">
+	<PreBuildEvent>
+      <Command>cscript.exe //Nologo revision.jse</Command>
+    </PreBuildEvent>
     <ClCompile>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <IntrinsicFunctions>false</IntrinsicFunctions>
@@ -1267,6 +1324,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Dr. Memory|x64'">
+	<PreBuildEvent>
+      <Command>cscript.exe //Nologo revision.jse</Command>
+    </PreBuildEvent>
     <ClCompile>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <IntrinsicFunctions>false</IntrinsicFunctions>
@@ -1302,6 +1362,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release (IP v. 4 only)|Win32'">
+	<PreBuildEvent>
+      <Command>cscript.exe //Nologo revision.jse</Command>
+    </PreBuildEvent>
     <ClCompile>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -1340,6 +1403,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release (IP v. 4 only)|x64'">
+	<PreBuildEvent>
+      <Command>cscript.exe //Nologo revision.jse</Command>
+    </PreBuildEvent>
     <ClCompile>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -1374,6 +1440,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release (command-line server)|Win32'">
+	<PreBuildEvent>
+      <Command>cscript.exe //Nologo revision.jse</Command>
+    </PreBuildEvent>
     <ClCompile>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -1411,6 +1480,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release (command-line server)|x64'">
+	<PreBuildEvent>
+      <Command>cscript.exe //Nologo revision.jse</Command>
+    </PreBuildEvent>
     <ClCompile>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -1444,6 +1516,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release (SDL)|Win32'">
+	<PreBuildEvent>
+      <Command>cscript.exe //Nologo revision.jse</Command>
+    </PreBuildEvent>
     <ClCompile>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -1478,6 +1553,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release (SDL)|x64'">
+	<PreBuildEvent>
+      <Command>cscript.exe //Nologo revision.jse</Command>
+    </PreBuildEvent>
     <ClCompile>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -1509,6 +1587,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug (SDL)|Win32'">
+	<PreBuildEvent>
+      <Command>cscript.exe //Nologo revision.jse</Command>
+    </PreBuildEvent>
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>F:\My Documents\Development\Simutrans\SDL-1.2.13\include;F:\My Documents\Development\Zlib\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -1543,6 +1624,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug (SDL)|x64'">
+	<PreBuildEvent>
+      <Command>cscript.exe //Nologo revision.jse</Command>
+    </PreBuildEvent>
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>F:\My Documents\Development\Simutrans\SDL-1.2.13\include;F:\My Documents\Development\Zlib\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>

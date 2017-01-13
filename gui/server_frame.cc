@@ -248,7 +248,7 @@ void server_frame_t::update_info ()
 	buf.printf( "%s %u\n", translator::translate("Stops"), gi.get_halt_count() );
 
 	revision_buf.clear();
-	revision_buf.printf( "%s %u", translator::translate( "Revision:" ), gi.get_game_engine_revision() );
+	revision_buf.printf( "%s %x", translator::translate( "Revision:" ), gi.get_game_engine_revision() );
 	revision.set_text( revision_buf );
 	revision.set_color( engine_match ? SYSCOL_TEXT : SYSCOL_TEXT_STRONG );
 
