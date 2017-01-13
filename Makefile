@@ -130,7 +130,10 @@ ifneq ($(MULTI_THREAD),)
 endif
 
 ifneq ($(WITH_REVISION),)
-  REVISION := $(shell git rev-parse --short HEAD)
+  REV = $(shell git rev-parse --short HEAD)
+  ifneq ($(REV),)
+    CFLAGS  += -DREVISION="$(REV)"
+  endif
 endif
 
 CFLAGS   += -Wall -W -Wcast-qual -Wpointer-arith -Wcast-align $(FLAGS)
