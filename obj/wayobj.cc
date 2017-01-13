@@ -58,7 +58,7 @@ wayobj_t::wayobj_t(loadsave_t* const file) :
 #else
 	obj_no_info_t()
 #endif
-	, hang(hang_t::flach)
+	, hang(slope_t::flat)
 {
 	rdwr(file);
 }
@@ -70,7 +70,7 @@ wayobj_t::wayobj_t(koord3d const pos, player_t* const owner, ribi_t::ribi const 
 #else
 	obj_no_info_t(pos)
 #endif
-	, hang(hang_t::flach)
+	, hang(slope_t::flat)
 {
 	besch = b;
 	dir = d;
@@ -96,8 +96,8 @@ wayobj_t::~wayobj_t()
 				// restore old speed limit and way constraints
 				weg->reset_way_constraints();
 				sint32 max_speed;
-				const hang_t::typ hang = gr ? gr->get_weg_hang() : hang_t::flach;
-				if(hang != hang_t::flach) 
+				const slope_t::type hang = gr ? gr->get_weg_hang() : slope_t::flat;
+				if(hang != slope_t::flat) 
 				{
 					const uint slope_height = (hang & 7) ? 1 : 2;
 					if(slope_height == 1)
@@ -122,7 +122,7 @@ wayobj_t::~wayobj_t()
 					tunnel_t *t = gr->find<tunnel_t>(1);
 					if(t) 
 					{
-						if(hang != hang_t::flach) 
+						if(hang != slope_t::flat) 
 						{
 							const uint slope_height = (hang & 7) ? 1 : 2;
 							if(slope_height == 1)
@@ -146,7 +146,7 @@ wayobj_t::~wayobj_t()
 					bruecke_t *b = gr->find<bruecke_t>(1);
 					if(b)
 					{
-						if(hang != hang_t::flach) 
+						if(hang != slope_t::flat) 
 						{
 							const uint slope_height = (hang & 7) ? 1 : 2;
 							if(slope_height == 1)
@@ -179,14 +179,14 @@ wayobj_t::~wayobj_t()
 	if( gr ) {
 		for( uint8 i = 0; i < 4; i++ ) {
 			// Remove ribis from adjacent wayobj.
-			if( ribi_t::nsow[i] & get_dir() ) {
+			if( ribi_t::nsew[i] & get_dir() ) {
 				grund_t *next_gr;
-				if( gr->get_neighbour( next_gr, besch->get_wtyp(), ribi_t::nsow[i] ) ) {
+				if( gr->get_neighbour( next_gr, besch->get_wtyp(), ribi_t::nsew[i] ) ) {
 					wayobj_t *wo2 = next_gr->get_wayobj( besch->get_wtyp() );
 					if( wo2 ) {
 						wo2->mark_image_dirty( wo2->get_front_image(), 0 );
 						wo2->mark_image_dirty( wo2->get_image(), 0 );
-						wo2->set_dir( wo2->get_dir() & ~ribi_t::rueckwaerts(ribi_t::nsow[i]) ); // This has the effect of looking for directions in front of this way object (the ~ combined with the ribi_t::rueckwaerts). 
+						wo2->set_dir( wo2->get_dir() & ~ribi_t::backward(ribi_t::nsew[i]) ); // This has the effect of looking for directions in front of this way object (the ~ combined with the ribi_t::backward). 
 						wo2->mark_image_dirty( wo2->get_front_image(), 0 );
 						wo2->mark_image_dirty( wo2->get_image(), 0 );
 						wo2->set_flag(obj_t::dirty);
@@ -266,7 +266,7 @@ void wayobj_t::finish_rd()
 			dir = w->get_ribi_unmasked();
 		}
 		else {
-			dir = ribi_t::alle;
+			dir = ribi_t::all;
 		}
 	}
 
@@ -282,7 +282,7 @@ void wayobj_t::finish_rd()
 			// Weg wieder freigeben, wenn das Signal nicht mehr da ist.
 			weg->set_electrify(true);
 			sint32 way_top_speed;
-			if(hang != hang_t::flach) 
+			if(hang != slope_t::flat) 
 			{
 				const uint slope_height = (hang & 7) ? 1 : 2;
 				if(slope_height == 1)
@@ -320,7 +320,7 @@ void wayobj_t::rotate90()
 {
 	obj_t::rotate90();
 	dir = ribi_t::rotate90( dir);
-	hang = hang_t::rotate90( hang );
+	hang = slope_t::rotate90( hang );
 }
 
 
@@ -328,7 +328,7 @@ void wayobj_t::rotate90()
 ribi_t::ribi wayobj_t::find_next_ribi(const grund_t *start, ribi_t::ribi const dir, const waytype_t wt) const
 {
 	grund_t *to;
-	ribi_t::ribi r1 = ribi_t::keine;
+	ribi_t::ribi r1 = ribi_t::none;
 	if(start->get_neighbour(to,wt,dir)) {
 		const wayobj_t* wo = to->get_wayobj( wt );
 		if(wo) {
@@ -370,7 +370,7 @@ void wayobj_t::calc_image()
 
 		// if there is a slope, we are finished, only four choices here (so far)
 		hang = gr->get_weg_hang();
-		if(hang!=hang_t::flach) {
+		if(hang!=slope_t::flat) {
 #ifdef MULTI_THREAD
 			pthread_mutex_unlock( &wayobj_calc_bild_mutex );
 #endif
@@ -378,16 +378,16 @@ void wayobj_t::calc_image()
 		}
 
 		// find out whether using diagonals or straight lines
-		if(ribi_t::ist_kurve(dir)  &&  besch->has_diagonal_bild()) {
-			ribi_t::ribi r1 = ribi_t::keine, r2 = ribi_t::keine;
+		if(ribi_t::is_bend(dir)  &&  besch->has_diagonal_bild()) {
+			ribi_t::ribi r1 = ribi_t::none, r2 = ribi_t::none;
 
 			// get the ribis of the ways that connect to us
-			// r1 will be 45 degree clockwise ribi (eg nordost->ost), r2 will be anticlockwise ribi (eg nordost->nord)
+			// r1 will be 45 degree clockwise ribi (eg nordost->east), r2 will be anticlockwise ribi (eg nordost->north)
 			r1 = find_next_ribi( gr, ribi_t::rotate45(dir), wt );
 			r2 = find_next_ribi( gr, ribi_t::rotate45l(dir), wt );
 
 			// diagonal if r1 or r2 are our reverse and neither one is 90 degree rotation of us
-			diagonal = (r1 == ribi_t::rueckwaerts(dir) || r2 == ribi_t::rueckwaerts(dir)) && r1 != ribi_t::rotate90l(dir) && r2 != ribi_t::rotate90(dir);
+			diagonal = (r1 == ribi_t::backward(dir) || r2 == ribi_t::backward(dir)) && r1 != ribi_t::rotate90l(dir) && r2 != ribi_t::rotate90(dir);
 
 			if(diagonal) {
 				// with this, we avoid calling us endlessly
@@ -398,7 +398,7 @@ void wayobj_t::calc_image()
 					grund_t *to;
 					rekursion++;
 					for(int r = 0; r < 4; r++) {
-						if(gr->get_neighbour(to, wt, ribi_t::nsow[r])) {
+						if(gr->get_neighbour(to, wt, ribi_t::nsew[r])) {
 							wayobj_t* wo = to->get_wayobj( wt );
 							if(wo) {
 								wo->calc_image();
@@ -483,7 +483,7 @@ const char *wayobj_t::extend_wayobj_t(koord3d pos, player_t *owner, ribi_t::ribi
 		gr->calc_image();
 		for(int r = 0; r < 4; r++) {
 			grund_t *to;
-			if(gr->get_neighbour(to, invalid_wt, ribi_t::nsow[r])) {
+			if(gr->get_neighbour(to, invalid_wt, ribi_t::nsew[r])) {
 				to->calc_image();
 			}
 		}
@@ -491,14 +491,14 @@ const char *wayobj_t::extend_wayobj_t(koord3d pos, player_t *owner, ribi_t::ribi
 
 		for( uint8 i = 0; i < 4; i++ ) {
 		// Extend wayobjects around the new one, that aren't already connected.
-			if( ribi_t::nsow[i] & ~wo->get_dir() ) {
+			if( ribi_t::nsew[i] & ~wo->get_dir() ) {
 				grund_t *next_gr;
-				if( gr->get_neighbour( next_gr, besch->get_wtyp(), ribi_t::nsow[i] ) ) {
+				if( gr->get_neighbour( next_gr, besch->get_wtyp(), ribi_t::nsew[i] ) ) {
 					wayobj_t *wo2 = next_gr->get_wayobj( besch->get_wtyp() );
 					if( wo2 ) {
-						wo2->set_dir( wo2->get_dir() | ribi_t::rueckwaerts(ribi_t::nsow[i]) );
+						wo2->set_dir( wo2->get_dir() | ribi_t::backward(ribi_t::nsew[i]) );
 						wo2->mark_image_dirty( wo2->get_front_image(), 0 );
-						wo->set_dir( wo->get_dir() | ribi_t::nsow[i] );
+						wo->set_dir( wo->get_dir() | ribi_t::nsew[i] );
 						wo->mark_image_dirty( wo->get_front_image(), 0 );
 					}
 				}

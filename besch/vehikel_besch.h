@@ -263,8 +263,8 @@ public:
 
 	skin_besch_t const* get_rauch() const { return get_child<skin_besch_t>(3); }
 
-	image_id get_base_image() const { return get_bild_nr(ribi_t::dir_sued, get_ware() ); }
-	image_id get_base_image(const char* livery) const { return get_bild_nr(ribi_t::dir_sued, get_ware(), livery ); }
+	image_id get_base_image() const { return get_bild_nr(ribi_t::dir_south, get_ware() ); }
+	image_id get_base_image(const char* livery) const { return get_bild_nr(ribi_t::dir_south, get_ware(), livery ); }
 
 	// returns the number of different directions
 	uint8 get_dirs() const { return get_child<bildliste_besch_t>(4)->get_image(4) ? 8 : 4; }
@@ -472,7 +472,7 @@ public:
 	}
 
 	// Liefert die erlaubten Vorgaenger.
-	// liefert get_vorgaenger(0) == NULL, so bedeutet das entweder alle
+	// liefert get_vorgaenger(0) == NULL, so bedeutet das entweder all
 	// Vorgänger sind erlaubt oder keine. Um das zu unterscheiden, sollte man
 	// vorher hat_vorgaenger() befragen
 
@@ -489,7 +489,7 @@ public:
 	}
 
 	// Liefert die erlaubten Nachfolger.
-	// liefert get_nachfolger(0) == NULL, so bedeutet das entweder alle
+	// liefert get_nachfolger(0) == NULL, so bedeutet das entweder all
 	// Nachfolger sind erlaubt oder keine. Um das zu unterscheiden, sollte
 	// man vorher hat_nachfolger() befragen
 	const vehikel_besch_t *get_nachfolger(int i) const

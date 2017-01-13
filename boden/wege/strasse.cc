@@ -141,9 +141,9 @@ void strasse_t::rdwr(loadsave_t *file)
 		const grund_t* gr = welt->lookup(get_pos());
 		const bruecke_t *bridge = gr ? gr->find<bruecke_t>() : NULL;
 		const tunnel_t *tunnel = gr ? gr->find<tunnel_t>() : NULL;
-		const hang_t::typ hang = gr ? gr->get_weg_hang() : hang_t::flach;
+		const slope_t::type hang = gr ? gr->get_weg_hang() : slope_t::flat;
 
-		if(hang != hang_t::flach) 
+		if(hang != slope_t::flat) 
 		{
 			const uint slope_height = (hang & 7) ? 1 : 2;
 			if(slope_height == 1)

@@ -77,7 +77,7 @@ void tunnel_t::calc_image()
 	{
 		grund_t *from = welt->lookup(get_pos());
 		image_id old_bild = image;
-		hang_t::typ hang = gr->get_grund_hang();
+		slope_t::type hang = gr->get_grund_hang();
 		ribi_t::ribi ribi = gr->get_weg_ribi(besch->get_waytype());
 		ribi_t::ribi ribi_unmasked = gr->get_weg_ribi_unmasked(besch->get_waytype());
 		if(gr->ist_karten_boden()) 
@@ -85,7 +85,7 @@ void tunnel_t::calc_image()
 			// Tunnel portal
 			broad_type = 0;
 			if(  besch->has_broad_portals()  ) {
-				ribi_t::ribi dir = ribi_t::rotate90( ribi_typ( hang ) );
+				ribi_t::ribi dir = ribi_t::rotate90( ribi_type( hang ) );
 				if(  dir==0  ) {
 					dbg->error( "tunnel_t::calc_image()", "pos=%s, dir=%i, hang=%i", get_pos().get_str(), dir, hang );
 				}
@@ -192,8 +192,8 @@ void tunnel_t::finish_rd()
 		// change maintenance
 		weg_t *weg = gr->get_weg(besch->get_waytype());
 		if(weg) {
-			const hang_t::typ hang = gr ? gr->get_weg_hang() : hang_t::flach;
-			if(hang != hang_t::flach) 
+			const slope_t::type hang = gr ? gr->get_weg_hang() : slope_t::flat;
+			if(hang != slope_t::flat) 
 			{
 				const uint slope_height = (hang & 7) ? 1 : 2;
 				if(slope_height == 1)
@@ -229,8 +229,8 @@ void tunnel_t::cleanup( player_t *player2 )
 	if(gr) {
 		weg_t *weg = gr->get_weg( besch->get_waytype() );
 		if(weg)	{
-			const hang_t::typ hang = gr ? gr->get_weg_hang() : hang_t::flach;
-			if(hang != hang_t::flach) 
+			const slope_t::type hang = gr ? gr->get_weg_hang() : slope_t::flat;
+			if(hang != slope_t::flat) 
 			{
 				const uint slope_height = (hang & 7) ? 1 : 2;
 				if(slope_height == 1)

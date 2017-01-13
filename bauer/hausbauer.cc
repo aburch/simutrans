@@ -61,7 +61,7 @@ static stringhashtable_tpl<const haus_besch_t*> besch_names;
 
 /*
  * Alle Gebäude, die die Anwendung direkt benötigt, kriegen feste IDs.
- * Außerdem müssen wir dafür sorgen, dass sie alle da sind.
+ * Außerdem müssen wir dafür sorgen, dass sie all da sind.
  */
 const haus_besch_t *hausbauer_t::elevated_foundation_besch = NULL;
 
@@ -446,7 +446,7 @@ void hausbauer_t::remove( player_t *player, gebaeude_t *gb ) //gebaeude = "build
 						const uint8 new_slope = welt->recalc_natural_slope(newk,new_hgt);
 						// test for ground at new height
 						const grund_t *gr2 = welt->lookup(koord3d(newk,new_hgt));
-						if(  (gr2==NULL  ||  gr2==gr) &&  new_slope!=hang_t::flach  ) {
+						if(  (gr2==NULL  ||  gr2==gr) &&  new_slope!=slope_t::flat  ) {
 							// and for ground above new sloped tile
 							gr2 = welt->lookup(koord3d(newk, new_hgt+1));
 						}
@@ -454,10 +454,10 @@ void hausbauer_t::remove( player_t *player, gebaeude_t *gb ) //gebaeude = "build
 						if(  gr2  &&  gr2!=gr  ) {
 							// there is another ground below or above
 							// => do not change height, keep foundation
-							welt->access(newk)->kartenboden_setzen( new boden_t( gr->get_pos(), hang_t::flach ) );
+							welt->access(newk)->kartenboden_setzen( new boden_t( gr->get_pos(), slope_t::flat ) );
 							ground_recalc = false;
 						}
-						else if(  new_hgt <= welt->get_water_hgt(newk)  &&  new_slope == hang_t::flach  ) {
+						else if(  new_hgt <= welt->get_water_hgt(newk)  &&  new_slope == slope_t::flat  ) {
 							welt->access(newk)->kartenboden_setzen( new wasser_t( koord3d( newk, new_hgt ) ) );
 							welt->calc_climate( newk, true );
 						}
@@ -470,10 +470,10 @@ void hausbauer_t::remove( player_t *player, gebaeude_t *gb ) //gebaeude = "build
 						}
 						// there might be walls from foundations left => thus some tiles may needs to be redraw
 						if(ground_recalc) {
-							if(grund_t *gr = welt->lookup_kartenboden(newk+koord::ost)) {
+							if(grund_t *gr = welt->lookup_kartenboden(newk+koord::east)) {
 								gr->calc_image();
 							}
-							if(grund_t *gr = welt->lookup_kartenboden(newk+koord::sued)) {
+							if(grund_t *gr = welt->lookup_kartenboden(newk+koord::south)) {
 								gr->calc_image();
 							}
 						}
@@ -536,7 +536,7 @@ gebaeude_t* hausbauer_t::baue(player_t* player, koord3d pos, int org_layout, con
 					}
 					gr->obj_loesche_alle(player);	// alles weg außer vehikel ...
 				}
-				needs_ground_recalc |= gr->get_grund_hang()!=hang_t::flach;
+				needs_ground_recalc |= gr->get_grund_hang()!=slope_t::flat;
 				// Build fundament up or down?  Up is the default.
 				bool build_up = true;
 				if (dim.x == 1 && dim.y == 1) {
@@ -581,11 +581,11 @@ gebaeude_t* hausbauer_t::baue(player_t* player, koord3d pos, int org_layout, con
 					}
 					if(  front_side_neighbor != koord(0,0)  ) {
 						const grund_t* front_gr = welt->lookup_kartenboden(pos.get_2d() + front_side_neighbor);
-						if(  !front_gr || (front_gr->get_weg_hang() != hang_t::flach)  ) {
+						if(  !front_gr || (front_gr->get_weg_hang() != slope_t::flat)  ) {
 							// Nothing in front, or sloped.  For a corner building, try the other front side.
 							if(  other_front_side_neighbor != koord(0,0)  ) {
 								const grund_t* other_front_gr = welt->lookup_kartenboden(pos.get_2d() + other_front_side_neighbor);
-								if (other_front_gr && (other_front_gr->get_weg_hang() == hang_t::flach)  ) {
+								if (other_front_gr && (other_front_gr->get_weg_hang() == slope_t::flat)  ) {
 									// Prefer the other front side.
 									front_side_neighbor = other_front_side_neighbor;
 									front_gr = other_front_gr;
@@ -692,11 +692,11 @@ gebaeude_t *hausbauer_t::neues_gebaeude(player_t *player, koord3d pos, int built
 
 		// detect if we are connected at far (north/west) end
 		sint8 offset = welt->lookup( pos )->get_weg_yoff()/TILE_HEIGHT_STEP;
-		koord3d checkpos = pos+koord3d( (layout & 1 ? koord::ost : koord::sued), offset);
+		koord3d checkpos = pos+koord3d( (layout & 1 ? koord::east : koord::south), offset);
 		grund_t * gr = welt->lookup( checkpos );
 		if(!gr) {
 			// check whether bridge end tile
-			grund_t * gr_tmp = welt->lookup( pos+koord3d( (layout & 1 ? koord::ost : koord::sued),offset - 2) );
+			grund_t * gr_tmp = welt->lookup( pos+koord3d( (layout & 1 ? koord::east : koord::south),offset - 2) );
 			if(gr_tmp && gr_tmp->get_weg_yoff()/TILE_HEIGHT_STEP == 1) {
 				gr = gr_tmp;
 			}
@@ -730,10 +730,10 @@ gebaeude_t *hausbauer_t::neues_gebaeude(player_t *player, koord3d pos, int built
 		}
 
 		// detect if near (south/east) end
-		gr = welt->lookup( pos+koord3d( (layout & 1 ? koord::west : koord::nord), offset) );
+		gr = welt->lookup( pos+koord3d( (layout & 1 ? koord::west :  koord::north), offset) );
 		if(!gr) {
 			// check whether bridge end tile
-			grund_t * gr_tmp = welt->lookup( pos+koord3d( (layout & 1 ? koord::west : koord::nord),offset - 1) );
+			grund_t * gr_tmp = welt->lookup( pos+koord3d( (layout & 1 ? koord::west :  koord::north),offset - 1) );
 			if(gr_tmp && gr_tmp->get_weg_yoff()/TILE_HEIGHT_STEP == 1) {
 				gr = gr_tmp;
 			}

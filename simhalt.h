@@ -91,7 +91,7 @@ public:
 
 private:
 	/**
-	 * Manche Methoden müssen auf alle Haltestellen angewandt werden
+	 * Manche Methoden müssen auf all Haltestellen angewandt werden
 	 * deshalb verwaltet die Klasse eine Liste aller Haltestellen
 	 * @author Hj. Malthaner
 	 */
@@ -1040,13 +1040,13 @@ public:
 		switch(direction)
 		{
 		default:
-		case ribi_t::nord:
+		case ribi_t::north:
 			dir = 0;
 			break;
-		case ribi_t::sued:
+		case ribi_t::south:
 			dir = 1;
 			break;
-		case ribi_t::ost:
+		case ribi_t::east:
 			dir = 2;
 			break;
 		case ribi_t::west:

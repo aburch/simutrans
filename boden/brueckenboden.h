@@ -22,7 +22,7 @@ public:
 
 	virtual sint8 get_weg_yoff() const;
 
-	hang_t::typ get_weg_hang() const { return weg_hang; }
+	slope_t::type get_weg_hang() const { return weg_hang; }
 
 	const char *get_name() const {return "Brueckenboden";}
 	typ get_typ() const { return brueckenboden; }

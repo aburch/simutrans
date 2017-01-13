@@ -196,8 +196,8 @@ static halthandle_t suche_nahe_haltestelle(player_t *player, karte_t *welt, koor
 	if(  bd->hat_wege()  ) {
 		ribi_t::ribi ribi = bd->get_weg_nr(0)->get_ribi_unmasked();
 		for(  int i=0;  i<4;  i++ ) {
-			if(  ribi_t::nsow[i] & ribi ) {
-				if(  planquadrat_t* plan=welt->access(k+koord::nsow[i])  ) {
+			if(  ribi_t::nsew[i] & ribi ) {
+				if(  planquadrat_t* plan=welt->access(k+koord::nsew[i])  ) {
 					my_halt = plan->get_halt( player );
 					if(  my_halt.is_bound()  ) {
 						return my_halt;
@@ -839,7 +839,7 @@ DBG_MESSAGE("tool_remover()", "removing way");
 			{
 				welt->set_recheck_road_connexions();
 			}
-			gr->remove_everything_from_way(player, weg->get_waytype(), ribi_t::keine);
+			gr->remove_everything_from_way(player, weg->get_waytype(), ribi_t::none);
 		}
 		// tunnel without way: delete anything else
 		if(  !gr->hat_wege()  ) {
@@ -883,14 +883,14 @@ const char *tool_remover_t::work( player_t *player, koord3d pos )
 		welt->lookup_kartenboden(pos.get_2d()+koord::west)->calc_image();
 	}
 	if(pos.y>1) {
-		welt->lookup_kartenboden(pos.get_2d()+koord::nord)->calc_image();
+		welt->lookup_kartenboden(pos.get_2d()+ koord::north)->calc_image();
 	}
 
 	if(pos.x<welt->get_size().x-1) {
-		welt->lookup_kartenboden(pos.get_2d()+koord::ost)->calc_image();
+		welt->lookup_kartenboden(pos.get_2d()+koord::east)->calc_image();
 	}
 	if(pos.y<welt->get_size().y-1) {
-		welt->lookup_kartenboden(pos.get_2d()+koord::sued)->calc_image();
+		welt->lookup_kartenboden(pos.get_2d()+koord::south)->calc_image();
 	}
 
 	return NULL;
@@ -1175,7 +1175,7 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 	if(  !grund_besch_t::double_grounds  ) {
 		// translate old single slope parameter to new double slope
 		if(  0 < new_slope  &&  new_slope < ALL_UP_SLOPE_SINGLE  ) {
-			new_slope = scorner1(new_slope) + scorner2(new_slope) * 3 + scorner3(new_slope) * 9 + scorner4(new_slope) * 27;
+			new_slope = scorner_sw(new_slope) + scorner_se(new_slope) * 3 + scorner_ne(new_slope) * 9 + scorner_nw(new_slope) * 27;
 		}
 		else {
 			switch(  new_slope  ) {
@@ -1236,7 +1236,7 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 				ribis |= gr1->get_leitung()->get_ribi();
 			}
 
-			if(  new_slope==RESTORE_SLOPE  ||  !ribi_t::ist_einfach(ribis)  ||  (new_slope<hang_t::erhoben  &&  ribi_t::rueckwaerts(ribi_typ(new_slope))!=ribis)  ) {
+			if(  new_slope==RESTORE_SLOPE  ||  !ribi_t::is_single(ribis)  ||  (new_slope<slope_t::raised  &&  ribi_t::backward(ribi_type(new_slope))!=ribis)  ) {
 				// has the wrong tilt
 				return NOTICE_TILE_FULL;
 			}
@@ -1245,57 +1245,57 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 			 * a slope with the way as hinge.
 			 */
 			if(  new_slope==ALL_UP_SLOPE  ) {
-				if(  gr1->get_weg_hang()==hang_t::flach  ) {
-					new_slope = hang_typ(ribis);
+				if(  gr1->get_weg_hang()==slope_t::flat  ) {
+					new_slope = slope_type(ribis);
 				}
-				else if(  gr1->get_weg_hang() == hang_typ(ribis)  ) {
+				else if(  gr1->get_weg_hang() == slope_type(ribis)  ) {
 					// check that weg_besch supports such steep slopes
 					if(  (gr1->get_weg_nr(0)  &&  !gr1->get_weg_nr(0)->get_besch()->has_double_slopes())
 					  ||  (gr1->get_weg_nr(1)  &&  !gr1->get_weg_nr(1)->get_besch()->has_double_slopes())
 					  ||  (gr1->get_leitung()  &&  !gr1->get_leitung()->get_besch()->has_double_slopes())  ) {
 						return NOTICE_TILE_FULL;
 					}
-					new_slope = hang_typ(ribis) * 2;
+					new_slope = slope_type(ribis) * 2;
 				}
-				else if(  gr1->get_weg_hang() == hang_typ( ribi_t::rueckwaerts(ribis) ) * 2  ) {
+				else if(  gr1->get_weg_hang() == slope_type( ribi_t::backward(ribis) ) * 2  ) {
 					new_pos.z++;
 					if(  welt->lookup(new_pos)  ) {
 						return NOTICE_TILE_FULL;
 					}
-					new_slope = hang_typ( ribi_t::rueckwaerts(ribis) );
+					new_slope = slope_type( ribi_t::backward(ribis) );
 				}
-				else if(  gr1->get_weg_hang() != hang_typ( ribi_t::rueckwaerts(ribis) )  ) {
+				else if(  gr1->get_weg_hang() != slope_type( ribi_t::backward(ribis) )  ) {
 					return "Maximum tile height difference reached.";
 				}
 			}
 			else if(  new_slope==ALL_DOWN_SLOPE  ) {
-				if(  gr1->get_grund_hang()==hang_typ(ribis)  ) {
+				if(  gr1->get_grund_hang()==slope_type(ribis)  ) {
 					// do not lower tiles to sea
 					if(  pos.z == water_hgt  &&  !gr1->ist_tunnel()  ) {
 						return NOTICE_TILE_FULL;
 					}
 				}
-				else if(  gr1->get_grund_hang() == hang_typ(ribis) * 2  ) {
+				else if(  gr1->get_grund_hang() == slope_type(ribis) * 2  ) {
 					if(  pos.z == water_hgt  &&  !gr1->ist_tunnel()  ) {
 						return NOTICE_TILE_FULL;
 					}
-					new_slope = hang_typ(ribis);
+					new_slope = slope_type(ribis);
 				}
-				else if(  gr1->get_grund_hang() == hang_t::flach  ) {
-					new_slope = hang_typ( ribi_t::rueckwaerts(ribis) );
+				else if(  gr1->get_grund_hang() == slope_t::flat  ) {
+					new_slope = slope_type( ribi_t::backward(ribis) );
 					new_pos.z--;
 					if(  welt->lookup(new_pos)  ) {
 						return NOTICE_TILE_FULL;
 					}
 				}
-				else if(  gr1->get_grund_hang() == hang_typ( ribi_t::rueckwaerts(ribis) )  ) {
+				else if(  gr1->get_grund_hang() == slope_type( ribi_t::backward(ribis) )  ) {
 					// check that weg_besch supports such steep slopes
 					if(  (gr1->get_weg_nr(0)  &&  !gr1->get_weg_nr(0)->get_besch()->has_double_slopes())
 					  ||  (gr1->get_weg_nr(1)  &&  !gr1->get_weg_nr(1)->get_besch()->has_double_slopes())
 					  ||  (gr1->get_leitung()  &&  !gr1->get_leitung()->get_besch()->has_double_slopes())  ) {
 						return NOTICE_TILE_FULL;
 					}
-					new_slope = hang_typ( ribi_t::rueckwaerts(ribis) ) * 2;
+					new_slope = slope_type( ribi_t::backward(ribis) ) * 2;
 					new_pos.z--;
 					if(  welt->lookup(new_pos)  ) {
 						return NOTICE_TILE_FULL;
@@ -1316,7 +1316,7 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 				DBG_MESSAGE("natural_slope","%i",new_slope);
 			}
 			else {
-				new_slope = hang_t::flach;
+				new_slope = slope_t::flat;
 				// is more intuitive: if there is a slope, first downgrade it
 				if(  gr1->get_grund_hang() == 0  ) {
 					new_pos.z--;
@@ -1350,7 +1350,7 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 			water_hgt = water_table;
 		}
 		else if(  new_slope == ALL_UP_SLOPE  ) {
-			new_slope = hang_t::flach;
+			new_slope = slope_t::flat;
 			new_pos.z++;
 		}
 
@@ -1368,7 +1368,7 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 				gr2 = welt->lookup( new_pos + koord3d(0, 0, 3) );
 			}
 			// slope may alter amount of clearance required
-			if(  gr2  &&  gr2->get_pos().z - new_pos.z + hang_t::min_diff( gr2->get_weg_hang(), new_slope ) < env_t::pak_height_conversion_factor  ) {
+			if(  gr2  &&  gr2->get_pos().z - new_pos.z + slope_t::min_diff( gr2->get_weg_hang(), new_slope ) < env_t::pak_height_conversion_factor  ) {
 				return NOTICE_TILE_FULL;
 			}
 		}
@@ -1381,7 +1381,7 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 				gr2 = welt->lookup( new_pos + koord3d(0, 0, -3) );
 			}
 			// slope may alter amount of clearance required
-			if(  gr2  &&  new_pos.z - gr2->get_pos().z + hang_t::min_diff( new_slope, gr2->get_weg_hang() ) < env_t::pak_height_conversion_factor  ) {
+			if(  gr2  &&  new_pos.z - gr2->get_pos().z + slope_t::min_diff( new_slope, gr2->get_weg_hang() ) < env_t::pak_height_conversion_factor  ) {
 				return NOTICE_TILE_FULL;
 			}
 		}
@@ -1393,7 +1393,7 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 
 		if(  gr1->get_typ()==grund_t::boden  ) {
 			for(  sint16 i = 0 ;  i < 4 ;  i++  ) {
-				const koord neighbour = k + koord::nsow[i];
+				const koord neighbour = k + koord::nsew[i];
 
 				const grund_t *gr_neighbour=welt->lookup_kartenboden(neighbour);
 				if(gr_neighbour) {
@@ -1477,7 +1477,7 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 			}
 
 			if(  gr1->ist_karten_boden()  ) {
-				if(  new_slope!=hang_t::flach  ) {
+				if(  new_slope!=slope_t::flat  ) {
 					// no lakes on slopes ...
 					groundobj_t *obj = gr1->find<groundobj_t>();
 					if(  obj  &&  obj->get_besch()->get_phases()!=16  ) {
@@ -1486,9 +1486,9 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 					}
 					// connect canals to sea
 					if(  gr1->get_hoehe() == water_hgt  &&  gr1->hat_weg(water_wt)  ) {
-						grund_t *sea = welt->lookup_kartenboden(k - koord( ribi_typ(new_slope ) ));
+						grund_t *sea = welt->lookup_kartenboden(k - koord( ribi_type(new_slope ) ));
 						if (sea  &&  sea->ist_wasser()) {
-							gr1->weg_erweitern(water_wt, ribi_t::rueckwaerts(ribi_typ(new_slope)));
+							gr1->weg_erweitern(water_wt, ribi_t::backward(ribi_type(new_slope)));
 							sea->calc_image();
 						}
 					}
@@ -1506,7 +1506,7 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 					welt->set_grid_hgt(k, grid_hgt );
 				}
 				else {
-					welt->set_grid_hgt(k, gr1->get_hoehe()+ corner4(gr1->get_grund_hang()) );
+					welt->set_grid_hgt(k, gr1->get_hoehe()+ corner_nw(gr1->get_grund_hang()) );
 				}
 				reliefkarte_t::get_karte()->calc_map_pixel(k);
 
@@ -1947,7 +1947,7 @@ void tool_set_climate_t::mark_tiles(player_t *, const koord3d &start, const koor
 
 			const uint8 grund_hang = gr->get_grund_hang();
 			const uint8 weg_hang = gr->get_weg_hang();
-			const uint8 hang = max( corner1(grund_hang), corner1(weg_hang) ) + 3 * max( corner2(grund_hang), corner2(weg_hang) ) + 9 * max( corner3(grund_hang), corner3(weg_hang) ) + 27 * max( corner4(grund_hang), corner4(weg_hang) );
+			const uint8 hang = max( corner_sw(grund_hang), corner_sw(weg_hang) ) + 3 * max( corner_se(grund_hang), corner_se(weg_hang) ) + 9 * max( corner_ne(grund_hang), corner_ne(weg_hang) ) + 27 * max( corner_nw(grund_hang), corner_nw(weg_hang) );
 			uint8 back_hang = (hang % 3) + 3 * ((uint8)(hang / 9)) + 27;
 			marker->set_after_bild( grund_besch_t::marker->get_image( grund_hang % 27 ) );
 			marker->set_bild( grund_besch_t::marker->get_image( back_hang ) );
@@ -2003,7 +2003,7 @@ const char *tool_set_climate_t::do_work( player_t *player, const koord3d &start,
 						n ++;
 					}
 				}
-				else if(  !gr->ist_wasser()  &&  gr->get_grund_hang() == hang_t::flach  &&  welt->is_plan_height_changeable( k.x, k.y )  ) {
+				else if(  !gr->ist_wasser()  &&  gr->get_grund_hang() == slope_t::flat  &&  welt->is_plan_height_changeable( k.x, k.y )  ) {
 					bool ok = true;
 					for(  int i = 0 ;  i < 8;  i++  ) {
 						grund_t *gr2 = welt->lookup_kartenboden( k + koord::neighbours[i] );
@@ -2064,8 +2064,8 @@ const char *tool_change_water_height_t::work( player_t *, koord3d pos )
 	}
 	// if not water then raise = set water height to ground height, lower = error
 	else if(  raising  ) {
-		hang_t::typ slope = gr->get_grund_hang();
-		new_water_height = gr->get_hoehe() + max( max( corner1(slope), corner2(slope) ),max( corner3(slope), corner4(slope) ) );
+		slope_t::type slope = gr->get_grund_hang();
+		new_water_height = gr->get_hoehe() + max( max( corner_sw(slope), corner_se(slope) ),max( corner_ne(slope), corner_nw(slope) ) );
 	}
 	else {
 		return "Cannot alter water";
@@ -2134,7 +2134,7 @@ const char *tool_change_water_height_t::work( player_t *, koord3d pos )
 					// n (i = 7), test sw (corner 0) and se (corner 1)
 
 					if(  is_ctrl_pressed()  ) {
-						ok = ok  &&  ( (gr2->get_grund_hang()!=hang_t::flach  &&  welt->max_hgt(k_neighbour) <= test_height) ||
+						ok = ok  &&  ( (gr2->get_grund_hang()!=slope_t::flat  &&  welt->max_hgt(k_neighbour) <= test_height) ||
 							neighbour_heights[i][((i >> 1) + 1) & 3] < test_height ||
 							( (i & 1)  &&  neighbour_heights[i][((i >> 1) + 2) & 3] < test_height) );
 					}
@@ -2208,18 +2208,18 @@ const char *tool_change_water_height_t::work( player_t *, koord3d pos )
 					if(  !gr2->ist_wasser()  ) {
 						// while this appears to be a single height slope actually it is a double height slope half underwater
 						const sint8 water_hgt = welt->get_water_hgt(x, y);
-						h0_nw >= water_hgt ? h0_nw = h0 + corner4( gr2->get_grund_hang() ) : 0;
-						h0_ne >= water_hgt ? h0_ne = h0 + corner3( gr2->get_grund_hang() ) : 0;
-						h0_se >= water_hgt ? h0_se = h0 + corner2( gr2->get_grund_hang() ) : 0;
-						h0_sw >= water_hgt ? h0_sw = h0 + corner1( gr2->get_grund_hang() ) : 0;
+						h0_nw >= water_hgt ? h0_nw = h0 + corner_nw( gr2->get_grund_hang() ) : 0;
+						h0_ne >= water_hgt ? h0_ne = h0 + corner_ne( gr2->get_grund_hang() ) : 0;
+						h0_se >= water_hgt ? h0_se = h0 + corner_se( gr2->get_grund_hang() ) : 0;
+						h0_sw >= water_hgt ? h0_sw = h0 + corner_sw( gr2->get_grund_hang() ) : 0;
 					}
 				}
 				else {
 					// fully land
-					h0_nw = h0 + corner4( gr2->get_grund_hang() );
-					h0_ne = h0 + corner3( gr2->get_grund_hang() );
-					h0_se = h0 + corner2( gr2->get_grund_hang() );
-					h0_sw = h0 + corner1( gr2->get_grund_hang() );
+					h0_nw = h0 + corner_nw( gr2->get_grund_hang() );
+					h0_ne = h0 + corner_ne( gr2->get_grund_hang() );
+					h0_se = h0 + corner_se( gr2->get_grund_hang() );
+					h0_sw = h0 + corner_sw( gr2->get_grund_hang() );
 				}
 
 
@@ -2505,7 +2505,7 @@ uint8 tool_build_way_t::is_valid_pos( player_t *player, const koord3d &pos, cons
 {
 	error = NULL;
 	grund_t *gr=welt->lookup(pos);
-	if(  gr  &&  hang_t::ist_wegbar(gr->get_weg_hang())  ) {
+	if(  gr  &&  slope_t::is_way(gr->get_weg_hang())  ) {
 
 		bool const elevated = besch->get_styp() == 1  &&  besch->get_wtyp() != air_wt;
 		// ignore water
@@ -2654,7 +2654,7 @@ void tool_build_way_t::mark_tiles(  player_t *player, const koord3d &start, cons
 			if(gr->get_weg_hang()) {
 				way->set_bild( besch->get_hang_bild_nr(gr->get_weg_hang(),0) );
 			}
-			else if(besch->get_wtyp()!=powerline_wt  &&  ribi_t::ist_kurve(zeige)  &&  besch->has_diagonal_bild()) {
+			else if(besch->get_wtyp()!=powerline_wt  &&  ribi_t::is_bend(zeige)  &&  besch->has_diagonal_bild()) {
 				way->set_bild( besch->get_diagonal_bild_nr(zeige,0) );
 			}
 			else {
@@ -2757,7 +2757,7 @@ const char *tool_build_bridge_t::do_work( player_t *player, const koord3d &start
 		return brueckenbauer_t::baue( player, start, besch );
 	}
 	else {
-		const koord zv(ribi_typ(end-start));
+		const koord zv(ribi_type(end-start));
 		sint8 bridge_height;
 		const char *error;
 		koord3d end2 = brueckenbauer_t::finde_ende(player, start, zv, besch, error, bridge_height, false, koord_distance(start, end), is_ctrl_pressed());
@@ -2797,7 +2797,7 @@ void tool_build_bridge_t::rdwr_custom_data(memory_rw_t *packet)
 
 void tool_build_bridge_t::mark_tiles(  player_t *player, const koord3d &start, const koord3d &end )
 {
-	const ribi_t::ribi ribi_mark = ribi_typ(end-start);
+	const ribi_t::ribi ribi_mark = ribi_type(end-start);
 	const koord zv(ribi_mark);
 	const bruecke_besch_t *besch = brueckenbauer_t::get_besch(default_param);
 	const char *error;
@@ -2814,11 +2814,11 @@ void tool_build_bridge_t::mark_tiles(  player_t *player, const koord3d &start, c
 	// flat -> height is 1 if conversion factor 1, 2 if conversion factor 2
 	// single height -> height is 1
 	// double height -> height is 2
-	const hang_t::typ slope = gr->get_grund_hang();
-	uint8 max_height = slope ?  hang_t::max_diff(slope) : bridge_height;
+	const slope_t::type slope = gr->get_grund_hang();
+	uint8 max_height = slope ?  slope_t::max_diff(slope) : bridge_height;
 
 	zeiger_t *way = new zeiger_t(start, player );
-	const bruecke_besch_t::img_t img0 = besch->get_end( slope, slope, hang_typ(zv)*max_height );
+	const bruecke_besch_t::img_t img0 = besch->get_end( slope, slope, slope_type(zv)*max_height );
 
 	gr->obj_add( way );
 	way->set_bild( besch->get_hintergrund( img0, 0 ) );
@@ -2860,8 +2860,8 @@ void tool_build_bridge_t::mark_tiles(  player_t *player, const koord3d &start, c
 		gr->obj_add( way );
 		grund_t *kb = welt->lookup_kartenboden(pos.get_2d());
 		sint16 height = pos.z - kb->get_pos().z;
-		way->set_bild(besch->get_hintergrund(besch->get_simple(ribi_mark,height-hang_t::max_diff(kb->get_grund_hang())),0));
-		way->set_after_bild(besch->get_vordergrund(besch->get_simple(ribi_mark,height-hang_t::max_diff(kb->get_grund_hang())), 0));
+		way->set_bild(besch->get_hintergrund(besch->get_simple(ribi_mark,height-slope_t::max_diff(kb->get_grund_hang())),0));
+		way->set_after_bild(besch->get_vordergrund(besch->get_simple(ribi_mark,height-slope_t::max_diff(kb->get_grund_hang())), 0));
 		marked.insert( way );
 		way->mark_image_dirty( way->get_image(), 0 );
 		pos = pos + zv;
@@ -2874,12 +2874,12 @@ void tool_build_bridge_t::mark_tiles(  player_t *player, const koord3d &start, c
 	// flat -> height is 1 if conversion factor 1, 2 if conversion factor 2
 	// single height -> height is 1
 	// double height -> height is 2
-	const hang_t::typ end_slope = gr->get_weg_hang();
+	const slope_t::type end_slope = gr->get_weg_hang();
 	const uint8 end_max_height = end_slope ? ((end_slope & 7) ? 1 : 2) : (pos.z-end.z);
 
 	if(  gr->ist_karten_boden()  &&  end.z + end_max_height == start.z + max_height  ) {
 		zeiger_t *way = new zeiger_t(end, player );
-		const bruecke_besch_t::img_t img1 = besch->get_end( end_slope, end_slope, end_slope?0:(pos.z-end.z)*hang_typ(-zv) );
+		const bruecke_besch_t::img_t img1 = besch->get_end( end_slope, end_slope, end_slope?0:(pos.z-end.z)*slope_type(-zv) );
 		gr->obj_add( way );
 		way->set_bild(besch->get_hintergrund(img1, 0));
 		way->set_after_bild(besch->get_vordergrund(img1, 0));
@@ -2921,14 +2921,14 @@ uint8 tool_build_bridge_t::is_valid_pos(  player_t *player, const koord3d &pos, 
 
 	error = NULL;
 	grund_t *gr = welt->lookup(pos);
-	if(  gr==NULL  ||  !hang_t::ist_wegbar(gr->get_grund_hang())  ||  !brueckenbauer_t::ist_ende_ok( player, gr, wt, (is_first_click() ? 0 : ribi_typ(pos-start)) )  ) {
+	if(  gr==NULL  ||  !slope_t::is_way(gr->get_grund_hang())  ||  !brueckenbauer_t::ist_ende_ok( player, gr, wt, (is_first_click() ? 0 : ribi_type(pos-start)) )  ) {
 		return 0;
 	}
 
 	if(  is_first_click()  ) {
 		if(  gr->ist_karten_boden()  ) {
 		// first click
-		ribi_t::ribi rw = ribi_t::keine;
+		ribi_t::ribi rw = ribi_t::none;
 		if (wt==powerline_wt) {
 			if (gr->hat_wege()) {
 				return 0;
@@ -2965,13 +2965,13 @@ uint8 tool_build_bridge_t::is_valid_pos(  player_t *player, const koord3d &pos, 
 			}
 		}
 		// ribi from slope
-		rw |= ribi_typ(gr->get_grund_hang());
-		if(  rw!=ribi_t::keine && !ribi_t::ist_einfach(rw)  ) {
+		rw |= ribi_type(gr->get_grund_hang());
+		if(  rw!=ribi_t::none && !ribi_t::is_single(rw)  ) {
 			return 0;
 		}
 		// determine possible directions
-		ribi = ribi_t::rueckwaerts(rw);
-		return (ribi!=ribi_t::keine ? 2 : 0) | (ribi_t::ist_einfach(ribi) ? 1 : 0);
+		ribi = ribi_t::backward(rw);
+		return (ribi!=ribi_t::none ? 2 : 0) | (ribi_t::is_single(ribi) ? 1 : 0);
 		} else {
 			if(  gr->get_weg_hang()  ) {
 				return 0;
@@ -2989,8 +2989,8 @@ uint8 tool_build_bridge_t::is_valid_pos(  player_t *player, const koord3d &pos, 
 		// second click
 
 		// dragging in the right direction?
-		ribi_t::ribi test = ribi_typ(pos - start);
-		if (!ribi_t::ist_einfach(test)  ||  ((test & (~ribi))!=0) ) {
+		ribi_t::ribi test = ribi_type(pos - start);
+		if (!ribi_t::is_single(test)  ||  ((test & (~ribi))!=0) ) {
 			return 0;
 		}
 
@@ -3216,7 +3216,7 @@ void tool_build_tunnel_t::mark_tiles(  player_t *player, const koord3d &start, c
 			if(gr->get_weg_hang()) {
 				way->set_bild( wb->get_hang_bild_nr(gr->get_weg_hang(),0) );
 			}
-			else if(wb->get_wtyp()!=powerline_wt  &&  ribi_t::ist_kurve(zeige)  &&  wb->has_diagonal_bild()) {
+			else if(wb->get_wtyp()!=powerline_wt  &&  ribi_t::is_bend(zeige)  &&  wb->has_diagonal_bild()) {
 				way->set_bild( wb->get_diagonal_bild_nr(zeige,0) );
 			}
 			else {
@@ -3515,7 +3515,7 @@ const char *tool_wayremover_t::do_work( player_t *player, const koord3d &start, 
 						can_delete &= gr->remove_everything_from_way(player,wt,rem);
 						if(can_delete  &&  gr->get_weg(wt)==NULL) {
 							if(gr->get_weg_nr(0)!=0) {
-								gr->remove_everything_from_way(player,gr->get_weg_nr(0)->get_waytype(),ribi_t::keine);
+								gr->remove_everything_from_way(player,gr->get_weg_nr(0)->get_waytype(),ribi_t::none);
 							}
 							gr->obj_loesche_alle(player);
 							gr->mark_image_dirty();
@@ -3759,7 +3759,7 @@ void tool_wayobj_t::mark_tiles( player_t * player, const koord3d &start, const k
 					way_obj->set_after_bild( besch->get_front_slope_image_id(gr->get_weg_hang()) );
 					way_obj->set_bild( besch->get_back_slope_image_id(gr->get_weg_hang()) );
 				}
-				else if(  ribi_t::ist_kurve(show)  &&  besch->has_diagonal_bild()  ) {
+				else if(  ribi_t::is_bend(show)  &&  besch->has_diagonal_bild()  ) {
 					way_obj->set_after_bild( besch->get_front_diagonal_image_id(show) );
 					way_obj->set_bild( besch->get_back_diagonal_image_id(show) );
 				}
@@ -4093,10 +4093,10 @@ const char *tool_build_station_t::tool_station_dock_aux(player_t *player, koord3
 	if (gr->get_hoehe()!= pos.z) {
 		return "";
 	}
-	hang_t::typ hang = gr->get_grund_hang();
+	slope_t::type hang = gr->get_grund_hang();
 	// first get the size
 	int len = besch->get_groesse().y-1;
-	koord dx = koord((hang_t::typ)hang);
+	koord dx = koord((slope_t::type)hang);
 	koord last_k = k - dx*len;
 	halthandle_t halt;
 
@@ -4117,7 +4117,7 @@ const char *tool_build_station_t::tool_station_dock_aux(player_t *player, koord3
 
 	// check, if we can build here ...
 
-	if(!hang_t::ist_einfach(hang)) {
+	if(!slope_t::is_single(hang)) {
 		return "Dock must be built on single slope!";
 	}
 	else {
@@ -4176,26 +4176,26 @@ DBG_MESSAGE("tool_dockbau()","building dock from square (%d,%d) to (%d,%d)", k.x
 	koord3d bau_pos = welt->lookup_kartenboden(k)->get_pos();
 	koord dx2;
 	switch(hang) {
-		case hang_t::sued:
-		case hang_t::sued*2:
+		case slope_t::south:
+		case slope_t::south*2:
 			layout = 0;
 			dx2 = koord::west;
 			break;
-		case hang_t::ost:
-		case hang_t::ost*2:
+		case slope_t::east:
+		case slope_t::east*2:
 			layout = 1;
-			dx2 = koord::nord;
+			dx2 =  koord::north;
 			break;
-		case hang_t::nord:
-		case hang_t::nord*2:
+		case slope_t::north:
+		case slope_t::north*2:
 			layout = 2;
 			dx2 = koord::west;
 			bau_pos = welt->lookup_kartenboden(last_k)->get_pos();
 			break;
-		case hang_t::west:
-		case hang_t::west*2:
+		case slope_t::west:
+		case slope_t::west*2:
 			layout = 3;
-			dx2 = koord::nord;
+			dx2 =  koord::north;
 			bau_pos = welt->lookup_kartenboden(last_k)->get_pos();
 			break;
 	}
@@ -4337,7 +4337,7 @@ const char *tool_build_station_t::tool_station_flat_dock_aux(player_t *player, k
 	}
 
 	// check, if we can build here ...
-	if(  !gr->ist_natur()  ||  gr->get_grund_hang() != hang_t::flach  ) {
+	if(  !gr->ist_natur()  ||  gr->get_grund_hang() != slope_t::flat  ) {
 		return NOTICE_UNSUITABLE_GROUND;
 	}
 
@@ -4346,9 +4346,9 @@ const char *tool_build_station_t::tool_station_flat_dock_aux(player_t *player, k
 	ribi_t::ribi water_dir = 0;
 	uint8        total_dir = 0;
 	for(  uint8 i=0;  i<4;  i++  ) {
-		if(  grund_t *gr = welt->lookup_kartenboden(k+koord::nsow[i])  ) {
+		if(  grund_t *gr = welt->lookup_kartenboden(k+koord::nsew[i])  ) {
 			if(  gr->ist_wasser()  &&  gr->get_hoehe() == pos.z) {
-				water_dir |= ribi_t::nsow[i];
+				water_dir |= ribi_t::nsew[i];
 				total_dir ++;
 			}
 		}
@@ -4365,10 +4365,10 @@ const char *tool_build_station_t::tool_station_flat_dock_aux(player_t *player, k
 
 	for(  uint8 ii=0;  ii<4;  ii++  ) {
 
-		if(  (water_dir & ribi_t::nsow[ii]) == 0  ) {
+		if(  (water_dir & ribi_t::nsew[ii]) == 0  ) {
 			continue;
 		}
-		const koord dx = koord::nsow[ii];
+		const koord dx = koord::nsew[ii];
 		const char *last_error = NULL;
 
 		for(int i=0;  i<=len;  i++  ) {
@@ -4392,7 +4392,7 @@ const char *tool_build_station_t::tool_station_flat_dock_aux(player_t *player, k
 				halthandle_t halt = pl->get_boden_bei(j)->get_halt();
 				if (halt.is_bound()  &&  player_t::check_owner( player, halt->get_owner()) ) {
 					test_halt[ii] = halt;
-					halt_dir |= ribi_t::nsow[ii];
+					halt_dir |= ribi_t::nsew[ii];
 				}
 			}
 
@@ -4410,7 +4410,7 @@ const char *tool_build_station_t::tool_station_flat_dock_aux(player_t *player, k
 
 		// error: then remove this direction
 		if(  last_error  ) {
-			water_dir &= ~ribi_t::nsow[ii];
+			water_dir &= ~ribi_t::nsew[ii];
 			if(  --total_dir == 0  ) {
 				// no duitable directions found
 				return last_error;
@@ -4419,7 +4419,7 @@ const char *tool_build_station_t::tool_station_flat_dock_aux(player_t *player, k
 	}
 
 	// now we may have more than one dir left
-	if (rotation == -1  &&  total_dir > 1  &&  !ribi_t::ist_einfach(water_dir & halt_dir) ) {
+	if (rotation == -1  &&  total_dir > 1  &&  !ribi_t::is_single(water_dir & halt_dir) ) {
 		return "More than one possibility to build this dock found.";
 	}
 
@@ -4433,13 +4433,13 @@ const char *tool_build_station_t::tool_station_flat_dock_aux(player_t *player, k
 	halthandle_t halt;
 
 	for(  uint8 i=0;  i<4;  i++  ) {
-		if(  water_dir & ribi_t::nsow[i]  ) {
-			dx = koord::nsow[i];
+		if(  water_dir & ribi_t::nsew[i]  ) {
+			dx = koord::nsew[i];
 			halt = test_halt[i];
 			koord last_k = k + dx*len;
 			// layout: north 2, west 3, south 0, east 1
-			static const uint8 nsow_to_layout[4] = { 2, 0, 1, 3 };
-			layout = nsow_to_layout[i];
+			static const uint8 nsew_to_layout[4] = { 2, 0, 1, 3 };
+			layout = nsew_to_layout[i];
 			if(  layout>=2  ) {
 				// reverse construction in these directions
 				bau_pos = welt->lookup_kartenboden(last_k)->get_pos();
@@ -4570,7 +4570,7 @@ DBG_MESSAGE("tool_halt_aux()", "building %s on square %d,%d for waytype %x", bes
 	// get valid ground
 	grund_t *bd = tool_intern_koord_to_weg_grund(player, welt, pos, wegtype, (wegtype == road_wt || wegtype == water_wt));
 
-	if(  !bd  ||  bd->get_weg_hang()!=hang_t::flach  ) {
+	if(  !bd  ||  bd->get_weg_hang()!=slope_t::flat  ) {
 		// only flat tiles, only one stop per map square
 		return "No suitable way on the ground!";
 	}
@@ -4603,7 +4603,7 @@ DBG_MESSAGE("tool_halt_aux()", "building %s on square %d,%d for waytype %x", bes
 
 	// find out orientation ...
 	uint32 layout = 0;
-	ribi_t::ribi ribi=ribi_t::keine;
+	ribi_t::ribi ribi=ribi_t::none;
 	if(  besch->get_all_layouts()==2  ||  besch->get_all_layouts()==8  ||  besch->get_all_layouts()==16  ) {
 		// through station
 		if(  bd->has_two_ways()  ) {
@@ -4614,10 +4614,10 @@ DBG_MESSAGE("tool_halt_aux()", "building %s on square %d,%d for waytype %x", bes
 			ribi = bd->get_weg_nr(0)->get_ribi_unmasked();
 		}
 		// not straight: sorry cannot build here ...
-		if(  !ribi_t::ist_gerade(ribi)  ) {
+		if(  !ribi_t::is_straight(ribi)  ) {
 			return p_error;
 		}
-		layout = (ribi & ribi_t::nordsued)?0 :1;
+		layout = (ribi & ribi_t::northsouth)?0 :1;
 	}
 	else if(  besch->get_all_layouts()==4  ) {
 		// terminal station
@@ -4625,14 +4625,14 @@ DBG_MESSAGE("tool_halt_aux()", "building %s on square %d,%d for waytype %x", bes
 			ribi = bd->get_weg_nr(0)->get_ribi_unmasked();
 		}
 		// sorry cannot build here ... (not a terminal tile)
-		if(  !ribi_t::ist_einfach(ribi)  ) {
+		if(  !ribi_t::is_single(ribi)  ) {
 			return p_error;
 		}
 
 		switch(ribi) {
-			//case ribi_t::sued:layout = 0;  break;
-			case ribi_t::ost:   layout = 1;    break;
-			case ribi_t::nord:  layout = 2;    break;
+			//case ribi_t::south:layout = 0;  break;
+			case ribi_t::east:   layout = 1;    break;
+			case ribi_t::north:  layout = 2;    break;
 			case ribi_t::west:  layout = 3;    break;
 		}
 	}
@@ -4652,8 +4652,8 @@ DBG_MESSAGE("tool_halt_aux()", "building %s on square %d,%d for waytype %x", bes
 
 		// bit 1 has already been set
 
-//		ribi_t::ribi next_halt = ribi_t::keine;
-		ribi_t::ribi next_own = ribi_t::keine;
+//		ribi_t::ribi next_halt = ribi_t::none;
+		ribi_t::ribi next_own = ribi_t::none;
 
 		sint8 offset = bd->get_hoehe()+bd->get_weg_yoff()/TILE_HEIGHT_STEP;
 
@@ -4661,15 +4661,15 @@ DBG_MESSAGE("tool_halt_aux()", "building %s on square %d,%d for waytype %x", bes
 		sint32 neighbour_layout[] = {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
 		for(  unsigned i=0;  i<4;  i++  ) {
 			// oriented buildings here - get neighbouring layouts
-			gr = welt->lookup(koord3d(k+koord::nsow[i],offset));
+			gr = welt->lookup(koord3d(k+koord::nsew[i],offset));
 			if(!gr) {
 				// check whether bridge end tile
-				grund_t * gr_tmp = welt->lookup( pos+koord3d( (layout & 1 ? koord::west : koord::nord),offset - 1) );
+				grund_t * gr_tmp = welt->lookup( pos+koord3d( (layout & 1 ? koord::west :  koord::north),offset - 1) );
 				if(gr_tmp && gr_tmp->get_weg_yoff()/TILE_HEIGHT_STEP == 2) {
 					gr = gr_tmp;
 				}
 				else {
-					gr_tmp = welt->lookup( pos+koord3d( (layout & 1 ? koord::west : koord::nord),offset - 2) );
+					gr_tmp = welt->lookup( pos+koord3d( (layout & 1 ? koord::west :  koord::north),offset - 2) );
 					if(gr_tmp && gr_tmp->get_weg_yoff()/TILE_HEIGHT_STEP == 2) {
 						gr = gr_tmp;
 					}
@@ -4679,39 +4679,39 @@ DBG_MESSAGE("tool_halt_aux()", "building %s on square %d,%d for waytype %x", bes
 				// check, if there is an oriented stop
 				const gebaeude_t* gb = gr->find<gebaeude_t>();
 				if(gb  &&  gb->get_tile()->get_besch()->get_all_layouts()>4  &&  (gb->get_tile()->get_besch()->get_utyp()>haus_besch_t::dock  ||  gb->get_tile()->get_besch()->get_utyp()>haus_besch_t::flat_dock)  ) {
-					next_own |= ribi_t::nsow[i];
-					neighbour_layout[ribi_t::nsow[i]] = gb->get_tile()->get_layout();
+					next_own |= ribi_t::nsew[i];
+					neighbour_layout[ribi_t::nsew[i]] = gb->get_tile()->get_layout();
 				}
 			}
 		}
 
 		// now for the details
-		ribi_t::ribi senkrecht = ~ribi_t::doppelt(ribi);
-		ribi_t::ribi waagerecht = ribi_t::doppelt(ribi);
-		if(next_own!=ribi_t::keine) {
+		ribi_t::ribi senkrecht = ~ribi_t::doubles(ribi);
+		ribi_t::ribi waagerecht = ribi_t::doubles(ribi);
+		if(next_own!=ribi_t::none) {
 			// oriented buildings here
-			if(ribi_t::ist_einfach(ribi & next_own)) {
+			if(ribi_t::is_single(ribi & next_own)) {
 				// only a single next neighbour on the same track
 				layout |= neighbour_layout[ribi & next_own] & 8;
 			}
-			else if(ribi_t::ist_gerade(ribi & next_own)) {
+			else if(ribi_t::is_straight(ribi & next_own)) {
 				// two neighbours on the same track, use the north/west one
-				layout |= neighbour_layout[ribi & next_own & ribi_t::nordwest] & 8;
+				layout |= neighbour_layout[ribi & next_own & ribi_t::northwest] & 8;
 			}
-			else if(ribi_t::ist_einfach((~ribi) & waagerecht & next_own)) {
+			else if(ribi_t::is_single((~ribi) & waagerecht & next_own)) {
 				// neighbour across break in track
 				layout |= neighbour_layout[(~ribi) & waagerecht & next_own] & 8;
 			}
 			else {
 				// no buildings left and right
 				// oriented buildings left and right
-				if(neighbour_layout[senkrecht & next_own & ribi_t::nordwest] != -1) {
+				if(neighbour_layout[senkrecht & next_own & ribi_t::northwest] != -1) {
 					// just rotate layout
-					layout |= 8-(neighbour_layout[senkrecht & next_own & ribi_t::nordwest]&8);
+					layout |= 8-(neighbour_layout[senkrecht & next_own & ribi_t::northwest]&8);
 				}
 				else {
-					if(neighbour_layout[senkrecht & next_own & ribi_t::suedost] != -1) {
-						layout |= 8-(neighbour_layout[senkrecht & next_own & ribi_t::suedost]&8);
+					if(neighbour_layout[senkrecht & next_own & ribi_t::southeast] != -1) {
+						layout |= 8-(neighbour_layout[senkrecht & next_own & ribi_t::southeast]&8);
 					}
 				}
 			}
@@ -5306,7 +5306,7 @@ const char* tool_build_roadsign_t::check_pos_intern(player_t *player, koord3d po
 		}
 
 		if(besch->is_private_way() &&
-		   (!ribi_t::ist_gerade(dir) || weg->get_owner() != player ||
+		   (!ribi_t::is_straight(dir) || weg->get_owner() != player ||
 		    gr->removing_road_would_disconnect_city_building() ||
 		    gr->removing_way_would_disrupt_public_right_of_way(road_wt)) &&
 			(!player->is_public_service() || weg->get_owner() != NULL))
@@ -5510,7 +5510,7 @@ bool tool_build_roadsign_t::calc_route( route_t &verbindung, player_t *player, c
 		// but the step start->to is now allowed
 		if (can_built  &&  koord_distance(start, to)==1  &&  verbindung.get_count()>2) {
 			grund_t *gr, *grto = welt->lookup(to);
-			if(  welt->lookup(start)->get_neighbour(gr, besch->get_wtyp(), ribi_typ(to-start) )  &&  gr==grto) {
+			if(  welt->lookup(start)->get_neighbour(gr, besch->get_wtyp(), ribi_type(to-start) )  &&  gr==grto) {
 				can_built = false;
 			}
 		}
@@ -5538,10 +5538,10 @@ void tool_build_roadsign_t::mark_tiles( player_t *player, const koord3d &start, 
 	// dummy roadsign to get images for preview
 	roadsign_t *dummy_rs;
 	if (besch->is_signal_type()) {
-		dummy_rs = new signal_t(player, koord3d::invalid, ribi_t::keine, besch, koord3d::invalid, true);
+		dummy_rs = new signal_t(player, koord3d::invalid, ribi_t::none, besch, koord3d::invalid, true);
 	}
 	else {
-		dummy_rs = new roadsign_t(player, koord3d::invalid, ribi_t::keine, besch, true);
+		dummy_rs = new roadsign_t(player, koord3d::invalid, ribi_t::none, besch, true);
 	}
 	dummy_rs->set_flag(obj_t::not_on_map);
 
@@ -5554,11 +5554,11 @@ void tool_build_roadsign_t::mark_tiles( player_t *player, const koord3d &start, 
 		if(  single_ribi  ) {
 			if(i>0) {
 				// take backward direction
-				ribi = ribi_typ(route.position_bei(i), route.position_bei(i-1));
+				ribi = ribi_type(route.position_bei(i), route.position_bei(i-1));
 			}
 			else {
 				// clear one direction bit to get single direction for signal
-				ribi &= ~ribi_typ(route.position_bei(i), route.position_bei(i+1));
+				ribi &= ~ribi_type(route.position_bei(i), route.position_bei(i+1));
 			}
 		}
 
@@ -5573,7 +5573,7 @@ void tool_build_roadsign_t::mark_tiles( player_t *player, const koord3d &start, 
 		}
 
 		// check owner .. other signals...
-		bool straight = (i == 0)  ||  (i == route.get_count()-1)  ||  ribi_t::ist_gerade(ribi_typ(route.position_bei(i-1), route.position_bei(i+1)));
+		bool straight = (i == 0)  ||  (i == route.get_count()-1)  ||  ribi_t::is_straight(ribi_type(route.position_bei(i-1), route.position_bei(i+1)));
 		next_signal += straight ? 2 : 1;
 		if(  next_signal >= signal_density  ) {
 			// can we place signal here?
@@ -5596,7 +5596,7 @@ void tool_build_roadsign_t::mark_tiles( player_t *player, const koord3d &start, 
 				marked.append(zeiger);
 				zeiger->set_bild( tool_t::general_tool[TOOL_REMOVER]->cursor );
 				gr->obj_add( zeiger );
-				directions.append(ribi_t::keine /*remove sign*/);
+				directions.append(ribi_t::none /*remove sign*/);
 				cost += rs->get_besch()->get_preis();
 		}
 	}
@@ -5718,7 +5718,7 @@ const char *tool_build_roadsign_t::place_sign_intern( player_t *player, grund_t*
 					if (!old_direction_was_double) {
 						// inverse first dir
 						for (; i < 4; i++) {
-							if ((dir & ribi_t::nsow[i]) == sig_dir) {
+							if ((dir & ribi_t::nsew[i]) == sig_dir) {
 								i++;
 								break;
 							}
@@ -5726,8 +5726,8 @@ const char *tool_build_roadsign_t::place_sign_intern( player_t *player, grund_t*
 					}
 					// find the second dir ...
 					for (; i < 4; i++) {
-						if ((dir & ribi_t::nsow[i]) != 0) {
-							dir = ribi_t::nsow[i];
+						if ((dir & ribi_t::nsew[i]) != 0) {
+							dir = ribi_t::nsew[i];
 						}
 					}
 					// if nothing found, we have two ways again ...
@@ -5761,32 +5761,32 @@ const char *tool_build_roadsign_t::place_sign_intern( player_t *player, grund_t*
 						dir = sch->get_reserved_direction();
 						switch(dir) // These are reversed for some odd reason.
 						{
-						case ribi_t::nordsued:
-						case ribi_t::nord:
-						case ribi_t::nordwest:
-							dir = ribi_t::sued;
+						case ribi_t::northsouth:
+						case ribi_t::north:
+						case ribi_t::northwest:
+							dir = ribi_t::south;
 							break;
-						case ribi_t::sued:
-						case ribi_t::suedwest:
-							dir = ribi_t::nord;
+						case ribi_t::south:
+						case ribi_t::southwest:
+							dir = ribi_t::north;
 							break;
-						case ribi_t::ostwest:
-						case ribi_t::ost:
-						case ribi_t::suedost:
-						case ribi_t::nordost:
+						case ribi_t::eastwest:
+						case ribi_t::east:
+						case ribi_t::southeast:
+						case ribi_t::northeast:
 							dir = ribi_t::west;
 							break;
 						case ribi_t::west:
-							dir = ribi_t::ost;
+							dir = ribi_t::east;
 							break;
 						
 						default:
 							switch(weg->get_ribi_unmasked())
 							{
-							case ribi_t::nordsued:
-								dir = ribi_t::sued; 
+							case ribi_t::northsouth:
+								dir = ribi_t::south; 
 								break;
-							case ribi_t::ostwest:
+							case ribi_t::eastwest:
 								dir = ribi_t::west;
 								break;
 							};
@@ -5815,8 +5815,8 @@ const char *tool_build_roadsign_t::place_sign_intern( player_t *player, grund_t*
 					// if single way, we need to reduce the allowed ribi to one
 					if (besch->is_single_way() || besch->is_choose_sign()) {
 						for(  int i=0;  i<4;  i++  ) {
-							if ((dir & ribi_t::nsow[i]) != 0) {
-								dir = ribi_t::nsow[i];
+							if ((dir & ribi_t::nsew[i]) != 0) {
+								dir = ribi_t::nsew[i];
 								break;
 							}
 						}
@@ -6060,19 +6060,19 @@ const char *tool_depot_t::tool_depot_aux(player_t *player, koord3d pos, const ha
 		ribi_t::ribi ribi;
 		if(bd->ist_wasser()) {
 			// assume one orientation with water
-			ribi = ribi_t::sued;
+			ribi = ribi_t::south;
 		}
 		else {
 			ribi = bd->get_weg_ribi_unmasked(wegtype);
 		}
 
-		if(ribi_t::ist_einfach(ribi)  &&  bd->get_weg_hang()==0) {
+		if(ribi_t::is_single(ribi)  &&  bd->get_weg_hang()==0) {
 
 			int layout = 0;
 			switch(ribi) {
-				//case ribi_t::sued:layout = 0;  break;
-				case ribi_t::ost:   layout = 1;    break;
-				case ribi_t::nord:  layout = 2;    break;
+				//case ribi_t::south:layout = 0;  break;
+				case ribi_t::east:   layout = 1;    break;
+				case ribi_t::north:  layout = 2;    break;
 				case ribi_t::west:  layout = 3;    break;
 			}
 			hausbauer_t::neues_gebaeude(player, bd->get_pos(), layout, besch );
@@ -6856,10 +6856,10 @@ void tool_forest_t::mark_tiles(  player_t *, const koord3d &start, const koord3d
 
 			const uint8 grund_hang = gr->get_grund_hang();
 			const uint8 weg_hang = gr->get_weg_hang();
-			const uint8 hang = max( corner1(grund_hang), corner1(weg_hang)) +
-					3 * max( corner2(grund_hang), corner2(weg_hang)) +
-					9 * max( corner3(grund_hang), corner3(weg_hang)) +
-					27 * max( corner4(grund_hang), corner4(weg_hang));
+			const uint8 hang = max( corner_sw(grund_hang), corner_sw(weg_hang)) +
+					3 * max( corner_se(grund_hang), corner_se(weg_hang)) +
+					9 * max( corner_ne(grund_hang), corner_ne(weg_hang)) +
+					27 * max( corner_nw(grund_hang), corner_nw(weg_hang));
 			uint8 back_hang = (hang % 3) + 3 * ((uint8)(hang / 9)) + 27;
 			marker->set_after_bild( grund_besch_t::marker->get_image( grund_hang % 27 ) );
 			marker->set_bild( grund_besch_t::marker->get_image( back_hang ) );
@@ -7005,7 +7005,7 @@ const char *tool_stop_moving_t::do_work( player_t *player, const koord3d &last_p
 				else {
 					// all connected tiles for start pos
 					uint8 ribi = welt->lookup(last_pos)->get_weg_ribi_unmasked(wt);
-					koord delta = ribi_t::ist_gerade_ns(ribi) ? koord(0,1) : koord(1,0);
+					koord delta = ribi_t::is_straight_ns(ribi) ? koord(0,1) : koord(1,0);
 					koord3d start_pos=last_pos;
 					while(ribi&12) {
 						koord3d test_pos = start_pos+delta;

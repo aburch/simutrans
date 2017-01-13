@@ -223,25 +223,25 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 						{
 						case 1:
 							if (get_state() == clear_no_choose || caution_no_choose)
-								buf.printf("%s (%s)", translator::translate(get_3_signal_aspects_name(get_state())), translator::translate("sued"));
+								buf.printf("%s (%s)", translator::translate(get_3_signal_aspects_name(get_state())), translator::translate("south"));
 							else
-								buf.printf("%s (%s)", translator::translate(get_3_signal_aspects_name(get_state())), translator::translate("nord"));
+								buf.printf("%s (%s)", translator::translate(get_3_signal_aspects_name(get_state())), translator::translate("north"));
 							break;
 						case 2:
 							if (get_state() == clear_no_choose || caution_no_choose)
 								buf.printf("%s (%s)", translator::translate(get_3_signal_aspects_name(get_state())), translator::translate("west"));
 							else
-								buf.printf("%s (%s)", translator::translate(get_3_signal_aspects_name(get_state())), translator::translate("ost"));
+								buf.printf("%s (%s)", translator::translate(get_3_signal_aspects_name(get_state())), translator::translate("east"));
 							break;
 						case 4:
 							if (get_state() == clear_no_choose || caution_no_choose)
-								buf.printf("%s (%s)", translator::translate(get_3_signal_aspects_name(get_state())), translator::translate("nord"));
+								buf.printf("%s (%s)", translator::translate(get_3_signal_aspects_name(get_state())), translator::translate("north"));
 							else
-								buf.printf("%s (%s)", translator::translate(get_3_signal_aspects_name(get_state())), translator::translate("sued"));
+								buf.printf("%s (%s)", translator::translate(get_3_signal_aspects_name(get_state())), translator::translate("south"));
 							break;
 						case 8:
 							if (get_state() == clear_no_choose || caution_no_choose)
-								buf.printf("%s (%s)", translator::translate(get_3_signal_aspects_name(get_state())), translator::translate("ost"));
+								buf.printf("%s (%s)", translator::translate(get_3_signal_aspects_name(get_state())), translator::translate("east"));
 							else
 								buf.printf("%s (%s)", translator::translate(get_3_signal_aspects_name(get_state())), translator::translate("west"));
 							break;
@@ -254,25 +254,25 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 						{
 						case 1:
 							if (get_state() == clear_no_choose || caution_no_choose)
-								buf.printf("%s (%s)", translator::translate(get_time_signal_aspects_name(get_state())), translator::translate("sued"));
+								buf.printf("%s (%s)", translator::translate(get_time_signal_aspects_name(get_state())), translator::translate("south"));
 							else
-								buf.printf("%s (%s)", translator::translate(get_time_signal_aspects_name(get_state())), translator::translate("nord"));
+								buf.printf("%s (%s)", translator::translate(get_time_signal_aspects_name(get_state())), translator::translate("north"));
 							break;
 						case 2:
 							if (get_state() == clear_no_choose || caution_no_choose)
 								buf.printf("%s (%s)", translator::translate(get_time_signal_aspects_name(get_state())), translator::translate("west"));
 							else
-								buf.printf("%s (%s)", translator::translate(get_time_signal_aspects_name(get_state())), translator::translate("ost"));
+								buf.printf("%s (%s)", translator::translate(get_time_signal_aspects_name(get_state())), translator::translate("east"));
 							break;
 						case 4:
 							if (get_state() == clear_no_choose || caution_no_choose)
-								buf.printf("%s (%s)", translator::translate(get_time_signal_aspects_name(get_state())), translator::translate("nord"));
+								buf.printf("%s (%s)", translator::translate(get_time_signal_aspects_name(get_state())), translator::translate("north"));
 							else
-								buf.printf("%s (%s)", translator::translate(get_time_signal_aspects_name(get_state())), translator::translate("sued"));
+								buf.printf("%s (%s)", translator::translate(get_time_signal_aspects_name(get_state())), translator::translate("south"));
 							break;
 						case 8:
 							if (get_state() == clear_no_choose || caution_no_choose)
-								buf.printf("%s (%s)", translator::translate(get_time_signal_aspects_name(get_state())), translator::translate("ost"));
+								buf.printf("%s (%s)", translator::translate(get_time_signal_aspects_name(get_state())), translator::translate("east"));
 							else
 								buf.printf("%s (%s)", translator::translate(get_time_signal_aspects_name(get_state())), translator::translate("west"));
 							break;
@@ -352,13 +352,13 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 			default:
 				buf.append(translator::translate("Time since a train last passed")); 
 				buf.append(":\n");
-				buf.append(translator::translate("nord"));
+				buf.append(translator::translate("north"));
 				break;
 			case 1:
-				buf.append(translator::translate("sued"));
+				buf.append(translator::translate("south"));
 				break;
 			case 2:
-				buf.append(translator::translate("ost"));
+				buf.append(translator::translate("east"));
 				break;
 			case 3:
 				buf.append(translator::translate("west"));
@@ -431,11 +431,11 @@ void signal_t::calc_image()
 	grund_t *gr = welt->lookup(get_pos());
 	if(gr) {
 		set_flag(obj_t::dirty);
-		const hang_t::typ full_hang = gr->get_weg_hang();
-		const sint8 hang_diff = hang_t::max_diff(full_hang);
-		const ribi_t::ribi hang_dir = ribi_t::rueckwaerts( ribi_typ(full_hang) );
+		const slope_t::type full_hang = gr->get_weg_hang();
+		const sint8 hang_diff = slope_t::max_diff(full_hang);
+		const ribi_t::ribi hang_dir = ribi_t::backward( ribi_type(full_hang) );
 		
-		const sint8 height_step = TILE_HEIGHT_STEP << hang_t::ist_doppel(gr->get_weg_hang());
+		const sint8 height_step = TILE_HEIGHT_STEP << slope_t::is_doubles(gr->get_weg_hang());
 
 		weg_t *sch = gr->get_weg(besch->get_wtyp()!=tram_wt ? besch->get_wtyp() : track_wt);
 		if(sch) 
@@ -457,13 +457,13 @@ void signal_t::calc_image()
 			}
 
 			// vertical offset of the signal positions
-			if(full_hang==hang_t::flach) {
+			if(full_hang==slope_t::flat) {
 				yoff = -gr->get_weg_yoff();
 				after_yoffset = yoff;
 			}
 			else {
-				const ribi_t::ribi test_hang = left_swap ? ribi_t::rueckwaerts(hang_dir) : hang_dir;
-				if(test_hang==ribi_t::ost ||  test_hang==ribi_t::nord) {
+				const ribi_t::ribi test_hang = left_swap ? ribi_t::backward(hang_dir) : hang_dir;
+				if(test_hang==ribi_t::east ||  test_hang==ribi_t::north) {
 					yoff = -TILE_HEIGHT_STEP*hang_diff;
 					after_yoffset = 0;
 				}
@@ -479,12 +479,12 @@ void signal_t::calc_image()
 			if(  gr->get_typ()==grund_t::tunnelboden  &&  gr->ist_karten_boden()  &&
 				(grund_t::underground_mode==grund_t::ugm_none  ||  (grund_t::underground_mode==grund_t::ugm_level  &&  gr->get_hoehe()<grund_t::underground_level))   ) {
 				// entering tunnel here: hide the image further in if not undergroud/sliced
-				const ribi_t::ribi tunnel_hang_dir = ribi_t::rueckwaerts( ribi_typ(gr->get_grund_hang()) );
-				if(  tunnel_hang_dir==ribi_t::ost ||  tunnel_hang_dir==ribi_t::nord  ) {
-					temp_dir &= ~ribi_t::suedwest;
+				const ribi_t::ribi tunnel_hang_dir = ribi_t::backward( ribi_type(gr->get_grund_hang()) );
+				if(  tunnel_hang_dir==ribi_t::east ||  tunnel_hang_dir==ribi_t::north  ) {
+					temp_dir &= ~ribi_t::southwest;
 				}
 				else {
-					temp_dir &= ~ribi_t::nordost;
+					temp_dir &= ~ribi_t::northeast;
 				}
 			}
 
@@ -561,26 +561,26 @@ void signal_t::calc_image()
 			if(besch->is_longblock_signal() && (besch->get_working_method() == time_interval || besch->get_working_method() == time_interval_with_telegraph))
 			{
 				// Allow both directions for a station signal
-				//reserved_direction |= ribi_t::rueckwaerts(reserved_direction);
+				//reserved_direction |= ribi_t::backward(reserved_direction);
 				
 				// The above does not work because the reservation is taken from the track below the signal, and the train might be departing from another track. 
 				// Which state, if any, to set should be handled by the block reserver in the case of station signals. 
-				reserved_direction = ribi_t::alle;
+				reserved_direction = ribi_t::all;
 			}
 			// signs for left side need other offsets and other front/back order
 			if(  left_swap  ) {
 				const sint16 XOFF = 2*besch->get_offset_left();
 				const sint16 YOFF = besch->get_offset_left();
 
-				if(temp_dir&ribi_t::ost) {
-					uint8 direction_state = (reserved_direction & ribi_t::ost) ? modified_state * 4 : 0;
+				if(temp_dir&ribi_t::east) {
+					uint8 direction_state = (reserved_direction & ribi_t::east) ? modified_state * 4 : 0;
 					image = besch->get_bild_nr(3+direction_state+offset);
 					xoff += XOFF;
 					yoff += -YOFF;
 				}
 
-				if(temp_dir&ribi_t::nord) {
-					uint8 direction_state = (reserved_direction & ribi_t::nord) ? modified_state * 4 : 0;
+				if(temp_dir&ribi_t::north) {
+					uint8 direction_state = (reserved_direction & ribi_t::north) ? modified_state * 4 : 0;
 					if(image!=IMG_EMPTY) {			
 						after_bild = besch->get_bild_nr(0+direction_state+offset);
 						after_xoffset += -XOFF;
@@ -600,8 +600,8 @@ void signal_t::calc_image()
 					after_yoffset += YOFF;
 				}
 
-				if(temp_dir&ribi_t::sued) {
-					uint8 direction_state = (reserved_direction & ribi_t::sued) ? modified_state * 4 : 0;
+				if(temp_dir&ribi_t::south) {
+					uint8 direction_state = (reserved_direction & ribi_t::south) ? modified_state * 4 : 0;
 					if(after_bild!=IMG_EMPTY) {
 						image = besch->get_bild_nr(1+direction_state+offset);
 						xoff += XOFF;
@@ -615,13 +615,13 @@ void signal_t::calc_image()
 				}
 			}
 			else {
-				if(temp_dir&ribi_t::ost) {
-					uint8 direction_state = (reserved_direction & ribi_t::ost) ? modified_state * 4 : 0;
+				if(temp_dir&ribi_t::east) {
+					uint8 direction_state = (reserved_direction & ribi_t::east) ? modified_state * 4 : 0;
 					after_bild = besch->get_bild_nr(3+direction_state+offset);
 				}
 
-				if(temp_dir&ribi_t::nord) {
-					uint8 direction_state = (reserved_direction & ribi_t::nord) ? modified_state * 4 : 0;
+				if(temp_dir&ribi_t::north) {
+					uint8 direction_state = (reserved_direction & ribi_t::north) ? modified_state * 4 : 0;
 					if(after_bild==IMG_EMPTY) {
 						after_bild = besch->get_bild_nr(0+direction_state+offset);
 					}
@@ -635,8 +635,8 @@ void signal_t::calc_image()
 					image = besch->get_bild_nr(2+direction_state+offset);
 				}
 
-				if(temp_dir&ribi_t::sued) {
-					uint8 direction_state = (reserved_direction & ribi_t::sued) ? modified_state * 4 : 0;
+				if(temp_dir&ribi_t::south) {
+					uint8 direction_state = (reserved_direction & ribi_t::south) ? modified_state * 4 : 0;
 					if(image==IMG_EMPTY) {
 						image = besch->get_bild_nr(1+direction_state+offset);
 					}

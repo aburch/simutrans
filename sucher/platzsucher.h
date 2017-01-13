@@ -16,7 +16,7 @@ class karte_t;
 /**
  * pos_liste_t:
  *
- * Liefert nach wachsender Entfernung von (0, 0) sortiert alle Koordinaten
+ * Liefert nach wachsender Entfernung von (0, 0) sortiert all Koordinaten
  * mit x und y im Bereich [-max_xy;max_xy] auﬂer (0, 0) selber.
  * (0, 0) wird als Endekenzeichen verwendet.
  *

@@ -43,7 +43,7 @@ protected:
 
 	const roadsign_besch_t *besch;
 
-	ribi_t::ribi calc_mask() const { return ribi_t::ist_einfach(dir) ? dir : (ribi_t::ribi)ribi_t::keine; }
+	ribi_t::ribi calc_mask() const { return ribi_t::is_single(dir) ? dir : (ribi_t::ribi)ribi_t::none; }
 
 public:
 	// Max. 16 (15 incl. 0)
@@ -436,19 +436,19 @@ public:
 		switch (wm)
 		{
 		case 1:
-			return "sued";
+			return "south";
 		case 2:
 			return "west";
 		case 3:
 			return "north_and_east";
 		case 4:
-			return "nord";
+			return "north";
 		case 5:
 			return "north_and_south";
 		case 6:
 			return "south_and_east";
 		case 8:
-			return "ost";
+			return "east";
 		case 9:
 			return "north_and_west";
 		case 10:

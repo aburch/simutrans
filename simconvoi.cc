@@ -171,7 +171,7 @@ void convoi_t::init(player_t *player)
 	//maxspeed_average_count = 0;
 	next_reservation_index = 0;
 
-	alte_richtung = ribi_t::keine;
+	alte_direction = ribi_t::none;
 	next_wolke = 0;
 
 	state = INITIAL;
@@ -398,7 +398,7 @@ void convoi_t::reserve_own_tiles()
 				{
 					if(!route.empty())
 					{
-						sch->reserve(self, ribi_typ( route.position_bei(max(1u,1)-1u), route.position_bei(min(route.get_count()-1u,0+1u))));
+						sch->reserve(self, ribi_type( route.position_bei(max(1u,1)-1u), route.position_bei(min(route.get_count()-1u,0+1u))));
 					}
 				}
 			}
@@ -523,7 +523,7 @@ void convoi_t::finish_rd()
 				// wrong alignment here => must relocate
 				if(v->need_realignment()) {
 					// diagonal => convoi must restart
-					realing_position |= ribi_t::ist_kurve(v->get_direction())  &&  (state==DRIVING  ||  is_waiting());
+					realing_position |= ribi_t::is_bend(v->get_direction())  &&  (state==DRIVING  ||  is_waiting());
 				}
 				// if version is 99.17 or lower, some convois are broken, i.e. had too large gaps between vehicles
 				if(  !realing_position  &&  state!=INITIAL  &&  state!=LEAVING_DEPOT  ) {
@@ -538,7 +538,7 @@ void convoi_t::finish_rd()
 							if (dist>1) {
 								step_pos += (dist-1) * diagonal_vehicle_steps_per_tile;
 							}
-							step_pos += ribi_t::ist_kurve(v->get_direction()) ? diagonal_vehicle_steps_per_tile : VEHICLE_STEPS_PER_TILE;
+							step_pos += ribi_t::is_bend(v->get_direction()) ? diagonal_vehicle_steps_per_tile : VEHICLE_STEPS_PER_TILE;
 						}
 						DBG_MESSAGE("convoi_t::finish_rd()", "v: pos(%s) steps(%d) len=%d ribi=%d prev (%s) step(%d)", v->get_pos().get_str(), v->get_steps(), v->get_besch()->get_length()*16, v->get_direction(),  drive_pos.get_2d().get_str(), step_pos);
 						if(  abs( v->get_steps() - step_pos )>15  ) {
@@ -631,7 +631,7 @@ DBG_MESSAGE("convoi_t::finish_rd()","next_stop_index=%d", next_stop_index );
 				if(gr)
 				{
 					if (schiene_t* const sch0 = obj_cast<schiene_t>(gr->get_weg(vehicle[i]->get_waytype()))) {
-						sch0->reserve(self, ribi_t::keine);
+						sch0->reserve(self, ribi_t::none);
 					}
 				}
 			}
@@ -652,7 +652,7 @@ DBG_MESSAGE("convoi_t::finish_rd()","next_stop_index=%d", next_stop_index );
 	check_freight();
 	// some convois had wrong old direction in them
 	if(  state<DRIVING  ||  state==LOADING  ) {
-		alte_richtung = front()->get_direction();
+		alte_direction = front()->get_direction();
 	}
 	// Knightly : if lineless convoy -> register itself with stops
 	if (state > INITIAL)
@@ -1012,7 +1012,7 @@ void convoi_t::calc_acceleration(uint32 delta_t)
 		steps_til_brake = steps_til_limit - brake_steps;
 		switch(limit_info.direction)
 		{
-			case ribi_t::nord:
+			case ribi_t::north:
 			case ribi_t::west:
 				// BG, 10-11-2011: vehicle_t::hop() reduces the length of the tile, if convoy is going to stop on the tile.
 				// Most probably for eye candy reasons vehicles do not exactly move on their tiles.
@@ -2387,7 +2387,7 @@ void convoi_t::start()
 		assert(gr);
 		gr->obj_add( front() );
 
-		alte_richtung = ribi_t::keine;
+		alte_direction = ribi_t::none;
 		no_load = false;
 		depot_when_empty = false;
 
@@ -2449,7 +2449,7 @@ void convoi_t::start()
 void convoi_t::ziel_erreicht()
 {
 	const vehicle_t* v = front();
-	alte_richtung = v->get_direction();
+	alte_direction = v->get_direction();
 
 	// check, what is at destination!
 	const grund_t *gr = welt->lookup(v->get_pos());
@@ -2909,7 +2909,7 @@ bool convoi_t::set_schedule(schedule_t * f)
 		state = FAHRPLANEINGABE;
 	}
 	// to avoid jumping trains
-	alte_richtung = front()->get_direction();
+	alte_direction = front()->get_direction();
 	wait_lock = 0;
 	return true;
 }
@@ -2935,7 +2935,7 @@ schedule_t *convoi_t::create_schedule()
  * false: must recalculate position
  * on all error we better use the normal starting procedure ...
  */
-bool convoi_t::can_go_alte_richtung()
+bool convoi_t::can_go_alte_direction()
 {
 	// invalid route? nothing to test, must start new
 	if(route.empty()) {
@@ -2943,9 +2943,9 @@ bool convoi_t::can_go_alte_richtung()
 	}
 
 	// going backwards? then recalculate all
-	ribi_t::ribi neue_richtung_rwr = ribi_t::rueckwaerts(front()->calc_direction(route.front().get_2d(), route.position_bei(min(2, route.get_count() - 1)).get_2d()));
-//	DBG_MESSAGE("convoi_t::go_alte_richtung()","neu=%i,rwr_neu=%i,alt=%i",neue_richtung_rwr,ribi_t::rueckwaerts(neue_richtung_rwr),alte_richtung);
-	if(neue_richtung_rwr&alte_richtung) {
+	ribi_t::ribi neue_direction_rwr = ribi_t::backward(front()->calc_direction(route.front().get_2d(), route.position_bei(min(2, route.get_count() - 1)).get_2d()));
+//	DBG_MESSAGE("convoi_t::go_alte_direction()","neu=%i,rwr_neu=%i,alt=%i",neue_direction_rwr,ribi_t::backward(neue_direction_rwr),alte_direction);
+	if(neue_direction_rwr&alte_direction) {
 		set_akt_speed(8);
 		return false;
 	}
@@ -2968,29 +2968,29 @@ bool convoi_t::can_go_alte_richtung()
 		if(gr==NULL  ||  (pred!=NULL  &&  (abs(v->get_pos().x-pred->get_pos().x)>=2  ||  abs(v->get_pos().y-pred->get_pos().y)>=2))  ) {
 			// ending here is an error!
 			// this is an already broken train => restart
-			dbg->warning("convoi_t::go_alte_richtung()","broken convoy (id %i) found => fixing!",self.get_id());
+			dbg->warning("convoi_t::go_alte_direction()","broken convoy (id %i) found => fixing!",self.get_id());
 			set_akt_speed(8);
 			return false;
 		}
 
 		// now check, if ribi is straight and train is not
 		ribi_t::ribi weg_ribi = gr->get_weg_ribi_unmasked(v->get_waytype());
-		if(ribi_t::ist_gerade(weg_ribi)  &&  (weg_ribi|v->get_direction())!=weg_ribi) {
-			dbg->warning("convoi_t::go_alte_richtung()","convoy with wrong vehicle directions (id %i) found => fixing!",self.get_id());
+		if(ribi_t::is_straight(weg_ribi)  &&  (weg_ribi|v->get_direction())!=weg_ribi) {
+			dbg->warning("convoi_t::go_alte_direction()","convoy with wrong vehicle directions (id %i) found => fixing!",self.get_id());
 			set_akt_speed(8);
 			return false;
 		}
 
 		if(  pred  &&  pred->get_pos()!=v->get_pos()  ) {
-			tile_length += (ribi_t::ist_gerade(welt->lookup(pred->get_pos())->get_weg_ribi_unmasked(pred->get_waytype())) ? 16 : 8192/vehicle_t::get_diagonal_multiplier())*koord_distance(pred->get_pos(),v->get_pos());
+			tile_length += (ribi_t::is_straight(welt->lookup(pred->get_pos())->get_weg_ribi_unmasked(pred->get_waytype())) ? 16 : 8192/vehicle_t::get_diagonal_multiplier())*koord_distance(pred->get_pos(),v->get_pos());
 		}
 
 		pred = v;
 	}
 	// check if convoi is way too short (even for diagonal tracks)
-	tile_length += (ribi_t::ist_gerade(welt->lookup(vehicle[anz_vehikel-1]->get_pos())->get_weg_ribi_unmasked(vehicle[anz_vehikel-1]->get_waytype())) ? 16 : 8192/vehicle_t::get_diagonal_multiplier());
+	tile_length += (ribi_t::is_straight(welt->lookup(vehicle[anz_vehikel-1]->get_pos())->get_weg_ribi_unmasked(vehicle[anz_vehikel-1]->get_waytype())) ? 16 : 8192/vehicle_t::get_diagonal_multiplier());
 	if(  convoi_length>tile_length  ) {
-		dbg->warning("convoi_t::go_alte_richtung()","convoy too short (id %i) => fixing!",self.get_id());
+		dbg->warning("convoi_t::go_alte_direction()","convoy too short (id %i) => fixing!",self.get_id());
 		set_akt_speed(8);
 		return false;
 	}
@@ -3010,63 +3010,54 @@ bool convoi_t::can_go_alte_richtung()
 		}
 	}
 
-//DBG_MESSAGE("convoi_t::go_alte_richtung()","alte=%d, neu_rwr=%d",alte_richtung,neue_richtung_rwr);
+//DBG_MESSAGE("convoi_t::go_alte_direction()","alte=%d, neu_rwr=%d",alte_direction,neue_direction_rwr);
 
-	// we continue our journey; however later cars need also a correct route entry
-	// eventually we need to add their positions to the convoi's route
+// we continue our journey; however later cars need also a correct route entry
+// eventually we need to add their positions to the convois route
 	koord3d pos = front()->get_pos();
 	assert(pos == route.front());
-	if(welt->lookup(pos)->get_depot()) {
+	if (welt->lookup(pos)->get_depot()) {
 		return false;
 	}
 	else {
-		for(i=0; i<anz_vehikel; i++) {
-			vehicle_t* v = vehicle[i];
+		for (i = 0; i<anz_vehikel; i++) {
+			vehicle_t* v = get_vehikel(i); 
 			// eventually add current position to the route
 			if (route.front() != v->get_pos() && route.position_bei(1) != v->get_pos()) {
 				route.insert(v->get_pos());
-			}
-			// eventually we need to add also a previous position to this path
-			if(v->get_besch()->get_length()>8  &&  i+1<anz_vehikel) {
-				if (route.front() != v->get_pos_prev() && route.position_bei(1) != v->get_pos_prev()) {
-					route.insert(v->get_pos_prev());
-				}
 			}
 		}
 	}
 
 	// since we need the route for every vehicle of this convoi,
 	// we must set the current route index (instead assuming 1)
-	length = min((convoi_length/8u),route.get_count()-1);	// maximum length in tiles to check
-	bool ok=false;
-	for(i=0; i<anz_vehikel; i++) {
-		vehicle_t* v = vehicle[i];
+	length = min((convoi_length / 8u), route.get_count() - 1);	// maximum length in tiles to check
+	bool ok = false;
+	for (i = 0; i<anz_vehikel; i++) {
+		vehicle_t* v = get_vehikel(i); 
 
-		// this is such akward, since it takes into account different vehicle length
+		// this is such awkward, since it takes into account different vehicle length
 		const koord3d vehicle_start_pos = v->get_pos();
-		for( int idx=0;  idx<=length;  idx++  ) {
-			if(route.position_bei(idx)==vehicle_start_pos) {
+		for (int idx = 0; idx <= length; idx++) {
+			if (route.position_bei(idx) == vehicle_start_pos) {
 				// set route index, no recalculations necessary
-				v->initialise_journey(idx, false );
+				v->initialise_journey(idx, false);
 				ok = true;
+
+				// check direction
+				uint8 richtung = v->get_direction();
+				uint8 neu_richtung = v->calc_direction(get_route()->position_bei(max(idx - 1, 0)).get_2d(), v->get_pos_next().get_2d());
+				// we need to move to this place ...
+				if (neu_richtung != richtung && (i != 0 || anz_vehikel == 1 || ribi_t::is_bend(neu_richtung))) {
+					// 90 deg bend!
+					return false;
+				}
+
 				break;
 			}
 		}
 		// too short?!? (rather broken then!)
-		if(!ok) {
-			return false;
-		}
-	}
-
-	// on curves the vehicle may be already on the next tile but with a wrong direction
-	for(i=0; i<anz_vehikel; i++) {
-		vehicle_t* v = vehicle[i];
-
-		uint8 richtung = v->get_direction();
-		uint8 neu_richtung = v->richtung();
-		// we need to move to this place ...
-		if(neu_richtung!=richtung  &&  (i!=0  ||  anz_vehikel==1  ||  ribi_t::ist_kurve(neu_richtung)) ) {
-			// 90 deg bend!
+		if (!ok) {
 			return false;
 		}
 	}
@@ -3129,7 +3120,7 @@ void convoi_t::vorfahren()
 	}
 	else
 	{
-		const bool must_change_direction = !can_go_alte_richtung();
+		const bool must_change_direction = !can_go_alte_direction();
 		// still leaving depot (steps_driven!=0) or going in other direction or misalignment?
 		if(steps_driven > 0 || must_change_direction)
 		{
@@ -3171,8 +3162,8 @@ void convoi_t::vorfahren()
 
 			// move one train length to the start position ...
 			// in north/west direction, we leave the vehicle away to start as much back as possible
-			ribi_t::ribi neue_richtung = front()->get_direction_of_travel();
-			if(neue_richtung==ribi_t::sued  ||  neue_richtung==ribi_t::ost)
+			ribi_t::ribi neue_direction = front()->get_direction_of_travel();
+			if(neue_direction==ribi_t::south  ||  neue_direction==ribi_t::east)
 			{
 				// drive the convoi to the same position, but do not hop into next tile!
 				if(  train_length%16==0  ) {
@@ -3341,7 +3332,7 @@ void convoi_t::vorfahren()
 							while(haltestelle_t::get_halt(to->get_pos(), owner).is_bound())
 							{		
 								w = (schiene_t *)to->get_weg(wt);
-								if(!w || !ribi_t::ist_einfach(direction_of_travel))
+								if(!w || !ribi_t::is_single(direction_of_travel))
 								{
 									// If direction_of_travel is not a proper single direction,
 									// odd tile reservations causing blockages can occur.
@@ -3596,7 +3587,7 @@ void convoi_t::rdwr(loadsave_t *file)
 	file->rdwr_long(akt_speed_soll);
 	file->rdwr_long(sp_soll);
 	file->rdwr_enum(state);
-	file->rdwr_enum(alte_richtung);
+	file->rdwr_enum(alte_direction);
 
 	// read the yearly income (which has since then become a 64 bit value)
 	// will be recalculated later directly from the history
@@ -3726,7 +3717,7 @@ void convoi_t::rdwr(loadsave_t *file)
 				if(gr && (v->get_waytype()==track_wt  ||  v->get_waytype()==monorail_wt  ||  v->get_waytype()==maglev_wt  ||  v->get_waytype()==narrowgauge_wt)) {
 					schiene_t* sch = (schiene_t*)gr->get_weg(v->get_waytype());
 					if(sch) {
-						sch->reserve(self,ribi_t::keine);
+						sch->reserve(self,ribi_t::none);
 					}
 					// add to crossing
 					if(gr->ist_uebergang()) {
@@ -4772,7 +4763,7 @@ void convoi_t::open_schedule_window( bool show )
 		state = FAHRPLANEINGABE;
 	}
 	wait_lock = 25000;
-	alte_richtung = front()->get_direction();
+	alte_direction = front()->get_direction();
 
 	// Added by : Knightly
 	// Purpose  : To keep a copy of the original schedule before opening schedule window
@@ -5308,7 +5299,7 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 	else
 	{
 		// calculate real station length
-		koord zv = koord( ribi_t::rueckwaerts(front()->get_direction()) );
+		koord zv = koord( ribi_t::backward(front()->get_direction()) );
 		koord3d pos = front()->get_pos();
 		const grund_t *grund = welt->lookup(pos);
 		if(  grund->get_weg_yoff()==TILE_HEIGHT_STEP  )
@@ -5803,7 +5794,7 @@ void convoi_t::dump() const
 		"sp_soll = %d\n"
 		"state = %d\n"
 		"statename = %s\n"
-		"alte_richtung = %d\n"
+		"alte_direction = %d\n"
 		"jahresgewinn = %ld\n"	// %lld crashes mingw now, cast gewinn to long ...
 		"name = '%s'\n"
 		"line_id = '%d'\n"
@@ -5815,7 +5806,7 @@ void convoi_t::dump() const
 		(int)sp_soll,
 		(int)state,
 		(const char *)(state_names[state]),
-		(int)alte_richtung,
+		(int)alte_direction,
 		(long)(jahresgewinn/100),
 		(const char *)name_and_id,
 		line.is_bound() ? line.get_id() : 0,
@@ -6151,7 +6142,7 @@ bool convoi_t::check_destination_reverse(route_t* current_route, route_t* target
 	{
 		ribi_t::ribi old_dir = front()->calc_direction(current_route->position_bei(current_route->get_count() - 2).get_2d(), current_route->back().get_2d());
 		ribi_t::ribi new_dir = front()->calc_direction(target_rt->position_bei(0).get_2d(), target_rt->position_bei(1).get_2d());
-		return old_dir & ribi_t::rueckwaerts(new_dir);
+		return old_dir & ribi_t::backward(new_dir);
 	}
 	else
 	{
@@ -6515,7 +6506,7 @@ DBG_MESSAGE("convoi_t::go_to_depot()","convoi state %i => cannot change schedule
 		else {
 			// OK, we're not standing on a depot.  Find a route to a depot.
 			depot_finder_t finder(self, traction_types);
-			route.find_route(welt, get_vehikel(0)->get_pos(), &finder, speed_to_kmh(get_min_top_speed()), ribi_t::alle, get_highest_axle_load(), get_tile_length(), get_weight_summary().weight / 1000, has_tall_vehicles(), 0x7FFFFFFF);
+			route.find_route(welt, get_vehikel(0)->get_pos(), &finder, speed_to_kmh(get_min_top_speed()), ribi_t::all, get_highest_axle_load(), get_tile_length(), get_weight_summary().weight / 1000, has_tall_vehicles(), 0x7FFFFFFF);
 			if (!route.empty()) {
 				depot_pos = route.position_bei(route.get_count() - 1);
 				if(range == 0 || (shortest_distance(get_pos().get_2d(), depot_pos.get_2d()) * (uint32)welt->get_settings().get_meters_per_tile()) / 1000 <= range)
@@ -6765,7 +6756,7 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 		pos_next = route.position_bei(route_index++);
 		grund_t *gr = welt->lookup(pos);
 		// no ground, or slope => about
-		if(  gr==NULL  ||  gr->get_weg_hang()!=hang_t::flach  ) {
+		if(  gr==NULL  ||  gr->get_weg_hang()!=slope_t::flat  ) {
 			return false;
 		}
 
@@ -6793,7 +6784,7 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 			return false;
 		}
 
-		int d = ribi_t::ist_gerade(str->get_ribi()) ? VEHICLE_STEPS_PER_TILE : vehicle_base_t::get_diagonal_vehicle_steps_per_tile();
+		int d = ribi_t::is_straight(str->get_ribi()) ? VEHICLE_STEPS_PER_TILE : vehicle_base_t::get_diagonal_vehicle_steps_per_tile();
 		distance -= d;
 		time_overtaking += d;
 
@@ -6852,7 +6843,7 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 			return false;
 		}
 
-		if(  ribi_t::ist_gerade(str->get_ribi())  ) {
+		if(  ribi_t::is_straight(str->get_ribi())  ) {
 			time_overtaking -= (VEHICLE_STEPS_PER_TILE<<16) / kmh_to_speed(str->get_max_speed());
 		}
 		else {
@@ -6860,7 +6851,7 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 		}
 
 		// Check for other vehicles in facing direction
-		ribi_t::ribi their_direction = ribi_t::rueckwaerts( front()->calc_direction(pos_prev, pos_next.get_2d()) );
+		ribi_t::ribi their_direction = ribi_t::backward( front()->calc_direction(pos_prev, pos_next.get_2d()) );
 		const uint8 top = gr->get_top();
 		for(  uint8 j=1;  j<top;  j++ ) {
 			vehicle_base_t* const v = obj_cast<vehicle_base_t>(gr->obj_bei(j));

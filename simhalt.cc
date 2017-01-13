@@ -903,14 +903,14 @@ char* haltestelle_t::create_name(koord const k, char const* const typ)
 
 	if (!welt->get_settings().get_numbered_stations()) {
 		static const koord next_building[24] = {
-			koord( 0, -1), // nord
-			koord( 1,  0), // ost
-			koord( 0,  1), // sued
+			koord( 0, -1), // north
+			koord( 1,  0), // east
+			koord( 0,  1), // south
 			koord(-1,  0), // west
 			koord( 1, -1), // nordost
-			koord( 1,  1), // suedost
-			koord(-1,  1), // suedwest
-			koord(-1, -1), // nordwest
+			koord( 1,  1), // southeast
+			koord(-1,  1), // southwest
+			koord(-1, -1), // northwest
 			koord( 0, -2),	// double nswo
 			koord( 2,  0),
 			koord( 0,  2),
@@ -1060,8 +1060,8 @@ char* haltestelle_t::create_name(koord const k, char const* const typ)
 		}
 
 		const char *dirname = NULL;
-		static const char *diagonal_name[4] = { "nordwest", "nordost", "suedost", "suedwest" };
-		static const char *direction_name[4] = { "nord", "ost", "sued", "west" };
+		static const char *diagonal_name[4] = { "northwest", "nordost", "southeast", "southwest" };
+		static const char *direction_name[4] = { "north", "east", "south", "west" };
 
 		uint8 const rot = welt->get_settings().get_rotation();
 		if (k.y < ob_gr  ||  (inside  &&  k.y*3 < (un_gr+ob_gr+ob_gr))  ) {
@@ -2555,7 +2555,7 @@ bool haltestelle_t::vereinige_waren(const ware_t &ware) //"unite were" (Google)
 			* OLD SYSTEM - did not take account of origins and timings when merging.
 			*
 			* // es wird auf basis von Haltestellen vereinigt
-			* // prissi: das ist aber ein Fehler für alle anderen Güter, daher Zielkoordinaten für alles, was kein passagier ist ...
+			* // prissi: das ist aber ein Fehler für all anderen Güter, daher Zielkoordinaten für alles, was kein passagier ist ...
 			*
 			* //it is based on uniting stops.
 			* //prissi: but that is a mistake for all other goods, therefore, target coordinates for everything that is not a passenger ...

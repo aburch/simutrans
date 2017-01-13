@@ -69,11 +69,11 @@ public:
 	{ 
 		if(t == block)
 		{
-			return !reserved.is_bound() || c == reserved || (type == directional && (dir == direction || dir == ribi_t::alle || (is_diagonal() && (dir & direction)) || (is_junction() && (dir & direction)))) || (type == priority && true /*Insert real logic here*/); 
+			return !reserved.is_bound() || c == reserved || (type == directional && (dir == direction || dir == ribi_t::all || (is_diagonal() && (dir & direction)) || (is_junction() && (dir & direction)))) || (type == priority && true /*Insert real logic here*/); 
 		}
 		if(t == directional)
 		{
-			return !reserved.is_bound() || c == reserved || type == priority || (dir == direction || dir == ribi_t::alle) || (!check_directions_at_junctions && is_junction());
+			return !reserved.is_bound() || c == reserved || type == priority || (dir == direction || dir == ribi_t::all) || (!check_directions_at_junctions && is_junction());
 		}
 		if(t == priority)
 		{

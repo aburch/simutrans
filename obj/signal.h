@@ -62,7 +62,7 @@ public:
 	bool get_no_junctions_to_next_signal() const { return no_junctions_to_next_signal; }
 	void set_no_junctions_to_next_signal(bool value) { no_junctions_to_next_signal = value; } 
 
-	bool is_bidirectional() const { return ((dir & ribi_t::ost) && (dir & ribi_t::west)) || ((dir & ribi_t::sued) && (dir & ribi_t::nord)); }
+	bool is_bidirectional() const { return ((dir & ribi_t::east) && (dir & ribi_t::west)) || ((dir & ribi_t::south) && (dir & ribi_t::north)); }
 
 	void set_train_last_passed(sint64 value) { train_last_passed = value; }
 	sint64 get_train_last_passed() const { return train_last_passed; }

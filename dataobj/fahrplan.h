@@ -145,7 +145,7 @@ public:
 
 	/**
 	 * fügt eine koordinate an stelle aktuell in den Fahrplan ein
-	 * alle folgenden Koordinaten verschieben sich dadurch
+	 * all folgenden Koordinaten verschieben sich dadurch
 	 */
 	bool insert(const grund_t* gr, uint16 ladegrad = 0, uint8 waiting_time_shift = 0, sint16 spacing_shift = 0, bool wait_for_time = false, bool show_failure = false);
 	/**
@@ -158,7 +158,7 @@ public:
 
 	/**
 	 * entfern eintrag[aktuell] aus dem fahrplan
-	 * alle folgenden Koordinaten verschieben sich dadurch
+	 * all folgenden Koordinaten verschieben sich dadurch
 	 */
 	bool remove();
 

@@ -11,11 +11,11 @@ protected:
 
 public:
 	tunnelboden_t(loadsave_t *file, koord pos );
-	tunnelboden_t(koord3d pos, hang_t::typ hang_typ) : boden_t(pos, hang_typ) {}
+	tunnelboden_t(koord3d pos, slope_t::type slope_type) : boden_t(pos, slope_type) {}
 
 	virtual void rdwr(loadsave_t *file);
 
-	hang_t::typ get_weg_hang() const { return ist_karten_boden() ? (hang_t::typ)hang_t::flach : get_grund_hang(); }
+	slope_t::type get_weg_hang() const { return ist_karten_boden() ? (slope_t::type)slope_t::flat : get_grund_hang(); }
 
 	const char *get_name() const {return "Tunnelboden";}
 	typ get_typ() const { return tunnelboden; }

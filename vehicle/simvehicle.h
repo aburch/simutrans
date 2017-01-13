@@ -185,7 +185,7 @@ public:
 
 	static ribi_t::ribi calc_direction(koord start, koord ende);
 	ribi_t::ribi calc_set_direction(const koord3d& start, const koord3d& ende);
-	uint16 get_tile_steps(const koord &start, const koord &ende, /*out*/ ribi_t::ribi &richtung) const;
+	uint16 get_tile_steps(const koord &start, const koord &ende, /*out*/ ribi_t::ribi &direction) const;
 
 	ribi_t::ribi get_direction() const {return direction;}
 
@@ -466,11 +466,7 @@ private:
 	void info(cbuffer_t & buf, bool dummy = false) const;
 public:
 #endif
-	/**
-	* Determine travel direction
-	* @author Hj. Malthaner
-	*/
-	ribi_t::ribi richtung() const;
+
 
 	/* return friction constant: changes in hill and curves; may even negative downhill *
 	* @author prissi
@@ -662,7 +658,7 @@ class road_vehicle_t : public vehicle_t
 private:
 	// called internally only from can_enter_tile()
 	// returns true on success
-	bool choose_route(sint32 &restart_speed, ribi_t::ribi richtung, uint16 index);
+	bool choose_route(sint32 &restart_speed, ribi_t::ribi start_direction, uint16 index);
 
 public:
 	bool check_next_tile(const grund_t *bd) const;

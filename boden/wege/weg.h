@@ -36,7 +36,7 @@ enum way_statistics {
 
 
 /**
- * <p>Der Weg ist die Basisklasse fuer alle Verkehrswege in Simutrans.
+ * <p>Der Weg ist die Basisklasse fuer all Verkehrswege in Simutrans.
  * Wege "gehören" immer zu einem Grund. Sie besitzen Richtungsbits sowie
  * eine Maske fuer Richtungsbits.</p>
  *

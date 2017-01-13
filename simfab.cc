@@ -899,7 +899,7 @@ void fabrik_t::delete_all_fields()
 			grund_t *gr = plan->get_kartenboden();
 			if (field_t* f = gr->find<field_t>()) {
 				delete f; // implicitly removes the field from fields
-				plan->boden_ersetzen( gr, new boden_t(gr->get_pos(), hang_t::flach ) );
+				plan->boden_ersetzen( gr, new boden_t(gr->get_pos(), slope_t::flat ) );
 				plan->get_kartenboden()->calc_image();
 				continue;
 			}
@@ -1055,7 +1055,7 @@ bool fabrik_t::add_random_field(uint16 probability)
 				if (gr != NULL &&
 						gr->get_typ()        == grund_t::boden &&
 						gr->get_hoehe()      == pos.z &&
-						gr->get_grund_hang() == hang_t::flach &&
+						gr->get_grund_hang() == slope_t::flat &&
 						gr->ist_natur() &&
 						(gr->find<leitung_t>() || gr->kann_alle_obj_entfernen(NULL) == NULL)) {
 					// only on same height => climate will match!
@@ -1997,7 +1997,7 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 	{
 		nearby_halt_t nearby_halt = nearby_freight_halts[(i + ausgang[produkt].index_offset) % count];
 
-		// Über alle Ziele iterieren ("Iterate over all targets" - Google)
+		// Über all Ziele iterieren ("Iterate over all targets" - Google)
 		for(  uint32 n=0;  n<lieferziele.get_count();  n++  ) {
 			// prissi: this way, the halt that is tried first will change. As a result, if all destinations are empty, it will be spread evenly
 			const koord lieferziel = lieferziele[(n + ausgang[produkt].index_offset) % lieferziele.get_count()];

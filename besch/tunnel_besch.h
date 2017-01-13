@@ -68,38 +68,38 @@ public:
 	* front underground diagonal (12). 
 	*/
 	
-	const bild_besch_t *get_hintergrund(hang_t::typ hang, uint8 season, uint8 type ) const
+	const bild_besch_t *get_hintergrund(slope_t::type hang, uint8 season, uint8 type ) const
 	{
 		int const n = season && number_seasons == 1 ? 5 : 2;
 		return get_child<bildliste_besch_t>(n)->get_image(hang_indices[hang] + 4 * type);
 	}
 
-	image_id get_hintergrund_nr(hang_t::typ hang, uint8 season, uint8 type ) const
+	image_id get_hintergrund_nr(slope_t::type hang, uint8 season, uint8 type ) const
 	{
 		const bild_besch_t *besch = get_hintergrund(hang, season, type );
 		return besch != NULL ? besch->get_nummer() : IMG_EMPTY;
 	}
 
-	const bild_besch_t *get_vordergrund(hang_t::typ hang, uint8 season, uint8 type ) const
+	const bild_besch_t *get_vordergrund(slope_t::type hang, uint8 season, uint8 type ) const
 	{
 		int const n = season && number_seasons == 1 ? 6 : 3;
 		return get_child<bildliste_besch_t>(n)->get_image(hang_indices[hang] + 4 * type);
 	}
 
-	image_id get_vordergrund_nr(hang_t::typ hang, uint8 season, uint8 type) const
+	image_id get_vordergrund_nr(slope_t::type hang, uint8 season, uint8 type) const
 	{
 		const bild_besch_t *besch = get_vordergrund(hang, season, type );
 		return besch != NULL ? besch->get_nummer() : IMG_EMPTY;
 	}
 
-	image_id get_underground_backimage_nr(ribi_t::ribi ribi, hang_t::typ hang) const
+	image_id get_underground_backimage_nr(ribi_t::ribi ribi, slope_t::type hang) const
 	{
-		return hang == hang_t::flach ? get_child<bildliste_besch_t>(7)->get_bild_nr(ribi) : get_hang_bild_nr(hang, false);
+		return hang == slope_t::flat ? get_child<bildliste_besch_t>(7)->get_bild_nr(ribi) : get_hang_bild_nr(hang, false);
 	}
 
-	image_id get_underground_frontimage_nr(ribi_t::ribi ribi, hang_t::typ hang) const
+	image_id get_underground_frontimage_nr(ribi_t::ribi ribi, slope_t::type hang) const
 	{
-		return hang == hang_t::flach ? get_child<bildliste_besch_t>(10)->get_bild_nr(ribi) : get_hang_bild_nr(hang, true);
+		return hang == slope_t::flat ? get_child<bildliste_besch_t>(10)->get_bild_nr(ribi) : get_hang_bild_nr(hang, true);
 	}
 
 	image_id get_diagonal_bild_nr(ribi_t::ribi ribi, bool front) const
@@ -110,7 +110,7 @@ public:
 
 private:
 
-	image_id get_hang_bild_nr(hang_t::typ hang,  bool front) const
+	image_id get_hang_bild_nr(slope_t::type hang,  bool front) const
 	{
 		int const n = front ? 11 : 8;
 		int nr;

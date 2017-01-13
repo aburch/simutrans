@@ -22,9 +22,9 @@
 
 
 static const char label_text[4][64] = {
-	"sued",
-	"ost",
-	"nord",
+	"south",
+	"east",
+	"north",
 	"west"
 };
 

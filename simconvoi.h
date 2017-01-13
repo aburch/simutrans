@@ -547,7 +547,7 @@ private:
 
 	states state;
 
-	ribi_t::ribi alte_richtung; //"Old direction" (Google)
+	ribi_t::ribi alte_direction; //"Old direction" (Google)
 
 	/**
 	* The index number of the livery scheme of the current convoy
@@ -581,7 +581,7 @@ private:
 	* if the direction is the same as before
 	* @author Hanjsörg Malthaner
 	*/
-	bool can_go_alte_richtung();
+	bool can_go_alte_direction();
 
 	/**
 	* Mark first and last vehicle.
@@ -1250,7 +1250,7 @@ public:
 	void open_schedule_window( bool show );
 
 	/**
-	* pruefe ob Beschraenkungen fuer alle Fahrzeuge erfuellt sind
+	* pruefe ob Beschraenkungen fuer all Fahrzeuge erfuellt sind
 	* "	examine whether restrictions for all vehicles are fulfilled" (Google)
 	* @author Hj. Malthaner
 	*/
