@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug (command-line server)|Win32">
@@ -118,6 +118,7 @@
     <ProjectGuid>{0621B295-BEB7-4767-82F1-F27995610323}</ProjectGuid>
     <RootNamespace>Simutrans</RootNamespace>
     <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug (SDL)|Win32'" Label="Configuration">
@@ -590,7 +591,7 @@
     <OutDir>.\simutrans\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-	<PreBuildEvent>
+    <PreBuildEvent>
       <Command>cscript.exe //Nologo revision.jse</Command>
     </PreBuildEvent>
     <ClCompile>
@@ -615,7 +616,7 @@
       <ExceptionHandling>false</ExceptionHandling>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winmm.lib;zlibstat.lib;advapi32.lib;wsock32.lib;libbz2.lib;Imm32.lib;Strmiids.lib;Ws2_32.lib;shell32.lib;pthreadVCE2.lib</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;shell32.lib;winmm.lib;zlibstat.lib;advapi32.lib;ws2_32.lib;imm32.lib;libbz2.lib;pthreadVCE2.lib;libfreetype2.lib</AdditionalDependencies>
       <OutputFile>$(OutDir)$(ProjectName)-debug.exe</OutputFile>
       <AdditionalLibraryDirectories>..\OpenTTD\win32\library;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
@@ -634,7 +635,7 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug (single threaded new)|Win32'">
-	<PreBuildEvent>
+    <PreBuildEvent>
       <Command>cscript.exe //Nologo revision.jse</Command>
     </PreBuildEvent>
     <ClCompile>
@@ -659,7 +660,7 @@
       <ExceptionHandling>false</ExceptionHandling>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winmm.lib;zlibstat.lib;advapi32.lib;wsock32.lib;libbz2.lib;Imm32.lib;Strmiids.lib;Ws2_32.lib;shell32.lib</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winmm.lib;zlibstat.lib;advapi32.lib;ws2_32.lib;libbz2.lib;Imm32.lib;Strmiids.lib;Ws2_32.lib;shell32.lib</AdditionalDependencies>
       <OutputFile>$(OutDir)$(ProjectName)-debug.exe</OutputFile>
       <AdditionalLibraryDirectories>..\OpenTTD\win32\library;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
@@ -678,7 +679,7 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug (graphical server)|Win32'">
-	<PreBuildEvent>
+    <PreBuildEvent>
       <Command>cscript.exe //Nologo revision.jse</Command>
     </PreBuildEvent>
     <ClCompile>
@@ -702,7 +703,7 @@
       <AdditionalOptions>/Zc:sizedDealloc-</AdditionalOptions>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winmm.lib;zlibstat.lib;advapi32.lib;wsock32.lib;libbz2.lib;Imm32.lib;Strmiids.lib;Ws2_32.lib;shell32.lib;pthreadVCE2.lib;Imm32.lib</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winmm.lib;zlibstat.lib;advapi32.lib;ws2_32.lib;libbz2.lib;Imm32.lib;Strmiids.lib;Ws2_32.lib;shell32.lib;pthreadVCE2.lib;Imm32.lib</AdditionalDependencies>
       <OutputFile>$(OutDir)$(ProjectName)-debug.exe</OutputFile>
       <AdditionalLibraryDirectories>..\OpenTTD\win32\library;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
@@ -721,7 +722,7 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-	<PreBuildEvent>
+    <PreBuildEvent>
       <Command>cscript.exe //Nologo revision.jse</Command>
     </PreBuildEvent>
     <ClCompile>
@@ -755,7 +756,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug (single threaded new)|x64'">
-	<PreBuildEvent>
+    <PreBuildEvent>
       <Command>cscript.exe //Nologo revision.jse</Command>
     </PreBuildEvent>
     <ClCompile>
@@ -789,7 +790,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug (graphical server)|x64'">
-	<PreBuildEvent>
+    <PreBuildEvent>
       <Command>cscript.exe //Nologo revision.jse</Command>
     </PreBuildEvent>
     <ClCompile>
@@ -823,7 +824,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug-64|Win32'">
-	<PreBuildEvent>
+    <PreBuildEvent>
       <Command>cscript.exe //Nologo revision.jse</Command>
     </PreBuildEvent>
     <ClCompile>
@@ -846,7 +847,7 @@
       <AdditionalOptions>/Zc:sizedDealloc-</AdditionalOptions>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winmm.lib;zlibstat.lib;advapi32.lib;wsock32.lib;libbz2.lib;Imm32.lib;Strmiids.lib;Ws2_32.lib;shell32.lib;pthreadVCE2.lib</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winmm.lib;zlibstat.lib;advapi32.lib;ws2_32.lib;libbz2.lib;Imm32.lib;Strmiids.lib;Ws2_32.lib;shell32.lib;pthreadVCE2.lib</AdditionalDependencies>
       <OutputFile>$(OutDir)$(ProjectName)-debug.exe</OutputFile>
       <AdditionalLibraryDirectories>..\OpenTTD\win32\library;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
@@ -861,7 +862,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug-64|x64'">
-	<PreBuildEvent>
+    <PreBuildEvent>
       <Command>cscript.exe //Nologo revision.jse</Command>
     </PreBuildEvent>
     <ClCompile>
@@ -895,7 +896,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug (single threaded old)|Win32'">
-	<PreBuildEvent>
+    <PreBuildEvent>
       <Command>cscript.exe //Nologo revision.jse</Command>
     </PreBuildEvent>
     <ClCompile>
@@ -920,7 +921,7 @@
       <ExceptionHandling>false</ExceptionHandling>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winmm.lib;zlibstat.lib;advapi32.lib;wsock32.lib;libbz2.lib;Imm32.lib;Strmiids.lib;Ws2_32.lib;shell32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winmm.lib;zlibstat.lib;advapi32.lib;ws2_32.lib;libbz2.lib;Imm32.lib;Strmiids.lib;Ws2_32.lib;shell32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(ProjectName)-debug.exe</OutputFile>
       <AdditionalLibraryDirectories>..\OpenTTD\win32\library;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
@@ -938,7 +939,7 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug (single threaded old)|x64'">
-	<PreBuildEvent>
+    <PreBuildEvent>
       <Command>cscript.exe //Nologo revision.jse</Command>
     </PreBuildEvent>
     <ClCompile>
@@ -972,7 +973,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug (network)|Win32'">
-	<PreBuildEvent>
+    <PreBuildEvent>
       <Command>cscript.exe //Nologo revision.jse</Command>
     </PreBuildEvent>
     <ClCompile>
@@ -997,7 +998,7 @@
       <AdditionalOptions>/Zc:sizedDealloc-</AdditionalOptions>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winmm.lib;zlibstat.lib;advapi32.lib;wsock32.lib;libbz2.lib;Imm32.lib;Strmiids.lib;Ws2_32.lib;shell32.lib;pthreadVCE2.lib</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winmm.lib;zlibstat.lib;advapi32.lib;ws2_32.lib;libbz2.lib;Imm32.lib;Strmiids.lib;Ws2_32.lib;shell32.lib;pthreadVCE2.lib</AdditionalDependencies>
       <OutputFile>$(OutDir)$(ProjectName)-debug.exe</OutputFile>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>libcmt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
@@ -1012,7 +1013,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug (network)|x64'">
-	<PreBuildEvent>
+    <PreBuildEvent>
       <Command>cscript.exe //Nologo revision.jse</Command>
     </PreBuildEvent>
     <ClCompile>
@@ -1048,7 +1049,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug (command-line server)|Win32'">
-	<PreBuildEvent>
+    <PreBuildEvent>
       <Command>cscript.exe //Nologo revision.jse</Command>
     </PreBuildEvent>
     <ClCompile>
@@ -1071,7 +1072,7 @@
       <AdditionalOptions>/F 4194304 %(AdditionalOptions)/Zc:sizedDealloc-</AdditionalOptions>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winmm.lib;zlibstat.lib;advapi32.lib;wsock32.lib;libbz2.lib;Imm32.lib;Strmiids.lib;Ws2_32.lib;shell32.lib;pthreadVCE2.lib</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winmm.lib;zlibstat.lib;advapi32.lib;ws2_32.lib;libbz2.lib;Imm32.lib;Strmiids.lib;Ws2_32.lib;shell32.lib;pthreadVCE2.lib</AdditionalDependencies>
       <OutputFile>$(OutDir)$(ProjectName)-debug.exe</OutputFile>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>libcmt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
@@ -1087,7 +1088,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug (command-line server)|x64'">
-	<PreBuildEvent>
+    <PreBuildEvent>
       <Command>cscript.exe //Nologo revision.jse</Command>
     </PreBuildEvent>
     <ClCompile>
@@ -1123,7 +1124,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-	<PreBuildEvent>
+    <PreBuildEvent>
       <Command>cscript.exe //Nologo revision.jse</Command>
     </PreBuildEvent>
     <ClCompile>
@@ -1148,7 +1149,7 @@
       <AdditionalOptions>/Zc:sizedDealloc- %(AdditionalOptions)/Zc:sizedDealloc-</AdditionalOptions>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winmm.lib;zlibstat.lib;advapi32.lib;wsock32.lib;libbz2.lib;Imm32.lib;Strmiids.lib;Ws2_32.lib;shell32.lib;pthreadVCE2.lib</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winmm.lib;zlibstat.lib;advapi32.lib;ws2_32.lib;libbz2.lib;Imm32.lib;Strmiids.lib;Ws2_32.lib;shell32.lib;pthreadVCE2.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\OpenTTD\win32\library;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>libcmt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>false</GenerateDebugInformation>
@@ -1167,7 +1168,7 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-	<PreBuildEvent>
+    <PreBuildEvent>
       <Command>cscript.exe //Nologo revision.jse</Command>
     </PreBuildEvent>
     <ClCompile>
@@ -1204,7 +1205,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release (single threaded)|Win32'">
-	<PreBuildEvent>
+    <PreBuildEvent>
       <Command>cscript.exe //Nologo revision.jse</Command>
     </PreBuildEvent>
     <ClCompile>
@@ -1229,7 +1230,7 @@
       <AdditionalOptions>/Zc:sizedDealloc-</AdditionalOptions>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winmm.lib;zlibstat.lib;advapi32.lib;wsock32.lib;libbz2.lib;Imm32.lib;Strmiids.lib;Ws2_32.lib;shell32.lib;pthreadVCE2.lib</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winmm.lib;zlibstat.lib;advapi32.lib;ws2_32.lib;libbz2.lib;Imm32.lib;Strmiids.lib;Ws2_32.lib;shell32.lib;pthreadVCE2.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\OpenTTD\win32\library;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>libcmt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>false</GenerateDebugInformation>
@@ -1245,7 +1246,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release (single threaded)|x64'">
-	<PreBuildEvent>
+    <PreBuildEvent>
       <Command>cscript.exe //Nologo revision.jse</Command>
     </PreBuildEvent>
     <ClCompile>
@@ -1283,7 +1284,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Dr. Memory|Win32'">
-	<PreBuildEvent>
+    <PreBuildEvent>
       <Command>cscript.exe //Nologo revision.jse</Command>
     </PreBuildEvent>
     <ClCompile>
@@ -1309,7 +1310,7 @@
       <AdditionalOptions>/Zc:sizedDealloc-</AdditionalOptions>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winmm.lib;zlibstat.lib;advapi32.lib;wsock32.lib;libbz2.lib;Imm32.lib;Strmiids.lib;Ws2_32.lib</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winmm.lib;zlibstat.lib;advapi32.lib;ws2_32.lib;libbz2.lib;Imm32.lib;Strmiids.lib;Ws2_32.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>F:\My Documents\Development\Bzlib;F:\My Documents\Development\Zlib\include;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>libcmt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>false</GenerateDebugInformation>
@@ -1324,7 +1325,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Dr. Memory|x64'">
-	<PreBuildEvent>
+    <PreBuildEvent>
       <Command>cscript.exe //Nologo revision.jse</Command>
     </PreBuildEvent>
     <ClCompile>
@@ -1362,7 +1363,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release (IP v. 4 only)|Win32'">
-	<PreBuildEvent>
+    <PreBuildEvent>
       <Command>cscript.exe //Nologo revision.jse</Command>
     </PreBuildEvent>
     <ClCompile>
@@ -1387,7 +1388,7 @@
       <AdditionalOptions>/Zc:sizedDealloc-</AdditionalOptions>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winmm.lib;zlibstat.lib;advapi32.lib;wsock32.lib;libbz2.lib;Imm32.lib;Strmiids.lib;Ws2_32.lib;pthreadVCE2.lib</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winmm.lib;zlibstat.lib;advapi32.lib;ws2_32.lib;libbz2.lib;Imm32.lib;Strmiids.lib;Ws2_32.lib;pthreadVCE2.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\OpenTTD\win32\library;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>libcmt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>false</GenerateDebugInformation>
@@ -1403,7 +1404,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release (IP v. 4 only)|x64'">
-	<PreBuildEvent>
+    <PreBuildEvent>
       <Command>cscript.exe //Nologo revision.jse</Command>
     </PreBuildEvent>
     <ClCompile>
@@ -1440,7 +1441,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release (command-line server)|Win32'">
-	<PreBuildEvent>
+    <PreBuildEvent>
       <Command>cscript.exe //Nologo revision.jse</Command>
     </PreBuildEvent>
     <ClCompile>
@@ -1464,7 +1465,7 @@
       <AdditionalOptions>/IMAGE_FILE_LARGE_ADDRESS_AWARE %(AdditionalOptions)/Zc:sizedDealloc-</AdditionalOptions>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winmm.lib;zlibstat.lib;advapi32.lib;wsock32.lib;libbz2.lib;Imm32.lib;Strmiids.lib;Ws2_32.lib;shell32.lib;pthreadVCE2.lib</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winmm.lib;zlibstat.lib;advapi32.lib;ws2_32.lib;libbz2.lib;Imm32.lib;Strmiids.lib;Ws2_32.lib;shell32.lib;pthreadVCE2.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\OpenTTD\win32\library;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>libcmt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>false</GenerateDebugInformation>
@@ -1480,7 +1481,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release (command-line server)|x64'">
-	<PreBuildEvent>
+    <PreBuildEvent>
       <Command>cscript.exe //Nologo revision.jse</Command>
     </PreBuildEvent>
     <ClCompile>
@@ -1516,7 +1517,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release (SDL)|Win32'">
-	<PreBuildEvent>
+    <PreBuildEvent>
       <Command>cscript.exe //Nologo revision.jse</Command>
     </PreBuildEvent>
     <ClCompile>
@@ -1537,7 +1538,7 @@
     </ClCompile>
     <Link>
       <AdditionalOptions>SDL.lib SDLmain.lib %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winmm.lib;zlibstat.lib;advapi32.lib;wsock32.lib;libbz2.lib;Imm32.lib;Ws2_32.lib</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winmm.lib;zlibstat.lib;advapi32.lib;ws2_32.lib;libbz2.lib;Imm32.lib;Ws2_32.lib</AdditionalDependencies>
       <OutputFile>$(OutDir)$(ProjectName)-SDL.exe</OutputFile>
       <AdditionalLibraryDirectories>F:\My Documents\Development\Bzlib; F:\My Documents\Development\Simutrans\SDL-1.2.13\include;c:\Program Files\PlatformSDK\Lib;F:\My Documents\Development\Zlib\include;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>libcmt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
@@ -1553,7 +1554,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release (SDL)|x64'">
-	<PreBuildEvent>
+    <PreBuildEvent>
       <Command>cscript.exe //Nologo revision.jse</Command>
     </PreBuildEvent>
     <ClCompile>
@@ -1587,7 +1588,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug (SDL)|Win32'">
-	<PreBuildEvent>
+    <PreBuildEvent>
       <Command>cscript.exe //Nologo revision.jse</Command>
     </PreBuildEvent>
     <ClCompile>
@@ -1609,7 +1610,7 @@
     </ClCompile>
     <Link>
       <AdditionalOptions>SDL.lib SDLmain.lib %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winmm.lib;zlibstat.lib;advapi32.lib;wsock32.lib;libbz2.lib;Imm32.lib;Ws2_32.lib</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winmm.lib;zlibstat.lib;advapi32.lib;ws2_32.lib;libbz2.lib;Imm32.lib;Ws2_32.lib</AdditionalDependencies>
       <OutputFile>$(OutDir)$(ProjectName)-debug-SDL.exe</OutputFile>
       <AdditionalLibraryDirectories>F:\My Documents\Development\Bzlib;F:\My Documents\Development\Simutrans\SDL-1.2.13\include;G:\Program Files\PlatformSDK\Lib;F:\My Documents\Development\Zlib\include;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
@@ -1624,7 +1625,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug (SDL)|x64'">
-	<PreBuildEvent>
+    <PreBuildEvent>
       <Command>cscript.exe //Nologo revision.jse</Command>
     </PreBuildEvent>
     <ClCompile>
