@@ -9072,7 +9072,7 @@ bool tool_add_message_t::init(player_t *player)
 		
 		}
 		welt->get_message()->add_message(text + 1, koord::invalid, type,
-		type & message_t::local_flag ? COL_BLACK : PLAYER_FLAG | player->get_player_nr(), IMG_EMPTY);
+		type & message_t::local_flag ? COL_BLACK : (player ? PLAYER_FLAG | player->get_player_nr() : COL_WHITE), IMG_EMPTY);
 	}
 	return false;
 }
