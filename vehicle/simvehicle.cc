@@ -747,9 +747,9 @@ uint16 vehicle_t::load_cargo(halthandle_t halt)
 		return 0;
 	}
 
-	uint32 loaded_started_at = 0;
-	if (total_freight < desc->get_capacity()) {
-		const uint16 capacity_left = desc->get_capacity() - total_freight;
+	const uint16 total_freight_start = total_freight;
+	const uint16 capacity_left = desc->get_capacity() - total_freight;
+	if (capacity_left > 0) {
 
 		slist_tpl<ware_t> freight_add;
 		halt->fetch_goods( freight_add, desc->get_ware(), capacity_left, cnv->get_schedule(), cnv->get_owner() );
@@ -790,7 +790,7 @@ uint16 vehicle_t::load_cargo(halthandle_t halt)
 			fracht.append_list(freight_add);
 		}
 	}
-	return total_freight-loaded_started_at;
+	return total_freight - total_freight_start;
 }
 
 
