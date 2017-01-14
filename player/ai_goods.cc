@@ -970,7 +970,7 @@ DBG_MESSAGE("ai_goods_t::do_ki()","No roadway possible.");
 
 			// calculate cost for rail
 			if(  count_rail<255  ) {
-				int freight_price = (freight->get_preis()*rail_vehicle->get_capacity()*count_rail)/24*((8000+(best_rail_speed-80)*freight->get_speed_bonus())/1000);
+				int freight_price = (freight->get_value()*rail_vehicle->get_capacity()*count_rail)/24*((8000+(best_rail_speed-80)*freight->get_speed_bonus())/1000);
 				// calculated here, since the above number was based on production
 				// only uneven number of cars bigger than 3 makes sense ...
 				count_rail = max( 3, count_rail );
@@ -985,7 +985,7 @@ DBG_MESSAGE("ai_goods_t::do_ki()","No roadway possible.");
 				// for short distance: reduce number of cars
 				// calculated here, since the above number was based on production
 				count_road = CLIP( (sint32)(dist*15)/best_road_speed, 2, count_road );
-				int freight_price = (freight->get_preis()*road_vehicle->get_capacity()*count_road)/24*((8000+(best_road_speed-80)*freight->get_speed_bonus())/1000);
+				int freight_price = (freight->get_value()*road_vehicle->get_capacity()*count_road)/24*((8000+(best_road_speed-80)*freight->get_speed_bonus())/1000);
 				cost_road = road_weg->get_wartung() + 300/dist + (count_road*road_vehicle->get_running_cost()*best_road_speed)/(2*dist+5);
 				income_road = (freight_price*best_road_speed)/(2*dist+5);
 				DBG_MESSAGE("ai_goods_t::do_ki()","Netto credits per day and km for road transport %.2f (income %.2f)",cost_road/100.0, income_road/100.0 );

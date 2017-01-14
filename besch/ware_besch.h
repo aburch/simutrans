@@ -20,17 +20,21 @@ class checksum_t;
  *  Child nodes:
  *	0   Name
  *	1   Copyright
- *	2   Text Maﬂeinheit
+ *	2   Text: Name of measurement unit
  */
 class ware_besch_t : public obj_named_desc_t {
 	friend class good_reader_t;
 	friend class warenbauer_t;
 
-	/*
-	* The base value is the one for multiplier 1000.
-	*/
-	uint16 value;
+
+	/// base value
 	uint16 base_value;
+
+	/**
+	 * Value used in revenue calculation.
+	 * Will be set by warenbauer_t.
+	 */
+	uint16 value;
 
 	/**
 	* Category of the good
@@ -71,7 +75,7 @@ public:
 		return get_child<text_desc_t>(2)->get_text();
 	}
 
-	uint16 get_preis() const { return value; }
+	uint16 get_value() const { return value; }
 
 	/**
 	* @return speed bonus value of the good
