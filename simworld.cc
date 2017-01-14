@@ -545,6 +545,7 @@ DBG_MESSAGE("karte_t::destroy()", "destroying world");
 	DBG_MESSAGE("karte_t::destroy()", "threads destroyed");
 #else
 	delete[] transferring_cargoes;
+	transferring_cargoes = NULL;
 #endif
 
 	passenger_origins.clear();
@@ -2054,8 +2055,11 @@ void karte_t::destroy_threads()
 	first_step = 1;
 
 	delete[] private_cars_added_threaded; 
+	private_cars_added_threaded = NULL;
 	delete[] pedestrians_added_threaded;
+	pedestrians_added_threaded = NULL;
 	delete[] transferring_cargoes;
+	transferring_cargoes = NULL;
 
 	threads_initialised = false;
 	terminating_threads = false;
