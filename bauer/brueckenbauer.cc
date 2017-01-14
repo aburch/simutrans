@@ -776,7 +776,7 @@ void brueckenbauer_t::baue_bruecke(player_t *player, const koord3d start, const 
 {
 	ribi_t::ribi ribi = ribi_type(zv);
 
-	DBG_MESSAGE("brueckenbauer_t::baue()", "build from %s", start.get_str() );
+	DBG_MESSAGE("void brueckenbauer_t::baue_bruecke()", "build from %s", start.get_str() );
 
 	grund_t *start_gr = welt->lookup( start );
 	const slope_t::type slope = start_gr->get_weg_hang();
@@ -785,7 +785,13 @@ void brueckenbauer_t::baue_bruecke(player_t *player, const koord3d start, const 
 	uint8 add_height = 0;
 
 	// end tile height depends on whether slope matches direction...
-	slope_t::type end_slope = welt->lookup(end)->get_weg_hang();
+	grund_t* end_gr = welt->lookup(end); 
+	if (!end_gr)
+	{
+		dbg->error("void brueckenbauer_t::baue_bruecke()", "Cannot find the end of a bridge at %u,%u)", end.x, end.y);
+		return;
+	}
+	slope_t::type end_slope = end_gr->get_weg_hang();
 	sint8 end_slope_height = end.z;
 	if(  end_slope != slope_type(zv) && end_slope != slope_type(zv)*2  ) {
 		end_slope_height += slope_t::max_diff(end_slope);
