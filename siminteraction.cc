@@ -209,6 +209,12 @@ void interaction_t::interactive_event( const event_t &ev )
 							break;
 						}
 					}
+#ifdef STEAM_BUILT
+					// Block F12 from bringing up Keyboard Help (for Steam Screenshot) - but still allow F12 to be used if defined in pakset
+					if (ev.ev_code==SIM_KEY_F12) {
+						ok=true;
+					}
+#endif
 					if(!ok) {
 						help_frame_t::open_help_on( "keys.txt" );
 					}
