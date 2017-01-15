@@ -135,6 +135,7 @@ static pthread_attr_t thread_attributes;
 static pthread_mutex_t private_car_route_mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t karte_t::step_passengers_and_mail_mutex = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutex_t path_explorer_mutex = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t path_explorer_conditional_mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t karte_t::unreserve_route_mutex = PTHREAD_MUTEX_INITIALIZER;
 static simthread_barrier_t private_car_barrier;
 bool karte_t::threads_initialised = false;
@@ -1839,8 +1840,9 @@ void karte_t::stop_path_explorer()
 	
 	if (path_explorer_step_progress < 2)
 	{
-		pthread_cond_wait(&path_explorer_conditional_end, &path_explorer_mutex);
 		pthread_mutex_unlock(&path_explorer_mutex);
+		pthread_cond_wait(&path_explorer_conditional_end, &path_explorer_conditional_mutex);
+		pthread_mutex_unlock(&path_explorer_conditional_mutex);
 	}
 	else
 	{
