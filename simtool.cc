@@ -1604,7 +1604,8 @@ const char *tool_clear_reservation_t::work( player_t *player, koord3d k )
 			}
 
 			// is this a reserved track?
-			if(w->is_reserved()) {
+			if(w->is_reserved(schiene_t::block) || w->is_reserved(schiene_t::directional) || w->is_reserved(schiene_t::priority))
+			{
 				/* now we do a very crude procedure:
 				 * - we search all ways for reservations of this convoi and remove them
 				 * - we set the convoi state to ROUTING_1; it must rereserve its ways then
@@ -1615,18 +1616,7 @@ const char *tool_clear_reservation_t::work( player_t *player, koord3d k )
 					// reset driving state
 					cnv->suche_neue_route();
 				}
-				FOR(vector_tpl<weg_t*>, const w, weg_t::get_alle_wege()) {
-					if (w->get_waytype() == waytype) {
-						schiene_t* const sch = obj_cast<schiene_t>(w);
-						if (sch->get_reserved_convoi() == cnv) {
-							vehicle_t& v = *cnv->front();
-							if (!gr->suche_obj(v.get_typ())) {
-								// force free
-								sch->unreserve(&v);
-							}
-						}
-					}
-				}
+				cnv->unreserve_route();
 			}
 		}
 	}
