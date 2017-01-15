@@ -114,7 +114,7 @@ void tunnel_t::calc_image()
 		else 
 		{
 			// No portal. Determine whether to show the inside of the tunnel or nothing.
-			if(grund_t::underground_mode==grund_t::ugm_none || (grund_t::underground_mode==grund_t::ugm_level && from->get_hoehe()<grund_t::underground_level))
+			if(grund_t::underground_mode==grund_t::ugm_none || (grund_t::underground_mode==grund_t::ugm_level && from->get_hoehe()<grund_t::underground_level) || !besch->has_tunnel_internal_images())
 			{
 				set_bild( IMG_EMPTY );
 				set_after_bild( IMG_EMPTY );

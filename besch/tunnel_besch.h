@@ -41,7 +41,7 @@ private:
 	* @author: jamespetts*/
 	way_constraints_of_way_t way_constraints;
 
-	/* has underground way image ? (0 = no, 1 = yes)
+	/* has underground way image ? (0 = no, 1 = old type way, 2 = underground tunnel images, 3 = both)
 	*/
 	uint8 has_way;
 
@@ -162,6 +162,10 @@ public:
 	waytype_t get_finance_waytype() const;
 
 	uint32  get_max_axle_load() const { return axle_load; }
+
+	inline bool get_has_way() const { return has_way == 1 || has_way == 3; }
+
+	inline bool has_tunnel_internal_images() const { return has_way == 2 || has_way == 3;  }
 	
 	/* Way constraints: determines whether vehicles
 	 * can travel on this way. This method decodes
@@ -175,7 +179,8 @@ public:
 
 	const weg_besch_t *get_weg_besch() const
 	{
-		if(has_way) {
+		if(get_has_way())
+		{
 			return get_child<weg_besch_t>(5 + number_seasons * 2);
 		}
 		return NULL;

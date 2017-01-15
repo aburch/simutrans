@@ -183,6 +183,8 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 		}
 	}
 
+	uint32 has_tunnel_internal_images = 0;
+
 	// These are the internal images
 	// Code adapted from the way writer
 	slist_tpl<string> keys;
@@ -196,6 +198,7 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 			sprintf(buf, "%sundergroundimage[%s]", image_type[backtofront], ribi_codes[ribi]);
 			string str = obj.get(buf);
 			keys.append(str);
+			has_tunnel_internal_images ++;
 		}
 		imagelist_writer_t::instance()->write_obj(fp, node, keys);
 
@@ -207,6 +210,7 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 			sprintf(buf, "%sundergroundimageup[%d]", image_type[backtofront], hang);
 			string str = obj.get(buf);
 			keys.append(str);
+			has_tunnel_internal_images++;
 		}
 		for (hang = 3; hang <= 12; hang += 3) 
 		{
@@ -217,6 +221,7 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 			if (!str.empty())
 			{
 				keys.append(str);
+				has_tunnel_internal_images++;
 			}
 		}
 		imagelist_writer_t::instance()->write_obj(fp, node, keys);
@@ -229,18 +234,35 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 			sprintf(buf, "%sundergrounddiagonal[%s]", image_type[backtofront], ribi_codes[ribi]);
 			string str = obj.get(buf);
 			keys.append(str);
+			has_tunnel_internal_images++;
 		}
 		imagelist_writer_t::instance()->write_obj(fp, node, keys);
 		keys.clear();
 	}
 
 	str = obj.get("way");
-	if (!str.empty()) {
+	if (!str.empty())
+	{
 		xref_writer_t::instance()->write_obj(fp, node, obj_way, str.c_str(), false);
-		node.write_sint8(fp, 1, 22);
+		if (has_tunnel_internal_images >= 4)
+		{
+			node.write_sint8(fp, 3, 22);
+		}
+		else
+		{
+			node.write_sint8(fp, 1, 22);
+		}
 	}
-	else {
-		node.write_sint8(fp, 0, 22);
+	else 
+	{
+		if (has_tunnel_internal_images >= 4)
+		{
+			node.write_sint8(fp, 2, 22);
+		}
+		else
+		{
+			node.write_sint8(fp, 0, 22);
+		}
 	}
 
 	cursorkeys.clear();
