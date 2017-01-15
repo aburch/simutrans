@@ -49,7 +49,9 @@ static char const* const version[] =
 	"0.112.7",
 	"0.120.0",
 	"0.120.1",
-	"0.120.7"
+	"0.120.2",
+	"0.120.7",
+	"0.120.1.2"
 };
 
 static const char *version_ex[] =
@@ -86,7 +88,9 @@ static const char *revision_ex[] =
 	"12",
 	"13",
 	"14",
-	"15"
+	"15",
+	"16",
+	"17"
 };
 
 // just free memory
