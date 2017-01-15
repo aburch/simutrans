@@ -74,9 +74,9 @@ class records_t;
 
 #ifdef MULTI_THREAD
 //#define FORBID_MULTI_THREAD_PASSENGER_GENERATION_IN_NETWORK_MODE
-#define MULTI_THREAD_PASSENGER_GENERATION // Currently fails (desync) in any known configuration.
-#define MULTI_THREAD_CONVOYS // Fails (desync) even if FORBID_SYNC_OBJECTS is defined and even if MULTI_THREAD_PATH_EXPLORER is undefined; but only in one specific old game.
-#define MULTI_THREAD_PATH_EXPLORER // Confirmed working 
+#define MULTI_THREAD_PASSENGER_GENERATION 
+#define MULTI_THREAD_CONVOYS 
+#define MULTI_THREAD_PATH_EXPLORER 
 #endif
 
 #ifndef FORBID_MULTI_THREAD_PASSENGER_GENERATION_IN_NETWORK_MODE

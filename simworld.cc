@@ -1853,7 +1853,10 @@ void karte_t::start_path_explorer()
 {
 #ifdef MULTI_THREAD_PATH_EXPLORER
 	pthread_mutex_lock(&path_explorer_mutex);
-	simthread_barrier_wait(&start_path_explorer_barrier);
+	if (path_explorer_step_progress != 0)
+	{
+		simthread_barrier_wait(&start_path_explorer_barrier);
+	}
 	simthread_barrier_wait(&start_path_explorer_barrier);
 	pthread_mutex_unlock(&path_explorer_mutex);
 #endif 
