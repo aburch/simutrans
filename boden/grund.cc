@@ -1164,7 +1164,7 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 r
 					const int dh = corner_nw(get_disp_way_slope()) * hgt_step;
 					add_poly_clip( xpos + raster_tile_width - 1, ypos + 3 * raster_tile_width / 4 - 1 - dh, xpos + raster_tile_width / 2 - 1, ypos + raster_tile_width / 2 - 1 - dh, ribi_t::north | non_convex CLIP_NUM_PAR );
 				}
-				activate_ribi_clip( way_ribi & ribi_t::northwest CLIP_NUM_PAR );
+				activate_ribi_clip( (way_ribi & ribi_t::northwest) | non_convex  CLIP_NUM_PAR );
 			}
 			d->display( xpos, ypos CLIP_NUM_PAR );
 		}
