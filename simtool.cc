@@ -1617,6 +1617,7 @@ const char *tool_clear_reservation_t::work( player_t *player, koord3d k )
 					cnv->suche_neue_route();
 				}
 				cnv->unreserve_route();
+				cnv->reserve_own_tiles();
 			}
 		}
 	}
