@@ -123,7 +123,7 @@ uint32 simrand(const uint32 max, const char*)
 		printf("%s\n", buf);
 	}
 
-//	karte_t::random_callers.append(strdup(buf));
+	karte_t::random_callers.append(strdup(buf));
 	karte_t::random_calls ++;
 	return result;
 #endif
