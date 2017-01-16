@@ -159,6 +159,7 @@ bool karte_t::print_randoms = true;
 int karte_t::random_calls = 0;
 #endif
 #ifdef DEBUG_SIMRAND_CALLS
+#ifdef STATION_CHECK
 static uint32 halt_index = 9999999;
 static const char *station_name = "Newton Abbot Railway Station";
 static uint32 old_menge = -1;
@@ -184,6 +185,7 @@ void station_check(const char *who, karte_t *welt)
 		}
 	}
 }
+#endif
 #endif
 
 
@@ -1657,9 +1659,9 @@ void *step_passengers_and_mail_threaded(void* args)
 		total_units_passenger = 0;
 		total_units_mail = 0;
 
-		next_step_passenger_this_thread = karte_t::world->next_step_passenger / (karte_t::world->get_parallel_operations() - 1);
+		next_step_passenger_this_thread = karte_t::world->next_step_passenger / (karte_t::world->get_parallel_operations());
 
-		next_step_mail_this_thread = karte_t::world->next_step_mail / (karte_t::world->get_parallel_operations() - 1);
+		next_step_mail_this_thread = karte_t::world->next_step_mail / (karte_t::world->get_parallel_operations());
 		
 
 		if (next_step_passenger_this_thread < karte_t::world->passenger_step_interval && karte_t::world->next_step_passenger > karte_t::world->passenger_step_interval)
@@ -1676,7 +1678,7 @@ void *step_passengers_and_mail_threaded(void* args)
 		}
 		else if (karte_t::passenger_generation_thread_number == 0)
 		{
-			next_step_passenger_this_thread += karte_t::world->next_step_passenger % (karte_t::world->get_parallel_operations() - 1);
+			next_step_passenger_this_thread += karte_t::world->next_step_passenger % (karte_t::world->get_parallel_operations());
 
 		}
 
@@ -1694,7 +1696,7 @@ void *step_passengers_and_mail_threaded(void* args)
 		}
 		else if (karte_t::passenger_generation_thread_number == 0)
 		{
-			next_step_mail_this_thread += karte_t::world->next_step_mail % (karte_t::world->get_parallel_operations() - 1);
+			next_step_mail_this_thread += karte_t::world->next_step_mail % (karte_t::world->get_parallel_operations());
 		}
 			
 		if (karte_t::world->passenger_step_interval <= next_step_passenger_this_thread)
@@ -5787,8 +5789,10 @@ void karte_t::deposit_ware_at_destination(ware_t ware)
 			}
 		}
 #ifdef DEBUG_SIMRAND_CALLS
+#ifdef STATION_CHECK
 		if (talk)
 			dbg->message("haltestelle_t::liefere_an", "%d arrived at station \"%s\" waren[0].count %d", ware.menge, get_name(), get_warray(0)->get_count());
+#endif
 #endif
 	}
 }
@@ -9812,7 +9816,9 @@ bool karte_t::interactive(uint32 quit_month)
 			break;
 		}
 #ifdef DEBUG_SIMRAND_CALLS
+#ifdef STATION_CHECK
 		station_check("karte_t::interactive after win_poll_event", this);
+#endif
 #endif
 
 		if(  env_t::networkmode  ) {
@@ -9845,7 +9851,9 @@ bool karte_t::interactive(uint32 quit_month)
 				// only update display
 				sync_step( 0, false, true );
 #ifdef DEBUG_SIMRAND_CALLS
+#ifdef STATION_CHECK
 				station_check("karte_t::interactive PAUSE after sync_step", this);
+#endif
 #endif
 				idle_time = 100;
 			}
@@ -9856,7 +9864,9 @@ bool karte_t::interactive(uint32 quit_month)
 					step();
 					clear_random_mode( STEP_RANDOM );
 #ifdef DEBUG_SIMRAND_CALLS
+#ifdef STATION_CHECK
 					station_check("karte_t::interactive FAST_FORWARD after step", this);
+#endif
 #endif
 				}
 				else if(  step_mode==FIX_RATIO  ) {
@@ -9877,14 +9887,18 @@ bool karte_t::interactive(uint32 quit_month)
 
 					sync_step( (fix_ratio_frame_time*time_multiplier)/16, true, true );
 #ifdef DEBUG_SIMRAND_CALLS
+#ifdef STATION_CHECK
 					station_check("karte_t::interactive FIX_RATIO after sync_step", this);
+#endif
 #endif
 					if (++network_frame_count == settings.get_frames_per_step()) {
 						// ever Nth frame (default: every 4th - can be set in simuconf.tab)
 						set_random_mode( STEP_RANDOM );
 						step();
 #ifdef DEBUG_SIMRAND_CALLS
+#ifdef STATION_CHECK
 					station_check("karte_t::interactive FIX_RATIO after step", this);
+#endif
 #endif
 						clear_random_mode( STEP_RANDOM );
 						network_frame_count = 0;
@@ -9928,12 +9942,16 @@ bool karte_t::interactive(uint32 quit_month)
 				else { // Normal step mode
 					INT_CHECK( "karte_t::interactive()" );
 #ifdef DEBUG_SIMRAND_CALLS
+#ifdef STATION_CHECK
 					station_check("karte_t::interactive else after INT_CHECK 1", this);
+#endif
 #endif
 					set_random_mode( STEP_RANDOM );
 					step();
 #ifdef DEBUG_SIMRAND_CALLS
+#ifdef STATION_CHECK
 					station_check("karte_t::interactive else after step", this);
+#endif
 #endif
 					clear_random_mode( STEP_RANDOM );
 					idle_time = ((idle_time*7) + next_step_time - dr_time())/8;

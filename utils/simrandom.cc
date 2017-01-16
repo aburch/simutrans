@@ -5,8 +5,8 @@
 #include "simrandom.h"
 #include "../dataobj/environment.h"
 #ifdef DEBUG_SIMRAND_CALLS
-#include "simworld.h"
-#include "utils/cbuffer_t.h"
+#include "../simworld.h"
+#include "../utils/cbuffer_t.h"
 #endif
 #include "../simsys.h"
 

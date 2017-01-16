@@ -1254,7 +1254,9 @@ void haltestelle_t::check_transferring_cargoes()
 void haltestelle_t::step()
 {
 #ifdef DEBUG_SIMRAND_CALLS
+#ifdef STATION_CHECK
 	bool talk = !strcmp(get_name(), "Newton Abbot Railway Station");
+#endif
 #endif
 	// Knightly : update status
 	//   There is no idle state in Experimental
@@ -1334,16 +1336,20 @@ void haltestelle_t::step()
 					// journey time, but this is no longer so from version 11.14 onwards.
 
 #ifdef DEBUG_SIMRAND_CALLS
+#ifdef STATION_CHECK
 					if (talk && i == 2198)
 						dbg->message("haltestelle_t::step", "%u) check %u of %u minutes: %u %s to \"%s\"",
 						i, waiting_tenths, max_wait_tenths, tmp.menge, tmp.get_besch()->get_name(), tmp.get_ziel()->get_name());
 #endif
+#endif
 					if(waiting_tenths > max_wait_tenths)
 					{
 #ifdef DEBUG_SIMRAND_CALLS
+#ifdef STATION_CHECK
 						if (talk)
 							dbg->message("haltestelle_t::step", "%u) discard after %u of %u minutes: %u %s to \"%s\"",
 							i, waiting_tenths, max_wait_tenths, tmp.menge, tmp.get_besch()->get_name(), tmp.get_ziel()->get_name());
+#endif
 #endif
 						bool passengers_walked = false;
 						// Waiting too long: discard
@@ -1506,10 +1512,12 @@ uint32 haltestelle_t::reroute_goods(const uint8 catg)
 		vector_tpl<ware_t> * new_warray = new vector_tpl<ware_t>(packet_count);
 
 #ifdef DEBUG_SIMRAND_CALLS
+#ifdef STATION_CHECK
 		bool talk = catg == 0 && !strcmp(get_name(), "Newton Abbot Railway Station");
 
 		if (talk)
 			dbg->message("haltestelle_t::reroute_goods", "halt \"%s\", old packet count %u ", get_name(), packet_count);
+#endif
 #endif
 
 		// Hajo:
@@ -1563,8 +1571,10 @@ uint32 haltestelle_t::reroute_goods(const uint8 catg)
 		}
 
 #ifdef DEBUG_SIMRAND_CALLS
+#ifdef STATION_CHECK
 		if (talk)
 			dbg->message("haltestelle_t::reroute_goods", "halt \"%s\", new packet count %u ", get_name(), new_warray->get_count());
+#endif
 #endif
 
 		// delete, if nothing connects here
@@ -2707,8 +2717,10 @@ void haltestelle_t::starte_mit_route(ware_t ware, koord origin_pos)
 		}
 		// already there: finished (may be happen with overlapping areas and returning passengers)
 #ifdef DEBUG_SIMRAND_CALLS
+#ifdef STATION_CHECK
 		if (talk)
 			dbg->message("\t", "already finished");
+#endif
 #endif
 		return;
 	}
@@ -2736,8 +2748,10 @@ void haltestelle_t::starte_mit_route(ware_t ware, koord origin_pos)
 		// If this is within walking distance of the next transfer, and there is not a faster way there, walk there.
 		pedestrian_t::generate_pedestrians_at(get_basis_pos3d(), ware.menge);
 #ifdef DEBUG_SIMRAND_CALLS
+#ifdef STATION_CHECK
 		if (talk)
 			dbg->message("\t", "walking to %s", ware.get_zwischenziel()->get_name());
+#endif
 #endif
 		ware.set_last_transfer(self);
 		ware.get_zwischenziel()->liefere_an(ware, 1);
@@ -2747,11 +2761,13 @@ void haltestelle_t::starte_mit_route(ware_t ware, koord origin_pos)
 	add_to_waiting_list(ware, calc_ready_time(ware, false, origin_pos));
 
 #ifdef DEBUG_SIMRAND_CALLS
+#ifdef STATION_CHECK
 	if (talk)
 	{
 		const vector_tpl<ware_t> * warray = waren[ware.get_besch()->get_catg_index()];
 		dbg->message("\t", "warray count %d", (*warray).get_count());
 	}
+#endif
 #endif
 	return;
 }
@@ -2769,7 +2785,9 @@ void haltestelle_t::starte_mit_route(ware_t ware, koord origin_pos)
 void haltestelle_t::liefere_an(ware_t ware, uint8 walked_between_stations)
 {
 #ifdef DEBUG_SIMRAND_CALLS
+#ifdef STATION_CHECK
 	bool talk = !strcmp(get_name(), "Newton Abbot Railway Station");
+#endif
 #endif
 
 	if (walked_between_stations > 4) 
@@ -2965,9 +2983,11 @@ void haltestelle_t::liefere_an(ware_t ware, uint8 walked_between_stations)
 			pedestrian_t::generate_pedestrians_at(get_basis_pos3d(), ware.menge);
 			ware.set_last_transfer(self);
 	#ifdef DEBUG_SIMRAND_CALLS
+#ifdef STATION_CHECK
 			if (talk)
 				dbg->message("haltestelle_t::liefere_an", "%d walk to station \"%s\" waren[0].count %d", ware.menge, ware.get_zwischenziel()->get_name(), get_warray(0)->get_count());
-	#endif
+#endif
+#endif
 			ware.get_zwischenziel()->liefere_an(ware, walked_between_stations + 1);
 			return; 
 		}
@@ -2975,8 +2995,10 @@ void haltestelle_t::liefere_an(ware_t ware, uint8 walked_between_stations)
 
 	add_to_waiting_list(ware, calc_ready_time(ware, false));
 #ifdef DEBUG_SIMRAND_CALLS
+#ifdef STATION_CHECK
 	if (talk)
 		dbg->message("haltestelle_t::liefere_an", "%d waiting for transfer to station \"%s\" waren[0].count %d", ware.menge, ware.get_zwischenziel()->get_name(), get_warray(0)->get_count());
+#endif
 #endif
 	return;
 }
@@ -3282,7 +3304,9 @@ void haltestelle_t::transfer_goods(halthandle_t halt)
 		return;
 	}
 #ifdef DEBUG_SIMRAND_CALLS
+#ifdef STATION_CHECK
 	bool talk = !strcmp(get_name(), "Newton Abbot Railway Station") || !strcmp(halt->get_name(), "Newton Abbot Railway Station");
+#endif
 #endif
 	// transfer goods to halt
 	for(uint8 i=0; i<warenbauer_t::get_max_catg_index(); i++) {
@@ -3291,9 +3315,11 @@ void haltestelle_t::transfer_goods(halthandle_t halt)
 			FOR(vector_tpl<ware_t>, const& j, *warray) {
 				halt->add_ware_to_halt(j);
 #ifdef DEBUG_SIMRAND_CALLS
+#ifdef STATION_CHECK
 				if (talk)
 					dbg->message("haltestelle_t::transfer_goods", "%d transfer from station \"%s\"(warr cnt %d) to \"%s\"(warr cnt %d)",
 					    j.menge, get_name(), get_warray(i)->get_count(), halt->get_name(), halt->get_warray(i)->get_count());
+#endif
 #endif
 			}
 			delete waren[i];
