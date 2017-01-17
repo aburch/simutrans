@@ -4914,7 +4914,7 @@ const grund_t *haltestelle_t::find_matching_position(const waytype_t w) const
 
 
 
-/* checks, if there is an unoccupied loading bay for this kind of thing
+/* Checks whether there is an unoccupied loading bay for this kind of thing
  * @author prissi
  */
 bool haltestelle_t::find_free_position(const waytype_t w,convoihandle_t cnv,const obj_t::typ d) const
@@ -4936,7 +4936,7 @@ bool haltestelle_t::find_free_position(const waytype_t w,convoihandle_t cnv,cons
 }
 
 
-/* reserves a position (caution: railblocks work differently!
+/* reserves a position (caution: rail blocks work differently!)
  * @author prissi
  */
 bool haltestelle_t::reserve_position(grund_t *gr,convoihandle_t cnv)
@@ -4967,7 +4967,7 @@ bool haltestelle_t::reserve_position(grund_t *gr,convoihandle_t cnv)
 }
 
 
-/* frees a reserved  position (caution: railblocks work differently!
+/* frees a reserved position (caution: rail blocks work differently!)
  * @author prissi
  */
 bool haltestelle_t::unreserve_position(grund_t *gr, convoihandle_t cnv)
