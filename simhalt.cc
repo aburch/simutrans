@@ -3044,7 +3044,7 @@ void haltestelle_t::get_short_freight_info(cbuffer_t & buf) const
 {
 	bool got_one = false;
 
-	for(unsigned int i=0; i<warenbauer_t::get_waren_anzahl(); i++) {
+	for(unsigned int i=0; i<warenbauer_t::get_count(); i++) {
 		const ware_besch_t *wtyp = warenbauer_t::get_info(i);
 		if(gibt_ab(wtyp)) {
 
@@ -4425,7 +4425,7 @@ void haltestelle_t::recalc_status()
 
 	// now for all goods
 	if(status_color!=COL_RED  &&  get_ware_enabled()) {
-		const uint8  count = warenbauer_t::get_waren_anzahl();
+		const uint8  count = warenbauer_t::get_count();
 		const uint32 max_ware = get_capacity(2);
 		for(  uint32 i = 3;  i < count;  i++  ) {
 			ware_besch_t const* const wtyp = warenbauer_t::get_info(i);
@@ -4465,7 +4465,7 @@ void haltestelle_t::display_status(KOORD_VAL xpos, KOORD_VAL ypos)
 {
 	// ignore freight that cannot reach to this station
 	sint16 count = 0;
-	for(  uint16 i = 0;  i < warenbauer_t::get_waren_anzahl();  i++  ) {
+	for(  uint16 i = 0;  i < warenbauer_t::get_count();  i++  ) {
 		if(  i == 2  ) {
 			continue; // ignore freight none
 		}
@@ -4499,7 +4499,7 @@ void haltestelle_t::display_status(KOORD_VAL xpos, KOORD_VAL ypos)
 
 	sint16 bar_height_index = 0;
 	uint32 max_capacity;
-	for(  uint16 i = 0;  i < warenbauer_t::get_waren_anzahl();  i++  ) {
+	for(  uint16 i = 0;  i < warenbauer_t::get_count();  i++  ) {
 		if(  i == 2  ) {
 			continue; // ignore freight none
 		}

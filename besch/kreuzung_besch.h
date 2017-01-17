@@ -70,7 +70,7 @@ public:
 
 	waytype_t get_waytype(int i) const { return (waytype_t)(i==0? wegtyp1 : wegtyp2); }
 	sint32 get_maxspeed(int i) const { return i==0 ? topspeed1 : topspeed2; }
-	uint16 get_phases(bool open, bool front) const { return get_child<bildliste_besch_t>(6 - 4 * open + 2 * front)->get_anzahl(); }
+	uint16 get_phases(bool open, bool front) const { return get_child<bildliste_besch_t>(6 - 4 * open + 2 * front)->get_count(); }
 	uint32 get_animation_time(bool open) const { return open ? open_animation_time : closed_animation_time; }
 
 	sint8 get_sound() const { return sound; }

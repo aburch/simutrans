@@ -935,7 +935,7 @@ void gui_convoy_assembler_t::build_vehicle_lists()
 						{
 							const convoihandle_t cnv = replace_frame->get_convoy();
 						
-							for(uint8 i = 0; i < cnv->get_vehikel_anzahl(); i ++)
+							for(uint8 i = 0; i < cnv->get_vehicle_count(); i ++)
 							{
 								vehicle_list.append(cnv->get_vehikel(i)->get_besch());
 							}
@@ -969,7 +969,7 @@ void gui_convoy_assembler_t::build_vehicle_lists()
 							{
 								append = false;
 								convoihandle_t cnv = replace_frame->get_convoy();
-								const uint8 count = cnv->get_vehikel_anzahl();
+								const uint8 count = cnv->get_vehicle_count();
 								for(uint8 i = 0; i < count; i++)
 								{
 									if(cnv->get_vehikel(i)->get_besch() == info)
@@ -1142,7 +1142,7 @@ void gui_convoy_assembler_t::image_from_convoi_list(uint nr)
 		depot = depot_frame->get_depot();
 
 		const convoihandle_t cnv = depot->get_convoi(depot_frame->get_icnv());
-		if(cnv.is_bound() &&  nr<cnv->get_vehikel_anzahl() ) {
+		if(cnv.is_bound() &&  nr<cnv->get_vehicle_count() ) {
 
 			// we remove all connected vehicles together!
 			// find start
@@ -1303,7 +1303,7 @@ void gui_convoy_assembler_t::update_data()
 				for(unsigned int i = 0; i < depot_frame->get_depot()->convoi_count(); i ++)
 				{
 					convoihandle_t cnv = depot_frame->get_depot()->get_convoi(i);
-					for(int n = 0; n < cnv->get_vehikel_anzahl(); n ++)
+					for(int n = 0; n < cnv->get_vehicle_count(); n ++)
 					{
 						if(cnv->get_vehikel(n)->get_besch() == info)
 						{
@@ -1318,7 +1318,7 @@ void gui_convoy_assembler_t::update_data()
 			else if(replace_frame)
 			{
 				convoihandle_t cnv = replace_frame->get_convoy();
-				for(int n = 0; n < cnv->get_vehikel_anzahl(); n ++)
+				for(int n = 0; n < cnv->get_vehicle_count(); n ++)
 				{
 					if(cnv->get_vehikel(n)->get_besch() == info)
 					{
@@ -1515,7 +1515,7 @@ void gui_convoy_assembler_t::update_data()
 			//{
 			//	const convoihandle_t cnv = replace_frame->get_convoy();
 			//
-			//	for(uint8 i = 0; i < cnv->get_vehikel_anzahl(); i ++)
+			//	for(uint8 i = 0; i < cnv->get_vehicle_count(); i ++)
 			//	{
 			//		vehicle_list.append(cnv->get_vehikel(i)->get_besch());
 			//	}
@@ -1605,7 +1605,7 @@ void gui_convoy_assembler_t::update_data()
 				{
 					purple = true;
 					convoihandle_t cnv = replace_frame->get_convoy();
-					const uint8 count = cnv->get_vehikel_anzahl();
+					const uint8 count = cnv->get_vehicle_count();
 					for(uint8 i = 0; i < count; i++)
 					{
 						if(cnv->get_vehikel(i)->get_besch() == info)
@@ -2074,7 +2074,7 @@ void gui_convoy_assembler_t::set_vehicles(convoihandle_t cnv)
 {
 	clear_convoy();
 	if (cnv.is_bound()) {
-		for (uint8 i=0; i<cnv->get_vehikel_anzahl(); i++) {
+		for (uint8 i=0; i<cnv->get_vehicle_count(); i++) {
 			vehicles.append(cnv->get_vehikel(i)->get_besch());
 		}
 	}

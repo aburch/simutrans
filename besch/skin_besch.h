@@ -28,7 +28,7 @@ class skin_besch_t : public obj_besch_std_name_t {
 public:
 	bild_besch_t const* get_image(int i) const { return get_child<bildliste_besch_t>(2)->get_image(i); }
 
-	int get_bild_anzahl() const { return get_child<bildliste_besch_t>(2)->get_anzahl(); }
+	int get_count() const { return get_child<bildliste_besch_t>(2)->get_count(); }
 
 	image_id get_bild_nr(int i) const
 	{

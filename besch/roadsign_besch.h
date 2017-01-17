@@ -112,7 +112,7 @@ public:
 		return image != NULL ? image->get_nummer() : IMG_EMPTY;
 	}
 
-	int get_bild_anzahl() const { return get_child<bildliste_besch_t>(2)->get_anzahl(); }
+	int get_count() const { return get_child<bildliste_besch_t>(2)->get_count(); }
 
 	skin_besch_t const* get_cursor() const { return get_child<skin_besch_t>(3); }
 
@@ -123,7 +123,7 @@ public:
 	bool is_private_way() const { return (flags&PRIVATE_ROAD)!=0; }
 
 	//  return true for a traffic light
-	bool is_traffic_light() const { return (get_bild_anzahl()>4); }
+	bool is_traffic_light() const { return (get_count()>4); }
 
 	bool is_choose_sign() const { return flags&CHOOSE_SIGN; }
 

@@ -296,7 +296,7 @@ convoi_info_t::~convoi_info_t()
  */
 void convoi_info_t::draw(scr_coord pos, scr_size size)
 {
-	if(!cnv.is_bound() || cnv->in_depot() || cnv->get_vehikel_anzahl() == 0) 
+	if(!cnv.is_bound() || cnv->in_depot() || cnv->get_vehicle_count() == 0) 
 	{
 		destroy_win(this);
 	}

@@ -451,7 +451,7 @@ void signal_t::calc_image()
 			}
 			uint16 offset = 0;
 			ribi_t::ribi dir = sch->get_ribi_unmasked() & (~calc_mask());
-			if(sch->is_electrified()  &&  besch->get_bild_anzahl() >= number_of_signal_image_types * 8) // 8: Four directions per aspect * 2 types (electrified and non-electrified) per aspect
+			if(sch->is_electrified()  &&  besch->get_count() >= number_of_signal_image_types * 8) // 8: Four directions per aspect * 2 types (electrified and non-electrified) per aspect
 			{
 				offset = number_of_signal_image_types * 4;
 			}

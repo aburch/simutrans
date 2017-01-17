@@ -8201,7 +8201,7 @@ bool tool_change_line_t::init( player_t *player )
 							vector_tpl<convoihandle_t> const& cnvs = line->get_convoys();
 							sint64 old_sum_capacity = 0;
 							FOR(vector_tpl<convoihandle_t>,cnv,cnvs) {
-								for(  int i=0;  i<cnv->get_vehikel_anzahl();  i++  ) {
+								for(  int i=0;  i<cnv->get_vehicle_count();  i++  ) {
 									old_sum_capacity += cnv->get_vehikel(i)->get_besch()->get_zuladung();
 								}
 							}
@@ -8217,7 +8217,7 @@ bool tool_change_line_t::init( player_t *player )
 							for(  int j = initial - 1;  j >= 0  &&  initial-destroyed > 3  &&  new_sum_capacity < old_sum_capacity;  j--  ) {
 								convoihandle_t cnv = line->get_convoy(j);
 								if(  cnv->get_loading_level() == 0  ||  cnv->get_state() == convoi_t::INITIAL  ) {
-									for(  int i=0;  i<cnv->get_vehikel_anzahl();  i++  ) {
+									for(  int i=0;  i<cnv->get_vehicle_count();  i++  ) {
 										old_sum_capacity -= cnv->get_vehikel(i)->get_besch()->get_zuladung();
 									}
 									cnv->self_destruct();
@@ -8228,7 +8228,7 @@ bool tool_change_line_t::init( player_t *player )
 							for(  uint32 j=0;  j < line->get_convoys().get_count()  &&  initial-destroyed > 3  &&  new_sum_capacity < old_sum_capacity;  j++  ) {
 								convoihandle_t cnv = line->get_convoy(j);
 								if(  cnv->get_state() != convoi_t::SELF_DESTRUCT  ) {
-									for(  int i=0;  i<cnv->get_vehikel_anzahl();  i++  ) {
+									for(  int i=0;  i<cnv->get_vehicle_count();  i++  ) {
 										old_sum_capacity -= cnv->get_vehikel(i)->get_besch()->get_zuladung();
 									}
 									cnv->self_destruct();
@@ -8434,7 +8434,7 @@ bool tool_change_depot_t::init( player_t *player )
 					int nr = start_nr;
 
 					// find end
-					while(nr<cnv->get_vehikel_anzahl()) {
+					while(nr<cnv->get_vehicle_count()) {
 						const vehikel_besch_t *info = cnv->get_vehikel(nr)->get_besch();
 						nr ++;
 						if(info->get_nachfolger_count()!=1) {
@@ -8442,7 +8442,7 @@ bool tool_change_depot_t::init( player_t *player )
 						}
 					}
 					// now remove the vehicles
-					if(  cnv->get_vehikel_anzahl()==nr-start_nr  ||  (tool=='R'  &&  start_nr==0)  ) {
+					if(  cnv->get_vehicle_count()==nr-start_nr  ||  (tool=='R'  &&  start_nr==0)  ) {
 						depot->disassemble_convoi(cnv, false);
 					}
 					else if(  tool=='R'  ) {
@@ -8518,7 +8518,7 @@ bool tool_change_depot_t::init( player_t *player )
 						}
 
 						// now we have a valid cnv
-						if(  cnv->get_vehikel_anzahl()+new_vehicle_info.get_count() <= depot->get_max_convoi_length()  ) {
+						if(  cnv->get_vehicle_count()+new_vehicle_info.get_count() <= depot->get_max_convoi_length()  ) {
 
 							for(  unsigned i=0;  i<new_vehicle_info.get_count();  i++  ) {
 								// insert/append needs reverse order

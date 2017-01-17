@@ -381,7 +381,7 @@ void tool_t::read_menu(const std::string &objfilename)
 					tool->icon = s ? s->get_bild_nr(0) : IMG_EMPTY;
 				}
 				else {
-					if(  icon>=info[t].icons->get_bild_anzahl()  ) {
+					if(  icon>=info[t].icons->get_count()  ) {
 						dbg->warning( "tool_t::init_menu()", "wrong icon (%i) given for %s[%i]", icon, info[t].type, i );
 					}
 					tool->icon = info[t].icons->get_bild_nr(icon);
@@ -396,7 +396,7 @@ void tool_t::read_menu(const std::string &objfilename)
 					str++;
 					if(*str!=',') {
 						uint16 cursor = (uint16)atoi(str);
-						if(  cursor>=info[t].cursor->get_bild_anzahl()  ) {
+						if(  cursor>=info[t].cursor->get_count()  ) {
 							dbg->warning( "tool_t::init_menu()", "wrong cursor (%i) given for %s[%i]", cursor, info[t].type, i );
 						}
 						tool->cursor = info[t].cursor->get_bild_nr(cursor);
@@ -439,7 +439,7 @@ void tool_t::read_menu(const std::string &objfilename)
 	// default size
 //	env_t::iconsize = scr_size( contents.get_int("icon_width",env_t::iconsize.w), contents.get_int("icon_height",env_t::iconsize.h) );
 	// first: add main menu
-	toolbar_tool.resize( skinverwaltung_t::tool_icons_toolbars->get_bild_anzahl() );
+	toolbar_tool.resize( skinverwaltung_t::tool_icons_toolbars->get_count() );
 	toolbar_tool.append(new toolbar_t(TOOLBAR_TOOL, "", ""));
 	// now for the rest
 	for(  uint16 i=0;  i<toolbar_tool.get_count();  i++  ) {
@@ -498,7 +498,7 @@ void tool_t::read_menu(const std::string &objfilename)
 						icon = s ? s->get_bild_nr(0) : IMG_EMPTY;
 					}
 					else {
-						if(  icon>=skinverwaltung_t::tool_icons_toolbars->get_bild_anzahl()  ) {
+						if(  icon>=skinverwaltung_t::tool_icons_toolbars->get_count()  ) {
 							dbg->warning( "tool_t::read_menu()", "wrong icon (%i) given for toolbar_tool[%i][%i]", icon, i, j );
 							icon = 0;
 						}

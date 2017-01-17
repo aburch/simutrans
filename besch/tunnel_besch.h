@@ -146,7 +146,7 @@ private:
 
 		image_id hang_img = get_child<bildliste_besch_t>(n)->get_bild_nr(nr);
 
-		if (nr > 3 && hang_img == IMG_EMPTY  &&  get_child<bildliste_besch_t>(n)->get_anzahl() <= 4) 
+		if (nr > 3 && hang_img == IMG_EMPTY  &&  get_child<bildliste_besch_t>(n)->get_count() <= 4) 
 		{
 			// hack for old ways without double height images to use single slope images for both
 			nr -= 4;

@@ -63,7 +63,7 @@ public:
 	{
 		bildliste2d_besch_t const* const bl2   = get_child<bildliste2d_besch_t>(2);
 		bildliste_besch_t   const* const liste = bl2->get_liste(typ);
-		if(liste && liste->get_anzahl() > 0) {
+		if(liste && liste->get_count() > 0) {
 			bild_besch_t const* const image = bl2->get_image(typ, stage);
 			return image;
 		}

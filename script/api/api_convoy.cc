@@ -14,7 +14,7 @@ using namespace script_api;
 
 waytype_t get_convoy_wt(convoi_t* cnv)
 {
-	if (cnv  &&  cnv->get_vehikel_anzahl() > 0) {
+	if (cnv  &&  cnv->get_vehicle_count() > 0) {
 		return cnv->front()->get_waytype();
 	}
 	return invalid_wt;

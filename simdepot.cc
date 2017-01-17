@@ -199,13 +199,13 @@ void depot_t::convoi_arrived(convoihandle_t acnv, bool fpl_adjust)
 	}
 
 	// Clean up the vehicles -- get rid of freight, etc.  Do even when loading, just in case.
-	for(unsigned i=0; i<acnv->get_vehikel_anzahl(); i++) {
+	for(unsigned i=0; i<acnv->get_vehicle_count(); i++) {
 		vehicle_t *v = acnv->get_vehikel(i);
 		// Hajo: reset vehikel data
 		v->discard_cargo();
 		v->set_pos( koord3d::invalid );
 		v->set_leading( i==0 );
-		v->set_last( i+1==acnv->get_vehikel_anzahl() );
+		v->set_last( i+1==acnv->get_vehicle_count() );
 	}
 
 	// this part stores the convoi in the depot
@@ -242,7 +242,7 @@ void depot_t::upgrade_vehicle(convoihandle_t cnv, const vehikel_besch_t* vb)
 		return;
 	}
 
-	for(uint16 i = 0; i < cnv->get_vehikel_anzahl(); i ++)
+	for(uint16 i = 0; i < cnv->get_vehicle_count(); i ++)
 	{
 		for(uint8 c = 0; c < cnv->get_vehikel(i)->get_besch()->get_upgrades_count(); c ++)
 		{
@@ -369,7 +369,7 @@ bool depot_t::check_obsolete_inventory(convoihandle_t cnv)
 	bool ok = true;
 	slist_tpl<vehicle_t*> veh_tmp_list;
 
-	for(  int i = 0;  i < cnv->get_vehikel_anzahl();  i++  ) {
+	for(  int i = 0;  i < cnv->get_vehicle_count();  i++  ) {
 		const vehikel_besch_t* const vb = cnv->get_vehikel(i)->get_besch();
 		if(  vb  ) {
 			// search storage for matching vehicle
@@ -404,7 +404,7 @@ bool depot_t::check_obsolete_inventory(convoihandle_t cnv)
 convoihandle_t depot_t::copy_convoi(convoihandle_t old_cnv, bool local_execution)
 {
 	if(  old_cnv.is_bound()  &&  !convoihandle_t::is_exhausted()  &&
-		old_cnv->get_vehikel_anzahl() > 0  &&  get_waytype() == old_cnv->front()->get_besch()->get_waytype() )
+		old_cnv->get_vehicle_count() > 0  &&  get_waytype() == old_cnv->front()->get_besch()->get_waytype() )
 	{
 		if( old_cnv->get_schedule() && (!old_cnv->get_schedule()->ist_abgeschlossen()) )
 		{           
@@ -417,7 +417,7 @@ convoihandle_t depot_t::copy_convoi(convoihandle_t old_cnv, bool local_execution
 		convoihandle_t new_cnv = add_convoi( false );
 		new_cnv->set_name(old_cnv->get_internal_name());
 		new_cnv->set_livery_scheme_index(old_cnv->get_livery_scheme_index());
-		int vehicle_count = old_cnv->get_vehikel_anzahl();
+		int vehicle_count = old_cnv->get_vehicle_count();
 		for (int i = 0; i < vehicle_count; i++) 
 		{
 			const vehikel_besch_t * info = old_cnv->get_vehikel(i)->get_besch();
@@ -438,7 +438,7 @@ convoihandle_t depot_t::copy_convoi(convoihandle_t old_cnv, bool local_execution
 							return new_cnv;
 						}
 
-						if(new_cnv->get_vehikel_anzahl() == 0)
+						if(new_cnv->get_vehicle_count() == 0)
 						{
 							disassemble_convoi(new_cnv, true);
 							return convoihandle_t();
@@ -563,7 +563,7 @@ bool depot_t::start_convoi(convoihandle_t cnv, bool local_execution)
 			bool power = false;
 			bool speed = false;
 			vector_tpl<const vehikel_besch_t*> vehicle_types;
-			const uint8 number_of_vehicles = cnv->get_vehikel_anzahl();
+			const uint8 number_of_vehicles = cnv->get_vehicle_count();
 			for(uint8 i = 0; i < number_of_vehicles; i++)
 			{
 				if(cnv->get_vehikel(i)->get_besch()->get_leistung())
@@ -743,7 +743,7 @@ const char * depot_t:: is_deletable(const player_t *player)
 	}
 
 	FOR(slist_tpl<convoihandle_t>, const c, convois) {
-		if (c->get_vehikel_anzahl() > 0) {
+		if (c->get_vehicle_count() > 0) {
 			return "There are still vehicles\nstored in this depot!\n";
 		}
 	}

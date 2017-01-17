@@ -131,8 +131,6 @@ void factory_field_group_reader_t::register_obj(obj_besch_t *&data)
 	}
 }
 
-
-
 obj_besch_t *factory_smoke_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
 	ALLOCA(char, besch_buf, node.size);

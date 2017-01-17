@@ -2205,7 +2205,7 @@ void convoi_t::new_month()
 	// Deduct monthly fixed maintenance costs.
 	// @author: jamespetts
 	sint64 monthly_cost = 0;
-	for(unsigned j=0;  j<get_vehikel_anzahl();  j++ )
+	for(unsigned j=0;  j<get_vehicle_count();  j++ )
 	{
 		// Monthly cost is positive, but add it up to a negative number for booking.
 		monthly_cost -= get_vehikel(j)->get_besch()->get_fixed_cost(welt);
@@ -2218,7 +2218,7 @@ void convoi_t::new_month()
 	if (get_schedule()) {
 		my_waytype = get_schedule()->get_waytype();
 	}
-	else if (get_vehikel_anzahl()) {
+	else if (get_vehicle_count()) {
 		my_waytype = get_vehikel(0)->get_besch()->get_waytype();
 	}
 	else {
@@ -2772,7 +2772,7 @@ void convoi_t::recalc_catg_index()
 {
 	goods_catg_index.clear();
 
-	for(  uint8 i = 0;  i < get_vehikel_anzahl();  i++  ) {
+	for(  uint8 i = 0;  i < get_vehicle_count();  i++  ) {
 		// Only consider vehicles that really transport something
 		// this helps against routing errors through passenger
 		// trains pulling only freight wagons
@@ -4690,7 +4690,7 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 		// rebuilt the list with goods ...
 		vector_tpl<ware_t> total_fracht;
 
-		size_t const n = warenbauer_t::get_waren_anzahl();
+		size_t const n = warenbauer_t::get_count();
 		ALLOCA(uint32, max_loaded_waren, n);
 		MEMZERON(max_loaded_waren, n);
 
@@ -5855,7 +5855,7 @@ void convoi_t::init_financial_history()
 sint32 convoi_t::get_running_cost() const
 {
 	sint32 running_cost = 0;
-	for(  unsigned i = 0;  i < get_vehikel_anzahl();  i++  ) {
+	for(  unsigned i = 0;  i < get_vehicle_count();  i++  ) {
 		running_cost += vehicle[i]->get_running_cost(welt);
 	}
 	return running_cost;
@@ -5864,7 +5864,7 @@ sint32 convoi_t::get_running_cost() const
 sint32 convoi_t::get_per_kilometre_running_cost() const
 {
 	sint32 running_cost = 0;
-	for (unsigned i = 0; i<get_vehikel_anzahl(); i++) { //"anzahl" = "number" (Babelfish)
+	for (unsigned i = 0; i<get_vehicle_count(); i++) { //"anzahl" = "number" (Babelfish)
 		sint32 vehicle_running_cost = vehicle[i]->get_besch()->get_running_cost(welt);
 		running_cost += vehicle_running_cost;
 	}
@@ -5874,7 +5874,7 @@ sint32 convoi_t::get_per_kilometre_running_cost() const
 uint32 convoi_t::get_fixed_cost() const
 {
 	uint32 maint = 0;
-	for (unsigned i = 0; i<get_vehikel_anzahl(); i++) {
+	for (unsigned i = 0; i<get_vehicle_count(); i++) {
 		maint += vehicle[i]->get_fixed_cost(welt);
 	}
 	return maint;
@@ -5883,7 +5883,7 @@ uint32 convoi_t::get_fixed_cost() const
 sint64 convoi_t::get_purchase_cost() const
 {
 	sint64 purchase_cost = 0;
-	for(  unsigned i = 0;  i < get_vehikel_anzahl();  i++  ) {
+	for(  unsigned i = 0;  i < get_vehicle_count();  i++  ) {
 		purchase_cost += vehicle[i]->get_besch()->get_preis();
 	}
 	return purchase_cost;
@@ -6303,14 +6303,14 @@ bool convoi_t::has_same_vehicles(convoihandle_t other) const
 	{
 		return false;
 	}
-	if (get_vehikel_anzahl()!=other->get_vehikel_anzahl())
+	if (get_vehicle_count()!=other->get_vehicle_count())
 	{
 		return false;
 	}
 	// We must compare both in the 'same direction' and in the 'reverse direction'.
 	// We cannot use the 'reverse' flag to tell the difference.
 	bool forward_compare_good = true;
-	for (int i=0; i<get_vehikel_anzahl(); i++)
+	for (int i=0; i<get_vehicle_count(); i++)
 	{
 		if (get_vehikel(i)->get_besch()!=other->get_vehikel(i)->get_besch())
 		{
@@ -6322,7 +6322,7 @@ bool convoi_t::has_same_vehicles(convoihandle_t other) const
 		return true;
 	}
 	bool reverse_compare_good = true;
-	for (int i=0, j=get_vehikel_anzahl()-1; i<get_vehikel_anzahl(); i++, j--)
+	for (int i=0, j=get_vehicle_count()-1; i<get_vehicle_count(); i++, j--)
 	{
 		if (get_vehikel(j)->get_besch()!=other->get_vehikel(i)->get_besch())
 		{
@@ -7001,7 +7001,7 @@ void convoi_t::calc_direction_steps()
 bool convoi_t::calc_obsolescence(uint16 timeline_year_month)
 {
 	// convoi has obsolete vehicles?
-	for(int j = get_vehikel_anzahl(); --j >= 0; ) {
+	for(int j = get_vehicle_count(); --j >= 0; ) {
 		if (vehicle[j]->get_besch()->is_obsolete(timeline_year_month, welt)) {
 			return true;
 		}
@@ -7414,13 +7414,13 @@ sint64 convoi_t::get_stat_converted(int month, convoi_cost_t cost_type) const
 // Bernd Gabriel, Dec, 25 2009
 sint16 convoi_t::get_current_friction()
 {
-	return get_vehikel_anzahl() > 0 ? get_friction_of_waytype(front()->get_waytype()) : 0;
+	return get_vehicle_count() > 0 ? get_friction_of_waytype(front()->get_waytype()) : 0;
 }
 
 void convoi_t::update_vehicle_summary(vehicle_summary_t &vehicle)
 {
 	vehicle.clear();
-	uint32 count = get_vehikel_anzahl();
+	uint32 count = get_vehicle_count();
 	if (count > 0)
 	{
 		for (const_iterator i = begin(); i != end(); ++i )
@@ -7435,7 +7435,7 @@ void convoi_t::update_vehicle_summary(vehicle_summary_t &vehicle)
 void convoi_t::update_adverse_summary(adverse_summary_t &adverse)
 {
 	adverse.clear();
-	uint16 count = get_vehikel_anzahl();
+	uint16 count = get_vehicle_count();
 	if (count > 0)
 	{
 		for (const_iterator i = begin(); i != end(); ++i )
@@ -7505,7 +7505,7 @@ float32e8_t convoi_t::get_force_summary(const float32e8_t &speed /* in m/s */)
 		force += (*i)->get_besch()->get_effective_force_index(v);
 	}
 
-	//for (array_tpl<vehicle_t*>::iterator i = vehicle.begin(), n = i + get_vehikel_anzahl(); i != n; ++i)
+	//for (array_tpl<vehicle_t*>::iterator i = vehicle.begin(), n = i + get_vehicle_count(); i != n; ++i)
 	//	force += (*i)->get_besch()->get_effective_force_index(v);
 
 	return power_index_to_power(force, welt->get_settings().get_global_force_factor_percent());

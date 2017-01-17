@@ -136,7 +136,7 @@ convoi_filter_frame_t::convoi_filter_frame_t(player_t *player, convoi_frame_t *m
 
 	all_ware.clear();
 	int n=0;
-	for(  int i=0;  i < warenbauer_t::get_waren_anzahl();  i++  ) {
+	for(  int i=0;  i < warenbauer_t::get_count();  i++  ) {
 		const ware_besch_t *ware = warenbauer_t::get_info(i);
 		if(  ware == warenbauer_t::nichts  ) {
 			continue;

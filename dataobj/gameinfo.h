@@ -19,7 +19,7 @@ private:
 
 	sint32 industries;
 	sint32 tourist_attractions;
-	sint32 anzahl_staedte;
+	sint32 city_count;
 	sint32 einwohnerzahl;
 
 	uint16 convoi_count;
@@ -62,7 +62,7 @@ public:
 
 	sint32 get_industries() const {return industries;}
 	sint32 get_tourist_attractions() const {return tourist_attractions;}
-	sint32 get_anzahl_staedte() const {return anzahl_staedte;}
+	sint32 get_city_count() const {return city_count;}
 	sint32 get_einwohnerzahl() const {return einwohnerzahl;}
 
 	sint32 get_convoi_count() const {return convoi_count;}

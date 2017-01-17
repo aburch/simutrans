@@ -3903,7 +3903,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 			const sint32 emergency_stop_duration = welt->get_seconds_to_ticks(welt->get_settings().get_time_interval_seconds_to_caution() / 2);
 			convoihandle_t c = w->get_reserved_convoi();
 			const koord3d ground_pos = gr->get_pos();
-			for(sint32 i = 0; i < c->get_vehikel_anzahl(); i ++)
+			for(sint32 i = 0; i < c->get_vehicle_count(); i ++)
 			{
 				if(c->get_vehikel(i)->get_pos() == ground_pos)
 				{
@@ -6146,7 +6146,7 @@ bool water_vehicle_t::check_next_tile(const grund_t *bd) const
 		}
 	}
 #endif
-	const uint8 convoy_vehicle_count = cnv ? cnv->get_vehikel_anzahl() : 1;
+	const uint8 convoy_vehicle_count = cnv ? cnv->get_vehicle_count() : 1;
 	bool can_clear_way_constraints = true;
 	if(convoy_vehicle_count < 2)
 	{

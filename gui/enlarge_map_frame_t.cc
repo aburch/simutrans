@@ -117,7 +117,7 @@ enlarge_map_frame_t::enlarge_map_frame_t() :
 	inp_number_of_clusters.set_pos(scr_coord(RIGHT_COLUMN,intTopOfButton) );
 	inp_number_of_clusters.set_size(scr_size(RIGHT_COLUMN_WIDTH, 12));
 	inp_number_of_clusters.add_listener(this);
-	inp_number_of_clusters.set_limits(0,sets->get_anzahl_staedte()/3 );
+	inp_number_of_clusters.set_limits(0,sets->get_city_count()/3 );
 	inp_number_of_clusters.set_value(number_of_clusters);
 	add_component( &inp_number_of_clusters );
 	intTopOfButton += 12;
@@ -176,7 +176,7 @@ bool enlarge_map_frame_t::action_triggered( gui_action_creator_t *comp,value_t v
 		update_preview();
 	}
 	else if(comp==&inp_number_of_towns) {
-		sets->set_anzahl_staedte( v.i );
+		sets->set_city_count( v.i );
 		if (v.i == 0) {
 			number_of_big_cities = 0;
 			inp_number_of_big_cities.set_limits(0,0);
@@ -300,10 +300,10 @@ void enlarge_map_frame_t::update_preview()
 	if(!changed_number_of_towns){// Interpolate number of towns.
 		sint32 new_area = sets->get_groesse_x() * sets->get_groesse_y();
 		sint32 old_area = old_x * old_y;
-		sint32 const towns = welt->get_settings().get_anzahl_staedte();
+		sint32 const towns = welt->get_settings().get_city_count();
 		const sint32 new_towns = towns * new_area / old_area - towns;
-		sets->set_anzahl_staedte( new_towns );
-		inp_number_of_towns.set_value(abs(sets->get_anzahl_staedte()) );
+		sets->set_city_count( new_towns );
+		inp_number_of_towns.set_value(abs(sets->get_city_count()) );
 		if (new_towns != 0 ) {
 			number_of_big_cities = 1;
 			inp_number_of_big_cities.set_value(1);
@@ -319,7 +319,7 @@ void enlarge_map_frame_t::update_preview()
 		sizeof(player_t) * 8 +
 		sizeof(convoi_t) * 1000 +
 		(sizeof(schiene_t) + sizeof(vehicle_t)) * 10 * (sx + sy) +
-		sizeof(stadt_t) * sets->get_anzahl_staedte() +
+		sizeof(stadt_t) * sets->get_city_count() +
 		(
 			sizeof(grund_t) +
 			sizeof(planquadrat_t) +

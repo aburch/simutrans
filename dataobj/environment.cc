@@ -129,9 +129,9 @@ bool env_t::draw_earth_border;
 bool env_t::draw_outside_tile;
 
 // constraints:
-// number_of_big_cities <= anzahl_staedte
-// number_of_big_cities == 0 if anzahl_staedte == 0
-// number_of_big_cities >= 1 if anzahl_staedte !=0
+// number_of_big_cities <= city_count
+// number_of_big_cities == 0 if city_count == 0
+// number_of_big_cities >= 1 if city_count !=0
 uint32 env_t::number_of_big_cities = 1;
 //constraints:
 // 0<= number_of_clusters <= anzahl_staedts/4

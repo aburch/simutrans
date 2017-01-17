@@ -79,7 +79,7 @@ public:
 	bool is_hintergrund_phases(int season) const
 	{
 		bildliste2d_besch_t const* const bl = get_child<bildliste2d_besch_t>(0 + 2 * season);
-		const uint16 max_h = bl->get_anzahl();
+		const uint16 max_h = bl->get_count();
 		for(  uint16 phase=1;  phase<phasen;  phase++  ) {
 			for(  uint16 h=0;  h<max_h;  h++  ) {
 				if(  bl->get_image( h, phase )  ) {

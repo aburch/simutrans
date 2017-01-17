@@ -143,7 +143,7 @@ void simline_t::add_convoy(convoihandle_t cnv, bool from_loading)
 	if(  cnv->get_state()!=convoi_t::INITIAL  ) {
 		/*
 		// already on the road => need to add them
-		for(  uint8 i=0;  i<cnv->get_vehikel_anzahl();  i++  ) {
+		for(  uint8 i=0;  i<cnv->get_vehicle_count();  i++  ) {
 			// Only consider vehicles that really transport something
 			// this helps against routing errors through passenger
 			// trains pulling only freight wagons

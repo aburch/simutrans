@@ -56,7 +56,7 @@ settings_t::settings_t() :
 	factory_count = 12;
 	tourist_attractions = 8;
 
-	anzahl_staedte = 8;
+	city_count = 8;
 	mittlere_einwohnerzahl = 1600;
 
 	station_coverage_size = 3;
@@ -549,13 +549,13 @@ void settings_t::rdwr(loadsave_t *file)
 
 		// now towns
 		mittlere_einwohnerzahl = 1600;
-		dummy =  anzahl_staedte;
+		dummy =  city_count;
 		file->rdwr_long(dummy );
 		dummy &= 127;
 		if(dummy>63) {
 			dbg->warning("settings_t::rdwr()", "This game was saved with too many cities! (%i of maximum 63). Simutrans may crash!", dummy);
 		}
-		anzahl_staedte = dummy;
+		city_count = dummy;
 
 		// rest
 		file->rdwr_long(dummy );	// scroll ignored
@@ -590,7 +590,7 @@ void settings_t::rdwr(loadsave_t *file)
 
 		// now towns
 		file->rdwr_long(mittlere_einwohnerzahl );
-		file->rdwr_long(anzahl_staedte );
+		file->rdwr_long(city_count );
 
 		// rest
 		if(file->get_version() < 101000) {

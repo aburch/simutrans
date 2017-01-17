@@ -808,7 +808,7 @@ void depot_frame_t::fahrplaneingabe()
 {
 	convoihandle_t cnv = depot->get_convoi( icnv );
 
-	if(  cnv.is_bound()  &&  cnv->get_vehikel_anzahl() > 0  ) {
+	if(  cnv.is_bound()  &&  cnv->get_vehicle_count() > 0  ) {
 		if(  selected_line.is_bound()  &&  event_get_last_control_shift() == 2  ) { // update line with CTRL-click
 			create_win( new line_management_gui_t( selected_line, depot->get_owner() ), w_info, (ptrdiff_t)selected_line.get_rep() );
 		}

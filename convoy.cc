@@ -43,7 +43,7 @@ static void get_possible_freight_weight(uint8 catg_index, sint32 &min_weight, si
 {
 	max_weight = 0;
 	min_weight = WEIGHT_UNLIMITED;
-	for (uint16 j=0; j<warenbauer_t::get_waren_anzahl(); j++) 
+	for (uint16 j=0; j<warenbauer_t::get_count(); j++) 
 	{
 		const ware_besch_t &ware = *warenbauer_t::get_info(j);
 		if (ware.get_catg_index() == catg_index) 
@@ -558,13 +558,13 @@ sint16 potential_convoy_t::get_current_friction()
 // Bernd Gabriel, Dec, 25 2009
 sint16 existing_convoy_t::get_current_friction()
 {
-	return convoy.get_vehikel_anzahl() > 0 ? get_friction_of_waytype(convoy.get_vehikel(0)->get_waytype()) : 0;
+	return convoy.get_vehicle_count() > 0 ? get_friction_of_waytype(convoy.get_vehikel(0)->get_waytype()) : 0;
 }
 
 void existing_convoy_t::update_vehicle_summary(vehicle_summary_t &vehicle)
 {
 	vehicle.clear();
-	uint32 count = convoy.get_vehikel_anzahl();
+	uint32 count = convoy.get_vehicle_count();
 	for (uint32 i = count; i-- > 0; )
 	{
 		vehicle.add_vehicle(*convoy.get_vehikel(i)->get_besch());
@@ -579,7 +579,7 @@ void existing_convoy_t::update_vehicle_summary(vehicle_summary_t &vehicle)
 void existing_convoy_t::update_adverse_summary(adverse_summary_t &adverse)
 {
 	adverse.clear();
-	uint16 count = convoy.get_vehikel_anzahl();
+	uint16 count = convoy.get_vehicle_count();
 	for (uint16 i = count; i-- > 0; )
 	{
 		vehicle_t &v = *convoy.get_vehikel(i);
@@ -595,7 +595,7 @@ void existing_convoy_t::update_adverse_summary(adverse_summary_t &adverse)
 void existing_convoy_t::update_freight_summary(freight_summary_t &freight)
 {		
 	freight.clear();
-	for (uint16 i = convoy.get_vehikel_anzahl(); i-- > 0; )
+	for (uint16 i = convoy.get_vehicle_count(); i-- > 0; )
 	{
 		const vehikel_besch_t &b = *convoy.get_vehikel(i)->get_besch();
 		freight.add_vehicle(b);
@@ -606,7 +606,7 @@ void existing_convoy_t::update_freight_summary(freight_summary_t &freight)
 void existing_convoy_t::update_weight_summary(weight_summary_t &weight)
 {
 	weight.clear();
-	for (uint16 i = convoy.get_vehikel_anzahl(); i-- > 0; )
+	for (uint16 i = convoy.get_vehicle_count(); i-- > 0; )
 	{
 		vehicle_t &v = *convoy.get_vehikel(i);
 		weight.add_vehicle(v);
@@ -617,7 +617,7 @@ void existing_convoy_t::update_weight_summary(weight_summary_t &weight)
 float32e8_t existing_convoy_t::get_brake_summary(/*const float32e8_t &speed*/ /* in m/s */)
 {
 	float32e8_t force = 0;
-	for (uint16 i = convoy.get_vehikel_anzahl(); i-- > 0; )
+	for (uint16 i = convoy.get_vehicle_count(); i-- > 0; )
 	{
 		vehicle_t &v = *convoy.get_vehikel(i);
 		const uint16 bf = v.get_besch()->get_brake_force();
@@ -640,7 +640,7 @@ float32e8_t existing_convoy_t::get_force_summary(const float32e8_t &speed /* in 
 {
 	sint64 force = 0;
 	sint32 v = speed;
-	for (uint16 i = convoy.get_vehikel_anzahl(); i-- > 0; )
+	for (uint16 i = convoy.get_vehicle_count(); i-- > 0; )
 	{
 		force += convoy.get_vehikel(i)->get_besch()->get_effective_force_index(v);
 	}
@@ -652,7 +652,7 @@ float32e8_t existing_convoy_t::get_power_summary(const float32e8_t &speed /* in 
 {
 	sint64 power = 0;
 	sint32 v = speed;
-	for (uint16 i = convoy.get_vehikel_anzahl(); i-- > 0; )
+	for (uint16 i = convoy.get_vehicle_count(); i-- > 0; )
 	{
 		power += convoy.get_vehikel(i)->get_besch()->get_effective_power_index(v);
 	}

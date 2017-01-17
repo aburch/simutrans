@@ -108,7 +108,7 @@ replace_frame_t::replace_frame_t(convoihandle_t cnv, const char *name):
 	else
 	{
 		vector_tpl<const vehikel_besch_t*> *existing_vehicles = new vector_tpl<const vehikel_besch_t*>();
-		uint8 count = cnv->get_vehikel_anzahl();
+		uint8 count = cnv->get_vehicle_count();
 		for(uint8 i = 0; i < count; i ++)
 		{
 			existing_vehicles->append(cnv->get_vehikel(i)->get_besch());
@@ -634,7 +634,7 @@ sint64 replace_frame_t::calc_total_cost()
 	sint64 total_cost = 0;
 	vector_tpl<const vehicle_t*> current_vehicles;
 	vector_tpl<uint16> keep_vehicles;
-	for(uint8 i = 0; i < cnv->get_vehikel_anzahl(); i ++)
+	for(uint8 i = 0; i < cnv->get_vehicle_count(); i ++)
 	{
 		current_vehicles.append(cnv->get_vehikel(i));
 	}

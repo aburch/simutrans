@@ -66,7 +66,7 @@ public:
 	// if anzahl==1, this will not appear on slopes
 	uint16 get_phases() const
 	{
-		return get_child<bildliste2d_besch_t>(2)->get_anzahl();
+		return get_child<bildliste2d_besch_t>(2)->get_count();
 	}
 
 	uint8 get_seasons() const { return number_of_seasons; }

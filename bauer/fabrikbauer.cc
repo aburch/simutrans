@@ -251,7 +251,7 @@ bool fabrikbauer_t::alles_geladen()
 }
 
 
-int fabrikbauer_t::finde_anzahl_hersteller(const ware_besch_t *ware, uint16 timeline)
+int fabrikbauer_t::count_producers(const ware_besch_t *ware, uint16 timeline)
 {
 	int anzahl=0;
 
@@ -265,7 +265,7 @@ int fabrikbauer_t::finde_anzahl_hersteller(const ware_besch_t *ware, uint16 time
 			}
 		}
 	}
-DBG_MESSAGE("fabrikbauer_t::finde_anzahl_hersteller()","%i producer for good '%s' found.", anzahl, translator::translate(ware->get_name()));
+DBG_MESSAGE("fabrikbauer_t::count_producers()","%i producer for good '%s' found.", anzahl, translator::translate(ware->get_name()));
 	return anzahl;
 }
 
@@ -702,7 +702,7 @@ int fabrikbauer_t::baue_link_hierarchie(const fabrik_t* our_fab, const fabrik_be
 	 */
 	const fabrik_lieferant_besch_t *lieferant = info->get_lieferant(lieferant_nr);
 	const ware_besch_t *ware = lieferant->get_ware();
-	const int anzahl_hersteller=finde_anzahl_hersteller( ware, welt->get_timeline_year_month() );
+	const int anzahl_hersteller=count_producers( ware, welt->get_timeline_year_month() );
 
 	if(anzahl_hersteller==0) {
 		dbg->error("fabrikbauer_t::baue_hierarchie()","No producer for %s found, chain incomplete!",ware->get_name() );

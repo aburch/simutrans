@@ -1113,7 +1113,7 @@ public:
 	* @return Vehicle count
 	* @author Hj. Malthaner
 	*/
-	inline uint8 get_vehikel_anzahl() const { return anz_vehikel; }
+	inline uint8 get_vehicle_count() const { return anz_vehikel; }
 
 	/**
 	 * @return Vehicle at position i
