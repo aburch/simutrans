@@ -1,7 +1,7 @@
-#ifndef fahrplan_h
-#define fahrplan_h
+#ifndef schedule_h
+#define schedule_h
 
-#include "linieneintrag.h"
+#include "schedule_entry.h"
 
 #include "../halthandle_t.h"
 
@@ -30,7 +30,7 @@ protected:
 	schedule_t() : abgeschlossen(false), bidirectional(false), mirrored(false), same_spacing_shift(true), aktuell(0), spacing(0) {}
 
 public:
-	minivec_tpl<linieneintrag_t> eintrag;
+	minivec_tpl<schedule_entry_t> eintrag;
 
 	/**
 	* sollte eine Fehlermeldung ausgeben, wenn halt nicht erlaubt ist
@@ -60,7 +60,7 @@ public:
 	uint8 get_aktuell() const { return aktuell; }
 
 	// always returns a valid entry to the current stop
-	linieneintrag_t const& get_current_eintrag() const { return aktuell >= eintrag.get_count() ? dummy_eintrag : eintrag[aktuell]; }
+	schedule_entry_t const& get_current_eintrag() const { return aktuell >= eintrag.get_count() ? dummy_eintrag : eintrag[aktuell]; }
 
 private:
 	/**
@@ -216,7 +216,7 @@ private:
 	uint8 aktuell;
 	sint16 spacing;
 
-	static linieneintrag_t dummy_eintrag;
+	static schedule_entry_t dummy_eintrag;
 };
 
 /**

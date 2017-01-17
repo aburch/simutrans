@@ -13,7 +13,7 @@
 
 #include "../dataobj/translator.h"
 #include "../dataobj/settings.h"
-#include "../dataobj/fahrplan.h"
+#include "../dataobj/schedule.h"
 #include "../dataobj/powernet.h"
 #include "../dataobj/ribi.h"
 #include "../dataobj/loadsave.h"
@@ -130,7 +130,7 @@ void reliefkarte_t::add_to_schedule_cache( convoihandle_t cnv, bool with_waypoin
 	bool last_diagonal = false;
 	const bool add_schedule = fpl->get_waytype() != air_wt;
 
-	FOR(  minivec_tpl<linieneintrag_t>, cur, fpl->eintrag  ) {
+	FOR(  minivec_tpl<schedule_entry_t>, cur, fpl->eintrag  ) {
 
 		//cycle on stops
 		//try to read station's coordinates if there's a station at this schedule stop

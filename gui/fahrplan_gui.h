@@ -28,7 +28,7 @@
 
 class zeiger_t;
 class schedule_t;
-struct linieneintrag_t;
+struct schedule_entry_t;
 class player_t;
 class cbuffer_t;
 class loadsave_t;
@@ -72,7 +72,7 @@ class fahrplan_gui_t :	public gui_frame_t,
 	 *
 	 * @author Hj. Malthaner
 	 */
-	static void gimme_stop_name(cbuffer_t & buf, const player_t *player, const linieneintrag_t &entry, bool no_control_tower = false );
+	static void gimme_stop_name(cbuffer_t & buf, const player_t *player, const schedule_entry_t &entry, bool no_control_tower = false );
 
 	/**
 	 * Append description of entry to buf.

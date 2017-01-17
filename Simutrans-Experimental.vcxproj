@@ -1866,7 +1866,7 @@
     <ClCompile Include="besch\reader\factory_reader.cc" />
     <ClCompile Include="gui\factorylist_frame_t.cc" />
     <ClCompile Include="gui\factorylist_stats_t.cc" />
-    <ClCompile Include="dataobj\fahrplan.cc" />
+    <ClCompile Include="dataobj\schedule.cc" />
     <ClCompile Include="gui\fahrplan_gui.cc" />
     <ClCompile Include="dataobj\freelist.cc" />
     <ClCompile Include="freight_list_sorter.cc" />
@@ -2273,7 +2273,7 @@
     <ClInclude Include="gui\factorylist_frame_t.h" />
     <ClInclude Include="gui\factorylist_stats_t.h" />
     <ClInclude Include="ifc\simtestdriver.h" />
-    <ClInclude Include="dataobj\fahrplan.h" />
+    <ClInclude Include="dataobj\schedule.h" />
     <ClInclude Include="gui\fahrplan_gui.h" />
     <ClInclude Include="tpl\fixed_list_tpl.h" />
     <ClInclude Include="dataobj\freelist.h" />
@@ -2351,7 +2351,7 @@
     <ClInclude Include="gui\line_item.h" />
     <ClInclude Include="gui\line_management_gui.h" />
     <ClInclude Include="linehandle_t.h" />
-    <ClInclude Include="dataobj\linieneintrag.h" />
+    <ClInclude Include="dataobj\schedule_entry.h" />
     <ClInclude Include="gui\components\list_button.h" />
     <ClInclude Include="tpl\list_tpl.h" />
     <ClInclude Include="gui\load_relief_frame.h" />

@@ -13,7 +13,7 @@
 #include "../dataobj/environment.h"
 #include "../network/network.h"
 #include "../network/network_cmd_scenario.h"
-#include "../dataobj/fahrplan.h"
+#include "../dataobj/schedule.h"
 
 #include "../utils/cbuffer_t.h"
 

@@ -25,7 +25,7 @@
 #include "simwin.h"
 #include "../convoy.h"
 
-#include "../dataobj/fahrplan.h"
+#include "../dataobj/schedule.h"
 #include "../dataobj/translator.h"
 #include "../dataobj/environment.h"
 #include "../dataobj/loadsave.h"

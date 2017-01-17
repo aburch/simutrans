@@ -78,7 +78,7 @@
 
 #include "dataobj/settings.h"
 #include "dataobj/environment.h"
-#include "dataobj/fahrplan.h"
+#include "dataobj/schedule.h"
 #include "dataobj/route.h"
 #include "dataobj/replace_data.h"
 #include "dataobj/scenario.h"
@@ -7027,7 +7027,7 @@ const char *tool_stop_moving_t::do_work( player_t *player, const koord3d &last_p
 					// check waytype
 					if(fpl  &&  fpl->ist_halt_erlaubt(bd)) {
 						bool updated = false;
-						FOR(minivec_tpl<linieneintrag_t>, & k, fpl->eintrag) {
+						FOR(minivec_tpl<schedule_entry_t>, & k, fpl->eintrag) {
 							if ((catch_all_halt && haltestelle_t::get_halt( k.pos, cnv->get_owner()) == last_halt) ||
 									old_platform.is_contained(k.pos)) {
 								k.pos   = pos;
@@ -7062,7 +7062,7 @@ const char *tool_stop_moving_t::do_work( player_t *player, const koord3d &last_p
 				// check waytype
 				if(fpl->ist_halt_erlaubt(bd)) {
 					bool updated = false;
-					FOR(minivec_tpl<linieneintrag_t>, & k, fpl->eintrag) {
+					FOR(minivec_tpl<schedule_entry_t>, & k, fpl->eintrag) {
 						// ok!
 						if ((catch_all_halt && haltestelle_t::get_halt( k.pos, line->get_owner()) == last_halt) ||
 								old_platform.is_contained(k.pos)) {
@@ -8025,7 +8025,7 @@ bool tool_change_convoi_t::init( player_t *player )
 				cnv->get_replace()->clear_all();
 				// This convoy might already have been sent to a depot. This will need to be undone.
 				schedule_t* sch = cnv->get_schedule();
-				const linieneintrag_t le = sch->get_current_eintrag();
+				const schedule_entry_t le = sch->get_current_eintrag();
 				const grund_t* gr = welt->lookup(le.pos);
 				if(gr && gr->get_depot())
 				{

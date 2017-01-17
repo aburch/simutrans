@@ -62,7 +62,7 @@
 #include "../besch/skin_besch.h"
 #include "../besch/roadsign_besch.h"
 
-#include "../dataobj/fahrplan.h"
+#include "../dataobj/schedule.h"
 #include "../dataobj/translator.h"
 #include "../dataobj/loadsave.h"
 #include "../dataobj/environment.h"
@@ -1105,7 +1105,7 @@ void vehicle_t::remove_stale_cargo()
 
 			if(  tmp.get_zwischenziel().is_bound()  ) {
 				// the original halt exists, but does we still go there?
-				FOR(minivec_tpl<linieneintrag_t>, const& i, cnv->get_schedule()->eintrag) {
+				FOR(minivec_tpl<schedule_entry_t>, const& i, cnv->get_schedule()->eintrag) {
 					if(  haltestelle_t::get_halt( i.pos, cnv->get_owner()) == tmp.get_zwischenziel()  ) {
 						found = true;
 						break;
@@ -3788,7 +3788,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 {
 	assert(leading);
 	uint16 next_signal = INVALID_INDEX;
-	linieneintrag_t destination = cnv->get_schedule()->get_current_eintrag();
+	schedule_entry_t destination = cnv->get_schedule()->get_current_eintrag();
 
 	bool destination_is_nonreversing_waypoint = !destination.reverse && !haltestelle_t::get_halt(destination.pos, get_owner()).is_bound() && (!welt->lookup(destination.pos) || !welt->lookup(destination.pos)->get_depot());
 

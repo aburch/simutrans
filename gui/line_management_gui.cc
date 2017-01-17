@@ -4,7 +4,7 @@
  * 01/12/2003
  */
 
-#include "../dataobj/fahrplan.h"
+#include "../dataobj/schedule.h"
 #include "../dataobj/translator.h"
 #include "../dataobj/loadsave.h"
 #include "../gui/karte.h"

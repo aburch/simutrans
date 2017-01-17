@@ -39,7 +39,7 @@
 #include "besch/roadsign_besch.h"
 #include "besch/haus_besch.h"
 
-#include "dataobj/fahrplan.h"
+#include "dataobj/schedule.h"
 #include "dataobj/route.h"
 #include "dataobj/loadsave.h"
 #include "dataobj/replace_data.h"
@@ -1401,7 +1401,7 @@ bool convoi_t::drive_to()
 		// to avoid ignoring signals.
 		int counter = fpl->get_count();
 
-		linieneintrag_t* schedule_entry = &fpl->eintrag[fpl->get_aktuell()];
+		schedule_entry_t* schedule_entry = &fpl->eintrag[fpl->get_aktuell()];
 		bool update_line = false;
 		while(success && counter--)
 		{
@@ -1412,7 +1412,7 @@ bool convoi_t::drive_to()
 				if(line.is_bound())
 				{
 					schedule_t* line_schedule = line->get_schedule();
-					linieneintrag_t &line_entry = line_schedule->eintrag[fpl->get_aktuell()];
+					schedule_entry_t &line_entry = line_schedule->eintrag[fpl->get_aktuell()];
 					line_entry.reverse = schedule_entry->reverse;
 					update_line = true;	
 				}
@@ -6093,7 +6093,7 @@ end_check:
 void convoi_t::register_stops()
 {
 	if(  fpl  ) {
-		FOR(minivec_tpl<linieneintrag_t>, const& i, fpl->eintrag) {
+		FOR(minivec_tpl<schedule_entry_t>, const& i, fpl->eintrag) {
 			halthandle_t const halt = haltestelle_t::get_halt(i.pos, get_owner());
 			if(  halt.is_bound()  ) {
 				halt->add_convoy(self);
@@ -6110,7 +6110,7 @@ void convoi_t::register_stops()
 void convoi_t::unregister_stops()
 {
 	if(  fpl  ) {
-		FOR(minivec_tpl<linieneintrag_t>, const& i, fpl->eintrag) {
+		FOR(minivec_tpl<schedule_entry_t>, const& i, fpl->eintrag) {
 			halthandle_t const halt = haltestelle_t::get_halt(i.pos, get_owner());
 			if(  halt.is_bound()  ) {
 				halt->remove_convoy(self);
@@ -6168,7 +6168,7 @@ void convoi_t::set_next_stop_index(uint16 n)
 		   const int count = fpl->get_count();
 		   for(int i = 0; i < count; i ++)
 		   {
-			   linieneintrag_t &eintrag = fpl->eintrag[i];
+			   schedule_entry_t &eintrag = fpl->eintrag[i];
 			   if(eintrag.pos == route_end)
 			   {
 				   if(eintrag.reverse == -1)
@@ -6188,7 +6188,7 @@ void convoi_t::set_next_stop_index(uint16 n)
 							   schedule_t* line_schedule = line->get_schedule();
 							   if (line_schedule->get_count() > i)
 							   {
-								   linieneintrag_t &line_entry = line_schedule->eintrag[i];
+								   schedule_entry_t &line_entry = line_schedule->eintrag[i];
 								   line_entry.reverse = eintrag.reverse;
 								   update_line = true;
 							   }
@@ -6468,7 +6468,7 @@ DBG_MESSAGE("convoi_t::go_to_depot()","convoi state %i => cannot change schedule
 		// Don't consider it a valid home depot if we already failed to get there.
 		if (home_depot_valid && (state == NO_ROUTE || state == OUT_OF_RANGE)) {
 			if (fpl) {
-				const linieneintrag_t & current_entry = fpl->get_current_eintrag();
+				const schedule_entry_t & current_entry = fpl->get_current_eintrag();
 				if ( current_entry.pos == get_home_depot() ) {
 					// We were already trying to get there... and failed.
 					home_depot_valid = false;

@@ -36,7 +36,7 @@
 #include "convoy_item.h"
 #include "messagebox.h"
 
-#include "../dataobj/fahrplan.h"
+#include "../dataobj/schedule.h"
 #include "../dataobj/translator.h"
 #include "../dataobj/environment.h"
 

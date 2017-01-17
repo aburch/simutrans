@@ -25,7 +25,7 @@
 
 #include "../freight_list_sorter.h"
 
-#include "../dataobj/fahrplan.h"
+#include "../dataobj/schedule.h"
 #include "../dataobj/environment.h"
 #include "../dataobj/translator.h"
 #include "../dataobj/loadsave.h"

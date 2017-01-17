@@ -1,5 +1,5 @@
-#ifndef linieneintrag_t_h
-#define linieneintrag_t_h
+#ifndef schedule_entry_h
+#define schedule_entry_h
 
 #include "koord3d.h"
 
@@ -7,12 +7,12 @@
  * A schedule entry.
  * @author Hj. Malthaner
  */
-struct linieneintrag_t
+struct schedule_entry_t
 {
 public:
-	linieneintrag_t() {}
+	schedule_entry_t() {}
 
-	linieneintrag_t(koord3d const& pos, uint16 const ladegrad, sint8 const waiting_time_shift, sint16 spacing_shift, sint8 reverse, bool wait_for_time) :
+	schedule_entry_t(koord3d const& pos, uint16 const ladegrad, sint8 const waiting_time_shift, sint16 spacing_shift, sint8 reverse, bool wait_for_time) :
 		pos(pos),
 		ladegrad(ladegrad),
 		waiting_time_shift(waiting_time_shift),

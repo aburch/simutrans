@@ -13,7 +13,7 @@
 #include "simtypes.h"
 #include "simintr.h"
 
-#include "dataobj/fahrplan.h"
+#include "dataobj/schedule.h"
 #include "dataobj/loadsave.h"
 
 #include "gui/schedule_list.h"

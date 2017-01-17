@@ -15,7 +15,7 @@
 #include "display/simgraph.h"
 #include "player/simplay.h"
 #include "dataobj/environment.h"
-#include "dataobj/fahrplan.h"
+#include "dataobj/schedule.h"
 #include "simconvoi.h"
 #include "simloadingscreen.h"
 

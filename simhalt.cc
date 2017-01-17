@@ -48,7 +48,7 @@
 #include "boden/wege/weg.h"
 
 #include "dataobj/settings.h"
-#include "dataobj/fahrplan.h"
+#include "dataobj/schedule.h"
 #include "dataobj/loadsave.h"
 #include "dataobj/translator.h"
 #include "dataobj/environment.h"
@@ -2358,7 +2358,7 @@ bool haltestelle_t::hole_ab( slist_tpl<ware_t> &fracht, const ware_besch_t *wtyp
 						// Also, if this stop has a wait for load order without a maximum time and the faster convoy 
 						// also has that, do not wait for a "faster" convoy, as it may never come.
 
-						const linieneintrag_t schedule_entry = cnv->get_schedule()->get_current_eintrag();
+						const schedule_entry_t schedule_entry = cnv->get_schedule()->get_current_eintrag();
 						if(schedule_entry.ladegrad > 0 && !schedule_entry.wait_for_time && schedule_entry.waiting_time_shift == 0)
 						{
 							// This convoy has an untimed wait for load order.
@@ -2369,7 +2369,7 @@ bool haltestelle_t::hole_ab( slist_tpl<ware_t> &fracht, const ware_besch_t *wtyp
 							else
 							{
 								// Check to see whether this has the same untimed wait for load order even if it is not on the same line.
-								linieneintrag_t fast_convoy_schedule_entry = fast_convoy->get_schedule()->get_current_eintrag();
+								schedule_entry_t fast_convoy_schedule_entry = fast_convoy->get_schedule()->get_current_eintrag();
 								if(haltestelle_t::get_halt(fast_convoy_schedule_entry.pos, cnv->get_owner()) == self)
 								{
 									if(fast_convoy_schedule_entry.ladegrad > 0 && !fast_convoy_schedule_entry.wait_for_time && fast_convoy_schedule_entry.waiting_time_shift == 0)
@@ -4641,7 +4641,7 @@ bool haltestelle_t::add_grund(grund_t *gr, bool relink_factories)
 			{
 				// only add unknown lines
 				if(  !registered_lines.is_contained(j)  &&  j->count_convoys() > 0  ) {
-					FOR(  minivec_tpl<linieneintrag_t>, const& k, j->get_schedule()->eintrag  ) {
+					FOR(  minivec_tpl<schedule_entry_t>, const& k, j->get_schedule()->eintrag  ) {
 						if(  get_halt(k.pos, player) == self  ) {
 							registered_lines.append(j);
 							break;
@@ -4656,7 +4656,7 @@ bool haltestelle_t::add_grund(grund_t *gr, bool relink_factories)
 		// only check lineless convoys which have matching ownership and which are not yet registered
 		if(  !cnv->get_line().is_bound()  &&  (public_halt  ||  cnv->get_owner()==get_owner())  &&  !registered_convoys.is_contained(cnv)  ) {
 			if(  const schedule_t *const fpl = cnv->get_schedule()  ) {
-				FOR(minivec_tpl<linieneintrag_t>, const& k, fpl->eintrag) {
+				FOR(minivec_tpl<schedule_entry_t>, const& k, fpl->eintrag) {
 					if (get_halt(k.pos, cnv->get_owner()) == self) {
 						registered_convoys.append(cnv);
 						break;
@@ -4803,7 +4803,7 @@ bool haltestelle_t::rem_grund(grund_t *gr)
 	// remove lines eventually
 	for(  size_t j = registered_lines.get_count();  j-- != 0;  ) {
 		bool ok = false;
-		FOR(  minivec_tpl<linieneintrag_t>, const& k, registered_lines[j]->get_schedule()->eintrag  ) {
+		FOR(  minivec_tpl<schedule_entry_t>, const& k, registered_lines[j]->get_schedule()->eintrag  ) {
 			if(  get_halt(k.pos, registered_lines[j]->get_owner()) == self  ) {
 				ok = true;
 				break;
@@ -4819,7 +4819,7 @@ bool haltestelle_t::rem_grund(grund_t *gr)
 	// Knightly : remove registered lineless convoys as well
 	for(  size_t j = registered_convoys.get_count();  j-- != 0;  ) {
 		bool ok = false;
-		FOR(  minivec_tpl<linieneintrag_t>, const& k, registered_convoys[j]->get_schedule()->eintrag  ) {
+		FOR(  minivec_tpl<schedule_entry_t>, const& k, registered_convoys[j]->get_schedule()->eintrag  ) {
 			if(  get_halt(k.pos, registered_convoys[j]->get_owner()) == self  ) {
 				ok = true;
 				break;

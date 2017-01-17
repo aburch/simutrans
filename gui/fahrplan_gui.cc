@@ -23,7 +23,7 @@
 
 #include "../obj/zeiger.h"
 
-#include "../dataobj/fahrplan.h"
+#include "../dataobj/schedule.h"
 #include "../dataobj/loadsave.h"
 #include "../dataobj/translator.h"
 #include "../dataobj/environment.h"
@@ -46,7 +46,7 @@
 void fahrplan_gui_stats_t::highlight_schedule( schedule_t *markfpl, bool marking )
 {
 	marking &= env_t::visualize_schedule;
-	FOR(minivec_tpl<linieneintrag_t>, const& i, markfpl->eintrag) {
+	FOR(minivec_tpl<schedule_entry_t>, const& i, markfpl->eintrag) {
 		if (grund_t* const gr = welt->lookup(i.pos)) {
 			for(  uint idx=0;  idx<gr->get_top();  idx++  ) {
 				obj_t *obj = gr->obj_bei(idx);
@@ -95,7 +95,7 @@ void fahrplan_gui_stats_t::highlight_schedule( schedule_t *markfpl, bool marking
 /**
  * Append description of entry to buf.
  */
-void fahrplan_gui_t::gimme_stop_name(cbuffer_t & buf, const player_t *player, const linieneintrag_t &entry, bool no_control_tower )
+void fahrplan_gui_t::gimme_stop_name(cbuffer_t & buf, const player_t *player, const schedule_entry_t &entry, bool no_control_tower )
 {
 	halthandle_t halt = haltestelle_t::get_halt(entry.pos, player);
 	if(halt.is_bound()) 
@@ -150,7 +150,7 @@ void fahrplan_gui_t::gimme_short_stop_name(cbuffer_t& buf, player_t const* const
 		dbg->warning("void fahrplan_gui_t::gimme_short_stop_name()","tried to receive unused entry %i in schedule %p.",i,fpl);
 		return;
 	}
-	const linieneintrag_t& entry = fpl->eintrag[i];
+	const schedule_entry_t& entry = fpl->eintrag[i];
 	const char* p;
 	halthandle_t halt = haltestelle_t::get_halt(entry.pos, player);
 	if(halt.is_bound()) {
@@ -215,7 +215,7 @@ void fahrplan_gui_stats_t::draw(scr_coord offset)
 		offset.y += D_V_SPACE;
 		koord last_stop_pos = fpl->eintrag[0].pos.get_2d();
 		double distance;
-		FOR(minivec_tpl<linieneintrag_t>, const& e, fpl->eintrag) 
+		FOR(minivec_tpl<schedule_entry_t>, const& e, fpl->eintrag) 
 		{
 			if (sel == 0) 
 			{

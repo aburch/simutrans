@@ -5,7 +5,7 @@
 #include "simworld.h"
 
 #include "utils/simstring.h"
-#include "dataobj/fahrplan.h"
+#include "dataobj/schedule.h"
 #include "dataobj/translator.h"
 #include "dataobj/loadsave.h"
 #include "player/simplay.h"
@@ -443,7 +443,7 @@ void simline_t::finish_rd()
 void simline_t::register_stops(schedule_t * fpl)
 {
 DBG_DEBUG("simline_t::register_stops()", "%d fpl entries in schedule %p", fpl->get_count(),fpl);
-	FOR(minivec_tpl<linieneintrag_t>, const& i, fpl->eintrag) {
+	FOR(minivec_tpl<schedule_entry_t>, const& i, fpl->eintrag) {
 		halthandle_t const halt = haltestelle_t::get_halt(i.pos, player);
 		if(halt.is_bound()) {
 //DBG_DEBUG("simline_t::register_stops()", "halt not null");
@@ -482,7 +482,7 @@ void simline_t::unregister_stops()
 
 void simline_t::unregister_stops(schedule_t * fpl)
 {
-	FOR(minivec_tpl<linieneintrag_t>, const& i, fpl->eintrag) {
+	FOR(minivec_tpl<schedule_entry_t>, const& i, fpl->eintrag) {
 		halthandle_t const halt = haltestelle_t::get_halt(i.pos, player);
 		if(halt.is_bound()) {
 			halt->remove_line(self);

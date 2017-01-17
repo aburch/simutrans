@@ -19,11 +19,11 @@
 #include "../simdepot.h"
 #include "loadsave.h"
 
-#include "fahrplan.h"
+#include "schedule.h"
 
 #include "../tpl/slist_tpl.h"
 
-linieneintrag_t schedule_t::dummy_eintrag(koord3d::invalid, 0, 0, 0, -1, false);
+schedule_entry_t schedule_t::dummy_eintrag(koord3d::invalid, 0, 0, 0, -1, false);
 
 schedule_t::schedule_t(loadsave_t* const file)
 {
@@ -44,7 +44,7 @@ void schedule_t::copy_from(const schedule_t *src)
 		return;
 	}
 	eintrag.clear();
-	FOR(minivec_tpl<linieneintrag_t>, const& i, src->eintrag) {
+	FOR(minivec_tpl<schedule_entry_t>, const& i, src->eintrag) {
 		eintrag.append(i);
 	}
 	set_aktuell( src->get_aktuell() );
@@ -147,7 +147,7 @@ bool schedule_t::insert(const grund_t* gr, uint16 ladegrad, uint8 waiting_time_s
 	}
 
 	if(  ist_halt_erlaubt(gr)  ) {
-		eintrag.insert_at(aktuell, linieneintrag_t(gr->get_pos(), ladegrad, waiting_time_shift, spacing_shift, -1, wait_for_time));
+		eintrag.insert_at(aktuell, schedule_entry_t(gr->get_pos(), ladegrad, waiting_time_shift, spacing_shift, -1, wait_for_time));
 		aktuell ++;
 		return true;
 	}
@@ -184,7 +184,7 @@ bool schedule_t::append(const grund_t* gr, uint16 ladegrad, uint8 waiting_time_s
 	}
 
 	if(ist_halt_erlaubt(gr)) {
-		eintrag.append(linieneintrag_t(gr->get_pos(), ladegrad, waiting_time_shift, spacing_shift, -1, wait_for_time), 4);
+		eintrag.append(schedule_entry_t(gr->get_pos(), ladegrad, waiting_time_shift, spacing_shift, -1, wait_for_time), 4);
 		return true;
 	}
 	else {
@@ -289,14 +289,14 @@ void schedule_t::rdwr(loadsave_t *file)
 			uint32 dummy;
 			pos.rdwr(file);
 			file->rdwr_long(dummy);
-			eintrag.append(linieneintrag_t(pos, (uint8)dummy, 0, 0, true, false));
+			eintrag.append(schedule_entry_t(pos, (uint8)dummy, 0, 0, true, false));
 		}
 	}
 	else {
 		// loading/saving new version
 		for(  uint8 i=0;  i<size;  i++  ) {
 			if(eintrag.get_count()<=i) {
-				eintrag.append( linieneintrag_t() );
+				eintrag.append( schedule_entry_t() );
 				eintrag[i].waiting_time_shift = 0;
 				eintrag[i].spacing_shift = 0;
 				eintrag[i].reverse = -1;
@@ -390,7 +390,7 @@ void schedule_t::rdwr(loadsave_t *file)
 void schedule_t::rotate90( sint16 y_size )
 {
 	// now we have to rotate all entries ...
-	FOR(minivec_tpl<linieneintrag_t>, & i, eintrag) {
+	FOR(minivec_tpl<schedule_entry_t>, & i, eintrag) {
 		i.pos.rotate90(y_size);
 	}
 }
@@ -581,7 +581,7 @@ void schedule_t::sprintf_schedule( cbuffer_t &buf ) const
 	buf.append( "|" );
 	buf.append( (int)get_type() );
 	buf.append( "|" );
-	FOR(minivec_tpl<linieneintrag_t>, const& i, eintrag) 
+	FOR(minivec_tpl<schedule_entry_t>, const& i, eintrag) 
 	{
 		buf.printf( "%s,%i,%i,%i,%i,%i|", i.pos.get_str(), i.ladegrad, (int)i.waiting_time_shift, (int)i.spacing_shift, (int)i.reverse, (int)i.wait_for_time );
 	}
@@ -659,7 +659,7 @@ bool schedule_t::sscanf_schedule( const char *ptr )
 			p++;
 		}
 		// ok, now we have a complete entry
-		eintrag.append(linieneintrag_t(koord3d(values[0], values[1], values[2]), values[3], values[4], values[5], values[6], (bool)values[7]));
+		eintrag.append(schedule_entry_t(koord3d(values[0], values[1], values[2]), values[3], values[4], values[5], values[6], (bool)values[7]));
 	}
 	return true;
 }

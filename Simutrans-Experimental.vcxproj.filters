@@ -129,9 +129,6 @@
     <ClCompile Include="gui\factorylist_stats_t.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="dataobj\fahrplan.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="gui\fahrplan_gui.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -984,6 +981,9 @@
     <ClCompile Include="gui\signal_info.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="dataobj\schedule.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="gui\components\action_listener.h">
@@ -1143,9 +1143,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="gui\factorylist_stats_t.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="dataobj\fahrplan.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="gui\fahrplan_gui.h">
@@ -1368,9 +1365,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="linehandle_t.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="dataobj\linieneintrag.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="gui\components\list_button.h">
@@ -2205,6 +2199,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="revision.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dataobj\schedule.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dataobj\schedule_entry.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

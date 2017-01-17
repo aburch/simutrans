@@ -4,7 +4,7 @@
 #include "components/gui_component.h"
 #include "../halthandle_t.h"
 #include "../convoihandle_t.h"
-#include "../dataobj/fahrplan.h"
+#include "../dataobj/schedule.h"
 #include "../tpl/array2d_tpl.h"
 #include "../tpl/vector_tpl.h"
 
