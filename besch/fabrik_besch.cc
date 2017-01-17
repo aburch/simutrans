@@ -27,7 +27,7 @@ void field_group_besch_t::calc_checksum(checksum_t *chk) const
 void fabrik_lieferant_besch_t::calc_checksum(checksum_t *chk) const
 {
     chk->input(kapazitaet);
-	chk->input(anzahl);
+	chk->input(supplier_count);
 	chk->input(verbrauch);
 	chk->input(get_ware()->get_name());
 }

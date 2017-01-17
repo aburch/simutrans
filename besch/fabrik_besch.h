@@ -145,13 +145,13 @@ class fabrik_lieferant_besch_t : public obj_besch_t {
 
 private:
 	uint16  kapazitaet;
-	uint16  anzahl;
+	uint16  supplier_count;
 	uint16  verbrauch;
 
 public:
 	ware_besch_t const* get_ware() const { return get_child<ware_besch_t>(0); }
 	int get_kapazitaet() const { return kapazitaet; } //"capacity" (Babelfish)
-	int get_anzahl() const { return anzahl; } //"number" (Babelfish)
+	int get_supplier_count() const { return supplier_count; } //"number" (Babelfish)
 	int get_verbrauch() const { return verbrauch; } //"consumption" (Babelfish)
 	void calc_checksum(checksum_t *chk) const;
 };
