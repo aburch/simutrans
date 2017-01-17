@@ -5294,17 +5294,6 @@ void display_flush_buffer()
 	tile_dirty = tmp; // _old was cleared to 0 in above loops
 }
 
-
-/**
- * Move mouse pointer
- * @author Hj. Malthaner
- */
-void display_move_pointer(KOORD_VAL dx, KOORD_VAL dy)
-{
-	move_pointer(dx, dy);
-}
-
-
 /**
  * Turn mouse pointer visible/invisible
  * @author Hj. Malthaner

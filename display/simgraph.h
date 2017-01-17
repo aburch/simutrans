@@ -294,7 +294,6 @@ void display_clear();
 
 void display_flush_buffer();
 
-void display_move_pointer(KOORD_VAL dx, KOORD_VAL dy);
 void display_show_pointer(int yesno);
 void display_set_pointer(int pointer);
 void display_show_load_pointer(int loading);
