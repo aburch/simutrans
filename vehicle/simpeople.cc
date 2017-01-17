@@ -139,8 +139,8 @@ void pedestrian_t::rdwr(loadsave_t *file)
 
 
 
-// create a number (anzahl) of pedestrians (if possible)
-void pedestrian_t::generate_pedestrians_at(const koord3d k, uint32 anzahl, uint32 time_to_live)
+// create a number (count) of pedestrians (if possible)
+void pedestrian_t::generate_pedestrians_at(const koord3d k, uint32 count, uint32 time_to_live)
 {
 #ifdef FORBID_SYNC_OBJECTS
 	return;
@@ -177,7 +177,7 @@ void pedestrian_t::generate_pedestrians_at(const koord3d k, uint32 anzahl, uint3
 		}
 
 		
-		for (int i = 0; i < anzahl; i++)
+		for (int i = 0; i < count; i++)
 		{
 			pedestrian_t* ped = new pedestrian_t(gr, time_to_live);
 			ped->calc_height(gr);
