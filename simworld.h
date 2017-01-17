@@ -970,7 +970,7 @@ private:
 	static sint32 cities_to_process;
 	static vector_tpl<convoihandle_t> convoys_next_step;
 	public:
-	static uint32 path_explorer_step_progress;
+	static sint32 path_explorer_step_progress;
 	static bool unreserve_route_running;
 	static bool threads_initialised; 
 	

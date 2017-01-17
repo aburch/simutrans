@@ -150,7 +150,7 @@ simthread_barrier_t karte_t::step_convoys_barrier_external;
 static pthread_cond_t path_explorer_conditional_end = PTHREAD_COND_INITIALIZER;
 sint32 karte_t::cities_to_process = 0;
 vector_tpl<convoihandle_t> convoys_next_step; 
-uint32 karte_t::path_explorer_step_progress = 2;
+sint32 karte_t::path_explorer_step_progress = -1;
 bool karte_t::unreserve_route_running = false;
 #endif
 
@@ -1806,6 +1806,7 @@ void* path_explorer_threaded(void* args)
 {
 	karte_t* world = (karte_t*)args;
 	path_explorer_t::allow_path_explorer_on_this_thread = true;
+	karte_t::path_explorer_step_progress = 2;
 
 	do
 	{
@@ -1830,6 +1831,7 @@ void* path_explorer_threaded(void* args)
 		pthread_mutex_unlock(&path_explorer_mutex);
 	} while (!karte_t::world->is_terminating_threads());
 		
+	karte_t::path_explorer_step_progress = -1;
 	pthread_exit(NULL);
 	return args;
 }
@@ -1856,6 +1858,12 @@ void karte_t::stop_path_explorer()
 void karte_t::start_path_explorer()
 {
 #ifdef MULTI_THREAD_PATH_EXPLORER
+	if (path_explorer_step_progress == -1)
+	{
+		// The threaded path explorer has been terminated, so do not wait
+		// or else we will get a thread deadlock.
+		return;
+	}
 	pthread_mutex_lock(&path_explorer_mutex);
 	if (path_explorer_step_progress != 0)
 	{
