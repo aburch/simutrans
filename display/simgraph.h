@@ -154,10 +154,6 @@ void display_get_image_offset( image_id bild, KOORD_VAL *xoff, KOORD_VAL *yoff, 
 void display_get_base_image_offset( image_id bild, KOORD_VAL *xoff, KOORD_VAL *yoff, KOORD_VAL *xw, KOORD_VAL *yw );
 void display_mark_img_dirty( image_id bild, KOORD_VAL x, KOORD_VAL y );
 
-int get_maus_x();
-int get_maus_y();
-
-
 void mark_rect_dirty_wc(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL x2, KOORD_VAL y2); // clips to screen only
 void mark_rect_dirty_clip(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL x2, KOORD_VAL y2  CLIP_NUM_DEF); // clips to clip_rect
 void mark_screen_dirty();
