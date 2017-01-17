@@ -3775,7 +3775,6 @@ sint32 rail_vehicle_t::activate_choose_signal(const uint16 start_block, uint16 &
 		blocks = block_reserver(route, start_block, modified_sighting_distance_tiles, next_signal_index, 100000, true, false, true, false, false, false, brake_steps);
 		if(!blocks) 
 		{
-			dbg->error("rail_vehicle_t::activate_choose_signal()", "could not reserved route after find_route!");
 			target_halt = halthandle_t();	
 		}
 	}
