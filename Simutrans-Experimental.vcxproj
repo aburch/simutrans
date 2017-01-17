@@ -2496,7 +2496,6 @@
     <ClInclude Include="bauer\vehikelbauer.h" />
     <ClInclude Include="besch\ware_besch.h" />
     <ClInclude Include="bauer\warenbauer.h" />
-    <ClInclude Include="dataobj\warenziel.h" />
     <ClInclude Include="boden\wasser.h" />
     <ClInclude Include="dataobj\way_constraints.h" />
     <ClInclude Include="besch\way_obj_besch.h" />

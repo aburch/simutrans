@@ -216,7 +216,6 @@ SOURCES += dataobj/scenario.cc
 SOURCES += dataobj/tabfile.cc
 SOURCES += dataobj/translator.cc
 SOURCES += dataobj/environment.cc
-SOURCES += dataobj/warenziel.cc
 SOURCES += obj/baum.cc
 SOURCES += obj/bruecke.cc
 SOURCES += obj/crossing.cc

@@ -52,7 +52,6 @@
 #include "dataobj/loadsave.h"
 #include "dataobj/translator.h"
 #include "dataobj/environment.h"
-#include "dataobj/warenziel.h"
 
 #include "obj/gebaeude.h"
 #include "obj/label.h"
@@ -3471,6 +3470,15 @@ void haltestelle_t::recalc_station_type()
 	recalc_status();
 }
 
+// necessary to load pre0.99.13 savegames
+void warenziel_rdwr(loadsave_t *file)
+{
+	koord ziel;
+	ziel.rdwr(file);
+	char tn[256];
+	file->rdwr_str(tn, lengthof(tn));
+}
+
 void haltestelle_t::rdwr(loadsave_t *file)
 {
 	xml_tag_t h( file, "haltestelle_t" );
@@ -3718,9 +3726,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 			{
 				if(file->is_loading())
 				{
-					// Dummy loading and saving to maintain backwards compatibility
-					koord dummy_koord;
-					dummy_koord.rdwr(file);
+					warenziel_rdwr(file);
 
 					char dummy[256];
 					file->rdwr_str(dummy,256);

@@ -1760,9 +1760,6 @@
     <ClInclude Include="bauer\warenbauer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="dataobj\warenziel.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="boden\wasser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
