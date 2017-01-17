@@ -1875,7 +1875,7 @@ public:
 	// prissi: since negative values will make the whole result negative, we can use bitwise or
 	// faster, since pentiums and other long pipeline processors do not like jumps
 		return (x|y|(cached_size.x-x)|(cached_size.y-y))>=0;
-//		return x>=0 &&  y>=0  &&  cached_groesse_karte_x>=x  &&  cached_groesse_karte_y>=y;
+//		return x>=0 &&  y>=0  &&  cached_size_x_karte_x>=x  &&  cached_size_x_karte_y>=y;
 	}
 
 	/**
@@ -1895,7 +1895,7 @@ public:
 	// prissi: since negative values will make the whole result negative, we can use bitwise or
 	// faster, since pentiums and other long pipeline processors do not like jumps
 		return (x|y|(cached_grid_size.x-x)|(cached_grid_size.y-y))>=0;
-//		return x>=0 &&  y>=0  &&  cached_groesse_gitter_x>=x  &&  cached_groesse_gitter_y>=y;
+//		return x>=0 &&  y>=0  &&  cached_size_x_gitter_x>=x  &&  cached_size_x_gitter_y>=y;
 	}
 
 	/**
