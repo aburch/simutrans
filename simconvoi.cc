@@ -996,6 +996,25 @@ sync_result convoi_t::sync_step(uint32 delta_t)
 bool convoi_t::drive_to()
 {
 	if(  anz_vehikel>0  ) {
+
+		// unreserve all tiles that are covered by the train but do not contain one of the wagons,
+		// otherwise repositioning of the train drive_to may lead to stray reserved tiles
+		if (dynamic_cast<rail_vehicle_t*>(fahr[0])!=NULL  &&  anz_vehikel > 1) {
+			// route-index points to next position in route
+			uint16 index0 = fahr[0]->get_route_index()-1;
+			for(uint8 i=1; i<anz_vehikel; i++) {
+				uint16 index1 = fahr[i]->get_route_index();
+				for(uint16 j = index1; j<index0; j++) {
+					// unreserve track on tiles between wagons
+					grund_t *gr = welt->lookup(route.at(j));
+					if (schiene_t *track = (schiene_t *)gr->get_weg( front()->get_waytype() ) ) {
+						track->unreserve(self);
+					}
+				}
+				index0 = index1-1;
+			}
+		}
+
 		koord3d start = fahr[0]->get_pos();
 		koord3d ziel = schedule->get_current_entry().pos;
 
