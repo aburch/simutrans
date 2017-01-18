@@ -185,6 +185,8 @@ private:
 
 	bool allow_citygrowth;	// Whether growth is permitted (true by default)
 
+	bool has_townhall;
+
 	/**
 	 * in this fixed interval, construction will happen
 	 */
