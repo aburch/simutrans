@@ -72,6 +72,8 @@ endif
 
 LIBS += -lbz2 -lz
 
+ CFLAGS +=  -std=gnu++11
+
 ALLEGRO_CONFIG ?= allegro-config
 SDL_CONFIG     ?= sdl-config
 SDL2_CONFIG    ?= sdl2-config
