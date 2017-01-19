@@ -5723,6 +5723,12 @@ void rail_vehicle_t::unreserve_station()
 	
 	route_t* route = cnv ? cnv->get_route() : NULL;
 	route_index = min(route_index, route->get_count() - 1);
+	if (route->get_count() < route_index || route->empty())
+	{
+		// The route has been recalculated, so we cannot
+		// unreserve this in the usual way.
+		return;
+	}
 	const koord3d this_pos = route->position_bei(route_index);
 	const koord3d last_pos = route->position_bei(route_index - 1);
 	const koord dir = this_pos.get_2d() - last_pos.get_2d();
