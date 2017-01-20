@@ -1395,8 +1395,6 @@ bool convoi_t::drive_to()
 
 	if(rail_type && gr && !gr->get_depot())
 	{
-		rail_vehicle_t* rv = (rail_vehicle_t*)back();
-		rv->unreserve_station();
 		// We need to calculate the full route through to the next signal or reversing point
 		// to avoid ignoring signals.
 		int counter = fpl->get_count();
@@ -1624,6 +1622,7 @@ void convoi_t::step()
 	bool autostart = false;
 	uint8 position;
 	bool rev;
+	grund_t* gr;
 
 	switch(state)
 	{
@@ -1986,6 +1985,13 @@ end_loop:
 		}
 
 		case ROUTE_JUST_FOUND:
+			gr = welt->lookup(get_route()->back());
+
+			if (front()->get_waytype() == track_wt || front()->get_waytype() == tram_wt || front()->get_waytype() == narrowgauge_wt || front()->get_waytype() == maglev_wt || front()->get_waytype() == monorail_wt && gr && !gr->get_depot())
+			{
+				rail_vehicle_t* rv = (rail_vehicle_t*)back();
+				rv->unreserve_station();
+			}
 			vorfahren();
 			break;
 			// This used to be part of drive_to(), but this was not suitable for use in a multi-threaded state.
