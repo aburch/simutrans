@@ -5727,6 +5727,9 @@ void rail_vehicle_t::unreserve_station()
 	{
 		// The route has been recalculated, so we cannot
 		// unreserve this in the usual way.
+		// Instead, brute-force the unreservation.
+		cnv->unreserve_route();
+		cnv->reserve_own_tiles();
 		return;
 	}
 	const koord3d this_pos = route->position_bei(route_index);
