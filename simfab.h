@@ -634,7 +634,7 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	//static bool ist_da_eine(karte_t *welt, koord min, koord max);
-	//static bool ist_bauplatz(karte_t *welt, koord pos, koord groesse, bool water, climate_bits cl);
+	//static bool ist_bauplatz(karte_t *welt, koord pos, koord size, bool water, climate_bits cl);
 
 	// hier die methoden zum parametrisieren der Fabrik
 	// "here the methods to parameterize the factory"

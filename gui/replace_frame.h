@@ -110,7 +110,7 @@ public:
 	 * @author (Mathew Hounsell)
 	 * @date   11-Mar-2003
 	 */
-	void set_windowsize(scr_size groesse);
+	void set_windowsize(scr_size size);
 
 	/**
 	 * Manche Fenster haben einen Hilfetext assoziiert.

@@ -299,12 +299,12 @@ void fabrikbauer_t::finde_hersteller(weighted_vector_tpl<const fabrik_besch_t *>
 }
 
 
-bool fabrikbauer_t::ist_bauplatz(koord pos, koord groesse, bool water, bool is_fabrik, climate_bits cl)
+bool fabrikbauer_t::ist_bauplatz(koord pos, koord size, bool water, bool is_fabrik, climate_bits cl)
 {
 	// check for water (no shore in sight!)
 	if(water) {
-		for(int y=0;y<groesse.y;y++) {
-			for(int x=0;x<groesse.x;x++) {
+		for(int y=0;y<size.y;y++) {
+			for(int x=0;x<size.x;x++) {
 				const grund_t *gr=welt->lookup_kartenboden(pos+koord(x,y));
 				if(gr==NULL  ||  !gr->ist_wasser()  ||  gr->get_grund_hang()!=slope_t::flat) {
 					return false;
@@ -314,14 +314,14 @@ bool fabrikbauer_t::ist_bauplatz(koord pos, koord groesse, bool water, bool is_f
 	}
 	else {
 		// check on land
-		if (!welt->square_is_free(pos, groesse.x, groesse.y, NULL, cl)) {
+		if (!welt->square_is_free(pos, size.x, size.y, NULL, cl)) {
 			return false;
 		}
 	}
 	// check for existing factories
 	if (is_fabrik) {
-		for(int y=0;y<groesse.y;y++) {
-			for(int x=0;x<groesse.x;x++) {
+		for(int y=0;y<size.y;y++) {
+			for(int x=0;x<size.x;x++) {
 				if (is_factory_at(pos.x + x, pos.y + y)){
 					return false;
 				}
@@ -332,12 +332,12 @@ bool fabrikbauer_t::ist_bauplatz(koord pos, koord groesse, bool water, bool is_f
 }
 
 
-koord3d fabrikbauer_t::finde_zufallsbauplatz( koord pos, const int radius, koord groesse, bool wasser, const haus_besch_t *besch, bool ignore_climates, uint32 max_iterations )
+koord3d fabrikbauer_t::finde_zufallsbauplatz( koord pos, const int radius, koord size, bool wasser, const haus_besch_t *besch, bool ignore_climates, uint32 max_iterations )
 {
 	bool is_fabrik = besch->get_utyp()==haus_besch_t::fabrik;
 	if(wasser) {
 		// to ensure at least 3x3 water around (maybe this should be the station catchment area+1?)
-		groesse += koord(6,6);
+		size += koord(6,6);
 	}
 
 	climate_bits climates = !ignore_climates ? besch->get_allowed_climate_bits() : ALL_CLIMATES;
@@ -347,7 +347,7 @@ koord3d fabrikbauer_t::finde_zufallsbauplatz( koord pos, const int radius, koord
 	uint32 index  = simrand(area, "finde_zufallsbauplatz");
 	koord k;
 
-	max_iterations = min( area/(groesse.x*groesse.y)+1, max_iterations );
+	max_iterations = min( area/(size.x*size.y)+1, max_iterations );
 	const uint32 a = diam+1;
 	const uint32 c = 37; // very unlikely to have this as a factor in somewhere ...
 
@@ -358,7 +358,7 @@ koord3d fabrikbauer_t::finde_zufallsbauplatz( koord pos, const int radius, koord
 		k = koord( pos.x - radius + (index % diam), pos.y - radius + (index / diam) );
 
 		// check place (it will actually check an grosse.x/y size rectangle, so we can iterate over less tiles)
-		if(  fabrikbauer_t::ist_bauplatz(k, groesse, wasser, is_fabrik, climates)  ) {
+		if(  fabrikbauer_t::ist_bauplatz(k, size, wasser, is_fabrik, climates)  ) {
 			// then accept first hit
 			goto finish;
 		}

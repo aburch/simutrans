@@ -21,8 +21,8 @@
  */
 uint8 haus_tile_besch_t::get_layout() const
 {
-	koord groesse = get_besch()->get_groesse();
-	return index / (groesse.x * groesse.y);
+	koord size = get_besch()->get_groesse();
+	return index / (size.x * size.y);
 }
 
 
@@ -39,8 +39,8 @@ uint8 haus_tile_besch_t::get_layout() const
 koord haus_tile_besch_t::get_offset() const
 {
 	const haus_besch_t *besch = get_besch();
-	koord groesse = besch->get_groesse(get_layout());	// ggf. gedreht ("rotated" - Google)
-	return koord( index % groesse.x, (index / groesse.x) % groesse.y );
+	koord size = besch->get_groesse(get_layout());	// ggf. gedreht ("rotated" - Google)
+	return koord( index % size.x, (index / size.x) % size.y );
 }
 
 
@@ -122,7 +122,7 @@ const haus_tile_besch_t *haus_besch_t::get_tile(int layout, int x, int y) const
 	if(layout < 0  ||  x < 0  ||  y < 0  ||  layout >= layouts  ||  x >= get_b(layout)  ||  y >= get_h(layout)) {
 	dbg->fatal("haus_tile_besch_t::get_tile()",
 			   "invalid request for l=%d, x=%d, y=%d on building %s (l=%d, x=%d, y=%d)",
-		   layout, x, y, get_name(), layouts, groesse.x, groesse.y);
+		   layout, x, y, get_name(), layouts, size.x, size.y);
 	}
 	return get_tile(layout * dims.x * dims.y + y * dims.x + x);
 }
@@ -147,7 +147,7 @@ int haus_besch_t::layout_anpassen(int layout) const
 	}
 	if(layout > 0 && layouts <= 1) {
 		// Ist Layout B nicht definiert und das Teil quadratisch, nehmen wir ersatzweise A
-		if(groesse.x == groesse.y) {
+		if(size.x == size.y) {
 			layout--;
 		}
 	}
@@ -162,8 +162,8 @@ void haus_besch_t::calc_checksum(checksum_t *chk) const
 	chk->input((uint8)utype);
 	chk->input(animation_time);
 	chk->input(extra_data);
-	chk->input(groesse.x);
-	chk->input(groesse.y);
+	chk->input(size.x);
+	chk->input(size.y);
 	chk->input((uint8)flags);
 	chk->input(level);
 	chk->input(layouts);
