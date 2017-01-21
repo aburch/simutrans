@@ -73,7 +73,7 @@ obj_besch_t *image_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->w = decode_uint8(p);
 		besch->h = decode_uint8(p);
 		p++; // skip version information
-		besch->len = decode_uint16(p);
+		besch->alloc(decode_uint16(p)); // len
 		besch->zoomable = decode_uint8(p);
 		besch->bild_nr = IMG_EMPTY;
 
