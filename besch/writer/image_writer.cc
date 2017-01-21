@@ -264,7 +264,7 @@ bool image_writer_t::block_laden(const char* fname)
  */
 void image_writer_t::write_obj(FILE* outfp, obj_node_t& parent, std::string an_imagekey, uint32 index)
 {
-	bild_t bild;
+	bild_besch_t bild;
 	dimension dim;
 	uint16 *pixdata = NULL;
 

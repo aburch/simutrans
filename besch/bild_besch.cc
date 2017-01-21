@@ -302,20 +302,34 @@ COLOR_VAL bild_besch_t::get_index_from_rgb( uint8 r, uint8 g, uint8 b )
 }
 
 
+bild_besch_t* bild_besch_t::copy_image(const bild_besch_t& other)
+{
+	bild_besch_t* img = new bild_besch_t(other.len);
+	img->len = other.len;
+	img->x = other.x;
+	img->y = other.y;
+	img->w = other.w;
+	img->h = other.h;
+	img->bild_nr = IMG_EMPTY;
+	img->zoomable = other.zoomable;
+	memcpy(img->data, other.data, other.len * sizeof(PIXVAL));
+	return img;
+}
+
 // creates a single pixel dummy picture
 bild_besch_t* bild_besch_t::create_single_pixel()
 {
-	bild_besch_t* besch = new(4 * sizeof(PIXVAL)) bild_besch_t();
-	besch->pic.len = 4;
-	besch->pic.x = 0;
-	besch->pic.y = 0;
-	besch->pic.w = 1;
-	besch->pic.h = 1;
-	besch->pic.zoomable = 0;
-	besch->pic.data[0] = 0;
-	besch->pic.data[1] = 0;
-	besch->pic.data[2] = 0;
-	besch->pic.data[3] = 0;
+	bild_besch_t* besch = new bild_besch_t(4);
+	besch->len = 4;
+	besch->x = 0;
+	besch->y = 0;
+	besch->w = 1;
+	besch->h = 1;
+	besch->zoomable = 0;
+	besch->data[0] = 0;
+	besch->data[1] = 0;
+	besch->data[2] = 0;
+	besch->data[3] = 0;
 	return besch;
 }
 
@@ -329,12 +343,9 @@ bild_besch_t *bild_besch_t::copy_rotate(const sint16 angle) const
 #if COLOUR_DEPTH == 0
 //	return const_cast<bild_besch_t *>(this);
 #endif
-	assert(angle == 0 || (pic.w == pic.h && pic.x == 0 && pic.y == 0));
+	assert(angle == 0 || (w == h && x == 0 && y == 0));
 
-	bild_besch_t* target_besch = new(pic.len * sizeof(PIXVAL)) bild_besch_t();
-	target_besch->pic = pic;
-	target_besch->pic.bild_nr = IMG_EMPTY;
-	memcpy(target_besch->pic.data, pic.data, pic.len * sizeof(PIXVAL));
+	bild_besch_t* target_besch = copy_image(*this);
 
 	// the format is
 	// transparent PIXELVAL number
@@ -344,7 +355,7 @@ bild_besch_t *bild_besch_t::copy_rotate(const sint16 angle) const
 	// first data will have an offset of two PIXVAL
 	// now you should understand below arithmetics ...
 
-	sint16        const x_y    = pic.w;
+	sint16        const x_y = w;
 	PIXVAL const* const src    = get_daten();
 	PIXVAL*       const target = target_besch->get_daten();
 
@@ -380,10 +391,7 @@ bild_besch_t *bild_besch_t::copy_rotate(const sint16 angle) const
 
 bild_besch_t *bild_besch_t::copy_flipvertical() const
 {
-	bild_besch_t* target_besch = new(pic.len * sizeof(PIXVAL)) bild_besch_t();
-	target_besch->pic = pic;
-	target_besch->pic.bild_nr = IMG_EMPTY;
-	memcpy( target_besch->pic.data, pic.data, pic.len * sizeof(PIXVAL) );
+	bild_besch_t* target_besch = copy_image(*this);
 
 	// the format is
 	// transparent PIXELVAL number
@@ -393,7 +401,7 @@ bild_besch_t *bild_besch_t::copy_flipvertical() const
 	// first data will have an offset of two PIXVAL
 	// now you should understand below arithmetics ...
 
-	sint16        const x_y    = pic.w;
+	sint16        const x_y = w;
 	PIXVAL const* const src    = get_daten();
 	PIXVAL*       const target = target_besch->get_daten();
 
@@ -408,10 +416,7 @@ bild_besch_t *bild_besch_t::copy_flipvertical() const
 
 bild_besch_t *bild_besch_t::copy_fliphorizontal() const
 {
-	bild_besch_t* target_besch = new(pic.len * sizeof(PIXVAL)) bild_besch_t();
-	target_besch->pic = pic;
-	target_besch->pic.bild_nr = IMG_EMPTY;
-	memcpy( target_besch->pic.data, pic.data, pic.len * sizeof(PIXVAL) );
+	bild_besch_t* target_besch = copy_image(*this);
 
 	// the format is
 	// transparent PIXELVAL number
@@ -421,7 +426,7 @@ bild_besch_t *bild_besch_t::copy_fliphorizontal() const
 	// first data will have an offset of two PIXVAL
 	// now you should understand below arithmetics ...
 
-	sint16        const x_y    = pic.w;
+	sint16        const x_y = w;
 	PIXVAL const* const src    = get_daten();
 	PIXVAL*       const target = target_besch->get_daten();
 
@@ -511,14 +516,14 @@ bild_besch_t *bild_besch_t::copy_fliphorizontal() const
 void bild_besch_t::decode_img(sint16 xoff, sint16 yoff, uint32 *target, uint32 target_width, uint32 target_height ) const
 {
 	// Hajo: may this image be zoomed
-	if(  pic.h > 0  && pic.w > 0  ) {
+	if (h > 0 && w > 0) {
 
-		// since offset is implicit within image, do not "xoff += pic.x;"!
-		yoff += pic.y;
+		// since offset is implicit within image, do not "xoff += x;"!
+		yoff += y;
 
 		// now: unpack the image
-		uint16 const *src = pic.data;
-		for(  sint32 y = yoff; y < pic.h+yoff; y++  ) {
+		uint16 const *src = data;
+		for (sint32 y = yoff; y < h + yoff; y++) {
 			uint16 runlen;
 			uint8 *p = (uint8 *)(target + max(0,xoff) + y*target_width);
 			sint16 max_w = xoff;

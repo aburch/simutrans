@@ -2069,7 +2069,7 @@ void display_set_player_color_scheme(const int player, const COLOR_VAL col1, con
 
 
 
-void register_image(struct bild_t* bild)
+void register_image(struct bild_besch_t* bild)
 {
 	struct imd* image;
 
