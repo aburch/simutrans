@@ -4596,7 +4596,14 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 					if(working_method != time_interval_with_telegraph || last_longblock_signal_index >= INVALID_INDEX || signal->get_besch()->get_working_method() != time_interval)
 					{
 						// In time interval with telegraph method, do not change the working method to time interval when reserving beyond a longblock signal in the time interval with telegraph method.
-						next_signal_working_method = signal->get_besch()->get_working_method();
+						working_method_t nwm = signal->get_besch()->get_working_method();
+						if (first_stop_signal_index < INVALID_INDEX && (nwm == track_circuit_block || nwm == cab_signalling) && next_signal_working_method != cab_signalling && next_signal_working_method != track_circuit_block && remaining_aspects < 0)
+						{
+							// Set remaining_aspects correctly when transitioning to track circuit block or cab signalling from another working method
+							remaining_aspects = signal->get_besch()->get_aspects();
+						}
+						next_signal_working_method = nwm;
+						
 					}
 					next_signal_protects_no_junctions = signal->get_no_junctions_to_next_signal();
 					if(working_method == drive_by_sight && sch1->can_reserve(cnv->self, ribi) && (signal->get_pos() != cnv->get_last_signal_pos() || signal->get_besch()->get_working_method() != one_train_staff))
@@ -4817,7 +4824,8 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 								count --;
 								directional_reservation_succeeded = true;
 							}
-						}			
+						}		
+	
 						
 						if(first_stop_signal_index >= INVALID_INDEX)
 						{
