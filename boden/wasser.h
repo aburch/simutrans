@@ -12,7 +12,7 @@
 class wasser_t : public grund_t
 {
 protected:
-	void calc_bild_internal(const bool calc_only_snowline_change);
+	void calc_image_internal(const bool calc_only_snowline_change);
 	ribi_t::ribi ribi;
 
 public:

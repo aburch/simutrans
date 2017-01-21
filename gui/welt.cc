@@ -670,7 +670,7 @@ bool welt_gui_t::action_triggered( gui_action_creator_t *comp,value_t v)
 	else if(comp==&start_game) {
 		destroy_all_win(true);
 		welt->get_message()->clear();
-		create_win(200, 100, new news_img("Erzeuge neue Karte.\n", skinverwaltung_t::neueweltsymbol->get_bild_nr(0)), w_info, magic_none);
+		create_win(200, 100, new news_img("Erzeuge neue Karte.\n", skinverwaltung_t::neueweltsymbol->get_image_id(0)), w_info, magic_none);
 		if(loaded_heightfield) {
 			welt->load_heightfield(&env_t::default_settings);
 		}

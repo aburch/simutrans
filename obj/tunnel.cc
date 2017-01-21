@@ -26,7 +26,7 @@
 
 #ifdef MULTI_THREAD
 #include "../utils/simthread.h"
-static pthread_mutex_t tunnel_calc_bild_mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+static pthread_mutex_t tunnel_calc_image_mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 #endif
 
 
@@ -39,7 +39,7 @@ tunnel_t::tunnel_t(loadsave_t* const file) :
 {
 	besch = 0;
 	rdwr(file);
-	image = after_bild = IMG_EMPTY;
+	image = foreground_image = IMG_EMPTY;
 	broad_type = 0;
 }
 
@@ -55,7 +55,7 @@ tunnel_t::tunnel_t(koord3d pos, player_t *player, const tunnel_besch_t *besch) :
 	assert(besch);
 	this->besch = besch;
 	set_owner( player );
-	image = after_bild = IMG_EMPTY;
+	image = foreground_image = IMG_EMPTY;
 	broad_type = 0;
 }
 
@@ -69,14 +69,14 @@ waytype_t tunnel_t::get_waytype() const
 void tunnel_t::calc_image()
 {
 #ifdef MULTI_THREAD
-	pthread_mutex_lock( &tunnel_calc_bild_mutex );
+	pthread_mutex_lock( &tunnel_calc_image_mutex );
 #endif
 	const grund_t *gr = welt->lookup(get_pos());
 
 	if(besch)
 	{
 		grund_t *from = welt->lookup(get_pos());
-		image_id old_bild = image;
+		image_id old_image = image;
 		slope_t::type hang = gr->get_grund_hang();
 		ribi_t::ribi ribi = gr->get_weg_ribi(besch->get_waytype());
 		ribi_t::ribi ribi_unmasked = gr->get_weg_ribi_unmasked(besch->get_waytype());
@@ -108,31 +108,31 @@ void tunnel_t::calc_image()
 					}
 				}
 			}
-			set_bild( besch->get_hintergrund_nr( hang, get_pos().z >= welt->get_snowline()  ||  welt->get_climate( get_pos().get_2d() ) == arctic_climate, broad_type ) );
-			set_after_bild( besch->get_vordergrund_nr( hang, get_pos().z >= welt->get_snowline()  ||  welt->get_climate( get_pos().get_2d() ) == arctic_climate, broad_type ) );
+			set_image( besch->get_hintergrund_nr( hang, get_pos().z >= welt->get_snowline()  ||  welt->get_climate( get_pos().get_2d() ) == arctic_climate, broad_type ) );
+			set_after_image( besch->get_vordergrund_nr( hang, get_pos().z >= welt->get_snowline()  ||  welt->get_climate( get_pos().get_2d() ) == arctic_climate, broad_type ) );
 		}
 		else 
 		{
 			// No portal. Determine whether to show the inside of the tunnel or nothing.
 			if(grund_t::underground_mode==grund_t::ugm_none || (grund_t::underground_mode==grund_t::ugm_level && from->get_hoehe()<grund_t::underground_level) || !besch->has_tunnel_internal_images())
 			{
-				set_bild( IMG_EMPTY );
-				set_after_bild( IMG_EMPTY );
+				set_image( IMG_EMPTY );
+				set_after_image( IMG_EMPTY );
 			}
 			else if(besch->get_waytype() != powerline_wt)
 			{
-				set_bild(besch->get_underground_backimage_nr(ribi_unmasked, hang));
-				set_after_bild(besch->get_underground_frontimage_nr(ribi_unmasked, hang));
+				set_image(besch->get_underground_backimage_nr(ribi_unmasked, hang));
+				set_after_image(besch->get_underground_frontimage_nr(ribi_unmasked, hang));
 			}
 		}
 	}
 	else
 	{
-		set_bild( IMG_EMPTY );
-		set_after_bild( IMG_EMPTY );
+		set_image( IMG_EMPTY );
+		set_after_image( IMG_EMPTY );
 	}
 #ifdef MULTI_THREAD
-	pthread_mutex_unlock( &tunnel_calc_bild_mutex );
+	pthread_mutex_unlock( &tunnel_calc_image_mutex );
 #endif
 }
 
@@ -256,7 +256,7 @@ void tunnel_t::cleanup( player_t *player2 )
 }
 
 
-void tunnel_t::set_bild( image_id b )
+void tunnel_t::set_image( image_id b )
 {
 	mark_image_dirty( image, 0 );
 	mark_image_dirty( b, 0 );
@@ -264,11 +264,11 @@ void tunnel_t::set_bild( image_id b )
 }
 
 
-void tunnel_t::set_after_bild( image_id b )
+void tunnel_t::set_after_image( image_id b )
 {
-	mark_image_dirty( after_bild, 0 );
+	mark_image_dirty( foreground_image, 0 );
 	mark_image_dirty( b, 0 );
-	after_bild = b;
+	foreground_image = b;
 }
 
 

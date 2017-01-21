@@ -16,13 +16,13 @@
  *  Autor:
  *      Volker Meyer
  *
- *  Beschreibung:
- *      Beschreibung eines Baumes in Simutrans
+ *  Description:
+ *      Description eines Baumes in Simutrans
  *
- *  Kindknoten:
+ *  Child nodes:
  *	0   Name
  *	1   Copyright
- *	2   Bildliste2D
+ *	2   Image-list 2d
  */
 
  // season 0 is always summer
@@ -43,21 +43,21 @@ public:
 
 	climate_bits get_allowed_climate_bits() const { return allowed_climates; }
 
-	image_id get_bild_nr(int season, int i) const
+	image_id get_image_id(int season, int i) const
 	{
 		if(number_of_seasons==0) {
 			// comapility mode
 			i += season*5;
 			season = 0;
 		}
-		return get_child<bildliste2d_besch_t>(2)->get_image(i, season)->get_nummer();
+		return get_child<image_array_t>(2)->get_image(i, season)->get_id();
 	}
 
 	// old style trees and new style tree support ...
 	int get_seasons() const
 	{
 		if(number_of_seasons==0) {
-			return get_child<bildliste2d_besch_t>(2)->get_count() / 5;
+			return get_child<image_array_t>(2)->get_count() / 5;
 		}
 		return number_of_seasons;
 	}

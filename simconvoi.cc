@@ -2420,7 +2420,7 @@ void convoi_t::start()
 		front()->set_leading( true );
 		vehicle[anz_vehikel-1]->set_last( true );
 		// do not show the vehicle - it will be wrong positioned -vorfahren() will correct this
-		front()->set_bild(IMG_EMPTY);
+		front()->set_image(IMG_EMPTY);
 
 		// update finances for used vehicle reduction when first driven
 		owner->update_assets( restwert_delta, get_schedule()->get_waytype());

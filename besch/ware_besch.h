@@ -43,7 +43,7 @@ struct fare_stage_t
 /**
  *  @author Volker Meyer, James Petts, neroden
  *
- *  Kindknoten:
+ *  Child nodes:
  *	0   Name
  *	1   Copyright
  *	2   Text Maﬂeinheit

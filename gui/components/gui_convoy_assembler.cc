@@ -1171,10 +1171,10 @@ void gui_convoy_assembler_t::image_from_convoi_list(uint nr)
 
 
 
-void gui_convoy_assembler_t::image_from_storage_list(gui_image_list_t::image_data_t* bild_data)
+void gui_convoy_assembler_t::image_from_storage_list(gui_image_list_t::image_data_t* image_data)
 {
 	
-	const vehikel_besch_t *info = vehikelbauer_t::get_info(bild_data->text);
+	const vehikel_besch_t *info = vehikelbauer_t::get_info(image_data->text);
 
 	const convoihandle_t cnv = depot_frame ? depot_frame->get_depot()->get_convoi(depot_frame->get_icnv()) : replace_frame->get_convoy();
 	
@@ -1188,15 +1188,15 @@ void gui_convoy_assembler_t::image_from_storage_list(gui_image_list_t::image_dat
 	if(depot_frame)
 	{
 		depot_t *depot = depot_frame->get_depot();
-		if(bild_data->lcolor != COL_RED &&
-			bild_data->rcolor != COL_RED &&
-			bild_data->rcolor != COL_GREY3 &&
-			bild_data->lcolor != COL_GREY3 &&
-			bild_data->rcolor != COL_DARK_PURPLE &&
-			bild_data->lcolor != COL_DARK_PURPLE &&
-			bild_data->rcolor != COL_PURPLE &&
-			bild_data->lcolor != COL_PURPLE &&
-			!((bild_data->lcolor == COL_DARK_ORANGE || bild_data->rcolor == COL_DARK_ORANGE)
+		if(image_data->lcolor != COL_RED &&
+			image_data->rcolor != COL_RED &&
+			image_data->rcolor != COL_GREY3 &&
+			image_data->lcolor != COL_GREY3 &&
+			image_data->rcolor != COL_DARK_PURPLE &&
+			image_data->lcolor != COL_DARK_PURPLE &&
+			image_data->rcolor != COL_PURPLE &&
+			image_data->lcolor != COL_PURPLE &&
+			!((image_data->lcolor == COL_DARK_ORANGE || image_data->rcolor == COL_DARK_ORANGE)
 			&& veh_action != va_sell
 			&& depot_frame != NULL && !depot_frame->get_depot()->find_oldest_newest(info, true))) 
 		{
@@ -1206,29 +1206,29 @@ void gui_convoy_assembler_t::image_from_storage_list(gui_image_list_t::image_dat
 
 			if(veh_action == va_sell)
 			{
-				depot->call_depot_tool( 's', convoihandle_t(), bild_data->text, livery_scheme_index );
+				depot->call_depot_tool( 's', convoihandle_t(), image_data->text, livery_scheme_index );
 			}
 			else if(upgrade != u_upgrade)
 			{
-				depot->call_depot_tool( veh_action == va_insert ? 'i' : 'a', cnv, bild_data->text, livery_scheme_index );
+				depot->call_depot_tool( veh_action == va_insert ? 'i' : 'a', cnv, image_data->text, livery_scheme_index );
 			}
 			else
 			{
-				depot->call_depot_tool( 'u', cnv, bild_data->text, livery_scheme_index );
+				depot->call_depot_tool( 'u', cnv, image_data->text, livery_scheme_index );
 			}
 		}	
 	}
 	else
 	{
-		if(bild_data->lcolor != COL_RED &&
-			bild_data->rcolor != COL_RED &&
-			bild_data->rcolor != COL_GREY3 &&
-			bild_data->lcolor != COL_GREY3 &&
-			bild_data->rcolor != COL_DARK_PURPLE &&
-			bild_data->lcolor != COL_DARK_PURPLE &&
-			bild_data->rcolor != COL_PURPLE &&
-			bild_data->lcolor != COL_PURPLE &&
-			!((bild_data->lcolor == COL_DARK_ORANGE || bild_data->rcolor == COL_DARK_ORANGE)
+		if(image_data->lcolor != COL_RED &&
+			image_data->rcolor != COL_RED &&
+			image_data->rcolor != COL_GREY3 &&
+			image_data->lcolor != COL_GREY3 &&
+			image_data->rcolor != COL_DARK_PURPLE &&
+			image_data->lcolor != COL_DARK_PURPLE &&
+			image_data->rcolor != COL_PURPLE &&
+			image_data->lcolor != COL_PURPLE &&
+			!((image_data->lcolor == COL_DARK_ORANGE || image_data->rcolor == COL_DARK_ORANGE)
 			&& veh_action != va_sell
 			/*&& depot_frame != NULL && !depot_frame->get_depot()->find_oldest_newest(info, true)*/)) 
 		{
@@ -2157,17 +2157,17 @@ void depot_convoi_capacity_t::draw(scr_coord offset)
 	cbuf.clear();
 	cbuf.printf("%s %d (%d)", translator::translate("Capacity:"), total_pax, total_standing_pax );
 	w += display_proportional_clip( pos.x+offset.x + w, pos.y+offset.y , cbuf, ALIGN_LEFT, SYSCOL_TEXT, true);
-	display_color_img( skinverwaltung_t::passagiere->get_bild_nr(0), pos.x + offset.x + w, pos.y + offset.y, 0, false, false);
+	display_color_img( skinverwaltung_t::passagiere->get_image_id(0), pos.x + offset.x + w, pos.y + offset.y, 0, false, false);
 
 	w += 16;
 	cbuf.clear();
 	cbuf.printf("%d", total_mail );
 	w += display_proportional_clip( pos.x+offset.x + w, pos.y+offset.y, cbuf, ALIGN_LEFT, SYSCOL_TEXT, true);
-	display_color_img( skinverwaltung_t::post->get_bild_nr(0), pos.x + offset.x + w, pos.y + offset.y, 0, false, false);
+	display_color_img( skinverwaltung_t::post->get_image_id(0), pos.x + offset.x + w, pos.y + offset.y, 0, false, false);
 
 	w += 16;
 	cbuf.clear();
 	cbuf.printf("%d", total_goods );
 	w += display_proportional_clip( pos.x+offset.x + w, pos.y+offset.y, cbuf, ALIGN_LEFT, SYSCOL_TEXT, true);
-	display_color_img( skinverwaltung_t::waren->get_bild_nr(0), pos.x + offset.x + w, pos.y + offset.y, 0, false, false);
+	display_color_img( skinverwaltung_t::waren->get_image_id(0), pos.x + offset.x + w, pos.y + offset.y, 0, false, false);
 }

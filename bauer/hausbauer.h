@@ -20,7 +20,7 @@ class tool_selector_t;
 
 /**
  * Diese Klasse übernimmt den Bau von mehrteiligen Gebäuden. Sie kennt die
- * Beschreibung (fast) aller Gebäude was Typ, Höhe, Größe, Bilder, Animationen
+ * Description (fast) aller Gebäude was Typ, Höhe, Größe, Bilder, Animationen
  * angeht. Diese Daten werden aus "gebaeude.tab" gelesen. Für Denkmäler wird
  * eine Liste der ungebauten geführt.
  * @author Hj. Malthaner/V. Meyer
@@ -106,7 +106,7 @@ public:
 	static const haus_besch_t* get_headquarter(int level, uint16 time);
 
 	/**
-	 * Liefert per Zufall die Beschreibung eines Sehenswuerdigkeit,
+	 * Liefert per Zufall die Description eines Sehenswuerdigkeit,
 	 * die bei Kartenerstellung gebaut werden kann.
 	 * @author V. Meyer
 	 */
@@ -116,7 +116,7 @@ public:
 	}
 
 	/**
-	 * Liefert per Zufall die Beschreibung eines ungebauten Denkmals.
+	 * Liefert per Zufall die Description eines ungebauten Denkmals.
 	 * @author V. Meyer
 	 */
 	static const haus_besch_t* waehle_denkmal(uint16 time = 0)

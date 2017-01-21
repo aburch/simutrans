@@ -19,7 +19,7 @@
  *  Autor:
  *      Volker Meyer
  *
- *  Beschreibung:
+ *  Description:
  *      stored structure of a pak node inside the file.
  */
 struct obj_node_info_t {

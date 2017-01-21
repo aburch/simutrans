@@ -189,7 +189,7 @@ void gui_tab_panel_t::draw(scr_coord parent_pos)
 				else {
 					scr_coord_val const y = ypos   - iter.img->get_pic()->y + 10            - iter.img->get_pic()->h / 2;
 					scr_coord_val const x = text_x - iter.img->get_pic()->x + IMG_WIDTH / 2 - iter.img->get_pic()->w / 2;
-					display_img_blend(iter.img->get_nummer(), x, y, TRANSPARENT50_FLAG, false, true);
+					display_img_blend(iter.img->get_id(), x, y, TRANSPARENT50_FLAG, false, true);
 				}
 			}
 			else {
@@ -205,7 +205,7 @@ void gui_tab_panel_t::draw(scr_coord parent_pos)
 				else {
 					scr_coord_val const y = ypos   - iter.img->get_pic()->y + 10            - iter.img->get_pic()->h / 2;
 					scr_coord_val const x = text_x - iter.img->get_pic()->x + IMG_WIDTH / 2 - iter.img->get_pic()->w / 2;
-					display_color_img(iter.img->get_nummer(), x, y, 0, false, true);
+					display_color_img(iter.img->get_id(), x, y, 0, false, true);
 				}
 			}
 			text_x += width + 8;

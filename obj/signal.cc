@@ -421,7 +421,7 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 
 void signal_t::calc_image()
 {
-	after_bild = IMG_EMPTY;
+	foreground_image = IMG_EMPTY;
 	image_id image = IMG_EMPTY;
 	after_xoffset = 0;
 	after_yoffset = 0;
@@ -574,7 +574,7 @@ void signal_t::calc_image()
 
 				if(temp_dir&ribi_t::east) {
 					uint8 direction_state = (reserved_direction & ribi_t::east) ? modified_state * 4 : 0;
-					image = besch->get_bild_nr(3+direction_state+offset);
+					image = besch->get_image_id(3+direction_state+offset);
 					xoff += XOFF;
 					yoff += -YOFF;
 				}
@@ -582,12 +582,12 @@ void signal_t::calc_image()
 				if(temp_dir&ribi_t::north) {
 					uint8 direction_state = (reserved_direction & ribi_t::north) ? modified_state * 4 : 0;
 					if(image!=IMG_EMPTY) {			
-						after_bild = besch->get_bild_nr(0+direction_state+offset);
+						foreground_image = besch->get_image_id(0+direction_state+offset);
 						after_xoffset += -XOFF;
 						after_yoffset += -YOFF;
 					}
 					else {
-						image = besch->get_bild_nr(0+direction_state+offset);
+						image = besch->get_image_id(0+direction_state+offset);
 						xoff += -XOFF;
 						yoff += -YOFF;
 					}
@@ -595,20 +595,20 @@ void signal_t::calc_image()
 
 				if(temp_dir&ribi_t::west) {
 					uint8 direction_state = (reserved_direction & ribi_t::west) ? modified_state * 4 : 0;
-					after_bild = besch->get_bild_nr(2+direction_state+offset);
+					foreground_image = besch->get_image_id(2+direction_state+offset);
 					after_xoffset += -XOFF;
 					after_yoffset += YOFF;
 				}
 
 				if(temp_dir&ribi_t::south) {
 					uint8 direction_state = (reserved_direction & ribi_t::south) ? modified_state * 4 : 0;
-					if(after_bild!=IMG_EMPTY) {
-						image = besch->get_bild_nr(1+direction_state+offset);
+					if(foreground_image!=IMG_EMPTY) {
+						image = besch->get_image_id(1+direction_state+offset);
 						xoff += XOFF;
 						yoff += YOFF;
 					}
 					else {
-						after_bild = besch->get_bild_nr(1+direction_state+offset);
+						foreground_image = besch->get_image_id(1+direction_state+offset);
 						after_xoffset += XOFF;
 						after_yoffset += YOFF;
 					}
@@ -617,31 +617,31 @@ void signal_t::calc_image()
 			else {
 				if(temp_dir&ribi_t::east) {
 					uint8 direction_state = (reserved_direction & ribi_t::east) ? modified_state * 4 : 0;
-					after_bild = besch->get_bild_nr(3+direction_state+offset);
+					foreground_image = besch->get_image_id(3+direction_state+offset);
 				}
 
 				if(temp_dir&ribi_t::north) {
 					uint8 direction_state = (reserved_direction & ribi_t::north) ? modified_state * 4 : 0;
-					if(after_bild==IMG_EMPTY) {
-						after_bild = besch->get_bild_nr(0+direction_state+offset);
+					if(foreground_image==IMG_EMPTY) {
+						foreground_image = besch->get_image_id(0+direction_state+offset);
 					}
 					else {
-						image = besch->get_bild_nr(0+direction_state+offset);
+						image = besch->get_image_id(0+direction_state+offset);
 					}
 				}
 
 				if(temp_dir&ribi_t::west) {
 					uint8 direction_state = (reserved_direction & ribi_t::west) ? modified_state * 4 : 0;
-					image = besch->get_bild_nr(2+direction_state+offset);
+					image = besch->get_image_id(2+direction_state+offset);
 				}
 
 				if(temp_dir&ribi_t::south) {
 					uint8 direction_state = (reserved_direction & ribi_t::south) ? modified_state * 4 : 0;
 					if(image==IMG_EMPTY) {
-						image = besch->get_bild_nr(1+direction_state+offset);
+						image = besch->get_image_id(1+direction_state+offset);
 					}
 					else {
-						after_bild = besch->get_bild_nr(1+direction_state+offset);
+						foreground_image = besch->get_image_id(1+direction_state+offset);
 					}
 				}
 			}
@@ -649,7 +649,7 @@ void signal_t::calc_image()
 	}
 	set_xoff( xoff );
 	set_yoff( yoff );
-	set_bild(image);
+	set_image(image);
 	mark_image_dirty( get_image(), 0 );
 }
 

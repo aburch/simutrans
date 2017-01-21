@@ -841,7 +841,7 @@ bool depot_frame_t::check_way_electrified(bool init)
 	}
 	if( way_electrified ) 
 	{
-		//img_bolt.set_image(skinverwaltung_t::electricity->get_bild_nr(0));
+		//img_bolt.set_image(skinverwaltung_t::electricity->get_image_id(0));
 	}
 
 	else

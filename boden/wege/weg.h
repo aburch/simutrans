@@ -129,7 +129,7 @@ private:
 	uint32 bridge_weight_limit;
 
 	image_id image;
-	image_id after_bild;
+	image_id foreground_image;
 
 	/**
 	* Initializes all member variables
@@ -256,8 +256,8 @@ public:
 	uint32 get_bridge_weight_limit() const { return bridge_weight_limit; }
 
 	/**
-	* Setzt neue Beschreibung. Ersetzt alte Höchstgeschwindigkeit
-	* mit wert aus Beschreibung.
+	* Setzt neue Description. Ersetzt alte Höchstgeschwindigkeit
+	* mit wert aus Description.
 	*
 	* Sets a new description. Replaces old with maximum speed
 	* worth of description and updates the maintenance cost.
@@ -309,7 +309,7 @@ public:
 	/**
 	* Setzt neue Richtungsbits für einen Weg.
 	*
-	* Nachdem die ribis geändert werden, ist das weg_bild des
+	* Nachdem die ribis geändert werden, ist das weg_image des
 	* zugehörigen Grundes falsch (Ein Aufruf von grund_t::calc_image()
 	* zur Reparatur muß folgen).
 	* @param ribi Richtungsbits
@@ -319,7 +319,7 @@ public:
 	/**
 	* Entfernt Richtungsbits von einem Weg.
 	*
-	* Nachdem die ribis geändert werden, ist das weg_bild des
+	* Nachdem die ribis geändert werden, ist das weg_image des
 	* zugehörigen Grundes falsch (Ein Aufruf von grund_t::calc_image()
 	* zur Reparatur muß folgen).
 	* @param ribi Richtungsbits
@@ -329,7 +329,7 @@ public:
 	/**
 	* Setzt Richtungsbits für den Weg.
 	*
-	* Nachdem die ribis geändert werden, ist das weg_bild des
+	* Nachdem die ribis geändert werden, ist das weg_image des
 	* zugehörigen Grundes falsch (Ein Aufruf von grund_t::calc_image()
 	* zur Reparatur muß folgen).
 	* @param ribi Richtungsbits
@@ -406,11 +406,11 @@ public:
 	 */
 	void clear_sign_flag() { flags &= ~(HAS_SIGN | HAS_SIGNAL); }
 
-	inline void set_bild( image_id b ) { image = b; }
+	inline void set_image( image_id b ) { image = b; }
 	image_id get_image() const {return image;}
 
-	inline void set_after_bild( image_id b ) { after_bild = b; }
-	image_id get_front_image() const {return after_bild;}
+	inline void set_after_image( image_id b ) { foreground_image = b; }
+	image_id get_front_image() const {return foreground_image;}
 
 	// correct maintainace
 	void finish_rd();

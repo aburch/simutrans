@@ -45,7 +45,7 @@ public:
 
 	const bruecke_besch_t *get_besch() const { return besch; }
 
-	inline void set_bild( image_id b ) { image = b; }
+	inline void set_image( image_id b ) { image = b; }
 	image_id get_image() const { return image; }
 
 	image_id get_front_image() const;

@@ -63,16 +63,16 @@ void field_t::cleanup(player_t *player)
 // return the  right month graphic for factories
 image_id field_t::get_image() const
 {
-	const skin_besch_t *s=besch->get_bilder();
+	const skin_besch_t *s=besch->get_images();
 	uint16 count=s->get_count() - besch->has_snow_image();
 	if(  besch->has_snow_image()  &&  (get_pos().z >= welt->get_snowline()  ||  welt->get_climate( get_pos().get_2d() ) == arctic_climate)  ) {
 		// last images will be shown above snowline
-		return s->get_bild_nr(count);
+		return s->get_image_id(count);
 	}
 	else {
 		// welt->get_yearsteps(): resolution 1/8th month (0..95)
 		int count_yearsteps = count * (welt->get_yearsteps() + 1) - 1;
-		const image_id image = s->get_bild_nr( count_yearsteps / 96 );
+		const image_id image = s->get_image_id( count_yearsteps / 96 );
 		if(count_yearsteps % 96 < count) {
 			mark_image_dirty( image, 0 );
 		}

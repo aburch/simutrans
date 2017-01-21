@@ -131,6 +131,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="besch\baum_besch.h" />
+    <ClInclude Include="besch\bildliste3d_besch.h" />
     <ClInclude Include="besch\bild_besch.h" />
     <ClInclude Include="besch\bildliste2d_besch.h" />
     <ClInclude Include="besch\bildliste_besch.h" />

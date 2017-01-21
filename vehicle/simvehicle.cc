@@ -597,7 +597,7 @@ void vehicle_base_t::calc_height(grund_t *gr)
 			// need hiding? One of the few uses of XOR: not half driven XOR exiting => not hide!
 			ribi_t::ribi hang_ribi = ribi_type( gr->get_grund_hang() );
 			if((steps<(steps_next/2))  ^  ((hang_ribi&direction)!=0)  ) {
-				set_bild(IMG_EMPTY);
+				set_image(IMG_EMPTY);
 			}
 			else {
 				calc_image();
@@ -605,7 +605,7 @@ void vehicle_base_t::calc_height(grund_t *gr)
 		}
 	}
 	else if(  !gr->is_visible()  ) {
-		set_bild(IMG_EMPTY);
+		set_image(IMG_EMPTY);
 	}
 	else {
 		// force a valid image above ground, with special handling of tunnel entraces
@@ -1677,7 +1677,7 @@ sint32 vehicle_t::calc_speed_limit(const weg_t *w, const weg_t *weg_previous, fi
 			steps_to_180 = max(steps_to_180 - 3, 1);
 
 			radius = (steps_to_180 * meters_per_tile) / 2;
-			// See here for formula: https://books.google.co.uk/books?id=NbYqQSQcE2MC&pg=PA30&lpg=PA30&dq=curve+radius+speed+limit+formula+rail&source=bl&ots=mbfC3lCnX4&sig=qClyuNSarnvL-zgOj4HlTVgYOr8&hl=en&sa=X&ei=sBGwVOSGHMyBU4mHgNAC&ved=0CCYQ6AEwATgK#v=onepage&q=curve%20radius%20speed%20limit%20formula%20rail&f=false
+			// See here for formula: https://books.google.co.uk/books?id=NbYqQSQcE2MC&pg=PA30&lpg=PA30&dq=curve+radius+speed+limit+formula+rail&source=imglist&ots=mbfC3lCnX4&sig=qClyuNSarnvL-zgOj4HlTVgYOr8&hl=en&sa=X&ei=sBGwVOSGHMyBU4mHgNAC&ved=0CCYQ6AEwATgK#v=onepage&q=curve%20radius%20speed%20limit%20formula%20rail&f=false
 			corner_limit_kmh = sqrt_i32((87 * radius) / corner_force_divider); 
 		}
 		
@@ -1955,23 +1955,23 @@ uint16 vehicle_t::load_cargo(halthandle_t halt, bool overcrowd, bool *skip_convo
 
 void vehicle_t::calc_image() //"Bild" = "picture" (Google)
 {
-	image_id old_bild=get_image();
+	image_id old_image=get_image();
 	if (fracht.empty())
 	{
-		set_bild(besch->get_bild_nr(ribi_t::get_dir(get_direction_of_travel()), NULL, current_livery.c_str()));
+		set_image(besch->get_image_id(ribi_t::get_dir(get_direction_of_travel()), NULL, current_livery.c_str()));
 	}
 	else
 	{
-		set_bild(besch->get_bild_nr(ribi_t::get_dir(get_direction_of_travel()), fracht.front().get_besch(), current_livery.c_str()));
+		set_image(besch->get_image_id(ribi_t::get_dir(get_direction_of_travel()), fracht.front().get_besch(), current_livery.c_str()));
 	}
-	if(old_bild!=get_image()) {
+	if(old_image!=get_image()) {
 		set_flag(obj_t::dirty);
 	}
 }
 
 image_id vehicle_t::get_loaded_image() const
 {
-	return besch->get_bild_nr(ribi_t::dir_south, fracht.empty() ?  warenbauer_t::nichts  : fracht.front().get_besch());
+	return besch->get_image_id(ribi_t::dir_south, fracht.empty() ?  warenbauer_t::nichts  : fracht.front().get_besch());
 }
 
 

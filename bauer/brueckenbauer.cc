@@ -61,8 +61,8 @@ void brueckenbauer_t::register_besch(bruecke_besch_t *besch)
 	}
 	// add the tool
 	tool_build_bridge_t *tool = new tool_build_bridge_t();
-	tool->set_icon( besch->get_cursor()->get_bild_nr(1) );
-	tool->cursor = besch->get_cursor()->get_bild_nr(0);
+	tool->set_icon( besch->get_cursor()->get_image_id(1) );
+	tool->cursor = besch->get_cursor()->get_image_id(0);
 	tool->set_default_param(besch->get_name());
 	tool_t::general_tool.append( tool );
 	besch->set_builder( tool );
@@ -1015,7 +1015,7 @@ void brueckenbauer_t::baue_bruecke(player_t *player, const koord3d start, const 
 				ribi_t::ribi ribi = gr->get_weg_ribi_unmasked(besch->get_waytype());
 				grund_t *to = NULL;
 				if (ribi_t::is_single(ribi) && gr->get_neighbour(to, invalid_wt, ribi_t::backward(ribi))) {
-					// connect to open sea, calc_bild will recompute ribi at to.
+					// connect to open sea, calc_image will recompute ribi at to.
 					if (to->ist_wasser()) {
 						to->calc_image();
 					}

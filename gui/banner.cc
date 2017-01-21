@@ -62,7 +62,7 @@ static const PLAYER_COLOR_VAL colors[COLOR_RAMP_SIZE] = { SYSCOL_TEXT_HIGHLIGHT,
 
 
 banner_t::banner_t() : gui_frame_t(""),
-	logo( skinverwaltung_t::logosymbol->get_bild_nr(0), 0 )
+	logo( skinverwaltung_t::logosymbol->get_image_id(0), 0 )
 {
 	// Pass the upper part drawn by draw()
 	scr_coord cursor = scr_coord( D_MARGIN_LEFT, D_MARGIN_TOP + 5*L_LINESPACE_EXTRA_2 + 3*L_LINESPACE_EXTRA_5 + 3*L_LINESPACE_EXTRA_7 + L_BANNER_HEIGHT + D_V_SPACE);

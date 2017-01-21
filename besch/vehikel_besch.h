@@ -263,20 +263,20 @@ public:
 
 	skin_besch_t const* get_rauch() const { return get_child<skin_besch_t>(3); }
 
-	image_id get_base_image() const { return get_bild_nr(ribi_t::dir_south, get_ware() ); }
-	image_id get_base_image(const char* livery) const { return get_bild_nr(ribi_t::dir_south, get_ware(), livery ); }
+	image_id get_base_image() const { return get_image_id(ribi_t::dir_south, get_ware() ); }
+	image_id get_base_image(const char* livery) const { return get_image_id(ribi_t::dir_south, get_ware(), livery ); }
 
 	// returns the number of different directions
-	uint8 get_dirs() const { return get_child<bildliste_besch_t>(4)->get_image(4) ? 8 : 4; }
+	uint8 get_dirs() const { return get_child<image_list_t>(4)->get_image(4) ? 8 : 4; }
 
 	// return a matching image
 	// Vehicles can have single liveries, multiple liveries, 
 	// single frieght images, multiple frieght images or no freight images.
 	// they can have 4 or 8 directions ...
-	image_id get_bild_nr(ribi_t::dir dir, const ware_besch_t *ware, const char* livery_type = "default") const
+	image_id get_image_id(ribi_t::dir dir, const ware_besch_t *ware, const char* livery_type = "default") const
 	{
-		const bild_besch_t *image=0;
-		const bildliste_besch_t *liste=0;
+		const image_t *image=0;
+		const image_list_t *liste=0;
 
 		if(zuladung == 0 && ware)
 		{
@@ -300,7 +300,7 @@ public:
 				}
 			}
 			// vehicle has multiple liveries - get the appropriate one (if no list then fallback to livery zero)
-			bildliste2d_besch_t const* const liste2d = get_child<bildliste2d_besch_t>(4);
+			image_array_t const* const liste2d = get_child<image_array_t>(4);
 			image=liste2d->get_image(dir, livery_index);
 			
 			if(!image) 
@@ -310,7 +310,7 @@ public:
 					image = liste2d->get_image(dir - 4, livery_index);
 				}
 			}
-			if (image != NULL) return image->get_nummer();
+			if (image != NULL) return image->get_id();
 		}
 
 		if(livery_image_type > 0 && freight_image_type == 255 && ware != NULL)
@@ -331,7 +331,7 @@ public:
 				}
 			}
 			// vehicle has multiple liveries - get the appropriate one (if no list then fallback to livery zero)
-			bildliste2d_besch_t const* const liste2d = get_child<bildliste2d_besch_t>(5);
+			image_array_t const* const liste2d = get_child<image_array_t>(5);
 			image = liste2d->get_image(dir, livery_index);
 			
 			if(!image) 
@@ -341,7 +341,7 @@ public:
 					image = liste2d->get_image(dir - 4, livery_index);
 				}
 			}
-			if (image != NULL) return image->get_nummer();
+			if (image != NULL) return image->get_id();
 		}
 
 		if(freight_image_type > 0 && freight_image_type < 255 && ware!=NULL && livery_image_type == 0)
@@ -362,7 +362,7 @@ public:
 			}
 
 			// vehicle has freight images and we want to use - get appropriate one (if no list then fallback to empty image)
-			bildliste2d_besch_t const* const liste2d = get_child<bildliste2d_besch_t>(5);
+			image_array_t const* const liste2d = get_child<image_array_t>(5);
 			image=liste2d->get_image(dir, ware_index);
 			if(!image) 
 			{
@@ -371,7 +371,7 @@ public:
 					image = liste2d->get_image(dir - 4, ware_index);
 				}
 			}
-			if (image != NULL) return image->get_nummer();
+			if (image != NULL) return image->get_id();
 		}
 
 		if(freight_image_type > 0 && freight_image_type < 255 && ware != NULL && livery_image_type > 0)
@@ -403,28 +403,28 @@ public:
 			}
 
 			// vehicle has freight images and we want to use - get appropriate one (if no list then fallback to empty image)
-			bildliste3d_besch_t const* const liste3d = get_child<bildliste3d_besch_t>(5);
-			image = liste3d->get_image(dir, livery_index, ware_index);
+			image_array_3d_t const* const list3d = get_child<image_array_3d_t>(5);
+			image = list3d->get_image(dir, livery_index, ware_index);
 			if(!image) 
 			{
 				if(dir>3)
 				{
-					image = liste3d->get_image(dir - 4, livery_index, ware_index);
+					image = list3d->get_image(dir - 4, livery_index, ware_index);
 				}
 			}
-			if (image != NULL) return image->get_nummer();
+			if (image != NULL) return image->get_id();
 		}
 
 		// only try 1d freight image list for old style vehicles
 		if((freight_image_type == 0 || freight_image_type == 255) && ware != NULL && livery_image_type == 0) 
 		{
 			// Single freight image, single livery
-			liste = get_child<bildliste_besch_t>(5);
+			liste = get_child<image_list_t>(5);
 		}
 
 		if(!liste) 
 		{
-			liste = get_child<bildliste_besch_t>(4);
+			liste = get_child<image_list_t>(4);
 			if(!liste)
 			{
 				return IMG_EMPTY;
@@ -443,7 +443,7 @@ public:
 				return IMG_EMPTY;
 			}
 		}
-		return image->get_nummer();
+		return image->get_id();
 	}
 
 	bool check_livery(const char* name) const

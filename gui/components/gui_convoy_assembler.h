@@ -205,7 +205,7 @@ class gui_convoy_assembler_t :
 	// for convoi image
 	void image_from_convoi_list(uint nr);
 
-	void image_from_storage_list(gui_image_list_t::image_data_t* bild_data);
+	void image_from_storage_list(gui_image_list_t::image_data_t* image_data);
 
 	// add a single vehicle (helper function)
 	void add_to_vehicle_list(const vehikel_besch_t *info);

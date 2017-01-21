@@ -54,7 +54,7 @@ news_img::news_img(const char* text) :
 	news_window(text, WIN_TITLE),
 	image()
 {
-	init(skinverwaltung_t::meldungsymbol->get_bild_nr(0));
+	init(skinverwaltung_t::meldungsymbol->get_image_id(0));
 }
 
 

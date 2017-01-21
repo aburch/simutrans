@@ -219,8 +219,8 @@ void obj_t::rdwr(loadsave_t *file)
 void obj_t::display(int xpos, int ypos  CLIP_NUM_DEF) const
 {
 	image_id image = get_image();
-	image_id const outline_bild = get_outline_image();
-	if(  image!=IMG_EMPTY  ||  outline_bild!=IMG_EMPTY  ) {
+	image_id const outline_image = get_outline_image();
+	if(  image!=IMG_EMPTY  ||  outline_image!=IMG_EMPTY  ) {
 		const int raster_width = get_current_tile_raster_width();
 		const bool is_dirty = get_flag(obj_t::dirty);
 
@@ -250,7 +250,7 @@ void obj_t::display(int xpos, int ypos  CLIP_NUM_DEF) const
 			image = get_image(++j);
 		}
 
-		if(  outline_bild != IMG_EMPTY  ) {
+		if(  outline_image != IMG_EMPTY  ) {
 			// transparency?
 			const PLAYER_COLOR_VAL transparent = get_outline_colour();
 			if(  TRANSPARENT_FLAGS&transparent  ) {

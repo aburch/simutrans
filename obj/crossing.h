@@ -22,7 +22,7 @@ class vehicle_base_t;
 class crossing_t : public obj_no_info_t
 {
 protected:
-	image_id after_bild, image;
+	image_id foreground_image, image;
 	uint8 ns;				// direction
 	uint8 state;	// only needed for loading ...
 	crossing_logic_t *logic;
@@ -105,7 +105,7 @@ public:
 	* For the front image hiding vehicles
 	* @author prissi
 	*/
-	image_id get_front_image() const { return after_bild; }
+	image_id get_front_image() const { return foreground_image; }
 
 	void rdwr(loadsave_t *file);
 

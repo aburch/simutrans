@@ -44,7 +44,7 @@
 
 #ifdef MULTI_THREAD
 #include "../utils/simthread.h"
-static pthread_mutex_t wayobj_calc_bild_mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+static pthread_mutex_t wayobj_calc_image_mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 #endif
 
 // the descriptions ...
@@ -342,7 +342,7 @@ ribi_t::ribi wayobj_t::find_next_ribi(const grund_t *start, ribi_t::ribi const d
 void wayobj_t::calc_image()
 {
 #ifdef MULTI_THREAD
-	pthread_mutex_lock( &wayobj_calc_bild_mutex );
+	pthread_mutex_lock( &wayobj_calc_image_mutex );
 #endif
 	grund_t *gr = welt->lookup(get_pos());
 	diagonal = false;
@@ -356,7 +356,7 @@ void wayobj_t::calc_image()
 			delete this;
 			gr->set_flag(grund_t::dirty);
 #ifdef MULTI_THREAD
-			pthread_mutex_unlock( &wayobj_calc_bild_mutex );
+			pthread_mutex_unlock( &wayobj_calc_image_mutex );
 #endif
 			return;
 		}
@@ -372,13 +372,13 @@ void wayobj_t::calc_image()
 		hang = gr->get_weg_hang();
 		if(hang!=slope_t::flat) {
 #ifdef MULTI_THREAD
-			pthread_mutex_unlock( &wayobj_calc_bild_mutex );
+			pthread_mutex_unlock( &wayobj_calc_image_mutex );
 #endif
 			return;
 		}
 
 		// find out whether using diagonals or straight lines
-		if(ribi_t::is_bend(dir)  &&  besch->has_diagonal_bild()) {
+		if(ribi_t::is_bend(dir)  &&  besch->has_diagonal_image()) {
 			ribi_t::ribi r1 = ribi_t::none, r2 = ribi_t::none;
 
 			// get the ribis of the ways that connect to us
@@ -418,7 +418,7 @@ void wayobj_t::calc_image()
 		}
 	}
 #ifdef MULTI_THREAD
-	pthread_mutex_unlock( &wayobj_calc_bild_mutex );
+	pthread_mutex_unlock( &wayobj_calc_image_mutex );
 #endif
 }
 
@@ -558,11 +558,11 @@ bool wayobj_t::register_besch(way_obj_besch_t *besch)
 		delete old_besch;
 	}
 
-	if(  besch->get_cursor()->get_bild_nr(1)!=IMG_EMPTY  ) {
+	if(  besch->get_cursor()->get_image_id(1)!=IMG_EMPTY  ) {
 		// only add images for wayobjexts with cursor ...
 		tool_wayobj_t *tool = new tool_wayobj_t();
-		tool->set_icon( besch->get_cursor()->get_bild_nr(1) );
-		tool->cursor = besch->get_cursor()->get_bild_nr(0);
+		tool->set_icon( besch->get_cursor()->get_image_id(1) );
+		tool->cursor = besch->get_cursor()->get_image_id(0);
 		tool->set_default_param(besch->get_name());
 		tool_t::general_tool.append( tool );
 		besch->set_builder( tool );

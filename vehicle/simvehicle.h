@@ -163,7 +163,7 @@ public:
 
 	uint32 do_drive(uint32 dist);	// basis movement code
 
-	inline void set_bild( image_id b ) { image = b; }
+	inline void set_image( image_id b ) { image = b; }
 	virtual image_id get_image() const {return image;}
 
 	sint8 get_hoff() const;

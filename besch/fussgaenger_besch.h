@@ -16,23 +16,23 @@
  *  Autor:
  *      Volker Meyer
  *
- *  Beschreibung:
+ *  Description:
  *	Automatisch generierte Autos, die in der Stadt umherfahren.
  *
- *  Kindknoten:
+ *  Child nodes:
  *	0   Name
  *	1   Copyright
- *	2   Bildliste
+ *	2   Image-list
  */
 class fussgaenger_besch_t : public obj_besch_timelined_t {
     friend class pedestrian_reader_t;
 
     uint16 gewichtung;
 public:
-    int get_bild_nr(ribi_t::dir dir) const
+    int get_image_id(ribi_t::dir dir) const
     {
-		bild_besch_t const* const image = get_child<bildliste_besch_t>(2)->get_image(dir);
-		return image != NULL ? image->get_nummer() : IMG_EMPTY;
+		image_t const* const image = get_child<image_list_t>(2)->get_image(dir);
+		return image != NULL ? image->get_id() : IMG_EMPTY;
     }
     int get_gewichtung() const
     {

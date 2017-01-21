@@ -24,13 +24,13 @@ class checksum_t;
  *  Autor:
  *      Volker Meyer
  *
- *  Beschreibung:
+ *  Description:
  *      Das komplette Bild besteht aus Hinter- und Vorgergrund. Außerdem ist
  *      hier die Anzahl der Animationen festgelegt. Diese weiter unten zu
  *      definieren macht kaum Sinn, da die Animationslogik immer das ganze
  *      Tile betrifft.
  *
- *  Kindknoten:
+ *  Child nodes:
  *   0   Imagelist2D season 0 back
  *   1   Imagelist2D season 0 front
  *   2   Imagelist2D season 1 back
@@ -59,30 +59,30 @@ public:
 	int get_phasen() const { return phasen; }
 
 	bool has_image() const {
-		return get_hintergrund(0,0,0)!=IMG_EMPTY  ||  get_vordergrund(0,0)!=IMG_EMPTY;
+		return get_background(0,0,0)!=IMG_EMPTY  ||  get_foreground(0,0)!=IMG_EMPTY;
 	}
 
-	image_id get_hintergrund(int phase, int hoehe, int season) const
+	image_id get_background(int phase, int hoehe, int season) const
 	{
-		bildliste2d_besch_t const* const bl = get_child<bildliste2d_besch_t>(0 + 2 * season);
+		image_array_t const* const imglist = get_child<image_array_t>(0 + 2 * season);
 		if(phase>0 && phase<phasen) {
-			if (bild_besch_t const* const image = bl->get_image(hoehe, phase)) {
-				return image->get_nummer();
+			if (image_t const* const image = imglist->get_image(hoehe, phase)) {
+				return image->get_id();
 			}
 		}
 		// here if this phase does not exists ...
-		bild_besch_t const* const image = bl->get_image(hoehe, 0);
-		return image != NULL ? image->get_nummer() : IMG_EMPTY;
+		image_t const* const image = imglist->get_image(hoehe, 0);
+		return image != NULL ? image->get_id() : IMG_EMPTY;
 	}
 
 	// returns true, if the background is animated
 	bool is_hintergrund_phases(int season) const
 	{
-		bildliste2d_besch_t const* const bl = get_child<bildliste2d_besch_t>(0 + 2 * season);
-		const uint16 max_h = bl->get_count();
+		image_array_t const* const imglist = get_child<image_array_t>(0 + 2 * season);
+		const uint16 max_h = imglist->get_count();
 		for(  uint16 phase=1;  phase<phasen;  phase++  ) {
 			for(  uint16 h=0;  h<max_h;  h++  ) {
-				if(  bl->get_image( h, phase )  ) {
+				if(  imglist->get_image( h, phase )  ) {
 					return true;
 				}
 			}
@@ -90,17 +90,17 @@ public:
 		return false;
 	}
 
-	image_id get_vordergrund(int phase,int season) const
+	image_id get_foreground(int phase,int season) const
 	{
-		bildliste2d_besch_t const* const bl = get_child<bildliste2d_besch_t>(1 + 2 * season);
+		image_array_t const* const imglist = get_child<image_array_t>(1 + 2 * season);
 		if(phase>0 && phase<phasen) {
-			if (bild_besch_t const* const image = bl->get_image(0, phase)) {
-				return image->get_nummer();
+			if (image_t const* const image = imglist->get_image(0, phase)) {
+				return image->get_id();
 			}
 		}
 		// here if this phase does not exists ...
-		bild_besch_t const* const image = bl->get_image(0, 0);
-		return image != NULL ? image->get_nummer() : IMG_EMPTY;
+		image_t const* const image = imglist->get_image(0, 0);
+		return image != NULL ? image->get_id() : IMG_EMPTY;
 	}
 
 	koord get_offset() const;
@@ -112,11 +112,11 @@ public:
  *  Autor:
  *      Volker Meyer
  *
- *  Beschreibung:
+ *  Description:
  *      Die Hausbeschreibung enthält die Komplettbeschrebung eines Gebäudes.
  *      Das sind mehre Tiles und die Attribute für die Spielsteuerung.
  *
- *  Kindknoten:
+ *  Child nodes:
  *	0   Name
  *	1   Copyright
  *	2   Tile 1

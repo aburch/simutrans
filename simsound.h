@@ -1,5 +1,5 @@
 /*
- * Beschreibung der Schnittstelle zum Soundsystem.
+ * Description der Schnittstelle zum Soundsystem.
  * von Hj. Malthaner, 1998, 2000
  * This file is part of the Simutrans project under the artistic license.
  * (see license.txt)

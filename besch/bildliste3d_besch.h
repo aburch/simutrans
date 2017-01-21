@@ -19,25 +19,25 @@
  *      3-dimentional image array
  *
  *  Child nodes:
- *	0   1. Bildliste
- *	1   2. Bildliste
- *  2   3. Bildliste
+ *	0   1. Image-list
+ *	1   2. Image-list
+ *  2   3. Image-list
  *	... ...
  */
-class bildliste3d_besch_t : public obj_besch_t {
+class image_array_3d_t : public obj_besch_t {
 	friend class imagelist3d_reader_t;
 	friend class imagelist3d_writer_t;
 
-	uint16  anzahl;
+	uint16  count;
 
 public:
-	bildliste3d_besch_t() : anzahl(0) {}
+	image_array_3d_t() : count(0) {}
 
-	uint16 get_anzahl() const { return anzahl; }
+	uint16 get_count() const { return count; }
 
-	bildliste2d_besch_t const* get_liste_2d(uint16 i)				  const { return i < anzahl ? get_child<bildliste2d_besch_t>(i)					: 0; }
-	bildliste_besch_t   const* get_liste(uint16 i, uint16 j)		  const { return i < anzahl ? get_child<bildliste2d_besch_t>(i)->get_liste(j)	: 0; }
-	bild_besch_t        const* get_image(uint16 i, uint16 j, uint16 k) const { return i < anzahl ? get_child<bildliste2d_besch_t>(i)->get_image(j, k)	: 0; }
+	image_array_t const* get_list_2d(uint16 i)				  const { return i < count ? get_child<image_array_t>(i)					: 0; }
+	image_list_t   const* get_list(uint16 i, uint16 j)		  const { return i < count ? get_child<image_array_t>(i)->get_list(j)	: 0; }
+	image_t        const* get_image(uint16 i, uint16 j, uint16 k) const { return i < count ? get_child<image_array_t>(i)->get_image(j, k)	: 0; }
 };
 
 #endif

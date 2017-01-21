@@ -24,7 +24,7 @@
 message_option_t::message_option_t() :
 	gui_frame_t( translator::translate("Mailbox Options") ),
 	text_label(&buf),
-	legend( skinverwaltung_t::message_options->get_bild_nr(0) )
+	legend( skinverwaltung_t::message_options->get_image_id(0) )
 {
 	scr_coord_val button_row = get_windowsize().w - legend.get_size().w - D_MARGIN_RIGHT;
 

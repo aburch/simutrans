@@ -54,7 +54,7 @@ vector_tpl<const haus_besch_t *> hausbauer_t::denkmaeler;
 vector_tpl<const haus_besch_t *> hausbauer_t::ungebaute_denkmaeler;
 
 /*
- * Diese Tabelle ermöglicht das Auffinden einer Beschreibung durch ihren Namen
+ * Diese Tabelle ermöglicht das Auffinden einer Description durch ihren Namen
  * 	This table allows you to find a description by its name
  */
 static stringhashtable_tpl<const haus_besch_t*> besch_names;
@@ -212,7 +212,7 @@ bool hausbauer_t::register_besch(haus_besch_t *besch)
 	}
 	// probably need a tools, if it has a cursor
 	const skin_besch_t *sb = besch->get_cursor();
-	if(  sb  &&  sb->get_bild_nr(1)!=IMG_EMPTY) {
+	if(  sb  &&  sb->get_image_id(1)!=IMG_EMPTY) {
 		tool_t *tool;
 		if(  besch->get_utyp()==haus_besch_t::depot  ) {
 			tool = new tool_depot_t();
@@ -229,8 +229,8 @@ bool hausbauer_t::register_besch(haus_besch_t *besch)
 			tool = new tool_build_station_t();
 			modifiable_station_buildings.append(besch);
 		}
-		tool->set_icon( besch->get_cursor()->get_bild_nr(1) );
-		tool->cursor = besch->get_cursor()->get_bild_nr(0),
+		tool->set_icon( besch->get_cursor()->get_image_id(1) );
+		tool->cursor = besch->get_cursor()->get_image_id(0),
 		tool->set_default_param(besch->get_name());
 		tool_t::general_tool.append( tool );
 		besch->set_builder( tool );
@@ -502,8 +502,8 @@ gebaeude_t* hausbauer_t::baue(player_t* player, koord3d pos, int org_layout, con
 			// here test for good tile
 			if (tile == NULL || (
 						!(besch->get_utyp() == haus_besch_t::dock  ||  besch->get_utyp() == haus_besch_t::flat_dock)  &&
-						tile->get_hintergrund(0, 0, 0) == IMG_EMPTY &&
-						tile->get_vordergrund(0, 0)    == IMG_EMPTY
+						tile->get_background(0, 0, 0) == IMG_EMPTY &&
+						tile->get_foreground(0, 0)    == IMG_EMPTY
 					)) {
 						// may have a rotation, that is not recoverable
 						DBG_MESSAGE("hausbauer_t::baue()","get_tile() empty at %i,%i",k.x,k.y);

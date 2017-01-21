@@ -527,7 +527,7 @@ void private_car_t::rdwr(loadsave_t *file)
 			dbg->warning("private_car_t::rdwr()", "loading game with private cars, but no private car objects found in PAK files.");
 		}
 		else {
-			set_bild(besch->get_bild_nr(ribi_t::get_dir(get_direction())));
+			set_image(besch->get_image_id(ribi_t::get_dir(get_direction())));
 		}
 	}
 
@@ -985,7 +985,7 @@ void private_car_t::hop(grund_t* to)
 
 void private_car_t::calc_image()
 {
-	set_bild(besch->get_bild_nr(ribi_t::get_dir(get_direction())));
+	set_image(besch->get_image_id(ribi_t::get_dir(get_direction())));
 	drives_on_left = welt->get_settings().is_drive_left();	// reset driving settings
 }
 

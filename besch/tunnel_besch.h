@@ -6,11 +6,11 @@
  *  node structure:
  *  0   Name
  *  1   Copyright
- *  2   Bildliste Hintergrund
- *  3   Bildliste Vordergrund
+ *  2   Image-list Hintergrund
+ *  3   Image-list Vordergrund
  *  4   cursor(image 0) and icon (image 1)
- *[ 5   Bildliste Hintergrund - snow ] (if present)
- *[ 6   Bildliste Vordergrund - snow ] (if present)
+ *[ 5   Image-list Hintergrund - snow ] (if present)
+ *[ 6   Image-list Vordergrund - snow ] (if present)
  *[ 7 (or 5 if no snow image) underground way ] (if present)
  */
 
@@ -68,49 +68,49 @@ public:
 	* front underground diagonal (12). 
 	*/
 	
-	const bild_besch_t *get_hintergrund(slope_t::type hang, uint8 season, uint8 type ) const
+	const image_t *get_background(slope_t::type hang, uint8 season, uint8 type ) const
 	{
 		int const n = season && number_seasons == 1 ? 5 : 2;
-		return get_child<bildliste_besch_t>(n)->get_image(hang_indices[hang] + 4 * type);
+		return get_child<image_list_t>(n)->get_image(hang_indices[hang] + 4 * type);
 	}
 
 	image_id get_hintergrund_nr(slope_t::type hang, uint8 season, uint8 type ) const
 	{
-		const bild_besch_t *besch = get_hintergrund(hang, season, type );
-		return besch != NULL ? besch->get_nummer() : IMG_EMPTY;
+		const image_t *besch = get_background(hang, season, type );
+		return besch != NULL ? besch->get_id() : IMG_EMPTY;
 	}
 
-	const bild_besch_t *get_vordergrund(slope_t::type hang, uint8 season, uint8 type ) const
+	const image_t *get_foreground(slope_t::type hang, uint8 season, uint8 type ) const
 	{
 		int const n = season && number_seasons == 1 ? 6 : 3;
-		return get_child<bildliste_besch_t>(n)->get_image(hang_indices[hang] + 4 * type);
+		return get_child<image_list_t>(n)->get_image(hang_indices[hang] + 4 * type);
 	}
 
 	image_id get_vordergrund_nr(slope_t::type hang, uint8 season, uint8 type) const
 	{
-		const bild_besch_t *besch = get_vordergrund(hang, season, type );
-		return besch != NULL ? besch->get_nummer() : IMG_EMPTY;
+		const image_t *besch = get_foreground(hang, season, type );
+		return besch != NULL ? besch->get_id() : IMG_EMPTY;
 	}
 
 	image_id get_underground_backimage_nr(ribi_t::ribi ribi, slope_t::type hang) const
 	{
-		return hang == slope_t::flat ? get_child<bildliste_besch_t>(7)->get_bild_nr(ribi) : get_hang_bild_nr(hang, false);
+		return hang == slope_t::flat ? get_child<image_list_t>(7)->get_image_id(ribi) : get_hang_image_nr(hang, false);
 	}
 
 	image_id get_underground_frontimage_nr(ribi_t::ribi ribi, slope_t::type hang) const
 	{
-		return hang == slope_t::flat ? get_child<bildliste_besch_t>(10)->get_bild_nr(ribi) : get_hang_bild_nr(hang, true);
+		return hang == slope_t::flat ? get_child<image_list_t>(10)->get_image_id(ribi) : get_hang_image_nr(hang, true);
 	}
 
-	image_id get_diagonal_bild_nr(ribi_t::ribi ribi, bool front) const
+	image_id get_diagonal_image_nr(ribi_t::ribi ribi, bool front) const
 	{
 		const uint16 n = front ? 12 : 9;
-		return get_child<bildliste_besch_t>(n)->get_bild_nr(ribi / 3 - 1);
+		return get_child<image_list_t>(n)->get_image_id(ribi / 3 - 1);
 	}
 
 private:
 
-	image_id get_hang_bild_nr(slope_t::type hang,  bool front) const
+	image_id get_hang_image_nr(slope_t::type hang,  bool front) const
 	{
 		int const n = front ? 11 : 8;
 		int nr;
@@ -144,13 +144,13 @@ private:
 			return IMG_EMPTY;
 		}
 
-		image_id hang_img = get_child<bildliste_besch_t>(n)->get_bild_nr(nr);
+		image_id hang_img = get_child<image_list_t>(n)->get_image_id(nr);
 
-		if (nr > 3 && hang_img == IMG_EMPTY  &&  get_child<bildliste_besch_t>(n)->get_count() <= 4) 
+		if (nr > 3 && hang_img == IMG_EMPTY  &&  get_child<image_list_t>(n)->get_count() <= 4) 
 		{
 			// hack for old ways without double height images to use single slope images for both
 			nr -= 4;
-			hang_img = get_child<bildliste_besch_t>(n)->get_bild_nr(nr);
+			hang_img = get_child<image_list_t>(n)->get_image_id(nr);
 		}
 		return hang_img;
 	}

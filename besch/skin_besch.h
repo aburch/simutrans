@@ -16,24 +16,24 @@
  *  Autor:
  *      Volker Meyer
  *
- *  Beschreibung:
- *      Skin ist im wesentlichen erstmal eine Bildliste.
+ *  Description:
+ *      Skin ist im wesentlichen erstmal eine Image-list.
  *
- *  Kindknoten:
+ *  Child nodes:
  *	0   Name
  *	1   Copyright
  *	2   Image list
  */
 class skin_besch_t : public obj_besch_std_name_t {
 public:
-	bild_besch_t const* get_image(int i) const { return get_child<bildliste_besch_t>(2)->get_image(i); }
+	image_t const* get_image(int i) const { return get_child<image_list_t>(2)->get_image(i); }
 
-	int get_count() const { return get_child<bildliste_besch_t>(2)->get_count(); }
+	int get_count() const { return get_child<image_list_t>(2)->get_count(); }
 
-	image_id get_bild_nr(int i) const
+	image_id get_image_id(int i) const
 	{
-		const bild_besch_t *image = get_image(i);
-		return image != NULL ? image->get_nummer() : IMG_EMPTY;
+		const image_t *image = get_image(i);
+		return image != NULL ? image->get_id() : IMG_EMPTY;
 	}
 };
 

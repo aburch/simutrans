@@ -13,29 +13,29 @@
  *  Autor:
  *      Volker Meyer
  *
- *  Beschreibung:
- *      Beschreibung eines eindimensionalen Arrays von Bildern.
+ *  Description:
+ *      Description eines eindimensionalen Arrays von Bildern.
  *
- *  Kindknoten:
+ *  Child nodes:
  *	0   1. Bild
  *	1   2. Bild
  *	... ...
  */
-class bildliste_besch_t : public obj_besch_t {
+class image_list_t : public obj_besch_t {
     friend class imagelist_reader_t;
 
     uint16  count;
 
 public:
-	bildliste_besch_t() : count(0) {}
+	image_list_t() : count(0) {}
 
 	uint16 get_count() const { return count; }
 
-	bild_besch_t const* get_image(uint16 i) const { return i < count ? get_child<bild_besch_t>(i) : 0; }
+	image_t const* get_image(uint16 i) const { return i < count ? get_child<image_t>(i) : 0; }
 
-	image_id get_bild_nr(uint16 i) const {
-		const bild_besch_t *image = get_image(i);
-		return image != NULL ? image->get_nummer() : IMG_EMPTY;
+	image_id get_image_id(uint16 i) const {
+		const image_t *image = get_image(i);
+		return image != NULL ? image->get_id() : IMG_EMPTY;
 	}
 };
 
