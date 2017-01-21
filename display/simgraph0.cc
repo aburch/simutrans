@@ -109,7 +109,7 @@ COLOR_VAL display_get_index_from_rgb(uint8, uint8, uint8)
 
 void register_image(struct image_t* image)
 {
-	image->bild_nr = 1;
+	image->imageid = 1;
 }
 
 void display_snapshot(int, int, int, int)

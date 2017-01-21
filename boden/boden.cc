@@ -92,18 +92,18 @@ void boden_t::calc_image_internal(const bool calc_only_snowline_change)
 	const weg_t *const weg = get_weg( road_wt );
 	if(  weg  &&  weg->hat_gehweg()  ) {
 		// single or double slope? (single slopes are not divisible by 8)
-		const uint8 bild_nr = (!slope_this  ||  (slope_this & 7)) ? grund_besch_t::slopetable[slope_this] : grund_besch_t::slopetable[slope_this >> 1] + 12;
+		const uint8 imageid = (!slope_this  ||  (slope_this & 7)) ? grund_besch_t::slopetable[slope_this] : grund_besch_t::slopetable[slope_this >> 1] + 12;
 
-		if(  (get_hoehe() >= welt->get_snowline()  ||  welt->get_climate(pos.get_2d()) == arctic_climate)  &&  skinverwaltung_t::fussweg->get_image_id(bild_nr + 1) != IMG_EMPTY  ) {
+		if(  (get_hoehe() >= welt->get_snowline()  ||  welt->get_climate(pos.get_2d()) == arctic_climate)  &&  skinverwaltung_t::fussweg->get_image_id(imageid + 1) != IMG_EMPTY  ) {
 			// snow images
-			set_image( skinverwaltung_t::fussweg->get_image_id(bild_nr + 1) );
+			set_image( skinverwaltung_t::fussweg->get_image_id(imageid + 1) );
 		}
-		else if(  slope_this != 0  &&  get_hoehe() == welt->get_snowline() - 1  &&  skinverwaltung_t::fussweg->get_image_id(bild_nr + 2) != IMG_EMPTY  ) {
+		else if(  slope_this != 0  &&  get_hoehe() == welt->get_snowline() - 1  &&  skinverwaltung_t::fussweg->get_image_id(imageid + 2) != IMG_EMPTY  ) {
 			// transition images
-			set_image( skinverwaltung_t::fussweg->get_image_id(bild_nr + 2) );
+			set_image( skinverwaltung_t::fussweg->get_image_id(imageid + 2) );
 		}
 		else {
-			set_image( skinverwaltung_t::fussweg->get_image_id(bild_nr) );
+			set_image( skinverwaltung_t::fussweg->get_image_id(imageid) );
 		}
 	}
 	else {
