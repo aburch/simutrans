@@ -1808,7 +1808,7 @@ const char *tool_add_city_t::work( player_t *player, koord3d pos )
 				// buildings the game crashes. To avoid this problem cities
 				// always belong to player 1
 
-				int const citizens = (int)(welt->get_settings().get_mittlere_einwohnerzahl() * 0.9);
+				int const citizens = (int)(welt->get_settings().get_mean_einwohnerzahl() * 0.9);
 				//  stadt_t *stadt = new stadt_t(welt->get_public_player();, pos,citizens/10+simrand(2*citizens+1));
 
 				// always start with 1/10 citicens
@@ -2294,11 +2294,11 @@ const char *tool_plant_tree_t::work( player_t *player, koord3d pos )
  * Players' vehicles can stop at other players' stops when they are allowed access rights.
  * @author prissi
  */
-static const char *tool_fahrplan_insert_aux(karte_t *welt, player_t *player, koord3d pos, schedule_t *fpl, bool append)
+static const char *tool_schedule_insert_aux(karte_t *welt, player_t *player, koord3d pos, schedule_t *schedule, bool append)
 {
-	if(fpl == NULL) 
+	if(schedule == NULL) 
 	{
-		dbg->warning("tool_fahrplan_insert_aux()","Schedule is (null), doing nothing");
+		dbg->warning("tool_schedule_insert_aux()","Schedule is (null), doing nothing");
 		return 0;
 	}
 	grund_t *bd = welt->lookup(pos);
@@ -2306,13 +2306,13 @@ static const char *tool_fahrplan_insert_aux(karte_t *welt, player_t *player, koo
 	{
 		// now just for error messages, we're assuming a valid ground
 		// check for right way type
-		if(!fpl->ist_halt_erlaubt(bd)) 
+		if(!schedule->ist_halt_erlaubt(bd)) 
 		{
-			return fpl->fehlermeldung();
+			return schedule->get_error_msg();
 		}
 		// and check for ownership
-		weg_t *w = bd->get_weg(fpl->get_waytype());
-		if(w == NULL && fpl->get_waytype() == tram_wt)
+		weg_t *w = bd->get_weg(schedule->get_waytype());
+		if(w == NULL && schedule->get_waytype() == tram_wt)
 		{
 			w = bd->get_weg( track_wt );
 		}
@@ -2334,24 +2334,24 @@ static const char *tool_fahrplan_insert_aux(karte_t *welt, player_t *player, koo
 		// ok, now we have a valid ground
 		if(append) 
 		{
-			fpl->append(bd);
+			schedule->append(bd);
 		}
 		else 
 		{
-			fpl->insert(bd);
+			schedule->insert(bd);
 		}
 	}
 	return NULL;
 }
 
-const char *tool_fahrplan_add_t::work( player_t *player, koord3d pos )
+const char *tool_schedule_add_t::work( player_t *player, koord3d pos )
 {
-	return tool_fahrplan_insert_aux( welt, player, pos, (schedule_t*)const_cast<char *>(default_param), true );
+	return tool_schedule_insert_aux( welt, player, pos, (schedule_t*)const_cast<char *>(default_param), true );
 }
 
-const char *tool_fahrplan_ins_t::work( player_t *player, koord3d pos )
+const char *tool_schedule_ins_t::work( player_t *player, koord3d pos )
 {
-	return tool_fahrplan_insert_aux( welt, player, pos, (schedule_t*)const_cast<char *>(default_param), false );
+	return tool_schedule_insert_aux( welt, player, pos, (schedule_t*)const_cast<char *>(default_param), false );
 }
 
 
@@ -7023,11 +7023,11 @@ const char *tool_stop_moving_t::do_work( player_t *player, const koord3d &last_p
 			FOR(vector_tpl<convoihandle_t>, const cnv, welt->convoys()) {
 				// check line and owner
 				if(!cnv->get_line().is_bound()  &&  cnv->get_owner()==player) {
-					schedule_t *fpl = cnv->get_schedule();
+					schedule_t *schedule = cnv->get_schedule();
 					// check waytype
-					if(fpl  &&  fpl->ist_halt_erlaubt(bd)) {
+					if(schedule  &&  schedule->ist_halt_erlaubt(bd)) {
 						bool updated = false;
-						FOR(minivec_tpl<schedule_entry_t>, & k, fpl->eintrag) {
+						FOR(minivec_tpl<schedule_entry_t>, & k, schedule->entries) {
 							if ((catch_all_halt && haltestelle_t::get_halt( k.pos, cnv->get_owner()) == last_halt) ||
 									old_platform.is_contained(k.pos)) {
 								k.pos   = pos;
@@ -7035,7 +7035,7 @@ const char *tool_stop_moving_t::do_work( player_t *player, const koord3d &last_p
 							}
 						}
 						if(updated) {
-							fpl->cleanup();
+							schedule->cleanup();
 							// Knightly : remove lineless convoy from old stop
 							if(  last_halt.is_bound()  ) {
 								last_halt->remove_convoy(cnv);
@@ -7044,10 +7044,10 @@ const char *tool_stop_moving_t::do_work( player_t *player, const koord3d &last_p
 							if(  new_halt.is_bound()  ) {
 								new_halt->add_convoy(cnv);
 							}
-							if(  !fpl->ist_abgeschlossen()  ) {
+							if(  !schedule->is_editing_finished()  ) {
 								// schedule is not owned by schedule window ...
 								// ... thus we can set this schedule
-								cnv->set_schedule(fpl);
+								cnv->set_schedule(schedule);
 								// otherwise the schedule window will reset it
 							}
 						}
@@ -7058,11 +7058,11 @@ const char *tool_stop_moving_t::do_work( player_t *player, const koord3d &last_p
 			vector_tpl<linehandle_t>lines;
 			player->simlinemgmt.get_lines(simline_t::line,&lines);
 			FOR(vector_tpl<linehandle_t>, const line, lines) {
-				schedule_t *fpl = line->get_schedule();
+				schedule_t *schedule = line->get_schedule();
 				// check waytype
-				if(fpl->ist_halt_erlaubt(bd)) {
+				if(schedule->ist_halt_erlaubt(bd)) {
 					bool updated = false;
-					FOR(minivec_tpl<schedule_entry_t>, & k, fpl->eintrag) {
+					FOR(minivec_tpl<schedule_entry_t>, & k, schedule->entries) {
 						// ok!
 						if ((catch_all_halt && haltestelle_t::get_halt( k.pos, line->get_owner()) == last_halt) ||
 								old_platform.is_contained(k.pos)) {
@@ -7072,7 +7072,7 @@ const char *tool_stop_moving_t::do_work( player_t *player, const koord3d &last_p
 					}
 					// update line
 					if(updated) {
-						fpl->cleanup();
+						schedule->cleanup();
 						// remove line from old stop is needed at here
 						if(last_halt.is_bound()) {
 							last_halt->remove_line(line);
@@ -7899,39 +7899,39 @@ bool tool_change_convoi_t::init( player_t *player )
 
 		case 'g': // change schedule
 			{
-				schedule_t *fpl = cnv->create_schedule()->copy();
-				fpl->eingabe_abschliessen();
-				if (fpl->sscanf_schedule( p )  &&  scenario_check_schedule(welt, player, fpl, is_local_execution())) {
-					cnv->set_schedule( fpl );
+				schedule_t *schedule = cnv->create_schedule()->copy();
+				schedule->finish_editing();
+				if (schedule->sscanf_schedule( p )  &&  scenario_check_schedule(welt, player, schedule, is_local_execution())) {
+					cnv->set_schedule( schedule );
 				}
 				else {
 					// could not read schedule, do not assign
-					delete fpl;
+					delete schedule;
 				}
 			}
 			break;
 
 		case 'l': // change line
 			{
-				// read out id and new aktuell index
-				uint16 id=0, aktuell=0;
-				int count=sscanf( p, "%hi,%hi", &id, &aktuell );
+				// read out id and new current_stop index
+				uint16 id=0, current_stop=0;
+				int count=sscanf( p, "%hi,%hi", &id, &current_stop );
 				linehandle_t l;
 				l.set_id( id );
 				if(  l.is_bound()  ) {
 					// sanity check for right line-type (compare schedule types ..)
-					schedule_t *fpl = cnv->create_schedule();
-					if(  fpl  &&  l->get_schedule()  &&  fpl->get_type()!=l->get_schedule()->get_type()  ) {
+					schedule_t *schedule = cnv->create_schedule();
+					if(  schedule  &&  l->get_schedule()  &&  schedule->get_type()!=l->get_schedule()->get_type()  ) {
 						dbg->warning("tool_change_convoi_t::init", "types of convoi and line do not match");
 						return false;
 					}
 					if(  count==1 ) {
-						// aktuell was not supplied -> take it from line schedule
-						aktuell = l->get_schedule()->get_aktuell();
+						// current_stop was not supplied -> take it from line schedule
+						current_stop = l->get_schedule()->get_aktuell();
 					}
 					cnv->set_line( l );
-					cnv->get_schedule()->set_aktuell((uint8)aktuell);
-					cnv->get_schedule()->eingabe_abschliessen();
+					cnv->get_schedule()->set_aktuell((uint8)current_stop);
+					cnv->get_schedule()->finish_editing();
 				}
 			}
 			break;
@@ -8047,7 +8047,7 @@ bool tool_change_convoi_t::init( player_t *player )
 			if(  new_state>0  ) {
 				cnv->set_state( new_state );
 				if(  new_state==convoi_t::FAHRPLANEINGABE  ) {
-					cnv->get_schedule()->eingabe_beginnen();
+					cnv->get_schedule()->finish_editing();
 				}
 			}
 			break;
@@ -8122,9 +8122,9 @@ bool tool_change_line_t::init( player_t *player )
 
 				// no need to check schedule for scenario conditions, as schedule is only copied
 				line->get_schedule()->sscanf_schedule( p );
-				line->get_schedule()->eingabe_abschliessen();	// just in case ...
+				line->get_schedule()->finish_editing();	// just in case ...
 				if(  is_local_execution()  ) {
-					fahrplan_gui_t *fg = dynamic_cast<fahrplan_gui_t *>(win_get_magic((ptrdiff_t)t));
+					schedule_gui_t *fg = dynamic_cast<schedule_gui_t *>(win_get_magic((ptrdiff_t)t));
 					if(  fg  ) {
 						fg->init_line_selector();
 					}
@@ -8156,15 +8156,15 @@ bool tool_change_line_t::init( player_t *player )
 		case 'g': // change schedule
 			{
 				if (line.is_bound()) {
-					schedule_t *fpl = line->get_schedule()->copy();
-					if(fpl->sscanf_schedule( p )  && fpl->get_count() > 1 && scenario_check_schedule(welt, player, fpl, is_local_execution()) ) {
-						fpl->eingabe_abschliessen();
-						line->set_schedule( fpl );
+					schedule_t *schedule = line->get_schedule()->copy();
+					if(schedule->sscanf_schedule( p )  && schedule->get_count() > 1 && scenario_check_schedule(welt, player, schedule, is_local_execution()) ) {
+						schedule->finish_editing();
+						line->set_schedule( schedule );
 						simlinemgmt_t::update_line(line);
 					}
 					else {
 						// could not read schedule, do not assign
-						delete fpl;
+						delete schedule;
 					}
 				}
 			}
@@ -8897,7 +8897,7 @@ bool tool_access_t::init(player_t *player)
 		// If access is withdrawn, the routing/scheduling must be updated to take account of the fact
 		// that convoys may not be able to stop where once they were able to stop.
 		player_t* const receiving_player = welt->get_player(id_receiving_player);
-		schedule_t* fpl;
+		schedule_t* schedule;
 		koord3d pos;
 		waytype_t waytype;
 
@@ -8911,24 +8911,24 @@ bool tool_access_t::init(player_t *player)
 			current_line = *j;
 			if(current_line.is_bound())
 			{
-				fpl = current_line->get_schedule();
-				if(!fpl)
+				schedule = current_line->get_schedule();
+				if(!schedule)
 				{
 					continue;
 				}
-				current_aktuell = fpl->get_aktuell();
-				waytype = fpl->get_waytype(); 
-				for(uint8 n = 0; n < fpl->get_count(); n ++)
+				current_aktuell = schedule->get_aktuell();
+				waytype = schedule->get_waytype(); 
+				for(uint8 n = 0; n < schedule->get_count(); n ++)
 				{
 					bool tram_stop_public = false;
-					pos = fpl->eintrag[n].pos;
+					pos = schedule->entries[n].pos;
 					const grund_t* gr = welt->lookup(pos);
 					halt = gr ? gr->get_halt() : halthandle_t();
-					const weg_t *w = gr ? gr->get_weg(fpl->get_waytype()) : NULL;
+					const weg_t *w = gr ? gr->get_weg(schedule->get_waytype()) : NULL;
 					if(halt.is_bound()) 
 					{
-						const grund_t* gr = welt->lookup(fpl->get_current_eintrag().pos);	
-						if(fpl->get_waytype() == tram_wt)
+						const grund_t* gr = welt->lookup(schedule->get_current_eintrag().pos);	
+						if(schedule->get_waytype() == tram_wt)
 						{	
 							const weg_t *street = gr ? gr->get_weg(road_wt) : NULL;
 							if(street && (street->get_owner() == receiving_player || street->get_owner() == NULL || street->get_owner()->allows_access_to(receiving_player->get_player_nr())))
@@ -8947,10 +8947,10 @@ bool tool_access_t::init(player_t *player)
 				
 				ITERATE(entries_to_remove, j)
 				{
-					fpl->set_aktuell(j);
-					fpl->remove();
-					fpl->set_aktuell(current_aktuell);
-					fpl->cleanup();
+					schedule->set_aktuell(j);
+					schedule->remove();
+					schedule->set_aktuell(current_aktuell);
+					schedule->cleanup();
 					if(halt.is_bound())
 					{
 						halt->remove_line(current_line);
@@ -8974,24 +8974,24 @@ bool tool_access_t::init(player_t *player)
 				// We dealt above with lines.
 				continue;
 			}
-			fpl = cnv->get_schedule();
-			if(!fpl)
+			schedule = cnv->get_schedule();
+			if(!schedule)
 			{
 				continue;
 			}
-			current_aktuell = fpl->get_aktuell();
-			waytype = fpl->get_waytype(); 
-			for(uint8 n = 0; n < fpl->get_count(); n ++)
+			current_aktuell = schedule->get_aktuell();
+			waytype = schedule->get_waytype(); 
+			for(uint8 n = 0; n < schedule->get_count(); n ++)
 			{
 				bool tram_stop_public = false;
-				pos = fpl->eintrag[n].pos;
+				pos = schedule->entries[n].pos;
 				const grund_t* gr = welt->lookup(pos);
 				halt = gr ? gr->get_halt() : halthandle_t();
-				const weg_t *w = gr ? gr->get_weg(fpl->get_waytype()) : NULL;
+				const weg_t *w = gr ? gr->get_weg(schedule->get_waytype()) : NULL;
 				if(halt.is_bound()) 
 				{
-					const grund_t* gr = welt->lookup(fpl->get_current_eintrag().pos);	
-					if(fpl->get_waytype() == tram_wt)
+					const grund_t* gr = welt->lookup(schedule->get_current_eintrag().pos);	
+					if(schedule->get_waytype() == tram_wt)
 					{	
 						const weg_t *street = gr ? gr->get_weg(road_wt) : NULL;
 						if(street && (street->get_owner() == receiving_player || street->get_owner() == NULL || street->get_owner()->allows_access_to(receiving_player->get_player_nr())))
@@ -9011,17 +9011,17 @@ bool tool_access_t::init(player_t *player)
 
 			ITERATE(entries_to_remove, j)
 			{
-				fpl->set_aktuell(j);
-				fpl->remove();
-				fpl->set_aktuell(current_aktuell);
-				fpl->cleanup();
+				schedule->set_aktuell(j);
+				schedule->remove();
+				schedule->set_aktuell(current_aktuell);
+				schedule->cleanup();
 				if(halt.is_bound())
 				{				
 					halt->remove_convoy(cnv);
 				}
 			}
 
-			if(!cnv->in_depot() && fpl->get_count() < 2)
+			if(!cnv->in_depot() && schedule->get_count() < 2)
 			{
 				// We need to make sure that convoys with fewer than two
 				// stops are not left stranded and blocking things.

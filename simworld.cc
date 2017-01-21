@@ -684,8 +684,8 @@ DBG_MESSAGE("karte_t::destroy()", "way list destroyed");
 	delete scenario;
 	scenario = NULL;
 
-	senke_t::neue_karte();
-	pumpe_t::neue_karte();
+	senke_t::new_world();
+	pumpe_t::new_world();
 
 	bool empty_depot_list = depot_t::get_depot_list().empty();
 	assert( empty_depot_list );
@@ -939,7 +939,7 @@ void karte_t::distribute_cities( settings_t const * const sets, sint16 old_x, si
 	const sint32 city_population_target_count = stadt.empty() ? new_city_count : new_city_count + stadt.get_count() + 1;
 
 	vector_tpl<sint32> city_population(city_population_target_count);
-	sint32 median_population = abs(sets->get_mittlere_einwohnerzahl());
+	sint32 median_population = abs(sets->get_mean_einwohnerzahl());
 
 	// Generate random sizes to fit a Pareto distribution: P(x) = x_m / x^2 dx.
 	// This ensures that Zipf's law is satisfied in a random fashion, and
@@ -1470,9 +1470,9 @@ void karte_t::init(settings_t* const sets, sint8 const* const h_field)
 
 	stadt.clear();
 
-DBG_DEBUG("karte_t::init()","hausbauer_t::neue_karte()");
+DBG_DEBUG("karte_t::init()","hausbauer_t::new_world()");
 	// Call this before building cities
-	hausbauer_t::neue_karte();
+	hausbauer_t::new_world();
 
 	cached_grid_size.x = 0;
 	cached_grid_size.y = 0;
@@ -1493,7 +1493,7 @@ DBG_DEBUG("karte_t::init()","built timeline");
 	nosave_warning = nosave = false;
 
 	dbg->important("Creating factories ...");
-	fabrikbauer_t::neue_karte();
+	fabrikbauer_t::new_world();
 
 	int consecutive_build_failures = 0;
 
@@ -2647,8 +2647,8 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 
 	distribute_groundobjs_cities(sets, old_x, old_y);
 
-	// hausbauer_t::neue_karte(); <- this would reinit monuments! do not do this!
-	fabrikbauer_t::neue_karte();
+	// hausbauer_t::new_world(); <- this would reinit monuments! do not do this!
+	fabrikbauer_t::new_world();
 
 #ifdef MULTI_THREAD
 	stop_path_explorer();
@@ -4183,7 +4183,7 @@ DBG_MESSAGE( "karte_t::rotate90()", "called" );
 	}
 
 	//  rotate map search array
-	fabrikbauer_t::neue_karte();
+	fabrikbauer_t::new_world();
 
 	// update minimap
 	if(reliefkarte_t::is_visible) {
@@ -4261,7 +4261,7 @@ bool karte_t::rem_fab(fabrik_t *fab)
 		delete fab;
 
 		// recalculate factory position map
-		fabrikbauer_t::neue_karte();
+		fabrikbauer_t::new_world();
 	}
 	return true;
 }
@@ -8068,9 +8068,9 @@ void karte_t::load(loadsave_t *file)
 	simloops = 60;
 
 	// zum laden vorbereiten -> tabelle loeschen
-	powernet_t::neue_karte();
-	pumpe_t::neue_karte();
-	senke_t::neue_karte();
+	powernet_t::new_world();
+	pumpe_t::new_world();
+	senke_t::new_world();
 
 	const uint16 old_scale_factor = get_settings().get_meters_per_tile();
 	file->set_buffered(true);
@@ -8207,8 +8207,8 @@ void karte_t::load(loadsave_t *file)
 	// reinit pointer with new pointer object and old values
 	zeiger = new zeiger_t(koord3d::invalid, NULL );
 
-	hausbauer_t::neue_karte();
-	fabrikbauer_t::neue_karte();
+	hausbauer_t::new_world();
+	fabrikbauer_t::new_world();
 
 	DBG_DEBUG("karte_t::load", "init felder ok");
 

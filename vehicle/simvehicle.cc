@@ -1033,11 +1033,11 @@ bool vehicle_t::load_freight_internal(halthandle_t halt, bool overcrowd, bool *s
 	const uint16 total_capacity = besch->get_zuladung() + (overcrowd ? besch->get_overcrowded_capacity() : 0);
 	if(total_freight < total_capacity)
 	{
-		schedule_t *fpl = cnv->get_schedule();
+		schedule_t *schedule = cnv->get_schedule();
 		const uint16 hinein = total_capacity - total_freight; //hinein = inside (Google)
 		slist_tpl<ware_t> zuladung; //"Payload" (Google)
 
-		*skip_vehikels = halt->hole_ab(zuladung, besch->get_ware(), hinein, fpl, cnv->get_owner(), cnv, overcrowd);
+		*skip_vehikels = halt->hole_ab(zuladung, besch->get_ware(), hinein, schedule, cnv->get_owner(), cnv, overcrowd);
 		if(!zuladung.empty())
 		{
 			cnv->invalidate_weight_summary();
@@ -1105,7 +1105,7 @@ void vehicle_t::remove_stale_cargo()
 
 			if(  tmp.get_zwischenziel().is_bound()  ) {
 				// the original halt exists, but does we still go there?
-				FOR(minivec_tpl<schedule_entry_t>, const& i, cnv->get_schedule()->eintrag) {
+				FOR(minivec_tpl<schedule_entry_t>, const& i, cnv->get_schedule()->entries) {
 					if(  haltestelle_t::get_halt( i.pos, cnv->get_owner()) == tmp.get_zwischenziel()  ) {
 						found = true;
 						break;
@@ -1115,10 +1115,10 @@ void vehicle_t::remove_stale_cargo()
 			if(  !found  ) {
 				// the target halt may have been joined or there is a closer one now, thus our original target is no longer valid
 				const int offset = cnv->get_schedule()->get_aktuell();
-				const int max_count = cnv->get_schedule()->eintrag.get_count();
+				const int max_count = cnv->get_schedule()->entries.get_count();
 				for(  int i=0;  i<max_count;  i++  ) {
 					// try to unload on next stop
-					halthandle_t halt = haltestelle_t::get_halt( cnv->get_schedule()->eintrag[ (i+offset)%max_count ].pos, cnv->get_owner() );
+					halthandle_t halt = haltestelle_t::get_halt( cnv->get_schedule()->entries[ (i+offset)%max_count ].pos, cnv->get_owner() );
 					if(  halt.is_bound()  ) {
 						if(  halt->is_enabled(tmp.get_index())  ) {
 							// ok, lets change here, since goods are accepted here
@@ -3991,26 +3991,26 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		{
 			// We need a longer route to decide whether we shall have to start braking
 			route_t target_rt;
-			schedule_t *fpl = cnv->get_schedule();
+			schedule_t *schedule = cnv->get_schedule();
 			const koord3d start_pos = route.position_bei(last_index);
-			uint8 index = fpl->get_aktuell();
+			uint8 index = schedule->get_aktuell();
 			bool reversed = cnv->get_reverse_schedule();
-			fpl->increment_index(&index, &reversed);
-			const koord3d next_ziel = fpl->eintrag[index].pos;
+			schedule->increment_index(&index, &reversed);
+			const koord3d next_ziel = schedule->entries[index].pos;
 
 			weg_frei = !target_rt.calc_route(welt, start_pos, next_ziel, this, speed_to_kmh(cnv->get_min_top_speed()), cnv->get_highest_axle_load(), welt->get_settings().get_max_route_steps(), SINT64_MAX_VALUE, cnv->get_weight_summary().weight / 1000);
 			if(!weg_frei)
 			{
-				if(fpl->eintrag[fpl->get_aktuell()].reverse == -1)
+				if(schedule->entries[schedule->get_aktuell()].reverse == -1)
 				{
-					fpl->eintrag[fpl->get_aktuell()].reverse = cnv->check_destination_reverse(NULL, &target_rt);
+					schedule->entries[schedule->get_aktuell()].reverse = cnv->check_destination_reverse(NULL, &target_rt);
 					linehandle_t line = cnv->get_line();
 					if(line.is_bound())
 					{
 						simlinemgmt_t::update_line(line);
 					}
 				}
-				if(fpl->eintrag[fpl->get_aktuell()].reverse == 0)
+				if(schedule->entries[schedule->get_aktuell()].reverse == 0)
 				{
 					// Extending the route if the convoy needs to reverse would interfere with tile reservations.
 					// This convoy can pass waypoint without reversing/stopping. Append route to next stop/waypoint.
@@ -4020,11 +4020,11 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 
 					if(reversed)
 					{
-						fpl->advance_reverse();
+						schedule->advance_reverse();
 					}
 					else
 					{
-						fpl->advance();
+						schedule->advance();
 					}
 					cnv->update_route(last_index, target_rt);
 					if(working_method == cab_signalling)
@@ -4312,18 +4312,18 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 	halthandle_t dest_halt = halthandle_t();
 	uint16 early_platform_index = INVALID_INDEX;
 	uint16 first_stop_signal_index = INVALID_INDEX;
-	const schedule_t* fpl = NULL;
+	const schedule_t* schedule = NULL;
 	if(cnv != NULL)
 	{
-		fpl = cnv->get_schedule();
+		schedule = cnv->get_schedule();
 	}
 	else
 	{
 		return 0;
 	}
-	bool do_early_platform_search =	fpl != NULL
-		&& (fpl->is_mirrored() || fpl->is_bidirectional())
-		&& fpl->get_current_eintrag().ladegrad == 0;
+	bool do_early_platform_search =	schedule != NULL
+		&& (schedule->is_mirrored() || schedule->is_bidirectional())
+		&& schedule->get_current_eintrag().minimum_loading == 0;
 
 	if(do_early_platform_search)
 	{
@@ -5200,7 +5200,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 				else
 				{
 					// A platform was found, and has ended - check where this convoy should stop.
-					if(platform_size_needed < platform_size_found && !fpl->get_current_eintrag().reverse)
+					if(platform_size_needed < platform_size_found && !schedule->get_current_eintrag().reverse)
 					{
 						// Do not go to the end, but stop part way along the platform.
 						const uint16 difference = platform_size_found - platform_size_needed;
@@ -5288,11 +5288,11 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 	if(!is_from_token && !is_from_directional && ((working_method == token_block && last_token_block_signal_index < INVALID_INDEX) || bidirectional_reservation || working_method == one_train_staff) && next_signal_index == INVALID_INDEX)
 	{
 		route_t target_rt;
-		schedule_t *fpl = cnv->get_schedule();
-		uint8 fahrplan_index = fpl->get_aktuell();
+		schedule_t *schedule = cnv->get_schedule();
+		uint8 fahrplan_index = schedule->get_aktuell();
 		bool rev = cnv->get_reverse_schedule();
-		bool no_reverse = fpl->eintrag[fahrplan_index].reverse != 1;
-		fpl->increment_index(&fahrplan_index, &rev);
+		bool no_reverse = schedule->entries[fahrplan_index].reverse != 1;
+		schedule->increment_index(&fahrplan_index, &rev);
 		koord3d cur_pos = route->back();
 		uint16 next_next_signal;
 		bool route_success;
@@ -5302,7 +5302,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 			do
 			{
 				// Search for route until the next signal is found.
-				route_success = target_rt.calc_route(welt, cur_pos, cnv->get_schedule()->eintrag[fahrplan_index].pos, this, speed_to_kmh(cnv->get_min_top_speed()), cnv->get_highest_axle_load(), 8888 + cnv->get_tile_length(), SINT64_MAX_VALUE, cnv->get_weight_summary().weight / 1000);
+				route_success = target_rt.calc_route(welt, cur_pos, cnv->get_schedule()->entries[fahrplan_index].pos, this, speed_to_kmh(cnv->get_min_top_speed()), cnv->get_highest_axle_load(), 8888 + cnv->get_tile_length(), SINT64_MAX_VALUE, cnv->get_weight_summary().weight / 1000);
 
 				if(route_success) 
 				{
@@ -5332,13 +5332,13 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 					}
 				}
 
-				no_reverse = fpl->eintrag[fahrplan_index].reverse != 1;
+				no_reverse = schedule->entries[fahrplan_index].reverse != 1;
 
 				if(token_block_blocks)
 				{
 					// prepare for next leg of schedule
 					cur_pos = target_rt.back();
-					fpl->increment_index(&fahrplan_index, &rev);
+					schedule->increment_index(&fahrplan_index, &rev);
 				}
 				else
 				{
@@ -6982,16 +6982,16 @@ bool air_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uin
 		if(route_steps <= brake_steps && (!gr || !gr->get_depot())) // Do not recalculate a route if the route ends in a depot.
 		{
 			// we need a longer route to decide, whether we will have to throttle:
-			schedule_t *fpl = cnv->get_schedule();
-			uint8 index = fpl->get_aktuell();
+			schedule_t *schedule = cnv->get_schedule();
+			uint8 index = schedule->get_aktuell();
 			bool reversed = cnv->get_reverse_schedule();
-			fpl->increment_index(&index, &reversed);
-			if (reroute(last_index, fpl->eintrag[index].pos))
+			schedule->increment_index(&index, &reversed);
+			if (reroute(last_index, schedule->entries[index].pos))
 			{
 				if (reversed)
-					fpl->advance_reverse();
+					schedule->advance_reverse();
 				else
-					fpl->advance();
+					schedule->advance();
 				cnv->set_next_stop_index(INVALID_INDEX);
 				last_index = route.get_count() - 1;
 			}

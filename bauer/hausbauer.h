@@ -129,7 +129,7 @@ public:
 	 * In diesem Fall müssen wir die Liste der ungebauten Denkmäler wieder füllen.
 	 * @author V. Meyer
 	 */
-	static void neue_karte();
+	static void new_world();
 
 	/**
 	 * True, if this is still valid ...

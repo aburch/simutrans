@@ -105,7 +105,7 @@ private:
 	// create way and stops for these routes
 	bool create_ship_transport_vehikel(fabrik_t *qfab, int anz_vehikel);
 	void create_road_transport_vehikel(fabrik_t *qfab, int anz_vehikel);
-	void create_rail_transport_vehikel(const koord pos1,const koord pos2, int anz_vehikel, int ladegrad);
+	void create_rail_transport_vehikel(const koord pos1,const koord pos2, int anz_vehikel, int minimum_loading);
 
 public:
 	ai_goods_t(karte_t *wl, uint8 nr);

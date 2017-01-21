@@ -154,7 +154,7 @@ public:
 class pumpe_t : public leitung_t
 {
 public:
-	static void neue_karte();
+	static void new_world();
 	static void step_all(uint32 delta_t);
 
 private:
@@ -190,7 +190,7 @@ public:
 class senke_t : public leitung_t, public sync_steppable
 {
 public:
-	static void neue_karte();
+	static void new_world();
 	static void step_all(uint32 delta_t);
 	static slist_tpl<senke_t *> senke_list;
 

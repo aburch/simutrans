@@ -564,7 +564,7 @@ void leitung_t::rdwr(loadsave_t *file)
 slist_tpl<pumpe_t *> pumpe_t::pumpe_list;
 
 
-void pumpe_t::neue_karte()
+void pumpe_t::new_world()
 {
 	pumpe_list.clear();
 }
@@ -699,7 +699,7 @@ void pumpe_t::info(cbuffer_t & buf, bool dummy) const
 slist_tpl<senke_t *> senke_t::senke_list;
 
 
-void senke_t::neue_karte()
+void senke_t::new_world()
 {
 	senke_list.clear();
 }

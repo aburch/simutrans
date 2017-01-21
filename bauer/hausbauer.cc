@@ -297,7 +297,7 @@ DBG_DEBUG("hausbauer_t::fill_menu()","maximum %i",station_building.get_count());
 
 
 // new map => reset monument list to ensure every monument appears only once per map
-void hausbauer_t::neue_karte()
+void hausbauer_t::new_world()
 {
 	ungebaute_denkmaeler.clear();
 	FOR(vector_tpl<haus_besch_t const*>, const i, denkmaeler) {

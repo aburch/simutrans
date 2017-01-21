@@ -135,7 +135,7 @@ enlarge_map_frame_t::enlarge_map_frame_t() :
 	inp_town_size.add_listener(this);
 	inp_town_size.set_limits(0,999999);
 	inp_town_size.set_increment_mode(50);
-	inp_town_size.set_value( sets->get_mittlere_einwohnerzahl() );
+	inp_town_size.set_value( sets->get_mean_einwohnerzahl() );
 	add_component( &inp_town_size );
 	intTopOfButton += 12+5;
 
@@ -195,7 +195,7 @@ bool enlarge_map_frame_t::action_triggered( gui_action_creator_t *comp,value_t v
 		number_of_big_cities = v.i;
 	}
 	else if(comp==&inp_town_size) {
-		sets->set_mittlere_einwohnerzahl( v.i );
+		sets->set_mean_einwohnerzahl( v.i );
 	}
 	else if(comp==&start_button) {
 		// since soon those are invalid

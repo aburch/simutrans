@@ -66,7 +66,7 @@ struct lines_loaded_t
 {
 	linehandle_t line;
 	bool reversed;
-	uint8 aktuell;
+	uint8 current_stop;
 	uint8 catg_index;
 };
 
@@ -761,7 +761,7 @@ public:
 	 * @param fracht goods will be put into this list, vehicle has to load it
 	 * @author Hj. Malthaner, dwachs
 	 */
-	bool hole_ab( slist_tpl<ware_t> &fracht, const ware_besch_t *warentyp, uint32 menge, const schedule_t *fpl, const player_t *player, convoi_t* cnv, bool overcrowd);
+	bool hole_ab( slist_tpl<ware_t> &fracht, const ware_besch_t *warentyp, uint32 menge, const schedule_t *schedule, const player_t *player, convoi_t* cnv, bool overcrowd);
 
 	/* liefert ware an. Falls die Ware zu wartender Ware dazugenommen
 	 * werden kann, kann ware_t gelöscht werden! D.h. man darf ware nach

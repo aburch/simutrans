@@ -768,7 +768,7 @@ void path_explorer_t::compartment_t::step()
 
 				while (entry_count-- && index < current_schedule->get_count())
 				{
-					current_halt = haltestelle_t::get_halt(current_schedule->eintrag[index].pos, current_owner);
+					current_halt = haltestelle_t::get_halt(current_schedule->entries[index].pos, current_owner);
                
 					// Make sure that the halt found was built before refresh started and that it supports current goods category
 					if ( current_halt.is_bound() && current_halt->get_inauguration_time() < refresh_start_time && current_halt->is_enabled(ware_type) )

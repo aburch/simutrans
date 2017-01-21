@@ -48,7 +48,7 @@ simline_t::simline_t(player_t* player, linetype type)
 
 	init_financial_history();
 	this->type = type;
-	this->fpl = NULL;
+	this->schedule = NULL;
 	this->player = player;
 	withdraw = false;
 	state_color = COL_WHITE;
@@ -70,7 +70,7 @@ simline_t::simline_t(player_t* player, linetype type, loadsave_t *file)
 	// id will be read and assigned during rdwr
 	self = linehandle_t();
 	this->type = type;
-	this->fpl = NULL;
+	this->schedule = NULL;
 	this->player = player;
 	withdraw = false;
 	create_schedule();
@@ -87,12 +87,12 @@ simline_t::simline_t(player_t* player, linetype type, loadsave_t *file)
 
 simline_t::~simline_t()
 {
-	DBG_DEBUG("simline_t::~simline_t()", "deleting fpl=%p", fpl);
+	DBG_DEBUG("simline_t::~simline_t()", "deleting schedule=%p", schedule);
 
 	assert(count_convoys()==0);
 	unregister_stops();
 
-	delete fpl;
+	delete schedule;
 	self.detach();
 	DBG_MESSAGE("simline_t::~simline_t()", "line %d (%p) destroyed", self.get_id(), this);
 }
@@ -119,7 +119,7 @@ void simline_t::add_convoy(convoihandle_t cnv, bool from_loading)
 	if (line_managed_convoys.empty()  &&  self.is_bound()) {
 		// first convoi -> ok, now we can announce this connection to the stations
 		// unbound self can happen during loading if this line had line_id=0
-		register_stops(fpl);
+		register_stops(schedule);
 	}
 
 	// first convoi may change line type
@@ -179,11 +179,11 @@ void simline_t::add_convoy(convoihandle_t cnv, bool from_loading)
 	if(  update_schedules  ) 
 	{
 		// Added by : Knightly
-		haltestelle_t::refresh_routing(fpl, goods_catg_index, player);
+		haltestelle_t::refresh_routing(schedule, goods_catg_index, player);
 	}
 
 	// if the schedule is flagged as bidirectional, set the initial convoy direction
-	if( fpl->is_bidirectional() && !from_loading ) 
+	if( schedule->is_bidirectional() && !from_loading ) 
 	{
 		start_reversed = !start_reversed;
 		cnv->set_reverse_schedule(start_reversed);
@@ -243,13 +243,13 @@ void simline_t::rdwr(loadsave_t *file)
 {
 	xml_tag_t s( file, "simline_t" );
 
-	assert(fpl);
+	assert(schedule);
 
 	file->rdwr_str(name);
 
 	rdwr_linehandle_t(file, self);
 
-	fpl->rdwr(file);
+	schedule->rdwr(file);
 
 	//financial history
 	if(file->get_version() <= 102002 || (file->get_version() < 103000 && file->get_experimental_version() < 7))
@@ -432,7 +432,7 @@ void simline_t::finish_rd()
 		DBG_MESSAGE("simline_t::finish_rd", "assigned id=%d to line %s", self.get_id(), get_name());
 	}
 	if (!line_managed_convoys.empty()) {
-		register_stops(fpl);
+		register_stops(schedule);
 	}
 	recalc_status();
 	financial_history[0][LINE_DEPARTURES_SCHEDULED] = calc_departures_scheduled();
@@ -440,10 +440,10 @@ void simline_t::finish_rd()
 
 
 
-void simline_t::register_stops(schedule_t * fpl)
+void simline_t::register_stops(schedule_t * schedule)
 {
-DBG_DEBUG("simline_t::register_stops()", "%d fpl entries in schedule %p", fpl->get_count(),fpl);
-	FOR(minivec_tpl<schedule_entry_t>, const& i, fpl->eintrag) {
+DBG_DEBUG("simline_t::register_stops()", "%d schedule entries in schedule %p", schedule->get_count(),schedule);
+	FOR(minivec_tpl<schedule_entry_t>, const& i, schedule->entries) {
 		halthandle_t const halt = haltestelle_t::get_halt(i.pos, player);
 		if(halt.is_bound()) {
 //DBG_DEBUG("simline_t::register_stops()", "halt not null");
@@ -468,7 +468,7 @@ int simline_t::get_replacing_convoys_count() const {
 
 void simline_t::unregister_stops()
 {
-	unregister_stops(fpl);
+	unregister_stops(schedule);
 
 	// It is necessary to clear all departure data,
 	// which might be out of date on a change of schedule.
@@ -480,9 +480,9 @@ void simline_t::unregister_stops()
 }
 
 
-void simline_t::unregister_stops(schedule_t * fpl)
+void simline_t::unregister_stops(schedule_t * schedule)
 {
-	FOR(minivec_tpl<schedule_entry_t>, const& i, fpl->eintrag) {
+	FOR(minivec_tpl<schedule_entry_t>, const& i, schedule->entries) {
 		halthandle_t const halt = haltestelle_t::get_halt(i.pos, player);
 		if(halt.is_bound()) {
 			halt->remove_line(self);
@@ -496,25 +496,25 @@ void simline_t::renew_stops()
 {
 	if (!line_managed_convoys.empty()) 
 	{
-		register_stops( fpl );
+		register_stops( schedule );
 	
 		// Added by Knightly
-		haltestelle_t::refresh_routing(fpl, goods_catg_index, player);
+		haltestelle_t::refresh_routing(schedule, goods_catg_index, player);
 		
 		DBG_DEBUG("simline_t::renew_stops()", "Line id=%d, name='%s'", self.get_id(), name.c_str());
 	}
 	financial_history[0][LINE_DEPARTURES_SCHEDULED] = calc_departures_scheduled();
 }
 
-void simline_t::set_schedule(schedule_t* fpl)
+void simline_t::set_schedule(schedule_t* schedule)
 {
-	if (this->fpl) 
+	if (this->schedule) 
 	{
-		haltestelle_t::refresh_routing(fpl, goods_catg_index, player);
+		haltestelle_t::refresh_routing(schedule, goods_catg_index, player);
 		unregister_stops();
-		delete this->fpl;
+		delete this->schedule;
 	}
-	this->fpl = fpl;
+	this->schedule = schedule;
 	financial_history[0][LINE_DEPARTURES_SCHEDULED] = calc_departures_scheduled();
 }
 
@@ -673,7 +673,7 @@ void simline_t::recalc_catg_index()
 	}
 
 	// refresh only those categories which are either removed or added to the category list
-	haltestelle_t::refresh_routing(fpl, differences, player);
+	haltestelle_t::refresh_routing(schedule, differences, player);
 }
 
 
@@ -699,19 +699,19 @@ void simline_t::propogate_livery_scheme()
 
 sint64 simline_t::calc_departures_scheduled()
 {
-	if(fpl->get_spacing() == 0)
+	if(schedule->get_spacing() == 0)
 	{
 		return 0;
 	}
 	
 	sint64 timed_departure_points_count = 0ll;
-	for(int i = 0; i < fpl->get_count(); i++)
+	for(int i = 0; i < schedule->get_count(); i++)
 	{		
-		if(fpl->eintrag[i].wait_for_time || fpl->eintrag[i].ladegrad > 0)
+		if(schedule->entries[i].wait_for_time || schedule->entries[i].minimum_loading > 0)
 		{
 			timed_departure_points_count ++;
 		}
 	}
 
-	return timed_departure_points_count * (sint64) fpl->get_spacing();
+	return timed_departure_points_count * (sint64) schedule->get_spacing();
 }

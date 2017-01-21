@@ -240,17 +240,17 @@ public:
 /* only called directly from schedule => no tooltip!
  * default_param must point to a schedule!
  */
-class tool_fahrplan_add_t : public tool_t {
+class tool_schedule_add_t : public tool_t {
 public:
-	tool_fahrplan_add_t() : tool_t(TOOL_SCHEDULE_ADD | GENERAL_TOOL) {}
+	tool_schedule_add_t() : tool_t(TOOL_SCHEDULE_ADD | GENERAL_TOOL) {}
 	char const* work(player_t*, koord3d) OVERRIDE;
 	bool is_init_network_save() const OVERRIDE { return true; }
 	bool is_work_network_save() const OVERRIDE { return true; }
 };
 
-class tool_fahrplan_ins_t : public tool_t {
+class tool_schedule_ins_t : public tool_t {
 public:
-	tool_fahrplan_ins_t() : tool_t(TOOL_SCHEDULE_INS | GENERAL_TOOL) {}
+	tool_schedule_ins_t() : tool_t(TOOL_SCHEDULE_INS | GENERAL_TOOL) {}
 	char const* work(player_t*, koord3d) OVERRIDE;
 	bool is_init_network_save() const OVERRIDE { return true; }
 	bool is_work_network_save() const OVERRIDE { return true; }

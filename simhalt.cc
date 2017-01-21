@@ -1165,10 +1165,10 @@ class lines_loaded_compare_t
 public:
 	linehandle_t line;
 	bool reversed;
-	uint8 aktuell;
+	uint8 current_stop;
 	uint8 fracht_index;
 
-	bool operator== (const lines_loaded_compare_t &x) const  { return (line == x.line  &&  reversed == x.reversed  &&  aktuell == x.aktuell   &&  fracht_index == x.fracht_index); }
+	bool operator== (const lines_loaded_compare_t &x) const  { return (line == x.line  &&  reversed == x.reversed  &&  current_stop == x.current_stop   &&  fracht_index == x.fracht_index); }
 };
 
 vector_tpl<lines_loaded_compare_t> lines_loaded; // used to skip loading multiple convois on the same line during the same step
@@ -1762,14 +1762,14 @@ uint16 haltestelle_t::get_service_frequency(halthandle_t destination, uint8 cate
 		koord next_halt;
 		for(uint8 n = 0; n < schedule_count; n++)
 		{
-			current_halt = registered_lines[i]->get_schedule()->eintrag[n].pos.get_2d();
+			current_halt = registered_lines[i]->get_schedule()->entries[n].pos.get_2d();
 			if(n < schedule_count - 2)
 			{
-				next_halt = registered_lines[i]->get_schedule()->eintrag[n + 1].pos.get_2d();
+				next_halt = registered_lines[i]->get_schedule()->entries[n + 1].pos.get_2d();
 			}
 			else
 			{
-				next_halt = registered_lines[i]->get_schedule()->eintrag[0].pos.get_2d();
+				next_halt = registered_lines[i]->get_schedule()->entries[0].pos.get_2d();
 			}
 			if(n < schedule_count - 1)
 			{
@@ -2200,8 +2200,8 @@ bool haltestelle_t::recall_ware( ware_t& w, uint32 menge )
 }
 
 
-// will load something compatible with wtyp into the car which schedule is fpl
-bool haltestelle_t::hole_ab( slist_tpl<ware_t> &fracht, const ware_besch_t *wtyp, uint32 maxi, const schedule_t *fpl, const player_t *player, convoi_t* cnv, bool overcrowded) //"hole from" (Google)
+// will load something compatible with wtyp into the car which schedule is schedule
+bool haltestelle_t::hole_ab( slist_tpl<ware_t> &fracht, const ware_besch_t *wtyp, uint32 maxi, const schedule_t *schedule, const player_t *player, convoi_t* cnv, bool overcrowded) //"hole from" (Google)
 {
 	bool skipped = false;
 	const uint8 catg_index = wtyp->get_catg_index();
@@ -2231,20 +2231,20 @@ bool haltestelle_t::hole_ab( slist_tpl<ware_t> &fracht, const ware_besch_t *wtyp
 		while(!goods_to_check.empty())
 		{
 			ware_t* const next_to_load = goods_to_check.pop();
-			uint8 index = fpl->get_aktuell();
+			uint8 index = schedule->get_aktuell();
 			bool reverse = cnv->get_reverse_schedule();
 			if(cnv->get_state() != convoi_t::REVERSING)
 			{
-				fpl->increment_index(&index, &reverse);
+				schedule->increment_index(&index, &reverse);
 			}
 
 			int count = 0;
-			while(index != fpl->get_aktuell() || (cnv->get_state() == convoi_t::REVERSING && count == 0))
+			while(index != schedule->get_aktuell() || (cnv->get_state() == convoi_t::REVERSING && count == 0))
 			{
 				halthandle_t& plan_halt = cached_halts[index];
 				if(plan_halt.is_null())
 				{
-					plan_halt = haltestelle_t::get_halt(fpl->eintrag[index].pos, player);
+					plan_halt = haltestelle_t::get_halt(schedule->entries[index].pos, player);
 				}
 
 				if(plan_halt == self)
@@ -2253,7 +2253,7 @@ bool haltestelle_t::hole_ab( slist_tpl<ware_t> &fracht, const ware_besch_t *wtyp
 					if(count == 0)
 					{
 						// However, this makes no sense if we start with where we are now.
-						fpl->increment_index(&index, &reverse);
+						schedule->increment_index(&index, &reverse);
 						continue;
 					}
 					else
@@ -2324,7 +2324,7 @@ bool haltestelle_t::hole_ab( slist_tpl<ware_t> &fracht, const ware_besch_t *wtyp
 						{
 							// Check for the same part of the timetable, as the convoy may either be going in a circle in a reverse direction
 							// or otherwise call at this stop at different parts of its timetable.
-							uint8 check_index = fpl->get_aktuell();
+							uint8 check_index = schedule->get_aktuell();
 							bool check_reverse = cnv->get_reverse_schedule();
 							schedule_t* fast_schedule = fast_convoy->get_schedule();
 							uint8 fast_index = fast_schedule->get_aktuell();
@@ -2334,7 +2334,7 @@ bool haltestelle_t::hole_ab( slist_tpl<ware_t> &fracht, const ware_besch_t *wtyp
 
 							for(int i = 0; i < fast_schedule->get_count() * 2; i ++)
 							{
-								fast_convoy_halt = haltestelle_t::get_halt(fast_schedule->eintrag[fast_index].pos, player);
+								fast_convoy_halt = haltestelle_t::get_halt(fast_schedule->entries[fast_index].pos, player);
 								if(fast_convoy_halt == self)
 								{
 									if(fast_index == check_index && fast_reverse == check_reverse)
@@ -2359,7 +2359,7 @@ bool haltestelle_t::hole_ab( slist_tpl<ware_t> &fracht, const ware_besch_t *wtyp
 						// also has that, do not wait for a "faster" convoy, as it may never come.
 
 						const schedule_entry_t schedule_entry = cnv->get_schedule()->get_current_eintrag();
-						if(schedule_entry.ladegrad > 0 && !schedule_entry.wait_for_time && schedule_entry.waiting_time_shift == 0)
+						if(schedule_entry.minimum_loading > 0 && !schedule_entry.wait_for_time && schedule_entry.waiting_time_shift == 0)
 						{
 							// This convoy has an untimed wait for load order.
 							if(fast_convoy->get_line() == cnv->get_line())
@@ -2372,7 +2372,7 @@ bool haltestelle_t::hole_ab( slist_tpl<ware_t> &fracht, const ware_besch_t *wtyp
 								schedule_entry_t fast_convoy_schedule_entry = fast_convoy->get_schedule()->get_current_eintrag();
 								if(haltestelle_t::get_halt(fast_convoy_schedule_entry.pos, cnv->get_owner()) == self)
 								{
-									if(fast_convoy_schedule_entry.ladegrad > 0 && !fast_convoy_schedule_entry.wait_for_time && fast_convoy_schedule_entry.waiting_time_shift == 0)
+									if(fast_convoy_schedule_entry.minimum_loading > 0 && !fast_convoy_schedule_entry.wait_for_time && fast_convoy_schedule_entry.waiting_time_shift == 0)
 									{
 										wait_for_faster_convoy = false;
 									}
@@ -2381,10 +2381,10 @@ bool haltestelle_t::hole_ab( slist_tpl<ware_t> &fracht, const ware_besch_t *wtyp
 								{
 									for(int i = 0; i < fast_convoy->get_schedule()->get_count(); i++)
 									{
-										fast_convoy_schedule_entry = fast_convoy->get_schedule()->eintrag[i];
+										fast_convoy_schedule_entry = fast_convoy->get_schedule()->entries[i];
 										if(haltestelle_t::get_halt(fast_convoy_schedule_entry.pos, cnv->get_owner()) == self)
 										{
-											if(fast_convoy_schedule_entry.ladegrad > 0 && !fast_convoy_schedule_entry.wait_for_time && fast_convoy_schedule_entry.waiting_time_shift == 0)
+											if(fast_convoy_schedule_entry.minimum_loading > 0 && !fast_convoy_schedule_entry.wait_for_time && fast_convoy_schedule_entry.waiting_time_shift == 0)
 											{
 												wait_for_faster_convoy = false;
 												break;
@@ -2397,7 +2397,7 @@ bool haltestelle_t::hole_ab( slist_tpl<ware_t> &fracht, const ware_besch_t *wtyp
 
 						if(wait_for_faster_convoy)
 						{
-							fpl->increment_index(&index, &reverse);
+							schedule->increment_index(&index, &reverse);
 							skipped = true;
 							continue;
 						}
@@ -2407,7 +2407,7 @@ bool haltestelle_t::hole_ab( slist_tpl<ware_t> &fracht, const ware_besch_t *wtyp
 					connexion * const next_connexion = connexions[catg_index]->get(next_transfer);
 					if(next_connexion  &&  overcrowded  &&  next_connexion->alternative_seats)
 					{
-						fpl->increment_index(&index, &reverse);
+						schedule->increment_index(&index, &reverse);
 						skipped = true;
 						continue;
 					}
@@ -2441,12 +2441,12 @@ bool haltestelle_t::hole_ab( slist_tpl<ware_t> &fracht, const ware_besch_t *wtyp
 
 				// if the schedule is mirrored and has reached its end, break
 				// as the convoy will be returning this way later.
-				if(fpl->is_mirrored() && (index == 0 || index == (fpl->get_count() - 1)))
+				if(schedule->is_mirrored() && (index == 0 || index == (schedule->get_count() - 1)))
 				{
 					break;
 				}
 
-				fpl->increment_index(&index, &reverse);
+				schedule->increment_index(&index, &reverse);
 			}
 		}
 	}
@@ -2486,17 +2486,17 @@ void haltestelle_t::update_alternative_seats(convoihandle_t cnv)
 		{
 			continue;
 		}
-		const schedule_t *fpl = (*cnv_i)->get_schedule();
+		const schedule_t *schedule = (*cnv_i)->get_schedule();
 		const player_t *player = (*cnv_i)->get_owner();
-		const uint8 count = fpl->get_count();
+		const uint8 count = schedule->get_count();
 
-		// uses fpl->increment_index to iterate over stops
-		uint8 index = fpl->get_aktuell();
+		// uses schedule->increment_index to iterate over stops
+		uint8 index = schedule->get_aktuell();
 		bool reverse = cnv->get_reverse_schedule();
-		fpl->increment_index(&index, &reverse);
+		schedule->increment_index(&index, &reverse);
 
-		while (index != fpl->get_aktuell()) {
-			const halthandle_t plan_halt = haltestelle_t::get_halt(fpl->eintrag[index].pos, player);
+		while (index != schedule->get_aktuell()) {
+			const halthandle_t plan_halt = haltestelle_t::get_halt(schedule->entries[index].pos, player);
 			if(plan_halt == self) 
 			{
 				// we will come later here again ...
@@ -2512,10 +2512,10 @@ void haltestelle_t::update_alternative_seats(convoihandle_t cnv)
 
 			// if the schedule is mirrored and has reached its end, break
 			// as the convoi will be returning this way later.
-			if( fpl->is_mirrored() && (index==0 || index==(count-1)) ) {
+			if( schedule->is_mirrored() && (index==0 || index==(count-1)) ) {
 				break;
 			}
-			fpl->increment_index(&index, &reverse);
+			schedule->increment_index(&index, &reverse);
 		}
 	}
 }
@@ -4307,7 +4307,7 @@ void haltestelle_t::finish_rd(bool need_recheck_for_walking_distance)
 		bool dead = true;
 		if (convoy->get_schedule()) {
 			for(int i=0; i<convoy->get_schedule()->get_count(); i++) {
-				koord3d pos = convoy->get_schedule()->eintrag[i].pos;
+				koord3d pos = convoy->get_schedule()->entries[i].pos;
 				grund_t *gr = welt->lookup(pos);
 				
 				if (gr && gr->get_halt() == self) {
@@ -4334,7 +4334,7 @@ void haltestelle_t::finish_rd(bool need_recheck_for_walking_distance)
 		bool dead = true;
 		if (convoy->get_schedule()) {
 			for(int i=0; i<convoy->get_schedule()->get_count(); i++) {
-				koord3d pos = convoy->get_schedule()->eintrag[i].pos;
+				koord3d pos = convoy->get_schedule()->entries[i].pos;
 				grund_t *gr = welt->lookup(pos);
 				
 				if (gr && gr->get_halt() == self) {
@@ -4641,7 +4641,7 @@ bool haltestelle_t::add_grund(grund_t *gr, bool relink_factories)
 			{
 				// only add unknown lines
 				if(  !registered_lines.is_contained(j)  &&  j->count_convoys() > 0  ) {
-					FOR(  minivec_tpl<schedule_entry_t>, const& k, j->get_schedule()->eintrag  ) {
+					FOR(  minivec_tpl<schedule_entry_t>, const& k, j->get_schedule()->entries  ) {
 						if(  get_halt(k.pos, player) == self  ) {
 							registered_lines.append(j);
 							break;
@@ -4655,8 +4655,8 @@ bool haltestelle_t::add_grund(grund_t *gr, bool relink_factories)
 	FOR(vector_tpl<convoihandle_t>, const cnv, welt->convoys()) {
 		// only check lineless convoys which have matching ownership and which are not yet registered
 		if(  !cnv->get_line().is_bound()  &&  (public_halt  ||  cnv->get_owner()==get_owner())  &&  !registered_convoys.is_contained(cnv)  ) {
-			if(  const schedule_t *const fpl = cnv->get_schedule()  ) {
-				FOR(minivec_tpl<schedule_entry_t>, const& k, fpl->eintrag) {
+			if(  const schedule_t *const schedule = cnv->get_schedule()  ) {
+				FOR(minivec_tpl<schedule_entry_t>, const& k, schedule->entries) {
 					if (get_halt(k.pos, cnv->get_owner()) == self) {
 						registered_convoys.append(cnv);
 						break;
@@ -4803,7 +4803,7 @@ bool haltestelle_t::rem_grund(grund_t *gr)
 	// remove lines eventually
 	for(  size_t j = registered_lines.get_count();  j-- != 0;  ) {
 		bool ok = false;
-		FOR(  minivec_tpl<schedule_entry_t>, const& k, registered_lines[j]->get_schedule()->eintrag  ) {
+		FOR(  minivec_tpl<schedule_entry_t>, const& k, registered_lines[j]->get_schedule()->entries  ) {
 			if(  get_halt(k.pos, registered_lines[j]->get_owner()) == self  ) {
 				ok = true;
 				break;
@@ -4819,7 +4819,7 @@ bool haltestelle_t::rem_grund(grund_t *gr)
 	// Knightly : remove registered lineless convoys as well
 	for(  size_t j = registered_convoys.get_count();  j-- != 0;  ) {
 		bool ok = false;
-		FOR(  minivec_tpl<schedule_entry_t>, const& k, registered_convoys[j]->get_schedule()->eintrag  ) {
+		FOR(  minivec_tpl<schedule_entry_t>, const& k, registered_convoys[j]->get_schedule()->entries  ) {
 			if(  get_halt(k.pos, registered_convoys[j]->get_owner()) == self  ) {
 				ok = true;
 				break;

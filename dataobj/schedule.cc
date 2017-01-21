@@ -23,7 +23,7 @@
 
 #include "../tpl/slist_tpl.h"
 
-schedule_entry_t schedule_t::dummy_eintrag(koord3d::invalid, 0, 0, 0, -1, false);
+schedule_entry_t schedule_t::dummy_entry(koord3d::invalid, 0, 0, 0, -1, false);
 
 schedule_t::schedule_t(loadsave_t* const file)
 {
@@ -35,7 +35,7 @@ schedule_t::schedule_t(loadsave_t* const file)
 
 
 
-// copy all entries from schedule src to this and adjusts aktuell
+// copy all entries from schedule src to this and adjusts current_stop
 void schedule_t::copy_from(const schedule_t *src)
 {
 	// make sure, we can access both
@@ -43,13 +43,13 @@ void schedule_t::copy_from(const schedule_t *src)
 		dbg->fatal("fahrplan_t::copy_to()","cannot copy from NULL");
 		return;
 	}
-	eintrag.clear();
-	FOR(minivec_tpl<schedule_entry_t>, const& i, src->eintrag) {
-		eintrag.append(i);
+	entries.clear();
+	FOR(minivec_tpl<schedule_entry_t>, const& i, src->entries) {
+		entries.append(i);
 	}
 	set_aktuell( src->get_aktuell() );
 
-	abgeschlossen = src->ist_abgeschlossen();
+	editing_finished = src->is_editing_finished();
 	spacing = src->get_spacing();
 	bidirectional = src->is_bidirectional();
 	mirrored = src->is_mirrored();
@@ -93,9 +93,9 @@ bool schedule_t::ist_halt_erlaubt(const grund_t *gr) const
  */
 halthandle_t schedule_t::get_next_halt( player_t *player, halthandle_t halt ) const
 {
-	if(  eintrag.get_count()>1  ) {
-		for(  uint i=1;  i < eintrag.get_count();  i++  ) {
-			halthandle_t h = haltestelle_t::get_halt( eintrag[ (aktuell+i) % eintrag.get_count() ].pos, player );
+	if(  entries.get_count()>1  ) {
+		for(  uint i=1;  i < entries.get_count();  i++  ) {
+			halthandle_t h = haltestelle_t::get_halt( entries[ (current_stop+i) % entries.get_count() ].pos, player );
 			if(  h.is_bound()  &&  h != halt  ) {
 				return h;
 			}
@@ -110,9 +110,9 @@ halthandle_t schedule_t::get_next_halt( player_t *player, halthandle_t halt ) co
  */
 halthandle_t schedule_t::get_prev_halt( player_t *player ) const
 {
-	if(  eintrag.get_count()>1  ) {
-		for(  uint i=1;  i < eintrag.get_count()-1u;  i++  ) {
-			halthandle_t h = haltestelle_t::get_halt( eintrag[ (aktuell+eintrag.get_count()-i) % eintrag.get_count() ].pos, player );
+	if(  entries.get_count()>1  ) {
+		for(  uint i=1;  i < entries.get_count()-1u;  i++  ) {
+			halthandle_t h = haltestelle_t::get_halt( entries[ (current_stop+entries.get_count()-i) % entries.get_count() ].pos, player );
 			if(  h.is_bound()  ) {
 				return h;
 			}
@@ -122,10 +122,10 @@ halthandle_t schedule_t::get_prev_halt( player_t *player ) const
 }
 
 
-bool schedule_t::insert(const grund_t* gr, uint16 ladegrad, uint8 waiting_time_shift, sint16 spacing_shift, bool wait_for_time, bool show_failure)
+bool schedule_t::insert(const grund_t* gr, uint16 minimum_loading, uint8 waiting_time_shift, sint16 spacing_shift, bool wait_for_time, bool show_failure)
 {
 	// stored in minivec, so we have to avoid adding too many
-	if(eintrag.get_count() >= 254) 
+	if(entries.get_count() >= 254) 
 	{
 		if(show_failure)
 		{
@@ -136,8 +136,8 @@ bool schedule_t::insert(const grund_t* gr, uint16 ladegrad, uint8 waiting_time_s
 
 	if(wait_for_time)
 	{
-		// "ladegrad" (wait for load) and wait_for_time are not compatible.
-		ladegrad = 0;
+		// "minimum_loading" (wait for load) and wait_for_time are not compatible.
+		minimum_loading = 0;
 	}
 
 	if(!gr)
@@ -147,15 +147,15 @@ bool schedule_t::insert(const grund_t* gr, uint16 ladegrad, uint8 waiting_time_s
 	}
 
 	if(  ist_halt_erlaubt(gr)  ) {
-		eintrag.insert_at(aktuell, schedule_entry_t(gr->get_pos(), ladegrad, waiting_time_shift, spacing_shift, -1, wait_for_time));
-		aktuell ++;
+		entries.insert_at(current_stop, schedule_entry_t(gr->get_pos(), minimum_loading, waiting_time_shift, spacing_shift, -1, wait_for_time));
+		current_stop ++;
 		return true;
 	}
 	else {
 		// too many stops or wrong kind of stop
 		if(show_failure)
 		{
-			create_win( new news_img(fehlermeldung()), w_time_delete, magic_none);
+			create_win( new news_img(get_error_msg()), w_time_delete, magic_none);
 		}
 		return false;
 	}
@@ -163,10 +163,10 @@ bool schedule_t::insert(const grund_t* gr, uint16 ladegrad, uint8 waiting_time_s
 
 
 
-bool schedule_t::append(const grund_t* gr, uint16 ladegrad, uint8 waiting_time_shift, sint16 spacing_shift, bool wait_for_time)
+bool schedule_t::append(const grund_t* gr, uint16 minimum_loading, uint8 waiting_time_shift, sint16 spacing_shift, bool wait_for_time)
 {
 	// stored in minivec, so we have to avoid adding too many
-	if(eintrag.get_count()>=254) {
+	if(entries.get_count()>=254) {
 		create_win( new news_img("Maximum 254 stops\nin a schedule!\n"), w_time_delete, magic_none);
 		return false;
 	}
@@ -179,18 +179,18 @@ bool schedule_t::append(const grund_t* gr, uint16 ladegrad, uint8 waiting_time_s
 
 	if(wait_for_time)
 	{
-		// "ladegrad" (wait for load) and wait_for_time are not compatible.
-		ladegrad = 0;
+		// "minimum_loading" (wait for load) and wait_for_time are not compatible.
+		minimum_loading = 0;
 	}
 
 	if(ist_halt_erlaubt(gr)) {
-		eintrag.append(schedule_entry_t(gr->get_pos(), ladegrad, waiting_time_shift, spacing_shift, -1, wait_for_time), 4);
+		entries.append(schedule_entry_t(gr->get_pos(), minimum_loading, waiting_time_shift, spacing_shift, -1, wait_for_time), 4);
 		return true;
 	}
 	else {
 		DBG_MESSAGE("fahrplan_t::append()","forbidden stop at %i,%i,%i",gr->get_pos().x, gr->get_pos().x, gr->get_pos().z );
 		// error
-		create_win( new news_img(fehlermeldung()), w_time_delete, magic_none);
+		create_win( new news_img(get_error_msg()), w_time_delete, magic_none);
 		return false;
 	}
 }
@@ -201,40 +201,40 @@ bool schedule_t::append(const grund_t* gr, uint16 ladegrad, uint8 waiting_time_s
 void schedule_t::cleanup()
 {
 
-	if(eintrag.get_count() == 1)
+	if(entries.get_count() == 1)
 	{
 		// Schedules of just one entry are not allowed.
-		eintrag.clear();
+		entries.clear();
 	}
 	
-	if(  eintrag.empty()  ) {
+	if(  entries.empty()  ) {
 		return; // nothing to check
 	}
 
 	// first and last must not be the same!
-	koord3d lastpos = eintrag.back().pos;
+	koord3d lastpos = entries.back().pos;
 	// now we have to check all entries ...
-	for(  uint8 i=0;  i<eintrag.get_count();  i++  ) {
-		if(  eintrag[i].pos == lastpos  ) {
+	for(  uint8 i=0;  i<entries.get_count();  i++  ) {
+		if(  entries[i].pos == lastpos  ) {
 			// ignore double entries just one after the other
-			eintrag.remove_at(i);
-			if(  i<aktuell  ) {
-				aktuell --;
+			entries.remove_at(i);
+			if(  i<current_stop  ) {
+				current_stop --;
 			}
 			i--;
-		} else if(  eintrag[i].pos == koord3d::invalid  ) {
+		} else if(  entries[i].pos == koord3d::invalid  ) {
 			// ignore double entries just one after the other
-			eintrag.remove_at(i);
+			entries.remove_at(i);
 		}
 		else {
 			// next pos for check
-			lastpos = eintrag[i].pos;
+			lastpos = entries[i].pos;
 		}
 
-		if(eintrag[i].wait_for_time)
+		if(entries[i].wait_for_time)
 		{
-			// "ladegrad" (wait for load) and wait_for_time are not compatible.
-			eintrag[i].ladegrad = 0;
+			// "minimum_loading" (wait for load) and wait_for_time are not compatible.
+			entries[i].minimum_loading = 0;
 		}
 	}
 	make_aktuell_valid();
@@ -244,7 +244,7 @@ void schedule_t::cleanup()
 
 bool schedule_t::remove()
 {
-	bool ok = eintrag.remove_at(aktuell);
+	bool ok = entries.remove_at(current_stop);
 	make_aktuell_valid();
 	return ok;
 }
@@ -257,11 +257,11 @@ void schedule_t::rdwr(loadsave_t *file)
 
 	make_aktuell_valid();
 
-	uint8 size = eintrag.get_count();
+	uint8 size = entries.get_count();
 	if(  file->get_version()<=101000  ) {
-		uint32 dummy=aktuell;
+		uint32 dummy=current_stop;
 		file->rdwr_long(dummy);
-		aktuell = (uint8)dummy;
+		current_stop = (uint8)dummy;
 
 		sint32 maxi=size;
 		file->rdwr_long(maxi);
@@ -273,7 +273,7 @@ void schedule_t::rdwr(loadsave_t *file)
 		size = (uint8)max(0,maxi);
 	}
 	else {
-		file->rdwr_byte(aktuell);
+		file->rdwr_byte(current_stop);
 		file->rdwr_byte(size);
 		if(file->get_version()>=102003 && file->get_experimental_version() >= 9)
 		{
@@ -281,7 +281,7 @@ void schedule_t::rdwr(loadsave_t *file)
 			file->rdwr_bool(mirrored);
 		}
 	}
-	eintrag.resize(size);
+	entries.resize(size);
 
 	if(file->get_version()<99012) {
 		for(  uint8 i=0; i<size; i++  ) {
@@ -289,57 +289,57 @@ void schedule_t::rdwr(loadsave_t *file)
 			uint32 dummy;
 			pos.rdwr(file);
 			file->rdwr_long(dummy);
-			eintrag.append(schedule_entry_t(pos, (uint8)dummy, 0, 0, true, false));
+			entries.append(schedule_entry_t(pos, (uint8)dummy, 0, 0, true, false));
 		}
 	}
 	else {
 		// loading/saving new version
 		for(  uint8 i=0;  i<size;  i++  ) {
-			if(eintrag.get_count()<=i) {
-				eintrag.append( schedule_entry_t() );
-				eintrag[i].waiting_time_shift = 0;
-				eintrag[i].spacing_shift = 0;
-				eintrag[i].reverse = -1;
+			if(entries.get_count()<=i) {
+				entries.append( schedule_entry_t() );
+				entries[i].waiting_time_shift = 0;
+				entries[i].spacing_shift = 0;
+				entries[i].reverse = -1;
 			}
-			eintrag[i].pos.rdwr(file);
+			entries[i].pos.rdwr(file);
 			if(file->get_experimental_version() >= 10 && file->get_version() >= 111002)
 			{
-				file->rdwr_short(eintrag[i].ladegrad);
-				if(eintrag[i].ladegrad > 100 && spacing)
+				file->rdwr_short(entries[i].minimum_loading);
+				if(entries[i].minimum_loading > 100 && spacing)
 				{
 					// Loading percentages of over 100 were almost invariably used
 					// to set scheduled waiting points in 11.x and earlier.
-					eintrag[i].ladegrad = 0;
+					entries[i].minimum_loading = 0;
 				}
 			}
 			else
 			{
-				// Previous versions had ladegrad as a uint8. 
-				uint8 old_ladegrad = (uint8)eintrag[i].ladegrad;
+				// Previous versions had minimum_loading as a uint8. 
+				uint8 old_ladegrad = (uint8)entries[i].minimum_loading;
 				file->rdwr_byte(old_ladegrad);
-				eintrag[i].ladegrad = (uint16)old_ladegrad;
+				entries[i].minimum_loading = (uint16)old_ladegrad;
 
 			}
 			if(file->get_version()>=99018) {
-				file->rdwr_byte(eintrag[i].waiting_time_shift);
+				file->rdwr_byte(entries[i].waiting_time_shift);
 
 				if(file->get_experimental_version() >= 9 && file->get_version() >= 110006) 
 				{
-					file->rdwr_short(eintrag[i].spacing_shift);
+					file->rdwr_short(entries[i].spacing_shift);
 				}
 
 				if(file->get_experimental_version() >= 10)
 				{
-					file->rdwr_byte(eintrag[i].reverse);
-					if(file->get_experimental_revision() < 4 && eintrag[i].reverse)
+					file->rdwr_byte(entries[i].reverse);
+					if(file->get_experimental_revision() < 4 && entries[i].reverse)
 					{
 						// Older versions had true as a default: set to indeterminate. 
-						eintrag[i].reverse = -1;
+						entries[i].reverse = -1;
 					}
 				}
 				else
 				{
-					eintrag[i].reverse = -1;
+					entries[i].reverse = -1;
 				}
 #ifdef SPECIAL_RESCUE_12 // For testers who want to load games saved with earlier unreleased versions.
 				if(file->get_experimental_version() >= 12 && file->is_saving())
@@ -347,29 +347,29 @@ void schedule_t::rdwr(loadsave_t *file)
 				if(file->get_experimental_version() >= 12)
 #endif
 				{
-					file->rdwr_bool(eintrag[i].wait_for_time);
+					file->rdwr_bool(entries[i].wait_for_time);
 				}
 				else if(file->is_loading())
 				{
-					eintrag[i].wait_for_time = eintrag[i].ladegrad > 100 && spacing;
+					entries[i].wait_for_time = entries[i].minimum_loading > 100 && spacing;
 				}
 			}
-			if(eintrag[i].wait_for_time)
+			if(entries[i].wait_for_time)
 			{
-				// "ladegrad" (wait for load) and wait_for_time are not compatible.
+				// "minimum_loading" (wait for load) and wait_for_time are not compatible.
 				// Resolve this in games saved before this fix was implemented
-				eintrag[i].ladegrad = 0;
+				entries[i].minimum_loading = 0;
 			}
 		}
 	}
 	if(file->is_loading()) {
-		abgeschlossen = true;
+		editing_finished = true;
 	}
-	if(aktuell>=eintrag.get_count()  ) {
-		if (!eintrag.empty()) {
-			dbg->error("fahrplan_t::rdwr()","aktuell %i >count %i => aktuell = 0", aktuell, eintrag.get_count() );
+	if(current_stop>=entries.get_count()  ) {
+		if (!entries.empty()) {
+			dbg->error("fahrplan_t::rdwr()","current_stop %i >count %i => current_stop = 0", current_stop, entries.get_count() );
 		}
-		aktuell = 0;
+		current_stop = 0;
 	}
 
 	if(file->get_experimental_version() >= 9)
@@ -390,7 +390,7 @@ void schedule_t::rdwr(loadsave_t *file)
 void schedule_t::rotate90( sint16 y_size )
 {
 	// now we have to rotate all entries ...
-	FOR(minivec_tpl<schedule_entry_t>, & i, eintrag) {
+	FOR(minivec_tpl<schedule_entry_t>, & i, entries) {
 		i.pos.rotate90(y_size);
 	}
 }
@@ -398,61 +398,61 @@ void schedule_t::rotate90( sint16 y_size )
 
 
 /*
- * compare this schedule (fahrplan) with another, passed in fahrplan
+ * compare this schedule (schedule) with another, passed in schedule
  * @author hsiegeln
  */
-bool schedule_t::matches(karte_t *welt, const schedule_t *fpl)
+bool schedule_t::matches(karte_t *welt, const schedule_t *schedule)
 {
-	if(  fpl == NULL  ) {
+	if(  schedule == NULL  ) {
 		return false;
 	}
 	// same pointer => equal!
-	if(  this==fpl  ) {
+	if(  this==schedule  ) {
 		return true;
 	}
 	// different bidirectional or mirrored settings => not equal
-	if ((this->bidirectional != fpl->bidirectional) || (this->mirrored != fpl->mirrored)) {
+	if ((this->bidirectional != schedule->bidirectional) || (this->mirrored != schedule->mirrored)) {
 		return false;
 	}
 	// unequal count => not equal, but no match for empty schedules
-	const uint8 min_count = min( fpl->eintrag.get_count(), eintrag.get_count() );
-	if(  min_count==0  &&  fpl->eintrag.get_count()!=eintrag.get_count()  ) {
+	const uint8 min_count = min( schedule->entries.get_count(), entries.get_count() );
+	if(  min_count==0  &&  schedule->entries.get_count()!=entries.get_count()  ) {
 		return false;
 	}
-	if ( this->spacing != fpl->spacing ) {
+	if ( this->spacing != schedule->spacing ) {
 		return false;
 	}
-	if (this->same_spacing_shift != fpl->same_spacing_shift) {
+	if (this->same_spacing_shift != schedule->same_spacing_shift) {
 		return false;
 	}
 	// now we have to check all entries ...
 	// we need to do this that complicated, because the last stop may make the difference
 	uint16 f1=0, f2=0;
-	while(  f1+f2<eintrag.get_count()+fpl->eintrag.get_count()  ) {
+	while(  f1+f2<entries.get_count()+schedule->entries.get_count()  ) {
 
-		if(		f1<eintrag.get_count()  &&  f2<fpl->eintrag.get_count()
-			&& fpl->eintrag[(uint8)f2].pos == eintrag[(uint8)f1].pos 
-			&& fpl->eintrag[(uint16)f2].ladegrad == eintrag[(uint16)f1].ladegrad 
-			&& fpl->eintrag[(uint8)f2].waiting_time_shift == eintrag[(uint8)f1].waiting_time_shift 
-			&& fpl->eintrag[(uint8)f2].spacing_shift == eintrag[(uint8)f1].spacing_shift
-			&& fpl->eintrag[(uint8)f2].wait_for_time == eintrag[(uint8)f1].wait_for_time
+		if(		f1<entries.get_count()  &&  f2<schedule->entries.get_count()
+			&& schedule->entries[(uint8)f2].pos == entries[(uint8)f1].pos 
+			&& schedule->entries[(uint16)f2].minimum_loading == entries[(uint16)f1].minimum_loading 
+			&& schedule->entries[(uint8)f2].waiting_time_shift == entries[(uint8)f1].waiting_time_shift 
+			&& schedule->entries[(uint8)f2].spacing_shift == entries[(uint8)f1].spacing_shift
+			&& schedule->entries[(uint8)f2].wait_for_time == entries[(uint8)f1].wait_for_time
 		  ) {
-			// ladegrad/waiting ignored: identical
+			// minimum_loading/waiting ignored: identical
 			f1++;
 			f2++;
 		}
 		else {
 			bool ok = false;
-			if(  f1<eintrag.get_count()  ) {
-				grund_t *gr1 = welt->lookup(eintrag[(uint8)f1].pos);
+			if(  f1<entries.get_count()  ) {
+				grund_t *gr1 = welt->lookup(entries[(uint8)f1].pos);
 				if(  gr1  &&  gr1->get_depot()  ) {
 					// skip depot
 					f1++;
 					ok = true;
 				}
 			}
-			if(  f2<fpl->eintrag.get_count()  ) {
-				grund_t *gr2 = welt->lookup(fpl->eintrag[(uint8)f2].pos);
+			if(  f2<schedule->entries.get_count()  ) {
+				grund_t *gr2 = welt->lookup(schedule->entries[(uint8)f2].pos);
 				if(  gr2  &&  gr2->get_depot()  ) {
 					ok = true;
 					f2++;
@@ -467,7 +467,7 @@ bool schedule_t::matches(karte_t *welt, const schedule_t *fpl)
 			}
 		}
 	}
-	return f1==eintrag.get_count()  &&  f2==fpl->eintrag.get_count();
+	return f1==entries.get_count()  &&  f2==schedule->entries.get_count();
 }
 
 
@@ -526,35 +526,35 @@ public:
 
 
 /*
- * compare this schedule (fahrplan) with another, ignoring order and exact positions and waypoints
+ * compare this schedule (schedule) with another, ignoring order and exact positions and waypoints
  * @author prissi
  */
-bool schedule_t::similar( const schedule_t *fpl, const player_t *player )
+bool schedule_t::similar( const schedule_t *schedule, const player_t *player )
 {
-	if(  fpl == NULL  ) {
+	if(  schedule == NULL  ) {
 		return false;
 	}
 	// same pointer => equal!
-	if(  this == fpl  ) {
+	if(  this == schedule  ) {
 		return true;
 	}
 	// unequal count => not equal
-	const uint8 min_count = min( fpl->eintrag.get_count(), eintrag.get_count() );
+	const uint8 min_count = min( schedule->entries.get_count(), entries.get_count() );
 	if(  min_count == 0  ) {
 		return false;
 	}
 	// now we have to check all entries: So we add all stops to a vector we will iterate over
 	vector_tpl<halthandle_t> halts;
-	for(  uint8 idx = 0;  idx < this->eintrag.get_count();  idx++  ) {
-		koord3d p = this->eintrag[idx].pos;
+	for(  uint8 idx = 0;  idx < this->entries.get_count();  idx++  ) {
+		koord3d p = this->entries[idx].pos;
 		halthandle_t halt = haltestelle_t::get_halt( p, player );
 		if(  halt.is_bound()  ) {
 			halts.insert_unique_ordered( halt, HaltIdOrdering() );
 		}
 	}
 	vector_tpl<halthandle_t> other_halts;
-	for(  uint8 idx = 0;  idx < fpl->eintrag.get_count();  idx++  ) {
-		koord3d p = fpl->eintrag[idx].pos;
+	for(  uint8 idx = 0;  idx < schedule->entries.get_count();  idx++  ) {
+		koord3d p = schedule->entries[idx].pos;
 		halthandle_t halt = haltestelle_t::get_halt( p, player );
 		if(  halt.is_bound()  ) {
 			other_halts.insert_unique_ordered( halt, HaltIdOrdering() );
@@ -576,14 +576,14 @@ bool schedule_t::similar( const schedule_t *fpl, const player_t *player )
 
 void schedule_t::sprintf_schedule( cbuffer_t &buf ) const
 {
-	buf.append( aktuell );
+	buf.append( current_stop );
 	buf.printf( ",%i,%i,%i,%i", bidirectional, mirrored, spacing, same_spacing_shift) ;
 	buf.append( "|" );
 	buf.append( (int)get_type() );
 	buf.append( "|" );
-	FOR(minivec_tpl<schedule_entry_t>, const& i, eintrag) 
+	FOR(minivec_tpl<schedule_entry_t>, const& i, entries) 
 	{
-		buf.printf( "%s,%i,%i,%i,%i,%i|", i.pos.get_str(), i.ladegrad, (int)i.waiting_time_shift, (int)i.spacing_shift, (int)i.reverse, (int)i.wait_for_time );
+		buf.printf( "%s,%i,%i,%i,%i,%i|", i.pos.get_str(), i.minimum_loading, (int)i.waiting_time_shift, (int)i.spacing_shift, (int)i.reverse, (int)i.wait_for_time );
 	}
 }
 
@@ -592,15 +592,15 @@ bool schedule_t::sscanf_schedule( const char *ptr )
 {
 	const char *p = ptr;
 	// first: clear current schedule
-	while (!eintrag.empty()) {
+	while (!entries.empty()) {
 		remove();
 	}
 	if ( p == NULL  ||  *p == 0) {
 		// empty string
 		return false;
 	}
-	//  first get aktuell pointer
-	aktuell = atoi( p );
+	//  first get current_stop pointer
+	current_stop = atoi( p );
 	while ( *p && isdigit(*p) ) { p++; }
 	if ( *p && *p == ',' ) { p++; }
 	//bidirectional flag
@@ -659,16 +659,16 @@ bool schedule_t::sscanf_schedule( const char *ptr )
 			p++;
 		}
 		// ok, now we have a complete entry
-		eintrag.append(schedule_entry_t(koord3d(values[0], values[1], values[2]), values[3], values[4], values[5], values[6], (bool)values[7]));
+		entries.append(schedule_entry_t(koord3d(values[0], values[1], values[2]), values[3], values[4], values[5], values[6], (bool)values[7]));
 	}
 	return true;
 }
 
 bool schedule_t::is_contained (koord3d pos)
 {
-	ITERATE(eintrag, i)
+	ITERATE(entries, i)
 	{
-		if(pos == eintrag[i].pos)
+		if(pos == entries[i].pos)
 		{
 			return true;
 		}

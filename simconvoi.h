@@ -326,7 +326,7 @@ private:
 	* Alle vehikel-fahrplanzeiger zeigen hierauf
 	* @author Hj. Malthaner
 	*/
-	schedule_t *fpl;
+	schedule_t *schedule;
 
 	// Added by : Knightly
 	// Purpose  : To hold the original schedule before opening schedule window
@@ -334,7 +334,7 @@ private:
 	koord3d fpl_target;
 
 	/**
-	* loading_level was ladegrad before. Actual percentage loaded for loadable vehicles (station length!).
+	* loading_level was minimum_loading before. Actual percentage loaded for loadable vehicles (station length!).
 	* needed as int, since used by the gui
 	* @author Volker Meyer
 	* @date  12.06.2003
@@ -1159,7 +1159,7 @@ public:
 	* @return Current schedule
 	* @author Hj. Malthaner
 	*/
-	inline schedule_t* get_schedule() const { return fpl; }
+	inline schedule_t* get_schedule() const { return schedule; }
 
 	/**
 	* Creates a new schedule if there isn't one already.
@@ -1285,7 +1285,7 @@ public:
 	inline bool in_depot() const { return state == INITIAL; }
 
 	/**
-	* loading_level was ladegrad before. Actual percentage loaded of loadable
+	* loading_level was minimum_loading before. Actual percentage loaded of loadable
 	* vehicles.
 	* @author Volker Meyer
 	* @date  12.06.2003

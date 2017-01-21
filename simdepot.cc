@@ -173,13 +173,13 @@ void depot_t::convoi_arrived(convoihandle_t acnv, bool fpl_adjust)
 {
 	if(fpl_adjust) {
 		// Volker: remove depot from schedule
-		schedule_t *fpl = acnv->get_schedule();
-		for(  int i=0;  i<fpl->get_count();  i++  ) {
+		schedule_t *schedule = acnv->get_schedule();
+		for(  int i=0;  i<schedule->get_count();  i++  ) {
 			// only if convoi found
-			if(fpl->eintrag[i].pos==get_pos()) {
-				fpl->set_aktuell( i );
-				fpl->remove();
-				acnv->set_schedule(fpl);
+			if(schedule->entries[i].pos==get_pos()) {
+				schedule->set_aktuell( i );
+				schedule->remove();
+				acnv->set_schedule(schedule);
 			}
 		}
 
@@ -406,7 +406,7 @@ convoihandle_t depot_t::copy_convoi(convoihandle_t old_cnv, bool local_execution
 	if(  old_cnv.is_bound()  &&  !convoihandle_t::is_exhausted()  &&
 		old_cnv->get_vehicle_count() > 0  &&  get_waytype() == old_cnv->front()->get_besch()->get_waytype() )
 	{
-		if( old_cnv->get_schedule() && (!old_cnv->get_schedule()->ist_abgeschlossen()) )
+		if( old_cnv->get_schedule() && (!old_cnv->get_schedule()->is_editing_finished()) )
 		{           
 			if(local_execution)
 			{
@@ -536,7 +536,7 @@ bool depot_t::start_convoi(convoihandle_t cnv, bool local_execution)
 {
 	// close schedule window if not yet closed
 	if(cnv.is_bound() &&  cnv->get_schedule()!=NULL) {
-		if(!cnv->get_schedule()->ist_abgeschlossen()) {
+		if(!cnv->get_schedule()->is_editing_finished()) {
 			// close the schedule window
 			destroy_win((ptrdiff_t)cnv->get_schedule());
 		}
@@ -622,7 +622,7 @@ bool depot_t::start_convoi(convoihandle_t cnv, bool local_execution)
 			dbg->warning("depot_t::start_convoi()","No convoi to start!");
 		} else if (!cnv->get_schedule()) {
 			dbg->warning("depot_t::start_convoi()","No schedule for convoi.");
-		} else if (!cnv->get_schedule()->ist_abgeschlossen()) {
+		} else if (!cnv->get_schedule()->is_editing_finished()) {
 			dbg->warning("depot_t::start_convoi()","Schedule is incomplete/not finished");
 		}
 	}

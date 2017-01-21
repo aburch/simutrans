@@ -90,8 +90,8 @@ tool_t *create_general_tool(int toolnr)
 		case TOOL_ADD_CITY:         tool = new tool_add_city_t(); break;
 		case TOOL_CHANGE_CITY_SIZE: tool = new tool_change_city_size_t(); break;
 		case TOOL_PLANT_TREE:       tool = new tool_plant_tree_t(); break;
-		case TOOL_SCHEDULE_ADD:     tool = new tool_fahrplan_add_t(); break;
-		case TOOL_SCHEDULE_INS:     tool = new tool_fahrplan_ins_t(); break;
+		case TOOL_SCHEDULE_ADD:     tool = new tool_schedule_add_t(); break;
+		case TOOL_SCHEDULE_INS:     tool = new tool_schedule_ins_t(); break;
 		case TOOL_BUILD_WAY:          tool = new tool_build_way_t(); break;
 		case TOOL_BUILD_BRIDGE:      tool = new tool_build_bridge_t(); break;
 		case TOOL_BUILD_TUNNEL:        tool = new tool_build_tunnel_t(); break;

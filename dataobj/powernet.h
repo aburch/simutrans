@@ -26,7 +26,7 @@ public:
 	 * Must be called when a new map is started or loaded. Clears the table of networks.
 	 * @author Hj. Malthaner
 	 */
-	static void neue_karte();
+	static void new_world();
 
 	/// Steps all powernets
 	static void step_all(uint32 delta_t);

@@ -673,7 +673,7 @@ public:
 
 	road_vehicle_t(loadsave_t *file, bool first, bool last);
 	road_vehicle_t();
-	road_vehicle_t(koord3d pos, const vehikel_besch_t* besch, player_t* player, convoi_t* cnv); // start und fahrplan
+	road_vehicle_t(koord3d pos, const vehikel_besch_t* besch, player_t* player, convoi_t* cnv); // start und schedule
 
 	virtual void set_convoi(convoi_t *c);
 
@@ -756,7 +756,7 @@ public:
 #ifdef INLINE_OBJ_TYPE
 protected:
 	rail_vehicle_t(typ type, loadsave_t *file, bool is_leading, bool is_last);
-	rail_vehicle_t(typ type, koord3d pos, const vehikel_besch_t* besch, player_t* player, convoi_t *cnv); // start und fahrplan
+	rail_vehicle_t(typ type, koord3d pos, const vehikel_besch_t* besch, player_t* player, convoi_t *cnv); // start und schedule
 	void init(loadsave_t *file, bool is_leading, bool is_last);
 public:
 #else
@@ -764,7 +764,7 @@ public:
 #endif
 
 	rail_vehicle_t(loadsave_t *file, bool is_leading, bool is_last);
-	rail_vehicle_t(koord3d pos, const vehikel_besch_t* besch, player_t* player, convoi_t *cnv); // start und fahrplan
+	rail_vehicle_t(koord3d pos, const vehikel_besch_t* besch, player_t* player, convoi_t *cnv); // start und schedule
 	virtual ~rail_vehicle_t();
 
 	virtual void set_convoi(convoi_t *c);

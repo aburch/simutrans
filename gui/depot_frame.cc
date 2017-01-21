@@ -529,9 +529,9 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *comp, value_t p)
 				// promote existing individual schedule to line
 				cbuffer_t buf;
 				if(  cnv.is_bound()  &&  !selected_line.is_bound()  ) {
-					schedule_t* fpl = cnv->get_schedule();
-					if(  fpl  ) {
-						fpl->sprintf_schedule( buf );
+					schedule_t* schedule = cnv->get_schedule();
+					if(  schedule  ) {
+						schedule->sprintf_schedule( buf );
 					}
 				}
 				depot->call_depot_tool('l', convoihandle_t(), buf);
@@ -615,9 +615,9 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *comp, value_t p)
 					// promote existing individual schedule to line
 					cbuffer_t buf;
 					if(  cnv.is_bound()  &&  !selected_line.is_bound()  ) {
-						schedule_t* fpl = cnv->get_schedule();
-						if(  fpl  ) {
-							fpl->sprintf_schedule( buf );
+						schedule_t* schedule = cnv->get_schedule();
+						if(  schedule  ) {
+							schedule->sprintf_schedule( buf );
 						}
 					}
 					line_selector.set_focusable( false );
@@ -792,7 +792,7 @@ void depot_frame_t::apply_line()
 			// sometimes the user might wish to remove convoy from line
 			// => we clear the schedule completely
 			schedule_t *dummy = cnv->create_schedule()->copy();
-			dummy->eintrag.clear();
+			dummy->entries.clear();
 
 			cbuffer_t buf;
 			dummy->sprintf_schedule(buf);
@@ -814,9 +814,9 @@ void depot_frame_t::fahrplaneingabe()
 		}
 		else { // edit individual schedule
 			// this can happen locally, since any update of the schedule is done during closing window
-			schedule_t *fpl = cnv->create_schedule();
-			assert(fpl!=NULL);
-			gui_frame_t *fplwin = win_get_magic( (ptrdiff_t)fpl );
+			schedule_t *schedule = cnv->create_schedule();
+			assert(schedule!=NULL);
+			gui_frame_t *fplwin = win_get_magic( (ptrdiff_t)schedule );
 			if(  fplwin == NULL  ) {
 				cnv->open_schedule_window( welt->get_active_player() == cnv->get_owner() );
 			}
