@@ -1867,7 +1867,7 @@
     <ClCompile Include="gui\factorylist_frame_t.cc" />
     <ClCompile Include="gui\factorylist_stats_t.cc" />
     <ClCompile Include="dataobj\schedule.cc" />
-    <ClCompile Include="gui\fahrplan_gui.cc" />
+    <ClCompile Include="gui\schedule_gui.cc" />
     <ClCompile Include="dataobj\freelist.cc" />
     <ClCompile Include="freight_list_sorter.cc" />
     <ClCompile Include="boden\fundament.cc" />
@@ -2274,7 +2274,7 @@
     <ClInclude Include="gui\factorylist_stats_t.h" />
     <ClInclude Include="ifc\simtestdriver.h" />
     <ClInclude Include="dataobj\schedule.h" />
-    <ClInclude Include="gui\fahrplan_gui.h" />
+    <ClInclude Include="gui\schedule_gui.h" />
     <ClInclude Include="tpl\fixed_list_tpl.h" />
     <ClInclude Include="dataobj\freelist.h" />
     <ClInclude Include="freight_list_sorter.h" />

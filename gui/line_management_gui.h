@@ -4,7 +4,7 @@
  * 01/12/2003
  */
 
-#include "fahrplan_gui.h"
+#include "schedule_gui.h"
 
 #include "../linehandle_t.h"
 
