@@ -14,7 +14,7 @@ static const weg_desc_t *my_get_desc(const char *name)
 	return wegbauer_t::get_desc(name);
 }
 
-implement_desc_param(baum_desc_t, "tree_desc_x", &baum_t::find_tree);
+implement_desc_param(tree_desc_t, "tree_desc_x", &baum_t::find_tree);
 implement_desc_param(haus_desc_t, "building_desc_x", &hausbauer_t::get_desc);
 implement_desc_param(ware_desc_t, "good_desc_x", (const ware_desc_t* (*)(const char*))(&warenbauer_t::get_info) );
 implement_desc_param(weg_desc_t, "way_desc_x", &my_get_desc);

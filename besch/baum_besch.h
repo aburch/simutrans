@@ -29,7 +29,7 @@
  // season 1 is winter for two seasons
  // otherwise 0 summer, next seasons (autumn, winter, spring) ....
 
-class baum_desc_t : public obj_desc_std_name_t {
+class tree_desc_t : public obj_desc_std_name_t {
 	friend class tree_reader_t;
 
 	climate_bits	allowed_climates;
@@ -46,7 +46,7 @@ public:
 	image_id get_image_id(int season, int i) const
 	{
 		if(number_of_seasons==0) {
-			// comapility mode
+			// compatibility mode
 			i += season*5;
 			season = 0;
 		}

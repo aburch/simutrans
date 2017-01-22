@@ -45,7 +45,7 @@ PLAYER_COLOR_VAL baum_t::outline_color = 0;
 // missing images just have just identical entries
 // seasons are: 0=summer, 1=autumn, 2=winter, 3=spring, 4=snow
 // snow image is used if tree is above snow line, or for arctic climate
-static image_id baumtype_to_image[256][5*5];
+static image_id tree_id_to_image[256][5*5];
 
 
 // distributes trees on a map
@@ -74,27 +74,27 @@ DBG_MESSAGE("verteile_baeume()","creating %i forest",c_forest_count);
 }
 
 
-/*************************** first the static function for the baum_t and baum_desc_t administration ***************/
+/*************************** first the static function for the baum_t and tree_desc_t administration ***************/
 
 /*
  * Diese Tabelle ermoeglicht das Auffinden dient zur Auswahl eines Baumtypen
  */
-vector_tpl<const baum_desc_t *> baum_t::baum_typen(0);
+vector_tpl<const tree_desc_t *> baum_t::tree_list(0);
 
-// index vector into baumtypen, accessible per climate
-weighted_vector_tpl<uint32>* baum_t::baum_typen_per_climate = NULL;
+// index vector into tree_idn, accessible per climate
+weighted_vector_tpl<uint32>* baum_t::tree_list_per_climate = NULL;
 
 /*
  * Diese Tabelle ermoeglicht das Auffinden einer Description durch ihren Namen
  */
-stringhashtable_tpl<const baum_desc_t *> baum_t::desc_names;
+stringhashtable_tpl<const tree_desc_t *> baum_t::desc_names;
 
 
 // total number of trees
 // the same for a certain climate
 int baum_t::get_count(climate cl)
 {
-	return baum_typen_per_climate[cl].get_count();
+	return tree_list_per_climate[cl].get_count();
 }
 
 
@@ -140,7 +140,7 @@ uint8 baum_t::plant_tree_on_coordinate(koord pos, const uint8 maximum_count, con
 /**
  * tree planting function - it takes care of checking suitability of area
  */
-bool baum_t::plant_tree_on_coordinate(koord pos, const baum_desc_t *desc, const bool check_climate, const bool random_age )
+bool baum_t::plant_tree_on_coordinate(koord pos, const tree_desc_t *desc, const bool check_climate, const bool random_age )
 {
 	// none there
 	if(  desc_names.empty()  ) {
@@ -243,7 +243,7 @@ DBG_MESSAGE("verteile_baeume()","distributing single trees");
 }
 
 
-static bool compare_baum_desc(const baum_desc_t* a, const baum_desc_t* b)
+static bool compare_tree_desc(const tree_desc_t* a, const tree_desc_t* b)
 {
 	/* Gleiches Level - wir führen eine künstliche, aber eindeutige Sortierung
 	 * über den Namen herbei. */
@@ -257,32 +257,32 @@ bool baum_t::alles_geladen()
 		DBG_MESSAGE("baum_t", "No trees found - feature disabled");
 	}
 
-	FOR(stringhashtable_tpl<baum_desc_t const*>, const& i, desc_names) {
-		baum_typen.insert_ordered(i.value, compare_baum_desc);
-		if(  baum_typen.get_count()==255  ) {
+	FOR(stringhashtable_tpl<tree_desc_t const*>, const& i, desc_names) {
+		tree_list.insert_ordered(i.value, compare_tree_desc);
+		if(  tree_list.get_count()==255  ) {
 			dbg->error( "baum_t::alles_geladen()", "Maximum tree count exceeded! (max 255 instead of %i)", desc_names.get_count() );
 			break;
 		}
 	}
-	baum_typen.append( NULL );
+	tree_list.append( NULL );
 
-	delete [] baum_typen_per_climate;
-	baum_typen_per_climate = new weighted_vector_tpl<uint32>[MAX_CLIMATES];
+	delete [] tree_list_per_climate;
+	tree_list_per_climate = new weighted_vector_tpl<uint32>[MAX_CLIMATES];
 
 	// clear cache
-	memset( baumtype_to_image, -1, lengthof(baumtype_to_image) );
+	memset( tree_id_to_image, -1, lengthof(tree_id_to_image) );
 	// now register all trees for all fitting climates
-	for(  uint32 typ=0;  typ<baum_typen.get_count()-1;  typ++  ) {
+	for(  uint32 typ=0;  typ<tree_list.get_count()-1;  typ++  ) {
 		// add this tree to climates
 		for(  uint8 j=0;  j<MAX_CLIMATES;  j++  ) {
-			if(  baum_typen[typ]->is_allowed_climate((climate)j)  ) {
-				baum_typen_per_climate[j].append(typ, baum_typen[typ]->get_distribution_weight());
+			if(  tree_list[typ]->is_allowed_climate((climate)j)  ) {
+				tree_list_per_climate[j].append(typ, tree_list[typ]->get_distribution_weight());
 			}
 		}
 		// create cache images
 		for(  uint8 season = 0;  season < 5;  season++  ) {
 			uint8 use_season = 0;
-			const sint16 seasons = baum_typen[typ]->get_seasons();
+			const sint16 seasons = tree_list[typ]->get_seasons();
 			if(  seasons > 1  ) {
 				use_season = season;
 				// three possibilities
@@ -299,7 +299,7 @@ bool baum_t::alles_geladen()
 				}
 			}
 			for(  uint8 age = 0;  age < 5;  age++  ) {
-				baumtype_to_image[typ][season * 5 + age] = baum_typen[typ]->get_image_id( use_season, age );
+				tree_id_to_image[typ][season * 5 + age] = tree_list[typ]->get_image_id( use_season, age );
 			}
 		}
 	}
@@ -307,7 +307,7 @@ bool baum_t::alles_geladen()
 }
 
 
-bool baum_t::register_desc(baum_desc_t *desc)
+bool baum_t::register_desc(tree_desc_t *desc)
 {
 	// avoid duplicates with same name
 	if(desc_names.remove(desc->get_name())) {
@@ -324,7 +324,7 @@ void baum_t::calc_off(uint8 slope, sint8 x_, sint8 y_)
 {
 	sint16 random = (sint16)( get_pos().x + get_pos().y + get_pos().z + slope + (uint64)this );
 	// point on tile (imaginary origin at sw corner, x axis: north, y axis: east
-	sint16 x = x_==-128 ? (random + baumtype) & 31  : x_;
+	sint16 x = x_==-128 ? (random + tree_id) & 31  : x_;
 	sint16 y = y_==-128 ? (random + get_age()) & 31 : y_;
 
 	// the last bit has to be the same
@@ -391,11 +391,11 @@ image_id baum_t::get_image() const
 			return IMG_EMPTY;
 		}
 		else {
-			return baumtype_to_image[ baumtype ][ season*5 ];
+			return tree_id_to_image[ tree_id ][ season*5 ];
 		}
 	}
 	const uint8 baum_alter = tree_age_index[min(get_age()>>6, 11u)];
-	return baumtype_to_image[ baumtype ][ season*5 + baum_alter ];
+	return tree_id_to_image[ tree_id ][ season*5 + baum_alter ];
 //	return get_desc()->get_image_id( season, baum_alter );
 }
 
@@ -404,7 +404,7 @@ image_id baum_t::get_image() const
 image_id baum_t::get_outline_image() const
 {
 	const uint8 baum_alter = tree_age_index[min(get_age()>>6, 11u)];
-	return baumtype_to_image[ baumtype ][ season*5 + baum_alter ];
+	return tree_id_to_image[ tree_id ][ season*5 + baum_alter ];
 //	return get_desc()->get_image_id( season, baum_alter );
 }
 
@@ -426,7 +426,7 @@ uint32 baum_t::get_age() const
 uint16 baum_t::random_tree_for_climate_intern(climate cl)
 {
 	// now weight their distribution
-	weighted_vector_tpl<uint32> const& t = baum_typen_per_climate[cl];
+	weighted_vector_tpl<uint32> const& t = tree_list_per_climate[cl];
 	assert(!t.empty());
 	return pick_any_weighted(t);
 }
@@ -441,7 +441,7 @@ baum_t::baum_t(loadsave_t *file) :
 {
 	season = 0;
 	geburt = welt->get_current_month();
-	baumtype = 0;
+	tree_id = 0;
 	rdwr(file);
 }
 
@@ -456,7 +456,7 @@ baum_t::baum_t(koord3d pos) :
 	// generate aged trees
 	// might underflow
 	geburt = welt->get_current_month() - simrand(703, "baum_t::baum_t");
-	baumtype = (uint8)random_tree_for_climate_intern( welt->get_climate(pos.get_2d()) );
+	tree_id = (uint8)random_tree_for_climate_intern( welt->get_climate(pos.get_2d()) );
 	season = 0;
 	calc_off( welt->lookup( get_pos())->get_grund_hang() );
 	calc_image();
@@ -471,14 +471,14 @@ baum_t::baum_t(koord3d pos, uint8 type, sint32 age, uint8 slope ) :
 #endif
 {
 	geburt = welt->get_current_month()-age; // might underflow
-	baumtype = type;
+	tree_id = type;
 	season = 0;
 	calc_off( slope );
 	calc_image();
 }
 
 
-baum_t::baum_t(koord3d pos, const baum_desc_t *desc) : 
+baum_t::baum_t(koord3d pos, const tree_desc_t *desc) : 
 #ifdef INLINE_OBJ_TYPE
 	obj_t(obj_t::baum, pos)
 #else
@@ -486,7 +486,7 @@ baum_t::baum_t(koord3d pos, const baum_desc_t *desc) :
 #endif
 {
 	geburt = welt->get_current_month();
-	baumtype = baum_typen.index_of(desc);
+	tree_id = tree_list.index_of(desc);
 	season = 0;
 	calc_off( welt->lookup( get_pos())->get_grund_hang() );
 	calc_image();
@@ -503,7 +503,7 @@ bool baum_t::saee_baum()
 	const sint16 sy = simrand(5, "baum_t::saee_baum()")-2;
 	const koord k = get_pos().get_2d() + koord(sx,sy);
 
-	return plant_tree_on_coordinate(k, baum_typen[baumtype], true, false);
+	return plant_tree_on_coordinate(k, tree_list[tree_id], true, false);
 }
 
 
@@ -565,16 +565,16 @@ void baum_t::rdwr(loadsave_t *file)
 	if(file->is_loading()) {
 		char buf[128];
 		file->rdwr_str(buf, lengthof(buf));
-		const baum_desc_t *desc = desc_names.get(buf);
-		if (!baum_typen.is_contained(desc)) {
+		const tree_desc_t *desc = desc_names.get(buf);
+		if (!tree_list.is_contained(desc)) {
 			desc = desc_names.get(translator::compatibility_name(buf));
 		}
-		if(  baum_typen.is_contained(desc)  ) {
-			baumtype = baum_typen.index_of( desc );
+		if(  tree_list.is_contained(desc)  ) {
+			tree_id = tree_list.index_of( desc );
 		}
 		else {
 			// replace with random tree
-			baumtype = simrand(baum_typen.get_count(), "baum_t::rdwr");
+			tree_id = simrand(tree_list.get_count(), "baum_t::rdwr");
 		}
 	}
 	else {
