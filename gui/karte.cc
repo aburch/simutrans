@@ -581,34 +581,6 @@ void reliefkarte_t::set_relief_farbe(koord k_, const int color)
 	}
 }
 
-
-void reliefkarte_t::set_relief_farbe_area(koord k, int areasize, uint8 color)
-{
-	koord p;
-	if(isometric) {
-		k -= koord( areasize/2, areasize/2 );
-		for(  p.x = 0;  p.x<areasize;  p.x++  ) {
-			for(  p.y = 0;  p.y<areasize;  p.y++  ) {
-				set_relief_farbe( k+p, color );
-			}
-		}
-	}
-	else {
-		scr_coord c = karte_to_screen(k);
-		areasize *= zoom_in;
-		c -= scr_coord( areasize/2, areasize/2 );
-		c.x = clamp( c.x, 0, get_size().w-areasize-1 );
-		c.y = clamp( c.y, 0, get_size().h-areasize-1 );
-		c -= cur_off;
-		for(  p.x = max(0,c.x);  (uint16)p.x < areasize+c.x  &&  (uint16)p.x < relief->get_width();  p.x++  ) {
-			for(  p.y = max(0,c.y);  (uint16)p.y < areasize+c.y  &&  (uint16)p.y < relief->get_height();  p.y++  ) {
-				relief->at(p.x, p.y) = color;
-			}
-		}
-	}
-}
-
-
 /**
  * calculates ground color for position relative to water height
  * @param hoehe height of the tile
@@ -927,7 +899,7 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 						if(  level > max_building_level  ) {
 							max_building_level = level;
 						}
-						set_relief_farbe_area(k, 1, calc_severity_color( level, max_building_level ) );
+						set_relief_farbe(k, calc_severity_color(level, max_building_level));
 					}
 				}
 			}
@@ -1005,7 +977,7 @@ void reliefkarte_t::calc_map()
 		// draw them
 		FOR(weighted_vector_tpl<gebaeude_t*>, const g, ausflugsziele) {
 			koord pos = g->get_pos().get_2d();
-			set_relief_farbe_area( pos, 7, calc_severity_color(g->get_adjusted_visitor_demand(), max_tourist_ziele));
+			set_relief_farbe( pos, calc_severity_color(g->get_adjusted_visitor_demand(), max_tourist_ziele));
 		}
 		return;
 	}
@@ -1015,8 +987,8 @@ void reliefkarte_t::calc_map()
 	{
 		FOR(vector_tpl<fabrik_t*>, const f, welt->get_fab_list()) {
 			koord const pos = f->get_pos().get_2d();
-			set_relief_farbe_area( pos, 9, COL_BLACK );
-			set_relief_farbe_area(pos, 7, f->get_kennfarbe());
+			set_relief_farbe( pos, COL_BLACK );
+			set_relief_farbe(pos, f->get_kennfarbe());
 		}
 		return;
 	}
@@ -1027,7 +999,7 @@ void reliefkarte_t::calc_map()
 				koord const pos = d->get_pos().get_2d();
 				// offset of one to avoid
 				static uint8 depot_typ_to_color[19]={ COL_ORANGE, COL_YELLOW, COL_RED, 0, 0, 0, 0, 0, 0, COL_PURPLE, COL_DARK_RED, COL_DARK_ORANGE, 0, 0, 0, 0, 0, 0, COL_LIGHT_RED };
-				set_relief_farbe_area(pos, 7, depot_typ_to_color[d->get_typ() - obj_t::bahndepot]);
+				set_relief_farbe(pos, depot_typ_to_color[d->get_typ() - obj_t::bahndepot]);
 			}
 		}
 		return;
