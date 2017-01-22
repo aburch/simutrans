@@ -647,7 +647,7 @@ void player_t::ai_bankrupt()
 					if(  w  &&  w->get_owner()==this  ) {
 						// take ownership
 						if (wnr>1  ||  (!gr->ist_bruecke()  &&  !gr->ist_tunnel())) {
-							player_t::add_maintenance( this, -w->get_besch()->get_wartung(), w->get_besch()->get_finance_waytype() );
+							player_t::add_maintenance( this, -w->get_desc()->get_wartung(), w->get_desc()->get_finance_waytype() );
 						}
 						w->set_owner(NULL); // make unowned
 					}
@@ -686,7 +686,7 @@ void player_t::ai_bankrupt()
 								break;
 							case obj_t::leitung:
 								if(gr->ist_bruecke()) {
-									add_maintenance( -((leitung_t*)obj)->get_besch()->get_wartung(), powerline_wt );
+									add_maintenance( -((leitung_t*)obj)->get_desc()->get_wartung(), powerline_wt );
 									// do not remove powerline from bridges
 									obj->set_owner( welt->get_public_player() );
 								}
@@ -705,15 +705,15 @@ void player_t::ai_bankrupt()
 									w->set_owner( NULL );
 								}
 								else if(w->get_waytype()==road_wt  ||  w->get_waytype()==water_wt) {
-									add_maintenance( -w->get_besch()->get_wartung(), w->get_waytype() );
+									add_maintenance( -w->get_desc()->get_wartung(), w->get_waytype() );
 									w->set_owner( NULL );
 								}
 								else {
 									weg_t *way = (weg_t *)obj;
-									const weg_besch_t* mothballed_type = wegbauer_t::way_search_mothballed(way->get_waytype(), (systemtype_t)way->get_besch()->get_styp());
+									const weg_desc_t* mothballed_type = wegbauer_t::way_search_mothballed(way->get_waytype(), (systemtype_t)way->get_desc()->get_styp());
 									if(mothballed_type && way->get_waytype())
 									{
-										way->set_besch(mothballed_type);
+										way->set_desc(mothballed_type);
 									}
 									else
 									{
@@ -724,11 +724,11 @@ void player_t::ai_bankrupt()
 								break;
 							}
 							case obj_t::bruecke:
-								add_maintenance( -((bruecke_t*)obj)->get_besch()->get_wartung(), obj->get_waytype() );
+								add_maintenance( -((bruecke_t*)obj)->get_desc()->get_wartung(), obj->get_waytype() );
 								obj->set_owner( NULL );
 								break;
 							case obj_t::tunnel:
-								add_maintenance( -((tunnel_t*)obj)->get_besch()->get_wartung(), ((tunnel_t*)obj)->get_besch()->get_finance_waytype() );
+								add_maintenance( -((tunnel_t*)obj)->get_desc()->get_wartung(), ((tunnel_t*)obj)->get_desc()->get_finance_waytype() );
 								obj->set_owner( NULL );
 								break;
 
@@ -1068,7 +1068,7 @@ sint64 player_t::undo()
 			leitung_t* lt = gr->get_leitung();
 			if (lt)
 			{
-				cost += lt->get_besch()->get_preis();
+				cost += lt->get_desc()->get_preis();
 				lt->cleanup(NULL);
 				delete lt;
 			}

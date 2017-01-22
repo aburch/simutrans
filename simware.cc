@@ -22,7 +22,7 @@
 
 
 
-const ware_besch_t *ware_t::index_to_besch[256];
+const ware_desc_t *ware_t::index_to_desc[256];
 
 
 
@@ -34,7 +34,7 @@ ware_t::ware_t() : ziel(), zwischenziel(), zielpos(-1, -1)
 }
 
 
-ware_t::ware_t(const ware_besch_t *wtyp) : ziel(), zwischenziel(), zielpos(-1, -1)
+ware_t::ware_t(const ware_desc_t *wtyp) : ziel(), zwischenziel(), zielpos(-1, -1)
 {
 	//This constructor is called from simcity.cc
 	menge = 0;
@@ -44,7 +44,7 @@ ware_t::ware_t(const ware_besch_t *wtyp) : ziel(), zwischenziel(), zielpos(-1, -
 
 // Constructor for new revenue system: packet of cargo keeps track of its origin.
 //@author: jamespetts
-ware_t::ware_t(const ware_besch_t *wtyp, halthandle_t o) : ziel(), zwischenziel(), zielpos(-1, -1)
+ware_t::ware_t(const ware_desc_t *wtyp, halthandle_t o) : ziel(), zwischenziel(), zielpos(-1, -1)
 {
 	menge = 0;
 	index = wtyp->get_index();
@@ -59,7 +59,7 @@ ware_t::ware_t(loadsave_t *file)
 }
 
 
-void ware_t::set_besch(const ware_besch_t* type)
+void ware_t::set_desc(const ware_desc_t* type)
 {
 	index = type->get_index();
 }
@@ -90,13 +90,13 @@ void ware_t::rdwr(loadsave_t *file)
 
 	if(file->is_saving()) {
 		const char *typ = NULL;
-		typ = get_besch()->get_name();
+		typ = get_desc()->get_name();
 		file->rdwr_str(typ);
 	}
 	else {
 		char typ[256];
 		file->rdwr_str(typ, lengthof(typ));
-		const ware_besch_t *type = warenbauer_t::get_info(typ);
+		const ware_desc_t *type = warenbauer_t::get_info(typ);
 		if(type==NULL) {
 			dbg->warning("ware_t::rdwr()","unknown ware of catg %d!",catg);
 			index = warenbauer_t::get_info_catg(catg)->get_index();

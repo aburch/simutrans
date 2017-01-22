@@ -51,7 +51,7 @@ public:
 	 * @param name is name for tab component
 	 * @author Hj. Malthaner
 	 */
-	void add_tab(gui_component_t *c, const char *name, const skin_besch_t *b=NULL, const char *tooltip=NULL );
+	void add_tab(gui_component_t *c, const char *name, const skin_desc_t *b=NULL, const char *tooltip=NULL );
 
 	/**
 	 * Get the active component/active tab

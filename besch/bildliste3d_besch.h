@@ -24,7 +24,7 @@
  *  2   3. Image-list
  *	... ...
  */
-class image_array_3d_t : public obj_besch_t {
+class image_array_3d_t : public obj_desc_t {
 	friend class imagelist3d_reader_t;
 	friend class imagelist3d_writer_t;
 

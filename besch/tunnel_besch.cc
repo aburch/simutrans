@@ -10,7 +10,7 @@
 #include "tunnel_besch.h"
 #include "../network/checksum.h"
 
-int tunnel_besch_t::hang_indices[81] = {
+int tunnel_desc_t::hang_indices[81] = {
 	-1, // 0:
 	-1, // 1:
 	-1, // 2:
@@ -94,9 +94,9 @@ int tunnel_besch_t::hang_indices[81] = {
 	-1  // 80:
 };
 
-void tunnel_besch_t::calc_checksum(checksum_t *chk) const
+void tunnel_desc_t::calc_checksum(checksum_t *chk) const
 {
-	obj_besch_transport_infrastructure_t::calc_checksum(chk);
+	obj_desc_transport_infrastructure_t::calc_checksum(chk);
 
 	//Experimental settings
 	//chk->input(max_axle_load);
@@ -105,7 +105,7 @@ void tunnel_besch_t::calc_checksum(checksum_t *chk) const
 }
 
 
-waytype_t tunnel_besch_t::get_finance_waytype() const
+waytype_t tunnel_desc_t::get_finance_waytype() const
 {
-	return ((get_weg_besch() && (get_weg_besch()->get_styp() == type_tram)) ? tram_wt : get_waytype()) ;
+	return ((get_weg_desc() && (get_weg_desc()->get_styp() == type_tram)) ? tram_wt : get_waytype()) ;
 }

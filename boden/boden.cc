@@ -29,7 +29,7 @@ boden_t::boden_t(loadsave_t *file, koord pos ) : grund_t( koord3d(pos,0) )
 			sint32 age;
 			file->rdwr_long( age );
 			// check, if we still have this tree ... (if there are not trees, the first index is NULL!)
-			if (id < baum_t::get_count() && baum_t::get_all_besch()[id]) {
+			if (id < baum_t::get_count() && baum_t::get_all_desc()[id]) {
 				baum_t *tree = new baum_t( get_pos(), (uint8)id, age, slope );
 				objlist.add( tree );
 			}
@@ -61,7 +61,7 @@ void boden_t::rdwr(loadsave_t *file)
 				obj_t *obj = objlist.bei(i);
 				if(  obj->get_typ()==obj_t::baum  ) {
 					baum_t *tree = (baum_t *)obj;
-					file->wr_obj_id( tree->get_besch_id() );
+					file->wr_obj_id( tree->get_desc_id() );
 					uint32 age = tree->get_age();
 					file->rdwr_long( age );
 				}
@@ -92,7 +92,7 @@ void boden_t::calc_image_internal(const bool calc_only_snowline_change)
 	const weg_t *const weg = get_weg( road_wt );
 	if(  weg  &&  weg->hat_gehweg()  ) {
 		// single or double slope? (single slopes are not divisible by 8)
-		const uint8 imageid = (!slope_this  ||  (slope_this & 7)) ? grund_besch_t::slopetable[slope_this] : grund_besch_t::slopetable[slope_this >> 1] + 12;
+		const uint8 imageid = (!slope_this  ||  (slope_this & 7)) ? grund_desc_t::slopetable[slope_this] : grund_desc_t::slopetable[slope_this >> 1] + 12;
 
 		if(  (get_hoehe() >= welt->get_snowline()  ||  welt->get_climate(pos.get_2d()) == arctic_climate)  &&  skinverwaltung_t::fussweg->get_image_id(imageid + 1) != IMG_EMPTY  ) {
 			// snow images
@@ -107,7 +107,7 @@ void boden_t::calc_image_internal(const bool calc_only_snowline_change)
 		}
 	}
 	else {
-		set_image( grund_besch_t::get_ground_tile(this) );
+		set_image( grund_desc_t::get_ground_tile(this) );
 	}
 
 	if(  !calc_only_snowline_change  ) {

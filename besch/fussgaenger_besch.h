@@ -4,8 +4,8 @@
  * This file is part of the Simutrans project under the artistic licence.
  */
 
-#ifndef __fussgaenger_besch_h
-#define __fussgaenger_besch_h
+#ifndef __fussgaenger_desc_h
+#define __fussgaenger_desc_h
 
 #include "obj_besch_std_name.h"
 #include "bildliste_besch.h"
@@ -24,7 +24,7 @@
  *	1   Copyright
  *	2   Image-list
  */
-class fussgaenger_besch_t : public obj_besch_timelined_t {
+class fussgaenger_desc_t : public obj_desc_timelined_t {
     friend class pedestrian_reader_t;
 
     uint16 gewichtung;

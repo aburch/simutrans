@@ -16,7 +16,7 @@
 
 
 class karte_t;
-class weg_besch_t;
+class weg_desc_t;
 class cbuffer_t;
 class player_t;
 class signal_t;
@@ -84,7 +84,7 @@ private:
 	* Way type description
 	* @author Hj. Malthaner
 	*/
-	const weg_besch_t * besch;
+	const weg_desc_t * desc;
 
 	/**
 	* Richtungsbits für den Weg. Norden ist oben rechts auf dem Monitor.
@@ -106,7 +106,7 @@ private:
 	uint8 flags;
 
 	/**
-	* max speed; could not be taken for besch, since other object may modify the speed
+	* max speed; could not be taken for desc, since other object may modify the speed
 	* @author Hj. Malthaner
 	*/
 	uint16 max_speed;
@@ -182,7 +182,7 @@ protected:
 	 * NULL = do not replace.
 	 * @author: jamespetts
 	 */
-	const weg_besch_t *replacement_way;
+	const weg_desc_t *replacement_way;
 
 	/* 
 	 * Degrade the way owing to excessive wear without renewal.
@@ -221,7 +221,7 @@ public:
 	void set_bridge_weight_limit(uint32 value) { bridge_weight_limit = value; }
 
 	// Resets constraints to their base values. Used when removing way objects.
-	void reset_way_constraints() { way_constraints = besch->get_way_constraints(); }
+	void reset_way_constraints() { way_constraints = desc->get_way_constraints(); }
 
 	void clear_way_constraints() { way_constraints.set_permissive(0); way_constraints.set_prohibitive(0); }
 
@@ -254,8 +254,8 @@ public:
 	* worth of description and updates the maintenance cost.
 	* @author Hj. Malthaner
 	*/
-	void set_besch(const weg_besch_t *b, bool from_saved_game = false);
-	const weg_besch_t *get_besch() const { return besch; }
+	void set_desc(const weg_desc_t *b, bool from_saved_game = false);
+	const weg_desc_t *get_desc() const { return desc; }
 
 	// returns a way with the matching type
 	static weg_t *alloc(waytype_t wt);
@@ -295,7 +295,7 @@ public:
 	* Die Bezeichnung des Wegs
 	* @author Hj. Malthaner
 	*/
-	const char *get_name() const { return besch->get_name(); }
+	const char *get_name() const { return desc->get_name(); }
 
 	/**
 	* Setzt neue Richtungsbits für einen Weg.
@@ -429,7 +429,7 @@ public:
 	 */
 	void wear_way(uint32 wear); 
 
-	void set_replacement_way(const weg_besch_t* replacement) { replacement_way = replacement; }
+	void set_replacement_way(const weg_desc_t* replacement) { replacement_way = replacement; }
 
 	/**
 	 * Renew the way automatically when it is worn out.

@@ -2378,7 +2378,7 @@
     <ClInclude Include="boden\wege\narrowgauge.h" />
     <ClInclude Include="utils\notification.h" />
     <ClInclude Include="besch\obj_besch.h" />
-    <ClInclude Include="besch\obj_besch_std_name.h" />
+    <ClInclude Include="besch\obj_desc_std_name.h" />
     <ClInclude Include="besch\writer\obj_node.h" />
     <ClInclude Include="besch\obj_node_info.h" />
     <ClInclude Include="besch\writer\obj_pak_exception.h" />

@@ -326,15 +326,15 @@ void road_user_t::finish_rd()
 /* private_car_t (city cars) from here on */
 
 
-static weighted_vector_tpl<const stadtauto_besch_t*> liste_timeline;
-stringhashtable_tpl<const stadtauto_besch_t *> private_car_t::table;
+static weighted_vector_tpl<const stadtauto_desc_t*> liste_timeline;
+stringhashtable_tpl<const stadtauto_desc_t *> private_car_t::table;
 
-bool private_car_t::register_besch(const stadtauto_besch_t *besch)
+bool private_car_t::register_desc(const stadtauto_desc_t *desc)
 {
-	if(  table.remove(besch->get_name())  ) {
-		dbg->warning( "stadtauto_besch_t::register_besch()", "Object %s was overlaid by addon!", besch->get_name() );
+	if(  table.remove(desc->get_name())  ) {
+		dbg->warning( "stadtauto_desc_t::register_desc()", "Object %s was overlaid by addon!", desc->get_name() );
 	}
-	table.put(besch->get_name(), besch);
+	table.put(desc->get_name(), desc);
 	return true;
 }
 
@@ -349,7 +349,7 @@ bool private_car_t::alles_geladen()
 }
 
 
-static bool compare_stadtauto_besch(const stadtauto_besch_t* a, const stadtauto_besch_t* b)
+static bool compare_stadtauto_desc(const stadtauto_desc_t* a, const stadtauto_desc_t* b)
 {
 	int diff = a->get_intro_year_month() - b->get_intro_year_month();
 	if (diff == 0) {
@@ -368,24 +368,24 @@ void private_car_t::build_timeline_list(karte_t *welt)
 {
 	// this list will contain all citycars
 	liste_timeline.clear();
-	vector_tpl<const stadtauto_besch_t*> temp_liste(0);
+	vector_tpl<const stadtauto_desc_t*> temp_liste(0);
 	if(  !table.empty()  ) {
 		const int month_now = welt->get_current_month();
 //DBG_DEBUG("private_car_t::build_timeline_list()","year=%i, month=%i", month_now/12, month_now%12+1);
 
 		// check for every citycar, if still ok ...
-		FOR(stringhashtable_tpl<stadtauto_besch_t const*>, const& i, table) {
-			stadtauto_besch_t const* const info = i.value;
+		FOR(stringhashtable_tpl<stadtauto_desc_t const*>, const& i, table) {
+			stadtauto_desc_t const* const info = i.value;
 			const int intro_month = info->get_intro_year_month();
 			const int retire_month = info->get_retire_year_month();
 
 			if (!welt->use_timeline() || (intro_month <= month_now && month_now < retire_month)) {
-				temp_liste.insert_ordered( info, compare_stadtauto_besch );
+				temp_liste.insert_ordered( info, compare_stadtauto_desc );
 			}
 		}
 	}
 	liste_timeline.resize( temp_liste.get_count() );
-	FOR(vector_tpl<stadtauto_besch_t const*>, const i, temp_liste) {
+	FOR(vector_tpl<stadtauto_desc_t const*>, const i, temp_liste) {
 		liste_timeline.append(i, i->get_gewichtung());
 	}
 }
@@ -420,7 +420,7 @@ private_car_t::private_car_t(loadsave_t *file) :
 {
 	rdwr(file);
 		
-	if(besch) {
+	if(desc) {
 		welt->sync.add(this);
 	}
 }
@@ -432,7 +432,7 @@ private_car_t::private_car_t(grund_t* gr, koord const target) :
 #else
 	road_user_t(gr, simrand(65535, "private_car_t::private_car_t (weg_next)")),
 #endif
-	besch(liste_timeline.empty() ? 0 : pick_any_weighted(liste_timeline))
+	desc(liste_timeline.empty() ? 0 : pick_any_weighted(liste_timeline))
 {
 	pos_next_next = koord3d::invalid;
 	time_to_life = welt->get_settings().get_stadtauto_duration() << welt->ticks_per_world_month_shift;
@@ -510,24 +510,24 @@ void private_car_t::rdwr(loadsave_t *file)
 	road_user_t::rdwr(file);
 
 	if(file->is_saving()) {
-		const char *s = besch->get_name();
+		const char *s = desc->get_name();
 		file->rdwr_str(s);
 	}
 	else {
 		char s[256];
 		file->rdwr_str(s, lengthof(s));
-		besch = table.get(s);
+		desc = table.get(s);
 
-		if(  besch == 0  &&  !liste_timeline.empty()  ) {
+		if(  desc == 0  &&  !liste_timeline.empty()  ) {
 			dbg->warning("private_car_t::rdwr()", "Object '%s' not found in table, trying random stadtauto object type",s);
-			besch = pick_any_weighted(liste_timeline);
+			desc = pick_any_weighted(liste_timeline);
 		}
 
-		if(besch == 0) {
+		if(desc == 0) {
 			dbg->warning("private_car_t::rdwr()", "loading game with private cars, but no private car objects found in PAK files.");
 		}
 		else {
-			set_image(besch->get_image_id(ribi_t::get_dir(get_direction())));
+			set_image(desc->get_image_id(ribi_t::get_dir(get_direction())));
 		}
 	}
 
@@ -687,7 +687,7 @@ bool private_car_t::can_enter_tile(grund_t *gr)
 										frei = false;
 									}
 								} else if(  private_car_t* const caut = obj_cast<private_car_t>(dt)  ) {
-									if(  !can_overtake(caut, caut->get_besch()->get_geschw(), VEHICLE_STEPS_PER_TILE)  ) {
+									if(  !can_overtake(caut, caut->get_desc()->get_geschw(), VEHICLE_STEPS_PER_TILE)  ) {
 										frei = false;
 									}
 								}
@@ -806,8 +806,8 @@ grund_t* private_car_t::hop_check()
 
 	if(  weg->has_sign(  )) {
 		const roadsign_t* rs = from->find<roadsign_t>();
-		const roadsign_besch_t* rs_besch = rs->get_besch();
-		if(rs_besch->is_traffic_light()  &&  (rs->get_dir()&direction90)==0) {
+		const roadsign_desc_t* rs_desc = rs->get_desc();
+		if(rs_desc->is_traffic_light()  &&  (rs->get_dir()&direction90)==0) {
 			direction = direction90;
 			calc_image();
 			// wait here
@@ -854,8 +854,8 @@ grund_t* private_car_t::hop_check()
 					// check, if roadsign forbid next step ...
 					if(w->has_sign()) {
 						const roadsign_t* rs = to->find<roadsign_t>();
-						const roadsign_besch_t* rs_besch = rs->get_besch();
-						if(rs_besch->get_min_speed()>besch->get_geschw()  ||  (rs_besch->is_private_way()  &&  (rs->get_player_mask()&2)==0)  ) {
+						const roadsign_desc_t* rs_desc = rs->get_desc();
+						if(rs_desc->get_min_speed()>desc->get_geschw()  ||  (rs_desc->is_private_way()  &&  (rs->get_player_mask()&2)==0)  ) {
 							// not allowed to go here
 							ribi &= ~ribi_t::nsew[r];
 							continue;
@@ -985,7 +985,7 @@ void private_car_t::hop(grund_t* to)
 
 void private_car_t::calc_image()
 {
-	set_image(besch->get_image_id(ribi_t::get_dir(get_direction())));
+	set_image(desc->get_image_id(ribi_t::get_dir(get_direction())));
 	drives_on_left = welt->get_settings().is_drive_left();	// reset driving settings
 }
 
@@ -994,7 +994,7 @@ void private_car_t::calc_image()
 void private_car_t::calc_current_speed(grund_t* gr)
 {
 	const weg_t * weg = get_weg();
-	sint32 max_speed = besch ? besch->get_geschw() : kmh_to_speed(90);
+	sint32 max_speed = desc ? desc->get_geschw() : kmh_to_speed(90);
 	const sint32 speed_limit = weg ? kmh_to_speed(weg->get_max_speed()) : max_speed;
 	current_speed += max_speed>>2;
 	if(current_speed > max_speed) {
@@ -1016,7 +1016,7 @@ void private_car_t::info(cbuffer_t & buf, bool dummy) const
 #endif
 	const char* origin_name = origin_city ? origin_city->get_name() : translator::translate("keine");
 	const char* destination_name = destination_city ? destination_city->get_name() : translator::translate("keine");
-	buf.printf(translator::translate("%s\nspeed %i\nmax_speed %i\ndx:%i dy:%i"), translator::translate(besch->get_name()), speed_to_kmh(current_speed), speed_to_kmh(besch->get_geschw()), dx, dy);
+	buf.printf(translator::translate("%s\nspeed %i\nmax_speed %i\ndx:%i dy:%i"), translator::translate(desc->get_name()), speed_to_kmh(current_speed), speed_to_kmh(desc->get_geschw()), dx, dy);
 	buf.printf(translator::translate("\nOrigin: %s\nDestination: %s"), origin_name, destination_name);
 }
 
@@ -1121,7 +1121,7 @@ bool private_car_t::can_overtake( overtaker_t *other_overtaker, sint32 other_spe
 	 * convoi_length for city cars? ==> a bit over half a tile (10)
 	 */
 	sint32 time_overtaking = 0;
-	sint32 distance = current_speed*((10<<4)+steps_other)/max(besch->get_geschw()-other_speed,diff_speed);
+	sint32 distance = current_speed*((10<<4)+steps_other)/max(desc->get_geschw()-other_speed,diff_speed);
 
 	// Conditions for overtaking:
 	// Flat tiles, with no stops, no crossings, no signs, no change of road speed limit
@@ -1156,8 +1156,8 @@ bool private_car_t::can_overtake( overtaker_t *other_overtaker, sint32 other_spe
 		if(  str->has_sign()  &&  str->get_ribi()==str->get_ribi_unmasked()  ) {
 			const roadsign_t *rs = gr->find<roadsign_t>(1);
 			if(rs) {
-				const roadsign_besch_t *rb = rs->get_besch();
-				if(rb->get_min_speed()>besch->get_geschw()  ||  rb->is_private_way()  ||  rb->is_traffic_light()  ) {
+				const roadsign_desc_t *rb = rs->get_desc();
+				if(rb->get_min_speed()>desc->get_geschw()  ||  rb->is_private_way()  ||  rb->is_traffic_light()  ) {
 					// do not overtake when road is closed for cars, there is a traffic light or a too high min speed limit
 					return false;
 				}
@@ -1170,7 +1170,7 @@ bool private_car_t::can_overtake( overtaker_t *other_overtaker, sint32 other_spe
 		}
 
 		// street gets too slow (TODO: should be able to be correctly accounted for)
-		//if(  besch->get_geschw() > kmh_to_speed(str->get_max_speed())  ) {
+		//if(  desc->get_geschw() > kmh_to_speed(str->get_max_speed())  ) {
 		if(  current_speed > kmh_to_speed(str->get_max_speed())  ) {
 			return false;
 		}

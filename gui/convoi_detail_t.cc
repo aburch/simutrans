@@ -163,7 +163,7 @@ void convoi_detail_t::draw(scr_coord pos, scr_size size)
 
 			uint32 percentage = 0;
 			for (uint16 i = 0; i < count; i++) {
-				percentage += cnv->get_vehikel(i)->get_besch()->calc_running_cost(welt, 10000);
+				percentage += cnv->get_vehikel(i)->get_desc()->calc_running_cost(welt, 10000);
 			}
 			percentage = percentage / (count * 100) - 100;
 			if (percentage > 0)
@@ -179,11 +179,11 @@ void convoi_detail_t::draw(scr_coord pos, scr_size size)
 			uint32 run_actual = 0, run_nominal = 0, run_percent = 0;
 			uint32 mon_actual = 0, mon_nominal = 0, mon_percent = 0;
 			for (uint16 i = 0; i < count; i++) {
-				const vehikel_besch_t *besch = cnv->get_vehikel(i)->get_besch();
-				run_nominal += besch->get_running_cost();
-				run_actual  += besch->get_running_cost(welt);
-				mon_nominal += welt->calc_adjusted_monthly_figure(besch->get_fixed_cost());
-				mon_actual  += welt->calc_adjusted_monthly_figure(besch->get_fixed_cost(welt));
+				const vehikel_desc_t *desc = cnv->get_vehikel(i)->get_desc();
+				run_nominal += desc->get_running_cost();
+				run_actual  += desc->get_running_cost(welt);
+				mon_nominal += welt->calc_adjusted_monthly_figure(desc->get_fixed_cost());
+				mon_actual  += welt->calc_adjusted_monthly_figure(desc->get_fixed_cost(welt));
 			}
 			buf.clear();
 			if (run_nominal) run_percent = ((run_actual - run_nominal) * 100) / run_nominal;
@@ -355,7 +355,7 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 			int extra_y=0;
 
 			// name of this
-			display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, translator::translate(v->get_besch()->get_name()), ALIGN_LEFT, SYSCOL_TEXT, true );
+			display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, translator::translate(v->get_desc()->get_name()), ALIGN_LEFT, SYSCOL_TEXT, true );
 			extra_y += LINESPACE;
 
 			// age
@@ -368,7 +368,7 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 			extra_y += LINESPACE;
 			
 			// Bernd Gabriel, 16.06.2009: current average obsolescence increase percentage
-			uint32 percentage = v->get_besch()->calc_running_cost(welt, 100) - 100;
+			uint32 percentage = v->get_desc()->calc_running_cost(welt, 100) - 100;
 			if (percentage > 0)
 			{
 				buf.clear();
@@ -385,12 +385,12 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 			extra_y += LINESPACE;
 
 			// power, tractive force, gear
-			if(v->get_besch()->get_leistung()>0) {
+			if(v->get_desc()->get_leistung()>0) {
 				buf.clear();
 				buf.printf( "%s %i kW, %s %i kN, %s %.2f",
-					translator::translate("Power:"), v->get_besch()->get_leistung(),
-					translator::translate("Tractive Force:"), v->get_besch()->get_tractive_effort(),
-					translator::translate("Gear:"), v->get_besch()->get_gear()/64.0 );
+					translator::translate("Power:"), v->get_desc()->get_leistung(),
+					translator::translate("Tractive Force:"), v->get_desc()->get_tractive_effort(),
+					translator::translate("Gear:"), v->get_desc()->get_gear()/64.0 );
 				display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true );
 				extra_y += LINESPACE;
 			}
@@ -403,21 +403,21 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 
 			// Axle load
 			buf.clear();
-			buf.printf("%s %dt", translator::translate("Axle load:"), v->get_besch()->get_axle_load());
+			buf.printf("%s %dt", translator::translate("Axle load:"), v->get_desc()->get_axle_load());
 			display_proportional_clip(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 			extra_y += LINESPACE;
 
 			// Brake force
 			buf.clear();
-			buf.printf("%s %u kN", translator::translate("Max. brake force:"), v->get_besch()->get_brake_force());
+			buf.printf("%s %u kN", translator::translate("Max. brake force:"), v->get_desc()->get_brake_force());
 			display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true );
 			extra_y += LINESPACE;
 			
 			//Catering
-			if(v->get_besch()->get_catering_level() > 0)
+			if(v->get_desc()->get_catering_level() > 0)
 			{
 				buf.clear();
-				if(v->get_besch()->get_ware()->get_catg_index() == 1)
+				if(v->get_desc()->get_ware()->get_catg_index() == 1)
 				{
 					//Catering vehicles that carry mail are treated as TPOs.
 					buf.printf( "%s", translator::translate("This is a travelling post office\n"));
@@ -426,14 +426,14 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 				}
 				else
 				{
-					buf.printf(translator::translate("Catering level: %i\n"), v->get_besch()->get_catering_level());
+					buf.printf(translator::translate("Catering level: %i\n"), v->get_desc()->get_catering_level());
 					display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true );
 					extra_y += LINESPACE;
 				}
 			}
 
 			//Tilting
-			if(v->get_besch()->get_tilting())
+			if(v->get_desc()->get_tilting())
 			{
 				buf.clear();
 				buf.printf("%s", translator::translate("This is a tilting vehicle\n"));
@@ -450,12 +450,12 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 				extra_y += LINESPACE;
 			}
 
-			if(v->get_besch()->get_zuladung() > 0)
+			if(v->get_desc()->get_zuladung() > 0)
 			{
 				char min_loading_time_as_clock[32];
 				char max_loading_time_as_clock[32];
-				welt->sprintf_ticks(min_loading_time_as_clock, sizeof(min_loading_time_as_clock), v->get_besch()->get_min_loading_time());
-				welt->sprintf_ticks(max_loading_time_as_clock, sizeof(max_loading_time_as_clock), v->get_besch()->get_max_loading_time());
+				welt->sprintf_ticks(min_loading_time_as_clock, sizeof(min_loading_time_as_clock), v->get_desc()->get_min_loading_time());
+				welt->sprintf_ticks(max_loading_time_as_clock, sizeof(max_loading_time_as_clock), v->get_desc()->get_max_loading_time());
 				buf.clear();
 				buf.printf("%s %s - %s", translator::translate("Loading time:"), min_loading_time_as_clock, max_loading_time_as_clock );
 				display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true );
@@ -483,7 +483,7 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 				display_proportional_clip( pos.x+w+offset.x+len, pos.y+offset.y+total_height+extra_y, number, ALIGN_LEFT, profit>0?MONEY_PLUS:MONEY_MINUS, true );
 				extra_y += LINESPACE;
 
-				if(  sint64 cost = welt->scale_with_month_length(v->get_besch()->get_maintenance())  ) {
+				if(  sint64 cost = welt->scale_with_month_length(v->get_desc()->get_maintenance())  ) {
 					KOORD_VAL len = display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, translator::translate("Maintenance"), ALIGN_LEFT, SYSCOL_TEXT, true );
 					len += display_proportional_clip( pos.x+w+offset.x+len, pos.y+offset.y+total_height+extra_y, ": ", ALIGN_LEFT, SYSCOL_TEXT, true );
 					money_to_string( number, cost/(100.0) );
@@ -491,7 +491,7 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 					extra_y += LINESPACE;
 				}
 
-				ware_besch_t const& g    = *v->get_cargo_type();
+				ware_desc_t const& g    = *v->get_cargo_type();
 				char const*  const  name = translator::translate(g.get_catg() == 0 ? g.get_name() : g.get_catg_name());
 				freight_info.printf("%u/%u%s %s\n", v->get_total_cargo(), v->get_cargo_max(), translator::translate(v->get_cargo_mass()), name);
 				v->get_cargo_info(freight_info);
@@ -511,14 +511,14 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 				extra_y += returns*LINESPACE;
 			}
 			
-			const way_constraints_t &way_constraints = v->get_besch()->get_way_constraints();
+			const way_constraints_t &way_constraints = v->get_desc()->get_way_constraints();
 			// Permissive way constraints
 			// (If vehicle has, way must have)
 			// @author: jamespetts
 			//for(uint8 i = 0; i < 8; i++)
 			for(uint8 i = 0; i < way_constraints.get_count(); i++)
 			{
-				//if(v->get_besch()->permissive_way_constraint_set(i))
+				//if(v->get_desc()->permissive_way_constraint_set(i))
 				if(way_constraints.get_permissive(i))
 				{
 					buf.clear();

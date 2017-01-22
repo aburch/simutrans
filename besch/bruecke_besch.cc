@@ -12,7 +12,7 @@
  *  Description:
  *      Richtigen Index für singlees Brückenstück bestimmen
  */
-bruecke_besch_t::img_t bruecke_besch_t::get_simple(ribi_t::ribi ribi, uint8 height) const
+bruecke_desc_t::img_t bruecke_desc_t::get_simple(ribi_t::ribi ribi, uint8 height) const
 {
 	if(  height>1 && get_background(NS_Segment2, 0)!=IMG_EMPTY  ) {
 		return (ribi & ribi_t::northsouth) ? NS_Segment2 : OW_Segment2;
@@ -24,7 +24,7 @@ bruecke_besch_t::img_t bruecke_besch_t::get_simple(ribi_t::ribi ribi, uint8 heig
 
 
 // dito for pillars
-bruecke_besch_t::img_t bruecke_besch_t::get_pillar(ribi_t::ribi ribi)
+bruecke_desc_t::img_t bruecke_desc_t::get_pillar(ribi_t::ribi ribi)
 {
 	return (ribi & ribi_t::northsouth) ? NS_Pillar : OW_Pillar;
 }
@@ -37,10 +37,10 @@ bruecke_besch_t::img_t bruecke_besch_t::get_pillar(ribi_t::ribi ribi)
  *  Description:
  *      Richtigen Index für klassischen Hangstart ück bestimmen
  */
-bruecke_besch_t::img_t bruecke_besch_t::get_start(slope_t::type slope) const
+bruecke_desc_t::img_t bruecke_desc_t::get_start(slope_t::type slope) const
 {
-	// if double heights enabled and besch has 2 height images present then use these
-	if(  grund_besch_t::double_grounds  &&  get_background(N_Start2, 0) != IMG_EMPTY  ) {
+	// if double heights enabled and desc has 2 height images present then use these
+	if(  grund_desc_t::double_grounds  &&  get_background(N_Start2, 0) != IMG_EMPTY  ) {
 		switch(  slope  ) {
 			case slope_t::north: return N_Start;
 			case slope_t::south: return S_Start;
@@ -71,9 +71,9 @@ bruecke_besch_t::img_t bruecke_besch_t::get_start(slope_t::type slope) const
  *  Description:
  *      Richtigen Index für Rampenstart ück bestimmen
  */
-bruecke_besch_t::img_t bruecke_besch_t::get_rampe(slope_t::type slope) const
+bruecke_desc_t::img_t bruecke_desc_t::get_rampe(slope_t::type slope) const
 {
-	if(  grund_besch_t::double_grounds  &&  has_double_ramp()  ) {
+	if(  grund_desc_t::double_grounds  &&  has_double_ramp()  ) {
 		switch(  slope  ) {
 			case slope_t::north: return S_Rampe;
 			case slope_t::south: return N_Rampe;
@@ -104,7 +104,7 @@ bruecke_besch_t::img_t bruecke_besch_t::get_rampe(slope_t::type slope) const
  *  Description:
  *      returns image index for appropriate ramp or start image given ground and way slopes
  */
-bruecke_besch_t::img_t bruecke_besch_t::get_end(slope_t::type test_slope, slope_t::type ground_slope, slope_t::type way_slope) const
+bruecke_desc_t::img_t bruecke_desc_t::get_end(slope_t::type test_slope, slope_t::type ground_slope, slope_t::type way_slope) const
 {
 	img_t end_image;
 	if(  test_slope == slope_t::flat  ) {
@@ -122,22 +122,22 @@ bruecke_besch_t::img_t bruecke_besch_t::get_end(slope_t::type test_slope, slope_
  *      Kieron Green
  *
  *  Description:
- *      returns whether besch has double height images for ramps
+ *      returns whether desc has double height images for ramps
  */
-bool bruecke_besch_t::has_double_ramp() const
+bool bruecke_desc_t::has_double_ramp() const
 {
-	return (get_background(bruecke_besch_t::N_Rampe2, 0)!=IMG_EMPTY || get_foreground(bruecke_besch_t::N_Rampe2, 0)!=IMG_EMPTY);
+	return (get_background(bruecke_desc_t::N_Rampe2, 0)!=IMG_EMPTY || get_foreground(bruecke_desc_t::N_Rampe2, 0)!=IMG_EMPTY);
 }
 
-bool bruecke_besch_t::has_double_start() const
+bool bruecke_desc_t::has_double_start() const
 {
-	return (get_background(bruecke_besch_t::N_Start2, 0) != IMG_EMPTY  ||  get_foreground(bruecke_besch_t::N_Start2, 0) != IMG_EMPTY);
+	return (get_background(bruecke_desc_t::N_Start2, 0) != IMG_EMPTY  ||  get_foreground(bruecke_desc_t::N_Start2, 0) != IMG_EMPTY);
 }
 
 
-void bruecke_besch_t::calc_checksum(checksum_t *chk) const
+void bruecke_desc_t::calc_checksum(checksum_t *chk) const
 {
-	obj_besch_transport_infrastructure_t::calc_checksum(chk);
+	obj_desc_transport_infrastructure_t::calc_checksum(chk);
 	chk->input(pillars_every);
 	chk->input(pillars_asymmetric);
 	chk->input(max_length);

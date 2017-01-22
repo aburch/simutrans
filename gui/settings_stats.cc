@@ -1069,7 +1069,7 @@ void settings_climates_stats_t::init(settings_t* const sets)
 	// other climate borders ...
 	sint16 arctic = 0;
 	for(  int i=desert_climate;  i!=arctic_climate;  i++  ) {
-		INIT_NUM( grund_besch_t::get_climate_name_from_bit((climate)i), sets->get_climate_borders()[i], sets->get_grundwasser(), 24, gui_numberinput_t::AUTOLINEAR, false );
+		INIT_NUM( grund_desc_t::get_climate_name_from_bit((climate)i), sets->get_climate_borders()[i], sets->get_grundwasser(), 24, gui_numberinput_t::AUTOLINEAR, false );
 		if(sets->get_climate_borders()[i+1]>arctic) {
 			arctic = sets->get_climate_borders()[i+1];
 		}

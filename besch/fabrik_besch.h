@@ -16,12 +16,12 @@
 
 class checksum_t;
 
-/* Knightly : this besch will store data specific to each class of fields
- * Fields are xref'd from skin_besch_t
+/* Knightly : this desc will store data specific to each class of fields
+ * Fields are xref'd from skin_desc_t
  */
-class field_class_besch_t : public obj_besch_t {
+class field_class_desc_t : public obj_desc_t {
 	friend class factory_field_class_reader_t;
-	friend class factory_field_group_reader_t;		// Knightly : this is a special case due to besch restructuring
+	friend class factory_field_group_reader_t;		// Knightly : this is a special case due to desc restructuring
 
 private:
 	uint8  snow_image;			// 0 or 1 for snow
@@ -30,7 +30,7 @@ private:
 	uint16 spawn_weight;
 
 public:
-	skin_besch_t const* get_images() const { return get_child<skin_besch_t>(0); }
+	skin_desc_t const* get_images() const { return get_child<skin_desc_t>(0); }
 	const char *get_name() const { return get_images()->get_name(); }
 	const char *get_copyright() const { return get_images()->get_copyright(); }
 
@@ -43,8 +43,8 @@ public:
 };
 
 
-// Knightly : this besch now only contains common, shared data regarding fields
-class field_group_besch_t : public obj_besch_t {
+// Knightly : this desc now only contains common, shared data regarding fields
+class field_group_desc_t : public obj_desc_t {
 	friend class factory_field_group_reader_t;
 
 private:
@@ -74,7 +74,7 @@ public:
 	uint16 get_min_fields() const { return min_fields; }
 	uint16 get_start_fields() const { return start_fields; }
 	uint16 get_field_class_count() const { return field_classes; }
-	field_class_besch_t const* get_field_class(uint16 const idx) const { return idx < field_classes ? get_child<field_class_besch_t>(idx) : 0; }
+	field_class_desc_t const* get_field_class(uint16 const idx) const { return idx < field_classes ? get_child<field_class_desc_t>(idx) : 0; }
 	const weighted_vector_tpl<uint16> &get_field_class_indices() const { return field_class_indices; }
 
 	void calc_checksum(checksum_t *chk) const;
@@ -88,12 +88,12 @@ public:
  *      Volker Meyer
  *
  *  Description:
- *      Der Rauch einer Fabrik verweist auf eine allgemeine Rauchbeschreibung
+ *      Der Rauch einer Fabrik verweist auf eine allgemeine Rauchdescreibung
  *
  *  Child nodes:
  *	0   SKin
  */
-class rauch_besch_t : public obj_besch_t {
+class rauch_desc_t : public obj_desc_t {
 	friend class factory_smoke_reader_t;
 
 private:
@@ -104,7 +104,7 @@ private:
 public:
 	const char *get_name() const { return get_images()->get_name(); }
 	const char *get_copyright() const { return get_images()->get_copyright(); }
-	skin_besch_t const* get_images() const { return get_child<skin_besch_t>(0); }
+	skin_desc_t const* get_images() const { return get_child<skin_desc_t>(0); }
 
 	// get the tile with the smoke
 	koord get_pos_off( koord size, uint8 rotation) const {
@@ -140,7 +140,7 @@ public:
  *  Child nodes:
  *	0   Ware
  */
-class fabrik_lieferant_besch_t : public obj_besch_t {
+class fabrik_lieferant_desc_t : public obj_desc_t {
 	friend class factory_supplier_reader_t;
 
 private:
@@ -149,7 +149,7 @@ private:
 	uint16  verbrauch;
 
 public:
-	ware_besch_t const* get_ware() const { return get_child<ware_besch_t>(0); }
+	ware_desc_t const* get_ware() const { return get_child<ware_desc_t>(0); }
 	int get_kapazitaet() const { return kapazitaet; } //"capacity" (Babelfish)
 	int get_supplier_count() const { return supplier_count; } //"number" (Babelfish)
 	int get_verbrauch() const { return verbrauch; } //"consumption" (Babelfish)
@@ -167,7 +167,7 @@ public:
  *  Child nodes:
  *	0   Ware
  */
-class fabrik_produkt_besch_t : public obj_besch_t {
+class fabrik_produkt_desc_t : public obj_desc_t {
 	friend class factory_product_reader_t;
 
 private:
@@ -181,7 +181,7 @@ private:
     uint16 faktor;
 
 public:
-	ware_besch_t const* get_ware() const { return get_child<ware_besch_t>(0); }
+	ware_desc_t const* get_ware() const { return get_child<ware_desc_t>(0); }
 	uint32 get_kapazitaet() const { return kapazitaet; }
 	uint32 get_faktor() const { return faktor; }
 	void calc_checksum(checksum_t *chk) const;
@@ -206,7 +206,7 @@ public:
  *	n+3 Produkt 2
  *	... ...
  */
-class fabrik_besch_t : public obj_besch_t {
+class fabrik_desc_t : public obj_desc_t {
 	friend class factory_reader_t;
 
 public:
@@ -245,23 +245,23 @@ public:
 	*/
 	const char *get_name() const { return get_haus()->get_name(); }
 	const char *get_copyright() const { return get_haus()->get_copyright(); }
-	haus_besch_t  const* get_haus()  const { return get_child<haus_besch_t>(0); }
-	rauch_besch_t const* get_rauch() const { return get_child<rauch_besch_t>(1); }
+	haus_desc_t  const* get_haus()  const { return get_child<haus_desc_t>(0); }
+	rauch_desc_t const* get_rauch() const { return get_child<rauch_desc_t>(1); }
 
 	// we must take care, for the case of no producer/consumer
-	const fabrik_lieferant_besch_t *get_lieferant(int i) const //"supplier" (Babelfish)
+	const fabrik_lieferant_desc_t *get_lieferant(int i) const //"supplier" (Babelfish)
 	{
-		return 0 <= i && i < lieferanten ? get_child<fabrik_lieferant_besch_t>(2 + i) : 0;
+		return 0 <= i && i < lieferanten ? get_child<fabrik_lieferant_desc_t>(2 + i) : 0;
 	}
-	const fabrik_produkt_besch_t *get_produkt(int i) const
+	const fabrik_produkt_desc_t *get_produkt(int i) const
 	{
-		return 0 <= i && i < produkte ? get_child<fabrik_produkt_besch_t>(2 + lieferanten + i) : 0;
+		return 0 <= i && i < produkte ? get_child<fabrik_produkt_desc_t>(2 + lieferanten + i) : 0;
 	}
-	const field_group_besch_t *get_field_group() const {
+	const field_group_desc_t *get_field_group() const {
 		if(!fields) {
 			return NULL;
 		}
-		return get_child<field_group_besch_t>(2 + lieferanten + produkte);
+		return get_child<field_group_desc_t>(2 + lieferanten + produkte);
 	}
 
 	uint16 get_lieferanten() const { return lieferanten; } // Suppliers
@@ -288,7 +288,7 @@ public:
 
 	int is_electricity_producer() const { return electricity_producer; }
 
-	const fabrik_besch_t *get_upgrades(int i) const { return (i >= 0 && i < upgrades) ? get_child<fabrik_besch_t>(2 + lieferanten + produkte + fields + i) : NULL; }
+	const fabrik_desc_t *get_upgrades(int i) const { return (i >= 0 && i < upgrades) ? get_child<fabrik_desc_t>(2 + lieferanten + produkte + fields + i) : NULL; }
 
 	int get_upgrades_count() const { return upgrades; }
 

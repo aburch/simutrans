@@ -20,30 +20,30 @@ using std::string;
  */
 static uint8 get_engine_type(const char* engine_type, tabfileobj_t& obj)
 {
-	uint16 uv8 = vehikel_besch_t::diesel;
+	uint16 uv8 = vehikel_desc_t::diesel;
 
 	if (!STRICMP(engine_type, "diesel")) {
-		uv8 = vehikel_besch_t::diesel;
+		uv8 = vehikel_desc_t::diesel;
 	} else if (!STRICMP(engine_type, "electric")) {
-		uv8 = vehikel_besch_t::electric;
+		uv8 = vehikel_desc_t::electric;
 	} else if (!STRICMP(engine_type, "steam")) {
-		uv8 = vehikel_besch_t::steam;
+		uv8 = vehikel_desc_t::steam;
 	} else if (!STRICMP(engine_type, "bio")) {
-		uv8 = vehikel_besch_t::bio;
+		uv8 = vehikel_desc_t::bio;
 	} else if (!STRICMP(engine_type, "sail")) {
-		uv8 = vehikel_besch_t::sail;
+		uv8 = vehikel_desc_t::sail;
 	} else if (!STRICMP(engine_type, "fuel_cell")) {
-		uv8 = vehikel_besch_t::fuel_cell;
+		uv8 = vehikel_desc_t::fuel_cell;
 	} else if (!STRICMP(engine_type, "hydrogene")) {
-		uv8 = vehikel_besch_t::hydrogene;
+		uv8 = vehikel_desc_t::hydrogene;
 	} else if (!STRICMP(engine_type, "battery")) {
-		uv8 = vehikel_besch_t::battery;
+		uv8 = vehikel_desc_t::battery;
 	} else if (!STRICMP(engine_type, "petrol")) {
-		uv8 = vehikel_besch_t::petrol;
+		uv8 = vehikel_desc_t::petrol;
 	} else if (!STRICMP(engine_type, "turbine")) {
-		uv8 = vehikel_besch_t::turbine;
+		uv8 = vehikel_desc_t::turbine;
 	} else if (!STRICMP(engine_type, "unknown")) {
-		uv8 = vehikel_besch_t::unknown;
+		uv8 = vehikel_desc_t::unknown;
 	}
 
 	return uv8;
@@ -122,15 +122,15 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	delete [] ints;
 
 	gebaeude_t::typ            gtyp             = gebaeude_t::unbekannt;
-	haus_besch_t::utyp         utype            = haus_besch_t::unbekannt;
+	haus_desc_t::utyp         utype            = haus_desc_t::unbekannt;
 	uint32                     extra_data       = 0;
 	climate_bits               allowed_climates = all_but_water_climate; // all but water
 	uint16                     enables          = 0;
 	uint16                     level            = obj.get_int("level", 1);
-	haus_besch_t::flag_t const flags            =
-		(obj.get_int("noinfo",         0) > 0 ? haus_besch_t::FLAG_KEINE_INFO  : haus_besch_t::FLAG_NULL) |
-		(obj.get_int("noconstruction", 0) > 0 ? haus_besch_t::FLAG_KEINE_GRUBE : haus_besch_t::FLAG_NULL) |
-		(obj.get_int("needs_ground",   0) > 0 ? haus_besch_t::FLAG_NEED_GROUND : haus_besch_t::FLAG_NULL);
+	haus_desc_t::flag_t const flags            =
+		(obj.get_int("noinfo",         0) > 0 ? haus_desc_t::FLAG_KEINE_INFO  : haus_desc_t::FLAG_NULL) |
+		(obj.get_int("noconstruction", 0) > 0 ? haus_desc_t::FLAG_KEINE_GRUBE : haus_desc_t::FLAG_NULL) |
+		(obj.get_int("needs_ground",   0) > 0 ? haus_desc_t::FLAG_NEED_GROUND : haus_desc_t::FLAG_NULL);
 	uint16               const animation_time   = obj.get_int("animation_time", 300);
 
 	level = obj.get_int("pax_level", level); // Needed for conversion from old factories.
@@ -154,49 +154,49 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	} else if (!STRICMP(type_name, "cur")) {
 		extra_data = obj.get_int("build_time", 0);
 		level      = obj.get_int("passengers",  level);
-		utype      = extra_data == 0 ? haus_besch_t::attraction_land : haus_besch_t::attraction_city;
+		utype      = extra_data == 0 ? haus_desc_t::attraction_land : haus_desc_t::attraction_city;
 	} else if (!STRICMP(type_name, "mon")) {
-		utype = haus_besch_t::denkmal;
+		utype = haus_desc_t::denkmal;
 		level = obj.get_int("passengers",  level);
 	} else if (!STRICMP(type_name, "tow")) {
 		level      = obj.get_int("passengers",  level);
 		extra_data = obj.get_int("build_time", 0);
-		utype = haus_besch_t::rathaus;
+		utype = haus_desc_t::rathaus;
 	} else if (!STRICMP(type_name, "hq")) {
 		level      = obj.get_int("passengers",  level);
 		extra_data = obj.get_int("hq_level", 0);
-		utype = haus_besch_t::firmensitz;
+		utype = haus_desc_t::firmensitz;
 	} else if (!STRICMP(type_name, "habour")  ||  !STRICMP(type_name, "harbour")) {
 		// buildable only on sloped shores
-		utype      = haus_besch_t::dock;
+		utype      = haus_desc_t::dock;
 		extra_data = water_wt;
 	}
 	else if (!STRICMP(type_name, "dock")) {
 		// buildable only on flat shores
-		utype      = haus_besch_t::flat_dock;
+		utype      = haus_desc_t::flat_dock;
 		extra_data = water_wt;
 	} else if (!STRICMP(type_name, "fac")) {
-		utype    = haus_besch_t::fabrik;
+		utype    = haus_desc_t::fabrik;
 		enables |= 4;
 	} else if (!STRICMP(type_name, "stop")) {
-		utype      = haus_besch_t::generic_stop;
+		utype      = haus_desc_t::generic_stop;
 		extra_data = get_waytype(obj.get("waytype"));
 	} else if (!STRICMP(type_name, "extension")) {
-		utype = haus_besch_t::generic_extension;
+		utype = haus_desc_t::generic_extension;
 		const char *wt = obj.get("waytype");
 		if(wt  &&  *wt>' ') {
 			// not waytype => just a generic extension that fits all
 			extra_data = get_waytype(wt);
 		}
 	} else if (!STRICMP(type_name, "depot")) {
-		utype      = haus_besch_t::depot;
+		utype      = haus_desc_t::depot;
 		extra_data = get_waytype(obj.get("waytype"));
 	} else if (!STRICMP(type_name, "signalbox")) {
-		utype      = haus_besch_t::signalbox;
+		utype      = haus_desc_t::signalbox;
 		extra_data = cluster_writer_t::get_cluster_data(obj, "signal_groups");
 	} else if (!STRICMP(type_name, "any") || *type_name == '\0') {
 		// for instance "MonorailGround"
-		utype = haus_besch_t::weitere;
+		utype = haus_desc_t::weitere;
 	} else if (
 		!STRICMP(type_name, "station")  ||
 		!STRICMP(type_name, "railstop")  ||
@@ -225,11 +225,11 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	if (obj.get_int("enables_post", 0) > 0) {
 		enables |= 2;
 	}
-	if(  utype == haus_besch_t::fabrik  ||  obj.get_int("enables_ware", 0) > 0  ) {
+	if(  utype == haus_desc_t::fabrik  ||  obj.get_int("enables_ware", 0) > 0  ) {
 		enables |= 4;
 	}
 
-	if(  utype==haus_besch_t::generic_extension  ||  utype==haus_besch_t::generic_stop  ||  utype==haus_besch_t::dock  ||  utype==haus_besch_t::depot  ||  utype==haus_besch_t::fabrik  ) {
+	if(  utype==haus_desc_t::generic_extension  ||  utype==haus_desc_t::generic_stop  ||  utype==haus_desc_t::dock  ||  utype==haus_desc_t::depot  ||  utype==haus_desc_t::fabrik  ) {
 		// since elevel was reduced by one beforehand ...
 		// TODO: Remove this when the reduction of level is removed.
 		++level;
@@ -279,7 +279,7 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	}
 
 	// Encode the depot traction types.
-	if(utype == haus_besch_t::depot)
+	if(utype == haus_desc_t::depot)
 	{
 		// HACK: Use "enables" (only used for a stop type) to encode traction types
 		enables = 65535; // Default - all types enabled.
@@ -417,7 +417,7 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	// Hajo: write version data
 	node.write_uint16(fp, version,									0);
 
-	// Hajo: write besch data
+	// Hajo: write desc data
 	node.write_uint8 (fp, gtyp,										2);
 	node.write_uint8 (fp, utype,									3);
 	node.write_uint16(fp, level,									4);

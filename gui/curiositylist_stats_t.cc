@@ -57,8 +57,8 @@ class compare_curiosities
 				default: NOT_REACHED
 				case curiositylist::by_name:
 				{
-					const char* a_name = translator::translate(a->get_tile()->get_besch()->get_name());
-					const char* b_name = translator::translate(b->get_tile()->get_besch()->get_name());
+					const char* a_name = translator::translate(a->get_tile()->get_desc()->get_name());
+					const char* b_name = translator::translate(b->get_tile()->get_desc()->get_name());
 					cmp = STRICMP(a_name, b_name);
 					break;
 				}
@@ -225,7 +225,7 @@ void curiositylist_stats_t::draw(scr_coord offset)
 		display_fillbox_wh_clip(xoff+7, yoff+2, D_INDICATOR_WIDTH, D_INDICATOR_HEIGHT, indicatorfarbe, true);
 
 		// the other infos
-		const unsigned char *name = (const unsigned char *)ltrim( translator::translate(geb->get_tile()->get_besch()->get_name()) );
+		const unsigned char *name = (const unsigned char *)ltrim( translator::translate(geb->get_tile()->get_desc()->get_name()) );
 		char short_name[256];
 		char* dst = short_name;
 		int    cr = 0;
@@ -249,7 +249,7 @@ void curiositylist_stats_t::draw(scr_coord offset)
 
 		display_proportional_clip(xoff+D_INDICATOR_WIDTH+10+9,yoff,buf,ALIGN_LEFT,SYSCOL_TEXT,true);
 
-		if (geb->get_tile()->get_besch()->get_extra() != 0) {
+		if (geb->get_tile()->get_desc()->get_extra() != 0) {
 		    display_color_img(skinverwaltung_t::intown->get_image_id(0), xoff+D_INDICATOR_WIDTH+9, yoff, 0, false, false);
 		}
 		if(  win_get_magic( (ptrdiff_t)geb )  ) {

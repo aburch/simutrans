@@ -14,21 +14,21 @@
 #include "../dataobj/translator.h"
 
 
-stringhashtable_tpl<const ware_besch_t *> warenbauer_t::besch_names;
+stringhashtable_tpl<const ware_desc_t *> warenbauer_t::desc_names;
 
-vector_tpl<ware_besch_t *> warenbauer_t::waren;
+vector_tpl<ware_desc_t *> warenbauer_t::waren;
 
 uint8 warenbauer_t::max_catg_index = 0;
 
-const ware_besch_t *warenbauer_t::passagiere = NULL;
-const ware_besch_t *warenbauer_t::post = NULL;
-const ware_besch_t *warenbauer_t::nichts = NULL;
+const ware_desc_t *warenbauer_t::passagiere = NULL;
+const ware_desc_t *warenbauer_t::post = NULL;
+const ware_desc_t *warenbauer_t::nichts = NULL;
 
-ware_besch_t *warenbauer_t::load_passagiere = NULL;
-ware_besch_t *warenbauer_t::load_post = NULL;
-ware_besch_t *warenbauer_t::load_nichts = NULL;
+ware_desc_t *warenbauer_t::load_passagiere = NULL;
+ware_desc_t *warenbauer_t::load_post = NULL;
+ware_desc_t *warenbauer_t::load_nichts = NULL;
 
-static spezial_obj_tpl<ware_besch_t> const spezial_objekte[] = {
+static spezial_obj_tpl<ware_desc_t> const spezial_objekte[] = {
 	{ &warenbauer_t::passagiere,    "Passagiere" },
 	{ &warenbauer_t::post,	    "Post" },
 	{ &warenbauer_t::nichts,	    "None" },
@@ -62,7 +62,7 @@ bool warenbauer_t::alles_geladen()
 	// now assign unique category indexes for unique categories
 	max_catg_index = 0;
 	// first assign special freight (which always needs an own category)
-	FOR(vector_tpl<ware_besch_t*>, const i, waren) {
+	FOR(vector_tpl<ware_desc_t*>, const i, waren) {
 		if (i->get_catg() == 0) {
 			i->catg_index = max_catg_index++;
 		}
@@ -70,7 +70,7 @@ bool warenbauer_t::alles_geladen()
 	// mapping of waren_t::catg to catg_index, map[catg] = catg_index
 	uint8 map[255] = {0};
 
-	FOR(vector_tpl<ware_besch_t*>, const i, waren) {
+	FOR(vector_tpl<ware_desc_t*>, const i, waren) {
 		uint8 const catg = i->get_catg();
 		if(  catg > 0  ) {
 			if(  map[catg] == 0  ) { // We didn't found this category yet -> just create new index.
@@ -85,11 +85,11 @@ bool warenbauer_t::alles_geladen()
 		if(i>=waren.get_count()) {
 			// these entries will be never looked at;
 			// however, if then this will generate an error
-			ware_t::index_to_besch[i] = NULL;
+			ware_t::index_to_desc[i] = NULL;
 		}
 		else {
 			assert(waren[i]->get_index()==i);
-			ware_t::index_to_besch[i] = waren[i];
+			ware_t::index_to_desc[i] = waren[i];
 			if(waren[i]->color==255) {
 				waren[i]->color = 16+4+((i-2)*8)%207;
 			}
@@ -104,7 +104,7 @@ bool warenbauer_t::alles_geladen()
 	}
 	// none should never be loaded to something ...
 	// however, some place do need the dummy ...
-	ware_t::index_to_besch[2] = NULL;
+	ware_t::index_to_desc[2] = NULL;
 
 	DBG_MESSAGE("warenbauer_t::alles_geladen()","total goods %i, different kind of categories %i", waren.get_count(), max_catg_index );
 
@@ -112,57 +112,57 @@ bool warenbauer_t::alles_geladen()
 }
 
 
-static bool compare_ware_besch(const ware_besch_t* a, const ware_besch_t* b)
+static bool compare_ware_desc(const ware_desc_t* a, const ware_desc_t* b)
 {
 	int diff = strcmp(a->get_name(), b->get_name());
 	return diff < 0;
 }
 
-bool warenbauer_t::register_besch(ware_besch_t *besch)
+bool warenbauer_t::register_desc(ware_desc_t *desc)
 {
-	besch->values.clear();
-	ITERATE(besch->base_values, i)
+	desc->values.clear();
+	ITERATE(desc->base_values, i)
 	{
-		besch->values.append(besch->base_values[i]);
+		desc->values.append(desc->base_values[i]);
 	}
-	::register_besch(spezial_objekte, besch);
+	::register_desc(spezial_objekte, desc);
 	// avoid duplicates with same name
-	ware_besch_t *old_besch = const_cast<ware_besch_t *>(besch_names.get(besch->get_name()));
-	if(  old_besch  ) {
-		dbg->warning( "warenbauer_t::register_besch()", "Object %s was overlaid by addon!", besch->get_name() );
-		besch_names.remove(besch->get_name());
-		waren.remove( old_besch );
+	ware_desc_t *old_desc = const_cast<ware_desc_t *>(desc_names.get(desc->get_name()));
+	if(  old_desc  ) {
+		dbg->warning( "warenbauer_t::register_desc()", "Object %s was overlaid by addon!", desc->get_name() );
+		desc_names.remove(desc->get_name());
+		waren.remove( old_desc );
 	}
-	besch_names.put(besch->get_name(), besch);
+	desc_names.put(desc->get_name(), desc);
 
-	if(besch==passagiere) {
-		besch->ware_index = INDEX_PAS;
-		load_passagiere = besch;
-	} else if(besch==post) {
-		besch->ware_index = INDEX_MAIL;
-		load_post = besch;
-	} else if(besch != nichts) {
-		waren.insert_ordered(besch,compare_ware_besch);
+	if(desc==passagiere) {
+		desc->ware_index = INDEX_PAS;
+		load_passagiere = desc;
+	} else if(desc==post) {
+		desc->ware_index = INDEX_MAIL;
+		load_post = desc;
+	} else if(desc != nichts) {
+		waren.insert_ordered(desc,compare_ware_desc);
 	}
 	else {
-		load_nichts = besch;
-		besch->ware_index = INDEX_NONE;
+		load_nichts = desc;
+		desc->ware_index = INDEX_NONE;
 	}
 	return true;
 }
 
 
-const ware_besch_t *warenbauer_t::get_info(const char* name)
+const ware_desc_t *warenbauer_t::get_info(const char* name)
 {
-	const ware_besch_t *ware = besch_names.get(name);
+	const ware_desc_t *ware = desc_names.get(name);
 	if(  ware==NULL  ) {
-		ware = besch_names.get(translator::compatibility_name(name));
+		ware = desc_names.get(translator::compatibility_name(name));
 	}
 	return ware;
 }
 
 
-const ware_besch_t *warenbauer_t::get_info_catg(const uint8 catg)
+const ware_desc_t *warenbauer_t::get_info_catg(const uint8 catg)
 {
 	if(catg>0) {
 		for(unsigned i=0;  i<get_count();  i++  ) {
@@ -176,7 +176,7 @@ const ware_besch_t *warenbauer_t::get_info_catg(const uint8 catg)
 }
 
 
-const ware_besch_t *warenbauer_t::get_info_catg_index(const uint8 catg_index)
+const ware_desc_t *warenbauer_t::get_info_catg_index(const uint8 catg_index)
 {
 	for(unsigned i=0;  i<get_count();  i++  ) {
 		if(waren[i]->get_catg_index()==catg_index) {

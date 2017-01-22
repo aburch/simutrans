@@ -15,7 +15,7 @@
 class cbuffer_t;
 class crossing_t;
 class karte_ptr_t;
-class kreuzung_besch_t;
+class kreuzung_desc_t;
 class vehicle_base_t;
 
 /**
@@ -33,7 +33,7 @@ protected:
 	const vehicle_base_t *request_close;
 
 	crossing_state_t state;
-	const kreuzung_besch_t *besch;
+	const kreuzung_desc_t *desc;
 	minivec_tpl<crossing_t *>crossings;
 
 	void set_state( crossing_state_t new_state );
@@ -44,7 +44,7 @@ public:
 
 public:
 	// do not call th
-	crossing_logic_t( const kreuzung_besch_t *besch );
+	crossing_logic_t( const kreuzung_desc_t *desc );
 
 	/**
 	 * @return string (only used for debug at the moment)
@@ -73,12 +73,12 @@ public:
 
 	// static routines from here
 private:
-	static slist_tpl<const kreuzung_besch_t *> liste;
-	// save all besch' only for waytype0 < waytype1
-	static minivec_tpl<const kreuzung_besch_t *> can_cross_array[36];
+	static slist_tpl<const kreuzung_desc_t *> liste;
+	// save all desc' only for waytype0 < waytype1
+	static minivec_tpl<const kreuzung_desc_t *> can_cross_array[36];
 
 public:
-	static void register_besch(kreuzung_besch_t *besch);
+	static void register_desc(kreuzung_desc_t *desc);
 
 	/**
 	 * returns descriptor for crossing wrt timeline
@@ -86,7 +86,7 @@ public:
 	 * (1) find crossings with maxspeed close to requested maxspeed
 	 * (2) prefer crossings with maxspeed larger than requested
 	 */
-	static const kreuzung_besch_t *get_crossing(const waytype_t ns, const waytype_t ow, sint32 way_0_speed, sint32 way_1_speed, uint16 timeline_year_month);
+	static const kreuzung_desc_t *get_crossing(const waytype_t ns, const waytype_t ow, sint32 way_0_speed, sint32 way_1_speed, uint16 timeline_year_month);
 
 	// returns a new or an existing crossing_logic_t object
 	// new, of no matching crossings are next to it

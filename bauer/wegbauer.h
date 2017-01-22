@@ -15,9 +15,9 @@
 #include "../tpl/stringhashtable_tpl.h"
 
 
-class weg_besch_t;
-class bruecke_besch_t;
-class tunnel_besch_t;
+class weg_desc_t;
+class bruecke_desc_t;
+class tunnel_desc_t;
 class karte_ptr_t;
 class player_t;
 class grund_t;
@@ -32,9 +32,9 @@ class wegbauer_t
 {
 	static karte_ptr_t welt;
 public:
-	static const weg_besch_t *leitung_besch;
+	static const weg_desc_t *leitung_desc;
 
-	static bool register_besch(weg_besch_t *besch);
+	static bool register_desc(weg_desc_t *desc);
 	static bool alle_wege_geladen();
 
 	// generates timeline message
@@ -44,27 +44,27 @@ public:
 	 * Finds a way with a given speed limit for a given waytype
 	 * @author prissi
 	 */
-	static const weg_besch_t * weg_search(const waytype_t wtyp, const sint32 speed_limit, const uint32 weight_limit, const uint16 time, const systemtype_t system_type, const uint32 wear_capacity_limit, way_constraints_of_vehicle_t way_constraints = way_constraints_of_vehicle_t());
-	static const weg_besch_t * weg_search(const waytype_t wtyp,const sint32 speed_limit, const uint16 time, const systemtype_t system_type);
+	static const weg_desc_t * weg_search(const waytype_t wtyp, const sint32 speed_limit, const uint32 weight_limit, const uint16 time, const systemtype_t system_type, const uint32 wear_capacity_limit, way_constraints_of_vehicle_t way_constraints = way_constraints_of_vehicle_t());
+	static const weg_desc_t * weg_search(const waytype_t wtyp,const sint32 speed_limit, const uint16 time, const systemtype_t system_type);
 	
 	/**
 	 * Finds a mothballed way for a given waytype. 
 	 * Returns NULL if there is no mothballed way for such a type.
 	 * @author jamespetts
 	 */
-	static const weg_besch_t * way_search_mothballed(const waytype_t wtyp, const systemtype_t system_type);
+	static const weg_desc_t * way_search_mothballed(const waytype_t wtyp, const systemtype_t system_type);
 
-	static const weg_besch_t *get_besch(const char *way_name,const uint16 time=0);
+	static const weg_desc_t *get_desc(const char *way_name,const uint16 time=0);
 
-	static stringhashtable_tpl <weg_besch_t *> * get_all_ways();
+	static stringhashtable_tpl <weg_desc_t *> * get_all_ways();
 
-	static const weg_besch_t *get_earliest_way(const waytype_t wtyp);
+	static const weg_desc_t *get_earliest_way(const waytype_t wtyp);
 
-	static const weg_besch_t *get_latest_way(const waytype_t wtyp);
+	static const weg_desc_t *get_latest_way(const waytype_t wtyp);
 
 	static bool waytype_available( const waytype_t wtyp, uint16 time );
 
-	static const vector_tpl<const weg_besch_t *>&  get_way_list(waytype_t, systemtype_t system_type);
+	static const vector_tpl<const weg_desc_t *>&  get_way_list(waytype_t, systemtype_t system_type);
 
 	/**
 	 * Fill menu with icons of given waytype
@@ -121,19 +121,19 @@ private:
 	 * Type of way to build
 	 * @author Hj. Malthaner
 	 */
-	const weg_besch_t * besch;
+	const weg_desc_t * desc;
 
 	/**
 	 * Type of bridges to build (zero=>no bridges)
 	 * @author Hj. Malthaner
 	 */
-	const bruecke_besch_t * bruecke_besch;
+	const bruecke_desc_t * bruecke_desc;
 
 	/**
 	 * Type of bridges to build (zero=>no bridges)
 	 * @author Hj. Malthaner
 	 */
-	const tunnel_besch_t * tunnel_besch;
+	const tunnel_desc_t * tunnel_desc;
 
 	/**
 	 * If a way is built on top of another way, should the type
@@ -230,11 +230,11 @@ public:
 
 	void set_mark_way_for_upgrade_only(bool yesno) { mark_way_for_upgrade_only = yesno; }
 
-	void route_fuer(bautyp_t wt, const weg_besch_t * besch, const tunnel_besch_t *tunnel_besch=NULL, const bruecke_besch_t *bruecke_besch=NULL);
+	void route_fuer(bautyp_t wt, const weg_desc_t * desc, const tunnel_desc_t *tunnel_desc=NULL, const bruecke_desc_t *bruecke_desc=NULL);
 
 	void set_maximum(uint32 n) { maximum = n; }
 
-	void set_besch(const weg_besch_t* weg_besch) { besch = weg_besch; }
+	void set_desc(const weg_desc_t* weg_desc) { desc = weg_desc; }
 
 	wegbauer_t(player_t *player_);
 

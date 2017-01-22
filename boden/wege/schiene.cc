@@ -23,7 +23,7 @@
 
 #include "schiene.h"
 
-const weg_besch_t *schiene_t::default_schiene=NULL;
+const weg_desc_t *schiene_t::default_schiene=NULL;
 bool schiene_t::show_reservations = false;
 
 
@@ -36,7 +36,7 @@ schiene_t::schiene_t(waytype_t waytype) : weg_t (waytype)
 schiene_t::schiene_t() : weg_t(track_wt)
 {
 	reserved = convoihandle_t();
-	set_besch(schiene_t::default_schiene);
+	set_desc(schiene_t::default_schiene);
 }
 
 
@@ -106,7 +106,7 @@ bool schiene_t::reserve(convoihandle_t c, ribi_t::ribi dir, reservation_type t, 
 		 * direction is a diagonal (i.e. on the switching part)
 		 * and there are switching graphics
 		 */
-		if(t == block && ribi_t::is_threeway(get_ribi_unmasked())  &&  ribi_t::is_bend(dir)  &&  get_besch()->has_switch_image()  ) {
+		if(t == block && ribi_t::is_threeway(get_ribi_unmasked())  &&  ribi_t::is_bend(dir)  &&  get_desc()->has_switch_image()  ) {
 			mark_image_dirty( get_image(), 0 );
 			mark_image_dirty( get_front_image(), 0 );
 			set_images(image_switch, get_ribi_unmasked(), is_snow(), (dir==ribi_t::northeast  ||  dir==ribi_t::southwest) );
@@ -196,7 +196,7 @@ void schiene_t::rdwr(loadsave_t *file)
 
 	if(file->is_saving()) 
 	{
-		const char *s = get_besch()->get_name();
+		const char *s = get_desc()->get_name();
 		file->rdwr_str(s);
 		if(file->get_experimental_version() >= 12)
 		{
@@ -210,30 +210,30 @@ void schiene_t::rdwr(loadsave_t *file)
 		file->rdwr_str(bname, lengthof(bname));
 
 #ifndef SPECIAL_RESCUE_12_3
-		const weg_besch_t* loaded_replacement_way = NULL;
+		const weg_desc_t* loaded_replacement_way = NULL;
 		if(file->get_experimental_version() >= 12)
 		{
 			char rbname[128];
 			file->rdwr_str(rbname, lengthof(rbname));
-			loaded_replacement_way = wegbauer_t::get_besch(rbname);
+			loaded_replacement_way = wegbauer_t::get_desc(rbname);
 		}
 #endif
 
 		sint32 old_max_speed=get_max_speed();
 		uint32 old_max_axle_load = get_max_axle_load();
 		uint32 old_bridge_weight_limit = get_bridge_weight_limit();
-		const weg_besch_t *besch = wegbauer_t::get_besch(bname);
-		if(besch==NULL) {
+		const weg_desc_t *desc = wegbauer_t::get_desc(bname);
+		if(desc==NULL) {
 			int old_max_speed=get_max_speed();
-			besch = wegbauer_t::get_besch(translator::compatibility_name(bname));
-			if(besch==NULL) {
-				besch = default_schiene;
+			desc = wegbauer_t::get_desc(translator::compatibility_name(bname));
+			if(desc==NULL) {
+				desc = default_schiene;
 				welt->add_missing_paks( bname, karte_t::MISSING_WAY );
 			}
-			dbg->warning("schiene_t::rdwr()", "Unknown rail %s replaced by %s (old_max_speed %i)", bname, besch->get_name(), old_max_speed );
+			dbg->warning("schiene_t::rdwr()", "Unknown rail %s replaced by %s (old_max_speed %i)", bname, desc->get_name(), old_max_speed );
 		}
 
-		set_besch(besch, file->get_experimental_version() >= 12);
+		set_desc(desc, file->get_experimental_version() >= 12);
 #ifndef SPECIAL_RESCUE_12_3
 		if(file->get_experimental_version() >= 12)
 		{

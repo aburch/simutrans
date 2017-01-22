@@ -3,7 +3,7 @@
 #include "../network/checksum.h"
 #include "../simworld.h"
 
-uint32 vehikel_besch_t::calc_running_cost(const karte_t *welt, uint32 base_cost) const
+uint32 vehikel_desc_t::calc_running_cost(const karte_t *welt, uint32 base_cost) const
 {
 	// No cost or no time line --> no obsolescence cost increase.
 	if (base_cost == 0 || !welt->use_timeline())
@@ -49,17 +49,17 @@ uint32 vehikel_besch_t::calc_running_cost(const karte_t *welt, uint32 base_cost)
 
 // Get running costs. Running costs increased if the vehicle is obsolete.
 // @author: jamespetts
-uint16 vehikel_besch_t::get_running_cost(const karte_t* welt) const
+uint16 vehikel_desc_t::get_running_cost(const karte_t* welt) const
 {
 	return calc_running_cost(welt, get_running_cost());
 }
 
-uint32 vehikel_besch_t::get_fixed_cost(karte_t *welt) const
+uint32 vehikel_desc_t::get_fixed_cost(karte_t *welt) const
 {
 	return calc_running_cost(welt, get_fixed_cost());
 }
 
-uint32 vehikel_besch_t::get_adjusted_monthly_fixed_cost(karte_t *welt) const
+uint32 vehikel_desc_t::get_adjusted_monthly_fixed_cost(karte_t *welt) const
 {
 	return welt->calc_adjusted_monthly_figure(calc_running_cost(welt, get_fixed_cost()));
 }
@@ -68,7 +68,7 @@ uint32 vehikel_besch_t::get_adjusted_monthly_fixed_cost(karte_t *welt) const
  * Get the ratio of power to force from either given power and force or according to given waytype.
  * Will never return 0, promised.
  */
-float32e8_t vehikel_besch_t::get_power_force_ratio() const
+float32e8_t vehikel_desc_t::get_power_force_ratio() const
 {
 	if (leistung != 0 && tractive_effort != 0)
 	{
@@ -130,7 +130,7 @@ float32e8_t vehikel_besch_t::get_power_force_ratio() const
  * calculate unloaded values after loading.
  * @author Bernd Gabriel, Dec 12, 2009
  */
-void vehikel_besch_t::loaded()
+void vehikel_desc_t::loaded()
 {
 	/** 
 	* Vehicles specify their (nominal) power. The formula 
@@ -198,7 +198,7 @@ void vehikel_besch_t::loaded()
  * Get effective force in N at given speed in m/s: effective_force_index *welt->get_settings().get_global_power_factor() / GEAR_FACTOR
  * @author Bernd Gabriel, Dec 14, 2009
  */
-uint32 vehikel_besch_t::get_effective_force_index(sint32 speed /* in m/s */ ) const
+uint32 vehikel_desc_t::get_effective_force_index(sint32 speed /* in m/s */ ) const
 {
 	if (geared_force == 0) 
 	{
@@ -213,7 +213,7 @@ uint32 vehikel_besch_t::get_effective_force_index(sint32 speed /* in m/s */ ) co
  * Get effective power in W at given speed in m/s: effective_power_index *welt->get_settings().get_global_power_factor() / GEAR_FACTOR
  * @author Bernd Gabriel, Dec 14, 2009
  */
-uint32 vehikel_besch_t::get_effective_power_index(sint32 speed /* in m/s */ ) const
+uint32 vehikel_desc_t::get_effective_power_index(sint32 speed /* in m/s */ ) const
 {
 	if (geared_power == 0) 
 	{
@@ -224,7 +224,7 @@ uint32 vehikel_besch_t::get_effective_power_index(sint32 speed /* in m/s */ ) co
 	return geared_power[min(speed, max_speed)];
 }
 
-uint16 vehikel_besch_t::get_obsolete_year_month(const karte_t *welt) const
+uint16 vehikel_desc_t::get_obsolete_year_month(const karte_t *welt) const
 { 
 	if(increase_maintenance_after_years)
 	{
@@ -236,9 +236,9 @@ uint16 vehikel_besch_t::get_obsolete_year_month(const karte_t *welt) const
 	}
 }
 
-void vehikel_besch_t::calc_checksum(checksum_t *chk) const
+void vehikel_desc_t::calc_checksum(checksum_t *chk) const
 {
-	obj_besch_transport_related_t::calc_checksum(chk);
+	obj_desc_transport_related_t::calc_checksum(chk);
 	chk->input(zuladung);
 	chk->input(gewicht);
 	chk->input(leistung);
@@ -250,14 +250,14 @@ void vehikel_besch_t::calc_checksum(checksum_t *chk) const
 	chk->input(nachfolger);
 	chk->input(engine_type);
 	// freight
-	const xref_besch_t *xref = get_child<xref_besch_t>(2);
+	const xref_desc_t *xref = get_child<xref_desc_t>(2);
 	chk->input(xref ? xref->get_name() : "NULL");
 
 	// vehicle constraints
 	// For some reason, this records false mismatches with a few
 	// vehicles when names are used. Use  numbers instead.
 	/*for(uint8 i=0; i<vorgaenger+nachfolger; i++) {
-		const xref_besch_t *xref = get_child<xref_besch_t>(6+i);
+		const xref_desc_t *xref = get_child<xref_desc_t>(6+i);
 		chk->input(xref ? xref->get_name() : "NULL");
 	}*/
 

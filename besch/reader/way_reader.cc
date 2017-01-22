@@ -11,17 +11,17 @@
 #include "../../network/pakset_info.h"
 
 
-void way_reader_t::register_obj(obj_besch_t *&data)
+void way_reader_t::register_obj(obj_desc_t *&data)
 {
-    weg_besch_t *besch = static_cast<weg_besch_t *>(data);
+    weg_desc_t *desc = static_cast<weg_desc_t *>(data);
 
-    wegbauer_t::register_besch(besch);
-//    printf("...Weg %s geladen\n", besch->get_name());
-	obj_for_xref(get_type(), besch->get_name(), data);
+    wegbauer_t::register_desc(desc);
+//    printf("...Weg %s geladen\n", desc->get_name());
+	obj_for_xref(get_type(), desc->get_name(), data);
 
 	checksum_t *chk = new checksum_t();
-	besch->calc_checksum(chk);
-	pakset_info_t::append(besch->get_name(), chk);
+	desc->calc_checksum(chk);
+	pakset_info_t::append(desc->get_name(), chk);
 }
 
 
@@ -31,16 +31,16 @@ bool way_reader_t::successfully_loaded() const
 }
 
 
-obj_besch_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
+obj_desc_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
-	ALLOCA(char, besch_buf, node.size);
+	ALLOCA(char, desc_buf, node.size);
 
-	weg_besch_t *besch = new weg_besch_t();
+	weg_desc_t *desc = new weg_desc_t();
 	// DBG_DEBUG("way_reader_t::read_node()", "node size = %d", node.size);
 
 	// Hajo: Read data
-	fread(besch_buf, node.size, 1, fp);
-	char * p = besch_buf;
+	fread(desc_buf, node.size, 1, fp);
+	char * p = desc_buf;
 
 	// Hajo: old versions of PAK files have no version stamp.
 	// But we know, the higher most bit was always cleared.
@@ -48,16 +48,16 @@ obj_besch_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 	if(node.size == 0) {
 		// old node, version 0, compatibility code
-		besch->cost = 10000;
-		besch->maintenance = 800;
-		besch->topspeed = 999;
-		besch->axle_load = 9999;
-		besch->intro_date = DEFAULT_INTRO_DATE*12;
-		besch->obsolete_date = DEFAULT_RETIRE_DATE*12;
-		besch->wt = road_wt;
-		besch->styp = 0;
-		besch->draw_as_obj = false;
-		besch->number_seasons = 0;
+		desc->cost = 10000;
+		desc->maintenance = 800;
+		desc->topspeed = 999;
+		desc->axle_load = 9999;
+		desc->intro_date = DEFAULT_INTRO_DATE*12;
+		desc->obsolete_date = DEFAULT_RETIRE_DATE*12;
+		desc->wt = road_wt;
+		desc->styp = 0;
+		desc->draw_as_obj = false;
+		desc->number_seasons = 0;
 	}
 	else {
 
@@ -84,30 +84,30 @@ obj_besch_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 		if(version==6) {
 			// version 6, now with axle load
-			besch->cost = decode_uint32(p);
-			besch->maintenance = decode_uint32(p);
-			besch->topspeed = decode_uint32(p);
-			besch->intro_date = decode_uint16(p);
-			besch->obsolete_date = decode_uint16(p);
-			besch->axle_load = decode_uint16(p);	// new
-			besch->wt = decode_uint8(p);
-			besch->styp = decode_uint8(p);
-			besch->draw_as_obj = decode_uint8(p);
-			besch->number_seasons = decode_sint8(p);
+			desc->cost = decode_uint32(p);
+			desc->maintenance = decode_uint32(p);
+			desc->topspeed = decode_uint32(p);
+			desc->intro_date = decode_uint16(p);
+			desc->obsolete_date = decode_uint16(p);
+			desc->axle_load = decode_uint16(p);	// new
+			desc->wt = decode_uint8(p);
+			desc->styp = decode_uint8(p);
+			desc->draw_as_obj = decode_uint8(p);
+			desc->number_seasons = decode_sint8(p);
 			if(experimental)
 			{
 				way_constraints.set_permissive(decode_uint8(p));
 				way_constraints.set_prohibitive(decode_uint8(p));
 				if(experimental_version >= 1)
 				{
-					besch->topspeed_gradient_1 = decode_sint32(p);
-					besch->topspeed_gradient_2 = decode_sint32(p);
-					besch->max_altitude = decode_sint8(p);
-					besch->max_vehicles_on_tile = decode_uint8(p);
-					besch->wear_capacity = decode_uint32(p);
-					besch->way_only_cost = decode_uint32(p);
-					besch->upgrade_group = decode_uint8(p);
-					besch->monthly_base_wear = decode_uint32(p); 
+					desc->topspeed_gradient_1 = decode_sint32(p);
+					desc->topspeed_gradient_2 = decode_sint32(p);
+					desc->max_altitude = decode_sint8(p);
+					desc->max_vehicles_on_tile = decode_uint8(p);
+					desc->wear_capacity = decode_uint32(p);
+					desc->way_only_cost = decode_uint32(p);
+					desc->upgrade_group = decode_uint8(p);
+					desc->monthly_base_wear = decode_uint32(p); 
 				}
 				if(experimental_version > 1)
 				{
@@ -117,29 +117,29 @@ obj_besch_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		}
 		else if(version==4  ||  version==5) {
 			// Versioned node, version 4+5
-			besch->cost = decode_uint32(p);
-			besch->maintenance = decode_uint32(p);
-			besch->topspeed = decode_sint32(p);
-			besch->axle_load = decode_uint32(p);
-			besch->intro_date = decode_uint16(p);
-			besch->obsolete_date = decode_uint16(p);
-			besch->wt = decode_uint8(p);
-			besch->styp = decode_uint8(p);
-			besch->draw_as_obj = decode_uint8(p);
-			besch->number_seasons = decode_sint8(p);
+			desc->cost = decode_uint32(p);
+			desc->maintenance = decode_uint32(p);
+			desc->topspeed = decode_sint32(p);
+			desc->axle_load = decode_uint32(p);
+			desc->intro_date = decode_uint16(p);
+			desc->obsolete_date = decode_uint16(p);
+			desc->wt = decode_uint8(p);
+			desc->styp = decode_uint8(p);
+			desc->draw_as_obj = decode_uint8(p);
+			desc->number_seasons = decode_sint8(p);
 			if(experimental)
 			{
 				way_constraints.set_permissive(decode_uint8(p));
 				way_constraints.set_prohibitive(decode_uint8(p));
 				if(experimental_version == 1)
 				{
-					besch->topspeed_gradient_1 = decode_sint32(p);
-					besch->topspeed_gradient_2 = decode_sint32(p);
-					besch->max_altitude = decode_sint8(p);
-					besch->max_vehicles_on_tile = decode_uint8(p);
-					besch->wear_capacity = decode_uint32(p);
-					besch->way_only_cost = decode_uint32(p);
-					besch->upgrade_group = decode_uint8(p);
+					desc->topspeed_gradient_1 = decode_sint32(p);
+					desc->topspeed_gradient_2 = decode_sint32(p);
+					desc->max_altitude = decode_sint8(p);
+					desc->max_vehicles_on_tile = decode_uint8(p);
+					desc->wear_capacity = decode_uint32(p);
+					desc->way_only_cost = decode_uint32(p);
+					desc->upgrade_group = decode_uint8(p);
 				}
 				if(experimental_version > 1)
 				{
@@ -150,105 +150,105 @@ obj_besch_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		}
 		else if(version==3) {
 			// Versioned node, version 3
-			besch->cost = decode_uint32(p);
-			besch->maintenance = decode_uint32(p);
-			besch->topspeed = decode_uint32(p);
-			besch->axle_load = decode_uint32(p);
-			besch->intro_date = decode_uint16(p);
-			besch->obsolete_date = decode_uint16(p);
-			besch->wt = decode_uint8(p);
-			besch->styp = decode_uint8(p);
-			besch->draw_as_obj = decode_uint8(p);
-			besch->number_seasons = 0;
+			desc->cost = decode_uint32(p);
+			desc->maintenance = decode_uint32(p);
+			desc->topspeed = decode_uint32(p);
+			desc->axle_load = decode_uint32(p);
+			desc->intro_date = decode_uint16(p);
+			desc->obsolete_date = decode_uint16(p);
+			desc->wt = decode_uint8(p);
+			desc->styp = decode_uint8(p);
+			desc->draw_as_obj = decode_uint8(p);
+			desc->number_seasons = 0;
 		}
 		else if(version==2) {
 			// Versioned node, version 2
-			besch->cost = decode_uint32(p);
-			besch->maintenance = decode_uint32(p);
-			besch->topspeed = decode_uint32(p);
-			besch->axle_load = decode_uint32(p);
-			besch->intro_date = decode_uint16(p);
-			besch->obsolete_date = decode_uint16(p);
-			besch->wt = decode_uint8(p);
-			besch->styp = decode_uint8(p);
-			besch->draw_as_obj = false;
-			besch->number_seasons = 0;
+			desc->cost = decode_uint32(p);
+			desc->maintenance = decode_uint32(p);
+			desc->topspeed = decode_uint32(p);
+			desc->axle_load = decode_uint32(p);
+			desc->intro_date = decode_uint16(p);
+			desc->obsolete_date = decode_uint16(p);
+			desc->wt = decode_uint8(p);
+			desc->styp = decode_uint8(p);
+			desc->draw_as_obj = false;
+			desc->number_seasons = 0;
 		}
 		else if(version == 1) {
 			// Versioned node, version 1
-			besch->cost = decode_uint32(p);
-			besch->maintenance = decode_uint32(p);
-			besch->topspeed = decode_uint32(p);
-			besch->axle_load = decode_uint32(p);
+			desc->cost = decode_uint32(p);
+			desc->maintenance = decode_uint32(p);
+			desc->topspeed = decode_uint32(p);
+			desc->axle_load = decode_uint32(p);
 			uint32 intro_date= decode_uint32(p);
-			besch->intro_date = (intro_date/16)*12 + (intro_date%16);
-			besch->wt = decode_uint8(p);
-			besch->styp = decode_uint8(p);
-			besch->obsolete_date = DEFAULT_RETIRE_DATE*12;
-			besch->draw_as_obj = false;
-			besch->number_seasons = 0;
+			desc->intro_date = (intro_date/16)*12 + (intro_date%16);
+			desc->wt = decode_uint8(p);
+			desc->styp = decode_uint8(p);
+			desc->obsolete_date = DEFAULT_RETIRE_DATE*12;
+			desc->draw_as_obj = false;
+			desc->number_seasons = 0;
 		}
 		else {
 			dbg->fatal("way_reader_t::read_node()","Invalid version %d", version);
 		}
-		besch->set_way_constraints(way_constraints);
+		desc->set_way_constraints(way_constraints);
 		if(experimental_version < 1 || !experimental)
 		{
-			besch->topspeed_gradient_1 = besch->topspeed_gradient_2 = besch->topspeed;
-			besch->max_altitude = 0;
-			besch->max_vehicles_on_tile = 251;
-			besch->wear_capacity = besch->get_waytype() == road_wt ? 100000000 : 4000000000;
-			besch->way_only_cost = besch->cost;
-			besch->upgrade_group = 0;
+			desc->topspeed_gradient_1 = desc->topspeed_gradient_2 = desc->topspeed;
+			desc->max_altitude = 0;
+			desc->max_vehicles_on_tile = 251;
+			desc->wear_capacity = desc->get_waytype() == road_wt ? 100000000 : 4000000000;
+			desc->way_only_cost = desc->cost;
+			desc->upgrade_group = 0;
 		}
 
 		if(version < 6 || experimental_version < 1 || !experimental)
 		{
-			besch->monthly_base_wear = besch->wear_capacity / 600;
+			desc->monthly_base_wear = desc->wear_capacity / 600;
 		}
 	}
 
 	// some internal corrections to pay for previous confusion with two waytypes
-	if(besch->wt==tram_wt) {
-		besch->styp = 7;
-		besch->wt = track_wt;
+	if(desc->wt==tram_wt) {
+		desc->styp = 7;
+		desc->wt = track_wt;
 	}
-	else if(besch->styp==5  &&  besch->wt==track_wt) {
-		besch->wt = monorail_wt;
-		besch->styp = 0;
+	else if(desc->styp==5  &&  desc->wt==track_wt) {
+		desc->wt = monorail_wt;
+		desc->styp = 0;
 	}
-	else if(besch->wt==128) {
-		besch->wt = powerline_wt;
+	else if(desc->wt==128) {
+		desc->wt = powerline_wt;
 	}
 	
-	if(version<=2  &&  besch->wt==air_wt  &&  besch->topspeed>=250) {
+	if(version<=2  &&  desc->wt==air_wt  &&  desc->topspeed>=250) {
 		// runway!
-		besch->styp = 1;
+		desc->styp = 1;
 	}
 
 	// front images from version 5 on
-	besch->front_images = version > 4;
+	desc->front_images = version > 4;
 
-	besch->base_cost = besch->cost;
-	besch->base_maintenance = besch->maintenance;
-	besch->base_way_only_cost = besch->way_only_cost;
+	desc->base_cost = desc->cost;
+	desc->base_maintenance = desc->maintenance;
+	desc->base_way_only_cost = desc->way_only_cost;
 
 	DBG_DEBUG("way_reader_t::read_node()",
 		"version=%d, price=%d, maintenance=%d, topspeed=%d, max_weight=%d, "
 		"wtype=%d, styp=%d, intro_year=%i, axle_load=%d, wear_capacity=%d, monthly_base_wear=%d, "
 		"way_constraints_permissive = %d, way_constraints_prohibitive = %d",
 		version,
-		besch->cost,
-		besch->maintenance,
-		besch->topspeed,
-		besch->wt,
-		besch->styp,
-		besch->intro_date/12,
-		besch->axle_load,
-		besch->wear_capacity,
-		besch->monthly_base_wear,
-		besch->get_way_constraints().get_permissive(),
-		besch->get_way_constraints().get_prohibitive());
+		desc->cost,
+		desc->maintenance,
+		desc->topspeed,
+		desc->wt,
+		desc->styp,
+		desc->intro_date/12,
+		desc->axle_load,
+		desc->wear_capacity,
+		desc->monthly_base_wear,
+		desc->get_way_constraints().get_permissive(),
+		desc->get_way_constraints().get_prohibitive());
 
-  return besch;
+  return desc;
 }

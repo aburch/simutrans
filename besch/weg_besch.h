@@ -37,7 +37,7 @@ class checksum_t;
  *
  * @author  Volker Meyer, Hj. Malthaner
  */
-class weg_besch_t : public obj_besch_transport_infrastructure_t {
+class weg_desc_t : public obj_desc_transport_infrastructure_t {
 	friend class way_reader_t;
 
 private:
@@ -212,9 +212,9 @@ public:
 	* Skin: cursor (index 0) and icon (index 1)
 	* @author Hj. Malthaner
 	*/
-	const skin_besch_t * get_cursor() const
+	const skin_desc_t * get_cursor() const
 	{
-		return get_child<skin_besch_t>(5);
+		return get_child<skin_desc_t>(5);
 	}
 
 	const way_constraints_of_way_t& get_way_constraints() const { return way_constraints; }
@@ -229,7 +229,7 @@ public:
 	 *
 	 * The logic is trivial and should be inlined.
 	 */
-	bool is_at_least_as_good_as(weg_besch_t const * other) const {
+	bool is_at_least_as_good_as(weg_desc_t const * other) const {
 		if(  other == NULL  ) {
 			// This should not happen
 			return false;

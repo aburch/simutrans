@@ -69,7 +69,7 @@ bool convoi_frame_t::passes_filter(convoihandle_t cnv)
 				break;
 			case obj_t::rail_vehicle:
 				// filter trams: a convoi is considered tram if the first vehicle is a tram vehicle
-				if(tdriver->get_besch()->get_waytype()==tram_wt) {
+				if(tdriver->get_desc()->get_waytype()==tram_wt) {
 					if (!get_filter(convoi_filter_frame_t::tram_filter)) {
 						return false;
 					}
@@ -124,7 +124,7 @@ bool convoi_frame_t::passes_filter(convoihandle_t cnv)
 	if(  get_filter(convoi_filter_frame_t::ware_filter)  ) {
 		unsigned i;
 		for(  i = 0; i < cnv->get_vehicle_count(); i++) {
-			const ware_besch_t *wb = cnv->get_vehikel(i)->get_cargo_type();
+			const ware_desc_t *wb = cnv->get_vehikel(i)->get_cargo_type();
 			if(  wb->get_catg()!=0  ) {
 				wb = warenbauer_t::get_info_catg(wb->get_catg());
 			}
@@ -196,7 +196,7 @@ void convoi_frame_t::sort_list()
 }
 
 
-void convoi_frame_t::sort_list( char *name, uint32 filter, const slist_tpl<const ware_besch_t *> *wares )
+void convoi_frame_t::sort_list( char *name, uint32 filter, const slist_tpl<const ware_desc_t *> *wares )
 {
 	name_filter = name;
 	waren_filter = wares;

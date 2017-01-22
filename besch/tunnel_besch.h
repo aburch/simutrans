@@ -26,7 +26,7 @@
 #include "weg_besch.h"
 
 
-class tunnel_besch_t : public obj_besch_transport_infrastructure_t {
+class tunnel_desc_t : public obj_desc_transport_infrastructure_t {
 	friend class tunnel_reader_t;
 	friend class tunnelbauer_t;	// to convert the old tunnels to new ones
 
@@ -76,8 +76,8 @@ public:
 
 	image_id get_hintergrund_nr(slope_t::type hang, uint8 season, uint8 type ) const
 	{
-		const image_t *besch = get_background(hang, season, type );
-		return besch != NULL ? besch->get_id() : IMG_EMPTY;
+		const image_t *desc = get_background(hang, season, type );
+		return desc != NULL ? desc->get_id() : IMG_EMPTY;
 	}
 
 	const image_t *get_foreground(slope_t::type hang, uint8 season, uint8 type ) const
@@ -88,8 +88,8 @@ public:
 
 	image_id get_vordergrund_nr(slope_t::type hang, uint8 season, uint8 type) const
 	{
-		const image_t *besch = get_foreground(hang, season, type );
-		return besch != NULL ? besch->get_id() : IMG_EMPTY;
+		const image_t *desc = get_foreground(hang, season, type );
+		return desc != NULL ? desc->get_id() : IMG_EMPTY;
 	}
 
 	image_id get_underground_backimage_nr(ribi_t::ribi ribi, slope_t::type hang) const
@@ -157,7 +157,7 @@ private:
 	
 public:
 
-	skin_besch_t const* get_cursor() const { return get_child<skin_besch_t>(4); }
+	skin_desc_t const* get_cursor() const { return get_child<skin_desc_t>(4); }
 
 	waytype_t get_finance_waytype() const;
 
@@ -177,11 +177,11 @@ public:
 	const way_constraints_of_way_t& get_way_constraints() const { return way_constraints; }
 	void set_way_constraints(const way_constraints_of_way_t& value) { way_constraints = value; }
 
-	const weg_besch_t *get_weg_besch() const
+	const weg_desc_t *get_weg_desc() const
 	{
 		if(get_has_way())
 		{
-			return get_child<weg_besch_t>(5 + number_seasons * 2);
+			return get_child<weg_desc_t>(5 + number_seasons * 2);
 		}
 		return NULL;
 	}

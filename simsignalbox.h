@@ -11,7 +11,7 @@
 
 class karte_t;
 class signal_t;
-class roadsign_besch_t;
+class roadsign_desc_t;
 
 class signalbox_t : public gebaeude_t
 {
@@ -26,7 +26,7 @@ protected:
 public:
 
 	signalbox_t(loadsave_t *file);
-	signalbox_t(koord3d pos, player_t *player, const haus_tile_besch_t *t);
+	signalbox_t(koord3d pos, player_t *player, const haus_tile_desc_t *t);
 
 	~signalbox_t();
 
@@ -43,7 +43,7 @@ public:
 
 	// Checks whether a specific signal can be added without adding it. Returns true if it succeeds.
 	bool can_add_signal(const signal_t* s) const;
-	bool can_add_signal(const roadsign_besch_t* b) const; 
+	bool can_add_signal(const roadsign_desc_t* b) const; 
 	
 	// Check whether any more signals can be added. Returns true if it succeeds.
 	// Separate from the above in order to give better error messages.

@@ -28,7 +28,7 @@
 class tool_t;
 class checksum_t;
 
-class bruecke_besch_t : public obj_besch_transport_infrastructure_t {
+class bruecke_desc_t : public obj_desc_transport_infrastructure_t {
     friend class bridge_reader_t;
 
 private:
@@ -67,7 +67,7 @@ public:
 	const char *get_name() const { return get_cursor()->get_name(); }
 	const char *get_copyright() const { return get_cursor()->get_copyright(); }
 
-	skin_besch_t const* get_cursor() const { return get_child<skin_besch_t>(2 + offset); }
+	skin_desc_t const* get_cursor() const { return get_child<skin_desc_t>(2 + offset); }
 
 	image_id get_background(img_t img, uint8 season) const 	{
 		const image_t *image = NULL;
@@ -156,10 +156,10 @@ public:
 
 	bool get_has_own_way_graphics() const { return has_own_way_graphics; }
 
-	const weg_besch_t *get_weg_besch() const
+	const weg_desc_t *get_weg_desc() const
 	{
 		if(has_way) {
-			return get_child<weg_besch_t>(5 + number_seasons * 2);
+			return get_child<weg_desc_t>(5 + number_seasons * 2);
 		}
 		return NULL;
 	}

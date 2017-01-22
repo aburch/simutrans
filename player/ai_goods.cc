@@ -129,8 +129,8 @@ bool ai_goods_t::set_active(bool new_state)
 bool ai_goods_t::get_factory_tree_lowest_missing( fabrik_t *fab )
 {
 	// now check for all products (should be changed later for the root)
-	for(  int i=0;  i<fab->get_besch()->get_lieferanten();  i++  ) {
-		const ware_besch_t *ware = fab->get_besch()->get_lieferant(i)->get_ware();
+	for(  int i=0;  i<fab->get_desc()->get_lieferanten();  i++  ) {
+		const ware_desc_t *ware = fab->get_desc()->get_lieferant(i)->get_ware();
 
 		// find out how much is there
 		const array_tpl<ware_production_t>& eingang = fab->get_eingang();
@@ -144,7 +144,7 @@ bool ai_goods_t::get_factory_tree_lowest_missing( fabrik_t *fab )
 
 		FOR(vector_tpl<koord>, const& q, fab->get_suppliers()) {
 			fabrik_t* const qfab = fabrik_t::get_fab(q);
-			const fabrik_besch_t* const fb = qfab->get_besch();
+			const fabrik_desc_t* const fb = qfab->get_desc();
 			for(  uint qq = 0;  qq < fb->get_produkte();  qq++  ) {
 				if(  fb->get_produkt(qq)->get_ware() == ware  &&
 					 !is_forbidden(qfab, fab, ware)  &&
@@ -182,7 +182,7 @@ int ai_goods_t::get_factory_tree_missing_count( fabrik_t *fab )
 {
 	int numbers=0;	// how many missing?
 
-	fabrik_besch_t const& d = *fab->get_besch();
+	fabrik_desc_t const& d = *fab->get_desc();
 	// ok, this is a source ...
 	if (d.is_producer_only()) {
 		return 0;
@@ -190,7 +190,7 @@ int ai_goods_t::get_factory_tree_missing_count( fabrik_t *fab )
 
 	// now check for all
 	for (int i = 0; i < d.get_lieferanten(); ++i) {
-		ware_besch_t const* const ware = d.get_lieferant(i)->get_ware();
+		ware_desc_t const* const ware = d.get_lieferant(i)->get_ware();
 
 		bool complete = false;	// found at least one factory
 		FOR(vector_tpl<koord>, const& q, fab->get_suppliers()) {
@@ -200,7 +200,7 @@ int ai_goods_t::get_factory_tree_missing_count( fabrik_t *fab )
 				continue;
 			}
 			if( !is_forbidden( qfab, fab, ware ) ) {
-				const fabrik_besch_t* const fb = qfab->get_besch();
+				const fabrik_desc_t* const fb = qfab->get_desc();
 				for (uint qq = 0; qq < fb->get_produkte(); qq++) {
 					if (fb->get_produkt(qq)->get_ware() == ware ) {
 						int n = get_factory_tree_missing_count( qfab );
@@ -249,7 +249,7 @@ bool ai_goods_t::suche_platz1_platz2(fabrik_t *qfab, fabrik_t *zfab, int length 
 	bool ok = false;
 	bool has_ziel = false;
 
-	if(qfab->get_besch()->get_platzierung()!=fabrik_besch_t::Wasser) {
+	if(qfab->get_desc()->get_platzierung()!=fabrik_desc_t::Wasser) {
 		if( length == 0 ) {
 			vector_tpl<koord3d> tile_list[2];
 			uint16 const cov = welt->get_settings().get_station_coverage_factories();
@@ -313,7 +313,7 @@ bool ai_goods_t::suche_platz1_platz2(fabrik_t *qfab, fabrik_t *zfab, int length 
 			}
 		}
 		if( !ok ) {
-			ok = suche_platz(start, start_size, ziel, qfab->get_besch()->get_haus()->get_groesse(qfab->get_rotate()) );
+			ok = suche_platz(start, start_size, ziel, qfab->get_desc()->get_haus()->get_groesse(qfab->get_rotate()) );
 		}
 	}
 	else {
@@ -323,7 +323,7 @@ bool ai_goods_t::suche_platz1_platz2(fabrik_t *qfab, fabrik_t *zfab, int length 
 
 	if( ok && !has_ziel ) {
 		// found a place, search for target
-		ok = suche_platz(ziel, ziel_size, start, zfab->get_besch()->get_haus()->get_groesse(zfab->get_rotate()) );
+		ok = suche_platz(ziel, ziel_size, start, zfab->get_desc()->get_haus()->get_groesse(zfab->get_rotate()) );
 	}
 
 	INT_CHECK("simplay 1729");
@@ -356,7 +356,7 @@ bool ai_goods_t::suche_platz1_platz2(fabrik_t *qfab, fabrik_t *zfab, int length 
 bool ai_goods_t::create_ship_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 {
 	// pak64 has barges ...
-	const vehikel_besch_t *v_second = NULL;
+	const vehikel_desc_t *v_second = NULL;
 	if(ship_vehicle->get_leistung()==0) {
 		v_second = ship_vehicle;
 		if(v_second->get_vorgaenger_count()==0  ||  v_second->get_vorgaenger(0)==NULL) {
@@ -385,7 +385,7 @@ bool ai_goods_t::create_ship_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 		gr->obj_loesche_alle(this);
 	}
 	// try to built dock
-	const haus_besch_t* h = hausbauer_t::get_random_station(haus_besch_t::dock, water_wt, welt->get_timeline_year_month(), haltestelle_t::WARE);
+	const haus_desc_t* h = hausbauer_t::get_random_station(haus_desc_t::dock, water_wt, welt->get_timeline_year_month(), haltestelle_t::WARE);
 	if(h==NULL  ||  !call_general_tool(TOOL_BUILD_STATION, platz1, h->get_name())) {
 		return false;
 	}
@@ -430,7 +430,7 @@ bool ai_goods_t::create_ship_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 		vehicle_t* v = vehikelbauer_t::baue( qfab->get_pos(), this, NULL, ship_vehicle);
 		convoi_t* cnv = new convoi_t(this);
 		// V.Meyer: give the new convoi name from first vehicle
-		cnv->set_name(v->get_besch()->get_name());
+		cnv->set_name(v->get_desc()->get_name());
 		cnv->add_vehikel( v );
 
 		// two part consist
@@ -456,7 +456,7 @@ bool ai_goods_t::create_ship_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
  */
 void ai_goods_t::create_road_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 {
-	const haus_besch_t* fh = hausbauer_t::get_random_station(haus_besch_t::generic_stop, road_wt, welt->get_timeline_year_month(), haltestelle_t::WARE);
+	const haus_desc_t* fh = hausbauer_t::get_random_station(haus_desc_t::generic_stop, road_wt, welt->get_timeline_year_month(), haltestelle_t::WARE);
 	// succeed in frachthof creation
 	if(fh  &&  call_general_tool(TOOL_BUILD_STATION, platz1, fh->get_name())  &&  call_general_tool(TOOL_BUILD_STATION, platz2, fh->get_name())  ) {
 		koord3d pos1 = welt->lookup_kartenboden(platz1)->get_pos();
@@ -494,7 +494,7 @@ void ai_goods_t::create_road_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 			vehicle_t* v = vehikelbauer_t::baue(startpos, this, NULL, road_vehicle);
 			convoi_t* cnv = new convoi_t(this);
 			// V.Meyer: give the new convoi name from first vehicle
-			cnv->set_name(v->get_besch()->get_name());
+			cnv->set_name(v->get_desc()->get_name());
 			cnv->add_vehikel( v );
 
 			welt->sync.add( cnv );
@@ -521,9 +521,9 @@ void ai_goods_t::create_rail_transport_vehikel(const koord platz1, const koord p
 	koord3d pos2 = welt->lookup_kartenboden(platz2)->get_pos();
 
 	// probably need to electrify the track?
-	if(  rail_engine->get_engine_type()==vehikel_besch_t::electric  ) {
+	if(  rail_engine->get_engine_type()==vehikel_desc_t::electric  ) {
 		// we need overhead wires
-		const way_obj_besch_t *e = wayobj_t::wayobj_search(track_wt,overheadlines_wt,welt->get_timeline_year_month());
+		const way_obj_desc_t *e = wayobj_t::wayobj_search(track_wt,overheadlines_wt,welt->get_timeline_year_month());
 		tool_wayobj_t tool;
 		tool.set_default_param(e->get_name());
 		tool.init( this );
@@ -597,8 +597,8 @@ int ai_goods_t::baue_bahnhof(const koord* p, int anz_vehikel)
 	bool make_all_bahnhof=false;
 
 	// find a freight train station
-	const haus_besch_t* besch = hausbauer_t::get_random_station(haus_besch_t::generic_stop, track_wt, welt->get_timeline_year_month(), haltestelle_t::WARE);
-	if(besch==NULL) {
+	const haus_desc_t* desc = hausbauer_t::get_random_station(haus_desc_t::generic_stop, track_wt, welt->get_timeline_year_month(), haltestelle_t::WARE);
+	if(desc==NULL) {
 		// no freight station
 		return 0;
 	}
@@ -612,14 +612,14 @@ int ai_goods_t::baue_bahnhof(const koord* p, int anz_vehikel)
 		) {
 			// start building, if next to an existing station
 			make_all_bahnhof = true;
-			call_general_tool( TOOL_BUILD_STATION, pos, besch->get_name() );
+			call_general_tool( TOOL_BUILD_STATION, pos, desc->get_name() );
 		}
 		INT_CHECK("simplay 753");
 	}
 	// now add the other squares (going backwards)
 	for(  pos=*p;  pos!=t;  pos+=zv ) {
 		if(  !get_halt(pos).is_bound()  ) {
-			call_general_tool( TOOL_BUILD_STATION, pos, besch->get_name() );
+			call_general_tool( TOOL_BUILD_STATION, pos, desc->get_name() );
 		}
 	}
 
@@ -791,7 +791,7 @@ void ai_goods_t::step()
 				weighted_vector_tpl<fabrik_t *> start_fabs(20);
 				FOR(vector_tpl<fabrik_t*>, const fab, welt->get_fab_list()) {
 					// consumer and not completely overcrowded
-					if(  fab->get_besch()->is_consumer_only()  &&  fab->get_status() != fabrik_t::bad  ) {
+					if(  fab->get_desc()->is_consumer_only()  &&  fab->get_status() != fabrik_t::bad  ) {
 						int missing = get_factory_tree_missing_count( fab );
 						if(  missing>0  ) {
 							start_fabs.append( fab, 100/(missing+1)+1 );
@@ -820,7 +820,7 @@ void ai_goods_t::step()
 			}
 
 			if(  get_factory_tree_lowest_missing(root)  ) {
-				if(  start->get_besch()->get_platzierung()!=fabrik_besch_t::Wasser  ||  vehikel_search( water_wt, 0, 10, freight, false)!=NULL  ) {
+				if(  start->get_desc()->get_platzierung()!=fabrik_desc_t::Wasser  ||  vehikel_search( water_wt, 0, 10, freight, false)!=NULL  ) {
 					DBG_MESSAGE("ai_goods_t::do_ki", "Consider route from %s (%i,%i) to %s (%i,%i)", start->get_name(), start->get_pos().x, start->get_pos().y, ziel->get_name(), ziel->get_pos().x, ziel->get_pos().y );
 					state = NR_BAUE_ROUTE1;
 				}
@@ -885,7 +885,7 @@ DBG_MESSAGE("do_ki()","rail vehicle %p",rail_vehicle);
 DBG_MESSAGE("do_ki()","road vehicle %p",road_vehicle);
 
 			ship_vehicle = NULL;
-			if(start->get_besch()->get_platzierung()==fabrik_besch_t::Wasser) {
+			if(start->get_desc()->get_platzierung()==fabrik_desc_t::Wasser) {
 				// largest ship available
 				ship_vehicle = vehikel_search( water_wt, 0, 20, freight, false);
 			}
@@ -901,7 +901,7 @@ DBG_MESSAGE("do_ki()","road vehicle %p",road_vehicle);
 			}
 			assert(  start_ware<ausgang.get_count()  );
 			const int prod = min((uint32)ziel->get_base_production(),
-			                 ( start->get_base_production() * start->get_besch()->get_produkt(start_ware)->get_faktor() )/256u - (uint32)(start->get_ausgang()[start_ware].get_stat(1, FAB_GOODS_DELIVERED)) );
+			                 ( start->get_base_production() * start->get_desc()->get_produkt(start_ware)->get_faktor() )/256u - (uint32)(start->get_ausgang()[start_ware].get_stat(1, FAB_GOODS_DELIVERED)) );
 
 DBG_MESSAGE("do_ki()","check railway");
 			/* calculate number of cars for railroad */
@@ -1064,7 +1064,7 @@ DBG_MESSAGE("ai_goods_t::do_ki()","No roadway possible.");
 				while(  start_ware<ausgang.get_count()  &&  ausgang[start_ware].get_typ()!=freight  ) {
 					start_ware++;
 				}
-				const sint32 prod = min( ziel->get_base_production(), (sint32)(start->get_base_production() * start->get_besch()->get_produkt(start_ware)->get_faktor()) - (sint32)(start->get_ausgang()[start_ware].get_stat(1, FAB_GOODS_DELIVERED)) );
+				const sint32 prod = min( ziel->get_base_production(), (sint32)(start->get_base_production() * start->get_desc()->get_produkt(start_ware)->get_faktor()) - (sint32)(start->get_ausgang()[start_ware].get_stat(1, FAB_GOODS_DELIVERED)) );
 				if(prod<0) {
 					// too much supplied last time?!? => retry
 					state = CHECK_CONVOI;
@@ -1123,7 +1123,7 @@ DBG_MESSAGE("ai_goods_t::do_ki()","No roadway possible.");
 						int best_rail_speed = min(51, rail_vehicle->get_geschw());
 						// for engine: gues number of cars
 						sint32 power_needed=(sint32)(((best_rail_speed*best_rail_speed)/2500.0+1.0)*(100.0+count_rail*( (rail_vehicle->get_gewicht()+rail_vehicle->get_zuladung()*freight->get_weight_per_unit())*0.001 )));
-						const vehikel_besch_t *v=vehikel_search( track_wt, power_needed, best_rail_speed, NULL, false);
+						const vehikel_desc_t *v=vehikel_search( track_wt, power_needed, best_rail_speed, NULL, false);
 						if(v->get_running_cost(welt)<rail_engine->get_running_cost(welt)) {
 							rail_engine = v;
 						}
@@ -1290,7 +1290,7 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 
 				// well, then delete this (likely stucked somewhere) or insanely unneeded
 				if(delete_this) {
-					waytype_t const wt = cnv->front()->get_besch()->get_waytype();
+					waytype_t const wt = cnv->front()->get_desc()->get_waytype();
 					linehandle_t line = cnv->get_line();
 					DBG_MESSAGE("ai_goods_t::do_ki()","%s retires convoi %s!", get_name(), cnv->get_name());
 
@@ -1438,7 +1438,7 @@ void ai_goods_t::rdwr(loadsave_t *file)
 		// what freight?
 		const char *s = freight ? freight->get_name() : NULL;
 		file->rdwr_str( s );
-		// vehicles besch
+		// vehicles desc
 		s = rail_engine ? rail_engine->get_name() : NULL;
 		file->rdwr_str( s );
 		s = rail_vehicle ? rail_vehicle->get_name() : NULL;
@@ -1479,9 +1479,9 @@ void ai_goods_t::rdwr(loadsave_t *file)
 		ship_vehicle = temp ? vehikelbauer_t::get_info(temp) : NULL;
 		// ways
 		file->rdwr_str( temp );
-		rail_weg = temp ? wegbauer_t::get_besch(temp,0) : NULL;
+		rail_weg = temp ? wegbauer_t::get_desc(temp,0) : NULL;
 		file->rdwr_str( temp );
-		road_weg = temp ? wegbauer_t::get_besch(temp,0) : NULL;
+		road_weg = temp ? wegbauer_t::get_desc(temp,0) : NULL;
 	}
 
 	// finally: forbidden connection list
@@ -1513,7 +1513,7 @@ void ai_goods_t::rdwr(loadsave_t *file)
 }
 
 
-bool ai_goods_t::is_forbidden( fabrik_t *fab1, fabrik_t *fab2, const ware_besch_t *w ) const
+bool ai_goods_t::is_forbidden( fabrik_t *fab1, fabrik_t *fab2, const ware_desc_t *w ) const
 {
 	fabconnection_t fc(fab1, fab2, w);
 	FOR(slist_tpl<fabconnection_t*>, const test_fc, forbidden_connections) {

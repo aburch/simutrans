@@ -14,7 +14,7 @@
 #include "../obj/gebaeude.h"
 
 
-class haus_besch_t;
+class haus_desc_t;
 class tool_t;
 class karte_t;
 class checksum_t;
@@ -37,22 +37,22 @@ class checksum_t;
  *   3   Imagelist2D season 1 front
  *	... ...
  */
-class haus_tile_besch_t : public obj_besch_t {
+class haus_tile_desc_t : public obj_desc_t {
 	friend class tile_reader_t;
 
-	const haus_besch_t	*haus;
-	haus_besch_t		*modifiable_haus;
+	const haus_desc_t	*haus;
+	haus_desc_t		*modifiable_haus;
 
 	uint8  seasons;
 	uint8  phasen;	    // Wie viele Animationsphasen haben wir?
 	uint16 index;
 
 public:
-	void set_besch(const haus_besch_t *haus_besch) { haus = haus_besch; }
-	void set_modifiable_besch(haus_besch_t *haus_besch) { modifiable_haus = haus_besch; }
+	void set_desc(const haus_desc_t *haus_desc) { haus = haus_desc; }
+	void set_modifiable_desc(haus_desc_t *haus_desc) { modifiable_haus = haus_desc; }
 
-	const haus_besch_t *get_besch() const { return haus; }
-	haus_besch_t *get_modifiable_besch() const { return modifiable_haus; }
+	const haus_desc_t *get_desc() const { return haus; }
+	haus_desc_t *get_modifiable_desc() const { return modifiable_haus; }
 
 	int get_index() const { return index; }
 	int get_seasons() const { return seasons; }
@@ -113,7 +113,7 @@ public:
  *      Volker Meyer
  *
  *  Description:
- *      Die Hausbeschreibung enthält die Komplettbeschrebung eines Gebäudes.
+ *      Die Hausdescreibung enthält die Komplettdescrebung eines Gebäudes.
  *      Das sind mehre Tiles und die Attribute für die Spielsteuerung.
  *
  *  Child nodes:
@@ -123,7 +123,7 @@ public:
  *	3   Tile 2
  *	... ...
  */
-class haus_besch_t : public obj_besch_timelined_t {
+class haus_desc_t : public obj_desc_timelined_t {
 	friend class building_reader_t;
 
 	public:
@@ -297,12 +297,12 @@ public:
 	// how often will this appear
 	int get_chance() const { return chance; }
 
-	const haus_tile_besch_t *get_tile(int index) const {
+	const haus_tile_desc_t *get_tile(int index) const {
 		assert(0<=index  &&  index < layouts * size.x * size.y);
-		return get_child<haus_tile_besch_t>(index + 2);
+		return get_child<haus_tile_desc_t>(index + 2);
 	}
 
-	const haus_tile_besch_t *get_tile(int layout, int x, int y) const;
+	const haus_tile_desc_t *get_tile(int layout, int x, int y) const;
 
 	// returns true if the building can be rotated
 	bool can_rotate() const {
@@ -327,8 +327,8 @@ public:
 	* Skin: cursor (index 0) and icon (index 1)
 	* @author Hj. Malthaner
 	*/
-	const skin_besch_t * get_cursor() const {
-		return flags & FLAG_HAS_CURSOR ? get_child<skin_besch_t>(2 + size.x * size.y * layouts) : 0;
+	const skin_desc_t * get_cursor() const {
+		return flags & FLAG_HAS_CURSOR ? get_child<skin_desc_t>(2 + size.x * size.y * layouts) : 0;
 	}
 
 	// the right house for this area?
@@ -418,6 +418,6 @@ public:
 };
 
 
-ENUM_BITSET(haus_besch_t::flag_t)
+ENUM_BITSET(haus_desc_t::flag_t)
 
 #endif

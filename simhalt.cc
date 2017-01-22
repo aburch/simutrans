@@ -383,7 +383,7 @@ DBG_MESSAGE("haltestelle_t::remove()","removing segment from %d,%d,%d", pos.x, p
 		if(gb)
 		{
 			DBG_MESSAGE("haltestelle_t::remove()",  "removing building" );
-			if(gb->get_tile()->get_besch()->get_is_control_tower())
+			if(gb->get_tile()->get_desc()->get_is_control_tower())
 			{
 				halt->remove_control_tower();
 				halt->recalc_status();
@@ -994,9 +994,9 @@ char* haltestelle_t::create_name(koord const k, char const* const typ)
 					building_name = translator::translate(gb->get_name(),lang);
 				}
 				else if (gb->ist_rathaus() ||
-					gb->get_tile()->get_besch()->get_utyp() == haus_besch_t::attraction_land || // land attraction
-					gb->get_tile()->get_besch()->get_utyp() == haus_besch_t::attraction_city) { // town attraction
-					building_name = make_single_line_string(translator::translate(gb->get_tile()->get_besch()->get_name(),lang), 2);
+					gb->get_tile()->get_desc()->get_utyp() == haus_desc_t::attraction_land || // land attraction
+					gb->get_tile()->get_desc()->get_utyp() == haus_desc_t::attraction_city) { // town attraction
+					building_name = make_single_line_string(translator::translate(gb->get_tile()->get_desc()->get_name(),lang), 2);
 				}
 				else {
 					// normal town house => not suitable for naming
@@ -1322,12 +1322,12 @@ void haltestelle_t::step()
 				// Checks to see whether the freight has been waiting too long.
 				// If so, discard it.
 
-				if(tmp.get_besch()->get_speed_bonus() > 0u)
+				if(tmp.get_desc()->get_speed_bonus() > 0u)
 				{
 					// Only consider for discarding if the goods (ever) care about their timings.
 					// Use 32-bit math; it's very easy to overflow 16 bits.
 					const uint32 max_wait = welt->get_settings().get_passenger_max_wait();
-					const uint32 max_wait_minutes = max_wait / tmp.get_besch()->get_speed_bonus();
+					const uint32 max_wait_minutes = max_wait / tmp.get_desc()->get_speed_bonus();
 					uint32 max_wait_tenths = max_wait_minutes * 10u;
 
 					// Passengers' maximum waiting times were formerly limited to thrice their estimated
@@ -1337,7 +1337,7 @@ void haltestelle_t::step()
 #ifdef STATION_CHECK
 					if (talk && i == 2198)
 						dbg->message("haltestelle_t::step", "%u) check %u of %u minutes: %u %s to \"%s\"",
-						i, waiting_tenths, max_wait_tenths, tmp.menge, tmp.get_besch()->get_name(), tmp.get_ziel()->get_name());
+						i, waiting_tenths, max_wait_tenths, tmp.menge, tmp.get_desc()->get_name(), tmp.get_ziel()->get_name());
 #endif
 #endif
 					if(waiting_tenths > max_wait_tenths)
@@ -1346,7 +1346,7 @@ void haltestelle_t::step()
 #ifdef STATION_CHECK
 						if (talk)
 							dbg->message("haltestelle_t::step", "%u) discard after %u of %u minutes: %u %s to \"%s\"",
-							i, waiting_tenths, max_wait_tenths, tmp.menge, tmp.get_besch()->get_name(), tmp.get_ziel()->get_name());
+							i, waiting_tenths, max_wait_tenths, tmp.menge, tmp.get_desc()->get_name(), tmp.get_ziel()->get_name());
 #endif
 #endif
 						bool passengers_walked = false;
@@ -1396,7 +1396,7 @@ void haltestelle_t::step()
 							{
 								const uint32 distance_meters = (uint32) distance * welt->get_settings().get_meters_per_tile();
 								// Refund is approximation: 2x distance at standard rate with no adjustments.
-								const sint64 refund_amount = (tmp.menge * tmp.get_besch()->get_refund(distance_meters) + 2048ll) / 4096ll;
+								const sint64 refund_amount = (tmp.menge * tmp.get_desc()->get_refund(distance_meters) + 2048ll) / 4096ll;
 
 								owner->book_revenue(-refund_amount, get_basis_pos(), ignore_wt, ATV_REVENUE_PASSENGER);
 								// Find the line the pasenger was *trying to go on* -- make it pay the refund
@@ -1425,7 +1425,7 @@ void haltestelle_t::step()
 						// have waited to get transport.
 						waiting_tenths *= 4;
 
-						add_waiting_time(waiting_tenths, tmp.get_zwischenziel(), tmp.get_besch()->get_catg_index());
+						add_waiting_time(waiting_tenths, tmp.get_zwischenziel(), tmp.get_desc()->get_catg_index());
 
 						// The goods/passengers leave.  We must record the lower "in transit" count on factories.
 						fabrik_t::update_transit(tmp, false);
@@ -1439,9 +1439,9 @@ void haltestelle_t::step()
 				// Check to see whether these passengers/this freight has been waiting more than 2x as long
 				// as the existing registered waiting times. If so, register the waiting time to prevent an
 				// artificially low time from being recorded if there is a long service interval.
-				if(waiting_tenths > 2 * get_average_waiting_time(tmp.get_zwischenziel(), tmp.get_besch()->get_catg_index()))
+				if(waiting_tenths > 2 * get_average_waiting_time(tmp.get_zwischenziel(), tmp.get_desc()->get_catg_index()))
 				{
-					add_waiting_time(waiting_tenths, tmp.get_zwischenziel(), tmp.get_besch()->get_catg_index());
+					add_waiting_time(waiting_tenths, tmp.get_zwischenziel(), tmp.get_desc()->get_catg_index());
 				}
 			}
 		}
@@ -1658,7 +1658,7 @@ void haltestelle_t::verbinde_fabriken()
 					fabrik_t *fab = fabrik_t::get_fab(k);
 					if(fab && !fab_list.is_contained(fab)) {
 						// water factories can only connect to docks
-						if(  fab->get_besch()->get_platzierung() != fabrik_besch_t::Wasser  ||  (station_type & dock) > 0  ) {
+						if(  fab->get_desc()->get_platzierung() != fabrik_desc_t::Wasser  ||  (station_type & dock) > 0  ) {
 							// do no link to oil rigs via stations ...
 							fab_list.insert(fab);
 						}
@@ -1678,7 +1678,7 @@ void haltestelle_t::verbinde_fabriken()
 		FOR(vector_tpl<fabrik_t*>, const fab, fabrik_t::sind_da_welche(p - coverage, p + coverage)) {
 			if(!fab_list.is_contained(fab)) {
 				// water factories can only connect to docks
-				if(  fab->get_besch()->get_platzierung() != fabrik_besch_t::Wasser  ||  (station_type & dock) > 0  ) {
+				if(  fab->get_desc()->get_platzierung() != fabrik_desc_t::Wasser  ||  (station_type & dock) > 0  ) {
 					// do no link to oil rigs via stations ...
 					fab_list.insert(fab);
 				}
@@ -1920,7 +1920,7 @@ void haltestelle_t::refresh_routing(const schedule_t *const sched, const minivec
 
 void haltestelle_t::get_destination_halts_of_ware(ware_t &ware, vector_tpl<halthandle_t>& destination_halts_list) const
 {
-	const ware_besch_t * warentyp = ware.get_besch();
+	const ware_desc_t * warentyp = ware.get_desc();
 
 	if(ware.get_zielpos() == koord::invalid && ware.get_ziel().is_bound())
 	{
@@ -1934,8 +1934,8 @@ void haltestelle_t::get_destination_halts_of_ware(ware_t &ware, vector_tpl<halth
 	
 	const grund_t* gr = welt->lookup_kartenboden(ware.get_zielpos());
 	const gebaeude_t* gb = gr->find<gebaeude_t>();
-	const haus_besch_t *besch = gb ? gb->get_tile()->get_besch() : NULL;
-	const koord size = besch ? besch->get_groesse() : koord(1,1);
+	const haus_desc_t *desc = gb ? gb->get_tile()->get_desc() : NULL;
+	const koord size = desc ? desc->get_groesse() : koord(1,1);
 
 	if(fab || size.x > 1 || size.y > 1)
 	{
@@ -2024,7 +2024,7 @@ uint32 haltestelle_t::find_route(const vector_tpl<halthandle_t>& destination_hal
 
  	koord destination_stop_pos = destination_pos;
 
-	const uint8 ware_catg = ware.get_besch()->get_catg_index();
+	const uint8 ware_catg = ware.get_desc()->get_catg_index();
 
 	bool found_a_halt = false;
 	for(vector_tpl<halthandle_t>::const_iterator destination_halt = destination_halts_list.begin(); destination_halt != destination_halts_list.end(); destination_halt++)
@@ -2169,7 +2169,7 @@ void haltestelle_t::add_pax_no_route(int n)
 bool haltestelle_t::recall_ware( ware_t& w, uint32 menge )
 {
 	w.menge = 0;
-	vector_tpl<ware_t> *warray = waren[w.get_besch()->get_catg_index()];
+	vector_tpl<ware_t> *warray = waren[w.get_desc()->get_catg_index()];
 	if(warray!=NULL) {
 		FOR(vector_tpl<ware_t>, & tmp, *warray) {
 			// skip empty entries
@@ -2200,7 +2200,7 @@ bool haltestelle_t::recall_ware( ware_t& w, uint32 menge )
 
 
 // will load something compatible with wtyp into the car which schedule is schedule
-bool haltestelle_t::fetch_goods( slist_tpl<ware_t> &fracht, const ware_besch_t *wtyp, uint32 maxi, const schedule_t *schedule, const player_t *player, convoi_t* cnv, bool overcrowded) //"hole from" (Google)
+bool haltestelle_t::fetch_goods( slist_tpl<ware_t> &fracht, const ware_desc_t *wtyp, uint32 maxi, const schedule_t *schedule, const player_t *player, convoi_t* cnv, bool overcrowded) //"hole from" (Google)
 {
 	bool skipped = false;
 	const uint8 catg_index = wtyp->get_catg_index();
@@ -2519,7 +2519,7 @@ void haltestelle_t::update_alternative_seats(convoihandle_t cnv)
 	}
 }
 
-uint32 haltestelle_t::get_ware_summe(const ware_besch_t *wtyp) const
+uint32 haltestelle_t::get_ware_summe(const ware_desc_t *wtyp) const
 {
 	int sum = 0;
 	const vector_tpl<ware_t> * warray = waren[wtyp->get_catg_index()];
@@ -2535,7 +2535,7 @@ uint32 haltestelle_t::get_ware_summe(const ware_besch_t *wtyp) const
 
 
 
-uint32 haltestelle_t::get_ware_fuer_zielpos(const ware_besch_t *wtyp, const koord zielpos) const
+uint32 haltestelle_t::get_ware_fuer_zielpos(const ware_desc_t *wtyp, const koord zielpos) const
 {
 	const vector_tpl<ware_t> * warray = waren[wtyp->get_catg_index()];
 	if(warray!=NULL) {
@@ -2553,7 +2553,7 @@ bool haltestelle_t::vereinige_waren(const ware_t &ware) //"unite were" (Google)
 {
 	// pruefen ob die ware mit bereits wartender ware vereinigt werden kann
 	// "examine whether the ware with software already waiting to be united" (Google)
-	vector_tpl<ware_t> * warray = waren[ware.get_besch()->get_catg_index()];
+	vector_tpl<ware_t> * warray = waren[ware.get_desc()->get_catg_index()];
 	if(warray != NULL)
 	{
 		FOR(vector_tpl<ware_t>, & tmp, *warray)
@@ -2614,12 +2614,12 @@ void haltestelle_t::add_ware_to_halt(ware_t ware, bool from_saved)
 	ware.set_last_transfer(self);
 
 	// now we have to add the ware to the stop
-	vector_tpl<ware_t> * warray = waren[ware.get_besch()->get_catg_index()];
+	vector_tpl<ware_t> * warray = waren[ware.get_desc()->get_catg_index()];
 	if(warray==NULL)
 	{
 		// this type was not stored here before ...
 		warray = new vector_tpl<ware_t>(4);
-		waren[ware.get_besch()->get_catg_index()] = warray;
+		waren[ware.get_desc()->get_catg_index()] = warray;
 	}
 	resort_freight_info = true;
 	if(!from_saved)
@@ -2705,7 +2705,7 @@ void haltestelle_t::starte_mit_route(ware_t ware, koord origin_pos)
 	bool talk = !strcmp(get_name(), "Newton Abbot Railway Station");
 
 	if (talk)
-		dbg->message("haltestelle_t::starte_mit_route", "halt \"%s\", ware \"%s\": menge %u", get_name(), ware.get_besch()->get_name(), ware.menge);
+		dbg->message("haltestelle_t::starte_mit_route", "halt \"%s\", ware \"%s\": menge %u", get_name(), ware.get_desc()->get_name(), ware.menge);
 #endif
 
 	if(ware.get_ziel()==self) {
@@ -2762,7 +2762,7 @@ void haltestelle_t::starte_mit_route(ware_t ware, koord origin_pos)
 #ifdef STATION_CHECK
 	if (talk)
 	{
-		const vector_tpl<ware_t> * warray = waren[ware.get_besch()->get_catg_index()];
+		const vector_tpl<ware_t> * warray = waren[ware.get_desc()->get_catg_index()];
 		dbg->message("\t", "warray count %d", (*warray).get_count());
 	}
 #endif
@@ -2940,8 +2940,8 @@ void haltestelle_t::liefere_an(ware_t ware, uint8 walked_between_stations)
 		if(is_within_walking_distance_of(ware.get_ziel()) || is_within_walking_distance_of(ware.get_zwischenziel()) || destination_is_within_coverage)
 		{
 			convoihandle_t dummy; 
-			const sint64 best_arrival_time_destination_stop = calc_earliest_arrival_time_at(ware.get_ziel(), dummy, ware.get_besch()->get_catg_index());
-			sint64 best_arrival_time_transfer = ware.get_zwischenziel() != ware.get_ziel() ? calc_earliest_arrival_time_at(ware.get_zwischenziel(), dummy, ware.get_besch()->get_catg_index()) : SINT64_MAX_VALUE;
+			const sint64 best_arrival_time_destination_stop = calc_earliest_arrival_time_at(ware.get_ziel(), dummy, ware.get_desc()->get_catg_index());
+			sint64 best_arrival_time_transfer = ware.get_zwischenziel() != ware.get_ziel() ? calc_earliest_arrival_time_at(ware.get_zwischenziel(), dummy, ware.get_desc()->get_catg_index()) : SINT64_MAX_VALUE;
 
 			const sint64 arrival_after_walking_to_destination = welt->get_seconds_to_ticks(welt->walking_time_tenths_from_distance((uint32)straight_line_distance_destination) * 6) + welt->get_zeit_ms();
 
@@ -3044,7 +3044,7 @@ void haltestelle_t::get_short_freight_info(cbuffer_t & buf) const
 	bool got_one = false;
 
 	for(unsigned int i=0; i<warenbauer_t::get_count(); i++) {
-		const ware_besch_t *wtyp = warenbauer_t::get_info(i);
+		const ware_desc_t *wtyp = warenbauer_t::get_info(i);
 		if(gibt_ab(wtyp)) {
 
 			// ignore goods with sum=zero
@@ -3088,16 +3088,16 @@ sint64 haltestelle_t::calc_maintenance() const
 	{
 		if (gebaeude_t* const gb = i.grund->find<gebaeude_t>())
 		{
-			const haus_besch_t* besch = gb->get_tile()->get_besch();
-			if(besch->get_base_maintenance() == COST_MAGIC)
+			const haus_desc_t* desc = gb->get_tile()->get_desc();
+			if(desc->get_base_maintenance() == COST_MAGIC)
 			{
 				// Default value - no specific maintenance set. Use the old method
-				maintenance += welt->get_settings().maint_building * besch->get_level();
+				maintenance += welt->get_settings().maint_building * desc->get_level();
 			}
 			else
 			{
 				// New method - get the specified factor.
-				maintenance += besch->get_maintenance();
+				maintenance += desc->get_maintenance();
 			}
 		}
 	}
@@ -3123,17 +3123,17 @@ bool haltestelle_t::make_public_and_join(player_t *player)
 			gebaeude_t* gb = gr->find<gebaeude_t>();
 			if(gb)
 			{
-				const haus_besch_t* besch = gb->get_tile()->get_besch();
+				const haus_desc_t* desc = gb->get_tile()->get_desc();
 				sint32 costs;
-				if(besch->get_base_maintenance() == COST_MAGIC)
+				if(desc->get_base_maintenance() == COST_MAGIC)
 				{
 					// Default value - no specific maintenance set. Use the old method
-					costs = welt->get_settings().maint_building * besch->get_level();
+					costs = welt->get_settings().maint_building * desc->get_level();
 				}
 				else
 				{
 					// New method - get the specified factor.
-					costs = besch->get_maintenance();
+					costs = desc->get_maintenance();
 				}
 
 				if(!compensate)
@@ -3163,17 +3163,17 @@ bool haltestelle_t::make_public_and_join(player_t *player)
 			if(gb)
 			{
 				player_t *gb_player = gb->get_owner();
-				const haus_besch_t* besch = gb->get_tile()->get_besch();
+				const haus_desc_t* desc = gb->get_tile()->get_desc();
 				sint32 costs;
-				if(besch->get_base_maintenance() == COST_MAGIC)
+				if(desc->get_base_maintenance() == COST_MAGIC)
 				{
 					// Default value - no specific maintenance set. Use the old method
-					costs = welt->get_settings().maint_building * besch->get_level();
+					costs = welt->get_settings().maint_building * desc->get_level();
 				}
 				else
 				{
 					// New method - get the specified factor.
-					costs = besch->get_maintenance();
+					costs = desc->get_maintenance();
 				}
 				player_t::add_maintenance( gb_player, -costs, gb->get_waytype() );
 				gb->set_owner(public_owner);
@@ -3250,15 +3250,15 @@ bool haltestelle_t::make_public_and_join(player_t *player)
 				if(public_owner!=gb_player) {
 					sint32 costs;
 
-					if(gb->get_tile()->get_besch()->get_base_maintenance() == COST_MAGIC)
+					if(gb->get_tile()->get_desc()->get_base_maintenance() == COST_MAGIC)
 					{
 						// Default value - no specific maintenance set. Use the old method
-						costs = welt->get_settings().maint_building * gb->get_tile()->get_besch()->get_level();
+						costs = welt->get_settings().maint_building * gb->get_tile()->get_desc()->get_level();
 					}
 					else
 					{
 						// New method - get the specified factor.
-						costs = gb->get_tile()->get_besch()->get_maintenance();
+						costs = gb->get_tile()->get_desc()->get_maintenance();
 					}
 
 					player_t::add_maintenance( gb_player, -costs, gb->get_waytype() );
@@ -3340,53 +3340,53 @@ void haltestelle_t::add_to_station_type( grund_t *gr )
 	}
 
 	const gebaeude_t* gb = gr->find<gebaeude_t>();
-	const haus_besch_t *besch=gb?gb->get_tile()->get_besch():NULL;
+	const haus_desc_t *desc=gb?gb->get_tile()->get_desc():NULL;
 
 	if(gr->ist_wasser() && gb) {
 		// may happend around oil rigs and so on
 		station_type |= dock;
 		// for water factories
-		if(besch) {
+		if(desc) {
 			// enabled the matching types
-			enables |= besch->get_enabled();
+			enables |= desc->get_enabled();
 			if (welt->get_settings().is_separate_halt_capacities()) {
-				if(besch->get_enabled()&1) {
-					capacity[0] += besch->get_capacity();
+				if(desc->get_enabled()&1) {
+					capacity[0] += desc->get_capacity();
 				}
-				if(besch->get_enabled()&2) {
-					capacity[1] += besch->get_capacity();
+				if(desc->get_enabled()&2) {
+					capacity[1] += desc->get_capacity();
 				}
-				if(besch->get_enabled()&4) {
-					capacity[2] += besch->get_capacity();
+				if(desc->get_enabled()&4) {
+					capacity[2] += desc->get_capacity();
 				}
 			}
 			else {
 				// no sperate capacities: sum up all
-				capacity[0] += besch->get_capacity();
+				capacity[0] += desc->get_capacity();
 				capacity[2] = capacity[1] = capacity[0];
 			}
 		}
 		return;
 	}
 
-	if(besch==NULL) {
-		// no besch, but solid gound?!?
-		dbg->error("haltestelle_t::get_station_type()","ground belongs to halt but no besch?");
+	if(desc==NULL) {
+		// no desc, but solid gound?!?
+		dbg->error("haltestelle_t::get_station_type()","ground belongs to halt but no desc?");
 		return;
 	}
-	//if(besch) DBG_DEBUG("haltestelle_t::get_station_type()","besch(%p)=%s",besch,besch->get_name());
+	//if(desc) DBG_DEBUG("haltestelle_t::get_station_type()","desc(%p)=%s",desc,desc->get_name());
 
 	// there is only one loading bay ...
-	switch (besch->get_utyp()) {
-		case haus_besch_t::ladebucht:    station_type |= loadingbay;   break;
-		case haus_besch_t::dock:
-		case haus_besch_t::flat_dock:
-		case haus_besch_t::binnenhafen:  station_type |= dock;         break;
-		case haus_besch_t::bushalt:      station_type |= busstop;      break;
-		case haus_besch_t::airport:      station_type |= airstop;      break;
-		case haus_besch_t::monorailstop: station_type |= monorailstop; break;
+	switch (desc->get_utyp()) {
+		case haus_desc_t::ladebucht:    station_type |= loadingbay;   break;
+		case haus_desc_t::dock:
+		case haus_desc_t::flat_dock:
+		case haus_desc_t::binnenhafen:  station_type |= dock;         break;
+		case haus_desc_t::bushalt:      station_type |= busstop;      break;
+		case haus_desc_t::airport:      station_type |= airstop;      break;
+		case haus_desc_t::monorailstop: station_type |= monorailstop; break;
 
-		case haus_besch_t::bahnhof:
+		case haus_desc_t::bahnhof:
 			if (gr->hat_weg(monorail_wt)) {
 				station_type |= monorailstop;
 			} else {
@@ -3396,10 +3396,10 @@ void haltestelle_t::add_to_station_type( grund_t *gr )
 
 
 		// two ways on ground can only happen for tram tracks on streets, there buses and trams can stop
-		case haus_besch_t::generic_stop:
-			switch (besch->get_extra()) {
+		case haus_desc_t::generic_stop:
+			switch (desc->get_extra()) {
 				case road_wt:
-					station_type |= (besch->get_enabled()&3)!=0 ? busstop : loadingbay;
+					station_type |= (desc->get_enabled()&3)!=0 ? busstop : loadingbay;
 					if (gr->has_two_ways()) { // tram track on street
 						station_type |= tramstop;
 					}
@@ -3411,7 +3411,7 @@ void haltestelle_t::add_to_station_type( grund_t *gr )
 				case tram_wt:
 					station_type |= tramstop;
 					if (gr->has_two_ways()) { // tram track on street
-						station_type |= (besch->get_enabled()&3)!=0 ? busstop : loadingbay;
+						station_type |= (desc->get_enabled()&3)!=0 ? busstop : loadingbay;
 					}
 					break;
 				case maglev_wt:      station_type |= maglevstop;      break;
@@ -3423,21 +3423,21 @@ void haltestelle_t::add_to_station_type( grund_t *gr )
 	}
 
 	// enabled the matching types
-	enables |= besch->get_enabled();
+	enables |= desc->get_enabled();
 	if (welt->get_settings().is_separate_halt_capacities()) {
-		if(besch->get_enabled()&1) {
-			capacity[0] += besch->get_capacity();
+		if(desc->get_enabled()&1) {
+			capacity[0] += desc->get_capacity();
 		}
-		if(besch->get_enabled()&2) {
-			capacity[1] += besch->get_capacity();
+		if(desc->get_enabled()&2) {
+			capacity[1] += desc->get_capacity();
 		}
-		if(besch->get_enabled()&4) {
-			capacity[2] += besch->get_capacity();
+		if(desc->get_enabled()&4) {
+			capacity[2] += desc->get_capacity();
 		}
 	}
 	else {
 		// no sperate capacities: sum up all
-		capacity[0] += besch->get_capacity();
+		capacity[0] += desc->get_capacity();
 		capacity[2] = capacity[1] = capacity[0];
 	}
 }
@@ -3569,8 +3569,8 @@ void haltestelle_t::rdwr(loadsave_t *file)
 			}
 			// prissi: now check, if there is a building -> we allow no longer ground without building!
 			const gebaeude_t* gb = gr ? gr->find<gebaeude_t>() : NULL;
-			const haus_besch_t *besch=gb ? gb->get_tile()->get_besch():NULL;
-			if(besch) {
+			const haus_desc_t *desc=gb ? gb->get_tile()->get_desc():NULL;
+			if(desc) {
 				add_grund( gr, false /*do not relink factories now*/ );
 				// verbinde_fabriken will be called in laden_abschliessen
 			}
@@ -3691,7 +3691,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 				for(  uint32 i = 0;  i < count;  i++  ) {
 					// add to internal storage (use this function, since the old categories were different)
 					ware_t ware(file);
-					if( ware.get_besch() && ware.menge>0 && welt->is_within_limits(ware.get_zielpos()) ) {
+					if( ware.get_desc() && ware.menge>0 && welt->is_within_limits(ware.get_zielpos()) ) {
 						add_ware_to_halt(ware, true);
 						/*
 						 * It's very easy for in-transit information to get corrupted,
@@ -3703,7 +3703,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 					}
 					else if(  ware.menge>0  )
 					{
-						if(  ware.get_besch()  ) {
+						if(  ware.get_desc()  ) {
 							dbg->error( "haltestelle_t::rdwr()", "%i of %s to %s ignored!", ware.menge, ware.get_name(), ware.get_zielpos().get_str() );
 						}
 						else {
@@ -4427,7 +4427,7 @@ void haltestelle_t::recalc_status()
 		const uint8  count = warenbauer_t::get_count();
 		const uint32 max_ware = get_capacity(2);
 		for(  uint32 i = 3;  i < count;  i++  ) {
-			ware_besch_t const* const wtyp = warenbauer_t::get_info(i);
+			ware_desc_t const* const wtyp = warenbauer_t::get_info(i);
 			const uint32 ware_sum = get_ware_summe(wtyp);
 			total_sum += ware_sum;
 			if(ware_sum>max_ware) {
@@ -4502,7 +4502,7 @@ void haltestelle_t::display_status(KOORD_VAL xpos, KOORD_VAL ypos)
 		if(  i == 2  ) {
 			continue; // ignore freight none
 		}
-		const ware_besch_t *wtyp = warenbauer_t::get_info(i);
+		const ware_desc_t *wtyp = warenbauer_t::get_info(i);
 		if(  gibt_ab( wtyp )  ) {
 			if(  i < 2  ) {
 				max_capacity = get_capacity(i);
@@ -4616,7 +4616,7 @@ bool haltestelle_t::add_grund(grund_t *gr, bool relink_factories)
 
 	signal_t* signal = gr->find<signal_t>();
 
-	if(signal && signal->get_besch()->is_longblock_signal() && (signal->get_besch()->get_working_method() == time_interval || signal->get_besch()->get_working_method() == time_interval_with_telegraph || signal->get_besch()->get_working_method() == absolute_block))
+	if(signal && signal->get_desc()->is_longblock_signal() && (signal->get_desc()->get_working_method() == time_interval || signal->get_desc()->get_working_method() == time_interval_with_telegraph || signal->get_desc()->get_working_method() == absolute_block))
 	{
 		// Register station signals at the halt.
 		station_signals.append(gr->get_pos());

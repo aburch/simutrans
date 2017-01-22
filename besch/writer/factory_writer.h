@@ -6,7 +6,7 @@
 #include "../objversion.h"
 
 
-// Knightly : new writer class for field class besch
+// Knightly : new writer class for field class desc
 class factory_field_class_writer_t : public obj_writer_t {
 	private:
 		static factory_field_class_writer_t the_instance;

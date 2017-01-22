@@ -48,9 +48,9 @@ static pthread_mutex_t wayobj_calc_image_mutex = PTHREAD_RECURSIVE_MUTEX_INITIAL
 #endif
 
 // the descriptions ...
-const way_obj_besch_t *wayobj_t::default_oberleitung=NULL;
+const way_obj_desc_t *wayobj_t::default_oberleitung=NULL;
 
-stringhashtable_tpl<way_obj_besch_t *> wayobj_t::table;
+stringhashtable_tpl<way_obj_desc_t *> wayobj_t::table;
 
 wayobj_t::wayobj_t(loadsave_t* const file) : 
 #ifdef INLINE_OBJ_TYPE
@@ -64,7 +64,7 @@ wayobj_t::wayobj_t(loadsave_t* const file) :
 }
 
 
-wayobj_t::wayobj_t(koord3d const pos, player_t* const owner, ribi_t::ribi const d, way_obj_besch_t const* const b) : 
+wayobj_t::wayobj_t(koord3d const pos, player_t* const owner, ribi_t::ribi const d, way_obj_desc_t const* const b) : 
 #ifdef INLINE_OBJ_TYPE
 	obj_no_info_t(obj_t::wayobj, pos)
 #else
@@ -72,7 +72,7 @@ wayobj_t::wayobj_t(koord3d const pos, player_t* const owner, ribi_t::ribi const 
 #endif
 	, hang(slope_t::flat)
 {
-	besch = b;
+	desc = b;
 	dir = d;
 	set_owner(owner);
 }
@@ -80,15 +80,15 @@ wayobj_t::wayobj_t(koord3d const pos, player_t* const owner, ribi_t::ribi const 
 
 wayobj_t::~wayobj_t()
 {
-	if(!besch) {
+	if(!desc) {
 		return;
 	}
-	player_t::add_maintenance(get_owner(), -besch->get_wartung(), get_waytype());
-	if(besch->get_own_wtyp()==overheadlines_wt) {
+	player_t::add_maintenance(get_owner(), -desc->get_wartung(), get_waytype());
+	if(desc->get_own_wtyp()==overheadlines_wt) {
 		grund_t *gr=welt->lookup(get_pos());
 		weg_t *weg=NULL;
 		if(gr) {
-			const waytype_t wt = (besch->get_wtyp()==tram_wt) ? track_wt : besch->get_wtyp();
+			const waytype_t wt = (desc->get_wtyp()==tram_wt) ? track_wt : desc->get_wtyp();
 			weg = gr->get_weg(wt);
 			if(weg) {
 				// Weg wieder freigeben, wenn das Signal nicht mehr da ist.
@@ -102,16 +102,16 @@ wayobj_t::~wayobj_t()
 					const uint slope_height = (hang & 7) ? 1 : 2;
 					if(slope_height == 1)
 					{
-						max_speed = weg->get_besch()->get_topspeed_gradient_1();
+						max_speed = weg->get_desc()->get_topspeed_gradient_1();
 					}
 					else
 					{
-						max_speed = weg->get_besch()->get_topspeed_gradient_2();
+						max_speed = weg->get_desc()->get_topspeed_gradient_2();
 					}
 				}
 				else
 				{
-					max_speed = weg->get_besch()->get_topspeed();
+					max_speed = weg->get_desc()->get_topspeed();
 				}
 				if(weg->hat_gehweg())
 				{
@@ -127,18 +127,18 @@ wayobj_t::~wayobj_t()
 							const uint slope_height = (hang & 7) ? 1 : 2;
 							if(slope_height == 1)
 							{
-								max_speed = t->get_besch()->get_topspeed_gradient_1();
+								max_speed = t->get_desc()->get_topspeed_gradient_1();
 							}
 							else
 							{
-								max_speed = t->get_besch()->get_topspeed_gradient_2();
+								max_speed = t->get_desc()->get_topspeed_gradient_2();
 							}
 						}
 						else
 						{
-							max_speed = t->get_besch()->get_topspeed();
+							max_speed = t->get_desc()->get_topspeed();
 						}
-						weg->add_way_constraints(t->get_besch()->get_way_constraints());
+						weg->add_way_constraints(t->get_desc()->get_way_constraints());
 					}
 				}
 				if(gr->get_typ()==grund_t::brueckenboden) 
@@ -151,18 +151,18 @@ wayobj_t::~wayobj_t()
 							const uint slope_height = (hang & 7) ? 1 : 2;
 							if(slope_height == 1)
 							{
-								max_speed = b->get_besch()->get_topspeed_gradient_1();
+								max_speed = b->get_desc()->get_topspeed_gradient_1();
 							}
 							else
 							{
-								max_speed = b->get_besch()->get_topspeed_gradient_2();
+								max_speed = b->get_desc()->get_topspeed_gradient_2();
 							}
 						}
 						else
 						{
-							max_speed = b->get_besch()->get_topspeed();
+							max_speed = b->get_desc()->get_topspeed();
 						}
-						weg->add_way_constraints(b->get_besch()->get_way_constraints());
+						weg->add_way_constraints(b->get_desc()->get_way_constraints());
 					}
 				}
 				weg->set_max_speed(max_speed);
@@ -181,8 +181,8 @@ wayobj_t::~wayobj_t()
 			// Remove ribis from adjacent wayobj.
 			if( ribi_t::nsew[i] & get_dir() ) {
 				grund_t *next_gr;
-				if( gr->get_neighbour( next_gr, besch->get_wtyp(), ribi_t::nsew[i] ) ) {
-					wayobj_t *wo2 = next_gr->get_wayobj( besch->get_wtyp() );
+				if( gr->get_neighbour( next_gr, desc->get_wtyp(), ribi_t::nsew[i] ) ) {
+					wayobj_t *wo2 = next_gr->get_wayobj( desc->get_wtyp() );
 					if( wo2 ) {
 						wo2->mark_image_dirty( wo2->get_front_image(), 0 );
 						wo2->mark_image_dirty( wo2->get_image(), 0 );
@@ -205,33 +205,33 @@ void wayobj_t::rdwr(loadsave_t *file)
 	if(file->get_version()>=89000) {
 		file->rdwr_byte(dir);
 		if(file->is_saving()) {
-			const char *s = besch->get_name();
+			const char *s = desc->get_name();
 			file->rdwr_str(s);
 		}
 		else {
 			char bname[128];
 			file->rdwr_str(bname, lengthof(bname));
 
-			besch = wayobj_t::table.get(bname);
-			if(besch==NULL) {
-				besch = wayobj_t::table.get(translator::compatibility_name(bname));
-				if(besch==NULL) {
+			desc = wayobj_t::table.get(bname);
+			if(desc==NULL) {
+				desc = wayobj_t::table.get(translator::compatibility_name(bname));
+				if(desc==NULL) {
 					if(strstr(bname,"atenary")  ||  strstr(bname,"electri")) {
-						besch = default_oberleitung;
+						desc = default_oberleitung;
 					}
 				}
-				if(besch==NULL) {
+				if(desc==NULL) {
 					dbg->warning("wayobj_t::rwdr", "description %s for wayobj_t at %d,%d not found, will be removed!", bname, get_pos().x, get_pos().y );
 					welt->add_missing_paks( bname, karte_t::MISSING_WAYOBJ );
 				}
 				else {
-					dbg->warning("wayobj_t::rwdr", "wayobj %s at %d,%d replaced by %s", bname, get_pos().x, get_pos().y, besch->get_name() );
+					dbg->warning("wayobj_t::rwdr", "wayobj %s at %d,%d replaced by %s", bname, get_pos().x, get_pos().y, desc->get_name() );
 				}
 			}
 		}
 	}
 	else {
-		besch = default_oberleitung;
+		desc = default_oberleitung;
 		dir = 255;
 	}
 }
@@ -239,8 +239,8 @@ void wayobj_t::rdwr(loadsave_t *file)
 
 void wayobj_t::cleanup(player_t *player)
 {
-	if(besch) {
-		player_t::book_construction_costs(player, -besch->get_preis(), get_pos().get_2d(), besch->get_wtyp());
+	if(desc) {
+		player_t::book_construction_costs(player, -desc->get_preis(), get_pos().get_2d(), desc->get_wtyp());
 	}
 }
 
@@ -260,7 +260,7 @@ void wayobj_t::finish_rd()
 {
 	// (re)set dir
 	if(dir==255) {
-		const waytype_t wt = (besch->get_wtyp()==tram_wt) ? track_wt : besch->get_wtyp();
+		const waytype_t wt = (desc->get_wtyp()==tram_wt) ? track_wt : desc->get_wtyp();
 		weg_t *w=welt->lookup(get_pos())->get_weg(wt);
 		if(w) {
 			dir = w->get_ribi_unmasked();
@@ -270,12 +270,12 @@ void wayobj_t::finish_rd()
 		}
 	}
 
-	const waytype_t wt = (besch->get_wtyp()==tram_wt) ? track_wt : besch->get_wtyp();
+	const waytype_t wt = (desc->get_wtyp()==tram_wt) ? track_wt : desc->get_wtyp();
 	const grund_t* gr = welt->lookup(get_pos());
 	weg_t *weg = gr->get_weg(wt);
 
 	// electrify a way if we are a catenary
-	if(besch->get_own_wtyp() == overheadlines_wt) 
+	if(desc->get_own_wtyp() == overheadlines_wt) 
 	{	
 		if(weg)
 		{
@@ -287,16 +287,16 @@ void wayobj_t::finish_rd()
 				const uint slope_height = (hang & 7) ? 1 : 2;
 				if(slope_height == 1)
 				{
-					way_top_speed = besch->get_topspeed_gradient_1();
+					way_top_speed = desc->get_topspeed_gradient_1();
 				}
 				else
 				{
-					way_top_speed = besch->get_topspeed_gradient_2();
+					way_top_speed = desc->get_topspeed_gradient_2();
 				}
 			}
 			else
 			{
-				way_top_speed = besch->get_topspeed();
+				way_top_speed = desc->get_topspeed();
 			}
 
 			if(weg->get_max_speed() > way_top_speed)
@@ -304,7 +304,7 @@ void wayobj_t::finish_rd()
 				weg->set_max_speed(way_top_speed);
 			}
 			// Add the way constraints together.
-			weg->add_way_constraints(besch->get_way_constraints());
+			weg->add_way_constraints(desc->get_way_constraints());
 		}
 		else 
 		{
@@ -312,7 +312,7 @@ void wayobj_t::finish_rd()
 		}
 	}
 
-	player_t::add_maintenance(get_owner(), besch->get_wartung(), besch->get_wtyp());
+	player_t::add_maintenance(get_owner(), desc->get_wartung(), desc->get_wtyp());
 }
 
 
@@ -347,7 +347,7 @@ void wayobj_t::calc_image()
 	grund_t *gr = welt->lookup(get_pos());
 	diagonal = false;
 	if(gr) {
-		const waytype_t wt = (besch->get_wtyp()==tram_wt) ? track_wt : besch->get_wtyp();
+		const waytype_t wt = (desc->get_wtyp()==tram_wt) ? track_wt : desc->get_wtyp();
 		weg_t *w=gr->get_weg(wt);
 		if(!w) {
 			dbg->error("wayobj_t::calc_image()","without way at (%s)", get_pos().get_str() );
@@ -362,7 +362,7 @@ void wayobj_t::calc_image()
 		}
 
 		set_yoff( -gr->get_weg_yoff() );
-		if (get_besch()->is_noise_barrier()) {
+		if (get_desc()->is_noise_barrier()) {
 			dir |= w->get_ribi_unmasked();
 		} else {
 			dir &= w->get_ribi_unmasked();
@@ -378,7 +378,7 @@ void wayobj_t::calc_image()
 		}
 
 		// find out whether using diagonals or straight lines
-		if(ribi_t::is_bend(dir)  &&  besch->has_diagonal_image()) {
+		if(ribi_t::is_bend(dir)  &&  desc->has_diagonal_image()) {
 			ribi_t::ribi r1 = ribi_t::none, r2 = ribi_t::none;
 
 			// get the ribis of the ways that connect to us
@@ -408,8 +408,8 @@ void wayobj_t::calc_image()
 					rekursion--;
 				}
 
-				image_id after = besch->get_front_diagonal_image_id(dir);
-				image_id image = besch->get_back_diagonal_image_id(dir);
+				image_id after = desc->get_front_diagonal_image_id(dir);
+				image_id image = desc->get_back_diagonal_image_id(dir);
 				if(image==IMG_EMPTY  &&  after==IMG_EMPTY) {
 					// no diagonals available
 					diagonal = false;
@@ -429,14 +429,14 @@ void wayobj_t::calc_image()
 
 /* better use this constrcutor for new wayobj; it will extend a matching obj or make an new one
  */
-const char *wayobj_t::extend_wayobj_t(koord3d pos, player_t *owner, ribi_t::ribi dir, const way_obj_besch_t *besch)
+const char *wayobj_t::extend_wayobj_t(koord3d pos, player_t *owner, ribi_t::ribi dir, const way_obj_desc_t *desc)
 {
 	grund_t *gr=welt->lookup(pos);
 	if(gr) 
 	{
-		wayobj_t *existing_wayobj = gr->get_wayobj( besch->get_wtyp() );
+		wayobj_t *existing_wayobj = gr->get_wayobj( desc->get_wtyp() );
 		if( existing_wayobj ) {
-			if(  existing_wayobj->get_besch()->get_topspeed() < besch->get_topspeed()  &&  player_t::check_owner(owner, existing_wayobj->get_owner())  ) {
+			if(  existing_wayobj->get_desc()->get_topspeed() < desc->get_topspeed()  &&  player_t::check_owner(owner, existing_wayobj->get_owner())  ) {
 				// replace slower by faster
 				dir = dir | existing_wayobj->get_dir();
 				gr->set_flag(grund_t::dirty);
@@ -452,7 +452,7 @@ const char *wayobj_t::extend_wayobj_t(koord3d pos, player_t *owner, ribi_t::ribi
 			}
 		}
 
-		if(besch->is_noise_barrier()) {
+		if(desc->is_noise_barrier()) {
 			if (gr->removing_way_would_disrupt_public_right_of_way(road_wt)) {
 				return "Cannot remove a public right of way without providing an adequate diversionary route";
 			}
@@ -474,7 +474,7 @@ const char *wayobj_t::extend_wayobj_t(koord3d pos, player_t *owner, ribi_t::ribi
 		}
 
 		// nothing found => make a new one
-		wayobj_t *wo = new wayobj_t(pos,owner,dir,besch);
+		wayobj_t *wo = new wayobj_t(pos,owner,dir,desc);
 		gr->obj_add(wo);
 		wo->finish_rd();
 		wo->calc_image();
@@ -487,14 +487,14 @@ const char *wayobj_t::extend_wayobj_t(koord3d pos, player_t *owner, ribi_t::ribi
 				to->calc_image();
 			}
 		}
-		player_t::book_construction_costs( owner,  -besch->get_preis(), pos.get_2d(), besch->get_wtyp());
+		player_t::book_construction_costs( owner,  -desc->get_preis(), pos.get_2d(), desc->get_wtyp());
 
 		for( uint8 i = 0; i < 4; i++ ) {
 		// Extend wayobjects around the new one, that aren't already connected.
 			if( ribi_t::nsew[i] & ~wo->get_dir() ) {
 				grund_t *next_gr;
-				if( gr->get_neighbour( next_gr, besch->get_wtyp(), ribi_t::nsew[i] ) ) {
-					wayobj_t *wo2 = next_gr->get_wayobj( besch->get_wtyp() );
+				if( gr->get_neighbour( next_gr, desc->get_wtyp(), ribi_t::nsew[i] ) ) {
+					wayobj_t *wo2 = next_gr->get_wayobj( desc->get_wtyp() );
 					if( wo2 ) {
 						wo2->set_dir( wo2->get_dir() | ribi_t::backward(ribi_t::nsew[i]) );
 						wo2->mark_image_dirty( wo2->get_front_image(), 0 );
@@ -512,7 +512,7 @@ const char *wayobj_t::extend_wayobj_t(koord3d pos, player_t *owner, ribi_t::ribi
 
 
 // to sort wayobj for always the same menu order
-static bool compare_wayobj_besch(const way_obj_besch_t* a, const way_obj_besch_t* b)
+static bool compare_wayobj_desc(const way_obj_desc_t* a, const way_obj_desc_t* b)
 {
 	int diff = a->get_wtyp() - b->get_wtyp();
 	if (diff == 0) {
@@ -532,9 +532,9 @@ bool wayobj_t::alles_geladen()
 		dbg->warning("wayobj_t::alles_geladen()", "No obj found - may crash when loading catenary.");
 	}
 
-	way_obj_besch_t const* def = 0;
-	FOR(stringhashtable_tpl<way_obj_besch_t *>, const& i, table) {
-		way_obj_besch_t const& b = *i.value;
+	way_obj_desc_t const* def = 0;
+	FOR(stringhashtable_tpl<way_obj_desc_t *>, const& i, table) {
+		way_obj_desc_t const& b = *i.value;
 		if (b.get_own_wtyp() != overheadlines_wt)           continue;
 		if (b.get_wtyp()     != track_wt)                   continue;
 		if (def && def->get_topspeed() >= b.get_topspeed()) continue;
@@ -546,33 +546,33 @@ bool wayobj_t::alles_geladen()
 }
 
 
-bool wayobj_t::register_besch(way_obj_besch_t *besch)
+bool wayobj_t::register_desc(way_obj_desc_t *desc)
 {
 	// avoid duplicates with same name
-	way_obj_besch_t *old_besch = table.get(besch->get_name());
-	if(old_besch) {
-		dbg->warning( "wayobj_t::register_besch()", "Object %s was overlaid by addon!", besch->get_name() );
-		table.remove(besch->get_name());
-		tool_t::general_tool.remove( old_besch->get_builder() );
-		delete old_besch->get_builder();
-		delete old_besch;
+	way_obj_desc_t *old_desc = table.get(desc->get_name());
+	if(old_desc) {
+		dbg->warning( "wayobj_t::register_desc()", "Object %s was overlaid by addon!", desc->get_name() );
+		table.remove(desc->get_name());
+		tool_t::general_tool.remove( old_desc->get_builder() );
+		delete old_desc->get_builder();
+		delete old_desc;
 	}
 
-	if(  besch->get_cursor()->get_image_id(1)!=IMG_EMPTY  ) {
+	if(  desc->get_cursor()->get_image_id(1)!=IMG_EMPTY  ) {
 		// only add images for wayobjexts with cursor ...
 		tool_wayobj_t *tool = new tool_wayobj_t();
-		tool->set_icon( besch->get_cursor()->get_image_id(1) );
-		tool->cursor = besch->get_cursor()->get_image_id(0);
-		tool->set_default_param(besch->get_name());
+		tool->set_icon( desc->get_cursor()->get_image_id(1) );
+		tool->cursor = desc->get_cursor()->get_image_id(0);
+		tool->set_default_param(desc->get_name());
 		tool_t::general_tool.append( tool );
-		besch->set_builder( tool );
+		desc->set_builder( tool );
 	}
 	else {
-		besch->set_builder( NULL );
+		desc->set_builder( NULL );
 	}
 
-	table.put(besch->get_name(), besch);
-DBG_DEBUG( "wayobj_t::register_besch()","%s", besch->get_name() );
+	table.put(desc->get_name(), desc);
+DBG_DEBUG( "wayobj_t::register_desc()","%s", desc->get_name() );
 	return true;
 }
 
@@ -590,40 +590,40 @@ void wayobj_t::fill_menu(tool_selector_t *tool_selector, waytype_t wtyp, sint16 
 
 	const uint16 time=welt->get_timeline_year_month();
 
-	vector_tpl<const way_obj_besch_t *>matching;
+	vector_tpl<const way_obj_desc_t *>matching;
 
-	FOR(stringhashtable_tpl<way_obj_besch_t *>, const& i, table) {
-		way_obj_besch_t const* const besch = i.value;
-		if(  besch->is_available(time)  ) {
+	FOR(stringhashtable_tpl<way_obj_desc_t *>, const& i, table) {
+		way_obj_desc_t const* const desc = i.value;
+		if(  desc->is_available(time)  ) {
 
-			DBG_DEBUG("wayobj_t::fill_menu()", "try to add %s(%p)", besch->get_name(), besch);
-			if(  besch->get_builder()  &&  wtyp==besch->get_wtyp()  ) {
+			DBG_DEBUG("wayobj_t::fill_menu()", "try to add %s(%p)", desc->get_name(), desc);
+			if(  desc->get_builder()  &&  wtyp==desc->get_wtyp()  ) {
 				// only add items with a cursor
-				matching.append(besch);
+				matching.append(desc);
 			}
 		}
 	}
 	// sort the tools before adding to menu
-	std::sort(matching.begin(), matching.end(), compare_wayobj_besch);
-	FOR(vector_tpl<way_obj_besch_t const*>, const i, matching) {
+	std::sort(matching.begin(), matching.end(), compare_wayobj_desc);
+	FOR(vector_tpl<way_obj_desc_t const*>, const i, matching) {
 		tool_selector->add_tool_selector(i->get_builder());
 	}
 }
 
 
-const way_obj_besch_t *wayobj_t::wayobj_search(waytype_t wt, waytype_t own, uint16 time)
+const way_obj_desc_t *wayobj_t::wayobj_search(waytype_t wt, waytype_t own, uint16 time)
 {
-	FOR(stringhashtable_tpl<way_obj_besch_t *>, const& i, table) {
-		way_obj_besch_t const* const besch = i.value;
-		if(  besch->is_available(time)  &&  besch->get_wtyp()==wt  &&  besch->get_own_wtyp()==own  ) {
-			return besch;
+	FOR(stringhashtable_tpl<way_obj_desc_t *>, const& i, table) {
+		way_obj_desc_t const* const desc = i.value;
+		if(  desc->is_available(time)  &&  desc->get_wtyp()==wt  &&  desc->get_own_wtyp()==own  ) {
+			return desc;
 		}
 	}
 	return NULL;
 }
 
 
-const way_obj_besch_t* wayobj_t::find_besch(const char *str)
+const way_obj_desc_t* wayobj_t::find_desc(const char *str)
 {
 	return wayobj_t::table.get(str);
 }

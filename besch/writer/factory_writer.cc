@@ -154,11 +154,11 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	string str;
 
 	char const*            const placing     = obj.get("location");
-	fabrik_besch_t::site_t const platzierung =
-		!STRICMP(placing, "land")  ? fabrik_besch_t::Land   :
-		!STRICMP(placing, "water") ? fabrik_besch_t::Wasser :
-		!STRICMP(placing, "city")  ? fabrik_besch_t::Stadt  :
-		fabrik_besch_t::Land;
+	fabrik_desc_t::site_t const platzierung =
+		!STRICMP(placing, "land")  ? fabrik_desc_t::Land   :
+		!STRICMP(placing, "water") ? fabrik_desc_t::Wasser :
+		!STRICMP(placing, "city")  ? fabrik_desc_t::Stadt  :
+		fabrik_desc_t::Land;
 	uint16 const produktivitaet = obj.get_int("productivity",        10);
 	uint16 const bereich        = obj.get_int("range",               10);
 	uint16 const gewichtung     = obj.get_int("distributionweight",   1);

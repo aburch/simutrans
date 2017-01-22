@@ -111,21 +111,21 @@ gebaeude_t::gebaeude_t(loadsave_t *file) :
 
 
 #ifdef INLINE_OBJ_TYPE
-gebaeude_t::gebaeude_t(obj_t::typ type, koord3d pos, player_t *player, const haus_tile_besch_t *t) :
+gebaeude_t::gebaeude_t(obj_t::typ type, koord3d pos, player_t *player, const haus_tile_desc_t *t) :
     obj_t(type, pos)
 {
 	init(player, t);
 }
 
-gebaeude_t::gebaeude_t(koord3d pos, player_t *player, const haus_tile_besch_t *t) :
+gebaeude_t::gebaeude_t(koord3d pos, player_t *player, const haus_tile_desc_t *t) :
     obj_t(obj_t::gebaeude, pos)
 {
 	init(player, t);
 }
 
-void gebaeude_t::init(player_t *player, const haus_tile_besch_t *t)
+void gebaeude_t::init(player_t *player, const haus_tile_desc_t *t)
 #else
-gebaeude_t::gebaeude_t(koord3d pos, player_t *player, const haus_tile_besch_t *t) :
+gebaeude_t::gebaeude_t(koord3d pos, player_t *player, const haus_tile_desc_t *t) :
     obj_t(pos)
 #endif
 {
@@ -136,37 +136,37 @@ gebaeude_t::gebaeude_t(koord3d pos, player_t *player, const haus_tile_besch_t *t
 	{
 		set_tile(t,true);	// this will set init time etc.
 		sint64 maint;
-		if(tile->get_besch()->get_base_maintenance() == COST_MAGIC)
+		if(tile->get_desc()->get_base_maintenance() == COST_MAGIC)
 		{
-			maint = welt->get_settings().maint_building*tile->get_besch()->get_level();
+			maint = welt->get_settings().maint_building*tile->get_desc()->get_level();
 		}
 		else
 		{
-			maint = tile->get_besch()->get_maintenance();
+			maint = tile->get_desc()->get_maintenance();
 		}
-		player_t::add_maintenance(get_owner(), maint, tile->get_besch()->get_finance_waytype() );
+		player_t::add_maintenance(get_owner(), maint, tile->get_desc()->get_finance_waytype() );
 	}
 
-	if(tile->get_besch()->get_typ() == wohnung)
+	if(tile->get_desc()->get_typ() == wohnung)
 	{
-		people.population = tile->get_besch()->get_population_and_visitor_demand_capacity() == 65535 ? tile->get_besch()->get_level() * welt->get_settings().get_population_per_level() : tile->get_besch()->get_population_and_visitor_demand_capacity();
+		people.population = tile->get_desc()->get_population_and_visitor_demand_capacity() == 65535 ? tile->get_desc()->get_level() * welt->get_settings().get_population_per_level() : tile->get_desc()->get_population_and_visitor_demand_capacity();
 		adjusted_people.population = welt->calc_adjusted_monthly_figure(people.population);
 		if(people.population > 0 && adjusted_people.population == 0)
 		{
 			adjusted_people.population = 1;
 		}
 	}
-	else if(tile->get_besch()->get_typ() == industrie)
+	else if(tile->get_desc()->get_typ() == industrie)
 	{
 		people.visitor_demand = adjusted_people.visitor_demand = 0;
 	}
-	else if(tile->get_besch()->ist_fabrik() && tile->get_besch()->get_population_and_visitor_demand_capacity() == 65535)
+	else if(tile->get_desc()->ist_fabrik() && tile->get_desc()->get_population_and_visitor_demand_capacity() == 65535)
 	{
 		adjusted_people.visitor_demand = 65535;
 	}
 	else
 	{
-		people.visitor_demand = tile->get_besch()->get_population_and_visitor_demand_capacity() == 65535 ? tile->get_besch()->get_level() * welt->get_settings().get_visitor_demand_per_level() : tile->get_besch()->get_population_and_visitor_demand_capacity();
+		people.visitor_demand = tile->get_desc()->get_population_and_visitor_demand_capacity() == 65535 ? tile->get_desc()->get_level() * welt->get_settings().get_visitor_demand_per_level() : tile->get_desc()->get_population_and_visitor_demand_capacity();
 		adjusted_people.visitor_demand = welt->calc_adjusted_monthly_figure(people.visitor_demand);
 		if(people.visitor_demand > 0 && adjusted_people.visitor_demand == 0)
 		{
@@ -174,8 +174,8 @@ gebaeude_t::gebaeude_t(koord3d pos, player_t *player, const haus_tile_besch_t *t
 		}
 	}
 	
-	jobs = tile->get_besch()->get_employment_capacity() == 65535 ? (is_monument() || tile->get_besch()->get_typ() == wohnung) ? 0 : tile->get_besch()->get_level() * welt->get_settings().get_jobs_per_level() : tile->get_besch()->get_employment_capacity();
-	mail_demand = tile->get_besch()->get_mail_demand_and_production_capacity() == 65535 ? is_monument() ? 0 : tile->get_besch()->get_level() * welt->get_settings().get_mail_per_level() : tile->get_besch()->get_mail_demand_and_production_capacity();
+	jobs = tile->get_desc()->get_employment_capacity() == 65535 ? (is_monument() || tile->get_desc()->get_typ() == wohnung) ? 0 : tile->get_desc()->get_level() * welt->get_settings().get_jobs_per_level() : tile->get_desc()->get_employment_capacity();
+	mail_demand = tile->get_desc()->get_mail_demand_and_production_capacity() == 65535 ? is_monument() ? 0 : tile->get_desc()->get_level() * welt->get_settings().get_mail_per_level() : tile->get_desc()->get_mail_demand_and_production_capacity();
 
 	adjusted_jobs = welt->calc_adjusted_monthly_figure(jobs);
 	if(jobs > 0 && adjusted_jobs == 0)
@@ -229,7 +229,7 @@ gebaeude_t::~gebaeude_t()
 	}
 	
 	stadt_t* our_city = get_stadt();
-	if(!our_city /* && tile->get_besch()->get_utyp() == haus_besch_t::rathaus*/)
+	if(!our_city /* && tile->get_desc()->get_utyp() == haus_desc_t::rathaus*/)
 	{
 		our_city = welt->get_city(get_pos().get_2d());
 	}
@@ -250,10 +250,10 @@ gebaeude_t::~gebaeude_t()
 
 	
 	// tiles might be invalid, if no description is found during loading
-	if(tile && tile->get_besch()) 
+	if(tile && tile->get_desc()) 
 	{
 		check_road_tiles(true);
-		if(tile->get_besch()->ist_ausflugsziel())
+		if(tile->get_desc()->ist_ausflugsziel())
 		{
 			welt->remove_ausflugsziel(this);
 		}
@@ -262,13 +262,13 @@ gebaeude_t::~gebaeude_t()
 	if(tile) 
 	{
 		sint64 maint;
-		if(tile->get_besch()->get_base_maintenance() == COST_MAGIC)
+		if(tile->get_desc()->get_base_maintenance() == COST_MAGIC)
 		{
-			maint = welt->get_settings().maint_building * tile->get_besch()->get_level();
+			maint = welt->get_settings().maint_building * tile->get_desc()->get_level();
 		}
 		else
 		{
-			maint = tile->get_besch()->get_maintenance();
+			maint = tile->get_desc()->get_maintenance();
 		}
 		player_t::add_maintenance(get_owner(), -maint);
 	}
@@ -283,7 +283,7 @@ gebaeude_t::~gebaeude_t()
 
 void gebaeude_t::check_road_tiles(bool del)
 {
-	const haus_besch_t *hb = tile->get_besch();
+	const haus_desc_t *hb = tile->get_desc();
 	const koord3d pos = get_pos() - koord3d(tile->get_offset(), 0);
 	koord size = hb->get_groesse(tile->get_layout());
 	koord k;
@@ -302,7 +302,7 @@ void gebaeude_t::check_road_tiles(bool del)
 			{
 				gebaeude_t *gb_part = gr->find<gebaeude_t>();
 				// there may be buildings with holes
-				if(gb_part && gb_part->get_tile()->get_besch() == hb) 
+				if(gb_part && gb_part->get_tile()->get_desc() == hb) 
 				{
 					building_list.append_unique(gb_part);
 				}
@@ -365,39 +365,39 @@ void gebaeude_t::rotate90()
 	obj_t::rotate90();
 
 	// must or can rotate?
-	const haus_besch_t* const haus_besch = tile->get_besch();
-	if (haus_besch->get_all_layouts() > 1  ||  haus_besch->get_b() * haus_besch->get_h() > 1) {
+	const haus_desc_t* const haus_desc = tile->get_desc();
+	if (haus_desc->get_all_layouts() > 1  ||  haus_desc->get_b() * haus_desc->get_h() > 1) {
 		uint8 layout = tile->get_layout();
 		koord new_offset = tile->get_offset();
 
-		if(haus_besch->get_utyp() == haus_besch_t::unbekannt  ||  haus_besch->get_all_layouts()<=4) {
-			layout = (layout & 4) + ((layout+3) % haus_besch->get_all_layouts() & 3);
+		if(haus_desc->get_utyp() == haus_desc_t::unbekannt  ||  haus_desc->get_all_layouts()<=4) {
+			layout = (layout & 4) + ((layout+3) % haus_desc->get_all_layouts() & 3);
 		}
 		else {
 			static uint8 layout_rotate[16] = { 1, 8, 5, 10, 3, 12, 7, 14, 9, 0, 13, 2, 11, 4, 15, 6 };
-			layout = layout_rotate[layout] % haus_besch->get_all_layouts();
+			layout = layout_rotate[layout] % haus_desc->get_all_layouts();
 		}
 		// have to rotate the tiles :(
-		if(  !haus_besch->can_rotate()  &&  haus_besch->get_all_layouts() == 1  ) {
+		if(  !haus_desc->can_rotate()  &&  haus_desc->get_all_layouts() == 1  ) {
 			if ((welt->get_settings().get_rotation() & 1) == 0) {
 				// rotate 180 degree
-				new_offset = koord(haus_besch->get_b() - 1 - new_offset.x, haus_besch->get_h() - 1 - new_offset.y);
+				new_offset = koord(haus_desc->get_b() - 1 - new_offset.x, haus_desc->get_h() - 1 - new_offset.y);
 			}
 			// do nothing here, since we cannot fix it porperly
 		}
 		else {
 			// rotate on ...
-			new_offset = koord(haus_besch->get_h(tile->get_layout()) - 1 - new_offset.y, new_offset.x);
+			new_offset = koord(haus_desc->get_h(tile->get_layout()) - 1 - new_offset.y, new_offset.x);
 		}
 
 		// suche a tile exist?
-		if(  haus_besch->get_b(layout) > new_offset.x  &&  haus_besch->get_h(layout) > new_offset.y  ) {
-			const haus_tile_besch_t* const new_tile = haus_besch->get_tile(layout, new_offset.x, new_offset.y);
+		if(  haus_desc->get_b(layout) > new_offset.x  &&  haus_desc->get_h(layout) > new_offset.y  ) {
+			const haus_tile_desc_t* const new_tile = haus_desc->get_tile(layout, new_offset.x, new_offset.y);
 			// add new tile: but make them old (no construction)
 			sint64 old_purchase_time = purchase_time;
 			set_tile( new_tile, false  );
 			purchase_time = old_purchase_time;
-			if(  haus_besch->get_utyp() != haus_besch_t::dock  &&  !tile->has_image()  ) {
+			if(  haus_desc->get_utyp() != haus_desc_t::dock  &&  !tile->has_image()  ) {
 				// may have a rotation, that is not recoverable
 				if(  !is_factory  &&  new_offset!=koord(0,0)  ) {
 					welt->set_nosave_warning();
@@ -435,7 +435,7 @@ void gebaeude_t::set_fab(fabrik_t *fb)
 			// If it is not an end consumer, do not allow any visitor demand by default.
 			if(fb->is_end_consumer())
 			{
-				people.visitor_demand = tile->get_besch()->get_level() * welt->get_settings().get_visitor_demand_per_level();
+				people.visitor_demand = tile->get_desc()->get_level() * welt->get_settings().get_visitor_demand_per_level();
 				adjusted_people.visitor_demand = welt->calc_adjusted_monthly_figure(people.visitor_demand);
 			}
 			else
@@ -481,7 +481,7 @@ void gebaeude_t::add_alter(sint64 a)
 
 
 
-void gebaeude_t::set_tile( const haus_tile_besch_t *new_tile, bool start_with_construction )
+void gebaeude_t::set_tile( const haus_tile_desc_t *new_tile, bool start_with_construction )
 {
 	purchase_time = welt->get_zeit_ms();
 
@@ -490,7 +490,7 @@ void gebaeude_t::set_tile( const haus_tile_besch_t *new_tile, bool start_with_co
 		mark_images_dirty();
 	}
 
-	zeige_baugrube = !new_tile->get_besch()->ist_ohne_grube()  &&  start_with_construction;
+	zeige_baugrube = !new_tile->get_desc()->ist_ohne_grube()  &&  start_with_construction;
 	if(sync) {
 		if(new_tile->get_phasen()<=1  &&  !zeige_baugrube) {
 			// need to stop animation
@@ -519,7 +519,7 @@ void gebaeude_t::set_tile( const haus_tile_besch_t *new_tile, bool start_with_co
 #endif
 	}
 	tile = new_tile;
-	remove_ground = tile->has_image()  &&  !tile->get_besch()->ist_mit_boden();
+	remove_ground = tile->has_image()  &&  !tile->get_desc()->ist_mit_boden();
 	set_flag(obj_t::dirty);
 }
 
@@ -548,8 +548,8 @@ sync_result gebaeude_t::sync_step(uint32 delta_t)
 	else {
 		// normal animated building
 		anim_time += (uint16)delta_t;
-		if(  anim_time > tile->get_besch()->get_animation_time()  ) {
-			anim_time -= tile->get_besch()->get_animation_time();
+		if(  anim_time > tile->get_desc()->get_animation_time()  ) {
+			anim_time -= tile->get_desc()->get_animation_time();
 
 			// old positions need redraw
 			if(  background_animated  ) {
@@ -614,17 +614,17 @@ image_id gebaeude_t::get_image() const
 		// opaque houses
 		if(get_haustyp()!=unbekannt) {
 			return env_t::hide_with_transparency ? skinverwaltung_t::fussweg->get_image_id(0) : skinverwaltung_t::construction_site->get_image_id(0);
-		} else if(  (env_t::hide_buildings == env_t::ALL_HIDDEN_BUILDING  &&  tile->get_besch()->get_utyp() < haus_besch_t::weitere)) {
+		} else if(  (env_t::hide_buildings == env_t::ALL_HIDDEN_BUILDING  &&  tile->get_desc()->get_utyp() < haus_desc_t::weitere)) {
 			// hide with transparency or tile without information
 			if(env_t::hide_with_transparency) {
-				if(tile->get_besch()->get_utyp() == haus_besch_t::fabrik  &&  ptr.fab->get_besch()->get_platzierung() == fabrik_besch_t::Wasser) {
+				if(tile->get_desc()->get_utyp() == haus_desc_t::fabrik  &&  ptr.fab->get_desc()->get_platzierung() == fabrik_desc_t::Wasser) {
 					// no ground tiles for water thingies
 					return IMG_EMPTY;
 				}
 				return skinverwaltung_t::fussweg->get_image_id(0);
 			}
 			else {
-				int kind=skinverwaltung_t::construction_site->get_count()<=tile->get_besch()->get_utyp() ? skinverwaltung_t::construction_site->get_count()-1 : tile->get_besch()->get_utyp();
+				int kind=skinverwaltung_t::construction_site->get_count()<=tile->get_desc()->get_utyp() ? skinverwaltung_t::construction_site->get_count()-1 : tile->get_desc()->get_utyp();
 				return skinverwaltung_t::construction_site->get_image_id( kind );
 			}
 		}
@@ -659,9 +659,9 @@ PLAYER_COLOR_VAL gebaeude_t::get_outline_colour() const
 		if(get_haustyp()!=unbekannt) {
 			disp_colour = colours[0] | TRANSPARENT50_FLAG | OUTLINE_FLAG;
 		}
-		else if (env_t::hide_buildings == env_t::ALL_HIDDEN_BUILDING && tile->get_besch()->get_utyp() < haus_besch_t::weitere) {
+		else if (env_t::hide_buildings == env_t::ALL_HIDDEN_BUILDING && tile->get_desc()->get_utyp() < haus_desc_t::weitere) {
 			// special bilding
-			disp_colour = colours[tile->get_besch()->get_utyp()] | TRANSPARENT50_FLAG | OUTLINE_FLAG;
+			disp_colour = colours[tile->get_desc()->get_utyp()] | TRANSPARENT50_FLAG | OUTLINE_FLAG;
 		}
 	}
 	return disp_colour;
@@ -684,7 +684,7 @@ image_id gebaeude_t::get_front_image() const
 	if(zeige_baugrube) {
 		return IMG_EMPTY;
 	}
-	if (env_t::hide_buildings != 0 && tile->get_besch()->get_utyp() < haus_besch_t::weitere) {
+	if (env_t::hide_buildings != 0 && tile->get_desc()->get_utyp() < haus_desc_t::weitere) {
 		return IMG_EMPTY;
 	}
 	else {
@@ -701,7 +701,7 @@ const char *gebaeude_t::get_name() const
 	if(is_factory  &&  ptr.fab) {
 		return ptr.fab->get_name();
 	}
-	switch(tile->get_besch()->get_typ()) {
+	switch(tile->get_desc()->get_typ()) {
 		case wohnung:
 			break;//return "Wohnhaus";
 		case gewerbe:
@@ -709,13 +709,13 @@ const char *gebaeude_t::get_name() const
 		case industrie:
 			break;//return "Industriegebäude";
 		default:
-			switch(tile->get_besch()->get_utyp()) {
-				case haus_besch_t::attraction_city:   return "Besonderes Gebaeude";
-				case haus_besch_t::attraction_land:   return "Sehenswuerdigkeit";
-				case haus_besch_t::denkmal:           return "Denkmal";
-				case haus_besch_t::rathaus:           return "Rathaus";
-				case haus_besch_t::signalbox:
-				case haus_besch_t::depot:			  return tile->get_besch()->get_name();
+			switch(tile->get_desc()->get_utyp()) {
+				case haus_desc_t::attraction_city:   return "Besonderes Gebaeude";
+				case haus_desc_t::attraction_land:   return "Sehenswuerdigkeit";
+				case haus_desc_t::denkmal:           return "Denkmal";
+				case haus_desc_t::rathaus:           return "Rathaus";
+				case haus_desc_t::signalbox:
+				case haus_desc_t::depot:			  return tile->get_desc()->get_name();
 				default: break;
 			}
 			break;
@@ -729,12 +729,12 @@ const char *gebaeude_t::get_name() const
  */
 waytype_t gebaeude_t::get_waytype() const
 {
-	const haus_besch_t *besch = tile->get_besch();
+	const haus_desc_t *desc = tile->get_desc();
 	waytype_t wt = invalid_wt;
-	if (besch->get_typ() == gebaeude_t::unbekannt) {
-		const haus_besch_t::utyp utype = besch->get_utyp();
-		if (utype == haus_besch_t::depot  ||  utype == haus_besch_t::generic_stop  ||  utype == haus_besch_t::generic_extension) {
-			wt = (waytype_t)besch->get_extra();
+	if (desc->get_typ() == gebaeude_t::unbekannt) {
+		const haus_desc_t::utyp utype = desc->get_utyp();
+		if (utype == haus_desc_t::depot  ||  utype == haus_desc_t::generic_stop  ||  utype == haus_desc_t::generic_extension) {
+			wt = (waytype_t)desc->get_extra();
 		}
 	}
 	return wt;
@@ -743,30 +743,30 @@ waytype_t gebaeude_t::get_waytype() const
 
 bool gebaeude_t::ist_rathaus() const
 {
-	return tile->get_besch()->ist_rathaus();
+	return tile->get_desc()->ist_rathaus();
 }
 
 
 bool gebaeude_t::is_monument() const
 {
-	return tile->get_besch()->get_utyp() == haus_besch_t::denkmal;
+	return tile->get_desc()->get_utyp() == haus_desc_t::denkmal;
 }
 
 
 bool gebaeude_t::ist_firmensitz() const
 {
-	return tile->get_besch()->ist_firmensitz();
+	return tile->get_desc()->ist_firmensitz();
 }
 
 bool gebaeude_t::is_attraction() const
 {
-	return tile->get_besch()->ist_ausflugsziel();
+	return tile->get_desc()->ist_ausflugsziel();
 }
 
 
 gebaeude_t::typ gebaeude_t::get_haustyp() const
 {
-	return tile->get_besch()->get_typ();
+	return tile->get_desc()->get_typ();
 }
 
 
@@ -787,7 +787,7 @@ void gebaeude_t::show_info()
 		welt->suche_naechste_stadt(get_pos().get_2d())->show_info();
 	}
 
-	if(!tile->get_besch()->ist_ohne_info()) {
+	if(!tile->get_desc()->ist_ohne_info()) {
 		if(!special  ||  (env_t::townhall_info  &&  old_count==win_get_open_count()) ) {
 			// open info window for the first tile of our building (not relying on presence of (0,0) tile)
 			access_first_tile()->obj_t::show_info();
@@ -798,7 +798,7 @@ void gebaeude_t::show_info()
 
 bool gebaeude_t::is_same_building(gebaeude_t* other) const
 {
-	return (other != NULL)  &&  (get_tile()->get_besch() == other->get_tile()->get_besch())
+	return (other != NULL)  &&  (get_tile()->get_desc() == other->get_tile()->get_desc())
 	       &&  (get_first_tile() == other->get_first_tile());
 }
 
@@ -807,19 +807,19 @@ const gebaeude_t* gebaeude_t::get_first_tile() const
 {
 	if(tile)
 	{
-		const haus_besch_t* const haus_besch = tile->get_besch();
+		const haus_desc_t* const haus_desc = tile->get_desc();
 		const uint8 layout = tile->get_layout();
 		koord k;
-		for(k.x=0; k.x<haus_besch->get_b(layout); k.x++) {
-			for(k.y=0; k.y<haus_besch->get_h(layout); k.y++) {
-				const haus_tile_besch_t *tile = haus_besch->get_tile(layout, k.x, k.y);
+		for(k.x=0; k.x<haus_desc->get_b(layout); k.x++) {
+			for(k.y=0; k.y<haus_desc->get_h(layout); k.y++) {
+				const haus_tile_desc_t *tile = haus_desc->get_tile(layout, k.x, k.y);
 				if (tile==NULL  ||  !tile->has_image()) {
 					continue;
 				}
 				if(grund_t *gr = welt->lookup( get_pos() - get_tile()->get_offset() + k))
 				{
 					gebaeude_t* gb;
-					if(tile->get_besch()->get_utyp() == haus_besch_t::signalbox)
+					if(tile->get_desc()->get_utyp() == haus_desc_t::signalbox)
 					{
 						gb = gr->get_signalbox();
 					}
@@ -842,19 +842,19 @@ gebaeude_t* gebaeude_t::access_first_tile()
 {
 	if (tile)
 	{
-		const haus_besch_t* const haus_besch = tile->get_besch();
+		const haus_desc_t* const haus_desc = tile->get_desc();
 		const uint8 layout = tile->get_layout();
 		koord k;
-		for (k.x = 0; k.x<haus_besch->get_b(layout); k.x++) {
-			for (k.y = 0; k.y<haus_besch->get_h(layout); k.y++) {
-				const haus_tile_besch_t *tile = haus_besch->get_tile(layout, k.x, k.y);
+		for (k.x = 0; k.x<haus_desc->get_b(layout); k.x++) {
+			for (k.y = 0; k.y<haus_desc->get_h(layout); k.y++) {
+				const haus_tile_desc_t *tile = haus_desc->get_tile(layout, k.x, k.y);
 				if (tile == NULL || !tile->has_image()) {
 					continue;
 				}
 				if (grund_t *gr = welt->lookup(get_pos() - get_tile()->get_offset() + k))
 				{
 					gebaeude_t* gb;
-					if (tile->get_besch()->get_utyp() == haus_besch_t::signalbox)
+					if (tile->get_desc()->get_utyp() == haus_desc_t::signalbox)
 					{
 						gb = gr->get_signalbox();
 					}
@@ -886,7 +886,7 @@ void gebaeude_t::get_description(cbuffer_t & buf) const
 	}
 	else
 	{
-		const char *desc = tile->get_besch()->get_name();
+		const char *desc = tile->get_desc()->get_name();
 		if(desc != NULL)
 		{
 			const char *trans_desc = translator::translate(desc);
@@ -970,10 +970,10 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 			buf.printf(translator::translate("Town: %s\n"), ptr.stadt->get_name());
 		}
 
-		if(tile->get_besch()->get_utyp() == haus_besch_t::signalbox)
+		if(tile->get_desc()->get_utyp() == haus_desc_t::signalbox)
 		{
 			signalbox_t* sb = (signalbox_t*)get_first_tile();
-			buf.printf("%s: %d/%d\n", translator::translate("Signals"), sb->get_number_of_signals_controlled_from_this_box(), tile->get_besch()->get_capacity()); 
+			buf.printf("%s: %d/%d\n", translator::translate("Signals"), sb->get_number_of_signals_controlled_from_this_box(), tile->get_desc()->get_capacity()); 
 		}
 
 		buf.printf("\n%s: %d\n", translator::translate("citicens"), get_adjusted_population());
@@ -985,7 +985,7 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 #endif
 		buf.printf("%s: %d\n", translator::translate("Mail demand/output"), get_adjusted_mail_demand());
 
-		haus_besch_t const& h = *tile->get_besch();
+		haus_desc_t const& h = *tile->get_desc();
 		buf.printf("%s%u", translator::translate("\nBauzeit von"), h.get_intro_year_month() / 12);
 		if (h.get_retire_year_month() != DEFAULT_RETIRE_DATE * 12) {
 			buf.printf("%s%u", translator::translate("\nBauzeit bis"), h.get_retire_year_month() / 12);
@@ -997,11 +997,11 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 			buf.append(translator::translate("Wert"));
 			buf.append(": ");
 			// The land value calculation below will need modifying if multi-tile city buildings are ever introduced.
-			buf.append(-(welt->get_land_value(get_pos())*(tile->get_besch()->get_level())/100) * 5);
+			buf.append(-(welt->get_land_value(get_pos())*(tile->get_desc()->get_level())/100) * 5);
 			buf.append("$\n");
 		}
 
-		if (char const* const maker = tile->get_besch()->get_copyright()) {
+		if (char const* const maker = tile->get_desc()->get_copyright()) {
 			buf.append("\n");
 			buf.printf(translator::translate("Constructed by %s"), maker);
 		}
@@ -1061,7 +1061,7 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 		{
 			buf.append(translator::translate("\nNo postboxes within walking distance"));
 		}
-		if(get_tile()->get_besch()->get_typ() == gebaeude_t::wohnung)
+		if(get_tile()->get_desc()->get_typ() == gebaeude_t::wohnung)
 		{
 			uint16 success_rate = get_passenger_success_percent_this_year_commuting();
 			buf.printf("\n\n%s", translator::translate("Passenger success rate this year (local):"));
@@ -1114,7 +1114,7 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 
 void gebaeude_t::new_year()
 { 
-	if(get_tile()->get_besch()->get_typ() == gebaeude_t::wohnung)
+	if(get_tile()->get_desc()->get_typ() == gebaeude_t::wohnung)
 	{
 		passenger_success_percent_last_year_commuting = get_passenger_success_percent_this_year_commuting();
 		passenger_success_percent_last_year_visiting = get_passenger_success_percent_this_year_visiting(); 
@@ -1143,7 +1143,7 @@ void gebaeude_t::rdwr(loadsave_t *file)
 	short idx;
 
 	if(file->is_saving()) {
-		const char *s = tile->get_besch()->get_name();
+		const char *s = tile->get_desc()->get_name();
 		file->rdwr_str(s);
 		idx = tile->get_index();
 	}
@@ -1228,7 +1228,7 @@ void gebaeude_t::rdwr(loadsave_t *file)
 				switch(type) {
 					case gebaeude_t::wohnung:
 						{
-							const haus_besch_t *hb = hausbauer_t::get_residential( level, welt->get_timeline_year_month(), welt->get_climate_at_height( get_pos().z ) );
+							const haus_desc_t *hb = hausbauer_t::get_residential( level, welt->get_timeline_year_month(), welt->get_climate_at_height( get_pos().z ) );
 							if(hb==NULL) {
 								hb = hausbauer_t::get_residential(level,0, MAX_CLIMATES );
 							}
@@ -1241,7 +1241,7 @@ void gebaeude_t::rdwr(loadsave_t *file)
 
 					case gebaeude_t::gewerbe:
 						{
-							const haus_besch_t *hb = hausbauer_t::get_commercial( level, welt->get_timeline_year_month(), welt->get_climate_at_height( get_pos().z ) );
+							const haus_desc_t *hb = hausbauer_t::get_commercial( level, welt->get_timeline_year_month(), welt->get_climate_at_height( get_pos().z ) );
 							if(hb==NULL) {
 								hb = hausbauer_t::get_commercial(level,0, MAX_CLIMATES );
 							}
@@ -1254,7 +1254,7 @@ void gebaeude_t::rdwr(loadsave_t *file)
 
 					case gebaeude_t::industrie:
 						{
-							const haus_besch_t *hb = hausbauer_t::get_industrial( level, welt->get_timeline_year_month(), welt->get_climate_at_height( get_pos().z ) );
+							const haus_desc_t *hb = hausbauer_t::get_industrial( level, welt->get_timeline_year_month(), welt->get_climate_at_height( get_pos().z ) );
 							if(hb==NULL) {
 								hb = hausbauer_t::get_industrial(level,0, MAX_CLIMATES );
 								if(hb==NULL) {
@@ -1278,11 +1278,11 @@ void gebaeude_t::rdwr(loadsave_t *file)
 		/* avoid double contruction of monuments:
 		 * remove them from selection lists
 		 */
-		if (tile  &&  tile->get_besch()->get_utyp() == haus_besch_t::denkmal) {
-			hausbauer_t::denkmal_gebaut(tile->get_besch());
+		if (tile  &&  tile->get_desc()->get_utyp() == haus_desc_t::denkmal) {
+			hausbauer_t::denkmal_gebaut(tile->get_desc());
 		}
 		if (tile) {
-			remove_ground = tile->has_image()  &&  !tile->get_besch()->ist_mit_boden();
+			remove_ground = tile->has_image()  &&  !tile->get_desc()->ist_mit_boden();
 		}
 	}
 
@@ -1316,7 +1316,7 @@ void gebaeude_t::rdwr(loadsave_t *file)
 			}
 		}
 		file->rdwr_long(city_index);
-		if(  file->is_loading()  &&  city_index!=-1  &&  (tile==NULL  ||  tile->get_besch()==NULL  ||  tile->get_besch()->is_connected_with_town())  ) {
+		if(  file->is_loading()  &&  city_index!=-1  &&  (tile==NULL  ||  tile->get_desc()==NULL  ||  tile->get_desc()->is_connected_with_town())  ) {
 			ptr.stadt = welt->get_staedte()[city_index];
 		}
 	}
@@ -1363,7 +1363,7 @@ void gebaeude_t::rdwr(loadsave_t *file)
 		anim_time = 0;
 		sync = false;
 
-		const haus_besch_t* building_type = tile->get_besch(); 
+		const haus_desc_t* building_type = tile->get_desc(); 
 
 		if(building_type->get_typ() == wohnung)
 		{
@@ -1424,16 +1424,16 @@ void gebaeude_t::rdwr(loadsave_t *file)
 void gebaeude_t::finish_rd()
 {
 	calc_image();
-	sint64 maint = tile->get_besch()->get_maintenance();
+	sint64 maint = tile->get_desc()->get_maintenance();
 	if(maint == COST_MAGIC) 
 	{
-		maint = welt->get_settings().maint_building*tile->get_besch()->get_level();
+		maint = welt->get_settings().maint_building*tile->get_desc()->get_level();
 	}
-	player_t::add_maintenance(get_owner(), maint, tile->get_besch()->get_finance_waytype());
+	player_t::add_maintenance(get_owner(), maint, tile->get_desc()->get_finance_waytype());
 	stadt_t *our_city = (ptr.stadt == NULL) ? welt->suche_naechste_stadt( get_pos().get_2d() ) : ptr.stadt;
 
 	// Add to the town list (all types of buildings now except industries, not just selected types)
-	if(our_city && ((tile->get_besch()->ist_ausflugsziel() && ptr.stadt) || (tile->get_offset() == koord(0,0) && tile->get_besch()->is_connected_with_town())))
+	if(our_city && ((tile->get_desc()->ist_ausflugsziel() && ptr.stadt) || (tile->get_offset() == koord(0,0) && tile->get_desc()->is_connected_with_town())))
 	{
 #ifdef MULTI_THREAD
 		pthread_mutex_lock( &add_to_city_mutex );
@@ -1451,7 +1451,7 @@ void gebaeude_t::finish_rd()
 #ifdef MULTI_THREAD
 	pthread_mutex_lock( &add_to_city_mutex );
 #endif
-	if(tile->get_besch()->ist_ausflugsziel() && !ptr.stadt)
+	if(tile->get_desc()->ist_ausflugsziel() && !ptr.stadt)
 	{
 		// Add the building to the general world list if it is not added 
 		// by the town (industries are added separately)
@@ -1468,30 +1468,30 @@ void gebaeude_t::cleanup(player_t *player)
 //	DBG_MESSAGE("gebaeude_t::cleanup()","gb %i");
 	// remove costs
 
-	const haus_besch_t* besch = tile->get_besch();
+	const haus_desc_t* desc = tile->get_desc();
 	sint64 cost = 0;
 
-	if(besch->get_utyp() < haus_besch_t::bahnhof || besch->get_utyp() == haus_besch_t::signalbox) 
+	if(desc->get_utyp() < haus_desc_t::bahnhof || desc->get_utyp() == haus_desc_t::signalbox) 
 	{
 		sint64 bulldoze_cost;
-		if(besch->get_utyp() == haus_besch_t::signalbox)
+		if(desc->get_utyp() == haus_desc_t::signalbox)
 		{
-			bulldoze_cost = besch->get_price() / 2;
+			bulldoze_cost = desc->get_price() / 2;
 		}
 		else
 		{
-			bulldoze_cost = welt->get_settings().cst_multiply_remove_haus * (besch->get_level());
+			bulldoze_cost = welt->get_settings().cst_multiply_remove_haus * (desc->get_level());
 		}
 		// If the player does not own the building, the land is not bought by bulldozing, so do not add the purchase cost.
 		// (A player putting a marker on the tile will have to pay to buy the land again).
 		// If the player does already own the building, the player is refunded the empty tile cost, as bulldozing a tile with a building
 		// means that the player no longer owns the tile, and will have to pay again to purcahse it.
-		const sint64 land_value = welt->get_land_value(get_pos()) * besch->get_groesse().x * besch->get_groesse().y;
+		const sint64 land_value = welt->get_land_value(get_pos()) * desc->get_groesse().x * desc->get_groesse().y;
 		cost = player == get_owner() ? bulldoze_cost : bulldoze_cost + land_value; // land_valueand bulldoze_cost are *both* negative numbers.
-		player_t::book_construction_costs(player, cost, get_pos().get_2d(), tile->get_besch()->get_finance_waytype());
+		player_t::book_construction_costs(player, cost, get_pos().get_2d(), tile->get_desc()->get_finance_waytype());
 		if(player != get_owner())
 		{
-			player_t::book_construction_costs(get_owner(), land_value, get_pos().get_2d(), tile->get_besch()->get_finance_waytype());
+			player_t::book_construction_costs(get_owner(), land_value, get_pos().get_2d(), tile->get_desc()->get_finance_waytype());
 		}
 	}
 	else 
@@ -1499,18 +1499,18 @@ void gebaeude_t::cleanup(player_t *player)
 		// Station buildings (not extension buildings, handled elsewhere) are built over existing ways, so no need to account for the land cost.
 
 		// tearing down halts is always single costs only
-		cost = besch->get_price();
+		cost = desc->get_price();
 		// This check is necessary because the number of COST_MAGIC is used if no price is specified. 
-		if(besch->get_base_price() == COST_MAGIC)
+		if(desc->get_base_price() == COST_MAGIC)
 		{
 			// TODO: find a way of checking what *kind* of stop that this is. This assumes railway.
-			cost = welt->get_settings().cst_multiply_station * besch->get_level();
+			cost = welt->get_settings().cst_multiply_station * desc->get_level();
 		}
 		// Should be cheaper to bulldoze than build.
 		cost /= 2;
 		
 		// However, the land value is restored to the player who, by bulldozing, is relinquishing ownership of the land if there are not already ways on the land.
-		const sint64 land_value = welt->get_land_value(get_pos()) * besch->get_groesse().x * besch->get_groesse().y;
+		const sint64 land_value = welt->get_land_value(get_pos()) * desc->get_groesse().x * desc->get_groesse().y;
 		if(welt->lookup(get_pos()) && !welt->lookup(get_pos())->get_weg_nr(0))
 		{
 			if(player == get_owner())
@@ -1519,14 +1519,14 @@ void gebaeude_t::cleanup(player_t *player)
 			}
 			else
 			{
-				player_t::book_construction_costs(get_owner(), -land_value, get_pos().get_2d(), tile->get_besch()->get_finance_waytype());
+				player_t::book_construction_costs(get_owner(), -land_value, get_pos().get_2d(), tile->get_desc()->get_finance_waytype());
 			}
 		}
-		player_t::book_construction_costs(player, -cost, get_pos().get_2d(), tile->get_besch()->get_finance_waytype());
+		player_t::book_construction_costs(player, -cost, get_pos().get_2d(), tile->get_desc()->get_finance_waytype());
 	}
 
 	// may need to update next buildings, in the case of start, middle, end buildings
-	if(besch->get_all_layouts()>1  &&  get_haustyp()==unbekannt) {
+	if(desc->get_all_layouts()>1  &&  get_haustyp()==unbekannt) {
 
 		// realign surrounding buildings...
 		uint32 layout = tile->get_layout();
@@ -1545,12 +1545,12 @@ void gebaeude_t::cleanup(player_t *player)
 			}
 			if(gr) {
 				gebaeude_t* gb = gr->find<gebaeude_t>();
-				if(gb  &&  gb->get_tile()->get_besch()->get_all_layouts()>4u) {
+				if(gb  &&  gb->get_tile()->get_desc()->get_all_layouts()>4u) {
 					koord xy = gb->get_tile()->get_offset();
 					uint8 layoutbase = gb->get_tile()->get_layout();
 					if((layoutbase & 1u) == (layout & 1u)) {
 						layoutbase |= 4u; // set far bit on neighbour
-						gb->set_tile( gb->get_tile()->get_besch()->get_tile(layoutbase, xy.x, xy.y), false );
+						gb->set_tile( gb->get_tile()->get_desc()->get_tile(layoutbase, xy.x, xy.y), false );
 					}
 				}
 			}
@@ -1566,12 +1566,12 @@ void gebaeude_t::cleanup(player_t *player)
 			}
 			if(gr) {
 				gebaeude_t* gb = gr->find<gebaeude_t>();
-				if(gb  &&  gb->get_tile()->get_besch()->get_all_layouts()>4) {
+				if(gb  &&  gb->get_tile()->get_desc()->get_all_layouts()>4) {
 					koord xy = gb->get_tile()->get_offset();
 					uint8 layoutbase = gb->get_tile()->get_layout();
 					if((layoutbase & 1u) == (layout & 1u)) {
 						layoutbase |= 2u; // set near bit on neighbour
-						gb->set_tile( gb->get_tile()->get_besch()->get_tile(layoutbase, xy.x, xy.y), false );
+						gb->set_tile( gb->get_tile()->get_desc()->get_tile(layoutbase, xy.x, xy.y), false );
 					}
 				}
 			}
@@ -1600,7 +1600,7 @@ void gebaeude_t::mark_images_dirty() const
 
 uint16 gebaeude_t::get_weight() const
 {
-	return tile->get_besch()->get_level();
+	return tile->get_desc()->get_level();
 }
 
 void gebaeude_t::set_commute_trip(uint16 number)

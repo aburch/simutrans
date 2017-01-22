@@ -32,9 +32,9 @@ bool freight_list_sorter_t::compare_ware(ware_t const& w1, ware_t const& w2)
 	// if w1 and w2 differ, they are sorted according to catg_index and index
 	// we sort with respect to catg_indexfirst, since freights with the same category
 	// will be displayed together
-	int idx = w1.get_besch()->get_catg_index() - w2.get_besch()->get_catg_index();
+	int idx = w1.get_desc()->get_catg_index() - w2.get_desc()->get_catg_index();
 	if(  idx == 0  ) {
-		idx = w1.get_besch()->get_index() - w2.get_besch()->get_index();
+		idx = w1.get_desc()->get_index() - w2.get_desc()->get_index();
 	}
 	if(  idx != 0  ) {
 		return idx < 0;
@@ -116,8 +116,8 @@ bool freight_list_sorter_t::compare_ware(ware_t const& w1, ware_t const& w2)
 			{
 				const fabrik_t *fab = NULL;
 				// TODO -oBG, 29.12.2013: optimize:
-				const char *const name1 = (fabrik_t::get_fab(w1.get_zielpos()) && sortby != by_origin ? ((fab = fabrik_t::get_fab(w1.get_zielpos())) ? fab->get_name() : "Invalid Factory" ) : translator::translate(gb1->get_tile()->get_besch()->get_name()));
-				const char *const name2 = (fabrik_t::get_fab(w2.get_zielpos()) && sortby != by_origin ? ((fab = fabrik_t::get_fab(w2.get_zielpos())) ? fab->get_name() : "Invalid Factory" ) : translator::translate(gb2->get_tile()->get_besch()->get_name()));
+				const char *const name1 = (fabrik_t::get_fab(w1.get_zielpos()) && sortby != by_origin ? ((fab = fabrik_t::get_fab(w1.get_zielpos())) ? fab->get_name() : "Invalid Factory" ) : translator::translate(gb1->get_tile()->get_desc()->get_name()));
+				const char *const name2 = (fabrik_t::get_fab(w2.get_zielpos()) && sortby != by_origin ? ((fab = fabrik_t::get_fab(w2.get_zielpos())) ? fab->get_name() : "Invalid Factory" ) : translator::translate(gb2->get_tile()->get_desc()->get_name()));
 				return strcmp(name1, name2) < 0;
 			}
 			if(gb1) 
@@ -146,7 +146,7 @@ void freight_list_sorter_t::add_ware_heading(cbuffer_t &buf, uint32 sum, uint32 
 		// convois
 		buf.printf("/%u", max);
 	}
-	ware_besch_t const& desc = *ware->get_besch();
+	ware_desc_t const& desc = *ware->get_desc();
 	char const*  const  name = translator::translate(ware->get_catg() != 0 ? desc.get_catg_name() : desc.get_name());
 	char const*  const  what = translator::translate(what_doing);
 	// Ensure consistent spacing
@@ -189,7 +189,7 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 
 
 	FOR(vector_tpl<ware_t>, const& ware, warray) {
-		if(  ware.get_besch() == warenbauer_t::nichts  ||  ware.menge == 0  ) {
+		if(  ware.get_desc() == warenbauer_t::nichts  ||  ware.menge == 0  ) {
 			continue;
 		}
 		wlist[pos] = ware;
@@ -321,7 +321,7 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 				}
 			}
 			// detail amount
-			ware_besch_t const& desc = *ware.get_besch();
+			ware_desc_t const& desc = *ware.get_desc();
 			buf.printf("   %u%s %s %c ", ware.menge, translator::translate(desc.get_mass()), translator::translate(desc.get_name()), ">>>>><>"[sortby]);
 			// the target name is not correct for the via sort
 			if(sortby != by_via_sum && sortby != by_origin_amount) 

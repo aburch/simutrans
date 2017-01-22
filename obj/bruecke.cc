@@ -36,30 +36,30 @@ bruecke_t::bruecke_t(loadsave_t* const file) :
 }
 
 
-bruecke_t::bruecke_t(koord3d pos, player_t *player, const bruecke_besch_t *besch, bruecke_besch_t::img_t img) :
+bruecke_t::bruecke_t(koord3d pos, player_t *player, const bruecke_desc_t *desc, bruecke_desc_t::img_t img) :
 #ifdef INLINE_OBJ_TYPE
 	obj_no_info_t(obj_t::bruecke, pos)
 #else
 	obj_no_info_t(pos)
 #endif
 {
-	this->besch = besch;
+	this->desc = desc;
 	this->img = img;
 	set_owner( player );
-	player_t::book_construction_costs( get_owner(), -besch->get_preis(), get_pos().get_2d(), besch->get_waytype());
+	player_t::book_construction_costs( get_owner(), -desc->get_preis(), get_pos().get_2d(), desc->get_waytype());
 }
 
 
 // single height segments
-static bruecke_besch_t::img_t single_img[24]= {
-	bruecke_besch_t::NS_Segment, bruecke_besch_t::OW_Segment,
-	bruecke_besch_t::N_Start, bruecke_besch_t::S_Start, bruecke_besch_t::O_Start, bruecke_besch_t::W_Start,
-	bruecke_besch_t::N_Rampe, bruecke_besch_t::S_Rampe, bruecke_besch_t::O_Rampe, bruecke_besch_t::W_Rampe,
-	bruecke_besch_t::NS_Pillar, bruecke_besch_t::OW_Pillar,
-	bruecke_besch_t::NS_Segment, bruecke_besch_t::OW_Segment,
-	bruecke_besch_t::N_Start, bruecke_besch_t::S_Start, bruecke_besch_t::O_Start, bruecke_besch_t::W_Start,
-	bruecke_besch_t::N_Rampe, bruecke_besch_t::S_Rampe, bruecke_besch_t::O_Rampe, bruecke_besch_t::W_Rampe,
-	bruecke_besch_t::NS_Pillar, bruecke_besch_t::OW_Pillar
+static bruecke_desc_t::img_t single_img[24]= {
+	bruecke_desc_t::NS_Segment, bruecke_desc_t::OW_Segment,
+	bruecke_desc_t::N_Start, bruecke_desc_t::S_Start, bruecke_desc_t::O_Start, bruecke_desc_t::W_Start,
+	bruecke_desc_t::N_Rampe, bruecke_desc_t::S_Rampe, bruecke_desc_t::O_Rampe, bruecke_desc_t::W_Rampe,
+	bruecke_desc_t::NS_Pillar, bruecke_desc_t::OW_Pillar,
+	bruecke_desc_t::NS_Segment, bruecke_desc_t::OW_Segment,
+	bruecke_desc_t::N_Start, bruecke_desc_t::S_Start, bruecke_desc_t::O_Start, bruecke_desc_t::W_Start,
+	bruecke_desc_t::N_Rampe, bruecke_desc_t::S_Rampe, bruecke_desc_t::O_Rampe, bruecke_desc_t::W_Rampe,
+	bruecke_desc_t::NS_Pillar, bruecke_desc_t::OW_Pillar
 };
 
 void bruecke_t::calc_image()
@@ -77,13 +77,13 @@ void bruecke_t::calc_image()
 			bool is_snow = welt->get_climate( get_pos().get_2d() ) == arctic_climate  ||  get_pos().z + slope_t::max_diff(slope) >= welt->get_snowline();
 
 			// handle cases where old bridges don't have correct images
-			image_id display_image=besch->get_background( img, is_snow );
-			if(  display_image==IMG_EMPTY && besch->get_foreground( img, is_snow )==IMG_EMPTY  ) {
-				display_image=besch->get_background( single_img[img], is_snow );
+			image_id display_image=desc->get_background( img, is_snow );
+			if(  display_image==IMG_EMPTY && desc->get_foreground( img, is_snow )==IMG_EMPTY  ) {
+				display_image=desc->get_background( single_img[img], is_snow );
 			}
 			
 			weg0->set_after_image(IMG_EMPTY);
-			if(besch->get_has_own_way_graphics())
+			if(desc->get_has_own_way_graphics())
 			{
 				weg0->set_image(IMG_EMPTY);
 				weg0->set_yoff(-gr->get_weg_yoff() );
@@ -133,9 +133,9 @@ image_id bruecke_t::get_front_image() const
 	const slope_t::type slope = gr->get_grund_hang();
 	bool is_snow = welt->get_climate( get_pos().get_2d() ) == arctic_climate  ||  get_pos().z + slope_t::max_diff(slope) >= welt->get_snowline();
 	// handle cases where old bridges don't have correct images
-	image_id display_image=besch->get_foreground( img, is_snow );
-	if(  display_image==IMG_EMPTY && besch->get_background( img, is_snow )==IMG_EMPTY  ) {
-		display_image=besch->get_foreground( single_img[img], is_snow );
+	image_id display_image=desc->get_foreground( img, is_snow );
+	if(  display_image==IMG_EMPTY && desc->get_background( img, is_snow )==IMG_EMPTY  ) {
+		display_image=desc->get_foreground( single_img[img], is_snow );
 	}
 	return display_image;
 }
@@ -150,17 +150,17 @@ void bruecke_t::rdwr(loadsave_t *file)
 	const char *s = NULL;
 
 	if(file->is_saving()) {
-		s = besch->get_name();
+		s = desc->get_name();
 	}
 	file->rdwr_str(s);
 	file->rdwr_enum(img);
 
 	if(file->is_loading()) {
-		besch = brueckenbauer_t::get_besch(s);
-		if(besch==NULL) {
-			besch = brueckenbauer_t::get_besch(translator::compatibility_name(s));
+		desc = brueckenbauer_t::get_desc(s);
+		if(desc==NULL) {
+			desc = brueckenbauer_t::get_desc(translator::compatibility_name(s));
 		}
-		if(besch==NULL) {
+		if(desc==NULL) {
 			dbg->warning( "bruecke_t::rdwr()", "unknown bridge \"%s\" at (%i,%i) will be replaced with best match!", s, get_pos().x, get_pos().y );
 			welt->add_missing_paks( s, karte_t::MISSING_BRIDGE );
 		}
@@ -168,18 +168,18 @@ void bruecke_t::rdwr(loadsave_t *file)
 
 		if(  file->get_version() < 112007 && env_t::pak_height_conversion_factor==2  ) {
 			switch(img) {
-				case bruecke_besch_t::OW_Segment: img = bruecke_besch_t::OW_Segment2; break;
-				case bruecke_besch_t::NS_Segment: img = bruecke_besch_t::NS_Segment2; break;
-				case bruecke_besch_t::O_Start:    img = bruecke_besch_t::O_Start2;    break;
-				case bruecke_besch_t::W_Start:    img = bruecke_besch_t::W_Start2;    break;
-				case bruecke_besch_t::S_Start:    img = bruecke_besch_t::S_Start2;    break;
-				case bruecke_besch_t::N_Start:    img = bruecke_besch_t::N_Start2;    break;
-				case bruecke_besch_t::O_Rampe:    img = bruecke_besch_t::O_Rampe2;    break;
-				case bruecke_besch_t::W_Rampe:    img = bruecke_besch_t::W_Rampe2;    break;
-				case bruecke_besch_t::S_Rampe:    img = bruecke_besch_t::S_Rampe2;    break;
-				case bruecke_besch_t::N_Rampe:    img = bruecke_besch_t::N_Rampe2;    break;
-				case bruecke_besch_t::OW_Pillar:  img = bruecke_besch_t::OW_Pillar2;  break;
-				case bruecke_besch_t::NS_Pillar:  img = bruecke_besch_t::NS_Pillar2;  break;
+				case bruecke_desc_t::OW_Segment: img = bruecke_desc_t::OW_Segment2; break;
+				case bruecke_desc_t::NS_Segment: img = bruecke_desc_t::NS_Segment2; break;
+				case bruecke_desc_t::O_Start:    img = bruecke_desc_t::O_Start2;    break;
+				case bruecke_desc_t::W_Start:    img = bruecke_desc_t::W_Start2;    break;
+				case bruecke_desc_t::S_Start:    img = bruecke_desc_t::S_Start2;    break;
+				case bruecke_desc_t::N_Start:    img = bruecke_desc_t::N_Start2;    break;
+				case bruecke_desc_t::O_Rampe:    img = bruecke_desc_t::O_Rampe2;    break;
+				case bruecke_desc_t::W_Rampe:    img = bruecke_desc_t::W_Rampe2;    break;
+				case bruecke_desc_t::S_Rampe:    img = bruecke_desc_t::S_Rampe2;    break;
+				case bruecke_desc_t::N_Rampe:    img = bruecke_desc_t::N_Rampe2;    break;
+				case bruecke_desc_t::OW_Pillar:  img = bruecke_desc_t::OW_Pillar2;  break;
+				case bruecke_desc_t::NS_Pillar:  img = bruecke_desc_t::NS_Pillar2;  break;
 				default: break;
 			}
 		}
@@ -191,24 +191,24 @@ void bruecke_t::rdwr(loadsave_t *file)
 void bruecke_t::finish_rd()
 {
 	grund_t *gr = welt->lookup(get_pos());
-	if(besch==NULL) {
+	if(desc==NULL) {
 		weg_t *weg = gr->get_weg_nr(0);
 		if(weg) {
-			besch = brueckenbauer_t::find_bridge(weg->get_waytype(),weg->get_max_speed(),0);
+			desc = brueckenbauer_t::find_bridge(weg->get_waytype(),weg->get_max_speed(),0);
 		}
-		if(besch==NULL) {
+		if(desc==NULL) {
 			dbg->fatal("bruecke_t::rdwr()","Unknown bridge type at (%i,%i)", get_pos().x, get_pos().y );
 		}
 	}
 
 	player_t *player=get_owner();
 	// change maintenance
-	if(besch->get_waytype()!=powerline_wt) {
-		weg_t *weg = gr->get_weg(besch->get_waytype());
-		const weg_besch_t* weg_besch = weg->get_besch();
+	if(desc->get_waytype()!=powerline_wt) {
+		weg_t *weg = gr->get_weg(desc->get_waytype());
+		const weg_desc_t* weg_desc = weg->get_desc();
 		if(weg==NULL) {
 			dbg->error("bruecke_t::finish_rd()","Bridge without way at(%s)!", gr->get_pos().get_str() );
-			weg = weg_t::alloc( besch->get_waytype() );
+			weg = weg_t::alloc( desc->get_waytype() );
 			gr->neuen_weg_bauen( weg, 0, welt->get_public_player());
 		}
 		const slope_t::type hang = gr->get_weg_hang();
@@ -217,40 +217,40 @@ void bruecke_t::finish_rd()
 			const uint slope_height = (hang & 7) ? 1 : 2;
 			if(slope_height == 1)
 			{
-				weg->set_max_speed(min(besch->get_topspeed_gradient_1(), weg_besch->get_topspeed_gradient_1()));
+				weg->set_max_speed(min(desc->get_topspeed_gradient_1(), weg_desc->get_topspeed_gradient_1()));
 			}
 			else
 			{
-				weg->set_max_speed(min(besch->get_topspeed_gradient_2(), weg_besch->get_topspeed_gradient_2()));
+				weg->set_max_speed(min(desc->get_topspeed_gradient_2(), weg_desc->get_topspeed_gradient_2()));
 			}
 		}
 		else
 		{
-			weg->set_max_speed(min(besch->get_topspeed(), weg_besch->get_topspeed()));
+			weg->set_max_speed(min(desc->get_topspeed(), weg_desc->get_topspeed()));
 		}
-		weg->set_bridge_weight_limit(besch->get_max_weight());
+		weg->set_bridge_weight_limit(desc->get_max_weight());
 		
-		const weg_t* old_way = gr ? gr->get_weg(besch->get_wtyp()) : NULL;
-		const wayobj_t* way_object = old_way ? way_object = gr->get_wayobj(besch->get_waytype()) : NULL;
+		const weg_t* old_way = gr ? gr->get_weg(desc->get_wtyp()) : NULL;
+		const wayobj_t* way_object = old_way ? way_object = gr->get_wayobj(desc->get_waytype()) : NULL;
 		// take ownership of way
-		player_t::add_maintenance( weg->get_owner(), -weg->get_besch()->get_wartung(), besch->get_finance_waytype());
+		player_t::add_maintenance( weg->get_owner(), -weg->get_desc()->get_wartung(), desc->get_finance_waytype());
 		weg->set_owner(player);
 	}
-	player_t::add_maintenance( player,  besch->get_wartung(), besch->get_finance_waytype());
+	player_t::add_maintenance( player,  desc->get_wartung(), desc->get_finance_waytype());
 
-	// with double heights may need to correct image on load (not all besch have double images)
+	// with double heights may need to correct image on load (not all desc have double images)
 	// at present only start images have 2 height variants, others to follow...
 	if(  !gr->is_kartenboden  ) {
-		if(  besch->get_waytype() != powerline_wt  ) {
-			//img = besch->get_simple( gr->get_weg_ribi_unmasked( besch->get_waytype() ) );
+		if(  desc->get_waytype() != powerline_wt  ) {
+			//img = desc->get_simple( gr->get_weg_ribi_unmasked( desc->get_waytype() ) );
 		}
 	}
 	else {
 		if(  gr->get_grund_hang() == slope_t::flat  ) {
-			//img = besch->get_rampe( gr->get_weg_hang() );
+			//img = desc->get_rampe( gr->get_weg_hang() );
 		}
 		else {
-			img = besch->get_start( gr->get_grund_hang() );
+			img = desc->get_start( gr->get_grund_hang() );
 		}
 	}
 }
@@ -263,27 +263,27 @@ void bruecke_t::cleanup( player_t *player2 )
 	// change maintenance, reset max-speed and y-offset
 	const grund_t *gr = welt->lookup(get_pos());
 	if(gr) {
-		weg_t *weg = gr->get_weg( besch->get_waytype() );
+		weg_t *weg = gr->get_weg( desc->get_waytype() );
 		if(weg) {
-			const weg_besch_t* const weg_besch = weg->get_besch();
+			const weg_desc_t* const weg_desc = weg->get_desc();
 			const slope_t::type hang = gr ? gr->get_weg_hang() : slope_t::flat;
 			if(hang != slope_t::flat) 
 				{
 					const uint slope_height = (hang & 7) ? 1 : 2;
 					if(slope_height == 1)
 					{
-						weg->set_max_speed(min(besch->get_topspeed_gradient_1(), weg_besch->get_topspeed_gradient_1()));
+						weg->set_max_speed(min(desc->get_topspeed_gradient_1(), weg_desc->get_topspeed_gradient_1()));
 					}
 					else
 					{
-						weg->set_max_speed(min(besch->get_topspeed_gradient_2(), weg_besch->get_topspeed_gradient_2()));
+						weg->set_max_speed(min(desc->get_topspeed_gradient_2(), weg_desc->get_topspeed_gradient_2()));
 					}
 				}
 				else
 				{
-					weg->set_max_speed(min(besch->get_topspeed(), weg_besch->get_topspeed()));
+					weg->set_max_speed(min(desc->get_topspeed(), weg_desc->get_topspeed()));
 				}
-			player_t::add_maintenance( player,  weg->get_besch()->get_wartung(), weg->get_besch()->get_finance_waytype());
+			player_t::add_maintenance( player,  weg->get_desc()->get_wartung(), weg->get_desc()->get_finance_waytype());
 			// reset offsets
 			weg->set_yoff(0);
 			if (gr->get_weg_nr(1)) {
@@ -291,21 +291,21 @@ void bruecke_t::cleanup( player_t *player2 )
 			}
 		}
 	}
-	player_t::add_maintenance( player,  -besch->get_wartung(), besch->get_finance_waytype() );
-	player_t::book_construction_costs( player2, -besch->get_preis(), get_pos().get_2d(), besch->get_waytype() );
+	player_t::add_maintenance( player,  -desc->get_wartung(), desc->get_finance_waytype() );
+	player_t::book_construction_costs( player2, -desc->get_preis(), get_pos().get_2d(), desc->get_waytype() );
 }
 
 
 // rotated segment names
-static bruecke_besch_t::img_t rotate90_img[24]= {
-	bruecke_besch_t::OW_Segment, bruecke_besch_t::NS_Segment,
-	bruecke_besch_t::O_Start, bruecke_besch_t::W_Start, bruecke_besch_t::S_Start, bruecke_besch_t::N_Start,
-	bruecke_besch_t::O_Rampe, bruecke_besch_t::W_Rampe, bruecke_besch_t::S_Rampe, bruecke_besch_t::N_Rampe,
-	bruecke_besch_t::OW_Pillar, bruecke_besch_t::NS_Pillar,
-	bruecke_besch_t::OW_Segment2, bruecke_besch_t::NS_Segment2,
-	bruecke_besch_t::O_Start2, bruecke_besch_t::W_Start2, bruecke_besch_t::S_Start2, bruecke_besch_t::N_Start2,
-	bruecke_besch_t::O_Rampe2, bruecke_besch_t::W_Rampe2, bruecke_besch_t::S_Rampe2, bruecke_besch_t::N_Rampe2,
-	bruecke_besch_t::OW_Pillar2, bruecke_besch_t::NS_Pillar2
+static bruecke_desc_t::img_t rotate90_img[24]= {
+	bruecke_desc_t::OW_Segment, bruecke_desc_t::NS_Segment,
+	bruecke_desc_t::O_Start, bruecke_desc_t::W_Start, bruecke_desc_t::S_Start, bruecke_desc_t::N_Start,
+	bruecke_desc_t::O_Rampe, bruecke_desc_t::W_Rampe, bruecke_desc_t::S_Rampe, bruecke_desc_t::N_Rampe,
+	bruecke_desc_t::OW_Pillar, bruecke_desc_t::NS_Pillar,
+	bruecke_desc_t::OW_Segment2, bruecke_desc_t::NS_Segment2,
+	bruecke_desc_t::O_Start2, bruecke_desc_t::W_Start2, bruecke_desc_t::S_Start2, bruecke_desc_t::N_Start2,
+	bruecke_desc_t::O_Rampe2, bruecke_desc_t::W_Rampe2, bruecke_desc_t::S_Rampe2, bruecke_desc_t::N_Rampe2,
+	bruecke_desc_t::OW_Pillar2, bruecke_desc_t::NS_Pillar2
 };
 
 

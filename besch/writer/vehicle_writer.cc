@@ -20,32 +20,32 @@ using std::string;
 /**
  * Calculate numeric engine type from engine type string
  */
-static vehikel_besch_t::engine_t get_engine_type(char const* const engine_type)
+static vehikel_desc_t::engine_t get_engine_type(char const* const engine_type)
 {
-	vehikel_besch_t::engine_t uv8 = vehikel_besch_t::diesel;
+	vehikel_desc_t::engine_t uv8 = vehikel_desc_t::diesel;
 
 	if (!STRICMP(engine_type, "diesel")) {
-		uv8 = vehikel_besch_t::diesel;
+		uv8 = vehikel_desc_t::diesel;
 	} else if (!STRICMP(engine_type, "electric")) {
-		uv8 = vehikel_besch_t::electric;
+		uv8 = vehikel_desc_t::electric;
 	} else if (!STRICMP(engine_type, "steam")) {
-		uv8 = vehikel_besch_t::steam;
+		uv8 = vehikel_desc_t::steam;
 	} else if (!STRICMP(engine_type, "bio")) {
-		uv8 = vehikel_besch_t::bio;
+		uv8 = vehikel_desc_t::bio;
 	} else if (!STRICMP(engine_type, "sail")) {
-		uv8 = vehikel_besch_t::sail;
+		uv8 = vehikel_desc_t::sail;
 	} else if (!STRICMP(engine_type, "fuel_cell")) {
-		uv8 = vehikel_besch_t::fuel_cell;
+		uv8 = vehikel_desc_t::fuel_cell;
 	} else if (!STRICMP(engine_type, "hydrogene")) {
-		uv8 = vehikel_besch_t::hydrogene;
+		uv8 = vehikel_desc_t::hydrogene;
 	} else if (!STRICMP(engine_type, "battery")) {
-		uv8 = vehikel_besch_t::battery;
+		uv8 = vehikel_desc_t::battery;
 	} else if (!STRICMP(engine_type, "petrol")) {
-		uv8 = vehikel_besch_t::petrol;
+		uv8 = vehikel_desc_t::petrol;
 	} else if (!STRICMP(engine_type, "turbine")) {
-		uv8 = vehikel_besch_t::turbine;
+		uv8 = vehikel_desc_t::turbine;
 	} else if (!STRICMP(engine_type, "unknown")) {
-		uv8 = vehikel_besch_t::unknown;
+		uv8 = vehikel_desc_t::unknown;
 	}
 
 	// printf("Engine type %s -> %d\n", engine_type, uv8);
@@ -229,7 +229,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	// engine
 	if (waytype == overheadlines_wt) {
 		// Hajo: compatibility for old style DAT files
-		uv8 = vehikel_besch_t::electric;
+		uv8 = vehikel_desc_t::electric;
 	}
 	else {
 		const char* engine_type = obj.get("engine_type");
@@ -550,14 +550,14 @@ end:
 	// Vorgänger/Nachfolgerbedingungen
 	// "Predecessor / Successor conditions" (Google)
 	//
-	uint8 besch_vorgaenger = 0;
+	uint8 desc_vorgaenger = 0;
 	bool found;
 	do {
 		char buf[40];
 
 		// Hajodoc: Constraints for previous vehicles
 		// Hajoval: string, "none" means only suitable at front of an convoi
-		sprintf(buf, "constraint[prev][%d]", besch_vorgaenger);
+		sprintf(buf, "constraint[prev][%d]", desc_vorgaenger);
 
 		str = obj.get(buf);
 		found = !str.empty();
@@ -566,18 +566,18 @@ end:
 				str = "";
 			}
 			xref_writer_t::instance()->write_obj(fp, node, obj_vehicle, str.c_str(), false);
-			besch_vorgaenger++;
+			desc_vorgaenger++;
 		}
 	} while (found);
 
-	uint8 besch_nachfolger = 0;
+	uint8 desc_nachfolger = 0;
 	bool can_be_at_rear = true;
 	do {
 		char buf[40];
 
 		// Hajodoc: Constraints for successing vehicles
 		// Hajoval: string, "none" to disallow any followers
-		sprintf(buf, "constraint[next][%d]", besch_nachfolger);
+		sprintf(buf, "constraint[next][%d]", desc_nachfolger);
 
 		str = obj.get(buf);
 
@@ -597,7 +597,7 @@ end:
 			else
 			{
 				xref_writer_t::instance()->write_obj(fp, node, obj_vehicle, str.c_str(), false);
-				besch_nachfolger++;
+				desc_nachfolger++;
 			}
 		}
 	} while (found);
@@ -691,9 +691,9 @@ end:
 		text_writer_t::instance()->write_obj(fp, node, "default");
 	}
 
-	node.write_sint8(fp, besch_vorgaenger, pos);
+	node.write_sint8(fp, desc_vorgaenger, pos);
 	pos += sizeof(sint8);
-	node.write_sint8(fp, besch_nachfolger, pos);
+	node.write_sint8(fp, desc_nachfolger, pos);
 	pos += sizeof(sint8);
 	node.write_uint8(fp, (uint8) freight_max, pos);
 	pos += sizeof(uint8);
@@ -855,7 +855,7 @@ end:
 
 	// Air resistance
 	// @author: jamespetts & Bernd Gabriel
-	uint16 air_default = vehikel_besch_t::get_air_default(waytype);
+	uint16 air_default = vehikel_desc_t::get_air_default(waytype);
 
 	uint16 air_resistance_hundreds = obj.get_int("air_resistance", air_default);
 	node.write_uint16(fp, air_resistance_hundreds, pos);
@@ -901,7 +901,7 @@ end:
 	node.write_uint16(fp, max_loading_time, pos);
 	pos += sizeof(uint16);
 
-	uint16 rolling_default = vehikel_besch_t::get_rolling_default(waytype);
+	uint16 rolling_default = vehikel_desc_t::get_rolling_default(waytype);
 
 	uint16 rolling_resistance_tenths_thousands = obj.get_int("rolling_resistance", rolling_default);
 	node.write_uint16(fp, rolling_resistance_tenths_thousands, pos);

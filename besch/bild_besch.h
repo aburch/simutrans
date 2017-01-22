@@ -28,7 +28,7 @@
  *  Child nodes:
  *	(none)
  */
-class image_t : public obj_besch_t
+class image_t : public obj_desc_t
 {
 public:
 	static const uint32 rgbtab[SPECIAL];
@@ -74,7 +74,7 @@ public:
 	
 	image_id get_id() const { return imageid; }
 
-	/* rotate_image_data - produces a (rotated) bild_besch
+	/* rotate_image_data - produces a (rotated) bild_desc
 	 * only rotates by 90 degrees or multiples thereof, and assumes a square image
 	 * Otherwise it will only succeed for angle=0;
 	 */

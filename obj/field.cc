@@ -20,14 +20,14 @@
 #include "field.h"
 
 
-field_t::field_t(koord3d p, player_t *player, const field_class_besch_t *besch, fabrik_t *fab) : 
+field_t::field_t(koord3d p, player_t *player, const field_class_desc_t *desc, fabrik_t *fab) : 
 #ifdef INLINE_OBJ_TYPE
 	obj_t(obj_t::field)
 #else
 	obj_t()
 #endif
 {
-	this->besch = besch;
+	this->desc = desc;
 	this->fab = fab;
 	set_owner( player );
 	p.z = welt->max_hgt(p.get_2d());
@@ -46,7 +46,7 @@ field_t::~field_t()
 const char *field_t:: is_deletable(const player_t *)
 {
 	// Allow removal provided that the number of fields do not fall below half the minimum
-	return (fab->get_field_count() > fab->get_besch()->get_field_group()->get_min_fields() / 2) ? NULL : "Not enough fields would remain.";
+	return (fab->get_field_count() > fab->get_desc()->get_field_group()->get_min_fields() / 2) ? NULL : "Not enough fields would remain.";
 }
 
 
@@ -63,9 +63,9 @@ void field_t::cleanup(player_t *player)
 // return the  right month graphic for factories
 image_id field_t::get_image() const
 {
-	const skin_besch_t *s=besch->get_images();
-	uint16 count=s->get_count() - besch->has_snow_image();
-	if(  besch->has_snow_image()  &&  (get_pos().z >= welt->get_snowline()  ||  welt->get_climate( get_pos().get_2d() ) == arctic_climate)  ) {
+	const skin_desc_t *s=desc->get_images();
+	uint16 count=s->get_count() - desc->has_snow_image();
+	if(  desc->has_snow_image()  &&  (get_pos().z >= welt->get_snowline()  ||  welt->get_climate( get_pos().get_2d() ) == arctic_climate)  ) {
 		// last images will be shown above snowline
 		return s->get_image_id(count);
 	}

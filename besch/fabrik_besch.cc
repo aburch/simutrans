@@ -3,7 +3,7 @@
 #include "../network/checksum.h"
 
 
-void field_class_besch_t::calc_checksum(checksum_t *chk) const
+void field_class_desc_t::calc_checksum(checksum_t *chk) const
 {
 	chk->input(production_per_field);
 	chk->input(storage_capacity);
@@ -11,20 +11,20 @@ void field_class_besch_t::calc_checksum(checksum_t *chk) const
 }
 
 
-void field_group_besch_t::calc_checksum(checksum_t *chk) const
+void field_group_desc_t::calc_checksum(checksum_t *chk) const
 {
 	chk->input(probability);
 	chk->input(max_fields);
 	chk->input(min_fields);
 	chk->input(field_classes);
 	for(uint16 i=0; i<field_classes; i++) {
-		const field_class_besch_t *fc = get_field_class(i);
+		const field_class_desc_t *fc = get_field_class(i);
 		fc->calc_checksum(chk);
 	}
 }
 
 
-void fabrik_lieferant_besch_t::calc_checksum(checksum_t *chk) const
+void fabrik_lieferant_desc_t::calc_checksum(checksum_t *chk) const
 {
     chk->input(kapazitaet);
 	chk->input(supplier_count);
@@ -33,7 +33,7 @@ void fabrik_lieferant_besch_t::calc_checksum(checksum_t *chk) const
 }
 
 
-void fabrik_produkt_besch_t::calc_checksum(checksum_t *chk) const
+void fabrik_produkt_desc_t::calc_checksum(checksum_t *chk) const
 {
     chk->input(kapazitaet);
 	chk->input(faktor);
@@ -41,7 +41,7 @@ void fabrik_produkt_besch_t::calc_checksum(checksum_t *chk) const
 }
 
 
-void fabrik_besch_t::calc_checksum(checksum_t *chk) const
+void fabrik_desc_t::calc_checksum(checksum_t *chk) const
 {
 	chk->input((uint8)platzierung);
 	chk->input(produktivitaet);
@@ -65,16 +65,16 @@ void fabrik_besch_t::calc_checksum(checksum_t *chk) const
 	chk->input(mail_demand);
 
 	for (uint8 i=0; i<lieferanten; i++) {
-		const fabrik_lieferant_besch_t *supp = get_lieferant(i);
+		const fabrik_lieferant_desc_t *supp = get_lieferant(i);
 		supp->calc_checksum(chk);
 	}
 
 	for (uint8 i=0; i<produkte; i++) {
-		const fabrik_produkt_besch_t *prod = get_produkt(i);
+		const fabrik_produkt_desc_t *prod = get_produkt(i);
 		prod->calc_checksum(chk);
 	}
 
-	const field_group_besch_t *field_group = get_field_group();
+	const field_group_desc_t *field_group = get_field_group();
 	if (field_group) {
 		field_group->calc_checksum(chk);
 	}

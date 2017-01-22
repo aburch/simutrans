@@ -19,9 +19,9 @@
  *  Description:
  *      Rechnet aus dem Index das Layout aus, zu dem diese Tile gehört.
  */
-uint8 haus_tile_besch_t::get_layout() const
+uint8 haus_tile_desc_t::get_layout() const
 {
-	koord size = get_besch()->get_groesse();
+	koord size = get_desc()->get_groesse();
 	return index / (size.x * size.y);
 }
 
@@ -36,35 +36,35 @@ uint8 haus_tile_besch_t::get_layout() const
  *
  * Description: Specifies the relative position of the frame in the overall image of the building. (Google)
  */
-koord haus_tile_besch_t::get_offset() const
+koord haus_tile_desc_t::get_offset() const
 {
-	const haus_besch_t *besch = get_besch();
-	koord size = besch->get_groesse(get_layout());	// ggf. gedreht ("rotated" - Google)
+	const haus_desc_t *desc = get_desc();
+	koord size = desc->get_groesse(get_layout());	// ggf. gedreht ("rotated" - Google)
 	return koord( index % size.x, (index / size.x) % size.y );
 }
 
 
 
-waytype_t haus_besch_t::get_finance_waytype() const
+waytype_t haus_desc_t::get_finance_waytype() const
 {
 	switch( get_utyp() )
 	{
-		case haus_besch_t::bahnhof:			return track_wt;
-		case haus_besch_t::bushalt:			return road_wt;
-		case haus_besch_t::dock:			return water_wt;
-		case haus_besch_t::flat_dock:		return water_wt;
-		case haus_besch_t::binnenhafen:		 return water_wt;
-		case haus_besch_t::airport:			return air_wt;
-		case haus_besch_t::monorailstop:	return monorail_wt;
-		case haus_besch_t::bahnhof_geb:		return track_wt;
-		case haus_besch_t::bushalt_geb:		return road_wt;
-		case haus_besch_t::hafen_geb:		return water_wt;
-		case haus_besch_t::binnenhafen_geb: return water_wt;
-		case haus_besch_t::airport_geb:		return air_wt;
-		case haus_besch_t::monorail_geb:	return monorail_wt;
-		case haus_besch_t::depot:
-		case haus_besch_t::generic_stop:
-		case haus_besch_t::generic_extension:
+		case haus_desc_t::bahnhof:			return track_wt;
+		case haus_desc_t::bushalt:			return road_wt;
+		case haus_desc_t::dock:			return water_wt;
+		case haus_desc_t::flat_dock:		return water_wt;
+		case haus_desc_t::binnenhafen:		 return water_wt;
+		case haus_desc_t::airport:			return air_wt;
+		case haus_desc_t::monorailstop:	return monorail_wt;
+		case haus_desc_t::bahnhof_geb:		return track_wt;
+		case haus_desc_t::bushalt_geb:		return road_wt;
+		case haus_desc_t::hafen_geb:		return water_wt;
+		case haus_desc_t::binnenhafen_geb: return water_wt;
+		case haus_desc_t::airport_geb:		return air_wt;
+		case haus_desc_t::monorail_geb:	return monorail_wt;
+		case haus_desc_t::depot:
+		case haus_desc_t::generic_stop:
+		case haus_desc_t::generic_extension:
 			return (waytype_t) get_extra();
 		default:							return ignore_wt;
 	}
@@ -76,7 +76,7 @@ waytype_t haus_besch_t::get_finance_waytype() const
  * Mail generation level
  * @author Hj. Malthaner
  */
-uint16 haus_besch_t::get_post_level() const
+uint16 haus_desc_t::get_post_level() const
 {
 	switch (gtyp) {
 		default:
@@ -92,13 +92,13 @@ uint16 haus_besch_t::get_post_level() const
  * true, if this building needs a connection with a town
  * @author prissi
  */
-bool haus_besch_t::is_connected_with_town() const
+bool haus_desc_t::is_connected_with_town() const
 {
 	switch(get_utyp()) {
-		case haus_besch_t::unbekannt:	// normal town buildings (RES, COM, IND)
-		case haus_besch_t::denkmal:	// monuments
-		case haus_besch_t::rathaus:	// townhalls
-		case haus_besch_t::firmensitz:	// headquarter
+		case haus_desc_t::unbekannt:	// normal town buildings (RES, COM, IND)
+		case haus_desc_t::denkmal:	// monuments
+		case haus_desc_t::rathaus:	// townhalls
+		case haus_desc_t::firmensitz:	// headquarter
 			return true;
 		default:
 			return false;
@@ -114,13 +114,13 @@ bool haus_besch_t::is_connected_with_town() const
  *  Description:
  *      Abhängig von Position und Layout ein tile zurückliefern
  */
-const haus_tile_besch_t *haus_besch_t::get_tile(int layout, int x, int y) const
+const haus_tile_desc_t *haus_desc_t::get_tile(int layout, int x, int y) const
 {
 	layout = layout_anpassen(layout);
 	koord dims = get_groesse(layout);
 
 	if(layout < 0  ||  x < 0  ||  y < 0  ||  layout >= layouts  ||  x >= get_b(layout)  ||  y >= get_h(layout)) {
-	dbg->fatal("haus_tile_besch_t::get_tile()",
+	dbg->fatal("haus_tile_desc_t::get_tile()",
 			   "invalid request for l=%d, x=%d, y=%d on building %s (l=%d, x=%d, y=%d)",
 		   layout, x, y, get_name(), layouts, size.x, size.y);
 	}
@@ -136,7 +136,7 @@ const haus_tile_besch_t *haus_besch_t::get_tile(int layout, int x, int y) const
  *  Description:
  *      Layout normalisieren.
  */
-int haus_besch_t::layout_anpassen(int layout) const
+int haus_desc_t::layout_anpassen(int layout) const
 {
 	if(layout >= 4 && layouts <= 4) {
 		layout -= 4;
@@ -155,9 +155,9 @@ int haus_besch_t::layout_anpassen(int layout) const
 }
 
 
-void haus_besch_t::calc_checksum(checksum_t *chk) const
+void haus_desc_t::calc_checksum(checksum_t *chk) const
 {
-	obj_besch_timelined_t::calc_checksum(chk);
+	obj_desc_timelined_t::calc_checksum(chk);
 	chk->input((uint8)gtyp);
 	chk->input((uint8)utype);
 	chk->input(animation_time);

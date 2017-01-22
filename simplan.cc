@@ -514,13 +514,13 @@ image_id overlay_img(grund_t *gr)
 	image_id img;
 	if(  gr->get_typ()==grund_t::wasser  ) {
 		// water is always flat and does not return proper image_id
-		img = grund_besch_t::ausserhalb->get_image(0);
+		img = grund_desc_t::ausserhalb->get_image(0);
 	}
 	else {
 		img = gr->get_image();
 		if(  img==IMG_EMPTY  ) {
 			// foundations or underground mode
-			img = grund_besch_t::get_ground_tile( gr );
+			img = grund_desc_t::get_ground_tile( gr );
 		}
 	}
 	return img;
@@ -547,7 +547,7 @@ void planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos) const
 			fabrik_t* fab=gb->get_fabrik();
 			if(fab) {
 				PLAYER_COLOR_VAL status = COL_RED;
-				if(fab->get_besch()->is_electricity_producer()) {
+				if(fab->get_desc()->is_electricity_producer()) {
 					status = COL_LIGHT_BLUE;
 					if(fab->is_transformer_connected()) {
 						status = COL_LIGHT_TURQUOISE;

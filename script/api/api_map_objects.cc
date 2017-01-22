@@ -237,7 +237,7 @@ void export_map_objects(HSQUIRRELVM vm)
 	/**
 	 * @returns object descriptor.
 	 */
-	register_method(vm, &baum_t::get_besch, "get_desc");
+	register_method(vm, &baum_t::get_desc, "get_desc");
 
 	end_class(vm);
 
@@ -334,7 +334,7 @@ void export_map_objects(HSQUIRRELVM vm)
 	/**
 	 * @returns object descriptor.
 	 */
-	register_method(vm, &weg_t::get_besch, "get_desc");
+	register_method(vm, &weg_t::get_desc, "get_desc");
 
 
 	end_class(vm);

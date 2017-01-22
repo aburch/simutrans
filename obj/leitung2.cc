@@ -128,7 +128,7 @@ leitung_t::leitung_t(typ type, koord3d pos, player_t *player) : obj_t(type, pos)
 	image = IMG_EMPTY;
 	set_net(NULL);
 	set_owner( player );
-	set_besch(wegbauer_t::leitung_besch);
+	set_desc(wegbauer_t::leitung_desc);
 	modified_production_delta_t = welt->calc_adjusted_monthly_figure(PRODUCTION_DELTA_T);
 }
 
@@ -141,7 +141,7 @@ leitung_t::leitung_t(koord3d pos, player_t *player) : obj_t(pos)
 	image = IMG_EMPTY;
 	set_net(NULL);
 	set_owner( player );
-	set_besch(wegbauer_t::leitung_besch);
+	set_desc(wegbauer_t::leitung_desc);
 	modified_production_delta_t = welt->calc_adjusted_monthly_figure(PRODUCTION_DELTA_T);
 }
 
@@ -185,7 +185,7 @@ leitung_t::~leitung_t()
 			delete net;
 		}
 		if(!gr->ist_tunnel()) {
-			player_t::add_maintenance(get_owner(), -besch->get_wartung(), powerline_wt);
+			player_t::add_maintenance(get_owner(), -desc->get_wartung(), powerline_wt);
 		}
 	}
 }
@@ -202,11 +202,11 @@ void leitung_t::cleanup(player_t *player) //"remove".
 	}
 	if(player == get_owner())
 	{
-		player_t::book_construction_costs(player, -besch->get_preis() / 2 - land_value, get_pos().get_2d(), powerline_wt);
+		player_t::book_construction_costs(player, -desc->get_preis() / 2 - land_value, get_pos().get_2d(), powerline_wt);
 	}
 	else
 	{
-		player_t::book_construction_costs(player, -besch->get_preis() / 2, get_pos().get_2d(), powerline_wt);
+		player_t::book_construction_costs(player, -desc->get_preis() / 2, get_pos().get_2d(), powerline_wt);
 		player_t::book_construction_costs(get_owner(), -land_value, get_pos().get_2d(), powerline_wt);
 	}
 	mark_image_dirty( image, 0 );
@@ -314,17 +314,17 @@ void leitung_t::calc_image()
 	image_id old_image = get_image();
 	slope_t::type hang = gr->get_weg_hang();
 	if(hang != slope_t::flat) {
-		set_image( besch->get_hang_image_nr(hang, snow));
+		set_image( desc->get_hang_image_nr(hang, snow));
 	}
 	else {
 		if(gr->hat_wege()) {
 			// crossing with road or rail
 			weg_t* way = gr->get_weg_nr(0);
 			if(ribi_t::is_straight_ew(way->get_ribi())) {
-				set_image( besch->get_diagonal_image_nr(ribi_t::north|ribi_t::east, snow));
+				set_image( desc->get_diagonal_image_nr(ribi_t::north|ribi_t::east, snow));
 			}
 			else {
-				set_image( besch->get_diagonal_image_nr(ribi_t::south|ribi_t::east, snow));
+				set_image( desc->get_diagonal_image_nr(ribi_t::south|ribi_t::east, snow));
 			}
 			is_crossing = true;
 		}
@@ -332,14 +332,14 @@ void leitung_t::calc_image()
 			if(ribi_t::is_straight(ribi)  &&  !ribi_t::is_single(ribi)  &&  (pos.x+pos.y)&1) {
 				// every second skip mast
 				if(ribi_t::is_straight_ns(ribi)) {
-					set_image( besch->get_diagonal_image_nr(ribi_t::north|ribi_t::west, snow));
+					set_image( desc->get_diagonal_image_nr(ribi_t::north|ribi_t::west, snow));
 				}
 				else {
-					set_image( besch->get_diagonal_image_nr(ribi_t::south|ribi_t::west, snow));
+					set_image( desc->get_diagonal_image_nr(ribi_t::south|ribi_t::west, snow));
 				}
 			}
 			else {
-				set_image( besch->get_image_id(ribi, snow));
+				set_image( desc->get_image_id(ribi, snow));
 			}
 		}
 	}
@@ -434,7 +434,7 @@ void leitung_t::finish_rd()
 	const grund_t *gr = welt->lookup(get_pos());
 	assert(gr); (void)gr;
 
-	player_t::add_maintenance(get_owner(), besch->get_wartung(), powerline_wt);
+	player_t::add_maintenance(get_owner(), desc->get_wartung(), powerline_wt);
 }
 
 
@@ -513,7 +513,7 @@ void leitung_t::rdwr(loadsave_t *file)
 		{
 			if(file->is_saving()) 
 			{
-				const char *s = besch->get_name();
+				const char *s = desc->get_name();
 				file->rdwr_str(s);
 			}
 			else 
@@ -522,29 +522,29 @@ void leitung_t::rdwr(loadsave_t *file)
 				file->rdwr_str(bname, lengthof(bname));
 				if(bname[0] == '~')
 				{
-					set_besch(wegbauer_t::leitung_besch);					
+					set_desc(wegbauer_t::leitung_desc);					
 					return;
 				}
 
-				const weg_besch_t *besch = wegbauer_t::get_besch(bname);
-				if(besch==NULL) 
+				const weg_desc_t *desc = wegbauer_t::get_desc(bname);
+				if(desc==NULL) 
 				{
-					besch = wegbauer_t::get_besch(translator::compatibility_name(bname));
-					if(besch==NULL) 
+					desc = wegbauer_t::get_desc(translator::compatibility_name(bname));
+					if(desc==NULL) 
 					{
 						welt->add_missing_paks( bname, karte_t::MISSING_WAY );
-						besch = wegbauer_t::leitung_besch;
+						desc = wegbauer_t::leitung_desc;
 					}
-					dbg->warning("leitung_t::rdwr()", "Unknown powerline %s replaced by %s", bname, besch->get_name() );
+					dbg->warning("leitung_t::rdwr()", "Unknown powerline %s replaced by %s", bname, desc->get_name() );
 				}
-				set_besch(besch);
+				set_desc(desc);
 			}
 		}
 		else 
 		{
 			if (file->is_loading()) 
 			{
-				set_besch(wegbauer_t::leitung_besch);
+				set_desc(wegbauer_t::leitung_desc);
 			}
 		}
 	}
@@ -819,7 +819,7 @@ void senke_t::step(uint32 delta_t)
 	{
 		FOR(vector_tpl<fabrik_t*>, city_fab, city->get_city_factories())
 		{
-			if(city_fab->get_besch()->is_electricity_producer())
+			if(city_fab->get_desc()->is_electricity_producer())
 			{
 				continue;
 			}
@@ -990,7 +990,7 @@ void senke_t::step(uint32 delta_t)
 		city->add_power_demand(adjusted_power_demand);
 	}
 	// Income
-	if(!fab || fab->get_besch()->get_electric_amount() == 65535)
+	if(!fab || fab->get_desc()->get_electric_amount() == 65535)
 	{
 		// City, or factory demand not specified in pak: use old fixed demands
 		max_einkommen += last_power_demand * delta_t / modified_production_delta_t;

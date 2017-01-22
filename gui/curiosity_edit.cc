@@ -35,13 +35,13 @@ char curiosity_edit_frame_t::param_str[256];
 
 
 
-static bool compare_haus_besch(const haus_besch_t* a, const haus_besch_t* b)
+static bool compare_haus_desc(const haus_desc_t* a, const haus_desc_t* b)
 {
 	int diff = strcmp(a->get_name(), b->get_name());
 	return diff < 0;
 }
 
-static bool compare_haus_besch_trans(const haus_besch_t* a, const haus_besch_t* b)
+static bool compare_haus_desc_trans(const haus_desc_t* a, const haus_desc_t* b)
 {
 	int diff = strcmp(translator::translate(a->get_name()), translator::translate(b->get_name()));
 	return diff < 0;
@@ -56,7 +56,7 @@ curiosity_edit_frame_t::curiosity_edit_frame_t(player_t* player_) :
 {
 	rot_str[0] = 0;
 	rotation = 255;
-	besch = NULL;
+	desc = NULL;
 	haus_tool.set_default_param(NULL);
 	haus_tool.cursor = tool_t::general_tool[TOOL_BUILD_HOUSE]->cursor;
 	haus_tool.id = tool_t::general_tool[TOOL_BUILD_HOUSE]->id;
@@ -112,28 +112,28 @@ void curiosity_edit_frame_t::fill_list( bool translate )
 	hauslist.clear();
 
 	if(bt_city_attraction.pressed) {
-		FOR(vector_tpl<haus_besch_t const*>, const besch, *hausbauer_t::get_list(haus_besch_t::attraction_city)) {
-			if(!use_timeline  ||  (!besch->is_future(month_now)  &&  (!besch->is_retired(month_now)  ||  allow_obsolete))  ) {
+		FOR(vector_tpl<haus_desc_t const*>, const desc, *hausbauer_t::get_list(haus_desc_t::attraction_city)) {
+			if(!use_timeline  ||  (!desc->is_future(month_now)  &&  (!desc->is_retired(month_now)  ||  allow_obsolete))  ) {
 				// timeline allows for this
-				hauslist.insert_ordered(besch, translate ? compare_haus_besch_trans : compare_haus_besch);
+				hauslist.insert_ordered(desc, translate ? compare_haus_desc_trans : compare_haus_desc);
 			}
 		}
 	}
 
 	if(bt_land_attraction.pressed) {
-		FOR(vector_tpl<haus_besch_t const*>, const besch, *hausbauer_t::get_list(haus_besch_t::attraction_land)) {
-			if(!use_timeline  ||  (!besch->is_future(month_now)  &&  (!besch->is_retired(month_now)  ||  allow_obsolete))  ) {
+		FOR(vector_tpl<haus_desc_t const*>, const desc, *hausbauer_t::get_list(haus_desc_t::attraction_land)) {
+			if(!use_timeline  ||  (!desc->is_future(month_now)  &&  (!desc->is_retired(month_now)  ||  allow_obsolete))  ) {
 				// timeline allows for this
-				hauslist.insert_ordered(besch, translate ? compare_haus_besch_trans : compare_haus_besch);
+				hauslist.insert_ordered(desc, translate ? compare_haus_desc_trans : compare_haus_desc);
 			}
 		}
 	}
 
 	if(bt_monuments.pressed) {
-		FOR(vector_tpl<haus_besch_t const*>, const besch, *hausbauer_t::get_list(haus_besch_t::denkmal)) {
-			if(!use_timeline  ||  (!besch->is_future(month_now)  &&  (!besch->is_retired(month_now)  ||  allow_obsolete))  ) {
+		FOR(vector_tpl<haus_desc_t const*>, const desc, *hausbauer_t::get_list(haus_desc_t::denkmal)) {
+			if(!use_timeline  ||  (!desc->is_future(month_now)  &&  (!desc->is_retired(month_now)  ||  allow_obsolete))  ) {
 				// timeline allows for this
-				hauslist.insert_ordered(besch, translate ? compare_haus_besch_trans : compare_haus_besch);
+				hauslist.insert_ordered(desc, translate ? compare_haus_desc_trans : compare_haus_desc);
 			}
 		}
 	}
@@ -141,17 +141,17 @@ void curiosity_edit_frame_t::fill_list( bool translate )
 	// now build scrolled list
 	scl.clear_elements();
 	scl.set_selection(-1);
-	FOR(vector_tpl<haus_besch_t const*>, const i, hauslist) {
+	FOR(vector_tpl<haus_desc_t const*>, const i, hauslist) {
 		// color code for objects: BLACK: normal, YELLOW: consumer only, GREEN: source only
 		COLOR_VAL color;
 		switch (i->get_utyp()) {
-			case haus_besch_t::attraction_city: color = COL_BLUE;       break;
-			case haus_besch_t::attraction_land: color = COL_DARK_GREEN; break;
+			case haus_desc_t::attraction_city: color = COL_BLUE;       break;
+			case haus_desc_t::attraction_land: color = COL_DARK_GREEN; break;
 			default:                            color = COL_BLACK;      break;
 		}
 		char const* const name = translate ? translator::translate(i->get_name()) : i->get_name();
 		scl.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(name, color));
-		if (i == besch) {
+		if (i == desc) {
 			scl.set_selection(scl.get_count()-1);
 		}
 	}
@@ -176,7 +176,7 @@ bool curiosity_edit_frame_t::action_triggered( gui_action_creator_t *comp,value_
 		bt_monuments.pressed ^= 1;
 		fill_list( is_show_trans_name );
 	}
-	else if(besch) {
+	else if(desc) {
 		if(  comp==&bt_left_rotate  &&  rotation!=255) {
 			if(rotation==0) {
 				rotation = 255;
@@ -185,7 +185,7 @@ bool curiosity_edit_frame_t::action_triggered( gui_action_creator_t *comp,value_
 				rotation --;
 			}
 		}
-		else if(  comp==&bt_right_rotate  &&  rotation!=besch->get_all_layouts()-1) {
+		else if(  comp==&bt_right_rotate  &&  rotation!=desc->get_all_layouts()-1) {
 			rotation ++;
 		}
 		// update info ...
@@ -200,34 +200,34 @@ void curiosity_edit_frame_t::change_item_info(sint32 entry)
 {
 	if(entry>=0  &&  entry<(sint32)hauslist.get_count()) {
 
-		const haus_besch_t *new_besch = hauslist[entry];
+		const haus_desc_t *new_desc = hauslist[entry];
 
-		if(new_besch!=besch) {
+		if(new_desc!=desc) {
 
 			buf.clear();
-			besch = new_besch;
-			if(besch->get_utyp()==haus_besch_t::attraction_city) {
-				buf.printf("%s (%s: %i)",translator::translate( "City attraction" ), translator::translate("Bauzeit"),besch->get_extra());
+			desc = new_desc;
+			if(desc->get_utyp()==haus_desc_t::attraction_city) {
+				buf.printf("%s (%s: %i)",translator::translate( "City attraction" ), translator::translate("Bauzeit"),desc->get_extra());
 			}
-			else if(besch->get_utyp()==haus_besch_t::attraction_land) {
+			else if(desc->get_utyp()==haus_desc_t::attraction_land) {
 				buf.append( translator::translate( "Land attraction" ) );
 			}
-			else if(besch->get_utyp()==haus_besch_t::denkmal) {
+			else if(desc->get_utyp()==haus_desc_t::denkmal) {
 				buf.append( translator::translate( "Monument" ) );
 			}
 			buf.append("\n\n");
-			buf.append( translator::translate( besch->get_name() ) );
+			buf.append( translator::translate( desc->get_name() ) );
 
-			buf.printf("\n\n%s: %i\n",translator::translate("Passagierrate"), besch->get_population_and_visitor_demand_capacity());
-			buf.printf("%s: %i\n",translator::translate("Postrate"), besch->get_mail_demand_and_production_capacity());
+			buf.printf("\n\n%s: %i\n",translator::translate("Passagierrate"), desc->get_population_and_visitor_demand_capacity());
+			buf.printf("%s: %i\n",translator::translate("Postrate"), desc->get_mail_demand_and_production_capacity());
 
-			buf.printf("%s%u", translator::translate("\nBauzeit von"), besch->get_intro_year_month() / 12);
-			if(besch->get_retire_year_month()!=DEFAULT_RETIRE_DATE*12) {
-				buf.printf("%s%u", translator::translate("\nBauzeit bis"), besch->get_retire_year_month() / 12);
+			buf.printf("%s%u", translator::translate("\nBauzeit von"), desc->get_intro_year_month() / 12);
+			if(desc->get_retire_year_month()!=DEFAULT_RETIRE_DATE*12) {
+				buf.printf("%s%u", translator::translate("\nBauzeit bis"), desc->get_retire_year_month() / 12);
 			}
 			buf.append("\n");
 
-			if (char const* const maker = besch->get_copyright()) {
+			if (char const* const maker = desc->get_copyright()) {
 				buf.append("\n");
 				buf.printf(translator::translate("Constructed by %s"), maker);
 				buf.append("\n");
@@ -237,7 +237,7 @@ void curiosity_edit_frame_t::change_item_info(sint32 entry)
 			cont.set_size( info_text.get_size() + scr_coord(0, 20) );
 
 			// orientation (255=random)
-			if(besch->get_all_layouts()>1) {
+			if(desc->get_all_layouts()>1) {
 				rotation = 255; // no definition yet
 			}
 			else {
@@ -260,30 +260,30 @@ void curiosity_edit_frame_t::change_item_info(sint32 entry)
 		}
 
 		uint8 rot = (rotation==255) ? 0 : rotation;
-		if(besch->get_b(rot)==1) {
-			if(besch->get_h(rot)==1) {
-				img[3].set_image( besch->get_tile(rot,0,0)->get_background(0,0,0) );
+		if(desc->get_b(rot)==1) {
+			if(desc->get_h(rot)==1) {
+				img[3].set_image( desc->get_tile(rot,0,0)->get_background(0,0,0) );
 			}
 			else {
-				img[2].set_image( besch->get_tile(rot,0,0)->get_background(0,0,0) );
-				img[3].set_image( besch->get_tile(rot,0,1)->get_background(0,0,0) );
+				img[2].set_image( desc->get_tile(rot,0,0)->get_background(0,0,0) );
+				img[3].set_image( desc->get_tile(rot,0,1)->get_background(0,0,0) );
 			}
 		}
 		else {
-			if(besch->get_h(rot)==1) {
-				img[1].set_image( besch->get_tile(rot,0,0)->get_background(0,0,0) );
-				img[3].set_image( besch->get_tile(rot,1,0)->get_background(0,0,0) );
+			if(desc->get_h(rot)==1) {
+				img[1].set_image( desc->get_tile(rot,0,0)->get_background(0,0,0) );
+				img[3].set_image( desc->get_tile(rot,1,0)->get_background(0,0,0) );
 			}
 			else {
 				// maximum 2x2 image
 				for(int i=0;  i<4;  i++  ) {
-					img[i].set_image( besch->get_tile(rot,i/2,i&1)->get_background(0,0,0) );
+					img[i].set_image( desc->get_tile(rot,i/2,i&1)->get_background(0,0,0) );
 				}
 			}
 		}
 
 		// the tools will be always updated, even though the data up there might be still current
-		sprintf( param_str, "%i%c%s", bt_climates.pressed, rotation==255 ? '#' : '0'+rotation, besch->get_name() );
+		sprintf( param_str, "%i%c%s", bt_climates.pressed, rotation==255 ? '#' : '0'+rotation, desc->get_name() );
 		haus_tool.set_default_param(param_str);
 		welt->set_tool( &haus_tool, player );
 	}
@@ -293,11 +293,11 @@ void curiosity_edit_frame_t::change_item_info(sint32 entry)
 		}
 		tstrncpy(rot_str, translator::translate("random"), lengthof(rot_str));
 		uint8 rot = (rotation==255) ? 0 : rotation;
-		if (besch) {
-			img[3].set_image( besch->get_tile(rot,0,0)->get_background(0,0,0) );
+		if (desc) {
+			img[3].set_image( desc->get_tile(rot,0,0)->get_background(0,0,0) );
 		}
 
-		besch = NULL;
+		desc = NULL;
 		welt->set_tool( tool_t::general_tool[TOOL_QUERY], player );
 	}
 }
@@ -306,7 +306,7 @@ void curiosity_edit_frame_t::change_item_info(sint32 entry)
 void curiosity_edit_frame_t::draw(scr_coord pos, scr_size size)
 {
 	// remove constructed monuments from list
-	if(besch  &&  besch->get_utyp()==haus_besch_t::denkmal  &&  !hausbauer_t::is_valid_denkmal(besch)  ) {
+	if(desc  &&  desc->get_utyp()==haus_desc_t::denkmal  &&  !hausbauer_t::is_valid_denkmal(desc)  ) {
 		change_item_info(0x7FFFFFFF);
 		scl.set_selection(-1);
 		img[3].set_image( IMG_EMPTY );

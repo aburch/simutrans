@@ -48,7 +48,7 @@ struct fare_stage_t
  *	1   Copyright
  *	2   Text Maﬂeinheit
  */
-class ware_besch_t : public obj_besch_std_name_t {
+class ware_desc_t : public obj_desc_std_name_t {
 	friend class good_reader_t;
 	friend class warenbauer_t;
 
@@ -97,7 +97,7 @@ public:
 	// the measure for that good (crates, people, bags ... )
 	const char *get_mass() const
 	{
-		return get_child<text_besch_t>(2)->get_text();
+		return get_child<text_desc_t>(2)->get_text();
 	}
 
 	/**
@@ -138,7 +138,7 @@ public:
 	*
 	* @author Hj. Malthaner
 	*/
-	bool is_interchangeable(const ware_besch_t *other) const
+	bool is_interchangeable(const ware_desc_t *other) const
 	{
 		return catg_index == other->get_catg_index();
 	}

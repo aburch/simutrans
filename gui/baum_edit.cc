@@ -34,7 +34,7 @@ char baum_edit_frame_t::param_str[256];
 
 
 
-static bool compare_baum_besch(const baum_besch_t* a, const baum_besch_t* b)
+static bool compare_baum_desc(const baum_desc_t* a, const baum_desc_t* b)
 {
 	int diff = strcmp( translator::translate(a->get_name()), translator::translate(b->get_name()) );
 	if(diff ==0) {
@@ -55,7 +55,7 @@ baum_edit_frame_t::baum_edit_frame_t(player_t* player_) :
 	remove_component( &bt_obsolete );
 	//offset_of_comp -= D_BUTTON_HEIGHT;
 
-	besch = NULL;
+	desc = NULL;
 	baum_tool.set_default_param(NULL);
 
 	fill_list( is_show_trans_name );
@@ -69,19 +69,19 @@ baum_edit_frame_t::baum_edit_frame_t(player_t* player_) :
 void baum_edit_frame_t::fill_list( bool translate )
 {
 	baumlist.clear();
-	FOR(vector_tpl<baum_besch_t const*>, const i, baum_t::get_all_besch()) {
+	FOR(vector_tpl<baum_desc_t const*>, const i, baum_t::get_all_desc()) {
 		if (i) {
-			baumlist.insert_ordered(i, compare_baum_besch);
+			baumlist.insert_ordered(i, compare_baum_desc);
 		}
 	}
 
 	// now build scrolled list
 	scl.clear_elements();
 	scl.set_selection(-1);
-	FOR(vector_tpl<baum_besch_t const*>, const i, baumlist) {
+	FOR(vector_tpl<baum_desc_t const*>, const i, baumlist) {
 		char const* const name = translate ? translator::translate(i->get_name()): i->get_name();
 		scl.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(name, SYSCOL_TEXT));
-		if (i == besch) {
+		if (i == desc) {
 			scl.set_selection(scl.get_count()-1);
 		}
 	}
@@ -99,14 +99,14 @@ void baum_edit_frame_t::change_item_info(sint32 entry)
 	buf.clear();
 	if(entry>=0  &&  entry<(sint32)baumlist.get_count()) {
 
-		besch = baumlist[entry];
+		desc = baumlist[entry];
 
-		buf.append(translator::translate(besch->get_name()));
+		buf.append(translator::translate(desc->get_name()));
 		buf.append("\n\n");
 
 		// climates
 		buf.append( translator::translate("allowed climates:\n") );
-		uint16 cl = besch->get_allowed_climate_bits();
+		uint16 cl = desc->get_allowed_climate_bits();
 		if(cl==0) {
 			buf.append( translator::translate("None") );
 			buf.append("\n");
@@ -115,15 +115,15 @@ void baum_edit_frame_t::change_item_info(sint32 entry)
 			for(uint16 i=0;  i<=arctic_climate;  i++  ) {
 				if(cl &  (1<<i)) {
 					buf.append(" - ");
-					buf.append(translator::translate(grund_besch_t::get_climate_name_from_bit((climate)i)));
+					buf.append(translator::translate(grund_desc_t::get_climate_name_from_bit((climate)i)));
 					buf.append("\n");
 				}
 			}
 		}
 
-		buf.printf( "\n%s %i\n", translator::translate("Seasons"), besch->get_seasons() );
+		buf.printf( "\n%s %i\n", translator::translate("Seasons"), desc->get_seasons() );
 
-		if (char const* const maker = besch->get_copyright()) {
+		if (char const* const maker = desc->get_copyright()) {
 			buf.append("\n");
 			buf.printf(translator::translate("Constructed by %s"), maker);
 			buf.append("\n");
@@ -132,15 +132,15 @@ void baum_edit_frame_t::change_item_info(sint32 entry)
 		info_text.recalc_size();
 		cont.set_size( info_text.get_size() + scr_size(0, 20) );
 
-		img[3].set_image( besch->get_image_id( 0, 3 ) );
+		img[3].set_image( desc->get_image_id( 0, 3 ) );
 
-		sprintf( param_str, "%i%i,%s", bt_climates.pressed, bt_timeline.pressed, besch->get_name() );
+		sprintf( param_str, "%i%i,%s", bt_climates.pressed, bt_timeline.pressed, desc->get_name() );
 		baum_tool.set_default_param(param_str);
 		baum_tool.cursor = tool_t::general_tool[TOOL_PLANT_TREE]->cursor;
 		welt->set_tool( &baum_tool, player );
 	}
 	else if(welt->get_tool(player->get_player_nr())==&baum_tool) {
-		besch = NULL;
+		desc = NULL;
 		welt->set_tool( tool_t::general_tool[TOOL_QUERY], player );
 	}
 }

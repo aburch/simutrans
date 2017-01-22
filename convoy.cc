@@ -45,7 +45,7 @@ static void get_possible_freight_weight(uint8 catg_index, sint32 &min_weight, si
 	min_weight = WEIGHT_UNLIMITED;
 	for (uint16 j=0; j<warenbauer_t::get_count(); j++) 
 	{
-		const ware_besch_t &ware = *warenbauer_t::get_info(j);
+		const ware_desc_t &ware = *warenbauer_t::get_info(j);
 		if (ware.get_catg_index() == catg_index) 
 		{
 			sint32 weight = ware.get_weight_per_unit();
@@ -70,7 +70,7 @@ static void get_possible_freight_weight(uint8 catg_index, sint32 &min_weight, si
 
 void adverse_summary_t::add_vehicle(const vehicle_t &v)
 {
-	add_vehicle(*v.get_besch(), v.is_leading());
+	add_vehicle(*v.get_desc(), v.is_leading());
 
 	const waytype_t waytype = v.get_waytype();
 	if (waytype != air_wt || ((const air_vehicle_t &)v).get_flyingheight() <= 0)
@@ -93,7 +93,7 @@ void adverse_summary_t::add_vehicle(const vehicle_t &v)
 }
 
 
-void adverse_summary_t::add_vehicle(const vehikel_besch_t &b, bool is_leading)
+void adverse_summary_t::add_vehicle(const vehikel_desc_t &b, bool is_leading)
 {
 	if (br.is_zero())
 	{
@@ -142,7 +142,7 @@ void adverse_summary_t::add_vehicle(const vehikel_besch_t &b, bool is_leading)
 
 /******************************************************************************/
 
-void freight_summary_t::add_vehicle(const vehikel_besch_t &b)
+void freight_summary_t::add_vehicle(const vehikel_desc_t &b)
 {
 	const sint32 payload = b.get_zuladung();
 	if (payload > 0)
@@ -487,7 +487,7 @@ void potential_convoy_t::update_freight_summary(freight_summary_t &freight)
 	freight.clear();
 	for (uint32 i = vehicles.get_count(); i-- > 0; )
 	{
-		const vehikel_besch_t &b = *vehicles[i];
+		const vehikel_desc_t &b = *vehicles[i];
 		freight.add_vehicle(b);
 	}
 }
@@ -497,7 +497,7 @@ float32e8_t potential_convoy_t::get_brake_summary(/*const float32e8_t &speed*/ /
 	float32e8_t force = 0;
 	for (uint32 i = vehicles.get_count(); i-- > 0; )
 	{
-		const vehikel_besch_t &b = *vehicles[i];
+		const vehikel_desc_t &b = *vehicles[i];
 		uint16 bf = b.get_brake_force();
 		if (bf != BRAKE_FORCE_UNKNOWN)
 		{
@@ -567,11 +567,11 @@ void existing_convoy_t::update_vehicle_summary(vehicle_summary_t &vehicle)
 	uint32 count = convoy.get_vehicle_count();
 	for (uint32 i = count; i-- > 0; )
 	{
-		vehicle.add_vehicle(*convoy.get_vehikel(i)->get_besch());
+		vehicle.add_vehicle(*convoy.get_vehikel(i)->get_desc());
 	}
 	if (count > 0)
 	{
-		vehicle.update_summary(convoy.get_vehikel(count-1)->get_besch()->get_length());
+		vehicle.update_summary(convoy.get_vehikel(count-1)->get_desc()->get_length());
 	}
 }
 
@@ -597,7 +597,7 @@ void existing_convoy_t::update_freight_summary(freight_summary_t &freight)
 	freight.clear();
 	for (uint16 i = convoy.get_vehicle_count(); i-- > 0; )
 	{
-		const vehikel_besch_t &b = *convoy.get_vehikel(i)->get_besch();
+		const vehikel_desc_t &b = *convoy.get_vehikel(i)->get_desc();
 		freight.add_vehicle(b);
 	}
 }
@@ -620,7 +620,7 @@ float32e8_t existing_convoy_t::get_brake_summary(/*const float32e8_t &speed*/ /*
 	for (uint16 i = convoy.get_vehicle_count(); i-- > 0; )
 	{
 		vehicle_t &v = *convoy.get_vehikel(i);
-		const uint16 bf = v.get_besch()->get_brake_force();
+		const uint16 bf = v.get_desc()->get_brake_force();
 		if (bf != BRAKE_FORCE_UNKNOWN)
 		{
 			force += bf * (uint32) 1000;
@@ -642,7 +642,7 @@ float32e8_t existing_convoy_t::get_force_summary(const float32e8_t &speed /* in 
 	sint32 v = speed;
 	for (uint16 i = convoy.get_vehicle_count(); i-- > 0; )
 	{
-		force += convoy.get_vehikel(i)->get_besch()->get_effective_force_index(v);
+		force += convoy.get_vehikel(i)->get_desc()->get_effective_force_index(v);
 	}
 	return power_index_to_power(force, welt->get_settings().get_global_force_factor_percent());
 }
@@ -654,7 +654,7 @@ float32e8_t existing_convoy_t::get_power_summary(const float32e8_t &speed /* in 
 	sint32 v = speed;
 	for (uint16 i = convoy.get_vehicle_count(); i-- > 0; )
 	{
-		power += convoy.get_vehikel(i)->get_besch()->get_effective_power_index(v);
+		power += convoy.get_vehikel(i)->get_desc()->get_effective_power_index(v);
 	}
 	return power_index_to_power(power, welt->get_settings().get_global_power_factor_percent());
 }

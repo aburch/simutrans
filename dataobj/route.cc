@@ -421,7 +421,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 				{
 					// Do not traverse routes with end of choose signs
 					 roadsign_t* rs = welt->lookup(w->get_pos())->find<roadsign_t>();
-					 if(rs->get_besch()->is_end_choose_signal())
+					 if(rs->get_desc()->is_end_choose_signal())
 					 {
 						 continue;
 					 }
@@ -729,7 +729,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d start, const koord3
 				if(enforce_weight_limits > 0 && w != NULL)
 				{
 					// Bernd Gabriel, Mar 10, 2010: way limit info
-					if(to->ist_bruecke() || w->get_besch()->get_styp() == type_elevated || w->get_waytype() == air_wt || w->get_waytype() == water_wt)
+					if(to->ist_bruecke() || w->get_desc()->get_styp() == type_elevated || w->get_waytype() == air_wt || w->get_waytype() == water_wt)
 					{
 						// Bridges care about convoy weight, whereas other types of way
 						// care about axle weight.
@@ -740,7 +740,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d start, const koord3
 						
 						// Trams need to check the weight of the underlying bridge.
 						
-						if(w->get_besch()->get_styp() == type_tram)
+						if(w->get_desc()->get_styp() == type_tram)
 						{
 							const weg_t* underlying_bridge = welt->lookup(w->get_pos())->get_weg(road_wt);
 							if(!underlying_bridge)

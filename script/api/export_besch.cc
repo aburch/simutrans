@@ -9,34 +9,34 @@
 using namespace script_api;
 
 
-static vector_tpl<GETBESCHFUNC> registered_besch_functions;
+static vector_tpl<GETBESCHFUNC> registered_desc_functions;
 
 
-SQInteger get_besch_pointer(HSQUIRRELVM vm)
+SQInteger get_desc_pointer(HSQUIRRELVM vm)
 {
 	void *tag = NULL;
 	// get type tag of class
 	sq_gettypetag(vm, 1, &tag);
 	plainstring name = param<plainstring>::get(vm, 2);
-	if (tag  &&  registered_besch_functions.is_contained((GETBESCHFUNC)tag) ) {
+	if (tag  &&  registered_desc_functions.is_contained((GETBESCHFUNC)tag) ) {
 		// call method
-		const void *besch = ((GETBESCHFUNC)tag)(name.c_str());
+		const void *desc = ((GETBESCHFUNC)tag)(name.c_str());
 		// set userpointer of class instance
-		sq_setinstanceup(vm, 1, const_cast<void*>(besch) );
+		sq_setinstanceup(vm, 1, const_cast<void*>(desc) );
 		return 0;
 	}
 	return -1;
 }
 
 
-void begin_besch_class(HSQUIRRELVM vm, const char* name, const char* base, GETBESCHFUNC func)
+void begin_desc_class(HSQUIRRELVM vm, const char* name, const char* base, GETBESCHFUNC func)
 {
 	SQInteger res = create_class(vm, name, base);
 	assert( SQ_SUCCEEDED(res) );
-	// store method to retrieve besch in typetag pointer
+	// store method to retrieve desc in typetag pointer
 	sq_settypetag(vm, -1, (void*)func);
-	registered_besch_functions.append_unique( func );
+	registered_desc_functions.append_unique( func );
 	// register constructor
-	register_function(vm, get_besch_pointer, "constructor", 2, "xs");
+	register_function(vm, get_desc_pointer, "constructor", 2, "xs");
 	// now functions can be registered
 }

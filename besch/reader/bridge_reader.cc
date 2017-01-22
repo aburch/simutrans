@@ -10,28 +10,28 @@
 #include "../../network/pakset_info.h"
 
 
-void bridge_reader_t::register_obj(obj_besch_t *&data)
+void bridge_reader_t::register_obj(obj_desc_t *&data)
 {
-	bruecke_besch_t *besch = static_cast<bruecke_besch_t *>(data);
-	brueckenbauer_t::register_besch(besch);
+	bruecke_desc_t *desc = static_cast<bruecke_desc_t *>(data);
+	brueckenbauer_t::register_desc(desc);
 
 	checksum_t *chk = new checksum_t();
-	besch->calc_checksum(chk);
-	pakset_info_t::append(besch->get_name(), chk);
+	desc->calc_checksum(chk);
+	pakset_info_t::append(desc->get_name(), chk);
 }
 
 
-obj_besch_t * bridge_reader_t::read_node(FILE *fp, obj_node_info_t &node)
+obj_desc_t * bridge_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
 	// DBG_DEBUG("bridge_reader_t::read_node()", "called");
-	ALLOCA(char, besch_buf, node.size);
+	ALLOCA(char, desc_buf, node.size);
 
-	bruecke_besch_t *besch = new bruecke_besch_t();
+	bruecke_desc_t *desc = new bruecke_desc_t();
 
 	// Hajo: Read data
-	fread(besch_buf, node.size, 1, fp);
+	fread(desc_buf, node.size, 1, fp);
 
-	char * p = besch_buf;
+	char * p = desc_buf;
 
 	// Hajo: old versions of PAK files have no version stamp.
 	// But we know, the higher most bit was always cleared.
@@ -57,85 +57,85 @@ obj_besch_t * bridge_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	}
 
 	// some defaults
-	besch->maintenance = 800;
-	besch->pillars_every = 0;
-	besch->pillars_asymmetric = false;
-	besch->max_length = 0;
-	besch->max_height = 0;
-	besch->max_weight = 999;
-	besch->intro_date = DEFAULT_INTRO_DATE*12;
-	besch->obsolete_date = DEFAULT_RETIRE_DATE*12;
-	besch->number_seasons = 0;
+	desc->maintenance = 800;
+	desc->pillars_every = 0;
+	desc->pillars_asymmetric = false;
+	desc->max_length = 0;
+	desc->max_height = 0;
+	desc->max_weight = 999;
+	desc->intro_date = DEFAULT_INTRO_DATE*12;
+	desc->obsolete_date = DEFAULT_RETIRE_DATE*12;
+	desc->number_seasons = 0;
 	way_constraints_of_way_t way_constraints;
 
 	if(version == 1) {
 		// Versioned node, version 1
 
-		besch->wt = (uint8)decode_uint16(p);
-		besch->topspeed = decode_uint16(p);
-		besch->cost = decode_uint32(p);
+		desc->wt = (uint8)decode_uint16(p);
+		desc->topspeed = decode_uint16(p);
+		desc->cost = decode_uint32(p);
 
 	} else if (version == 2) {
 
 		// Versioned node, version 2
 
-		besch->topspeed = decode_uint16(p);
-		besch->cost = decode_uint32(p);
-		besch->maintenance = decode_uint32(p);
-		besch->wt = decode_uint8(p);
+		desc->topspeed = decode_uint16(p);
+		desc->cost = decode_uint32(p);
+		desc->maintenance = decode_uint32(p);
+		desc->wt = decode_uint8(p);
 
 	} else if (version == 3) {
 
 		// Versioned node, version 3
 		// pillars added
 
-		besch->topspeed = decode_uint16(p);
-		besch->cost = decode_uint32(p);
-		besch->maintenance = decode_uint32(p);
-		besch->wt = decode_uint8(p);
-		besch->pillars_every = decode_uint8(p);
-		besch->max_length = 0;
+		desc->topspeed = decode_uint16(p);
+		desc->cost = decode_uint32(p);
+		desc->maintenance = decode_uint32(p);
+		desc->wt = decode_uint8(p);
+		desc->pillars_every = decode_uint8(p);
+		desc->max_length = 0;
 
 	} else if (version == 4) {
 
 		// Versioned node, version 3
 		// pillars added
 
-		besch->topspeed = decode_uint16(p);
-		besch->cost = decode_uint32(p);
-		besch->maintenance = decode_uint32(p);
-		besch->wt = decode_uint8(p);
-		besch->pillars_every = decode_uint8(p);
-		besch->max_length = decode_uint8(p);
+		desc->topspeed = decode_uint16(p);
+		desc->cost = decode_uint32(p);
+		desc->maintenance = decode_uint32(p);
+		desc->wt = decode_uint8(p);
+		desc->pillars_every = decode_uint8(p);
+		desc->max_length = decode_uint8(p);
 
 	} else if (version == 5) {
 
 		// Versioned node, version 5
 		// timeline
 
-		besch->topspeed = decode_uint16(p);
-		besch->cost = decode_uint32(p);
-		besch->maintenance = decode_uint32(p);
-		besch->wt = decode_uint8(p);
-		besch->pillars_every = decode_uint8(p);
-		besch->max_length = decode_uint8(p);
-		besch->intro_date = decode_uint16(p);
-		besch->obsolete_date = decode_uint16(p);
+		desc->topspeed = decode_uint16(p);
+		desc->cost = decode_uint32(p);
+		desc->maintenance = decode_uint32(p);
+		desc->wt = decode_uint8(p);
+		desc->pillars_every = decode_uint8(p);
+		desc->max_length = decode_uint8(p);
+		desc->intro_date = decode_uint16(p);
+		desc->obsolete_date = decode_uint16(p);
 
 	} else if (version == 6) {
 
 		// Versioned node, version 6
 		// snow
 
-		besch->topspeed = decode_uint16(p);
-		besch->cost = decode_uint32(p);
-		besch->maintenance = decode_uint32(p);
-		besch->wt = decode_uint8(p);
-		besch->pillars_every = decode_uint8(p);
-		besch->max_length = decode_uint8(p);
-		besch->intro_date = decode_uint16(p);
-		besch->obsolete_date = decode_uint16(p);
-		besch->number_seasons = decode_uint8(p);
+		desc->topspeed = decode_uint16(p);
+		desc->cost = decode_uint32(p);
+		desc->maintenance = decode_uint32(p);
+		desc->wt = decode_uint8(p);
+		desc->pillars_every = decode_uint8(p);
+		desc->max_length = decode_uint8(p);
+		desc->intro_date = decode_uint16(p);
+		desc->obsolete_date = decode_uint16(p);
+		desc->number_seasons = decode_uint8(p);
 
 	}
 	else if (version==7  ||  version==8) {
@@ -143,30 +143,30 @@ obj_besch_t * bridge_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		// Versioned node, version 7/8
 		// max_height, assymetric pillars
 
-		besch->topspeed = decode_uint16(p);
-		besch->cost = decode_uint32(p);
-		besch->maintenance = decode_uint32(p);
-		besch->wt = decode_uint8(p);
-		besch->pillars_every = decode_uint8(p);
-		besch->max_length = decode_uint8(p);
-		besch->intro_date = decode_uint16(p);
-		besch->obsolete_date = decode_uint16(p);
-		besch->pillars_asymmetric = (decode_uint8(p)!=0);
-		besch->max_height = decode_uint8(p);
-		besch->number_seasons = decode_uint8(p);
+		desc->topspeed = decode_uint16(p);
+		desc->cost = decode_uint32(p);
+		desc->maintenance = decode_uint32(p);
+		desc->wt = decode_uint8(p);
+		desc->pillars_every = decode_uint8(p);
+		desc->max_length = decode_uint8(p);
+		desc->intro_date = decode_uint16(p);
+		desc->obsolete_date = decode_uint16(p);
+		desc->pillars_asymmetric = (decode_uint8(p)!=0);
+		desc->max_height = decode_uint8(p);
+		desc->number_seasons = decode_uint8(p);
 		if(experimental)
 		{
-			besch->max_weight = besch->axle_load = decode_uint32(p);
+			desc->max_weight = desc->axle_load = decode_uint32(p);
 			way_constraints.set_permissive(decode_uint8(p));
 			way_constraints.set_prohibitive(decode_uint8(p));
 			if(experimental_version == 1)
 			{
-				besch->topspeed_gradient_1 = decode_uint16(p);
-				besch->topspeed_gradient_2 = decode_uint16(p);
-				besch->max_altitude = decode_sint8(p);
-				besch->max_vehicles_on_tile = decode_uint8(p);
-				besch->has_own_way_graphics = decode_uint8(p);
-				besch->has_way = decode_uint8(p);
+				desc->topspeed_gradient_1 = decode_uint16(p);
+				desc->topspeed_gradient_2 = decode_uint16(p);
+				desc->max_altitude = decode_sint8(p);
+				desc->max_vehicles_on_tile = decode_uint8(p);
+				desc->has_own_way_graphics = decode_uint8(p);
+				desc->has_way = decode_uint8(p);
 			}
 			if(experimental_version > 1)
 			{
@@ -177,76 +177,76 @@ obj_besch_t * bridge_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	}
 	else if (version==9) {
 
-		besch->topspeed = decode_uint16(p);
-		besch->cost = decode_uint32(p);
-		besch->maintenance = decode_uint32(p);
-		besch->wt = decode_uint8(p);
-		besch->pillars_every = decode_uint8(p);
-		besch->max_length = decode_uint8(p);
-		besch->intro_date = decode_uint16(p);
-		besch->obsolete_date = decode_uint16(p);
-		besch->pillars_asymmetric = (decode_uint8(p)!=0);
-		besch->max_height = decode_uint8(p);
-		besch->axle_load = decode_uint16(p);	// new
+		desc->topspeed = decode_uint16(p);
+		desc->cost = decode_uint32(p);
+		desc->maintenance = decode_uint32(p);
+		desc->wt = decode_uint8(p);
+		desc->pillars_every = decode_uint8(p);
+		desc->max_length = decode_uint8(p);
+		desc->intro_date = decode_uint16(p);
+		desc->obsolete_date = decode_uint16(p);
+		desc->pillars_asymmetric = (decode_uint8(p)!=0);
+		desc->max_height = decode_uint8(p);
+		desc->axle_load = decode_uint16(p);	// new
 		if(experimental)
 		{
-			besch->max_weight = decode_uint32(p); // DIFFERENT to axle load.
+			desc->max_weight = decode_uint32(p); // DIFFERENT to axle load.
 			way_constraints.set_permissive(decode_uint8(p));
 			way_constraints.set_prohibitive(decode_uint8(p));
 			if(experimental_version == 1)
 			{
-				besch->topspeed_gradient_1 = decode_uint16(p);
-				besch->topspeed_gradient_2 = decode_uint16(p);
-				besch->max_altitude = decode_sint8(p);
-				besch->max_vehicles_on_tile = decode_uint8(p);
-				besch->has_own_way_graphics = decode_uint8(p);
-				besch->has_way = decode_uint8(p);
+				desc->topspeed_gradient_1 = decode_uint16(p);
+				desc->topspeed_gradient_2 = decode_uint16(p);
+				desc->max_altitude = decode_sint8(p);
+				desc->max_vehicles_on_tile = decode_uint8(p);
+				desc->has_own_way_graphics = decode_uint8(p);
+				desc->has_way = decode_uint8(p);
 			}
 			if(experimental_version > 1)
 			{
 				dbg->fatal("bridge_reader_t::read_node()","Incompatible pak file version for Simutrans-Ex, number %i", experimental_version);
 			}
 		}
-		besch->number_seasons = decode_uint8(p);
+		desc->number_seasons = decode_uint8(p);
 
 	}
 	else {
 		// old node, version 0
 
-		besch->wt = (uint8)v;
+		desc->wt = (uint8)v;
 		decode_uint16(p);                    // Menupos, no more used
-		besch->cost = decode_uint32(p);
-		besch->topspeed = 999;               // Safe default ...
+		desc->cost = decode_uint32(p);
+		desc->topspeed = 999;               // Safe default ...
 	}
 
-	besch->set_way_constraints(way_constraints);
+	desc->set_way_constraints(way_constraints);
 
 	if(experimental_version < 1 || !experimental)
 	{
-		besch->topspeed_gradient_1 = besch->topspeed_gradient_2 = besch->topspeed;
-		besch->max_altitude = 0;
-		besch->max_vehicles_on_tile = 251;
-		besch->has_own_way_graphics = true;
-		besch->has_way = false;
+		desc->topspeed_gradient_1 = desc->topspeed_gradient_2 = desc->topspeed;
+		desc->max_altitude = 0;
+		desc->max_vehicles_on_tile = 251;
+		desc->has_own_way_graphics = true;
+		desc->has_way = false;
 	}
 
 	// pillars cannot be heigher than this to avoid drawing errors
-	if(besch->pillars_every>0  &&  besch->max_height==0) {
-		besch->max_height = 7;
+	if(desc->pillars_every>0  &&  desc->max_height==0) {
+		desc->max_height = 7;
 	}
 	// indicate for different copyright/name lookup
-	besch->offset = version<8 ? 0 : 2;
+	desc->offset = version<8 ? 0 : 2;
 
-	besch->base_cost = besch->cost;
-	besch->base_maintenance = besch->maintenance;
+	desc->base_cost = desc->cost;
+	desc->base_maintenance = desc->maintenance;
 
 	if(  version < 9  ) {
-		besch->axle_load = 9999;
+		desc->axle_load = 9999;
 	}
 
 	DBG_DEBUG("bridge_reader_t::read_node()",
 		"version=%d, waytype=%d, price=%d, topspeed=%d, pillars=%i, max_length=%i, max_weight%d, axle_load=%i",
-		version, besch->wt, besch->cost, besch->topspeed,besch->pillars_every,besch->max_length,besch->max_weight,besch->axle_load);
+		version, desc->wt, desc->cost, desc->topspeed,desc->pillars_every,desc->max_length,desc->max_weight,desc->axle_load);
 
-  return besch;
+  return desc;
 }

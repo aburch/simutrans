@@ -320,7 +320,7 @@ protected:
 	uint16 total_freight;	// since the sum is needed quite often, it is cached
 	slist_tpl<ware_t> fracht;   // list of goods being transported
 
-	const vehikel_besch_t *besch;
+	const vehikel_desc_t *desc;
 
 	convoi_t *cnv;		// != NULL if the vehicle is part of a Convoi
 
@@ -397,7 +397,7 @@ public:
 	* Get the base image.
 	* @author Hj. Malthaner
 	*/
-	image_id get_base_image() const { return besch->get_base_image(current_livery.c_str()); }
+	image_id get_base_image() const { return desc->get_base_image(current_livery.c_str()); }
 
 	/**
 	 * @return image with base direction and freight image taken from loaded cargo
@@ -408,22 +408,22 @@ public:
 	* @return vehicle description object
 	* @author Hj. Malthaner
 	*/
-	const vehikel_besch_t *get_besch() const {return besch; }
-	void set_besch(const vehikel_besch_t* value) { besch = value; }
+	const vehikel_desc_t *get_desc() const {return desc; }
+	void set_desc(const vehikel_desc_t* value) { desc = value; }
 
 	/**
 	* @return die running_cost in Cr/100Km
 	* @author Hj. Malthaner
 	*/
-	int get_running_cost() const { return besch->get_running_cost(); }
-	int get_running_cost(const karte_t* welt) const { return besch->get_running_cost(welt); }
+	int get_running_cost() const { return desc->get_running_cost(); }
+	int get_running_cost(const karte_t* welt) const { return desc->get_running_cost(welt); }
 
 	/**
 	* @return fixed maintenance costs in Cr/100months
 	* @author Bernd Gabriel
 	*/
-	uint32 get_fixed_cost() const { return besch->get_fixed_cost(); }
-	uint32 get_fixed_cost(karte_t* welt) const { return besch->get_fixed_cost(welt); }
+	uint32 get_fixed_cost() const { return desc->get_fixed_cost(); }
+	uint32 get_fixed_cost(karte_t* welt) const { return desc->get_fixed_cost(welt); }
 
 	/**
 	* Play sound, when the vehicle is visible on screen
@@ -444,11 +444,11 @@ public:
 #ifdef INLINE_OBJ_TYPE
 protected:
 	vehicle_t(typ type);
-	vehicle_t(typ type, koord3d pos, const vehikel_besch_t* besch, player_t* player);
+	vehicle_t(typ type, koord3d pos, const vehikel_desc_t* desc, player_t* player);
 public:
 #else
 	vehicle_t();
-	vehicle_t(koord3d pos, const vehikel_besch_t* besch, player_t* player);
+	vehicle_t(koord3d pos, const vehikel_desc_t* desc, player_t* player);
 #endif
 
 	~vehicle_t();
@@ -508,12 +508,12 @@ public:
 	/**
 	* get the type of cargo this vehicle can transport
 	*/
-	const ware_besch_t* get_cargo_type() const { return besch->get_ware(); }
+	const ware_desc_t* get_cargo_type() const { return desc->get_ware(); }
 
 	/**
 	* Get the maximum capacity
 	*/
-	uint16 get_cargo_max() const {return besch->get_zuladung(); }
+	uint16 get_cargo_max() const {return desc->get_zuladung(); }
 
 	const char * get_cargo_mass() const;
 
@@ -673,7 +673,7 @@ public:
 
 	road_vehicle_t(loadsave_t *file, bool first, bool last);
 	road_vehicle_t();
-	road_vehicle_t(koord3d pos, const vehikel_besch_t* besch, player_t* player, convoi_t* cnv); // start und schedule
+	road_vehicle_t(koord3d pos, const vehikel_desc_t* desc, player_t* player, convoi_t* cnv); // start und schedule
 
 	virtual void set_convoi(convoi_t *c);
 
@@ -756,7 +756,7 @@ public:
 #ifdef INLINE_OBJ_TYPE
 protected:
 	rail_vehicle_t(typ type, loadsave_t *file, bool is_leading, bool is_last);
-	rail_vehicle_t(typ type, koord3d pos, const vehikel_besch_t* besch, player_t* player, convoi_t *cnv); // start und schedule
+	rail_vehicle_t(typ type, koord3d pos, const vehikel_desc_t* desc, player_t* player, convoi_t *cnv); // start und schedule
 	void init(loadsave_t *file, bool is_leading, bool is_last);
 public:
 #else
@@ -764,7 +764,7 @@ public:
 #endif
 
 	rail_vehicle_t(loadsave_t *file, bool is_leading, bool is_last);
-	rail_vehicle_t(koord3d pos, const vehikel_besch_t* besch, player_t* player, convoi_t *cnv); // start und schedule
+	rail_vehicle_t(koord3d pos, const vehikel_desc_t* desc, player_t* player, convoi_t *cnv); // start und schedule
 	virtual ~rail_vehicle_t();
 
 	virtual void set_convoi(convoi_t *c);
@@ -790,11 +790,11 @@ public:
 #ifdef INLINE_OBJ_TYPE
 	// all handled by rail_vehicle_t
 	monorail_rail_vehicle_t(loadsave_t *file, bool is_leading, bool is_last) : rail_vehicle_t(monorailwaggon, file,is_leading, is_last) {}
-	monorail_rail_vehicle_t(koord3d pos, const vehikel_besch_t* besch, player_t* player, convoi_t* cnv) : rail_vehicle_t(monorailwaggon, pos, besch, player, cnv) {}
+	monorail_rail_vehicle_t(koord3d pos, const vehikel_desc_t* desc, player_t* player, convoi_t* cnv) : rail_vehicle_t(monorailwaggon, pos, desc, player, cnv) {}
 #else
 	// all handled by rail_vehicle_t
 	monorail_rail_vehicle_t(loadsave_t *file, bool is_leading, bool is_last) : rail_vehicle_t(file,is_leading, is_last) {}
-	monorail_rail_vehicle_t(koord3d pos, const vehikel_besch_t* besch, player_t* player, convoi_t* cnv) : rail_vehicle_t(pos, besch, player, cnv) {}
+	monorail_rail_vehicle_t(koord3d pos, const vehikel_desc_t* desc, player_t* player, convoi_t* cnv) : rail_vehicle_t(pos, desc, player, cnv) {}
 
 	typ get_typ() const { return monorailwaggon; }
 #endif
@@ -817,11 +817,11 @@ public:
 #ifdef INLINE_OBJ_TYPE
 	// all handled by rail_vehicle_t
 	maglev_rail_vehicle_t(loadsave_t *file, bool is_leading, bool is_last) : rail_vehicle_t(maglevwaggon, file, is_leading, is_last) {}
-	maglev_rail_vehicle_t(koord3d pos, const vehikel_besch_t* besch, player_t* player, convoi_t* cnv) : rail_vehicle_t(maglevwaggon, pos, besch, player, cnv) {}
+	maglev_rail_vehicle_t(koord3d pos, const vehikel_desc_t* desc, player_t* player, convoi_t* cnv) : rail_vehicle_t(maglevwaggon, pos, desc, player, cnv) {}
 #else
 	// all handled by rail_vehicle_t
 	maglev_rail_vehicle_t(loadsave_t *file, bool is_leading, bool is_last) : rail_vehicle_t(file, is_leading, is_last) {}
-	maglev_rail_vehicle_t(koord3d pos, const vehikel_besch_t* besch, player_t* player, convoi_t* cnv) : rail_vehicle_t(pos, besch, player, cnv) {}
+	maglev_rail_vehicle_t(koord3d pos, const vehikel_desc_t* desc, player_t* player, convoi_t* cnv) : rail_vehicle_t(pos, desc, player, cnv) {}
 
 	typ get_typ() const { return maglevwaggon; }
 #endif
@@ -844,11 +844,11 @@ public:
 #ifdef INLINE_OBJ_TYPE
 	// all handled by rail_vehicle_t
 	narrowgauge_rail_vehicle_t(loadsave_t *file, bool is_leading, bool is_last) : rail_vehicle_t(narrowgaugewaggon, file, is_leading, is_last) {}
-	narrowgauge_rail_vehicle_t(koord3d pos, const vehikel_besch_t* besch, player_t* player, convoi_t* cnv) : rail_vehicle_t(narrowgaugewaggon, pos, besch, player, cnv) {}
+	narrowgauge_rail_vehicle_t(koord3d pos, const vehikel_desc_t* desc, player_t* player, convoi_t* cnv) : rail_vehicle_t(narrowgaugewaggon, pos, desc, player, cnv) {}
 #else
 	// all handled by rail_vehicle_t
 	narrowgauge_rail_vehicle_t(loadsave_t *file, bool is_leading, bool is_last) : rail_vehicle_t(file, is_leading, is_last) {}
-	narrowgauge_rail_vehicle_t(koord3d pos, const vehikel_besch_t* besch, player_t* player, convoi_t* cnv) : rail_vehicle_t(pos, besch, player, cnv) {}
+	narrowgauge_rail_vehicle_t(koord3d pos, const vehikel_desc_t* desc, player_t* player, convoi_t* cnv) : rail_vehicle_t(pos, desc, player, cnv) {}
 
 	typ get_typ() const { return narrowgaugewaggon; }
 #endif
@@ -888,7 +888,7 @@ public:
 	virtual bool  is_target(const grund_t *,const grund_t *) {return 0;}
 
 	water_vehicle_t(loadsave_t *file, bool is_leading, bool is_last);
-	water_vehicle_t(koord3d pos, const vehikel_besch_t* besch, player_t* player, convoi_t* cnv);
+	water_vehicle_t(koord3d pos, const vehikel_desc_t* desc, player_t* player, convoi_t* cnv);
 
 #ifdef INLINE_OBJ_TYPE
 #else
@@ -960,7 +960,7 @@ protected:
 
 public:
 	air_vehicle_t(loadsave_t *file, bool is_leading, bool is_last);
-	air_vehicle_t(koord3d pos, const vehikel_besch_t* besch, player_t* player, convoi_t* cnv); // start and schedule
+	air_vehicle_t(koord3d pos, const vehikel_desc_t* desc, player_t* player, convoi_t* cnv); // start and schedule
 
 	// to shift the events around properly
 	void get_event_index( flight_state &state_, uint32 &takeoff_, uint32 &stopsearch_, uint32 &landing_ ) { state_ = state; takeoff_ = takeoff; stopsearch_ = search_for_stop; landing_ = touchdown; }

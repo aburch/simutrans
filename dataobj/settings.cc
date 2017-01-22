@@ -1925,7 +1925,7 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 					p++;
 				}
 				tstrncpy( city_roads[num_city_roads].name, test, (unsigned)(p-test)+1 );
-				// default her: intro/retire=0 -> set later to intro/retire of way-besch
+				// default her: intro/retire=0 -> set later to intro/retire of way-desc
 				city_roads[num_city_roads].intro = 0;
 				city_roads[num_city_roads].retire = 0;
 				if(  *p==','  ) {
@@ -1978,7 +1978,7 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 					p++;
 				}
 				tstrncpy( intercity_roads[num_intercity_roads].name, test, (unsigned)(p-test)+1 );
-				// default her: intro/retire=0 -> set later to intro/retire of way-besch
+				// default her: intro/retire=0 -> set later to intro/retire of way-desc
 				intercity_roads[num_intercity_roads].intro = 0;
 				intercity_roads[num_intercity_roads].retire = 0;
 				if(  *p==','  ) {
@@ -2682,15 +2682,15 @@ sint64 settings_t::get_starting_money(sint16 const year) const
 
 
 /**
- * returns newest way-besch for road_timeline_t arrays
+ * returns newest way-desc for road_timeline_t arrays
  * @param road_timeline_t must be an array with at least num_roads elements, no range checks!
  */
-static const weg_besch_t *get_timeline_road_type( uint16 year, uint16 num_roads, road_timeline_t* roads)
+static const weg_desc_t *get_timeline_road_type( uint16 year, uint16 num_roads, road_timeline_t* roads)
 {
-	const weg_besch_t *besch = NULL;
-	const weg_besch_t *test;
+	const weg_desc_t *desc = NULL;
+	const weg_desc_t *test;
 	for(  int i=0;  i<num_roads;  i++  ) {
-		test = wegbauer_t::get_besch( roads[i].name, 0 );
+		test = wegbauer_t::get_desc( roads[i].name, 0 );
 		if(  test  ) {
 			// return first available for no timeline
 			if(  year==0  ) {
@@ -2709,23 +2709,23 @@ static const weg_besch_t *get_timeline_road_type( uint16 year, uint16 num_roads,
 			}
 			// find newest available ...
 			if(  year>=roads[i].intro  &&  year<roads[i].retire  ) {
-				if(  besch==0  ||  besch->get_intro_year_month()<test->get_intro_year_month()  ) {
-					besch = test;
+				if(  desc==0  ||  desc->get_intro_year_month()<test->get_intro_year_month()  ) {
+					desc = test;
 				}
 			}
 		}
 	}
-	return besch;
+	return desc;
 }
 
 
-weg_besch_t const* settings_t::get_city_road_type(uint16 const year)
+weg_desc_t const* settings_t::get_city_road_type(uint16 const year)
 {
 	return get_timeline_road_type(year, num_city_roads, city_roads);
 }
 
 
-weg_besch_t const* settings_t::get_intercity_road_type(uint16 const year)
+weg_desc_t const* settings_t::get_intercity_road_type(uint16 const year)
 {
 	return get_timeline_road_type(year, num_intercity_roads, intercity_roads);
 }
@@ -2955,7 +2955,7 @@ void settings_t::cache_comfort_tables() {
 
 /**
  * Reload the linear interpolation tables for speedbonus from the settings.
- * These tables are stored directly in ware_besch_t objects.
+ * These tables are stored directly in ware_desc_t objects.
  * Therefore, during loading you must call this *after* warenbauer_t is done registering wares.
  * @author neroden
  */

@@ -17,7 +17,7 @@ public:
 	/* Read a node. Does version check and compatibility transformations.
 	 * @author Hj. Malthaner
 	 */
-	obj_besch_t* read_node(FILE*, obj_node_info_t&) OVERRIDE;
+	obj_desc_t* read_node(FILE*, obj_node_info_t&) OVERRIDE;
 };
 
 
@@ -26,7 +26,7 @@ class building_reader_t : public obj_reader_t {
 
 	building_reader_t() { register_reader(); }
 protected:
-	void register_obj(obj_besch_t*&) OVERRIDE;
+	void register_obj(obj_desc_t*&) OVERRIDE;
 	bool successfully_loaded() const OVERRIDE;
 
 public:
@@ -38,7 +38,7 @@ public:
 	/* Read a node. Does version check and compatibility transformations.
 	 * @author Hj. Malthaner
 	 */
-	obj_besch_t* read_node(FILE*, obj_node_info_t&) OVERRIDE;
+	obj_desc_t* read_node(FILE*, obj_node_info_t&) OVERRIDE;
 
 };
 

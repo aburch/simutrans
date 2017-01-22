@@ -8,7 +8,7 @@
 class pakset_info_t
 {
 	/**
-	 * checksums of all besch's
+	 * checksums of all desc's
 	 * since their names are unique we can index them by name
 	 */
 	static stringhashtable_tpl<checksum_t*> info;

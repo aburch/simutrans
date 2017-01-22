@@ -126,7 +126,7 @@ void simline_t::add_convoy(convoihandle_t cnv, bool from_loading)
 	if (type == trainline  &&  line_managed_convoys.empty() &&  cnv.is_bound()) {
 		// check, if needed to convert to tram/monorail line
 		if (vehicle_t const* const v = cnv->front()) {
-			switch (v->get_besch()->get_waytype()) {
+			switch (v->get_desc()->get_waytype()) {
 				case tram_wt:     type = simline_t::tramline;     break;
 				// elevated monorail were saved with wrong coordinates for some versions.
 				// We try to recover here
@@ -150,7 +150,7 @@ void simline_t::add_convoy(convoihandle_t cnv, bool from_loading)
 			if(  cnv->get_vehikel(i)->get_cargo_max() == 0  ) {
 				continue;
 			}
-			const ware_besch_t *ware=cnv->get_vehikel(i)->get_cargo_type();
+			const ware_desc_t *ware=cnv->get_vehikel(i)->get_cargo_type();
 			if(  ware!=warenbauer_t::nichts  &&  !goods_catg_index.is_contained(ware->get_catg_index())  ) {
 				goods_catg_index.append( ware->get_catg_index(), 1 );
 				update_schedules = true;

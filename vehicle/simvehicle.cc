@@ -852,7 +852,7 @@ uint16 vehicle_t::unload_cargo(halthandle_t halt, sint64 & revenue_from_unloadin
 				if(  !end_halt.is_bound() || !via_halt.is_bound()  ) {
 					DBG_MESSAGE("vehicle_t::unload_cargo()", "destination of %d %s is no longer reachable",tmp.menge,translator::translate(tmp.get_name()));
 					total_freight -= tmp.menge;
-					sum_weight -= tmp.menge * tmp.get_besch()->get_weight_per_unit();
+					sum_weight -= tmp.menge * tmp.get_desc()->get_weight_per_unit();
 					i = fracht.erase( i );
 				}
 				else if(  end_halt == halt || via_halt == halt  ) {
@@ -867,7 +867,7 @@ uint16 vehicle_t::unload_cargo(halthandle_t halt, sint64 & revenue_from_unloadin
 					// hier sollte nur ordentliche ware verabeitet werden
 					// "here only tidy commodity should be processed" (Babelfish)
 
-					if(halt != end_halt && welt->get_settings().is_avoid_overcrowding() && tmp.is_passenger() && !halt->is_within_walking_distance_of(via_halt) && halt->is_overcrowded(tmp.get_besch()->get_index()))
+					if(halt != end_halt && welt->get_settings().is_avoid_overcrowding() && tmp.is_passenger() && !halt->is_within_walking_distance_of(via_halt) && halt->is_overcrowded(tmp.get_desc()->get_index()))
 					{
 						// The avoid_overcrowding setting is activated
 						// Halt overcrowded - discard passengers, and collect no revenue.
@@ -883,7 +883,7 @@ uint16 vehicle_t::unload_cargo(halthandle_t halt, sint64 & revenue_from_unloadin
 							const uint16 distance = shortest_distance(halt->get_basis_pos(), tmp.get_origin()->get_basis_pos());
 							const uint32 distance_meters = (uint32) distance * welt->get_settings().get_meters_per_tile();
 							// Refund is approximation.
-							const sint64 refund_amount = (tmp.menge * tmp.get_besch()->get_refund(distance_meters) + 2048ll) / 4096ll;
+							const sint64 refund_amount = (tmp.menge * tmp.get_desc()->get_refund(distance_meters) + 2048ll) / 4096ll;
 
 							revenue_from_unloading -= refund_amount;
 
@@ -1006,11 +1006,11 @@ uint16 vehicle_t::unload_cargo(halthandle_t halt, sint64 & revenue_from_unloadin
 
 	if(  sum_menge  ) {
 		// book transported goods
-		get_owner()->book_transported( sum_menge, get_besch()->get_waytype(), index );
+		get_owner()->book_transported( sum_menge, get_desc()->get_waytype(), index );
 
 		if(  sum_delivered  ) {
 			// book delivered goods to destination
-			get_owner()->book_delivered( sum_delivered, get_besch()->get_waytype(), index );
+			get_owner()->book_delivered( sum_delivered, get_desc()->get_waytype(), index );
 		}
 
 		// add delivered goods to statistics
@@ -1030,14 +1030,14 @@ uint16 vehicle_t::unload_cargo(halthandle_t halt, sint64 & revenue_from_unloadin
  */
 bool vehicle_t::load_freight_internal(halthandle_t halt, bool overcrowd, bool *skip_vehikels)
 {
-	const uint16 total_capacity = besch->get_zuladung() + (overcrowd ? besch->get_overcrowded_capacity() : 0);
+	const uint16 total_capacity = desc->get_zuladung() + (overcrowd ? desc->get_overcrowded_capacity() : 0);
 	if(total_freight < total_capacity)
 	{
 		schedule_t *schedule = cnv->get_schedule();
 		const uint16 hinein = total_capacity - total_freight; //hinein = inside (Google)
 		slist_tpl<ware_t> zuladung; //"Payload" (Google)
 
-		*skip_vehikels = halt->fetch_goods(zuladung, besch->get_ware(), hinein, schedule, cnv->get_owner(), cnv, overcrowd);
+		*skip_vehikels = halt->fetch_goods(zuladung, desc->get_ware(), hinein, schedule, cnv->get_owner(), cnv, overcrowd);
 		if(!zuladung.empty())
 		{
 			cnv->invalidate_weight_summary();
@@ -1154,16 +1154,16 @@ void vehicle_t::remove_stale_cargo()
 			cnv->invalidate_weight_summary();
 		}
 	}
-	sum_weight =  get_cargo_weight() + besch->get_gewicht();
+	sum_weight =  get_cargo_weight() + desc->get_gewicht();
 }
 
 
 void
 vehicle_t::play_sound() const
 {
-	if(  besch->get_sound() >= 0  &&  !welt->is_fast_forward() && sound_ticks < welt->get_zeit_ms() )
+	if(  desc->get_sound() >= 0  &&  !welt->is_fast_forward() && sound_ticks < welt->get_zeit_ms() )
 	{
-		if(welt->play_sound_area_clipped(get_pos().get_2d(), besch->get_sound()))
+		if(welt->play_sound_area_clipped(get_pos().get_2d(), desc->get_sound()))
 		{
 			// Only reset the counter if the sound can be heard.
 			const sint64 sound_offset = sim_async_rand(30000) + 5000;
@@ -1234,14 +1234,14 @@ void vehicle_t::initialise_journey(uint16 start_route_index, bool recalc)
 
 
 #ifdef INLINE_OBJ_TYPE
-vehicle_t::vehicle_t(typ type, koord3d pos, const vehikel_besch_t* besch, player_t* player) :
+vehicle_t::vehicle_t(typ type, koord3d pos, const vehikel_desc_t* desc, player_t* player) :
 	vehicle_base_t(type, pos)
 #else
-vehicle_t::vehicle_t(koord3d pos, const vehikel_besch_t* besch, player_t* player) :
+vehicle_t::vehicle_t(koord3d pos, const vehikel_desc_t* desc, player_t* player) :
 	vehicle_base_t(pos)
 #endif
 {
-	this->besch = besch;
+	this->desc = desc;
 
 	set_owner( player );
 	purchase_time = welt->get_current_month();
@@ -1256,7 +1256,7 @@ vehicle_t::vehicle_t(koord3d pos, const vehikel_besch_t* besch, player_t* player
 
 	current_friction = 4;
 	total_freight = 0;
-	sum_weight = besch->get_gewicht();
+	sum_weight = desc->get_gewicht();
 
 	leading = last = false;
 	check_for_finish = false;
@@ -1290,7 +1290,7 @@ vehicle_t::vehicle_t() :
 {
 	smoke = true;
 
-	besch = NULL;
+	desc = NULL;
 	cnv = NULL;
 
 	route_index = 1;
@@ -1556,7 +1556,7 @@ void vehicle_t::hop(grund_t* gr)
 	calc_drag_coefficient(gr);
 	if(weg)
 	{
-		weg->wear_way(besch->get_way_wear_factor());
+		weg->wear_way(desc->get_way_wear_factor());
 	}
 	hop_count ++;
 	gr->set_all_obj_dirty();
@@ -1578,7 +1578,7 @@ sint32 vehicle_t::calc_speed_limit(const weg_t *w, const weg_t *weg_previous, fi
 	}
 	const bool is_corner = current_direction != previous_direction;
 
-	const bool is_tilting = besch->get_tilting();
+	const bool is_tilting = desc->get_tilting();
 	const sint32 base_limit = kmh_to_speed(w->get_max_speed());
 	const uint32 max_axle_load = w->get_max_axle_load();
 	const uint32 bridge_weight_limit = w->get_bridge_weight_limit();
@@ -1858,12 +1858,12 @@ vehicle_t::direction_degrees vehicle_t::get_direction_degrees(ribi_t::dir direct
 void vehicle_t::make_smoke() const
 {
 	// does it smoke at all?
-	if(  smoke  &&  besch->get_rauch()  ) {
+	if(  smoke  &&  desc->get_rauch()  ) {
 		// Hajo: only produce smoke when heavily accelerating or steam engine
-		if(  cnv->get_akt_speed() < (sint32)((cnv->get_vehicle_summary().max_sim_speed * 7u) >> 3)  ||  besch->get_engine_type() == vehikel_besch_t::steam  ) {
+		if(  cnv->get_akt_speed() < (sint32)((cnv->get_vehicle_summary().max_sim_speed * 7u) >> 3)  ||  desc->get_engine_type() == vehikel_desc_t::steam  ) {
 			grund_t* const gr = welt->lookup( get_pos() );
 			if(  gr  ) {
-				wolke_t* const abgas = new wolke_t( get_pos(), get_xoff() + ((dx * (sint16)((uint16)steps * OBJECT_OFFSET_STEPS)) >> 8), get_yoff() + ((dy * (sint16)((uint16)steps * OBJECT_OFFSET_STEPS)) >> 8) + get_hoff(), besch->get_rauch() );
+				wolke_t* const abgas = new wolke_t( get_pos(), get_xoff() + ((dx * (sint16)((uint16)steps * OBJECT_OFFSET_STEPS)) >> 8), get_yoff() + ((dy * (sint16)((uint16)steps * OBJECT_OFFSET_STEPS)) >> 8) + get_hoff(), desc->get_rauch() );
 				if(  !gr->obj_add( abgas )  ) {
 					abgas->set_flag( obj_t::not_on_map );
 					delete abgas;
@@ -1891,7 +1891,7 @@ uint32 vehicle_t::get_cargo_weight() const
 {
 	uint32 weight = 0;
 	FOR(slist_tpl<ware_t>, const& c, fracht) {
-		weight += c.menge * c.get_besch()->get_weight_per_unit();
+		weight += c.menge * c.get_desc()->get_weight_per_unit();
 	}
 	return weight;
 }
@@ -1934,13 +1934,13 @@ void vehicle_t::discard_cargo()
 		fabrik_t::update_transit( w, false );
 	}
 	fracht.clear();
-	sum_weight =  besch->get_gewicht();
+	sum_weight =  desc->get_gewicht();
 }
 
 uint16 vehicle_t::load_cargo(halthandle_t halt, bool overcrowd, bool *skip_convois, bool *skip_vehikels)
 {
 	const uint16 start_freight = total_freight;
-	if(halt.is_bound()  &&  halt->gibt_ab(besch->get_ware()))
+	if(halt.is_bound()  &&  halt->gibt_ab(desc->get_ware()))
 	{
 		*skip_convois = load_freight_internal(halt, overcrowd, skip_vehikels);
 	}
@@ -1948,7 +1948,7 @@ uint16 vehicle_t::load_cargo(halthandle_t halt, bool overcrowd, bool *skip_convo
 	{
 		*skip_convois = true; // don't try to load anymore from a stop that can't supply
 	}
-	sum_weight = get_cargo_weight() + besch->get_gewicht();
+	sum_weight = get_cargo_weight() + desc->get_gewicht();
 	calc_image();
 	return total_freight - start_freight;
 }
@@ -1958,11 +1958,11 @@ void vehicle_t::calc_image() //"Bild" = "picture" (Google)
 	image_id old_image=get_image();
 	if (fracht.empty())
 	{
-		set_image(besch->get_image_id(ribi_t::get_dir(get_direction_of_travel()), NULL, current_livery.c_str()));
+		set_image(desc->get_image_id(ribi_t::get_dir(get_direction_of_travel()), NULL, current_livery.c_str()));
 	}
 	else
 	{
-		set_image(besch->get_image_id(ribi_t::get_dir(get_direction_of_travel()), fracht.front().get_besch(), current_livery.c_str()));
+		set_image(desc->get_image_id(ribi_t::get_dir(get_direction_of_travel()), fracht.front().get_desc(), current_livery.c_str()));
 	}
 	if(old_image!=get_image()) {
 		set_flag(obj_t::dirty);
@@ -1971,7 +1971,7 @@ void vehicle_t::calc_image() //"Bild" = "picture" (Google)
 
 image_id vehicle_t::get_loaded_image() const
 {
-	return besch->get_image_id(ribi_t::dir_south, fracht.empty() ?  warenbauer_t::nichts  : fracht.front().get_besch());
+	return desc->get_image_id(ribi_t::dir_south, fracht.empty() ?  warenbauer_t::nichts  : fracht.front().get_desc());
 }
 
 
@@ -2034,7 +2034,7 @@ ribi_t::ribi vehicle_t::get_direction_of_travel() const
 
 void vehicle_t::set_reversed(bool value)
 {
-	if(besch->is_bidirectional() || (cnv != NULL && cnv->get_reversable()))
+	if(desc->is_bidirectional() || (cnv != NULL && cnv->get_reversable()))
 	{
 		reversed = value;
 	}
@@ -2042,12 +2042,12 @@ void vehicle_t::set_reversed(bool value)
 
 uint16 vehicle_t::get_overcrowding() const
 {
-	return total_freight - besch->get_zuladung() > 0 ? total_freight - besch->get_zuladung() : 0;
+	return total_freight - desc->get_zuladung() > 0 ? total_freight - desc->get_zuladung() : 0;
 }
 
 uint8 vehicle_t::get_comfort(uint8 catering_level) const
 {
-	const uint8 base_comfort = besch->get_adjusted_comfort(catering_level);
+	const uint8 base_comfort = desc->get_adjusted_comfort(catering_level);
 	if(base_comfort == 0)
 	{
 		return 0;
@@ -2100,8 +2100,8 @@ void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 	if(file->is_saving()) {
 		fracht_count = fracht.get_count();
 		// we try to have one freight count to guess the right freight
-		// when no besch is given
-		if(fracht_count==0  &&  besch->get_ware()!=warenbauer_t::nichts  &&  besch->get_zuladung()>0) {
+		// when no desc is given
+		if(fracht_count==0  &&  desc->get_ware()!=warenbauer_t::nichts  &&  desc->get_zuladung()>0) {
 			fracht_count = 1;
 		}
 	}
@@ -2217,17 +2217,17 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(purchase_time%12
 	pos_next.rdwr(file);
 
 	if(file->is_saving()) {
-		const char *s = besch->get_name();
+		const char *s = desc->get_name();
 		file->rdwr_str(s);
 	}
 	else {
 		char s[256];
 		file->rdwr_str(s, lengthof(s));
-		besch = vehikelbauer_t::get_info(s);
-		if(besch==NULL) {
-			besch = vehikelbauer_t::get_info(translator::compatibility_name(s));
+		desc = vehikelbauer_t::get_info(s);
+		if(desc==NULL) {
+			desc = vehikelbauer_t::get_info(translator::compatibility_name(s));
 		}
-		if(besch==NULL) {
+		if(desc==NULL) {
 			welt->add_missing_paks( s, karte_t::MISSING_VEHICLE );
 			dbg->warning("vehicle_t::rdwr_from_convoi()","no vehicle pak for '%s' search for something similar", s);
 		}
@@ -2236,7 +2236,7 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(purchase_time%12
 	if(file->is_saving()) {
 		if (fracht.empty()  &&  fracht_count>0) {
 			// create dummy freight for savegame compatibility
-			ware_t ware( besch->get_ware() );
+			ware_t ware( desc->get_ware() );
 			ware.menge = 0;
 			ware.set_ziel( halthandle_t() );
 			ware.set_zwischenziel( halthandle_t() );
@@ -2252,8 +2252,8 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(purchase_time%12
 	else {
 		for(int i=0; i<fracht_count; i++) {
 			ware_t ware(file);
-			if( (besch==NULL || ware.menge>0) && welt->is_within_limits(ware.get_zielpos()) && ware.get_besch() ) {
-				// also add, of the besch is unknown to find matching replacement
+			if( (desc==NULL || ware.menge>0) && welt->is_within_limits(ware.get_zielpos()) && ware.get_desc() ) {
+				// also add, of the desc is unknown to find matching replacement
 				fracht.insert(ware);
 				/*
 				* It's very easy for in-transit information to get corrupted,
@@ -2267,7 +2267,7 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(purchase_time%12
 					fabrik_t::update_transit( ware, true );
 			}
 			else if(  ware.menge>0  ) {
-				if(  ware.get_besch()  ) {
+				if(  ware.get_desc()  ) {
 					dbg->error( "vehicle_t::rdwr_from_convoi()", "%i of %s to %s ignored!", ware.menge, ware.get_name(), ware.get_zielpos().get_str() );
 				}
 				else {
@@ -2314,11 +2314,11 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(purchase_time%12
 
 	if(file->is_loading()) {
 		leading = last = false;	// dummy, will be set by convoi afterwards
-		if(besch) {
+		if(desc) {
 			calc_image();
 
 			// full weight after loading
-			sum_weight = get_cargo_weight() + besch->get_gewicht();
+			sum_weight = get_cargo_weight() + desc->get_gewicht();
 		}
 		// recalc total freight
 		total_freight = 0;
@@ -2394,7 +2394,7 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(purchase_time%12
 uint32 vehicle_t::calc_sale_value() const
 {
 	// Use float32e8 for reliable and accurate computation
-	float32e8_t value ( besch->get_preis() );
+	float32e8_t value ( desc->get_preis() );
 	if(has_driven)
 	{
 		// "Drive it off the lot" loss: expressed in mills
@@ -2439,7 +2439,7 @@ const char *vehicle_t:: is_deletable(const player_t *)
 
 bool vehicle_t::check_way_constraints(const weg_t &way) const
 {
-	return missing_way_constraints_t(besch->get_way_constraints(), way.get_way_constraints()).check_next_tile();
+	return missing_way_constraints_t(desc->get_way_constraints(), way.get_way_constraints()).check_next_tile();
 }
 
 bool vehicle_t::check_access(const weg_t* way) const
@@ -2630,11 +2630,11 @@ void vehicle_t::before_delete()
 }
 
 
-road_vehicle_t::road_vehicle_t(koord3d pos, const vehikel_besch_t* besch, player_t* player, convoi_t* cn) :
+road_vehicle_t::road_vehicle_t(koord3d pos, const vehikel_desc_t* desc, player_t* player, convoi_t* cn) :
 #ifdef INLINE_OBJ_TYPE
-    vehicle_t(obj_t::automobil, pos, besch, player)
+    vehicle_t(obj_t::automobil, pos, desc, player)
 #else
-    vehicle_t(pos, besch, player)
+    vehicle_t(pos, desc, player)
 #endif
 {
 	cnv = cn;
@@ -2664,18 +2664,18 @@ road_vehicle_t::road_vehicle_t(loadsave_t *file, bool is_leading, bool is_last) 
 	rdwr_from_convoi(file);
 
 	if(  file->is_loading()  ) {
-		static const vehikel_besch_t *last_besch = NULL;
+		static const vehikel_desc_t *last_desc = NULL;
 
 		if(is_leading) {
-			last_besch = NULL;
+			last_desc = NULL;
 		}
 		// try to find a matching vehicle
-		if(besch==NULL) {
-			const ware_besch_t* w = (!fracht.empty() ? fracht.front().get_besch() : warenbauer_t::passagiere);
+		if(desc==NULL) {
+			const ware_desc_t* w = (!fracht.empty() ? fracht.front().get_desc() : warenbauer_t::passagiere);
 			dbg->warning("road_vehicle_t::road_vehicle_t()","try to find a fitting vehicle for %s.",  w->get_name() );
-			besch = vehikelbauer_t::get_best_matching(road_wt, 0, (fracht.empty() ? 0 : 50), is_leading?50:0, speed_to_kmh(speed_limit), w, true, last_besch, is_last );
-			if(besch) {
-				DBG_MESSAGE("road_vehicle_t::road_vehicle_t()","replaced by %s",besch->get_name());
+			desc = vehikelbauer_t::get_best_matching(road_wt, 0, (fracht.empty() ? 0 : 50), is_leading?50:0, speed_to_kmh(speed_limit), w, true, last_desc, is_last );
+			if(desc) {
+				DBG_MESSAGE("road_vehicle_t::road_vehicle_t()","replaced by %s",desc->get_name());
 				// still wrong load ...
 				calc_image();
 			}
@@ -2684,8 +2684,8 @@ road_vehicle_t::road_vehicle_t(loadsave_t *file, bool is_leading, bool is_last) 
 				fracht.remove_first();
 			}
 		}
-		if(  besch  ) {
-			last_besch = besch;
+		if(  desc  ) {
+			last_desc = desc;
 		}
 	}
 	is_checker = false;
@@ -2728,7 +2728,7 @@ bool road_vehicle_t::check_next_tile(const grund_t *bd) const
 	}
 	if(!is_checker)
 	{
-		bool electric = cnv != NULL ? cnv->needs_electrification() : besch->get_engine_type() == vehikel_besch_t::electric;
+		bool electric = cnv != NULL ? cnv->needs_electrification() : desc->get_engine_type() == vehikel_desc_t::electric;
 		if(electric  &&  !str->is_electrified()) {
 			return false;
 		}
@@ -2737,17 +2737,17 @@ bool road_vehicle_t::check_next_tile(const grund_t *bd) const
 	if(str->has_sign()) {
 		const roadsign_t* rs = bd->find<roadsign_t>();
 		if(rs!=NULL) {
-			const roadsign_besch_t* rs_besch = rs->get_besch();
-			if(get_besch() && rs_besch->get_min_speed()>0  &&  rs_besch->get_min_speed() > kmh_to_speed(get_besch()->get_geschw())  ) 
+			const roadsign_desc_t* rs_desc = rs->get_desc();
+			if(get_desc() && rs_desc->get_min_speed()>0  &&  rs_desc->get_min_speed() > kmh_to_speed(get_desc()->get_geschw())  ) 
 			{
 				return false;
 			}
-			if(  rs_besch->is_private_way()  &&  (rs->get_player_mask() & (1<<get_player_nr()) ) == 0  ) {
+			if(  rs_desc->is_private_way()  &&  (rs->get_player_mask() & (1<<get_player_nr()) ) == 0  ) {
 				// private road
 				return false;
 			}
 			// do not search further for a free stop beyond here
-			if(target_halt.is_bound() && cnv && cnv->is_waiting() && (rs_besch->get_flags() & roadsign_besch_t::END_OF_CHOOSE_AREA)) {
+			if(target_halt.is_bound() && cnv && cnv->is_waiting() && (rs_desc->get_flags() & roadsign_desc_t::END_OF_CHOOSE_AREA)) {
 				return false;
 			}
 		}
@@ -2958,7 +2958,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 				// since at the corner, our direction may be diagonal, we make it straight
 				const uint8 direction90 = ribi_type(get_pos().get_2d(),pos_next.get_2d());
 
-				if(rs->get_besch()->is_traffic_light()  &&  (rs->get_dir()&direction90)==0) {
+				if(rs->get_desc()->is_traffic_light()  &&  (rs->get_dir()&direction90)==0) {
 					// wait here
 					restart_speed = 16;
 					return false;
@@ -3038,7 +3038,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 			obj = no_cars_blocking( gr, cnv, curr_direction, next_direction, next_90direction );
 
 			// do not block intersections
-			bool int_block = ribi_t::is_threeway(str->get_ribi_unmasked())  &&  (((drives_on_left ? ribi_t::rotate90l(curr_90direction) : ribi_t::rotate90(curr_90direction)) & str->get_ribi_unmasked())  ||  curr_90direction != next_90direction  ||  (rs  &&  rs->get_besch()->is_traffic_light()));
+			bool int_block = ribi_t::is_threeway(str->get_ribi_unmasked())  &&  (((drives_on_left ? ribi_t::rotate90l(curr_90direction) : ribi_t::rotate90(curr_90direction)) & str->get_ribi_unmasked())  ||  curr_90direction != next_90direction  ||  (rs  &&  rs->get_desc()->is_traffic_light()));
 
 			// check exit from crossings and intersections, allow to proceed after 4 consecutive
 			while(  !obj   &&  (str->is_crossing()  ||  int_block)  &&  test_index < r.get_count()  &&  test_index < route_index + 4u  ) {
@@ -3099,7 +3099,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 				if (str->has_sign()) {
 					rs = gr->find<roadsign_t>();
 					const ribi_t::ribi dir = rs->get_dir();
-					const bool is_traffic_light = rs->get_besch()->is_traffic_light();
+					const bool is_traffic_light = rs->get_desc()->is_traffic_light();
 					route_t const& r = *cnv->get_route();
 				
 					if (is_traffic_light || gr->get_weg(get_waytype())->get_ribi_maske() & dir)
@@ -3114,7 +3114,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 								return false;
 							}
 							// Check whether if we reached a choose point
-							else if (rs->get_besch()->is_choose_sign()) 
+							else if (rs->get_desc()->is_choose_sign()) 
 							{
 								// route position after road sign
 								const koord pos_next_next = r.at(route_index + 1u).get_2d();
@@ -3190,7 +3190,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 				}
 
 				// check for blocking intersection
-				int_block = ribi_t::is_threeway(str->get_ribi_unmasked())  &&  (((drives_on_left ? ribi_t::rotate90l(curr_90direction) : ribi_t::rotate90(curr_90direction)) & str->get_ribi_unmasked())  ||  curr_90direction != next_90direction  ||  (rs  &&  rs->get_besch()->is_traffic_light()));
+				int_block = ribi_t::is_threeway(str->get_ribi_unmasked())  &&  (((drives_on_left ? ribi_t::rotate90l(curr_90direction) : ribi_t::rotate90(curr_90direction)) & str->get_ribi_unmasked())  ||  curr_90direction != next_90direction  ||  (rs  &&  rs->get_desc()->is_traffic_light()));
 
 				test_index++;
 			}
@@ -3233,7 +3233,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 							}
 						}
 						else if(  private_car_t* const caut = obj_cast<private_car_t>(obj)  ) {
-							if(  cnv->can_overtake(caut, caut->get_besch()->get_geschw(), VEHICLE_STEPS_PER_TILE)  ) {
+							if(  cnv->can_overtake(caut, caut->get_desc()->get_geschw(), VEHICLE_STEPS_PER_TILE)  ) {
 								return true;
 							}
 						}
@@ -3341,57 +3341,57 @@ rail_vehicle_t::rail_vehicle_tloadsave_t *file, bool is_leading, bool is_last) :
 	rail_vehicle_t::rdwr_from_convoi(file);
 	
 	if(  file->is_loading()  ) {
-		static const vehikel_besch_t *last_besch = NULL;
+		static const vehikel_desc_t *last_desc = NULL;
 
 		if(is_leading) {
-			last_besch = NULL;
+			last_desc = NULL;
 		}
 		// try to find a matching vehicle
-		if(besch==NULL) {
+		if(desc==NULL) {
 			int power = (is_leading || fracht.empty() || fracht.front() == warenbauer_t::nichts) ? 500 : 0;
-			const ware_besch_t* w = fracht.empty() ? warenbauer_t::nichts : fracht.front().get_besch();
+			const ware_desc_t* w = fracht.empty() ? warenbauer_t::nichts : fracht.front().get_desc();
 			dbg->warning("rail_vehicle_t::rail_vehicle_t()","try to find a fitting vehicle for %s.", power>0 ? "engine": w->get_name() );
-			if(last_besch!=NULL  &&  last_besch->can_follow(last_besch)  &&  last_besch->get_ware()==w  &&  (!is_last  ||  last_besch->get_nachfolger(0)==NULL)) {
+			if(last_desc!=NULL  &&  last_desc->can_follow(last_desc)  &&  last_desc->get_ware()==w  &&  (!is_last  ||  last_desc->get_nachfolger(0)==NULL)) {
 				// same as previously ...
-				besch = last_besch;
+				desc = last_desc;
 			}
 			else {
 				// we have to search
-				besch = vehikelbauer_t::get_best_matching(get_waytype(), 0, w!=warenbauer_t::nichts?5000:0, power, speed_to_kmh(speed_limit), w, false, last_besch, is_last );
+				desc = vehikelbauer_t::get_best_matching(get_waytype(), 0, w!=warenbauer_t::nichts?5000:0, power, speed_to_kmh(speed_limit), w, false, last_desc, is_last );
 			}
-			if(besch) {
-DBG_MESSAGE("rail_vehicle_t::rail_vehicle_t()","replaced by %s",besch->get_name());
+			if(desc) {
+DBG_MESSAGE("rail_vehicle_t::rail_vehicle_t()","replaced by %s",desc->get_name());
 				calc_image();
 			}
 			else {
-				dbg->error("rail_vehicle_t::rail_vehicle_t()","no matching besch found for %s!",w->get_name());
+				dbg->error("rail_vehicle_t::rail_vehicle_t()","no matching desc found for %s!",w->get_name());
 			}
 			if (!fracht.empty() && fracht.front().menge == 0) {
 				// this was only there to find a matching vehicle
 				fracht.remove_first();
 			}
 		}
-		// update last besch
-		if(  besch  ) {
-			last_besch = besch;
+		// update last desc
+		if(  desc  ) {
+			last_desc = desc;
 		}
 	}
 }
 
 #ifdef INLINE_OBJ_TYPE
-rail_vehicle_t::rail_vehicle_t(typ type, koord3d pos, const vehikel_besch_t* besch, player_t* player, convoi_t* cn) :
-    vehicle_t(type, pos, besch, player)
+rail_vehicle_t::rail_vehicle_t(typ type, koord3d pos, const vehikel_desc_t* desc, player_t* player, convoi_t* cn) :
+    vehicle_t(type, pos, desc, player)
 {
     cnv = cn;
 	working_method = drive_by_sight;
 }
 #endif
 
-rail_vehicle_t::rail_vehicle_t(koord3d pos, const vehikel_besch_t* besch, player_t* player, convoi_t* cn) :
+rail_vehicle_t::rail_vehicle_t(koord3d pos, const vehikel_desc_t* desc, player_t* player, convoi_t* cn) :
 #ifdef INLINE_OBJ_TYPE
-    vehicle_t(obj_t::rail_vehicle, pos, besch, player)
+    vehicle_t(obj_t::rail_vehicle, pos, desc, player)
 #else
-	vehicle_t(pos, besch, player)
+	vehicle_t(pos, desc, player)
 #endif
 {
     cnv = cn;
@@ -3497,7 +3497,7 @@ bool rail_vehicle_t::check_next_tile(const grund_t *bd) const
 
 	// Hajo: diesel and steam engines can use electrified track as well.
 	// also allow driving on foreign tracks ...
-	const bool needs_no_electric = !(cnv!=NULL ? cnv->needs_electrification() : besch->get_engine_type() == vehikel_besch_t::electric);
+	const bool needs_no_electric = !(cnv!=NULL ? cnv->needs_electrification() : desc->get_engine_type() == vehikel_desc_t::electric);
 
 	if((!needs_no_electric  &&  !sch->is_electrified())  || (sch->get_max_speed() == 0 && speed_limit < INT_MAX) || !check_way_constraints(*sch))
 	{
@@ -3505,19 +3505,19 @@ bool rail_vehicle_t::check_next_tile(const grund_t *bd) const
 	}
 
 	if (depot_t *depot = bd->get_depot()) {
-		if (depot->get_waytype() != besch->get_waytype()  ||  depot->get_owner() != get_owner()) {
+		if (depot->get_waytype() != desc->get_waytype()  ||  depot->get_owner() != get_owner()) {
 			return false;
 		}
 	}
 	// now check for special signs
 	if(sch->has_sign()) {
 		const roadsign_t* rs = bd->find<roadsign_t>();
-		if(rs && rs->get_besch()->get_wtyp()==get_waytype()  ) {
-			if(  cnv != NULL  &&  rs->get_besch()->get_min_speed() > 0  &&  rs->get_besch()->get_min_speed() > cnv->get_min_top_speed()  ) {
+		if(rs && rs->get_desc()->get_wtyp()==get_waytype()  ) {
+			if(  cnv != NULL  &&  rs->get_desc()->get_min_speed() > 0  &&  rs->get_desc()->get_min_speed() > cnv->get_min_top_speed()  ) {
 				// below speed limit
 				return false;
 			}
-			if(  rs->get_besch()->is_private_way()  &&  (rs->get_player_mask() & (1<<get_player_nr()) ) == 0  ) {
+			if(  rs->get_desc()->is_private_way()  &&  (rs->get_player_mask() & (1<<get_player_nr()) ) == 0  ) {
 				// private road
 				return false;
 			}
@@ -3681,9 +3681,9 @@ sint32 rail_vehicle_t::activate_choose_signal(const uint16 start_block, uint16 &
 		if(way->has_sign())
 		{
 			roadsign_t *rs = gr->find<roadsign_t>(1);
-			if(rs && rs->get_besch()->get_wtyp() == get_waytype())
+			if(rs && rs->get_desc()->get_wtyp() == get_waytype())
 			{
-				if(rs->get_besch()->is_end_choose_signal())
+				if(rs->get_desc()->is_end_choose_signal())
 				{
 					target = gr;
 					break_index = idx;
@@ -3697,7 +3697,7 @@ sint32 rail_vehicle_t::activate_choose_signal(const uint16 start_block, uint16 &
  			ribi_t::ribi ribi = ribi_type(route->at(max(1u, modified_route_index) - 1u));	
 			if(!gr->get_weg(get_waytype())->get_ribi_maske() & ribi) // Check that the signal is facing in the right direction.
 			{
-				if(sig && sig->get_besch()->is_choose_sign())
+				if(sig && sig->get_desc()->is_choose_sign())
 				{
 					// second choose signal on route => not choosing here
 					choose_ok = false;
@@ -3813,7 +3813,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 	if(working_method == one_train_staff && cnv->get_state() != convoi_t::LEAVING_DEPOT)
 	{
 		signal_t* signal = w->get_signal(ribi); 
-		if(signal && signal->get_besch()->get_working_method() == one_train_staff)
+		if(signal && signal->get_desc()->get_working_method() == one_train_staff)
 		{
 			signal->set_state(roadsign_t::call_on); // Do not use the same cabinet to switch back to drive by sight immediately after releasing. 
 			clear_token_reservation(signal, this, w); 
@@ -3833,9 +3833,9 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 
 		if(signal_current && working_method != token_block)
 		{
-			if(working_method != one_train_staff && (signal_current->get_besch()->get_working_method() != one_train_staff || signal_current->get_pos() != cnv->get_last_signal_pos()))
+			if(working_method != one_train_staff && (signal_current->get_desc()->get_working_method() != one_train_staff || signal_current->get_pos() != cnv->get_last_signal_pos()))
 			{
-				set_working_method(signal_current->get_besch()->get_working_method());
+				set_working_method(signal_current->get_desc()->get_working_method());
 			}
 		}
 	}
@@ -4084,7 +4084,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 			if(!signal && haltestelle_t::get_halt(tile_to_check_ahead, NULL).is_bound())
 			{
 				signal = way->get_signal(ribi_t::backward(ribi));
-				if(signal && !signal->get_besch()->is_longblock_signal())
+				if(signal && !signal->get_desc()->is_longblock_signal())
 				{
 					signal = NULL;
 				}
@@ -4116,7 +4116,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 	if(working_method == token_block && w_current->has_sign())
 	{
 		roadsign_t* rs = gr->find<roadsign_t>();
-		if(rs && rs->get_besch()->is_single_way())
+		if(rs && rs->get_desc()->is_single_way())
 		{
 			// If we come upon a single way sign, clear the reservation so far, as we know that we are now on unidirectional track again.
 			clear_token_reservation(NULL, this, w_current); 
@@ -4134,7 +4134,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 	
 		if(signal)
 		{
-			set_working_method(signal->get_besch()->get_working_method());
+			set_working_method(signal->get_desc()->get_working_method());
 		}
 	}
 
@@ -4172,14 +4172,14 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 			{
 				if(working_method != token_block)
 				{
-					if(signal->get_besch()->get_working_method() != one_train_staff || (!do_not_set_one_train_staff && (signal->get_pos() == get_pos()) && (signal->get_state() != roadsign_t::call_on)))
+					if(signal->get_desc()->get_working_method() != one_train_staff || (!do_not_set_one_train_staff && (signal->get_pos() == get_pos()) && (signal->get_state() != roadsign_t::call_on)))
 					{
-						set_working_method(signal->get_besch()->get_working_method()); 
+						set_working_method(signal->get_desc()->get_working_method()); 
 					}
 				}
 
 				if(working_method == cab_signalling 
-					|| signal->get_besch()->is_pre_signal()
+					|| signal->get_desc()->is_pre_signal()
 					|| ((working_method == token_block
 					|| working_method == time_interval
 					|| working_method == time_interval_with_telegraph
@@ -4196,7 +4196,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 						if(starting_from_stand && (working_method == absolute_block || working_method == track_circuit_block || working_method == cab_signalling))
 						{
 							// Check for permissive working. Only check here, as the convoy must be brought to a stand before a call on.
-							if(signal->get_besch()->get_permissive() && signal->get_no_junctions_to_next_signal())
+							if(signal->get_desc()->get_permissive() && signal->get_no_junctions_to_next_signal())
 							{
 								// Permissive working allowed: call on.
 								signal->set_state(roadsign_t::call_on);
@@ -4221,7 +4221,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 							return cnv->get_next_stop_index() > route_index;
 						}
 					}
-					if(!signal->get_besch()->is_choose_sign())
+					if(!signal->get_desc()->is_choose_sign())
 					{
 						cnv->set_is_choosing(false);
 					}
@@ -4236,7 +4236,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 
 	if(w_current->has_signal())
 	{
-		if(working_method != one_train_staff || welt->lookup(w_current->get_pos())->find<signal_t>()->get_besch()->get_working_method() == one_train_staff)
+		if(working_method != one_train_staff || welt->lookup(w_current->get_pos())->find<signal_t>()->get_desc()->get_working_method() == one_train_staff)
 		{
 			cnv->set_last_signal_pos(w_current->get_pos());
 		}
@@ -4249,7 +4249,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		ribi_t::ribi ribi = ribi_type(cnv->get_route()->at(max(1u,route_index)-1u), cnv->get_route()->at(min(cnv->get_route()->get_count()-1u,route_index+1u)));
 		signal_t* signal = get_weg()->get_signal(ribi); 
 	
-		if(signal && signal->get_besch()->get_working_method() == token_block)
+		if(signal && signal->get_desc()->get_working_method() == token_block)
 		{
 			set_working_method(token_block); 
 		}
@@ -4385,7 +4385,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 	if(working_method == drive_by_sight)
 	{
 		const sint32 max_speed_drive_by_sight = welt->get_settings().get_max_speed_drive_by_sight();
-		if(max_speed_drive_by_sight && get_besch()->get_waytype() != tram_wt)
+		if(max_speed_drive_by_sight && get_desc()->get_waytype() != tram_wt)
 		{
 			cnv->set_maximum_signal_speed(max_speed_drive_by_sight);
 		}
@@ -4478,7 +4478,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 				// Continue in moving block if in range of the most recent moving block signal.
 				const grund_t* gr_last_signal = welt->lookup(cnv->get_last_signal_pos()); 
 				const signal_t* sg = gr_last_signal ? gr_last_signal->find<signal_t>() : NULL; 
-				if(!sg || sg->get_besch()->get_max_distance_to_signalbox() < shortest_distance(pos.get_2d(), cnv->get_last_signal_pos().get_2d()))
+				if(!sg || sg->get_desc()->get_max_distance_to_signalbox() < shortest_distance(pos.get_2d(), cnv->get_last_signal_pos().get_2d()))
 				{
 					// Out of range of the moving block beacon/signal; revert to drive by sight
 					set_working_method(drive_by_sight);
@@ -4493,7 +4493,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 				last_station_tile = i;
 			}
 			
-			if(rs && rs->get_besch()->is_single_way() && first_oneway_sign_index >= INVALID_INDEX)
+			if(rs && rs->get_desc()->is_single_way() && first_oneway_sign_index >= INVALID_INDEX)
 			{
 				if(directional_only)
 				{
@@ -4567,7 +4567,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 					// An ordinary signal on plain track
 					signal = gr->get_weg(get_waytype())->get_signal(ribi); 
 					// But, do not select a station signal here, as this will lead to capricious behaviour depending on whether the train passes the track on which the station signal happens to be situated or not. 
-					if(signal && signal->get_besch()->is_longblock_signal() && check_halt.is_bound() && (signal->get_besch()->get_working_method() == time_interval || signal->get_besch()->get_working_method() == time_interval_with_telegraph || signal->get_besch()->get_working_method() == absolute_block))
+					if(signal && signal->get_desc()->is_longblock_signal() && check_halt.is_bound() && (signal->get_desc()->get_working_method() == time_interval || signal->get_desc()->get_working_method() == time_interval_with_telegraph || signal->get_desc()->get_working_method() == absolute_block))
 					{
 						signal = NULL;
 					}
@@ -4582,31 +4582,31 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 					}
 					
 					
-					if(!directional_only && (signal->get_besch()->is_longblock_signal() || signal->is_bidirectional()))
+					if(!directional_only && (signal->get_desc()->is_longblock_signal() || signal->is_bidirectional()))
 					{
 						last_bidirectional_signal_index = i;
 					}
 
-					if(previous_signal && !previous_signal->get_besch()->is_choose_sign())
+					if(previous_signal && !previous_signal->get_desc()->is_choose_sign())
 					{
 						previous_signal->set_no_junctions_to_next_signal(no_junctions_to_next_signal);
 					}
 					
 					previous_signal = signal;
-					if(working_method != time_interval_with_telegraph || last_longblock_signal_index >= INVALID_INDEX || signal->get_besch()->get_working_method() != time_interval)
+					if(working_method != time_interval_with_telegraph || last_longblock_signal_index >= INVALID_INDEX || signal->get_desc()->get_working_method() != time_interval)
 					{
 						// In time interval with telegraph method, do not change the working method to time interval when reserving beyond a longblock signal in the time interval with telegraph method.
-						working_method_t nwm = signal->get_besch()->get_working_method();
+						working_method_t nwm = signal->get_desc()->get_working_method();
 						if (first_stop_signal_index < INVALID_INDEX && (nwm == track_circuit_block || nwm == cab_signalling) && next_signal_working_method != cab_signalling && next_signal_working_method != track_circuit_block && remaining_aspects < 0)
 						{
 							// Set remaining_aspects correctly when transitioning to track circuit block or cab signalling from another working method
-							remaining_aspects = signal->get_besch()->get_aspects();
+							remaining_aspects = signal->get_desc()->get_aspects();
 						}
 						next_signal_working_method = nwm;
 						
 					}
 					next_signal_protects_no_junctions = signal->get_no_junctions_to_next_signal();
-					if(working_method == drive_by_sight && sch1->can_reserve(cnv->self, ribi) && (signal->get_pos() != cnv->get_last_signal_pos() || signal->get_besch()->get_working_method() != one_train_staff))
+					if(working_method == drive_by_sight && sch1->can_reserve(cnv->self, ribi) && (signal->get_pos() != cnv->get_last_signal_pos() || signal->get_desc()->get_working_method() != one_train_staff))
 					{
 						set_working_method(next_signal_working_method);
 					}
@@ -4633,9 +4633,9 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 						count --;
 					}
 
-					if(!signal->get_besch()->is_pre_signal()) // Stop signal or multiple aspect signal
+					if(!signal->get_desc()->is_pre_signal()) // Stop signal or multiple aspect signal
 					{
-						if(signal->get_besch()->get_working_method() == time_interval || signal->get_besch()->get_working_method() == time_interval_with_telegraph)
+						if(signal->get_desc()->get_working_method() == time_interval || signal->get_desc()->get_working_method() == time_interval_with_telegraph)
 						{
 							// Note that this gives the pure time interval state, ignoring whether the signal protects any junctions. 
 							sint64 last_passed;
@@ -4694,7 +4694,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 									if(gr_signalbox)
 									{
 										const gebaeude_t* gb = gr_signalbox->get_building();
-										if(gb && gb->get_tile()->get_besch()->get_utyp() == haus_besch_t::signalbox)
+										if(gb && gb->get_tile()->get_desc()->get_utyp() == haus_desc_t::signalbox)
 										{
 											sb = (signalbox_t*)gb; 
 										}
@@ -4705,7 +4705,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 										pre_signals.append(last_combined_signal); 
 										last_pre_signal_index = i;
 										signalbox_last_distant_signal = signal->get_signalbox();
-										last_distant_signal_was_intermediate_block = signal->get_besch()->get_intermediate_block();
+										last_distant_signal_was_intermediate_block = signal->get_desc()->get_intermediate_block();
 										signs.append(gr);
 									}
 									else
@@ -4721,7 +4721,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 									}
 								}
 								else if(signalbox_last_distant_signal != signal->get_signalbox() 
-									|| (signal->get_besch()->get_intermediate_block() ^ last_distant_signal_was_intermediate_block)) // XOR - allow intermediate block in advance or in rear, but do not allow them to be chained.
+									|| (signal->get_desc()->get_intermediate_block() ^ last_distant_signal_was_intermediate_block)) // XOR - allow intermediate block in advance or in rear, but do not allow them to be chained.
 								{
 									count --;
 									end_of_block = true;
@@ -4767,7 +4767,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 							end_of_block = true;
 						}				
 
-						if(!directional_only && next_signal_working_method == time_interval_with_telegraph && signal->get_no_junctions_to_next_signal() && signal->get_besch()->is_longblock_signal())
+						if(!directional_only && next_signal_working_method == time_interval_with_telegraph && signal->get_no_junctions_to_next_signal() && signal->get_desc()->is_longblock_signal())
 						{
 							directional_only = true;
 						}
@@ -4777,7 +4777,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 							next_signal_index = i;
 						}
 
-						if(signal->get_besch()->is_combined_signal())
+						if(signal->get_desc()->is_combined_signal())
 						{
 							// We cannot know yet whether it ought to be treated as a distant 
 							// without knowing whether it is close enough to the signalbox
@@ -4815,7 +4815,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 							}
 						}
 
-						if(signal->get_besch()->is_choose_sign())
+						if(signal->get_desc()->is_choose_sign())
 						{
 							last_choose_signal_index = i;
 							if(directional_only && last_bidirectional_signal_index < i)
@@ -4841,17 +4841,17 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 									else if(signal->get_state() == roadsign_t::caution || signal->get_state() == roadsign_t::caution_no_choose)
 									{
 										// Half line speed allowed for caution indications on time interval stop signals on straight track
-										cnv->set_maximum_signal_speed(min(kmh_to_speed(sch1->get_max_speed()) / 2, signal->get_besch()->get_max_speed() / 2));
+										cnv->set_maximum_signal_speed(min(kmh_to_speed(sch1->get_max_speed()) / 2, signal->get_desc()->get_max_speed() / 2));
 									}
 									else if(signal->get_state() == roadsign_t::clear || signal->get_state() == roadsign_t::clear_no_choose)
 									{
-										cnv->set_maximum_signal_speed(signal->get_besch()->get_max_speed());
+										cnv->set_maximum_signal_speed(signal->get_desc()->get_max_speed());
 									}
 								}
 								else // Junction signal
 								{
 									// Must proceed with great caution in basic time interval and some caution even with a telegraph (see LT&S Signalling, p. 5)						
-									if(signal->get_besch()->is_longblock_signal() && (station_signal || next_signal_working_method == time_interval_with_telegraph))
+									if(signal->get_desc()->is_longblock_signal() && (station_signal || next_signal_working_method == time_interval_with_telegraph))
 									{
 										if(next_time_interval_state == roadsign_t::danger || last_longblock_signal_index < INVALID_INDEX && i > first_stop_signal_index)
 										{
@@ -4860,31 +4860,31 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 										}
 										else if(next_time_interval_state == roadsign_t::caution || next_time_interval_state == roadsign_t::caution_no_choose)
 										{
-											cnv->set_maximum_signal_speed(min(kmh_to_speed(sch1->get_max_speed()) / 2, signal->get_besch()->get_max_speed() / 2));
+											cnv->set_maximum_signal_speed(min(kmh_to_speed(sch1->get_max_speed()) / 2, signal->get_desc()->get_max_speed() / 2));
 										}
 										else if(next_time_interval_state == roadsign_t::clear || next_time_interval_state == roadsign_t::clear_no_choose)
 										{
-											cnv->set_maximum_signal_speed(signal->get_besch()->get_max_speed());
+											cnv->set_maximum_signal_speed(signal->get_desc()->get_max_speed());
 										}
 									}
 									else if(next_signal_working_method == time_interval)
 									{
-										cnv->set_maximum_signal_speed(min(kmh_to_speed(sch1->get_max_speed()) / 2, signal->get_besch()->get_max_speed() / 2));
+										cnv->set_maximum_signal_speed(min(kmh_to_speed(sch1->get_max_speed()) / 2, signal->get_desc()->get_max_speed() / 2));
 									}
 									else // With telegraph
 									{
 										// The same as for caution
-										cnv->set_maximum_signal_speed(min(kmh_to_speed(sch1->get_max_speed()) / 2, signal->get_besch()->get_max_speed() / 2));
+										cnv->set_maximum_signal_speed(min(kmh_to_speed(sch1->get_max_speed()) / 2, signal->get_desc()->get_max_speed() / 2));
 									}
 								}
 							}
 							else
 							{
-								cnv->set_maximum_signal_speed(signal->get_besch()->get_max_speed());
+								cnv->set_maximum_signal_speed(signal->get_desc()->get_max_speed());
 							}
 							if(next_signal_working_method == track_circuit_block || next_signal_working_method == cab_signalling)
 							{
-								remaining_aspects = signal->get_besch()->get_aspects(); 
+								remaining_aspects = signal->get_desc()->get_aspects(); 
 							}
 							if(is_from_token && (working_method == token_block || working_method == absolute_block || next_signal_working_method == token_block || next_signal_working_method == absolute_block))
 							{
@@ -4894,7 +4894,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 						}
 						else if((next_signal_working_method == track_circuit_block || next_signal_working_method == cab_signalling) && !directional_only)
 						{
-							remaining_aspects = min(remaining_aspects - 1, signal->get_besch()->get_aspects()); 
+							remaining_aspects = min(remaining_aspects - 1, signal->get_desc()->get_aspects()); 
 						}
 						else if(next_signal_working_method == absolute_block && pre_signals.empty())
 						{
@@ -4916,7 +4916,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 						}
 						else if(next_signal_working_method == time_interval_with_telegraph || next_signal_working_method == time_interval)
 						{
-							if(signal->get_besch()->is_longblock_signal() && (last_longblock_signal_index < INVALID_INDEX || working_method == time_interval_with_telegraph))
+							if(signal->get_desc()->is_longblock_signal() && (last_longblock_signal_index < INVALID_INDEX || working_method == time_interval_with_telegraph))
 							{
 
 								if(next_time_interval_state == roadsign_t::danger || last_longblock_signal_index < INVALID_INDEX && i > first_stop_signal_index)
@@ -4940,7 +4940,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 									{
 										stop_at_station_signal = check_halt;
 									}
-									else if((!directional_only || signal->get_besch()->get_working_method() != time_interval) && !signal->get_no_junctions_to_next_signal())
+									else if((!directional_only || signal->get_desc()->get_working_method() != time_interval) && !signal->get_no_junctions_to_next_signal())
 									{
 										next_signal_index = i;
 										count --;
@@ -4961,7 +4961,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 							}
 						}
 
-						if(signal->get_besch()->get_working_method() == token_block)
+						if(signal->get_desc()->get_working_method() == token_block)
 						{
 							last_token_block_signal_index = i; 
 							const bool platform_starter = (this_halt.is_bound() && (haltestelle_t::get_halt(signal->get_pos(), get_owner())) == this_halt)
@@ -4978,7 +4978,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 						{
 							this_stop_signal_index = i;
 						}
-						if(signal->get_besch()->is_longblock_signal() || (station_signal && last_longblock_signal_index == INVALID_INDEX))
+						if(signal->get_desc()->is_longblock_signal() || (station_signal && last_longblock_signal_index == INVALID_INDEX))
 						{
 							last_longblock_signal_index = i;
 						}
@@ -4996,14 +4996,14 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 								&& i - start_index <= modified_sighting_distance_tiles
 								&& (last_signalbox_pos == koord3d::invalid
 								 || last_signalbox_pos != signal->get_signalbox()) 
-								 || ((!last_signal || !signal->get_besch()->get_intermediate_block())
-								 || signal->get_besch()->get_intermediate_block() ^ last_signal->get_besch()->get_intermediate_block()) // Cannot be two intermediate blocks in a row.
+								 || ((!last_signal || !signal->get_desc()->get_intermediate_block())
+								 || signal->get_desc()->get_intermediate_block() ^ last_signal->get_desc()->get_intermediate_block()) // Cannot be two intermediate blocks in a row.
 								&& (pre_signals.empty() || first_stop_signal_index == INVALID_INDEX))
 							{
 								pre_signals.append(signal); 
 								last_pre_signal_index = i;
 								signalbox_last_distant_signal = signal->get_signalbox();
-								last_distant_signal_was_intermediate_block = signal->get_besch()->get_intermediate_block();
+								last_distant_signal_was_intermediate_block = signal->get_desc()->get_intermediate_block();
 							}
 						}
 						else if(next_signal_working_method == track_circuit_block || next_signal_working_method == cab_signalling)
@@ -5245,7 +5245,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 				signal_t* signal = sch1->get_signal(direction_of_travel);
 				if(signal && !signal->get_no_junctions_to_next_signal())
 				{
-					if(signal->get_besch()->is_pre_signal())
+					if(signal->get_desc()->is_pre_signal())
 					{
 						signal->set_state(roadsign_t::caution);
 					}
@@ -5316,7 +5316,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 					{
 						if(signal_t* sg = welt->lookup(route->at(next_next_signal))->get_weg(get_waytype())->get_signal(ribi_type((route->at(next_next_signal - 1)), route->at(next_next_signal))))
 						{
-							if(!sg->is_bidirectional() || sg->get_besch()->is_longblock_signal())
+							if(!sg->is_bidirectional() || sg->get_desc()->is_longblock_signal())
 							{
 								break;
 							}
@@ -5476,7 +5476,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 		// Clear any station signals
 		if(first_station_signal)
 		{
-			if(first_station_signal->get_besch()->get_working_method() == absolute_block && success)
+			if(first_station_signal->get_desc()->get_working_method() == absolute_block && success)
 			{
 				first_station_signal->set_state(station_signal == inverse ? roadsign_t::clear : roadsign_t::clear_no_choose); 
 			}
@@ -5498,18 +5498,18 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 		{
 			if(signal_t* const signal = g->find<signal_t>())
 			{
-				if(((counter -- || (pre_signals.empty() && (!starting_at_signal || signs.get_count() == 1)) || (reached_end_of_loop && (early_platform_index == INVALID_INDEX || last_stop_signal_index < early_platform_index))) && (signal->get_besch()->get_working_method() != token_block || starting_at_signal)) && route->at(route->get_count() - 1) != signal->get_pos())
+				if(((counter -- || (pre_signals.empty() && (!starting_at_signal || signs.get_count() == 1)) || (reached_end_of_loop && (early_platform_index == INVALID_INDEX || last_stop_signal_index < early_platform_index))) && (signal->get_desc()->get_working_method() != token_block || starting_at_signal)) && route->at(route->get_count() - 1) != signal->get_pos())
 				{
-					const bool use_no_choose_aspect = signal->get_besch()->is_choose_sign() && !is_choosing && choose_return == 0;
-					if(signal->get_besch()->get_working_method() == absolute_block || signal->get_besch()->get_working_method() == token_block || signal->get_besch()->get_working_method() == cab_signalling)
+					const bool use_no_choose_aspect = signal->get_desc()->is_choose_sign() && !is_choosing && choose_return == 0;
+					if(signal->get_desc()->get_working_method() == absolute_block || signal->get_desc()->get_working_method() == token_block || signal->get_desc()->get_working_method() == cab_signalling)
 					{
 						// There is no need to set a combined signal to clear here, as this is set below in the pre-signals clearing loop.
-						signal->set_state(use_no_choose_aspect && signal->get_state() != roadsign_t::clear ? roadsign_t::clear_no_choose : signal->get_besch()->is_combined_signal() ? roadsign_t::caution : roadsign_t::clear);
+						signal->set_state(use_no_choose_aspect && signal->get_state() != roadsign_t::clear ? roadsign_t::clear_no_choose : signal->get_desc()->is_combined_signal() ? roadsign_t::caution : roadsign_t::clear);
 					}
 
-					if((signal->get_besch()->get_working_method() == time_interval || signal->get_besch()->get_working_method() == time_interval_with_telegraph) && (end_of_block || i >= last_stop_signal_index + 1 || time_interval_junction_signal))
+					if((signal->get_desc()->get_working_method() == time_interval || signal->get_desc()->get_working_method() == time_interval_with_telegraph) && (end_of_block || i >= last_stop_signal_index + 1 || time_interval_junction_signal))
 					{
-						if((signal->get_besch()->get_working_method() == time_interval_with_telegraph || signal->get_besch()->get_working_method() == time_interval) && signal->get_besch()->is_longblock_signal())
+						if((signal->get_desc()->get_working_method() == time_interval_with_telegraph || signal->get_desc()->get_working_method() == time_interval) && signal->get_desc()->is_longblock_signal())
 						{
 							// Longblock signals in time interval can clear fully.
 							// We also assume that these will not also be choose signals.
@@ -5521,7 +5521,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 						}
 					}
 
-					if(signal->get_besch()->get_working_method() == track_circuit_block)
+					if(signal->get_desc()->get_working_method() == track_circuit_block)
 					{
 						if(count >= 0 || next_signal_index > route->get_count() - 1 || signal->get_pos() != route->at(next_signal_index))
 						{
@@ -5532,7 +5532,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 								add_value = 1;
 							}
 						
-							switch(signal->get_besch()->get_aspects())
+							switch(signal->get_desc()->get_aspects())
 							{
 							case 2:
 							default:
@@ -5656,9 +5656,9 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 void rail_vehicle_t::clear_token_reservation(signal_t* sig, rail_vehicle_t* w, schiene_t* sch)
 {
 	route_t* route = cnv ? cnv->get_route() : NULL;
-	if(sig && !sig->get_besch()->get_working_method() == token_block && cnv->get_state() != convoi_t::REVERSING)
+	if(sig && !sig->get_desc()->get_working_method() == token_block && cnv->get_state() != convoi_t::REVERSING)
 	{
-		w->set_working_method(sig->get_besch()->get_working_method());
+		w->set_working_method(sig->get_desc()->get_working_method());
 	}
 	if(cnv->get_needs_full_route_flush())
 	{
@@ -5842,13 +5842,13 @@ void rail_vehicle_t::leave_tile()
 					if(sig) 
 					{
 						sig->set_train_last_passed(welt->get_zeit_ms());
-						if(sig->get_no_junctions_to_next_signal() && !sig->get_besch()->is_pre_signal() && (sig->get_besch()->get_working_method() == time_interval || sig->get_besch()->get_working_method() == time_interval_with_telegraph))
+						if(sig->get_no_junctions_to_next_signal() && !sig->get_desc()->is_pre_signal() && (sig->get_desc()->get_working_method() == time_interval || sig->get_desc()->get_working_method() == time_interval_with_telegraph))
 						{
 							welt->add_time_interval_signal_to_check(sig); 
 						}
 						if(!route)
 						{
-							if(sig->get_besch()->is_pre_signal())
+							if(sig->get_desc()->is_pre_signal())
 							{
 								sig->set_state(roadsign_t::caution);
 							}
@@ -5861,8 +5861,8 @@ void rail_vehicle_t::leave_tile()
 						else if(w &&
 							(w->get_working_method() == token_block
 							|| (w->get_working_method() == one_train_staff
-							&& sig->get_besch()->get_working_method() == one_train_staff))
-							&& !sig->get_besch()->is_pre_signal()
+							&& sig->get_desc()->get_working_method() == one_train_staff))
+							&& !sig->get_desc()->is_pre_signal()
 							&& cnv->get_state() != convoi_t::REVERSING)
 						{
 							// On passing a signal, clear all the so far uncleared reservation when in token block mode.
@@ -5871,11 +5871,11 @@ void rail_vehicle_t::leave_tile()
 							// sections.
 							clear_token_reservation(sig, w, sch0);							
 						}
-						else if((sig->get_besch()->get_working_method() == track_circuit_block
-							|| sig->get_besch()->get_working_method() == cab_signalling
+						else if((sig->get_desc()->get_working_method() == track_circuit_block
+							|| sig->get_desc()->get_working_method() == cab_signalling
 							|| (w && (w->get_working_method() == track_circuit_block
 							|| w->get_working_method() == cab_signalling)))
-							&& !sig->get_besch()->is_pre_signal())
+							&& !sig->get_desc()->is_pre_signal())
 						{
 							// Must reset all "automatic" signals behind this convoy to less restrictive states unless they are of the normal danger type.
 							koord3d last_pos = get_pos(); 
@@ -5899,7 +5899,7 @@ void rail_vehicle_t::leave_tile()
 									{
 										continue;
 									}
-									if(!signal_route->get_besch()->is_pre_signal() && (!signal_route->get_no_junctions_to_next_signal() || signal_route->get_besch()->is_choose_sign() || signal_route->get_besch()->get_normal_danger()))
+									if(!signal_route->get_desc()->is_pre_signal() && (!signal_route->get_no_junctions_to_next_signal() || signal_route->get_desc()->is_choose_sign() || signal_route->get_desc()->get_normal_danger()))
 									{
 										break;
 									}
@@ -5907,7 +5907,7 @@ void rail_vehicle_t::leave_tile()
 									switch(signals_count)
 									{
 									case 0:
-										if(signal_route->get_besch()->get_aspects() > 2 || signal_route->get_besch()->is_pre_signal())
+										if(signal_route->get_desc()->get_aspects() > 2 || signal_route->get_desc()->is_pre_signal())
 										{
 											signal_route->set_state(roadsign_t::caution);
 										}
@@ -5917,7 +5917,7 @@ void rail_vehicle_t::leave_tile()
 										}			
 										break;
 									case 1:
-										if(signal_route->get_besch()->get_aspects() > 3)
+										if(signal_route->get_desc()->get_aspects() > 3)
 										{
 											signal_route->set_state(roadsign_t::preliminary_caution);
 										}
@@ -5927,7 +5927,7 @@ void rail_vehicle_t::leave_tile()
 										}
 									break;
 									case 2:
-										if(signal_route->get_besch()->get_aspects() > 4)
+										if(signal_route->get_desc()->get_aspects() > 4)
 										{
 											signal_route->set_state(roadsign_t::advance_caution);
 										}
@@ -5944,12 +5944,12 @@ void rail_vehicle_t::leave_tile()
 							}
 						}
 
-						if(!sig->get_besch()->is_pre_signal())
+						if(!sig->get_desc()->is_pre_signal())
 						{
 							sig->set_state(roadsign_t::danger);
 						}
 
-						if(route && !sig->get_besch()->is_pre_signal() && (w && (w->get_working_method() == absolute_block || w->get_working_method() == token_block || w->get_working_method() == time_interval || w->get_working_method() == time_interval_with_telegraph)))
+						if(route && !sig->get_desc()->is_pre_signal() && (w && (w->get_working_method() == absolute_block || w->get_working_method() == token_block || w->get_working_method() == time_interval || w->get_working_method() == time_interval_with_telegraph)))
 						{
 							// Set distant signals in the rear to caution only after the train has passed the stop signal.
 							int count = 0;
@@ -5973,10 +5973,10 @@ void rail_vehicle_t::leave_tile()
 								{
 									count++;
 								}
-								if(sig_route && sig_route->get_besch()->is_pre_signal())
+								if(sig_route && sig_route->get_desc()->is_pre_signal())
 								{
 									sig_route->set_state(roadsign_t::caution);
-									if(sig_route->get_besch()->get_working_method() == time_interval || sig_route->get_besch()->get_working_method() == time_interval_with_telegraph)
+									if(sig_route->get_desc()->get_working_method() == time_interval || sig_route->get_desc()->get_working_method() == time_interval_with_telegraph)
 									{
 										sig_route->set_train_last_passed(welt->get_zeit_ms());
 										if(sig->get_no_junctions_to_next_signal())
@@ -6056,7 +6056,7 @@ void rail_vehicle_t::enter_tile(grund_t* gr)
 
 schedule_t * rail_vehicle_t::generate_new_schedule() const
 {
-	return besch->get_waytype()==tram_wt ? new tramschedule_t() : new zugschedule_t();
+	return desc->get_waytype()==tram_wt ? new tramschedule_t() : new zugschedule_t();
 }
 
 
@@ -6078,11 +6078,11 @@ schedule_t * narrowgauge_rail_vehicle_t::generate_new_schedule() const
 }
 
 
-water_vehicle_t::water_vehicle_t(koord3d pos, const vehikel_besch_t* besch, player_t* player, convoi_t* cn) :
+water_vehicle_t::water_vehicle_t(koord3d pos, const vehikel_desc_t* desc, player_t* player, convoi_t* cn) :
 #ifdef INLINE_OBJ_TYPE
-    vehicle_t(obj_t::water_vehicle, pos, besch, player)
+    vehicle_t(obj_t::water_vehicle, pos, desc, player)
 #else
-	vehicle_t(pos, besch, player)
+	vehicle_t(pos, desc, player)
 #endif
 {
 	cnv = cn;
@@ -6098,22 +6098,22 @@ water_vehicle_t::water_vehicle_t(loadsave_t *file, bool is_leading, bool is_last
 	vehicle_t::rdwr_from_convoi(file);
 
 	if(  file->is_loading()  ) {
-		static const vehikel_besch_t *last_besch = NULL;
+		static const vehikel_desc_t *last_desc = NULL;
 
 		if(is_leading) {
-			last_besch = NULL;
+			last_desc = NULL;
 		}
 		// try to find a matching vehicle
-		if(besch==NULL) {
+		if(desc==NULL) {
 			dbg->warning("water_vehicle_t::water_vehicle_t()", "try to find a fitting vehicle for %s.", !fracht.empty() ? fracht.front().get_name() : "passagiere");
-			besch = vehikelbauer_t::get_best_matching(water_wt, 0, fracht.empty() ? 0 : 30, 100, 40, !fracht.empty() ? fracht.front().get_besch() : warenbauer_t::passagiere, true, last_besch, is_last );
-			if(besch) {
+			desc = vehikelbauer_t::get_best_matching(water_wt, 0, fracht.empty() ? 0 : 30, 100, 40, !fracht.empty() ? fracht.front().get_desc() : warenbauer_t::passagiere, true, last_desc, is_last );
+			if(desc) {
 				calc_image();
 			}
 		}
-		// update last besch
-		if(  besch  ) {
-			last_besch = besch;
+		// update last desc
+		if(  desc  ) {
+			last_desc = desc;
 		}
 	}
 }
@@ -6144,19 +6144,19 @@ bool water_vehicle_t::check_next_tile(const grund_t *bd) const
 		}
 		else
 		{	
-			return besch->get_way_constraints().get_permissive() == 0;
+			return desc->get_way_constraints().get_permissive() == 0;
 		}
 	}
 	// channel can have more stuff to check
 #if ENABLE_WATERWAY_SIGNS
 	if(  w  &&  w->has_sign()  ) {
 		const roadsign_t* rs = bd->find<roadsign_t>();
-		if(  rs->get_besch()->get_wtyp()==get_waytype()  ) {
-			if(  cnv !=NULL  &&  rs->get_besch()->get_min_speed() > 0  &&  rs->get_besch()->get_min_speed() > cnv->get_min_top_speed()  ) {
+		if(  rs->get_desc()->get_wtyp()==get_waytype()  ) {
+			if(  cnv !=NULL  &&  rs->get_desc()->get_min_speed() > 0  &&  rs->get_desc()->get_min_speed() > cnv->get_min_top_speed()  ) {
 				// below speed limit
 				return false;
 			}
-			if(  rs->get_besch()->is_private_way()  &&  (rs->get_player_mask() & (1<<get_player_nr()) ) == 0  ) {
+			if(  rs->get_desc()->is_private_way()  &&  (rs->get_player_mask() & (1<<get_player_nr()) ) == 0  ) {
 				// private road
 				return false;
 			}
@@ -6249,7 +6249,7 @@ bool water_vehicle_t::check_tile_occupancy(const grund_t* gr)
 {
 	const uint8 base_max_vehicles_on_tile = 128;
 	const weg_t *w = gr->get_weg(water_wt);
-	uint8 max_water_vehicles_on_tile = w ? w->get_besch()->get_max_vehicles_on_tile() : base_max_vehicles_on_tile;
+	uint8 max_water_vehicles_on_tile = w ? w->get_desc()->get_max_vehicles_on_tile() : base_max_vehicles_on_tile;
 	uint8 water_vehicles_on_tile = gr->get_top();
 
 	if(water_vehicles_on_tile > max_water_vehicles_on_tile) 
@@ -6305,7 +6305,7 @@ bool air_vehicle_t:: is_target(const grund_t *gr,const grund_t *)
 	{
 		// search for the end of the runway
 		const weg_t *w=gr->get_weg(air_wt);
-		if(w  &&  w->get_besch()->get_styp()==type_runway)
+		if(w  &&  w->get_desc()->get_styp()==type_runway)
 		{
 			// ok here is a runway
 			ribi_t::ribi ribi= w->get_ribi_unmasked();
@@ -6316,7 +6316,7 @@ bool air_vehicle_t:: is_target(const grund_t *gr,const grund_t *)
 				return true;
 				/* BELOW CODE NOT WORKING
 				// Check for length
-				const uint16 min_runway_length_meters = besch->get_minimum_runway_length();
+				const uint16 min_runway_length_meters = desc->get_minimum_runway_length();
 				const uint16 min_runway_length_tiles = min_runway_length_meters / welt->get_settings().get_meters_per_tile();
 				for(uint16 i = 0; i <= min_runway_length_tiles; i ++)
 				{
@@ -6328,7 +6328,7 @@ bool air_vehicle_t:: is_target(const grund_t *gr,const grund_t *)
 							const weg_t* w2 = gr2->get_weg(air_wt);
 							if(
 								w2 &&
-								w2->get_besch()->get_styp() == 1 &&
+								w2->get_desc()->get_styp() == 1 &&
 								ribi_t::is_single(w2->get_ribi_unmasked()) &&
 								(w2->get_ribi_unmasked() & approach_dir) != 0
 								)
@@ -6428,7 +6428,7 @@ int air_vehicle_t::get_cost(const grund_t *gr, const sint32, koord)
 			costs += 1;
 		}
 		else {
-			if(w->get_besch()->get_styp()==type_flat) {
+			if(w->get_desc()->get_styp()==type_flat) {
 				costs += 25;
 			}
 		}
@@ -6437,7 +6437,7 @@ int air_vehicle_t::get_cost(const grund_t *gr, const sint32, koord)
 		// only, if not flying ...
 		assert(w);
 
-		if(w->get_besch()->get_styp()==type_flat) {
+		if(w->get_desc()->get_styp()==type_flat) {
 			costs += 3;
 		}
 		else {
@@ -6610,7 +6610,7 @@ bool air_vehicle_t::calc_route_internal(
 {
 	//DBG_MESSAGE("air_vehicle_t::calc_route_internal()","search route from %i,%i,%i to %i,%i,%i",start.x,start.y,start.z,ziel.x,ziel.y,ziel.z);
 
-	const bool vtol = get_besch()->get_minimum_runway_length() == 0;
+	const bool vtol = get_desc()->get_minimum_runway_length() == 0;
 	runway_too_short = false;
 	search_for_stop = takeoff = touchdown = INVALID_INDEX;
 	if(vtol)
@@ -6636,7 +6636,7 @@ bool air_vehicle_t::calc_route_internal(
 	}
 
 	koord3d search_start, search_end;
-	if(start_in_air || vtol || (w_start && w_start->get_besch()->get_styp()==type_runway && ribi_t::is_single(w_start->get_ribi())))
+	if(start_in_air || vtol || (w_start && w_start->get_desc()->get_styp()==type_runway && ribi_t::is_single(w_start->get_ribi())))
 	{
 		// we start here, if we are in the air or at the end of a runway
 		search_start = start;
@@ -6887,7 +6887,7 @@ int air_vehicle_t::block_reserver( uint32 start, uint32 end, bool reserve ) cons
 
 	uint16 runway_tiles = end - start;
 	uint16 runway_meters = runway_tiles * welt->get_settings().get_meters_per_tile();
-	const uint16 min_runway_length_meters = besch->get_minimum_runway_length();
+	const uint16 min_runway_length_meters = desc->get_minimum_runway_length();
 	int success = runway_meters >= min_runway_length_meters ? 1 : 2;
 
 	for(  uint32 i=start;  success  &&  i<end  &&  i<route->get_count();  i++) {
@@ -7014,7 +7014,7 @@ bool air_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uin
 			return false;
 		}
 		// next tile a runway => then reserve
-		if(rw->get_besch()->get_styp()==type_elevated) {
+		if(rw->get_desc()->get_styp()==type_elevated) {
 			// try to reserve the runway
 			//const uint16 runway_length_tiles = ((search_for_stop+1) - touchdown) - takeoff;
 			const int runway_state = block_reserver(takeoff,takeoff+100,true);
@@ -7180,32 +7180,32 @@ air_vehicle_t::air_vehicle_t(loadsave_t *file, bool is_leading, bool is_last) :
 	runway_too_short = false;
 
 	if(  file->is_loading()  ) {
-		static const vehikel_besch_t *last_besch = NULL;
+		static const vehikel_desc_t *last_desc = NULL;
 
 		if(is_leading) {
-			last_besch = NULL;
+			last_desc = NULL;
 		}
 		// try to find a matching vehicle
-		if(besch==NULL) {
+		if(desc==NULL) {
 			dbg->warning("air_vehicle_t::air_vehicle_t()", "try to find a fitting vehicle for %s.", !fracht.empty() ? fracht.front().get_name() : "passagiere");
-			besch = vehikelbauer_t::get_best_matching(air_wt, 0, 101, 1000, 800, !fracht.empty() ? fracht.front().get_besch() : warenbauer_t::passagiere, true, last_besch, is_last );
-			if(besch) {
+			desc = vehikelbauer_t::get_best_matching(air_wt, 0, 101, 1000, 800, !fracht.empty() ? fracht.front().get_desc() : warenbauer_t::passagiere, true, last_desc, is_last );
+			if(desc) {
 				calc_image();
 			}
 		}
-		// update last besch
-		if(  besch  ) {
-			last_besch = besch;
+		// update last desc
+		if(  desc  ) {
+			last_desc = desc;
 		}
 	}
 }
 
 
-air_vehicle_t::air_vehicle_t(koord3d pos, const vehikel_besch_t* besch, player_t* player, convoi_t* cn) :
+air_vehicle_t::air_vehicle_t(koord3d pos, const vehikel_desc_t* desc, player_t* player, convoi_t* cn) :
 #ifdef INLINE_OBJ_TYPE
-    vehicle_t(obj_t::air_vehicle, pos, besch, player)
+    vehicle_t(obj_t::air_vehicle, pos, desc, player)
 #else
-	vehicle_t(pos, besch, player)
+	vehicle_t(pos, desc, player)
 #endif
 {
 	cnv = cn;
@@ -7266,7 +7266,7 @@ air_vehicle_t::set_convoi(convoi_t *c)
 			// restore reservation
 			if(  grund_t *gr = welt->lookup(get_pos())  ) {
 				if(  weg_t *weg = gr->get_weg(air_wt)  ) {
-					if(  weg->get_besch()->get_styp()==type_runway  ) {
+					if(  weg->get_desc()->get_styp()==type_runway  ) {
 						// but only if we are on a runway ...
 						if(  route_index>=takeoff  &&  route_index<touchdown-21  &&  state!=flying  ) {
 							block_reserver( takeoff, takeoff+100, true );
@@ -7373,10 +7373,10 @@ void air_vehicle_t::hop(grund_t* gr)
 			weg_t *weg=welt->lookup(get_pos())->get_weg(air_wt);
 			const sint16 runway_tiles_so_far = route_index - takeoff;
 			const sint16 runway_meters_so_far = runway_tiles_so_far * welt->get_settings().get_meters_per_tile();
-			const uint16 min_runway_length_meters = besch->get_minimum_runway_length();
+			const uint16 min_runway_length_meters = desc->get_minimum_runway_length();
 
 			if(  (weg==NULL  ||  // end of runway (broken runway)
-				 weg->get_besch()->get_styp()!=type_runway  ||  // end of runway (grass now ... )
+				 weg->get_desc()->get_styp()!=type_runway  ||  // end of runway (grass now ... )
 				 (route_index>takeoff+1  &&  ribi_t::is_single(weg->get_ribi_unmasked())) )  ||  // single ribi at end of runway
 				 (min_runway_length_meters && runway_meters_so_far >= min_runway_length_meters)   //  has reached minimum runway length
 			) {
@@ -7389,7 +7389,7 @@ void air_vehicle_t::hop(grund_t* gr)
 			break;
 		}
 		case circling: {
-			new_speed_limit = kmh_to_speed(besch->get_geschw())/3;
+			new_speed_limit = kmh_to_speed(desc->get_geschw())/3;
 			new_friction = 4;
 			// do not change height any more while circling
 			flying_height += h_cur;
@@ -7418,7 +7418,7 @@ void air_vehicle_t::hop(grund_t* gr)
 			break;
 		}
 		case landing: {
-			new_speed_limit = kmh_to_speed(besch->get_geschw())/3; // ==approach speed
+			new_speed_limit = kmh_to_speed(desc->get_geschw())/3; // ==approach speed
 			new_friction = 8;
 			flying_height += h_cur;
 			if(  flying_height < target_height  ) {
@@ -7434,7 +7434,7 @@ void air_vehicle_t::hop(grund_t* gr)
 
 				// touchdown!
 				if (flying_height==h_next) {
-					const sint32 taxi_speed = kmh_to_speed( min( 60, besch->get_geschw()/4 ) );
+					const sint32 taxi_speed = kmh_to_speed( min( 60, desc->get_geschw()/4 ) );
 					if(  cnv->get_akt_speed() <= taxi_speed  ) {
 						new_speed_limit = taxi_speed;
 						new_friction = 16;
@@ -7443,7 +7443,7 @@ void air_vehicle_t::hop(grund_t* gr)
 						const sint32 runway_left = search_for_stop - route_index;
 						new_speed_limit = min( new_speed_limit, runway_left*runway_left*taxi_speed ); // ...approach 540 240 60 60
 						const sint32 runway_left_fr = max( 0, 6-runway_left );
-						new_friction = max( new_friction, min( besch->get_geschw()/12, 4 + 4*(runway_left_fr*runway_left_fr+1) )); // ...8 8 12 24 44 72 108 152
+						new_friction = max( new_friction, min( desc->get_geschw()/12, 4 + 4*(runway_left_fr*runway_left_fr+1) )); // ...8 8 12 24 44 72 108 152
 					}
 				}
 			}
@@ -7464,7 +7464,7 @@ void air_vehicle_t::hop(grund_t* gr)
 			break;
 		}
 		default: {
-			new_speed_limit = kmh_to_speed( min( 60, besch->get_geschw()/4 ) );
+			new_speed_limit = kmh_to_speed( min( 60, desc->get_geschw()/4 ) );
 			new_friction = 16;
 			flying_height = 0;
 			target_height = h_next;

@@ -115,7 +115,7 @@ halt_list_filter_frame_t::halt_list_filter_frame_t(player_t *player, halt_list_f
 
 	int n=0;
 	for(  int i=0;  i<warenbauer_t::get_count();  i++  ) {
-		const ware_besch_t *ware = warenbauer_t::get_info(i);
+		const ware_desc_t *ware = warenbauer_t::get_info(i);
 		if(  ware != warenbauer_t::nichts  ) {
 			ware_item_t *item = new ware_item_t(this, NULL, ware);
 			item->init(button_t::square, translator::translate(ware->get_name()), scr_coord(5, D_BUTTON_HEIGHT*n++));
@@ -141,7 +141,7 @@ halt_list_filter_frame_t::halt_list_filter_frame_t(player_t *player, halt_list_f
 
 	n=0;
 	for(  int i=0;  i<warenbauer_t::get_count();  i++  ) {
-		const ware_besch_t *ware = warenbauer_t::get_info(i);
+		const ware_desc_t *ware = warenbauer_t::get_info(i);
 		if(  ware != warenbauer_t::nichts  ) {
 		ware_item_t *item = new ware_item_t(this, ware, NULL);
 		item->init(button_t::square, translator::translate(ware->get_name()), scr_coord(5, D_BUTTON_HEIGHT*n++));
@@ -220,7 +220,7 @@ bool halt_list_filter_frame_t::action_triggered( gui_action_creator_t *comp,valu
 }
 
 
-void halt_list_filter_frame_t::ware_item_triggered(const ware_besch_t *ware_ab, const ware_besch_t *ware_an)
+void halt_list_filter_frame_t::ware_item_triggered(const ware_desc_t *ware_ab, const ware_desc_t *ware_an)
 {
 	if (ware_ab) {
 		main_frame->set_ware_filter_ab(ware_ab, -1);

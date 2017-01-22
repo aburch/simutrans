@@ -28,7 +28,7 @@ void brueckenboden_t::calc_image_internal(const bool calc_only_snowline_change)
 {
 	if(  ist_karten_boden()  ) {
 
-		set_image( grund_besch_t::get_ground_tile(this) );
+		set_image( grund_desc_t::get_ground_tile(this) );
 
 		if(  !calc_only_snowline_change  ) {
 			grund_t::calc_back_image( get_pos().z, slope );
@@ -78,13 +78,13 @@ void brueckenboden_t::rdwr(loadsave_t *file)
 		dbg->error( "brueckenboden_t::rdwr()","no bridge on bridge ground at (%s); try replacement", pos.get_str() );
 		weg_t *w = get_weg_nr(0);
 		if(w) {
-			const bruecke_besch_t *br_besch = brueckenbauer_t::find_bridge( w->get_waytype(), w->get_max_speed(), 0 );
+			const bruecke_desc_t *br_desc = brueckenbauer_t::find_bridge( w->get_waytype(), w->get_max_speed(), 0 );
 			const grund_t *kb = welt->lookup_kartenboden(get_pos().get_2d());
 			int height = 1;
 			if(  kb && get_pos().z - kb->get_pos().z > 1 ) {
 				height = 2;
 			}
-			bruecke_t *br = new bruecke_t( get_pos(), welt->get_public_player(), br_besch, ist_karten_boden() ? br_besch->get_end( slope, get_grund_hang(), get_weg_hang() ) : br_besch->get_simple( w->get_ribi_unmasked(), height ) );
+			bruecke_t *br = new bruecke_t( get_pos(), welt->get_public_player(), br_desc, ist_karten_boden() ? br_desc->get_end( slope, get_grund_hang(), get_weg_hang() ) : br_desc->get_simple( w->get_ribi_unmasked(), height ) );
 			obj_add( br );
 		}
 	}
@@ -112,9 +112,9 @@ sint8 brueckenboden_t::get_weg_yoff() const
 void brueckenboden_t::info(cbuffer_t & buf, bool dummy) const
 {
 	const bruecke_t *bridge = find<bruecke_t>();
-	if(bridge  &&  bridge->get_besch()) {
-		const bruecke_besch_t *besch = bridge->get_besch();
-		buf.append(translator::translate(besch->get_name()));
+	if(bridge  &&  bridge->get_desc()) {
+		const bruecke_desc_t *desc = bridge->get_desc();
+		buf.append(translator::translate(desc->get_name()));
 		buf.append("\n");
 	}
 	grund_t::info(buf);

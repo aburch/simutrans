@@ -21,24 +21,24 @@
 
 static uint32 const strecke[] = { 6000, 11000, 15000, 20000, 25000, 30000, 35000, 40000 };
 
-static weighted_vector_tpl<const fussgaenger_besch_t*> liste; // All pedestrians
-static weighted_vector_tpl<const fussgaenger_besch_t*> current_pedestrians; // Only those allowed on the current timeline
-stringhashtable_tpl<const fussgaenger_besch_t *> pedestrian_t::table;
+static weighted_vector_tpl<const fussgaenger_desc_t*> liste; // All pedestrians
+static weighted_vector_tpl<const fussgaenger_desc_t*> current_pedestrians; // Only those allowed on the current timeline
+stringhashtable_tpl<const fussgaenger_desc_t *> pedestrian_t::table;
 
 
-static bool compare_fussgaenger_besch(const fussgaenger_besch_t* a, const fussgaenger_besch_t* b)
+static bool compare_fussgaenger_desc(const fussgaenger_desc_t* a, const fussgaenger_desc_t* b)
 {
 	// sort pedestrian objects descriptors by their name
 	return strcmp(a->get_name(), b->get_name())<0;
 }
 
 
-bool pedestrian_t::register_besch(const fussgaenger_besch_t *besch)
+bool pedestrian_t::register_desc(const fussgaenger_desc_t *desc)
 {
-	if(  table.remove(besch->get_name())  ) {
-		dbg->warning( "fussgaenger_besch_t::register_besch()", "Object %s was overlaid by addon!", besch->get_name() );
+	if(  table.remove(desc->get_name())  ) {
+		dbg->warning( "fussgaenger_desc_t::register_desc()", "Object %s was overlaid by addon!", desc->get_name() );
 	}
-	table.put(besch->get_name(), besch);
+	table.put(desc->get_name(), desc);
 	return true;
 }
 
@@ -50,12 +50,12 @@ bool pedestrian_t::alles_geladen()
 		DBG_MESSAGE("pedestrian_t", "No pedestrians found - feature disabled");
 	}
 	else {
-		vector_tpl<const fussgaenger_besch_t*> temp_liste(0);
-		FOR(stringhashtable_tpl<fussgaenger_besch_t const*>, const& i, table) {
+		vector_tpl<const fussgaenger_desc_t*> temp_liste(0);
+		FOR(stringhashtable_tpl<fussgaenger_desc_t const*>, const& i, table) {
 			// just entered them sorted
-			temp_liste.insert_ordered(i.value, compare_fussgaenger_besch);
+			temp_liste.insert_ordered(i.value, compare_fussgaenger_desc);
 		}
-		FOR(vector_tpl<fussgaenger_besch_t const*>, const i, temp_liste) {
+		FOR(vector_tpl<fussgaenger_desc_t const*>, const i, temp_liste) {
 			liste.append(i, i->get_gewichtung());
 		}
 	}
@@ -71,7 +71,7 @@ pedestrian_t::pedestrian_t(loadsave_t *file)
 #endif
 {
 	rdwr(file);
-	if(besch) {
+	if(desc) {
 		welt->sync.add(this);
 	}
 }
@@ -83,7 +83,7 @@ pedestrian_t::pedestrian_t(grund_t *gr, uint32 time_to_live) :
 #else
 	road_user_t(gr, simrand(65535, "pedestrian_t::pedestrian_t (weg_next)")),
 #endif
-	besch(pick_any_weighted(current_pedestrians))
+	desc(pick_any_weighted(current_pedestrians))
 {
 	time_to_life = time_to_live == 0 ? pick_any(strecke) : time_to_live;
 	calc_image();
@@ -100,13 +100,13 @@ pedestrian_t::~pedestrian_t()
 
 void pedestrian_t::calc_image()
 {
-	if(!besch)
+	if(!desc)
 	{
 		time_to_life = 0;
 	}
 	else
 	{
-		set_image(besch->get_image_id(ribi_t::get_dir(get_direction())));
+		set_image(desc->get_image_id(ribi_t::get_dir(get_direction())));
 	}
 }
 
@@ -119,16 +119,16 @@ void pedestrian_t::rdwr(loadsave_t *file)
 	road_user_t::rdwr(file);
 
 	if(!file->is_loading()) {
-		const char *s = besch->get_name();
+		const char *s = desc->get_name();
 		file->rdwr_str(s);
 	}
 	else {
 		char s[256];
 		file->rdwr_str(s, lengthof(s));
-		besch = table.get(s);
+		desc = table.get(s);
 		// unknown pedestrian => create random new one
-		if(besch == NULL  &&  !liste.empty()  ) {
-			besch = pick_any_weighted(liste);
+		if(desc == NULL  &&  !liste.empty()  ) {
+			desc = pick_any_weighted(liste);
 		}
 	}
 
@@ -289,7 +289,7 @@ void pedestrian_t::hop(grund_t *gr)
 void pedestrian_t::check_timeline_pedestrians()
 {
 	current_pedestrians.clear();
-	FOR(weighted_vector_tpl<const fussgaenger_besch_t*>, fb, liste)
+	FOR(weighted_vector_tpl<const fussgaenger_desc_t*>, fb, liste)
 	{
 		if (fb->is_available(world()->get_timeline_year_month()))
 		{

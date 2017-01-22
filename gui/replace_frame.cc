@@ -44,7 +44,7 @@ replace_frame_t::replace_frame_t(convoihandle_t cnv, const char *name):
 	lb_n_sell(NULL, SYSCOL_TEXT, gui_label_t::left),
 	lb_n_skip(NULL, SYSCOL_TEXT, gui_label_t::left),
 	convoy_assembler(
-		cnv->get_vehikel(0)->get_besch()->get_waytype(),  
+		cnv->get_vehikel(0)->get_desc()->get_waytype(),  
 		cnv->get_owner()->get_player_nr(), 
 		_is_electrified(welt, cnv))
 {	
@@ -107,11 +107,11 @@ replace_frame_t::replace_frame_t(convoihandle_t cnv, const char *name):
 	}
 	else
 	{
-		vector_tpl<const vehikel_besch_t*> *existing_vehicles = new vector_tpl<const vehikel_besch_t*>();
+		vector_tpl<const vehikel_desc_t*> *existing_vehicles = new vector_tpl<const vehikel_desc_t*>();
 		uint8 count = cnv->get_vehicle_count();
 		for(uint8 i = 0; i < count; i ++)
 		{
-			existing_vehicles->append(cnv->get_vehikel(i)->get_besch());
+			existing_vehicles->append(cnv->get_vehikel(i)->get_desc());
 		}
 		convoy_assembler.set_vehicles(existing_vehicles);
 	}
@@ -640,16 +640,16 @@ sint64 replace_frame_t::calc_total_cost()
 	}
 	ITERATE((*convoy_assembler.get_vehicles()),j)
 	{
-		const vehikel_besch_t* veh = NULL;
-		//const vehikel_besch_t* test_new_vehicle = (*convoy_assembler.get_vehicles())[j]; // unused
+		const vehikel_desc_t* veh = NULL;
+		//const vehikel_desc_t* test_new_vehicle = (*convoy_assembler.get_vehicles())[j]; // unused
 		// First - check whether there are any of the required vehicles already
 		// in the convoy (free)
 		ITERATE(current_vehicles,k)
 		{
-			//const vehikel_besch_t* test_old_vehicle = current_vehicles[k]->get_besch(); // unused
-			if(!keep_vehicles.is_contained(k) && current_vehicles[k]->get_besch() == (*convoy_assembler.get_vehicles())[j])
+			//const vehikel_desc_t* test_old_vehicle = current_vehicles[k]->get_desc(); // unused
+			if(!keep_vehicles.is_contained(k) && current_vehicles[k]->get_desc() == (*convoy_assembler.get_vehicles())[j])
 			{
-				veh = current_vehicles[k]->get_besch();
+				veh = current_vehicles[k]->get_desc();
 				keep_vehicles.append_unique(k);
 				// No change to price here.
 				break;
@@ -668,12 +668,12 @@ sint64 replace_frame_t::calc_total_cost()
 			{
 				ITERATE(current_vehicles,l)
 				{	
-					for(uint8 c = 0; c < current_vehicles[l]->get_besch()->get_upgrades_count(); c ++)
+					for(uint8 c = 0; c < current_vehicles[l]->get_desc()->get_upgrades_count(); c ++)
 					{
-						//const vehikel_besch_t* possible_upgrade_test = current_vehicles[l]->get_besch()->get_upgrades(c); // unused
-						if(!keep_vehicles.is_contained(l) && (*convoy_assembler.get_vehicles())[j] == current_vehicles[l]->get_besch()->get_upgrades(c))
+						//const vehikel_desc_t* possible_upgrade_test = current_vehicles[l]->get_desc()->get_upgrades(c); // unused
+						if(!keep_vehicles.is_contained(l) && (*convoy_assembler.get_vehicles())[j] == current_vehicles[l]->get_desc()->get_upgrades(c))
 						{
-							veh = current_vehicles[l]->get_besch();
+							veh = current_vehicles[l]->get_desc();
 							keep_vehicles.append_unique(l);
 							total_cost += veh ? veh->get_upgrades(c)->get_upgrade_price() : 0;
 							goto end_loop;

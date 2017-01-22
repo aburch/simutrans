@@ -15,7 +15,7 @@ livery_scheme_t::livery_scheme_t(const char* n, const uint16 date)
 }
 
 
-const char* livery_scheme_t::get_latest_available_livery(uint16 date, const vehikel_besch_t* besch) const
+const char* livery_scheme_t::get_latest_available_livery(uint16 date, const vehikel_desc_t* desc) const
 {
 	if(liveries.empty())
 	{
@@ -26,7 +26,7 @@ const char* livery_scheme_t::get_latest_available_livery(uint16 date, const vehi
 	uint16 latest_valid_intro_date = 0;
 	ITERATE(liveries, i)
 	{
-		if(date >= liveries.get_element(i).intro_date && besch->check_livery(liveries.get_element(i).name.c_str()) && liveries.get_element(i).intro_date > latest_valid_intro_date)
+		if(date >= liveries.get_element(i).intro_date && desc->check_livery(liveries.get_element(i).name.c_str()) && liveries.get_element(i).intro_date > latest_valid_intro_date)
 		{
 			// This returns the most recent livery available for this vehicle that is not in the future.
 			latest_valid_intro_date = liveries.get_element(i).intro_date;

@@ -3,7 +3,7 @@
  *
  * This file is part of the Simutrans project under the artistic licence.
  *
- *  Modulbeschreibung:
+ *  Moduldescreibung:
  *      This files describes way objects like a electrifications
  */
 #ifndef __WAY_OBJ_BESCH_H
@@ -33,7 +33,7 @@ class checksum_t;
  *
  * @author  Volker Meyer, Hj. Malthaner
  */
-class way_obj_besch_t : public obj_besch_transport_infrastructure_t {
+class way_obj_desc_t : public obj_desc_transport_infrastructure_t {
     friend class way_obj_reader_t;
 
 private:
@@ -178,7 +178,7 @@ public:
 	* Skin: cursor (index 0) and icon (index 1)
 	* @author Hj. Malthaner
 	*/
-	skin_besch_t const* get_cursor() const { return get_child<skin_besch_t>(8); }
+	skin_desc_t const* get_cursor() const { return get_child<skin_desc_t>(8); }
 
 	/* Way constraints: determines whether vehicles
 	 * can travel on this way. This method decodes
@@ -192,7 +192,7 @@ public:
 
 	void calc_checksum(checksum_t *chk) const
 	{
-		obj_besch_transport_infrastructure_t::calc_checksum(chk);
+		obj_desc_transport_infrastructure_t::calc_checksum(chk);
 		chk->input(own_wtyp);
 
 		//Experimental values

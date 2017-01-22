@@ -31,7 +31,7 @@ private:
 
 public:
 	signal_t(loadsave_t *file);
-	signal_t(player_t *player, koord3d pos, ribi_t::ribi dir,const roadsign_besch_t *besch, koord3d sb, bool preview = false);
+	signal_t(player_t *player, koord3d pos, ribi_t::ribi dir,const roadsign_desc_t *desc, koord3d sb, bool preview = false);
 	~signal_t();
 
 	void rdwr_signal(loadsave_t *file);
@@ -49,7 +49,7 @@ public:
 #else
 	typ get_typ() const { return obj_t::signal; }
 #endif
-	const char *get_name() const { return besch->get_name(); }
+	const char *get_name() const { return desc->get_name(); }
 
 	/**
 	* berechnet aktuelles image

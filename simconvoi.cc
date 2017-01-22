@@ -444,7 +444,7 @@ uint32 convoi_t::move_to(uint16 const start_index)
 		}
 
 		if (i != anz_vehikel - 1U) {
-			train_length += v.get_besch()->get_length();
+			train_length += v.get_desc()->get_length();
 		}
 	}
 	return train_length;
@@ -540,14 +540,14 @@ void convoi_t::finish_rd()
 							}
 							step_pos += ribi_t::is_bend(v->get_direction()) ? diagonal_vehicle_steps_per_tile : VEHICLE_STEPS_PER_TILE;
 						}
-						DBG_MESSAGE("convoi_t::finish_rd()", "v: pos(%s) steps(%d) len=%d ribi=%d prev (%s) step(%d)", v->get_pos().get_str(), v->get_steps(), v->get_besch()->get_length()*16, v->get_direction(),  drive_pos.get_2d().get_str(), step_pos);
+						DBG_MESSAGE("convoi_t::finish_rd()", "v: pos(%s) steps(%d) len=%d ribi=%d prev (%s) step(%d)", v->get_pos().get_str(), v->get_steps(), v->get_desc()->get_length()*16, v->get_direction(),  drive_pos.get_2d().get_str(), step_pos);
 						if(  abs( v->get_steps() - step_pos )>15  ) {
 							// not where it should be => realing
 							realing_position = true;
 							dbg->warning( "convoi_t::finish_rd()", "convoi (%s) is broken => realign", get_name() );
 						}
 					}
-					step_pos -= v->get_besch()->get_length_in_steps();
+					step_pos -= v->get_desc()->get_length_in_steps();
 					drive_pos = v->get_pos();
 				}
 			}
@@ -622,7 +622,7 @@ DBG_MESSAGE("convoi_t::finish_rd()","next_stop_index=%d", next_stop_index );
 
 				v->get_smoke(false); //"Allowed to smoke" (Google)
 				vehicle[i]->do_drive( (VEHICLE_STEPS_PER_CARUNIT*train_length)<<YARDS_PER_VEHICLE_STEP_SHIFT );
-				train_length -= v->get_besch()->get_length();
+				train_length -= v->get_desc()->get_length();
 				v->get_smoke(true);
 
 				// eventually reserve this again
@@ -774,7 +774,7 @@ uint32 convoi_t::get_length() const
 {
 	uint32 len = 0;
 	for( uint8 i=0; i<anz_vehikel; i++ ) {
-		len += vehicle[i]->get_besch()->get_length();
+		len += vehicle[i]->get_desc()->get_length();
 	}
 	return len;
 }
@@ -802,14 +802,14 @@ void convoi_t::add_running_cost(sint64 cost, const weg_t *weg)
 					obj_t *d=gr->obj_bei(i);
 					if(  wayobj_t const* const wo = obj_cast<wayobj_t>(d)  )  {
 						if(  wo->get_waytype()==weg->get_waytype()  ) {
-							toll += (wo->get_besch()->get_wartung()*welt->get_settings().get_way_toll_waycost_percentage())/100l;
+							toll += (wo->get_desc()->get_wartung()*welt->get_settings().get_way_toll_waycost_percentage())/100l;
 							break;
 						}
 					}
 				}
 			}
 			// now add normal way toll be maintenance
-			toll += (weg->get_besch()->get_wartung() * welt->get_settings().get_way_toll_waycost_percentage()) / 100l;
+			toll += (weg->get_desc()->get_wartung() * welt->get_settings().get_way_toll_waycost_percentage()) / 100l;
 		}
 		weg->get_owner()->book_toll_received( toll, get_schedule()->get_waytype() );
 		get_owner()->book_toll_paid(         -toll, get_schedule()->get_waytype() );
@@ -884,7 +884,7 @@ void convoi_t::increment_odometer(uint32 steps)
 			running_cost = 0;
 		}
 		must_add = true;
-		running_cost -= v.get_besch()->get_running_cost(welt);
+		running_cost -= v.get_desc()->get_running_cost(welt);
 	}
 	if (must_add)
 	{
@@ -898,7 +898,7 @@ bool convoi_t::has_tall_vehicles()
 
 	for (uint32 i = 0; i < anz_vehikel; i++)
 	{
-		is_tall |= get_vehikel(i)->get_besch()->get_is_tall();
+		is_tall |= get_vehikel(i)->get_desc()->get_is_tall();
 		if (is_tall)
 		{
 			break;
@@ -1143,7 +1143,7 @@ int convoi_t::get_vehicle_at_length(uint16 length)
 {
 	int current_length = 0;
 	for( int i=0;  i<anz_vehikel;  i++  ) {
-		current_length += vehicle[i]->get_besch()->get_length();
+		current_length += vehicle[i]->get_desc()->get_length();
 		if(length<current_length) {
 			return i;
 		}
@@ -1644,7 +1644,7 @@ void convoi_t::step()
 				if ( gr && (dep = gr->get_depot()) ) {
 					char buf[256];
 					name_offset = sprintf(buf,"(%i) ",self.get_id() );
-					tstrncpy(buf + name_offset, translator::translate(front()->get_besch()->get_name()), 116);
+					tstrncpy(buf + name_offset, translator::translate(front()->get_desc()->get_name()), 116);
 					const bool keep_name = strcmp(get_name(), buf);	
 					vector_tpl<vehicle_t*> new_vehicles;
 					vehicle_t* veh = NULL;
@@ -1656,7 +1656,7 @@ void convoi_t::step()
 						// in the convoy (free)
 						for(uint8 k = 0; k < anz_vehikel; k++)
 						{
-							if(vehicle[k]->get_besch() == replace->get_replacing_vehicle(i))
+							if(vehicle[k]->get_desc() == replace->get_replacing_vehicle(i))
 							{
 								veh = remove_vehikel_bei(k);
 								break;
@@ -1677,9 +1677,9 @@ void convoi_t::step()
 							// the old vehicles will be needed (e.g., for a cascade).
 							for(uint16 j = 0; j < anz_vehikel; j ++)
 							{
-								for(uint8 c = 0; c < vehicle[j]->get_besch()->get_upgrades_count(); c ++)
+								for(uint8 c = 0; c < vehicle[j]->get_desc()->get_upgrades_count(); c ++)
 								{
-									if(replace->get_replacing_vehicle(i) == vehicle[j]->get_besch()->get_upgrades(c))
+									if(replace->get_replacing_vehicle(i) == vehicle[j]->get_desc()->get_upgrades(c))
 									{
 										veh = vehikelbauer_t::baue(get_pos(), get_owner(), NULL, replace->get_replacing_vehicle(i), true);
 										upgrade_vehicle(j, veh);
@@ -1716,7 +1716,7 @@ end_loop:
 						{
 							//Sell any vehicles not upgraded or kept.
 							sint64 value = vehicle[a]->calc_sale_value();
-							waytype_t wt = vehicle[a]->get_besch()->get_waytype();
+							waytype_t wt = vehicle[a]->get_desc()->get_waytype();
 							owner->book_new_vehicle( value, dep->get_pos().get_2d(),wt );
 							delete vehicle[a];
 							anz_vehikel--;
@@ -1741,7 +1741,7 @@ end_loop:
 
 					if (!keep_name)
 					{
-						set_name(front()->get_besch()->get_name());
+						set_name(front()->get_desc()->get_name());
 					}
 
 					clear_replace();
@@ -2182,7 +2182,7 @@ uint8 convoi_t::get_comfort() const
 		if(vehicle[i]->get_cargo_type()->get_catg_index() == 0)
 		{
 			passenger_vehicles ++;
-			capacity = vehicle[i]->get_besch()->get_zuladung();
+			capacity = vehicle[i]->get_desc()->get_zuladung();
 			comfort += vehicle[i]->get_comfort(catering_level) * capacity;
 			passenger_seating += capacity;
 		}
@@ -2214,7 +2214,7 @@ void convoi_t::new_month()
 	for(unsigned j=0;  j<get_vehicle_count();  j++ )
 	{
 		// Monthly cost is positive, but add it up to a negative number for booking.
-		monthly_cost -= get_vehikel(j)->get_besch()->get_fixed_cost(welt);
+		monthly_cost -= get_vehikel(j)->get_desc()->get_fixed_cost(welt);
 	}
 	jahresgewinn += monthly_cost;
 	book( monthly_cost, CONVOI_OPERATIONS );
@@ -2225,7 +2225,7 @@ void convoi_t::new_month()
 		my_waytype = get_schedule()->get_waytype();
 	}
 	else if (get_vehicle_count()) {
-		my_waytype = get_vehikel(0)->get_besch()->get_waytype();
+		my_waytype = get_vehikel(0)->get_desc()->get_waytype();
 	}
 	else {
 		my_waytype = ignore_wt;
@@ -2331,11 +2331,11 @@ void convoi_t::enter_depot(depot_t *dep)
 		// Put the convoy back into "forward" position
 		if(reversed)
 		{
-			reversable = front()->get_besch()->get_can_lead_from_rear() || (anz_vehikel == 1 && front()->get_besch()->is_bidirectional());
+			reversable = front()->get_desc()->get_can_lead_from_rear() || (anz_vehikel == 1 && front()->get_desc()->is_bidirectional());
 		}
 		else
 		{
-			reversable = back()->get_besch()->get_can_lead_from_rear() || (anz_vehikel == 1 && front()->get_besch()->is_bidirectional());
+			reversable = back()->get_desc()->get_can_lead_from_rear() || (anz_vehikel == 1 && front()->get_desc()->is_bidirectional());
 		}
 		reverse_order(reversable);
 	}
@@ -2561,32 +2561,32 @@ DBG_MESSAGE("convoi_t::add_vehikel()","extend array_tpl to %i totals.",max_rail_
 		// Purpose		: Try to update supported goods category of this convoy
 		if (v->get_cargo_max() > 0)
 		{
-			const ware_besch_t *ware_type = v->get_cargo_type();
+			const ware_desc_t *ware_type = v->get_cargo_type();
 			if (ware_type != warenbauer_t::nichts)
 				goods_catg_index.append_unique(ware_type->get_catg_index(), 1);
 		}
 
 
-		const vehikel_besch_t *info = v->get_besch();
+		const vehikel_desc_t *info = v->get_desc();
 		if(info->get_leistung()) {
-			is_electric |= info->get_engine_type()==vehikel_besch_t::electric;
+			is_electric |= info->get_engine_type()==vehikel_desc_t::electric;
 		}
 		//sum_leistung += info->get_leistung();
-		//if(info->get_engine_type() == vehikel_besch_t::steam)
+		//if(info->get_engine_type() == vehikel_desc_t::steam)
 		//{
 		//	power_from_steam += info->get_leistung();
 		//	power_from_steam_with_gear += info->get_leistung() * info->get_gear() *welt->get_settings().get_global_power_factor();
 		//}
 		//sum_gear_und_leistung += (info->get_leistung() * info->get_gear() *welt->get_settings().get_global_power_factor_percent() + 50) / 100;
 		//sum_gewicht += info->get_gewicht();
-		//min_top_speed = min( min_top_speed, kmh_to_speed( v->get_besch()->get_geschw() ) );
+		//min_top_speed = min( min_top_speed, kmh_to_speed( v->get_desc()->get_geschw() ) );
 		//sum_gesamtgewicht = sum_gewicht;
 		calc_loading();
 		invalidate_vehicle_summary();
 		freight_info_resort = true;
 		// Add good_catg_index:
 		if(v->get_cargo_max() != 0) {
-			const ware_besch_t *ware=v->get_cargo_type();
+			const ware_desc_t *ware=v->get_cargo_type();
 			if(ware!=warenbauer_t::nichts  ) {
 				goods_catg_index.append_unique( ware->get_catg_index() );
 			}
@@ -2633,10 +2633,10 @@ DBG_MESSAGE("convoi_t::upgrade_vehicle()","at pos %i of %i totals.",i,max_vehicl
 	{
 		char buf[128];
 		name_offset = sprintf(buf,"(%i) ",self.get_id() );
-		tstrncpy(buf + name_offset, translator::translate(old_vehicle->get_besch()->get_name()), 116);
+		tstrncpy(buf + name_offset, translator::translate(old_vehicle->get_desc()->get_name()), 116);
 		if(!strcmp(get_name(), buf))
 		{
-			set_name(v->get_besch()->get_name());
+			set_name(v->get_desc()->get_name());
 		}
 	}
 
@@ -2645,24 +2645,24 @@ DBG_MESSAGE("convoi_t::upgrade_vehicle()","at pos %i of %i totals.",i,max_vehicl
 	// Purpose		: Try to update supported goods category of this convoy
 	if (v->get_cargo_max() > 0)
 	{
-		const ware_besch_t *ware_type = v->get_cargo_type();
+		const ware_desc_t *ware_type = v->get_cargo_type();
 		if (ware_type != warenbauer_t::nichts)
 			goods_catg_index.append_unique(ware_type->get_catg_index(), 1);
 	}
 
-	const vehikel_besch_t *info = v->get_besch();
+	const vehikel_desc_t *info = v->get_desc();
 	// still requires electrification?
 	if(is_electric) {
 		is_electric = false;
 		for(unsigned i=0; i<anz_vehikel; i++) {
-			if(vehicle[i]->get_besch()->get_leistung()) {
-				is_electric |= vehicle[i]->get_besch()->get_engine_type()==vehikel_besch_t::electric;
+			if(vehicle[i]->get_desc()->get_leistung()) {
+				is_electric |= vehicle[i]->get_desc()->get_engine_type()==vehikel_desc_t::electric;
 			}
 		}
 	}
 
 	if(info->get_leistung()) {
-		is_electric |= info->get_engine_type()==vehikel_besch_t::electric;
+		is_electric |= info->get_engine_type()==vehikel_desc_t::electric;
 	}
 
 	//min_top_speed = calc_min_top_speed(tdriver, anz_vehikel);
@@ -2674,7 +2674,7 @@ DBG_MESSAGE("convoi_t::upgrade_vehicle()","at pos %i of %i totals.",i,max_vehicl
 	//sum_gesamtgewicht = sum_gewicht;
 
 	// Remove power and weight of the old vehicle
-	//info = old_vehicle->get_besch();
+	//info = old_vehicle->get_desc();
 	//sum_leistung -= info->get_leistung();
 	//sum_gear_und_leistung -= (info->get_leistung() * info->get_gear() *welt->get_settings().get_global_power_factor_percent() + 50) / 100;
 	//sum_gewicht -= info->get_gewicht();
@@ -2723,7 +2723,7 @@ vehicle_t *convoi_t::remove_vehikel_bei(uint16 i)
 			// Purpose		: To recalculate the list of supported goods category
 			recalc_catg_index();
 
-			//const vehikel_besch_t *info = v->get_besch();
+			//const vehikel_desc_t *info = v->get_desc();
 			//sum_leistung -= info->get_leistung();
 			//sum_gear_und_leistung -= (info->get_leistung() * info->get_gear() *welt->get_settings().get_global_power_factor_percent() + 50) / 100;
 			//sum_gewicht -= info->get_gewicht();
@@ -2754,8 +2754,8 @@ vehicle_t *convoi_t::remove_vehikel_bei(uint16 i)
 		if(is_electric) {
 			is_electric = false;
 			for(unsigned i=0; i<anz_vehikel; i++) {
-				if(vehicle[i]->get_besch()->get_leistung()) {
-					is_electric |= vehicle[i]->get_besch()->get_engine_type()==vehikel_besch_t::electric;
+				if(vehicle[i]->get_desc()->get_leistung()) {
+					is_electric |= vehicle[i]->get_desc()->get_engine_type()==vehikel_desc_t::electric;
 				}
 			}
 		}
@@ -2785,7 +2785,7 @@ void convoi_t::recalc_catg_index()
 		if(get_vehikel(i)->get_cargo_max() == 0) {
 			continue;
 		}
-		const ware_besch_t *ware=get_vehikel(i)->get_cargo_type();
+		const ware_desc_t *ware=get_vehikel(i)->get_cargo_type();
 		if(ware!=warenbauer_t::nichts  ) {
 			goods_catg_index.append_unique( ware->get_catg_index() );
 		}
@@ -2968,7 +2968,7 @@ bool convoi_t::can_go_alte_direction()
 		// not last vehicle?
 		// the length of last vehicle does not matter when it comes to positioning of vehicles
 		if ( i+1 < anz_vehikel) {
-			convoi_length += v->get_besch()->get_length();
+			convoi_length += v->get_desc()->get_length();
 		}
 
 		if(gr==NULL  ||  (pred!=NULL  &&  (abs(v->get_pos().x-pred->get_pos().x)>=2  ||  abs(v->get_pos().y-pred->get_pos().y)>=2))  ) {
@@ -3146,9 +3146,9 @@ void convoi_t::vorfahren()
 
 					default:
 
-						const bool reverse_as_unit = re_ordered ? front()->get_besch()->get_can_lead_from_rear() : back()->get_besch()->get_can_lead_from_rear();
+						const bool reverse_as_unit = re_ordered ? front()->get_desc()->get_can_lead_from_rear() : back()->get_desc()->get_can_lead_from_rear();
 
-						reversable = reverse_as_unit || (anz_vehikel == 1 && front()->get_besch()->is_bidirectional());
+						reversable = reverse_as_unit || (anz_vehikel == 1 && front()->get_desc()->is_bidirectional());
 
 						reverse_delay = calc_reverse_delay();
 
@@ -3174,11 +3174,11 @@ void convoi_t::vorfahren()
 				// drive the convoi to the same position, but do not hop into next tile!
 				if(  train_length%16==0  ) {
 					// any space we need => just add
-					train_length += vehicle[anz_vehikel-1]->get_besch()->get_length();
+					train_length += vehicle[anz_vehikel-1]->get_desc()->get_length();
 				}
 				else {
 					// limit train to front of tile
-					train_length += min( (train_length%CARUNITS_PER_TILE)-1, vehicle[anz_vehikel-1]->get_besch()->get_length() );
+					train_length += min( (train_length%CARUNITS_PER_TILE)-1, vehicle[anz_vehikel-1]->get_desc()->get_length() );
 				}
 			}
 			else
@@ -3192,26 +3192,26 @@ void convoi_t::vorfahren()
 
 			if(reversed && (reversable || front()->is_reversed()))
 			{
-				//train_length -= front()->get_besch()->get_length();
+				//train_length -= front()->get_desc()->get_length();
 				train_length = 0;
 				for(sint8 i = anz_vehikel - 1; i >= 0; i--)
 				{
 					vehicle_t* v = vehicle[i];
 					v->get_smoke(false);
 					vehicle[i]->do_drive( ((OBJECT_OFFSET_STEPS)*train_length)<<12 ); //"fahre" = "go" (Google)
-					train_length += (v->get_besch()->get_length());	// this give the length in 1/OBJECT_OFFSET_STEPS of a full tile => all cars closely coupled!
+					train_length += (v->get_desc()->get_length());	// this give the length in 1/OBJECT_OFFSET_STEPS of a full tile => all cars closely coupled!
 					v->get_smoke(true);
 				}
-				train_length -= back()->get_besch()->get_length();
+				train_length -= back()->get_desc()->get_length();
 			}
 
 			else
 			{
-				//if(!reversable && front()->get_besch()->is_bidirectional())
+				//if(!reversable && front()->get_desc()->is_bidirectional())
 				//{
 				//	//This can sometimes relieve excess setting back on reversing.
 				//	//Unfortunately, it seems to produce bizarre results on occasion.
-				//	train_length -= (front()->get_besch()->get_length()) / 2;
+				//	train_length -= (front()->get_desc()->get_length()) / 2;
 				//	train_length = train_length > 0 ? train_length : 0;
 				//}
 				for(sint8 i = 0; i < anz_vehikel; i++)
@@ -3219,7 +3219,7 @@ void convoi_t::vorfahren()
 					vehicle_t* v = vehicle[i];
 					v->get_smoke(false);
 					vehicle[i]->do_drive( (VEHICLE_STEPS_PER_CARUNIT*train_length)<<YARDS_PER_VEHICLE_STEP_SHIFT );
-					train_length -= v->get_besch()->get_length();
+					train_length -= v->get_desc()->get_length();
 					// this gives the length in carunits, 1/CARUNITS_PER_TILE of a full tile => all cars closely coupled!
 					v->get_smoke(true);
 				}
@@ -3420,17 +3420,17 @@ void convoi_t::reverse_order(bool rev)
 	}
 	else
 	{
-		if(!back()->get_besch()->is_bidirectional())
+		if(!back()->get_desc()->is_bidirectional())
 		{
 			// Do not change the order at all if the last vehicle is not bidirectional
 			return;
 		}
 
 		a++;
-		if(front()->get_besch()->get_leistung() > 0)
+		if(front()->get_desc()->get_leistung() > 0)
 		{
 			// If this is a locomotive, check for tenders/pair units.
-			if (front()->get_besch()->get_nachfolger_count() > 0 && vehicle[1]->get_besch()->get_vorgaenger_count() > 0)
+			if (front()->get_desc()->get_nachfolger_count() > 0 && vehicle[1]->get_desc()->get_vorgaenger_count() > 0)
 			{
 				a ++;
 			}
@@ -3438,16 +3438,16 @@ void convoi_t::reverse_order(bool rev)
 			// Check for double-headed (and triple headed, etc.) tender locomotives
 			uint8 first = a;
 			uint8 second = a + 1;
-			while(anz_vehikel > second && (vehicle[first]->get_besch()->get_leistung() > 0 || vehicle[second]->get_besch()->get_leistung() > 0))
+			while(anz_vehikel > second && (vehicle[first]->get_desc()->get_leistung() > 0 || vehicle[second]->get_desc()->get_leistung() > 0))
 			{
-				if(vehicle[first]->get_besch()->get_nachfolger_count() > 0 && vehicle[second]->get_besch()->get_vorgaenger_count() > 0)
+				if(vehicle[first]->get_desc()->get_nachfolger_count() > 0 && vehicle[second]->get_desc()->get_vorgaenger_count() > 0)
 				{
 					a ++;
 				}
 				first++;
 				second++;
 			}
-			if (anz_vehikel > 1 && vehicle[1]->get_besch()->get_leistung() == 0 && vehicle[1]->get_besch()->get_nachfolger_count() == 1 && vehicle[1]->get_besch()->get_nachfolger(0) && vehicle[1]->get_besch()->get_nachfolger(0)->get_leistung() == 0 && vehicle[1]->get_besch()->get_nachfolger(0)->get_preis() == 0)
+			if (anz_vehikel > 1 && vehicle[1]->get_desc()->get_leistung() == 0 && vehicle[1]->get_desc()->get_nachfolger_count() == 1 && vehicle[1]->get_desc()->get_nachfolger(0) && vehicle[1]->get_desc()->get_nachfolger(0)->get_leistung() == 0 && vehicle[1]->get_desc()->get_nachfolger(0)->get_preis() == 0)
 			{
 				// Multiple tenders or Garretts with powered front units.
 				a ++;
@@ -3455,11 +3455,11 @@ void convoi_t::reverse_order(bool rev)
 		}
 
 		// Check whether this is a Garrett type vehicle (with unpowered front units).
-		if(vehicle[0]->get_besch()->get_leistung() == 0 && vehicle[0]->get_besch()->get_zuladung() == 0)
+		if(vehicle[0]->get_desc()->get_leistung() == 0 && vehicle[0]->get_desc()->get_zuladung() == 0)
 		{
 			// Possible Garrett
-			const uint8 count = front()->get_besch()->get_nachfolger_count();
-			if(count > 0 && vehicle[1]->get_besch()->get_leistung() > 0 && vehicle[1]->get_besch()->get_nachfolger_count() > 0)
+			const uint8 count = front()->get_desc()->get_nachfolger_count();
+			if(count > 0 && vehicle[1]->get_desc()->get_leistung() > 0 && vehicle[1]->get_desc()->get_nachfolger_count() > 0)
 			{
 				// Garrett detected
 				a ++;
@@ -3467,15 +3467,15 @@ void convoi_t::reverse_order(bool rev)
 		}
 
 		// Check for a goods train with a brake van
-		if((vehicle[anz_vehikel - 2]->get_besch()->get_ware()->get_catg_index() > 1)
-			&& 	vehicle[anz_vehikel - 2]->get_besch()->get_can_be_at_rear() == false)
+		if((vehicle[anz_vehikel - 2]->get_desc()->get_ware()->get_catg_index() > 1)
+			&& 	vehicle[anz_vehikel - 2]->get_desc()->get_can_be_at_rear() == false)
 		{
 			b--;
 		}
 
 		for(uint8 i = 1; i < anz_vehikel; i++)
 		{
-			if(vehicle[i]->get_besch()->get_leistung() > 0)
+			if(vehicle[i]->get_desc()->get_leistung() > 0)
 			{
 				a++;
 			}
@@ -3663,7 +3663,7 @@ void convoi_t::rdwr(loadsave_t *file)
 			}
 
 			// no matching vehicle found?
-			if(v->get_besch()==NULL) {
+			if(v->get_desc()==NULL) {
 				// will create orphan object, but better than crashing at deletion ...
 				dbg->error("convoi_t::convoi_t()","Can't load vehicle and no replacement found!");
 				i --;
@@ -3674,9 +3674,9 @@ void convoi_t::rdwr(loadsave_t *file)
 			// in very old games, monorail was a railway
 			// so we need to convert this
 			// freight will be lost, but game will be loadable
-			if(i==0  &&  v->get_besch()->get_waytype()==monorail_wt  &&  v->get_typ()==obj_t::rail_vehicle) {
+			if(i==0  &&  v->get_desc()->get_waytype()==monorail_wt  &&  v->get_typ()==obj_t::rail_vehicle) {
 				override_monorail = true;
-				vehicle_t *v_neu = new monorail_rail_vehicle_t( v->get_pos(), v->get_besch(), v->get_owner(), NULL );
+				vehicle_t *v_neu = new monorail_rail_vehicle_t( v->get_pos(), v->get_desc(), v->get_owner(), NULL );
 				v->discard_cargo();
 				delete v;
 				v = v_neu;
@@ -3686,7 +3686,7 @@ void convoi_t::rdwr(loadsave_t *file)
 				dummy_pos.rdwr(file);
 			}
 
-			const vehikel_besch_t *info = v->get_besch();
+			const vehikel_desc_t *info = v->get_desc();
 			assert(info);
 
 			// Hajo: if we load a game from a file which was saved from a
@@ -3697,7 +3697,7 @@ void convoi_t::rdwr(loadsave_t *file)
 				//sum_gear_und_leistung += (info->get_leistung() * info->get_gear() *welt->get_settings().get_global_power_factor_percent() + 50) / 100;
 				//sum_gewicht += info->get_gewicht();
 				has_obsolete |= welt->use_timeline()  &&  info->is_retired( welt->get_timeline_year_month() );
-				is_electric |= info->get_engine_type()==vehikel_besch_t::electric;
+				is_electric |= info->get_engine_type()==vehikel_desc_t::electric;
 				player_t::add_maintenance( get_owner(), info->get_maintenance(), info->get_waytype() );
 			}
 
@@ -4173,7 +4173,7 @@ void convoi_t::rdwr(loadsave_t *file)
 
 			uint16 replacing_vehicles_count = 0;
 
-			vector_tpl<const vehikel_besch_t *> *replacing_vehicles;
+			vector_tpl<const vehikel_desc_t *> *replacing_vehicles;
 
 			if(file->is_saving())
 			{
@@ -4191,23 +4191,23 @@ void convoi_t::rdwr(loadsave_t *file)
 				{
 					// BG, 31-MAR-2010: new replacing code starts with exp version 8.
 					// BG, 31-MAR-2010: but we must read all related data from file.
-					replacing_vehicles = new vector_tpl<const vehikel_besch_t *>;
+					replacing_vehicles = new vector_tpl<const vehikel_desc_t *>;
 					for(uint16 i = 0; i < replacing_vehicles_count; i ++)
 					{
 						char vehicle_name[256];
 						file->rdwr_str(vehicle_name, 256);
-						const vehikel_besch_t* besch = vehikelbauer_t::get_info(vehicle_name);
-						if(besch == NULL)
+						const vehikel_desc_t* desc = vehikelbauer_t::get_info(vehicle_name);
+						if(desc == NULL)
 						{
-							besch = vehikelbauer_t::get_info(translator::compatibility_name(vehicle_name));
+							desc = vehikelbauer_t::get_info(translator::compatibility_name(vehicle_name));
 						}
-						if(besch == NULL)
+						if(desc == NULL)
 						{
 							dbg->warning("convoi_t::rdwr()","no vehicle pak for '%s' search for something similar", vehicle_name);
 						}
 						else
 						{
-							replacing_vehicles->append(besch);
+							replacing_vehicles->append(desc);
 						}
 					}
 					// BG, 31-MAR-2010: new replacing code starts with exp version 8.
@@ -4666,7 +4666,7 @@ void convoi_t::info(cbuffer_t & buf) const
 	if (v != NULL) {
 		char tmp[128];
 
-		buf.printf("\n %d/%dkm/h (%1.2f$/km)\n", speed_to_kmh(min_top_speed), v->get_besch()->get_geschw(), get_running_cost(welt) / 100.0F);
+		buf.printf("\n %d/%dkm/h (%1.2f$/km)\n", speed_to_kmh(min_top_speed), v->get_desc()->get_geschw(), get_running_cost(welt) / 100.0F);
 
 		buf.printf(" %s: %ikW\n", translator::translate("Leistung"), sum_leistung );
 
@@ -4705,10 +4705,10 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 			const vehicle_t* v = vehicle[i];
 
 			// first add to capacity indicator
-			const ware_besch_t* ware_besch = v->get_besch()->get_ware();
-			const uint16 menge = v->get_besch()->get_zuladung();
-			if(menge>0  &&  ware_besch!=warenbauer_t::nichts) {
-				max_loaded_waren[ware_besch->get_index()] += menge;
+			const ware_desc_t* ware_desc = v->get_desc()->get_ware();
+			const uint16 menge = v->get_desc()->get_zuladung();
+			if(menge>0  &&  ware_desc!=warenbauer_t::nichts) {
+				max_loaded_waren[ware_desc->get_index()] += menge;
 			}
 
 			// then add the actual load
@@ -4734,8 +4734,8 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 				// append to category?
 				slist_tpl<ware_t>::iterator j   = capacity.begin();
 				slist_tpl<ware_t>::iterator end = capacity.end();
-				while (j != end && j->get_besch()->get_catg_index() < ware.get_besch()->get_catg_index()) ++j;
-				if (j != end && j->get_besch()->get_catg_index() == ware.get_besch()->get_catg_index()) {
+				while (j != end && j->get_desc()->get_catg_index() < ware.get_desc()->get_catg_index()) ++j;
+				if (j != end && j->get_desc()->get_catg_index() == ware.get_desc()->get_catg_index()) {
 					j->menge += max_loaded_waren[i];
 				} else {
 					// not yet there
@@ -4796,18 +4796,18 @@ bool convoi_t::pruefe_alle() //"examine all" (Babelfish)
  * Check validity of convoi with respect to vehicle constraints
  */
 {
-	bool ok = anz_vehikel == 0  ||  front()->get_besch()->can_follow(NULL);
+	bool ok = anz_vehikel == 0  ||  front()->get_desc()->can_follow(NULL);
 	unsigned i;
 
 	const vehicle_t* pred = front();
 	for(i = 1; ok && i < anz_vehikel; i++) {
 		const vehicle_t* v = vehicle[i];
-		ok = pred->get_besch()->can_lead(v->get_besch())  &&
-				 v->get_besch()->can_follow(pred->get_besch());
+		ok = pred->get_desc()->can_lead(v->get_desc())  &&
+				 v->get_desc()->can_follow(pred->get_desc());
 		pred = v;
 	}
 	if(ok) {
-		ok = pred->get_besch()->can_lead(NULL);
+		ok = pred->get_desc()->can_lead(NULL);
 	}
 
 	return ok;
@@ -5182,10 +5182,10 @@ sint64 convoi_t::calc_revenue(const ware_t& ware, array_tpl<sint64> & apportione
 	const uint32 revenue_distance_meters = revenue_distance * welt->get_settings().get_meters_per_tile();
 	const uint32 starting_distance_meters = starting_distance * welt->get_settings().get_meters_per_tile();
 
-	const sint64 ref_speed = welt->get_average_speed(front()->get_besch()->get_waytype());
+	const sint64 ref_speed = welt->get_average_speed(front()->get_desc()->get_waytype());
 	const sint64 relative_speed_percentage = (100ll * average_speed) / ref_speed - 100ll;
 
-	const ware_besch_t* goods = ware.get_besch();
+	const ware_desc_t* goods = ware.get_desc();
 
 	sint64 fare;
 	if (ware.is_passenger())
@@ -5360,7 +5360,7 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 	{
 		vehicle_t* v = vehicle[i];
 
-		convoy_length += v->get_besch()->get_length();
+		convoy_length += v->get_desc()->get_length();
 		if(convoy_length > station_length)
 		{
 			number_loadable_vehicles = i;
@@ -5521,7 +5521,7 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 				// This must be a sea port.
 				port_charge = (accumulated_revenue * welt->get_settings().get_seaport_toll_revenue_percentage()) / 100;
 			}
-			else if(front()->get_besch()->get_waytype() == air_wt)
+			else if(front()->get_desc()->get_waytype() == air_wt)
 			{
 				// This is an aircraft - this must be an airport.
 				port_charge = (accumulated_revenue * welt->get_settings().get_airport_toll_revenue_percentage()) / 100;
@@ -5760,7 +5760,7 @@ void convoi_t::destroy()
 	}
 
 	// pay the current value, remove monthly maint
-	waytype_t wt = front() ? front()->get_besch()->get_waytype() : ignore_wt;
+	waytype_t wt = front() ? front()->get_desc()->get_waytype() : ignore_wt;
 	owner->book_new_vehicle( calc_sale_value(), get_pos().get_2d(), wt);
 
 	for(  uint8 i = anz_vehikel;  i-- != 0;  ) {
@@ -5775,7 +5775,7 @@ void convoi_t::destroy()
 			vehicle[i]->set_flag( obj_t::not_on_map );
 
 		}
-		player_t::add_maintenance(owner, -vehicle[i]->get_besch()->get_maintenance(), vehicle[i]->get_besch()->get_waytype());
+		player_t::add_maintenance(owner, -vehicle[i]->get_desc()->get_maintenance(), vehicle[i]->get_desc()->get_waytype());
 		vehicle[i]->discard_cargo();
 		vehicle[i]->cleanup(owner);
 		delete vehicle[i];
@@ -5872,7 +5872,7 @@ sint32 convoi_t::get_per_kilometre_running_cost() const
 {
 	sint32 running_cost = 0;
 	for (unsigned i = 0; i<get_vehicle_count(); i++) { //"anzahl" = "number" (Babelfish)
-		sint32 vehicle_running_cost = vehicle[i]->get_besch()->get_running_cost(welt);
+		sint32 vehicle_running_cost = vehicle[i]->get_desc()->get_running_cost(welt);
 		running_cost += vehicle_running_cost;
 	}
 	return running_cost;
@@ -5891,7 +5891,7 @@ sint64 convoi_t::get_purchase_cost() const
 {
 	sint64 purchase_cost = 0;
 	for(  unsigned i = 0;  i < get_vehicle_count();  i++  ) {
-		purchase_cost += vehicle[i]->get_besch()->get_preis();
+		purchase_cost += vehicle[i]->get_desc()->get_preis();
 	}
 	return purchase_cost;
 }
@@ -6289,8 +6289,8 @@ convoi_t::get_catering_level(uint8 type) const
 		{
 			continue;
 		}
-		current_catering_level = v->get_besch()->get_catering_level();
-		if(current_catering_level > max_catering_level && v->get_besch()->get_ware()->get_catg_index() == type)
+		current_catering_level = v->get_desc()->get_catering_level();
+		if(current_catering_level > max_catering_level && v->get_desc()->get_ware()->get_catg_index() == type)
 		{
 			max_catering_level = current_catering_level;
 		}
@@ -6319,7 +6319,7 @@ bool convoi_t::has_same_vehicles(convoihandle_t other) const
 	bool forward_compare_good = true;
 	for (int i=0; i<get_vehicle_count(); i++)
 	{
-		if (get_vehikel(i)->get_besch()!=other->get_vehikel(i)->get_besch())
+		if (get_vehikel(i)->get_desc()!=other->get_vehikel(i)->get_desc())
 		{
 			forward_compare_good = false;
 			break;
@@ -6331,7 +6331,7 @@ bool convoi_t::has_same_vehicles(convoihandle_t other) const
 	bool reverse_compare_good = true;
 	for (int i=0, j=get_vehicle_count()-1; i<get_vehicle_count(); i++, j--)
 	{
-		if (get_vehikel(j)->get_besch()!=other->get_vehikel(i)->get_besch())
+		if (get_vehikel(j)->get_desc()!=other->get_vehikel(i)->get_desc())
 		{
 			reverse_compare_good = false;
 			break;
@@ -6368,7 +6368,7 @@ public:
 	};
 	virtual bool  is_target( const grund_t* gr, const grund_t* )
 	{
-		return gr->get_depot() && gr->get_depot()->get_owner() == master->get_owner() && gr->get_depot()->get_tile()->get_besch()->get_enabled() & traction_type;
+		return gr->get_depot() && gr->get_depot()->get_owner() == master->get_owner() && gr->get_depot()->get_tile()->get_desc()->get_enabled() & traction_type;
 	};
 	virtual ribi_t::ribi get_ribi( const grund_t* gr) const
 	{
@@ -6433,11 +6433,11 @@ DBG_MESSAGE("convoi_t::go_to_depot()","convoi state %i => cannot change schedule
 	{
 		for(uint8 i = 0; i < anz_vehikel; i ++)
 		{
-			if(vehicle[i]->get_besch()->get_leistung() == 0)
+			if(vehicle[i]->get_desc()->get_leistung() == 0)
 			{
 				continue;
 			}
-			shifter = 1 << vehicle[i]->get_besch()->get_engine_type();
+			shifter = 1 << vehicle[i]->get_desc()->get_engine_type();
 			traction_types |= shifter;
 		}
 	}
@@ -6620,14 +6620,14 @@ uint16 convoi_t::get_tile_length() const
 {
 	uint16 carunits=0;
 	for(sint8 i=0;  i<anz_vehikel-1;  i++) {
-		carunits += vehicle[i]->get_besch()->get_length();
+		carunits += vehicle[i]->get_desc()->get_length();
 	}
 	// the last vehicle counts differently in stations and for reserving track
 	// (1) add 8 = 127/256 tile to account for the driving in stations in north/west direction
 	//     see at the end of vehicle_t::hop()
 	// (2) for length of convoi for loading in stations the length of the last vehicle matters
 	//     see convoi_t::hat_gehalten
-	carunits += max(CARUNITS_PER_TILE/2, vehicle[anz_vehikel-1]->get_besch()->get_length());
+	carunits += max(CARUNITS_PER_TILE/2, vehicle[anz_vehikel-1]->get_desc()->get_length());
 
 	uint16 tiles = (carunits + CARUNITS_PER_TILE - 1) / CARUNITS_PER_TILE;
 	return tiles;
@@ -6775,7 +6775,7 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 		if(  str->has_sign()  ) {
 			const roadsign_t *rs = gr->find<roadsign_t>(1);
 			if(rs) {
-				const roadsign_besch_t *rb = rs->get_besch();
+				const roadsign_desc_t *rb = rs->get_desc();
 				if(rb->is_choose_sign()  ||  rb->is_traffic_light()  ) {
 					// because we need to stop here ...
 					return false;
@@ -6937,7 +6937,7 @@ uint32 convoi_t::calc_highest_axle_load()
 	uint32 heaviest = 0;
 	for(uint8 i = 0; i < anz_vehikel; i ++)
 	{
-		const uint32 tmp = vehicle[i]->get_besch()->get_axle_load();
+		const uint32 tmp = vehicle[i]->get_desc()->get_axle_load();
 		if(tmp > heaviest)
 		{
 			heaviest = tmp;
@@ -6951,7 +6951,7 @@ uint32 convoi_t::calc_longest_min_loading_time()
 	uint32 longest = 0;
 	for(int i = 0; i < anz_vehikel; i ++)
 	{
-		const uint32 tmp = vehicle[i]->get_besch()->get_min_loading_time();
+		const uint32 tmp = vehicle[i]->get_desc()->get_min_loading_time();
 		if(tmp > longest)
 		{
 			longest = tmp;
@@ -6965,7 +6965,7 @@ uint32 convoi_t::calc_longest_max_loading_time()
 	uint32 longest = 0;
 	for(int i = 0; i < anz_vehikel; i ++)
 	{
-		const uint32 tmp = vehicle[i]->get_besch()->get_max_loading_time();
+		const uint32 tmp = vehicle[i]->get_desc()->get_max_loading_time();
 		if(tmp > longest)
 		{
 			longest = tmp;
@@ -6979,7 +6979,7 @@ void convoi_t::calc_min_range()
 	uint16 min = 0;
 	for(int i = 0; i < anz_vehikel; i ++)
 	{
-		const uint16 range = vehicle[i]->get_besch()->get_range();
+		const uint16 range = vehicle[i]->get_desc()->get_range();
 		if(range > 0 && min == 0)
 		{
 			min = range;
@@ -7009,7 +7009,7 @@ bool convoi_t::calc_obsolescence(uint16 timeline_year_month)
 {
 	// convoi has obsolete vehicles?
 	for(int j = get_vehicle_count(); --j >= 0; ) {
-		if (vehicle[j]->get_besch()->is_obsolete(timeline_year_month, welt)) {
+		if (vehicle[j]->get_desc()->is_obsolete(timeline_year_month, welt)) {
 			return true;
 		}
 	}
@@ -7049,7 +7049,7 @@ void convoi_t::clear_replace()
 	 for (int i = 0; i < anz_vehikel; i++)
 	 {
 		vehicle_t& v = *vehicle[i];
-		const char* liv = scheme->get_latest_available_livery(date, v.get_besch());
+		const char* liv = scheme->get_latest_available_livery(date, v.get_desc());
 		if(liv)
 		{
 			// Only change the livery if there is an available scheme livery.
@@ -7079,11 +7079,11 @@ void convoi_t::clear_replace()
 		// Multiple unit or similar: quick reverse
 		reverse_delay = welt->get_settings().get_unit_reverse_time();
 	}
-	else if(front()->get_besch()->is_bidirectional())
+	else if(front()->get_desc()->is_bidirectional())
 	{
 		// Loco hauled, no turntable.
-		if(anz_vehikel > 1 && vehicle[anz_vehikel-2]->get_besch()->get_can_be_at_rear() == false
-			&& vehicle[anz_vehikel-2]->get_besch()->get_ware()->get_catg_index() > 1)
+		if(anz_vehikel > 1 && vehicle[anz_vehikel-2]->get_desc()->get_can_be_at_rear() == false
+			&& vehicle[anz_vehikel-2]->get_desc()->get_ware()->get_catg_index() > 1)
 		{
 			// Goods train with brake van - longer reverse time.
 			reverse_delay = (welt->get_settings().get_hauled_reverse_time() * 14) / 10;
@@ -7127,7 +7127,7 @@ void convoi_t::clear_replace()
 #ifdef MULTI_THREAD
 					pthread_mutex_lock(&step_convois_mutex);
 #endif
-					halt->add_waiting_time(waiting_minutes, iter.get_zwischenziel(), iter.get_besch()->get_catg_index());
+					halt->add_waiting_time(waiting_minutes, iter.get_zwischenziel(), iter.get_desc()->get_catg_index());
 #ifdef MULTI_THREAD
 					pthread_mutex_unlock(&step_convois_mutex);
 #endif
@@ -7285,8 +7285,8 @@ void convoi_t::clear_replace()
 	uint16 total_capacity = 0;
 	for(uint8 i = 0; i < anz_vehikel; i ++)
 	{
-		total_capacity += vehicle[i]->get_besch()->get_zuladung();
-		total_capacity += vehicle[i]->get_besch()->get_overcrowded_capacity();
+		total_capacity += vehicle[i]->get_desc()->get_zuladung();
+		total_capacity += vehicle[i]->get_desc()->get_overcrowded_capacity();
 	}
 	// Multiply this by 2, as goods/passengers can both board and alight, so
 	// the maximum load charge is twice the capacity: all alighting, then all
@@ -7432,9 +7432,9 @@ void convoi_t::update_vehicle_summary(vehicle_summary_t &vehicle)
 	{
 		for (const_iterator i = begin(); i != end(); ++i )
 		{
-			vehicle.add_vehicle(*(*i)->get_besch());
+			vehicle.add_vehicle(*(*i)->get_desc());
 		}
-		vehicle.update_summary(get_vehikel(count-1)->get_besch()->get_length());
+		vehicle.update_summary(get_vehikel(count-1)->get_desc()->get_length());
 	}
 }
 
@@ -7459,7 +7459,7 @@ void convoi_t::update_freight_summary(freight_summary_t &freight)
 	freight.clear();
 	for (const_iterator i = begin(); i != end(); ++i )
 	{
-		freight.add_vehicle(*(*i)->get_besch());
+		freight.add_vehicle(*(*i)->get_desc());
 	}
 }
 
@@ -7486,7 +7486,7 @@ float32e8_t convoi_t::get_brake_summary(/*const float32e8_t &speed*/ /* in m/s *
 	for (const_iterator i = begin(); i != end(); ++i )
 	{
 		vehicle_t &v = **i;
-		const uint16 bf = v.get_besch()->get_brake_force();
+		const uint16 bf = v.get_desc()->get_brake_force();
 		if (bf != BRAKE_FORCE_UNKNOWN)
 		{
 			force += bf * (uint32) 1000;
@@ -7509,11 +7509,11 @@ float32e8_t convoi_t::get_force_summary(const float32e8_t &speed /* in m/s */)
 
 	for (const_iterator i = begin(); i != end(); ++i )
 	{
-		force += (*i)->get_besch()->get_effective_force_index(v);
+		force += (*i)->get_desc()->get_effective_force_index(v);
 	}
 
 	//for (array_tpl<vehicle_t*>::iterator i = vehicle.begin(), n = i + get_vehicle_count(); i != n; ++i)
-	//	force += (*i)->get_besch()->get_effective_force_index(v);
+	//	force += (*i)->get_desc()->get_effective_force_index(v);
 
 	return power_index_to_power(force, welt->get_settings().get_global_force_factor_percent());
 }
@@ -7525,7 +7525,7 @@ float32e8_t convoi_t::get_power_summary(const float32e8_t &speed /* in m/s */)
 	sint32 v = speed;
 	for (const_iterator i = begin(); i != end(); ++i )
 	{
-		power += (*i)->get_besch()->get_effective_power_index(v);
+		power += (*i)->get_desc()->get_effective_power_index(v);
 	}
 	return power_index_to_power(power, welt->get_settings().get_global_power_factor_percent());
 }

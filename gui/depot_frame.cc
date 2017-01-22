@@ -156,11 +156,11 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	add_component(&convoy_assembler);
 
 	cbuffer_t txt_traction_types;
-	if(depot->get_tile()->get_besch()->get_enabled() == 0)
+	if(depot->get_tile()->get_desc()->get_enabled() == 0)
 	{
 		txt_traction_types.printf("%s", translator::translate("Unpowered vehicles only"));
 	}
-	else if(depot->get_tile()->get_besch()->get_enabled() == 65535)
+	else if(depot->get_tile()->get_desc()->get_enabled() == 65535)
 	{
 		txt_traction_types.printf("%s", translator::translate("All traction types"));
 	}
@@ -168,10 +168,10 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	{
 		uint16 shifter;
 		bool first = true;
-		for(uint16 i = 0; i < (vehikel_besch_t::MAX_TRACTION_TYPE - 1); i ++)
+		for(uint16 i = 0; i < (vehikel_desc_t::MAX_TRACTION_TYPE - 1); i ++)
 		{
 			shifter = 1 << i;
-			if((shifter & depot->get_tile()->get_besch()->get_enabled()))
+			if((shifter & depot->get_tile()->get_desc()->get_enabled()))
 			{
 				if(first)
 				{
@@ -182,7 +182,7 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 				{
 					txt_traction_types.printf(", ");
 				}
-				txt_traction_types.printf("%s", translator::translate(vehikel_besch_t::get_engine_type((vehikel_besch_t::engine_t)i)));
+				txt_traction_types.printf("%s", translator::translate(vehikel_desc_t::get_engine_type((vehikel_desc_t::engine_t)i)));
 			}
 		}
 	}
@@ -493,11 +493,11 @@ void depot_frame_t::update_data()
 }
 
 
-sint64 depot_frame_t::calc_sale_value(const vehikel_besch_t *veh_type)
+sint64 depot_frame_t::calc_sale_value(const vehikel_desc_t *veh_type)
 {
 	sint64 wert = 0;
 	FOR(slist_tpl<vehicle_t*>, const v, depot->get_vehicle_list()) {
-		if(  v->get_besch() == veh_type  ) {
+		if(  v->get_desc() == veh_type  ) {
 			wert += v->calc_sale_value();
 		}
 	}

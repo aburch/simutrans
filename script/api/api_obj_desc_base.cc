@@ -9,15 +9,15 @@
 
 using namespace script_api;
 
-static const weg_besch_t *my_get_besch(const char *name)
+static const weg_desc_t *my_get_desc(const char *name)
 {
-	return wegbauer_t::get_besch(name);
+	return wegbauer_t::get_desc(name);
 }
 
-implement_besch_param(baum_besch_t, "tree_desc_x", &baum_t::find_tree);
-implement_besch_param(haus_besch_t, "building_desc_x", &hausbauer_t::get_besch);
-implement_besch_param(ware_besch_t, "good_desc_x", (const ware_besch_t* (*)(const char*))(&warenbauer_t::get_info) );
-implement_besch_param(weg_besch_t, "way_desc_x", &my_get_besch);
+implement_desc_param(baum_desc_t, "tree_desc_x", &baum_t::find_tree);
+implement_desc_param(haus_desc_t, "building_desc_x", &hausbauer_t::get_desc);
+implement_desc_param(ware_desc_t, "good_desc_x", (const ware_desc_t* (*)(const char*))(&warenbauer_t::get_info) );
+implement_desc_param(weg_desc_t, "way_desc_x", &my_get_desc);
 
 /**
  * Macro to get the implementation of get method based on unique tag.
@@ -37,11 +37,11 @@ implement_besch_param(weg_besch_t, "way_desc_x", &my_get_besch);
 	}
 
 // use the macro to obtain the interface of some abstract classes
-implement_class_with_tag(obj_besch_std_name_t);
-implement_class_with_tag(obj_besch_timelined_t);
-implement_class_with_tag(obj_besch_transport_related_t);
+implement_class_with_tag(obj_desc_std_name_t);
+implement_class_with_tag(obj_desc_timelined_t);
+implement_class_with_tag(obj_desc_transport_related_t);
 
-SQInteger param<const haus_tile_besch_t*>::push(HSQUIRRELVM vm, const haus_tile_besch_t* b)
+SQInteger param<const haus_tile_desc_t*>::push(HSQUIRRELVM vm, const haus_tile_desc_t* b)
 {
-	return param<const haus_besch_t*>::push(vm, b ? b->get_besch() : NULL);
+	return param<const haus_desc_t*>::push(vm, b ? b->get_desc() : NULL);
 }

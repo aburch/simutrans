@@ -70,7 +70,7 @@ convoi_filter_frame_t::filter_flag_t convoi_filter_frame_t::filter_buttons_types
 	obsolete_filter
 };
 
-slist_tpl<const ware_besch_t *>convoi_filter_frame_t::active_ware;
+slist_tpl<const ware_desc_t *>convoi_filter_frame_t::active_ware;
 char convoi_filter_frame_t::name_filter_text[] = "";
 
 
@@ -137,7 +137,7 @@ convoi_filter_frame_t::convoi_filter_frame_t(player_t *player, convoi_frame_t *m
 	all_ware.clear();
 	int n=0;
 	for(  int i=0;  i < warenbauer_t::get_count();  i++  ) {
-		const ware_besch_t *ware = warenbauer_t::get_info(i);
+		const ware_desc_t *ware = warenbauer_t::get_info(i);
 		if(  ware == warenbauer_t::nichts  ) {
 			continue;
 		}

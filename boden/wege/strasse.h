@@ -15,7 +15,7 @@ class gebaeude_t;
 class strasse_t : public weg_t
 {
 public:
-	static const weg_besch_t *default_strasse;
+	static const weg_desc_t *default_strasse;
 
 	minivec_tpl<gebaeude_t*> connected_buildings;
 

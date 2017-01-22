@@ -30,7 +30,7 @@
  *	1   Copyright
  *	2   Image list (Image-list)
  */
-class roadsign_besch_t : public obj_besch_transport_infrastructure_t {
+class roadsign_desc_t : public obj_desc_transport_infrastructure_t {
 	friend class roadsign_reader_t;
 
 private:
@@ -114,7 +114,7 @@ public:
 
 	int get_count() const { return get_child<image_list_t>(2)->get_count(); }
 
-	skin_besch_t const* get_cursor() const { return get_child<skin_besch_t>(3); }
+	skin_desc_t const* get_cursor() const { return get_child<skin_desc_t>(3); }
 
 	sint32 get_min_speed() const { return min_speed; }
 
@@ -173,7 +173,7 @@ public:
 
 	void calc_checksum(checksum_t *chk) const
 	{
-		obj_besch_transport_infrastructure_t::calc_checksum(chk);
+		obj_desc_transport_infrastructure_t::calc_checksum(chk);
 		chk->input(flags);
 		chk->input(min_speed);
 		chk->input(allow_underground);
@@ -191,6 +191,6 @@ public:
 	}
 };
 
-ENUM_BITSET(roadsign_besch_t::types)
+ENUM_BITSET(roadsign_desc_t::types)
 
 #endif

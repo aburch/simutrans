@@ -1,23 +1,23 @@
 #ifndef _API_OBJ_DESC_BASE_H_
 #define _API_OBJ_DESC_BASE_H_
 
-/** @file api_obj_desc.h templates for transfer of besch-pointers */
+/** @file api_obj_besch.h templates for transfer of desc-pointers */
 
 #include "../api_param.h"
 #include "../api_class.h"
 
-class obj_besch_std_name_t;
-class obj_besch_timelined_t;
-class obj_besch_transport_related_t;
-class baum_besch_t;
-class haus_besch_t;
-class haus_tile_besch_t;
-class ware_besch_t;
-class weg_besch_t;
+class obj_desc_std_name_t;
+class obj_desc_timelined_t;
+class obj_desc_transport_related_t;
+class baum_desc_t;
+class haus_desc_t;
+class haus_tile_desc_t;
+class ware_desc_t;
+class weg_desc_t;
 
 namespace script_api {
 
-#define declare_besch_param(T, sqtype) \
+#define declare_desc_param(T, sqtype) \
 	template<> \
 	struct param<const T*> { \
 		\
@@ -41,7 +41,7 @@ namespace script_api {
 		declare_types("t|x|y", sqtype); \
 	};
 
-#define implement_besch_param(T, sqtype, func) \
+#define implement_desc_param(T, sqtype, func) \
 	param<const T*>::GETFUNC param<const T*>::getfunc() \
 	{ \
 		return func; \
@@ -60,22 +60,22 @@ namespace script_api {
 		} \
 	}
 
-	declare_specialized_param(const obj_besch_std_name_t*, "t|x|y", "obj_desc_x");
-	declare_param_mask(obj_besch_std_name_t*, "t|x|y", "obj_desc_x");
+	declare_specialized_param(const obj_desc_std_name_t*, "t|x|y", "obj_desc_x");
+	declare_param_mask(obj_desc_std_name_t*, "t|x|y", "obj_desc_x");
 
-	declare_specialized_param(const obj_besch_timelined_t*, "t|x|y", "obj_desc_time_x");
-	declare_param_mask(obj_besch_timelined_t*, "t|x|y", "obj_desc_time_x");
+	declare_specialized_param(const obj_desc_timelined_t*, "t|x|y", "obj_desc_time_x");
+	declare_param_mask(obj_desc_timelined_t*, "t|x|y", "obj_desc_time_x");
 
-	declare_specialized_param(const obj_besch_transport_related_t*, "t|x|y", "obj_desc_transport_x");
-	declare_param_mask(obj_besch_transport_related_t*, "t|x|y", "obj_desc_transport_x");
+	declare_specialized_param(const obj_desc_transport_related_t*, "t|x|y", "obj_desc_transport_x");
+	declare_param_mask(obj_desc_transport_related_t*, "t|x|y", "obj_desc_transport_x");
 
-	declare_besch_param(baum_besch_t, "tree_desc_x");
-	declare_besch_param(ware_besch_t, "good_desc_x");
-	declare_besch_param(haus_besch_t, "building_desc_x");
-	declare_besch_param(weg_besch_t, "way_desc_x");
+	declare_desc_param(baum_desc_t, "tree_desc_x");
+	declare_desc_param(ware_desc_t, "good_desc_x");
+	declare_desc_param(haus_desc_t, "building_desc_x");
+	declare_desc_param(weg_desc_t, "way_desc_x");
 
-	// only push the haus_besch_t-pointer
-	declare_besch_param(haus_tile_besch_t, "building_desc_x");
+	// only push the haus_desc_t-pointer
+	declare_desc_param(haus_tile_desc_t, "building_desc_x");
 };
 
 #endif

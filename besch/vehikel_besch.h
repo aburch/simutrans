@@ -51,7 +51,7 @@ class checksum_t;
  *
  * @author Volker Meyer, Hj. Malthaner, kierongreen
  */
-class vehikel_besch_t : public obj_besch_transport_related_t {
+class vehikel_desc_t : public obj_desc_transport_related_t {
     friend class vehicle_reader_t;
     friend class vehikelbauer_t;
 
@@ -223,11 +223,11 @@ private:
 
 public:
 	// since we have a second constructor
-	vehikel_besch_t() : geared_power(0), geared_force(0) { }
+	vehikel_desc_t() : geared_power(0), geared_force(0) { }
 
 	// default vehicle (used for way seach and similar tasks)
 	// since it has no images and not even a name knot any calls to this will case a crash
-	vehikel_besch_t(uint8 wtyp, uint16 speed, engine_t engine, uint16 al = 0, uint32 weight = 1) : geared_power(0), geared_force(0) {
+	vehikel_desc_t(uint8 wtyp, uint16 speed, engine_t engine, uint16 al = 0, uint32 weight = 1) : geared_power(0), geared_force(0) {
 		freight_image_type = livery_image_type = cost = upgrade_price = zuladung = overcrowded_capacity = running_cost = intro_date = vorgaenger = nachfolger = catering_level = upgrades = 0;
 		fixed_cost = DEFAULT_FIXED_VEHICLE_MAINTENANCE;
 		leistung = comfort = 1;
@@ -253,15 +253,15 @@ public:
 		range = 0;
 	}
 
-	virtual ~vehikel_besch_t()
+	virtual ~vehikel_desc_t()
 	{
 		delete [] geared_power;
 		delete [] geared_force;
 	}
 
-	ware_besch_t const* get_ware() const { return get_child<ware_besch_t>(2); }
+	ware_desc_t const* get_ware() const { return get_child<ware_desc_t>(2); }
 
-	skin_besch_t const* get_rauch() const { return get_child<skin_besch_t>(3); }
+	skin_desc_t const* get_rauch() const { return get_child<skin_desc_t>(3); }
 
 	image_id get_base_image() const { return get_image_id(ribi_t::dir_south, get_ware() ); }
 	image_id get_base_image(const char* livery) const { return get_image_id(ribi_t::dir_south, get_ware(), livery ); }
@@ -273,7 +273,7 @@ public:
 	// Vehicles can have single liveries, multiple liveries, 
 	// single frieght images, multiple frieght images or no freight images.
 	// they can have 4 or 8 directions ...
-	image_id get_image_id(ribi_t::dir dir, const ware_besch_t *ware, const char* livery_type = "default") const
+	image_id get_image_id(ribi_t::dir dir, const ware_desc_t *ware, const char* livery_type = "default") const
 	{
 		const image_t *image=0;
 		const image_list_t *liste=0;
@@ -292,7 +292,7 @@ public:
 				const uint8 freight_images = freight_image_type == 255 ? 1 : freight_image_type;
 				for(uint8 i = 0; i < livery_image_type; i++) 
 				{
-					if(!strcmp(livery_type, get_child<text_besch_t>(5 + nachfolger + vorgaenger + upgrades + freight_images + i)->get_text()))
+					if(!strcmp(livery_type, get_child<text_desc_t>(5 + nachfolger + vorgaenger + upgrades + freight_images + i)->get_text()))
 					{
 						livery_index = i;
 						break;
@@ -323,7 +323,7 @@ public:
 				// With the "default" livery, always select livery index 0
 				for(uint8 i = 0; i < livery_image_type; i++) 
 				{
-					if(!strcmp(livery_type, get_child<text_besch_t>(6 + nachfolger + vorgaenger + upgrades + i)->get_text()))
+					if(!strcmp(livery_type, get_child<text_desc_t>(6 + nachfolger + vorgaenger + upgrades + i)->get_text()))
 					{
 						livery_index = i;
 						break;
@@ -354,7 +354,7 @@ public:
 			for( uint8 i=0;  i<freight_image_type;  i++  ) 
 			{
 				
-				if (ware == get_child<ware_besch_t>(6 + nachfolger + vorgaenger + upgrades + i)) 
+				if (ware == get_child<ware_desc_t>(6 + nachfolger + vorgaenger + upgrades + i)) 
 				{
 					ware_index = i;
 					break;
@@ -383,7 +383,7 @@ public:
 
 			for( uint8 i=0;  i<freight_image_type;  i++  ) 
 			{
-				if (ware == get_child<ware_besch_t>(6 + nachfolger + vorgaenger + upgrades + i)) 
+				if (ware == get_child<ware_desc_t>(6 + nachfolger + vorgaenger + upgrades + i)) 
 				{
 					ware_index = i;
 					break;
@@ -394,7 +394,7 @@ public:
 			{
 				for(uint8 j = 0; j < livery_image_type; j++) 
 				{
-					if(!strcmp(livery_type, get_child<text_besch_t>(6 + nachfolger + vorgaenger + freight_image_type + upgrades + j)->get_text()))
+					if(!strcmp(livery_type, get_child<text_desc_t>(6 + nachfolger + vorgaenger + freight_image_type + upgrades + j)->get_text()))
 					{
 						livery_index = j;
 						break;
@@ -457,7 +457,7 @@ public:
 			for(sint8 i = 0; i < livery_image_type; i++) 
 			{
 				const uint8 freight_images = freight_image_type == 255 ? 1 : freight_image_type;
-				const char* livery_name = get_child<text_besch_t>(5 + nachfolger + vorgaenger + upgrades + freight_images + i)->get_text();
+				const char* livery_name = get_child<text_desc_t>(5 + nachfolger + vorgaenger + upgrades + freight_images + i)->get_text();
 				if(!strcmp(name, livery_name))
 				{
 					return true;
@@ -480,24 +480,24 @@ public:
 	// provides get_vorgaenger (0) == NULL, it means that either all 
 	// predecessors are allowed or not. To distinguish, one should 
 	// predict hat_vorgaenger () question (Google)
-	const vehikel_besch_t *get_vorgaenger(int i) const
+	const vehikel_desc_t *get_vorgaenger(int i) const
 	{
 		if(i < 0 || i >= vorgaenger) {
 			return NULL;
 		}
-		return get_child<vehikel_besch_t>(get_add_to_node() + i);
+		return get_child<vehikel_desc_t>(get_add_to_node() + i);
 	}
 
 	// Liefert die erlaubten Nachfolger.
 	// liefert get_nachfolger(0) == NULL, so bedeutet das entweder all
 	// Nachfolger sind erlaubt oder keine. Um das zu unterscheiden, sollte
 	// man vorher hat_nachfolger() befragen
-	const vehikel_besch_t *get_nachfolger(int i) const
+	const vehikel_desc_t *get_nachfolger(int i) const
 	{
 		if(i < 0 || i >= nachfolger) {
 			return NULL;
 		}
-		return get_child<vehikel_besch_t>(get_add_to_node() + vorgaenger + i);
+		return get_child<vehikel_desc_t>(get_add_to_node() + vorgaenger + i);
 	}
 
 	int get_nachfolger_count() const { return nachfolger; }
@@ -505,7 +505,7 @@ public:
 	/* returns true, if this veh can be before the next_veh
 	 * uses NULL to indicate end of convoi
 	 */
-	bool can_lead(const vehikel_besch_t *next_veh) const
+	bool can_lead(const vehikel_desc_t *next_veh) const
 	{
 		if(nachfolger == 0) 
 		{
@@ -523,7 +523,7 @@ public:
 		}
 
 		for( int i=0;  i<nachfolger;  i++  ) {
-			vehikel_besch_t const* const veh = get_child<vehikel_besch_t>(get_add_to_node() + vorgaenger + i);
+			vehikel_desc_t const* const veh = get_child<vehikel_desc_t>(get_add_to_node() + vorgaenger + i);
 			if(veh==next_veh) {
 				return true;
 			}
@@ -535,14 +535,14 @@ public:
 	/* returns true, if this veh can be after the prev_veh
 	 * uses NULL to indicate front of convoi
 	 */
-	bool can_follow(const vehikel_besch_t *prev_veh) const
+	bool can_follow(const vehikel_desc_t *prev_veh) const
 	{
 		if(  vorgaenger==0  ) {
 			return true;
 		}
 		for( int i=0;  i<vorgaenger;  i++  ) 
 		{
-			vehikel_besch_t const* const veh = get_child<vehikel_besch_t>(get_add_to_node() + i);
+			vehikel_desc_t const* const veh = get_child<vehikel_desc_t>(get_add_to_node() + i);
 			if(veh==prev_veh) 
 			{
 				return true;
@@ -556,13 +556,13 @@ public:
 
 	// Returns the vehicle types to which this vehicle type may be upgraded.
 
-	const vehikel_besch_t *get_upgrades(int i) const
+	const vehikel_desc_t *get_upgrades(int i) const
 	{
 		if(i < 0 || i >= upgrades)
 		{
 			return NULL;
 		}
-		return get_child<vehikel_besch_t>(get_add_to_node() + nachfolger + vorgaenger + i);
+		return get_child<vehikel_desc_t>(get_add_to_node() + nachfolger + vorgaenger + i);
 	}
 
 	int get_upgrades_count() const { return upgrades; }
@@ -727,7 +727,7 @@ public:
 
 	void set_scale(uint16 scale_factor, uint32 way_wear_factor_rail, uint32 way_wear_factor_road, uint16 standard_axle_load)
 	{ 
-		obj_besch_transport_related_t::set_scale(scale_factor);
+		obj_desc_transport_related_t::set_scale(scale_factor);
 
 		upgrade_price = (uint32) set_scale_generic<sint64>(base_upgrade_price, scale_factor);
 		if (base_upgrade_price && !upgrade_price) upgrade_price = 1;
@@ -883,6 +883,6 @@ public:
 		};
 	}
 };
-#define vehikel_besch_t_defined
+#define vehikel_desc_t_defined
 
 #endif

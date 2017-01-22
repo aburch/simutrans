@@ -85,7 +85,7 @@ sint64 convert_boost(sint64 value);
 class ware_production_t
 {
 private:
-	const ware_besch_t *type;
+	const ware_desc_t *type;
 	// Knightly : statistics for each goods
 	sint64 statistics[MAX_MONTH][MAX_FAB_GOODS_STAT];
 	sint64 weighted_sum_storage;
@@ -101,8 +101,8 @@ public:
 		init_stats();
 	}
 
-	const ware_besch_t* get_typ() const { return type; }
-	void set_typ(const ware_besch_t *t) { type=t; }
+	const ware_desc_t* get_typ() const { return type; }
+	void set_typ(const ware_desc_t *t) { type=t; }
 
 	// Knightly : functions for manipulating goods statistics
 	void roll_stats(sint64 aggregate_weight);
@@ -230,7 +230,7 @@ private:
 	player_t *owner;		// player_t* owner_p
 	static karte_ptr_t welt;
 
-	const fabrik_besch_t *besch;
+	const fabrik_desc_t *desc;
 
 protected:
 
@@ -433,7 +433,7 @@ protected:
 
 public:
 	fabrik_t(loadsave_t *file);
-	fabrik_t(koord3d pos, player_t* player, const fabrik_besch_t* fabesch, sint32 initial_prod_base);
+	fabrik_t(koord3d pos, player_t* player, const fabrik_desc_t* fadesc, sint32 initial_prod_base);
 	~fabrik_t();
 
 	gebaeude_t* get_building();
@@ -475,7 +475,7 @@ public:
 	 * @return vehicle description object
 	 * @author Hj. Malthaner
 	 */
-	const fabrik_besch_t *get_besch() const {return besch; }
+	const fabrik_desc_t *get_desc() const {return desc; }
 
 	void finish_rd();
 
@@ -537,8 +537,8 @@ public:
 	 *   -1 wenn typ nicht produziert wird ("if not type is produced")
 	 *   sonst die gelagerte menge ("otherwise the stored quantity")
 	 */
-	sint32 input_vorrat_an(const ware_besch_t *ware);        // Vorrat von Warentyp ("Inventories of product")
-	sint32 vorrat_an(const ware_besch_t *ware);        // Vorrat von Warentyp
+	sint32 input_vorrat_an(const ware_desc_t *ware);        // Vorrat von Warentyp ("Inventories of product")
+	sint32 vorrat_an(const ware_desc_t *ware);        // Vorrat von Warentyp
 
 	/**
 	* returns all power and consume it to prevent multiple pumpes
@@ -570,7 +570,7 @@ public:
 	/**
 	* Used to limit transformers to one per factory
 	*/
-	bool is_transformer_connected() const { return (bool)transformer_connected || ((bool)city && !besch->is_electricity_producer()); }
+	bool is_transformer_connected() const { return (bool)transformer_connected || ((bool)city && !desc->is_electricity_producer()); }
 	leitung_t* get_transformer_connected() { return transformer_connected; }
 	void set_transformer_connected(leitung_t* connected) { transformer_connected = connected; }
 
@@ -580,9 +580,9 @@ public:
 	 * -1 wenn Ware nicht verarbeitet wird
 	 */
 
-	sint8 is_needed(const ware_besch_t *) const;
+	sint8 is_needed(const ware_desc_t *) const;
 
-	sint32 liefere_an(const ware_besch_t *, sint32 menge);
+	sint32 liefere_an(const ware_desc_t *, sint32 menge);
 
 	void step(uint32 delta_t);                  // fabrik muss auch arbeiten ("factory must also work")
 
@@ -591,7 +591,7 @@ public:
 	char const* get_name() const;
 	void set_name( const char *name );
 
-	sint32 get_kennfarbe() const { return besch->get_kennfarbe(); }
+	sint32 get_kennfarbe() const { return desc->get_kennfarbe(); }
 
 	player_t *get_owner() const
 	{
@@ -719,12 +719,12 @@ public:
 	uint32 get_monthly_pax_demand() const;
 	uint32 get_scaled_mail_demand() const { return scaled_mail_demand; }
 
-	bool is_end_consumer() const { return (ausgang.empty() && !besch->is_electricity_producer()); }
+	bool is_end_consumer() const { return (ausgang.empty() && !desc->is_electricity_producer()); }
 
 	/**
 	 * Returns a list of goods produced by this factory.
 	 */
-	slist_tpl<const ware_besch_t*> *get_produced_goods() const;
+	slist_tpl<const ware_desc_t*> *get_produced_goods() const;
 
 	void add_to_world_list();
 
@@ -733,7 +733,7 @@ public:
 
 	void calc_max_intransit_percentages();
 	// Average journey time to delivery goods of this type
-	uint32 get_lead_time (const ware_besch_t* wtype);
+	uint32 get_lead_time (const ware_desc_t* wtype);
 	// Time to consume the full input store of these goods at full capacity
 	uint32 get_time_to_consume_stock(uint32 index);
 

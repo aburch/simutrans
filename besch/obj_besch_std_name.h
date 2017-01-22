@@ -10,16 +10,16 @@ class tool_t;
  * Common base class for all object descriptors, which get their name and
  * copyright information from child 0 and 1
  */
-class obj_besch_std_name_t : public obj_besch_t {
+class obj_desc_std_name_t : public obj_desc_t {
 	public:
 		const char* get_name() const
 		{
-			return get_child<text_besch_t>(0)->get_text();
+			return get_child<text_desc_t>(0)->get_text();
 		}
 
 		const char* get_copyright() const
 		{
-			text_besch_t const* const ts = get_child<text_besch_t>(1);
+			text_desc_t const* const ts = get_child<text_desc_t>(1);
 			if (!ts) return 0;
 			char const* const text = ts->get_text();
 			return text[0] != '\0' ? text : 0;
@@ -29,14 +29,14 @@ class obj_besch_std_name_t : public obj_besch_t {
 /**
  * Base class for all stuff that depends on timeline.
  */
-class obj_besch_timelined_t : public obj_besch_std_name_t {
+class obj_desc_timelined_t : public obj_desc_std_name_t {
 
 protected:
 	uint16 intro_date;    ///< this thing is available from this date
 	uint16 obsolete_date; ///< this thing is available until this date
 
 public:
-	obj_besch_timelined_t() : obj_besch_std_name_t(),
+	obj_desc_timelined_t() : obj_desc_std_name_t(),
 		intro_date(0), obsolete_date(0) {}
 
 	uint16 get_intro_year_month() const { return intro_date; }
@@ -67,7 +67,7 @@ public:
 /**
  * Base class for all transport related stuff.
  */
-class obj_besch_transport_related_t : public obj_besch_timelined_t {
+class obj_desc_transport_related_t : public obj_desc_timelined_t {
 
 protected:
 	sint32 base_maintenance;
@@ -88,7 +88,7 @@ protected:
 	uint8 upgrade_group;		///< The group of elevated ways between which this can be upgraded for the way only cost.
 
 public:
-	obj_besch_transport_related_t() : obj_besch_timelined_t(),
+	obj_desc_transport_related_t() : obj_desc_timelined_t(),
 		base_maintenance(0), base_cost(0), 
                maintenance(0), cost(0), wt(255), topspeed(0), topspeed_gradient_1(0), topspeed_gradient_2(0),
                base_way_only_cost(0), way_only_cost(0) {}
@@ -138,7 +138,7 @@ public:
 /**
  * Base class for all transport infrastructure.
  */
-class obj_besch_transport_infrastructure_t : public obj_besch_transport_related_t {
+class obj_desc_transport_infrastructure_t : public obj_desc_transport_related_t {
 
 protected:
 	tool_t *builder;  ///< default tool for building

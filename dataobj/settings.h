@@ -20,7 +20,7 @@
 class player_t;
 class loadsave_t;
 class tabfile_t;
-class weg_besch_t;
+class weg_desc_t;
 
 struct road_timeline_t
 {
@@ -804,8 +804,8 @@ public:
 
 	sint32 get_beginner_price_factor() const { return beginner_price_factor; }
 
-	const weg_besch_t *get_city_road_type( uint16 year );
-	const weg_besch_t *get_intercity_road_type( uint16 year );
+	const weg_desc_t *get_city_road_type( uint16 year );
+	const weg_desc_t *get_intercity_road_type( uint16 year );
 
 	void set_pak_diagonal_multiplier(uint16 n) { pak_diagonal_multiplier = n; }
 	uint16 get_pak_diagonal_multiplier() const { return pak_diagonal_multiplier; }
@@ -827,7 +827,7 @@ public:
 	uint16 get_median_bonus_distance() const { return median_bonus_distance; }
 	uint16 get_max_bonus_min_distance() const { return max_bonus_min_distance; }
 	uint16 get_max_bonus_multiplier_percent() const { return max_bonus_multiplier_percent; }
-	// Cache the above settings directly in ware_besch_t objects.
+	// Cache the above settings directly in ware_desc_t objects.
 	// During loading you must call this *after* warenbauer_t is done registering wares.
 	void cache_speedbonuses();
 

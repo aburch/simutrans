@@ -62,10 +62,10 @@ class sync_steppable;
 class tool_t;
 class scenario_t;
 class message_t;
-class weg_besch_t;
-class tunnel_besch_t;
+class weg_desc_t;
+class tunnel_desc_t;
 class network_world_command_t;
-class ware_besch_t;
+class ware_desc_t;
 class memory_rw_t;
 class viewport_t;
 class records_t;
@@ -409,7 +409,7 @@ private:
 	/**
 	 * Stores a list of goods produced by factories currently in the game;
 	 */
-	vector_tpl<const ware_besch_t*> goods_in_game;
+	vector_tpl<const ware_desc_t*> goods_in_game;
 
 	weighted_vector_tpl<gebaeude_t *> ausflugsziele;
 
@@ -722,7 +722,7 @@ private:
 	/**
 	 * May change due to timeline.
 	 */
-	const weg_besch_t *city_road;
+	const weg_desc_t *city_road;
 
 	// Data for maintaining industry density even
 	// after industries close
@@ -956,7 +956,7 @@ private:
 
 	sint32 calc_adjusted_step_interval(const uint32 weight, uint32 trips_per_month_hundredths) const;
 
-	uint32 generate_passengers_or_mail(const ware_besch_t * wtyp);
+	uint32 generate_passengers_or_mail(const ware_desc_t * wtyp);
 
 	destination find_destination(trip_type trip);
 
@@ -1682,7 +1682,7 @@ public:
 	 * prissi: current city road.
 	 * @note May change due to timeline.
 	 */
-	const weg_besch_t* get_city_road() const { return city_road; }
+	const weg_desc_t* get_city_road() const { return city_road; }
 
 	/**
 	 * Number of steps elapsed since the map was generated.
@@ -2231,7 +2231,7 @@ public:
 	/**
 	 * Returns a list of goods produced by factories that exist in current game.
 	 */
-	const vector_tpl<const ware_besch_t*> &get_goods_list();
+	const vector_tpl<const ware_desc_t*> &get_goods_list();
 
 	/**
 	 * Seaches and returns the closest city
@@ -2528,7 +2528,7 @@ public:
 	uint32 get_generic_road_time_per_tile_city() const { return generic_road_time_per_tile_city; }
 	uint32 get_generic_road_time_per_tile_intercity() const { return generic_road_time_per_tile_intercity; };
 
-	sint32 calc_generic_road_time_per_tile(const weg_besch_t* besch);
+	sint32 calc_generic_road_time_per_tile(const weg_desc_t* desc);
 
 	uint32 get_max_road_check_depth() const { return max_road_check_depth; }
 
@@ -2607,7 +2607,7 @@ private:
 	uint32 get_next_command_step();
 
 	sint32 get_tiles_of_gebaeude(gebaeude_t* const gb, vector_tpl<const planquadrat_t*> &tile_list) const;
-	void get_nearby_halts_of_tiles(const vector_tpl<const planquadrat_t*> &tile_list, const ware_besch_t * wtyp, vector_tpl<nearby_halt_t> &halts) const;
+	void get_nearby_halts_of_tiles(const vector_tpl<const planquadrat_t*> &tile_list, const ware_desc_t * wtyp, vector_tpl<nearby_halt_t> &halts) const;
 };
 
 

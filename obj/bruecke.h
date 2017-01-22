@@ -15,8 +15,8 @@ class karte_t;
 class bruecke_t : public obj_no_info_t
 {
 private:
-	const bruecke_besch_t *besch;
-	bruecke_besch_t::img_t img;
+	const bruecke_desc_t *desc;
+	bruecke_desc_t::img_t img;
 
 	image_id image;
 
@@ -25,7 +25,7 @@ protected:
 
 public:
 	bruecke_t(loadsave_t *file);
-	bruecke_t(koord3d pos, player_t *player, const bruecke_besch_t *besch, bruecke_besch_t::img_t img);
+	bruecke_t(koord3d pos, player_t *player, const bruecke_desc_t *desc, bruecke_desc_t::img_t img);
 
 	const char *get_name() const {return "Bruecke";}
 #ifdef INLINE_OBJ_TYPE
@@ -41,9 +41,9 @@ public:
 	/**
 	 * waytype associated with this object
 	 */
-	waytype_t get_waytype() const { return besch ? besch->get_waytype() : invalid_wt; }
+	waytype_t get_waytype() const { return desc ? desc->get_waytype() : invalid_wt; }
 
-	const bruecke_besch_t *get_besch() const { return besch; }
+	const bruecke_desc_t *get_desc() const { return desc; }
 
 	inline void set_image( image_id b ) { image = b; }
 	image_id get_image() const { return image; }

@@ -18,30 +18,30 @@
 #include "../tpl/vector_tpl.h"
 
 
-vector_tpl<const skin_besch_t *>wolke_t::all_clouds(0);
+vector_tpl<const skin_desc_t *>wolke_t::all_clouds(0);
 
-bool wolke_t::register_besch(const skin_besch_t* besch)
+bool wolke_t::register_desc(const skin_desc_t* desc)
 {
 	// avoid duplicates with same name
-	FOR(vector_tpl<skin_besch_t const*>, & i, all_clouds) {
-		if (strcmp(i->get_name(), besch->get_name()) == 0) {
-			i = besch;
+	FOR(vector_tpl<skin_desc_t const*>, & i, all_clouds) {
+		if (strcmp(i->get_name(), desc->get_name()) == 0) {
+			i = desc;
 			return true;
 		}
 	}
-	return all_clouds.append_unique( besch );
+	return all_clouds.append_unique( desc );
 }
 
 
 
-wolke_t::wolke_t(koord3d pos, sint8 x_off, sint8 y_off, const skin_besch_t* besch ) :
+wolke_t::wolke_t(koord3d pos, sint8 x_off, sint8 y_off, const skin_desc_t* desc ) :
 #ifdef INLINE_OBJ_TYPE
     obj_no_info_t(obj_t::sync_wolke, pos)
 #else
     obj_no_info_t(pos)
 #endif
 {
-	cloud_nr = all_clouds.index_of(besch);
+	cloud_nr = all_clouds.index_of(desc);
 	base_y_off = clamp( (sint16)y_off - 8, -128, 127 );
 	set_xoff( x_off );
 	set_yoff( base_y_off );
@@ -72,8 +72,8 @@ wolke_t::wolke_t(loadsave_t* const file) :
 
 image_id wolke_t::get_image() const
 {
-	const skin_besch_t *besch = all_clouds[cloud_nr];
-	return besch->get_image_id( (purchase_time*besch->get_count())/2500 );
+	const skin_desc_t *desc = all_clouds[cloud_nr];
+	return desc->get_image_id( (purchase_time*desc->get_count())/2500 );
 }
 
 

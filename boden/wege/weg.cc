@@ -142,30 +142,30 @@ const char *weg_t::waytype_to_string(waytype_t wt)
 }
 
 
-void weg_t::set_besch(const weg_besch_t *b, bool from_saved_game)
+void weg_t::set_desc(const weg_desc_t *b, bool from_saved_game)
 {
-	if(besch)
+	if(desc)
 	{
 		// Remove the old maintenance cost
-		sint32 old_maint = get_besch()->get_wartung();
+		sint32 old_maint = get_desc()->get_wartung();
 		check_diagonal();
 		if(is_diagonal())
 		{
 			old_maint *= 10;
 			old_maint /= 14;
 		}
-		player_t::add_maintenance(get_owner(), -old_maint, get_besch()->get_finance_waytype());
+		player_t::add_maintenance(get_owner(), -old_maint, get_desc()->get_finance_waytype());
 	}
 	
-	besch = b;
+	desc = b;
 	// Add the new maintenance cost
-	sint32 maint = get_besch()->get_wartung();
+	sint32 maint = get_desc()->get_wartung();
 	if(is_diagonal())
 	{
 		maint *= 10;
 		maint /= 14;
 	}
-	player_t::add_maintenance(get_owner(), maint, get_besch()->get_finance_waytype());
+	player_t::add_maintenance(get_owner(), maint, get_desc()->get_finance_waytype());
 
 	grund_t* gr = welt->lookup(get_pos());
 	if(!gr)
@@ -180,7 +180,7 @@ void weg_t::set_besch(const weg_besch_t *b, bool from_saved_game)
 	const bool is_destroying = welt->is_destroying();
 	if (env_t::networkmode && !is_destroying)
 	{
-		// In network mode, we cannot have set_besch running concurrently with
+		// In network mode, we cannot have set_desc running concurrently with
 		// convoy path-finding because  whether the convoy path-finder is called
 		// on this tile of way before or after this function is indeterminate.
 		if (!world()->get_first_step())
@@ -198,30 +198,30 @@ void weg_t::set_besch(const weg_besch_t *b, bool from_saved_game)
 		{
 			if(bridge)
 			{
-				max_speed = min(besch->get_topspeed_gradient_1(), bridge->get_besch()->get_topspeed_gradient_1());
+				max_speed = min(desc->get_topspeed_gradient_1(), bridge->get_desc()->get_topspeed_gradient_1());
 			}
 			else if(tunnel)
 			{
-				max_speed = min(besch->get_topspeed_gradient_1(), tunnel->get_besch()->get_topspeed_gradient_1());
+				max_speed = min(desc->get_topspeed_gradient_1(), tunnel->get_desc()->get_topspeed_gradient_1());
 			}
 			else
 			{
-				max_speed = besch->get_topspeed_gradient_1();
+				max_speed = desc->get_topspeed_gradient_1();
 			}
 		}
 		else
 		{
 			if(bridge)
 			{
-				max_speed = min(besch->get_topspeed_gradient_2(), bridge->get_besch()->get_topspeed_gradient_2());
+				max_speed = min(desc->get_topspeed_gradient_2(), bridge->get_desc()->get_topspeed_gradient_2());
 			}
 			else if(tunnel)
 			{
-				max_speed = min(besch->get_topspeed_gradient_2(), tunnel->get_besch()->get_topspeed_gradient_2());
+				max_speed = min(desc->get_topspeed_gradient_2(), tunnel->get_desc()->get_topspeed_gradient_2());
 			}
 			else
 			{
-				max_speed = besch->get_topspeed_gradient_2();
+				max_speed = desc->get_topspeed_gradient_2();
 			}
 		}
 	}
@@ -229,47 +229,47 @@ void weg_t::set_besch(const weg_besch_t *b, bool from_saved_game)
 	{
 		if(bridge)
 			{
-				max_speed = min(besch->get_topspeed(), bridge->get_besch()->get_topspeed());
+				max_speed = min(desc->get_topspeed(), bridge->get_desc()->get_topspeed());
 			}
 		else if(tunnel)
 			{
-				max_speed = min(besch->get_topspeed(), tunnel->get_besch()->get_topspeed());
+				max_speed = min(desc->get_topspeed(), tunnel->get_desc()->get_topspeed());
 			}
 			else
 			{
-				max_speed = besch->get_topspeed();
+				max_speed = desc->get_topspeed();
 			}
 	}
 
 	const sint32 city_road_topspeed = welt->get_city_road()->get_topspeed();
 
-	if(hat_gehweg() && besch->get_wtyp() == road_wt)
+	if(hat_gehweg() && desc->get_wtyp() == road_wt)
 	{
 		max_speed = min(max_speed, city_road_topspeed);
 	}
 	
-	max_axle_load = besch->get_max_axle_load();
+	max_axle_load = desc->get_max_axle_load();
 	
 	// Clear the old constraints then add all sources of constraints again.
 	// (Removing will not work in cases where a way and another object, 
 	// such as a bridge, tunnel or wayobject, share a constraint).
 	clear_way_constraints();
-	add_way_constraints(besch->get_way_constraints()); // Add the way's own constraints
+	add_way_constraints(desc->get_way_constraints()); // Add the way's own constraints
 	if(bridge)
 	{
-		add_way_constraints(bridge->get_besch()->get_way_constraints());
+		add_way_constraints(bridge->get_desc()->get_way_constraints());
 	}
 	if(tunnel)
 	{
-		add_way_constraints(tunnel->get_besch()->get_way_constraints());
+		add_way_constraints(tunnel->get_desc()->get_way_constraints());
 	}
 	const wayobj_t* wayobj = gr ? gr->get_wayobj(get_waytype()) : NULL;
 	if(wayobj)
 	{
-		add_way_constraints(wayobj->get_besch()->get_way_constraints());
+		add_way_constraints(wayobj->get_desc()->get_way_constraints());
 	}
 
-	if(besch->is_mothballed())
+	if(desc->is_mothballed())
 	{	
 		degraded = true;
 		remaining_wear_capacity = 0;
@@ -277,10 +277,10 @@ void weg_t::set_besch(const weg_besch_t *b, bool from_saved_game)
 	}
 	else if(!from_saved_game)
 	{
-		remaining_wear_capacity = besch->get_wear_capacity();
+		remaining_wear_capacity = desc->get_wear_capacity();
 		last_renewal_month_year = welt->get_timeline_year_month();
 		degraded = false;
-		replacement_way = besch;
+		replacement_way = desc;
 		const grund_t* gr = welt->lookup(get_pos());
 		if(gr)
 		{
@@ -289,7 +289,7 @@ void weg_t::set_besch(const weg_besch_t *b, bool from_saved_game)
 			{
 				rs =  gr->find<signal_t>();
 			} 
-			if(rs && rs->get_besch()->is_retired(welt->get_timeline_year_month()))
+			if(rs && rs->get_desc()->is_retired(welt->get_timeline_year_month()))
 			{
 				// Upgrade obsolete signals and signs when upgrading the underlying way if possible.
 				rs->upgrade(welt->lookup_kartenboden(get_pos().get_2d())->get_hoehe() != get_pos().z); 
@@ -324,7 +324,7 @@ void weg_t::init()
 	max_speed = 450;
 	max_axle_load = 1000;
 	bridge_weight_limit = UINT32_MAX_VALUE;
-	besch = 0;
+	desc = 0;
 	init_statistics();
 	alle_wege.append(this);
 	flags = 0;
@@ -343,15 +343,15 @@ weg_t::~weg_t()
 	{
 		alle_wege.remove(this);
 		player_t *player = get_owner();
-		if (player  &&  besch)
+		if (player  &&  desc)
 		{
-			sint32 maint = besch->get_wartung();
+			sint32 maint = desc->get_wartung();
 			if (is_diagonal())
 			{
 				maint *= 10;
 				maint /= 14;
 			}
-			player_t::add_maintenance(player, -maint, besch->get_finance_waytype());
+			player_t::add_maintenance(player, -maint, desc->get_finance_waytype());
 		}
 	}
 }
@@ -488,7 +488,7 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 	buf.append(" ");
 	buf.append(max_speed);
 	buf.append(translator::translate("km/h\n"));
-	if(besch->get_styp() == type_elevated || waytype == air_wt || waytype == water_wt)
+	if(desc->get_styp() == type_elevated || waytype == air_wt || waytype == water_wt)
 	{
 		buf.append(translator::translate("\nMax. weight:"));
 	}
@@ -642,7 +642,7 @@ void weg_t::count_sign()
 			flags |= HAS_CROSSING;
 			i = 3;
 			const crossing_t* cr = gr->find<crossing_t>();
-			sint32 top_speed = cr->get_besch()->get_maxspeed( cr->get_besch()->get_waytype(0)==get_waytype() ? 0 : 1);
+			sint32 top_speed = cr->get_desc()->get_maxspeed( cr->get_desc()->get_waytype(0)==get_waytype() ? 0 : 1);
 			if(  top_speed < max_speed  ) {
 				max_speed = top_speed;
 			}
@@ -652,14 +652,14 @@ void weg_t::count_sign()
 			obj_t *obj=gr->obj_bei(i);
 			// sign for us?
 			if(  roadsign_t const* const sign = obj_cast<roadsign_t>(obj)  ) {
-				if(  sign->get_besch()->get_wtyp() == get_besch()->get_wtyp()  ) {
+				if(  sign->get_desc()->get_wtyp() == get_desc()->get_wtyp()  ) {
 					// here is a sign ...
 					flags |= HAS_SIGN;
 					return;
 				}
 			}
 			if(  signal_t const* const signal = obj_cast<signal_t>(obj)  ) {
-				if(  signal->get_besch()->get_wtyp() == get_besch()->get_wtyp()  ) {
+				if(  signal->get_desc()->get_wtyp() == get_desc()->get_wtyp()  ) {
 					// here is a signal ...
 					flags |= HAS_SIGNAL;
 					return;
@@ -675,20 +675,20 @@ void weg_t::set_images(image_type typ, uint8 ribi, bool snow, bool switch_nw)
 	switch(typ) {
 		case image_flat:
 		default:
-			set_image( besch->get_image_id( ribi, snow ) );
-			set_after_image( besch->get_image_id( ribi, snow, true ) );
+			set_image( desc->get_image_id( ribi, snow ) );
+			set_after_image( desc->get_image_id( ribi, snow, true ) );
 			break;
 		case image_slope:
-			set_image( besch->get_hang_image_nr( (slope_t::type)ribi, snow ) );
-			set_after_image( besch->get_hang_image_nr( (slope_t::type)ribi, snow, true ) );
+			set_image( desc->get_hang_image_nr( (slope_t::type)ribi, snow ) );
+			set_after_image( desc->get_hang_image_nr( (slope_t::type)ribi, snow, true ) );
 			break;
 		case image_switch:
-			set_image( besch->get_image_nr_switch(ribi, snow, switch_nw) );
-			set_after_image( besch->get_image_nr_switch(ribi, snow, switch_nw, true) );
+			set_image( desc->get_image_nr_switch(ribi, snow, switch_nw) );
+			set_after_image( desc->get_image_nr_switch(ribi, snow, switch_nw, true) );
 			break;
 		case image_diagonal:
-			set_image( besch->get_diagonal_image_nr(ribi, snow) );
-			set_after_image( besch->get_diagonal_image_nr(ribi, snow, true) );
+			set_image( desc->get_diagonal_image_nr(ribi, snow) );
+			set_after_image( desc->get_diagonal_image_nr(ribi, snow, true) );
 			break;
 	}
 }
@@ -702,7 +702,7 @@ bool weg_t::check_season(const bool calc_only_season_change)
 	}
 
 	// no way to calculate this or no image set (not visible, in tunnel mouth, etc)
-	if(  besch == NULL  ||  image == IMG_EMPTY  ) {
+	if(  desc == NULL  ||  image == IMG_EMPTY  ) {
 		return true;
 	}
 
@@ -730,8 +730,8 @@ bool weg_t::check_season(const bool calc_only_season_change)
 
 	if(  is_diagonal()  ) 
 	{
-		if( besch->get_diagonal_image_nr(ribi, snow) != IMG_EMPTY  ||
-			besch->get_diagonal_image_nr(ribi, snow, true) != IMG_EMPTY) 
+		if( desc->get_diagonal_image_nr(ribi, snow) != IMG_EMPTY  ||
+			desc->get_diagonal_image_nr(ribi, snow, true) != IMG_EMPTY) 
 		{
 			set_images(image_diagonal, ribi, snow);
 		}
@@ -740,12 +740,12 @@ bool weg_t::check_season(const bool calc_only_season_change)
 			set_images(image_flat, ribi, snow);
 		}
 	}
-	else if(  ribi_t::is_threeway( ribi )  &&  besch->has_switch_image()  ) {
+	else if(  ribi_t::is_threeway( ribi )  &&  desc->has_switch_image()  ) {
 		// there might be two states of the switch; remember it when changing seasons
-		if(  image == besch->get_image_nr_switch( ribi, old_snow, false )  ) {
+		if(  image == desc->get_image_nr_switch( ribi, old_snow, false )  ) {
 			set_images( image_switch, ribi, snow, false );
 		}
-		else if(  image == besch->get_image_nr_switch( ribi, old_snow, true )  ) {
+		else if(  image == desc->get_image_nr_switch( ribi, old_snow, true )  ) {
 			set_images( image_switch, ribi, snow, true );
 		}
 		else {
@@ -784,7 +784,7 @@ void weg_t::calc_image()
 	grund_t *to;
 	image_id old_image = image;
 
-	if(  from==NULL  ||  besch==NULL  ||  !from->is_visible()  ) {
+	if(  from==NULL  ||  desc==NULL  ||  !from->is_visible()  ) {
 		// no ground, in tunnel
 		set_image(IMG_EMPTY);
 		set_after_image(IMG_EMPTY);
@@ -829,7 +829,7 @@ void weg_t::calc_image()
 						// can fail on water tiles
 						if(  weg_t *w=to->get_weg(get_waytype())  )  {
 							// and will only change the outcome, if it has a diagonal image ...
-							if(  w->get_besch()->has_diagonal_image()  ) {
+							if(  w->get_desc()->has_diagonal_image()  ) {
 								w->calc_image();
 							}
 						}
@@ -839,13 +839,13 @@ void weg_t::calc_image()
 			}
 
 			// try diagonal image
-			if(  besch->has_diagonal_image()  ) {
+			if(  desc->has_diagonal_image()  ) {
 				check_diagonal();
 
 				// now apply diagonal image
 				if(is_diagonal()) {
-					if( besch->get_diagonal_image_nr(ribi, snow) != IMG_EMPTY  ||
-					    besch->get_diagonal_image_nr(ribi, snow, true) != IMG_EMPTY) {
+					if( desc->get_diagonal_image_nr(ribi, snow) != IMG_EMPTY  ||
+					    desc->get_diagonal_image_nr(ribi, snow, true) != IMG_EMPTY) {
 						set_images(image_diagonal, ribi, snow);
 					}
 				}
@@ -910,7 +910,7 @@ void weg_t::new_month()
 		}
 		statistics[0][type] = 0;
 	}
-	wear_way(besch->get_monthly_base_wear()); 
+	wear_way(desc->get_monthly_base_wear()); 
 }
 
 
@@ -918,16 +918,16 @@ void weg_t::new_month()
 void weg_t::finish_rd()
 {
 	player_t *player=get_owner();
-	if(player && besch) 
+	if(player && desc) 
 	{
-		sint32 maint = besch->get_wartung();
+		sint32 maint = desc->get_wartung();
 		check_diagonal();
 		if(is_diagonal())
 		{
 			maint *= 10;
 			maint /= 14;
 		}
-		player_t::add_maintenance( player,  maint, besch->get_finance_waytype() );
+		player_t::add_maintenance( player,  maint, desc->get_finance_waytype() );
 	}
 }
 
@@ -958,7 +958,7 @@ bool weg_t::should_city_adopt_this(const player_t* player)
 		// Cities only adopt roads
 		return false;
 	}
-	if(get_besch()->get_styp() == type_elevated)
+	if(get_desc()->get_styp() == type_elevated)
 	{
 		// It would be too profitable for players if cities adopted elevated roads
 		return false;
@@ -996,10 +996,10 @@ bool weg_t::should_city_adopt_this(const player_t* player)
 		{
 			continue;
 		}
-		const haus_besch_t* const besch = neighbouring_building->get_tile()->get_besch();
+		const haus_desc_t* const desc = neighbouring_building->get_tile()->get_desc();
 		// Most buildings count, including station extension buildings.
 		// But some do *not*, namely platforms and depots.
-		switch(besch->get_typ())
+		switch(desc->get_typ())
 		{
 			case gebaeude_t::wohnung:
 			case gebaeude_t::gewerbe:
@@ -1009,22 +1009,22 @@ bool weg_t::should_city_adopt_this(const player_t* player)
 			default:
 				; // keep looking
 		}
-		switch(besch->get_utyp())
+		switch(desc->get_utyp())
 		{
-			case haus_besch_t::attraction_city:
-			case haus_besch_t::attraction_land:
-			case haus_besch_t::denkmal: // monument
-			case haus_besch_t::fabrik: // factory
-			case haus_besch_t::rathaus: // town hall
-			case haus_besch_t::generic_extension:
-			case haus_besch_t::firmensitz: // HQ
-			case haus_besch_t::dock: // dock
-			case haus_besch_t::flat_dock: 
+			case haus_desc_t::attraction_city:
+			case haus_desc_t::attraction_land:
+			case haus_desc_t::denkmal: // monument
+			case haus_desc_t::fabrik: // factory
+			case haus_desc_t::rathaus: // town hall
+			case haus_desc_t::generic_extension:
+			case haus_desc_t::firmensitz: // HQ
+			case haus_desc_t::dock: // dock
+			case haus_desc_t::flat_dock: 
 				has_neighbouring_building = (bool)welt->get_city(pos);
 				break;
-			case haus_besch_t::depot:
-			case haus_besch_t::signalbox:
-			case haus_besch_t::generic_stop:
+			case haus_desc_t::depot:
+			case haus_desc_t::signalbox:
+			case haus_desc_t::generic_stop:
 			default:
 				; // continue checking
 		}
@@ -1035,15 +1035,15 @@ bool weg_t::should_city_adopt_this(const player_t* player)
 
 uint32 weg_t::get_condition_percent() const
 {
-	if(besch->get_wear_capacity() == 0)
+	if(desc->get_wear_capacity() == 0)
 	{
 		// Necessary to avoid divisions by zero on mothballed ways
 		return 0;
 	}
 	// Necessary to avoid overflow. Speed not important as this is for the UI.
-	// Running calculations should use fractions (e.g., "if(remaining_wear_capacity < besch->get_wear_capacity() / 6)"). 
+	// Running calculations should use fractions (e.g., "if(remaining_wear_capacity < desc->get_wear_capacity() / 6)"). 
 	const sint64 remaining_wear_capacity_percent = (sint64)remaining_wear_capacity  * 100ll;
-	const sint64 intermediate_result = remaining_wear_capacity_percent / (sint64)besch->get_wear_capacity();
+	const sint64 intermediate_result = remaining_wear_capacity_percent / (sint64)desc->get_wear_capacity();
 	return (uint32)intermediate_result; 
 }
 
@@ -1059,7 +1059,7 @@ void weg_t::wear_way(uint32 wear)
 	{
 		const uint32 degridation_fraction = welt->get_settings().get_way_degradation_fraction();
 		remaining_wear_capacity -= wear;
-		if(remaining_wear_capacity < besch->get_wear_capacity() / degridation_fraction)
+		if(remaining_wear_capacity < desc->get_wear_capacity() / degridation_fraction)
 		{
 			if(!renew())
 			{
@@ -1086,7 +1086,7 @@ bool weg_t::renew()
 
 	player_t* const player = get_owner();
 	bool success = false;
-	const sint64 price = besch->get_upgrade_group() == replacement_way->get_upgrade_group() ? replacement_way->get_way_only_cost() : replacement_way->get_preis();
+	const sint64 price = desc->get_upgrade_group() == replacement_way->get_upgrade_group() ? replacement_way->get_way_only_cost() : replacement_way->get_preis();
 	if(welt->get_city(get_pos().get_2d()) || (player && (player->can_afford(price) || player->is_public_service())))
 	{
 		// Unowned ways in cities are assumed to be owned by the city and will be renewed by it.
@@ -1096,18 +1096,18 @@ bool weg_t::renew()
 		if(!is_current)
 		{
 			way_constraints_of_vehicle_t constraints;
-			constraints.set_permissive(besch->get_way_constraints().get_permissive());
-			constraints.set_prohibitive(besch->get_way_constraints().get_prohibitive());
+			constraints.set_permissive(desc->get_way_constraints().get_permissive());
+			constraints.set_prohibitive(desc->get_way_constraints().get_prohibitive());
 			replacement_way = wegbauer_t::weg_search(wt, replacement_way->get_topspeed(), (const sint32)replacement_way->get_axle_load(), time, (systemtype_t)replacement_way->get_styp(), replacement_way->get_wear_capacity(), constraints);
 		}
 		
 		if(!replacement_way)
 		{
 			// If the way search cannot find a replacement way, use the current way as a fallback.
-			replacement_way = besch;
+			replacement_way = desc;
 		}
 		
-		set_besch(replacement_way);
+		set_desc(replacement_way);
 		success = true;
 		if(player)
 		{
@@ -1136,18 +1136,18 @@ void weg_t::degrade()
 			const stadt_t* city = welt->get_city(get_pos().get_2d()); 
 			if (!initially_unowned && welt->get_timeline_year_month())
 			{
-				const weg_besch_t* wb = city ? welt->get_settings().get_city_road_type(welt->get_timeline_year_month()) : welt->get_settings().get_intercity_road_type(welt->get_timeline_year_month());
-				set_besch(wb ? wb : besch);
+				const weg_desc_t* wb = city ? welt->get_settings().get_city_road_type(welt->get_timeline_year_month()) : welt->get_settings().get_intercity_road_type(welt->get_timeline_year_month());
+				set_desc(wb ? wb : desc);
 			}
 			else
 			{
 				// If the timeline is not enabled, renew with the same type, or else the default is just the first way that happens to be in the array and might be something silly like a bridleway
-				set_besch(besch);
+				set_desc(desc);
 			}
 		}
 		else
 		{
-			set_besch(besch);
+			set_desc(desc);
 		}
 	}
 	else
@@ -1167,10 +1167,10 @@ void weg_t::degrade()
 			// Totally worn out: impassable. 
 			max_speed = 0;
 			degraded = true;
-			const weg_besch_t* mothballed_type = wegbauer_t::way_search_mothballed(get_waytype(), (systemtype_t)besch->get_styp()); 
+			const weg_desc_t* mothballed_type = wegbauer_t::way_search_mothballed(get_waytype(), (systemtype_t)desc->get_styp()); 
 			if(mothballed_type)
 			{
-				set_besch(mothballed_type);
+				set_desc(mothballed_type);
 				calc_image();
 			}
 		}

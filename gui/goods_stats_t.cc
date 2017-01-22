@@ -67,7 +67,7 @@ void goods_stats_t::draw(scr_coord offset)
 
 	for(  uint16 i=0;  i<listed_goods;  i++  )
 	{
-		const ware_besch_t * wtyp = warenbauer_t::get_info(goodslist[i]);
+		const ware_desc_t * wtyp = warenbauer_t::get_info(goodslist[i]);
 
 		display_ddd_box_clip(offset.x + 2, yoff, 8, 8, MN_GREY0, MN_GREY4);
 		display_fillbox_wh_clip(offset.x + 3, yoff+1, 6, 6, wtyp->get_color(), true);

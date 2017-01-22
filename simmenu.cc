@@ -339,8 +339,8 @@ void tool_t::read_menu(const std::string &objfilename)
 		const char* type;
 		uint16 count;
 		vector_tpl<tool_t *> &tools;
-		const skin_besch_t *icons;
-		const skin_besch_t *cursor;
+		const skin_desc_t *icons;
+		const skin_desc_t *cursor;
 		bool with_sound;
 
 	};
@@ -377,7 +377,7 @@ void tool_t::read_menu(const std::string &objfilename)
 					while(  str[i]!=0  &&  str[i]!=','  ) {
 						i++;
 					}
-					const skin_besch_t *s=skinverwaltung_t::get_extra(str,i-1);
+					const skin_desc_t *s=skinverwaltung_t::get_extra(str,i-1);
 					tool->icon = s ? s->get_image_id(0) : IMG_EMPTY;
 				}
 				else {
@@ -413,7 +413,7 @@ void tool_t::read_menu(const std::string &objfilename)
 					if(*str!=',') {
 						int sound = atoi(str);
 						if(  sound>0  ) {
-							tool->ok_sound = sound_besch_t::get_compatible_sound_id(sound);
+							tool->ok_sound = sound_desc_t::get_compatible_sound_id(sound);
 						}
 						do {
 							str++;
@@ -494,7 +494,7 @@ void tool_t::read_menu(const std::string &objfilename)
 						while(  str[i]!=0  &&  str[i]!=','  ) {
 							i++;
 						}
-						const skin_besch_t *s=skinverwaltung_t::get_extra(str,i-1);
+						const skin_desc_t *s=skinverwaltung_t::get_extra(str,i-1);
 						icon = s ? s->get_image_id(0) : IMG_EMPTY;
 					}
 					else {
@@ -773,7 +773,7 @@ void toolbar_t::update(player_t *player)
 					waytype_t const way = (waytype_t)atoi(c);
 					wayobj_t::fill_menu(tool_selector, way, get_sound(c));
 				} else if (char const* c = strstart(param, "buildings(")) {
-					haus_besch_t::utyp const utype = (haus_besch_t::utyp)atoi(c);
+					haus_desc_t::utyp const utype = (haus_desc_t::utyp)atoi(c);
 					while(*c  &&  *c!=','  &&  *c!=')') {
 						c++;
 					}
