@@ -3279,7 +3279,7 @@ void road_vehicle_t::enter_tile(grund_t* gr)
 
 schedule_t * road_vehicle_t::generate_new_schedule() const
 {
-  return new autofahrplan_t();
+  return new autoschedule_t();
 }
 
 
@@ -5289,10 +5289,10 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 	{
 		route_t target_rt;
 		schedule_t *schedule = cnv->get_schedule();
-		uint8 fahrplan_index = schedule->get_aktuell();
+		uint8 schedule_index = schedule->get_aktuell();
 		bool rev = cnv->get_reverse_schedule();
-		bool no_reverse = schedule->entries[fahrplan_index].reverse != 1;
-		schedule->increment_index(&fahrplan_index, &rev);
+		bool no_reverse = schedule->entries[schedule_index].reverse != 1;
+		schedule->increment_index(&schedule_index, &rev);
 		koord3d cur_pos = route->back();
 		uint16 next_next_signal;
 		bool route_success;
@@ -5302,7 +5302,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 			do
 			{
 				// Search for route until the next signal is found.
-				route_success = target_rt.calc_route(welt, cur_pos, cnv->get_schedule()->entries[fahrplan_index].pos, this, speed_to_kmh(cnv->get_min_top_speed()), cnv->get_highest_axle_load(), 8888 + cnv->get_tile_length(), SINT64_MAX_VALUE, cnv->get_weight_summary().weight / 1000);
+				route_success = target_rt.calc_route(welt, cur_pos, cnv->get_schedule()->entries[schedule_index].pos, this, speed_to_kmh(cnv->get_min_top_speed()), cnv->get_highest_axle_load(), 8888 + cnv->get_tile_length(), SINT64_MAX_VALUE, cnv->get_weight_summary().weight / 1000);
 
 				if(route_success) 
 				{
@@ -5332,19 +5332,19 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 					}
 				}
 
-				no_reverse = schedule->entries[fahrplan_index].reverse != 1;
+				no_reverse = schedule->entries[schedule_index].reverse != 1;
 
 				if(token_block_blocks)
 				{
 					// prepare for next leg of schedule
 					cur_pos = target_rt.back();
-					schedule->increment_index(&fahrplan_index, &rev);
+					schedule->increment_index(&schedule_index, &rev);
 				}
 				else
 				{
 					success = false;
 				}
-			} while((fahrplan_index != cnv->get_schedule()->get_aktuell()) && token_block_blocks && no_reverse);
+			} while((schedule_index != cnv->get_schedule()->get_aktuell()) && token_block_blocks && no_reverse);
 		}
 
 		if(token_block_blocks && !bidirectional_reservation)
@@ -6056,25 +6056,25 @@ void rail_vehicle_t::enter_tile(grund_t* gr)
 
 schedule_t * rail_vehicle_t::generate_new_schedule() const
 {
-	return besch->get_waytype()==tram_wt ? new tramfahrplan_t() : new zugfahrplan_t();
+	return besch->get_waytype()==tram_wt ? new tramschedule_t() : new zugschedule_t();
 }
 
 
 schedule_t * monorail_rail_vehicle_t::generate_new_schedule() const
 {
-	return new monorailfahrplan_t();
+	return new monorailschedule_t();
 }
 
 
 schedule_t * maglev_rail_vehicle_t::generate_new_schedule() const
 {
-	return new maglevfahrplan_t();
+	return new maglevschedule_t();
 }
 
 
 schedule_t * narrowgauge_rail_vehicle_t::generate_new_schedule() const
 {
-	return new narrowgaugefahrplan_t();
+	return new narrowgaugeschedule_t();
 }
 
 
@@ -6291,7 +6291,7 @@ bool water_vehicle_t::check_tile_occupancy(const grund_t* gr)
 
 schedule_t * water_vehicle_t::generate_new_schedule() const
 {
-  return new schifffahrplan_t();
+  return new schiffschedule_t();
 }
 
 
@@ -7289,7 +7289,7 @@ air_vehicle_t::set_convoi(convoi_t *c)
 
 schedule_t * air_vehicle_t::generate_new_schedule() const
 {
-	return new airfahrplan_t();
+	return new airschedule_t();
 }
 
 void rail_vehicle_t::rdwr_from_convoi(loadsave_t* file)

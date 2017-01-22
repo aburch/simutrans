@@ -413,7 +413,7 @@ bool ai_goods_t::create_ship_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 	}
 
 	// since 86.01 we use lines for vehicles ...
-	schedule_t *schedule=new schifffahrplan_t();
+	schedule_t *schedule=new schiffschedule_t();
 	schedule->append( welt->lookup_kartenboden(best_pos), 0 );
 	schedule->append( welt->lookup(qfab->get_pos()), 100 );
 	schedule->set_aktuell( 1 );
@@ -477,7 +477,7 @@ void ai_goods_t::create_road_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 		startpos = welt->lookup_kartenboden(koord(startpos.get_2d())+koord(w_ribi))->get_pos();
 
 		// since 86.01 we use lines for road vehicles ...
-		schedule_t *schedule=new autofahrplan_t();
+		schedule_t *schedule=new autoschedule_t();
 		schedule->append(welt->lookup(pos1), start_location == 0 ? 100 : 0);
 		schedule->append(welt->lookup(pos2), start_location == 1 ? 100 : 0);
 		schedule->set_aktuell( start_location );

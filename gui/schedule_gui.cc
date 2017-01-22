@@ -329,7 +329,7 @@ schedule_gui_t::schedule_gui_t(schedule_t* fpl_, player_t* player_, convoihandle
 {
 	old_fpl->finish_editing();
 	schedule = old_fpl->copy();
-	stats.set_fahrplan(schedule);
+	stats.set_schedule(schedule);
 	if(  !cnv.is_bound()  ) {
 		old_line = new_line = linehandle_t();
 		show_line_selector(false);
@@ -1004,8 +1004,8 @@ void schedule_gui_t::rdwr(loadsave_t *file)
 	// schedules
 	if(  file->is_loading()  ) {
 		// dummy types
-		old_fpl = new autofahrplan_t();
-		schedule = new autofahrplan_t();
+		old_fpl = new autoschedule_t();
+		schedule = new autoschedule_t();
 	}
 	old_fpl->rdwr(file);
 	schedule->rdwr(file);

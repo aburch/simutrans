@@ -3759,9 +3759,9 @@ void convoi_t::rdwr(loadsave_t *file)
 		// but no vehicle so we can't determine the exact type of
 		// schedule needed. This hack is safe because convois
 		// without vehicles get deleted right after loading.
-		// Since generic schedules are not allowed, we use a zugfahrplan_t
+		// Since generic schedules are not allowed, we use a zugschedule_t
 		if(schedule == 0) {
-			schedule = new zugfahrplan_t();
+			schedule = new zugschedule_t();
 		}
 
 		// Hajo: now read the schedule, we have one for sure here
