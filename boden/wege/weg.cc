@@ -488,7 +488,7 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 	buf.append(" ");
 	buf.append(max_speed);
 	buf.append(translator::translate("km/h\n"));
-	if(besch->get_styp() == weg_t::type_elevated || waytype == air_wt || waytype == water_wt)
+	if(besch->get_styp() == type_elevated || waytype == air_wt || waytype == water_wt)
 	{
 		buf.append(translator::translate("\nMax. weight:"));
 	}
@@ -536,7 +536,7 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 		bool is_current = !time || replacement_way->get_intro_year_month() <= time && time < replacement_way->get_retire_year_month();
 		if(!is_current)
 		{
-			buf.append(translator::translate(wegbauer_t::weg_search(replacement_way->get_waytype(), replacement_way->get_topspeed(), (const sint32)replacement_way->get_axle_load(), time, (weg_t::system_type)replacement_way->get_styp(), replacement_way->get_wear_capacity())->get_name()));
+			buf.append(translator::translate(wegbauer_t::weg_search(replacement_way->get_waytype(), replacement_way->get_topspeed(), (const sint32)replacement_way->get_axle_load(), time, (systemtype_t)replacement_way->get_styp(), replacement_way->get_wear_capacity())->get_name()));
 		}
 		else
 		{
@@ -958,12 +958,13 @@ bool weg_t::should_city_adopt_this(const player_t* player)
 		// Cities only adopt roads
 		return false;
 	}
-	if(get_besch()->get_styp() == weg_t::type_elevated)
+	if(get_besch()->get_styp() == type_elevated)
 	{
 		// It would be too profitable for players if cities adopted elevated roads
 		return false;
 	}
-	if(get_besch()->get_styp() == weg_t::type_underground) 
+	const grund_t* gr = welt->lookup_kartenboden(get_pos().get_2d()); 
+	if(gr && get_pos().z < gr->get_hoehe())
 	{
 		// It would be too profitable for players if cities adopted tunnels
 		return false;
@@ -1097,7 +1098,7 @@ bool weg_t::renew()
 			way_constraints_of_vehicle_t constraints;
 			constraints.set_permissive(besch->get_way_constraints().get_permissive());
 			constraints.set_prohibitive(besch->get_way_constraints().get_prohibitive());
-			replacement_way = wegbauer_t::weg_search(wt, replacement_way->get_topspeed(), (const sint32)replacement_way->get_axle_load(), time, (weg_t::system_type)replacement_way->get_styp(), replacement_way->get_wear_capacity(), constraints);
+			replacement_way = wegbauer_t::weg_search(wt, replacement_way->get_topspeed(), (const sint32)replacement_way->get_axle_load(), time, (systemtype_t)replacement_way->get_styp(), replacement_way->get_wear_capacity(), constraints);
 		}
 		
 		if(!replacement_way)
@@ -1166,7 +1167,7 @@ void weg_t::degrade()
 			// Totally worn out: impassable. 
 			max_speed = 0;
 			degraded = true;
-			const weg_besch_t* mothballed_type = wegbauer_t::way_search_mothballed(get_waytype(), (weg_t::system_type)besch->get_styp()); 
+			const weg_besch_t* mothballed_type = wegbauer_t::way_search_mothballed(get_waytype(), (systemtype_t)besch->get_styp()); 
 			if(mothballed_type)
 			{
 				set_besch(mothballed_type);

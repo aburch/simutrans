@@ -5,7 +5,6 @@
 #include "../api_param.h"
 #include "../../simobj.h"
 #include "../../simmenu.h"
-#include "../../boden/wege/weg.h"
 
 using namespace script_api;
 
@@ -150,11 +149,11 @@ void export_global_constants(HSQUIRRELVM vm)
 	 */
 	begin_enum("way_system_types");
 	/// flat ways
-	enum_slot(vm, "st_flat", weg_t::type_flat);
+	enum_slot(vm, "st_flat", type_flat);
 	/// elevated ways
-	enum_slot(vm, "st_elevated", weg_t::type_elevated);
+	enum_slot(vm, "st_elevated", type_elevated);
 	/// tram tracks (here way type has to be wt_tram)
-	enum_slot(vm, "st_tram", weg_t::type_tram);
+	enum_slot(vm, "st_tram", type_tram);
 	end_enum();
 
 	// players

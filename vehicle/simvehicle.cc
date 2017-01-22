@@ -7014,7 +7014,7 @@ bool air_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uin
 			return false;
 		}
 		// next tile a runway => then reserve
-		if(rw->get_besch()->get_styp()==weg_t::type_elevated) {
+		if(rw->get_besch()->get_styp()==type_elevated) {
 			// try to reserve the runway
 			//const uint16 runway_length_tiles = ((search_for_stop+1) - touchdown) - takeoff;
 			const int runway_state = block_reserver(takeoff,takeoff+100,true);

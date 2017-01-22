@@ -149,7 +149,7 @@ koord3d tunnelbauer_t::finde_ende(player_t *player, koord3d pos, koord zv, const
 	waytype_t waytyp = besch->get_waytype();
 	// use the is_allowed_step routine of wegbauer_t, needs an instance
 	wegbauer_t bauigel(player);
-	bauigel.route_fuer( wegbauer_t::tunnel_flag | (wegbauer_t::bautyp_t)waytyp, wegbauer_t::weg_search( waytyp, 1, 0, weg_t::type_flat ), besch);
+	bauigel.route_fuer( wegbauer_t::tunnel_flag | (wegbauer_t::bautyp_t)waytyp, wegbauer_t::weg_search( waytyp, 1, 0, type_flat ), besch);
 	sint32 dummy;
 
 	while(true) {
@@ -440,7 +440,7 @@ bool tunnelbauer_t::baue_tunnel(player_t *player, koord3d start, koord3d end, ko
 
 	if(weg_besch == NULL)
 	{
-		weg_besch = wegbauer_t::weg_search(waytyp, besch->get_topspeed(), besch->get_max_axle_load(), welt->get_timeline_year_month(), weg_t::type_flat, besch->get_wear_capacity());
+		weg_besch = wegbauer_t::weg_search(waytyp, besch->get_topspeed(), besch->get_max_axle_load(), welt->get_timeline_year_month(), type_flat, besch->get_wear_capacity());
 	}
 
 	baue_einfahrt(player, pos, zv, besch, weg_besch, cost);

@@ -1100,7 +1100,7 @@ void karte_t::distribute_cities( settings_t const * const sets, sint16 old_x, si
 		if(besch == NULL || !settings.get_use_timeline()) 
 		{
 			// Hajo: try some default (might happen with timeline ... )
-			besch = wegbauer_t::weg_search(road_wt, 80, 8, weg_t::type_flat);
+			besch = wegbauer_t::weg_search(road_wt, 80, 8, type_flat);
 		}
 
 		wegbauer_t bauigel (NULL);
@@ -5000,12 +5000,12 @@ void karte_t::recalc_average_speed()
 		}
 		else {
 			DBG_MESSAGE("karte_t::new_month()","Month %d has started", last_month);
-			city_road = wegbauer_t::weg_search(road_wt, 50, get_timeline_year_month(), weg_t::type_flat);
+			city_road = wegbauer_t::weg_search(road_wt, 50, get_timeline_year_month(), type_flat);
 		}
 	}
 	else {
 		// defaults
-		city_road = wegbauer_t::weg_search(road_wt, 50, get_timeline_year_month(), 5, weg_t::type_flat, 25000000);
+		city_road = wegbauer_t::weg_search(road_wt, 50, get_timeline_year_month(), 5, type_flat, 25000000);
 	}
 }
 
@@ -10154,7 +10154,7 @@ void karte_t::calc_generic_road_time_per_tile_intercity()
 	if(besch == NULL) 
 	{
 		// Hajo: try some default (might happen with timeline ... )
-		besch = wegbauer_t::weg_search(road_wt, get_timeline_year_month(), 5, get_timeline_year_month(),weg_t::type_flat, 25000000);
+		besch = wegbauer_t::weg_search(road_wt, get_timeline_year_month(), 5, get_timeline_year_month(),type_flat, 25000000);
 	}
 	generic_road_time_per_tile_intercity = (uint16)calc_generic_road_time_per_tile(besch);
 }
