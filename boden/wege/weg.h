@@ -45,7 +45,7 @@ enum way_statistics {
  * <p>Kreuzungen werden dadurch unterstützt, daß ein Grund zwei Wege
  * enthalten kann (prinzipiell auch mehrere möglich.</p>
  *
- * <p>Wegtyp -1 ist reserviert und kann nicht für Wege benutzt werden<p>
+ * <p>Wetype -1 ist reserviert und kann nicht für Wege benutzt werden<p>
  *
  * @author Hj. Malthaner
  */
@@ -278,7 +278,7 @@ public:
 	virtual const char * is_deletable(const player_t *player, bool allow_public = false);
 
 	/**
-	* Wegtyp zurückliefern
+	* Wetype zurückliefern
 	*/
 	waytype_t get_waytype() const { return waytype; }
 

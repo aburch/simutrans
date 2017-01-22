@@ -8,6 +8,18 @@
 #include "building_reader.h"
 #include "../../network/pakset_info.h"
 
+/**
+* For compatibility ...
+*/
+struct old_gtyp
+{
+	/**
+	* Vom typ "unknown" sind auch spezielle gebaeude z.B. das Rathaus
+	* @author Hj. Malthaner
+	*/
+	enum typ { wohnung, gewerbe, industrie, unknown };
+};
+
 
 obj_desc_t * tile_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
@@ -55,13 +67,11 @@ obj_desc_t * tile_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 }
 
 
-
-
 void building_reader_t::register_obj(obj_desc_t *&data)
 {
 	haus_desc_t *desc = static_cast<haus_desc_t *>(data);
 
-	if(  desc->utype == haus_desc_t::fabrik  ) {
+	if(  desc->type == haus_desc_t::fabrik  ) {
 		if(  desc->enables == 0  ) {
 			// this stuff is just for compatibility
 			if(  strcmp("Oelbohrinsel",desc->get_name())==0  ) {
@@ -73,82 +83,82 @@ void building_reader_t::register_obj(obj_desc_t *&data)
 		}
 	}
 
-	if(  desc->utype == haus_desc_t::weitere  &&  desc->enables == 0x80  ) {
+	if(  desc->type == haus_desc_t::weitere  &&  desc->enables == 0x80  ) {
 		// this stuff is just for compatibility
 		size_t checkpos = strlen(desc->get_name());
 		desc->enables = 0;
 		// before station buildings were identified by their name ...
 		if(  strcmp("BusStop",desc->get_name()+checkpos-7)==0  ) {
-			desc->utype = haus_desc_t::generic_stop;
+			desc->type = haus_desc_t::generic_stop;
 			desc->extra_data = road_wt;
 			desc->enables = 1;
 		}
 		if(  strcmp("CarStop",desc->get_name()+checkpos-7)==0  ) {
-			desc->utype = haus_desc_t::generic_stop;
+			desc->type = haus_desc_t::generic_stop;
 			desc->extra_data = road_wt;
 			desc->enables = 4;
 		}
 		else if(  strcmp("TrainStop",desc->get_name()+checkpos-9)==0  ) {
-			desc->utype = haus_desc_t::generic_stop;
+			desc->type = haus_desc_t::generic_stop;
 			desc->extra_data = track_wt;
 			desc->enables = 1|4;
 		}
 		else if(  strcmp("ShipStop",desc->get_name()+checkpos-8)==0  ) {
-			desc->utype = haus_desc_t::dock;
+			desc->type = haus_desc_t::dock;
 			desc->extra_data = water_wt;
 			desc->enables = 1|4;
 		}
 		else if(  strcmp("ChannelStop",desc->get_name()+checkpos-11)==0  ) {
-			desc->utype = haus_desc_t::generic_stop;
+			desc->type = haus_desc_t::generic_stop;
 			desc->extra_data = water_wt;
 			desc->enables = 1|4;
 		}
 		else if(  strcmp("PostOffice",desc->get_name()+checkpos-10)==0  ) {
-			desc->utype = haus_desc_t::generic_extension;
+			desc->type = haus_desc_t::generic_extension;
 			desc->extra_data = 0;
 			desc->enables = 2;
 		}
 		else if(  strcmp("StationBlg",desc->get_name()+checkpos-10)==0  ) {
-			desc->utype = haus_desc_t::generic_extension;
+			desc->type = haus_desc_t::generic_extension;
 			desc->extra_data = 0;
 			desc->enables = 1|4;
 		}
 	}
 	// now old style depots ...
-	else if(  desc->utype==haus_desc_t::weitere  ) {
+	else if(  desc->type==haus_desc_t::weitere  ) {
 		size_t checkpos = strlen(desc->get_name());
 		if(  strcmp("AirDepot",desc->get_name()+checkpos-8)==0  ) {
-			desc->utype = haus_desc_t::depot;
+			desc->type = haus_desc_t::depot;
 			desc->extra_data = (uint16)air_wt;
 		}
 		else if(  strcmp("TrainDepot",desc->get_name())==0  ) {
-			desc->utype = haus_desc_t::depot;
+			desc->type = haus_desc_t::depot;
 			desc->extra_data = (uint16)track_wt;
 		}
 		else if(  strcmp("TramDepot",desc->get_name())==0  ) {
-			desc->utype = haus_desc_t::depot;
+			desc->type = haus_desc_t::depot;
 			desc->extra_data = (uint16)tram_wt;
 		}
 		else if(  strcmp("MonorailDepot",desc->get_name())==0  ) {
-			desc->utype = haus_desc_t::depot;
+			desc->type = haus_desc_t::depot;
 			desc->extra_data = (uint16)monorail_wt;
 		}
 		else if(  strcmp("CarDepot",desc->get_name())==0  ) {
-			desc->utype = haus_desc_t::depot;
+			desc->type = haus_desc_t::depot;
 			desc->extra_data = (uint16)road_wt;
 		}
 		else if(  strcmp("ShipDepot",desc->get_name())==0  ) {
-			desc->utype = haus_desc_t::depot;
+			desc->type = haus_desc_t::depot;
 			desc->extra_data = (uint16)water_wt;
 		}
 	}
 	// and finally old stations ...
-	else if(  desc->get_utyp()>=haus_desc_t::bahnhof  &&  desc->get_utyp()<=haus_desc_t::lagerhalle) {
+	else if(  desc->get_type()>=haus_desc_t::bahnhof  &&  desc->get_type()<=haus_desc_t::lagerhalle) {
 		// compability stuff
 		static uint16 old_to_new_waytype[16] = { track_wt, road_wt, road_wt, water_wt, water_wt, air_wt, monorail_wt, 0, track_wt, road_wt, road_wt, 0 , water_wt, air_wt, monorail_wt, 0 };
-		desc->extra_data = desc->utype<=haus_desc_t::monorail_geb ? old_to_new_waytype[desc->utype-haus_desc_t::bahnhof] : 0;
-		if(  desc->utype!=haus_desc_t::dock  ) {
-			desc->utype = desc->utype<haus_desc_t::bahnhof_geb ? haus_desc_t::generic_stop : haus_desc_t::generic_extension;
+		desc->extra_data = desc->type<=haus_desc_t::monorail_geb ? old_to_new_waytype[desc->type-haus_desc_t::bahnhof] : 0;
+		if(  desc->type!=haus_desc_t::dock  ) {
+			desc->type = desc->type<haus_desc_t::bahnhof_geb ? haus_desc_t::generic_stop : haus_desc_t::generic_extension;
 		}
 	}
 
@@ -160,14 +170,14 @@ void building_reader_t::register_obj(obj_desc_t *&data)
 
 	if(  desc->allow_underground == 255  ) {
 		// Only old stops were allowed underground
-		desc->allow_underground = desc->utype==haus_desc_t::generic_stop ? 2 : 0;
+		desc->allow_underground = desc->type==haus_desc_t::generic_stop ? 2 : 0;
 	}
 
 	if (hausbauer_t::register_desc(desc)) {
 		DBG_DEBUG("building_reader_t::register_obj", "Loaded '%s'", desc->get_name());
 
 		// do not calculate checksum of factory, will be done in factory_reader_t
-		if(  desc->utype != haus_desc_t::fabrik  ) {
+		if(  desc->type != haus_desc_t::fabrik  ) {
 			checksum_t *chk = new checksum_t();
 			desc->calc_checksum(chk);
 			pakset_info_t::append(desc->get_name(), chk);
@@ -235,12 +245,14 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->mail_demand_and_production_capacity = 65535;
 	} 
 
-	if(version == 8) 
+	old_gtyp::typ gtyp;
+
+	if (version == 8 || version == 9) 
 	{
 		// Versioned node, version 8
 		// station price, maintenance and capacity added
-		desc->gtyp      = (gebaeude_t::typ)decode_uint8(p);
-		desc->utype     = (haus_desc_t::utyp)decode_uint8(p);
+		gtyp = (old_gtyp::typ)decode_uint8(p);
+		desc->type = (haus_desc_t::btype)decode_uint8(p);
 		desc->level     = decode_uint16(p);
 		desc->extra_data= decode_uint32(p);
 		desc->size.x = decode_uint16(p);
@@ -255,7 +267,7 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		{
 			desc->enables = decode_uint8(p);
 		}
-		if(!experimental && desc->utype == haus_desc_t::depot)
+		if(!experimental && desc->type == haus_desc_t::depot)
 		{
 			desc->enables = 65535;
 		}
@@ -296,8 +308,8 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	{
 		// Versioned node, version 7
 		// underground mode added
-		desc->gtyp      = (gebaeude_t::typ)decode_uint8(p);
-		desc->utype     = (haus_desc_t::utyp)decode_uint8(p);
+		gtyp = (old_gtyp::typ)decode_uint8(p);
+		desc->type = (haus_desc_t::btype)decode_uint8(p);
 		desc->level     = decode_uint16(p) + 1; // This was necessary for the previous versions.
 		desc->extra_data= decode_uint32(p);
 		desc->size.x = decode_uint16(p);
@@ -305,7 +317,7 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->layouts   = decode_uint8(p);
 		desc->allowed_climates = (climate_bits)decode_uint16(p);
 		desc->enables   = decode_uint8(p);
-		if(experimental_version < 1 && desc->utype == haus_desc_t::depot)
+		if(experimental_version < 1 && desc->type == haus_desc_t::depot)
 		{
 			desc->enables = 65535;
 		}
@@ -345,16 +357,16 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	else if(version == 5  ||  version==6) {
 		// Versioned node, version 5 or 6  (only level logic is different)
 		// animation intervall in ms added
-		desc->gtyp				= (gebaeude_t::typ)decode_uint8(p);
-		desc->utype			= (haus_desc_t::utyp)decode_uint8(p);
-		desc->level			= decode_uint16(p) + 1;
+		gtyp					= (old_gtyp::typ)decode_uint8(p);
+		desc->type				= (haus_desc_t::btype)decode_uint8(p);
+		desc->level				= decode_uint16(p) + 1;
 		desc->extra_data		= decode_uint32(p);
-		desc->size.x		= decode_uint16(p);
-		desc->size.y		= decode_uint16(p);
+		desc->size.x			= decode_uint16(p);
+		desc->size.y			= decode_uint16(p);
 		desc->layouts			= decode_uint8(p);
-		desc->allowed_climates = (climate_bits)decode_uint16(p);
+		desc->allowed_climates	= (climate_bits)decode_uint16(p);
 		desc->enables			= decode_uint8(p);
-		if(experimental_version < 1 && desc->utype == haus_desc_t::depot)
+		if(experimental_version < 1 && desc->type == haus_desc_t::depot)
 		{
 			desc->enables = 65535;
 		}
@@ -366,7 +378,7 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		
 		// Set default levels for Experimental
 		desc->capacity = desc->level * 32;
-		desc->allow_underground = desc->utype == haus_desc_t::generic_stop ? 2 : 0; 
+		desc->allow_underground = desc->type == haus_desc_t::generic_stop ? 2 : 0; 
 		desc->is_control_tower = 0;
 
 		if(experimental)
@@ -389,7 +401,7 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				desc->maintenance = decode_sint32(p);
 				desc->price = decode_sint32(p);
 				desc->is_control_tower = 0;
-				desc->allow_underground = desc->utype == haus_desc_t::generic_stop ? 2 : 0; 
+				desc->allow_underground = desc->type == haus_desc_t::generic_stop ? 2 : 0; 
 			}
 		}
 	}
@@ -397,8 +409,8 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	else if(version == 4) {
 		// Versioned node, version 4
 		// climates and seasons added
-		desc->gtyp      = (gebaeude_t::typ)decode_uint8(p);
-		desc->utype     = (haus_desc_t::utyp)decode_uint8(p);
+		gtyp = (old_gtyp::typ)decode_uint8(p);
+		desc->type = (haus_desc_t::btype)decode_uint8(p);
 		desc->level     = decode_uint16(p) + 1;
 		desc->extra_data= decode_uint32(p);
 		desc->size.x = decode_uint16(p);
@@ -406,7 +418,7 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->layouts   = decode_uint8(p);
 		desc->allowed_climates = (climate_bits)decode_uint16(p);
 		desc->enables   = decode_uint8(p);
-		if(desc->utype == haus_desc_t::depot)
+		if(desc->type == haus_desc_t::depot)
 		{
 			desc->enables = 65535;
 		}
@@ -419,8 +431,8 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	}
 	else if(version == 3) {
 		// Versioned node, version 3
-		desc->gtyp      = (gebaeude_t::typ)decode_uint8(p);
-		desc->utype     = (haus_desc_t::utyp)decode_uint8(p);
+		gtyp = (old_gtyp::typ)decode_uint8(p);
+		desc->type = (haus_desc_t::btype)decode_uint8(p);
 		desc->level     = decode_uint16(p) + 1;
 		desc->extra_data= decode_uint32(p);
 		desc->size.x = decode_uint16(p);
@@ -428,7 +440,7 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->layouts   = decode_uint8(p);
 		desc->allowed_climates   =  (climate_bits)0xFFFE; // all but water
 		desc->enables   = decode_uint8(p);
-		if(desc->utype == haus_desc_t::depot)
+		if(desc->type == haus_desc_t::depot)
 		{
 			desc->enables = 255;
 		}
@@ -440,8 +452,8 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	}
 	else if(version == 2) {
 		// Versioned node, version 2
-		desc->gtyp      = (gebaeude_t::typ)decode_uint8(p);
-		desc->utype     = (haus_desc_t::utyp)decode_uint8(p);
+		gtyp = (old_gtyp::typ)decode_uint8(p);
+		desc->type = (haus_desc_t::btype)decode_uint8(p);
 		desc->level     = decode_uint16(p) + 1;
 		desc->extra_data= decode_uint32(p);
 		desc->size.x = decode_uint16(p);
@@ -449,7 +461,7 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->layouts   = decode_uint8(p);
 		desc->allowed_climates   =  (climate_bits)0xFFFE; // all but water
 		desc->enables   = decode_uint8(p);
-		if(desc->utype == haus_desc_t::depot)
+		if(desc->type == haus_desc_t::depot)
 		{
 			desc->enables = 65535;
 		}
@@ -465,15 +477,15 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	}
 	else if(version == 1) {
 		// Versioned node, version 1
-		desc->gtyp      = (gebaeude_t::typ)decode_uint8(p);
-		desc->utype     = (haus_desc_t::utyp)decode_uint8(p);
+		gtyp = (old_gtyp::typ)decode_uint8(p);
+		desc->type = (haus_desc_t::btype)decode_uint8(p);
 		desc->level     = decode_uint16(p) + 1;
 		desc->extra_data= decode_uint32(p);
 		desc->size.x = decode_uint16(p);
 		desc->size.y = decode_uint16(p);
 		desc->layouts   = decode_uint8(p);
 		desc->allowed_climates   =  (climate_bits)0xFFFE; // all but water
-		if(desc->utype == haus_desc_t::depot)
+		if(desc->type == haus_desc_t::depot)
 		{
 			desc->enables = 65535;
 		}
@@ -490,16 +502,16 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	}
 	else if(version == 0) {
 		// old node, version 0
-		desc->gtyp      = (gebaeude_t::typ)v;
+		gtyp = (old_gtyp::typ)v;
 		decode_uint16(p);
-		desc->utype     = (haus_desc_t::utyp)decode_uint32(p);
+		desc->type = (haus_desc_t::btype)decode_uint32(p);
 		desc->level     = decode_uint32(p) + 1;
 		desc->extra_data= decode_uint32(p);
 		desc->size.x = decode_uint16(p);
 		desc->size.y = decode_uint16(p);
 		desc->layouts   = decode_uint32(p);
 		desc->allowed_climates   =  (climate_bits)0xFFFE; // all but water
-		if(desc->utype == haus_desc_t::depot)
+		if(desc->type == haus_desc_t::depot)
 		{
 			desc->enables = 65535;
 		}
@@ -529,7 +541,7 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		// Old versions when read should allow underground stations, but not underground extension buildings.
 		if(version < 7)
 		{
-			desc->allow_underground = desc->utype == haus_desc_t::generic_stop ? 2 : 0; 
+			desc->allow_underground = desc->type == haus_desc_t::generic_stop ? 2 : 0; 
 		}
 		desc->is_control_tower = 0;
 	}
@@ -544,16 +556,16 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 	// correct old station buildings ...
 
-	if(desc->level > 32767 && desc->utype == haus_desc_t::depot)
+	if(desc->level > 32767 && desc->type == haus_desc_t::depot)
 	{
 		desc->level = experimental_version > 0 ? 1 : 4;
 	}
-	else if((desc->level > 32767 && (desc->utype >= haus_desc_t::bahnhof || desc->utype == haus_desc_t::fabrik)) || version<=3  &&  (desc->utype >= haus_desc_t::bahnhof  ||  desc->utype == haus_desc_t::fabrik  ||  desc->utype == haus_desc_t::depot)  &&  desc->level==0)
+	else if((desc->level > 32767 && (desc->type >= haus_desc_t::bahnhof || desc->type == haus_desc_t::fabrik)) || version<=3  &&  (desc->type >= haus_desc_t::bahnhof  ||  desc->type == haus_desc_t::fabrik  ||  desc->type == haus_desc_t::depot)  &&  desc->level==0)
 	{
 		DBG_DEBUG("building_reader_t::read_node()","old station building -> set level to 4");
 		desc->level = 4;
 	}
-	else if(  version<=5  &&  (desc->utype == haus_desc_t::fabrik  ||  desc->utype == haus_desc_t::depot)  ) {
+	else if(  version<=5  &&  (desc->type == haus_desc_t::fabrik  ||  desc->type == haus_desc_t::depot)  ) {
 		desc->level ++;
 		DBG_DEBUG("building_reader_t::read_node()","old station building -> increment level by one to %i", desc->level );
 	}
@@ -575,10 +587,19 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		dbg->warning("building_reader_t::read_node()","level was 65535, intended was probably 0 => changed." );
 	}
 
+	if (version < 9) {
+		switch (gtyp) {
+			case old_gtyp::wohnung:    desc->type = haus_desc_t::city_res; break;
+			case old_gtyp::gewerbe:    desc->type = haus_desc_t::city_com; break;
+			case old_gtyp::industrie:  desc->type = haus_desc_t::city_ind; break;
+			default:;
+		}
+	}
+
 	DBG_DEBUG("building_reader_t::read_node()",
 		"version=%d"
 		" gtyp=%d"
-		" utyp=%d"
+		" type=%d"
 		" level=%d"
 		" extra_data=%d"
 		" size.x=%d"
@@ -592,8 +613,8 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		" intro=%d"
 		" retire=%d",
 		version,
-		desc->gtyp,
-		desc->utype,
+		gtyp,
+		desc->type,
 		desc->level,
 		desc->extra_data,
 		desc->size.x,

@@ -128,59 +128,56 @@ bool hausbauer_t::alles_geladen()
 {
 	FOR(stringhashtable_tpl<haus_desc_t const*>, const& i, desc_names) {
 		haus_desc_t const* const desc = i.value;
-		switch(desc->get_typ()) {
-			case gebaeude_t::wohnung:
+		switch (desc->get_type()) {
+			case haus_desc_t::city_res:
 				wohnhaeuser.insert_ordered(desc,compare_haus_desc);
 				break;
-			case gebaeude_t::industrie:
+			case haus_desc_t::city_ind:
 				industriehaeuser.insert_ordered(desc,compare_haus_desc);
 				break;
-			case gebaeude_t::gewerbe:
+			case haus_desc_t::city_com:
 				gewerbehaeuser.insert_ordered(desc,compare_haus_desc);
 				break;
 
-			case gebaeude_t::unbekannt:
-			switch (desc->get_utyp()) {
-				case haus_desc_t::denkmal:
-					denkmaeler.insert_ordered(desc,compare_haus_desc);
-					break;
-				case haus_desc_t::attraction_land:
-					sehenswuerdigkeiten_land.insert_ordered(desc,compare_haus_desc);
-					break;
-				case haus_desc_t::firmensitz:
-					headquarter.insert_ordered(desc,compare_hq_desc);
-					break;
-				case haus_desc_t::rathaus:
-					rathaeuser.insert_ordered(desc,compare_haus_desc);
-					break;
-				case haus_desc_t::attraction_city:
-					sehenswuerdigkeiten_city.insert_ordered(desc,compare_haus_desc);
-					break;
+			case haus_desc_t::denkmal:
+				denkmaeler.insert_ordered(desc,compare_haus_desc);
+				break;
+			case haus_desc_t::attraction_land:
+				sehenswuerdigkeiten_land.insert_ordered(desc,compare_haus_desc);
+				break;
+			case haus_desc_t::firmensitz:
+				headquarter.insert_ordered(desc,compare_hq_desc);
+				break;
+			case haus_desc_t::rathaus:
+				rathaeuser.insert_ordered(desc,compare_haus_desc);
+				break;
+			case haus_desc_t::attraction_city:
+				sehenswuerdigkeiten_city.insert_ordered(desc,compare_haus_desc);
+				break;
 
-				case haus_desc_t::fabrik:
-					break;
+			case haus_desc_t::fabrik:
+				break;
 
-				case haus_desc_t::signalbox:
-				case haus_desc_t::dock:
-				case haus_desc_t::flat_dock:
-				case haus_desc_t::hafen_geb:
-				case haus_desc_t::depot:
-				case haus_desc_t::generic_stop:
-				case haus_desc_t::generic_extension:
+			case haus_desc_t::signalbox:
+			case haus_desc_t::dock:
+			case haus_desc_t::flat_dock:
+			case haus_desc_t::hafen_geb:
+			case haus_desc_t::depot:
+			case haus_desc_t::generic_stop:
+			case haus_desc_t::generic_extension:
 				
-					station_building.insert_ordered(desc,compare_station_desc);
-					break;
+				station_building.insert_ordered(desc,compare_station_desc);
+				break;
 
-				case haus_desc_t::weitere:
-					if(strcmp(desc->get_name(),"MonorailGround")==0) {
-						// foundation for elevated ways
-						elevated_foundation_desc = desc;
-						break;
-					}
-				default:
-					// obsolete object, usually such pak set will not load properly anyway (old objects should be caught before!)
-					dbg->error("hausbauer_t::alles_geladen()","unknown subtype %i of \"%s\" ignored",desc->get_utyp(),desc->get_name());
-			}
+			case haus_desc_t::weitere:
+				if(strcmp(desc->get_name(),"MonorailGround")==0) {
+					// foundation for elevated ways
+					elevated_foundation_desc = desc;
+					break;
+				}
+			default:
+				// obsolete object, usually such pak set will not load properly anyway (old objects should be caught before!)
+				dbg->error("hausbauer_t::alles_geladen()","unknown subtype %i of \"%s\" ignored",desc->get_type(),desc->get_name());
 		}
 	}
 
@@ -215,13 +212,13 @@ bool hausbauer_t::register_desc(haus_desc_t *desc)
 	const skin_desc_t *sb = desc->get_cursor();
 	if(  sb  &&  sb->get_image_id(1)!=IMG_EMPTY) {
 		tool_t *tool;
-		if(  desc->get_utyp()==haus_desc_t::depot  ) {
+		if(  desc->get_type()==haus_desc_t::depot  ) {
 			tool = new tool_depot_t();
 		}
-		else if(  desc->get_utyp()==haus_desc_t::firmensitz  ) {
+		else if(  desc->get_type()==haus_desc_t::firmensitz  ) {
 			tool = new tool_headquarter_t();
 		}
-		else if(desc->get_utyp() == haus_desc_t::signalbox)
+		else if(desc->get_type() == haus_desc_t::signalbox)
 		{
 			tool = new tool_signalbox_t();
 			modifiable_station_buildings.append(desc);
@@ -257,11 +254,11 @@ bool hausbauer_t::register_desc(haus_desc_t *desc)
 
 
 // all these menus will need a waytype ...
-void hausbauer_t::fill_menu(tool_selector_t* tool_selector, haus_desc_t::utyp utyp, waytype_t wt, sint16 /*sound_ok*/)
+void hausbauer_t::fill_menu(tool_selector_t* tool_selector, haus_desc_t::btype btype, waytype_t wt, sint16 /*sound_ok*/)
 {
 	// check if scenario forbids this
 	uint16 toolnr = 0;
-	switch(utyp) {
+	switch(btype) {
 		case haus_desc_t::depot:
 			toolnr = TOOL_BUILD_DEPOT | GENERAL_TOOL;
 			break;
@@ -284,7 +281,7 @@ void hausbauer_t::fill_menu(tool_selector_t* tool_selector, haus_desc_t::utyp ut
 DBG_DEBUG("hausbauer_t::fill_menu()","maximum %i",station_building.get_count());
 	FOR(  vector_tpl<haus_desc_t const*>,  const desc,  station_building  ) {
 //		DBG_DEBUG("hausbauer_t::fill_menu()", "try to add %s (%p)", desc->get_name(), desc);
-		if(  desc->get_utyp()==utyp  &&  desc->get_builder()  &&  ((utyp == haus_desc_t::firmensitz || utyp == haus_desc_t::signalbox) ||  desc->get_extra()==(uint16)wt)  ) {
+		if(  desc->get_type() == btype  &&  desc->get_builder()  &&  ((btype == haus_desc_t::firmensitz || btype == haus_desc_t::signalbox) ||  desc->get_extra()==(uint16)wt)  ) {
 			if(desc->is_available(time) && 
 				((desc->get_allow_underground() >= 2) ||
 				(desc->get_allow_underground() == 1 && (grund_t::underground_mode == grund_t::ugm_all || grund_t::underground_mode == grund_t::ugm_level)) ||
@@ -320,10 +317,10 @@ void hausbauer_t::remove( player_t *player, gebaeude_t *gb ) //gebaeude = "build
 	koord size = tile->get_desc()->get_groesse( layout );
 	koord k;
 
-	if( tile->get_desc()->get_utyp() == haus_desc_t::firmensitz ) {
+	if( tile->get_desc()->get_type() == haus_desc_t::firmensitz ) {
 		gb->get_owner()->add_headquarter( 0, koord::invalid );
 	}
-	if(tile->get_desc()->get_utyp()==haus_desc_t::denkmal) {
+	if(tile->get_desc()->get_type()==haus_desc_t::denkmal) {
 		ungebaute_denkmaeler.append_unique(tile->get_desc());
 	}
 
@@ -430,7 +427,7 @@ void hausbauer_t::remove( player_t *player, gebaeude_t *gb ) //gebaeude = "build
 				// there may be buildings with holes, so we only remove our!
 				if(  gb_part  &&  gb_part->get_tile()==hb->get_tile(layout, k.x, k.y)  ) {
 					// ok, now we can go on with deletion
-					if (gb_part->get_tile()->get_desc()->get_utyp() == haus_desc_t::rathaus)
+					if (gb_part->get_tile()->get_desc()->get_type() == haus_desc_t::rathaus)
 					{
 						gb_part->set_stadt(city);
 					}
@@ -502,7 +499,7 @@ gebaeude_t* hausbauer_t::build(player_t* player, koord3d pos, int org_layout, co
 			const haus_tile_desc_t *tile = desc->get_tile(layout, k.x, k.y);
 			// here test for good tile
 			if (tile == NULL || (
-						!(desc->get_utyp() == haus_desc_t::dock  ||  desc->get_utyp() == haus_desc_t::flat_dock)  &&
+						!(desc->get_type() == haus_desc_t::dock  ||  desc->get_type() == haus_desc_t::flat_dock)  &&
 						tile->get_background(0, 0, 0) == IMG_EMPTY &&
 						tile->get_foreground(0, 0)    == IMG_EMPTY
 					)) {
@@ -512,7 +509,7 @@ gebaeude_t* hausbauer_t::build(player_t* player, koord3d pos, int org_layout, co
 			}
 			
 			grund_t *gr = NULL;
-			if(desc->get_allow_underground() && desc->get_utyp() == haus_desc_t::signalbox) 
+			if(desc->get_allow_underground() && desc->get_type() == haus_desc_t::signalbox) 
 			{
 				// Note that this works properly only for signalboxes, as the underground tile needs a grund_t object,
 				// which has to be added in the specific tool building this. 
@@ -526,7 +523,7 @@ gebaeude_t* hausbauer_t::build(player_t* player, koord3d pos, int org_layout, co
 			}
 			// mostly remove everything
 			vector_tpl<obj_t *> keptobjs;
-			if(!gr->ist_wasser() && desc->get_utyp() != haus_desc_t::dock && desc->get_utyp() != haus_desc_t::flat_dock)
+			if(!gr->ist_wasser() && desc->get_type() != haus_desc_t::dock && desc->get_type() != haus_desc_t::flat_dock)
 			{			
 				if(!gr->hat_wege()) {
 					// save certain object types
@@ -626,7 +623,7 @@ gebaeude_t* hausbauer_t::build(player_t* player, koord3d pos, int org_layout, co
 			}
 //DBG_DEBUG("hausbauer_t::build()","ground count now %i",gr->obj_count());
 			gebaeude_t *gb;
-			if(tile->get_desc()->get_utyp() == haus_desc_t::signalbox)
+			if(tile->get_desc()->get_type() == haus_desc_t::signalbox)
 			{
 				gb = new signalbox_t(gr->get_pos(), player, tile);
 			}
@@ -663,7 +660,7 @@ gebaeude_t* hausbauer_t::build(player_t* player, koord3d pos, int org_layout, co
 			if(desc->ist_ausflugsziel()) {
 				welt->add_ausflugsziel( gb );
 			}
-			if(desc->get_typ() == gebaeude_t::unbekannt && desc->get_utyp() != haus_desc_t::signalbox) {
+			if(!desc->is_city_building() && desc->get_type() != haus_desc_t::signalbox) {
 				if(station_building.is_contained(desc)) 
 				{
 					if(desc->get_is_control_tower())
@@ -673,7 +670,7 @@ gebaeude_t* hausbauer_t::build(player_t* player, koord3d pos, int org_layout, co
 					}
 					(*static_cast<halthandle_t *>(param))->add_grund(gr);
 				}
-				if(  desc->get_utyp() == haus_desc_t::dock  ||  desc->get_utyp() == haus_desc_t::flat_dock  ) {
+				if(  desc->get_type() == haus_desc_t::dock  ||  desc->get_type() == haus_desc_t::flat_dock  ) {
 					// its a dock!
 					gb->set_yoff(0);
 				}
@@ -683,7 +680,7 @@ gebaeude_t* hausbauer_t::build(player_t* player, koord3d pos, int org_layout, co
 		}
 	}
 	// remove only once ...
-	if(desc->get_utyp()==haus_desc_t::denkmal) {
+	if(desc->get_type()==haus_desc_t::denkmal) {
 		ungebaute_denkmaeler.remove( desc );
 	}
 	return first_building;
@@ -695,7 +692,7 @@ gebaeude_t *hausbauer_t::neues_gebaeude(player_t *player, koord3d pos, int built
 	uint8 corner_layout = 6;	// assume single building (for more than 4 layouts)
 
 	// adjust layout of neighbouring building
-	if(desc->get_utyp()>=8  &&  desc->get_all_layouts()>1) {
+	if(desc->is_transport_building() &&  desc->get_all_layouts()>1) {
 
 		int layout = built_layout & 9;
 
@@ -725,7 +722,7 @@ gebaeude_t *hausbauer_t::neues_gebaeude(player_t *player, koord3d pos, int built
 				}
 				gb = gr->find<gebaeude_t>();
 			}
-			if(  gb  &&  gb->get_tile()->get_desc()->get_utyp()>=8  ) {
+			if(  gb  &&  gb->get_tile()->get_desc()->is_transport_building() ) {
 				corner_layout &= ~2; // clear near bit
 				if(gb->get_tile()->get_desc()->get_all_layouts()>4) {
 					koord xy = gb->get_tile()->get_offset();
@@ -749,7 +746,7 @@ gebaeude_t *hausbauer_t::neues_gebaeude(player_t *player, koord3d pos, int built
 		}
 		if(gr) {
 			gebaeude_t* gb = gr->find<gebaeude_t>();
-			if(gb  &&  gb->get_tile()->get_desc()->get_utyp()>=8) {
+			if(gb  &&  gb->get_tile()->get_desc()->is_transport_building()) {
 				corner_layout &= ~4; // clear far bit
 				if(gb->get_tile()->get_desc()->get_all_layouts()>4) {
 					koord xy = gb->get_tile()->get_offset();
@@ -770,7 +767,7 @@ gebaeude_t *hausbauer_t::neues_gebaeude(player_t *player, koord3d pos, int built
 
 	const haus_tile_desc_t *tile = desc->get_tile(built_layout, 0, 0);
 	gebaeude_t *gb;
-	if(  desc->get_utyp() == haus_desc_t::depot  ) {
+	if(  desc->get_type() == haus_desc_t::depot  ) {
 		switch(  desc->get_extra()  ) {
 			case track_wt:
 				gb = new bahndepot_t(pos, player, tile);
@@ -801,7 +798,7 @@ gebaeude_t *hausbauer_t::neues_gebaeude(player_t *player, koord3d pos, int built
 				break;
 		}
 	}
-	else if(desc->get_utyp() == haus_desc_t::signalbox)
+	else if(desc->get_type() == haus_desc_t::signalbox)
 	{
 		gb = new signalbox_t(pos, player, tile); 
 	}
@@ -821,7 +818,7 @@ gebaeude_t *hausbauer_t::neues_gebaeude(player_t *player, koord3d pos, int built
 
 	gr->obj_add(gb);
 
-	if(  station_building.is_contained(desc)  &&  desc->get_utyp()!=haus_desc_t::depot && desc->get_utyp() != haus_desc_t::signalbox ) {
+	if(  station_building.is_contained(desc)  &&  desc->get_type()!=haus_desc_t::depot && desc->get_type() != haus_desc_t::signalbox ) {
 		// is a station/bus stop
 		(*static_cast<halthandle_t *>(param))->add_grund(gr);
 		gr->calc_image();
@@ -863,7 +860,7 @@ const haus_desc_t* hausbauer_t::get_desc(const char *name)
 }
 
 
-const haus_desc_t* hausbauer_t::get_random_station(const haus_desc_t::utyp utype, const waytype_t wt, const uint16 time, const uint16 enables)
+const haus_desc_t* hausbauer_t::get_random_station(const haus_desc_t::btype btype, const waytype_t wt, const uint16 time, const uint16 enables)
 {
 	weighted_vector_tpl<const haus_desc_t*> stops;
 
@@ -872,7 +869,7 @@ const haus_desc_t* hausbauer_t::get_random_station(const haus_desc_t::utyp utype
 	}
 
 	FOR(vector_tpl<haus_desc_t const*>, const desc, station_building) {
-		if(  desc->get_utyp()==utype  &&  desc->get_extra()==(uint32)wt  &&  (enables==0  ||  (desc->get_enabled()&enables)!=0)  ) {
+		if(  desc->get_type()== btype  &&  desc->get_extra()==(uint32)wt  &&  (enables==0  ||  (desc->get_enabled()&enables)!=0)  ) {
 			if( !desc->can_be_built_aboveground()) {
 				continue;
 			}
@@ -887,12 +884,12 @@ const haus_desc_t* hausbauer_t::get_random_station(const haus_desc_t::utyp utype
 
 
 
-const haus_desc_t* hausbauer_t::get_special(uint32 bev, haus_desc_t::utyp utype, uint16 time, bool ignore_retire, climate cl)
+const haus_desc_t* hausbauer_t::get_special(uint32 bev, haus_desc_t::btype btype, uint16 time, bool ignore_retire, climate cl)
 {
 	weighted_vector_tpl<const haus_desc_t *> auswahl(16);
 
 	vector_tpl<const haus_desc_t*> *list = NULL;
-	switch(utype) {
+	switch(btype) {
 		case haus_desc_t::rathaus:
 			list = &rathaeuser;
 			break;
@@ -1046,9 +1043,7 @@ const haus_desc_t *hausbauer_t::waehle_aus_liste(vector_tpl<const haus_desc_t *>
 	return NULL;
 }
 
-
-
-const vector_tpl<const haus_desc_t*>* hausbauer_t::get_list(const haus_desc_t::utyp typ)
+const vector_tpl<const haus_desc_t*>* hausbauer_t::get_list(const haus_desc_t::btype typ)
 {
 	switch (typ) {
 		case haus_desc_t::denkmal:         return &ungebaute_denkmaeler;
@@ -1061,15 +1056,13 @@ const vector_tpl<const haus_desc_t*>* hausbauer_t::get_list(const haus_desc_t::u
 	}
 }
 
-
-
-const vector_tpl<const haus_desc_t*>* hausbauer_t::get_citybuilding_list(const gebaeude_t::typ typ)
+const vector_tpl<const haus_desc_t*>* hausbauer_t::get_citybuilding_list(const haus_desc_t::btype typ)
 {
 	switch (typ) {
-		case gebaeude_t::wohnung:   return &wohnhaeuser;
-		case gebaeude_t::gewerbe:   return &gewerbehaeuser;
-		case gebaeude_t::industrie: return &industriehaeuser;
-		default:                    return NULL;
+		case haus_desc_t::city_res:		return &wohnhaeuser;
+		case haus_desc_t::city_com:		return &gewerbehaeuser;
+		case haus_desc_t::city_ind:		return &industriehaeuser;
+		default:						return NULL;
 	}
 }
 

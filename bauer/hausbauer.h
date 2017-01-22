@@ -62,7 +62,7 @@ public:
 	 * If time==0 the timeline will be ignored.
 	 * Returns station that can be built above ground.
 	 */
-	static const haus_desc_t* get_random_station(const haus_desc_t::utyp utype, const waytype_t wt, const uint16 time, const uint16 enables);
+	static const haus_desc_t* get_random_station(const haus_desc_t::btype utype, const waytype_t wt, const uint16 time, const uint16 enables);
 
 	static const haus_tile_desc_t* find_tile(const char* name, int idx);
 
@@ -75,7 +75,7 @@ public:
 	 * this is only needed for stations and depots => use waytype too!
 	 * @author prissi
 	 */
-	static void fill_menu(tool_selector_t* tool_selector, haus_desc_t::utyp, waytype_t wt, sint16 sound_ok);
+	static void fill_menu(tool_selector_t* tool_selector, haus_desc_t::btype, waytype_t wt, sint16 sound_ok);
 
 	/**
 	 * Gewerbegebäude passend zum Level liefern. Zur Zeit sind die Einträge
@@ -146,7 +146,7 @@ public:
 	/**
 	 * Called for a city attraction or a townhall with a certain number of inhabitants (bev).
 	 */
-	static const haus_desc_t* get_special(uint32 bev, haus_desc_t::utyp utype, uint16 time, bool ignore_retire, climate cl);
+	static const haus_desc_t* get_special(uint32 bev, haus_desc_t::btype btype, uint16 time, bool ignore_retire, climate cl);
 
 	/* use this to remove an arbitrary building
 	 * it will also take care of factories and foundations
@@ -168,9 +168,11 @@ public:
 	 */
 	static gebaeude_t* neues_gebaeude(player_t* player, koord3d pos, int layout, const haus_desc_t* desc, void* param = NULL);
 
-	// currently only used for edit menu
-	static const vector_tpl<const haus_desc_t *> *get_list( haus_desc_t::utyp typ );
-	static const vector_tpl<const haus_desc_t *> *get_citybuilding_list( gebaeude_t::typ typ );
+	/// @returns house list of type @p typ
+	static const vector_tpl<const haus_desc_t *> *get_list(haus_desc_t::btype typ);
+
+	/// @returns city building list of type @p typ (res/com/ind)
+	static const vector_tpl<const haus_desc_t *> *get_citybuilding_list(haus_desc_t::btype typ);
 
 	static void new_month();
 };

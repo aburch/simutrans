@@ -144,7 +144,7 @@ void curiosity_edit_frame_t::fill_list( bool translate )
 	FOR(vector_tpl<haus_desc_t const*>, const i, hauslist) {
 		// color code for objects: BLACK: normal, YELLOW: consumer only, GREEN: source only
 		COLOR_VAL color;
-		switch (i->get_utyp()) {
+		switch (i->get_type()) {
 			case haus_desc_t::attraction_city: color = COL_BLUE;       break;
 			case haus_desc_t::attraction_land: color = COL_DARK_GREEN; break;
 			default:                            color = COL_BLACK;      break;
@@ -206,13 +206,13 @@ void curiosity_edit_frame_t::change_item_info(sint32 entry)
 
 			buf.clear();
 			desc = new_desc;
-			if(desc->get_utyp()==haus_desc_t::attraction_city) {
+			if(desc->get_type()==haus_desc_t::attraction_city) {
 				buf.printf("%s (%s: %i)",translator::translate( "City attraction" ), translator::translate("Bauzeit"),desc->get_extra());
 			}
-			else if(desc->get_utyp()==haus_desc_t::attraction_land) {
+			else if(desc->get_type()==haus_desc_t::attraction_land) {
 				buf.append( translator::translate( "Land attraction" ) );
 			}
-			else if(desc->get_utyp()==haus_desc_t::denkmal) {
+			else if(desc->get_type()==haus_desc_t::denkmal) {
 				buf.append( translator::translate( "Monument" ) );
 			}
 			buf.append("\n\n");
@@ -306,7 +306,7 @@ void curiosity_edit_frame_t::change_item_info(sint32 entry)
 void curiosity_edit_frame_t::draw(scr_coord pos, scr_size size)
 {
 	// remove constructed monuments from list
-	if(desc  &&  desc->get_utyp()==haus_desc_t::denkmal  &&  !hausbauer_t::is_valid_denkmal(desc)  ) {
+	if(desc  &&  desc->get_type()==haus_desc_t::denkmal  &&  !hausbauer_t::is_valid_denkmal(desc)  ) {
 		change_item_info(0x7FFFFFFF);
 		scl.set_selection(-1);
 		img[3].set_image( IMG_EMPTY );

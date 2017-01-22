@@ -5790,13 +5790,13 @@ void karte_t::deposit_ware_at_destination(ware_t ware)
 		{
 			if (ware.is_commuting_trip)
 			{
-				if (gb_dest && gb_dest->get_tile()->get_desc()->get_typ() != gebaeude_t::wohnung)
+				if (gb_dest && gb_dest->get_tile()->get_desc()->get_type() != haus_desc_t::city_res)
 				{
 					// Do not record the passengers coming back home again.
 					gb_dest->set_commute_trip(ware.menge);
 				}
 			}
-			else if (gb_dest && gb_dest->get_tile()->get_desc()->get_typ() != gebaeude_t::wohnung)
+			else if (gb_dest && gb_dest->get_tile()->get_desc()->get_type() != haus_desc_t::city_res)
 			{
 				gb_dest->add_passengers_succeeded_visiting(ware.menge);
 			}

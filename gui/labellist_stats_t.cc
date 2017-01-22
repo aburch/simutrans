@@ -14,7 +14,6 @@
 #include "../simskin.h"
 #include "../player/simplay.h"
 
-#include "../obj/gebaeude.h"
 #include "../obj/label.h"
 
 #include "../besch/haus_besch.h"

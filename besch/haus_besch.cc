@@ -47,24 +47,24 @@ koord haus_tile_desc_t::get_offset() const
 
 waytype_t haus_desc_t::get_finance_waytype() const
 {
-	switch( get_utyp() )
+	switch( get_type() )
 	{
-		case haus_desc_t::bahnhof:			return track_wt;
-		case haus_desc_t::bushalt:			return road_wt;
-		case haus_desc_t::dock:			return water_wt;
-		case haus_desc_t::flat_dock:		return water_wt;
-		case haus_desc_t::binnenhafen:		 return water_wt;
-		case haus_desc_t::airport:			return air_wt;
-		case haus_desc_t::monorailstop:	return monorail_wt;
-		case haus_desc_t::bahnhof_geb:		return track_wt;
-		case haus_desc_t::bushalt_geb:		return road_wt;
-		case haus_desc_t::hafen_geb:		return water_wt;
-		case haus_desc_t::binnenhafen_geb: return water_wt;
-		case haus_desc_t::airport_geb:		return air_wt;
-		case haus_desc_t::monorail_geb:	return monorail_wt;
-		case haus_desc_t::depot:
-		case haus_desc_t::generic_stop:
-		case haus_desc_t::generic_extension:
+		case bahnhof:			return track_wt;
+		case bushalt:			return road_wt;
+		case dock:				return water_wt;
+		case flat_dock:			return water_wt;
+		case binnenhafen:		return water_wt;
+		case airport:			return air_wt;
+		case monorailstop:		return monorail_wt;
+		case bahnhof_geb:		return track_wt;
+		case bushalt_geb:		return road_wt;
+		case hafen_geb:			return water_wt;
+		case binnenhafen_geb:	return water_wt;
+		case airport_geb:		return air_wt;
+		case monorail_geb:		return monorail_wt;
+		case depot:
+		case generic_stop:
+		case generic_extension:
 			return (waytype_t) get_extra();
 		default:							return ignore_wt;
 	}
@@ -78,11 +78,11 @@ waytype_t haus_desc_t::get_finance_waytype() const
  */
 uint16 haus_desc_t::get_post_level() const
 {
-	switch (gtyp) {
+	switch (type) {
 		default:
-		case gebaeude_t::wohnung:   return level; // Home
-		case gebaeude_t::gewerbe:   return level * 2; // "Trade" (Google Translator)
-		case gebaeude_t::industrie: return level / 2; // Industry
+		case city_res:   return level; // Home
+		case city_com:   return level * 2; // "Trade" (Google Translator)
+		case city_ind: return level / 2; // Industry
 	}
 }
 
@@ -94,17 +94,18 @@ uint16 haus_desc_t::get_post_level() const
  */
 bool haus_desc_t::is_connected_with_town() const
 {
-	switch(get_utyp()) {
-		case haus_desc_t::unbekannt:	// normal town buildings (RES, COM, IND)
-		case haus_desc_t::denkmal:	// monuments
-		case haus_desc_t::rathaus:	// townhalls
-		case haus_desc_t::firmensitz:	// headquarter
+	switch (get_type()) {
+		case city_res:
+		case city_com:
+		case city_ind:    // normal town buildings (RES, COM, IND)
+		case denkmal:     // monuments
+		case rathaus:     // townhalls
+		case firmensitz:  // headquarter
 			return true;
 		default:
 			return false;
 	}
 }
-
 
 
 /*
@@ -158,8 +159,7 @@ int haus_desc_t::layout_anpassen(int layout) const
 void haus_desc_t::calc_checksum(checksum_t *chk) const
 {
 	obj_desc_timelined_t::calc_checksum(chk);
-	chk->input((uint8)gtyp);
-	chk->input((uint8)utype);
+	chk->input((uint8)type);
 	chk->input(animation_time);
 	chk->input(extra_data);
 	chk->input(size.x);

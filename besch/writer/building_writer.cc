@@ -121,8 +121,7 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	}
 	delete [] ints;
 
-	gebaeude_t::typ            gtyp             = gebaeude_t::unbekannt;
-	haus_desc_t::utyp         utype            = haus_desc_t::unbekannt;
+	haus_desc_t::btype        type = haus_desc_t::unbekannt;
 	uint32                     extra_data       = 0;
 	climate_bits               allowed_climates = all_but_water_climate; // all but water
 	uint16                     enables          = 0;
@@ -144,59 +143,59 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	const char* type_name = obj.get("type");
 	if (!STRICMP(type_name, "res")) {
 		extra_data = cluster_writer_t::get_cluster_data(obj, "clusters");
-		gtyp = gebaeude_t::wohnung;
+		type = haus_desc_t::city_res;
 	} else if (!STRICMP(type_name, "com")) {
 		extra_data = cluster_writer_t::get_cluster_data(obj, "clusters");
-		gtyp = gebaeude_t::gewerbe;
+		type = haus_desc_t::city_com;
 	} else if (!STRICMP(type_name, "ind")) {
 		extra_data = cluster_writer_t::get_cluster_data(obj, "clusters");
-		gtyp = gebaeude_t::industrie;
+		type = haus_desc_t::city_ind;
 	} else if (!STRICMP(type_name, "cur")) {
 		extra_data = obj.get_int("build_time", 0);
 		level      = obj.get_int("passengers",  level);
-		utype      = extra_data == 0 ? haus_desc_t::attraction_land : haus_desc_t::attraction_city;
+		type      = extra_data == 0 ? haus_desc_t::attraction_land : haus_desc_t::attraction_city;
 	} else if (!STRICMP(type_name, "mon")) {
-		utype = haus_desc_t::denkmal;
+		type = haus_desc_t::denkmal;
 		level = obj.get_int("passengers",  level);
 	} else if (!STRICMP(type_name, "tow")) {
 		level      = obj.get_int("passengers",  level);
 		extra_data = obj.get_int("build_time", 0);
-		utype = haus_desc_t::rathaus;
+		type = haus_desc_t::rathaus;
 	} else if (!STRICMP(type_name, "hq")) {
 		level      = obj.get_int("passengers",  level);
 		extra_data = obj.get_int("hq_level", 0);
-		utype = haus_desc_t::firmensitz;
+		type = haus_desc_t::firmensitz;
 	} else if (!STRICMP(type_name, "habour")  ||  !STRICMP(type_name, "harbour")) {
 		// buildable only on sloped shores
-		utype      = haus_desc_t::dock;
+		type      = haus_desc_t::dock;
 		extra_data = water_wt;
 	}
 	else if (!STRICMP(type_name, "dock")) {
 		// buildable only on flat shores
-		utype      = haus_desc_t::flat_dock;
+		type      = haus_desc_t::flat_dock;
 		extra_data = water_wt;
 	} else if (!STRICMP(type_name, "fac")) {
-		utype    = haus_desc_t::fabrik;
+		type    = haus_desc_t::fabrik;
 		enables |= 4;
 	} else if (!STRICMP(type_name, "stop")) {
-		utype      = haus_desc_t::generic_stop;
+		type      = haus_desc_t::generic_stop;
 		extra_data = get_waytype(obj.get("waytype"));
 	} else if (!STRICMP(type_name, "extension")) {
-		utype = haus_desc_t::generic_extension;
+		type = haus_desc_t::generic_extension;
 		const char *wt = obj.get("waytype");
 		if(wt  &&  *wt>' ') {
 			// not waytype => just a generic extension that fits all
 			extra_data = get_waytype(wt);
 		}
 	} else if (!STRICMP(type_name, "depot")) {
-		utype      = haus_desc_t::depot;
+		type      = haus_desc_t::depot;
 		extra_data = get_waytype(obj.get("waytype"));
 	} else if (!STRICMP(type_name, "signalbox")) {
-		utype      = haus_desc_t::signalbox;
+		type      = haus_desc_t::signalbox;
 		extra_data = cluster_writer_t::get_cluster_data(obj, "signal_groups");
 	} else if (!STRICMP(type_name, "any") || *type_name == '\0') {
 		// for instance "MonorailGround"
-		utype = haus_desc_t::weitere;
+		type = haus_desc_t::weitere;
 	} else if (
 		!STRICMP(type_name, "station")  ||
 		!STRICMP(type_name, "railstop")  ||
@@ -225,11 +224,11 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	if (obj.get_int("enables_post", 0) > 0) {
 		enables |= 2;
 	}
-	if(  utype == haus_desc_t::fabrik  ||  obj.get_int("enables_ware", 0) > 0  ) {
+	if(  type == haus_desc_t::fabrik  ||  obj.get_int("enables_ware", 0) > 0  ) {
 		enables |= 4;
 	}
 
-	if(  utype==haus_desc_t::generic_extension  ||  utype==haus_desc_t::generic_stop  ||  utype==haus_desc_t::dock  ||  utype==haus_desc_t::depot  ||  utype==haus_desc_t::fabrik  ) {
+	if(  type==haus_desc_t::generic_extension  ||  type==haus_desc_t::generic_stop  ||  type==haus_desc_t::dock  ||  type==haus_desc_t::depot  ||  type==haus_desc_t::fabrik  ) {
 		// since elevel was reduced by one beforehand ...
 		// TODO: Remove this when the reduction of level is removed.
 		++level;
@@ -279,7 +278,7 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	}
 
 	// Encode the depot traction types.
-	if(utype == haus_desc_t::depot)
+	if(type == haus_desc_t::depot)
 	{
 		// HACK: Use "enables" (only used for a stop type) to encode traction types
 		enables = 65535; // Default - all types enabled.
@@ -314,8 +313,8 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	uint8 is_control_tower = obj.get_int("is_control_tower", 0);
 
 	uint16 population_and_visitor_demand_capacity = obj.get_int("population_and_visitor_demand_capacity", 65535);
-	uint16 employment_capacity = obj.get_int("passenger_demand", gtyp == gebaeude_t::wohnung ? 0 : 65535);
-	employment_capacity = obj.get_int("employment_capacity", gtyp == gebaeude_t::wohnung ? 0 : employment_capacity);
+	uint16 employment_capacity = obj.get_int("passenger_demand", type == haus_desc_t::city_res ? 0 : 65535);
+	employment_capacity = obj.get_int("employment_capacity", type == haus_desc_t::city_res ? 0 : employment_capacity);
 	uint16 mail_demand_and_production_capacity = obj.get_int("mail_demand", 65535);	
 	mail_demand_and_production_capacity = obj.get_int("mail_demand_and_production_capacity", mail_demand_and_production_capacity);
 
@@ -400,7 +399,7 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 		}
 	}
 
-	uint16 version = 0x8008;
+	uint16 version = 0x8009;
 	
 	// This is the overlay flag for Simutrans-Experimental
 	// This sets the *second* highest bit to 1. 
@@ -418,8 +417,8 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	node.write_uint16(fp, version,									0);
 
 	// Hajo: write desc data
-	node.write_uint8 (fp, gtyp,										2);
-	node.write_uint8 (fp, utype,									3);
+	node.write_uint8(fp,	 0,										2); // was gtyp
+	node.write_uint8 (fp, type,										3);
 	node.write_uint16(fp, level,									4);
 	node.write_uint32(fp, extra_data,								6);
 	node.write_uint16(fp, groesse.x,								10);

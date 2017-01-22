@@ -999,17 +999,17 @@ bool weg_t::should_city_adopt_this(const player_t* player)
 		const haus_desc_t* const desc = neighbouring_building->get_tile()->get_desc();
 		// Most buildings count, including station extension buildings.
 		// But some do *not*, namely platforms and depots.
-		switch(desc->get_typ())
+		switch(desc->get_type())
 		{
-			case gebaeude_t::wohnung:
-			case gebaeude_t::gewerbe:
-			case gebaeude_t::industrie:
+			case haus_desc_t::city_res:
+			case haus_desc_t::city_com:
+			case haus_desc_t::city_ind:
 				has_neighbouring_building = true;
 				break;
 			default:
 				; // keep looking
 		}
-		switch(desc->get_utyp())
+		switch(desc->get_type())
 		{
 			case haus_desc_t::attraction_city:
 			case haus_desc_t::attraction_land:

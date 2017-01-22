@@ -90,7 +90,7 @@ enum climate_bits
 };
 
 /**
- * Vordefinierte Wegtypen.
+ * Vordefinierte Wetypeen.
  * @author Hj. Malthaner
  */
 enum waytype_t {

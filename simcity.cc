@@ -268,7 +268,7 @@ static sint16 ind_start_score =   0;
 static sint16 com_start_score = -10;
 static sint16 res_start_score =   0;
 
-// order: res com, ind, given by gebaeude_t::typ
+// order: res, com, ind
 static sint16 ind_neighbour_score[] = { -8, 0,  8 };
 static sint16 com_neighbour_score[] = {  1, 8,  1 };
 static sint16 res_neighbour_score[] = {  8, 0, -8 };
@@ -972,7 +972,7 @@ class denkmal_platz_sucher_t : public platzsucher_t {
 
 				gebaeude_t *gb = obj_cast<gebaeude_t>(obj);
 
-				if (gb && gb->get_haustyp() == gebaeude_t::unbekannt) {
+				if (gb && gb->get_typ() == haus_desc_t::unbekannt) {
 					return false;
 				}
 			}
@@ -1157,8 +1157,8 @@ bool stadt_t::take_citybuilding_from(stadt_t* old_city, gebaeude_t* gb)
 		return false;
 	}
 
-	const gebaeude_t::typ alt_typ = gb->get_haustyp();
-	if (  alt_typ == gebaeude_t::unbekannt  ) {
+	const haus_desc_t::btype alt_typ = gb->get_haustyp();
+	if (  alt_typ == haus_desc_t::unbekannt  ) {
 		return false; // only transfer res, com, ind
 	}
 	if (  gb->get_tile()->get_desc()->get_b()*gb->get_tile()->get_desc()->get_h() !=1  ) {
@@ -1362,7 +1362,7 @@ void stadt_t::reset_city_borders()
 			weighted_vector_tpl<gebaeude_t*>::const_iterator i = buildings.begin();
 			i != buildings.end(); ++i) {
 		gebaeude_t* gb = *i;
-		if (gb->get_tile()->get_desc()->get_utyp() != haus_desc_t::firmensitz) {
+		if (gb->get_tile()->get_desc()->get_type() != haus_desc_t::firmensitz) {
 			// Not an HQ
 			koord gb_pos = gb->get_pos().get_2d();
 			if (new_lo.x > gb_pos.x) {
@@ -1417,13 +1417,13 @@ stadt_t::~stadt_t()
 				gebaeude_t* const gb = buildings.pop_back();
 				assert(  gb!=NULL  &&  !buildings.is_contained(gb)  );
 			
-				if(gb->get_tile()->get_desc()->get_utyp() == haus_desc_t::firmensitz)
+				if(gb->get_tile()->get_desc()->get_type() == haus_desc_t::firmensitz)
 				{
 					stadt_t *city = welt->suche_naechste_stadt(gb->get_pos().get_2d());
 					gb->set_stadt( city );
 					if(city) 
 					{
-						if(gb->get_tile()->get_desc()->get_typ() == gebaeude_t::wohnung)
+						if(gb->get_tile()->get_desc()->get_type() == haus_desc_t::city_res)
 						{
 							city->buildings.append_unique(gb, gb->get_adjusted_population());
 						}
@@ -3229,7 +3229,7 @@ class bauplatz_mit_strasse_sucher_t: public bauplatz_sucher_t
 						// border: not direct next to special buildings
 						if (big_city) {
 							if(  gebaeude_t *gb=gr->find<gebaeude_t>()  ) {
-								const haus_desc_t::utyp utyp = gb->get_tile()->get_desc()->get_utyp();
+								const haus_desc_t::btype utyp = gb->get_tile()->get_desc()->get_type();
 								if(  haus_desc_t::attraction_city <= utyp  &&  utyp <= haus_desc_t::firmensitz) {
 									return false;
 								}
@@ -3637,20 +3637,6 @@ void stadt_t::check_bau_factory(bool new_town)
 }
 
 
-gebaeude_t::typ stadt_t::was_ist_an(const koord k) const
-{
-	const grund_t* gr = welt->lookup_kartenboden(k);
-	gebaeude_t::typ t = gebaeude_t::unbekannt;
-
-	if (gr != NULL) {
-		if (gebaeude_t const* const gb = obj_cast<gebaeude_t>(gr->first_obj())) {
-			t = gb->get_haustyp();
-		}
-	}
-	return t;
-}
-
-
 // find out, what building matches best
 void stadt_t::bewerte_res_com_ind(const koord pos, int &ind_score, int &com_score, int &res_score)
 {
@@ -3662,11 +3648,24 @@ void stadt_t::bewerte_res_com_ind(const koord pos, int &ind_score, int &com_scor
 
 	for (k.y = pos.y - 2; k.y <= pos.y + 2; k.y++) {
 		for (k.x = pos.x - 2; k.x <= pos.x + 2; k.x++) {
-			gebaeude_t::typ t = was_ist_an(k);
-			if (t != gebaeude_t::unbekannt) {
-				ind_score += ind_neighbour_score[t];
-				com_score += com_neighbour_score[t];
-				res_score += res_neighbour_score[t];
+			haus_desc_t::btype t = haus_desc_t::unbekannt;
+			if (const grund_t* gr = welt->lookup_kartenboden(k)) {
+				if (gebaeude_t const* const gb = obj_cast<gebaeude_t>(gr->first_obj())) {
+					t = gb->get_tile()->get_desc()->get_type();		
+				}
+			}
+			
+				int i = -1;
+			switch (t) {
+				case haus_desc_t::city_res: i = 0; break;
+				case haus_desc_t::city_com: i = 1; break;
+				case haus_desc_t::city_ind: i = 2; break;
+				default:;
+			}
+			if (i >= 0) {
+				ind_score += ind_neighbour_score[i];
+				com_score += com_neighbour_score[i];
+				res_score += res_neighbour_score[i];
 			}
 		}
 	}
@@ -4122,27 +4121,27 @@ void stadt_t::build_city_building(const koord k, bool new_town)
 	}
 
 	// Find a house to build
-	gebaeude_t::typ want_to_have = gebaeude_t::unbekannt;
+	haus_desc_t::btype want_to_have = haus_desc_t::unbekannt;
 	const haus_desc_t* h = NULL;
 
 	if (sum_commercial > sum_industrial  &&  sum_commercial > sum_residential) {
 		h = hausbauer_t::get_commercial(0, current_month, cl, new_town, neighbor_building_clusters);
 		if (h != NULL) {
-			want_to_have = gebaeude_t::gewerbe;
+			want_to_have = haus_desc_t::city_com;
 		}
 	}
 
 	if (h == NULL  &&  sum_industrial > sum_residential  &&  sum_industrial > sum_residential) {
 		h = hausbauer_t::get_industrial(0, current_month, cl, new_town, neighbor_building_clusters);
 		if (h != NULL) {
-			want_to_have = gebaeude_t::industrie;
+			want_to_have = haus_desc_t::city_ind;
 		}
 	}
 
 	if (h == NULL  &&  sum_residential > sum_industrial  &&  sum_residential > sum_commercial) {
 		h = hausbauer_t::get_residential(0, current_month, cl, new_town, neighbor_building_clusters);
 		if (h != NULL) {
-			want_to_have = gebaeude_t::wohnung;
+			want_to_have = haus_desc_t::city_res;
 		}
 	}
 
@@ -4182,9 +4181,9 @@ void stadt_t::build_city_building(const koord k, bool new_town)
 		reset_city_borders();
 
 		switch(want_to_have) {
-			case gebaeude_t::wohnung:   won += h->get_level() * 10; break;
-			case gebaeude_t::gewerbe:   arb +=  h->get_level() * 20; break;
-			case gebaeude_t::industrie: arb +=  h->get_level() * 20; break;
+			case haus_desc_t::city_res:   won += h->get_level() * 10; break;
+			case haus_desc_t::city_com:   arb +=  h->get_level() * 20; break;
+			case haus_desc_t::city_ind: arb +=  h->get_level() * 20; break;
 			default: break;
 		}
 	}
@@ -4193,8 +4192,8 @@ void stadt_t::build_city_building(const koord k, bool new_town)
 
 bool stadt_t::renovate_city_building(gebaeude_t* gb)
 {
-	const gebaeude_t::typ alt_typ = gb->get_haustyp();
-	if (  alt_typ == gebaeude_t::unbekannt  ) {
+	const haus_desc_t::btype alt_typ = gb->get_tile()->get_desc()->get_type();
+	if (!gb->is_city_building()) {
 		return false; // only renovate res, com, ind
 	}
 
@@ -4233,7 +4232,7 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb)
 		}
 	}
 
-	gebaeude_t::typ want_to_have = gebaeude_t::unbekannt;
+	haus_desc_t::btype want_to_have = haus_desc_t::unbekannt;
 	int sum = 0;
 
 	uint8 max_level = 0; // Unlimited.
@@ -4254,32 +4253,32 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb)
 	const haus_desc_t* h = NULL;
 	if (sum_commercial > sum_industrial && sum_commercial > sum_residential) {
 		// we must check, if we can really update to higher level ...
-		const int try_level = (alt_typ == gebaeude_t::gewerbe ? level + 1 : level);
+		const int try_level = (alt_typ == haus_desc_t::city_com ? level + 1 : level);
 		h = hausbauer_t::get_commercial(try_level, current_month, cl, false, neighbor_building_clusters);
 		if(  h != NULL  &&  h->get_level() >= try_level  &&  (max_level == 0 || h->get_level() <= max_level)  ) {
-			want_to_have = gebaeude_t::gewerbe;
+			want_to_have = haus_desc_t::city_com;
 			sum = sum_commercial;
 		}
 	}
 	// check for industry, also if we wanted com, but there was no com good enough ...
 	if(    (sum_industrial > sum_commercial  &&  sum_industrial > sum_residential)
-      || (sum_commercial > sum_residential  &&  want_to_have == gebaeude_t::unbekannt)  ) {
+      || (sum_commercial > sum_residential  &&  want_to_have == haus_desc_t::unbekannt)  ) {
 		// we must check, if we can really update to higher level ...
-		const int try_level = (alt_typ == gebaeude_t::industrie ? level + 1 : level);
+		const int try_level = (alt_typ == haus_desc_t::city_com ? level + 1 : level);
 		h = hausbauer_t::get_industrial(try_level , current_month, cl, false, neighbor_building_clusters);
 		if(  h != NULL  &&  h->get_level() >= try_level  &&  (max_level == 0 || h->get_level() <= max_level)  ) {
-			want_to_have = gebaeude_t::industrie;
+			want_to_have = haus_desc_t::city_ind;
 			sum = sum_industrial;
 		}
 	}
 	// check for residence
 	// (sum_wohnung>sum_industrie  &&  sum_wohnung>sum_gewerbe
-	if (  want_to_have == gebaeude_t::unbekannt  ) {
+	if (  want_to_have == haus_desc_t::unbekannt ) {
 		// we must check, if we can really update to higher level ...
-		const int try_level = (alt_typ == gebaeude_t::wohnung ? level + 1 : level);
+		const int try_level = (alt_typ == haus_desc_t::city_res ? level + 1 : level);
 		h = hausbauer_t::get_residential(try_level, current_month, cl, false, neighbor_building_clusters);
 		if(  h != NULL  &&  h->get_level() >= try_level  &&  (max_level == 0 || h->get_level() <= max_level)  ) {
-			want_to_have = gebaeude_t::wohnung;
+			want_to_have = haus_desc_t::city_res;
 			sum = sum_residential;
 		}
 		else {
@@ -4354,9 +4353,9 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb)
 		}
 
 		switch(alt_typ) {
-			case gebaeude_t::wohnung:   won -= h->get_level() * 10; break;
-			case gebaeude_t::gewerbe:   arb -=  h->get_level() * 20; break;
-			case gebaeude_t::industrie: arb -=  h->get_level() * 20; break;
+			case haus_desc_t::city_res:   won -= h->get_level() * 10; break;
+			case haus_desc_t::city_com:   arb -=  h->get_level() * 20; break;
+			case haus_desc_t::city_ind: arb -=  h->get_level() * 20; break;
 			default: break;
 		}
 
@@ -4373,9 +4372,9 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb)
 		new_gb->set_stadt(this);
 		add_building_to_list(new_gb);
 		switch(want_to_have) {
-			case gebaeude_t::wohnung:   won += h->get_level() * 10; break;
-			case gebaeude_t::gewerbe:   arb +=  h->get_level() * 20; break;
-			case gebaeude_t::industrie: arb +=  h->get_level() * 20; break;
+			case haus_desc_t::city_res:   won += h->get_level() * 10; break;
+			case haus_desc_t::city_com:   arb +=  h->get_level() * 20; break;
+			case haus_desc_t::city_ind: arb +=  h->get_level() * 20; break;
 			default: break;
 		}
 		return true;

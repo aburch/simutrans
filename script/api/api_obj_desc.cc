@@ -82,11 +82,11 @@ bool is_obsolete_future(const obj_desc_timelined_t* desc, mytime_t time, uint8 w
 }
 
 
-// export of haus_desc_t::utyp only here
+// export of haus_desc_t::btype only here
 namespace script_api {
-	declare_specialized_param(haus_desc_t::utyp, "i", "building_desc_x::building_type");
+	declare_specialized_param(haus_desc_t::btype, "i", "building_desc_x::building_type");
 
-	SQInteger param<haus_desc_t::utyp>::push(HSQUIRRELVM vm, const haus_desc_t::utyp & u)
+	SQInteger param<haus_desc_t::btype>::push(HSQUIRRELVM vm, const haus_desc_t::btype & u)
 	{
 		return param<uint16>::push(vm, u);
 	}
@@ -250,7 +250,7 @@ void export_goods_desc(HSQUIRRELVM vm)
 	/**
 	 * @returns building type
 	 */
-	register_method(vm, &haus_desc_t::get_utyp, "get_type");
+	register_method(vm, &haus_desc_t::get_type, "get_type");
 
 	/**
 	 * @returns way type, can be @ref wt_invalid.
