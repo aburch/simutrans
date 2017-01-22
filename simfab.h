@@ -433,7 +433,7 @@ protected:
 
 public:
 	fabrik_t(loadsave_t *file);
-	fabrik_t(koord3d pos, player_t* player, const fabrik_desc_t* fadesc, sint32 initial_prod_base);
+	fabrik_t(koord3d pos, player_t* player, const fabrik_desc_t* desc, sint32 initial_prod_base);
 	~fabrik_t();
 
 	gebaeude_t* get_building();

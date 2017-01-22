@@ -6302,7 +6302,7 @@ bool tool_build_land_chain_t::init( player_t * )
 	if (is_local_execution() && !strempty(default_param)) {
 		const char *c = default_param+2;
 		while(*c  &&  *c++!=',') { /* do nothing */ }
-		const fabrik_desc_t *fab = fabrikbauer_t::get_fadesc(c);
+		const fabrik_desc_t *fab = fabrikbauer_t::get_desc(c);
 		if(fab==NULL) {
 			// wrong tool!
 			return false;
@@ -6332,7 +6332,7 @@ const char *tool_build_land_chain_t::work( player_t *player, koord3d pos )
 	if (!strempty(default_param)) {
 		const char *c = default_param+2;
 		while(*c  &&  *c++!=',') { /* do nothing */ }
-		fab = fabrikbauer_t::get_fadesc(c);
+		fab = fabrikbauer_t::get_desc(c);
 	}
 	else {
 		fab = fabrikbauer_t::get_random_consumer( false, (climate_bits)(1 << welt->get_climate( pos.get_2d() )), welt->get_timeline_year_month() );
@@ -6406,7 +6406,7 @@ bool tool_city_chain_t::init( player_t * )
 	if (is_local_execution() && !strempty(default_param)) {
 		const char *c = default_param+2;
 		while(*c  &&  *c++!=',') { /* do nothing */ }
-		const fabrik_desc_t *fab = fabrikbauer_t::get_fadesc(c);
+		const fabrik_desc_t *fab = fabrikbauer_t::get_desc(c);
 		if(fab==NULL) {
 			// wrong tool!
 			return false;
@@ -6431,7 +6431,7 @@ const char *tool_city_chain_t::work( player_t *player, koord3d pos )
 	if (!strempty(default_param)) {
 		const char *c = default_param+2;
 		while(*c  &&  *c++!=',') { /* do nothing */ }
-		fab = fabrikbauer_t::get_fadesc(c);
+		fab = fabrikbauer_t::get_desc(c);
 	}
 	else {
 		fab = fabrikbauer_t::get_random_consumer( false, (climate_bits)(1 << welt->get_climate( pos.get_2d() )), welt->get_timeline_year_month() );
@@ -6477,7 +6477,7 @@ bool tool_build_factory_t::init( player_t * )
 	if (is_local_execution() && !strempty(default_param)) {
 		const char *c = default_param+2;
 		while(*c  &&  *c++!=',') { /* do nothing */ }
-		const fabrik_desc_t *fab = fabrikbauer_t::get_fadesc(c);
+		const fabrik_desc_t *fab = fabrikbauer_t::get_desc(c);
 		if(fab==NULL) {
 			// wrong tool!
 			return false;
@@ -6501,7 +6501,7 @@ const char *tool_build_factory_t::work( player_t *player, koord3d pos )
 	if (!strempty(default_param)) {
 		const char *c = default_param+2;
 		while(*c  &&  *c++!=',') { /* do nothing */ }
-		fab = fabrikbauer_t::get_fadesc(c);
+		fab = fabrikbauer_t::get_desc(c);
 	}
 	else 
 	{

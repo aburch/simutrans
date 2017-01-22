@@ -157,7 +157,7 @@ public:
 };
 
 
-stringhashtable_tpl<const fabrik_desc_t *> fabrikbauer_t::table;
+stringhashtable_tpl<const fabrik_desc_t *> fabrikbauer_t::desc_table;
 stringhashtable_tpl<fabrik_desc_t *> fabrikbauer_t::modifiable_table;
 
 
@@ -179,7 +179,7 @@ const fabrik_desc_t *fabrikbauer_t::get_random_consumer(bool electric, climate_b
 	// get a random city factory
 	weighted_vector_tpl<const fabrik_desc_t *> consumer;
 
-	FOR(stringhashtable_tpl<fabrik_desc_t const*>, const& i, table) {
+	FOR(stringhashtable_tpl<fabrik_desc_t const*>, const& i, desc_table) {
 		fabrik_desc_t const* const current = i.value;
 		// only insert end consumers
 		if (  current->is_consumer_only()  &&
@@ -201,9 +201,9 @@ DBG_MESSAGE("fabrikbauer_t::get_random_consumer()","No suitable consumer found")
 }
 
 
-const fabrik_desc_t *fabrikbauer_t::get_fadesc(const char *fabtype)
+const fabrik_desc_t *fabrikbauer_t::get_desc(const char *fabtype)
 {
-	return table.get(fabtype);
+	return desc_table.get(fabtype);
 }
 
 
@@ -217,18 +217,18 @@ void fabrikbauer_t::register_desc(fabrik_desc_t *desc)
 		desc->set_produktivitaet( (p&0x7FFF)*k.x*k.y );
 DBG_DEBUG("fabrikbauer_t::register_desc()","Correction for old factory: Increase production from %i by %i",p&0x7FFF,k.x*k.y);
 	}
-	if(  const fabrik_desc_t *old_desc = table.remove(desc->get_name())  ) {
+	if(  const fabrik_desc_t *old_desc = desc_table.remove(desc->get_name())  ) {
 		dbg->warning( "fabrikbauer_t::register_desc()", "Object %s was overlaid by addon!", desc->get_name() );
 		delete old_desc;
 	}
-	table.put(desc->get_name(), desc);
+	desc_table.put(desc->get_name(), desc);
 	modifiable_table.put(desc->get_name(), desc);
 }
 
 
 bool fabrikbauer_t::alles_geladen()
 {
-	FOR(stringhashtable_tpl<fabrik_desc_t const*>, const& i, table) {
+	FOR(stringhashtable_tpl<fabrik_desc_t const*>, const& i, desc_table) {
 		fabrik_desc_t const* const current = i.value;
 		if(  field_group_desc_t * fg = const_cast<field_group_desc_t *>(current->get_field_group())  ) {
 			// initialize weighted vector for the field class indices
@@ -256,7 +256,7 @@ int fabrikbauer_t::count_producers(const ware_desc_t *ware, uint16 timeline)
 	int anzahl=0;
 
 	// iterate over all factories and check if they produce this good...
-	FOR(stringhashtable_tpl<fabrik_desc_t const*>, const& t, table) {
+	FOR(stringhashtable_tpl<fabrik_desc_t const*>, const& t, desc_table) {
 		fabrik_desc_t const* const tmp = t.value;
 		for (uint i = 0; i < tmp->get_produkte(); i++) {
 			const fabrik_produkt_desc_t *produkt = tmp->get_produkt(i);
@@ -278,7 +278,7 @@ void fabrikbauer_t::finde_hersteller(weighted_vector_tpl<const fabrik_desc_t *> 
 {
 	// find all producers
 	producer.clear();
-	FOR(stringhashtable_tpl<fabrik_desc_t const*>, const& t, table) {
+	FOR(stringhashtable_tpl<fabrik_desc_t const*>, const& t, desc_table) {
 		fabrik_desc_t const* const tmp = t.value;
 		if (  tmp->get_gewichtung()>0  &&  tmp->get_haus()->is_available(timeline)  ) {
 			for(  uint i=0; i<tmp->get_produkte();  i++  ) {
@@ -540,7 +540,7 @@ bool fabrikbauer_t::can_factory_tree_rotate( const fabrik_desc_t *desc )
 		const ware_desc_t *ware = desc->get_lieferant(i)->get_ware();
 
 		// unfortunately, for every for iteration we have to check all factories ...
-		FOR(stringhashtable_tpl<fabrik_desc_t const*>, const& t, table) {
+		FOR(stringhashtable_tpl<fabrik_desc_t const*>, const& t, desc_table) {
 			fabrik_desc_t const* const tmp = t.value;
 			// now check if we produce this good...
 			for (uint i = 0; i < tmp->get_produkte(); i++) {
@@ -1181,7 +1181,7 @@ bool fabrikbauer_t::power_stations_available()
 {
 	weighted_vector_tpl<const fabrik_desc_t*> power_stations;
 
-	FOR(stringhashtable_tpl<const fabrik_desc_t *>, const& iter, table)
+	FOR(stringhashtable_tpl<const fabrik_desc_t *>, const& iter, desc_table)
 	{
 		const fabrik_desc_t* current = iter.value;
 		if(!current->is_electricity_producer()

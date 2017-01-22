@@ -721,8 +721,8 @@ fabrik_t::fabrik_t(loadsave_t* file)
 }
 
 
-fabrik_t::fabrik_t(koord3d pos_, player_t* player, const fabrik_desc_t* fadesc, sint32 initial_prod_base) :
-	desc(fadesc),
+fabrik_t::fabrik_t(koord3d pos_, player_t* player, const fabrik_desc_t* desc, sint32 initial_prod_base) :
+	desc(desc),
 	pos(pos_)
 {
 	pos.z = welt->max_hgt(pos.get_2d());
@@ -759,7 +759,7 @@ fabrik_t::fabrik_t(koord3d pos_, player_t* player, const fabrik_desc_t* fadesc, 
 		city->update_city_stats_with_building(get_building(), false);
 	}
 
-	if(fadesc->get_platzierung() == 2 && city && fadesc->get_produkte() == 0)
+	if(desc->get_platzierung() == 2 && city && desc->get_produkte() == 0)
 	{
 		// City consumer industries set their consumption rates by the relative size of the city
 		const weighted_vector_tpl<stadt_t*>& cities = welt->get_staedte();
@@ -799,7 +799,7 @@ fabrik_t::fabrik_t(koord3d pos_, player_t* player, const fabrik_desc_t* fadesc, 
 		}
 		prodbase = desc->get_produktivitaet() + production;
 	}
-	else if(fadesc->get_platzierung() == 2 && !city && fadesc->get_produkte() == 0)
+	else if(desc->get_platzierung() == 2 && !city && desc->get_produkte() == 0)
 	{
 		prodbase = desc->get_produktivitaet();
 	}
@@ -811,16 +811,16 @@ fabrik_t::fabrik_t(koord3d pos_, player_t* player, const fabrik_desc_t* fadesc, 
 	prodbase = prodbase > 0 ? prodbase : 1;
 
 	// create input information
-	eingang.resize( fadesc->get_lieferanten() );
-	for(  int g=0;  g<fadesc->get_lieferanten();  ++g  ) {
-		const fabrik_lieferant_desc_t *const input = fadesc->get_lieferant(g);
+	eingang.resize( desc->get_lieferanten() );
+	for(  int g=0;  g<desc->get_lieferanten();  ++g  ) {
+		const fabrik_lieferant_desc_t *const input = desc->get_lieferant(g);
 		eingang[g].set_typ( input->get_ware() );
 	}
 
 	// create output information
-	ausgang.resize( fadesc->get_produkte() );
-	for(  uint g=0;  g<fadesc->get_produkte();  ++g  ) {
-		const fabrik_produkt_desc_t *const product = fadesc->get_produkt(g);
+	ausgang.resize( desc->get_produkte() );
+	for(  uint g=0;  g<desc->get_produkte();  ++g  ) {
+		const fabrik_produkt_desc_t *const product = desc->get_produkt(g);
 		ausgang[g].set_typ( product->get_ware() );
 	}
 
@@ -1180,10 +1180,10 @@ void fabrik_t::rdwr(loadsave_t *file)
 		char s[256];
 		file->rdwr_str(s, lengthof(s));
 DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
-		desc = fabrikbauer_t::get_fadesc(s);
+		desc = fabrikbauer_t::get_desc(s);
 		if(  desc==NULL  ) {
 			//  maybe it was only renamed?
-			desc = fabrikbauer_t::get_fadesc(translator::compatibility_name(s));
+			desc = fabrikbauer_t::get_desc(translator::compatibility_name(s));
 		}
 		if(  desc==NULL  ) {
 			dbg->warning( "fabrik_t::rdwr()", "Pak-file for factory '%s' missing!", s );
