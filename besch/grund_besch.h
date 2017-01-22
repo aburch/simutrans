@@ -28,7 +28,7 @@
 class grund_t;
 class karte_t;
 
-class grund_desc_t : public obj_desc_std_name_t {
+class ground_desc_t : public obj_desc_std_name_t {
 private:
 	static karte_t *welt;
 
@@ -39,14 +39,14 @@ public:
 	static sint16 water_depth_levels;
 
 	// only these textures need external access
-	static const grund_desc_t *shore;	// nicer shore graphics, optional
-	static const grund_desc_t *fundament;
-	static const grund_desc_t *slopes;
-	static const grund_desc_t *fences;
-	static const grund_desc_t *marker;
-	static const grund_desc_t *borders;
-	static const grund_desc_t *sea;	// different water depth
-	static const grund_desc_t *ausserhalb;
+	static const ground_desc_t *shore;	// nicer shore graphics, optional
+	static const ground_desc_t *fundament;
+	static const ground_desc_t *slopes;
+	static const ground_desc_t *fences;
+	static const ground_desc_t *marker;
+	static const ground_desc_t *borders;
+	static const ground_desc_t *sea;	// different water depth
+	static const ground_desc_t *outside;
 
 	static char const* get_climate_name_from_bit(climate n);
 
@@ -87,7 +87,7 @@ public:
 	static image_id get_alpha_tile(slope_t::type slope);
 	static image_id get_alpha_tile(slope_t::type slope, uint8 corners);
 
-	static bool register_desc(const grund_desc_t *desc);
+	static bool register_desc(const ground_desc_t *desc);
 
 	static bool alles_geladen();
 

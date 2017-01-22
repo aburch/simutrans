@@ -21,22 +21,22 @@
 
 static uint32 const strecke[] = { 6000, 11000, 15000, 20000, 25000, 30000, 35000, 40000 };
 
-static weighted_vector_tpl<const fussgaenger_desc_t*> liste; // All pedestrians
-static weighted_vector_tpl<const fussgaenger_desc_t*> current_pedestrians; // Only those allowed on the current timeline
-stringhashtable_tpl<const fussgaenger_desc_t *> pedestrian_t::table;
+static weighted_vector_tpl<const pedestrian_desc_t*> liste; // All pedestrians
+static weighted_vector_tpl<const pedestrian_desc_t*> current_pedestrians; // Only those allowed on the current timeline
+stringhashtable_tpl<const pedestrian_desc_t *> pedestrian_t::table;
 
 
-static bool compare_fussgaenger_desc(const fussgaenger_desc_t* a, const fussgaenger_desc_t* b)
+static bool compare_fussgaenger_desc(const pedestrian_desc_t* a, const pedestrian_desc_t* b)
 {
 	// sort pedestrian objects descriptors by their name
 	return strcmp(a->get_name(), b->get_name())<0;
 }
 
 
-bool pedestrian_t::register_desc(const fussgaenger_desc_t *desc)
+bool pedestrian_t::register_desc(const pedestrian_desc_t *desc)
 {
 	if(  table.remove(desc->get_name())  ) {
-		dbg->warning( "fussgaenger_desc_t::register_desc()", "Object %s was overlaid by addon!", desc->get_name() );
+		dbg->warning( "pedestrian_desc_t::register_desc()", "Object %s was overlaid by addon!", desc->get_name() );
 	}
 	table.put(desc->get_name(), desc);
 	return true;
@@ -50,12 +50,12 @@ bool pedestrian_t::alles_geladen()
 		DBG_MESSAGE("pedestrian_t", "No pedestrians found - feature disabled");
 	}
 	else {
-		vector_tpl<const fussgaenger_desc_t*> temp_liste(0);
-		FOR(stringhashtable_tpl<fussgaenger_desc_t const*>, const& i, table) {
+		vector_tpl<const pedestrian_desc_t*> temp_liste(0);
+		FOR(stringhashtable_tpl<pedestrian_desc_t const*>, const& i, table) {
 			// just entered them sorted
 			temp_liste.insert_ordered(i.value, compare_fussgaenger_desc);
 		}
-		FOR(vector_tpl<fussgaenger_desc_t const*>, const i, temp_liste) {
+		FOR(vector_tpl<pedestrian_desc_t const*>, const i, temp_liste) {
 			liste.append(i, i->get_chance());
 		}
 	}
@@ -289,7 +289,7 @@ void pedestrian_t::hop(grund_t *gr)
 void pedestrian_t::check_timeline_pedestrians()
 {
 	current_pedestrians.clear();
-	FOR(weighted_vector_tpl<const fussgaenger_desc_t*>, fd, liste)
+	FOR(weighted_vector_tpl<const pedestrian_desc_t*>, fd, liste)
 	{
 		if (fd->is_available(world()->get_timeline_year_month()))
 		{
