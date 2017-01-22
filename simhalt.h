@@ -299,7 +299,7 @@ public:
 
 		// TODO: Consider whether to add comfort
 
-		uint16 alternative_seats; // used in overcrowd calculations in hole_ab, updated by update_alternative_seats
+		uint16 alternative_seats; // used in overcrowd calculations in fetch_goods, updated by update_alternative_seats
 
 		// For the memory pool
 		void* operator new(size_t size);
@@ -761,7 +761,7 @@ public:
 	 * @param fracht goods will be put into this list, vehicle has to load it
 	 * @author Hj. Malthaner, dwachs
 	 */
-	bool hole_ab( slist_tpl<ware_t> &fracht, const ware_besch_t *warentyp, uint32 menge, const schedule_t *schedule, const player_t *player, convoi_t* cnv, bool overcrowd);
+	bool fetch_goods( slist_tpl<ware_t> &fracht, const ware_besch_t *warentyp, uint32 menge, const schedule_t *schedule, const player_t *player, convoi_t* cnv, bool overcrowd);
 
 	/* liefert ware an. Falls die Ware zu wartender Ware dazugenommen
 	 * werden kann, kann ware_t gelöscht werden! D.h. man darf ware nach

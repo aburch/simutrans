@@ -2201,7 +2201,7 @@ bool haltestelle_t::recall_ware( ware_t& w, uint32 menge )
 
 
 // will load something compatible with wtyp into the car which schedule is schedule
-bool haltestelle_t::hole_ab( slist_tpl<ware_t> &fracht, const ware_besch_t *wtyp, uint32 maxi, const schedule_t *schedule, const player_t *player, convoi_t* cnv, bool overcrowded) //"hole from" (Google)
+bool haltestelle_t::fetch_goods( slist_tpl<ware_t> &fracht, const ware_besch_t *wtyp, uint32 maxi, const schedule_t *schedule, const player_t *player, convoi_t* cnv, bool overcrowded) //"hole from" (Google)
 {
 	bool skipped = false;
 	const uint8 catg_index = wtyp->get_catg_index();
@@ -2456,7 +2456,7 @@ bool haltestelle_t::hole_ab( slist_tpl<ware_t> &fracht, const ware_besch_t *wtyp
 
 /**
  * It will calculate number of free seats in all other (not cnv) convoys at stop
- * @author Inkelyad, adapted from hole_ab
+ * @author Inkelyad, adapted from fetch_goods
  */
 void haltestelle_t::update_alternative_seats(convoihandle_t cnv)
 {

@@ -1037,7 +1037,7 @@ bool vehicle_t::load_freight_internal(halthandle_t halt, bool overcrowd, bool *s
 		const uint16 hinein = total_capacity - total_freight; //hinein = inside (Google)
 		slist_tpl<ware_t> zuladung; //"Payload" (Google)
 
-		*skip_vehikels = halt->hole_ab(zuladung, besch->get_ware(), hinein, schedule, cnv->get_owner(), cnv, overcrowd);
+		*skip_vehikels = halt->fetch_goods(zuladung, besch->get_ware(), hinein, schedule, cnv->get_owner(), cnv, overcrowd);
 		if(!zuladung.empty())
 		{
 			cnv->invalidate_weight_summary();
