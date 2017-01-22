@@ -93,7 +93,7 @@ public:
  *  Child nodes:
  *	0   SKin
  */
-class rauch_desc_t : public obj_desc_t {
+class smoke_desc_t : public obj_desc_t {
 	friend class factory_smoke_reader_t;
 
 private:
@@ -137,19 +137,19 @@ public:
  *  Child nodes:
  *	0   Ware
  */
-class fabrik_lieferant_desc_t : public obj_desc_t {
+class factory_supplier_desc_t : public obj_desc_t {
 	friend class factory_supplier_reader_t;
 
 private:
-	uint16  kapazitaet;
+	uint16  capacity;
 	uint16  supplier_count;
-	uint16  verbrauch;
+	uint16  consumption;
 
 public:
 	ware_desc_t const* get_ware() const { return get_child<ware_desc_t>(0); }
-	int get_kapazitaet() const { return kapazitaet; } //"capacity" (Babelfish)
+	int get_capacity() const { return capacity; } //"capacity" (Babelfish)
 	int get_supplier_count() const { return supplier_count; } //"number" (Babelfish)
-	int get_verbrauch() const { return verbrauch; } //"consumption" (Babelfish)
+	int get_verbrauch() const { return consumption; } //"consumption" (Babelfish)
 	void calc_checksum(checksum_t *chk) const;
 };
 
@@ -164,23 +164,23 @@ public:
  *  Child nodes:
  *	0   Ware
  */
-class fabrik_produkt_desc_t : public obj_desc_t {
+class factory_product_desc_t : public obj_desc_t {
 	friend class factory_product_reader_t;
 
 private:
-    uint16 kapazitaet;
+    uint16 capacity;
 
     /**
      * How much of this product is derived from one unit of factory
      * production? 256 means 1.0
      * @author Hj. Malthaner
      */
-    uint16 faktor;
+    uint16 factor;
 
 public:
 	ware_desc_t const* get_ware() const { return get_child<ware_desc_t>(0); }
-	uint32 get_kapazitaet() const { return kapazitaet; }
-	uint32 get_faktor() const { return faktor; }
+	uint32 get_capacity() const { return capacity; }
+	uint32 get_factor() const { return factor; }
 	void calc_checksum(checksum_t *chk) const;
 };
 
@@ -203,20 +203,20 @@ public:
  *	n+3 Produkt 2
  *	... ...
  */
-class fabrik_desc_t : public obj_desc_t {
+class factory_desc_t : public obj_desc_t {
 	friend class factory_reader_t;
 
 public:
-	enum site_t { Land, Wasser, Stadt };
+	enum site_t { Land, Water, City };
 
 private:
-	site_t platzierung; //"placement" (Babelfish)
-	uint16 produktivitaet; //"productivity" (Babelfish)
-	uint16 bereich; //"range" (Babelfish)
+	site_t placement; //"placement" (Babelfish)
+	uint16 productivity; //"productivity" (Babelfish)
+	uint16 range; //"range" (Babelfish)
 	uint16 chance;	// Wie wahrscheinlich soll der Bau sein? ("How likely will the building be?" (Google)). 
-	uint8 kennfarbe; //"identification colour code" (Babelfish)
-	uint16 lieferanten; //"supplier" (Babelfish)
-	uint16 produkte; //"products" (Babelfish)
+	uint8 color; //"identification colour code" (Babelfish)
+	uint16 supplier_count; //"supplier" (Babelfish)
+	uint16 product_count; //"products" (Babelfish)
 	uint8 fields;	// only if there are any ...
 	uint16 pax_level; // Kept for backwards compatibility only. This is now read from the associated gebaeude_t object.
 	uint16 electricity_proportion; // Modifier of electricity consumption (a legacy setting for Experimental only)
@@ -243,39 +243,39 @@ public:
 	const char *get_name() const { return get_haus()->get_name(); }
 	const char *get_copyright() const { return get_haus()->get_copyright(); }
 	haus_desc_t  const* get_haus()  const { return get_child<haus_desc_t>(0); }
-	rauch_desc_t const* get_rauch() const { return get_child<rauch_desc_t>(1); }
+	smoke_desc_t const* get_smoke() const { return get_child<smoke_desc_t>(1); }
 
 	// we must take care, for the case of no producer/consumer
-	const fabrik_lieferant_desc_t *get_lieferant(int i) const //"supplier" (Babelfish)
+	const factory_supplier_desc_t *get_supplier(int i) const //"supplier" (Babelfish)
 	{
-		return 0 <= i && i < lieferanten ? get_child<fabrik_lieferant_desc_t>(2 + i) : 0;
+		return 0 <= i && i < supplier_count ? get_child<factory_supplier_desc_t>(2 + i) : 0;
 	}
-	const fabrik_produkt_desc_t *get_produkt(int i) const
+	const factory_product_desc_t *get_product(int i) const
 	{
-		return 0 <= i && i < produkte ? get_child<fabrik_produkt_desc_t>(2 + lieferanten + i) : 0;
+		return 0 <= i && i < product_count ? get_child<factory_product_desc_t>(2 + supplier_count + i) : 0;
 	}
 	const field_group_desc_t *get_field_group() const {
 		if(!fields) {
 			return NULL;
 		}
-		return get_child<field_group_desc_t>(2 + lieferanten + produkte);
+		return get_child<field_group_desc_t>(2 + supplier_count + product_count);
 	}
 
-	uint16 get_lieferanten() const { return lieferanten; } // Suppliers
-	uint16 get_produkte() const { return produkte; } // Consumers
+	uint16 get_supplier_count() const { return supplier_count; } // Suppliers
+	uint16 get_product_count() const { return product_count; } // Consumers
 
-	bool is_consumer_only() const { return produkte    == 0; }
-	bool is_producer_only() const { return lieferanten == 0; }
+	bool is_consumer_only() const { return product_count    == 0; }
+	bool is_producer_only() const { return supplier_count == 0; }
 
 	/* where to built */
-	site_t get_platzierung() const { return platzierung; }
+	site_t get_placement() const { return placement; }
 	int get_chance() const { return chance;     }
 
-	uint8 get_kennfarbe() const { return kennfarbe; } //"identification colour code" (Babelfish)
+	uint8 get_kennfarbe() const { return color; } //"identification colour code" (Babelfish)
 
-	void set_produktivitaet(int p) { produktivitaet=p; }
-	int get_produktivitaet() const { return produktivitaet; }
-	int get_bereich() const { return bereich; } //"range" (Babelfish)
+	void set_productivity(int p) { productivity=p; }
+	int get_productivity() const { return productivity; }
+	int get_range() const { return range; } //"range" (Babelfish)
 
 	/* level for post and passenger generation */
 	int get_pax_level() const { return pax_level; }
@@ -285,7 +285,7 @@ public:
 
 	int is_electricity_producer() const { return electricity_producer; }
 
-	const fabrik_desc_t *get_upgrades(int i) const { return (i >= 0 && i < upgrades) ? get_child<fabrik_desc_t>(2 + lieferanten + produkte + fields + i) : NULL; }
+	const factory_desc_t *get_upgrades(int i) const { return (i >= 0 && i < upgrades) ? get_child<factory_desc_t>(2 + supplier_count + product_count + fields + i) : NULL; }
 
 	int get_upgrades_count() const { return upgrades; }
 

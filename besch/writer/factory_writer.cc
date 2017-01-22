@@ -125,7 +125,7 @@ void factory_product_writer_t::write_obj(FILE* outfp, obj_node_t& parent, int ca
 }
 
 
-void factory_supplier_writer_t::write_obj(FILE* outfp, obj_node_t& parent, int capacity, int count, int verbrauch, const char* warename)
+void factory_supplier_writer_t::write_obj(FILE* outfp, obj_node_t& parent, int capacity, int count, int consumption, const char* warename)
 {
 	obj_node_t node(this, 8, &parent);
 
@@ -133,7 +133,7 @@ void factory_supplier_writer_t::write_obj(FILE* outfp, obj_node_t& parent, int c
 
 	node.write_uint16(outfp, capacity,  0);
 	node.write_uint16(outfp, count,     2);
-	node.write_uint16(outfp, verbrauch, 4);
+	node.write_uint16(outfp, consumption, 4);
 	node.write_uint16(outfp, 0,         6); //dummy, unused (and uninitialized in past versions)
 
 	node.write(outfp);
@@ -154,16 +154,16 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	string str;
 
 	char const*            const placing     = obj.get("location");
-	fabrik_desc_t::site_t const platzierung =
-		!STRICMP(placing, "land")  ? fabrik_desc_t::Land   :
-		!STRICMP(placing, "water") ? fabrik_desc_t::Wasser :
-		!STRICMP(placing, "city")  ? fabrik_desc_t::Stadt  :
-		fabrik_desc_t::Land;
-	uint16 const produktivitaet = obj.get_int("productivity",        10);
-	uint16 const bereich        = obj.get_int("range",               10);
+	factory_desc_t::site_t const placement =
+		!STRICMP(placing, "land")  ? factory_desc_t::Land   :
+		!STRICMP(placing, "water") ? factory_desc_t::Water :
+		!STRICMP(placing, "city")  ? factory_desc_t::City  :
+		factory_desc_t::Land;
+	uint16 const productivity = obj.get_int("productivity",        10);
+	uint16 const range        = obj.get_int("range",               10);
 	uint16 const chance     = obj.get_int("distributionweight",   1);
-	uint8  const kennfarbe      = obj.get_color("mapcolor", 255);
-	if (kennfarbe == 255) {
+	uint8  const color      = obj.get_color("mapcolor", 255);
+	if (color == 255) {
 		dbg->fatal( "Factory", "%s missing an indentification color! (mapcolor)", obj_writer_t::last_name );
 		exit(1);
 	}
@@ -194,44 +194,44 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 		xref_writer_t::instance()->write_obj(fp, node, obj_smoke, "", false);
 	}
 
-	uint16 lieferanten;
-	for (lieferanten = 0;; ++lieferanten) {
+	uint16 supplier_count;
+	for (supplier_count = 0;; ++supplier_count) {
 		char buf[40];
 
-		sprintf(buf, "inputgood[%d]", lieferanten);
+		sprintf(buf, "inputgood[%d]", supplier_count);
 		const char* good = obj.get(buf);
 
 		if (!good || !*good) {
 			break;
 		}
-		sprintf(buf, "inputsupplier[%d]", lieferanten);
+		sprintf(buf, "inputsupplier[%d]", supplier_count);
 		int supp = obj.get_int(buf, 0);
-		sprintf(buf, "inputcapacity[%d]", lieferanten);
+		sprintf(buf, "inputcapacity[%d]", supplier_count);
 		int cap = obj.get_int(buf, 0);
-		sprintf(buf, "inputfactor[%d]", lieferanten);
-		int verbrauch = (obj.get_int(buf, 100) * 256) / 100;
+		sprintf(buf, "inputfactor[%d]", supplier_count);
+		int consumption = (obj.get_int(buf, 100) * 256) / 100;
 
-		factory_supplier_writer_t::instance()->write_obj(fp, node, cap, supp, verbrauch, good);
+		factory_supplier_writer_t::instance()->write_obj(fp, node, cap, supp, consumption, good);
 	}
 
-	uint16 produkte;
-	for (produkte = 0;; ++produkte) {
+	uint16 product_count;
+	for (product_count = 0;; ++product_count) {
 		char buf[40];
 
-		sprintf(buf, "outputgood[%d]", produkte);
+		sprintf(buf, "outputgood[%d]", product_count);
 		const char* good = obj.get(buf);
 
 		if (!good || !*good) {
 			break;
 		}
-		sprintf(buf, "outputcapacity[%d]", produkte);
+		sprintf(buf, "outputcapacity[%d]", product_count);
 		int cap = obj.get_int(buf, 0);
 
 		if(  cap==0  ) {
 			dbg->error( "factory_writer_t::write_obj()", "Factory output capacity must be larger than 0. (currently %i)", cap );
 		}
 
-		sprintf(buf, "outputfactor[%d]", produkte);
+		sprintf(buf, "outputfactor[%d]", product_count);
 		int fac = (obj.get_int(buf, 100) * 256) / 100;
 
 		factory_product_writer_t::instance()->write_obj(fp, node, cap, fac, good);
@@ -278,14 +278,14 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	version += 0x300;
 	
 	node.write_uint16(fp, version,						0); // version
-	node.write_uint16(fp, platzierung,					2);
-	node.write_uint16(fp, produktivitaet,				4);
-	node.write_uint16(fp, bereich,						6);
+	node.write_uint16(fp, placement,					2);
+	node.write_uint16(fp, productivity,				4);
+	node.write_uint16(fp, range,						6);
 	node.write_uint16(fp, chance,					8);
-	node.write_uint8 (fp, kennfarbe,					10);
+	node.write_uint8 (fp, color,					10);
 	node.write_uint8 (fp, fields,						11);
-	node.write_uint16(fp, lieferanten,					12);
-	node.write_uint16(fp, produkte,						14);
+	node.write_uint16(fp, supplier_count,					12);
+	node.write_uint16(fp, product_count,						14);
 	node.write_uint16(fp, electricity_percent,			16);
 	node.write_sint8 (fp, upgrades,						18);
 	node.write_uint16(fp, expand_probability,			19);

@@ -1,5 +1,5 @@
 /*
- * Eine Sorte Wasser die zu einer Haltestelle gehört
+ * Eine Sorte Water die zu einer Haltestelle gehört
  *
  * Überarbeitet Januar 2001
  * von Hj. Malthaner

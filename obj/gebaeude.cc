@@ -420,20 +420,20 @@ void gebaeude_t::rotate90()
 /* sets the corresponding pointer to a factory
  * @author prissi
  */
-void gebaeude_t::set_fab(fabrik_t *fb)
+void gebaeude_t::set_fab(fabrik_t *fd)
 {
 	// sets the pointer in non-zero
-	if(fb) {
+	if(fd) {
 		if(!is_factory  &&  ptr.stadt!=NULL) {
 			dbg->fatal("gebaeude_t::set_fab()","building already bound to city!");
 		}
 		is_factory = true;
-		ptr.fab = fb;
+		ptr.fab = fd;
 		if(adjusted_people.visitor_demand == 65535)
 		{
 			// We cannot set this until we know what sort of factory that this is.
 			// If it is not an end consumer, do not allow any visitor demand by default.
-			if(fb->is_end_consumer())
+			if(fd->is_end_consumer())
 			{
 				people.visitor_demand = tile->get_desc()->get_level() * welt->get_settings().get_visitor_demand_per_level();
 				adjusted_people.visitor_demand = welt->calc_adjusted_monthly_figure(people.visitor_demand);
@@ -617,7 +617,7 @@ image_id gebaeude_t::get_image() const
 		} else if(  (env_t::hide_buildings == env_t::ALL_HIDDEN_BUILDING  &&  tile->get_desc()->get_utyp() < haus_desc_t::weitere)) {
 			// hide with transparency or tile without information
 			if(env_t::hide_with_transparency) {
-				if(tile->get_desc()->get_utyp() == haus_desc_t::fabrik  &&  ptr.fab->get_desc()->get_platzierung() == fabrik_desc_t::Wasser) {
+				if(tile->get_desc()->get_utyp() == haus_desc_t::fabrik  &&  ptr.fab->get_desc()->get_placement() == factory_desc_t::Water) {
 					// no ground tiles for water thingies
 					return IMG_EMPTY;
 				}

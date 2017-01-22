@@ -1858,12 +1858,12 @@ vehicle_t::direction_degrees vehicle_t::get_direction_degrees(ribi_t::dir direct
 void vehicle_t::make_smoke() const
 {
 	// does it smoke at all?
-	if(  smoke  &&  desc->get_rauch()  ) {
+	if(  smoke  &&  desc->get_smoke()  ) {
 		// Hajo: only produce smoke when heavily accelerating or steam engine
 		if(  cnv->get_akt_speed() < (sint32)((cnv->get_vehicle_summary().max_sim_speed * 7u) >> 3)  ||  desc->get_engine_type() == vehikel_desc_t::steam  ) {
 			grund_t* const gr = welt->lookup( get_pos() );
 			if(  gr  ) {
-				wolke_t* const abgas = new wolke_t( get_pos(), get_xoff() + ((dx * (sint16)((uint16)steps * OBJECT_OFFSET_STEPS)) >> 8), get_yoff() + ((dy * (sint16)((uint16)steps * OBJECT_OFFSET_STEPS)) >> 8) + get_hoff(), desc->get_rauch() );
+				wolke_t* const abgas = new wolke_t( get_pos(), get_xoff() + ((dx * (sint16)((uint16)steps * OBJECT_OFFSET_STEPS)) >> 8), get_yoff() + ((dy * (sint16)((uint16)steps * OBJECT_OFFSET_STEPS)) >> 8) + get_hoff(), desc->get_smoke() );
 				if(  !gr->obj_add( abgas )  ) {
 					abgas->set_flag( obj_t::not_on_map );
 					delete abgas;

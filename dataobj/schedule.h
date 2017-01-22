@@ -275,7 +275,7 @@ public:
 
 
 /**
- * Eine Spezialisierung des Fahrplans die nur Stops auf Wasser
+ * Eine Spezialisierung des Fahrplans die nur Stops auf Water
  * zuläßt.
  *
  * @author Hj. Malthaner
@@ -286,7 +286,7 @@ public:
 	schiffschedule_t() {}
 	schiffschedule_t(loadsave_t* const file) : schedule_t(file) {}
 	schedule_t* copy() { schedule_t *s = new schiffschedule_t(); s->copy_from(this); return s; }
-	const char *get_error_msg() const { return "Schiffhalt muss im\nWasser liegen!\n"; }
+	const char *get_error_msg() const { return "Schiffhalt muss im\nWater liegen!\n"; }
 
 	schedule_type get_type() const { return ship_schedule; }
 

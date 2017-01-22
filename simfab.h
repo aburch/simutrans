@@ -225,12 +225,12 @@ private:
 	 * The produced were distributed at the stops
 	 * @author Hj. Malthaner
 	 */
-	void verteile_waren(const uint32 produkt);
+	void verteile_waren(const uint32 product);
 
 	player_t *owner;		// player_t* owner_p
 	static karte_ptr_t welt;
 
-	const fabrik_desc_t *desc;
+	const factory_desc_t *desc;
 
 protected:
 
@@ -257,7 +257,7 @@ private:
 	uint8 rotate;
 
 	/**
-	 * produktionsgrundmenge
+	 * productionsgrundmenge
 	 * "production fundamental set"
 	 * @author Hj. Malthaner
 	 */
@@ -433,7 +433,7 @@ protected:
 
 public:
 	fabrik_t(loadsave_t *file);
-	fabrik_t(koord3d pos, player_t* player, const fabrik_desc_t* desc, sint32 initial_prod_base);
+	fabrik_t(koord3d pos, player_t* player, const factory_desc_t* desc, sint32 initial_prod_base);
 	~fabrik_t();
 
 	gebaeude_t* get_building();
@@ -475,7 +475,7 @@ public:
 	 * @return vehicle description object
 	 * @author Hj. Malthaner
 	 */
-	const fabrik_desc_t *get_desc() const {return desc; }
+	const factory_desc_t *get_desc() const {return desc; }
 
 	void finish_rd();
 
@@ -501,7 +501,7 @@ public:
 
 	/**
 	 * Re-mark nearby roads.
-	 * Needs to be called by fabrikbauer_t (otherwise private).
+	 * Needs to be called by factory_builder_t (otherwise private).
 	 */
 	void mark_connected_roads(bool del);
 
@@ -575,7 +575,7 @@ public:
 	void set_transformer_connected(leitung_t* connected) { transformer_connected = connected; }
 
 	/**
-	 * @return 1 wenn verbrauch,
+	 * @return 1 wenn consumption,
 	 * 0 wenn Produktionsstopp,
 	 * -1 wenn Ware nicht verarbeitet wird
 	 */
@@ -634,7 +634,7 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	//static bool ist_da_eine(karte_t *welt, koord min, koord max);
-	//static bool ist_bauplatz(karte_t *welt, koord pos, koord size, bool water, climate_bits cl);
+	//static bool check_construction_site(karte_t *welt, koord pos, koord size, bool water, climate_bits cl);
 
 	// hier die methoden zum parametrisieren der Fabrik
 	// "here the methods to parameterize the factory"

@@ -2674,12 +2674,12 @@ void stadt_t::calc_growth()
 		if(fab && fab->get_city() == this && fab->get_lieferziele().empty() && !fab->get_suppliers().empty()) 
 		{
 			// consumer => check for it storage
-			const fabrik_desc_t *const desc = fab->get_desc();
-			for(  int i=0;  i<desc->get_lieferanten();  i++  ) 
+			const factory_desc_t *const desc = fab->get_desc();
+			for(  int i=0;  i<desc->get_supplier_count();  i++  ) 
 			{
 				city_history_month[0][HIST_GOODS_NEEDED] ++;
 				city_history_year[0][HIST_GOODS_NEEDED] ++;
-				if(  fab->input_vorrat_an( desc->get_lieferant(i)->get_ware() )>0  ) 
+				if(  fab->input_vorrat_an( desc->get_supplier(i)->get_ware() )>0  ) 
 				{
 					city_history_month[0][HIST_GOODS_RECIEVED] ++;
 					city_history_year[0][HIST_GOODS_RECIEVED] ++;
@@ -3630,7 +3630,7 @@ void stadt_t::check_bau_factory(bool new_town)
 				// Only add an industry if there is a need for it: if the actual industry density is less than the target density.
 				// @author: jamespetts
 				DBG_MESSAGE("stadt_t::check_bau_factory", "adding new industry at %i inhabitants.", get_einwohner());
-				fabrikbauer_t::increase_industry_density( true, true );
+				factory_builder_t::increase_industry_density( true, true );
 			}
 		}
 	}

@@ -132,7 +132,7 @@ public:
 
 	/**
 	 * Tells the player that a fabrik_t is going to be deleted.
-	 * It could also tell, that a fab has been created, but by now the fabrikbauer_t does not.
+	 * It could also tell, that a fab has been created, but by now the factory_builder_t does not.
 	 * @author Bernd Gabriel, Jan 01, 2010
 	 */
 	virtual void notify_factory(notification_factory_t flag, const fabrik_t*);

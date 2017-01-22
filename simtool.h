@@ -751,8 +751,8 @@ class tool_change_game_speed_t : public tool_t {
 public:
 	tool_change_game_speed_t() : tool_t(TOOL_CHANGE_GAME_SPEED | SIMPLE_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE {
-		int faktor = atoi(default_param);
-		return faktor>0 ? translator::translate("Accelerate time") : translator::translate("Deccelerate time");
+		int factor = atoi(default_param);
+		return factor>0 ? translator::translate("Accelerate time") : translator::translate("Deccelerate time");
 	}
 	bool init( player_t *player ) {
 		if(  !env_t::networkmode  ||  player->get_player_nr()==1  ) {

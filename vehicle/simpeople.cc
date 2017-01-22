@@ -289,11 +289,11 @@ void pedestrian_t::hop(grund_t *gr)
 void pedestrian_t::check_timeline_pedestrians()
 {
 	current_pedestrians.clear();
-	FOR(weighted_vector_tpl<const fussgaenger_desc_t*>, fb, liste)
+	FOR(weighted_vector_tpl<const fussgaenger_desc_t*>, fd, liste)
 	{
-		if (fb->is_available(world()->get_timeline_year_month()))
+		if (fd->is_available(world()->get_timeline_year_month()))
 		{
-			current_pedestrians.append(fb, fb->get_chance()); 
+			current_pedestrians.append(fd, fd->get_chance()); 
 		}
 	}
 }

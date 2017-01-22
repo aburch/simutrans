@@ -261,7 +261,7 @@ public:
 
 	ware_desc_t const* get_ware() const { return get_child<ware_desc_t>(2); }
 
-	skin_desc_t const* get_rauch() const { return get_child<skin_desc_t>(3); }
+	skin_desc_t const* get_smoke() const { return get_child<skin_desc_t>(3); }
 
 	image_id get_base_image() const { return get_image_id(ribi_t::dir_south, get_ware() ); }
 	image_id get_base_image(const char* livery) const { return get_image_id(ribi_t::dir_south, get_ware(), livery ); }

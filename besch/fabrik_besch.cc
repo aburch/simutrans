@@ -24,32 +24,32 @@ void field_group_desc_t::calc_checksum(checksum_t *chk) const
 }
 
 
-void fabrik_lieferant_desc_t::calc_checksum(checksum_t *chk) const
+void factory_supplier_desc_t::calc_checksum(checksum_t *chk) const
 {
-    chk->input(kapazitaet);
+    chk->input(capacity);
 	chk->input(supplier_count);
-	chk->input(verbrauch);
+	chk->input(consumption);
 	chk->input(get_ware()->get_name());
 }
 
 
-void fabrik_produkt_desc_t::calc_checksum(checksum_t *chk) const
+void factory_product_desc_t::calc_checksum(checksum_t *chk) const
 {
-    chk->input(kapazitaet);
-	chk->input(faktor);
+    chk->input(capacity);
+	chk->input(factor);
 	chk->input(get_ware()->get_name());
 }
 
 
-void fabrik_desc_t::calc_checksum(checksum_t *chk) const
+void factory_desc_t::calc_checksum(checksum_t *chk) const
 {
-	chk->input((uint8)platzierung);
-	chk->input(produktivitaet);
-	chk->input(bereich);
+	chk->input((uint8)placement);
+	chk->input(productivity);
+	chk->input(range);
 	chk->input(chance);
-	chk->input(kennfarbe);
-	chk->input(lieferanten);
-	chk->input(produkte);
+	chk->input(color);
+	chk->input(supplier_count);
+	chk->input(product_count);
 	chk->input(fields);
 	chk->input(pax_level);
 	chk->input(electricity_producer);
@@ -64,13 +64,13 @@ void fabrik_desc_t::calc_checksum(checksum_t *chk) const
 	chk->input(pax_demand);
 	chk->input(mail_demand);
 
-	for (uint8 i=0; i<lieferanten; i++) {
-		const fabrik_lieferant_desc_t *supp = get_lieferant(i);
+	for (uint8 i=0; i<supplier_count; i++) {
+		const factory_supplier_desc_t *supp = get_supplier(i);
 		supp->calc_checksum(chk);
 	}
 
-	for (uint8 i=0; i<produkte; i++) {
-		const fabrik_produkt_desc_t *prod = get_produkt(i);
+	for (uint8 i=0; i<product_count; i++) {
+		const factory_product_desc_t *prod = get_product(i);
 		prod->calc_checksum(chk);
 	}
 

@@ -2429,7 +2429,7 @@ public:
 	sint8 max_hgt(koord k) const;
 
 	/**
-	 * @return true, wenn Platz an Stelle pos mit Groesse dim Wasser ist
+	 * @return true, wenn Platz an Stelle pos mit Groesse dim Water ist
 	 * @author V. Meyer
 	 */
 	bool ist_wasser(koord k, koord dim) const;

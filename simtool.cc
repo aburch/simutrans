@@ -6302,7 +6302,7 @@ bool tool_build_land_chain_t::init( player_t * )
 	if (is_local_execution() && !strempty(default_param)) {
 		const char *c = default_param+2;
 		while(*c  &&  *c++!=',') { /* do nothing */ }
-		const fabrik_desc_t *fab = fabrikbauer_t::get_desc(c);
+		const factory_desc_t *fab = factory_builder_t::get_desc(c);
 		if(fab==NULL) {
 			// wrong tool!
 			return false;
@@ -6328,14 +6328,14 @@ const char *tool_build_land_chain_t::work( player_t *player, koord3d pos )
 		return "";
 	}
 
-	const fabrik_desc_t *fab = NULL;
+	const factory_desc_t *fab = NULL;
 	if (!strempty(default_param)) {
 		const char *c = default_param+2;
 		while(*c  &&  *c++!=',') { /* do nothing */ }
-		fab = fabrikbauer_t::get_desc(c);
+		fab = factory_builder_t::get_desc(c);
 	}
 	else {
-		fab = fabrikbauer_t::get_random_consumer( false, (climate_bits)(1 << welt->get_climate( pos.get_2d() )), welt->get_timeline_year_month() );
+		fab = factory_builder_t::get_random_consumer( false, (climate_bits)(1 << welt->get_climate( pos.get_2d() )), welt->get_timeline_year_month() );
 	}
 
 	if(fab==NULL) {
@@ -6348,7 +6348,7 @@ const char *tool_build_land_chain_t::work( player_t *player, koord3d pos )
 	climate_bits cl = (default_param  &&  default_param[0]=='1') ? ALL_CLIMATES : fab->get_haus()->get_allowed_climate_bits();
 
 	bool hat_platz = false;
-	if(fab->get_platzierung()==fabrik_desc_t::Wasser) {
+	if(fab->get_placement()==factory_desc_t::Water) {
 		// at sea
 		hat_platz = welt->ist_wasser( pos.get_2d(), fab->get_haus()->get_groesse(rotation) );
 
@@ -6378,7 +6378,7 @@ const char *tool_build_land_chain_t::work( player_t *player, koord3d pos )
 		}
 
 		koord3d build_pos = gr->get_pos();
-		int anzahl = fabrikbauer_t::baue_hierarchie(NULL, fab, initial_prod, rotation, &build_pos, welt->get_public_player(), 10000 );
+		int anzahl = factory_builder_t::baue_hierarchie(NULL, fab, initial_prod, rotation, &build_pos, welt->get_public_player(), 10000 );
 
 		if(anzahl>0) {
 			// at least one factory has been built
@@ -6406,7 +6406,7 @@ bool tool_city_chain_t::init( player_t * )
 	if (is_local_execution() && !strempty(default_param)) {
 		const char *c = default_param+2;
 		while(*c  &&  *c++!=',') { /* do nothing */ }
-		const fabrik_desc_t *fab = fabrikbauer_t::get_desc(c);
+		const factory_desc_t *fab = factory_builder_t::get_desc(c);
 		if(fab==NULL) {
 			// wrong tool!
 			return false;
@@ -6427,14 +6427,14 @@ const char *tool_city_chain_t::work( player_t *player, koord3d pos )
 		return "";
 	}
 
-	const fabrik_desc_t *fab = NULL;
+	const factory_desc_t *fab = NULL;
 	if (!strempty(default_param)) {
 		const char *c = default_param+2;
 		while(*c  &&  *c++!=',') { /* do nothing */ }
-		fab = fabrikbauer_t::get_desc(c);
+		fab = factory_builder_t::get_desc(c);
 	}
 	else {
-		fab = fabrikbauer_t::get_random_consumer( false, (climate_bits)(1 << welt->get_climate( pos.get_2d() )), welt->get_timeline_year_month() );
+		fab = factory_builder_t::get_random_consumer( false, (climate_bits)(1 << welt->get_climate( pos.get_2d() )), welt->get_timeline_year_month() );
 	}
 
 	if(fab==NULL) {
@@ -6449,7 +6449,7 @@ const char *tool_city_chain_t::work( player_t *player, koord3d pos )
 	}
 
 	pos = gr->get_pos();
-	int anzahl = fabrikbauer_t::baue_hierarchie(NULL, fab, initial_prod, 0, &pos, welt->get_public_player(), 10000 );
+	int anzahl = factory_builder_t::baue_hierarchie(NULL, fab, initial_prod, 0, &pos, welt->get_public_player(), 10000 );
 	if(anzahl>0) {
 		// at least one factory has been built
 		welt->get_viewport()->change_world_position( pos );
@@ -6477,7 +6477,7 @@ bool tool_build_factory_t::init( player_t * )
 	if (is_local_execution() && !strempty(default_param)) {
 		const char *c = default_param+2;
 		while(*c  &&  *c++!=',') { /* do nothing */ }
-		const fabrik_desc_t *fab = fabrikbauer_t::get_desc(c);
+		const factory_desc_t *fab = factory_builder_t::get_desc(c);
 		if(fab==NULL) {
 			// wrong tool!
 			return false;
@@ -6497,16 +6497,16 @@ const char *tool_build_factory_t::work( player_t *player, koord3d pos )
 		return "";
 	}
 
-	const fabrik_desc_t *fab = NULL;
+	const factory_desc_t *fab = NULL;
 	if (!strempty(default_param)) {
 		const char *c = default_param+2;
 		while(*c  &&  *c++!=',') { /* do nothing */ }
-		fab = fabrikbauer_t::get_desc(c);
+		fab = factory_builder_t::get_desc(c);
 	}
 	else 
 	{
-		fab = fabrikbauer_t::get_random_consumer( false, (climate_bits)(1<<welt->get_climate_at_height(gr->get_hoehe())), welt->get_timeline_year_month() );
-//		fab = fabrikbauer_t::get_random_consumer( false, (climate_bits)(1 << welt->get_climate( pos.get_2d() )), welt->get_timeline_year_month() );
+		fab = factory_builder_t::get_random_consumer( false, (climate_bits)(1<<welt->get_climate_at_height(gr->get_hoehe())), welt->get_timeline_year_month() );
+//		fab = factory_builder_t::get_random_consumer( false, (climate_bits)(1 << welt->get_climate( pos.get_2d() )), welt->get_timeline_year_month() );
 	}
 
 	if(fab==NULL) 
@@ -6520,7 +6520,7 @@ const char *tool_build_factory_t::work( player_t *player, koord3d pos )
 	climate_bits cl = (default_param  &&  default_param[0]=='1') ? ALL_CLIMATES : fab->get_haus()->get_allowed_climate_bits();
 
 	bool hat_platz = false;
-	if(fab->get_platzierung()==fabrik_desc_t::Wasser) 
+	if(fab->get_placement()==factory_desc_t::Water) 
 	{
 		// at sea
 		hat_platz = welt->ist_wasser( pos.get_2d(), fab->get_haus()->get_groesse(rotation) );
@@ -6553,7 +6553,7 @@ const char *tool_build_factory_t::work( player_t *player, koord3d pos )
 			initial_prod = welt->calc_adjusted_monthly_figure(value);
 		}
 
-		fabrik_t *f = fabrikbauer_t::baue_fabrik(NULL, fab, initial_prod, rotation, gr->get_pos(), welt->get_public_player());
+		fabrik_t *f = factory_builder_t::build_factory(NULL, fab, initial_prod, rotation, gr->get_pos(), welt->get_public_player());
 		if(f) {
 			// at least one factory has been built
 			welt->get_viewport()->change_world_position( pos );
@@ -7788,7 +7788,7 @@ bool tool_undo_t::init( player_t *player )
 
 bool tool_increase_industry_t::init( player_t * )
 {
-	fabrikbauer_t::increase_industry_density( true, false );
+	factory_builder_t::increase_industry_density( true, false );
 	return false;
 }
 

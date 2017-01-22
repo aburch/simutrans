@@ -1658,7 +1658,7 @@ void haltestelle_t::verbinde_fabriken()
 					fabrik_t *fab = fabrik_t::get_fab(k);
 					if(fab && !fab_list.is_contained(fab)) {
 						// water factories can only connect to docks
-						if(  fab->get_desc()->get_platzierung() != fabrik_desc_t::Wasser  ||  (station_type & dock) > 0  ) {
+						if(  fab->get_desc()->get_placement() != factory_desc_t::Water  ||  (station_type & dock) > 0  ) {
 							// do no link to oil rigs via stations ...
 							fab_list.insert(fab);
 						}
@@ -1678,7 +1678,7 @@ void haltestelle_t::verbinde_fabriken()
 		FOR(vector_tpl<fabrik_t*>, const fab, fabrik_t::sind_da_welche(p - coverage, p + coverage)) {
 			if(!fab_list.is_contained(fab)) {
 				// water factories can only connect to docks
-				if(  fab->get_desc()->get_platzierung() != fabrik_desc_t::Wasser  ||  (station_type & dock) > 0  ) {
+				if(  fab->get_desc()->get_placement() != factory_desc_t::Water  ||  (station_type & dock) > 0  ) {
 					// do no link to oil rigs via stations ...
 					fab_list.insert(fab);
 				}

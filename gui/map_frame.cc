@@ -46,7 +46,7 @@ bool  map_frame_t::is_cursor_hidden=false;
 bool  map_frame_t::filter_factory_list=true;
 
 // Caches list of factories in current game world
-stringhashtable_tpl<const fabrik_desc_t *> map_frame_t::factory_list;
+stringhashtable_tpl<const factory_desc_t *> map_frame_t::factory_list;
 
 // Hajo: we track our position onscreen
 scr_coord map_frame_t::screenpos;
@@ -262,7 +262,7 @@ void map_frame_t::update_factory_legend()
 		if(  filter_factory_list  ) {
 			minivec_tpl<uint8> colours;
 			FOR(vector_tpl<fabrik_t*>, const f, welt->get_fab_list()) {
-				fabrik_desc_t const& d = *f->get_desc();
+				factory_desc_t const& d = *f->get_desc();
 				if(  d.get_chance() > 0  ) {
 					if( colours.append_unique(d.get_kennfarbe()) ) {
 						std::string const label( translator::translate(d.get_name()) );
@@ -272,8 +272,8 @@ void map_frame_t::update_factory_legend()
 			}
 		}
 		else {
-			FOR(stringhashtable_tpl<fabrik_desc_t const*>, const& i, fabrikbauer_t::get_factory_table()) {
-				fabrik_desc_t const& d = *i.value;
+			FOR(stringhashtable_tpl<factory_desc_t const*>, const& i, factory_builder_t::get_factory_table()) {
+				factory_desc_t const& d = *i.value;
 				if ( d.get_chance() > 0 ) {
 					std::string const label(translator::translate(d.get_name()));
 					legend.append_unique( legend_entry_t(label, d.get_kennfarbe()) );
