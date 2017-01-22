@@ -398,7 +398,7 @@ void convoi_t::reserve_own_tiles()
 				{
 					if(!route.empty())
 					{
-						sch->reserve(self, ribi_type( route.position_bei(max(1u,1)-1u), route.position_bei(min(route.get_count()-1u,0+1u))));
+						sch->reserve(self, ribi_type( route.at(max(1u,1)-1u), route.at(min(route.get_count()-1u,0+1u))));
 					}
 				}
 			}
@@ -416,7 +416,7 @@ void convoi_t::reserve_own_tiles()
 uint32 convoi_t::move_to(uint16 const start_index)
 {
 	steps_driven = -1;
-	koord3d k = route.position_bei(start_index);
+	koord3d k = route.at(start_index);
 	grund_t* gr = welt->lookup(k);
 	uint32 train_length = 0;
 	for (unsigned i = 0; i != anz_vehikel; ++i) {
@@ -1105,7 +1105,7 @@ convoi_t::route_infos_t& convoi_t::get_route_infos()
 		route_infos.set_count(route_count);
 		uint32 i = min(max(0, current_route_index - 2), route_count - 1);
 
-		koord3d current_tile = route.position_bei(i);
+		koord3d current_tile = route.at(i);
 		convoi_t::route_info_t &start_info = route_infos.get_element(i);
 		start_info.direction = front.get_direction();
 		start_info.steps_from_start = 0;
@@ -1118,8 +1118,8 @@ convoi_t::route_infos_t& convoi_t::get_route_infos()
 		{
 			convoi_t::route_info_t &current_info = route_infos.get_element(i - 1);
 			convoi_t::route_info_t &this_info = route_infos.get_element(i);
-			const koord3d this_tile = route.position_bei(i);
-			const koord3d next_tile = route.position_bei(min(i + 1, route_count - 1));
+			const koord3d this_tile = route.at(i);
+			const koord3d next_tile = route.at(min(i + 1, route_count - 1));
 			this_info.speed_limit = welt->lookup_kartenboden(this_tile.get_2d())->ist_wasser() ? vehicle_t::speed_unlimited() : kmh_to_speed(950); // Do not alow supersonic flight over land.
 			this_info.steps_from_start = current_info.steps_from_start + front.get_tile_steps(current_tile.get_2d(), next_tile.get_2d(), this_info.direction);
 			const weg_t *this_weg = get_weg_on_grund(welt->lookup(this_tile), waytype);
@@ -1342,7 +1342,7 @@ bool convoi_t::prepare_for_routing()
 		if (start == ziel) {
 			if (destination_halt.is_bound() && route.is_contained(start)) {
 				for (uint32 i = route.index_of(start); i < route.get_count(); i++) {
-					grund_t *gr = welt->lookup(route.position_bei(i));
+					grund_t *gr = welt->lookup(route.at(i));
 					if (gr  && gr->get_halt() == destination_halt) {
 						ziel = gr->get_pos();
 					}
@@ -1510,11 +1510,11 @@ bool convoi_t::drive_to()
 					bool looped = false;
 					if(  front()->get_waytype() != air_wt  ) {
 							// check if the route circles back on itself (only check the first tile, should be enough)
-						looped = route.is_contained(next_segment.position_bei(1));
+						looped = route.is_contained(next_segment.at(1));
 #if 0
 						// this will forbid an eight firure, which might be clever to avoid a problem of reserving one own track
 						for(  unsigned i = 1;  i<next_segment.get_count();  i++  ) {
-							if(  route.is_contained(next_segment.position_bei(i))  ) {
+							if(  route.is_contained(next_segment.at(i))  ) {
 								looped = true;
 								break;
 							}
@@ -2949,7 +2949,7 @@ bool convoi_t::can_go_alte_direction()
 	}
 
 	// going backwards? then recalculate all
-	ribi_t::ribi neue_direction_rwr = ribi_t::backward(front()->calc_direction(route.front().get_2d(), route.position_bei(min(2, route.get_count() - 1)).get_2d()));
+	ribi_t::ribi neue_direction_rwr = ribi_t::backward(front()->calc_direction(route.front().get_2d(), route.at(min(2, route.get_count() - 1)).get_2d()));
 //	DBG_MESSAGE("convoi_t::go_alte_direction()","neu=%i,rwr_neu=%i,alt=%i",neue_direction_rwr,ribi_t::backward(neue_direction_rwr),alte_direction);
 	if(neue_direction_rwr&alte_direction) {
 		set_akt_speed(8);
@@ -3005,7 +3005,7 @@ bool convoi_t::can_go_alte_direction()
 
 	// we just check, wether we go back (i.e. route tiles other than zero have convoi vehicles on them)
 	for( int index=1;  index<length;  index++ ) {
-		grund_t *gr=welt->lookup(route.position_bei(index));
+		grund_t *gr=welt->lookup(route.at(index));
 		// now check, if we are already here ...
 		for(unsigned i=0; i<anz_vehikel; i++) {
 			if (gr->obj_ist_da(vehicle[i])) {
@@ -3029,7 +3029,7 @@ bool convoi_t::can_go_alte_direction()
 		for (i = 0; i<anz_vehikel; i++) {
 			vehicle_t* v = get_vehikel(i); 
 			// eventually add current position to the route
-			if (route.front() != v->get_pos() && route.position_bei(1) != v->get_pos()) {
+			if (route.front() != v->get_pos() && route.at(1) != v->get_pos()) {
 				route.insert(v->get_pos());
 			}
 		}
@@ -3045,14 +3045,14 @@ bool convoi_t::can_go_alte_direction()
 		// this is such awkward, since it takes into account different vehicle length
 		const koord3d vehicle_start_pos = v->get_pos();
 		for (int idx = 0; idx <= length; idx++) {
-			if (route.position_bei(idx) == vehicle_start_pos) {
+			if (route.at(idx) == vehicle_start_pos) {
 				// set route index, no recalculations necessary
 				v->initialise_journey(idx, false);
 				ok = true;
 
 				// check direction
 				uint8 richtung = v->get_direction();
-				uint8 neu_richtung = v->calc_direction(get_route()->position_bei(max(idx - 1, 0)).get_2d(), v->get_pos_next().get_2d());
+				uint8 neu_richtung = v->calc_direction(get_route()->at(max(idx - 1, 0)).get_2d(), v->get_pos_next().get_2d());
 				// we need to move to this place ...
 				if (neu_richtung != richtung && (i != 0 || anz_vehikel == 1 || ribi_t::is_bend(neu_richtung))) {
 					// 90 deg bend!
@@ -3388,7 +3388,7 @@ void convoi_t::vorfahren()
 	}
 	// and let airplane start on ground, if there is an airstrip
 	if(  front()->get_waytype()==air_wt  ) {
-		if(  welt->lookup_kartenboden( route.position_bei(0).get_2d() )->get_weg(air_wt)  ) {
+		if(  welt->lookup_kartenboden( route.at(0).get_2d() )->get_weg(air_wt)  ) {
 			front()->set_convoi(this);
 		}
 	}
@@ -6147,8 +6147,8 @@ bool convoi_t::check_destination_reverse(route_t* current_route, route_t* target
 
 	if(success)
 	{
-		ribi_t::ribi old_dir = front()->calc_direction(current_route->position_bei(current_route->get_count() - 2).get_2d(), current_route->back().get_2d());
-		ribi_t::ribi new_dir = front()->calc_direction(target_rt->position_bei(0).get_2d(), target_rt->position_bei(1).get_2d());
+		ribi_t::ribi old_dir = front()->calc_direction(current_route->at(current_route->get_count() - 2).get_2d(), current_route->back().get_2d());
+		ribi_t::ribi new_dir = front()->calc_direction(target_rt->at(0).get_2d(), target_rt->at(1).get_2d());
 		return old_dir & ribi_t::backward(new_dir);
 	}
 	else
@@ -6515,7 +6515,7 @@ DBG_MESSAGE("convoi_t::go_to_depot()","convoi state %i => cannot change schedule
 			depot_finder_t finder(self, traction_types);
 			route.find_route(welt, get_vehikel(0)->get_pos(), &finder, speed_to_kmh(get_min_top_speed()), ribi_t::all, get_highest_axle_load(), get_tile_length(), get_weight_summary().weight / 1000, has_tall_vehicles(), 0x7FFFFFFF);
 			if (!route.empty()) {
-				depot_pos = route.position_bei(route.get_count() - 1);
+				depot_pos = route.at(route.get_count() - 1);
 				if(range == 0 || (shortest_distance(get_pos().get_2d(), depot_pos.get_2d()) * (uint32)welt->get_settings().get_meters_per_tile()) / 1000 <= range)
 				{
 					other_depot_found = true;
@@ -6530,7 +6530,7 @@ DBG_MESSAGE("convoi_t::go_to_depot()","convoi state %i => cannot change schedule
 		aircraft->calc_route(get_pos(), home_depot, speed_to_kmh(get_min_top_speed()), has_tall_vehicles(), &route);
 		if(!route.empty())
 		{
-			depot_pos = route.position_bei(route.get_count() - 1);
+			depot_pos = route.at(route.get_count() - 1);
 			if(range == 0 || (shortest_distance(get_pos().get_2d(), depot_pos.get_2d()) * (uint32)welt->get_settings().get_meters_per_tile()) / 1000 <= range)
 			{
 				home_depot_found = true;
@@ -6696,7 +6696,7 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 		}
 
 		for (sint32 i = 0; i < tiles; i++) {
-			grund_t *gr = welt->lookup(route.position_bei(idx + i));
+			grund_t *gr = welt->lookup(route.at(idx + i));
 			if (gr == NULL) {
 				return false;
 			}
@@ -6760,7 +6760,7 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 			return false;
 		}
 
-		pos_next = route.position_bei(route_index++);
+		pos_next = route.at(route_index++);
 		grund_t *gr = welt->lookup(pos);
 		// no ground, or slope => about
 		if(  gr==NULL  ||  gr->get_weg_hang()!=slope_t::flat  ) {
@@ -6834,7 +6834,7 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 			return false;
 		}
 
-		pos_next = route.position_bei(route_index++);
+		pos_next = route.at(route_index++);
 		grund_t *gr= welt->lookup(pos);
 		if(  gr==NULL  ) {
 			// will cause a route search, but is ok
