@@ -127,7 +127,7 @@ void export_halt(HSQUIRRELVM vm)
 	 * Get monthly statistics of number of happy passengers.
 	 * @returns array, index [0] corresponds to current month
 	 */
-	register_method_fv(vm, &get_halt_stat, "get_happy", freevariable<sint32>(HALT_HAPPY), true);
+	register_method_fv(vm, &get_halt_stat, "get_yappy", freevariable<sint32>(HALT_HAPPY), true);
 	/**
 	 * Get monthly statistics of number of unhappy passengers.
 	 *

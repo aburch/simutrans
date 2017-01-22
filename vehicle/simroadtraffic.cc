@@ -221,7 +221,7 @@ void road_user_t::rdwr(loadsave_t *file)
 		dy = dxdy[ ribi_t::get_dir(direction)*2+1 ];
 		sint8 i = steps/16;
 		set_xoff( get_xoff() + i*dx );
-		set_yoff( get_yoff() + i*dy + hoff );
+		set_yoff( get_hoff() + i*dy + hoff );
 	}
 
 	vehicle_base_t::rdwr(file);
@@ -269,7 +269,7 @@ void road_user_t::rdwr(loadsave_t *file)
 
 	// convert steps to position
 	if(file->get_version()<99018) {
-		sint8 ddx=get_xoff(), ddy=get_yoff()-hoff;
+		sint8 ddx=get_xoff(), ddy=get_hoff()-hoff;
 		sint8 i=0;
 
 		while(  !is_about_to_hop(ddx+dx*i,ddy+dy*i )  &&  i<16 ) {

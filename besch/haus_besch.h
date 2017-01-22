@@ -14,7 +14,7 @@
 //#include "../obj/gebaeude.h"
 #include "../dataobj/koord.h"
 
-class haus_desc_t;
+class building_desc_t;
 class tool_t;
 class karte_t;
 class checksum_t;
@@ -37,26 +37,26 @@ class checksum_t;
  *   3   Imagelist2D season 1 front
  *	... ...
  */
-class haus_tile_desc_t : public obj_desc_t {
+class building_tile_desc_t : public obj_desc_t {
 	friend class tile_reader_t;
 
-	const haus_desc_t	*haus;
-	haus_desc_t		*modifiable_haus;
+	const building_desc_t	*building;
+	building_desc_t		*modifiable_haus;
 
 	uint8  seasons;
-	uint8  phasen;	    // Wie viele Animationsphasen haben wir?
+	uint8  phases;	    // Wie viele Animationsphasen haben wir?
 	uint16 index;
 
 public:
-	void set_desc(const haus_desc_t *haus_desc) { haus = haus_desc; }
-	void set_modifiable_desc(haus_desc_t *haus_desc) { modifiable_haus = haus_desc; }
+	void set_desc(const building_desc_t *building_desc) { building = building_desc; }
+	void set_modifiable_desc(building_desc_t *building_desc) { modifiable_haus = building_desc; }
 
-	const haus_desc_t *get_desc() const { return haus; }
-	haus_desc_t *get_modifiable_desc() const { return modifiable_haus; }
+	const building_desc_t *get_desc() const { return building; }
+	building_desc_t *get_modifiable_desc() const { return modifiable_haus; }
 
 	int get_index() const { return index; }
 	int get_seasons() const { return seasons; }
-	int get_phasen() const { return phasen; }
+	int get_phasen() const { return phases; }
 
 	bool has_image() const {
 		return get_background(0,0,0)!=IMG_EMPTY  ||  get_foreground(0,0)!=IMG_EMPTY;
@@ -65,7 +65,7 @@ public:
 	image_id get_background(int phase, int hoehe, int season) const
 	{
 		image_array_t const* const imglist = get_child<image_array_t>(0 + 2 * season);
-		if(phase>0 && phase<phasen) {
+		if(phase>0 && phase<phases) {
 			if (image_t const* const image = imglist->get_image(hoehe, phase)) {
 				return image->get_id();
 			}
@@ -80,7 +80,7 @@ public:
 	{
 		image_array_t const* const imglist = get_child<image_array_t>(0 + 2 * season);
 		const uint16 max_h = imglist->get_count();
-		for(  uint16 phase=1;  phase<phasen;  phase++  ) {
+		for(  uint16 phase=1;  phase<phases;  phase++  ) {
 			for(  uint16 h=0;  h<max_h;  h++  ) {
 				if(  imglist->get_image( h, phase )  ) {
 					return true;
@@ -93,7 +93,7 @@ public:
 	image_id get_foreground(int phase,int season) const
 	{
 		image_array_t const* const imglist = get_child<image_array_t>(1 + 2 * season);
-		if(phase>0 && phase<phasen) {
+		if(phase>0 && phase<phases) {
 			if (image_t const* const image = imglist->get_image(0, phase)) {
 				return image->get_id();
 			}
@@ -123,20 +123,20 @@ public:
  *	3   Tile 2
  *	... ...
  */
-class haus_desc_t : public obj_desc_timelined_t {
+class building_desc_t : public obj_desc_timelined_t {
 	friend class building_reader_t;
 
 	public:
 		enum btype
 		{
-			unbekannt         =  0,
+			unknown         =  0,
 			attraction_city   =  1,
 			attraction_land   =  2,
-			denkmal           =  3,
-			fabrik            =  4,
-			rathaus           =  5,
-			weitere           =  6,
-			firmensitz        =  7,
+			monument           =  3,
+			factory            =  4,
+			townhall           =  5,
+			others           =  6,
+			headquarter        =  7,
 			// from here on only old style flages
 			bahnhof           =  8,
 			bushalt           =  9,
@@ -163,7 +163,7 @@ class haus_desc_t : public obj_desc_timelined_t {
 			flat_dock         = 36, // dock, but can start on a flat coast line
 			signalbox		  = 70, // Signalbox. 70 to allow for plenty more Standard ones in between.
 			last_haus_typ,
-			unbekannt_flag    = 128,
+			unknown_flag    = 128,
 			// city buildings
 			city_res = 37, ///< residential city buildings
 			city_com = 38, ///< commercial  city buildings
@@ -172,14 +172,14 @@ class haus_desc_t : public obj_desc_timelined_t {
 
 		enum flag_t {
 			FLAG_NULL        = 0,
-			FLAG_KEINE_INFO  = 1, // was flag FLAG_ZEIGE_INFO
-			FLAG_KEINE_GRUBE = 2, // Baugrube oder nicht?
+			FLAG_NO_INFO  = 1, // was flag FLAG_ZEIGE_INFO
+			FLAG_NO_PIT = 2, // Baugrube oder nicht?
 			FLAG_NEED_GROUND = 4, // draw ground below
 			FLAG_HAS_CURSOR  = 8  // there is cursor/icon for this
 		};
 
 	private:
-	haus_desc_t::btype type;
+	building_desc_t::btype type;
 	uint16 animation_time;	// in ms
 	uint32 extra_data;
 		// extra data:
@@ -234,7 +234,7 @@ class haus_desc_t : public obj_desc_timelined_t {
 	 */
 	uint8 is_control_tower;
 
-	bool is_type(haus_desc_t::btype b) const {
+	bool is_type(building_desc_t::btype b) const {
 		return type == b;
 	}
 
@@ -247,11 +247,11 @@ public:
 	}
 
 	// size of the building
-	int get_h(int layout = 0) const {
+	int get_y(int layout = 0) const {
 		return (layout & 1) ? size.x: size.y;
 	}
 
-	int get_b(int layout = 0) const {
+	int get_x(int layout = 0) const {
 		return (layout & 1) ? size.y : size.x;
 	}
 
@@ -263,21 +263,21 @@ public:
 	waytype_t get_finance_waytype() const;
 
 	// ground is transparent
-	bool ist_mit_boden() const { return (flags & FLAG_NEED_GROUND) != 0; }
+	bool needs_ground() const { return (flags & FLAG_NEED_GROUND) != 0; }
 
 	// no construction stage
-	bool ist_ohne_grube() const { return (flags & FLAG_KEINE_GRUBE) != 0; }
+	bool no_construction_pit() const { return (flags & FLAG_NO_PIT) != 0; }
 
 	// do not open info for this
-	bool ist_ohne_info() const { return (flags & FLAG_KEINE_INFO) != 0; }
+	bool no_info_window() const { return (flags & FLAG_NO_INFO) != 0; }
 
 	// see gebaeude_t and hausbauer for the different types
-	haus_desc_t::btype get_type() const { return type; }
+	building_desc_t::btype get_type() const { return type; }
 
-	bool ist_rathaus()      const { return is_type(rathaus); }
-	bool ist_firmensitz()   const { return is_type(firmensitz); }
-	bool ist_ausflugsziel() const { return is_type(attraction_land) || is_type(attraction_city); }
-	bool ist_fabrik()       const { return is_type(fabrik); }
+	bool is_townhall()      const { return is_type(townhall); }
+	bool is_headquarter()   const { return is_type(headquarter); }
+	bool is_attraction() const { return is_type(attraction_land) || is_type(attraction_city); }
+	bool is_factory()       const { return is_type(factory); }
 	bool is_city_building() const { return is_type(city_res) || is_type(city_com) || is_type(city_ind); }
 	bool is_transport_building() const { return type >= bahnhof  && type <= flat_dock; }
 
@@ -293,17 +293,17 @@ public:
 	 * Mail generation level
 	 * @author Hj. Malthaner
 	 */
-	uint16 get_post_level() const;
+	uint16 get_mail_level() const;
 
 	// how often will this appear
 	int get_chance() const { return chance; }
 
-	const haus_tile_desc_t *get_tile(int index) const {
+	const building_tile_desc_t *get_tile(int index) const {
 		assert(0<=index  &&  index < layouts * size.x * size.y);
-		return get_child<haus_tile_desc_t>(index + 2);
+		return get_child<building_tile_desc_t>(index + 2);
 	}
 
-	const haus_tile_desc_t *get_tile(int layout, int x, int y) const;
+	const building_tile_desc_t *get_tile(int layout, int x, int y) const;
 
 	// returns true if the building can be rotated
 	bool can_rotate() const {
@@ -314,7 +314,7 @@ public:
 		for( int x=0;  x<size.x;  x++  ) {
 			for( int y=0;  y<size.y;  y++  ) {
 				// only true, if one is missing
-				if(get_tile( 0, x, y )->has_image()  ^  get_tile( 1, get_b(1)-y-1, x )->has_image()) {
+				if(get_tile( 0, x, y )->has_image()  ^  get_tile( 1, get_x(1)-y-1, x )->has_image()) {
 					return false;
 				}
 			}
@@ -322,7 +322,7 @@ public:
 		return true;
 	}
 
-	int layout_anpassen(int layout) const;
+	int adjust_layout(int layout) const;
 
 	/**
 	* Skin: cursor (index 0) and icon (index 1)
@@ -414,6 +414,6 @@ public:
 };
 
 
-ENUM_BITSET(haus_desc_t::flag_t)
+ENUM_BITSET(building_desc_t::flag_t)
 
 #endif

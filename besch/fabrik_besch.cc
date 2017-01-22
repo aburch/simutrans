@@ -79,5 +79,5 @@ void factory_desc_t::calc_checksum(checksum_t *chk) const
 		field_group->calc_checksum(chk);
 	}
 
-	get_haus()->calc_checksum(chk);
+	get_building()->calc_checksum(chk);
 }

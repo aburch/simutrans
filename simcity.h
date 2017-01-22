@@ -31,7 +31,7 @@ class fabrik_t;
 class rule_t;
 
 // For private subroutines
-class haus_desc_t;
+class building_desc_t;
 
 // part of passengers going to factories or toursit attractions (100% mx)
 #define FACTORY_PAX (33)	// workers
@@ -388,7 +388,7 @@ private:
 	 * baut ein angemessenes Rathaus
 	 * @author V. Meyer
 	 */
-	void check_bau_rathaus(bool);
+	void check_bau_townhall(bool);
 
 	/**
 	 * constructs a new consumer
@@ -407,7 +407,7 @@ private:
 	// Subroutines for build_city_building and renovate_city_buiding
 	// @author neroden
 	const gebaeude_t* get_citybuilding_at(const koord k) const;
-	int get_best_layout(const haus_desc_t* h, const koord & k) const;
+	int get_best_layout(const building_desc_t* h, const koord & k) const;
 
 	/**
 	 * Build a short road bridge extending from bd in direction.

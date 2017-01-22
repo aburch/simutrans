@@ -12,7 +12,7 @@
 #include "../simobj.h"
 #include "../simcolor.h"
 
-class haus_tile_desc_t;
+class building_tile_desc_t;
 class fabrik_t;
 class stadt_t;
 
@@ -23,7 +23,7 @@ class stadt_t;
 class gebaeude_t : public obj_t, sync_steppable
 {
 private:
-	const haus_tile_desc_t *tile;
+	const building_tile_desc_t *tile;
 
 	
 
@@ -155,19 +155,19 @@ private:
 #ifdef INLINE_OBJ_TYPE
 protected:
 	gebaeude_t(obj_t::typ type);
-	gebaeude_t(obj_t::typ type, koord3d pos,player_t *player, const haus_tile_desc_t *t);
-	void init(player_t *player, const haus_tile_desc_t *t);
+	gebaeude_t(obj_t::typ type, koord3d pos,player_t *player, const building_tile_desc_t *t);
+	void init(player_t *player, const building_tile_desc_t *t);
 
 public:
 	gebaeude_t(loadsave_t *file);
-	gebaeude_t(koord3d pos,player_t *player, const haus_tile_desc_t *t);
+	gebaeude_t(koord3d pos,player_t *player, const building_tile_desc_t *t);
 #else
 protected:
 	gebaeude_t();
 
 public:
 	gebaeude_t(loadsave_t *file);
-	gebaeude_t(koord3d pos,player_t *player, const haus_tile_desc_t *t);
+	gebaeude_t(koord3d pos,player_t *player, const building_tile_desc_t *t);
 #endif
 	virtual ~gebaeude_t();
 
@@ -230,12 +230,12 @@ public:
 	/**
 	* Town hall
 	*/
-	bool ist_rathaus() const;
+	bool is_townhall() const;
 
 	/**
 	* "Head office" (Google)
 	*/
-	bool ist_firmensitz() const;
+	bool is_headquarter() const;
 
 	bool is_monument() const;
 
@@ -258,9 +258,9 @@ public:
 	 */
 	sync_result sync_step(uint32 delta_t);
 
-	void set_tile( const haus_tile_desc_t *t, bool start_with_construction );
+	void set_tile( const building_tile_desc_t *t, bool start_with_construction );
 
-	const haus_tile_desc_t *get_tile() const { return tile; }
+	const building_tile_desc_t *get_tile() const { return tile; }
 
 	virtual void show_info();
 

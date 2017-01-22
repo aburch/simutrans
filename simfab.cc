@@ -363,10 +363,10 @@ void fabrik_t::update_scaled_pax_demand()
 			}
 		}
 	
-		const uint16 employment_capacity = desc->get_haus()->get_employment_capacity();
+		const uint16 employment_capacity = desc->get_building()->get_employment_capacity();
 		const int passenger_level = get_passenger_level_jobs();
 
-		const sint64 base_visitor_demand = building ? building->get_visitor_demand() : desc->get_haus()->get_population_and_visitor_demand_capacity();
+		const sint64 base_visitor_demand = building ? building->get_visitor_demand() : desc->get_building()->get_population_and_visitor_demand_capacity();
 		const sint64 base_worker_demand = employment_capacity == 65535 ? passenger_level : employment_capacity;
 		
 		// formula : base_pax_demand * (current_production_base / desc_production_base); (prod >> 1) is for rounding
@@ -411,7 +411,7 @@ void fabrik_t::update_scaled_mail_demand()
 		}
 
 		// formula : desc_mail_demand * (current_production_base / desc_production_base); (prod >> 1) is for rounding
-		const uint16 mail_capacity = desc->get_haus()->get_mail_demand_and_production_capacity();
+		const uint16 mail_capacity = desc->get_building()->get_mail_demand_and_production_capacity();
 		const int mail_level = get_mail_level();
 
 		const sint64 base_mail_demand =  mail_capacity == 65535 ? mail_level : mail_capacity;
@@ -441,7 +441,7 @@ int fabrik_t::get_passenger_level_jobs() const
 		return base_passenger_level;
 	}
 
-	return desc->get_haus()->get_level() * welt->get_settings().get_jobs_per_level();
+	return desc->get_building()->get_level() * welt->get_settings().get_jobs_per_level();
 }
 
 int fabrik_t::get_passenger_level_visitors() const
@@ -453,7 +453,7 @@ int fabrik_t::get_passenger_level_visitors() const
 		return base_passenger_level;
 	}
 
-	return desc->get_haus()->get_level() * welt->get_settings().get_visitor_demand_per_level();
+	return desc->get_building()->get_level() * welt->get_settings().get_visitor_demand_per_level();
 }
 
 int fabrik_t::get_mail_level() const
@@ -465,7 +465,7 @@ int fabrik_t::get_mail_level() const
 		return base_mail_level;
 	}
 
-	return desc->get_haus()->get_level() * welt->get_settings().get_mail_per_level();
+	return desc->get_building()->get_level() * welt->get_settings().get_mail_per_level();
 }
 
 void fabrik_t::update_prodfactor_pax()
@@ -707,8 +707,8 @@ fabrik_t::fabrik_t(loadsave_t* file)
 	else {
 		build(rotate, false, false);
 		// now get rid of construction image
-		for(  sint16 y=0;  y<desc->get_haus()->get_h(rotate);  y++  ) {
-			for(  sint16 x=0;  x<desc->get_haus()->get_b(rotate);  x++  ) {
+		for(  sint16 y=0;  y<desc->get_building()->get_y(rotate);  y++  ) {
+			for(  sint16 x=0;  x<desc->get_building()->get_x(rotate);  x++  ) {
 				gebaeude_t *gb = welt->lookup_kartenboden( pos_origin.get_2d()+koord(x,y) )->find<gebaeude_t>();
 				if(  gb  ) {
 					gb->add_alter(10000ll);
@@ -978,7 +978,7 @@ void fabrik_t::build(sint32 rotate, bool build_fields, bool force_initial_prodba
 	pos_origin = welt->lookup_kartenboden(pos_origin.get_2d())->get_pos();
 	if(!building)
 	{
- 		building = hausbauer_t::build(owner, pos_origin, rotate, desc->get_haus(), this);
+ 		building = hausbauer_t::build(owner, pos_origin, rotate, desc->get_building(), this);
 	}
 	pos = building->get_pos();
 	pos_origin.z = pos.z;
@@ -1048,8 +1048,8 @@ bool fabrik_t::add_random_field(uint16 probability)
 	// pick a coordinate to use - create a list of valid locations and choose a random one
 	slist_tpl<grund_t *> build_locations;
 	do {
-		for(sint32 xoff = -radius; xoff < radius + get_desc()->get_haus()->get_groesse().x ; xoff++) {
-			for(sint32 yoff =-radius ; yoff < radius + get_desc()->get_haus()->get_groesse().y; yoff++) {
+		for(sint32 xoff = -radius; xoff < radius + get_desc()->get_building()->get_groesse().x ; xoff++) {
+			for(sint32 yoff =-radius ; yoff < radius + get_desc()->get_building()->get_groesse().y; yoff++) {
 				// if we can build on this tile then add it to the list
 				grund_t *gr = welt->lookup_kartenboden(pos.get_2d()+koord(xoff,yoff));
 				if (gr != NULL &&
@@ -1063,8 +1063,8 @@ bool fabrik_t::add_random_field(uint16 probability)
 					assert(gr->find<field_t>() == NULL);
 				}
 				// skip inside of rectange (already checked earlier)
-				if(radius > 1 && yoff == -radius && (xoff > -radius && xoff < radius + get_desc()->get_haus()->get_groesse().x - 1)) {
-					yoff = radius + get_desc()->get_haus()->get_groesse().y - 2;
+				if(radius > 1 && yoff == -radius && (xoff > -radius && xoff < radius + get_desc()->get_building()->get_groesse().x - 1)) {
+					yoff = radius + get_desc()->get_building()->get_groesse().y - 2;
 				}
 			}
 		}
@@ -1294,7 +1294,7 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 	if(  file->is_loading()  ) {
 		// take care of old files
 		if(  file->get_version() < 86001  ) {
-			koord k = desc ? desc->get_haus()->get_groesse() : koord(1,1);
+			koord k = desc ? desc->get_building()->get_groesse() : koord(1,1);
 			DBG_DEBUG("fabrik_t::rdwr()","correction of production by %i",k.x*k.y);
 			// since we step from 86.01 per factory, not per tile!
 			prodbase *= k.x*k.y*2;
@@ -1479,8 +1479,8 @@ void fabrik_t::smoke() const
 {
 	const smoke_desc_t *rada = desc->get_smoke();
 	if(rada) {
-		const koord size = desc->get_haus()->get_groesse(0)-koord(1,1);
-		const uint8 rot = (4-rotate)%desc->get_haus()->get_all_layouts();
+		const koord size = desc->get_building()->get_groesse(0)-koord(1,1);
+		const uint8 rot = (4-rotate)%desc->get_building()->get_all_layouts();
 		koord ro = rada->get_pos_off(size,rot);
 		grund_t *gr = welt->lookup_kartenboden(pos_origin.get_2d()+ro);
 		// to get same random order on different compilers
@@ -2224,9 +2224,9 @@ void fabrik_t::new_month()
 	// If it is, give it a chance of being closed down.
 	// @author: jamespetts
 
-	if(welt->use_timeline() && desc->get_haus()->get_retire_year_month() < welt->get_timeline_year_month())
+	if(welt->use_timeline() && desc->get_building()->get_retire_year_month() < welt->get_timeline_year_month())
 	{
-		const uint32 difference = welt->get_timeline_year_month() - desc->get_haus()->get_retire_year_month();
+		const uint32 difference = welt->get_timeline_year_month() - desc->get_building()->get_retire_year_month();
 		const uint32 max_difference = welt->get_settings().get_factory_max_years_obsolete() * 12;
 		bool closedown = false;
 		if(difference > max_difference)
@@ -2272,11 +2272,11 @@ void fabrik_t::new_month()
 
 					const factory_desc_t* fab = desc->get_upgrades(i);
 					if(	fab != NULL && fab->is_electricity_producer() == desc->is_electricity_producer() &&
-						fab->get_haus()->get_b() == desc->get_haus()->get_b() &&
-						fab->get_haus()->get_h() == desc->get_haus()->get_h() &&
-						fab->get_haus()->get_groesse() == desc->get_haus()->get_groesse() &&
-						fab->get_haus()->get_intro_year_month() <= welt->get_timeline_year_month() &&
-						fab->get_haus()->get_retire_year_month() >= welt->get_timeline_year_month() &&
+						fab->get_building()->get_x() == desc->get_building()->get_x() &&
+						fab->get_building()->get_y() == desc->get_building()->get_y() &&
+						fab->get_building()->get_groesse() == desc->get_building()->get_groesse() &&
+						fab->get_building()->get_intro_year_month() <= welt->get_timeline_year_month() &&
+						fab->get_building()->get_retire_year_month() >= welt->get_timeline_year_month() &&
 						adjusted_density < (max_density + (100 / fab->get_chance())))
 					{
 						upgrade_list.append_unique(fab);
@@ -2901,9 +2901,9 @@ void fabrik_t::adjust_production_for_fields()
 
 void fabrik_t::rotate90( const sint16 y_size )
 {
-	rotate = (rotate+3)%desc->get_haus()->get_all_layouts();
+	rotate = (rotate+3)%desc->get_building()->get_all_layouts();
 	pos_origin.rotate90( y_size );
-	pos_origin.x -= desc->get_haus()->get_b(rotate)-1;
+	pos_origin.x -= desc->get_building()->get_x(rotate)-1;
 	pos.rotate90( y_size );
 
 	FOR(vector_tpl<koord>, & i, lieferziele) {
@@ -3055,12 +3055,12 @@ void fabrik_t::get_tile_list( vector_tpl<koord> &tile_list ) const
 	{
 		return;
 	}
-	const haus_desc_t* haus_desc = desc->get_haus();
-	if(!haus_desc)
+	const building_desc_t* building_desc = desc->get_building();
+	if(!building_desc)
 	{
 		return;
 	}
-	koord size = haus_desc->get_groesse(this->get_rotate());
+	koord size = building_desc->get_groesse(this->get_rotate());
 	koord test;
 	// Which tiles belong to the fab?
 	for( test.x = 0; test.x < size.x; test.x++ ) {

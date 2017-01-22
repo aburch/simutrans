@@ -584,7 +584,7 @@ public:
 
 	sint32 liefere_an(const ware_desc_t *, sint32 menge);
 
-	void step(uint32 delta_t);                  // fabrik muss auch arbeiten ("factory must also work")
+	void step(uint32 delta_t);                  // factory muss auch arbeiten ("factory must also work")
 
 	void new_month();
 
@@ -627,7 +627,7 @@ public:
 	static vector_tpl<fabrik_t *> & sind_da_welche(koord min, koord max);
 
 	/**
-	 * gibt true zurueck wenn sich ein fabrik im feld befindet
+	 * gibt true zurueck wenn sich ein factory im feld befindet
 	 * 
 	 * "gives true back if factory in the field is"
 	 *

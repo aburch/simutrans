@@ -174,7 +174,7 @@ static bool passes_filter_out(haltestelle_t const& s)
 
 	/*
 	 * Die Unterkriterien werden gebildet aus:
-	 * - die Ware wird produziert (pax/post_enabled bzw. fabrik vorhanden)
+	 * - die Ware wird produziert (pax/post_enabled bzw. factory vorhanden)
 	 * - es existiert eine Zugverbindung mit dieser Ware (!ziele[...].empty())
 	 */
 
@@ -209,7 +209,7 @@ static bool passes_filter_in(haltestelle_t const& s)
 	if (!halt_list_frame_t::get_filter(halt_list_frame_t::ware_an_filter)) return true;
 	/*
 	 * Die Unterkriterien werden gebildet aus:
-	 * - die Ware wird verbraucht (pax/post_enabled bzw. fabrik vorhanden)
+	 * - die Ware wird verbraucht (pax/post_enabled bzw. factory vorhanden)
 	 * - es existiert eine Zugverbindung mit dieser Ware (!ziele[...].empty())
 	 */
 

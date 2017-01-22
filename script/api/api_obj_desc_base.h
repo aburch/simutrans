@@ -10,8 +10,8 @@ class obj_desc_std_name_t;
 class obj_desc_timelined_t;
 class obj_desc_transport_related_t;
 class tree_desc_t;
-class haus_desc_t;
-class haus_tile_desc_t;
+class building_desc_t;
+class building_tile_desc_t;
 class ware_desc_t;
 class weg_desc_t;
 
@@ -71,11 +71,11 @@ namespace script_api {
 
 	declare_desc_param(tree_desc_t, "tree_desc_x");
 	declare_desc_param(ware_desc_t, "good_desc_x");
-	declare_desc_param(haus_desc_t, "building_desc_x");
+	declare_desc_param(building_desc_t, "building_desc_x");
 	declare_desc_param(weg_desc_t, "way_desc_x");
 
-	// only push the haus_desc_t-pointer
-	declare_desc_param(haus_tile_desc_t, "building_desc_x");
+	// only push the building_desc_t-pointer
+	declare_desc_param(building_tile_desc_t, "building_desc_x");
 };
 
 #endif

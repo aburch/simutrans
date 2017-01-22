@@ -19,7 +19,7 @@
  *  Description:
  *      Rechnet aus dem Index das Layout aus, zu dem diese Tile gehört.
  */
-uint8 haus_tile_desc_t::get_layout() const
+uint8 building_tile_desc_t::get_layout() const
 {
 	koord size = get_desc()->get_groesse();
 	return index / (size.x * size.y);
@@ -36,16 +36,16 @@ uint8 haus_tile_desc_t::get_layout() const
  *
  * Description: Specifies the relative position of the frame in the overall image of the building. (Google)
  */
-koord haus_tile_desc_t::get_offset() const
+koord building_tile_desc_t::get_offset() const
 {
-	const haus_desc_t *desc = get_desc();
+	const building_desc_t *desc = get_desc();
 	koord size = desc->get_groesse(get_layout());	// ggf. gedreht ("rotated" - Google)
 	return koord( index % size.x, (index / size.x) % size.y );
 }
 
 
 
-waytype_t haus_desc_t::get_finance_waytype() const
+waytype_t building_desc_t::get_finance_waytype() const
 {
 	switch( get_type() )
 	{
@@ -76,7 +76,7 @@ waytype_t haus_desc_t::get_finance_waytype() const
  * Mail generation level
  * @author Hj. Malthaner
  */
-uint16 haus_desc_t::get_post_level() const
+uint16 building_desc_t::get_mail_level() const
 {
 	switch (type) {
 		default:
@@ -92,15 +92,15 @@ uint16 haus_desc_t::get_post_level() const
  * true, if this building needs a connection with a town
  * @author prissi
  */
-bool haus_desc_t::is_connected_with_town() const
+bool building_desc_t::is_connected_with_town() const
 {
 	switch (get_type()) {
 		case city_res:
 		case city_com:
 		case city_ind:    // normal town buildings (RES, COM, IND)
-		case denkmal:     // monuments
-		case rathaus:     // townhalls
-		case firmensitz:  // headquarter
+		case monument:     // monuments
+		case townhall:     // townhalls
+		case headquarter:  // headquarter
 			return true;
 		default:
 			return false;
@@ -115,13 +115,13 @@ bool haus_desc_t::is_connected_with_town() const
  *  Description:
  *      Abhängig von Position und Layout ein tile zurückliefern
  */
-const haus_tile_desc_t *haus_desc_t::get_tile(int layout, int x, int y) const
+const building_tile_desc_t *building_desc_t::get_tile(int layout, int x, int y) const
 {
-	layout = layout_anpassen(layout);
+	layout = adjust_layout(layout);
 	koord dims = get_groesse(layout);
 
-	if(layout < 0  ||  x < 0  ||  y < 0  ||  layout >= layouts  ||  x >= get_b(layout)  ||  y >= get_h(layout)) {
-	dbg->fatal("haus_tile_desc_t::get_tile()",
+	if(layout < 0  ||  x < 0  ||  y < 0  ||  layout >= layouts  ||  x >= get_x(layout)  ||  y >= get_y(layout)) {
+	dbg->fatal("building_tile_desc_t::get_tile()",
 			   "invalid request for l=%d, x=%d, y=%d on building %s (l=%d, x=%d, y=%d)",
 		   layout, x, y, get_name(), layouts, size.x, size.y);
 	}
@@ -137,7 +137,7 @@ const haus_tile_desc_t *haus_desc_t::get_tile(int layout, int x, int y) const
  *  Description:
  *      Layout normalisieren.
  */
-int haus_desc_t::layout_anpassen(int layout) const
+int building_desc_t::adjust_layout(int layout) const
 {
 	if(layout >= 4 && layouts <= 4) {
 		layout -= 4;
@@ -156,7 +156,7 @@ int haus_desc_t::layout_anpassen(int layout) const
 }
 
 
-void haus_desc_t::calc_checksum(checksum_t *chk) const
+void building_desc_t::calc_checksum(checksum_t *chk) const
 {
 	obj_desc_timelined_t::calc_checksum(chk);
 	chk->input((uint8)type);
@@ -176,9 +176,9 @@ void haus_desc_t::calc_checksum(checksum_t *chk) const
 	chk->input(allow_underground);
 	// now check the layout
 	for(uint8 i=0; i<layouts; i++) {
-		sint16 b=get_b(i);
+		sint16 b=get_x(i);
 		for(sint16 x=0; x<b; x++) {
-			sint16 h=get_h(i);
+			sint16 h=get_y(i);
 			for(sint16 y=0; y<h; y++) {
 				if (get_tile(i,x,y)  &&  get_tile(i,x,y)->has_image()) {
 					chk->input((sint16)(x+y+i));

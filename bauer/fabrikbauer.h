@@ -12,7 +12,7 @@
 #include "../tpl/weighted_vector_tpl.h"
 #include "../dataobj/koord3d.h"
 
-class haus_desc_t;
+class building_desc_t;
 class ware_desc_t;
 class factory_desc_t;
 class stadt_t;
@@ -146,7 +146,7 @@ private:
 	 * @param radius Radius of the search circle around @p pos
 	 * @param size size of the building site
 	 */
-	static koord3d find_random_construction_site(koord pos, int radius, koord size,bool on_water, const haus_desc_t *desc, bool ignore_climates, uint32 max_iterations);
+	static koord3d find_random_construction_site(koord pos, int radius, koord size,bool on_water, const building_desc_t *desc, bool ignore_climates, uint32 max_iterations);
 
 	/**
 	 * Checks if all factories in this factory tree can be rotated.

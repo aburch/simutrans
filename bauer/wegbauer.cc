@@ -679,7 +679,7 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, sint32
 		gebaeude_t *gb = to->get_building();
 		if(gb) {
 			// citybuilding => do not touch
-			const haus_tile_desc_t* tile = gb->get_tile();
+			const building_tile_desc_t* tile = gb->get_tile();
 
 			// also check for too high buildings ...
 			if (tile->get_desc()->get_level() > welt->get_settings().get_max_elevated_way_building_level())

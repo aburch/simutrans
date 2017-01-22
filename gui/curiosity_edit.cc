@@ -35,13 +35,13 @@ char curiosity_edit_frame_t::param_str[256];
 
 
 
-static bool compare_haus_desc(const haus_desc_t* a, const haus_desc_t* b)
+static bool compare_building_desc(const building_desc_t* a, const building_desc_t* b)
 {
 	int diff = strcmp(a->get_name(), b->get_name());
 	return diff < 0;
 }
 
-static bool compare_haus_desc_trans(const haus_desc_t* a, const haus_desc_t* b)
+static bool compare_building_desc_trans(const building_desc_t* a, const building_desc_t* b)
 {
 	int diff = strcmp(translator::translate(a->get_name()), translator::translate(b->get_name()));
 	return diff < 0;
@@ -50,7 +50,7 @@ static bool compare_haus_desc_trans(const haus_desc_t* a, const haus_desc_t* b)
 
 curiosity_edit_frame_t::curiosity_edit_frame_t(player_t* player_) :
 	extend_edit_gui_t(translator::translate("curiosity builder"), player_),
-	hauslist(16),
+	building_list(16),
 	lb_rotation( rot_str, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::right ),
 	lb_rotation_info( translator::translate("Rotation"), SYSCOL_TEXT, gui_label_t::left )
 {
@@ -102,38 +102,38 @@ curiosity_edit_frame_t::curiosity_edit_frame_t(player_t* player_) :
 
 
 
-// fill the current hauslist
+// fill the current building_list
 void curiosity_edit_frame_t::fill_list( bool translate )
 {
 	const bool allow_obsolete = bt_obsolete.pressed;
 	const bool use_timeline = bt_timeline.pressed;
 	const sint32 month_now = bt_timeline.pressed ? welt->get_current_month() : 0;
 
-	hauslist.clear();
+	building_list.clear();
 
 	if(bt_city_attraction.pressed) {
-		FOR(vector_tpl<haus_desc_t const*>, const desc, *hausbauer_t::get_list(haus_desc_t::attraction_city)) {
+		FOR(vector_tpl<building_desc_t const*>, const desc, *hausbauer_t::get_list(building_desc_t::attraction_city)) {
 			if(!use_timeline  ||  (!desc->is_future(month_now)  &&  (!desc->is_retired(month_now)  ||  allow_obsolete))  ) {
 				// timeline allows for this
-				hauslist.insert_ordered(desc, translate ? compare_haus_desc_trans : compare_haus_desc);
+				building_list.insert_ordered(desc, translate ? compare_building_desc_trans : compare_building_desc);
 			}
 		}
 	}
 
 	if(bt_land_attraction.pressed) {
-		FOR(vector_tpl<haus_desc_t const*>, const desc, *hausbauer_t::get_list(haus_desc_t::attraction_land)) {
+		FOR(vector_tpl<building_desc_t const*>, const desc, *hausbauer_t::get_list(building_desc_t::attraction_land)) {
 			if(!use_timeline  ||  (!desc->is_future(month_now)  &&  (!desc->is_retired(month_now)  ||  allow_obsolete))  ) {
 				// timeline allows for this
-				hauslist.insert_ordered(desc, translate ? compare_haus_desc_trans : compare_haus_desc);
+				building_list.insert_ordered(desc, translate ? compare_building_desc_trans : compare_building_desc);
 			}
 		}
 	}
 
 	if(bt_monuments.pressed) {
-		FOR(vector_tpl<haus_desc_t const*>, const desc, *hausbauer_t::get_list(haus_desc_t::denkmal)) {
+		FOR(vector_tpl<building_desc_t const*>, const desc, *hausbauer_t::get_list(building_desc_t::monument)) {
 			if(!use_timeline  ||  (!desc->is_future(month_now)  &&  (!desc->is_retired(month_now)  ||  allow_obsolete))  ) {
 				// timeline allows for this
-				hauslist.insert_ordered(desc, translate ? compare_haus_desc_trans : compare_haus_desc);
+				building_list.insert_ordered(desc, translate ? compare_building_desc_trans : compare_building_desc);
 			}
 		}
 	}
@@ -141,12 +141,12 @@ void curiosity_edit_frame_t::fill_list( bool translate )
 	// now build scrolled list
 	scl.clear_elements();
 	scl.set_selection(-1);
-	FOR(vector_tpl<haus_desc_t const*>, const i, hauslist) {
+	FOR(vector_tpl<building_desc_t const*>, const i, building_list) {
 		// color code for objects: BLACK: normal, YELLOW: consumer only, GREEN: source only
 		COLOR_VAL color;
 		switch (i->get_type()) {
-			case haus_desc_t::attraction_city: color = COL_BLUE;       break;
-			case haus_desc_t::attraction_land: color = COL_DARK_GREEN; break;
+			case building_desc_t::attraction_city: color = COL_BLUE;       break;
+			case building_desc_t::attraction_land: color = COL_DARK_GREEN; break;
 			default:                            color = COL_BLACK;      break;
 		}
 		char const* const name = translate ? translator::translate(i->get_name()) : i->get_name();
@@ -198,21 +198,21 @@ bool curiosity_edit_frame_t::action_triggered( gui_action_creator_t *comp,value_
 
 void curiosity_edit_frame_t::change_item_info(sint32 entry)
 {
-	if(entry>=0  &&  entry<(sint32)hauslist.get_count()) {
+	if(entry>=0  &&  entry<(sint32)building_list.get_count()) {
 
-		const haus_desc_t *new_desc = hauslist[entry];
+		const building_desc_t *new_desc = building_list[entry];
 
 		if(new_desc!=desc) {
 
 			buf.clear();
 			desc = new_desc;
-			if(desc->get_type()==haus_desc_t::attraction_city) {
+			if(desc->get_type()==building_desc_t::attraction_city) {
 				buf.printf("%s (%s: %i)",translator::translate( "City attraction" ), translator::translate("Bauzeit"),desc->get_extra());
 			}
-			else if(desc->get_type()==haus_desc_t::attraction_land) {
+			else if(desc->get_type()==building_desc_t::attraction_land) {
 				buf.append( translator::translate( "Land attraction" ) );
 			}
-			else if(desc->get_type()==haus_desc_t::denkmal) {
+			else if(desc->get_type()==building_desc_t::monument) {
 				buf.append( translator::translate( "Monument" ) );
 			}
 			buf.append("\n\n");
@@ -260,8 +260,8 @@ void curiosity_edit_frame_t::change_item_info(sint32 entry)
 		}
 
 		uint8 rot = (rotation==255) ? 0 : rotation;
-		if(desc->get_b(rot)==1) {
-			if(desc->get_h(rot)==1) {
+		if(desc->get_x(rot)==1) {
+			if(desc->get_y(rot)==1) {
 				img[3].set_image( desc->get_tile(rot,0,0)->get_background(0,0,0) );
 			}
 			else {
@@ -270,7 +270,7 @@ void curiosity_edit_frame_t::change_item_info(sint32 entry)
 			}
 		}
 		else {
-			if(desc->get_h(rot)==1) {
+			if(desc->get_y(rot)==1) {
 				img[1].set_image( desc->get_tile(rot,0,0)->get_background(0,0,0) );
 				img[3].set_image( desc->get_tile(rot,1,0)->get_background(0,0,0) );
 			}
@@ -306,7 +306,7 @@ void curiosity_edit_frame_t::change_item_info(sint32 entry)
 void curiosity_edit_frame_t::draw(scr_coord pos, scr_size size)
 {
 	// remove constructed monuments from list
-	if(desc  &&  desc->get_type()==haus_desc_t::denkmal  &&  !hausbauer_t::is_valid_denkmal(desc)  ) {
+	if(desc  &&  desc->get_type()==building_desc_t::monument  &&  !hausbauer_t::is_valid_monument(desc)  ) {
 		change_item_info(0x7FFFFFFF);
 		scl.set_selection(-1);
 		img[3].set_image( IMG_EMPTY );

@@ -32,10 +32,10 @@ signalbox_t::signalbox_t(loadsave_t *file) : gebaeude_t(file)
 }
 
 #ifdef INLINE_OBJ_TYPE
-signalbox_t::signalbox_t(koord3d pos, player_t *player, const haus_tile_desc_t *t) :
+signalbox_t::signalbox_t(koord3d pos, player_t *player, const building_tile_desc_t *t) :
     gebaeude_t(signalbox, pos, player, t)
 #else
-signalbox_t::signalbox_t(koord3d pos, player_t *player, const haus_tile_desc_t *t) :
+signalbox_t::signalbox_t(koord3d pos, player_t *player, const building_tile_desc_t *t) :
     gebaeude_t(pos, player, t)
 #endif
 {

@@ -1023,7 +1023,7 @@ void karte_t::distribute_cities( settings_t const * const sets, sint16 old_x, si
 
 			uint32 game_start = current_month;
 			// townhalls available since?
-			FOR(vector_tpl<haus_desc_t const*>, const desc, *hausbauer_t::get_list(haus_desc_t::rathaus)) {
+			FOR(vector_tpl<building_desc_t const*>, const desc, *hausbauer_t::get_list(building_desc_t::townhall)) {
 				uint32 intro_year_month = desc->get_intro_year_month();
 				if(  intro_year_month<game_start  ) {
 					game_start = intro_year_month;
@@ -1128,7 +1128,7 @@ void karte_t::distribute_cities( settings_t const * const sets, sint16 old_x, si
 					// look for a road near the townhall
 					gebaeude_t const* const gb = obj_cast<gebaeude_t>(lookup_kartenboden(stadt[i]->get_pos())->first_obj());
 					bool ok = false;
-					if(  gb  &&  gb->ist_rathaus()  ) {
+					if(  gb  &&  gb->is_townhall()  ) {
 						koord k_check = stadt[i]->get_pos() + koord(-1,-1);
 						const koord size = gb->get_tile()->get_desc()->get_groesse(gb->get_tile()->get_layout());
 						koord inc(1,0);
@@ -4148,7 +4148,7 @@ DBG_MESSAGE( "karte_t::rotate90()", "called" );
 		i->rotate90(cached_size.x);
 	}
 
-	//fixed order fabrik, halts, convois
+	//fixed order factory, halts, convois
 	FOR(vector_tpl<fabrik_t*>, const f, fab_list) {
 		f->rotate90(cached_size.x);
 	}
@@ -4504,7 +4504,7 @@ rands[1] = get_random_seed();
 				int new_yoff = 0;
 				v.get_screen_offset( new_xoff, new_yoff, get_tile_raster_width() );
 				new_xoff -= tile_raster_scale_x(-v.get_xoff(), rw);
-				new_yoff -= tile_raster_scale_y(-v.get_yoff(), rw) + tile_raster_scale_y(new_pos.z * TILE_HEIGHT_STEP, rw);
+				new_yoff -= tile_raster_scale_y(-v.get_hoff(), rw) + tile_raster_scale_y(new_pos.z * TILE_HEIGHT_STEP, rw);
 				viewport->change_world_position( new_pos.get_2d(), -new_xoff, -new_yoff );
 			}
 		}
@@ -5633,9 +5633,9 @@ void karte_t::step_passengers_and_mail(uint32 delta_t)
 
 sint32 karte_t::get_tiles_of_gebaeude(gebaeude_t* const gb, vector_tpl<const planquadrat_t*> &tile_list) const
 {
-	const haus_tile_desc_t* tile = gb->get_tile();
-	const haus_desc_t *hb = tile->get_desc();
-	const koord size = hb->get_groesse(tile->get_layout());
+	const building_tile_desc_t* tile = gb->get_tile();
+	const building_desc_t *bdsc = tile->get_desc();
+	const koord size = bdsc->get_groesse(tile->get_layout());
 	if(size == koord(1,1))
 	{
 		// A single tiled building - just add the single tile.
@@ -5659,7 +5659,7 @@ sint32 karte_t::get_tiles_of_gebaeude(gebaeude_t* const gb, vector_tpl<const pla
 					/* This would fail for depots, but those are 1x1 buildings */
 					gebaeude_t *gb_part = gr->find<gebaeude_t>();
 					// There may be buildings with holes.
-					if(gb_part && gb_part->get_tile()->get_desc() == hb) 
+					if(gb_part && gb_part->get_tile()->get_desc() == bdsc) 
 					{
 						tile_list.append(access_nocheck(k.get_2d()));
 					}
@@ -5790,13 +5790,13 @@ void karte_t::deposit_ware_at_destination(ware_t ware)
 		{
 			if (ware.is_commuting_trip)
 			{
-				if (gb_dest && gb_dest->get_tile()->get_desc()->get_type() != haus_desc_t::city_res)
+				if (gb_dest && gb_dest->get_tile()->get_desc()->get_type() != building_desc_t::city_res)
 				{
 					// Do not record the passengers coming back home again.
 					gb_dest->set_commute_trip(ware.menge);
 				}
 			}
-			else if (gb_dest && gb_dest->get_tile()->get_desc()->get_type() != haus_desc_t::city_res)
+			else if (gb_dest && gb_dest->get_tile()->get_desc()->get_type() != building_desc_t::city_res)
 			{
 				gb_dest->add_passengers_succeeded_visiting(ware.menge);
 			}
@@ -8479,7 +8479,7 @@ DBG_MESSAGE("karte_t::load()", "init player");
 			fab_list.append(fab);
 		}
 		else {
-			dbg->error("karte_t::load()","Unknown fabrik skipped!");
+			dbg->error("karte_t::load()","Unknown factory skipped!");
 			delete fab;
 		}
 		if(i&7) {

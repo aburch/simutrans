@@ -993,9 +993,9 @@ char* haltestelle_t::create_name(koord const k, char const* const typ)
 				if (gb->is_monument()) {
 					building_name = translator::translate(gb->get_name(),lang);
 				}
-				else if (gb->ist_rathaus() ||
-					gb->get_tile()->get_desc()->get_type() == haus_desc_t::attraction_land || // land attraction
-					gb->get_tile()->get_desc()->get_type() == haus_desc_t::attraction_city) { // town attraction
+				else if (gb->is_townhall() ||
+					gb->get_tile()->get_desc()->get_type() == building_desc_t::attraction_land || // land attraction
+					gb->get_tile()->get_desc()->get_type() == building_desc_t::attraction_city) { // town attraction
 					building_name = make_single_line_string(translator::translate(gb->get_tile()->get_desc()->get_name(),lang), 2);
 				}
 				else {
@@ -1934,7 +1934,7 @@ void haltestelle_t::get_destination_halts_of_ware(ware_t &ware, vector_tpl<halth
 	
 	const grund_t* gr = welt->lookup_kartenboden(ware.get_zielpos());
 	const gebaeude_t* gb = gr->find<gebaeude_t>();
-	const haus_desc_t *desc = gb ? gb->get_tile()->get_desc() : NULL;
+	const building_desc_t *desc = gb ? gb->get_tile()->get_desc() : NULL;
 	const koord size = desc ? desc->get_groesse() : koord(1,1);
 
 	if(fab || size.x > 1 || size.y > 1)
@@ -3088,7 +3088,7 @@ sint64 haltestelle_t::calc_maintenance() const
 	{
 		if (gebaeude_t* const gb = i.grund->find<gebaeude_t>())
 		{
-			const haus_desc_t* desc = gb->get_tile()->get_desc();
+			const building_desc_t* desc = gb->get_tile()->get_desc();
 			if(desc->get_base_maintenance() == COST_MAGIC)
 			{
 				// Default value - no specific maintenance set. Use the old method
@@ -3123,7 +3123,7 @@ bool haltestelle_t::make_public_and_join(player_t *player)
 			gebaeude_t* gb = gr->find<gebaeude_t>();
 			if(gb)
 			{
-				const haus_desc_t* desc = gb->get_tile()->get_desc();
+				const building_desc_t* desc = gb->get_tile()->get_desc();
 				sint32 costs;
 				if(desc->get_base_maintenance() == COST_MAGIC)
 				{
@@ -3163,7 +3163,7 @@ bool haltestelle_t::make_public_and_join(player_t *player)
 			if(gb)
 			{
 				player_t *gb_player = gb->get_owner();
-				const haus_desc_t* desc = gb->get_tile()->get_desc();
+				const building_desc_t* desc = gb->get_tile()->get_desc();
 				sint32 costs;
 				if(desc->get_base_maintenance() == COST_MAGIC)
 				{
@@ -3340,7 +3340,7 @@ void haltestelle_t::add_to_station_type( grund_t *gr )
 	}
 
 	const gebaeude_t* gb = gr->find<gebaeude_t>();
-	const haus_desc_t *desc=gb?gb->get_tile()->get_desc():NULL;
+	const building_desc_t *desc=gb?gb->get_tile()->get_desc():NULL;
 
 	if(gr->ist_wasser() && gb) {
 		// may happend around oil rigs and so on
@@ -3378,15 +3378,15 @@ void haltestelle_t::add_to_station_type( grund_t *gr )
 
 	// there is only one loading bay ...
 	switch (desc->get_type()) {
-		case haus_desc_t::ladebucht:    station_type |= loadingbay;   break;
-		case haus_desc_t::dock:
-		case haus_desc_t::flat_dock:
-		case haus_desc_t::binnenhafen:  station_type |= dock;         break;
-		case haus_desc_t::bushalt:      station_type |= busstop;      break;
-		case haus_desc_t::airport:      station_type |= airstop;      break;
-		case haus_desc_t::monorailstop: station_type |= monorailstop; break;
+		case building_desc_t::ladebucht:    station_type |= loadingbay;   break;
+		case building_desc_t::dock:
+		case building_desc_t::flat_dock:
+		case building_desc_t::binnenhafen:  station_type |= dock;         break;
+		case building_desc_t::bushalt:      station_type |= busstop;      break;
+		case building_desc_t::airport:      station_type |= airstop;      break;
+		case building_desc_t::monorailstop: station_type |= monorailstop; break;
 
-		case haus_desc_t::bahnhof:
+		case building_desc_t::bahnhof:
 			if (gr->hat_weg(monorail_wt)) {
 				station_type |= monorailstop;
 			} else {
@@ -3396,7 +3396,7 @@ void haltestelle_t::add_to_station_type( grund_t *gr )
 
 
 		// two ways on ground can only happen for tram tracks on streets, there buses and trams can stop
-		case haus_desc_t::generic_stop:
+		case building_desc_t::generic_stop:
 			switch (desc->get_extra()) {
 				case road_wt:
 					station_type |= (desc->get_enabled()&3)!=0 ? busstop : loadingbay;
@@ -3569,7 +3569,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 			}
 			// prissi: now check, if there is a building -> we allow no longer ground without building!
 			const gebaeude_t* gb = gr ? gr->find<gebaeude_t>() : NULL;
-			const haus_desc_t *desc=gb ? gb->get_tile()->get_desc():NULL;
+			const building_desc_t *desc=gb ? gb->get_tile()->get_desc():NULL;
 			if(desc) {
 				add_grund( gr, false /*do not relink factories now*/ );
 				// verbinde_fabriken will be called in laden_abschliessen

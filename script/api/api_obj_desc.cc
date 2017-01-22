@@ -50,13 +50,13 @@ sint64 get_scaled_maintenance(const obj_desc_transport_related_t* desc)
 }
 
 
-sint64 get_scaled_maintenance_building(const haus_desc_t* desc)
+sint64 get_scaled_maintenance_building(const building_desc_t* desc)
 {
 	return desc ? welt->scale_with_month_length(desc->get_maintenance()) : 0;
 }
 
 
-bool building_enables(const haus_desc_t* desc, uint16 which)
+bool building_enables(const building_desc_t* desc, uint16 which)
 {
 	return desc ? desc->get_enabled() & which : 0;
 }
@@ -82,11 +82,11 @@ bool is_obsolete_future(const obj_desc_timelined_t* desc, mytime_t time, uint8 w
 }
 
 
-// export of haus_desc_t::btype only here
+// export of building_desc_t::btype only here
 namespace script_api {
-	declare_specialized_param(haus_desc_t::btype, "i", "building_desc_x::building_type");
+	declare_specialized_param(building_desc_t::btype, "i", "building_desc_x::building_type");
 
-	SQInteger param<haus_desc_t::btype>::push(HSQUIRRELVM vm, const haus_desc_t::btype & u)
+	SQInteger param<building_desc_t::btype>::push(HSQUIRRELVM vm, const building_desc_t::btype & u)
 	{
 		return param<uint16>::push(vm, u);
 	}
@@ -177,17 +177,17 @@ void export_goods_desc(HSQUIRRELVM vm)
 	/**
 	 * Object descriptors for buildings: houses, attractions, stations and extensions, depots, harbours.
 	 */
-	begin_desc_class(vm, "building_desc_x", "obj_desc_time_x", (GETBESCHFUNC)param<const haus_desc_t*>::getfunc());
+	begin_desc_class(vm, "building_desc_x", "obj_desc_time_x", (GETBESCHFUNC)param<const building_desc_t*>::getfunc());
 
 	/**
 	 * @returns whether building is an attraction
 	 */
-	register_method(vm, &haus_desc_t::ist_ausflugsziel, "is_attraction");
+	register_method(vm, &building_desc_t::is_attraction, "is_attraction");
 	/**
 	 * @param rotation
 	 * @return size of building in the given @p rotation
 	 */
-	register_method(vm, &haus_desc_t::get_groesse, "get_size");
+	register_method(vm, &building_desc_t::get_groesse, "get_size");
 	/**
 	 * @return monthly maintenance cost
 	 */
@@ -195,19 +195,19 @@ void export_goods_desc(HSQUIRRELVM vm)
 	/**
 	 * @return price to build this building
 	 */
-	register_method_fv(vm, &haus_desc_t::get_price, "get_cost", freevariable<karte_t*>(welt));
+	register_method_fv(vm, &building_desc_t::get_price, "get_cost", freevariable<karte_t*>(welt));
 	/**
 	 * @return capacity
 	 */
-	register_method(vm, &haus_desc_t::get_capacity, "get_capacity");
+	register_method(vm, &building_desc_t::get_capacity, "get_capacity");
 	/**
 	 * @return whether building can be built underground
 	 */
-	register_method(vm, &haus_desc_t::can_be_built_underground, "can_be_built_underground");
+	register_method(vm, &building_desc_t::can_be_built_underground, "can_be_built_underground");
 	/**
 	 * @return whether building can be built above ground
 	 */
-	register_method(vm, &haus_desc_t::can_be_built_aboveground, "can_be_built_aboveground");
+	register_method(vm, &building_desc_t::can_be_built_aboveground, "can_be_built_aboveground");
 	/**
 	 * @return whether this station building can handle passengers
 	 */
@@ -223,39 +223,39 @@ void export_goods_desc(HSQUIRRELVM vm)
 	/// building types
 	begin_enum("building_type")
 	/// tourist attraction to be built in cities
-	enum_slot(vm, "attraction_city", (uint8)haus_desc_t::attraction_city, true);
+	enum_slot(vm, "attraction_city", (uint8)building_desc_t::attraction_city, true);
 	/// tourist attraction to be built outside cities
-	enum_slot(vm, "attraction_land", (uint8)haus_desc_t::attraction_land, true);
+	enum_slot(vm, "attraction_land", (uint8)building_desc_t::attraction_land, true);
 	/// monument, built only once per map
-	enum_slot(vm, "monument", (uint8)haus_desc_t::denkmal, true);
+	enum_slot(vm, "monument", (uint8)building_desc_t::monument, true);
 	/// factory
-	enum_slot(vm, "factory", (uint8)haus_desc_t::fabrik, true);
+	enum_slot(vm, "factory", (uint8)building_desc_t::factory, true);
 	/// townhall
-	enum_slot(vm, "townhall", (uint8)haus_desc_t::rathaus, true);
+	enum_slot(vm, "townhall", (uint8)building_desc_t::townhall, true);
 	/// company headquarter
-	enum_slot(vm, "headquarter", (uint8)haus_desc_t::firmensitz, true);
+	enum_slot(vm, "headquarter", (uint8)building_desc_t::headquarter, true);
 	/// harbour
-	enum_slot(vm, "harbour", (uint8)haus_desc_t::dock, true);
+	enum_slot(vm, "harbour", (uint8)building_desc_t::dock, true);
 	/// harbour without a slope (buildable on flat ground beaches)
-	enum_slot(vm, "flat_harbour", (uint8)haus_desc_t::flat_dock, true);
+	enum_slot(vm, "flat_harbour", (uint8)building_desc_t::flat_dock, true);
 	/// depot
-	enum_slot(vm, "depot", (uint8)haus_desc_t::depot, true);
+	enum_slot(vm, "depot", (uint8)building_desc_t::depot, true);
 	/// signalbox
-	enum_slot(vm, "signalbox", (uint8)haus_desc_t::signalbox, true);
+	enum_slot(vm, "signalbox", (uint8)building_desc_t::signalbox, true);
 	/// station
-	enum_slot(vm, "station", (uint8)haus_desc_t::generic_stop, true);
+	enum_slot(vm, "station", (uint8)building_desc_t::generic_stop, true);
 	/// station extension
-	enum_slot(vm, "station_extension", (uint8)haus_desc_t::generic_extension, true);
+	enum_slot(vm, "station_extension", (uint8)building_desc_t::generic_extension, true);
 	end_enum();
 	/**
 	 * @returns building type
 	 */
-	register_method(vm, &haus_desc_t::get_type, "get_type");
+	register_method(vm, &building_desc_t::get_type, "get_type");
 
 	/**
 	 * @returns way type, can be @ref wt_invalid.
 	 */
-	register_method(vm, &haus_desc_t::get_finance_waytype, "get_waytype");
+	register_method(vm, &building_desc_t::get_finance_waytype, "get_waytype");
 	end_class(vm);
 
 	/**

@@ -2127,7 +2127,7 @@ void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 		file->rdwr_long(l);
 		dy = (sint8)l;
 		file->rdwr_long(l);
-		hoff = (sint8)(l*TILE_HEIGHT_STEP/16);
+		hoff = (sint8)(l*TILE_HEIGHT_STEP / 16);
 		file->rdwr_long(speed_limit);
 		file->rdwr_enum(direction);
 		file->rdwr_enum(previous_direction);
@@ -2152,9 +2152,9 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(purchase_time%12
 				steps_next = diagonal_vehicle_steps_per_tile - 1;
 			}
 		}
-		sint16 dummy16 = ((16*(sint16)hoff)/TILE_HEIGHT_STEP);
+		sint16 dummy16 = ((16 * (sint16)hoff) / TILE_HEIGHT_STEP);
 		file->rdwr_short(dummy16);
-		hoff = (sint8)((TILE_HEIGHT_STEP*(sint16)dummy16)/16);
+		hoff = (sint8)((TILE_HEIGHT_STEP*(sint16)dummy16) / 16);
 		file->rdwr_long(speed_limit);
 		file->rdwr_enum(direction);
 		file->rdwr_enum(previous_direction);
@@ -2167,7 +2167,7 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(purchase_time%12
 
 	// convert steps to position
 	if(file->get_version()<99018) {
-		sint8 ddx=get_xoff(), ddy=get_yoff()-hoff;
+		sint8 ddx = get_xoff(), ddy = get_yoff() - hoff;
 		sint8 i=1;
 		dx = dxdy[ ribi_t::get_dir(direction)*2];
 		dy = dxdy[ ribi_t::get_dir(direction)*2+1];
@@ -4694,7 +4694,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 									if(gr_signalbox)
 									{
 										const gebaeude_t* gb = gr_signalbox->get_building();
-										if(gb && gb->get_tile()->get_desc()->get_type() == haus_desc_t::signalbox)
+										if(gb && gb->get_tile()->get_desc()->get_type() == building_desc_t::signalbox)
 										{
 											sb = (signalbox_t*)gb; 
 										}
@@ -7221,7 +7221,7 @@ air_vehicle_t::~air_vehicle_t()
 {
 	// mark aircraft (after_image) dirty, since we have no "real" image
 	const int raster_width = get_current_tile_raster_width();
-	sint16 yoff = tile_raster_scale_y(-flying_height-get_hoff()-2, raster_width);
+	sint16 yoff = tile_raster_scale_y(-flying_height - get_hoff() - 2, raster_width);
 
 	mark_image_dirty( image, yoff);
 	mark_image_dirty( image, 0 );
@@ -7505,7 +7505,7 @@ void air_vehicle_t::display_after(int xpos_org, int ypos_org, bool is_global) co
 		}
 
 		sint8 hoff = get_hoff();
-		ypos += tile_raster_scale_y(get_yoff()-current_flughohe-hoff-2, raster_width);
+		ypos += tile_raster_scale_y(get_yoff() - current_flughohe - hoff - 2, raster_width);
 		xpos += tile_raster_scale_x(get_xoff(), raster_width);
 		get_screen_offset( xpos, ypos, raster_width );
 
@@ -7513,7 +7513,7 @@ void air_vehicle_t::display_after(int xpos_org, int ypos_org, bool is_global) co
 		// the aircraft!!!
 		display_color( image, xpos, ypos, get_player_nr(), true, true/*get_flag(obj_t::dirty)*/  CLIP_NUM_PAR);
 #ifndef MULTI_THREAD
-		vehicle_t::display_after( xpos_org, ypos_org - tile_raster_scale_y( current_flughohe - hoff - 2, raster_width ), is_global );
+		vehicle_t::display_after(xpos_org, ypos_org - tile_raster_scale_y(current_flughohe - hoff - 2, raster_width), is_global);
 #endif
 	}
 #ifdef MULTI_THREAD
@@ -7535,7 +7535,7 @@ void air_vehicle_t::display_overlay(int xpos_org, int ypos_org) const
 			current_flughohe -= (steps*TILE_HEIGHT_STEP) >> 8;
 		}
 
-		vehicle_t::display_overlay( xpos_org, ypos_org - tile_raster_scale_y( current_flughohe - get_hoff() - 2, raster_width ) );
+		vehicle_t::display_overlay(xpos_org, ypos_org - tile_raster_scale_y(current_flughohe - get_hoff() - 2, raster_width));
 	}
 #endif
 	else if(  is_on_ground()  ) {

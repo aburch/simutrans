@@ -996,14 +996,14 @@ bool weg_t::should_city_adopt_this(const player_t* player)
 		{
 			continue;
 		}
-		const haus_desc_t* const desc = neighbouring_building->get_tile()->get_desc();
+		const building_desc_t* const desc = neighbouring_building->get_tile()->get_desc();
 		// Most buildings count, including station extension buildings.
 		// But some do *not*, namely platforms and depots.
 		switch(desc->get_type())
 		{
-			case haus_desc_t::city_res:
-			case haus_desc_t::city_com:
-			case haus_desc_t::city_ind:
+			case building_desc_t::city_res:
+			case building_desc_t::city_com:
+			case building_desc_t::city_ind:
 				has_neighbouring_building = true;
 				break;
 			default:
@@ -1011,20 +1011,20 @@ bool weg_t::should_city_adopt_this(const player_t* player)
 		}
 		switch(desc->get_type())
 		{
-			case haus_desc_t::attraction_city:
-			case haus_desc_t::attraction_land:
-			case haus_desc_t::denkmal: // monument
-			case haus_desc_t::fabrik: // factory
-			case haus_desc_t::rathaus: // town hall
-			case haus_desc_t::generic_extension:
-			case haus_desc_t::firmensitz: // HQ
-			case haus_desc_t::dock: // dock
-			case haus_desc_t::flat_dock: 
+			case building_desc_t::attraction_city:
+			case building_desc_t::attraction_land:
+			case building_desc_t::monument: // monument
+			case building_desc_t::factory: // factory
+			case building_desc_t::townhall: // town hall
+			case building_desc_t::generic_extension:
+			case building_desc_t::headquarter: // HQ
+			case building_desc_t::dock: // dock
+			case building_desc_t::flat_dock: 
 				has_neighbouring_building = (bool)welt->get_city(pos);
 				break;
-			case haus_desc_t::depot:
-			case haus_desc_t::signalbox:
-			case haus_desc_t::generic_stop:
+			case building_desc_t::depot:
+			case building_desc_t::signalbox:
+			case building_desc_t::generic_stop:
 			default:
 				; // continue checking
 		}

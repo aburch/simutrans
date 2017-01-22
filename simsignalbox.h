@@ -26,7 +26,7 @@ protected:
 public:
 
 	signalbox_t(loadsave_t *file);
-	signalbox_t(koord3d pos, player_t *player, const haus_tile_desc_t *t);
+	signalbox_t(koord3d pos, player_t *player, const building_tile_desc_t *t);
 
 	~signalbox_t();
 

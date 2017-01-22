@@ -590,7 +590,7 @@ public:
 	void set_starting_money(sint64 amount) {  starting_money = amount; }
 
 	/**
- 	 * Translates haus_desc_t to transport_type
+ 	 * Translates building_desc_t to transport_type
 	 * Building can be assigned to transport type using utyp
  	 * @author jk271
  	 */
