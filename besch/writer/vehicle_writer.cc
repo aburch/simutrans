@@ -1,4 +1,4 @@
-
+#include <stdlib.h>
 #include <cmath>
 #include "../../utils/simstring.h"
 #include "../../dataobj/tabfile.h"

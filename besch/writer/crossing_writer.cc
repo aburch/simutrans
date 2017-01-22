@@ -1,5 +1,6 @@
 #include <string>
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "../../utils/simstring.h"
 #include "../../dataobj/tabfile.h"
