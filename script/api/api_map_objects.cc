@@ -153,7 +153,7 @@ getpush_obj_pos(weg_t, obj_t::way);
 static SQInteger get_way_ribi(HSQUIRRELVM vm)
 {
 	weg_t *w = param<weg_t*>::get(vm, 1);
-	bool masked = param<waytype_t>::get(vm, 2);
+	bool masked = param<bool>::get(vm, 2);
 
 	ribi_t::ribi ribi = w ? (masked ? w->get_ribi() : w->get_ribi_unmasked() ) : 0;
 
