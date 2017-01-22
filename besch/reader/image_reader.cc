@@ -110,17 +110,17 @@ obj_besch_t *image_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 #if COLOUR_DEPTH == 0
 adjust_image:
 	// reset image parameters, but only for non-empty images
-	if(  besch->pic.h > 0  ) {
-		besch->pic.h = 1;
+	if(  besch->h > 0  ) {
+		besch->h = 1;
 	}
-	if(  besch->pic.w > 0  ) {
-		besch->pic.w = 1;
+	if(  besch->w > 0  ) {
+		besch->w = 1;
 	}
-	if(  besch->pic.len > 0  ) {
-		besch->pic.len = 4;
+	if(  besch->len > 0  ) {
+		besch->len = 4;
 	}
-	besch->pic.x = 0;
-	besch->pic.y = 0;
+	besch->x = 0;
+	besch->y = 0;
 #endif
 
 	// check for left corner
