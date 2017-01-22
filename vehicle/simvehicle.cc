@@ -2536,7 +2536,7 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_gobal) const
 				}
 				break;
 
-			case convoi_t::FAHRPLANEINGABE:
+			case convoi_t::EDIT_SCHEDULE:
 			case convoi_t::ROUTING_2:
 			case convoi_t::ROUTE_JUST_FOUND:
 				if(  state>=2  ) {

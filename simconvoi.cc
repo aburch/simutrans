@@ -93,7 +93,7 @@ karte_ptr_t convoi_t::welt;
 static const char * state_names[convoi_t::MAX_STATES] =
 {
 	"INITIAL",
-	"FAHRPLANEINGABE", //"Schedule input"
+	"EDIT_SCHEDULE", //"Schedule input"
 	"ROUTING_1",
 	"ROUTING_2",
 	"",
@@ -636,13 +636,13 @@ DBG_MESSAGE("convoi_t::finish_rd()","next_stop_index=%d", next_stop_index );
 				}
 			}
 			front()->set_leading(true);
-			if(  state != INITIAL  &&  state != FAHRPLANEINGABE  &&  front()->get_pos() != last_start  ) {
+			if(  state != INITIAL  &&  state != EDIT_SCHEDULE  &&  front()->get_pos() != last_start  ) {
 				state = WAITING_FOR_CLEARANCE;
 			}
 		}
 	}
 	// when saving with open window, this can happen
-	if(  state==FAHRPLANEINGABE  ) {
+	if(  state==EDIT_SCHEDULE  ) {
 		if (env_t::networkmode) {
 			wait_lock = 30000; // milliseconds to drive on, if the client in question had left
 		}
@@ -1166,7 +1166,7 @@ sync_result convoi_t::sync_step(uint32 delta_t)
 		case INITIAL:
 			// in depot, should not be in sync list, remove
 			return SYNC_REMOVE;
-		case FAHRPLANEINGABE:
+		case EDIT_SCHEDULE:
 		case ROUTING_1:
 		case ROUTING_2:
 		case ROUTE_JUST_FOUND:
@@ -1827,7 +1827,7 @@ end_loop:
 
 			break;
 
-		case FAHRPLANEINGABE:
+		case EDIT_SCHEDULE:
 			// schedule window closed?
 			if (schedule != NULL && schedule->is_editing_finished())
 			{
@@ -2102,7 +2102,7 @@ end_loop:
 
 		// just waiting for action here
 		case INITIAL:
-		case FAHRPLANEINGABE:
+		case EDIT_SCHEDULE:
 			wait_lock = max( wait_lock, 25000 );
 			break;
 
@@ -2912,7 +2912,7 @@ bool convoi_t::set_schedule(schedule_t * f)
 	// ok, now we have a schedule
 	if(state != INITIAL)
 	{
-		state = FAHRPLANEINGABE;
+		state = EDIT_SCHEDULE;
 	}
 	// to avoid jumping trains
 	alte_direction = front()->get_direction();
@@ -4767,7 +4767,7 @@ void convoi_t::open_schedule_window( bool show )
 
 	set_akt_speed(0);	// stop the train ...
 	if(state!=INITIAL) {
-		state = FAHRPLANEINGABE;
+		state = EDIT_SCHEDULE;
 	}
 	wait_lock = 25000;
 	alte_direction = front()->get_direction();
@@ -5005,7 +5005,7 @@ void convoi_t::laden() //"load" (Babelfish)
 			iter.value.add_overall_distance(journey_distance);
 		}
 
-		if(state == FAHRPLANEINGABE) //"ENTER SCHEDULE" (Google)
+		if(state == EDIT_SCHEDULE) //"ENTER SCHEDULE" (Google)
 		{
 			return;
 		}
@@ -6082,7 +6082,7 @@ end_check:
 			}
 			else {
 				// need re-routing
-				state = FAHRPLANEINGABE;
+				state = EDIT_SCHEDULE;
 			}
 			// make this change immediately
 			if(  state!=LOADING  ) {
@@ -6409,7 +6409,7 @@ bool convoi_t::go_to_depot(bool show_success, bool use_home_depot)
 
 	// limit update to certain states that are considered to be safe for schedule updates
 	int state = get_state();
-	if(state==convoi_t::FAHRPLANEINGABE) {
+	if(state==convoi_t::EDIT_SCHEDULE) {
 DBG_MESSAGE("convoi_t::go_to_depot()","convoi state %i => cannot change schedule ... ", state );
 		return false;
 	}

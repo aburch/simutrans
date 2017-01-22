@@ -130,7 +130,7 @@ public:
 	enum { max_vehicle=8, max_rail_vehicle = 64 };
 
 	enum states {INITIAL,
-		FAHRPLANEINGABE, // "Schedule enter" (Google)
+		EDIT_SCHEDULE, // "Schedule enter" (Google)
 		ROUTING_1,
 		ROUTING_2,
 		DUMMY5,
@@ -904,7 +904,7 @@ public:
 	int get_state() const { return state; }
 
 	// In any of these states, user interaction should not be possible. 
-	bool is_locked() const { return state == convoi_t::FAHRPLANEINGABE || state == convoi_t::ROUTING_2 || state == convoi_t::ROUTE_JUST_FOUND; }
+	bool is_locked() const { return state == convoi_t::EDIT_SCHEDULE || state == convoi_t::ROUTING_2 || state == convoi_t::ROUTE_JUST_FOUND; }
 
 	/**
 	* true if in waiting state (maybe also due to starting)
