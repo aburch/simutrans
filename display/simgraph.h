@@ -141,7 +141,7 @@ void reset_textur(void *new_textur);
 uint16 display_load_font(const char* fname);
 
 image_id get_image_count();
-void register_image(struct image_t*);
+void register_image(class image_t *);
 
 // delete all images above a certain number ...
 void display_free_all_images_above( image_id above );
