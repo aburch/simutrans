@@ -705,7 +705,7 @@ fabrik_t::fabrik_t(loadsave_t* file)
 		desc = NULL; // to get rid of this broken factory later...
 	}
 	else {
-		baue(rotate, false, false);
+		build(rotate, false, false);
 		// now get rid of construction image
 		for(  sint16 y=0;  y<desc->get_haus()->get_h(rotate);  y++  ) {
 			for(  sint16 x=0;  x<desc->get_haus()->get_b(rotate);  x++  ) {
@@ -848,8 +848,8 @@ fabrik_t::fabrik_t(koord3d pos_, player_t* player, const fabrik_desc_t* fadesc, 
 	update_scaled_mail_demand();
 
 	// We can't do these here, because get_tile_list will fail
-	// We have to wait until after ::baue is called
-	// It would be better to call ::baue here, but that fails too
+	// We have to wait until after ::build is called
+	// It would be better to call ::build here, but that fails too
 	// --neroden
 	// mark_connected_roads(false);
 	// recalc_nearby_halts();
@@ -972,13 +972,13 @@ fabrik_t::~fabrik_t()
 }
 
 
-void fabrik_t::baue(sint32 rotate, bool build_fields, bool force_initial_prodbase)
+void fabrik_t::build(sint32 rotate, bool build_fields, bool force_initial_prodbase)
 {
 	this->rotate = rotate;
 	pos_origin = welt->lookup_kartenboden(pos_origin.get_2d())->get_pos();
 	if(!building)
 	{
- 		building = hausbauer_t::baue(owner, pos_origin, rotate, desc->get_haus(), this);
+ 		building = hausbauer_t::build(owner, pos_origin, rotate, desc->get_haus(), this);
 	}
 	pos = building->get_pos();
 	pos_origin.z = pos.z;
@@ -1007,7 +1007,7 @@ void fabrik_t::baue(sint32 rotate, bool build_fields, bool force_initial_prodbas
 			sint32 org_prodbase = prodbase;
 			// we will start with a minimum number and try to get closer to start_fields
 			const field_group_desc_t& field_group = *desc->get_field_group();
-			const uint16 spawn_fields = field_group.get_min_fields() + simrand( field_group.get_start_fields() - field_group.get_min_fields(), "fabrik_t::baue" );
+			const uint16 spawn_fields = field_group.get_min_fields() + simrand( field_group.get_start_fields() - field_group.get_min_fields(), "fabrik_t::build" );
 			while(  fields.get_count() < spawn_fields  &&  add_random_field(10000u)  ) {
 				if (fields.get_count() > desc->get_field_group()->get_min_fields()  &&  prodbase >= 2*org_prodbase) {
 					// too much productivity, no more fields needed
@@ -1192,7 +1192,7 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 		}
 	}
 	pos_origin.rdwr(file);
-	// pos will be assigned after call to hausbauer_t::baue
+	// pos will be assigned after call to hausbauer_t::build
 	file->rdwr_byte(rotate);
 
 	// now rebuilt information for received goods

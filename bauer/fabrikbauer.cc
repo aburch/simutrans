@@ -404,7 +404,7 @@ void fabrikbauer_t::verteile_tourist(int max_number)
 		pos = finde_zufallsbauplatz(pos.get_2d(), 20, attraction->get_groesse(rotation),false,attraction,false,0x0FFFFFFF);	// so far -> land only
 		if(welt->lookup(pos)) {
 			// Platz gefunden ...
-			gebaeude_t* gb = hausbauer_t::baue(welt->get_public_player(), pos, rotation, attraction);
+			gebaeude_t* gb = hausbauer_t::build(welt->get_public_player(), pos, rotation, attraction);
 			current_number ++;
 			retrys = max_number*4;
 			stadt_t* city = welt->get_city(gb->get_pos().get_2d());
@@ -453,7 +453,7 @@ fabrik_t* fabrikbauer_t::baue_fabrik(koord3d* parent, const fabrik_desc_t* info,
 	fabrik_t * fab = new fabrik_t(pos, spieler, info, initial_prod_base);
 
 	// now build factory
-	fab->baue(rotate, true /*add fields*/, initial_prod_base != -1 /* force initial prodbase ? */);
+	fab->build(rotate, true /*add fields*/, initial_prod_base != -1 /* force initial prodbase ? */);
 	welt->add_fab(fab);
 	add_factory_to_fab_map(welt, fab);
 

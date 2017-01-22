@@ -650,7 +650,7 @@ bool stadt_t::maybe_build_road(koord k)
 {
 	best_strasse.reset(k);
 	const uint32 num_road_rules = road_rules.get_count();
-	uint32 offset = simrand(num_road_rules, "void stadt_t::baue");	// start with random rule
+	uint32 offset = simrand(num_road_rules, "void stadt_t::build");	// start with random rule
 	for (uint32 i = 0; i < num_road_rules  &&  !best_strasse.found(); i++) {
 		uint32 rule = ( i+offset ) % num_road_rules;
 		sint32 rd = 8 + road_rules[rule]->chance;
@@ -781,7 +781,7 @@ bool stadt_t::cityrules_init(const std::string &objfilename)
 
 				const char flag = rule[x + y * (size + 1)];
 				// check for allowed characters; ignore '.';
-				// leave midpoint out, should be 'n', which is checked in baue() anyway
+				// leave midpoint out, should be 'n', which is checked in build() anyway
 				if ((x+offset!=3  ||  y+offset!=3)  &&  (flag!=0  &&  strchr(allowed_chars_in_rule, flag))) {
 					house_rules[i]->rule.append(rule_entry_t(x+offset,y+offset,flag));
 				}
@@ -830,7 +830,7 @@ bool stadt_t::cityrules_init(const std::string &objfilename)
 			for (uint x = 0; x < size; x++) {
 				const char flag = rule[x + y * (size + 1)];
 				// check for allowed characters; ignore '.';
-				// leave midpoint out, should be 'n', which is checked in baue() anyway
+				// leave midpoint out, should be 'n', which is checked in build() anyway
 				if ((x+offset!=3  ||  y+offset!=3)  &&  (flag!=0  &&  strchr(allowed_chars_in_rule, flag))) {
 					road_rules[i]->rule.append(rule_entry_t(x+offset,y+offset,flag));
 				}
@@ -2871,7 +2871,7 @@ void stadt_t::step_grow_city(bool new_town)
 			int i;
 
 			for (i = 0; i < num_tries && bev * 2 > won + arb + 100; i++) {
-				baue(new_town);
+				build(new_town);
 			}
 
 			failure = i == num_tries;
@@ -3261,7 +3261,7 @@ void stadt_t::check_bau_spezial(bool new_town)
 	const haus_desc_t* desc = hausbauer_t::get_special(has_townhall ? bev : 0, haus_desc_t::rathaus, welt->get_timeline_year_month(), (bev == 0) || !has_townhall, welt->get_climate(pos));
 	if (desc != NULL) {
 		if (simrand(100, "void stadt_t::check_bau_spezial") < (uint)desc->get_chance()) {
-			// baue was immer es ist
+			// build was immer es ist
 
 			bool big_city = buildings.get_count() >= 10;
 			bool is_rotate = desc->get_all_layouts() > 1;
@@ -3275,7 +3275,7 @@ void stadt_t::check_bau_spezial(bool new_town)
 				if (desc->get_all_layouts() > 1) {
 					rotate = (simrand(20, "void stadt_t::check_bau_spezial") & 2) + is_rotate;
 				}
-				gebaeude_t* gb = hausbauer_t::baue(owner, welt->lookup_kartenboden(best_pos)->get_pos(), rotate, desc);
+				gebaeude_t* gb = hausbauer_t::build(owner, welt->lookup_kartenboden(best_pos)->get_pos(), rotate, desc);
 				gb->access_first_tile()->set_stadt(this);
 				add_building_to_list(gb->access_first_tile());
 				// tell the player, if not during initialization
@@ -3366,7 +3366,7 @@ void stadt_t::check_bau_spezial(bool new_town)
 					}
 
 					// and then build it
-					gebaeude_t* gb = hausbauer_t::baue(owner, welt->lookup_kartenboden(best_pos + koord(1, 1))->get_pos(), 0, desc);
+					gebaeude_t* gb = hausbauer_t::build(owner, welt->lookup_kartenboden(best_pos + koord(1, 1))->get_pos(), 0, desc);
 					hausbauer_t::denkmal_gebaut(desc);
 					add_gebaeude_to_stadt(gb);
 					reset_city_borders();
@@ -3559,7 +3559,7 @@ void stadt_t::check_bau_rathaus(bool new_town)
 			dbg->error( "stadt_t::check_bau_rathaus", "no better postion found!" );
 			return;
 		}
-		gebaeude_t* new_gb = hausbauer_t::baue(owner, welt->lookup_kartenboden(best_pos + offset)->get_pos(), layout, desc);
+		gebaeude_t* new_gb = hausbauer_t::build(owner, welt->lookup_kartenboden(best_pos + offset)->get_pos(), layout, desc);
 		DBG_MESSAGE("new townhall", "use layout=%i", layout);
 		add_gebaeude_to_stadt(new_gb);
 		// sets has_townhall to true
@@ -3583,7 +3583,7 @@ void stadt_t::check_bau_rathaus(bool new_town)
 				bauigel.route_fuer(wegbauer_t::strasse, welt->get_city_road(), NULL, NULL);
 				bauigel.set_build_sidewalk(true);
 				bauigel.calc_straight_route(welt->lookup_kartenboden(best_pos + road0)->get_pos(), welt->lookup_kartenboden(best_pos + road1)->get_pos());
-				bauigel.baue();
+				bauigel.build();
 			}
 			else {
 				baue_strasse(best_pos + road0, NULL, true);
@@ -3595,7 +3595,7 @@ void stadt_t::check_bau_rathaus(bool new_town)
 			wegbauer_t bauer(NULL);
 			bauer.route_fuer(wegbauer_t::strasse | wegbauer_t::terraform_flag, welt->get_city_road());
 			bauer.calc_route(welt->lookup_kartenboden(alte_str)->get_pos(), welt->lookup_kartenboden(townhall_road)->get_pos());
-			bauer.baue();
+			bauer.build();
 			
 		} else if (neugruendung) {
 			lo = best_pos+offset - koord(2, 2);
@@ -4177,7 +4177,7 @@ void stadt_t::build_city_building(const koord k, bool new_town)
 
 		int layout = get_best_layout(h, k);
 
-		gebaeude_t* gb = hausbauer_t::baue(NULL, pos, layout, h);
+		gebaeude_t* gb = hausbauer_t::build(NULL, pos, layout, h);
 		add_gebaeude_to_stadt(gb);
 		reset_city_borders();
 
@@ -4367,7 +4367,7 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb)
 		hausbauer_t::remove( NULL, gb );
 
 		koord3d pos = welt->lookup_kartenboden(k)->get_pos();
-		gebaeude_t* new_gb = hausbauer_t::baue(NULL, pos, layout, h);
+		gebaeude_t* new_gb = hausbauer_t::build(NULL, pos, layout, h);
 		// We *can* skip most of the work in add_gebaeude_to_stadt, because we *just* cleared the location,
 		// so it must be valid.  Our borders also should not have changed.
 		new_gb->set_stadt(this);
@@ -4475,7 +4475,7 @@ bool stadt_t::build_bridge(grund_t* bd, ribi_t::ribi direction) {
 	koord k = bd->get_pos().get_2d();
 	koord zv = koord(direction);
 
-	const bruecke_desc_t *bridge = brueckenbauer_t::find_bridge(road_wt, welt->get_city_road()->get_topspeed(), welt->get_timeline_year_month(), welt->get_city_road()->get_max_axle_load() * 2 );
+	const bridge_desc_t *bridge = bridge_builder_t::find_bridge(road_wt, welt->get_city_road()->get_topspeed(), welt->get_timeline_year_month(), welt->get_city_road()->get_max_axle_load() * 2 );
 	if(  bridge==NULL  ) {
 		// does not have a bridge available ...
 		return false;
@@ -4492,10 +4492,10 @@ bool stadt_t::build_bridge(grund_t* bd, ribi_t::ribi direction) {
 	const char *err = NULL;
 	sint8 bridge_height;
 	// Prefer "non-AI bridge"
-	koord3d end = brueckenbauer_t::finde_ende(NULL, bd->get_pos(), zv, bridge, err, bridge_height, false);
+	koord3d end = bridge_builder_t::find_end_pos(NULL, bd->get_pos(), zv, bridge, err, bridge_height, false);
 	if(  err && *err || koord_distance(k, end.get_2d()) > 3  ) {
 		// allow "AI bridge"
-		end = brueckenbauer_t::finde_ende(NULL, bd->get_pos(), zv, bridge, err, bridge_height, true);
+		end = bridge_builder_t::find_end_pos(NULL, bd->get_pos(), zv, bridge, err, bridge_height, true);
 	}
 	if(  err && *err || koord_distance(k, end.get_2d()) > 3  ) {
 		// no bridge short enough
@@ -4516,7 +4516,7 @@ bool stadt_t::build_bridge(grund_t* bd, ribi_t::ribi direction) {
 		return false;
 	}
 	// OK, build the bridge
-	brueckenbauer_t::baue_bruecke(NULL, bd->get_pos(), end, zv, bridge_height, bridge, welt->get_city_road());
+	bridge_builder_t::build_bridge(NULL, bd->get_pos(), end, zv, bridge_height, bridge, welt->get_city_road());
 	// Now connect the bridge to the road we built
 	// (Is there an easier way?)
 	baue_strasse( (end+zv).get_2d(), NULL, false );
@@ -4843,7 +4843,7 @@ bool stadt_t::baue_strasse(const koord k, player_t* player_, bool forced)
 /**
  * Enlarge a city by building another building or extending a road.
  */
-void stadt_t::baue(bool new_town)
+void stadt_t::build(bool new_town)
 {
 	if(welt->get_settings().get_quick_city_growth())
 	{
@@ -4872,7 +4872,7 @@ void stadt_t::baue(bool new_town)
 			// since only a single location is checked, we can stop after we have found a positive rule
 			best_haus.reset(k);
 			const uint32 num_house_rules = house_rules.get_count();
-			uint32 offset = simrand(num_house_rules, "void stadt_t::baue");	// start with random rule
+			uint32 offset = simrand(num_house_rules, "void stadt_t::build");	// start with random rule
 			for(  uint32 i = 0;  i < num_house_rules  &&  !best_haus.found();  i++  ) {
 				uint32 rule = ( i+offset ) % num_house_rules;
 				bewerte_haus(k, 8 + house_rules[rule]->chance, *house_rules[rule]);
@@ -4893,13 +4893,13 @@ void stadt_t::baue(bool new_town)
 	if (maxdist < 10) {maxdist = 10;}
 	uint32 was_renovated=0;
 	uint32 try_nr = 0;
-	if (  !buildings.empty()  &&  simrand(100, "void stadt_t::baue") <= renovation_percentage  ) {
+	if (  !buildings.empty()  &&  simrand(100, "void stadt_t::build") <= renovation_percentage  ) {
 		while (was_renovated < renovations_count && try_nr++ < renovations_try) { // trial and errors parameters
 			// try to find a non-player owned building
 			gebaeude_t* const gb = pick_any(buildings);
 			const uint32 dist(koord_distance(c, gb->get_pos()));
 			const uint32 distance_rate = 100 - (dist * 100) / maxdist;
-			if(  player_t::check_owner(gb->get_owner(),NULL)  && simrand(100, "void stadt_t::baue") < distance_rate) {
+			if(  player_t::check_owner(gb->get_owner(),NULL)  && simrand(100, "void stadt_t::build") < distance_rate) {
 				if(renovate_city_building(gb)) { was_renovated++;}
 			}
 		}
@@ -4938,7 +4938,7 @@ void stadt_t::baue(bool new_town)
 
 		// loop until all candidates are exhausted or until we find a suitable location to build road or city building
 		while(  candidates.get_count()>0  ) {
-			const uint32 idx = simrand( candidates.get_count(), "void stadt_t::baue" );
+			const uint32 idx = simrand( candidates.get_count(), "void stadt_t::build" );
 			const koord k = candidates[idx];
 
 			if (maybe_build_road(k)) {
@@ -4950,7 +4950,7 @@ void stadt_t::baue(bool new_town)
 			// we can stop after we have found a positive rule
 			best_haus.reset(k);
 			const uint32 num_house_rules = house_rules.get_count();
-			uint32 offset = simrand(num_house_rules, "void stadt_t::baue");	// start with random rule
+			uint32 offset = simrand(num_house_rules, "void stadt_t::build");	// start with random rule
 			for (uint32 i = 0; i < num_house_rules  &&  !best_haus.found(); i++) {
 				uint32 rule = ( i+offset ) % num_house_rules;
 				bewerte_haus(k, 8 + house_rules[rule]->chance, *house_rules[rule]);

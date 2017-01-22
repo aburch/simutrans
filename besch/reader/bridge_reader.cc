@@ -12,8 +12,8 @@
 
 void bridge_reader_t::register_obj(obj_desc_t *&data)
 {
-	bruecke_desc_t *desc = static_cast<bruecke_desc_t *>(data);
-	brueckenbauer_t::register_desc(desc);
+	bridge_desc_t *desc = static_cast<bridge_desc_t *>(data);
+	bridge_builder_t::register_desc(desc);
 
 	checksum_t *chk = new checksum_t();
 	desc->calc_checksum(chk);
@@ -26,7 +26,7 @@ obj_desc_t * bridge_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	// DBG_DEBUG("bridge_reader_t::read_node()", "called");
 	ALLOCA(char, desc_buf, node.size);
 
-	bruecke_desc_t *desc = new bruecke_desc_t();
+	bridge_desc_t *desc = new bridge_desc_t();
 
 	// Hajo: Read data
 	fread(desc_buf, node.size, 1, fp);

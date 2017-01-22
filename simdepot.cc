@@ -228,7 +228,7 @@ void depot_t::show_info()
 vehicle_t* depot_t::buy_vehicle(const vehikel_desc_t* info, uint16 livery_scheme_index)
 {
 	DBG_DEBUG("depot_t::buy_vehicle()", info->get_name());
-	vehicle_t* veh = vehikelbauer_t::baue(get_pos(), get_owner(), NULL, info, false, livery_scheme_index); //"owner" = "owner" (Google)
+	vehicle_t* veh = vehikelbauer_t::build(get_pos(), get_owner(), NULL, info, false, livery_scheme_index); //"owner" = "owner" (Google)
 	DBG_DEBUG("depot_t::buy_vehicle()", "vehiclebauer %p", veh);
 	vehicles.append(veh);
 	DBG_DEBUG("depot_t::buy_vehicle()", "appended %i vehicle", vehicles.get_count());
@@ -248,12 +248,12 @@ void depot_t::upgrade_vehicle(convoihandle_t cnv, const vehikel_desc_t* vb)
 		{
 			if(cnv->get_vehikel(i)->get_desc()->get_upgrades(c) == vb)
 			{
-				vehicle_t* new_veh = vehikelbauer_t::baue(get_pos(), get_owner(), NULL, vb, true, cnv->get_livery_scheme_index()); 
+				vehicle_t* new_veh = vehikelbauer_t::build(get_pos(), get_owner(), NULL, vb, true, cnv->get_livery_scheme_index()); 
 				cnv->upgrade_vehicle(i, new_veh);
 				if(cnv->get_vehikel(i)->get_desc()->get_nachfolger_count() == 1 && cnv->get_vehikel(i)->get_desc()->get_leistung() != 0)
 				{
 					//We need to upgrade tenders, too.	
-					vehicle_t* new_veh_2 = vehikelbauer_t::baue(get_pos(), get_owner(), NULL, new_veh->get_desc()->get_nachfolger(0), true); 
+					vehicle_t* new_veh_2 = vehikelbauer_t::build(get_pos(), get_owner(), NULL, new_veh->get_desc()->get_nachfolger(0), true); 
 					cnv->upgrade_vehicle(i + 1, new_veh_2);
 					// The above assumes that tenders are free, which they are in Pak128.Britain, the cost being built into the locomotive.
 					// The below ought work more accurately, but does not work properly, for some reason.
@@ -275,9 +275,9 @@ void depot_t::upgrade_vehicle(convoihandle_t cnv, const vehikel_desc_t* vb)
 					if(count > 0 && cnv->get_vehikel(1)->get_desc()->get_leistung() > 0 && cnv->get_vehikel(1)->get_desc()->get_nachfolger_count() > 0)
 					{
 						// Garrett detected - need to upgrade all three vehicles.
-						vehicle_t* new_veh_2 = vehikelbauer_t::baue(get_pos(), get_owner(), NULL, new_veh->get_desc()->get_nachfolger(0), true); 
+						vehicle_t* new_veh_2 = vehikelbauer_t::build(get_pos(), get_owner(), NULL, new_veh->get_desc()->get_nachfolger(0), true); 
 						cnv->upgrade_vehicle(i + 1, new_veh_2);
-						vehicle_t* new_veh_3 = vehikelbauer_t::baue(get_pos(), get_owner(), NULL, new_veh->get_desc()->get_nachfolger(0), true); 
+						vehicle_t* new_veh_3 = vehikelbauer_t::build(get_pos(), get_owner(), NULL, new_veh->get_desc()->get_nachfolger(0), true); 
 						cnv->upgrade_vehicle(i + 2, new_veh_3);
 					}
 				}
@@ -448,7 +448,7 @@ convoihandle_t depot_t::copy_convoi(convoihandle_t old_cnv, bool local_execution
 						
 					}
 					// buy new vehicle
-					new_vehicle = vehikelbauer_t::baue(get_pos(), get_owner(), NULL, info, false, old_cnv->get_livery_scheme_index());
+					new_vehicle = vehikelbauer_t::build(get_pos(), get_owner(), NULL, info, false, old_cnv->get_livery_scheme_index());
 				}
 				// append new vehicle
 				append_vehicle(new_cnv, new_vehicle, false, local_execution);

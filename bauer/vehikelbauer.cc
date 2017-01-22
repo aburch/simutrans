@@ -166,7 +166,7 @@ void vehikelbauer_t::rdwr_speedbonus(loadsave_t *file)
 }
 
 
-vehicle_t* vehikelbauer_t::baue(koord3d k, player_t* player, convoi_t* cnv, const vehikel_desc_t* vb, bool upgrade, uint16 livery_scheme_index )
+vehicle_t* vehikelbauer_t::build(koord3d k, player_t* player, convoi_t* cnv, const vehikel_desc_t* vb, bool upgrade, uint16 livery_scheme_index )
 {
 	vehicle_t* v;
 	static karte_ptr_t welt;
@@ -181,7 +181,7 @@ vehicle_t* vehikelbauer_t::baue(koord3d k, player_t* player, convoi_t* cnv, cons
 		case narrowgauge_wt:v = new narrowgauge_rail_vehicle_t(k, vb, player, cnv); break;
 
 		default:
-			dbg->fatal("vehikelbauer_t::baue()", "cannot built a vehicle with waytype %i", vb->get_waytype());
+			dbg->fatal("vehikelbauer_t::build()", "cannot built a vehicle with waytype %i", vb->get_waytype());
 	}
 
 	if(cnv)

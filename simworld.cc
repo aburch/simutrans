@@ -899,7 +899,7 @@ void karte_t::create_rivers( sint16 number )
 			riverbuilder.calc_route( lookup_kartenboden(end)->get_pos(), lookup_kartenboden(start)->get_pos() );
 			if(  riverbuilder.get_count() >= (uint32)settings.get_min_river_length()  ) {
 				// do not built too short rivers
-				riverbuilder.baue();
+				riverbuilder.build();
 				river_count++;
 				number--;
 				retrys++;
@@ -1105,7 +1105,7 @@ void karte_t::distribute_cities( settings_t const * const sets, sint16 old_x, si
 		}
 
 		wegbauer_t bauigel (NULL);
-		bauigel.route_fuer(wegbauer_t::strasse | wegbauer_t::terraform_flag, desc, tunnelbauer_t::find_tunnel(road_wt,15,get_timeline_year_month()), brueckenbauer_t::find_bridge(road_wt,15,get_timeline_year_month()) );
+		bauigel.route_fuer(wegbauer_t::strasse | wegbauer_t::terraform_flag, desc, tunnelbauer_t::find_tunnel(road_wt,15,get_timeline_year_month()), bridge_builder_t::find_bridge(road_wt,15,get_timeline_year_month()) );
 		bauigel.set_keep_existing_ways(true);
 		bauigel.set_maximum(env_t::intercity_road_length);
 
@@ -1184,7 +1184,7 @@ void karte_t::distribute_cities( settings_t const * const sets, sint16 old_x, si
 			route_t verbindung;
 			vehicle_t* test_driver;
 			vehikel_desc_t test_drive_desc(road_wt, 500, vehikel_desc_t::diesel );
-			test_driver = vehikelbauer_t::baue(koord3d(), players[1], NULL, &test_drive_desc);
+			test_driver = vehikelbauer_t::build(koord3d(), players[1], NULL, &test_drive_desc);
 			test_driver->set_flag( obj_t::not_on_map );
 
 			bool ready=false;
@@ -1283,7 +1283,7 @@ void karte_t::distribute_cities( settings_t const * const sets, sint16 old_x, si
 					}
 
 					if(  build  &&  bauigel.get_count() >= 2  ) {
-						bauigel.baue();
+						bauigel.build();
 						if (phase==0) {
 							city_flag[ conn.y ] = conn_comp;
 						}
@@ -2910,11 +2910,11 @@ void karte_t::set_scale()
 	}
 
 	// Bridges
-	stringhashtable_tpl <bruecke_desc_t *> * bridges = brueckenbauer_t::get_all_bridges();
+	stringhashtable_tpl <bridge_desc_t *> * bridges = bridge_builder_t::get_all_bridges();
 
 	if(bridges != NULL)
 	{
-		FOR(stringhashtable_tpl<bruecke_desc_t *>, & info, *bridges)
+		FOR(stringhashtable_tpl<bridge_desc_t *>, & info, *bridges)
 		{
 			info.value->set_scale(scale_factor);
 		}

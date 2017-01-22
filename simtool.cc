@@ -482,7 +482,7 @@ DBG_MESSAGE("tool_remover_intern()","at (%s)", pos.get_str());
 				gr = gr_new;
 			}
 			else if(  br->get_desc()->get_waytype() == powerline_wt  ) {
-				msg = brueckenbauer_t::remove(player, gr->get_pos(), powerline_wt );
+				msg = bridge_builder_t::remove(player, gr->get_pos(), powerline_wt );
 				return msg == NULL;
 			}
 		}
@@ -602,7 +602,7 @@ DBG_MESSAGE("tool_remover()",  "removing bridge from %d,%d,%d",gr->get_pos().x, 
 		{
 			welt->set_recheck_road_connexions();
 		}
-		msg = brueckenbauer_t::remove(player, gr->get_pos(), br->get_desc()->get_waytype());
+		msg = bridge_builder_t::remove(player, gr->get_pos(), br->get_desc()->get_waytype());
 		return msg == NULL;
 	}
 
@@ -2611,7 +2611,7 @@ const char *tool_build_way_t::do_work( player_t *player, const koord3d &start, c
 			return NOTICE_INSUFFICIENT_FUNDS;
 		}
 		welt->mute_sound(true);
-		bauigel.baue();
+		bauigel.build();
 		welt->mute_sound(false);
 		if(!is_shift_pressed())
 		{
@@ -2678,7 +2678,7 @@ const char *tool_build_cityroad::do_work( player_t *player, const koord3d &start
 	calc_route( bauigel, start, end );
 	if(  bauigel.get_route().get_count()>1  ) {
 		welt->mute_sound(true);
-		bauigel.baue();
+		bauigel.build();
 		welt->mute_sound(false);
 
 		return NULL;
@@ -2690,7 +2690,7 @@ const char *tool_build_cityroad::do_work( player_t *player, const koord3d &start
 /* bridge construction */
 const char* tool_build_bridge_t::get_tooltip(const player_t *) const
 {
-	const bruecke_desc_t * desc = brueckenbauer_t::get_desc(default_param);
+	const bridge_desc_t * desc = bridge_builder_t::get_desc(default_param);
 	if (desc == NULL) {
 		return "";
 	}
@@ -2731,7 +2731,7 @@ const char* tool_build_bridge_t::get_tooltip(const player_t *) const
 
 waytype_t tool_build_bridge_t::get_waytype() const
 {
-	const bruecke_desc_t * desc = brueckenbauer_t::get_desc(default_param);
+	const bridge_desc_t * desc = bridge_builder_t::get_desc(default_param);
 	return desc ? desc->get_waytype() : invalid_wt;
 }
 
@@ -2739,7 +2739,7 @@ bool tool_build_bridge_t::init( player_t *player )
 {
 	two_click_tool_t::init( player );
 	// now get current desc
-	const bruecke_desc_t *desc = brueckenbauer_t::get_desc(default_param);
+	const bridge_desc_t *desc = bridge_builder_t::get_desc(default_param);
 	if(  desc  &&  !desc->is_available(welt->get_timeline_year_month())  &&  player!=NULL  &&  player!=welt->get_public_player()) {
 		return false;
 	}
@@ -2748,22 +2748,22 @@ bool tool_build_bridge_t::init( player_t *player )
 
 const char *tool_build_bridge_t::do_work( player_t *player, const koord3d &start, const koord3d &end )
 {
-	const bruecke_desc_t *desc = brueckenbauer_t::get_desc(default_param);
+	const bridge_desc_t *desc = bridge_builder_t::get_desc(default_param);
 	if (end==koord3d::invalid) {
-		return brueckenbauer_t::baue( player, start, desc );
+		return bridge_builder_t::build( player, start, desc );
 	}
 	else {
 		const koord zv(ribi_type(end-start));
 		sint8 bridge_height;
 		const char *error;
-		koord3d end2 = brueckenbauer_t::finde_ende(player, start, zv, desc, error, bridge_height, false, koord_distance(start, end), is_ctrl_pressed());
+		koord3d end2 = bridge_builder_t::find_end_pos(player, start, zv, desc, error, bridge_height, false, koord_distance(start, end), is_ctrl_pressed());
 		assert(end2 == end); (void)end2;
 		waytype_t wt = desc->get_waytype();
 		if (weg_desc == NULL)
 		{
 			weg_desc = desc->get_weg_desc();
 		}
-		brueckenbauer_t::baue_bruecke( player, start, end, zv, bridge_height, desc, weg_desc ? weg_desc : wegbauer_t::weg_search(desc->get_waytype(), desc->get_topspeed(), welt->get_timeline_year_month(), type_flat));
+		bridge_builder_t::build_bridge( player, start, end, zv, bridge_height, desc, weg_desc ? weg_desc : wegbauer_t::weg_search(desc->get_waytype(), desc->get_topspeed(), welt->get_timeline_year_month(), type_flat));
 		return NULL; // all checks are performed before building.
 	}
 }
@@ -2782,7 +2782,7 @@ void tool_build_bridge_t::rdwr_custom_data(memory_rw_t *packet)
 	}
 	else
 	{
-		const bruecke_desc_t* bb = brueckenbauer_t::get_desc(default_param);
+		const bridge_desc_t* bb = bridge_builder_t::get_desc(default_param);
 		const waytype_t wt = bb ? bb->get_waytype() : invalid_wt;
 		weg_desc = tool_build_way_t::defaults[wt & 63];
 
@@ -2795,10 +2795,10 @@ void tool_build_bridge_t::mark_tiles(  player_t *player, const koord3d &start, c
 {
 	const ribi_t::ribi ribi_mark = ribi_type(end-start);
 	const koord zv(ribi_mark);
-	const bruecke_desc_t *desc = brueckenbauer_t::get_desc(default_param);
+	const bridge_desc_t *desc = bridge_builder_t::get_desc(default_param);
 	const char *error;
 	sint8 bridge_height;
-	koord3d end2 = brueckenbauer_t::finde_ende(player, start, zv, desc, error, bridge_height, false, koord_distance(start, end), is_ctrl_pressed());
+	koord3d end2 = bridge_builder_t::find_end_pos(player, start, zv, desc, error, bridge_height, false, koord_distance(start, end), is_ctrl_pressed());
 
 	assert(end == end2);
 
@@ -2814,7 +2814,7 @@ void tool_build_bridge_t::mark_tiles(  player_t *player, const koord3d &start, c
 	uint8 max_height = slope ?  slope_t::max_diff(slope) : bridge_height;
 
 	zeiger_t *way = new zeiger_t(start, player );
-	const bruecke_desc_t::img_t img0 = desc->get_end( slope, slope, slope_type(zv)*max_height );
+	const bridge_desc_t::img_t img0 = desc->get_end( slope, slope, slope_type(zv)*max_height );
 
 	gr->obj_add( way );
 	way->set_image( desc->get_background( img0, 0 ) );
@@ -2875,7 +2875,7 @@ void tool_build_bridge_t::mark_tiles(  player_t *player, const koord3d &start, c
 
 	if(  gr->ist_karten_boden()  &&  end.z + end_max_height == start.z + max_height  ) {
 		zeiger_t *way = new zeiger_t(end, player );
-		const bruecke_desc_t::img_t img1 = desc->get_end( end_slope, end_slope, end_slope?0:(pos.z-end.z)*slope_type(-zv) );
+		const bridge_desc_t::img_t img1 = desc->get_end( end_slope, end_slope, end_slope?0:(pos.z-end.z)*slope_type(-zv) );
 		gr->obj_add( way );
 		way->set_image(desc->get_background(img1, 0));
 		way->set_after_image(desc->get_foreground(img1, 0));
@@ -2912,12 +2912,12 @@ void tool_build_bridge_t::mark_tiles(  player_t *player, const koord3d &start, c
 
 uint8 tool_build_bridge_t::is_valid_pos(  player_t *player, const koord3d &pos, const char *&error, const koord3d &start )
 {
-	const bruecke_desc_t *desc = brueckenbauer_t::get_desc(default_param);
+	const bridge_desc_t *desc = bridge_builder_t::get_desc(default_param);
 	const waytype_t wt = desc->get_waytype();
 
 	error = NULL;
 	grund_t *gr = welt->lookup(pos);
-	if(  gr==NULL  ||  !slope_t::is_way(gr->get_grund_hang())  ||  !brueckenbauer_t::ist_ende_ok( player, gr, wt, (is_first_click() ? 0 : ribi_type(pos-start)) )  ) {
+	if(  gr==NULL  ||  !slope_t::is_way(gr->get_grund_hang())  ||  !bridge_builder_t::can_place_ramp( player, gr, wt, (is_first_click() ? 0 : ribi_type(pos-start)) )  ) {
 		return 0;
 	}
 
@@ -2993,7 +2993,7 @@ uint8 tool_build_bridge_t::is_valid_pos(  player_t *player, const koord3d &pos, 
 		// check whether we can build a bridge here
 		const char *error = NULL;
 		sint8 bridge_height;
- 		koord3d end = brueckenbauer_t::finde_ende(player, start, koord(test), desc, error, bridge_height, false, koord_distance(start, pos), is_ctrl_pressed());
+ 		koord3d end = bridge_builder_t::find_end_pos(player, start, koord(test), desc, error, bridge_height, false, koord_distance(start, pos), is_ctrl_pressed());
 		if (end!=pos) {
 			return 0;
 		}
@@ -3118,7 +3118,7 @@ const char *tool_build_tunnel_t::do_work( player_t *player, const koord3d &start
 		// Build tunnel mouths
 		if (welt->lookup_kartenboden(start.get_2d())->get_hoehe() == start.z) {
 			const tunnel_desc_t *desc = tunnelbauer_t::get_desc(default_param);
-			return tunnelbauer_t::baue( player, start.get_2d(), desc, !is_ctrl_pressed(), weg_desc );
+			return tunnelbauer_t::build( player, start.get_2d(), desc, !is_ctrl_pressed(), weg_desc );
 		}
 		else {
 			return "";
@@ -3130,7 +3130,7 @@ const char *tool_build_tunnel_t::do_work( player_t *player, const koord3d &start
 		calc_route( bauigel, start, end );
 		welt->mute_sound(true);
 		bauigel.set_desc(weg_desc);
-		bauigel.baue();
+		bauigel.build();
 		welt->mute_sound(false);
 		welt->lookup_kartenboden(end.get_2d())->clear_flag(grund_t::marked);
 		return NULL;
@@ -3357,7 +3357,7 @@ bool tool_wayremover_t::calc_route( route_t &verbindung, player_t *player, const
 		test_driver_t* test_driver;
 		if(  wt!=powerline_wt  ) {
 			vehikel_desc_t remover_desc(wt, 500, vehikel_desc_t::diesel );
-			vehicle_t *driver = vehikelbauer_t::baue(start, player, NULL, &remover_desc);
+			vehicle_t *driver = vehikelbauer_t::build(start, player, NULL, &remover_desc);
 			driver->set_flag( obj_t::not_on_map );
 			test_driver = driver;
 		}
@@ -3470,7 +3470,7 @@ const char *tool_wayremover_t::do_work( player_t *player, const koord3d &start, 
 						if(gr->ist_karten_boden()) 
 						{
 							const char *err = NULL;
-							err = brueckenbauer_t::remove(player,verbindung.at(i),wt);
+							err = bridge_builder_t::remove(player,verbindung.at(i),wt);
 							if(err) 
 							{
 								return err;
@@ -3691,7 +3691,7 @@ bool tool_wayobj_t::calc_route( route_t &verbindung, player_t *player, const koo
 {
 	// get a default vehikel
 	vehikel_desc_t remover_desc( wt, 500, vehikel_desc_t::diesel );
-	vehicle_t* test_vehicle = vehikelbauer_t::baue(start, player, NULL, &remover_desc);
+	vehicle_t* test_vehicle = vehikelbauer_t::build(start, player, NULL, &remover_desc);
 	test_vehicle->set_flag( obj_t::not_on_map );
 	test_driver_t* test_driver = scenario_checker_t::apply(test_vehicle, player, this);
 
@@ -4063,7 +4063,7 @@ DBG_MESSAGE("tool_station_building_aux()", "building mail office/station buildin
 		return NOTICE_INSUFFICIENT_FUNDS;
 	}
 
-	gebaeude_t* gb = hausbauer_t::baue(halt->get_owner(), pos-offsets, rotation, desc, &halt);
+	gebaeude_t* gb = hausbauer_t::build(halt->get_owner(), pos-offsets, rotation, desc, &halt);
 	stadt_t* city = welt->get_city(pos.get_2d()-offsets);
 	if(city)
 	{
@@ -4267,7 +4267,7 @@ DBG_MESSAGE("tool_dockbau()","building dock from square (%d,%d) to (%d,%d)", k.x
 			welt->get_message()->add_message(message, pos.get_2d(), message_t::ai, player->get_player_color1());
 		}
 	}
-	hausbauer_t::baue(halt->get_owner(), bau_pos, layout, desc, &halt);
+	hausbauer_t::build(halt->get_owner(), bau_pos, layout, desc, &halt);
 
 	if(player != halt->get_owner() && player != welt->get_public_player())
 	{
@@ -4517,7 +4517,7 @@ const char *tool_build_station_t::tool_station_flat_dock_aux(player_t *player, k
 		halt = haltestelle_t::create(k, player);
 	}
 
-	hausbauer_t::baue(halt->get_owner(), bau_pos, layout, desc, &halt);
+	hausbauer_t::build(halt->get_owner(), bau_pos, layout, desc, &halt);
 
 	if(player != halt->get_owner() && player != welt->get_public_player())
 	{
@@ -5495,7 +5495,7 @@ bool tool_build_roadsign_t::calc_route( route_t &verbindung, player_t *player, c
 {
 	// get a default vehikel
 	vehikel_desc_t rs_desc( desc->get_wtyp(), 500, vehikel_desc_t::diesel );
-	vehicle_t* test_vehicle = vehikelbauer_t::baue(start, player, NULL, &rs_desc);
+	vehicle_t* test_vehicle = vehikelbauer_t::build(start, player, NULL, &rs_desc);
 	test_vehicle->set_flag(obj_t::not_on_map);
 	test_driver_t* test_driver = scenario_checker_t::apply(test_vehicle, player, this);
 
@@ -5940,7 +5940,7 @@ const char* tool_signalbox_t::tool_signalbox_aux(player_t* player, koord3d pos, 
 			}
 			layout = building_layout[trackdir];
 
-			gebaeude_t* gb = hausbauer_t::baue(player, gr->get_pos(), layout, desc);
+			gebaeude_t* gb = hausbauer_t::build(player, gr->get_pos(), layout, desc);
 			player_t::book_construction_costs(player, -cost, pos.get_2d(), desc->get_finance_waytype());
 			if(is_local_execution()  &&  player == welt->get_active_player())
 			{
@@ -6161,7 +6161,7 @@ const char *tool_depot_t::work( player_t *player, koord3d pos )
 				if(err==NULL) {
 					grund_t *bd = welt->lookup_kartenboden(pos.get_2d());
 					if(hausbauer_t::elevated_foundation_desc  &&  pos.z-bd->get_pos().z==1  &&  bd->ist_natur()) {
-						hausbauer_t::baue(player, bd->get_pos(), 0, hausbauer_t::elevated_foundation_desc );
+						hausbauer_t::build(player, bd->get_pos(), 0, hausbauer_t::elevated_foundation_desc );
 					}
 				}
 				return err;
@@ -6277,7 +6277,7 @@ const char *tool_build_house_t::work( player_t *player, koord3d pos )
 	// Platz gefunden ...
 	if(hat_platz) {
 		player_t *gb_player = desc->get_typ()!=gebaeude_t::unbekannt ? NULL : welt->get_public_player();
-		gebaeude_t *gb = hausbauer_t::baue(gb_player, gr->get_pos(), rotation, desc);
+		gebaeude_t *gb = hausbauer_t::build(gb_player, gr->get_pos(), rotation, desc);
 		if(gb) {
 			// building successful
 			// ought to be added to the city.
@@ -6755,7 +6755,7 @@ DBG_MESSAGE("tool_headquarter()", "building headquarter at (%d,%d)", pos.x, pos.
 
 			if(ok) {
 				// then build it
-				hq = hausbauer_t::baue(player, gr->get_pos(), rotate, desc, NULL);
+				hq = hausbauer_t::build(player, gr->get_pos(), rotate, desc, NULL);
 				stadt_t *city = welt->get_city( pos.get_2d() );
 				if(city) {
 					city->add_gebaeude_to_stadt(hq);

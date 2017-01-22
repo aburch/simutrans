@@ -2362,7 +2362,7 @@ bool grund_t::removing_way_would_disrupt_public_right_of_way(waytype_t wt)
 			if(end != koord3d::invalid)
 			{
 				route_t diversionary_route;
-				vehicle_t *diversion_checker = vehikelbauer_t::baue(start, welt->get_public_player(), NULL, &diversion_check_type);
+				vehicle_t *diversion_checker = vehikelbauer_t::build(start, welt->get_public_player(), NULL, &diversion_check_type);
 				diversion_checker->set_flag(obj_t::not_on_map);
 				diversion_checker->set_owner(welt->get_public_player());
 				test_driver_t *driver = diversion_checker;

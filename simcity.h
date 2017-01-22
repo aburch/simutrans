@@ -430,7 +430,7 @@ private:
 	bool maybe_build_road(koord k);
 	bool baue_strasse(const koord k, player_t *player, bool forced);
 
-	void baue(bool new_town);
+	void build(bool new_town);
 
 	/**
 	 * @param pos position to check

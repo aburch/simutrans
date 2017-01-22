@@ -36,7 +36,7 @@ bruecke_t::bruecke_t(loadsave_t* const file) :
 }
 
 
-bruecke_t::bruecke_t(koord3d pos, player_t *player, const bruecke_desc_t *desc, bruecke_desc_t::img_t img) :
+bruecke_t::bruecke_t(koord3d pos, player_t *player, const bridge_desc_t *desc, bridge_desc_t::img_t img) :
 #ifdef INLINE_OBJ_TYPE
 	obj_no_info_t(obj_t::bruecke, pos)
 #else
@@ -51,15 +51,15 @@ bruecke_t::bruecke_t(koord3d pos, player_t *player, const bruecke_desc_t *desc, 
 
 
 // single height segments
-static bruecke_desc_t::img_t single_img[24]= {
-	bruecke_desc_t::NS_Segment, bruecke_desc_t::OW_Segment,
-	bruecke_desc_t::N_Start, bruecke_desc_t::S_Start, bruecke_desc_t::O_Start, bruecke_desc_t::W_Start,
-	bruecke_desc_t::N_Rampe, bruecke_desc_t::S_Rampe, bruecke_desc_t::O_Rampe, bruecke_desc_t::W_Rampe,
-	bruecke_desc_t::NS_Pillar, bruecke_desc_t::OW_Pillar,
-	bruecke_desc_t::NS_Segment, bruecke_desc_t::OW_Segment,
-	bruecke_desc_t::N_Start, bruecke_desc_t::S_Start, bruecke_desc_t::O_Start, bruecke_desc_t::W_Start,
-	bruecke_desc_t::N_Rampe, bruecke_desc_t::S_Rampe, bruecke_desc_t::O_Rampe, bruecke_desc_t::W_Rampe,
-	bruecke_desc_t::NS_Pillar, bruecke_desc_t::OW_Pillar
+static bridge_desc_t::img_t single_img[24]= {
+	bridge_desc_t::NS_Segment, bridge_desc_t::OW_Segment,
+	bridge_desc_t::N_Start, bridge_desc_t::S_Start, bridge_desc_t::O_Start, bridge_desc_t::W_Start,
+	bridge_desc_t::N_Ramp, bridge_desc_t::S_Ramp, bridge_desc_t::O_Ramp, bridge_desc_t::W_Ramp,
+	bridge_desc_t::NS_Pillar, bridge_desc_t::OW_Pillar,
+	bridge_desc_t::NS_Segment, bridge_desc_t::OW_Segment,
+	bridge_desc_t::N_Start, bridge_desc_t::S_Start, bridge_desc_t::O_Start, bridge_desc_t::W_Start,
+	bridge_desc_t::N_Ramp, bridge_desc_t::S_Ramp, bridge_desc_t::O_Ramp, bridge_desc_t::W_Ramp,
+	bridge_desc_t::NS_Pillar, bridge_desc_t::OW_Pillar
 };
 
 void bruecke_t::calc_image()
@@ -156,9 +156,9 @@ void bruecke_t::rdwr(loadsave_t *file)
 	file->rdwr_enum(img);
 
 	if(file->is_loading()) {
-		desc = brueckenbauer_t::get_desc(s);
+		desc = bridge_builder_t::get_desc(s);
 		if(desc==NULL) {
-			desc = brueckenbauer_t::get_desc(translator::compatibility_name(s));
+			desc = bridge_builder_t::get_desc(translator::compatibility_name(s));
 		}
 		if(desc==NULL) {
 			dbg->warning( "bruecke_t::rdwr()", "unknown bridge \"%s\" at (%i,%i) will be replaced with best match!", s, get_pos().x, get_pos().y );
@@ -168,18 +168,18 @@ void bruecke_t::rdwr(loadsave_t *file)
 
 		if(  file->get_version() < 112007 && env_t::pak_height_conversion_factor==2  ) {
 			switch(img) {
-				case bruecke_desc_t::OW_Segment: img = bruecke_desc_t::OW_Segment2; break;
-				case bruecke_desc_t::NS_Segment: img = bruecke_desc_t::NS_Segment2; break;
-				case bruecke_desc_t::O_Start:    img = bruecke_desc_t::O_Start2;    break;
-				case bruecke_desc_t::W_Start:    img = bruecke_desc_t::W_Start2;    break;
-				case bruecke_desc_t::S_Start:    img = bruecke_desc_t::S_Start2;    break;
-				case bruecke_desc_t::N_Start:    img = bruecke_desc_t::N_Start2;    break;
-				case bruecke_desc_t::O_Rampe:    img = bruecke_desc_t::O_Rampe2;    break;
-				case bruecke_desc_t::W_Rampe:    img = bruecke_desc_t::W_Rampe2;    break;
-				case bruecke_desc_t::S_Rampe:    img = bruecke_desc_t::S_Rampe2;    break;
-				case bruecke_desc_t::N_Rampe:    img = bruecke_desc_t::N_Rampe2;    break;
-				case bruecke_desc_t::OW_Pillar:  img = bruecke_desc_t::OW_Pillar2;  break;
-				case bruecke_desc_t::NS_Pillar:  img = bruecke_desc_t::NS_Pillar2;  break;
+				case bridge_desc_t::OW_Segment: img = bridge_desc_t::OW_Segment2; break;
+				case bridge_desc_t::NS_Segment: img = bridge_desc_t::NS_Segment2; break;
+				case bridge_desc_t::O_Start:    img = bridge_desc_t::O_Start2;    break;
+				case bridge_desc_t::W_Start:    img = bridge_desc_t::W_Start2;    break;
+				case bridge_desc_t::S_Start:    img = bridge_desc_t::S_Start2;    break;
+				case bridge_desc_t::N_Start:    img = bridge_desc_t::N_Start2;    break;
+				case bridge_desc_t::O_Ramp:    img = bridge_desc_t::O_Ramp2;    break;
+				case bridge_desc_t::W_Ramp:    img = bridge_desc_t::W_Ramp2;    break;
+				case bridge_desc_t::S_Ramp:    img = bridge_desc_t::S_Ramp2;    break;
+				case bridge_desc_t::N_Ramp:    img = bridge_desc_t::N_Ramp2;    break;
+				case bridge_desc_t::OW_Pillar:  img = bridge_desc_t::OW_Pillar2;  break;
+				case bridge_desc_t::NS_Pillar:  img = bridge_desc_t::NS_Pillar2;  break;
 				default: break;
 			}
 		}
@@ -194,7 +194,7 @@ void bruecke_t::finish_rd()
 	if(desc==NULL) {
 		weg_t *weg = gr->get_weg_nr(0);
 		if(weg) {
-			desc = brueckenbauer_t::find_bridge(weg->get_waytype(),weg->get_max_speed(),0);
+			desc = bridge_builder_t::find_bridge(weg->get_waytype(),weg->get_max_speed(),0);
 		}
 		if(desc==NULL) {
 			dbg->fatal("bruecke_t::rdwr()","Unknown bridge type at (%i,%i)", get_pos().x, get_pos().y );
@@ -247,7 +247,7 @@ void bruecke_t::finish_rd()
 	}
 	else {
 		if(  gr->get_grund_hang() == slope_t::flat  ) {
-			//img = desc->get_rampe( gr->get_weg_hang() );
+			//img = desc->get_ramp( gr->get_weg_hang() );
 		}
 		else {
 			img = desc->get_start( gr->get_grund_hang() );
@@ -297,15 +297,15 @@ void bruecke_t::cleanup( player_t *player2 )
 
 
 // rotated segment names
-static bruecke_desc_t::img_t rotate90_img[24]= {
-	bruecke_desc_t::OW_Segment, bruecke_desc_t::NS_Segment,
-	bruecke_desc_t::O_Start, bruecke_desc_t::W_Start, bruecke_desc_t::S_Start, bruecke_desc_t::N_Start,
-	bruecke_desc_t::O_Rampe, bruecke_desc_t::W_Rampe, bruecke_desc_t::S_Rampe, bruecke_desc_t::N_Rampe,
-	bruecke_desc_t::OW_Pillar, bruecke_desc_t::NS_Pillar,
-	bruecke_desc_t::OW_Segment2, bruecke_desc_t::NS_Segment2,
-	bruecke_desc_t::O_Start2, bruecke_desc_t::W_Start2, bruecke_desc_t::S_Start2, bruecke_desc_t::N_Start2,
-	bruecke_desc_t::O_Rampe2, bruecke_desc_t::W_Rampe2, bruecke_desc_t::S_Rampe2, bruecke_desc_t::N_Rampe2,
-	bruecke_desc_t::OW_Pillar2, bruecke_desc_t::NS_Pillar2
+static bridge_desc_t::img_t rotate90_img[24]= {
+	bridge_desc_t::OW_Segment, bridge_desc_t::NS_Segment,
+	bridge_desc_t::O_Start, bridge_desc_t::W_Start, bridge_desc_t::S_Start, bridge_desc_t::N_Start,
+	bridge_desc_t::O_Ramp, bridge_desc_t::W_Ramp, bridge_desc_t::S_Ramp, bridge_desc_t::N_Ramp,
+	bridge_desc_t::OW_Pillar, bridge_desc_t::NS_Pillar,
+	bridge_desc_t::OW_Segment2, bridge_desc_t::NS_Segment2,
+	bridge_desc_t::O_Start2, bridge_desc_t::W_Start2, bridge_desc_t::S_Start2, bridge_desc_t::N_Start2,
+	bridge_desc_t::O_Ramp2, bridge_desc_t::W_Ramp2, bridge_desc_t::S_Ramp2, bridge_desc_t::N_Ramp2,
+	bridge_desc_t::OW_Pillar2, bridge_desc_t::NS_Pillar2
 };
 
 

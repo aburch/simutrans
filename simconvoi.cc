@@ -1681,7 +1681,7 @@ void convoi_t::step()
 								{
 									if(replace->get_replacing_vehicle(i) == vehicle[j]->get_desc()->get_upgrades(c))
 									{
-										veh = vehikelbauer_t::baue(get_pos(), get_owner(), NULL, replace->get_replacing_vehicle(i), true);
+										veh = vehikelbauer_t::build(get_pos(), get_owner(), NULL, replace->get_replacing_vehicle(i), true);
 										upgrade_vehicle(j, veh);
 										remove_vehikel_bei(j);
 										goto end_loop;

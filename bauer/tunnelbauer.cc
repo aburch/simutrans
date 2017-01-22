@@ -142,7 +142,7 @@ void tunnelbauer_t::fill_menu(tool_selector_t* tool_selector, const waytype_t wt
 /* now construction stuff */
 
 
-koord3d tunnelbauer_t::finde_ende(player_t *player, koord3d pos, koord zv, const tunnel_desc_t *desc, bool full_tunnel, const char** msg)
+koord3d tunnelbauer_t::find_end_pos(player_t *player, koord3d pos, koord zv, const tunnel_desc_t *desc, bool full_tunnel, const char** msg)
 {
 	const grund_t *gr;
 	leitung_t *lt;
@@ -299,7 +299,7 @@ koord3d tunnelbauer_t::finde_ende(player_t *player, koord3d pos, koord zv, const
 }
 
 
-const char *tunnelbauer_t::baue( player_t *player, koord pos, const tunnel_desc_t *desc, bool full_tunnel, const weg_desc_t *weg_desc)
+const char *tunnelbauer_t::build( player_t *player, koord pos, const tunnel_desc_t *desc, bool full_tunnel, const weg_desc_t *weg_desc)
 {
 	assert( desc );
 
@@ -348,7 +348,7 @@ const char *tunnelbauer_t::baue( player_t *player, koord pos, const tunnel_desc_
 
 	// Search tunnel end and check intermediate tiles
 	const char *err = NULL;
-	koord3d end = finde_ende(player, gr->get_pos(), zv, desc, full_tunnel, &err);
+	koord3d end = find_end_pos(player, gr->get_pos(), zv, desc, full_tunnel, &err);
 	if (err) {
 		return err;
 	}
@@ -376,7 +376,7 @@ const char *tunnelbauer_t::baue( player_t *player, koord pos, const tunnel_desc_
 	const grund_t *end_gr = welt->lookup(end);
 	slope_t::type end_slope = slope_type(-zv) * env_t::pak_height_conversion_factor;
 	if(  full_tunnel  &&  (!end_gr  ||  end_gr->get_grund_hang()!=end_slope)  ) {
-		// end slope not at correct height - we have already checked in finde_ende that we can change this
+		// end slope not at correct height - we have already checked in find_end_pos that we can change this
 		sint8 hsw = end.z + corner_sw(end_slope);
 		sint8 hse = end.z + corner_se(end_slope);
 		sint8 hne = end.z + corner_ne(end_slope);
@@ -420,7 +420,7 @@ bool tunnelbauer_t::baue_tunnel(player_t *player, koord3d start, koord3d end, ko
 	sint64 cost = 0;
 	waytype_t waytyp = desc->get_waytype();
 
-	DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d,%d) to (%d,%d,%d) ", pos.x, pos.y, pos.z, end.x, end.y, end.z );
+	DBG_MESSAGE("tunnelbauer_t::build()","build from (%d,%d,%d) to (%d,%d,%d) ", pos.x, pos.y, pos.z, end.x, end.y, end.z );
 
 	// now we search for a matching way for the tunnel's top speed
 	// The tunnel ways are no longer properly encoded, with the result that weg_desc is garbled

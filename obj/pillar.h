@@ -8,13 +8,13 @@
  *
  * Hj. Malthaner
  */
-class bruecke_desc_t;
+class bridge_desc_t;
 class loadsave_t;
 class karte_t;
 
 class pillar_t : public obj_t
 {
-	const bruecke_desc_t *desc;
+	const bridge_desc_t *desc;
 	uint8 dir;
 	bool asymmetric;
 	image_id image;
@@ -24,7 +24,7 @@ protected:
 
 public:
 	pillar_t(loadsave_t *file);
-	pillar_t(koord3d pos, player_t *player, const bruecke_desc_t *desc, bruecke_desc_t::img_t img, int hoehe);
+	pillar_t(koord3d pos, player_t *player, const bridge_desc_t *desc, bridge_desc_t::img_t img, int hoehe);
 
 	const char* get_name() const { return "Pillar"; }
 #ifdef INLINE_OBJ_TYPE
@@ -32,7 +32,7 @@ public:
 	typ get_typ() const { return obj_t::pillar; }
 #endif
 
-	const bruecke_desc_t* get_desc() const { return desc; }
+	const bridge_desc_t* get_desc() const { return desc; }
 
 	image_id get_image() const { return asymmetric ? IMG_EMPTY : image; }
 

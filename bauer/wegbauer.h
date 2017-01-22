@@ -16,7 +16,7 @@
 
 
 class weg_desc_t;
-class bruecke_desc_t;
+class bridge_desc_t;
 class tunnel_desc_t;
 class karte_ptr_t;
 class player_t;
@@ -127,7 +127,7 @@ private:
 	 * Type of bridges to build (zero=>no bridges)
 	 * @author Hj. Malthaner
 	 */
-	const bruecke_desc_t * bruecke_desc;
+	const bridge_desc_t * bruecke_desc;
 
 	/**
 	 * Type of bridges to build (zero=>no bridges)
@@ -230,7 +230,7 @@ public:
 
 	void set_mark_way_for_upgrade_only(bool yesno) { mark_way_for_upgrade_only = yesno; }
 
-	void route_fuer(bautyp_t wt, const weg_desc_t * desc, const tunnel_desc_t *tunnel_desc=NULL, const bruecke_desc_t *bruecke_desc=NULL);
+	void route_fuer(bautyp_t wt, const weg_desc_t * desc, const tunnel_desc_t *tunnel_desc=NULL, const bridge_desc_t *bruecke_desc=NULL);
 
 	void set_maximum(uint32 n) { maximum = n; }
 
@@ -259,7 +259,7 @@ public:
 	bool check_terraforming( const grund_t *from, const grund_t *to, uint8* new_from_slope=NULL, uint8* new_to_slope=NULL);
 	void do_terraforming();
 
-	void baue();
+	void build();
 };
 
 ENUM_BITSET(wegbauer_t::bautyp_t);

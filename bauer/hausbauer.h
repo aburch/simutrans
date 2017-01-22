@@ -160,7 +160,7 @@ public:
 	 *         part is not empty.
 	 * @author V. Meyer
 	 */
-	static gebaeude_t* baue(player_t* player, koord3d pos, int layout, const haus_desc_t* desc, void* param = NULL);
+	static gebaeude_t* build(player_t* player, koord3d pos, int layout, const haus_desc_t* desc, void* param = NULL);
 
 	/* build all kind of stops and depots
 	 * The building size must be 1x1
