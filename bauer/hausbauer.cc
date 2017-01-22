@@ -36,6 +36,7 @@
 #include "../simmesg.h"
 #include "../tpl/stringhashtable_tpl.h"
 #include "../tpl/weighted_vector_tpl.h"
+#include "../tpl/vector_tpl.h"
 #include "hausbauer.h"
 
 karte_ptr_t hausbauer_t::welt;
@@ -523,18 +524,25 @@ gebaeude_t* hausbauer_t::baue(player_t* player, koord3d pos, int org_layout, con
 			{
 				gr = welt->lookup_kartenboden(pos.get_2d() + k);
 			}
-			
-			leitung_t *lt = NULL;
-
+			// mostly remove everything
+			vector_tpl<obj_t *> keptobjs;
 			if(!gr->ist_wasser() && besch->get_utyp() != haus_besch_t::dock && besch->get_utyp() != haus_besch_t::flat_dock)
-			{
-				// very likely remove all
+			{			
 				if(!gr->hat_wege()) {
-					lt = gr->find<leitung_t>();
-					if(lt) {
-						gr->obj_remove(lt);
+					// save certain object types
+					for (uint8 i = 0; i < gr->obj_count(); i++) {
+						obj_t *const obj = gr->obj_bei(i);
+						obj_t::typ const objtype = obj->get_typ();
+						if (objtype == obj_t::leitung || objtype == obj_t::pillar) {
+							keptobjs.append(obj);
+						}
 					}
-					gr->obj_loesche_alle(player);	// alles weg auﬂer vehikel ...
+					for (size_t i = 0; i < keptobjs.get_count(); i++) {
+						gr->obj_remove(keptobjs[i]);
+					}
+
+					// delete everything except vehicles
+					gr->obj_loesche_alle(player);
 				}
 				needs_ground_recalc |= gr->get_grund_hang()!=slope_t::flat;
 				// Build fundament up or down?  Up is the default.
@@ -640,9 +648,10 @@ gebaeude_t* hausbauer_t::baue(player_t* player, koord3d pos, int org_layout, con
 				gb->add_alter(10000ll);
 			}
 			gr->obj_add( gb );
-			if(lt)
-			{
-				gr->obj_add( lt );
+
+			// restore saved objects
+			for (size_t i = 0; i < keptobjs.get_count(); i++) {
+				gr->obj_add(keptobjs[i]);
 			}
 			if(needs_ground_recalc  &&  welt->is_within_limits(pos.get_2d()+k+koord(1,1))  &&  (k.y+1==dim.y  ||  k.x+1==dim.x))
 			{
