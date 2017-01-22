@@ -4666,7 +4666,7 @@ bool stadt_t::baue_strasse(const koord k, player_t* player_, bool forced)
 	// only crossing or tramways allowed
 	if(  bd->hat_weg(track_wt)  ) {
 		weg_t* sch = bd->get_weg(track_wt);
-		if (sch->get_besch()->get_styp() != 7) {
+		if (sch->get_besch()->get_styp() != type_tram) {
 			// not a tramway
 			ribi_t::ribi r = sch->get_ribi_unmasked();
 			if (!ribi_t::is_straight(r)) {

@@ -2485,11 +2485,10 @@ bool tool_build_way_t::init( player_t *player )
 waytype_t tool_build_way_t::get_waytype() const
 {
 	const weg_besch_t *besch = get_besch( welt->get_timeline_year_month(), false );
-	waytype_t wt = besch ? besch->get_wtyp() : invalid_wt;
-	if (  wt==track_wt  &&  besch->get_styp()==7  ) {
-		wt = tram_wt;
+	if (besch) {
+		return besch->is_tram() ? tram_wt : besch->get_wtyp();
 	}
-	return wt;
+	return invalid_wt;
 }
 
 uint8 tool_build_way_t::is_valid_pos( player_t *player, const koord3d &pos, const char *&error, const koord3d & )
@@ -2498,7 +2497,7 @@ uint8 tool_build_way_t::is_valid_pos( player_t *player, const koord3d &pos, cons
 	grund_t *gr=welt->lookup(pos);
 	if(  gr  &&  slope_t::is_way(gr->get_weg_hang())  ) {
 
-		bool const elevated = besch->get_styp() == 1  &&  besch->get_wtyp() != air_wt;
+		bool const elevated = besch->get_styp() == type_elevated  &&  besch->get_wtyp() != air_wt;
 		// ignore water
 		if(  besch->get_wtyp() != water_wt  &&  gr->get_typ() == grund_t::wasser  ) {
 			if(  !elevated  ||  welt->lookup_hgt( pos.get_2d() ) < welt->get_water_hgt( pos.get_2d() )  ) {
@@ -2557,11 +2556,11 @@ void tool_build_way_t::calc_route( wegbauer_t &bauigel, const koord3d &start, co
 {
 	// recalc type of construction
 	wegbauer_t::bautyp_t bautyp = (wegbauer_t::bautyp_t)besch->get_wtyp();
-	if(besch->get_wtyp()==track_wt  &&  besch->get_styp()==7) {
+	if (besch->is_tram()) {
 		bautyp = wegbauer_t::schiene_tram;
 	}
 	// elevated track?
-	if(besch->get_styp()==1  &&  besch->get_wtyp()!=air_wt) {
+	if(besch->get_styp()==type_elevated  &&  besch->get_wtyp()!=air_wt) {
 		bautyp |= wegbauer_t::elevated_flag;
 	}
 
@@ -2623,7 +2622,7 @@ void tool_build_way_t::mark_tiles(  player_t *player, const koord3d &start, cons
 	wegbauer_t bauigel(player);
 	calc_route( bauigel, start, end );
 
-	uint8 offset = (besch->get_styp() == 1  &&  besch->get_wtyp() != air_wt) ? env_t::pak_height_conversion_factor : 0;
+	uint8 offset = (besch->get_styp() == type_elevated  &&  besch->get_wtyp() != air_wt) ? env_t::pak_height_conversion_factor : 0;
 
 	if(  bauigel.get_count()>1  ) {
 		// Set tooltip first (no dummygrounds, if bauigel.calc_casts() is called).
@@ -2946,7 +2945,7 @@ uint8 tool_build_bridge_t::is_valid_pos(  player_t *player, const koord3d &pos, 
 				for(int i=0;i<2;i++) {
 					const weg_t *w = gr->get_weg_nr(i);
 					if (w) {
-						if (w->get_waytype()!=road_wt  &&  (w->get_waytype()!=track_wt  ||  w->get_besch()->get_styp()!=tram_wt)) {
+						if (w->get_waytype()!=road_wt  && !w->get_besch()->is_tram()) {
 							return 0;
 						}
 						rw |= w->get_ribi_unmasked();
@@ -4583,7 +4582,7 @@ DBG_MESSAGE("tool_halt_aux()", "building %s on square %d,%d for waytype %x", bes
 		return NOTICE_UNSUITABLE_GROUND;
 	}
 
-	if(  bd->hat_weg(air_wt)  &&  bd->get_weg(air_wt)->get_besch()->get_styp()!=0  ) {
+	if(  bd->hat_weg(air_wt)  &&  bd->get_weg(air_wt)->get_besch()->get_styp()!=type_flat) {
 		return "Flugzeughalt muss auf\nRunway liegen!\n";
 	}
 
@@ -6034,7 +6033,7 @@ const char *tool_depot_t::tool_depot_aux(player_t *player, koord3d pos, const ha
 		}
 
 		// no depots on runways!
-		if(besch->get_extra()==air_wt  &&  bd->get_weg(air_wt)->get_besch()->get_styp()!=0) {
+		if(besch->get_extra()==air_wt  &&  bd->get_weg(air_wt)->get_besch()->get_styp()!= type_flat) {
 			return NOTICE_DEPOT_BAD_POS;
 		}
 
