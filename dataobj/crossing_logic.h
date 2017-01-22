@@ -29,7 +29,7 @@ public:
 protected:
 	static karte_ptr_t welt;
 
-	// the last vehikel, that request a closing
+	// the last vehicle that requested a closing
 	const vehicle_base_t *request_close;
 
 	crossing_state_t state;
