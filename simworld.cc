@@ -2480,7 +2480,7 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 	delete [] water_hgts;
 	water_hgts = new_water_hgts;
 
-	setsimrand(0xFFFFFFFF, settings.get_karte_nummer());
+	setsimrand(0xFFFFFFFF, settings.get_map_number());
 	clear_random_mode( 0xFFFF );
 	set_random_mode( MAP_CREATE_RANDOM );
 
