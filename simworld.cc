@@ -1573,7 +1573,7 @@ DBG_DEBUG("karte_t::init()","built timeline");
 		{
 			// Power stations are excluded from the target weight:
 			// a different system is used for them.
-			weight = factory_type->get_gewichtung();
+			weight = factory_type->get_chance();
 			actual_industry_density += (100 / weight);
 		}
 	}
@@ -8770,7 +8770,7 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 			{
 				// Power stations are excluded from the target weight:
 				// a different system is used for them.
-				weight = max(factory_type->get_gewichtung(), 1); // To prevent divisions by zero
+				weight = max(factory_type->get_chance(), 1); // To prevent divisions by zero
 				actual_industry_density += (100 / weight);
 			}
 		}
@@ -10194,8 +10194,8 @@ void karte_t::set_citycar_speed_average()
 	FOR(stringhashtable_tpl<const stadtauto_desc_t *>, const& iter, private_car_t::table)
 	{
 		// Take into account the *chance* of vehicles, too: fewer people have sports cars than Minis. 
-		vehicle_speed_sum += (speed_to_kmh(iter.value->get_geschw())) * iter.value->get_gewichtung();
-		count += iter.value->get_gewichtung();
+		vehicle_speed_sum += (speed_to_kmh(iter.value->get_geschw())) * iter.value->get_chance();
+		count += iter.value->get_chance();
 	}
 	citycar_speed_average = vehicle_speed_sum / count;
 }

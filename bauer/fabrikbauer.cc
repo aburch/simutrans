@@ -186,7 +186,7 @@ const fabrik_desc_t *fabrikbauer_t::get_random_consumer(bool electric, climate_b
 			current->get_haus()->is_allowed_climate_bits(cl)  &&
 			(electric ^ !current->is_electricity_producer())  &&
 			current->get_haus()->is_available(timeline)  ) {
-				consumer.insert_unique_ordered(current, current->get_gewichtung(), compare_fabrik_desc);
+				consumer.insert_unique_ordered(current, current->get_chance(), compare_fabrik_desc);
 		}
 	}
 	// no consumer installed?
@@ -260,7 +260,7 @@ int fabrikbauer_t::count_producers(const ware_desc_t *ware, uint16 timeline)
 		fabrik_desc_t const* const tmp = t.value;
 		for (uint i = 0; i < tmp->get_produkte(); i++) {
 			const fabrik_produkt_desc_t *produkt = tmp->get_produkt(i);
-			if(  produkt->get_ware()==ware  &&  tmp->get_gewichtung()>0  &&  tmp->get_haus()->is_available(timeline)  ) {
+			if(  produkt->get_ware()==ware  &&  tmp->get_chance()>0  &&  tmp->get_haus()->is_available(timeline)  ) {
 				anzahl++;
 			}
 		}
@@ -280,11 +280,11 @@ void fabrikbauer_t::finde_hersteller(weighted_vector_tpl<const fabrik_desc_t *> 
 	producer.clear();
 	FOR(stringhashtable_tpl<fabrik_desc_t const*>, const& t, desc_table) {
 		fabrik_desc_t const* const tmp = t.value;
-		if (  tmp->get_gewichtung()>0  &&  tmp->get_haus()->is_available(timeline)  ) {
+		if (  tmp->get_chance()>0  &&  tmp->get_haus()->is_available(timeline)  ) {
 			for(  uint i=0; i<tmp->get_produkte();  i++  ) {
 				const fabrik_produkt_desc_t *produkt = tmp->get_produkt(i);
 				if(  produkt->get_ware()==ware  ) {
-					producer.insert_unique_ordered(tmp, tmp->get_gewichtung(), compare_fabrik_desc);
+					producer.insert_unique_ordered(tmp, tmp->get_chance(), compare_fabrik_desc);
 					break;
 				}
 			}
@@ -464,7 +464,7 @@ fabrik_t* fabrikbauer_t::baue_fabrik(koord3d* parent, const fabrik_desc_t* info,
 	fab->add_to_world_list();
 
 	// Adjust the actual industry density
-	welt->increase_actual_industry_density(100 / info->get_gewichtung());
+	welt->increase_actual_industry_density(100 / info->get_chance());
 	if(parent) {
 		fab->add_lieferziel(parent->get_2d());
 	}
@@ -544,7 +544,7 @@ bool fabrikbauer_t::can_factory_tree_rotate( const fabrik_desc_t *desc )
 			fabrik_desc_t const* const tmp = t.value;
 			// now check if we produce this good...
 			for (uint i = 0; i < tmp->get_produkte(); i++) {
-				if(tmp->get_produkt(i)->get_ware()==ware  &&  tmp->get_gewichtung()>0) {
+				if(tmp->get_produkt(i)->get_ware()==ware  &&  tmp->get_chance()>0) {
 
 					if(!can_factory_tree_rotate( tmp )) {
 						return false;
@@ -1121,7 +1121,7 @@ next_ware_check:
 				if(do_not_add_beyond_target_density && !fab->is_electricity_producer())
 				{
 					//Make sure that industries are not added beyond target density.
-					if(100 / fab->get_gewichtung() > (welt->get_target_industry_density() - welt->get_actual_industry_density()))
+					if(100 / fab->get_chance() > (welt->get_target_industry_density() - welt->get_actual_industry_density()))
 					{
 						continue;
 					}

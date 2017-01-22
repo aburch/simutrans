@@ -60,7 +60,7 @@ obj_desc_t * pedestrian_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 	if(version == 0) {
 		// old, nonversion node
-		desc->gewichtung = v;
+		desc->chance = v;
 
 		// This was a spare datum set to zero on all older versions
 		uint16 intro = decode_uint16(p);
@@ -70,6 +70,6 @@ obj_desc_t * pedestrian_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			desc->obsolete_date = decode_uint16(p);
 		}
 	}
-	DBG_DEBUG("pedestrian_reader_t::read_node()","version=%i, gewichtung",version,desc->gewichtung);
+	DBG_DEBUG("pedestrian_reader_t::read_node()","version=%i, chance",version,desc->chance);
 	return desc;
 }

@@ -12,7 +12,7 @@ void citycar_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 
 	obj_node_t node(this, 10, &parent);
 
-	uint16 const gewichtung = obj.get_int("distributionweight", 1);
+	uint16 const chance = obj.get_int("distributionweight", 1);
 
 	uint16 const intro_date =
 		obj.get_int("intro_year", DEFAULT_INTRO_DATE) * 12 +
@@ -26,7 +26,7 @@ void citycar_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 
 	// new version with intro and obsolete dates
 	node.write_uint16(fp, 0x8002,        0); // version information
-	node.write_uint16(fp, gewichtung,    2);
+	node.write_uint16(fp, chance,    2);
 	node.write_uint16(fp, geschw,        4);
 	node.write_uint16(fp, intro_date,    6);
 	node.write_uint16(fp, obsolete_date, 8);

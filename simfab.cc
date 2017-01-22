@@ -927,7 +927,7 @@ fabrik_t::~fabrik_t()
 		
 		if (desc != NULL)
 		{
-			welt->decrease_actual_industry_density(100 / desc->get_gewichtung());
+			welt->decrease_actual_industry_density(100 / desc->get_chance());
 		}
 
 		// Disconnect this factory from all chains.
@@ -1399,7 +1399,7 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 	if(file->get_experimental_version() < 9 && file->get_version() < 110006)
 	{
 		// Necessary to ensure that the industry density is correct after re-loading a game.
-		welt->increase_actual_industry_density(100 / desc->get_gewichtung());
+		welt->increase_actual_industry_density(100 / desc->get_chance());
 	}
 
 	if(  file->get_version() >= 110005  ) {
@@ -2255,7 +2255,7 @@ void fabrik_t::new_month()
 				// This factory has some upgrades: consider upgrading.
 				minivec_tpl<const fabrik_desc_t*> upgrade_list(upgrades_count);
 				const uint32 max_density = (welt->get_target_industry_density() * 150) / 100;
-				const uint32 adjusted_density = welt->get_actual_industry_density() - (100 / desc->get_gewichtung());
+				const uint32 adjusted_density = welt->get_actual_industry_density() - (100 / desc->get_chance());
 				for(uint16 i = 0; i < upgrades_count; i ++)
 				{
 					// Check whether any upgrades are suitable.
@@ -2277,7 +2277,7 @@ void fabrik_t::new_month()
 						fab->get_haus()->get_groesse() == desc->get_haus()->get_groesse() &&
 						fab->get_haus()->get_intro_year_month() <= welt->get_timeline_year_month() &&
 						fab->get_haus()->get_retire_year_month() >= welt->get_timeline_year_month() &&
-						adjusted_density < (max_density + (100 / fab->get_gewichtung())))
+						adjusted_density < (max_density + (100 / fab->get_chance())))
 					{
 						upgrade_list.append_unique(fab);
 					}
@@ -2289,7 +2289,7 @@ void fabrik_t::new_month()
 					uint32 total_density = 0;
 					FOR(minivec_tpl<const fabrik_desc_t*>, upgrade, upgrade_list)
 					{
-						total_density += (100 / upgrade->get_gewichtung());
+						total_density += (100 / upgrade->get_chance());
 					}
 					const uint32 average_density = total_density / list_count;
 					const uint32 probability = 1 / ((100 - ((adjusted_density + average_density) / max_density)) * upgrade_list.get_count()) / 100;
@@ -2297,7 +2297,7 @@ void fabrik_t::new_month()
 					if(chance < list_count)
 					{
 						// All the conditions are met: upgrade.
-						const int old_distributionweight = desc->get_gewichtung();
+						const int old_distributionweight = desc->get_chance();
 						const fabrik_desc_t* new_type = upgrade_list[chance];
 						welt->decrease_actual_industry_density(100 / old_distributionweight);
 						uint32 percentage = new_type->get_field_group() ? (new_type->get_field_group()->get_max_fields() * 100) / desc->get_field_group()->get_max_fields() : 0;
@@ -2415,7 +2415,7 @@ void fabrik_t::new_month()
 						update_scaled_mail_demand();
 						update_prodfactor_pax();
 						update_prodfactor_mail();
-						welt->increase_actual_industry_density(100 / new_type->get_gewichtung());
+						welt->increase_actual_industry_density(100 / new_type->get_chance());
 						sprintf(buf, translator::translate("Industry:\n%s\nhas been upgraded\nto industry:\n%s."), translator::translate(old_name), translator::translate(new_name));
 						welt->get_message()->add_message(buf, pos.get_2d(), message_t::industry, CITY_KI, skinverwaltung_t::neujahrsymbol->get_image_id(0));
 						return;

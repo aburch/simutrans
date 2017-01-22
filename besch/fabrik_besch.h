@@ -213,7 +213,7 @@ private:
 	site_t platzierung; //"placement" (Babelfish)
 	uint16 produktivitaet; //"productivity" (Babelfish)
 	uint16 bereich; //"range" (Babelfish)
-	uint16 gewichtung;	// Wie wahrscheinlich soll der Bau sein? ("How likely will the building be?" (Google)). 
+	uint16 chance;	// Wie wahrscheinlich soll der Bau sein? ("How likely will the building be?" (Google)). 
 	uint8 kennfarbe; //"identification colour code" (Babelfish)
 	uint16 lieferanten; //"supplier" (Babelfish)
 	uint16 produkte; //"products" (Babelfish)
@@ -269,7 +269,7 @@ public:
 
 	/* where to built */
 	site_t get_platzierung() const { return platzierung; }
-	int get_gewichtung() const { return gewichtung;     }
+	int get_chance() const { return chance;     }
 
 	uint8 get_kennfarbe() const { return kennfarbe; } //"identification colour code" (Babelfish)
 

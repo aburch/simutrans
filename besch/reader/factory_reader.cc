@@ -266,7 +266,7 @@ obj_desc_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->platzierung = (site_t)decode_uint16(p);
 		desc->produktivitaet = decode_uint16(p);
 		desc->bereich = decode_uint16(p);
-		desc->gewichtung = decode_uint16(p);
+		desc->chance = decode_uint16(p);
 		desc->kennfarbe = decode_uint8(p);
 		desc->fields = decode_uint8(p);
 		desc->lieferanten = decode_uint16(p);
@@ -324,12 +324,12 @@ obj_desc_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->platzierung = (site_t)decode_uint16(p); //"placement" (Babelfish)
 		desc->produktivitaet = decode_uint16(p); //"productivity" (Babelfish)
 		desc->bereich = decode_uint16(p); //"range" (Babelfish)
-		desc->gewichtung = decode_uint16(p); //"weighting" (Babelfish)
-		if(desc->gewichtung < 1)
+		desc->chance = decode_uint16(p); //"weighting" (Babelfish)
+		if(desc->chance < 1)
 		{
 			// Avoid divide by zero errors when
 			// determining industry density figures.
-			desc->gewichtung = 1;
+			desc->chance = 1;
 		}
 		desc->kennfarbe = decode_uint8(p); //"identification colour code" (Babelfish)
 		desc->fields = decode_uint8(p); //"fields" (Babelfish)
@@ -373,12 +373,12 @@ obj_desc_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->platzierung = (site_t)decode_uint16(p);
 		desc->produktivitaet = decode_uint16(p);
 		desc->bereich = decode_uint16(p);
-		desc->gewichtung = decode_uint16(p);
-		if(desc->gewichtung < 1)
+		desc->chance = decode_uint16(p);
+		if(desc->chance < 1)
 		{
 			// Avoid divide by zero errors when
 			// determining industry density figures.
-			desc->gewichtung = 1;
+			desc->chance = 1;
 		}
 		desc->kennfarbe = (uint8)decode_uint16(p);
 		desc->lieferanten = decode_uint16(p);
@@ -407,12 +407,12 @@ obj_desc_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		decode_uint16(p);	// alsways zero
 		desc->produktivitaet = decode_uint16(p)|0x8000;
 		desc->bereich = decode_uint16(p);
-		desc->gewichtung = decode_uint16(p);
-		if(desc->gewichtung < 1)
+		desc->chance = decode_uint16(p);
+		if(desc->chance < 1)
 		{
 			// Avoid divide by zero errors when
 			// determining industry density figures.
-			desc->gewichtung = 1;
+			desc->chance = 1;
 		}
 		desc->kennfarbe = (uint8)decode_uint16(p);
 		desc->lieferanten = decode_uint16(p);
