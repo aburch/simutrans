@@ -34,7 +34,7 @@ public:
 	class scrollitem_t {
 	public:
 		virtual ~scrollitem_t() {}
-		virtual scr_coord_val get_h() const = 0;	// largest object in this list
+		virtual scr_coord_val get_height() const = 0;	// largest object in this list
 		virtual scr_coord_val draw( scr_coord pos, scr_coord_val width, bool is_selected, bool has_focus ) = 0;
 		/* can do some action
 		 * input: coordinates relative to this element, button or zero for keyboard
@@ -57,7 +57,7 @@ public:
 		const_text_scrollitem_t(char const* const t, uint8 const col) : consttext(t), color(col) {}
 
 		virtual scr_coord_val draw( scr_coord pos, scr_coord_val width, bool is_selected, bool has_focus );
-		virtual scr_coord_val get_h() const { return LINESPACE; }
+		virtual scr_coord_val get_height() const { return LINESPACE; }
 
 		virtual uint8 get_color() { return color; }
 		virtual void set_color(uint8 col) { color = col; }
