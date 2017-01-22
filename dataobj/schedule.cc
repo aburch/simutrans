@@ -58,7 +58,7 @@ void schedule_t::copy_from(const schedule_t *src)
 
 
 
-bool schedule_t::ist_halt_erlaubt(const grund_t *gr) const
+bool schedule_t::is_stop_allowed(const grund_t *gr) const
 {
 	// first: check, if we can go here
 	waytype_t const my_waytype = get_waytype();
@@ -146,7 +146,7 @@ bool schedule_t::insert(const grund_t* gr, uint16 minimum_loading, uint8 waiting
 		return false;
 	}
 
-	if(  ist_halt_erlaubt(gr)  ) {
+	if(  is_stop_allowed(gr)  ) {
 		entries.insert_at(current_stop, schedule_entry_t(gr->get_pos(), minimum_loading, waiting_time_shift, spacing_shift, -1, wait_for_time));
 		current_stop ++;
 		return true;
@@ -183,7 +183,7 @@ bool schedule_t::append(const grund_t* gr, uint16 minimum_loading, uint8 waiting
 		minimum_loading = 0;
 	}
 
-	if(ist_halt_erlaubt(gr)) {
+	if(is_stop_allowed(gr)) {
 		entries.append(schedule_entry_t(gr->get_pos(), minimum_loading, waiting_time_shift, spacing_shift, -1, wait_for_time), 4);
 		return true;
 	}

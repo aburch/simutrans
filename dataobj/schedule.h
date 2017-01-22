@@ -43,7 +43,7 @@ public:
 	* diese Methode sollte in den unterklassen redefiniert werden.
 	* @author Hj. Malthaner
 	*/
-	virtual bool ist_halt_erlaubt(const grund_t *gr) const;
+	virtual bool is_stop_allowed(const grund_t *gr) const;
 
 	bool empty() const { return entries.empty(); }
 
