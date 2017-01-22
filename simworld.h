@@ -858,7 +858,7 @@ private:
 	/**
 	 * Loops over plans after load.
 	 */
-	void plans_laden_abschliessen(sint16, sint16, sint16, sint16);
+	void plans_finish_rd(sint16, sint16, sint16, sint16);
 
 	/**
 	 * Updates all images.
@@ -1009,6 +1009,9 @@ public:
 	void announce_server(int status);
 
 	vector_tpl<fabrik_t*> closed_factories_this_month;
+
+	/// cache the current maximum and minimum height on the map
+	sint8 max_height, min_height;
 
 	/**
 	 * Returns the messagebox message container.

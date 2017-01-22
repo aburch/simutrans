@@ -759,6 +759,7 @@ void karte_t::init_felder()
 	uint32 const y = get_size().y;
 	plan      = new planquadrat_t[x * y];
 	grid_hgts = new sint8[(x + 1) * (y + 1)];
+	max_height = min_height = 0;
 	MEMZERON(grid_hgts, (x + 1) * (y + 1));
 	water_hgts = new sint8[x * y];
 	MEMZERON(water_hgts, x * y);
@@ -2480,6 +2481,12 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 	delete [] water_hgts;
 	water_hgts = new_water_hgts;
 
+	if (old_x == 0) {
+		// init max and min with defaults
+		max_height = grundwasser;
+		min_height = grundwasser;
+	}
+
 	setsimrand(0xFFFFFFFF, settings.get_map_number());
 	clear_random_mode( 0xFFFF );
 	set_random_mode( MAP_CREATE_RANDOM );
@@ -2661,16 +2668,24 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 	// Refresh the haltlist for the affected tiles / stations.
 	// It is enough to check the tile just at the border ...
 	uint16 const cov = settings.get_station_coverage();
-	if(  old_y < new_size_y  ) {
-		for(  sint16 y=0;  y<old_y;  y++  ) {
-			for(  sint16 x=old_x-cov;  x<old_x;  x++  ) {
-				const planquadrat_t* pl = access_nocheck(x,y);
-				for(  uint8 i=0;  i < pl->get_boden_count();  i++  ) {
+	if (old_y < new_size_y) {
+		for (sint16 y = 0; y<old_y; y++) {
+			for (sint16 x = max(0, old_x - cov); x<old_x; x++) {
+				const planquadrat_t* pl = access_nocheck(x, y);
+				for (uint8 i = 0; i < pl->get_boden_count(); i++) {
+					// update limits
+					if (min_height > pl->get_boden_bei(i)->get_hoehe()) {
+						min_height = pl->get_boden_bei(i)->get_hoehe();
+					}
+					else if (max_height < pl->get_boden_bei(i)->get_hoehe()) {
+						max_height = pl->get_boden_bei(i)->get_hoehe();
+					}
+					// update halt
 					halthandle_t h = pl->get_boden_bei(i)->get_halt();
-					if(  h.is_bound()  ) {
-						for(  sint16 xp=max(0,x-cov);  xp<min(new_size_x,x+cov+1);  xp++  ) {
-							for(  sint16 yp=y;  yp<min(new_size_y,y+cov+1);  yp++  ) {
-								access_nocheck(xp,yp)->add_to_haltlist(h);
+					if (h.is_bound()) {
+						for (sint16 xp = max(0, x - cov); xp<min(new_size_x, x + cov + 1); xp++) {
+							for (sint16 yp = y; yp<min(new_size_y, y + cov + 1); yp++) {
+								access_nocheck(xp, yp)->add_to_haltlist(h);
 							}
 						}
 					}
@@ -2678,16 +2693,24 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 			}
 		}
 	}
-	if(  old_x < new_size_x  ) {
-		for(  sint16 y=old_y-cov;  y<old_y;  y++  ) {
-			for(  sint16 x=0;  x<old_x;  x++  ) {
-				const planquadrat_t* pl = access_nocheck(x,y);
-				for(  uint8 i=0;  i < pl->get_boden_count();  i++  ) {
+	if (old_x < new_size_x) {
+		for (sint16 y = max(0, old_y - cov); y<old_y; y++) {
+			for (sint16 x = 0; x<old_x; x++) {
+				const planquadrat_t* pl = access_nocheck(x, y);
+				for (uint8 i = 0; i < pl->get_boden_count(); i++) {
+					// update limits
+					if (min_height > pl->get_boden_bei(i)->get_hoehe()) {
+						min_height = pl->get_boden_bei(i)->get_hoehe();
+					}
+					else if (max_height < pl->get_boden_bei(i)->get_hoehe()) {
+						max_height = pl->get_boden_bei(i)->get_hoehe();
+					}
+					// update halt
 					halthandle_t h = pl->get_boden_bei(i)->get_halt();
-					if(  h.is_bound()  ) {
-						for(  sint16 xp=x;  xp<min(new_size_x,x+cov+1);  xp++  ) {
-							for(  sint16 yp=max(0,y-cov);  yp<min(new_size_y,y+cov+1);  yp++  ) {
-								access_nocheck(xp,yp)->add_to_haltlist(h);
+					if (h.is_bound()) {
+						for (sint16 xp = x; xp<min(new_size_x, x + cov + 1); xp++) {
+							for (sint16 yp = max(0, y - cov); yp<min(new_size_y, y + cov + 1); yp++) {
+								access_nocheck(xp, yp)->add_to_haltlist(h);
 							}
 						}
 					}
@@ -3376,6 +3399,9 @@ int karte_t::grid_raise(const player_t *player, koord k, bool allow_deep_water, 
 		// force world full redraw, or background could be dirty.
 		set_dirty();
 
+		if (max_height < lookup_kartenboden_gridcoords(k)->get_hoehe()) {
+			max_height = lookup_kartenboden_gridcoords(k)->get_hoehe();
+		}
 	}
 	return (n+3)>>2;
 }
@@ -8009,28 +8035,52 @@ DBG_MESSAGE("karte_t::load()","Savegame version is %d", file.get_version());
 	return ok;
 }
 
+#ifdef MULTI_THREAD
+static pthread_mutex_t height_mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+#endif
 
-void karte_t::plans_laden_abschliessen( sint16 x_min, sint16 x_max, sint16 y_min, sint16 y_max )
+void karte_t::plans_finish_rd( sint16 x_min, sint16 x_max, sint16 y_min, sint16 y_max )
 {
+	sint8 min_h = min_height, max_h = max_height;
 	for(  int y = y_min;  y < y_max;  y++  ) {
 		for(  int x = x_min; x < x_max;  x++  ) {
 			const planquadrat_t *plan = access_nocheck(x,y);
 			const int boden_count = plan->get_boden_count();
 			for(  int schicht = 0;  schicht < boden_count;  schicht++  ) {
 				grund_t *gr = plan->get_boden_bei(schicht);
+				if(  min_h > gr->get_hoehe()  ) {
+					min_h = gr->get_hoehe();
+				}
+				else if(  max_h < gr->get_hoehe()  ) {
+					max_h = gr->get_hoehe();
+				}
 				for(  int n = 0;  n < gr->get_top();  n++  ) {
 					obj_t *obj = gr->obj_bei(n);
 					if(obj) {
 						obj->finish_rd();
 					}
 				}
-				if(  load_version.version <= 111000  &&  gr->ist_natur()  ) {
+				if(  load_version.version<=111000  &&  gr->ist_natur()  ) {
 					gr->sort_trees();
 				}
 				gr->calc_image();
 			}
 		}
 	}
+	// update heights
+#ifdef MULTI_THREAD
+	pthread_mutex_lock( &height_mutex );
+	if(  min_height > min_h  ) {
+		min_height = min_h;
+	}
+	if(  max_height < max_h  ) {
+		max_height = max_h;
+	}
+	pthread_mutex_unlock( &height_mutex );
+#else
+	min_height = min_h;
+	max_height = max_h;
+#endif
 }
 
 
@@ -8172,14 +8222,20 @@ void karte_t::load(loadsave_t *file)
 
 	grundwasser = (sint8)(settings.get_grundwasser());
 
-//
-//	DBG_DEBUG("karte_t::load()","grundwasser %i",grundwasser);
-//	grund_besch_t::calc_water_level( this, height_to_climate );
+	min_height = max_height = grundwasser;
 
 	DBG_DEBUG("karte_t::load()","grundwasser %i",grundwasser);
 
-	init_height_to_climate();
-
+	if (file->get_version() < 112007) {
+		// r7930 fixed a bug in init_height_to_climate
+		// recover old behavior to not mix up climate when loading old savegames
+		grundwasser = settings.get_climate_borders()[0];
+		init_height_to_climate();
+		grundwasser = settings.get_grundwasser();
+	}
+	else {
+		init_height_to_climate();
+	}
 
 	// just an initialisation for the loading
 	season = (2+last_month/3)&3; // summer always zero
@@ -8537,10 +8593,10 @@ DBG_MESSAGE("karte_t::load()", "%d ways loaded",weg_t::get_alle_wege().get_count
 
 	ls.set_progress( (get_size().y*3)/2+256 );
 
-	world_xy_loop(&karte_t::plans_laden_abschliessen, SYNCX_FLAG);
+	world_xy_loop(&karte_t::plans_finish_rd, SYNCX_FLAG);
 
 	if(  file->get_version() < 112007  ) {
-		// set transitions - has to be done after plans_laden_abschliessen
+		// set transitions - has to be done after plans_finish_rd
 		world_xy_loop(&karte_t::recalc_transitions_loop, 0);
 	}
 
