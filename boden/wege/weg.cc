@@ -687,8 +687,8 @@ void weg_t::set_images(image_type typ, uint8 ribi, bool snow, bool switch_nw)
 			set_after_image( desc->get_image_nr_switch(ribi, snow, switch_nw, true) );
 			break;
 		case image_diagonal:
-			set_image( desc->get_diagonal_image_nr(ribi, snow) );
-			set_after_image( desc->get_diagonal_image_nr(ribi, snow, true) );
+			set_image( desc->get_diagonal_image_id(ribi, snow) );
+			set_after_image( desc->get_diagonal_image_id(ribi, snow, true) );
 			break;
 	}
 }
@@ -730,8 +730,8 @@ bool weg_t::check_season(const bool calc_only_season_change)
 
 	if(  is_diagonal()  ) 
 	{
-		if( desc->get_diagonal_image_nr(ribi, snow) != IMG_EMPTY  ||
-			desc->get_diagonal_image_nr(ribi, snow, true) != IMG_EMPTY) 
+		if( desc->get_diagonal_image_id(ribi, snow) != IMG_EMPTY  ||
+			desc->get_diagonal_image_id(ribi, snow, true) != IMG_EMPTY) 
 		{
 			set_images(image_diagonal, ribi, snow);
 		}
@@ -844,8 +844,8 @@ void weg_t::calc_image()
 
 				// now apply diagonal image
 				if(is_diagonal()) {
-					if( desc->get_diagonal_image_nr(ribi, snow) != IMG_EMPTY  ||
-					    desc->get_diagonal_image_nr(ribi, snow, true) != IMG_EMPTY) {
+					if( desc->get_diagonal_image_id(ribi, snow) != IMG_EMPTY  ||
+					    desc->get_diagonal_image_id(ribi, snow, true) != IMG_EMPTY) {
 						set_images(image_diagonal, ribi, snow);
 					}
 				}

@@ -181,7 +181,7 @@ public:
 		return hang_img;
 	}
 
-	image_id get_diagonal_image_nr(ribi_t::ribi ribi, uint8 season, bool front = false) const
+	image_id get_diagonal_image_id(ribi_t::ribi ribi, uint8 season, bool front = false) const
 	{
 		if (front  &&  !front_images) {
 			return IMG_EMPTY;

@@ -2651,7 +2651,7 @@ void tool_build_way_t::mark_tiles(  player_t *player, const koord3d &start, cons
 				way->set_image( desc->get_hang_image_nr(gr->get_weg_hang(),0) );
 			}
 			else if(desc->get_wtyp()!=powerline_wt  &&  ribi_t::is_bend(zeige)  &&  desc->has_diagonal_image()) {
-				way->set_image( desc->get_diagonal_image_nr(zeige,0) );
+				way->set_image( desc->get_diagonal_image_id(zeige,0) );
 			}
 			else {
 				way->set_image( desc->get_image_id(zeige,0) );
@@ -3213,7 +3213,7 @@ void tool_build_tunnel_t::mark_tiles(  player_t *player, const koord3d &start, c
 				way->set_image( wb->get_hang_image_nr(gr->get_weg_hang(),0) );
 			}
 			else if(wb->get_wtyp()!=powerline_wt  &&  ribi_t::is_bend(zeige)  &&  wb->has_diagonal_image()) {
-				way->set_image( wb->get_diagonal_image_nr(zeige,0) );
+				way->set_image( wb->get_diagonal_image_id(zeige,0) );
 			}
 			else {
 				way->set_image( wb->get_image_id(zeige,0) );

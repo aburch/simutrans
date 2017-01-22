@@ -108,8 +108,8 @@ void tunnel_t::calc_image()
 					}
 				}
 			}
-			set_image( desc->get_hintergrund_nr( hang, get_pos().z >= welt->get_snowline()  ||  welt->get_climate( get_pos().get_2d() ) == arctic_climate, broad_type ) );
-			set_after_image( desc->get_vordergrund_nr( hang, get_pos().z >= welt->get_snowline()  ||  welt->get_climate( get_pos().get_2d() ) == arctic_climate, broad_type ) );
+			set_image( desc->get_background_id( hang, get_pos().z >= welt->get_snowline()  ||  welt->get_climate( get_pos().get_2d() ) == arctic_climate, broad_type ) );
+			set_after_image( desc->get_foreground_id( hang, get_pos().z >= welt->get_snowline()  ||  welt->get_climate( get_pos().get_2d() ) == arctic_climate, broad_type ) );
 		}
 		else 
 		{
@@ -121,8 +121,8 @@ void tunnel_t::calc_image()
 			}
 			else if(desc->get_waytype() != powerline_wt)
 			{
-				set_image(desc->get_underground_backimage_nr(ribi_unmasked, hang));
-				set_after_image(desc->get_underground_frontimage_nr(ribi_unmasked, hang));
+				set_image(desc->get_underground_background_id(ribi_unmasked, hang));
+				set_after_image(desc->get_underground_foreground_id(ribi_unmasked, hang));
 			}
 		}
 	}

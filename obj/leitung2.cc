@@ -321,10 +321,10 @@ void leitung_t::calc_image()
 			// crossing with road or rail
 			weg_t* way = gr->get_weg_nr(0);
 			if(ribi_t::is_straight_ew(way->get_ribi())) {
-				set_image( desc->get_diagonal_image_nr(ribi_t::north|ribi_t::east, snow));
+				set_image( desc->get_diagonal_image_id(ribi_t::north|ribi_t::east, snow));
 			}
 			else {
-				set_image( desc->get_diagonal_image_nr(ribi_t::south|ribi_t::east, snow));
+				set_image( desc->get_diagonal_image_id(ribi_t::south|ribi_t::east, snow));
 			}
 			is_crossing = true;
 		}
@@ -332,10 +332,10 @@ void leitung_t::calc_image()
 			if(ribi_t::is_straight(ribi)  &&  !ribi_t::is_single(ribi)  &&  (pos.x+pos.y)&1) {
 				// every second skip mast
 				if(ribi_t::is_straight_ns(ribi)) {
-					set_image( desc->get_diagonal_image_nr(ribi_t::north|ribi_t::west, snow));
+					set_image( desc->get_diagonal_image_id(ribi_t::north|ribi_t::west, snow));
 				}
 				else {
-					set_image( desc->get_diagonal_image_nr(ribi_t::south|ribi_t::west, snow));
+					set_image( desc->get_diagonal_image_id(ribi_t::south|ribi_t::west, snow));
 				}
 			}
 			else {
