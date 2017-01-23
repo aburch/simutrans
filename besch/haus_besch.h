@@ -414,7 +414,7 @@ public:
 
 	uint32 get_clusters() const {
 		// Only meaningful for res, com, ind and signalboxes
-		return is_city_building() ? extra_data : 0;
+		return is_city_building() || is_signalbox() ? extra_data : 0;
 	}
 
 	uint16 get_population_and_visitor_demand_capacity() const { return population_and_visitor_demand_capacity; }

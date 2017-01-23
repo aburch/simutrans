@@ -258,7 +258,7 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		gtyp = (old_gtyp::typ)decode_uint8(p);
 		desc->type = (building_desc_t::btype)decode_uint8(p);
 		desc->level     = decode_uint16(p);
-		desc->extra_data= decode_uint32(p);
+		desc->extra_data = decode_uint32(p);
 		desc->size.x = decode_uint16(p);
 		desc->size.y = decode_uint16(p);
 		desc->layouts   = decode_uint8(p);
@@ -315,7 +315,7 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		gtyp = (old_gtyp::typ)decode_uint8(p);
 		desc->type = (building_desc_t::btype)decode_uint8(p);
 		desc->level     = decode_uint16(p) + 1; // This was necessary for the previous versions.
-		desc->extra_data= decode_uint32(p);
+		desc->extra_data = decode_uint32(p);
 		desc->size.x = decode_uint16(p);
 		desc->size.y = decode_uint16(p);
 		desc->layouts   = decode_uint8(p);
