@@ -392,10 +392,7 @@ void leitung_t::rdwr(loadsave_t *file)
 
 	// no longer save power net pointer as it is no longer used
 	if(  file->get_version()  <=  120003  ) {
-		uint32 value;
-		if(  file->is_saving()  ) {
-			value = (uint32)get_net();
-		}
+		uint32 value = 0;
 		file->rdwr_long(value);
 	}
 	if(  file->is_loading()  ) {
