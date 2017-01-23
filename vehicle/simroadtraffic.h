@@ -19,7 +19,7 @@
 #include "../tpl/stringhashtable_tpl.h"
 #include "../ifc/sync_steppable.h"
 
-class stadtauto_desc_t;
+class citycar_desc_t;
 class karte_t;
 
 /**
@@ -103,7 +103,7 @@ private:
 	
 	koord origin;
 
-	const stadtauto_desc_t *desc;
+	const citycar_desc_t *desc;
 
 	//route_t route;
 	//uint16 route_index;
@@ -140,9 +140,9 @@ public:
 
 	virtual ~private_car_t();
 
-	static stringhashtable_tpl<const stadtauto_desc_t *> table;
+	static stringhashtable_tpl<const citycar_desc_t *> table;
 
-	const stadtauto_desc_t *get_desc() const { return desc; }
+	const citycar_desc_t *get_desc() const { return desc; }
 
 	sync_result sync_step(uint32 delta_t);
 
@@ -175,7 +175,7 @@ public:
 	static void build_timeline_list(karte_t *welt);
 	static bool list_empty();
 
-	static bool register_desc(const stadtauto_desc_t *desc);
+	static bool register_desc(const citycar_desc_t *desc);
 	static bool successfully_loaded();
 
 	// since we must consider overtaking, we use this for offset calculation

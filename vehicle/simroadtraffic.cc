@@ -326,13 +326,13 @@ void road_user_t::finish_rd()
 /* private_car_t (city cars) from here on */
 
 
-static weighted_vector_tpl<const stadtauto_desc_t*> liste_timeline;
-stringhashtable_tpl<const stadtauto_desc_t *> private_car_t::table;
+static weighted_vector_tpl<const citycar_desc_t*> liste_timeline;
+stringhashtable_tpl<const citycar_desc_t *> private_car_t::table;
 
-bool private_car_t::register_desc(const stadtauto_desc_t *desc)
+bool private_car_t::register_desc(const citycar_desc_t *desc)
 {
 	if(  table.remove(desc->get_name())  ) {
-		dbg->warning( "stadtauto_desc_t::register_desc()", "Object %s was overlaid by addon!", desc->get_name() );
+		dbg->warning( "citycar_desc_t::register_desc()", "Object %s was overlaid by addon!", desc->get_name() );
 	}
 	table.put(desc->get_name(), desc);
 	return true;
@@ -349,7 +349,7 @@ bool private_car_t::successfully_loaded()
 }
 
 
-static bool compare_stadtauto_desc(const stadtauto_desc_t* a, const stadtauto_desc_t* b)
+static bool compare_stadtauto_desc(const citycar_desc_t* a, const citycar_desc_t* b)
 {
 	int diff = a->get_intro_year_month() - b->get_intro_year_month();
 	if (diff == 0) {
@@ -368,14 +368,14 @@ void private_car_t::build_timeline_list(karte_t *welt)
 {
 	// this list will contain all citycars
 	liste_timeline.clear();
-	vector_tpl<const stadtauto_desc_t*> temp_liste(0);
+	vector_tpl<const citycar_desc_t*> temp_liste(0);
 	if(  !table.empty()  ) {
 		const int month_now = welt->get_current_month();
 //DBG_DEBUG("private_car_t::build_timeline_list()","year=%i, month=%i", month_now/12, month_now%12+1);
 
 		// check for every citycar, if still ok ...
-		FOR(stringhashtable_tpl<stadtauto_desc_t const*>, const& i, table) {
-			stadtauto_desc_t const* const info = i.value;
+		FOR(stringhashtable_tpl<citycar_desc_t const*>, const& i, table) {
+			citycar_desc_t const* const info = i.value;
 			const int intro_month = info->get_intro_year_month();
 			const int retire_month = info->get_retire_year_month();
 
@@ -385,7 +385,7 @@ void private_car_t::build_timeline_list(karte_t *welt)
 		}
 	}
 	liste_timeline.resize( temp_liste.get_count() );
-	FOR(vector_tpl<stadtauto_desc_t const*>, const i, temp_liste) {
+	FOR(vector_tpl<citycar_desc_t const*>, const i, temp_liste) {
 		liste_timeline.append(i, i->get_chance());
 	}
 }

@@ -10190,7 +10190,7 @@ void karte_t::set_citycar_speed_average()
 	}
 	sint32 vehicle_speed_sum = 0;
 	sint32 count = 0;
-	FOR(stringhashtable_tpl<const stadtauto_desc_t *>, const& iter, private_car_t::table)
+	FOR(stringhashtable_tpl<const citycar_desc_t *>, const& iter, private_car_t::table)
 	{
 		// Take into account the *chance* of vehicles, too: fewer people have sports cars than Minis. 
 		vehicle_speed_sum += (speed_to_kmh(iter.value->get_geschw())) * iter.value->get_chance();
