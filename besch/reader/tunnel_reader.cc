@@ -21,7 +21,7 @@ void tunnel_reader_t::register_obj(obj_desc_t *&data)
 		convert_old_tunnel(desc);
 	}
 	DBG_DEBUG("tunnel_reader_t::register_obj", "Loaded '%s'", desc->get_name());
-	tunnelbauer_t::register_desc(desc);
+	tunnel_builder_t::register_desc(desc);
 
 	checksum_t *chk = new checksum_t();
 	desc->calc_checksum(chk);

@@ -10,7 +10,7 @@
 #include "tunnel_besch.h"
 #include "../network/checksum.h"
 
-int tunnel_desc_t::hang_indices[81] = {
+int tunnel_desc_t::slope_indices[81] = {
 	-1, // 0:
 	-1, // 1:
 	-1, // 2:

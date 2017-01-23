@@ -1105,7 +1105,7 @@ void karte_t::distribute_cities( settings_t const * const sets, sint16 old_x, si
 		}
 
 		wegbauer_t bauigel (NULL);
-		bauigel.route_fuer(wegbauer_t::strasse | wegbauer_t::terraform_flag, desc, tunnelbauer_t::find_tunnel(road_wt,15,get_timeline_year_month()), bridge_builder_t::find_bridge(road_wt,15,get_timeline_year_month()) );
+		bauigel.route_fuer(wegbauer_t::strasse | wegbauer_t::terraform_flag, desc, tunnel_builder_t::get_tunnel_desc(road_wt,15,get_timeline_year_month()), bridge_builder_t::find_bridge(road_wt,15,get_timeline_year_month()) );
 		bauigel.set_keep_existing_ways(true);
 		bauigel.set_maximum(env_t::intercity_road_length);
 
@@ -2898,7 +2898,7 @@ void karte_t::set_scale()
 	}
 
 	// Tunnels
-	stringhashtable_tpl <tunnel_desc_t *> * tunnels = tunnelbauer_t::get_all_tunnels();
+	stringhashtable_tpl <tunnel_desc_t *> * tunnels = tunnel_builder_t::get_all_tunnels();
 
 	if(tunnels != NULL)
 	{

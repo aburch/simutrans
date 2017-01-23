@@ -488,7 +488,7 @@ DBG_MESSAGE("tool_remover_intern()","at (%s)", pos.get_str());
 		}
 		if(gr->ist_tunnel()  &&  gr->ist_karten_boden()) {
 			if (gr->find<tunnel_t>()->get_desc()->get_waytype()==powerline_wt) {
-				msg = tunnelbauer_t::remove(player, gr->get_pos(), powerline_wt, is_ctrl_pressed() );
+				msg = tunnel_builder_t::remove(player, gr->get_pos(), powerline_wt, is_ctrl_pressed() );
 				return msg == NULL;
 			}
 		}
@@ -623,7 +623,7 @@ DBG_MESSAGE("tool_remover()",  "removing tunnel  from %d,%d,%d",gr->get_pos().x,
 		{
 			welt->set_recheck_road_connexions();
 		}		
-		msg = tunnelbauer_t::remove(player, gr->get_pos(), gr->get_weg_nr(0)->get_waytype(), is_ctrl_pressed());
+		msg = tunnel_builder_t::remove(player, gr->get_pos(), gr->get_weg_nr(0)->get_waytype(), is_ctrl_pressed());
 		return msg == NULL;
 	}
 
@@ -1729,7 +1729,7 @@ const char *tool_transformer_t::work( player_t *player, koord3d pos )
 			return NOTICE_TILE_FULL;
 		}
 
-		const tunnel_desc_t *tunnel_desc = tunnelbauer_t::find_tunnel(powerline_wt, 0, 0);
+		const tunnel_desc_t *tunnel_desc = tunnel_builder_t::get_tunnel_desc(powerline_wt, 0, 0);
 		if(  tunnel_desc==NULL  ) {
 			return "Cannot built this station/building\nin underground mode here.";
 		}
@@ -3013,7 +3013,7 @@ tool_build_tunnel_t::tool_build_tunnel_t() : two_click_tool_t(TOOL_BUILD_TUNNEL 
 
 const char* tool_build_tunnel_t::get_tooltip(const player_t *) const
 {
-	const tunnel_desc_t * desc = tunnelbauer_t::get_desc(default_param);
+	const tunnel_desc_t * desc = tunnel_builder_t::get_desc(default_param);
 	tooltip_with_price_maintenance( welt, desc->get_name(), -desc->get_base_price(), desc->get_base_maintenance());
 	strcat(toolstr, " / km");
 	size_t n= strlen(toolstr);
@@ -3050,7 +3050,7 @@ const char* tool_build_tunnel_t::get_tooltip(const player_t *) const
 
 waytype_t tool_build_tunnel_t::get_waytype() const
 {
-	const tunnel_desc_t * desc = tunnelbauer_t::get_desc(default_param);
+	const tunnel_desc_t * desc = tunnel_builder_t::get_desc(default_param);
 	return desc ? desc->get_waytype() : invalid_wt;
 }
 
@@ -3058,7 +3058,7 @@ bool tool_build_tunnel_t::init( player_t *player )
 {
 	two_click_tool_t::init( player );
 	// now get current desc
-	const tunnel_desc_t * desc = tunnelbauer_t::get_desc(default_param);
+	const tunnel_desc_t * desc = tunnel_builder_t::get_desc(default_param);
 	if(  desc  &&  !desc->is_available(welt->get_timeline_year_month())  &&  player!=NULL  &&  player!=welt->get_public_player()) {
 		return false;
 	}
@@ -3076,7 +3076,7 @@ void tool_build_tunnel_t::rdwr_custom_data(memory_rw_t *packet)
 	}
 	else
 	{
-		const tunnel_desc_t* tb = tunnelbauer_t::get_desc(default_param);
+		const tunnel_desc_t* tb = tunnel_builder_t::get_desc(default_param);
 		const waytype_t wt = tb ? tb->get_waytype() : invalid_wt;
 		weg_desc = tool_build_way_t::defaults[wt & 63];
 
@@ -3097,7 +3097,7 @@ const char *tool_build_tunnel_t::check_pos( player_t *player, koord3d pos)
 
 void tool_build_tunnel_t::calc_route( wegbauer_t &bauigel, const koord3d &start, const koord3d &end)
 {
-	const tunnel_desc_t *desc = tunnelbauer_t::get_desc(default_param);
+	const tunnel_desc_t *desc = tunnel_builder_t::get_desc(default_param);
 	wegbauer_t::bautyp_t bt = (wegbauer_t::bautyp_t)(desc->get_waytype());
 
 	const weg_desc_t *wb = desc->get_weg_desc();
@@ -3117,8 +3117,8 @@ const char *tool_build_tunnel_t::do_work( player_t *player, const koord3d &start
 	if( end == koord3d::invalid ) {
 		// Build tunnel mouths
 		if (welt->lookup_kartenboden(start.get_2d())->get_hoehe() == start.z) {
-			const tunnel_desc_t *desc = tunnelbauer_t::get_desc(default_param);
-			return tunnelbauer_t::build( player, start.get_2d(), desc, !is_ctrl_pressed(), weg_desc );
+			const tunnel_desc_t *desc = tunnel_builder_t::get_desc(default_param);
+			return tunnel_builder_t::build( player, start.get_2d(), desc, !is_ctrl_pressed(), weg_desc );
 		}
 		else {
 			return "";
@@ -3149,7 +3149,7 @@ uint8 tool_build_tunnel_t::is_valid_pos(  player_t *player, const koord3d &pos, 
 	grund_t *gr = welt->lookup(pos);
 	if(  gr  ) {
 		if( gr->hat_wege() ) {
-			const tunnel_desc_t *desc = tunnelbauer_t::get_desc(default_param);
+			const tunnel_desc_t *desc = tunnel_builder_t::get_desc(default_param);
 			// use the check_owner routine of wegbauer_t (not player_t!), needs an instance
 			weg_t *w = gr->get_weg_nr(0);
 			if(  w==NULL  ||  w->get_desc()->get_wtyp()!=desc->get_waytype()  ) {
@@ -3183,7 +3183,7 @@ void tool_build_tunnel_t::mark_tiles(  player_t *player, const koord3d &start, c
 	wegbauer_t bauigel(player);
 	calc_route( bauigel, start, end );
 
-	const tunnel_desc_t *desc = tunnelbauer_t::get_desc(default_param);
+	const tunnel_desc_t *desc = tunnel_builder_t::get_desc(default_param);
 	// now we search a matching way for the tunnels top speed
 	const weg_desc_t *wb = desc->get_weg_desc();
 	if(wb==NULL) {
@@ -5899,7 +5899,7 @@ const char* tool_signalbox_t::tool_signalbox_aux(player_t* player, koord3d pos, 
 				return NOTICE_TILE_FULL;
 			}
 
-			const tunnel_desc_t *tunnel_desc = tunnelbauer_t::find_tunnel(track_wt, 0, 0);
+			const tunnel_desc_t *tunnel_desc = tunnel_builder_t::get_tunnel_desc(track_wt, 0, 0);
 			if(tunnel_desc == NULL) 
 			{
 				return "Cannot built this station/building\nin underground mode here.";

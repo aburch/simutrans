@@ -1260,7 +1260,7 @@ void wegbauer_t::check_for_bridge(const grund_t* parent_from, const grund_t* fro
 	if(  tunnel_desc  &&  ribi_type(from->get_grund_hang()) == ribi_type(zv)  ) {
 		// uphill hang ... may be tunnel?
 		const sint32 cost_difference = desc->get_wartung() > 0 ? (tunnel_desc->get_wartung() * 4l + 3l) / desc->get_wartung() : 16;
-		koord3d end = tunnelbauer_t::find_end_pos( player, from->get_pos(), zv, tunnel_desc);
+		koord3d end = tunnel_builder_t::find_end_pos( player, from->get_pos(), zv, tunnel_desc);
 		if(  end != koord3d::invalid  &&  !ziel.is_contained(end)  ) {
 			uint32 length = koord_distance(from->get_pos(), end);
 			next_gr.append(next_gr_t(welt->lookup(end), length * cost_difference, build_straight | build_tunnel_bridge ));
@@ -1328,7 +1328,7 @@ void wegbauer_t::route_fuer(bautyp_t wt, const weg_desc_t *b, const tunnel_desc_
 #endif
 #ifdef AUTOMATIC_TUNNELS
 		if(  tunnel_desc == NULL  ) {
-			tunnel_desc = tunnelbauer_t::find_tunnel(b->get_wtyp(), 25, welt->get_timeline_year_month());
+			tunnel_desc = tunnel_builder_t::get_tunnel_desc(b->get_wtyp(), 25, welt->get_timeline_year_month());
 		}
 #endif
 	}
@@ -2011,7 +2011,7 @@ void wegbauer_t::baue_tunnel_und_bruecken()
 			}
 			else {
 				// tunnel
-				tunnelbauer_t::build( player, route[i].get_2d(), tunnel_desc, true );
+				tunnel_builder_t::build( player, route[i].get_2d(), tunnel_desc, true );
 			}
 			INT_CHECK( "wegbauer 1584" );
 		}
@@ -2044,7 +2044,7 @@ void wegbauer_t::baue_tunnel_und_bruecken()
 						// make a short tunnel
 						wi->set_ribi(ribi_type(slope_t::opposite(h)));
 						wi1->set_ribi(ribi_type(h));
-						tunnelbauer_t::build( player, route[i].get_2d(), tunnel_desc, true, desc );
+						tunnel_builder_t::build( player, route[i].get_2d(), tunnel_desc, true, desc );
 					}
 					INT_CHECK( "wegbauer 1584" );
 				}

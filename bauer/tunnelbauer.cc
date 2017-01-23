@@ -38,16 +38,16 @@
 #include "../tpl/vector_tpl.h"
 
 
-karte_ptr_t tunnelbauer_t::welt;
+karte_ptr_t tunnel_builder_t::welt;
 
 static stringhashtable_tpl<tunnel_desc_t *> tunnel_by_name;
 
 
-void tunnelbauer_t::register_desc(tunnel_desc_t *desc)
+void tunnel_builder_t::register_desc(tunnel_desc_t *desc)
 {
 	// avoid duplicates with same name
 	if( const tunnel_desc_t *old_desc = tunnel_by_name.get(desc->get_name()) ) {
-		dbg->warning( "tunnelbauer_t::register_desc()", "Object %s was overlaid by addon!", desc->get_name() );
+		dbg->warning( "tunnel_builder_t::register_desc()", "Object %s was overlaid by addon!", desc->get_name() );
 		tunnel_by_name.remove(desc->get_name());
 		tool_t::general_tool.remove( old_desc->get_builder() );
 		delete old_desc->get_builder();
@@ -63,12 +63,12 @@ void tunnelbauer_t::register_desc(tunnel_desc_t *desc)
 	tunnel_by_name.put(desc->get_name(), desc);
 }
 
-stringhashtable_tpl <tunnel_desc_t *> * tunnelbauer_t::get_all_tunnels()
+stringhashtable_tpl <tunnel_desc_t *> * tunnel_builder_t::get_all_tunnels()
 {
 	return &tunnel_by_name;
 }
 
-const tunnel_desc_t *tunnelbauer_t::get_desc(const char *name)
+const tunnel_desc_t *tunnel_builder_t::get_desc(const char *name)
 {
 	return (name ? tunnel_by_name.get(name) : NULL);
 }
@@ -78,7 +78,7 @@ const tunnel_desc_t *tunnelbauer_t::get_desc(const char *name)
  * Find a matching tunnel
  * @author Hj. Malthaner
  */
-const tunnel_desc_t *tunnelbauer_t::find_tunnel(const waytype_t wtyp, const sint32 min_speed, const uint16 time)
+const tunnel_desc_t *tunnel_builder_t::get_tunnel_desc(const waytype_t wtyp, const sint32 min_speed, const uint16 time)
 {
 	const tunnel_desc_t *find_desc = NULL;
 
@@ -116,7 +116,7 @@ static bool compare_tunnels(const tunnel_desc_t* a, const tunnel_desc_t* b)
  * Fill menu with icons of given waytype
  * @author Hj. Malthaner
  */
-void tunnelbauer_t::fill_menu(tool_selector_t* tool_selector, const waytype_t wtyp, sint16 /*sound_ok*/)
+void tunnel_builder_t::fill_menu(tool_selector_t* tool_selector, const waytype_t wtyp, sint16 /*sound_ok*/)
 {
 	// check if scenario forbids this
 	if (!welt->get_scenario()->is_tool_allowed(welt->get_active_player(), TOOL_BUILD_TUNNEL | GENERAL_TOOL, wtyp)) {
@@ -142,7 +142,7 @@ void tunnelbauer_t::fill_menu(tool_selector_t* tool_selector, const waytype_t wt
 /* now construction stuff */
 
 
-koord3d tunnelbauer_t::find_end_pos(player_t *player, koord3d pos, koord zv, const tunnel_desc_t *desc, bool full_tunnel, const char** msg)
+koord3d tunnel_builder_t::find_end_pos(player_t *player, koord3d pos, koord zv, const tunnel_desc_t *desc, bool full_tunnel, const char** msg)
 {
 	const grund_t *gr;
 	leitung_t *lt;
@@ -299,7 +299,7 @@ koord3d tunnelbauer_t::find_end_pos(player_t *player, koord3d pos, koord zv, con
 }
 
 
-const char *tunnelbauer_t::build( player_t *player, koord pos, const tunnel_desc_t *desc, bool full_tunnel, const weg_desc_t *weg_desc)
+const char *tunnel_builder_t::build( player_t *player, koord pos, const tunnel_desc_t *desc, bool full_tunnel, const weg_desc_t *weg_desc)
 {
 	assert( desc );
 
@@ -399,7 +399,7 @@ const char *tunnelbauer_t::build( player_t *player, koord pos, const tunnel_desc
 		player_t::book_construction_costs(player, welt->get_settings().cst_alter_land * n, end.get_2d(), desc->get_waytype());
 	}
 
-	if(!baue_tunnel(player, gr->get_pos(), end, zv, desc, weg_desc)) {
+	if(!build_tunnel(player, gr->get_pos(), end, zv, desc, weg_desc)) {
 		return "Ways not connected";
 	}
 
@@ -411,7 +411,7 @@ const char *tunnelbauer_t::build( player_t *player, koord pos, const tunnel_desc
 }
 
 
-bool tunnelbauer_t::baue_tunnel(player_t *player, koord3d start, koord3d end, koord zv, const tunnel_desc_t *desc, const weg_desc_t *weg_desc)
+bool tunnel_builder_t::build_tunnel(player_t *player, koord3d start, koord3d end, koord zv, const tunnel_desc_t *desc, const weg_desc_t *weg_desc)
 {
 	ribi_t::ribi ribi = 0;
 	weg_t *weg = NULL;
@@ -420,7 +420,7 @@ bool tunnelbauer_t::baue_tunnel(player_t *player, koord3d start, koord3d end, ko
 	sint64 cost = 0;
 	waytype_t waytyp = desc->get_waytype();
 
-	DBG_MESSAGE("tunnelbauer_t::build()","build from (%d,%d,%d) to (%d,%d,%d) ", pos.x, pos.y, pos.z, end.x, end.y, end.z );
+	DBG_MESSAGE("tunnel_builder_t::build()","build from (%d,%d,%d) to (%d,%d,%d) ", pos.x, pos.y, pos.z, end.x, end.y, end.z );
 
 	// now we search for a matching way for the tunnel's top speed
 	// The tunnel ways are no longer properly encoded, with the result that weg_desc is garbled
@@ -443,7 +443,7 @@ bool tunnelbauer_t::baue_tunnel(player_t *player, koord3d start, koord3d end, ko
 		weg_desc = wegbauer_t::weg_search(waytyp, desc->get_topspeed(), desc->get_max_axle_load(), welt->get_timeline_year_month(), type_flat, desc->get_wear_capacity());
 	}
 
-	baue_einfahrt(player, pos, zv, desc, weg_desc, cost);
+	build_tunnel_portal(player, pos, zv, desc, weg_desc, cost);
 
 	ribi = ribi_type(-zv);
 	// don't move on to next tile if only one tile long
@@ -516,7 +516,7 @@ bool tunnelbauer_t::baue_tunnel(player_t *player, koord3d start, koord3d end, ko
 		}
 		else if (gr_end->ist_karten_boden()) {
 			// if end is above ground construct an exit
-			baue_einfahrt(player, pos, -zv, desc, weg_desc, cost);
+			build_tunnel_portal(player, pos, -zv, desc, weg_desc, cost);
 			gr_end = NULL; // invalid - replaced by tunnel ground
 			// calc new back image for the ground
 			if (end!=start && grund_t::underground_mode) {
@@ -580,7 +580,7 @@ bool tunnelbauer_t::baue_tunnel(player_t *player, koord3d start, koord3d end, ko
 }
 
 
-void tunnelbauer_t::baue_einfahrt(player_t *player, koord3d end, koord zv, const tunnel_desc_t *desc, const weg_desc_t *weg_desc, sint64 &cost)
+void tunnel_builder_t::build_tunnel_portal(player_t *player, koord3d end, koord zv, const tunnel_desc_t *desc, const weg_desc_t *weg_desc, sint64 &cost)
 {
 	grund_t *alter_boden = welt->lookup(end);
 	ribi_t::ribi ribi = 0;
@@ -699,7 +699,7 @@ void tunnelbauer_t::baue_einfahrt(player_t *player, koord3d end, koord zv, const
 }
 
 
-const char *tunnelbauer_t::remove(player_t *player, koord3d start, waytype_t waytyp, bool remove_all )
+const char *tunnel_builder_t::remove(player_t *player, koord3d start, waytype_t waytyp, bool remove_all )
 {
 	marker_t& marker = marker_t::instance(welt->get_size().x, welt->get_size().y);
 	slist_tpl<koord3d>  end_list;

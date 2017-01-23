@@ -21,20 +21,20 @@ class tool_selector_t;
 
 /**
  * Baut Tunnel. Tunnel sollten nicht direkt instanziiert werden
- * sondern immer vom tunnelbauer_t erzeugt werden.
+ * sondern immer vom tunnel_builder_t erzeugt werden.
  *
  * Es gibt keine Instanz - nur statische Methoden.
  *
  * @author V. Meyer
  */
-class tunnelbauer_t {
+class tunnel_builder_t {
 private:
 	static karte_ptr_t welt;
 
-	static bool baue_tunnel(player_t *player, koord3d pos, koord3d end, koord zv, const tunnel_desc_t *desc, const weg_desc_t *weg_desc = NULL);
-	static void baue_einfahrt(player_t *player, koord3d end, koord zv, const tunnel_desc_t *desc, const weg_desc_t *weg_desc, sint64 &cost);
+	static bool build_tunnel(player_t *player, koord3d pos, koord3d end, koord zv, const tunnel_desc_t *desc, const weg_desc_t *weg_desc = NULL);
+	static void build_tunnel_portal(player_t *player, koord3d end, koord zv, const tunnel_desc_t *desc, const weg_desc_t *weg_desc, sint64 &cost);
 
-	tunnelbauer_t() {} // private -> no instance please
+	tunnel_builder_t() {} // private -> no instance please
 
 public:
 	static koord3d find_end_pos(player_t *player, koord3d pos, koord zv, const tunnel_desc_t *desc, bool full_tunnel=true, const char** msg=NULL);
@@ -45,7 +45,7 @@ public:
 
 	static stringhashtable_tpl <tunnel_desc_t *> * get_all_tunnels();
 
-	static const tunnel_desc_t *find_tunnel(const waytype_t wtyp, const sint32 min_speed,const uint16 time);
+	static const tunnel_desc_t *get_tunnel_desc(const waytype_t wtyp, const sint32 min_speed,const uint16 time);
 
 	static void fill_menu(tool_selector_t *tool_selector, const waytype_t wtyp, sint16 sound_ok);
 

@@ -29,10 +29,10 @@ tunnelboden_t::tunnelboden_t(loadsave_t *file, koord pos ) : boden_t(koord3d(pos
 		weg_t *weg=(weg_t *)obj_bei(0);
 		if(  !weg  ) {
 			dbg->error( "tunnelboden_t::tunnelboden_t()", "Loading without a way at (%s)! Assuming road tunnel!", pos.get_str() );
-			obj_add(new tunnel_t(get_pos(), NULL, tunnelbauer_t::find_tunnel(road_wt, 450, 0)));
+			obj_add(new tunnel_t(get_pos(), NULL, tunnel_builder_t::get_tunnel_desc(road_wt, 450, 0)));
 		}
 		else {
-			obj_add(new tunnel_t(get_pos(), weg->get_owner(), tunnelbauer_t::find_tunnel(weg->get_desc()->get_wtyp(), 450, 0)));
+			obj_add(new tunnel_t(get_pos(), weg->get_owner(), tunnel_builder_t::get_tunnel_desc(weg->get_desc()->get_wtyp(), 450, 0)));
 		}
 		DBG_MESSAGE("tunnelboden_t::tunnelboden_t()","added tunnel to pos (%i,%i,%i)",get_pos().x, get_pos().y,get_pos().z);
 	}
@@ -103,7 +103,7 @@ void tunnelboden_t::rdwr(loadsave_t *file)
 		const tunnel_desc_t *desc = NULL;
 		file->rdwr_str(buf, lengthof(buf));
 		if (find<tunnel_t>() == NULL) {
-			desc = tunnelbauer_t::get_desc(buf);
+			desc = tunnel_builder_t::get_desc(buf);
 			if(desc) {
 				obj_add(new tunnel_t(get_pos(), obj_bei(0)->get_owner(), desc));
 			}
