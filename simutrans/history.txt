@@ -25,6 +25,16 @@
 	FIX: network core correctly enumerates local bind addresses instead of repeatedly trying to bind to the first local address
 	ADD: support service names for ports in network URNs
 	CHG: cities can now build on tiles with bridge pillars, matching the logic that pillared bridges can be placed over city buildings
+	FIX: incorrect scaling of electricity revenue with respect to month length
+	FIX: electricity related information is now consistent with respect to value source
+	FIX: electricity related information now accuratly reflects the last tick of the network
+	FIX: electricity networks are no longer prone to arithmetic overflow which could result in incorrect graphics or income
+	FIX: electricity networks no longer skip a power tick or lose revenue accumulators during a save/load cycle
+	CHG: simplified transformer information UI removing redundant or meaningless values
+	CHG: factory power is solved in 1 tick instead of 2
+	CHG: various improvements to JIT2 to improve factory and electricity network stability
+	CHG: factories which produce power log the amount of power production consumed instead of the amount of power produced
+	CHG: factories which consume power log the amount consumed as negative
 
 Release of 120.1.3: (r7753 on 2-Feb-2016):
 	FIX: road vehicles search for new route when arriving at intersection and old route is invalid

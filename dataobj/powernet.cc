@@ -13,9 +13,12 @@
 static pthread_mutex_t netlist_mutex = PTHREAD_MUTEX_INITIALIZER;
 #endif
 
-// max capacity = (max<uint64> >> 5) -1, see senke_t::step in obj/leitung2.cc
-//uint64 powernet_t::max_capacity = (1<<44)-1; // max to allow display with uint32 after POWER_TO_MW shift
-const uint64 powernet_t::max_capacity = (1953125ull<<23); // nicer number for human display (corresponds to 4 TW)
+extern const uint32 POWER_TO_MW; // defined in leitung2
+
+// maximum possible limit is (1 << (63 - FRACTION_PRECISION))
+const uint64 powernet_t::max_capacity = (uint64)4000000 << POWER_TO_MW; // (4 TW)
+
+const uint8 powernet_t::FRACTION_PRECISION = 16;
 
 
 slist_tpl<powernet_t *> powernet_t::powernet_list;
@@ -48,10 +51,11 @@ powernet_t::powernet_t()
 	pthread_mutex_unlock( &netlist_mutex );
 #endif
 
-	this_supply = 0;
-	next_supply = 0;
-	this_demand = 0;
-	next_demand = 0;
+	power_supply = 0;
+	power_demand = 0;
+
+	norm_demand = 1 << FRACTION_PRECISION;
+	norm_supply = 1 << FRACTION_PRECISION;
 }
 
 
@@ -66,6 +70,20 @@ powernet_t::~powernet_t()
 #endif
 }
 
+/**
+ * Computes a normalized supply/demand value.
+ * If demand fully satisfies supply or supply is 0 then output is 1.
+ */
+sint32 compute_norm_sd(uint64 const demand, uint64 const supply)
+{
+	// compute demand factor
+	if(  (demand  >=  supply)  ||  (supply  ==  0)  ) {
+		return (sint32)1 << powernet_t::FRACTION_PRECISION;
+	}
+	else {
+		return (sint32)((demand << powernet_t::FRACTION_PRECISION) / supply);
+	}
+}
 
 void powernet_t::step(uint32 delta_t)
 {
@@ -73,26 +91,29 @@ void powernet_t::step(uint32 delta_t)
 		return;
 	}
 
-	this_supply = next_supply;
-	next_supply = 0;
-	this_demand = next_demand;
-	next_demand = 0;
+	// get limited values
+	uint64 const supply = get_supply();
+	uint64 const demand = get_demand();
+
+	// compute normalized demand
+	norm_demand = compute_norm_sd(demand, supply);
+	norm_supply = compute_norm_sd(supply, demand);	
 }
 
-
-void powernet_t::add_supply(const uint32 p)
+/**
+ * Clamps a power value to be within the maximum capacity.
+ */
+uint64 clamp_power(uint64 const power)
 {
-	next_supply += p;
-	if(  next_supply>max_capacity  ) {
-		next_supply = max_capacity;
-	}
+	return power > powernet_t::max_capacity ? powernet_t::max_capacity : power;
 }
 
-
-void powernet_t::add_demand(const uint32 p)
+uint64 powernet_t::get_supply() const
 {
-	next_demand += p;
-	if(  next_demand>max_capacity  ) {
-		next_demand = max_capacity;
-	}
+	return clamp_power(power_supply);
+}
+
+uint64 powernet_t::get_demand() const
+{
+	return clamp_power(power_demand);
 }

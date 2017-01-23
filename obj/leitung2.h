@@ -15,7 +15,8 @@
 #include "../simobj.h"
 #include "../tpl/slist_tpl.h"
 
-#define POWER_TO_MW (12)  // bitshift for converting internal power values to MW for display
+// bitshift for converting internal power values to MW for display
+extern const uint32 POWER_TO_MW;
 
 class powernet_t;
 class player_t;
@@ -59,8 +60,15 @@ protected:
 	void calc_image();
 
 public:
+	// number of fractional bits for network load values
+	static const uint8 FRACTION_PRECISION;
+
 	powernet_t* get_net() const { return net; }
-	void set_net(powernet_t* p) { net = p; }
+	/**
+	 * Changes the currently registered power net.
+	 * Can be overwritten to modify the power net on change.
+	 */
+	virtual void set_net(powernet_t* p) { net = p; }
 
 	const way_desc_t * get_desc() { return desc; }
 	void set_desc(const way_desc_t *new_desc) { desc = new_desc; }
@@ -108,22 +116,8 @@ public:
 	*/
 	void calc_neighbourhood();
 
-	/**
-	* Wird nach dem Laden der Welt aufgerufen - üblicherweise benutzt
-	* um das Aussehen des Dings an Boden und Umgebung anzupassen
-	*
-	* @author Hj. Malthaner
-	*/
-	virtual void finish_rd();
-
-	/**
-	* Speichert den Zustand des Objekts.
-	*
-	* @param file Zeigt auf die Datei, in die das Objekt geschrieben werden
-	* soll.
-	* @author Hj. Malthaner
-	*/
 	virtual void rdwr(loadsave_t *file);
+	virtual void finish_rd();
 
 	/**
 	 * @return NULL if OK, otherwise an error message
@@ -144,7 +138,9 @@ private:
 	static slist_tpl<pumpe_t *> pumpe_list;
 
 	fabrik_t *fab;
-	uint32 supply;
+
+	// The power supplied through the transformer
+	uint32 power_supply;
 
 	void step(uint32 delta_t);
 
@@ -153,13 +149,32 @@ public:
 	pumpe_t(koord3d pos, player_t *player);
 	~pumpe_t();
 
+	virtual void set_net(powernet_t* p);
+
+	/**
+	 * Set the power supply of the transformer.
+	 */
+	void set_power_supply(uint32 newsupply);
+
+	/**
+	 * Get the power supply of the transformer.
+	 */
+	uint32 get_power_supply() const {return power_supply;}
+
+	/**
+ 	 * Get the normalized satisfaction value of the power consumed, updated every tick.
+	 * Return value is fixed point with FRACTION_PRECISION fractional bits.
+	 */
+	sint32 get_power_consumption() const;
+
 	typ get_typ() const { return pumpe; }
 
 	const char *get_name() const {return "Aufspanntransformator";}
 
 	void info(cbuffer_t & buf) const;
 
-	void finish_rd();
+	virtual void rdwr(loadsave_t *file);
+	virtual void finish_rd();
 
 	void calc_image() {}	// otherwise it will change to leitung
 
@@ -169,14 +184,7 @@ public:
 
 /*
  * Distribution transformers act as an interface between power networks and
- * and power consuming factories. They work in a pipelined way by taking the
- * energy demand of a factory, solving it between ticks and feeding the results
- * back the next tick.
- *
- * This buffering means that the factory will get the results for a demand
- * after 2 ticks, with the first tick getting the previous result. Any unfulfilled
- * demand from a result will be refunded to the factory so that the factory can
- * calculate how well demand is being fulfilled in general.
+ * and power consuming factories.
  */
 class senke_t : public leitung_t, public sync_steppable
 {
@@ -184,42 +192,76 @@ public:
 	static void new_world();
 	static void step_all(uint32 delta_t);
 
+	/**
+	 * Read and write static state.
+	 * This is used to make payments occur at the same time after load as after saving.
+	 */
+	static void static_rdwr(loadsave_t *file);
+
 private:
+	// List of all distribution transformers.
 	static slist_tpl<senke_t *> senke_list;
 
-	sint32 einkommen;
-	sint32 max_einkommen;
+	// Timer for global power payment.
+	static uint32 payment_timer;
+
 	fabrik_t *fab;
-	sint32 delta_sum;
-	sint32 next_t;
 
-	// the power demand to be solved next tick
-	uint32 next_power_demand;
+	// Pwm timer for duty cycling image.
+	uint32 delta_sum;
 
-	// the last power demand solved
-	uint32 last_power_demand;
+	// Timer for recalculating image.
+	uint32 next_t;
 
-	// the last power satisfaction computed
-	uint32 power_load;
+	// The power requested through the transformer.
+	uint32 power_demand;
+
+	// Energy accumulator (how much energy has been metered).
+	uint64 energy_acc;
 
 	void step(uint32 delta_t);
+
+	// Pay out revenue for the energy metered.
+	void pay_revenue();
 
 public:
 	senke_t(loadsave_t *file);
 	senke_t(koord3d pos, player_t *player);
 	~senke_t();
 
+	virtual void set_net(powernet_t* p);
+
 	typ get_typ() const { return senke; }
 
-	// used to alternate between displaying power on and power off images at a frequency determined by the percentage of power supplied
-	// gives players a visual indication of a power network with insufficient generation
+	/**
+	 * Set the power demand of the transformer.
+	 */
+	void set_power_demand(uint32 newdemand);
+
+	/**
+	 * Get the power demand of the transformer.
+	 */
+	uint32 get_power_demand() const {return power_demand;}
+
+	/**
+	 * Get the normalized satisfaction value of the power demand, updated every tick.
+	 * Return value is fixed point with FRACTION_PRECISION fractional bits.
+	 */
+	sint32 get_power_satisfaction() const;
+
+	/** 
+	 * Used to alternate between displaying power on and power off images.
+	 * Frequency determined by the percentage of power supplied.
+	 * Gives players a visual indication of a power network with insufficient generation.
+	 */
 	sync_result sync_step(uint32 delta_t);
 
 	const char *get_name() const {return "Abspanntransformator";}
 
 	void info(cbuffer_t & buf) const;
 
-	void finish_rd();
+	virtual void rdwr(loadsave_t *file);
+	virtual void finish_rd();
 
 	void calc_image() {}	// otherwise it will change to leitung
 

@@ -13,7 +13,6 @@
 #include "../simtypes.h"
 #include "../tpl/slist_tpl.h"
 
-
 /**
  * Data class for power networks. A two phase queue to store
  * and hand out power.
@@ -22,6 +21,15 @@
 class powernet_t
 {
 public:
+	/**
+	 * Max power capacity of each network.
+	 * Avoids possible overflows while providing a human friendly number.
+	 */
+	static const uint64 max_capacity;
+
+	// number of fractional bits for network load values
+	static const uint8 FRACTION_PRECISION;
+
 	/**
 	 * Must be called when a new map is started or loaded. Clears the table of networks.
 	 * @author Hj. Malthaner
@@ -34,19 +42,17 @@ public:
 private:
 	static slist_tpl<powernet_t *> powernet_list;
 
-	/// Max power capacity of each network, only purpose: avoid integer overflows
-	static const uint64 max_capacity;
+	// Network power supply.
+	uint64 power_supply;
+	// Network power demand.
+	uint64 power_demand;
 
-	/// Power supply in next step
-	uint64 next_supply;
-	/// Power supply in current step
-	uint64 this_supply;
-	/// Power demand in next step
-	uint64 next_demand;
-	/// Power demand in current step
-	uint64 this_demand;
+	// Computed normalized demand.
+	sint32 norm_demand;
+	// Computed normalized supply.
+	sint32 norm_supply;
 
-	/// Just transfers power demand and supply to current step
+	// Just transfers power demand and supply to current step
 	void step(uint32 delta_t);
 
 public:
@@ -55,17 +61,51 @@ public:
 
 	uint64 get_max_capacity() const { return max_capacity; }
 
-	/// add to power supply for next step, respect max_capacity
-	void add_supply(const uint32 p);
+	/**
+	 * Add power supply for next step.
+	 */
+	void add_supply(const uint32 p) { power_supply += (uint64)p; }
 
-	/// @returns current power supply
-	uint64 get_supply() const { return this_supply; }
+	/**
+	 * Subtract power supply for next step.
+	 */
+	void sub_supply(const uint32 p) { power_supply -= (uint64)p; }
 
-	/// add to power demand for next step, respect max_capacity
-	void add_demand(const uint32 p);
+	/**
+	 * Get the total power supply of the network.
+	 */
+	uint64 get_supply() const;
 
-	/// @returns current power demand
-	uint64 get_demand() const { return this_demand; }
+	/**
+	 * Add power demand for next step.
+	 */
+	void add_demand(const uint32 p) { power_demand += (uint64)p; }
+
+	/**
+	 * Subtract power demand for next step.
+	 */
+	void sub_demand(const uint32 p) { power_demand -= (uint64)p; }
+
+	/**
+	 * Get the total power demand of the network.
+	 */
+	uint64 get_demand() const;
+
+	/**
+	 * Return the normalized value of demand in the network.
+	 * Will have a logical value between 0 (no demand) and 1 (all supply consumed).
+	 * Will have a logical value of 1 when no supply is present.
+	 * Return value is fixed point with FRACTION_PRECISION fractional bits.
+	 */
+	sint32 get_normal_demand() const { return norm_demand; }
+
+	/**
+	 * Return the normalized value of supply in the network.
+	 * Will have a logical value between 0 (no supply) and 1 (all demand supplied).
+	 * Will have a logical value of 1 when no demand is present.
+	 * Return value is fixed point with FRACTION_PRECISION fractional bits.
+	 */
+	sint32 get_normal_supply() const { return norm_supply; }
 };
 
 #endif

@@ -35,6 +35,10 @@ static pthread_mutex_t senke_list_mutex = PTHREAD_MUTEX_INITIALIZER;
 #include "../boden/grund.h"
 #include "../bauer/wegbauer.h"
 
+const uint32 POWER_TO_MW = 12;
+
+// use same precision as powernet
+const uint8 leitung_t::FRACTION_PRECISION = powernet_t::FRACTION_PRECISION;
 
 /**
  * returns possible directions for powerline on this tile
@@ -335,18 +339,22 @@ void leitung_t::info(cbuffer_t & buf) const
 {
 	obj_t::info(buf);
 
-	const uint64 supply = get_net()->get_supply();
-	const uint64 demand = get_net()->get_demand();
-	const uint64 load = demand>supply ? supply:demand;
+	powernet_t * const net = get_net();
 
-	buf.printf( translator::translate("Net ID: %lu\n"), (unsigned long)get_net() );
-//	buf.printf( translator::translate("Capacity: %u MW\n"), (uint32)(get_net()->get_max_capacity()>>POWER_TO_MW) );
-	buf.printf( translator::translate("Demand: %u MW\n"), (uint32)(demand>>POWER_TO_MW) );
-	buf.printf( translator::translate("Generation: %u MW\n"), (uint32)(supply>>POWER_TO_MW) );
-	buf.printf( translator::translate("Act. load: %u MW\n"), (uint32)(load>>POWER_TO_MW) );
-	buf.printf( translator::translate("Usage: %u %%"), (uint32)((100ull*load)/(supply>0?supply:1ull)) );
+	const uint64 supply = net->get_supply() >> POWER_TO_MW;
+	const uint64 demand = net->get_demand() >> POWER_TO_MW;
+	const uint32 usage = (uint32)((100 * net->get_normal_demand()) >> powernet_t::FRACTION_PRECISION);
+
+	buf.printf(translator::translate("Net ID: %lu"), (unsigned long)net);
+	buf.printf("\n");
+	//buf.printf(translator::translate("Capacity: %u MW"), (uint32)(net->get_max_capacity()>>POWER_TO_MW));
+	//buf.printf("\n");
+	buf.printf(translator::translate("Demand: %lu MW"), demand);
+	buf.printf("\n");
+	buf.printf(translator::translate("Generation: %lu MW"), supply);
+	buf.printf("\n");
+	buf.printf(translator::translate("Usage: %u %%"), usage);
 }
-
 
 /**
  * Wird nach dem Laden der Welt aufgerufen - üblicherweise benutzt
@@ -376,34 +384,28 @@ void leitung_t::finish_rd()
 	player_t::add_maintenance(get_owner(), desc->get_wartung(), powerline_wt);
 }
 
-
-/**
- * Speichert den Zustand des Objekts.
- *
- * @param file Zeigt auf die Datei, in die das Objekt geschrieben werden
- * soll.
- * @author Hj. Malthaner
- */
 void leitung_t::rdwr(loadsave_t *file)
 {
 	xml_tag_t d( file, "leitung_t" );
 
-	uint32 value;
-
 	obj_t::rdwr(file);
-	if(file->is_saving()) {
-		value = (unsigned long)get_net();
+
+	// no longer save power net pointer as it is no longer used
+	if(  file->get_version()  <=  120003  ) {
+		uint32 value;
+		if(  file->is_saving()  ) {
+			value = (uint32)get_net();
+		}
 		file->rdwr_long(value);
 	}
-	else {
-		file->rdwr_long(value);
+	if(  file->is_loading()  ) {
 		set_net(NULL);
 	}
 
 	if(get_typ()==leitung) {
 		/* ATTENTION: during loading thus MUST not be called from the constructor!!!
-		 * (Otherwise it will be always true!
-		 */
+		* (Otherwise it will be always true!
+		*/
 		if(file->get_version() > 102002) {
 			if(file->is_saving()) {
 				const char *s = desc->get_name();
@@ -432,7 +434,6 @@ void leitung_t::rdwr(loadsave_t *file)
 		}
 	}
 }
-
 
 // returns NULL, if removal is allowed
 // players can remove public owned powerlines
@@ -467,7 +468,7 @@ void pumpe_t::step_all(uint32 delta_t)
 pumpe_t::pumpe_t(loadsave_t *file ) : leitung_t( koord3d::invalid, NULL )
 {
 	fab = NULL;
-	supply = 0;
+	power_supply = 0;
 	rdwr( file );
 }
 
@@ -475,7 +476,7 @@ pumpe_t::pumpe_t(loadsave_t *file ) : leitung_t( koord3d::invalid, NULL )
 pumpe_t::pumpe_t(koord3d pos, player_t *player) : leitung_t(pos, player)
 {
 	fab = NULL;
-	supply = 0;
+	power_supply = 0;
 	player_t::book_construction_costs(player, welt->get_settings().cst_transformer, get_pos().get_2d(), powerline_wt);
 }
 
@@ -483,44 +484,81 @@ pumpe_t::pumpe_t(koord3d pos, player_t *player) : leitung_t(pos, player)
 pumpe_t::~pumpe_t()
 {
 	if(fab) {
-		fab->set_transformer_connected( false );
+		fab->set_transformer_connected(NULL);
 		fab = NULL;
 	}
 	pumpe_list.remove( this );
 	player_t::add_maintenance(get_owner(), (sint32)welt->get_settings().cst_maintain_transformer, powerline_wt);
 }
 
-
 void pumpe_t::step(uint32 delta_t)
 {
-	if(fab==NULL) {
+	if(  fab == NULL  ) {
+		return;
+	}
+	else if(  delta_t == 0  ) {
 		return;
 	}
 
-	if(  delta_t==0  ) {
-		return;
-	}
+	// usage logic could go here
 
-	supply = fab->get_power();
-
-	image_id new_image;
-	int winter_offset = 0;
+	// resolve image
+	uint16 winter_offset = 0;
 	if(  skinverwaltung_t::senke->get_count() > 3  &&  (get_pos().z >= welt->get_snowline()  ||  welt->get_climate( get_pos().get_2d() ) == arctic_climate)  ) {
 		winter_offset = 2;
 	}
-	if(  supply > 0  ) {
-		get_net()->add_supply( supply );
-		new_image = skinverwaltung_t::pumpe->get_image_id(1+winter_offset);
-	}
-	else {
-		new_image = skinverwaltung_t::pumpe->get_image_id(0+winter_offset);
-	}
-	if(image!=new_image) {
+	uint16 const image_offset = power_supply > 0 ? 1 : 0;
+	image_id const new_image = skinverwaltung_t::pumpe->get_image_id(image_offset + winter_offset);
+
+	// update image
+	if(  image != new_image  ) {
 		set_flag(obj_t::dirty);
-		set_image( new_image );
+		set_image(new_image);
 	}
 }
 
+void pumpe_t::set_net(powernet_t * p)
+{
+	powernet_t * p_old = get_net();
+	if(  p_old != NULL  ) {
+		p_old->sub_supply(power_supply);
+	}
+
+	leitung_t::set_net(p);
+
+	if(  p != NULL  ) {
+		p->add_supply(power_supply);
+	}
+}
+
+void pumpe_t::set_power_supply(uint32 newsupply)
+{
+	// update power network
+	powernet_t *const p = get_net();
+	if(  p != NULL  ) {
+		p->sub_supply(power_supply);
+		p->add_supply(newsupply);
+	}
+
+	power_supply = newsupply;
+}
+
+sint32 pumpe_t::get_power_consumption() const
+{
+	powernet_t const *const p = get_net();
+	return p->get_normal_demand();
+}
+
+void pumpe_t::rdwr(loadsave_t * file) {
+	xml_tag_t d( file, "pumpe_t" );
+
+	leitung_t::rdwr(file);
+
+	// current power state
+	if(  file->get_version()  >  120003  ) {
+		file->rdwr_long(power_supply);
+	}
+}
 
 void pumpe_t::finish_rd()
 {
@@ -540,9 +578,10 @@ void pumpe_t::finish_rd()
 		}
 		if(  fab  ) {
 			// only add when factory there
-			fab->set_transformer_connected( true );
+			fab->set_transformer_connected(this);
 		}
 	}
+
 #ifdef MULTI_THREAD
 	pthread_mutex_lock( &pumpe_list_mutex );
 #endif
@@ -560,47 +599,67 @@ void pumpe_t::finish_rd()
 #endif
 }
 
-
 void pumpe_t::info(cbuffer_t & buf) const
 {
 	obj_t::info( buf );
 
-	buf.printf( translator::translate("Net ID: %lu\n"), (unsigned long)get_net() );
-	buf.printf( translator::translate("Generation: %u MW\n"), supply>>POWER_TO_MW );
-	buf.printf("\n\n"); // pad for consistent dialog size
+	sint32 const  usage = get_net()->get_normal_demand();
+
+	buf.printf( translator::translate("Net ID: %lu"), (unsigned long)get_net() );
+	buf.printf("\n");
+	buf.printf( translator::translate("Generation: %lu MW"), (uint64)(power_supply >> POWER_TO_MW) );
+	buf.printf("\n");
+	buf.printf( translator::translate("Usage: %u %%"), (uint32)((100 * usage) >> powernet_t::FRACTION_PRECISION) );
+	buf.printf("\n"); // pad for consistent dialog size
 }
 
 
-/************************************ From here on drain stuff ********************************************/
+/************************************ Distriubtion Transformer Code ********************************************/
 
 slist_tpl<senke_t *> senke_t::senke_list;
-
+uint32 senke_t::payment_timer = 0;
 
 void senke_t::new_world()
 {
 	senke_list.clear();
+	payment_timer = 0;
 }
 
-
-void senke_t::step_all(uint32 delta_t)
+void senke_t::static_rdwr(loadsave_t *file)
 {
-	FOR(slist_tpl<senke_t*>, const s, senke_list) {
-		s->step(delta_t);
+	if(  file->get_version()  >  120003  ) {
+		file->rdwr_long(payment_timer);
 	}
 }
 
+void senke_t::step_all(uint32 delta_t)
+{
+	// payment period (could be tied to game setting)
+	const sint32 pay_period = PRODUCTION_DELTA_T * 10; // 10 seconds
+
+	// revenue payout timer
+	payment_timer += delta_t;
+	const bool payout = payment_timer >= pay_period;
+	payment_timer %= pay_period;
+
+	// step all distribution transformers
+	FOR(slist_tpl<senke_t*>, const s, senke_list) {
+		s->step(delta_t);
+		if (payout) {
+			s->pay_revenue();
+		}
+	}
+}
 
 senke_t::senke_t(loadsave_t *file) : leitung_t( koord3d::invalid, NULL )
 {
+	energy_acc = 0;
 	fab = NULL;
-	einkommen = 0;
-	max_einkommen = 1;
-	next_t = 0;
 	delta_sum = 0;
-	next_power_demand = 0;
-	last_power_demand = 0;
-	power_load = 0;
+	next_t = 0;
+
 	rdwr( file );
+
 	welt->sync.add(this);
 }
 
@@ -608,13 +667,10 @@ senke_t::senke_t(loadsave_t *file) : leitung_t( koord3d::invalid, NULL )
 senke_t::senke_t(koord3d pos, player_t *player) : leitung_t(pos, player)
 {
 	fab = NULL;
-	einkommen = 0;
-	max_einkommen = 1;
 	next_t = 0;
 	delta_sum = 0;
-	next_power_demand = 0;
-	last_power_demand = 0;
-	power_load = 0;
+	power_demand = 0;
+	energy_acc = 0;
 	player_t::book_construction_costs(player, welt->get_settings().cst_transformer, get_pos().get_2d(), powerline_wt);
 	welt->sync.add(this);
 }
@@ -622,15 +678,17 @@ senke_t::senke_t(koord3d pos, player_t *player) : leitung_t(pos, player)
 
 senke_t::~senke_t()
 {
+	// one last final income
+	pay_revenue();
+
 	welt->sync.remove( this );
 	if(fab!=NULL) {
-		fab->set_transformer_connected( false );
+		fab->set_transformer_connected(NULL);
 		fab = NULL;
 	}
 	senke_list.remove( this );
 	player_t::add_maintenance(get_owner(), (sint32)welt->get_settings().cst_maintain_transformer, powerline_wt);
 }
-
 
 void senke_t::step(uint32 delta_t)
 {
@@ -641,51 +699,59 @@ void senke_t::step(uint32 delta_t)
 		return;
 	}
 
-	// get solved power demand
-	last_power_demand = next_power_demand;
+	// energy metering logic
+	energy_acc += ((uint64)power_demand * (uint64)get_net()->get_normal_supply() * (uint64)delta_t) / ((uint64)PRODUCTION_DELTA_T << powernet_t::FRACTION_PRECISION);
+}
 
-	// set current factory demand to be solved
-	next_power_demand = fab->get_power_demand();
-	get_net()->add_demand( next_power_demand );
+void senke_t::pay_revenue()
+{
+	// megajoules (megawatt seconds) per cent
+	const uint64 mjpc = (1 << POWER_TO_MW) / 2; // should be tied to game setting
 
-	// compute power demand satisfaction from results
-	const uint64 net_demand = get_net()->get_demand();
-	const uint64 net_supply = get_net()->get_supply();
-	if(  net_supply >= net_demand  ) {
-		// demand fully satisfied
-		power_load = last_power_demand;
-	}
-	else if(  last_power_demand > 0  ) {
-		// compute demand satisfaction, this is safe because if last_power_demand > 0 then net_demand > 0
-		power_load = (uint32)((((uint64)last_power_demand) * ((net_supply << 5) / net_demand)) >> 5);
-	}
-	else {
-		// no demand so no supply
-		power_load = 0;
-	}
+	// calculate payment in cent
+	const sint64 payment = (sint64)(energy_acc / mjpc);
 
-	// push back power and demand to factory
-	fab->add_power( power_load );
-	fab->add_power_demand( last_power_demand - power_load );
+	// make payment
+	if(  payment  >  0  ) {
+		// enough has accumulated for a payment
+		get_owner()->book_revenue( payment, get_pos().get_2d(), powerline_wt );
 
-	// power payment logic
-	if(  fab->get_desc()->get_electric_amount() == 65535  ) {
-		// demand not specified in pak, use old fixed demands
-		max_einkommen += last_power_demand * delta_t / PRODUCTION_DELTA_T;
-		einkommen += power_load * delta_t / PRODUCTION_DELTA_T;
-	}
-	else {
-		max_einkommen += welt->inverse_scale_with_month_length( last_power_demand * delta_t / PRODUCTION_DELTA_T );
-		einkommen += welt->inverse_scale_with_month_length( power_load  * delta_t / PRODUCTION_DELTA_T );
-	}
-
-	if(  max_einkommen > (2000 << 11)  ) {
-		get_owner()->book_revenue( einkommen >> 11, get_pos().get_2d(), powerline_wt );
-		einkommen = 0;
-		max_einkommen = 1;
+		// remove payment from accumulator
+		energy_acc %= mjpc;
 	}
 }
 
+void senke_t::set_net(powernet_t * p)
+{
+	powernet_t * p_old = get_net();
+	if(  p_old != NULL  ) {
+		p_old->sub_demand(power_demand);
+	}
+
+	leitung_t::set_net(p);
+
+	if(  p != NULL  ) {
+		p->add_demand(power_demand);
+	}
+}
+
+void senke_t::set_power_demand(uint32 newdemand)
+{
+	// update power network
+	powernet_t *const p = get_net();
+	if(  p != NULL  ) {
+		p->sub_demand(power_demand);
+		p->add_demand(newdemand);
+	}
+
+	power_demand = newdemand;
+}
+
+sint32 senke_t::get_power_satisfaction() const
+{
+	powernet_t const *const p = get_net();
+	return p->get_normal_supply();
+}
 
 sync_result senke_t::sync_step(uint32 delta_t)
 {
@@ -693,46 +759,48 @@ sync_result senke_t::sync_step(uint32 delta_t)
 		return SYNC_DELETE;
 	}
 
+	// advance timers
 	delta_sum += delta_t;
-	if(  delta_sum > PRODUCTION_DELTA_T  ) {
-		// sawtooth waveform resetting at PRODUCTION_DELTA_T => time period for image changing
-		delta_sum -= delta_sum - delta_sum % PRODUCTION_DELTA_T;
-	}
-
 	next_t += delta_t;
-	if(  next_t > PRODUCTION_DELTA_T / 16  ) {
-		// sawtooth waveform resetting at PRODUCTION_DELTA_T / 16 => image changes at most this fast
-		next_t -= next_t - next_t % (PRODUCTION_DELTA_T / 16);
 
-		image_id new_image;
-		int winter_offset = 0;
-		if(  skinverwaltung_t::senke->get_count() > 3  &&  (get_pos().z >= welt->get_snowline()  ||  welt->get_climate( get_pos().get_2d() ) == arctic_climate)  ) {
+	// change graphics at most 16 times a second
+	if(  next_t > PRODUCTION_DELTA_T / 16  ) {
+		// enforce timer periods
+		delta_sum %= PRODUCTION_DELTA_T; // 1 second
+		next_t %= PRODUCTION_DELTA_T / 16; // 1/16 seconds
+
+		// determine pwm period for image change
+		uint32 pwm_period = 0;
+		const sint32 satisfaction = get_net()->get_normal_supply();
+		if(  satisfaction  >=  1 << powernet_t::FRACTION_PRECISION  ) {
+			// always on
+			pwm_period = PRODUCTION_DELTA_T;
+		}
+		else if(  satisfaction  >=  ((7 << powernet_t::FRACTION_PRECISION) / 8)  ) {
+			// limit to at most 7/8 of a second
+			pwm_period = 7 * PRODUCTION_DELTA_T / 8;
+		}
+		else if(  satisfaction  >  ((1 << powernet_t::FRACTION_PRECISION) / 8)  ) {
+			// duty cycle based on power satisfaction
+			pwm_period = (uint32)(((uint64)PRODUCTION_DELTA_T * (uint64)satisfaction) >> powernet_t::FRACTION_PRECISION);
+		}
+		else if(  satisfaction  >  0  ) {
+			// limit to at least 1/8 of a second
+			pwm_period = PRODUCTION_DELTA_T / 8;
+		}
+
+		// determine image with PWM logic
+		const uint16 work_offset = (delta_sum < pwm_period) ? 1 : 0;
+
+		// apply seasonal image offset
+		uint16 winter_offset = 0;
+		if(  skinverwaltung_t::senke->get_count() > 3  &&  (get_pos().z >= welt->get_snowline()  ||
+			 welt->get_climate(get_pos().get_2d()) == arctic_climate)  ) {
 			winter_offset = 2;
 		}
-		if(  last_power_demand > 0 ) {
-			uint32 load_factor = power_load * PRODUCTION_DELTA_T / last_power_demand;
 
-			// allow load factor to be 0, 1/8 to 7/8, 1
-			// ensures power on image shows for low loads and ensures power off image shows for high loads
-			if(  load_factor > 0  &&  load_factor < PRODUCTION_DELTA_T / 8  ) {
-				load_factor = PRODUCTION_DELTA_T / 8;
-			}
-			else {
-				if(  load_factor > 7 * PRODUCTION_DELTA_T / 8  &&  load_factor < PRODUCTION_DELTA_T  ) {
-					load_factor = 7 * PRODUCTION_DELTA_T / 8;
-				}
-			}
-
-			if(  delta_sum <= (sint32)load_factor  ) {
-				new_image = skinverwaltung_t::senke->get_image_id(1+winter_offset);
-			}
-			else {
-				new_image = skinverwaltung_t::senke->get_image_id(0+winter_offset);
-			}
-		}
-		else {
-			new_image = skinverwaltung_t::senke->get_image_id(0+winter_offset);
-		}
+		// update displayed image
+		image_id new_image = skinverwaltung_t::senke->get_image_id(work_offset + winter_offset);
 		if(  image != new_image  ) {
 			set_flag( obj_t::dirty );
 			set_image( new_image );
@@ -741,6 +809,18 @@ sync_result senke_t::sync_step(uint32 delta_t)
 	return SYNC_OK;
 }
 
+void senke_t::rdwr(loadsave_t *file)
+{
+	xml_tag_t d( file, "senke_t" );
+
+	leitung_t::rdwr(file);
+
+	// current power state
+	if(  file->get_version()  >  120003  ) {
+		file->rdwr_longlong((sint64 &)energy_acc);
+		file->rdwr_long(power_demand);
+	}
+}
 
 void senke_t::finish_rd()
 {
@@ -759,9 +839,10 @@ void senke_t::finish_rd()
 			fab = fabrik_t::get_fab(get_pos().get_2d());
 		}
 		if(  fab  ) {
-			fab->set_transformer_connected( true );
+			fab->set_transformer_connected(this);
 		}
 	}
+
 #ifdef MULTI_THREAD
 	pthread_mutex_lock( &senke_list_mutex );
 #endif
@@ -777,14 +858,16 @@ void senke_t::finish_rd()
 #endif
 }
 
-
 void senke_t::info(cbuffer_t & buf) const
 {
 	obj_t::info( buf );
 
-	buf.printf( translator::translate("Net ID: %lu\n"), (unsigned long)get_net() );
-	buf.printf( translator::translate("Demand: %u MW\n"), last_power_demand>>POWER_TO_MW );
-	buf.printf( translator::translate("Act. load: %u MW\n"), power_load>>POWER_TO_MW );
-	buf.printf( translator::translate("Supplied: %u %%"), (100*power_load)/(last_power_demand>0?last_power_demand:1) );
-	buf.printf("\n\n"); // pad for consistent dialog size
+	sint32 const supplied = get_net()->get_normal_supply();
+
+	buf.printf( translator::translate("Net ID: %lu"), (unsigned long)get_net() );
+	buf.printf("\n");
+	buf.printf( translator::translate("Demand: %lu MW"), (uint64)(power_demand >> POWER_TO_MW));
+	buf.printf("\n");
+	buf.printf( translator::translate("Supplied: %u %%"), (uint32)((100 * supplied) >> powernet_t::FRACTION_PRECISION) );
+	buf.printf("\n"); // pad for consistent dialog size
 }

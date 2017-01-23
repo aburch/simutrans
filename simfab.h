@@ -23,6 +23,7 @@
 class player_t;
 class stadt_t;
 class ware_t;
+class leitung_t;
 
 
 /**
@@ -77,15 +78,18 @@ class ware_t;
 /**
  * JIT2 output scale constants.
  */
-// The fixed point precision of production scale factors.
-// Supported range 1 to 30.
-static const uint32 PRODUCTION_SCALE_BITS = 10;
+// The fixed point precision for work done fraction.
+static const uint32 WORK_BITS = 16;
 // The minimum allowed production rate for a factory. This is to limit the time outputs take to fill completly (so factories idle sooner).
 // Fixed point form range must be between 0.0 and 1.0.
-static const sint32 OUTPUT_SCALE_MINIMUM_FRACTION = (5 << PRODUCTION_SCALE_BITS) / 100; // ~5%, 1/20 of the full production rate.
+static const sint32 WORK_SCALE_MINIMUM_FRACTION = (5 << WORK_BITS) / 100; // ~5%, 1/20 of the full production rate.
 // The number of times minimum_shipment must be in current storage before rampdown starts.
-// Must be at least 2 to allow for full production.
+// Must be at least 2 to allow for full production as shipment is not instant.
 static const sint32 OUTPUT_SCALE_RAMPDOWN_MULTIPLYER = 2; // Two shipments must be ready.
+// The maximum rate at which power boost change change per second.
+// This limit is required to help stiffen overloaded networks to combat oscilations caused by feedback.
+static const sint32 BOOST_POWER_CHANGE_RATE = (5 << DEFAULT_PRODUCTION_FACTOR_BITS) / 100; // ~5%
+
 
 /**
  * Shipment size constants.
@@ -149,8 +153,11 @@ public:
 	}
 	void book_weighted_sum_storage(uint32 factor, sint64 delta_time);
 
-	// Utility methods.
-	sint32 scale_production(sint32 prod);
+	/** Get the recommended work factor for an output.
+	 * Work factor ramps down as outputs fill.
+	 * Returns a fixed point fraction to precision WORK_BITS.
+	 */
+	sint32 get_work_factor();
 
 	sint32 menge;	// in internal units shifted by precision_bits (see step)
 	sint32 max;
@@ -220,11 +227,10 @@ private:
 		CL_FACT_MANY,    // Enhanced factory logic, consume at average of output rate or minimum input averaged.
 		// Consumers are at the top of every supply chain.
 		CL_CONS_CLASSIC, // Classic consumer logic. Can generate power.
-		CL_CONS_MANY,    // Consumer that consumes multiple inputs.
+		CL_CONS_MANY,    // Consumer that consumes multiple inputs, possibly produces power.
 		// Electricity producers provider power.
 		CL_ELEC_PROD,    // Simple electricity source. (green energy)
 		CL_ELEC_CLASSIC, // Classic electricity producer behaviour with no inputs.
-		CL_ELEC_CONS,    // Power produced based on input satisfaction.
 	} control_type;
 
 	// Demand buffer order logic;
@@ -281,7 +287,7 @@ private:
 	vector_tpl <field_data_t> fields;
 
 	/**
-	 * Die erzeugten waren auf die Haltestellen verteilen
+	 * Distribute products to connected stops
 	 * @author Hj. Malthaner
 	 */
 	void verteile_waren(const uint32 product);
@@ -295,19 +301,19 @@ private:
 	const factory_desc_t *desc;
 
 	/**
-	 * Bauposition gedreht?
+	 * Is construction site rotated?
 	 * @author V.Meyer
 	 */
 	uint8 rotate;
 
 	/**
-	 * productionsgrundmenge
+	 * production base amount
 	 * @author Hj. Malthaner
 	 */
 	sint32 prodbase;
 
 	/**
-	 * multiplikator für die Produktionsgrundmenge
+	 * multipliers for the production base amount
 	 * @author Hj. Malthaner
 	 */
 	sint32 prodfactor_electric;
@@ -337,17 +343,11 @@ private:
 	// Knightly : number of rounds where there is active production or consumption
 	uint8 activity_count;
 
-	// true if the factory has a transformer adjacent
-	bool transformer_connected;
+	// The adjacent connected transformer, if any.
+	leitung_t *transformer;
 
 	// true, if the factory did produce enough in the last step to require power
 	bool currently_producing;
-
-	// power that can be currently drawn from this station (or the amount delivered)
-	uint32 power;
-
-	// power requested for next step
-	uint32 power_demand;
 
 	uint32 total_input, total_transit, total_output;
 	uint8 status;
@@ -463,6 +463,36 @@ private:
 	// scales the amount of production based on the amount already in storage
 	uint32 scale_output_production(const uint32 product, uint32 menge) const;
 
+	/**
+	 * Convenience method that deals with casting.
+	 */
+	void set_power_supply(uint32 supply);
+
+	/**
+	 * Convenience method that deals with casting.
+	 */
+	uint32 get_power_supply() const;
+
+	/**
+	 * Convenience method that deals with casting.
+	 */
+	sint32 get_power_consumption() const;
+
+	/**
+	 * Convenience method that deals with casting.
+	 */
+	void set_power_demand(uint32 demand);
+
+	/**
+	 * Convenience method that deals with casting.
+	 */
+	uint32 get_power_demand() const;
+
+	/**
+	 * Convenience method that deals with casting.
+	 */
+	sint32 get_power_satisfaction() const;
+
 public:
 	fabrik_t(loadsave_t *file);
 	fabrik_t(koord3d pos, player_t* owner, const factory_desc_t* fabesch, sint32 initial_prod_base);
@@ -556,25 +586,18 @@ public:
 	sint32 input_vorrat_an(const ware_besch_t *ware);        // Vorrat von Warentyp
 	sint32 vorrat_an(const ware_besch_t *ware);        // Vorrat von Warentyp
 
-	// returns all power and consume it to prevent multiple pumpes
-	uint32 get_power() { uint32 p=power; power=0; return p; }
-
-	// returns power wanted by the factory for next step and sets to 0 to prevent multiple senkes on same powernet
-	uint32 get_power_demand() { uint32 p=power_demand; power_demand=0; return p; }
-
-	// give power to the factory to consume ...
-	void add_power(uint32 p) { power += p; }
-
-	// senkes give back wanted power they can't supply such that a senke on a different powernet can try suppling
-	// WARNING: senke stepping order can vary between ingame construction and savegame loading => different results after saveing/loading the game
-	void add_power_demand(uint32 p) { power_demand +=p; }
-
 	// true, if there was production requiring power in the last step
 	bool is_currently_producing() const { return currently_producing; }
 
-	// used to limit transformers to 1 per factory and for controling power bonus.
-	bool is_transformer_connected() const { return transformer_connected; }
-	void set_transformer_connected(bool connected) { transformer_connected = connected; }
+	/**
+	 * True if a transformer is connected to this factory.
+	 */
+	bool is_transformer_connected() const { return transformer != NULL; }
+
+	/**
+	 * Connect transformer to this factory.
+	 */
+	void set_transformer_connected(leitung_t *transformer) { this->transformer = transformer; }
 
 	/**
 	 * @return 1 wenn consumption,
@@ -584,6 +607,11 @@ public:
 	sint8 is_needed(const ware_besch_t *) const;
 
 	sint32 liefere_an(const ware_besch_t *, sint32 menge);
+
+	/**
+	 * Calculate the JIT2 logic power boost amount using the currently attached transformer.
+	 */
+	sint32 get_jit2_power_boost() const;
 
 	void step(uint32 delta_t);                  // factory muss auch arbeiten
 	void new_month();

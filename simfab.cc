@@ -95,6 +95,21 @@ public:
 	}
 };
 
+/**
+ * Produce a scaled production amount from a production amount and work factor.
+ */
+sint32 work_scale_production(sint32 prod, sint32 work){
+	// compute scaled production, rounding up
+	return (sint32)((((sint64)prod * (sint64)work) + (1 << WORK_BITS) - 1) >> WORK_BITS);
+}
+
+/**
+ * Produce a work factor from a production amount and scaled production amount.
+ */
+sint32 work_from_production(sint32 prod, sint32 scaled){
+	// compute work, rounding up
+	return (sint32)((((sint64)scaled << WORK_BITS) + (sint64)prod - 1) / (sint64)prod);
+}
 
 void ware_production_t::init_stats()
 {
@@ -192,32 +207,26 @@ void ware_production_t::book_weighted_sum_storage(uint32 factor, sint64 delta_ti
 	set_stat( amount, FAB_GOODS_STORAGE );
 }
 
-sint32 ware_production_t::scale_production(sint32 prod){
-	// The minimum amount of output product for rampdown to occur.
-	// Ramp down only applies if twice the minimum shipment size. This is to make sure there is sufficient time to deliver goods.
+sint32 ware_production_t::get_work_factor(){
+	// the minimum amount of output product for rampdown to occur
 	const sint32 prod_scale_limit = min_shipment * OUTPUT_SCALE_RAMPDOWN_MULTIPLYER;
-	if( menge <= prod_scale_limit ){
-		return prod;
+
+	// only ramp down if greater than minimum
+	if(  menge  <=  prod_scale_limit  ){
+	    // full production (1.0)
+		return 1 << WORK_BITS;
 	}
 
-	// Compute desired ramp down factor. Goes from 100% to 0%.
-	sint32 ramp_fact = (sint32)(((sint64)(max - menge) << PRODUCTION_SCALE_BITS) / (sint64)(max - prod_scale_limit));
+	// compute desired work factor
+	sint32 ramp_fact = (sint32)(((sint64)(max - menge) << WORK_BITS) / (sint64)(max - prod_scale_limit));
 
-	// Apply minimum ramp factor clamp. This prevents factories filling too slowly.
-	if( ramp_fact < OUTPUT_SCALE_MINIMUM_FRACTION ){
-		ramp_fact = OUTPUT_SCALE_MINIMUM_FRACTION;
+	// apply work factor minimum limit
+	if( ramp_fact < WORK_SCALE_MINIMUM_FRACTION ){
+		ramp_fact = WORK_SCALE_MINIMUM_FRACTION;
 	}
 
-	// Compute scaled production;
-	prod = (sint32)(((sint64)prod * (sint64)ramp_fact) >> PRODUCTION_SCALE_BITS);
-
-	// Limit result to 1.
-	if( prod <= 1 ){
-		return 1;
-	}
-	return prod;
+	return ramp_fact;
 }
-
 
 void fabrik_t::arrival_statistics_t::init()
 {
@@ -388,6 +397,13 @@ void fabrik_t::book_weighted_sums(sint64 delta_time)
 	weighted_sum_boost_mail += prodfactor_mail * delta_time;
 
 	// power produced or consumed
+	sint64 power;
+	if(  desc->is_electricity_producer()  ) {
+		power = ((sint64)get_power_supply() * (sint64)get_power_consumption()) >> leitung_t::FRACTION_PRECISION;
+	}
+	else {
+		power = -(((sint64)get_power_demand() * (sint64)get_power_satisfaction() + (((sint64)1 << leitung_t::FRACTION_PRECISION) - 1)) >> leitung_t::FRACTION_PRECISION);
+	}
 	weighted_sum_power += power * delta_time;
 	set_stat( power, FAB_POWER );
 }
@@ -722,8 +738,6 @@ void fabrik_t::rem_lieferziel(koord ziel)
 fabrik_t::fabrik_t(loadsave_t* file)
 {
 	owner = NULL;
-	power = 0;
-	power_demand = 0;
 	prodfactor_electric = 0;
 	lieferziele_active_last_month = 0;
 	pos = koord3d::invalid;
@@ -757,7 +771,7 @@ fabrik_t::fabrik_t(loadsave_t* file)
 	total_input = total_transit = total_output = 0;
 	status = nothing;
 	currently_producing = false;
-	transformer_connected = false;
+	transformer = NULL;
 }
 
 
@@ -784,9 +798,7 @@ fabrik_t::fabrik_t(koord3d pos_, player_t* owner, const factory_desc_t* fabesch,
 	menge_remainder = 0;
 	activity_count = 0;
 	currently_producing = false;
-	transformer_connected = false;
-	power = 0;
-	power_demand = 0;
+	transformer = NULL;
 	total_input = total_transit = total_output = 0;
 	status = nothing;
 	lieferziele_active_last_month = 0;
@@ -934,7 +946,7 @@ void fabrik_t::build(sint32 rotate, bool build_fields, bool force_initial_prodba
 		}
 		// Does it consume?
 		else if( !eingang.empty() ) {
-			control_type = desc->is_electricity_producer() ? CL_ELEC_CONS : CL_CONS_MANY;
+			control_type = CL_CONS_MANY;
 		}
 		// No I/O?
 		else {
@@ -959,7 +971,7 @@ void fabrik_t::build(sint32 rotate, bool build_fields, bool force_initial_prodba
 
 	// Boost logic determines what factors boost factory production.
 	if( welt->get_settings().get_just_in_time() >= 2 ) {
-		if(  !desc->is_electricity_producer()  &&  desc->get_electric_amount()  ) {
+		if(  !desc->is_electricity_producer()  &&  desc->get_electric_amount() > 0  ) {
 			boost_type = BL_POWER;
 		}
 		else if(  desc->get_pax_demand() ||  desc->get_mail_demand()  ) {
@@ -1291,12 +1303,13 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 		file->rdwr_long(adjusted_value);
 	}
 
-	if(  file->get_version() > 99016  ) {
+	// no longer save power at factories
+	if(  99016 < file->get_version() && file->get_version() <= 120003  ) {
+		sint32 power = 0;
 		file->rdwr_long(power);
 	}
-
-	// Also save power demand. This is needed for dynamic power consumption to compute correct satisfaction.
-	if( file->get_version() > 120000 ){
+	if(  120000 < file->get_version() && file->get_version() <= 120003  ) {
+		sint32 power_demand = 0;
 		file->rdwr_long(power_demand);
 	}
 
@@ -1510,6 +1523,60 @@ uint32 fabrik_t::scale_output_production(const uint32 product, uint32 menge) con
 	return menge;
 }
 
+void fabrik_t::set_power_supply(uint32 supply)
+{
+	pumpe_t *const trans = dynamic_cast<pumpe_t *>(transformer);
+	if(  trans == NULL  ) {
+		return;
+	}
+	trans->set_power_supply(supply);
+}
+
+uint32 fabrik_t::get_power_supply() const
+{
+	pumpe_t *const trans = dynamic_cast<pumpe_t *>(transformer);
+	if(  trans == NULL  ) {
+		return 0;
+	}
+	return trans->get_power_supply();
+}
+
+sint32 fabrik_t::get_power_consumption() const
+{
+	pumpe_t *const trans = dynamic_cast<pumpe_t *>(transformer);
+	if(  trans == NULL  ) {
+		return 0;
+	}
+	return trans->get_power_consumption();
+}
+
+void fabrik_t::set_power_demand(uint32 demand)
+{
+	senke_t *const trans = dynamic_cast<senke_t *>(transformer);
+	if(  trans == NULL  ) {
+		return;
+	}
+	trans->set_power_demand(demand);
+}
+
+uint32 fabrik_t::get_power_demand() const
+{
+	senke_t *const trans = dynamic_cast<senke_t *>(transformer);
+	if(  trans == NULL  ) {
+		return 0;
+	}
+	return trans->get_power_demand();
+}
+
+sint32 fabrik_t::get_power_satisfaction() const
+{
+	senke_t *const trans = dynamic_cast<senke_t *>(transformer);
+	if(  trans == NULL  ) {
+		return 0;
+	}
+	return trans->get_power_satisfaction();
+}
+
 
 sint32 fabrik_t::input_vorrat_an(const ware_besch_t *typ)
 {
@@ -1625,6 +1692,26 @@ bool fabrik_t::is_active_lieferziel( koord k ) const
 	return 0 < ( ( 1 << lieferziele.index_of(k) ) & lieferziele_active_last_month );
 }
 
+sint32 fabrik_t::get_jit2_power_boost() const
+{
+	// transformer boost amount
+	sint32 boost = 0;
+
+	// compute power boost
+	if(  is_transformer_connected()  ) {
+		sint32 const power_satisfaction = get_power_satisfaction();
+		if(  power_satisfaction >= ((sint32)1 << leitung_t::FRACTION_PRECISION)  ) {
+			// all demand fulfilled
+			boost = (sint32)desc->get_electric_boost();
+		}
+		else {
+			// calculate bonus, rounding down
+			boost = (sint32)(((sint64)desc->get_electric_boost() * (sint64)power_satisfaction) >> leitung_t::FRACTION_PRECISION);
+		}
+	}
+
+	return boost;
+}
 
 void fabrik_t::step(uint32 delta_t)
 {
@@ -1641,9 +1728,6 @@ void fabrik_t::step(uint32 delta_t)
 	// Actual production effort done.
 	sint32 work = 0;
 
-	// The number of working units used.
-	sint32 wunits = 1;
-
 	// Desired production effort of factory.
 	sint32 want = 0;
 
@@ -1655,24 +1739,32 @@ void fabrik_t::step(uint32 delta_t)
 			// JIT1 implementation for power bonus.
 			if(  !desc->is_electricity_producer()  &&  scaled_electric_amount > 0  ) {
 				// one may be thinking of linking this to actual production only
-				prodfactor_electric = (sint32)( ( (sint64)(desc->get_electric_boost()) * (sint64)power + (sint64)(scaled_electric_amount >> 1) ) / (sint64)scaled_electric_amount );
+				prodfactor_electric = (sint32)(((sint64)desc->get_electric_boost() * (sint64)get_power_satisfaction() + (sint64)(1 << (leitung_t::FRACTION_PRECISION - 1))) >> leitung_t::FRACTION_PRECISION);
 			}
 			break;
 		}
 		case BL_POWER: {
-			// Compute power boost based on how well power demand is being solved.
-			if(  !transformer_connected  ) {
-				// No transformer means no power bonus.
-				prodfactor_electric = 0;
+			// get desired power boost amount
+			sint32 const prodfactor_want = get_jit2_power_boost();
+
+			// calculate maximum change delta from change rate scaled by time
+			const sint32 prodfactor_change = max(BOOST_POWER_CHANGE_RATE * delta_t / PRODUCTION_DELTA_T, 1);
+
+			// limit rate of change of electricity boost (improve stability)
+			const sint32 prodfactor_delta = prodfactor_want - prodfactor_electric;
+			if(  prodfactor_delta  >  prodfactor_change  ) {
+				// limit increase rate
+				prodfactor_electric += prodfactor_change;
 			}
-			else if(  power_demand == 0  ) {
-				// If all demand fulfilled then full bonus.
-				prodfactor_electric = (sint32)desc->get_electric_boost();
-			}
+			//else if(  prodfactor_delta  <  -prodfactor_change  ) {
+				// limit decrease rate, off because of possible exploit
+			//	prodfactor_electric -= prodfactor_change;
+			//}
 			else {
-				// Calculate bonus from fraction of power satisfaction, rounding down.
-				prodfactor_electric = (sint32)( (sint64)desc->get_electric_boost() * (sint64)power / (sint64)(power + power_demand) );
+				// no limit
+				prodfactor_electric = prodfactor_want;
 			}
+
 			break;
 		}
 		default: {
@@ -1702,6 +1794,8 @@ void fabrik_t::step(uint32 delta_t)
 		sint32 prod_comp;
 		// The amount of consumption available.
 		sint32 cons_comp = 0;
+		// power variable for legacy power logic
+		uint32 power;
 
 		switch(  control_type  ) {
 			case CL_PROD_CLASSIC: {
@@ -1716,8 +1810,12 @@ void fabrik_t::step(uint32 delta_t)
 					if(  menge_out > 0  ) {
 						const sint32 p = (sint32)menge_out;
 
-						if(  p > work  ) {
-							work = p;
+						// compute work factor
+						const sint32 work_fact = work_from_production(prod, p);
+
+						// work done is work done of maximum output
+						if(  work_fact  >  work  ) {
+							work = work_fact;
 						}
 
 						// produce
@@ -1735,6 +1833,7 @@ void fabrik_t::step(uint32 delta_t)
 						}
 					}
 				}
+
 				break;
 			}
 			case CL_PROD_MANY: {
@@ -1753,8 +1852,11 @@ void fabrik_t::step(uint32 delta_t)
 						continue;
 					}
 
-					// Apply scaling.
-					prod_delta = ausgang[product].scale_production( prod );
+					// get desired work factor
+					const sint32 work_fact = ausgang[product].get_work_factor();
+
+					// compute desired production
+					prod_delta = work_scale_production(prod, work_fact);
 
 					// Cannot produce more than can be stored.
 					if(  prod_delta >= prod_comp  ) {
@@ -1769,11 +1871,12 @@ void fabrik_t::step(uint32 delta_t)
 					ausgang[product].menge += prod_delta;
 					ausgang[product].book_stat((sint64)prod_delta * (sint64)desc->get_product(product)->get_factor(), FAB_GOODS_PRODUCED);
 
-					work += prod_delta;
+					work += work_fact;
 				}
 
-				// Scale by number of units.
-				wunits = ausgang.get_count();
+				// normalize work with respect to output number
+				work /= ausgang.get_count();
+
 				break;
 			}
 			case CL_FACT_CLASSIC: {
@@ -1838,8 +1941,10 @@ void fabrik_t::step(uint32 delta_t)
 						}
 					}
 
-					work = consumed_menge;
+					// work done is consumption rate
+					work = work_from_production(prod, consumed_menge);
 				}
+
 				break;
 			}
 			case CL_FACT_MANY: {
@@ -1871,33 +1976,37 @@ void fabrik_t::step(uint32 delta_t)
 							continue;
 						}
 
-						// Apply scaling.
-						prod_delta = ausgang[product].scale_production(prod);
+						// get desired work factor
+						const sint32 work_fact = ausgang[product].get_work_factor();
 
-						// Cannot produce more than can be stored.
+						// compute desired production
+						prod_delta = work_scale_production(prod, work_fact);
+
+						// limit to maximum storage
 						if(  prod_delta > prod_comp  ) {
 							prod_delta = prod_comp;
 						}
 
-						// Assume each output is equally weighted when determining want.
+						// credit desired production for want
 						want += prod_delta;
 
-						// Cannot produce anything without any input.
+						// skip producing anything if no input
 						if(  no_input  ) {
 							continue;
 						}
 
-						// Apply input limiting. In case of insufficient supply earliest output gets priority.
+						// enforce input limits on production
 						if(  prod_delta > cons_comp  ) {
-							// Need to limit production.
+							// not enough input
 							prod_delta = cons_comp;
 							cons_comp = 0;
 						}
 						else {
+						    // enough input
 							cons_comp -= prod_delta;
 						}
 
-						// If filling to max, then register as inactive.
+						// register inactive outputs
 						if(  prod_delta == prod_comp  ) {
 							inactive_outputs++;
 							if(  inactive_outputs == ausgang.get_count()  ) {
@@ -1905,8 +2014,8 @@ void fabrik_t::step(uint32 delta_t)
 							}
 						}
 
-						// Assume each output is equally weighted when determining work.
-						work += prod_delta;
+						// credit output work done
+						work += work_fact;
 
 						// Produce output
 						delta_menge += prod_delta;
@@ -1914,23 +2023,24 @@ void fabrik_t::step(uint32 delta_t)
 						ausgang[product].book_stat((sint64)prod_delta * (sint64)desc->get_product(product)->get_factor(), FAB_GOODS_PRODUCED);
 					}
 
-					// Want scaled by number of production units in factory.
+					// normalize want with respect to output number
 					want /= ausgang.get_count();
 
-					// Skip consumption if not enough input.
+					// skip consuming anything if no input
 					if(  no_input  ) {
 						break;
 					}
 
-					// Work scaled by number of production units in factory.
-					wunits = ausgang.get_count();
+					// normalize work with respect to output number
+					work /= ausgang.get_count();
 
-					// Consume inputs.
+					// consume inputs
+					const sint32 consumed = work_scale_production(prod, work);
 					for(  uint32 index = 0;  index < eingang.get_count();  index++  ) {
-						const sint32 consumed = work / wunits;
 						eingang[index].menge -= consumed;
 						eingang[index].book_stat((sint64)consumed * (sint64)desc->get_supplier(index)->get_consumption(), FAB_GOODS_CONSUMED);
 
+						// register inactive inputs
 						if(  eingang[index].menge <= 0  ) {
 							currently_producing = false;
 							eingang[index].menge = 0;
@@ -1964,7 +2074,7 @@ void fabrik_t::step(uint32 delta_t)
 							// power station => produce power
 							power += (uint32)( ((sint64)scaled_electric_amount * (sint64)(DEFAULT_PRODUCTION_FACTOR + prodfactor_pax + prodfactor_mail)) >> DEFAULT_PRODUCTION_FACTOR_BITS );
 						}
-						work += v;
+						work += 1 << WORK_BITS;
 						// to find out, if storage changed
 						delta_menge += v;
 					}
@@ -1974,16 +2084,21 @@ void fabrik_t::step(uint32 delta_t)
 							power += (uint32)( (((sint64)scaled_electric_amount * (sint64)(DEFAULT_PRODUCTION_FACTOR + prodfactor_pax + prodfactor_mail)) >> DEFAULT_PRODUCTION_FACTOR_BITS) * eingang[index].menge / (v + 1) );
 						}
 						delta_menge += eingang[index].menge;
-						work += eingang[index].menge;
+						work += work_from_production(prod, eingang[index].menge);
 						eingang[index].book_stat((sint64)eingang[index].menge * (sint64)desc->get_supplier(index)->get_consumption(), FAB_GOODS_CONSUMED);
 						eingang[index].menge = 0;
 					}
 				}
+
+				// normalize work with respect to input number
+				work /= eingang.get_count();
+
 				break;
 			}
 			case CL_CONS_MANY: {
 				// Consumer logic for many inputs. Work done is based on the average consumption of all inputs.
-				// Always want to consume prod.
+
+				// always consume prod
 				want = prod;
 
 				// Do nothing if we cannot consume anything.
@@ -1999,22 +2114,18 @@ void fabrik_t::step(uint32 delta_t)
 						continue;
 					}
 
-					// Determine amount to consume.
-					if(  eingang[index].menge > prod  ) {
-						prod_delta = prod;
-					}
-					else {
-						prod_delta = eingang[index].menge;
-					}
+					// limit consumption to minimum of production or storage
+					prod_delta = eingang[index].menge > prod ? prod : eingang[index].menge;
 
-					// Add to work done.
-					work += prod_delta;
+					// add to work done
+					work += work_from_production(prod, prod_delta);
 
-					// Consume input.
+					// consume input
 					delta_menge += prod_delta;
 					eingang[index].menge -= prod_delta;
 					eingang[index].book_stat((sint64)prod_delta * (sint64)desc->get_supplier(index)->get_consumption(), FAB_GOODS_CONSUMED);
 
+					// register inactive input
 					if(  eingang[index].menge <= 0  ) {
 						inactive_inputs++;
 						if(  inactive_inputs == eingang.get_count()  ) {
@@ -2023,88 +2134,47 @@ void fabrik_t::step(uint32 delta_t)
 					}
 				}
 
-				// Scale by number of units.
-				wunits = eingang.get_count();
+				// normalize work with respect to input number
+				work /= eingang.get_count();
+
+				if(  desc->is_electricity_producer()  ) {
+					// compute power production
+					uint64 pp = ((uint64)scaled_electric_amount * (uint64)boost * (uint64)work) >> (DEFAULT_PRODUCTION_FACTOR_BITS + WORK_BITS);
+					set_power_supply((uint32)pp);
+				}
+
 				break;
 			}
 			case CL_ELEC_PROD: {
 				// A simple no input electricity producer, like a solar array.
 
-				// Always maximum work done.
+				// always maximum work
 				currently_producing = true;
-				work = prod;
+				work = 1 << WORK_BITS;
 				delta_menge += prod;
 
-				// Produce maximum power scaled by boost.
-				power = (uint32)(((sint64)scaled_electric_amount * (sint64)boost) >> DEFAULT_PRODUCTION_FACTOR_BITS);
+				// compute power production
+				uint64 pp = ((uint64)scaled_electric_amount * (uint64)boost) >> DEFAULT_PRODUCTION_FACTOR_BITS;
+				set_power_supply((uint32)pp);
+
 				break;
 			}
 			case CL_ELEC_CLASSIC: {
 				// Classic no input power producer.
 				currently_producing = false;
-				work = prod;
+				work = 1 << WORK_BITS;
 
 				// power station? => produce power
 				if(  desc->is_electricity_producer()  ) {
 					currently_producing = true;
-					power = (uint32)( ((sint64)scaled_electric_amount * (sint64)(DEFAULT_PRODUCTION_FACTOR + prodfactor_pax + prodfactor_mail)) >> DEFAULT_PRODUCTION_FACTOR_BITS );
+					set_power_supply((uint32)( ((sint64)scaled_electric_amount * (sint64)(DEFAULT_PRODUCTION_FACTOR + prodfactor_pax + prodfactor_mail)) >> DEFAULT_PRODUCTION_FACTOR_BITS ));
 				}
-				break;
-			}
-			case CL_ELEC_CONS: {
-				// A slightly more advanced power consumer. The scaled electric amount determines maximum output with each input providing an equal fraction.
-
-				// Always want to consume prod.
-				want = prod;
-
-				// Do nothing if we cannot consume anything.
-				if(  inactive_inputs == eingang.get_count()  ) {
-					break;
-				}
-
-				currently_producing = true;
-
-				for(  uint32 index = 0;  index < eingang.get_count();  index++  ) {
-					// Only process active inputs;
-					if(  eingang[index].menge <= 0  ) {
-						break;
-					}
-
-					// Determine amount to consume.
-					if(  eingang[index].menge > prod  ) {
-						prod_delta = prod;
-					}
-					else {
-						prod_delta = eingang[index].menge;
-					}
-
-					// Add to work done.
-					work += prod_delta;
-
-					// Consume input.
-					delta_menge += prod_delta;
-					eingang[index].menge -= prod_delta;
-					eingang[index].book_stat((sint64)prod_delta * (sint64)desc->get_supplier(index)->get_consumption(), FAB_GOODS_CONSUMED);
-
-					if(  eingang[index].menge == 0  ) {
-						inactive_inputs++;
-						if(  inactive_inputs == eingang.get_count()  ) {
-							currently_producing = false;
-						}
-					}
-				}
-
-				// Scale by number of units.
-				wunits = eingang.get_count();
-
-				// Produce power scaled by boost.
-				power = (uint32)(((sint64)scaled_electric_amount * (sint64)boost * (sint64)work / ((sint64)prod * (sint64)wunits)) >> DEFAULT_PRODUCTION_FACTOR_BITS);
 				break;
 			}
 			case CL_NONE:
 			default: {
 				// None always produces maximum for whatever reason. Also default.
-				work = prod;
+				work = 1 << WORK_BITS;
 				break;
 			}
 		}
@@ -2123,6 +2193,7 @@ void fabrik_t::step(uint32 delta_t)
 			for(  uint32 index = 0;  index < eingang.get_count();  index++  ) {
 				eingang[index].demand_buffer += want;
 
+				// register inactive demand buffer
 				if(  eingang[index].demand_buffer >= eingang[index].max  ) {
 					inactive_demands++;
 				}
@@ -2145,6 +2216,7 @@ void fabrik_t::step(uint32 delta_t)
 
 				eingang[index].demand_buffer += want;
 
+				// register inactive demand buffer
 				if(  eingang[index].demand_buffer >= eingang[index].max  ) {
 					inactive_demands++;
 				}
@@ -2167,18 +2239,18 @@ void fabrik_t::step(uint32 delta_t)
 		case BL_CLASSIC: {
 			// For compatibility purposes. Draw a fixed amount of power when "producing".
 			if(  !desc->is_electricity_producer()  ) {
-				power = 0;
 				if(  currently_producing  ) {
 					// requires full power even if runs out of raw material next cycle
-					power_demand = scaled_electric_amount;
+					set_power_demand(scaled_electric_amount);
 				}
 			}
 			break;
 		}
 		case BL_POWER: {
-			// Order power for work done scaled by boost amount.
-			power = 0;
-			power_demand = prod ? (uint32)(((sint64)scaled_electric_amount * (sint64)boost * (sint64)work / ((sint64)prod * (sint64)wunits)) >> DEFAULT_PRODUCTION_FACTOR_BITS) : 0;
+			// compute power demand
+			uint64 pd = ((uint64)scaled_electric_amount * (uint64)boost * (uint64)work) >> (DEFAULT_PRODUCTION_FACTOR_BITS + WORK_BITS);
+			set_power_demand((uint32)pd);
+			
 			break;
 		}
 		default: {
@@ -2501,15 +2573,6 @@ void fabrik_t::verteile_waren(const uint32 product)
 
 void fabrik_t::new_month()
 {
-	// calculate weighted averages
-	if(  aggregate_weight>0  ) {
-		set_stat( weighted_sum_production / aggregate_weight, FAB_PRODUCTION );
-		set_stat( weighted_sum_boost_electric / aggregate_weight, FAB_BOOST_ELECTRIC );
-		set_stat( weighted_sum_boost_pax / aggregate_weight, FAB_BOOST_PAX );
-		set_stat( weighted_sum_boost_mail / aggregate_weight, FAB_BOOST_MAIL );
-		set_stat( weighted_sum_power / aggregate_weight, FAB_POWER );
-	}
-
 	// update statistics for input and output goods
 	for( uint32 in = 0 ; in < eingang.get_count() ; in++ ){
 		eingang[in].roll_stats(desc->get_supplier(in)->get_consumption(), aggregate_weight);
@@ -2519,12 +2582,20 @@ void fabrik_t::new_month()
 	}
 	lieferziele_active_last_month = 0;
 
-	// update statistics
+	// advance statistics a month
 	for(  int s=0;  s<MAX_FAB_STAT;  ++s  ) {
 		for(  int m=MAX_MONTH-1;  m>0;  --m  ) {
 			statistics[m][s] = statistics[m-1][s];
 		}
-		statistics[0][s] = 0;
+	}
+
+	// calculate weighted averages
+	if(  aggregate_weight>0  ) {
+		statistics[1][FAB_PRODUCTION] = weighted_sum_production / aggregate_weight;
+		statistics[1][FAB_BOOST_ELECTRIC] = weighted_sum_boost_electric / aggregate_weight;
+		statistics[1][FAB_BOOST_PAX] = weighted_sum_boost_pax / aggregate_weight;
+		statistics[1][FAB_BOOST_MAIL] = weighted_sum_boost_mail / aggregate_weight;
+		statistics[1][FAB_POWER] = weighted_sum_power / aggregate_weight;
 	}
 	weighted_sum_production = 0;
 	weighted_sum_boost_electric = 0;
@@ -2532,13 +2603,6 @@ void fabrik_t::new_month()
 	weighted_sum_boost_mail = 0;
 	weighted_sum_power = 0;
 	aggregate_weight = 0;
-
-	// restore the current values
-	set_stat( get_current_production(), FAB_PRODUCTION );
-	set_stat( prodfactor_electric, FAB_BOOST_ELECTRIC );
-	set_stat( prodfactor_pax, FAB_BOOST_PAX );
-	set_stat( prodfactor_mail, FAB_BOOST_MAIL );
-	set_stat( power, FAB_POWER );
 
 	// since target cities' population may be increased -> re-apportion pax/mail demand
 	recalc_demands_at_target_cities();
@@ -2927,6 +2991,11 @@ void fabrik_t::finish_rd()
 		for(  uint32 in = 0;  in < eingang.get_count();  in++  ){
 			eingang[in].placing_orders = (eingang[in].menge < eingang[in].max  &&  eingang[in].get_in_transit() < eingang[in].max_transit);
 		}
+	}
+
+	// set initial power boost
+	if (  boost_type == BL_POWER  ) {
+		prodfactor_electric = get_jit2_power_boost();
 	}
 }
 

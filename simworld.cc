@@ -4074,11 +4074,11 @@ void karte_t::step()
 	}
 	finance_history_year[0][WORLD_FACTORIES] = finance_history_month[0][WORLD_FACTORIES] = fab_list.get_count();
 
-	// step powerlines - required order: pumpe, senke, then powernet
+	// step powerlines - required order: powernet, pumpe then senke
 	DBG_DEBUG4("karte_t::step", "step poweline stuff");
-	pumpe_t::step_all( delta_t );
-	senke_t::step_all( delta_t );
-	powernet_t::step_all( delta_t );
+	powernet_t::step_all(delta_t);
+	pumpe_t::step_all(delta_t);
+	senke_t::step_all(delta_t);
 
 	DBG_DEBUG4("karte_t::step", "step players");
 	// then step all players
@@ -4639,6 +4639,9 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "start");
 	file->rdwr_long(ticks);
 	file->rdwr_long(last_month);
 	file->rdwr_long(last_year);
+
+	// rdwr satic states
+	senke_t::static_rdwr(file);
 
 	// rdwr cityrules for networkgames
 	if(file->get_version()>102002) {
@@ -5228,6 +5231,9 @@ DBG_MESSAGE("karte_t::laden()", "init player");
 	active_player = players[0];
 	active_player_nr = 0;
 
+	// rdwr static states
+	senke_t::static_rdwr(file);
+
 	// rdwr cityrules, speedbonus for networkgames
 	if(file->get_version()>102002) {
 		bool do_rdwr = env_t::networkmode;
@@ -5327,6 +5333,10 @@ DBG_MESSAGE("karte_t::laden()", "init player");
 	win_set_world( this );
 	reliefkarte_t::get_karte()->init();
 
+	// tick all power nets so that they update with loaded power
+	powernet_t::step_all(1);
+
+	// load factories
 	sint32 fabs;
 	file->rdwr_long(fabs);
 	DBG_MESSAGE("karte_t::laden()", "prepare for %i factories", fabs);
