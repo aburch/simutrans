@@ -29,11 +29,11 @@ class hausbauer_t
 {
 
 private:
-	static vector_tpl<const building_desc_t*> sehenswuerdigkeiten_land; // Land attractions
-	static vector_tpl<const building_desc_t*> sehenswuerdigkeiten_city; // City attractions
-	static vector_tpl<const building_desc_t*> rathaeuser; // Town halls
-	static vector_tpl<const building_desc_t*> denkmaeler; // Monuments
-	static vector_tpl<const building_desc_t*> ungebaute_denkmaeler; // Unbuilt monuments
+	static vector_tpl<const building_desc_t*> attractions_land; // Land attractions
+	static vector_tpl<const building_desc_t*> attractions_city; // City attractions
+	static vector_tpl<const building_desc_t*> townhalls; // Town halls
+	static vector_tpl<const building_desc_t*> monuments; // Monuments
+	static vector_tpl<const building_desc_t*> unbuilt_monuments; // Unbuilt monuments
 
 	static karte_ptr_t welt;
 public:
@@ -54,7 +54,7 @@ private:
 	 * Liefert einen zufälligen Eintrag aus der Liste.
 	 * @author V. Meyer
 	 */
-	static const building_desc_t* waehle_aus_liste(vector_tpl<const building_desc_t*>& liste, uint16 time, bool ignore_retire, climate cl);
+	static const building_desc_t* get_random_desc(vector_tpl<const building_desc_t*>& liste, uint16 time, bool ignore_retire, climate cl);
 
 public:
 	/**
@@ -110,18 +110,18 @@ public:
 	 * die bei Kartenerstellung gebaut werden kann.
 	 * @author V. Meyer
 	 */
-	static const building_desc_t* waehle_sehenswuerdigkeit(uint16 time, bool ignore_retire, climate cl)
+	static const building_desc_t* get_random_attraction(uint16 time, bool ignore_retire, climate cl)
 	{
-		return waehle_aus_liste(sehenswuerdigkeiten_land, time, ignore_retire, cl);
+		return get_random_desc(attractions_land, time, ignore_retire, cl);
 	}
 
 	/**
 	 * Liefert per Zufall die Description eines ungebauten Denkmals.
 	 * @author V. Meyer
 	 */
-	static const building_desc_t* waehle_monument(uint16 time = 0)
+	static const building_desc_t* get_random_monument(uint16 time = 0)
 	{
-		return waehle_aus_liste(ungebaute_denkmaeler, time, false, MAX_CLIMATES);
+		return get_random_desc(unbuilt_monuments, time, false, MAX_CLIMATES);
 	}
 
 	/**
@@ -135,13 +135,13 @@ public:
 	 * True, if this is still valid ...
 	 * @author V. Meyer
 	 */
-	static bool is_valid_monument(const building_desc_t* desc) { return ungebaute_denkmaeler.is_contained(desc); }
+	static bool is_valid_monument(const building_desc_t* desc) { return unbuilt_monuments.is_contained(desc); }
 
 	/**
 	 * Dem Hausbauer Bescheid sagen, dass ein bestimmtes Denkmal gebaut wurde.
 	 * @author V. Meyer
 	 */
-	static void monument_gebaut(const building_desc_t* desc) { ungebaute_denkmaeler.remove(desc); }
+	static void monument_erected(const building_desc_t* desc) { unbuilt_monuments.remove(desc); }
 
 	/**
 	 * Called for a city attraction or a townhall with a certain number of inhabitants (bev).
@@ -166,7 +166,7 @@ public:
 	 * The building size must be 1x1
 	 * may change the layout of neighbouring buildings, if layout>4 and station
 	 */
-	static gebaeude_t* neues_gebaeude(player_t* player, koord3d pos, int layout, const building_desc_t* desc, void* param = NULL);
+	static gebaeude_t* build_station_extension_depot(player_t* player, koord3d pos, int layout, const building_desc_t* desc, void* param = NULL);
 
 	/// @returns house list of type @p typ
 	static const vector_tpl<const building_desc_t *> *get_list(building_desc_t::btype typ);

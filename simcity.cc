@@ -3290,7 +3290,7 @@ void stadt_t::check_bau_spezial(bool new_town)
 
 	if ((bev & 511) == 0) {
 		// errect a monoment
-		desc = hausbauer_t::waehle_monument(welt->get_timeline_year_month());
+		desc = hausbauer_t::get_random_monument(welt->get_timeline_year_month());
 		if (desc) {
 			koord total_size = koord(2 + desc->get_x(), 2 + desc->get_y());
 			sint16 radius = koord_distance( get_rechtsunten(), get_linksoben() )/2 + 10;
@@ -3367,7 +3367,7 @@ void stadt_t::check_bau_spezial(bool new_town)
 
 					// and then build it
 					gebaeude_t* gb = hausbauer_t::build(owner, welt->lookup_kartenboden(best_pos + koord(1, 1))->get_pos(), 0, desc);
-					hausbauer_t::monument_gebaut(desc);
+					hausbauer_t::monument_erected(desc);
 					add_gebaeude_to_stadt(gb);
 					reset_city_borders();
 					// tell the player, if not during initialization

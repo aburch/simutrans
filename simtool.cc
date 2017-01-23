@@ -4765,7 +4765,7 @@ DBG_MESSAGE("tool_halt_aux()", "building %s on square %d,%d for waytype %x", des
 			welt->get_message()->add_message(message, pos.get_2d(), message_t::ai, player->get_player_color1());
 		}
 	}
-	hausbauer_t::neues_gebaeude(halt->get_owner(), bd->get_pos(), layout, desc, &halt);
+	hausbauer_t::build_station_extension_depot(halt->get_owner(), bd->get_pos(), layout, desc, &halt);
 	halt->recalc_station_type();
 
 	if(neu) {
@@ -6070,7 +6070,7 @@ const char *tool_depot_t::tool_depot_aux(player_t *player, koord3d pos, const bu
 				case ribi_t::north:  layout = 2;    break;
 				case ribi_t::west:  layout = 3;    break;
 			}
-			hausbauer_t::neues_gebaeude(player, bd->get_pos(), layout, desc );
+			hausbauer_t::build_station_extension_depot(player, bd->get_pos(), layout, desc );
 			player_t::book_construction_costs(player, cost, pos.get_2d(), desc->get_finance_waytype());
 			if(is_local_execution()  &&  player == welt->get_active_player()) {
 				welt->set_tool( general_tool[TOOL_QUERY], player );
@@ -6225,7 +6225,7 @@ const char *tool_build_house_t::work( player_t *player, koord3d pos )
 		}
 	}
 	else {
-		desc = hausbauer_t::waehle_sehenswuerdigkeit( welt->get_timeline_year_month(), false, welt->get_climate( k ) );
+		desc = hausbauer_t::get_random_attraction( welt->get_timeline_year_month(), false, welt->get_climate( k ) );
 	}
 
 	if(desc==NULL) {

@@ -45,14 +45,14 @@ karte_ptr_t hausbauer_t::welt;
  * Die verschiedenen Gebäudegruppen sind in eigenen Listen gesammelt.
  * The various groups are building their own lists collected.
  */
-static vector_tpl<const building_desc_t*> wohnhaeuser;
-static vector_tpl<const building_desc_t*> gewerbehaeuser;
-static vector_tpl<const building_desc_t*> industriehaeuser;
-vector_tpl<const building_desc_t *> hausbauer_t::sehenswuerdigkeiten_land;
-vector_tpl<const building_desc_t *> hausbauer_t::sehenswuerdigkeiten_city;
-vector_tpl<const building_desc_t *> hausbauer_t::rathaeuser;
-vector_tpl<const building_desc_t *> hausbauer_t::denkmaeler;
-vector_tpl<const building_desc_t *> hausbauer_t::ungebaute_denkmaeler;
+static vector_tpl<const building_desc_t*> city_residential;
+static vector_tpl<const building_desc_t*> city_commercial;
+static vector_tpl<const building_desc_t*> city_industry;
+vector_tpl<const building_desc_t *> hausbauer_t::attractions_land;
+vector_tpl<const building_desc_t *> hausbauer_t::attractions_city;
+vector_tpl<const building_desc_t *> hausbauer_t::townhalls;
+vector_tpl<const building_desc_t *> hausbauer_t::monuments;
+vector_tpl<const building_desc_t *> hausbauer_t::unbuilt_monuments;
 
 /*
  * Diese Tabelle ermöglicht das Auffinden einer Description durch ihren Namen
@@ -73,7 +73,7 @@ vector_tpl<building_desc_t*> hausbauer_t::modifiable_station_buildings;
 // all headquarters (sorted by hq-level)
 vector_tpl<const building_desc_t *> hausbauer_t::headquarter;
 
-static spezial_obj_tpl<building_desc_t> const spezial_objekte[] = {
+static spezial_obj_tpl<building_desc_t> const special_objects[] = {
 	{ &hausbauer_t::elevated_foundation_desc,   "MonorailGround" },
 	{ NULL, NULL }
 };
@@ -130,29 +130,29 @@ bool hausbauer_t::successfully_loaded()
 		building_desc_t const* const desc = i.value;
 		switch (desc->get_type()) {
 			case building_desc_t::city_res:
-				wohnhaeuser.insert_ordered(desc,compare_building_desc);
+				city_residential.insert_ordered(desc,compare_building_desc);
 				break;
 			case building_desc_t::city_ind:
-				industriehaeuser.insert_ordered(desc,compare_building_desc);
+				city_industry.insert_ordered(desc,compare_building_desc);
 				break;
 			case building_desc_t::city_com:
-				gewerbehaeuser.insert_ordered(desc,compare_building_desc);
+				city_commercial.insert_ordered(desc,compare_building_desc);
 				break;
 
 			case building_desc_t::monument:
-				denkmaeler.insert_ordered(desc,compare_building_desc);
+				monuments.insert_ordered(desc,compare_building_desc);
 				break;
 			case building_desc_t::attraction_land:
-				sehenswuerdigkeiten_land.insert_ordered(desc,compare_building_desc);
+				attractions_land.insert_ordered(desc,compare_building_desc);
 				break;
 			case building_desc_t::headquarter:
 				headquarter.insert_ordered(desc,compare_hq_desc);
 				break;
 			case building_desc_t::townhall:
-				rathaeuser.insert_ordered(desc,compare_building_desc);
+				townhalls.insert_ordered(desc,compare_building_desc);
 				break;
 			case building_desc_t::attraction_city:
-				sehenswuerdigkeiten_city.insert_ordered(desc,compare_building_desc);
+				attractions_city.insert_ordered(desc,compare_building_desc);
 				break;
 
 			case building_desc_t::factory:
@@ -181,7 +181,7 @@ bool hausbauer_t::successfully_loaded()
 	}
 
 	// now sort them according level
-	warne_ungeladene(spezial_objekte);
+	warn_missing_objects(special_objects);
 	return true;
 }
 
@@ -190,7 +190,7 @@ bool hausbauer_t::register_desc(building_desc_t *desc)
 {
 	const building_desc_t* const_desc = desc;
 
-	::register_desc(spezial_objekte, const_desc);
+	::register_desc(special_objects, const_desc);
 
 	// avoid duplicates with same name
 	const building_desc_t *old_desc = desc_names.get(desc->get_name());
@@ -296,9 +296,9 @@ DBG_DEBUG("hausbauer_t::fill_menu()","maximum %i",station_building.get_count());
 // new map => reset monument list to ensure every monument appears only once per map
 void hausbauer_t::new_world()
 {
-	ungebaute_denkmaeler.clear();
-	FOR(vector_tpl<building_desc_t const*>, const i, denkmaeler) {
-		ungebaute_denkmaeler.append(i);
+	unbuilt_monuments.clear();
+	FOR(vector_tpl<building_desc_t const*>, const i, monuments) {
+		unbuilt_monuments.append(i);
 	}
 }
 
@@ -320,7 +320,7 @@ void hausbauer_t::remove( player_t *player, gebaeude_t *gb ) //gebaeude = "build
 		gb->get_owner()->add_headquarter( 0, koord::invalid );
 	}
 	if(tile->get_desc()->get_type()==building_desc_t::monument) {
-		ungebaute_denkmaeler.append_unique(tile->get_desc());
+		unbuilt_monuments.append_unique(tile->get_desc());
 	}
 
 	// then remove factory
@@ -680,13 +680,13 @@ gebaeude_t* hausbauer_t::build(player_t* player, koord3d pos, int org_layout, co
 	}
 	// remove only once ...
 	if(desc->get_type()==building_desc_t::monument) {
-		ungebaute_denkmaeler.remove( desc );
+		unbuilt_monuments.remove( desc );
 	}
 	return first_building;
 }
 
 
-gebaeude_t *hausbauer_t::neues_gebaeude(player_t *player, koord3d pos, int built_layout, const building_desc_t *desc, void *param)
+gebaeude_t *hausbauer_t::build_station_extension_depot(player_t *player, koord3d pos, int built_layout, const building_desc_t *desc, void *param)
 {
 	uint8 corner_layout = 6;	// assume single building (for more than 4 layouts)
 
@@ -793,7 +793,7 @@ gebaeude_t *hausbauer_t::neues_gebaeude(player_t *player, koord3d pos, int built
 				gb = new airdepot_t(pos, player, tile);
 				break;
 			default:
-				dbg->fatal("hausbauer_t::neues_gebaeude()","waytpe %i has no depots!", desc->get_extra() );
+				dbg->fatal("hausbauer_t::build_station_extension_depot()","waytpe %i has no depots!", desc->get_extra() );
 				break;
 		}
 	}
@@ -805,7 +805,7 @@ gebaeude_t *hausbauer_t::neues_gebaeude(player_t *player, koord3d pos, int built
 	else {
 		gb = new gebaeude_t(pos, player, tile);
 	}
-//DBG_MESSAGE("hausbauer_t::neues_gebaeude()","building stop pri=%i",pri);
+//DBG_MESSAGE("hausbauer_t::build_station_extension_depot()","building stop pri=%i",pri);
 
 	// remove pointer
 	grund_t *gr = welt->lookup(pos);
@@ -890,10 +890,10 @@ const building_desc_t* hausbauer_t::get_special(uint32 bev, building_desc_t::bty
 	vector_tpl<const building_desc_t*> *list = NULL;
 	switch(btype) {
 		case building_desc_t::townhall:
-			list = &rathaeuser;
+			list = &townhalls;
 			break;
 		case building_desc_t::attraction_city:
-			list = &sehenswuerdigkeiten_city;
+			list = &attractions_city;
 			break;
 		default:
 			return NULL;
@@ -987,19 +987,19 @@ static const building_desc_t* get_city_building_from_list(const vector_tpl<const
 
 const building_desc_t* hausbauer_t::get_commercial(int level, uint16 time, climate cl, bool allow_earlier, uint32 clusters)
 {
-	return get_city_building_from_list(gewerbehaeuser, level, time, cl, allow_earlier, clusters);
+	return get_city_building_from_list(city_commercial, level, time, cl, allow_earlier, clusters);
 }
 
 
 const building_desc_t* hausbauer_t::get_industrial(int level, uint16 time, climate cl, bool allow_earlier, uint32 clusters)
 {
-	return get_city_building_from_list(industriehaeuser, level, time, cl, allow_earlier, clusters);
+	return get_city_building_from_list(city_industry, level, time, cl, allow_earlier, clusters);
 }
 
 
 const building_desc_t* hausbauer_t::get_residential(int level, uint16 time, climate cl, bool allow_earlier, uint32 clusters)
 {
-	return get_city_building_from_list(wohnhaeuser, level, time, cl, allow_earlier, clusters);
+	return get_city_building_from_list(city_residential, level, time, cl, allow_earlier, clusters);
 }
 
 const building_desc_t* hausbauer_t::get_headquarter(int level, uint16 time)
@@ -1017,7 +1017,7 @@ const building_desc_t* hausbauer_t::get_headquarter(int level, uint16 time)
 
 
 // get a random object
-const building_desc_t *hausbauer_t::waehle_aus_liste(vector_tpl<const building_desc_t *> &liste, uint16 time, bool ignore_retire, climate cl)
+const building_desc_t *hausbauer_t::get_random_desc(vector_tpl<const building_desc_t *> &liste, uint16 time, bool ignore_retire, climate cl)
 {
 	//"select from list" (Google)
 	if (!liste.empty()) {
@@ -1025,7 +1025,7 @@ const building_desc_t *hausbauer_t::waehle_aus_liste(vector_tpl<const building_d
 		weighted_vector_tpl<const building_desc_t *> auswahl(16);
 		FOR(vector_tpl<building_desc_t const*>, const desc, liste) {
 			if((cl==MAX_CLIMATES  ||  desc->is_allowed_climate(cl))  &&  desc->get_chance()>0  &&  (time==0  ||  (desc->get_intro_year_month()<=time  &&  (ignore_retire  ||  desc->get_retire_year_month()>time)  )  )  ) {
-//				DBG_MESSAGE("hausbauer_t::waehle_aus_liste()","appended %s at %i", desc->get_name(), thislevel );
+//				DBG_MESSAGE("hausbauer_t::get_random_desc()","appended %s at %i", desc->get_name(), thislevel );
 				auswahl.append(desc, desc->get_chance());
 			}
 		}
@@ -1045,11 +1045,11 @@ const building_desc_t *hausbauer_t::waehle_aus_liste(vector_tpl<const building_d
 const vector_tpl<const building_desc_t*>* hausbauer_t::get_list(const building_desc_t::btype typ)
 {
 	switch (typ) {
-		case building_desc_t::monument:         return &ungebaute_denkmaeler;
-		case building_desc_t::attraction_land: return &sehenswuerdigkeiten_land;
+		case building_desc_t::monument:         return &unbuilt_monuments;
+		case building_desc_t::attraction_land: return &attractions_land;
 		case building_desc_t::headquarter:      return NULL;
-		case building_desc_t::townhall:         return &rathaeuser;
-		case building_desc_t::attraction_city: return &sehenswuerdigkeiten_city;
+		case building_desc_t::townhall:         return &townhalls;
+		case building_desc_t::attraction_city: return &attractions_city;
 		case building_desc_t::factory:          return NULL;
 		default:                            return NULL;
 	}
@@ -1058,9 +1058,9 @@ const vector_tpl<const building_desc_t*>* hausbauer_t::get_list(const building_d
 const vector_tpl<const building_desc_t*>* hausbauer_t::get_citybuilding_list(const building_desc_t::btype typ)
 {
 	switch (typ) {
-		case building_desc_t::city_res:		return &wohnhaeuser;
-		case building_desc_t::city_com:		return &gewerbehaeuser;
-		case building_desc_t::city_ind:		return &industriehaeuser;
+		case building_desc_t::city_res:		return &city_residential;
+		case building_desc_t::city_com:		return &city_commercial;
+		case building_desc_t::city_ind:		return &city_industry;
 		default:						return NULL;
 	}
 }

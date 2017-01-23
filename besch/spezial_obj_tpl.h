@@ -61,11 +61,11 @@ template<class desc_t> bool successfully_loaded(spezial_obj_tpl<desc_t> const* s
  * @param so List to check.
  * @param count Number of elements to check.
  */
-template<class desc_t> void warne_ungeladene(spezial_obj_tpl<desc_t> const* so)
+template<class desc_t> void warn_missing_objects(spezial_obj_tpl<desc_t> const* so)
 {
 	for (; so->name; ++so) {
 		if (!*so->desc) {
-			dbg->message("warne_ungeladene", "Object %s not found, feature disabled", so->name);
+			dbg->message("warn_missing_objects", "Object %s not found, feature disabled", so->name);
 		}
 	}
 }
