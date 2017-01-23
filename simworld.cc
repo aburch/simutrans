@@ -1845,9 +1845,8 @@ void karte_t::stop_path_explorer()
 	
 	if (path_explorer_step_progress < 2 && path_explorer_step_progress >= 0)
 	{
+		pthread_cond_wait(&path_explorer_conditional_end, &path_explorer_mutex);
 		pthread_mutex_unlock(&path_explorer_mutex);
-		pthread_cond_wait(&path_explorer_conditional_end, &path_explorer_conditional_mutex);
-		pthread_mutex_unlock(&path_explorer_conditional_mutex);
 	}
 	else
 	{
