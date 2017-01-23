@@ -240,7 +240,7 @@ bool factory_builder_t::alles_geladen()
 			find_producer( producer, current->get_supplier(j)->get_ware(), 0 );
 			if(  producer.is_contained(current)  ) {
 				// must not happen else
-				dbg->fatal( "factory_builder_t::baue_hierarchie()", "Factory %s output %s cannot be its own input!", i.key, current->get_supplier(j)->get_ware()->get_name() );
+				dbg->fatal( "factory_builder_t::build_link()", "Factory %s output %s cannot be its own input!", i.key, current->get_supplier(j)->get_ware()->get_name() );
 			}
 		}
 		checksum_t *chk = new checksum_t();
@@ -566,7 +566,7 @@ bool factory_builder_t::can_factory_tree_rotate( const factory_desc_t *desc )
  * is the maximum number of good types for which suppliers chains are built
  * (meaning there are no unfinished factory chains).
  */
-int factory_builder_t::baue_hierarchie(koord3d* parent, const factory_desc_t* info, sint32 initial_prod_base, int rotate, koord3d* pos, player_t* player, int number_of_chains )
+int factory_builder_t::build_link(koord3d* parent, const factory_desc_t* info, sint32 initial_prod_base, int rotate, koord3d* pos, player_t* player, int number_of_chains )
 {
 	int n = 1;
 	int org_rotation = -1;
@@ -613,11 +613,11 @@ int factory_builder_t::baue_hierarchie(koord3d* parent, const factory_desc_t* in
 
 		// second try: rotated
 		koord k1 = koord::invalid;
-		if (is_rotate  &&  (k == koord::invalid  ||  simrand(256, " factory_builder_t::baue_hierarchie")<128)) {
+		if (is_rotate  &&  (k == koord::invalid  ||  simrand(256, " factory_builder_t::build_link")<128)) {
 			k1 = factory_bauplatz_mit_strasse_sucher_t(welt).suche_platz(city->get_pos(), size.y, size.x, info->get_building()->get_allowed_climate_bits());
 		}
 
-		rotate = simrand( info->get_building()->get_all_layouts(), " factory_builder_t::baue_hierarchie" );
+		rotate = simrand( info->get_building()->get_all_layouts(), " factory_builder_t::build_link" );
 		if (k1 == koord::invalid) {
 			if (size.x != size.y) {
 				rotate &= 2; // rotation must be even number
@@ -658,7 +658,7 @@ int factory_builder_t::baue_hierarchie(koord3d* parent, const factory_desc_t* in
 		}
 	}
 
-	DBG_MESSAGE("factory_builder_t::baue_hierarchie","Construction of %s at (%i,%i).",info->get_name(),pos->x,pos->y);
+	DBG_MESSAGE("factory_builder_t::build_link","Construction of %s at (%i,%i).",info->get_name(),pos->x,pos->y);
 	INT_CHECK("fabrikbauer 594");
 
 	const fabrik_t *our_fab=build_factory(parent, info, initial_prod_base, rotate, *pos, player);
@@ -672,7 +672,7 @@ int factory_builder_t::baue_hierarchie(koord3d* parent, const factory_desc_t* in
 
 	// everything built -> update map if needed
 	if(parent==NULL) {
-		DBG_MESSAGE("factory_builder_t::baue_hierarchie()","update karte");
+		DBG_MESSAGE("factory_builder_t::build_link()","update karte");
 
 		// update the map if needed
 		reliefkarte_t::get_karte()->calc_map_size();
@@ -705,7 +705,7 @@ int factory_builder_t::build_chain_link(const fabrik_t* our_fab, const factory_d
 	const int anzahl_producer_d=count_producers( ware, welt->get_timeline_year_month() );
 
 	if(anzahl_producer_d==0) {
-		dbg->error("factory_builder_t::baue_hierarchie()","No producer for %s found, chain incomplete!",ware->get_name() );
+		dbg->error("factory_builder_t::build_link()","No producer for %s found, chain incomplete!",ware->get_name() );
 		return 0;
 	}
 
@@ -719,7 +719,7 @@ int factory_builder_t::build_chain_link(const fabrik_t* our_fab, const factory_d
 	int lcount = supplier->get_supplier_count();
 	int lfound = 0;	// number of found producers
 
-DBG_MESSAGE("factory_builder_t::baue_hierarchie","supplier_count %i, lcount %i (need %i of %s)",info->get_supplier_count(),lcount,consumption,ware->get_name());
+DBG_MESSAGE("factory_builder_t::build_link","supplier_count %i, lcount %i (need %i of %s)",info->get_supplier_count(),lcount,consumption,ware->get_name());
 
 	// Hajo: search if there already is one or two (crossconnect everything if possible)
 	FOR(vector_tpl<fabrik_t*>, const fab, welt->get_fab_list()) {
@@ -759,12 +759,12 @@ DBG_MESSAGE("factory_builder_t::baue_hierarchie","supplier_count %i, lcount %i (
 						}
 
 						// here is actually capacity left (or sometimes just connect anyway)!
-						if (production_left > 0 ||simrand(100, "factory_builder_t::baue_hierarchie") < (uint32)welt->get_settings().get_crossconnect_factor()) {
+						if (production_left > 0 ||simrand(100, "factory_builder_t::build_link") < (uint32)welt->get_settings().get_crossconnect_factor()) {
 
 							if(production_left>0) {
 								consumption -= production_left;
 								fab->add_lieferziel(our_fab->get_pos().get_2d());
-								DBG_MESSAGE("factory_builder_t::baue_hierarchie","supplier %s can supply approx %i of %s to us", fd->get_name(), production_left, ware->get_name());
+								DBG_MESSAGE("factory_builder_t::build_link","supplier %s can supply approx %i of %s to us", fd->get_name(), production_left, ware->get_name());
 							}
 							else {
 								/* we steal something; however the total capacity
@@ -803,12 +803,12 @@ DBG_MESSAGE("factory_builder_t::baue_hierarchie","supplier_count %i, lcount %i (
 		if(  producer.empty()  ) {
 			// can happen with timeline
 			if(!info->is_consumer_only()) {
-				dbg->error( "factory_builder_t::baue_hierarchie()", "no producer for %s!", ware->get_name() );
+				dbg->error( "factory_builder_t::build_link()", "no producer for %s!", ware->get_name() );
 				return 0;
 			}
 			else {
 				// only consumer: Will do with partly covered chains
-				dbg->error( "factory_builder_t::baue_hierarchie()", "no producer for %s!", ware->get_name() );
+				dbg->error( "factory_builder_t::build_link()", "no producer for %s!", ware->get_name() );
 			}
 		}
 
@@ -818,7 +818,7 @@ DBG_MESSAGE("factory_builder_t::baue_hierarchie","supplier_count %i, lcount %i (
 
 			const factory_desc_t *producer_d = pick_any_weighted( producer );
 
-			int rotate = simrand(producer_d->get_building()->get_all_layouts()-1, "factory_builder_t::baue_hierarchie");
+			int rotate = simrand(producer_d->get_building()->get_all_layouts()-1, "factory_builder_t::build_link");
 			koord3d parent_pos = our_fab->get_pos();
 
 			INT_CHECK("fabrikbauer 697");
@@ -840,8 +840,8 @@ DBG_MESSAGE("factory_builder_t::baue_hierarchie","supplier_count %i, lcount %i (
 
 			INT_CHECK("fabrikbauer 697");
 
-	DBG_MESSAGE("factory_builder_t::baue_hierarchie","Try to built supplier %s at (%i,%i) r=%i for %s.",producer_d->get_name(),k.x,k.y,rotate,info->get_name());
-			n += baue_hierarchie(&parent_pos, producer_d, -1 /*random prodbase */, rotate, &k, player, 10000 );
+	DBG_MESSAGE("factory_builder_t::build_link","Try to built supplier %s at (%i,%i) r=%i for %s.",producer_d->get_name(),k.x,k.y,rotate,info->get_name());
+			n += build_link(&parent_pos, producer_d, -1 /*random prodbase */, rotate, &k, player, 10000 );
 			lfound ++;
 
 			INT_CHECK( "fabrikbauer 702" );
@@ -849,7 +849,7 @@ DBG_MESSAGE("factory_builder_t::baue_hierarchie","supplier_count %i, lcount %i (
 			// now subtract current supplier
 			fabrik_t *fab = fabrik_t::get_fab(k.get_2d() );
 			if(fab==NULL) {
-	DBG_MESSAGE( "factory_builder_t::baue_hierarchie", "Failed to build at %s", k.get_str() );
+	DBG_MESSAGE( "factory_builder_t::build_link", "Failed to build at %s", k.get_str() );
 				retry --;
 				continue;
 			}
@@ -862,7 +862,7 @@ DBG_MESSAGE("factory_builder_t::baue_hierarchie","supplier_count %i, lcount %i (
 					sint32 production = fab->get_base_production() * fd->get_product(gg)->get_factor();
 					// the take care of how much this factory could supply
 					consumption -= production;
-					DBG_MESSAGE("factory_builder_t::baue_hierarchie", "new supplier %s can supply approx %i of %s to us", fd->get_name(), production, ware->get_name());
+					DBG_MESSAGE("factory_builder_t::build_link", "new supplier %s can supply approx %i of %s to us", fd->get_name(), production, ware->get_name());
 					break;
 				}
 			}
@@ -1146,7 +1146,7 @@ next_ware_check:
 				}
 				if(welt->lookup(pos)) {
 					// Space found...
-					nr += baue_hierarchie(NULL, fab, -1 /* random prodbase */, rotation, &pos, welt->get_public_player(), 1 );
+					nr += build_link(NULL, fab, -1 /* random prodbase */, rotation, &pos, welt->get_public_player(), 1 );
 					if(nr>0) {
 						fabrik_t *our_fab = fabrik_t::get_fab( pos.get_2d() );
 						reliefkarte_t::get_karte()->calc_map_size();
