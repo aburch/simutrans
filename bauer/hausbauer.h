@@ -69,7 +69,7 @@ public:
 	static const building_desc_t* get_desc(const char *name);
 
 	static bool register_desc(building_desc_t *desc);
-	static bool alles_geladen();
+	static bool successfully_loaded();
 
 	/* Fill menu with icons of buildings of a given type
 	 * this is only needed for stations and depots => use waytype too!

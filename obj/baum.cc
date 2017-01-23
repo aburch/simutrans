@@ -251,7 +251,7 @@ static bool compare_tree_desc(const tree_desc_t* a, const tree_desc_t* b)
 }
 
 
-bool baum_t::alles_geladen()
+bool baum_t::successfully_loaded()
 {
 	if(  desc_names.empty()  ) {
 		DBG_MESSAGE("baum_t", "No trees found - feature disabled");
@@ -260,7 +260,7 @@ bool baum_t::alles_geladen()
 	FOR(stringhashtable_tpl<tree_desc_t const*>, const& i, desc_names) {
 		tree_list.insert_ordered(i.value, compare_tree_desc);
 		if(  tree_list.get_count()==255  ) {
-			dbg->error( "baum_t::alles_geladen()", "Maximum tree count exceeded! (max 255 instead of %i)", desc_names.get_count() );
+			dbg->error( "baum_t::successfully_loaded()", "Maximum tree count exceeded! (max 255 instead of %i)", desc_names.get_count() );
 			break;
 		}
 	}

@@ -26,7 +26,7 @@ void vehicle_reader_t::register_obj(obj_desc_t *&data)
 
 bool vehicle_reader_t::successfully_loaded() const
 {
-	return vehikelbauer_t::alles_geladen();
+	return vehikelbauer_t::successfully_loaded();
 }
 
 

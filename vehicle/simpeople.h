@@ -52,7 +52,7 @@ public:
 
 	// class register functions
 	static bool register_desc(const pedestrian_desc_t *desc);
-	static bool alles_geladen();
+	static bool successfully_loaded();
 
 	static void generate_pedestrians_at(koord3d k, uint32 anzahl, uint32 time_to_live = 0);
 

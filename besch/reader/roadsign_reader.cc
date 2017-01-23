@@ -26,7 +26,7 @@ void roadsign_reader_t::register_obj(obj_desc_t *&data)
 
 bool roadsign_reader_t::successfully_loaded() const
 {
-    return roadsign_t::alles_geladen();
+    return roadsign_t::successfully_loaded();
 }
 
 

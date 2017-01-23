@@ -164,7 +164,7 @@ protected:
 
 public:
 	static bool register_desc(roadsign_desc_t *desc);
-	static bool alles_geladen();
+	static bool successfully_loaded();
 
 	/**
 	 * Fill menu with icons of given stops from the list

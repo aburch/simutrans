@@ -24,7 +24,7 @@ void tree_reader_t::register_obj(obj_desc_t *&data)
 
 bool tree_reader_t::successfully_loaded() const
 {
-    return baum_t::alles_geladen();
+    return baum_t::successfully_loaded();
 }
 
 

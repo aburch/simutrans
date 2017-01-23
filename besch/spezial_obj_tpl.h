@@ -45,11 +45,11 @@ template<class desc_t> bool register_desc(spezial_obj_tpl<desc_t> const* so, des
  * Verifies the passed list for all objects to be not NULL, ie are loaded.
  * @param so List to check.
  */
-template<class desc_t> bool alles_geladen(spezial_obj_tpl<desc_t> const* so)
+template<class desc_t> bool successfully_loaded(spezial_obj_tpl<desc_t> const* so)
 {
 	for (; so->name; ++so) {
 		if (!*so->desc) {
-			dbg->fatal("alles_geladen()", "%s-object %s not found.\n*** PLEASE INSTALL PROPER BASE FILE AND CHECK PATH ***", typeid(**so->desc).name(), so->name);
+			dbg->fatal("successfully_loaded()", "%s-object %s not found.\n*** PLEASE INSTALL PROPER BASE FILE AND CHECK PATH ***", typeid(**so->desc).name(), so->name);
 			return false;
 		}
 	}

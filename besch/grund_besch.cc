@@ -518,10 +518,10 @@ bool ground_desc_t::register_desc(const ground_desc_t *desc)
  * however, in our case slope_t::we have to calculate all textures
  * and put them into images
  */
-bool ground_desc_t::alles_geladen()
+bool ground_desc_t::successfully_loaded()
 {
-	DBG_MESSAGE("ground_desc_t::alles_geladen()","boden");
-	return ::alles_geladen(grounds+1);
+	DBG_MESSAGE("ground_desc_t::successfully_loaded()","boden");
+	return ::successfully_loaded(grounds+1);
 }
 
 

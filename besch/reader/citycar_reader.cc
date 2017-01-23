@@ -27,7 +27,7 @@ void citycar_reader_t::register_obj(obj_desc_t *&data)
 
 bool citycar_reader_t::successfully_loaded() const
 {
-	return private_car_t::alles_geladen();
+	return private_car_t::successfully_loaded();
 }
 
 

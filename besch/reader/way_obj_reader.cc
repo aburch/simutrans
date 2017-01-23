@@ -23,7 +23,7 @@ void way_obj_reader_t::register_obj(obj_desc_t *&data)
 
 bool way_obj_reader_t::successfully_loaded() const
 {
-    return wayobj_t::alles_geladen();
+    return wayobj_t::successfully_loaded();
 }
 
 
