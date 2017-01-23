@@ -43,14 +43,14 @@ obj_desc_t * crossing_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	if(version == 0) {
 		dbg->error("crossing_reader_t::read_node()","Old version of crossings cannot be used!");
 
-		desc->wegtyp1 = (uint8)v;
-		desc->wegtyp2 = (uint8)decode_uint16(p);
+		desc->wegtyp1 = (waytype_t)v;
+		desc->wegtyp2 = (waytype_t)decode_uint16(p);
 		desc->topspeed1 = 0;
 		desc->topspeed2 = 0;
 	}
 	else if(  version==1  ||  version==2  ) {
-		desc->wegtyp1 = decode_uint8(p);
-		desc->wegtyp2 = decode_uint8(p);
+		desc->wegtyp1 = (waytype_t)decode_uint8(p);
+		desc->wegtyp2 = (waytype_t)decode_uint8(p);
 		desc->topspeed1 = decode_uint16(p);
 		desc->topspeed2 = decode_uint16(p);
 		desc->open_animation_time = decode_uint32(p);
