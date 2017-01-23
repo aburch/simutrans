@@ -67,7 +67,7 @@ signal_t::signal_t(player_t *player, koord3d pos, ribi_t::ribi dir,const roadsig
 		if(gr)
 		{
 			gebaeude_t* gb = gr->get_building();
-			if(gb && gb->get_tile()->get_desc()->get_type() == building_desc_t::signalbox)
+			if(gb && gb->get_tile()->get_desc()->is_signalbox())
 			{
 				signalbox_t* sigb = (signalbox_t*)gb;
 				signalbox = sb;
@@ -93,7 +93,7 @@ signal_t::~signal_t()
 	if(gr)
 	{
 		gebaeude_t* gb = gr->get_building();
-		if(gb && gb->get_tile()->get_desc()->get_type() == building_desc_t::signalbox)
+		if(gb && gb->get_tile()->get_desc()->is_signalbox())
 		{
 			signalbox_t* sigb = (signalbox_t*)gb;
 			sigb->remove_signal(this); 

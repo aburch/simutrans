@@ -161,7 +161,6 @@ bool hausbauer_t::alles_geladen()
 			case building_desc_t::signalbox:
 			case building_desc_t::dock:
 			case building_desc_t::flat_dock:
-			case building_desc_t::hafen_geb:
 			case building_desc_t::depot:
 			case building_desc_t::generic_stop:
 			case building_desc_t::generic_extension:
@@ -218,7 +217,7 @@ bool hausbauer_t::register_desc(building_desc_t *desc)
 		else if(  desc->get_type()==building_desc_t::headquarter  ) {
 			tool = new tool_headquarter_t();
 		}
-		else if(desc->get_type() == building_desc_t::signalbox)
+		else if(desc->is_signalbox())
 		{
 			tool = new tool_signalbox_t();
 			modifiable_station_buildings.append(desc);
@@ -509,7 +508,7 @@ gebaeude_t* hausbauer_t::build(player_t* player, koord3d pos, int org_layout, co
 			}
 			
 			grund_t *gr = NULL;
-			if(desc->get_allow_underground() && desc->get_type() == building_desc_t::signalbox) 
+			if(desc->get_allow_underground() && desc->is_signalbox())
 			{
 				// Note that this works properly only for signalboxes, as the underground tile needs a grund_t object,
 				// which has to be added in the specific tool building this. 
@@ -623,7 +622,7 @@ gebaeude_t* hausbauer_t::build(player_t* player, koord3d pos, int org_layout, co
 			}
 //DBG_DEBUG("hausbauer_t::build()","ground count now %i",gr->obj_count());
 			gebaeude_t *gb;
-			if(tile->get_desc()->get_type() == building_desc_t::signalbox)
+			if(tile->get_desc()->is_signalbox())
 			{
 				gb = new signalbox_t(gr->get_pos(), player, tile);
 			}
@@ -660,7 +659,7 @@ gebaeude_t* hausbauer_t::build(player_t* player, koord3d pos, int org_layout, co
 			if(desc->is_attraction()) {
 				welt->add_ausflugsziel( gb );
 			}
-			if(!desc->is_city_building() && desc->get_type() != building_desc_t::signalbox) {
+			if(!desc->is_city_building() && !desc->is_signalbox()) {
 				if(station_building.is_contained(desc)) 
 				{
 					if(desc->get_is_control_tower())
@@ -798,7 +797,7 @@ gebaeude_t *hausbauer_t::neues_gebaeude(player_t *player, koord3d pos, int built
 				break;
 		}
 	}
-	else if(desc->get_type() == building_desc_t::signalbox)
+	else if(desc->is_signalbox())
 	{
 		gb = new signalbox_t(pos, player, tile); 
 	}
@@ -818,7 +817,7 @@ gebaeude_t *hausbauer_t::neues_gebaeude(player_t *player, koord3d pos, int built
 
 	gr->obj_add(gb);
 
-	if(  station_building.is_contained(desc)  &&  desc->get_type()!=building_desc_t::depot && desc->get_type() != building_desc_t::signalbox ) {
+	if(  station_building.is_contained(desc)  &&  desc->get_type()!=building_desc_t::depot && !desc->is_signalbox()) {
 		// is a station/bus stop
 		(*static_cast<halthandle_t *>(param))->add_grund(gr);
 		gr->calc_image();

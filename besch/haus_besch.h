@@ -126,22 +126,52 @@ public:
 class building_desc_t : public obj_desc_timelined_t {
 	friend class building_reader_t;
 
+	/**
+	 * Building types
+	 */
 	public:
 		enum btype
 		{
-			unknown         =  0,
-			attraction_city   =  1,
-			attraction_land   =  2,
-			monument           =  3,
-			factory            =  4,
-			townhall           =  5,
-			others           =  6,
-			headquarter        =  7,
+			unknown				=  0,
+			attraction_city		=  1,
+			attraction_land		=  2,
+			monument			= 3,
+			factory				= 4,
+			townhall			= 5,
+			others				= 6, ///< monorail foundation
+			headquarter			= 7,
+			dock				= 11, ///< dock, build on sloped coast
+									// in these, the extra data points to a waytype
+			depot				= 33,
+			generic_stop		= 34,
+			generic_extension	= 35,
+			flat_dock			= 36, ///< dock, but can start on a flat coast line
+									// city buildings
+			city_res			= 37, ///< residential city buildings
+			city_com			= 38, ///< commercial  city buildings
+			city_ind			= 39, ///< industrial  city buildings
+			signalbox			= 70, // Signalbox. 70 to allow for plenty more Standard ones in between.
+			
+		};
+
+			enum flag_t {
+			FLAG_NULL = 0,
+			FLAG_NO_INFO = 1, ///< do not show info window
+			FLAG_NO_PIT = 2, ///< do not show construction pit
+			FLAG_NEED_GROUND = 4, ///< needs ground drawn below
+			FLAG_HAS_CURSOR = 8  ///< there is cursor/icon for this		
+		};
+		
+	private:
+				/**
+				 * Old named constants, only used for compatibility to load very old paks.
+				 * These will be converted in building_reader_t::register_obj to a valid btype.
+				 */
+			enum old_building_types_t {
 			// from here on only old style flages
 			bahnhof           =  8,
 			bushalt           =  9,
 			ladebucht         = 10,
-			dock              = 11,// this is still current, as it is can be larger than 1x1
 			binnenhafen       = 12,
 			airport           = 13,
 			monorailstop      = 14,
@@ -155,30 +185,8 @@ class building_desc_t : public obj_desc_timelined_t {
 			wartehalle        = 30,
 			post              = 31,
 			lagerhalle        = 32,
-			// in these, the extra data points to a waytype
-			depot             = 33,
-			generic_stop      = 34,
-			generic_extension = 35,
-			// there are more types of docks
-			flat_dock         = 36, // dock, but can start on a flat coast line
-			signalbox		  = 70, // Signalbox. 70 to allow for plenty more Standard ones in between.
-			last_haus_typ,
-			unknown_flag    = 128,
-			// city buildings
-			city_res = 37, ///< residential city buildings
-			city_com = 38, ///< commercial  city buildings
-			city_ind = 39, ///< industrial  city buildings
 		};
 
-		enum flag_t {
-			FLAG_NULL        = 0,
-			FLAG_NO_INFO  = 1, // was flag FLAG_ZEIGE_INFO
-			FLAG_NO_PIT = 2, // Baugrube oder nicht?
-			FLAG_NEED_GROUND = 4, // draw ground below
-			FLAG_HAS_CURSOR  = 8  // there is cursor/icon for this
-		};
-
-	private:
 	building_desc_t::btype type;
 	uint16 animation_time;	// in ms
 	uint32 extra_data;
@@ -234,7 +242,7 @@ class building_desc_t : public obj_desc_timelined_t {
 	 */
 	uint8 is_control_tower;
 
-	bool is_type(building_desc_t::btype b) const {
+	inline bool is_type(building_desc_t::btype b) const {
 		return type == b;
 	}
 
@@ -279,7 +287,8 @@ public:
 	bool is_attraction() const { return is_type(attraction_land) || is_type(attraction_city); }
 	bool is_factory()       const { return is_type(factory); }
 	bool is_city_building() const { return is_type(city_res) || is_type(city_com) || is_type(city_ind); }
-	bool is_transport_building() const { return type >= bahnhof  && type <= flat_dock; }
+	bool is_transport_building() const { return type > headquarter  && type <= flat_dock; }
+	bool is_signalbox() const { return is_type(signalbox); }
 
 	bool is_connected_with_town() const;
 

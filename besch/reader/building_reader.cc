@@ -153,14 +153,18 @@ void building_reader_t::register_obj(obj_desc_t *&data)
 		}
 	}
 	// and finally old stations ...
-	else if(  desc->get_type()>=building_desc_t::bahnhof  &&  desc->get_type()<=building_desc_t::lagerhalle) {
+	// correct all building types in building_desc_t::old_building_types_t
+	else if ((uint8)desc->get_type() >= building_desc_t::bahnhof && (uint8)desc->get_type() <= building_desc_t::lagerhalle) {
 		// compability stuff
 		static uint16 old_to_new_waytype[16] = { track_wt, road_wt, road_wt, water_wt, water_wt, air_wt, monorail_wt, 0, track_wt, road_wt, road_wt, 0 , water_wt, air_wt, monorail_wt, 0 };
-		desc->extra_data = desc->type<=building_desc_t::monorail_geb ? old_to_new_waytype[desc->type-building_desc_t::bahnhof] : 0;
-		if(  desc->type!=building_desc_t::dock  ) {
-			desc->type = desc->type<building_desc_t::bahnhof_geb ? building_desc_t::generic_stop : building_desc_t::generic_extension;
+		uint8 type = desc->type;
+		desc->extra_data = type <= building_desc_t::monorail_geb ? old_to_new_waytype[type - building_desc_t::bahnhof] : 0;
+		if (type != building_desc_t::dock) {
+			desc->type = type < building_desc_t::bahnhof_geb ? building_desc_t::generic_stop : building_desc_t::generic_extension;
 		}
 	}
+
+	// after this point all building_desc_t types have type in building_desc_t::btype
 
 	if(  desc->layouts>2  &&  desc->layouts&1  ) {
 		uint8 l = desc->layouts>4 ? 4 : 2;
@@ -560,7 +564,7 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	{
 		desc->level = experimental_version > 0 ? 1 : 4;
 	}
-	else if((desc->level > 32767 && (desc->type >= building_desc_t::bahnhof || desc->type == building_desc_t::factory)) || version<=3  &&  (desc->type >= building_desc_t::bahnhof  ||  desc->type == building_desc_t::factory  ||  desc->type == building_desc_t::depot)  &&  desc->level==0)
+	else if((desc->level > 32767 && (desc->type >= building_desc_t::bahnhof || desc->type == building_desc_t::factory)) || version<=3  &&  ((uint8)desc->type >= building_desc_t::bahnhof  ||  desc->type == building_desc_t::factory  ||  desc->type == building_desc_t::depot)  &&  desc->level==0)
 	{
 		DBG_DEBUG("building_reader_t::read_node()","old station building -> set level to 4");
 		desc->level = 4;

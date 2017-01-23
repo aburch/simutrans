@@ -4694,7 +4694,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 									if(gr_signalbox)
 									{
 										const gebaeude_t* gb = gr_signalbox->get_building();
-										if(gb && gb->get_tile()->get_desc()->get_type() == building_desc_t::signalbox)
+										if(gb && gb->get_tile()->get_desc()->is_signalbox())
 										{
 											sb = (signalbox_t*)gb; 
 										}

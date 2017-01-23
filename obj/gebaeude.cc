@@ -809,7 +809,7 @@ const gebaeude_t* gebaeude_t::get_first_tile() const
 				if(grund_t *gr = welt->lookup( get_pos() - get_tile()->get_offset() + k))
 				{
 					gebaeude_t* gb;
-					if(tile->get_desc()->get_type() == building_desc_t::signalbox)
+					if(tile->get_desc()->is_signalbox())
 					{
 						gb = gr->get_signalbox();
 					}
@@ -844,7 +844,7 @@ gebaeude_t* gebaeude_t::access_first_tile()
 				if (grund_t *gr = welt->lookup(get_pos() - get_tile()->get_offset() + k))
 				{
 					gebaeude_t* gb;
-					if (tile->get_desc()->get_type() == building_desc_t::signalbox)
+					if (tile->get_desc()->is_signalbox())
 					{
 						gb = gr->get_signalbox();
 					}
@@ -959,7 +959,7 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 			buf.printf(translator::translate("Town: %s\n"), ptr.stadt->get_name());
 		}
 
-		if(tile->get_desc()->get_type() == building_desc_t::signalbox)
+		if(tile->get_desc()->is_signalbox())
 		{
 			signalbox_t* sb = (signalbox_t*)get_first_tile();
 			buf.printf("%s: %d/%d\n", translator::translate("Signals"), sb->get_number_of_signals_controlled_from_this_box(), tile->get_desc()->get_capacity()); 
@@ -1477,10 +1477,10 @@ void gebaeude_t::cleanup(player_t *player)
 	const building_desc_t* desc = tile->get_desc();
 	sint64 cost = 0;
 
-	if(desc->get_type() < building_desc_t::bahnhof || desc->get_type() == building_desc_t::signalbox) 
+	if(desc->is_transport_building() || desc->is_signalbox())
 	{
 		sint64 bulldoze_cost;
-		if(desc->get_type() == building_desc_t::signalbox)
+		if(desc->is_signalbox())
 		{
 			bulldoze_cost = desc->get_price() / 2;
 		}

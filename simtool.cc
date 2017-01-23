@@ -5129,7 +5129,6 @@ const char *tool_build_station_t::work( player_t *player, koord3d pos )
 				tool_build_station_t::tool_station_flat_dock_aux(player, pos, desc, rotation );
 			}
 			break;
-		case building_desc_t::hafen_geb:
 		case building_desc_t::generic_extension:
 			msg = tool_build_station_t::tool_station_building_aux(player, false, pos, desc, rotation );
 			if (msg) {
@@ -5329,7 +5328,7 @@ const char* tool_build_roadsign_t::check_pos_intern(player_t *player, koord3d po
 			if(gr_signalbox)
 			{
 				const gebaeude_t* gb = gr_signalbox->get_building();
-				if(gb && gb->get_tile()->get_desc()->get_type() == building_desc_t::signalbox)
+				if(gb && gb->get_tile()->get_desc()->is_signalbox())
 				{
 					sb = (signalbox_t*)gb; 
 				}
@@ -7133,7 +7132,7 @@ uint8 tool_reassign_signal_t::is_valid_pos(player_t *player, const koord3d &pos,
 		gb = gb->access_first_tile();
 	}
 	const signalbox_t* sb_end;
-	if(gb && gb->get_tile()->get_desc()->get_type() == building_desc_t::signalbox)
+	if(gb && gb->get_tile()->get_desc()->is_signalbox())
 	{
 		sb_end = (signalbox_t*)gb;
 		if(!(sb_end->get_owner() == player))
@@ -7159,7 +7158,7 @@ uint8 tool_reassign_signal_t::is_valid_pos(player_t *player, const koord3d &pos,
 	{
 		gb = gb->access_first_tile();
 	}
-	if(gb && gb->get_tile()->get_desc()->get_type() == building_desc_t::signalbox)
+	if(gb && gb->get_tile()->get_desc()->is_signalbox())
 	{
 		const signalbox_t* sb_start = (signalbox_t*)gb;
 		if(sb_start->get_owner() != player)
@@ -7218,7 +7217,7 @@ const char *tool_reassign_signal_t::do_work( player_t *player, const koord3d &la
 		gb_end = gb_end->access_first_tile();
 	}
 	signalbox_t* sb_end = NULL;
-	if(gb_end && gb_end->get_tile()->get_desc()->get_type() == building_desc_t::signalbox)
+	if(gb_end && gb_end->get_tile()->get_desc()->is_signalbox())
 	{
 		sb_end = (signalbox_t*)gb_end;
 	}
@@ -7235,7 +7234,7 @@ const char *tool_reassign_signal_t::do_work( player_t *player, const koord3d &la
 		gb_start = gb_start->access_first_tile();
 	}
 	signalbox_t* sb_start = NULL;
-	if(gb_start && gb_start->get_tile()->get_desc()->get_type() == building_desc_t::signalbox)
+	if(gb_start && gb_start->get_tile()->get_desc()->is_signalbox())
 	{
 		sb_start = (signalbox_t*)gb_start;
 		koord succeed_fail = sb_start->transfer_all_signals(sb_end);
@@ -7262,7 +7261,7 @@ const char *tool_reassign_signal_t::do_work( player_t *player, const koord3d &la
 		grund_t* gr_sb = welt->lookup(sb_location);
 		gebaeude_t* gb_sb = gr_sb->get_building()->access_first_tile();
 		signalbox_t* sb = NULL;
-		if(gb_sb && gb_sb->get_tile()->get_desc()->get_type() == building_desc_t::signalbox)
+		if(gb_sb && gb_sb->get_tile()->get_desc()->is_signalbox())
 		{
 			sb = (signalbox_t*)gb_sb;
 			if(sb_end->transfer_signal(sig, sb))
