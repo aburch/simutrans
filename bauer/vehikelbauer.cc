@@ -60,12 +60,12 @@ static sint32 default_speedbonus[8] =
 	80	// narrowgauge
 };
 
-bool vehikelbauer_t::speedbonus_init(const std::string &objfilename)
+bool vehicle_builder_t::speedbonus_init(const std::string &objfilename)
 {
 	tabfile_t bonusconf;
 	// first take user data, then user global data
 	if (!bonusconf.open((objfilename+"config/speedbonus.tab").c_str())) {
-		dbg->warning("vehikelbauer_t::speedbonus_init()", "Can't read speedbonus.tab" );
+		dbg->warning("vehicle_builder_t::speedbonus_init()", "Can't read speedbonus.tab" );
 		return false;
 	}
 
@@ -78,7 +78,7 @@ bool vehikelbauer_t::speedbonus_init(const std::string &objfilename)
 	for(  int j=0;  j<8;  j++  ) {
 		int *tracks = contents.get_ints(weg_t::waytype_to_string(j==3?air_wt:(waytype_t)(j+1)));
 		if((tracks[0]&1)==1) {
-			dbg->warning( "vehikelbauer_t::speedbonus_init()", "Ill formed line in speedbonus.tab\nFormat is year,speed[,year,speed]!" );
+			dbg->warning( "vehicle_builder_t::speedbonus_init()", "Ill formed line in speedbonus.tab\nFormat is year,speed[,year,speed]!" );
 			tracks[0]--;
 		}
 		speedbonus[j].resize( tracks[0]/2 );
@@ -93,7 +93,7 @@ bool vehikelbauer_t::speedbonus_init(const std::string &objfilename)
 }
 
 
-sint32 vehikelbauer_t::get_speedbonus( sint32 monthyear, waytype_t wt )
+sint32 vehicle_builder_t::get_speedbonus( sint32 monthyear, waytype_t wt )
 {
 	const int typ = wt==air_wt ? 3 : (wt-1)&7;
 
@@ -147,7 +147,7 @@ sint32 vehikelbauer_t::get_speedbonus( sint32 monthyear, waytype_t wt )
 }
 
 
-void vehikelbauer_t::rdwr_speedbonus(loadsave_t *file)
+void vehicle_builder_t::rdwr_speedbonus(loadsave_t *file)
 {
 	for(  int j=0;  j<8;  j++  ) {
 		uint32 count = speedbonus[j].get_count();
@@ -166,7 +166,7 @@ void vehikelbauer_t::rdwr_speedbonus(loadsave_t *file)
 }
 
 
-vehicle_t* vehikelbauer_t::build(koord3d k, player_t* player, convoi_t* cnv, const vehikel_desc_t* vb, bool upgrade, uint16 livery_scheme_index )
+vehicle_t* vehicle_builder_t::build(koord3d k, player_t* player, convoi_t* cnv, const vehikel_desc_t* vb, bool upgrade, uint16 livery_scheme_index )
 {
 	vehicle_t* v;
 	static karte_ptr_t welt;
@@ -181,7 +181,7 @@ vehicle_t* vehikelbauer_t::build(koord3d k, player_t* player, convoi_t* cnv, con
 		case narrowgauge_wt:v = new narrowgauge_rail_vehicle_t(k, vb, player, cnv); break;
 
 		default:
-			dbg->fatal("vehikelbauer_t::build()", "cannot built a vehicle with waytype %i", vb->get_waytype());
+			dbg->fatal("vehicle_builder_t::build()", "cannot built a vehicle with waytype %i", vb->get_waytype());
 	}
 
 	if(cnv)
@@ -246,13 +246,13 @@ vehicle_t* vehikelbauer_t::build(koord3d k, player_t* player, convoi_t* cnv, con
 
 
 
-bool vehikelbauer_t::register_desc(vehikel_desc_t *desc)
+bool vehicle_builder_t::register_desc(vehikel_desc_t *desc)
 {
 	// register waytype list
 	const int idx = GET_WAYTYPE_INDEX( desc->get_waytype() );
 	vehikel_desc_t *old_desc = name_fahrzeuge.get( desc->get_name() );
 	if(  old_desc  ) {
-		dbg->warning( "vehikelbauer_t::register_desc()", "Object %s was overlaid by addon!", desc->get_name() );
+		dbg->warning( "vehicle_builder_t::register_desc()", "Object %s was overlaid by addon!", desc->get_name() );
 		name_fahrzeuge.remove( desc->get_name() );
 		typ_fahrzeuge[idx].remove(old_desc);
 	}
@@ -306,10 +306,10 @@ static bool compare_vehikel_desc(const vehikel_desc_t* a, const vehikel_desc_t* 
 }
 
 
-bool vehikelbauer_t::successfully_loaded()
+bool vehicle_builder_t::successfully_loaded()
 {
 	// first: check for bonus tables
-	DBG_MESSAGE("vehikelbauer_t::sort_lists()","called");
+	DBG_MESSAGE("vehicle_builder_t::sort_lists()","called");
 	for(  int wt_idx=0;  wt_idx<9;  wt_idx++  ) {
 		slist_tpl<vehikel_desc_t*>& typ_liste = typ_fahrzeuge[wt_idx];
 		uint count = typ_liste.get_count();
@@ -332,12 +332,12 @@ bool vehikelbauer_t::successfully_loaded()
 
 
 
-const vehikel_desc_t *vehikelbauer_t::get_info(const char *name)
+const vehikel_desc_t *vehicle_builder_t::get_info(const char *name)
 {
 	return name_fahrzeuge.get(name);
 }
 
-slist_tpl<vehikel_desc_t*>& vehikelbauer_t::get_info(waytype_t typ)
+slist_tpl<vehikel_desc_t*>& vehicle_builder_t::get_info(waytype_t typ)
 {
 	return typ_fahrzeuge[GET_WAYTYPE_INDEX(typ)];
 }
@@ -347,7 +347,7 @@ slist_tpl<vehikel_desc_t*>& vehikelbauer_t::get_info(waytype_t typ)
  * tries to get best with but adds a little random action
  * @author prissi
  */
-const vehikel_desc_t *vehikelbauer_t::vehikel_search( waytype_t wt, const uint16 month_now, const uint32 target_weight, const sint32 target_speed, const ware_desc_t * target_freight, bool include_electric, bool not_obsolete )
+const vehikel_desc_t *vehicle_builder_t::vehikel_search( waytype_t wt, const uint16 month_now, const uint32 target_weight, const sint32 target_speed, const ware_desc_t * target_freight, bool include_electric, bool not_obsolete )
 {
 	if(  (target_freight!=NULL  ||  target_weight!=0)  &&  !typ_fahrzeuge[GET_WAYTYPE_INDEX(wt)].empty()  ) 
 	{
@@ -424,11 +424,11 @@ const vehikel_desc_t *vehikelbauer_t::vehikel_search( waytype_t wt, const uint16
 					}
 				}
 				// ok, final check
-				if(  desc==NULL  ||  difference<(int)simrand(25, "vehikelbauer_t::vehikel_search")    ) {
+				if(  desc==NULL  ||  difference<(int)simrand(25, "vehicle_builder_t::vehikel_search")    ) {
 					// then we want this vehicle!
 					desc = test_desc;
 					best = test;
-					DBG_MESSAGE( "vehikelbauer_t::vehikel_search","Found car %s", desc ? desc->get_name() : "null");
+					DBG_MESSAGE( "vehicle_builder_t::vehikel_search","Found car %s", desc ? desc->get_name() : "null");
 				}
 			}
 			else {
@@ -450,12 +450,12 @@ const vehikel_desc_t *vehikelbauer_t::vehikel_search( waytype_t wt, const uint16
 				if(  max_weight < target_weight+test_desc->get_weight()  ) {
 					test.index += max_weight - (sint32)(target_weight+test_desc->get_weight());
 				}
-				test.index += simrand(100, "vehikelbauer_t::vehikel_search");
+				test.index += simrand(100, "vehicle_builder_t::vehikel_search");
 				if(  test.index > best.index  ) {
 					// then we want this vehicle!
 					desc = test_desc;
 					best = test;
-					DBG_MESSAGE( "vehikelbauer_t::vehikel_search","Found engine %s",desc->get_name());
+					DBG_MESSAGE( "vehicle_builder_t::vehikel_search","Found engine %s",desc->get_name());
 				}
 			}
 		}
@@ -465,7 +465,7 @@ const vehikel_desc_t *vehikelbauer_t::vehikel_search( waytype_t wt, const uint16
 		}
 	}
 	// no vehicle found!
-	DBG_MESSAGE( "vehikelbauer_t::vehikel_search()","could not find a suitable vehicle! (speed %i, weight %i)",target_speed,target_weight);
+	DBG_MESSAGE( "vehicle_builder_t::vehikel_search()","could not find a suitable vehicle! (speed %i, weight %i)",target_speed,target_weight);
 	return NULL;
 }
 
@@ -476,7 +476,7 @@ const vehikel_desc_t *vehikelbauer_t::vehikel_search( waytype_t wt, const uint16
  * if prev_desc==NULL, then the convoi must be able to lead a convoi
  * @author prissi
  */
-const vehikel_desc_t *vehikelbauer_t::get_best_matching( waytype_t wt, const uint16 month_now, const uint32 target_weight, const uint32 target_power, const sint32 target_speed, const ware_desc_t * target_freight, bool not_obsolete, const vehikel_desc_t *prev_veh, bool is_last )
+const vehikel_desc_t *vehicle_builder_t::get_best_matching( waytype_t wt, const uint16 month_now, const uint32 target_weight, const uint32 target_power, const sint32 target_speed, const ware_desc_t * target_freight, bool not_obsolete, const vehikel_desc_t *prev_veh, bool is_last )
 {
 	const vehikel_desc_t *desc = NULL;
 	sint32 desc_index =- 100000;
@@ -563,7 +563,7 @@ const vehikel_desc_t *vehikelbauer_t::get_best_matching( waytype_t wt, const uin
 				{
 					// then we want this vehicle!
 					desc = test_desc;
-					DBG_MESSAGE( "vehikelbauer_t::get_best_matching","Found car %s", desc ? desc->get_name() : "null");
+					DBG_MESSAGE( "vehicle_builder_t::get_best_matching","Found car %s", desc ? desc->get_name() : "null");
 				}
 			}
 			else {
@@ -586,14 +586,14 @@ const vehikel_desc_t *vehikelbauer_t::get_best_matching( waytype_t wt, const uin
 					// then we want this vehicle!
 					desc = test_desc;
 					desc_index = current_index;
-					DBG_MESSAGE( "vehikelbauer_t::get_best_matching","Found engine %s",desc->get_name());
+					DBG_MESSAGE( "vehicle_builder_t::get_best_matching","Found engine %s",desc->get_name());
 				}
 			}
 		}
 	}
 	// no vehicle found!
 	if(  desc==NULL  ) {
-		DBG_MESSAGE( "vehikelbauer_t::get_best_matching()","could not find a suitable vehicle! (speed %i, weight %i)",target_speed,target_weight);
+		DBG_MESSAGE( "vehicle_builder_t::get_best_matching()","could not find a suitable vehicle! (speed %i, weight %i)",target_speed,target_weight);
 	}
 	return desc;
 }

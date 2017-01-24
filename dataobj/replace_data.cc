@@ -146,10 +146,10 @@ bool replace_data_t::sscanf_replace(const char *ptr)
 		}
 		vehicle_name[n] = '\0';
 		
-		const vehikel_desc_t* desc = vehikelbauer_t::get_info(vehicle_name);
+		const vehikel_desc_t* desc = vehicle_builder_t::get_info(vehicle_name);
 		if(desc == NULL) 
 		{
-			desc = vehikelbauer_t::get_info(translator::compatibility_name(vehicle_name));
+			desc = vehicle_builder_t::get_info(translator::compatibility_name(vehicle_name));
 		}
 		if(desc == NULL)
 		{
@@ -196,10 +196,10 @@ void replace_data_t::rdwr(loadsave_t *file)
 		{
 			char vehicle_name[256];
 			file->rdwr_str(vehicle_name, 256);
-			const vehikel_desc_t* desc = vehikelbauer_t::get_info(vehicle_name);
+			const vehikel_desc_t* desc = vehicle_builder_t::get_info(vehicle_name);
 			if(desc == NULL) 
 			{
-				desc = vehikelbauer_t::get_info(translator::compatibility_name(vehicle_name));
+				desc = vehicle_builder_t::get_info(translator::compatibility_name(vehicle_name));
 			}
 			if(desc == NULL)
 			{

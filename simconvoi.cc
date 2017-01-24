@@ -1681,7 +1681,7 @@ void convoi_t::step()
 								{
 									if(replace->get_replacing_vehicle(i) == vehicle[j]->get_desc()->get_upgrades(c))
 									{
-										veh = vehikelbauer_t::build(get_pos(), get_owner(), NULL, replace->get_replacing_vehicle(i), true);
+										veh = vehicle_builder_t::build(get_pos(), get_owner(), NULL, replace->get_replacing_vehicle(i), true);
 										upgrade_vehicle(j, veh);
 										remove_vehikel_bei(j);
 										goto end_loop;
@@ -4196,10 +4196,10 @@ void convoi_t::rdwr(loadsave_t *file)
 					{
 						char vehicle_name[256];
 						file->rdwr_str(vehicle_name, 256);
-						const vehikel_desc_t* desc = vehikelbauer_t::get_info(vehicle_name);
+						const vehikel_desc_t* desc = vehicle_builder_t::get_info(vehicle_name);
 						if(desc == NULL)
 						{
-							desc = vehikelbauer_t::get_info(translator::compatibility_name(vehicle_name));
+							desc = vehicle_builder_t::get_info(translator::compatibility_name(vehicle_name));
 						}
 						if(desc == NULL)
 						{

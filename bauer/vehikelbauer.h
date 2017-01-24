@@ -5,8 +5,8 @@
  * (see licence.txt)
  */
 
-#ifndef vehikelbauer_t_h
-#define vehikelbauer_t_h
+#ifndef vehicle_builder_t_h
+#define vehicle_builder_t_h
 
 
 #include "../dataobj/koord3d.h"
@@ -23,14 +23,14 @@ template <class T> class slist_tpl;
 
 /**
  * Baut Fahrzeuge. Fahrzeuge sollten nicht direct instanziiert werden
- * sondern immer von einem vehikelbauer_t erzeugt werden.
+ * sondern immer von einem vehicle_builder_t erzeugt werden.
  *
  * Builds vehicles. Vehicles should not be instantiated directly,
- * but always from a vehikelbauer_t produced. (Google)
+ * but always from a vehicle_builder_t produced. (Google)
  *
  * @author Hj. Malthaner
  */
-class vehikelbauer_t
+class vehicle_builder_t
 {
 public:
 	static bool speedbonus_init(const std::string &objfilename);

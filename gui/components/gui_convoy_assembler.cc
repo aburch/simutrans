@@ -814,7 +814,7 @@ void gui_convoy_assembler_t::draw(scr_coord parent_pos)
 // add all current vehicles
 void gui_convoy_assembler_t::build_vehicle_lists()
 {
-	if(vehikelbauer_t::get_info(way_type).empty()) 
+	if(vehicle_builder_t::get_info(way_type).empty()) 
 	{
 		// there are tracks etc. but now vehicles => do nothing
 		// at least initialize some data
@@ -842,7 +842,7 @@ void gui_convoy_assembler_t::build_vehicle_lists()
 		if(electrics_vec.empty()  &&  pas_vec.empty()  &&  loks_vec.empty()  &&  waggons_vec.empty())
 		{
 			int loks = 0, waggons = 0, pax=0, electrics = 0;
-			FOR(slist_tpl<vehikel_desc_t *>, const info, vehikelbauer_t::get_info(way_type)) 
+			FOR(slist_tpl<vehikel_desc_t *>, const info, vehicle_builder_t::get_info(way_type)) 
 			{
 				if(info->get_engine_type() == vehikel_desc_t::electric  &&  (info->get_ware()==warenbauer_t::passagiere  ||  info->get_ware()==warenbauer_t::post)) 
 				{
@@ -894,7 +894,7 @@ void gui_convoy_assembler_t::build_vehicle_lists()
 		  depot_frame->update_data();
 		}
 
-		FOR(slist_tpl<vehikel_desc_t *>, const info, vehikelbauer_t::get_info(way_type)) 
+		FOR(slist_tpl<vehikel_desc_t *>, const info, vehicle_builder_t::get_info(way_type)) 
 		{
 			const vehikel_desc_t *veh = NULL;
 			if(vehicles.get_count()>0) {
@@ -1174,7 +1174,7 @@ void gui_convoy_assembler_t::image_from_convoi_list(uint nr)
 void gui_convoy_assembler_t::image_from_storage_list(gui_image_list_t::image_data_t* image_data)
 {
 	
-	const vehikel_desc_t *info = vehikelbauer_t::get_info(image_data->text);
+	const vehikel_desc_t *info = vehicle_builder_t::get_info(image_data->text);
 
 	const convoihandle_t cnv = depot_frame ? depot_frame->get_depot()->get_convoi(depot_frame->get_icnv()) : replace_frame->get_convoy();
 	
@@ -1765,7 +1765,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 	if ((sel_index != -1) && (tabs.getroffen(x-pos.x,y-pos.y))) {
 		// cursor over a vehicle in the selection list
 		const vector_tpl<gui_image_list_t::image_data_t*>& vec = (lst == &electrics ? electrics_vec : (lst == &pas ? pas_vec : (lst == &loks ? loks_vec : waggons_vec)));
-		veh_type = vehikelbauer_t::get_info(vec[sel_index]->text);
+		veh_type = vehicle_builder_t::get_info(vec[sel_index]->text);
 		if(  vec[sel_index]->lcolor == COL_RED  ||  veh_action == va_sell  ) {
 			// don't show new_vehicle_length_sb when can't actually add the highlighted vehicle, or selling from inventory
 			new_vehicle_length_sb_force_zero = true;

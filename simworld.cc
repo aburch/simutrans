@@ -1184,7 +1184,7 @@ void karte_t::distribute_cities( settings_t const * const sets, sint16 old_x, si
 			route_t verbindung;
 			vehicle_t* test_driver;
 			vehikel_desc_t test_drive_desc(road_wt, 500, vehikel_desc_t::diesel );
-			test_driver = vehikelbauer_t::build(koord3d(), players[1], NULL, &test_drive_desc);
+			test_driver = vehicle_builder_t::build(koord3d(), players[1], NULL, &test_drive_desc);
 			test_driver->set_flag( obj_t::not_on_map );
 
 			bool ready=false;
@@ -2877,9 +2877,9 @@ void karte_t::set_scale()
 	// Vehicles
 	for(int i = road_wt; i <= air_wt; i++) 
 	{
-		if(&vehikelbauer_t::get_info((waytype_t)i) != NULL)
+		if(&vehicle_builder_t::get_info((waytype_t)i) != NULL)
 		{
-			FOR(slist_tpl<vehikel_desc_t*>, & info, vehikelbauer_t::get_info((waytype_t)i))
+			FOR(slist_tpl<vehikel_desc_t*>, & info, vehicle_builder_t::get_info((waytype_t)i))
 			{
 				info->set_scale(scale_factor, get_settings().get_way_wear_power_factor_rail_type(), get_settings().get_way_wear_power_factor_road_type(), get_settings().get_standard_axle_load());
 			}
@@ -4941,7 +4941,7 @@ void karte_t::recalc_average_speed()
 	const uint32 speed_bonus_percent = get_settings().get_speed_bonus_multiplier_percent();
 	for(int i=road_wt; i<=narrowgauge_wt; i++) {
 		const int typ = i==4 ? 3 : (i-1)&7;
-		const uint32 base_speed_bonus = vehikelbauer_t::get_speedbonus( this->get_timeline_year_month(), i==4 ? air_wt : (waytype_t)i );
+		const uint32 base_speed_bonus = vehicle_builder_t::get_speedbonus( this->get_timeline_year_month(), i==4 ? air_wt : (waytype_t)i );
 		average_speed[typ] = (base_speed_bonus * speed_bonus_percent) / 100;
 	}
 
@@ -4982,7 +4982,7 @@ void karte_t::recalc_average_speed()
 			}
 			vehicle_type = translator::translate( vehicle_type );
 
-			FOR(slist_tpl<vehikel_desc_t *>, const info, vehikelbauer_t::get_info((waytype_t)i)) 
+			FOR(slist_tpl<vehikel_desc_t *>, const info, vehicle_builder_t::get_info((waytype_t)i)) 
 			{
 				const uint16 intro_month = info->get_intro_year_month();
 				if(intro_month == current_month) 
@@ -7485,7 +7485,7 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "start");
 			stadt_t::electricity_consumption_rdwr(file);
 			if(file->get_version()>102003 && (file->get_experimental_version() == 0 || file->get_experimental_version() >= 9)) 
 			{
-				vehikelbauer_t::rdwr_speedbonus(file);
+				vehicle_builder_t::rdwr_speedbonus(file);
 			}
 		}
 	}
@@ -8366,12 +8366,12 @@ DBG_MESSAGE("karte_t::load()", "init player");
 			// Finally speedbonus
 			if(file->get_version()>102003 && (file->get_experimental_version() == 0 || file->get_experimental_version() >= 9)) 
 			{
-				vehikelbauer_t::rdwr_speedbonus(file);
+				vehicle_builder_t::rdwr_speedbonus(file);
 				if (  !env_t::networkmode || env_t::server  ) {
 					if (pak_overrides) {
 						chdir( env_t::program_dir );
 						printf("stadt_t::speedbonus_init in pak dir (%s) for override of save file: ", env_t::objfilename.c_str() );
-						vehikelbauer_t::speedbonus_init( env_t::objfilename );
+						vehicle_builder_t::speedbonus_init( env_t::objfilename );
 						chdir( env_t::user_dir );
 					}
 				}
