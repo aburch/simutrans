@@ -250,10 +250,10 @@ void depot_t::upgrade_vehicle(convoihandle_t cnv, const vehikel_desc_t* vb)
 			{
 				vehicle_t* new_veh = vehikelbauer_t::build(get_pos(), get_owner(), NULL, vb, true, cnv->get_livery_scheme_index()); 
 				cnv->upgrade_vehicle(i, new_veh);
-				if(cnv->get_vehikel(i)->get_desc()->get_nachfolger_count() == 1 && cnv->get_vehikel(i)->get_desc()->get_leistung() != 0)
+				if(cnv->get_vehikel(i)->get_desc()->get_trailer_count() == 1 && cnv->get_vehikel(i)->get_desc()->get_power() != 0)
 				{
 					//We need to upgrade tenders, too.	
-					vehicle_t* new_veh_2 = vehikelbauer_t::build(get_pos(), get_owner(), NULL, new_veh->get_desc()->get_nachfolger(0), true); 
+					vehicle_t* new_veh_2 = vehikelbauer_t::build(get_pos(), get_owner(), NULL, new_veh->get_desc()->get_trailer(0), true); 
 					cnv->upgrade_vehicle(i + 1, new_veh_2);
 					// The above assumes that tenders are free, which they are in Pak128.Britain, the cost being built into the locomotive.
 					// The below ought work more accurately, but does not work properly, for some reason.
@@ -268,16 +268,16 @@ void depot_t::upgrade_vehicle(convoihandle_t cnv, const vehikel_desc_t* vb)
 					}*/					
 				}		
 				//Check whether this is a Garrett type vehicle (this is code for the exceptional case where a Garrett is upgraded to another Garrett)
-				if(cnv->get_vehikel(0)->get_desc()->get_leistung() == 0 && cnv->get_vehikel(0)->get_desc()->get_zuladung() == 0)
+				if(cnv->get_vehikel(0)->get_desc()->get_power() == 0 && cnv->get_vehikel(0)->get_desc()->get_capacity() == 0)
 				{
 					// Possible Garrett
-					const uint8 count = cnv->get_vehikel(0)->get_desc()->get_nachfolger_count();
-					if(count > 0 && cnv->get_vehikel(1)->get_desc()->get_leistung() > 0 && cnv->get_vehikel(1)->get_desc()->get_nachfolger_count() > 0)
+					const uint8 count = cnv->get_vehikel(0)->get_desc()->get_trailer_count();
+					if(count > 0 && cnv->get_vehikel(1)->get_desc()->get_power() > 0 && cnv->get_vehikel(1)->get_desc()->get_trailer_count() > 0)
 					{
 						// Garrett detected - need to upgrade all three vehicles.
-						vehicle_t* new_veh_2 = vehikelbauer_t::build(get_pos(), get_owner(), NULL, new_veh->get_desc()->get_nachfolger(0), true); 
+						vehicle_t* new_veh_2 = vehikelbauer_t::build(get_pos(), get_owner(), NULL, new_veh->get_desc()->get_trailer(0), true); 
 						cnv->upgrade_vehicle(i + 1, new_veh_2);
-						vehicle_t* new_veh_3 = vehikelbauer_t::build(get_pos(), get_owner(), NULL, new_veh->get_desc()->get_nachfolger(0), true); 
+						vehicle_t* new_veh_3 = vehikelbauer_t::build(get_pos(), get_owner(), NULL, new_veh->get_desc()->get_trailer(0), true); 
 						cnv->upgrade_vehicle(i + 2, new_veh_3);
 					}
 				}
@@ -554,11 +554,11 @@ bool depot_t::start_convoi(convoihandle_t cnv, bool local_execution)
 			cnv->get_schedule()->advance();
 		}
 
-		bool convoy_unpowered = cnv->get_sum_leistung() == 0 || cnv->calc_max_speed(cnv->get_weight_summary()) == 0;
+		bool convoy_unpowered = cnv->get_sum_power() == 0 || cnv->calc_max_speed(cnv->get_weight_summary()) == 0;
 
 		if(convoy_unpowered)
 		{
-			// HACK: Not sure what is causing the basic problem with cnv->get_sum_leistung() reporting 0 with some very large aircraft (currently only 747s).
+			// HACK: Not sure what is causing the basic problem with cnv->get_sum_power() reporting 0 with some very large aircraft (currently only 747s).
 
 			bool power = false;
 			bool speed = false;
@@ -566,7 +566,7 @@ bool depot_t::start_convoi(convoihandle_t cnv, bool local_execution)
 			const uint8 number_of_vehicles = cnv->get_vehicle_count();
 			for(uint8 i = 0; i < number_of_vehicles; i++)
 			{
-				if(cnv->get_vehikel(i)->get_desc()->get_leistung())
+				if(cnv->get_vehikel(i)->get_desc()->get_power())
 				{
 					power = true;
 				}

@@ -445,27 +445,27 @@ private:
 	sint16 steps_driven;
 
 	/**
-	* Gesamtleistung. Wird nicht gespeichert, sondern aus den Einzelleistungen
+	* Gesamtpower. Wird nicht gespeichert, sondern aus den Einzelpoweren
 	* errechnet.
 	* @author Hj. Malthaner
 	*/
-	//uint32 sum_leistung;
+	//uint32 sum_power;
 
 	/**
-	* Gesamtleistung mit Gear. Wird nicht gespeichert, sondern aus den Einzelleistungen
+	* Gesamtpower mit Gear. Wird nicht gespeichert, sondern aus den Einzelpoweren
 	* errechnet.
 	* @author prissi
 	*/
-	//sint32 sum_gear_und_leistung;
+	//sint32 sum_gear_and_power;
 
-	/* sum_gewicht: leergewichte aller vehicles *
-	* sum_gesamtgewicht: gesamtgewichte aller vehicles *
-	* Werden nicht gespeichert, sondern aus den Einzelgewichten
+	/* sum_weight: leerweighte aller vehicles *
+	* sum_gesamtweight: gesamtweighte aller vehicles *
+	* Werden nicht gespeichert, sondern aus den Einzelweighten
 	* errechnet beim beladen/fahren.
 	* @author Hj. Malthaner, prissi
 	*/
-	//sint64 sum_gewicht;
-	//sint64 sum_gesamtgewicht;
+	//sint64 sum_weight;
+	//sint64 sum_gesamtweight;
 
 	// cached values
 	// will be recalculated if
@@ -1032,20 +1032,20 @@ public:
 	 * @return total power of this convoi
 	 * @author Hj. Malthaner
 	 */
-	inline uint32 get_sum_leistung() {return get_continuous_power();}
+	inline uint32 get_sum_power() {return get_continuous_power();}
 	inline sint32 get_min_top_speed() {return get_vehicle_summary().max_sim_speed;}
 
 	/// @returns weight of the convoy's vehicles (excluding freight)
-	inline sint64 get_sum_gewicht() {return get_vehicle_summary().weight;}
+	inline sint64 get_sum_weight() {return get_vehicle_summary().weight;}
 
 	/// @returns weight of convoy including freight
-	//inline const sint64 & get_sum_gesamtgewicht() const {return sum_gesamtgewicht;}
+	//inline const sint64 & get_sum_gesamtweight() const {return sum_gesamtweight;}
 
 	/** Get power index in kW multiplied by gear.
 	 * Get effective power in kW by dividing by GEAR_FACTOR, which is 64.
 	 * @author Bernd Gabriel, Nov, 14 2009
 	 */
-	//inline const sint32 & get_power_index() { return sum_gear_und_leistung; }
+	//inline const sint32 & get_power_index() { return sum_gear_and_power; }
 
 	uint32 get_length() const;
 

@@ -70,9 +70,9 @@ uint32 vehikel_desc_t::get_adjusted_monthly_fixed_cost(karte_t *welt) const
  */
 float32e8_t vehikel_desc_t::get_power_force_ratio() const
 {
-	if (leistung != 0 && tractive_effort != 0)
+	if (power != 0 && tractive_effort != 0)
 	{
-		return float32e8_t(leistung, (uint32) tractive_effort);
+		return float32e8_t(power, (uint32) tractive_effort);
 	}
 
 	static const float32e8_t half_of_kmh_to_ms(10, 36 * 2);
@@ -152,7 +152,7 @@ void vehikel_desc_t::loaded()
 	static const float32e8_t gear_factor((uint32)GEAR_FACTOR); 
 	float32e8_t power_force_ratio = get_power_force_ratio();
 	force_threshold_playerseed = (uint16)(power_force_ratio + float32e8_t::half);
-	float32e8_t g_power = float32e8_t(leistung) * (/*(uint32) 1000L * */ (uint32)gear);
+	float32e8_t g_power = float32e8_t(power) * (/*(uint32) 1000L * */ (uint32)gear);
 	float32e8_t g_force = float32e8_t(tractive_effort) * (/*(uint32) 1000L * */ (uint32)gear);
 	if (g_power != 0)
 	{
@@ -239,15 +239,15 @@ uint16 vehikel_desc_t::get_obsolete_year_month(const karte_t *welt) const
 void vehikel_desc_t::calc_checksum(checksum_t *chk) const
 {
 	obj_desc_transport_related_t::calc_checksum(chk);
-	chk->input(zuladung);
-	chk->input(gewicht);
-	chk->input(leistung);
+	chk->input(capacity);
+	chk->input(weight);
+	chk->input(power);
 	chk->input(running_cost);
 	chk->input(base_fixed_cost);
 	chk->input(gear);
 	chk->input(len);
-	chk->input(vorgaenger);
-	chk->input(nachfolger);
+	chk->input(leader_count);
+	chk->input(trailer_count);
 	chk->input(engine_type);
 	// freight
 	const xref_desc_t *xref = get_child<xref_desc_t>(2);
@@ -256,7 +256,7 @@ void vehikel_desc_t::calc_checksum(checksum_t *chk) const
 	// vehicle constraints
 	// For some reason, this records false mismatches with a few
 	// vehicles when names are used. Use  numbers instead.
-	/*for(uint8 i=0; i<vorgaenger+nachfolger; i++) {
+	/*for(uint8 i=0; i<leader_count+trailer_count; i++) {
 		const xref_desc_t *xref = get_child<xref_desc_t>(6+i);
 		chk->input(xref ? xref->get_name() : "NULL");
 	}*/

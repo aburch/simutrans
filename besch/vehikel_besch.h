@@ -109,10 +109,10 @@ public:
 private:
 	uint32 upgrade_price;		// Price if this vehicle is bought as an upgrade, not a new vehicle.
 	uint32 base_upgrade_price;  // Upgrade price (without scale factor)
-	uint16 zuladung;			// Payload
+	uint16 capacity;			// Payload
 	uint16 overcrowded_capacity; // The capacity of a vehicle if overcrowded (usually expressed as the standing capacity).
-	uint32 gewicht;				// Weight in kg
-	uint32 leistung;			// Power in kW
+	uint32 weight;				// Weight in kg
+	uint32 power;			// Power in kW
 	uint16 running_cost;		// Per kilometre cost
 	uint32 fixed_cost;			// Monthly cost @author: jamespetts, April 2009
 	uint32 base_fixed_cost;		// Monthly cost (without scale factor)
@@ -122,8 +122,8 @@ private:
 	uint8 len;					// length (=8 is half a tile, the old default)
 	sint8 sound;
 
-	uint8 vorgaenger;			// all defined leading vehicles
-	uint8 nachfolger;			// all defined trailer
+	uint8 leader_count;			// all defined leading vehicles
+	uint8 trailer_count;			// all defined trailer
 	uint8 upgrades;				// The number of vehicles that are upgrades of this vehicle.
 
 	uint8 engine_type;			// diesel, steam, electric (requires electrified ways), fuel_cell, etc.
@@ -181,7 +181,7 @@ private:
 	// these values are not stored and therefore calculated in loaded():
 	// they are arrays having one element per speed in m/s:
 	uint32 max_speed;     // @author: Bernd Gabriel, May 27, 2012: length of the geared_* arrays (== maximum speed in m/s)
-	uint32 *geared_power; // @author: Bernd Gabriel, Nov  4, 2009: == leistung * gear in W
+	uint32 *geared_power; // @author: Bernd Gabriel, Nov  4, 2009: == power * gear in W
 	uint32 *geared_force; // @author: Bernd Gabriel, Dec 12, 2009: == tractive_effort * gear in N
 	/**
 	 * force threshold speed in km/h.
@@ -228,15 +228,15 @@ public:
 	// default vehicle (used for way seach and similar tasks)
 	// since it has no images and not even a name knot any calls to this will case a crash
 	vehikel_desc_t(uint8 wtyp, uint16 speed, engine_t engine, uint16 al = 0, uint32 weight = 1) : geared_power(0), geared_force(0) {
-		freight_image_type = livery_image_type = cost = upgrade_price = zuladung = overcrowded_capacity = running_cost = intro_date = vorgaenger = nachfolger = catering_level = upgrades = 0;
+		freight_image_type = livery_image_type = cost = upgrade_price = capacity = overcrowded_capacity = running_cost = intro_date = leader_count = trailer_count = catering_level = upgrades = 0;
 		fixed_cost = DEFAULT_FIXED_VEHICLE_MAINTENANCE;
-		leistung = comfort = 1;
+		power = comfort = 1;
 		gear = GEAR_FACTOR;
 		len = 8;
 		sound = -1;
 		wt = wtyp;
 		axle_load = al;
-		gewicht = weight;
+		weight = weight;
 		engine_type = (uint8)engine;
 		topspeed = speed;
 		is_tilting = bidirectional = can_lead_from_rear = available_only_as_upgrade = false;
@@ -278,7 +278,7 @@ public:
 		const image_t *image=0;
 		const image_list_t *liste=0;
 
-		if(zuladung == 0 && ware)
+		if(capacity == 0 && ware)
 		{
 			ware = NULL;
 		}
@@ -292,7 +292,7 @@ public:
 				const uint8 freight_images = freight_image_type == 255 ? 1 : freight_image_type;
 				for(uint8 i = 0; i < livery_image_type; i++) 
 				{
-					if(!strcmp(livery_type, get_child<text_desc_t>(5 + nachfolger + vorgaenger + upgrades + freight_images + i)->get_text()))
+					if(!strcmp(livery_type, get_child<text_desc_t>(5 + trailer_count + leader_count + upgrades + freight_images + i)->get_text()))
 					{
 						livery_index = i;
 						break;
@@ -323,7 +323,7 @@ public:
 				// With the "default" livery, always select livery index 0
 				for(uint8 i = 0; i < livery_image_type; i++) 
 				{
-					if(!strcmp(livery_type, get_child<text_desc_t>(6 + nachfolger + vorgaenger + upgrades + i)->get_text()))
+					if(!strcmp(livery_type, get_child<text_desc_t>(6 + trailer_count + leader_count + upgrades + i)->get_text()))
 					{
 						livery_index = i;
 						break;
@@ -354,7 +354,7 @@ public:
 			for( uint8 i=0;  i<freight_image_type;  i++  ) 
 			{
 				
-				if (ware == get_child<ware_desc_t>(6 + nachfolger + vorgaenger + upgrades + i)) 
+				if (ware == get_child<ware_desc_t>(6 + trailer_count + leader_count + upgrades + i)) 
 				{
 					ware_index = i;
 					break;
@@ -383,7 +383,7 @@ public:
 
 			for( uint8 i=0;  i<freight_image_type;  i++  ) 
 			{
-				if (ware == get_child<ware_desc_t>(6 + nachfolger + vorgaenger + upgrades + i)) 
+				if (ware == get_child<ware_desc_t>(6 + trailer_count + leader_count + upgrades + i)) 
 				{
 					ware_index = i;
 					break;
@@ -394,7 +394,7 @@ public:
 			{
 				for(uint8 j = 0; j < livery_image_type; j++) 
 				{
-					if(!strcmp(livery_type, get_child<text_desc_t>(6 + nachfolger + vorgaenger + freight_image_type + upgrades + j)->get_text()))
+					if(!strcmp(livery_type, get_child<text_desc_t>(6 + trailer_count + leader_count + freight_image_type + upgrades + j)->get_text()))
 					{
 						livery_index = j;
 						break;
@@ -457,7 +457,7 @@ public:
 			for(sint8 i = 0; i < livery_image_type; i++) 
 			{
 				const uint8 freight_images = freight_image_type == 255 ? 1 : freight_image_type;
-				const char* livery_name = get_child<text_desc_t>(5 + nachfolger + vorgaenger + upgrades + freight_images + i)->get_text();
+				const char* livery_name = get_child<text_desc_t>(5 + trailer_count + leader_count + upgrades + freight_images + i)->get_text();
 				if(!strcmp(name, livery_name))
 				{
 					return true;
@@ -472,42 +472,42 @@ public:
 	}
 
 	// Liefert die erlaubten Vorgaenger.
-	// liefert get_vorgaenger(0) == NULL, so bedeutet das entweder all
+	// liefert get_leader(0) == NULL, so bedeutet das entweder all
 	// Vorgänger sind erlaubt oder keine. Um das zu unterscheiden, sollte man
 	// vorher hat_vorgaenger() befragen
 
 	// Returns allowed predecessor.
-	// provides get_vorgaenger (0) == NULL, it means that either all 
+	// provides get_leader (0) == NULL, it means that either all 
 	// predecessors are allowed or not. To distinguish, one should 
 	// predict hat_vorgaenger () question (Google)
-	const vehikel_desc_t *get_vorgaenger(int i) const
+	const vehikel_desc_t *get_leader(int i) const
 	{
-		if(i < 0 || i >= vorgaenger) {
+		if(i < 0 || i >= leader_count) {
 			return NULL;
 		}
 		return get_child<vehikel_desc_t>(get_add_to_node() + i);
 	}
 
 	// Liefert die erlaubten Nachfolger.
-	// liefert get_nachfolger(0) == NULL, so bedeutet das entweder all
+	// liefert get_trailer(0) == NULL, so bedeutet das entweder all
 	// Nachfolger sind erlaubt oder keine. Um das zu unterscheiden, sollte
 	// man vorher hat_nachfolger() befragen
-	const vehikel_desc_t *get_nachfolger(int i) const
+	const vehikel_desc_t *get_trailer(int i) const
 	{
-		if(i < 0 || i >= nachfolger) {
+		if(i < 0 || i >= trailer_count) {
 			return NULL;
 		}
-		return get_child<vehikel_desc_t>(get_add_to_node() + vorgaenger + i);
+		return get_child<vehikel_desc_t>(get_add_to_node() + leader_count + i);
 	}
 
-	int get_nachfolger_count() const { return nachfolger; }
+	int get_trailer_count() const { return trailer_count; }
 
 	/* returns true, if this veh can be before the next_veh
 	 * uses NULL to indicate end of convoi
 	 */
 	bool can_lead(const vehikel_desc_t *next_veh) const
 	{
-		if(nachfolger == 0) 
+		if(trailer_count == 0) 
 		{
 			if(can_be_at_rear)
 			{
@@ -522,8 +522,8 @@ public:
 			}
 		}
 
-		for( int i=0;  i<nachfolger;  i++  ) {
-			vehikel_desc_t const* const veh = get_child<vehikel_desc_t>(get_add_to_node() + vorgaenger + i);
+		for( int i=0;  i<trailer_count;  i++  ) {
+			vehikel_desc_t const* const veh = get_child<vehikel_desc_t>(get_add_to_node() + leader_count + i);
 			if(veh==next_veh) {
 				return true;
 			}
@@ -537,10 +537,10 @@ public:
 	 */
 	bool can_follow(const vehikel_desc_t *prev_veh) const
 	{
-		if(  vorgaenger==0  ) {
+		if(  leader_count==0  ) {
 			return true;
 		}
-		for( int i=0;  i<vorgaenger;  i++  ) 
+		for( int i=0;  i<leader_count;  i++  ) 
 		{
 			vehikel_desc_t const* const veh = get_child<vehikel_desc_t>(get_add_to_node() + i);
 			if(veh==prev_veh) 
@@ -552,7 +552,7 @@ public:
 		return false;
 	}
 
-	int get_vorgaenger_count() const { return vorgaenger; }
+	int get_leader_count() const { return leader_count; }
 
 	// Returns the vehicle types to which this vehicle type may be upgraded.
 
@@ -562,15 +562,15 @@ public:
 		{
 			return NULL;
 		}
-		return get_child<vehikel_desc_t>(get_add_to_node() + nachfolger + vorgaenger + i);
+		return get_child<vehikel_desc_t>(get_add_to_node() + trailer_count + leader_count + i);
 	}
 
 	int get_upgrades_count() const { return upgrades; }
 
-	bool can_follow_any() const { return nachfolger==0; }
+	bool can_follow_any() const { return trailer_count==0; }
 
-	uint16 get_zuladung() const { return zuladung; }
-	uint32 get_gewicht() const { return gewicht; }
+	uint16 get_capacity() const { return capacity; }
+	uint32 get_weight() const { return weight; }
 	uint16 get_running_cost() const { return running_cost; }
 	uint16 get_running_cost(const class karte_t *welt) const; //Overloaded method - includes increase for obsolescence.
 	uint32 get_fixed_cost() const { return fixed_cost; }
@@ -581,8 +581,8 @@ public:
 	bool get_can_lead_from_rear() const { return can_lead_from_rear; }
 	uint8 get_comfort() const { return comfort; }
 	uint16 get_overcrowded_capacity() const { return overcrowded_capacity; }
-	uint32 get_min_loading_time() const { return zuladung > 0 ? min_loading_time : 0; }
-	uint32 get_max_loading_time() const { return zuladung > 0 ? max_loading_time : 0; }
+	uint32 get_min_loading_time() const { return capacity > 0 ? min_loading_time : 0; }
+	uint32 get_max_loading_time() const { return capacity > 0 ? max_loading_time : 0; }
 	uint32 get_upgrade_price() const { return upgrade_price; }
 	bool is_available_only_as_upgrade() const { return available_only_as_upgrade; }
 
@@ -629,11 +629,11 @@ public:
 	uint32 calc_max_power(const uint32 force) const { 
 		return force ? (uint32)(force * get_power_force_ratio()) : 0; 
 	}
-	uint32 get_leistung() const { 
-		return leistung ? leistung : calc_max_power(tractive_effort); 
+	uint32 get_power() const { 
+		return power ? power : calc_max_power(tractive_effort); 
 	}
 	uint32 get_tractive_effort() const { 
-		return tractive_effort ? tractive_effort : calc_max_force(leistung);
+		return tractive_effort ? tractive_effort : calc_max_force(power);
 	}
 
 	uint16 get_brake_force() const { return brake_force; }
@@ -769,12 +769,12 @@ public:
 			};
 			if(power > 0)
 			{
-				uint32 axles = axle_load ? (gewicht / axle_load) / 1000 : 1; // Weight is in kg.
+				uint32 axles = axle_load ? (weight / axle_load) / 1000 : 1; // Weight is in kg.
 				axles = max(axles, 1);
 			
 				float32e8_t adjusted_standard_axle((uint32)axle_load, (uint32)standard_axle_load);
 				const float32e8_t adjusted_standard_axle_original = adjusted_standard_axle;
-				float32e8_t adjusted_standard_axle_extra((uint32)gewicht % (uint32)axles); 
+				float32e8_t adjusted_standard_axle_extra((uint32)weight % (uint32)axles); 
 				adjusted_standard_axle_extra /= float32e8_t((uint32)1000, (uint32)1);
 				const float32e8_t adjusted_standard_axle_original_extra = adjusted_standard_axle_extra;
 
@@ -787,7 +787,7 @@ public:
 				// Add estimate of hammer blow for steam locomotives
 				// See http://www.archive.org/stream/steelrailstheir02sellgoog/steelrailstheir02sellgoog_djvu.txt pp. 70-72 for details of this formula.
 				// This assumes a 2 cylinder locomotive.
-				if((get_waytype() == track_wt || get_waytype() == narrowgauge_wt) && leistung > 0 && engine_type == steam)
+				if((get_waytype() == track_wt || get_waytype() == narrowgauge_wt) && power > 0 && engine_type == steam)
 				{
 					if(axle_load < 11)
 					{

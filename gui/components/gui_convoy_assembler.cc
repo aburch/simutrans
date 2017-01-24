@@ -693,7 +693,7 @@ void gui_convoy_assembler_t::draw(scr_coord parent_pos)
 			const ware_desc_t* const ware = desc->get_ware();
 
 			total_cost += desc->get_preis();
-			total_power += desc->get_leistung();
+			total_power += desc->get_power();
 			total_force += desc->get_tractive_effort();
  			maint_per_km += desc->get_running_cost();
  			maint_per_month += desc->get_adjusted_monthly_fixed_cost(welt);
@@ -701,16 +701,16 @@ void gui_convoy_assembler_t::draw(scr_coord parent_pos)
 
 			switch(  ware->get_catg_index()  ) {
 				case warenbauer_t::INDEX_PAS: {
-					total_pax += desc->get_zuladung();
+					total_pax += desc->get_capacity();
 					total_standing_pax += desc->get_overcrowded_capacity();
 					break;
 				}
 				case warenbauer_t::INDEX_MAIL: {
-					total_mail += desc->get_zuladung();
+					total_mail += desc->get_capacity();
 					break;
 				}
 				default: {
-					total_goods += desc->get_zuladung();
+					total_goods += desc->get_capacity();
 					break;
 				}
 			}
@@ -852,7 +852,7 @@ void gui_convoy_assembler_t::build_vehicle_lists()
 				{
 					pax++;
 				}
-				else if(info->get_leistung() > 0  ||  info->get_zuladung()==0) 
+				else if(info->get_power() > 0  ||  info->get_capacity()==0) 
 				{
 					loks++;
 				}
@@ -985,7 +985,7 @@ void gui_convoy_assembler_t::build_vehicle_lists()
 					const bool correct_traction_type = !depot_frame || (shifter & depot_frame->get_depot()->get_tile()->get_desc()->get_enabled());
 					const weg_t* way = depot_frame ? welt->lookup(depot_frame->get_depot()->get_pos())->get_weg(depot_frame->get_depot()->get_waytype()) : NULL;
 					const bool correct_way_constraint = !way || missing_way_constraints_t(info->get_way_constraints(), way->get_way_constraints()).check_next_tile();
-					if(!correct_way_constraint || (!correct_traction_type && (info->get_leistung() > 0 || (veh_action == va_insert && info->get_vorgaenger_count() == 1 && info->get_vorgaenger(0) && info->get_vorgaenger(0)->get_leistung() > 0))))
+					if(!correct_way_constraint || (!correct_traction_type && (info->get_power() > 0 || (veh_action == va_insert && info->get_leader_count() == 1 && info->get_leader(0) && info->get_leader(0)->get_power() > 0))))
 					{
 						append = false;
 					}
@@ -1029,7 +1029,7 @@ void gui_convoy_assembler_t::add_to_vehicle_list(const vehikel_desc_t *info)
 	// Check if vehicle should be filtered
 	const ware_desc_t *freight = info->get_ware();
 	// Only filter when required and never filter engines
-	if (selected_filter > 0 && info->get_zuladung() > 0) 
+	if (selected_filter > 0 && info->get_capacity() > 0) 
 	{
 		if (selected_filter == VEHICLE_FILTER_RELEVANT) 
 		{
@@ -1120,7 +1120,7 @@ void gui_convoy_assembler_t::add_to_vehicle_list(const vehikel_desc_t *info)
 		pas_vec.append(img_data);
 		vehicle_map.set(info, pas_vec.back());
 	}
-	else if(info->get_leistung() > 0  || (info->get_zuladung()==0  && (info->get_vorgaenger_count() > 0 || info->get_nachfolger_count() > 0)))
+	else if(info->get_power() > 0  || (info->get_capacity()==0  && (info->get_leader_count() > 0 || info->get_trailer_count() > 0)))
 	{
 		loks_vec.append(img_data);
 		vehicle_map.set(info, loks_vec.back());
@@ -1150,7 +1150,7 @@ void gui_convoy_assembler_t::image_from_convoi_list(uint nr)
 			while(start_nr>0) {
 				start_nr --;
 				const vehikel_desc_t *info = cnv->get_vehikel(start_nr)->get_desc();
-				if(info->get_nachfolger_count()!=1) {
+				if(info->get_trailer_count()!=1) {
 					start_nr ++;
 					break;
 				}
@@ -1459,7 +1459,7 @@ void gui_convoy_assembler_t::update_data()
 						img.rcolor = COL_DARK_ORANGE;
 					}
 				}
-				if(depot_frame && (i.key->get_leistung() > 0 || veh_action == va_insert && i.key->get_vorgaenger_count() == 1 && i.key->get_vorgaenger(0) && i.key->get_vorgaenger(0)->get_leistung() > 0))
+				if(depot_frame && (i.key->get_power() > 0 || veh_action == va_insert && i.key->get_leader_count() == 1 && i.key->get_leader(0) && i.key->get_leader(0)->get_power() > 0))
 				{
 					const uint16 traction_type = i.key->get_engine_type();
 					const uint16 shifter = 1 << traction_type;
@@ -1827,14 +1827,14 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 
 		int n = sprintf(buf, "%s", translator::translate(veh_type->get_name(),welt->get_settings().get_name_language_id()));
 
-		if(  veh_type->get_leistung() > 0 ) { // LOCO
+		if(  veh_type->get_power() > 0 ) { // LOCO
 			n += sprintf( buf + n, " (%s)\n", translator::translate( engine_type_names[veh_type->get_engine_type()+1] ) );
 		}
 		else {
 			n += sprintf( buf + n, "\n");
 		}
 
-		if(veh_type->get_leistung() > 0) 
+		if(veh_type->get_power() > 0) 
 		{  
 			// LOCO
 			sint32 friction = convoy.get_current_friction();
@@ -1872,9 +1872,9 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 		{
 			cap[0] = '\0';
 		}
-		if(  veh_type->get_zuladung() > 0  ) { // Standard translation is "Capacity: %3d%s %s\n", as Standard has no overcrowding
+		if(  veh_type->get_capacity() > 0  ) { // Standard translation is "Capacity: %3d%s %s\n", as Standard has no overcrowding
 			n += sprintf(buf + n, translator::translate("Capacity: %3d %s%s %s\n"),
-				veh_type->get_zuladung(),
+				veh_type->get_capacity(),
 				cap,
 				translator::translate( veh_type->get_ware()->get_mass() ),
 				veh_type->get_ware()->get_catg()==0 ? translator::translate( veh_type->get_ware()->get_name() ) : translator::translate( veh_type->get_ware()->get_catg_name() )
@@ -1884,15 +1884,15 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 			n += sprintf( buf + n, "\n");
 		}
 
-		if(  veh_type->get_leistung() > 0  ) { // LOCO
+		if(  veh_type->get_power() > 0  ) { // LOCO
 			// Standard translation is "Power: %4d kW\n", as Standard has no tractive effort
-			n += sprintf( buf + n, translator::translate("Power/tractive force: %4d kW / %d kN\n"), veh_type->get_leistung(), veh_type->get_tractive_effort());
+			n += sprintf( buf + n, translator::translate("Power/tractive force: %4d kW / %d kN\n"), veh_type->get_power(), veh_type->get_tractive_effort());
 		}
 		else {
 			n += sprintf( buf + n, "\n");
 		}
 
-		n += sprintf( buf + n, "%s %4.1ft\n", translator::translate("Weight:"), veh_type->get_gewicht() / 1000.0 ); // Convert kg to tonnes
+		n += sprintf( buf + n, "%s %4.1ft\n", translator::translate("Weight:"), veh_type->get_weight() / 1000.0 ); // Convert kg to tonnes
 		if(veh_type->get_waytype() != water_wt)
 		{
 			n += sprintf( buf + n, "%s %it\n", translator::translate("Axle load:"), veh_type->get_axle_load()); // Experimental only
@@ -1902,7 +1902,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 			n += sprintf( buf + n, "\n");
 		}
 		n += sprintf( buf + n, "%s %4.1fkN\n", translator::translate("Max. brake force:"), convoy.get_braking_force().to_double() / 1000.0); // Experimental only
-		n += sprintf( buf + n, "%s %4.3fkN\n", translator::translate("Rolling resistance:"), veh_type->get_rolling_resistance().to_double() * (double)veh_type->get_gewicht() / 1000.0); // Experimental only
+		n += sprintf( buf + n, "%s %4.3fkN\n", translator::translate("Rolling resistance:"), veh_type->get_rolling_resistance().to_double() * (double)veh_type->get_weight() / 1000.0); // Experimental only
 		
 		n += sprintf( buf + n, "%s %3d km/h", translator::translate("Max. speed:"), veh_type->get_geschw() );
 
@@ -1948,7 +1948,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 			n += sprintf( buf + n, "\n");
 		}
 
-		if(veh_type->get_zuladung() > 0)
+		if(veh_type->get_capacity() > 0)
 		{
 			char min_loading_time_as_clock[32];
 			char max_loading_time_as_clock[32];
@@ -2023,7 +2023,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 			n += sprintf(buf + n, "%s: %i m \n", translator::translate("Minimum runway length"), veh_type->get_minimum_runway_length());
 		}
 
-		if(  veh_type->get_leistung() > 0  &&  veh_type->get_gear() != 64  ) {
+		if(  veh_type->get_power() > 0  &&  veh_type->get_gear() != 64  ) {
 			n += sprintf( buf + n, "%s %0.2f : 1\n", translator::translate("Gear:"), veh_type->get_gear() / 64.0 );
 		}
 		else {

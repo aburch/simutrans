@@ -513,7 +513,7 @@ public:
 	/**
 	* Get the maximum capacity
 	*/
-	uint16 get_cargo_max() const {return desc->get_zuladung(); }
+	uint16 get_cargo_max() const {return desc->get_capacity(); }
 
 	const char * get_cargo_mass() const;
 

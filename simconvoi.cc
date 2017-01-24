@@ -119,7 +119,7 @@ static const char * state_names[convoi_t::MAX_STATES] =
 void convoi_t::reset()
 {
 	is_electric = false;
-	//sum_gesamtgewicht = sum_gewicht = 0;
+	//sum_gesamtweight = sum_weight = 0;
 	previous_delta_v = 0;
 
 	withdraw = false;
@@ -2182,7 +2182,7 @@ uint8 convoi_t::get_comfort() const
 		if(vehicle[i]->get_cargo_type()->get_catg_index() == 0)
 		{
 			passenger_vehicles ++;
-			capacity = vehicle[i]->get_desc()->get_zuladung();
+			capacity = vehicle[i]->get_desc()->get_capacity();
 			comfort += vehicle[i]->get_comfort(catering_level) * capacity;
 			passenger_seating += capacity;
 		}
@@ -2568,19 +2568,19 @@ DBG_MESSAGE("convoi_t::add_vehikel()","extend array_tpl to %i totals.",max_rail_
 
 
 		const vehikel_desc_t *info = v->get_desc();
-		if(info->get_leistung()) {
+		if(info->get_power()) {
 			is_electric |= info->get_engine_type()==vehikel_desc_t::electric;
 		}
-		//sum_leistung += info->get_leistung();
+		//sum_power += info->get_power();
 		//if(info->get_engine_type() == vehikel_desc_t::steam)
 		//{
-		//	power_from_steam += info->get_leistung();
-		//	power_from_steam_with_gear += info->get_leistung() * info->get_gear() *welt->get_settings().get_global_power_factor();
+		//	power_from_steam += info->get_power();
+		//	power_from_steam_with_gear += info->get_power() * info->get_gear() *welt->get_settings().get_global_power_factor();
 		//}
-		//sum_gear_und_leistung += (info->get_leistung() * info->get_gear() *welt->get_settings().get_global_power_factor_percent() + 50) / 100;
-		//sum_gewicht += info->get_gewicht();
+		//sum_gear_and_power += (info->get_power() * info->get_gear() *welt->get_settings().get_global_power_factor_percent() + 50) / 100;
+		//sum_weight += info->get_weight();
 		//min_top_speed = min( min_top_speed, kmh_to_speed( v->get_desc()->get_geschw() ) );
-		//sum_gesamtgewicht = sum_gewicht;
+		//sum_gesamtweight = sum_weight;
 		calc_loading();
 		invalidate_vehicle_summary();
 		freight_info_resort = true;
@@ -2655,29 +2655,29 @@ DBG_MESSAGE("convoi_t::upgrade_vehicle()","at pos %i of %i totals.",i,max_vehicl
 	if(is_electric) {
 		is_electric = false;
 		for(unsigned i=0; i<anz_vehikel; i++) {
-			if(vehicle[i]->get_desc()->get_leistung()) {
+			if(vehicle[i]->get_desc()->get_power()) {
 				is_electric |= vehicle[i]->get_desc()->get_engine_type()==vehikel_desc_t::electric;
 			}
 		}
 	}
 
-	if(info->get_leistung()) {
+	if(info->get_power()) {
 		is_electric |= info->get_engine_type()==vehikel_desc_t::electric;
 	}
 
 	//min_top_speed = calc_min_top_speed(tdriver, anz_vehikel);
 
 	// Add power and weight of the new vehicle
-	//sum_leistung += info->get_leistung();
-	//sum_gear_und_leistung += (info->get_leistung() * info->get_gear() *welt->get_settings().get_global_power_factor_percent() + 50) / 100;
-	//sum_gewicht += info->get_gewicht();
-	//sum_gesamtgewicht = sum_gewicht;
+	//sum_power += info->get_power();
+	//sum_gear_and_power += (info->get_power() * info->get_gear() *welt->get_settings().get_global_power_factor_percent() + 50) / 100;
+	//sum_weight += info->get_weight();
+	//sum_gesamtweight = sum_weight;
 
 	// Remove power and weight of the old vehicle
 	//info = old_vehicle->get_desc();
-	//sum_leistung -= info->get_leistung();
-	//sum_gear_und_leistung -= (info->get_leistung() * info->get_gear() *welt->get_settings().get_global_power_factor_percent() + 50) / 100;
-	//sum_gewicht -= info->get_gewicht();
+	//sum_power -= info->get_power();
+	//sum_gear_and_power -= (info->get_power() * info->get_gear() *welt->get_settings().get_global_power_factor_percent() + 50) / 100;
+	//sum_weight -= info->get_weight();
 
 	calc_loading();
 	invalidate_vehicle_summary();
@@ -2724,13 +2724,13 @@ vehicle_t *convoi_t::remove_vehikel_bei(uint16 i)
 			recalc_catg_index();
 
 			//const vehikel_desc_t *info = v->get_desc();
-			//sum_leistung -= info->get_leistung();
-			//sum_gear_und_leistung -= (info->get_leistung() * info->get_gear() *welt->get_settings().get_global_power_factor_percent() + 50) / 100;
-			//sum_gewicht -= info->get_gewicht();
+			//sum_power -= info->get_power();
+			//sum_gear_and_power -= (info->get_power() * info->get_gear() *welt->get_settings().get_global_power_factor_percent() + 50) / 100;
+			//sum_weight -= info->get_weight();
 			//sum_running_costs += info->get_operating_cost();
 			//player_t::add_maintenance( get_owner(), -info->get_maintenance(), info->get_waytype() );
 		}
-		//sum_gesamtgewicht = sum_gewicht;
+		//sum_gesamtweight = sum_weight;
 		calc_loading();
 		invalidate_vehicle_summary();
 		freight_info_resort = true;
@@ -2754,7 +2754,7 @@ vehicle_t *convoi_t::remove_vehikel_bei(uint16 i)
 		if(is_electric) {
 			is_electric = false;
 			for(unsigned i=0; i<anz_vehikel; i++) {
-				if(vehicle[i]->get_desc()->get_leistung()) {
+				if(vehicle[i]->get_desc()->get_power()) {
 					is_electric |= vehicle[i]->get_desc()->get_engine_type()==vehikel_desc_t::electric;
 				}
 			}
@@ -3427,10 +3427,10 @@ void convoi_t::reverse_order(bool rev)
 		}
 
 		a++;
-		if(front()->get_desc()->get_leistung() > 0)
+		if(front()->get_desc()->get_power() > 0)
 		{
 			// If this is a locomotive, check for tenders/pair units.
-			if (front()->get_desc()->get_nachfolger_count() > 0 && vehicle[1]->get_desc()->get_vorgaenger_count() > 0)
+			if (front()->get_desc()->get_trailer_count() > 0 && vehicle[1]->get_desc()->get_leader_count() > 0)
 			{
 				a ++;
 			}
@@ -3438,16 +3438,16 @@ void convoi_t::reverse_order(bool rev)
 			// Check for double-headed (and triple headed, etc.) tender locomotives
 			uint8 first = a;
 			uint8 second = a + 1;
-			while(anz_vehikel > second && (vehicle[first]->get_desc()->get_leistung() > 0 || vehicle[second]->get_desc()->get_leistung() > 0))
+			while(anz_vehikel > second && (vehicle[first]->get_desc()->get_power() > 0 || vehicle[second]->get_desc()->get_power() > 0))
 			{
-				if(vehicle[first]->get_desc()->get_nachfolger_count() > 0 && vehicle[second]->get_desc()->get_vorgaenger_count() > 0)
+				if(vehicle[first]->get_desc()->get_trailer_count() > 0 && vehicle[second]->get_desc()->get_leader_count() > 0)
 				{
 					a ++;
 				}
 				first++;
 				second++;
 			}
-			if (anz_vehikel > 1 && vehicle[1]->get_desc()->get_leistung() == 0 && vehicle[1]->get_desc()->get_nachfolger_count() == 1 && vehicle[1]->get_desc()->get_nachfolger(0) && vehicle[1]->get_desc()->get_nachfolger(0)->get_leistung() == 0 && vehicle[1]->get_desc()->get_nachfolger(0)->get_preis() == 0)
+			if (anz_vehikel > 1 && vehicle[1]->get_desc()->get_power() == 0 && vehicle[1]->get_desc()->get_trailer_count() == 1 && vehicle[1]->get_desc()->get_trailer(0) && vehicle[1]->get_desc()->get_trailer(0)->get_power() == 0 && vehicle[1]->get_desc()->get_trailer(0)->get_preis() == 0)
 			{
 				// Multiple tenders or Garretts with powered front units.
 				a ++;
@@ -3455,11 +3455,11 @@ void convoi_t::reverse_order(bool rev)
 		}
 
 		// Check whether this is a Garrett type vehicle (with unpowered front units).
-		if(vehicle[0]->get_desc()->get_leistung() == 0 && vehicle[0]->get_desc()->get_zuladung() == 0)
+		if(vehicle[0]->get_desc()->get_power() == 0 && vehicle[0]->get_desc()->get_capacity() == 0)
 		{
 			// Possible Garrett
-			const uint8 count = front()->get_desc()->get_nachfolger_count();
-			if(count > 0 && vehicle[1]->get_desc()->get_leistung() > 0 && vehicle[1]->get_desc()->get_nachfolger_count() > 0)
+			const uint8 count = front()->get_desc()->get_trailer_count();
+			if(count > 0 && vehicle[1]->get_desc()->get_power() > 0 && vehicle[1]->get_desc()->get_trailer_count() > 0)
 			{
 				// Garrett detected
 				a ++;
@@ -3475,7 +3475,7 @@ void convoi_t::reverse_order(bool rev)
 
 		for(uint8 i = 1; i < anz_vehikel; i++)
 		{
-			if(vehicle[i]->get_desc()->get_leistung() > 0)
+			if(vehicle[i]->get_desc()->get_power() > 0)
 			{
 				a++;
 			}
@@ -3693,9 +3693,9 @@ void convoi_t::rdwr(loadsave_t *file)
 			// game with a different vehicle.tab, there might be no vehicle
 			// info
 			if(info) {
-				//sum_leistung += info->get_leistung();
-				//sum_gear_und_leistung += (info->get_leistung() * info->get_gear() *welt->get_settings().get_global_power_factor_percent() + 50) / 100;
-				//sum_gewicht += info->get_gewicht();
+				//sum_power += info->get_power();
+				//sum_gear_and_power += (info->get_power() * info->get_gear() *welt->get_settings().get_global_power_factor_percent() + 50) / 100;
+				//sum_weight += info->get_weight();
 				has_obsolete |= welt->use_timeline()  &&  info->is_retired( welt->get_timeline_year_month() );
 				is_electric |= info->get_engine_type()==vehikel_desc_t::electric;
 				player_t::add_maintenance( get_owner(), info->get_maintenance(), info->get_waytype() );
@@ -3744,7 +3744,7 @@ void convoi_t::rdwr(loadsave_t *file)
 			// add to convoi
 			vehicle[i] = v;
 		}
-		//sum_gesamtgewicht = sum_gewicht;
+		//sum_gesamtweight = sum_weight;
 	}
 
 	bool has_fpl = (schedule != NULL);
@@ -4668,9 +4668,9 @@ void convoi_t::info(cbuffer_t & buf) const
 
 		buf.printf("\n %d/%dkm/h (%1.2f$/km)\n", speed_to_kmh(min_top_speed), v->get_desc()->get_geschw(), get_running_cost(welt) / 100.0F);
 
-		buf.printf(" %s: %ikW\n", translator::translate("Leistung"), sum_leistung );
+		buf.printf(" %s: %ikW\n", translator::translate("Leistung"), sum_power );
 
-		buf.printf(" %s: %i (%i) t\n", translator::translate("Gewicht"), sum_gewicht, sum_gesamtgewicht-sum_gewicht );
+		buf.printf(" %s: %i (%i) t\n", translator::translate("Gewicht"), sum_weight, sum_gesamtweight-sum_weight );
 
 		buf.printf(" %s: ", translator::translate("Gewinn")  );
 
@@ -4706,7 +4706,7 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 
 			// first add to capacity indicator
 			const ware_desc_t* ware_desc = v->get_desc()->get_ware();
-			const uint16 menge = v->get_desc()->get_zuladung();
+			const uint16 menge = v->get_desc()->get_capacity();
 			if(menge>0  &&  ware_desc!=warenbauer_t::nichts) {
 				max_loaded_waren[ware_desc->get_index()] += menge;
 			}
@@ -6421,7 +6421,7 @@ DBG_MESSAGE("convoi_t::go_to_depot()","convoi state %i => cannot change schedule
 	{
 		ITERATE_PTR(replace->get_replacing_vehicles(), i)
 		{
-			if(replace->get_replacing_vehicle(i)->get_leistung() == 0)
+			if(replace->get_replacing_vehicle(i)->get_power() == 0)
 			{
 				continue;
 			}
@@ -6433,7 +6433,7 @@ DBG_MESSAGE("convoi_t::go_to_depot()","convoi state %i => cannot change schedule
 	{
 		for(uint8 i = 0; i < anz_vehikel; i ++)
 		{
-			if(vehicle[i]->get_desc()->get_leistung() == 0)
+			if(vehicle[i]->get_desc()->get_power() == 0)
 			{
 				continue;
 			}
@@ -7285,7 +7285,7 @@ void convoi_t::clear_replace()
 	uint16 total_capacity = 0;
 	for(uint8 i = 0; i < anz_vehikel; i ++)
 	{
-		total_capacity += vehicle[i]->get_desc()->get_zuladung();
+		total_capacity += vehicle[i]->get_desc()->get_capacity();
 		total_capacity += vehicle[i]->get_desc()->get_overcrowded_capacity();
 	}
 	// Multiply this by 2, as goods/passengers can both board and alight, so

@@ -101,7 +101,7 @@ void convoi_detail_t::draw(scr_coord pos, scr_size size)
 		cbuffer_t buf;
 
 		// current power
-		buf.printf(translator::translate("Leistung: %d kW"), cnv->get_sum_leistung() / 1000);
+		buf.printf(translator::translate("Leistung: %d kW"), cnv->get_sum_power() / 1000);
 		display_proportional_clip( pos.x+10, offset_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true );
 		offset_y += LINESPACE;
 
@@ -385,10 +385,10 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 			extra_y += LINESPACE;
 
 			// power, tractive force, gear
-			if(v->get_desc()->get_leistung()>0) {
+			if(v->get_desc()->get_power()>0) {
 				buf.clear();
 				buf.printf( "%s %i kW, %s %i kN, %s %.2f",
-					translator::translate("Power:"), v->get_desc()->get_leistung(),
+					translator::translate("Power:"), v->get_desc()->get_power(),
 					translator::translate("Tractive Force:"), v->get_desc()->get_tractive_effort(),
 					translator::translate("Gear:"), v->get_desc()->get_gear()/64.0 );
 				display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true );
@@ -450,7 +450,7 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 				extra_y += LINESPACE;
 			}
 
-			if(v->get_desc()->get_zuladung() > 0)
+			if(v->get_desc()->get_capacity() > 0)
 			{
 				char min_loading_time_as_clock[32];
 				char max_loading_time_as_clock[32];

@@ -122,7 +122,7 @@ struct vehicle_summary_t
 	inline void add_vehicle(const vehikel_desc_t &b)
 	{
 		length += b.get_length();
-		weight += b.get_gewicht();
+		weight += b.get_weight();
 		max_speed = min(max_speed, b.get_geschw());
 	}
 

@@ -144,7 +144,7 @@ void adverse_summary_t::add_vehicle(const vehikel_desc_t &b, bool is_leading)
 
 void freight_summary_t::add_vehicle(const vehikel_desc_t &b)
 {
-	const sint32 payload = b.get_zuladung();
+	const sint32 payload = b.get_capacity();
 	if (payload > 0)
 	{
 		sint32 min_weight, max_weight;
@@ -507,7 +507,7 @@ float32e8_t potential_convoy_t::get_brake_summary(/*const float32e8_t &speed*/ /
 		{
 			// Usual brake deceleration is about -0.5 .. -1.5 m/s² depending on vehicle and ground. 
 			// With F=ma, a = F/m follows that brake force in N is ~= 1/2 weight in kg
-			force += get_adverse_summary().br * b.get_gewicht();
+			force += get_adverse_summary().br * b.get_weight();
 		}
 	}
 	return force;
