@@ -1794,8 +1794,6 @@ void fabrik_t::step(uint32 delta_t)
 		sint32 prod_comp;
 		// The amount of consumption available.
 		sint32 cons_comp = 0;
-		// power variable for legacy power logic
-		uint32 power;
 
 		switch(  control_type  ) {
 			case CL_PROD_CLASSIC: {
@@ -2051,6 +2049,8 @@ void fabrik_t::step(uint32 delta_t)
 				break;
 			}
 			case CL_CONS_CLASSIC: {
+				uint32 power = 0;
+
 				// Classic consumer logic.
 				currently_producing = false;
 
@@ -2092,6 +2092,7 @@ void fabrik_t::step(uint32 delta_t)
 
 				// normalize work with respect to input number
 				work /= eingang.get_count();
+				set_power_supply(power);
 
 				break;
 			}

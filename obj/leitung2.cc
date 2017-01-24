@@ -341,19 +341,15 @@ void leitung_t::info(cbuffer_t & buf) const
 
 	powernet_t * const net = get_net();
 
-	const uint64 supply = net->get_supply() >> POWER_TO_MW;
-	const uint64 demand = net->get_demand() >> POWER_TO_MW;
-	const uint32 usage = (uint32)((100 * net->get_normal_demand()) >> powernet_t::FRACTION_PRECISION);
-
-	buf.printf(translator::translate("Net ID: %lu"), (unsigned long)net);
+	buf.printf(translator::translate("Net ID: %p"), net);
 	buf.printf("\n");
-	//buf.printf(translator::translate("Capacity: %u MW"), (uint32)(net->get_max_capacity()>>POWER_TO_MW));
+	//buf.printf(translator::translate("Capacity: %.0f MW"), (double)(net->get_max_capacity() >> POWER_TO_MW));
 	//buf.printf("\n");
-	buf.printf(translator::translate("Demand: %lu MW"), demand);
+	buf.printf(translator::translate("Demand: %.0f MW"), (double)(net->get_demand() >> POWER_TO_MW));
 	buf.printf("\n");
-	buf.printf(translator::translate("Generation: %lu MW"), supply);
+	buf.printf(translator::translate("Generation: %.0f MW"), (double)(net->get_supply() >> POWER_TO_MW));
 	buf.printf("\n");
-	buf.printf(translator::translate("Usage: %u %%"), usage);
+	buf.printf(translator::translate("Usage: %.0f %%"), (double)((100 * net->get_normal_demand()) >> powernet_t::FRACTION_PRECISION));
 }
 
 /**
@@ -484,6 +480,9 @@ pumpe_t::~pumpe_t()
 		fab->set_transformer_connected(NULL);
 		fab = NULL;
 	}
+	if(  net != NULL  ) {
+		net->sub_supply(power_supply);
+	}
 	pumpe_list.remove( this );
 	player_t::add_maintenance(get_owner(), (sint32)welt->get_settings().cst_maintain_transformer, powerline_wt);
 }
@@ -600,13 +599,11 @@ void pumpe_t::info(cbuffer_t & buf) const
 {
 	obj_t::info( buf );
 
-	sint32 const  usage = get_net()->get_normal_demand();
-
-	buf.printf( translator::translate("Net ID: %lu"), (unsigned long)get_net() );
+	buf.printf(translator::translate("Net ID: %p"), get_net());
 	buf.printf("\n");
-	buf.printf( translator::translate("Generation: %lu MW"), (uint64)(power_supply >> POWER_TO_MW) );
+	buf.printf(translator::translate("Generation: %.0f MW"), (double)(power_supply >> POWER_TO_MW));
 	buf.printf("\n");
-	buf.printf( translator::translate("Usage: %u %%"), (uint32)((100 * usage) >> powernet_t::FRACTION_PRECISION) );
+	buf.printf(translator::translate("Usage: %.0f %%"), (double)((100 * get_net()->get_normal_demand()) >> powernet_t::FRACTION_PRECISION));
 	buf.printf("\n"); // pad for consistent dialog size
 }
 
@@ -650,10 +647,11 @@ void senke_t::step_all(uint32 delta_t)
 
 senke_t::senke_t(loadsave_t *file) : leitung_t( koord3d::invalid, NULL )
 {
-	energy_acc = 0;
 	fab = NULL;
 	delta_sum = 0;
 	next_t = 0;
+	power_demand = 0;
+	energy_acc = 0;
 
 	rdwr( file );
 
@@ -664,11 +662,13 @@ senke_t::senke_t(loadsave_t *file) : leitung_t( koord3d::invalid, NULL )
 senke_t::senke_t(koord3d pos, player_t *player) : leitung_t(pos, player)
 {
 	fab = NULL;
-	next_t = 0;
 	delta_sum = 0;
+	next_t = 0;
 	power_demand = 0;
 	energy_acc = 0;
+
 	player_t::book_construction_costs(player, welt->get_settings().cst_transformer, get_pos().get_2d(), powerline_wt);
+
 	welt->sync.add(this);
 }
 
@@ -682,6 +682,9 @@ senke_t::~senke_t()
 	if(fab!=NULL) {
 		fab->set_transformer_connected(NULL);
 		fab = NULL;
+	}
+	if(  net != NULL  ) {
+		net->sub_demand(power_demand);
 	}
 	senke_list.remove( this );
 	player_t::add_maintenance(get_owner(), (sint32)welt->get_settings().cst_maintain_transformer, powerline_wt);
@@ -859,12 +862,10 @@ void senke_t::info(cbuffer_t & buf) const
 {
 	obj_t::info( buf );
 
-	sint32 const supplied = get_net()->get_normal_supply();
-
-	buf.printf( translator::translate("Net ID: %lu"), (unsigned long)get_net() );
+	buf.printf(translator::translate("Net ID: %p"), get_net());
 	buf.printf("\n");
-	buf.printf( translator::translate("Demand: %lu MW"), (uint64)(power_demand >> POWER_TO_MW));
+	buf.printf(translator::translate("Demand: %.0f MW"), (double)(power_demand >> POWER_TO_MW));
 	buf.printf("\n");
-	buf.printf( translator::translate("Supplied: %u %%"), (uint32)((100 * supplied) >> powernet_t::FRACTION_PRECISION) );
+	buf.printf(translator::translate("Supplied: %.0f %%"), (double)((100 * get_net()->get_normal_supply()) >> powernet_t::FRACTION_PRECISION));
 	buf.printf("\n"); // pad for consistent dialog size
 }

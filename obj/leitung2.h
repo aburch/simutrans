@@ -139,7 +139,7 @@ private:
 
 	fabrik_t *fab;
 
-	// The power supplied through the transformer
+	// The power supplied through the transformer.
 	uint32 power_supply;
 
 	void step(uint32 delta_t);
