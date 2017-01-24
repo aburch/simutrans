@@ -84,7 +84,7 @@ wayobj_t::~wayobj_t()
 		return;
 	}
 	player_t::add_maintenance(get_owner(), -desc->get_wartung(), get_waytype());
-	if(desc->get_own_wtyp()==overheadlines_wt) {
+	if(desc->is_overhead_line()) {
 		grund_t *gr=welt->lookup(get_pos());
 		weg_t *weg=NULL;
 		if(gr) {
@@ -275,7 +275,7 @@ void wayobj_t::finish_rd()
 	weg_t *weg = gr->get_weg(wt);
 
 	// electrify a way if we are a catenary
-	if(desc->get_own_wtyp() == overheadlines_wt) 
+	if (desc->is_overhead_line())
 	{	
 		if(weg)
 		{
@@ -535,7 +535,7 @@ bool wayobj_t::successfully_loaded()
 	way_obj_desc_t const* def = 0;
 	FOR(stringhashtable_tpl<way_obj_desc_t *>, const& i, table) {
 		way_obj_desc_t const& b = *i.value;
-		if (b.get_own_wtyp() != overheadlines_wt)           continue;
+		if (b.is_overhead_line())							continue;
 		if (b.get_wtyp()     != track_wt)                   continue;
 		if (def && def->get_topspeed() >= b.get_topspeed()) continue;
 		def = &b;
@@ -560,7 +560,7 @@ bool wayobj_t::register_desc(way_obj_desc_t *desc)
 
 	if(  desc->get_cursor()->get_image_id(1)!=IMG_EMPTY  ) {
 		// only add images for wayobjexts with cursor ...
-		tool_wayobj_t *tool = new tool_wayobj_t();
+		tool_build_wayobj_t *tool = new tool_build_wayobj_t();
 		tool->set_icon( desc->get_cursor()->get_image_id(1) );
 		tool->cursor = desc->get_cursor()->get_image_id(0);
 		tool->set_default_param(desc->get_name());
@@ -611,11 +611,11 @@ void wayobj_t::fill_menu(tool_selector_t *tool_selector, waytype_t wtyp, sint16 
 }
 
 
-const way_obj_desc_t *wayobj_t::wayobj_search(waytype_t wt, waytype_t own, uint16 time)
+const way_obj_desc_t *wayobj_t::get_overhead_line(waytype_t wt, uint16 time)
 {
 	FOR(stringhashtable_tpl<way_obj_desc_t *>, const& i, table) {
 		way_obj_desc_t const* const desc = i.value;
-		if(  desc->is_available(time)  &&  desc->get_wtyp()==wt  &&  desc->get_own_wtyp()==own  ) {
+		if(  desc->is_available(time)  &&  desc->get_wtyp()==wt  &&  desc->is_overhead_line()) {
 			return desc;
 		}
 	}

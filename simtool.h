@@ -349,7 +349,7 @@ public:
 	waytype_t get_waytype() const OVERRIDE;
 };
 
-class tool_wayobj_t : public two_click_tool_t {
+class tool_build_wayobj_t : public two_click_tool_t {
 protected:
 	const bool build;
 private:
@@ -365,7 +365,7 @@ private:
 	uint8 is_valid_pos(player_t*, koord3d const&, char const*&, koord3d const&) OVERRIDE;
 
 public:
-	tool_wayobj_t(uint16 const id = TOOL_BUILD_WAYOBJ | GENERAL_TOOL, bool b = true) : two_click_tool_t(id), build(b) {}
+	tool_build_wayobj_t(uint16 const id = TOOL_BUILD_WAYOBJ | GENERAL_TOOL, bool b = true) : two_click_tool_t(id), build(b) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE;
 	bool is_selected() const OVERRIDE;
 	bool init(player_t*) OVERRIDE;
@@ -373,9 +373,9 @@ public:
 	waytype_t get_waytype() const OVERRIDE;
 };
 
-class tool_wayobj_remover_t : public tool_wayobj_t {
+class tool_wayobj_remover_t : public tool_build_wayobj_t {
 public:
-	tool_wayobj_remover_t() : tool_wayobj_t(TOOL_REMOVE_WAYOBJ | GENERAL_TOOL, false) {}
+	tool_wayobj_remover_t() : tool_build_wayobj_t(TOOL_REMOVE_WAYOBJ | GENERAL_TOOL, false) {}
 	bool is_selected() const OVERRIDE { return tool_t::is_selected(); }
 	bool is_init_network_save() const OVERRIDE { return true; }
 };

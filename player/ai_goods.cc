@@ -523,8 +523,8 @@ void ai_goods_t::create_rail_transport_vehikel(const koord platz1, const koord p
 	// probably need to electrify the track?
 	if(  rail_engine->get_engine_type()==vehikel_desc_t::electric  ) {
 		// we need overhead wires
-		const way_obj_desc_t *e = wayobj_t::wayobj_search(track_wt,overheadlines_wt,welt->get_timeline_year_month());
-		tool_wayobj_t tool;
+		const way_obj_desc_t *e = wayobj_t::get_overhead_line(track_wt,welt->get_timeline_year_month());
+		tool_build_wayobj_t tool;
 		tool.set_default_param(e->get_name());
 		tool.init( this );
 		tool.work( this, welt->lookup_kartenboden(platz1)->get_pos() );

@@ -96,7 +96,7 @@ tool_t *create_general_tool(int toolnr)
 		case TOOL_BUILD_BRIDGE:      tool = new tool_build_bridge_t(); break;
 		case TOOL_BUILD_TUNNEL:        tool = new tool_build_tunnel_t(); break;
 		case TOOL_WAYREMOVER:       tool = new tool_wayremover_t(); break;
-		case TOOL_BUILD_WAYOBJ:           tool = new tool_wayobj_t(); break;
+		case TOOL_BUILD_WAYOBJ:           tool = new tool_build_wayobj_t(); break;
 		case TOOL_BUILD_STATION:          tool = new tool_build_station_t(); break;
 		case TOOL_BUILD_ROADSIGN:         tool = new tool_build_roadsign_t(); break;
 		case TOOL_BUILD_DEPOT:            tool = new tool_depot_t(); break;

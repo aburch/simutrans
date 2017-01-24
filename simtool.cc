@@ -3581,9 +3581,9 @@ const char *tool_wayremover_t::do_work( player_t *player, const koord3d &start, 
 
 
 /* add catenary during construction */
-const way_obj_desc_t *tool_wayobj_t::default_electric = NULL;
+const way_obj_desc_t *tool_build_wayobj_t::default_electric = NULL;
 
-const char* tool_wayobj_t::get_tooltip(const player_t *) const
+const char* tool_build_wayobj_t::get_tooltip(const player_t *) const
 {
 	if(  build  ) {
 		const way_obj_desc_t *desc = get_desc();
@@ -3592,7 +3592,8 @@ const char* tool_wayobj_t::get_tooltip(const player_t *) const
 			strcat(toolstr, " / km");
 			size_t n = strlen(toolstr);
 			int topspeed = desc->get_topspeed();
-			if (topspeed > 0) {
+			if (desc->is_overhead_line()) {
+				// only overheadlines impose topspeed
 				sprintf(toolstr+n, ", %dkm/h", topspeed);
 			}
 			bool any_prohibitive = false;
@@ -3628,19 +3629,19 @@ const char* tool_wayobj_t::get_tooltip(const player_t *) const
 	}
 }
 
-const way_obj_desc_t *tool_wayobj_t::get_desc() const
+const way_obj_desc_t *tool_build_wayobj_t::get_desc() const
 {
 	const way_obj_desc_t *desc = default_param ? wayobj_t::find_desc(default_param) : NULL;
 	if(desc==NULL) {
 		desc = default_electric;
 		if(desc==NULL) {
-			desc = wayobj_t::wayobj_search( track_wt, overheadlines_wt, welt->get_timeline_year_month() );
+			desc = wayobj_t::get_overhead_line( track_wt, welt->get_timeline_year_month() );
 		}
 	}
 	return desc;
 }
 
-waytype_t tool_wayobj_t::get_waytype() const
+waytype_t tool_build_wayobj_t::get_waytype() const
 {
 	if(  build  ) {
 		const way_obj_desc_t *desc = get_desc();
@@ -3651,13 +3652,13 @@ waytype_t tool_wayobj_t::get_waytype() const
 	}
 }
 
-bool tool_wayobj_t::is_selected() const
+bool tool_build_wayobj_t::is_selected() const
 {
-	const tool_wayobj_t *selected = dynamic_cast<const tool_wayobj_t *>(welt->get_tool(welt->get_active_player_nr()));
+	const tool_build_wayobj_t *selected = dynamic_cast<const tool_build_wayobj_t *>(welt->get_tool(welt->get_active_player_nr()));
 	return (selected  &&  selected->build==build  &&  selected->get_desc() == get_desc());
 }
 
-bool tool_wayobj_t::init( player_t *player )
+bool tool_build_wayobj_t::init( player_t *player )
 {
 	two_click_tool_t::init( player );
 
@@ -3666,7 +3667,7 @@ bool tool_wayobj_t::init( player_t *player )
 		if(desc==NULL) {
 			desc = default_electric;
 			if(desc==NULL) {
-				desc = default_electric = wayobj_t::wayobj_search( track_wt, overheadlines_wt, welt->get_timeline_year_month() );
+				desc = default_electric = wayobj_t::get_overhead_line( track_wt, welt->get_timeline_year_month() );
 			}
 		}
 		else {
@@ -3687,7 +3688,7 @@ bool tool_wayobj_t::init( player_t *player )
 	}
 }
 
-bool tool_wayobj_t::calc_route( route_t &verbindung, player_t *player, const koord3d& start, const koord3d& to )
+bool tool_build_wayobj_t::calc_route( route_t &verbindung, player_t *player, const koord3d& start, const koord3d& to )
 {
 	// get a default vehikel
 	vehikel_desc_t remover_desc( wt, 500, vehikel_desc_t::diesel );
@@ -3708,12 +3709,12 @@ bool tool_wayobj_t::calc_route( route_t &verbindung, player_t *player, const koo
 	return can_built;
 }
 
-uint8 tool_wayobj_t::is_valid_pos( player_t * player, const koord3d& pos, const char *&error, const koord3d & )
+uint8 tool_build_wayobj_t::is_valid_pos( player_t * player, const koord3d& pos, const char *&error, const koord3d & )
 {
 	// search for starting ground
 	grund_t *gr=tool_intern_koord_to_weg_grund(player, welt, pos, wt );
 	if(  gr == NULL  ) {
-		DBG_MESSAGE("tool_wayobj_t::is_within_limits()", "no ground on %s",pos.get_str());
+		DBG_MESSAGE("tool_build_wayobj_t::is_within_limits()", "no ground on %s",pos.get_str());
 		// wrong ground or not this way here => exit
 		return 0;
 	}
@@ -3721,7 +3722,7 @@ uint8 tool_wayobj_t::is_valid_pos( player_t * player, const koord3d& pos, const 
 	return 2;
 }
 
-void tool_wayobj_t::mark_tiles( player_t * player, const koord3d &start, const koord3d &end )
+void tool_build_wayobj_t::mark_tiles( player_t * player, const koord3d &start, const koord3d &end )
 {
 	route_t verbindung;
 	bool can_built = calc_route( verbindung, player, start, end );
@@ -3780,11 +3781,11 @@ void tool_wayobj_t::mark_tiles( player_t * player, const koord3d &start, const k
 	}
 }
 
-const char *tool_wayobj_t::do_work( player_t * player, const koord3d &start, const koord3d &end )
+const char *tool_build_wayobj_t::do_work( player_t * player, const koord3d &start, const koord3d &end )
 {
 	route_t verbindung;
 	bool can_built = calc_route( verbindung, player, start, end );
-	DBG_MESSAGE("tool_wayobj_t::work()","route search returned %d",can_built);
+	DBG_MESSAGE("tool_build_wayobj_t::work()","route search returned %d",can_built);
 
 	if(!can_built) {
 		return "Ways not connected";
