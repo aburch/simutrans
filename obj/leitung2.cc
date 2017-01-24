@@ -629,7 +629,7 @@ void senke_t::static_rdwr(loadsave_t *file)
 void senke_t::step_all(uint32 delta_t)
 {
 	// payment period (could be tied to game setting)
-	const sint32 pay_period = PRODUCTION_DELTA_T * 10; // 10 seconds
+	const uint32 pay_period = PRODUCTION_DELTA_T * 10; // 10 seconds
 
 	// revenue payout timer
 	payment_timer += delta_t;

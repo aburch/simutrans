@@ -2238,11 +2238,13 @@ void fabrik_t::step(uint32 delta_t)
 
 	switch(  boost_type  ) {
 		case BL_CLASSIC: {
-			// For compatibility purposes. Draw a fixed amount of power when "producing".
+			// draw a fixed amount of power when working sufficiently, otherwise draw no power
 			if(  !desc->is_electricity_producer()  ) {
 				if(  currently_producing  ) {
-					// requires full power even if runs out of raw material next cycle
 					set_power_demand(scaled_electric_amount);
+				}
+				else {
+					set_power_demand(0);
 				}
 			}
 			break;
