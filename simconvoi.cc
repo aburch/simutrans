@@ -2042,6 +2042,19 @@ end_loop:
 					set_tiles_overtaking( 0 );
 				}
 			}
+
+			if (wait_lock < 1)
+			{
+				position = schedule ? schedule->get_aktuell() : 0;
+				rev = !reverse_schedule;
+				schedule->increment_index(&position, &rev);
+				halthandle_t this_halt = haltestelle_t::get_halt(front()->get_pos(), owner);
+				if (this_halt == haltestelle_t::get_halt(schedule->entries[position].pos, owner))
+				{
+					// Load any newly arrived passengers/mail bundles/goods while waiting for a signal to clear.
+					laden();
+				}
+			}
 			break;
 
 		case LOADING:
