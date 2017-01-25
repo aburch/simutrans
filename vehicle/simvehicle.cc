@@ -3851,6 +3851,35 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		|| cnv->get_state() == convoi_t::CAN_START_TWO_MONTHS
 		|| cnv->get_state() == convoi_t::REVERSING;
 
+	// Check for starter signals at the station.
+	if (!signal_current && starting_from_stand && this_halt.is_bound() && !this_halt_has_station_signals)
+	{
+		const uint32 route_count = cnv->get_route()->get_count();
+		for (uint32 i = route_index; i < route_count; i ++)
+		{
+			const koord3d tile_to_check_ahead = cnv->get_route()->at(min(route_count - 1u, i));
+			const koord3d previous_tile = cnv->get_route()->at(min(route_count - 1u, i) - 1u);
+			grund_t *gr_ahead = welt->lookup(tile_to_check_ahead);
+			weg_t *way = gr_ahead ? gr_ahead->get_weg(get_waytype()) : NULL;
+			if (!way)
+			{
+				// This may happen if a way has been removed since the route was calculated. Must recalculate the route.
+				break;
+			}
+			uint16 modified_route_index = min(route_index + i, route_count - 1u);
+			ribi_t::ribi ribi = ribi_type(cnv->get_route()->at(max(1u, modified_route_index) - 1u), cnv->get_route()->at(min(cnv->get_route()->get_count() - 1u, modified_route_index + 1u)));
+			signal_current = way->get_signal(ribi);
+			if (signal_current)
+			{
+				break;
+			}
+			if (gr_ahead->get_halt() != this_halt)
+			{
+				break;
+			}
+		}
+	}
+
 	if(signal_current && (working_method == time_interval || working_method == time_interval_with_telegraph) && signal_current->get_state() == roadsign_t::danger && signal_current->get_no_junctions_to_next_signal())
 	{
 		restart_speed = 0;
