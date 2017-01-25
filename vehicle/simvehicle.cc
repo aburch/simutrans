@@ -5758,6 +5758,15 @@ void rail_vehicle_t::unreserve_station()
 		}
 		else
 		{
+			// Sometimes, where a train leaves a station in 
+			// a different direction to that in which it entered
+			// it (e.g., if the next tile after the end of the
+			// station is a junction and the train is at the very
+			// end of the station when it moves), the code cannot
+			// search backwards. In this case, just use the old
+			// brute force method, which is inefficient but works.
+			cnv->unreserve_route();
+			cnv->reserve_own_tiles();
 			break;
 		}
 	}
