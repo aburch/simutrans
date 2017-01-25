@@ -3743,7 +3743,7 @@ sint32 rail_vehicle_t::activate_choose_signal(const uint16 start_block, uint16 &
 			route_depth = (welt->get_size().x + welt->get_size().y) * 1000;
 		}
 
-		can_find_route = target_rt.find_route(welt, route->at(start_block), this, speed_to_kmh(cnv->get_min_top_speed()), direction, cnv->get_highest_axle_load(), cnv->get_tile_length(), cnv->get_weight_summary().weight / 1000, route_depth, route_t::choose_signal);
+		can_find_route = target_rt.find_route(welt, route->at(start_block), this, speed_to_kmh(cnv->get_min_top_speed()), direction, cnv->get_highest_axle_load(), cnv->get_tile_length(), cnv->get_weight_summary().weight / 1000, route_depth, cnv->has_tall_vehicles(), route_t::choose_signal);
 	}
 	else
 	{
